@@ -185,7 +185,6 @@ static void initSlidyButtons( float lerp, const char *button_text[] );
 static void updateSlidyButtons( float deltaTime );
 static void drawSlidyButtons();
 
-
 static bool_t mnu_checkSelectedPlayer( Uint16 player );
 static Uint16 mnu_getSelectedPlayer( Uint16 player );
 static bool_t mnu_addSelectedPlayer( Uint16 player );
@@ -749,7 +748,7 @@ int doChooseModule( float deltaTime )
                 pickedmodule_index = selectedModule;
                 strncpy( pickedmodule_name, ModList[selectedModule].loadname, SDL_arraysize(pickedmodule_name) );
 
-                if( !game_choose_module(selectedModule, -1) )
+                if ( !game_choose_module(selectedModule, -1) )
                 {
                     log_warning("Tried to select an invalid module. index == %d\n", selectedModule);
                     result = -1;
@@ -2407,7 +2406,7 @@ int doShowMenuResults( float deltaTime )
 
     int menuResult = 0;
 
-    switch( menuState )
+    switch ( menuState )
     {
         case MM_Begin:
             font = ui_getFont();
@@ -2443,8 +2442,8 @@ int doShowMenuResults( float deltaTime )
 
             // keep track of the iterations through this section for a timer
             count++;
-            if( count > UPDATE_SKIP )
-            { 
+            if ( count > UPDATE_SKIP )
+            {
                 menuState  = MM_Leaving;
             }
             break;
@@ -2457,7 +2456,6 @@ int doShowMenuResults( float deltaTime )
             menuResult = 1;
             menuState  = MM_Begin;
     }
-
 
     return menuResult;
 }
@@ -2481,7 +2479,6 @@ int doNotImplemented( float deltaTime )
 
     return 0;
 }
-
 
 //--------------------------------------------------------------------------------------------
 int doGamePaused( float deltaTime )
@@ -2719,7 +2716,6 @@ int doShowEndgame( float deltaTime )
 
     return retval;
 }
-
 
 //--------------------------------------------------------------------------------------------
 int doMenu( float deltaTime )
@@ -3191,8 +3187,6 @@ void load_all_menu_images()
     if ( filesave != NULL ) fclose( filesave );
 }
 
-
-
 //--------------------------------------------------------------------------------------------
 bool_t mnu_begin_menu( int which )
 {
@@ -3228,7 +3222,6 @@ bool_t menu_stack_push( int menu )
     }
 
     if ( menu_stack_index >= MENU_STACK_COUNT ) return bfalse;
-
 
     menu_stack[menu_stack_index] = menu;
     menu_stack_index++;

@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <assert.h>
 
-
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 #define LOCAL_STDERR ((NULL == _ogl_debug_stderr) ? stderr : _ogl_debug_stderr)
@@ -673,8 +672,6 @@ void gl_grab_buffer_state( gl_buffer_t * pb )
     GL_DEBUG(glGetFloatv)(GL_GREEN_BIAS, pb->green_bias);
     GL_DEBUG(glGetFloatv)(GL_BLUE_BIAS,  pb->blue_bias );
 };
-
-
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------

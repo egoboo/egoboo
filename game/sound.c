@@ -41,7 +41,6 @@
 // Sound using SDL_Mixer
 static bool_t mixeron         = bfalse;
 
-
 snd_config_t snd;
 
 // music
@@ -148,8 +147,8 @@ bool_t music_stack_pop(Mix_Music ** mus, int * song)
     if (NULL == mus || NULL == song) return bfalse;
 
     // fail if music isn't loaded
-    if( !musicinmemory )
-    {    
+    if ( !musicinmemory )
+    {
         *mus = NULL;
         *song = -1;
         return bfalse;
@@ -483,7 +482,7 @@ int sound_play_chunk_looped( GLvector3 pos, Mix_Chunk * pchunk, Sint8 loops )
     if ( !snd.soundvalid || !mixeron || NULL == pchunk ) return INVALID_SOUND;
 
     // only play sound effects if the game is running
-    if( !process_instance_running( PROC_PBASE(GProc) ) )  return INVALID_SOUND;
+    if ( !process_instance_running( PROC_PBASE(GProc) ) )  return INVALID_SOUND;
 
     // measure the distance in tiles
     diff = VSub( pos, PCamera->track_pos );
@@ -573,7 +572,7 @@ void sound_finish_song( Uint16 fadetime )
 
     if ( !snd.musicvalid || !mixeron ) return;
 
-    if( !musicinmemory )
+    if ( !musicinmemory )
     {
         Mix_HaltMusic();
         return;
@@ -586,14 +585,14 @@ void sound_finish_song( Uint16 fadetime )
     // try to grab the last song playing
     music_stack_pop(&mus, &song);
 
-    if( -1 == song )
+    if ( -1 == song )
     {
         // some wierd error
         Mix_HaltMusic();
     }
     else
     {
-        if( -1 != songplaying )
+        if ( -1 != songplaying )
         {
             Mix_FadeOutMusic( fadetime );
         }
@@ -607,7 +606,6 @@ void sound_finish_song( Uint16 fadetime )
         songplaying = song;
     }
 }
-
 
 //--------------------------------------------------------------------------------------------
 void sound_stop_song()
@@ -708,7 +706,6 @@ void load_all_music_sounds()
 
     fclose( playlist );
 }
-
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

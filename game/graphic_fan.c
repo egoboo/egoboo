@@ -132,7 +132,7 @@ void render_fan( ego_mpd_t * pmesh, Uint32 fan )
     }
     GL_DEBUG(glPopClientAttrib)();
 
-#if defined(DEBUG_MESH_NORMALS)    
+#if defined(DEBUG_MESH_NORMALS)
     GL_DEBUG(glDisable)( GL_TEXTURE_2D );
     GL_DEBUG(glColor4f)( 1, 1, 1, 1 );
     entry = ptile->vrtstart;
@@ -175,7 +175,6 @@ void render_hmap_fan( ego_mpd_t * pmesh, Uint32 fan )
 
     if ( !VALID_TILE(pmesh, fan) ) return;
     ptile = pmem->tile_list + fan;
-
 
     // BB > the water info is for TILES, not fot vertices, so ignore all vertex info and just draw the water
     //      tile where it's supposed to go
@@ -270,7 +269,6 @@ void render_water_fan( ego_mpd_t * pmesh, Uint32 fan, Uint8 layer )
 
     x1 = ( float ) oglx_texture_GetTextureWidth( TxTexture + texture ) / ( float ) oglx_texture_GetImageWidth( TxTexture + texture );
     y1 = ( float ) oglx_texture_GetTextureHeight( TxTexture + texture ) / ( float ) oglx_texture_GetImageHeight( TxTexture + texture );
-
 
     fx_off[0] = x1;
     fy_off[0] = 0;

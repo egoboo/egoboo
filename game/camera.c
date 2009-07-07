@@ -217,7 +217,7 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
                 if ( !PlaList[cnt].valid || INPUT_BITS_NONE == PlaList[cnt].device ) continue;
 
                 character = PlaList[cnt].index;
-                if( INVALID_CHR(character) )
+                if ( INVALID_CHR(character) )
                 {
                     PlaList[cnt].valid  = bfalse;
                     PlaList[cnt].index  = MAX_CHR;
@@ -272,7 +272,6 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
 
             level = 128 + mesh_get_level( pmesh, x, y );
         }
-
 
         pcam->track_pos.x = 0.9f * pcam->track_pos.x + 0.1f * x;
         pcam->track_pos.y = 0.9f * pcam->track_pos.y + 0.1f * y;

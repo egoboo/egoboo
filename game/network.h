@@ -57,7 +57,6 @@ extern int                     local_machine;        // 0 is host, 1 is 1st remo
 extern int                     playersready;               // Number of players ready to start
 extern int                     playersloaded;
 
-
 struct s_time_latch
 {
     float   x;

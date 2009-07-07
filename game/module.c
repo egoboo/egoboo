@@ -308,7 +308,7 @@ void modlist_load_all_info()
 //--------------------------------------------------------------------------------------------
 bool_t module_instance_init( module_instance_t * pinst )
 {
-    if( NULL == pinst ) return bfalse;
+    if ( NULL == pinst ) return bfalse;
 
     memset( pinst, 0, sizeof(module_instance_t) );
 
@@ -317,15 +317,14 @@ bool_t module_instance_init( module_instance_t * pinst )
     return btrue;
 }
 
-
 //--------------------------------------------------------------------------------------------
 bool_t module_upload( module_instance_t * pinst, int imod, Uint32 seed )
 {
     mod_data_t * pdata;
 
-    if( imod < 0 || imod >= ModList_count ) return bfalse;
+    if ( imod < 0 || imod >= ModList_count ) return bfalse;
 
-    if( !module_instance_init(pinst) ) return bfalse;
+    if ( !module_instance_init(pinst) ) return bfalse;
 
     pdata = ModList + imod;
 
@@ -347,7 +346,7 @@ bool_t module_upload( module_instance_t * pinst, int imod, Uint32 seed )
 //--------------------------------------------------------------------------------------------
 bool_t module_reset( module_instance_t * pinst, Uint32 seed )
 {
-    if(NULL == pinst) return bfalse;
+    if (NULL == pinst) return bfalse;
 
     pinst->beat        = bfalse;
     pinst->exportvalid = bfalse;
@@ -361,7 +360,7 @@ bool_t module_start( module_instance_t * pinst )
 {
     // BB> Let the module go
 
-    if(NULL == pinst) return bfalse;
+    if (NULL == pinst) return bfalse;
 
     pinst->active = btrue;
 
@@ -378,7 +377,7 @@ bool_t module_stop( module_instance_t * pinst )
 {
     // BB> stop the module
 
-    if(NULL == pinst) return bfalse;
+    if (NULL == pinst) return bfalse;
 
     pinst->active      = bfalse;
 

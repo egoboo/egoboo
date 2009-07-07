@@ -19,7 +19,6 @@
 //*
 //********************************************************************************************
 
-
 /// @file
 /// @brief System-dependent global parameters.
 ///   @todo  move more of the typical config stuff to this file.

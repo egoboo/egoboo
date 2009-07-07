@@ -65,7 +65,6 @@ enum e_prt_orientations
 };
 typedef enum e_prt_orientations prt_ori_t;
 
-
 //------------------------------------
 // Particle template
 //------------------------------------
@@ -160,7 +159,6 @@ extern pip_t PipList[MAX_PIP];
 #define VALID_PIP_RANGE( IPIP ) ( ((IPIP) >= 0) && ((IPIP) < MAX_PIP) )
 #define VALID_PIP( IPIP )       ( VALID_PIP_RANGE( IPIP ) && PipList[IPIP].loaded )
 #define INVALID_PIP( IPIP )     ( !VALID_PIP_RANGE( IPIP ) || !PipList[IPIP].loaded )
-
 
 //------------------------------------
 // Particle graphic data
@@ -259,7 +257,6 @@ extern prt_t            PrtList[TOTAL_MAX_PRT];
 #define VALID_PRT_RANGE( IPRT ) ( ((IPRT) >= 0) && ((IPRT) < maxparticles) && ((IPRT) < TOTAL_MAX_PRT) )
 #define VALID_PRT( IPRT )       ( VALID_PRT_RANGE( IPRT ) && PrtList[IPRT].on )
 #define INVALID_PRT( IPRT )     ( !VALID_PRT_RANGE( IPRT ) || !PrtList[IPRT].on )
-
 
 //--------------------------------------------------------------------------------------------
 // function prototypes

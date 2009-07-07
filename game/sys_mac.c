@@ -35,7 +35,6 @@ void sys_initialize()
     _sys_startuptime = now.tv_sec + now.tv_usec * 1e-6;
 }
 
-
 //--------------------------------------------------------------------------------------------
 double sys_getTime()
 {

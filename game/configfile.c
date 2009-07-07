@@ -1119,7 +1119,7 @@ ConfigFile_retval SaveConfigFile( ConfigFilePtr_t pConfigFile )
 {
     ConfigFile_retval retval;
 
-    if( NULL == pConfigFile ) return ConfigFile_succeed;
+    if ( NULL == pConfigFile ) return ConfigFile_succeed;
 
     if ( !ConfigFile_open( pConfigFile, pConfigFile->filename, "wt" ) )
     {

@@ -34,7 +34,6 @@ static char   cLineBuffer[MAXLINESIZE];
 
 static Uint8  cLoadBuffer[AISMAXLOADSIZE];
 
-
 int    iNumCode = 0;
 Uint8  cCodeType[MAXCODE];
 Uint32 iCodeValue[MAXCODE];
@@ -231,27 +230,6 @@ int load_one_line( int read )
 }
 
 //--------------------------------------------------------------------------------------------
-//int load_parsed_line( int read )
-//{
-//    // ZZ> This function loads a line into the line buffer
-//    char cTmp;
-//
-//    // Parse to start to maintain indentation
-//    iLineSize = 0;
-//    cTmp = cLoadBuffer[read];
-//
-//    while ( cTmp != '\0' )
-//    {
-//        cLineBuffer[iLineSize] = cTmp;  iLineSize++;
-//        read++;  cTmp = cLoadBuffer[read];
-//    }
-//
-//    cLineBuffer[iLineSize] = '\0';
-//    read++; // skip terminating zero for next call of load_parsed_line()
-//    return read;
-//}
-//
-//--------------------------------------------------------------------------------------------
 void surround_space( int position )
 {
     insert_space( position + 1 );
@@ -264,28 +242,7 @@ void surround_space( int position )
     }
 }
 
-//--------------------------------------------------------------------------------------------
-//void parse_null_terminate_comments()
-//{
-//    // ZZ> This function removes comments and endline codes, replacing
-//    //     them with a 0
-//    int read, write;
-//
-//    read = 0;
-//    write = 0;
-//
-//    while ( read < iLoadSize )
-//    {
-//        read = load_one_line( read );
-//
-//        if ( iLineSize > 2 )
-//        {
-//            copy_one_line( write );
-//            write += iLineSize;
-//        }
-//    }
-//}
-//
+
 //--------------------------------------------------------------------------------------------
 int get_indentation()
 {
@@ -341,16 +298,6 @@ void fix_operators()
         cnt++;
     }
 }
-
-//--------------------------------------------------------------------------------------------
-//void print_token()
-//{
-//    printf("------------\n", globalparsename, Token_iLine);
-//    printf("\tToken_iIndex == %d\n", Token_iIndex);
-//    printf("\tToken_iValue == %d\n", Token_iValue);
-//    printf("\tToken_cType  == \'%c\'\n", Token_cType);
-//    printf("\tToken_cWord  == \"%s\"\n", Token_cWord);
-//};
 
 //--------------------------------------------------------------------------------------------
 int parse_token( int read )
@@ -497,32 +444,6 @@ void emit_opcode( Uint32 highbits )
         log_warning( "Script index larger than array\n" );
     }
 }
-
-//--------------------------------------------------------------------------------------------
-//void print_line()
-//{
-//    int i;
-//    char cTmp;
-//
-//    printf("\n===========\n\tfile == \"%s\"\n\tline == %d\n", globalparsename, Token_iLine);
-//
-//    printf( "\tline == \"" );
-//
-//    for(i=0; i<iLineSize; i++)
-//    {
-//        cTmp = cLineBuffer[i];
-//        if( isprint(cTmp) )
-//        {
-//            printf( "%c", cTmp );
-//        }
-//        else
-//        {
-//            printf( "\\%03d", cTmp );
-//        }
-//    };
-//
-//    printf( "\", length == %d\n", iLineSize);
-//};
 
 //--------------------------------------------------------------------------------------------
 void parse_line_by_line()
@@ -884,3 +805,81 @@ void init_all_ai_scripts()
     iNumAis = 0;
 }
 
+//--------------------------------------------------------------------------------------------
+//int load_parsed_line( int read )
+//{
+//    // ZZ> This function loads a line into the line buffer
+//    char cTmp;
+//
+//    // Parse to start to maintain indentation
+//    iLineSize = 0;
+//    cTmp = cLoadBuffer[read];
+//
+//    while ( cTmp != '\0' )
+//    {
+//        cLineBuffer[iLineSize] = cTmp;  iLineSize++;
+//        read++;  cTmp = cLoadBuffer[read];
+//    }
+//
+//    cLineBuffer[iLineSize] = '\0';
+//    read++; // skip terminating zero for next call of load_parsed_line()
+//    return read;
+//}
+//
+//--------------------------------------------------------------------------------------------
+//void parse_null_terminate_comments()
+//{
+//    // ZZ> This function removes comments and endline codes, replacing
+//    //     them with a 0
+//    int read, write;
+//
+//    read = 0;
+//    write = 0;
+//
+//    while ( read < iLoadSize )
+//    {
+//        read = load_one_line( read );
+//
+//        if ( iLineSize > 2 )
+//        {
+//            copy_one_line( write );
+//            write += iLineSize;
+//        }
+//    }
+//}
+//
+//--------------------------------------------------------------------------------------------
+//void print_token()
+//{
+//    printf("------------\n", globalparsename, Token_iLine);
+//    printf("\tToken_iIndex == %d\n", Token_iIndex);
+//    printf("\tToken_iValue == %d\n", Token_iValue);
+//    printf("\tToken_cType  == \'%c\'\n", Token_cType);
+//    printf("\tToken_cWord  == \"%s\"\n", Token_cWord);
+//}
+//
+//--------------------------------------------------------------------------------------------
+//void print_line()
+//{
+//    int i;
+//    char cTmp;
+//
+//    printf("\n===========\n\tfile == \"%s\"\n\tline == %d\n", globalparsename, Token_iLine);
+//
+//    printf( "\tline == \"" );
+//
+//    for(i=0; i<iLineSize; i++)
+//    {
+//        cTmp = cLineBuffer[i];
+//        if( isprint(cTmp) )
+//        {
+//            printf( "%c", cTmp );
+//        }
+//        else
+//        {
+//            printf( "\\%03d", cTmp );
+//        }
+//    };
+//
+//    printf( "\", length == %d\n", iLineSize);
+//}

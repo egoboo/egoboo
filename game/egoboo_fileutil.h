@@ -39,7 +39,6 @@ extern float pairfrom, pairto;
 extern  STRING          TxFormatSupported[20]; // OpenGL icon surfaces
 extern  Uint8           maxformattypes;
 
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // function prototypes

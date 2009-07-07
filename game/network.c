@@ -70,7 +70,6 @@ int     local_machine  = 0;        // 0 is host, 1 is 1st remote, 2 is 2nd...
 int     playersready  = 0;         // Number of players ready to start
 int     playersloaded = 0;
 
-
 Uint32 sv_last_frame = (Uint32)~0;
 
 static net_instance_t gnet = { bfalse, bfalse, bfalse, bfalse, bfalse };
@@ -111,7 +110,6 @@ typedef struct NetPlayerInfo
 //--------------------------------------------------------------------------------------------
 
 Uint32 nexttimestamp;                          // Expected timestamp
-
 
 // ENet host & client identifiers
 static ENetHost* net_myHost = NULL;
@@ -1879,11 +1877,10 @@ void net_send_message()
     //}
 }
 
-
 //--------------------------------------------------------------------------------------------
 bool_t net_instance_init( net_instance_t * pnet )
 {
-    if( NULL == pnet ) return bfalse;
+    if ( NULL == pnet ) return bfalse;
 
     memset( pnet, 0, sizeof(net_instance_t) );
 

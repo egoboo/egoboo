@@ -6611,20 +6611,19 @@ Uint8 scr_ModuleHasIDSZ( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_MorphToTarget( script_state_t * pstate, ai_state_t * pself )
 {
-	//This morphs the character into the target
-	//Also set size and keeps the previous AI type
+    //This morphs the character into the target
+    //Also set size and keeps the previous AI type
     SCRIPT_FUNCTION_BEGIN();
 
-	change_character( pself->index, ChrList[pself->target].basemodel, ChrList[pself->target].skin, LEAVEALL );
-	pself->alert |= ALERTIF_CHANGED;
-	ChrList[pself->index].fat = ChrList[pself->target].fat;
-	ChrList[pself->index].sizegoto = ChrList[pself->target].fat;
-	ChrList[pself->index].sizegototime = SIZETIME;
-	ChrList[pself->index].ai.type = MadList[ChrList[pself->index].basemodel].ai;	//change back to our original AI
+    change_character( pself->index, ChrList[pself->target].basemodel, ChrList[pself->target].skin, LEAVEALL );
+    pself->alert |= ALERTIF_CHANGED;
+    ChrList[pself->index].fat = ChrList[pself->target].fat;
+    ChrList[pself->index].sizegoto = ChrList[pself->target].fat;
+    ChrList[pself->index].sizegototime = SIZETIME;
+    ChrList[pself->index].ai.type = MadList[ChrList[pself->index].basemodel].ai;    //change back to our original AI
 
     SCRIPT_FUNCTION_END();
 }
-
 
 //--------------------------------------------------------------------------------------------
 Uint8 scr_GiveManaFlowToTarget( script_state_t * pstate, ai_state_t * pself )
@@ -6638,8 +6637,8 @@ Uint8 scr_GiveManaFlowToTarget( script_state_t * pstate, ai_state_t * pself )
     if ( ChrList[pself->target].alive )
     {
         iTmp = pstate->argument;
-		getadd( 0, ChrList[pself->target].manaflow, PERFECTSTAT, &iTmp );
-		ChrList[pself->target].manaflow += iTmp;
+        getadd( 0, ChrList[pself->target].manaflow, PERFECTSTAT, &iTmp );
+        ChrList[pself->target].manaflow += iTmp;
     }
 
     SCRIPT_FUNCTION_END();
@@ -6657,8 +6656,8 @@ Uint8 scr_GiveManaReturnToTarget( script_state_t * pstate, ai_state_t * pself )
     if ( ChrList[pself->target].alive )
     {
         iTmp = pstate->argument;
-		getadd( 0, ChrList[pself->target].manareturn, PERFECTSTAT, &iTmp );
-		ChrList[pself->target].manareturn += iTmp;
+        getadd( 0, ChrList[pself->target].manareturn, PERFECTSTAT, &iTmp );
+        ChrList[pself->target].manareturn += iTmp;
     }
 
     SCRIPT_FUNCTION_END();
@@ -6672,13 +6671,13 @@ Uint8 scr_set_Money( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-	if( pstate->argument >= 0 )
-	{
-		if( pstate->argument > MAXMONEY ) ChrList[pself->index].money = MAXMONEY;
-		else ChrList[pself->index].money = pstate->argument;
-	}
+    if ( pstate->argument >= 0 )
+    {
+        if ( pstate->argument > MAXMONEY ) ChrList[pself->index].money = MAXMONEY;
+        else ChrList[pself->index].money = pstate->argument;
+    }
 
-	SCRIPT_FUNCTION_END();
+    SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -6689,7 +6688,7 @@ Uint8 scr_TargetCanSeeKurses( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-	returncode = ChrList[pself->target].canseekurse;
+    returncode = ChrList[pself->target].canseekurse;
 
     SCRIPT_FUNCTION_END();
 }

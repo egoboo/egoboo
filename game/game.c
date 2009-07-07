@@ -209,7 +209,6 @@ static bool_t chr_setup_read( FILE * fileread, chr_setup_info_t *pinfo );
 static bool_t chr_setup_apply( Uint16 ichr, chr_setup_info_t *pinfo );
 static void   setup_characters( const char *modname );
 
-
 // Model stuff
 static void log_madused( const char *savename );
 
@@ -405,7 +404,7 @@ void export_all_players( bool_t require_local )
     int cnt, character, item, number;
 
     // Don't export if the module isn't running
-    if( !process_instance_running( PROC_PBASE(GProc) ) ) return;
+    if ( !process_instance_running( PROC_PBASE(GProc) ) ) return;
 
     //Stop if export isnt valid
     if (!PMod->exportvalid) return;
@@ -715,7 +714,6 @@ void setup_alliances( const char *modname )
     }
 }
 
-
 //--------------------------------------------------------------------------------------------
 void update_game()
 {
@@ -735,10 +733,10 @@ void update_game()
         if ( !PlaList[cnt].valid) continue;
 
         // only interested in local players
-        if( INPUT_BITS_NONE == PlaList[cnt].device ) continue;
+        if ( INPUT_BITS_NONE == PlaList[cnt].device ) continue;
 
         // fix bad players
-        if( INVALID_CHR(PlaList[cnt].index) )
+        if ( INVALID_CHR(PlaList[cnt].index) )
         {
             PlaList[cnt].valid = bfalse;
             continue;
@@ -774,7 +772,7 @@ void update_game()
     {
         if ( !PlaList[cnt].valid ) continue;
 
-        if( INVALID_CHR(PlaList[cnt].index) ) continue;
+        if ( INVALID_CHR(PlaList[cnt].index) ) continue;
 
         if ( !ChrList[PlaList[cnt].index].alive )
         {
@@ -980,7 +978,7 @@ int game_do_menu( menu_process_t * mproc )
     bool_t need_menu = bfalse;
 
     need_menu = bfalse;
-    if( flip_pages_requested() )
+    if ( flip_pages_requested() )
     {
         // someone else (and that means the game) has drawn a frame
         // so we just need to draw the menu over that frame
@@ -1004,7 +1002,7 @@ int game_do_menu( menu_process_t * mproc )
     }
 
     menuResult = 0;
-    if( need_menu )
+    if ( need_menu )
     {
         ui_beginFrame( mproc->base.dtime );
         {
@@ -1097,19 +1095,19 @@ int do_ego_proc_running( ego_process_t * eproc )
 {
     bool_t menu_valid, game_valid;
 
-    if( !process_instance_validate( PROC_PBASE(eproc) ) ) return -1;
+    if ( !process_instance_validate( PROC_PBASE(eproc) ) ) return -1;
 
     eproc->was_active  = eproc->base.valid;
 
     menu_valid = process_instance_validate( PROC_PBASE(MProc) );
     game_valid = process_instance_validate( PROC_PBASE(GProc) );
-    if( !menu_valid && !game_valid )
+    if ( !menu_valid && !game_valid )
     {
         process_instance_kill( PROC_PBASE(eproc) );
         return 1;
     }
 
-    if( eproc->base.paused ) return 0;
+    if ( eproc->base.paused ) return 0;
 
     if ( process_instance_running( PROC_PBASE(MProc) ) )
     {
@@ -1131,7 +1129,7 @@ int do_ego_proc_running( ego_process_t * eproc )
     // read the input values
     input_read();
 
-    if( pickedmodule_ready && !process_instance_running( PROC_PBASE(MProc) ) )
+    if ( pickedmodule_ready && !process_instance_running( PROC_PBASE(MProc) ) )
     {
         // a new module has been picked
 
@@ -1170,12 +1168,12 @@ int do_ego_proc_running( ego_process_t * eproc )
     {
         eproc->escape_requested = bfalse;
 
-        if( process_instance_running( PROC_PBASE(GProc) ) )
+        if ( process_instance_running( PROC_PBASE(GProc) ) )
         {
             GProc->escape_requested = btrue;
         }
 
-        if( process_instance_running( PROC_PBASE(MProc) ) )
+        if ( process_instance_running( PROC_PBASE(MProc) ) )
         {
             MProc->escape_requested = btrue;
         }
@@ -1194,20 +1192,20 @@ int do_ego_proc_running( ego_process_t * eproc )
 //--------------------------------------------------------------------------------------------
 int do_ego_proc_leaving( ego_process_t * eproc )
 {
-    if( !process_instance_validate( PROC_PBASE(eproc) )  ) return -1;
+    if ( !process_instance_validate( PROC_PBASE(eproc) )  ) return -1;
 
     // make sure that the
-    if( !GProc->base.terminated )
+    if ( !GProc->base.terminated )
     {
         do_game_proc_run( GProc, eproc->frameDuration );
     }
 
-    if( !MProc->base.terminated )
+    if ( !MProc->base.terminated )
     {
         do_menu_proc_run( MProc, eproc->frameDuration );
     }
 
-    if( GProc->base.terminated && MProc->base.terminated )
+    if ( GProc->base.terminated && MProc->base.terminated )
     {
         process_instance_terminate( PROC_PBASE(eproc) );
     }
@@ -1220,12 +1218,12 @@ int do_ego_proc_run( ego_process_t * eproc, double frameDuration )
 {
     int result = 0, proc_result = 0;
 
-    if( !process_instance_validate( PROC_PBASE(eproc) )  ) return -1;
+    if ( !process_instance_validate( PROC_PBASE(eproc) )  ) return -1;
     eproc->base.dtime = frameDuration;
 
-    if( !eproc->base.paused ) return 0;
+    if ( !eproc->base.paused ) return 0;
 
-    if( eproc->base.killme )
+    if ( eproc->base.killme )
     {
         eproc->base.state = proc_leaving;
     }
@@ -1235,7 +1233,7 @@ int do_ego_proc_run( ego_process_t * eproc, double frameDuration )
         case proc_begin:
             proc_result = do_ego_proc_begin( eproc );
 
-            if( 1 == proc_result )
+            if ( 1 == proc_result )
             {
                 eproc->base.state = proc_entering;
             }
@@ -1250,7 +1248,7 @@ int do_ego_proc_run( ego_process_t * eproc, double frameDuration )
         case proc_running:
             proc_result = do_ego_proc_running( eproc );
 
-            if( 1 == proc_result )
+            if ( 1 == proc_result )
             {
                 eproc->base.state = proc_leaving;
             }
@@ -1259,7 +1257,7 @@ int do_ego_proc_run( ego_process_t * eproc, double frameDuration )
         case proc_leaving:
             proc_result = do_ego_proc_leaving( eproc );
 
-            if( 1 == proc_result )
+            if ( 1 == proc_result )
             {
                 eproc->base.state  = proc_finish;
                 eproc->base.killme = bfalse;
@@ -1300,11 +1298,11 @@ int do_menu_proc_running( menu_process_t * mproc )
 {
     int menuResult;
 
-    if( !process_instance_validate( PROC_PBASE(mproc) ) ) return -1;
+    if ( !process_instance_validate( PROC_PBASE(mproc) ) ) return -1;
 
     mproc->was_active = mproc->base.valid;
 
-    if( mproc->base.paused ) return 0;
+    if ( mproc->base.paused ) return 0;
 
     // play the menu music
     mnu_draw_background = !process_instance_running( PROC_PBASE(GProc) );
@@ -1339,7 +1337,7 @@ int do_menu_proc_running( menu_process_t * mproc )
 //--------------------------------------------------------------------------------------------
 int do_menu_proc_leaving( menu_process_t * mproc )
 {
-    if( !process_instance_validate( PROC_PBASE(mproc) ) ) return -1;
+    if ( !process_instance_validate( PROC_PBASE(mproc) ) ) return -1;
 
     // finish the menu song
     sound_finish_song( 500 );
@@ -1352,12 +1350,12 @@ int do_menu_proc_run( menu_process_t * mproc, double frameDuration )
 {
     int result = 0, proc_result = 0;
 
-    if( !process_instance_validate( PROC_PBASE(mproc) ) ) return -1;
+    if ( !process_instance_validate( PROC_PBASE(mproc) ) ) return -1;
     mproc->base.dtime = frameDuration;
 
-    if( mproc->base.paused ) return 0;
+    if ( mproc->base.paused ) return 0;
 
-    if( mproc->base.killme )
+    if ( mproc->base.killme )
     {
         mproc->base.state = proc_leaving;
     }
@@ -1367,7 +1365,7 @@ int do_menu_proc_run( menu_process_t * mproc, double frameDuration )
         case proc_begin:
             proc_result = do_menu_proc_begin( mproc );
 
-            if( 1 == proc_result )
+            if ( 1 == proc_result )
             {
                 mproc->base.state = proc_entering;
             }
@@ -1382,7 +1380,7 @@ int do_menu_proc_run( menu_process_t * mproc, double frameDuration )
         case proc_running:
             proc_result = do_menu_proc_running( mproc );
 
-            if( 1 == proc_result )
+            if ( 1 == proc_result )
             {
                 mproc->base.state = proc_leaving;
             }
@@ -1391,7 +1389,7 @@ int do_menu_proc_run( menu_process_t * mproc, double frameDuration )
         case proc_leaving:
             proc_result = do_menu_proc_leaving( mproc );
 
-            if( 1 == proc_result )
+            if ( 1 == proc_result )
             {
                 mproc->base.state  = proc_finish;
                 mproc->base.killme = bfalse;
@@ -1405,7 +1403,6 @@ int do_menu_proc_run( menu_process_t * mproc, double frameDuration )
 
     return result;
 }
-
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -1435,7 +1432,7 @@ int do_game_proc_begin( game_process_t * gproc )
     camera_new( PCamera );
 
     // try to start a new module
-    if( !game_begin_module( pickedmodule_name, ~0 ) )
+    if ( !game_begin_module( pickedmodule_name, ~0 ) )
     {
         // failure - kill the game process
         process_instance_kill( PROC_PBASE(gproc) );
@@ -1451,11 +1448,11 @@ int do_game_proc_begin( game_process_t * gproc )
 //--------------------------------------------------------------------------------------------
 int do_game_proc_running( game_process_t * gproc )
 {
-    if( !process_instance_validate( PROC_PBASE(gproc) ) ) return -1;
+    if ( !process_instance_validate( PROC_PBASE(gproc) ) ) return -1;
 
     gproc->was_active  = gproc->base.valid;
 
-    if( gproc->base.paused ) return 0;
+    if ( gproc->base.paused ) return 0;
 
     // This is the control loop
     if ( PNet->on && console_done )
@@ -1525,7 +1522,6 @@ int do_game_proc_running( game_process_t * gproc )
     {
         gproc->escape_requested = bfalse;
 
-
         if ( !gproc->escape_latch )
         {
             if ( PMod->beat )
@@ -1548,7 +1544,7 @@ int do_game_proc_running( game_process_t * gproc )
 //--------------------------------------------------------------------------------------------
 int do_game_proc_leaving( game_process_t * gproc )
 {
-    if( !process_instance_validate( PROC_PBASE(gproc) ) ) return -1;
+    if ( !process_instance_validate( PROC_PBASE(gproc) ) ) return -1;
 
     // get rid of all module data
     game_quit_module();
@@ -1564,12 +1560,12 @@ int do_game_proc_run( game_process_t * gproc, double frameDuration )
 {
     int result = 0, proc_result = 0;
 
-    if( !process_instance_validate( PROC_PBASE(gproc) ) ) return -1;
+    if ( !process_instance_validate( PROC_PBASE(gproc) ) ) return -1;
     gproc->base.dtime = frameDuration;
 
-    if( gproc->base.paused ) return 0;
+    if ( gproc->base.paused ) return 0;
 
-    if( gproc->base.killme )
+    if ( gproc->base.killme )
     {
         gproc->base.state = proc_leaving;
     }
@@ -1579,7 +1575,7 @@ int do_game_proc_run( game_process_t * gproc, double frameDuration )
         case proc_begin:
             proc_result = do_game_proc_begin( gproc );
 
-            if( 1 == proc_result )
+            if ( 1 == proc_result )
             {
                 gproc->base.state = proc_entering;
             }
@@ -1594,7 +1590,7 @@ int do_game_proc_run( game_process_t * gproc, double frameDuration )
         case proc_running:
             proc_result = do_game_proc_running( gproc );
 
-            if( 1 == proc_result )
+            if ( 1 == proc_result )
             {
                 gproc->base.state = proc_leaving;
             }
@@ -1603,7 +1599,7 @@ int do_game_proc_run( game_process_t * gproc, double frameDuration )
         case proc_leaving:
             proc_result = do_game_proc_leaving( gproc );
 
-            if( 1 == proc_result )
+            if ( 1 == proc_result )
             {
                 gproc->base.state  = proc_finish;
                 gproc->base.killme = bfalse;
@@ -1638,7 +1634,7 @@ int SDL_main( int argc, char **argv )
     request_clear_screen();
     max_rate  = MAX(cfg.framelimit, UPDATE_SKIP) * 10;
     frameskip = (float)TICKS_PER_SEC / (float)max_rate;
-    while( !EProc->base.killme && !EProc->base.terminated )
+    while ( !EProc->base.killme && !EProc->base.terminated )
     {
         // put a throttle on the ego process
         EProc->frame_now = SDL_GetTicks();
@@ -1662,7 +1658,7 @@ int SDL_main( int argc, char **argv )
     // terminate the game and menu processes
     process_instance_kill( PROC_PBASE(GProc) );
     process_instance_kill( PROC_PBASE(MProc) );
-    while( !EProc->base.terminated )
+    while ( !EProc->base.terminated )
     {
         do_ego_proc_leaving( EProc );
     }
@@ -1982,8 +1978,6 @@ void make_onwhichfan( void )
 
         ChrList[character].floor_level = level;
     }
-
-
 
     for ( particle = 0; particle < maxparticles; particle++ )
     {
@@ -2535,10 +2529,10 @@ void check_stats()
     // !!!BAD!!!  XP CHEAT
     if ( cfg.dev_mode && SDLKEYDOWN( SDLK_x ) )
     {
-        if ( SDLKEYDOWN( SDLK_1 ) && VALID_CHR(PlaList[0].index) )  { ChrList[PlaList[0].index].experience+=25; stat_check_delay = 250; }
-        if ( SDLKEYDOWN( SDLK_2 ) && VALID_CHR(PlaList[1].index) )  { ChrList[PlaList[1].index].experience+=25; stat_check_delay = 250; }
-        if ( SDLKEYDOWN( SDLK_3 ) && VALID_CHR(PlaList[2].index) )  { ChrList[PlaList[2].index].experience+=25; stat_check_delay = 250; }
-        if ( SDLKEYDOWN( SDLK_4 ) && VALID_CHR(PlaList[3].index) )  { ChrList[PlaList[3].index].experience+=25; stat_check_delay = 250; }
+        if ( SDLKEYDOWN( SDLK_1 ) && VALID_CHR(PlaList[0].index) )  { ChrList[PlaList[0].index].experience += 25; stat_check_delay = 250; }
+        if ( SDLKEYDOWN( SDLK_2 ) && VALID_CHR(PlaList[1].index) )  { ChrList[PlaList[1].index].experience += 25; stat_check_delay = 250; }
+        if ( SDLKEYDOWN( SDLK_3 ) && VALID_CHR(PlaList[2].index) )  { ChrList[PlaList[2].index].experience += 25; stat_check_delay = 250; }
+        if ( SDLKEYDOWN( SDLK_4 ) && VALID_CHR(PlaList[3].index) )  { ChrList[PlaList[3].index].experience += 25; stat_check_delay = 250; }
 
         statdelay = 0;
     }
@@ -2549,7 +2543,7 @@ void check_stats()
         if ( SDLKEYDOWN( SDLK_1 ) && VALID_CHR(PlaList[0].index) )  { ChrList[PlaList[0].index].life += 32; ChrList[PlaList[0].index].life = MIN(ChrList[PlaList[0].index].life, ChrList[PlaList[0].index].lifemax); stat_check_delay = 250; }
         if ( SDLKEYDOWN( SDLK_2 ) && VALID_CHR(PlaList[1].index) )  { ChrList[PlaList[1].index].life += 32; ChrList[PlaList[0].index].life = MIN(ChrList[PlaList[1].index].life, ChrList[PlaList[1].index].lifemax); stat_check_delay = 250; }
         if ( SDLKEYDOWN( SDLK_3 ) && VALID_CHR(PlaList[2].index) )  { ChrList[PlaList[2].index].life += 32; ChrList[PlaList[0].index].life = MIN(ChrList[PlaList[2].index].life, ChrList[PlaList[2].index].lifemax); stat_check_delay = 250; }
-		if ( SDLKEYDOWN( SDLK_4 ) && VALID_CHR(PlaList[3].index) )  { ChrList[PlaList[3].index].life += 32; ChrList[PlaList[0].index].life = MIN(ChrList[PlaList[3].index].life, ChrList[PlaList[3].index].lifemax); stat_check_delay = 250; }
+        if ( SDLKEYDOWN( SDLK_4 ) && VALID_CHR(PlaList[3].index) )  { ChrList[PlaList[3].index].life += 32; ChrList[PlaList[0].index].life = MIN(ChrList[PlaList[3].index].life, ChrList[PlaList[3].index].lifemax); stat_check_delay = 250; }
     }
 
     // Display armor stats?
@@ -2668,13 +2662,13 @@ void show_armor( Uint16 statindex )
     // ZF> This function shows detailed armor information for the character
     STRING text, tmps;
 
-    if( statdelay == 0 ) return;
+    if ( statdelay == 0 ) return;
 
     if ( statindex < numstat )
     {
         Uint16 ichr = statlist[statindex];
 
-        if( VALID_CHR(ichr) )
+        if ( VALID_CHR(ichr) )
         {
             Uint16 icap;
             Uint8  skinlevel;
@@ -2688,21 +2682,21 @@ void show_armor( Uint16 statindex )
 
             // Armor Stats
             sprintf( text, "~DEF: %d  SLASH:%3d~CRUSH:%3d POKE:%3d", 255 - CapList[icap].defense[skinlevel],
-                CapList[icap].damagemodifier[0][skinlevel]&DAMAGESHIFT,
-                CapList[icap].damagemodifier[1][skinlevel]&DAMAGESHIFT,
-                CapList[icap].damagemodifier[2][skinlevel]&DAMAGESHIFT );
+                     CapList[icap].damagemodifier[0][skinlevel]&DAMAGESHIFT,
+                     CapList[icap].damagemodifier[1][skinlevel]&DAMAGESHIFT,
+                     CapList[icap].damagemodifier[2][skinlevel]&DAMAGESHIFT );
             debug_message( text );
 
             sprintf( text, "~HOLY:~%i~EVIL:~%i~FIRE:~%i~ICE:~%i~ZAP:~%i",
-                CapList[icap].damagemodifier[3][skinlevel]&DAMAGESHIFT,
-                CapList[icap].damagemodifier[4][skinlevel]&DAMAGESHIFT,
-                CapList[icap].damagemodifier[5][skinlevel]&DAMAGESHIFT,
-                CapList[icap].damagemodifier[6][skinlevel]&DAMAGESHIFT,
-                CapList[icap].damagemodifier[7][skinlevel]&DAMAGESHIFT );
+                     CapList[icap].damagemodifier[3][skinlevel]&DAMAGESHIFT,
+                     CapList[icap].damagemodifier[4][skinlevel]&DAMAGESHIFT,
+                     CapList[icap].damagemodifier[5][skinlevel]&DAMAGESHIFT,
+                     CapList[icap].damagemodifier[6][skinlevel]&DAMAGESHIFT,
+                     CapList[icap].damagemodifier[7][skinlevel]&DAMAGESHIFT );
             debug_message( text );
 
             strcpy( text, "~Type: " );
-            if ( CapList[icap].skindressy & (1<<skinlevel) ) strcat( text, CapList[icap].skindressy ? "Light Armor" : "Heavy Armor" );
+            if ( CapList[icap].skindressy & (1 << skinlevel) ) strcat( text, CapList[icap].skindressy ? "Light Armor" : "Heavy Armor" );
             debug_message( text );
 
             // Base speed
@@ -2710,7 +2704,7 @@ void show_armor( Uint16 statindex )
 
             // jumps
             strcat( text, "Jump Skill:~" );
-            switch( CapList[icap].jumpnumber )
+            switch ( CapList[icap].jumpnumber )
             {
                 case 0:  sprintf( tmps, "None    (%i)", CapList[icap].jumpnumber ); break;
                 case 1:  sprintf( tmps, "Novice  (%i)", CapList[icap].jumpnumber ); break;
@@ -2823,10 +2817,10 @@ void show_magic_status( Uint16 statindex )
             else                 sprintf( tmpb, "No" );
             sprintf( text, " Channel Life: %s~~Waterwalking: %s", tmpa, tmpb );
             debug_message( text );
-            
-			if ( ChrList[character].flyheight > 0 )    sprintf( tmpa, "Yes" );
-            else                 sprintf( tmpa, "No" );       
-			if ( ChrList[character].missiletreatment == MISREFLECT )       sprintf( tmpb, "Reflect" );
+
+            if ( ChrList[character].flyheight > 0 )    sprintf( tmpa, "Yes" );
+            else                 sprintf( tmpa, "No" );
+            if ( ChrList[character].missiletreatment == MISREFLECT )       sprintf( tmpb, "Reflect" );
             else if ( ChrList[character].missiletreatment == MISREFLECT )  sprintf( tmpb, "Deflect" );
             else                           sprintf( tmpb, "None" );
             sprintf( text, " Flying: %s~~Missile Protection: %s", tmpa, tmpb );
@@ -3163,7 +3157,6 @@ bool_t do_platforms( Uint16 ichr_a, Uint16 ichr_b )
         collide_xy = (dist <= pchr_b->bumpsizebig);
     }
 
-
     if ( collide_x && collide_y && collide_xy && depth_z > -PLATTOLERANCE && depth_z < PLATTOLERANCE )
     {
         // check for the best possible attachment
@@ -3381,13 +3374,11 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
     // don't interact with your mount, or your held items
     if ( ichr_a == pchr_b->attachedto || ichr_b == pchr_a->attachedto ) return bfalse;
 
-
     // don't do anything if there is no interaction strength
     interaction_strength = 1.0f;
     if ( 0 == pchr_a->bumpsize || 0 == pchr_b->bumpsize ) return bfalse;
     interaction_strength *= pchr_a->inst.alpha * INV_FF;
     interaction_strength *= pchr_b->inst.alpha * INV_FF;
-
 
     xa = pchr_a->pos.x;
     ya = pchr_a->pos.y;
@@ -3572,7 +3563,6 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
         if ( pcap_a->canuseplatforms && pchr_b->platform ) exponent += 2;
         if ( pcap_b->canuseplatforms && pchr_a->platform ) exponent += 2;
 
-
         nrm.x = nrm.y = nrm.z = 0.0f;
 
         depth_x  = MIN(xa + pchr_a->bumpsize, xb + pchr_b->bumpsize) - MAX(xa - pchr_a->bumpsize, xb - pchr_b->bumpsize);
@@ -3640,7 +3630,6 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
 
             nrm.z += sgn / POW(exponent * depth_z / PLATTOLERANCE, exponent);
         }
-
 
         if ( ABS(nrm.x) + ABS(nrm.y) + ABS(nrm.z) > 0.0f )
         {
@@ -3855,8 +3844,6 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
     return btrue;
 }
 
-
-
 //--------------------------------------------------------------------------------------------
 bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
 {
@@ -3956,7 +3943,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     // Check for missile treatment
     if (  pchr_a->missiletreatment == MISNORMAL ||
             /*pchr_a->damagemodifier[pprt_b->damagetype]&3 ) < 2 ||*/
-              pprt_b->attachedtocharacter != MAX_CHR ||
+            pprt_b->attachedtocharacter != MAX_CHR ||
             ( pprt_b->chr == ichr_a && !ppip_b->friendlyfire ) ||
             ( ChrList[pchr_a->missilehandler].mana < ( pchr_a->missilecost << 8 ) && !ChrList[pchr_a->missilehandler].canchannel ) )
     {
@@ -4008,9 +3995,9 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
 
                         enchant = temp;
                     }
-           
-					// Do confuse effects
-					if ( 0 == ( Md2FrameList[pchr_a->inst.frame_nxt].framefx&MADFX_INVICTUS ) || ppip_b->damfx&DAMFX_NBLOC )
+
+                    // Do confuse effects
+                    if ( 0 == ( Md2FrameList[pchr_a->inst.frame_nxt].framefx&MADFX_INVICTUS ) || ppip_b->damfx&DAMFX_NBLOC )
                     {
                         if ( ppip_b->grogtime >= pchr_a->grogtime && pcap_a->canbegrogged )
                         {
@@ -4139,8 +4126,8 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
                 scale = SQRT( scale );
                 nx = ax / scale;
                 ny = ay / scale;
-            
-				// Deflect the incoming ray off the normal
+
+                // Deflect the incoming ray off the normal
                 scale = ( pprt_b->vel.x * nx + pprt_b->vel.y * ny ) * 2;
                 ax = scale * nx;
                 ay = scale * ny;
@@ -4158,7 +4145,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
         // Change the owner of the missile
         pprt_b->team = pchr_a->team;
         pprt_b->chr = ichr_a;
-		ppip_b->homing = bfalse;
+        ppip_b->homing = bfalse;
 
         // Change the direction of the particle
         if ( ppip_b->rotatetoface )
@@ -4170,10 +4157,8 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
         }
     }
 
-
     return btrue;
 }
-
 
 //--------------------------------------------------------------------------------------------
 // collision data
@@ -4230,7 +4215,6 @@ void bump_characters( void )
             do_platforms( d->chra, d->chrb );
         }
     }
-
 
     // Do mounts
     for ( cnt = 0; cnt < chr_co_list->allocated; cnt++ )
@@ -4365,8 +4349,8 @@ void stat_return()
     for ( cnt = 0; cnt < MAX_CHR; cnt++ )
     {
         if ( !ChrList[cnt].on ) continue;
-        
-        if( ChrList[cnt].reloadtime > 0 )
+
+        if ( ChrList[cnt].reloadtime > 0 )
         {
             ChrList[cnt].reloadtime--;
         }
@@ -4395,9 +4379,9 @@ void stat_return()
                 ChrList[cnt].life += ChrList[cnt].lifereturn;
                 ChrList[cnt].life = MAX(1, MIN(ChrList[cnt].life, ChrList[cnt].lifemax));
             }
-            
-			//countdown cofuse effects
-			if ( ChrList[cnt].grogtime > 0 )
+
+            //countdown cofuse effects
+            if ( ChrList[cnt].grogtime > 0 )
             {
                 ChrList[cnt].grogtime--;
             }
@@ -4419,13 +4403,13 @@ void stat_return()
             }
             else
             {
-				//Do enchant timer
+                //Do enchant timer
                 if ( EncList[cnt].time > 0 )
                 {
                     EncList[cnt].time--;
                 }
 
-				// To make life easier
+                // To make life easier
                 owner  = EncList[cnt].owner;
                 target = EncList[cnt].target;
                 eve    = EncList[cnt].eve;
@@ -4450,7 +4434,7 @@ void stat_return()
 
                     // Change mana
                     mana_paid = cost_mana(owner, -EncList[cnt].ownermana, target);
-					if ( EveList[eve].endifcantpay && (!mana_paid || 0 == ChrList[owner].mana)  )
+                    if ( EveList[eve].endifcantpay && (!mana_paid || 0 == ChrList[owner].mana)  )
                     {
                         remove_enchant( cnt );
                     }
@@ -4624,7 +4608,7 @@ bool_t chr_setup_read( FILE * fileread, chr_setup_info_t *pinfo )
     pinfo->facing = NORTH;
     pinfo->attach = ATTACH_NONE;
     cTmp = fget_first_letter( fileread );
-    if ( 'S' == toupper(cTmp) )		  pinfo->facing = SOUTH;
+    if ( 'S' == toupper(cTmp) )       pinfo->facing = SOUTH;
     else if ( 'E' == toupper(cTmp) )  pinfo->facing = EAST;
     else if ( 'W' == toupper(cTmp) )  pinfo->facing = WEST;
     else if ( '?' == toupper(cTmp) )  pinfo->facing = RANDOM;
@@ -4919,7 +4903,6 @@ bool_t game_load_module_data( const char *smallname )
     return btrue;
 }
 
-
 //--------------------------------------------------------------------------------------------
 void disaffirm_attached_particles( Uint16 character )
 {
@@ -5005,13 +4988,12 @@ void game_quit_module()
     sound_finish_song( 500 );
 }
 
-
 //-----------------------------------------------------------------
 bool_t game_begin_module( const char * modname, Uint32 seed )
 {
     // BB> all of the initialization code before the module actually starts
 
-    if( ~0 == seed ) seed = time(NULL);
+    if ( ~0 == seed ) seed = time(NULL);
 
     // make sure the old game has been quit
     game_quit_module();
@@ -5258,124 +5240,10 @@ void let_all_characters_think()
 }
 
 
-//struct s_line_of_sight_info
-//{
-//    float x0, y0;
-//    float x1, y1;
-//    Uint32 stopped_by;
-//
-//    Uint16 collide_chr;
-//    Uint32 collide_fx;
-//    int    collide_x;
-//    int    collide_y;
-//};
-//
-//typedef struct s_line_of_sight_info line_of_sight_info_t;
-//
-//bool_t do_line_of_sight( line_of_sight_info_t * plos )
-//{
-//    int Dx, Dy;
-//
-//    int xstep, ystep;
-//    int TwoDy, TwoDyTwoDx, E;
-//    int y;
-//    int xDraw, yDraw;
-//
-//    int steep;
-//
-//    if(NULL == plos) return bfalse;
-//
-//    int steep = (ABS(Dy) >= ABS(Dx));
-//
-//    int Dx = plos->x1 - plos->x0;
-//    int Dy = plos->y1 - plos->y0;
-//
-//    if (steep)
-//    {
-//        SWAP(int, plos->x0, plos->y0);
-//        SWAP(int, plos->x1, plos->y1);
-//
-//        // recompute Dx, Dy after swap
-//        Dx = plos->x1 - plos->x0;
-//        Dy = plos->y1 - plos->y0;
-//    }
-//
-//    xstep = 1;
-//    if (Dx < 0)
-//    {
-//        xstep = -1;
-//        Dx = -Dx;
-//    }
-//
-//    ystep = 1;
-//    if (Dy < 0)
-//    {
-//        ystep = -1;
-//        Dy = -Dy;
-//    }
-//
-//    TwoDy = 2*Dy;
-//    TwoDyTwoDx = TwoDy - 2*Dx; // 2*Dy - 2*Dx
-//    E = TwoDy - Dx; //2*Dy - Dx
-//    y = plos->y0;
-//    block_last = INVALID_BLOCK;
-//    for (int x = plos->x0; x != plos->x1; x += xstep)
-//    {
-//        int fan;
-//
-//        if (steep)
-//        {
-//            xDraw = y;
-//            yDraw = x;
-//        }
-//        else
-//        {
-//            xDraw = x;
-//            yDraw = y;
-//        }
-//
-//        // plot
-//        fan = meshgetfan(xDraw, yDraw);
-//        if( INVALID_FAN != fan && fan != last_fan )
-//        {
-//            // collide the ray with the mesh
-//
-//            if( 0!= (PMesh->mmem.tile_list[fan].fx & plos->stopped_by) )
-//            {
-//                plos->collide_x  = xDraw;
-//                plos->collide_y  = yDraw;
-//                plos->collide_fx = PMesh->mmem.tile_list[fan].fx & plos->stopped_by;
-//
-//                return btrue;
-//            }
-//
-//            last_fan = fan;
-//        }
-//
-//        block = meshgetblock(xDraw, yDraw);
-//        if( INVALID_BLOCK != block && block != block_last )
-//        {
-//            // collide the ray with all items/characters in this block
-//
-//        };
-//
-//        // next
-//        if (E > 0)
-//        {
-//            E += TwoDyTwoDx; //E += 2*Dy - 2*Dx;
-//            y = y + ystep;
-//        } else
-//        {
-//            E += TwoDy; //E += 2*Dy;
-//        }
-//    }
-//}
-
-
 //--------------------------------------------------------------------------------------------
 bool_t game_begin_menu( menu_process_t * mproc, which_menu_t which )
 {
-    if( NULL == mproc ) return bfalse;
+    if ( NULL == mproc ) return bfalse;
 
     if ( !process_instance_running( PROC_PBASE(mproc) ) )
     {
@@ -5482,7 +5350,6 @@ bool_t add_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b, co_data_t cdata[], i
 
     return !found;
 }
-
 
 //--------------------------------------------------------------------------------------------
 bool_t add_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b, co_data_t cdata[], int * cdata_count, hash_node_t hnlst[], int * hn_count )
@@ -5824,7 +5691,6 @@ bool_t fog_instance_init( fog_instance_t * pinst, fog_data_t * pdata )
     pinst->distance = ( pdata->top - pdata->bottom );
     if ( pinst->distance < 1.0f )  pinst->on = bfalse;
 
-
     return btrue;
 };
 
@@ -5857,7 +5723,6 @@ bool_t damagetile_instance_init( damagetile_instance_t * pinst, damagetile_data_
     return btrue;
 }
 
-
 //--------------------------------------------------------------------------------------------
 bool_t animtile_data_init( animtile_data_t * pdata )
 {
@@ -5870,7 +5735,6 @@ bool_t animtile_data_init( animtile_data_t * pdata )
 
     return btrue;
 }
-
 
 //--------------------------------------------------------------------------------------------
 bool_t animtile_instance_init( animtile_instance_t pinst[], animtile_data_t * pdata )
@@ -5959,8 +5823,8 @@ void read_wawalite( const char *modname )
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer[0].z = iTmp;
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer[0].alpha = iTmp;
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer[0].frame_add = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer[0].light_dir = CLIP(iTmp,0,63);
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer[0].light_add = CLIP(iTmp,0,63);
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer[0].light_dir = CLIP(iTmp, 0, 63);
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer[0].light_add = CLIP(iTmp, 0, 63);
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  water_data.layer[0].amp = fTmp;
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  water_data.layer[0].tx_add.x = fTmp;
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  water_data.layer[0].tx_add.y = fTmp;
@@ -5968,8 +5832,8 @@ void read_wawalite( const char *modname )
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer[1].z = iTmp;
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer[1].alpha = iTmp;
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer[1].frame_add = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer[1].light_dir = CLIP(iTmp,0,63);
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer[1].light_add = CLIP(iTmp,0,63);
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer[1].light_dir = CLIP(iTmp, 0, 63);
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer[1].light_add = CLIP(iTmp, 0, 63);
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  water_data.layer[1].amp = fTmp;
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  water_data.layer[1].tx_add.x = fTmp;
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  water_data.layer[1].tx_add.y = fTmp;
@@ -6021,7 +5885,6 @@ void read_wawalite( const char *modname )
 
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  weather_data.timer_reset = iTmp;
 
-
     // Read extra data
     goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     gfx.exploremode = bfalse;
@@ -6064,7 +5927,6 @@ void read_wawalite( const char *modname )
     weather_instance_init( &weather, &weather_data );
     damagetile_instance_init( &damagetile, &damagetile_data );
     animtile_instance_init( animtile, &animtile_data );
-
 
     // Allow slow machines to ignore the fancy stuff
     if ( !cfg.twolayerwater_allowed && water_data.layer_count > 1 )
@@ -6404,9 +6266,9 @@ void append_end_text( script_state_t * pstate, int message, Uint16 character )
 //--------------------------------------------------------------------------------------------
 bool_t game_choose_module( int imod, int seed )
 {
-    if( seed < 0 ) seed = time(NULL);
+    if ( seed < 0 ) seed = time(NULL);
 
-    if( NULL == PMod ) PMod = &gmod;
+    if ( NULL == PMod ) PMod = &gmod;
 
     return module_upload( PMod, imod, seed );
 }
@@ -6415,7 +6277,7 @@ bool_t game_choose_module( int imod, int seed )
 //--------------------------------------------------------------------------------------------
 process_instance_t * process_instance_init( process_instance_t * proc )
 {
-    if( NULL == proc ) return proc;
+    if ( NULL == proc ) return proc;
 
     memset( proc, 0, sizeof(process_instance_t) );
 
@@ -6426,15 +6288,15 @@ process_instance_t * process_instance_init( process_instance_t * proc )
 
 bool_t process_instance_start( process_instance_t * proc )
 {
-    if( NULL == proc ) return bfalse;
+    if ( NULL == proc ) return bfalse;
 
     // choose the correct proc->state
-    if( proc->terminated || proc->state > proc_leaving )
+    if ( proc->terminated || proc->state > proc_leaving )
     {
         // must re-initialize the process
         proc->state = proc_begin;
     }
-    if( proc->state > proc_entering )
+    if ( proc->state > proc_entering )
     {
         // the process is already initialized, just put it back in
         // proc_entering mode
@@ -6451,8 +6313,8 @@ bool_t process_instance_start( process_instance_t * proc )
 
 bool_t process_instance_kill( process_instance_t * proc )
 {
-    if( NULL == proc ) return bfalse;
-    if( !process_instance_validate(proc) ) return btrue;
+    if ( NULL == proc ) return bfalse;
+    if ( !process_instance_validate(proc) ) return btrue;
 
     // turn the process back on with an order to commit suicide
     proc->paused = bfalse;
@@ -6463,9 +6325,9 @@ bool_t process_instance_kill( process_instance_t * proc )
 
 bool_t process_instance_validate( process_instance_t * proc )
 {
-    if(NULL == proc) return bfalse;
+    if (NULL == proc) return bfalse;
 
-    if( !proc->valid || proc->terminated )
+    if ( !proc->valid || proc->terminated )
     {
         process_instance_terminate( proc );
     }
@@ -6475,7 +6337,7 @@ bool_t process_instance_validate( process_instance_t * proc )
 
 bool_t process_instance_terminate( process_instance_t * proc )
 {
-    if(NULL == proc) return bfalse;
+    if (NULL == proc) return bfalse;
 
     proc->valid      = bfalse;
     proc->terminated = btrue;
@@ -6488,7 +6350,7 @@ bool_t process_instance_pause( process_instance_t * proc )
 {
     bool_t old_value;
 
-    if( !process_instance_validate(proc) ) return bfalse;
+    if ( !process_instance_validate(proc) ) return bfalse;
 
     old_value    = proc->paused;
     proc->paused = btrue;
@@ -6500,7 +6362,7 @@ bool_t process_instance_resume( process_instance_t * proc )
 {
     bool_t old_value;
 
-    if( !process_instance_validate(proc) ) return bfalse;
+    if ( !process_instance_validate(proc) ) return bfalse;
 
     old_value    = proc->paused;
     proc->paused = bfalse;
@@ -6510,7 +6372,7 @@ bool_t process_instance_resume( process_instance_t * proc )
 
 bool_t process_instance_running( process_instance_t * proc )
 {
-    if( !process_instance_validate(proc) ) return bfalse;
+    if ( !process_instance_validate(proc) ) return bfalse;
 
     return !proc->paused;
 }
@@ -6518,7 +6380,7 @@ bool_t process_instance_running( process_instance_t * proc )
 //--------------------------------------------------------------------------------------------
 ego_process_t * ego_process_init( ego_process_t * eproc )
 {
-    if( NULL == eproc ) return NULL;
+    if ( NULL == eproc ) return NULL;
 
     memset( eproc, 0, sizeof(ego_process_t) );
 
@@ -6530,7 +6392,7 @@ ego_process_t * ego_process_init( ego_process_t * eproc )
 //--------------------------------------------------------------------------------------------
 menu_process_t * menu_process_init( menu_process_t * mproc )
 {
-    if( NULL == mproc ) return NULL;
+    if ( NULL == mproc ) return NULL;
 
     memset( mproc, 0, sizeof(menu_process_t) );
 
@@ -6542,7 +6404,7 @@ menu_process_t * menu_process_init( menu_process_t * mproc )
 //--------------------------------------------------------------------------------------------
 game_process_t * game_process_init( game_process_t * gproc )
 {
-    if( NULL == gproc ) return NULL;
+    if ( NULL == gproc ) return NULL;
 
     memset( gproc, 0, sizeof(game_process_t) );
 
@@ -6673,7 +6535,6 @@ void release_all_mad()
     md2_loadframe = 0;
 }
 
-
 //---------------------------------------------------------------------------------------------
 void release_all_profiles()
 {
@@ -6774,12 +6635,11 @@ if ( done ) return globesttarget;
 return MAX_CHR;
 }*/
 
-
 void do_game_hud()
 {
     int y = 0;
 
-    if( flip_pages_requested() && cfg.dev_mode )
+    if ( flip_pages_requested() && cfg.dev_mode )
     {
         glColor4f( 1, 1, 1, 1 );
         if ( fpson )
@@ -6789,4 +6649,178 @@ void do_game_hud()
 
         y = draw_string( 0, y, "Menu time %f", MProc->base.dtime );
     }
+}
+
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+struct s_line_of_sight_info
+{
+    float x0, y0;
+    float x1, y1;
+    Uint32 stopped_by;
+
+    Uint16 collide_chr;
+    Uint32 collide_fx;
+    int    collide_x;
+    int    collide_y;
+};
+
+typedef struct s_line_of_sight_info line_of_sight_info_t;
+
+//--------------------------------------------------------------------------------------------
+bool_t collide_ray_with_mesh( line_of_sight_info_t * plos )
+{
+    Uint32 fan_last;
+
+    int Dx, Dy;
+    int ix,ix_stt,ix_end;
+    int iy,iy_stt,iy_end;
+
+    int Dbig, Dsmall;
+    int ibig,ibig_stt,ibig_end;
+    int ismall,ismall_stt,ismall_end;
+    int dbig, dsmall;
+    int TwoDsmall, TwoDsmallMinusTwoDbig, TwoDsmallMinusDbig;
+
+    bool_t steep;
+
+    if(NULL == plos) return bfalse;
+
+    if( 0 == plos->stopped_by ) return bfalse;
+
+    ix_stt = plos->x0 / TILE_SIZE;
+    ix_end = plos->x1 / TILE_SIZE;
+
+    iy_stt = plos->y0 / TILE_SIZE;
+    iy_end = plos->y1 / TILE_SIZE;
+
+    Dx = plos->x1 - plos->x0;
+    Dy = plos->y1 - plos->y0;
+
+    steep = (ABS(Dy) >= ABS(Dx));
+
+    // determine which are the big and small values
+    if (steep)
+    {
+        ibig_stt = iy_stt;
+        ibig_end = iy_end;
+
+        ismall_stt = ix_stt;
+        ismall_end = ix_end;
+    }
+    else
+    {
+        ibig_stt = ix_stt;
+        ibig_end = ix_end;
+
+        ismall_stt = iy_stt;
+        ismall_end = iy_end;
+    }
+
+    // set up the big loop variables
+    dbig = 1;
+    Dbig = ibig_end - ibig_stt;
+    if (Dbig < 0)
+    {
+        dbig = -1;
+        Dbig = -Dbig;
+    }
+
+    // set up the small loop variables
+    dsmall = 1;
+    Dsmall = ismall_end - ismall_stt;
+    if (Dsmall < 0)
+    {
+        dsmall = -1;
+        Dsmall = -Dsmall;
+    }
+
+    // pre-compute some common values
+    TwoDsmall             = 2*Dsmall;
+    TwoDsmallMinusTwoDbig = TwoDsmall - 2*Dbig;
+    TwoDsmallMinusDbig    = TwoDsmall - Dbig;
+
+    fan_last = INVALID_TILE;    
+    for (ibig = ibig_stt, ismall = ismall_stt;  ibig != ibig_end;  ibig += dbig )
+    {
+        Uint32 fan;
+
+        if (steep)
+        {
+            ix = ismall;
+            iy = ibig;
+        }
+        else
+        {
+            ix = ibig;
+            iy = ismall;
+        }
+
+        // check to see if the "ray" collides with the mesh
+        fan = mesh_get_tile_int(PMesh, ix, iy);
+        if( INVALID_TILE != fan && fan != fan_last )
+        {
+            // collide the ray with the mesh
+
+            if( 0!= (PMesh->mmem.tile_list[fan].fx & plos->stopped_by) )
+            {
+                plos->collide_x  = ix;
+                plos->collide_y  = iy;
+                plos->collide_fx = PMesh->mmem.tile_list[fan].fx & plos->stopped_by;
+
+                return btrue;
+            }
+
+            fan_last = fan;
+        }
+
+        // go to the next step
+        if (TwoDsmallMinusDbig > 0)
+        {
+            TwoDsmallMinusDbig += TwoDsmallMinusTwoDbig;
+            ismall             += dsmall;
+        } 
+        else
+        {
+            TwoDsmallMinusDbig += TwoDsmall;
+        }
+    }
+
+    return bfalse;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t collide_ray_with_characters( line_of_sight_info_t * plos )
+{
+    Uint16 ichr;
+
+    if(NULL == plos) return bfalse;
+
+    for( ichr = 0; ichr < MAX_CHR; ichr++)
+    {
+        if( !ChrList[ichr].on ) continue;
+
+        // do line/character intersection
+    }
+
+    return bfalse;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t do_line_of_sight( line_of_sight_info_t * plos )
+{
+    bool_t mesh_hit, chr_hit;
+
+    mesh_hit = collide_ray_with_mesh( plos );
+
+    if( mesh_hit )
+    {
+        plos->x1 = plos->collide_x * TILE_SIZE;
+        plos->y1 = plos->collide_y * TILE_SIZE;
+    }
+
+    chr_hit = collide_ray_with_characters( plos );
+
+    return mesh_hit || chr_hit;
 }

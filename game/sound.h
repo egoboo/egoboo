@@ -137,7 +137,6 @@ extern bool_t      musicinmemory;                          // Is the music loade
 extern Sint8       songplaying;                            // Current song that is playing
 extern Mix_Music * musictracksloaded[MAXPLAYLISTLENGTH];   // This is a specific music file loaded into memory
 
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // The global functions for the sound module

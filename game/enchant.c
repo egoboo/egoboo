@@ -51,7 +51,7 @@ void free_one_enchant( Uint16 ienc )
         // sets all boolean values to false, incluting the "on" flag
         memset( EncList + ienc, 0, sizeof(enc_t) );
 
-        if( numfreeenchant < MAX_ENC )
+        if ( numfreeenchant < MAX_ENC )
         {
             freeenchant[numfreeenchant] = ienc;
             numfreeenchant++;
@@ -116,7 +116,6 @@ bool_t remove_enchant( Uint16 ienc )
             }
         }
     }
-
 
     // Unset enchant values, doing morph last
     unset_enchant_value( ienc, SETDAMAGETYPE );
@@ -608,13 +607,12 @@ Uint16 spawn_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 ienc, 
         ieve = ChrList[spawner].model;
     }
 
-	// Owner must both be alive and on and valid if it isn't a stayifnoowner enchant
+    // Owner must both be alive and on and valid if it isn't a stayifnoowner enchant
     if ( !EveList[ieve].stayifnoowner && ( INVALID_CHR(owner) || !ChrList[target].alive) )
         return MAX_ENC;
 
-	if ( ieve >= MAXEVE || !EveList[ieve].valid ) return MAX_PROFILE;
+    if ( ieve >= MAXEVE || !EveList[ieve].valid ) return MAX_PROFILE;
     peve = EveList + ieve;
-
 
     if ( ienc == MAX_ENC )
     {
@@ -763,7 +761,6 @@ Uint16 spawn_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 ienc, 
         //Allow them to see kurses?
         if (peve->seekurse) ChrList[target].canseekurse = btrue;
     }
-
 
     return ienc;
 }

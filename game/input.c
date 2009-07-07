@@ -193,7 +193,7 @@ void input_read()
     int cnt;
     SDL_Event evt;
 
-    if( 0 == SDL_WasInit(SDL_INIT_EVERYTHING) ) return;
+    if ( 0 == SDL_WasInit(SDL_INIT_EVERYTHING) ) return;
 
     // Run through SDL's event loop to get info in the way that we want
     // it for the Gui code

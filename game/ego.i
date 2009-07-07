@@ -48,7 +48,6 @@
 #include "graphic.h"
 #include "ogl_texture.h"
 
-
 %}
 
 // A stupid hack because SWIG can't deal with including

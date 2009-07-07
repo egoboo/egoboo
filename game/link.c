@@ -139,7 +139,6 @@ bool_t link_build( const char * fname, Link_t list[] )
     return i > 0;
 }
 
-
 //--------------------------------------------------------------------------------------------
 bool_t link_pop_module()
 {
@@ -249,7 +248,6 @@ bool_t link_push_module()
         link_stack_count++;
         retval = btrue;
     }
-
 
     return retval;
 }

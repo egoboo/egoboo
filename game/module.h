@@ -90,7 +90,6 @@ bool_t modlist_test_by_index( int modnumber );
 int    module_reference_matches( const char *szLoadName, IDSZ idsz );
 void   module_add_idsz( const char *szLoadName, IDSZ idsz );
 
-
 bool_t module_instance_init( module_instance_t * pgmod );
 bool_t module_upload( module_instance_t * pinst, int selectedModule, Uint32 seed );
 bool_t module_reset( module_instance_t * pinst, Uint32 seed  );

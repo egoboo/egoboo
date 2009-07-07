@@ -47,7 +47,6 @@ void sys_initialize()
     log_info( "Frequency is %ld hz\n", f );
 }
 
-
 //--------------------------------------------------------------------------------------------
 double sys_getTime()
 {

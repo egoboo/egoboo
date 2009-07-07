@@ -79,7 +79,6 @@ static ConfigFilePtr_t lConfigSetup = NULL;
 egoboo_config_t cfg;
 egoboo_config_t cfg_default;
 
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 void egoboo_config_init()
@@ -309,7 +308,7 @@ bool_t setup_download(egoboo_config_t * pcfg)
     // Camera control mode
     GetKey_string( "AUTOTURN_CAMERA", lTempStr, 24, "GOOD" );
     pcfg->autoturncamera = cfg_default.autoturncamera;
-         if ( toupper(lTempStr[0]) == 'G' )  pcfg->autoturncamera = CAMTURN_GOOD;
+    if ( toupper(lTempStr[0]) == 'G' )  pcfg->autoturncamera = CAMTURN_GOOD;
     else if ( toupper(lTempStr[0]) == 'T' )  pcfg->autoturncamera = CAMTURN_AUTO;
     else if ( toupper(lTempStr[0]) == 'F' )  pcfg->autoturncamera = CAMTURN_NONE;
 
@@ -353,7 +352,6 @@ bool_t setup_download(egoboo_config_t * pcfg)
 
     return btrue;
 }
-
 
 //--------------------------------------------------------------------------------------------
 bool_t setup_synch( egoboo_config_t * pcfg )

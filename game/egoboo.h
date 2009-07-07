@@ -70,7 +70,6 @@ enum e_game_difficulty
     GAME_HARD
 };
 
-
 #define EXPKEEP 0.85f                                // Experience to keep when respawning
 
 #define MAXINVENTORY        7
@@ -131,7 +130,6 @@ enum e_damage_fx
 #define GRABSIZE            90.0f                      // Grab tolerance
 #define SEEINVISIBLE        128                        // Cutoff for invisible characters
 
-
 enum e_damage_type
 {
     DAMAGE_SLASH = 0,
@@ -159,7 +157,6 @@ enum e_damage_type
 #define JUMPATTACKVEL       -2
 #define WATERJUMP           12
 
-
 enum e_idsz_type
 {
     IDSZ_PARENT = 0,                             // Parent index
@@ -186,22 +183,18 @@ enum e_xp_type
 };
 #define XPDIRECT            255                     // No modification
 
-
 // Z velocity stuff
 #define JUMPDELAY           20                      // Time between jumps
-
 
 #define RAISE       12 //25                               // Helps correct z level
 #define SHADOWRAISE 5
 #define DAMAGERAISE 25
-
 
 /* SDL_GetTicks() always returns milli seconds */
 #define TICKS_PER_SEC                   1000
 #define UPDATES_PER_SEC                 50
 #define UPDATE_SKIP                     ((float)TICKS_PER_SEC/(float)UPDATES_PER_SEC)
 #define ONESECOND                       TICKS_PER_SEC
-
 
 #define NORTH 16384                                 // Character facings
 #define SOUTH 49152
@@ -241,7 +234,6 @@ EXTERN Uint32          clock_pit  EQ( 0 );             // For pit kills
 EXTERN Uint32          outofsync  EQ( 0 );
 EXTERN Uint8           parseerror  EQ( bfalse );
 
-
 EXTERN bool_t          soundon  EQ( btrue );              // Is the sound alive?
 
 EXTERN bool_t          pickedmodule_ready;              // Is there a new picked module?
@@ -269,7 +261,6 @@ EXTERN bool_t                  wateron        EQ( btrue );         // Water over
 EXTERN bool_t console_mode EQ( bfalse );                   // Input text from keyboard?
 EXTERN bool_t console_done EQ( bfalse );                   // Input text from keyboard finished?
 
-
 extern float           light_a, light_d, light_x, light_y, light_z;
 EXTERN float           hillslide  EQ( 1.00f );
 EXTERN float           slippyfriction  EQ( 1.00f );                            // Friction
@@ -285,14 +276,12 @@ EXTERN bool_t                    local_seekurse       EQ( bfalse );
 EXTERN Uint16                    local_senseenemies   EQ( MAX_CHR );
 EXTERN IDSZ                      local_senseenemiesID EQ( bfalse );
 EXTERN bool_t                    local_listening      EQ( bfalse );  // Players with listen skill?
-EXTERN bool_t                    local_noplayers;					 // Are there any local players?
+EXTERN bool_t                    local_noplayers;                    // Are there any local players?
 
 //------------------------------------
 // Model stuff
 //------------------------------------
 EXTERN int             globalicon_count;                              // Number of icons
-
-
 
 EXTERN Uint16  skintoicon[MAX_TEXTURE];                  // Skin to icon
 
@@ -304,7 +293,6 @@ EXTERN const char *globalparsename  EQ( NULL ); // The SCRIPT.TXT filename
 // phisics info
 
 EXTERN float           platstick  EQ( 0.1f );
-
 
 #define CLOSETOLERANCE      2                       // For closing doors
 

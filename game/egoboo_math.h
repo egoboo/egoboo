@@ -104,7 +104,6 @@ typedef union  u_glvector4 { glvector4_base_t v; struct { float x, y, z, w; }; s
 #define VECT3(XX,YY,ZZ) { {XX,YY,ZZ} }
 #define VECT4(XX,YY,ZZ,WW) { {XX,YY,ZZ,WW} }
 
-
 /**> GLOBAL VARIABLES <**/
 extern float                   turntosin[TRIG_TABLE_SIZE];           // Convert chrturn>>2...  to sine
 
@@ -140,6 +139,5 @@ GLvector3 mat_getChrForward(GLmatrix mat);
 GLvector3 mat_getCamUp(GLmatrix mat);
 GLvector3 mat_getCamRight(GLmatrix mat);
 GLvector3 mat_getCamForward(GLmatrix mat);
-
 
 void make_turntosin( void );

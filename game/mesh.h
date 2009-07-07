@@ -63,7 +63,7 @@ typedef Uint8       light_cache_t[4];
 struct s_grid_lighting
 {
     // the lighting info in the upper left hand corner of a grid
-    Uint8         a,l;
+    Uint8         a, l;
     lighting_cache_t cache;
 };
 typedef struct s_grid_lighting grid_lighting_t;

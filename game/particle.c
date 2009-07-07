@@ -36,7 +36,6 @@
 #include "egoboo_fileutil.h"
 #include "egoboo.h"
 
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 enum e_particle_direction
@@ -61,9 +60,6 @@ float            sprite_list_v[MAXPARTICLEIMAGE][2];
 
 Uint16           maxparticles = 512;                            // max number of particles
 prt_t            PrtList[TOTAL_MAX_PRT];
-
-
-
 
 particle_direction_t prt_direction[256] =
 {
@@ -104,7 +100,7 @@ void free_one_particle( Uint16 particle )
         memset( PrtList + particle, 0, sizeof(prt_t) );
 
         // push it on the stack
-        if( numfreeprt < TOTAL_MAX_PRT )
+        if ( numfreeprt < TOTAL_MAX_PRT )
         {
             freeprtlist[numfreeprt] = particle;
             numfreeprt++;
@@ -414,7 +410,6 @@ Uint16 spawn_one_particle( float x, float y, float z,
         pprt->time = frame_all + prt_lifetime;
     }
 
-
     // Set onwhichfan...
     pprt->onwhichfan   = mesh_get_tile( PMesh, pprt->pos.x, pprt->pos.y );
     pprt->onwhichblock = mesh_get_block( PMesh, pprt->pos.x, pprt->pos.y );
@@ -604,7 +599,6 @@ void move_particles( void )
             pprt->vel.z += gravity;
         }
 
-
         // Do homing
         if ( ppip->homing && VALID_CHR( pprt->target ) )
         {
@@ -689,7 +683,7 @@ void move_particles( void )
         if ( pprt->poofme || ( !pprt->is_eternal && frame_all >= pprt->time ) )
         {
             facing = pprt->facing;
-            
+
             for ( tnc = 0; tnc < ppip->endspawnamount; tnc++ )
             {
                 spawn_one_particle( pprt->pos.x - pprt->vel.x, pprt->pos.y - pprt->vel.y, pprt->pos.z,

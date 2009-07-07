@@ -611,7 +611,6 @@ extern chr_t ChrList[MAX_CHR];
 #define VALID_CHR( ICHR )       ( VALID_CHR_RANGE( ICHR ) && ChrList[ICHR].on )
 #define INVALID_CHR( ICHR )     ( !VALID_CHR_RANGE( ICHR ) || !ChrList[ICHR].on )
 
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // This is for random naming

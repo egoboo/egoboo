@@ -66,7 +66,7 @@ void ErrorImage_create(void)
 
     int i, j;
 
-    if( INVALID_TX_ID != ErrorImage_binding ) return;
+    if ( INVALID_TX_ID != ErrorImage_binding ) return;
 
     GL_DEBUG(glGenTextures)( 1, &ErrorImage_binding );
 
@@ -91,7 +91,7 @@ void ErrorImage_create(void)
         }
     }
 
-    ErrorImage_bind( GL_TEXTURE_2D, ErrorImage_binding ); 
+    ErrorImage_bind( GL_TEXTURE_2D, ErrorImage_binding );
 
     ErrorImage_defined = GL_TRUE;
 }
@@ -133,7 +133,7 @@ oglx_texture * oglx_texture_new(oglx_texture * ptex)
     GL_DEBUG(glGenTextures)( 1, &(ptex->base.binding) );
 
     // set the flag validity flag
-    if( VALID_BINDING(ptex->base.binding) && !ERROR_BINDING(ptex->base.binding) )
+    if ( VALID_BINDING(ptex->base.binding) && !ERROR_BINDING(ptex->base.binding) )
     {
         ptex->valid = VALID_VALUE;
     }
@@ -161,7 +161,7 @@ void oglx_texture_delete(oglx_texture * ptex)
     ptex->valid = ~VALID_VALUE;
 
     // actually delete the OpenGL texture data
-    if( VALID_BINDING(ptex->base.binding) )
+    if ( VALID_BINDING(ptex->base.binding) )
     {
         GL_DEBUG(glDeleteTextures)( 1, &ptex->base.binding );
         ptex->base.binding = INVALID_TX_ID;
@@ -273,7 +273,6 @@ GLuint oglx_texture_Convert( GLenum tx_target, oglx_texture *ptex, SDL_Surface *
     //    tmpformat.BytesPerPixel = 3;
     //}
 
-
     {
         SDL_Surface * tmp;
         Uint32 convert_flags;
@@ -349,7 +348,7 @@ GLuint oglx_texture_Load( GLenum tx_target, oglx_texture *ptex, const char *file
     GLuint retval;
     SDL_Surface * image;
 
-    if( VALID_TEXTURE(ptex) )
+    if ( VALID_TEXTURE(ptex) )
     {
         // release any old texture
         oglx_texture_Release( ptex );
@@ -358,7 +357,7 @@ GLuint oglx_texture_Load( GLenum tx_target, oglx_texture *ptex, const char *file
     {
         // clean out any uninitialied data
         ptex = oglx_texture_new(ptex);
-        if( NULL == ptex ) return INVALID_TX_ID;
+        if ( NULL == ptex ) return INVALID_TX_ID;
     }
 
     image = IMG_Load( filename );
@@ -467,7 +466,7 @@ void oglx_texture_Bind( oglx_texture *texture )
     wrap_s = wrap_t = GL_REPEAT;
     id = ErrorImage_binding;
 
-    if( NULL == texture )
+    if ( NULL == texture )
     {
         // NULL texture means white blob
         id = INVALID_TX_ID;

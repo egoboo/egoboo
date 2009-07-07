@@ -127,7 +127,7 @@ double clk_guessFrameDuration()
     int c;
     double totalTime = 0;
 
-    if( NULL == clk_frameHistory ) return 0;
+    if ( NULL == clk_frameHistory ) return 0;
 
     for ( c = 0; c < clk_frameHistorySize; c++ )
     {
@@ -140,7 +140,7 @@ double clk_guessFrameDuration()
 //--------------------------------------------------------------------------------------------
 void clk_addToFrameHistory( double frame )
 {
-    if(NULL == clk_frameHistory) return;
+    if (NULL == clk_frameHistory) return;
 
     clk_frameHistory[clk_frameHistoryHead] = frame;
 

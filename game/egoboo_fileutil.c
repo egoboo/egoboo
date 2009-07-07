@@ -264,7 +264,7 @@ void factiof( FILE* filewrite, const char* text, Uint8 action )
 
     fprintf( filewrite, "%s", text );
 
-    switch( action )
+    switch ( action )
     {
         case ACTION_DA: fprintf( filewrite, "DANCE\n");    break;
         case ACTION_UA: fprintf( filewrite, "UNARMED\n"); break;
@@ -745,7 +745,6 @@ void GLSetup_SupportedFormats()
         log_message( "Success!\n" );
     }
 }
-
 
 //--------------------------------------------------------------------------------------------
 Uint32  ego_texture_load( oglx_texture *texture, const char *filename, Uint32 key )

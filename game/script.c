@@ -842,10 +842,10 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
         case FTAKEPICTURE:           returncode = scr_TakePicture( pstate, pself );         break;
         case FIFOPERATORISMACINTOSH: returncode = scr_OperatorIsMacintosh( pstate, pself ); break;
         case FIFMODULEHASIDSZ:       returncode = scr_ModuleHasIDSZ( pstate, pself );       break;
-		case FMORPHTOTARGET:         returncode = scr_MorphToTarget( pstate, pself );       break;
-		case FGIVEMANAFLOWTOTARGET:  returncode = scr_GiveManaFlowToTarget( pstate, pself );break;
-		case FGIVEMANARETURNTOTARGET:returncode = scr_GiveManaReturnToTarget( pstate, pself );break;
-		case FSETMONEY:				 returncode = scr_set_Money( pstate, pself );		    break;
+        case FMORPHTOTARGET:         returncode = scr_MorphToTarget( pstate, pself );       break;
+        case FGIVEMANAFLOWTOTARGET:  returncode = scr_GiveManaFlowToTarget( pstate, pself ); break;
+        case FGIVEMANARETURNTOTARGET:returncode = scr_GiveManaReturnToTarget( pstate, pself ); break;
+        case FSETMONEY:              returncode = scr_set_Money( pstate, pself );           break;
         case FIFTARGETCANSEEKURSES:  returncode = scr_TargetCanSeeKurses( pstate, pself );  break;
 
             // if none of the above, skip the line and log an error
@@ -1341,25 +1341,23 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARTARGETMAXLIFE:
                 varname = "TARGETMAXLIFE";
-				iTmp = ChrList[pself->target].lifemax;
+                iTmp = ChrList[pself->target].lifemax;
                 break;
 
             case VARTARGETTEAM:
                 varname = "TARGETTEAM";
-				iTmp = ChrList[pself->target].team;
+                iTmp = ChrList[pself->target].team;
                 break;
 
             case VARTARGETARMOR:
                 varname = "TARGETARMOR";
-				iTmp = ChrList[pself->target].skin;
+                iTmp = ChrList[pself->target].skin;
                 break;
 
             case VARDIFFICULTY:
                 varname = "DIFFICULTY";
-				iTmp = cfg.difficulty;
+                iTmp = cfg.difficulty;
                 break;
-
-				
 
             default:
                 log_message( "SCRIPT ERROR: run_operand() - model == %d, class name == \"%s\" - Unknown variable found!\n", script_error_model, script_error_classname );

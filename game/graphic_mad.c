@@ -268,7 +268,6 @@ void render_one_mad_enviro( Uint16 character, Uint8 trans )
     GL_DEBUG(glPopMatrix)();
 }
 
-
 // Do fog...
 /*
 if(fogon && pinst->light==255)
@@ -544,7 +543,7 @@ bool_t project_sum_lighting( lighting_cache_t * dst, lighting_cache_t * src, GLv
     {
         dst->lighting_low[dir+0] += ABS(vec.x) * src->lighting_low[0];
         dst->lighting_hgh[dir+1] += ABS(vec.x) * src->lighting_hgh[1];
-                                                              
+
         dst->lighting_low[dir+0] += ABS(vec.x) * src->lighting_low[0];
         dst->lighting_hgh[dir+1] += ABS(vec.x) * src->lighting_hgh[1];
     }
@@ -552,7 +551,7 @@ bool_t project_sum_lighting( lighting_cache_t * dst, lighting_cache_t * src, GLv
     {
         dst->lighting_low[dir+0] += ABS(vec.x) * src->lighting_low[1];
         dst->lighting_hgh[dir+1] += ABS(vec.x) * src->lighting_hgh[0];
-                                                              
+
         dst->lighting_low[dir+0] += ABS(vec.x) * src->lighting_low[1];
         dst->lighting_hgh[dir+1] += ABS(vec.x) * src->lighting_hgh[0];
     }
@@ -561,7 +560,7 @@ bool_t project_sum_lighting( lighting_cache_t * dst, lighting_cache_t * src, GLv
     {
         dst->lighting_low[dir+0] += ABS(vec.y) * src->lighting_low[2];
         dst->lighting_hgh[dir+1] += ABS(vec.y) * src->lighting_hgh[3];
-                                                              
+
         dst->lighting_low[dir+0] += ABS(vec.y) * src->lighting_low[2];
         dst->lighting_hgh[dir+1] += ABS(vec.y) * src->lighting_hgh[3];
     }
@@ -569,7 +568,7 @@ bool_t project_sum_lighting( lighting_cache_t * dst, lighting_cache_t * src, GLv
     {
         dst->lighting_low[dir+0] += ABS(vec.y) * src->lighting_low[3];
         dst->lighting_hgh[dir+1] += ABS(vec.y) * src->lighting_hgh[2];
-                                                              
+
         dst->lighting_low[dir+0] += ABS(vec.y) * src->lighting_low[3];
         dst->lighting_hgh[dir+1] += ABS(vec.y) * src->lighting_hgh[2];
     }
@@ -578,7 +577,7 @@ bool_t project_sum_lighting( lighting_cache_t * dst, lighting_cache_t * src, GLv
     {
         dst->lighting_low[dir+0] += ABS(vec.z) * src->lighting_low[4];
         dst->lighting_hgh[dir+1] += ABS(vec.z) * src->lighting_hgh[5];
-                                                              
+
         dst->lighting_low[dir+0] += ABS(vec.z) * src->lighting_low[4];
         dst->lighting_hgh[dir+1] += ABS(vec.z) * src->lighting_hgh[5];
     }
@@ -586,7 +585,7 @@ bool_t project_sum_lighting( lighting_cache_t * dst, lighting_cache_t * src, GLv
     {
         dst->lighting_low[dir+0] += ABS(vec.z) * src->lighting_low[5];
         dst->lighting_hgh[dir+1] += ABS(vec.z) * src->lighting_hgh[4];
-                                                              
+
         dst->lighting_low[dir+0] += ABS(vec.z) * src->lighting_low[5];
         dst->lighting_hgh[dir+1] += ABS(vec.z) * src->lighting_hgh[4];
     }
@@ -714,8 +713,6 @@ bool_t interpolate_lighting( lighting_cache_t * dst, lighting_cache_t * src[], f
     return wt_sum > 0.0f;
 }
 
-
-
 //--------------------------------------------------------------------------------------------
 bool_t interpolate_mesh_lighting( ego_mpd_t * pmesh, lighting_cache_t * dst, GLvector3 pos )
 {
@@ -793,7 +790,6 @@ float evaluate_mesh_lighting( ego_mpd_t * pmesh, lighting_cache_t * src, GLfloat
     return lighting;
 }
 
-
 //--------------------------------------------------------------------------------------------
 void chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 trans, bool_t do_lighting )
 {
@@ -860,7 +856,7 @@ void chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 t
         Uint16 lite;
 
         // a simple "height" measurement
-        float hgt = pinst->vlst[cnt].pos[ZZ] * pinst->matrix.CNV(3,3) + pinst->matrix.CNV(3,3);
+        float hgt = pinst->vlst[cnt].pos[ZZ] * pinst->matrix.CNV(3, 3) + pinst->matrix.CNV(3, 3);
 
         if ( pinst->vlst[cnt].nrm[0] == 0.0f && pinst->vlst[cnt].nrm[1] == 0.0f && pinst->vlst[cnt].nrm[2] == 0.0f )
         {

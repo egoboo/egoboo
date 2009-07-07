@@ -122,7 +122,6 @@ struct s_hash_list
 };
 typedef struct s_hash_list hash_list_t;
 
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 hash_node_t * hash_node_create(void * data);
@@ -135,10 +134,8 @@ hash_node_t * hash_node_remove       (hash_node_t lst[]);
 hash_list_t * hash_list_create(int size);
 bool_t        hash_list_destroy(hash_list_t **);
 
-
 hash_node_t * hash_node_ctor(hash_node_t * n, void * data);
 hash_list_t * hash_list_ctor(hash_list_t * lst, int size);
-
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

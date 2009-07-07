@@ -29,7 +29,6 @@ const Uint32 bmask = 0x0000ff00;
 const Uint32 amask = 0x000000ff;
 #endif
 
-
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 static void SDLX_download_sdl_video_flags( Uint32 iflags, SDLX_sdl_video_flags_t * pflags );
@@ -251,7 +250,6 @@ void SDLX_download_sdl_video_flags( Uint32 iflags, SDLX_sdl_video_flags_t * pfla
         pflags->is_prealloc     = HAS_SOME_BITS( iflags, SDL_PREALLOC    );
     }
 }
-
 
 //------------------------------------------------------------------------------
 void SDLX_report_video_parameters( SDLX_video_parameters_t * v )
@@ -700,7 +698,6 @@ SDL_bool SDLX_ExpandFormat(SDL_PixelFormat * pformat)
 
     return SDL_TRUE;
 }
-
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------

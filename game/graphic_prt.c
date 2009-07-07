@@ -129,7 +129,6 @@ int cmp_prt_registry_entity(const void * vlhs, const void * vrhs)
     return lhs->dist - rhs->dist;
 }
 
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 size_t render_all_prt_begin( camera_t * pcam, prt_registry_entity_t reg[], size_t reg_count )
@@ -351,11 +350,8 @@ bool_t render_one_prt_trans( Uint16 iprt )
     }
     ATTRIB_POP( "render_one_prt_trans" );
 
-
     return btrue;
 }
-
-
 
 //--------------------------------------------------------------------------------------------
 void render_all_prt_trans( camera_t * pcam, prt_registry_entity_t reg[], size_t numparticle )
@@ -521,7 +517,6 @@ bool_t render_one_prt_ref( Uint16 iprt )
 
     return btrue;
 }
-
 
 //--------------------------------------------------------------------------------------------
 void render_all_prt_ref( camera_t * pcam, prt_registry_entity_t reg[], size_t numparticle )

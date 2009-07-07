@@ -19,7 +19,6 @@ Uint32  msgtotalindex = 0;                                  // Where to put lett
 Uint32  msgindex[MAXTOTALMESSAGE];                          // Where it is
 char    msgtext[MESSAGEBUFFERSIZE];                         // The text buffer
 
-
 char    cFrameName[16];                                     // MD2 Frame Name
 
 //--------------------------------------------------------------------------------------------
@@ -149,7 +148,7 @@ int action_which( char cTmp )
     // ZZ> This function changes a letter into an action code
     int action;
 
-    switch( toupper(cTmp) )
+    switch ( toupper(cTmp) )
     {
         case 'D': action = ACTION_DA; break;
         case 'U': action = ACTION_UA; break;
@@ -162,7 +161,7 @@ int action_which( char cTmp )
         case 'F': action = ACTION_FA; break;
         case 'P': action = ACTION_PA; break;
         case 'Z': action = ACTION_ZA; break;
-       // case 'W': action = ACTION_WA; break;   //Zefz: Can't do this, attack animation WALK is used for doing nothing (for example charging spells)
+            // case 'W': action = ACTION_WA; break;   //Zefz: Can't do this, attack animation WALK is used for doing nothing (for example charging spells)
         case 'H': action = ACTION_HA; break;
         case 'K': action = ACTION_KA; break;
         default:  action = ACTION_DA; break;
@@ -420,7 +419,6 @@ int load_one_model_profile( const char* tmploadname, Uint16 object, int skin )
     return numskins;
 }
 
-
 //--------------------------------------------------------------------------------------------
 void mad_rip_actions( Uint16 object )
 {
@@ -658,8 +656,6 @@ void md2_get_transvertices( Uint16 modelindex )
     // The vertex is not used
     return 0;
 }*/
-
-
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

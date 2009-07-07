@@ -101,7 +101,6 @@ extern "C"
 
     GLboolean oglx_video_parameters_default(oglx_video_parameters_t * pvid);
 
-
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
     FILE * oglx_set_stdout(FILE * pfile);

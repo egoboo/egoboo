@@ -49,10 +49,13 @@
 //--------------------------------------------------------------------------------------------
 //These are shop orders
 
-#define BUY         0
-#define SELL        1
-#define NOAFFORD    2
-#define THEFT       3
+enum e_shop_orders
+{
+    SHOP_BUY       = 0,
+    SHOP_SELL,
+    SHOP_NOAFFORD,
+    SHOP_THEFT,
+};
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -276,7 +279,7 @@ void free_one_character( Uint16 character )
     pchr->onwhichplatform = MAX_CHR;
 
     // push it on the stack
-    if( numfreechr < MAX_CHR )
+    if ( numfreechr < MAX_CHR )
     {
         freechrlist[numfreechr] = character;
         numfreechr++;
@@ -334,7 +337,6 @@ void free_one_character_in_game( Uint16 character )
                 ChrList[cnt].ai.alert |= ALERTIF_LEADERKILLED;
             }
         }
-
 
         // Handle the team
         if ( ChrList[character].alive && !CapList[ChrList[character].model].invictus )
@@ -705,7 +707,6 @@ void make_character_matrices(bool_t do_physics)
         done = (0 == cnt);
     }
 
-
     if ( do_physics )
     {
         // accumulate the accumulators
@@ -962,17 +963,11 @@ void detach_character_from_mount( Uint16 character, Uint8 ignorekurse,
     float nrm[2];
 
     // Make sure the character is valid
-    if ( character == MAX_CHR )
-        return;
+    if ( INVALID_CHR(character) ) return;
 
     // Make sure the character is mounted
     mount = ChrList[character].attachedto;
-    if ( mount >= MAX_CHR )
-        return;
-
-    // Make sure both are still around
-    if ( !ChrList[character].on || !ChrList[mount].on )
-        return;
+    if ( INVALID_CHR(mount) ) return;
 
     // Don't allow living characters to drop kursed weapons
     if ( !ignorekurse && ChrList[character].iskursed && ChrList[mount].alive && ChrList[character].isitem )
@@ -1037,9 +1032,7 @@ void detach_character_from_mount( Uint16 character, Uint8 ignorekurse,
         //This is a hack that makes spellbooks in shops cost correctly
         if (ChrList[mount].isshopitem) ChrList[character].isshopitem = btrue;
 
-        cnt = 0;
-
-        while ( cnt < numshoppassage )
+        for ( cnt = 0; cnt < numshoppassage; cnt++ )
         {
             passage = shoppassage[cnt];
             loc = ChrList[character].pos.x;
@@ -1051,48 +1044,52 @@ void detach_character_from_mount( Uint16 character, Uint8 ignorekurse,
                 if ( loc >= passtly[passage] && loc <= passbry[passage] )
                 {
                     inshop = btrue;
-                    owner = shopowner[cnt];
-                    cnt = numshoppassage;  // Finish loop
+                    owner  = shopowner[cnt];
                     if ( owner == NOOWNER )
                     {
                         // The owner has died!!!
                         inshop = bfalse;
                     }
+                    
+                    if( inshop ) break;
                 }
             }
-
-            cnt++;
         }
+
         if ( inshop )
         {
             // Give the mount its money back, alert the shop owner
-            price = (float) CapList[ChrList[character].model].skincost[0];
-            if ( CapList[ChrList[character].model].isstackable )
-            {
-                price = price * ChrList[character].ammo;
-            }
+            Uint16 skin, icap;
 
-            // Reduce value depending on charges left
-            else if (CapList[ChrList[character].model].isranged && ChrList[character].ammo < ChrList[character].ammomax)
-            {
-                if (ChrList[character].ammo == 0)
-                {
-                    price /= 2;
-                }
-                else price -= ((ChrList[character].ammomax - ChrList[character].ammo) * ((float)(price / ChrList[character].ammomax))) / 2;
-            }
+            skin  = ChrList[character].skin;
+            icap  = ChrList[character].model;
+            price = CapList[icap].skincost[skin];
 
             //Items spawned within shops are more valuable
             if (!ChrList[character].isshopitem) price *= 0.5;
 
+            // cost it based on the number/charges of the item
+            if ( CapList[icap].isstackable )
+            {
+                price *= ChrList[character].ammo;
+            }
+            else if (CapList[icap].isranged && ChrList[character].ammo < ChrList[character].ammomax)
+            {
+                if ( 0 != ChrList[character].ammo )
+                {
+                    price *= (float)ChrList[character].ammo / ChrList[character].ammomax;
+                }
+            }
+
             ChrList[mount].money += (Sint16) price;
+            ChrList[mount].money  = CLIP(ChrList[mount].money, 0, MAXMONEY);
+
             ChrList[owner].money -= (Sint16) price;
-            if ( ChrList[owner].money < 0 )  ChrList[owner].money = 0;
-            if ( ChrList[mount].money > MAXMONEY )  ChrList[mount].money = MAXMONEY;
+            ChrList[owner].money  = CLIP(ChrList[owner].money, 0, MAXMONEY);
 
             ChrList[owner].ai.alert |= ALERTIF_ORDERED;
             ChrList[owner].ai.order = (Uint32) price;  // Tell owner how much...
-            ChrList[owner].ai.rank  = BUY;  // 0 for buying an item
+            ChrList[owner].ai.rank  = SHOP_BUY;  // 0 for buying an item
         }
     }
 
@@ -1285,7 +1282,6 @@ void attach_character_to_mount( Uint16 character, Uint16 mount, grip_offset_t gr
     ChrList[character].hitready = bfalse;
 }
 
-
 //--------------------------------------------------------------------------------------------
 bool_t inventory_add_item( Uint16 item, Uint16 character )
 {
@@ -1375,7 +1371,6 @@ Uint16 inventory_get_item( Uint16 ichr, grip_offset_t grip_off, bool_t ignorekur
 
     return iitem;
 }
-
 
 //--------------------------------------------------------------------------------------------
 Uint16 pack_has_a_stack( Uint16 item, Uint16 character )
@@ -1671,7 +1666,6 @@ bool_t drop_all_items( Uint16 character )
         }
     }
 
-
     return btrue;
 
 }
@@ -1796,44 +1790,57 @@ bool_t character_grab_stuff( Uint16 chara, grip_offset_t grip_off, Uint8 people 
                             debug_message( text );
                             ChrList[owner].ai.alert |= ALERTIF_ORDERED;
                             ChrList[owner].ai.order = STOLEN;
-                            ChrList[owner].ai.rank  = THEFT;
+                            ChrList[owner].ai.rank  = SHOP_THEFT;
                             ChrList[owner].ai.target = chara;
                         }
                     }
                     else
                     {
-                        ChrList[owner].ai.alert |= ALERTIF_ORDERED;
-                        price = (float) CapList[ChrList[charb].model].skincost[0];
-                        if ( CapList[ChrList[charb].model].isstackable )
-                        {
-                            price = price * ChrList[charb].ammo;
-                        }
+                        Uint16 icap, iskin;
+                        
+                        icap  = ChrList[charb].model;
+                        iskin = ChrList[charb].skin;
 
-                        // Reduce value depending on charges left
-                        else if (CapList[ChrList[charb].model].isranged && ChrList[charb].ammo < ChrList[charb].ammomax)
-                        {
-                            if (ChrList[charb].ammo == 0) price /= 2;
-                            else price -= ((ChrList[charb].ammomax - ChrList[charb].ammo) * ((float)(price / ChrList[charb].ammomax))) / 2;
-                        }
+                        ChrList[owner].ai.alert |= ALERTIF_ORDERED;
+                        price = (float) CapList[icap].skincost[iskin];
 
                         //Items spawned in shops are more valuable
-                        if (!ChrList[charb].isshopitem) price *= 0.5;
+                        if (!ChrList[charb].isshopitem) price *= 0.5f;
+
+                        // base the cost on the number of items/charges
+                        if ( CapList[icap].isstackable )
+                        {
+                            price *= ChrList[charb].ammo;
+                        }
+                        else if (CapList[icap].isranged && ChrList[charb].ammo < ChrList[charb].ammomax)
+                        {
+                            if ( 0 != ChrList[charb].ammo )
+                            {
+                                price *= (float) ChrList[charb].ammo / (float) ChrList[charb].ammomax;
+                            }
+                        }
+
+                        // round to int value
+                        price = (Sint32) price;
 
                         ChrList[owner].ai.order = (Uint32) price;  // Tell owner how much...
                         if ( ChrList[chara].money >= price )
                         {
                             // Okay to buy
-                            ChrList[owner].ai.rank = SELL;  // 1 for selling an item
-                            ChrList[chara].money  -= (Sint16) price;  // Skin 0 cost is price
-                            ChrList[owner].money  += (Sint16) price;
-                            if ( ChrList[owner].money > MAXMONEY )  ChrList[owner].money = MAXMONEY;
+                            ChrList[owner].ai.rank = SHOP_SELL;  // 1 for selling an item
+
+                            ChrList[chara].money -= (Sint16) price;
+                            ChrList[chara].money  = CLIP(ChrList[chara].money, 0, MAXMONEY);
+
+                            ChrList[owner].money += (Sint16) price;
+                            ChrList[owner].money  = CLIP(ChrList[owner].money, 0, MAXMONEY);
 
                             inshop = bfalse;
                         }
                         else
                         {
                             // Don't allow purchase
-                            ChrList[owner].ai.rank = NOAFFORD;  // 2 for "you can't afford that"
+                            ChrList[owner].ai.rank = SHOP_NOAFFORD;  // 2 for "you can't afford that"
                             inshop = btrue;
                         }
                     }
@@ -1971,11 +1978,11 @@ void character_swipe( Uint16 cnt, Uint8 slot )
 
                     // Initial particles get a strength bonus, which may be 0.00f
                     PrtList[particle].damagebase += ( ChrList[cnt].strength * CapList[ChrList[weapon].model].strengthdampen );
-                    
-					// Initial particles get an enchantment bonus
+
+                    // Initial particles get an enchantment bonus
                     PrtList[particle].damagebase += ChrList[weapon].damageboost;
-                    
-					// Initial particles inherit damage type of weapon
+
+                    // Initial particles inherit damage type of weapon
                     //PrtList[particle].damagetype = ChrList[weapon].damagetargettype;  //Zefz: not sure if we want this. we can have weapons with different damage types
                 }
             }
@@ -2191,8 +2198,8 @@ void give_experience( Uint16 character, int amount, Uint8 xptype, bool_t overrid
             newamount *= 1.00f + intadd + wisadd;
         }
 
-		//Apply XP bonus/penality depending on game difficulty
-		if( cfg.difficulty >= GAME_HARD ) newamount *= 1.10f;			//10% extra on hard
+        //Apply XP bonus/penality depending on game difficulty
+        if ( cfg.difficulty >= GAME_HARD ) newamount *= 1.10f;          //10% extra on hard
 
         ChrList[character].experience += newamount;
     }
@@ -2538,8 +2545,8 @@ void export_one_character_profile( const char *szSaveName, Uint16 character )
         fprintf( filewrite, "\n" );
 
         // More stuff
-        fprintf( filewrite, "NOT USED       : %5.3f\n", CapList[profile].lifeheal / 256.0f );		//These two are seriously outdated
-        fprintf( filewrite, "NOT USED       : %5.3f\n", CapList[profile].manacost / 256.0f );		//and shouldnt be used. Use scripts instead.
+        fprintf( filewrite, "NOT USED       : %5.3f\n", CapList[profile].lifeheal / 256.0f );       //These two are seriously outdated
+        fprintf( filewrite, "NOT USED       : %5.3f\n", CapList[profile].manacost / 256.0f );       //and shouldnt be used. Use scripts instead.
         fprintf( filewrite, "Regeneration   : %d\n", CapList[profile].lifereturn );
         fprintf( filewrite, "Stopped by     : %d\n", CapList[profile].stoppedby );
         funderf( filewrite, "Skin 0 name    : ", CapList[profile].skinname[0] );
@@ -3175,8 +3182,8 @@ void damage_character( Uint16 character, Uint16 direction,
             int manadamage;
             manadamage = MAX(ChrList[character].mana - damage, 0);
             ChrList[character].mana = manadamage;
-			damage -= manadamage;
-			ChrList[character].ai.alert |= ALERTIF_ATTACKED;
+            damage -= manadamage;
+            ChrList[character].ai.alert |= ALERTIF_ATTACKED;
             ChrList[character].ai.attacklast = attacker;
         }
 
@@ -3207,15 +3214,15 @@ void damage_character( Uint16 character, Uint16 direction,
             {
                 model = ChrList[character].model;
 
-				//Hard mode deals 50% extra to players damage!
-				if( cfg.difficulty >= GAME_HARD && !ChrList[attacker].isplayer && ChrList[character].isplayer ) damage *= 1.5f;
+                //Hard mode deals 50% extra to players damage!
+                if ( cfg.difficulty >= GAME_HARD && !ChrList[attacker].isplayer && ChrList[character].isplayer ) damage *= 1.5f;
 
-				//East mode deals 25% extra damage by players and 25% less to players
-				if( cfg.difficulty <= GAME_EASY )
-				{
-					if( ChrList[attacker].isplayer && !ChrList[character].isplayer ) damage *= 1.25f;
-					if( !ChrList[attacker].isplayer && ChrList[character].isplayer ) damage *= 0.75f;
-				}
+                //East mode deals 25% extra damage by players and 25% less to players
+                if ( cfg.difficulty <= GAME_EASY )
+                {
+                    if ( ChrList[attacker].isplayer && !ChrList[character].isplayer ) damage *= 1.25f;
+                    if ( !ChrList[attacker].isplayer && ChrList[character].isplayer ) damage *= 0.75f;
+                }
 
                 if ( 0 == ( effects & DAMFX_NBLOC ) )
                 {
@@ -3734,9 +3741,9 @@ int spawn_one_character( float x, float y, float z, Uint16 profile, Uint8 team,
     pchr->canseekurse = pcap->canseekurse;
 
     // Kurse state
-	kursechance = pcap->kursechance;
-	if( cfg.difficulty >= GAME_HARD )						 kursechance *= 2.0f;	//Hard mode doubles chance for Kurses
-	if( cfg.difficulty < GAME_NORMAL && kursechance != 100 ) kursechance *= 0.5f;	//Easy mode halves chance for Kurses
+    kursechance = pcap->kursechance;
+    if ( cfg.difficulty >= GAME_HARD )                        kursechance *= 2.0f;  //Hard mode doubles chance for Kurses
+    if ( cfg.difficulty < GAME_NORMAL && kursechance != 100 ) kursechance *= 0.5f;  //Easy mode halves chance for Kurses
     pchr->iskursed = ( ( rand() % 100 ) < kursechance );
     if ( !pcap->isitem )  pchr->iskursed = bfalse;
 
@@ -4200,13 +4207,13 @@ Uint16 change_armor( Uint16 character, Uint16 skin )
 //--------------------------------------------------------------------------------------------
 void change_character_full( Uint16 ichr, Uint16 profile, Uint8 skin, Uint8 leavewhich )
 {
-	//This function polymorphs a character permanently so that it can be exported properly
-	//A character turned into a frog with this function will also export as a frog!
-	if ( profile > MAX_PROFILE || !MadList[profile].used ) return;
+    //This function polymorphs a character permanently so that it can be exported properly
+    //A character turned into a frog with this function will also export as a frog!
+    if ( profile > MAX_PROFILE || !MadList[profile].used ) return;
 
-	strcpy(MadList[ChrList[ichr].model].name, MadList[profile].name);
-	change_character( ichr, profile, skin, leavewhich );
-	ChrList[ichr].basemodel = profile;
+    strcpy(MadList[ChrList[ichr].model].name, MadList[profile].name);
+    change_character( ichr, profile, skin, leavewhich );
+    ChrList[ichr].basemodel = profile;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4769,7 +4776,6 @@ int restock_ammo( Uint16 character, IDSZ idsz )
         }
     }
 
-
     return amount;
 }
 
@@ -4966,7 +4972,7 @@ int check_skills( Uint16 who, IDSZ whichskill )
     else if ( Make_IDSZ( "DISA" ) == whichskill ) result = ChrList[who].candisarm;
     else if ( Make_IDSZ( "STAB" ) == whichskill ) result = ChrList[who].canbackstab;
     else if ( Make_IDSZ( "POIS" ) == whichskill ) result = ChrList[who].canusepoison;
-	else if ( Make_IDSZ( "READ" ) == whichskill ) result = ChrList[who].canread || ( ChrList[who].canseeinvisible && ChrList[who].canseekurse ); //Truesight allows reading
+    else if ( Make_IDSZ( "READ" ) == whichskill ) result = ChrList[who].canread || ( ChrList[who].canseeinvisible && ChrList[who].canseekurse ); //Truesight allows reading
 
     return result;
 }
@@ -5001,7 +5007,7 @@ void move_characters( void )
         pchr = ChrList + cnt;
 
         // Down that ol' damage timer
-        if(pchr->damagetime > 0) pchr->damagetime--;
+        if (pchr->damagetime > 0) pchr->damagetime--;
 
         // Character's old location
         pchr->pos_old    = pchr->pos;
@@ -5690,7 +5696,6 @@ void move_characters( void )
             }
         }
 
-
         ftmp = pchr->pos.x;
         pchr->pos.x += pchr->vel.x;
         LOG_NAN(pchr->pos.x);
@@ -5736,7 +5741,6 @@ void move_characters( void )
             pchr->pos_safe.x = pchr->pos.x;
         }
 
-
         ftmp = pchr->pos.y;
         pchr->pos.y += pchr->vel.y;
         LOG_NAN(pchr->pos.y);
@@ -5767,7 +5771,6 @@ void move_characters( void )
                     pchr->vel.y *= - 1 /* pchr->bumpdampen * */;
                 }
             }
-
 
             if ( !pchr->safe_valid )
             {
@@ -6168,7 +6171,6 @@ slot_t grip_offset_to_slot( grip_offset_t grip_off )
     return retval;
 }
 
-
 //--------------------------------------------------------------------------------------------
 void init_slot_idsz()
 {
@@ -6177,5 +6179,4 @@ void init_slot_idsz()
     inventory_idsz[INVEN_WRIS]  = Make_IDSZ( "WRIS" );
     inventory_idsz[INVEN_FOOT]  = Make_IDSZ( "FOOT" );
 }
-
 

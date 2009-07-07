@@ -2,9 +2,7 @@
 
 #include "ogl_include.h"
 
-
 #define USE_GL_DEBUG
-
 
 #ifdef __cplusplus
 extern "C"

@@ -238,7 +238,6 @@ extern Uint8           blipc[MAXBLIP];
 extern bool_t          meshnotexture;
 extern Uint16          meshlasttexture;             // Last texture used
 
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // Function prototypes
@@ -344,13 +343,11 @@ void make_enviro();
 
 bool_t load_one_icon( const char *szLoadName );
 
-
 void load_basic_textures( const char *modname );
 
 void clear_messages();
 
 void font_load( const char* szBitmap, const char* szSpacing );
-
 
 Uint32 load_one_title_image( const char *szLoadName );
 

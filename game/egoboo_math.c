@@ -531,5 +531,3 @@ GLvector3 mat_getCamForward(GLmatrix mat)
     return frw;
 };
 
-
-
