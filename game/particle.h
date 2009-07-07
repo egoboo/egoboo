@@ -167,18 +167,28 @@ struct s_prt_instance
 {
     bool_t valid;
 
+    // basic info
+    Uint8    type;               // particle type
+    Uint16   image;              // which image
+    Uint8    alpha;              // base alpha
+    Uint8    light;              // base self lighting
+
+    // position info
     GLvector3 pos;
+    float     size;
+
+    // billboard info
+    prt_ori_t orientation;
     GLvector3 up;
     GLvector3 right;
+    GLvector3 nrm;
 
-    Uint8    type;
-    Uint16   image;
+    // lighting info
+    float    famb;               // cached ambient light
+    float    fdir;               // cached directional light
 
-    Uint8    light;
-    float    color_component, alpha_component;
-    float    size;
-
-    prt_ori_t orientation;
+    float    fintens;            // current brightness
+    float    falpha;             // current alpha
 
     // graphical optimizations
     bool_t         indolist;        // Has it been added yet?

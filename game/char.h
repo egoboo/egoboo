@@ -635,7 +635,8 @@ extern chop_data_t chop;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 //Function prototypes
-char *  undo_idsz( IDSZ idsz );
+
+const char * undo_idsz( IDSZ idsz );
 void drop_money( Uint16 character, Uint16 money );
 void call_for_help( Uint16 character );
 void give_experience( Uint16 character, int amount, Uint8 xptype, bool_t override_invictus );
@@ -647,8 +648,7 @@ void kill_character( Uint16 character, Uint16 killer );
 void spawn_poof( Uint16 character, Uint16 profile );
 void reset_character_alpha( Uint16 character );
 void reset_character_accel( Uint16 character );
-void detach_character_from_mount( Uint16 character, Uint8 ignorekurse,
-                                  Uint8 doshop );
+void detach_character_from_mount( Uint16 character, Uint8 ignorekurse, Uint8 doshop );
 
 void flash_character_height( Uint16 character, Uint8 valuelow, Sint16 low,
                              Uint8 valuehigh, Sint16 high );
@@ -674,15 +674,12 @@ int chr_count_free();
 
 char * chop_create( Uint16 profile );
 
-int spawn_one_character( float x, float y, float z, Uint16 profile, Uint8 team,
-                         Uint8 skin, Uint16 facing, const char *name, int override );
-
+Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team, Uint8 skin, Uint16 facing, const char *name, int override );
 void respawn_character( Uint16 character );
 Uint16 change_armor( Uint16 character, Uint16 skin );
-void change_character( Uint16 cnt, Uint16 profile, Uint8 skin,
-                       Uint8 leavewhich );
+void change_character( Uint16 cnt, Uint16 profile, Uint8 skin, Uint8 leavewhich );
 void change_character_full( Uint16 ichr, Uint16 profile, Uint8 skin, Uint8 leavewhich );
-Uint8 cost_mana( Uint16 character, int amount, Uint16 killer );
+bool_t cost_mana( Uint16 character, int amount, Uint16 killer );
 void switch_team( Uint16 character, Uint8 team );
 void issue_clean( Uint16 character );
 int  restock_ammo( Uint16 character, IDSZ idsz );
@@ -691,15 +688,15 @@ bool_t inventory_add_item( Uint16 item, Uint16 character );
 Uint16 inventory_get_item( Uint16 character, grip_offset_t grip_off, bool_t ignorekurse );
 void drop_keys( Uint16 character );
 bool_t drop_all_items( Uint16 character );
-bool_t character_grab_stuff( Uint16 chara, grip_offset_t grip, Uint8 people );
+bool_t character_grab_stuff( Uint16 chara, grip_offset_t grip, bool_t people );
 
 void chr_play_action( Uint16 character, Uint16 action, Uint8 actionready );
 void chr_set_frame( Uint16 character, Uint16 action, int frame, Uint16 lip );
 
-void export_one_character_name( const char *szSaveName, Uint16 character );
-void export_one_character_profile( const char *szSaveName, Uint16 character );
-void export_one_character_skin( const char *szSaveName, Uint16 character );
-int load_one_character_profile( const char *szLoadName );
+bool_t export_one_character_name( const char *szSaveName, Uint16 character );
+bool_t export_one_character_profile( const char *szSaveName, Uint16 character );
+bool_t export_one_character_skin( const char *szSaveName, Uint16 character );
+int    load_one_character_profile( const char *szLoadName );
 
 void chop_load( Uint16 profile, const char *szLoadname );
 void character_swipe( Uint16 cnt, Uint8 slot );
@@ -712,8 +709,11 @@ bool_t is_invictus_direction( Uint16 direction, Uint16 character, Uint16 effects
 
 void   init_slot_idsz();
 
+bool_t ai_add_order( ai_state_t * pai, Uint32 value, Uint16 counter );
+
 //---------------------------------------------------------------------------------------------
 // Quest system
 bool_t add_quest_idsz( const char *whichplayer, IDSZ idsz );
 Sint16 modify_quest_idsz( const char *whichplayer, IDSZ idsz, Sint16 adjustment );
 Sint16 check_player_quest( const char *whichplayer, IDSZ idsz );
+

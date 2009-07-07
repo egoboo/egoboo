@@ -71,8 +71,7 @@ bool_t remove_enchant( Uint16 ienc )
     int add;
     enc_t * penc;
 
-    if ( ienc >= MAX_ENC ) return bfalse;
-    if ( !EncList[ienc].on ) return bfalse;
+    if ( INVALID_ENC(ienc) ) return bfalse;
     penc = EncList + ienc;
 
     // Unsparkle the spellbook
@@ -732,8 +731,7 @@ Uint16 spawn_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 ienc, 
         penc->overlay = MAX_CHR;
         if ( peve->overlay )
         {
-            overlay = spawn_one_character( ptarget->pos.x, ptarget->pos.y, ptarget->pos.z,
-                                           ieve, ptarget->team, 0, ptarget->turn_z, NULL, MAX_CHR );
+            overlay = spawn_one_character( ptarget->pos, ieve, ptarget->team, 0, ptarget->turn_z, NULL, MAX_CHR );
 
             if ( VALID_CHR(overlay) )
             {

@@ -124,8 +124,8 @@ struct s_ai_state
     Uint16         target_old;
 
     // message handling
-    Uint32         order;           // The last order given the character
-    Uint16         rank;           // The rank of the character on the order chain
+    Uint32         order_value;           // The last order given the character
+    Uint16         order_counter;         // The rank of the character on the order chain
 
     // waypoints
     Uint8          wp_tail;          // Which waypoint

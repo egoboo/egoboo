@@ -42,7 +42,7 @@ typedef struct s_prt_registry_entity prt_registry_entity_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static void prt_instance_update( camera_t * pcam, prt_instance_t * pinst, prt_t * pprt );
+static void prt_instance_update( camera_t * pcam, Uint16 particle, Uint8 trans, bool_t do_lighting );
 static void calc_billboard_verts( GLvertex vlst[], prt_instance_t * pinst, float size, float level, bool_t do_reflect );
 static int cmp_prt_registry_entity(const void * vlhs, const void * vrhs);
 
@@ -220,7 +220,7 @@ bool_t render_one_prt_solid( Uint16 iprt )
 
         oglx_texture_Bind( TxTexture + TX_PARTICLE_TRANS );
 
-        GL_DEBUG(glColor4f)(pinst->color_component, pinst->color_component, pinst->color_component, 1.0f );
+        GL_DEBUG(glColor4f)(pinst->fintens, pinst->fintens, pinst->fintens, 1.0f );
 
         GL_DEBUG(glBegin)(GL_TRIANGLE_FAN );
         {
@@ -301,7 +301,7 @@ bool_t render_one_prt_trans( Uint16 iprt )
             GL_DEBUG(glEnable)(GL_BLEND );
             GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
-            GL_DEBUG(glColor4f)(pinst->color_component, pinst->color_component, pinst->color_component, pinst->alpha_component );
+            GL_DEBUG(glColor4f)(pinst->fintens, pinst->fintens, pinst->fintens, pinst->falpha );
 
             oglx_texture_Bind( TxTexture + TX_PARTICLE_TRANS );
         }
@@ -327,7 +327,7 @@ bool_t render_one_prt_trans( Uint16 iprt )
             GL_DEBUG(glEnable)(GL_BLEND );
             GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
-            GL_DEBUG(glColor4f)(pinst->color_component, pinst->color_component, pinst->color_component, pinst->alpha_component );
+            GL_DEBUG(glColor4f)(pinst->fintens, pinst->fintens, pinst->fintens, pinst->falpha );
 
             oglx_texture_Bind( TxTexture + TX_PARTICLE_TRANS );
         }
@@ -469,7 +469,7 @@ bool_t render_one_prt_ref( Uint16 iprt )
             if ( PRTLIGHTSPRITE == PrtList[iprt].type )
             {
                 // do the light sprites
-                float alpha = startalpha * INV_FF * pinst->color_component / 2.0f;
+                float alpha = startalpha * INV_FF * pinst->fintens / 2.0f;
 
                 GL_DEBUG(glDisable)(GL_ALPHA_TEST );
 
@@ -483,7 +483,7 @@ bool_t render_one_prt_ref( Uint16 iprt )
             {
                 // do the transparent sprites
 
-                float alpha = pinst->alpha_component * pinst->color_component / 2.0f;
+                float alpha = pinst->falpha * pinst->fintens / 2.0f;
 
                 GL_DEBUG(glEnable)(GL_ALPHA_TEST );
                 GL_DEBUG(glAlphaFunc)(GL_GREATER, 0 );
@@ -491,7 +491,7 @@ bool_t render_one_prt_ref( Uint16 iprt )
                 GL_DEBUG(glEnable)(GL_BLEND );
                 GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
-                GL_DEBUG(glColor4f)(pinst->color_component, pinst->color_component, pinst->color_component, alpha );
+                GL_DEBUG(glColor4f)(pinst->fintens, pinst->fintens, pinst->fintens, alpha );
 
                 oglx_texture_Bind( TxTexture + TX_PARTICLE_TRANS );
             }
@@ -575,13 +575,13 @@ void update_all_prt_instance( camera_t * pcam )
         else
         {
             // calculate the "billboard" for this particle
-            prt_instance_update( pcam, pinst, pprt );
+            prt_instance_update( pcam, cnt, 255, bfalse );
         }
     }
 };
 
 //--------------------------------------------------------------------------------------------
-void prt_instance_update( camera_t * pcam, prt_instance_t * pinst, prt_t * pprt )
+void prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_t * pprt )
 {
     pip_t * ppip;
 
@@ -593,8 +593,6 @@ void prt_instance_update( camera_t * pcam, prt_instance_t * pinst, prt_t * pprt 
     ppip = PipList + pprt->pip;
 
     pinst->type = pprt->type;
-
-    pinst->color_component = pinst->light * INV_FF;
 
     pinst->image = FP8_TO_INT( pprt->image + pprt->imagestt );
 
@@ -722,17 +720,118 @@ void prt_instance_update( camera_t * pcam, prt_instance_t * pinst, prt_t * pprt 
         pinst->right.z = vup.z * turntosin[turn & TRIG_TABLE_MASK ] + vright.z * turntocos[turn & TRIG_TABLE_MASK ];
     }
 
+    // calculate the billboard normal
+    pinst->nrm = VCrossProduct( pinst->right, pinst->up );
+    if ( VDotProduct(vfwd, pinst->nrm) < 0 )
+    {
+        pinst->nrm.x *= -1;
+        pinst->nrm.y *= -1;
+        pinst->nrm.z *= -1;
+    }
+
     // set some particle dependent properties
-    pinst->alpha_component = 1.0f;
-    pinst->size = FP8_TO_FLOAT( pprt->size ) * 0.25f;
+    pinst->alpha = 0xFF;
+    pinst->size  = FP8_TO_FLOAT( pprt->size ) * 0.25f;
     switch ( pinst->type )
     {
         case PRTSOLIDSPRITE: pinst->size *= 0.9384f; break;
-        case PRTALPHASPRITE: pinst->size *= 0.9353f; pinst->alpha_component = particletrans * INV_FF; break;
+        case PRTALPHASPRITE: pinst->size *= 0.9353f; pinst->alpha = particletrans; break;
         case PRTLIGHTSPRITE: pinst->size *= 1.5912f; break;
     }
 
     pinst->valid = btrue;
+}
+
+GLmatrix prt_inst_make_matrix( prt_instance_t * pinst )
+{
+    GLmatrix mat = IdentityMatrix();
+
+    mat.CNV( 0, 1 ) = -pinst->up.x;
+    mat.CNV( 1, 1 ) = -pinst->up.y;
+    mat.CNV( 2, 1 ) = -pinst->up.z;
+
+    mat.CNV( 0, 0 ) = pinst->right.x;
+    mat.CNV( 1, 0 ) = pinst->right.y;
+    mat.CNV( 2, 0 ) = pinst->right.z;
+
+    mat.CNV( 0, 2 ) = pinst->nrm.x;
+    mat.CNV( 1, 2 ) = pinst->nrm.y;
+    mat.CNV( 2, 2 ) = pinst->nrm.z;
+
+    return mat;
+}
+
+//--------------------------------------------------------------------------------------------
+void prt_instance_update_lighting( prt_instance_t * pinst, prt_t * pprt, Uint8 trans, bool_t do_lighting )
+{
+    int    cnt;
+    Uint32 alpha;
+    Uint8  self_light;
+    lighting_cache_t global_light, loc_light;
+    float min_light, lite;
+    GLmatrix mat;
+
+    if ( NULL == pinst || NULL == pprt ) return;
+
+    // To make life easier
+    alpha = trans;
+
+    // interpolate the lighting for the origin of the object
+    interpolate_mesh_lighting( PMesh, &global_light, pinst->pos );
+
+    // rotate the lighting data to body_centered coordinates
+    mat = prt_inst_make_matrix( pinst );
+    project_lighting( &loc_light, &global_light, mat );
+
+    // remove any "ambient" component from the lighting
+    min_light = loc_light.max_light;
+    for (cnt = 0; cnt < 6; cnt++)
+    {
+        min_light = MIN(min_light, loc_light.lighting_low[cnt]);
+        min_light = MIN(min_light, loc_light.lighting_hgh[cnt]);
+    }
+
+    for (cnt = 0; cnt < 6; cnt++)
+    {
+        loc_light.lighting_low[cnt] -= min_light;
+        loc_light.lighting_hgh[cnt] -= min_light;
+    }
+
+    // determine the ambient lighting
+    self_light = ( 255 == pinst->light ) ? 0 : pinst->light;
+    pinst->famb   = 0.9f * pinst->famb + 0.1f * (self_light + min_light);
+
+    // determine the normal dependent amount of light
+    lite = evaluate_mesh_lighting( PMesh, &loc_light, pinst->nrm.v, pinst->pos.z );
+    pinst->fdir = 0.9f * pinst->fdir + 0.1f * lite;
+
+    // determine the overall lighting
+    pinst->fintens = pinst->fdir;
+    if ( do_lighting )
+    {
+        pinst->fintens += pinst->famb;
+    }
+
+    // determine the alpha component
+    pinst->falpha = (alpha * INV_FF) * (pinst->alpha * INV_FF);
+    pinst->falpha = CLIP(pinst->falpha, 0.0f, 1.0f);
+}
+
+//--------------------------------------------------------------------------------------------
+void prt_instance_update( camera_t * pcam, Uint16 particle, Uint8 trans, bool_t do_lighting )
+{
+    prt_t * pprt;
+    prt_instance_t * pinst;
+
+    if ( INVALID_PRT(particle) ) return;
+    pprt = PrtList + particle;
+    pinst = &(pprt->inst);
+
+    // make sure that the vertices are interpolated
+    prt_instance_update_vertices( pcam, pinst, pprt );
+
+    // do the lighting
+    prt_instance_update_lighting( pinst, pprt, trans, do_lighting );
 }
 
 //--------------------------------------------------------------------------------------------

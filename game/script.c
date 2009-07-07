@@ -127,8 +127,8 @@ void let_character_think( Uint16 character )
         fprintf( scr_file,  "\ttarget_old     == %d\n", pself->target_old );
 
         // message handling
-        fprintf( scr_file,  "\torder == %d\n", pself->order );
-        fprintf( scr_file,  "\tcounter == %d\n", pself->rank );
+        fprintf( scr_file,  "\torder == %d\n", pself->order_value );
+        fprintf( scr_file,  "\tcounter == %d\n", pself->order_counter );
 
         // waypoints
         fprintf( scr_file,  "\twp_tail == %d\n", pself->wp_tail );
@@ -263,55 +263,44 @@ void set_alerts( Uint16 character )
 }
 
 //--------------------------------------------------------------------------------------------
-void issue_order( Uint16 character, Uint32 order )
+void issue_order( Uint16 character, Uint32 value )
 {
-    // ZZ> This function issues an order for help to all teammates
-    Uint8 team;
-    Uint16 counter;
-    Uint16 cnt;
+    // ZZ> This function issues an value for help to all teammates
 
-    team = ChrList[character].team;
-    counter = 0;
-    cnt = 0;
+    int cnt, counter;
 
-    while ( cnt < MAX_CHR )
+    for ( cnt = 0, counter = 0; cnt < MAX_CHR; cnt++ )
     {
-        if ( ChrList[cnt].team == team )
+        if ( !ChrList[cnt].on ) continue;
+
+        if ( ChrList[cnt].team == ChrList[character].team )
         {
-            ChrList[cnt].ai.order = order;
-            ChrList[cnt].ai.rank  = counter;
-            ChrList[cnt].ai.alert |= ALERTIF_ORDERED;
+            ai_add_order( &(ChrList[cnt].ai), value, counter );
             counter++;
         }
-
-        cnt++;
     }
 }
 
 //--------------------------------------------------------------------------------------------
-void issue_special_order( Uint32 order, IDSZ idsz )
+void issue_special_order( Uint32 value, IDSZ idsz )
 {
     // ZZ> This function issues an order to all characters with the a matching special IDSZ
-    Uint16 counter;
-    Uint16 cnt;
+    int cnt, counter;
 
-    counter = 0;
-    cnt = 0;
-
-    while ( cnt < MAX_CHR )
+    for ( cnt = 0, counter = 0; cnt < MAX_CHR; cnt++ )
     {
-        if ( ChrList[cnt].on )
-        {
-            if ( CapList[ChrList[cnt].model].idsz[IDSZ_SPECIAL] == idsz )
-            {
-                ChrList[cnt].ai.order = order;
-                ChrList[cnt].ai.rank  = counter;
-                ChrList[cnt].ai.alert |= ALERTIF_ORDERED;
-                counter++;
-            }
-        }
+        Uint16 icap;
 
-        cnt++;
+        if ( !ChrList[cnt].on ) continue;
+
+        icap = ChrList[cnt].model;
+        if ( INVALID_CAP(icap) ) continue;
+
+        if ( idsz == CapList[icap].idsz[IDSZ_SPECIAL] )
+        {
+            ai_add_order( &(ChrList[cnt].ai), value, counter );
+            counter++;
+        }
     }
 }
 
@@ -966,12 +955,12 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARSELFCOUNTER:
                 varname = "SELFCOUNTER";
-                iTmp = pself->rank;
+                iTmp = pself->order_counter;
                 break;
 
             case VARSELFORDER:
                 varname = "SELFORDER";
-                iTmp = pself->order;
+                iTmp = pself->order_value;
                 break;
 
             case VARSELFMORALE:

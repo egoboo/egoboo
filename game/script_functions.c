@@ -1649,10 +1649,15 @@ Uint8 scr_SpawnCharacter( script_state_t * pstate, ai_state_t * pself )
     // direction, and tmpdistance gives the new character's initial velocity
 
     int tTmp;
+    GLvector3 pos;
 
     SCRIPT_FUNCTION_BEGIN();
 
-    sTmp = spawn_one_character( pstate->x, pstate->y, 0, pchr->model, pchr->team, 0, pstate->turn & 0xFFFF, NULL, MAX_CHR );
+    pos.x = pstate->x;
+    pos.y = pstate->y;
+    pos.z = 0;
+
+    sTmp = spawn_one_character( pos, pchr->model, pchr->team, 0, pstate->turn & 0xFFFF, NULL, MAX_CHR );
     if ( VALID_CHR(sTmp) )
     {
         float nrm[2];
@@ -2167,15 +2172,16 @@ Uint8 scr_TranslateOrder( script_state_t * pstate, ai_state_t * pself )
 
     // This function gets the order and sets tmpx, tmpy, tmpargument and the
     // target ( if valid )
-    sTmp = pself->order >> 24;
+
+    sTmp = ( pself->order_value >> 24 ) & 0xFFFF;
     if ( VALID_CHR(sTmp) )
     {
         pself->target = sTmp;
     }
 
-    pstate->x = ( ( pself->order >> 14 ) & 1023 ) << 6;
-    pstate->y = ( ( pself->order >> 4 ) & 1023 ) << 6;
-    pstate->argument = pself->order & 15;
+    pstate->x        = ( ( pself->order_value >> 14 ) & 0x03FF ) << 6;
+    pstate->y        = ( ( pself->order_value >>  4 ) & 0x03FF ) << 6;
+    pstate->argument = ( ( pself->order_value >>  0 ) & 0x000F );
 
     SCRIPT_FUNCTION_END();
 }
@@ -4788,9 +4794,14 @@ Uint8 scr_OrderTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    ChrList[pself->target].ai.order   = pstate->argument;
-    ChrList[pself->target].ai.rank    = 0;
-    ChrList[pself->target].ai.alert  |= ALERTIF_ORDERED;
+    if ( INVALID_CHR(pself->target) )
+    {
+        returncode = 0;
+    }
+    else
+    {
+        returncode = ai_add_order( &(ChrList[pself->target].ai), pstate->argument, 0 );
+    }
 
     SCRIPT_FUNCTION_END();
 }
@@ -4864,10 +4875,15 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
     // This function spawns a character of the same type at a specific location, failing if x,y,z is invalid
 
     float nrm[2];
+    GLvector3 pos;
 
     SCRIPT_FUNCTION_BEGIN();
 
-    sTmp = spawn_one_character( pstate->x, pstate->y, pstate->distance, pchr->model, pchr->team, 0, pstate->turn & 0xFFFF, NULL, MAX_CHR );
+    pos.x = pstate->x;
+    pos.y = pstate->y;
+    pos.z = pstate->distance;
+
+    sTmp = spawn_one_character( pos, pchr->model, pchr->team, 0, pstate->turn & 0xFFFF, NULL, MAX_CHR );
     if ( VALID_CHR(sTmp) )
     {
         if ( __chrhitawall( sTmp, nrm ) )
@@ -4902,10 +4918,15 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
     // AS THE MODEL SLOTS MAY VARY FROM MODULE TO MODULE...
 
     float nrm[2];
+    GLvector3 pos;
 
     SCRIPT_FUNCTION_BEGIN();
 
-    sTmp = spawn_one_character( pstate->x, pstate->y, pstate->distance, pstate->argument, pchr->team, 0, pstate->turn & 0xFFFF, NULL, MAX_CHR );
+    pos.x = pstate->x;
+    pos.y = pstate->y;
+    pos.z = pstate->distance;
+
+    sTmp = spawn_one_character( pos, pstate->argument, pchr->team, 0, pstate->turn & 0xFFFF, NULL, MAX_CHR );
     if ( VALID_CHR(sTmp) )
     {
         if ( __chrhitawall( sTmp, nrm ) )
@@ -6236,7 +6257,7 @@ Uint8 scr_SomeoneIsStealing( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // ThIs function passes if someone stealed from it's shop
-    returncode = ( pself->order == STOLEN && pself->rank == 3 );
+    returncode = ( pself->order_value == STOLEN && pself->order_counter == SHOP_THEFT );
 
     SCRIPT_FUNCTION_END();
 }

@@ -145,9 +145,7 @@ void free_one_particle_in_game( Uint16 particle )
 
         if ( pprt->spawncharacterstate != SPAWNNOCHARACTER )
         {
-            child = spawn_one_character( pprt->pos.x, pprt->pos.y, pprt->pos.z,
-                                         pprt->model, pprt->team, 0, pprt->facing,
-                                         NULL, MAX_CHR );
+            child = spawn_one_character( pprt->pos, pprt->model, pprt->team, 0, pprt->facing, NULL, MAX_CHR );
             if ( VALID_CHR(child) )
             {
                 ChrList[child].ai.state = pprt->spawncharacterstate;

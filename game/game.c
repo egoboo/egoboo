@@ -80,16 +80,16 @@
 //--------------------------------------------------------------------------------------------
 struct s_chr_setup_info
 {
-    STRING spawn_name;
-    char   *pname;
-    Sint32 slot;
-    float  x, y, z;
-    int    passage, content, money, level, skin;
-    bool_t stat;
-    Uint8  team;
-    Uint16 facing;
-    Uint16 attach;
-    Uint16 parent;
+    STRING     spawn_name;
+    char      *pname;
+    Sint32     slot;
+    GLvector3  pos;
+    int        passage, content, money, level, skin;
+    bool_t     stat;
+    Uint8      team;
+    Uint16     facing;
+    Uint16     attach;
+    Uint16     parent;
 };
 typedef struct s_chr_setup_info chr_setup_info_t;
 
@@ -140,8 +140,6 @@ bool_t staton     = btrue;
 int    statdelay  = 25;
 int    numstat    = 0;
 Uint16 statlist[MAXSTAT];
-
-char idsz_string[5] = { '\0' };
 
 ego_mpd_t         * PMesh   = _mesh + 0;
 camera_t          * PCamera = _camera + 0;
@@ -4107,53 +4105,61 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     }
     else if ( pprt_b->chr != ichr_a )
     {
-        cost_mana( pchr_a->missilehandler, ( pchr_a->missilecost << 8 ), pprt_b->chr );
+        bool_t mana_paid = cost_mana( pchr_a->missilehandler, pchr_a->missilecost << 8, pprt_b->chr );
 
-        // Treat the missile
-        if ( pchr_a->missiletreatment == MISDEFLECT )
+        if ( mana_paid )
         {
-            // Use old position to find normal
-            ax = pprt_b->pos.x - pprt_b->vel.x;
-            ay = pprt_b->pos.y - pprt_b->vel.y;
-            ax = pchr_a->pos.x - ax;
-            ay = pchr_a->pos.y - ay;
-
-            // Find size of normal
-            scale = ax * ax + ay * ay;
-            if ( scale > 0 )
+            // Treat the missile
+            if ( pchr_a->missiletreatment == MISDEFLECT )
             {
-                // Make the normal a unit normal
-                scale = SQRT( scale );
-                nx = ax / scale;
-                ny = ay / scale;
+                // Use old position to find normal
+                ax = pprt_b->pos.x - pprt_b->vel.x;
+                ay = pprt_b->pos.y - pprt_b->vel.y;
+                ax = pchr_a->pos.x - ax;
+                ay = pchr_a->pos.y - ay;
 
-                // Deflect the incoming ray off the normal
-                scale = ( pprt_b->vel.x * nx + pprt_b->vel.y * ny ) * 2;
-                ax = scale * nx;
-                ay = scale * ny;
-                pprt_b->vel.x = pprt_b->vel.x - ax;
-                pprt_b->vel.y = pprt_b->vel.y - ay;
+                // Find size of normal
+                scale = ax * ax + ay * ay;
+                if ( scale > 0 )
+                {
+                    // Make the normal a unit normal
+                    scale = SQRT( scale );
+                    nx = ax / scale;
+                    ny = ay / scale;
+
+                    // Deflect the incoming ray off the normal
+                    scale = ( pprt_b->vel.x * nx + pprt_b->vel.y * ny ) * 2;
+                    ax = scale * nx;
+                    ay = scale * ny;
+                    pprt_b->vel.x = pprt_b->vel.x - ax;
+                    pprt_b->vel.y = pprt_b->vel.y - ay;
+                }
+            }
+            else
+            {
+                // Reflect it back in the direction it came
+                pprt_b->vel.x = -pprt_b->vel.x;
+                pprt_b->vel.y = -pprt_b->vel.y;
+            }
+
+            // Change the owner of the missile
+            pprt_b->team = pchr_a->team;
+            pprt_b->chr = ichr_a;
+            ppip_b->homing = bfalse;
+
+            // Change the direction of the particle
+            if ( ppip_b->rotatetoface )
+            {
+                // Turn to face new direction
+                facing = ATAN2( pprt_b->vel.y, pprt_b->vel.x ) * 0xFFFF / ( TWO_PI );
+                facing += 32768;
+                pprt_b->facing = facing;
             }
         }
         else
         {
-            // Reflect it back in the direction it came
-            pprt_b->vel.x = -pprt_b->vel.x;
-            pprt_b->vel.y = -pprt_b->vel.y;
-        }
-
-        // Change the owner of the missile
-        pprt_b->team = pchr_a->team;
-        pprt_b->chr = ichr_a;
-        ppip_b->homing = bfalse;
-
-        // Change the direction of the particle
-        if ( ppip_b->rotatetoface )
-        {
-            // Turn to face new direction
-            facing = ATAN2( pprt_b->vel.y, pprt_b->vel.x ) * 0xFFFF / ( TWO_PI );
-            facing += 32768;
-            pprt_b->facing = facing;
+            // what happes if the misslehandler can't pay the mana?
+            free_one_particle( iprt_b );
         }
     }
 
@@ -4434,7 +4440,7 @@ void stat_return()
 
                     // Change mana
                     mana_paid = cost_mana(owner, -EncList[cnt].ownermana, target);
-                    if ( EveList[eve].endifcantpay && (!mana_paid || 0 == ChrList[owner].mana)  )
+                    if ( EveList[eve].endifcantpay && !mana_paid )
                     {
                         remove_enchant( cnt );
                     }
@@ -4464,7 +4470,7 @@ void stat_return()
 
                         // Change mana
                         mana_paid = cost_mana( target, -EncList[cnt].targetmana, owner );
-                        if ( EveList[eve].endifcantpay && (!mana_paid || 0 == ChrList[target].mana) )
+                        if ( EveList[eve].endifcantpay && !mana_paid )
                         {
                             remove_enchant( cnt );
                         }
@@ -4602,8 +4608,8 @@ bool_t chr_setup_read( FILE * fileread, chr_setup_info_t *pinfo )
 
     fscanf( fileread, "%d", &pinfo->slot );
 
-    fscanf( fileread, "%f%f%f", &pinfo->x, &pinfo->y, &pinfo->z );
-    pinfo->x *= 128;  pinfo->y *= 128;  pinfo->z *= 128;
+    fscanf( fileread, "%f%f%f", &(pinfo->pos.x), &(pinfo->pos.y), &(pinfo->pos.z) );
+    pinfo->pos.x *= TILE_SIZE;  pinfo->pos.y *= TILE_SIZE;  pinfo->pos.z *= TILE_SIZE;
 
     pinfo->facing = NORTH;
     pinfo->attach = ATTACH_NONE;
@@ -4712,7 +4718,7 @@ void setup_characters( const char *modname )
             // Spawn the character
             if ( info.team < numplayer || !PMod->rtscontrol || info.team >= MAXPLAYER )
             {
-                new_object = spawn_one_character( info.x, info.y, info.z, info.slot, info.team, info.skin, info.facing, info.pname, MAX_CHR );
+                new_object = spawn_one_character( info.pos, info.slot, info.team, info.skin, info.facing, info.pname, MAX_CHR );
 
                 if ( MAX_CHR != new_object )
                 {
@@ -6674,20 +6680,20 @@ bool_t collide_ray_with_mesh( line_of_sight_info_t * plos )
     Uint32 fan_last;
 
     int Dx, Dy;
-    int ix,ix_stt,ix_end;
-    int iy,iy_stt,iy_end;
+    int ix, ix_stt, ix_end;
+    int iy, iy_stt, iy_end;
 
     int Dbig, Dsmall;
-    int ibig,ibig_stt,ibig_end;
-    int ismall,ismall_stt,ismall_end;
+    int ibig, ibig_stt, ibig_end;
+    int ismall, ismall_stt, ismall_end;
     int dbig, dsmall;
     int TwoDsmall, TwoDsmallMinusTwoDbig, TwoDsmallMinusDbig;
 
     bool_t steep;
 
-    if(NULL == plos) return bfalse;
+    if (NULL == plos) return bfalse;
 
-    if( 0 == plos->stopped_by ) return bfalse;
+    if ( 0 == plos->stopped_by ) return bfalse;
 
     ix_stt = plos->x0 / TILE_SIZE;
     ix_end = plos->x1 / TILE_SIZE;
@@ -6737,11 +6743,11 @@ bool_t collide_ray_with_mesh( line_of_sight_info_t * plos )
     }
 
     // pre-compute some common values
-    TwoDsmall             = 2*Dsmall;
-    TwoDsmallMinusTwoDbig = TwoDsmall - 2*Dbig;
+    TwoDsmall             = 2 * Dsmall;
+    TwoDsmallMinusTwoDbig = TwoDsmall - 2 * Dbig;
     TwoDsmallMinusDbig    = TwoDsmall - Dbig;
 
-    fan_last = INVALID_TILE;    
+    fan_last = INVALID_TILE;
     for (ibig = ibig_stt, ismall = ismall_stt;  ibig != ibig_end;  ibig += dbig )
     {
         Uint32 fan;
@@ -6759,11 +6765,11 @@ bool_t collide_ray_with_mesh( line_of_sight_info_t * plos )
 
         // check to see if the "ray" collides with the mesh
         fan = mesh_get_tile_int(PMesh, ix, iy);
-        if( INVALID_TILE != fan && fan != fan_last )
+        if ( INVALID_TILE != fan && fan != fan_last )
         {
             // collide the ray with the mesh
 
-            if( 0!= (PMesh->mmem.tile_list[fan].fx & plos->stopped_by) )
+            if ( 0 != (PMesh->mmem.tile_list[fan].fx & plos->stopped_by) )
             {
                 plos->collide_x  = ix;
                 plos->collide_y  = iy;
@@ -6780,7 +6786,7 @@ bool_t collide_ray_with_mesh( line_of_sight_info_t * plos )
         {
             TwoDsmallMinusDbig += TwoDsmallMinusTwoDbig;
             ismall             += dsmall;
-        } 
+        }
         else
         {
             TwoDsmallMinusDbig += TwoDsmall;
@@ -6795,11 +6801,11 @@ bool_t collide_ray_with_characters( line_of_sight_info_t * plos )
 {
     Uint16 ichr;
 
-    if(NULL == plos) return bfalse;
+    if (NULL == plos) return bfalse;
 
-    for( ichr = 0; ichr < MAX_CHR; ichr++)
+    for ( ichr = 0; ichr < MAX_CHR; ichr++)
     {
-        if( !ChrList[ichr].on ) continue;
+        if ( !ChrList[ichr].on ) continue;
 
         // do line/character intersection
     }
@@ -6814,7 +6820,7 @@ bool_t do_line_of_sight( line_of_sight_info_t * plos )
 
     mesh_hit = collide_ray_with_mesh( plos );
 
-    if( mesh_hit )
+    if ( mesh_hit )
     {
         plos->x1 = plos->collide_x * TILE_SIZE;
         plos->y1 = plos->collide_y * TILE_SIZE;

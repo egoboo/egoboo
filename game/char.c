@@ -47,18 +47,6 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-//These are shop orders
-
-enum e_shop_orders
-{
-    SHOP_BUY       = 0,
-    SHOP_SELL,
-    SHOP_NOAFFORD,
-    SHOP_THEFT,
-};
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 static int     numfreechr = 0;             // For allocation
 static Uint16  freechrlist[MAX_CHR];
 
@@ -97,6 +85,8 @@ void flash_character_height( Uint16 character, Uint8 valuelow, Sint16 low,
     int cnt;
     Uint16 frame_nxt;
     Sint16 z;
+
+    if ( INVALID_CHR( character ) ) return;
 
     frame_nxt = ChrList[character].inst.frame_nxt;
 
@@ -360,6 +350,8 @@ void free_inventory( Uint16 character )
     // ZZ> This function frees every item in the character's inventory
     int cnt, next;
 
+    if ( INVALID_CHR( character ) ) return;
+
     cnt = ChrList[character].pack_next;
     while ( cnt < MAX_CHR )
     {
@@ -379,9 +371,9 @@ void attach_particle_to_character( Uint16 particle, Uint16 character, int vertex
     GLvector4 point[1], nupoint[1];
 
     // Check validity of attachment
-    if ( !ChrList[character].on || ChrList[character].pack_ispacked )
+    if ( INVALID_CHR(character) || ChrList[character].pack_ispacked )
     {
-        PrtList[particle].time  = frame_all + 1;
+        PrtList[particle].time   = frame_all + 1;
         PrtList[particle].poofme = btrue;
         return;
     }
@@ -926,27 +918,26 @@ void reset_character_accel( Uint16 character )
 {
     // ZZ> This function fixes a character's max acceleration
     Uint16 enchant;
-    if ( VALID_CHR(character) )
+
+    if ( INVALID_CHR( character ) ) return;
+
+    // Okay, remove all acceleration enchants
+    enchant = ChrList[character].firstenchant;
+    while ( enchant < MAX_ENC )
     {
-        // Okay, remove all acceleration enchants
-        enchant = ChrList[character].firstenchant;
+        remove_enchant_value( enchant, ADDACCEL );
+        enchant = EncList[enchant].nextenchant;
+    }
 
-        while ( enchant < MAX_ENC )
-        {
-            remove_enchant_value( enchant, ADDACCEL );
-            enchant = EncList[enchant].nextenchant;
-        }
+    // Set the starting value
+    ChrList[character].maxaccel = CapList[ChrList[character].model].maxaccel[ChrList[character].skin];
 
-        // Set the starting value
-        ChrList[character].maxaccel = CapList[ChrList[character].model].maxaccel[ChrList[character].skin];
-        // Put the acceleration enchants back on
-        enchant = ChrList[character].firstenchant;
-
-        while ( enchant < MAX_ENC )
-        {
-            add_enchant_value( enchant, ADDACCEL, EncList[enchant].eve );
-            enchant = EncList[enchant].nextenchant;
-        }
+    // Put the acceleration enchants back on
+    enchant = ChrList[character].firstenchant;
+    while ( enchant < MAX_ENC )
+    {
+        add_enchant_value( enchant, ADDACCEL, EncList[enchant].eve );
+        enchant = EncList[enchant].nextenchant;
     }
 
 }
@@ -1050,8 +1041,8 @@ void detach_character_from_mount( Uint16 character, Uint8 ignorekurse,
                         // The owner has died!!!
                         inshop = bfalse;
                     }
-                    
-                    if( inshop ) break;
+
+                    if ( inshop ) break;
                 }
             }
         }
@@ -1087,9 +1078,7 @@ void detach_character_from_mount( Uint16 character, Uint8 ignorekurse,
             ChrList[owner].money -= (Sint16) price;
             ChrList[owner].money  = CLIP(ChrList[owner].money, 0, MAXMONEY);
 
-            ChrList[owner].ai.alert |= ALERTIF_ORDERED;
-            ChrList[owner].ai.order = (Uint32) price;  // Tell owner how much...
-            ChrList[owner].ai.rank  = SHOP_BUY;  // 0 for buying an item
+            ai_add_order( &(ChrList[owner].ai), (Uint32) price, SHOP_BUY );
         }
     }
 
@@ -1156,33 +1145,35 @@ void reset_character_alpha( Uint16 character )
 {
     // ZZ> This function fixes an item's transparency
     Uint16 enchant, mount;
-    if ( VALID_CHR(character) )
+
+    if ( INVALID_CHR( character ) ) return;
+
+    mount = ChrList[character].attachedto;
+    if ( INVALID_CHR( mount ) ) return;
+
+    if ( ChrList[character].isitem && ChrList[mount].transferblend )
     {
-        mount = ChrList[character].attachedto;
-        if ( VALID_CHR(mount) && ChrList[character].isitem && ChrList[mount].transferblend )
+        // Okay, reset transparency
+        enchant = ChrList[character].firstenchant;
+        while ( enchant < MAX_ENC )
         {
-            // Okay, reset transparency
-            enchant = ChrList[character].firstenchant;
+            unset_enchant_value( enchant, SETALPHABLEND );
+            unset_enchant_value( enchant, SETLIGHTBLEND );
+            enchant = EncList[enchant].nextenchant;
+        }
 
-            while ( enchant < MAX_ENC )
-            {
-                unset_enchant_value( enchant, SETALPHABLEND );
-                unset_enchant_value( enchant, SETLIGHTBLEND );
-                enchant = EncList[enchant].nextenchant;
-            }
+        ChrList[character].inst.alpha = ChrList[character].basealpha;
+        ChrList[character].inst.light = CapList[ChrList[character].model].light;
 
-            ChrList[character].inst.alpha = ChrList[character].basealpha;
-            ChrList[character].inst.light = CapList[ChrList[character].model].light;
-            enchant = ChrList[character].firstenchant;
-
-            while ( enchant < MAX_ENC )
-            {
-                set_enchant_value( enchant, SETALPHABLEND, EncList[enchant].eve );
-                set_enchant_value( enchant, SETLIGHTBLEND, EncList[enchant].eve );
-                enchant = EncList[enchant].nextenchant;
-            }
+        enchant = ChrList[character].firstenchant;
+        while ( enchant < MAX_ENC )
+        {
+            set_enchant_value( enchant, SETALPHABLEND, EncList[enchant].eve );
+            set_enchant_value( enchant, SETLIGHTBLEND, EncList[enchant].eve );
+            enchant = EncList[enchant].nextenchant;
         }
     }
+
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1378,14 +1369,18 @@ Uint16 pack_has_a_stack( Uint16 item, Uint16 character )
     // ZZ> This function looks in the character's pack for an item similar
     //     to the one given.  If it finds one, it returns the similar item's
     //     index number, otherwise it returns MAX_CHR.
+
     Uint16 pack_ispacked, id;
     bool_t allok;
+
+    if ( INVALID_CHR( item ) ) return MAX_CHR;
+
     if ( CapList[ChrList[item].model].isstackable )
     {
         pack_ispacked = ChrList[character].pack_next;
-        allok = bfalse;
 
-        while ( pack_ispacked != MAX_CHR && !allok )
+        allok = bfalse;
+        while ( VALID_CHR(pack_ispacked) && !allok )
         {
             allok = btrue;
             if ( ChrList[pack_ispacked].model != ChrList[item].model )
@@ -1399,16 +1394,12 @@ Uint16 pack_has_a_stack( Uint16 item, Uint16 character )
                     allok = bfalse;
                 }
 
-                id = 0;
-
-                while ( id < IDSZ_COUNT && allok )
+                for ( id = 0; id < IDSZ_COUNT && allok; id++ )
                 {
                     if ( CapList[ChrList[pack_ispacked].model].idsz[id] != CapList[ChrList[item].model].idsz[id] )
                     {
                         allok = bfalse;
                     }
-
-                    id++;
                 }
             }
             if ( !allok )
@@ -1416,6 +1407,7 @@ Uint16 pack_has_a_stack( Uint16 item, Uint16 character )
                 pack_ispacked = ChrList[pack_ispacked].pack_next;
             }
         }
+
         if ( allok )
         {
             return pack_ispacked;
@@ -1431,9 +1423,10 @@ bool_t pack_add_item( Uint16 item, Uint16 character )
     // ZZ> This function puts one character inside the other's pack
     Uint16 oldfirstitem, newammo, stack;
 
+    if ( INVALID_CHR( item ) || INVALID_CHR( character ) ) return bfalse;
+
     // Make sure everything is hunkydori
-    if ( ( !ChrList[item].on ) || ( !ChrList[character].on ) || ChrList[item].pack_ispacked || ChrList[character].pack_ispacked ||
-            ChrList[character].isitem )
+    if ( ChrList[item].pack_ispacked || ChrList[character].pack_ispacked || ChrList[character].isitem )
         return bfalse;
 
     stack = pack_has_a_stack( item, character );
@@ -1513,18 +1506,22 @@ Uint16 pack_get_item( Uint16 character, grip_offset_t grip_off, bool_t ignorekur
     //     it into the designated hand.  It returns the item number or MAX_CHR.
     Uint16 item, nexttolastitem;
 
-    // Make sure everything is hunkydori
-    if ( ( !ChrList[character].on ) || ChrList[character].pack_ispacked || ChrList[character].isitem || ChrList[character].pack_next == MAX_CHR )
+    // does the character exist?
+    if ( INVALID_CHR( character ) )
         return MAX_CHR;
 
-    if ( ChrList[character].pack_count == 0 )
+    // Can the character have a pack?
+    if ( ChrList[character].pack_ispacked || ChrList[character].isitem )
+        return MAX_CHR;
+
+    // is the pack empty?
+    if ( MAX_CHR == ChrList[character].pack_next || 0 == ChrList[character].pack_count )
         return MAX_CHR;
 
     // Find the last item in the pack
     nexttolastitem = character;
     item = ChrList[character].pack_next;
-
-    while ( ChrList[item].pack_next != MAX_CHR )
+    while ( VALID_CHR(ChrList[item].pack_next) )
     {
         nexttolastitem = item;
         item = ChrList[item].pack_next;
@@ -1535,6 +1532,7 @@ Uint16 pack_get_item( Uint16 character, grip_offset_t grip_off, bool_t ignorekur
     {
         // Flag the last item as not removed
         ChrList[item].ai.alert |= ALERTIF_NOTPUTAWAY;  // Doubles as IfNotTakenOut
+
         // Cycle it to the front
         ChrList[item].pack_next = ChrList[character].pack_next;
         ChrList[nexttolastitem].pack_next = MAX_CHR;
@@ -1544,7 +1542,7 @@ Uint16 pack_get_item( Uint16 character, grip_offset_t grip_off, bool_t ignorekur
             ChrList[item].pack_next = MAX_CHR;
         }
 
-        return MAX_CHR;
+        item = MAX_CHR;
     }
     else
     {
@@ -1573,58 +1571,58 @@ void drop_keys( Uint16 character )
     Uint16 item, lastitem, nextitem, direction;
     IDSZ testa, testz;
 
-    if ( VALID_CHR(character) )
+    if ( INVALID_CHR( character ) ) return;
+
+    if ( ChrList[character].pos.z > -2 ) // Don't lose keys in pits...
     {
-        if ( ChrList[character].pos.z > -2 ) // Don't lose keys in pits...
+        // The IDSZs to find
+        testa = Make_IDSZ( "KEYA" );  // [KEYA]
+        testz = Make_IDSZ( "KEYZ" );  // [KEYZ]
+
+        lastitem = character;
+        item = ChrList[character].pack_next;
+
+        while ( item != MAX_CHR )
         {
-            // The IDSZs to find
-            testa = Make_IDSZ( "KEYA" );  // [KEYA]
-            testz = Make_IDSZ( "KEYZ" );  // [KEYZ]
-
-            lastitem = character;
-            item = ChrList[character].pack_next;
-
-            while ( item != MAX_CHR )
+            nextitem = ChrList[item].pack_next;
+            if ( item != character )  // Should never happen...
             {
-                nextitem = ChrList[item].pack_next;
-                if ( item != character )  // Should never happen...
+                if ( ( CapList[ChrList[item].model].idsz[IDSZ_PARENT] >= testa &&
+                        CapList[ChrList[item].model].idsz[IDSZ_PARENT] <= testz ) ||
+                        ( CapList[ChrList[item].model].idsz[IDSZ_TYPE] >= testa &&
+                          CapList[ChrList[item].model].idsz[IDSZ_TYPE] <= testz ) )
                 {
-                    if ( ( CapList[ChrList[item].model].idsz[IDSZ_PARENT] >= testa &&
-                            CapList[ChrList[item].model].idsz[IDSZ_PARENT] <= testz ) ||
-                            ( CapList[ChrList[item].model].idsz[IDSZ_TYPE] >= testa &&
-                              CapList[ChrList[item].model].idsz[IDSZ_TYPE] <= testz ) )
-                    {
-                        // We found a key...
-                        ChrList[item].pack_ispacked = bfalse;
-                        ChrList[item].isequipped = bfalse;
-                        ChrList[lastitem].pack_next = nextitem;
-                        ChrList[item].pack_next = MAX_CHR;
-                        ChrList[character].pack_count--;
-                        ChrList[item].attachedto = MAX_CHR;
-                        ChrList[item].ai.alert |= ALERTIF_DROPPED;
-                        ChrList[item].hitready = btrue;
+                    // We found a key...
+                    ChrList[item].pack_ispacked = bfalse;
+                    ChrList[item].isequipped = bfalse;
+                    ChrList[lastitem].pack_next = nextitem;
+                    ChrList[item].pack_next = MAX_CHR;
+                    ChrList[character].pack_count--;
+                    ChrList[item].attachedto = MAX_CHR;
+                    ChrList[item].ai.alert |= ALERTIF_DROPPED;
+                    ChrList[item].hitready = btrue;
 
-                        direction = RANDIE;
-                        ChrList[item].turn_z = direction + 32768;
-                        ChrList[item].phys.level = ChrList[character].phys.level;
-                        ChrList[item].floor_level = ChrList[character].floor_level;
-                        ChrList[item].onwhichplatform = ChrList[character].onwhichplatform;
-                        ChrList[item].pos   = ChrList[character].pos;
-                        ChrList[item].vel.x = turntocos[ (direction >> 2) & TRIG_TABLE_MASK ] * DROPXYVEL;
-                        ChrList[item].vel.y = turntosin[ (direction >> 2) & TRIG_TABLE_MASK ] * DROPXYVEL;
-                        ChrList[item].vel.z = DROPZVEL;
-                        ChrList[item].team = ChrList[item].baseteam;
-                    }
-                    else
-                    {
-                        lastitem = item;
-                    }
+                    direction = RANDIE;
+                    ChrList[item].turn_z = direction + 32768;
+                    ChrList[item].phys.level = ChrList[character].phys.level;
+                    ChrList[item].floor_level = ChrList[character].floor_level;
+                    ChrList[item].onwhichplatform = ChrList[character].onwhichplatform;
+                    ChrList[item].pos   = ChrList[character].pos;
+                    ChrList[item].vel.x = turntocos[ (direction >> 2) & TRIG_TABLE_MASK ] * DROPXYVEL;
+                    ChrList[item].vel.y = turntosin[ (direction >> 2) & TRIG_TABLE_MASK ] * DROPXYVEL;
+                    ChrList[item].vel.z = DROPZVEL;
+                    ChrList[item].team = ChrList[item].baseteam;
                 }
-
-                item = nextitem;
+                else
+                {
+                    lastitem = item;
+                }
             }
+
+            item = nextitem;
         }
     }
+
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1671,202 +1669,222 @@ bool_t drop_all_items( Uint16 character )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t character_grab_stuff( Uint16 chara, grip_offset_t grip_off, Uint8 people )
+Uint16 shop_get_owner( int ix, int iy )
+{
+    int cnt;
+    Uint16 owner = NOOWNER;
+
+    for ( cnt = 0; cnt < numshoppassage; cnt++ )
+    {
+        Uint16 passage;
+
+        passage = shoppassage[cnt];
+        if ( passage > numpassage ) continue;
+
+        if ( ix >= passtlx[passage] && ix <= passbrx[passage] )
+        {
+            if ( iy >= passtly[passage] && iy <= passbry[passage] )
+            {
+                // if there is NOOWNER, someone has been murdered!
+                owner  = shopowner[cnt];
+                break;
+            }
+        }
+    }
+
+    return owner;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t character_grab_stuff( Uint16 ichr_a, grip_offset_t grip_off, bool_t grab_people )
 {
     // ZZ> This function makes the character pick up an item if there's one around
-    float xb, yb, zb, dist;
-    int charb;
-    Uint16 vertex, model, frame_nxt, passage, cnt, owner = NOOWNER;
-    GLvector4 point[1], nupoint[1];
-    bool_t inshop;
-    int loc;
-    float price;
+    Uint16 ichr_b;
+    Uint16 model, vertex, frame_nxt;
     slot_t slot;
+    GLvector4 point[1], nupoint[1];
 
     // Make life easier
-    model = ChrList[chara].model;
+    model = ChrList[ichr_a].model;
     slot = grip_offset_to_slot( grip_off );  // 0 is left, 1 is right
 
     // Make sure the character doesn't have something already, and that it has hands
-    if ( ChrList[chara].holdingwhich[slot] != MAX_CHR || !CapList[model].slotvalid[slot] )
+    if ( ChrList[ichr_a].holdingwhich[slot] != MAX_CHR || !CapList[model].slotvalid[slot] )
         return bfalse;
 
     // Do we have a matrix???
-    if ( ChrList[chara].inst.matrixvalid )
+    if ( ChrList[ichr_a].inst.matrixvalid )
     {
         // Transform the weapon grip_off from model to world space
-        frame_nxt = ChrList[chara].inst.frame_nxt;
+        frame_nxt = ChrList[ichr_a].inst.frame_nxt;
         vertex = MadList[model].md2.vertices - grip_off;
 
         // do the automatic update
-        chr_instance_update_vertices( &(ChrList[chara].inst), vertex, vertex );
+        chr_instance_update_vertices( &(ChrList[ichr_a].inst), vertex, vertex );
 
         // Calculate grip_off point locations with linear interpolation and other silly things
-        point[0].x = ChrList[chara].inst.vlst[vertex].pos[XX];
-        point[0].y = ChrList[chara].inst.vlst[vertex].pos[YY];
-        point[0].z = ChrList[chara].inst.vlst[vertex].pos[ZZ];
+        point[0].x = ChrList[ichr_a].inst.vlst[vertex].pos[XX];
+        point[0].y = ChrList[ichr_a].inst.vlst[vertex].pos[YY];
+        point[0].z = ChrList[ichr_a].inst.vlst[vertex].pos[ZZ];
         point[0].w = 1.0f;
 
         // Do the transform
-        TransformVertices( &(ChrList[chara].inst.matrix), point, nupoint, 1 );
+        TransformVertices( &(ChrList[ichr_a].inst.matrix), point, nupoint, 1 );
     }
     else
     {
         // Just wing it
-        nupoint[0].x = ChrList[chara].pos.x;
-        nupoint[0].y = ChrList[chara].pos.y;
-        nupoint[0].z = ChrList[chara].pos.z;
+        nupoint[0].x = ChrList[ichr_a].pos.x;
+        nupoint[0].y = ChrList[ichr_a].pos.y;
+        nupoint[0].z = ChrList[ichr_a].pos.z;
         nupoint[0].w = 1.0f;
     }
 
     // Go through all characters to find the best match
-    for ( charb = 0; charb < MAX_CHR; charb++ )
+    for ( ichr_b = 0; ichr_b < MAX_CHR; ichr_b++ )
     {
-        if ( !ChrList[charb].on ) continue;
+        GLvector3 pos_b;
+        bool_t can_grab;
+        float price;
 
-        if ( ChrList[charb].pack_ispacked ) continue;              // pickpocket not allowed yet
-        if ( MAX_CHR != ChrList[charb].attachedto) continue; // disarm not allowed yet
+        float dx, dy, dz, dxy;
 
-        if ( ChrList[charb].weight > ChrList[chara].weight + ChrList[chara].strength ) continue; // reasonable carrying capacity
+        if ( !ChrList[ichr_b].on ) continue;
 
-        // people == btrue allows you to pick up living non-items
-        // people == false allows you to pick up living (functioning) items
-        if ( ChrList[charb].alive && (people == ChrList[charb].isitem) ) continue;
+        if ( ChrList[ichr_b].pack_ispacked ) continue;              // pickpocket not allowed yet
+        if ( MAX_CHR != ChrList[ichr_b].attachedto) continue; // disarm not allowed yet
+
+        if ( ChrList[ichr_b].weight > ChrList[ichr_a].weight + ChrList[ichr_a].strength ) continue; // reasonable carrying capacity
+
+        // grab_people == btrue allows you to pick up living non-items
+        // grab_people == false allows you to pick up living (functioning) items
+        if ( ChrList[ichr_b].alive && (grab_people == ChrList[ichr_b].isitem) ) continue;
 
         // do not pick up your mount
-        if ( ChrList[charb].holdingwhich[SLOT_LEFT] == chara || ChrList[charb].holdingwhich[SLOT_RIGHT] == chara ) continue;
+        if ( ChrList[ichr_b].holdingwhich[SLOT_LEFT] == ichr_a || ChrList[ichr_b].holdingwhich[SLOT_RIGHT] == ichr_a ) continue;
 
-        xb = ChrList[charb].pos.x;
-        yb = ChrList[charb].pos.y;
-        zb = ChrList[charb].pos.z;
+        pos_b = ChrList[ichr_b].pos;
 
         // First check absolute value diamond
-        xb = ABS( nupoint[0].x - xb );
-        yb = ABS( nupoint[0].y - yb );
-        zb = ABS( nupoint[0].z - zb );
-        dist = xb + yb;
+        dx = ABS( nupoint[0].x - pos_b.x );
+        dy = ABS( nupoint[0].y - pos_b.y );
+        dz = ABS( nupoint[0].z - pos_b.z );
+        dxy = dx + dy;
 
-        if ( dist < GRABSIZE && zb < GRABSIZE )
+        if ( dxy > GRABSIZE || dz > GRABSIZE ) continue;
+
+        // Check for shop
+
+        can_grab = btrue;
+        if ( ChrList[ichr_b].isitem && numshoppassage > 0 )
         {
-            // Check for shop
-            inshop = bfalse;
-            if ( ChrList[charb].isitem && numshoppassage > 0 )
+            int    ix, iy;
+            bool_t inshop;
+            Uint16 owner;
+
+            ix = ChrList[ichr_b].pos.x / TILE_SIZE;
+            iy = ChrList[ichr_b].pos.y / TILE_SIZE;
+
+            owner  = shop_get_owner( ix, iy );
+            inshop = VALID_CHR(owner);
+
+            if ( inshop )
             {
-                for ( cnt = 0; cnt < numshoppassage; cnt++ )
-                {
-                    passage = shoppassage[cnt];
+                // Pay the shop owner, or don't allow grab...
+                bool_t is_invis, can_steal;
 
-                    loc = ChrList[charb].pos.x;
-                    loc = loc >> TILE_BITS;
-                    if ( loc >= passtlx[passage] && loc <= passbrx[passage] )
-                    {
-                        loc = ChrList[charb].pos.y;
-                        loc = loc >> TILE_BITS;
-                        if ( loc >= passtly[passage] && loc <= passbry[passage] )
-                        {
-                            // if there is NOOWNER, someone has been murdered!
-                            owner = shopowner[cnt];
-                            inshop = (owner != NOOWNER);
-                            break;
-                        }
-                    }
-                }
+                is_invis  = FF_MUL(ChrList[ichr_a].inst.alpha, ChrList[ichr_a].inst.max_light) < INVISIBLE;
+                can_steal = is_invis || ChrList[ichr_a].isitem;
 
-                if ( inshop )
+                if ( can_steal )
                 {
-                    // Pay the shop owner, or don't allow grab...
-                    if ( ChrList[chara].isitem || ( FF_MUL(ChrList[chara].inst.alpha, ChrList[chara].inst.max_light) < INVISIBLE) )
+                    // Pets can try to steal in addition to invisible characters
+                    STRING text;
+
+                    // Check if it was detected. 50% chance +2% per pet DEX and -2% per shopkeeper wisdom
+                    if ( ChrList[owner].canseeinvisible || generate_number( 1, 100 ) - ( ChrList[ichr_a].dexterity >> 7 ) + ( ChrList[owner].wisdom >> 7 ) > 50 )
                     {
-                        // Pets can try to steal in addition to invisible characters
-                        STRING text;
-                        inshop = bfalse;
-                        snprintf( text, sizeof(text), "%s stole something! (%s)", ChrList[chara].name, CapList[ChrList[charb].model].classname );
+                        snprintf( text, sizeof(text), "%s was detected!!", ChrList[ichr_a].name );
                         debug_message( text );
 
-                        // Check if it was detected. 50% chance +2% per pet DEX and -2% per shopkeeper wisdom
-                        if (ChrList[owner].canseeinvisible || generate_number( 1, 100 ) - ( ChrList[chara].dexterity >> 7 ) + ( ChrList[owner].wisdom >> 7 ) > 50 )
-                        {
-                            snprintf( text, sizeof(text), "%s was detected!!", ChrList[chara].name );
-                            debug_message( text );
-                            ChrList[owner].ai.alert |= ALERTIF_ORDERED;
-                            ChrList[owner].ai.order = STOLEN;
-                            ChrList[owner].ai.rank  = SHOP_THEFT;
-                            ChrList[owner].ai.target = chara;
-                        }
+                        ai_add_order( &(ChrList[owner].ai), STOLEN, SHOP_THEFT );
+                        ChrList[owner].ai.target = ichr_a;
                     }
                     else
                     {
-                        Uint16 icap, iskin;
-                        
-                        icap  = ChrList[charb].model;
-                        iskin = ChrList[charb].skin;
+                        snprintf( text, sizeof(text), "%s stole something! (%s)", ChrList[ichr_a].name, CapList[ChrList[ichr_b].model].classname );
+                        debug_message( text );
+                    }
+                }
+                else
+                {
+                    Uint16 icap, iskin;
 
-                        ChrList[owner].ai.alert |= ALERTIF_ORDERED;
-                        price = (float) CapList[icap].skincost[iskin];
+                    icap  = ChrList[ichr_b].model;
+                    iskin = ChrList[ichr_b].skin;
 
-                        //Items spawned in shops are more valuable
-                        if (!ChrList[charb].isshopitem) price *= 0.5f;
+                    price = (float) CapList[icap].skincost[iskin];
 
-                        // base the cost on the number of items/charges
-                        if ( CapList[icap].isstackable )
+                    //Items spawned in shops are more valuable
+                    if (!ChrList[ichr_b].isshopitem) price *= 0.5f;
+
+                    // base the cost on the number of items/charges
+                    if ( CapList[icap].isstackable )
+                    {
+                        price *= ChrList[ichr_b].ammo;
+                    }
+                    else if (CapList[icap].isranged && ChrList[ichr_b].ammo < ChrList[ichr_b].ammomax)
+                    {
+                        if ( 0 != ChrList[ichr_b].ammo )
                         {
-                            price *= ChrList[charb].ammo;
+                            price *= (float) ChrList[ichr_b].ammo / (float) ChrList[ichr_b].ammomax;
                         }
-                        else if (CapList[icap].isranged && ChrList[charb].ammo < ChrList[charb].ammomax)
-                        {
-                            if ( 0 != ChrList[charb].ammo )
-                            {
-                                price *= (float) ChrList[charb].ammo / (float) ChrList[charb].ammomax;
-                            }
-                        }
+                    }
 
-                        // round to int value
-                        price = (Sint32) price;
+                    // round to int value
+                    price = (Sint32) price;
 
-                        ChrList[owner].ai.order = (Uint32) price;  // Tell owner how much...
-                        if ( ChrList[chara].money >= price )
-                        {
-                            // Okay to buy
-                            ChrList[owner].ai.rank = SHOP_SELL;  // 1 for selling an item
+                    if ( ChrList[ichr_a].money >= price )
+                    {
+                        // Okay to buy
+                        ai_add_order( &(ChrList[owner].ai), (Uint32) price, SHOP_SELL );
 
-                            ChrList[chara].money -= (Sint16) price;
-                            ChrList[chara].money  = CLIP(ChrList[chara].money, 0, MAXMONEY);
+                        ChrList[ichr_a].money -= (Sint16) price;
+                        ChrList[ichr_a].money  = CLIP(ChrList[ichr_a].money, 0, MAXMONEY);
 
-                            ChrList[owner].money += (Sint16) price;
-                            ChrList[owner].money  = CLIP(ChrList[owner].money, 0, MAXMONEY);
-
-                            inshop = bfalse;
-                        }
-                        else
-                        {
-                            // Don't allow purchase
-                            ChrList[owner].ai.rank = SHOP_NOAFFORD;  // 2 for "you can't afford that"
-                            inshop = btrue;
-                        }
+                        ChrList[owner].money += (Sint16) price;
+                        ChrList[owner].money  = CLIP(ChrList[owner].money, 0, MAXMONEY);
+                    }
+                    else
+                    {
+                        // Don't allow purchase
+                        ai_add_order( &(ChrList[owner].ai), (Uint32) price, SHOP_NOAFFORD );
+                        can_grab = bfalse;
                     }
                 }
             }
-
-            if ( !inshop )
-            {
-                // Stick 'em together and quit
-                attach_character_to_mount( charb, chara, grip_off );
-                if ( people )
-                {
-                    // Do a slam animation...  ( Be sure to drop!!! )
-                    chr_play_action( chara, ACTION_MC + slot, bfalse );
-                }
-                return btrue;
-            }
-            else
-            {
-                // Lift the item a little and quit...
-                ChrList[charb].vel.z = DROPZVEL;
-                ChrList[charb].hitready = btrue;
-                ChrList[charb].ai.alert |= ALERTIF_DROPPED;
-                break;
-            }
         }
+
+        if ( can_grab )
+        {
+            // Stick 'em together and quit
+            attach_character_to_mount( ichr_b, ichr_a, grip_off );
+            if ( grab_people )
+            {
+                // Do a slam animation...  ( Be sure to drop!!! )
+                chr_play_action( ichr_a, ACTION_MC + slot, bfalse );
+            }
+            return btrue;
+        }
+        else
+        {
+            // Lift the item a little and quit...
+            ChrList[ichr_b].vel.z = DROPZVEL;
+            ChrList[ichr_b].hitready = btrue;
+            ChrList[ichr_b].ai.alert |= ALERTIF_DROPPED;
+            break;
+        }
+
     }
 
     return bfalse;
@@ -1880,7 +1898,7 @@ void character_swipe( Uint16 cnt, Uint8 slot )
     Uint8 action;
     Uint16 tTmp;
     float dampen;
-    float x, y, z, velocity;
+    float velocity;
 
     weapon = ChrList[cnt].holdingwhich[slot];
     spawngrip = GRIP_LAST;
@@ -1895,10 +1913,8 @@ void character_swipe( Uint16 cnt, Uint8 slot )
     if ( weapon != cnt && ( ( CapList[ChrList[weapon].model].isstackable && ChrList[weapon].ammo > 1 ) || ( action >= ACTION_FA && action <= ACTION_FD ) ) )
     {
         // Throw the weapon if it's stacked or a hurl animation
-        x = ChrList[cnt].pos.x;
-        y = ChrList[cnt].pos.y;
-        z = ChrList[cnt].pos.z;
-        thrown = spawn_one_character( x, y, z, ChrList[weapon].model, ChrList[cnt].team, 0, ChrList[cnt].turn_z, ChrList[weapon].name, MAX_CHR );
+
+        thrown = spawn_one_character( ChrList[cnt].pos, ChrList[weapon].model, ChrList[cnt].team, 0, ChrList[cnt].turn_z, ChrList[weapon].name, MAX_CHR );
         if ( VALID_CHR(thrown) )
         {
             ChrList[thrown].iskursed = bfalse;
@@ -1999,6 +2015,9 @@ void drop_money( Uint16 character, Uint16 money )
 {
     // ZZ> This function drops some of a character's money
     Uint16 huns, tfives, fives, ones, cnt;
+
+    if ( INVALID_CHR( character ) ) return;
+
     if ( money > ChrList[character].money )  money = ChrList[character].money;
     if ( money > 0 && ChrList[character].pos.z > -2 )
     {
@@ -2039,6 +2058,8 @@ void call_for_help( Uint16 character )
     Uint8 team;
     Uint16 cnt;
 
+    if ( INVALID_CHR( character ) ) return;
+
     team = ChrList[character].team;
     TeamList[team].sissy = character;
 
@@ -2058,10 +2079,11 @@ Uint32 xp_for_next_level(Uint16 character)
     Uint32 curlevel;
     Uint16 profile;
     Uint32 xpneeded = (Uint32)(~0);
-    if ( !ChrList[character].on ) return xpneeded;
+
+    if ( INVALID_CHR( character ) ) return xpneeded;
 
     profile  = ChrList[character].model;
-    if (profile == MAX_PROFILE) return xpneeded;
+    if ( INVALID_CAP(profile) ) return xpneeded;
 
     // Calculate xp needed
     curlevel = ChrList[character].experiencelevel;
@@ -2092,7 +2114,7 @@ void do_level_up( Uint16 character )
     if ( INVALID_CHR(character) ) return;
 
     profile = ChrList[character].model;
-    if ( profile >= MAX_PROFILE ) return;
+    if ( INVALID_CAP(profile) ) return;
 
     // Do level ups and stat changes
     curlevel = ChrList[character].experiencelevel;
@@ -2180,7 +2202,10 @@ void give_experience( Uint16 character, int amount, Uint8 xptype, bool_t overrid
 
     int newamount;
     int profile;
-    if (amount == 0) return;
+
+    if ( INVALID_CHR( character ) ) return;
+    if ( 0 == amount ) return;
+
     if ( !ChrList[character].invictus || override_invictus )
     {
         // Figure out how much experience to give
@@ -2289,377 +2314,410 @@ void resize_characters()
 }
 
 //--------------------------------------------------------------------------------------------
-void export_one_character_name( const char *szSaveName, Uint16 character )
+bool_t export_one_character_name( const char *szSaveName, Uint16 character )
 {
     // ZZ> This function makes the naming.txt file for the character
     FILE* filewrite;
-    int profile;
     char cTmp;
     int cnt, tnc;
 
+    if ( INVALID_CHR(character) ) return bfalse;
+
     // Can it export?
-    profile = ChrList[character].model;
     filewrite = fopen( szSaveName, "w" );
-    if ( filewrite )
+    if ( NULL == filewrite ) return bfalse;
+
+    cnt = 0;
+    cTmp = ChrList[character].name[0];
+    cnt++;
+
+    while ( cnt < MAXCAPNAMESIZE && cTmp != 0 )
     {
-        cnt = 0;
-        cTmp = ChrList[character].name[0];
-        cnt++;
+        fprintf( filewrite, ":" );
+        tnc = 0;
 
-        while ( cnt < MAXCAPNAMESIZE && cTmp != 0 )
+        while ( tnc < 8 && cTmp != 0 )
         {
-            fprintf( filewrite, ":" );
-            tnc = 0;
-
-            while ( tnc < 8 && cTmp != 0 )
+            if ( cTmp == ' ' )
             {
-                if ( cTmp == ' ' )
-                {
-                    fprintf( filewrite, "_" );
-                }
-                else
-                {
-                    fprintf( filewrite, "%c", cTmp );
-                }
-
-                cTmp = ChrList[character].name[cnt];
-                tnc++;
-                cnt++;
+                fprintf( filewrite, "_" );
+            }
+            else
+            {
+                fprintf( filewrite, "%c", cTmp );
             }
 
-            fprintf( filewrite, "\n" );
-            fprintf( filewrite, ":STOP\n\n" );
+            cTmp = ChrList[character].name[cnt];
+            tnc++;
+            cnt++;
         }
 
-        fclose( filewrite );
+        fprintf( filewrite, "\n" );
+        fprintf( filewrite, ":STOP\n\n" );
     }
+
+    fclose( filewrite );
+
+    return btrue;
+
 }
 
 //--------------------------------------------------------------------------------------------
-void export_one_character_profile( const char *szSaveName, Uint16 character )
+bool_t export_one_character_profile( const char *szSaveName, Uint16 character )
 {
     // ZZ> This function creates a data.txt file for the given character.
     //     it is assumed that all enchantments have been done away with
+
     FILE* filewrite;
-    int profile;
+    int icap;
     int damagetype, skin;
     char types[10] = "SCPHEFIZ";
     char codes[4];
+    chr_t * pchr;
+    cap_t * pcap;
+
+    if ( INVALID_CHR(character) ) return bfalse;
+    pchr = ChrList + character;
 
     // General stuff
-    profile = ChrList[character].model;
+    icap = ChrList[character].model;
+    if ( INVALID_CAP(icap) ) return bfalse;
+    pcap = CapList + icap;
 
     // Open the file
     filewrite = fopen( szSaveName, "w" );
-    if ( filewrite )
+    if ( NULL == filewrite ) return bfalse;
+
+
+    // Real general data
+    fprintf( filewrite, "Slot number    : -1\n" );  // -1 signals a flexible load thing
+    funderf( filewrite, "Class name     : ", pcap->classname );
+    ftruthf( filewrite, "Uniform light  : ", pcap->uniformlit );
+    fprintf( filewrite, "Maximum ammo   : %d\n", pcap->ammomax );
+    fprintf( filewrite, "Current ammo   : %d\n", pchr->ammo );
+    fgendef( filewrite, "Gender         : ", pchr->gender );
+    fprintf( filewrite, "\n" );
+
+    // Object stats
+    fprintf( filewrite, "Life color     : %d\n", pchr->lifecolor );
+    fprintf( filewrite, "Mana color     : %d\n", pchr->manacolor );
+    fprintf( filewrite, "Life           : %4.2f\n", pchr->lifemax / 256.0f );
+    fpairof( filewrite, "Life up        : ", pcap->lifeperlevelbase, pcap->lifeperlevelrand );
+    fprintf( filewrite, "Mana           : %4.2f\n", pchr->manamax / 256.0f );
+    fpairof( filewrite, "Mana up        : ", pcap->manaperlevelbase, pcap->manaperlevelrand );
+    fprintf( filewrite, "Mana return    : %4.2f\n", pchr->manareturn / 256.0f );
+    fpairof( filewrite, "Mana return up : ", pcap->manareturnperlevelbase, pcap->manareturnperlevelrand );
+    fprintf( filewrite, "Mana flow      : %4.2f\n", pchr->manaflow / 256.0f );
+    fpairof( filewrite, "Mana flow up   : ", pcap->manaflowperlevelbase, pcap->manaflowperlevelrand );
+    fprintf( filewrite, "STR            : %4.2f\n", pchr->strength / 256.0f );
+    fpairof( filewrite, "STR up         : ", pcap->strengthperlevelbase, pcap->strengthperlevelrand );
+    fprintf( filewrite, "WIS            : %4.2f\n", pchr->wisdom / 256.0f );
+    fpairof( filewrite, "WIS up         : ", pcap->wisdomperlevelbase, pcap->wisdomperlevelrand );
+    fprintf( filewrite, "INT            : %4.2f\n", pchr->intelligence / 256.0f );
+    fpairof( filewrite, "INT up         : ", pcap->intelligenceperlevelbase, pcap->intelligenceperlevelrand );
+    fprintf( filewrite, "DEX            : %4.2f\n", pchr->dexterity / 256.0f );
+    fpairof( filewrite, "DEX up         : ", pcap->dexterityperlevelbase, pcap->dexterityperlevelrand );
+    fprintf( filewrite, "\n" );
+
+    // More physical attributes
+    fprintf( filewrite, "Size           : %4.2f\n", pchr->sizegoto );
+    fprintf( filewrite, "Size up        : %4.2f\n", pcap->sizeperlevel );
+    fprintf( filewrite, "Shadow size    : %d\n", pcap->shadowsize );
+    fprintf( filewrite, "Bump size      : %d\n", pcap->bumpsize );
+    fprintf( filewrite, "Bump height    : %d\n", pcap->bumpheight );
+    fprintf( filewrite, "Bump dampen    : %4.2f\n", pcap->bumpdampen );
+    fprintf( filewrite, "Weight         : %d\n", pcap->weight );
+    fprintf( filewrite, "Jump power     : %4.2f\n", pcap->jump );
+    fprintf( filewrite, "Jump number    : %d\n", pcap->jumpnumber );
+    fprintf( filewrite, "Sneak speed    : %d\n", pcap->sneakspd );
+    fprintf( filewrite, "Walk speed     : %d\n", pcap->walkspd );
+    fprintf( filewrite, "Run speed      : %d\n", pcap->runspd );
+    fprintf( filewrite, "Fly to height  : %d\n", pcap->flyheight );
+    fprintf( filewrite, "Flashing AND   : %d\n", pcap->flashand );
+    fprintf( filewrite, "Alpha blending : %d\n", pcap->alpha );
+    fprintf( filewrite, "Light blending : %d\n", pcap->light );
+    ftruthf( filewrite, "Transfer blend : ", pcap->transferblend );
+    fprintf( filewrite, "Sheen          : %d\n", pcap->sheen );
+    ftruthf( filewrite, "Phong mapping  : ", pcap->enviro );
+    fprintf( filewrite, "Texture X add  : %4.2f\n", pcap->uoffvel / (float)0xFFFF );
+    fprintf( filewrite, "Texture Y add  : %4.2f\n", pcap->voffvel / (float)0xFFFF );
+    ftruthf( filewrite, "Sticky butt    : ", pcap->stickybutt );
+    fprintf( filewrite, "\n" );
+
+    // Invulnerability data
+    ftruthf( filewrite, "Invictus       : ", pcap->invictus );
+    fprintf( filewrite, "NonI facing    : %d\n", pcap->nframefacing );
+    fprintf( filewrite, "NonI angle     : %d\n", pcap->nframeangle );
+    fprintf( filewrite, "I facing       : %d\n", pcap->iframefacing );
+    fprintf( filewrite, "I angle        : %d\n", pcap->iframeangle );
+    fprintf( filewrite, "\n" );
+
+    // Skin defenses
+    fprintf( filewrite, "Base defense   : %3d %3d %3d %3d\n", 255 - pcap->defense[0], 255 - pcap->defense[1],
+             255 - pcap->defense[2], 255 - pcap->defense[3] );
+    damagetype = 0;
+
+    while ( damagetype < DAMAGE_COUNT )
     {
-        // Real general data
-        fprintf( filewrite, "Slot number    : -1\n" );  // -1 signals a flexible load thing
-        funderf( filewrite, "Class name     : ", CapList[profile].classname );
-        ftruthf( filewrite, "Uniform light  : ", CapList[profile].uniformlit );
-        fprintf( filewrite, "Maximum ammo   : %d\n", CapList[profile].ammomax );
-        fprintf( filewrite, "Current ammo   : %d\n", ChrList[character].ammo );
-        fgendef( filewrite, "Gender         : ", ChrList[character].gender );
-        fprintf( filewrite, "\n" );
-
-        // Object stats
-        fprintf( filewrite, "Life color     : %d\n", ChrList[character].lifecolor );
-        fprintf( filewrite, "Mana color     : %d\n", ChrList[character].manacolor );
-        fprintf( filewrite, "Life           : %4.2f\n", ChrList[character].lifemax / 256.0f );
-        fpairof( filewrite, "Life up        : ", CapList[profile].lifeperlevelbase, CapList[profile].lifeperlevelrand );
-        fprintf( filewrite, "Mana           : %4.2f\n", ChrList[character].manamax / 256.0f );
-        fpairof( filewrite, "Mana up        : ", CapList[profile].manaperlevelbase, CapList[profile].manaperlevelrand );
-        fprintf( filewrite, "Mana return    : %4.2f\n", ChrList[character].manareturn / 256.0f );
-        fpairof( filewrite, "Mana return up : ", CapList[profile].manareturnperlevelbase, CapList[profile].manareturnperlevelrand );
-        fprintf( filewrite, "Mana flow      : %4.2f\n", ChrList[character].manaflow / 256.0f );
-        fpairof( filewrite, "Mana flow up   : ", CapList[profile].manaflowperlevelbase, CapList[profile].manaflowperlevelrand );
-        fprintf( filewrite, "STR            : %4.2f\n", ChrList[character].strength / 256.0f );
-        fpairof( filewrite, "STR up         : ", CapList[profile].strengthperlevelbase, CapList[profile].strengthperlevelrand );
-        fprintf( filewrite, "WIS            : %4.2f\n", ChrList[character].wisdom / 256.0f );
-        fpairof( filewrite, "WIS up         : ", CapList[profile].wisdomperlevelbase, CapList[profile].wisdomperlevelrand );
-        fprintf( filewrite, "INT            : %4.2f\n", ChrList[character].intelligence / 256.0f );
-        fpairof( filewrite, "INT up         : ", CapList[profile].intelligenceperlevelbase, CapList[profile].intelligenceperlevelrand );
-        fprintf( filewrite, "DEX            : %4.2f\n", ChrList[character].dexterity / 256.0f );
-        fpairof( filewrite, "DEX up         : ", CapList[profile].dexterityperlevelbase, CapList[profile].dexterityperlevelrand );
-        fprintf( filewrite, "\n" );
-
-        // More physical attributes
-        fprintf( filewrite, "Size           : %4.2f\n", ChrList[character].sizegoto );
-        fprintf( filewrite, "Size up        : %4.2f\n", CapList[profile].sizeperlevel );
-        fprintf( filewrite, "Shadow size    : %d\n", CapList[profile].shadowsize );
-        fprintf( filewrite, "Bump size      : %d\n", CapList[profile].bumpsize );
-        fprintf( filewrite, "Bump height    : %d\n", CapList[profile].bumpheight );
-        fprintf( filewrite, "Bump dampen    : %4.2f\n", CapList[profile].bumpdampen );
-        fprintf( filewrite, "Weight         : %d\n", CapList[profile].weight );
-        fprintf( filewrite, "Jump power     : %4.2f\n", CapList[profile].jump );
-        fprintf( filewrite, "Jump number    : %d\n", CapList[profile].jumpnumber );
-        fprintf( filewrite, "Sneak speed    : %d\n", CapList[profile].sneakspd );
-        fprintf( filewrite, "Walk speed     : %d\n", CapList[profile].walkspd );
-        fprintf( filewrite, "Run speed      : %d\n", CapList[profile].runspd );
-        fprintf( filewrite, "Fly to height  : %d\n", CapList[profile].flyheight );
-        fprintf( filewrite, "Flashing AND   : %d\n", CapList[profile].flashand );
-        fprintf( filewrite, "Alpha blending : %d\n", CapList[profile].alpha );
-        fprintf( filewrite, "Light blending : %d\n", CapList[profile].light );
-        ftruthf( filewrite, "Transfer blend : ", CapList[profile].transferblend );
-        fprintf( filewrite, "Sheen          : %d\n", CapList[profile].sheen );
-        ftruthf( filewrite, "Phong mapping  : ", CapList[profile].enviro );
-        fprintf( filewrite, "Texture X add  : %4.2f\n", CapList[profile].uoffvel / (float)0xFFFF );
-        fprintf( filewrite, "Texture Y add  : %4.2f\n", CapList[profile].voffvel / (float)0xFFFF );
-        ftruthf( filewrite, "Sticky butt    : ", CapList[profile].stickybutt );
-        fprintf( filewrite, "\n" );
-
-        // Invulnerability data
-        ftruthf( filewrite, "Invictus       : ", CapList[profile].invictus );
-        fprintf( filewrite, "NonI facing    : %d\n", CapList[profile].nframefacing );
-        fprintf( filewrite, "NonI angle     : %d\n", CapList[profile].nframeangle );
-        fprintf( filewrite, "I facing       : %d\n", CapList[profile].iframefacing );
-        fprintf( filewrite, "I angle        : %d\n", CapList[profile].iframeangle );
-        fprintf( filewrite, "\n" );
-
-        // Skin defenses
-        fprintf( filewrite, "Base defense   : %3d %3d %3d %3d\n", 255 - CapList[profile].defense[0], 255 - CapList[profile].defense[1],
-                 255 - CapList[profile].defense[2], 255 - CapList[profile].defense[3] );
-        damagetype = 0;
-
-        while ( damagetype < DAMAGE_COUNT )
-        {
-            fprintf( filewrite, "%c damage shift : %3d %3d %3d %3d\n", types[damagetype],
-                     CapList[profile].damagemodifier[damagetype][0]&DAMAGESHIFT,
-                     CapList[profile].damagemodifier[damagetype][1]&DAMAGESHIFT,
-                     CapList[profile].damagemodifier[damagetype][2]&DAMAGESHIFT,
-                     CapList[profile].damagemodifier[damagetype][3]&DAMAGESHIFT );
-            damagetype++;
-        }
-
-        damagetype = 0;
-
-        while ( damagetype < DAMAGE_COUNT )
-        {
-            skin = 0;
-
-            while ( skin < MAXSKIN )
-            {
-                codes[skin] = 'F';
-                if ( CapList[profile].damagemodifier[damagetype][skin]&DAMAGEINVERT )
-                    codes[skin] = 'T';
-                if ( CapList[profile].damagemodifier[damagetype][skin]&DAMAGECHARGE )
-                    codes[skin] = 'C';
-                if ( CapList[profile].damagemodifier[damagetype][skin]&DAMAGEMANA )
-                    codes[skin] = 'M';
-
-                skin++;
-            }
-
-            fprintf( filewrite, "%c damage code  : %3c %3c %3c %3c\n", types[damagetype], codes[0], codes[1], codes[2], codes[3] );
-            damagetype++;
-        }
-
-        fprintf( filewrite, "Acceleration   : %3.0f %3.0f %3.0f %3.0f\n", CapList[profile].maxaccel[0]*80,
-                 CapList[profile].maxaccel[1]*80,
-                 CapList[profile].maxaccel[2]*80,
-                 CapList[profile].maxaccel[3]*80 );
-        fprintf( filewrite, "\n" );
-
-        // Experience and level data
-        fprintf( filewrite, "EXP for 2nd    : %d\n", CapList[profile].experienceforlevel[1] );
-        fprintf( filewrite, "EXP for 3rd    : %d\n", CapList[profile].experienceforlevel[2] );
-        fprintf( filewrite, "EXP for 4th    : %d\n", CapList[profile].experienceforlevel[3] );
-        fprintf( filewrite, "EXP for 5th    : %d\n", CapList[profile].experienceforlevel[4] );
-        fprintf( filewrite, "EXP for 6th    : %d\n", CapList[profile].experienceforlevel[5] );
-        fprintf( filewrite, "Starting EXP   : %d\n", ChrList[character].experience );
-        fprintf( filewrite, "EXP worth      : %d\n", CapList[profile].experienceworth );
-        fprintf( filewrite, "EXP exchange   : %5.3f\n", CapList[profile].experienceexchange );
-        fprintf( filewrite, "EXPSECRET      : %4.2f\n", CapList[profile].experiencerate[0] );
-        fprintf( filewrite, "EXPQUEST       : %4.2f\n", CapList[profile].experiencerate[1] );
-        fprintf( filewrite, "EXPDARE        : %4.2f\n", CapList[profile].experiencerate[2] );
-        fprintf( filewrite, "EXPKILL        : %4.2f\n", CapList[profile].experiencerate[3] );
-        fprintf( filewrite, "EXPMURDER      : %4.2f\n", CapList[profile].experiencerate[4] );
-        fprintf( filewrite, "EXPREVENGE     : %4.2f\n", CapList[profile].experiencerate[5] );
-        fprintf( filewrite, "EXPTEAMWORK    : %4.2f\n", CapList[profile].experiencerate[6] );
-        fprintf( filewrite, "EXPROLEPLAY    : %4.2f\n", CapList[profile].experiencerate[7] );
-        fprintf( filewrite, "\n" );
-
-        // IDSZ identification tags
-        undo_idsz( CapList[profile].idsz[IDSZ_PARENT] );
-        fprintf( filewrite, "IDSZ Parent    : [%s]\n", idsz_string );
-        undo_idsz( CapList[profile].idsz[IDSZ_TYPE] );
-        fprintf( filewrite, "IDSZ Type      : [%s]\n", idsz_string );
-        undo_idsz( CapList[profile].idsz[IDSZ_SKILL] );
-        fprintf( filewrite, "IDSZ Skill     : [%s]\n", idsz_string );
-        undo_idsz( CapList[profile].idsz[IDSZ_SPECIAL] );
-        fprintf( filewrite, "IDSZ Special   : [%s]\n", idsz_string );
-        undo_idsz( CapList[profile].idsz[IDSZ_HATE] );
-        fprintf( filewrite, "IDSZ Hate      : [%s]\n", idsz_string );
-        undo_idsz( CapList[profile].idsz[IDSZ_VULNERABILITY] );
-        fprintf( filewrite, "IDSZ Vulnie    : [%s]\n", idsz_string );
-        fprintf( filewrite, "\n" );
-
-        // Item and damage flags
-        ftruthf( filewrite, "Is an item     : ", CapList[profile].isitem );
-        ftruthf( filewrite, "Is a mount     : ", CapList[profile].ismount );
-        ftruthf( filewrite, "Is stackable   : ", CapList[profile].isstackable );
-        ftruthf( filewrite, "Name known     : ", ChrList[character].nameknown );
-        ftruthf( filewrite, "Usage known    : ", CapList[profile].usageknown );
-        ftruthf( filewrite, "Is exportable  : ", CapList[profile].cancarrytonextmodule );
-        ftruthf( filewrite, "Requires skill : ", CapList[profile].needskillidtouse );
-        ftruthf( filewrite, "Is platform    : ", CapList[profile].platform );
-        ftruthf( filewrite, "Collects money : ", CapList[profile].cangrabmoney );
-        ftruthf( filewrite, "Can open stuff : ", CapList[profile].canopenstuff );
-        fprintf( filewrite, "\n" );
-
-        // Other item and damage stuff
-        fdamagf( filewrite, "Damage type    : ", CapList[profile].damagetargettype );
-        factiof( filewrite, "Attack type    : ", CapList[profile].weaponaction );
-        fprintf( filewrite, "\n" );
-
-        // Particle attachments
-        fprintf( filewrite, "Attached parts : %d\n", CapList[profile].attachedprtamount );
-        fdamagf( filewrite, "Reaffirm type  : ", CapList[profile].attachedprtreaffirmdamagetype );
-        fprintf( filewrite, "Particle type  : %d\n", CapList[profile].attachedprttype );
-        fprintf( filewrite, "\n" );
-
-        // Character hands
-        ftruthf( filewrite, "Left valid     : ", CapList[profile].slotvalid[SLOT_LEFT] );
-        ftruthf( filewrite, "Right valid    : ", CapList[profile].slotvalid[SLOT_RIGHT] );
-        fprintf( filewrite, "\n" );
-
-        // Particle spawning on attack
-        ftruthf( filewrite, "Part on weapon : ", CapList[profile].attackattached );
-        fprintf( filewrite, "Part type      : %d\n", CapList[profile].attackprttype );
-        fprintf( filewrite, "\n" );
-
-        // Particle spawning for GoPoof
-        fprintf( filewrite, "Poof amount    : %d\n", CapList[profile].gopoofprtamount );
-        fprintf( filewrite, "Facing add     : %d\n", CapList[profile].gopoofprtfacingadd );
-        fprintf( filewrite, "Part type      : %d\n", CapList[profile].gopoofprttype );
-        fprintf( filewrite, "\n" );
-
-        // Particle spawning for blud
-        ftruthf( filewrite, "Blud valid    : ", CapList[profile].bludvalid );
-        fprintf( filewrite, "Part type      : %d\n", CapList[profile].bludprttype );
-        fprintf( filewrite, "\n" );
-
-        // Extra stuff
-        ftruthf( filewrite, "Waterwalking   : ", CapList[profile].waterwalk );
-        fprintf( filewrite, "Bounce dampen  : %5.3f\n", CapList[profile].dampen );
-        fprintf( filewrite, "\n" );
-
-        // More stuff
-        fprintf( filewrite, "NOT USED       : %5.3f\n", CapList[profile].lifeheal / 256.0f );       //These two are seriously outdated
-        fprintf( filewrite, "NOT USED       : %5.3f\n", CapList[profile].manacost / 256.0f );       //and shouldnt be used. Use scripts instead.
-        fprintf( filewrite, "Regeneration   : %d\n", CapList[profile].lifereturn );
-        fprintf( filewrite, "Stopped by     : %d\n", CapList[profile].stoppedby );
-        funderf( filewrite, "Skin 0 name    : ", CapList[profile].skinname[0] );
-        funderf( filewrite, "Skin 1 name    : ", CapList[profile].skinname[1] );
-        funderf( filewrite, "Skin 2 name    : ", CapList[profile].skinname[2] );
-        funderf( filewrite, "Skin 3 name    : ", CapList[profile].skinname[3] );
-        fprintf( filewrite, "Skin 0 cost    : %d\n", CapList[profile].skincost[0] );
-        fprintf( filewrite, "Skin 1 cost    : %d\n", CapList[profile].skincost[1] );
-        fprintf( filewrite, "Skin 2 cost    : %d\n", CapList[profile].skincost[2] );
-        fprintf( filewrite, "Skin 3 cost    : %d\n", CapList[profile].skincost[3] );
-        fprintf( filewrite, "STR dampen     : %5.3f\n", CapList[profile].strengthdampen );
-        fprintf( filewrite, "\n" );
-
-        // Another memory lapse
-        ftruthf( filewrite, "No rider attak : ", btrue - CapList[profile].ridercanattack );
-        ftruthf( filewrite, "Can be dazed   : ", CapList[profile].canbedazed );
-        ftruthf( filewrite, "Can be grogged : ", CapList[profile].canbegrogged );
-        fprintf( filewrite, "NOT USED       : 0\n" );
-        fprintf( filewrite, "NOT USED       : 0\n" );
-        ftruthf( filewrite, "Can see invisi : ", CapList[profile].canseeinvisible );
-        fprintf( filewrite, "Kursed chance  : %d\n", ChrList[character].iskursed*100 );
-        fprintf( filewrite, "Footfall sound : %d\n", CapList[profile].soundindex[SOUND_FOOTFALL] );
-        fprintf( filewrite, "Jump sound     : %d\n", CapList[profile].soundindex[SOUND_JUMP] );
-        fprintf( filewrite, "\n" );
-
-        // Expansions
-        if ( CapList[profile].skindressy&1 )
-            fprintf( filewrite, ":[DRES] 0\n" );
-        if ( CapList[profile].skindressy&2 )
-            fprintf( filewrite, ":[DRES] 1\n" );
-        if ( CapList[profile].skindressy&4 )
-            fprintf( filewrite, ":[DRES] 2\n" );
-        if ( CapList[profile].skindressy&8 )
-            fprintf( filewrite, ":[DRES] 3\n" );
-        if ( CapList[profile].resistbumpspawn )
-            fprintf( filewrite, ":[STUK] 0\n" );
-        if ( CapList[profile].istoobig )
-            fprintf( filewrite, ":[PACK] 0\n" );
-        if ( !CapList[profile].reflect )
-            fprintf( filewrite, ":[VAMP] 1\n" );
-        if ( CapList[profile].alwaysdraw )
-            fprintf( filewrite, ":[DRAW] 1\n" );
-        if ( CapList[profile].isranged )
-            fprintf( filewrite, ":[RANG] 1\n" );
-        if ( CapList[profile].hidestate != NOHIDE )
-            fprintf( filewrite, ":[HIDE] %d\n", CapList[profile].hidestate );
-        if ( CapList[profile].isequipment )
-            fprintf( filewrite, ":[EQUI] 1\n" );
-        if ( CapList[profile].bumpsizebig == ( CapList[profile].bumpsize << 1 ) )
-            fprintf( filewrite, ":[SQUA] 1\n" );
-        if ( CapList[profile].icon != CapList[profile].usageknown )
-            fprintf( filewrite, ":[ICON] %d\n", CapList[profile].icon );
-        if ( CapList[profile].forceshadow )
-            fprintf( filewrite, ":[SHAD] 1\n" );
-        if ( CapList[profile].ripple == CapList[profile].isitem )
-            fprintf( filewrite, ":[RIPP] %d\n", CapList[profile].ripple );
-        if ( CapList[profile].isvaluable != -1 )
-            fprintf( filewrite, ":[VALU] %d\n", CapList[profile].isvaluable );
-
-        //Basic stuff that is always written
-        fprintf( filewrite, ":[GOLD] %d\n", ChrList[character].money );
-        fprintf( filewrite, ":[PLAT] %d\n", CapList[profile].canuseplatforms );
-        fprintf( filewrite, ":[SKIN] %d\n", ChrList[character].skin );
-        fprintf( filewrite, ":[CONT] %d\n", ChrList[character].ai.content );
-        fprintf( filewrite, ":[STAT] %d\n", ChrList[character].ai.state );
-        fprintf( filewrite, ":[LEVL] %d\n", ChrList[character].experiencelevel );
-
-        //Copy all skill expansions
-        fprintf( filewrite, ":[SHPR] %d\n", ChrList[character].shieldproficiency );
-        if ( ChrList[character].canuseadvancedweapons )
-            fprintf( filewrite, ":[AWEP] 1\n" );
-        if ( ChrList[character].canjoust )
-            fprintf( filewrite, ":[JOUS] 1\n" );
-        if ( ChrList[character].candisarm )
-            fprintf( filewrite, ":[DISA] 1\n" );
-        if ( CapList[profile].canseekurse )
-            fprintf( filewrite, ":[CKUR] 1\n" );
-        if ( ChrList[character].canusepoison )
-            fprintf( filewrite, ":[POIS] 1\n" );
-        if ( ChrList[character].canread )
-            fprintf( filewrite, ":[READ] 1\n" );
-        if ( ChrList[character].canbackstab )
-            fprintf( filewrite, ":[STAB] 1\n" );
-        if ( ChrList[character].canusedivine )
-            fprintf( filewrite, ":[HMAG] 1\n" );
-        if ( ChrList[character].canusearcane )
-            fprintf( filewrite, ":[WMAG] 1\n" );
-        if ( ChrList[character].canusetech )
-            fprintf( filewrite, ":[TECH] 1\n" );
-
-        //The end
-        fclose( filewrite );
+        fprintf( filewrite, "%c damage shift : %3d %3d %3d %3d\n", types[damagetype],
+                 pcap->damagemodifier[damagetype][0]&DAMAGESHIFT,
+                 pcap->damagemodifier[damagetype][1]&DAMAGESHIFT,
+                 pcap->damagemodifier[damagetype][2]&DAMAGESHIFT,
+                 pcap->damagemodifier[damagetype][3]&DAMAGESHIFT );
+        damagetype++;
     }
+
+    damagetype = 0;
+
+    while ( damagetype < DAMAGE_COUNT )
+    {
+        skin = 0;
+
+        while ( skin < MAXSKIN )
+        {
+            codes[skin] = 'F';
+            if ( pcap->damagemodifier[damagetype][skin]&DAMAGEINVERT )
+                codes[skin] = 'T';
+            if ( pcap->damagemodifier[damagetype][skin]&DAMAGECHARGE )
+                codes[skin] = 'C';
+            if ( pcap->damagemodifier[damagetype][skin]&DAMAGEMANA )
+                codes[skin] = 'M';
+
+            skin++;
+        }
+
+        fprintf( filewrite, "%c damage code  : %3c %3c %3c %3c\n", types[damagetype], codes[0], codes[1], codes[2], codes[3] );
+        damagetype++;
+    }
+
+    fprintf( filewrite, "Acceleration   : %3.0f %3.0f %3.0f %3.0f\n", pcap->maxaccel[0]*80,
+             pcap->maxaccel[1]*80,
+             pcap->maxaccel[2]*80,
+             pcap->maxaccel[3]*80 );
+    fprintf( filewrite, "\n" );
+
+    // Experience and level data
+    fprintf( filewrite, "EXP for 2nd    : %d\n", pcap->experienceforlevel[1] );
+    fprintf( filewrite, "EXP for 3rd    : %d\n", pcap->experienceforlevel[2] );
+    fprintf( filewrite, "EXP for 4th    : %d\n", pcap->experienceforlevel[3] );
+    fprintf( filewrite, "EXP for 5th    : %d\n", pcap->experienceforlevel[4] );
+    fprintf( filewrite, "EXP for 6th    : %d\n", pcap->experienceforlevel[5] );
+    fprintf( filewrite, "Starting EXP   : %d\n", pchr->experience );
+    fprintf( filewrite, "EXP worth      : %d\n", pcap->experienceworth );
+    fprintf( filewrite, "EXP exchange   : %5.3f\n", pcap->experienceexchange );
+    fprintf( filewrite, "EXPSECRET      : %4.2f\n", pcap->experiencerate[0] );
+    fprintf( filewrite, "EXPQUEST       : %4.2f\n", pcap->experiencerate[1] );
+    fprintf( filewrite, "EXPDARE        : %4.2f\n", pcap->experiencerate[2] );
+    fprintf( filewrite, "EXPKILL        : %4.2f\n", pcap->experiencerate[3] );
+    fprintf( filewrite, "EXPMURDER      : %4.2f\n", pcap->experiencerate[4] );
+    fprintf( filewrite, "EXPREVENGE     : %4.2f\n", pcap->experiencerate[5] );
+    fprintf( filewrite, "EXPTEAMWORK    : %4.2f\n", pcap->experiencerate[6] );
+    fprintf( filewrite, "EXPROLEPLAY    : %4.2f\n", pcap->experiencerate[7] );
+    fprintf( filewrite, "\n" );
+
+    // IDSZ identification tags
+    fprintf( filewrite, "IDSZ Parent    : [%s]\n", undo_idsz( pcap->idsz[IDSZ_PARENT] ) );
+    fprintf( filewrite, "IDSZ Type      : [%s]\n", undo_idsz( pcap->idsz[IDSZ_TYPE] ) );
+    fprintf( filewrite, "IDSZ Skill     : [%s]\n", undo_idsz( pcap->idsz[IDSZ_SKILL] ) );
+    fprintf( filewrite, "IDSZ Special   : [%s]\n", undo_idsz( pcap->idsz[IDSZ_SPECIAL] ) );
+    fprintf( filewrite, "IDSZ Hate      : [%s]\n", undo_idsz( pcap->idsz[IDSZ_HATE] ) );
+    fprintf( filewrite, "IDSZ Vulnie    : [%s]\n", undo_idsz( pcap->idsz[IDSZ_VULNERABILITY] ) );
+    fprintf( filewrite, "\n" );
+
+    // Item and damage flags
+    ftruthf( filewrite, "Is an item     : ", pcap->isitem );
+    ftruthf( filewrite, "Is a mount     : ", pcap->ismount );
+    ftruthf( filewrite, "Is stackable   : ", pcap->isstackable );
+    ftruthf( filewrite, "Name known     : ", pchr->nameknown );
+    ftruthf( filewrite, "Usage known    : ", pcap->usageknown );
+    ftruthf( filewrite, "Is exportable  : ", pcap->cancarrytonextmodule );
+    ftruthf( filewrite, "Requires skill : ", pcap->needskillidtouse );
+    ftruthf( filewrite, "Is platform    : ", pcap->platform );
+    ftruthf( filewrite, "Collects money : ", pcap->cangrabmoney );
+    ftruthf( filewrite, "Can open stuff : ", pcap->canopenstuff );
+    fprintf( filewrite, "\n" );
+
+    // Other item and damage stuff
+    fdamagf( filewrite, "Damage type    : ", pcap->damagetargettype );
+    factiof( filewrite, "Attack type    : ", pcap->weaponaction );
+    fprintf( filewrite, "\n" );
+
+    // Particle attachments
+    fprintf( filewrite, "Attached parts : %d\n", pcap->attachedprtamount );
+    fdamagf( filewrite, "Reaffirm type  : ", pcap->attachedprtreaffirmdamagetype );
+    fprintf( filewrite, "Particle type  : %d\n", pcap->attachedprttype );
+    fprintf( filewrite, "\n" );
+
+    // Character hands
+    ftruthf( filewrite, "Left valid     : ", pcap->slotvalid[SLOT_LEFT] );
+    ftruthf( filewrite, "Right valid    : ", pcap->slotvalid[SLOT_RIGHT] );
+    fprintf( filewrite, "\n" );
+
+    // Particle spawning on attack
+    ftruthf( filewrite, "Part on weapon : ", pcap->attackattached );
+    fprintf( filewrite, "Part type      : %d\n", pcap->attackprttype );
+    fprintf( filewrite, "\n" );
+
+    // Particle spawning for GoPoof
+    fprintf( filewrite, "Poof amount    : %d\n", pcap->gopoofprtamount );
+    fprintf( filewrite, "Facing add     : %d\n", pcap->gopoofprtfacingadd );
+    fprintf( filewrite, "Part type      : %d\n", pcap->gopoofprttype );
+    fprintf( filewrite, "\n" );
+
+    // Particle spawning for blud
+    ftruthf( filewrite, "Blud valid     : ", pcap->bludvalid );
+    fprintf( filewrite, "Part type      : %d\n", pcap->bludprttype );
+    fprintf( filewrite, "\n" );
+
+    // Extra stuff
+    ftruthf( filewrite, "Waterwalking   : ", pcap->waterwalk );
+    fprintf( filewrite, "Bounce dampen  : %5.3f\n", pcap->dampen );
+    fprintf( filewrite, "\n" );
+
+    // More stuff
+    fprintf( filewrite, "NOT USED       : %5.3f\n", pcap->lifeheal / 256.0f );       //These two are seriously outdated
+    fprintf( filewrite, "NOT USED       : %5.3f\n", pcap->manacost / 256.0f );       //and shouldnt be used. Use scripts instead.
+    fprintf( filewrite, "Regeneration   : %d\n", pcap->lifereturn );
+    fprintf( filewrite, "Stopped by     : %d\n", pcap->stoppedby );
+    funderf( filewrite, "Skin 0 name    : ", pcap->skinname[0] );
+    funderf( filewrite, "Skin 1 name    : ", pcap->skinname[1] );
+    funderf( filewrite, "Skin 2 name    : ", pcap->skinname[2] );
+    funderf( filewrite, "Skin 3 name    : ", pcap->skinname[3] );
+    fprintf( filewrite, "Skin 0 cost    : %d\n", pcap->skincost[0] );
+    fprintf( filewrite, "Skin 1 cost    : %d\n", pcap->skincost[1] );
+    fprintf( filewrite, "Skin 2 cost    : %d\n", pcap->skincost[2] );
+    fprintf( filewrite, "Skin 3 cost    : %d\n", pcap->skincost[3] );
+    fprintf( filewrite, "STR dampen     : %5.3f\n", pcap->strengthdampen );
+    fprintf( filewrite, "\n" );
+
+    // Another memory lapse
+    ftruthf( filewrite, "No rider attak : ", btrue - pcap->ridercanattack );
+    ftruthf( filewrite, "Can be dazed   : ", pcap->canbedazed );
+    ftruthf( filewrite, "Can be grogged : ", pcap->canbegrogged );
+    fprintf( filewrite, "NOT USED       : 0\n" );
+    fprintf( filewrite, "NOT USED       : 0\n" );
+    ftruthf( filewrite, "Can see invisi : ", pcap->canseeinvisible );
+    fprintf( filewrite, "Kursed chance  : %d\n", pchr->iskursed*100 );
+    fprintf( filewrite, "Footfall sound : %d\n", pcap->soundindex[SOUND_FOOTFALL] );
+    fprintf( filewrite, "Jump sound     : %d\n", pcap->soundindex[SOUND_JUMP] );
+    fprintf( filewrite, "\n" );
+
+    // Expansions
+    if ( pcap->skindressy&1 )
+        fprintf( filewrite, ":[DRES] 0\n" );
+
+    if ( pcap->skindressy&2 )
+        fprintf( filewrite, ":[DRES] 1\n" );
+
+    if ( pcap->skindressy&4 )
+        fprintf( filewrite, ":[DRES] 2\n" );
+
+    if ( pcap->skindressy&8 )
+        fprintf( filewrite, ":[DRES] 3\n" );
+
+    if ( pcap->resistbumpspawn )
+        fprintf( filewrite, ":[STUK] 0\n" );
+
+    if ( pcap->istoobig )
+        fprintf( filewrite, ":[PACK] 0\n" );
+
+    if ( !pcap->reflect )
+        fprintf( filewrite, ":[VAMP] 1\n" );
+
+    if ( pcap->alwaysdraw )
+        fprintf( filewrite, ":[DRAW] 1\n" );
+
+    if ( pcap->isranged )
+        fprintf( filewrite, ":[RANG] 1\n" );
+
+    if ( pcap->hidestate != NOHIDE )
+        fprintf( filewrite, ":[HIDE] %d\n", pcap->hidestate );
+
+    if ( pcap->isequipment )
+        fprintf( filewrite, ":[EQUI] 1\n" );
+
+    if ( pcap->bumpsizebig == ( pcap->bumpsize << 1 ) )
+        fprintf( filewrite, ":[SQUA] 1\n" );
+
+    if ( pcap->icon != pcap->usageknown )
+        fprintf( filewrite, ":[ICON] %d\n", pcap->icon );
+
+    if ( pcap->forceshadow )
+        fprintf( filewrite, ":[SHAD] 1\n" );
+
+    if ( pcap->ripple == pcap->isitem )
+        fprintf( filewrite, ":[RIPP] %d\n", pcap->ripple );
+
+    if ( pcap->isvaluable != -1 )
+        fprintf( filewrite, ":[VALU] %d\n", pcap->isvaluable );
+
+    //Basic stuff that is always written
+    fprintf( filewrite, ":[GOLD] %d\n", pchr->money );
+    fprintf( filewrite, ":[PLAT] %d\n", pcap->canuseplatforms );
+    fprintf( filewrite, ":[SKIN] %d\n", pchr->skin );
+    fprintf( filewrite, ":[CONT] %d\n", pchr->ai.content );
+    fprintf( filewrite, ":[STAT] %d\n", pchr->ai.state );
+    fprintf( filewrite, ":[LEVL] %d\n", pchr->experiencelevel );
+
+    //Copy all skill expansions
+
+    if ( pchr->shieldproficiency > 0 )
+        fprintf( filewrite, ":[SHPR] %d\n", pchr->shieldproficiency );
+
+    if ( pchr->canuseadvancedweapons > 0 )
+        fprintf( filewrite, ":[AWEP] %d\n", pchr->canuseadvancedweapons );
+
+    if ( pchr->canjoust )
+        fprintf( filewrite, ":[JOUS] %d\n", pchr->canjoust );
+
+    if ( pchr->candisarm )
+        fprintf( filewrite, ":[DISA] %d\n", pchr->candisarm );
+
+    if ( pcap->canseekurse )
+        fprintf( filewrite, ":[CKUR] %d\n", pcap->canseekurse );
+
+    if ( pchr->canusepoison )
+        fprintf( filewrite, ":[POIS] %d\n", pchr->canusepoison );
+
+    if ( pchr->canread )
+        fprintf( filewrite, ":[READ] %d\n", pchr->canread );
+
+    if ( pchr->canbackstab )
+        fprintf( filewrite, ":[STAB] %d\n", pchr->canbackstab );
+
+    if ( pchr->canusedivine )
+        fprintf( filewrite, ":[HMAG] %d\n", pchr->canusedivine );
+
+    if ( pchr->canusearcane )
+        fprintf( filewrite, ":[WMAG] %d\n", pchr->canusearcane );
+
+    if ( pchr->canusetech )
+        fprintf( filewrite, ":[TECH] %d\n", pchr->canusetech );
+
+    //The end
+    fclose( filewrite );
+
+
+    return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-void export_one_character_skin( const char *szSaveName, Uint16 character )
+bool_t export_one_character_skin( const char *szSaveName, Uint16 character )
 {
     // ZZ> This function creates a skin.txt file for the given character.
     FILE* filewrite;
-    int profile;
 
-    // General stuff
-    profile = ChrList[character].model;
+    if ( INVALID_CHR(character) ) return bfalse;
 
     // Open the file
     filewrite = fopen( szSaveName, "w" );
-    if ( filewrite )
-    {
-        fprintf( filewrite, "//This file is used only by the import menu\n" );
-        fprintf( filewrite, ": %d\n", ChrList[character].skin );
-        fclose( filewrite );
-    }
+    if ( NULL == filewrite ) return bfalse;
+
+    fprintf( filewrite, "//This file is used only by the import menu\n" );
+    fprintf( filewrite, ": %d\n", ChrList[character].skin );
+    fclose( filewrite );
+
+    return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3168,6 +3226,9 @@ void damage_character( Uint16 character, Uint16 direction,
     Uint16 action;
     int damage, basedamage;
     Uint16 experience, model, left, right;
+
+    if ( INVALID_CHR(character) ) return;
+
     if ( ChrList[character].alive && damagebase >= 0 && damagerand >= 1 )
     {
         // Lessen damage for resistance, 0 = Weakness, 1 = Normal, 2 = Resist, 3 = Big Resist
@@ -3467,10 +3528,12 @@ void damage_character( Uint16 character, Uint16 direction,
 bool_t stop_object_looped_sound( Uint16 character )
 {
     //ZF> This makes a object stop playing it's looping sound
-    if ( INVALID_CHR( character ) || ChrList[character].loopedsound == INVALID_SOUND ) return bfalse;
+
+    if ( INVALID_CHR( character ) || INVALID_SOUND == ChrList[character].loopedsound ) return bfalse;
 
     sound_stop_channel( ChrList[character].loopedsound );
     ChrList[character].loopedsound = INVALID_SOUND;
+
     return btrue;
 }
 
@@ -3478,6 +3541,7 @@ bool_t stop_object_looped_sound( Uint16 character )
 void kill_character( Uint16 character, Uint16 killer )
 {
     // ZZ> This function kills a character...  MAX_CHR killer for accidental death
+
     Uint8 modifier;
     chr_t * pchr;
 
@@ -3511,6 +3575,8 @@ void spawn_poof( Uint16 character, Uint16 profile )
     Uint16 sTmp;
     Uint16 origin;
     int iTmp;
+
+    if ( INVALID_CHR( character ) ) return;
 
     sTmp = ChrList[character].turn_z;
     iTmp = 0;
@@ -3595,8 +3661,8 @@ void init_ai_state( ai_state_t * pself, Uint16 index, Uint16 profile, Uint16 mod
     pself->attacklast = MAX_CHR;
     pself->hitlast    = index;
 
-    pself->rank       = rank;
-    pself->order      = 0;
+    pself->order_counter = rank;
+    pself->order_value   = 0;
 
     pself->wp_tail = 0;
     pself->wp_head = 0;
@@ -3608,8 +3674,8 @@ void init_ai_state( ai_state_t * pself, Uint16 index, Uint16 profile, Uint16 mod
 }
 
 //--------------------------------------------------------------------------------------------
-int spawn_one_character( float x, float y, float z, Uint16 profile, Uint8 team,
-                         Uint8 skin, Uint16 facing, const char *name, int override )
+Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
+                            Uint8 skin, Uint16 facing, const char *name, int override )
 {
     // ZZ> This function spawns a character and returns the character's index number
     //     if it worked, MAX_CHR otherwise
@@ -3619,6 +3685,7 @@ int spawn_one_character( float x, float y, float z, Uint16 profile, Uint8 team,
     chr_t * pchr;
     cap_t * pcap;
     float nrm[2];
+    GLvector3 pos_tmp;
 
     if ( profile >= MAX_PROFILE )
     {
@@ -3680,6 +3747,9 @@ int spawn_one_character( float x, float y, float z, Uint16 profile, Uint8 team,
     }
     pchr = ChrList + ichr;
     pcap = CapList + profile;
+
+    // make a copy of the data in pos
+    pos_tmp = pos;
 
     // clear out all data
     memset(pchr, 0, sizeof(chr_t));
@@ -3900,14 +3970,9 @@ int spawn_one_character( float x, float y, float z, Uint16 profile, Uint8 team,
     pchr->runspd = pcap->runspd;
 
     // Set up position
-    pchr->pos.x = x;
-    pchr->pos.y = y;
-    pchr->onwhichfan    = mesh_get_tile( PMesh, x, y );
-    pchr->onwhichblock  = mesh_get_block( PMesh, x, y );
-    pchr->floor_level   = get_mesh_level( PMesh, pchr->pos.x, pchr->pos.y, pchr->waterwalk ) + RAISE;
-    pchr->phys.level    = pchr->floor_level;
-    if ( z < pchr->phys.level ) z = pchr->phys.level;
-    pchr->pos.z = z;
+    pchr->floor_level = get_mesh_level( PMesh, pos_tmp.x, pos_tmp.y, pchr->waterwalk ) + RAISE;
+    if ( pos_tmp.z < pchr->floor_level ) pos_tmp.z = pchr->floor_level;
+    pchr->pos = pos_tmp;
 
     pchr->vel.x = 0;
     pchr->vel.y = 0;
@@ -3925,6 +3990,10 @@ int spawn_one_character( float x, float y, float z, Uint16 profile, Uint8 team,
     pchr->vel_old.y = 0;
     pchr->vel_old.z = 0;
     pchr->turn_old_z = pchr->turn_z;
+
+    pchr->phys.level    = pchr->floor_level;
+    pchr->onwhichfan    = mesh_get_tile( PMesh, pchr->pos.x, pchr->pos.y );
+    pchr->onwhichblock  = mesh_get_block( PMesh, pchr->pos.x, pchr->pos.y );
 
     // action stuff
     pchr->actionready = btrue;
@@ -4040,53 +4109,62 @@ void respawn_character( Uint16 character )
 {
     // ZZ> This function respawns a character
     Uint16 item;
-    if ( ChrList[character].alive ) return;
 
-    spawn_poof( character, ChrList[character].model );
+    chr_t * pchr;
+    cap_t * pcap;
+
+    if ( INVALID_CHR( character ) || ChrList[character].alive ) return;
+    pchr = ChrList + character;
+
+    if ( INVALID_CAP(pchr->model) ) return;
+    pcap = CapList + pchr->model;
+
+    spawn_poof( character, pchr->model );
     disaffirm_attached_particles( character );
-    ChrList[character].alive = btrue;
-    ChrList[character].boretime = BORETIME;
-    ChrList[character].carefultime = CAREFULTIME;
-    ChrList[character].life = ChrList[character].lifemax;
-    ChrList[character].mana = ChrList[character].manamax;
-    ChrList[character].pos  = ChrList[character].pos_stt;
-    ChrList[character].vel.x = 0;
-    ChrList[character].vel.y = 0;
-    ChrList[character].vel.z = 0;
-    ChrList[character].team = ChrList[character].baseteam;
-    ChrList[character].canbecrushed = bfalse;
-    ChrList[character].map_turn_y = 32768;  // These two mean on level surface
-    ChrList[character].map_turn_x = 32768;
-    if ( TeamList[ChrList[character].team].leader == NOLEADER )  TeamList[ChrList[character].team].leader = character;
-    if ( !ChrList[character].invictus )  TeamList[ChrList[character].baseteam].morale++;
 
-    ChrList[character].actionready = btrue;
-    ChrList[character].keepaction = bfalse;
-    ChrList[character].loopaction = bfalse;
-    ChrList[character].action = ACTION_DA;
-    ChrList[character].nextaction = ACTION_DA;
+    pchr->alive = btrue;
+    pchr->boretime = BORETIME;
+    pchr->carefultime = CAREFULTIME;
+    pchr->life = pchr->lifemax;
+    pchr->mana = pchr->manamax;
+    pchr->pos  = pchr->pos_stt;
+    pchr->vel.x = 0;
+    pchr->vel.y = 0;
+    pchr->vel.z = 0;
+    pchr->team = pchr->baseteam;
+    pchr->canbecrushed = bfalse;
+    pchr->map_turn_y = 32768;  // These two mean on level surface
+    pchr->map_turn_x = 32768;
+    if ( NOLEADER == TeamList[pchr->team].leader )  TeamList[pchr->team].leader = character;
+    if ( !pchr->invictus )  TeamList[pchr->baseteam].morale++;
 
-    ChrList[character].platform = CapList[ChrList[character].model].platform;
-    ChrList[character].flyheight = CapList[ChrList[character].model].flyheight;
-    ChrList[character].bumpdampen = CapList[ChrList[character].model].bumpdampen;
-    ChrList[character].bumpsize = CapList[ChrList[character].model].bumpsize * ChrList[character].fat;
-    ChrList[character].bumpsizebig = CapList[ChrList[character].model].bumpsizebig * ChrList[character].fat;
-    ChrList[character].bumpheight = CapList[ChrList[character].model].bumpheight * ChrList[character].fat;
+    pchr->actionready = btrue;
+    pchr->keepaction = bfalse;
+    pchr->loopaction = bfalse;
+    pchr->action = ACTION_DA;
+    pchr->nextaction = ACTION_DA;
 
-    ChrList[character].bumpsizesave = CapList[ChrList[character].model].bumpsize;
-    ChrList[character].bumpsizebigsave = CapList[ChrList[character].model].bumpsizebig;
-    ChrList[character].bumpheightsave = CapList[ChrList[character].model].bumpheight;
+    pchr->platform = pcap->platform;
+    pchr->flyheight = pcap->flyheight;
+    pchr->bumpdampen = pcap->bumpdampen;
+    pchr->bumpsize = pcap->bumpsize * pchr->fat;
+    pchr->bumpsizebig = pcap->bumpsizebig * pchr->fat;
+    pchr->bumpheight = pcap->bumpheight * pchr->fat;
 
-    ChrList[character].ai.alert = 0;
-    ChrList[character].ai.target = character;
-    ChrList[character].ai.timer  = 0;
+    pchr->bumpsizesave = pcap->bumpsize;
+    pchr->bumpsizebigsave = pcap->bumpsizebig;
+    pchr->bumpheightsave = pcap->bumpheight;
 
-    ChrList[character].grogtime = 0;
-    ChrList[character].dazetime = 0;
+    pchr->ai.alert = 0;
+    pchr->ai.target = character;
+    pchr->ai.timer  = 0;
+
+    pchr->grogtime = 0;
+    pchr->dazetime = 0;
     reaffirm_attached_particles( character );
 
     // Let worn items come back
-    for ( item = ChrList[character].pack_next; item < MAX_CHR; item = ChrList[item].pack_next )
+    for ( item = pchr->pack_next; item < MAX_CHR; item = ChrList[item].pack_next )
     {
         if ( ChrList[item].on && ChrList[item].isequipped )
         {
@@ -4096,8 +4174,7 @@ void respawn_character( Uint16 character )
     }
 
     // re-initialize the instance
-    chr_instance_init( &(ChrList[character].inst), ChrList[character].model, ChrList[character].skin );
-
+    chr_instance_init( &(pchr->inst), pchr->model, pchr->skin );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4105,7 +4182,7 @@ int chr_change_skin( Uint16 character, int skin )
 {
     Uint16 model, imad;
 
-    if ( character >= MAX_CHR || !ChrList[character].on ) return 0;
+    if ( INVALID_CHR(character) ) return 0;
 
     model = ChrList[character].model;
     if ( model >= MAX_PROFILE || !MadList[model].used )
@@ -4149,9 +4226,10 @@ Uint16 change_armor( Uint16 character, Uint16 skin )
     Uint16 enchant, sTmp;
     int iTmp;
 
+    if ( INVALID_CHR(character) ) return 0;
+
     // Remove armor enchantments
     enchant = ChrList[character].firstenchant;
-
     while ( enchant < MAX_ENC )
     {
         unset_enchant_value( enchant, SETSLASHMODIFIER );
@@ -4185,7 +4263,6 @@ Uint16 change_armor( Uint16 character, Uint16 skin )
     // These should really be done in reverse order ( Start with last enchant ), but
     // I don't care at this point !!!BAD!!!
     enchant = ChrList[character].firstenchant;
-
     while ( enchant < MAX_ENC )
     {
         set_enchant_value( enchant, SETSLASHMODIFIER, EncList[enchant].eve );
@@ -4430,308 +4507,97 @@ void change_character( Uint16 ichr, Uint16 profile, Uint8 skin, Uint8 leavewhich
 }
 
 //--------------------------------------------------------------------------------------------
-/*Uint16 get_target_in_block( int x, int y, Uint16 character, char items,
-                            char friends, char enemies, char dead, char seeinvisible, IDSZ idsz,
-                            char excludeid )
-{
-  // ZZ> This is a good little helper, that returns != MAX_CHR if a suitable target
-  //     was found
-  int cnt;
-  Uint16 charb;
-  Uint32 fanblock;
-  Uint8 team;
-  if ( x >= 0 && x < meshbloksx && y >= 0 && y < meshbloksy )
-  {
-    team = ChrList[character].team;
-    fanblock = mesh_get_block_int(PMesh, x,y);
-    charb = bumplist[fanblock].chr;
-    cnt = 0;
-    while ( cnt < bumplist[fanblock].chrnum )
-    {
-      if ( dead != ChrList[charb].alive && ( seeinvisible || FF_MUL( ChrList[charb].inst.alpha, ChrList[charb].inst.max_light ) > INVISIBLE ) ) )
-      {
-        if ( ( enemies && TeamList[team].hatesteam[ChrList[charb].team] && !ChrList[charb].invictus ) ||
-             ( items && ChrList[charb].isitem ) ||
-             ( friends && ChrList[charb].baseteam == team ) )
-        {
-          if ( charb != character && ChrList[character].attachedto != charb )
-          {
-            if ( !ChrList[charb].isitem || items )
-            {
-              if ( idsz != IDSZ_NONE )
-              {
-                if ( CapList[ChrList[charb].model].idsz[IDSZ_PARENT] == idsz ||
-                     CapList[ChrList[charb].model].idsz[IDSZ_TYPE] == idsz )
-                {
-                  if ( !excludeid ) return charb;
-                }
-                else
-                {
-                  if ( excludeid )  return charb;
-                }
-              }
-              else
-              {
-                return charb;
-              }
-            }
-          }
-        }
-      }
-      charb = ChrList[charb].bumpnext;
-      cnt++;
-    }
-  }
-  return MAX_CHR;
-}*/
-
-//--------------------------------------------------------------------------------------------
-/*Uint16 get_nearby_target( Uint16 character, char items,
-                          char friends, char enemies, char dead, IDSZ idsz )
-{
-  // ZZ> This function finds a nearby target, or it returns MAX_CHR if it can't find one
-  int x, y;
-  char seeinvisible;
-  seeinvisible = ChrList[character].canseeinvisible;
-
-  // Current fanblock
-  x = ( ( int )ChrList[character].pos.x ) >> BLOCK_BITS;
-  y = ( ( int )ChrList[character].pos.y ) >> BLOCK_BITS;
-  return get_target_in_block( x, y, character, items, friends, enemies, dead, seeinvisible, idsz, 0 );
-}*/
-
-//--------------------------------------------------------------------------------------------
-Uint8 cost_mana( Uint16 character, int amount, Uint16 killer )
+bool_t cost_mana( Uint16 character, int amount, Uint16 killer )
 {
     // ZZ> This function takes mana from a character ( or gives mana ),
     //     and returns btrue if the character had enough to pay, or bfalse
     //     otherwise. This can kill a character in hard mode.
-    int iTmp;
 
-    iTmp = ChrList[character].mana - amount;
-    if ( iTmp < 0 )
+    int mana_final;
+    bool_t mana_paid;
+
+    chr_t * pchr;
+
+    if ( INVALID_CHR(character) ) return bfalse;
+    pchr = ChrList + character;
+
+    mana_paid  = bfalse;
+    mana_final = pchr->mana - amount;
+
+    if ( mana_final < 0 )
     {
-        ChrList[character].mana = 0;
-        if ( ChrList[character].canchannel && (cfg.difficulty >= GAME_HARD || ChrList[character].life > iTmp + LOWSTAT ) )
+        int mana_debt = -mana_final;
+
+        pchr->mana = 0;
+
+        if ( pchr->canchannel )
         {
-            ChrList[character].life += iTmp;
-            if ( ChrList[character].life <= 0 )
+            pchr->life -= mana_debt;
+
+            if ( pchr->life <= 0 && cfg.difficulty >= GAME_HARD )
             {
-                kill_character( character, (killer == MAX_CHR) ? character : killer );
+                kill_character( character, INVALID_CHR(killer) ? character : killer );
             }
 
-            return btrue;
+            mana_paid = btrue;
         }
-
-        return bfalse;
     }
     else
     {
-        ChrList[character].mana = iTmp;
-        if ( iTmp > ChrList[character].manamax )
+        int mana_surplus = 0;
+
+        pchr->mana = mana_final;
+
+        if ( mana_final > pchr->manamax )
         {
-            ChrList[character].mana = ChrList[character].manamax;
+            mana_surplus = mana_final - pchr->manamax;
+            pchr->mana   = pchr->manamax;
         }
-    }
 
-    return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-/*Uint16 find_distant_target( Uint16 character, int maxdistance )
-{
-  // ZZ> This function finds a target, or it returns MAX_CHR if it can't find one...
-  //     maxdistance should be the square of the actual distance you want to use
-  //     as the cutoff...
-  int cnt, distance, xdistance, ydistance;
-  Uint8 team;
-
-  team = ChrList[character].team;
-  cnt = 0;
-  while ( cnt < MAX_CHR )
-  {
-    if ( ChrList[cnt].on )
-    {
-      if ( ChrList[cnt].attachedto == MAX_CHR && !ChrList[cnt].pack_ispacked )
-      {
-        if ( TeamList[team].hatesteam[ChrList[cnt].team] && ChrList[cnt].alive && !ChrList[cnt].invictus )
+        // allow surplus mana to go to health if you can channel?
+        if ( pchr->canchannel && mana_surplus > 0 )
         {
-          if ( ChrList[character].canseeinvisible || FF_MUL( ChrList[cnt].inst.alpha, ChrList[cnt].inst.max_light ) > INVISIBLE ) )
-          {
-            xdistance = (int) (ChrList[cnt].pos.x - ChrList[character].pos.x);
-            ydistance = (int) (ChrList[cnt].pos.y - ChrList[character].pos.y);
-            distance = xdistance * xdistance + ydistance * ydistance;
-            if ( distance < maxdistance )
+            // use some factor, like divide by 2?
+            pchr->life += mana_surplus;
+
+            if ( pchr->life > pchr->lifemax )
             {
-              return cnt;
+                pchr->life = pchr->lifemax;
             }
-          }
         }
-      }
+
+        mana_paid = btrue;
+
     }
-    cnt++;
-  }
-  return MAX_CHR;
-}*/
+
+    return mana_paid;
+}
 
 //--------------------------------------------------------------------------------------------
 void switch_team( Uint16 character, Uint8 team )
 {
     // ZZ> This function makes a character join another team...
-    if ( team < MAXTEAM )
-    {
-        if ( !ChrList[character].invictus )
-        {
-            TeamList[ChrList[character].baseteam].morale--;
-            TeamList[team].morale++;
-        }
-        if ( ( !ChrList[character].ismount || ChrList[character].holdingwhich[SLOT_LEFT] == MAX_CHR ) &&
-                ( !ChrList[character].isitem || ChrList[character].attachedto == MAX_CHR ) )
-        {
-            ChrList[character].team = team;
-        }
 
-        ChrList[character].baseteam = team;
-        if ( TeamList[team].leader == NOLEADER )
-        {
-            TeamList[team].leader = character;
-        }
+    if ( INVALID_CHR(character) || team >= MAXTEAM ) return;
+
+    if ( !ChrList[character].invictus )
+    {
+        TeamList[ChrList[character].baseteam].morale--;
+        TeamList[team].morale++;
     }
+    if ( ( !ChrList[character].ismount || ChrList[character].holdingwhich[SLOT_LEFT] == MAX_CHR ) &&
+            ( !ChrList[character].isitem || ChrList[character].attachedto == MAX_CHR ) )
+    {
+        ChrList[character].team = team;
+    }
+
+    ChrList[character].baseteam = team;
+    if ( TeamList[team].leader == NOLEADER )
+    {
+        TeamList[team].leader = character;
+    }
+
 }
-
-//--------------------------------------------------------------------------------------------
-/*void get_nearest_in_block( int x, int y, Uint16 character, char items,
-                           char friends, char enemies, char dead, char seeinvisible, IDSZ idsz )
-{
-  // ZZ> This is a good little helper
-  float distance, xdis, ydis;
-  int cnt;
-  Uint8 team;
-  Uint16 charb;
-  Uint32 fanblock;
-  if ( x >= 0 && x < meshbloksx && y >= 0 && y < meshbloksy )
-  {
-    team = ChrList[character].team;
-    fanblock = mesh_get_block_int(PMesh, x,y);
-    charb = bumplist[fanblock].chr;
-    cnt = 0;
-    while ( cnt < bumplist[fanblock].chrnum )
-    {
-      if ( dead != ChrList[charb].alive && ( seeinvisible || FF_MUL( ChrList[charb].inst.alpha, ChrList[charb].inst.max_light ) > INVISIBLE ) ) )
-      {
-        if ( ( enemies && TeamList[team].hatesteam[ChrList[charb].team] ) ||
-             ( items && ChrList[charb].isitem ) ||
-             ( friends && ChrList[charb].team == team ) ||
-             ( friends && enemies ) )
-        {
-          if ( charb != character && ChrList[character].attachedto != charb && ChrList[charb].attachedto == MAX_CHR && !ChrList[charb].pack_ispacked )
-          {
-            if ( !ChrList[charb].invictus || items )
-            {
-              if ( idsz != IDSZ_NONE )
-              {
-                if ( CapList[ChrList[charb].model].idsz[IDSZ_PARENT] == idsz ||
-                     CapList[ChrList[charb].model].idsz[IDSZ_TYPE] == idsz )
-                {
-                  xdis = ChrList[character].pos.x - ChrList[charb].pos.x;
-                  ydis = ChrList[character].pos.y - ChrList[charb].pos.y;
-                  xdis = xdis * xdis;
-                  ydis = ydis * ydis;
-                  distance = xdis + ydis;
-                  if ( distance < globaldistance )
-                  {
-                    globalnearest = charb;
-                    globaldistance = distance;
-                  }
-                }
-              }
-              else
-              {
-                xdis = ChrList[character].pos.x - ChrList[charb].pos.x;
-                ydis = ChrList[character].pos.y - ChrList[charb].pos.y;
-                xdis = xdis * xdis;
-                ydis = ydis * ydis;
-                distance = xdis + ydis;
-                if ( distance < globaldistance )
-                {
-                  globalnearest = charb;
-                  globaldistance = distance;
-                }
-              }
-            }
-          }
-        }
-      }
-      charb = ChrList[charb].bumpnext;
-      cnt++;
-    }
-  }
-  return;
-}*/
-
-//--------------------------------------------------------------------------------------------
-/*Uint16 get_nearest_target( Uint16 character, char items,
-                           char friends, char enemies, char dead, IDSZ idsz )
-{
-  // ZZ> This function finds a target, or it returns MAX_CHR if it can't find one
-  int x, y;
-  char seeinvisible;
-  seeinvisible = ChrList[character].canseeinvisible;
-
-  // Current fanblock
-  x = ( ( int )ChrList[character].pos.x ) >> BLOCK_BITS;
-  y = ( ( int )ChrList[character].pos.y ) >> BLOCK_BITS;
-
-  globalnearest = MAX_CHR;
-  globaldistance = 999999;
-  get_nearest_in_block( x, y, character, items, friends, enemies, dead, seeinvisible, idsz );
-
-  get_nearest_in_block( x - 1, y, character, items, friends, enemies, dead, seeinvisible, idsz );
-  get_nearest_in_block( x + 1, y, character, items, friends, enemies, dead, seeinvisible, idsz );
-  get_nearest_in_block( x, y - 1, character, items, friends, enemies, dead, seeinvisible, idsz );
-  get_nearest_in_block( x, y + 1, character, items, friends, enemies, dead, seeinvisible, idsz );
-
-  get_nearest_in_block( x - 1, y + 1, character, items, friends, enemies, dead, seeinvisible, idsz );
-  get_nearest_in_block( x + 1, y - 1, character, items, friends, enemies, dead, seeinvisible, idsz );
-  get_nearest_in_block( x - 1, y - 1, character, items, friends, enemies, dead, seeinvisible, idsz );
-  get_nearest_in_block( x + 1, y + 1, character, items, friends, enemies, dead, seeinvisible, idsz );
-  return globalnearest;
-}*/
-
-//--------------------------------------------------------------------------------------------
-/*Uint16 get_wide_target( Uint16 character, char items,
-                        char friends, char enemies, char dead, IDSZ idsz, char excludeid )
-{
-  // ZZ> This function finds a target, or it returns MAX_CHR if it can't find one
-  int x, y;
-  Uint16 enemy;
-  char seeinvisible;
-  seeinvisible = ChrList[character].canseeinvisible;
-
-  // Current fanblock
-  x = ( ( int )ChrList[character].pos.x ) >> BLOCK_BITS;
-  y = ( ( int )ChrList[character].pos.y ) >> BLOCK_BITS;
-  enemy = get_target_in_block( x, y, character, items, friends, enemies, dead, seeinvisible, idsz, excludeid );
-  if ( enemy != MAX_CHR )  return enemy;
-
-  enemy = get_target_in_block( x - 1, y, character, items, friends, enemies, dead, seeinvisible, idsz, excludeid );
-  if ( enemy != MAX_CHR )  return enemy;
-  enemy = get_target_in_block( x + 1, y, character, items, friends, enemies, dead, seeinvisible, idsz, excludeid );
-  if ( enemy != MAX_CHR )  return enemy;
-  enemy = get_target_in_block( x, y - 1, character, items, friends, enemies, dead, seeinvisible, idsz, excludeid );
-  if ( enemy != MAX_CHR )  return enemy;
-  enemy = get_target_in_block( x, y + 1, character, items, friends, enemies, dead, seeinvisible, idsz, excludeid );
-  if ( enemy != MAX_CHR )  return enemy;
-
-  enemy = get_target_in_block( x - 1, y + 1, character, items, friends, enemies, dead, seeinvisible, idsz, excludeid );
-  if ( enemy != MAX_CHR )  return enemy;
-  enemy = get_target_in_block( x + 1, y - 1, character, items, friends, enemies, dead, seeinvisible, idsz, excludeid );
-  if ( enemy != MAX_CHR )  return enemy;
-  enemy = get_target_in_block( x - 1, y - 1, character, items, friends, enemies, dead, seeinvisible, idsz, excludeid );
-  if ( enemy != MAX_CHR )  return enemy;
-  enemy = get_target_in_block( x + 1, y + 1, character, items, friends, enemies, dead, seeinvisible, idsz, excludeid );
-  return enemy;
-}*/
 
 //--------------------------------------------------------------------------------------------
 void issue_clean( Uint16 character )
@@ -4739,6 +4605,8 @@ void issue_clean( Uint16 character )
     // ZZ> This function issues a clean up order to all teammates
     Uint8 team;
     Uint16 cnt;
+
+    if ( INVALID_CHR(character) ) return;
 
     team = ChrList[character].team;
     for ( cnt = 0; cnt < MAX_CHR; cnt++ )
@@ -4762,17 +4630,18 @@ int restock_ammo( Uint16 character, IDSZ idsz )
     //     function returns the amount of ammo given.
     int amount, model;
 
+    if ( INVALID_CHR(character) ) return 0;
+
     amount = 0;
-    if ( VALID_CHR(character) )
+    model = ChrList[character].model;
+    if ( INVALID_CAP(model) ) return 0;
+
+    if ( CapList[model].idsz[IDSZ_PARENT] == idsz || CapList[model].idsz[IDSZ_TYPE] == idsz )
     {
-        model = ChrList[character].model;
-        if ( CapList[model].idsz[IDSZ_PARENT] == idsz || CapList[model].idsz[IDSZ_TYPE] == idsz )
+        if ( ChrList[character].ammo < ChrList[character].ammomax )
         {
-            if ( ChrList[character].ammo < ChrList[character].ammomax )
-            {
-                amount = ChrList[character].ammomax - ChrList[character].ammo;
-                ChrList[character].ammo = ChrList[character].ammomax;
-            }
+            amount = ChrList[character].ammomax - ChrList[character].ammo;
+            ChrList[character].ammo = ChrList[character].ammomax;
         }
     }
 
@@ -4887,24 +4756,18 @@ Sint16 modify_quest_idsz( const char *whichplayer, IDSZ idsz, Sint16 adjustment 
 }
 
 //--------------------------------------------------------------------------------------------
-char * undo_idsz( IDSZ idsz )
+const char * undo_idsz( IDSZ idsz )
 {
     // ZZ> This function takes an integer and makes a text IDSZ out of it.
 
     static char value_string[5] = {"NONE"};
+
     if ( idsz == IDSZ_NONE )
     {
-        sprintf( idsz_string, "NONE" );
-        snprintf( value_string, sizeof( value_string ), "NONE" );
+        strncpy( value_string, "NONE", SDL_arraysize( value_string ) );
     }
     else
     {
-        idsz_string[0] = ( ( idsz >> 15 ) & 31 ) + 'A';
-        idsz_string[1] = ( ( idsz >> 10 ) & 31 ) + 'A';
-        idsz_string[2] = ( ( idsz >> 5 ) & 31 ) + 'A';
-        idsz_string[3] = ( ( idsz ) & 31 ) + 'A';
-        idsz_string[4] = 0;
-
         //Bad! both function return and return to global variable!
         value_string[0] = (( idsz >> 15 ) & 31 ) + 'A';
         value_string[1] = (( idsz >> 10 ) & 31 ) + 'A';
@@ -5424,9 +5287,10 @@ void move_characters( void )
                             if ( pchr->actionready && MadList[pchr->inst.imad].actionvalid[action] )
                             {
                                 // Check mana cost
-                                if ( pchr->mana >= ChrList[weapon].manacost || ( pchr->canchannel && pchr->life + LOWSTAT >= ChrList[weapon].manacost ) )
+                                bool_t mana_paid = cost_mana( cnt, ChrList[weapon].manacost, weapon );
+
+                                if ( mana_paid )
                                 {
-                                    cost_mana( cnt, ChrList[weapon].manacost, weapon );
                                     // Check life healing
                                     pchr->life += ChrList[weapon].lifeheal;
                                     if ( pchr->life > pchr->lifemax )  pchr->life = pchr->lifemax;
@@ -5532,10 +5396,10 @@ void move_characters( void )
                         {
                             if ( pchr->actionready && MadList[pchr->inst.imad].actionvalid[action] )
                             {
+                                bool_t mana_paid = cost_mana( cnt, ChrList[weapon].manacost, weapon );
                                 // Check mana cost
-                                if ( pchr->mana >= ChrList[weapon].manacost || ( pchr->canchannel && pchr->life + LOWSTAT >= ChrList[weapon].manacost ) )
+                                if ( mana_paid )
                                 {
-                                    cost_mana( cnt, ChrList[weapon].manacost, weapon );
                                     // Check life healing
                                     pchr->life += ChrList[weapon].lifeheal;
                                     if ( pchr->life > pchr->lifemax )  pchr->life = pchr->lifemax;
@@ -6180,3 +6044,261 @@ void init_slot_idsz()
     inventory_idsz[INVEN_FOOT]  = Make_IDSZ( "FOOT" );
 }
 
+//--------------------------------------------------------------------------------------------
+bool_t ai_add_order( ai_state_t * pai, Uint32 value, Uint16 counter )
+{
+    bool_t retval;
+
+    if (NULL == pai) return bfalse;
+
+    // this function is only truely valid if there is no other order
+    retval = (0 == (pai->alert & ALERTIF_ORDERED));
+
+    pai->alert        |= ALERTIF_ORDERED;
+    pai->order_value   = value;
+    pai->order_counter = counter;
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+/*Uint16 get_target_in_block( int x, int y, Uint16 character, char items,
+                            char friends, char enemies, char dead, char seeinvisible, IDSZ idsz,
+                            char excludeid )
+{
+  // ZZ> This is a good little helper, that returns != MAX_CHR if a suitable target
+  //     was found
+  int cnt;
+  Uint16 charb;
+  Uint32 fanblock;
+  Uint8 team;
+  if ( x >= 0 && x < meshbloksx && y >= 0 && y < meshbloksy )
+  {
+    team = ChrList[character].team;
+    fanblock = mesh_get_block_int(PMesh, x,y);
+    charb = bumplist[fanblock].chr;
+    cnt = 0;
+    while ( cnt < bumplist[fanblock].chrnum )
+    {
+      if ( dead != ChrList[charb].alive && ( seeinvisible || FF_MUL( ChrList[charb].inst.alpha, ChrList[charb].inst.max_light ) > INVISIBLE ) ) )
+      {
+        if ( ( enemies && TeamList[team].hatesteam[ChrList[charb].team] && !ChrList[charb].invictus ) ||
+             ( items && ChrList[charb].isitem ) ||
+             ( friends && ChrList[charb].baseteam == team ) )
+        {
+          if ( charb != character && ChrList[character].attachedto != charb )
+          {
+            if ( !ChrList[charb].isitem || items )
+            {
+              if ( idsz != IDSZ_NONE )
+              {
+                if ( CapList[ChrList[charb].model].idsz[IDSZ_PARENT] == idsz ||
+                     CapList[ChrList[charb].model].idsz[IDSZ_TYPE] == idsz )
+                {
+                  if ( !excludeid ) return charb;
+                }
+                else
+                {
+                  if ( excludeid )  return charb;
+                }
+              }
+              else
+              {
+                return charb;
+              }
+            }
+          }
+        }
+      }
+      charb = ChrList[charb].bumpnext;
+      cnt++;
+    }
+  }
+  return MAX_CHR;
+}*/
+
+//--------------------------------------------------------------------------------------------
+/*Uint16 get_nearby_target( Uint16 character, char items,
+                          char friends, char enemies, char dead, IDSZ idsz )
+{
+  // ZZ> This function finds a nearby target, or it returns MAX_CHR if it can't find one
+  int x, y;
+  char seeinvisible;
+  seeinvisible = ChrList[character].canseeinvisible;
+
+  // Current fanblock
+  x = ( ( int )ChrList[character].pos.x ) >> BLOCK_BITS;
+  y = ( ( int )ChrList[character].pos.y ) >> BLOCK_BITS;
+  return get_target_in_block( x, y, character, items, friends, enemies, dead, seeinvisible, idsz, 0 );
+}*/
+
+//--------------------------------------------------------------------------------------------
+/*Uint16 find_distant_target( Uint16 character, int maxdistance )
+{
+  // ZZ> This function finds a target, or it returns MAX_CHR if it can't find one...
+  //     maxdistance should be the square of the actual distance you want to use
+  //     as the cutoff...
+  int cnt, distance, xdistance, ydistance;
+  Uint8 team;
+
+  team = ChrList[character].team;
+  cnt = 0;
+  while ( cnt < MAX_CHR )
+  {
+    if ( ChrList[cnt].on )
+    {
+      if ( ChrList[cnt].attachedto == MAX_CHR && !ChrList[cnt].pack_ispacked )
+      {
+        if ( TeamList[team].hatesteam[ChrList[cnt].team] && ChrList[cnt].alive && !ChrList[cnt].invictus )
+        {
+          if ( ChrList[character].canseeinvisible || FF_MUL( ChrList[cnt].inst.alpha, ChrList[cnt].inst.max_light ) > INVISIBLE ) )
+          {
+            xdistance = (int) (ChrList[cnt].pos.x - ChrList[character].pos.x);
+            ydistance = (int) (ChrList[cnt].pos.y - ChrList[character].pos.y);
+            distance = xdistance * xdistance + ydistance * ydistance;
+            if ( distance < maxdistance )
+            {
+              return cnt;
+            }
+          }
+        }
+      }
+    }
+    cnt++;
+  }
+  return MAX_CHR;
+}*/
+
+//--------------------------------------------------------------------------------------------
+/*void get_nearest_in_block( int x, int y, Uint16 character, char items,
+                           char friends, char enemies, char dead, char seeinvisible, IDSZ idsz )
+{
+  // ZZ> This is a good little helper
+  float distance, xdis, ydis;
+  int cnt;
+  Uint8 team;
+  Uint16 charb;
+  Uint32 fanblock;
+  if ( x >= 0 && x < meshbloksx && y >= 0 && y < meshbloksy )
+  {
+    team = ChrList[character].team;
+    fanblock = mesh_get_block_int(PMesh, x,y);
+    charb = bumplist[fanblock].chr;
+    cnt = 0;
+    while ( cnt < bumplist[fanblock].chrnum )
+    {
+      if ( dead != ChrList[charb].alive && ( seeinvisible || FF_MUL( ChrList[charb].inst.alpha, ChrList[charb].inst.max_light ) > INVISIBLE ) ) )
+      {
+        if ( ( enemies && TeamList[team].hatesteam[ChrList[charb].team] ) ||
+             ( items && ChrList[charb].isitem ) ||
+             ( friends && ChrList[charb].team == team ) ||
+             ( friends && enemies ) )
+        {
+          if ( charb != character && ChrList[character].attachedto != charb && ChrList[charb].attachedto == MAX_CHR && !ChrList[charb].pack_ispacked )
+          {
+            if ( !ChrList[charb].invictus || items )
+            {
+              if ( idsz != IDSZ_NONE )
+              {
+                if ( CapList[ChrList[charb].model].idsz[IDSZ_PARENT] == idsz ||
+                     CapList[ChrList[charb].model].idsz[IDSZ_TYPE] == idsz )
+                {
+                  xdis = ChrList[character].pos.x - ChrList[charb].pos.x;
+                  ydis = ChrList[character].pos.y - ChrList[charb].pos.y;
+                  xdis = xdis * xdis;
+                  ydis = ydis * ydis;
+                  distance = xdis + ydis;
+                  if ( distance < globaldistance )
+                  {
+                    globalnearest = charb;
+                    globaldistance = distance;
+                  }
+                }
+              }
+              else
+              {
+                xdis = ChrList[character].pos.x - ChrList[charb].pos.x;
+                ydis = ChrList[character].pos.y - ChrList[charb].pos.y;
+                xdis = xdis * xdis;
+                ydis = ydis * ydis;
+                distance = xdis + ydis;
+                if ( distance < globaldistance )
+                {
+                  globalnearest = charb;
+                  globaldistance = distance;
+                }
+              }
+            }
+          }
+        }
+      }
+      charb = ChrList[charb].bumpnext;
+      cnt++;
+    }
+  }
+  return;
+}*/
+
+//--------------------------------------------------------------------------------------------
+/*Uint16 get_nearest_target( Uint16 character, char items,
+                           char friends, char enemies, char dead, IDSZ idsz )
+{
+  // ZZ> This function finds a target, or it returns MAX_CHR if it can't find one
+  int x, y;
+  char seeinvisible;
+  seeinvisible = ChrList[character].canseeinvisible;
+
+  // Current fanblock
+  x = ( ( int )ChrList[character].pos.x ) >> BLOCK_BITS;
+  y = ( ( int )ChrList[character].pos.y ) >> BLOCK_BITS;
+
+  globalnearest = MAX_CHR;
+  globaldistance = 999999;
+  get_nearest_in_block( x, y, character, items, friends, enemies, dead, seeinvisible, idsz );
+
+  get_nearest_in_block( x - 1, y, character, items, friends, enemies, dead, seeinvisible, idsz );
+  get_nearest_in_block( x + 1, y, character, items, friends, enemies, dead, seeinvisible, idsz );
+  get_nearest_in_block( x, y - 1, character, items, friends, enemies, dead, seeinvisible, idsz );
+  get_nearest_in_block( x, y + 1, character, items, friends, enemies, dead, seeinvisible, idsz );
+
+  get_nearest_in_block( x - 1, y + 1, character, items, friends, enemies, dead, seeinvisible, idsz );
+  get_nearest_in_block( x + 1, y - 1, character, items, friends, enemies, dead, seeinvisible, idsz );
+  get_nearest_in_block( x - 1, y - 1, character, items, friends, enemies, dead, seeinvisible, idsz );
+  get_nearest_in_block( x + 1, y + 1, character, items, friends, enemies, dead, seeinvisible, idsz );
+  return globalnearest;
+}*/
+
+//--------------------------------------------------------------------------------------------
+/*Uint16 get_wide_target( Uint16 character, char items,
+                        char friends, char enemies, char dead, IDSZ idsz, char excludeid )
+{
+  // ZZ> This function finds a target, or it returns MAX_CHR if it can't find one
+  int x, y;
+  Uint16 enemy;
+  char seeinvisible;
+  seeinvisible = ChrList[character].canseeinvisible;
+
+  // Current fanblock
+  x = ( ( int )ChrList[character].pos.x ) >> BLOCK_BITS;
+  y = ( ( int )ChrList[character].pos.y ) >> BLOCK_BITS;
+  enemy = get_target_in_block( x, y, character, items, friends, enemies, dead, seeinvisible, idsz, excludeid );
+  if ( enemy != MAX_CHR )  return enemy;
+
+  enemy = get_target_in_block( x - 1, y, character, items, friends, enemies, dead, seeinvisible, idsz, excludeid );
+  if ( enemy != MAX_CHR )  return enemy;
+  enemy = get_target_in_block( x + 1, y, character, items, friends, enemies, dead, seeinvisible, idsz, excludeid );
+  if ( enemy != MAX_CHR )  return enemy;
+  enemy = get_target_in_block( x, y - 1, character, items, friends, enemies, dead, seeinvisible, idsz, excludeid );
+  if ( enemy != MAX_CHR )  return enemy;
+  enemy = get_target_in_block( x, y + 1, character, items, friends, enemies, dead, seeinvisible, idsz, excludeid );
+  if ( enemy != MAX_CHR )  return enemy;
+
+  enemy = get_target_in_block( x - 1, y + 1, character, items, friends, enemies, dead, seeinvisible, idsz, excludeid );
+  if ( enemy != MAX_CHR )  return enemy;
+  enemy = get_target_in_block( x + 1, y - 1, character, items, friends, enemies, dead, seeinvisible, idsz, excludeid );
+  if ( enemy != MAX_CHR )  return enemy;
+  enemy = get_target_in_block( x - 1, y - 1, character, items, friends, enemies, dead, seeinvisible, idsz, excludeid );
+  if ( enemy != MAX_CHR )  return enemy;
+  enemy = get_target_in_block( x + 1, y + 1, character, items, friends, enemies, dead, seeinvisible, idsz, excludeid );
+  return enemy;
+}*/

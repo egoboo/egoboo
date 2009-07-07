@@ -32,11 +32,23 @@ struct s_script_state;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
 #define MAXPASS             256                     // Maximum number of passages ( mul 32 )
 
 #define NOOWNER 0xFFFF        // Shop has no owner
 #define STOLEN  0xFFFF        // Someone stole a item
+
+//These are shop orders
+enum e_shop_orders
+{
+    SHOP_BUY       = 0,
+    SHOP_SELL,
+    SHOP_NOAFFORD,
+    SHOP_THEFT,
+};
+
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 
 // Passages
 extern int   numpassage;              // Number of passages in the module
@@ -54,17 +66,18 @@ extern Uint16  shoppassage[MAXPASS];  // The passage number
 extern Uint16  shopowner[MAXPASS];    // Who gets the gold?
 
 //--------------------------------------------------------------------------------------------
-//Passage prototypes
-int open_passage( Uint16 passage );
-void check_passage_music();
-int break_passage( struct s_script_state * pstate, Uint16 passage, Uint16 starttile, Uint16 frames,
-                   Uint16 become, Uint8 meshfxor );
-void flash_passage( Uint16 passage, Uint8 color );
-Uint8 find_tile_in_passage( struct s_script_state * pstate, Uint16 passage, int tiletype );
+//--------------------------------------------------------------------------------------------
+// prototypes
+
+int    open_passage( Uint16 passage );
+void   check_passage_music();
+int    break_passage( struct s_script_state * pstate, Uint16 passage, Uint16 starttile, Uint16 frames, Uint16 become, Uint8 meshfxor );
+void   flash_passage( Uint16 passage, Uint8 color );
+Uint8  find_tile_in_passage( struct s_script_state * pstate, Uint16 passage, int tiletype );
 Uint16 who_is_blocking_passage( Uint16 passage );
 Uint16 who_is_blocking_passage_ID( Uint16 passage, IDSZ idsz );
-int close_passage( Uint16 passage );
-void clear_passages();
-void add_shop_passage( Uint16 owner, Uint16 passage );
-void add_passage( int tlx, int tly, int brx, int bry, bool_t open, Uint8 mask );
-void setup_passage( const char *modname );
+int    close_passage( Uint16 passage );
+void   clear_passages();
+void   add_shop_passage( Uint16 owner, Uint16 passage );
+void   add_passage( int tlx, int tly, int brx, int bry, bool_t open, Uint8 mask );
+void   setup_passage( const char *modname );
