@@ -26,7 +26,6 @@ IfStateIs8
 
     // Snore...
     tmpargument = rand & 3 + 4
-    tmpdistance = rand & 2047 + 15000
     PlaySound
     tmpargument = 100
     SetTime
@@ -51,6 +50,8 @@ IfBumped				// Attack whoever it bumped
   IfTargetIsOnHatedTeam			  // Make sure it's an enemy
     tmpargument = LATCHLEFT		    // Bite 'em
     PressLatchButton			    //
+  
+  //Zefz: I have no idea what this is for...
   tmpargument = [RUST]
   IfTargetHasID
     tmpargument = 512
@@ -95,6 +96,12 @@ IfScoredAHit
           tmpdistance = selfz
           tmpargument = 5
           SpawnExactParticle
+    
+    //Deal extra damage to metal armored folks
+    IfTargetIsDressedUp
+      tmpargument = rand % 512 + 512    //2-4 extra damage
+      DamageTarget
+      
     SetTargetToOldTarget
 
 IfAttacked
@@ -163,7 +170,7 @@ IfKilled
 IfStateIs1
   // Wander around
   IfTimeOut				// This is done every so often
-    tmpdistance = 640000
+    tmpdistance = 128*7
     SetTargetToDistantEnemy
       tmpx = rand & 511 - 256 + targetx	    //
       tmpy = rand & 511 - 256 + targety	    //

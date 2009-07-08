@@ -12,9 +12,9 @@ Level rating ( * to  ***** ) :*****
 // Module summary
 :Help_your_friend_Marcus_with_
 :uncovering_the_ancient_Golden_
-:Cetza_Idol_for_theRoyal_Bishopian
+:Cetza_Idol_for_the_Royal_Bishopian
 :museum._Legend_says_itis_guarded_
-:by_an_ancient_key_puzzleand_
+:by_an_ancient_key_puzzle_and_
 :devious_traps._These_lands_are_also
 :homes_Jungle_Warriors._Let's_just
 :hope_there_aren't_any_snakes!

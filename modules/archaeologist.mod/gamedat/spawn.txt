@@ -12,7 +12,7 @@ chest.obj:   NONE    55  11.0   89.5   0.0   N    0   0  0   0   0   F   F   N
   shovel.obj:   NONE    63  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   pick.obj:   NONE    57  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 chest.obj:   NONE    55  8.0   87.0   0.0   E    0   0  0   0   0   F   F   N
-  lpotion.obj:   NONE    61  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  GLOBAL medkit.obj:   NONE    80  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   oil.obj:   NONE    71  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   lamp.obj:   NONE    40  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 

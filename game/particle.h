@@ -38,7 +38,7 @@
 #define DYNAOFF   0
 #define DYNAON    1
 #define DYNALOCAL 2
-#define MAXFALLOFF 1400
+//#define MAXFALLOFF 1400
 
 //Physics
 #define STOPBOUNCINGPART                5.0f         // To make particles stop bouncing

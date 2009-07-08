@@ -2208,6 +2208,9 @@ void give_experience( Uint16 character, int amount, Uint8 xptype, bool_t overrid
 
     if ( !ChrList[character].invictus || override_invictus )
     {
+        float intadd = (FP8_TO_INT(ChrList[character].intelligence) - 10.0f) / 200.0f;
+        float wisadd = (FP8_TO_INT(ChrList[character].wisdom) - 10.0f)       / 400.0f;
+
         // Figure out how much experience to give
         profile = ChrList[character].model;
         newamount = amount;
@@ -2217,11 +2220,7 @@ void give_experience( Uint16 character, int amount, Uint8 xptype, bool_t overrid
         }
 
         //Intelligence and slightly wisdom increases xp gained (0,5% per int and 0,25% per wisdom above 10)
-        {
-            float intadd = (FP8_TO_INT(ChrList[character].intelligence) - 10.0f) / 200.0f;
-            float wisadd = (FP8_TO_INT(ChrList[character].wisdom) - 10.0f)       / 400.0f;
-            newamount *= 1.00f + intadd + wisadd;
-        }
+        newamount *= 1.00f + intadd + wisadd;
 
         //Apply XP bonus/penality depending on game difficulty
         if ( cfg.difficulty >= GAME_HARD ) newamount *= 1.10f;          //10% extra on hard
@@ -2233,8 +2232,7 @@ void give_experience( Uint16 character, int amount, Uint8 xptype, bool_t overrid
 //--------------------------------------------------------------------------------------------
 void give_team_experience( Uint8 team, int amount, Uint8 xptype )
 {
-    // ZZ> This function gives a character experience, and pawns off level gains to
-    //     another function
+    // ZZ> This function gives every character on a team experience
     Uint16 cnt;
 
     for ( cnt = 0; cnt < MAX_CHR; cnt++ )

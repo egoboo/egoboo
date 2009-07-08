@@ -2,7 +2,7 @@
 IfSpawned
   tmpargument = 1
   IfContentIs
-    tmpargument = diffculty * 3000
+    tmpargument = 3000 * difficulty
     tmpargument = 27000 - tmpargument  //9 minutes - 1 for every difficulty level
     SetContent
 

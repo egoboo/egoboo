@@ -892,7 +892,7 @@ void cl_talkToHost()
     }
 
     // Start talkin'
-    if ( gnet.on && !gnet.hostactive && !PMod->rtscontrol )
+    if ( gnet.on && !gnet.hostactive /*&& !PMod->rtscontrol*/ )
     {
         net_startNewPacket();
         packet_addUnsignedShort( TO_HOST_LATCH );        // The message header
@@ -925,7 +925,7 @@ void sv_talkToRemotes()
     if ( update_wld == sv_last_frame ) return;
     sv_last_frame = update_wld;
 
-    if ( PMod->rtscontrol ) return;
+ //   if ( PMod->rtscontrol ) return;
 
     if ( gnet.hostactive )
     {
@@ -1478,7 +1478,7 @@ void unbuffer_player_latches()
 {
     // ZZ> This function sets character latches based on player input to the host
     int cnt, character;
-    if ( PMod->rtscontrol ) { numplatimes--; return; }
+  //  if ( PMod->rtscontrol ) { numplatimes--; return; }
 
     // Copy the latches
 

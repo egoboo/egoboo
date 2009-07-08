@@ -137,7 +137,7 @@ int    endtextwrite = 0;
 
 // Status displays
 bool_t staton     = btrue;
-int    statdelay  = 25;
+//int    statdelay  = 25;
 int    numstat    = 0;
 Uint16 statlist[MAXSTAT];
 
@@ -828,7 +828,7 @@ void update_game()
         update_wld++;
     }
 
-    if ( PNet->on && !PMod->rtscontrol )
+    if ( PNet->on )
     {
         if ( numplatimes == 0 )
         {
@@ -1430,7 +1430,7 @@ int do_game_proc_begin( game_process_t * gproc )
     camera_new( PCamera );
 
     // try to start a new module
-    if ( !game_begin_module( pickedmodule_name, ~0 ) )
+    if ( !game_begin_module( pickedmodule_name, (Uint32)~0 ) )
     {
         // failure - kill the game process
         process_instance_kill( PROC_PBASE(gproc) );
@@ -1506,7 +1506,7 @@ int do_game_proc_running( game_process_t * gproc )
         draw_main();
 
         msgtimechange++;
-        if ( statdelay > 0 )  statdelay--;
+        //if ( statdelay > 0 )  statdelay--;
     }
 
     // Check for quitters
@@ -1842,12 +1842,6 @@ Uint16 get_target( Uint16 character, Uint32 maxdistance, TARGET_TYPE team, bool_
         }
     }
 
-    //Target the holder if there is nothing better to target
-    if (besttarget == MAX_CHR && VALID_CHR(ChrList[character].attachedto) && (team == ALL || team == FRIEND) && ChrList[ChrList[character].attachedto].alive)
-    {
-        besttarget = ChrList[character].attachedto;
-    }
-
     //Now set the target
     if (besttarget != MAX_CHR)
     {
@@ -1863,7 +1857,6 @@ void make_onwhichfan( void )
     // ZZ> This function figures out which fan characters are on and sets their level
     Uint16 character, distance, particle;
     int ripand;
-    // int volume;
     float level;
 
     // First figure out which fan each character is in
@@ -2532,7 +2525,7 @@ void check_stats()
         if ( SDLKEYDOWN( SDLK_3 ) && VALID_CHR(PlaList[2].index) )  { ChrList[PlaList[2].index].experience += 25; stat_check_delay = 250; }
         if ( SDLKEYDOWN( SDLK_4 ) && VALID_CHR(PlaList[3].index) )  { ChrList[PlaList[3].index].experience += 25; stat_check_delay = 250; }
 
-        statdelay = 0;
+        //statdelay = 0;
     }
 
     // !!!BAD!!!  LIFE CHEAT
@@ -2605,7 +2598,7 @@ void show_stat( Uint16 statindex )
     int character, level;
     char text[64];
     char gender[8];
-    if ( statdelay == 0 )
+    //if ( statdelay == 0 )
     {
         if ( statindex < numstat )
         {
@@ -2649,7 +2642,7 @@ void show_stat( Uint16 statindex )
             debug_message( text );
             sprintf( text, " INT:~%2d~DEX:~%2d~EXP:~%d", FP8_TO_INT( ChrList[character].intelligence ), FP8_TO_INT( ChrList[character].dexterity ), ChrList[character].experience );
             debug_message( text );
-            statdelay = 10;
+            //statdelay = 10;
         }
     }
 }
@@ -2660,7 +2653,7 @@ void show_armor( Uint16 statindex )
     // ZF> This function shows detailed armor information for the character
     STRING text, tmps;
 
-    if ( statdelay == 0 ) return;
+    //if ( statdelay == 0 ) return;
 
     if ( statindex < numstat )
     {
@@ -2714,7 +2707,7 @@ void show_armor( Uint16 statindex )
 
             debug_message( text );
 
-            statdelay = 10;
+            //statdelay = 10;
         }
     }
 
@@ -2727,7 +2720,7 @@ void show_full_status( Uint16 statindex )
     char text[64], tmps[64];
     short character;
     int i = 0;
-    if ( statdelay == 0 )
+   // if ( statdelay == 0 )
     {
         if ( statindex < numstat )
         {
@@ -2771,7 +2764,7 @@ void show_full_status( Uint16 statindex )
             sprintf( tmps, "Jump Skill: %s", text );
             sprintf( text, " Speed:~%3.0f~~%s", ChrList[character].maxaccel*80, tmps );
             debug_message( text );
-            statdelay = 10;
+            //statdelay = 10;
         }
     }
 }
@@ -2783,7 +2776,7 @@ void show_magic_status( Uint16 statindex )
     char text[64], tmpa[64], tmpb[64];
     short character;
     int i = 0;
-    if ( statdelay == 0 )
+    //if ( statdelay == 0 )
     {
         if ( statindex < numstat )
         {
@@ -2824,7 +2817,7 @@ void show_magic_status( Uint16 statindex )
             sprintf( text, " Flying: %s~~Missile Protection: %s", tmpa, tmpb );
             debug_message( text );
 
-            statdelay = 10;
+            //statdelay = 10;
         }
     }
 }
@@ -4716,7 +4709,7 @@ void setup_characters( const char *modname )
         while ( chr_setup_read( fileread, &info ) )
         {
             // Spawn the character
-            if ( info.team < numplayer || !PMod->rtscontrol || info.team >= MAXPLAYER )
+//            if ( info.team < numplayer || !PMod->rtscontrol || info.team >= MAXPLAYER )
             {
                 new_object = spawn_one_character( info.pos, info.slot, info.team, info.skin, info.facing, info.pname, MAX_CHR );
 
@@ -5819,6 +5812,7 @@ void read_wawalite( const char *modname )
     goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     water_data.background_req = ('T' == toupper(cTmp));
 
+	//General data info
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  water_data.layer[0].dist.x = fTmp;
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  water_data.layer[0].dist.y = fTmp;
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  water_data.layer[1].dist.x = fTmp;
@@ -5826,6 +5820,7 @@ void read_wawalite( const char *modname )
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.foregroundrepeat = iTmp;
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.backgroundrepeat = iTmp;
 
+	//Read data on first water layer
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer[0].z = iTmp;
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer[0].alpha = iTmp;
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer[0].frame_add = iTmp;
@@ -5835,6 +5830,7 @@ void read_wawalite( const char *modname )
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  water_data.layer[0].tx_add.x = fTmp;
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  water_data.layer[0].tx_add.y = fTmp;
 
+	//Read data on second water layer
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer[1].z = iTmp;
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer[1].alpha = iTmp;
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer[1].frame_add = iTmp;
@@ -5848,7 +5844,7 @@ void read_wawalite( const char *modname )
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  light_x = fTmp;
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  light_y = fTmp;
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  light_z = fTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  light_a = fTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  light_a = fTmp*10.0f;
 
     light_d = 0.0f;
     if ( ABS(light_x) + ABS(light_y) + ABS(light_z) > 0 )

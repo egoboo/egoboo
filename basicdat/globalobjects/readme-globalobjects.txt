@@ -32,6 +32,7 @@ SLOT  OBJECT
 77    Hatchet
 78    Kite Shield
 79    Rune of Ressurection
+80    Medkit
 82    Book of Lifedrain
 84    Armor Chest (random type, tris0 to tris2)
 85    Rune of Clairvoyance

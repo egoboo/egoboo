@@ -242,7 +242,7 @@ IfTimeOut				// Wait a bit
       SetContent
 
   //This doesnt work for some reason... (Zap when in water)
-  IfInWater
+  IfOverWater
     SetTargetToSelf
     SpawnPoof
     tmpargument = 256

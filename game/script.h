@@ -75,7 +75,6 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // AI variables
-
 #define MAXWAY              8                       // Waypoints
 #define WAYTHRESH           64                      // Threshold for reaching waypoint
 #define MAXSTOR             16                      // Storage data (Used in SetXY)
@@ -121,7 +120,7 @@ struct s_ai_state
     Uint16         directionlast;   // Direction of last attack/healing
     Uint16         damagetypelast;  // Last damage type
     Uint16         lastitemused;    // The last item the character used
-    Uint16         target_old;
+    Uint16         target_old;		// Target in the previous update
 
     // message handling
     Uint32         order_value;           // The last order given the character

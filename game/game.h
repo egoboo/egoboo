@@ -288,7 +288,7 @@ extern fog_instance_t fog;
 #define MAXSTAT             16                      // Maximum status displays
 
 extern bool_t staton;
-extern int    statdelay;
+//extern int    statdelay;
 extern int    numstat;
 extern Uint16 statlist[MAXSTAT];
 

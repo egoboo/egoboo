@@ -356,12 +356,12 @@ IfTargetIsAttacking
 //We dont like water =(
 tmpargument = 0
 IfStateIsNot
-  IfInWater
+  IfOverWater
 
     //Jump over?
     IfTargetIsOnHatedTeam
       tmpx = targetdistance
-      tmpy = 450
+      tmpy = 128*4            //Try to jump over up to 4 water tiles
       IfXIsLessThanY
         tmpx = targetx
         tmpy = targety
@@ -375,13 +375,13 @@ IfStateIsNot
       Else
         tmpx = selfx			//eew! water!
         tmpy = selfy
-        tmpdistance = 0 - 300
+        tmpdistance = -300
         tmpturn = targetturnto
         Compass
         tmpargument = 150
         SetTime
-    ClearWaypoints
-    AddWaypoint
+      ClearWaypoints
+      AddWaypoint
 
 //------------------------------------------------------------------------------
 //Claw attacks for last resort

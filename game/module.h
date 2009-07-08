@@ -44,7 +44,7 @@ struct s_mod_data
     Uint8   minplayers;                   // Number of players
     Uint8   maxplayers;
     bool_t  monstersonly;                 // Only allow monsters
-    bool_t  rtscontrol;                   // Real Time Stragedy?
+   // bool_t  rtscontrol;                   // Real Time Stragedy?
     Uint8   respawnvalid;                 // Allow respawn
     int     numlines;                                   // Lines in summary
     char    summary[SUMMARYLINES][SUMMARYSIZE];      // Quest description
@@ -70,7 +70,7 @@ struct s_module_instance
     bool_t  importvalid;                // Can it import?
     bool_t  respawnvalid;               // Can players respawn with Spacebar?
     bool_t  respawnanytime;             // True if it's a small level...
-    bool_t  rtscontrol;                 // Play as a real-time stragedy? BAD REMOVE
+  //  bool_t  rtscontrol;                 // Play as a real-time stragedy? BAD REMOVE
 
     bool_t  active;                     // Is the control loop still going?
     bool_t  beat;                       // Show Module Ended text?

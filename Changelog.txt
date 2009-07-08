@@ -1,9 +1,12 @@
 Version 2.7.4 (??.??.2009)
 - New Feautre: 4 new divine spell runes.
 - New Feature: Added a new secret class into the game - The Tourist Starter!
-- New Feature: The first Hero class has been added - The Archmage!
+- New Feature: The first Hero class has been added - The Archmage! The Hero class system 
+  allows characters to evolve into a new specialized class after beating a quest.
+- Update: Added new Medkit item to the Archaeologist Starter.
+- Update: Rust Eaters now deal extra damage to characters wearing metal armor.
 - Update: Two new NPC's added to Bishopia.
-- Update: Confusion effects no longer stack, now only the longer effect is applied.
+- Update: Confusion effects no longer stack, instead now only the longer effect is applied.
 - Update: Life and Mana potions can now be Enchanted into super potions.
 - Update: Poison bottles can now be thrown with the Poison Use skill.
 - Update: New sound effect for speed potions.
@@ -16,6 +19,9 @@ Version 2.7.4 (??.??.2009)
 - Update: Improved Linux and Macintosh compatability.
 - Update: Some various rebalancing.
 - Update: Improved the Hell Rover AI and added some new animations.
+- Bugfix: Particle reflections work properly again.
+- Bugfix: Jungle warriors are now properly afraid of water.
+- Bugfix: Invisible chests in the Shadow Palace should no longer be visible.
 - Bugfix: Fixed bug that halved the mana cost for deflecting projectiles.
 - Bugfix: Switches can no longer be killed.
 - Bugfix: Egoboo should no longer crash in 24-bit color mode.

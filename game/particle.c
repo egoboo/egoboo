@@ -398,7 +398,7 @@ Uint16 spawn_one_particle( float x, float y, float z,
 
     // "no lifetime" = "eternal"
     pprt->is_eternal = bfalse;
-    pprt->time      = ~0;
+    pprt->time      = (Uint32)~0;
     if ( 0 == prt_lifetime )
     {
         pprt->is_eternal = btrue;
@@ -968,7 +968,7 @@ int load_one_particle_profile( const char *szLoadName )
 
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp ); ppip->dynalevel = fTmp;
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->dynafalloff = iTmp;
-    if ( ppip->dynafalloff > MAXFALLOFF && PMod->rtscontrol )  ppip->dynafalloff = MAXFALLOFF;
+//    if ( ppip->dynafalloff > MAXFALLOFF && PMod->rtscontrol )  ppip->dynafalloff = MAXFALLOFF;
 
     // Initial spawning of this particle
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->facingbase = iTmp;

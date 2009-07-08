@@ -241,7 +241,7 @@ bool_t module_load_info( const char * szLoadName, mod_data_t * pmod )
     if ( cTmp == 'A' || cTmp == 'a' )  pmod->respawnvalid = ANYTIME;
 
     goto_colon( NULL, fileread, bfalse );   //BAD: Skip line
-    pmod->rtscontrol = bfalse;
+  //  pmod->rtscontrol = bfalse;
 
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%s", readtext );
     for ( iTmp = 0; iTmp < RANKSIZE - 1; iTmp++ )
@@ -312,7 +312,7 @@ bool_t module_instance_init( module_instance_t * pinst )
 
     memset( pinst, 0, sizeof(module_instance_t) );
 
-    pinst->seed = ~0;
+    pinst->seed = (Uint32)~0;
 
     return btrue;
 }
@@ -334,7 +334,7 @@ bool_t module_upload( module_instance_t * pinst, int imod, Uint32 seed )
     pinst->importvalid    = ( pinst->importamount > 0 );
     pinst->respawnvalid   = ( bfalse != pdata->respawnvalid );
     pinst->respawnanytime = ( ANYTIME == pdata->respawnvalid );
-    pinst->rtscontrol     = bfalse;
+  //  pinst->rtscontrol     = bfalse;
 
     pinst->active = bfalse;
     pinst->beat   = bfalse;
