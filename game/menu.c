@@ -26,7 +26,6 @@
 #include "ui.h"
 #include "graphic.h"
 #include "log.h"
-#include "proto.h"
 #include "sound.h"
 #include "input.h"
 #include "char.h"
@@ -38,6 +37,7 @@
 
 #include "SDL_extensions.h"
 
+#include "egoboo_typedef.h"
 #include "egoboo_fileutil.h"
 #include "egoboo_setup.h"
 #include "egoboo.h"

@@ -1217,7 +1217,7 @@ bool_t mesh_light_corners( ego_mpd_t * pmesh, int fan1 )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t mesh_interpolate_vertex( mesh_mem_t * pmem, int fan, GLXvector3f pos, float * plight )
+bool_t mesh_interpolate_vertex( mesh_mem_t * pmem, int fan, float pos[], float * plight )
 {
     int cnt;
     int ix_off[4] = {0, 1, 1, 0}, iy_off[4] = {0, 0, 1, 1};

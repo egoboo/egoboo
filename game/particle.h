@@ -70,8 +70,8 @@ typedef enum e_prt_orientations prt_ori_t;
 //------------------------------------
 struct s_pip
 {
-    STRING  name;
-    bool_t  loaded;
+    EGO_PROFILE_STUFF
+
     bool_t  force;                        // Force spawn?
 
     Uint8   type;                         // Transparency mode
@@ -204,7 +204,7 @@ typedef struct s_prt_instance prt_instance_t;
 
 struct s_prt
 {
-    Uint8   on;                              // Does it exist?
+    EGO_OBJECT_STUFF
 
     // profiles
     Uint16  pip;                             // The part template
@@ -242,7 +242,7 @@ struct s_prt
     Uint32  bumpsize;                        // Size of bumpers
     Uint32  bumpsizebig;
     Uint8   bumpheight;                      // Bounding box height
-    Uint16  bumpnext;                        // Next particle on fanblock
+    Uint16  fanblock_next;                        // Next particle on fanblock
     Uint16  damagebase;                      // For strength
     Uint16  damagerand;                      // For fixes...
     Uint8   damagetype;                      // Damage type

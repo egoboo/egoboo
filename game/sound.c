@@ -26,6 +26,7 @@
 #include "log.h"
 #include "file_common.h"
 #include "game.h"
+#include "char.h"
 
 #include "egoboo_setup.h"
 #include "egoboo_fileutil.h"
@@ -34,6 +35,33 @@
 #include "egoboo_setup.h"
 
 #include <SDL.h>
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+#define LOOPED_COUNT 256
+
+struct s_looped_sound_data
+{
+    int         channel;
+    Mix_Chunk * chunk;
+    Uint16      object;
+};
+typedef struct s_looped_sound_data looped_sound_data_t;
+
+size_t looped_used_count;
+int    looped_used[LOOPED_COUNT];
+size_t looped_free_count;
+int    looped_free[LOOPED_COUNT];
+
+looped_sound_data_t looped_list[LOOPED_COUNT];
+
+void   looped_setup();
+bool_t looped_validate();
+bool_t looped_free_one( int index );
+int    looped_get_one_free();
+
+int    looped_add( Mix_Chunk * sound, int loops, Uint16 object );
+bool_t looped_remove( int channel );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -79,6 +107,11 @@ static bool_t sound_atexit_registered = bfalse;
 static bool_t sdl_audio_initialize();
 static bool_t sdl_mixer_initialize();
 static void   sdl_mixer_quit(void);
+
+int    _calculate_volume( GLvector3 diff );
+bool_t _update_channel_volume( int channel, int volume, GLvector3 diff );
+bool_t _update_stereo_channel( int channel, GLvector3 diff );
+
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -262,6 +295,11 @@ bool_t sound_initialize()
     if ( sdl_audio_initialize() )
     {
         retval = sdl_mixer_initialize();
+    }
+
+    if( retval )
+    {
+        looped_setup();
     }
 
     return retval;
@@ -469,15 +507,67 @@ void sound_restart()
 //------------------------------------
 // Mix_Chunk stuff -------------------
 //------------------------------------
-int sound_play_chunk_looped( GLvector3 pos, Mix_Chunk * pchunk, Sint8 loops )
+
+int _calculate_volume( GLvector3 diff )
+{
+    // BB> make this code its own function
+
+    float dist2;
+    int volume;
+    float render_size;
+
+    // approximate the radius of the area that the camera sees
+    render_size = renderlist.all_count * (TILE_SIZE/2 * TILE_SIZE/2);
+
+    dist2 = diff.x * diff.x + diff.y * diff.y + diff.z * diff.z;
+
+    // adjust for the local_listening skill
+    if ( local_listening ) dist2 *= 0.66f * 0.66f;
+
+    volume  = 255 * render_size / (render_size + dist2);
+    volume  = ( volume * snd.soundvolume ) / 100;
+
+
+    return volume;
+}
+
+
+
+bool_t _update_channel_volume( int channel, int volume, GLvector3 diff )
+{
+    float pan;
+    float cosval;
+    int leftvol, rightvol;
+
+    // determine the angle away from "forward"
+    pan = ATAN2( diff.y, diff.x ) - PCamera->turn_z_rad;
+    volume *= (2.0f + cos( pan )) / 3.0f;
+
+    // determine the angle from the left ear
+    pan += 1.5f * PI;
+
+    // determine the panning
+    cosval = cos(pan);
+    cosval *= cosval;
+
+    leftvol  = cosval * 128;
+    rightvol = 128 - leftvol;
+
+    leftvol  = ((127 + leftvol ) * volume) >> 8;
+    rightvol = ((127 + rightvol) * volume) >> 8;
+
+    // apply the volume adjustments
+    Mix_SetPanning( channel, leftvol, rightvol );
+
+    return btrue;
+}
+
+int sound_play_chunk_looped( GLvector3 pos, Mix_Chunk * pchunk, Sint8 loops, Uint16 object )
 {
     // This function plays a specified sound and returns which channel it's using
     int channel;
     GLvector3 diff;
-    float dist2;
     int volume;
-
-    const float reverb_dist2 = 200 * 200;
 
     if ( !snd.soundvalid || !mixeron || NULL == pchunk ) return INVALID_SOUND;
 
@@ -486,44 +576,26 @@ int sound_play_chunk_looped( GLvector3 pos, Mix_Chunk * pchunk, Sint8 loops )
 
     // measure the distance in tiles
     diff = VSub( pos, PCamera->track_pos );
-    dist2 = diff.x * diff.x + diff.y * diff.y + diff.z * diff.z;
 
-    // adjust for the local_listening skill
-    if ( local_listening ) dist2 *= 0.66f * 0.66f;
-
-    volume  = 128 * reverb_dist2 / (reverb_dist2 + dist2);
-    volume *= ( volume * snd.soundvolume ) / 100;
+    volume = _calculate_volume( diff );
 
     // play the sound
     channel = INVALID_SOUND;
     if ( volume > 0 )
     {
-        channel = Mix_PlayChannel( -1, pchunk, loops );
-        if ( INVALID_SOUND == channel )
+        // this function handles loops == 0 properly
+        channel = looped_add( pchunk, loops, object );
+
+        if ( -1 == channel )
         {
-            if (cfg.dev_mode) log_warning( "Unable to play sound. (%s)\n", Mix_GetError() );
+            if (cfg.dev_mode) 
+            {
+                log_warning( "Unable to play sound. (%s)\n", Mix_GetError() );
+            }
         }
         else
         {
-            float pan;
-            float cosval;
-            int leftvol;
-
-            // determine the angle away from "forward"
-            pan = ATAN2( diff.y, diff.x ) - PCamera->turn_z_rad;
-            volume *= (2.0f + cos( pan )) / 3.0f;
-
-            // determine the angle from the left ear
-            pan += ( 1.5f * PI );
-
-            // determine the panning
-            cosval = cos(pan);
-            cosval *= cosval;
-            leftvol  = cosval * 128;
-
-            // apply the volume adjustments
-            Mix_Volume(channel, volume);
-            Mix_SetPanning(channel, 127 + leftvol, 255 - leftvol);
+            _update_channel_volume( channel, volume, diff );
         }
     }
 
@@ -767,4 +839,293 @@ void fade_in_music( Mix_Music * music )
     {
         Mix_FadeInMusic( music, -1, 500 );
     }
+}
+
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+void   looped_setup()
+{
+    // BB> setup the looped sound list
+    int cnt;
+
+    memset(looped_list, 0, sizeof(looped_sound_data_t) );
+
+    for(cnt = 0; cnt<LOOPED_COUNT; cnt++)
+    {
+        looped_list[cnt].channel = -1;
+        looped_list[cnt].chunk   = NULL;
+        looped_list[cnt].object  = MAX_CHR;
+
+        looped_used[cnt] = LOOPED_COUNT;
+        looped_free[cnt] = cnt;
+    }
+    looped_used_count = 0;
+    looped_free_count = LOOPED_COUNT;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t looped_validate()
+{
+    // BB> do the free and used indices have valid values?
+
+    bool_t retval;
+
+    retval = btrue;
+    if( LOOPED_COUNT != looped_free_count + looped_used_count ) 
+    {
+        // punt!
+        looped_clear();
+        retval = bfalse;
+    }
+
+    return retval;
+};
+
+//--------------------------------------------------------------------------------------------
+bool_t looped_free_one( int index )
+{
+    // BB> free a looped sound only if it is actually being used
+
+    int cnt;
+
+    if( !looped_validate() ) return bfalse;
+
+    // is the index actually free?
+    for( cnt = 0; cnt < looped_used_count; cnt++ )
+    {
+        if( index == looped_used[cnt] ) break;
+    }
+
+    // was anything found?
+    if( cnt >= looped_used_count ) return bfalse;
+
+    // swap the value with the one on the top of the stack
+    SWAP(int, looped_used[cnt], looped_used[looped_used_count-1] );
+    looped_used_count--;
+
+    // push the value onto the free stack
+    looped_free[looped_free_count] = index;
+    looped_free_count++;
+
+    // clear out the data
+    looped_list[index].channel = -1;
+    looped_list[index].chunk   = NULL;
+    looped_list[index].object  = MAX_CHR;
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+int looped_get_one_free()
+{
+    int index;
+
+    if( !looped_validate() ) return bfalse;
+
+    looped_free_count--;
+    index = looped_free[looped_free_count];
+
+    // push the value onto the used stack
+    looped_used[looped_used_count] = index;
+    looped_used_count++;
+
+    return index;
+}
+
+//--------------------------------------------------------------------------------------------
+void looped_clear()
+{
+    // BB> shut off all the looped sounds
+
+    int cnt;
+
+    for(cnt = 0; cnt<LOOPED_COUNT; cnt++)
+    {
+        if( -1 != looped_list[cnt].channel )
+        {
+            Mix_FadeOutChannel( looped_list[cnt].channel, 500 );
+
+            // clear out the data
+            looped_list[cnt].channel = -1;
+            looped_list[cnt].chunk   = NULL;
+            looped_list[cnt].object  = MAX_CHR;
+        }
+    }
+
+    looped_setup();
+}
+
+//--------------------------------------------------------------------------------------------
+int looped_add( Mix_Chunk * sound, int loops, Uint16 object )
+{
+    // BB> add a looped sound to the list
+
+    int channel;
+
+    if( NULL == sound ) 
+    {
+        // not a valid sound
+        channel = -1;
+    }
+    else if( 0 == loops )
+    {
+        // not looped
+        channel = Mix_PlayChannel( -1, sound, 0 );
+    }
+    else
+    {
+        // valid, looped sound
+
+        int index;
+
+        if( looped_used_count >= LOOPED_COUNT ) return -1;
+        if( !looped_validate() ) return -1;
+
+        index = looped_get_one_free();
+
+        if( LOOPED_COUNT == index )
+        {
+            // there are no free indices, just play the sound once
+            channel = Mix_PlayChannel( -1, sound, 0 );
+        }
+        else
+        {
+            // set up the looped_list entry at the empty index
+
+            channel = Mix_PlayChannel( -1, sound, loops );
+            if( -1 != channel )
+            {
+                looped_list[index].chunk   = sound;
+                looped_list[index].channel = channel;
+                looped_list[index].object  = object;
+            }
+            else
+            {
+                looped_free_one( index );
+            }
+        }
+    }
+
+    return channel;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t looped_remove( int channel )
+{
+    // BB> remove a looped sound from the used list
+
+    int cnt;
+    bool_t retval;
+
+    if( 0 == looped_used_count ) return bfalse;
+
+    if( !looped_validate() ) return bfalse;
+
+    retval = bfalse;
+    for(cnt = 0; cnt<looped_used_count; cnt++)
+    {
+        int index = looped_used[cnt];
+
+        if( channel == looped_list[index].channel )
+        {
+            retval = looped_free_one(cnt);
+            break;
+        }
+    }
+
+    return retval;
+}
+
+
+//--------------------------------------------------------------------------------------------
+bool_t _update_stereo_channel( int channel, GLvector3 diff )
+{
+    // BB> This updates the stereo image of a looped sound
+
+    int       volume;
+
+    if ( -1 == channel ) return bfalse;
+
+    volume = _calculate_volume( diff );
+    return _update_channel_volume( channel, volume, diff );
+}
+
+//--------------------------------------------------------------------------------------------
+void looped_update_all_sound()
+{
+    int cnt;
+
+    for(cnt = 0; cnt<looped_used_count; cnt++)
+    {
+        GLvector3 diff;
+        int       index;
+        looped_sound_data_t * plooped;
+
+        index = looped_used[cnt];
+
+        if( index < 0 || index >= LOOPED_COUNT ) continue;
+        if( -1 == looped_list[index].channel   ) continue;
+        plooped = looped_list + index;
+
+        if( INVALID_CHR( plooped->object ) )
+        {
+            // not a valid object
+            GLvector3 diff = VECT3(0,0,0);
+
+            _update_stereo_channel( plooped->channel, diff );
+        }
+        else
+        {
+            // make the sound stick to the object
+            diff = VSub( ChrList[plooped->object].pos, PCamera->track_pos );
+
+            _update_stereo_channel( plooped->channel, diff );
+        }
+    }
+
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t looped_stop_object_sounds( Uint16 ichr )
+{
+    // BB> free any looped sound(s) being made by a certain character
+    int cnt, freed;
+    bool_t found;
+
+    if( MAX_CHR == ichr ) return bfalse;
+
+    // we have to do this a funny way, because it is hard to guarantee how the
+    // "delete"/"free" function looped_free_one() will free an entry, and because
+    // each object could have multiple looped sounds
+
+    freed = 0;
+    found = btrue;
+    while( found && looped_used_count > 0 )
+    {
+        found = bfalse;
+        for(cnt = 0; cnt<looped_used_count; cnt++)
+        {
+            int index = looped_used[cnt];
+
+            if( looped_list[cnt].object == ichr )
+            {
+                if( looped_free_one( index ) )
+                {
+                    freed++;
+                    found = btrue;
+                    break;
+                }
+            }
+        }
+    }
+
+    return freed > 0;
+}
+
+//--------------------------------------------------------------------------------------------
+void sound_finish_sound()
+{
+    Mix_FadeOutChannel( -1, 500 );     // Stop all in-game sounds that are playing
+    sound_finish_song( 500 );          // Fade out the existing song and pop the music stack
 }

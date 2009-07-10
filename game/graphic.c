@@ -195,8 +195,6 @@ static void sdlinit_graphics();
 
 static void flip_pages();
 
-static void font_release();
-
 static void project_view( camera_t * pcam );
 static void make_dynalist( camera_t * pcam );
 
@@ -975,17 +973,13 @@ void make_renderlist( ego_mpd_t * pmesh, camera_t * pcam )
     cornery[cornerlistlowtohighy[3]] += 256;
 
     // Make life simpler
-    xlist[0] = cornerx[cornerlistlowtohighy[0]];
-    xlist[1] = cornerx[cornerlistlowtohighy[1]];
-    xlist[2] = cornerx[cornerlistlowtohighy[2]];
-    xlist[3] = cornerx[cornerlistlowtohighy[3]];
-    ylist[0] = cornery[cornerlistlowtohighy[0]];
-    ylist[1] = cornery[cornerlistlowtohighy[1]];
-    ylist[2] = cornery[cornerlistlowtohighy[2]];
-    ylist[3] = cornery[cornerlistlowtohighy[3]];
+    for( cnt=0; cnt<4; cnt++ )
+    {
+        xlist[cnt] = cornerx[cornerlistlowtohighy[cnt]];
+        ylist[cnt] = cornery[cornerlistlowtohighy[cnt]];
+    }
 
     // Find the center line
-
     divx = ylist[3] - ylist[0]; if ( divx < 1 ) return;
     stepx = xlist[3] - xlist[0];
     basex = xlist[0];
@@ -4821,6 +4815,68 @@ float evaluate_mesh_lighting( ego_mpd_t * pmesh, lighting_cache_t * src, GLfloat
     }
 
     return lighting;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t project_sum_lighting( lighting_cache_t * dst, lighting_cache_t * src, GLvector3 vec, int dir )
+{
+    if ( NULL == src || NULL == dst ) return bfalse;
+
+    if ( dir < 0 || dir > 4 || 0 != (dir&1) )
+        return bfalse;
+
+    if ( vec.x > 0 )
+    {
+        dst->lighting_low[dir+0] += ABS(vec.x) * src->lighting_low[0];
+        dst->lighting_hgh[dir+1] += ABS(vec.x) * src->lighting_hgh[1];
+
+        dst->lighting_low[dir+0] += ABS(vec.x) * src->lighting_low[0];
+        dst->lighting_hgh[dir+1] += ABS(vec.x) * src->lighting_hgh[1];
+    }
+    else if (vec.x < 0)
+    {
+        dst->lighting_low[dir+0] += ABS(vec.x) * src->lighting_low[1];
+        dst->lighting_hgh[dir+1] += ABS(vec.x) * src->lighting_hgh[0];
+
+        dst->lighting_low[dir+0] += ABS(vec.x) * src->lighting_low[1];
+        dst->lighting_hgh[dir+1] += ABS(vec.x) * src->lighting_hgh[0];
+    }
+
+    if ( vec.y > 0 )
+    {
+        dst->lighting_low[dir+0] += ABS(vec.y) * src->lighting_low[2];
+        dst->lighting_hgh[dir+1] += ABS(vec.y) * src->lighting_hgh[3];
+
+        dst->lighting_low[dir+0] += ABS(vec.y) * src->lighting_low[2];
+        dst->lighting_hgh[dir+1] += ABS(vec.y) * src->lighting_hgh[3];
+    }
+    else if (vec.y < 0)
+    {
+        dst->lighting_low[dir+0] += ABS(vec.y) * src->lighting_low[3];
+        dst->lighting_hgh[dir+1] += ABS(vec.y) * src->lighting_hgh[2];
+
+        dst->lighting_low[dir+0] += ABS(vec.y) * src->lighting_low[3];
+        dst->lighting_hgh[dir+1] += ABS(vec.y) * src->lighting_hgh[2];
+    }
+
+    if ( vec.z > 0 )
+    {
+        dst->lighting_low[dir+0] += ABS(vec.z) * src->lighting_low[4];
+        dst->lighting_hgh[dir+1] += ABS(vec.z) * src->lighting_hgh[5];
+
+        dst->lighting_low[dir+0] += ABS(vec.z) * src->lighting_low[4];
+        dst->lighting_hgh[dir+1] += ABS(vec.z) * src->lighting_hgh[5];
+    }
+    else if (vec.z < 0)
+    {
+        dst->lighting_low[dir+0] += ABS(vec.z) * src->lighting_low[5];
+        dst->lighting_hgh[dir+1] += ABS(vec.z) * src->lighting_hgh[4];
+
+        dst->lighting_low[dir+0] += ABS(vec.z) * src->lighting_low[5];
+        dst->lighting_hgh[dir+1] += ABS(vec.z) * src->lighting_hgh[4];
+    }
+
+    return btrue;
 }
 
 

@@ -3732,11 +3732,39 @@ Uint8 scr_PlaySoundLooped( script_state_t * pstate, ai_state_t * pself )
     // PlaySoundLooped( tmpargument = "sound", tmpdistance = "frequency" )
 
     // This function starts playing a continuous sound
+    Uint16 icap;
+
     SCRIPT_FUNCTION_BEGIN();
-    if ( pchr->loopedsound != pstate->argument && pstate->argument >= 0 && pstate->argument < MAX_WAVE )
+
+    returncode = 0;
+    icap = pchr->model;
+    if ( VALID_CAP(icap) && pstate->argument >= 0 && pstate->argument < MAX_WAVE )
     {
-        stop_object_looped_sound( pself->index );       //Stop existing sound loop (if any)
-        pchr->loopedsound = sound_play_chunk_looped(pchr->pos_old, CapList[pchr->model].wavelist[pstate->argument], -1);
+        Mix_Chunk * new_chunk;
+
+        new_chunk = CapList[icap].wavelist[pstate->argument];
+
+        if( NULL == new_chunk )
+        {
+            looped_stop_object_sounds( pself->index );       //Stop existing sound loop (if any)
+        }
+        else 
+        {
+            Mix_Chunk * playing_chunk = NULL;
+
+            // check whatever might be playing on the channel now
+            if( -1 != pchr->loopedsound_channel )
+            {
+                playing_chunk = Mix_GetChunk(pchr->loopedsound_channel);
+            }
+
+            if( playing_chunk != new_chunk )
+            {
+                pchr->loopedsound_channel = sound_play_chunk_looped(pchr->pos_old, new_chunk, -1, pself->index);
+            }
+        }
+
+        returncode = (-1 != pchr->loopedsound_channel);
     }
     SCRIPT_FUNCTION_END();
 }
@@ -3749,7 +3777,7 @@ Uint8 scr_StopSound( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    stop_object_looped_sound( pself->index );
+    looped_stop_object_sounds( pself->index );
 
     SCRIPT_FUNCTION_END();
 }

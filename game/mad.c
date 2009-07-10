@@ -84,7 +84,7 @@ void action_copy_correct( Uint16 object, Uint16 actiona, Uint16 actionb )
     // ZZ> This function makes sure both actions are valid if either of them
     //     are valid.  It will copy start and ends to mirror the valid action.
 
-    if ( object > MAX_PROFILE || !MadList[object].used ) return;
+    if ( object > MAX_PROFILE || !MadList[object].loaded ) return;
 
     if ( MadList[object].actionvalid[actiona] == MadList[object].actionvalid[actionb] )
     {
@@ -119,7 +119,7 @@ void action_check_copy( const char* loadname, Uint16 object )
     int actiona, actionb;
     char szOne[16], szTwo[16];
 
-    if ( object > MAX_PROFILE || !MadList[object].used ) return;
+    if ( object > MAX_PROFILE || !MadList[object].loaded ) return;
 
     MadList[object].msgstart = 0;
     fileread = fopen( loadname, "r" );
@@ -254,7 +254,7 @@ void mad_make_equally_lit( int model )
 {
     // ZZ> This function makes ultra low poly models look better
     int frame, cnt, vert;
-    if ( MadList[model].used )
+    if ( MadList[model].loaded )
     {
         frame = MadList[model].md2.framestart;
 
@@ -314,7 +314,7 @@ int load_one_model_profile( const char* tmploadname, Uint16 object, int skin )
     memset( pmad, 0, sizeof(mad_t) );
 
     // mark it as used
-    pmad->used = btrue;
+    pmad->loaded = btrue;
 
     // Make up a name for the model...  IMPORT\TEMP0000.OBJ
     strncpy( pmad->name, tmploadname, SDL_arraysize(pmad->name) );

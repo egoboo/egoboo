@@ -99,7 +99,7 @@ typedef enum enchant_add
 
 struct s_eve
 {
-    bool_t  valid;                       // Enchant.txt loaded?
+    EGO_PROFILE_STUFF
 
     bool_t  override;                    // Override other enchants?
     bool_t  removeoverridden;            // Remove other enchants?
@@ -144,7 +144,8 @@ extern eve_t EveList[MAXEVE];
 
 struct s_enc
 {
-    bool_t  on;                      // Enchantment on
+    EGO_OBJECT_STUFF
+
     Sint16  time;                    // Time before end
     Uint16  spawntime;               // Time before spawn
 

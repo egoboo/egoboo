@@ -606,7 +606,7 @@ void chr_play_action( Uint16 character, Uint16 action, Uint8 actionready )
     if ( INVALID_CHR(character) ) return;
     pchr = ChrList + character;
 
-    if ( pchr->inst.imad > MAX_PROFILE || !MadList[pchr->inst.imad].used ) return;
+    if ( pchr->inst.imad > MAX_PROFILE || !MadList[pchr->inst.imad].loaded ) return;
     pmad = MadList + pchr->inst.imad;
 
     if ( pmad->actionvalid[action] )
@@ -633,7 +633,7 @@ void chr_set_frame( Uint16 character, Uint16 action, int frame, Uint16 lip )
     if ( INVALID_CHR(character) ) return;
     pchr = ChrList + character;
 
-    if ( pchr->inst.imad > MAX_PROFILE || !MadList[pchr->inst.imad].used ) return;
+    if ( pchr->inst.imad > MAX_PROFILE || !MadList[pchr->inst.imad].loaded ) return;
     pmad = MadList + pchr->inst.imad;
 
     if ( pmad->actionvalid[action] )
@@ -814,6 +814,7 @@ void update_game()
         // Stuff for which sync doesn't matter
         animate_tiles();
         move_water();
+        looped_update_all_sound();
 
         // Timers
         clock_wld  += UPDATE_SKIP;
@@ -2864,7 +2865,7 @@ void fill_bumplists()
         if ( INVALID_BLOCK != pchr->onwhichblock )
         {
             // Insert before any other characters on the block
-            pchr->bumpnext = bumplist[pchr->onwhichblock].chr;
+            pchr->fanblock_next = bumplist[pchr->onwhichblock].chr;
             bumplist[pchr->onwhichblock].chr = character;
             bumplist[pchr->onwhichblock].chrnum++;
         }
@@ -2888,7 +2889,7 @@ void fill_bumplists()
         if ( INVALID_BLOCK != pprt->onwhichblock )
         {
             // Insert before any other particles on the block
-            pprt->bumpnext = bumplist[pprt->onwhichblock].prt;
+            pprt->fanblock_next = bumplist[pprt->onwhichblock].prt;
             bumplist[pprt->onwhichblock].prt = particle;
             bumplist[pprt->onwhichblock].prtnum++;
         }
@@ -2968,7 +2969,7 @@ void fill_collision_list( co_data_t cdata[], int * cdata_count, hash_node_t hnls
                     // detect all the character-character interactions
                     for ( tnc = 0, ichr_b = bumplist[fanblock].chr;
                             tnc < chrinblock && ichr_b != MAX_CHR;
-                            tnc++, ichr_b = ChrList[ichr_b].bumpnext)
+                            tnc++, ichr_b = ChrList[ichr_b].fanblock_next)
                     {
                         if ( detect_chr_chr_collision(ichr_a, ichr_b) )
                         {
@@ -2981,7 +2982,7 @@ void fill_collision_list( co_data_t cdata[], int * cdata_count, hash_node_t hnls
                         // detect all the character-particle interactions
                         for ( tnc = 0, iprt_b = bumplist[fanblock].prt;
                                 tnc < prtinblock;
-                                tnc++, iprt_b = PrtList[iprt_b].bumpnext )
+                                tnc++, iprt_b = PrtList[iprt_b].fanblock_next )
                         {
                             if ( detect_chr_prt_collision(ichr_a, iprt_b) )
                             {
@@ -4984,7 +4985,7 @@ void game_quit_module()
     cursor_reset();
 
     // finish whatever in-game song is playing
-    sound_finish_song( 500 );
+    sound_finish_sound();
 }
 
 //-----------------------------------------------------------------
@@ -6599,7 +6600,7 @@ globestangle = angle;
 }
 }
 }
-charb = ChrList[charb].bumpnext;
+charb = ChrList[charb].fanblock_next;
 cnt++;
 }
 }

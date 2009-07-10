@@ -31,8 +31,6 @@
 #include "egoboo_math.h"  /* vector and matrix math */
 #include "egoboo_config.h"
 
-#include "proto.h"
-
 #include <stdlib.h>
 #include <stdarg.h>
 #include <stdio.h>

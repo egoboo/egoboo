@@ -532,68 +532,6 @@ void chr_instance_update( Uint16 character, Uint8 trans, bool_t do_lighting )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t project_sum_lighting( lighting_cache_t * dst, lighting_cache_t * src, GLvector3 vec, int dir )
-{
-    if ( NULL == src || NULL == dst ) return bfalse;
-
-    if ( dir < 0 || dir > 4 || 0 != (dir&1) )
-        return bfalse;
-
-    if ( vec.x > 0 )
-    {
-        dst->lighting_low[dir+0] += ABS(vec.x) * src->lighting_low[0];
-        dst->lighting_hgh[dir+1] += ABS(vec.x) * src->lighting_hgh[1];
-
-        dst->lighting_low[dir+0] += ABS(vec.x) * src->lighting_low[0];
-        dst->lighting_hgh[dir+1] += ABS(vec.x) * src->lighting_hgh[1];
-    }
-    else if (vec.x < 0)
-    {
-        dst->lighting_low[dir+0] += ABS(vec.x) * src->lighting_low[1];
-        dst->lighting_hgh[dir+1] += ABS(vec.x) * src->lighting_hgh[0];
-
-        dst->lighting_low[dir+0] += ABS(vec.x) * src->lighting_low[1];
-        dst->lighting_hgh[dir+1] += ABS(vec.x) * src->lighting_hgh[0];
-    }
-
-    if ( vec.y > 0 )
-    {
-        dst->lighting_low[dir+0] += ABS(vec.y) * src->lighting_low[2];
-        dst->lighting_hgh[dir+1] += ABS(vec.y) * src->lighting_hgh[3];
-
-        dst->lighting_low[dir+0] += ABS(vec.y) * src->lighting_low[2];
-        dst->lighting_hgh[dir+1] += ABS(vec.y) * src->lighting_hgh[3];
-    }
-    else if (vec.y < 0)
-    {
-        dst->lighting_low[dir+0] += ABS(vec.y) * src->lighting_low[3];
-        dst->lighting_hgh[dir+1] += ABS(vec.y) * src->lighting_hgh[2];
-
-        dst->lighting_low[dir+0] += ABS(vec.y) * src->lighting_low[3];
-        dst->lighting_hgh[dir+1] += ABS(vec.y) * src->lighting_hgh[2];
-    }
-
-    if ( vec.z > 0 )
-    {
-        dst->lighting_low[dir+0] += ABS(vec.z) * src->lighting_low[4];
-        dst->lighting_hgh[dir+1] += ABS(vec.z) * src->lighting_hgh[5];
-
-        dst->lighting_low[dir+0] += ABS(vec.z) * src->lighting_low[4];
-        dst->lighting_hgh[dir+1] += ABS(vec.z) * src->lighting_hgh[5];
-    }
-    else if (vec.z < 0)
-    {
-        dst->lighting_low[dir+0] += ABS(vec.z) * src->lighting_low[5];
-        dst->lighting_hgh[dir+1] += ABS(vec.z) * src->lighting_hgh[4];
-
-        dst->lighting_low[dir+0] += ABS(vec.z) * src->lighting_low[5];
-        dst->lighting_hgh[dir+1] += ABS(vec.z) * src->lighting_hgh[4];
-    }
-
-    return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
 void chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 trans, bool_t do_lighting )
 {
     Uint16 cnt;

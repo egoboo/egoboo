@@ -21,33 +21,39 @@
 
 %{
 #include "egoboo_typedef.h"
-#include "egoboo_config.h"
-#include "egoboo_endian.h"
 #include "egoboo_math.h"
 
-#include "egoboo_typedef.h"
 #include "egoboo.h"
-#include "proto.h"
 #include "egoboo_math.h"
-#include "link.h"
 
 #include "char.h"
 #include "particle.h"
 #include "enchant.h"
-#include "Md2.h"
-#include "mpd.h"
+#include "camera.h"
 
 #include "passage.h"
 #include "sound.h"
 #include "module.h"
-#include "camera.h"
+#include "module.h"
+
+#include "Md2.h"
+#include "mpd.h"
+#include "mesh.h"
 
 #include "script.h"
 #include "script_functions.h"
 
-#include "graphic.h"
-#include "ogl_texture.h"
+#include "log.h"
+#include "clock.h"
 
+#include "font.h"
+#include "graphic.h"
+#include "sound.h"
+#include "link.h"
+#include "game.h"
+
+#include "ogl_texture.h"
+#include "ogl_include.h"
 %}
 
 // A stupid hack because SWIG can't deal with including
@@ -63,23 +69,29 @@
 %include "egoboo_typedef.h"
 %include "egoboo.h"
 
-%include "script.h"
-%include "script_functions.h"
-
-%include "proto.h"
-%include "link.h"
-
 %include "char.h"
 %include "particle.h"
 %include "enchant.h"
-%include "Md2.h"
-%include "mpd.h"
+%include "camera.h"
 
 %include "passage.h"
 %include "sound.h"
 %include "module.h"
+%include "module.h"
 
+%include "Md2.h"
+%include "mpd.h"
+%include "mesh.h"
+
+%include "script.h"
+%include "script_functions.h"
+
+%include "log.h"
+%include "clock.h"
+
+%include "font.h"
 %include "graphic.h"
+%include "sound.h"
 %include "ogl_texture.h"
-
-%include "camera.h"
+%include "link.h"
+%include "game.h"

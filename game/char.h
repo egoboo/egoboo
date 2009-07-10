@@ -146,8 +146,7 @@ extern team_t TeamList[MAXTEAM];
 
 struct s_cap
 {
-    STRING       name;
-    bool_t       loaded;
+    EGO_PROFILE_STUFF
 
     short        importslot;
 
@@ -412,181 +411,154 @@ typedef struct s_phys_data phys_data_t;
 
 struct s_chr
 {
-    bool_t         on;              // Does it exist?
-    Uint8          onold;           // Network fix
+    EGO_OBJECT_STUFF
 
-    char           name[MAXCAPNAMESIZE];  // Character name
+    // character state
+    ai_state_t     ai;              // ai data
 
-    // the render data
-    chr_instance_t inst;
+    float          latchx;          
+    float          latchy;
+    Uint32         latchbutton;
 
-    Uint8          alive;           // Is it alive?
-    Uint8          waskilled;       // Fix for network
-
-    Uint8          pack_ispacked;    // Is it in the inventory?
-    Uint8          pack_waspacked;   // Temporary thing...
-    Uint16         pack_next;        // Link to the next item
-    Uint8          pack_count;       // How many
-
-    Uint8          openstuff;       // Can it open chests/doors?
-
-    Uint8          ammomax;         // Ammo stuff
-    Uint16         ammo;
+    // character stats
     Uint8          gender;          // Gender
 
     Uint8          lifecolor;       // Bar color
     Sint16         life;            // Basic character stats
     Sint16         lifemax;         //   All 8.8 fixed point
     Uint16         lifeheal;
+    Sint16         lifereturn;      // Regeneration/poison
+
     Uint8          manacolor;       // Bar color
     Sint16         mana;            // Mana stuff
     Sint16         manamax;
     Sint16         manaflow;
     Sint16         manareturn;
+
     Sint16         strength;        // Strength
     Sint16         wisdom;          // Wisdom
     Sint16         intelligence;    // Intelligence
     Sint16         dexterity;       // Dexterity
 
-    bool_t         isplayer;        // btrue = player
-    bool_t         islocalplayer;   // btrue = local player
-    ai_state_t     ai;
+    Uint32         experience;                    // Experience
+    Uint8          experiencelevel;               // Experience Level
 
-    bool_t         icon;            // Show the icon?
-    Uint8          sparkle;         // Sparkle color or 0 for off
+    // what the character is holding
+    Uint8          pack_ispacked;    // Is it in the inventory?
+    Uint8          pack_waspacked;   // Temporary thing...
+    Uint16         pack_next;        // Link to the next item
+    Uint8          pack_count;       // How many
+    Sint16         money;            // Money
+    Uint8          ammomax;          // Ammo stuff
+    Uint16         ammo;
+    Uint16         holdingwhich[SLOT_COUNT]; // !=MAX_CHR if character is holding something
+    Uint16         inventory[INVEN_COUNT];   // !=MAX_CHR if character is storing something
 
-    bool_t         cangrabmoney;    // Picks up coins?
-
-    Uint8          stickybutt;      // Rests on floor
-    Uint8          inwater;
-
+    // team stuff
     Uint8          team;            // Character's team
     Uint8          baseteam;        // Character's starting team
 
-    Uint8          staton;          // Display stats?
+    // enchant data
+    Uint16         firstenchant;                  // Linked list for enchants
+    Uint16         undoenchant;                   // Last enchantment spawned
 
-    GLvector3      pos_stt;            // Starting position
-    GLvector3      pos;            // Character's position
-    GLvector3      vel;            // Character's velocity
+    float          fat;                           // Character's size
+    float          sizegoto;                      // Character's size goto
+    Uint8          sizegototime;                  // Time left in size change
 
-    Uint16         turn_z;   // Character's rotation 0 to 0xFFFF
-    Uint16         map_turn_y;
-    Uint16         map_turn_x;
+    // jump stuff
+    float          jump_power;                    // Jump power
+    Uint8          jumptime;                      // Delay until next jump
+    Uint8          jumpnumber;                    // Number of jumps remaining
+    Uint8          jumpnumberreset;               // Number of jumps total, 255=Flying
+    Uint8          jumpready;                     // For standing on a platform character
 
-    GLvector3      pos_old;            // Character's last position
+    // attachments
+    Uint16         attachedto;                    // !=MAX_CHR if character is a held weapon
+    Uint8          inwhich_slot;                  // SLOT_LEFT or SLOT_RIGHT
+    Uint16         weapongrip[GRIP_VERTS];        // Vertices which describe the weapon grip
 
-    bool_t         safe_valid;
-    GLvector3      pos_safe;           // Character's last safe position
+    // platform stuff
+    Uint8          platform;                      // Can it be stood on
+    Uint16         holdingweight;                 // For weighted buttons
+    Uint16         onwhichplatform;               // Am I on a platform?
 
-    GLvector3      vel_old;            // Character's last velocity
+    // combat stuff
+    Uint8          damagetargettype;              // Type of damage for AI DamageTarget
+    Uint8          reaffirmdamagetype;            // For relighting torches
+    Uint8          damagemodifier[DAMAGE_COUNT];  // Resistances and inversion
+    Uint8          defense;                       // Base defense rating
+    Uint16         damageboost;                   // Add to swipe damage
 
-    Uint16         turn_old_z;
-    Uint8          flyheight;       // Height to stabilize at
+    // sound stuff
+    Sint8          soundindex[SOUND_COUNT];       // a map for soundX.wav to sound types
+    int            loopedsound_channel;           // Which sound channel it is looping on, -1 is none.
 
-    float          latchx;          // Character latches
-    float          latchy;
-    Uint32         latchbutton;     // Button latches
+    // missle handling
+    Uint8          missiletreatment;              // For deflection, etc.
+    Uint8          missilecost;                   // Mana cost for each one
+    Uint16         missilehandler;                // Who pays the bill for each one...
 
-    Uint16         reloadtime;      // Time before another shot
-    float          maxaccel;        // Maximum acceleration
-
-    float          fat;             // Character's size
-    float          sizegoto;        // Character's size goto
-    Uint8          sizegototime;    // Time left in size change
-    float          dampen;          // Bounciness
-    float          floor_level;           // Height of tile
-    float          jump_power;            // Jump power
-    Uint8          jumptime;        // Delay until next jump
-    Uint8          jumpnumber;      // Number of jumps remaining
-    Uint8          jumpnumberreset; // Number of jumps total, 255=Flying
-    Uint8          jumpready;       // For standing on a platform character
-
-    Uint32         onwhichfan;      // Where the char is
-    Uint32         onwhichblock;    // The character's collision block
+    // "variable" properties
     bool_t         is_hidden;
+    Uint8          alive;                         // Is it alive?
+    Uint8          waskilled;                     // Fix for network
+    bool_t         isplayer;                      // btrue = player
+    bool_t         islocalplayer;                 // btrue = local player
+    Uint8          invictus;                      // Totally invincible?
+    Uint8          iskursed;                      // Can't be dropped?
+    Uint8          nameknown;                     // Is the name known?
+    Uint8          ammoknown;                     // Is the ammo known?
+    Uint8          hitready;                      // Was it just dropped?
+    Uint8          isequipped;                    // For boots and rings and stuff
 
-    Uint16         uoffvel;         // Moving texture speed
-    Uint16         voffvel;
+    // "constant" properties
+    Uint8          isitem;                        // Is it grabbable?
+    bool_t         cangrabmoney;                  // Picks up coins?
+    Uint8          openstuff;                     // Can it open chests/doors?
+    Uint8          stickybutt;                    // Rests on floor
+    bool_t         isshopitem;                    // Spawned in a shop?
+    Uint8          ismount;                       // Can you ride it?
+    bool_t         canbecrushed;                  // Crush in a door?
+    bool_t         canchannel;                    // Can it convert life to mana?
+    Sint16         manacost;                      // Mana cost to use
 
-    Uint16         skin;            // Character's skin
-    Uint8          model;           // Character's model
-    Uint8          basemodel;       // The true form
-    Uint8          actionready;     // Ready to play a new one
-    Uint8          action;          // Character's action
-    bool_t         keepaction;      // Keep the action playing
-    bool_t         loopaction;      // Loop it too
-    Uint8          nextaction;      // Character's action to play next
+    // misc timers
+    Sint16         grogtime;                      // Grog timer
+    Sint16         dazetime;                      // Daze timer
+    Sint16         boretime;                      // Boredom timer
+    Uint8          carefultime;                   // "You hurt me!" timer
+    Uint16         reloadtime;                    // Time before another shot
+    Uint8          damagetime;                    // Invincibility timer
 
-    Uint16         holdingwhich[SLOT_COUNT]; // !=MAX_CHR if character is holding something
-    Uint16         inventory[INVEN_COUNT];   // !=MAX_CHR if character is storing something
-    Uint16         attachedto;               // !=MAX_CHR if character is a held weapon
-    Uint16         weapongrip[GRIP_VERTS];   // Vertices which describe the weapon grip
-    Uint8          basealpha;
+    // graphica info
     Uint8          flashand;        // 1,3,7,15,31 = Flash, 255 = Don't
     Uint8          transferblend;   // Give transparency to weapons?
-    Uint8          isitem;          // Is it grabbable?
-    Uint8          invictus;        // Totally invincible?
-    Uint8          ismount;         // Can you ride it?
+    bool_t         icon;            // Show the icon?
+    Uint8          sparkle;         // Sparkle color or 0 for off
+    Uint8          staton;          // Display stats?
+    Uint16         uoffvel;         // Moving texture speed
+    Uint16         voffvel;
     Uint32         shadowsize;      // Size of shadow
     Uint32         shadowsizesave;  // Without size modifiers
 
-    Uint32         bumpsize;        // Size of bumpers
-    Uint32         bumpsizebig;     // For octagonal bumpers
-    Uint32         bumpheight;      // Distance from head to toe
-    Uint32         bumpsizesave;
-    Uint32         bumpsizebigsave;
-    Uint32         bumpheightsave;
-    float          bumpdampen;      // Character bump mass
+    // action info
+    Uint8          actionready;                   // Ready to play a new one
+    Uint8          action;                        // Character's action
+    bool_t         keepaction;                    // Keep the action playing
+    bool_t         loopaction;                    // Loop it too
+    Uint8          nextaction;                    // Character's action to play next
 
-    Uint16         bumpnext;        // Next character on fanblock
-
-    Uint8          platform;        // Can it be stood on
-    Uint8          waterwalk;       // Always above watersurfacelevel?
-    Uint8          turnmode;        // Turning mode
-    Uint8          sneakspd;        // Sneaking if above this speed
-    Uint8          walkspd;         // Walking if above this speed
-    Uint8          runspd;          // Running if above this speed
-    Uint8          damagetargettype;// Type of damage for AI DamageTarget
-    Uint8          reaffirmdamagetype; // For relighting torches
-    Uint8          damagemodifier[DAMAGE_COUNT];  // Resistances and inversion
-    Uint8          damagetime;      // Invincibility timer
-    Uint8          defense;         // Base defense rating
-    Uint32         weight;          // Weight ( for pressure plates )
-
-    Uint16         holdingweight;   // For weighted buttons
-    Uint16         onwhichplatform; // Am I on a platform?
-
-    Sint16         money;           // Money
-    Sint16         lifereturn;      // Regeneration/poison
-    Sint16         manacost;        // Mana cost to use
-    Uint8          stoppedby;       // Collision mask
-    Uint32         experience;      // Experience
-    Uint8          experiencelevel; // Experience Level
-    Sint16         grogtime;        // Grog timer
-    Sint16         dazetime;        // Daze timer
-    Uint8          iskursed;        // Can't be dropped?
-    Uint8          nameknown;       // Is the name known?
-    Uint8          ammoknown;       // Is the ammo known?
-    Uint8          hitready;        // Was it just dropped?
-    Sint16         boretime;        // Boredom timer
-    Uint8          carefultime;     // "You hurt me!" timer
-    bool_t         canbecrushed;    // Crush in a door?
-    Uint8          inwhich_slot;     // SLOT_LEFT or SLOT_RIGHT
-    Uint8          isequipped;      // For boots and rings and stuff
-    Uint16         firstenchant;    // Linked list for enchants
-    Uint16         undoenchant;     // Last enchantment spawned
-    bool_t         canchannel;
-    bool_t         overlay;         // Is this an overlay?  Track aitarget...
-    Uint8          missiletreatment;// For deflection, etc.
-    Uint8          missilecost;     // Mana cost for each one
-    Uint16         missilehandler;  // Who pays the bill for each one...
-    Uint16         damageboost;     // Add to swipe damage
-    bool_t         isshopitem;     // Spawned in a shop?
-    Sint8          soundindex[SOUND_COUNT];       // a map for soundX.wav to sound types
-    Sint8          loopedsound;         //Which sound channel it is looping on, -1 is none.
+    // model info
+    bool_t         overlay;                       // Is this an overlay?  Track aitarget...
+    Uint16         skin;                          // Character's skin
+    Uint8          model;                         // Character's model
+    Uint8          basemodel;                     // The true form
+    Uint8          basealpha;
+    chr_instance_t inst;                          // the render data
 
     //Skills
-    Sint8           shieldproficiency;  // Can it use shields?
+    Sint8           shieldproficiency;            // Can it use shields?
     bool_t          canjoust;
     bool_t          canuseadvancedweapons;
     bool_t          canseeinvisible;
@@ -599,7 +571,53 @@ struct s_chr
     bool_t          canusepoison;
     bool_t          canread;
 
+    // collision info
+    Uint32         bumpsize;        // Size of bumpers
+    Uint32         bumpsizebig;     // For octagonal bumpers
+    Uint32         bumpheight;      // Distance from head to toe
+    Uint32         bumpsizesave;
+    Uint32         bumpsizebigsave;
+    Uint32         bumpheightsave;
+    float          bumpdampen;                    // Character bump mass
+    Uint32         weight;                        // Weight ( for pressure plates )
+    float          dampen;          // Bounciness
+    Uint8          stoppedby;                     // Collision mask
+
+    // character location data
+    GLvector3      pos_stt;                       // Starting position
+    GLvector3      pos;                           // Character's position
+    GLvector3      vel;                           // Character's velocity
+
+    Uint16         turn_z;                        // Character's rotation 0 to 0xFFFF
+    Uint16         map_turn_y;
+    Uint16         map_turn_x;
+
+    GLvector3      pos_old;                       // Character's last position
+
+    bool_t         safe_valid;
+    GLvector3      pos_safe;                      // Character's last safe position
+
+    GLvector3      vel_old;                       // Character's last velocity
+
+    Uint16         turn_old_z;
+
+    Uint32         onwhichfan;                    // Where the char is
+    Uint32         onwhichblock;                  // The character's collision block
+    Uint16         fanblock_next;                 // Next character on fanblock
+
+    // movement properties
+    Uint8          waterwalk;                     // Always above watersurfacelevel?
+    Uint8          turnmode;                      // Turning mode
+    Uint8          sneakspd;                      // Sneaking if above this speed
+    Uint8          walkspd;                       // Walking if above this speed
+    Uint8          runspd;                        // Running if above this speed
+    float          maxaccel;                      // Maximum acceleration
+    Uint8          flyheight;                     // Height to stabilize at
+
+
     // data for doing the physics in bump_characters()
+    float          floor_level;           // Height of tile
+    bool_t         inwater;
     phys_data_t    phys;
 };
 
@@ -703,13 +721,14 @@ void character_swipe( Uint16 cnt, Uint8 slot );
 
 int check_skills( Uint16 who, IDSZ whichskill );
 
-bool_t stop_object_looped_sound( Uint16 character );
+bool_t looped_stop_object_sounds( Uint16 character );
 
 bool_t is_invictus_direction( Uint16 direction, Uint16 character, Uint16 effects );
 
 void   init_slot_idsz();
 
 bool_t ai_add_order( ai_state_t * pai, Uint32 value, Uint16 counter );
+
 
 //---------------------------------------------------------------------------------------------
 // Quest system

@@ -92,7 +92,7 @@ bool_t remove_enchant( Uint16 ienc )
 
     // Play the end sound
     ieve = penc->eve;
-    if ( ieve < MAXEVE && EveList[ieve].valid )
+    if ( ieve < MAXEVE && EveList[ieve].loaded )
     {
         iwave = EveList[ieve].endsoundindex;
         if ( iwave >= 0 && iwave < MAX_WAVE )
@@ -264,7 +264,7 @@ void set_enchant_value( Uint16 ienc, Uint8 valueindex, Uint16 ieve )
     if ( ienc >= MAX_ENC || !EncList[ienc].on) return;
     penc = EncList + ienc;
 
-    if ( ieve >= MAXEVE || !EveList[ieve].valid ) return;
+    if ( ieve >= MAXEVE || !EveList[ieve].loaded ) return;
     peve = EveList + ieve;
 
     penc->setyesno[valueindex] = bfalse;
@@ -441,7 +441,7 @@ void add_enchant_value( Uint16 ienc, Uint8 valueindex, Uint16 ieve )
     if ( ienc >= MAX_ENC || !EncList[ienc].on) return;
     penc = EncList + ienc;
 
-    if ( ieve >= MAXEVE || !EveList[ieve].valid ) return;
+    if ( ieve >= MAXEVE || !EveList[ieve].loaded ) return;
     peve = EveList + ieve;
 
     character = penc->target;
@@ -610,7 +610,7 @@ Uint16 spawn_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 ienc, 
     if ( !EveList[ieve].stayifnoowner && ( INVALID_CHR(owner) || !ChrList[target].alive) )
         return MAX_ENC;
 
-    if ( ieve >= MAXEVE || !EveList[ieve].valid ) return MAX_PROFILE;
+    if ( ieve >= MAXEVE || !EveList[ieve].loaded ) return MAX_PROFILE;
     peve = EveList + ieve;
 
     if ( ienc == MAX_ENC )
@@ -1109,7 +1109,7 @@ bool_t load_one_enchant_profile( const char* szLoadName, Uint16 profile )
     fclose( fileread );
     parse_filename = "";
 
-    peve->valid = btrue;
+    peve->loaded = btrue;
 
     return btrue;
 }

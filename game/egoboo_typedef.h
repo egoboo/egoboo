@@ -60,10 +60,19 @@ enum
     bfalse = ( !btrue )
 };
 
+
 //--------------------------------------------------------------------------------------------
-//BYTES
-typedef int8_t    sbyte;
-typedef uint8_t   byte;
+// some basic data that all egoboo objects should have
+#define  EGO_OBJECT_STUFF \
+bool_t         on;      /* Does it exist? */ \
+bool_t         onold;   /* Network fix    */ \
+STRING         name;
+
+//--------------------------------------------------------------------------------------------
+// some basic data that all egoboo profiles should have
+#define  EGO_PROFILE_STUFF \
+bool_t         loaded;      /* Does it exist? */ \
+STRING         name;
 
 //--------------------------------------------------------------------------------------------
 //IDSZ

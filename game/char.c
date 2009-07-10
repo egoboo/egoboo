@@ -3479,7 +3479,7 @@ void damage_character( Uint16 character, Uint16 direction,
                         ChrList[character].ai.alert |= ALERTIF_KILLED;
                         ChrList[character].sparkle = NOSPARKLE;
                         ChrList[character].ai.timer = update_wld + 1;  // No timeout...
-                        stop_object_looped_sound( character );          //Stop sound loops
+                        looped_stop_object_sounds( character );          //Stop sound loops
 
                         let_character_think( character );
                     }
@@ -3520,19 +3520,6 @@ void damage_character( Uint16 character, Uint16 direction,
             }
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t stop_object_looped_sound( Uint16 character )
-{
-    //ZF> This makes a object stop playing it's looping sound
-
-    if ( INVALID_CHR( character ) || INVALID_SOUND == ChrList[character].loopedsound ) return bfalse;
-
-    sound_stop_channel( ChrList[character].loopedsound );
-    ChrList[character].loopedsound = INVALID_SOUND;
-
-    return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3691,7 +3678,7 @@ Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
         return MAX_CHR;
     }
 
-    if ( !MadList[profile].used )
+    if ( !MadList[profile].loaded )
     {
         if ( profile > PMod->importamount * 9 )
         {
@@ -3760,7 +3747,7 @@ Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
     pchr->sparkle = NOSPARKLE;
     pchr->overlay = bfalse;
     pchr->missilehandler = ichr;
-    pchr->loopedsound = INVALID_SOUND;
+    pchr->loopedsound_channel = -1;
 
     // sound stuff...  copy from the cap
     for ( tnc = 0; tnc < SOUND_COUNT; tnc++ )
@@ -4183,7 +4170,7 @@ int chr_change_skin( Uint16 character, int skin )
     if ( INVALID_CHR(character) ) return 0;
 
     model = ChrList[character].model;
-    if ( model >= MAX_PROFILE || !MadList[model].used )
+    if ( model >= MAX_PROFILE || !MadList[model].loaded )
     {
         ChrList[character].skin    = 0;
         ChrList[character].inst.texture = TX_WATER_TOP;
@@ -4192,7 +4179,7 @@ int chr_change_skin( Uint16 character, int skin )
 
     // make sure that the instance has a valid model
     imad = ChrList[character].inst.imad;
-    if ( imad >= MAX_PROFILE || !MadList[imad].used )
+    if ( imad >= MAX_PROFILE || !MadList[imad].loaded )
     {
         imad = model;
         ChrList[character].inst.imad = model;
@@ -4284,7 +4271,7 @@ void change_character_full( Uint16 ichr, Uint16 profile, Uint8 skin, Uint8 leave
 {
     //This function polymorphs a character permanently so that it can be exported properly
     //A character turned into a frog with this function will also export as a frog!
-    if ( profile > MAX_PROFILE || !MadList[profile].used ) return;
+    if ( profile > MAX_PROFILE || !MadList[profile].loaded ) return;
 
     strcpy(MadList[ChrList[ichr].model].name, MadList[profile].name);
     change_character( ichr, profile, skin, leavewhich );
@@ -4298,7 +4285,7 @@ void change_character( Uint16 ichr, Uint16 profile, Uint8 skin, Uint8 leavewhich
     int tnc, enchant;
     Uint16 sTmp, item;
 
-    if ( profile > MAX_PROFILE || !MadList[profile].used ) return;
+    if ( profile > MAX_PROFILE || !MadList[profile].loaded ) return;
 
     // Drop left weapon
     sTmp = ChrList[ichr].holdingwhich[SLOT_LEFT];
@@ -5833,7 +5820,7 @@ void move_characters( void )
             detach_character_from_mount( ChrList[cnt].holdingwhich[SLOT_RIGHT], btrue, bfalse );
         }
 
-        stop_object_looped_sound( cnt );
+        looped_stop_object_sounds( cnt );
         free_inventory( cnt );
         free_one_character_in_game( cnt );
     }
@@ -6108,7 +6095,7 @@ bool_t ai_add_order( ai_state_t * pai, Uint32 value, Uint16 counter )
           }
         }
       }
-      charb = ChrList[charb].bumpnext;
+      charb = ChrList[charb].fanblock_next;
       cnt++;
     }
   }
@@ -6230,7 +6217,7 @@ bool_t ai_add_order( ai_state_t * pai, Uint32 value, Uint16 counter )
           }
         }
       }
-      charb = ChrList[charb].bumpnext;
+      charb = ChrList[charb].fanblock_next;
       cnt++;
     }
   }

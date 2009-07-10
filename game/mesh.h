@@ -167,4 +167,4 @@ void   mesh_make_twist();
 void tile_dictionary_load(tile_definition_t dict[], size_t dict_size);
 
 bool_t mesh_light_corners( ego_mpd_t * pmesh, int fan1 );
-bool_t mesh_interpolate_vertex( mesh_mem_t * pmem, int fan, GLXvector3f pos, float * plight );
+bool_t mesh_interpolate_vertex( mesh_mem_t * pmem, int fan, float pos[], float * plight );

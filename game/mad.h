@@ -150,8 +150,7 @@ enum e_action
 //--------------------------------------------------------------------------------------------
 struct s_mad
 {
-    bool_t  used;                          // Model slot
-    STRING  name;                          // Model name
+    EGO_PROFILE_STUFF
 
     // templates
     Uint16  ai;                            // AI for each model
@@ -180,8 +179,8 @@ typedef struct s_mad mad_t;
 extern mad_t   MadList[MAX_PROFILE];
 
 #define VALID_MAD_RANGE( IMAD ) ( ((IMAD) >= 0) && ((IMAD) < MAX_PROFILE) )
-#define VALID_MAD( IMAD )       ( VALID_MAD_RANGE( IMAD ) && MadList[IMAD].used )
-#define INVALID_MAD( IMAD )     ( !VALID_MAD_RANGE( IMAD ) || !MadList[IMAD].used )
+#define VALID_MAD( IMAD )       ( VALID_MAD_RANGE( IMAD ) && MadList[IMAD].loaded )
+#define INVALID_MAD( IMAD )     ( !VALID_MAD_RANGE( IMAD ) || !MadList[IMAD].loaded )
 
 //--------------------------------------------------------------------------------------------
 // Message files

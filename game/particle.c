@@ -221,7 +221,7 @@ Uint16 spawn_one_particle( float x, float y, float z,
     Uint32 prt_lifetime;
 
     // Convert from local ipip to global ipip
-    if ( ipip < MAX_PIP_PER_PROFILE && model < MAX_PROFILE && MadList[model].used )
+    if ( ipip < MAX_PIP_PER_PROFILE && model < MAX_PROFILE && MadList[model].loaded )
     {
         ipip = MadList[model].prtpip[ipip];
     }
@@ -770,7 +770,7 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
     pchr = ChrList + character;
 
     model = pchr->inst.imad;
-    if ( model > MAX_PROFILE || !MadList[model].used ) return;
+    if ( model > MAX_PROFILE || !MadList[model].loaded ) return;
     pmad = MadList + model;
 
     model = pchr->model;

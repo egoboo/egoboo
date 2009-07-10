@@ -1,5 +1,5 @@
 // This file contains info for the module's menu description
-Name ( with underscores for spaces )		: Lorule
+Name ( with underscores for spaces )		: The_Land_of_Lorule
 Reference module ( Directory name or NONE )     : NONE
 Required reference IDSZ ( or [NONE] )           : [NONE]
 Number of imports ( 0 to 4 )                    : 4
@@ -12,14 +12,14 @@ Level rating ( *, **, ***, ****, or ***** )     : *
 
 
 // Module summary ( Must be 8 lines...  Each line mush have at least an _ )
-:The_Land_of_Lorule
-:_
-:Adventure_waits_around_
-:every_corner!
+:Adventure_awaits_you,_traveller!
+:From_the_plains_of_Bishopia
+:to_the_Doom_Wastes,
+:there_are_many_secrets_and_many
+:dangers.
 :_
 :Take_care_on_your_quest_for_
 :glory...
-:_
 
 
 // Module expansion IDSZs ( with a colon in front )

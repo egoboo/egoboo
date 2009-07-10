@@ -57,8 +57,8 @@
 ///  @li Added ConfigFile_GetValue_Boolean, ConfigFile_GetValue_Int and GetConfigFloatValue.
 
 #include "configfile.h"
-#include "proto.h"
 
+#include "egoboo_typedef.h"
 #include "egoboo_strutil.h"
 
 //--------------------------------------------------------------------------------------------

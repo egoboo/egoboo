@@ -32,7 +32,8 @@
 				WarningLevel="4"
 				Detect64BitPortabilityProblems="TRUE"
 				DebugInformationFormat="4"
-				CompileAs="1"/>
+				CompileAs="1"
+				DisableSpecificWarnings="4127"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
@@ -402,9 +403,6 @@
 				RelativePath=".\passage.h">
 			</File>
 			<File
-				RelativePath=".\proto.h">
-			</File>
-			<File
 				RelativePath=".\script.h">
 			</File>
 			<File
@@ -558,8 +556,7 @@
 			<File
 				RelativePath=".\ego_wrap.c">
 				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="TRUE">
+					Name="Debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"/>
 				</FileConfiguration>

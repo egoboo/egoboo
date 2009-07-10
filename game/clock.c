@@ -23,7 +23,7 @@
  * Game Programming Gems 4.
  */
 
-#include "proto.h"
+#include "egoboo_typedef.h"
 #include "clock.h"
 #include "log.h"
 #include "System.h"
