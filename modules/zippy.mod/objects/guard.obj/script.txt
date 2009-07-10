@@ -6,7 +6,6 @@ IfSpawned
   SetXY
   tmpargument = STATEGUARD
   SetState
-  
 
 // Get mean if characters wanna be bad
 IfAttacked
@@ -17,16 +16,15 @@ IfAttacked
       TargetJoinTeam
   SetTargetToOldTarget
 IfCalledForHelp
-  SetTargetToWideEnemy
-    SetTargetToWhoeverCalledForHelp
-      tmpargument = 0
-      
-      //Get new guard area
-      tmpx = targetx
-      tmpy = targety
-      SetXY
-      tmpargument = STATEGUARD
-      SetState
+  SetTargetToWhoeverCalledForHelp
+    tmpargument = 0
+    
+    //Get new guard area
+    tmpx = targetx
+    tmpy = targety
+    SetXY
+    tmpargument = STATEGUARD
+    SetState
 
 //----------------------------------------------------------------------------------
 // Show the character's location
@@ -98,6 +96,10 @@ IfTimeOut				// This is done every so often
     tmpy = rand & 1023 + tmpy - 512
     ClearWaypoints
     AddWaypoint
+    
+    SetTargetToWideEnemy
+      tmpargument = STATECOMBAT
+      SetState
     
   IfStateIsCombat
     Run

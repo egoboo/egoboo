@@ -18,8 +18,12 @@ SLOT  OBJECT
 54    Book of Light
 55    Pit Cobra
 56    Cinquedea
+57    Trident
+58    Scroll of Enchant Armor
 59    Generic Chest (See script on how to use content)
+60    Scroll of Enchant Weapon
 61    Longbow
+62    Thunder Spear
 63    Tower Shield
 64    Book of Enchant
 66    Book of Unseen
@@ -37,12 +41,15 @@ SLOT  OBJECT
 78    Kite Shield
 79    Rune of Ressurection
 80    Medkit
+81    The Mana Sword
 82    Book of Lifedrain
+83    Strike
 84    Armor Chest (random type, tris0 to tris2)
 85    Rune of Clairvoyance
 86    Life Potion
 87    Mana Potion
 88    Rune of Confusion
+89    The Pike
 90    Quiver
 91    Book of Firering
 92    Scimitar
@@ -64,6 +71,7 @@ SLOT  OBJECT
 118   Orb of Arcane Nova
 119   Orb of Disintergrate   
 120   Orb of Wonder
+123   Ammobox
 127   *RESERVED FOR BOOK.OBJ*
 158   Ring of Protection
 160   The Tourist's Guide to Bishopia

@@ -39,8 +39,8 @@ IfTimeOut
       SetState
       CallForHelp
     Else
-      tmpx = selfx
-      tmpy = selfy
+      tmpx = selfspawnx
+      tmpy = selfspawny
       tmpturn = selfturn + 8192
       tmpdistance = 200
       Compass
@@ -49,7 +49,7 @@ IfTimeOut
 
       SetTargetToNearestFriend
       tmpx = targetdistance
-      tmpy = 128*6                    //Does he see a player?
+      tmpy = 128*5                    //Does he see a player?
       IfXIsLessThanY
         IfTargetIsAPlayer
         
@@ -65,7 +65,7 @@ IfTimeOut
               tmpargument = selfcontent
               PlaySound
               SendMessageNear
-              tmpargument = 150
+              tmpargument = 225
               SetTime
 
           //Look at him
@@ -167,10 +167,17 @@ IfStateIs0
               PlayFullSound
               SendMessageNear
         Else
-          GetContent
+          
+          //We have met and told them before, no need to repeat everything
+          tmpargument = [COBO]
+          IfTargetHasQuest
+            tmpargument = 4
+            SetContent
+            
+          tmpargument = selfcontent
           PlayFullSound
           SendMessageNear
-
+          
           //Unlock the module or prepeare the next quest line
           tmpargument = 5
           IfContentIs

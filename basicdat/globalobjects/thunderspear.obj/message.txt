@@ -1,0 +1,4 @@
+Message 0: %t_took_a_%c.
+Message 1: %t's_%c_is_%k...
+Message 2: The_magical_spear_was_crushed!
+Message 3: The_%c_won't_go_in!

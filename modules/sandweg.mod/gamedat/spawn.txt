@@ -50,4 +50,5 @@ abdulla.obj:   NONE    42  25.0   40.0   1.0   N    0   0  0   0   0   F   F   G
 tent.obj:   NONE    43  7.8   35.0   0.0   E    0   0  0   0   0   F   F   N
 lampshop.obj:   NONE    45  8.8   35.0   0.0   E    0   0  0   0   0   F   F   G
   light.obj:   NONE    54  0.0   0.0   0.0   R    0   0  0   0   0   F   F   Null
-touristguide.obj:   NONE    52  22.5   35.5   0.0   W    0   0  0   0   0   F   F   G
+touristguide.obj:   NONE    52  29.0   35.5   0.0   S    0   0  0   0   0   F   F   G
+shopkeeper.obj:   NONE    53  12.0   42.5   0.0   ?    0   0  0   0   0   F   F   G

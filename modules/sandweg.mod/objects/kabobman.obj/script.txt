@@ -1,7 +1,6 @@
 //------------------------------------------------------------------------------
 IfSpawned
   Sneak				//Dont run around
-
   tmpargument = STATEGUARD
   SetState
   
@@ -68,11 +67,16 @@ IfTimeOut
             PlaySound
             tmpargument = 6   //Wait 6 seconds before doing again
             SetContent
+            
+            //Animate
+            tmpargument = ACTIONMC
+            DoAction
         Else
           SetTurnModeToVelocity
           
   //Run away in panic
   IfStateIsCombat
+    Run
     SetTargetToNearbyEnemy
       CallForHelp
 

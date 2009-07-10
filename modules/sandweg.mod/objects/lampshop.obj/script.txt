@@ -20,16 +20,16 @@ IfSpawned
   tmpturn = rand
   SpawnExactCharacterXYZ
   
-  tmpx = rand % 100
-  tmpy = 15
-  IfXIsLessThanY
-    tmpargument = 48          //15% chance for magic torch!
-  Else
+  tmpx = rand & 123
+  tmpy = 18
+  IfXIsMoreThanY
     tmpargument = 47          //normal torch
+  Else
+    tmpargument = 48          //15% chance for magic torch!
   tmpx = selfx + 64
   tmpy = selfy + 100
   tmpdistance = selfz
-  tmpturn = rand
+  tmpturn = 0
   SpawnExactCharacterXYZ
   
   tmpargument = 49          //oil
@@ -129,6 +129,7 @@ IfTimeOut
           
   //Run away in panic
   IfStateIsCombat
+    Run
     SetTargetToNearbyEnemy
       CallForHelp
 

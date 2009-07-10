@@ -1,0 +1,157 @@
+// ZZ> This function makes an item fall to the floor when spawned
+IfSpawned				//
+  tmpargument = ACTIONJB		  //
+  DoAction				  //
+  KeepAction				  //
+  MakeCrushValid
+  MakeAmmoKnown
+IfCrushed
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  tmpargument = 3
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  GoPoof
+  tmpargument = 6
+  SendMessageNear
+IfDropped				// Make it lie on floor
+  KeepAction				  //
+IfHitGround				// Make a sound
+  tmpargument = 0
+  PlaySound	
+
+//Go blank  
+IfInWater
+  IfHeld
+    DoNothing
+  Else
+    // Go blank
+    tmpargument = 0
+    IfContentIs
+      tmpargument = 1
+      SetContent
+      tmpargument = 5
+      SendMessageNear
+      MakeNameKnown      // To keep messages okay
+      
+IfGrabbed				// Tell them what they've won...
+  SetTargetToWhoeverIsHolding		  //
+  SetOwnerToTarget
+  IfTargetIsAPlayer			  //
+    GetContent
+    SendMessageNear			  //
+    
+//Scroll effects
+IfUsed
+  tmpargument = 0
+  IfContentIs
+    // The scroll has writing on it
+    tmpargument = 1
+    PlaySound
+
+    //Spelly effects
+    tmpx = selfx
+    tmpy = selfy
+    tmpdistance = 0
+    tmpargument = 0
+    SpawnExactParticle
+
+    SetTargetToWhoeverIsHolding
+    tmpargument = 50
+    SetTargetReloadTime
+    IfNameIsKnown
+      DoNothing
+    Else
+      tmpargument = 10
+      SendMessageNear
+      tmpdistance = EXPDARE
+      GiveExperienceToTarget
+    MakeSimilarNamesKnown
+
+    SetTargetToWhoeverIsHolding
+    SetOwnerToTarget
+    // Find the target
+    // Spawn particles around target
+    IfHeldInLeftHand
+      SetTargetToTargetRightHand
+    Else
+      SetTargetToTargetLeftHand
+    tmpargument = [XWEP]
+    IfTargetHasAnyID
+    // Do the spell
+      EnchantTarget
+      tmpx = targetx
+      tmpy = targety
+      tmpdistance = 0.5
+      tmpargument = 5
+      SpawnExactParticle
+      MakeUsageKnown
+      MakeNameKnown
+      UnkurseTarget
+      tmpargument = 9
+      SendMessageNear
+    Else
+      tmpargument = 8
+      SendMessageNear
+    IfTargetIsOwner 
+      FlashTarget
+      tmpx = targetx
+      tmpy = targety
+      tmpdistance = 0.5
+      tmpargument = 5
+      SpawnExactParticle
+      MakeUsageKnown
+      MakeNameKnown
+      tmpargument = 11  // Basically, if the owner's other hand is empty,             
+      SendMessageNear   // the scroll targets him instead. This part only works in 2.7.x and above...
+      tmpargument = 32  // raise STR a wee bit. 1/8th
+      GiveStrengthToTarget // Just like Nethack :)
+     
+     // Do flashy things
+        tmpargument = 0
+        tmpdistance = 11025
+        PlaySound
+        tmpargument = 60
+        SetReloadTime
+      // No valid target...
+   
+    CostAmmo
+    IfAmmoOut
+      GoPoof
+
+  Else
+    // Can't use a blank scroll...
+    tmpargument = 0
+    SetState
+    tmpargument = 7
+    SendMessageNear
+    tmpargument = 50
+    SetReloadTime
+    
+//On fire!
+IfReaffirmed
+  IfHeld
+    DoNothing
+  Else
+    tmpx = selfx
+    tmpy = selfy
+    tmpdistance = selfz
+    tmpargument = 3
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+    GoPoof
+    tmpargument = 4
+    SendMessageNear
+IfNameIsKnown
+  IfStateIs0
+    tmpargument = 1
+    ChangeArmor
+    SetState
+  Else
+    DoNothing 
+End					// All done
