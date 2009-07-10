@@ -12,6 +12,7 @@ IfKilled
 IfSpawned
   tmpargument = 20
   SetSpeedPercent
+  Sneak
   tmpx=selfx
   tmpy=selfy
   tmpargument=1
@@ -104,6 +105,7 @@ IfStateIs0
     tmpx=selfx
     tmpy=selfy
     SetXY
+    
 //------------------------------------------------------------------------------
 End
 //------------------------------------------------------------------------------

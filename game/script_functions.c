@@ -4016,7 +4016,7 @@ Uint8 scr_set_SpeedPercent( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     reset_character_accel( pself->index );
-    //pchr->maxaccel = pchr->maxaccel * pstate->argument / 100.0f;
+    pchr->maxaccel = pchr->maxaccel * pstate->argument / 100.0f;
 
     SCRIPT_FUNCTION_END();
 }

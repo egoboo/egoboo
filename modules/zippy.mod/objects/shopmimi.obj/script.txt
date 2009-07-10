@@ -87,7 +87,6 @@ IfTimeOut				// This is done every so often
     tmpy = 250				    //
     IfXIsLessThanY			    // Stick and move
       tmpargument = 2
-      tmpdistance = rand & 1023 + 10500
       PlaySound
 
       tmpargument = 1			      // Attack Left = 1
@@ -96,7 +95,6 @@ IfTimeOut				// This is done every so often
       tmpy = rand & 511 - 256 + targety	      //
     Else				    // Get closer
       tmpargument = 1
-      tmpdistance = rand & 1023 + 10500
       PlaySound
 
       tmpx = targetx			      //

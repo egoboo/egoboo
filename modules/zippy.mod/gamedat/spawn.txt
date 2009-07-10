@@ -101,16 +101,16 @@ Cleric: a_healer     42   41.5   47.5   0    S   0 0   0   0   0   F   F   Good
 GUARD:  a_guard         39 22   52.5   0    N   0 4   0   0   0   F   F   Good
   SWORD: NONE        69   0    0    0    R   0   0   0   0   0   F   F   Null
   SHIELD: NONE      70   0    0    0    L   0   0   0   0   0   F   F   Null
-GUARD:  a_guard         39 10.5   10   0    N   0 4   0   0   0   F   F   Good
+GUARD:  a_guard         39 11   6   0    N   0 4   0   0   0   F   F   Good
   SWORD: NONE        69   0    0    0    R   0   0   0   0   0   F   F   Null
   SHIELD: NONE      70   0    0    0    L   0   0   0   0   0   F   F   Null
-GUARD:  a_guard         39 11   10.5   0    N   0 4   0   1   0   F   F   Good
+GUARD:  a_guard         39 6   10.5   0    N   0 4   0   1   0   F   F   Good
   SWORD: NONE        69   0    0    0    R   0   0   0   0   0   F   F   Null
   SHIELD: NONE      70   0    0    0    L   0   0   0   0   0   F   F   Null
-GUARD:  a_guard         39 11   9.5   0    N   0 4   0   2   0   F   F   Good
+GUARD:  a_guard         39 11   16.5   0    N   0 4   0   2   0   F   F   Good
   SWORD: NONE        69   0    0    0    R   0   0   0   0   0   F   F   Null
   SHIELD: NONE      70   0    0    0    L   0   0   0   0   0   F   F   Null
-GUARD:  a_guard         39 11.5   10   0    N   0 4   0   3   0   F   F   Good
+GUARD:  a_guard         39 16   10   0    N   0 4   0   3   0   F   F   Good
   SWORD: NONE        69   0    0    0    R   0   0   0   0   0   F   F   Null
   SHIELD: NONE      70   0    0    0    L   0   0   0   0   0   F   F   Null
 SHOPKEEP:  Watts     36   11   10   0    N   600 0   0   0   0   F   F   Good
@@ -122,10 +122,10 @@ REBIRTH:   NONE      77   10   8    0    S   0   0   0   0   0   F   F   Null
 REBIRTH:   NONE      77   11   8    0    S   0   0   0   0   0   F   F   Null
 REBIRTH:   NONE      77   12   8    0    S   0   0   0   0   0   F   F   Null
 
-GUARD:  a_guard     39 21.5   55.0   0    ?   0 4   0   0   0   F   F   Good
+GUARD:  a_guard     39 25.5   55.0   0    ?   0 4   0   0   0   F   F   Good
   XBOW: NONE        92   0    0    0    R   0   0   0   0   0   F   F   Null
   SHIELD: NONE      70   0    0    0    L   0   0   0   0   0   F   F   Null
-GUARD:  a_guard     39 20.0   55.0   0    ?   0 4   0   1   0   F   F   Good
+GUARD:  a_guard     39 15.0   55.0   0    ?   0 4   0   1   0   F   F   Good
   XBOW: NONE        92   0    0    0    R   0   0   0   0   0   F   F   Null
   SHIELD: NONE      70   0    0    0    L   0   0   0   0   0   F   F   Null
 

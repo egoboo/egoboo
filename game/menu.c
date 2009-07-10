@@ -1976,7 +1976,7 @@ int doVideoOptions( float deltaTime )
             {
                 // make the multi-sampling even
 
-                if ( cfg.multisamples <= 0 )
+                if ( cfg.multisamples < 0 )
                 {
                     cfg.multisamples = 0;
                 }
@@ -2085,7 +2085,7 @@ int doVideoOptions( float deltaTime )
             fnt_drawTextBox( menuFont, "Texture Filtering:", buttonLeft, sdl_scr.y - 285, 0, 0, 20 );
             if ( BUTTON_UP == ui_doButton( 6, videoOptionsButtons[5], buttonLeft + 150, sdl_scr.y - 285, 130, 30 ) )
             {
-                if ( cfg.texturefilter_req <= TX_UNFILTERED )
+                if ( cfg.texturefilter_req < TX_UNFILTERED )
                 {
                     cfg.texturefilter_req = TX_UNFILTERED;
                 }
