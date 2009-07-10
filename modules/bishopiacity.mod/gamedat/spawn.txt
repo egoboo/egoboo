@@ -362,6 +362,4 @@ Meena:   NONE    146  0.0   0.0   1.0   N    0   0  0   0   0   F   F   G
   Knife: NONE    89  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 Beggar:  NONE    151  28.0   48.5   0.0   E    3   0  0   0   0   F   F   G		
 Angus:   NONE    153  16.5   58.5   0.0   E    149   0  0   0   0   F   F   G
-Sultan:  NONE    156  22.5   56.5   0.0   W    0   0  0   0   0   F   F   G
-  scimitar.obj:   NONE    92  0.0   0.0   0.0   I    0   0  0   0   0   F   F   Null
-Guide:   NONE    159  34.5   12.0   0.0  E    0   0  0   0   0   F   F   G
+Guide   NONE    159  34.5   12.0   0.0  E    0   0  0   0   0   F   F   G

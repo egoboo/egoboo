@@ -6,7 +6,7 @@
 
 
 Random map ( TRUE or FALSE ) ( doesn't work )           : FALSE
-Number of Water Layers ( 1=Fast, 2=Good )		: 1
+Number of Water Layers ( 1=Fast, 2=Good )		: 2
 Water specular start ( 0-255 )				: 128
 Water specular level ( 0-255 )				: 128
 Water douse level ( For torches, 90 )			: 85
@@ -22,8 +22,8 @@ Background distance effect Y ( 0.0 to 1.0 )             : 0.000
 Number of foreground repeats ( 1 to 5 )                 : 1
 Number of background repeats ( 1 to 5 )                 : 2
 
-Level 0... Base water level ( 85 )			: 3
-Level 0... Alpha level ( 100 )				: 110
+Level 0... Base water level ( 85 )			: 1
+Level 0... Alpha level ( 100 )				: 50
 Level 0... Wave speed ( 3 )				: 0
 Level 0... Brightness ( 15 )				: 15
 Level 0... Ambient light ( 15 )				: 15
@@ -31,14 +31,14 @@ Level 0... Wave amplitude ( 7.0 )			: 1.0
 Level 0... U speed ( .0002 )				: -.001
 Level 0... V speed ( .0002 )				: -.0001
 
-Level 1... Base water level ( 80 )			: 4
-Level 1... Alpha level ( 100 )				: 170
+Level 1... Base water level ( 80 )			: 2
+Level 1... Alpha level ( 100 )				: 70
 Level 1... Wave speed ( 2 )				: 1
-Level 1... Brightness ( 31 )				: 31
+Level 1... Brightness ( 31 )				: 15
 Level 1... Ambient light ( 15 )				: 15
-Level 1... Wave amplitude ( 8.0 )			: 3.0
+Level 1... Wave amplitude ( 8.0 )			: 1.0
 Level 1... U speed ( -.0005 )				:  .0005
-Level 1... V speed ( .0005 )				: -.0044
+Level 1... V speed ( .0005 )				: -.0001
 
 Light X direction ( 1.00 )				: 1.00
 Light Y direction ( 1.00 )				: 1.00

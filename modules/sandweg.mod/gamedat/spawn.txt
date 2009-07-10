@@ -36,12 +36,18 @@ unknown:   NONE    33  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 unknown:   NONE    34  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 unknown:   NONE    35  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 moduletool.obj:   NONE    126  24.5   30.5   1.0   N    0   0  0   0   0   F   F   N
-stonebridge.obj:   NONE    36  31.5   37.5   0.0   N    0   2  0   0   0   F   F   N
-kabobspit.obj:   NONE    37  20.5   34.5   1.0   N    0   0  0   0   0   F   F   N
-kabobman.obj:   NONE    100  21.5   33.5   1.0   S    0   0  0   0   0   F   F   N
+stonebridge.obj:   NONE    36  31.5   37.5   0.0   N    0   0  0   0   0   F   F   N
+kabobspit.obj:   NONE    37  20.5   34.5   0.0   N    0   0  0   0   0   F   F   N
+kabobman.obj:   NONE    38  21.5   34.3   0.0   S    0   0  0   0   0   F   F   G
 well.obj:   NONE    39  13.0   35.0   1.0   N    0   0  0   0   0   F   F   N
 gate.obj:   NONE    40  36.0   27.5   0.0   E    0   0  0   0   0   F   F   N
-gate.obj:   NONE    40  23.0   52.0   0.0   N    0   1  0   0   0   F   F   N
+gate.obj:   NONE    40  23.0   52.0   0.0   N    0   0  0   0   0   F   F   N
 dustdevil.obj:   NONE    113  15.5   9.5   1.0   N    0   0  0   0   0   F   F   E
 dustdevil.obj:   NONE    113  18.5   8.5   2.0   N    0   1  0   0   0   F   F   E
 dustdevil.obj:   NONE    113  13.5   6.5   1.0   N    0   2  0   0   0   F   F   E
+abdulla.obj:   NONE    42  25.0   40.0   1.0   N    0   0  0   0   0   F   F   G
+  scimitar.obj:   NONE    92  0.0   0.0   0.0   I    0   0  0   0   0   F   F   Null
+tent.obj:   NONE    43  7.8   35.0   0.0   E    0   0  0   0   0   F   F   N
+lampshop.obj:   NONE    45  8.8   35.0   0.0   E    0   0  0   0   0   F   F   G
+  light.obj:   NONE    54  0.0   0.0   0.0   R    0   0  0   0   0   F   F   Null
+touristguide.obj:   NONE    52  22.5   35.5   0.0   W    0   0  0   0   0   F   F   G

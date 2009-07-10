@@ -8,11 +8,14 @@ SLOT  OBJECT
 37    Grub Bug
 40    Ice Strider
 41    Bear Trap
-44    Chest Mimic
+44    Lamp
 46    Spiked Mace
 47    Torch
+48    Everburn
+49    Oil Flask
 50    Sword
 51    Spear
+54    Book of Light
 55    Pit Cobra
 56    Cinquedea
 59    Generic Chest (See script on how to use content)
@@ -25,6 +28,7 @@ SLOT  OBJECT
 69    Book of Protect
 70    Book of Icicles
 71    Crossbow
+72    Chest Mimic
 73    Book of Missile
 74    Poisoned Stiletto
 75    Poisoned Hand Crossbow
@@ -41,6 +45,7 @@ SLOT  OBJECT
 88    Rune of Confusion
 90    Quiver
 91    Book of Firering
+92    Scimitar
 94    Door Key (golden key [KEYA])
 94    Chest Key (silver key [KEYC])
 95    Acid Blob

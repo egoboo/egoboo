@@ -1,4 +1,4 @@
-Slot number    : 159
+Slot number    : 52
 Class name     : Guide
 Uniform light  : FALSE
 Maximum ammo   : 0

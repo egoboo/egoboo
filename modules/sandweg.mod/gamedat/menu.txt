@@ -10,13 +10,13 @@ RTS control (TRUE, FALSE, ALL) :FALSE
 Level rating ( * to  ***** ) :***
 
 // Module summary
-:Sandweg
-:The_Desert_City
-:_
-:_
-:_
-:_
-:_
+:This_desert_city_greets_you_with_the
+:juicy_smell_of_Kabobs_and_merchants
+:bartering_and_crying_out_trying_to
+:sell_their_wares._This_town_is_the
+:perfect_place_for_new_heroes_to_buy
+:the_equipment_they_need_to_start
+:their_quest!
 :_
 
 // IDZs
