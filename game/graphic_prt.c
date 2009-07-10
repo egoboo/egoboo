@@ -806,10 +806,10 @@ void prt_instance_update_lighting( prt_instance_t * pinst, prt_t * pprt, Uint8 t
     pinst->fdir = 0.9f * pinst->fdir + 0.1f * lite;
 
     // determine the overall lighting
-    pinst->fintens = pinst->fdir;
+    pinst->fintens = pinst->fdir * INV_FF;
     if ( do_lighting )
     {
-        pinst->fintens += pinst->famb;
+        pinst->fintens += pinst->famb * INV_FF;
     }
 
     // determine the alpha component

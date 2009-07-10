@@ -517,7 +517,7 @@ int _calculate_volume( GLvector3 diff )
     float render_size;
 
     // approximate the radius of the area that the camera sees
-    render_size = renderlist.all_count * (TILE_SIZE/2 * TILE_SIZE/2);
+    render_size = renderlist.all_count * (TILE_SIZE/2 * TILE_SIZE/2) / 4;
 
     dist2 = diff.x * diff.x + diff.y * diff.y + diff.z * diff.z;
 
