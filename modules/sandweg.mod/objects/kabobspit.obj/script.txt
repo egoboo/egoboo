@@ -15,27 +15,29 @@ IfContentIs
   IfStateIs0
     IfBumped
       SetTargetToWhoeverBumped	  //
+      tmpx = targetmoney
+      tmpy = 5
+      IfXIsMoreThanY
         IfTargetCanOpenStuff	    // Avoid NPCs or Monsters trigering the script.
-          IfTargetIsHurt
-            tmpargument = ACTIONMJ	      // Spin the meat
-            DoAction
-            tmpargument = rand & 768 + 256 // Heal 1-3 Hp.
-            HealTarget
-            tmpargument = ACTIONMC  // Drinking animation. (No eating animation exists...)
-            TargetDoAction
-            CostAmmo  // Decrease amount of times useable.
-            tmpargument = 0
-            SendMessage
-            PlaySound
-          Else
-            tmpargument = 2		//not hungry
-            SendMessageNear
+          tmpargument = ACTIONMJ	      // Spin the meat
+          DoAction
+          tmpargument = rand & 768 + 256 // Heal 1-3 Hp.
+          HealTarget
+          tmpargument = ACTIONMC  // Drinking animation. (No eating animation exists...)
+          TargetDoAction
+          CostAmmo  // Decrease amount of times useable.
+          tmpargument = 0
+          SendMessage
+          PlaySound
+          
+          //Make them pay! mohaha
+          tmpargument = -5
+          GiveMoneyToTarget
 
           //No meat left
           IfAmmoOut
             tmpargument = 1
             SetContent
-            SetState
             tmpargument = ACTIONMG	      //Make the meat dissapear
             DoActionOverride
             KeepAction
@@ -44,7 +46,10 @@ IfContentIs
           SetTime
           tmpargument = 1
           SetState
-
+      Else
+        tmpargument = 2
+        SendMessageNear
+        
 //No more meat bumping
 tmpargument = 1
 IfContentIs
@@ -64,4 +69,3 @@ IfTimeOut
   SetState
 
 End				// Finished with this character
-

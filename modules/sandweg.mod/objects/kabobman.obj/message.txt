@@ -1,0 +1,3 @@
+Message 0: %t_killed_the_kabob_man!
+Message 1: %n_looks_better...
+Message 2: Delicious_kabob!_Only_5$!

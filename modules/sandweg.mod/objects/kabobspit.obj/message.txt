@@ -1,0 +1,3 @@
+Message 0: Yum!_Tasty!_(You_pay_5$)
+Message 1: There_is_nothing_left!
+Message 2: %t_cannot_pay_for_that!_(5$)

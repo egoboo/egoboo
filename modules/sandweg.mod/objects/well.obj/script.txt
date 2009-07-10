@@ -5,16 +5,10 @@ IfSpawned
 IfBumped
   SetTargetToWhoeverBumped
   IfTargetCanOpenStuff
-    IfStateIs0
-      tmpargument = 1
-      SetState
+    IfTimeOut
       tmpargument = 0
       SendMessageNear
       tmpargument = 200
       SetTime
-
-IfTimeOut
-  tmpargument = 0
-  SetState
 
 End
