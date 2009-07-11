@@ -6644,7 +6644,7 @@ void do_game_hud()
 
     if ( flip_pages_requested() && cfg.dev_mode )
     {
-        glColor4f( 1, 1, 1, 1 );
+        GL_DEBUG(glColor4f)( 1, 1, 1, 1 );
         if ( fpson )
         {
             y = draw_string( 0, y, szfpstext );

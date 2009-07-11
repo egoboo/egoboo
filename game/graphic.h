@@ -375,3 +375,6 @@ bool_t project_lighting( lighting_cache_t * dst, lighting_cache_t * src, GLmatri
 bool_t interpolate_lighting( lighting_cache_t * dst, lighting_cache_t * src[], float u, float v );
 float  evaluate_mesh_lighting( ego_mpd_t * pmesh, lighting_cache_t * src, GLfloat nrm[], float z );
 bool_t project_sum_lighting( lighting_cache_t * dst, lighting_cache_t * src, GLvector3 vec, int dir );
+
+
+bool_t bbox_gl_draw(aabb_t * pbbox);

@@ -140,4 +140,6 @@ GLvector3 mat_getCamUp(GLmatrix mat);
 GLvector3 mat_getCamRight(GLmatrix mat);
 GLvector3 mat_getCamForward(GLmatrix mat);
 
+GLvector3 mat_getTranslate(GLmatrix mat);
+
 void make_turntosin( void );

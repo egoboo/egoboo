@@ -121,7 +121,7 @@ void render_fan( ego_mpd_t * pmesh, Uint32 fan )
                 {
                     vertex = tile_dict[type].command_verts[entry];
 
-                    glArrayElement(vertex);
+                    GL_DEBUG(glArrayElement)(vertex);
 
                     entry++;
                 }

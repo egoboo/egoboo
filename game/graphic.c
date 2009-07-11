@@ -3503,7 +3503,7 @@ void do_clear_screen()
 
         if ( game_needs_clear || menu_needs_clear )
         {
-            glClear( GL_COLOR_BUFFER_BIT );
+            GL_DEBUG(glClear)( GL_COLOR_BUFFER_BIT );
         }
     }
 }
@@ -4879,7 +4879,64 @@ bool_t project_sum_lighting( lighting_cache_t * dst, lighting_cache_t * src, GLv
     return btrue;
 }
 
+//--------------------------------------------------------------------------------------------
+bool_t bbox_gl_draw(aabb_t * pbbox)
+{
+  GLXvector3f * pmin, * pmax;
 
+  if(NULL == pbbox) return bfalse;
+
+  GL_DEBUG(glPushMatrix)();
+  {
+    pmin = &(pbbox->mins);
+    pmax = &(pbbox->maxs);
+
+    // !!!! there must be an optimized way of doing this !!!!
+
+    GL_DEBUG(glBegin)(GL_QUADS);
+    {
+      // Front Face
+      glVertex3f((*pmin)[XX], (*pmin)[YY], (*pmax)[ZZ]);
+      glVertex3f((*pmax)[XX], (*pmin)[YY], (*pmax)[ZZ]);
+      glVertex3f((*pmax)[XX], (*pmax)[YY], (*pmax)[ZZ]);
+      glVertex3f((*pmin)[XX], (*pmax)[YY], (*pmax)[ZZ]);
+
+      // Back Face
+      glVertex3f((*pmin)[XX], (*pmin)[YY], (*pmin)[ZZ]);
+      glVertex3f((*pmin)[XX], (*pmax)[YY], (*pmin)[ZZ]);
+      glVertex3f((*pmax)[XX], (*pmax)[YY], (*pmin)[ZZ]);
+      glVertex3f((*pmax)[XX], (*pmin)[YY], (*pmin)[ZZ]);
+
+      // Top Face
+      glVertex3f((*pmin)[XX], (*pmax)[YY], (*pmin)[ZZ]);
+      glVertex3f((*pmin)[XX], (*pmax)[YY], (*pmax)[ZZ]);
+      glVertex3f((*pmax)[XX], (*pmax)[YY], (*pmax)[ZZ]);
+      glVertex3f((*pmax)[XX], (*pmax)[YY], (*pmin)[ZZ]);
+
+      // Bottom Face
+      glVertex3f((*pmin)[XX], (*pmin)[YY], (*pmin)[ZZ]);
+      glVertex3f((*pmax)[XX], (*pmin)[YY], (*pmin)[ZZ]);
+      glVertex3f((*pmax)[XX], (*pmin)[YY], (*pmax)[ZZ]);
+      glVertex3f((*pmin)[XX], (*pmin)[YY], (*pmax)[ZZ]);
+
+      // Right face
+      glVertex3f((*pmax)[XX], (*pmin)[YY], (*pmin)[ZZ]);
+      glVertex3f((*pmax)[XX], (*pmax)[YY], (*pmin)[ZZ]);
+      glVertex3f((*pmax)[XX], (*pmax)[YY], (*pmax)[ZZ]);
+      glVertex3f((*pmax)[XX], (*pmin)[YY], (*pmax)[ZZ]);
+
+      // Left Face
+      glVertex3f((*pmin)[XX], (*pmin)[YY], (*pmin)[ZZ]);
+      glVertex3f((*pmin)[XX], (*pmin)[YY], (*pmax)[ZZ]);
+      glVertex3f((*pmin)[XX], (*pmax)[YY], (*pmax)[ZZ]);
+      glVertex3f((*pmin)[XX], (*pmax)[YY], (*pmin)[ZZ]);
+    }
+    GL_DEBUG_END();
+  }
+  GL_DEBUG(glPopMatrix)();
+
+  return btrue;
+}
 
 ////--------------------------------------------------------------------------------------------
 //void light_fans( ego_mpd_t * pmesh)

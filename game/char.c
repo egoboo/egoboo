@@ -68,6 +68,7 @@ static bool_t chr_instance_init( chr_instance_t * pinst, Uint16 profile, Uint8 s
 static Uint16 pack_has_a_stack( Uint16 item, Uint16 character );
 static bool_t pack_add_item( Uint16 item, Uint16 character );
 static Uint16 pack_get_item( Uint16 character, grip_offset_t grip_off, bool_t ignorekurse );
+static void set_weapongrip( Uint16 iitem, Uint16 iholder, Uint16 vrt_off );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -1173,104 +1174,93 @@ void reset_character_alpha( Uint16 character )
             enchant = EncList[enchant].nextenchant;
         }
     }
-
 }
 
 //--------------------------------------------------------------------------------------------
-void attach_character_to_mount( Uint16 character, Uint16 mount, grip_offset_t grip_off )
+void attach_character_to_mount( Uint16 iitem, Uint16 iholder, grip_offset_t grip_off )
 {
-    // ZZ> This function attaches one character to another ( the mount )
-    //     at either the left or right grip_off
-    int i, tnc;
+    // ZZ> This function attaches one character/item to another ( the holder/mount )
+    //     at a certain vertex offset ( grip_off )
+
     slot_t slot;
 
-    // Make sure both are still around
-    if ( INVALID_CHR(character) || INVALID_CHR(mount) ) return;
+    chr_t * pitem, * pholder;
 
-    if ( ChrList[character].pack_ispacked || ChrList[mount].pack_ispacked ) return;
+    // Make sure the character/item is valid
+    if ( INVALID_CHR(iitem) || ChrList[iitem].pack_ispacked ) return;
+    pitem = ChrList + iitem;
+    
+    // Make sure the holder/mount is valid
+    if( INVALID_CHR(iholder) || ChrList[iholder].pack_ispacked ) return;
+    pholder = ChrList + iholder;
 
 #if !defined(ENABLE_BODY_GRAB)
-    if (!ChrList[character].alive) return;
+    if (!pitem->alive) return;
 #endif
 
     // Figure out which slot this grip_off relates to
     slot = grip_offset_to_slot( grip_off );
 
     // Make sure the the slot is valid
-    if ( !CapList[ChrList[mount].model].slotvalid[slot] )
-        return;
+    if ( !CapList[pholder->model].slotvalid[slot] ) return;
 
     // Put 'em together
-    ChrList[character].inwhich_slot    = slot;
-    ChrList[character].attachedto     = mount;
-    ChrList[mount].holdingwhich[slot] = character;
+    pitem->inwhich_slot   = slot;
+    pitem->attachedto     = iholder;
+    pholder->holdingwhich[slot] = iitem;
 
-    tnc = MadList[ChrList[mount].inst.imad].md2.vertices - grip_off;
+    // set the grip vertices for the iitem
+    set_weapongrip( iitem, iholder, grip_off );
 
-    for (i = 0; i < GRIP_VERTS; i++)
-    {
-        if (tnc + i < MadList[ChrList[mount].inst.imad].md2.vertices )
-        {
-            ChrList[character].weapongrip[i] = i + tnc;
-        }
-        else
-        {
-            ChrList[character].weapongrip[i] = 0xFFFF;
-        }
-    }
+    // actually make position of the object coincide with its actual held position
+    make_one_weapon_matrix( iitem, iholder, bfalse );
 
-    // catually make position of the object coincide with its actual held position
-    make_one_weapon_matrix( character, mount, bfalse );
-
-    ChrList[character].pos.x = ChrList[character].inst.matrix.CNV( 3, 0 );
-    ChrList[character].pos.y = ChrList[character].inst.matrix.CNV( 3, 1 );
-    ChrList[character].pos.z = ChrList[character].inst.matrix.CNV( 3, 2 );
-
-    ChrList[character].inwater = bfalse;
-    ChrList[character].jumptime = JUMPDELAY * 4;
+    pitem->pos      = mat_getTranslate( pitem->inst.matrix );
+    pitem->inwater  = bfalse;
+    pitem->jumptime = JUMPDELAY * 4;
 
     // Run the held animation
-    if ( ChrList[mount].ismount && grip_off == GRIP_ONLY )
+    if ( pholder->ismount && grip_off == GRIP_ONLY )
     {
-        // Riding mount
-        chr_play_action( character, ACTION_MI, btrue );
-        ChrList[character].loopaction = btrue;
+        // Riding iholder
+        chr_play_action( iitem, ACTION_MI, btrue );
+        pitem->loopaction = btrue;
     }
-    else if ( ChrList[character].alive )
+    else if ( pitem->alive )
     {
-        chr_play_action( character, ACTION_MM + slot, bfalse );
-        if ( ChrList[character].isitem )
+        chr_play_action( iitem, ACTION_MM + slot, bfalse );
+        if ( pitem->isitem )
         {
             // Item grab
-            ChrList[character].keepaction = btrue;
+            pitem->keepaction = btrue;
         }
     }
 
     // Set the team
-    if ( ChrList[character].isitem )
+    if ( pitem->isitem )
     {
-        ChrList[character].team = ChrList[mount].team;
+        pitem->team = pholder->team;
 
         // Set the alert
-        if ( ChrList[character].alive )
+        if ( pitem->alive )
         {
-            ChrList[character].ai.alert |= ALERTIF_GRABBED;
+            pitem->ai.alert |= ALERTIF_GRABBED;
         }
     }
 
-    if ( ChrList[mount].ismount )
+    if ( pholder->ismount )
     {
-        ChrList[mount].team = ChrList[character].team;
+        pholder->team = pitem->team;
 
         // Set the alert
-        if ( !ChrList[mount].isitem && ChrList[mount].alive )
+        if ( !pholder->isitem && pholder->alive )
         {
-            ChrList[mount].ai.alert |= ALERTIF_GRABBED;
+            pholder->ai.alert |= ALERTIF_GRABBED;
         }
     }
 
     // It's not gonna hit the floor
-    ChrList[character].hitready = bfalse;
+    pitem->hitready = bfalse;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4279,20 +4269,62 @@ void change_character_full( Uint16 ichr, Uint16 profile, Uint8 skin, Uint8 leave
 }
 
 //--------------------------------------------------------------------------------------------
+void set_weapongrip( Uint16 iitem, Uint16 iholder, Uint16 vrt_off )
+{
+    int i, tnc;
+    chr_t * pitem, *pholder;
+    mad_t * pholder_mad;
+
+    if( INVALID_CHR(iitem) ) return;
+    pitem = ChrList + iitem;
+
+    // reset the vertices
+    for (i = 0; i < GRIP_VERTS; i++)
+    {
+        pitem->weapongrip[i] = 0xFFFF;
+    }
+
+    if( INVALID_CHR(iholder) ) return;
+    pholder = ChrList + iholder;
+
+    if( INVALID_MAD(pholder->inst.imad) ) return;
+    pholder_mad = MadList + pholder->inst.imad;
+
+    tnc = pholder_mad->md2.vertices - vrt_off;
+    for (i = 0; i < GRIP_VERTS; i++)
+    {
+        if (tnc + i < pholder_mad->md2.vertices )
+        {
+            pitem->weapongrip[i] = tnc + i;
+        }
+        else
+        {
+            pitem->weapongrip[i] = 0xFFFF;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------
 void change_character( Uint16 ichr, Uint16 profile, Uint8 skin, Uint8 leavewhich )
 {
     // ZZ> This function polymorphs a character, changing stats, dropping weapons
     int tnc, enchant;
     Uint16 sTmp, item;
+    chr_t * pchr;
+    cap_t * pcap;
+    mad_t * pmad;
 
-    if ( profile > MAX_PROFILE || !MadList[profile].loaded ) return;
+    if ( INVALID_MAD(profile) || INVALID_CHR(ichr) ) return;
+    pchr = ChrList + ichr;
+    pcap = CapList + profile;
+    pmad = MadList + profile;
 
     // Drop left weapon
-    sTmp = ChrList[ichr].holdingwhich[SLOT_LEFT];
-    if ( sTmp != MAX_CHR && ( !CapList[profile].slotvalid[SLOT_LEFT] || CapList[profile].ismount ) )
+    sTmp = pchr->holdingwhich[SLOT_LEFT];
+    if ( sTmp != MAX_CHR && ( !pcap->slotvalid[SLOT_LEFT] || pcap->ismount ) )
     {
         detach_character_from_mount( sTmp, btrue, btrue );
-        if ( ChrList[ichr].ismount )
+        if ( pchr->ismount )
         {
             ChrList[sTmp].vel.z = DISMOUNTZVEL;
             ChrList[sTmp].pos.z += DISMOUNTZVEL;
@@ -4301,11 +4333,11 @@ void change_character( Uint16 ichr, Uint16 profile, Uint8 skin, Uint8 leavewhich
     }
 
     // Drop right weapon
-    sTmp = ChrList[ichr].holdingwhich[SLOT_RIGHT];
-    if ( sTmp != MAX_CHR && !CapList[profile].slotvalid[SLOT_RIGHT] )
+    sTmp = pchr->holdingwhich[SLOT_RIGHT];
+    if ( sTmp != MAX_CHR && !pcap->slotvalid[SLOT_RIGHT] )
     {
         detach_character_from_mount( sTmp, btrue, btrue );
-        if ( ChrList[ichr].ismount )
+        if ( pchr->ismount )
         {
             ChrList[sTmp].vel.z = DISMOUNTZVEL;
             ChrList[sTmp].pos.z += DISMOUNTZVEL;
@@ -4320,7 +4352,7 @@ void change_character( Uint16 ichr, Uint16 profile, Uint8 skin, Uint8 leavewhich
     if ( leavewhich == LEAVEFIRST )
     {
         // Remove all enchantments except top one
-        enchant = ChrList[ichr].firstenchant;
+        enchant = pchr->firstenchant;
         if ( enchant != MAX_ENC )
         {
             while ( EncList[enchant].nextenchant != MAX_ENC )
@@ -4337,157 +4369,115 @@ void change_character( Uint16 ichr, Uint16 profile, Uint8 skin, Uint8 leavewhich
     }
 
     // Stuff that must be set
-    ChrList[ichr].model = profile;
-    ChrList[ichr].stoppedby = CapList[profile].stoppedby;
-    ChrList[ichr].lifeheal = CapList[profile].lifeheal;
-    ChrList[ichr].manacost = CapList[profile].manacost;
+    pchr->model = profile;
+    pchr->stoppedby = pcap->stoppedby;
+    pchr->lifeheal = pcap->lifeheal;
+    pchr->manacost = pcap->manacost;
 
     // Ammo
-    ChrList[ichr].ammomax = CapList[profile].ammomax;
-    ChrList[ichr].ammo = CapList[profile].ammo;
+    pchr->ammomax = pcap->ammomax;
+    pchr->ammo = pcap->ammo;
 
     // Gender
-    if ( CapList[profile].gender != GENRANDOM )  // GENRANDOM means keep old gender
+    if ( pcap->gender != GENRANDOM )  // GENRANDOM means keep old gender
     {
-        ChrList[ichr].gender = CapList[profile].gender;
+        pchr->gender = pcap->gender;
     }
 
     for ( tnc = 0; tnc < SOUND_COUNT; tnc++ )
     {
-        ChrList[ichr].soundindex[tnc] = CapList[profile].soundindex[tnc];
+        pchr->soundindex[tnc] = pcap->soundindex[tnc];
     }
 
     // AI stuff
-    ChrList[ichr].ai.type = MadList[profile].ai;
-    ChrList[ichr].ai.state = 0;
-    ChrList[ichr].ai.timer = 0;
+    pchr->ai.type = pmad->ai;
+    pchr->ai.state = 0;
+    pchr->ai.timer = 0;
 
-    ChrList[ichr].latchx = 0;
-    ChrList[ichr].latchy = 0;
-    ChrList[ichr].latchbutton = 0;
-    ChrList[ichr].turnmode = TURNMODEVELOCITY;
+    pchr->latchx = 0;
+    pchr->latchy = 0;
+    pchr->latchbutton = 0;
+    pchr->turnmode = TURNMODEVELOCITY;
 
     // Flags
-    ChrList[ichr].stickybutt = CapList[profile].stickybutt;
-    ChrList[ichr].openstuff = CapList[profile].canopenstuff;
-    ChrList[ichr].transferblend = CapList[profile].transferblend;
-    ChrList[ichr].platform = CapList[profile].platform;
-    ChrList[ichr].isitem = CapList[profile].isitem;
-    ChrList[ichr].invictus = CapList[profile].invictus;
-    ChrList[ichr].ismount = CapList[profile].ismount;
-    ChrList[ichr].cangrabmoney = CapList[profile].cangrabmoney;
-    ChrList[ichr].jumptime = JUMPDELAY;
+    pchr->stickybutt = pcap->stickybutt;
+    pchr->openstuff = pcap->canopenstuff;
+    pchr->transferblend = pcap->transferblend;
+    pchr->platform = pcap->platform;
+    pchr->isitem = pcap->isitem;
+    pchr->invictus = pcap->invictus;
+    pchr->ismount = pcap->ismount;
+    pchr->cangrabmoney = pcap->cangrabmoney;
+    pchr->jumptime = JUMPDELAY;
 
     // Character size and bumping
-    ChrList[ichr].shadowsize = (Uint8)(CapList[profile].shadowsize * ChrList[ichr].fat);
-    ChrList[ichr].bumpsize = (Uint8) (CapList[profile].bumpsize * ChrList[ichr].fat);
-    ChrList[ichr].bumpsizebig = CapList[profile].bumpsizebig * ChrList[ichr].fat;
-    ChrList[ichr].bumpheight = CapList[profile].bumpheight * ChrList[ichr].fat;
+    pchr->shadowsize = (Uint8)(pcap->shadowsize * pchr->fat);
+    pchr->bumpsize = (Uint8) (pcap->bumpsize * pchr->fat);
+    pchr->bumpsizebig = pcap->bumpsizebig * pchr->fat;
+    pchr->bumpheight = pcap->bumpheight * pchr->fat;
 
-    ChrList[ichr].shadowsizesave = CapList[profile].shadowsize;
-    ChrList[ichr].bumpsizesave = CapList[profile].bumpsize;
-    ChrList[ichr].bumpsizebigsave = CapList[profile].bumpsizebig;
-    ChrList[ichr].bumpheightsave = CapList[profile].bumpheight;
+    pchr->shadowsizesave = pcap->shadowsize;
+    pchr->bumpsizesave = pcap->bumpsize;
+    pchr->bumpsizebigsave = pcap->bumpsizebig;
+    pchr->bumpheightsave = pcap->bumpheight;
 
-    ChrList[ichr].bumpdampen = CapList[profile].bumpdampen;
+    pchr->bumpdampen = pcap->bumpdampen;
 
-    if ( CapList[profile].weight == 0xFF )
+    if ( pcap->weight == 0xFF )
     {
-        ChrList[ichr].weight = 0xFFFFFFFF;
+        pchr->weight = 0xFFFFFFFF;
     }
     else
     {
-        int itmp = CapList[profile].weight * ChrList[ichr].fat * ChrList[ichr].fat * ChrList[ichr].fat;
-        ChrList[ichr].weight = MIN( itmp, 0xFFFFFFFE );
+        int itmp = pcap->weight * pchr->fat * pchr->fat * pchr->fat;
+        pchr->weight = MIN( itmp, 0xFFFFFFFE );
     }
 
     // Character scales...  Magic numbers
-    if ( ChrList[ichr].attachedto != MAX_CHR )
+    if ( VALID_CHR(pchr->attachedto) )
     {
-        int i;
-        Uint16 iholder = ChrList[ichr].attachedto;
-        int    vrt_off = slot_to_grip_offset(ChrList[ichr].inwhich_slot);
-        tnc = MadList[ChrList[iholder].inst.imad].md2.vertices - vrt_off;
-
-        for (i = 0; i < GRIP_VERTS; i++)
-        {
-            if (tnc + i < MadList[ChrList[iholder].inst.imad].md2.vertices )
-            {
-                ChrList[ichr].weapongrip[i] = tnc + i;
-            }
-            else
-            {
-                ChrList[ichr].weapongrip[i] = 0xFFFF;
-            }
-        }
+        set_weapongrip( ichr, pchr->attachedto, slot_to_grip_offset(pchr->inwhich_slot) );
     }
 
-    item = ChrList[ichr].holdingwhich[SLOT_LEFT];
-    if ( item != MAX_CHR )
+    item = pchr->holdingwhich[SLOT_LEFT];
+    if ( VALID_CHR(item) )
     {
-        int i;
-
-        tnc = MadList[ChrList[ichr].inst.imad].md2.vertices - GRIP_LEFT;
-
-        for (i = 0; i < GRIP_VERTS; i++)
-        {
-            if (tnc + i < MadList[ChrList[ichr].inst.imad].md2.vertices )
-            {
-                ChrList[item].weapongrip[i] = i + tnc;
-            }
-            else
-            {
-                ChrList[item].weapongrip[i] = 0xFFFF;
-            }
-        }
+        set_weapongrip( item, ichr, GRIP_LEFT );
     }
 
-    item = ChrList[ichr].holdingwhich[SLOT_RIGHT];
-    if ( item != MAX_CHR )
+    item = pchr->holdingwhich[SLOT_RIGHT];
+    if ( VALID_CHR(item) )
     {
-        int i;
-
-        tnc = MadList[ChrList[ichr].inst.imad].md2.vertices - GRIP_RIGHT;
-
-        for (i = 0; i < GRIP_VERTS; i++)
-        {
-            if (tnc + i < MadList[ChrList[ichr].inst.imad].md2.vertices )
-            {
-                ChrList[item].weapongrip[i] = i + tnc;
-            }
-            else
-            {
-                ChrList[item].weapongrip[i] = 0xFFFF;
-            }
-        }
+        set_weapongrip( item, ichr, GRIP_RIGHT );
     }
+
 
     // Image rendering
-    ChrList[ichr].uoffvel = CapList[profile].uoffvel;
-    ChrList[ichr].voffvel = CapList[profile].voffvel;
+    pchr->uoffvel = pcap->uoffvel;
+    pchr->voffvel = pcap->voffvel;
 
     // Movement
-    ChrList[ichr].sneakspd = CapList[profile].sneakspd;
-    ChrList[ichr].walkspd = CapList[profile].walkspd;
-    ChrList[ichr].runspd = CapList[profile].runspd;
+    pchr->sneakspd = pcap->sneakspd;
+    pchr->walkspd = pcap->walkspd;
+    pchr->runspd = pcap->runspd;
 
     // AI and action stuff
-    ChrList[ichr].actionready = btrue;
-    ChrList[ichr].keepaction = bfalse;
-    ChrList[ichr].loopaction = bfalse;
-    ChrList[ichr].action = ACTION_DA;
-    ChrList[ichr].nextaction = ACTION_DA;
-    ChrList[ichr].holdingweight = 0;
-    ChrList[ichr].onwhichplatform = MAX_CHR;
+    pchr->actionready = btrue;
+    pchr->keepaction = bfalse;
+    pchr->loopaction = bfalse;
+    pchr->action = ACTION_DA;
+    pchr->nextaction = ACTION_DA;
+    pchr->holdingweight = 0;
+    pchr->onwhichplatform = MAX_CHR;
 
     // initialize the instance
-    chr_instance_init( &(ChrList[ichr].inst), profile, skin );
+    chr_instance_init( &(pchr->inst), profile, skin );
 
     // Set the skin
     change_armor( ichr, skin );
 
     // Reaffirm them particles...
-    ChrList[ichr].reaffirmdamagetype = CapList[profile].attachedprtreaffirmdamagetype;
+    pchr->reaffirmdamagetype = pcap->attachedprtreaffirmdamagetype;
     reaffirm_attached_particles( ichr );
 }
 

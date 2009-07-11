@@ -29,7 +29,9 @@
 #include "char.h"
 #include "mad.h"
 #include "game.h"
+#include "input.h"
 
+#include "egoboo_setup.h"
 #include "egoboo.h"
 
 #include <SDL_opengl.h>
@@ -446,6 +448,32 @@ void render_one_mad( Uint16 character, Uint8 trans )
     {
         render_one_mad_tex( character, trans );
     }
+
+    // draw the object bounding box as a part of the graphics debug mode F7
+    if( cfg.dev_mode && SDLKEYDOWN( SDLK_F7 ) )
+    {
+        GL_DEBUG(glDisable)( GL_TEXTURE_2D );
+        {
+            int cnt;
+            aabb_t bb;
+
+            for( cnt = 0; cnt < 3; cnt++ )
+            {
+                bb.mins[cnt] = bb.maxs[cnt] = pchr->pos.v[cnt];
+            }
+
+            bb.mins[XX] -= pchr->bumpsize;
+            bb.mins[YY] -= pchr->bumpsize;
+
+            bb.maxs[XX] += pchr->bumpsize;
+            bb.maxs[YY] += pchr->bumpsize;
+            bb.maxs[ZZ] += pchr->bumpheight;
+
+            GL_DEBUG(glColor4f)(1,1,1,1);
+            bbox_gl_draw( &bb );
+        }
+        GL_DEBUG(glEnable)( GL_TEXTURE_2D );
+    }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -757,5 +785,3 @@ bool_t chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vmax 
 
     return btrue;
 }
-
-
