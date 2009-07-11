@@ -31,8 +31,8 @@ Dexterity increase per level ( eg. 0-1 )	: 0
 // More physical attributes
 Size ( eg. 1.0 )				: 1.0
 Size increase per level ( eg. 0.05 )		: 0.05
-Shadow size ( eg. 30, 0 is none )		: 10
-Bump size ( eg. 30 )				: 40
+Shadow size ( eg. 30, 0 is none )		: 2
+Bump size ( eg. 30 )				: 2
 Bump height ( eg. 70 )				: 220
 Bump dampen ( 0.0 to 1.0, lower is massive )	: 0.0
 Weight ( 0 to 255 )				: 255
@@ -50,7 +50,7 @@ Sheen ( 0 - 15, 0 is dull, 15 is shiny )	: 0
 Phong mapping ( TRUE or FALSE )			: FALSE
 Texture X movement rate ( eg. 0.0 )		: 0.0
 Texture Y movement rate ( eg. 0.0 )		: 0.0
-Conform to hills like a chair ( TRUE or FALSE )	: TRUE
+Conform to hills like a chair ( TRUE or FALSE )	: FALSE
 
 
 // Invulnerability data
