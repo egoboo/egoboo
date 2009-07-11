@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <assert.h>
+#include <memory.h>
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -24,7 +25,7 @@ void handle_gl_error()
     GLint err = glGetError();
     if (GL_NO_ERROR != err)
     {
-        const char * err_str = gluErrorString(err);
+        const GLubyte * err_str = gluErrorString(err);
         fprintf(LOCAL_STDERR, "%s (\"%s\" - %d)- %s\n", next_cmd, next_file, next_line, err_str );
     }
 };

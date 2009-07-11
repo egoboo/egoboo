@@ -152,7 +152,7 @@ void SDLX_output_sdl_gl_attrib( SDLX_sdl_gl_attrib_t * patt )
 }
 
 //------------------------------------------------------------------------------
-SDLX_output_sdl_video_flags( SDLX_sdl_video_flags_t flags )
+void SDLX_output_sdl_video_flags( SDLX_sdl_video_flags_t flags )
 {
     fprintf( LOCAL_STDOUT, "\nSDL flags\n" );
 
@@ -387,7 +387,7 @@ SDL_Surface * SDLX_RequestVideoMode( SDLX_video_parameters_t * v, SDL_bool make_
     }
     else
     {
-        int actual_multi_buffers = 0;
+        int actual_multi_buffers = 0;                      // ignored in linux
         int buffer_size = v->gl_att.buffer_size;
 
         if ( 0 == buffer_size ) buffer_size = v->depth;
@@ -577,7 +577,7 @@ void SDLX_report_mode( SDL_Surface * surface, SDLX_video_parameters_t * v )
     else
     {
         fprintf( LOCAL_STDOUT, "\n==============================================================\n" );
-        fprintf( LOCAL_STDOUT, "SDL set video mode to the current parameters\n", SDL_GetError() );
+        fprintf( LOCAL_STDOUT, "SDL set video mode to the current parameters\n" );
         fprintf( LOCAL_STDOUT, "\nSDL window parameters\n" );
 
         // report the SDL screen info
