@@ -1,0 +1,7 @@
+// This file contains passage rectangles, which are areas that behave like
+// an invisible wall when closed or a floor when open.  Passages are used
+// primarily in doors, but could have other uses.
+//             TopleftXY  BottomrightXY  Open    ShootThrough  SlippyClose
+0 LampShop:    8  34      9  35          T       T             F
+1 GeneralShop: 9  40      14  44         T       T             F
+2 CarpetShop:  15 38     17  39          T       T             F

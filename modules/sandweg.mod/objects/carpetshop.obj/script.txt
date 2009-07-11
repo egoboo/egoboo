@@ -34,58 +34,8 @@ IfSpawned
   tmpargument = STATEGUARD
   SetState
   
-  //Spawn the shop goods
-  tmpargument = 44          //lamp
-  tmpx = selfx + 128
-  tmpy = selfy + 100
-  tmpdistance = selfz
-  tmpturn = rand
-  SpawnExactCharacterXYZ
-  
-  tmpargument = 49          //oil
-  tmpx = selfx + 64
-  tmpy = selfy - 100
-  tmpdistance = selfz
-  tmpturn = rand
-  SpawnExactCharacterXYZ
-  
-  tmpx = rand & 123
-  tmpy = 18
-  IfXIsMoreThanY
-    tmpargument = 47          //normal torch
-  Else
-    tmpargument = 48          //15% chance for magic torch!
-  tmpx = selfx + 64
-  tmpy = selfy + 100
-  tmpdistance = selfz
-  tmpturn = 0
-  SpawnExactCharacterXYZ
-  
-  tmpargument = 49          //oil
-  tmpx = selfx + 128
-  tmpy = selfy - 100
-  tmpdistance = selfz
-  tmpturn = rand
-  SpawnExactCharacterXYZ
-  
-  tmpx = rand % 100
-  tmpy = 40
-  IfXIsLessThanY
-    DropItems           //40% chance for Light spell book
-  Else
-    tmpargument = 44        //lamp
-    tmpx = selfx + 64
-    tmpy = selfy
-    tmpdistance = selfz
-    tmpturn = rand
-    SpawnExactCharacterXYZ
-
-  tmpargument = 47         //normal torch
-  tmpx = selfx + 128
-  tmpy = selfy
-  tmpdistance = selfz
-  tmpturn = rand
-  SpawnExactCharacterXYZ
+  //Place the carpet
+  DropItems
   
   
 //------------------------------------------------------------------------------

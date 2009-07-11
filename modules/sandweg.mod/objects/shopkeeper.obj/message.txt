@@ -1,0 +1,7 @@
+Message 0: %t_put_out_the_shopkeeper's_light...
+Message 1: The_shop_keeper_looks_better...
+Message 2: Special_price_for_you,_my_friend!
+Message 3: Here_is_your_money._(%x_Zenny)
+Message 4: Pleasure_doing_business._(%x_Zenny)
+Message 5: You_need_more_money!_(%x_Zenny)
+Message 6: I_do_not_buy_those..

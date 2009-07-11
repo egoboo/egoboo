@@ -61,6 +61,7 @@ SLOT  OBJECT
 98    Poisoned Katana
 99    Darkness Amulet (Kursed!)
 100   Weapon Rack
+101   Normal Carpet (Rug)
 109   Book of Shock
 110   Book of Haste
 111   Book of Battleward

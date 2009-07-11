@@ -1,0 +1,126 @@
+//------------------------------------------------------------------------------
+IfSpawned
+  Walk				//Dont run around
+  tmpargument = STATEWANDER
+  SetState
+  
+  //Setup waypoints
+  tmpargument = 0         //Town square
+  tmpx = 3000
+  tmpy = 4580
+  SetXY
+  
+  tmpargument = 1         //Outside gates
+  tmpx = 4580
+  tmpy = 4340
+  SetXY
+  
+  tmpargument = 2         //At the well
+  tmpx = 1570
+  tmpy = 3909
+  SetXY
+  
+  tmpargument = 3         //Kabob shop
+  tmpx = 2000
+  tmpy = 4200
+  SetXY
+
+  tmpargument = 4         //Divine place
+  tmpx = 2500
+  tmpy = 3400
+  SetXY
+  
+  tmpargument = 5         //Carpet shop
+  tmpx = 2000
+  tmpy = 4300
+  SetXY
+  
+//------------------------------------------------------------------------------
+IfHealed
+  tmpargument = 7
+  SendMessageNear
+
+//------------------------------------------------------------------------------
+// Get mean if characters wanna be bad
+IfAttacked
+  Run
+  SetTargetToWhoeverAttacked
+  IfTargetIsAPlayer
+    CallForHelp
+    tmpargument = 5     //Team Evil
+    TargetJoinTeam
+    tmpargument = STATERETREAT
+    SetState
+    SetTime
+  tmpargument = 2
+  PlaySound
+IfCalledForHelp
+  Walk
+IfKilled
+  CallForHelp			//Warn friends
+
+//------------------------------------------------------------------------------
+// ZZ> Handle normal state
+IfTimeOut
+
+  //Wander around town
+  IfStateIsWander
+    SetTargetToWideEnemy		//Enemy near, go combat mode
+      tmpargument = STATERETREAT
+      SetState
+      CallForHelp
+    Else
+      tmpargument = rand % 6                  //Randomize waypoint
+      GetXY
+      tmpx = rand & 1023 + tmpx - 512
+      tmpy = rand & 1023 + tmpy - 512
+      ClearWaypoints
+      AddWaypoint
+      tmpargument = rand % 150 + 350
+      SetTime
+
+          
+  //Run away in panic
+  IfStateIsRetreat
+    Run
+    SetTargetToNearbyEnemy
+      CallForHelp
+
+    tmpx = rand & 1023 + targetx - 512
+    tmpy = rand & 1023 + targety - 512
+    tmpdistance = -1500
+    tmpturn = targetturnto
+    Compass
+    ClearWaypoints
+    AddWaypoint
+    tmpargument = 75
+    SetTime
+    
+    //Return to shopkeeping mode if everything seems normal again
+    SetTargetToNearestEnemy
+      tmpx = targetdistance
+      tmpy = 128*16
+      IfXIsMoreThanY
+        tmpargument = STATEWANDER
+        SetState        
+    
+
+//------------------------------------------------------------------------------
+//What to do if bumped
+IfBumped
+  SetTargetToWhoeverBumped
+  IfStateIsWander
+    tmpx = rand & 1023 + targetx - 512
+    tmpy = rand & 1023 + targety - 512
+    ClearWaypoints
+    AddWaypoint
+    
+    //Eek!
+    IfTargetIsOnHatedTeam
+      tmpargument = STATERETREAT
+      SetState
+      SetTime
+
+//------------------------------------------------------------------------------
+End
+//------------------------------------------------------------------------------
