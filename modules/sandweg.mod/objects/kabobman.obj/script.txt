@@ -26,6 +26,11 @@ IfCalledForHelp
   Walk
 IfKilled
   CallForHelp			//Warn friends
+  IfTargetIsAPlayer
+    tmpargument = 5
+    TargetJoinTeam
+  tmpargument = 0
+  SendMessageNear
 
 //------------------------------------------------------------------------------
 // ZZ> Handle normal state
@@ -65,7 +70,7 @@ IfTimeOut
             tmpargument = 2
             SendMessageNear
             PlaySound
-            tmpargument = 6   //Wait 6 seconds before doing again
+            tmpargument = 8   //Wait 8 seconds before doing again
             SetContent
             
             //Animate
@@ -107,7 +112,7 @@ IfBumped
       tmpargument = 2
       SendMessageNear
       PlaySound
-      tmpargument = 10
+      tmpargument = 12
       SetContent
 
 //------------------------------------------------------------------------------
