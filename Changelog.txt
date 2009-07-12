@@ -1,4 +1,6 @@
 Version 2.7.4 (??.??.2009)
+- New Feature: New town module! Visit Sandweg city in the deserts and taste the juicy Kabobs!
+- New Feature: Another new music track by Edward Blakely!
 - New Feautre: 4 new divine spell runes.
 - New Feature: Added a new secret class into the game - The Tourist Starter!
 - New Feature: The first Hero class has been added - The Archmage! The Hero class system 

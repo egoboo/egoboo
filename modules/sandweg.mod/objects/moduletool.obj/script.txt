@@ -5,7 +5,7 @@ IfSpawned
   ShowYouAreHere
 
   //Play music
-  tmpargument = 4
+  tmpargument = 26
   tmpdistance = 0
   PlayMusic
   
