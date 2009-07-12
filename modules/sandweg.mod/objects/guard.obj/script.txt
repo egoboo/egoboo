@@ -54,7 +54,7 @@ IfCalledForHelp
 //------------------------------------------------------------------------------
 //Handle the AI
 IfTimeOut
-  tmpargument = 25
+  tmpargument = 20 + rand & 15
   SetTime
 
   //Guard

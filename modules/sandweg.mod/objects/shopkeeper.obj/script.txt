@@ -246,7 +246,27 @@ IfSpawned
 IfHealed
   tmpargument = 1
   SendMessageNear
-
+  
+//------------------------------------------------------------------------------
+//Use scimitar to parry!
+IfStateIsCombat
+  IfTargetIsOnHatedTeam
+    IfTargetIsAttacking
+      IfFacingTarget
+        tmpx = targetdistance
+        tmpy = 200
+        IfXIsLessThanY
+          tmpargument = STATEPARRY
+          SetState
+IfStateIsParry
+  SetTargetToWideEnemy
+  SetTurnModeToWatchTarget
+  tmpargument = ACTIONPC
+  DoAction
+  KeepAction
+  tmpargument = 25
+  SetTime
+  
 //------------------------------------------------------------------------------
 // Get mean if characters wanna be bad
 IfAttacked
@@ -272,6 +292,12 @@ IfKilled
 IfTimeOut
   tmpargument = 50
   SetTime
+  
+  //Stop parrying
+  IfStateIsParry
+    tmpargument = STATECOMBAT
+    SetState
+    SetTurnModeToVelocity
 
   //Shopkeeping
   IfStateIsGuard
@@ -316,11 +342,21 @@ IfTimeOut
         IfXIsLessThanY
           IfHoldingMeleeWeapon
             PressLatchButton
+        Else
+          IfHoldingRangedWeapon
+            PressLatchButton
       
-      //Draw weapon
+      //Draw weapons
       IfUnarmed
-        tmpargument = LATCHPACKRIGHT
+        tmpargument = LATCHPACKRIGHT      //Scimitar
         PressLatchButton
+      Else
+        IfHoldingRangedWeapon
+          DoNothing
+        Else
+          tmpargument = LATCHPACKLEFT     //Xbow
+          PressLatchButton
+          
         
     //No nearby enemies
     Else    

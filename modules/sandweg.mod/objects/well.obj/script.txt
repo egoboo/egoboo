@@ -1,10 +1,6 @@
-IfSpawned
-  tmpargument = 0
-  SetState
-
 IfBumped
   SetTargetToWhoeverBumped
-  IfTargetCanOpenStuff
+  IfTargetIsAPlayer
     IfTimeOut
       tmpargument = 0
       SendMessageNear

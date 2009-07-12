@@ -5,3 +5,4 @@
 0 LampShop:    8  34      9  35          T       T             F
 1 GeneralShop: 9  40      14  44         T       T             F
 2 CarpetShop:  15 38     17  39          T       T             F
+3 SandShop:    26 30     27  32          T       T             F

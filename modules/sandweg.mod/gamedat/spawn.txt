@@ -55,19 +55,24 @@ lampshop.obj:   NONE    45  8.8   35.0   0.0   E    0   0  0   0   0   F   F   G
 touristguide.obj:   NONE    52  29.0   35.5   0.0   S    0   0  0   0   0   F   F   G
 
 shopkeeper.obj:   NONE    53  12.0   42.5   0.0   ?    0   0  1   0   0   F   F   G
+  scimitar.obj:   NONE    92  0.0   0.0   0.0   I    0   0  0   0   0   F   F   Null
+  xbow.obj:   NONE    71  0.0   0.0   0.0   I    0   0  0   0   0   F   F   Null
 
 peasant.obj:   NONE    103  16.5   37.5   0.0   ?    0   0  0   0   0   F   F   G
 peasant.obj:   NONE    103  26.5   38.5   0.0   ?    1   1  0   0   0   F   F   G
 peasant.obj:   NONE    103  24.0   31.0   0.0   ?    2   2  0   0   0   F   F   G
 peasant.obj:   NONE    103  20.5   35.5   0.0   ?    4   3  0   0   0   F   F   G
 
+tent.obj:   NONE    43  28.0   31.25   0.0   ?    0   0  0   0   0   F   F   N
+sandshop.obj:   NONE    105  27.0   31.0   0.0   E    0   0  3   0   0   F   F   G
+
 tent.obj:   NONE    43  16.5   40.5   0.0   N    0   1  0   0   0   F   F   N
 carpetshop.obj:   NONE    102  16.5   39.5   0.0   N    0   0  2   0   0   F   F   G
   carpet.obj:   NONE    101  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-carpet.obj:   NONE    101  18.0   39.5   0.0   N    0   0  0   0   0   F   F   N
-carpet.obj:   NONE    101  17.8   39.0   0.0   N    0   0  0   0   0   F   F   N
-carpet.obj:   NONE    101  15.5   38.5   0.0   N    0   0  0   0   0   F   F   N
-carpet.obj:   NONE    101  18.0   38.5   0.0   N    0   0  0   0   0   F   F   N
+carpet.obj:   NONE    101  18.0   39.5   0.0   N    0   0  0   1   0   F   F   N
+carpet.obj:   NONE    101  17.8   39.0   0.0   N    0   1  0   1   0   F   F   N
+carpet.obj:   NONE    101  15.5   38.5   0.0   N    0   2  0   1   0   F   F   N
+carpet.obj:   NONE    101  18.0   38.5   0.0   N    0   3  0   1   0   F   F   N
 carpet.obj:   NONE    101  15.5   39.5   0.0   N    0   0  0   0   0   F   F   N
 carpet.obj:   NONE    101  16.0   39.0   0.0   N    0   0  0   0   0   F   F   N
 
