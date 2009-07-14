@@ -80,6 +80,9 @@ SLOT  OBJECT
 125   Rune of Exorcism
 127   *RESERVED FOR BOOK.OBJ*
 129   Rune of Holybolt
+131   Scythe
+132   Mallet
+133   Rebirth
 140   Scroll of Truesight
 158   Ring of Protection
 160   The Tourist's Guide to Bishopia

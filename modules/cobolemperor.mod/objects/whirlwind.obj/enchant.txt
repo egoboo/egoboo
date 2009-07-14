@@ -9,7 +9,7 @@ End message ( -1 for none )			: -1
 
 
 // Enchantment draining/sustaining
-Owner's mana boost each second ( -1.0 to 1.0 )	: -0.25
+Owner's mana boost each second ( -1.0 to 1.0 )	: -0.45
 Target's mana boost each second ( -1.0 to 1.0 ) : 0.0
 End if mana can't be payed ( TRUE or FALSE )	: TRUE
 Owner's life boost each second ( -1.0 to 1.0 )	: 0.0
