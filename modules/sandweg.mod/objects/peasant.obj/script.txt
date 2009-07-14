@@ -3,7 +3,7 @@ IfSpawned
   Walk				//Dont run around
   tmpargument = STATEWANDER
   SetState
-  
+
   //Setup waypoints
   tmpargument = 0         //Town square
   tmpx = 3000
@@ -35,6 +35,11 @@ IfSpawned
   tmpy = 4800
   SetXY
   
+  tmpargument = 6         //Outside divine place
+  tmpx = 2944
+  tmpy = 2688
+  SetXY
+
 //------------------------------------------------------------------------------
 IfHealed
   tmpargument = 7
@@ -70,7 +75,7 @@ IfTimeOut
       SetState
       CallForHelp
     Else
-      tmpargument = rand % 6                  //Randomize waypoint
+      tmpargument = rand % 7                  //Randomize waypoint
       GetXY
       tmpx = rand & 1023 + tmpx - 512
       tmpy = rand & 1023 + tmpy - 512

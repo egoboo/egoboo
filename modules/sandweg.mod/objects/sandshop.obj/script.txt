@@ -27,7 +27,7 @@ IfOrdered
 IfSpawned
 
   tmpx = rand % 100
-  tmpy = 100 //40
+  tmpy = 40
   IfXIsMoreThanY        //There is only a 40% chance the shop will actually be here
     GoPoof
   Else

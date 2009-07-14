@@ -140,7 +140,7 @@ LandMine:  NONE    120    34.5 37.5 0    N   0   0   0   198 0   F   F   Null
 
 ItemChest: NONE     43    47.5 27.5 0    W   0   0   0   1   0   F   F   Null
   SShoes:  NONE     52    0    0    0    I   0   0   0   0   0   F   F   Null
-  SyphonMana:  NONE     57    0    0    0    I   0   0   0   0   0   F   F   Null
+  SyphonMana:  NONE     112    0    0    0    I   0   0   0   0   0   F   F   Null
 ItemChest: NONE     43    47.5 34.5 0    N   24  0   0   2   0   F   F   Null
   FBrace:  NONE     50    0    0    0    I   0   0   0   0   0   F   F   Null
   KurScroll: NONE     53    0    0    0    I   0   0   0   0   0   F   F   Null

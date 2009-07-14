@@ -8,6 +8,20 @@ IfSpawned
   tmpargument = 26
   tmpdistance = 0
   PlayMusic
+
+IfTimeOut
+  SetTargetToSelf
+  tmpargument = 25
+  SetTime
   
-  GoPoof
+  tmpargument = passage + 1
+  SetTargetToWhoeverIsInPassage
+  tmpargument = [GOOD]
+  IfTargetHasID
+    tmpargument = passage
+    OpenPassage
+  Else
+    tmpargument = passage
+    ClosePassage
+    
 End					// All done

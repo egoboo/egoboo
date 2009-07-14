@@ -35,7 +35,7 @@ unknown:   NONE    32  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 unknown:   NONE    33  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 unknown:   NONE    34  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 unknown:   NONE    35  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-moduletool.obj:   NONE    126  24.5   30.5   1.0   N    0   0  0   0   0   F   F   N
+moduletool.obj:   NONE    126  24.5   30.5   1.0   N    0   0  4   0   0   F   F   N
 
 stonebridge.obj:   NONE    36  31.5   37.5   0.0   N    0   0  0   0   0   F   F   N
 well.obj:   NONE    39  13.0   35.0   1.0   N    0   0  0   0   0   F   F   N
@@ -55,18 +55,22 @@ lampshop.obj:   NONE    45  8.8   35.0   0.0   E    0   0  0   0   0   F   F   G
 
 touristguide.obj:   NONE    52  29.0   35.5   0.0   S    0   0  0   0   0   F   F   G
 
+//Big shop
 shopkeeper.obj:   NONE    53  12.0   42.5   0.0   ?    0   0  1   0   0   F   F   G
   scimitar.obj:   NONE    92  0.0   0.0   0.0   I    0   0  0   0   0   F   F   Null
   xbow.obj:   NONE    71  0.0   0.0   0.0   I    0   0  0   0   0   F   F   Null
 
+//Inhabitants
 peasant.obj:   NONE    103  16.5   37.5   0.0   ?    0   0  0   0   0   F   F   G
 peasant.obj:   NONE    103  26.5   38.5   0.0   ?    1   1  0   0   0   F   F   G
 peasant.obj:   NONE    103  24.0   31.0   0.0   ?    2   2  0   0   0   F   F   G
 peasant.obj:   NONE    103  20.5   35.5   0.0   ?    4   3  0   0   0   F   F   G
 
+//Sand shop
 tent.obj:   NONE    43  28.0   31.25   0.0   ?    0   0  0   0   0   F   F   N
 sandshop.obj:   NONE    105  27.0   31.0   0.0   E    0   0  3   0   0   F   F   G
 
+//Carpet shop
 tent.obj:   NONE    43  16.5   40.5   0.0   N    0   1  0   0   0   F   F   N
 carpetshop.obj:   NONE    102  16.5   39.5   0.0   N    0   0  2   0   0   F   F   G
   carpet.obj:   NONE    101  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
@@ -77,6 +81,7 @@ carpet.obj:   NONE    101  18.0   38.5   0.0   N    0   3  0   1   0   F   F   N
 carpet.obj:   NONE    101  15.5   39.5   0.0   N    0   0  0   0   0   F   F   N
 carpet.obj:   NONE    101  16.0   39.0   0.0   N    0   0  0   0   0   F   F   N
 
+//The town watch
 guard.obj:   NONE    104  37.5   35.5   0.0   E    0   0  0   0   0   F   F   G
   spear.obj:   NONE    51  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 guard.obj:   NONE    104  24.5   42.0   0.0   E    0   0  0   0   0   F   F   G
@@ -92,6 +97,11 @@ guard.obj:   NONE    104  9.5   16.5   0.0   N    0   0  0   0   0   F   F    G
 guard.obj:   NONE    104  17.5   43.5   0.0   W    0   0  0   0   0   F   F   N
   xbow.obj:   NONE    71  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 
-dustdevil.obj:   NONE    113  15.5   9.5   1.0   N    0   0  0   0   0   F   F   D
-dustdevil.obj:   NONE    113  18.5   8.5   2.0   N    0   1  0   0   0   F   F   D
-dustdevil.obj:   NONE    113  13.5   6.5   1.0   N    0   2  0   0   0   F   F   D
+//Divine shop
+gate.obj:   NONE    40  23.0   18.0   0.0   N    0   0  4   0   0   F   F   N
+divineshop.obj:   NONE    108  23.0   13.5   0.0   ?    0   0  6   0   0   F   F   G
+
+//Dangers outside
+dustdevil.obj:   NONE    113  46.5   52.5   1.0   N    0   0  0   0   0   F   F   D
+dustdevil.obj:   NONE    113  53.5   59.5   1.0   N    0   1  0   0   0   F   F   D
+dustdevil.obj:   NONE    113  54.5   49.5   1.0   N    0   2  0   0   0   F   F   D

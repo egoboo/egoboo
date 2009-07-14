@@ -65,6 +65,7 @@ SLOT  OBJECT
 109   Book of Shock
 110   Book of Haste
 111   Book of Battleward
+112   Rune of Syphon Mana
 114   Orb of Metamorph
 115   Orb of Meteor Swarm
 116   Orb of Dark Ritual
@@ -72,7 +73,13 @@ SLOT  OBJECT
 118   Orb of Arcane Nova
 119   Orb of Disintergrate   
 120   Orb of Wonder
+121   Symbol of Turning
+122   Rune of Combat Blessing
 123   Ammobox
+124   Rune of Regeneration
+125   Rune of Exorcism
 127   *RESERVED FOR BOOK.OBJ*
+129   Rune of Holybolt
+140   Scroll of Truesight
 158   Ring of Protection
 160   The Tourist's Guide to Bishopia

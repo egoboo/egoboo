@@ -26,7 +26,7 @@ IfOrdered
 //------------------------------------------------------------------------------
 IfSpawned
   tmpx = rand % 100
-  tmpy = 100 //75
+  tmpy = 75
   IfXIsMoreThanY              //A 75% chance that we are here
     SetTargetToSelf
     SetTargetToTargetRightHand

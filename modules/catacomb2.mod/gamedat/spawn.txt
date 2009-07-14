@@ -182,19 +182,19 @@ shutdoor.obj:   NONE    49  65.0   15.0   1.0   N    0   0  44   0   0   F   F  
 shutdoor.obj:   NONE    49  24.0   27.0   1.0   W    0   0  0   0   0   F   F   N
 
 //The zombi room
-body.obj:   NONE    75  74.0   37.0   1.0   E    1   0  0   0   0   F   F   E
-body.obj:   NONE    75  75.3   37.0   1.0   W    2   0  0   0   0   F   F   E
-body.obj:   NONE    75  74.3   34.3   1.0   W    0   0  0   0   0   F   F   E
-body.obj:   NONE    75  76.3   35.0   1.0   N    3   0  0   0   0   F   F   E
-body.obj:   NONE    75  77.3   37.5   1.0   S    0   0  0   0   0   F   F   E
-body.obj:   NONE    75  74.0   36.0   1.0   S    5   0  0   0   0   F   F   E
-body.obj:   NONE    75  77.5   34.5   1.0   E    0   0  0   0   0   F   F   E
-body.obj:   NONE    75  75.5   36.5   1.0   N    4   0  0   0   0   F   F   E
-body.obj:   NONE    75  77.0   36.0   1.0   W    0   0  0   0   0   F   F   E
-body.obj:   NONE    75  76.0   36.0   1.0   W    6   0  0   0   0   F   F   E
-body.obj:   NONE    75  76.5   37.5   1.0   N    0   0  0   0   0   F   F   E
-body.obj:   NONE    75  75.0   35.0   1.0   N    7   0  0   0   0   F   F   E
-hrune.obj:   NONE    78  78.0   36.0   1.0   N    0   0  0   0   0   F   F   N
+body.obj:   NONE    75  74.0   37.0   1.0   ?    1   0  0   0   0   F   F   E
+body.obj:   NONE    75  75.3   37.0   1.0   ?    2   0  0   0   0   F   F   E
+body.obj:   NONE    75  74.3   34.3   1.0   ?    0   0  0   0   0   F   F   E
+body.obj:   NONE    75  76.3   35.0   1.0   ?    3   0  0   0   0   F   F   E
+body.obj:   NONE    75  77.3   37.5   1.0   ?    0   0  0   0   0   F   F   E
+body.obj:   NONE    75  74.0   36.0   1.0   ?    5   0  0   0   0   F   F   E
+body.obj:   NONE    75  77.5   34.5   1.0   ?    0   0  0   0   0   F   F   E
+body.obj:   NONE    75  75.5   36.5   1.0   ?    4   0  0   0   0   F   F   E
+body.obj:   NONE    75  77.0   36.0   1.0   ?    0   0  0   0   0   F   F   E
+body.obj:   NONE    75  76.0   36.0   1.0   ?    6   0  0   0   0   F   F   E
+body.obj:   NONE    75  76.5   37.5   1.0   ?    0   0  0   0   0   F   F   E
+body.obj:   NONE    75  75.0   35.0   1.0   ?    7   0  0   0   0   F   F   E
+hrune.obj:   NONE    121  78.0   36.0   0.0   ?    0   0  0   0   0   F   F   N
 
 //Key room
 trigtile.obj:   NONE    72  59.5   40.5   1.0   N    0   0  47   0   0   F   F   E

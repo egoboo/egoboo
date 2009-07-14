@@ -56,7 +56,7 @@
 
 // My lil' random number table
 #define MAXRAND 4096
-#define RANDIE randie[randindex];  randindex = (randindex+1)&(MAXRAND-1)
+#define RANDIE randie[randindex];  randindex = (randindex++)&(MAXRAND-1)
 
 EXTERN Uint16  randindex EQ( 0 );
 EXTERN Uint16  randie[MAXRAND];

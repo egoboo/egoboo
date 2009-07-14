@@ -1,0 +1,123 @@
+// Put the little mana ball on the
+// character's hand
+GetContent
+tmpx = tmpargument
+tmpy = 0
+IfXIsMoreThanY
+  tmpturn = tmpargument < 4 + 3000
+  tmpdistance = SPAWNORIGIN
+  tmpargument = 0
+  SpawnAttachedSizedParticle
+
+// Create the character
+IfSpawned
+  KeepAction
+  MakeCrushValid
+  
+//Hide in hand
+IfHeld			
+  tmpargument = 1
+  SetState
+Else
+  tmpargument = 0
+  SetState
+
+// Remove the charge
+IfTakenOut
+  tmpargument = 0
+  SetContent
+  SetTargetToWhoeverIsHolding
+    IfTargetIsAPlayer
+      tmpargument = 3
+      SendMessageNear
+
+// Allow it to be used
+IfUsed
+  SetTargetToWhoeverIsHolding
+    tmpargument = [HMAG]
+    IfTargetHasSkillID
+      GetContent
+      tmpx = tmpargument
+      tmpy = 768                //3 mana
+      IfXIsLessThanY
+        tmpy = targetmanaflow
+        IfXIsLessThanY
+          tmpx = 7
+          tmpargument = tmpx
+          CostTargetMana
+            GetContent
+            tmpargument = tmpargument + tmpx
+            SetContent
+      
+      // Put particles around the target (If we find one)
+      SetTargetToWideEnemy
+        tmpx = targetx
+        tmpy = targety
+        tmpdistance = targetz
+        tmpargument = 0
+        SpawnExactParticle
+
+// Allow it to be cast or fizzle
+Else
+  GetContent
+  tmpx = tmpargument
+  tmpy = 767
+  IfXIsMoreThanY
+    // Make the holder cast it
+    SetTargetToWhoeverIsHolding
+      SetOwnerToTarget
+      tmpargument = ACTIONZA
+      CorrectActionForHand
+      TargetDoAction
+      
+    // Find a target
+    SetTargetToWideEnemy
+      // Can it be affected?
+      tmpargument = [UNDE]       //Only works vs. undead
+      IfTargetHasAnyID
+        //If not killed by disenchanting, at least do some damage
+        SetOldTarget
+        SetTargetToWhoeverIsHolding
+        tmpargument = 4
+        SendMessageNear
+        tmpargument = targetwis > 1
+        tmpargument = rand % tmpargument + 512       // 2 + 0-1 damage per 2 points of wisdom
+        tmpdistance = DAMAGEHOLY
+        SetTargetToOldTarget
+        DamageTarget
+        DisenchantTarget
+        
+        // Play a sound
+        tmpargument = 0
+        PlaySound
+        tmpargument = 50
+        SetReloadTime
+      
+      Else
+        tmpargument = 2                         //Doesn't work on living things
+        SendMessageNear        
+        tmpargument = 25
+        SetReloadTime
+  
+  
+  Else
+    tmpy = 0
+    IfXIsMoreThanY
+      // Didn't pump it enough
+      tmpargument = 1
+      SendMessageNear
+      
+  // Reset the charge counter
+  tmpargument = 0
+  SetContent
+
+//Dropping the rune
+IfHitGround
+  tmpargument = 1
+  PlaySound  
+  tmpargument = ACTIONDB
+  DoAction
+  tmpargument = 0
+  SetContent
+  
+End

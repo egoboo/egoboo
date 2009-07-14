@@ -1,5 +1,5 @@
-Object slot number ( 0 to 63, don't use twice )	: 78
-Class name     : Holy_Symbol
+Object slot number ( 0 to 63, don't use twice )	: 124
+Class name     : Rune
 Uniform light  : FALSE
 Maximum ammo   : 0
 Current ammo   : 0
@@ -24,7 +24,7 @@ INT up         : 0.00-0.00
 DEX            : 1.00
 DEX up         : 0.00-0.00
 
-Size           : 2.00
+Size           : 1.00
 Size up        : 0.05
 Shadow size    : 7
 Bump size      : 1
@@ -89,20 +89,20 @@ EXPREVENGE     : 2.00
 EXPTEAMWORK    : 0.10
 EXPROLEPLAY    : 1.00
 
-IDSZ Parent    : [RELI]
-IDSZ Type      : [HRUN]
-IDSZ Skill     : [NONE]
+IDSZ Parent    : [RUNE]
+IDSZ Type      : [REST]
+IDSZ Skill     : [HMAG]
 IDSZ Special   : [GOOD]
 IDSZ Hate      : [NONE]
-IDSZ Vulnie    : [RUST]
+IDSZ Vulnie    : [NONE]
 
 Is an item     : TRUE
 Is a mount     : FALSE
 Is stackable   : FALSE
-Name known     : FALSE
+Name known     : TRUE
 Usage known    : TRUE
 Is exportable  : TRUE
-Requires skill : FALSE
+Requires skill : TRUE
 Is platform    : FALSE
 Collects money : FALSE
 Can open stuff : FALSE
@@ -118,7 +118,7 @@ Left valid     : TRUE
 Right valid    : TRUE
 
 Part on weapon : FALSE
-Part type      : 0
+Part type      : -1
 
 Poof amount    : 0
 Facing add     : 0
@@ -131,7 +131,7 @@ Waterwalking   : FALSE
 Bounce dampen  : 0.400
 
 Life healing   : 0.000
-Mana cost      : 0.00 //2.848
+Mana cost      : 0.000
 Life return    : 0
 Stopped by     : 48
 Skin 0 name    : Skin_0
@@ -153,3 +153,11 @@ Can see invisi : FALSE
 Kursed chance  : 0
 Footfall sound : -1
 Jump sound     : -1
+
+:[GOLD] 0
+:[HIDE] 1
+:[PLAT] 1
+:[SKIN] 0
+:[CONT] 0
+:[STAT] 1
+:[LEVL] 0

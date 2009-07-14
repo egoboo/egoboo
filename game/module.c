@@ -334,7 +334,6 @@ bool_t module_upload( module_instance_t * pinst, int imod, Uint32 seed )
     pinst->importvalid    = ( pinst->importamount > 0 );
     pinst->respawnvalid   = ( bfalse != pdata->respawnvalid );
     pinst->respawnanytime = ( ANYTIME == pdata->respawnvalid );
-  //  pinst->rtscontrol     = bfalse;
 
     pinst->active = bfalse;
     pinst->beat   = bfalse;
@@ -364,8 +363,9 @@ bool_t module_start( module_instance_t * pinst )
 
     pinst->active = btrue;
 
-    pinst->randsave = 0;
-    srand( pinst->randsave );
+    srand( pinst->seed );
+	pinst->randsave = rand(); 
+    randindex = rand() % MAXRAND;
 
     PNet->hostactive = btrue; // very important or the input will not work
 
