@@ -91,7 +91,7 @@ EXPROLEPLAY    : 1.00
 
 IDSZ Parent    : [RUNE]
 IDSZ Type      : [REST]
-IDSZ Skill     : [NONE]
+IDSZ Skill     : [HMAG]
 IDSZ Special   : [GOOD]
 IDSZ Hate      : [NONE]
 IDSZ Vulnie    : [NONE]
@@ -102,7 +102,7 @@ Is stackable   : FALSE
 Name known     : TRUE
 Usage known    : TRUE
 Is exportable  : TRUE
-Requires skill : FALSE
+Requires skill : TRUE
 Is platform    : FALSE
 Collects money : FALSE
 Can open stuff : FALSE
@@ -139,9 +139,9 @@ Skin 1 name    : Skin_1
 Skin 2 name    : Skin_2
 Skin 3 name    : Skin_3
 Skin 0 cost    : 100
-Skin 1 cost    : 0
-Skin 2 cost    : 0
-Skin 3 cost    : 0
+Skin 1 cost    : 100
+Skin 2 cost    : 100
+Skin 3 cost    : 100
 STR dampen     : 0.000
 
 No rider attak : FALSE

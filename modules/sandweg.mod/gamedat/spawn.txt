@@ -59,6 +59,12 @@ touristguide.obj:   NONE    52  29.0   35.5   0.0   S    0   0  0   0   0   F   
 shopkeeper.obj:   NONE    53  12.0   42.5   0.0   ?    0   0  1   0   0   F   F   G
   scimitar.obj:   NONE    92  0.0   0.0   0.0   I    0   0  0   0   0   F   F   Null
   xbow.obj:   NONE    71  0.0   0.0   0.0   I    0   0  0   0   0   F   F   Null
+scroll.obj:   NONE    58  14.0   41.0   0.0   E    0   0  0   0   0   F   F   Null
+scroll.obj:   NONE    58  14.0   42.0   0.0   E    0   0  0   0   0   F   F   Null
+scroll.obj:   NONE    58  14.0   43.0   0.0   E    0   0  0   0   0   F   F   Null
+scroll.obj:   NONE    60  10.0   41.0   0.0   W    0   0  0   0   0   F   F   Null
+scroll.obj:   NONE    60  10.0   42.0   0.0   W    0   0  0   0   0   F   F   Null
+scroll.obj:   NONE    60  10.0   43.0   0.0   W    0   0  0   0   0   F   F   Null
 
 //Inhabitants
 peasant.obj:   NONE    103  16.5   37.5   0.0   ?    0   0  0   0   0   F   F   G
@@ -94,7 +100,7 @@ guard.obj:   NONE    104  13.5   16.5   0.0   N    0   0  0   0   0   F   F   G
   trident.obj:   NONE    57  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 guard.obj:   NONE    104  9.5   16.5   0.0   N    0   0  0   0   0   F   F    G
   spear.obj:   NONE    51  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-guard.obj:   NONE    104  17.5   43.5   0.0   W    0   0  0   0   0   F   F   N
+guard.obj:   NONE    104  17.5   43.5   0.0   W    0   0  0   0   0   F   F   G
   xbow.obj:   NONE    71  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 
 //Divine shop
@@ -111,3 +117,10 @@ smallsign.obj:   NONE    130  13.0   8.0   0.0    N    0   0  0   0   0   F   F 
 smallsign.obj:   NONE    130  42.5   39.0   0.0   E    0   0  0   0   0   F   F   N
 smallsign.obj:   NONE    130  25.0   19.5   0.0   S    0   1  0   0   0   F   F   N
 
+chest.obj:   NONE    59  19.0   12.5   0.0   E    2   0  0   96   9   F   F   N
+chest.obj:   NONE    59  19.0   13.5   0.0   E    1   0  0   96   9   F   F   N
+chest.obj:   NONE    59  19.0   14.5   0.0   E    0   0  0   96   9   F   F   N
+
+chest.obj:   NONE    59  27.0   12.5   0.0   W    2   0  0   96   7   F   F   N
+chest.obj:   NONE    59  27.0   13.5   0.0   W    1   0  0   96   7   F   F   N
+chest.obj:   NONE    59  27.0   14.5   0.0   W    0   0  0   96   7   F   F   N

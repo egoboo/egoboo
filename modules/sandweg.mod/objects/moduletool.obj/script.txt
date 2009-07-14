@@ -17,7 +17,7 @@ IfTimeOut
   tmpargument = passage + 1
   SetTargetToWhoeverIsInPassage
   tmpargument = [GOOD]
-  IfTargetHasID
+  IfTargetHasSpecialID
     tmpargument = passage
     OpenPassage
   Else

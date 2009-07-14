@@ -15,6 +15,7 @@ IfChanged
     SpawnPoof
     tmpargument = 1
     SetState
+    NotAnItem
 
 // Monster AI...  State 1
 IfStateIs1
@@ -96,7 +97,6 @@ Else
 
         // Do flashy things
         tmpargument = 2
-        tmpdistance = 22050
         PlaySound
         tmpargument = 60
         SetReloadTime
@@ -119,4 +119,5 @@ Else
     tmpargument = ACTIONJB
     DoAction
     KeepAction
+
 End

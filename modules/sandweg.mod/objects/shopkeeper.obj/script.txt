@@ -141,12 +141,12 @@ IfSpawned
 
   //Slot 12
   tmpargument = 12  
-  tmpx = 58         //Scroll of Enchant Armor
+  tmpx = 131         //Scythe - TWICE for X2 chance
   SetXY
 
   //Slot 13
   tmpargument = 13  
-  tmpx = 60         //Scroll of Enchant Weapon
+  tmpx = 131        //Scythe
   SetXY
 
   //Slot 14

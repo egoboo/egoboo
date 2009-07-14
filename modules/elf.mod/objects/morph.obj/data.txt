@@ -111,7 +111,7 @@ Vuilnerability ID ( eg. [SILV] for werewolves )	: [NONE]
 
 
 // Item and damage flags
-Object is an item ( TRUE or FALSE )		: FALSE
+Object is an item ( TRUE or FALSE )		: TRUE
 Object is a mount ( TRUE or FALSE )		: FALSE
 Object is stackable ( TRUE or FALSE )		: FALSE
 Object's name is known ( TRUE or FALSE )	: FALSE

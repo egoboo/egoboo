@@ -7,7 +7,7 @@ Gender         : OTHER
 
 Life color     : 1
 Mana color     : 5
-Life           : 4		//Summoner int adds to this
+Life           : 4.00		        //Summoner int/4 adds to this
 Life up        : 0.00-0.00
 Mana           : 0.00
 Mana up        : 0.00-0.00
@@ -15,22 +15,22 @@ Mana return    : 0.00
 Mana return up : 0.00-0.00
 Mana flow      : 0.00
 Mana flow up   : 0.00-0.00
-STR            : 3.63
+STR            : 3.50		        //Summoner int/4 adds to this
 STR up         : 0.00-1.00
 WIS            : 0.00
 WIS up         : 0.00-0.00
 INT            : 0.00
 INT up         : 0.00-0.00
-DEX            : 6.24
+DEX            : 6.00		        //Summoner int/4 adds to this
 DEX up         : 0.00-1.00
 
 Size           : 1.00
 Size up        : 0.05
 Shadow size    : 15
 Bump size      : 30
-Bump height    : 80
+Bump height    : 70
 Bump dampen    : 0.50
-Weight         : 255
+Weight         : 40
 Jump power     : 0.00
 Jump number    : 0
 Sneak speed    : 1
@@ -101,7 +101,7 @@ IDSZ Vulnie    : [NONE]
 Is an item     : TRUE
 Is a mount     : FALSE
 Is stackable   : FALSE
-Name known     : TRUE
+Name known     : FALSE
 Usage known    : TRUE
 Is exportable  : TRUE
 Requires skill : TRUE
@@ -168,7 +168,5 @@ Jump sound     : -1
 :[ICON] 0
 :[PLAT] 1
 :[SKIN] 0
-:[CONT] 0
-:[STAT] 0
 :[LEVL] 0
 :[VALU] 1       //Always sold at 100% price

@@ -132,13 +132,18 @@ IfSpawned
   SetXY
   
   //Slot 10
-  tmpargument = 10  
-  tmpx = 81         //The Mana Sword
+  tmpargument = 10
+  tmpx = rand & 1
+  tmpy = 0
+  IfXIsEqualToY
+    tmpx = 81         //50% for The Mana Sword
+  Else
+    tmpx = 131        //and 50% for Mallet
   SetXY
 
   //Slot 11
   tmpargument = 11  
-  tmpx = 151         //Ring of Protection
+  tmpx = 158         //Ring of Protection
   SetXY
 
   //Slot 12
@@ -148,7 +153,7 @@ IfSpawned
 
   //Slot 13
   tmpargument = 13  
-  tmpx = 58         //Scroll of Enchant Armor
+  tmpx = 132         //Mallet
   SetXY
 
   //Slot 14

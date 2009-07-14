@@ -15,6 +15,7 @@ IfChanged
     SpawnPoof
     tmpargument = 1
     SetState
+    NotAnItem
 
 // Monster AI...  State 1
 IfStateIs1
@@ -23,13 +24,11 @@ IfStateIs1
     tmpargument = ACTIONMC
     DoAction
     tmpargument = rand & 1 + 3
-    tmpdistance = rand & 2047 + 10000
     PlaySound
 
   // Character screams
   IfAttacked
     tmpargument = rand & 1 + 5
-    tmpdistance = rand & 2047 + 10000
     PlaySound
 
 // Spell AI...  State 0
@@ -98,7 +97,6 @@ Else
 
         // Do flashy things
         tmpargument = 2
-        tmpdistance = 22050
         PlaySound
         tmpargument = 60
         SetReloadTime
