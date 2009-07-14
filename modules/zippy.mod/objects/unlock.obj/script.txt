@@ -16,17 +16,15 @@ IfUsed
   SetTargetToWhoeverIsHolding
   tmpargument = [WMAG]
   IfTargetHasSkillID
-    GetContent
-    tmpx = tmpargument
-    tmpy = 256
+    tmpx = selfcontent
+    tmpy = 767
     IfXIsLessThanY
       tmpy = targetmanaflow
       IfXIsLessThanY
-        tmpx = 4
+        tmpx = 3
         tmpargument = tmpx
         CostTargetMana
-          GetContent
-          tmpargument = tmpargument + tmpx
+          tmpargument = selfcontent + tmpx
           SetContent
           tmpx = tmpargument & 1
           tmpy = 0
@@ -52,9 +50,8 @@ IfUsed
 
 // Allow it to be cast or fizzle
 Else
-  GetContent
-  tmpx = tmpargument
-  tmpy = 255
+  tmpx = selfcontent
+  tmpy = 765
   IfXIsMoreThanY
     // Make the holder cast it
     SetTargetToWhoeverIsHolding

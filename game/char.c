@@ -1053,8 +1053,17 @@ void detach_character_from_mount( Uint16 character, Uint8 ignorekurse,
             // Give the mount its money back, alert the shop owner
             Uint16 skin, icap;
 
-            skin  = ChrList[character].skin;
-            icap  = ChrList[character].model;
+			//Make sure spell books are priced according to their spell and not the book itself 
+			if( ChrList[ichr_b].model == SPELLBOOK ) 
+			{
+				icap = ChrList[ichr_b].basemodel;
+				skin = 0;
+			}
+			else
+			{
+				icap  = ChrList[ichr_b].model;
+				skin = ChrList[ichr_b].skin;
+			}
             price = CapList[icap].skincost[skin];
 
             //Items spawned within shops are more valuable
@@ -1810,9 +1819,17 @@ bool_t character_grab_stuff( Uint16 ichr_a, grip_offset_t grip_off, bool_t grab_
                 {
                     Uint16 icap, iskin;
 
-                    icap  = ChrList[ichr_b].model;
-                    iskin = ChrList[ichr_b].skin;
-
+					//Make sure spell books are priced according to their spell and not the book itself 
+					if( ChrList[ichr_b].model == SPELLBOOK ) 
+					{
+						icap = ChrList[ichr_b].basemodel;
+						iskin = 0;
+					}
+					else
+					{
+						icap  = ChrList[ichr_b].model;
+						iskin = ChrList[ichr_b].skin;
+					}
                     price = (float) CapList[icap].skincost[iskin];
 
                     //Items spawned in shops are more valuable
@@ -1836,7 +1853,7 @@ bool_t character_grab_stuff( Uint16 ichr_a, grip_offset_t grip_off, bool_t grab_
 
                     if ( ChrList[ichr_a].money >= price )
                     {
-                        // Okay to buy
+                        // Okay to sell
                         ai_add_order( &(ChrList[owner].ai), (Uint32) price, SHOP_SELL );
 
                         ChrList[ichr_a].money -= (Sint16) price;
@@ -4033,6 +4050,7 @@ Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
     if (pcap->isvaluable)
     {
         pchr->isshopitem = btrue;
+		pchr->iskursed = bfalse;				//Shop items are never kursed
     }
     else
     {

@@ -5,10 +5,12 @@ Version 2.7.4 (??.??.2009)
 - New Feature: Added a new secret class into the game - The Tourist Starter!
 - New Feature: The first Hero class has been added - The Archmage! The Hero class system 
   allows characters to evolve into a new specialized class after beating a quest.
+- Update: Spell Books are priced individually now. Rarer and better spell books are more 
+  expensive than common and low-level books.
 - Update: Finally a new updated Game Manual.
 - Update: Added new Medkit item to the Archaeologist Starter.
 - Update: Rust Eaters now deal extra damage to characters wearing metal armor.
-- Update: Two new NPC's added to Bishopia.
+- Update: A new NPC added to Bishopia.
 - Update: Confusion effects no longer stack, instead now only the longer effect is applied.
 - Update: Life and Mana potions can now be Enchanted into super potions.
 - Update: Poison bottles can now be thrown with the Poison Use skill.
@@ -22,6 +24,9 @@ Version 2.7.4 (??.??.2009)
 - Update: Improved Linux and Macintosh compatability.
 - Update: Some various rebalancing.
 - Update: Improved the Hell Rover AI and added some new animations.
+- Bugfix: Fixed Bargel still using old version of Burning Hands spell
+- Bugfix: Fixed some bugs in the Book of Rot spell.
+- Bugfix: Added a fix to ensure that shop items are never Kursed.
 - Bugfix: Particle reflections work properly again.
 - Bugfix: Jungle warriors are now properly afraid of water.
 - Bugfix: Invisible chests in the Shadow Palace should no longer be visible.

@@ -138,10 +138,10 @@ Skin 0 name    : BAD
 Skin 1 name    : BAD
 Skin 2 name    : BAD
 Skin 3 name    : BAD
-Skin 0 cost    : 100
-Skin 1 cost    : 100
-Skin 2 cost    : 100
-Skin 3 cost    : 100
+Skin Cost 0 ( 0 to 65535 )			: 250
+Skin Cost 1 ( 0 to 65535 )			: 250
+Skin Cost 2 ( 0 to 65535 )			: 250
+Skin Cost 3 ( 0 to 65535 )			: 250
 STR dampen     : 0.050
 
 No rider attak : FALSE
@@ -154,7 +154,7 @@ Kursed chance  : 0
 Footfall sound : -1
 Jump sound     : -1
 
-:[BOOK] 3
+:[GOLD] 3
 :[HIDE] 0
 :[PLAT] 1
 :[ICON] 0

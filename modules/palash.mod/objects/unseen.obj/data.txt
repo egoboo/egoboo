@@ -173,10 +173,10 @@ Skin Name 0 ( use underscores for spaces )	: Skin_0
 Skin Name 1 ( use underscores for spaces )	: Skin_1
 Skin Name 2 ( use underscores for spaces )	: Skin_2
 Skin Name 3 ( use underscores for spaces )	: Skin_3
-Skin Cost 0 ( 0 to 65535 )			: 100
-Skin Cost 1 ( 0 to 65535 )			: 100
-Skin Cost 2 ( 0 to 65535 )			: 100
-Skin Cost 3 ( 0 to 65535 )			: 100
+Skin Cost 0 ( 0 to 65535 )			: 400
+Skin Cost 1 ( 0 to 65535 )			: 400
+Skin Cost 2 ( 0 to 65535 )			: 400
+Skin Cost 3 ( 0 to 65535 )			: 400
 Strength dampen for weapons ( 0.0 to 1.0 )	: 0.00
 
 

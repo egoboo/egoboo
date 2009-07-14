@@ -20,7 +20,7 @@ Water ends particle ( TRUE or FALSE )			: TRUE
 Bump ends particle ( TRUE or FALSE )			: FALSE
 End if hits ground ( TRUE or FALSE )			: FALSE
 End after last frame ( TRUE or FALSE )			: TRUE
-Time before end ( 1 to 1000, 0 )			: 8
+Time before end ( 1 to 1000, 0 )			: 15
 
 
 

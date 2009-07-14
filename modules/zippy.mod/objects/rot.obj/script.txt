@@ -33,7 +33,6 @@ Else
     SpawnExactParticle
     // Tell everyone it died
     tmpargument = 1
-    tmpdistance = rand & 2047 + 10000
     PlaySound
     tmpargument = MESSAGEDEATH
     SendMessage
@@ -44,7 +43,7 @@ IfStateIs3
     SetTargetToSelf
     KillTarget
   IfTimeOut
-    tmpdistance = 16000 // Square of distance
+    tmpdistance = 256     // Square of distance
     SetTargetToDistantEnemy
       // Self destruct
       SetTargetToSelf
@@ -78,8 +77,7 @@ IfStateIs0
     SetTargetToWhoeverIsHolding
     tmpargument = [WMAG]
     IfTargetHasSkillID
-      GetContent
-      tmpx = tmpargument
+      tmpx = selfcontent
       tmpy = 256
       IfXIsLessThanY
         tmpy = targetmanaflow
@@ -87,8 +85,7 @@ IfStateIs0
           tmpx = 4
           tmpargument = tmpx
           CostTargetMana
-            GetContent
-            tmpargument = tmpargument + tmpx
+            tmpargument = selfcontent + tmpx
             SetContent
             tmpx = targetx
             tmpy = targety
@@ -105,8 +102,7 @@ IfStateIs0
         tmpargument = 4
         SpawnExactParticle
   Else
-    GetContent
-    tmpx = tmpargument
+    tmpx = selfcontent
     tmpy = 255
     IfXIsMoreThanY
       // Make the holder cast it
@@ -133,13 +129,11 @@ IfStateIs0
             EnchantChild
 
             // Raise it from the dead
-            GetContent
             tmpargument = 1
             SetChildState
             tmpargument = ACTIONMD
             ChildDoActionOverride
           tmpargument = 0
-          tmpdistance = 22050
           PlaySound
           tmpargument = 20
           SetReloadTime

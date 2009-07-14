@@ -1,9 +1,3 @@
-:a_Book_o
-:STOP
-
-:f_Burnin
-:STOP
-
-:g_Hands
+:a_Book_of_Pyro_Wave
 :STOP
 

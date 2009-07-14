@@ -25,8 +25,8 @@ IfTimeOut
         AddIDSZ
 
         //Also, if the player has looted enough, K'nife will offer a job
-        tmpx = targetmoney
-        tmpy = 150            //Need 81% of total gold in module to get it
+        tmpx = targetmoney          //225 is total gold in module
+        tmpy = 135                  //Need to grab at least 60% of the money
         IfXIsMoreThanY
           tmpargument = 7
           AddEndMessage

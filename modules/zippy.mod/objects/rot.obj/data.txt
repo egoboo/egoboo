@@ -138,10 +138,10 @@ Skin 0 name    : BAD
 Skin 1 name    : BAD
 Skin 2 name    : BAD
 Skin 3 name    : BAD
-Skin 0 cost    : 100
-Skin 1 cost    : 100
-Skin 2 cost    : 100
-Skin 3 cost    : 100
+Skin 0 cost    : 150
+Skin 1 cost    : 150
+Skin 2 cost    : 150
+Skin 3 cost    : 150
 STR dampen     : 0.050
 
 No rider attak : FALSE

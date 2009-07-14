@@ -15,84 +15,53 @@ IfTakenOut
 // Allow it to be cast
 IfUsed
   SetTargetToWhoeverIsHolding
-  tmpargument = 0
-  PlaySound
-  IfTargetIsAPlayer
-    MakeNameKnown
-    MakeUsageKnown
-  tmpargument = ACTIONZA
-  CorrectActionForHand
-  TargetDoAction
-  tmpargument = 1
-  SetState
-  tmpargument = 20
-  SetContent
-  tmpargument = 30
-  SetReloadTime
-
+  
+  //Spawn damage particles. Higher intelligence, more damage...
   tmpargument = [WMAG]
   IfTargetHasSkillID 
-    //Spawn damage particles. Higher intelligence, more damage...
-
-    // Spawn at least the Level 1 damage particle
-    tmpargument = 2
-
-    // Spawn the Level 2 damage particle
-    tmpx = targetint
-    tmpy = 17
-    IfXIsMoreThanY
-      tmpargument = 4
-
-    // Spawn the Level 3 damage particle
-    tmpx = targetint
-    tmpy = 21
-    IfXIsMoreThanY
-      tmpargument = 5
-
-    // Spawn the Level 4 damage particle
-    tmpx = targetint
-    tmpy = 24
-    IfXIsMoreThanY
-      tmpargument = 6
-
-    // Spawn the Level 5 damage particle
-    tmpx = targetint
-    tmpy = 27
-    IfXIsMoreThanY
-      tmpargument = 7
     
-    tmpx = targetint
-    tmpy = 14
+    //Make it known
+    IfTargetIsAPlayer
+      IfNameIsKnown
+        DoNothing
+      Else
+        MakeNameKnown
+        MakeUsageKnown
+        tmpargument = 30
+        GiveExperienceToTarget
+          
+    tmpx = targetmana
+    tmpy = 355
     IfXIsMoreThanY
-      //Activate the spell
+      tmpargument = 356
+      CostTargetMana
+      
+      //Spawn different particles depending on mana flow
+      tmpargument = 0               //Weak fire
+      tmpx = targetmanaflow > 8
+      tmpy = 2
+      IfXIsMoreThanY
+        tmpargument = 3             //Medium fire
+      tmpy = 4
+      IfXIsMoreThanY
+        tmpargument = 5             //Strong fire
+      tmpy = 6
+      IfXIsMoreThanY
+        tmpargument = 7             //Inferno!
+        
+      //Create it!
       tmpx = selfx
       tmpy = selfy
       tmpdistance = selfz
-      SpawnExactParticle 
-    Else
-      SetTargetToWhoeverIsHolding
-      tmpargument = 2
-      SendMessageNear           
-
-//-----------------------------------------------------------------------------------------------
-// Shoot for a while
-IfStateIs1
-  GetContent
-  tmpargument = tmpargument - 1
-  SetContent
-  tmpx = tmpargument
-  tmpy = 0
-  IfXIsMoreThanY
-    // Spawn particles
-    tmpx = selfx
-    tmpy = selfy
-    tmpdistance = selfz
-    tmpargument = 0
-    SpawnExactParticle
-  Else
-    tmpargument = 0
-    SetState
-
+      SpawnExactParticle
+  
+      //Make them cast
+      tmpargument = ACTIONZA
+      CorrectActionForHand
+      TargetDoAction
+      tmpargument = 35
+      SetReloadTime
+    
 //-----------------------------------------------------------------------------------------------
 // Return to spellbook, Do last!
 IfDropped
