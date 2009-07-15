@@ -21,8 +21,6 @@ IfTimeOut
 
 // Allow it to be used
 IfUsed
-  tmpargument = 50
-  SetReloadTime
   SetTargetToWhoeverIsHolding
     tmpx = targetmana
     tmpy = 255
@@ -38,48 +36,58 @@ IfUsed
           tmpargument = 30
           tmpdistance = EXPSECRET
           GiveExperienceToTarget
+          
+      //Slow them
+      StopTargetMovement
 
       // Do the effect
-      tmpargument = 256
+      tmpargument = 310   //1.2 mana
       CostTargetMana
         tmpargument = [UNDE]
-        tmpdistance = 18        //BLAHENEMIES | BLAHINVERTID
+        tmpdistance = BLAHENEMIES + BLAHINVERTID
         SetTargetToWideBlahID                       //Found living enemy that is not undead
           tmpdistance = 1
         Else
+          tmpdistance = 0
           SetTargetToNearestFriend
-            tmpdistance = 1
-            IfTargetIsSelf
-              DoNothing
-            Else
-              tmpx = targetdistance
-              tmpy = 600
-              IfXIsMoreThanY
-                tmpdistance = 0
-          Else
-            tmpdistance = 0
-
+            tmpx = targetdistance
+            tmpy = 250
+            IfXIsLessThanY
+              tmpdistance = 1         //Allow friends to be hit too!
+              
+        //Did we hit?
         tmpturn = 0
-        IfDistanceIsMoreThanTurn       //If proceeds then found a target
-          tmpx = targetx
-          tmpy = targety
-          tmpdistance = targetz
-          tmpargument = 1
-          SpawnExactParticle
-          tmpargument = rand & 511 + 1024         //4-6 life
-          DamageTarget                  //Damage opponent
-          SetTargetToWhoeverIsHolding
-          tmpargument = 256 //Heal 1 hp
-          HealTarget                    //And heal caster
-        Else
-          tmpargument = 100
-          SetReloadTime
-          SetTargetToWhoeverIsHolding
-          IfTargetIsAPlayer
-            tmpargument = 1
-            SendMessageNear
-            PlaySound
-
+        IfDistanceIsMoreThanTurn       //If proceeds then found a target  
+          IfFacingTarget
+            tmpx = targetdistance
+            tmpy = 325
+            IfXIsLessThanY
+              SetTargetToWhoeverIsHolding
+              tmpargument = 256 //Heal 1 hp
+              HealTarget                    //heal caster
+        
+        //Spawn the spell effect              
+        tmpx = selfx
+        tmpy = selfy
+        tmpdistance = selfz
+        tmpargument = 2
+        SpawnExactParticle   
+        
+        //Sound effect
+        tmpargument = 0
+        PlaySound
+        
+        //Intelligence increases attack speed
+        SetTargetToWhoeverIsHolding
+        tmpturn = targetint > 8
+        tmpargument = 65 - tmpturn
+        SetReloadTime
+      Else
+        tmpargument = 1 
+        PlaySound
+        tmpargument = 50
+        SetReloadTime   
+        
 // Return to spellbook, Do last!
 IfDropped
   GetContent

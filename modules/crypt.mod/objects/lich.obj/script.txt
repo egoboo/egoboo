@@ -186,8 +186,12 @@ IfTimeOut
     IfTargetIsOnHatedTeam
       tmpx = rand & 1
       IfXIsEqualToY
-        tmpargument = LATCHRIGHT
-        PressLatchButton
+        IfFacingTarget
+          tmpx = targetdistance
+          tmpy = 300
+          IfXIsLessThanY
+            tmpargument = LATCHRIGHT
+            PressLatchButton
         tmpargument = 50
         SetTime
       Else

@@ -21,9 +21,9 @@ IfAttacked
     SetState
   tmpargument = rand & 1 + 8
   PlaySound
-IfCalledForHelp
-  Walk
 IfKilled
+  tmpargument = TEAME
+  TargetJoinTeam
   CallForHelp			//Warn friends
 
 //------------------------------------------------------------------------------

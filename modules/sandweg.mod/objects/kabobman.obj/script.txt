@@ -16,18 +16,16 @@ IfAttacked
   SetTargetToWhoeverAttacked
   IfTargetIsAPlayer
     CallForHelp
-    tmpargument = 5     //Team Evil
+    tmpargument = TEAME     //Team Evil
     TargetJoinTeam
     tmpargument = STATECOMBAT
     SetState
   tmpargument = rand & 1 + 3
   PlaySound
-IfCalledForHelp
-  Walk
 IfKilled
   CallForHelp			//Warn friends
   IfTargetIsAPlayer
-    tmpargument = 5
+    tmpargument = TEAME
     TargetJoinTeam
   tmpargument = 0
   SendMessageNear

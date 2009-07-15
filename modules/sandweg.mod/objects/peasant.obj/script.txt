@@ -59,9 +59,9 @@ IfAttacked
     SetTime
   tmpargument = 2
   PlaySound
-IfCalledForHelp
-  Walk
 IfKilled
+  tmpargument = TEAME
+  TargetJoinTeam
   CallForHelp			//Warn friends
 
 //------------------------------------------------------------------------------

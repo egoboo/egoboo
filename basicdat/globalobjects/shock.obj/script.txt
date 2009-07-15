@@ -12,7 +12,6 @@ IfTakenOut
 // Allow it to be cast
 IfStateIs0
   IfUsed
-    tmpdistance = 11025
     tmpargument = 0
     PlaySound
 
@@ -24,6 +23,7 @@ IfStateIs0
     SetContent
     tmpargument = 30
     SetReloadTime
+
     // Spawn the damage particle
     tmpx = selfx
     tmpy = selfy
