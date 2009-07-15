@@ -66,12 +66,19 @@ IfUsed
     CostAmmo
     tmpargument = 1
     PlaySound
-    tmpargument = 100               //A nifty 100 xp bonus
+    
+    //Give 50 extra XP per level of the target
+    tmpturn = targetlevel+1
+    tmpargument = tmpturn*50               //A nifty xp bonus
     tmpdistance = EXPROLEPLAY
     GiveExperienceToTarget
+    tmpx = tmpargument            //Remember the amount of XP gained for message
+    
+    //The drawback
     tmpargument = 0 - 16
-    GiveIntelligenceToTarget      //The drawback
-    SetTargetToWhoeverIsHolding
+    GiveIntelligenceToTarget
+    
+    //Tell them what they got
     tmpargument = 3
     SendMessageNear
       

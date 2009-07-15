@@ -2819,7 +2819,9 @@ Uint8 scr_KillTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    kill_character( pself->target, pself->index );
+	if( ChrList[pself->index].attachedto != MAX_CHR && !ChrList[ChrList[pself->index].attachedto].ismount ) sTmp = ChrList[pself->index].attachedto;
+	else sTmp = pself->index;
+    kill_character( pself->target, sTmp );
 
     SCRIPT_FUNCTION_END();
 }

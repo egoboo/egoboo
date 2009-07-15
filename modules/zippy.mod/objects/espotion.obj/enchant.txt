@@ -4,7 +4,7 @@ Override set values ( TRUE or FALSE )		: TRUE
 Remove overridden enchants ( TRUE or FALSE )	: TRUE
 Kill character on end ( TRUE or FALSE )		: FALSE
 Spawn poof on end ( TRUE or FALSE )		: FALSE
-Seconds before end ( -1 for infinite )		: 30
+Seconds before end ( -1 for infinite )		: 60
 End message ( -1 for none )			: 6
 
 

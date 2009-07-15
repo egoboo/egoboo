@@ -2,12 +2,12 @@
 IfAttacked
   SetTargetToWhoeverAttacked
   CallForHelp
-  tmpargument = 5       //Team EVIL
+  tmpargument = TEAME       //Team EVIL
   TargetJoinTeam
 IfKilled
   SetTargetToWhoeverAttacked
   CallForHelp
-  tmpargument = 5       //Team EVIL
+  tmpargument = TEAME       //Team EVIL
   TargetJoinTeam
   
 //Talk
@@ -54,10 +54,10 @@ IfBumped
         IfXIsEqualToY
           tmpargument = [MUSH]
           CostTargetItemID          //Traded 1 mushroom
+            tmpargument = rand % 5 + 86         //Randomize the potion gain
             tmpx = targetx
             tmpy = targety
             tmpdistance = selfz + 50
-            tmpargument = rand % 6 + 86
             SpawnExactCharacterXYZ
             tmpargument = 8
             PlayFullSound

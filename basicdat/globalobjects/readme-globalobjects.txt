@@ -83,6 +83,9 @@ SLOT  OBJECT
 131   Scythe
 132   Mallet
 133   Rebirth
+135   Ring of Jumping
+136   Ring of Life
+137   Ring of Luck
 140   Scroll of Truesight
 158   Ring of Protection
 160   The Tourist's Guide to Bishopia

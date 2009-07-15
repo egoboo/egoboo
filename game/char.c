@@ -1054,15 +1054,15 @@ void detach_character_from_mount( Uint16 character, Uint8 ignorekurse,
             Uint16 skin, icap;
 
 			//Make sure spell books are priced according to their spell and not the book itself 
-			if( ChrList[ichr_b].model == SPELLBOOK ) 
+			if( ChrList[character].model == SPELLBOOK ) 
 			{
-				icap = ChrList[ichr_b].basemodel;
+				icap = ChrList[character].basemodel;
 				skin = 0;
 			}
 			else
 			{
-				icap  = ChrList[ichr_b].model;
-				skin = ChrList[ichr_b].skin;
+				icap  = ChrList[character].model;
+				skin = ChrList[character].skin;
 			}
             price = CapList[icap].skincost[skin];
 

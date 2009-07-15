@@ -131,7 +131,7 @@ ItemChest: NONE     40    8.5  21.5 0    E  49   0   0   3   0   F   F   Null
 LockChest: NONE     45    13.5 58   0    E   0   0   0   0   0   F   F   Null
   CAmulet: NONE     83    0    0    0    I   0   0   0   0   0   F   F   Null
 ItemChest: NONE     40    11.5 28.5 0    S   0   0   0   1   0   F   F   Null
-  LRing:   NONE     85    0    0    0    I   0   0   0   0   0   F   F   Null
+  LRing:   NONE     136   0    0    0    I   0   0   0   0   0   F   F   Null
 ItemChest: NONE     40    45   48.5 0    N  99   0   0   0   0   F   F   Null
 ItemChest: NONE     40    46.5 44.5 0    W  99   0   0   3   0   F   F   Null
   DAmulet: NONE     99    0    0    0    I   0   0   0   0   0   F   F   Null

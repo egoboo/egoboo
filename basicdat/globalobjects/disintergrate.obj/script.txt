@@ -24,26 +24,29 @@ IfTakenOut
       tmpargument = 6
       SendMessageNear
 
+//Turn things to dust
+IfStateIs1
+  IfTimeOut
+    PoofTarget
+    tmpargument = 0
+    SetState
+    
 // Allow it to be used
 IfUsed
   SetTargetToWhoeverIsHolding
-  GetContent
-  tmpx = tmpargument
+  tmpx = selfcontent
   tmpy = 1280			//Max charge
   IfXIsLessThanY
     tmpy = targetmanaflow
     IfXIsLessThanY
-      tmpx = 8			//Cast speed
-      tmpargument = tmpx
+      tmpargument = 8			//Cast speed
       CostTargetMana
-        GetContent
-        tmpargument = tmpargument + tmpx
+        tmpargument = selfcontent + tmpargument
         SetContent
 
 // Allow it to be cast or fizzle
 Else
-  GetContent
-  tmpx = tmpargument
+  tmpx = selfcontent
   tmpy = 1279						//Needed charge
   IfXIsMoreThanY
     // Make the holder cast it
@@ -59,6 +62,8 @@ Else
       IfTargetHasAnyID
         tmpargument = 4
         SendMessageNear
+        tmpargument = 2
+        PlaySound
       Else
         SetOldTarget			//Remember the target
         tmpx = targetmaxlife*2
@@ -66,21 +71,32 @@ Else
         tmpy = targetint	//Check for intelligence
         SetTargetToOldTarget		//Now revert back to the target again
         IfXIsLessThanY			//Check if it resisted or not
-          tmpx = targetx
-          tmpy = targety
-          tmpdistance = targetz
-          tmpargument = 2
-          SpawnExactParticle		//Spawn some Dust
-          tmpargument = 1
-          SendMessageNear
-          PoofTarget
-            tmpargument = 1
-            PlaySound
-          Else					//Target is unpoofable (player?)
+          IfTargetIsAPlayer					//Target is unpoofable (player)
             tmpargument = 5
             SendMessageNear
             tmpargument = 2
             PlaySound
+          Else                 
+            //Spelly effect
+            tmpx = targetx
+            tmpy = targety
+            tmpdistance = targetz
+            tmpargument = 2
+            SpawnExactParticle		//Spawn some Dust
+            
+            //Tell what happened
+            tmpargument = 1
+            SendMessageNear
+            tmpargument = 1
+            PlaySound
+            
+            //Now kill it and ready it to be turned to dust
+            //We cant do this instantly or the death AI won't take effect
+            tmpargument = 5
+            SetTime
+            KillTarget
+            tmpargument = 1
+            SetState
         Else
           tmpargument = 5		//The target resisted
           SendMessageNear

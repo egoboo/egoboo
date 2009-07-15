@@ -4,7 +4,7 @@ Override set values ( TRUE or FALSE )		: FALSE
 Remove overridden enchants ( TRUE or FALSE )	: FALSE
 Kill character on end ( TRUE or FALSE )		: FALSE
 Spawn poof on end ( TRUE or FALSE )		: FALSE
-Seconds before end ( -1 for infinite )		: 60
+Seconds before end ( -1 for infinite )		: 30
 End message ( -1 for none )			: 5
 
 
@@ -68,7 +68,7 @@ Maximum life increase ( -3.0 to 3.0 )		: 0.0
 Strength boost ( -3.0 to 3.0 )			: 0.0
 Wisdom boost ( -3.0 to 3.0 )			: 0.0
 Intelligence boost ( -3.0 to 3.0 )		: 0.0
-Dexterity boost ( -3.0 to 3.0 )			: -1.0
+Dexterity boost ( -3.0 to 3.0 )			: -3.0
 
 
 // Expansions...

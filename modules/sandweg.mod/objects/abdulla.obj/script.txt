@@ -156,11 +156,24 @@ IfStateIs0
               //Give the reward
               tmpargument = 75
               tmpdistance = EXPQUEST
-              GiveExperienceToGoodTeam      //uh oh.. all the guards in bishopia gain too
+              GiveExperienceToGoodTeam      //uh oh.. all the guards gain too
+              
+              tmpx = rand % 3                 //Randomize the ring
+              tmpy = 0
+              IfXIsEqualToY
+                tmpargument = 158             //Ring of Protection
+              tmpy = 1
+              IfXIsEqualToY
+                tmpargument = 135             //Ring of Jumping
+              tmpy = 2
+              IfXIsEqualToY
+                tmpargument = 136             //Ring of Life
+              tmpy = 3
+              IfXIsEqualToY
+                tmpargument = 137             //Ring of Luck
               tmpx = targetx
               tmpy = targety
               tmpdistance = targetz + 50
-              tmpargument = 158             //Ring of Protection !!TODO: randomize ring type!!
               SpawnExactCharacterXYZ
             Else
               tmpargument = 4               //Repeat the reward sentence
