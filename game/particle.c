@@ -1005,7 +1005,12 @@ int load_one_particle_profile( const char *szLoadName )
     if ( cTmp == 'T' || cTmp == 't' ) ppip->spawnenchant = btrue;
 
     goto_colon( NULL, fileread, bfalse );  // !!Cause roll
-    goto_colon( NULL, fileread, bfalse );  // !!Cause pancake
+
+	//Cause pancake
+    goto_colon( NULL, fileread, bfalse );  
+	ppip->causepancake = bfalse;
+    if ( cTmp == 'T' || cTmp == 't' ) ppip->causepancake = btrue;
+
     goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     ppip->needtarget = bfalse;
     if ( cTmp == 'T' || cTmp == 't' ) ppip->needtarget = btrue;

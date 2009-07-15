@@ -1,1 +1,4 @@
 Message 0: The_%c_was_defeated!
+Message 1: With_the_death_of_the_Skulton_a_great_rift_opens_in_the_ground_
+Message 2: before_you,_shaking_the_entire_tomb_making_dust_fall_from_the_roof._
+Message 3: The_warm_fearsome_glow_surrounds_you_as_you_fall_down_into_the_depths_of_the_Abyss..._

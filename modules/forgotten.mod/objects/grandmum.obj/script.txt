@@ -45,6 +45,15 @@ IfKilled				// This reduces the height of the char
   AddQuestAllPlayers
   EnableExport
   
+  //End message
+  ClearEndMessage
+  tmpargument = 3
+  AddEndMessage
+  tmpargument = 4
+  AddEndMessage
+  tmpargument = 5
+  AddEndMessage
+  
   //Bludy death!
   tmpx = selfx
   tmpy = selfy

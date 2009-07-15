@@ -1,6 +1,6 @@
 // Basic enchantment stuff
 Retarget as target's weapon ( TRUE or FALSE )	: FALSE
-Override set values ( TRUE or FALSE )		: TRUE
+Override set values ( TRUE or FALSE )		: FALSE
 Remove overridden enchants ( TRUE or FALSE )	: FALSE
 Kill character on end ( TRUE or FALSE )		: FALSE
 Spawn poof on end ( TRUE or FALSE )		: FALSE
@@ -9,15 +9,15 @@ End message ( -1 for none )			: 4
 
 
 // Enchantment draining/sustaining
-Owner's mana boost each second ( -1.0 to 1.0 )	: -0.75
+Owner's mana boost each second ( -1.0 to 1.0 )	: -0.75      //Set in script.txt
 Target's mana boost each second ( -1.0 to 1.0 ) : 0.0
 End if mana can't be payed ( TRUE or FALSE )	: TRUE
 Owner's life boost each second ( -1.0 to 1.0 )	: 0.0
-Target's life boost each second ( -1.0 to 1.0 )	: 1.50
+Target's life boost each second ( -1.0 to 1.0 )	: 1.00      //Set in script.txt
 
 
 // Stuff to make the enchantment more specific
-Don't work if target resists ... ( ex. CRUSH )	: NONE
+Don't work if target resists ... ( ex. CRUSH )	: HOLY
 Only work if target causes ... ( ex. SLASH )	: NONE
 Removed by ... ( [NONE] or an IDSZ )		: [DISP]
 
@@ -28,7 +28,7 @@ Removed by ... ( [NONE] or an IDSZ )		: [DISP]
 // if the value is to be set, F otherwise
 Damage type ( CRUSH, POKE, SLASH, etc. )	: F CRUSH
 Number of jumps ( 0 to 2 )			: F 2
-Life bar color ( 0 to 5, 1 is red )		: T 2
+Life bar color ( 0 to 5, 1 is red )		: T 4
 Mana bar color ( 0 to 5, 5 is purple )		: F 4
 SLASH damage modifier ( InversionTFC, Shift )	: F F 2
 CRUSH damage modifier ( InversionTFC, Shift )	: F F 2
@@ -72,4 +72,3 @@ Dexterity boost ( -3.0 to 3.0 )			: 0.0
 
 
 // Expansions...
-

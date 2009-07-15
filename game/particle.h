@@ -139,6 +139,7 @@ struct s_pip
     float   dynalightfalloffadd;
     bool_t  targetcaster;                 // Target caster?
     bool_t  spawnenchant;                 // Spawn enchant?
+	bool_t  causepancake;				  // !!BAD: Not implemented!!
     bool_t  needtarget;                   // Need a target?
     bool_t  onlydamagefriendly;           // Only friends?
     bool_t  startontarget;                // Start on target?

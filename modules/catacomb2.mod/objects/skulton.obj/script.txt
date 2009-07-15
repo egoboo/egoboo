@@ -138,6 +138,15 @@ IfKilled
   //Make the body
   tmpargument = 15
   SetBumpHeight
+  
+  //Make the end dialog
+  ClearEndMessage
+  tmpargument = 1
+  AddEndMessage
+  tmpargument = 2
+  AddEndMessage
+  tmpargument = 3
+  AddEndMessage
 
 //------------------------------------------------------------------------------
 End

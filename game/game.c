@@ -137,7 +137,6 @@ int    endtextwrite = 0;
 
 // Status displays
 bool_t staton     = btrue;
-//int    statdelay  = 25;
 int    numstat    = 0;
 Uint16 statlist[MAXSTAT];
 
@@ -1507,7 +1506,6 @@ int do_game_proc_running( game_process_t * gproc )
         draw_main();
 
         msgtimechange++;
-        //if ( statdelay > 0 )  statdelay--;
     }
 
     // Check for quitters
@@ -2098,7 +2096,6 @@ void update_pits()
 
             // Kill or teleport any characters that fell in a pit...
             cnt = 0;
-
             while ( cnt < MAX_CHR )
             {
                 if ( ChrList[cnt].on && ChrList[cnt].alive && !ChrList[cnt].pack_ispacked )
@@ -2122,7 +2119,7 @@ void update_pits()
                         {
                             float nrm[2];
 
-                            // Yeah!  It worked!
+                            // Teleport them back to a safe spot
                             detach_character_from_mount( cnt, btrue, bfalse );
                             ChrList[cnt].pos_old.x = ChrList[cnt].pos.x;
                             ChrList[cnt].pos_old.y = ChrList[cnt].pos.y;
@@ -2131,7 +2128,7 @@ void update_pits()
                             ChrList[cnt].pos.z = pitz;
                             if ( __chrhitawall( cnt, nrm ) )
                             {
-                                // No it didn't...
+                                // It did not work...
                                 ChrList[cnt].pos = ChrList[cnt].pos_safe;
                                 ChrList[cnt].vel = ChrList[cnt].vel_old;
 
@@ -2142,6 +2139,7 @@ void update_pits()
                             }
                             else
                             {
+								//It worked!
                                 ChrList[cnt].pos_safe = ChrList[cnt].pos;
                                 ChrList[cnt].pos_old  = ChrList[cnt].pos;
                                 ChrList[cnt].vel_old  = ChrList[cnt].vel;
@@ -2521,12 +2519,11 @@ void check_stats()
     // !!!BAD!!!  XP CHEAT
     if ( cfg.dev_mode && SDLKEYDOWN( SDLK_x ) )
     {
-        if ( SDLKEYDOWN( SDLK_1 ) && VALID_CHR(PlaList[0].index) )  { ChrList[PlaList[0].index].experience += 25; stat_check_delay = 250; }
-        if ( SDLKEYDOWN( SDLK_2 ) && VALID_CHR(PlaList[1].index) )  { ChrList[PlaList[1].index].experience += 25; stat_check_delay = 250; }
-        if ( SDLKEYDOWN( SDLK_3 ) && VALID_CHR(PlaList[2].index) )  { ChrList[PlaList[2].index].experience += 25; stat_check_delay = 250; }
-        if ( SDLKEYDOWN( SDLK_4 ) && VALID_CHR(PlaList[3].index) )  { ChrList[PlaList[3].index].experience += 25; stat_check_delay = 250; }
+        if ( SDLKEYDOWN( SDLK_1 ) && VALID_CHR(PlaList[0].index) )  { ChrList[PlaList[0].index].experience += 25; stat_check_delay = 25; }
+        if ( SDLKEYDOWN( SDLK_2 ) && VALID_CHR(PlaList[1].index) )  { ChrList[PlaList[1].index].experience += 25; stat_check_delay = 25; }
+        if ( SDLKEYDOWN( SDLK_3 ) && VALID_CHR(PlaList[2].index) )  { ChrList[PlaList[2].index].experience += 25; stat_check_delay = 25; }
+        if ( SDLKEYDOWN( SDLK_4 ) && VALID_CHR(PlaList[3].index) )  { ChrList[PlaList[3].index].experience += 25; stat_check_delay = 25; }
 
-        //statdelay = 0;
     }
 
     // !!!BAD!!!  LIFE CHEAT
@@ -2599,52 +2596,48 @@ void show_stat( Uint16 statindex )
     int character, level;
     char text[64];
     char gender[8];
-    //if ( statdelay == 0 )
+    if ( statindex < numstat )
     {
-        if ( statindex < numstat )
+        character = statlist[statindex];
+
+        // Name
+        sprintf( text, "=%s=", ChrList[character].name );
+        debug_message( text );
+
+        // Level and gender and class
+        gender[0] = 0;
+        if ( ChrList[character].alive )
         {
-            character = statlist[statindex];
-
-            // Name
-            sprintf( text, "=%s=", ChrList[character].name );
-            debug_message( text );
-
-            // Level and gender and class
-            gender[0] = 0;
-            if ( ChrList[character].alive )
+            if ( ChrList[character].gender == GENMALE )
             {
-                if ( ChrList[character].gender == GENMALE )
-                {
-                    sprintf( gender, "male " );
-                }
-                if ( ChrList[character].gender == GENFEMALE )
-                {
-                    sprintf( gender, "female " );
-                }
-
-                level = ChrList[character].experiencelevel;
-                if ( level == 0 )
-                    sprintf( text, " 1st level %s%s", gender, CapList[ChrList[character].model].classname );
-                if ( level == 1 )
-                    sprintf( text, " 2nd level %s%s", gender, CapList[ChrList[character].model].classname );
-                if ( level == 2 )
-                    sprintf( text, " 3rd level %s%s", gender, CapList[ChrList[character].model].classname );
-                if ( level >  2 )
-                    sprintf( text, " %dth level %s%s", level + 1, gender, CapList[ChrList[character].model].classname );
+                sprintf( gender, "male " );
             }
-            else
+            if ( ChrList[character].gender == GENFEMALE )
             {
-                sprintf( text, " Dead %s", CapList[ChrList[character].model].classname );
+                sprintf( gender, "female " );
             }
 
-            // Stats
-            debug_message( text );
-            sprintf( text, " STR:~%2d~WIS:~%2d~DEF:~%d", FP8_TO_INT( ChrList[character].strength ), FP8_TO_INT( ChrList[character].wisdom ), 255 - ChrList[character].defense );
-            debug_message( text );
-            sprintf( text, " INT:~%2d~DEX:~%2d~EXP:~%d", FP8_TO_INT( ChrList[character].intelligence ), FP8_TO_INT( ChrList[character].dexterity ), ChrList[character].experience );
-            debug_message( text );
-            //statdelay = 10;
+            level = ChrList[character].experiencelevel;
+            if ( level == 0 )
+                sprintf( text, " 1st level %s%s", gender, CapList[ChrList[character].model].classname );
+            if ( level == 1 )
+                sprintf( text, " 2nd level %s%s", gender, CapList[ChrList[character].model].classname );
+            if ( level == 2 )
+                sprintf( text, " 3rd level %s%s", gender, CapList[ChrList[character].model].classname );
+            if ( level >  2 )
+                sprintf( text, " %dth level %s%s", level + 1, gender, CapList[ChrList[character].model].classname );
         }
+        else
+        {
+            sprintf( text, " Dead %s", CapList[ChrList[character].model].classname );
+        }
+
+        // Stats
+        debug_message( text );
+        sprintf( text, " STR:~%2d~WIS:~%2d~DEF:~%d", FP8_TO_INT( ChrList[character].strength ), FP8_TO_INT( ChrList[character].wisdom ), 255 - ChrList[character].defense );
+        debug_message( text );
+        sprintf( text, " INT:~%2d~DEX:~%2d~EXP:~%d", FP8_TO_INT( ChrList[character].intelligence ), FP8_TO_INT( ChrList[character].dexterity ), ChrList[character].experience );
+        debug_message( text );        
     }
 }
 
@@ -2653,8 +2646,6 @@ void show_armor( Uint16 statindex )
 {
     // ZF> This function shows detailed armor information for the character
     STRING text, tmps;
-
-    //if ( statdelay == 0 ) return;
 
     if ( statindex < numstat )
     {
@@ -2707,8 +2698,6 @@ void show_armor( Uint16 statindex )
             strcat( text, tmps );
 
             debug_message( text );
-
-            //statdelay = 10;
         }
     }
 
@@ -2721,52 +2710,48 @@ void show_full_status( Uint16 statindex )
     char text[64], tmps[64];
     short character;
     int i = 0;
-   // if ( statdelay == 0 )
+    if ( statindex < numstat )
     {
-        if ( statindex < numstat )
+        character = statlist[statindex];
+
+        // Enchanted?
+        while ( i != MAX_ENC )
         {
-            character = statlist[statindex];
+            // Found a active enchantment that is not a skill of the character
+            if ( EncList[i].on && EncList[i].spawner != character && EncList[i].target == character ) break;
 
-            // Enchanted?
-            while ( i != MAX_ENC )
-            {
-                // Found a active enchantment that is not a skill of the character
-                if ( EncList[i].on && EncList[i].spawner != character && EncList[i].target == character ) break;
-
-                i++;
-            }
-            if ( i != MAX_ENC ) sprintf( text, "=%s is enchanted!=", ChrList[character].name );
-            else sprintf( text, "=%s is unenchanted=", ChrList[character].name );
-
-            debug_message( text );
-
-            // Armor Stats
-            sprintf( text, " DEF: %d  SLASH:%3d~CRUSH:%3d POKE:%3d",
-                     255 - ChrList[character].defense,
-                     ChrList[character].damagemodifier[0]&DAMAGESHIFT,
-                     ChrList[character].damagemodifier[1]&DAMAGESHIFT,
-                     ChrList[character].damagemodifier[2]&DAMAGESHIFT );
-            debug_message( text );
-            sprintf( text, " HOLY: %i~~EVIL:~%i~FIRE:~%i~ICE:~%i~ZAP: ~%i",
-                     ChrList[character].damagemodifier[3]&DAMAGESHIFT,
-                     ChrList[character].damagemodifier[4]&DAMAGESHIFT,
-                     ChrList[character].damagemodifier[5]&DAMAGESHIFT,
-                     ChrList[character].damagemodifier[6]&DAMAGESHIFT,
-                     ChrList[character].damagemodifier[7]&DAMAGESHIFT );
-            debug_message( text );
-
-            // Speed and jumps
-            if ( ChrList[character].jumpnumberreset == 0 )  sprintf( text, "None    (%i)", ChrList[character].jumpnumberreset );
-            if ( ChrList[character].jumpnumberreset == 1 )  sprintf( text, "Novice  (%i)", ChrList[character].jumpnumberreset );
-            if ( ChrList[character].jumpnumberreset == 2 )  sprintf( text, "Skilled (%i)", ChrList[character].jumpnumberreset );
-            if ( ChrList[character].jumpnumberreset == 3 )  sprintf( text, "Adept   (%i)", ChrList[character].jumpnumberreset );
-            if ( ChrList[character].jumpnumberreset > 3 )   sprintf( text, "Master  (%i)", ChrList[character].jumpnumberreset );
-
-            sprintf( tmps, "Jump Skill: %s", text );
-            sprintf( text, " Speed:~%3.0f~~%s", ChrList[character].maxaccel*80, tmps );
-            debug_message( text );
-            //statdelay = 10;
+            i++;
         }
+        if ( i != MAX_ENC ) sprintf( text, "=%s is enchanted!=", ChrList[character].name );
+        else sprintf( text, "=%s is unenchanted=", ChrList[character].name );
+
+        debug_message( text );
+
+        // Armor Stats
+        sprintf( text, " DEF: %d  SLASH:%3d~CRUSH:%3d POKE:%3d",
+                 255 - ChrList[character].defense,
+                 ChrList[character].damagemodifier[0]&DAMAGESHIFT,
+                 ChrList[character].damagemodifier[1]&DAMAGESHIFT,
+                 ChrList[character].damagemodifier[2]&DAMAGESHIFT );
+        debug_message( text );
+        sprintf( text, " HOLY: %i~~EVIL:~%i~FIRE:~%i~ICE:~%i~ZAP: ~%i",
+                 ChrList[character].damagemodifier[3]&DAMAGESHIFT,
+                 ChrList[character].damagemodifier[4]&DAMAGESHIFT,
+                 ChrList[character].damagemodifier[5]&DAMAGESHIFT,
+                 ChrList[character].damagemodifier[6]&DAMAGESHIFT,
+                 ChrList[character].damagemodifier[7]&DAMAGESHIFT );
+        debug_message( text );
+
+        // Speed and jumps
+        if ( ChrList[character].jumpnumberreset == 0 )  sprintf( text, "None    (%i)", ChrList[character].jumpnumberreset );
+        if ( ChrList[character].jumpnumberreset == 1 )  sprintf( text, "Novice  (%i)", ChrList[character].jumpnumberreset );
+        if ( ChrList[character].jumpnumberreset == 2 )  sprintf( text, "Skilled (%i)", ChrList[character].jumpnumberreset );
+        if ( ChrList[character].jumpnumberreset == 3 )  sprintf( text, "Adept   (%i)", ChrList[character].jumpnumberreset );
+        if ( ChrList[character].jumpnumberreset > 3 )   sprintf( text, "Master  (%i)", ChrList[character].jumpnumberreset );
+
+        sprintf( tmps, "Jump Skill: %s", text );
+        sprintf( text, " Speed:~%3.0f~~%s", ChrList[character].maxaccel*80, tmps );
+        debug_message( text );
     }
 }
 
@@ -2777,49 +2762,44 @@ void show_magic_status( Uint16 statindex )
     char text[64], tmpa[64], tmpb[64];
     short character;
     int i = 0;
-    //if ( statdelay == 0 )
+    if ( statindex < numstat )
     {
-        if ( statindex < numstat )
+        character = statlist[statindex];
+
+        // Enchanted?
+        while ( i != MAX_ENC )
         {
-            character = statlist[statindex];
+            // Found a active enchantment that is not a skill of the character
+            if ( EncList[i].on && EncList[i].spawner != character && EncList[i].target == character ) break;
 
-            // Enchanted?
-            while ( i != MAX_ENC )
-            {
-                // Found a active enchantment that is not a skill of the character
-                if ( EncList[i].on && EncList[i].spawner != character && EncList[i].target == character ) break;
-
-                i++;
-            }
-            if ( i != MAX_ENC ) sprintf( text, "=%s is enchanted!=", ChrList[character].name );
-            else sprintf( text, "=%s is unenchanted=", ChrList[character].name );
-            debug_message( text );
-
-            // Enchantment status
-            if ( ChrList[character].canseeinvisible )  sprintf( tmpa, "Yes" );
-            else                 sprintf( tmpa, "No" );
-            if ( ChrList[character].canseekurse )      sprintf( tmpb, "Yes" );
-            else                 sprintf( tmpb, "No" );
-            sprintf( text, " See Invisible: %s~~See Kurses: %s", tmpa, tmpb );
-            debug_message( text );
-
-            if ( ChrList[character].canchannel )     sprintf( tmpa, "Yes" );
-            else                 sprintf( tmpa, "No" );
-            if ( ChrList[character].waterwalk )        sprintf( tmpb, "Yes" );
-            else                 sprintf( tmpb, "No" );
-            sprintf( text, " Channel Life: %s~~Waterwalking: %s", tmpa, tmpb );
-            debug_message( text );
-
-            if ( ChrList[character].flyheight > 0 )    sprintf( tmpa, "Yes" );
-            else                 sprintf( tmpa, "No" );
-            if ( ChrList[character].missiletreatment == MISREFLECT )       sprintf( tmpb, "Reflect" );
-            else if ( ChrList[character].missiletreatment == MISREFLECT )  sprintf( tmpb, "Deflect" );
-            else                           sprintf( tmpb, "None" );
-            sprintf( text, " Flying: %s~~Missile Protection: %s", tmpa, tmpb );
-            debug_message( text );
-
-            //statdelay = 10;
+            i++;
         }
+        if ( i != MAX_ENC ) sprintf( text, "=%s is enchanted!=", ChrList[character].name );
+        else sprintf( text, "=%s is unenchanted=", ChrList[character].name );
+        debug_message( text );
+
+        // Enchantment status
+        if ( ChrList[character].canseeinvisible )  sprintf( tmpa, "Yes" );
+        else                 sprintf( tmpa, "No" );
+        if ( ChrList[character].canseekurse )      sprintf( tmpb, "Yes" );
+        else                 sprintf( tmpb, "No" );
+        sprintf( text, " See Invisible: %s~~See Kurses: %s", tmpa, tmpb );
+        debug_message( text );
+
+        if ( ChrList[character].canchannel )     sprintf( tmpa, "Yes" );
+        else                 sprintf( tmpa, "No" );
+        if ( ChrList[character].waterwalk )        sprintf( tmpb, "Yes" );
+        else                 sprintf( tmpb, "No" );
+        sprintf( text, " Channel Life: %s~~Waterwalking: %s", tmpa, tmpb );
+        debug_message( text );
+
+        if ( ChrList[character].flyheight > 0 )    sprintf( tmpa, "Yes" );
+        else                 sprintf( tmpa, "No" );
+        if ( ChrList[character].missiletreatment == MISREFLECT )       sprintf( tmpb, "Reflect" );
+        else if ( ChrList[character].missiletreatment == MISREFLECT )  sprintf( tmpb, "Deflect" );
+        else                           sprintf( tmpb, "None" );
+        sprintf( text, " Flying: %s~~Missile Protection: %s", tmpa, tmpb );
+        debug_message( text );
     }
 }
 
