@@ -26,9 +26,9 @@ DEX up         : 0.00-1.00
 
 Size           : 1.00
 Size up        : 0.05
-Shadow size    : 25
-Bump size      : 40
-Bump height    : 70
+Shadow size    : 30
+Bump size      : 30
+Bump height    : 80
 Bump dampen    : 0.25
 Weight         : 180
 Jump power     : 0.00

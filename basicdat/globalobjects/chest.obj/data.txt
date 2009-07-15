@@ -30,10 +30,10 @@ Dexterity increase per level ( eg. 0-1 )	: 0
 
 // More physical attributes
 Size ( eg. 1.0 )				: 1.0
-Size increase per level ( eg. 0.05 )		: 0.0   //Can't grow, level gain used in script
-Shadow size ( eg. 30, 0 is none )		: 40
-Bump size ( eg. 30 )				: 40
-Bump height ( eg. 70 )				: 70
+Size increase per level ( eg. 0.05 )		: 0.0   // Can't grow, level gain used in script
+Shadow size ( eg. 30, 0 is none )		: 30
+Bump size ( eg. 30 )				: 30
+Bump height ( eg. 70 )				: 80
 Bump dampen ( 0.0 to 1.0, lower is massive )	: 0.0
 Weight ( 0 to 255 )				: 255
 Jump power ( eg. 14.0 )				: 0.0
