@@ -9,7 +9,22 @@ IfOrdered
   tmpy = [UNDO]
   IfXIsEqualToY
     UndoEnchant
-
+    
+//------------------------------------------------------------------------------
+// Crushed as a umm.. dead body
+IfCrushed
+  tmpargument = 5
+  SendMessageNear
+  tmpargument = 1
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  
 //------------------------------------------------------------------------------
 // Setup character
 IfSpawned
@@ -54,16 +69,20 @@ IfKilled
       tmpargument = 2		//Bone thrower
   IfTargetIsOnSameTeam
     tmpargument = 3		//Teamkill
+  IfTargetIsSelf
+    tmpargument = 6
   SendMessageNear
 
   // Drop goodies
-  tmpargument = 65535
+  tmpargument = selfmoney
   DropMoney
 
   // Make the character body
   tmpargument = 45
   SetBumpHeight
 
+  //Crushy!
+  MakeCrushValid
 //------------------------------------------------------------------------------
 // For helper AIs
 IfLeaderKilled

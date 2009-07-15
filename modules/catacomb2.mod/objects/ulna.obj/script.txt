@@ -1,4 +1,4 @@
-//AI note:s Set Content to 1 if you want a Ulna thrower. Leader Ulna are
+//AI note: Set Content to 1 if you want a Ulna thrower. Leader Ulna are
 //automatically transformed when level is 2 or higher (This is only checked on spawn).
 //Dexterity increases attack speed
 //Ranged attacks are always made from left hand
@@ -9,7 +9,22 @@ IfOrdered
   tmpy = [UNDO]
   IfXIsEqualToY
     UndoEnchant
-
+    
+//------------------------------------------------------------------------------
+// Crushed as a umm.. dead body
+IfCrushed
+  tmpargument = 5
+  SendMessageNear
+  tmpargument = 1
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  
 //------------------------------------------------------------------------------
 // Setup character
 IfSpawned
@@ -54,16 +69,20 @@ IfKilled
       tmpargument = 2		//Bone thrower
   IfTargetIsOnSameTeam
     tmpargument = 3		//Teamkill
+  IfTargetIsSelf
+    tmpargument = 6
   SendMessageNear
 
   // Drop goodies
-  tmpargument = 65535
+  tmpargument = selfmoney
   DropMoney
 
   // Make the character body
   tmpargument = 45
   SetBumpHeight
 
+  //Crushy!
+  MakeCrushValid
 //------------------------------------------------------------------------------
 // For helper AIs
 IfLeaderKilled
@@ -86,7 +105,7 @@ IfTimeOut
             tmpargument = LATCHRIGHT
             PressLatchButton
           Else
-            tmpx = rand & 255 * 100
+            tmpx = rand % 25600
             tmpy = 3940 + selfdex		//15% chance to attack +1% per dex
             IfXIsLessThanY		//See if he reacts fast enough to attack
               tmpargument = LATCHRIGHT
@@ -119,7 +138,7 @@ IfTimeOut
       tmpy = 150
       IfXIsMoreThanY		//Far enough away?
         IfFacingTarget		//Aim
-          tmpx = rand & 255 * 100
+          tmpx = rand % 25600
           tmpy = selfdex		//1% per dex
           IfXIsLessThanY		//See if he reacts fast enough to throw
             tmpargument = LATCHLEFT
@@ -146,6 +165,7 @@ IfTimeOut
     tmpy = rand & 1023 - 512 + selfspawny
   ClearWaypoints
   AddWaypoint
+
 IfAtLastWaypoint		//Don't stand still
   tmpargument = 0
   SetTime

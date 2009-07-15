@@ -26,7 +26,6 @@ IfPassageOpen			//
       tmpargument = 1		      // Open it
       SetState			      //
       tmpargument = 0		      //
-      tmpdistance = 11025	      //
       PlaySound			      //
       tmpargument = 1
       ChangeArmor
@@ -38,7 +37,6 @@ Else
       tmpargument = 0		      // Close it
       SetState			      //
       tmpargument = 1		      //
-      tmpdistance = 11025	      //
       PlaySound			      //
       tmpargument = 0
       ChangeArmor

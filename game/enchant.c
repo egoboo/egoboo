@@ -644,8 +644,7 @@ Uint16 spawn_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 ienc, 
         if ( peve->dontdamagetype != DAMAGE_NONE )
         {
             if ( ( ChrList[target].damagemodifier[peve->dontdamagetype]&DAMAGESHIFT ) >= 3 
-				|| ChrList[target].damagemodifier[peve->dontdamagetype]&DAMAGECHARGE
-				|| ChrList[target].damagemodifier[peve->dontdamagetype]&DAMAGEINVERT  )
+				|| ChrList[target].damagemodifier[peve->dontdamagetype]&DAMAGECHARGE )
             {
                 return MAX_ENC;
             }

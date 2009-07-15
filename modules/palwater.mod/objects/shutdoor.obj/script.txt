@@ -1,11 +1,12 @@
 // See if there is a character in the detect passage
 IfTimeOut
+  SetTargetToSelf
   tmpargument = 10
   SetTime
   KeepAction
 
   // Check if the master passage is open...
-  GetContent
+  tmpargument = selfcontent
   IfPassageOpen
     tmpargument = 10000
     SetTime
@@ -18,7 +19,6 @@ IfTimeOut
       ChangeArmor
   Else
     // Check if the detect passage is blocked
-    SetTargetToSelf
     tmpargument = passage
     SetTargetToWhoeverIsInPassage
     IfTargetCanOpenStuff

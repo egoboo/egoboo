@@ -24,6 +24,8 @@ Version 2.7.4 (??.??.2009)
 - Update: Improved Linux and Macintosh compatability.
 - Update: Some various rebalancing.
 - Update: Improved the Hell Rover AI and added some new animations.
+- Bugfix: You can no longer put random items in a detection passage to keep doors open.
+- Bugfix: Fixed regeneration spell giving mana when sustained instead of costing.
 - Bugfix: Changed the bounding box for various objects so that is matches it's size.
 - Bugfix: Fixed Bargel still using old version of Burning Hands spell
 - Bugfix: Fixed some bugs in the Book of Rot spell.

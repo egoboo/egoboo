@@ -27,7 +27,8 @@ IfTakenOut
 //Turn things to dust
 IfStateIs1
   IfTimeOut
-    PoofTarget
+    IfTargetIsOnHatedTeam
+      PoofTarget
     tmpargument = 0
     SetState
     

@@ -92,10 +92,10 @@ Else
         SparkleIcon
         
         //Mana cost and power depends on level
-        tmpargument = selfcontent   //Cost depends on charge
+        tmpargument = -selfcontent > 2   //Cost depends on charge
         tmpdistance = 0      // Give owner 0 life per second
         tmpx = 0               // Give target 0 mana per second
-        tmpy = selfcontent    // Give target half the mana cost life per second
+        tmpy = selfcontent > 2    // Give target half the mana cost life per second
         SetEnchantBoostValues
   Else				
     tmpx = selfcontent
