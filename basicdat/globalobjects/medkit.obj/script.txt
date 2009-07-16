@@ -1,11 +1,12 @@
 //MEDKIT
 //Every 4 WIS heals 1 HP
-//18 or more WIS adds 3 second regeneration (0.25 HP per 4 WIS)
+//18 or more WIS adds 4 second regeneration (0.25 HP per 4 WIS)
 //25 WIS allows to try to revive the dead (INT+WIS increases chance)
 //INT reduces cooldown
 //18 INT allows remove Grog
 //22 INT allows remove Daze
 //24 INT allows remove Kurses
+//30 WIS allows remove Life Drain
 
 IfUsed
   SetTargetToWhoeverIsHolding
@@ -115,7 +116,15 @@ IfUsed
     tmpy = 256*26
     IfXIsMoreThanY
       UnkurseTargetInventory
-    
+
+      
+    //If 30 or more wisdom, allow to remove life drain and horrible stuff like that
+    tmpx = selfcontent
+    tmpy = 256*30
+    IfXIsMoreThanY
+      tmpargument = [REST]
+      DispelTargetEnchantID
+      
     //Play sound
     tmpargument = 0
     PlaySound
@@ -168,7 +177,7 @@ IfCrushed
   SpawnExactParticle
   SpawnExactParticle
   GoPoof
-  tmpargument = 2
+  tmpargument = 5
   SendMessageNear
 
 IfHitGround				// Make a sound			

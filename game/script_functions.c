@@ -6756,11 +6756,12 @@ Uint8 scr_DispelTargetEnchantID( script_state_t * pstate, ai_state_t * pself )
 
         while ( iTmp != MAX_ENC )
         {
-            sTmp = EncList[iTmp].nextenchant;
+			sTmp = EncList[iTmp].nextenchant;
             if ( idsz == EveList[EncList[iTmp].eve].removedbyidsz )
             {
                 remove_enchant( iTmp );
             }
+
             iTmp = sTmp;
         }
     }

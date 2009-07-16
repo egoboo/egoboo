@@ -159,7 +159,8 @@ IfBumped				// Bumped
             tmpdistance = targetz
             SpawnExactParticle
             UnkurseTargetInventory
-            DisenchantTarget
+            tmpargument = [REST]
+            DispelTargetEnchantID
             tmpargument = 0 - 10
             GiveMoneyToTarget
 

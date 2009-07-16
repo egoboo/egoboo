@@ -1,8 +1,8 @@
 Slot number    : 80
-Class name     : Strange_Box
+Class name     : Box
 Uniform light  : FALSE
-Maximum ammo   : 20
-Current ammo   : 20
+Maximum ammo   : 10
+Current ammo   : 10
 Gender         : OTHER
 
 Life color     : 1
@@ -138,7 +138,7 @@ Skin 0 name    : Skin_0
 Skin 1 name    : Skin_1
 Skin 2 name    : Skin_2
 Skin 3 name    : Skin_3
-Skin 0 cost    : 200
+Skin 0 cost    : 400
 Skin 1 cost    : 0
 Skin 2 cost    : 0
 Skin 3 cost    : 0

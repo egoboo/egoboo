@@ -4449,7 +4449,7 @@ void stat_return()
                             remove_enchant( cnt );
                         }
                     }
-                    else
+                    else if( !EveList[eve].stayifdead )
                     {
                         remove_enchant( cnt );
                     }

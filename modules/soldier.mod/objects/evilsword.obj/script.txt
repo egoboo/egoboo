@@ -1,5 +1,5 @@
 //Magical abillity
-IfHolderScoredAHit
+IfScoredAHit
   SetTargetToWhoeverIsHolding
     tmpargument = 256
     HealTarget
@@ -40,21 +40,13 @@ IfCrushed
   tmpargument = 1
   SendMessageNear
 IfDropped				// Make it lie on floor
-  GetContent
-  tmpx = tmpargument
-  tmpy = 255
-  IfXIsMoreThanY
-    tmpargument = 255
-    SetContent
   SetTargetToSelf
   KeepAction				  //
 IfHitGround				// Make a sound
   tmpargument = 1			  //
-  tmpdistance = rand & 2047 + 10000	  //
   PlaySound				  //
 IfTakenOut				// Make a sound
   tmpargument = 2			  //
-  tmpdistance = rand & 2047 + 10000	  //
   PlaySound				  //
   SetTargetToWhoeverIsHolding		  //
   IfTargetIsAPlayer			  //

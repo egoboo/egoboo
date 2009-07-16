@@ -68,6 +68,10 @@ IfUsed
     GiveIntelligenceToTarget
     GiveWisdomToTarget
 
+    //Remove any existing magic on the target
+    tmpargument = [DISP]
+    DispelTargetEnchantID
+    
     // Enchant the target
     SetOwnerToTarget
     EnchantTarget

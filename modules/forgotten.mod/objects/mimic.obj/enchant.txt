@@ -19,7 +19,7 @@ Target's life boost each second ( -1.0 to 1.0 )	: 0.0
 // Stuff to make the enchantment more specific
 Don't work if target resists ... ( ex. CRUSH )	: NONE
 Only work if target causes ... ( ex. SLASH )	: NONE
-Removed by ... ( [NONE] or an IDSZ )		: [NONE]
+Removed by ... ( [NONE] or an IDSZ )		: [UNDO]
 
 
 // Set target's attributes...  The numbers are explicit, and

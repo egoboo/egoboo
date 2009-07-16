@@ -3386,13 +3386,14 @@ void damage_character( Uint16 character, Uint16 direction,
                     {
                         // Character has died
                         ChrList[character].alive = bfalse;
-                        disenchant_character( character );
+                        //disenchant_character( character );
                         ChrList[character].waskilled = btrue;
                         ChrList[character].keepaction = btrue;
                         ChrList[character].life = -1;
                         ChrList[character].platform = btrue;
                         ChrList[character].bumpdampen = ChrList[character].bumpdampen / 2.0f;
                         action = ACTION_KA;
+
                         // Give kill experience
                         experience = CapList[model].experienceworth + ( ChrList[character].experience * CapList[model].experienceexchange );
                         if ( VALID_CHR(attacker) )
@@ -5948,11 +5949,17 @@ bool_t is_invictus_direction( Uint16 direction, Uint16 character, Uint16 effects
 bool_t chr_instance_init( chr_instance_t * pinst, Uint16 profile, Uint8 skin )
 {
     int tnc;
+	Sint8 greensave = 0, redsave = 0, bluesave = 0;
 
     mad_t * pmad;
     cap_t * pcap;
 
     if ( NULL == pinst ) return bfalse;
+
+	//Remember any previous color shifts in case of lasting enchantments
+	greensave = pinst->grnshift;
+	redsave = pinst->redshift;
+	bluesave = pinst->blushift;
 
     // clear the instance
     memset(pinst, 0, sizeof(chr_instance_t));
@@ -5970,6 +5977,9 @@ bool_t chr_instance_init( chr_instance_t * pinst, Uint16 profile, Uint8 skin )
     pinst->alpha     = pcap->alpha;
     pinst->light     = pcap->light;
     pinst->sheen     = pcap->sheen;
+	pinst->grnshift  = greensave;
+	pinst->redshift  = redsave;
+	pinst->blushift  = bluesave;
 
     pinst->frame_nxt = pmad->md2.framestart;
     pinst->frame_lst = pinst->frame_nxt;

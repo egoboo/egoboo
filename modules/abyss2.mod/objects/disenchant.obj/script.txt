@@ -113,7 +113,8 @@ Else
     
       //Do the magic
       UnkurseTarget
-      DisenchantTarget
+      tmpargument = [DISP]
+      DispelTargetEnchantID
       tmpargument = [UNDO]
       OrderTarget
       

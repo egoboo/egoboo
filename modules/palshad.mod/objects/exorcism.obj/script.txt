@@ -1,7 +1,6 @@
 // Put the little mana ball on the
 // character's hand
-GetContent
-tmpx = tmpargument
+tmpx = selfcontent
 tmpy = 0
 IfXIsMoreThanY
   tmpturn = tmpargument < 4 + 3000
@@ -36,17 +35,14 @@ IfUsed
   SetTargetToWhoeverIsHolding
     tmpargument = [HMAG]
     IfTargetHasSkillID
-      GetContent
-      tmpx = tmpargument
+      tmpx = selfcontent
       tmpy = 768                //3 mana
       IfXIsLessThanY
         tmpy = targetmanaflow
         IfXIsLessThanY
-          tmpx = 7
-          tmpargument = tmpx
+          tmpargument = 7
           CostTargetMana
-            GetContent
-            tmpargument = tmpargument + tmpx
+            tmpargument = tmpargument + selfcontent
             SetContent
       
       // Put particles around the target (If we find one)
@@ -59,8 +55,7 @@ IfUsed
 
 // Allow it to be cast or fizzle
 Else
-  GetContent
-  tmpx = tmpargument
+  tmpx = selfcontent
   tmpy = 767
   IfXIsMoreThanY
     // Make the holder cast it
@@ -85,7 +80,10 @@ Else
         tmpdistance = DAMAGEHOLY
         SetTargetToOldTarget
         DamageTarget
-        DisenchantTarget
+        
+        //Now try to destroy it
+        tmpargument = [DISP]
+        DispelTargetEnchantID
         
         // Play a sound
         tmpargument = 0

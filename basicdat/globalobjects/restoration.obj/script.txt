@@ -23,21 +23,23 @@ Else
   tmpargument = 0
   SetState
 
+IfCrushed
+  tmpargument = 4
+  SendMessageNear
+  
 //Spell stuff
 IfUsed
   SetTargetToWhoeverIsHolding
-  tmpargument = [GOOD]
-  IfTargetHasSpecialID				//Need divine spell skill
-    GetContent
-    tmpx = tmpargument
+  tmpargument = [HMAG]
+  IfTargetHasSkillID				//Need divine spell skill
+    tmpx = selfcontent
     tmpy = 1024					//Don't overcharge
     IfXIsLessThanY
       tmpy = targetmanaflow			//Enough spell power?
       IfYIsMoreThanX
         tmpargument = 6				//Mana cost
         CostTargetMana
-          GetContent				//Increase the charge
-          tmpargument = tmpargument + 8		//Casting Time
+          tmpargument = selfcontent + 8		//Casting Time
           SetContent
 
     // Spawn particles around target
@@ -54,9 +56,8 @@ IfUsed
     SpawnExactParticle
 
 Else
-  GetContent
-  tmpx = tmpargument
-  tmpy = 1000
+  tmpx = selfcontent
+  tmpy = 1023
   IfXIsMoreThanY		//Enough power to activate?
     tmpx = targetx
     tmpy = targety
@@ -67,8 +68,9 @@ Else
     SetTargetToWhoeverIsHolding
     tmpargument = targetwis	//Heal 1 life per wisdom point (Also cures poison)
     SetTargetToOldTarget
-    HealTarget
-    DisenchantTarget		//And remove all enchants
+    HealTarget          //Also removes [HEAL] enchants
+    tmpargument = [REST]
+    DispelTargetEnchantID   //And remove all evil enchants
     UnkurseTargetInventory		//Remove kurses
     tmpargument = 80		//Set cooldown time
     SetReloadTime
@@ -77,8 +79,7 @@ Else
     tmpargument = 1
     PlaySound
   Else
-    GetContent
-    tmpx = tmpargument
+    tmpx = selfcontent
     tmpy = 0
     IfXIsMoreThanY		//Only if there was a charge
       tmpargument = 1
@@ -100,8 +101,7 @@ Else
 
 // Put the little mana ball on the
 // character's hand
-GetContent
-tmpx = tmpargument
+tmpx = selfcontent
 tmpy = 0
 IfXIsMoreThanY
   tmpturn = tmpargument < 4 + 3000

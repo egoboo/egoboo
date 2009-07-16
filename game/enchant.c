@@ -1104,6 +1104,7 @@ bool_t load_one_enchant_profile( const char* szLoadName, Uint16 profile )
         else if ( idsz == Make_IDSZ( "STAY" ) ) peve->stayifnoowner = fget_int( fileread );
         else if ( idsz == Make_IDSZ( "OVER" ) ) peve->overlay = fget_int( fileread );
         else if ( idsz == Make_IDSZ( "CKUR" ) ) peve->seekurse = fget_int( fileread );
+        else if ( idsz == Make_IDSZ( "DEAD" ) ) peve->stayifdead = fget_int( fileread );
     }
 
     // All done ( finally )

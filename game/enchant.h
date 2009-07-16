@@ -126,7 +126,8 @@ struct s_eve
     Uint16  contspawnpip;                // Spawn type ( local )
     Sint16  endsoundindex;               // Sound on end (-1 for none)
     Uint8   overlay;                     // Spawn an overlay?
-    Uint16  seekurse;
+    Uint16  seekurse;				     // Allow target to see kurses
+    bool_t  stayifdead;	                 // Stay if target has died?
 };
 typedef struct s_eve eve_t;
 
