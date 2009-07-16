@@ -24,16 +24,19 @@
 #include "menu.h"
 
 #include "ui.h"
-#include "graphic.h"
 #include "log.h"
-#include "sound.h"
-#include "input.h"
 #include "char.h"
 #include "file_common.h"
 #include "particle.h"
 #include "link.h"
 #include "mad.h"
 #include "game.h"
+
+//To allow changing settings
+#include "sound.h"
+#include "input.h"
+#include "camera.h"
+#include "graphic.h"
 
 #include "SDL_extensions.h"
 
@@ -121,10 +124,21 @@ const char *singlePlayerButtons[] =
 
 const char *optionsButtons[] =
 {
+	"Game Options",
     "Audio Options",
     "Input Controls",
     "Video Settings",
     "Back",
+    ""
+};
+const char *gameOptionsButtons[] =
+{
+    "N/A",        // Difficulty
+    "N/A",        // Max messages
+    "N/A",        // Message duration
+    "N/A",        // Autoturn camera 
+    "N/A",        // Show FPS
+    "Save Settings",
     ""
 };
 
@@ -143,7 +157,7 @@ const char *audioOptionsButtons[] =
 const char *videoOptionsButtons[] =
 {
     "N/A",    // Antialaising
-    "N/A",    // Color depth
+    "NOT_USED",    //Unused button 
     "N/A",    // Fast & ugly
     "N/A",    // Fullscreen
     "N/A",    // Reflections
@@ -153,7 +167,7 @@ const char *videoOptionsButtons[] =
     "N/A",    // Fog
     "N/A",    //3D effects
     "N/A",    // Multi water layer
-    "N/A",    // Max messages
+    "NOT_USED",    //Unused button 
     "N/A",    // Screen resolution
     "Save Settings",
     "N/A",    // Max particles
@@ -1113,20 +1127,25 @@ int doOptions( float deltaTime )
             // Buttons
             if ( BUTTON_UP == ui_doButton( 1, optionsButtons[0], buttonLeft, buttonTop, 200, 30 ) )
             {
+                // game options
+                menuChoice = 5;
+            }
+            if ( BUTTON_UP == ui_doButton( 2, optionsButtons[1], buttonLeft, buttonTop + 35, 200, 30 ) )
+            {
                 // audio options
                 menuChoice = 1;
             }
-            if ( BUTTON_UP == ui_doButton( 2, optionsButtons[1], buttonLeft, buttonTop + 35, 200, 30 ) )
+            if ( BUTTON_UP == ui_doButton( 3, optionsButtons[2], buttonLeft, buttonTop + 35 * 2, 200, 30 ) )
             {
                 // input options
                 menuChoice = 2;
             }
-            if ( BUTTON_UP == ui_doButton( 3, optionsButtons[2], buttonLeft, buttonTop + 35 * 2, 200, 30 ) )
+            if ( BUTTON_UP == ui_doButton( 4, optionsButtons[3], buttonLeft, buttonTop + 35 * 3, 200, 30 ) )
             {
                 // video options
                 menuChoice = 3;
             }
-            if ( BUTTON_UP == ui_doButton( 4, optionsButtons[3], buttonLeft, buttonTop + 35 * 3, 200, 30 ) )
+            if ( BUTTON_UP == ui_doButton( 5, optionsButtons[4], buttonLeft, buttonTop + 35 * 4, 200, 30 ) )
             {
                 // back to main menu
                 menuChoice = 4;
@@ -1568,6 +1587,276 @@ int doInputOptions( float deltaTime )
 }
 
 //--------------------------------------------------------------------------------------------
+//Game options menu
+int doGameOptions( float deltaTime )
+{
+    static int menuState = MM_Begin;
+    static oglx_texture background;
+    static int menuChoice = 0;
+    static char Cdifficulty[128];
+    static char Cmaxmessage[128];
+    
+    int result = 0;
+
+    switch ( menuState )
+    {
+        case MM_Begin:
+            // set up menu variables
+            ego_texture_load( &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_fairy", TRANSCOLOR );
+
+            menuChoice = 0;
+            menuState = MM_Entering;
+            // let this fall through into MM_Entering
+
+        case MM_Entering:
+            // do buttons sliding in animation, and background fading in
+            // background
+            GL_DEBUG(glColor4f)(1, 1, 1, 1 - SlidyButtonState.lerp );
+
+            // Draw the background
+            if ( mnu_draw_background )
+            {
+				ui_drawImage( 0, &background, (sdl_scr.x/2)+(background.imgW/2), sdl_scr.y - background.imgH, 0, 0 );
+            }
+
+            // Load the current settings
+			switch( cfg.difficulty )
+			{
+				case GAME_HARD: sprintf(Cdifficulty, "Punishing"); break;
+				case GAME_NORMAL: sprintf(Cdifficulty, "Challenging"); break;
+				default: case GAME_EASY:
+				{
+					sprintf(Cdifficulty, "Forgiving"); 
+					cfg.difficulty = GAME_EASY;
+					break;
+				}
+			}
+            gameOptionsButtons[0] = Cdifficulty;
+            
+			if ( maxmessage > MAXMESSAGE || maxmessage < 0 ) maxmessage = MAXMESSAGE - 1;
+            if ( maxmessage == 0 )
+            {
+                sprintf( Cmaxmessage, "None" );           // Set to default
+            }
+            else
+            {
+                sprintf( Cmaxmessage, "%i", maxmessage );
+            }
+            gameOptionsButtons[1] = Cmaxmessage;
+
+			//Message duration
+            if ( cfg.message_duration <= 100 )
+            {
+                gameOptionsButtons[2] = "Short";
+            }
+            else if ( cfg.message_duration <= 150 )
+            {
+                gameOptionsButtons[2] = "Normal";
+            }
+            else
+            {
+                gameOptionsButtons[2] = "Long";
+            }
+
+			//Autoturn camera
+			if( cfg.autoturncamera == CAMTURN_GOOD )		gameOptionsButtons[3] = "Fast";
+			else if( cfg.autoturncamera == CAMTURN_AUTO )	gameOptionsButtons[3] = "On";
+			else 
+			{
+				gameOptionsButtons[3] = "Off";
+				cfg.autoturncamera = CAMTURN_NONE;
+			}
+
+			//Show FPS
+			if( cfg.fps_allowed )	gameOptionsButtons[4] = "On";
+			else 					gameOptionsButtons[4] = "Off";
+			
+            // Fall trough
+            menuState = MM_Running;
+            break;
+
+        case MM_Running:
+            // Do normal run
+            // Background
+            GL_DEBUG(glColor4f)(1, 1, 1, 1 );
+
+            if ( mnu_draw_background )
+            {
+				ui_drawImage( 0, &background, (sdl_scr.x/2)-(background.imgW/2), sdl_scr.y - background.imgH, 0, 0 );
+			}
+
+            fnt_drawTextBox( menuFont, "Game Difficulty:", buttonLeft, 50, 0, 0, 20 );
+
+            // Buttons
+            if ( BUTTON_UP == ui_doButton( 1, gameOptionsButtons[0], buttonLeft + 150, 50, 150, 30 ) )
+            {
+				// Increase difficulty
+				cfg.difficulty++;
+				switch( cfg.difficulty )
+				{
+					case GAME_HARD: sprintf(Cdifficulty, "Punishing"); break;
+					case GAME_NORMAL: sprintf(Cdifficulty, "Challenging"); break;
+					default: case GAME_EASY:
+					{
+						sprintf(Cdifficulty, "Forgiving"); 
+						cfg.difficulty = GAME_EASY;
+						break;
+					}
+				}
+				gameOptionsButtons[0] = Cdifficulty;
+            }
+
+			//Now do difficulty description. Currently it's handled very bad, but it works.
+			switch( cfg.difficulty )
+			{
+				case GAME_EASY:
+				fnt_drawTextBox( menuFont, "FORGIVING (Easy)\n - 15% XP loss upon death\n - Monsters take 25% extra damage by players\n - Players take 25% less damage by monsters\n - Halves the chance for Kursed items\n - Cannot unlock the final level in this mode\n - Life and Mana is refilled after quitting a module", buttonLeft, 100, 0, 0, 20 );
+				break;
+				case GAME_NORMAL:
+				fnt_drawTextBox( menuFont, "CHALLENGING (Normal)\n - 15% XP loss upon death \n - 15% money loss upon death", buttonLeft, 100, 0, 0, 20 );
+				break;
+				case GAME_HARD:
+				fnt_drawTextBox( menuFont, "PUNISHING (Hard)\n - 15% XP loss upon death\n - 15% money loss upon death\n - No respawning\n - Channeling life can kill you\n - Players take 50% more damage\n - Monsters award 10% extra xp!\n - Doubles the chance for Kursed items", buttonLeft, 100, 0, 0, 20 );
+				break;
+			}
+
+            // Text messages
+            fnt_drawTextBox( menuFont, "Max  Messages:", buttonLeft + 350, 50, 0, 0, 20 );
+            if ( BUTTON_UP == ui_doButton( 12, gameOptionsButtons[1], buttonLeft + 500, 50, 75, 30 ) )
+            {
+                if ( cfg.message_count_req < 0 )
+                {
+                    cfg.message_count_req = 0;
+                }
+                else
+                {
+                    cfg.message_count_req++;
+                }
+
+                if ( cfg.message_count_req > MAXMESSAGE )
+                {
+                    cfg.message_count_req = 0;
+                }
+
+                if ( 0 == cfg.message_count_req )
+                {
+                    sprintf( Cmaxmessage, "None" );
+                }
+                else
+                {
+                    sprintf( Cmaxmessage, "%i", cfg.message_count_req );    // Convert integer to a char we can use
+                }
+
+                gameOptionsButtons[1] = Cmaxmessage;
+            }
+
+			// Message time
+            fnt_drawTextBox( menuFont, "Message Duration:", buttonLeft + 350, 100, 0, 0, 20 );
+            if ( BUTTON_UP == ui_doButton( 3, gameOptionsButtons[2], buttonLeft + 500, 100, 100, 30 ) )
+            {
+                if ( cfg.message_duration <= 0 )
+                {
+                    cfg.message_duration = 100;
+                }
+                else
+                {
+                    cfg.message_duration += 50;
+                }
+
+                if ( cfg.message_duration >= 250 )
+                {
+                    cfg.message_duration = 100;
+                }
+
+                if ( cfg.message_duration <= 100 )
+                {
+                    gameOptionsButtons[2] = "Short";
+                }
+                else if ( cfg.message_duration <= 150 )
+                {
+                    gameOptionsButtons[2] = "Normal";
+                }
+                else
+                {
+                    gameOptionsButtons[2] = "Long";
+                }
+            }
+
+			// Autoturn camera
+            fnt_drawTextBox( menuFont, "Autoturn Camera:", buttonLeft + 350, 150, 0, 0, 20 );
+            if ( BUTTON_UP == ui_doButton( 4, gameOptionsButtons[3], buttonLeft + 500, 150, 100, 30 ) )
+            {
+				if( cfg.autoturncamera == CAMTURN_GOOD ) 
+				{
+					gameOptionsButtons[3] = "Off";
+					cfg.autoturncamera = CAMTURN_NONE;
+				}
+				else if( cfg.autoturncamera ) 
+				{
+					gameOptionsButtons[3] = "Fast";
+					cfg.autoturncamera = CAMTURN_GOOD;
+				}
+				else 
+				{
+					gameOptionsButtons[3] = "On";
+					cfg.autoturncamera = CAMTURN_AUTO;
+				}
+			}
+
+			// Show the fps?
+            fnt_drawTextBox( menuFont, "Display FPS:", buttonLeft + 350, 200, 0, 0, 20 );
+            if ( BUTTON_UP == ui_doButton( 5, gameOptionsButtons[4], buttonLeft + 500, 200, 100, 30 ) )
+            {
+				cfg.fps_allowed = !cfg.fps_allowed;
+				if( cfg.fps_allowed )	gameOptionsButtons[4] = "On";
+				else 					gameOptionsButtons[4] = "Off";
+			}
+
+			//Save settings
+            if ( BUTTON_UP == ui_doButton( 6, gameOptionsButtons[5], buttonLeft, sdl_scr.y - 60, 200, 30 ) )
+            {
+                // synchronoze the config values with the various game subsystems
+                setup_synch( &cfg );
+
+                // save the setup file
+                setup_upload( &cfg );
+                setup_write();
+
+                menuState = MM_Leaving;
+            }
+            break;
+
+        case MM_Leaving:
+            // Do buttons sliding out and background fading
+            // Do the same stuff as in MM_Entering, but backwards
+            GL_DEBUG(glColor4f)(1, 1, 1, 1 - SlidyButtonState.lerp );
+
+            if ( mnu_draw_background )
+            {
+				ui_drawImage( 0, &background, (sdl_scr.x/2)+(background.imgW/2), sdl_scr.y - background.imgH, 0, 0 );
+            }
+
+            // Fall trough
+            menuState = MM_Finish;
+            break;
+
+        case MM_Finish:
+            // Free the background texture; don't need to hold onto it
+            oglx_texture_Release( &background );
+            menuState = MM_Begin;  // Make sure this all resets next time doMainMenu is called
+
+            // reset the ui
+            ui_Reset();
+
+            // Set the next menu to load
+            result = 1;
+            break;
+    }
+
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------
 //Audio options menu
 int doAudioOptions( float deltaTime )
 {
@@ -1781,7 +2070,6 @@ int doVideoOptions( float deltaTime )
     static int menuChoice = 0;
     int result = 0;
     static STRING Cantialiasing;
-    static char Cmaxmessage[128];
     static char Cmaxlights[128];
     static char Cscrz[128];
     static char Cmaxparticles[128];
@@ -1811,20 +2099,6 @@ int doVideoOptions( float deltaTime )
             if (cfg.multisamples == 0) strcpy(Cantialiasing , "Off");
             else snprintf(Cantialiasing, sizeof(Cantialiasing), "X%i", cfg.multisamples);
             videoOptionsButtons[0] = Cantialiasing;
-
-            //Message duration
-            if ( cfg.message_duration <= 100 )
-            {
-                videoOptionsButtons[1] = "Short";
-            }
-            else if ( cfg.message_duration <= 150 )
-            {
-                videoOptionsButtons[1] = "Normal";
-            }
-            else
-            {
-                videoOptionsButtons[1] = "Long";
-            }
 
             //Texture filtering
             switch ( cfg.texturefilter_req )
@@ -1876,18 +2150,7 @@ int doVideoOptions( float deltaTime )
             {
                 videoOptionsButtons[4] = "Off";
             }
-
-            if ( maxmessage > MAXMESSAGE || maxmessage < 0 ) maxmessage = MAXMESSAGE - 1;
-            if ( maxmessage == 0 )
-            {
-                sprintf( Cmaxmessage, "None" );           // Set to default
-            }
-            else
-            {
-                sprintf( Cmaxmessage, "%i", maxmessage );
-            }
-            videoOptionsButtons[11] = Cmaxmessage;
-
+            
             if ( cfg.shadow_allowed )
             {
                 videoOptionsButtons[6] = "Normal";
@@ -1992,38 +2255,6 @@ int doVideoOptions( float deltaTime )
                 else snprintf(Cantialiasing, sizeof(Cantialiasing), "X%i", cfg.multisamples);
 
                 videoOptionsButtons[0] = Cantialiasing;
-            }
-
-            // Message time
-            fnt_drawTextBox( menuFont, "Message Duration:", buttonLeft, sdl_scr.y - 180, 0, 0, 20 );
-            if ( BUTTON_UP == ui_doButton( 2, videoOptionsButtons[1], buttonLeft + 150, sdl_scr.y - 180, 100, 30 ) )
-            {
-                if ( cfg.message_duration <= 0 )
-                {
-                    cfg.message_duration = 100;
-                }
-                else
-                {
-                    cfg.message_duration += 50;
-                }
-
-                if ( cfg.message_duration >= 250 )
-                {
-                    cfg.message_duration = 100;
-                }
-
-                if ( cfg.message_duration <= 100 )
-                {
-                    videoOptionsButtons[1] = "Short";
-                }
-                else if ( cfg.message_duration <= 150 )
-                {
-                    videoOptionsButtons[1] = "Normal";
-                }
-                else
-                {
-                    videoOptionsButtons[1] = "Long";
-                }
             }
 
             // Dithering
@@ -2273,36 +2504,6 @@ int doVideoOptions( float deltaTime )
 
                 snprintf( Cmaxparticles, SDL_arraysize(Cmaxparticles), "%i", cfg.particle_count_req );    // Convert integer to a char we can use
                 videoOptionsButtons[14] =  Cmaxparticles;
-            }
-
-            // Text messages
-            fnt_drawTextBox( menuFont, "Max  Messages:", buttonLeft + 300, sdl_scr.y - 145, 0, 0, 20 );
-            if ( BUTTON_UP == ui_doButton( 12, videoOptionsButtons[11], buttonLeft + 450, sdl_scr.y - 145, 75, 30 ) )
-            {
-                if ( cfg.message_count_req < 0 )
-                {
-                    cfg.message_count_req = 0;
-                }
-                else
-                {
-                    cfg.message_count_req++;
-                }
-
-                if ( cfg.message_count_req > MAXMESSAGE )
-                {
-                    cfg.message_count_req = 0;
-                }
-
-                if ( 0 == cfg.message_count_req )
-                {
-                    sprintf( Cmaxmessage, "None" );
-                }
-                else
-                {
-                    sprintf( Cmaxmessage, "%i", cfg.message_count_req );    // Convert integer to a char we can use
-                }
-
-                videoOptionsButtons[11] = Cmaxmessage;
             }
 
             // Screen Resolution
@@ -2794,6 +2995,16 @@ int doMenu( float deltaTime )
                 else if ( result == 2 ) mnu_begin_menu( emnu_InputOptions );
                 else if ( result == 3 ) mnu_begin_menu( emnu_VideoOptions );
                 else if ( result == 4 ) { mnu_end_menu(); retval = MENU_END; }
+                else if ( result == 5 ) mnu_begin_menu( emnu_GameOptions );
+            }
+            break;
+        
+		case emnu_GameOptions:
+            result = doGameOptions( deltaTime );
+            if ( result != 0 )
+            {
+                mnu_end_menu();
+                retval = MENU_END;
             }
             break;
 

@@ -1,4 +1,5 @@
-Version 2.7.4 (??.??.2009)
+Version 2.7.4 (??.07.2009)
+- New Feature: New menu section for Game Options where you can change the game difficulty.
 - New Feature: New town module! Visit Sandweg city in the deserts and taste the juicy Kabobs!
 - New Feature: Another new music track for Sandweg by Edward Blakely!
 - New Feautre: 4 new divine spell runes.

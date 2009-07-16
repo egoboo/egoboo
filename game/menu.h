@@ -37,6 +37,7 @@ enum e_which_menu
     emnu_ChoosePlayer,
     emnu_ShowMenuResults,
     emnu_Options,
+	emnu_GameOptions,
     emnu_VideoOptions,
     emnu_AudioOptions,
     emnu_InputOptions,

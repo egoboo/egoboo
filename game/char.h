@@ -314,6 +314,8 @@ struct s_cap
     Sint8        hidestate;                       // Don't draw when...
     bool_t       isequipment;                     // Behave in silly ways
     Sint8        isvaluable;                      // Force to be valuable
+    Uint16       spawnlife;                      // Life left from last module
+    Uint16       spawnmana;                      // Life left from last module
 
     //skill system
     Sint8        shieldproficiency;               // Can it use shields?

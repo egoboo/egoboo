@@ -2663,6 +2663,8 @@ bool_t export_one_character_profile( const char *szSaveName, Uint16 character )
     fprintf( filewrite, ":[CONT] %d\n", pchr->ai.content );
     fprintf( filewrite, ":[STAT] %d\n", pchr->ai.state );
     fprintf( filewrite, ":[LEVL] %d\n", pchr->experiencelevel );
+	fprintf( filewrite, ":[LIFE] %4.2f\n", FP8_TO_FLOAT(pchr->life) );
+	fprintf( filewrite, ":[MANA] %4.2f\n", FP8_TO_FLOAT(pchr->mana) );
 
     //Copy all skill expansions
 
@@ -3185,6 +3187,8 @@ int load_one_character_profile( const char * tmploadname )
         else if ( idsz == Make_IDSZ( "PLAT" ) ) pcap->canuseplatforms = fget_int( fileread );
         else if ( idsz == Make_IDSZ( "RIPP" ) ) pcap->ripple = fget_int( fileread );
         else if ( idsz == Make_IDSZ( "VALU" ) ) pcap->isvaluable = fget_int( fileread );
+        else if ( idsz == Make_IDSZ( "LIFE" ) ) pcap->spawnlife = 256*fget_float( fileread );
+        else if ( idsz == Make_IDSZ( "MANA" ) ) pcap->spawnmana = 256*fget_float( fileread );
 
         //Read Skills
         else if ( idsz == Make_IDSZ( "AWEP" ) ) pcap->canuseadvancedweapons = fget_int( fileread );
@@ -3856,12 +3860,16 @@ Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
     pchr->lifecolor = pcap->lifecolor;
     pchr->manacolor = pcap->manacolor;
     pchr->lifemax = generate_number( pcap->lifebase, pcap->liferand );
-    pchr->life = pchr->lifemax;
     pchr->lifereturn = pcap->lifereturn;
     pchr->manamax = generate_number( pcap->manabase, pcap->manarand );
     pchr->manaflow = generate_number( pcap->manaflowbase, pcap->manaflowrand );
     pchr->manareturn = generate_number( pcap->manareturnbase, pcap->manareturnrand );
-    pchr->mana = pchr->manamax;
+    
+	//Load current life and mana or refill them (based on difficulty)
+	if( cfg.difficulty >= GAME_NORMAL ) pchr->life = CLIP( pcap->spawnlife, LOWSTAT, pchr->lifemax );
+	else pchr->life = pchr->lifemax;
+	if( cfg.difficulty >= GAME_NORMAL ) pchr->mana = CLIP( pcap->spawnmana, 0, pchr->manamax );
+	else pchr->mana = pchr->manamax;
 
     // SWID
     pchr->strength = generate_number( pcap->strengthbase, pcap->strengthrand );
