@@ -72,11 +72,11 @@ ClearWaypoints
 AddWaypoint
 
 //Check if casting is finished
-GetContent
-tmpx = tmpargument
+tmpx = selfcontent
 tmpy = 75
 IfXIsMoreThanY
-  DisenchantTarget
+  tmpargument = [DISP]
+  DispelTargetEnchantID
   tmpargument = 0
   SetContent
   tmpargument = 3

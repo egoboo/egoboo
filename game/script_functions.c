@@ -2135,12 +2135,23 @@ Uint8 scr_ScoredAHit( script_state_t * pstate, ai_state_t * pself )
 {
     // _ScoredAHit()
     // This function proceeds if the character damaged another character this
-    // update...
+    // update... If it's a held character it also sets the target to whoever was hit
 
     SCRIPT_FUNCTION_BEGIN();
 
     // Proceed only if the character scored a hit
-    returncode = ( 0 != ( pself->alert & ALERTIF_SCOREDAHIT ) );
+	if ( pchr->attachedto == MAX_CHR || ChrList[pchr->attachedto].ismount )
+    {
+		returncode = ( 0 != ( pself->alert & ALERTIF_SCOREDAHIT ) );
+    }
+	
+	//Proceed only if the holder scored a hit with the character
+	else if( ChrList[pchr->attachedto].ai.lastitemused == pself->index )
+	{
+		returncode = ( 0 != ( ChrList[pchr->attachedto].ai.alert & ALERTIF_SCOREDAHIT ) );
+        if( returncode ) pself->target = ChrList[pchr->attachedto].ai.hitlast;
+	}
+	else returncode = bfalse;
 
     SCRIPT_FUNCTION_END();
 }
@@ -6148,22 +6159,6 @@ Uint8 scr_DisableRespawn( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_HolderScoredAHit( script_state_t * pstate, ai_state_t * pself )
-{
-    SCRIPT_FUNCTION_BEGIN();
-
-    // Proceed only if the character's holder scored a hit
-    returncode = bfalse;
-    if ( 0 != ( ChrList[pchr->attachedto].ai.alert & ALERTIF_SCOREDAHIT ) )
-    {
-        returncode = btrue;
-        pself->target = ChrList[pchr->attachedto].ai.hitlast;
-    }
-
-    SCRIPT_FUNCTION_END();
-}
-
-//--------------------------------------------------------------------------------------------
 Uint8 scr_HolderBlocked( script_state_t * pstate, ai_state_t * pself )
 {
     SCRIPT_FUNCTION_BEGIN();
@@ -6740,6 +6735,35 @@ Uint8 scr_TargetCanSeeKurses( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = ChrList[pself->target].canseekurse;
+
+    SCRIPT_FUNCTION_END();
+}
+
+//--------------------------------------------------------------------------------------------
+Uint8 scr_DispelTargetEnchantID( script_state_t * pstate, ai_state_t * pself )
+{
+    // DispelEnchantID( tmpargument = "idsz" )
+    // This function removes all enchants from the target who match the specified RemovedByIDSZ
+    int iTmp;
+    IDSZ idsz;
+
+    SCRIPT_FUNCTION_BEGIN();
+    if ( ChrList[pself->target].alive )
+    {
+        // Check all enchants to see if they are removed
+        idsz = pstate->argument;
+        iTmp = ChrList[pself->target].firstenchant;
+
+        while ( iTmp != MAX_ENC )
+        {
+            sTmp = EncList[iTmp].nextenchant;
+            if ( idsz == EveList[EncList[iTmp].eve].removedbyidsz )
+            {
+                remove_enchant( iTmp );
+            }
+            iTmp = sTmp;
+        }
+    }
 
     SCRIPT_FUNCTION_END();
 }

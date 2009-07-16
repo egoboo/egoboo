@@ -229,7 +229,7 @@ IfSpawned
   IfStateIs0
     tmpargument = 62    //Thunder spear
   IfStateIs1
-    tmpargument = 81    //The mana sword
+    tmpargument = 82    //Sojurn
   IfStateIs2
     tmpargument = 83    //Strike
   IfStateIs3

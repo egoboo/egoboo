@@ -351,7 +351,7 @@ enum e_script_functions
     FDISABLEEXPORT,                      // == 286
     FENABLEEXPORT,                       // == 287
     FGETTARGETSTATE,                     // == 288
-    FIFEQUIPPED,                         // == 289  Redone in v 0.95f
+    FIFEQUIPPED,                         // == 289  Redone in v 0.95
     FDROPTARGETMONEY,                    // == 290
     FGETTARGETCONTENT,                   // == 291
     FDROPTARGETKEYS,                     // == 292
@@ -398,7 +398,7 @@ enum e_script_functions
     FDAZETARGET,                         // == 333
     FENABLERESPAWN,                      // == 334
     FDISABLERESPAWN,                     // == 335
-    FIFHOLDERSCOREDAHIT,                 // == 336
+    FDISPELTARGETENCHANTID,		         // == 336  Redone in v 1.10
     FIFHOLDERBLOCKED,                    // == 337
     FGETSKILLLEVEL,                      // == 338
     FIFTARGETHASNOTFULLMANA,             // == 339

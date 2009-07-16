@@ -355,7 +355,7 @@ The symbol itself follows
 :F 333 GrogTarget
 :F 334 EnableRespawn
 :F 335 DisableRespawn
-:F 336 IfHolderScoredAHit
+:F 336 DispelTargetEnchantID
 :F 337 IfHolderBlocked
 :F 338 GetTargetShieldProfiency
 :F 339 IfTargetHasNotFullMana

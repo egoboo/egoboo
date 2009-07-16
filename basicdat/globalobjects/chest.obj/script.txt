@@ -11,6 +11,7 @@
 //+16 content = invisible
 //+32 content = contains armor (!invalidates map and secret bottom!)
 //+64 content = armor costs money (only works with +32 content!)
+//+128 content = rune warded chest
 //------------------------------------------------------------------------------------
 //ARMOR TYPES DEPEND ON SELFLEVEL
 //0 = randomize armor type
@@ -26,6 +27,15 @@
 //10= Tourist.
 //11= Valkyrie.
 //12= All above excluding 9, 10 and 11
+
+//------------------------------------------------------------------------------------
+//Rune chest
+IfSpawned
+  tmpx = selfcontent & 128
+  tmpy = 128
+  IfXIsEqualToY
+    tmpargument = 1
+    ChangeArmor
 
 //------------------------------------------------------------------------------------
 //Invisible chest
@@ -52,47 +62,47 @@ IfSpawned
     tmpy = 1
     IfXIsEqualToY
       tmpargument = [ARCH]  //Archaelogist
-      tmpturn = 23             //Which message to display when failed to loot
+      tmpturn = 24             //Which message to display when failed to loot
     tmpy = 2
     IfXIsEqualToY
       tmpargument = [GNOM]  //G'nome
-      tmpturn = 24             //Which message to display when failed to loot
+      tmpturn = 25             //Which message to display when failed to loot
     tmpy = 3
     IfXIsEqualToY
       tmpargument = [SOLD]  //Soldier
-      tmpturn = 25             //Which message to display when failed to loot
+      tmpturn = 26             //Which message to display when failed to loot
     tmpy = 4
     IfXIsEqualToY
       tmpargument = [ELFF]  //Elf
-      tmpturn = 26             //Which message to display when failed to loot
+      tmpturn = 27             //Which message to display when failed to loot
     tmpy = 5
     IfXIsEqualToY
       tmpargument = [ADVE]  //Adventurer
-      tmpturn = 27             //Which message to display when failed to loot
+      tmpturn = 28             //Which message to display when failed to loot
     tmpy = 6
     IfXIsEqualToY
       tmpargument = [WIZA]  //Wizard
-      tmpy = 28             //Which message to display when failed to loot
+      tmpturn = 29             //Which message to display when failed to loot
     tmpy = 7
     IfXIsEqualToY
       tmpargument = [HEAL]  //Healer
-      tmpturn = 29             //Which message to display when failed to loot
+      tmpturn = 30             //Which message to display when failed to loot
     tmpy = 8
     IfXIsEqualToY
       tmpargument = [ROGU]  //Rogue
-      tmpturn = 30             //Which message to display when failed to loot
+      tmpturn = 31             //Which message to display when failed to loot
     tmpy = 9
     IfXIsEqualToY
       tmpargument = [PALA]  //Paladin
-      tmpturn = 31             //Which message to display when failed to loot
+      tmpturn = 32             //Which message to display when failed to loot
     tmpy = 10
     IfXIsEqualToY
       tmpargument = [TOUR]  //Tourist
-      tmpturn = 32             //Which message to display when failed to loot
+      tmpturn = 33             //Which message to display when failed to loot
     tmpy = 11
     IfXIsEqualToY
       tmpargument = [VALK]  //Valkyrie
-      tmpturn = 33             //Which message to display when failed to loot
+      tmpturn = 34             //Which message to display when failed to loot
     
     //do it
     tmpx = tmpargument
@@ -116,64 +126,85 @@ IfOrdered
     // Is it closed?
     tmpargument = 0
     IfStateIs
+    
+      //Is it rune warded?
+      tmpargument = 1
+      IfArmorIs
+        tmpargument = 23
+        SendMessageNear
+      Else
+        //Fire trapped?
+        tmpx = selfcontent & 4
+        tmpy = 4
+        IfXIsEqualToY
+          tmpargument = ACTIONKD
+          DoAction
+            // Tell the players...
+            tmpargument = 11
+            SendMessageNear
 
-      //Fire trapped?
-      tmpx = selfcontent & 4
-      tmpy = 4
-      IfXIsEqualToY
-        tmpargument = ACTIONKD
-        DoAction
-          // Tell the players...
-          tmpargument = 11
-          SendMessageNear
+            // Spawn the trap particle
+            tmpx = selfx
+            tmpy = selfy
+            tmpdistance = selfz
+            tmpargument = 0
+            SpawnExactParticle
 
-          // Spawn the trap particle
-          tmpx = selfx
-          tmpy = selfy
-          tmpdistance = selfz
-          tmpargument = 0
-          SpawnExactParticle
+            // Wake up sleepers
+            tmpargument = [WAKE]
+            tmpdistance = [WAKE]
+            OrderSpecialID
+        
+        // Open it up
+        Else 
+          tmpargument = ACTIONMG
+          DoAction
+            tmpargument = 1
+            SetState
+            tmpargument = 60
+            SetBumpHeight
+            KeepAction
+            tmpargument = 0
+            PlaySound
+            
+            // Wait a while
+            tmpargument = 40
+            SetTime
+            
+            // Tell the players...
+            tmpargument = 3
+            SendMessageNear
 
-          // Wake up sleepers
-          tmpargument = [WAKE]
-          tmpdistance = [WAKE]
-          OrderSpecialID
-      
-      // Open it up
-      Else 
-        tmpargument = ACTIONMG
-        DoAction
-          tmpargument = 1
-          SetState
-          tmpargument = 60
-          SetBumpHeight
-          KeepAction
-          tmpargument = 0
-          PlaySound
-          
-          // Wait a while
-          tmpargument = 40
-          SetTime
-          
-          // Tell the players...
-          tmpargument = 3
-          SendMessageNear
-
-          //Unlock?
-          tmpx = selfcontent & 1
-          tmpy = 1
-          IfXIsEqualToY
-            tmpargument = selfcontent - 1
-            SetContent
+            //Unlock?
+            tmpx = selfcontent & 1
+            tmpy = 1
+            IfXIsEqualToY
+              tmpargument = selfcontent - 1
+              SetContent
   Else
-    tmpy = 983  // The unique code for a looted shop
+  
+    // The unique code for a looted shop
+    tmpx = selforder
+    tmpy = 983  
     IfXIsEqualToY
       tmpx = selfcontent & 64
       tmpy = 64
       IfXIsEqualToY
         tmpargument = selfcontent - 64
         SetContent
-
+    Else
+    
+      //Was it disenchanted?
+      tmpargument = 1
+      IfArmorIs
+        tmpx = selforder
+        tmpy = [UNDO]
+        IfXIsEqualToY
+          tmpargument = 0
+          ChangeArmor
+          tmpargument = 35
+          SendMessageNear
+          
 //------------------------------------------------------------------------------------
 // Someone is trying to open it
 IfBumped
@@ -188,102 +219,166 @@ IfBumped
         tmpargument = ACTIONMG
         TargetDoAction      
         
-        //Locked?
-        tmpx = selfcontent & 1
-        tmpy = 1
-        IfXIsEqualToY
-          tmpargument = [DISA]
-          IfTargetHasSkillID          //They picked the lock
-          
-            //Unlock it
-            tmpargument = selfcontent - 1
-            SetContent
-            tmpargument = 1
-            PlaySound
-            tmpargument = 6
+        //Rune warded?
+        tmpargument = 1
+        IfArmorIs
+          tmpargument = [KEYR]      //Need a rune key
+          CostTargetItemID
+            tmpargument = 2
+            ChangeArmor         //Deactivate the magical runes
+            
+            //Tell what happened
+            tmpargument = 35
             SendMessageNear
+            tmpargument = 4
+            PlaySound
             
-            //Award some xp
-            tmpargument = 25
-            tmpdistance = EXPROLEPLAY
+            //Give som xp
+            tmpargument = 10
+            tmpdistance = EXPSECRET
             GiveExperienceToTarget
-            
-          Else          
-            tmpargument = [KEYC]
-            CostTargetItemID          //They used a key
+          Else
+            tmpargument = 23    //Tell them it's warded
+            SendMessageNear
+        Else    
+          //Locked?
+          tmpx = selfcontent & 1
+          tmpy = 1
+          IfXIsEqualToY
+            tmpargument = [DISA]
+            IfTargetHasSkillID          //They picked the lock
             
               //Unlock it
               tmpargument = selfcontent - 1
               SetContent
               tmpargument = 1
               PlaySound
-              tmpargument = 5
+              tmpargument = 6
               SendMessageNear
               
               //Award some xp
-              tmpargument = 10
-              tmpdistance = EXPSECRET
-              GiveExperienceToTarget
-      
-            Else
-              IfTimeOut           //Tell it's locked
-                tmpargument = 1
-                SendMessageNear
-                tmpargument = 40
-                SetTime
-                              
-        //Unlocked!
-        Else 
-          // Give some experience
-          tmpargument = 5
-          tmpdistance = EXPDARE
-          GiveExperienceToTarget
-          
-          //Animate
-          tmpargument = ACTIONMG
-          TargetDoAction
-
-          //Invisible chests!
-          tmpx = selfcontent & 16
-          tmpy = 16
-          IfXIsEqualToY
-            tmpargument = 13
-            SendMessageNear
-            tmpargument = 30
-            tmpdistance = EXPSECRET
-            GiveExperienceToTarget
-            tmpargument = selfcontent - 16
-            SetContent            
-          
-          //Check for firetrap
-          tmpx = selfcontent & 4
-          tmpy = 4
-          IfXIsEqualToY
-            // Check for disarm skill
-            tmpx = 0
-            tmpy = 75  // 75% chance to fail
-            tmpargument = [DISA]
-            IfTargetHasSkillID
-              tmpargument = targetdex > 7            //+2% chance of success per dexterity point
-              tmpargument = tmpargument + targetlevel //+1% chance of success per level
-              tmpx = rand % 100 + targetdex
-
-            // Check if it was disarmed
-            IfXIsMoreThanY
-            
-              // Give some experience
-              tmpargument = 45
+              tmpargument = 25
               tmpdistance = EXPROLEPLAY
               GiveExperienceToTarget
+              
+            Else          
+              tmpargument = [KEYC]
+              CostTargetItemID          //They used a key
+              
+                //Unlock it
+                tmpargument = selfcontent - 1
+                SetContent
+                tmpargument = 1
+                PlaySound
+                tmpargument = 5
+                SendMessageNear
+                
+                //Award some xp
+                tmpargument = 10
+                tmpdistance = EXPSECRET
+                GiveExperienceToTarget
+        
+              Else
+                IfTimeOut           //Tell it's locked
+                  tmpargument = 1
+                  SendMessageNear
+                  tmpargument = 40
+                  SetTime
+                                
+          //Unlocked!
+          Else 
+            // Give some experience
+            tmpargument = 5
+            tmpdistance = EXPDARE
+            GiveExperienceToTarget
+            
+            //Animate
+            tmpargument = ACTIONMG
+            TargetDoAction
 
+            //Invisible chests!
+            tmpx = selfcontent & 16
+            tmpy = 16
+            IfXIsEqualToY
+              tmpargument = 13
+              SendMessageNear
+              tmpargument = 30
+              tmpdistance = EXPSECRET
+              GiveExperienceToTarget
+              tmpargument = selfcontent - 16
+              SetContent            
+            
+            //Check for firetrap
+            tmpx = selfcontent & 4
+            tmpy = 4
+            IfXIsEqualToY
+              // Check for disarm skill
+              tmpx = 0
+              tmpy = 75  // 75% chance to fail
+              tmpargument = [DISA]
+              IfTargetHasSkillID
+                tmpargument = targetdex > 7            //+2% chance of success per dexterity point
+                tmpargument = tmpargument + targetlevel //+1% chance of success per level
+                tmpx = rand % 100 + targetdex
+
+              // Check if it was disarmed
+              IfXIsMoreThanY
+              
+                // Give some experience
+                tmpargument = 45
+                tmpdistance = EXPROLEPLAY
+                GiveExperienceToTarget
+
+                // Open it up
+                tmpargument = ACTIONMG
+                DoAction
+                  // The trap has been disarmed
+                  tmpargument = 10
+                  SendMessageNear
+                  
+                  // Open up for real
+                  tmpargument = 1
+                  SetState
+                  tmpargument = 60
+                  SetBumpHeight
+                  KeepAction
+                  tmpargument = 0
+                  PlaySound
+                  
+                  // Wait a while
+                  tmpargument = 40
+                  SetTime
+              Else
+                // Play the trap action
+                tmpargument = ACTIONKD
+                DoAction
+                  // The trap has been sprung
+                  tmpargument = 0
+                  SetBumpHeight
+                  
+                  // Wait a while
+                  tmpargument = 500
+                  SetTime
+                  
+                  // Tell the players...
+                  tmpargument = 9
+                  SendMessageNear
+                  
+                  // Spawn the trap particle
+                  tmpx = selfx
+                  tmpy = selfy
+                  tmpdistance = selfz
+                  tmpargument = 0
+                  SpawnExactParticle
+                  
+                  // Wake up sleepers
+                  tmpargument = [WAKE]
+                  tmpdistance = [WAKE]
+                  OrderSpecialID
+            Else          
               // Open it up
               tmpargument = ACTIONMG
               DoAction
-                // The trap has been disarmed
-                tmpargument = 10
-                SendMessageNear
-                
-                // Open up for real
                 tmpargument = 1
                 SetState
                 tmpargument = 60
@@ -291,56 +386,14 @@ IfBumped
                 KeepAction
                 tmpargument = 0
                 PlaySound
-                
+            
                 // Wait a while
                 tmpargument = 40
                 SetTime
-            Else
-              // Play the trap action
-              tmpargument = ACTIONKD
-              DoAction
-                // The trap has been sprung
-                tmpargument = 0
-                SetBumpHeight
-                
-                // Wait a while
-                tmpargument = 500
-                SetTime
-                
+        
                 // Tell the players...
-                tmpargument = 9
+                tmpargument = 4
                 SendMessageNear
-                
-                // Spawn the trap particle
-                tmpx = selfx
-                tmpy = selfy
-                tmpdistance = selfz
-                tmpargument = 0
-                SpawnExactParticle
-                
-                // Wake up sleepers
-                tmpargument = [WAKE]
-                tmpdistance = [WAKE]
-                OrderSpecialID
-          Else          
-            // Open it up
-            tmpargument = ACTIONMG
-            DoAction
-              tmpargument = 1
-              SetState
-              tmpargument = 60
-              SetBumpHeight
-              KeepAction
-              tmpargument = 0
-              PlaySound
-          
-              // Wait a while
-              tmpargument = 40
-              SetTime
-      
-              // Tell the players...
-              tmpargument = 4
-              SendMessageNear
       Else                
         // Wait before allowing loot
         IfTimeOut

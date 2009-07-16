@@ -5,6 +5,7 @@ Version 2.7.4 (??.??.2009)
 - New Feature: Added a new secret class into the game - The Tourist Starter!
 - New Feature: The first Hero class has been added - The Archmage! The Hero class system 
   allows characters to evolve into a new specialized class after beating a quest.
+- Update: Improved model for the Katana weapon.
 - Update: Spell Books are priced individually now. Rarer and better spell books are more 
   expensive than common and low-level books.
 - Update: Finally a new updated Game Manual.

@@ -381,7 +381,7 @@ Uint8 scr_GrogTarget( struct s_script_state * pstate, struct s_ai_state * pself 
 Uint8 scr_DazeTarget( struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_EnableRespawn( struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_DisableRespawn( struct s_script_state * pstate, struct s_ai_state * pself );
-Uint8 scr_HolderScoredAHit( struct s_script_state * pstate, struct s_ai_state * pself );
+Uint8 scr_DispelTargetEnchantID( struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_HolderBlocked( struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_TargetHasNotFullMana( struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_EnableListenSkill( struct s_script_state * pstate, struct s_ai_state * pself );

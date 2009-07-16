@@ -100,7 +100,8 @@ IfTimeOut
     UnkeepAction
   
   SetTargetToWideEnemy
-    DisenchantTarget            //Magic free zone
+    tmpargument = [DISP]
+    DispelTargetEnchantID            //Magic free zone
     IfStateIsGuard
       tmpargument = STATECOMBAT
       SetState

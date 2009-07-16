@@ -797,8 +797,8 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
         case FDAZETARGET: returncode = scr_DazeTarget( pstate, pself ); break;
         case FENABLERESPAWN: returncode = scr_EnableRespawn( pstate, pself ); break;
         case FDISABLERESPAWN: returncode = scr_DisableRespawn( pstate, pself ); break;
-        case FIFHOLDERSCOREDAHIT: returncode = scr_HolderScoredAHit( pstate, pself ); break;
-        case FIFHOLDERBLOCKED: returncode = scr_HolderBlocked( pstate, pself ); break;
+		case FDISPELTARGETENCHANTID: returncode = scr_DispelTargetEnchantID( pstate, pself ); break;
+		case FIFHOLDERBLOCKED: returncode = scr_HolderBlocked( pstate, pself ); break;
             //case FGETSKILLLEVEL: returncode = scr_get_SkillLevel( pstate, pself ); break;
         case FIFTARGETHASNOTFULLMANA: returncode = scr_TargetHasNotFullMana( pstate, pself ); break;
         case FENABLELISTENSKILL: returncode = scr_EnableListenSkill( pstate, pself ); break;

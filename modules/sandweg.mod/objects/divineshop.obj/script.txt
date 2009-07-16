@@ -237,19 +237,15 @@ IfHealed
 IfAttacked
   Run
   SetTargetToWhoeverAttacked
-  IfTargetIsAPlayer
-    CallForHelp
-    tmpargument = 5     //Team Evil
-    TargetJoinTeam
-    tmpargument = STATECOMBAT
-    SetState
+  
+  //Ouch!
   tmpargument = rand & 1 + 2
   PlaySound
-IfKilled
-  CallForHelp			//Warn friends
-  tmpargument = 5
-  TargetJoinTeam
-
+  
+  //This priest is prettty forgiving
+  tmpargument = 6
+  SendMessageNear  
+  
 //------------------------------------------------------------------------------
 // ZZ> Handle normal state
 IfTimeOut
@@ -294,7 +290,27 @@ IfBumped
       IfFacingTarget
         tmpargument = LATCHLEFT
         PressLatchButton
-
+        
+//------------------------------------------------------------------------------
+//Death
+IfKilled
+  tmpargument = TEAME
+  TargetJoinTeam
+  
+  //curse them!
+  tmpargument = 0
+  SendMessageNear
+  EnchantTarget
+  
+  //Make body
+  tmpargument = 35
+  SetBumpHeight
+  
+  //Tell the chests what happened
+  tmpargument = 983
+  tmpdistance = [SHOP]
+  OrderSpecialID
+  
 //------------------------------------------------------------------------------
 End
 //------------------------------------------------------------------------------

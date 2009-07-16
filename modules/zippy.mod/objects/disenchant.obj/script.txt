@@ -1,3 +1,7 @@
+//This spell removes every enchant on the target and
+//unkurses anything that it has. Intelligence increases
+//the chance for success.
+
 // Create the character
 IfSpawned
   KeepAction
@@ -16,17 +20,14 @@ IfUsed
   SetTargetToWhoeverIsHolding
     tmpargument = [WMAG]
     IfTargetHasSkillID
-      GetContent
-      tmpx = tmpargument
+      tmpx = selfcontent
       tmpy = 768
       IfXIsLessThanY
         tmpy = targetmanaflow
         IfXIsLessThanY
-          tmpx = 7
-          tmpargument = tmpx
+          tmpargument = 7
           CostTargetMana
-            GetContent
-            tmpargument = tmpargument + tmpx
+            tmpargument = selfcontent + tmpargument
             SetContent
             tmpx = targetx
             tmpy = targety
@@ -57,8 +58,7 @@ IfUsed
 
 // Allow it to be cast or fizzle
 Else
-  GetContent
-  tmpx = tmpargument
+  tmpx = selfcontent
   tmpy = 767
   IfXIsMoreThanY
     // Make the holder cast it
@@ -74,17 +74,35 @@ Else
     tmpy = 128*3
     IfXIsLessThanY
       // Can it be enchanted?
-      tmpargument = [XENC]       //DEBUG: Remove?
+      tmpargument = [XENC]
       IfTargetHasAnyID
         // Can't be enchanted...
         tmpargument = 4
         SendMessageNear
       Else
-        UnkurseTarget
-        DisenchantTarget
-        tmpargument = 2
-        SendMessageNear        
-
+        SetOldTarget
+        SetTargetToWhoeverIsHolding
+        tmpx = targetint > 8
+        SetTargetToOldTarget
+        tmpy = targetint > 8
+        
+        //Check if the target resists
+        tmpx = rand % 10 + tmpx
+        tmpy = rand % 10 + tmpy
+        IfXIsMoreThanY
+          //Do the magic
+          UnkurseTarget
+          tmpargument = [DISP]
+          DispelTargetEnchantID
+          tmpargument = [UNDO]
+          OrderTarget
+          
+          //Tell them what was disenchanted
+          tmpargument = 2
+          SendMessageNear   
+        Else
+          tmpargument = 4
+          SendMessageNear
     Else
       // Couldn't find a target, target the other hand (or the caster if that also fails)
       SetTargetToWhoeverIsHolding
@@ -92,23 +110,31 @@ Else
         SetTargetToTargetRightHand
       Else
         SetTargetToTargetLeftHand
+    
+      //Do the magic
       UnkurseTarget
       DisenchantTarget
+      tmpargument = [UNDO]
+      OrderTarget
+      
+      //Tell them what was disenchanted
       tmpargument = 2
       SendMessageNear   
   
-  // Play a sound
+    // Play a sound
     tmpargument = 0
     PlaySound
     tmpargument = 20
     SetReloadTime
   
   Else
+    tmpx = selfcontent
     tmpy = 0
     IfXIsMoreThanY
       // Didn't pump it enough
       tmpargument = 1
       SendMessageNear
+      
   // Reset the charge counter
   tmpargument = 0
   SetContent

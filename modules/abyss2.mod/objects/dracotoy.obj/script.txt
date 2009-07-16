@@ -140,11 +140,11 @@ IfUsed
 
   //Disenchant
   IfStateIs4
-    GetContent
-    tmpx = tmpargument
+    tmpx = selfcontent
     tmpy = 150			//3 seconds
     IfXIsMoreThanY
-      DisenchantTarget
+      tmpargument = [DISP]
+      DispelTargetEnchantID
 
       //Sound effect
       tmpargument = 3

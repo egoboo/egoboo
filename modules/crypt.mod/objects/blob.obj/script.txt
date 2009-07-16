@@ -23,7 +23,6 @@ IfStateIs0
 
       // Play the absorb sound
       tmpargument = 0
-      tmpdistance = rand % 2047 + 10000
       PlaySound
 
       // Play the death animation ( blob poofs at end of action... )
@@ -59,7 +58,6 @@ IfTimeOut
   tmpy = 100
   IfXIsLessThanY
     tmpargument = 1
-    tmpdistance = rand % 2047 + 10000
     PlaySound
 
 //------------------------------------------------------------------------------
