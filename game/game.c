@@ -2078,96 +2078,85 @@ void update_pits()
             clock_pit = 0;
 
             // Kill any particles that fell in a pit, if they die in water...
-            cnt = 0;
-
-            while ( cnt < maxparticles )
+			for( cnt = 0; cnt < maxparticles; cnt++ )
             {
-                if ( PrtList[cnt].on )
-                {
-                    if ( PrtList[cnt].pos.z < PITDEPTH && PipList[PrtList[cnt].pip].endwater )
-                    {
-                        PrtList[cnt].time  = frame_all + 1;
-                        PrtList[cnt].poofme = btrue;
-                    }
-                }
+                if ( INVALID_PRT( cnt ) || INVALID_PIP( PrtList[cnt].pip ) ) continue;
 
-                cnt++;
+				if ( PrtList[cnt].pos.z < PITDEPTH && PipList[PrtList[cnt].pip].endwater )
+                {
+                    PrtList[cnt].time  = frame_all + 1;
+                    PrtList[cnt].poofme = btrue;
+                }
             }
 
             // Kill or teleport any characters that fell in a pit...
-            cnt = 0;
-            while ( cnt < MAX_CHR )
-            {
-                if ( ChrList[cnt].on && ChrList[cnt].alive && !ChrList[cnt].pack_ispacked )
-                {
-                    if ( !ChrList[cnt].invictus && ChrList[cnt].pos.z < PITDEPTH && ChrList[cnt].attachedto == MAX_CHR )
-                    {
-                        //Do we kill it?
-                        if (pitskill)
-                        {
-                            // Got one!
-                            kill_character( cnt, MAX_CHR );
-                            ChrList[cnt].vel.x = 0;
-                            ChrList[cnt].vel.y = 0;
+            for( cnt = 0; cnt < MAX_CHR; cnt++ )
+			{
+				//Is it a valid character?
+                if ( INVALID_CHR( cnt ) || ChrList[cnt].invictus || !ChrList[cnt].alive  ) continue;
+                if ( ChrList[cnt].attachedto != MAX_CHR || ChrList[cnt].pack_ispacked ) continue;
 
-                            //Play sound effect
+				//Do we kill it?
+                if ( pitskill && ChrList[cnt].pos.z < PITDEPTH )
+                {
+                    // Got one!
+                    kill_character( cnt, MAX_CHR );
+                    ChrList[cnt].vel.x = 0;
+                    ChrList[cnt].vel.y = 0;
+
+                    //Play sound effect
+                    sound_play_chunk( ChrList[cnt].pos, g_wavelist[GSND_PITFALL] );
+				}
+                    
+				//Do we teleport it?
+                if ( pitsfall && ChrList[cnt].pos.z < PITDEPTH << 3 )
+                {
+                    float nrm[2];
+
+                    // Teleport them back to a "safe" spot
+                    detach_character_from_mount( cnt, btrue, bfalse );
+                    ChrList[cnt].pos_old.x = ChrList[cnt].pos.x;
+                    ChrList[cnt].pos_old.y = ChrList[cnt].pos.y;
+                    ChrList[cnt].pos.x = pitx;
+                    ChrList[cnt].pos.y = pity;
+                    ChrList[cnt].pos.z = pitz;
+                    if ( __chrhitawall( cnt, nrm ) )
+                    {
+                        // It did not work...
+                        ChrList[cnt].pos = ChrList[cnt].pos_safe;
+                        ChrList[cnt].vel = ChrList[cnt].vel_old;
+
+                        // Kill it instead
+                        kill_character( cnt, MAX_CHR );
+                        ChrList[cnt].vel.x = 0;
+                        ChrList[cnt].vel.y = 0;
+                    }
+                    else
+                    {
+						//It worked!
+                        ChrList[cnt].pos_safe = ChrList[cnt].pos;
+                        ChrList[cnt].pos_old  = ChrList[cnt].pos;
+                        ChrList[cnt].vel_old  = ChrList[cnt].vel;
+
+                        //Stop movement
+                        ChrList[cnt].vel.z = 0;
+                        ChrList[cnt].vel.x = 0;
+                        ChrList[cnt].vel.y = 0;
+
+                        //Play sound effect
+                        if (ChrList[cnt].isplayer)
+                        {
+                            sound_play_chunk( PCamera->track_pos, g_wavelist[GSND_PITFALL] );
+                        }
+                        else
+                        {
                             sound_play_chunk( ChrList[cnt].pos, g_wavelist[GSND_PITFALL] );
                         }
 
-                        //Do we teleport it?
-                        if (pitsfall && ChrList[cnt].pos.z < PITDEPTH*8)
-                        {
-                            float nrm[2];
-
-                            // Teleport them back to a safe spot
-                            detach_character_from_mount( cnt, btrue, bfalse );
-                            ChrList[cnt].pos_old.x = ChrList[cnt].pos.x;
-                            ChrList[cnt].pos_old.y = ChrList[cnt].pos.y;
-                            ChrList[cnt].pos.x = pitx;
-                            ChrList[cnt].pos.y = pity;
-                            ChrList[cnt].pos.z = pitz;
-                            if ( __chrhitawall( cnt, nrm ) )
-                            {
-                                // It did not work...
-                                ChrList[cnt].pos = ChrList[cnt].pos_safe;
-                                ChrList[cnt].vel = ChrList[cnt].vel_old;
-
-                                // Kill it instead
-                                kill_character( cnt, MAX_CHR );
-                                ChrList[cnt].vel.x = 0;
-                                ChrList[cnt].vel.y = 0;
-                            }
-                            else
-                            {
-								//It worked!
-                                ChrList[cnt].pos_safe = ChrList[cnt].pos;
-                                ChrList[cnt].pos_old  = ChrList[cnt].pos;
-                                ChrList[cnt].vel_old  = ChrList[cnt].vel;
-
-                                //Stop movement
-                                ChrList[cnt].vel.z = 0;
-                                ChrList[cnt].vel.x = 0;
-                                ChrList[cnt].vel.y = 0;
-
-                                //Play sound effect
-                                if (ChrList[cnt].isplayer)
-                                {
-                                    sound_play_chunk( PCamera->track_pos, g_wavelist[GSND_PITFALL] );
-                                }
-                                else
-                                {
-                                    sound_play_chunk( ChrList[cnt].pos, g_wavelist[GSND_PITFALL] );
-                                }
-
-                                //Do some damage (same as damage tile)
-                                damage_character( cnt, 32768, damagetile_data.amount, 1, damagetile_data.type, DAMAGETEAM, ChrList[cnt].ai.bumplast, DAMFX_NBLOC | DAMFX_ARMO, btrue );
-                            }
-                        }
+                        //Do some damage (same as damage tile)
+                        damage_character( cnt, 32768, damagetile_data.amount, 1, damagetile_data.type, DAMAGETEAM, ChrList[cnt].ai.bumplast, DAMFX_NBLOC | DAMFX_ARMO, btrue );
                     }
-
                 }
-
-                cnt++;
             }
         }
         else

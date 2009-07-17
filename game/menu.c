@@ -3315,9 +3315,9 @@ void check_player_import( const char *dirname, bool_t initialize )
         load_one_icon( filename );
 
         sprintf( filename, "%s" SLASH_STR "%s" SLASH_STR "naming.txt", dirname, foundfile );
-        chop_load( 0, filename );
+        chop_load( loadplayer_count, filename );
 
-        sprintf( loadplayer[loadplayer_count].name, "%s", chop_create( 0 ) );
+        sprintf( loadplayer[loadplayer_count].name, "%s", chop_create( loadplayer_count ) );
 
         loadplayer_count++;
 

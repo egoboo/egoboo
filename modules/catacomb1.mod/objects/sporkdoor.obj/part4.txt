@@ -1,17 +1,17 @@
 // Big Blast
-Force spawn ( TRUE or FALSE )				: TRUE
+Force spawn ( TRUE or FALSE )				: FALSE
 Image type ( SOLID, LIGHT, or TRANS )			: LIGHT
-Starting frame ( 0 to 255 )				: 267
-Number of frames ( 1 to 16 )				: 16
+Starting frame ( 0 to 255 )				  :  186   //267
+Number of frames ( 1 to 16 )				:  4   //16
 Frame rate ( 0 to 1000 )				: 20
 Frame rate randomness ( 0, 1, 3, 7, 15, 31, 63... )	: 15
 Rotation base ( 0 to 65535 )				: 0
 Random rotation add ( 0, 1, 3, 7, 15, 31, 63... )	: 65535
 Rotation rate ( 0 to 1000 )				: 500
 Starting size ( 0 to 65535 )				: 15000
-Size increase rate ( 0 to 1000 )			: 100
+Size increase rate ( 0 to 1000 )			: 200
 Speed limit ( 0.0 to 10.0 )				: 0.0
-Facing rate ( 0 to 1000 )				: 0
+Facing rate ( 0 to 1000 )				: 400
 
 
 
@@ -20,7 +20,7 @@ Water ends particle ( TRUE or FALSE )			: FALSE
 Bump ends particle ( TRUE or FALSE )			: FALSE
 End if hits ground ( TRUE or FALSE )			: FALSE
 End after last frame ( TRUE or FALSE )			: TRUE
-Time before end ( 1 to 1000, 0 )			: 0
+Time before end ( 1 to 1000, 0 )			: 3
 
 
 
@@ -50,10 +50,10 @@ XY Spacing ( 0 to 100 )					: 0
 XY Spacing randomness ( 0, 1, 3, 7, 15, 31, 63... )	: 0
 Z Spacing ( -100 to 100 )				: 0
 Z Spacing randomness ( 0, 1, 3, 7, 15, 31, 63... )	: 63
-XY Velocity ( 0 to 100 )				: 16
-XY Velocity randomness ( 0, 1, 3, 7, 15, 31, 63... )	: 31
-Z Velocity ( -100 to 100 )				: -15
-Z Velocity randomness ( 0, 1, 3, 7, 15, 31, 63... )	: 3
+XY Velocity ( 0 to 100 )				: 8
+XY Velocity randomness ( 0, 1, 3, 7, 15, 31, 63... )	: 7
+Z Velocity ( -100 to 100 )				: 0
+Z Velocity randomness ( 0, 1, 3, 7, 15, 31, 63... )	: 0
 
 
 

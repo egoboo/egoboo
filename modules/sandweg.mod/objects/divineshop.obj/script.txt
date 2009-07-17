@@ -10,7 +10,7 @@ IfOrdered
     tmpy = 0
     IfXIsEqualToY
       // I'm not payin' for that!
-      tmpargument = 8
+      tmpargument = 5
       SendMessageNear
   Else
     // Buy/Sell

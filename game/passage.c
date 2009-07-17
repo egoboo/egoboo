@@ -28,6 +28,7 @@
 #include "sound.h"
 #include "mesh.h"
 #include "game.h"
+#include "network.h"
 
 #include "egoboo_fileutil.h"
 #include "egoboo.h"
@@ -105,9 +106,9 @@ int break_passage( script_state_t * pstate, Uint16 passage, Uint16 starttile, Ui
     useful = bfalse;
     for ( character = 0; character < MAX_CHR; character++ )
     {
-        if ( !ChrList[character].on || ChrList[character].pack_ispacked ) continue;
+        if ( !ChrList[character].on || ChrList[character].pack_ispacked || MAX_CHR != ChrList[character].attachedto ) continue;
 
-        if ( ChrList[character].weight > 20 && (0 == ChrList[character].flyheight) && ( ChrList[character].pos.z < ChrList[character].floor_level + 20 ) && (MAX_CHR == ChrList[character].attachedto) )
+        if ( ChrList[character].weight > 20 && (0 == ChrList[character].flyheight) && ( ChrList[character].pos.z < ChrList[character].floor_level + 20 ) )
         {
             fan = mesh_get_tile( PMesh, ChrList[character].pos.x, ChrList[character].pos.y );
             if ( VALID_TILE(PMesh, fan) )
@@ -116,11 +117,11 @@ int break_passage( script_state_t * pstate, Uint16 passage, Uint16 starttile, Ui
                 if ( tile >= starttile && tile < endtile )
                 {
                     x = ChrList[character].pos.x;
-                    x >>= 7;
+                    x >>= TILE_BITS;
                     if ( x >= passtlx[passage] && x <= passbrx[passage] )
                     {
                         y = ChrList[character].pos.y;
-                        y >>= 7;
+                        y >>= TILE_BITS;
                         if ( y >= passtly[passage] && y <= passbry[passage] )
                         {
                             // Remember where the hit occured...
@@ -272,35 +273,30 @@ Uint16 who_is_blocking_passage( Uint16 passage )
 
     // Look at each character
     foundother = MAX_CHR;
-    character = 0;
-
-    while ( character < MAX_CHR )
+	for( character = 0; character < MAX_CHR; character++ )
     {
-        if ( ChrList[character].on )
+		if ( !ChrList[character].on ) continue;
+	    
+		bumpsize = ChrList[character].bumpsize;
+        if ( ( !ChrList[character].pack_ispacked ) && ChrList[character].attachedto == MAX_CHR && bumpsize != 0 )
         {
-            bumpsize = ChrList[character].bumpsize;
-            if ( ( !ChrList[character].pack_ispacked ) && ChrList[character].attachedto == MAX_CHR && bumpsize != 0 )
+            if ( ChrList[character].pos.x > tlx - bumpsize && ChrList[character].pos.x < brx + bumpsize )
             {
-                if ( ChrList[character].pos.x > tlx - bumpsize && ChrList[character].pos.x < brx + bumpsize )
+                if ( ChrList[character].pos.y > tly - bumpsize && ChrList[character].pos.y < bry + bumpsize )
                 {
-                    if ( ChrList[character].pos.y > tly - bumpsize && ChrList[character].pos.y < bry + bumpsize )
+                    if ( ChrList[character].alive && !ChrList[character].isitem )
                     {
-                        if ( ChrList[character].alive && !ChrList[character].isitem )
-                        {
-                            // Found a live one
-                            return character;
-                        }
-                        else
-                        {
-                            // Found something else
-                            foundother = character;
-                        }
+                        // Found a live one
+                        return character;
+                    }
+                    else
+                    {
+                        // Found something else
+                        foundother = character;
                     }
                 }
             }
         }
-
-        character++;
     }
 
     // No characters found
@@ -313,51 +309,42 @@ void check_passage_music()
     // ZF> This function checks all passages if there is a player in it, if it is, it plays a specified
     // song set in by the AI script functions
     float tlx, tly, brx, bry;
-    Uint16 character, passage;
+    Uint16 character = 0, passage, cnt;
     float bumpsize;
 
-    passage = 0;
+	//Check every music passage
+    for( passage = 0; passage < numpassage; passage++ )
+    {       
+		if ( passagemusic[passage] == -1 ) continue;        
+		
+		// Passage area
+        tlx = ( passtlx[passage] << TILE_BITS ) - CLOSETOLERANCE;
+        tly = ( passtly[passage] << TILE_BITS ) - CLOSETOLERANCE;
+        brx = ( ( passbrx[passage] + 1 ) << TILE_BITS ) + CLOSETOLERANCE;
+        bry = ( ( passbry[passage] + 1 ) << TILE_BITS ) + CLOSETOLERANCE;
 
-    while ( passage < numpassage )
-    {
-        if ( passagemusic[passage] != -1 )       // Only check passages that have music assigned to them
+        // Look at each player
+		for( cnt = 0; cnt < MAXPLAYER; cnt++ )
         {
-            // Passage area
-            tlx = ( passtlx[passage] << TILE_BITS ) - CLOSETOLERANCE;
-            tly = ( passtly[passage] << TILE_BITS ) - CLOSETOLERANCE;
-            brx = ( ( passbrx[passage] + 1 ) << TILE_BITS ) + CLOSETOLERANCE;
-            bry = ( ( passbry[passage] + 1 ) << TILE_BITS ) + CLOSETOLERANCE;
-
-            // Look at each character
-            character = 0;
-
-            while ( character < MAX_CHR )
+			character = PlaList[cnt].index;
+            if ( INVALID_CHR( character ) || !ChrList[character].alive || !ChrList[character].isplayer ) continue;
+			
+			//Is it in the passage?
+			bumpsize = ChrList[character].bumpsize;
+            if ( ( !ChrList[character].pack_ispacked ) && bumpsize != 0 )
             {
-                if ( ChrList[character].on && ChrList[character].isplayer )
+                if ( ChrList[character].pos.x > tlx - bumpsize && ChrList[character].pos.x < brx + bumpsize )
                 {
-                    bumpsize = ChrList[character].bumpsize;
-                    if ( ( !ChrList[character].pack_ispacked ) && ChrList[character].attachedto == MAX_CHR && bumpsize != 0 )
+                    if ( ChrList[character].pos.y > tly - bumpsize && ChrList[character].pos.y < bry + bumpsize )
                     {
-                        if ( ChrList[character].pos.x > tlx - bumpsize && ChrList[character].pos.x < brx + bumpsize )
-                        {
-                            if ( ChrList[character].pos.y > tly - bumpsize && ChrList[character].pos.y < bry + bumpsize )
-                            {
-                                if ( ChrList[character].alive && !ChrList[character].isitem )
-                                {
-                                    // Found a player, start music track
-                                    sound_play_song( passagemusic[passage], 0, -1 );
-                                }
-                            }
-                        }
+                        // Found a player, start music track
+                        sound_play_song( passagemusic[passage], 0, -1 );
                     }
                 }
-
-                character++;
             }
         }
+	}
 
-        passage++;
-    }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -564,7 +551,6 @@ void add_shop_passage( Uint16 owner, Uint16 passage )
 void add_passage( int tlx, int tly, int brx, int bry, bool_t open, Uint8 mask )
 {
     // ZZ> This function creates a passage area
-
     if ( numpassage < MAXPASS )
     {
         tlx = CLIP(tlx, 0, PMesh->info.tiles_x - 1);

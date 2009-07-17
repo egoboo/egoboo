@@ -26,6 +26,7 @@ Version 2.7.4 (??.07.2009)
 - Update: Improved Linux and Macintosh compatability.
 - Update: Some various rebalancing.
 - Update: Improved the Hell Rover AI and added some new animations.
+- Bugfix: Fixed endless particle spawning bug in Catacombs 1.
 - Bugfix: Fixed backstabs not being properly triggered.
 - Bugfix: Fixed numerous bugs in the K'nife's Heist sidequest module.
 - Bugfix: You can no longer put random items in a detection passage to keep doors open.

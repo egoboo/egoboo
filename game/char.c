@@ -162,14 +162,14 @@ void keep_weapons_with_holders()
 
             ChrList[cnt].turn_z = ChrList[character].turn_z;
 
-            // Copy this stuff ONLY if it's a weapon, not for mounts
+			// Copy this stuff ONLY if it's a weapon, not for mounts
             if ( ChrList[character].transferblend && ChrList[cnt].isitem )
             {
 
                 // Items become partially invisible in hands of players
                 if ( ChrList[character].isplayer && ChrList[character].inst.alpha != 255 )
                 {
-                    ChrList[cnt].inst.alpha = 128;
+                    ChrList[cnt].inst.alpha = SEEINVISIBLE;
                 }
                 else
                 {
@@ -187,7 +187,7 @@ void keep_weapons_with_holders()
                 //Do light too
                 if ( ChrList[character].isplayer && ChrList[character].inst.light != 255 )
                 {
-                    ChrList[cnt].inst.light = 128;
+                    ChrList[cnt].inst.light = SEEINVISIBLE;
                 }
                 else
                 {
@@ -1066,8 +1066,8 @@ void detach_character_from_mount( Uint16 character, Uint8 ignorekurse,
 			}
             price = CapList[icap].skincost[skin];
 
-			//They are trying to sell junk or quest items
-			if( price == 0 ) ai_add_order( &(ChrList[owner].ai), (Uint32) price, SHOP_WORTHLESS );
+			//Are they are trying to sell junk or quest items?
+			if( price == 0 ) ai_add_order( &(ChrList[owner].ai), (Uint32) price, SHOP_BUY );
 			else
 			{
 				//Items spawned within shops are more valuable
@@ -4161,7 +4161,7 @@ void respawn_character( Uint16 character )
     pchr->bumpsizebigsave = pcap->bumpsizebig;
     pchr->bumpheightsave = pcap->bumpheight;
 
-    pchr->ai.alert = 0;
+    pchr->ai.alert = ALERTIF_CLEANEDUP;
     pchr->ai.target = character;
     pchr->ai.timer  = 0;
 
@@ -5486,10 +5486,10 @@ void move_characters( void )
                     if ( map_twist_flat[twist] )
                     {
                         // Reset jumping on flat areas of slippiness
-                        pchr->jumpnumber = pchr->jumpnumberreset;
+                        if( pchr->phys.grounded && pchr->jumptime == 0 ) pchr->jumpnumber = pchr->jumpnumberreset;
                     }
                 }
-                else
+                else if( pchr->phys.grounded && pchr->jumptime == 0 )
                 {
                     // Reset jumping
                     temp_friction_xy = noslipfriction;
