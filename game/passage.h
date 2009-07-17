@@ -43,6 +43,7 @@ enum e_shop_orders
     SHOP_BUY       = 0,
     SHOP_SELL,
     SHOP_NOAFFORD,
+	SHOP_WORTHLESS,
     SHOP_THEFT,
 };
 

@@ -97,7 +97,7 @@ IfTimeOut
   tmpx = selflevel
   tmpy = 5            //Need level 7
   IfXIsMoreThanY
-    tmpargument = 256
+    tmpargument = 192   //regenerate 3/4 life point
     HealSelf
   
   

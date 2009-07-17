@@ -1022,7 +1022,7 @@ void detach_character_from_mount( Uint16 character, Uint8 ignorekurse,
     if ( ChrList[character].isitem && numshoppassage != 0 && doshop )
     {
         //This is a hack that makes spellbooks in shops cost correctly
-        if (ChrList[mount].isshopitem) ChrList[character].isshopitem = btrue;
+        if ( ChrList[mount].isshopitem ) ChrList[character].isshopitem = btrue;
 
         for ( cnt = 0; cnt < numshoppassage; cnt++ )
         {
@@ -1050,7 +1050,7 @@ void detach_character_from_mount( Uint16 character, Uint8 ignorekurse,
 
         if ( inshop )
         {
-            // Give the mount its money back, alert the shop owner
+			// Give the mount its money back, alert the shop owner
             Uint16 skin, icap;
 
 			//Make sure spell books are priced according to their spell and not the book itself 
@@ -1066,29 +1066,34 @@ void detach_character_from_mount( Uint16 character, Uint8 ignorekurse,
 			}
             price = CapList[icap].skincost[skin];
 
-            //Items spawned within shops are more valuable
-            if (!ChrList[character].isshopitem) price *= 0.5;
+			//They are trying to sell junk or quest items
+			if( price == 0 ) ai_add_order( &(ChrList[owner].ai), (Uint32) price, SHOP_WORTHLESS );
+			else
+			{
+				//Items spawned within shops are more valuable
+				if (!ChrList[character].isshopitem) price *= 0.5;
 
-            // cost it based on the number/charges of the item
-            if ( CapList[icap].isstackable )
-            {
-                price *= ChrList[character].ammo;
-            }
-            else if (CapList[icap].isranged && ChrList[character].ammo < ChrList[character].ammomax)
-            {
-                if ( 0 != ChrList[character].ammo )
-                {
-                    price *= (float)ChrList[character].ammo / ChrList[character].ammomax;
-                }
-            }
+				// cost it based on the number/charges of the item
+				if ( CapList[icap].isstackable )
+				{
+					price *= ChrList[character].ammo;
+				}
+				else if (CapList[icap].isranged && ChrList[character].ammo < ChrList[character].ammomax)
+				{
+					if ( 0 != ChrList[character].ammo )
+					{
+						price *= (float)ChrList[character].ammo / ChrList[character].ammomax;
+					}
+				}
 
-            ChrList[mount].money += (Sint16) price;
-            ChrList[mount].money  = CLIP(ChrList[mount].money, 0, MAXMONEY);
+				ChrList[mount].money += (Sint16) price;
+				ChrList[mount].money  = CLIP(ChrList[mount].money, 0, MAXMONEY);
 
-            ChrList[owner].money -= (Sint16) price;
-            ChrList[owner].money  = CLIP(ChrList[owner].money, 0, MAXMONEY);
+				ChrList[owner].money -= (Sint16) price;
+				ChrList[owner].money  = CLIP(ChrList[owner].money, 0, MAXMONEY);
 
-            ai_add_order( &(ChrList[owner].ai), (Uint32) price, SHOP_BUY );
+				ai_add_order( &(ChrList[owner].ai), (Uint32) price, SHOP_BUY );
+			}
         }
     }
 
@@ -3149,6 +3154,8 @@ int load_one_character_profile( const char * tmploadname )
     pcap->leveloverride = 0;
     pcap->canuseplatforms = !pcap->platform;
     pcap->isvaluable = 0;
+	pcap->spawnlife = PERFECTBIG;
+	pcap->spawnmana = PERFECTBIG;
 
     //Skills
     pcap->canuseadvancedweapons = 0;
@@ -3600,7 +3607,7 @@ char * chop_create( Uint16 profile )
 
     if ( 0 == CapList[profile].chop_sectionsize[0] )
     {
-        strcpy(buffer, "Blah");
+		strcpy(buffer, CapList[profile].classname);
     }
     else
     {
@@ -4055,46 +4062,43 @@ Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
     pchr->experience = tnc;
     pchr->experiencelevel = pcap->leveloverride;
 
+
     //Items that are spawned inside shop passages are more expensive than normal
-    if (pcap->isvaluable)
+    pchr->isshopitem = bfalse;
+    if (pchr->isitem && numshoppassage > 0 && !pchr->pack_ispacked && pchr->attachedto == MAX_CHR)
     {
-        pchr->isshopitem = btrue;
-		pchr->iskursed = bfalse;				//Shop items are never kursed
-    }
-    else
-    {
-        pchr->isshopitem = bfalse;
-        if (pchr->isitem && !pchr->pack_ispacked && pchr->attachedto == MAX_CHR)
+        for ( cnt = 0; cnt < numshoppassage; cnt++ )
         {
-            float tlx, tly, brx, bry;
-            Uint16 passage = 0;
-            float bumpsize;
-
-            bumpsize = pchr->bumpsize;
-
-            while (passage < numpassage)
+            int loc;
+			Uint16 passage = shoppassage[cnt];
+            
+			//Check X
+			loc = pchr->pos.x;
+            loc = loc >> TILE_BITS;
+            if ( loc >= passtlx[passage] && loc <= passbrx[passage] )
             {
-                // Passage area
-                tlx = ( passtlx[passage] << TILE_BITS ) - CLOSETOLERANCE;
-                tly = ( passtly[passage] << TILE_BITS ) - CLOSETOLERANCE;
-                brx = ( ( passbrx[passage] + 1 ) << TILE_BITS ) + CLOSETOLERANCE;
-                bry = ( ( passbry[passage] + 1 ) << TILE_BITS ) + CLOSETOLERANCE;
-
-                //Check if the character is inside that passage
-                if ( pchr->pos.x > tlx - bumpsize && pchr->pos.x < brx + bumpsize )
+				                
+				//Check Y
+				loc = pchr->pos.y;
+                loc = loc >> TILE_BITS;
+                if ( loc >= passtly[passage] && loc <= passbry[passage] )
                 {
-                    if ( pchr->pos.y > tly - bumpsize && pchr->pos.y < bry + bumpsize )
+					//Make sure the owner is not dead
+					if ( shopowner[cnt] != NOOWNER )
                     {
-                        //Yep, flag as valuable (does not export)
-                        pchr->isshopitem = btrue;
-                        break;
+						pchr->isshopitem = btrue;				//Full value
+						pchr->iskursed = bfalse;				//Shop items are never kursed
+						pchr->nameknown = btrue;				//Identify items in shop
+						break;
                     }
                 }
-
-                passage++;
             }
         }
-    }
+	}    
+
+	//Flagged as always valuable?
+	if( pcap->isvaluable ) pchr->isshopitem = btrue;
+    
 
     if ( 0 == __chrhitawall(ichr, nrm) )
     {

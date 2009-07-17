@@ -33,10 +33,9 @@
 #define   MOVE_FOLLOW  0
 
 //AI targeting
-#define NEARBY      3*TILESIZE    //3 tiles
-#define WIDE        6*TILESIZE    //6 tiles
-#define NEAREST     0           //unlimited range
-#define TILESIZE    128       //Size of one texture tile in egoboo
+#define NEARBY      3*TILE_SIZE    //3 tiles away
+#define WIDE        6*TILE_SIZE    //6 tiles away
+#define NEAREST     0              //unlimited range
 
 // Character AI alerts
 #define ALERTIF_SPAWNED                      ( 1 <<  0 )
