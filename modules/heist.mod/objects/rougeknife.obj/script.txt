@@ -1,6 +1,7 @@
 IfSpawned
   tmpargument = 2
   ClosePassage
+
 //------------------------------------------------------------------------------
 // ZZ> Jump over corpses
 IfBumped
@@ -109,7 +110,7 @@ IfTimeOut
         SetContent
 
     // Get in a fight
-    tmpdistance = 250000
+    tmpdistance = 128*4
     SetTargetToDistantEnemy
       // Charge!
       tmpx = targetx
@@ -212,7 +213,6 @@ IfTimeOut
 // ZZ> Handle death by sending a message and other stuff
 IfKilled
   tmpargument = 2
-  tmpdistance = rand & 1027 + 11000
   PlaySound
   tmpargument = 0
   IfTargetIsOnSameTeam
@@ -220,7 +220,7 @@ IfKilled
   SendMessage
 
   // Drop goodies
-  tmpargument = 65535
+  tmpargument = selfmoney
   DropMoney
   DropItems
   DropKeys
@@ -235,7 +235,6 @@ IfAttacked
   SetTargetToWhoeverAttacked
   IfTargetIsOnSameTeam
     tmpargument = 5
-    tmpdistance = rand & 1027 + 11000
     PlaySound
     tmpargument = 2
     SendMessageNear
@@ -248,7 +247,6 @@ IfAttacked
     
   Else
     tmpargument = rand & 1 + 3
-    tmpdistance = rand & 1027 + 11000
     PlaySound
   SetTargetToOldTarget
 

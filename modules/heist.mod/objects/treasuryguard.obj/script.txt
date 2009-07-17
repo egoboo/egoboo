@@ -136,7 +136,7 @@ IfKilled
   PlaySound
 
   // Drop goodies
-  tmpargument = 65535
+  tmpargument = selfmoney
   DropMoney
   DropKeys
   DropItems
@@ -174,7 +174,7 @@ IfTimeOut
 
   //Combat mode
   IfStateIs1
-    tmpdistance = 128000
+    tmpdistance = 128*7
     SetTargetToDistantEnemy
     IfTargetIsOnHatedTeam
       DoNothing
@@ -329,7 +329,7 @@ IfTimeOut
   IfStateIs2
     Sneak
     SetTurnModeToVelocity
-    tmpargument = 10
+    tmpargument = 15
     SetTime
 
     //Watch out for enemies
@@ -349,7 +349,7 @@ IfTimeOut
 
   //Sleepy guard
   IfStateIs3
-    tmpargument = rand & 100 + 175
+    tmpargument = rand % 100 + 175
     SetTime
     tmpx = selfx
     tmpy = selfy
@@ -365,46 +365,37 @@ IfTimeOut
 IfAttacked
   SetTargetToWhoeverAttacked
   IfTargetIsOnHatedTeam
-    IfHitFromBehind
-      tmpargument = 1
-      IfStateIsNot			//Only if not in combat already
-        tmpargument = [DISA]
-        IfTargetHasSkillID                   //Can the target backstab?
-          tmpargument = 5
-          SendMessageNear
-          tmpargument = 15
-          tmpdistance = EXPMURDER
-          GiveExperienceToTarget            //Award some xp for backstabbing
-          SetTargetToSelf
-          KillTarget                        //Killed!
+    tmpargument = 4		//Ouch!
+    PlaySound
+    tmpargument = 1
+    IfStateIsNot			//Only if not in combat already
+      IfBackstabbed
+        tmpargument = 5
+        SendMessageNear
+        tmpargument = 15
+        tmpdistance = EXPMURDER
+        GiveExperienceToTarget            //Award some xp for backstabbing
+        SetTargetToSelf
+        KillTarget                        //Killed!
+      Else
+        tmpargument = [HELP]
+        IssueOrder                      //Sound the alarm!
+        tmpargument = 1
+        SetState
+        SetTime
+        tmpargument = 6
+        PlayFullSound
+        SendMessageNear
   Else
     IfTargetIsOnSameTeam
       tmpargument = 1
       PlaySound				//Hey! careful there 
     SetTargetToOldTarget
 
-IfAttacked
-  SetTargetToWhoeverAttacked
-  IfTargetIsOnHatedTeam
-    tmpargument = 1
-    IfStateIsNot
-      tmpargument = [HELP]
-      IssueOrder                      //Sound the alarm!
-      tmpargument = 1
-      SetState
-      SetTime
-      tmpargument = 6
-      PlayFullSound
-      SendMessageNear
-    tmpargument = 4		//Ouch!
-    PlaySound
-  Else
-    SetTargetToOldTarget
-
 //Stand still few seconds before turning to start again
 IfAtLastWaypoint
   IfStateIs2
-    tmpargument = rand & 100 + 175
+    tmpargument = rand % 75 + 175
     SetTime
     Stop
 
