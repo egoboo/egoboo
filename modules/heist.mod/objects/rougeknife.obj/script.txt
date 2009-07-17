@@ -1,3 +1,9 @@
+// Show the character's location
+tmpx = selfx
+tmpy = selfy
+tmpargument = BLUE
+ShowBlipXY
+
 IfSpawned
   tmpargument = 2
   ClosePassage

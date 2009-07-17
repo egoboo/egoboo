@@ -61,7 +61,7 @@ beartrap.obj:   NONE    36  14.5   26.5   1.0   S    0   0  0   0   0   F   F   
 beartrap.obj:   NONE    36  13.5   26.5   1.0   W    0   0  0   0   0   F   F   N
 beartrap.obj:   NONE    36  15.5   26.5   1.0   E    0   0  0   0   0   F   F   N
 beartrap.obj:   NONE    36  22.0   56.0   1.0   N    0   0  0   0   0   F   F   N
-chest.obj:   NONE    59  6.0   26.0   0.0   E    39   0  0   7   0   F   F   N
+chest.obj:   NONE    59  6.0   26.0   0.0   E    39   0  0  11   0   F   F   N
   keya.obj:   NONE    56  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
 //In the maze
@@ -83,7 +83,7 @@ pitcobra.obj:   NONE    55  40.0   7.0   1.0   N    0   0  0   0   0   F   F   E
 pitcobra.obj:   NONE    55  39.0   9.0   1.0   N    0   0  0   0   0   F   F   E
 pitcobra.obj:   NONE    55  40.0   10.0   1.0   N    0   0  0   0   0   F   F   E
 pitcobra.obj:   NONE    55  43.0   9.0   1.0   N    0   0  0   0   0   F   F   E
-lockedchest.obj:   NONE    59  41.5   9.0   1.0   W    14   0  0   5   0   F   F   N
+chest.obj:   NONE    59  41.5   9.0   1.0   W    14   0  0   9   0   F   F   N
   lpotion.obj:   NONE    42  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   knife.obj:   NONE    39  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   levpotion.obj:   NONE    70  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N

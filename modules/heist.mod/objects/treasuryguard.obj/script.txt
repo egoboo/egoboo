@@ -395,7 +395,7 @@ IfAttacked
 //Stand still few seconds before turning to start again
 IfAtLastWaypoint
   IfStateIs2
-    tmpargument = rand % 75 + 175
+    tmpargument = rand & 63 + 100
     SetTime
     Stop
 

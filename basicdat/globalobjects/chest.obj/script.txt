@@ -453,6 +453,13 @@ IfBumped
 
           //No armor, no traps, and no lock; just loot it already!
           Else
+          
+            // Say it's empty...
+            IfStateIs2
+              // Say the chest is empty...
+              tmpargument = 0
+              SendMessageNear
+              
             //Secret bottom
             tmpx = selfstate
             tmpy = 2
@@ -472,6 +479,10 @@ IfBumped
                 Else
                   DropItems
                   DropKeys
+                  
+                //Tell about the secret bottom!
+                tmpargument = 12
+                SendMessageNear
                 
                 //Truly empty now
                 tmpargument = 2
@@ -484,12 +495,6 @@ IfBumped
               Else
                 tmpargument = 2       //They did not find it... tell its empty
                 SendMessageNear
-              
-            // Say it's empty...
-            IfStateIs2
-              // Say the chest is empty...
-              tmpargument = 0
-              SendMessageNear
 
             // Drop the contents
             IfStateIs1
@@ -504,7 +509,17 @@ IfBumped
                   tmpargument = 20
                   tmpdistance = EXPSECRET
                   GiveExperienceToTarget
-
+                  
+                  //Take away the map
+                  tmpx = selfcontent & 8
+                  tmpy = 8
+                  IfXIsEqualToY
+                    tmpargument = selfcontent - 2
+                    SetContent              //Wait! There is still a secret bottom!
+                  Else
+                    tmpargument = 2         //Truly empty...
+                    SetState
+                  
                   // Tell everyone
                   tmpargument = 7
                   SendMessage
@@ -515,13 +530,13 @@ IfBumped
                   tmpargument = 8
                   SendMessageNear
               Else
+                tmpargument = 2
+                SendMessageNear
               
                 //Secret bottom?
                 tmpx = selfcontent & 8
                 tmpy = 8
                 IfXIsEqualToY
-                  tmpargument = 2
-                  SendMessageNear
                   tmpargument = rand & 1 + 3    //Set the secret bottom
                   SetState
                   IfStateIs3    //Drop items first
@@ -531,17 +546,14 @@ IfBumped
                     tmpargument = selfmoney
                     DropMoney
                 Else
-                  tmpargument = 2
-                  SendMessageNear
                   tmpargument = selfmoney
                   DropMoney
                   DropItems
                   DropKeys
               
-              //Empty now...
-              IfStateIs1          //no secret bottom
-                tmpargument = 2
-                SetState
+                  //Truly empty now...
+                  tmpargument = 2
+                  SetState
 
 //------------------------------------------------------------------------------------
 // All done

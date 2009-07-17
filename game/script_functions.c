@@ -6315,21 +6315,18 @@ Uint8 scr_TargetIsASpell( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_Backstabbed( script_state_t * pstate, ai_state_t * pself )
 {
-    int iTmp;
-
     SCRIPT_FUNCTION_BEGIN();
 
-    // Proceeds if HitFromBehind, Target has [DIsA] skill and damage Is physical
+    // Proceeds if HitFromBehind, target has [DISA] skill and damage dealt is physical
     returncode = bfalse;
     if ( 0 != ( pself->alert & ALERTIF_ATTACKED ) )
     {
-        sTmp = ChrList[pself->attacklast].model;
         if ( pself->directionlast >= BEHIND - 8192 && pself->directionlast < BEHIND + 8192 )
         {
-            if ( CapList[sTmp].idsz[IDSZ_SKILL] == Make_IDSZ( "STAB" ) )
+			if ( check_skills( pself->attacklast, Make_IDSZ("STAB") ) )
             {
-                iTmp = pself->damagetypelast;
-                if ( iTmp == DAMAGE_CRUSH || iTmp == DAMAGE_POKE || iTmp == DAMAGE_SLASH ) returncode = btrue;
+                sTmp = pself->damagetypelast;
+                if ( sTmp == DAMAGE_CRUSH || sTmp == DAMAGE_POKE || sTmp == DAMAGE_SLASH ) returncode = btrue;
             }
         }
     }
