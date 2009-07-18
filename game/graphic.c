@@ -2310,7 +2310,7 @@ void draw_scene_mesh( renderlist_t * prlist )
     // render the heighmap
     for ( cnt = 0; cnt < prlist->all_count; cnt++ )
     {
-        render_hmap_fan( prlist->all[cnt] );
+        render_hmap_fan( pmesh, prlist->all[cnt] );
     }
 #endif
 

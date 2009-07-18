@@ -31,8 +31,8 @@ Dexterity increase per level ( eg. 0-1 )	: 0
 // More physical attributes
 Size ( eg. 1.0 )				: 1.0
 Size increase per level ( eg. 0.05 )		: 0.05
-Shadow size ( eg. 30, 0 is none )		: 15
-Bump size ( eg. 30 )				: 30
+Shadow size ( eg. 30, 0 is none )		: 0
+Bump size ( eg. 30 )				: 60
 Bump height ( eg. 70 )				: 5
 Bump dampen ( 0.0 to 1.0, lower is massive )	: 1.00
 Weight ( 0 to 255 )				: 2

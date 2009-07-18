@@ -52,7 +52,7 @@ void render_fan( ego_mpd_t * pmesh, Uint32 fan )
     // vertex is a value from 0-15, for the meshcommandref/u/v variables
     // badvertex is a value that references the actual vertex number
 
-    tile = ptile->img;               // Tile
+	tile = ptile->img;               // Tile
     fx   = ptile->fx;                 // Fx bits
     type = ptile->type;               // Command type ( index to points in fan )
 
@@ -92,7 +92,7 @@ void render_fan( ego_mpd_t * pmesh, Uint32 fan )
         }
         else
         {
-            oglx_texture_Bind( TxTexture + texture );
+			oglx_texture_Bind( TxTexture + texture );
             meshlasttexture = texture;
         }
     }

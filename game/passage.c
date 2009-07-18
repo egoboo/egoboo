@@ -113,7 +113,7 @@ int break_passage( script_state_t * pstate, Uint16 passage, Uint16 starttile, Ui
             fan = mesh_get_tile( PMesh, ChrList[character].pos.x, ChrList[character].pos.y );
             if ( VALID_TILE(PMesh, fan) )
             {
-                tile = PMesh->mmem.tile_list[fan].img;
+				tile = PMesh->mmem.tile_list[fan].img;
                 if ( tile >= starttile && tile < endtile )
                 {
                     x = ChrList[character].pos.x;

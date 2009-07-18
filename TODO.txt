@@ -6,17 +6,10 @@ MASTER TODO LIST:
 - Squidgies still messing things up!
 - Crusader shield IfPutAway not working. It also refills mana!
 - Overlay effects do not spawn in pits.
-- Restoration removes good buffs
-- shield of deflection not working vs. orbstorm and float eye attacks
-- Game crashes in sand palace. Mimic and tranch room. (Only on specific pc's?) 
 - The Bishopia walls should be flagged as a Wall, not as Impassable.
 - The Lich boss in the Wizard starter causes the game to freeze sometimes after 2 minutes.
 - Becoming the bad guy in Bishopia should still allow you to escape and export somehow.
-- When healers use potion or Regeneration rune, their life change from "mana life" to normal "red life" 
-- Equipped enchants (boots, amulets, etc.) seem to go away if user dies and respawns. 
 
 ABYSS 2
 - Rustproof weapon for elayne
-- New weapon for darkie boss?
 - Elayne should not like zombor
-- Add another npc? (wizard? rogue - read'n detect?)
