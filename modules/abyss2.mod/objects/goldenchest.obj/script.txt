@@ -133,20 +133,18 @@ IfBumped
           SetTime
 
 	      //Armor chest (level 4)
-        GetContent
-        tmpx = tmpargument
+        tmpx = selfcontent
         tmpy = 1
         IfXIsMoreThanY
 
           //randomize armor type
           tmpargument = 2
           IfContentIs
-            tmpargument = rand % 12 + 4
+            tmpargument = rand % 13 + 4
             SetContent
 
           //It's already set
-          GetContent
-          tmpx = tmpargument
+          tmpx = selfcontent
           tmpy = 4
           IfXIsEqualToY
             tmpargument = [ARCH]
@@ -176,7 +174,7 @@ IfBumped
             tmpargument = [ELFF]
           tmpy = 12
           IfXIsMoreThanY
-            tmpargument = [XXXX]    //Fits all classes (35%)
+            tmpargument = [XXXX]    //Fits all classes
 
           //Try to give it
           IfTargetHasID

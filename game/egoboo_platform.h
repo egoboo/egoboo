@@ -35,7 +35,7 @@
 // do dome mac stuff here
 
 // trap non-osx mac builds
-#    ifndef (__MACH__)
+#    ifndef __MACH__
 #        error Only OS X builds are supported
 #    endif
 

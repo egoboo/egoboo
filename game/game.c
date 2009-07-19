@@ -1208,7 +1208,7 @@ int do_ego_proc_leaving( ego_process_t * eproc )
         process_instance_terminate( PROC_PBASE(eproc) );
     }
 
-    return eproc->base.terminated ? 1 : 0;
+    return eproc->base.terminated ? 0 : 1;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1618,7 +1618,7 @@ int SDL_main( int argc, char **argv )
 {
     // ZZ> This is where the program starts and all the high level stuff happens
 
-    int   max_rate;
+    int   max_rate, result;
     float frameskip;
 
     // initialize the process
@@ -1657,10 +1657,10 @@ int SDL_main( int argc, char **argv )
     process_instance_kill( PROC_PBASE(MProc) );
     while ( !EProc->base.terminated )
     {
-        do_ego_proc_leaving( EProc );
+        result = do_ego_proc_leaving( EProc );
     }
 
-    return btrue;
+    return result;
 }
 
 //--------------------------------------------------------------------------------------------

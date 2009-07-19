@@ -1,6 +1,6 @@
 //         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
-unknown:   NONE    0  12.5   35.5   1.0   N    0   0  0   0   0   T   F   Z
-unknown:   NONE    1  14.0   48.0   2.0   L    0   0  0   0   0   F   F   N
+unknown:   NONE    0  12.5   35.5   0.0   N    0   0  0   0   0   T   F   Z
+unknown:   NONE    1  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 unknown:   NONE    2  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 unknown:   NONE    3  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 unknown:   NONE    4  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
@@ -13,10 +13,10 @@ unknown:   NONE    8  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 cleric.obj:   NONE    56  34.5   24.25   1.0   N    39   0  0   0   0   F   F   G
 scimitar.obj:   NONE    53  23.0   35.0   1.0   R    0   0  0   0   0   F   F   N
 holybolt.obj:   NONE    57  23.0   35.0   1.0   L    0   0  0   0   0   F   F   N
-unknown:   NONE    29  35.0   24.25   1.0   N    8   1  0   0   0   F   F   G
-warham.obj:   NONE    40  22.0   31.0   1.0   R    0   0  0   0   0   F   F   N
-unknown:   NONE    29  34.0   24.25   1.0   N    6   1  0   0   0   F   F   G
-warham.obj:   NONE    40  22.0   31.0   1.0   R    0   0  0   0   0   F   F   N
+healer:   NONE    29  35.0   24.25   1.0   N    8   1  0   0   0   F   F   G
+  warham.obj:   NONE    40  22.0   31.0   1.0   R    0   0  0   0   0   F   F   N
+healer:   NONE    29  34.0   24.25   1.0   N    6   1  0   0   0   F   F   G
+  warham.obj:   NONE    40  22.0   31.0   1.0   R    0   0  0   0   0   F   F   N
 
 //Necromancer boss
 nercomancer.obj:   NONE    45  13.0   33.0   1.0   N    128   0  0   0   0   T   F   E

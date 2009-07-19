@@ -1,7 +1,5 @@
 // ZZ> This function makes an item fall to the floor when spawned
 IfSpawned				//
-  tmpargument = 0
-  SetState
   tmpargument = ACTIONJB		  //
   DoAction				  //
   KeepAction				  //
@@ -44,7 +42,7 @@ IfGrabbed				// Tell them what they've won...
 
 // Item is held by a foot soldier
 IfStateIs1
-
+  SetTargetToWhoeverIsHolding
   //Make it usable in foot melee
   IfUsed
     tmpargument = 57               //Albeit with a slow speed
@@ -55,7 +53,7 @@ IfStateIs1
     tmpargument = ACTIONDA         //Return to normal held position
     DoActionOverride
     KeepAction
-
+  
   IfTargetIsMounted
     // Can the holder joust?
     tmpargument = [JOUS]
@@ -82,7 +80,7 @@ IfStateIs2
     //Make no attack possible
     tmpargument = 10
     SetReloadTime
-
+    
     // Do a particle spawn based on speed
     SetOldTarget
     SetTargetToLowestTarget

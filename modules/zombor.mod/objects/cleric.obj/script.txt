@@ -79,11 +79,10 @@ IfTimeOut
     tmpargument = 20
     PlayMusic
     
-    SetTargetToNearestEnemy
-    tmpx = targetdistance
-    tmpy = 1700
-    IfXIsLessThanY
-      tmpy = 400
+    tmpdistance = 1700
+    SetTargetToDistantEnemy
+      tmpx = targetdistance
+      tmpy = 350
       IfXIsMoreThanY		//Far enough away to go ranged mode
         SetTurnModeToWatchTarget
         tmpargument = 3
@@ -116,16 +115,25 @@ IfStateIs3
     tmpx = targetx
     tmpy = targety
     tmpturn = targetturnto
-    tmpdistance = 0 - 600
+    tmpdistance = -550
     Compass
     ClearWaypoints
     AddWaypoint
     tmpargument = LATCHLEFT
     PressLatchButton
     
+    //Never run out of mana
+    tmpx = selfmana
+    tmpy = 256
+    IfXIsLessThanY
+      SetOldTarget
+      SetTargetToSelf
+      tmpargument = 256
+      PumpTarget
+      SetTargetToOldTarget
+    
     //Check if we are finished charging
-    GetContent
-    tmpargument = tmpargument +1
+    tmpargument = selfcontent +1
     SetContent
     tmpx = tmpargument
     tmpy = 70              //charge time (holybolt time/8)

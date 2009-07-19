@@ -42,7 +42,7 @@ IfGrabbed				// Tell them what they've won...
 
 // Item is held by a foot soldier
 IfStateIs1
-
+  SetTargetToWhoeverIsHolding
   //Make it usable in foot melee
   IfUsed
     tmpargument = 57               //Albeit with a slow speed

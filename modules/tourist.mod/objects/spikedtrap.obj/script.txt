@@ -18,7 +18,8 @@ IfOrdered
     
   tmpy = [STOP]
   IfXIsEqualToY
-    tmpargument = 500  //ten seconds is just enough
+    tmpturn = difficulty * 50       //12 seconds - 1 second per difficulty level
+    tmpargument = 600 - tmpturn     //ten seconds is just enough
     SetTime
 
 //-----------------------------------------------------------------------------------------------

@@ -95,7 +95,7 @@ Uint16 mnu_selectedPlayer[MAXPLAYER] = {0};
 static int selectedModule = -1;
 
 /* Copyright text variables.  Change these to change how the copyright text appears */
-static char copyrightText[] = "Welcome to Egoboo!\nhttp:// egoboo.sourceforge.net\nVersion " VERSION "\n";
+static char copyrightText[] = "Welcome to Egoboo!\nhttp://egoboo.sourceforge.net\nVersion " VERSION "\n";
 static int  copyrightLeft = 0;
 static int  copyrightTop  = 0;
 
@@ -674,6 +674,9 @@ int doChooseModule( float deltaTime )
                 Uint32      tex_offset = ModList[imod].tex;
                 oglx_texture * ptex       = ((Uint32)(~0) == tex_offset) ? NULL : TxTitleImage + tex_offset;
 
+				//If there are less than 3 unlocked modules, don't draw three images
+				if( !validModules[i] ) continue;
+
                 if ( ui_doImageButton( i, ptex, moduleMenuOffsetX + x, moduleMenuOffsetY + y, 138, 138 ) )
                 {
                     selectedModule = i;
@@ -686,7 +689,7 @@ int doChooseModule( float deltaTime )
             ui_drawButton( UI_Nothing, moduleMenuOffsetX + 21, moduleMenuOffsetY + 173, 291, 230, NULL );
 
             // And draw the next & back buttons
-            if ( BUTTON_UP == ui_doButton( 53, "Select Module",
+            if ( selectedModule > -1 &&    BUTTON_UP == ui_doButton( 53, "Select Module",
                                            moduleMenuOffsetX + 327, moduleMenuOffsetY + 173, 200, 30 ) )
             {
                 // go to the next menu with this module selected

@@ -22,5 +22,3 @@ Level rating ( * to  ***** ) 	: -
 
 
 // Module expansion IDSZs ( with a colon in front )
-
-:[TOUR]

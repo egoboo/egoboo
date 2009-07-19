@@ -280,26 +280,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\gltexture.c"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath=".\graphic.c"
 				>
 			</File>
@@ -530,10 +510,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\gltexture.h"
-				>
-			</File>
-			<File
 				RelativePath=".\graphic.h"
 				>
 			</File>
@@ -669,6 +645,30 @@
 		<Filter
 			Name="Obsolete"
 			>
+			<File
+				RelativePath=".\gltexture.c"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\gltexture.h"
+				>
+			</File>
 			<File
 				RelativePath=".\MainLoop.c"
 				>

@@ -3,8 +3,11 @@ IfKilled				// This reduces the height of the char
   PlaySound
 
   tmpargument = 0			  // Last words...
-  SetState				  //
+  SendMessageNear				  //
+  
+  tmpargument = selfmoney
   DropMoney				  //
+  
   tmpargument = 45			  //
   SetBumpHeight				  //
 
@@ -13,6 +16,9 @@ IfTimeOut				// This is done every so often
   SetTime				  //
 
   SetTargetToNearestFriend
+  tmpx = targetdistance
+  tmpy = 128*5
+  IfXIsLessThanY
     IfTargetIsHurt
       tmpargument = 2
       SetState
@@ -41,6 +47,8 @@ IfTimeOut				// This is done every so often
       SetState				      //
     tmpx = targetx			    //
     tmpy = targety			    //
+    ClearWaypoints			  //
+    AddWaypoint				  //
   Else					  // Find someone to bash
     tmpdistance = 128*4
     SetTargetToDistantEnemy
@@ -56,25 +64,33 @@ IfTimeOut				// This is done every so often
     Else			    
       tmpx = selfspawnx			   
       tmpy = selfspawny
-
+    ClearWaypoints			  //
+    AddWaypoint				  //
+ 
   //Attack
   IfStateIs1				  // State 1 ( Combat )
-    tmpx = targetdistance		    // Close enough to attack?
-    tmpy = 200				    //
-    IfXIsLessThanY			    //
-      tmpargument = rand & 1 + LATCHLEFT    // Right Attack == 2
-      PressLatchButton			      //
-    tmpy = 700
-    IfXIsMoreThanY
-      tmpargument = 0
-      SetState
+    SetTargetToWideEnemy
+    IfFacingTarget
+      tmpx = targetdistance		    // Close enough to attack?
+      tmpy = 200				    //
+      IfXIsLessThanY			    //
+        tmpargument = rand & 1 + LATCHLEFT    // Right Attack == 2
+        PressLatchButton			      //
+    
     tmpx = targetx			    // Move towards enemy
     tmpy = targety			    //
     tmpturn = targetturnto		    //
     tmpdistance = 200			    //
     Compass				    //
-  ClearWaypoints			  //
-  AddWaypoint				  //
+    ClearWaypoints			  //
+    AddWaypoint				  //
+  
+    //Target ran away
+    tmpx = targetdistance
+    tmpy = 700
+    IfXIsMoreThanY
+      tmpargument = 0
+      SetState
 
 IfAttacked				// Counter attack if not healing
   IfStateIs0				  //
@@ -96,20 +112,13 @@ IfAttacked				// Counter attack if not healing
 
 IfBumped				// Bumped
   SetTargetToWhoeverBumped		  //
-  IfTargetIsHurt			  //
-    IfTargetIsOnOtherTeam		    // Revert
-      SetTargetToOldTarget		      //
-    Else				    // Heal 'em
+  IfTargetIsOnSameTeam
+    IfTargetIsHurt			  //
+      // Heal 'em
       tmpargument = 2			      // State 2 ( Helper )
       SetState				      //
-  Else					  // Revert
-    SetTargetToOldTarget		    //
-  tmpx = rand&511+selfx-256		  //
-  tmpy = rand&511+selfy-256		  //
-  ClearWaypoints			  //
-  AddWaypoint				  //
-  tmpargument = 40			  // Try again soon
-  SetTime				  //
+    Else					  // Revert
+      SetTargetToOldTarget		    //
 
 IfTargetKilled				// Mode switch
   tmpargument = 0			  // Return to follow mode

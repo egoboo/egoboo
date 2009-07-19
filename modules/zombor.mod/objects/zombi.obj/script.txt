@@ -15,13 +15,14 @@ ShowBlipXY
 
 //Randomize join team
 IfSpawned
-  tmpx = rand % 100
-  tmpy = 34		//66% chance to join Necromancer
-  IfXIsLessThanY
-    tmpargument = 25	//Team Z
-  Else
-    tmpargument = 4	//Team E
-  JoinTeam
+
+//  tmpx = rand % 100
+//  tmpy = 34		//66% chance to join Necromancer
+//  IfXIsLessThanY
+//    tmpargument = 25	//Team Z
+//  Else
+//    tmpargument = 4	//Team E
+//  JoinTeam
 
   SetTargetToSelf
   SetOwnerToTarget

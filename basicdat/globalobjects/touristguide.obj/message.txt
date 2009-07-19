@@ -1,5 +1,5 @@
 Message: %t_found_%n.
-Message: 'TOURIST_GUIDE_TO_BISHOPIA'_-_So_you_want_to_be_a_hero?_(Revision_2)
+Message: 'TOURIST_GUIDE_TO_LORULE'_-_So_you_want_to_be_a_hero?_(Revision_3)
 Message: You_read_this_on_the_front:_"Don't_panic!"
 Message: CHAPTER_1_-_PRELUDE_TO_THE_GUIDE
 Message: Welcome_to_the_World_of_Bishopia!
@@ -10,7 +10,7 @@ Message: But_beware!_Most_treasures_and_rewards_are_guarded_by_danger!
 Message: Traps,_monsters,_puzzles,_riddles_and_even_boss_monsters!
 Message: For_your_convinience,_this_book_has_been_laminated_to_protect_it_from_water!
 Message: It_even_uses_high_tech_pyro_paper_to_make_it_fire_immune!
-Message: Any_complaints_or_suggestions_should_be_sent_at:_egoboo.sourceforge.net\forum
+Message: Any_complaints_or_suggestions_should_be_sent_at:_egoboo.sourceforge.net/forum
 Message: CHAPTER_2_-_A_HERO'S_EQUIPMENT
 Message: We_will_begin_by_some_basics:_Every_hero_should_have_some_basic_gear.
 Message: A_light_source_(lamp,_torch,_magic,_etc.)
