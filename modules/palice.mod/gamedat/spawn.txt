@@ -85,9 +85,11 @@ halldoor.obj:   NONE    38  43.0   50.0   1.0   W    0   0  20   0   0   F   F  
 
 //Optional treasure chamber
 lachest.obj:   NONE    68  9.0   56.0   1.0   N    0   0  0   0   0   F   F   N
+  confusion.obj:   NONE    88  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   frog.obj:   NONE    65  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   wshield.obj:   NONE    39  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 lachest.obj:   NONE    68  14.8   56.0   1.0   N    0   0  0   0   0   F   F   N
+  medkit.obj:   NONE    80  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   sloth.obj:   NONE    63  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   lpotion.obj:   NONE    86  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   lpotion.obj:   NONE    86  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
@@ -115,6 +117,7 @@ achest.obj:   NONE    67  44.5   27.5   1.0   S    0   0  0   2   0   F   F   N
 fchest.obj:   NONE    36  46.5   30.5   1.0   N    0   0  0   1   0   F   F   N
   lpotion.obj:   NONE    86  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   haste.obj:   NONE    62  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  truesightscroll.obj:   NONE    140  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
 //Mimic room
 mimic.obj:   NONE    41  57.0   50.5   1.0   N    9   0  0   0   0   F   F   E
@@ -160,5 +163,8 @@ monsterdrop.obj:   NONE    58  35.0   11.0   1.0   N    0   0  19   46   0   F  
 spork.obj:   NONE    60  36.5   28.5   2.0   W    0   0  0   0   0   F   F   N
 xchest.obj:   NONE    64  56.5   8.5   1.0   N    99   0  0   0   0   F   F   N
   Regeneration:   NONE    50  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Mallet:   NONE    132  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  LifeRing:   NONE    136  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+
 monsterdrop.obj:   NONE    58  57.5   40.5   1.0   N    0   0  22   54   0   F   F   E
 achest.obj:   NONE    67  44.5   30.5   1.0   N    0   1  0   3   0   F   F   N

@@ -1,3 +1,10 @@
+Version 2.7.4b (xx.xx.2009)
+- Update: Increased the amount of treasure loot found in the Ice Palace.
+- Update: Improved the Frost Lizard AI.
+- Update: Improved the texture detail for all the title images.
+- Bugfix: Fixed some acceleration issues that made the Tourist Starter almost impossible.
+- Bugfix: Fixed Lord Hagen AI movement bug in the Soldier Starter.
+
 Version 2.7.4 (19.07.2009)
 - New Feature: New menu section for Game Options where you can change the game difficulty.
 - New Feature: New town module! Visit Sandweg city in the deserts and taste the juicy Kabobs!

@@ -77,8 +77,8 @@ IfTimeOut
       tmpargument = 100
       SetContent
 
-//Get in a fight!
-    tmpdistance = 250000
+    //Get in a fight!
+    tmpdistance = 128*5
     SetTargetToDistantEnemy
       // Charge!
       tmpx = targetx
@@ -174,7 +174,7 @@ IfTimeOut
             tmpargument = 20
             SetTime
         Else
-//Approach the player
+          //Approach the player
           tmpx = selfspawnx
           tmpy = selfspawny
           tmpturn = targetturnto
@@ -185,7 +185,7 @@ IfTimeOut
           tmpargument = 20
           SetTime
       Else
-//Walk around in a circle
+        //Walk around in a circle
         tmpx = selfx
         tmpy = selfy
         tmpturn = selfturn + 8192
@@ -196,7 +196,7 @@ IfTimeOut
         tmpargument = 20
         SetTime
     Else
-//If blah is not, Move around in a circle
+      //If blah is not, Move around in a circle
       tmpx = selfx
       tmpy = selfy
       tmpturn = selfturn + 8192

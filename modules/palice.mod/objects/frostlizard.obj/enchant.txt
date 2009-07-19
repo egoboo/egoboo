@@ -4,7 +4,7 @@ Override set values ( TRUE or FALSE )		: FALSE
 Remove overridden enchants ( TRUE or FALSE )	: TRUE
 Kill character on end ( TRUE or FALSE )		: FALSE
 Spawn poof on end ( TRUE or FALSE )		: FALSE
-Seconds before end ( -1 for infinite )		: 2
+Seconds before end ( -1 for infinite )		: 3
 End message ( -1 for none )			: -1
 
 
@@ -53,12 +53,12 @@ Target may now channel life ( TRUE )		: F TRUE
 
 // Modify target's attributes...  These are cumulative, and
 // are simply undone when removed.
-Jump power increase ( -5.0 to 5.0 )		: -5.0
+Jump power increase ( -5.0 to 5.0 )		: -8.0
 Bump dampen change ( -1.0 to 1.0 )		: 0.0
 Bounciness change ( -.95 to .95 )		: 0.0
 Damage bonus ( -4.0 to 4.0 )			: 0.0
 Size increase ( -.5 to .5 )			: 0.0
-Acceleration booost ( -40 to 40 )		: -2
+Acceleration booost ( -40 to 40 )		: -25
 Darkening red shift change ( -3 to 3 )		: 2
 Darkening green shift ( -3 to 3 )		: 2
 Darkening blue shift ( -3 to 3 )		: -2
@@ -68,4 +68,4 @@ Maximum life increase ( -3.0 to 3.0 )		: 0.0
 Strength boost ( -3.0 to 3.0 )			: 0.0
 Wisdom boost ( -3.0 to 3.0 )			: 0.0
 Intelligence boost ( -3.0 to 3.0 )		: 0.0
-Dexterity boost ( -3.0 to 3.0 )			: -3.0
+Dexterity boost ( -3.0 to 3.0 )			: -5.0

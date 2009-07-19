@@ -1,10 +1,19 @@
-//Give the target some kurses
-SetTargetToWhoeverIsHolding
-  UndoEnchant
+IfSpawned
+  SetTargetToSelf
   SetOwnerToTarget
-  EnchantTarget
+  
+//Give the target some kurses
+IfHeld
+  SetTargetToWhoeverIsHolding
+  IfStateIs0
+    EnchantTarget
+    tmpargument = 1
+    SetState
 Else
-  UndoEnchant
+  IfStateIs1
+    tmpargument = 0
+    SetState
+    UndoEnchant
 
 IfNotPutAway
   tmpargument = 4
@@ -15,7 +24,7 @@ IfNotDropped
   SendMessageNear
 
 IfUsed
-  tmpargument = 90
+  tmpargument = 75
   SetReloadTime
 
 //The usual stuff
