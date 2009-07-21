@@ -948,9 +948,8 @@ void detach_character_from_mount( Uint16 character, Uint8 ignorekurse,
                                   Uint8 doshop )
 {
     // ZZ> This function drops an item
-    Uint16 mount, hand, enchant, cnt, passage, owner = NOOWNER;
+    Uint16 mount, hand, enchant, owner = NOOWNER;
     bool_t inshop;
-    int loc;
     float price;
     float nrm[2];
 
@@ -1021,32 +1020,14 @@ void detach_character_from_mount( Uint16 character, Uint8 ignorekurse,
     inshop = bfalse;
     if ( ChrList[character].isitem && numshoppassage != 0 && doshop )
     {
+		int ix = ChrList[character].pos.x / TILE_SIZE;
+		int iy = ChrList[character].pos.y / TILE_SIZE;
+
         //This is a hack that makes spellbooks in shops cost correctly
         if ( ChrList[mount].isshopitem ) ChrList[character].isshopitem = btrue;
 
-        for ( cnt = 0; cnt < numshoppassage; cnt++ )
-        {
-            passage = shoppassage[cnt];
-            loc = ChrList[character].pos.x;
-            loc = loc >> TILE_BITS;
-			if ( loc >= PassageList[passage].topleftx && loc <= PassageList[passage].bottomrightx )
-            {
-                loc = ChrList[character].pos.y;
-                loc = loc >> TILE_BITS;
-				if ( loc >= PassageList[passage].toplefty && loc <= PassageList[passage].bottomrighty )
-                {
-                    inshop = btrue;
-                    owner  = shopowner[cnt];
-                    if ( owner == NOOWNER )
-                    {
-                        // The owner has died!!!
-                        inshop = bfalse;
-                    }
-
-                    if ( inshop ) break;
-                }
-            }
-        }
+		owner = shop_get_owner( ix, iy );
+        if( VALID_CHR(owner) ) inshop = btrue;
 
         if ( inshop )
         {

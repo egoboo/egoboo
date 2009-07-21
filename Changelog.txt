@@ -3,6 +3,7 @@ Version 2.7.4b (xx.xx.2009)
 - Update: Increased the amount of treasure loot found in the Ice Palace.
 - Update: Improved the Frost Lizard AI.
 - Update: Improved the texture detail for all the title images.
+- Bugfix: Corrected some character hitboxes.
 - Bugfix: Fixed some acceleration issues that made the Tourist Starter almost impossible.
 - Bugfix: Fixed Lord Hagen AI movement bug in the Soldier Starter.
 

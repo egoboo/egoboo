@@ -52,7 +52,7 @@
 #    define EQ(x)
 #endif
 
-#define VERSION "2.7.4"                         // Version of the game
+#define VERSION "2.7.4b"                         // Version of the game
 
 // My lil' random number table
 #define MAXRAND 4096
@@ -289,10 +289,7 @@ EXTERN Uint16  bookicon[MAXSKIN];                      // The first book icon
 EXTERN const char *globalparsename  EQ( NULL ); // The SCRIPT.TXT filename
 
 // phisics info
-
 EXTERN float           platstick  EQ( 0.1f );
-
-#define CLOSETOLERANCE      2                       // For closing doors
 
 enum e_order
 {

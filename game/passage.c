@@ -241,20 +241,22 @@ Uint8 find_tile_in_passage( script_state_t * pstate, Uint16 passage, int tiletyp
 }
 
 //--------------------------------------------------------------------------------------------
-Uint16 is_in_passage( Uint16 passage, float xpos, float ypos, float bumpsize )
+bool_t is_in_passage( Uint16 passage, float xpos, float ypos, float tolerance )
 {
-    // ZF> This return btrue if the specified X and Y coordinates are withing the passage
+    // ZF> This return btrue if the specified X and Y coordinates are within the passage
+	// tolerance is how much offset we allow outside the passage
     float tlx, tly, brx, bry;
-    
+    tolerance += CLOSETOLERANCE;
+
     // Passage area
-	tlx = ( PassageList[passage].topleftx << TILE_BITS ) - CLOSETOLERANCE;
-	tly = ( PassageList[passage].toplefty << TILE_BITS ) - CLOSETOLERANCE;
-	brx = ( ( PassageList[passage].bottomrightx + 1 ) << TILE_BITS ) + CLOSETOLERANCE;
-	bry = ( ( PassageList[passage].bottomrighty + 1 ) << TILE_BITS ) + CLOSETOLERANCE;
+	tlx = ( PassageList[passage].topleftx << TILE_BITS ) - tolerance;
+	tly = ( PassageList[passage].toplefty << TILE_BITS ) - tolerance;
+	brx = ( ( PassageList[passage].bottomrightx + 1 ) << TILE_BITS ) + tolerance;
+	bry = ( ( PassageList[passage].bottomrighty + 1 ) << TILE_BITS ) + tolerance;
     
-    if ( xpos > tlx - bumpsize && xpos < brx + bumpsize )
+    if ( xpos > tlx && xpos < brx )
     {
-        if ( ypos > tly - bumpsize && ypos < bry + bumpsize )
+        if ( ypos > tly && ypos < bry )
         {
 			//The coordinate is within the passage
 			return btrue;
@@ -565,7 +567,7 @@ void setup_passage( const char *modname )
 //--------------------------------------------------------------------------------------------
 Uint16 shop_get_owner( int ix, int iy )
 {
-	//This function returns the owner of a shop
+	//This function returns the owner of a item in a shop
     int cnt;
     Uint16 owner = NOOWNER;
 

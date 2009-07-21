@@ -1038,7 +1038,7 @@ Uint8 scr_PassageOpen( script_state_t * pstate, ai_state_t * pself )
     returncode = bfalse;
     if ( pstate->argument < numpassage && pstate->argument >= 0 )
     {
-		returncode = PassageList[pstate->argument].passopen;
+		returncode = PassageList[pstate->argument].open;
     }
 
     SCRIPT_FUNCTION_END();

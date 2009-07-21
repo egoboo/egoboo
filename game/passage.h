@@ -33,10 +33,11 @@ struct s_script_state;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 #define MAX_PASS             256                     // Maximum number of passages ( mul 32 )
+#define CLOSETOLERANCE		 2                       // For closing doors
 
 #define NOOWNER  0xFFFF        // Shop has no owner
 #define STOLEN   0xFFFF        // Someone stole a item
-#define NO_MUSIC 0xFFFF		   // For passages that play no music
+#define NO_MUSIC -1			   // For passages that play no music
 
 //These are shop orders
 enum e_shop_orders
@@ -50,7 +51,6 @@ enum e_shop_orders
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
 // Passages
 extern int   numpassage;              // Number of passages in the module
 
@@ -92,4 +92,4 @@ void   add_shop_passage( Uint16 owner, Uint16 passage );
 void   add_passage( int tlx, int tly, int brx, int bry, bool_t open, Uint8 mask );
 void   setup_passage( const char *modname );
 Uint16 shop_get_owner( int ix, int iy );
-Uint16 is_in_passage( Uint16 passage, float xpos, float ypos, float bumpsize );
+bool_t is_in_passage( Uint16 passage, float xpos, float ypos, float tolerance );
