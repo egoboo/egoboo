@@ -95,9 +95,9 @@ void input_init()
     // init the mouse info
     memset( &mous, 0, sizeof(mouse_t) );
     mous.on      = btrue;
-    mous.sense   = 6;
-    mous.sustain = 0.50f;
-    mous.cover   = 0.50f;
+    mous.sense   = 24;
+    mous.sustain = 0.58f;
+    mous.cover   = 0.58f;
 
     // init the joystick info
     for (i = 0; i < MAXJOYSTICK; i++)

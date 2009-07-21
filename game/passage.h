@@ -32,10 +32,11 @@ struct s_script_state;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-#define MAXPASS             256                     // Maximum number of passages ( mul 32 )
+#define MAX_PASS             256                     // Maximum number of passages ( mul 32 )
 
-#define NOOWNER 0xFFFF        // Shop has no owner
-#define STOLEN  0xFFFF        // Someone stole a item
+#define NOOWNER  0xFFFF        // Shop has no owner
+#define STOLEN   0xFFFF        // Someone stole a item
+#define NO_MUSIC 0xFFFF		   // For passages that play no music
 
 //These are shop orders
 enum e_shop_orders
@@ -52,18 +53,27 @@ enum e_shop_orders
 
 // Passages
 extern int   numpassage;              // Number of passages in the module
-extern int   passtlx[MAXPASS];          // Passage positions
-extern int   passtly[MAXPASS];
-extern int   passbrx[MAXPASS];
-extern int   passbry[MAXPASS];
-extern Sint8 passagemusic[MAXPASS];        // Music track appointed to the specific passage
-extern Uint8 passmask[MAXPASS];
-extern Uint8 passopen[MAXPASS];      // Is the passage open?
+
+struct s_passage
+{
+	// Passage positions
+	int   topleftx;				//top left X
+	int   toplefty;				//top left Y
+	int   bottomrightx;				//bottom right X
+	int   bottomrighty;				//bottom right Y
+	
+	Sint8 music;			//Music track appointed to the specific passage
+	Uint8 mask;					//Is it IMPASSABLE, SLIPPERY or whatever
+	bool_t open;			//Is the passage open?
+};
+
+typedef struct s_passage passage_t;
+extern passage_t PassageList[MAX_PASS];
 
 // For shops
 extern int     numshoppassage;
-extern Uint16  shoppassage[MAXPASS];  // The passage number
-extern Uint16  shopowner[MAXPASS];    // Who gets the gold?
+extern Uint16  shoppassage[MAX_PASS];  // The passage number
+extern Uint16  shopowner[MAX_PASS];    // Who gets the gold?
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -81,3 +91,5 @@ void   clear_passages();
 void   add_shop_passage( Uint16 owner, Uint16 passage );
 void   add_passage( int tlx, int tly, int brx, int bry, bool_t open, Uint8 mask );
 void   setup_passage( const char *modname );
+Uint16 shop_get_owner( int ix, int iy );
+Uint16 is_in_passage( Uint16 passage, float xpos, float ypos, float bumpsize );

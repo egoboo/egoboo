@@ -669,20 +669,22 @@ int doChooseModule( float deltaTime )
 
             for ( i = startIndex; i < ( startIndex + 3 ) && i < numValidModules; i++ )
             {
-                // fix the menu images in case one or more of them are undefined
-                int         imod       = validModules[i];
-                Uint32      tex_offset = ModList[imod].tex;
-                oglx_texture * ptex       = ((Uint32)(~0) == tex_offset) ? NULL : TxTitleImage + tex_offset;
+				//Only draw valid modules
+				if( modlist_test_by_index(validModules[i]) )
+				{
+					// fix the menu images in case one or more of them are undefined
+					int         imod       = validModules[i];
+					Uint32      tex_offset = ModList[imod].tex;
+					oglx_texture * ptex       = ((Uint32)(~0) == tex_offset) ? NULL : TxTitleImage + tex_offset;
 
-				//If there are less than 3 unlocked modules, don't draw three images
-				if( !validModules[i] ) continue;
 
-                if ( ui_doImageButton( i, ptex, moduleMenuOffsetX + x, moduleMenuOffsetY + y, 138, 138 ) )
-                {
-                    selectedModule = i;
-                }
+					if ( ui_doImageButton( i, ptex, moduleMenuOffsetX + x, moduleMenuOffsetY + y, 138, 138 ) )
+					{
+						selectedModule = i;
+					}
 
-                x += 138 + 20;  // Width of the button, and the spacing between buttons
+					x += 138 + 20;  // Width of the button, and the spacing between buttons
+				}
             }
 
             // Draw an unused button as the backdrop for the text for now

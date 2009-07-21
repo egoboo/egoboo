@@ -37,19 +37,13 @@
 //--------------------------------------------------------------------------------------------
 
 // Passages
-int   numpassage = 0;              // Number of passages in the module
-int   passtlx[MAXPASS];          // Passage positions
-int   passtly[MAXPASS];
-int   passbrx[MAXPASS];
-int   passbry[MAXPASS];
-Sint8 passagemusic[MAXPASS];        // Music track appointed to the specific passage
-Uint8 passmask[MAXPASS];
-Uint8 passopen[MAXPASS];      // Is the passage open?
+int				numpassage = 0;              // Number of passages in the module
+passage_t       PassageList[MAX_PASS];
 
 // For shops
 int     numshoppassage = 0;
-Uint16  shoppassage[MAXPASS];  // The passage number
-Uint16  shopowner[MAXPASS];    // Who gets the gold?
+Uint16  shoppassage[MAX_PASS];  // The passage number
+Uint16  shopowner[MAX_PASS];    // Who gets the gold?
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -58,20 +52,19 @@ int open_passage( Uint16 passage )
     // ZZ> This function makes a passage passable
     int x, y;
     Uint32 fan;
-    int useful;
+    int useful = bfalse;
 
-    useful = bfalse;
     if ( passage < numpassage )
     {
-        useful = ( !passopen[passage] );
-        passopen[passage] = btrue;
-        y = passtly[passage];
+		useful = ( !PassageList[passage].open );
+		PassageList[passage].open = btrue;
+		y = PassageList[passage].toplefty;
 
-        while ( y <= passbry[passage] )
+		while ( y <= PassageList[passage].bottomrighty )
         {
-            x = passtlx[passage];
+			x = PassageList[passage].topleftx;
 
-            while ( x <= passbrx[passage] )
+			while ( x <= PassageList[passage].bottomrightx )
             {
                 fan = mesh_get_tile_int( PMesh, x, y );
 
@@ -95,7 +88,6 @@ int break_passage( script_state_t * pstate, Uint16 passage, Uint16 starttile, Ui
 {
     // ZZ> This function breaks the tiles of a passage if there is a character standing
     //     on 'em...  Turns the tiles into damage terrain if it reaches last frame.
-    int x, y;
     Uint16 tile, endtile;
     Uint32 fan;
     int useful, character;
@@ -116,34 +108,27 @@ int break_passage( script_state_t * pstate, Uint16 passage, Uint16 starttile, Ui
 				tile = PMesh->mmem.tile_list[fan].img;
                 if ( tile >= starttile && tile < endtile )
                 {
-                    x = ChrList[character].pos.x;
-                    x >>= TILE_BITS;
-                    if ( x >= passtlx[passage] && x <= passbrx[passage] )
-                    {
-                        y = ChrList[character].pos.y;
-                        y >>= TILE_BITS;
-                        if ( y >= passtly[passage] && y <= passbry[passage] )
+					if( is_in_passage( passage, ChrList[character].pos.x, ChrList[character].pos.y, ChrList[character].bumpsize ) )
+					{
+						// Remember where the hit occured...
+                        pstate->x = ChrList[character].pos.x;
+                        pstate->y = ChrList[character].pos.y;
+
+                        useful = btrue;
+
+                        // Change the tile
+                        tile++;
+                        if ( tile == endtile )
                         {
-                            // Remember where the hit occured...
-                            pstate->x = ChrList[character].pos.x;
-                            pstate->y = ChrList[character].pos.y;
-
-                            useful = btrue;
-
-                            // Change the tile
-                            tile++;
-                            if ( tile == endtile )
+                            PMesh->mmem.tile_list[fan].fx |= meshfxor;
+                            if ( become != 0 )
                             {
-                                PMesh->mmem.tile_list[fan].fx |= meshfxor;
-                                if ( become != 0 )
-                                {
-                                    tile = become;
-                                }
+                                tile = become;
                             }
-
-                            PMesh->mmem.tile_list[fan].img = tile;
                         }
-                    }
+
+                        PMesh->mmem.tile_list[fan].img = tile;
+					}
                 }
             }
         }
@@ -161,9 +146,9 @@ void flash_passage( Uint16 passage, Uint8 color )
 
     if ( passage >= numpassage ) return;
 
-    for ( y = passtly[passage]; y <= passbry[passage]; y++ )
+	for ( y = PassageList[passage].toplefty; y <= PassageList[passage].bottomrighty; y++ )
     {
-        for ( x = passtlx[passage]; x <= passbrx[passage]; x++ )
+		for ( x = PassageList[passage].topleftx; x <= PassageList[passage].bottomrightx; x++ )
         {
             fan = mesh_get_tile_int( PMesh, x, y );
 
@@ -201,12 +186,12 @@ Uint8 find_tile_in_passage( script_state_t * pstate, Uint16 passage, int tiletyp
     x = pstate->x >> TILE_BITS;
     y = pstate->y >> TILE_BITS;
 
-    if ( x < passtlx[passage] )  x = passtlx[passage];
-    if ( y < passtly[passage] )  y = passtly[passage];
+	if ( x < PassageList[passage].topleftx )  x = PassageList[passage].topleftx;
+	if ( y < PassageList[passage].toplefty )  y = PassageList[passage].toplefty;
 
-    if ( y < passbry[passage] )
+	if ( y < PassageList[passage].bottomrighty )
     {
-        while ( x <= passbrx[passage] )
+		while ( x <= PassageList[passage].bottomrightx )
         {
             fan = mesh_get_tile_int( PMesh, x, y );
 
@@ -227,11 +212,11 @@ Uint8 find_tile_in_passage( script_state_t * pstate, Uint16 passage, int tiletyp
     }
 
     // Do all remaining rows
-    while ( y <= passbry[passage] )
+	while ( y <= PassageList[passage].bottomrighty )
     {
-        x = passtlx[passage];
+		x = PassageList[passage].topleftx;
 
-        while ( x <= passbrx[passage] )
+		while ( x <= PassageList[passage].bottomrightx )
         {
             fan = mesh_get_tile_int( PMesh, x, y );
 
@@ -256,44 +241,56 @@ Uint8 find_tile_in_passage( script_state_t * pstate, Uint16 passage, int tiletyp
 }
 
 //--------------------------------------------------------------------------------------------
+Uint16 is_in_passage( Uint16 passage, float xpos, float ypos, float bumpsize )
+{
+    // ZF> This return btrue if the specified X and Y coordinates are withing the passage
+    float tlx, tly, brx, bry;
+    
+    // Passage area
+	tlx = ( PassageList[passage].topleftx << TILE_BITS ) - CLOSETOLERANCE;
+	tly = ( PassageList[passage].toplefty << TILE_BITS ) - CLOSETOLERANCE;
+	brx = ( ( PassageList[passage].bottomrightx + 1 ) << TILE_BITS ) + CLOSETOLERANCE;
+	bry = ( ( PassageList[passage].bottomrighty + 1 ) << TILE_BITS ) + CLOSETOLERANCE;
+    
+    if ( xpos > tlx - bumpsize && xpos < brx + bumpsize )
+    {
+        if ( ypos > tly - bumpsize && ypos < bry + bumpsize )
+        {
+			//The coordinate is within the passage
+			return btrue;
+		}
+	}
+
+	return bfalse;
+}
+
+//--------------------------------------------------------------------------------------------
 Uint16 who_is_blocking_passage( Uint16 passage )
 {
     // ZZ> This function returns MAX_CHR if there is no character in the passage,
     //     otherwise the index of the first character found is returned...
     //     Finds living ones, then items and corpses
-    float tlx, tly, brx, bry;
     Uint16 character, foundother;
-    float bumpsize;
-
-    // Passage area
-    tlx = ( passtlx[passage] << TILE_BITS ) - CLOSETOLERANCE;
-    tly = ( passtly[passage] << TILE_BITS ) - CLOSETOLERANCE;
-    brx = ( ( passbrx[passage] + 1 ) << TILE_BITS ) + CLOSETOLERANCE;
-    bry = ( ( passbry[passage] + 1 ) << TILE_BITS ) + CLOSETOLERANCE;
 
     // Look at each character
     foundother = MAX_CHR;
 	for( character = 0; character < MAX_CHR; character++ )
     {
 		if ( !ChrList[character].on ) continue;
-	    
-		bumpsize = ChrList[character].bumpsize;
-        if ( ( !ChrList[character].pack_ispacked ) && ChrList[character].attachedto == MAX_CHR && bumpsize != 0 )
-        {
-            if ( ChrList[character].pos.x > tlx - bumpsize && ChrList[character].pos.x < brx + bumpsize )
+	
+        if( ChrList[character].bumpsize != 0 && !ChrList[character].pack_ispacked && ChrList[character].attachedto == MAX_CHR )
+		{
+			if( is_in_passage( passage, ChrList[character].pos.x, ChrList[character].pos.y, ChrList[character].bumpsize ) )
             {
-                if ( ChrList[character].pos.y > tly - bumpsize && ChrList[character].pos.y < bry + bumpsize )
+				if ( ChrList[character].alive && !ChrList[character].isitem )
+			    {
+					// Found a live one
+                    return character;
+                }
+                else
                 {
-                    if ( ChrList[character].alive && !ChrList[character].isitem )
-                    {
-                        // Found a live one
-                        return character;
-                    }
-                    else
-                    {
-                        // Found something else
-                        foundother = character;
-                    }
+                    // Found something else
+                    foundother = character;
                 }
             }
         }
@@ -308,43 +305,27 @@ void check_passage_music()
 {
     // ZF> This function checks all passages if there is a player in it, if it is, it plays a specified
     // song set in by the AI script functions
-    float tlx, tly, brx, bry;
     Uint16 character = 0, passage, cnt;
-    float bumpsize;
 
 	//Check every music passage
     for( passage = 0; passage < numpassage; passage++ )
     {       
-		if ( passagemusic[passage] == -1 ) continue;        
+		if ( PassageList[passage].music == NO_MUSIC ) continue;        
 		
-		// Passage area
-        tlx = ( passtlx[passage] << TILE_BITS ) - CLOSETOLERANCE;
-        tly = ( passtly[passage] << TILE_BITS ) - CLOSETOLERANCE;
-        brx = ( ( passbrx[passage] + 1 ) << TILE_BITS ) + CLOSETOLERANCE;
-        bry = ( ( passbry[passage] + 1 ) << TILE_BITS ) + CLOSETOLERANCE;
-
         // Look at each player
 		for( cnt = 0; cnt < MAXPLAYER; cnt++ )
         {
 			character = PlaList[cnt].index;
-            if ( INVALID_CHR( character ) || !ChrList[character].alive || !ChrList[character].isplayer ) continue;
+            if ( INVALID_CHR( character ) || ChrList[character].pack_ispacked || !ChrList[character].alive || !ChrList[character].isplayer ) continue;
 			
 			//Is it in the passage?
-			bumpsize = ChrList[character].bumpsize;
-            if ( ( !ChrList[character].pack_ispacked ) && bumpsize != 0 )
+			if (  is_in_passage( passage, ChrList[character].pos.x, ChrList[character].pos.y, ChrList[character].bumpsize  ) )
             {
-                if ( ChrList[character].pos.x > tlx - bumpsize && ChrList[character].pos.x < brx + bumpsize )
-                {
-                    if ( ChrList[character].pos.y > tly - bumpsize && ChrList[character].pos.y < bry + bumpsize )
-                    {
-                        // Found a player, start music track
-                        sound_play_song( passagemusic[passage], 0, -1 );
-                    }
-                }
+                // Found a player, start music track
+				sound_play_song( PassageList[passage].music, 0, -1 );
             }
         }
 	}
-
 }
 
 //--------------------------------------------------------------------------------------------
@@ -353,78 +334,56 @@ Uint16 who_is_blocking_passage_ID( Uint16 passage, IDSZ idsz )
     // ZZ> This function returns MAX_CHR if there is no character in the passage who
     //     have an item with the given ID.  Otherwise, the index of the first character
     //     found is returned...  Only finds living characters...
-    float tlx, tly, brx, bry;
     Uint16 character, sTmp;
-    float bumpsize;
-
-    // Passage area
-    tlx = ( passtlx[passage] << TILE_BITS ) - CLOSETOLERANCE;
-    tly = ( passtly[passage] << TILE_BITS ) - CLOSETOLERANCE;
-    brx = ( ( passbrx[passage] + 1 ) << TILE_BITS ) + CLOSETOLERANCE;
-    bry = ( ( passbry[passage] + 1 ) << TILE_BITS ) + CLOSETOLERANCE;
 
     // Look at each character
-    character = 0;
-
-    while ( character < MAX_CHR )
+    for( character = 0; character < MAX_CHR; character++ )
     {
-        if ( ChrList[character].on )
+        if ( !ChrList[character].on || !ChrList[character].alive ) continue;
+            
+		if ( ( !ChrList[character].isitem ) && ChrList[character].attachedto == MAX_CHR && ChrList[character].bumpsize != 0 && !ChrList[character].pack_ispacked )
         {
-            bumpsize = ChrList[character].bumpsize;
-            if ( ( !ChrList[character].isitem ) && bumpsize != 0 && ChrList[character].pack_ispacked == 0 )
-            {
-                if ( ChrList[character].pos.x > tlx - bumpsize && ChrList[character].pos.x < brx + bumpsize )
+			if( is_in_passage( passage, ChrList[character].pos.x, ChrList[character].pos.y, ChrList[character].bumpsize ) )
+			{
+                // Found a live one...  Does it have a matching item?
+                // Check the pack
+                sTmp = ChrList[character].pack_next;
+                while ( sTmp != MAX_CHR )
                 {
-                    if ( ChrList[character].pos.y > tly - bumpsize && ChrList[character].pos.y < bry + bumpsize )
+                    if ( CapList[ChrList[sTmp].model].idsz[IDSZ_PARENT] == idsz || CapList[ChrList[sTmp].model].idsz[IDSZ_TYPE] == idsz )
                     {
-                        if ( ChrList[character].alive )
-                        {
-                            // Found a live one...  Does it have a matching item?
+                        // It has the item...
+                        return character;
+                    }
 
-                            // Check the pack
-                            sTmp = ChrList[character].pack_next;
+                    sTmp = ChrList[sTmp].pack_next;
+                }
 
-                            while ( sTmp != MAX_CHR )
-                            {
-                                if ( CapList[ChrList[sTmp].model].idsz[IDSZ_PARENT] == idsz || CapList[ChrList[sTmp].model].idsz[IDSZ_TYPE] == idsz )
-                                {
-                                    // It has the item...
-                                    return character;
-                                }
+                // Check left hand
+                sTmp = ChrList[character].holdingwhich[SLOT_LEFT];
+                if ( sTmp != MAX_CHR )
+                {
+                    sTmp = ChrList[sTmp].model;
+                    if ( CapList[sTmp].idsz[IDSZ_PARENT] == idsz || CapList[sTmp].idsz[IDSZ_TYPE] == idsz )
+                    {
+                        // It has the item...
+                        return character;
+                    }
+                }
 
-                                sTmp = ChrList[sTmp].pack_next;
-                            }
-
-                            // Check left hand
-                            sTmp = ChrList[character].holdingwhich[SLOT_LEFT];
-                            if ( sTmp != MAX_CHR )
-                            {
-                                sTmp = ChrList[sTmp].model;
-                                if ( CapList[sTmp].idsz[IDSZ_PARENT] == idsz || CapList[sTmp].idsz[IDSZ_TYPE] == idsz )
-                                {
-                                    // It has the item...
-                                    return character;
-                                }
-                            }
-
-                            // Check right hand
-                            sTmp = ChrList[character].holdingwhich[SLOT_RIGHT];
-                            if ( sTmp != MAX_CHR )
-                            {
-                                sTmp = ChrList[sTmp].model;
-                                if ( CapList[sTmp].idsz[IDSZ_PARENT] == idsz || CapList[sTmp].idsz[IDSZ_TYPE] == idsz )
-                                {
-                                    // It has the item...
-                                    return character;
-                                }
-                            }
-                        }
+                // Check right hand
+                sTmp = ChrList[character].holdingwhich[SLOT_RIGHT];
+                if ( sTmp != MAX_CHR )
+                {
+                    sTmp = ChrList[sTmp].model;
+                    if ( CapList[sTmp].idsz[IDSZ_PARENT] == idsz || CapList[sTmp].idsz[IDSZ_TYPE] == idsz )
+                    {
+                        // It has the item...
+                        return character;
                     }
                 }
             }
         }
-
-        character++;
     }
 
     // No characters found
@@ -436,51 +395,40 @@ int close_passage( Uint16 passage )
 {
     // ZZ> This function makes a passage impassable, and returns btrue if it isn't blocked
     int x, y, cnt;
-    float tlx, tly, brx, bry;
     Uint32 fan;
     Uint16 character;
     float bumpsize;
-    Uint16 numcrushed;
+    Uint16 numcrushed = 0;
     Uint16 crushedcharacters[MAX_CHR];
 
-    if ( 0 != ( passmask[passage] & ( MPDFX_IMPASS | MPDFX_WALL ) ) )
+	if ( 0 != ( PassageList[passage].mask & ( MPDFX_IMPASS | MPDFX_WALL ) ) )
     {
         // Make sure it isn't blocked
-        tlx = ( passtlx[passage] << TILE_BITS ) - CLOSETOLERANCE;
-        tly = ( passtly[passage] << TILE_BITS ) - CLOSETOLERANCE;
-        brx = ( ( passbrx[passage] + 1 ) << TILE_BITS ) + CLOSETOLERANCE;
-        bry = ( ( passbry[passage] + 1 ) << TILE_BITS ) + CLOSETOLERANCE;
-        numcrushed = 0;
-        character = 0;
-
-        while ( character < MAX_CHR )
+        for( character = 0; character < MAX_CHR; character++ )
         {
+			if( !ChrList[character].on ) continue;
+
             bumpsize = ChrList[character].bumpsize;
-            if ( ChrList[character].on && ( !ChrList[character].pack_ispacked ) && ChrList[character].attachedto == MAX_CHR && ChrList[character].bumpsize != 0 )
+            if ( (!ChrList[character].pack_ispacked ) && ChrList[character].attachedto == MAX_CHR && ChrList[character].bumpsize != 0 )
             {
-                if ( ChrList[character].pos.x > tlx - bumpsize && ChrList[character].pos.x < brx + bumpsize )
-                {
-                    if ( ChrList[character].pos.y > tly - bumpsize && ChrList[character].pos.y < bry + bumpsize )
+				if( is_in_passage( passage, ChrList[character].pos.x, ChrList[character].pos.y, ChrList[character].bumpsize ))
+				{
+                    if ( !ChrList[character].canbecrushed )
                     {
-                        if ( !ChrList[character].canbecrushed )
-                        {
-                            return bfalse;
-                        }
-                        else
-                        {
-                            crushedcharacters[numcrushed] = character;
-                            numcrushed++;
-                        }
+						//Someone is blocking, stop here
+                        return bfalse;
+                    }
+                    else
+                    {
+                        crushedcharacters[numcrushed] = character;
+                        numcrushed++;
                     }
                 }
             }
-
-            character++;
         }
 
         // Crush any unfortunate characters
         cnt = 0;
-
         while ( cnt < numcrushed )
         {
             character = crushedcharacters[cnt];
@@ -492,20 +440,20 @@ int close_passage( Uint16 passage )
     // Close it off
     if ( passage <= numpassage )
     {
-        passopen[passage] = bfalse;
-        y = passtly[passage];
+		PassageList[passage].open = bfalse;
+		y = PassageList[passage].toplefty;
 
-        while ( y <= passbry[passage] )
+		while ( y <= PassageList[passage].bottomrighty )
         {
-            x = passtlx[passage];
+            x = PassageList[passage].topleftx;
 
-            while ( x <= passbrx[passage] )
+			while ( x <= PassageList[passage].bottomrightx )
             {
                 fan = mesh_get_tile_int( PMesh, x, y );
 
                 if ( VALID_TILE(PMesh, fan) )
                 {
-                    PMesh->mmem.tile_list[fan].fx = PMesh->mmem.tile_list[fan].fx | passmask[passage];
+					PMesh->mmem.tile_list[fan].fx = PMesh->mmem.tile_list[fan].fx | PassageList[passage].mask;
                 }
                 x++;
             }
@@ -526,7 +474,7 @@ void clear_passages()
     numpassage = 0;
     numshoppassage = 0;
 
-    while ( cnt < MAXPASS )
+    while ( cnt < MAX_PASS )
     {
         shopowner[cnt] = NOOWNER;
         shoppassage[cnt] = 0;
@@ -538,7 +486,7 @@ void clear_passages()
 void add_shop_passage( Uint16 owner, Uint16 passage )
 {
     // ZZ> This function creates a shop passage
-    if ( passage < numpassage && numshoppassage < MAXPASS )
+    if ( passage < numpassage && numshoppassage < MAX_PASS )
     {
         // The passage exists...
         shoppassage[numshoppassage] = passage;
@@ -551,7 +499,7 @@ void add_shop_passage( Uint16 owner, Uint16 passage )
 void add_passage( int tlx, int tly, int brx, int bry, bool_t open, Uint8 mask )
 {
     // ZZ> This function creates a passage area
-    if ( numpassage < MAXPASS )
+    if ( numpassage < MAX_PASS )
     {
         tlx = CLIP(tlx, 0, PMesh->info.tiles_x - 1);
         tly = CLIP(tly, 0, PMesh->info.tiles_y - 1);
@@ -559,14 +507,16 @@ void add_passage( int tlx, int tly, int brx, int bry, bool_t open, Uint8 mask )
         brx = CLIP(brx, 0, PMesh->info.tiles_x - 1);
         bry = CLIP(bry, 0, PMesh->info.tiles_y - 1);
 
-        passtlx[numpassage]       = tlx;
-        passtly[numpassage]       = tly;
-        passbrx[numpassage]       = brx;
-        passbry[numpassage]       = bry;
-        passmask[numpassage]      = mask;
-        passagemusic[numpassage]  = -1;          // Set no song as default
-        if (!open) close_passage( numpassage );  // Is it open or closed?
-        else passopen[numpassage] = btrue;
+		PassageList[numpassage].topleftx		= tlx;
+		PassageList[numpassage].toplefty		= tly;
+		PassageList[numpassage].bottomrightx    = brx;
+		PassageList[numpassage].bottomrighty    = bry;
+		PassageList[numpassage].mask			= mask;
+		PassageList[numpassage].music			= NO_MUSIC;		// Set no song as default
+
+		// Is it open or closed?
+        if (!open) close_passage( numpassage );  
+		else PassageList[numpassage].open = btrue;
 
         numpassage++;
     }
@@ -610,4 +560,32 @@ void setup_passage( const char *modname )
 
     fclose( fileread );
 
+}
+
+//--------------------------------------------------------------------------------------------
+Uint16 shop_get_owner( int ix, int iy )
+{
+	//This function returns the owner of a shop
+    int cnt;
+    Uint16 owner = NOOWNER;
+
+    for ( cnt = 0; cnt < numshoppassage; cnt++ )
+    {
+        Uint16 passage;
+
+        passage = shoppassage[cnt];
+        if ( passage > numpassage ) continue;
+
+		if ( ix >= PassageList[passage].topleftx && ix <= PassageList[passage].bottomrightx )
+        {
+			if ( iy >= PassageList[passage].toplefty && iy <= PassageList[passage].bottomrighty )
+            {
+                // if there is NOOWNER, someone has been murdered!
+                owner  = shopowner[cnt];
+                break;
+            }
+        }
+    }
+
+    return owner;
 }

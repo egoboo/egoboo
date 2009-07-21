@@ -1,4 +1,5 @@
 Version 2.7.4b (xx.xx.2009)
+- Update: Improved the gameplay when using the mouse as input controller.
 - Update: Increased the amount of treasure loot found in the Ice Palace.
 - Update: Improved the Frost Lizard AI.
 - Update: Improved the texture detail for all the title images.

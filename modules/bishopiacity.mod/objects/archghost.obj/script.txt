@@ -16,7 +16,7 @@ IfStateIs2
     tmpargument = 25
     SetTime
     SetTargetToNearestLifeform
-    IfTagetIsAPlayer
+    IfTargetIsAPlayer
       IfTargetCanSeeInvisible
         tmpx = selfspawnx
         tmpy = selfspawny + 128

@@ -2293,10 +2293,11 @@ void set_one_player_latch( Uint16 player )
             mous.latcholdy = PlaList[player].latchy;
 
             // Sustain old movements to ease mouse play
-            //            PlaList[player].latchx+=mous.latcholdx*mous.sustain;
-            //            PlaList[player].latchy+=mous.latcholdy*mous.sustain;
-            //            mous.latcholdx = PlaList[player].latchx;
-            //            mous.latcholdy = PlaList[player].latchy;
+            PlaList[player].latchx+=mous.latcholdx*mous.sustain;
+            PlaList[player].latchy+=mous.latcholdy*mous.sustain;
+            mous.latcholdx = PlaList[player].latchx;
+            mous.latcholdy = PlaList[player].latchy;
+
             // Read buttons
             if ( control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_JUMP ) )
                 PlaList[player].latchbutton |= LATCHBUTTON_JUMP;

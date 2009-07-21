@@ -1029,11 +1029,11 @@ void detach_character_from_mount( Uint16 character, Uint8 ignorekurse,
             passage = shoppassage[cnt];
             loc = ChrList[character].pos.x;
             loc = loc >> TILE_BITS;
-            if ( loc >= passtlx[passage] && loc <= passbrx[passage] )
+			if ( loc >= PassageList[passage].topleftx && loc <= PassageList[passage].bottomrightx )
             {
                 loc = ChrList[character].pos.y;
                 loc = loc >> TILE_BITS;
-                if ( loc >= passtly[passage] && loc <= passbry[passage] )
+				if ( loc >= PassageList[passage].toplefty && loc <= PassageList[passage].bottomrighty )
                 {
                     inshop = btrue;
                     owner  = shopowner[cnt];
@@ -1670,33 +1670,6 @@ bool_t drop_all_items( Uint16 character )
 
     return btrue;
 
-}
-
-//--------------------------------------------------------------------------------------------
-Uint16 shop_get_owner( int ix, int iy )
-{
-    int cnt;
-    Uint16 owner = NOOWNER;
-
-    for ( cnt = 0; cnt < numshoppassage; cnt++ )
-    {
-        Uint16 passage;
-
-        passage = shoppassage[cnt];
-        if ( passage > numpassage ) continue;
-
-        if ( ix >= passtlx[passage] && ix <= passbrx[passage] )
-        {
-            if ( iy >= passtly[passage] && iy <= passbry[passage] )
-            {
-                // if there is NOOWNER, someone has been murdered!
-                owner  = shopowner[cnt];
-                break;
-            }
-        }
-    }
-
-    return owner;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4075,13 +4048,13 @@ Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
 			//Check X
 			loc = pchr->pos.x;
             loc = loc >> TILE_BITS;
-            if ( loc >= passtlx[passage] && loc <= passbrx[passage] )
+			if ( loc >= PassageList[passage].topleftx && loc <= PassageList[passage].bottomrightx )
             {
 				                
 				//Check Y
 				loc = pchr->pos.y;
                 loc = loc >> TILE_BITS;
-                if ( loc >= passtly[passage] && loc <= passbry[passage] )
+				if ( loc >= PassageList[passage].toplefty && loc <= PassageList[passage].bottomrighty )
                 {
 					//Make sure the owner is not dead
 					if ( shopowner[cnt] != NOOWNER )

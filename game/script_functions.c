@@ -1038,7 +1038,7 @@ Uint8 scr_PassageOpen( script_state_t * pstate, ai_state_t * pself )
     returncode = bfalse;
     if ( pstate->argument < numpassage && pstate->argument >= 0 )
     {
-        returncode = passopen[pstate->argument];
+		returncode = PassageList[pstate->argument].passopen;
     }
 
     SCRIPT_FUNCTION_END();
@@ -5550,7 +5550,7 @@ Uint8 scr_ClearMusicPassage( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // This clears the music for a specified passage
-    passagemusic[pstate->argument] = -1;
+	PassageList[pstate->argument].music = NO_MUSIC;
 
     SCRIPT_FUNCTION_END();
 }
@@ -5606,9 +5606,9 @@ Uint8 scr_set_MusicPassage( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    passagemusic[pstate->argument] = pstate->distance;
+	PassageList[pstate->argument].music = pstate->distance;
 
-    SCRIPT_FUNCTION_END();
+	SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
