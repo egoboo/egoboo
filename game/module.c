@@ -335,6 +335,8 @@ bool_t module_upload( module_instance_t * pinst, int imod, Uint32 seed )
     pinst->respawnvalid   = ( bfalse != pdata->respawnvalid );
     pinst->respawnanytime = ( ANYTIME == pdata->respawnvalid );
 
+	strcpy(pinst->loadname, pdata->loadname);
+
     pinst->active = bfalse;
     pinst->beat   = bfalse;
     pinst->seed   = seed;

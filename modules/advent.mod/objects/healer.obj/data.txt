@@ -20,7 +20,7 @@ Mana flow rate ( eg. 0-1 )			: 0-1
 Mana flow increase per level ( eg. 0-1 )	: 0-1
 Strength ( eg. 3-18 )				: 8-12
 Strength increase per level ( eg. 0-1 )		: 0-1
-Wisdom ( eg. 3-18 )				: 12-18
+Wisdom ( eg. 3-18 )				: 15-18
 Wisdom increase per level ( eg. 0-1 )		: 1-4
 Intelligence ( eg. 3-18 )			: 10-14
 Intelligence increase per level ( eg. 0-1 )	: 0-1

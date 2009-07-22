@@ -3717,7 +3717,7 @@ Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
 
     if ( !VALID_CHR_RANGE(ichr) )
     {
-        log_warning( "spawn_one_character() - failed to spawn character\n" );
+        log_warning( "spawn_one_character() - failed to spawn character (invalid index number %d?)\n", ichr );
         return ichr;
     }
     pchr = ChrList + ichr;

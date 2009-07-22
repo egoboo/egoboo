@@ -2695,6 +2695,7 @@ int doGamePaused( float deltaTime )
     static const char * buttons[] =
     {
         "Quit Module",
+		"Restart Module",
         "Audio Options",
         "Input Controls",
         "Video Settings",
@@ -2730,7 +2731,7 @@ int doGamePaused( float deltaTime )
             GL_DEBUG(glColor4f)(1, 1, 1, 1 );
 
             // Buttons
-            for ( cnt = 0; cnt < 5; cnt ++ )
+            for ( cnt = 0; cnt < 6; cnt ++ )
             {
                 if ( BUTTON_UP == ui_doButton( cnt + 1, buttons[cnt], buttonLeft, buttonTop + ( cnt * 35 ), 200, 30 ) )
                 {
@@ -2740,7 +2741,7 @@ int doGamePaused( float deltaTime )
             }
 
             // Quick return to game
-            if (SDLKEYDOWN( SDLK_ESCAPE )) menuChoice = 5;
+            if (SDLKEYDOWN( SDLK_ESCAPE )) menuChoice = 6;
 
             if ( menuChoice != 0 )
             {
@@ -3076,10 +3077,16 @@ int doMenu( float deltaTime )
 
                     result = MENU_QUIT;
                 }
-                else if ( result == 2 ) mnu_begin_menu( emnu_AudioOptions );
-                else if ( result == 3 ) mnu_begin_menu( emnu_InputOptions );
-                else if ( result == 4 ) mnu_begin_menu( emnu_VideoOptions );
-                else if ( result == 5 ) { mnu_end_menu(); retval = MENU_END; }
+                else if ( result == 2 ) 
+				{
+					mnu_end_menu();
+					game_begin_module( PMod->loadname, (Uint32)~0);
+					retval = MENU_END;
+				}
+				else if ( result == 3 ) mnu_begin_menu( emnu_AudioOptions );
+                else if ( result == 4 ) mnu_begin_menu( emnu_InputOptions );
+                else if ( result == 5 ) mnu_begin_menu( emnu_VideoOptions );
+				else if ( result == 6 ) { mnu_end_menu(); retval = MENU_END;} 
             }
             break;
 
