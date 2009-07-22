@@ -134,8 +134,8 @@ typedef struct s_eve eve_t;
 extern eve_t EveList[MAXEVE];
 
 #define VALID_EVE_RANGE( IEVE ) ( ((IEVE) >= 0) && ((IEVE) < MAXEVE) )
-#define VALID_EVE( IEVE )       ( VALID_EVE_RANGE( IEVE ) && EveList[IEVE].valid )
-#define INVALID_EVE( IEVE )     ( !VALID_EVE_RANGE( IEVE ) || !EveList[IEVE].valid )
+#define VALID_EVE( IEVE )       ( VALID_EVE_RANGE( IEVE ) && EveList[IEVE].loaded )
+#define INVALID_EVE( IEVE )     ( !VALID_EVE_RANGE( IEVE ) || !EveList[IEVE].loaded )
 
 // --------------------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------------------

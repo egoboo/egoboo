@@ -1,8 +1,10 @@
 Version 2.7.4b (xx.xx.2009)
+- Update: Improved some menu UI handling.
 - Update: Improved the gameplay when using the mouse as input controller.
 - Update: Increased the amount of treasure loot found in the Ice Palace.
 - Update: Improved the Frost Lizard AI.
 - Update: Improved the texture detail for all the title images.
+- Bugfix: Enchantments end messages display escapes properly.
 - Bugfix: Corrected some character hitboxes.
 - Bugfix: Fixed some acceleration issues that made the Tourist Starter almost impossible.
 - Bugfix: Fixed Lord Hagen AI movement bug in the Soldier Starter.
@@ -418,6 +420,7 @@ Version 2.6.1 (05.05.2008)
 - Bugfix: Shadow Palace no longer crashes.
 - Bugfix: Mephit wings stop flapping if their master disappears.
 - Note: Reverted back to old SDL, hopefully Egoboo runs on more systems now.
+
 
 Version 2.6.0 (21.04.2008)
 - New Feature: A number of new weapons, monsters and other objects.

@@ -799,7 +799,6 @@ int doChoosePlayer( float deltaTime )
     static int numVertical, numHorizontal;
     static oglx_texture TxInput[4];
     static Uint32 BitsInput[4];
-    int cnt, menuChoice;
 
     static const char * button_text[] = { "Select Player", "Back", ""};
 
@@ -860,17 +859,18 @@ int doChoosePlayer( float deltaTime )
             // fall through
 
         case MM_Entering:
-            GL_DEBUG(glColor4f)(1, 1, 1, 1 - SlidyButtonState.lerp );
 
+            /*GL_DEBUG(glColor4f)(1, 1, 1, 1 - SlidyButtonState.lerp );
             drawSlidyButtons();
-
             updateSlidyButtons( -deltaTime );
-
             // Let lerp wind down relative to the time elapsed
             if ( SlidyButtonState.lerp <= 0.0f )
             {
                 menuState = MM_Running;
-            }
+            }*/
+
+			//Simply fall through
+            menuState = MM_Running;
             break;
 
         case MM_Running:
@@ -981,29 +981,27 @@ int doChoosePlayer( float deltaTime )
             }
 
             // Buttons for going ahead
-            menuChoice = -1;
-            for ( cnt = 0; cnt < 2; cnt ++ )
+            
+			//Continue
+			if ( mnu_selectedPlayerCount != 0 && BUTTON_UP == ui_doButton( 100, button_text[0], buttonLeft, buttonTop, 200, 30 ) )
             {
-                if ( BUTTON_UP == ui_doButton( cnt + 100, button_text[cnt], buttonLeft, buttonTop + ( cnt * 35 ), 200, 30 ) )
-                {
-                    // audio options
-                    menuChoice = cnt + 1;
-                    menuState = MM_Leaving;
-                }
+                menuState = MM_Leaving;
             }
-
-            switch ( menuChoice )
+            
+			//Back
+			if ( BUTTON_UP == ui_doButton( 101, button_text[1], buttonLeft, buttonTop + 35, 200, 30 ) )
             {
-                case 1: menuState = MM_Leaving; break;
-                case 2: mnu_selectedPlayerCount = 0; menuState = MM_Leaving; break;
+        		mnu_selectedPlayerCount = 0;
+                menuState = MM_Leaving;
             }
+        
             break;
 
         case MM_Leaving:
-            // Do buttons sliding out and background fading
+            /*
+			// Do buttons sliding out and background fading
             // Do the same stuff as in MM_Entering, but backwards
             GL_DEBUG(glColor4f)(1, 1, 1, 1 - SlidyButtonState.lerp );
-
             // Buttons
             drawSlidyButtons();
             updateSlidyButtons( deltaTime );
@@ -1011,6 +1009,10 @@ int doChoosePlayer( float deltaTime )
             {
                 menuState = MM_Finish;
             }
+			*/
+
+			//Simply fall through
+             menuState = MM_Finish;
             break;
 
         case MM_Finish:

@@ -467,7 +467,7 @@ int sound_play_mix( GLvector3 pos, mix_ptr_t * pptr )
         retval = Mix_PlayMusic( pptr->ptr.mus, 1 );
 
         // invalidate the song
-        songplaying = -1;
+        songplaying = INVALID_SOUND;
 
         // since music_stack_finished_callback() is registered using Mix_HookMusicFinished(),
         // it will resume when pptr->ptr.mus is finished playing
@@ -582,7 +582,7 @@ int sound_play_chunk_looped( GLvector3 pos, Mix_Chunk * pchunk, Sint8 loops, Uin
         // this function handles loops == 0 properly
         channel = looped_add( pchunk, loops, object );
 
-        if ( -1 == channel )
+        if ( INVALID_SOUND == channel )
         {
             if (cfg.dev_mode)
             {
@@ -653,14 +653,14 @@ void sound_finish_song( Uint16 fadetime )
     // try to grab the last song playing
     music_stack_pop(&mus, &song);
 
-    if ( -1 == song )
+    if ( INVALID_SOUND == song )
     {
         // some wierd error
         Mix_HaltMusic();
     }
     else
     {
-        if ( -1 != songplaying )
+        if ( INVALID_SOUND != songplaying )
         {
             Mix_FadeOutMusic( fadetime );
         }
@@ -937,12 +937,12 @@ void looped_clear()
 
     for (cnt = 0; cnt < LOOPED_COUNT; cnt++)
     {
-        if ( -1 != looped_list[cnt].channel )
+        if( INVALID_SOUND != looped_list[cnt].channel )
         {
             Mix_FadeOutChannel( looped_list[cnt].channel, 500 );
 
             // clear out the data
-            looped_list[cnt].channel = -1;
+            looped_list[cnt].channel = INVALID_SOUND;
             looped_list[cnt].chunk   = NULL;
             looped_list[cnt].object  = MAX_CHR;
         }
@@ -961,7 +961,7 @@ int looped_add( Mix_Chunk * sound, int loops, Uint16 object )
     if ( NULL == sound )
     {
         // not a valid sound
-        channel = -1;
+        channel = INVALID_SOUND;
     }
     else if ( 0 == loops )
     {
@@ -989,7 +989,7 @@ int looped_add( Mix_Chunk * sound, int loops, Uint16 object )
             // set up the looped_list entry at the empty index
 
             channel = Mix_PlayChannel( -1, sound, loops );
-            if ( -1 != channel )
+            if( INVALID_SOUND != channel )
             {
                 looped_list[index].chunk   = sound;
                 looped_list[index].channel = channel;
@@ -1039,7 +1039,7 @@ bool_t _update_stereo_channel( int channel, GLvector3 diff )
 
     int       volume;
 
-    if ( -1 == channel ) return bfalse;
+    if ( INVALID_SOUND == channel ) return bfalse;
 
     volume = _calculate_volume( diff );
     return _update_channel_volume( channel, volume, diff );

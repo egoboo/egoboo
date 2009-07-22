@@ -315,7 +315,9 @@ void display_message( script_state_t * pstate, int message, Uint16 character )
 
     Uint16 target = ChrList[character].ai.target;
     Uint16 owner  = ChrList[character].ai.owner;
-    if ( message < msgtotal )
+	if ( NULL == pstate ) target = character;
+    
+	if ( message < msgtotal )
     {
         slot = get_free_message();
         msgtime[slot] = cfg.message_duration;
@@ -363,7 +365,7 @@ void display_message( script_state_t * pstate, int message, Uint16 character )
                         else
                             sprintf( szTmp, "a %s", CapList[ChrList[target].model].classname );
                     }
-                    if ( cnt == 0 && szTmp[0] == 'a' )  szTmp[0] = 'A';
+					if ( cnt == 0 && szTmp[0] == 'a' )  szTmp[0] = 'A';
                 }
                 if ( cTmp == 'o' )  // Owner name
                 {
@@ -387,13 +389,9 @@ void display_message( script_state_t * pstate, int message, Uint16 character )
                 {
                     eread = CapList[ChrList[target].model].skinname[cTmp-'0'];
                 }
-                if ( NULL == pstate )
+                if ( NULL != pstate )
                 {
-                    sprintf( szTmp, "%%%c???", cTmp );
-                }
-                else
-                {
-                    if ( cTmp == 'd' )  // tmpdistance value
+					if ( cTmp == 'd' )  // tmpdistance value
                     {
                         sprintf( szTmp, "%d", pstate->distance );
                     }
@@ -418,6 +416,7 @@ void display_message( script_state_t * pstate, int message, Uint16 character )
                         sprintf( szTmp, "%2d", pstate->y );
                     }
                 }
+				    
                 if ( cTmp == 'a' )  // Character's ammo
                 {
                     if ( ChrList[character].ammoknown )

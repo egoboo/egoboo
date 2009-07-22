@@ -92,7 +92,7 @@ bool_t remove_enchant( Uint16 ienc )
 
     // Play the end sound
     ieve = penc->eve;
-    if ( ieve < MAXEVE && EveList[ieve].loaded )
+    if ( VALID_EVE( ieve ) )
     {
         iwave = EveList[ieve].endsoundindex;
         if ( iwave >= 0 && iwave < MAX_WAVE )
@@ -174,7 +174,7 @@ bool_t remove_enchant( Uint16 ienc )
     // See if we spit out an end message
     if ( EveList[penc->eve].endmessage >= 0 )
     {
-        display_message( NULL, MadList[penc->eve].msgstart + EveList[penc->eve].endmessage, penc->target );
+		display_message( NULL, MadList[penc->eve].msgstart + EveList[penc->eve].endmessage, penc->target );
     }
 
     // Check to see if we spawn a poof
@@ -1081,7 +1081,7 @@ bool_t load_one_enchant_profile( const char* szLoadName, Uint16 profile )
     peve->contspawnamount = 0;
     peve->contspawnfacingadd = 0;
     peve->contspawnpip = 0;
-    peve->endsoundindex = -1;
+    peve->endsoundindex = INVALID_SOUND;
     peve->stayifnoowner = 0;
     peve->overlay = 0;
     peve->seekurse = bfalse;
@@ -1099,7 +1099,7 @@ bool_t load_one_enchant_profile( const char* szLoadName, Uint16 profile )
         {
             // This is wrong, it gets stored or loaded incorrectly (Loaded in game.c)
             int itmp = fget_int( fileread );
-            peve->endsoundindex = CLIP(itmp, -1, MAX_WAVE);
+            peve->endsoundindex = CLIP(itmp, INVALID_SOUND, MAX_WAVE);
         }
         else if ( idsz == MAKE_IDSZ( 'S', 'T', 'A', 'Y' ) ) peve->stayifnoowner = fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'O', 'V', 'E', 'R' ) ) peve->overlay = fget_int( fileread );

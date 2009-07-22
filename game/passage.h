@@ -72,6 +72,9 @@ struct s_passage
 typedef struct s_passage passage_t;
 extern passage_t PassageList[MAX_PASS];
 
+#define VALID_PASSAGE( IPASS )       ( ((IPASS) <= numpassage) && ((IPASS) >= 0) )
+#define INVALID_PASSAGE( IPASS )     ( ((IPASS) > numpassage) && ((IPASS) < 0) )
+
 // For shops
 extern int     numshoppassage;
 extern Uint16  shoppassage[MAX_PASS];  // The passage number
@@ -81,15 +84,15 @@ extern Uint16  shopowner[MAX_PASS];    // Who gets the gold?
 // --------------------------------------------------------------------------------------------
 // prototypes
 
-int    open_passage( Uint16 passage );
+bool_t open_passage( Uint16 passage );
+bool_t close_passage( Uint16 passage );
 void   check_passage_music();
-int    break_passage( struct s_script_state * pstate, Uint16 passage, Uint16 starttile, Uint16 frames, Uint16 become, Uint8 meshfxor );
+bool_t break_passage( struct s_script_state * pstate, Uint16 passage, Uint16 starttile, Uint16 frames, Uint16 become, Uint8 meshfxor );
 void   flash_passage( Uint16 passage, Uint8 color );
 Uint8  find_tile_in_passage( struct s_script_state * pstate, Uint16 passage, int tiletype );
 Uint16 who_is_blocking_passage( Uint16 passage );
 Uint16 who_is_blocking_passage_ID( Uint16 passage, IDSZ idsz );
-int    close_passage( Uint16 passage );
-void   clear_passages();
+void   clear_shop_passages();
 void   add_shop_passage( Uint16 owner, Uint16 passage );
 void   add_passage( int tlx, int tly, int brx, int bry, bool_t open, Uint8 mask );
 void   setup_passage( const char *modname );

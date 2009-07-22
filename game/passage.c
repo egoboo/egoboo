@@ -49,14 +49,18 @@ Uint16  shopowner[MAX_PASS];    // Who gets the gold?
 
 // --------------------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------------------
-int open_passage( Uint16 passage )
+bool_t open_passage( Uint16 passage )
 {
     // ZZ> This function makes a passage passable
     int x, y;
     Uint32 fan;
-    int useful = bfalse;
+    bool_t useful = bfalse;
+	if( INVALID_PASSAGE(passage) ) return useful;
 
-    if ( passage < numpassage )
+	useful = ( !PassageList[passage].open );
+	PassageList[passage].open = btrue;
+	y = PassageList[passage].toplefty;
+	while ( y <= PassageList[passage].bottomrighty )
     {
         useful = ( !PassageList[passage].open );
         PassageList[passage].open = btrue;
@@ -68,24 +72,20 @@ int open_passage( Uint16 passage )
 
             while ( x <= PassageList[passage].bottomrightx )
             {
-                fan = mesh_get_tile_int( PMesh, x, y );
-
-                if ( VALID_TILE(PMesh, fan) )
-                {
-                    PMesh->mmem.tile_list[fan].fx &= ~( MPDFX_WALL | MPDFX_IMPASS );
-                }
-                x++;
+				fan = mesh_get_tile( PMesh, x, y );
+				if ( VALID_TILE(PMesh, fan) ) PMesh->mmem.tile_list[fan].fx &= ~( MPDFX_WALL | MPDFX_IMPASS );
             }
-
-            y++;
+            x++;
         }
+
+        y++;
     }
 
     return useful;
 }
 
 // --------------------------------------------------------------------------------------------
-int break_passage( script_state_t * pstate, Uint16 passage, Uint16 starttile, Uint16 frames,
+bool_t break_passage( script_state_t * pstate, Uint16 passage, Uint16 starttile, Uint16 frames,
                    Uint16 become, Uint8 meshfxor )
 {
     // ZZ> This function breaks the tiles of a passage if there is a character standing
@@ -93,8 +93,7 @@ int break_passage( script_state_t * pstate, Uint16 passage, Uint16 starttile, Ui
     Uint16 tile, endtile;
     Uint32 fan;
     int useful, character;
-
-    if ( passage > numpassage ) return bfalse;
+    if ( INVALID_PASSAGE( passage ) ) return bfalse;
 
     endtile = starttile + frames - 1;
     useful = bfalse;
@@ -146,7 +145,7 @@ void flash_passage( Uint16 passage, Uint8 color )
     int x, y, cnt, numvert;
     Uint32 fan, vert;
 
-    if ( passage >= numpassage ) return;
+    if ( INVALID_PASSAGE( passage ) ) return;
 
     for ( y = PassageList[passage].toplefty; y <= PassageList[passage].bottomrighty; y++ )
     {
@@ -182,7 +181,7 @@ Uint8 find_tile_in_passage( script_state_t * pstate, Uint16 passage, int tiletyp
     int x, y;
     Uint32 fan;
 
-    if ( passage >= numpassage ) return bfalse;
+    if ( INVALID_PASSAGE( passage ) ) return bfalse;
 
     // Do the first row
     x = pstate->x >> TILE_BITS;
@@ -248,14 +247,15 @@ bool_t is_in_passage( Uint16 passage, float xpos, float ypos, float tolerance )
     // ZF> This return btrue if the specified X and Y coordinates are within the passage
     // tolerance is how much offset we allow outside the passage
     float tlx, tly, brx, bry;
-    tolerance += CLOSETOLERANCE;
-
+	if( INVALID_PASSAGE(passage) ) return bfalse;
+    
     // Passage area
-    tlx = ( PassageList[passage].topleftx << TILE_BITS ) - tolerance;
-    tly = ( PassageList[passage].toplefty << TILE_BITS ) - tolerance;
-    brx = ( ( PassageList[passage].bottomrightx + 1 ) << TILE_BITS ) + tolerance;
-    bry = ( ( PassageList[passage].bottomrighty + 1 ) << TILE_BITS ) + tolerance;
-
+	tolerance += CLOSETOLERANCE;	
+	tlx = ( PassageList[passage].topleftx << TILE_BITS ) - tolerance;
+	tly = ( PassageList[passage].toplefty << TILE_BITS ) - tolerance;
+	brx = ( ( PassageList[passage].bottomrightx + 1 ) << TILE_BITS ) + tolerance;
+	bry = ( ( PassageList[passage].bottomrighty + 1 ) << TILE_BITS ) + tolerance;
+    
     if ( xpos > tlx && xpos < brx )
     {
         if ( ypos > tly && ypos < bry )
@@ -395,7 +395,7 @@ Uint16 who_is_blocking_passage_ID( Uint16 passage, IDSZ idsz )
 }
 
 // --------------------------------------------------------------------------------------------
-int close_passage( Uint16 passage )
+bool_t close_passage( Uint16 passage )
 {
     // ZZ> This function makes a passage impassable, and returns btrue if it isn't blocked
     int x, y, cnt;
@@ -404,6 +404,7 @@ int close_passage( Uint16 passage )
     float bumpsize;
     Uint16 numcrushed = 0;
     Uint16 crushedcharacters[MAX_CHR];
+	if( INVALID_PASSAGE( passage ) ) return bfalse;
 
     if ( HAS_SOME_BITS( PassageList[passage].mask, MPDFX_IMPASS | MPDFX_WALL ) )
     {
@@ -442,7 +443,10 @@ int close_passage( Uint16 passage )
     }
 
     // Close it off
-    if ( passage <= numpassage )
+	PassageList[passage].open = bfalse;
+	y = PassageList[passage].toplefty;
+
+	while ( y <= PassageList[passage].bottomrighty )
     {
         PassageList[passage].open = bfalse;
         y = PassageList[passage].toplefty;
@@ -461,16 +465,17 @@ int close_passage( Uint16 passage )
                 }
                 x++;
             }
-
-            y++;
+            x++;
         }
+
+        y++;
     }
 
     return btrue;
 }
 
 // --------------------------------------------------------------------------------------------
-void clear_passages()
+void clear_shop_passages()
 {
     Uint16 cnt = 0;
 
@@ -490,7 +495,7 @@ void clear_passages()
 void add_shop_passage( Uint16 owner, Uint16 passage )
 {
     // ZZ> This function creates a shop passage
-    if ( passage < numpassage && numshoppassage < MAX_PASS )
+    if ( VALID_PASSAGE(passage) && numshoppassage < MAX_PASS )
     {
         // The passage exists...
         shoppassage[numshoppassage] = passage;
@@ -538,7 +543,7 @@ void setup_passage( const char *modname )
     FILE *fileread;
 
     // Reset all of the old passages
-    clear_passages();
+    clear_shop_passages();
 
     // Load the file
     make_newloadname( modname, "gamedat" SLASH_STR "passage.txt", newloadname );
@@ -578,7 +583,7 @@ Uint16 shop_get_owner( int ix, int iy )
         Uint16 passage;
 
         passage = shoppassage[cnt];
-        if ( passage > numpassage ) continue;
+        if ( INVALID_PASSAGE(passage) ) continue;
 
         if ( ix >= PassageList[passage].topleftx && ix <= PassageList[passage].bottomrightx )
         {
