@@ -64,21 +64,16 @@ bool_t open_passage( Uint16 passage )
     {
         useful = ( !PassageList[passage].open );
         PassageList[passage].open = btrue;
-        y = PassageList[passage].toplefty;
-
-        while ( y <= PassageList[passage].bottomrighty )
+        
+        for(y = PassageList[passage].toplefty; y <= PassageList[passage].bottomrighty; y++ )
         {
-            x = PassageList[passage].topleftx;
-
-            while ( x <= PassageList[passage].bottomrightx )
+            
+            for (x = PassageList[passage].topleftx; x <= PassageList[passage].bottomrightx; x++ )
             {
-				fan = mesh_get_tile( PMesh, x, y );
+				fan = mesh_get_tile_int( PMesh, x, y );
 				if ( VALID_TILE(PMesh, fan) ) PMesh->mmem.tile_list[fan].fx &= ~( MPDFX_WALL | MPDFX_IMPASS );
             }
-            x++;
         }
-
-        y++;
     }
 
     return useful;

@@ -4469,14 +4469,13 @@ Uint8 scr_HealTarget( script_state_t * pstate, ai_state_t * pself )
     IDSZ test;
 
     SCRIPT_FUNCTION_BEGIN();
-    if ( ChrList[pself->target].alive )
+	returncode = bfalse;
+	if ( heal_character(pself->target, pself->index, pstate->argument, bfalse ) )
     {
-        iTmp = pstate->argument;
-        getadd( 1, ChrList[pself->target].life, ChrList[pself->target].lifemax, &iTmp );
-        ChrList[pself->target].life += iTmp;
+		returncode = btrue;
+
         // Check all enchants to see if they are removed
         iTmp = ChrList[pself->target].firstenchant;
-
         while ( iTmp != MAX_ENC )
         {
             test = MAKE_IDSZ( 'H', 'E', 'A', 'L' );  // [HEAL]

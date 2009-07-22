@@ -3182,6 +3182,25 @@ int load_one_character_profile( const char * tmploadname )
 }
 
 // --------------------------------------------------------------------------------------------
+bool_t heal_character( Uint16 character, Uint16 healer, int amount, bool_t ignoreinvincible)
+{
+	//ZF> This function gives some pure life points to the target, ignoring any resistances and so forth
+	if ( INVALID_CHR(character) || (ChrList[character].invictus && !ignoreinvincible) ) return bfalse;
+	if( ChrList[character].life >= ChrList[character].lifemax || !ChrList[character].alive ) return bfalse;
+    
+    ChrList[character].life = CLIP(ChrList[character].life, ChrList[character].life+ABS(amount), ChrList[character].lifemax);
+	
+	//Dont alert that we healed ourselves
+	if( healer != character && ChrList[healer].attachedto != character )
+	{
+		ChrList[character].ai.alert |= ALERTIF_HEALED;
+		ChrList[character].ai.attacklast = healer;
+	}
+
+	return btrue;
+}
+
+// --------------------------------------------------------------------------------------------
 void damage_character( Uint16 character, Uint16 direction,
                        int damagebase, int damagerand, Uint8 damagetype, Uint8 team,
                        Uint16 attacker, Uint16 effects, bool_t ignoreinvincible )
@@ -3481,12 +3500,10 @@ void damage_character( Uint16 character, Uint16 direction,
         }
         else if ( damage < 0 )
         {
-            ChrList[character].life -= damage;
-            if ( ChrList[character].life > ChrList[character].lifemax )  ChrList[character].life = ChrList[character].lifemax;
-
-            // Isssue an alert
-            ChrList[character].ai.alert |= ALERTIF_HEALED;
-            ChrList[character].ai.attacklast = attacker;
+			//Heal 'em
+			heal_character( character, attacker, damage, ignoreinvincible);
+            
+			// Isssue an alert
             if ( team != TEAM_DAMAGE )
             {
                 ChrList[character].ai.attacklast = MAX_CHR;

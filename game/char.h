@@ -664,6 +664,7 @@ void damage_character( Uint16 character, Uint16 direction,
                        int damagebase, int damagerand, Uint8 damagetype, Uint8 team,
                        Uint16 attacker, Uint16 effects, bool_t ignoreinvincible );
 void kill_character( Uint16 character, Uint16 killer );
+bool_t heal_character( Uint16 character, Uint16 healer, int amount, bool_t ignoreinvincible);
 void spawn_poof( Uint16 character, Uint16 profile );
 void reset_character_alpha( Uint16 character );
 void reset_character_accel( Uint16 character );
