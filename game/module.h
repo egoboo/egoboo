@@ -1,36 +1,36 @@
 #pragma once
 
-//********************************************************************************************
-//*
-//*    This file is part of Egoboo.
-//*
-//*    Egoboo is free software: you can redistribute it and/or modify it
-//*    under the terms of the GNU General Public License as published by
-//*    the Free Software Foundation, either version 3 of the License, or
-//*    (at your option) any later version.
-//*
-//*    Egoboo is distributed in the hope that it will be useful, but
-//*    WITHOUT ANY WARRANTY; without even the implied warranty of
-//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//*    General Public License for more details.
-//*
-//*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-//*
-//********************************************************************************************
+// ********************************************************************************************
+// *
+// *    This file is part of Egoboo.
+// *
+// *    Egoboo is free software: you can redistribute it and/or modify it
+// *    under the terms of the GNU General Public License as published by
+// *    the Free Software Foundation, either version 3 of the License, or
+// *    (at your option) any later version.
+// *
+// *    Egoboo is distributed in the hope that it will be useful, but
+// *    WITHOUT ANY WARRANTY; without even the implied warranty of
+// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// *    General Public License for more details.
+// *
+// *    You should have received a copy of the GNU General Public License
+// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+// *
+// ********************************************************************************************
 
 #include "egoboo_typedef.h"
 
-//------------------------------------
+// ------------------------------------
 // Module variables
-//------------------------------------
+// ------------------------------------
 #define RANKSIZE 12
 #define SUMMARYLINES 8
 #define SUMMARYSIZE  80
 #define MAXMODULE           100                     // Number of modules
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 struct s_mod_data
 {
     bool_t  loaded;
@@ -44,7 +44,7 @@ struct s_mod_data
     Uint8   minplayers;                   // Number of players
     Uint8   maxplayers;
     bool_t  monstersonly;                 // Only allow monsters
-   // bool_t  rtscontrol;                   // Real Time Stragedy?
+    // bool_t  rtscontrol;                   // Real Time Stragedy?
     Uint8   respawnvalid;                 // Allow respawn
     int     numlines;                                   // Lines in summary
     char    summary[SUMMARYLINES][SUMMARYSIZE];      // Quest description
@@ -60,8 +60,8 @@ typedef struct s_mod_data mod_data_t;
 extern int        ModList_count;                            // Number of modules
 extern mod_data_t ModList[MAXMODULE];
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 struct s_module_instance
 {
     Uint8   importamount;               // Number of imports for this module
@@ -70,7 +70,7 @@ struct s_module_instance
     bool_t  importvalid;                // Can it import?
     bool_t  respawnvalid;               // Can players respawn with Spacebar?
     bool_t  respawnanytime;             // True if it's a small level...
-  //  bool_t  rtscontrol;                 // Play as a real-time stragedy? BAD REMOVE
+    //  bool_t  rtscontrol;                 // Play as a real-time stragedy? BAD REMOVE
 
     bool_t  active;                     // Is the control loop still going?
     bool_t  beat;                       // Show Module Ended text?
@@ -80,8 +80,8 @@ struct s_module_instance
 
 typedef struct s_module_instance module_instance_t;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void   modlist_load_all_info();
 int    modlist_get_mod_number( const char *szModName );
 bool_t modlist_test_by_name( const char *szModName );

@@ -1,21 +1,21 @@
-//********************************************************************************************
-//*
-//*    This file is part of Egoboo.
-//*
-//*    Egoboo is free software: you can redistribute it and/or modify it
-//*    under the terms of the GNU General Public License as published by
-//*    the Free Software Foundation, either version 3 of the License, or
-//*    (at your option) any later version.
-//*
-//*    Egoboo is distributed in the hope that it will be useful, but
-//*    WITHOUT ANY WARRANTY; without even the implied warranty of
-//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//*    General Public License for more details.
-//*
-//*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-//*
-//********************************************************************************************
+// ********************************************************************************************
+// *
+// *    This file is part of Egoboo.
+// *
+// *    Egoboo is free software: you can redistribute it and/or modify it
+// *    under the terms of the GNU General Public License as published by
+// *    the Free Software Foundation, either version 3 of the License, or
+// *    (at your option) any later version.
+// *
+// *    Egoboo is distributed in the hope that it will be useful, but
+// *    WITHOUT ANY WARRANTY; without even the implied warranty of
+// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// *    General Public License for more details.
+// *
+// *    You should have received a copy of the GNU General Public License
+// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+// *
+// ********************************************************************************************
 
 /* Egoboo - menu.c
 * Implements the main menu tree, using the code in Ui.*
@@ -32,7 +32,7 @@
 #include "mad.h"
 #include "game.h"
 
-//To allow changing settings
+// To allow changing settings
 #include "sound.h"
 #include "input.h"
 #include "camera.h"
@@ -45,8 +45,8 @@
 #include "egoboo_setup.h"
 #include "egoboo.h"
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 
 #define INVALID_PLA MAXPLAYER
 
@@ -62,8 +62,8 @@ enum MenuStates
 #define MENU_STACK_COUNT 256
 #define MAXWIDGET        100
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // "Slidy" buttons used in some of the menus.  They're shiny.
 struct
 {
@@ -73,8 +73,8 @@ struct
     char **buttons;
 } SlidyButtonState;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 static int          menu_stack_index = 0;
 static which_menu_t menu_stack[MENU_STACK_COUNT];
 
@@ -82,7 +82,7 @@ static which_menu_t mnu_whichMenu = emnu_Main;
 
 bool_t mnu_draw_background = btrue;
 
-//static int         mnu_widgetCount;
+// static int         mnu_widgetCount;
 static ui_Widget_t mnu_widgetList[MAXWIDGET];
 
 int              loadplayer_count = 0;
@@ -95,7 +95,7 @@ Uint16 mnu_selectedPlayer[MAXPLAYER] = {0};
 static int selectedModule = -1;
 
 /* Copyright text variables.  Change these to change how the copyright text appears */
-static char copyrightText[] = "Welcome to Egoboo!\nhttp://egoboo.sourceforge.net\nVersion " VERSION "\n";
+static char copyrightText[] = "Welcome to Egoboo!\nhttp:// egoboo.sourceforge.net\nVersion " VERSION "\n";
 static int  copyrightLeft = 0;
 static int  copyrightTop  = 0;
 
@@ -124,7 +124,7 @@ const char *singlePlayerButtons[] =
 
 const char *optionsButtons[] =
 {
-	"Game Options",
+    "Game Options",
     "Audio Options",
     "Input Controls",
     "Video Settings",
@@ -136,7 +136,7 @@ const char *gameOptionsButtons[] =
     "N/A",        // Difficulty
     "N/A",        // Max messages
     "N/A",        // Message duration
-    "N/A",        // Autoturn camera 
+    "N/A",        // Autoturn camera
     "N/A",        // Show FPS
     "Save Settings",
     ""
@@ -157,7 +157,7 @@ const char *audioOptionsButtons[] =
 const char *videoOptionsButtons[] =
 {
     "N/A",    // Antialaising
-    "NOT_USED",    //Unused button 
+    "NOT_USED",    // Unused button
     "N/A",    // Fast & ugly
     "N/A",    // Fullscreen
     "N/A",    // Reflections
@@ -165,9 +165,9 @@ const char *videoOptionsButtons[] =
     "N/A",    // Shadows
     "N/A",    // Z bit
     "N/A",    // Fog
-    "N/A",    //3D effects
+    "N/A",    // 3D effects
     "N/A",    // Multi water layer
-    "NOT_USED",    //Unused button 
+    "NOT_USED",    // Unused button
     "N/A",    // Screen resolution
     "Save Settings",
     "N/A",    // Max particles
@@ -185,8 +185,8 @@ Font *menuFont = NULL;
 
 static int selectedPlayer = 0;           // Which player is currently selected to play
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 static int  get_skin( const char *filename );
 static void load_all_menu_images();
 
@@ -206,8 +206,8 @@ static bool_t mnu_removeSelectedPlayer( Uint16 player );
 static bool_t mnu_addSelectedPlayerInput( Uint16 player, Uint32 input );
 static bool_t mnu_removeSelectedPlayerInput( Uint16 player, Uint32 input );
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void initSlidyButtons( float lerp, const char *button_text[] )
 {
     int i;
@@ -225,13 +225,13 @@ void initSlidyButtons( float lerp, const char *button_text[] )
     SlidyButtonState.buttons = ( char** )button_text;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void updateSlidyButtons( float deltaTime )
 {
     SlidyButtonState.lerp += ( deltaTime * 1.5f );
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void drawSlidyButtons()
 {
     int i;
@@ -245,8 +245,8 @@ void drawSlidyButtons()
     }
 }
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 /** initMenus
 * Loads resources for the menus, and figures out where things should
 * be positioned.  If we ever allow changing resolution on the fly, this
@@ -287,8 +287,8 @@ int initMenus()
     return 1;
 }
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int doMainMenu( float deltaTime )
 {
     static int menuState = MM_Begin;
@@ -442,7 +442,7 @@ int doMainMenu( float deltaTime )
     return result;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int doSinglePlayerMenu( float deltaTime )
 {
     static int menuState = MM_Begin;
@@ -552,14 +552,14 @@ int doSinglePlayerMenu( float deltaTime )
     return result;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // TODO: I totally fudged the layout of this menu by adding an offset for when
 // the game isn't in 640x480.  Needs to be fixed.
 int doChooseModule( float deltaTime )
 {
+    static oglx_texture background;
     static int menuState = MM_Begin;
     static int startIndex;
-    static oglx_texture background;
     static int validModules[MAXMODULE];
     static int numValidModules;
 
@@ -567,7 +567,7 @@ int doChooseModule( float deltaTime )
     static int moduleMenuOffsetY;
 
     int result = 0;
-    int i, x, y;
+    int i, j, x, y;
     char txtBuffer[128];
 
     switch ( menuState )
@@ -666,25 +666,23 @@ int doChooseModule( float deltaTime )
             // Draw buttons for the modules that can be selected
             x = 93;
             y = 20;
-
-            for ( i = startIndex; i < ( startIndex + 3 ) && i < numValidModules; i++ )
+            for ( i = startIndex, j = 0; i < ( startIndex + 3 ) && j < numValidModules; i++ )
             {
-				//Only draw valid modules
-				if( modlist_test_by_index(validModules[i]) )
-				{
-					// fix the menu images in case one or more of them are undefined
-					int         imod       = validModules[i];
-					Uint32      tex_offset = ModList[imod].tex;
-					oglx_texture * ptex       = ((Uint32)(~0) == tex_offset) ? NULL : TxTitleImage + tex_offset;
+                //Only draw valid modules
+                if ( modlist_test_by_index(validModules[i]) )
+                {
+                    // fix the menu images in case one or more of them are undefined
+                    int         imod       = validModules[i];
+                    Uint32      tex_offset = ModList[imod].tex;
+                    oglx_texture * ptex       = ((Uint32)(~0) == tex_offset) ? NULL : TxTitleImage + tex_offset;
 
+                    if ( ui_doImageButton( i, ptex, moduleMenuOffsetX + x, moduleMenuOffsetY + y, 138, 138 ) )
+                    {
+                        selectedModule = i;
+                    }
 
-					if ( ui_doImageButton( i, ptex, moduleMenuOffsetX + x, moduleMenuOffsetY + y, 138, 138 ) )
-					{
-						selectedModule = i;
-					}
-
-					x += 138 + 20;  // Width of the button, and the spacing between buttons
-				}
+                    x += 138 + 20;  // Width of the button, and the spacing between buttons
+                }
             }
 
             // Draw an unused button as the backdrop for the text for now
@@ -692,7 +690,7 @@ int doChooseModule( float deltaTime )
 
             // And draw the next & back buttons
             if ( selectedModule > -1 &&    BUTTON_UP == ui_doButton( 53, "Select Module",
-                                           moduleMenuOffsetX + 327, moduleMenuOffsetY + 173, 200, 30 ) )
+                    moduleMenuOffsetX + 327, moduleMenuOffsetY + 173, 200, 30 ) )
             {
                 // go to the next menu with this module selected
                 selectedModule = validModules[selectedModule];
@@ -788,7 +786,7 @@ int doChooseModule( float deltaTime )
     return result;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int doChoosePlayer( float deltaTime )
 {
     static int menuState = MM_Begin;
@@ -937,12 +935,12 @@ int doChoosePlayer( float deltaTime )
 
                 if ( BUTTON_DOWN == ui_doWidget( mnu_widgetList + m ) )
                 {
-                    if ( 0 != ( mnu_widgetList[m].state & UI_BITS_CLICKED ) && !mnu_checkSelectedPlayer( player ) )
+                    if ( HAS_SOME_BITS( mnu_widgetList[m].state, UI_BITS_CLICKED ) && !mnu_checkSelectedPlayer( player ) )
                     {
                         // button has become cursor_clicked
-                        //mnu_addSelectedPlayer(player);
+                        // mnu_addSelectedPlayer(player);
                     }
-                    else if ( 0 == ( mnu_widgetList[m].state & UI_BITS_CLICKED ) && mnu_checkSelectedPlayer( player ) )
+                    else if ( HAS_NO_BITS( mnu_widgetList[m].state, UI_BITS_CLICKED ) && mnu_checkSelectedPlayer( player ) )
                     {
                         // button has become unclicked
                         mnu_removeSelectedPlayer( player );
@@ -953,18 +951,18 @@ int doChoosePlayer( float deltaTime )
                 for ( j = 0, m++; j < 4; j++, m++ )
                 {
                     // make the button states reflect the chosen input devices
-                    if ( INVALID_PLA == splayer || 0 == ( mnu_selectedInput[ splayer ] & BitsInput[j] ) )
+                    if ( INVALID_PLA == splayer || HAS_NO_BITS( mnu_selectedInput[ splayer ], BitsInput[j] ) )
                     {
                         mnu_widgetList[m].state &= ~UI_BITS_CLICKED;
                     }
-                    else if ( 0 != ( mnu_selectedInput[splayer] & BitsInput[j] ) )
+                    else if ( HAS_SOME_BITS( mnu_selectedInput[splayer], BitsInput[j] ) )
                     {
                         mnu_widgetList[m].state |= UI_BITS_CLICKED;
                     }
 
                     if ( BUTTON_DOWN == ui_doWidget( mnu_widgetList + m ) )
                     {
-                        if ( 0 != ( mnu_widgetList[m].state & UI_BITS_CLICKED ) )
+                        if ( HAS_SOME_BITS( mnu_widgetList[m].state, UI_BITS_CLICKED ) )
                         {
                             // button has become cursor_clicked
                             if ( INVALID_PLA == splayer )
@@ -973,7 +971,7 @@ int doChoosePlayer( float deltaTime )
                             }
                             mnu_addSelectedPlayerInput( player, BitsInput[j] );
                         }
-                        else if ( INVALID_PLA != splayer && 0 == ( mnu_widgetList[m].state & UI_BITS_CLICKED ) )
+                        else if ( INVALID_PLA != splayer && HAS_NO_BITS( mnu_widgetList[m].state, UI_BITS_CLICKED ) )
                         {
                             // button has become unclicked
                             mnu_removeSelectedPlayerInput( player, BitsInput[j] );
@@ -1072,7 +1070,7 @@ int doChoosePlayer( float deltaTime )
     return result;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int doOptions( float deltaTime )
 {
     static int menuState = MM_Begin;
@@ -1200,7 +1198,7 @@ int doOptions( float deltaTime )
     return result;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int doInputOptions( float deltaTime )
 {
     static int menuState = MM_Begin;
@@ -1251,7 +1249,7 @@ int doInputOptions( float deltaTime )
             strncpy( inputOptionsButtons[i++], "Player 1", sizeof(STRING) );
             strncpy( inputOptionsButtons[i++], "Save Settings", sizeof(STRING) );
 
-            //Load the global icons (keyboard, mouse, etc.)
+            // Load the global icons (keyboard, mouse, etc.)
             if ( !load_all_global_icons() ) log_warning( "Could not load all global icons!\n" );
 
         case MM_Entering:
@@ -1269,8 +1267,8 @@ int doInputOptions( float deltaTime )
             GL_DEBUG(glColor4f)(1, 1, 1, 1 );
             fnt_drawTextBox( menuFont, "LEFT HAND", buttonLeft, sdl_scr.y - 470, 0, 0, 20 );
 
-            //Are we waiting for input?
-            if (SDLKEYDOWN( SDLK_ESCAPE )) waitingforinput = -1;  //Someone cursor_pressed abort
+            // Are we waiting for input?
+            if (SDLKEYDOWN( SDLK_ESCAPE )) waitingforinput = -1;  // Someone cursor_pressed abort
 
             // Grab the key/button input from the selected device
             if (waitingforinput != -1)
@@ -1383,7 +1381,7 @@ int doInputOptions( float deltaTime )
                 }
             }
 
-            //Left hand
+            // Left hand
             if ( '\0' != inputOptionsButtons[CONTROL_LEFT_USE][0] )
             {
                 fnt_drawTextBox( menuFont, "Use:", buttonLeft, sdl_scr.y - 440, 0, 0, 20 );
@@ -1412,7 +1410,7 @@ int doInputOptions( float deltaTime )
                 }
             }
 
-            //Right hand
+            // Right hand
             fnt_drawTextBox( menuFont, "RIGHT HAND", buttonLeft + 300, sdl_scr.y - 470, 0, 0, 20 );
             if ( '\0' != inputOptionsButtons[CONTROL_RIGHT_USE][0] )
             {
@@ -1442,7 +1440,7 @@ int doInputOptions( float deltaTime )
                 }
             }
 
-            //Controls
+            // Controls
             fnt_drawTextBox( menuFont, "CONTROLS", buttonLeft, sdl_scr.y - 320, 0, 0, 20 );
             if ( '\0' != inputOptionsButtons[CONTROL_JUMP][0] )
             {
@@ -1490,7 +1488,7 @@ int doInputOptions( float deltaTime )
                 }
             }
 
-            //Controls
+            // Controls
             fnt_drawTextBox( menuFont, "CAMERA CONTROL", buttonLeft + 300, sdl_scr.y - 320, 0, 0, 20 );
             if ( '\0' != inputOptionsButtons[CONTROL_CAMERA_IN][0] )
             {
@@ -1539,7 +1537,7 @@ int doInputOptions( float deltaTime )
                 }
             }
 
-            //The select player button
+            // The select player button
             if ( iicon < 0 )
             {
                 if ( BUTTON_UP == ui_doButton( 16, "Select Player...", buttonLeft + 300, sdl_scr.y - 90, 140, 50 ) )
@@ -1558,7 +1556,7 @@ int doInputOptions( float deltaTime )
                 snprintf(inputOptionsButtons[CONTROL_COMMAND_COUNT+0], sizeof(STRING), "Player %i", player + 1);
             }
 
-            //Save settings button
+            // Save settings button
             if ( BUTTON_UP == ui_doButton( 17, inputOptionsButtons[CONTROL_COMMAND_COUNT+1], buttonLeft, sdl_scr.y - 60, 200, 30 ) )
             {
                 // save settings and go back
@@ -1591,8 +1589,8 @@ int doInputOptions( float deltaTime )
     return result;
 }
 
-//--------------------------------------------------------------------------------------------
-//Game options menu
+// --------------------------------------------------------------------------------------------
+// Game options menu
 int doGameOptions( float deltaTime )
 {
     static int menuState = MM_Begin;
@@ -1600,7 +1598,7 @@ int doGameOptions( float deltaTime )
     static int menuChoice = 0;
     static char Cdifficulty[128];
     static char Cmaxmessage[128];
-    
+
     int result = 0;
 
     switch ( menuState )
@@ -1621,24 +1619,24 @@ int doGameOptions( float deltaTime )
             // Draw the background
             if ( mnu_draw_background )
             {
-				ui_drawImage( 0, &background, (sdl_scr.x/2)+(background.imgW/2), sdl_scr.y - background.imgH, 0, 0 );
+                ui_drawImage( 0, &background, (sdl_scr.x / 2) + (background.imgW / 2), sdl_scr.y - background.imgH, 0, 0 );
             }
 
             // Load the current settings
-			switch( cfg.difficulty )
-			{
-				case GAME_HARD: sprintf(Cdifficulty, "Punishing"); break;
-				case GAME_NORMAL: sprintf(Cdifficulty, "Challenging"); break;
-				default: case GAME_EASY:
-				{
-					sprintf(Cdifficulty, "Forgiving"); 
-					cfg.difficulty = GAME_EASY;
-					break;
-				}
-			}
+            switch ( cfg.difficulty )
+            {
+                case GAME_HARD: sprintf(Cdifficulty, "Punishing"); break;
+                case GAME_NORMAL: sprintf(Cdifficulty, "Challenging"); break;
+            default: case GAME_EASY:
+                    {
+                        sprintf(Cdifficulty, "Forgiving");
+                        cfg.difficulty = GAME_EASY;
+                        break;
+                    }
+            }
             gameOptionsButtons[0] = Cdifficulty;
-            
-			if ( maxmessage > MAXMESSAGE || maxmessage < 0 ) maxmessage = MAXMESSAGE - 1;
+
+            if ( maxmessage > MAXMESSAGE || maxmessage < 0 ) maxmessage = MAXMESSAGE - 1;
             if ( maxmessage == 0 )
             {
                 sprintf( Cmaxmessage, "None" );           // Set to default
@@ -1649,7 +1647,7 @@ int doGameOptions( float deltaTime )
             }
             gameOptionsButtons[1] = Cmaxmessage;
 
-			//Message duration
+            // Message duration
             if ( cfg.message_duration <= 100 )
             {
                 gameOptionsButtons[2] = "Short";
@@ -1663,19 +1661,19 @@ int doGameOptions( float deltaTime )
                 gameOptionsButtons[2] = "Long";
             }
 
-			//Autoturn camera
-			if( cfg.autoturncamera == CAMTURN_GOOD )		gameOptionsButtons[3] = "Fast";
-			else if( cfg.autoturncamera == CAMTURN_AUTO )	gameOptionsButtons[3] = "On";
-			else 
-			{
-				gameOptionsButtons[3] = "Off";
-				cfg.autoturncamera = CAMTURN_NONE;
-			}
+            // Autoturn camera
+            if ( cfg.autoturncamera == CAMTURN_GOOD )        gameOptionsButtons[3] = "Fast";
+            else if ( cfg.autoturncamera == CAMTURN_AUTO )   gameOptionsButtons[3] = "On";
+            else
+            {
+                gameOptionsButtons[3] = "Off";
+                cfg.autoturncamera = CAMTURN_NONE;
+            }
 
-			//Show FPS
-			if( cfg.fps_allowed )	gameOptionsButtons[4] = "On";
-			else 					gameOptionsButtons[4] = "Off";
-			
+            // Show FPS
+            if ( cfg.fps_allowed )   gameOptionsButtons[4] = "On";
+            else                    gameOptionsButtons[4] = "Off";
+
             // Fall trough
             menuState = MM_Running;
             break;
@@ -1687,43 +1685,43 @@ int doGameOptions( float deltaTime )
 
             if ( mnu_draw_background )
             {
-				ui_drawImage( 0, &background, (sdl_scr.x/2)-(background.imgW/2), sdl_scr.y - background.imgH, 0, 0 );
-			}
+                ui_drawImage( 0, &background, (sdl_scr.x / 2) - (background.imgW / 2), sdl_scr.y - background.imgH, 0, 0 );
+            }
 
             fnt_drawTextBox( menuFont, "Game Difficulty:", buttonLeft, 50, 0, 0, 20 );
 
             // Buttons
             if ( BUTTON_UP == ui_doButton( 1, gameOptionsButtons[0], buttonLeft + 150, 50, 150, 30 ) )
             {
-				// Increase difficulty
-				cfg.difficulty++;
-				switch( cfg.difficulty )
-				{
-					case GAME_HARD: sprintf(Cdifficulty, "Punishing"); break;
-					case GAME_NORMAL: sprintf(Cdifficulty, "Challenging"); break;
-					default: case GAME_EASY:
-					{
-						sprintf(Cdifficulty, "Forgiving"); 
-						cfg.difficulty = GAME_EASY;
-						break;
-					}
-				}
-				gameOptionsButtons[0] = Cdifficulty;
+                // Increase difficulty
+                cfg.difficulty++;
+                switch ( cfg.difficulty )
+                {
+                    case GAME_HARD: sprintf(Cdifficulty, "Punishing"); break;
+                    case GAME_NORMAL: sprintf(Cdifficulty, "Challenging"); break;
+                default: case GAME_EASY:
+                        {
+                            sprintf(Cdifficulty, "Forgiving");
+                            cfg.difficulty = GAME_EASY;
+                            break;
+                        }
+                }
+                gameOptionsButtons[0] = Cdifficulty;
             }
 
-			//Now do difficulty description. Currently it's handled very bad, but it works.
-			switch( cfg.difficulty )
-			{
-				case GAME_EASY:
-				fnt_drawTextBox( menuFont, "FORGIVING (Easy)\n - 15% XP loss upon death\n - Monsters take 25% extra damage by players\n - Players take 25% less damage by monsters\n - Halves the chance for Kursed items\n - Cannot unlock the final level in this mode\n - Life and Mana is refilled after quitting a module", buttonLeft, 100, 0, 0, 20 );
-				break;
-				case GAME_NORMAL:
-				fnt_drawTextBox( menuFont, "CHALLENGING (Normal)\n - 15% XP loss upon death \n - 15% money loss upon death", buttonLeft, 100, 0, 0, 20 );
-				break;
-				case GAME_HARD:
-				fnt_drawTextBox( menuFont, "PUNISHING (Hard)\n - 15% XP loss upon death\n - 15% money loss upon death\n - No respawning\n - Channeling life can kill you\n - Players take 50% more damage\n - Monsters award 10% extra xp!\n - Doubles the chance for Kursed items", buttonLeft, 100, 0, 0, 20 );
-				break;
-			}
+            // Now do difficulty description. Currently it's handled very bad, but it works.
+            switch ( cfg.difficulty )
+            {
+                case GAME_EASY:
+                    fnt_drawTextBox( menuFont, "FORGIVING (Easy)\n - 15% XP loss upon death\n - Monsters take 25% extra damage by players\n - Players take 25% less damage by monsters\n - Halves the chance for Kursed items\n - Cannot unlock the final level in this mode\n - Life and Mana is refilled after quitting a module", buttonLeft, 100, 0, 0, 20 );
+                    break;
+                case GAME_NORMAL:
+                    fnt_drawTextBox( menuFont, "CHALLENGING (Normal)\n - 15% XP loss upon death \n - 15% money loss upon death", buttonLeft, 100, 0, 0, 20 );
+                    break;
+                case GAME_HARD:
+                    fnt_drawTextBox( menuFont, "PUNISHING (Hard)\n - 15% XP loss upon death\n - 15% money loss upon death\n - No respawning\n - Channeling life can kill you\n - Players take 50% more damage\n - Monsters award 10% extra xp!\n - Doubles the chance for Kursed items", buttonLeft, 100, 0, 0, 20 );
+                    break;
+            }
 
             // Text messages
             fnt_drawTextBox( menuFont, "Max  Messages:", buttonLeft + 350, 50, 0, 0, 20 );
@@ -1755,7 +1753,7 @@ int doGameOptions( float deltaTime )
                 gameOptionsButtons[1] = Cmaxmessage;
             }
 
-			// Message time
+            // Message time
             fnt_drawTextBox( menuFont, "Message Duration:", buttonLeft + 350, 100, 0, 0, 20 );
             if ( BUTTON_UP == ui_doButton( 3, gameOptionsButtons[2], buttonLeft + 500, 100, 100, 30 ) )
             {
@@ -1787,37 +1785,37 @@ int doGameOptions( float deltaTime )
                 }
             }
 
-			// Autoturn camera
+            // Autoturn camera
             fnt_drawTextBox( menuFont, "Autoturn Camera:", buttonLeft + 350, 150, 0, 0, 20 );
             if ( BUTTON_UP == ui_doButton( 4, gameOptionsButtons[3], buttonLeft + 500, 150, 100, 30 ) )
             {
-				if( cfg.autoturncamera == CAMTURN_GOOD ) 
-				{
-					gameOptionsButtons[3] = "Off";
-					cfg.autoturncamera = CAMTURN_NONE;
-				}
-				else if( cfg.autoturncamera ) 
-				{
-					gameOptionsButtons[3] = "Fast";
-					cfg.autoturncamera = CAMTURN_GOOD;
-				}
-				else 
-				{
-					gameOptionsButtons[3] = "On";
-					cfg.autoturncamera = CAMTURN_AUTO;
-				}
-			}
+                if ( cfg.autoturncamera == CAMTURN_GOOD )
+                {
+                    gameOptionsButtons[3] = "Off";
+                    cfg.autoturncamera = CAMTURN_NONE;
+                }
+                else if ( cfg.autoturncamera )
+                {
+                    gameOptionsButtons[3] = "Fast";
+                    cfg.autoturncamera = CAMTURN_GOOD;
+                }
+                else
+                {
+                    gameOptionsButtons[3] = "On";
+                    cfg.autoturncamera = CAMTURN_AUTO;
+                }
+            }
 
-			// Show the fps?
+            // Show the fps?
             fnt_drawTextBox( menuFont, "Display FPS:", buttonLeft + 350, 200, 0, 0, 20 );
             if ( BUTTON_UP == ui_doButton( 5, gameOptionsButtons[4], buttonLeft + 500, 200, 100, 30 ) )
             {
-				cfg.fps_allowed = !cfg.fps_allowed;
-				if( cfg.fps_allowed )	gameOptionsButtons[4] = "On";
-				else 					gameOptionsButtons[4] = "Off";
-			}
+                cfg.fps_allowed = !cfg.fps_allowed;
+                if ( cfg.fps_allowed )   gameOptionsButtons[4] = "On";
+                else                    gameOptionsButtons[4] = "Off";
+            }
 
-			//Save settings
+            // Save settings
             if ( BUTTON_UP == ui_doButton( 6, gameOptionsButtons[5], buttonLeft, sdl_scr.y - 60, 200, 30 ) )
             {
                 // synchronoze the config values with the various game subsystems
@@ -1838,7 +1836,7 @@ int doGameOptions( float deltaTime )
 
             if ( mnu_draw_background )
             {
-				ui_drawImage( 0, &background, (sdl_scr.x/2)+(background.imgW/2), sdl_scr.y - background.imgH, 0, 0 );
+                ui_drawImage( 0, &background, (sdl_scr.x / 2) + (background.imgW / 2), sdl_scr.y - background.imgH, 0, 0 );
             }
 
             // Fall trough
@@ -1861,8 +1859,8 @@ int doGameOptions( float deltaTime )
     return result;
 }
 
-//--------------------------------------------------------------------------------------------
-//Audio options menu
+// --------------------------------------------------------------------------------------------
+// Audio options menu
 int doAudioOptions( float deltaTime )
 {
     static int menuState = MM_Begin;
@@ -2023,10 +2021,10 @@ int doAudioOptions( float deltaTime )
                 setup_upload( &cfg );
                 setup_write();
 
-                //Reload the sound system
+                // Reload the sound system
                 sound_restart();
 
-                //Do we restart the music?
+                // Do we restart the music?
                 if ( cfg.music_allowed )
                 {
                     load_all_music_sounds();
@@ -2067,7 +2065,7 @@ int doAudioOptions( float deltaTime )
     return result;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int doVideoOptions( float deltaTime )
 {
     static int menuState = MM_Begin;
@@ -2105,7 +2103,7 @@ int doVideoOptions( float deltaTime )
             else snprintf(Cantialiasing, sizeof(Cantialiasing), "X%i", cfg.multisamples);
             videoOptionsButtons[0] = Cantialiasing;
 
-            //Texture filtering
+            // Texture filtering
             switch ( cfg.texturefilter_req )
             {
                 case TX_UNFILTERED:
@@ -2155,7 +2153,7 @@ int doVideoOptions( float deltaTime )
             {
                 videoOptionsButtons[4] = "Off";
             }
-            
+
             if ( cfg.shadow_allowed )
             {
                 videoOptionsButtons[6] = "Normal";
@@ -2599,7 +2597,7 @@ int doVideoOptions( float deltaTime )
     return result;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int doShowMenuResults( float deltaTime )
 {
     int x, y;
@@ -2666,7 +2664,7 @@ int doShowMenuResults( float deltaTime )
     return menuResult;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int doNotImplemented( float deltaTime )
 {
     int x, y;
@@ -2686,7 +2684,7 @@ int doNotImplemented( float deltaTime )
     return 0;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int doGamePaused( float deltaTime )
 {
     static int menuState = MM_Begin;
@@ -2739,7 +2737,7 @@ int doGamePaused( float deltaTime )
                 }
             }
 
-            //Quick return to game
+            // Quick return to game
             if (SDLKEYDOWN( SDLK_ESCAPE )) menuChoice = 5;
 
             if ( menuChoice != 0 )
@@ -2778,7 +2776,7 @@ int doGamePaused( float deltaTime )
     return result;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int doShowEndgame( float deltaTime )
 {
     static int menuState = MM_Begin;
@@ -2882,10 +2880,10 @@ int doShowEndgame( float deltaTime )
                 reloaded = link_pop_module();
 
                 // try to go to the world map
-                //if( !reloaded )
-                //{
+                // if( !reloaded )
+                // {
                 //    reloaded = link_load_parent( ModList[pickedmodule_index].parent_modname, ModList[pickedmodule_index].parent_pos );
-                //}
+                // }
 
                 // fix the menu that is returned when you break out of the game
                 if ( PMod->beat && startNewPlayer )
@@ -2923,7 +2921,7 @@ int doShowEndgame( float deltaTime )
     return retval;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int doMenu( float deltaTime )
 {
     int retval, result = 0;
@@ -3003,8 +3001,8 @@ int doMenu( float deltaTime )
                 else if ( result == 5 ) mnu_begin_menu( emnu_GameOptions );
             }
             break;
-        
-		case emnu_GameOptions:
+
+        case emnu_GameOptions:
             result = doGameOptions( deltaTime );
             if ( result != 0 )
             {
@@ -3063,10 +3061,10 @@ int doMenu( float deltaTime )
                     reloaded = link_pop_module();
 
                     // try to go to the world map
-                    //if( !reloaded )
-                    //{
+                    // if( !reloaded )
+                    // {
                     //    reloaded = link_load_parent( ModList[pickedmodule_index].parent_modname, ModList[pickedmodule_index].parent_pos );
-                    //}
+                    // }
 
                     if ( !reloaded )
                     {
@@ -3105,8 +3103,8 @@ int doMenu( float deltaTime )
     return retval;
 }
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t mnu_checkSelectedPlayer( Uint16 player )
 {
     int i;
@@ -3120,7 +3118,7 @@ bool_t mnu_checkSelectedPlayer( Uint16 player )
     return bfalse;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 Uint16 mnu_getSelectedPlayer( Uint16 player )
 {
     Uint16 ipla;
@@ -3134,7 +3132,7 @@ Uint16 mnu_getSelectedPlayer( Uint16 player )
     return INVALID_PLA;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t mnu_addSelectedPlayer( Uint16 player )
 {
     if ( player > loadplayer_count || mnu_selectedPlayerCount >= MAXPLAYER ) return bfalse;
@@ -3147,7 +3145,7 @@ bool_t mnu_addSelectedPlayer( Uint16 player )
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t mnu_removeSelectedPlayer( Uint16 player )
 {
     int i;
@@ -3189,7 +3187,7 @@ bool_t mnu_removeSelectedPlayer( Uint16 player )
     return found;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t mnu_addSelectedPlayerInput( Uint16 player, Uint32 input )
 {
     int i;
@@ -3252,7 +3250,7 @@ bool_t mnu_addSelectedPlayerInput( Uint16 player, Uint32 input )
     return retval;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t mnu_removeSelectedPlayerInput( Uint16 player, Uint32 input )
 {
     int i;
@@ -3283,7 +3281,7 @@ bool_t mnu_removeSelectedPlayerInput( Uint16 player, Uint32 input )
     return retval;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void check_player_import( const char *dirname, bool_t initialize )
 {
     // ZZ> This function figures out which players may be imported, and loads basic
@@ -3332,7 +3330,7 @@ void check_player_import( const char *dirname, bool_t initialize )
     fs_findClose();
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int get_skin( const char *filename )
 {
     // ZZ> This function reads the skin.txt file...
@@ -3352,7 +3350,7 @@ int get_skin( const char *filename )
     return skin;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void load_all_menu_images()
 {
     // ZZ> This function loads the title image for each module.  Modules without a
@@ -3403,7 +3401,7 @@ void load_all_menu_images()
     if ( filesave != NULL ) fclose( filesave );
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t mnu_begin_menu( int which )
 {
     if ( !menu_stack_push( mnu_whichMenu ) ) return bfalse;
@@ -3412,20 +3410,20 @@ bool_t mnu_begin_menu( int which )
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void   mnu_end_menu()
 {
     mnu_whichMenu = menu_stack_pop();
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int mnu_get_menu_depth()
 {
     return menu_stack_index;
 }
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t menu_stack_push( int menu )
 {
     if ( menu_stack_index < 0 )
@@ -3445,7 +3443,7 @@ bool_t menu_stack_push( int menu )
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 which_menu_t menu_stack_pop()
 {
     if ( menu_stack_index < 0 )
@@ -3464,7 +3462,7 @@ which_menu_t menu_stack_pop()
     return menu_stack[menu_stack_index];
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 which_menu_t menu_stack_peek()
 {
     which_menu_t return_menu = emnu_Main;
@@ -3477,7 +3475,7 @@ which_menu_t menu_stack_peek()
     return return_menu;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void menu_stack_clear()
 {
     menu_stack_index = 0;

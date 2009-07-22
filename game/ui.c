@@ -1,21 +1,21 @@
-//********************************************************************************************
-//*
-//*    This file is part of Egoboo.
-//*
-//*    Egoboo is free software: you can redistribute it and/or modify it
-//*    under the terms of the GNU General Public License as published by
-//*    the Free Software Foundation, either version 3 of the License, or
-//*    (at your option) any later version.
-//*
-//*    Egoboo is distributed in the hope that it will be useful, but
-//*    WITHOUT ANY WARRANTY; without even the implied warranty of
-//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//*    General Public License for more details.
-//*
-//*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-//*
-//********************************************************************************************
+// ********************************************************************************************
+// *
+// *    This file is part of Egoboo.
+// *
+// *    Egoboo is free software: you can redistribute it and/or modify it
+// *    under the terms of the GNU General Public License as published by
+// *    the Free Software Foundation, either version 3 of the License, or
+// *    (at your option) any later version.
+// *
+// *    Egoboo is distributed in the hope that it will be useful, but
+// *    WITHOUT ANY WARRANTY; without even the implied warranty of
+// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// *    General Public License for more details.
+// *
+// *    You should have received a copy of the GNU General Public License
+// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+// *
+// ********************************************************************************************
 
 /* Egoboo - Ui.c
  * A basic library for implementing user interfaces, based off of Casey Muratori's
@@ -32,8 +32,8 @@
 #include <string.h>
 #include <SDL_opengl.h>
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 struct UiContext
 {
     // Tracking control focus stuff
@@ -61,8 +61,8 @@ GLfloat ui_active_color2[] = {0.00f, 0.45f, 0.45f, 0.60f};
 GLfloat ui_hot_color2[]    = {0.00f, 0.28f, 0.28f, 1.00f};
 GLfloat ui_normal_color2[] = {0.33f, 0.00f, 0.33f, 0.60f};
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // Core functions
 int ui_initialize( const char *default_font, int default_font_size )
 {
@@ -77,7 +77,7 @@ int ui_initialize( const char *default_font, int default_font_size )
     return 1;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void ui_shutdown()
 {
     if ( ui_context.defaultFont )
@@ -88,13 +88,13 @@ void ui_shutdown()
     memset( &ui_context, 0, sizeof( ui_context ) );
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void ui_Reset()
 {
     ui_context.active = ui_context.hot = UI_Nothing;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void ui_handleSDLEvent( SDL_Event *evt )
 {
     if ( evt )
@@ -122,7 +122,7 @@ void ui_handleSDLEvent( SDL_Event *evt )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void ui_beginFrame( float deltaTime )
 {
     ATTRIB_PUSH( "ui_beginFrame", GL_ENABLE_BIT );
@@ -150,7 +150,7 @@ void ui_beginFrame( float deltaTime )
     ui_context.hot = UI_Nothing;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void ui_endFrame()
 {
     // Restore the OpenGL matrices to what they were
@@ -167,7 +167,7 @@ void ui_endFrame()
     ui_context.mousePressed = ui_context.mouseReleased = 0;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // Utility functions
 int ui_mouseInside( int x, int y, int width, int height )
 {
@@ -182,19 +182,19 @@ int ui_mouseInside( int x, int y, int width, int height )
     return 0;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void ui_setactive( ui_id_t id )
 {
     ui_context.active = id;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void ui_sethot( ui_id_t id )
 {
     ui_context.hot = id;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void ui_setWidgetactive( ui_Widget_t * pw )
 {
     if ( NULL == pw )
@@ -206,7 +206,7 @@ void ui_setWidgetactive( ui_Widget_t * pw )
         ui_context.active = pw->id;
 
         pw->timeout = SDL_GetTicks() + 100;
-        if ( 0 != ( pw->mask & UI_BITS_CLICKED ) )
+        if ( HAS_SOME_BITS( pw->mask, UI_BITS_CLICKED ) )
         {
             // use exclusive or to flip the bit
             pw->state ^= UI_BITS_CLICKED;
@@ -214,7 +214,7 @@ void ui_setWidgetactive( ui_Widget_t * pw )
     };
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void ui_setWidgethot( ui_Widget_t * pw )
 {
     if ( NULL == pw )
@@ -227,7 +227,7 @@ void ui_setWidgethot( ui_Widget_t * pw )
         {
             pw->timeout = SDL_GetTicks() + 100;
 
-            if ( 0 != ( pw->mask & UI_BITS_MOUSEOVER ) && ui_context.hot != pw->id )
+            if ( HAS_SOME_BITS( pw->mask, UI_BITS_MOUSEOVER ) && ui_context.hot != pw->id )
             {
                 // use exclusive or to flip the bit
                 pw->state ^= UI_BITS_MOUSEOVER;
@@ -239,13 +239,13 @@ void ui_setWidgethot( ui_Widget_t * pw )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 Font* ui_getFont()
 {
     return ( ui_context.activeFont != NULL ) ? ui_context.activeFont : ui_context.defaultFont;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // Behaviors
 ui_buttonValues ui_buttonBehavior( ui_id_t id, int x, int y, int width, int height )
 {
@@ -280,7 +280,7 @@ ui_buttonValues ui_buttonBehavior( ui_id_t id, int x, int y, int width, int heig
     return result;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 ui_buttonValues ui_WidgetBehavior( ui_Widget_t * pWidget )
 {
     ui_buttonValues result = BUTTON_NOCHANGE;
@@ -316,7 +316,7 @@ ui_buttonValues ui_WidgetBehavior( ui_Widget_t * pWidget )
     return result;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // Drawing
 void ui_drawButton( ui_id_t id, int x, int y, int width, int height, GLfloat * pcolor )
 {
@@ -356,7 +356,7 @@ void ui_drawButton( ui_id_t id, int x, int y, int width, int height, GLfloat * p
     GL_DEBUG(glEnable)( GL_TEXTURE_2D );
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void ui_drawImage( ui_id_t id, oglx_texture *img, int x, int y, int width, int height )
 {
     int w, h;
@@ -391,7 +391,7 @@ void ui_drawImage( ui_id_t id, oglx_texture *img, int x, int y, int width, int h
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void ui_drawWidgetButton( ui_Widget_t * pw )
 {
     GLfloat * pcolor = NULL;
@@ -436,7 +436,7 @@ void ui_drawWidgetButton( ui_Widget_t * pw )
     ui_drawButton( pw->id, pw->x, pw->y, pw->width, pw->height, pcolor );
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void ui_drawWidgetImage( ui_Widget_t * pw )
 {
     if ( NULL != pw && NULL != pw->img )
@@ -445,7 +445,7 @@ void ui_drawWidgetImage( ui_Widget_t * pw )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 /** ui_drawTextBox
  * Draws a text string into a box, splitting it into lines according to newlines in the string.
  * NOTE: Doesn't pay attention to the width/height arguments yet.
@@ -463,7 +463,7 @@ void ui_drawTextBox( const char *text, int x, int y, int width, int height, int 
     fnt_drawTextBox( font, text, x, y, width, height, spacing );
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // Controls
 ui_buttonValues ui_doButton( ui_id_t id, const char *text, int x, int y, int width, int height )
 {
@@ -496,7 +496,7 @@ ui_buttonValues ui_doButton( ui_id_t id, const char *text, int x, int y, int wid
     return result;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 ui_buttonValues ui_doImageButton( ui_id_t id, oglx_texture *img, int x, int y, int width, int height )
 {
     ui_buttonValues result;
@@ -514,7 +514,7 @@ ui_buttonValues ui_doImageButton( ui_id_t id, oglx_texture *img, int x, int y, i
     return result;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 ui_buttonValues ui_doImageButtonWithText( ui_id_t id, oglx_texture *img, const char *text, int x, int y, int width, int height )
 {
     ui_buttonValues result;
@@ -552,8 +552,8 @@ ui_buttonValues ui_doImageButtonWithText( ui_id_t id, oglx_texture *img, const c
     return result;
 }
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 ui_buttonValues ui_doWidget( ui_Widget_t * pw )
 {
     ui_buttonValues result;
@@ -610,14 +610,14 @@ ui_buttonValues ui_doWidget( ui_Widget_t * pw )
     return result;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t ui_copyWidget( ui_Widget_t * pw2, ui_Widget_t * pw1 )
 {
     if ( NULL == pw2 || NULL == pw1 ) return bfalse;
     return NULL != memcpy( pw2, pw1, sizeof( ui_Widget_t ) );
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t ui_shrinkWidget( ui_Widget_t * pw2, ui_Widget_t * pw1, int pixels )
 {
     if ( NULL == pw2 || NULL == pw1 ) return bfalse;
@@ -635,7 +635,7 @@ bool_t ui_shrinkWidget( ui_Widget_t * pw2, ui_Widget_t * pw1, int pixels )
     return pw2->width > 0 && pw2->height > 0;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t ui_initWidget( ui_Widget_t * pw, ui_id_t id, Font * pfont, const char *text, oglx_texture *img, int x, int y, int width, int height )
 {
     if ( NULL == pw ) return bfalse;
@@ -655,7 +655,7 @@ bool_t ui_initWidget( ui_Widget_t * pw, ui_id_t id, Font * pfont, const char *te
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t ui_widgetAddMask( ui_Widget_t * pw, Uint32 mbits )
 {
     if ( NULL == pw ) return bfalse;
@@ -666,7 +666,7 @@ bool_t ui_widgetAddMask( ui_Widget_t * pw, Uint32 mbits )
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t ui_widgetRemoveMask( ui_Widget_t * pw, Uint32 mbits )
 {
     if ( NULL == pw ) return bfalse;
@@ -677,7 +677,7 @@ bool_t ui_widgetRemoveMask( ui_Widget_t * pw, Uint32 mbits )
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t ui_widgetSetMask( ui_Widget_t * pw, Uint32 mbits )
 {
     if ( NULL == pw ) return bfalse;

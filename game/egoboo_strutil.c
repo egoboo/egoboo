@@ -1,21 +1,21 @@
-//********************************************************************************************
-//*
-//*    This file is part of Egoboo.
-//*
-//*    Egoboo is free software: you can redistribute it and/or modify it
-//*    under the terms of the GNU General Public License as published by
-//*    the Free Software Foundation, either version 3 of the License, or
-//*    (at your option) any later version.
-//*
-//*    Egoboo is distributed in the hope that it will be useful, but
-//*    WITHOUT ANY WARRANTY; without even the implied warranty of
-//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//*    General Public License for more details.
-//*
-//*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-//*
-//********************************************************************************************
+// ********************************************************************************************
+// *
+// *    This file is part of Egoboo.
+// *
+// *    Egoboo is free software: you can redistribute it and/or modify it
+// *    under the terms of the GNU General Public License as published by
+// *    the Free Software Foundation, either version 3 of the License, or
+// *    (at your option) any later version.
+// *
+// *    Egoboo is distributed in the hope that it will be useful, but
+// *    WITHOUT ANY WARRANTY; without even the implied warranty of
+// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// *    General Public License for more details.
+// *
+// *    You should have received a copy of the GNU General Public License
+// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+// *
+// ********************************************************************************************
 
 /* Egoboo - egoboo_strutil.c
  * String manipulation functions.  Not currently in use.
@@ -23,11 +23,11 @@
 
 #include "egoboo_strutil.h"
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void str_trim( char *pStr )
 {
-    /// @details ZZ> str_trim remove all space and tabs in the beginning and at the _dtor of the string
+    // / @details ZZ> str_trim remove all space and tabs in the beginning and at the _dtor of the string
 
     Sint32 DebPos = 0, EndPos = 0, CurPos = 0;
 
@@ -68,10 +68,10 @@ void str_trim( char *pStr )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 char * str_decode( char *strout, size_t insize, const char * strin )
 {
-    /// @details BB> str_decode converts a string from "storage mode" to an actual string
+    // / @details BB> str_decode converts a string from "storage mode" to an actual string
 
     char *pin = strin, *pout = strout, *plast = pout + insize;
 
@@ -90,10 +90,10 @@ char * str_decode( char *strout, size_t insize, const char * strin )
     return strout;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 char * str_encode( char *strout, size_t insize, const char * strin )
 {
-    /// @details BB> str_encode converts an actual string to "storage mode"
+    // / @details BB> str_encode converts an actual string to "storage mode"
 
     char chrlast = 0;
     char *pin = strin, *pout = strout, *plast = pout + insize;
@@ -142,10 +142,10 @@ char * str_encode( char *strout, size_t insize, const char * strin )
     return strout;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 char * str_convert_slash_net(char * str, size_t size)
 {
-    /// @details BB> converts the slashes in a string to those appropriate for the Net
+    // / @details BB> converts the slashes in a string to those appropriate for the Net
 
     size_t i;
 
@@ -162,10 +162,10 @@ char * str_convert_slash_net(char * str, size_t size)
     return str;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 char * str_convert_slash_sys(char * str, size_t size)
 {
-    /// @details BB> converts the slashes in a string to those appropriate this system
+    // / @details BB> converts the slashes in a string to those appropriate this system
 
     size_t i;
 
@@ -182,10 +182,10 @@ char * str_convert_slash_sys(char * str, size_t size)
     return str;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 char * str_append_slash_net(char * str, size_t size)
 {
-    /// @details BB> appends a network-type slash to a string, if it does not already have one
+    // / @details BB> appends a network-type slash to a string, if it does not already have one
 
     size_t len;
 
@@ -200,10 +200,10 @@ char * str_append_slash_net(char * str, size_t size)
     return str;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 char * str_append_slash(char * str, size_t size)
 {
-    /// @details BB> appends this system's slash to a string, if it does not already have one
+    // / @details BB> appends this system's slash to a string, if it does not already have one
 
     size_t len;
 
@@ -218,10 +218,10 @@ char * str_append_slash(char * str, size_t size)
     return str;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 char * str_encode_path( const char *szName )
 {
-    //ZF> This turns a szName name into a proper filepath for loading and saving files
+    // ZF> This turns a szName name into a proper filepath for loading and saving files
     //    also turns all letter to lower case in case of case sensitive OS.
 
     static STRING szPathname;
@@ -253,7 +253,7 @@ char * str_encode_path( const char *szName )
     return szPathname;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void str_add_linebreaks( const char * text, size_t text_len, size_t line_len )
 {
     char * text_end, * text_break, * text_stt;

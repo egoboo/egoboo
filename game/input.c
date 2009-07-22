@@ -1,21 +1,21 @@
-//********************************************************************************************
-//*
-//*    This file is part of Egoboo.
-//*
-//*    Egoboo is free software: you can redistribute it and/or modify it
-//*    under the terms of the GNU General Public License as published by
-//*    the Free Software Foundation, either version 3 of the License, or
-//*    (at your option) any later version.
-//*
-//*    Egoboo is distributed in the hope that it will be useful, but
-//*    WITHOUT ANY WARRANTY; without even the implied warranty of
-//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//*    General Public License for more details.
-//*
-//*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-//*
-//********************************************************************************************
+// ********************************************************************************************
+// *
+// *    This file is part of Egoboo.
+// *
+// *    Egoboo is free software: you can redistribute it and/or modify it
+// *    under the terms of the GNU General Public License as published by
+// *    the Free Software Foundation, either version 3 of the License, or
+// *    (at your option) any later version.
+// *
+// *    Egoboo is distributed in the hope that it will be useful, but
+// *    WITHOUT ANY WARRANTY; without even the implied warranty of
+// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// *    General Public License for more details.
+// *
+// *    You should have received a copy of the GNU General Public License
+// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+// *
+// ********************************************************************************************
 
 /* Egoboo - input.c
  * Keyboard, mouse, and joystick handling code.
@@ -38,8 +38,10 @@
 #include "egoboo_fileutil.h"
 #include "egoboo.h"
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+#include "SDL_extensions.h"
+
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 Uint32 input_device_count = 0;
 
 int       scantag_count = 0;
@@ -58,8 +60,8 @@ bool_t            cursor_clicked = bfalse;
 bool_t            cursor_pending_click = bfalse;
 bool_t            cursor_wheel_event = bfalse;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 
 static void input_read_mouse();
 static void input_read_keyboard();
@@ -68,8 +70,8 @@ static void input_read_joystick(Uint16 which);
 static void   scantag_reset();
 static bool_t scantag_read_one( FILE *fileread );
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void input_init()
 {
     // BB > initialize the inputs
@@ -111,7 +113,7 @@ void input_init()
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void input_read_mouse()
 {
     int x, y, b;
@@ -135,13 +137,13 @@ void input_read_mouse()
     mous.b = ( mous.button[3] << 3 ) | ( mous.button[2] << 2 ) | ( mous.button[1] << 1 ) | ( mous.button[0] << 0 );
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void input_read_keyboard()
 {
     keyb.state_ptr = SDL_GetKeyState( &keyb.count );
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void input_read_joystick(Uint16 which)
 {
     int dead_zone = 0x8000 / 10;
@@ -186,7 +188,7 @@ void input_read_joystick(Uint16 which)
     return;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void input_read()
 {
     // ZZ> This function gets all the current player input states
@@ -241,8 +243,8 @@ void input_read()
 
                     kmod = SDL_GetModState();
 
-                    is_alt   = ( 0 != (kmod & (KMOD_ALT | KMOD_CTRL) ) );
-                    is_shift = ( 0 != (kmod & KMOD_SHIFT) );
+                    is_alt   = HAS_SOME_BITS( kmod, KMOD_ALT | KMOD_CTRL );
+                    is_shift = HAS_SOME_BITS( kmod, KMOD_SHIFT );
                     if ( console_mode )
                     {
                         if ( !is_alt )
@@ -309,7 +311,7 @@ void input_read()
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 Uint32 input_get_buttonmask( Uint32 idevice )
 {
     Uint32 buttonmask = 0;
@@ -335,16 +337,16 @@ Uint32 input_get_buttonmask( Uint32 idevice )
     return buttonmask;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // Tag Reading---------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void scantag_reset()
 {
     // ZZ> This function resets the tags
     scantag_count = 0;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t scantag_read_one( FILE *fileread )
 {
     // ZZ> This function finds the next tag, returning btrue if it found one
@@ -361,7 +363,7 @@ bool_t scantag_read_one( FILE *fileread )
     return retval;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void scantag_read_all( const char *szFilename )
 {
     // ZZ> This function reads the scancode.txt file
@@ -384,7 +386,7 @@ void scantag_read_all( const char *szFilename )
     parse_filename = "";
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int scantag_get_value( const char *string )
 {
     // ZZ> This function matches the string with its tag, and returns the value...
@@ -408,10 +410,10 @@ int scantag_get_value( const char *string )
     return 255;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 char* scantag_get_string( Sint32 device, Sint32 tag, bool_t is_key )
 {
-    //ZF> This translates a input tag value to a string
+    // ZF> This translates a input tag value to a string
     int cnt;
     if ( device >= INPUT_DEVICE_JOY ) device = INPUT_DEVICE_JOY;
     if ( device == INPUT_DEVICE_KEYBOARD ) is_key = btrue;
@@ -446,7 +448,7 @@ char* scantag_get_string( Sint32 device, Sint32 tag, bool_t is_key )
     return "N/A";
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t control_is_pressed( Uint32 idevice, Uint8 icontrol )
 {
     // ZZ> This function returns btrue if the given icontrol is cursor_pressed...
@@ -475,30 +477,7 @@ bool_t control_is_pressed( Uint32 idevice, Uint8 icontrol )
     return retval;
 }
 
-//--------------------------------------------------------------------------------------------
-void reset_players()
-{
-    // ZZ> This function clears the player list data
-    int cnt;
-
-    // Reset the local data stuff
-    local_seekurse     = bfalse;
-    local_senseenemies = MAX_CHR;
-    local_seeinvisible = bfalse;
-    local_allpladead    = bfalse;
-
-    // Reset the initial player data and latches
-    for ( cnt = 0; cnt < MAXPLAYER; cnt++ )
-    {
-        memset( PlaList + cnt, 0, sizeof(player_t) );
-    }
-    numpla        = 0;
-
-    nexttimestamp = ((Uint32)~0);
-    numplatimes   = 0;
-}
-
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void cursor_reset()
 {
     cursor_pressed       = bfalse;

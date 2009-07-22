@@ -1,31 +1,31 @@
-//********************************************************************************************
-//*
-//*    This file is part of Egoboo.
-//*
-//*    Egoboo is free software: you can redistribute it and/or modify it
-//*    under the terms of the GNU General Public License as published by
-//*    the Free Software Foundation, either version 3 of the License, or
-//*    (at your option) any later version.
-//*
-//*    Egoboo is distributed in the hope that it will be useful, but
-//*    WITHOUT ANY WARRANTY; without even the implied warranty of
-//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//*    General Public License for more details.
-//*
-//*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-//*
-//********************************************************************************************
+// ********************************************************************************************
+// *
+// *    This file is part of Egoboo.
+// *
+// *    Egoboo is free software: you can redistribute it and/or modify it
+// *    under the terms of the GNU General Public License as published by
+// *    the Free Software Foundation, either version 3 of the License, or
+// *    (at your option) any later version.
+// *
+// *    Egoboo is distributed in the hope that it will be useful, but
+// *    WITHOUT ANY WARRANTY; without even the implied warranty of
+// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// *    General Public License for more details.
+// *
+// *    You should have received a copy of the GNU General Public License
+// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+// *
+// ********************************************************************************************
 
 #include "Md2.h"
-#include "log.h"                //For error logging
+#include "log.h"                // For error logging
 #include "mad.h"
 
 #include "egoboo.h"
 #include "egoboo_endian.h"
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 
 static int  md2_rip_header();
 static void md2_rip_commands( md2_ogl_commandlist_t * pclist );
@@ -35,8 +35,8 @@ md2_frame_t Md2FrameList[MAXFRAME];
 
 static Uint8 cLoadBuffer[MD2MAXLOADSIZE];// Where to put an MD2
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 float kMd2Normals[][3] =
 {
 #include "id_normals.inl"
@@ -48,8 +48,8 @@ float kMd2Normals[][3] =
 // is why I have to include it here at the moment.
 struct Md2Model *md2_models[MAX_PROFILE];
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void md2_freeModel( Md2Model *model )
 {
     if ( model != NULL )
@@ -73,13 +73,13 @@ void md2_freeModel( Md2Model *model )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 Md2Model* md2_loadFromFile( const char *filename )
 {
     return NULL;
 }
 
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 int md2_rip_header()
 {
     // ZZ> This function makes sure an md2 is really an md2
@@ -95,7 +95,7 @@ int md2_rip_header()
     return btrue;
 }
 
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 void md2_rip_commands( md2_ogl_commandlist_t * pclist )
 {
     // ZZ> This function converts an md2's GL commands into our little command list thing
@@ -199,7 +199,7 @@ void md2_rip_commands( md2_ogl_commandlist_t * pclist )
     pclist->count   = MIN(MAXCOMMAND, iCommandCount);
 }
 
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 int md2_rip_frame_name( int frame )
 {
     // ZZ> This function gets frame names from the load buffer, it returns
@@ -248,7 +248,7 @@ int md2_rip_frame_name( int frame )
     return foundname;
 }
 
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 void md2_rip_frames( ego_md2_t * pmd2 )
 {
     // ZZ> This function gets frames from the load buffer and adds them to
@@ -319,7 +319,7 @@ void md2_rip_frames( ego_md2_t * pmd2 )
     }
 }
 
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 int md2_load_one( const char* szLoadname, ego_md2_t * pmd2 )
 {
     // ZZ> This function loads an id md2 file, storing the converted data in the indexed model

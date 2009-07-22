@@ -1,19 +1,19 @@
 
-/// @file
-/// @brief Egoboo OpenGL interface
-/// @details Implements the most basic code that Egoboo uses to interface with OpenGL
+// / @file
+// / @brief Egoboo OpenGL interface
+// / @details Implements the most basic code that Egoboo uses to interface with OpenGL
 
 #include "ogl_include.h"
 #include "ogl_debug.h"
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 #define LOCAL_STDERR ((NULL == _ogl_include_stderr) ? stderr : _ogl_include_stderr)
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 static FILE * _ogl_include_stderr = NULL;
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 GLboolean handle_opengl_error()
 {
     GLboolean error = GL_TRUE;
@@ -34,7 +34,7 @@ GLboolean handle_opengl_error()
     return error;
 };
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // MN This probably should be replaced by a call to gluLookAt, don't see why we need to make our own...
 void oglx_ViewMatrix( GLXmatrix view,
                       const GLXvector3f from,     // camera location
@@ -52,8 +52,8 @@ void oglx_ViewMatrix( GLXmatrix view,
 
         if ( roll > .001 )
         {
-            //GLXmatrix stupid_intermediate_matrix = RotateZ( roll );
-            //GL_DEBUG(glMultMatrixf)(stupid_intermediate_matrix );
+            // GLXmatrix stupid_intermediate_matrix = RotateZ( roll );
+            // GL_DEBUG(glMultMatrixf)(stupid_intermediate_matrix );
         }
 
         gluLookAt( from[0], from[1], from[2], at[0], at[1], at[2], world_up[0], world_up[1], world_up[2] );
@@ -65,7 +65,7 @@ void oglx_ViewMatrix( GLXmatrix view,
     ATTRIB_POP( "ViewMatrix" );
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void oglx_ProjectionMatrix( GLXmatrix proj,
                             const GLfloat near_plane,    // distance to near clipping plane
                             const GLfloat far_plane,      // distance to far clipping plane
@@ -75,7 +75,7 @@ void oglx_ProjectionMatrix( GLXmatrix proj,
     {
         GLint viewport[ 4 ];
 
-        //use OpenGl to create our projection matrix
+        // use OpenGl to create our projection matrix
         GL_DEBUG(glGetIntegerv)(GL_VIEWPORT, viewport );
 
         GL_DEBUG(glMatrixMode)(GL_PROJECTION );
@@ -88,8 +88,8 @@ void oglx_ProjectionMatrix( GLXmatrix proj,
     ATTRIB_POP( "ProjectionMatrix" );
 }
 
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 FILE * set_ogl_include_stderr(FILE * pfile)
 {
     FILE * pfile_old = _ogl_include_stderr;

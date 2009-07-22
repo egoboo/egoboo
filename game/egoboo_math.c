@@ -1,21 +1,21 @@
-//********************************************************************************************
-//*
-//*    This file is part of Egoboo.
-//*
-//*    Egoboo is free software: you can redistribute it and/or modify it
-//*    under the terms of the GNU General Public License as published by
-//*    the Free Software Foundation, either version 3 of the License, or
-//*    (at your option) any later version.
-//*
-//*    Egoboo is distributed in the hope that it will be useful, but
-//*    WITHOUT ANY WARRANTY; without even the implied warranty of
-//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//*    General Public License for more details.
-//*
-//*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-//*
-//********************************************************************************************
+// ********************************************************************************************
+// *
+// *    This file is part of Egoboo.
+// *
+// *    Egoboo is free software: you can redistribute it and/or modify it
+// *    under the terms of the GNU General Public License as published by
+// *    the Free Software Foundation, either version 3 of the License, or
+// *    (at your option) any later version.
+// *
+// *    Egoboo is distributed in the hope that it will be useful, but
+// *    WITHOUT ANY WARRANTY; without even the implied warranty of
+// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// *    General Public License for more details.
+// *
+// *    You should have received a copy of the GNU General Public License
+// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+// *
+// ********************************************************************************************
 
 /* Egoboo - mathstuff.c
  * The name's pretty self explanatory, doncha think?
@@ -26,12 +26,12 @@
 #include <assert.h>
 #include <float.h>
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 float turntosin[TRIG_TABLE_SIZE];           // Convert chrturn>>2...  to sine
 float turntocos[TRIG_TABLE_SIZE];           // Convert chrturn>>2...  to cosine
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void make_turntosin( void )
 {
     // ZZ> This function makes the lookup table for chrturn...
@@ -45,8 +45,8 @@ void make_turntosin( void )
     }
 }
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // FAKE D3D FUNCTIONS
 GLvector3 VSub( GLvector3 A, GLvector3 B )
 {
@@ -98,9 +98,9 @@ float VDotProduct( GLvector3 A, GLvector3 B )
     return A.x*B.x + A.y*B.y + A.z*B.z;
 }
 
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 // Math Stuff-----------------------------------------------------------------------------------
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 // inline D3DMATRIX IdentityMatrix()
 GLmatrix IdentityMatrix()
 {
@@ -113,7 +113,7 @@ GLmatrix IdentityMatrix()
     return( tmp );
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // inline D3DMATRIX ZeroMatrix(void)  // initializes matrix to zero
 GLmatrix ZeroMatrix( void )
 {
@@ -131,7 +131,7 @@ GLmatrix ZeroMatrix( void )
     return ret;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // inline D3DMATRIX MatrixMult(const D3DMATRIX a, const D3DMATRIX b)
 GLmatrix MatrixMult( const GLmatrix a, const GLmatrix b )
 {
@@ -152,7 +152,7 @@ GLmatrix MatrixMult( const GLmatrix a, const GLmatrix b )
     return ret;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // D3DMATRIX Translate(const float dx, const float dy, const float dz)
 GLmatrix Translate( const float dx, const float dy, const float dz )
 {
@@ -165,7 +165,7 @@ GLmatrix Translate( const float dx, const float dy, const float dz )
     return ret;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // D3DMATRIX RotateX(const float rads)
 GLmatrix RotateX( const float rads )
 {
@@ -182,7 +182,7 @@ GLmatrix RotateX( const float rads )
     return ret;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // D3DMATRIX RotateY(const float rads)
 GLmatrix RotateY( const float rads )
 {
@@ -191,15 +191,15 @@ GLmatrix RotateY( const float rads )
 
     GLmatrix ret = IdentityMatrix();
 
-    ret.CNV( 0, 0 ) = cosine; //0,0
-    ret.CNV( 2, 2 ) = cosine; //2,2
-    ret.CNV( 0, 2 ) = sine; //0,2
-    ret.CNV( 2, 0 ) = -sine; //2,0
+    ret.CNV( 0, 0 ) = cosine; // 0,0
+    ret.CNV( 2, 2 ) = cosine; // 2,2
+    ret.CNV( 0, 2 ) = sine; // 0,2
+    ret.CNV( 2, 0 ) = -sine; // 2,0
 
     return ret;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // D3DMATRIX RotateZ(const float rads)
 GLmatrix RotateZ( const float rads )
 {
@@ -208,28 +208,28 @@ GLmatrix RotateZ( const float rads )
 
     GLmatrix ret = IdentityMatrix();
 
-    ret.CNV( 0, 0 ) = cosine; //0,0
-    ret.CNV( 1, 1 ) = cosine; //1,1
-    ret.CNV( 0, 1 ) = -sine; //0,1
-    ret.CNV( 1, 0 ) = sine; //1,0
+    ret.CNV( 0, 0 ) = cosine; // 0,0
+    ret.CNV( 1, 1 ) = cosine; // 1,1
+    ret.CNV( 0, 1 ) = -sine; // 0,1
+    ret.CNV( 1, 0 ) = sine; // 1,0
 
     return ret;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // D3DMATRIX ScaleXYZ(const float sizex, const float sizey, const float sizez)
 GLmatrix ScaleXYZ( const float sizex, const float sizey, const float sizez )
 {
     GLmatrix ret = IdentityMatrix();
 
-    ret.CNV( 0, 0 ) = sizex; //0,0
-    ret.CNV( 1, 1 ) = sizey; //1,1
-    ret.CNV( 2, 2 ) = sizez; //2,2
+    ret.CNV( 0, 0 ) = sizex; // 0,0
+    ret.CNV( 1, 1 ) = sizey; // 1,1
+    ret.CNV( 2, 2 ) = sizez; // 2,2
 
     return ret;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 /*D3DMATRIX ScaleXYZRotateXYZTranslate(const float sizex, const float sizey, const float sizez,
    Uint16 turnz, Uint16 turnx, Uint16 turny,
    float tx, float ty, float tz)*/
@@ -249,30 +249,30 @@ GLmatrix ScaleXYZRotateXYZTranslate( const float sizex, const float sizey, const
 
     GLmatrix ret;
 
-    ret.CNV( 0, 0 ) = sizex * ( cy * cz ); //0,0
-    ret.CNV( 0, 1 ) = sizex * ( sxsy * cz + cx * sz );  //0,1
-    ret.CNV( 0, 2 ) = sizex * ( -cxsy * cz + sx * sz );  //0,2
-    ret.CNV( 0, 3 ) = 0;       //0,3
+    ret.CNV( 0, 0 ) = sizex * ( cy * cz ); // 0,0
+    ret.CNV( 0, 1 ) = sizex * ( sxsy * cz + cx * sz );  // 0,1
+    ret.CNV( 0, 2 ) = sizex * ( -cxsy * cz + sx * sz );  // 0,2
+    ret.CNV( 0, 3 ) = 0;       // 0,3
 
-    ret.CNV( 1, 0 ) = sizey * ( -cy * sz ); //1,0
-    ret.CNV( 1, 1 ) = sizey * ( -sxsy * sz + cx * cz );  //1,1
-    ret.CNV( 1, 2 ) = sizey * ( cxsy * sz + sx * cz );  //1,2
-    ret.CNV( 1, 3 ) = 0;       //1,3
+    ret.CNV( 1, 0 ) = sizey * ( -cy * sz ); // 1,0
+    ret.CNV( 1, 1 ) = sizey * ( -sxsy * sz + cx * cz );  // 1,1
+    ret.CNV( 1, 2 ) = sizey * ( cxsy * sz + sx * cz );  // 1,2
+    ret.CNV( 1, 3 ) = 0;       // 1,3
 
-    ret.CNV( 2, 0 ) = sizez * ( sy );  //2,0
-    ret.CNV( 2, 1 ) = sizez * ( -sxcy );   //2,1
-    ret.CNV( 2, 2 ) = sizez * ( cxcy );   //2,2
-    ret.CNV( 2, 3 ) = 0;       //2,3
+    ret.CNV( 2, 0 ) = sizez * ( sy );  // 2,0
+    ret.CNV( 2, 1 ) = sizez * ( -sxcy );   // 2,1
+    ret.CNV( 2, 2 ) = sizez * ( cxcy );   // 2,2
+    ret.CNV( 2, 3 ) = 0;       // 2,3
 
-    ret.CNV( 3, 0 ) = tx;       //3,0
-    ret.CNV( 3, 1 ) = ty;       //3,1
-    ret.CNV( 3, 2 ) = tz;       //3,2
-    ret.CNV( 3, 3 ) = 1;       //3,3
+    ret.CNV( 3, 0 ) = tx;       // 3,0
+    ret.CNV( 3, 1 ) = ty;       // 3,1
+    ret.CNV( 3, 2 ) = tz;       // 3,2
+    ret.CNV( 3, 3 ) = 1;       // 3,3
 
     return ret;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // D3DMATRIX FourPoints(float orix, float oriy, float oriz,
 GLmatrix FourPoints( float orix, float oriy, float oriz,
                      float widx, float widy, float widz,
@@ -297,7 +297,7 @@ GLmatrix FourPoints( float orix, float oriy, float oriz,
     vFor.z = forz - oriz;
 
     // assume that the length of the grip edges if 16
-    //scale *= 0.0f;
+    // scale *= 0.0f;
     vWid = VNormalize(vWid);
     vUp  = VNormalize(vUp );
     vFor = VNormalize(vFor);
@@ -325,7 +325,7 @@ GLmatrix FourPoints( float orix, float oriy, float oriz,
     return( tmp );
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // MN This probably should be replaced by a call to gluLookAt, don't see why we need to make our own...
 //
 // inline D3DMATRIX ViewMatrix(const D3DVECTOR from,      // camera location
@@ -345,18 +345,18 @@ GLmatrix ViewMatrix( const GLvector3 from,     // camera location
     right    = VNormalize( right );
     up       = VNormalize( up );
 
-    view.CNV( 0, 0 ) = right.x;       //0,0
-    view.CNV( 1, 0 ) = right.y;       //1,0
-    view.CNV( 2, 0 ) = right.z;       //2,0
-    view.CNV( 0, 1 ) = up.x;         //0,1
-    view.CNV( 1, 1 ) = up.y;         //1,1
-    view.CNV( 2, 1 ) = up.z;         //2,1
-    view.CNV( 0, 2 ) = view_dir.x;       //0,2
-    view.CNV( 1, 2 ) = view_dir.y;       //1,2
-    view.CNV( 2, 2 ) = view_dir.z;     //2,2
-    view.CNV( 3, 0 ) = -VDotProduct( right, from );   //3,0
-    view.CNV( 3, 1 ) = -VDotProduct( up, from );     //3,1
-    view.CNV( 3, 2 ) = -VDotProduct( view_dir, from ); //3,2
+    view.CNV( 0, 0 ) = right.x;       // 0,0
+    view.CNV( 1, 0 ) = right.y;       // 1,0
+    view.CNV( 2, 0 ) = right.z;       // 2,0
+    view.CNV( 0, 1 ) = up.x;         // 0,1
+    view.CNV( 1, 1 ) = up.y;         // 1,1
+    view.CNV( 2, 1 ) = up.z;         // 2,1
+    view.CNV( 0, 2 ) = view_dir.x;       // 0,2
+    view.CNV( 1, 2 ) = view_dir.y;       // 1,2
+    view.CNV( 2, 2 ) = view_dir.z;     // 2,2
+    view.CNV( 3, 0 ) = -VDotProduct( right, from );   // 3,0
+    view.CNV( 3, 1 ) = -VDotProduct( up, from );     // 3,1
+    view.CNV( 3, 2 ) = -VDotProduct( view_dir, from ); // 3,2
 
     if ( roll != 0.0f )
     {
@@ -367,7 +367,7 @@ GLmatrix ViewMatrix( const GLvector3 from,     // camera location
     return view;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // MN Again, there is a gl function for this, glFrustum or gluPerspective... does this account for viewport ratio?
 //
 // inline D3DMATRIX ProjectionMatrix(const float near_plane,     // distance to near clipping plane
@@ -381,16 +381,16 @@ GLmatrix ProjectionMatrix( const float near_plane,    // distance to near clippi
 
     GLmatrix ret = ZeroMatrix();
 
-    ret.CNV( 0, 0 ) = c;         //0,0
-    ret.CNV( 1, 1 ) = c;         //1,1
-    ret.CNV( 2, 2 ) = Q;         //2,2
-    ret.CNV( 3, 2 ) = -Q * near_plane; //3,2
-    ret.CNV( 2, 3 ) = s;         //2,3
+    ret.CNV( 0, 0 ) = c;         // 0,0
+    ret.CNV( 1, 1 ) = c;         // 1,1
+    ret.CNV( 2, 2 ) = Q;         // 2,2
+    ret.CNV( 3, 2 ) = -Q * near_plane; // 3,2
+    ret.CNV( 2, 3 ) = s;         // 2,3
 
     return ret;
 }
 
-//----------------------------------------------------
+// ----------------------------------------------------
 // GS - Normally we souldn't this function but I found it in the rendering of the particules.
 //
 // This is just a MulVectorMatrix for now. The W division and screen size multiplication
@@ -441,7 +441,7 @@ void  TransformVertices( GLmatrix *pMatrix, GLvector4 *pSourceV, GLvector4 *pDes
     }
 }
 
-//----------------------------------------------------
+// ----------------------------------------------------
 GLvector3 mat_getTranslate(GLmatrix mat)
 {
     GLvector3 pos;
@@ -453,7 +453,7 @@ GLvector3 mat_getTranslate(GLmatrix mat)
     return pos;
 };
 
-//----------------------------------------------------
+// ----------------------------------------------------
 GLvector3 mat_getChrUp(GLmatrix mat)
 {
     GLvector3 up;
@@ -466,7 +466,7 @@ GLvector3 mat_getChrUp(GLmatrix mat)
     return up;
 };
 
-//----------------------------------------------------
+// ----------------------------------------------------
 GLvector3 mat_getChrRight(GLmatrix mat)
 {
     GLvector3 right;
@@ -479,7 +479,7 @@ GLvector3 mat_getChrRight(GLmatrix mat)
     return right;
 };
 
-//----------------------------------------------------
+// ----------------------------------------------------
 GLvector3 mat_getChrForward(GLmatrix mat)
 {
     GLvector3 frw;
@@ -492,7 +492,7 @@ GLvector3 mat_getChrForward(GLmatrix mat)
     return frw;
 };
 
-//----------------------------------------------------
+// ----------------------------------------------------
 GLvector3 mat_getCamUp(GLmatrix mat)
 {
     GLvector3 up;
@@ -505,7 +505,7 @@ GLvector3 mat_getCamUp(GLmatrix mat)
     return up;
 };
 
-//----------------------------------------------------
+// ----------------------------------------------------
 GLvector3 mat_getCamRight(GLmatrix mat)
 {
     GLvector3 right;
@@ -518,7 +518,7 @@ GLvector3 mat_getCamRight(GLmatrix mat)
     return right;
 };
 
-//----------------------------------------------------
+// ----------------------------------------------------
 GLvector3 mat_getCamForward(GLmatrix mat)
 {
     GLvector3 frw;

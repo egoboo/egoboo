@@ -1,21 +1,21 @@
-//********************************************************************************************
-//*
-//*    This file is part of Egoboo.
-//*
-//*    Egoboo is free software: you can redistribute it and/or modify it
-//*    under the terms of the GNU General Public License as published by
-//*    the Free Software Foundation, either version 3 of the License, or
-//*    (at your option) any later version.
-//*
-//*    Egoboo is distributed in the hope that it will be useful, but
-//*    WITHOUT ANY WARRANTY; without even the implied warranty of
-//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//*    General Public License for more details.
-//*
-//*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-//*
-//********************************************************************************************
+// ********************************************************************************************
+// *
+// *    This file is part of Egoboo.
+// *
+// *    Egoboo is free software: you can redistribute it and/or modify it
+// *    under the terms of the GNU General Public License as published by
+// *    the Free Software Foundation, either version 3 of the License, or
+// *    (at your option) any later version.
+// *
+// *    Egoboo is distributed in the hope that it will be useful, but
+// *    WITHOUT ANY WARRANTY; without even the implied warranty of
+// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// *    General Public License for more details.
+// *
+// *    You should have received a copy of the GNU General Public License
+// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+// *
+// ********************************************************************************************
 
 /* Egoboo - graphic_mad.c
  * Character model drawing code.
@@ -36,13 +36,13 @@
 
 #include <SDL_opengl.h>
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 static void chr_instance_update( Uint16 character, Uint8 trans, bool_t do_lighting );
 static void chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 trans, bool_t do_lighting );
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 
 /* Storage for blended vertices */
 static GLfloat md2_blendedVertices[MD2_MAX_VERTICES][3];
@@ -113,7 +113,7 @@ static void blend_md2_vertices( const Md2Model *model, int from_, int to_, float
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 /* draw_textured_md2
  * Draws a Md2Model in the new format
  */
@@ -161,7 +161,7 @@ void draw_textured_md2( const Md2Model *model, int from_, int to_, float lerp )
     GL_DEBUG(glDisableClientState)(GL_NORMAL_ARRAY );
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void render_one_mad_enviro( Uint16 character, Uint8 trans )
 {
     // ZZ> This function draws an environment mapped model
@@ -312,7 +312,7 @@ else
 }
 */
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void render_one_mad_tex( Uint16 character, Uint8 trans )
 {
     // ZZ> This function draws a model
@@ -428,7 +428,7 @@ void render_one_mad_tex( Uint16 character, Uint8 trans )
     }
 */
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void render_one_mad( Uint16 character, Uint8 trans )
 {
     // ZZ> This function picks the actual function to use
@@ -450,14 +450,14 @@ void render_one_mad( Uint16 character, Uint8 trans )
     }
 
     // draw the object bounding box as a part of the graphics debug mode F7
-    if( cfg.dev_mode && SDLKEYDOWN( SDLK_F7 ) )
+    if ( cfg.dev_mode && SDLKEYDOWN( SDLK_F7 ) )
     {
         GL_DEBUG(glDisable)( GL_TEXTURE_2D );
         {
             int cnt;
             aabb_t bb;
 
-            for( cnt = 0; cnt < 3; cnt++ )
+            for ( cnt = 0; cnt < 3; cnt++ )
             {
                 bb.mins[cnt] = bb.maxs[cnt] = pchr->pos.v[cnt];
             }
@@ -469,14 +469,14 @@ void render_one_mad( Uint16 character, Uint8 trans )
             bb.maxs[YY] += pchr->bumpsize;
             bb.maxs[ZZ] += pchr->bumpheight;
 
-            GL_DEBUG(glColor4f)(1,1,1,1);
+            GL_DEBUG(glColor4f)(1, 1, 1, 1);
             bbox_gl_draw( &bb );
         }
         GL_DEBUG(glEnable)( GL_TEXTURE_2D );
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void render_one_mad_ref( int tnc, Uint8 trans )
 {
     // ZZ> This function draws characters reflected in the floor
@@ -541,8 +541,8 @@ void render_one_mad_ref( int tnc, Uint8 trans )
 
 }
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void chr_instance_update( Uint16 character, Uint8 trans, bool_t do_lighting )
 {
     chr_t * pchr;
@@ -559,7 +559,7 @@ void chr_instance_update( Uint16 character, Uint8 trans, bool_t do_lighting )
     chr_instance_update_lighting( pinst, pchr, trans, do_lighting );
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 trans, bool_t do_lighting )
 {
     Uint16 cnt;
@@ -632,17 +632,17 @@ void chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 t
             // this is the "ambient only" index, but it really means to sum up all the light
             GLfloat tnrm[3];
             tnrm[0] = tnrm[1] = tnrm[2] = 1.0f;
-            lite  = evaluate_mesh_lighting( PMesh, &loc_light, tnrm, hgt );
+            lite  = evaluate_lighting_cache( &loc_light, tnrm, hgt, PMesh->mmem.bbox );
 
             tnrm[0] = tnrm[1] = tnrm[2] = -1.0f;
-            lite += evaluate_mesh_lighting( PMesh, &loc_light, tnrm, hgt );
+            lite += evaluate_lighting_cache( &loc_light, tnrm, hgt, PMesh->mmem.bbox );
 
             // average all the directions
             lite /= 6;
         }
         else
         {
-            lite = evaluate_mesh_lighting( PMesh, &loc_light, pinst->vlst[cnt].nrm, hgt );
+            lite  = evaluate_lighting_cache( &loc_light, pinst->vlst[cnt].nrm, hgt, PMesh->mmem.bbox );
         }
 
         pinst->vlst[cnt].color_dir = 0.9f * pinst->vlst[cnt].color_dir + 0.1f * lite;
@@ -682,7 +682,7 @@ void chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 t
 
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vmax )
 {
     int    i;

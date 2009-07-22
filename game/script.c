@@ -1,21 +1,21 @@
-//********************************************************************************************
-//*
-//*    This file is part of Egoboo.
-//*
-//*    Egoboo is free software: you can redistribute it and/or modify it
-//*    under the terms of the GNU General Public License as published by
-//*    the Free Software Foundation, either version 3 of the License, or
-//*    (at your option) any later version.
-//*
-//*    Egoboo is distributed in the hope that it will be useful, but
-//*    WITHOUT ANY WARRANTY; without even the implied warranty of
-//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//*    General Public License for more details.
-//*
-//*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-//*
-//********************************************************************************************
+// ********************************************************************************************
+// *
+// *    This file is part of Egoboo.
+// *
+// *    Egoboo is free software: you can redistribute it and/or modify it
+// *    under the terms of the GNU General Public License as published by
+// *    the Free Software Foundation, either version 3 of the License, or
+// *    (at your option) any later version.
+// *
+// *    Egoboo is distributed in the hope that it will be useful, but
+// *    WITHOUT ANY WARRANTY; without even the implied warranty of
+// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// *    General Public License for more details.
+// *
+// *    You should have received a copy of the GNU General Public License
+// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+// *
+// ********************************************************************************************
 
 /* Egoboo - script.c
 * Implements the game's scripting language.
@@ -31,12 +31,14 @@
 #include "mad.h"
 #include "game.h"
 
-#include <assert.h>
-
 #include "egoboo_setup.h"
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+#include "SDL_extensions.h"
+
+#include <assert.h>
+
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 
 static char * script_error_classname = "UNKNOWN";
 static Uint16 script_error_model     = (Uint16)(~0);
@@ -46,7 +48,7 @@ static Uint16 script_error_index     = (Uint16)(~0);
 static bool_t script_increment_exe( ai_state_t * pself );
 static bool_t script_set_exe( ai_state_t * pself, size_t offset );
 
-//static Uint8 run_function_obsolete( script_state_t * pstate, ai_state_t * pself );
+// static Uint8 run_function_obsolete( script_state_t * pstate, ai_state_t * pself );
 static Uint8 run_function( script_state_t * pstate, ai_state_t * pself );
 static void  set_operand( script_state_t * pstate, Uint8 variable );
 static void  run_operand( script_state_t * pstate, ai_state_t * pself );
@@ -54,8 +56,8 @@ static void  run_operand( script_state_t * pstate, ai_state_t * pself );
 static bool_t run_operation( script_state_t * pstate, ai_state_t * pself );
 static bool_t run_function_call( script_state_t * pstate, ai_state_t * pself );
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void let_character_think( Uint16 character )
 {
     // ZZ> This function lets one character do AI stuff
@@ -73,10 +75,10 @@ void let_character_think( Uint16 character )
 
     // characters that are not "alive" should have greatly limited access to scripting...
     // in the past it was completely turned off
-    //if ( !pchr->alive ) return;
+    // if ( !pchr->alive ) return;
 
     // debug a certain script
-    //debug_scripts = ( pself->index == 385 && ChrList[pself->index].model == 76 );
+    // debug_scripts = ( pself->index == 385 && ChrList[pself->index].model == 76 );
 
     // target_old is set to the target every time the script is run
     pself->target_old = pself->target;
@@ -170,7 +172,7 @@ void let_character_think( Uint16 character )
         pself->indent = GET_DATA_BITS( pself->opcode );
 
         // Was it a function
-        if ( 0 != ( pself->opcode & FUNCTION_BIT ) )
+        if ( HAS_SOME_BITS( pself->opcode, FUNCTION_BIT ) )
         {
             if ( !run_function_call( &my_state, pself ) )
             {
@@ -227,7 +229,7 @@ void let_character_think( Uint16 character )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void set_alerts( Uint16 character )
 {
     // ZZ> This function polls some alert conditions
@@ -262,7 +264,7 @@ void set_alerts( Uint16 character )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void issue_order( Uint16 character, Uint32 value )
 {
     // ZZ> This function issues an value for help to all teammates
@@ -281,7 +283,7 @@ void issue_order( Uint16 character, Uint32 value )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void issue_special_order( Uint32 value, IDSZ idsz )
 {
     // ZZ> This function issues an order to all characters with the a matching special IDSZ
@@ -304,8 +306,8 @@ void issue_special_order( Uint32 value, IDSZ idsz )
     }
 }
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t script_increment_exe( ai_state_t * pself )
 {
     if ( NULL == pself ) return bfalse;
@@ -317,7 +319,7 @@ bool_t script_increment_exe( ai_state_t * pself )
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t script_set_exe( ai_state_t * pself, size_t offset )
 {
     if ( NULL == pself ) return bfalse;
@@ -329,7 +331,7 @@ bool_t script_set_exe( ai_state_t * pself, size_t offset )
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t run_function_call( script_state_t * pstate, ai_state_t * pself )
 {
     Uint8  functionreturn;
@@ -365,7 +367,7 @@ bool_t run_function_call( script_state_t * pstate, ai_state_t * pself )
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t run_operation( script_state_t * pstate, ai_state_t * pself )
 {
     char * variable;
@@ -425,7 +427,7 @@ bool_t run_operation( script_state_t * pstate, ai_state_t * pself )
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
 {
     // BB> This is about half-way to what is needed for Lua integration
@@ -797,9 +799,9 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
         case FDAZETARGET: returncode = scr_DazeTarget( pstate, pself ); break;
         case FENABLERESPAWN: returncode = scr_EnableRespawn( pstate, pself ); break;
         case FDISABLERESPAWN: returncode = scr_DisableRespawn( pstate, pself ); break;
-		case FDISPELTARGETENCHANTID: returncode = scr_DispelTargetEnchantID( pstate, pself ); break;
-		case FIFHOLDERBLOCKED: returncode = scr_HolderBlocked( pstate, pself ); break;
-            //case FGETSKILLLEVEL: returncode = scr_get_SkillLevel( pstate, pself ); break;
+        case FDISPELTARGETENCHANTID: returncode = scr_DispelTargetEnchantID( pstate, pself ); break;
+        case FIFHOLDERBLOCKED: returncode = scr_HolderBlocked( pstate, pself ); break;
+            // case FGETSKILLLEVEL: returncode = scr_get_SkillLevel( pstate, pself ); break;
         case FIFTARGETHASNOTFULLMANA: returncode = scr_TargetHasNotFullMana( pstate, pself ); break;
         case FENABLELISTENSKILL: returncode = scr_EnableListenSkill( pstate, pself ); break;
         case FSETTARGETTOLASTITEMUSED: returncode = scr_set_TargetToLastItemUsed( pstate, pself ); break;
@@ -846,7 +848,7 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
 
     return returncode;
 }
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void set_operand( script_state_t * pstate, Uint8 variable )
 {
     // ZZ> This function sets one of the tmp* values for scripted AI
@@ -878,7 +880,7 @@ void set_operand( script_state_t * pstate, Uint8 variable )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void run_operand( script_state_t * pstate, ai_state_t * pself )
 {
     // ZZ> This function does the scripted arithmetic in OPERATOR, OPERAND pairs
@@ -895,7 +897,7 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
     iTmp      = 0;
     varname   = buffer;
     operation = GET_DATA_BITS( pself->opcode );
-    if ( 0 != (pself->opcode & FUNCTION_BIT) )
+    if ( HAS_SOME_BITS( pself->opcode, FUNCTION_BIT ) )
     {
         // Get the working opcode from a constant, constants are all but high 5 bits
         iTmp = pself->opcode & VALUE_BITS;

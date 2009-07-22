@@ -1,23 +1,23 @@
 #pragma once
 
-//********************************************************************************************
-//*
-//*    This file is part of Egoboo.
-//*
-//*    Egoboo is free software: you can redistribute it and/or modify it
-//*    under the terms of the GNU General Public License as published by
-//*    the Free Software Foundation, either version 3 of the License, or
-//*    (at your option) any later version.
-//*
-//*    Egoboo is distributed in the hope that it will be useful, but
-//*    WITHOUT ANY WARRANTY; without even the implied warranty of
-//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//*    General Public License for more details.
-//*
-//*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-//*
-//********************************************************************************************
+// ********************************************************************************************
+// *
+// *    This file is part of Egoboo.
+// *
+// *    Egoboo is free software: you can redistribute it and/or modify it
+// *    under the terms of the GNU General Public License as published by
+// *    the Free Software Foundation, either version 3 of the License, or
+// *    (at your option) any later version.
+// *
+// *    Egoboo is distributed in the hope that it will be useful, but
+// *    WITHOUT ANY WARRANTY; without even the implied warranty of
+// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// *    General Public License for more details.
+// *
+// *    You should have received a copy of the GNU General Public License
+// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+// *
+// ********************************************************************************************
 
 #include "egoboo_typedef.h"
 
@@ -32,10 +32,10 @@
 #define   MOVE_CHARGE  111
 #define   MOVE_FOLLOW  0
 
-//AI targeting
-#define NEARBY      3*TILE_SIZE    //3 tiles away
-#define WIDE        6*TILE_SIZE    //6 tiles away
-#define NEAREST     0              //unlimited range
+// AI targeting
+#define NEARBY      3*TILE_SIZE    // 3 tiles away
+#define WIDE        6*TILE_SIZE    // 6 tiles away
+#define NEAREST     0              // unlimited range
 
 // Character AI alerts
 #define ALERTIF_SPAWNED                      ( 1 <<  0 )
@@ -71,8 +71,8 @@
 #define ALERTIF_NOTPUTAWAY                   ( 1 << 30 )
 #define ALERTIF_TAKENOUT                     ( 1 << 31 )
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // AI variables
 #define MAXWAY              8                       // Waypoints
 #define WAYTHRESH           64                      // Threshold for reaching waypoint
@@ -119,7 +119,7 @@ struct s_ai_state
     Uint16         directionlast;   // Direction of last attack/healing
     Uint16         damagetypelast;  // Last damage type
     Uint16         lastitemused;    // The last item the character used
-    Uint16         target_old;		// Target in the previous update
+    Uint16         target_old;      // Target in the previous update
 
     // message handling
     Uint32         order_value;           // The last order given the character
@@ -133,8 +133,8 @@ struct s_ai_state
 };
 typedef struct s_ai_state ai_state_t;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 struct s_script_state
 {
     int     x;
@@ -146,9 +146,9 @@ struct s_script_state
 };
 typedef struct s_script_state script_state_t;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-//Prototypes
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// Prototypes
 void  let_character_think( Uint16 character );
 
 void issue_order( Uint16 character, Uint32 order );

@@ -1,26 +1,26 @@
-//********************************************************************************************
-//*
-//*    This file is part of Egoboo.
-//*
-//*    Egoboo is free software: you can redistribute it and/or modify it
-//*    under the terms of the GNU General Public License as published by
-//*    the Free Software Foundation, either version 3 of the License, or
-//*    (at your option) any later version.
-//*
-//*    Egoboo is distributed in the hope that it will be useful, but
-//*    WITHOUT ANY WARRANTY; without even the implied warranty of
-//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//*    General Public License for more details.
-//*
-//*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
-//*
-//********************************************************************************************
+// ********************************************************************************************
+// *
+// *    This file is part of Egoboo.
+// *
+// *    Egoboo is free software: you can redistribute it and/or modify it
+// *    under the terms of the GNU General Public License as published by
+// *    the Free Software Foundation, either version 3 of the License, or
+// *    (at your option) any later version.
+// *
+// *    Egoboo is distributed in the hope that it will be useful, but
+// *    WITHOUT ANY WARRANTY; without even the implied warranty of
+// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// *    General Public License for more details.
+// *
+// *    You should have received a copy of the GNU General Public License
+// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+// *
+// ********************************************************************************************
 
-///
-/// @file
-/// @brief Egoboo OpenGL texture interface
-/// @details Implements OpenGL texture loading using SDL_image
+// /
+// / @file
+// / @brief Egoboo OpenGL texture interface
+// / @details Implements OpenGL texture loading using SDL_image
 
 #include "ogl_texture.h"
 #include "ogl_debug.h"
@@ -33,8 +33,8 @@
 
 #include <SDL_image.h>
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 #define VALID_VALUE        0x32B04E67
 #define ErrorImage_width   2
 #define ErrorImage_height  2
@@ -54,12 +54,12 @@ typedef GLubyte SET_PACKING( image_row_t[ErrorImage_width][4], 1 );
 
 static GLubyte ErrorImage[ErrorImage_height][ErrorImage_width][4];
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 static void ErrorImage_bind(GLenum target, GLuint id);
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void ErrorImage_create(void)
 {
     // BB > define a default "error texture"
@@ -120,8 +120,8 @@ void ErrorImage_bind(GLenum target, GLuint id)
     GL_DEBUG(glPopClientAttrib)();
 }
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 oglx_texture * oglx_texture_new(oglx_texture * ptex)
 {
     if ( NULL == ptex ) return ptex;
@@ -152,7 +152,7 @@ oglx_texture * oglx_texture_new(oglx_texture * ptex)
     return ptex;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void oglx_texture_delete(oglx_texture * ptex)
 {
     if ( !VALID_TEXTURE(ptex) )  return;
@@ -182,7 +182,7 @@ void oglx_texture_delete(oglx_texture * ptex)
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 GLuint oglx_texture_Convert( GLenum tx_target, oglx_texture *ptex, SDL_Surface * image, Uint32 key )
 {
     SDL_Surface     * screen;
@@ -225,7 +225,7 @@ GLuint oglx_texture_Convert( GLenum tx_target, oglx_texture *ptex, SDL_Surface *
     pformat = screen->format;
     memcpy( &tmpformat, screen->format, sizeof( SDL_PixelFormat ) );   // make a copy of the format
 
-    //if( ogl_caps.alpha_bits > 0 )
+    // if( ogl_caps.alpha_bits > 0 )
     {
         // convert the image to a 32-bit pixel format
         tmpformat.Amask  = sdl_a_mask;
@@ -248,8 +248,8 @@ GLuint oglx_texture_Convert( GLenum tx_target, oglx_texture *ptex, SDL_Surface *
         tmpformat.BitsPerPixel  = 32;
         tmpformat.BytesPerPixel = 4;
     }
-    //else
-    //{
+    // else
+    // {
     //    // convert the image to a 24-bit pixel format without alpha
     //    // convert the image to a 32-bit pixel format
     //    tmpformat.Amask  = 0;
@@ -271,13 +271,13 @@ GLuint oglx_texture_Convert( GLenum tx_target, oglx_texture *ptex, SDL_Surface *
     //    // make the pixel size match the screen format
     //    tmpformat.BitsPerPixel  = 24;
     //    tmpformat.BytesPerPixel = 3;
-    //}
+    // }
 
     {
         SDL_Surface * tmp;
         Uint32 convert_flags;
 
-        //convert the image format to the correct format
+        // convert the image format to the correct format
         convert_flags = SDL_SWSURFACE;
         tmp = SDL_ConvertSurface( image, &tmpformat, convert_flags );
         SDL_FreeSurface( image );
@@ -342,7 +342,7 @@ GLuint oglx_texture_Convert( GLenum tx_target, oglx_texture *ptex, SDL_Surface *
     return ptex->base.binding;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 GLuint oglx_texture_Load( GLenum tx_target, oglx_texture *ptex, const char *filename, Uint32 key )
 {
     GLuint retval;
@@ -490,7 +490,7 @@ void oglx_texture_Bind( oglx_texture *texture )
 
     if ( filt_type >= TX_ANISOTROPIC )
     {
-        //Anisotropic filtered!
+        // Anisotropic filtered!
         oglx_bind(target, id, wrap_s, wrap_t, GL_LINEAR, GL_LINEAR, anisotropy);
     }
     else

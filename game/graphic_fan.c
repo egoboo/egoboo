@@ -1,21 +1,21 @@
-//********************************************************************************************
-//*
-//*    This file is part of Egoboo.
-//*
-//*    Egoboo is free software: you can redistribute it and/or modify it
-//*    under the terms of the GNU General Public License as published by
-//*    the Free Software Foundation, either version 3 of the License, or
-//*    (at your option) any later version.
-//*
-//*    Egoboo is distributed in the hope that it will be useful, but
-//*    WITHOUT ANY WARRANTY; without even the implied warranty of
-//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//*    General Public License for more details.
-//*
-//*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-//*
-//********************************************************************************************
+// ********************************************************************************************
+// *
+// *    This file is part of Egoboo.
+// *
+// *    Egoboo is free software: you can redistribute it and/or modify it
+// *    under the terms of the GNU General Public License as published by
+// *    the Free Software Foundation, either version 3 of the License, or
+// *    (at your option) any later version.
+// *
+// *    Egoboo is distributed in the hope that it will be useful, but
+// *    WITHOUT ANY WARRANTY; without even the implied warranty of
+// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// *    General Public License for more details.
+// *
+// *    You should have received a copy of the GNU General Public License
+// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+// *
+// ********************************************************************************************
 
 /* Egoboo - graphic_fan.c
  * World mesh drawing.
@@ -26,59 +26,71 @@
 
 #include "egoboo.h"
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+#include "SDL_extensions.h"
+
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void render_fan( ego_mpd_t * pmesh, Uint32 fan )
 {
     // ZZ> This function draws a mesh fan
 
-    Uint16 commands;
-    Uint16 vertices;
+    // vertex is a value from 0-15, for the meshcommandref/u/v variables
+    // badvertex is a value that references the actual vertex number
+
+    int    cnt, tnc, entry, vertex;
+    Uint16 commands, vertices;
     Uint16 basetile;
-    Uint16 texture;
-    Uint16 cnt, tnc, entry, vertex;
-    Uint16 tile;
-    Uint8  fx;
-    Uint8 type;
+    Uint16 image;
+    Uint8  fx, type;
+    int    texture, tile;
 
     mesh_mem_t  * pmem;
     tile_info_t * ptile;
 
+    if ( NULL == pmesh ) return;
     pmem  = &(pmesh->mmem);
 
     if ( !VALID_TILE(pmesh, fan) ) return;
     ptile = pmem->tile_list + fan;
 
-    // vertex is a value from 0-15, for the meshcommandref/u/v variables
-    // badvertex is a value that references the actual vertex number
+    // do not render the fan if the image image is invalid
+    if ( TILE_IS_FANOFF( *ptile ) )  return;
 
-	tile = ptile->img;               // Tile
-    fx   = ptile->fx;                 // Fx bits
-    type = ptile->type;               // Command type ( index to points in fan )
-
-    if ( 0 != (tile & 0xFF00) ) return;
-    type &= 0x3F;
+    image = TILE_GET_LOWER_BITS(ptile->img);   // Tile image
+    fx    = ptile->fx;                         // Fx bits
+    type  = ptile->type;                       // Command type ( index to points in fan )
 
     // Animate the tiles
-    if ( fx & MPDFX_ANIM )
+    if ( HAS_SOME_BITS( fx, MPDFX_ANIM ) )
     {
+        Uint16 base_and, frame_and, frame_add;
+
         if ( type >= ( MAXMESHTYPE >> 1 ) )
         {
             // Big tiles
-            basetile = tile & animtile[1].base_and;       // Animation set
-            tile += animtile_data.frame_add << 1;         // Animated tile
-            tile = ( tile & animtile[1].frame_and ) + basetile;
+            base_and  = animtile[1].base_and;            // Animation set
+            frame_and = animtile[1].frame_and;
+            frame_add = animtile[1].frame_add;    // Animated image
         }
         else
         {
             // Small tiles
-            basetile = tile & animtile[0].base_and;  // Animation set
-            tile += animtile_data.frame_add;         // Animated tile
-            tile = ( tile & animtile[0].frame_and ) + basetile;
+            base_and  = animtile[0].base_and;            // Animation set
+            frame_and = animtile[0].frame_and;
+            frame_add = animtile[0].frame_add;         // Animated image
         }
+
+        basetile = image & base_and;
+
+        image   += frame_add;
+        image    = frame_add + basetile;
     }
 
-    texture = ( tile >> 6 ) + TX_TILE_0;       // 64 tiles in each 256x256 texture
+    // actually update the animated texture info
+    mesh_set_texture( pmesh, fan, image );
+
+    tile    = image & 0x3F;
+    texture = (( image >> 6 ) & 3) + TX_TILE_0;       // 64 tiles in each 256x256 texture
     vertices = tile_dict[type].numvertices;    // Number of vertices
     commands = tile_dict[type].command_count;  // Number of commands
 
@@ -92,7 +104,7 @@ void render_fan( ego_mpd_t * pmesh, Uint32 fan )
         }
         else
         {
-			oglx_texture_Bind( TxTexture + texture );
+            oglx_texture_Bind( TxTexture + texture );
             meshlasttexture = texture;
         }
     }
@@ -101,7 +113,7 @@ void render_fan( ego_mpd_t * pmesh, Uint32 fan )
     {
         GL_DEBUG(glShadeModel)( GL_SMOOTH );
 
-        //[claforte] Put this in an initialization function.
+        // [claforte] Put this in an initialization function.
         GL_DEBUG(glEnableClientState)( GL_VERTEX_ARRAY );
         GL_DEBUG(glVertexPointer)(3, GL_FLOAT, 0, pmem->plst + ptile->vrtstart );
 
@@ -115,7 +127,7 @@ void render_fan( ego_mpd_t * pmesh, Uint32 fan )
         entry = 0;
         for ( cnt = 0; cnt < commands; cnt++ )
         {
-            GL_DEBUG(glBegin)(GL_TRIANGLE_FAN );
+            GL_DEBUG(glBegin)( GL_TRIANGLE_FAN );
             {
                 for ( tnc = 0; tnc < tile_dict[type].command_entries[cnt]; tnc++ )
                 {
@@ -154,29 +166,29 @@ void render_fan( ego_mpd_t * pmesh, Uint32 fan )
 
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void render_hmap_fan( ego_mpd_t * pmesh, Uint32 fan )
 {
     // ZZ> This function draws a mesh fan
     GLvertex v[4];
-    Uint16 cnt, vertex;
-    Uint32 badvertex;
-    Uint16 tile;
-    Uint8  fx;
-    Uint8 type, twist;
+
+    int cnt, vertex, badvertex;
     int ix, iy, ix_off[4] = {0, 1, 1, 0}, iy_off[4] = {0, 0, 1, 1};
+    Uint16 tile;
+    Uint8  fx, type, twist;
 
     mesh_mem_t  * pmem;
     ego_mpd_info_t * pinfo;
     tile_info_t * ptile;
 
+    if ( NULL == pmesh ) return;
     pmem  = &(pmesh->mmem);
     pinfo = &(pmesh->info);
 
     if ( !VALID_TILE(pmesh, fan) ) return;
     ptile = pmem->tile_list + fan;
 
-    // BB > the water info is for TILES, not fot vertices, so ignore all vertex info and just draw the water
+    // BB > the water info is for TILES, not for vertices, so ignore all vertex info and just draw the water
     //      tile where it's supposed to go
 
     ix = fan % pmesh->info.tiles_x;
@@ -185,12 +197,11 @@ void render_hmap_fan( ego_mpd_t * pmesh, Uint32 fan )
     // vertex is a value from 0-15, for the meshcommandref/u/v variables
     // badvertex is a value that references the actual vertex number
 
-    tile = ptile->img;               // Tile
-    fx   = ptile->fx;                 // Fx bits
-    type = ptile->type;               // Command type ( index to points in fan )
+    tile  = TILE_GET_LOWER_BITS(ptile->img); // Tile
+    fx    = ptile->fx;                       // Fx bits
+    type  = ptile->type;                     // Command type ( index to points in fan )
     twist = ptile->twist;
 
-    if ( 0xFF00 == (tile & 0xFF00) ) return;
     type &= 0x3F;
 
     // Original points
@@ -227,74 +238,71 @@ void render_hmap_fan( ego_mpd_t * pmesh, Uint32 fan )
 
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void render_water_fan( ego_mpd_t * pmesh, Uint32 fan, Uint8 layer )
 {
     // ZZ> This function draws a water fan
-    GLvertex v[MAXMESHVERTICES];
-    Uint16 type;
-    Uint16 commands;
-    Uint16 vertices;
-    Uint16 texture, frame;
-    Uint16 cnt, tnc;
-    Uint32  badvertex;
-    float offu, offv;
+
+    GLvertex v[4];
+
+    int    cnt, tnc, badvertex;
+    Uint16 type, commands, vertices, texture;
+    Uint16 frame;
     Uint32  ambi;
-    Uint8 mode;
+    float offu, offv;
     int ix, iy;
     int ix_off[4] = {1, 1, 0, 0}, iy_off[4] = {0, 1, 1, 0};
     int  imap[4];
     float x1, y1, fx_off[4], fy_off[4];
 
+    ego_mpd_info_t * pinfo;
+    mesh_mem_t     * pmmem;
+    grid_mem_t     * pgmem;
+    tile_info_t    * ptile;
+
+    if ( NULL == pmesh ) return;
+    pinfo = &(pmesh->info);
+    pmmem = &(pmesh->mmem);
+    pgmem = &(pmesh->gmem);
+
     if ( !VALID_TILE(pmesh, fan) ) return;
+    ptile = pmmem->tile_list + fan;
 
     // BB > the water info is for TILES, not for vertices, so ignore all vertex info and just draw the water
     //      tile where it's supposed to go
 
-    ix = fan % pmesh->info.tiles_x;
-    iy = fan / pmesh->info.tiles_x;
-
-    // just do the mode this way instead of requiring all meshes to be multiples of 4
-    mode = (iy & 1) | ((ix & 1) << 1);
+    ix = fan % pinfo->tiles_x;
+    iy = fan / pinfo->tiles_x;
 
     // To make life easier
-    type = 0;                           // Command type ( index to points in fan )
-    offu = water.layer[layer].tx.x;          // Texture offsets
-    offv = water.layer[layer].tx.y;
-    frame = water.layer[layer].frame;     // Frame
+    type  = 0;                                         // Command type ( index to points in fan )
+    offu  = water.layer[layer].tx.x;                   // Texture offsets
+    offv  = water.layer[layer].tx.y;
+    frame = water.layer[layer].frame;                  // Frame
 
-    texture = layer + TX_WATER_TOP;         // Water starts at texture 5
-    vertices = tile_dict[type].numvertices;// Number of vertices
+    texture  = layer + TX_WATER_TOP;                   // Water starts at texture TX_WATER_TOP
+    vertices = tile_dict[type].numvertices;            // Number of vertices
     commands = tile_dict[type].command_count;          // Number of commands
 
     x1 = ( float ) oglx_texture_GetTextureWidth( TxTexture + texture ) / ( float ) oglx_texture_GetImageWidth( TxTexture + texture );
     y1 = ( float ) oglx_texture_GetTextureHeight( TxTexture + texture ) / ( float ) oglx_texture_GetImageHeight( TxTexture + texture );
 
-    fx_off[0] = x1;
-    fy_off[0] = 0;
-
-    fx_off[1] = x1;
-    fy_off[1] = y1;
-
-    fx_off[2] = 0;
-    fy_off[2] = y1;
-
-    fx_off[3] = 0;
-    fy_off[3] = 0;
-
-    for ( cnt = 0; cnt < 4; cnt++ )
+    for ( cnt = 0; cnt < 4; cnt ++)
     {
+        fx_off[cnt] = x1 * ix_off[cnt];
+        fy_off[cnt] = y1 * iy_off[cnt];
+
         imap[cnt] = cnt;
     }
 
     // flip the coordinates around based on the "mode" of the tile
-    if ( 0 == (ix & 1) )
+    if ( HAS_NO_BITS( ix, 1 ) )
     {
         SWAP(int, imap[0], imap[3]);
         SWAP(int, imap[1], imap[2]);
     }
 
-    if ( 0 == (iy & 1) )
+    if ( HAS_NO_BITS( iy, 1 ) )
     {
         SWAP(int, imap[0], imap[1]);
         SWAP(int, imap[2], imap[3]);
@@ -302,29 +310,49 @@ void render_water_fan( ego_mpd_t * pmesh, Uint32 fan, Uint8 layer )
 
     // Original points
     GL_DEBUG(glDisable)(GL_CULL_FACE );
-    badvertex = pmesh->mmem.tile_list[fan].vrtstart;          // Get big reference value
+    badvertex = ptile->vrtstart;
     {
+        GLXvector3f nrm = {0, 0, 1};
+        float alight;
         float glob_amb = gfx.usefaredge ? light_a : 0;
+
+        ambi = water.layer->light_add * 255.0f;
+        alight = FF_TO_FLOAT( ambi ) + glob_amb;
+        alight = CLIP(alight, 0.0f, 1.0f);
 
         for ( cnt = 0; cnt < 4; cnt++ )
         {
-            float ftmp;
+            float dlight;
+            int jx, jy;
+
             tnc = imap[cnt];
 
-            v[cnt].pos[XX] = (ix + ix_off[cnt]) * TILE_SIZE;
-            v[cnt].pos[YY] = (iy + iy_off[cnt]) * TILE_SIZE;
+            jx = ix + ix_off[cnt];
+            jy = iy + iy_off[cnt];
+
+            v[cnt].pos[XX] = jx * TILE_SIZE;
+            v[cnt].pos[YY] = jy * TILE_SIZE;
             v[cnt].pos[ZZ] = water.layer_z_add[layer][frame][tnc] + water.layer[layer].z;
 
             v[cnt].tex[SS] = fx_off[cnt] + offu;
             v[cnt].tex[TT] = fy_off[cnt] + offv;
 
-            ambi = water.layer->light_add;
-            ftmp = FF_TO_FLOAT( ambi ) + glob_amb;
-            ftmp = CLIP(ftmp, 0, 1);
+            // get the lighting info from the grid
+            fan = mesh_get_tile_int( pmesh, jx, jy );
+            if ( grid_light_one_corner( pmesh, fan, v[cnt].pos[ZZ], nrm, &dlight ) )
+            {
+                // take the color from the tnc vertices so that it is oriented prroperly
+                v[cnt].col[RR] = dlight * INV_FF + alight;
+                v[cnt].col[GG] = dlight * INV_FF + alight;
+                v[cnt].col[BB] = dlight * INV_FF + alight;
+            }
+            else
+            {
+                v[cnt].col[RR] =
+                    v[cnt].col[GG] =
+                        v[cnt].col[BB] = 0.0f;
+            }
 
-            v[cnt].col[RR] = pmesh->mmem.clst[badvertex][RR] + ftmp;
-            v[cnt].col[GG] = pmesh->mmem.clst[badvertex][GG] + ftmp;
-            v[cnt].col[BB] = pmesh->mmem.clst[badvertex][BB] + ftmp;
             v[cnt].col[AA] = FF_TO_FLOAT( water_data.layer[layer].alpha );
 
             badvertex++;
@@ -339,17 +367,16 @@ void render_water_fan( ego_mpd_t * pmesh, Uint32 fan, Uint8 layer )
     }
 
     // Render each command
-    for ( cnt = 0; cnt < commands; cnt++ )
+    GL_DEBUG(glShadeModel)( GL_SMOOTH );
+    GL_DEBUG(glBegin)(GL_TRIANGLE_FAN );
     {
-        GL_DEBUG(glBegin)(GL_TRIANGLE_FAN );
+        for ( cnt = 0; cnt < 4; cnt++ )
         {
-            for ( tnc = 0; tnc < 4; tnc++ )
-            {
-                GL_DEBUG(glColor4fv)(v[tnc].col );
-                GL_DEBUG(glTexCoord2fv)(v[tnc].tex );
-                GL_DEBUG(glVertex3fv)(v[tnc].pos );
-            }
+            GL_DEBUG(glColor4fv)   ( v[cnt].col );
+            GL_DEBUG(glTexCoord2fv)( v[cnt].tex );
+            GL_DEBUG(glVertex3fv)  ( v[cnt].pos );
         }
-        GL_DEBUG_END();
     }
+    GL_DEBUG_END();
+
 }

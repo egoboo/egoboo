@@ -1,23 +1,23 @@
 #pragma once
 
-//********************************************************************************************
-//*
-//*    This file is part of Egoboo.
-//*
-//*    Egoboo is free software: you can redistribute it and/or modify it
-//*    under the terms of the GNU General Public License as published by
-//*    the Free Software Foundation, either version 3 of the License, or
-//*    (at your option) any later version.
-//*
-//*    Egoboo is distributed in the hope that it will be useful, but
-//*    WITHOUT ANY WARRANTY; without even the implied warranty of
-//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//*    General Public License for more details.
-//*
-//*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-//*
-//********************************************************************************************
+// ********************************************************************************************
+// *
+// *    This file is part of Egoboo.
+// *
+// *    Egoboo is free software: you can redistribute it and/or modify it
+// *    under the terms of the GNU General Public License as published by
+// *    the Free Software Foundation, either version 3 of the License, or
+// *    (at your option) any later version.
+// *
+// *    Egoboo is distributed in the hope that it will be useful, but
+// *    WITHOUT ANY WARRANTY; without even the implied warranty of
+// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// *    General Public License for more details.
+// *
+// *    You should have received a copy of the GNU General Public License
+// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+// *
+// ********************************************************************************************
 
 #include "egoboo_typedef.h"
 
@@ -28,8 +28,8 @@
 
 #include "egoboo.h"
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 #define TURNSPD                         0.01f         // Cutoff for turning or same direction
 #define TURNMODEVELOCITY    0                       // Character gets rotation from velocity
 #define TURNMODEWATCH       1                       // For watch towers
@@ -38,7 +38,7 @@
 
 #define MAXLEVEL            6                       // Basic Levels 0-5
 
-//Object positions
+// Object positions
 enum e_slots
 {
     SLOT_LEFT  = 0,
@@ -111,36 +111,36 @@ slot_t        grip_offset_to_slot( grip_offset_t grip );
 #define PLATASCEND          0.10f                     // Ascension rate
 #define PLATKEEP            0.90f                     // Retention rate
 #define MOUNTTOLERANCE      (2 * PLATTOLERANCE)
-#define STOPBOUNCING         0.1f //1.0f                // To make objects stop bouncing
+#define STOPBOUNCING         0.1f // 1.0f                // To make objects stop bouncing
 
-//Quest system
+// Quest system
 #define QUEST_BEATEN         -1
 #define QUEST_NONE           -2
 
-//------------------------------------
+// ------------------------------------
 // Team variables
-//------------------------------------
-#define MAXTEAM             27                      // Teams A-Z, +1 more for damage tiles
-#define DAMAGETEAM          26                      // For damage tiles
-#define EVILTEAM            4                       // E
-#define GOODTEAM            6                       // G
-#define NULLTEAM            13                      // N
-#define NOLEADER            0xFFFF                  // If the team has no leader...
+// ------------------------------------
+#define TEAM_EVIL            4                       // E
+#define TEAM_GOOD            6                       // G
+#define TEAM_NULL            13                      // N
+#define TEAM_DAMAGE          26                      // For damage tiles
+#define TEAM_MAX             27                      // Teams A-Z, +1 more for damage tiles
+#define NOLEADER            0xFFFF                   // If the team has no leader...
 
 struct s_team
 {
-    bool_t  hatesteam[MAXTEAM];     // Don't damage allies...
+    bool_t  hatesteam[TEAM_MAX];     // Don't damage allies...
     Uint16  morale;                 // Number of characters on team
     Uint16  leader;                 // The leader of the team
     Uint16  sissy;                  // Whoever called for help last
 };
 typedef struct s_team team_t;
 
-extern team_t TeamList[MAXTEAM];
+extern team_t TeamList[TEAM_MAX];
 
-//------------------------------------
+// ------------------------------------
 // Character template
-//------------------------------------
+// ------------------------------------
 #define MAXCAPNAMESIZE      32                      // Character class names
 #define MAXSECTION                      4           // T-wi-n-k...  Most of 4 sections
 
@@ -317,7 +317,7 @@ struct s_cap
     Uint16       spawnlife;                      // Life left from last module
     Uint16       spawnmana;                      // Life left from last module
 
-    //skill system
+    // skill system
     Sint8        shieldproficiency;               // Can it use shields?
     bool_t       canjoust;                        // Can it use advanced weapons?
     bool_t       canuseadvancedweapons;           // Can it use advanced weapons?
@@ -341,9 +341,9 @@ extern cap_t CapList[MAX_PROFILE];
 #define VALID_CAP( ICAP )       ( VALID_CAP_RANGE( ICAP ) && CapList[ICAP].loaded )
 #define INVALID_CAP( ICAP )     ( !VALID_CAP_RANGE( ICAP ) || !CapList[ICAP].loaded )
 
-//------------------------------------
+// ------------------------------------
 // Character variables
-//------------------------------------
+// ------------------------------------
 
 // all the model data that the renderer needs to render the character
 struct s_chr_instance
@@ -370,9 +370,9 @@ struct s_chr_instance
     Uint16         voffset;
 
     // lighting
-    //Uint16         light_turn_z;    // Character's light rotation 0 to 0xFFFF
-    //Uint8          lightlevel_amb;  // 0-255, terrain light
-    //Uint8          lightlevel_dir;  // 0-255, terrain light
+    // Uint16         light_turn_z;    // Character's light rotation 0 to 0xFFFF
+    // Uint8          lightlevel_amb;  // 0-255, terrain light
+    // Uint8          lightlevel_dir;  // 0-255, terrain light
 
     // model info
     Uint16         imad;            // Character's model
@@ -418,7 +418,7 @@ struct s_chr
     // character state
     ai_state_t     ai;              // ai data
 
-    float          latchx;          
+    float          latchx;
     float          latchy;
     Uint32         latchbutton;
 
@@ -559,7 +559,7 @@ struct s_chr
     Uint8          basealpha;
     chr_instance_t inst;                          // the render data
 
-    //Skills
+    // Skills
     Sint8           shieldproficiency;            // Can it use shields?
     bool_t          canjoust;
     bool_t          canuseadvancedweapons;
@@ -616,7 +616,6 @@ struct s_chr
     float          maxaccel;                      // Maximum acceleration
     Uint8          flyheight;                     // Height to stabilize at
 
-
     // data for doing the physics in bump_characters()
     float          floor_level;           // Height of tile
     bool_t         inwater;
@@ -631,8 +630,8 @@ extern chr_t ChrList[MAX_CHR];
 #define VALID_CHR( ICHR )       ( VALID_CHR_RANGE( ICHR ) && ChrList[ICHR].on )
 #define INVALID_CHR( ICHR )     ( !VALID_CHR_RANGE( ICHR ) || !ChrList[ICHR].on )
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // This is for random naming
 
 #define CHOPPERMODEL                    32
@@ -652,9 +651,9 @@ typedef struct s_chop_data chop_data_t;
 
 extern chop_data_t chop;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-//Function prototypes
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// Function prototypes
 
 const char * undo_idsz( IDSZ idsz );
 void drop_money( Uint16 character, Uint16 money );
@@ -694,7 +693,7 @@ int chr_count_free();
 
 char * chop_create( Uint16 profile );
 
-Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team, Uint8 skin, Uint16 facing, const char *name, int override );
+Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team, Uint8 skin, Uint16 facing, const char *name, Uint16 override );
 void respawn_character( Uint16 character );
 Uint16 change_armor( Uint16 character, Uint16 skin );
 void change_character( Uint16 cnt, Uint16 profile, Uint8 skin, Uint8 leavewhich );
@@ -731,8 +730,7 @@ void   init_slot_idsz();
 
 bool_t ai_add_order( ai_state_t * pai, Uint32 value, Uint16 counter );
 
-
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 // Quest system
 bool_t add_quest_idsz( const char *whichplayer, IDSZ idsz );
 Sint16 modify_quest_idsz( const char *whichplayer, IDSZ idsz, Sint16 adjustment );

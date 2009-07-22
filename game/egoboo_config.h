@@ -1,35 +1,35 @@
 #pragma once
 
-//********************************************************************************************
-//*
-//*    This file is part of Egoboo.
-//*
-//*    Egoboo is free software: you can redistribute it and/or modify it
-//*    under the terms of the GNU General Public License as published by
-//*    the Free Software Foundation, either version 3 of the License, or
-//*    (at your option) any later version.
-//*
-//*    Egoboo is distributed in the hope that it will be useful, but
-//*    WITHOUT ANY WARRANTY; without even the implied warranty of
-//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//*    General Public License for more details.
-//*
-//*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
-//*
-//********************************************************************************************
+// ********************************************************************************************
+// *
+// *    This file is part of Egoboo.
+// *
+// *    Egoboo is free software: you can redistribute it and/or modify it
+// *    under the terms of the GNU General Public License as published by
+// *    the Free Software Foundation, either version 3 of the License, or
+// *    (at your option) any later version.
+// *
+// *    Egoboo is distributed in the hope that it will be useful, but
+// *    WITHOUT ANY WARRANTY; without even the implied warranty of
+// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// *    General Public License for more details.
+// *
+// *    You should have received a copy of the GNU General Public License
+// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+// *
+// ********************************************************************************************
 
-/// @file
-/// @brief System-dependent global parameters.
-///   @todo  move more of the typical config stuff to this file.
-///   @todo  add in linux and mac stuff.
-///   @todo  some of this stuff is compiler dependent, rather than system dependent.
+// / @file
+// / @brief System-dependent global parameters.
+// /   @todo  move more of the typical config stuff to this file.
+// /   @todo  add in linux and mac stuff.
+// /   @todo  some of this stuff is compiler dependent, rather than system dependent.
 
 #include "egoboo_endian.h"
 #include "egoboo_platform.h"
 
-//---------------------------------------------------------------------------------------------
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 // compliation flags
 
 // object pre-allocations
@@ -50,7 +50,7 @@
 #define MAX_PIP_PER_PROFILE  13        // Maximum number of part*.txt per object
 #define MAX_PIP             (MAX_PROFILE * MAX_PIP_PER_PROFILE)
 
-//Some macro switches
+// Some macro switches
 #define USE_DEBUG (defined(_DEBUG) || !defined(NDEBUG))
 
 #undef  OLD_CAMERA_MODE       // Use the old camera style

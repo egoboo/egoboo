@@ -1,21 +1,21 @@
-//********************************************************************************************
-//*
-//*    This file is part of Egoboo.
-//*
-//*    Egoboo is free software: you can redistribute it and/or modify it
-//*    under the terms of the GNU General Public License as published by
-//*    the Free Software Foundation, either version 3 of the License, or
-//*    (at your option) any later version.
-//*
-//*    Egoboo is distributed in the hope that it will be useful, but
-//*    WITHOUT ANY WARRANTY; without even the implied warranty of
-//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//*    General Public License for more details.
-//*
-//*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-//*
-//********************************************************************************************
+// ********************************************************************************************
+// *
+// *    This file is part of Egoboo.
+// *
+// *    Egoboo is free software: you can redistribute it and/or modify it
+// *    under the terms of the GNU General Public License as published by
+// *    the Free Software Foundation, either version 3 of the License, or
+// *    (at your option) any later version.
+// *
+// *    Egoboo is distributed in the hope that it will be useful, but
+// *    WITHOUT ANY WARRANTY; without even the implied warranty of
+// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// *    General Public License for more details.
+// *
+// *    You should have received a copy of the GNU General Public License
+// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+// *
+// ********************************************************************************************
 
 /* Egoboo - passage.c
  * Passages and doors and whatnot.  Things that impede your progress!
@@ -33,11 +33,13 @@
 #include "egoboo_fileutil.h"
 #include "egoboo.h"
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+#include "SDL_extensions.h"
+
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 
 // Passages
-int				numpassage = 0;              // Number of passages in the module
+int   numpassage = 0;              // Number of passages in the module
 passage_t       PassageList[MAX_PASS];
 
 // For shops
@@ -45,8 +47,8 @@ int     numshoppassage = 0;
 Uint16  shoppassage[MAX_PASS];  // The passage number
 Uint16  shopowner[MAX_PASS];    // Who gets the gold?
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int open_passage( Uint16 passage )
 {
     // ZZ> This function makes a passage passable
@@ -56,15 +58,15 @@ int open_passage( Uint16 passage )
 
     if ( passage < numpassage )
     {
-		useful = ( !PassageList[passage].open );
-		PassageList[passage].open = btrue;
-		y = PassageList[passage].toplefty;
+        useful = ( !PassageList[passage].open );
+        PassageList[passage].open = btrue;
+        y = PassageList[passage].toplefty;
 
-		while ( y <= PassageList[passage].bottomrighty )
+        while ( y <= PassageList[passage].bottomrighty )
         {
-			x = PassageList[passage].topleftx;
+            x = PassageList[passage].topleftx;
 
-			while ( x <= PassageList[passage].bottomrightx )
+            while ( x <= PassageList[passage].bottomrightx )
             {
                 fan = mesh_get_tile_int( PMesh, x, y );
 
@@ -82,7 +84,7 @@ int open_passage( Uint16 passage )
     return useful;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int break_passage( script_state_t * pstate, Uint16 passage, Uint16 starttile, Uint16 frames,
                    Uint16 become, Uint8 meshfxor )
 {
@@ -105,12 +107,12 @@ int break_passage( script_state_t * pstate, Uint16 passage, Uint16 starttile, Ui
             fan = mesh_get_tile( PMesh, ChrList[character].pos.x, ChrList[character].pos.y );
             if ( VALID_TILE(PMesh, fan) )
             {
-				tile = PMesh->mmem.tile_list[fan].img;
+                tile = PMesh->mmem.tile_list[fan].img;
                 if ( tile >= starttile && tile < endtile )
                 {
-					if( is_in_passage( passage, ChrList[character].pos.x, ChrList[character].pos.y, ChrList[character].bumpsize ) )
-					{
-						// Remember where the hit occured...
+                    if ( is_in_passage( passage, ChrList[character].pos.x, ChrList[character].pos.y, ChrList[character].bumpsize ) )
+                    {
+                        // Remember where the hit occured...
                         pstate->x = ChrList[character].pos.x;
                         pstate->y = ChrList[character].pos.y;
 
@@ -127,8 +129,8 @@ int break_passage( script_state_t * pstate, Uint16 passage, Uint16 starttile, Ui
                             }
                         }
 
-                        PMesh->mmem.tile_list[fan].img = tile;
-					}
+                        mesh_set_texture(PMesh, fan, tile);
+                    }
                 }
             }
         }
@@ -137,7 +139,7 @@ int break_passage( script_state_t * pstate, Uint16 passage, Uint16 starttile, Ui
     return useful;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void flash_passage( Uint16 passage, Uint8 color )
 {
     // ZZ> This function makes a passage flash white
@@ -146,9 +148,9 @@ void flash_passage( Uint16 passage, Uint8 color )
 
     if ( passage >= numpassage ) return;
 
-	for ( y = PassageList[passage].toplefty; y <= PassageList[passage].bottomrighty; y++ )
+    for ( y = PassageList[passage].toplefty; y <= PassageList[passage].bottomrighty; y++ )
     {
-		for ( x = PassageList[passage].topleftx; x <= PassageList[passage].bottomrightx; x++ )
+        for ( x = PassageList[passage].topleftx; x <= PassageList[passage].bottomrightx; x++ )
         {
             fan = mesh_get_tile_int( PMesh, x, y );
 
@@ -171,7 +173,7 @@ void flash_passage( Uint16 passage, Uint8 color )
 
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 Uint8 find_tile_in_passage( script_state_t * pstate, Uint16 passage, int tiletype )
 {
     // ZZ> This function finds the next tile in the passage, pstate->x and pstate->y
@@ -186,12 +188,12 @@ Uint8 find_tile_in_passage( script_state_t * pstate, Uint16 passage, int tiletyp
     x = pstate->x >> TILE_BITS;
     y = pstate->y >> TILE_BITS;
 
-	if ( x < PassageList[passage].topleftx )  x = PassageList[passage].topleftx;
-	if ( y < PassageList[passage].toplefty )  y = PassageList[passage].toplefty;
+    if ( x < PassageList[passage].topleftx )  x = PassageList[passage].topleftx;
+    if ( y < PassageList[passage].toplefty )  y = PassageList[passage].toplefty;
 
-	if ( y < PassageList[passage].bottomrighty )
+    if ( y < PassageList[passage].bottomrighty )
     {
-		while ( x <= PassageList[passage].bottomrightx )
+        while ( x <= PassageList[passage].bottomrightx )
         {
             fan = mesh_get_tile_int( PMesh, x, y );
 
@@ -212,11 +214,11 @@ Uint8 find_tile_in_passage( script_state_t * pstate, Uint16 passage, int tiletyp
     }
 
     // Do all remaining rows
-	while ( y <= PassageList[passage].bottomrighty )
+    while ( y <= PassageList[passage].bottomrighty )
     {
-		x = PassageList[passage].topleftx;
+        x = PassageList[passage].topleftx;
 
-		while ( x <= PassageList[passage].bottomrightx )
+        while ( x <= PassageList[passage].bottomrightx )
         {
             fan = mesh_get_tile_int( PMesh, x, y );
 
@@ -240,30 +242,30 @@ Uint8 find_tile_in_passage( script_state_t * pstate, Uint16 passage, int tiletyp
     return bfalse;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t is_in_passage( Uint16 passage, float xpos, float ypos, float tolerance )
 {
     // ZF> This return btrue if the specified X and Y coordinates are within the passage
-	// tolerance is how much offset we allow outside the passage
+    // tolerance is how much offset we allow outside the passage
     float tlx, tly, brx, bry;
     tolerance += CLOSETOLERANCE;
 
     // Passage area
-	tlx = ( PassageList[passage].topleftx << TILE_BITS ) - tolerance;
-	tly = ( PassageList[passage].toplefty << TILE_BITS ) - tolerance;
-	brx = ( ( PassageList[passage].bottomrightx + 1 ) << TILE_BITS ) + tolerance;
-	bry = ( ( PassageList[passage].bottomrighty + 1 ) << TILE_BITS ) + tolerance;
-    
+    tlx = ( PassageList[passage].topleftx << TILE_BITS ) - tolerance;
+    tly = ( PassageList[passage].toplefty << TILE_BITS ) - tolerance;
+    brx = ( ( PassageList[passage].bottomrightx + 1 ) << TILE_BITS ) + tolerance;
+    bry = ( ( PassageList[passage].bottomrighty + 1 ) << TILE_BITS ) + tolerance;
+
     if ( xpos > tlx && xpos < brx )
     {
         if ( ypos > tly && ypos < bry )
         {
-			//The coordinate is within the passage
-			return btrue;
-		}
-	}
+            //The coordinate is within the passage
+            return btrue;
+        }
+    }
 
-	return bfalse;
+    return bfalse;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -276,17 +278,17 @@ Uint16 who_is_blocking_passage( Uint16 passage )
 
     // Look at each character
     foundother = MAX_CHR;
-	for( character = 0; character < MAX_CHR; character++ )
+    for ( character = 0; character < MAX_CHR; character++ )
     {
-		if ( !ChrList[character].on ) continue;
-	
-        if( ChrList[character].bumpsize != 0 && !ChrList[character].pack_ispacked && ChrList[character].attachedto == MAX_CHR )
-		{
-			if( is_in_passage( passage, ChrList[character].pos.x, ChrList[character].pos.y, ChrList[character].bumpsize ) )
+        if ( !ChrList[character].on ) continue;
+
+        if ( ChrList[character].bumpsize != 0 && !ChrList[character].pack_ispacked && ChrList[character].attachedto == MAX_CHR )
+        {
+            if ( is_in_passage( passage, ChrList[character].pos.x, ChrList[character].pos.y, ChrList[character].bumpsize ) )
             {
-				if ( ChrList[character].alive && !ChrList[character].isitem )
-			    {
-					// Found a live one
+                if ( ChrList[character].alive && !ChrList[character].isitem )
+                {
+                    // Found a live one
                     return character;
                 }
                 else
@@ -302,35 +304,35 @@ Uint16 who_is_blocking_passage( Uint16 passage )
     return foundother;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void check_passage_music()
 {
     // ZF> This function checks all passages if there is a player in it, if it is, it plays a specified
     // song set in by the AI script functions
     Uint16 character = 0, passage, cnt;
 
-	//Check every music passage
-    for( passage = 0; passage < numpassage; passage++ )
-    {       
-		if ( PassageList[passage].music == NO_MUSIC ) continue;        
-		
+    //Check every music passage
+    for ( passage = 0; passage < numpassage; passage++ )
+    {
+        if ( PassageList[passage].music == NO_MUSIC ) continue;
+
         // Look at each player
-		for( cnt = 0; cnt < MAXPLAYER; cnt++ )
+        for ( cnt = 0; cnt < MAXPLAYER; cnt++ )
         {
-			character = PlaList[cnt].index;
+            character = PlaList[cnt].index;
             if ( INVALID_CHR( character ) || ChrList[character].pack_ispacked || !ChrList[character].alive || !ChrList[character].isplayer ) continue;
-			
-			//Is it in the passage?
-			if (  is_in_passage( passage, ChrList[character].pos.x, ChrList[character].pos.y, ChrList[character].bumpsize  ) )
+
+            // Is it in the passage?
+            if (  is_in_passage( passage, ChrList[character].pos.x, ChrList[character].pos.y, ChrList[character].bumpsize  ) )
             {
                 // Found a player, start music track
-				sound_play_song( PassageList[passage].music, 0, -1 );
+                sound_play_song( PassageList[passage].music, 0, -1 );
             }
         }
-	}
+    }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 Uint16 who_is_blocking_passage_ID( Uint16 passage, IDSZ idsz )
 {
     // ZZ> This function returns MAX_CHR if there is no character in the passage who
@@ -339,14 +341,14 @@ Uint16 who_is_blocking_passage_ID( Uint16 passage, IDSZ idsz )
     Uint16 character, sTmp;
 
     // Look at each character
-    for( character = 0; character < MAX_CHR; character++ )
+    for ( character = 0; character < MAX_CHR; character++ )
     {
         if ( !ChrList[character].on || !ChrList[character].alive ) continue;
-            
-		if ( ( !ChrList[character].isitem ) && ChrList[character].attachedto == MAX_CHR && ChrList[character].bumpsize != 0 && !ChrList[character].pack_ispacked )
+
+        if ( ( !ChrList[character].isitem ) && ChrList[character].attachedto == MAX_CHR && ChrList[character].bumpsize != 0 && !ChrList[character].pack_ispacked )
         {
-			if( is_in_passage( passage, ChrList[character].pos.x, ChrList[character].pos.y, ChrList[character].bumpsize ) )
-			{
+            if ( is_in_passage( passage, ChrList[character].pos.x, ChrList[character].pos.y, ChrList[character].bumpsize ) )
+            {
                 // Found a live one...  Does it have a matching item?
                 // Check the pack
                 sTmp = ChrList[character].pack_next;
@@ -392,7 +394,7 @@ Uint16 who_is_blocking_passage_ID( Uint16 passage, IDSZ idsz )
     return MAX_CHR;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int close_passage( Uint16 passage )
 {
     // ZZ> This function makes a passage impassable, and returns btrue if it isn't blocked
@@ -403,21 +405,21 @@ int close_passage( Uint16 passage )
     Uint16 numcrushed = 0;
     Uint16 crushedcharacters[MAX_CHR];
 
-	if ( 0 != ( PassageList[passage].mask & ( MPDFX_IMPASS | MPDFX_WALL ) ) )
+    if ( HAS_SOME_BITS( PassageList[passage].mask, MPDFX_IMPASS | MPDFX_WALL ) )
     {
         // Make sure it isn't blocked
-        for( character = 0; character < MAX_CHR; character++ )
+        for ( character = 0; character < MAX_CHR; character++ )
         {
-			if( !ChrList[character].on ) continue;
+            if ( !ChrList[character].on ) continue;
 
             bumpsize = ChrList[character].bumpsize;
             if ( (!ChrList[character].pack_ispacked ) && ChrList[character].attachedto == MAX_CHR && ChrList[character].bumpsize != 0 )
             {
-				if( is_in_passage( passage, ChrList[character].pos.x, ChrList[character].pos.y, ChrList[character].bumpsize ))
-				{
+                if ( is_in_passage( passage, ChrList[character].pos.x, ChrList[character].pos.y, ChrList[character].bumpsize ))
+                {
                     if ( !ChrList[character].canbecrushed )
                     {
-						//Someone is blocking, stop here
+                        //Someone is blocking, stop here
                         return bfalse;
                     }
                     else
@@ -442,20 +444,20 @@ int close_passage( Uint16 passage )
     // Close it off
     if ( passage <= numpassage )
     {
-		PassageList[passage].open = bfalse;
-		y = PassageList[passage].toplefty;
+        PassageList[passage].open = bfalse;
+        y = PassageList[passage].toplefty;
 
-		while ( y <= PassageList[passage].bottomrighty )
+        while ( y <= PassageList[passage].bottomrighty )
         {
             x = PassageList[passage].topleftx;
 
-			while ( x <= PassageList[passage].bottomrightx )
+            while ( x <= PassageList[passage].bottomrightx )
             {
                 fan = mesh_get_tile_int( PMesh, x, y );
 
                 if ( VALID_TILE(PMesh, fan) )
                 {
-					PMesh->mmem.tile_list[fan].fx = PMesh->mmem.tile_list[fan].fx | PassageList[passage].mask;
+                    PMesh->mmem.tile_list[fan].fx = PMesh->mmem.tile_list[fan].fx | PassageList[passage].mask;
                 }
                 x++;
             }
@@ -467,7 +469,7 @@ int close_passage( Uint16 passage )
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void clear_passages()
 {
     Uint16 cnt = 0;
@@ -484,7 +486,7 @@ void clear_passages()
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void add_shop_passage( Uint16 owner, Uint16 passage )
 {
     // ZZ> This function creates a shop passage
@@ -497,7 +499,7 @@ void add_shop_passage( Uint16 owner, Uint16 passage )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void add_passage( int tlx, int tly, int brx, int bry, bool_t open, Uint8 mask )
 {
     // ZZ> This function creates a passage area
@@ -509,22 +511,22 @@ void add_passage( int tlx, int tly, int brx, int bry, bool_t open, Uint8 mask )
         brx = CLIP(brx, 0, PMesh->info.tiles_x - 1);
         bry = CLIP(bry, 0, PMesh->info.tiles_y - 1);
 
-		PassageList[numpassage].topleftx		= tlx;
-		PassageList[numpassage].toplefty		= tly;
-		PassageList[numpassage].bottomrightx    = brx;
-		PassageList[numpassage].bottomrighty    = bry;
-		PassageList[numpassage].mask			= mask;
-		PassageList[numpassage].music			= NO_MUSIC;		// Set no song as default
+        PassageList[numpassage].topleftx        = tlx;
+        PassageList[numpassage].toplefty        = tly;
+        PassageList[numpassage].bottomrightx    = brx;
+        PassageList[numpassage].bottomrighty    = bry;
+        PassageList[numpassage].mask            = mask;
+        PassageList[numpassage].music           = NO_MUSIC;     // Set no song as default
 
-		// Is it open or closed?
-        if (!open) close_passage( numpassage );  
-		else PassageList[numpassage].open = btrue;
+        // Is it open or closed?
+        if (!open) close_passage( numpassage );
+        else PassageList[numpassage].open = btrue;
 
         numpassage++;
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void setup_passage( const char *modname )
 {
     // ZZ> This function reads the passage file
@@ -567,7 +569,7 @@ void setup_passage( const char *modname )
 //--------------------------------------------------------------------------------------------
 Uint16 shop_get_owner( int ix, int iy )
 {
-	//This function returns the owner of a item in a shop
+    //This function returns the owner of a item in a shop
     int cnt;
     Uint16 owner = NOOWNER;
 
@@ -578,9 +580,9 @@ Uint16 shop_get_owner( int ix, int iy )
         passage = shoppassage[cnt];
         if ( passage > numpassage ) continue;
 
-		if ( ix >= PassageList[passage].topleftx && ix <= PassageList[passage].bottomrightx )
+        if ( ix >= PassageList[passage].topleftx && ix <= PassageList[passage].bottomrightx )
         {
-			if ( iy >= PassageList[passage].toplefty && iy <= PassageList[passage].bottomrighty )
+            if ( iy >= PassageList[passage].toplefty && iy <= PassageList[passage].bottomrighty )
             {
                 // if there is NOOWNER, someone has been murdered!
                 owner  = shopowner[cnt];

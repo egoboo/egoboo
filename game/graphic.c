@@ -1,21 +1,21 @@
-//********************************************************************************************
-//*
-//*    This file is part of Egoboo.
-//*
-//*    Egoboo is free software: you can redistribute it and/or modify it
-//*    under the terms of the GNU General Public License as published by
-//*    the Free Software Foundation, either version 3 of the License, or
-//*    (at your option) any later version.
-//*
-//*    Egoboo is distributed in the hope that it will be useful, but
-//*    WITHOUT ANY WARRANTY; without even the implied warranty of
-//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//*    General Public License for more details.
-//*
-//*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-//*
-//********************************************************************************************
+// ********************************************************************************************
+// *
+// *    This file is part of Egoboo.
+// *
+// *    Egoboo is free software: you can redistribute it and/or modify it
+// *    under the terms of the GNU General Public License as published by
+// *    the Free Software Foundation, either version 3 of the License, or
+// *    (at your option) any later version.
+// *
+// *    Egoboo is distributed in the hope that it will be useful, but
+// *    WITHOUT ANY WARRANTY; without even the implied warranty of
+// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// *    General Public License for more details.
+// *
+// *    You should have received a copy of the GNU General Public License
+// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+// *
+// ********************************************************************************************
 
 /* Egoboo - graphic.c
  * All sorts of stuff related to drawing the game, and all sorts of other stuff
@@ -59,14 +59,17 @@
 
 #include <assert.h>
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 
 #define SPARKLESIZE 28
 #define SPARKLEADD 2
 #define BLIPSIZE 6
 
-//--------------------------------------------------------------------------------------------
+#define GET_MAP_X(PMESH, POS_X) ( (POS_X)*MAPSIZE / PMESH->info.edge_x )
+#define GET_MAP_Y(PMESH, POS_Y) ( (POS_Y)*MAPSIZE / PMESH->info.edge_y ) + sdl_scr.y - MAPSIZE
+
+// --------------------------------------------------------------------------------------------
 // Lightning effects
 
 #define MAXDYNADIST                     2700        // Leeway for offscreen lights
@@ -84,8 +87,8 @@ struct s_dynalight
 
 typedef struct s_dynalight dynalight_t;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 
 static bool_t _sdl_atexit_registered    = bfalse;
 static bool_t _sdl_initialized_graphics = bfalse;
@@ -120,14 +123,14 @@ static Uint8              fontyspacing;
 
 static rect_t             tabrect[NUMBAR];            // The tab rectangles
 static rect_t             barrect[NUMBAR];            // The bar rectangles
-static rect_t             bliprect[NUMBAR];           // The blip rectangles
+static rect_t             bliprect[COLOR_MAX];        // The blip rectangles
 static rect_t             maprect;                    // The map rectangle
 
 static bool_t             gfx_page_flip_requested  = bfalse;
 static bool_t             gfx_page_clear_requested = btrue;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 
 gfx_config_t     gfx;
 
@@ -150,8 +153,8 @@ oglx_texture      TxTitleImage[MAXMODULE];    // OpenGL title image surfaces
 size_t                dolist_count = 0;
 obj_registry_entity_t dolist[DOLIST_SIZE];
 
-bool_t           meshnotexture = bfalse;
-Uint16           meshlasttexture = (Uint16)~0;
+bool_t           meshnotexture   = bfalse;
+Uint16           meshlasttexture = (Uint16)(~0);
 
 renderlist_t     renderlist = {0, 0, 0, 0, 0};
 
@@ -187,8 +190,8 @@ int  mousicon  = 0;
 int  joyaicon  = 0;
 int  joybicon  = 0;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 
 static void sdlinit_base();
 static void sdlinit_graphics();
@@ -202,8 +205,8 @@ static int _draw_string_raw( int x, int y, const char *format, ...  );
 
 static bool_t sum_dyna_lighting( dynalight_t * pdyna, float lighting[], float dx, float dy, float dz );
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void EnableTexturing()
 {
     if ( !GL_DEBUG(glIsEnabled)(GL_TEXTURE_2D ) )
@@ -212,7 +215,7 @@ void EnableTexturing()
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void DisableTexturing()
 {
     if ( GL_DEBUG(glIsEnabled)(GL_TEXTURE_2D ) )
@@ -221,7 +224,7 @@ void DisableTexturing()
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void move_water( void )
 {
     // ZZ> This function animates the water overlays
@@ -241,7 +244,7 @@ void move_water( void )
     }
 }
 
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 void make_lighttospek( void )
 {
     // ZZ> This function makes a light table to fake directional lighting
@@ -268,7 +271,7 @@ void make_lighttospek( void )
     }
 }
 
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 void make_lightdirectionlookup()
 {
     // ZZ> This function builds the lighting direction table
@@ -290,7 +293,7 @@ void make_lightdirectionlookup()
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int get_free_message()
 {
     // This function finds the best message to use
@@ -301,7 +304,7 @@ int get_free_message()
     return tnc;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void display_message( script_state_t * pstate, int message, Uint16 character )
 {
     // ZZ> This function sticks a message in the display queue and sets its timer
@@ -511,7 +514,7 @@ void display_message( script_state_t * pstate, int message, Uint16 character )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // This needs work
 void Begin3DMode( camera_t * pcam )
 {
@@ -554,15 +557,15 @@ void End2DMode( void )
     GL_DEBUG(glEnable)(GL_DEPTH_TEST );
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // ZF> Load all the global icons used in all modules
 bool_t load_all_global_icons()
 {
-    //Setup
+    // Setup
     bool_t result = bfalse;
     globalicon_count = 0;
 
-    //Now load every icon
+    // Now load every icon
     nullicon = globalicon_count;
     result = load_one_icon( "basicdat" SLASH_STR "nullicon" );
     keybicon = globalicon_count;
@@ -577,7 +580,7 @@ bool_t load_all_global_icons()
     return result;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t load_one_icon( const char *szLoadName )
 {
     // ZZ> This function is used to load an icon.  Most icons are loaded
@@ -591,7 +594,7 @@ bool_t load_one_icon( const char *szLoadName )
     return btrue;
 }
 
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 void init_all_graphics()
 {
     init_all_icons();
@@ -604,7 +607,7 @@ void init_all_graphics()
     init_txfont();
 };
 
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 void init_all_icons()
 {
     // ZZ> This function sets the icon pointers to NULL
@@ -623,7 +626,7 @@ void init_all_icons()
     release_all_icons();
 }
 
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 void init_all_titleimages()
 {
     // ZZ> This function clears out all of the title images
@@ -635,7 +638,7 @@ void init_all_titleimages()
     }
 }
 
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 void init_bars()
 {
     int cnt;
@@ -657,7 +660,7 @@ void init_bars()
     }
 }
 
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 void init_blip()
 {
     int cnt;
@@ -665,17 +668,17 @@ void init_blip()
     oglx_texture_new( &TxBlip );
 
     // Set up the rectangles
-    for ( cnt = 0; cnt < NUMBAR; cnt++ )
+    for ( cnt = 0; cnt < COLOR_MAX; cnt++ )
     {
         bliprect[cnt].left   = cnt * BLIPSIZE;
-        bliprect[cnt].right  = ( cnt * BLIPSIZE ) + BLIPSIZE;
+        bliprect[cnt].right  = cnt * BLIPSIZE + BLIPSIZE;
         bliprect[cnt].top    = 0;
         bliprect[cnt].bottom = BLIPSIZE;
     }
 
 }
 
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 void init_map()
 {
     // ZZ> This function releases all the map images
@@ -688,7 +691,7 @@ void init_map()
     maprect.bottom = MAPSIZE;
 }
 
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 void init_all_textures()
 {
     // ZZ> This function clears out all of the textures
@@ -700,16 +703,16 @@ void init_all_textures()
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void init_txfont()
 {
-    //Intitializes the font, ready to use
+    // Intitializes the font, ready to use
     oglx_texture_new( &TxFont );
 
     font_init();
 }
 
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 void release_all_graphics()
 {
     release_all_icons();
@@ -722,7 +725,7 @@ void release_all_graphics()
     release_txfont();
 }
 
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 void release_all_icons()
 {
     // ZZ> This function clears out all of the icons
@@ -748,7 +751,7 @@ void release_all_icons()
     }
 }
 
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 void release_all_titleimages()
 {
     // ZZ> This function clears out all of the title images
@@ -760,13 +763,13 @@ void release_all_titleimages()
     }
 }
 
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 void release_bars()
 {
     oglx_texture_Release( &TxBars );
 }
 
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 void release_blip()
 {
     oglx_texture_Release( &TxBlip );
@@ -775,7 +778,7 @@ void release_blip()
     numblip      = 0;
 }
 
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 void release_map()
 {
     oglx_texture_Release( &TxMap );
@@ -784,7 +787,7 @@ void release_map()
     mapon    = bfalse;
 }
 
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 void release_all_textures()
 {
     // ZZ> This function releases all of the textures
@@ -796,14 +799,14 @@ void release_all_textures()
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void release_txfont()
 {
     oglx_texture_Release( &TxFont );
 }
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void delete_all_graphics()
 {
     delete_all_icons();
@@ -816,7 +819,7 @@ void delete_all_graphics()
     delete_txfont();
 }
 
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 void delete_all_icons()
 {
     // ZZ> This function sets the icon pointers to NULL
@@ -828,7 +831,7 @@ void delete_all_icons()
     }
 }
 
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 void delete_all_titleimages()
 {
     // ZZ> This function clears out all of the title images
@@ -840,26 +843,26 @@ void delete_all_titleimages()
     }
 }
 
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 void delete_bars()
 {
     oglx_texture_delete( &TxBars );
 }
 
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 void delete_blip()
 {
     oglx_texture_delete( &TxBlip );
 }
 
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 void delete_map()
 {
     // ZZ> This function releases all the map images
     oglx_texture_delete( &TxMap );
 }
 
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 void delete_all_textures()
 {
     // ZZ> This function clears out all of the textures
@@ -871,14 +874,14 @@ void delete_all_textures()
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void delete_txfont()
 {
-    //Intitializes the font, ready to use
+    // Intitializes the font, ready to use
     oglx_texture_delete( &TxFont );
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void debug_message( const char *text )
 {
     // ZZ> This function sticks a message in the display queue and sets its timer
@@ -899,7 +902,7 @@ void debug_message( const char *text )
     msgtextdisplay[slot][write] = 0;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void create_szfpstext( int frames )
 {
     // ZZ> This function fills in the number of frames in "000 Frames per Second"
@@ -909,7 +912,7 @@ void create_szfpstext( int frames )
     szfpstext[2] = '0' + ( frames % 10 );
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void reset_renderlist()
 {
     // BB> Clear old render lists
@@ -940,7 +943,7 @@ void reset_renderlist()
     renderlist.ndr_count = 0;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void make_renderlist( ego_mpd_t * pmesh, camera_t * pcam )
 {
     // ZZ> This function figures out which mesh fans to draw
@@ -973,7 +976,7 @@ void make_renderlist( ego_mpd_t * pmesh, camera_t * pcam )
     cornery[cornerlistlowtohighy[3]] += 256;
 
     // Make life simpler
-    for( cnt=0; cnt<4; cnt++ )
+    for ( cnt = 0; cnt < 4; cnt++ )
     {
         xlist[cnt] = cornerx[cornerlistlowtohighy[cnt]];
         ylist[cnt] = cornery[cornerlistlowtohighy[cnt]];
@@ -1073,7 +1076,7 @@ void make_renderlist( ego_mpd_t * pmesh, camera_t * pcam )
             {
                 fanx = x >> TILE_BITS;
                 if ( fanx < 0 )  fanx = 0;
-                if ( fanx >= pmesh->info.tiles_x - 1 )  fanx = pmesh->info.tiles_x - 1;//-2
+                if ( fanx >= pmesh->info.tiles_x - 1 )  fanx = pmesh->info.tiles_x - 1;// -2
 
                 fanrowrun[row] = ABS( fanx - fanrowstart[row] ) + 1;
                 row++;
@@ -1135,7 +1138,7 @@ void make_renderlist( ego_mpd_t * pmesh, camera_t * pcam )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void do_chr_flashing()
 {
     Uint32 i;
@@ -1147,20 +1150,20 @@ void do_chr_flashing()
         if ( INVALID_CHR(ichr) ) continue;
 
         // Do flashing
-        if ( 0 == ( frame_all & ChrList[ichr].flashand ) && ChrList[ichr].flashand != DONTFLASH )
+        if ( HAS_NO_BITS( frame_all, ChrList[ichr].flashand ) && ChrList[ichr].flashand != DONTFLASH )
         {
             flash_character( ichr, 255 );
         }
 
         // Do blacking
-        if ( 0 == ( frame_all & SEEKURSEAND ) && local_seekurse && ChrList[ichr].iskursed )
+        if ( HAS_NO_BITS( frame_all, SEEKURSEAND ) && local_seekurse && ChrList[ichr].iskursed )
         {
             flash_character( ichr, 0 );
         }
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void flash_character( Uint16 character, Uint8 value )
 {
     // ZZ> This function sets a character's lighting
@@ -1168,17 +1171,18 @@ void flash_character( Uint16 character, Uint8 value )
     ChrList[character].inst.color_amb = value;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void animate_tiles()
 {
     // This function changes the animated tile frame
     if ( ( update_wld & animtile_data.update_and ) == 0 )
     {
-        animtile_data.frame_add = ( animtile_data.frame_add + 1 ) & animtile[0].frame_and;
+        animtile[0].frame_add = ( animtile[0].frame_add + 1 ) & animtile[0].frame_and;
+        animtile[1].frame_add = ( animtile[1].frame_add + 1 ) & animtile[1].frame_and;
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void load_basic_textures( const char *modname )
 {
     // ZZ> This function loads the standard textures for a module
@@ -1213,7 +1217,7 @@ void load_basic_textures( const char *modname )
 
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void load_bars( const char* szBitmap )
 {
     // ZZ> This function loads the status bar bitmap
@@ -1223,7 +1227,7 @@ void load_bars( const char* szBitmap )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void load_map( const char* szModule )
 {
     // ZZ> This function loads the map bitmap
@@ -1248,7 +1252,7 @@ void load_map( const char* szModule )
 
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void font_init()
 {
     // BB > fill in default values
@@ -1278,7 +1282,7 @@ void font_init()
     fontyspacing = dy;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void font_load( const char* szBitmap, const char* szSpacing )
 {
     // ZZ> This function loads the font bitmap and sets up the coordinates
@@ -1350,7 +1354,7 @@ void font_load( const char* szBitmap, const char* szSpacing )
     fontyspacing = ( yspacing >> 1 ) + FONTADD;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void render_background( Uint16 texture )
 {
     // ZZ> This function draws the large background
@@ -1367,7 +1371,7 @@ void render_background( Uint16 texture )
     z0 = 1500; // the original height of the camera
     d = MIN(ilayer->dist.x, ilayer->dist.y) / 10.0f;
     mag0 = 1.0f / (1.0f + z0 * d);
-    //mag1 = backgroundrepeat/128.0f/10;
+    // mag1 = backgroundrepeat/128.0f/10;
     mag1 = 1.0f / 128.0f / 5.0f;
 
     // clip the waterlayer uv offset
@@ -1472,7 +1476,7 @@ void render_background( Uint16 texture )
     ATTRIB_POP("render_background()");
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void render_foreground_overlay( Uint16 texture )
 {
     // ZZ> This function draws the large foreground
@@ -1569,8 +1573,8 @@ void render_foreground_overlay( Uint16 texture )
     }
 }
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void render_shadow_sprite( float intensity, GLvertex v[] )
 {
     int i;
@@ -1590,7 +1594,7 @@ void render_shadow_sprite( float intensity, GLvertex v[] )
     GL_DEBUG_END();
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void render_shadow( Uint16 character )
 {
     // ZZ> This function draws a NIFTY shadow
@@ -1609,7 +1613,10 @@ void render_shadow( Uint16 character )
     if ( pchr->is_hidden ) return;
 
     // no shadow if off the mesh
-    if ( !VALID_TILE(PMesh, pchr->onwhichfan) || 0 != (0xFF00 & PMesh->mmem.tile_list[pchr->onwhichfan].img) ) return;
+    if ( !VALID_TILE(PMesh, pchr->onwhichfan) ) return;
+
+    // no shadow if invalid tile image
+    if ( TILE_IS_FANOFF(PMesh->mmem.tile_list[pchr->onwhichfan]) ) return;
 
     // no shadow if completely transparent
     alpha = (pchr->inst.alpha * INV_FF) * (pchr->inst.light * INV_FF);
@@ -1620,7 +1627,7 @@ void render_shadow( Uint16 character )
     {
         alpha *= 0.1f;
     }
-    if ( alpha * 255 < 1.0f ) return;
+    if ( alpha < INV_FF ) return;
 
     // Original points
     level = pchr->floor_level;
@@ -1711,7 +1718,7 @@ void render_shadow( Uint16 character )
 
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void render_bad_shadow( Uint16 character )
 {
     // ZZ> This function draws a sprite shadow
@@ -1727,7 +1734,10 @@ void render_bad_shadow( Uint16 character )
     if ( pchr->is_hidden ) return;
 
     // no shadow if off the mesh
-    if ( !VALID_TILE(PMesh, pchr->onwhichfan) || 0 != (0xFF00 & PMesh->mmem.tile_list[pchr->onwhichfan].img) ) return;
+    if ( !VALID_TILE(PMesh, pchr->onwhichfan) ) return;
+
+    // no shadow if invalid tile image
+    if ( TILE_IS_FANOFF(PMesh->mmem.tile_list[pchr->onwhichfan]) ) return;
 
     // no shadow if completely transparent or completely glowing
     alpha = (pchr->inst.alpha * INV_FF) * (pchr->inst.light * INV_FF);
@@ -1790,7 +1800,7 @@ void render_bad_shadow( Uint16 character )
     render_shadow_sprite( alpha, v );
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void light_fans( renderlist_t * prlist )
 {
     int   entry;
@@ -1859,7 +1869,7 @@ void light_fans( renderlist_t * prlist )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void light_particles( ego_mpd_t * pmesh )
 {
     // ZZ> This function figures out particle lighting
@@ -1947,7 +1957,7 @@ void light_particles( ego_mpd_t * pmesh )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t sum_dyna_lighting( dynalight_t * pdyna, float lighting[], float dx, float dy, float dz )
 {
     float level;
@@ -1998,7 +2008,7 @@ bool_t sum_dyna_lighting( dynalight_t * pdyna, float lighting[], float dx, float
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t sum_global_lighting( float lighting[] )
 {
     int cnt;
@@ -2045,13 +2055,13 @@ bool_t sum_global_lighting( float lighting[] )
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void do_grid_dynalight( ego_mpd_t * pmesh, camera_t * pcam )
 {
     // ZZ> This function does dynamic lighting of visible fans
 
     int   cnt, tnc, fan, entry;
-    float global_lighting[6];
+    lighting_vector_t global_lighting;
 
     ego_mpd_info_t * pinfo;
     grid_mem_t     * pgmem;
@@ -2071,7 +2081,7 @@ void do_grid_dynalight( ego_mpd_t * pmesh, camera_t * pcam )
     {
         float x0, y0, dx, dy;
         lighting_cache_t * cache;
-        float local_lighting_low[6], local_lighting_hgh[6];
+        lighting_vector_t local_lighting_low, local_lighting_hgh;
         int ix, iy;
 
         fan = renderlist.all[entry];
@@ -2124,7 +2134,7 @@ void do_grid_dynalight( ego_mpd_t * pmesh, camera_t * pcam )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void render_water( renderlist_t * prlist )
 {
     // ZZ> This function draws all of the water fans
@@ -2156,7 +2166,7 @@ void render_water( renderlist_t * prlist )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void draw_scene_init( ego_mpd_t * pmesh, camera_t * pcam )
 {
     // Which tiles can be displayed
@@ -2178,7 +2188,7 @@ void draw_scene_init( ego_mpd_t * pmesh, camera_t * pcam )
     update_all_prt_instance( pcam );
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void draw_scene_mesh( renderlist_t * prlist )
 {
     // BB> draw the mesh and any reflected objects
@@ -2191,7 +2201,7 @@ void draw_scene_mesh( renderlist_t * prlist )
     if ( NULL == prlist->pmesh ) return;
     pmesh = prlist->pmesh;
 
-    //---------------------------------------------
+    // ---------------------------------------------
     // draw all tiles that do not reflect characters
     GL_DEBUG(glDisable)(GL_BLEND );             // no transparency
     GL_DEBUG(glDisable)(GL_CULL_FACE );
@@ -2208,11 +2218,11 @@ void draw_scene_mesh( renderlist_t * prlist )
         render_fan( pmesh, prlist->ndr[cnt] );
     }
 
-    //--------------------------------
+    // --------------------------------
     // draw the reflective tiles and any reflected objects
     if ( gfx.refon )
     {
-        //------------------------------
+        // ------------------------------
         // draw the reflective tiles, but turn off the depth buffer
         // this blanks out any background that might've been drawn
 
@@ -2228,7 +2238,7 @@ void draw_scene_mesh( renderlist_t * prlist )
             render_fan( pmesh, prlist->drf[cnt] );
         }
 
-        //------------------------------
+        // ------------------------------
         // Render all reflected objects
         GL_DEBUG(glEnable)(GL_BLEND );
         GL_DEBUG(glDepthMask)(GL_TRUE );
@@ -2274,7 +2284,7 @@ void draw_scene_mesh( renderlist_t * prlist )
             }
         }
 
-        //------------------------------
+        // ------------------------------
         // Render the shadow floors ( let everything show through )
         // turn on the depth mask, so that no objects under the floor will show through
         // this assumes that the floor is not partially transparent...
@@ -2296,7 +2306,7 @@ void draw_scene_mesh( renderlist_t * prlist )
     }
     else
     {
-        //------------------------------
+        // ------------------------------
         // Render the shadow floors as normal solid floors
         meshlasttexture = (Uint16)(~0);
         for ( cnt = 0; cnt < prlist->drf_count; cnt++ )
@@ -2306,7 +2316,7 @@ void draw_scene_mesh( renderlist_t * prlist )
     }
 
 #if defined(RENDER_HMAP)
-    //------------------------------
+    // ------------------------------
     // render the heighmap
     for ( cnt = 0; cnt < prlist->all_count; cnt++ )
     {
@@ -2314,7 +2324,7 @@ void draw_scene_mesh( renderlist_t * prlist )
     }
 #endif
 
-    //------------------------------
+    // ------------------------------
     // Render the shadows
     if ( gfx.shaon )
     {
@@ -2349,7 +2359,7 @@ void draw_scene_mesh( renderlist_t * prlist )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void draw_scene_solid()
 {
     Uint32 cnt, tnc;
@@ -2388,7 +2398,7 @@ void draw_scene_solid()
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void draw_scene_water( renderlist_t * prlist )
 {
     // set the the transparency parameters
@@ -2414,7 +2424,7 @@ void draw_scene_water( renderlist_t * prlist )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void draw_scene_trans()
 {
     // BB > draw transparent objects
@@ -2493,7 +2503,7 @@ void draw_scene_trans()
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void draw_scene_zreflection( ego_mpd_t * pmesh, camera_t * pcam )
 {
     // ZZ> This function draws 3D objects
@@ -2516,12 +2526,11 @@ void draw_scene_zreflection( ego_mpd_t * pmesh, camera_t * pcam )
     draw_scene_trans();
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void draw_blip( float sizeFactor, Uint8 color, int x, int y )
-
 {
     float xl, xr, yt, yb;
-    int width, height;
+    float width, height;
 
     // ZZ> This function draws a blip
     if ( x > 0 && y > 0 )
@@ -2532,32 +2541,35 @@ void draw_blip( float sizeFactor, Uint8 color, int x, int y )
 
         oglx_texture_Bind( &TxBlip );
 
-        xl = ( float )bliprect[color].left   / (float)oglx_texture_GetTextureWidth( &TxBlip );
-        xr = ( float )bliprect[color].right  / (float)oglx_texture_GetTextureWidth( &TxBlip );
+        xl = ( float )bliprect[color].left   / (float)oglx_texture_GetTextureWidth ( &TxBlip );
+        xr = ( float )bliprect[color].right  / (float)oglx_texture_GetTextureWidth ( &TxBlip );
         yt = ( float )bliprect[color].top    / (float)oglx_texture_GetTextureHeight( &TxBlip );
         yb = ( float )bliprect[color].bottom / (float)oglx_texture_GetTextureHeight( &TxBlip );
-        width = bliprect[color].right - bliprect[color].left;
+        width  = bliprect[color].right  - bliprect[color].left;
         height = bliprect[color].bottom - bliprect[color].top;
 
-        width *= sizeFactor; height *= sizeFactor;
+        width  *= sizeFactor;
+        height *= sizeFactor;
+
         GL_DEBUG(glBegin)(GL_QUADS );
         {
-            GL_DEBUG(glTexCoord2f)(xl, yb ); GL_DEBUG(glVertex2i)(x - 1 - (width / 2), y + 1 + (height / 2) );
-            GL_DEBUG(glTexCoord2f)(xr, yb ); GL_DEBUG(glVertex2i)(x - 1 + (width / 2), y + 1 + (height / 2) );
-            GL_DEBUG(glTexCoord2f)(xr, yt ); GL_DEBUG(glVertex2i)(x - 1 + (width / 2), y + 1 - (height / 2) );
-            GL_DEBUG(glTexCoord2f)(xl, yt ); GL_DEBUG(glVertex2i)(x - 1 - (width / 2), y + 1 - (height / 2) );
+            GL_DEBUG(glTexCoord2f)( xl, yb ); GL_DEBUG(glVertex2f)( x - (width / 2), y + (height / 2) );
+            GL_DEBUG(glTexCoord2f)( xr, yb ); GL_DEBUG(glVertex2f)( x + (width / 2), y + (height / 2) );
+            GL_DEBUG(glTexCoord2f)( xr, yt ); GL_DEBUG(glVertex2f)( x + (width / 2), y - (height / 2) );
+            GL_DEBUG(glTexCoord2f)( xl, yt ); GL_DEBUG(glVertex2f)( x - (width / 2), y - (height / 2) );
         }
         GL_DEBUG_END();
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void draw_one_icon( int icontype, int x, int y, Uint8 sparkle )
 {
     // ZZ> This function draws an icon
     int position, blipx, blipy;
     float xl, xr, yt, yb;
     int width, height;
+
     if ( icontype >= 0 && icontype < MAX_ICON )
     {
         EnableTexturing();    // Enable texture mapping
@@ -2579,6 +2591,7 @@ void draw_one_icon( int icontype, int x, int y, Uint8 sparkle )
         }
         GL_DEBUG_END();
     }
+
     if ( sparkle != NOSPARKLE )
     {
         position = update_wld & 31;
@@ -2602,7 +2615,7 @@ void draw_one_icon( int icontype, int x, int y, Uint8 sparkle )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void draw_one_font( int fonttype, int x, int y )
 {
     // ZZ> This function draws a letter or number
@@ -2633,12 +2646,11 @@ void draw_one_font( int fonttype, int x, int y )
     GL_DEBUG_END();
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void draw_map_texture( int x, int y )
 {
     // ZZ> This function draws the map
     EnableTexturing();
-    GL_DEBUG(glColor4f)(1.0f, 1.0f, 1.0f, 1.0f );
 
     oglx_texture_Bind( &TxMap );
 
@@ -2652,7 +2664,7 @@ void draw_map_texture( int x, int y )
     GL_DEBUG_END();
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int draw_one_bar( int bartype, int x, int y, int ticks, int maxticks )
 {
     // ZZ> This function draws a bar and returns the y position for the next one
@@ -2805,7 +2817,7 @@ int draw_one_bar( int bartype, int x, int y, int ticks, int maxticks )
     return y;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void BeginText()
 {
     EnableTexturing();    // Enable texture mapping
@@ -2824,14 +2836,14 @@ void BeginText()
     GL_DEBUG(glColor4f)(1, 1, 1, 1 );
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void EndText()
 {
     GL_DEBUG(glDisable)(GL_BLEND );
     GL_DEBUG(glDisable)(GL_ALPHA_TEST );
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int write_draw_string( int x, int y, const char *format, va_list args  )
 {
     int cnt = 1;
@@ -2881,7 +2893,7 @@ int write_draw_string( int x, int y, const char *format, va_list args  )
     return y;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int _draw_string_raw( int x, int y, const char *format, ...  )
 {
     // BB> the same as draw string, but it does not use the Begin2DMode() ... End2DMode()
@@ -2896,7 +2908,7 @@ int _draw_string_raw( int x, int y, const char *format, ...  )
     return y;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int draw_string( int x, int y, const char *format, ...  )
 {
     // ZZ> This function spits a line of null terminated text onto the backbuffer
@@ -2918,7 +2930,7 @@ int draw_string( int x, int y, const char *format, ...  )
     return y;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int length_of_word( const char *szText )
 {
     // ZZ> This function returns the number of pixels the
@@ -2954,7 +2966,7 @@ int length_of_word( const char *szText )
     return x;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int draw_wrap_string( const char *szText, int x, int y, int maxx )
 {
     // ZZ> This function spits a line of null terminated text onto the backbuffer,
@@ -3026,7 +3038,7 @@ int draw_wrap_string( const char *szText, int x, int y, int maxx )
     return newy;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int draw_status( Uint16 character, int x, int y )
 {
     // ZZ> This function shows a character's icon, status and inventory
@@ -3143,7 +3155,7 @@ int draw_status( Uint16 character, int x, int y )
     return y;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int draw_all_status( int y )
 {
     int cnt;
@@ -3159,7 +3171,7 @@ int draw_all_status( int y )
     return y;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void draw_map()
 {
     int cnt, tnc;
@@ -3167,68 +3179,89 @@ void draw_map()
     // Map display
     if ( !mapvalid || !mapon ) return;
 
-    draw_map_texture( 0, sdl_scr.y - MAPSIZE );
-
-    //If one of the players can sense enemies via EMP, draw them as blips on the map
-    if ( MAX_CHR != local_senseenemies )
+    ATTRIB_PUSH( "draw_map()", GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT );
     {
-        Uint16 iTmp;
 
-        for ( iTmp = 0; numblip < MAXBLIP && iTmp < MAX_CHR; iTmp++ )
+        GL_DEBUG(glEnable)( GL_BLEND );                                 // GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT
+        GL_DEBUG(glBlendFunc)( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  // GL_COLOR_BUFFER_BIT
+
+        GL_DEBUG(glColor4f)(1.0f, 1.0f, 1.0f, 1.0f );
+        draw_map_texture( 0, sdl_scr.y - MAPSIZE );
+
+        GL_DEBUG(glBlendFunc)( GL_ONE, GL_ONE_MINUS_SRC_ALPHA );  // GL_COLOR_BUFFER_BIT
+
+        // If one of the players can sense enemies via EMP, draw them as blips on the map
+        if ( TEAM_MAX != local_senseenemiesTeam )
         {
-            Uint16 icap;
+            Uint16 iTmp;
 
-            if ( !ChrList[iTmp].on ) continue;
-
-            icap = ChrList[iTmp].model;
-            if ( !VALID_CAP(icap) ) continue;
-
-            //Show only hated team
-            if ( TeamList[ChrList[local_senseenemies].team].hatesteam[ChrList[iTmp].team] )
+            for ( iTmp = 0; numblip < MAXBLIP && iTmp < MAX_CHR; iTmp++ )
             {
-                // Only if they match the required IDSZ ([NONE] always works)
-                if ( local_senseenemiesID == Make_IDSZ("NONE")
-                        || CapList[icap].idsz[IDSZ_PARENT] == local_senseenemiesID
-                        || CapList[icap].idsz[IDSZ_TYPE] == local_senseenemiesID)
+                Uint16 icap;
+
+                if ( !ChrList[iTmp].on ) continue;
+
+                icap = ChrList[iTmp].model;
+                if ( !VALID_CAP(icap) ) continue;
+
+                // Show only teams that will attack the player
+                if ( TeamList[ChrList[iTmp].team].hatesteam[local_senseenemiesTeam] )
                 {
-                    //Inside the map?
-                    if ( ChrList[iTmp].pos.x < PMesh->info.edge_x && ChrList[iTmp].pos.y < PMesh->info.edge_y )
+                    // Only if they match the required IDSZ ([NONE] always works)
+                    if ( local_senseenemiesID == IDSZ_NONE ||
+                            local_senseenemiesID == CapList[icap].idsz[IDSZ_PARENT] ||
+                            local_senseenemiesID == CapList[icap].idsz[IDSZ_TYPE  ])
                     {
-                        //Valid colors only
-                        blipx[numblip] = ChrList[iTmp].pos.x * MAPSIZE / PMesh->info.edge_x;
-                        blipy[numblip] = ChrList[iTmp].pos.y * MAPSIZE / PMesh->info.edge_y;
-                        blipc[numblip] = 0; //Red blips
-                        numblip++;
+                        // Inside the map?
+                        if ( ChrList[iTmp].pos.x < PMesh->info.edge_x && ChrList[iTmp].pos.y < PMesh->info.edge_y )
+                        {
+                            // Valid colors only
+                            blipx[numblip] = GET_MAP_X(PMesh, ChrList[iTmp].pos.x);
+                            blipy[numblip] = ChrList[iTmp].pos.y * MAPSIZE / PMesh->info.edge_y;
+                            blipc[numblip] = COLOR_RED; // Red blips
+                            numblip++;
+                        }
                     }
                 }
             }
         }
-    }
 
-    for ( cnt = 0; cnt < numblip; cnt++ )
-    {
-        draw_blip(0.75f, blipc[cnt], blipx[cnt], blipy[cnt] + sdl_scr.y - MAPSIZE );
-    }
-
-    //Show camera position
-    if ( youarehereon && ( update_wld&8 ) )
-    {
-        for ( cnt = 0; cnt < MAXPLAYER; cnt++ )
+        // draw all the blips
+        for ( cnt = 0; cnt < numblip; cnt++ )
         {
-            if ( PlaList[cnt].valid && PlaList[cnt].device != INPUT_BITS_NONE )
+            draw_blip(0.75f, blipc[cnt], blipx[cnt], blipy[cnt] + sdl_scr.y - MAPSIZE );
+        }
+        numblip = 0;
+
+        // Show local player position(s)
+        if ( youarehereon && ( update_wld & 8 ) )
+        {
+            for ( cnt = 0; cnt < MAXPLAYER; cnt++ )
             {
-                tnc = PlaList[cnt].index;
-                if ( ChrList[tnc].alive )
+                if ( !PlaList[cnt].valid ) continue;
+
+                if ( INPUT_BITS_NONE != PlaList[cnt].device )
                 {
-                    draw_blip( 0.75f, 0, ChrList[tnc].pos.x*MAPSIZE / PMesh->info.edge_x, ( ChrList[tnc].pos.y*MAPSIZE / PMesh->info.edge_y ) + sdl_scr.y - MAPSIZE );
+                    tnc = PlaList[cnt].index;
+                    if ( VALID_CHR(tnc) && ChrList[tnc].alive )
+                    {
+                        draw_blip( 0.75f, COLOR_WHITE, GET_MAP_X(PMesh, ChrList[tnc].pos.x), GET_MAP_Y(PMesh, ChrList[tnc].pos.y));
+                    }
                 }
             }
         }
+
+        //// draw the camera
+        //if ( update_wld & 2 )
+        //{
+        //    draw_blip( 0.75f, COLOR_PURPLE, GET_MAP_X(PMesh, PCamera->pos.x), GET_MAP_Y(PMesh, PCamera->pos.y));
+        //}
     }
+    ATTRIB_POP("draw_map()")
 
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int draw_fps( int y )
 {
     // FPS text
@@ -3251,7 +3284,7 @@ int draw_fps( int y )
     return y;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int draw_help( int y )
 {
     if ( SDLKEYDOWN( SDLK_F1 ) )
@@ -3289,7 +3322,7 @@ int draw_help( int y )
     return y;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int draw_debug( int y )
 {
     int tnc;
@@ -3336,7 +3369,7 @@ int draw_debug( int y )
         y = _draw_string_raw( 0, y, "~~NETPLAYERS %d", numplayer );
         y = _draw_string_raw( 0, y, "~~DAMAGEPART %d", damagetile_data.parttype );
 
-        //y = _draw_string_raw( 0, y, "~~FOGAFF %d", fog_data.affects_water );
+        // y = _draw_string_raw( 0, y, "~~FOGAFF %d", fog_data.affects_water );
     }
 
     if ( SDLKEYDOWN( SDLK_F7 ) )
@@ -3354,7 +3387,7 @@ int draw_debug( int y )
     return y;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int draw_timer( int y )
 {
     int fifties, seconds, minutes;
@@ -3370,7 +3403,7 @@ int draw_timer( int y )
     return y;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int draw_game_status( int y )
 {
 
@@ -3398,7 +3431,7 @@ int draw_game_status( int y )
     return y;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int draw_messages( int y )
 {
     int cnt, tnc;
@@ -3432,7 +3465,7 @@ int draw_messages( int y )
     return y;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void draw_text()
 {
     // ZZ> draw in-game heads up display
@@ -3456,7 +3489,7 @@ void draw_text()
         {
             char buffer[KEYB_BUFFER_SIZE + 128];
 
-            snprintf( buffer, sizeof(buffer), "%s > %s%s", cfg.network_messagename, keyb.buffer, (0 == (update_wld & 8)) ? "x" : "+" );
+            snprintf( buffer, sizeof(buffer), "%s > %s%s", cfg.network_messagename, keyb.buffer, HAS_NO_BITS( update_wld, 8 ) ? "x" : "+" );
 
             y = draw_wrap_string( buffer, 0, y, sdl_scr.x - wraptolerance );
         }
@@ -3466,13 +3499,13 @@ void draw_text()
     End2DMode();
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void request_clear_screen()
 {
     gfx_page_clear_requested = btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void do_clear_screen()
 {
     bool_t try_clear;
@@ -3508,7 +3541,7 @@ void do_clear_screen()
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void do_flip_pages()
 {
     bool_t try_flip;
@@ -3532,19 +3565,19 @@ void do_flip_pages()
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void request_flip_pages()
 {
     gfx_page_flip_requested = btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t flip_pages_requested()
 {
     return gfx_page_flip_requested;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void flip_pages()
 {
     GL_DEBUG(glFlush)();
@@ -3557,7 +3590,7 @@ void flip_pages()
     SDL_GL_SwapBuffers();
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void draw_scene( camera_t * pcam )
 {
     Begin3DMode( pcam );
@@ -3579,7 +3612,7 @@ void draw_scene( camera_t * pcam )
     End3DMode();
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void draw_main()
 {
     // ZZ> This function does all the drawing stuff
@@ -3590,7 +3623,7 @@ void draw_main()
     request_flip_pages();
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 Uint32 load_one_title_image( const char *szLoadName )
 {
     // ZZ> This function loads a title in the specified image slot, forcing it into
@@ -3607,7 +3640,7 @@ Uint32 load_one_title_image( const char *szLoadName )
     return index;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t load_blip_bitmap()
 {
     // This function loads the blip bitmaps
@@ -3620,7 +3653,7 @@ bool_t load_blip_bitmap()
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void do_cursor()
 {
     // This function implements a mouse cursor
@@ -3649,8 +3682,8 @@ void Reshape3D( int w, int h )
     GL_DEBUG(glViewport)(0, 0, w, h );
 }
 
-//---------------------------------------------------------------------------------------------
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 int ogl_init()
 {
     if ( !_sdl_initialized_graphics )
@@ -3674,9 +3707,9 @@ int ogl_init()
     GL_DEBUG(glAlphaFunc)(GL_GREATER, 0);
 
     // backface culling
-    //GL_DEBUG(glEnable)(GL_CULL_FACE);
-    //GL_DEBUG(glFrontFace)(GL_CW); // TODO: This prevents the mesh from getting rendered
-    //GL_DEBUG(glCullFace)(GL_BACK);
+    // GL_DEBUG(glEnable)(GL_CULL_FACE);
+    // GL_DEBUG(glFrontFace)(GL_CW); // TODO: This prevents the mesh from getting rendered
+    // GL_DEBUG(glCullFace)(GL_BACK);
 
     // disable OpenGL lighting
     GL_DEBUG(glDisable)(GL_LIGHTING );
@@ -3693,15 +3726,15 @@ int ogl_init()
     GL_DEBUG(glTexGeni)(GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP );  // Set The Texture Generation Mode For T To Sphere Mapping (NEW)
 
     // Load the current graphical settings
-    //load_graphics();
+    // load_graphics();
 
     _ogl_initialized = btrue;
 
     return _ogl_initialized && _sdl_initialized_base && _sdl_initialized_graphics;
 }
 
-//---------------------------------------------------------------------------------------------
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 int sdl_init()
 {
     sdlinit_base();
@@ -3719,7 +3752,7 @@ int sdl_init()
     return _sdl_initialized_base && _sdl_initialized_graphics;
 }
 
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 void sdlinit_base()
 {
     log_info ( "Initializing SDL version %d.%d.%d... ", SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL );
@@ -3764,7 +3797,7 @@ void sdlinit_base()
     _sdl_initialized_base = btrue;
 }
 
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 void sdlinit_graphics()
 {
     if ( !_sdl_initialized_base )
@@ -3821,8 +3854,8 @@ void sdlinit_graphics()
 
     sdl_vparam.gl_att.buffer_size        = cfg.scrd_req;
     sdl_vparam.gl_att.depth_size         = cfg.scrz_req;
-    sdl_vparam.gl_att.multi_buffers      = 1; //(cfg.multisamples > 1) ? 1 : 0;
-    sdl_vparam.gl_att.multi_samples      = 4; //cfg.multisamples;
+    sdl_vparam.gl_att.multi_buffers      = 1; // (cfg.multisamples > 1) ? 1 : 0;
+    sdl_vparam.gl_att.multi_samples      = 4; // cfg.multisamples;
     sdl_vparam.gl_att.accelerated_visual = GL_TRUE;
 
     ogl_vparam.dither         = GL_FALSE;
@@ -3852,7 +3885,7 @@ void sdlinit_graphics()
 
 }
 
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 bool_t dump_screenshot()
 {
     // BB> dumps the current screen (GL context) to a new bitmap file
@@ -3888,7 +3921,7 @@ bool_t dump_screenshot()
     if ( !savefound ) return bfalse;
 
     // if we are not using OpenGl, jsut dump the screen
-    if ( 0 == (sdl_scr.pscreen->flags & SDL_OPENGL) )
+    if ( HAS_NO_BITS( sdl_scr.pscreen->flags, SDL_OPENGL) )
     {
         SDL_SaveBMP(sdl_scr.pscreen, szFilename);
         return bfalse;
@@ -3926,15 +3959,15 @@ bool_t dump_screenshot()
 
                 GL_DEBUG(glGetError)();
 
-                //// use the allocated screen to tell OpenGL about the row length (including the lapse) in pixels
-                //// stolen from SDL ;)
-                //GL_DEBUG(glPixelStorei)(GL_UNPACK_ROW_LENGTH, temp->pitch / temp->format->BytesPerPixel );
-                //assert( GL_NO_ERROR == GL_DEBUG(glGetError)() );
+                // // use the allocated screen to tell OpenGL about the row length (including the lapse) in pixels
+                // // stolen from SDL ;)
+                // GL_DEBUG(glPixelStorei)(GL_UNPACK_ROW_LENGTH, temp->pitch / temp->format->BytesPerPixel );
+                // assert( GL_NO_ERROR == GL_DEBUG(glGetError)() );
 
-                //// since we have specified the row actual length and will give a pointer to the actual pixel buffer,
-                //// it is not necesssaty to mess with the alignment
-                //GL_DEBUG(glPixelStorei)(GL_UNPACK_ALIGNMENT, 1 );
-                //assert( GL_NO_ERROR == GL_DEBUG(glGetError)() );
+                // // since we have specified the row actual length and will give a pointer to the actual pixel buffer,
+                // // it is not necesssaty to mess with the alignment
+                // GL_DEBUG(glPixelStorei)(GL_UNPACK_ALIGNMENT, 1 );
+                // assert( GL_NO_ERROR == GL_DEBUG(glGetError)() );
 
                 // ARGH! Must copy the pixels row-by-row, since the OpenGL video memory is flipped vertically
                 // relative to the SDL Screen memory
@@ -3970,7 +4003,7 @@ bool_t dump_screenshot()
     return savefound;
 }
 
-//---------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------
 void load_graphics()
 {
     // ZF> This function loads all the graphics based on the game settings
@@ -4026,8 +4059,8 @@ void load_graphics()
         //  GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         // before every single draw command
         //
-        //GL_DEBUG(glEnable)(GL_POLYGON_SMOOTH);
-        //GL_DEBUG(glHint)(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
+        // GL_DEBUG(glEnable)(GL_POLYGON_SMOOTH);
+        // GL_DEBUG(glHint)(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
     }
     else
     {
@@ -4039,7 +4072,7 @@ void load_graphics()
 
 }
 
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 float calc_light_rotation( int rotation, int normal )
 {
     // ZZ> This function helps make_lighttable
@@ -4060,7 +4093,7 @@ float calc_light_rotation( int rotation, int normal )
     return (nrm2.x < 0) ? 0 : (nrm2.x * nrm2.x);
 }
 
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 float calc_light_global( int rotation, int normal, float lx, float ly, float lz )
 {
     // ZZ> This function helps make_lighttable
@@ -4085,7 +4118,7 @@ float calc_light_global( int rotation, int normal, float lx, float ly, float lz 
     return fTmp * fTmp;
 }
 
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 void make_lighttable( float lx, float ly, float lz, float ambi )
 {
     // ZZ> This function makes a light table to fake directional lighting
@@ -4115,7 +4148,7 @@ void make_lighttable( float lx, float ly, float lz, float ambi )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void make_enviro( void )
 {
     // ZZ> This function sets up the environment mapping table
@@ -4137,7 +4170,7 @@ void make_enviro( void )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void project_view( camera_t * pcam )
 {
     // ZZ> This function figures out where the corners of the view area
@@ -4157,13 +4190,13 @@ void project_view( camera_t * pcam )
     // Topleft
     mTemp = MatrixMult( RotateY( -rotmeshtopside * PI / 360 ), PCamera->mView );
     mTemp = MatrixMult( RotateX( rotmeshup * PI / 360 ), mTemp );
-    zproject = mTemp.CNV( 2, 2 );             //2,2
+    zproject = mTemp.CNV( 2, 2 );             // 2,2
     // Camera must look down
     if ( zproject < 0 )
     {
         numstep = -ztemp / zproject;
-        xfin = pcam->pos.x + ( numstep * mTemp.CNV( 0, 2 ) );  // xgg      //0,2
-        yfin = pcam->pos.y + ( numstep * mTemp.CNV( 1, 2 ) );    //1,2
+        xfin = pcam->pos.x + ( numstep * mTemp.CNV( 0, 2 ) );  // xgg      // 0,2
+        yfin = pcam->pos.y + ( numstep * mTemp.CNV( 1, 2 ) );    // 1,2
         zfin = 0;
         cornerx[0] = xfin;
         cornery[0] = yfin;
@@ -4172,13 +4205,13 @@ void project_view( camera_t * pcam )
     // Topright
     mTemp = MatrixMult( RotateY( rotmeshtopside * PI / 360 ), PCamera->mView );
     mTemp = MatrixMult( RotateX( rotmeshup * PI / 360 ), mTemp );
-    zproject = mTemp.CNV( 2, 2 );             //2,2
+    zproject = mTemp.CNV( 2, 2 );             // 2,2
     // Camera must look down
     if ( zproject < 0 )
     {
         numstep = -ztemp / zproject;
-        xfin = pcam->pos.x + ( numstep * mTemp.CNV( 0, 2 ) );  // xgg      //0,2
-        yfin = pcam->pos.y + ( numstep * mTemp.CNV( 1, 2 ) );    //1,2
+        xfin = pcam->pos.x + ( numstep * mTemp.CNV( 0, 2 ) );  // xgg      // 0,2
+        yfin = pcam->pos.y + ( numstep * mTemp.CNV( 1, 2 ) );    // 1,2
         zfin = 0;
         cornerx[1] = xfin;
         cornery[1] = yfin;
@@ -4187,13 +4220,13 @@ void project_view( camera_t * pcam )
     // Bottomright
     mTemp = MatrixMult( RotateY( rotmeshbottomside * PI / 360 ), PCamera->mView );
     mTemp = MatrixMult( RotateX( -rotmeshdown * PI / 360 ), mTemp );
-    zproject = mTemp.CNV( 2, 2 );             //2,2
+    zproject = mTemp.CNV( 2, 2 );             // 2,2
     // Camera must look down
     if ( zproject < 0 )
     {
         numstep = -ztemp / zproject;
-        xfin = pcam->pos.x + ( numstep * mTemp.CNV( 0, 2 ) );  // xgg      //0,2
-        yfin = pcam->pos.y + ( numstep * mTemp.CNV( 1, 2 ) );    //1,2
+        xfin = pcam->pos.x + ( numstep * mTemp.CNV( 0, 2 ) );  // xgg      // 0,2
+        yfin = pcam->pos.y + ( numstep * mTemp.CNV( 1, 2 ) );    // 1,2
         zfin = 0;
         cornerx[2] = xfin;
         cornery[2] = yfin;
@@ -4202,13 +4235,13 @@ void project_view( camera_t * pcam )
     // Bottomleft
     mTemp = MatrixMult( RotateY( -rotmeshbottomside * PI / 360 ), PCamera->mView );
     mTemp = MatrixMult( RotateX( -rotmeshdown * PI / 360 ), mTemp );
-    zproject = mTemp.CNV( 2, 2 );             //2,2
+    zproject = mTemp.CNV( 2, 2 );             // 2,2
     // Camera must look down
     if ( zproject < 0 )
     {
         numstep = -ztemp / zproject;
-        xfin = pcam->pos.x + ( numstep * mTemp.CNV( 0, 2 ) );  // xgg      //0,2
-        yfin = pcam->pos.y + ( numstep * mTemp.CNV( 1, 2 ) );    //1,2
+        xfin = pcam->pos.x + ( numstep * mTemp.CNV( 0, 2 ) );  // xgg      // 0,2
+        yfin = pcam->pos.y + ( numstep * mTemp.CNV( 1, 2 ) );    // 1,2
         zfin = 0;
         cornerx[3] = xfin;
         cornery[3] = yfin;
@@ -4261,7 +4294,7 @@ void project_view( camera_t * pcam )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void clear_messages()
 {
     // ZZ> This function empties the message buffer
@@ -4276,7 +4309,7 @@ void clear_messages()
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void make_dynalist( camera_t * pcam )
 {
     // ZZ> This function figures out which particles are visible, and it sets up dynamic
@@ -4357,8 +4390,8 @@ void make_dynalist( camera_t * pcam )
     }
 }
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t dolist_add_chr( ego_mpd_t * pmesh, Uint16 ichr )
 {
     // This function puts a character in the list
@@ -4411,7 +4444,7 @@ bool_t dolist_add_chr( ego_mpd_t * pmesh, Uint16 ichr )
 
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t dolist_add_prt( ego_mpd_t * pmesh, Uint16 iprt )
 {
     // This function puts a character in the list
@@ -4437,7 +4470,7 @@ bool_t dolist_add_prt( ego_mpd_t * pmesh, Uint16 iprt )
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void dolist_make( ego_mpd_t * pmesh )
 {
     // ZZ> This function finds the characters that need to be drawn and puts them in the list
@@ -4478,7 +4511,7 @@ void dolist_make( ego_mpd_t * pmesh )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void dolist_sort( camera_t * pcam )
 {
     // ZZ> This function orders the dolist based on distance from camera,
@@ -4528,8 +4561,8 @@ void dolist_sort( camera_t * pcam )
     qsort( dolist, dolist_count, sizeof(obj_registry_entity_t), obj_registry_entity_cmp );
 }
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int obj_registry_entity_cmp( const void * pleft, const void * pright )
 {
     obj_registry_entity_t * dleft  = (obj_registry_entity_t *) pleft;
@@ -4538,8 +4571,8 @@ int obj_registry_entity_cmp( const void * pleft, const void * pright )
     return dleft->dist - dright->dist;
 }
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t gfx_config_synch(gfx_config_t * pgfx, egoboo_config_t * pcfg )
 {
     // call gfx_config_init(), even if the config data is invalid
@@ -4573,7 +4606,7 @@ bool_t gfx_config_synch(gfx_config_t * pgfx, egoboo_config_t * pcfg )
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t gfx_config_init ( gfx_config_t * pgfx )
 {
     if (NULL == pgfx) return bfalse;
@@ -4599,10 +4632,10 @@ bool_t gfx_config_init ( gfx_config_t * pgfx )
     return btrue;
 };
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t oglx_texture_parameters_synch( oglx_texture_parameters_t * ptex, egoboo_config_t * pcfg )
 {
-    /// BB > synch the texture parameters with the video mode
+    // / BB > synch the texture parameters with the video mode
 
     if ( NULL == ptex || NULL == pcfg ) return GL_FALSE;
 
@@ -4620,7 +4653,7 @@ bool_t oglx_texture_parameters_synch( oglx_texture_parameters_t * ptex, egoboo_c
     return GL_TRUE;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t interpolate_mesh_lighting( ego_mpd_t * pmesh, lighting_cache_t * dst, GLvector3 pos )
 {
     lighting_cache_t * cache_list[4];
@@ -4652,7 +4685,7 @@ bool_t interpolate_mesh_lighting( ego_mpd_t * pmesh, lighting_cache_t * dst, GLv
     return interpolate_lighting( dst, cache_list, u, v );
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t project_lighting( lighting_cache_t * dst, lighting_cache_t * src, GLmatrix mat )
 {
     int cnt;
@@ -4692,7 +4725,7 @@ bool_t project_lighting( lighting_cache_t * dst, lighting_cache_t * src, GLmatri
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t interpolate_lighting( lighting_cache_t * dst, lighting_cache_t * src[], float u, float v )
 {
     int   cnt, tnc;
@@ -4772,52 +4805,7 @@ bool_t interpolate_lighting( lighting_cache_t * dst, lighting_cache_t * src[], f
     return wt_sum > 0.0f;
 }
 
-//--------------------------------------------------------------------------------------------
-float evaluate_mesh_lighting( ego_mpd_t * pmesh, lighting_cache_t * src, GLfloat nrm[], float z )
-{
-    float lighting;
-    float hgh_wt, low_wt;
-
-    if ( NULL == src || NULL == nrm ) return 0.0f;
-
-    if ( src->max_light <= 0.0f ) return 0.0f;
-
-    hgh_wt = (z - pmesh->mmem.bbox.mins[ZZ]) / (pmesh->mmem.bbox.maxs[ZZ] - pmesh->mmem.bbox.mins[ZZ]);
-    low_wt = 1.0f - hgh_wt;
-
-    lighting = 0.0f;
-
-    if ( nrm[XX] > 0 )
-    {
-        lighting += ABS(nrm[XX]) * ( low_wt * src->lighting_low[0] + hgh_wt * src->lighting_hgh[0] );
-    }
-    else if (nrm[XX] < 0)
-    {
-        lighting += ABS(nrm[XX]) * ( low_wt * src->lighting_low[1] + hgh_wt * src->lighting_hgh[1] );
-    }
-
-    if ( nrm[YY] > 0 )
-    {
-        lighting += ABS(nrm[YY]) * ( low_wt * src->lighting_low[2] + hgh_wt * src->lighting_hgh[2] );
-    }
-    else if (nrm[YY] < 0)
-    {
-        lighting += ABS(nrm[YY]) * ( low_wt * src->lighting_low[3] + hgh_wt * src->lighting_hgh[3] );
-    }
-
-    if ( nrm[ZZ] > 0 )
-    {
-        lighting += ABS(nrm[ZZ]) * ( low_wt * src->lighting_low[4] + hgh_wt * src->lighting_hgh[4] );
-    }
-    else if (nrm[ZZ] < 0)
-    {
-        lighting += ABS(nrm[ZZ]) * ( low_wt * src->lighting_low[5] + hgh_wt * src->lighting_hgh[5] );
-    }
-
-    return lighting;
-}
-
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t project_sum_lighting( lighting_cache_t * dst, lighting_cache_t * src, GLvector3 vec, int dir )
 {
     if ( NULL == src || NULL == dst ) return bfalse;
@@ -4879,414 +4867,61 @@ bool_t project_sum_lighting( lighting_cache_t * dst, lighting_cache_t * src, GLv
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t bbox_gl_draw(aabb_t * pbbox)
 {
-  GLXvector3f * pmin, * pmax;
+    GLXvector3f * pmin, * pmax;
 
-  if(NULL == pbbox) return bfalse;
+    if (NULL == pbbox) return bfalse;
 
-  GL_DEBUG(glPushMatrix)();
-  {
-    pmin = &(pbbox->mins);
-    pmax = &(pbbox->maxs);
-
-    // !!!! there must be an optimized way of doing this !!!!
-
-    GL_DEBUG(glBegin)(GL_QUADS);
+    GL_DEBUG(glPushMatrix)();
     {
-      // Front Face
-      glVertex3f((*pmin)[XX], (*pmin)[YY], (*pmax)[ZZ]);
-      glVertex3f((*pmax)[XX], (*pmin)[YY], (*pmax)[ZZ]);
-      glVertex3f((*pmax)[XX], (*pmax)[YY], (*pmax)[ZZ]);
-      glVertex3f((*pmin)[XX], (*pmax)[YY], (*pmax)[ZZ]);
+        pmin = &(pbbox->mins);
+        pmax = &(pbbox->maxs);
 
-      // Back Face
-      glVertex3f((*pmin)[XX], (*pmin)[YY], (*pmin)[ZZ]);
-      glVertex3f((*pmin)[XX], (*pmax)[YY], (*pmin)[ZZ]);
-      glVertex3f((*pmax)[XX], (*pmax)[YY], (*pmin)[ZZ]);
-      glVertex3f((*pmax)[XX], (*pmin)[YY], (*pmin)[ZZ]);
+        // !!!! there must be an optimized way of doing this !!!!
 
-      // Top Face
-      glVertex3f((*pmin)[XX], (*pmax)[YY], (*pmin)[ZZ]);
-      glVertex3f((*pmin)[XX], (*pmax)[YY], (*pmax)[ZZ]);
-      glVertex3f((*pmax)[XX], (*pmax)[YY], (*pmax)[ZZ]);
-      glVertex3f((*pmax)[XX], (*pmax)[YY], (*pmin)[ZZ]);
+        GL_DEBUG(glBegin)(GL_QUADS);
+        {
+            // Front Face
+            glVertex3f((*pmin)[XX], (*pmin)[YY], (*pmax)[ZZ]);
+            glVertex3f((*pmax)[XX], (*pmin)[YY], (*pmax)[ZZ]);
+            glVertex3f((*pmax)[XX], (*pmax)[YY], (*pmax)[ZZ]);
+            glVertex3f((*pmin)[XX], (*pmax)[YY], (*pmax)[ZZ]);
 
-      // Bottom Face
-      glVertex3f((*pmin)[XX], (*pmin)[YY], (*pmin)[ZZ]);
-      glVertex3f((*pmax)[XX], (*pmin)[YY], (*pmin)[ZZ]);
-      glVertex3f((*pmax)[XX], (*pmin)[YY], (*pmax)[ZZ]);
-      glVertex3f((*pmin)[XX], (*pmin)[YY], (*pmax)[ZZ]);
+            // Back Face
+            glVertex3f((*pmin)[XX], (*pmin)[YY], (*pmin)[ZZ]);
+            glVertex3f((*pmin)[XX], (*pmax)[YY], (*pmin)[ZZ]);
+            glVertex3f((*pmax)[XX], (*pmax)[YY], (*pmin)[ZZ]);
+            glVertex3f((*pmax)[XX], (*pmin)[YY], (*pmin)[ZZ]);
 
-      // Right face
-      glVertex3f((*pmax)[XX], (*pmin)[YY], (*pmin)[ZZ]);
-      glVertex3f((*pmax)[XX], (*pmax)[YY], (*pmin)[ZZ]);
-      glVertex3f((*pmax)[XX], (*pmax)[YY], (*pmax)[ZZ]);
-      glVertex3f((*pmax)[XX], (*pmin)[YY], (*pmax)[ZZ]);
+            // Top Face
+            glVertex3f((*pmin)[XX], (*pmax)[YY], (*pmin)[ZZ]);
+            glVertex3f((*pmin)[XX], (*pmax)[YY], (*pmax)[ZZ]);
+            glVertex3f((*pmax)[XX], (*pmax)[YY], (*pmax)[ZZ]);
+            glVertex3f((*pmax)[XX], (*pmax)[YY], (*pmin)[ZZ]);
 
-      // Left Face
-      glVertex3f((*pmin)[XX], (*pmin)[YY], (*pmin)[ZZ]);
-      glVertex3f((*pmin)[XX], (*pmin)[YY], (*pmax)[ZZ]);
-      glVertex3f((*pmin)[XX], (*pmax)[YY], (*pmax)[ZZ]);
-      glVertex3f((*pmin)[XX], (*pmax)[YY], (*pmin)[ZZ]);
+            // Bottom Face
+            glVertex3f((*pmin)[XX], (*pmin)[YY], (*pmin)[ZZ]);
+            glVertex3f((*pmax)[XX], (*pmin)[YY], (*pmin)[ZZ]);
+            glVertex3f((*pmax)[XX], (*pmin)[YY], (*pmax)[ZZ]);
+            glVertex3f((*pmin)[XX], (*pmin)[YY], (*pmax)[ZZ]);
+
+            // Right face
+            glVertex3f((*pmax)[XX], (*pmin)[YY], (*pmin)[ZZ]);
+            glVertex3f((*pmax)[XX], (*pmax)[YY], (*pmin)[ZZ]);
+            glVertex3f((*pmax)[XX], (*pmax)[YY], (*pmax)[ZZ]);
+            glVertex3f((*pmax)[XX], (*pmin)[YY], (*pmax)[ZZ]);
+
+            // Left Face
+            glVertex3f((*pmin)[XX], (*pmin)[YY], (*pmin)[ZZ]);
+            glVertex3f((*pmin)[XX], (*pmin)[YY], (*pmax)[ZZ]);
+            glVertex3f((*pmin)[XX], (*pmax)[YY], (*pmax)[ZZ]);
+            glVertex3f((*pmin)[XX], (*pmax)[YY], (*pmin)[ZZ]);
+        }
+        GL_DEBUG_END();
     }
-    GL_DEBUG_END();
-  }
-  GL_DEBUG(glPopMatrix)();
+    GL_DEBUG(glPopMatrix)();
 
-  return btrue;
+    return btrue;
 }
-
-////--------------------------------------------------------------------------------------------
-//void light_fans( ego_mpd_t * pmesh)
-//{
-//    int entry, cnt;
-//    Uint8 type;
-//    float light;
-//
-//    for ( entry = 0; entry < renderlist.all_count; entry++ )
-//    {
-//        int vertex,numvertices;
-//        int ix,iy, dx,dy;
-//        int fan;
-//        float min_x, max_x, min_y, max_y, min_z, max_z;
-//
-//        fan = renderlist.all[entry];
-//        if ( !VALID_TILE(pmesh, fan) ) continue;
-//
-//        ix = fan % pmesh->info.tiles_x;
-//        iy = fan / pmesh->info.tiles_x;
-//
-//        type   = pmesh->mmem.tile_list[fan].type;
-//        vertex = pmesh->mmem.tile_list[fan].vrtstart;
-//
-//        numvertices = tile_dict[type].numvertices;
-//
-//        // find the actual extent of the tile
-//        min_x = max_x = pmesh->mmem.vrt_x[vertex];
-//        min_y = max_y = pmesh->mmem.vrt_y[vertex];
-//        min_z = max_z = pmesh->mmem.vrt_z[vertex];
-//        for(cnt=1; cnt<numvertices; cnt++)
-//        {
-//            min_x = MIN(min_x, pmesh->mmem.vrt_x[vertex + cnt]);
-//            min_y = MIN(min_y, pmesh->mmem.vrt_y[vertex + cnt]);
-//            min_z = MIN(min_z, pmesh->mmem.vrt_z[vertex + cnt]);
-//
-//            max_x = MAX(max_x, pmesh->mmem.vrt_x[vertex + cnt]);
-//            max_y = MAX(max_y, pmesh->mmem.vrt_y[vertex + cnt]);
-//            max_z = MAX(max_z, pmesh->mmem.vrt_z[vertex + cnt]);
-//        };
-//
-//        // do the 4 corners
-//        for(cnt=0; cnt<4; cnt++)
-//        {
-//            float u,v;
-//            float light;
-//            int weight_sum;
-//            GLvector3 nrm;
-//
-//            // find the normal
-//            u = (pmesh->mmem.vrt_x[vertex + cnt] - min_x) / (max_x - min_x);
-//            v = (pmesh->mmem.vrt_y[vertex + cnt] - min_y) / (max_y - min_y);
-//
-//            dx = u < 0.5f ? 0 : 1;
-//            dy = v < 0.5f ? 0 : 1;
-//
-//            // get the vertex normal
-//            fan = mesh_get_tile_int( pmesh, ix + dx, iy + dy );
-//            if( !VALID_TILE(pmesh, fan) )
-//            {
-//                nrm.x = nrm.y = 0.0f;
-//                nrm.z = 1.0f;
-//            }
-//            else
-//            {
-//                nrm = pmesh->mmem.nrm[fan];
-//            }
-//
-//            light = 0;
-//            weight_sum = 0;
-//            for(dx = -1; dx <= 0; dx++)
-//            {
-//                for(dy = -1; dy<= 0; dy++)
-//                {
-//                    fan = mesh_get_tile_int( pmesh, ix + dx, iy + dy );
-//                    if( VALID_TILE(pmesh, fan) )
-//                    {
-//                        float wt;
-//                        GLvector3 * pnrm;
-//                        lighting_cache_t * cache;
-//                        float loc_light;
-//
-//                        cache = pmesh->mmem.cache + fan;
-//
-//                        loc_light = 0;
-//                        if( cache->max_light > 0 )
-//                        {
-//                            if ( nrm.x > 0 )
-//                            {
-//                                loc_light += ABS(nrm.x) * cache->lighting[0];
-//                            }
-//                            else if ( nrm.x < 0 )
-//                            {
-//                                loc_light += ABS(nrm.x) * cache->lighting[1];
-//                            }
-//
-//                            if ( nrm.y > 0 )
-//                            {
-//                                loc_light += ABS(nrm.y) * cache->lighting[2];
-//                            }
-//                            else if ( nrm.y < 0 )
-//                            {
-//                                loc_light += ABS(nrm.y) * cache->lighting[3];
-//                            }
-//
-//                            if ( nrm.z > 0 )
-//                            {
-//                                loc_light += ABS(nrm.z) * cache->lighting[4];
-//                            }
-//                            else if ( nrm.z < 0 )
-//                            {
-//                                loc_light += ABS(nrm.z) * cache->lighting[5];
-//                            }
-//                        }
-//                        weight_sum++;
-//                        light += loc_light;
-//                    }
-//                }
-//            }
-//
-//
-//            if( light > 0 && weight_sum > 0 )
-//            {
-//                light /= weight_sum;
-//            }
-//            else
-//            {
-//                light = 0;
-//            }
-//            light = CLIP(light, 0, 255);
-//
-//            pmesh->mmem.vrt_l[vertex + cnt] = pmesh->mmem.vrt_l[vertex + cnt] * 0.9f + light * 0.1f;
-//        }
-//
-//        // linearly interpolate the other vertices
-//        for( /* nothing */ ; cnt<numvertices; cnt++)
-//        {
-//            // sum up the lighting
-//            int   tnc;
-//            float u,v;
-//            float light;
-//            float weight_sum;
-//
-//            u = (pmesh->mmem.vrt_x[vertex + cnt] - min_x) / (max_x - min_x);
-//            v = (pmesh->mmem.vrt_y[vertex + cnt] - min_y) / (max_y - min_y);
-//
-//            weight_sum = 0;
-//            light      = 0;
-//            for( tnc=0; tnc<4; tnc++ )
-//            {
-//                float u2, v2;
-//                float wt;
-//
-//                u2 = (pmesh->mmem.vrt_x[vertex + tnc] - min_x) / (max_x - min_x);
-//                v2 = (pmesh->mmem.vrt_y[vertex + tnc] - min_y) / (max_y - min_y);
-//
-//                wt = get_mix(u2, u, v2, v);
-//
-//                weight_sum += wt;
-//                light      += wt * pmesh->mmem.vrt_l[vertex + tnc];
-//            }
-//
-//            if( light > 0 && weight_sum > 0.0 )
-//            {
-//                light /= weight_sum;
-//            }
-//            else
-//            {
-//                light = 0;
-//            }
-//            light = CLIP(light, 0, 255);
-//
-//            pmesh->mmem.vrt_l[vertex + cnt] = pmesh->mmem.vrt_l[vertex + cnt] * 0.9f + light * 0.1f;
-//        }
-//    }
-//
-//}
-
-//--------------------------------------------------------------------------------------------
-//void light_characters()
-//{
-//    // ZZ> This function figures out character lighting
-//
-//    int cnt, tnc;
-//    Uint16 light_max, light_min;
-//    Uint16 tl, tr, bl, br;
-//    mpd_mem_t * pmem = &(PMesh->mmem);
-//
-//    for ( cnt = 0; cnt < dolist_count; cnt++ )
-//    {
-//        int istart;
-//        chr_t * pchr;
-//        chr_instance_t * pinst;
-//
-//        tnc = dolist[cnt].ichr;
-//
-//        if ( INVALID_CHR(tnc) ) continue;
-//        pchr = ChrList + tnc;
-//        pinst = &(pchr->inst);
-//
-//        if ( !VALID_TILE(PMesh, pchr->onwhichfan) )
-//        {
-//            pinst->light_turn_z   = 0;
-//            pinst->lightlevel_amb = 0;
-//            pinst->lightlevel_dir = 0;
-//            continue;
-//        }
-//
-//        istart = pmem->tile_list[pchr->onwhichfan].vrtstart;
-//
-//        // grab the corner intensities
-//        tl = pmem->vrt_l[ istart + 0 ];
-//        tr = pmem->vrt_l[ istart + 1 ];
-//        br = pmem->vrt_l[ istart + 2 ];
-//        bl = pmem->vrt_l[ istart + 3 ];
-//
-//        // determine the amount of directionality
-//        light_min = MIN(MIN(tl, tr), MIN(bl, br));
-//        light_max = MAX(MAX(tl, tr), MAX(bl, br));
-//
-//        if (light_max == 0 && light_min == 0 )
-//        {
-//            pinst->light_turn_z = 0;
-//            pinst->lightlevel_amb = 0;
-//            pinst->lightlevel_dir = 0;
-//            continue;
-//        }
-//        else if ( light_max == light_min )
-//        {
-//            pinst->light_turn_z = 0;
-//            pinst->lightlevel_amb = light_min;
-//            pinst->lightlevel_dir = 0;
-//        }
-//        else
-//        {
-//            int ix, iy;
-//            Uint16 itop, ibot;
-//            Uint32 light;
-//
-//            // Interpolate lighting level using tile corners
-//            ix = ((int)pchr->pos.x) & 127;
-//            iy = ((int)pchr->pos.y) & 127;
-//
-//            itop = tl * (128 - ix) + tr * ix;
-//            ibot = bl * (128 - ix) + br * ix;
-//            light = (128 - iy) * itop + iy * ibot;
-//            light >>= 14;
-//
-//            pinst->lightlevel_dir = ( light * (light_max - light_min) ) / light_max;
-//            pinst->lightlevel_amb = light - pinst->lightlevel_dir;
-//
-//            if ( !gfx.exploremode && pinst->lightlevel_dir > 0 )
-//            {
-//                Uint32 lookup;
-//
-//                // Look up light direction using corners again
-//                lookup  = ( tl & 0xf0 ) << 8;
-//                lookup |= ( tr & 0xf0 ) << 4;
-//                lookup |= ( br & 0xf0 );
-//                lookup |= ( bl & 0xf0 ) >> 4;
-//
-//                pinst->light_turn_z = lightdirectionlookup[tl] << 8;
-//            }
-//            else
-//            {
-//                pinst->light_turn_z = 0;
-//            }
-//        }
-//    }
-//
-//    // do character flashing
-//    do_chr_flashing();
-//}
-
-////--------------------------------------------------------------------------------------------
-//void set_fan_light( ego_mpd_t * pmesh, int fanx, int fany, Uint16 particle )
-//{
-//    // ZZ> This function is a little helper, lighting the selected fan
-//    //     with the chosen particle
-//    float x, y;
-//    int fan, vertex, lastvertex;
-//    float level;
-//    float light;
-//
-//    if ( fanx >= 0 && fanx < pmesh->info.tiles_x && fany >= 0 && fany < pmesh->info.tiles_y )
-//    {
-//        // allow raw access because we were careful
-//        fan = mesh_get_tile_int( pmesh, fanx, fany );
-//
-//        if ( VALID_TILE(pmesh, fan) )
-//        {
-//            Uint8 ttype = pmesh->mmem.tile_list[fan].type;
-//
-//            if ( ttype < MAXMESHTYPE )
-//            {
-//                vertex = pmesh->mmem.tile_list[fan].vrtstart;
-//                lastvertex = vertex + tile_dict[ttype].numvertices;
-//
-//                while ( vertex < lastvertex )
-//                {
-//                    light = pmesh->mmem.vrt_a[vertex];
-//                    x = PrtList[particle].pos.x - pmesh->mmem.vrt_x[vertex];
-//                    y = PrtList[particle].pos.y - pmesh->mmem.vrt_y[vertex];
-//                    level = ( x * x + y * y ) / PrtList[particle].dynalightfalloff;
-//                    level = 255 - level;
-//                    level = level * PrtList[particle].dynalightlevel;
-//                    if ( level > light )
-//                    {
-//                        if ( level > 255 ) level = 255;
-//
-//                        pmesh->mmem.vrt_l[vertex] = level;
-//                        pmesh->mmem.vrt_a[vertex] = level;
-//                    }
-//
-//                    vertex++;
-//                }
-//            }
-//        }
-//    }
-//}
-
-//--------------------------------------------------------------------------------------------
-//void draw_titleimage( int image, int x, int y )
-//{
-//  // ZZ> This function draws a title image on the backbuffer
-//  GLfloat  txWidth, txHeight;
-//
-//  if ( INVALID_TX_ID != oglx_texture_GetTextureID( TxTitleImage + image ) )
-//  {
-//    GL_DEBUG(glColor4f)(1.0f, 1.0f, 1.0f, 1.0f );
-//    Begin2DMode();
-//    GL_DEBUG(glNormal3f)(0, 0, 1 );  // GL_DEBUG(glNormal3f)(0, 1, 0 );
-//
-//    /* Calculate the texture width & height */
-//    txWidth = ( GLfloat )( oglx_texture_GetImageWidth( TxTitleImage + image ) / oglx_texture_GetDimensions( TxTitleImage + image ) );
-//    txHeight = ( GLfloat )( oglx_texture_GetImageHeight( TxTitleImage + image ) / oglx_texture_GetDimensions( TxTitleImage + image ) );
-//
-//    /* Bind the texture */
-//    oglx_texture_Bind( TxTitleImage + image );
-//
-//    /* Draw the quad */
-//    GL_DEBUG(glBegin)(GL_QUADS );
-//    {
-//        GL_DEBUG(glTexCoord2f)(0, 1 );  GL_DEBUG(glVertex2f)(x, y + oglx_texture_GetImageHeight( TxTitleImage + image ) );
-//        GL_DEBUG(glTexCoord2f)(txWidth, 1 );  GL_DEBUG(glVertex2f)(x + oglx_texture_GetImageWidth( TxTitleImage + image ), y + oglx_texture_GetImageHeight( TxTitleImage + image ) );
-//        GL_DEBUG(glTexCoord2f)(txWidth, 1 - txHeight );  GL_DEBUG(glVertex2f)(x + oglx_texture_GetImageWidth( TxTitleImage + image ), y );
-//        GL_DEBUG(glTexCoord2f)(0, 1 - txHeight );  GL_DEBUG(glVertex2f)(x, y );
-//    }
-//    GL_DEBUG_END();
-//
-//    End2DMode();
-//  }
-//}

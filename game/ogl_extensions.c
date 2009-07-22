@@ -4,18 +4,18 @@
 #include <math.h>
 #include <string.h>
 
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 #define LOCAL_STDOUT ((NULL == _oglx_stdout) ? stdout : _oglx_stdout)
 
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 oglx_caps_t ogl_caps;
 
 static FILE * _oglx_stdout = NULL;
 
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 void oglx_report_caps()
 {
     oglx_Get_Screen_Info(&ogl_caps);
@@ -78,8 +78,8 @@ void oglx_report_caps()
     fflush( LOCAL_STDOUT );
 }
 
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 void oglx_bind(GLenum target, GLuint id, GLint wrap_s, GLint wrap_t, GLint min_f, GLint mag_f, GLfloat anisotropy )
 {
     GL_DEBUG(glBindTexture)( target, id );
@@ -95,7 +95,7 @@ void oglx_bind(GLenum target, GLuint id, GLint wrap_s, GLint wrap_t, GLint min_f
     }
 }
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 void oglx_upload_1d(GLboolean use_alpha, GLsizei w, const GLvoid * data)
 {
     if (use_alpha)
@@ -108,7 +108,7 @@ void oglx_upload_1d(GLboolean use_alpha, GLsizei w, const GLvoid * data)
     }
 }
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 void oglx_upload_2d(GLboolean use_alpha, GLsizei w, GLsizei h, const GLvoid * data)
 {
     if (use_alpha)
@@ -121,7 +121,7 @@ void oglx_upload_2d(GLboolean use_alpha, GLsizei w, GLsizei h, const GLvoid * da
     }
 }
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 void oglx_upload_2d_mipmap(GLboolean use_alpha, GLsizei w, GLsizei h, const GLvoid * data)
 {
     if (use_alpha)
@@ -134,8 +134,8 @@ void oglx_upload_2d_mipmap(GLboolean use_alpha, GLsizei w, GLsizei h, const GLvo
     }
 }
 
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 void oglx_Get_Screen_Info( oglx_caps_t * pcaps )
 {
 
@@ -193,7 +193,7 @@ void oglx_Get_Screen_Info( oglx_caps_t * pcaps )
     pcaps->maxAnisotropy  = 0;
     pcaps->log2Anisotropy = 0;
 
-    /// get the supported values for anisotropic filtering
+    // / get the supported values for anisotropic filtering
     pcaps->anisotropic_supported = GL_FALSE;
     pcaps->maxAnisotropy  = 1.0f;
     pcaps->log2Anisotropy = 0.0f;
@@ -206,23 +206,23 @@ void oglx_Get_Screen_Info( oglx_caps_t * pcaps )
 
 }
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 GLboolean oglx_video_parameters_default(oglx_video_parameters_t * pvid)
 {
     if (NULL == pvid) return GL_FALSE;
 
-    pvid->multisample     = GL_FALSE;            ///< current antialiasing used through GL_MULTISAMPLES
-    pvid->multisample_arb = GL_FALSE;            ///< current antialiasing used through GL_MULTISAMPLES_ARB
-    pvid->perspective     = GL_FASTEST;          ///< current correction hint
-    pvid->dither          = GL_FALSE;            ///< current dithering flag
-    pvid->shading         = GL_SMOOTH;           ///< current shading type
+    pvid->multisample     = GL_FALSE;            // /< current antialiasing used through GL_MULTISAMPLES
+    pvid->multisample_arb = GL_FALSE;            // /< current antialiasing used through GL_MULTISAMPLES_ARB
+    pvid->perspective     = GL_FASTEST;          // /< current correction hint
+    pvid->dither          = GL_FALSE;            // /< current dithering flag
+    pvid->shading         = GL_SMOOTH;           // /< current shading type
     pvid->userAnisotropy  = 0.0f;
 
     return GL_TRUE;
 }
 
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 FILE * oglx_set_stdout(FILE * pfile)
 {
     FILE * pfile_old = _oglx_stdout;

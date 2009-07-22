@@ -1,35 +1,35 @@
 #pragma once
 
-//********************************************************************************************
-//*
-//*    This file is part of Egoboo.
-//*
-//*    Egoboo is free software: you can redistribute it and/or modify it
-//*    under the terms of the GNU General Public License as published by
-//*    the Free Software Foundation, either version 3 of the License, or
-//*    (at your option) any later version.
-//*
-//*    Egoboo is distributed in the hope that it will be useful, but
-//*    WITHOUT ANY WARRANTY; without even the implied warranty of
-//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//*    General Public License for more details.
-//*
-//*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-//*
-//********************************************************************************************
+// ********************************************************************************************
+// *
+// *    This file is part of Egoboo.
+// *
+// *    Egoboo is free software: you can redistribute it and/or modify it
+// *    under the terms of the GNU General Public License as published by
+// *    the Free Software Foundation, either version 3 of the License, or
+// *    (at your option) any later version.
+// *
+// *    Egoboo is distributed in the hope that it will be useful, but
+// *    WITHOUT ANY WARRANTY; without even the implied warranty of
+// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// *    General Public License for more details.
+// *
+// *    You should have received a copy of the GNU General Public License
+// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+// *
+// ********************************************************************************************
 
 #include "egoboo_typedef.h"
 #include "egoboo_math.h"
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 struct s_ego_mpd;
 struct s_camera;
 struct s_script_state;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 enum e_process_states
 {
     proc_begin,
@@ -40,7 +40,7 @@ enum e_process_states
 };
 typedef enum e_process_states process_state_t;
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 
 #define PROC_PBASE(PTR) (&( (PTR)->base ))
 
@@ -55,7 +55,7 @@ struct s_process_instance
 };
 typedef struct s_process_instance process_instance_t;
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 struct s_ego_process
 {
     process_instance_t base;
@@ -72,7 +72,7 @@ typedef struct s_ego_process ego_process_t;
 
 extern ego_process_t * EProc;
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 struct s_game_process
 {
     process_instance_t base;
@@ -91,7 +91,7 @@ typedef struct s_game_process game_process_t;
 
 extern game_process_t * GProc;
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 struct s_menu_process
 {
     process_instance_t base;
@@ -105,8 +105,8 @@ typedef struct s_menu_process menu_process_t;
 
 extern menu_process_t * MProc;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 #define TILESOUNDTIME 16
 #define TILEREAFFIRMAND  3
 
@@ -127,8 +127,8 @@ enum e_latchbutton
     LATCHBUTTON_RESPAWN   = ( 1 << 7 )
 };
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // animtile data in the wawalite.txt file
 struct s_animtile_data
 {
@@ -140,16 +140,17 @@ struct s_animtile_data
 typedef struct s_animtile_data animtile_data_t;
 extern animtile_data_t animtile_data;
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 struct s_animtile_instance
 {
     Uint16 frame_and;
     Uint16 base_and;
+    Uint16 frame_add;
 };
 typedef struct s_animtile_instance animtile_instance_t;
 extern animtile_instance_t animtile[2];
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // damagetile data in the wawalite.txt file
 struct s_damagetile_data
 {
@@ -162,7 +163,7 @@ struct s_damagetile_data
 typedef struct s_damagetile_data damagetile_data_t;
 extern damagetile_data_t damagetile_data;
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 struct s_damagetile_instance
 {
     Sint16  sound_time;
@@ -171,7 +172,7 @@ struct s_damagetile_instance
 typedef struct s_damagetile_instance damagetile_instance_t;
 extern damagetile_instance_t damagetile;
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // weather data in the wawalite.txt file
 struct s_weather_data
 {
@@ -181,7 +182,7 @@ struct s_weather_data
 typedef struct s_weather_data weather_data_t;
 extern weather_data_t weather_data;
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 struct s_weather_instance
 {
     Uint16  iplayer;
@@ -190,7 +191,7 @@ struct s_weather_instance
 typedef struct s_weather_instance weather_instance_t;
 extern weather_instance_t weather;
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // water data in the wawalite.txt file
 
 struct s_water_layer_data
@@ -231,7 +232,7 @@ struct s_water_data
 typedef struct s_water_data water_data_t;
 extern water_data_t water_data;
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 
 struct s_water_layer_instance
 {
@@ -260,7 +261,7 @@ struct s_water_instance
 typedef struct s_water_instance water_instance_t;
 extern water_instance_t water;
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // fog data in the wawalite.txt file
 struct s_fog_data
 {
@@ -271,7 +272,7 @@ struct s_fog_data
 typedef struct s_fog_data fog_data_t;
 extern fog_data_t fog_data;
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 struct s_fog_instance
 {
     bool_t  on;            // Do ground fog?
@@ -282,34 +283,34 @@ struct s_fog_instance
 typedef struct s_fog_instance fog_instance_t;
 extern fog_instance_t fog;
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // Status displays
 
 #define MAXSTAT             16                      // Maximum status displays
 
 extern bool_t staton;
-//extern int    statdelay;
+// extern int    statdelay;
 extern int    numstat;
 extern Uint16 statlist[MAXSTAT];
 
-//--------------------------------------------------------------------------------------------
-//End text
+// --------------------------------------------------------------------------------------------
+// End text
 #define MAXENDTEXT 1024
 
 extern char   endtext[MAXENDTEXT];     // The end-module text
 extern int    endtextwrite;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 
-extern bool_t    overrideslots;         //Override existing slots?
+extern bool_t    overrideslots;         // Override existing slots?
 extern bool_t    screenshotkeyready;    // Ready to take screenshot?
 
 extern struct s_ego_mpd         * PMesh;
 extern struct s_camera          * PCamera;
 extern struct s_module_instance * PMod;
 
-//Pitty stuff
+// Pitty stuff
 extern bool_t  pitskill;          // Do they kill?
 extern bool_t  pitsfall;          // Do they teleport?
 extern Uint32  pitx;
@@ -318,8 +319,12 @@ extern Uint32  pitz;
 
 extern Uint16  glouseangle;                                        // actually still used
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// Sense enemies
+extern Uint8  local_senseenemiesTeam;
+extern IDSZ   local_senseenemiesID;
+
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 
 // the hook for deinitializing an old module
 void   game_quit_module();
@@ -369,7 +374,7 @@ void   fgetadd( float min, float value, float max, float* valuetoadd );
 void set_one_player_latch( Uint16 player );
 int  add_player( Uint16 character, Uint16 player, Uint32 device );
 
-//AI targeting
+// AI targeting
 Uint16 get_target( Uint16 character, Uint32 maxdistance, TARGET_TYPE team, bool_t targetitems, bool_t targetdead, IDSZ idsz, bool_t excludeidsz);
 Uint16 get_particle_target( float pos_x, float pos_y, float pos_z, Uint16 facing,
                             Uint16 particletype, Uint8 team, Uint16 donttarget,
@@ -398,9 +403,6 @@ bool_t water_instance_init( water_instance_t * pinst, water_data_t * pdata );
 bool_t fog_data_init( fog_data_t * pdata );
 bool_t fog_instance_init( fog_instance_t * pinst, fog_data_t * pdata );
 
-bool_t animtile_data_init( animtile_data_t * pdata );
-bool_t animtile_instance_init( animtile_instance_t pinst[], animtile_data_t * pdata );
-
 float get_mesh_level( struct s_ego_mpd * pmesh, float x, float y, bool_t waterwalk );
 
 bool_t make_water( water_instance_t * pinst, water_data_t * pdata );
@@ -423,3 +425,5 @@ game_process_t     * game_process_init( game_process_t * gproc );
 
 void init_all_profiles();
 void release_all_profiles();
+
+void reset_players();

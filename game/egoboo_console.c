@@ -1,21 +1,21 @@
-//********************************************************************************************
-//*
-//*    This file is part of Egoboo.
-//*
-//*    Egoboo is free software: you can redistribute it and/or modify it
-//*    under the terms of the GNU General Public License as published by
-//*    the Free Software Foundation, either version 3 of the License, or
-//*    (at your option) any later version.
-//*
-//*    Egoboo is distributed in the hope that it will be useful, but
-//*    WITHOUT ANY WARRANTY; without even the implied warranty of
-//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//*    General Public License for more details.
-//*
-//*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-//*
-//********************************************************************************************
+// ********************************************************************************************
+// *
+// *    This file is part of Egoboo.
+// *
+// *    Egoboo is free software: you can redistribute it and/or modify it
+// *    under the terms of the GNU General Public License as published by
+// *    the Free Software Foundation, either version 3 of the License, or
+// *    (at your option) any later version.
+// *
+// *    Egoboo is distributed in the hope that it will be useful, but
+// *    WITHOUT ANY WARRANTY; without even the implied warranty of
+// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// *    General Public License for more details.
+// *
+// *    You should have received a copy of the GNU General Public License
+// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+// *
+// ********************************************************************************************
 
 #include "egoboo_console.inl"
 
@@ -31,15 +31,15 @@
 #include <stdio.h>
 #include <string.h>
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 egoboo_console_t * egoboo_console_top = NULL;
 
 Uint8  scancode_to_ascii[SDLK_LAST];
 Uint8  scancode_to_ascii_shift[SDLK_LAST];
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 
 static void egoboo_console_add_output( egoboo_console_t * pcon, char * szNew );
 static void egoboo_console_write( egoboo_console_t * pcon, const char *format, va_list args );
@@ -47,8 +47,8 @@ static void egoboo_console_write( egoboo_console_t * pcon, const char *format, v
 static SDL_bool egoboo_console_draw( egoboo_console_t * pcon );
 static SDL_bool egoboo_console_run( egoboo_console_t * pcon );
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 static SDL_bool egoboo_console_stack_unlink( egoboo_console_t * pcon )
 {
     SDL_bool retval = SDL_FALSE;
@@ -81,7 +81,7 @@ static SDL_bool egoboo_console_stack_unlink( egoboo_console_t * pcon )
     return retval;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 static SDL_bool egoboo_console_stack_push_front( egoboo_console_t * pcon )
 {
     if ( NULL == pcon ) return SDL_FALSE;
@@ -92,8 +92,8 @@ static SDL_bool egoboo_console_stack_push_front( egoboo_console_t * pcon )
     return SDL_TRUE;
 }
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void egoboo_console_write( egoboo_console_t * pcon, const char *format, va_list args )
 {
     char buffer[EGOBOO_CONSOLE_WRITE_LEN];
@@ -106,7 +106,7 @@ void egoboo_console_write( egoboo_console_t * pcon, const char *format, va_list 
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void egoboo_console_fprint( egoboo_console_t * pcon, const char *format, ... )
 {
     va_list args;
@@ -116,7 +116,7 @@ void egoboo_console_fprint( egoboo_console_t * pcon, const char *format, ... )
     va_end( args );
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void egoboo_console_add_output( egoboo_console_t * pcon, char * szNew )
 {
     size_t out_len, copy_len;
@@ -164,7 +164,7 @@ void egoboo_console_add_output( egoboo_console_t * pcon, char * szNew )
 
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 egoboo_console_t * egoboo_console_new( egoboo_console_t * pcon, SDL_Rect Con_rect, egoboo_console_callback_t pcall, void * data  )
 {
     SDL_bool local_allocation = SDL_FALSE;
@@ -196,7 +196,7 @@ egoboo_console_t * egoboo_console_new( egoboo_console_t * pcon, SDL_Rect Con_rec
     return pcon;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 SDL_bool egoboo_console_run( egoboo_console_t * pcon )
 {
     SDL_bool retval = SDL_FALSE;
@@ -211,7 +211,7 @@ SDL_bool egoboo_console_run( egoboo_console_t * pcon )
     return retval;
 };
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 SDL_bool egoboo_console_delete( egoboo_console_t * pcon, SDL_bool do_free )
 {
     SDL_bool retval = SDL_FALSE;
@@ -228,7 +228,7 @@ SDL_bool egoboo_console_delete( egoboo_console_t * pcon, SDL_bool do_free )
     return retval;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void egoboo_console_draw_begin()
 {
     ATTRIB_PUSH( "egoboo_console_draw_begin", GL_ENABLE_BIT );
@@ -254,7 +254,7 @@ void egoboo_console_draw_begin()
     GL_DEBUG(glLoadIdentity)();
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void egoboo_console_draw_end()
 {
     // Restore the OpenGL matrices to what they were
@@ -268,7 +268,7 @@ void egoboo_console_draw_end()
     ATTRIB_POP( "egoboo_console_draw_end" );
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 SDL_bool egoboo_console_draw( egoboo_console_t * pcon )
 {
     char   buffer[EGOBOO_CONSOLE_WRITE_LEN];
@@ -358,7 +358,7 @@ SDL_bool egoboo_console_draw( egoboo_console_t * pcon )
                 console_line_count++;
             }
 
-            //draw the last output line and work backwards
+            // draw the last output line and work backwards
             for ( i = console_line_count - 1; i >= 0 && height > 0 ; i-- )
             {
                 size_t len = MIN(1023, console_line_lengths[i]);
@@ -378,7 +378,7 @@ SDL_bool egoboo_console_draw( egoboo_console_t * pcon )
     return SDL_TRUE;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void egoboo_console_draw_all()
 {
     egoboo_console_t * pcon = egoboo_console_top;
@@ -396,7 +396,7 @@ void egoboo_console_draw_all()
 
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void egoboo_console_show( egoboo_console_t * pcon )
 {
     if ( NULL != pcon )
@@ -416,7 +416,7 @@ void egoboo_console_show( egoboo_console_t * pcon )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void egoboo_console_hide( egoboo_console_t * pcon )
 {
     if ( NULL != pcon )
@@ -436,7 +436,7 @@ void egoboo_console_hide( egoboo_console_t * pcon )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 char * egoboo_console_get_saved( egoboo_console_t * pcon )
 {
     if (NULL == pcon) return "";
@@ -447,7 +447,7 @@ char * egoboo_console_get_saved( egoboo_console_t * pcon )
     return pcon->save_buffer[pcon->save_index];
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void egoboo_console_add_saved( egoboo_console_t * pcon, char * str )
 {
     if (NULL == pcon) return;
@@ -471,7 +471,7 @@ void egoboo_console_add_saved( egoboo_console_t * pcon, char * str )
     pcon->save_index = pcon->save_count;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 SDL_Event * egoboo_console_handle_events( SDL_Event * pevt )
 {
     egoboo_console_t     * pcon = egoboo_console_top;
@@ -491,8 +491,8 @@ SDL_Event * egoboo_console_handle_events( SDL_Event * pevt )
     // get any keymods
     kmod = SDL_GetModState();
 
-    is_alt   = (SDL_bool)( 0 != (kmod & (KMOD_ALT | KMOD_CTRL) ) );
-    is_shift = (SDL_bool)( 0 != (kmod & KMOD_SHIFT) );
+    is_alt   = (SDL_bool)HAS_SOME_BITS( kmod, KMOD_ALT | KMOD_CTRL );
+    is_shift = (SDL_bool)HAS_SOME_BITS( kmod, KMOD_SHIFT );
 
     // start the top console
     if ( !is_alt && !is_shift && SDLK_BACKQUOTE == vkey )
@@ -645,7 +645,7 @@ SDL_Event * egoboo_console_handle_events( SDL_Event * pevt )
     return pevt;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void init_scancodes()
 {
     // BB > initialize the scancode translation

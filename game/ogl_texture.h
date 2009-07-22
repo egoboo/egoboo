@@ -1,32 +1,32 @@
 #pragma once
 
-//********************************************************************************************
-//*
-//*    This file is part of Egoboo.
-//*
-//*    Egoboo is free software: you can redistribute it and/or modify it
-//*    under the terms of the GNU General Public License as published by
-//*    the Free Software Foundation, either version 3 of the License, or
-//*    (at your option) any later version.
-//*
-//*    Egoboo is distributed in the hope that it will be useful, but
-//*    WITHOUT ANY WARRANTY; without even the implied warranty of
-//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//*    General Public License for more details.
-//*
-//*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
-//*
-//********************************************************************************************
+// ********************************************************************************************
+// *
+// *    This file is part of Egoboo.
+// *
+// *    Egoboo is free software: you can redistribute it and/or modify it
+// *    under the terms of the GNU General Public License as published by
+// *    the Free Software Foundation, either version 3 of the License, or
+// *    (at your option) any later version.
+// *
+// *    Egoboo is distributed in the hope that it will be useful, but
+// *    WITHOUT ANY WARRANTY; without even the implied warranty of
+// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// *    General Public License for more details.
+// *
+// *    You should have received a copy of the GNU General Public License
+// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+// *
+// ********************************************************************************************
 
-///
-/// @file
-/// @brief Basic OpenGL Wrapper
-/// @details Basic definitions for loading and managing OpenGL textures in Egoboo.
-///   Uses SDL_image to load .tif, .png, .bmp, .dib, .xpm, and other formats into
-///   OpenGL texures
+// /
+// / @file
+// / @brief Basic OpenGL Wrapper
+// / @details Basic definitions for loading and managing OpenGL textures in Egoboo.
+// /   Uses SDL_image to load .tif, .png, .bmp, .dib, .xpm, and other formats into
+// /   OpenGL texures
 
-//#include "egoboo_memory.h"
+// #include "egoboo_memory.h"
 
 #include "ogl_include.h"
 #include "ogl_debug.h"
@@ -36,8 +36,8 @@
 
 #include <SDL.h>
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 
 #define INVALID_TX_ID  ( (GLuint) (~0) )
 #define INVALID_KEY    ( (Uint32) (~0) )
@@ -55,8 +55,8 @@ typedef enum e_tx_filters
     TX_FILTER_COUNT
 } TX_FILTERS;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 
 struct s_oglx_texture
 {
@@ -86,8 +86,8 @@ void    oglx_texture_Bind( oglx_texture * texture );
 oglx_texture * oglx_texture_new( oglx_texture * texture );
 void           oglx_texture_delete( oglx_texture * texture );
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 
 struct s_oglx_texture_parameters
 {

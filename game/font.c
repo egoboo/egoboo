@@ -1,21 +1,21 @@
-//********************************************************************************************
-//*
-//*    This file is part of Egoboo.
-//*
-//*    Egoboo is free software: you can redistribute it and/or modify it
-//*    under the terms of the GNU General Public License as published by
-//*    the Free Software Foundation, either version 3 of the License, or
-//*    (at your option) any later version.
-//*
-//*    Egoboo is distributed in the hope that it will be useful, but
-//*    WITHOUT ANY WARRANTY; without even the implied warranty of
-//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//*    General Public License for more details.
-//*
-//*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-//*
-//********************************************************************************************
+// ********************************************************************************************
+// *
+// *    This file is part of Egoboo.
+// *
+// *    Egoboo is free software: you can redistribute it and/or modify it
+// *    under the terms of the GNU General Public License as published by
+// *    the Free Software Foundation, either version 3 of the License, or
+// *    (at your option) any later version.
+// *
+// *    Egoboo is distributed in the hope that it will be useful, but
+// *    WITHOUT ANY WARRANTY; without even the implied warranty of
+// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// *    General Public License for more details.
+// *
+// *    You should have received a copy of the GNU General Public License
+// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+// *
+// ********************************************************************************************
 
 /* Egoboo - Font.c
  * True-type font drawing functionality.  Uses Freetype 2 & OpenGL
@@ -35,8 +35,8 @@
 #include <SDL_opengl.h>
 #include <SDL_ttf.h>
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 struct Font
 {
     TTF_Font *ttfFont;
@@ -45,8 +45,8 @@ struct Font
     GLfloat texCoords[4];
 };
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 static int fnt_atexit_registered = 0;
 
 int fnt_init()
@@ -80,8 +80,8 @@ int fnt_init()
     return initialized;
 };
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // The next two functions are borrowed from the gl_font.c test program from SDL_ttf
 static int powerOfTwo( int input )
 {
@@ -95,7 +95,7 @@ static int powerOfTwo( int input )
     return value;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int copySurfaceToTexture( SDL_Surface *surface, GLuint texture, GLfloat *texCoords )
 {
     int w, h;
@@ -155,7 +155,7 @@ int copySurfaceToTexture( SDL_Surface *surface, GLuint texture, GLfloat *texCoor
     return 1;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 Font* fnt_loadFont( const char *fileName, int pointSize )
 {
     Font *newFont;
@@ -182,7 +182,7 @@ Font* fnt_loadFont( const char *fileName, int pointSize )
     return newFont;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void fnt_freeFont( Font *font )
 {
     if ( font )
@@ -193,7 +193,7 @@ void fnt_freeFont( Font *font )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void fnt_drawText( Font *font, int x, int y, const char *text )
 {
     SDL_Surface *textSurf;
@@ -235,7 +235,7 @@ void fnt_drawText( Font *font, int x, int y, const char *text )
     SDL_FreeSurface( textSurf );
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void fnt_getTextSize( Font *font, const char *text, int *width, int *height )
 {
     if ( font )
@@ -244,7 +244,7 @@ void fnt_getTextSize( Font *font, const char *text, int *width, int *height )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 /** font_drawTextBox
  * Draws a text string into a box, splitting it into lines according to newlines in the string.
  * NOTE: Doesn't pay attention to the width/height arguments yet.
@@ -283,7 +283,7 @@ void fnt_drawTextBox( Font *font, const char *text, int x, int y, int width, int
     free( buffer );
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void fnt_getTextBoxSize( Font *font, const char *text, int spacing, int *width, int *height )
 {
     char *buffer, *line;

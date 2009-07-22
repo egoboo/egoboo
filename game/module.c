@@ -1,21 +1,21 @@
-//********************************************************************************************
-//*
-//*    This file is part of Egoboo.
-//*
-//*    Egoboo is free software: you can redistribute it and/or modify it
-//*    under the terms of the GNU General Public License as published by
-//*    the Free Software Foundation, either version 3 of the License, or
-//*    (at your option) any later version.
-//*
-//*    Egoboo is distributed in the hope that it will be useful, but
-//*    WITHOUT ANY WARRANTY; without even the implied warranty of
-//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//*    General Public License for more details.
-//*
-//*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-//*
-//********************************************************************************************
+// ********************************************************************************************
+// *
+// *    This file is part of Egoboo.
+// *
+// *    Egoboo is free software: you can redistribute it and/or modify it
+// *    under the terms of the GNU General Public License as published by
+// *    the Free Software Foundation, either version 3 of the License, or
+// *    (at your option) any later version.
+// *
+// *    Egoboo is distributed in the hope that it will be useful, but
+// *    WITHOUT ANY WARRANTY; without even the implied warranty of
+// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// *    General Public License for more details.
+// *
+// *    You should have received a copy of the GNU General Public License
+// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+// *
+// ********************************************************************************************
 
 /* Egoboo - module.c
  */
@@ -36,18 +36,18 @@
 #include "egoboo_fileutil.h"
 #include "egoboo.h"
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 
 int        ModList_count = 0;                            // Number of modules
 mod_data_t ModList[MAXMODULE];
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 static bool_t module_load_info( const char * szLoadName, mod_data_t * pmod );
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int module_reference_matches( const char *szLoadName, IDSZ idsz )
 {
     // ZZ> This function returns btrue if the named module has the required IDSZ
@@ -105,7 +105,7 @@ int module_reference_matches( const char *szLoadName, IDSZ idsz )
     return foundidsz;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void module_add_idsz( const char *szLoadName, IDSZ idsz )
 {
     // ZZ> This function appends an IDSZ to the module's menu.txt file
@@ -131,7 +131,7 @@ void module_add_idsz( const char *szLoadName, IDSZ idsz )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int modlist_get_mod_number( const char *szModName )
 {
     // ZZ> This function returns -1 if the module does not exist locally, the module
@@ -151,7 +151,7 @@ int modlist_get_mod_number( const char *szModName )
     return modnum;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t modlist_test_by_index( int modnumber )
 {
     int     cnt;
@@ -165,7 +165,7 @@ bool_t modlist_test_by_index( int modnumber )
     // if the module data was never loaded, then it is not valid
     if ( !pmod->loaded ) return bfalse;
 
-    //Check all selected players directories
+    // Check all selected players directories
     playerhasquest = bfalse;
     for ( cnt = 0; cnt < mnu_selectedPlayerCount; cnt++ )
     {
@@ -176,7 +176,7 @@ bool_t modlist_test_by_index( int modnumber )
         }
     }
 
-    //So, do we load the module or not?
+    // So, do we load the module or not?
     allowed = bfalse;
     if ( cfg.dev_mode || playerhasquest || module_reference_matches( pmod->reference, pmod->quest_idsz ) )
     {
@@ -186,7 +186,7 @@ bool_t modlist_test_by_index( int modnumber )
     return allowed;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t modlist_test_by_name( const char *szModName )
 {
     // ZZ> This function tests to see if a module can be entered by
@@ -198,7 +198,7 @@ bool_t modlist_test_by_name( const char *szModName )
     return modlist_test_by_index( modnumber );
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t module_load_info( const char * szLoadName, mod_data_t * pmod )
 {
     // BB > this function actually reads in the module data
@@ -240,8 +240,8 @@ bool_t module_load_info( const char * szLoadName, mod_data_t * pmod )
     if ( cTmp == 'T' || cTmp == 't' )  pmod->respawnvalid = btrue;
     if ( cTmp == 'A' || cTmp == 'a' )  pmod->respawnvalid = ANYTIME;
 
-    goto_colon( NULL, fileread, bfalse );   //BAD: Skip line
-  //  pmod->rtscontrol = bfalse;
+    goto_colon( NULL, fileread, bfalse );   // BAD: Skip line
+    //  pmod->rtscontrol = bfalse;
 
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%s", readtext );
     for ( iTmp = 0; iTmp < RANKSIZE - 1; iTmp++ )
@@ -278,7 +278,7 @@ bool_t module_load_info( const char * szLoadName, mod_data_t * pmod )
     return pmod->loaded;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void modlist_load_all_info()
 {
     STRING loadname;
@@ -305,7 +305,7 @@ void modlist_load_all_info()
     ModList[ModList_count].longname[0] = '\0';
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t module_instance_init( module_instance_t * pinst )
 {
     if ( NULL == pinst ) return bfalse;
@@ -317,7 +317,7 @@ bool_t module_instance_init( module_instance_t * pinst )
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t module_upload( module_instance_t * pinst, int imod, Uint32 seed )
 {
     mod_data_t * pdata;
@@ -342,7 +342,7 @@ bool_t module_upload( module_instance_t * pinst, int imod, Uint32 seed )
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t module_reset( module_instance_t * pinst, Uint32 seed )
 {
     if (NULL == pinst) return bfalse;
@@ -354,7 +354,7 @@ bool_t module_reset( module_instance_t * pinst, Uint32 seed )
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t module_start( module_instance_t * pinst )
 {
     // BB> Let the module go
@@ -364,7 +364,7 @@ bool_t module_start( module_instance_t * pinst )
     pinst->active = btrue;
 
     srand( pinst->seed );
-	pinst->randsave = rand(); 
+    pinst->randsave = rand();
     randindex = rand() % MAXRAND;
 
     PNet->hostactive = btrue; // very important or the input will not work
@@ -372,7 +372,7 @@ bool_t module_start( module_instance_t * pinst )
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t module_stop( module_instance_t * pinst )
 {
     // BB> stop the module

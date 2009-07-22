@@ -7,24 +7,24 @@
 
 #include <SDL_opengl.h>
 
-//********************************************************************************************
-//*
-//*    This file is part of Egoboo.
-//*
-//*    Egoboo is free software: you can redistribute it and/or modify it
-//*    under the terms of the GNU General Public License as published by
-//*    the Free Software Foundation, either version 3 of the License, or
-//*    (at your option) any later version.
-//*
-//*    Egoboo is distributed in the hope that it will be useful, but
-//*    WITHOUT ANY WARRANTY; without even the implied warranty of
-//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//*    General Public License for more details.
-//*
-//*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-//*
-//********************************************************************************************
+// ********************************************************************************************
+// *
+// *    This file is part of Egoboo.
+// *
+// *    Egoboo is free software: you can redistribute it and/or modify it
+// *    under the terms of the GNU General Public License as published by
+// *    the Free Software Foundation, either version 3 of the License, or
+// *    (at your option) any later version.
+// *
+// *    Egoboo is distributed in the hope that it will be useful, but
+// *    WITHOUT ANY WARRANTY; without even the implied warranty of
+// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// *    General Public License for more details.
+// *
+// *    You should have received a copy of the GNU General Public License
+// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+// *
+// ********************************************************************************************
 
 /* Egoboo - mad.h
  *
@@ -32,8 +32,8 @@
 
 #include "Md2.h"
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 
 #define MADLIGHTINDICES                 (MD2LIGHTINDICES + 1) // MD2's store vertices as x,y,z,normal
 #define EQUALLIGHTINDEX                 162                // I added an extra index to do the spikey mace...
@@ -146,8 +146,8 @@ enum e_action
     ACTION_COUNT
 };
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 struct s_mad
 {
     EGO_PROFILE_STUFF
@@ -182,18 +182,18 @@ extern mad_t   MadList[MAX_PROFILE];
 #define VALID_MAD( IMAD )       ( VALID_MAD_RANGE( IMAD ) && MadList[IMAD].loaded )
 #define INVALID_MAD( IMAD )     ( !VALID_MAD_RANGE( IMAD ) || !MadList[IMAD].loaded )
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // Message files
 extern Uint16          msgtotal;                                       // The number of messages
 extern Uint32          msgtotalindex;                                  // Where to put letter
 extern Uint32          msgindex[MAXTOTALMESSAGE];                      // Where it is
 extern char            msgtext[MESSAGEBUFFERSIZE];                     // The text buffer
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 extern char            cFrameName[16];                                     // MD2 Frame Name
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 
 Uint16 test_frame_name( char letter );
 

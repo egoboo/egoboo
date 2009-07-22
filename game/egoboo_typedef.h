@@ -1,23 +1,23 @@
 #pragma once
 
-//********************************************************************************************
-//*
-//*    This file is part of Egoboo.
-//*
-//*    Egoboo is free software: you can redistribute it and/or modify it
-//*    under the terms of the GNU General Public License as published by
-//*    the Free Software Foundation, either version 3 of the License, or
-//*    (at your option) any later version.
-//*
-//*    Egoboo is distributed in the hope that it will be useful, but
-//*    WITHOUT ANY WARRANTY; without even the implied warranty of
-//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//*    General Public License for more details.
-//*
-//*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-//*
-//********************************************************************************************
+// ********************************************************************************************
+// *
+// *    This file is part of Egoboo.
+// *
+// *    Egoboo is free software: you can redistribute it and/or modify it
+// *    under the terms of the GNU General Public License as published by
+// *    the Free Software Foundation, either version 3 of the License, or
+// *    (at your option) any later version.
+// *
+// *    Egoboo is distributed in the hope that it will be useful, but
+// *    WITHOUT ANY WARRANTY; without even the implied warranty of
+// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// *    General Public License for more details.
+// *
+// *    You should have received a copy of the GNU General Public License
+// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+// *
+// ********************************************************************************************
 
 /* Egoboo - egoboo_typedef.h
  * Defines some basic types that are used throughout the game code.
@@ -26,8 +26,8 @@
 #include "egoboo_config.h"
 #include <SDL_types.h>
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 #if defined(__cplusplus)
 #    define EGOBOO_NEW( TYPE ) new TYPE
 #    define EGOBOO_NEW_ARY( TYPE, COUNT ) new TYPE [ COUNT ]
@@ -40,9 +40,9 @@
 #    define EGOBOO_DELETE_ARY(PTR) if(NULL != PTR) { free(PTR); PTR = NULL; }
 #endif
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-//RECTANGLE
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// RECTANGLE
 typedef struct s_rect
 {
     Sint32 left;
@@ -51,8 +51,8 @@ typedef struct s_rect
     Sint32 bottom;
 } rect_t;
 
-//--------------------------------------------------------------------------------------------
-//BOOLEAN
+// --------------------------------------------------------------------------------------------
+// BOOLEAN
 typedef char bool_t;
 enum
 {
@@ -60,36 +60,41 @@ enum
     bfalse = ( !btrue )
 };
 
-
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // some basic data that all egoboo objects should have
 #define  EGO_OBJECT_STUFF \
-bool_t         on;      /* Does it exist? */ \
-bool_t         onold;   /* Network fix    */ \
-STRING         name;
+    bool_t         on;      /* Does it exist? */ \
+    bool_t         onold;   /* Network fix    */ \
+    STRING         name;
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // some basic data that all egoboo profiles should have
 #define  EGO_PROFILE_STUFF \
-bool_t         loaded;      /* Does it exist? */ \
-STRING         name;
+    bool_t         loaded;      /* Does it exist? */ \
+    STRING         name;
 
-//--------------------------------------------------------------------------------------------
-//IDSZ
+// --------------------------------------------------------------------------------------------
+// IDSZ
 typedef Uint32 IDSZ;
 
-#ifndef Make_IDSZ
-#define Make_IDSZ(string) ((IDSZ)((((string)[0]-'A') << 15) | (((string)[1]-'A') << 10) | (((string)[2]-'A') << 5) | (((string)[3]-'A') << 0)))
+#ifndef MAKE_IDSZ
+#define MAKE_IDSZ(C0,C1,C2,C3) \
+    ((IDSZ)(                       \
+                                   (((C0)-'A') << 15) |       \
+                                   (((C1)-'A') << 10) |       \
+                                   (((C2)-'A') <<  5) |       \
+                                   (((C3)-'A') <<  0)         \
+           ))
 #endif
 
-#define IDSZ_NONE            Make_IDSZ("NONE")       // [NONE]
+#define IDSZ_NONE            MAKE_IDSZ( 'N', 'O', 'N', 'E' )       // [NONE]
 
-//--------------------------------------------------------------------------------------------
-//STRING
+// --------------------------------------------------------------------------------------------
+// STRING
 typedef char STRING[256];
 
-//--------------------------------------------------------------------------------------------
-//FAST CONVERSIONS
+// --------------------------------------------------------------------------------------------
+// FAST CONVERSIONS
 #define FP8_TO_FLOAT(XX)   ( (float)(XX) * INV_0100 )
 #define FLOAT_TO_FP8(XX)   ( (Uint32)((XX) * (float)(0x0100) )
 #define FP8_TO_INT(XX)     ( (XX) >> 8 )                      // fast version of XX / 256
@@ -101,17 +106,17 @@ typedef char STRING[256];
 #define FF_MUL(XX, YY)     ( ( 0 == (XX) || 0 == (YY) ) ? 0 : ( ( ((XX)+1) * ((YY)+1) ) >> 8 ) )
 #define FF_TO_FLOAT( XX )  ( (float)(XX) * INV_FF )
 
-//--------------------------------------------------------------------------------------------
-//AI targeting
+// --------------------------------------------------------------------------------------------
+// AI targeting
 typedef enum target_type
 {
-    ENEMY = 0,
-    FRIEND,
-    ALL,
-    NONE
+    TARGET_ENEMY = 0,
+    TARGET_FRIEND,
+    TARGET_ALL,
+    TARGET_NONE
 } TARGET_TYPE;
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // a hash type for "efficiently" storing data
 struct s_hash_node
 {
@@ -120,7 +125,7 @@ struct s_hash_node
 };
 typedef struct s_hash_node hash_node_t;
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 struct s_hash_list
 {
     int            allocated;
@@ -129,8 +134,8 @@ struct s_hash_list
 };
 typedef struct s_hash_list hash_list_t;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 hash_node_t * hash_node_create(void * data);
 bool_t        hash_node_destroy(hash_node_t **);
 hash_node_t * hash_node_insert_after (hash_node_t lst[], hash_node_t * n);
@@ -144,8 +149,8 @@ bool_t        hash_list_destroy(hash_list_t **);
 hash_node_t * hash_node_ctor(hash_node_t * n, void * data);
 hash_list_t * hash_list_ctor(hash_list_t * lst, int size);
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // axis aligned bounding box
 struct s_aabb
 {
@@ -154,6 +159,6 @@ struct s_aabb
 };
 typedef struct s_aabb aabb_t;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 #define Egoboo_egobootypedef_h

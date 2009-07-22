@@ -1,28 +1,28 @@
 #pragma once
 
-//********************************************************************************************
-//*
-//*    This file is part of Egoboo.
-//*
-//*    Egoboo is free software: you can redistribute it and/or modify it
-//*    under the terms of the GNU General Public License as published by
-//*    the Free Software Foundation, either version 3 of the License, or
-//*    (at your option) any later version.
-//*
-//*    Egoboo is distributed in the hope that it will be useful, but
-//*    WITHOUT ANY WARRANTY; without even the implied warranty of
-//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//*    General Public License for more details.
-//*
-//*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
-//*
-//********************************************************************************************
+// ********************************************************************************************
+// *
+// *    This file is part of Egoboo.
+// *
+// *    Egoboo is free software: you can redistribute it and/or modify it
+// *    under the terms of the GNU General Public License as published by
+// *    the Free Software Foundation, either version 3 of the License, or
+// *    (at your option) any later version.
+// *
+// *    Egoboo is distributed in the hope that it will be useful, but
+// *    WITHOUT ANY WARRANTY; without even the implied warranty of
+// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// *    General Public License for more details.
+// *
+// *    You should have received a copy of the GNU General Public License
+// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+// *
+// ********************************************************************************************
 
-///
-/// @file
-/// @brief Basic OpenGL Wrapper
-/// @details Basic definitions for using OpenGL in Egoboo
+// /
+// / @file
+// / @brief Basic OpenGL Wrapper
+// / @details Basic definitions for using OpenGL in Egoboo
 
 #include <SDL_opengl.h>
 
@@ -53,7 +53,7 @@ extern "C"
 #    define ATTRIB_GUARD_CLOSE(XX,YY)
 #endif
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 
     enum { XX = 0, YY, ZZ, WW };
     enum { RR = 0, GG, BB, AA };
@@ -64,7 +64,7 @@ extern "C"
     typedef GLfloat GLXvector3f[3];
     typedef GLfloat GLXvector2f[2];
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
     struct oglx_vertex
     {
         GLXvector4f pos;
@@ -75,7 +75,7 @@ extern "C"
         GLXvector2f tx; // u and v in D3D I guess
     };
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // generic OpenGL lighting struct
     struct s_oglx_light
     {
@@ -84,7 +84,7 @@ extern "C"
     };
     typedef struct s_oglx_light oglx_light_t;
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
     GLboolean handle_opengl_error( void );
 
     void oglx_ViewMatrix( GLXmatrix view,

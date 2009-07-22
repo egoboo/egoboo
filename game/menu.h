@@ -1,23 +1,23 @@
 #pragma once
 
-//********************************************************************************************
-//*
-//*    This file is part of Egoboo.
-//*
-//*    Egoboo is free software: you can redistribute it and/or modify it
-//*    under the terms of the GNU General Public License as published by
-//*    the Free Software Foundation, either version 3 of the License, or
-//*    (at your option) any later version.
-//*
-//*    Egoboo is distributed in the hope that it will be useful, but
-//*    WITHOUT ANY WARRANTY; without even the implied warranty of
-//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//*    General Public License for more details.
-//*
-//*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-//*
-//********************************************************************************************
+// ********************************************************************************************
+// *
+// *    This file is part of Egoboo.
+// *
+// *    Egoboo is free software: you can redistribute it and/or modify it
+// *    under the terms of the GNU General Public License as published by
+// *    the Free Software Foundation, either version 3 of the License, or
+// *    (at your option) any later version.
+// *
+// *    Egoboo is distributed in the hope that it will be useful, but
+// *    WITHOUT ANY WARRANTY; without even the implied warranty of
+// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// *    General Public License for more details.
+// *
+// *    You should have received a copy of the GNU General Public License
+// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+// *
+// ********************************************************************************************
 
 /* Egoboo - menu.h
  * Implements the main menu tree, using the code in Ui.*.  This could probably
@@ -37,7 +37,7 @@ enum e_which_menu
     emnu_ChoosePlayer,
     emnu_ShowMenuResults,
     emnu_Options,
-	emnu_GameOptions,
+    emnu_GameOptions,
     emnu_VideoOptions,
     emnu_AudioOptions,
     emnu_InputOptions,
@@ -56,7 +56,7 @@ typedef enum e_which_menu which_menu_t;
 #define MENU_END     -1
 #define MENU_QUIT    -2
 
-//Input player control
+// Input player control
 #define MAXLOADPLAYER     100
 struct s_load_player_info
 {

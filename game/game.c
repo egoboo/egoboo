@@ -1,21 +1,21 @@
-//********************************************************************************************
-//*
-//*    This file is part of Egoboo.
-//*
-//*    Egoboo is free software: you can redistribute it and/or modify it
-//*    under the terms of the GNU General Public License as published by
-//*    the Free Software Foundation, either version 3 of the License, or
-//*    (at your option) any later version.
-//*
-//*    Egoboo is distributed in the hope that it will be useful, but
-//*    WITHOUT ANY WARRANTY; without even the implied warranty of
-//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//*    General Public License for more details.
-//*
-//*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-//*
-//********************************************************************************************
+// ********************************************************************************************
+// *
+// *    This file is part of Egoboo.
+// *
+// *    Egoboo is free software: you can redistribute it and/or modify it
+// *    under the terms of the GNU General Public License as published by
+// *    the Free Software Foundation, either version 3 of the License, or
+// *    (at your option) any later version.
+// *
+// *    Egoboo is distributed in the hope that it will be useful, but
+// *    WITHOUT ANY WARRANTY; without even the implied warranty of
+// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// *    General Public License for more details.
+// *
+// *    You should have received a copy of the GNU General Public License
+// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+// *
+// ********************************************************************************************
 
 /* Egoboo - game.c
 */
@@ -65,19 +65,42 @@
 #include <assert.h>
 #include <float.h>
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 
-#define ATTACH_NONE                      0
-#define ATTACH_INVENTORY                 1
-#define ATTACH_LEFT                      2
-#define ATTACH_RIGHT                     3
+enum e_attachment_type
+{
+    ATTACH_NONE       = 0,
+    ATTACH_INVENTORY,
+    ATTACH_LEFT,
+    ATTACH_RIGHT
+};
 
 #define CHR_MAX_COLLISIONS    512*16
 #define COLLISION_HASH_NODES (CHR_MAX_COLLISIONS*2)
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+struct s_line_of_sight_info
+{
+    float x0, y0, z0;
+    float x1, y1, z1;
+    Uint32 stopped_by;
+
+    Uint16 collide_chr;
+    Uint32 collide_fx;
+    int    collide_x;
+    int    collide_y;
+};
+
+typedef struct s_line_of_sight_info line_of_sight_info_t;
+
+static bool_t collide_ray_with_mesh( line_of_sight_info_t * plos );
+static bool_t collide_ray_with_characters( line_of_sight_info_t * plos );
+static bool_t do_line_of_sight( line_of_sight_info_t * plos );
+
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 struct s_chr_setup_info
 {
     STRING     spawn_name;
@@ -93,7 +116,7 @@ struct s_chr_setup_info
 };
 typedef struct s_chr_setup_info chr_setup_info_t;
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // Bump List
 struct s_bumplist
 {
@@ -104,7 +127,7 @@ struct s_bumplist
 };
 typedef struct s_bumplist bumplist_t;
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // pair-wise collision data
 
 struct s_collision_data
@@ -115,8 +138,8 @@ struct s_collision_data
 
 typedef struct s_collision_data co_data_t;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 
 static ego_mpd_t            _mesh[2];
 static camera_t          _camera[2];
@@ -125,13 +148,13 @@ static menu_process_t    _mproc;
 static game_process_t    _gproc;
 static module_instance_t gmod;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t  overrideslots      = bfalse;
 
 bool_t    screenshotkeyready = btrue;
 
-//End text
+// End text
 char   endtext[MAXENDTEXT] = { '\0' };
 int    endtextwrite = 0;
 
@@ -166,8 +189,11 @@ water_instance_t      water;
 fog_data_t            fog_data;
 fog_instance_t        fog;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+Uint8  local_senseenemiesTeam = TEAM_GOOD; //TEAM_MAX;
+IDSZ   local_senseenemiesID   = IDSZ_NONE;
+
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 
 // game initialization / deinitialization - not accessible by scripts
 static void make_randie();
@@ -222,7 +248,6 @@ static int           chr_co_count = 0;
 static hash_list_t * chr_co_list;
 
 // "process" management
-
 static int do_ego_proc_begin( ego_process_t * eproc );
 static int do_ego_proc_running( ego_process_t * eproc );
 static int do_ego_proc_leaving( ego_process_t * eproc );
@@ -257,9 +282,9 @@ static void   memory_cleanUp(void);
 
 static void   do_game_hud();
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // Random Things-----------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void export_one_character( Uint16 character, Uint16 owner, int number, bool_t is_local )
 {
     // ZZ> This function exports a character
@@ -392,7 +417,7 @@ void export_one_character( Uint16 character, Uint16 owner, int number, bool_t is
     }
 }
 
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 void export_all_players( bool_t require_local )
 {
     // ZZ> This function saves all the local players in the
@@ -403,7 +428,7 @@ void export_all_players( bool_t require_local )
     // Don't export if the module isn't running
     if ( !process_instance_running( PROC_PBASE(GProc) ) ) return;
 
-    //Stop if export isnt valid
+    // Stop if export isnt valid
     if (!PMod->exportvalid) return;
 
     // Check each player
@@ -445,7 +470,7 @@ void export_all_players( bool_t require_local )
 
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void _quit_game( ego_process_t * pgame )
 {
     // ZZ> This function exits the game entirely
@@ -461,7 +486,7 @@ void _quit_game( ego_process_t * pgame )
     empty_import_directory();
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void getadd( int min, int value, int max, int* valuetoadd )
 {
     // ZZ> This function figures out what value to add should be in order
@@ -485,7 +510,7 @@ void getadd( int min, int value, int max, int* valuetoadd )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void fgetadd( float min, float value, float max, float* valuetoadd )
 {
     // ZZ> This function figures out what value to add should be in order
@@ -509,9 +534,9 @@ void fgetadd( float min, float value, float max, float* valuetoadd )
     }
 }
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void log_madused( const char *savename )
 {
     // ZZ> This is a debug function for checking model loads
@@ -535,7 +560,7 @@ void log_madused( const char *savename )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void statlist_add( Uint16 character )
 {
     // ZZ> This function adds a status display to the do list
@@ -547,7 +572,7 @@ void statlist_add( Uint16 character )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void statlist_move_to_top( Uint16 character )
 {
     // ZZ> This function puts the character on top of the statlist
@@ -580,7 +605,7 @@ void statlist_move_to_top( Uint16 character )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void statlist_sort()
 {
     // ZZ> This function puts all of the local players on top of the statlist
@@ -594,7 +619,7 @@ void statlist_sort()
         }
     }
 }
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void chr_play_action( Uint16 character, Uint16 action, Uint8 actionready )
 {
     // ZZ> This function starts a generic action for a character
@@ -620,7 +645,7 @@ void chr_play_action( Uint16 character, Uint16 action, Uint8 actionready )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void chr_set_frame( Uint16 character, Uint16 action, int frame, Uint16 lip )
 {
     // ZZ> This function sets the frame for a character explicitly...  This is used to
@@ -664,7 +689,7 @@ void chr_set_frame( Uint16 character, Uint16 action, int frame, Uint16 lip )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int generate_number( int numbase, int numrand )
 {
     // ZZ> This function generates a random number
@@ -684,7 +709,7 @@ int generate_number( int numbase, int numrand )
     return tmp;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void setup_alliances( const char *modname )
 {
     // ZZ> This function reads the alliance file
@@ -701,9 +726,9 @@ void setup_alliances( const char *modname )
         while ( goto_colon( NULL, fileread, btrue ) )
         {
             fscanf( fileread, "%s", szTemp );
-            teama = ( szTemp[0] - 'A' ) % MAXTEAM;
+            teama = ( szTemp[0] - 'A' ) % TEAM_MAX;
             fscanf( fileread, "%s", szTemp );
-            teamb = ( szTemp[0] - 'A' ) % MAXTEAM;
+            teamb = ( szTemp[0] - 'A' ) % TEAM_MAX;
             TeamList[teama].hatesteam[teamb] = bfalse;
         }
 
@@ -711,7 +736,7 @@ void setup_alliances( const char *modname )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void update_game()
 {
     // ZZ> This function does several iterations of character movements and such
@@ -819,7 +844,7 @@ void update_game()
         clock_wld  += UPDATE_SKIP;
         clock_stat += UPDATE_SKIP;
 
-        //Reset the respawn timer
+        // Reset the respawn timer
         if ( revivetimer > 0 )
         {
             revivetimer -= UPDATE_SKIP;
@@ -845,7 +870,7 @@ void update_game()
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void update_timers()
 {
     // ZZ> This function updates the game timers
@@ -860,16 +885,16 @@ void update_timers()
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void reset_teams()
 {
     // ZZ> This function makes everyone hate everyone else
     int teama, teamb;
 
-    for ( teama = 0; teama < MAXTEAM; teama++ )
+    for ( teama = 0; teama < TEAM_MAX; teama++ )
     {
         // Make the team hate everyone
-        for ( teamb = 0; teamb < MAXTEAM; teamb++ )
+        for ( teamb = 0; teamb < TEAM_MAX; teamb++ )
         {
             TeamList[teama].hatesteam[teamb] = btrue;
         }
@@ -884,14 +909,14 @@ void reset_teams()
     }
 
     // Keep the null team neutral
-    for ( teama = 0; teama < MAXTEAM; teama++ )
+    for ( teama = 0; teama < TEAM_MAX; teama++ )
     {
-        TeamList[teama].hatesteam[NULLTEAM] = bfalse;
-        TeamList[NULLTEAM].hatesteam[teama] = bfalse;
+        TeamList[teama].hatesteam[TEAM_NULL] = bfalse;
+        TeamList[TEAM_NULL].hatesteam[teama] = bfalse;
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void reset_messages()
 {
     // ZZ> This makes messages safe to use
@@ -915,7 +940,7 @@ void reset_messages()
     msgtext[0] = '\0';
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void make_randie()
 {
     // ZZ> This function makes the random number table
@@ -950,7 +975,7 @@ void make_randie()
     randindex = 0;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void reset_timers()
 {
     // ZZ> This function resets the timers...
@@ -967,7 +992,7 @@ void reset_timers()
     outofsync = bfalse;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int game_do_menu( menu_process_t * mproc )
 {
     // BB> do menus
@@ -992,7 +1017,7 @@ int game_do_menu( menu_process_t * mproc )
         if (mproc->frame_now > mproc->frame_next)
         {
             float  frameskip = (float)TICKS_PER_SEC / (float)cfg.framelimit;
-            mproc->frame_next = mproc->frame_now + frameskip; //FPS limit
+            mproc->frame_next = mproc->frame_now + frameskip; // FPS limit
 
             need_menu = btrue;
             mproc->base.dtime = 1.0f / (float)cfg.framelimit;
@@ -1013,8 +1038,8 @@ int game_do_menu( menu_process_t * mproc )
     return menuResult;
 }
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int do_ego_proc_begin( ego_process_t * eproc )
 {
     // Initialize logging first, so that we can use it everywhere.
@@ -1088,7 +1113,7 @@ int do_ego_proc_begin( ego_process_t * eproc )
     return 1;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int do_ego_proc_running( ego_process_t * eproc )
 {
     bool_t menu_valid, game_valid;
@@ -1182,12 +1207,12 @@ int do_ego_proc_running( ego_process_t * eproc )
     do_menu_proc_run( MProc, EProc->frameDuration );
 
     // a heads up display that can be used to debug values that are used by both the menu and the game
-    //do_game_hud();
+    // do_game_hud();
 
     return 0;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int do_ego_proc_leaving( ego_process_t * eproc )
 {
     if ( !process_instance_validate( PROC_PBASE(eproc) )  ) return -1;
@@ -1211,7 +1236,7 @@ int do_ego_proc_leaving( ego_process_t * eproc )
     return eproc->base.terminated ? 0 : 1;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int do_ego_proc_run( ego_process_t * eproc, double frameDuration )
 {
     int result = 0, proc_result = 0;
@@ -1238,7 +1263,7 @@ int do_ego_proc_run( ego_process_t * eproc, double frameDuration )
             break;
 
         case proc_entering:
-            //proc_result = do_ego_proc_entering( eproc );
+            // proc_result = do_ego_proc_entering( eproc );
 
             eproc->base.state = proc_running;
             break;
@@ -1270,8 +1295,8 @@ int do_ego_proc_run( ego_process_t * eproc, double frameDuration )
     return result;
 }
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int do_menu_proc_begin( menu_process_t * mproc )
 {
     // play some music
@@ -1291,7 +1316,7 @@ int do_menu_proc_begin( menu_process_t * mproc )
     return 1;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int do_menu_proc_running( menu_process_t * mproc )
 {
     int menuResult;
@@ -1332,7 +1357,7 @@ int do_menu_proc_running( menu_process_t * mproc )
     return 0;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int do_menu_proc_leaving( menu_process_t * mproc )
 {
     if ( !process_instance_validate( PROC_PBASE(mproc) ) ) return -1;
@@ -1343,7 +1368,7 @@ int do_menu_proc_leaving( menu_process_t * mproc )
     return 1;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int do_menu_proc_run( menu_process_t * mproc, double frameDuration )
 {
     int result = 0, proc_result = 0;
@@ -1370,7 +1395,7 @@ int do_menu_proc_run( menu_process_t * mproc, double frameDuration )
             break;
 
         case proc_entering:
-            //proc_result = do_menu_proc_entering( mproc );
+            // proc_result = do_menu_proc_entering( mproc );
 
             mproc->base.state = proc_running;
             break;
@@ -1402,8 +1427,8 @@ int do_menu_proc_run( menu_process_t * mproc, double frameDuration )
     return result;
 }
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int do_game_proc_begin( game_process_t * gproc )
 {
 
@@ -1443,7 +1468,7 @@ int do_game_proc_begin( game_process_t * gproc )
     return 1;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int do_game_proc_running( game_process_t * gproc )
 {
     if ( !process_instance_validate( PROC_PBASE(gproc) ) ) return -1;
@@ -1500,7 +1525,7 @@ int do_game_proc_running( game_process_t * gproc )
     if (gproc->frame_now > gproc->frame_next)
     {
         float  frameskip = (float)TICKS_PER_SEC / (float)cfg.framelimit;
-        gproc->frame_next = gproc->frame_now + frameskip; //FPS limit
+        gproc->frame_next = gproc->frame_now + frameskip; // FPS limit
 
         camera_move(PCamera, PMesh);
         draw_main();
@@ -1510,10 +1535,10 @@ int do_game_proc_running( game_process_t * gproc )
 
     // Check for quitters
     // :TODO: local_noplayers is not set correctly
-    //if( local_noplayers  )
-    //{
+    // if( local_noplayers  )
+    // {
     //   gproc->escape_requested  = btrue;
-    //}
+    // }
 
     if ( gproc->escape_requested )
     {
@@ -1538,7 +1563,7 @@ int do_game_proc_running( game_process_t * gproc )
     return 0;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int do_game_proc_leaving( game_process_t * gproc )
 {
     if ( !process_instance_validate( PROC_PBASE(gproc) ) ) return -1;
@@ -1552,7 +1577,7 @@ int do_game_proc_leaving( game_process_t * gproc )
     return 1;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int do_game_proc_run( game_process_t * gproc, double frameDuration )
 {
     int result = 0, proc_result = 0;
@@ -1579,7 +1604,7 @@ int do_game_proc_run( game_process_t * gproc, double frameDuration )
             break;
 
         case proc_entering:
-            //proc_result = do_game_proc_entering( gproc );
+            // proc_result = do_game_proc_entering( gproc );
 
             gproc->base.state = proc_running;
             break;
@@ -1612,13 +1637,13 @@ int do_game_proc_run( game_process_t * gproc, double frameDuration )
     return result;
 }
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int SDL_main( int argc, char **argv )
 {
     // ZZ> This is where the program starts and all the high level stuff happens
 
-    int   max_rate, result;
+    int   max_rate, result = 0;
     float frameskip;
 
     // initialize the process
@@ -1649,7 +1674,7 @@ int SDL_main( int argc, char **argv )
         do_flip_pages();
 
         // let the OS breathe. It may delay as long as 10ms
-        //SDL_Delay(1);
+        // SDL_Delay(1);
     }
 
     // terminate the game and menu processes
@@ -1663,10 +1688,10 @@ int SDL_main( int argc, char **argv )
     return result;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void memory_cleanUp(void)
 {
-    //ZF> This function releases all loaded things in memory and cleans up everything properly
+    // ZF> This function releases all loaded things in memory and cleans up everything properly
 
     log_info("memory_cleanUp() - Attempting to clean up loaded things in memory... ");
 
@@ -1706,7 +1731,7 @@ void memory_cleanUp(void)
     log_shutdown();
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int load_one_object( const char* tmploadname, int skin )
 {
     // ZZ> This function loads one object and returns the number of skins
@@ -1735,12 +1760,12 @@ int load_one_object( const char* tmploadname, int skin )
     return numskins;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 Uint16 get_particle_target( float pos_x, float pos_y, float pos_z, Uint16 facing,
                             Uint16 particletype, Uint8 team, Uint16 donttarget,
                             Uint16 oldtarget )
 {
-    //ZF> This is the new improved targeting system for particles. Also includes distance in the Z direction.
+    // ZF> This is the new improved targeting system for particles. Also includes distance in the Z direction.
     Uint16 besttarget = MAX_CHR, cnt;
     Uint16 longdist = WIDE;
 
@@ -1751,13 +1776,13 @@ Uint16 get_particle_target( float pos_x, float pos_y, float pos_z, Uint16 facing
         {
             if ((PipList[particletype].onlydamagefriendly && team == ChrList[cnt].team) || (!PipList[particletype].onlydamagefriendly && TeamList[team].hatesteam[ChrList[cnt].team]) )
             {
-                //Don't retarget someone we already had or not supposed to target
+                // Don't retarget someone we already had or not supposed to target
                 if (cnt != oldtarget && cnt != donttarget)
                 {
                     Uint16 angle = (ATAN2( ChrList[cnt].pos.y - pos_y, ChrList[cnt].pos.x - pos_x ) * 0xFFFF / ( TWO_PI ))
                                    + BEHIND - facing;
 
-                    //Only proceed if we are facing the target
+                    // Only proceed if we are facing the target
                     if (angle < PipList[particletype].targetangle || angle > ( 0xFFFF - PipList[particletype].targetangle ) )
                     {
                         Uint32 dist = ( Uint32 ) SQRT(ABS( pow(ChrList[cnt].pos.x - pos_x, 2))
@@ -1775,82 +1800,106 @@ Uint16 get_particle_target( float pos_x, float pos_y, float pos_z, Uint16 facing
         }
     }
 
-    //All done
+    // All done
     return besttarget;
 }
-//--------------------------------------------------------------------------------------------
-Uint16 get_target( Uint16 character, Uint32 maxdistance, TARGET_TYPE team, bool_t targetitems, bool_t targetdead, IDSZ idsz, bool_t excludeidsz )
+// --------------------------------------------------------------------------------------------
+Uint16 get_target( Uint16 ichr_src, Uint32 max_dist, TARGET_TYPE target_type, bool_t target_items, bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz )
 {
-    //ZF> This is the new improved AI targeting system. Also includes distance in the Z direction.
-    //If maxdistance is 0 then it searches without a max limit.
-    Uint16 besttarget;
-    int cnt;
-    float longdist2, maxdistance2 = maxdistance * maxdistance;
+    // ZF> This is the new improved AI targeting system. Also includes distance in the Z direction.
+    //     If max_dist is 0 then it searches without a max limit.
 
-    if (team == NONE) return MAX_CHR;
+    int    ichr_test;
+    float  max_dist2 = max_dist * max_dist;
+    line_of_sight_info_t los_info;
 
-    besttarget = MAX_CHR;
-    longdist2 = 0;
-    for ( cnt = 0; cnt < MAX_CHR; cnt++ )
+    Uint16 best_target;
+    float  best_dist2;
+
+    if ( INVALID_CHR(ichr_src) ||  TARGET_NONE == target_type ) return MAX_CHR;
+
+    // set the line-of-sight source
+    los_info.x0         = ChrList[ichr_src].pos.x;
+    los_info.y0         = ChrList[ichr_src].pos.y;
+    los_info.z0         = ChrList[ichr_src].pos.z + ChrList[ichr_src].bumpheight;
+    los_info.stopped_by = ChrList[ichr_src].stoppedby;
+
+    best_target = MAX_CHR;
+    best_dist2  = max_dist2;
+    for ( ichr_test = 0; ichr_test < MAX_CHR; ichr_test++ )
     {
+        bool_t found;
         bool_t is_hated, hates_me;
         bool_t is_friend, is_prey, is_predator, is_mutual;
+        float  dist2;
 
-        //Skip non-existing objects, held objects and self
-        if ( !ChrList[cnt].on || VALID_CHR(ChrList[cnt].attachedto) || ChrList[cnt].pack_ispacked || cnt == character || ChrList[character].attachedto == cnt ) continue;
+        // Skip non-existing objects, held objects and self
+        if ( !ChrList[ichr_test].on || VALID_CHR(ChrList[ichr_test].attachedto) || ChrList[ichr_test].pack_ispacked || ichr_test == ichr_src || ChrList[ichr_src].attachedto == ichr_test ) continue;
 
-        //Target items
-        if ( !targetitems && ( ChrList[cnt].isitem || ChrList[cnt].invictus ) ) continue;
+        // Target items
+        if ( !target_items && ( ChrList[ichr_test].isitem || ChrList[ichr_test].invictus ) ) continue;
 
-        //Either only target dead stuff or alive stuff
-        if ( targetdead == ChrList[cnt].alive ) continue;
+        // Either only target dead stuff or alive stuff
+        if ( target_dead == ChrList[ichr_test].alive ) continue;
 
-        //Dont target hostile invisible stuff, unless we can actually see them
-        if ( !ChrList[character].canseeinvisible && FF_MUL( ChrList[cnt].inst.alpha, ChrList[cnt].inst.max_light ) < INVISIBLE ) continue;
+        // Dont target hostile invisible stuff, unless we can actually see them
+        if ( !ChrList[ichr_src].canseeinvisible && FF_MUL( ChrList[ichr_test].inst.alpha, ChrList[ichr_test].inst.max_light ) < INVISIBLE ) continue;
 
-        is_hated = TeamList[ChrList[character].team].hatesteam[ChrList[cnt].team];
-        hates_me = TeamList[ChrList[cnt].team].hatesteam[ChrList[character].team];
+        is_hated = TeamList[ChrList[ichr_src].team].hatesteam[ChrList[ichr_test].team];
+        hates_me = TeamList[ChrList[ichr_test].team].hatesteam[ChrList[ichr_src].team];
 
         is_friend    = !is_hated && !hates_me;
-        is_prey      = is_hated && !hates_me;
-        is_predator  = !is_hated && hates_me;
-        is_mutual    = is_hated && hates_me;
+        is_prey      =  is_hated && !hates_me;
+        is_predator  = !is_hated &&  hates_me;
+        is_mutual    =  is_hated &&  hates_me;
 
-        //Which team to target
-        if ( team == ALL || (team == ENEMY && is_hated) || (team == FRIEND && !is_hated) )
+        // set the line-of-sight source
+        los_info.x1 = ChrList[ichr_test].pos.x;
+        los_info.y1 = ChrList[ichr_test].pos.y;
+        los_info.z1 = ChrList[ichr_test].pos.z + ChrList[ichr_test].bumpheight;
+
+        // assume it is not a match
+        found = bfalse;
+        dist2 = max_dist2;
+
+        // Which target_type to target
+        if ( target_type == TARGET_ALL || (target_type == TARGET_ENEMY && is_hated) || (target_type == TARGET_FRIEND && !is_hated) )
         {
-            bool_t match_idsz = (idsz == CapList[ChrList[cnt].model].idsz[IDSZ_PARENT] ) || ( idsz == CapList[ChrList[cnt].model].idsz[IDSZ_TYPE] );
+            bool_t match_idsz = (target_idsz == CapList[ChrList[ichr_test].model].idsz[IDSZ_PARENT] ) || ( target_idsz == CapList[ChrList[ichr_test].model].idsz[IDSZ_TYPE] );
 
-            //Check for specific IDSZ too?
-            if ( idsz == IDSZ_NONE || ( excludeidsz != match_idsz ) )
+            // Check for specific IDSZ too?
+            if ( target_idsz == IDSZ_NONE || ( exclude_idsz != match_idsz ) )
             {
-                float dx, dy, dz;
-                float dist2;
+                GLvector3 diff;
 
-                dx = ChrList[cnt].pos.x - ChrList[character].pos.x;
-                dy = ChrList[cnt].pos.y - ChrList[character].pos.y;
-                dz = ChrList[cnt].pos.z - ChrList[character].pos.z;
+                diff  = VSub( ChrList[ichr_test].pos, ChrList[ichr_src].pos );
+                dist2 = VDotProduct( diff, diff );
 
-                dist2 = dx * dx + dy * dy + dz * dz;
-                if ( (MAX_CHR == besttarget || dist2 < longdist2) && (maxdistance == 0 || dist2 <= maxdistance2) )
+                if ( (MAX_CHR == best_target || dist2 < best_dist2) && (0 == max_dist2 || dist2 <= max_dist2) )
                 {
-                    besttarget = cnt;
-                    longdist2 = dist2;
+                    if ( !do_line_of_sight( &los_info ) )
+                    {
+                        best_target = ichr_test;
+                        best_dist2  = dist2;
+                    }
                 }
             }
         }
     }
 
-    //Now set the target
-    if (besttarget != MAX_CHR)
+    // make sure the target is valid
+    if ( INVALID_CHR(best_target) ) best_target = MAX_CHR;
+
+    // set the ai target
+    if ( MAX_CHR != best_target )
     {
-        ChrList[character].ai.target = besttarget;
+        ChrList[ichr_src].ai.target = best_target;
     }
 
-    return besttarget;
+    return best_target;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void make_onwhichfan( void )
 {
     // ZZ> This function figures out which fan characters are on and sets their level
@@ -1905,13 +1954,13 @@ void make_onwhichfan( void )
                     }
                     if ( ChrList[character].damagetime == 0 )
                     {
-                        damage_character( character, 32768, damagetile_data.amount, 1, damagetile_data.type, DAMAGETEAM, ChrList[character].ai.bumplast, DAMFX_NBLOC | DAMFX_ARMO, bfalse );
+                        damage_character( character, 32768, damagetile_data.amount, 1, damagetile_data.type, TEAM_DAMAGE, ChrList[character].ai.bumplast, DAMFX_NBLOC | DAMFX_ARMO, bfalse );
                         ChrList[character].damagetime = DAMAGETILETIME;
                     }
                     if ( (damagetile_data.parttype != ((Sint16)~0)) && ( update_wld & damagetile_data.partand ) == 0 )
                     {
                         spawn_one_particle( ChrList[character].pos.x, ChrList[character].pos.y, ChrList[character].pos.z,
-                                            0, MAX_PROFILE, damagetile_data.parttype, MAX_CHR, GRIP_LAST, NULLTEAM, MAX_CHR, 0, MAX_CHR );
+                                            0, MAX_PROFILE, damagetile_data.parttype, MAX_CHR, GRIP_LAST, TEAM_NULL, MAX_CHR, 0, MAX_CHR );
                     }
                 }
                 if ( ChrList[character].reaffirmdamagetype == damagetile_data.type )
@@ -1930,7 +1979,7 @@ void make_onwhichfan( void )
                 if ( INVALID_CHR( ChrList[character].attachedto ) )
                 {
                     spawn_one_particle( ChrList[character].pos.x, ChrList[character].pos.y, water.surface_level + RAISE,
-                                        0, MAX_PROFILE, SPLASH, MAX_CHR, GRIP_LAST, NULLTEAM, MAX_CHR, 0, MAX_CHR );
+                                        0, MAX_PROFILE, SPLASH, MAX_CHR, GRIP_LAST, TEAM_NULL, MAX_CHR, 0, MAX_CHR );
                 }
 
                 if ( water_data.is_water )
@@ -1949,10 +1998,10 @@ void make_onwhichfan( void )
                     if ( ( update_wld&ripand ) == 0 && ChrList[character].pos.z < water.surface_level && ChrList[character].alive )
                     {
                         spawn_one_particle( ChrList[character].pos.x, ChrList[character].pos.y, water.surface_level,
-                                            0, MAX_PROFILE, RIPPLE, MAX_CHR, GRIP_LAST, NULLTEAM, MAX_CHR, 0, MAX_CHR );
+                                            0, MAX_PROFILE, RIPPLE, MAX_CHR, GRIP_LAST, TEAM_NULL, MAX_CHR, 0, MAX_CHR );
                     }
                 }
-                if ( water_data.is_water && 0 == ( frame_all & 7 ) )
+                if ( water_data.is_water && HAS_NO_BITS( frame_all, 7 ) )
                 {
                     ChrList[character].jumpready = btrue;
                     ChrList[character].jumpnumber = 1; // ChrList[character].jumpnumberreset;
@@ -1988,7 +2037,7 @@ void make_onwhichfan( void )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 Uint16 terp_dir( Uint16 majordir, Uint16 minordir )
 {
     // ZZ> This function returns a direction between the major and minor ones, closer
@@ -2011,7 +2060,7 @@ Uint16 terp_dir( Uint16 majordir, Uint16 minordir )
     return minordir;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 Uint16 terp_dir_fast( Uint16 majordir, Uint16 minordir )
 {
     // ZZ> This function returns a direction between the major and minor ones, closer
@@ -2034,7 +2083,7 @@ Uint16 terp_dir_fast( Uint16 majordir, Uint16 minordir )
     return minordir;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void do_enchant_spawn()
 {
     // ZZ> This function lets enchantments spawn particles
@@ -2066,7 +2115,7 @@ void do_enchant_spawn()
         }
     }
 }
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void update_pits()
 {
     // ZZ> This function kills any character in a deep pit...
@@ -2078,11 +2127,11 @@ void update_pits()
             clock_pit = 0;
 
             // Kill any particles that fell in a pit, if they die in water...
-			for( cnt = 0; cnt < maxparticles; cnt++ )
+            for ( cnt = 0; cnt < maxparticles; cnt++ )
             {
                 if ( INVALID_PRT( cnt ) || INVALID_PIP( PrtList[cnt].pip ) ) continue;
 
-				if ( PrtList[cnt].pos.z < PITDEPTH && PipList[PrtList[cnt].pip].endwater )
+                if ( PrtList[cnt].pos.z < PITDEPTH && PipList[PrtList[cnt].pip].endwater )
                 {
                     PrtList[cnt].time  = frame_all + 1;
                     PrtList[cnt].poofme = btrue;
@@ -2090,13 +2139,13 @@ void update_pits()
             }
 
             // Kill or teleport any characters that fell in a pit...
-            for( cnt = 0; cnt < MAX_CHR; cnt++ )
-			{
-				//Is it a valid character?
+            for ( cnt = 0; cnt < MAX_CHR; cnt++ )
+            {
+                // Is it a valid character?
                 if ( INVALID_CHR( cnt ) || ChrList[cnt].invictus || !ChrList[cnt].alive  ) continue;
                 if ( ChrList[cnt].attachedto != MAX_CHR || ChrList[cnt].pack_ispacked ) continue;
 
-				//Do we kill it?
+                // Do we kill it?
                 if ( pitskill && ChrList[cnt].pos.z < PITDEPTH )
                 {
                     // Got one!
@@ -2104,11 +2153,11 @@ void update_pits()
                     ChrList[cnt].vel.x = 0;
                     ChrList[cnt].vel.y = 0;
 
-                    //Play sound effect
+                    // Play sound effect
                     sound_play_chunk( ChrList[cnt].pos, g_wavelist[GSND_PITFALL] );
-				}
-                    
-				//Do we teleport it?
+                }
+
+                // Do we teleport it?
                 if ( pitsfall && ChrList[cnt].pos.z < PITDEPTH << 3 )
                 {
                     float nrm[2];
@@ -2133,17 +2182,17 @@ void update_pits()
                     }
                     else
                     {
-						//It worked!
+                        // It worked!
                         ChrList[cnt].pos_safe = ChrList[cnt].pos;
                         ChrList[cnt].pos_old  = ChrList[cnt].pos;
                         ChrList[cnt].vel_old  = ChrList[cnt].vel;
 
-                        //Stop movement
+                        // Stop movement
                         ChrList[cnt].vel.z = 0;
                         ChrList[cnt].vel.x = 0;
                         ChrList[cnt].vel.y = 0;
 
-                        //Play sound effect
+                        // Play sound effect
                         if (ChrList[cnt].isplayer)
                         {
                             sound_play_chunk( PCamera->track_pos, g_wavelist[GSND_PITFALL] );
@@ -2153,8 +2202,8 @@ void update_pits()
                             sound_play_chunk( ChrList[cnt].pos, g_wavelist[GSND_PITFALL] );
                         }
 
-                        //Do some damage (same as damage tile)
-                        damage_character( cnt, 32768, damagetile_data.amount, 1, damagetile_data.type, DAMAGETEAM, ChrList[cnt].ai.bumplast, DAMFX_NBLOC | DAMFX_ARMO, btrue );
+                        // Do some damage (same as damage tile)
+                        damage_character( cnt, 32768, damagetile_data.amount, 1, damagetile_data.type, TEAM_DAMAGE, ChrList[cnt].ai.bumplast, DAMFX_NBLOC | DAMFX_ARMO, btrue );
                     }
                 }
             }
@@ -2166,7 +2215,7 @@ void update_pits()
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void do_weather_spawn()
 {
     // ZZ> This function drops snowflakes or rain or whatever, also swings the camera
@@ -2207,7 +2256,7 @@ void do_weather_spawn()
                     x = ChrList[cnt].pos.x;
                     y = ChrList[cnt].pos.y;
                     z = ChrList[cnt].pos.z;
-                    particle = spawn_one_particle( x, y, z, 0, MAX_PROFILE, WEATHER4, MAX_CHR, GRIP_LAST, NULLTEAM, MAX_CHR, 0, MAX_CHR );
+                    particle = spawn_one_particle( x, y, z, 0, MAX_PROFILE, WEATHER4, MAX_CHR, GRIP_LAST, TEAM_NULL, MAX_CHR, 0, MAX_CHR );
 
                     if (particle != TOTAL_MAX_PRT)
                     {
@@ -2229,7 +2278,7 @@ void do_weather_spawn()
     PCamera->swing = ( PCamera->swing + PCamera->swingrate ) & 16383;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void set_one_player_latch( Uint16 player )
 {
     // ZZ> This function converts input readings to latch settings, so players can
@@ -2293,8 +2342,8 @@ void set_one_player_latch( Uint16 player )
             mous.latcholdy = PlaList[player].latchy;
 
             // Sustain old movements to ease mouse play
-            PlaList[player].latchx+=mous.latcholdx*mous.sustain;
-            PlaList[player].latchy+=mous.latcholdy*mous.sustain;
+            PlaList[player].latchx += mous.latcholdx * mous.sustain;
+            PlaList[player].latchy += mous.latcholdy * mous.sustain;
             mous.latcholdx = PlaList[player].latchx;
             mous.latcholdy = PlaList[player].latchy;
 
@@ -2456,7 +2505,7 @@ void set_one_player_latch( Uint16 player )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void set_local_latches( void )
 {
     // ZZ> This function emulates AI thinkin' by setting latches from input devices
@@ -2468,7 +2517,7 @@ void set_local_latches( void )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void prime_names()
 {
     // ZZ> This function prepares the name chopper for use
@@ -2477,7 +2526,7 @@ void prime_names()
     chop.carat = 0;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void check_stats()
 {
     // ZZ> This function lets the players check character stats
@@ -2579,7 +2628,7 @@ void check_stats()
 
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void show_stat( Uint16 statindex )
 {
     // ZZ> This function shows the more specific stats for a character
@@ -2627,11 +2676,11 @@ void show_stat( Uint16 statindex )
         sprintf( text, " STR:~%2d~WIS:~%2d~DEF:~%d", FP8_TO_INT( ChrList[character].strength ), FP8_TO_INT( ChrList[character].wisdom ), 255 - ChrList[character].defense );
         debug_message( text );
         sprintf( text, " INT:~%2d~DEX:~%2d~EXP:~%d", FP8_TO_INT( ChrList[character].intelligence ), FP8_TO_INT( ChrList[character].dexterity ), ChrList[character].experience );
-        debug_message( text );        
+        debug_message( text );
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void show_armor( Uint16 statindex )
 {
     // ZF> This function shows detailed armor information for the character
@@ -2693,7 +2742,7 @@ void show_armor( Uint16 statindex )
 
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void show_full_status( Uint16 statindex )
 {
     // ZF> This function shows detailed armor information for the character including magic
@@ -2745,7 +2794,7 @@ void show_full_status( Uint16 statindex )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void show_magic_status( Uint16 statindex )
 {
     // ZF> Displays special enchantment effects for the character
@@ -2793,7 +2842,7 @@ void show_magic_status( Uint16 statindex )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void fill_bumplists()
 {
     Uint16 character, particle;
@@ -2866,7 +2915,7 @@ void fill_bumplists()
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void fill_collision_list( co_data_t cdata[], int * cdata_count, hash_node_t hnlst[], int * hn_count )
 {
     Uint16 ichr_a, ichr_b, iprt_b;
@@ -2966,7 +3015,7 @@ void fill_collision_list( co_data_t cdata[], int * cdata_count, hash_node_t hnls
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t can_mount( Uint16 ichr_a, Uint16 ichr_b )
 {
     bool_t is_valid_rider_a, is_valid_mount_b;
@@ -2997,7 +3046,7 @@ bool_t can_mount( Uint16 ichr_a, Uint16 ichr_b )
     return is_valid_rider_a && is_valid_mount_b;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t do_platforms( Uint16 ichr_a, Uint16 ichr_b )
 {
     float xa, ya, za;
@@ -3051,7 +3100,7 @@ bool_t do_platforms( Uint16 ichr_a, Uint16 ichr_b )
     if ( mount_a && pchr_a->phys.level < zb + pchr_b->bumpheight + PLATTOLERANCE )
         return bfalse;
 
-    //// If we can mount this platform, skip it
+    // // If we can mount this platform, skip it
     mount_b = can_mount(ichr_a, ichr_b);
     if ( mount_b && pchr_b->phys.level < za + pchr_a->bumpheight + PLATTOLERANCE )
         return bfalse;
@@ -3143,7 +3192,7 @@ bool_t do_platforms( Uint16 ichr_a, Uint16 ichr_b )
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t do_mounts( Uint16 ichr_a, Uint16 ichr_b )
 {
     float xa, ya, za;
@@ -3297,7 +3346,7 @@ bool_t do_mounts( Uint16 ichr_a, Uint16 ichr_b )
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
 {
     float xa, ya, za, xb, yb, zb;
@@ -3473,7 +3522,7 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
     was_collide_xy = (was_dist < radius_xy);
     was_collide_z  = (was_depth_z > 0);
 
-    //------------------
+    // ------------------
     // do character-character interactions
     if ( !collide_x || !collide_y || !collide_xy || depth_z < -PLATTOLERANCE ) return bfalse;
 
@@ -3806,7 +3855,7 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
 {
     Uint16 ipip_b, direction;
@@ -3974,7 +4023,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
                     }
 
                     // Apply intelligence/wisdom bonus damage for particles with the [IDAM] and [WDAM] expansions (Low ability gives penality)
-                    //+2% bonus for every point of intelligence and/or wisdom above 14. Below 14 gives -2% instead!
+                    // +2% bonus for every point of intelligence and/or wisdom above 14. Below 14 gives -2% instead!
                     if ( ppip_b->intdamagebonus )
                     {
                         float percent;
@@ -4010,7 +4059,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
                     }
                 }
 
-                if (  0 == ( frame_all & 31 ) && pprt_b->attachedtocharacter == ichr_a )
+                if (  HAS_NO_BITS( frame_all, 31 ) && pprt_b->attachedtocharacter == ichr_a )
                 {
                     // Attached iprt_b damage ( Burning )
                     if ( ppip_b->xyvelbase == 0 )
@@ -4130,7 +4179,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // collision data
 static int       cdata_count = 0;
 static co_data_t cdata[CHR_MAX_COLLISIONS];
@@ -4309,7 +4358,7 @@ void bump_characters( void )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void stat_return()
 {
     // ZZ> This function brings mana and life back
@@ -4350,7 +4399,7 @@ void stat_return()
                 ChrList[cnt].life = MAX(1, MIN(ChrList[cnt].life, ChrList[cnt].lifemax));
             }
 
-            //countdown cofuse effects
+            // countdown cofuse effects
             if ( ChrList[cnt].grogtime > 0 )
             {
                 ChrList[cnt].grogtime--;
@@ -4373,7 +4422,7 @@ void stat_return()
             }
             else
             {
-                //Do enchant timer
+                // Do enchant timer
                 if ( EncList[cnt].time > 0 )
                 {
                     EncList[cnt].time--;
@@ -4439,7 +4488,7 @@ void stat_return()
                             remove_enchant( cnt );
                         }
                     }
-                    else if( !EveList[eve].stayifdead )
+                    else if ( !EveList[eve].stayifdead )
                     {
                         remove_enchant( cnt );
                     }
@@ -4450,7 +4499,7 @@ void stat_return()
 
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void tilt_characters_to_terrain()
 {
     // ZZ> This function sets all of the character's starting tilt values
@@ -4476,7 +4525,7 @@ void tilt_characters_to_terrain()
 
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int load_all_objects( const char *modname )
 {
     // ZZ> This function loads a module's local objects and overrides the global ones already loaded
@@ -4491,7 +4540,7 @@ int load_all_objects( const char *modname )
     // Log all of the script errors
     parseerror = bfalse;
 
-    //This overwrites existing loaded slots that are loaded globally
+    // This overwrites existing loaded slots that are loaded globally
     overrideslots = btrue;
 
     // Clear the import slots...
@@ -4545,7 +4594,7 @@ int load_all_objects( const char *modname )
     return skin;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t chr_setup_read( FILE * fileread, chr_setup_info_t *pinfo )
 {
     int cnt;
@@ -4587,20 +4636,20 @@ bool_t chr_setup_read( FILE * fileread, chr_setup_info_t *pinfo )
     else if ( 'I' == toupper(cTmp) )  pinfo->attach = ATTACH_INVENTORY;
 
     fscanf( fileread, "%d%d%d%d%d", &pinfo->money, &pinfo->skin, &pinfo->passage, &pinfo->content, &pinfo->level );
-    if (pinfo->skin >= MAXSKIN) pinfo->skin = rand() % MAXSKIN;     //Randomize skin?
+    if (pinfo->skin >= MAXSKIN) pinfo->skin = rand() % MAXSKIN;     // Randomize skin?
 
     cTmp = fget_first_letter( fileread );
     pinfo->stat = ( 'T' == toupper(cTmp) );
 
-    cTmp = fget_first_letter( fileread );   //BAD! Unused ghost value
+    cTmp = fget_first_letter( fileread );   // BAD! Unused ghost value
 
     cTmp = fget_first_letter( fileread );
-    pinfo->team = ( cTmp - 'A' ) % MAXTEAM;
+    pinfo->team = ( cTmp - 'A' ) % TEAM_MAX;
 
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t chr_setup_apply( Uint16 ichr, chr_setup_info_t *pinfo )
 {
     // trap bad pointers
@@ -4650,7 +4699,7 @@ bool_t chr_setup_apply( Uint16 ichr, chr_setup_info_t *pinfo )
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void setup_characters( const char *modname )
 {
     // ZZ> This function sets up character data, loaded from "SPAWN.TXT"
@@ -4767,16 +4816,16 @@ void setup_characters( const char *modname )
     tilt_characters_to_terrain();
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void load_all_global_objects(int skin)
 {
-    //ZF> This function loads all global objects found in the basicdat folder
+    // ZF> This function loads all global objects found in the basicdat folder
     const char *filehandle;
     bool_t keeplooking;
     STRING newloadname;
     STRING filename;
 
-    //Warn the user for any duplicate slots
+    // Warn the user for any duplicate slots
     overrideslots = bfalse;
 
     // Search for .obj directories and load them
@@ -4800,7 +4849,7 @@ void load_all_global_objects(int skin)
     fs_findClose();
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void game_reset_module_data()
 {
     // reset all
@@ -4817,7 +4866,7 @@ void game_reset_module_data()
     reset_renderlist();
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t game_load_module_data( const char *smallname )
 {
     // ZZ> This function loads a module
@@ -4845,7 +4894,7 @@ bool_t game_load_module_data( const char *smallname )
     load_blip_bitmap();
     load_bars( "basicdat" SLASH_STR "bars" );
 
-    //Load all objects
+    // Load all objects
     {
         int skin;
         skin = load_all_objects(modname);
@@ -4873,7 +4922,7 @@ bool_t game_load_module_data( const char *smallname )
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void disaffirm_attached_particles( Uint16 character )
 {
     // ZZ> This function makes sure a character has no attached particles
@@ -4891,7 +4940,7 @@ void disaffirm_attached_particles( Uint16 character )
     ChrList[character].ai.alert |= ALERTIF_DISAFFIRMED;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 Uint16 number_of_attached_particles( Uint16 character )
 {
     // ZZ> This function returns the number of particles attached to the given character
@@ -4913,7 +4962,7 @@ Uint16 number_of_attached_particles( Uint16 character )
     return cnt;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void reaffirm_attached_particles( Uint16 character )
 {
     // ZZ> This function makes sure a character has all of it's particles
@@ -4937,7 +4986,7 @@ void reaffirm_attached_particles( Uint16 character )
     ChrList[character].ai.alert |= ALERTIF_REAFFIRMED;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void game_quit_module()
 {
     // BB > all of the de-initialization code after the module actually ends
@@ -4958,7 +5007,7 @@ void game_quit_module()
     sound_finish_sound();
 }
 
-//-----------------------------------------------------------------
+// -----------------------------------------------------------------
 bool_t game_begin_module( const char * modname, Uint32 seed )
 {
     // BB> all of the initialization code before the module actually starts
@@ -5003,7 +5052,7 @@ bool_t game_begin_module( const char * modname, Uint32 seed )
     return btrue;
 }
 
-//-----------------------------------------------------------------
+// -----------------------------------------------------------------
 bool_t game_update_imports()
 {
     // BB> This function saves all the players to the players dir
@@ -5082,14 +5131,14 @@ bool_t game_update_imports()
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void game_release_module_data()
 {
     // ZZ> This function frees up memory used by the module
 
     // Disable EMP
     local_senseenemiesID = IDSZ_NONE;
-    local_senseenemies = MAX_CHR;
+    local_senseenemiesTeam = TEAM_MAX;
 
     release_all_icons();
     release_all_titleimages();
@@ -5102,7 +5151,7 @@ void game_release_module_data()
     mesh_delete( PMesh );
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void attach_particles()
 {
     // ZZ> This function attaches particles to their characters so everything gets
@@ -5128,7 +5177,7 @@ void attach_particles()
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int add_player( Uint16 character, Uint16 player, Uint32 device )
 {
     // ZZ> This function adds a player, returning bfalse if it fails, btrue otherwise
@@ -5167,7 +5216,7 @@ int add_player( Uint16 character, Uint16 player, Uint32 device )
     return bfalse;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void let_all_characters_think()
 {
     // ZZ> This function lets every computer controlled character do AI stuff
@@ -5186,8 +5235,8 @@ void let_all_characters_think()
         if ( !ChrList[character].on ) continue;
 
         // check for actions that must always be handled
-        is_cleanedup = ( 0 != ( ChrList[character].ai.alert & ALERTIF_CLEANEDUP ) );
-        is_crushed   = ( 0 != ( ChrList[character].ai.alert & ALERTIF_CRUSHED   ) );
+        is_cleanedup = HAS_SOME_BITS( ChrList[character].ai.alert, ALERTIF_CLEANEDUP );
+        is_crushed   = HAS_SOME_BITS( ChrList[character].ai.alert, ALERTIF_CRUSHED   );
 
         // let the script run sometimes even if the item is in your backpack
         can_think = !ChrList[character].pack_ispacked || CapList[ChrList[character].model].isequipment;
@@ -5209,8 +5258,7 @@ void let_all_characters_think()
     }
 }
 
-
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t game_begin_menu( menu_process_t * mproc, which_menu_t which )
 {
     if ( NULL == mproc ) return bfalse;
@@ -5228,7 +5276,7 @@ bool_t game_begin_menu( menu_process_t * mproc, which_menu_t which )
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void game_end_menu( menu_process_t * mproc )
 {
     mnu_end_menu();
@@ -5240,7 +5288,7 @@ void game_end_menu( menu_process_t * mproc )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void game_finish_module()
 {
     // export all the local and remote characters
@@ -5250,7 +5298,7 @@ void game_finish_module()
     game_quit_module();
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void free_all_objects( void )
 {
     // BB > free every instance of the three object types used in the game.
@@ -5260,8 +5308,8 @@ void free_all_objects( void )
     free_all_characters();
 }
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t add_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b, co_data_t cdata[], int * cdata_count, hash_node_t hnlst[], int * hn_count )
 {
     Uint32 hashval = 0;
@@ -5321,7 +5369,7 @@ bool_t add_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b, co_data_t cdata[], i
     return !found;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t add_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b, co_data_t cdata[], int * cdata_count, hash_node_t hnlst[], int * hn_count )
 {
     bool_t found;
@@ -5381,7 +5429,7 @@ bool_t add_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b, co_data_t cdata[], i
     return !found;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t detect_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
 {
     bool_t collide_x  = bfalse;
@@ -5457,7 +5505,7 @@ bool_t detect_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t detect_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
 {
     bool_t collide_x  = bfalse;
@@ -5512,8 +5560,8 @@ bool_t detect_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 ego_mpd_t * set_PMesh( ego_mpd_t * pmpd )
 {
     ego_mpd_t * pmpd_old = PMesh;
@@ -5523,7 +5571,7 @@ ego_mpd_t * set_PMesh( ego_mpd_t * pmpd )
     return pmpd_old;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 camera_t * set_PCamera( camera_t * pcam )
 {
     camera_t * pcam_old = PCamera;
@@ -5539,7 +5587,7 @@ camera_t * set_PCamera( camera_t * pcam )
     return pcam_old;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t water_data_init( water_data_t * pdata )
 {
     if ( NULL == pdata ) return bfalse;
@@ -5598,7 +5646,7 @@ bool_t water_instance_init( water_instance_t * pinst, water_data_t * pdata )
     return btrue;
 };
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t weather_data_init( weather_data_t * pdata )
 {
     if ( NULL == pdata ) return bfalse;
@@ -5610,7 +5658,7 @@ bool_t weather_data_init( weather_data_t * pdata )
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t weather_instance_init( weather_instance_t * pinst, weather_data_t * pdata )
 {
     if ( NULL == pinst ) return bfalse;
@@ -5624,7 +5672,7 @@ bool_t weather_instance_init( weather_instance_t * pinst, weather_data_t * pdata
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t fog_data_init( fog_data_t * pdata )
 {
     if ( NULL == pdata ) return bfalse;
@@ -5639,7 +5687,7 @@ bool_t fog_data_init( fog_data_t * pdata )
     return btrue;
 };
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t fog_instance_init( fog_instance_t * pinst, fog_data_t * pdata )
 {
     if ( NULL == pinst ) return bfalse;
@@ -5664,7 +5712,7 @@ bool_t fog_instance_init( fog_instance_t * pinst, fog_data_t * pdata )
     return btrue;
 };
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t damagetile_data_init( damagetile_data_t * pdata )
 {
     if ( NULL == pdata ) return bfalse;
@@ -5678,7 +5726,7 @@ bool_t damagetile_data_init( damagetile_data_t * pdata )
     return btrue;
 };
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t damagetile_instance_init( damagetile_instance_t * pinst, damagetile_data_t * pdata )
 {
     if ( NULL == pinst ) return bfalse;
@@ -5693,7 +5741,7 @@ bool_t damagetile_instance_init( damagetile_instance_t * pinst, damagetile_data_
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t animtile_data_init( animtile_data_t * pdata )
 {
     if ( NULL == pdata ) return bfalse;
@@ -5706,29 +5754,31 @@ bool_t animtile_data_init( animtile_data_t * pdata )
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t animtile_instance_init( animtile_instance_t pinst[], animtile_data_t * pdata )
 {
     if ( NULL == pinst ) return bfalse;
 
-    pinst[0].frame_and  = (1 << 3) - 1;
+    pinst[0].frame_and  = (1 << 2) - 1;
     pinst[0].base_and   = ~pinst[0].frame_and;
+    pinst[0].frame_add  = 0;
 
-    pinst[1].frame_and  = (1 << 4) - 1;
+    pinst[1].frame_and  = (1 << 3) - 1;
     pinst[1].base_and   = ~pinst[1].frame_and;
+    pinst[1].frame_add  = 0;
 
-    if ( NULL != pdata ) return bfalse;
+    if ( NULL == pdata ) return bfalse;
 
     pinst[0].frame_and = pdata->frame_and;
     pinst[0].base_and  = ~pinst[0].frame_and;
 
     pinst[1].frame_and = ( pdata->frame_and << 1 ) | 1;
-    pinst[1].frame_and = ~pinst[1].frame_and;
+    pinst[1].base_and  = ~pinst[1].frame_and;
 
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void read_wawalite( const char *modname )
 {
     // ZZ> This function sets up water and lighting for the module
@@ -5783,7 +5833,7 @@ void read_wawalite( const char *modname )
     goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     water_data.background_req = ('T' == toupper(cTmp));
 
-	//General data info
+    // General data info
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  water_data.layer[0].dist.x = fTmp;
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  water_data.layer[0].dist.y = fTmp;
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  water_data.layer[1].dist.x = fTmp;
@@ -5791,7 +5841,7 @@ void read_wawalite( const char *modname )
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.foregroundrepeat = iTmp;
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.backgroundrepeat = iTmp;
 
-	//Read data on first water layer
+    // Read data on first water layer
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer[0].z = iTmp;
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer[0].alpha = iTmp;
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer[0].frame_add = iTmp;
@@ -5801,7 +5851,7 @@ void read_wawalite( const char *modname )
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  water_data.layer[0].tx_add.x = fTmp;
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  water_data.layer[0].tx_add.y = fTmp;
 
-	//Read data on second water layer
+    // Read data on second water layer
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer[1].z = iTmp;
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer[1].alpha = iTmp;
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer[1].frame_add = iTmp;
@@ -5815,7 +5865,7 @@ void read_wawalite( const char *modname )
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  light_x = fTmp;
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  light_y = fTmp;
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  light_z = fTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  light_a = fTmp*10.0f;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  light_a = fTmp * 10.0f;
 
     light_d = 0.0f;
     if ( ABS(light_x) + ABS(light_y) + ABS(light_z) > 0 )
@@ -5917,7 +5967,7 @@ void read_wawalite( const char *modname )
     make_lighttospek();
 }
 
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 float get_mesh_level( ego_mpd_t * pmesh, float x, float y, bool_t waterwalk )
 {
     // ZZ> This function returns the height of a point within a mesh fan, precise
@@ -5941,7 +5991,7 @@ float get_mesh_level( ego_mpd_t * pmesh, float x, float y, bool_t waterwalk )
     return zdone;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t make_water( water_instance_t * pinst, water_data_t * pdata )
 {
     // ZZ> This function sets up water movements
@@ -5991,7 +6041,7 @@ bool_t make_water( water_instance_t * pinst, water_data_t * pdata )
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void reset_end_text()
 {
     // ZZ> This function resets the end-module text
@@ -6020,7 +6070,7 @@ void reset_end_text()
     str_add_linebreaks( endtext, endtextwrite, 20 );
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void append_end_text( script_state_t * pstate, int message, Uint16 character )
 {
     // ZZ> This function appends a message to the end-module text
@@ -6236,7 +6286,7 @@ void append_end_text( script_state_t * pstate, int message, Uint16 character )
     str_add_linebreaks( endtext, endtextwrite, 20 );
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t game_choose_module( int imod, int seed )
 {
     if ( seed < 0 ) seed = time(NULL);
@@ -6246,8 +6296,8 @@ bool_t game_choose_module( int imod, int seed )
     return module_upload( PMod, imod, seed );
 }
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 process_instance_t * process_instance_init( process_instance_t * proc )
 {
     if ( NULL == proc ) return proc;
@@ -6350,7 +6400,7 @@ bool_t process_instance_running( process_instance_t * proc )
     return !proc->paused;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 ego_process_t * ego_process_init( ego_process_t * eproc )
 {
     if ( NULL == eproc ) return NULL;
@@ -6362,7 +6412,7 @@ ego_process_t * ego_process_init( ego_process_t * eproc )
     return eproc;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 menu_process_t * menu_process_init( menu_process_t * mproc )
 {
     if ( NULL == mproc ) return NULL;
@@ -6374,7 +6424,7 @@ menu_process_t * menu_process_init( menu_process_t * mproc )
     return mproc;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 game_process_t * game_process_init( game_process_t * gproc )
 {
     if ( NULL == gproc ) return NULL;
@@ -6389,8 +6439,8 @@ game_process_t * game_process_init( game_process_t * gproc )
     return gproc;
 }
 
-//---------------------------------------------------------------------------------------------
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 void init_all_pip()
 {
     Uint16 cnt;
@@ -6401,7 +6451,7 @@ void init_all_pip()
     }
 }
 
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 void init_all_eve()
 {
     Uint16 cnt;
@@ -6412,7 +6462,7 @@ void init_all_eve()
     }
 }
 
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 void init_all_cap()
 {
     Uint16 cnt;
@@ -6423,7 +6473,7 @@ void init_all_cap()
     }
 }
 
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 void init_all_mad()
 {
     Uint16 cnt;
@@ -6439,7 +6489,7 @@ void init_all_mad()
     md2_loadframe = 0;
 }
 
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 void init_all_profiles()
 {
     // ZZ> This function initializes all of the model profiles
@@ -6451,8 +6501,8 @@ void init_all_profiles()
     init_all_ai_scripts();
 }
 
-//---------------------------------------------------------------------------------------------
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 void release_all_pip()
 {
     int cnt;
@@ -6463,7 +6513,7 @@ void release_all_pip()
     }
 }
 
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 void release_all_eve()
 {
     int cnt;
@@ -6474,7 +6524,7 @@ void release_all_eve()
     }
 }
 
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 void release_all_cap()
 {
     int cnt, tnc;
@@ -6493,7 +6543,7 @@ void release_all_cap()
     };
 }
 
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 void release_all_mad()
 {
     int cnt;
@@ -6508,7 +6558,7 @@ void release_all_mad()
     md2_loadframe = 0;
 }
 
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 void release_all_profiles()
 {
     // ZZ> This function clears out all of the model data
@@ -6520,7 +6570,7 @@ void release_all_profiles()
     release_all_ai_scripts();
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 /*Uint8 find_target_in_block( int x, int y, float chrx, float chry, Uint16 facing,
 Uint8 onlyfriends, Uint8 anyone, Uint8 team,
 Uint16 donttarget, Uint16 oldtarget )
@@ -6577,7 +6627,7 @@ cnt++;
 return returncode;
 }*/
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 /*Uint16 find_target( float chrx, float chry, Uint16 facing,
 Uint16 targetangle, Uint8 onlyfriends, Uint8 anyone,
 Uint8 team, Uint16 donttarget, Uint16 oldtarget )
@@ -6624,24 +6674,8 @@ void do_game_hud()
     }
 }
 
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-struct s_line_of_sight_info
-{
-    float x0, y0;
-    float x1, y1;
-    Uint32 stopped_by;
-
-    Uint16 collide_chr;
-    Uint32 collide_fx;
-    int    collide_x;
-    int    collide_y;
-};
-
-typedef struct s_line_of_sight_info line_of_sight_info_t;
-
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t collide_ray_with_mesh( line_of_sight_info_t * plos )
 {
     Uint32 fan_last;
@@ -6698,6 +6732,11 @@ bool_t collide_ray_with_mesh( line_of_sight_info_t * plos )
     {
         dbig = -1;
         Dbig = -Dbig;
+        ibig_end--;
+    }
+    else
+    {
+        ibig_end++;
     }
 
     // set up the small loop variables
@@ -6736,7 +6775,7 @@ bool_t collide_ray_with_mesh( line_of_sight_info_t * plos )
         {
             // collide the ray with the mesh
 
-            if ( 0 != (PMesh->mmem.tile_list[fan].fx & plos->stopped_by) )
+            if ( HAS_SOME_BITS(PMesh->mmem.tile_list[fan].fx, plos->stopped_by) )
             {
                 plos->collide_x  = ix;
                 plos->collide_y  = iy;
@@ -6763,7 +6802,7 @@ bool_t collide_ray_with_mesh( line_of_sight_info_t * plos )
     return bfalse;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t collide_ray_with_characters( line_of_sight_info_t * plos )
 {
     Uint16 ichr;
@@ -6780,7 +6819,7 @@ bool_t collide_ray_with_characters( line_of_sight_info_t * plos )
     return bfalse;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t do_line_of_sight( line_of_sight_info_t * plos )
 {
     bool_t mesh_hit, chr_hit;
@@ -6789,11 +6828,35 @@ bool_t do_line_of_sight( line_of_sight_info_t * plos )
 
     if ( mesh_hit )
     {
-        plos->x1 = plos->collide_x * TILE_SIZE;
-        plos->y1 = plos->collide_y * TILE_SIZE;
+        plos->x1 = (plos->collide_x + 0.5f) * TILE_SIZE;
+        plos->y1 = (plos->collide_y + 0.5f) * TILE_SIZE;
     }
 
     chr_hit = collide_ray_with_characters( plos );
 
     return mesh_hit || chr_hit;
+}
+
+
+// --------------------------------------------------------------------------------------------
+void reset_players()
+{
+    // ZZ> This function clears the player list data
+    int cnt;
+
+    // Reset the local data stuff
+    local_seekurse         = bfalse;
+    local_senseenemiesTeam = TEAM_MAX;
+    local_seeinvisible     = bfalse;
+    local_allpladead       = bfalse;
+
+    // Reset the initial player data and latches
+    for ( cnt = 0; cnt < MAXPLAYER; cnt++ )
+    {
+        memset( PlaList + cnt, 0, sizeof(player_t) );
+    }
+    numpla        = 0;
+
+    nexttimestamp = ((Uint32)~0);
+    numplatimes   = 0;
 }

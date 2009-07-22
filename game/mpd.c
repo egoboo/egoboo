@@ -1,21 +1,21 @@
-//********************************************************************************************
-//*
-//*    This file is part of Egoboo.
-//*
-//*    Egoboo is free software: you can redistribute it and/or modify it
-//*    under the terms of the GNU General Public License as published by
-//*    the Free Software Foundation, either version 3 of the License, or
-//*    (at your option) any later version.
-//*
-//*    Egoboo is distributed in the hope that it will be useful, but
-//*    WITHOUT ANY WARRANTY; without even the implied warranty of
-//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//*    General Public License for more details.
-//*
-//*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-//*
-//********************************************************************************************
+// ********************************************************************************************
+// *
+// *    This file is part of Egoboo.
+// *
+// *    Egoboo is free software: you can redistribute it and/or modify it
+// *    under the terms of the GNU General Public License as published by
+// *    the Free Software Foundation, either version 3 of the License, or
+// *    (at your option) any later version.
+// *
+// *    Egoboo is distributed in the hope that it will be useful, but
+// *    WITHOUT ANY WARRANTY; without even the implied warranty of
+// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// *    General Public License for more details.
+// *
+// *    You should have received a copy of the GNU General Public License
+// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+// *
+// ********************************************************************************************
 
 #include "mpd.h"
 #include "log.h"
@@ -26,8 +26,8 @@
 #include "egoboo_strutil.h"
 #include "egoboo.h"
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 
 static mpd_info_t * mpd_info_new( mpd_info_t * pinfo );
 static mpd_info_t * mpd_info_delete( mpd_info_t * pinfo );
@@ -37,8 +37,8 @@ static mpd_mem_t *  mpd_mem_delete( mpd_mem_t * pmem );
 static bool_t       mpd_mem_free( mpd_mem_t * pmem );
 static bool_t       mpd_mem_allocate( mpd_mem_t * pmem, mpd_info_t * pinfo );
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 
 GLvector3 map_twist_nrm[256];
 Uint32    map_twist_y[256];            // For surface normal of mesh
@@ -50,8 +50,8 @@ Uint8     map_twist_flat[256];
 
 tile_definition_t tile_dict[MAXMESHTYPE];
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void tile_dictionary_load(tile_definition_t dict[], size_t dict_size)
 {
     // ZZ> This function loads fan types for the terrain
@@ -155,8 +155,8 @@ void tile_dictionary_load(tile_definition_t dict[], size_t dict_size)
 
 }
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 mpd_t * mpd_new( mpd_t * pmesh )
 {
     if ( NULL != pmesh )
@@ -170,7 +170,7 @@ mpd_t * mpd_new( mpd_t * pmesh )
     return pmesh;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 mpd_t * mpd_delete( mpd_t * pmesh )
 {
     if ( NULL != pmesh )
@@ -182,7 +182,7 @@ mpd_t * mpd_delete( mpd_t * pmesh )
     return pmesh;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t mpd_free( mpd_t * pmesh )
 {
     if ( NULL == pmesh ) return bfalse;
@@ -192,10 +192,10 @@ bool_t mpd_free( mpd_t * pmesh )
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 mpd_t * mpd_load( const char *loadname, mpd_t * pmesh )
 {
-    //// ZZ> This function loads the level.mpd file
+    // // ZZ> This function loads the level.mpd file
     FILE* fileread;
     int itmp;
     float ftmp;
@@ -265,7 +265,7 @@ mpd_t * mpd_load( const char *loadname, mpd_t * pmesh )
         fread( &itmp, 4, 1, fileread );
         pmem->tile_list[fan].type = (ENDIAN_INT32( itmp ) >> 24) & 0xFF;
         pmem->tile_list[fan].fx   = (ENDIAN_INT32( itmp ) >> 16) & 0xFF;
-        pmem->tile_list[fan].img  = (ENDIAN_INT32( itmp )      ) & 0xFFFF;
+        pmem->tile_list[fan].img  = (ENDIAN_INT32( itmp ) >>  0) & 0xFFFF;
     }
 
     // Load twist data
@@ -308,8 +308,8 @@ mpd_t * mpd_load( const char *loadname, mpd_t * pmesh )
     return pmesh;
 }
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 mpd_info_t * mpd_info_new( mpd_info_t * pinfo )
 {
     if (NULL == pinfo) return pinfo;
@@ -319,7 +319,7 @@ mpd_info_t * mpd_info_new( mpd_info_t * pinfo )
     return pinfo;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 mpd_info_t * mpd_info_delete( mpd_info_t * pinfo )
 {
     if ( NULL != pinfo )
@@ -330,8 +330,8 @@ mpd_info_t * mpd_info_delete( mpd_info_t * pinfo )
     return pinfo;
 }
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 mpd_mem_t * mpd_mem_new( mpd_mem_t * pmem )
 {
     if (NULL == pmem) return pmem;
@@ -341,7 +341,7 @@ mpd_mem_t * mpd_mem_new( mpd_mem_t * pmem )
     return pmem;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 mpd_mem_t * mpd_mem_delete( mpd_mem_t * pmem )
 {
     if ( NULL != pmem )
@@ -352,7 +352,7 @@ mpd_mem_t * mpd_mem_delete( mpd_mem_t * pmem )
 
     return pmem;
 }
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t mpd_mem_allocate( mpd_mem_t * pmem, mpd_info_t * pinfo  )
 {
     int tile_count;
@@ -391,7 +391,7 @@ bool_t mpd_mem_allocate( mpd_mem_t * pmem, mpd_info_t * pinfo  )
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t mpd_mem_free( mpd_mem_t * pmem )
 {
     if ( NULL == pmem ) return bfalse;
@@ -414,8 +414,8 @@ bool_t mpd_mem_free( mpd_mem_t * pmem )
     return btrue;
 }
 
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 Uint8 cartman_get_twist(int x, int y)
 {
     Uint8 twist;
@@ -434,7 +434,7 @@ Uint8 cartman_get_twist(int x, int y)
     return twist;
 }
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 bool_t twist_to_normal( Uint8 twist, float v[], float slide )
 {
     int ix, iy;

@@ -1,29 +1,29 @@
-//********************************************************************************************
-//*
-//*    This file is part of Egoboo.
-//*
-//*    Egoboo is free software: you can redistribute it and/or modify it
-//*    under the terms of the GNU General Public License as published by
-//*    the Free Software Foundation, either version 3 of the License, or
-//*    (at your option) any later version.
-//*
-//*    Egoboo is distributed in the hope that it will be useful, but
-//*    WITHOUT ANY WARRANTY; without even the implied warranty of
-//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//*    General Public License for more details.
-//*
-//*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-//*
-//********************************************************************************************
+// ********************************************************************************************
+// *
+// *    This file is part of Egoboo.
+// *
+// *    Egoboo is free software: you can redistribute it and/or modify it
+// *    under the terms of the GNU General Public License as published by
+// *    the Free Software Foundation, either version 3 of the License, or
+// *    (at your option) any later version.
+// *
+// *    Egoboo is distributed in the hope that it will be useful, but
+// *    WITHOUT ANY WARRANTY; without even the implied warranty of
+// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// *    General Public License for more details.
+// *
+// *    You should have received a copy of the GNU General Public License
+// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+// *
+// ********************************************************************************************
 
 #include "egoboo_typedef.h"
 
 static bool_t        hash_list_dtor(hash_list_t * lst);
 static bool_t        hash_node_dtor(hash_node_t * n);
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t hash_node_dtor(hash_node_t * n)
 {
     if (NULL == n) return bfalse;
@@ -33,7 +33,7 @@ bool_t hash_node_dtor(hash_node_t * n)
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 hash_node_t * hash_node_ctor(hash_node_t * n, void * data)
 {
     if (NULL == n) return n;
@@ -45,7 +45,7 @@ hash_node_t * hash_node_ctor(hash_node_t * n, void * data)
     return n;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 hash_node_t * hash_node_create(void * data)
 {
     hash_node_t * n = EGOBOO_NEW( hash_node_t );
@@ -54,7 +54,7 @@ hash_node_t * hash_node_create(void * data)
     return hash_node_ctor(n, data);
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t hash_node_destroy(hash_node_t ** pn)
 {
     bool_t retval = bfalse;
@@ -68,7 +68,7 @@ bool_t hash_node_destroy(hash_node_t ** pn)
     return retval;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 hash_node_t * hash_node_insert_after(hash_node_t lst[], hash_node_t * n)
 {
     if ( NULL == n ) return lst;
@@ -82,7 +82,7 @@ hash_node_t * hash_node_insert_after(hash_node_t lst[], hash_node_t * n)
     return lst;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 hash_node_t * hash_node_insert_before(hash_node_t lst[], hash_node_t * n)
 {
     if ( NULL == n ) return lst;
@@ -95,7 +95,7 @@ hash_node_t * hash_node_insert_before(hash_node_t lst[], hash_node_t * n)
     return n;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 hash_node_t * hash_node_remove_after(hash_node_t lst[])
 {
     hash_node_t * n;
@@ -111,7 +111,7 @@ hash_node_t * hash_node_remove_after(hash_node_t lst[])
     return lst;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 hash_node_t * hash_node_remove(hash_node_t lst[])
 {
     hash_node_t * n;
@@ -126,8 +126,8 @@ hash_node_t * hash_node_remove(hash_node_t lst[])
     return n;
 }
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t hash_list_deallocate(hash_list_t * lst)
 {
     if (NULL == lst) return bfalse;
@@ -140,7 +140,7 @@ bool_t hash_list_deallocate(hash_list_t * lst)
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t hash_list_allocate(hash_list_t * lst, int size)
 {
     if (NULL == lst) return bfalse;
@@ -165,7 +165,7 @@ bool_t hash_list_allocate(hash_list_t * lst, int size)
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 hash_list_t * hash_list_ctor(hash_list_t * lst, int size)
 {
     if (NULL == lst) return NULL;
@@ -176,7 +176,7 @@ hash_list_t * hash_list_ctor(hash_list_t * lst, int size)
     return lst;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t hash_list_dtor(hash_list_t * lst)
 {
     if (NULL == lst) return bfalse;
@@ -185,13 +185,13 @@ bool_t hash_list_dtor(hash_list_t * lst)
 
     return btrue;
 }
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 hash_list_t * hash_list_create(int size)
 {
     return hash_list_ctor( EGOBOO_NEW( hash_list_t ), size);
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t hash_list_destroy(hash_list_t ** plst)
 {
     bool_t retval = bfalse;

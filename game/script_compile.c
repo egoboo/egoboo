@@ -1,21 +1,21 @@
-//********************************************************************************************
-//*
-//*    This file is part of Egoboo.
-//*
-//*    Egoboo is free software: you can redistribute it and/or modify it
-//*    under the terms of the GNU General Public License as published by
-//*    the Free Software Foundation, either version 3 of the License, or
-//*    (at your option) any later version.
-//*
-//*    Egoboo is distributed in the hope that it will be useful, but
-//*    WITHOUT ANY WARRANTY; without even the implied warranty of
-//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//*    General Public License for more details.
-//*
-//*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-//*
-//********************************************************************************************
+// ********************************************************************************************
+// *
+// *    This file is part of Egoboo.
+// *
+// *    Egoboo is free software: you can redistribute it and/or modify it
+// *    under the terms of the GNU General Public License as published by
+// *    the Free Software Foundation, either version 3 of the License, or
+// *    (at your option) any later version.
+// *
+// *    Egoboo is distributed in the hope that it will be useful, but
+// *    WITHOUT ANY WARRANTY; without even the implied warranty of
+// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// *    General Public License for more details.
+// *
+// *    You should have received a copy of the GNU General Public License
+// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+// *
+// ********************************************************************************************
 
 #include "script_compile.h"
 
@@ -24,8 +24,10 @@
 #include "egoboo_setup.h"
 #include "egoboo.h"
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+#include "SDL_extensions.h"
+
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 static int    iLoadSize;
 static int    iNumLine;
 
@@ -55,29 +57,29 @@ Uint32 iCompiledAis[AISMAXCOMPILESIZE];
 bool_t debug_scripts = bfalse;
 FILE * debug_script_file = NULL;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 static void   insert_space( int position );
-//static void   copy_one_line( int write );
+// static void   copy_one_line( int write );
 static int    load_one_line( int read );
-//static int    load_parsed_line( int read );
+// static int    load_parsed_line( int read );
 static void   surround_space( int position );
-//static void   parse_null_terminate_comments();
+// static void   parse_null_terminate_comments();
 static int    get_indentation();
 static void   fix_operators();
-//static int    starts_with_capital_letter();
-//static Uint32 get_high_bits();
+// static int    starts_with_capital_letter();
+// static Uint32 get_high_bits();
 static int    parse_token( int read );
 static void   emit_opcode( Uint32 highbits );
 static void   parse_line_by_line();
 static Uint32 jump_goto( int index, int index_end );
 static void   parse_jumps( int ainumber );
-//static void   log_code( int ainumber, const char* savename );
+// static void   log_code( int ainumber, const char* savename );
 static int    ai_goto_colon( int read );
 static void   get_code( int read );
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void insert_space( int position )
 {
     // ZZ> This function adds a space into the load line if there isn't one
@@ -102,7 +104,7 @@ void insert_space( int position )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int load_one_line( int read )
 {
     // ZZ> This function loads a line into the line buffer
@@ -229,7 +231,7 @@ int load_one_line( int read )
     return read;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void surround_space( int position )
 {
     insert_space( position + 1 );
@@ -242,8 +244,7 @@ void surround_space( int position )
     }
 }
 
-
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int get_indentation()
 {
     // ZZ> This function returns the number of starting spaces in a line
@@ -257,7 +258,7 @@ int get_indentation()
         cnt++;
         cTmp = cLineBuffer[cnt];
     }
-    if ( 0 != (cnt & 1) )
+    if ( HAS_SOME_BITS(cnt, 1) )
     {
         log_warning( "Invalid indentation \"%s\"(%d) - \"%s\"\n", globalparsename, Token_iLine, cLineBuffer );
         parseerror = btrue;
@@ -274,7 +275,7 @@ int get_indentation()
     return cnt;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void fix_operators()
 {
     // ZZ> This function puts spaces around operators to seperate words
@@ -299,7 +300,7 @@ void fix_operators()
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int parse_token( int read )
 {
     // ZZ> This function tells what code is being indexed by read, it
@@ -366,8 +367,8 @@ int parse_token( int read )
 
     // compare in a case-insensitive manner. there is a unix-based function that does this,
     // but it is not sommon enough on non-linux compilers to be cross platform compatible
-    //for ( cnt = 0; cnt < iNumCode; cnt++ )
-    //{
+    // for ( cnt = 0; cnt < iNumCode; cnt++ )
+    // {
     //    int i, maxlen;
     //    char * ptok, *pcode;
     //    bool_t found;
@@ -390,7 +391,7 @@ int parse_token( int read )
     //    }
 
     //    if ( '\0' == *ptok && '\0' == *pcode && found ) break;
-    //}
+    // }
 
     for ( cnt = 0; cnt < iNumCode; cnt++ )
     {
@@ -426,7 +427,7 @@ int parse_token( int read )
     { /* print_token(); */  return read; }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void emit_opcode( Uint32 highbits )
 {
     // detect a constant value
@@ -445,7 +446,7 @@ void emit_opcode( Uint32 highbits )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void parse_line_by_line()
 {
     // ZZ> This function removes comments and endline codes, replacing
@@ -460,12 +461,12 @@ void parse_line_by_line()
         read = load_one_line( read );
         if ( 0 == iLineSize ) continue;
 
-        //print_line();
+        // print_line();
 
         fix_operators();
         parseposition = 0;
 
-        //------------------------------
+        // ------------------------------
         // grab the first opcode
 
         highbits = SET_DATA_BITS( get_indentation() );
@@ -478,7 +479,7 @@ void parse_line_by_line()
                 break;
             }
 
-            //------------------------------
+            // ------------------------------
             // the code type is a function
 
             // save the opcode
@@ -491,7 +492,7 @@ void parse_line_by_line()
         }
         else if ( 'V' == Token_cType )
         {
-            //------------------------------
+            // ------------------------------
             // the code type is a math operation
 
             int operand_index;
@@ -513,7 +514,7 @@ void parse_line_by_line()
                 log_warning( "Invalid equation \"%s\"(%d) - \"%s\"\n", globalparsename, Token_iLine, cLineBuffer);
             }
 
-            //------------------------------
+            // ------------------------------
             // grab the next opcode
 
             parseposition = parse_token( parseposition );
@@ -591,7 +592,7 @@ void parse_line_by_line()
     emit_opcode( 0 );
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 Uint32 jump_goto( int index, int index_end )
 {
     // ZZ> This function figures out where to jump to on a fail based on the
@@ -631,7 +632,7 @@ Uint32 jump_goto( int index, int index_end )
     return MIN ( index, index_end );
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void parse_jumps( int ainumber )
 {
     // ZZ> This function sets up the fail jumps for the down and dirty code
@@ -647,7 +648,7 @@ void parse_jumps( int ainumber )
         value = iCompiledAis[index];
 
         // Was it a function
-        if ( 0 != ( value & FUNCTION_BIT ) )
+        if ( HAS_SOME_BITS( value, FUNCTION_BIT ) )
         {
             // Each function needs a jump
             iTmp = jump_goto( index, index_end );
@@ -665,7 +666,7 @@ void parse_jumps( int ainumber )
         }
     }
 }
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int ai_goto_colon( int read )
 {
     // ZZ> This function goes to spot after the next colon
@@ -682,7 +683,7 @@ int ai_goto_colon( int read )
     return read;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void get_code( int read )
 {
     // ZZ> This function gets code names and other goodies
@@ -694,7 +695,7 @@ void get_code( int read )
     iCodeValue[iNumCode] = iTmp;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void load_ai_codes( const char* loadname )
 {
     // ZZ> This function loads all of the function and variable names
@@ -722,7 +723,7 @@ void load_ai_codes( const char* loadname )
     debug_script_file = fopen( "script_debug.txt", "w" );
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int load_ai_script( const char *loadname )
 {
     // ZZ> This function loads a script to memory and
@@ -770,7 +771,7 @@ int load_ai_script( const char *loadname )
     iAisEndPosition[iNumAis]   = iAisIndex;
 
     // parse/compile the scripts
-    //parse_null_terminate_comments();
+    // parse_null_terminate_comments();
     parse_line_by_line();
 
     // set the end position of the script
@@ -788,7 +789,7 @@ int load_ai_script( const char *loadname )
     return retval;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void release_all_ai_scripts()
 {
     // ZZ> This function resets the ai script "pointers"
@@ -805,9 +806,9 @@ void init_all_ai_scripts()
     iNumAis = 0;
 }
 
-//--------------------------------------------------------------------------------------------
-//int load_parsed_line( int read )
-//{
+// --------------------------------------------------------------------------------------------
+// int load_parsed_line( int read )
+// {
 //    // ZZ> This function loads a line into the line buffer
 //    char cTmp;
 //
@@ -824,11 +825,11 @@ void init_all_ai_scripts()
 //    cLineBuffer[iLineSize] = '\0';
 //    read++; // skip terminating zero for next call of load_parsed_line()
 //    return read;
-//}
+// }
 //
-//--------------------------------------------------------------------------------------------
-//void parse_null_terminate_comments()
-//{
+// --------------------------------------------------------------------------------------------
+// void parse_null_terminate_comments()
+// {
 //    // ZZ> This function removes comments and endline codes, replacing
 //    //     them with a 0
 //    int read, write;
@@ -846,21 +847,21 @@ void init_all_ai_scripts()
 //            write += iLineSize;
 //        }
 //    }
-//}
+// }
 //
-//--------------------------------------------------------------------------------------------
-//void print_token()
-//{
+// --------------------------------------------------------------------------------------------
+// void print_token()
+// {
 //    printf("------------\n", globalparsename, Token_iLine);
 //    printf("\tToken_iIndex == %d\n", Token_iIndex);
 //    printf("\tToken_iValue == %d\n", Token_iValue);
 //    printf("\tToken_cType  == \'%c\'\n", Token_cType);
 //    printf("\tToken_cWord  == \"%s\"\n", Token_cWord);
-//}
+// }
 //
-//--------------------------------------------------------------------------------------------
-//void print_line()
-//{
+// --------------------------------------------------------------------------------------------
+// void print_line()
+// {
 //    int i;
 //    char cTmp;
 //
@@ -882,4 +883,4 @@ void init_all_ai_scripts()
 //    };
 //
 //    printf( "\", length == %d\n", iLineSize);
-//}
+// }

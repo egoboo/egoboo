@@ -1,23 +1,23 @@
 #pragma once
 
-//********************************************************************************************
-//*
-//*    This file is part of Egoboo.
-//*
-//*    Egoboo is free software: you can redistribute it and/or modify it
-//*    under the terms of the GNU General Public License as published by
-//*    the Free Software Foundation, either version 3 of the License, or
-//*    (at your option) any later version.
-//*
-//*    Egoboo is distributed in the hope that it will be useful, but
-//*    WITHOUT ANY WARRANTY; without even the implied warranty of
-//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//*    General Public License for more details.
-//*
-//*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-//*
-//********************************************************************************************
+// ********************************************************************************************
+// *
+// *    This file is part of Egoboo.
+// *
+// *    Egoboo is free software: you can redistribute it and/or modify it
+// *    under the terms of the GNU General Public License as published by
+// *    the Free Software Foundation, either version 3 of the License, or
+// *    (at your option) any later version.
+// *
+// *    Egoboo is distributed in the hope that it will be useful, but
+// *    WITHOUT ANY WARRANTY; without even the implied warranty of
+// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// *    General Public License for more details.
+// *
+// *    You should have received a copy of the GNU General Public License
+// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+// *
+// ********************************************************************************************
 
 /* Egoboo - egoboo.h
  * Disgusting, hairy, way too monolithic header file for the whole darn
@@ -184,7 +184,7 @@ enum e_xp_type
 // Z velocity stuff
 #define JUMPDELAY           20                      // Time between jumps
 
-#define RAISE       12 //25                               // Helps correct z level
+#define RAISE       12 // 25                               // Helps correct z level
 #define SHADOWRAISE 5
 #define DAMAGERAISE 25
 
@@ -207,9 +207,9 @@ enum e_xp_type
 #define MAXXP 200000                                // Maximum experience
 #define MAXMONEY 9999                               // Maximum money
 
-//------------------------------------
+// ------------------------------------
 // Character defines
-//------------------------------------
+// ------------------------------------
 #define MAXSKIN   4
 
 // Display
@@ -238,7 +238,7 @@ EXTERN bool_t          pickedmodule_ready;              // Is there a new picked
 EXTERN char            pickedmodule_name[64];           // The module load name
 EXTERN int             pickedmodule_index;                // The module index number
 
-//Respawning
+// Respawning
 EXTERN bool_t                   local_allpladead;            // Has everyone died?
 EXTERN Uint16                   revivetimer EQ(0);
 
@@ -269,16 +269,14 @@ EXTERN float           gravity  EQ( -1.0f );                                   /
 
 #define INVISIBLE           20                      // The character can't be detected
 
-EXTERN bool_t                    local_seeinvisible   EQ( bfalse );
-EXTERN bool_t                    local_seekurse       EQ( bfalse );
-EXTERN Uint16                    local_senseenemies   EQ( MAX_CHR );
-EXTERN IDSZ                      local_senseenemiesID EQ( bfalse );
-EXTERN bool_t                    local_listening      EQ( bfalse );  // Players with listen skill?
+EXTERN bool_t                    local_seeinvisible      EQ( bfalse );
+EXTERN bool_t                    local_seekurse          EQ( bfalse );
+EXTERN bool_t                    local_listening         EQ( bfalse );  // Players with listen skill?
 EXTERN bool_t                    local_noplayers;                    // Are there any local players?
 
-//------------------------------------
+// ------------------------------------
 // Model stuff
-//------------------------------------
+// ------------------------------------
 EXTERN int             globalicon_count;                              // Number of icons
 
 EXTERN Uint16  skintoicon[MAX_TEXTURE];                  // Skin to icon

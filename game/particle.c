@@ -1,21 +1,21 @@
-//********************************************************************************************
-//*
-//*    This file is part of Egoboo.
-//*
-//*    Egoboo is free software: you can redistribute it and/or modify it
-//*    under the terms of the GNU General Public License as published by
-//*    the Free Software Foundation, either version 3 of the License, or
-//*    (at your option) any later version.
-//*
-//*    Egoboo is distributed in the hope that it will be useful, but
-//*    WITHOUT ANY WARRANTY; without even the implied warranty of
-//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//*    General Public License for more details.
-//*
-//*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-//*
-//********************************************************************************************
+// ********************************************************************************************
+// *
+// *    This file is part of Egoboo.
+// *
+// *    Egoboo is free software: you can redistribute it and/or modify it
+// *    under the terms of the GNU General Public License as published by
+// *    the Free Software Foundation, either version 3 of the License, or
+// *    (at your option) any later version.
+// *
+// *    Egoboo is distributed in the hope that it will be useful, but
+// *    WITHOUT ANY WARRANTY; without even the implied warranty of
+// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// *    General Public License for more details.
+// *
+// *    You should have received a copy of the GNU General Public License
+// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+// *
+// ********************************************************************************************
 
 /* Egoboo - particle.c
 * Manages particle systems.
@@ -36,8 +36,8 @@
 #include "egoboo_fileutil.h"
 #include "egoboo.h"
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 enum e_particle_direction
 {
     prt_v = 0x0000,    // particle is vertical on the bitmap
@@ -47,8 +47,8 @@ enum e_particle_direction
 };
 typedef enum e_particle_direction particle_direction_t;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 static int       numfreeprt = 0;                            // For allocation
 static Uint16    freeprtlist[TOTAL_MAX_PRT];
 
@@ -81,14 +81,14 @@ particle_direction_t prt_direction[256] =
     prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_u, prt_u, prt_u, prt_u
 };
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int prt_count_free()
 {
     return numfreeprt;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void free_one_particle( Uint16 particle )
 {
     // ZZ> This function sticks a particle back on the free particle stack
@@ -108,7 +108,7 @@ void free_one_particle( Uint16 particle )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void play_particle_sound( Uint16 particle, Sint8 sound )
 {
     // This function plays a sound effect for a particle
@@ -132,7 +132,7 @@ void play_particle_sound( Uint16 particle, Sint8 sound )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void free_one_particle_in_game( Uint16 particle )
 {
     // ZZ> This function sticks a particle back on the free particle stack and
@@ -163,7 +163,7 @@ void free_one_particle_in_game( Uint16 particle )
     free_one_particle( particle );
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int get_free_particle( int force )
 {
     // ZZ> This function gets an unused particle.  If all particles are in use
@@ -205,7 +205,7 @@ int get_free_particle( int force )
     return (particle >= maxparticles) ? TOTAL_MAX_PRT : particle;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 Uint16 spawn_one_particle( float x, float y, float z,
                            Uint16 facing, Uint16 model, Uint16 ipip,
                            Uint16 characterattach, Uint16 vrt_offset, Uint8 team,
@@ -433,7 +433,7 @@ Uint16 spawn_one_particle( float x, float y, float z,
     return iprt;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 Uint8 __prthitawall( Uint16 particle )
 {
     // ZZ> This function returns nonzero if the particle hit a wall
@@ -457,7 +457,7 @@ Uint8 __prthitawall( Uint16 particle )
     return retval;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void move_particles( void )
 {
     // ZZ> This is the particle physics function
@@ -660,7 +660,7 @@ void move_particles( void )
         {
             // Splash for particles is just a ripple
             spawn_one_particle( pprt->pos.x, pprt->pos.y, water.surface_level,
-                                0, MAX_PROFILE, RIPPLE, MAX_CHR, GRIP_LAST, NULLTEAM, MAX_CHR, 0, MAX_CHR );
+                                0, MAX_PROFILE, RIPPLE, MAX_CHR, GRIP_LAST, TEAM_NULL, MAX_CHR, 0, MAX_CHR );
 
             // Check for disaffirming character
             if ( VALID_CHR( pprt->attachedtocharacter ) && pprt->chr == pprt->attachedtocharacter )
@@ -698,7 +698,7 @@ void move_particles( void )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void free_all_particles()
 {
     // ZZ> This function resets the particle allocation lists
@@ -714,7 +714,7 @@ void free_all_particles()
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void setup_particles()
 {
     // ZZ> This function sets up particle data
@@ -736,7 +736,7 @@ void setup_particles()
     free_all_particles();
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void spawn_bump_particles( Uint16 character, Uint16 particle )
 {
     // ZZ> This function is for catching characters on fire and such
@@ -810,7 +810,7 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
                 fcos = turntocos[facing & TRIG_TABLE_MASK ];
                 x = -8192 * fsin;
                 y =  8192 * fcos;
-                z = z << 10;/// pchr->scale;
+                z = z << 10;// / pchr->scale;
                 frame = pmad->md2.framestart;
                 cnt = 0;
 
@@ -845,7 +845,7 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int prt_is_over_water( Uint16 cnt )
 {
     // This function returns btrue if the particle is over a water tile
@@ -862,7 +862,7 @@ int prt_is_over_water( Uint16 cnt )
     return bfalse;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int load_one_particle_profile( const char *szLoadName )
 {
     // ZZ> This function loads a particle template, returning bfalse if the file wasn't
@@ -895,7 +895,7 @@ int load_one_particle_profile( const char *szLoadName )
     ppip->loaded = btrue;
 
     // General data
-    parse_filename = szLoadName;    //For debugging missing colons
+    parse_filename = szLoadName;    // For debugging missing colons
     goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     ppip->force = bfalse;
     if ( cTmp == 'T' || cTmp == 't' )  ppip->force = btrue;
@@ -1006,9 +1006,9 @@ int load_one_particle_profile( const char *szLoadName )
 
     goto_colon( NULL, fileread, bfalse );  // !!Cause roll
 
-	//Cause pancake
-    goto_colon( NULL, fileread, bfalse );  
-	ppip->causepancake = bfalse;
+    // Cause pancake
+    goto_colon( NULL, fileread, bfalse );
+    ppip->causepancake = bfalse;
     if ( cTmp == 'T' || cTmp == 't' ) ppip->causepancake = btrue;
 
     goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
@@ -1038,7 +1038,7 @@ int load_one_particle_profile( const char *szLoadName )
     if ( cTmp == 'T' || cTmp == 't' ) ppip->friendlyfire = btrue;
 
     goto_colon( NULL, fileread, bfalse );
-    //ppip->hateonly = bfalse; TODO: BAD not implemented yet
+    // ppip->hateonly = bfalse; TODO: BAD not implemented yet
 
     goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     ppip->newtargetonspawn = bfalse;
@@ -1075,21 +1075,21 @@ int load_one_particle_profile( const char *szLoadName )
     {
         idsz = fget_idsz( fileread );
 
-        if ( idsz == Make_IDSZ( "TURN" ) )  ppip->damfx = DAMFX_NONE;
-        else if ( idsz == Make_IDSZ( "ARMO" ) )  ppip->damfx |= DAMFX_ARMO;
-        else if ( idsz == Make_IDSZ( "BLOC" ) )  ppip->damfx |= DAMFX_NBLOC;
-        else if ( idsz == Make_IDSZ( "ARRO" ) )  ppip->damfx |= DAMFX_ARRO;
-        else if ( idsz == Make_IDSZ( "TIME" ) )  ppip->damfx |= DAMFX_TIME;
-        else if ( idsz == Make_IDSZ( "ZSPD" ) )  ppip->zaimspd = fget_int( fileread );
-        else if ( idsz == Make_IDSZ( "FSND" ) )  ppip->soundfloor = fget_int( fileread );
-        else if ( idsz == Make_IDSZ( "WSND" ) )  ppip->soundwall = fget_int( fileread );
-        else if ( idsz == Make_IDSZ( "WEND" ) )  ppip->endwall = fget_int( fileread );
-        else if ( idsz == Make_IDSZ( "PUSH" ) )  ppip->allowpush = fget_int( fileread );
-        else if ( idsz == Make_IDSZ( "DLEV" ) )  ppip->dynalightleveladd = fget_int( fileread ) / 1000.0f;
-        else if ( idsz == Make_IDSZ( "DRAD" ) )  ppip->dynalightfalloffadd = fget_int( fileread ) / 1000.0f;
-        else if ( idsz == Make_IDSZ( "IDAM" ) )  ppip->intdamagebonus = fget_int( fileread );
-        else if ( idsz == Make_IDSZ( "WDAM" ) )  ppip->wisdamagebonus = fget_int( fileread );
-        else if ( idsz == Make_IDSZ( "ORNT" ) )
+        if ( idsz == MAKE_IDSZ( 'T', 'U', 'R', 'N' ) )  ppip->damfx = DAMFX_NONE;
+        else if ( idsz == MAKE_IDSZ( 'A', 'R', 'M', 'O' ) )  ppip->damfx |= DAMFX_ARMO;
+        else if ( idsz == MAKE_IDSZ( 'B', 'L', 'O', 'C' ) )  ppip->damfx |= DAMFX_NBLOC;
+        else if ( idsz == MAKE_IDSZ( 'A', 'R', 'R', 'O' ) )  ppip->damfx |= DAMFX_ARRO;
+        else if ( idsz == MAKE_IDSZ( 'T', 'I', 'M', 'E' ) )  ppip->damfx |= DAMFX_TIME;
+        else if ( idsz == MAKE_IDSZ( 'Z', 'S', 'P', 'D' ) )  ppip->zaimspd = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'F', 'S', 'N', 'D' ) )  ppip->soundfloor = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'W', 'S', 'N', 'D' ) )  ppip->soundwall = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'W', 'E', 'N', 'D' ) )  ppip->endwall = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'P', 'U', 'S', 'H' ) )  ppip->allowpush = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'D', 'L', 'E', 'V' ) )  ppip->dynalightleveladd = fget_int( fileread ) / 1000.0f;
+        else if ( idsz == MAKE_IDSZ( 'D', 'R', 'A', 'D' ) )  ppip->dynalightfalloffadd = fget_int( fileread ) / 1000.0f;
+        else if ( idsz == MAKE_IDSZ( 'I', 'D', 'A', 'M' ) )  ppip->intdamagebonus = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'W', 'D', 'A', 'M' ) )  ppip->wisdamagebonus = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'O', 'R', 'N', 'T' ) )
         {
             char cTmp = fget_first_letter( fileread );
             switch ( toupper(cTmp) )
@@ -1109,7 +1109,7 @@ int load_one_particle_profile( const char *szLoadName )
     return retval;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void reset_particles( const char* modname )
 {
     // ZZ> This resets all particle data and reads in the coin and water particles

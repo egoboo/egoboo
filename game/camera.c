@@ -1,21 +1,21 @@
-//********************************************************************************************
-//*
-//*    This file is part of Egoboo.
-//*
-//*    Egoboo is free software: you can redistribute it and/or modify it
-//*    under the terms of the GNU General Public License as published by
-//*    the Free Software Foundation, either version 3 of the License, or
-//*    (at your option) any later version.
-//*
-//*    Egoboo is distributed in the hope that it will be useful, but
-//*    WITHOUT ANY WARRANTY; without even the implied warranty of
-//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//*    General Public License for more details.
-//*
-//*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-//*
-//********************************************************************************************
+// ********************************************************************************************
+// *
+// *    This file is part of Egoboo.
+// *
+// *    Egoboo is free software: you can redistribute it and/or modify it
+// *    under the terms of the GNU General Public License as published by
+// *    the Free Software Foundation, either version 3 of the License, or
+// *    (at your option) any later version.
+// *
+// *    Egoboo is distributed in the hope that it will be useful, but
+// *    WITHOUT ANY WARRANTY; without even the implied warranty of
+// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// *    General Public License for more details.
+// *
+// *    You should have received a copy of the GNU General Public License
+// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+// *
+// ********************************************************************************************
 
 /* Egoboo - camera.c
  * Various functions related to how the game camera works.
@@ -32,13 +32,13 @@
 #include "egoboo_setup.h"
 #include "egoboo.h"
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 
 camera_t gCamera;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // Camera control stuff
 
 camera_t * camera_new( camera_t * pcam )
@@ -75,7 +75,7 @@ camera_t * camera_new( camera_t * pcam )
     pcam->mProjection = MatrixMult( Translate( 0, 0, -0.999996f ), pcam->mProjection ); // Fix Z value...
     pcam->mProjection = MatrixMult( ScaleXYZ( -1, -1, 100000 ), pcam->mProjection );  // HUK // ...'cause it needs it
 
-    //[claforte] Fudge the values.
+    // [claforte] Fudge the values.
     pcam->mProjection.v[10] /= 2.0f;
     pcam->mProjection.v[11] /= 2.0f;
 
@@ -88,8 +88,8 @@ camera_t * camera_new( camera_t * pcam )
     return pcam;
 }
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void dump_matrix( GLmatrix a )
 {
     int i; int j;
@@ -105,8 +105,8 @@ void dump_matrix( GLmatrix a )
     }
 }
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void camera_look_at( camera_t * pcam, float x, float y )
 {
     // ZZ> This function makes the camera turn to face the character
@@ -117,7 +117,7 @@ void camera_look_at( camera_t * pcam, float x, float y )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void camera_make_matrix( camera_t * pcam )
 {
     // ZZ> This function sets pcam->mView to the camera's location and rotation
@@ -134,7 +134,7 @@ void camera_make_matrix( camera_t * pcam )
 
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void camera_adjust_angle( camera_t * pcam, float height )
 {
     // ZZ> This function makes the camera look downwards as it is raised up
@@ -148,7 +148,7 @@ void camera_adjust_angle( camera_t * pcam, float height )
     pcam->zoom = ( MINZOOM * percentmin ) + ( MAXZOOM * percentmax );
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
 {
     // ZZ> This function moves the camera
@@ -450,7 +450,7 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
     pcam->turn_z = ((Uint32)(pcam->turn_z_one * 0x10000)) & 0xFFFF;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void camera_reset( camera_t * pcam, ego_mpd_t * pmesh )
 {
     // ZZ> This function makes sure the camera starts in a suitable position

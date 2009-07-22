@@ -1,21 +1,21 @@
-//********************************************************************************************
-//*
-//*    This file is part of Egoboo.
-//*
-//*    Egoboo is free software: you can redistribute it and/or modify it
-//*    under the terms of the GNU General Public License as published by
-//*    the Free Software Foundation, either version 3 of the License, or
-//*    (at your option) any later version.
-//*
-//*    Egoboo is distributed in the hope that it will be useful, but
-//*    WITHOUT ANY WARRANTY; without even the implied warranty of
-//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//*    General Public License for more details.
-//*
-//*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-//*
-//********************************************************************************************
+// ********************************************************************************************
+// *
+// *    This file is part of Egoboo.
+// *
+// *    Egoboo is free software: you can redistribute it and/or modify it
+// *    under the terms of the GNU General Public License as published by
+// *    the Free Software Foundation, either version 3 of the License, or
+// *    (at your option) any later version.
+// *
+// *    Egoboo is distributed in the hope that it will be useful, but
+// *    WITHOUT ANY WARRANTY; without even the implied warranty of
+// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// *    General Public License for more details.
+// *
+// *    You should have received a copy of the GNU General Public License
+// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+// *
+// ********************************************************************************************
 
 #include "egoboo_setup.h"
 
@@ -31,8 +31,8 @@
 #include "egoboo_fileutil.h"
 #include "egoboo.h"
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // Macros for reading values from a ConfigFile
 //   - Must have a valid ConfigFilePtr_t named lConfigSetup
 //   - Must have a string named lCurSectionName to define the section
@@ -71,16 +71,16 @@
 #define SetKey_int(label, var)      ConfigFile_SetValue_Int( lConfigSetup, lCurSectionName, (label), (var) )
 #define SetKey_string( label, var ) ConfigFile_SetValue_String( lConfigSetup, lCurSectionName, (label), (var) )
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 
 static ConfigFilePtr_t lConfigSetup = NULL;
 
 egoboo_config_t cfg;
 egoboo_config_t cfg_default;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void egoboo_config_init()
 {
     memset( &cfg_default, 0, sizeof(egoboo_config_t) );
@@ -139,14 +139,14 @@ void egoboo_config_init()
     cfg_default.difficulty        = GAME_NORMAL;    // What is the current game difficulty
 };
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t setup_quit()
 {
     return ConfigFile_succeed == ConfigFile_destroy( &lConfigSetup );
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t setup_read( const char* filename )
 {
     // BB> read the setup file
@@ -156,7 +156,7 @@ bool_t setup_read( const char* filename )
     return NULL != lConfigSetup;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t setup_write()
 {
     // BB> save the current setup file
@@ -164,7 +164,7 @@ bool_t setup_write()
     return ConfigFile_succeed == SaveConfigFile( lConfigSetup );
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t setup_download(egoboo_config_t * pcfg)
 {
     // BB > download the ConfigFile_t keys into game variables
@@ -353,7 +353,7 @@ bool_t setup_download(egoboo_config_t * pcfg)
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t setup_synch( egoboo_config_t * pcfg )
 {
     if ( NULL == pcfg ) return bfalse;
@@ -382,7 +382,7 @@ bool_t setup_synch( egoboo_config_t * pcfg )
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t setup_upload( egoboo_config_t * pcfg )
 {
     // BB > upload game variables into the ConfigFile_t keys
@@ -567,8 +567,8 @@ bool_t setup_upload( egoboo_config_t * pcfg )
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 static void export_control( FILE * filewrite, const char * text, Sint32 device, control_t * pcontrol )
 {
     STRING write;
@@ -577,7 +577,7 @@ static void export_control( FILE * filewrite, const char * text, Sint32 device, 
     fputs( write, filewrite );
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t input_settings_load( const char *szFilename )
 {
     // ZZ> This function reads the controls.txt file
@@ -640,10 +640,10 @@ bool_t input_settings_load( const char *szFilename )
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t input_settings_save( const char* szFilename)
 {
-    //ZF> This function saves all current game settings to "controls.txt"
+    // ZF> This function saves all current game settings to "controls.txt"
     device_controls_t * pdevice;
     FILE* filewrite;
     STRING write;
@@ -656,7 +656,7 @@ bool_t input_settings_save( const char* szFilename)
         return bfalse;
     }
 
-    //Just some information
+    // Just some information
     fputs( "Controls\n", filewrite );
     fputs( "========\n", filewrite );
     fputs( "This file lets users modify the handling of input devices.\n", filewrite );
@@ -676,7 +676,7 @@ bool_t input_settings_save( const char* szFilename)
     fputs( "F11                   - Take screenshot\n", filewrite );
     fputs( "\n", filewrite );
 
-    //The actual settings
+    // The actual settings
     pdevice = controls + INPUT_DEVICE_KEYBOARD;
     fputs( "Keyboard\n", filewrite );
     fputs( "========\n", filewrite );
@@ -727,7 +727,7 @@ bool_t input_settings_save( const char* szFilename)
         export_control( filewrite, "Camera Control Mode\t", pdevice->device, pdevice->control + CONTROL_CAMERA );
     }
 
-    //All done
+    // All done
     fclose(filewrite);
 
     return btrue;

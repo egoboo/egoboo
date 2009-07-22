@@ -8,8 +8,8 @@ extern "C"
 {
 #endif
 
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // wrapper for uploading texture information
 
     void oglx_bind(GLenum target, GLuint id, GLint wrap_s, GLint wrap_t, GLint min_f, GLint mag_f, GLfloat aniso );
@@ -17,8 +17,8 @@ extern "C"
     void oglx_upload_2d(GLboolean use_alpha, GLsizei w, GLsizei h, const GLvoid * data);
     void oglx_upload_2d_mipmap(GLboolean use_alpha, GLsizei w, GLsizei h, const GLvoid * data);
 
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 
 // OpenGL graphics info
     struct s_oglx_caps
@@ -75,8 +75,8 @@ extern "C"
         GLint max_eval_order;                // Maximum evaluator polynomial order
 
         GLboolean anisotropic_supported;
-        GLfloat   maxAnisotropy;                     ///< Max anisotropic filterings (Between 1.00 and 16.00)
-        GLfloat   log2Anisotropy;                    ///< Max levels of anisotropy
+        GLfloat   maxAnisotropy;                     // /< Max anisotropic filterings (Between 1.00 and 16.00)
+        GLfloat   log2Anisotropy;                    // /< Max levels of anisotropy
     };
     typedef struct s_oglx_caps oglx_caps_t;
 
@@ -85,24 +85,24 @@ extern "C"
 
     extern oglx_caps_t ogl_caps;
 
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
     struct s_oglx_video_parameters
     {
-        GLboolean antialiasing;            ///< current antialiasing value
-        GLboolean multisample;             ///< whether multisampling is being supported through GL_MULTISAMPLE
-        GLboolean multisample_arb;         ///< whether multisampling is being supported through GL_MULTISAMPLE_ARB
-        GLenum    perspective;             ///< current correction hint
-        GLboolean dither;                  ///< current dithering flag
-        GLenum    shading;                 ///< current shading type
-        GLfloat   userAnisotropy;          ///< current value of the anisotropic filtering
+        GLboolean antialiasing;            // /< current antialiasing value
+        GLboolean multisample;             // /< whether multisampling is being supported through GL_MULTISAMPLE
+        GLboolean multisample_arb;         // /< whether multisampling is being supported through GL_MULTISAMPLE_ARB
+        GLenum    perspective;             // /< current correction hint
+        GLboolean dither;                  // /< current dithering flag
+        GLenum    shading;                 // /< current shading type
+        GLfloat   userAnisotropy;          // /< current value of the anisotropic filtering
     };
     typedef struct s_oglx_video_parameters oglx_video_parameters_t;
 
     GLboolean oglx_video_parameters_default(oglx_video_parameters_t * pvid);
 
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
     FILE * oglx_set_stdout(FILE * pfile);
 
 #ifdef __cplusplus

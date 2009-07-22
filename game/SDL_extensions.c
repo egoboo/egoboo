@@ -1,12 +1,12 @@
 #include "SDL_extensions.h"
 #include <SDL_opengl.h>
 
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 #define LOCAL_STDOUT ((NULL == _SDLX_stdout) ? stdout : _SDLX_stdout)
 
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 
 static FILE * _SDLX_stdout = NULL;
 
@@ -29,13 +29,13 @@ const Uint32 bmask = 0x0000ff00;
 const Uint32 amask = 0x000000ff;
 #endif
 
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 static void SDLX_download_sdl_video_flags( Uint32 iflags, SDLX_sdl_video_flags_t * pflags );
 static void SDLX_read_sdl_gl_attrib( SDLX_sdl_gl_attrib_t * patt );
 
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 SDL_bool SDLX_Report_Screen_Info( SDLX_screen_info_t * psi )
 {
     int cnt;
@@ -56,7 +56,7 @@ SDL_bool SDLX_Report_Screen_Info( SDLX_screen_info_t * psi )
     return SDL_TRUE;
 }
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 SDL_bool SDLX_Get_Screen_Info( SDLX_screen_info_t * psi, SDL_bool make_report )
 {
     Uint32 init_flags = 0;
@@ -86,7 +86,7 @@ SDL_bool SDLX_Get_Screen_Info( SDLX_screen_info_t * psi, SDL_bool make_report )
     psi->x = ps->w;
     psi->y = ps->h;
 
-    //Grab all the available video modes
+    // Grab all the available video modes
     psi->video_mode_list = SDL_ListModes( ps->format, ps->flags | SDL_FULLSCREEN );
 
     // log the video driver info
@@ -112,8 +112,8 @@ SDL_bool SDLX_Get_Screen_Info( SDLX_screen_info_t * psi, SDL_bool make_report )
     return SDL_TRUE;
 }
 
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 void SDLX_output_sdl_gl_attrib( SDLX_sdl_gl_attrib_t * patt )
 {
     fprintf( LOCAL_STDOUT, "\nSDL_GL_Attribtes\n" );
@@ -151,7 +151,7 @@ void SDLX_output_sdl_gl_attrib( SDLX_sdl_gl_attrib_t * patt )
     fflush( LOCAL_STDOUT );
 }
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 void SDLX_output_sdl_video_flags( SDLX_sdl_video_flags_t flags )
 {
     fprintf( LOCAL_STDOUT, "\nSDL flags\n" );
@@ -198,7 +198,7 @@ void SDLX_output_sdl_video_flags( SDLX_sdl_video_flags_t flags )
     fflush( LOCAL_STDOUT );
 }
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 Uint32 SDLX_upload_sdl_video_flags( SDLX_sdl_video_flags_t flags )
 {
     Uint32 ret = 0;
@@ -225,7 +225,7 @@ Uint32 SDLX_upload_sdl_video_flags( SDLX_sdl_video_flags_t flags )
     return ret;
 }
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 void SDLX_download_sdl_video_flags( Uint32 iflags, SDLX_sdl_video_flags_t * pflags )
 {
     if ( NULL != pflags )
@@ -251,7 +251,7 @@ void SDLX_download_sdl_video_flags( Uint32 iflags, SDLX_sdl_video_flags_t * pfla
     }
 }
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 void SDLX_report_video_parameters( SDLX_video_parameters_t * v )
 {
     // BB> make a report
@@ -268,7 +268,7 @@ void SDLX_report_video_parameters( SDLX_video_parameters_t * v )
     fflush( LOCAL_STDOUT );
 }
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 void SDLX_read_sdl_gl_attrib( SDLX_sdl_gl_attrib_t * patt )
 {
     if ( NULL == patt ) return;
@@ -296,7 +296,7 @@ void SDLX_read_sdl_gl_attrib( SDLX_sdl_gl_attrib_t * patt )
 
 }
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 void SDLX_synch_video_parameters( SDL_Surface * ret, SDLX_video_parameters_t * v )
 {
     // BB> synch values
@@ -314,7 +314,7 @@ void SDLX_synch_video_parameters( SDL_Surface * ret, SDLX_video_parameters_t * v
     SDLX_read_sdl_gl_attrib( &(v->gl_att) );
 };
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 SDL_bool SDLX_set_sdl_gl_attrib( SDLX_video_parameters_t * v )
 {
     if ( NULL == v ) return SDL_FALSE;
@@ -365,7 +365,7 @@ SDL_bool SDLX_set_sdl_gl_attrib( SDLX_video_parameters_t * v )
     return SDL_TRUE;
 }
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 SDL_Surface * SDLX_RequestVideoMode( SDLX_video_parameters_t * v, SDL_bool make_report )
 {
     Uint32 flags;
@@ -511,7 +511,7 @@ SDL_Surface * SDLX_RequestVideoMode( SDLX_video_parameters_t * v, SDL_bool make_
     return ret;
 }
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 SDL_bool SDLX_sdl_video_flags_default(SDLX_sdl_video_flags_t * pflags)
 {
     if ( NULL == pflags ) return SDL_FALSE;
@@ -525,7 +525,7 @@ SDL_bool SDLX_sdl_video_flags_default(SDLX_sdl_video_flags_t * pflags)
     return  SDL_TRUE;
 };
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 SDL_bool SDLX_sdl_gl_attrib_default(SDLX_sdl_gl_attrib_t * patt)
 {
     if ( NULL == patt ) return SDL_FALSE;
@@ -547,7 +547,7 @@ SDL_bool SDLX_sdl_gl_attrib_default(SDLX_sdl_gl_attrib_t * patt)
     return  SDL_TRUE;
 }
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 SDL_bool SDLX_video_parameters_default(SDLX_video_parameters_t * v)
 {
     if (NULL == v) return SDL_FALSE;
@@ -563,7 +563,7 @@ SDL_bool SDLX_video_parameters_default(SDLX_video_parameters_t * v)
     return SDL_TRUE;
 }
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 void SDLX_report_mode( SDL_Surface * surface, SDLX_video_parameters_t * v )
 {
 
@@ -591,10 +591,10 @@ void SDLX_report_mode( SDL_Surface * surface, SDLX_video_parameters_t * v )
     fflush( LOCAL_STDOUT );
 }
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 SDLX_video_parameters_t * SDLX_set_mode(SDLX_video_parameters_t * v_old, SDLX_video_parameters_t * v_new, SDL_bool make_report )
 {
-    /// @details BB> let SDL try to set a new video mode.
+    // / @details BB> let SDL try to set a new video mode.
 
     SDLX_video_parameters_t   param_old, param_new;
     SDLX_video_parameters_t * retval = NULL;
@@ -646,7 +646,7 @@ SDLX_video_parameters_t * SDLX_set_mode(SDLX_video_parameters_t * v_old, SDLX_vi
 
         if (NULL == surface)
         {
-            //log_error("Could not restore the old video mode. Terminating.\n");
+            // log_error("Could not restore the old video mode. Terminating.\n");
             exit(-1);
         }
         else
@@ -664,7 +664,7 @@ SDLX_video_parameters_t * SDLX_set_mode(SDLX_video_parameters_t * v_old, SDLX_vi
     return retval;
 };
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 SDL_bool SDLX_ExpandFormat(SDL_PixelFormat * pformat)
 {
     // use the basic screen format to create a surface with proper alpha support
@@ -680,9 +680,9 @@ SDL_bool SDLX_ExpandFormat(SDL_PixelFormat * pformat)
         pformat->Gmask = gmask;
         pformat->Rmask = rmask;
 
-        for ( i = 0; i < sdl_scr.d && ( pformat->Amask & ( 1 << i ) ) == 0; i++ );
+        for ( i = 0; i < sdl_scr.d && HAS_NO_BITS( pformat->Amask, 1 << i ); i++ );
 
-        if ( 0 == (pformat->Amask & ( 1 << i )) )
+        if ( HAS_NO_BITS( pformat->Amask, 1 << i ) )
         {
             // no alpha bits available
             pformat->Ashift = 0;
@@ -699,8 +699,8 @@ SDL_bool SDLX_ExpandFormat(SDL_PixelFormat * pformat)
     return SDL_TRUE;
 }
 
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 FILE * SDLX_set_stdout(FILE * pfile)
 {
     FILE * pfile_old = _SDLX_stdout;

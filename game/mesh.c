@@ -1,21 +1,21 @@
-//********************************************************************************************
-//*
-//*    This file is part of Egoboo.
-//*
-//*    Egoboo is free software: you can redistribute it and/or modify it
-//*    under the terms of the GNU General Public License as published by
-//*    the Free Software Foundation, either version 3 of the License, or
-//*    (at your option) any later version.
-//*
-//*    Egoboo is distributed in the hope that it will be useful, but
-//*    WITHOUT ANY WARRANTY; without even the implied warranty of
-//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//*    General Public License for more details.
-//*
-//*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-//*
-//********************************************************************************************
+// ********************************************************************************************
+// *
+// *    This file is part of Egoboo.
+// *
+// *    Egoboo is free software: you can redistribute it and/or modify it
+// *    under the terms of the GNU General Public License as published by
+// *    the Free Software Foundation, either version 3 of the License, or
+// *    (at your option) any later version.
+// *
+// *    Egoboo is distributed in the hope that it will be useful, but
+// *    WITHOUT ANY WARRANTY; without even the implied warranty of
+// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// *    General Public License for more details.
+// *
+// *    You should have received a copy of the GNU General Public License
+// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+// *
+// ********************************************************************************************
 
 #include "mesh.h"
 #include "log.h"
@@ -26,8 +26,10 @@
 #include "egoboo_strutil.h"
 #include "egoboo.h"
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+#include "SDL_extensions.h"
+
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // mesh initialization - not accessible by scripts
 static void   mesh_init_tile_offset( ego_mpd_t * pmesh );
 static void   mesh_make_vrtstart( ego_mpd_t * pmesh );
@@ -58,12 +60,12 @@ static bool_t mesh_make_bbox( ego_mpd_t * pmesh );
 
 static float grid_get_mix(float u0, float u, float v0, float v);
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 ego_mpd_t            mesh;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 ego_mpd_info_t * mesh_info_new( ego_mpd_info_t * pinfo )
 {
     if (NULL == pinfo) return pinfo;
@@ -73,7 +75,7 @@ ego_mpd_info_t * mesh_info_new( ego_mpd_info_t * pinfo )
     return pinfo;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void mesh_info_init( ego_mpd_info_t * pinfo, int numvert, size_t tiles_x, size_t tiles_y  )
 {
     // set the desired number of tiles
@@ -90,10 +92,10 @@ void mesh_info_init( ego_mpd_info_t * pinfo, int numvert, size_t tiles_x, size_t
 
     // set the desired blocknumber of blocks
     pinfo->blocks_x = (pinfo->tiles_x >> 2);
-    if ( 0 != (pinfo->tiles_x & 0x03) ) pinfo->blocks_x++;
+    if ( HAS_SOME_BITS(pinfo->tiles_x, 0x03) ) pinfo->blocks_x++;
 
     pinfo->blocks_y = (pinfo->tiles_y >> 2);
-    if ( 0 != (pinfo->tiles_y & 0x03) ) pinfo->blocks_y++;
+    if ( HAS_SOME_BITS(pinfo->tiles_y, 0x03) ) pinfo->blocks_y++;
 
     pinfo->blocks_count = pinfo->blocks_x * pinfo->blocks_y;
 
@@ -102,7 +104,7 @@ void mesh_info_init( ego_mpd_info_t * pinfo, int numvert, size_t tiles_x, size_t
     pinfo->edge_y = pinfo->tiles_y << TILE_BITS;
 };
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 ego_mpd_info_t * mesh_info_delete( ego_mpd_info_t * pinfo )
 {
     if ( NULL != pinfo )
@@ -113,7 +115,7 @@ ego_mpd_info_t * mesh_info_delete( ego_mpd_info_t * pinfo )
     return pinfo;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 mesh_mem_t * mesh_mem_new( mesh_mem_t * pmem )
 {
     if (NULL == pmem) return pmem;
@@ -123,7 +125,7 @@ mesh_mem_t * mesh_mem_new( mesh_mem_t * pmem )
     return pmem;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 mesh_mem_t * mesh_mem_delete( mesh_mem_t * pmem )
 {
     if ( NULL != pmem )
@@ -135,8 +137,8 @@ mesh_mem_t * mesh_mem_delete( mesh_mem_t * pmem )
     return pmem;
 }
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 ego_mpd_t * mesh_new( ego_mpd_t * pmesh )
 {
     // BB> initialize the ego_mpd_t structure
@@ -158,7 +160,7 @@ ego_mpd_t * mesh_new( ego_mpd_t * pmesh )
     return pmesh;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 ego_mpd_t * mesh_delete( ego_mpd_t * pmesh )
 {
     if ( NULL != pmesh )
@@ -171,7 +173,7 @@ ego_mpd_t * mesh_delete( ego_mpd_t * pmesh )
     return pmesh;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t mesh_free( ego_mpd_t * pmesh )
 {
     if ( NULL == pmesh ) return bfalse;
@@ -182,7 +184,7 @@ bool_t mesh_free( ego_mpd_t * pmesh )
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 ego_mpd_t * mesh_renew( ego_mpd_t * pmesh )
 {
     pmesh = mesh_delete( pmesh );
@@ -190,7 +192,7 @@ ego_mpd_t * mesh_renew( ego_mpd_t * pmesh )
     return mesh_new( pmesh );
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 ego_mpd_t * mesh_create( ego_mpd_t * pmesh, int tiles_x, int tiles_y )
 {
     if (NULL == pmesh)
@@ -213,7 +215,7 @@ ego_mpd_t * mesh_create( ego_mpd_t * pmesh, int tiles_x, int tiles_y )
     return pmesh;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void mesh_init_tile_offset(ego_mpd_t * pmesh)
 {
     int cnt;
@@ -226,7 +228,7 @@ void mesh_init_tile_offset(ego_mpd_t * pmesh)
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t mesh_remove_ambient( ego_mpd_t * pmesh )
 {
     // BB> remove extra ambient light in the lightmap
@@ -249,7 +251,7 @@ bool_t mesh_remove_ambient( ego_mpd_t * pmesh )
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t mesh_recalc_twist( ego_mpd_t * pmesh )
 {
     Uint32 fan;
@@ -270,53 +272,84 @@ bool_t mesh_recalc_twist( ego_mpd_t * pmesh )
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
-bool_t mesh_make_texture( ego_mpd_t * pmesh )
+// --------------------------------------------------------------------------------------------
+bool_t mesh_set_texture( ego_mpd_t * pmesh, Uint16 tile, Uint16 image )
 {
-    int cnt, mesh_vrt, tile_vrt;
+    tile_info_t * ptile;
+    Uint16 tile_value, tile_upper, tile_lower;
+
+    if ( !VALID_TILE(pmesh, tile) ) return bfalse;
+    ptile = pmesh->mmem.tile_list + tile;
+
+    // get the upper and lower bits for this tile image
+    tile_value = pmesh->mmem.tile_list[tile].img;
+    tile_lower = image      & TILE_LOWER_MASK;
+    tile_upper = tile_value & TILE_UPPER_MASK;
+
+    // set the actual image
+    pmesh->mmem.tile_list[tile].img = tile_upper | tile_lower;
+
+    // update the pre-computed texture info
+    return mesh_update_texture( pmesh, tile );
+}
+
+// --------------------------------------------------------------------------------------------
+bool_t mesh_update_texture( ego_mpd_t * pmesh, Uint16 tile )
+{
+    int    mesh_vrt, tile_vrt;
+    Uint16 vertices;
+    float  offu, offv;
+    Uint16 image;
+    Uint8  type;
 
     mesh_mem_t * pmem;
     grid_mem_t * pgmem;
     ego_mpd_info_t * pinfo;
+    tile_info_t * ptile;
 
-    if ( NULL == pmesh ) return bfalse;
     pmem  = &(pmesh->mmem);
     pgmem = &(pmesh->gmem);
     pinfo = &(pmesh->info);
 
-    // set the texture coordinate for every vertex
-    for ( cnt = 0; cnt < pmesh->info.tiles_count; cnt++)
+    if ( !VALID_TILE(pmesh, tile) ) return bfalse;
+    ptile = pmem->tile_list + tile;
+
+    image = TILE_GET_LOWER_BITS( ptile->img );
+    type  = ptile->type & 0x3F;
+
+    offu  = pmesh->tileoff[image].x;          // Texture offsets
+    offv  = pmesh->tileoff[image].y;
+
+    mesh_vrt = pmem->tile_list[tile].vrtstart;    // Number of vertices
+    vertices = tile_dict[type].numvertices;      // Number of vertices
+    for ( tile_vrt = 0; tile_vrt < vertices; tile_vrt++, mesh_vrt++ )
     {
-        tile_info_t * ptile;
-        Uint16 vertices;
-        float  offu, offv;
-        Uint16 tile;
-        Uint8 type;
-
-        ptile = pmem->tile_list + cnt;
-
-        tile = ptile->img;
-        tile &= 0x00FF;
-
-        type = ptile->type;
-        type &= 0x3F;
-
-        offu = pmesh->tileoff[tile].x;          // Texture offsets
-        offv = pmesh->tileoff[tile].y;
-
-        mesh_vrt = pmem->tile_list[cnt].vrtstart;    // Number of vertices
-        vertices = tile_dict[type].numvertices;          // Number of vertices
-        for ( tile_vrt = 0; tile_vrt < vertices; tile_vrt++, mesh_vrt++ )
-        {
-            pmem->tlst[mesh_vrt][SS] = tile_dict[type].u[tile_vrt] + offu;
-            pmem->tlst[mesh_vrt][TT] = tile_dict[type].v[tile_vrt] + offv;
-        }
+        pmem->tlst[mesh_vrt][SS] = tile_dict[type].u[tile_vrt] + offu;
+        pmem->tlst[mesh_vrt][TT] = tile_dict[type].v[tile_vrt] + offv;
     }
 
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+bool_t mesh_make_texture( ego_mpd_t * pmesh )
+{
+    int cnt;
+    ego_mpd_info_t * pinfo;
+
+    if ( NULL == pmesh ) return bfalse;
+    pinfo = &(pmesh->info);
+
+    // set the texture coordinate for every vertex
+    for ( cnt = 0; cnt < pinfo->tiles_count; cnt++)
+    {
+        mesh_update_texture( pmesh, cnt );
+    }
+
+    return btrue;
+}
+
+// --------------------------------------------------------------------------------------------
 ego_mpd_t * mesh_finalize( ego_mpd_t * pmesh )
 {
     if (NULL == pmesh) return NULL;
@@ -331,7 +364,7 @@ ego_mpd_t * mesh_finalize( ego_mpd_t * pmesh )
     return pmesh;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t mesh_convert( ego_mpd_t * pmesh_dst, mpd_t * pmesh_src )
 {
     Uint32 cnt;
@@ -397,7 +430,7 @@ bool_t mesh_convert( ego_mpd_t * pmesh_dst, mpd_t * pmesh_src )
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 ego_mpd_t * mesh_load( const char *modname, ego_mpd_t * pmesh )
 {
     // trap bad module names
@@ -444,7 +477,7 @@ ego_mpd_t * mesh_load( const char *modname, ego_mpd_t * pmesh )
     return pmesh;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 Uint32 mesh_get_block_int( ego_mpd_t * pmesh, int block_x, int block_y )
 {
     if ( NULL == pmesh ) return INVALID_BLOCK;
@@ -455,7 +488,7 @@ Uint32 mesh_get_block_int( ego_mpd_t * pmesh, int block_x, int block_y )
     return block_x + pmesh->gmem.blockstart[block_y];
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 Uint32 mesh_get_tile_int( ego_mpd_t * pmesh, int tile_x,  int tile_y )
 {
     if ( NULL == pmesh ) return INVALID_TILE;
@@ -466,7 +499,7 @@ Uint32 mesh_get_tile_int( ego_mpd_t * pmesh, int tile_x,  int tile_y )
     return tile_x + pmesh->gmem.tilestart[tile_y];
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 grid_mem_t * grid_mem_new( grid_mem_t * pmem )
 {
     if (NULL == pmem) return pmem;
@@ -476,7 +509,7 @@ grid_mem_t * grid_mem_new( grid_mem_t * pmem )
     return pmem;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 grid_mem_t * grid_mem_delete( grid_mem_t * pmem )
 {
     if ( NULL != pmem )
@@ -488,7 +521,7 @@ grid_mem_t * grid_mem_delete( grid_mem_t * pmem )
     return pmem;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t grid_mem_allocate( grid_mem_t * pmem, ego_mpd_info_t * pinfo  )
 {
 
@@ -528,7 +561,7 @@ grid_mem_allocate_fail:
     return bfalse;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t grid_mem_free( grid_mem_t * pmem )
 {
     if ( NULL == pmem ) return bfalse;
@@ -558,7 +591,7 @@ bool_t grid_mem_free( grid_mem_t * pmem )
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t mesh_mem_allocate( mesh_mem_t * pmem, ego_mpd_info_t * pinfo  )
 {
 
@@ -611,7 +644,7 @@ mesh_mem_allocate_fail:
     return bfalse;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t mesh_mem_free( mesh_mem_t * pmem )
 {
     if ( NULL == pmem ) return bfalse;
@@ -673,7 +706,7 @@ bool_t mesh_mem_free( mesh_mem_t * pmem )
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void grid_make_fanstart( grid_mem_t * pgmem, ego_mpd_info_t * pinfo )
 {
     // ZZ> This function builds a look up table to ease calculating the
@@ -707,7 +740,7 @@ void grid_make_fanstart( grid_mem_t * pgmem, ego_mpd_info_t * pinfo )
 
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void mesh_make_vrtstart( ego_mpd_t * pmesh )
 {
     int vert;
@@ -742,7 +775,7 @@ void mesh_make_vrtstart( ego_mpd_t * pmesh )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void mesh_make_twist()
 {
     // ZZ> This function precomputes surface normals and steep hill acceleration for
@@ -776,7 +809,7 @@ void mesh_make_twist()
     }
 }
 
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 float mesh_get_level( ego_mpd_t * pmesh, float x, float y )
 {
     // ZZ> This function returns the height of a point within a mesh fan, precisely
@@ -808,7 +841,7 @@ float mesh_get_level( ego_mpd_t * pmesh, float x, float y )
     return zdone;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 Uint32 mesh_get_block( ego_mpd_t * pmesh, float pos_x, float pos_y )
 {
     Uint32 block = INVALID_BLOCK;
@@ -829,7 +862,7 @@ Uint32 mesh_get_block( ego_mpd_t * pmesh, float pos_x, float pos_y )
     return block;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 Uint32 mesh_get_tile( ego_mpd_t * pmesh, float pos_x, float pos_y )
 {
     Uint32 tile = INVALID_TILE;
@@ -850,7 +883,7 @@ Uint32 mesh_get_tile( ego_mpd_t * pmesh, float pos_x, float pos_y )
     return tile;
 }
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 Uint8 cartman_get_fan_twist( ego_mpd_t * pmesh, Uint32 tile )
 {
     int vrtstart;
@@ -860,8 +893,8 @@ Uint8 cartman_get_fan_twist( ego_mpd_t * pmesh, Uint32 tile )
     // check for a valid tile
     if ( INVALID_TILE == tile  || tile > pmesh->info.tiles_count ) return TWIST_FLAT;
 
-    // check for fanoff
-    if ( 0 != (0xFF00 & pmesh->mmem.tile_list[tile].img) ) return TWIST_FLAT;
+    // if the tile is actually labelled as FANOFF, ignore it completely
+    if ( FANOFF == pmesh->mmem.tile_list[tile].img ) return TWIST_FLAT;
 
     vrtstart = pmesh->mmem.tile_list[tile].vrtstart;
 
@@ -877,7 +910,7 @@ Uint8 cartman_get_fan_twist( ego_mpd_t * pmesh, Uint32 tile )
 
 }
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 Uint32 mesh_test_fx( ego_mpd_t * pmesh, Uint32 itile, Uint32 flags )
 {
     // test for mesh
@@ -889,8 +922,8 @@ Uint32 mesh_test_fx( ego_mpd_t * pmesh, Uint32 itile, Uint32 flags )
         return flags & (MPDFX_WALL | MPDFX_IMPASS);
     }
 
-    // test for FANOFF
-    if ( 0xFF00 == (0xFF00 & pmesh->mmem.tile_list[itile].img) )
+    // if the tile is actually labelled as FANOFF, ignore it completely
+    if ( FANOFF == pmesh->mmem.tile_list[itile].img )
     {
         return flags & (MPDFX_WALL | MPDFX_IMPASS);
     }
@@ -898,7 +931,7 @@ Uint32 mesh_test_fx( ego_mpd_t * pmesh, Uint32 itile, Uint32 flags )
     return pmesh->mmem.tile_list[itile].fx & flags;
 }
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 bool_t mesh_make_bbox( ego_mpd_t * pmesh )
 {
     // BB> set the bounding box for each tile, and for the entire mesh
@@ -963,7 +996,7 @@ bool_t mesh_make_bbox( ego_mpd_t * pmesh )
     return btrue;
 }
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 bool_t mesh_make_normals( ego_mpd_t * pmesh )
 {
     int i, ix, iy, jx, jy;
@@ -1079,12 +1112,30 @@ bool_t mesh_make_normals( ego_mpd_t * pmesh )
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+bool_t grid_light_one_corner( ego_mpd_t * pmesh, int fan, float height, GLXvector3f nrm, float * plight )
+{
+    lighting_cache_t * lighting;
+
+    if ( NULL == pmesh || NULL == plight || !VALID_TILE(pmesh, fan) ) return bfalse;
+
+    // get the grid lighting
+    lighting = &(pmesh->gmem.light[fan].cache);
+
+    // evaluate the grid lighting at this node
+    (*plight) = evaluate_lighting_cache(lighting, nrm, height, pmesh->mmem.bbox );
+
+    // clip the light to a reasonable value
+    (*plight) = CLIP((*plight), 0, 255);
+
+    return btrue;
+}
+
+// --------------------------------------------------------------------------------------------
 bool_t mesh_light_one_corner( ego_mpd_t * pmesh, GLXvector3f pos, GLXvector3f nrm, float * plight )
 {
     int   ix, iy, tnc, fan1;
     float u, v;
-    float _hgh_wt, _low_wt;
     float wt, wt_sum;
     int ix_off[4] = {0, 1, 1, 0}, iy_off[4] = {0, 0, 1, 1};
 
@@ -1106,76 +1157,51 @@ bool_t mesh_light_one_corner( ego_mpd_t * pmesh, GLXvector3f pos, GLXvector3f nr
     u = ( pos[XX] - (ix << TILE_BITS) ) / TILE_SIZE;
     v = ( pos[YY] - (iy << TILE_BITS) ) / TILE_SIZE;
 
-    _hgh_wt = (pos[ZZ] - pmesh->mmem.bbox.mins[ZZ]) / (pmesh->mmem.bbox.maxs[ZZ] - pmesh->mmem.bbox.mins[ZZ]);
-    _low_wt = 1.0f - _hgh_wt;
-
     wt_sum = 0;
     for ( tnc = 0; tnc < 4; tnc++ )
     {
         int   jx, jy;
-        float low_wt, hgh_wt;
         lighting_cache_t * lighting;
 
+        // what are the new vertices?
         jx = ix + ix_off[tnc];
         jy = iy + iy_off[tnc];
 
+        // which fan does this corner belong to?
         fan1 = mesh_get_tile_int( pmesh, jx, jy );
         if ( !VALID_TILE(pmesh, fan1) ) continue;
 
+        // get the lighting cache for this corner
         lighting = &(pgmem->light[fan1].cache);
 
+        // get the weight for this corner
         wt = grid_get_mix(ix_off[tnc], u, iy_off[tnc], v);
 
-        hgh_wt = wt * _hgh_wt;
-        low_wt = wt * _low_wt;
-        wt_sum += wt;
-
-        if ( lighting->max_light > 0 )
+        // add in the effect of this lighting cache node
+        if ( 0.0f != wt )
         {
-            if ( nrm[XX] > 0 )
-            {
-                (*plight) += ABS(nrm[XX]) * (lighting->lighting_hgh[0] * hgh_wt + lighting->lighting_low[0] * low_wt);
-            }
-            else if ( nrm[XX] < 0 )
-            {
-                (*plight) += ABS(nrm[XX]) * (lighting->lighting_hgh[1] * hgh_wt + lighting->lighting_low[1] * low_wt);
-            }
-
-            if ( nrm[YY] > 0 )
-            {
-                (*plight) += ABS(nrm[YY]) * (lighting->lighting_hgh[2] * hgh_wt + lighting->lighting_low[2] * low_wt);
-            }
-            else if ( nrm[YY] < 0 )
-            {
-                (*plight) += ABS(nrm[YY]) * (lighting->lighting_hgh[3] * hgh_wt + lighting->lighting_low[3] * low_wt);
-            }
-
-            if ( nrm[ZZ] > 0 )
-            {
-                (*plight) += ABS(nrm[ZZ]) * (lighting->lighting_hgh[4] * hgh_wt + lighting->lighting_low[4] * low_wt);
-            }
-            else if ( nrm[ZZ] < 0 )
-            {
-                (*plight) += ABS(nrm[ZZ]) * (lighting->lighting_hgh[5] * hgh_wt + lighting->lighting_low[5] * low_wt);
-            }
+            (*plight) += wt * evaluate_lighting_cache( lighting, nrm, pos[ZZ], pmesh->mmem.bbox );
+            wt_sum    += wt;
         }
     }
 
-    if ( (*plight) > 0 && wt_sum > 0.0 )
+    // normalize the lighting value, if needed
+    if ( (*plight) > 0.0f && wt_sum > 0.0f )
     {
         (*plight) /= wt_sum;
     }
     else
     {
-        (*plight) = 0;
+        (*plight) = 0.0f;
     }
 
+    // clip the lighting value to a reasonable size
     (*plight) = CLIP((*plight), 0, 255);
 
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t mesh_light_corners( ego_mpd_t * pmesh, int fan1 )
 {
     int corner;
@@ -1216,7 +1242,7 @@ bool_t mesh_light_corners( ego_mpd_t * pmesh, int fan1 )
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t mesh_interpolate_vertex( mesh_mem_t * pmem, int fan, float pos[], float * plight )
 {
     int cnt;
@@ -1271,14 +1297,73 @@ float grid_get_mix(float u0, float u, float v0, float v)
     float du = u - u0;
     float dv = v - v0;
 
-    //du *= 1.0f;
+    // du *= 1.0f;
     if ( ABS(du) > 1.0 ) return 0;
     wt_u = (1.0f - du) * (1.0f + du);
 
-    //dv *= 1.0f;
+    // dv *= 1.0f;
     if ( ABS(dv) > 1.0 ) return 0;
     wt_v = (1.0f - dv) * (1.0f + dv);
 
     return wt_u * wt_v;
+}
+
+// --------------------------------------------------------------------------------------------
+float evaluate_lighting_cache( lighting_cache_t * src, GLfloat nrm[], float z, aabb_t bbox )
+{
+    float lighting;
+    float hgh_wt, low_wt;
+
+    if ( NULL == src || NULL == nrm ) return 0.0f;
+
+    if ( src->max_light <= 0.0f ) return 0.0f;
+
+    hgh_wt = (z - bbox.mins[ZZ]) / (bbox.maxs[ZZ] - bbox.mins[ZZ]);
+    low_wt = 1.0f - hgh_wt;
+
+    lighting = 0.0f;
+    lighting += low_wt * evaluate_lighting_vector( src->lighting_low, nrm );
+    lighting += hgh_wt * evaluate_lighting_vector( src->lighting_hgh, nrm );
+
+    return lighting;
+}
+
+// --------------------------------------------------------------------------------------------
+float evaluate_lighting_vector( lighting_vector_t lvec, GLfloat nrm[] )
+{
+    float lighting;
+
+    if ( NULL == nrm ) return 0.0f;
+
+    lighting = 0.0f;
+
+    if ( nrm[XX] > 0.0f )
+    {
+        lighting += ABS(nrm[XX]) * lvec[0];
+    }
+    else if ( nrm[XX] < 0.0f )
+    {
+        lighting += ABS(nrm[XX]) * lvec[1];
+    }
+
+    if ( nrm[YY] > 0.0f )
+    {
+        lighting += ABS(nrm[YY]) * lvec[2];
+    }
+    else if ( nrm[YY] < 0.0f )
+    {
+        lighting += ABS(nrm[YY]) * lvec[3];
+    }
+
+    if ( nrm[ZZ] > 0.0f )
+    {
+        lighting += ABS(nrm[ZZ]) * lvec[4];
+    }
+    else if ( nrm[ZZ] < 0.0f )
+    {
+        lighting += ABS(nrm[ZZ]) * lvec[5];
+    }
+
+    return lighting;
 }
 

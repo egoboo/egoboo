@@ -1,28 +1,28 @@
 #pragma once
 
-//********************************************************************************************
-//*
-//*    This file is part of Egoboo.
-//*
-//*    Egoboo is free software: you can redistribute it and/or modify it
-//*    under the terms of the GNU General Public License as published by
-//*    the Free Software Foundation, either version 3 of the License, or
-//*    (at your option) any later version.
-//*
-//*    Egoboo is distributed in the hope that it will be useful, but
-//*    WITHOUT ANY WARRANTY; without even the implied warranty of
-//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//*    General Public License for more details.
-//*
-//*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-//*
-//********************************************************************************************
+// ********************************************************************************************
+// *
+// *    This file is part of Egoboo.
+// *
+// *    Egoboo is free software: you can redistribute it and/or modify it
+// *    under the terms of the GNU General Public License as published by
+// *    the Free Software Foundation, either version 3 of the License, or
+// *    (at your option) any later version.
+// *
+// *    Egoboo is distributed in the hope that it will be useful, but
+// *    WITHOUT ANY WARRANTY; without even the implied warranty of
+// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// *    General Public License for more details.
+// *
+// *    You should have received a copy of the GNU General Public License
+// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+// *
+// ********************************************************************************************
 
 #include "egoboo_typedef.h"
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 
 // AI stuff
 #define MAX_AI               129
@@ -40,8 +40,8 @@
 #define GET_DATA_BITS(X) ( ( (X) >>   27 ) &  0x0F )
 #define SET_DATA_BITS(X) ( ( (X) &  0x0F ) <<   27 )
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 extern int    iNumAis;
 extern int    iAisIndex;
 extern STRING szAisName[MAX_AI];
@@ -57,8 +57,8 @@ extern Uint8  cCodeType[MAXCODE];
 extern Uint32 iCodeValue[MAXCODE];
 extern char   cCodeName[MAXCODE][MAXCODENAMESIZE];
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // SCRIPT FUNCTIONS
 enum e_script_functions
 {
@@ -398,7 +398,7 @@ enum e_script_functions
     FDAZETARGET,                         // == 333
     FENABLERESPAWN,                      // == 334
     FDISABLERESPAWN,                     // == 335
-    FDISPELTARGETENCHANTID,		         // == 336  Redone in v 1.10
+    FDISPELTARGETENCHANTID,              // == 336  Redone in v 1.10
     FIFHOLDERBLOCKED,                    // == 337
     FGETSKILLLEVEL,                      // == 338
     FIFTARGETHASNOTFULLMANA,             // == 339
@@ -429,7 +429,7 @@ enum e_script_functions
     FSETTERRAINSPEECH,           // == 362
     FSETSELECTSPEECH,            // == 363
 
-    //Scripted AI functions (v1.10)
+    // Scripted AI functions (v1.10)
     FTAKEPICTURE,                // == 364
     FIFOPERATORISMACINTOSH,      // == 365
     FIFMODULEHASIDSZ,            // == 366
@@ -440,8 +440,8 @@ enum e_script_functions
     FIFTARGETCANSEEKURSES        // == 371
 };
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // OPERATORS
 enum e_script_operators
 {
@@ -455,8 +455,8 @@ enum e_script_operators
     OPMOD                 // %
 };
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // VARIABLES
 enum e_script_variables
 {
@@ -540,8 +540,8 @@ enum e_script_variables
     VARDIFFICULTY        // == 77
 };
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // function prototypes
 
 void load_ai_codes( const char* loadname );

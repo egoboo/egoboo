@@ -1,21 +1,21 @@
-//********************************************************************************************
-//*
-//*    This file is part of Egoboo.
-//*
-//*    Egoboo is free software: you can redistribute it and/or modify it
-//*    under the terms of the GNU General Public License as published by
-//*    the Free Software Foundation, either version 3 of the License, or
-//*    (at your option) any later version.
-//*
-//*    Egoboo is distributed in the hope that it will be useful, but
-//*    WITHOUT ANY WARRANTY; without even the implied warranty of
-//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//*    General Public License for more details.
-//*
-//*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-//*
-//********************************************************************************************
+// ********************************************************************************************
+// *
+// *    This file is part of Egoboo.
+// *
+// *    Egoboo is free software: you can redistribute it and/or modify it
+// *    under the terms of the GNU General Public License as published by
+// *    the Free Software Foundation, either version 3 of the License, or
+// *    (at your option) any later version.
+// *
+// *    Egoboo is distributed in the hope that it will be useful, but
+// *    WITHOUT ANY WARRANTY; without even the implied warranty of
+// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// *    General Public License for more details.
+// *
+// *    You should have received a copy of the GNU General Public License
+// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+// *
+// ********************************************************************************************
 
 /* Egoboo - Log.c
  * Basic logging functionality.
@@ -28,16 +28,16 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 #define MAX_LOG_MESSAGE 1024
 
 static FILE *logFile = NULL;
 static char  logBuffer[MAX_LOG_MESSAGE];
 static int   logLevel = 1;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 static void writeLogMessage( const char *prefix, const char *format, va_list args )
 {
     if ( logFile != NULL )
@@ -49,7 +49,7 @@ static void writeLogMessage( const char *prefix, const char *format, va_list arg
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void log_init()
 {
     if ( logFile == NULL )
@@ -59,7 +59,7 @@ void log_init()
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void log_shutdown()
 {
     if ( logFile != NULL )
@@ -69,7 +69,7 @@ void log_shutdown()
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void log_setLoggingLevel( int level )
 {
     if ( level > 0 )
@@ -78,7 +78,7 @@ void log_setLoggingLevel( int level )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void log_message( const char *format, ... )
 {
     va_list args;
@@ -88,7 +88,7 @@ void log_message( const char *format, ... )
     va_end( args );
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void log_info( const char *format, ... )
 {
     va_list args;
@@ -100,7 +100,7 @@ void log_info( const char *format, ... )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void log_warning( const char *format, ... )
 {
     va_list args;
@@ -112,7 +112,7 @@ void log_warning( const char *format, ... )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void log_error( const char *format, ... )
 {
     va_list args;
@@ -125,7 +125,7 @@ void log_error( const char *format, ... )
     exit( -1 );
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 FILE * log_get_file()
 {
     return logFile;

@@ -1,33 +1,33 @@
 #pragma once
 
-//********************************************************************************************
-//*
-//*    This file is part of Egoboo.
-//*
-//*    Egoboo is free software: you can redistribute it and/or modify it
-//*    under the terms of the GNU General Public License as published by
-//*    the Free Software Foundation, either version 3 of the License, or
-//*    (at your option) any later version.
-//*
-//*    Egoboo is distributed in the hope that it will be useful, but
-//*    WITHOUT ANY WARRANTY; without even the implied warranty of
-//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//*    General Public License for more details.
-//*
-//*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-//*
-//********************************************************************************************
+// ********************************************************************************************
+// *
+// *    This file is part of Egoboo.
+// *
+// *    Egoboo is free software: you can redistribute it and/or modify it
+// *    under the terms of the GNU General Public License as published by
+// *    the Free Software Foundation, either version 3 of the License, or
+// *    (at your option) any later version.
+// *
+// *    Egoboo is distributed in the hope that it will be useful, but
+// *    WITHOUT ANY WARRANTY; without even the implied warranty of
+// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// *    General Public License for more details.
+// *
+// *    You should have received a copy of the GNU General Public License
+// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+// *
+// ********************************************************************************************
 
 #include "egoboo_typedef.h"
 #include "egoboo_math.h"
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 struct s_ego_mpd;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 enum e_camera_mode
 {
     CAM_PLAYER = 0,
@@ -67,13 +67,13 @@ enum e_camera_turn_mode
 #    define MINZOOM                         500         // Camera distance
 #    define MAXZOOM                         600
 #    define MINZADD                         800         // Camera height
-#    define MAXZADD                         1500  //1000
+#    define MAXZADD                         1500  // 1000
 #    define MINUPDOWN                       (0.24f*PI)    // Camera updown angle
-#    define MAXUPDOWN                       (0.18f*PI)//(0.15f*PI) // (0.18f*PI)
+#    define MAXUPDOWN                       (0.18f*PI)// (0.15f*PI) // (0.18f*PI)
 #endif
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 
 struct s_camera
 {
@@ -106,13 +106,13 @@ struct s_camera
 
 typedef struct s_camera camera_t;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 extern camera_t gCamera;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-//Function prototypes
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// Function prototypes
 camera_t * camera_new( camera_t * pcam );
 
 void camera_reset( camera_t * pcam, struct s_ego_mpd * pmesh );

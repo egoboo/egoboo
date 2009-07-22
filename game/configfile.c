@@ -1,68 +1,68 @@
-//********************************************************************************************
-//*
-//*    This file is part of Egoboo.
-//*
-//*    Egoboo is free software: you can redistribute it and/or modify it
-//*    under the terms of the GNU General Public License as published by
-//*    the Free Software Foundation, either version 3 of the License, or
-//*    (at your option) any later version.
-//*
-//*    Egoboo is distributed in the hope that it will be useful, but
-//*    WITHOUT ANY WARRANTY; without even the implied warranty of
-//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//*    General Public License for more details.
-//*
-//*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
-//*
-//********************************************************************************************
+// ********************************************************************************************
+// *
+// *    This file is part of Egoboo.
+// *
+// *    Egoboo is free software: you can redistribute it and/or modify it
+// *    under the terms of the GNU General Public License as published by
+// *    the Free Software Foundation, either version 3 of the License, or
+// *    (at your option) any later version.
+// *
+// *    Egoboo is distributed in the hope that it will be useful, but
+// *    WITHOUT ANY WARRANTY; without even the implied warranty of
+// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// *    General Public License for more details.
+// *
+// *    You should have received a copy of the GNU General Public License
+// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+// *
+// ********************************************************************************************
 
-///
-/// @file
-/// @brief Configuration file loading implementation
-/// @details All functions to manage a ConfigFile
-///
-/// A ConfigFile_t contains sections which themselves contains values.
-/// A section name is contained between "{}" Ex: {Section Name}
-///
-/// A value has a Key, a string value and an optional commentary.
-/// The Key is contained between "[]" Ex: [Key Name]
-/// The string value is contained between '"' Ex: "TRUE"
-///  To include a '"' in a string value, the '"' are doubled
-///  The commentary follows the string value on the same line and
-/// begins with "//"
-///
-/// Exemple of a ConfigFile_t:
-/// {Section 1}
-/// [Key1] : "TRUE" // This is a commentary
-/// [Key2] : "Hello ""MAN""" // this will become : Hello "MAN"
-///
-/// @todo optimisation
-/// @todo error checking
-/// @todo Run-time commentary editing
-///
-/// @bug Multiple section with the same name will be loaded and saved but only the first
-///   one will be looked for value. Should not load sections with same name.
-///
-///
-/// History:
-///
-/// 2001-01-09
-///  @li Implemented ConfigFileString_Encode in ConfigFile_SetValue_String
-///
-/// 2000-12-10
-///  @li Added the length of the string buffer used as parameter for ConfigFile_GetValue_String.
-///  @li Added ConfigFile_SetValue_Boolean, SetConfigIntValue and ConfigFile_SetValue_Float to standardise
-///      the way to set usual data types.
-///  @li Added ConfigFile_GetValue_Boolean, ConfigFile_GetValue_Int and GetConfigFloatValue.
+// /
+// / @file
+// / @brief Configuration file loading implementation
+// / @details All functions to manage a ConfigFile
+// /
+// / A ConfigFile_t contains sections which themselves contains values.
+// / A section name is contained between "{}" Ex: {Section Name}
+// /
+// / A value has a Key, a string value and an optional commentary.
+// / The Key is contained between "[]" Ex: [Key Name]
+// / The string value is contained between '"' Ex: "TRUE"
+// /  To include a '"' in a string value, the '"' are doubled
+// /  The commentary follows the string value on the same line and
+// / begins with "// "
+// /
+// / Exemple of a ConfigFile_t:
+// / {Section 1}
+// / [Key1] : "TRUE" // This is a commentary
+// / [Key2] : "Hello ""MAN""" // this will become : Hello "MAN"
+// /
+// / @todo optimisation
+// / @todo error checking
+// / @todo Run-time commentary editing
+// /
+// / @bug Multiple section with the same name will be loaded and saved but only the first
+// /   one will be looked for value. Should not load sections with same name.
+// /
+// /
+// / History:
+// /
+// / 2001-01-09
+// /  @li Implemented ConfigFileString_Encode in ConfigFile_SetValue_String
+// /
+// / 2000-12-10
+// /  @li Added the length of the string buffer used as parameter for ConfigFile_GetValue_String.
+// /  @li Added ConfigFile_SetValue_Boolean, SetConfigIntValue and ConfigFile_SetValue_Float to standardise
+// /      the way to set usual data types.
+// /  @li Added ConfigFile_GetValue_Boolean, ConfigFile_GetValue_Int and GetConfigFloatValue.
 
 #include "configfile.h"
 
 #include "egoboo_typedef.h"
 #include "egoboo_strutil.h"
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 
 // util
 static void ConfigFileString_Encode( char *pStr );
@@ -84,8 +84,8 @@ static ConfigFile_retval      ConfigFileValue_destroy(ConfigFileValuePtr_t * ptm
 static size_t ConfigFile_ReadSectionName( ConfigFilePtr_t pConfigFile, ConfigFileSectionPtr_t pSection );
 static size_t ConfigFile_ReadKeyName( ConfigFilePtr_t pConfigFile, ConfigFileValuePtr_t pValue );
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // pseudo functions for adding C++-like new and delete to C
 
 #define CONFIG_NEW( TYPE ) (TYPE *)calloc(1, sizeof(TYPE))
@@ -93,8 +93,8 @@ static size_t ConfigFile_ReadKeyName( ConfigFilePtr_t pConfigFile, ConfigFileVal
 #define CONFIG_DELETE(PTR) if(NULL != PTR) { free(PTR); PTR = NULL; }
 #define CONFIG_DELETE_ARY(PTR) if(NULL != PTR) { free(PTR); PTR = NULL; }
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 ConfigFilePtr_t ConfigFile_create()
 {
     ConfigFilePtr_t ptmp = NULL;
@@ -110,7 +110,7 @@ ConfigFilePtr_t ConfigFile_create()
     return ptmp;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 ConfigFile_retval ConfigFile_destroy(ConfigFilePtr_t * ppConfigFile )
 {
     ConfigFileSectionPtr_t lTempSection, lDoomedSection;
@@ -135,7 +135,7 @@ ConfigFile_retval ConfigFile_destroy(ConfigFilePtr_t * ppConfigFile )
     return ConfigFile_succeed;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 ConfigFileSectionPtr_t ConfigFile_createSection( ConfigFilePtr_t f, ConfigFileSectionPtr_t s )
 {
     ConfigFileSectionPtr_t pnew;
@@ -162,7 +162,7 @@ ConfigFileSectionPtr_t ConfigFile_createSection( ConfigFilePtr_t f, ConfigFileSe
     return s;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 ConfigFileValuePtr_t ConfigFile_createValue( ConfigFilePtr_t f, ConfigFileSectionPtr_t s, ConfigFileValuePtr_t v)
 {
     ConfigFileValuePtr_t pnew;
@@ -191,8 +191,8 @@ ConfigFileValuePtr_t ConfigFile_createValue( ConfigFilePtr_t f, ConfigFileSectio
     return v;
 }
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 char * ConfigFileString_create(size_t len)
 {
     char * ptmp;
@@ -202,7 +202,7 @@ char * ConfigFileString_create(size_t len)
     return ptmp;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 ConfigFile_retval ConfigFileString_destroy(char ** ptmp )
 {
     if (NULL == ptmp || NULL == *ptmp) return ConfigFile_fail;
@@ -212,7 +212,7 @@ ConfigFile_retval ConfigFileString_destroy(char ** ptmp )
     return ConfigFile_succeed;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 char * ConfigFileString_resize(char * str, size_t new_len )
 {
     size_t old_len = sizeof( str );
@@ -233,8 +233,8 @@ char * ConfigFileString_resize(char * str, size_t new_len )
     return str;
 }
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 ConfigFileValuePtr_t ConfigFileValue_create()
 {
     ConfigFileValuePtr_t ptmp;
@@ -244,7 +244,7 @@ ConfigFileValuePtr_t ConfigFileValue_create()
     return ptmp;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 ConfigFile_retval ConfigFileValue_destroy(ConfigFileValuePtr_t * ptmp)
 {
     if (NULL == ptmp || NULL == *ptmp) return ConfigFile_fail;
@@ -257,8 +257,8 @@ ConfigFile_retval ConfigFileValue_destroy(ConfigFileValuePtr_t * ptmp)
     return ConfigFile_succeed;
 }
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 ConfigFileSectionPtr_t ConfigFileSection_create()
 {
     ConfigFileSectionPtr_t ptmp;
@@ -268,7 +268,7 @@ ConfigFileSectionPtr_t ConfigFileSection_create()
     return ptmp;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 ConfigFile_retval ConfigFileSection_destroy(ConfigFileSectionPtr_t * ptmp)
 {
     ConfigFileValuePtr_t lTempValue, lDoomedValue;
@@ -289,8 +289,8 @@ ConfigFile_retval ConfigFileSection_destroy(ConfigFileSectionPtr_t * ptmp)
     return ConfigFile_succeed;
 }
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // Change any non alphanumeric character or space or underscore to an underscore
 // It is use for the section and key name
 void ConfigFileString_Encode( char *pStr )
@@ -300,7 +300,7 @@ void ConfigFileString_Encode( char *pStr )
     str_encode( pStr, ( size_t )( -1 ), pStr );
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // ConfigFile_PassOverCommentary reads the pConfigFile's file until the end of a line.
 ConfigFile_retval ConfigFile_PassOverCommentary( ConfigFilePtr_t pConfigFile )
 {
@@ -316,7 +316,7 @@ ConfigFile_retval ConfigFile_PassOverCommentary( ConfigFilePtr_t pConfigFile )
     return ConfigFile_fail;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // ConfigFile_ReadSectionName reads characters from the config file until it encounters
 // a _dtor of section name "}". The resulting string is copied in pSection->SectionName.
 // The length of the name is returned, or 0 if there is an error.
@@ -349,7 +349,7 @@ size_t ConfigFile_ReadSectionName( ConfigFilePtr_t pConfigFile, ConfigFileSectio
     return lLengthName;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // ReadKeyName reads characters from the config file until it encounters
 // a _dtor of key name "]". The resulting string is copied in pValue->KeyName.
 // The length of the name is returned, or 0 if there is an error.
@@ -382,7 +382,7 @@ size_t ConfigFile_ReadKeyName( ConfigFilePtr_t pConfigFile, ConfigFileValuePtr_t
     return lLengthName;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // ConfigFile_ReadValue reads characters from the config file until it encounters
 // a _dtor of value '"'. The resulting string is copied in pValue->Value.
 // The length of the value is returned, or -1 if there is an error.
@@ -469,7 +469,7 @@ ConfigFile_retval ConfigFile_ReadValue( ConfigFilePtr_t pConfigFile, ConfigFileV
     return lLengthName;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // ConfigFile_ReadCommentary reads characters from the config file until it encounters
 // an end of commentary chr(13). The resulting string is copied in pValue->Value.
 // The length of the value is returned, or -1 if there is an error.
@@ -553,7 +553,7 @@ ConfigFile_retval ConfigFile_ReadCommentary( ConfigFilePtr_t pConfigFile, Config
     return lLengthName;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // ConfigFile_open opens a ConfigFile_t for reading values.
 //
 // If the path doesn't exist, ConfigFile_open returns NULL.
@@ -587,7 +587,7 @@ ConfigFilePtr_t ConfigFile_open( ConfigFilePtr_t pConfigFile, const char *szFile
     return pConfigFile;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // ConfigFile_read
 //
 // Read in an open ConfigFile_t
@@ -668,7 +668,7 @@ ConfigFile_retval ConfigFile_read( ConfigFilePtr_t pConfigFile )
                 // search for commentary
                 if ( lc == '/' )
                 {
-                    //load commentary in current value
+                    // load commentary in current value
                     ConfigFile_ReadCommentary( pConfigFile, lCurValue );
                     // state change : look for new value or section
                     lState = 1;
@@ -695,7 +695,7 @@ ConfigFile_retval ConfigFile_read( ConfigFilePtr_t pConfigFile )
     return (0 == lError) ? ConfigFile_succeed : ConfigFile_fail;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // ConfigFile_SetCurrentSection
 //
 // Set the current section of pConfigFile to the one specified by pSection
@@ -752,7 +752,7 @@ long ConfigFile_SetCurrentSection( ConfigFilePtr_t pConfigFile, const char *pSec
     return lFound;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // SetConfigCurrentValueFromCurrentSection looks for a value in the current
 // section having pKey as KeyName
 //
@@ -785,7 +785,7 @@ ConfigFile_retval SetConfigCurrentValueFromCurrentSection( ConfigFilePtr_t pConf
     return lFound;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // ConfigFile_FindKey set the current value of pConfigFile to the one specified by
 // pSection and pKey
 // Returns 0 if failed
@@ -805,7 +805,7 @@ ConfigFile_retval ConfigFile_FindKey( ConfigFilePtr_t pConfigFile, const char *p
     return lFound;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // ConfigFile_GetValue_String search for the value from section pSection with the key pKey.
 //
 // If the value is found, the value is copied in pValue and the function returns 1.
@@ -836,7 +836,7 @@ ConfigFile_retval ConfigFile_GetValue_String( ConfigFilePtr_t pConfigFile, const
     return ConfigFile_succeed;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // ConfigFile_GetValue_Boolean set to btrue or bfalse pBool. If the function can't find the value, it
 // returns 0. If the value can't be identified as btrue or bfalse, the default is bfalse.
 //
@@ -864,7 +864,7 @@ ConfigFile_retval ConfigFile_GetValue_Boolean( ConfigFilePtr_t pConfigFile, cons
     return lRet;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // ConfigFile_GetValue_Int set pInt. If the function can't find the value, it
 // returns 0.
 //
@@ -885,7 +885,7 @@ ConfigFile_retval ConfigFile_GetValue_Int( ConfigFilePtr_t pConfigFile, const ch
     return lRet;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // ConfigFile_SetValue_String set the value specified by pSection and pKey. If the value
 // doesn't exist, it is created
 //
@@ -964,7 +964,7 @@ ConfigFile_retval ConfigFile_SetValue_String( ConfigFilePtr_t pConfigFile, const
     return ConfigFile_succeed;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // ConfigFile_SetValue_Boolean saves a boolean in a value specified by pSection and pKey
 //
 ConfigFile_retval ConfigFile_SetValue_Boolean( ConfigFilePtr_t pConfigFile, const char *pSection, const char *pKey, bool_t pBool )
@@ -979,7 +979,7 @@ ConfigFile_retval ConfigFile_SetValue_Boolean( ConfigFilePtr_t pConfigFile, cons
     return ConfigFile_SetValue_String( pConfigFile, pSection, pKey, "FALSE" );
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // ConfigFile_SetValue_Int saves an integer in a value specified by pSection and pKey
 //
 ConfigFile_retval ConfigFile_SetValue_Int( ConfigFilePtr_t pConfigFile, const char *pSection, const char *pKey, int pInt )
@@ -990,7 +990,7 @@ ConfigFile_retval ConfigFile_SetValue_Int( ConfigFilePtr_t pConfigFile, const ch
     return ConfigFile_SetValue_String( pConfigFile, pSection, pKey, lIntStr );
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // ConfigFile_SetValue_Float saves a float in a value specified by pSection and pKey
 //
 ConfigFile_retval ConfigFile_SetValue_Float( ConfigFilePtr_t pConfigFile, const char *pSection, const char *pKey, float pFloat )
@@ -1001,7 +1001,7 @@ ConfigFile_retval ConfigFile_SetValue_Float( ConfigFilePtr_t pConfigFile, const 
     return ConfigFile_SetValue_String( pConfigFile, pSection, pKey, lFloatStr );
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // ConfigFile_close close the ConfigFile_t. Does not deallocate its memory.
 //
 ConfigFile_retval ConfigFile_close( ConfigFilePtr_t pConfigFile )
@@ -1017,7 +1017,7 @@ ConfigFile_retval ConfigFile_close( ConfigFilePtr_t pConfigFile )
     return ConfigFile_succeed;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // ConfigValue_write saves the value from pValue at the current position
 // of the pConfigFile file. The '"' are doubled.
 //
@@ -1046,7 +1046,7 @@ ConfigFile_retval ConfigValue_write( FILE *pFile, ConfigFileValuePtr_t pValue )
     return ConfigFile_succeed;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // ConfigFile_write
 //
 ConfigFile_retval ConfigFile_write( ConfigFilePtr_t pConfigFile )
@@ -1092,7 +1092,7 @@ ConfigFile_retval ConfigFile_write( ConfigFilePtr_t pConfigFile )
     return ConfigFile_succeed;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // ReadConfigFile creates a new ConfigFile_t fills it with the data in the file szFileName
 //
 ConfigFilePtr_t LoadConfigFile( const char *szFileName )
@@ -1112,7 +1112,7 @@ ConfigFilePtr_t LoadConfigFile( const char *szFileName )
     return lConfigFile;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // SaveConfigFile saves the given ConfigFile into the same file that it was reas from
 //
 ConfigFile_retval SaveConfigFile( ConfigFilePtr_t pConfigFile )
@@ -1133,7 +1133,7 @@ ConfigFile_retval SaveConfigFile( ConfigFilePtr_t pConfigFile )
     return retval;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // SaveConfigFileAs saves pConfigFile at szFileName
 // pConfigFile's file is close and set to the new file
 //

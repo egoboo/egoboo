@@ -1,21 +1,21 @@
-//********************************************************************************************
-//*
-//*    This file is part of Egoboo.
-//*
-//*    Egoboo is free software: you can redistribute it and/or modify it
-//*    under the terms of the GNU General Public License as published by
-//*    the Free Software Foundation, either version 3 of the License, or
-//*    (at your option) any later version.
-//*
-//*    Egoboo is distributed in the hope that it will be useful, but
-//*    WITHOUT ANY WARRANTY; without even the implied warranty of
-//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//*    General Public License for more details.
-//*
-//*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-//*
-//********************************************************************************************
+// ********************************************************************************************
+// *
+// *    This file is part of Egoboo.
+// *
+// *    Egoboo is free software: you can redistribute it and/or modify it
+// *    under the terms of the GNU General Public License as published by
+// *    the Free Software Foundation, either version 3 of the License, or
+// *    (at your option) any later version.
+// *
+// *    Egoboo is distributed in the hope that it will be useful, but
+// *    WITHOUT ANY WARRANTY; without even the implied warranty of
+// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// *    General Public License for more details.
+// *
+// *    You should have received a copy of the GNU General Public License
+// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+// *
+// ********************************************************************************************
 
 /* Egoboo - win-file.c
  * Windows specific filesystem functions.
@@ -31,18 +31,18 @@
 #include <shlwapi.h>
 #include <shellapi.h>
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // Paths that the game will deal with
 static char win32_tempPath[MAX_PATH] = {0};
 static char win32_importPath[MAX_PATH] = {0};
 static char win32_savePath[MAX_PATH] = {0};
 static char win32_gamePath[MAX_PATH] = {0};
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // File Routines -----------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void fs_init()
 {
     // JF> This function determines the temporary, import,
@@ -118,7 +118,7 @@ const char *fs_getSaveDirectory()
     return win32_savePath;
 }
 
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 int fs_fileIsDirectory( const char *filename )
 {
     // Returns 1 if this filename is a directory
@@ -140,7 +140,7 @@ int fs_removeDirectory( const char *dirname )
     return ( RemoveDirectory( dirname ) != 0 );
 }
 
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 void fs_deleteFile( const char *filename )
 {
     // ZZ> This function deletes a file
@@ -152,13 +152,13 @@ void fs_copyFile( const char *source, const char *dest )
     CopyFile( source, dest, bfalse );
 }
 
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 // Directory Functions--------------------------------------------------------------------------
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 WIN32_FIND_DATA win32_wfdData;
 HANDLE win32_hFind;
 
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 // Read the first directory entry
 const char *fs_findFirstFile( const char *searchDir, const char *searchExtension )
 {
@@ -192,7 +192,7 @@ const char *fs_findFirstFile( const char *searchDir, const char *searchExtension
     return win32_wfdData.cFileName;
 }
 
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 // Read the next directory entry (NULL if done)
 const char *fs_findNextFile( void )
 {
@@ -208,7 +208,7 @@ const char *fs_findNextFile( void )
     return win32_wfdData.cFileName;
 }
 
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 // Close anything left open
 void fs_findClose()
 {
@@ -221,7 +221,7 @@ int DirGetAttrib( const char *fromdir )
     return( GetFileAttributes( fromdir ) );
 }
 
-//---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
 void empty_import_directory( void )
 {
     // ZZ> This function deletes all the TEMP????.OBJ subdirectories in the IMPORT directory

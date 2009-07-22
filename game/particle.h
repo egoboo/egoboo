@@ -1,29 +1,29 @@
 #pragma once
 
-//********************************************************************************************
-//*
-//*    This file is part of Egoboo.
-//*
-//*    Egoboo is free software: you can redistribute it and/or modify it
-//*    under the terms of the GNU General Public License as published by
-//*    the Free Software Foundation, either version 3 of the License, or
-//*    (at your option) any later version.
-//*
-//*    Egoboo is distributed in the hope that it will be useful, but
-//*    WITHOUT ANY WARRANTY; without even the implied warranty of
-//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//*    General Public License for more details.
-//*
-//*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-//*
-//********************************************************************************************
+// ********************************************************************************************
+// *
+// *    This file is part of Egoboo.
+// *
+// *    Egoboo is free software: you can redistribute it and/or modify it
+// *    under the terms of the GNU General Public License as published by
+// *    the Free Software Foundation, either version 3 of the License, or
+// *    (at your option) any later version.
+// *
+// *    Egoboo is distributed in the hope that it will be useful, but
+// *    WITHOUT ANY WARRANTY; without even the implied warranty of
+// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// *    General Public License for more details.
+// *
+// *    You should have received a copy of the GNU General Public License
+// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+// *
+// ********************************************************************************************
 
 #include "egoboo_typedef.h"
 #include "egoboo_math.h"
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 
 #define PRTLEVELFIX         20                      // Fix for shooting over cliffs
 
@@ -38,9 +38,9 @@
 #define DYNAOFF   0
 #define DYNAON    1
 #define DYNALOCAL 2
-//#define MAXFALLOFF 1400
+// #define MAXFALLOFF 1400
 
-//Physics
+// Physics
 #define STOPBOUNCINGPART                5.0f         // To make particles stop bouncing
 
 // pre-defined global particles
@@ -65,9 +65,9 @@ enum e_prt_orientations
 };
 typedef enum e_prt_orientations prt_ori_t;
 
-//------------------------------------
+// ------------------------------------
 // Particle template
-//------------------------------------
+// ------------------------------------
 struct s_pip
 {
     EGO_PROFILE_STUFF
@@ -128,7 +128,7 @@ struct s_pip
     Sint8   soundfloor;                   // Floor sound
     Sint8   soundwall;                    // Ricochet sound
     bool_t  friendlyfire;                 // Friendly fire
-    bool_t  hateonly;                     //Only hit hategroup
+    bool_t  hateonly;                     // Only hit hategroup
     bool_t  rotatetoface;                 // Arrows/Missiles
     bool_t  newtargetonspawn;             // Get new target?
     bool_t  homing;                       // Homing?
@@ -139,7 +139,7 @@ struct s_pip
     float   dynalightfalloffadd;
     bool_t  targetcaster;                 // Target caster?
     bool_t  spawnenchant;                 // Spawn enchant?
-	bool_t  causepancake;				  // !!BAD: Not implemented!!
+    bool_t  causepancake;                 // !!BAD: Not implemented!!
     bool_t  needtarget;                   // Need a target?
     bool_t  onlydamagefriendly;           // Only friends?
     bool_t  startontarget;                // Start on target?
@@ -161,9 +161,9 @@ extern pip_t PipList[MAX_PIP];
 #define VALID_PIP( IPIP )       ( VALID_PIP_RANGE( IPIP ) && PipList[IPIP].loaded )
 #define INVALID_PIP( IPIP )     ( !VALID_PIP_RANGE( IPIP ) || !PipList[IPIP].loaded )
 
-//------------------------------------
+// ------------------------------------
 // Particle graphic data
-//------------------------------------
+// ------------------------------------
 struct s_prt_instance
 {
     bool_t valid;
@@ -197,9 +197,9 @@ struct s_prt_instance
 };
 typedef struct s_prt_instance prt_instance_t;
 
-//------------------------------------
+// ------------------------------------
 // Particle variables
-//------------------------------------
+// ------------------------------------
 #define SPAWNNOCHARACTER        255                                      // For particles that spawn characters...
 #define TOTAL_MAX_PRT            2048                                      // True max number of particles
 
@@ -269,7 +269,7 @@ extern prt_t            PrtList[TOTAL_MAX_PRT];
 #define VALID_PRT( IPRT )       ( VALID_PRT_RANGE( IPRT ) && PrtList[IPRT].on )
 #define INVALID_PRT( IPRT )     ( !VALID_PRT_RANGE( IPRT ) || !PrtList[IPRT].on )
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // function prototypes
 
 void free_one_particle( Uint16 particle );

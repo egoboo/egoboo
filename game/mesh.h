@@ -1,29 +1,29 @@
 #pragma once
 
-//********************************************************************************************
-//*
-//*    This file is part of Egoboo.
-//*
-//*    Egoboo is free software: you can redistribute it and/or modify it
-//*    under the terms of the GNU General Public License as published by
-//*    the Free Software Foundation, either version 3 of the License, or
-//*    (at your option) any later version.
-//*
-//*    Egoboo is distributed in the hope that it will be useful, but
-//*    WITHOUT ANY WARRANTY; without even the implied warranty of
-//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//*    General Public License for more details.
-//*
-//*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-//*
-//********************************************************************************************
+// ********************************************************************************************
+// *
+// *    This file is part of Egoboo.
+// *
+// *    Egoboo is free software: you can redistribute it and/or modify it
+// *    under the terms of the GNU General Public License as published by
+// *    the Free Software Foundation, either version 3 of the License, or
+// *    (at your option) any later version.
+// *
+// *    Egoboo is distributed in the hope that it will be useful, but
+// *    WITHOUT ANY WARRANTY; without even the implied warranty of
+// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// *    General Public License for more details.
+// *
+// *    You should have received a copy of the GNU General Public License
+// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+// *
+// ********************************************************************************************
 
 #include "mpd.h"
 #include "ogl_include.h"
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 #define BLOCK_BITS    9
 #define BLOCK_SIZE    ((float)(1<<(BLOCK_BITS)))
 
@@ -34,22 +34,38 @@
 #define SLIDEFIX                        0.08f         // To make almost flat surfaces flat
 #define TWIST_FLAT                      119
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+#define TILE_UPPER_SHIFT                8
+#define TILE_LOWER_MASK                 ((1 << TILE_UPPER_SHIFT)-1)
+#define TILE_UPPER_MASK                 (~TILE_LOWER_MASK)
+
+#define TILE_GET_LOWER_BITS(XX)         ( TILE_LOWER_MASK & (XX) )
+
+#define TILE_GET_UPPER_BITS(XX)         (( TILE_UPPER_MASK & (XX) ) >> TILE_UPPER_SHIFT )
+#define TILE_SET_UPPER_BITS(XX)         (( (XX) << TILE_UPPER_SHIFT ) & TILE_UPPER_MASK )
+
+#define TILE_IS_FANOFF(XX)              ( FANOFF == (XX).img )
+
+#define TILE_HAS_INVALID_IMAGE(XX)      HAS_SOME_BITS( TILE_UPPER_MASK, (XX).img )
+
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+typedef float lighting_vector_t[6];
+
+// --------------------------------------------------------------------------------------------
 struct s_lighting_cache
 {
     float max_light;
 
-    float lighting_low[6];   // light from +x,-x, +y,-y, +z,-z
-    float lighting_hgh[6];   // light from +x,-x, +y,-y, +z,-z
+    lighting_vector_t lighting_low;   // light from +x,-x, +y,-y, +z,-z
+    lighting_vector_t lighting_hgh;   // light from +x,-x, +y,-y, +z,-z
 };
 typedef struct s_lighting_cache lighting_cache_t;
 
 typedef GLXvector3f normal_cache_t[4];
 typedef Uint8       light_cache_t[4];
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 struct s_grid_lighting
 {
     // the lighting info in the upper left hand corner of a grid
@@ -58,7 +74,7 @@ struct s_grid_lighting
 };
 typedef struct s_grid_lighting grid_lighting_t;
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 struct s_grid_mem
 {
     size_t            grid_count;                       // how many grids
@@ -70,8 +86,8 @@ struct s_grid_mem
 };
 typedef struct s_grid_mem grid_mem_t;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // mesh memory
 struct s_mesh_mem
 {
@@ -93,7 +109,7 @@ struct s_mesh_mem
 };
 typedef struct s_mesh_mem mesh_mem_t;
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 struct s_ego_mpd_info
 {
     size_t          vertcount;                         // For malloc
@@ -111,7 +127,7 @@ struct s_ego_mpd_info
 };
 typedef struct s_ego_mpd_info ego_mpd_info_t;
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 struct s_ego_mpd
 {
     ego_mpd_info_t  info;
@@ -122,8 +138,8 @@ struct s_ego_mpd
 };
 typedef struct s_ego_mpd ego_mpd_t;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 extern GLvector3 map_twist_nrm[256];
 extern Uint32    map_twist_y[256];            // For surface normal of mesh
 extern Uint32    map_twist_x[256];
@@ -132,8 +148,8 @@ extern float     map_twistvel_y[256];
 extern float     map_twistvel_z[256];
 extern Uint8     map_twist_flat[256];
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 
 ego_mpd_t * mesh_new( ego_mpd_t * pmesh );
 ego_mpd_t * mesh_renew( ego_mpd_t * pmesh );
@@ -158,3 +174,12 @@ void tile_dictionary_load(tile_definition_t dict[], size_t dict_size);
 
 bool_t mesh_light_corners( ego_mpd_t * pmesh, int fan1 );
 bool_t mesh_interpolate_vertex( mesh_mem_t * pmem, int fan, float pos[], float * plight );
+
+float evaluate_lighting_vector( lighting_vector_t lvec, GLfloat nrm[] );
+float evaluate_lighting_cache( lighting_cache_t * src, GLfloat nrm[], float z, aabb_t bbox );
+
+bool_t grid_light_one_corner( ego_mpd_t * pmesh, int fan, float height, GLXvector3f nrm, float * plight );
+
+
+bool_t mesh_set_texture( ego_mpd_t * pmesh, Uint16 tile, Uint16 image );
+bool_t mesh_update_texture( ego_mpd_t * pmesh, Uint16 tile );

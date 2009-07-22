@@ -1,21 +1,21 @@
-//********************************************************************************************
-//*
-//*    This file is part of Egoboo.
-//*
-//*    Egoboo is free software: you can redistribute it and/or modify it
-//*    under the terms of the GNU General Public License as published by
-//*    the Free Software Foundation, either version 3 of the License, or
-//*    (at your option) any later version.
-//*
-//*    Egoboo is distributed in the hope that it will be useful, but
-//*    WITHOUT ANY WARRANTY; without even the implied warranty of
-//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//*    General Public License for more details.
-//*
-//*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-//*
-//********************************************************************************************
+// ********************************************************************************************
+// *
+// *    This file is part of Egoboo.
+// *
+// *    Egoboo is free software: you can redistribute it and/or modify it
+// *    under the terms of the GNU General Public License as published by
+// *    the Free Software Foundation, either version 3 of the License, or
+// *    (at your option) any later version.
+// *
+// *    Egoboo is distributed in the hope that it will be useful, but
+// *    WITHOUT ANY WARRANTY; without even the implied warranty of
+// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// *    General Public License for more details.
+// *
+// *    You should have received a copy of the GNU General Public License
+// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+// *
+// ********************************************************************************************
 
 /* Egoboo - graphic_prt.c
 * Particle system drawing and management code.
@@ -31,8 +31,8 @@
 
 #include "egoboo.h"
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 struct s_prt_registry_entity
 {
     int   index;
@@ -40,20 +40,20 @@ struct s_prt_registry_entity
 };
 typedef struct s_prt_registry_entity prt_registry_entity_t;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 static void prt_instance_update( camera_t * pcam, Uint16 particle, Uint8 trans, bool_t do_lighting );
 static void calc_billboard_verts( GLvertex vlst[], prt_instance_t * pinst, float size, float level, bool_t do_reflect );
 static int cmp_prt_registry_entity(const void * vlhs, const void * vrhs);
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 Uint32  particletrans   = 0x80;
 Uint32  antialiastrans  = 0xC0;
 Uint32  instance_update = (Uint32)~0;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void render_billboard( camera_t * pcam, oglx_texture * ptex, GLvector3 pos, float scale )
 {
     Begin3DMode( pcam );
@@ -118,7 +118,7 @@ void render_billboard( camera_t * pcam, oglx_texture * ptex, GLvector3 pos, floa
 
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int cmp_prt_registry_entity(const void * vlhs, const void * vrhs)
 {
     const prt_registry_entity_t * lhs, * rhs;
@@ -129,8 +129,8 @@ int cmp_prt_registry_entity(const void * vlhs, const void * vrhs)
     return lhs->dist - rhs->dist;
 }
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 size_t render_all_prt_begin( camera_t * pcam, prt_registry_entity_t reg[], size_t reg_count )
 {
     GLvector3 vfwd, vcam;
@@ -179,7 +179,7 @@ size_t render_all_prt_begin( camera_t * pcam, prt_registry_entity_t reg[], size_
     return numparticle;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t render_one_prt_solid( Uint16 iprt )
 {
     // BB > Render the solid version of the particle
@@ -237,7 +237,7 @@ bool_t render_one_prt_solid( Uint16 iprt )
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void render_all_prt_solid( camera_t * pcam, prt_registry_entity_t reg[], size_t numparticle )
 {
     // BB > do solid sprites first
@@ -260,7 +260,7 @@ void render_all_prt_solid( camera_t * pcam, prt_registry_entity_t reg[], size_t 
 
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t render_one_prt_trans( Uint16 iprt )
 {
     // BB> do all kinds of transparent sprites next
@@ -353,7 +353,7 @@ bool_t render_one_prt_trans( Uint16 iprt )
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void render_all_prt_trans( camera_t * pcam, prt_registry_entity_t reg[], size_t numparticle )
 {
     // BB> do all kinds of transparent sprites next
@@ -372,7 +372,7 @@ void render_all_prt_trans( camera_t * pcam, prt_registry_entity_t reg[], size_t 
     End3DMode();
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void render_prt( camera_t * pcam )
 {
     // ZZ> This function draws the sprites for particle systems
@@ -386,8 +386,8 @@ void render_prt( camera_t * pcam )
     render_all_prt_trans( pcam, reg, numparticle );
 }
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 size_t render_all_prt_ref_begin( camera_t * pcam, prt_registry_entity_t reg[], size_t reg_count )
 {
     GLvector3 vfwd, vcam;
@@ -431,7 +431,7 @@ size_t render_all_prt_ref_begin( camera_t * pcam, prt_registry_entity_t reg[], s
     return numparticle;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t render_one_prt_ref( Uint16 iprt )
 {
     // BB > render one particle
@@ -518,7 +518,7 @@ bool_t render_one_prt_ref( Uint16 iprt )
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void render_all_prt_ref( camera_t * pcam, prt_registry_entity_t reg[], size_t numparticle )
 {
     Uint16 prt;
@@ -538,7 +538,7 @@ void render_all_prt_ref( camera_t * pcam, prt_registry_entity_t reg[], size_t nu
     End3DMode();
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void render_prt_ref( camera_t * pcam )
 {
     // ZZ> This function draws sprites reflected in the floor
@@ -550,8 +550,8 @@ void render_prt_ref( camera_t * pcam )
     render_all_prt_ref( pcam, reg, numparticle );
 }
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void update_all_prt_instance( camera_t * pcam )
 {
     int cnt;
@@ -580,7 +580,7 @@ void update_all_prt_instance( camera_t * pcam )
     }
 };
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_t * pprt )
 {
     pip_t * ppip;
@@ -761,7 +761,7 @@ GLmatrix prt_inst_make_matrix( prt_instance_t * pinst )
     return mat;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void prt_instance_update_lighting( prt_instance_t * pinst, prt_t * pprt, Uint8 trans, bool_t do_lighting )
 {
     int    cnt;
@@ -802,7 +802,7 @@ void prt_instance_update_lighting( prt_instance_t * pinst, prt_t * pprt, Uint8 t
     pinst->famb   = 0.9f * pinst->famb + 0.1f * (self_light + min_light);
 
     // determine the normal dependent amount of light
-    lite = evaluate_mesh_lighting( PMesh, &loc_light, pinst->nrm.v, pinst->pos.z );
+    lite = evaluate_lighting_cache( &loc_light, pinst->nrm.v, pinst->pos.z, PMesh->mmem.bbox );
     pinst->fdir = 0.9f * pinst->fdir + 0.1f * lite;
 
     // determine the overall lighting
@@ -817,7 +817,7 @@ void prt_instance_update_lighting( prt_instance_t * pinst, prt_t * pprt, Uint8 t
     pinst->falpha = CLIP(pinst->falpha, 0.0f, 1.0f);
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void prt_instance_update( camera_t * pcam, Uint16 particle, Uint8 trans, bool_t do_lighting )
 {
     prt_t * pprt;
@@ -834,7 +834,7 @@ void prt_instance_update( camera_t * pcam, Uint16 particle, Uint8 trans, bool_t 
     prt_instance_update_lighting( pinst, pprt, trans, do_lighting );
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void calc_billboard_verts( GLvertex vlst[], prt_instance_t * pinst, float size, float level, bool_t do_reflect )
 {
     // Calculate the position of the four corners of the billboard

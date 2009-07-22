@@ -1,21 +1,21 @@
-//********************************************************************************************
-//*
-//*    This file is part of Egoboo.
-//*
-//*    Egoboo is free software: you can redistribute it and/or modify it
-//*    under the terms of the GNU General Public License as published by
-//*    the Free Software Foundation, either version 3 of the License, or
-//*    (at your option) any later version.
-//*
-//*    Egoboo is distributed in the hope that it will be useful, but
-//*    WITHOUT ANY WARRANTY; without even the implied warranty of
-//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//*    General Public License for more details.
-//*
-//*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-//*
-//********************************************************************************************
+// ********************************************************************************************
+// *
+// *    This file is part of Egoboo.
+// *
+// *    Egoboo is free software: you can redistribute it and/or modify it
+// *    under the terms of the GNU General Public License as published by
+// *    the Free Software Foundation, either version 3 of the License, or
+// *    (at your option) any later version.
+// *
+// *    Egoboo is distributed in the hope that it will be useful, but
+// *    WITHOUT ANY WARRANTY; without even the implied warranty of
+// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// *    General Public License for more details.
+// *
+// *    You should have received a copy of the GNU General Public License
+// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+// *
+// ********************************************************************************************
 
 /* Egoboo - network.c
  * Shuttles bits across the network, using Enet.  Networked play doesn't
@@ -39,8 +39,8 @@
 #include <stdarg.h>
 #include <assert.h>
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 static int  numfile = 0;                                // For network copy
 static int  numfilesent = 0;                            // For network copy
 static int  numfileexpected = 0;                        // For network copy
@@ -76,8 +76,8 @@ static net_instance_t gnet = { bfalse, bfalse, bfalse, bfalse, bfalse };
 
 net_instance_t * PNet = &gnet;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 
 // Networking constants
 enum NetworkConstant
@@ -106,8 +106,8 @@ typedef struct NetPlayerInfo
     int playerSlot;
 } NetPlayerInfo;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 
 Uint32 nexttimestamp;                          // Expected timestamp
 
@@ -149,8 +149,8 @@ static size_t   transferSize = 0;
 // Receiving files
 static NetFileTransfer net_receiveState;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void close_session()
 {
     size_t i, numPeers;
@@ -206,7 +206,7 @@ void close_session()
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void net_startNewPacket()
 {
     // ZZ> This function starts building a network packet
@@ -214,7 +214,7 @@ void net_startNewPacket()
     packetsize = 0;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void packet_addUnsignedByte( Uint8 uc )
 {
     // ZZ> This function appends an Uint8 to the packet
@@ -225,7 +225,7 @@ void packet_addUnsignedByte( Uint8 uc )
     packetsize += 1;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void packet_addSignedByte( Sint8 sc )
 {
     // ZZ> This function appends a Sint8 to the packet
@@ -236,7 +236,7 @@ void packet_addSignedByte( Sint8 sc )
     packetsize += 1;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void packet_addUnsignedShort( Uint16 us )
 {
     // ZZ> This function appends an Uint16 to the packet
@@ -248,7 +248,7 @@ void packet_addUnsignedShort( Uint16 us )
     packetsize += 2;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void packet_addSignedShort( Sint16 ss )
 {
     // ZZ> This function appends a Sint16 to the packet
@@ -261,7 +261,7 @@ void packet_addSignedShort( Sint16 ss )
     packetsize += 2;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void packet_addUnsignedInt( Uint32 ui )
 {
     // ZZ> This function appends an Uint32 to the packet
@@ -274,7 +274,7 @@ void packet_addUnsignedInt( Uint32 ui )
     packetsize += 4;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void packet_addSignedInt( Sint32 si )
 {
     // ZZ> This function appends a Sint32 to the packet
@@ -287,7 +287,7 @@ void packet_addSignedInt( Sint32 si )
     packetsize += 4;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void packet_addString( const char *string )
 {
     // ZZ> This function appends a null terminated string to the packet
@@ -310,21 +310,21 @@ void packet_addString( const char *string )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void packet_startReading( ENetPacket *packet )
 {
     net_readPacket = packet;
     net_readLocation = 0;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void packet_doneReading()
 {
     net_readPacket = NULL;
     net_readLocation = 0;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void packet_readString( char *buffer, int maxLen )
 {
     // ZZ> This function reads a null terminated string from the packet
@@ -347,7 +347,7 @@ void packet_readString( char *buffer, int maxLen )
     buffer[outindex] = 0;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 Uint8 packet_readUnsignedByte()
 {
     // ZZ> This function reads an Uint8 from the packet
@@ -358,7 +358,7 @@ Uint8 packet_readUnsignedByte()
     return uc;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 Sint8 packet_readSignedByte()
 {
     // ZZ> This function reads a Sint8 from the packet
@@ -369,7 +369,7 @@ Sint8 packet_readSignedByte()
     return sc;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 Uint16 packet_readUnsignedShort()
 {
     // ZZ> This function reads an Uint16 from the packet
@@ -384,7 +384,7 @@ Uint16 packet_readUnsignedShort()
     return us;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 Sint16 packet_readSignedShort()
 {
     // ZZ> This function reads a Sint16 from the packet
@@ -399,7 +399,7 @@ Sint16 packet_readSignedShort()
     return ss;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 Uint32 packet_readUnsignedInt()
 {
     // ZZ> This function reads an Uint32 from the packet
@@ -414,7 +414,7 @@ Uint32 packet_readUnsignedInt()
     return ui;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 Sint32 packet_readSignedInt()
 {
     // ZZ> This function reads a Sint32 from the packet
@@ -429,7 +429,7 @@ Sint32 packet_readSignedInt()
     return si;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 size_t packet_remainingSize()
 {
     // ZZ> This function tells if there's still data left in the packet
@@ -437,7 +437,7 @@ size_t packet_remainingSize()
     return net_readPacket->dataLength - net_readLocation;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void net_sendPacketToHost()
 {
     // ZZ> This function sends a packet to the host
@@ -446,7 +446,7 @@ void net_sendPacketToHost()
     enet_peer_send( net_gameHost, NET_UNRELIABLE_CHANNEL, packet );
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void net_sendPacketToAllPlayers()
 {
     // ZZ> This function sends a packet to all the players
@@ -455,7 +455,7 @@ void net_sendPacketToAllPlayers()
     enet_host_broadcast( net_myHost, NET_UNRELIABLE_CHANNEL, packet );
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void net_sendPacketToHostGuaranteed()
 {
     // ZZ> This function sends a packet to the host
@@ -464,7 +464,7 @@ void net_sendPacketToHostGuaranteed()
     enet_peer_send( net_gameHost, NET_UNRELIABLE_CHANNEL, packet );
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void net_sendPacketToAllPlayersGuaranteed()
 {
     // ZZ> This function sends a packet to all the players
@@ -473,7 +473,7 @@ void net_sendPacketToAllPlayersGuaranteed()
     enet_host_broadcast( net_myHost, NET_GUARANTEED_CHANNEL, packet );
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void net_sendPacketToOnePlayerGuaranteed( int player )
 {
     // ZZ> This function sends a packet to one of the players
@@ -485,7 +485,7 @@ void net_sendPacketToOnePlayerGuaranteed( int player )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void net_sendPacketToPeer( ENetPeer *peer )
 {
     // JF> This function sends a packet to a given peer
@@ -494,7 +494,7 @@ void net_sendPacketToPeer( ENetPeer *peer )
     enet_peer_send( peer, NET_UNRELIABLE_CHANNEL, packet );
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void net_sendPacketToPeerGuaranteed( ENetPeer *peer )
 {
     // JF> This funciton sends a packet to a given peer, with guaranteed delivery
@@ -503,7 +503,7 @@ void net_sendPacketToPeerGuaranteed( ENetPeer *peer )
     enet_peer_send( peer, NET_GUARANTEED_CHANNEL, packet );
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void net_copyFileToAllPlayers( const char *source, const char *dest )
 {
     // JF> This function queues up files to send to all the hosts.
@@ -536,7 +536,7 @@ void net_copyFileToAllPlayers( const char *source, const char *dest )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void net_copyFileToAllPlayersOld( const char *source, const char *dest )
 {
     // ZZ> This function copies a file on the host to every remote computer.
@@ -616,7 +616,7 @@ void net_copyFileToAllPlayersOld( const char *source, const char *dest )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void net_copyFileToHost( const char *source, const char *dest )
 {
     NetFileTransfer *state;
@@ -663,7 +663,7 @@ void net_copyFileToHost( const char *source, const char *dest )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void net_copyFileToHostOld( const char *source, const char *dest )
 {
     // ZZ> This function copies a file on the remote to the host computer.
@@ -754,7 +754,7 @@ void net_copyFileToHostOld( const char *source, const char *dest )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void net_copyDirectoryToHost( const char *dirname, const char *todirname )
 {
     // ZZ> This function copies all files in a directory
@@ -797,7 +797,7 @@ void net_copyDirectoryToHost( const char *dirname, const char *todirname )
     fs_findClose();
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void net_copyDirectoryToAllPlayers( const char *dirname, const char *todirname )
 {
     // ZZ> This function copies all files in a directory
@@ -838,7 +838,7 @@ void net_copyDirectoryToAllPlayers( const char *dirname, const char *todirname )
     fs_findClose();
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void net_sayHello()
 {
     // ZZ> This function lets everyone know we're here
@@ -865,7 +865,7 @@ void net_sayHello()
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void cl_talkToHost()
 {
     // ZZ> This function sends the latch packets to the host machine
@@ -914,7 +914,7 @@ void cl_talkToHost()
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void sv_talkToRemotes()
 {
     // ZZ> This function sends the character data to all the remote machines
@@ -925,7 +925,7 @@ void sv_talkToRemotes()
     if ( update_wld == sv_last_frame ) return;
     sv_last_frame = update_wld;
 
- //   if ( PMod->rtscontrol ) return;
+//   if ( PMod->rtscontrol ) return;
 
     if ( gnet.hostactive )
     {
@@ -987,7 +987,7 @@ void sv_talkToRemotes()
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void net_handlePacket( ENetEvent *event )
 {
     Uint16 header;
@@ -1423,7 +1423,7 @@ void net_handlePacket( ENetEvent *event )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void listen_for_packets()
 {
     // ZZ> This function reads any new messages and sets the player latch and matrix needed
@@ -1473,12 +1473,12 @@ void listen_for_packets()
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void unbuffer_player_latches()
 {
     // ZZ> This function sets character latches based on player input to the host
     int cnt, character;
-  //  if ( PMod->rtscontrol ) { numplatimes--; return; }
+    //  if ( PMod->rtscontrol ) { numplatimes--; return; }
 
     // Copy the latches
 
@@ -1547,7 +1547,7 @@ void unbuffer_player_latches()
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void net_initialize()
 {
     // ZZ> This starts up the network and logs whatever goes on
@@ -1590,14 +1590,14 @@ void net_initialize()
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void net_shutDown()
 {
     log_info( "net_shutDown: Turning off networking.\n" );
     enet_deinitialize();
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void find_open_sessions()
 {
     /*PORT
@@ -1617,7 +1617,7 @@ void find_open_sessions()
     */
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void sv_letPlayersJoin()
 {
     // ZZ> This function finds all the players in the game
@@ -1667,7 +1667,7 @@ void sv_letPlayersJoin()
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int cl_joinGame( const char* hostname )
 {
     // ZZ> This function tries to join one of the sessions we found
@@ -1718,13 +1718,13 @@ int cl_joinGame( const char* hostname )
     return bfalse;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void stop_players_from_joining()
 {
     // ZZ> This function stops players from joining a game
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int sv_hostGame()
 {
     // ZZ> This function tries to host a new session
@@ -1757,19 +1757,19 @@ int sv_hostGame()
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void turn_on_service( int service )
 {
     // This function turns on a network service ( IPX, TCP, serial, modem )
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 int  net_pendingFileTransfers()
 {
     return net_numFileTransfers;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void net_updateFileTransfers()
 {
     NetFileTransfer *state;
@@ -1862,22 +1862,22 @@ void net_updateFileTransfers()
     listen_for_packets();
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void net_send_message()
 {
     // ZZ> sends the message in the keyboard buffer to all other players
     if ( console_mode || !console_done ) return;
 
-    //if(gnet.on)
-    //{
+    // if(gnet.on)
+    // {
     //    start_building_packet();
     //    add_packet_us(TO_ANY_TEXT);
     //    add_packet_sz(keyb.buffer);
     //    send_packet_to_all_players();
-    //}
+    // }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 bool_t net_instance_init( net_instance_t * pnet )
 {
     if ( NULL == pnet ) return bfalse;

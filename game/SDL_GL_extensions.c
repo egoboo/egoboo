@@ -1,16 +1,16 @@
 #include "SDL_GL_extensions.h"
 #include "ogl_debug.h"
 
-//---------------------------------------------------------------------
-//---------------------------------------------------------------------
+// ---------------------------------------------------------------------
+// ---------------------------------------------------------------------
 #define LOCAL_STDOUT ((NULL == _SDL_GL_stdout) ? stdout : _SDL_GL_stdout)
 
-//---------------------------------------------------------------------
-//---------------------------------------------------------------------
+// ---------------------------------------------------------------------
+// ---------------------------------------------------------------------
 static FILE * _SDL_GL_stdout = NULL;
 
-//---------------------------------------------------------------------
-//---------------------------------------------------------------------
+// ---------------------------------------------------------------------
+// ---------------------------------------------------------------------
 // create the mask
 // this will work if both endian systems think they have "RGBA" graphics
 // if you need a different pixel format (ARGB or BGRA or whatever) this section
@@ -41,10 +41,10 @@ const Uint32 sdl_r_mask = ( Uint32 )( 0xFF << 24 );
 
 #endif
 
-//---------------------------------------------------------------------
-//-   Global function stolen from Jonathan Fisher
-//- who stole it from gl_font.c test program from SDL_ttf ;)
-//---------------------------------------------------------------------
+// ---------------------------------------------------------------------
+// -   Global function stolen from Jonathan Fisher
+// - who stole it from gl_font.c test program from SDL_ttf ;)
+// ---------------------------------------------------------------------
 int powerOfTwo( int input )
 {
     int value = 1;
@@ -56,10 +56,10 @@ int powerOfTwo( int input )
     return value;
 }
 
-//---------------------------------------------------------------------
-//- Global function stolen from Jonathan Fisher
-//- who stole it from gl_font.c test program from SDL_ttf ;)
-//---------------------------------------------------------------------
+// ---------------------------------------------------------------------
+// - Global function stolen from Jonathan Fisher
+// - who stole it from gl_font.c test program from SDL_ttf ;)
+// ---------------------------------------------------------------------
 SDL_bool SDL_GL_uploadSurface( SDL_Surface *surface, GLuint tx_id, GLfloat *texCoords )
 {
     int w, h;
@@ -114,10 +114,10 @@ SDL_bool SDL_GL_uploadSurface( SDL_Surface *surface, GLuint tx_id, GLfloat *texC
     return SDL_TRUE;
 }
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 SDL_bool SDL_GL_set_gl_mode(struct s_oglx_video_parameters * v)
 {
-    /// @details BB> this function applies OpenGL settings. Must have a valid SDL_Surface to do any good.
+    // / @details BB> this function applies OpenGL settings. Must have a valid SDL_Surface to do any good.
 
     if (NULL == v || !SDL_WasInit(SDL_INIT_VIDEO)) return SDL_FALSE;
 
@@ -138,17 +138,17 @@ SDL_bool SDL_GL_set_gl_mode(struct s_oglx_video_parameters * v)
         GL_DEBUG(glDisable)(GL_MULTISAMPLE_ARB);
     }
 
-    //Enable perspective correction?
+    // Enable perspective correction?
     GL_DEBUG(glHint)(GL_PERSPECTIVE_CORRECTION_HINT, v->perspective );
 
-    //Enable dithering?
+    // Enable dithering?
     if ( v->dither ) GL_DEBUG(glEnable)(GL_DITHER );
     else GL_DEBUG(glDisable)(GL_DITHER );
 
-    //Enable gourad v->shading? (Important!)
+    // Enable gourad v->shading? (Important!)
     GL_DEBUG(glShadeModel)(v->shading );
 
-    //Enable v->antialiasing?
+    // Enable v->antialiasing?
     if ( v->antialiasing )
     {
         GL_DEBUG(glEnable)(GL_LINE_SMOOTH );
@@ -165,8 +165,8 @@ SDL_bool SDL_GL_set_gl_mode(struct s_oglx_video_parameters * v)
         //  GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         // before every single draw command
         //
-        //GL_DEBUG(glEnable)(GL_POLYGON_SMOOTH);
-        //GL_DEBUG(glHint)(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
+        // GL_DEBUG(glEnable)(GL_POLYGON_SMOOTH);
+        // GL_DEBUG(glHint)(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
     }
     else
     {
@@ -187,7 +187,7 @@ SDL_bool SDL_GL_set_gl_mode(struct s_oglx_video_parameters * v)
         GL_DEBUG(glTexParameterf)(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, v->userAnisotropy );
     };
 
-    //fill mode
+    // fill mode
     GL_DEBUG(glPolygonMode)(GL_FRONT, GL_FILL );
     GL_DEBUG(glPolygonMode)(GL_BACK,  GL_FILL );
 
@@ -201,7 +201,7 @@ SDL_bool SDL_GL_set_gl_mode(struct s_oglx_video_parameters * v)
     return SDL_TRUE;
 }
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 void SDL_GL_report_mode( SDLX_video_parameters_t * retval )
 {
     SDL_Surface * surface = (NULL == retval) ? NULL : retval->surface;
@@ -218,10 +218,10 @@ void SDL_GL_report_mode( SDLX_video_parameters_t * retval )
     fflush( LOCAL_STDOUT );
 }
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 SDLX_video_parameters_t * SDL_GL_set_mode(SDLX_video_parameters_t * v_old, SDLX_video_parameters_t * v_new, oglx_video_parameters_t * gl_new)
 {
-    /// @details BB> let SDL_GL try to set a new video mode.
+    // / @details BB> let SDL_GL try to set a new video mode.
 
     SDLX_video_parameters_t param_old;
     SDLX_video_parameters_t * retval = NULL;
@@ -257,8 +257,8 @@ SDLX_video_parameters_t * SDL_GL_set_mode(SDLX_video_parameters_t * v_old, SDLX_
     return retval;
 };
 
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 FILE * SDL_GL_set_stdout(FILE * pfile)
 {
     FILE * pfile_old = _SDL_GL_stdout;

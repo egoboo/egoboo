@@ -1,23 +1,23 @@
 #pragma once
 
-//********************************************************************************************
-//*
-//*    This file is part of Egoboo.
-//*
-//*    Egoboo is free software: you can redistribute it and/or modify it
-//*    under the terms of the GNU General Public License as published by
-//*    the Free Software Foundation, either version 3 of the License, or
-//*    (at your option) any later version.
-//*
-//*    Egoboo is distributed in the hope that it will be useful, but
-//*    WITHOUT ANY WARRANTY; without even the implied warranty of
-//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//*    General Public License for more details.
-//*
-//*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-//*
-//********************************************************************************************
+// ********************************************************************************************
+// *
+// *    This file is part of Egoboo.
+// *
+// *    Egoboo is free software: you can redistribute it and/or modify it
+// *    under the terms of the GNU General Public License as published by
+// *    the Free Software Foundation, either version 3 of the License, or
+// *    (at your option) any later version.
+// *
+// *    Egoboo is distributed in the hope that it will be useful, but
+// *    WITHOUT ANY WARRANTY; without even the implied warranty of
+// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// *    General Public License for more details.
+// *
+// *    You should have received a copy of the GNU General Public License
+// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+// *
+// ********************************************************************************************
 
 #include "ogl_texture.h"
 #include "module.h"
@@ -26,27 +26,27 @@
 
 #include "egoboo.h"
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 struct s_camera;
 struct s_egoboo_config;
 struct s_chr_instance;
 struct s_oglx_texture_parameters;
 struct s_egoboo_config;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 #define DOLIST_SIZE (MAX_CHR + TOTAL_MAX_PRT)
 
 #define MAXMESHRENDER             1024                       // Max number of tiles to draw
 
 #define MAPSIZE 96
 
-#define TABX                            32//16      // Size of little name tag on the bar
-#define BARX                            112//216         // Size of bar
-#define BARY                            16//8
-#define NUMTICK                         10//50          // Number of ticks per row
-#define TICKX                           8//4           // X size of each tick
+#define TABX                            32// 16      // Size of little name tag on the bar
+#define BARX                            112// 216         // Size of bar
+#define BARY                            16// 8
+#define NUMTICK                         10// 50          // Number of ticks per row
+#define TICKX                           8// 4           // X size of each tick
 #define MAXTICK                         (NUMTICK*10) // Max number of ticks to draw
 
 #define NUMFONTX                        16          // Number of fonts in the bitmap
@@ -79,8 +79,19 @@ typedef enum e_tx_type
     TX_LAST
 } TX_TYPE;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+enum e_color
+{
+    COLOR_WHITE = 0,
+    COLOR_RED,
+    COLOR_YELLOW,
+    COLOR_GREEN,
+    COLOR_BLUE,
+    COLOR_PURPLE,
+    COLOR_MAX
+};
+
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 struct s_do_list_data
 {
     float  dist;
@@ -88,7 +99,7 @@ struct s_do_list_data
 };
 typedef struct s_do_list_data do_list_data_t;
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 struct s_obj_registry_entity
 {
     Uint16 ichr, iprt;
@@ -98,9 +109,9 @@ typedef struct s_obj_registry_entity obj_registry_entity_t;
 
 int obj_registry_entity_cmp( const void * pleft, const void * pright );
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-//OPENGL VERTEX
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// OPENGL VERTEX
 
 typedef struct
 {
@@ -115,8 +126,8 @@ typedef struct
     GLfloat col[4];      // the total vertex-dependent lighting (ambient + directional)
 } GLvertex;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 struct s_renderlist
 {
     ego_mpd_t * pmesh;
@@ -140,7 +151,7 @@ typedef struct s_renderlist renderlist_t;
 
 extern renderlist_t renderlist;
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 extern Uint8           lightdirectionlookup[65536];                        // For lighting characters
 extern float           lighttable_local[MAXLIGHTROTATION][MADLIGHTINDICES];
 extern float           lighttable_global[MAXLIGHTROTATION][MADLIGHTINDICES];
@@ -148,14 +159,14 @@ extern float           indextoenvirox[MADLIGHTINDICES];                    // En
 extern float           lighttoenviroy[256];                                // Environment map
 extern Uint32          lighttospek[MAXSPEKLEVEL][256];
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // Display messages
 extern Uint16          msgtimechange;
 extern Uint16          msgstart;                                       // The message queue
 extern Sint16          msgtime[MAXMESSAGE];
 extern char            msgtextdisplay[MAXMESSAGE][MESSAGESIZE];        // The displayed text
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // Input player control
 extern int  nullicon;
 extern int  keybicon;
@@ -163,7 +174,7 @@ extern int  mousicon;
 extern int  joyaicon;
 extern int  joybicon;
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // camera optimization
 
 #define ROTMESHTOPSIDE                  55          // For figuring out what to draw
@@ -176,7 +187,7 @@ extern int rotmeshbottomside;
 extern int rotmeshup;
 extern int rotmeshdown;
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // encapsulation of all graphics options
 struct s_gfx_config
 {
@@ -207,8 +218,8 @@ extern gfx_config_t gfx;
 bool_t gfx_config_init ( gfx_config_t * pgfx );
 bool_t gfx_config_synch( gfx_config_t * pgfx, struct s_egoboo_config * pcfg );
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 extern obj_registry_entity_t dolist[DOLIST_SIZE];             // List of which characters to draw
 extern size_t                dolist_count;                  // How many in the list
 
@@ -238,8 +249,8 @@ extern Uint8           blipc[MAXBLIP];
 extern bool_t          meshnotexture;
 extern Uint16          meshlasttexture;             // Last texture used
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // Function prototypes
 void draw_blip( float sizeFactor, Uint8 color, int x, int y );
 int  get_free_message();
@@ -327,9 +338,9 @@ void render_one_mad_tex( Uint16 character, Uint8 trans );
 void render_one_mad( Uint16 character, Uint8 trans );
 void render_one_mad_ref( int tnc, Uint8 trans );
 
-//void light_characters();
+// void light_characters();
 void light_particles( ego_mpd_t * pmesh );
-//void set_fan_light( int fanx, int fany, Uint16 particle );
+// void set_fan_light( int fanx, int fany, Uint16 particle );
 void do_grid_dynalight();
 
 void do_cursor();
@@ -369,12 +380,9 @@ bool_t oglx_texture_parameters_synch( struct s_oglx_texture_parameters * ptex, s
 
 void reset_renderlist();
 
-
 bool_t interpolate_mesh_lighting( ego_mpd_t * pmesh, lighting_cache_t * dst, GLvector3 pos );
 bool_t project_lighting( lighting_cache_t * dst, lighting_cache_t * src, GLmatrix mat );
 bool_t interpolate_lighting( lighting_cache_t * dst, lighting_cache_t * src[], float u, float v );
-float  evaluate_mesh_lighting( ego_mpd_t * pmesh, lighting_cache_t * src, GLfloat nrm[], float z );
 bool_t project_sum_lighting( lighting_cache_t * dst, lighting_cache_t * src, GLvector3 vec, int dir );
-
 
 bool_t bbox_gl_draw(aabb_t * pbbox);

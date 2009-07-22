@@ -1,21 +1,21 @@
-//********************************************************************************************
-//*
-//*    This file is part of Egoboo.
-//*
-//*    Egoboo is free software: you can redistribute it and/or modify it
-//*    under the terms of the GNU General Public License as published by
-//*    the Free Software Foundation, either version 3 of the License, or
-//*    (at your option) any later version.
-//*
-//*    Egoboo is distributed in the hope that it will be useful, but
-//*    WITHOUT ANY WARRANTY; without even the implied warranty of
-//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//*    General Public License for more details.
-//*
-//*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-//*
-//********************************************************************************************
+// ********************************************************************************************
+// *
+// *    This file is part of Egoboo.
+// *
+// *    Egoboo is free software: you can redistribute it and/or modify it
+// *    under the terms of the GNU General Public License as published by
+// *    the Free Software Foundation, either version 3 of the License, or
+// *    (at your option) any later version.
+// *
+// *    Egoboo is distributed in the hope that it will be useful, but
+// *    WITHOUT ANY WARRANTY; without even the implied warranty of
+// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// *    General Public License for more details.
+// *
+// *    You should have received a copy of the GNU General Public License
+// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+// *
+// ********************************************************************************************
 
 /* Egoboo - Clock.c
  * Clock & timer functionality
@@ -32,8 +32,8 @@
 #include <stdlib.h>
 #include <string.h> // memcpy & memset
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // Clock data
 static double ( *clk_timeSource )();  // Function that the clock get it's time values from
 static double clk_sourceStartTime;    // The first value the clock receives from above function
@@ -50,8 +50,8 @@ static int clk_frameHistorySize;
 static int clk_frameHistoryWindow;
 static int clk_frameHistoryHead;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void clk_init()
 {
     log_info( "Initializing clock services...\n" );
@@ -62,7 +62,7 @@ void clk_init()
     clk_setFrameHistoryWindow( 1 );
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void clk_shutdown()
 {
     if ( clk_frameHistory != NULL )
@@ -83,7 +83,7 @@ void clk_shutdown()
     clk_frameHistoryHead = 0;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void clk_setTimeSource( clk_timeSourcePtr_t timeSource )
 {
     clk_timeSource = timeSource;
@@ -94,7 +94,7 @@ void clk_setTimeSource( clk_timeSourcePtr_t timeSource )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void clk_setFrameHistoryWindow( int size )
 {
     double *history;
@@ -121,7 +121,7 @@ void clk_setFrameHistoryWindow( int size )
     clk_frameHistory = history;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 double clk_guessFrameDuration()
 {
     int c;
@@ -137,7 +137,7 @@ double clk_guessFrameDuration()
     return totalTime / clk_frameHistorySize;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void clk_addToFrameHistory( double frame )
 {
     if (NULL == clk_frameHistory) return;
@@ -157,7 +157,7 @@ void clk_addToFrameHistory( double frame )
     }
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 double clk_getExactLastFrameDuration()
 {
     double sourceTime;
@@ -183,7 +183,7 @@ double clk_getExactLastFrameDuration()
     return timeElapsed;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 void clk_frameStep()
 {
     double lastFrame = clk_getExactLastFrameDuration();
@@ -199,25 +199,25 @@ void clk_frameStep()
     clk_frameNumber++;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 double clk_getTime()
 {
     return clk_currentTime;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 double clk_getFrameDuration()
 {
     return clk_frameTime;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 Uint32 clk_getFrameNumber()
 {
     return clk_frameNumber;
 }
 
-//--------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 float clk_getFrameRate()
 {
     return ( float )( 1.0f / clk_frameTime );
