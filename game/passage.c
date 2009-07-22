@@ -444,32 +444,18 @@ bool_t close_passage( Uint16 passage )
 
     // Close it off
 	PassageList[passage].open = bfalse;
-	y = PassageList[passage].toplefty;
-
-	while ( y <= PassageList[passage].bottomrighty )
-    {
-        PassageList[passage].open = bfalse;
-        y = PassageList[passage].toplefty;
-
-        while ( y <= PassageList[passage].bottomrighty )
+    for ( y = PassageList[passage].toplefty; y <= PassageList[passage].bottomrighty; y++ )
+    {        
+        for (x = PassageList[passage].topleftx; x <= PassageList[passage].bottomrightx; x++ )
         {
-            x = PassageList[passage].topleftx;
-
-            while ( x <= PassageList[passage].bottomrightx )
+            fan = mesh_get_tile_int( PMesh, x, y );
+            if ( VALID_TILE(PMesh, fan) )
             {
-                fan = mesh_get_tile_int( PMesh, x, y );
-
-                if ( VALID_TILE(PMesh, fan) )
-                {
-                    PMesh->mmem.tile_list[fan].fx = PMesh->mmem.tile_list[fan].fx | PassageList[passage].mask;
-                }
-                x++;
+                PMesh->mmem.tile_list[fan].fx = PMesh->mmem.tile_list[fan].fx | PassageList[passage].mask;
             }
-            x++;
         }
-
-        y++;
     }
+
 
     return btrue;
 }

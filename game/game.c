@@ -4944,19 +4944,15 @@ void disaffirm_attached_particles( Uint16 character )
 Uint16 number_of_attached_particles( Uint16 character )
 {
     // ZZ> This function returns the number of particles attached to the given character
-    Uint16 cnt, particle;
+    Uint16 cnt = 0;
+	Uint16 particle;
 
-    cnt = 0;
-    particle = 0;
-
-    while ( particle < maxparticles )
+    for ( particle = 0; particle < maxparticles; particle++ )
     {
         if ( PrtList[particle].on && PrtList[particle].attachedtocharacter == character )
         {
             cnt++;
         }
-
-        particle++;
     }
 
     return cnt;
