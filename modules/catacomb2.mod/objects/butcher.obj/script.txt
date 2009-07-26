@@ -98,15 +98,15 @@ IfBumped
 End
 //--------------------------------------------------------------------------------
 
-SetTargetToNearestFriend
-  tmpx = targetdistance
-  tmpy = 100
-  IfXIsLessThanY
-    tmpx = selfx
-    tmpy = selfy
-    tmpturn = targetturnto + 32768		//TargetTurnAway
-    tmpdistance = 200
-    Compass
-    ClearWaypoints
-    AddWaypoint
-SetTargetToOldTarget
+//SetTargetToNearestFriend
+//  tmpx = targetdistance
+//  tmpy = 100
+//  IfXIsLessThanY
+//    tmpx = selfx
+//    tmpy = selfy
+//    tmpturn = targetturnto + 32768		//TargetTurnAway
+//    tmpdistance = 200
+//    Compass
+//    ClearWaypoints
+//    AddWaypoint
+//SetTargetToOldTarget

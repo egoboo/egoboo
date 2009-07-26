@@ -62,6 +62,7 @@ IfXIsLessThanY
 IfTimeOut
   tmpargument = 50
   SetTime
+  
   tmpargument = 0
   SetState			//Ready trap state
 

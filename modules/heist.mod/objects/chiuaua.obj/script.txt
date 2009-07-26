@@ -1,20 +1,11 @@
-SetTargetToNearestLifeform
-  tmpx = targetdistance
-  tmpy = 150
-  IfXIsLessThanY
-    SetTargetToWhoeverIsHolding
-      IfHeldInLeftHand
-        tmpargument = ACTIONTA		//Thrust left
-      Else
-        tmpargument = ACTIONTC		//Thrust right
-      TargetDoAction
-
 // ZZ> This function makes an item fall to the floor when spawned
+
 IfSpawned				//
   tmpargument = ACTIONJB		  //
   DoAction				  //
   KeepAction				  //
   MakeCrushValid
+  
 IfCrushed
   tmpx = selfx
   tmpy = selfy
@@ -27,24 +18,29 @@ IfCrushed
   GoPoof
   tmpargument = 1
   SendMessageNear
+  
 IfDropped				// Make it lie on floor
   KeepAction				  //
   tmpargument = 3			  //
   tmpdistance = rand & 1023 + 10500	  //
   PlaySound				  //
+  
 IfGrabbed				// Tell them what they've won...
   SetTargetToWhoeverIsHolding		  //
   IfTargetIsAPlayer			  //
     tmpargument = 0			  //
     SendMessageNear			  //
+    
 IfHitGround				// Make a sound
   tmpargument = 1			  //
   tmpdistance = rand & 2047 + 10000	  //
   PlaySound				  //
+  
 IfNotDropped
   SetTargetToWhoeverIsHolding
   tmpargument = 2
   SendMessageNear
+  
 IfTakenOut
   tmpargument = 2
   tmpdistance = rand & 2047 + 10000
@@ -53,8 +49,26 @@ IfTakenOut
   IfTargetIsAPlayer
     tmpargument = 4
     SendMessageNear
+    
 IfNotPutAway
   SetTargetToWhoeverIsHolding
   tmpargument = 3
   SendMessageNear
+  
+IfTimeOut
+
+  tmpargument = rand & 15 + 20
+  SetTime
+  
+  SetTargetToNearestLifeform
+    tmpx = targetdistance
+    tmpy = 150
+    IfXIsLessThanY
+      SetTargetToWhoeverIsHolding
+        IfHeldInLeftHand
+          tmpargument = ACTIONTA		//Thrust left
+        Else
+          tmpargument = ACTIONTC		//Thrust right
+        TargetDoAction
+  
 End					// All done

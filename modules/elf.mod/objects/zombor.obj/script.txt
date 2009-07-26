@@ -5,18 +5,18 @@ IfSpawned
   SendMessage
   JoinEvilTeam
 
-//Always target the player
-tmpargument = [ELFF]
-tmpdistance = 2
-SetTargetToNearestBlahID
-  IfTargetIsAPlayer
-    DoNothing
+IfTimeOut
+  //Always target the player
+  tmpargument = [ELFF]
+  tmpdistance = 2
+  SetTargetToNearestBlahID
+    IfTargetIsAPlayer
+      DoNothing
+    Else
+      SetTargetToNearestEnemy
   Else
     SetTargetToNearestEnemy
-Else
-  SetTargetToNearestEnemy
-
-IfTimeOut
+  
   tmpx = targetdistance
   tmpy = 400
   IfXIsMoreThanY
