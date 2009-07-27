@@ -4611,7 +4611,7 @@ bool_t chr_setup_read( FILE * fileread, chr_setup_info_t *pinfo )
     fget_string( fileread, pinfo->spawn_name, SDL_arraysize(pinfo->spawn_name) );
     for ( cnt = 0; cnt < sizeof(pinfo->spawn_name); cnt++ )
     {
-        if ( pinfo->spawn_name[cnt] == '_' )  pinfo->spawn_name[cnt] = ' ';
+        if ( '_' == pinfo->spawn_name[cnt] )  pinfo->spawn_name[cnt] = ' ';
     }
 
     pinfo->pname = pinfo->spawn_name;
@@ -6095,59 +6095,59 @@ void append_end_text( script_state_t * pstate, int message, Uint16 character )
 
         while ( cTmp != 0 )
         {
-            if ( cTmp == '%' )
+            if ( '%' == cTmp )
             {
                 // Escape sequence
                 eread = szTmp;
                 szTmp[0] = 0;
                 cTmp = msgtext[read];  read++;
-                if ( cTmp == 'n' )  // Name
+                if ( 'n' == cTmp )  // Name
                 {
                     if ( ChrList[character].nameknown )
                         sprintf( szTmp, "%s", ChrList[character].name );
                     else
                     {
                         lTmp = CapList[ChrList[character].model].classname[0];
-                        if ( lTmp == 'A' || lTmp == 'E' || lTmp == 'I' || lTmp == 'O' || lTmp == 'U' )
+                        if ( 'A' == lTmp || 'E' == lTmp || 'I' == lTmp || 'O' == lTmp || 'U' == lTmp )
                             sprintf( szTmp, "an %s", CapList[ChrList[character].model].classname );
                         else
                             sprintf( szTmp, "a %s", CapList[ChrList[character].model].classname );
                     }
-                    if ( cnt == 0 && szTmp[0] == 'a' )  szTmp[0] = 'A';
+                    if ( cnt == 0 && 'a' == szTmp[0] )  szTmp[0] = 'A';
                 }
-                if ( cTmp == 'c' )  // Class name
+                if ( 'c' == cTmp )  // Class name
                 {
                     eread = CapList[ChrList[character].model].classname;
                 }
-                if ( cTmp == 't' )  // Target name
+                if ( 't' == cTmp )  // Target name
                 {
                     if ( ChrList[target].nameknown )
                         sprintf( szTmp, "%s", ChrList[target].name );
                     else
                     {
                         lTmp = CapList[ChrList[target].model].classname[0];
-                        if ( lTmp == 'A' || lTmp == 'E' || lTmp == 'I' || lTmp == 'O' || lTmp == 'U' )
+                        if ( 'A' == lTmp || 'E' == lTmp || 'I' == lTmp || 'O' == lTmp || 'U' == lTmp )
                             sprintf( szTmp, "an %s", CapList[ChrList[target].model].classname );
                         else
                             sprintf( szTmp, "a %s", CapList[ChrList[target].model].classname );
                     }
-                    if ( cnt == 0 && szTmp[0] == 'a' )  szTmp[0] = 'A';
+                    if ( cnt == 0 && 'a' == szTmp[0] )  szTmp[0] = 'A';
                 }
-                if ( cTmp == 'o' )  // Owner name
+                if ( 'o' == cTmp )  // Owner name
                 {
                     if ( ChrList[owner].nameknown )
                         sprintf( szTmp, "%s", ChrList[owner].name );
                     else
                     {
                         lTmp = CapList[ChrList[owner].model].classname[0];
-                        if ( lTmp == 'A' || lTmp == 'E' || lTmp == 'I' || lTmp == 'O' || lTmp == 'U' )
+                        if ( 'A' == lTmp || 'E' == lTmp || 'I' == lTmp || 'O' == lTmp || 'U' == lTmp )
                             sprintf( szTmp, "an %s", CapList[ChrList[owner].model].classname );
                         else
                             sprintf( szTmp, "a %s", CapList[ChrList[owner].model].classname );
                     }
-                    if ( cnt == 0 && szTmp[0] == 'a' )  szTmp[0] = 'A';
+                    if ( cnt == 0 && 'a' == szTmp[0] )  szTmp[0] = 'A';
                 }
-                if ( cTmp == 's' )  // Target class name
+                if ( 's' == cTmp )  // Target class name
                 {
                     eread = CapList[ChrList[target].model].classname;
                 }
@@ -6161,47 +6161,47 @@ void append_end_text( script_state_t * pstate, int message, Uint16 character )
                 }
                 else
                 {
-                    if ( cTmp == 'd' )  // tmpdistance value
+                    if ( 'd' == cTmp )  // tmpdistance value
                     {
                         sprintf( szTmp, "%d", pstate->distance );
                     }
-                    if ( cTmp == 'x' )  // tmpx value
+                    if ( 'x' == cTmp )  // tmpx value
                     {
                         sprintf( szTmp, "%d", pstate->x );
                     }
-                    if ( cTmp == 'y' )  // tmpy value
+                    if ( 'y' == cTmp )  // tmpy value
                     {
                         sprintf( szTmp, "%d", pstate->y );
                     }
-                    if ( cTmp == 'D' )  // tmpdistance value
+                    if ( 'D' == cTmp )  // tmpdistance value
                     {
                         sprintf( szTmp, "%2d", pstate->distance );
                     }
-                    if ( cTmp == 'X' )  // tmpx value
+                    if ( 'X' == cTmp )  // tmpx value
                     {
                         sprintf( szTmp, "%2d", pstate->x );
                     }
-                    if ( cTmp == 'Y' )  // tmpy value
+                    if ( 'Y' == cTmp )  // tmpy value
                     {
                         sprintf( szTmp, "%2d", pstate->y );
                     }
 
                 }
-                if ( cTmp == 'a' )  // Character's ammo
+                if ( 'a' == cTmp )  // Character's ammo
                 {
                     if ( ChrList[character].ammoknown )
                         sprintf( szTmp, "%d", ChrList[character].ammo );
                     else
                         sprintf( szTmp, "?" );
                 }
-                if ( cTmp == 'k' )  // Kurse state
+                if ( 'k' == cTmp )  // Kurse state
                 {
                     if ( ChrList[character].iskursed )
                         sprintf( szTmp, "kursed" );
                     else
                         sprintf( szTmp, "unkursed" );
                 }
-                if ( cTmp == 'p' )  // Character's possessive
+                if ( 'p' == cTmp )  // Character's possessive
                 {
                     if ( ChrList[character].gender == GENFEMALE )
                     {
@@ -6219,7 +6219,7 @@ void append_end_text( script_state_t * pstate, int message, Uint16 character )
                         }
                     }
                 }
-                if ( cTmp == 'm' )  // Character's gender
+                if ( 'm' == cTmp )  // Character's gender
                 {
                     if ( ChrList[character].gender == GENFEMALE )
                     {
@@ -6237,7 +6237,7 @@ void append_end_text( script_state_t * pstate, int message, Uint16 character )
                         }
                     }
                 }
-                if ( cTmp == 'g' )  // Target's possessive
+                if ( 'g' == cTmp )  // Target's possessive
                 {
                     if ( ChrList[target].gender == GENFEMALE )
                     {
@@ -6255,7 +6255,7 @@ void append_end_text( script_state_t * pstate, int message, Uint16 character )
                         }
                     }
                 }
-                if ( cTmp == '#' )  // New line (enter)
+                if ( '#' == cTmp )  // New line (enter)
                 {
                     sprintf( szTmp, "\n" );
                 }

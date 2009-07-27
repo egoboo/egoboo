@@ -259,13 +259,13 @@ bool_t module_load_info( const char * szLoadName, mod_data_t * pmod )
         fget_next_string( fileread, szLine, SDL_arraysize(szLine) );
 
         tnc = 0;
-        cTmp = szLine[tnc];  if ( cTmp == '_' )  cTmp = ' ';
+        cTmp = szLine[tnc];  if ( '_' == cTmp )  cTmp = ' ';
         while ( tnc < SUMMARYSIZE - 1 && cTmp != 0 )
         {
             pmod->summary[cnt][tnc] = cTmp;
             tnc++;
 
-            cTmp = szLine[tnc];  if ( cTmp == '_' )  cTmp = ' ';
+            cTmp = szLine[tnc];  if ( '_' == cTmp )  cTmp = ' ';
         }
 
         pmod->summary[cnt][tnc] = '\0';

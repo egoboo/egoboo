@@ -47,7 +47,7 @@ IDSZ fget_idsz( FILE* fileread )
 
     IDSZ idsz = IDSZ_NONE;
     char cTmp = fget_first_letter( fileread );
-    if ( cTmp == '[' )
+    if ( '[' == cTmp )
     {
         idsz = 0;
         cTmp = ( fgetc( fileread ) - 'A' ) & 0x1F;  idsz |= cTmp << 15;
@@ -323,7 +323,7 @@ void funderf( FILE* filewrite, const char* text, const char* usename )
     cnt++;
     while ( cTmp != 0 )
     {
-        if ( cTmp == ' ' )
+        if ( ' ' == cTmp )
         {
             fprintf( filewrite, "_" );
         }
@@ -352,7 +352,7 @@ bool_t fget_pair( FILE* fileread )
     pairbase = fBase * 256;
 
     cTmp = fget_first_letter( fileread );  // The hyphen
-    if ( cTmp != '-' )
+    if ( '-' != cTmp )
     {
         // Not in correct format, so fail
         pairrand = 1;

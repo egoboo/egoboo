@@ -603,7 +603,7 @@ bool_t input_settings_load( const char *szFilename )
     {
         fget_next_string( fileread, currenttag, SDL_arraysize(currenttag) );
         controls[INPUT_DEVICE_KEYBOARD].control[i].tag    = scantag_get_value( currenttag );
-        controls[INPUT_DEVICE_KEYBOARD].control[i].is_key = ( currenttag[0] == 'K' );
+        controls[INPUT_DEVICE_KEYBOARD].control[i].is_key = ( 'K' == currenttag[0] );
     };
     controls[INPUT_DEVICE_KEYBOARD].device = INPUT_DEVICE_KEYBOARD;
     controls[INPUT_DEVICE_KEYBOARD].count = i;
@@ -614,7 +614,7 @@ bool_t input_settings_load( const char *szFilename )
     {
         fget_next_string( fileread, currenttag, SDL_arraysize(currenttag) );
         controls[INPUT_DEVICE_MOUSE].control[i].tag    = scantag_get_value( currenttag );
-        controls[INPUT_DEVICE_MOUSE].control[i].is_key = ( currenttag[0] == 'K' );
+        controls[INPUT_DEVICE_MOUSE].control[i].is_key = ( 'K' == currenttag[0] );
     };
     controls[INPUT_DEVICE_MOUSE].device = INPUT_DEVICE_MOUSE;
     controls[INPUT_DEVICE_MOUSE].count = i;
@@ -627,7 +627,7 @@ bool_t input_settings_load( const char *szFilename )
         {
             fget_next_string( fileread, currenttag, SDL_arraysize(currenttag) );
             controls[INPUT_DEVICE_JOY + cnt].control[i].tag    = scantag_get_value( currenttag );
-            controls[INPUT_DEVICE_JOY + cnt].control[i].is_key = ( currenttag[0] == 'K' );
+            controls[INPUT_DEVICE_JOY + cnt].control[i].is_key = ( 'K' == currenttag[0] );
         };
         controls[INPUT_DEVICE_JOY + cnt].device = INPUT_DEVICE_JOY + cnt;
         controls[INPUT_DEVICE_JOY + cnt].count = i;

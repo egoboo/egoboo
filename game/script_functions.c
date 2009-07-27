@@ -5394,11 +5394,8 @@ Uint8 scr_IdentifyTarget( script_state_t * pstate, ai_state_t * pself )
     returncode = bfalse;
     sTmp = pself->target;
     if ( ChrList[sTmp].ammomax != 0 )  ChrList[sTmp].ammoknown = btrue;
-    if ( ChrList[sTmp].name[0] != 'B' ||
-            ChrList[sTmp].name[1] != 'l' ||
-            ChrList[sTmp].name[2] != 'a' ||
-            ChrList[sTmp].name[3] != 'h' ||
-            ChrList[sTmp].name[4] != 0 )
+    if ( 'B'  != ChrList[sTmp].name[0] || 'l'  != ChrList[sTmp].name[1] ||
+         'a'  != ChrList[sTmp].name[2] || 'h'  != ChrList[sTmp].name[3] || '\0' != ChrList[sTmp].name[4] )
     {
         returncode = !ChrList[sTmp].nameknown;
         ChrList[sTmp].nameknown = btrue;

@@ -780,7 +780,7 @@ void net_copyDirectoryToHost( const char *dirname, const char *todirname )
             // directories, /., and /.. from being copied
             // Also avoid copying directories in general.
             sprintf( fromname, "%s" SLASH_STR "%s", dirname, searchResult );
-            if ( searchResult[0] == '.' || fs_fileIsDirectory( fromname ) )
+            if ( '.' == searchResult[0] || fs_fileIsDirectory( fromname ) )
             {
                 searchResult = fs_findNextFile();
                 continue;
@@ -821,7 +821,7 @@ void net_copyDirectoryToAllPlayers( const char *dirname, const char *todirname )
             // If a file begins with a dot, assume it's something
             // that we don't want to copy.  This keeps repository
             // directories, /., and /.. from being copied
-            if ( searchResult[0] == '.' )
+            if ( '.' == searchResult[0] )
             {
                 searchResult = fs_findNextFile();
                 continue;

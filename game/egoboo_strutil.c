@@ -125,7 +125,7 @@ char * str_encode( char *strout, size_t insize, const char * strin )
             pin++;
             pout++;
         }
-        else if ( chrlast != '_' )
+        else if ( '_' != chrlast )
         {
             chrlast = *pout = '_';
             pin++;
@@ -192,7 +192,7 @@ char * str_append_slash_net(char * str, size_t size)
     if ( INVALID_CSTR(str) ) return str;
 
     len = strlen( str );
-    if ( str[len-1] != '/' && str[len-1] != '\\' )
+    if ( '/' != str[len-1] && '\\' != str[len-1] )
     {
         strncat(str, NET_SLASH_STR, size);
     }
@@ -210,7 +210,7 @@ char * str_append_slash(char * str, size_t size)
     if ( INVALID_CSTR(str) ) return NULL;
 
     len = strlen( str );
-    if ( str[len-1] != '/' && str[len-1] != '\\' )
+    if ( '/' != str[len-1] && '\\' != str[len-1] )
     {
         strncat(str, SLASH_STR, size);
     }

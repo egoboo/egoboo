@@ -329,59 +329,59 @@ void display_message( script_state_t * pstate, int message, Uint16 character )
 
         while ( cTmp != 0 )
         {
-            if ( cTmp == '%' )
+            if ( '%' == cTmp )
             {
                 // Escape sequence
                 eread = szTmp;
                 szTmp[0] = 0;
                 cTmp = msgtext[read];  read++;
-                if ( cTmp == 'n' )  // Name
+                if ( 'n' == cTmp )  // Name
                 {
                     if ( ChrList[character].nameknown )
                         sprintf( szTmp, "%s", ChrList[character].name );
                     else
                     {
                         lTmp = CapList[ChrList[character].model].classname[0];
-                        if ( lTmp == 'A' || lTmp == 'E' || lTmp == 'I' || lTmp == 'O' || lTmp == 'U' )
+                        if ( 'A' == lTmp || 'E' == lTmp || 'I' == lTmp || 'O' == lTmp || 'U' == lTmp )
                             sprintf( szTmp, "an %s", CapList[ChrList[character].model].classname );
                         else
                             sprintf( szTmp, "a %s", CapList[ChrList[character].model].classname );
                     }
-                    if ( cnt == 0 && szTmp[0] == 'a' )  szTmp[0] = 'A';
+                    if ( cnt == 0 && 'a' == szTmp[0] )  szTmp[0] = 'A';
                 }
-                if ( cTmp == 'c' )  // Class name
+                if ( 'c' == cTmp )  // Class name
                 {
                     eread = CapList[ChrList[character].model].classname;
                 }
-                if ( cTmp == 't' )  // Target name
+                if ( 't' == cTmp )  // Target name
                 {
                     if ( ChrList[target].nameknown )
                         sprintf( szTmp, "%s", ChrList[target].name );
                     else
                     {
                         lTmp = CapList[ChrList[target].model].classname[0];
-                        if ( lTmp == 'A' || lTmp == 'E' || lTmp == 'I' || lTmp == 'O' || lTmp == 'U' )
+                        if ( 'A' == lTmp || 'E' == lTmp || 'I' == lTmp || 'O' == lTmp || 'U' == lTmp )
                             sprintf( szTmp, "an %s", CapList[ChrList[target].model].classname );
                         else
                             sprintf( szTmp, "a %s", CapList[ChrList[target].model].classname );
                     }
-                    if ( cnt == 0 && szTmp[0] == 'a' )  szTmp[0] = 'A';
+                    if ( cnt == 0 && 'a' == szTmp[0] )  szTmp[0] = 'A';
                 }
-                if ( cTmp == 'o' )  // Owner name
+                if ( 'o' == cTmp )  // Owner name
                 {
                     if ( ChrList[owner].nameknown )
                         sprintf( szTmp, "%s", ChrList[owner].name );
                     else
                     {
                         lTmp = CapList[ChrList[owner].model].classname[0];
-                        if ( lTmp == 'A' || lTmp == 'E' || lTmp == 'I' || lTmp == 'O' || lTmp == 'U' )
+                        if ( 'A' == lTmp || 'E' == lTmp || 'I' == lTmp || 'O' == lTmp || 'U' == lTmp )
                             sprintf( szTmp, "an %s", CapList[ChrList[owner].model].classname );
                         else
                             sprintf( szTmp, "a %s", CapList[ChrList[owner].model].classname );
                     }
-                    if ( cnt == 0 && szTmp[0] == 'a' )  szTmp[0] = 'A';
+                    if ( cnt == 0 && 'a' == szTmp[0] )  szTmp[0] = 'A';
                 }
-                if ( cTmp == 's' )  // Target class name
+                if ( 's' == cTmp )  // Target class name
                 {
                     eread = CapList[ChrList[target].model].classname;
                 }
@@ -391,47 +391,47 @@ void display_message( script_state_t * pstate, int message, Uint16 character )
                 }
                 if ( NULL != pstate )
                 {
-                    if ( cTmp == 'd' )  // tmpdistance value
+                    if ( 'd' == cTmp )  // tmpdistance value
                     {
                         sprintf( szTmp, "%d", pstate->distance );
                     }
-                    if ( cTmp == 'x' )  // tmpx value
+                    if ( 'x' == cTmp )  // tmpx value
                     {
                         sprintf( szTmp, "%d", pstate->x );
                     }
-                    if ( cTmp == 'y' )  // tmpy value
+                    if ( 'y' == cTmp )  // tmpy value
                     {
                         sprintf( szTmp, "%d", pstate->y );
                     }
-                    if ( cTmp == 'D' )  // tmpdistance value
+                    if ( 'D' == cTmp )  // tmpdistance value
                     {
                         sprintf( szTmp, "%2d", pstate->distance );
                     }
-                    if ( cTmp == 'X' )  // tmpx value
+                    if ( 'X' == cTmp )  // tmpx value
                     {
                         sprintf( szTmp, "%2d", pstate->x );
                     }
-                    if ( cTmp == 'Y' )  // tmpy value
+                    if ( 'Y' == cTmp )  // tmpy value
                     {
                         sprintf( szTmp, "%2d", pstate->y );
                     }
                 }
 
-                if ( cTmp == 'a' )  // Character's ammo
+                if ( 'a' == cTmp )  // Character's ammo
                 {
                     if ( ChrList[character].ammoknown )
                         sprintf( szTmp, "%d", ChrList[character].ammo );
                     else
                         sprintf( szTmp, "?" );
                 }
-                if ( cTmp == 'k' )  // Kurse state
+                if ( 'k' == cTmp )  // Kurse state
                 {
                     if ( ChrList[character].iskursed )
                         sprintf( szTmp, "kursed" );
                     else
                         sprintf( szTmp, "unkursed" );
                 }
-                if ( cTmp == 'p' )  // Character's possessive
+                if ( 'p' == cTmp )  // Character's possessive
                 {
                     if ( ChrList[character].gender == GENFEMALE )
                     {
@@ -449,7 +449,7 @@ void display_message( script_state_t * pstate, int message, Uint16 character )
                         }
                     }
                 }
-                if ( cTmp == 'm' )  // Character's gender
+                if ( 'm' == cTmp )  // Character's gender
                 {
                     if ( ChrList[character].gender == GENFEMALE )
                     {
@@ -467,7 +467,7 @@ void display_message( script_state_t * pstate, int message, Uint16 character )
                         }
                     }
                 }
-                if ( cTmp == 'g' )  // Target's possessive
+                if ( 'g' == cTmp )  // Target's possessive
                 {
                     if ( ChrList[target].gender == GENFEMALE )
                     {
@@ -1326,10 +1326,9 @@ void font_load( const char* szBitmap, const char* szSpacing )
     // Uniform font height is at the top
     yspacing = fget_next_int( fileread );
     fontoffset = yspacing;
-
     for ( cnt = 0; cnt < NUMFONT && goto_colon( NULL, fileread, btrue ); cnt++ )
     {
-        cTmp = fget_first_letter( fileread );
+        fscanf( fileread, "%c", &cTmp );
         xspacing = fget_int( fileread );
         if ( asciitofont[(Uint8)cTmp] == 255 ) asciitofont[(Uint8)cTmp] = (Uint8) cnt;
         if ( stt_x + xspacing + 1 > 255 )
@@ -2863,12 +2862,12 @@ int write_draw_string( int x, int y, const char *format, va_list args  )
         while ( '\0' != cTmp )
         {
             // Convert ASCII to our own little font
-            if ( cTmp == '~' )
+            if ( '~' == cTmp )
             {
                 // Use squiggle for tab
                 x = (x & TABAND) + TABADD;
             }
-            else if ( cTmp == '\n' )
+            else if ( '\n' == cTmp )
             {
                 x  = x_stt;
                 y += fontyspacing;
@@ -2940,13 +2939,13 @@ int length_of_word( const char *szText )
     int cnt = 0;
     Uint8 cTmp = szText[cnt];
 
-    while ( cTmp == ' ' || cTmp == '~' || cTmp == '\n' )
+    while ( ' ' == cTmp || '~' == cTmp || '\n' == cTmp )
     {
-        if ( cTmp == ' ' )
+        if ( ' ' == cTmp )
         {
             x += fontxspacing[asciitofont[cTmp]];
         }
-        else if ( cTmp == '~' )
+        else if ( '~' == cTmp )
         {
             x = (x & TABAND) + TABADD;
         }
@@ -2955,7 +2954,7 @@ int length_of_word( const char *szText )
         cTmp = szText[cnt];
     }
 
-    while ( cTmp != ' ' && cTmp != '~' && cTmp != '\n' && cTmp != 0 )
+    while ( ' ' != cTmp && '~' != cTmp && '\n' != cTmp && cTmp != 0 )
     {
         x += fontxspacing[asciitofont[cTmp]];
         cnt++;
@@ -2995,7 +2994,7 @@ int draw_wrap_string( const char *szText, int x, int y, int maxx )
                 y += fontyspacing;
                 newy += fontyspacing;
 
-                while ( cTmp == ' ' || cTmp == '~' )
+                while ( ' ' == cTmp || '~' == cTmp )
                 {
                     cTmp = szText[cnt];
                     cnt++;
@@ -3004,12 +3003,12 @@ int draw_wrap_string( const char *szText, int x, int y, int maxx )
         }
         else
         {
-            if ( cTmp == '~' )
+            if ( '~' == cTmp )
             {
                 // Use squiggle for tab
                 x = (x & TABAND) + TABADD;
             }
-            else if ( cTmp == '\n' )
+            else if ( '\n' == cTmp )
             {
                 x = stt_x;
                 y += fontyspacing;
@@ -3024,7 +3023,7 @@ int draw_wrap_string( const char *szText, int x, int y, int maxx )
             }
 
             cTmp = szText[cnt];
-            if ( cTmp == '~' || cTmp == ' ' )
+            if ( '~' == cTmp || ' ' == cTmp )
             {
                 newword = btrue;
             }
@@ -3062,7 +3061,7 @@ int draw_status( Uint16 character, int x, int y )
     for ( cnt = 0; cnt < 6; cnt++ )
     {
         cTmp = readtext[cnt];
-        if ( cTmp == ' ' || cTmp == '\0' )
+        if ( ' ' == cTmp || '\0' == cTmp )
         {
             generictext[cnt] = '\0';
             break;

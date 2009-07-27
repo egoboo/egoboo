@@ -331,7 +331,7 @@ size_t ConfigFile_ReadSectionName( ConfigFilePtr_t pConfigFile, ConfigFileSectio
     lc = fgetc( pConfigFile->f );
     memset( pSection->SectionName, 0, MAX_CONFIG_SECTION_LENGTH );
 
-    while ( lc != '}' && 0 == feof( pConfigFile->f ) )
+    while ( '}' != lc && 0 == feof( pConfigFile->f ) )
     {
         if ( lLengthName < MAX_CONFIG_SECTION_LENGTH )
         {
@@ -364,7 +364,7 @@ size_t ConfigFile_ReadKeyName( ConfigFilePtr_t pConfigFile, ConfigFileValuePtr_t
     lc = fgetc( pConfigFile->f );
     memset( pValue->KeyName, 0, MAX_CONFIG_KEY_LENGTH );
 
-    while ( lc != ']' && 0 == feof( pConfigFile->f ) )
+    while ( ']' != lc && 0 == feof( pConfigFile->f ) )
     {
         if ( lLengthName < MAX_CONFIG_KEY_LENGTH )
         {
@@ -408,7 +408,7 @@ ConfigFile_retval ConfigFile_ReadValue( ConfigFilePtr_t pConfigFile, ConfigFileV
             case 0:
 
                 // search for _dtor of string '"'
-                if ( lc == '"' )
+                if ( '"' == lc )
                 {
                     // state change :
                     lState = 1;
@@ -432,7 +432,7 @@ ConfigFile_retval ConfigFile_ReadValue( ConfigFilePtr_t pConfigFile, ConfigFileV
             case 1:
 
                 // check if really _dtor of string
-                if ( lc == '"' )
+                if ( '"' == lc )
                 {
                     // add '"' in string
                     if ( lLengthName < MAX_CONFIG_VALUE_LENGTH )
@@ -496,7 +496,7 @@ ConfigFile_retval ConfigFile_ReadCommentary( ConfigFilePtr_t pConfigFile, Config
             case 0:
 
                 // search for _dtor of string '"'
-                if ( lc == '/' ||  lc == ' ' )
+                if ( '/' == lc ||  ' ' == lc )
                 {
                     // continue scan until a letter appears
                 }
@@ -612,7 +612,7 @@ ConfigFile_retval ConfigFile_read( ConfigFilePtr_t pConfigFile )
             case 0:
 
                 // search for section ( _ctor )
-                if ( lc == '{' )
+                if ( '{' == lc )
                 {
                     // create first section and load name
                     lCurSection = ConfigFile_createSection(pConfigFile, lCurSection);
@@ -621,7 +621,7 @@ ConfigFile_retval ConfigFile_read( ConfigFilePtr_t pConfigFile )
                     // state change : look for new value or section
                     lState = 1;
                 }
-                else if ( lc == '/' )
+                else if ( '/' == lc )
                 {
                     // pass over commentary ( bad!!! will be lost )
                     ConfigFile_ReadCommentary( pConfigFile, lCurValue );
@@ -631,20 +631,20 @@ ConfigFile_retval ConfigFile_read( ConfigFilePtr_t pConfigFile )
             case 1:
 
                 // search for next value ( key name ) or next section
-                if ( lc == '{' )
+                if ( '{' == lc )
                 {
                     // create new section and load name
                     lCurSection = ConfigFile_createSection(pConfigFile, lCurSection);
                     lCurValue   = NULL;
                 }
-                else if ( lc == '[' )
+                else if ( '[' == lc )
                 {
                     lCurValue = ConfigFile_createValue(pConfigFile, lCurSection, lCurValue);
 
                     // state change : get value
                     lState = 2;
                 }
-                else if ( lc == '/' )
+                else if ( '/' == lc )
                 {
                     // pass over commentary ( bad!!! will be lost )
                     ConfigFile_ReadCommentary( pConfigFile, lCurValue );
@@ -654,7 +654,7 @@ ConfigFile_retval ConfigFile_read( ConfigFilePtr_t pConfigFile )
             case 2:
 
                 // search for value
-                if ( lc == '"' )
+                if ( '"' == lc )
                 {
                     // load value in current value
                     ConfigFile_ReadValue( pConfigFile, lCurValue );
@@ -666,7 +666,7 @@ ConfigFile_retval ConfigFile_read( ConfigFilePtr_t pConfigFile )
             case 3:
 
                 // search for commentary
-                if ( lc == '/' )
+                if ( '/' == lc )
                 {
                     // load commentary in current value
                     ConfigFile_ReadCommentary( pConfigFile, lCurValue );
@@ -1032,7 +1032,7 @@ ConfigFile_retval ConfigValue_write( FILE *pFile, ConfigFileValuePtr_t pValue )
     while ( pValue->Value[lPos] != 0 )
     {
         fputc( pValue->Value[lPos], pFile );
-        if ( pValue->Value[lPos] == '"' )
+        if ( '"' == pValue->Value[lPos] )
         {
             // double the '"'
             fputc( '"', pFile );

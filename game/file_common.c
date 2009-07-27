@@ -46,7 +46,7 @@ void fs_removeDirectoryAndContents( const char *dirname )
     while ( fileName != NULL )
     {
         // Ignore files that start with a ., like .svn for example.
-        if ( fileName[0] != '.' )
+        if ( '.' != fileName[0] )
         {
             snprintf( filePath, MAX_PATH, "%s" SLASH_STR "%s", dirname, fileName );
             if ( fs_fileIsDirectory( filePath ) )
@@ -82,7 +82,7 @@ void fs_copyDirectory( const char *sourceDir, const char *destDir )
         while ( fileName != NULL)
         {
             // Ignore files that begin with a .
-            if ( fileName[0] != '.' )
+            if ( '.' != fileName[0] )
             {
                 snprintf( srcPath, MAX_PATH, "%s" SLASH_STR "%s", sourceDir, fileName );
                 snprintf( destPath, MAX_PATH, "%s" SLASH_STR "%s", destDir, fileName );

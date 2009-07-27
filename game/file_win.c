@@ -166,7 +166,7 @@ const char *fs_findFirstFile( const char *searchDir, const char *searchExtension
     size_t len;
 
     len = strlen( searchDir ) + 1;
-    if ( searchDir[len] != '/' || searchDir[len] != '\\' )
+    if ( '/' != searchDir[len] || '\\' != searchDir[len] )
     {
         _snprintf( searchSpec, MAX_PATH, "%s" SLASH_STR, searchDir );
     }
@@ -240,7 +240,7 @@ void empty_import_directory( void )
         fileName = wfdData.cFileName;
 
         // Ignore files that start with a ., like .svn for example.
-        if ( fileName[0] != '.' )
+        if ( '.' != fileName[0] )
         {
             _snprintf( filePath, MAX_PATH, "import" SLASH_STR "%s", fileName );
             if ( fs_fileIsDirectory( filePath ) )

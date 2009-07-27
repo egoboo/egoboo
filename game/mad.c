@@ -711,7 +711,7 @@ void get_message( FILE* fileread )
     cnt = 1;
     while ( '\0' != cTmp && msgtotalindex < MESSAGEBUFFERSIZE - 1 )
     {
-        if ( cTmp == '_' )  cTmp = ' ';
+        if ( '_' == cTmp )  cTmp = ' ';
 
         msgtext[msgtotalindex] = cTmp;
         msgtotalindex++;

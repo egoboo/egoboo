@@ -172,7 +172,7 @@ int load_one_line( int read )
             break;
         }
 
-        if ( cTmp == '/' && cLoadBuffer[read] == '/' )
+        if ( '/' == cTmp && '/' == cLoadBuffer[read] )
         {
             break;
         }
@@ -219,7 +219,7 @@ int load_one_line( int read )
             read += 2;
             break;
         }
-        else if ( cLoadBuffer[read] == '\0' || 0x0a == cLoadBuffer[read] || 0x0d == cLoadBuffer[read] )
+        else if ( '\0' == cLoadBuffer[read] || 0x0a == cLoadBuffer[read] || 0x0d == cLoadBuffer[read] )
         {
             read += 1;
             break;
@@ -288,9 +288,9 @@ void fix_operators()
     while ( cnt < iLineSize )
     {
         cTmp = cLineBuffer[cnt];
-        if ( cTmp == '+' || cTmp == '-' || cTmp == '/' || cTmp == '*' ||
-                cTmp == '%' || cTmp == '>' || cTmp == '<' || cTmp == '&' ||
-                cTmp == '=' )
+        if ( '+' == cTmp || '-' == cTmp || '/' == cTmp || '*' == cTmp ||
+                '%' == cTmp || '>' == cTmp || '<' == cTmp || '&' == cTmp ||
+                '=' == cTmp )
         {
             surround_space( cnt );
             cnt++;
@@ -331,7 +331,7 @@ int parse_token( int read )
 
     // Load the word into the other buffer
     wordsize = 0;
-    while ( !isspace(cTmp) && cTmp != '\0' )
+    while ( !isspace(cTmp) && '\0' != cTmp )
     {
         Token_cWord[wordsize] = cTmp;  wordsize++;
         read++;
@@ -349,7 +349,7 @@ int parse_token( int read )
     }
 
     // Check for IDSZ constant
-    if ( Token_cWord[0] == '[' )
+    if ( '[' == Token_cWord[0] )
     {
         idsz = 0;
 
@@ -674,7 +674,7 @@ int ai_goto_colon( int read )
 
     cTmp = cLoadBuffer[read];
 
-    while ( cTmp != ':' && read < iLoadSize )
+    while ( ':' != cTmp && read < iLoadSize )
     {
         read++;  cTmp = cLoadBuffer[read];
     }
@@ -816,7 +816,7 @@ void init_all_ai_scripts()
 //    iLineSize = 0;
 //    cTmp = cLoadBuffer[read];
 //
-//    while ( cTmp != '\0' )
+//    while ( '\0' != cTmp )
 //    {
 //        cLineBuffer[iLineSize] = cTmp;  iLineSize++;
 //        read++;  cTmp = cLoadBuffer[read];

@@ -2304,7 +2304,7 @@ bool_t export_one_character_name( const char *szSaveName, Uint16 character )
 
         while ( tnc < 8 && cTmp != 0 )
         {
-            if ( cTmp == ' ' )
+            if ( ' ' == cTmp )
             {
                 fprintf( filewrite, "_" );
             }
@@ -4689,7 +4689,7 @@ Sint16 modify_quest_idsz( const char *whichplayer, IDSZ idsz, Sint16 adjustment 
         {
             ctmp = fgetc(fileread);
             ungetc(ctmp, fileread);
-            if ( ctmp == '/' )
+            if ( '/' == ctmp )
             {
                 // copy comments exactly
                 fcopy_line(fileread, filewrite);
@@ -5863,7 +5863,7 @@ void chop_load( Uint16 profile, const char *szLoadname )
         {
             fget_string( fileread, mychop, SDL_arraysize(mychop) );
 
-            if ( strcmp(mychop, "STOP") ) // mychop[0] != 'S' || mychop[1] != 'T' || mychop[2] != 'O' || mychop[3] != 'P' )
+            if ( strcmp(mychop, "STOP") )
             {
                 if ( chop.carat >= CHOPDATACHUNK )  chop.carat = CHOPDATACHUNK - 1;
 
@@ -5873,7 +5873,7 @@ void chop_load( Uint16 profile, const char *szLoadname )
 
                 while ( cTmp != 0 && cnt < 31 && chop.carat < CHOPDATACHUNK )
                 {
-                    if ( cTmp == '_' ) cTmp = ' ';
+                    if ( '_' == cTmp ) cTmp = ' ';
 
                     chop.buffer[chop.carat] = cTmp;
                     cnt++;
