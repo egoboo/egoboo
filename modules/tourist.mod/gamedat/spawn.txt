@@ -17,14 +17,14 @@ spikedtrap.obj:   NONE    43  41.5   52.0   1.0   E    0   0  0   11   0   F   F
 spikedtrap.obj:   NONE    43  36.0   54.0   1.0   N    0   0  0   3   0   F   F   E
 spikedtrap.obj:   NONE    43  36.0   58.0   1.0   N    0   0  0   7   0   F   F   E
 spikedtrap.obj:   NONE    43  44.0   52.0   1.0   E    0   0  0   8   0   F   F   E
-spikedtrap.obj:   NONE    43  42.5   52.0   1.0   W    0   0  0   9   0   F   F   E
+spikedtrap.obj:   NONE    43  43.0   52.0   1.0   W    0   0  0   9   0   F   F   E
 spikedtrap.obj:   NONE    43  36.0   57.0   1.0   N    0   0  0   6   0   F   F   E
 spikedtrap.obj:   NONE    43  36.0   55.0   1.0   N    0   0  0   4   0   F   F   E
 spikedtrap.obj:   NONE    43  36.0   53.0   1.0   N    0   0  0   2   0   F   F   E
 spikedtrap.obj:   NONE    43  36.0   51.0   1.0   N    0   0  0   0   0   F   F   E
 spikedtrap.obj:   NONE    43  36.0   52.0   1.0   N    0   0  0   1   0   F   F   E
-spikedtrap.obj:   NONE    43  41.5   52.0   1.0   W    0   0  0   10   0   F   F   E
-spikedtrap.obj:   NONE    43  44.5   52.0   1.0   E    0   0  0   11   0   F   F   E
+spikedtrap.obj:   NONE    43  42.0   52.0   1.0   W    0   0  0   10   0   F   F   E
+spikedtrap.obj   NONE    43  45.0   52.0   1.0   E    0   0  0   11   0   F   F   E
 spikedtrap.obj:   NONE    43  41.0   52.0   1.0   E    0   0  0   12   0   F   F   E
 spikedtrap.obj:   NONE    43  36.0   56.0   1.0   N    0   0  0   5   0   F   F   E
 switch.obj:   NONE    53  43.5   56.0   0.0   N    0   0  0   0   0   F   F   N

@@ -1,25 +1,24 @@
 //         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
-unknown:   NONE    0  24.0   8.5   1.0   S    0   0  0   0   0   T   F   G
-unknown:   NONE    1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-unknown:   NONE    2  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-unknown:   NONE    3  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-unknown:   NONE    4  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-unknown:   NONE    5  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-unknown:   NONE    6  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-warham.obj:   NONE    53  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-lamp.obj:   NONE    49  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+Paladin.obj:   NONE    0  24.0   8.5   1.0   S    0   0  0   0   0   T   F   G
+  warham.obj:   NONE    53  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  lamp.obj:   NONE    49  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+
 moduletool.obj:   NONE    80  24.0   10.0   3.0   N    0   0  0   0   0   F   F   N
+
 ulna.obj:   NONE    37  12.0   8.0   1.0   N    6   0  0   0   0   F   F   E
-hatchet.obj:   NONE    42  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  hatchet.obj:   NONE    42  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 ulna.obj:   NONE    37  36.5   8.5   1.0   N    3   0  0   1   0   F   F   E
-torch.obj:   NONE    47  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  torch.obj:   NONE    47  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 brazier.obj:   NONE    39  26.5   10.5   0.0   N    0   0  0   0   0   F   F   N
+
 ulna.obj:   NONE    37  24.5   24.5   1.0   N    1   0  0   1   0   F   F   E
 ulna.obj:   NONE    37  23.5   22.5   1.0   N    2   0  0   0   0   F   F   E
-sword.obj:   NONE    45  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  sword.obj:   NONE    45  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+
 normalchest.obj:   NONE    67  38.0   51.5   1.0   N    4   0  0   0   0   F   F   N
-sword.obj:   NONE    45  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-lpotion.obj:   NONE    50  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  sword.obj:   NONE    45  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  lpotion.obj:   NONE    50  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+
 brazier.obj:   NONE    39  20.5   34.5   1.0   N    0   0  0   0   0   F   F   N
 brazier.obj:   NONE    39  27.5   34.5   1.0   N    0   0  0   0   0   F   F   N
 brazier.obj:   NONE    39  27.5   44.5   1.0   N    0   0  0   0   0   F   F   N
@@ -98,4 +97,4 @@ tomb.obj:   NONE    51  47.5   28.0   1.0   E    0   0  0   0   0   F   F   N
 keya.obj:   NONE    43  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
 gelfeet.obj:   NONE    57  12.0   55.0   1.0   N    0   0  0   0   0   F   F   E
-keya.obj:   NONE    43  12.0   55.0   0.5   N    0   0  0   0   0   F   F   N
+  keya.obj:   NONE    43  12.0   55.0   0.5   N    0   0  0   0   0   F   F   N

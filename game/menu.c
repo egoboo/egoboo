@@ -1721,7 +1721,7 @@ int doGameOptions( float deltaTime )
                     fnt_drawTextBox( menuFont, "CHALLENGING (Normal)\n - 15% XP loss upon death \n - 15% money loss upon death", buttonLeft, 100, 0, 0, 20 );
                     break;
                 case GAME_HARD:
-                    fnt_drawTextBox( menuFont, "PUNISHING (Hard)\n - 15% XP loss upon death\n - 15% money loss upon death\n - No respawning\n - Channeling life can kill you\n - Players take 50% more damage\n - Monsters award 10% extra xp!\n - Doubles the chance for Kursed items", buttonLeft, 100, 0, 0, 20 );
+                    fnt_drawTextBox( menuFont, "PUNISHING (Hard)\n - 15% XP loss upon death\n - 15% money loss upon death\n - No respawning\n - Channeling life can kill you\n - Players take 25% more damage\n - Monsters award 10% extra xp!\n - Doubles the chance for Kursed items", buttonLeft, 100, 0, 0, 20 );
                     break;
             }
 
@@ -3435,14 +3435,7 @@ int mnu_get_menu_depth()
 // --------------------------------------------------------------------------------------------
 bool_t menu_stack_push( int menu )
 {
-    if ( menu_stack_index < 0 )
-    {
-        menu_stack_index = 0;
-    }
-    if (menu_stack_index > MENU_STACK_COUNT)
-    {
-        menu_stack_index = MENU_STACK_COUNT;
-    }
+	menu_stack_index = CLIP( menu_stack_index, 0, MENU_STACK_COUNT) ;
 
     if ( menu_stack_index >= MENU_STACK_COUNT ) return bfalse;
 

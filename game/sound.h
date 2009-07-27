@@ -38,7 +38,8 @@ struct s_egoboo_config;
 #define MAX_WAVE           30             // Up to 30 wave/ogg per model
 #define VOLUMERATIO        7             // Volume ratio
 #define MAXPLAYLISTLENGTH 35             // Max number of different tracks loaded into memory
-
+#define INVALID_SOUND -1
+#define MENU_SONG			0			 //default music theme played when in the menu
 // --------------------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------------------
 // BB > enumerated "speech" sounds, so that we COULD ge the scripts to classify which
@@ -85,8 +86,6 @@ typedef enum e_global_sounds
     GSND_PITFALL,
     GSND_COUNT
 } GSND_GLOBAL;
-
-#define INVALID_SOUND -1
 
 // --------------------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------------------

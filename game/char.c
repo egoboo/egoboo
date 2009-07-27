@@ -543,7 +543,7 @@ void make_one_weapon_matrix( Uint16 iweap, Uint16 iholder, bool_t do_physics )
     {
         float dx, dy, dz;
         float wt_weap, wt_holder, damp = 0.5f;
-        GLvector3 vcom;
+        //GLvector3 vcom;
 
         // calculate the "tweety bird swinging a sledgehammer" effect
 
@@ -3184,18 +3184,17 @@ int load_one_character_profile( const char * tmploadname )
 // --------------------------------------------------------------------------------------------
 bool_t heal_character( Uint16 character, Uint16 healer, int amount, bool_t ignoreinvincible)
 {
-    //ZF> This function gives some pure life points to the target, ignoring any resistances and so forth
-    if ( INVALID_CHR(character) || (ChrList[character].invictus && !ignoreinvincible) ) return bfalse;
-    if ( ChrList[character].life >= ChrList[character].lifemax || !ChrList[character].alive ) return bfalse;
-
-    ChrList[character].life = CLIP(ChrList[character].life, ChrList[character].life + ABS(amount), ChrList[character].lifemax);
-
-    //Dont alert that we healed ourselves
-    if ( healer != character && ChrList[healer].attachedto != character )
-    {
-        ChrList[character].ai.alert |= ALERTIF_HEALED;
-        ChrList[character].ai.attacklast = healer;
-    }
+	//ZF> This function gives some pure life points to the target, ignoring any resistances and so forth
+	if ( INVALID_CHR(character) || amount == 0 || !ChrList[character].alive || (ChrList[character].invictus && !ignoreinvincible) ) return bfalse;
+	
+    ChrList[character].life = CLIP(ChrList[character].life, ChrList[character].life+ABS(amount), ChrList[character].lifemax);
+	
+	//Dont alert that we healed ourselves
+	if( healer != character && ChrList[healer].attachedto != character )
+	{
+		ChrList[character].ai.alert |= ALERTIF_HEALED;
+		ChrList[character].ai.attacklast = healer;
+	}
 
     return btrue;
 }
@@ -3264,8 +3263,8 @@ void damage_character( Uint16 character, Uint16 direction,
             {
                 model = ChrList[character].model;
 
-                // Hard mode deals 50% extra to players damage!
-                if ( cfg.difficulty >= GAME_HARD && !ChrList[attacker].isplayer && ChrList[character].isplayer ) damage *= 1.5f;
+                // Hard mode deals 25% extra damage to players!
+                if ( cfg.difficulty >= GAME_HARD && ChrList[character].isplayer && !ChrList[attacker].isplayer ) damage *= 1.25f;
 
                 // East mode deals 25% extra damage by players and 25% less to players
                 if ( cfg.difficulty <= GAME_EASY )
@@ -4530,13 +4529,8 @@ bool_t cost_mana( Uint16 character, int amount, Uint16 killer )
         // allow surplus mana to go to health if you can channel?
         if ( pchr->canchannel && mana_surplus > 0 )
         {
-            // use some factor, like divide by 2?
-            pchr->life += mana_surplus;
-
-            if ( pchr->life > pchr->lifemax )
-            {
-                pchr->life = pchr->lifemax;
-            }
+            // use some factor, divide by 2
+			heal_character( pchr->ai.index, killer, mana_surplus << 1, btrue); 
         }
 
         mana_paid = btrue;
@@ -4668,7 +4662,7 @@ Sint16 modify_quest_idsz( const char *whichplayer, IDSZ idsz, Sint16 adjustment 
     Sint8 NewQuestLevel = QUEST_NONE, QuestLevel;
 
     // Now check each expansion until we find correct IDSZ
-    if (check_player_quest(whichplayer, idsz) <= QUEST_BEATEN || adjustment == 0)  return NewQuestLevel;
+    if (check_player_quest(whichplayer, idsz) <= QUEST_BEATEN || adjustment == 0)  return QUEST_NONE;
     else
     {
         // modify the CData.quest_file
@@ -4709,9 +4703,7 @@ Sint16 modify_quest_idsz( const char *whichplayer, IDSZ idsz, Sint16 adjustment 
                 // modify it
                 if ( newidsz == idsz )
                 {
-                    QuestLevel = adjustment;
-                    if (QuestLevel < 0) QuestLevel = 0;   // Don't get negative
-
+                    QuestLevel = MAX(adjustment, 0);		// Don't get negative
                     NewQuestLevel = QuestLevel;
                 }
 

@@ -1,7 +1,7 @@
 //This gives each song a number which is used in scripts and such.
-//The menu always plays track number 0.
+//The menu always plays track number 0, the first song in the list.
 
-Music 0: themesong.ogg
+Menu Music: themesong.ogg
 Music 1: bishopia.ogg
 Music 2: dungeon.ogg
 Music 3: dramatic.ogg

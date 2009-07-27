@@ -876,7 +876,7 @@ void delete_all_textures()
 // --------------------------------------------------------------------------------------------
 void delete_txfont()
 {
-    // Intitializes the font, ready to use
+    // Deletes the texture font from memory
     oglx_texture_delete( &TxFont );
 }
 

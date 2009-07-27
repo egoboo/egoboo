@@ -46,7 +46,7 @@ Light Z direction ( 0.50 )				: 0.80
 Ambient light ( 0.20 )					: 0.95
 
 Hillslide ( 1.00 )					:  2.00
-Slippy friction ( 1.00 )				:  0.96
+Slippy friction ( 1.00 )				:  1.00 //0.96
 Air friction ( .95 )					:  0.91
 Water friction ( .85 )					:  0.80
 Normal friction ( .95 )					:  0.91

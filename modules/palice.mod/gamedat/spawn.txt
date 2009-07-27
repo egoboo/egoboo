@@ -1,5 +1,5 @@
 //         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
-Player 1:   NONE    0  11.5   29.5   5.0   S    0   0  0   0   0   T   F   G
+Player 1:    NONE    0  11.5  29.5  5.0   S    0   0  0   0   0   T   F   G
   unknown:   NONE    1  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
   unknown:   NONE    2  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
   unknown:   NONE    3  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
@@ -84,6 +84,8 @@ halldoor.obj:   NONE    38  31.0   12.0   1.0   W    0   2  6   0   0   F   F   
 halldoor.obj:   NONE    38  43.0   50.0   1.0   W    0   0  20   0   0   F   F   N
 
 //Optional treasure chamber
+lockdoor.obj   NONE    56  15.0   53.0   0.0   N    0   0  26   0   0   F   F   N
+lockdoor.obj   NONE    56  9.0   53.0   0.0   N    0   0  24   0   0   F   F   N
 lachest.obj:   NONE    68  9.0   56.0   1.0   N    0   0  0   0   0   F   F   N
   confusion.obj:   NONE    88  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   frog.obj:   NONE    65  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
@@ -125,19 +127,19 @@ mimic.obj:   NONE    41  57.0   50.5   1.0   N    9   0  0   0   0   F   F   E
 
 GLOBAL strider.obj:   NONE    40  56.5   30.5   2.0   N    0   0  0   0   0   F   F   E
 snowcobol.obj:   NONE    42  55.5   21.5   1.0   N    2   2  0   100   0   F   F   E
-xbow.obj:   NONE    49  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  xbow.obj:   NONE    49  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 hatchet.obj:   NONE    37  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 snowcobol.obj:   NONE    42  57.5   22.5   1.0   N    5   2  0   100   6   F   F   E
-cinq.obj:   NONE    47  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-wshield.obj:   NONE    39  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  cinq.obj:   NONE    47  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  wshield.obj:   NONE    39  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 snowcobol.obj:   NONE    42  56.5   30.5   2.5   N    5   0  0   100   0   F   F   E
-cinq.obj:   NONE    47  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  cinq.obj:   NONE    47  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 snowcobol.obj:   NONE    42  56.5   26.5   1.0   N    3   0  0   600   0   F   F   E
-xbow.obj:   NONE    49  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-cinq.obj:   NONE    47  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  xbow.obj:   NONE    49  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  cinq.obj:   NONE    47  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 snowcobol.obj:   NONE    42  52.5   17.5   1.0   N    1   0  0   100   0   F   F   E
-hatchet.obj:   NONE    37  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-wshield.obj:   NONE    39  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  hatchet.obj:   NONE    37  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  wshield.obj:   NONE    39  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 bossplat.obj:   NONE    57  12.5   28.5   2.0   N    0   0  0   0   0   F   F   N
 halldoor.obj:   NONE    38  38.3   5.0   1.0   W    0   0  10   0   0   F   F   N
 

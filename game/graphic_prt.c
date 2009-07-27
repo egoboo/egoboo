@@ -242,7 +242,7 @@ void render_all_prt_solid( camera_t * pcam, prt_registry_entity_t reg[], size_t 
 {
     // BB > do solid sprites first
 
-    int cnt;
+    Uint32 cnt;
     Uint16 prt;
 
     Begin3DMode( pcam );
@@ -522,7 +522,7 @@ bool_t render_one_prt_ref( Uint16 iprt )
 void render_all_prt_ref( camera_t * pcam, prt_registry_entity_t reg[], size_t numparticle )
 {
     Uint16 prt;
-    int cnt;
+    Uint32 cnt;
 
     Begin3DMode( pcam );
     {

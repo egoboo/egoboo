@@ -74,7 +74,7 @@ snd_config_t snd;
 // music
 bool_t      musicinmemory = bfalse;
 Mix_Music * musictracksloaded[MAXPLAYLISTLENGTH];
-Sint8       songplaying   = -1;
+Sint8       songplaying   = INVALID_SOUND;
 
 Mix_Chunk * g_wavelist[GSND_COUNT];
 
@@ -487,7 +487,6 @@ void sound_restart()
     }
 
     // loose the info on the currently playing song
-    // songplaying = -1;
     if ( snd.musicvalid || snd.soundvalid )
     {
         if ( -1 != Mix_OpenAudio( MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, snd.buffersize ) )
@@ -638,7 +637,7 @@ void sound_finish_song( Uint16 fadetime )
     Mix_Music * mus;
     int         song;
 
-    if ( !snd.musicvalid || !mixeron ) return;
+    if ( !snd.musicvalid || !mixeron || songplaying == MENU_SONG ) return;
 
     if ( !musicinmemory )
     {
@@ -647,8 +646,8 @@ void sound_finish_song( Uint16 fadetime )
     }
 
     // set the defaults
-    mus  = musictracksloaded[0];
-    song = 0;
+    mus  = musictracksloaded[MENU_SONG];
+    song = MENU_SONG;
 
     // try to grab the last song playing
     music_stack_pop(&mus, &song);
@@ -883,8 +882,7 @@ bool_t looped_validate()
 bool_t looped_free_one( int index )
 {
     // BB> free a looped sound only if it is actually being used
-
-    int cnt;
+    Uint32 cnt;
 
     if ( !looped_validate() ) return bfalse;
 
@@ -1012,7 +1010,7 @@ bool_t looped_remove( int channel )
 {
     // BB> remove a looped sound from the used list
 
-    int cnt;
+    Uint32 cnt;
     bool_t retval;
 
     if ( 0 == looped_used_count ) return bfalse;
@@ -1050,7 +1048,7 @@ bool_t _update_stereo_channel( int channel, GLvector3 diff )
 // --------------------------------------------------------------------------------------------
 void looped_update_all_sound()
 {
-    int cnt;
+    Uint32 cnt;
 
     for (cnt = 0; cnt < looped_used_count; cnt++)
     {
@@ -1086,7 +1084,8 @@ void looped_update_all_sound()
 bool_t looped_stop_object_sounds( Uint16 ichr )
 {
     // BB> free any looped sound(s) being made by a certain character
-    int cnt, freed;
+    int freed;
+	Uint32 cnt;
     bool_t found;
 
     if ( MAX_CHR == ichr ) return bfalse;

@@ -315,7 +315,7 @@ void check_passage_music()
         for ( cnt = 0; cnt < MAXPLAYER; cnt++ )
         {
             character = PlaList[cnt].index;
-            if ( INVALID_CHR( character ) || ChrList[character].pack_ispacked || !ChrList[character].alive || !ChrList[character].isplayer ) continue;
+			if ( !ChrList[character].on || ChrList[character].pack_ispacked || !ChrList[character].alive || !ChrList[character].isplayer ) continue;
 
             // Is it in the passage?
             if (  is_in_passage( passage, ChrList[character].pos.x, ChrList[character].pos.y, ChrList[character].bumpsize  ) )

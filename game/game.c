@@ -377,8 +377,8 @@ void export_one_character( Uint16 character, Uint16 owner, int number, bool_t is
         sprintf( fromfile, "%s" SLASH_STR "credits.txt", fromdir );
         sprintf( tofile,   "%s" SLASH_STR "credits.txt", todir );
         fs_copyFile( fromfile, tofile );
-        sprintf( fromfile, "%s" SLASH_STR "quest.txt", fromdir );
-        sprintf( tofile,   "%s" SLASH_STR "quest.txt", todir );
+   //     sprintf( fromfile, "%s" SLASH_STR "quest.txt", fromdir );		Zefz> We can't do this yet, quests are written directly into players/x.obj
+   //     sprintf( tofile,   "%s" SLASH_STR "quest.txt", todir );       instead of import/x.obj which should be changed or all changes are lost.
         fs_copyFile( fromfile, tofile );
 
         // Copy all of the particle files
@@ -402,7 +402,6 @@ void export_one_character( Uint16 character, Uint16 owner, int number, bool_t is
         }
 
         // Copy all of the image files (try to copy all supported formats too)
-
         for ( tnc = 0; tnc < MAXSKIN; tnc++ )
         {
             Uint8 type;
@@ -1303,7 +1302,7 @@ int do_ego_proc_run( ego_process_t * eproc, double frameDuration )
 int do_menu_proc_begin( menu_process_t * mproc )
 {
     // play some music
-    sound_play_song( 0, 0, -1 );
+    sound_play_song( MENU_SONG, 0, -1 );
 
     // initialize all these structures
     init_all_titleimages();

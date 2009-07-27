@@ -19,8 +19,12 @@
 16 IceFoor:             20    42     32  52         T       T             T
 17 BossRoomLocked:      37    45     38  46         F       F             F
 18 BossRoomLockedOpen:  37    46     38  48         T       T             F
-19 MonsterDrop:      	33    7      37  15         T       T             F
+19 MonsterDrop:      	  33    7      37  15         T       T             F
 20 LastDoor:            42    49     43  50         F       F             F
 21 LastDoorOpen:        41    49     42  50         T       T             F
 22 MonsterDrop2:      	55    38     58  41         T       T             F
-23 BossDoor:      	45    33     46  34         F       F             F
+23 BossDoor:      	    45    33     46  34         F       F             F
+24 TreasureDoor1        8    52     9  53          F       F             F
+25 TreasureDoor1Open    8    51     9  52          T       T             F
+26 TreasureDoor2       14    52     15  53         F       F             F
+27 TreasureDoor2Open   14    51     15  52         T       T             F

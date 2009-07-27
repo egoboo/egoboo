@@ -9,7 +9,7 @@ IfSpawned
 
   // Ready the boss music
   tmpargument = passage
-  tmpdistance = 16
+  tmpdistance = 20
   SetMusicPassage
 
 IfScoredAHit
@@ -203,7 +203,6 @@ IfTimeOut
 
         // Make a noise
         tmpargument = 1
-        tmpdistance = rand & 4095 + 8000
         PlaySound
       tmpargument = 23  // Time before accel
     Else
@@ -221,7 +220,6 @@ IfTimeOut
             DoAction
               // Make a noise
               tmpargument = 1
-              tmpdistance = rand & 4095 + 8000
               PlaySound
           Else
             // Smash
@@ -229,7 +227,6 @@ IfTimeOut
             DoAction
               // Make a noise
               tmpargument = 1
-              tmpdistance = rand & 4095 + 8000
               PlaySound
 
               // Do damage

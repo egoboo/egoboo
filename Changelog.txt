@@ -1,11 +1,13 @@
-Version 2.7.4b (xx.xx.2009)
+Version 2.7.5 (27.07.2009)
 - New Feature: Improved AI by adding Line of Sight detection for targeting.
 - Update: Improved some menu UI handling.
 - Update: Improved the gameplay when using the mouse as input controller.
 - Update: Increased the amount of treasure loot found in the Ice Palace.
 - Update: Improved the Frost Lizard AI.
 - Update: Improved the texture detail for all the title images.
-- Bugfix: Fixed various 
+- Bugfix: Major bug fixed that caused modules not to unlock properly when exporting.
+- Bugfix: Incorrect boss music in Water Palace fixed.
+- Bugfix: Removed music resetting when loading a module.
 - Bugfix: Enchantments end messages display escapes properly.
 - Bugfix: Corrected some character hitboxes.
 - Bugfix: Fixed some acceleration issues that made the Tourist Starter almost impossible.

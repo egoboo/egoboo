@@ -31,6 +31,7 @@ AcidBlob:  NONE     42    27   23   0.0  N   0   0   0   0   0   F   F   Evil
 AcidBlob:  NONE     42    27   23   5.0  W   0   0   0   0   0   F   F   Evil
 // Spawn Blobs first for bump detection...
 
+Spork:     NONE    119    11   7   0    S   0   0   0   0   0   F   F   Null
 
 
 Hero 00:   NONE      0    11.5 7.5  5.0  S   0   0   0   0   0   T   F   Good

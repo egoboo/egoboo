@@ -52,7 +52,7 @@
 #    define EQ(x)
 #endif
 
-#define VERSION "2.7.4b"                         // Version of the game
+#define VERSION "2.7.5"                         // Version of the game
 
 enum e_game_difficulty
 {
