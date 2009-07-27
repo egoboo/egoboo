@@ -79,50 +79,42 @@ void tile_dictionary_load(tile_definition_t dict[], size_t dict_size)
         return;
     }
 
-    goto_colon( NULL, fileread, bfalse );
-    fscanf( fileread, "%d", &numfantype );
+    numfantype = fget_next_int( fileread );
 
     for ( fantype = 0; fantype < numfantype; fantype++ )
     {
         bigfantype = fantype + dict_size / 2;  // Duplicate for 64x64 tiles
 
-        goto_colon( NULL, fileread, bfalse );
-        fscanf( fileread, "%d", &vertices );
+        vertices = fget_next_int( fileread );
         dict[fantype].numvertices = vertices;
         dict[bigfantype].numvertices = vertices;  // Dupe
 
         for ( cnt = 0; cnt < vertices; cnt++ )
         {
-            goto_colon( NULL, fileread, bfalse );
-            fscanf( fileread, "%d", &itmp );
+            itmp = fget_next_int( fileread );
 
-            goto_colon( NULL, fileread, bfalse );
-            fscanf( fileread, "%f", &ftmp );
+            ftmp = fget_next_float( fileread );
             dict[fantype].u[cnt] = ftmp;
             dict[bigfantype].u[cnt] = ftmp;  // Dupe
 
-            goto_colon( NULL, fileread, bfalse );
-            fscanf( fileread, "%f", &ftmp );
+            ftmp = fget_next_float( fileread );
             dict[fantype].v[cnt] = ftmp;
             dict[bigfantype].v[cnt] = ftmp;  // Dupe
         }
 
-        goto_colon( NULL, fileread, bfalse );
-        fscanf( fileread, "%d", &numcommand );
+        numcommand = fget_next_int( fileread );
         dict[fantype].command_count = numcommand;
         dict[bigfantype].command_count = numcommand;  // Dupe
 
         for ( entry = 0, command = 0; command < numcommand; command++ )
         {
-            goto_colon( NULL, fileread, bfalse );
-            fscanf( fileread, "%d", &commandsize );
+            commandsize = fget_next_int( fileread );
             dict[fantype].command_entries[command] = commandsize;
             dict[bigfantype].command_entries[command] = commandsize;  // Dupe
 
             for ( cnt = 0; cnt < commandsize; cnt++ )
             {
-                goto_colon( NULL, fileread, bfalse );
-                fscanf( fileread, "%d", &itmp );
+                itmp = fget_next_int( fileread );
                 dict[fantype].command_verts[entry] = itmp;
                 dict[bigfantype].command_verts[entry] = itmp;  // Dupe
 

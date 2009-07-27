@@ -2719,7 +2719,7 @@ int load_one_character_profile( const char * tmploadname )
     parse_filename = szLoadName;  // For debugging goto_colon()
 
     // Read in the object slot
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); object = iTmp;
+    iTmp = fget_next_int( fileread ); object = iTmp;
     if ( object < 0 )
     {
         if ( importobject < 0 )
@@ -2760,101 +2760,101 @@ int load_one_character_profile( const char * tmploadname )
     }
 
     // Read in the real general data
-    goto_colon( NULL, fileread, bfalse );  fget_name( fileread, pcap->classname, sizeof(pcap->classname) );
+    fget_next_name( fileread, pcap->classname, sizeof(pcap->classname) );
 
     // Light cheat
-    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
+    cTmp = fget_next_char( fileread );
     pcap->uniformlit = bfalse;
     if ( 'T' == toupper(cTmp) || !cfg.gourard_req )  pcap->uniformlit = btrue;
 
     // Ammo
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  pcap->ammomax = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  pcap->ammo = iTmp;
+    iTmp = fget_next_int( fileread );  pcap->ammomax = iTmp;
+    iTmp = fget_next_int( fileread );  pcap->ammo = iTmp;
 
     // Gender
-    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
+    cTmp = fget_next_char( fileread );
     pcap->gender = GENOTHER;
-    if ( cTmp == 'F' || cTmp == 'f' )  pcap->gender = GENFEMALE;
-    if ( cTmp == 'M' || cTmp == 'm' )  pcap->gender = GENMALE;
-    if ( cTmp == 'R' || cTmp == 'r' )  pcap->gender = GENRANDOM;
+    if ( 'F' == toupper(cTmp) )  pcap->gender = GENFEMALE;
+    if ( 'M' == toupper(cTmp) )  pcap->gender = GENMALE;
+    if ( 'R' == toupper(cTmp) )  pcap->gender = GENRANDOM;
 
     // Read in the object stats
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  pcap->lifecolor = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  pcap->manacolor = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fget_pair( fileread );
+    iTmp = fget_next_int( fileread );  pcap->lifecolor = iTmp;
+    iTmp = fget_next_int( fileread );  pcap->manacolor = iTmp;
+    fget_next_pair( fileread );
     pcap->lifebase = pairbase;  pcap->liferand = pairrand;
-    goto_colon( NULL, fileread, bfalse );  fget_pair( fileread );
+    fget_next_pair( fileread );
     pcap->lifeperlevelbase = pairbase;  pcap->lifeperlevelrand = pairrand;
-    goto_colon( NULL, fileread, bfalse );  fget_pair( fileread );
+    fget_next_pair( fileread );
     pcap->manabase = pairbase;  pcap->manarand = pairrand;
-    goto_colon( NULL, fileread, bfalse );  fget_pair( fileread );
+    fget_next_pair( fileread );
     pcap->manaperlevelbase = pairbase;  pcap->manaperlevelrand = pairrand;
-    goto_colon( NULL, fileread, bfalse );  fget_pair( fileread );
+    fget_next_pair( fileread );
     pcap->manareturnbase = pairbase;  pcap->manareturnrand = pairrand;
-    goto_colon( NULL, fileread, bfalse );  fget_pair( fileread );
+    fget_next_pair( fileread );
     pcap->manareturnperlevelbase = pairbase;  pcap->manareturnperlevelrand = pairrand;
-    goto_colon( NULL, fileread, bfalse );  fget_pair( fileread );
+    fget_next_pair( fileread );
     pcap->manaflowbase = pairbase;  pcap->manaflowrand = pairrand;
-    goto_colon( NULL, fileread, bfalse );  fget_pair( fileread );
+    fget_next_pair( fileread );
     pcap->manaflowperlevelbase = pairbase;  pcap->manaflowperlevelrand = pairrand;
-    goto_colon( NULL, fileread, bfalse );  fget_pair( fileread );
+    fget_next_pair( fileread );
     pcap->strengthbase = pairbase;  pcap->strengthrand = pairrand;
-    goto_colon( NULL, fileread, bfalse );  fget_pair( fileread );
+    fget_next_pair( fileread );
     pcap->strengthperlevelbase = pairbase;  pcap->strengthperlevelrand = pairrand;
-    goto_colon( NULL, fileread, bfalse );  fget_pair( fileread );
+    fget_next_pair( fileread );
     pcap->wisdombase = pairbase;  pcap->wisdomrand = pairrand;
-    goto_colon( NULL, fileread, bfalse );  fget_pair( fileread );
+    fget_next_pair( fileread );
     pcap->wisdomperlevelbase = pairbase;  pcap->wisdomperlevelrand = pairrand;
-    goto_colon( NULL, fileread, bfalse );  fget_pair( fileread );
+    fget_next_pair( fileread );
     pcap->intelligencebase = pairbase;  pcap->intelligencerand = pairrand;
-    goto_colon( NULL, fileread, bfalse );  fget_pair( fileread );
+    fget_next_pair( fileread );
     pcap->intelligenceperlevelbase = pairbase;  pcap->intelligenceperlevelrand = pairrand;
-    goto_colon( NULL, fileread, bfalse );  fget_pair( fileread );
+    fget_next_pair( fileread );
     pcap->dexteritybase = pairbase;  pcap->dexterityrand = pairrand;
-    goto_colon( NULL, fileread, bfalse );  fget_pair( fileread );
+    fget_next_pair( fileread );
     pcap->dexterityperlevelbase = pairbase;  pcap->dexterityperlevelrand = pairrand;
 
     // More physical attributes
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  pcap->size = fTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  pcap->sizeperlevel = fTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  pcap->shadowsize = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  pcap->bumpsize = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  pcap->bumpheight = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  pcap->bumpdampen = MAX(0.01, fTmp);
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  pcap->weight = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  pcap->jump = fTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  pcap->jumpnumber = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  pcap->sneakspd = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  pcap->walkspd = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  pcap->runspd = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  pcap->flyheight = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  pcap->flashand = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  pcap->alpha = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  pcap->light = iTmp;
-    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
+    fTmp = fget_next_float( fileread );  pcap->size = fTmp;
+    fTmp = fget_next_float( fileread );  pcap->sizeperlevel = fTmp;
+    iTmp = fget_next_int( fileread );  pcap->shadowsize = iTmp;
+    iTmp = fget_next_int( fileread );  pcap->bumpsize = iTmp;
+    iTmp = fget_next_int( fileread );  pcap->bumpheight = iTmp;
+    fTmp = fget_next_float( fileread );  pcap->bumpdampen = MAX(0.01, fTmp);
+    iTmp = fget_next_int( fileread );  pcap->weight = iTmp;
+    fTmp = fget_next_float( fileread );  pcap->jump = fTmp;
+    iTmp = fget_next_int( fileread );  pcap->jumpnumber = iTmp;
+    iTmp = fget_next_int( fileread );  pcap->sneakspd = iTmp;
+    iTmp = fget_next_int( fileread );  pcap->walkspd = iTmp;
+    iTmp = fget_next_int( fileread );  pcap->runspd = iTmp;
+    iTmp = fget_next_int( fileread );  pcap->flyheight = iTmp;
+    iTmp = fget_next_int( fileread );  pcap->flashand = iTmp;
+    iTmp = fget_next_int( fileread );  pcap->alpha = iTmp;
+    iTmp = fget_next_int( fileread );  pcap->light = iTmp;
+    cTmp = fget_next_char( fileread );
     pcap->transferblend = bfalse;
-    if ( cTmp == 'T' || cTmp == 't' )  pcap->transferblend = btrue;
+    if ( 'T' == toupper(cTmp) )  pcap->transferblend = btrue;
 
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  pcap->sheen = iTmp;
-    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
+    iTmp = fget_next_int( fileread );  pcap->sheen = iTmp;
+    cTmp = fget_next_char( fileread );
     pcap->enviro = bfalse;
-    if ( cTmp == 'T' || cTmp == 't' )  pcap->enviro = btrue;
+    if ( 'T' == toupper(cTmp) )  pcap->enviro = btrue;
 
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  pcap->uoffvel = fTmp * 0xFFFF;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  pcap->voffvel = fTmp * 0xFFFF;
-    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
+    fTmp = fget_next_float( fileread );  pcap->uoffvel = fTmp * 0xFFFF;
+    fTmp = fget_next_float( fileread );  pcap->voffvel = fTmp * 0xFFFF;
+    cTmp = fget_next_char( fileread );
     pcap->stickybutt = bfalse;
-    if ( cTmp == 'T' || cTmp == 't' )  pcap->stickybutt = btrue;
+    if ( 'T' == toupper(cTmp) )  pcap->stickybutt = btrue;
 
     // Invulnerability data
-    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
+    cTmp = fget_next_char( fileread );
     pcap->invictus = bfalse;
-    if ( cTmp == 'T' || cTmp == 't' )  pcap->invictus = btrue;
+    if ( 'T' == toupper(cTmp) )  pcap->invictus = btrue;
 
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  pcap->nframefacing = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  pcap->nframeangle = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  pcap->iframefacing = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  pcap->iframeangle = iTmp;
+    iTmp = fget_next_int( fileread );  pcap->nframefacing = iTmp;
+    iTmp = fget_next_int( fileread );  pcap->nframeangle = iTmp;
+    iTmp = fget_next_int( fileread );  pcap->iframefacing = iTmp;
+    iTmp = fget_next_int( fileread );  pcap->iframeangle = iTmp;
 
     // Resist burning and stuck arrows with nframe angle of 1 or more
     if ( pcap->nframeangle > 0 )
@@ -2867,18 +2867,18 @@ int load_one_character_profile( const char * tmploadname )
 
     // Skin defenses ( 4 skins )
     goto_colon( NULL, fileread, bfalse );
-    fscanf( fileread, "%d", &iTmp );  pcap->defense[0] = 255 - iTmp;
-    fscanf( fileread, "%d", &iTmp );  pcap->defense[1] = 255 - iTmp;
-    fscanf( fileread, "%d", &iTmp );  pcap->defense[2] = 255 - iTmp;
-    fscanf( fileread, "%d", &iTmp );  pcap->defense[3] = 255 - iTmp;
+    iTmp = fget_int( fileread );  pcap->defense[0] = 255 - iTmp;
+    iTmp = fget_int( fileread );  pcap->defense[1] = 255 - iTmp;
+    iTmp = fget_int( fileread );  pcap->defense[2] = 255 - iTmp;
+    iTmp = fget_int( fileread );  pcap->defense[3] = 255 - iTmp;
 
     for ( damagetype = 0; damagetype < DAMAGE_COUNT; damagetype++ )
     {
         goto_colon( NULL, fileread, bfalse );
-        fscanf( fileread, "%d", &iTmp );  pcap->damagemodifier[damagetype][0] = iTmp;
-        fscanf( fileread, "%d", &iTmp );  pcap->damagemodifier[damagetype][1] = iTmp;
-        fscanf( fileread, "%d", &iTmp );  pcap->damagemodifier[damagetype][2] = iTmp;
-        fscanf( fileread, "%d", &iTmp );  pcap->damagemodifier[damagetype][3] = iTmp;
+        iTmp = fget_int( fileread );  pcap->damagemodifier[damagetype][0] = iTmp;
+        iTmp = fget_int( fileread );  pcap->damagemodifier[damagetype][1] = iTmp;
+        iTmp = fget_int( fileread );  pcap->damagemodifier[damagetype][2] = iTmp;
+        iTmp = fget_int( fileread );  pcap->damagemodifier[damagetype][3] = iTmp;
     }
 
     for ( damagetype = 0; damagetype < DAMAGE_COUNT; damagetype++ )
@@ -2886,206 +2886,206 @@ int load_one_character_profile( const char * tmploadname )
         goto_colon( NULL, fileread, bfalse );
 
         cTmp = fget_first_letter( fileread );
-        if ( cTmp == 'T' || cTmp == 't' )  pcap->damagemodifier[damagetype][0] |= DAMAGEINVERT;
-        else if ( cTmp == 'C' || cTmp == 'c' )  pcap->damagemodifier[damagetype][0] |= DAMAGECHARGE;
-        else if ( toupper(cTmp) == 'M' )  pcap->damagemodifier[damagetype][0] |= DAMAGEMANA;
+        if ( 'T' == toupper(cTmp) )  pcap->damagemodifier[damagetype][0] |= DAMAGEINVERT;
+        else if ( 'C' == toupper(cTmp) )  pcap->damagemodifier[damagetype][0] |= DAMAGECHARGE;
+        else if ( 'M' == toupper(cTmp) )  pcap->damagemodifier[damagetype][0] |= DAMAGEMANA;
 
         cTmp = fget_first_letter( fileread );
-        if ( cTmp == 'T' || cTmp == 't' )  pcap->damagemodifier[damagetype][1] |= DAMAGEINVERT;
-        else if ( cTmp == 'C' || cTmp == 'c' )  pcap->damagemodifier[damagetype][1] |= DAMAGECHARGE;
-        else if ( toupper(cTmp) == 'M' )  pcap->damagemodifier[damagetype][1] |= DAMAGEMANA;
+        if ( 'T' == toupper(cTmp) )  pcap->damagemodifier[damagetype][1] |= DAMAGEINVERT;
+        else if ( 'C' == toupper(cTmp) )  pcap->damagemodifier[damagetype][1] |= DAMAGECHARGE;
+        else if ( 'M' == toupper(cTmp) )  pcap->damagemodifier[damagetype][1] |= DAMAGEMANA;
 
         cTmp = fget_first_letter( fileread );
-        if ( cTmp == 'T' || cTmp == 't' )  pcap->damagemodifier[damagetype][2] |= DAMAGEINVERT;
-        else if ( cTmp == 'C' || cTmp == 'c' )  pcap->damagemodifier[damagetype][2] |= DAMAGECHARGE;
-        else if ( toupper(cTmp) == 'M' )  pcap->damagemodifier[damagetype][2] |= DAMAGEMANA;
+        if ( 'T' == toupper(cTmp) )  pcap->damagemodifier[damagetype][2] |= DAMAGEINVERT;
+        else if ( 'C' == toupper(cTmp) )  pcap->damagemodifier[damagetype][2] |= DAMAGECHARGE;
+        else if ( 'M' == toupper(cTmp) )  pcap->damagemodifier[damagetype][2] |= DAMAGEMANA;
 
         cTmp = fget_first_letter( fileread );
-        if ( cTmp == 'T' || cTmp == 't' )  pcap->damagemodifier[damagetype][3] |= DAMAGEINVERT;
-        else if ( cTmp == 'C' || cTmp == 'c' )  pcap->damagemodifier[damagetype][3] |= DAMAGECHARGE;
-        else if ( toupper(cTmp) == 'M' )  pcap->damagemodifier[damagetype][3] |= DAMAGEMANA;
+        if ( 'T' == toupper(cTmp) )  pcap->damagemodifier[damagetype][3] |= DAMAGEINVERT;
+        else if ( 'C' == toupper(cTmp) )  pcap->damagemodifier[damagetype][3] |= DAMAGECHARGE;
+        else if ( 'M' == toupper(cTmp) )  pcap->damagemodifier[damagetype][3] |= DAMAGEMANA;
     }
 
     goto_colon( NULL, fileread, bfalse );
-    fscanf( fileread, "%f", &fTmp );  pcap->maxaccel[0] = fTmp / 80.0f;
-    fscanf( fileread, "%f", &fTmp );  pcap->maxaccel[1] = fTmp / 80.0f;
-    fscanf( fileread, "%f", &fTmp );  pcap->maxaccel[2] = fTmp / 80.0f;
-    fscanf( fileread, "%f", &fTmp );  pcap->maxaccel[3] = fTmp / 80.0f;
+    fTmp = fget_float( fileread );  pcap->maxaccel[0] = fTmp / 80.0f;
+    fTmp = fget_float( fileread );  pcap->maxaccel[1] = fTmp / 80.0f;
+    fTmp = fget_float( fileread );  pcap->maxaccel[2] = fTmp / 80.0f;
+    fTmp = fget_float( fileread );  pcap->maxaccel[3] = fTmp / 80.0f;
 
     // Experience and level data
     pcap->experienceforlevel[0] = 0;
 
     for ( level = 1; level < MAXLEVEL; level++ )
     {
-        goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  pcap->experienceforlevel[level] = iTmp;
+        iTmp = fget_next_int( fileread );  pcap->experienceforlevel[level] = iTmp;
     }
 
-    goto_colon( NULL, fileread, bfalse );  fget_pair( fileread );
+    fget_next_pair( fileread );
     pairbase = pairbase >> 8;
     pairrand = pairrand >> 8;
     if ( pairrand < 1 )  pairrand = 1;
 
     pcap->experiencebase = pairbase;
     pcap->experiencerand = pairrand;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  pcap->experienceworth = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  pcap->experienceexchange = fTmp;
+    iTmp = fget_next_int( fileread );  pcap->experienceworth = iTmp;
+    fTmp = fget_next_float( fileread );  pcap->experienceexchange = fTmp;
 
     for ( xptype = 0; xptype < XP_COUNT; xptype++ )
     {
-        goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  pcap->experiencerate[xptype] = fTmp + 0.001f;
+        fTmp = fget_next_float( fileread );  pcap->experiencerate[xptype] = fTmp + 0.001f;
     }
 
     // IDSZ tags
     for ( idsz_cnt = 0; idsz_cnt < IDSZ_COUNT; idsz_cnt++ )
     {
-        goto_colon( NULL, fileread, bfalse );  iTmp = fget_idsz( fileread );  pcap->idsz[idsz_cnt] = iTmp;
+        iTmp = fget_next_idsz( fileread );  pcap->idsz[idsz_cnt] = iTmp;
     }
 
     // Item and damage flags
-    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
+    cTmp = fget_next_char( fileread );
     pcap->isitem = bfalse;  pcap->ripple = btrue;
-    if ( cTmp == 'T' || cTmp == 't' )  { pcap->isitem = btrue; pcap->ripple = bfalse; }
+    if ( 'T' == toupper(cTmp) )  { pcap->isitem = btrue; pcap->ripple = bfalse; }
 
-    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
+    cTmp = fget_next_char( fileread );
     pcap->ismount = bfalse;
-    if ( cTmp == 'T' || cTmp == 't' )  pcap->ismount = btrue;
+    if ( 'T' == toupper(cTmp) )  pcap->ismount = btrue;
 
-    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
+    cTmp = fget_next_char( fileread );
     pcap->isstackable = bfalse;
-    if ( cTmp == 'T' || cTmp == 't' )  pcap->isstackable = btrue;
+    if ( 'T' == toupper(cTmp) )  pcap->isstackable = btrue;
 
-    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
+    cTmp = fget_next_char( fileread );
     pcap->nameknown = bfalse;
-    if ( cTmp == 'T' || cTmp == 't' )  pcap->nameknown = btrue;
+    if ( 'T' == toupper(cTmp) )  pcap->nameknown = btrue;
 
-    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
+    cTmp = fget_next_char( fileread );
     pcap->usageknown = bfalse;
-    if ( cTmp == 'T' || cTmp == 't' )  pcap->usageknown = btrue;
+    if ( 'T' == toupper(cTmp) )  pcap->usageknown = btrue;
 
-    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
+    cTmp = fget_next_char( fileread );
     pcap->cancarrytonextmodule = bfalse;
-    if ( cTmp == 'T' || cTmp == 't' )  pcap->cancarrytonextmodule = btrue;
+    if ( 'T' == toupper(cTmp) )  pcap->cancarrytonextmodule = btrue;
 
-    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
+    cTmp = fget_next_char( fileread );
     pcap->needskillidtouse = bfalse;
-    if ( cTmp == 'T' || cTmp == 't' )  pcap->needskillidtouse = btrue;
+    if ( 'T' == toupper(cTmp) )  pcap->needskillidtouse = btrue;
 
-    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
+    cTmp = fget_next_char( fileread );
     pcap->platform = bfalse;
-    if ( cTmp == 'T' || cTmp == 't' )  pcap->platform = btrue;
+    if ( 'T' == toupper(cTmp) )  pcap->platform = btrue;
 
-    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
+    cTmp = fget_next_char( fileread );
     pcap->cangrabmoney = bfalse;
-    if ( cTmp == 'T' || cTmp == 't' )  pcap->cangrabmoney = btrue;
+    if ( 'T' == toupper(cTmp) )  pcap->cangrabmoney = btrue;
 
-    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
+    cTmp = fget_next_char( fileread );
     pcap->canopenstuff = bfalse;
-    if ( cTmp == 'T' || cTmp == 't' )  pcap->canopenstuff = btrue;
+    if ( 'T' == toupper(cTmp) )  pcap->canopenstuff = btrue;
 
     // More item and damage stuff
-    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
-    if ( cTmp == 'S' || cTmp == 's' )  pcap->damagetargettype = DAMAGE_SLASH;
-    if ( cTmp == 'C' || cTmp == 'c' )  pcap->damagetargettype = DAMAGE_CRUSH;
-    if ( cTmp == 'P' || cTmp == 'p' )  pcap->damagetargettype = DAMAGE_POKE;
-    if ( cTmp == 'H' || cTmp == 'h' )  pcap->damagetargettype = DAMAGE_HOLY;
-    if ( cTmp == 'E' || cTmp == 'e' )  pcap->damagetargettype = DAMAGE_EVIL;
-    if ( cTmp == 'F' || cTmp == 'f' )  pcap->damagetargettype = DAMAGE_FIRE;
-    if ( cTmp == 'I' || cTmp == 'i' )  pcap->damagetargettype = DAMAGE_ICE;
-    if ( cTmp == 'Z' || cTmp == 'z' )  pcap->damagetargettype = DAMAGE_ZAP;
+    cTmp = fget_next_char( fileread );
+    if ( 'S' == toupper(cTmp) )  pcap->damagetargettype = DAMAGE_SLASH;
+    if ( 'C' == toupper(cTmp) )  pcap->damagetargettype = DAMAGE_CRUSH;
+    if ( 'P' == toupper(cTmp) )  pcap->damagetargettype = DAMAGE_POKE;
+    if ( 'H' == toupper(cTmp) )  pcap->damagetargettype = DAMAGE_HOLY;
+    if ( 'E' == toupper(cTmp) )  pcap->damagetargettype = DAMAGE_EVIL;
+    if ( 'F' == toupper(cTmp) )  pcap->damagetargettype = DAMAGE_FIRE;
+    if ( 'I' == toupper(cTmp) )  pcap->damagetargettype = DAMAGE_ICE;
+    if ( 'Z' == toupper(cTmp) )  pcap->damagetargettype = DAMAGE_ZAP;
 
-    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
+    cTmp = fget_next_char( fileread );
     pcap->weaponaction = action_which( cTmp );
 
     // Particle attachments
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  pcap->attachedprtamount = iTmp;
-    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
-    if ( cTmp == 'N' || cTmp == 'n' )  pcap->attachedprtreaffirmdamagetype = DAMAGE_NONE;
-    if ( cTmp == 'S' || cTmp == 's' )  pcap->attachedprtreaffirmdamagetype = DAMAGE_SLASH;
-    if ( cTmp == 'C' || cTmp == 'c' )  pcap->attachedprtreaffirmdamagetype = DAMAGE_CRUSH;
-    if ( cTmp == 'P' || cTmp == 'p' )  pcap->attachedprtreaffirmdamagetype = DAMAGE_POKE;
-    if ( cTmp == 'H' || cTmp == 'h' )  pcap->attachedprtreaffirmdamagetype = DAMAGE_HOLY;
-    if ( cTmp == 'E' || cTmp == 'e' )  pcap->attachedprtreaffirmdamagetype = DAMAGE_EVIL;
-    if ( cTmp == 'F' || cTmp == 'f' )  pcap->attachedprtreaffirmdamagetype = DAMAGE_FIRE;
-    if ( cTmp == 'I' || cTmp == 'i' )  pcap->attachedprtreaffirmdamagetype = DAMAGE_ICE;
-    if ( cTmp == 'Z' || cTmp == 'z' )  pcap->attachedprtreaffirmdamagetype = DAMAGE_ZAP;
+    iTmp = fget_next_int( fileread );  pcap->attachedprtamount = iTmp;
+    cTmp = fget_next_char( fileread );
+    if ( 'N' == toupper(cTmp) )  pcap->attachedprtreaffirmdamagetype = DAMAGE_NONE;
+    if ( 'S' == toupper(cTmp) )  pcap->attachedprtreaffirmdamagetype = DAMAGE_SLASH;
+    if ( 'C' == toupper(cTmp) )  pcap->attachedprtreaffirmdamagetype = DAMAGE_CRUSH;
+    if ( 'P' == toupper(cTmp) )  pcap->attachedprtreaffirmdamagetype = DAMAGE_POKE;
+    if ( 'H' == toupper(cTmp) )  pcap->attachedprtreaffirmdamagetype = DAMAGE_HOLY;
+    if ( 'E' == toupper(cTmp) )  pcap->attachedprtreaffirmdamagetype = DAMAGE_EVIL;
+    if ( 'F' == toupper(cTmp) )  pcap->attachedprtreaffirmdamagetype = DAMAGE_FIRE;
+    if ( 'I' == toupper(cTmp) )  pcap->attachedprtreaffirmdamagetype = DAMAGE_ICE;
+    if ( 'Z' == toupper(cTmp) )  pcap->attachedprtreaffirmdamagetype = DAMAGE_ZAP;
 
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  pcap->attachedprttype = iTmp;
+    iTmp = fget_next_int( fileread );  pcap->attachedprttype = iTmp;
 
     // Character hands
     pcap->slotvalid[SLOT_LEFT] = bfalse;
     pcap->slotvalid[SLOT_RIGHT] = bfalse;
-    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
-    if ( cTmp == 'T' || cTmp == 't' )  pcap->slotvalid[SLOT_LEFT] = btrue;
+    cTmp = fget_next_char( fileread );
+    if ( 'T' == toupper(cTmp) )  pcap->slotvalid[SLOT_LEFT] = btrue;
 
-    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
-    if ( cTmp == 'T' || cTmp == 't' )  pcap->slotvalid[SLOT_RIGHT] = btrue;
+    cTmp = fget_next_char( fileread );
+    if ( 'T' == toupper(cTmp) )  pcap->slotvalid[SLOT_RIGHT] = btrue;
 
     // Attack order ( weapon )
-    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
+    cTmp = fget_next_char( fileread );
     pcap->attackattached = bfalse;
-    if ( cTmp == 'T' || cTmp == 't' )  pcap->attackattached = btrue;
+    if ( 'T' == toupper(cTmp) )  pcap->attackattached = btrue;
 
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  pcap->attackprttype = iTmp;
+    iTmp = fget_next_int( fileread );  pcap->attackprttype = iTmp;
 
     // GoPoof
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  pcap->gopoofprtamount = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  pcap->gopoofprtfacingadd = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  pcap->gopoofprttype = iTmp;
+    iTmp = fget_next_int( fileread );  pcap->gopoofprtamount = iTmp;
+    iTmp = fget_next_int( fileread );  pcap->gopoofprtfacingadd = iTmp;
+    iTmp = fget_next_int( fileread );  pcap->gopoofprttype = iTmp;
 
     // Blud
-    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
+    cTmp = fget_next_char( fileread );
     pcap->bludvalid = bfalse;
-    if ( cTmp == 'T' || cTmp == 't' )  pcap->bludvalid = btrue;
-    if ( cTmp == 'U' || cTmp == 'u' )  pcap->bludvalid = ULTRABLUDY;
+    if ( 'T' == toupper(cTmp) )  pcap->bludvalid = btrue;
+    if ( 'U' == toupper(cTmp) )  pcap->bludvalid = ULTRABLUDY;
 
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  pcap->bludprttype = iTmp;
+    iTmp = fget_next_int( fileread );  pcap->bludprttype = iTmp;
 
     // Stuff I forgot
-    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
+    cTmp = fget_next_char( fileread );
     pcap->waterwalk = bfalse;
-    if ( cTmp == 'T' || cTmp == 't' )  pcap->waterwalk = btrue;
+    if ( 'T' == toupper(cTmp) )  pcap->waterwalk = btrue;
 
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  pcap->dampen = fTmp;
+    fTmp = fget_next_float( fileread );  pcap->dampen = fTmp;
 
     // More stuff I forgot
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  pcap->lifeheal = fTmp * 256;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  pcap->manacost = fTmp * 256;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  pcap->lifereturn = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  pcap->stoppedby = iTmp | MPDFX_IMPASS;
-    goto_colon( NULL, fileread, bfalse );  fget_name( fileread, pcap->skinname[0], sizeof(pcap->skinname[0]) );
-    goto_colon( NULL, fileread, bfalse );  fget_name( fileread, pcap->skinname[1], sizeof(pcap->skinname[1]) );
-    goto_colon( NULL, fileread, bfalse );  fget_name( fileread, pcap->skinname[2], sizeof(pcap->skinname[2]) );
-    goto_colon( NULL, fileread, bfalse );  fget_name( fileread, pcap->skinname[3], sizeof(pcap->skinname[3]) );
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  pcap->skincost[0] = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  pcap->skincost[1] = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  pcap->skincost[2] = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  pcap->skincost[3] = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  pcap->strengthdampen = fTmp;
+    fTmp = fget_next_float( fileread );  pcap->lifeheal = fTmp * 256;
+    fTmp = fget_next_float( fileread );  pcap->manacost = fTmp * 256;
+    iTmp = fget_next_int( fileread );  pcap->lifereturn = iTmp;
+    iTmp = fget_next_int( fileread );  pcap->stoppedby = iTmp | MPDFX_IMPASS;
+    fget_next_name( fileread, pcap->skinname[0], sizeof(pcap->skinname[0]) );
+    fget_next_name( fileread, pcap->skinname[1], sizeof(pcap->skinname[1]) );
+    fget_next_name( fileread, pcap->skinname[2], sizeof(pcap->skinname[2]) );
+    fget_next_name( fileread, pcap->skinname[3], sizeof(pcap->skinname[3]) );
+    iTmp = fget_next_int( fileread );  pcap->skincost[0] = iTmp;
+    iTmp = fget_next_int( fileread );  pcap->skincost[1] = iTmp;
+    iTmp = fget_next_int( fileread );  pcap->skincost[2] = iTmp;
+    iTmp = fget_next_int( fileread );  pcap->skincost[3] = iTmp;
+    fTmp = fget_next_float( fileread );  pcap->strengthdampen = fTmp;
 
     // Another memory lapse
-    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
+    cTmp = fget_next_char( fileread );
     pcap->ridercanattack = btrue;
-    if ( cTmp == 'T' || cTmp == 't' )  pcap->ridercanattack = bfalse;
+    if ( 'T' == toupper(cTmp) )  pcap->ridercanattack = bfalse;
 
-    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );  // Can be dazed
+    cTmp = fget_next_char( fileread );  // Can be dazed
     pcap->canbedazed = bfalse;
-    if ( cTmp == 'T' || cTmp == 't' )  pcap->canbedazed = btrue;
+    if ( 'T' == toupper(cTmp) )  pcap->canbedazed = btrue;
 
-    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );  // Can be grogged
+    cTmp = fget_next_char( fileread );  // Can be grogged
     pcap->canbegrogged = bfalse;
-    if ( cTmp == 'T' || cTmp == 't' )  pcap->canbegrogged = btrue;
+    if ( 'T' == toupper(cTmp) )  pcap->canbegrogged = btrue;
 
     goto_colon( NULL, fileread, bfalse );  // !!!BAD!!! Life add
     goto_colon( NULL, fileread, bfalse );  // !!!BAD!!! Mana add
-    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );  // Can see invisible
+    cTmp = fget_next_char( fileread );  // Can see invisible
     pcap->canseeinvisible = bfalse;
-    if ( cTmp == 'T' || cTmp == 't' )  pcap->canseeinvisible = btrue;
+    if ( 'T' == toupper(cTmp) )  pcap->canseeinvisible = btrue;
 
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  // Chance of kursed
+    iTmp = fget_next_int( fileread );  // Chance of kursed
     pcap->kursechance = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  // Footfall sound
+    iTmp = fget_next_int( fileread );  // Footfall sound
     pcap->soundindex[SOUND_FOOTFALL] = CLIP(iTmp, -1, MAX_WAVE);
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  // Jump sound
+    iTmp = fget_next_int( fileread );  // Jump sound
     pcap->soundindex[SOUND_JUMP] = CLIP(iTmp, -1, MAX_WAVE);
 
     // Clear expansions...
@@ -3184,20 +3184,20 @@ int load_one_character_profile( const char * tmploadname )
 // --------------------------------------------------------------------------------------------
 bool_t heal_character( Uint16 character, Uint16 healer, int amount, bool_t ignoreinvincible)
 {
-	//ZF> This function gives some pure life points to the target, ignoring any resistances and so forth
-	if ( INVALID_CHR(character) || (ChrList[character].invictus && !ignoreinvincible) ) return bfalse;
-	if( ChrList[character].life >= ChrList[character].lifemax || !ChrList[character].alive ) return bfalse;
-    
-    ChrList[character].life = CLIP(ChrList[character].life, ChrList[character].life+ABS(amount), ChrList[character].lifemax);
-	
-	//Dont alert that we healed ourselves
-	if( healer != character && ChrList[healer].attachedto != character )
-	{
-		ChrList[character].ai.alert |= ALERTIF_HEALED;
-		ChrList[character].ai.attacklast = healer;
-	}
+    //ZF> This function gives some pure life points to the target, ignoring any resistances and so forth
+    if ( INVALID_CHR(character) || (ChrList[character].invictus && !ignoreinvincible) ) return bfalse;
+    if ( ChrList[character].life >= ChrList[character].lifemax || !ChrList[character].alive ) return bfalse;
 
-	return btrue;
+    ChrList[character].life = CLIP(ChrList[character].life, ChrList[character].life + ABS(amount), ChrList[character].lifemax);
+
+    //Dont alert that we healed ourselves
+    if ( healer != character && ChrList[healer].attachedto != character )
+    {
+        ChrList[character].ai.alert |= ALERTIF_HEALED;
+        ChrList[character].ai.attacklast = healer;
+    }
+
+    return btrue;
 }
 
 // --------------------------------------------------------------------------------------------
@@ -3500,10 +3500,10 @@ void damage_character( Uint16 character, Uint16 direction,
         }
         else if ( damage < 0 )
         {
-			//Heal 'em
-			heal_character( character, attacker, damage, ignoreinvincible);
-            
-			// Isssue an alert
+            //Heal 'em
+            heal_character( character, attacker, damage, ignoreinvincible);
+
+            // Isssue an alert
             if ( team != TEAM_DAMAGE )
             {
                 ChrList[character].ai.attacklast = MAX_CHR;
@@ -5867,9 +5867,10 @@ void chop_load( Uint16 profile, const char *szLoadname )
         section = 0;
         chopinsection = 0;
 
-        while ( goto_colon( NULL, fileread, btrue ) && section < MAXSECTION )
+        while ( section < MAXSECTION && goto_colon( NULL, fileread, btrue ) )
         {
-            fscanf( fileread, "%s", mychop );
+            fget_string( fileread, mychop, SDL_arraysize(mychop) );
+
             if ( strcmp(mychop, "STOP") ) // mychop[0] != 'S' || mychop[1] != 'T' || mychop[2] != 'O' || mychop[3] != 'P' )
             {
                 if ( chop.carat >= CHOPDATACHUNK )  chop.carat = CHOPDATACHUNK - 1;

@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1244828144 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\md2.c
+1248729720 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\md2.c
 	"Md2.h"
 	"log.h"
 	"mad.h"
@@ -11,19 +11,19 @@
 
 1240285058 s.c"
 
-1244662894 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\md2.h
+1248131081 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\md2.h
 	"egoboo_typedef.h"
 	"egoboo.h"
 
 1246915824 
 
-1247161747 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\egoboo_typedef.h
+1248729721 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\egoboo_typedef.h
 	"egoboo_config.h"
 	<SDL_types.h>
 
 1244798170 .h>
 
-1246915819 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\egoboo_config.h
+1248729723 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\egoboo_config.h
 	"egoboo_endian.h"
 	"egoboo_platform.h"
 
@@ -105,11 +105,10 @@
 
 1244761663 c:\sdks\sdl\include\close_code.h
 
-1246915907 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\egoboo.h
+1248732561 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\egoboo.h
 	"egoboo_typedef.h"
 	"egoboo_math.h"
 	"egoboo_config.h"
-	"proto.h"
 	<stdlib.h>
 	<stdarg.h>
 	<stdio.h>
@@ -128,7 +127,7 @@
 
 1246480797 pedef.h"
 
-1247202370 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\sound.h
+1248729722 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\sound.h
 	"egoboo_typedef.h"
 	"egoboo_math.h"
 	<SDL_mixer.h>
@@ -304,11 +303,11 @@
 	<windows.h>
 	<stddef.h>
 
-1246915819 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\egoboo_math.h
+1248729725 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\egoboo_math.h
 	<math.h>
 	"egoboo_typedef.h"
 
-1242070452 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\configfile.h
+1248234863 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\configfile.h
 	"egoboo_typedef.h"
 	<stdio.h>
 	<stdlib.h>
@@ -316,22 +315,22 @@
 
 1244773595 rutil.h"
 
-1242881920 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\egoboo_strutil.h
+1248729717 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\egoboo_strutil.h
 	"egoboo_typedef.h"
 	<string.h>
 	<ctype.h>
 
-1242070453 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\egoboo_endian.h
+1248131080 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\egoboo_endian.h
 	"egoboo_typedef.h"
 	<SDL_endian.h>
 	<Endian.h>
 
-1244599924 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\log.h
+1248729724 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\log.h
 	<stdio.h>
 
 1240298316 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\id_normals.c
 
-1246915890 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\camera.c
+1248729720 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\camera.c
 	"camera.h"
 	"input.h"
 	"char.h"
@@ -341,17 +340,17 @@
 	"egoboo_setup.h"
 	"egoboo.h"
 
-1245480001 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\camera.h
+1248729720 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\camera.h
 	"egoboo_typedef.h"
 	"egoboo_math.h"
 
 1247201765 th.h"
 
-1245199422 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\input.h
+1248729723 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\input.h
 	"egoboo_typedef.h"
 	<SDL.h>
 
-1247201957 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\char.c
+1248732282 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\char.c
 	"char.h"
 	"enchant.h"
 	"log.h"
@@ -372,10 +371,11 @@
 	"egoboo_strutil.h"
 	"egoboo_math.h"
 	"egoboo.h"
+	"SDL_extensions.h"
 	<assert.h>
 	<float.h>
 
-1247167224 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\char.h
+1248729720 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\char.h
 	"egoboo_typedef.h"
 	"sound.h"
 	"script.h"
@@ -383,24 +383,24 @@
 	"graphic.h"
 	"egoboo.h"
 
-1247161747 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\enchant.h
+1248729724 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\enchant.h
 	"egoboo_typedef.h"
 	"egoboo.h"
 
-1247201764 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\script.h
+1248729717 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\script.h
 	"egoboo_typedef.h"
 
-1244901438 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\menu.h
+1248131081 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\menu.h
 	"network.h"
 	"egoboo.h"
 
-1242070453 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\client.c
+1248729722 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\client.c
 	"client.h"
 
-1242070453 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\client.h
+1248131080 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\client.h
 
-1246915890 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\clock.c
-	"proto.h"
+1248729725 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\clock.c
+	"egoboo_typedef.h"
 	"clock.h"
 	"log.h"
 	"System.h"
@@ -408,13 +408,13 @@
 	<stdlib.h>
 	<string.h>
 
-1242070450 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\clock.h
+1248131080 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\clock.h
 
-1242070452 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\system.h
+1248729720 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\system.h
 
-1246915890 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\configfile.c
+1248729719 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\configfile.c
 	"configfile.h"
-	"proto.h"
+	"egoboo_typedef.h"
 	"egoboo_strutil.h"
 
 1242070453 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\egoboo_endian.c
@@ -440,7 +440,7 @@
 	"egoboo_fileutil.h"
 	"egoboo.h"
 
-1245199560 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\egoboo_setup.h
+1248462234 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\egoboo_setup.h
 	"egoboo_typedef.h"
 
 1244422108 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\egoboo_strutil.c
@@ -537,17 +537,17 @@
 	"egoboo_typedef.h"
 	<SDL.h>
 
-1247202370 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\graphic.h
+1248732729 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\graphic.h
 	"ogl_texture.h"
 	"module.h"
 	"mesh.h"
 	"mad.h"
 	"egoboo.h"
 
-1246995826 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\passage.h
+1248732730 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\passage.h
 	"egoboo_typedef.h"
 
-1242070453 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\id_md2.h
+1248131081 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\id_md2.h
 
 1184299608 c:\sdks\sdl_image\sdl_image.h
 	"SDL.h"
@@ -586,7 +586,7 @@
 	"camera.h"
 	"egoboo.h"
 
-1247201765 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\particle.h
+1248729721 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\particle.h
 	"egoboo_typedef.h"
 	"egoboo_math.h"
 
@@ -804,15 +804,15 @@
 
 1244773595 nsole.h"
 
-1247201765 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\module.h
+1248729720 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\module.h
 	"egoboo_typedef.h"
 
-1246915819 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\network.h
+1248729718 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\network.h
 	"egoboo_typedef.h"
 
-1242070454 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\file_common.h
+1248729725 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\file_common.h
 
-1246915819 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\egoboo_fileutil.h
+1248732268 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\egoboo_fileutil.h
 	<stdio.h>
 	"egoboo_typedef.h"
 
@@ -927,12 +927,18 @@
 1242070452 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\egoboo_console.h
 	<SDL.h>
 
-1244773595 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/Md2.c
+1247092874 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/Md2.c
 	"Md2.h"
 	"log.h"
 	"egoboo.h"
 	"egoboo_endian.h"
 	"id_normals.c"
+	"Md2.h"
+	"log.h"
+	"mad.h"
+	"egoboo.h"
+	"egoboo_endian.h"
+	"id_normals.inl"
 	"Md2.h"
 	"log.h"
 	"mad.h"
@@ -945,19 +951,33 @@
 	"egoboo.h"
 	"egoboo_typedef.h"
 	"egoboo.h"
+	"egoboo_typedef.h"
+	"egoboo.h"
 
-1244773595 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/egoboo_typedef.h
+1247291001 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/egoboo_typedef.h
 	"egoboo_config.h"
 	<SDL_types.h>
 	"egoboo_config.h"
 	<SDL_types.h>
+	"egoboo_config.h"
+	<SDL_types.h>
 
-1244773595 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/egoboo_config.h
+1247092874 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/egoboo_config.h
 	<unistd.h>
+	"egoboo_endian.h"
+	"egoboo_platform.h"
 	"egoboo_endian.h"
 	"egoboo_platform.h"
 
 1239265068 /usr/include/unistd.h
+	<features.h>
+	<bits/posix_opt.h>
+	<bits/environments.h>
+	<bits/types.h>
+	<stddef.h>
+	<bits/confname.h>
+	<getopt.h>
+	<bits/unistd.h>
 	<features.h>
 	<bits/posix_opt.h>
 	<bits/environments.h>
@@ -982,8 +1002,12 @@
 	<gnu/stubs.h>
 	<sys/cdefs.h>
 	<gnu/stubs.h>
+	<sys/cdefs.h>
+	<gnu/stubs.h>
 
 1239265072 /usr/include/sys/cdefs.h
+	<features.h>
+	<bits/wordsize.h>
 	<features.h>
 	<bits/wordsize.h>
 	<features.h>
@@ -1000,6 +1024,9 @@
 	<bits/wordsize.h>
 	<gnu/stubs-32.h>
 	<gnu/stubs-64.h>
+	<bits/wordsize.h>
+	<gnu/stubs-32.h>
+	<gnu/stubs-64.h>
 
 1233224479 -64.h>
 
@@ -1010,8 +1037,12 @@
 1239265068 /usr/include/bits/environments.h
 	<bits/wordsize.h>
 	<bits/wordsize.h>
+	<bits/wordsize.h>
 
 1239265068 /usr/include/bits/types.h
+	<features.h>
+	<bits/wordsize.h>
+	<bits/typesizes.h>
 	<features.h>
 	<bits/wordsize.h>
 	<bits/typesizes.h>
@@ -1028,8 +1059,13 @@
 1239265068 /usr/include/getopt.h
 	<ctype.h>
 	<ctype.h>
+	<ctype.h>
 
 1239265045 /usr/include/ctype.h
+	<features.h>
+	<bits/types.h>
+	<endian.h>
+	<xlocale.h>
 	<features.h>
 	<bits/types.h>
 	<endian.h>
@@ -1045,6 +1081,9 @@
 	<features.h>
 	<bits/endian.h>
 	<bits/byteswap.h>
+	<features.h>
+	<bits/endian.h>
+	<bits/byteswap.h>
 
 1233224556 swap.h>
 
@@ -1057,6 +1096,7 @@
 1239265068 /usr/include/bits/unistd.h
 
 1235099159 /usr/include/SDL/SDL_types.h
+	"SDL_stdinc.h"
 	"SDL_stdinc.h"
 	"SDL_stdinc.h"
 
@@ -1108,8 +1148,34 @@
 	<malloc.h>
 	<stdlib.h>
 	"close_code.h"
+	"SDL_config.h"
+	<sys/types.h>
+	<stdio.h>
+	<stdlib.h>
+	<stddef.h>
+	<stdarg.h>
+	<stdlib.h>
+	<malloc.h>
+	<stddef.h>
+	<stdarg.h>
+	<memory.h>
+	<string.h>
+	<strings.h>
+	<inttypes.h>
+	<stdint.h>
+	<ctype.h>
+	<iconv.h>
+	"begin_code.h"
+	<alloca.h>
+	<malloc.h>
+	<malloc.h>
+	<malloc.h>
+	<stdlib.h>
+	"close_code.h"
 
 1235099159 /usr/include/SDL/SDL_config.h
+	"SDL_platform.h"
+	<stdarg.h>
 	"SDL_platform.h"
 	<stdarg.h>
 	"SDL_platform.h"
@@ -1118,6 +1184,14 @@
 1235099159 /usr/include/SDL/SDL_platform.h
 
 1239265068 /usr/include/sys/types.h
+	<features.h>
+	<bits/types.h>
+	<time.h>
+	<stddef.h>
+	<endian.h>
+	<sys/select.h>
+	<sys/sysmacros.h>
+	<bits/pthreadtypes.h>
 	<features.h>
 	<bits/types.h>
 	<time.h>
@@ -1156,8 +1230,19 @@
 	<bits/types.h>
 	<bits/types.h>
 	<xlocale.h>
+	<features.h>
+	<stddef.h>
+	<bits/time.h>
+	<bits/types.h>
+	<bits/types.h>
+	<bits/types.h>
+	<bits/types.h>
+	<bits/types.h>
+	<xlocale.h>
 
 1239265064 /usr/include/bits/time.h
+	<bits/types.h>
+	<bits/types.h>
 	<bits/types.h>
 	<bits/types.h>
 	<bits/types.h>
@@ -1178,6 +1263,12 @@
 	<bits/sigset.h>
 	<time.h>
 	<bits/time.h>
+	<features.h>
+	<bits/types.h>
+	<bits/select.h>
+	<bits/sigset.h>
+	<time.h>
+	<bits/time.h>
 
 1239265073 /usr/include/bits/select.h
 
@@ -1186,12 +1277,25 @@
 1239265068 /usr/include/sys/sysmacros.h
 	<features.h>
 	<features.h>
+	<features.h>
 
 1239265068 /usr/include/bits/pthreadtypes.h
 	<bits/wordsize.h>
 	<bits/wordsize.h>
+	<bits/wordsize.h>
 
 1239265057 /usr/include/stdio.h
+	<features.h>
+	<stddef.h>
+	<bits/types.h>
+	<libio.h>
+	<stdarg.h>
+	<bits/stdio_lim.h>
+	<bits/sys_errlist.h>
+	<getopt.h>
+	<bits/stdio.h>
+	<bits/stdio2.h>
+	<bits/stdio-ldbl.h>
 	<features.h>
 	<stddef.h>
 	<bits/types.h>
@@ -1230,6 +1334,12 @@
 	<bits/stdio-lock.h>
 	<shlib-compat.h>
 	<bits/libio-ldbl.h>
+	<_G_config.h>
+	<stdarg.h>
+	<sys/cdefs.h>
+	<bits/stdio-lock.h>
+	<shlib-compat.h>
+	<bits/libio-ldbl.h>
 
 1239265057 /usr/include/_G_config.h
 	<bits/types.h>
@@ -1240,8 +1350,24 @@
 	<stddef.h>
 	<wchar.h>
 	<gconv.h>
+	<bits/types.h>
+	<stddef.h>
+	<wchar.h>
+	<gconv.h>
 
 1239265062 /usr/include/wchar.h
+	<features.h>
+	<stdio.h>
+	<stdarg.h>
+	<bits/wchar.h>
+	<stddef.h>
+	<wctype.h>
+	<xlocale.h>
+	<xlocale.h>
+	<xlocale.h>
+	<wctype.h>
+	<bits/wchar2.h>
+	<bits/wchar-ldbl.h>
 	<features.h>
 	<stdio.h>
 	<stdarg.h>
@@ -1282,6 +1408,11 @@
 	<wchar.h>
 	<endian.h>
 	<xlocale.h>
+	<features.h>
+	<bits/types.h>
+	<wchar.h>
+	<endian.h>
+	<xlocale.h>
 
 1239265062 /usr/include/bits/wchar2.h
 
@@ -1294,8 +1425,13 @@
 	<features.h>
 	<wchar.h>
 	<stddef.h>
+	<features.h>
+	<wchar.h>
+	<stddef.h>
 
 1239265057 /usr/include/bits/stdio-lock.h
+	<bits/libc-lock.h>
+	<lowlevellock.h>
 	<bits/libc-lock.h>
 	<lowlevellock.h>
 	<bits/libc-lock.h>
@@ -1304,6 +1440,12 @@
 1233224519 ock.h>
 
 1239265014 /usr/include/bits/libc-lock.h
+	<pthread.h>
+	<stddef.h>
+	<lowlevellock.h>
+	<tls.h>
+	<pthread-functions.h>
+	<bp-sym.h>
 	<pthread.h>
 	<stddef.h>
 	<lowlevellock.h>
@@ -1334,8 +1476,21 @@
 	<bits/pthreadtypes.h>
 	<bits/setjmp.h>
 	<bits/wordsize.h>
+	<features.h>
+	<endian.h>
+	<sched.h>
+	<time.h>
+	<signal.h>
+	<bits/pthreadtypes.h>
+	<bits/setjmp.h>
+	<bits/wordsize.h>
 
 1239265068 /usr/include/sched.h
+	<features.h>
+	<bits/types.h>
+	<stddef.h>
+	<time.h>
+	<bits/sched.h>
 	<features.h>
 	<bits/types.h>
 	<stddef.h>
@@ -1378,6 +1533,19 @@
 	<sys/ucontext.h>
 	<bits/pthreadtypes.h>
 	<bits/sigthread.h>
+	<features.h>
+	<bits/sigset.h>
+	<bits/types.h>
+	<bits/signum.h>
+	<time.h>
+	<bits/siginfo.h>
+	<bits/sigaction.h>
+	<bits/sigcontext.h>
+	<stddef.h>
+	<bits/sigstack.h>
+	<sys/ucontext.h>
+	<bits/pthreadtypes.h>
+	<bits/sigthread.h>
 
 1233224514 hread.h>
 
@@ -1386,10 +1554,12 @@
 1239265053 /usr/include/bits/siginfo.h
 	<bits/wordsize.h>
 	<bits/wordsize.h>
+	<bits/wordsize.h>
 
 1239265053 /usr/include/bits/sigaction.h
 
 1239265053 /usr/include/bits/sigcontext.h
+	<bits/wordsize.h>
 	<bits/wordsize.h>
 	<bits/wordsize.h>
 
@@ -1404,12 +1574,17 @@
 	<signal.h>
 	<bits/wordsize.h>
 	<bits/sigcontext.h>
+	<features.h>
+	<signal.h>
+	<bits/wordsize.h>
+	<bits/sigcontext.h>
 
 1233224516 ontext.h>
 
 1239265053 /usr/include/bits/sigthread.h
 
 1239265052 /usr/include/bits/setjmp.h
+	<bits/wordsize.h>
 	<bits/wordsize.h>
 	<bits/wordsize.h>
 
@@ -1444,6 +1619,15 @@
 	<alloca.h>
 	<bits/stdlib.h>
 	<bits/stdlib-ldbl.h>
+	<features.h>
+	<stddef.h>
+	<bits/waitflags.h>
+	<bits/waitstatus.h>
+	<xlocale.h>
+	<sys/types.h>
+	<alloca.h>
+	<bits/stdlib.h>
+	<bits/stdlib-ldbl.h>
 
 1233224516 ib-ldbl.h>
 
@@ -1452,8 +1636,11 @@
 1239265068 /usr/include/bits/waitstatus.h
 	<endian.h>
 	<endian.h>
+	<endian.h>
 
 1239265054 /usr/include/alloca.h
+	<features.h>
+	<stddef.h>
 	<features.h>
 	<stddef.h>
 	<features.h>
@@ -1468,14 +1655,24 @@
 	<stddef.h>
 	<features.h>
 	<stddef.h>
+	<features.h>
+	<stddef.h>
 
 1239265061 /usr/include/memory.h
 	<features.h>
 	<string.h>
 	<features.h>
 	<string.h>
+	<features.h>
+	<string.h>
 
 1239265060 /usr/include/string.h
+	<features.h>
+	<stddef.h>
+	<xlocale.h>
+	<bits/string.h>
+	<bits/string2.h>
+	<bits/string3.h>
 	<features.h>
 	<stddef.h>
 	<xlocale.h>
@@ -1500,6 +1697,9 @@
 	<endian.h>
 	<bits/types.h>
 	<stdlib.h>
+	<endian.h>
+	<bits/types.h>
+	<stdlib.h>
 
 1239265061 /usr/include/bits/string3.h
 
@@ -1508,8 +1708,13 @@
 	<stddef.h>
 	<features.h>
 	<stddef.h>
+	<features.h>
+	<stddef.h>
 
 1239265054 /usr/include/inttypes.h
+	<features.h>
+	<stdint.h>
+	<stddef.h>
 	<features.h>
 	<stdint.h>
 	<stddef.h>
@@ -1524,8 +1729,13 @@
 	<features.h>
 	<bits/wchar.h>
 	<bits/wordsize.h>
+	<features.h>
+	<bits/wchar.h>
+	<bits/wordsize.h>
 
 1239265016 /usr/include/iconv.h
+	<features.h>
+	<stddef.h>
 	<features.h>
 	<stddef.h>
 	<features.h>
@@ -1535,7 +1745,7 @@
 
 1235099159 /usr/include/SDL/close_code.h
 
-1244773595 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/egoboo.h
+1247291001 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/egoboo.h
 	"egoboo_typedef.h"
 	"egoboo_math.h"
 	"egoboo_config.h"
@@ -1554,6 +1764,19 @@
 	"egoboo_math.h"
 	"egoboo_config.h"
 	"proto.h"
+	<stdlib.h>
+	<stdarg.h>
+	<stdio.h>
+	<string.h>
+	<fcntl.h>
+	<ctype.h>
+	<time.h>
+	<math.h>
+	<SDL.h>
+	<SDL_opengl.h>
+	"egoboo_typedef.h"
+	"egoboo_math.h"
+	"egoboo_config.h"
 	<stdlib.h>
 	<stdarg.h>
 	<stdio.h>
@@ -1565,13 +1788,26 @@
 	<SDL.h>
 	<SDL_opengl.h>
 
-1244773595 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/egoboo_math.h
+1247092874 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/egoboo_math.h
+	<math.h>
+	"egoboo_typedef.h"
 	<math.h>
 	"egoboo_typedef.h"
 	<math.h>
 	"egoboo_typedef.h"
 
 1239265049 /usr/include/math.h
+	<features.h>
+	<bits/huge_val.h>
+	<bits/huge_valf.h>
+	<bits/huge_vall.h>
+	<bits/inf.h>
+	<bits/nan.h>
+	<bits/mathdef.h>
+	<bits/mathcalls.h>
+	<bits/mathcalls.h>
+	<bits/mathcalls.h>
+	<bits/mathinline.h>
 	<features.h>
 	<bits/huge_val.h>
 	<bits/huge_valf.h>
@@ -1600,6 +1836,7 @@
 1239265049 /usr/include/bits/huge_val.h
 	<endian.h>
 	<endian.h>
+	<endian.h>
 
 1239265049 /usr/include/bits/huge_valf.h
 
@@ -1610,8 +1847,10 @@
 1239265049 /usr/include/bits/nan.h
 	<endian.h>
 	<endian.h>
+	<endian.h>
 
 1239265049 /usr/include/bits/mathdef.h
+	<bits/wordsize.h>
 	<bits/wordsize.h>
 	<bits/wordsize.h>
 
@@ -1632,6 +1871,10 @@
 	<bits/fcntl.h>
 	<sys/stat.h>
 	<bits/fcntl2.h>
+	<features.h>
+	<bits/fcntl.h>
+	<sys/stat.h>
+	<bits/fcntl2.h>
 
 1233224531 l2.h>
 
@@ -1642,12 +1885,20 @@
 	<sys/types.h>
 	<bits/wordsize.h>
 	<bits/uio.h>
+	<sys/types.h>
+	<bits/wordsize.h>
+	<bits/uio.h>
 
 1239265072 /usr/include/bits/uio.h
 	<sys/types.h>
 	<sys/types.h>
+	<sys/types.h>
 
 1239265069 /usr/include/sys/stat.h
+	<features.h>
+	<bits/types.h>
+	<time.h>
+	<bits/stat.h>
 	<features.h>
 	<bits/types.h>
 	<time.h>
@@ -1696,8 +1947,30 @@
 	"SDL_version.h"
 	"begin_code.h"
 	"close_code.h"
+	"SDL_main.h"
+	"SDL_stdinc.h"
+	"SDL_audio.h"
+	"SDL_cdrom.h"
+	"SDL_cpuinfo.h"
+	"SDL_endian.h"
+	"SDL_error.h"
+	"SDL_events.h"
+	"SDL_loadso.h"
+	"SDL_mutex.h"
+	"SDL_rwops.h"
+	"SDL_thread.h"
+	"SDL_timer.h"
+	"SDL_video.h"
+	"SDL_version.h"
+	"begin_code.h"
+	"close_code.h"
 
 1235099159 /usr/include/SDL/SDL_main.h
+	"SDL_stdinc.h"
+	"begin_code.h"
+	"close_code.h"
+	"begin_code.h"
+	"close_code.h"
 	"SDL_stdinc.h"
 	"begin_code.h"
 	"close_code.h"
@@ -1726,8 +1999,19 @@
 	"SDL_rwops.h"
 	"begin_code.h"
 	"close_code.h"
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_endian.h"
+	"SDL_mutex.h"
+	"SDL_thread.h"
+	"SDL_rwops.h"
+	"begin_code.h"
+	"close_code.h"
 
 1235099159 /usr/include/SDL/SDL_error.h
+	"SDL_stdinc.h"
+	"begin_code.h"
+	"close_code.h"
 	"SDL_stdinc.h"
 	"begin_code.h"
 	"close_code.h"
@@ -1742,8 +2026,15 @@
 	"SDL_stdinc.h"
 	"begin_code.h"
 	"close_code.h"
+	"SDL_stdinc.h"
+	"begin_code.h"
+	"close_code.h"
 
 1235099159 /usr/include/SDL/SDL_mutex.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"begin_code.h"
@@ -1766,8 +2057,18 @@
 	"begin_code.h"
 	<process.h>
 	"close_code.h"
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_mutex.h"
+	"begin_code.h"
+	<process.h>
+	"close_code.h"
 
 1235099159 /usr/include/SDL/SDL_rwops.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"begin_code.h"
@@ -1786,6 +2087,10 @@
 	"SDL_error.h"
 	"begin_code.h"
 	"close_code.h"
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
 
 1235099159 /usr/include/SDL/SDL_cpuinfo.h
 	"SDL_stdinc.h"
@@ -1794,8 +2099,20 @@
 	"SDL_stdinc.h"
 	"begin_code.h"
 	"close_code.h"
+	"SDL_stdinc.h"
+	"begin_code.h"
+	"close_code.h"
 
 1235099159 /usr/include/SDL/SDL_events.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_active.h"
+	"SDL_keyboard.h"
+	"SDL_mouse.h"
+	"SDL_joystick.h"
+	"SDL_quit.h"
+	"begin_code.h"
+	"close_code.h"
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"SDL_active.h"
@@ -1824,8 +2141,17 @@
 	"SDL_error.h"
 	"begin_code.h"
 	"close_code.h"
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
 
 1235099159 /usr/include/SDL/SDL_keyboard.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_keysym.h"
+	"begin_code.h"
+	"close_code.h"
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"SDL_keysym.h"
@@ -1850,8 +2176,18 @@
 	"SDL_video.h"
 	"begin_code.h"
 	"close_code.h"
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_video.h"
+	"begin_code.h"
+	"close_code.h"
 
 1235099159 /usr/include/SDL/SDL_video.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_rwops.h"
+	"begin_code.h"
+	"close_code.h"
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"SDL_rwops.h"
@@ -1872,14 +2208,24 @@
 	"SDL_error.h"
 	"begin_code.h"
 	"close_code.h"
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
 
 1235099159 /usr/include/SDL/SDL_quit.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"SDL_stdinc.h"
 	"SDL_error.h"
+	"SDL_stdinc.h"
+	"SDL_error.h"
 
 1235099159 /usr/include/SDL/SDL_loadso.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"begin_code.h"
@@ -1898,6 +2244,10 @@
 	"SDL_error.h"
 	"begin_code.h"
 	"close_code.h"
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
 
 1235099159 /usr/include/SDL/SDL_version.h
 	"SDL_stdinc.h"
@@ -1906,8 +2256,21 @@
 	"SDL_stdinc.h"
 	"begin_code.h"
 	"close_code.h"
+	"SDL_stdinc.h"
+	"begin_code.h"
+	"close_code.h"
 
 1235099159 /usr/include/SDL/SDL_opengl.h
+	"SDL_config.h"
+	<windows.h>
+	<OpenGL/gl.h>
+	<OpenGL/glu.h>
+	<gl.h>
+	<glu.h>
+	<GL/gl.h>
+	<GL/glu.h>
+	<windows.h>
+	<stddef.h>
 	"SDL_config.h"
 	<windows.h>
 	<OpenGL/gl.h>
@@ -1940,6 +2303,11 @@
 	<windows.h>
 	<GL/mesa_wgl.h>
 	<GL/glext.h>
+	"gl_mangle.h"
+	<stdlib.h>
+	<windows.h>
+	<GL/mesa_wgl.h>
+	<GL/glext.h>
 
 1241576024 /usr/include/GL/gl_mangle.h
 
@@ -1960,8 +2328,18 @@
 	<stdint.h>
 	<stdint.h>
 	<inttypes.h>
+	<windows.h>
+	<stddef.h>
+	<inttypes.h>
+	<inttypes.h>
+	<inttypes.h>
+	<stdint.h>
+	<stdint.h>
+	<inttypes.h>
 
 1241576025 /usr/include/GL/glu.h
+	"glu_mangle.h"
+	<GL/gl.h>
 	"glu_mangle.h"
 	<GL/gl.h>
 	"glu_mangle.h"
@@ -1971,8 +2349,12 @@
 
 1244773595 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/log.h
 	<stdio.h>
+	<stdio.h>
 
 1240164987 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/egoboo_endian.h
+	"egoboo_typedef.h"
+	<SDL_endian.h>
+	<Endian.h>
 	"egoboo_typedef.h"
 	<SDL_endian.h>
 	<Endian.h>
@@ -1982,7 +2364,7 @@
 
 1237779871 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/id_normals.c
 
-1244773595 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/camera.c
+1247092874 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/camera.c
 	"camera.h"
 	"input.h"
 	"char.h"
@@ -1996,1961 +2378,43 @@
 	"network.h"
 	"egoboo_setup.h"
 	"egoboo.h"
-
-1244773595 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/camera.h
-	"egoboo_typedef.h"
-	"egoboo_math.h"
-	"egoboo_typedef.h"
-	"egoboo_math.h"
-
-1244773595 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/input.h
-	"egoboo_typedef.h"
-	<SDL.h>
-	"egoboo_typedef.h"
-	<SDL.h>
-
-1244773595 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/char.h
-	"egoboo_typedef.h"
-	"sound.h"
-	"script.h"
-	"Md2.h"
-	"egoboo.h"
-	"egoboo_typedef.h"
-	"sound.h"
-	"script.h"
-	"Md2.h"
-	"graphic.h"
-	"egoboo.h"
-
-1244773595 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/sound.h
-	"egoboo_typedef.h"
-	<SDL_mixer.h>
-	"egoboo_typedef.h"
-	"egoboo_math.h"
-	<SDL_mixer.h>
-
-1225926379 /usr/include/SDL/SDL_mixer.h
-	"SDL_types.h"
-	"SDL_rwops.h"
-	"SDL_audio.h"
-	"SDL_endian.h"
-	"SDL_version.h"
-	"begin_code.h"
-	"close_code.h"
-	"SDL_types.h"
-	"SDL_rwops.h"
-	"SDL_audio.h"
-	"SDL_endian.h"
-	"SDL_version.h"
-	"begin_code.h"
-	"close_code.h"
-
-1244773595 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/script.h
-	"egoboo_typedef.h"
-	"egoboo_typedef.h"
-
-1244799884 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/graphic.h
-	"gltexture.h"
-	"module.h"
-	"egoboo.h"
-	"ogl_texture.h"
-	"module.h"
-	"mpd.h"
-	"mad.h"
-	"egoboo.h"
-
-1244773595 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/gltexture.h
-	<SDL.h>
-	<SDL_opengl.h>
-	<SDL.h>
-	<SDL_opengl.h>
-
-1244773595 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/module.h
-	"egoboo_typedef.h"
-	"egoboo_typedef.h"
-
-1244773595 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/network.h
-	"egoboo_typedef.h"
-	"egoboo_typedef.h"
-
-1244773595 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/char.c
-	"char.h"
-	"enchant.h"
-	"log.h"
-	"script.h"
-	"menu.h"
-	"sound.h"
 	"camera.h"
 	"input.h"
-	"particle.h"
-	"file_common.h"
-	"Md2.h"
-	"passage.h"
-	"egoboo_fileutil.h"
-	"egoboo_strutil.h"
-	"egoboo_math.h"
-	"egoboo.h"
-	<assert.h>
 	"char.h"
-	"enchant.h"
-	"log.h"
-	"script.h"
-	"menu.h"
-	"sound.h"
-	"camera.h"
-	"input.h"
-	"particle.h"
-	"file_common.h"
-	"Md2.h"
-	"passage.h"
 	"graphic.h"
-	"mad.h"
-	"game.h"
-	"egoboo_setup.h"
-	"egoboo_fileutil.h"
-	"egoboo_strutil.h"
-	"egoboo_math.h"
-	"egoboo.h"
-	<assert.h>
-	<float.h>
-
-1244773595 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/enchant.h
-	"egoboo_typedef.h"
-	"egoboo.h"
-	"egoboo_typedef.h"
-	"egoboo.h"
-
-1244773595 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/menu.h
 	"network.h"
-	"egoboo.h"
-	"network.h"
-	"egoboo.h"
-
-1244773595 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/particle.h
-	"egoboo_typedef.h"
-	"egoboo_typedef.h"
-	"egoboo_math.h"
-
-1244773595 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/file_common.h
-
-1244773595 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/passage.h
-	"egoboo_typedef.h"
-	"egoboo_typedef.h"
-
-1244773595 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/egoboo_fileutil.h
-	<stdio.h>
-	"egoboo_typedef.h"
-	<stdio.h>
-	"egoboo_typedef.h"
-
-1244773595 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/egoboo_strutil.h
-	"egoboo_typedef.h"
-	<string.h>
-	<ctype.h>
-	"egoboo_typedef.h"
-	<string.h>
-	<ctype.h>
-
-1239265044 /usr/include/assert.h
-	<features.h>
-	<features.h>
-
-1237779871 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/client.c
-	"client.h"
-	"client.h"
-
-1237779871 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/client.h
-
-1240164987 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/clock.c
-	"proto.h"
-	"clock.h"
-	"log.h"
-	"System.h"
-	<stddef.h>
-	<stdlib.h>
-	<string.h>
-	"proto.h"
-	"clock.h"
-	"log.h"
-	"System.h"
-	<stddef.h>
-	<stdlib.h>
-	<string.h>
-
-1240164987 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/clock.h
-
-1240164987 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/System.h
-
-1244773595 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/configfile.c
-	"configfile.h"
-	"proto.h"
-	"egoboo_strutil.h"
-	"configfile.h"
-	"proto.h"
-	"egoboo_strutil.h"
-
-1240164987 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/configfile.h
-	"egoboo_typedef.h"
-	<stdio.h>
-	<stdlib.h>
-	"egoboo_strutil.h"
-	"egoboo_typedef.h"
-	<stdio.h>
-	<stdlib.h>
-	"egoboo_strutil.h"
-
-1244798857 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/ego_wrap.c
-	<string.h>
-	"lua.h"
-	"lauxlib.h"
-	<stdlib.h>
-	<assert.h>
-	"egoboo_typedef.h"
-	"egoboo_config.h"
-	"egoboo_endian.h"
-	"egoboo_math.h"
-	"egoboo_typedef.h"
-	"egoboo.h"
-	"proto.h"
-	"egoboo_math.h"
-	"link.h"
-	"char.h"
-	"particle.h"
-	"enchant.h"
-	"passage.h"
-	"sound.h"
-	"script.h"
-	"module.h"
-	"graphic.h"
-	"gltexture.h"
-	"camera.h"
-	<string.h>
-	"lua.h"
-	"lauxlib.h"
-	<stdlib.h>
-	<assert.h>
-	"egoboo_typedef.h"
-	"egoboo_config.h"
-	"egoboo_endian.h"
-	"egoboo_math.h"
-	"egoboo_typedef.h"
-	"egoboo.h"
-	"proto.h"
-	"egoboo_math.h"
-	"link.h"
-	"char.h"
-	"particle.h"
-	"enchant.h"
-	"Md2.h"
-	"mpd.h"
-	"passage.h"
-	"sound.h"
-	"module.h"
-	"camera.h"
-	"script.h"
-	"script_functions.h"
-	"graphic.h"
-	"gltexture.h"
-
-1150375112 /usr/include/lua50/lua.h
-	<stdarg.h>
-	<stddef.h>
-	<stdarg.h>
-	<stddef.h>
-
-1049376934 /usr/include/lua50/lauxlib.h
-	<stddef.h>
-	<stdio.h>
-	"lua.h"
-	<stddef.h>
-	<stdio.h>
-	"lua.h"
-
-1244773595 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/link.h
-	"egoboo_typedef.h"
-	"egoboo_typedef.h"
-	"egoboo_math.h"
-
-1244798170 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/egoboo_console.c
-	"egoboo_console.inl"
-	"egoboo_config.h"
-	"egoboo_math.h"
-	<SDL.h>
-	<SDL_opengl.h>
-	<stdio.h>
-	<string.h>
-	"egoboo_console.inl"
-	"egoboo_config.h"
-	"egoboo_math.h"
-	"ogl_debug.h"
 	"SDL_extensions.h"
-	<SDL.h>
-	<SDL_opengl.h>
-	<stdio.h>
-	<string.h>
-
-1244773595 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/egoboo_console.inl
-	"egoboo_console.h"
-	"font.h"
-	"egoboo_console.h"
-	"font.h"
-
-1240285058 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/egoboo_console.h
-	<SDL.h>
-	<SDL.h>
-
-1240164987 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/font.h
-
-1240164987 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/egoboo_endian.c
-	"egoboo_endian.h"
-	"egoboo_endian.h"
-
-1244798170 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/egoboo_fileutil.c
-	"egoboo_fileutil.h"
-	"log.h"
-	"egoboo.h"
-	"egoboo_fileutil.h"
-	"ogl_texture.h"
-	"log.h"
 	"egoboo_setup.h"
-	"egoboo_strutil.h"
 	"egoboo.h"
-	"mad.h"
 
-1244773595 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/egoboo_math.c
+1247092874 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/camera.h
+	"egoboo_typedef.h"
 	"egoboo_math.h"
+	"egoboo_typedef.h"
 	"egoboo_math.h"
-	<assert.h>
-	<float.h>
-
-1244798170 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/egoboo_setup.c
-	"egoboo_setup.h"
-	"log.h"
-	"configfile.h"
-	"graphic.h"
-	"input.h"
-	"particle.h"
-	"sound.h"
-	"network.h"
-	"egoboo_fileutil.h"
-	"egoboo.h"
-	"egoboo_setup.h"
-	"log.h"
-	"configfile.h"
-	"graphic.h"
-	"input.h"
-	"particle.h"
-	"sound.h"
-	"network.h"
-	"egoboo_fileutil.h"
-	"egoboo.h"
-
-1244773595 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/egoboo_setup.h
-	"egoboo_typedef.h"
-	"egoboo_typedef.h"
-
-1244773595 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/egoboo_strutil.c
-	"egoboo_strutil.h"
-	"egoboo_strutil.h"
-
-1244773595 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/enchant.c
-	"enchant.h"
-	"char.h"
-	"sound.h"
-	"egoboo_fileutil.h"
-	"egoboo.h"
-	"enchant.h"
-	"char.h"
-	"sound.h"
-	"camera.h"
-	"mad.h"
-	"game.h"
-	"egoboo_fileutil.h"
-	"egoboo.h"
-
-1244773595 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/file_common.c
-	"file_common.h"
-	"egoboo_config.h"
-	<stdio.h>
-	"file_common.h"
-	"egoboo_config.h"
-	<stdio.h>
-
-1240164987 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/file_linux.c
-	"file_common.h"
-	"log.h"
-	"egoboo.h"
-	<stdio.h>
-	<unistd.h>
-	<pwd.h>
-	<grp.h>
-	<glob.h>
-	<sys/types.h>
-	<sys/stat.h>
-	<sys/dir.h>
-	"file_common.h"
-	"log.h"
-	"egoboo.h"
-	<stdio.h>
-	<unistd.h>
-	<pwd.h>
-	<grp.h>
-	<glob.h>
-	<sys/types.h>
-	<sys/stat.h>
-	<sys/dir.h>
-
-1239265067 /usr/include/pwd.h
-	<features.h>
-	<bits/types.h>
-	<stddef.h>
-	<stdio.h>
-	<features.h>
-	<bits/types.h>
-	<stddef.h>
-	<stdio.h>
-
-1239265066 /usr/include/grp.h
-	<features.h>
-	<bits/types.h>
-	<stddef.h>
-	<stdio.h>
-	<stddef.h>
-	<features.h>
-	<bits/types.h>
-	<stddef.h>
-	<stdio.h>
-	<stddef.h>
-
-1239265068 /usr/include/glob.h
-	<sys/cdefs.h>
-	<stddef.h>
-	<sys/cdefs.h>
-	<stddef.h>
-
-1239265072 /usr/include/sys/dir.h
-	<features.h>
-	<dirent.h>
-	<features.h>
-	<dirent.h>
-
-1239265065 /usr/include/dirent.h
-	<features.h>
-	<bits/types.h>
-	<bits/dirent.h>
-	<bits/types.h>
-	<bits/posix1_lim.h>
-	<stddef.h>
-	<features.h>
-	<bits/types.h>
-	<bits/dirent.h>
-	<bits/types.h>
-	<bits/posix1_lim.h>
-	<stddef.h>
-
-1239265065 /usr/include/bits/dirent.h
-
-1239265068 /usr/include/bits/posix1_lim.h
-	<bits/local_lim.h>
-	<bits/local_lim.h>
-
-1233224530 l_lim.h>
-
-1239265068 /usr/include/bits/local_lim.h
-	<linux/limits.h>
-	<linux/limits.h>
-
-1233224530 its.h>
-
-1239941638 /usr/include/linux/limits.h
-
-1244773595 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/font.c
-	"font.h"
-	"egoboo_typedef.h"
-	<stdlib.h>
-	<stddef.h>
-	<string.h>
-	<SDL.h>
-	<SDL_opengl.h>
-	<SDL_ttf.h>
-	"font.h"
-	"log.h"
-	"egoboo_typedef.h"
-	"ogl_debug.h"
-	<stdlib.h>
-	<stddef.h>
-	<string.h>
-	<SDL.h>
-	<SDL_opengl.h>
-	<SDL_ttf.h>
-
-1186441190 /usr/include/SDL/SDL_ttf.h
-	"SDL.h"
-	"begin_code.h"
-	"close_code.h"
-	"SDL.h"
-	"begin_code.h"
-	"close_code.h"
-
-1244798170 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/game.c
-	"egoboo.h"
-	"clock.h"
-	"link.h"
-	"ui.h"
-	"font.h"
-	"log.h"
-	"System.h"
-	"script.h"
-	"sound.h"
-	"graphic.h"
-	"passage.h"
-	"enchant.h"
-	"input.h"
-	"menu.h"
-	"file_common.h"
-	"network.h"
-	"char.h"
-	"particle.h"
-	"camera.h"
-	"id_md2.h"
-	"script_compile.h"
-	"script.h"
-	"egoboo_endian.h"
-	"egoboo_setup.h"
-	"egoboo_strutil.h"
-	"egoboo_fileutil.h"
-	<SDL_image.h>
-	<time.h>
-	<assert.h>
-	"game.h"
-	"egoboo.h"
-	"clock.h"
-	"link.h"
-	"ui.h"
-	"font.h"
-	"log.h"
-	"System.h"
-	"script.h"
-	"sound.h"
-	"graphic.h"
-	"passage.h"
-	"enchant.h"
-	"input.h"
-	"menu.h"
-	"file_common.h"
-	"network.h"
-	"mad.h"
-	"mpd.h"
-	"char.h"
-	"particle.h"
-	"camera.h"
-	"id_md2.h"
-	"script_compile.h"
-	"script.h"
-	"egoboo_endian.h"
-	"egoboo_setup.h"
-	"egoboo_strutil.h"
-	"egoboo_fileutil.h"
-	"SDL_extensions.h"
-	<SDL_image.h>
-	<time.h>
-	<assert.h>
-	<float.h>
-
-1244798170 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/ui.h
-	"font.h"
-	"gltexture.h"
-	"egoboo_typedef.h"
-	<SDL.h>
-	"font.h"
-	"ogl_texture.h"
-	"egoboo_typedef.h"
-	<SDL.h>
-
-1240164987 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/id_md2.h
-
-1244773595 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/script_compile.h
-	"egoboo_typedef.h"
-	"egoboo_typedef.h"
-
-1202785916 /usr/include/SDL/SDL_image.h
-	"SDL.h"
-	"SDL_version.h"
-	"begin_code.h"
-	"close_code.h"
-	"SDL.h"
-	"SDL_version.h"
-	"begin_code.h"
-	"close_code.h"
-
-1240285058 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/gltexture.c
-	"gltexture.h"
-	"graphic.h"
-	"log.h"
-	"egoboo.h"
-	<SDL_image.h>
-
-1244798170 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/graphic.c
-	"graphic.h"
-	"log.h"
-	"script.h"
-	"camera.h"
-	"id_md2.h"
-	"input.h"
-	"char.h"
-	"particle.h"
-	"file_common.h"
-	"network.h"
-	"passage.h"
-	"lua_console.h"
-	"egoboo_console.h"
-	"egoboo_fileutil.h"
-	"egoboo.h"
-	<SDL_image.h>
-	<assert.h>
-	"graphic.h"
-	"log.h"
-	"script.h"
-	"camera.h"
-	"id_md2.h"
-	"input.h"
-	"char.h"
-	"particle.h"
-	"file_common.h"
-	"network.h"
-	"passage.h"
-	"menu.h"
-	"enchant.h"
-	"mad.h"
-	"script_compile.h"
-	"game.h"
-	"SDL_extensions.h"
-	"SDL_GL_extensions.h"
-	"egoboo_setup.h"
-	"egoboo_strutil.h"
-	"lua_console.h"
-	"egoboo_console.h"
-	"egoboo_fileutil.h"
-	"egoboo.h"
-	<SDL_image.h>
-	<assert.h>
-
-1244773595 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/lua_console.h
-	"egoboo_console.h"
-	"egoboo_console.h"
-
-1244798170 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/graphic_fan.c
-	"graphic.h"
-	"egoboo.h"
-	"graphic.h"
-	"game.h"
-	"egoboo.h"
-
-1244798170 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/graphic_mad.c
-	"graphic.h"
-	"Md2.h"
-	"id_md2.h"
-	"camera.h"
-	"char.h"
-	"egoboo.h"
-	<SDL_opengl.h>
-	"graphic.h"
-	"Md2.h"
-	"id_md2.h"
-	"camera.h"
-	"char.h"
-	"mad.h"
-	"game.h"
-	"egoboo.h"
-	<SDL_opengl.h>
-
-1244798170 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/graphic_prt.c
-	"graphic.h"
-	"particle.h"
-	"egoboo.h"
-	"graphic.h"
-	"particle.h"
-	"char.h"
-	"game.h"
-	"camera.h"
-	"egoboo.h"
-
-1244773595 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/input.c
-	"input.h"
-	"lua_console.h"
-	"egoboo_console.h"
-	"ui.h"
-	"log.h"
-	"network.h"
-	"egoboo_fileutil.h"
-	"egoboo.h"
-	"input.h"
-	"lua_console.h"
-	"egoboo_console.h"
-	"ui.h"
-	"log.h"
-	"network.h"
-	"egoboo_setup.h"
-	"egoboo_fileutil.h"
-	"egoboo.h"
-
-1244773595 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/link.c
-	"link.h"
-	"menu.h"
-	"log.h"
-	"graphic.h"
-	"char.h"
-	"camera.h"
-	"egoboo_fileutil.h"
-	"egoboo.h"
-	"proto.h"
-	"link.h"
-	"char.h"
-	"camera.h"
-	"menu.h"
-	"log.h"
-	"graphic.h"
-	"module.h"
-	"game.h"
-	"egoboo_fileutil.h"
-	"egoboo_strutil.h"
-	"egoboo.h"
-	"proto.h"
-
-1244773595 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/log.c
-	"log.h"
-	"egoboo_config.h"
-	<stdlib.h>
-	<stdio.h>
-	<stdarg.h>
-	"log.h"
-	"egoboo_config.h"
-	<stdlib.h>
-	<stdio.h>
-	<stdarg.h>
-
-1244798170 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/menu.c
-	"menu.h"
-	"ui.h"
-	"graphic.h"
-	"log.h"
-	"proto.h"
-	"sound.h"
-	"input.h"
-	"char.h"
-	"file_common.h"
-	"particle.h"
-	"egoboo_fileutil.h"
-	"egoboo_setup.h"
-	"egoboo.h"
-	"menu.h"
-	"ui.h"
-	"graphic.h"
-	"log.h"
-	"proto.h"
-	"sound.h"
-	"input.h"
-	"char.h"
-	"file_common.h"
-	"particle.h"
-	"link.h"
-	"mad.h"
-	"game.h"
-	"SDL_extensions.h"
-	"egoboo_fileutil.h"
-	"egoboo_setup.h"
-	"egoboo.h"
-
-1244773595 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/module.c
-	"module.h"
-	"log.h"
-	"menu.h"
-	"sound.h"
-	"graphic.h"
-	"char.h"
-	"enchant.h"
-	"passage.h"
-	"input.h"
-	"egoboo_fileutil.h"
-	"egoboo.h"
-	"module.h"
-	"log.h"
-	"menu.h"
-	"sound.h"
-	"graphic.h"
-	"char.h"
-	"enchant.h"
-	"passage.h"
-	"input.h"
-	"file_common.h"
-	"egoboo_setup.h"
-	"egoboo_fileutil.h"
-	"egoboo.h"
-
-1244773595 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/network.c
-	"network.h"
-	"file_common.h"
-	"log.h"
-	"input.h"
-	"char.h"
-	"egoboo.h"
-	<enet/enet.h>
-	<stdio.h>
-	<stdarg.h>
-	<assert.h>
-	"network.h"
-	"file_common.h"
-	"log.h"
-	"input.h"
-	"char.h"
-	"module.h"
-	"game.h"
-	"egoboo_setup.h"
-	"egoboo.h"
-	<enet/enet.h>
-	<stdio.h>
-	<stdarg.h>
-	<assert.h>
-
-1230403177 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/enet/include/enet/enet.h
-	<stdlib.h>
-	"enet/types.h"
-	"enet/protocol.h"
-	"enet/list.h"
-	"enet/win32.h"
-	"enet/unix.h"
-	<stdlib.h>
-	"enet/types.h"
-	"enet/protocol.h"
-	"enet/list.h"
-	"enet/win32.h"
-	"enet/unix.h"
-
-1230403177 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/enet/include/enet/types.h
-
-1230403177 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/enet/include/enet/protocol.h
-	"enet/types.h"
-	"enet/types.h"
-
-1230403177 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/enet/include/enet/list.h
-	<stdlib.h>
-	<stdlib.h>
-
-1230403177 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/enet/include/enet/win32.h
-	<stdlib.h>
-	<winsock2.h>
-	<stdlib.h>
-	<winsock2.h>
-
-1230403177 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/enet/include/enet/unix.h
-	<stdlib.h>
-	<sys/types.h>
-	<netinet/in.h>
-	<stdlib.h>
-	<sys/types.h>
-	<netinet/in.h>
-
-1239265095 /usr/include/netinet/in.h
-	<features.h>
-	<stdint.h>
-	<sys/socket.h>
-	<bits/types.h>
-	<bits/in.h>
-	<endian.h>
-	<bits/byteswap.h>
-	<features.h>
-	<stdint.h>
-	<sys/socket.h>
-	<bits/types.h>
-	<bits/in.h>
-	<endian.h>
-	<bits/byteswap.h>
-
-1239265074 /usr/include/sys/socket.h
-	<features.h>
-	<sys/uio.h>
-	<stddef.h>
-	<bits/socket.h>
-	<bits/socket2.h>
-	<features.h>
-	<sys/uio.h>
-	<stddef.h>
-	<bits/sigset.h>
-	<bits/socket.h>
-	<bits/socket2.h>
-
-1233224536 et2.h>
-
-1239265072 /usr/include/sys/uio.h
-	<features.h>
-	<sys/types.h>
-	<bits/uio.h>
-	<features.h>
-	<sys/types.h>
-	<bits/uio.h>
-
-1239265074 /usr/include/bits/socket.h
-	<stddef.h>
-	<sys/types.h>
-	<bits/sockaddr.h>
-	<asm/socket.h>
-	<stddef.h>
-	<sys/types.h>
-	<bits/sockaddr.h>
-	<asm/socket.h>
-
-1239265064 t.h>
-
-1239265074 /usr/include/bits/sockaddr.h
-
-1239941640 /usr/include/asm/socket.h
-	<asm/sockios.h>
-	<asm/sockios.h>
-
-1238627811 os.h>
-
-1239941640 /usr/include/asm/sockios.h
-
-1239265074 /usr/include/bits/socket2.h
-
-1239265095 /usr/include/bits/in.h
-
-1239265061 /usr/include/bits/byteswap.h
-	<bits/wordsize.h>
-	<bits/wordsize.h>
-
-1244773595 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/script.c
-	"script.h"
-	"script_compile.h"
-	"log.h"
-	"link.h"
-	"camera.h"
-	"passage.h"
-	"enchant.h"
-	"char.h"
-	"graphic.h"
-	"input.h"
-	"char.h"
-	"particle.h"
-	"network.h"
-	"egoboo.h"
-	<assert.h>
-	"script.h"
-	"script_compile.h"
-	"script_functions.h"
-	"log.h"
-	"camera.h"
-	"char.h"
-	"mad.h"
-	"game.h"
-	<assert.h>
-
-1244773595 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/script_compile.c
-	"script_compile.h"
-	"log.h"
-	"egoboo.h"
-	"script_compile.h"
-	"log.h"
-	"egoboo_setup.h"
-	"egoboo.h"
-
-1237779871 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/server.c
-	"server.h"
-	"server.h"
-
-1237779871 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/server.h
-
-1244773595 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/sys_linux.c
-	"log.h"
-	"System.h"
-	<stdio.h>
-	<sys/time.h>
-	"log.h"
-	"System.h"
-	<stdio.h>
-	<sys/time.h>
-
-1239265064 /usr/include/sys/time.h
-	<features.h>
-	<bits/types.h>
-	<time.h>
-	<bits/time.h>
-	<sys/select.h>
-	<features.h>
-	<bits/types.h>
-	<time.h>
-	<bits/time.h>
-	<sys/select.h>
-
-1244798170 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/ui.c
-	"ui.h"
-	"graphic.h"
-	"egoboo.h"
-	<string.h>
-	<SDL_opengl.h>
-	"ui.h"
-	"graphic.h"
-	"egoboo.h"
-	"ogl_debug.h"
-	"SDL_extensions.h"
-	<string.h>
-	<SDL_opengl.h>
-
-1244773595 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/lua_console.c
-	"lua_console.h"
-	"egoboo_console.inl"
-	<stdio.h>
-	<string.h>
-	<lua.h>
-	<lauxlib.h>
-	<lualib.h>
-	"lua_console.h"
-	"egoboo_console.inl"
-	<stdio.h>
-	<string.h>
-	<lua.h>
-	<lauxlib.h>
-	<lualib.h>
-
-1047990266 /usr/include/lua50/lualib.h
-	"lua.h"
-	"lua.h"
-
-1244773595 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/particle.c
-	"particle.h"
-	"log.h"
-	"sound.h"
-	"camera.h"
-	"enchant.h"
-	"char.h"
-	"egoboo_fileutil.h"
-	"egoboo.h"
-	"particle.h"
-	"log.h"
-	"sound.h"
-	"camera.h"
-	"enchant.h"
-	"char.h"
-	"mad.h"
-	"mpd.h"
-	"game.h"
-	"egoboo_setup.h"
-	"egoboo_fileutil.h"
-	"egoboo.h"
-
-1244773595 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/passage.c
-	"passage.h"
-	"char.h"
-	"script.h"
-	"sound.h"
-	"egoboo_fileutil.h"
-	"egoboo.h"
-	"passage.h"
-	"char.h"
-	"script.h"
-	"sound.h"
-	"mpd.h"
-	"game.h"
-	"egoboo_fileutil.h"
-	"egoboo.h"
-
-1244773595 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/sound.c
-	"sound.h"
-	"camera.h"
-	"log.h"
-	"file_common.h"
-	"egoboo_fileutil.h"
-	"egoboo.h"
-	<SDL.h>
-	"sound.h"
-	"camera.h"
-	"log.h"
-	"file_common.h"
-	"game.h"
-	"egoboo_setup.h"
-	"egoboo_fileutil.h"
-	"egoboo.h"
-	"egoboo_setup.h"
-	<SDL.h>
-
-1244773595 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/egoboo_platform.h
-	<SDL.h>
-	<unistd.h>
-
-1244798170 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/ogl_texture.h
-	"ogl_include.h"
-	"ogl_debug.h"
-	"egoboo_typedef.h"
-	"ogl_extensions.h"
-	<SDL.h>
-
-1244599613 sions.h"
-
-1244773595 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/ogl_include.h
-	<SDL_opengl.h>
-	<cassert>
-	<cstdio>
-	<assert.h>
-	<stdio.h>
-
-1244773595 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/ogl_debug.h
-	"ogl_include.h"
-
-1246915908 de.h"
-
-1244798170 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/ogl_extensions.h
-	<SDL_opengl.h>
-	<stdio.h>
-
-1244773595 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/mpd.h
 	"egoboo_typedef.h"
 	"egoboo_math.h"
 
-1244773595 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/mad.h
+1247092874 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/input.h
 	"egoboo_typedef.h"
-	"id_md2.h"
-	"Md2.h"
-	<SDL_opengl.h>
-	"Md2.h"
-
-1244773595 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/id_normals.inl
-
-1244798170 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/SDL_GL_extensions.c
-	"SDL_GL_extensions.h"
-	"ogl_debug.h"
-
-1244773595 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/SDL_GL_extensions.h
-	"ogl_extensions.h"
-	"SDL_extensions.h"
-
-1244798170 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/SDL_extensions.h
 	<SDL.h>
-	<cassert>
-	<cstdio>
-	<assert.h>
-	<stdio.h>
-
-1244798600 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/SDL_extensions.c
-	"SDL_extensions.h"
-	<SDL_opengl.h>
-
-1244773595 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/game.h
 	"egoboo_typedef.h"
-
-1244773595 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/script_functions.h
-	"egoboo_typedef.h"
-
-1244773595 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/egoboo_typedef.c
-	"egoboo_typedef.h"
-
-1244773595 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/mad.c
-	"mad.h"
-	"log.h"
-	"script_compile.h"
-	"graphic.h"
-	"particle.h"
-	"egoboo_setup.h"
-	"egoboo_fileutil.h"
-
-1244773595 leutil.h"
-
-1244773595 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/mpd.c
-	"mpd.h"
-	"log.h"
-	"egoboo_math.h"
-	"egoboo_endian.h"
-	"egoboo_fileutil.h"
-	"egoboo.h"
-
-1244773595 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/ogl_debug.c
-	"ogl_debug.h"
-	<stdio.h>
-	<assert.h>
-
-1244799449 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/ogl_extensions.c
-	"ogl_extensions.h"
-	"ogl_debug.h"
-	<math.h>
-
-1244773595 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/ogl_include.c
-	"ogl_include.h"
-	"ogl_debug.h"
-
-1244798170 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/ogl_texture.c
-	"ogl_texture.h"
-	"ogl_debug.h"
-	"SDL_GL_extensions.h"
-	"graphic.h"
-	"egoboo_setup.h"
-	"egoboo_strutil.h"
-	<SDL_image.h>
-
-1244773595 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/script_functions.c
-	"script_functions.h"
-	"link.h"
-	"camera.h"
-	"passage.h"
-	"enchant.h"
-	"char.h"
-	"graphic.h"
-	"input.h"
-	"char.h"
-	"particle.h"
-	"network.h"
-	"mad.h"
-	"game.h"
-	"egoboo_setup.h"
-
-1244651350 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\egoboo_platform.h
 	<SDL.h>
-	<unistd.h>
-
-1245520307 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\ogl_texture.h
-	"ogl_include.h"
-	"ogl_debug.h"
 	"egoboo_typedef.h"
-	"ogl_extensions.h"
 	<SDL.h>
-
-1246915850 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\ogl_include.h
-	<SDL_opengl.h>
-	<cassert>
-	<cstdio>
-	<assert.h>
-	<stdio.h>
-
-1246915825 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\ogl_debug.h
-	"ogl_include.h"
-
-1246915825 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\ogl_extensions.h
-	<SDL_opengl.h>
-	<stdio.h>
-
-1246915819 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\mpd.h
-	"egoboo_typedef.h"
-	"egoboo_math.h"
-
-1247161824 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\mad.h
-	"egoboo_typedef.h"
-	"id_md2.h"
-	"Md2.h"
-	<SDL_opengl.h>
-	"Md2.h"
-
-1247201765 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\game.h
-	"egoboo_typedef.h"
-	"egoboo_math.h"
-
-1242714178 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\id_normals.inl
-
-1246480797 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\script_functions.h
-	"egoboo_typedef.h"
-
-1246915824 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\sdl_extensions.h
-	<SDL.h>
-	<cassert>
-	<cstdio>
-	<assert.h>
-	<stdio.h>
-
-1244599613 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\sdl_gl_extensions.h
-	"ogl_extensions.h"
-	"SDL_extensions.h"
-
-1246915908 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\mesh.h
-	"mpd.h"
-	"ogl_include.h"
-
-1246915898 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\mesh.c
-	"mesh.h"
-	"log.h"
-	"egoboo_math.h"
-	"egoboo_endian.h"
-	"egoboo_fileutil.h"
-	"egoboo_strutil.h"
-	"egoboo.h"
-
-1237779871 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/client.c
-	"client.h"
-
-1237779871 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/client.h
-
-1247291462 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/ego_wrap.c
-	<string.h>
-	"lua.h"
-	"lauxlib.h"
-	<stdlib.h>
-	<assert.h>
-	"egoboo_typedef.h"
-	"egoboo_math.h"
-	"egoboo.h"
-	"egoboo_math.h"
-	"char.h"
-	"particle.h"
-	"enchant.h"
-	"camera.h"
-	"passage.h"
-	"sound.h"
-	"module.h"
-	"module.h"
-	"Md2.h"
-	"mpd.h"
-	"mesh.h"
-	"script.h"
-	"script_functions.h"
-	"log.h"
-	"clock.h"
-	"font.h"
-	"graphic.h"
-	"sound.h"
-	"link.h"
-	"game.h"
-	"ogl_texture.h"
-	"ogl_include.h"
-
-1239265060 /usr/include/string.h
-	<features.h>
-	<stddef.h>
-	<xlocale.h>
-	<bits/string.h>
-	<bits/string2.h>
-	<bits/string3.h>
-
-1239265014 /usr/include/features.h
-	<sys/cdefs.h>
-	<gnu/stubs.h>
-
-1239265072 /usr/include/sys/cdefs.h
-	<features.h>
-	<bits/wordsize.h>
-
-1239265054 /usr/include/bits/wordsize.h
-
-1239265014 /usr/include/gnu/stubs.h
-	<bits/wordsize.h>
-	<gnu/stubs-32.h>
-	<gnu/stubs-64.h>
-
-1239264283 /usr/include/gnu/stubs-32.h
-
-1239265017 /usr/include/xlocale.h
-
-1239265061 /usr/include/bits/string.h
-
-1239265061 /usr/include/bits/string2.h
-	<endian.h>
-	<bits/types.h>
-	<stdlib.h>
-
-1239265061 /usr/include/endian.h
-	<features.h>
-	<bits/endian.h>
-	<bits/byteswap.h>
-
-1239265061 /usr/include/bits/endian.h
-
-1239265061 /usr/include/bits/byteswap.h
-	<bits/wordsize.h>
-
-1239265068 /usr/include/bits/types.h
-	<features.h>
-	<bits/wordsize.h>
-	<bits/typesizes.h>
-
-1239265068 /usr/include/bits/typesizes.h
-
-1239265054 /usr/include/stdlib.h
-	<features.h>
-	<stddef.h>
-	<bits/waitflags.h>
-	<bits/waitstatus.h>
-	<xlocale.h>
-	<sys/types.h>
-	<alloca.h>
-	<bits/stdlib.h>
-	<bits/stdlib-ldbl.h>
-
-1239265068 /usr/include/bits/waitflags.h
-
-1239265068 /usr/include/bits/waitstatus.h
-	<endian.h>
-
-1239265068 /usr/include/sys/types.h
-	<features.h>
-	<bits/types.h>
-	<time.h>
-	<stddef.h>
-	<endian.h>
-	<sys/select.h>
-	<sys/sysmacros.h>
-	<bits/pthreadtypes.h>
-
-1239265064 /usr/include/time.h
-	<features.h>
-	<stddef.h>
-	<bits/time.h>
-	<bits/types.h>
-	<bits/types.h>
-	<bits/types.h>
-	<bits/types.h>
-	<bits/types.h>
-	<xlocale.h>
-
-1239265064 /usr/include/bits/time.h
-	<bits/types.h>
-	<bits/types.h>
-
-1239265072 /usr/include/sys/select.h
-	<features.h>
-	<bits/types.h>
-	<bits/select.h>
-	<bits/sigset.h>
-	<time.h>
-	<bits/time.h>
-
-1239265073 /usr/include/bits/select.h
-
-1239265053 /usr/include/bits/sigset.h
-
-1239265068 /usr/include/sys/sysmacros.h
-	<features.h>
-
-1239265068 /usr/include/bits/pthreadtypes.h
-	<bits/wordsize.h>
-
-1239265054 /usr/include/alloca.h
-	<features.h>
-	<stddef.h>
-
-1239265054 /usr/include/bits/stdlib.h
-
-1239265054 /usr/include/bits/stdlib-ldbl.h
-
-1239265061 /usr/include/bits/string3.h
-
-1150375112 /usr/include/lua50/lua.h
-	<stdarg.h>
-	<stddef.h>
-
-1049376934 /usr/include/lua50/lauxlib.h
-	<stddef.h>
-	<stdio.h>
-	"lua.h"
-
-1239265057 /usr/include/stdio.h
-	<features.h>
-	<stddef.h>
-	<bits/types.h>
-	<libio.h>
-	<stdarg.h>
-	<bits/stdio_lim.h>
-	<bits/sys_errlist.h>
-	<getopt.h>
-	<bits/stdio.h>
-	<bits/stdio2.h>
-	<bits/stdio-ldbl.h>
-
-1239265057 /usr/include/libio.h
-	<_G_config.h>
-	<stdarg.h>
-	<sys/cdefs.h>
-	<bits/stdio-lock.h>
-	<shlib-compat.h>
-	<bits/libio-ldbl.h>
-
-1239265057 /usr/include/_G_config.h
-	<bits/types.h>
-	<stddef.h>
-	<wchar.h>
-	<gconv.h>
-
-1239265062 /usr/include/wchar.h
-	<features.h>
-	<stdio.h>
-	<stdarg.h>
-	<bits/wchar.h>
-	<stddef.h>
-	<wctype.h>
-	<xlocale.h>
-	<xlocale.h>
-	<xlocale.h>
-	<wctype.h>
-	<bits/wchar2.h>
-	<bits/wchar-ldbl.h>
-
-1239265062 /usr/include/bits/wchar.h
-
-1239265077 /usr/include/wctype.h
-	<features.h>
-	<bits/types.h>
-	<wchar.h>
-	<endian.h>
-	<xlocale.h>
-
-1239265062 /usr/include/bits/wchar2.h
-
-1239265062 /usr/include/bits/wchar-ldbl.h
-
-1239265016 /usr/include/gconv.h
-	<features.h>
-	<wchar.h>
-	<stddef.h>
-
-1239265057 /usr/include/bits/stdio-lock.h
-	<bits/libc-lock.h>
-	<lowlevellock.h>
-
-1239265014 /usr/include/bits/libc-lock.h
-	<pthread.h>
-	<stddef.h>
-	<lowlevellock.h>
-	<tls.h>
-	<pthread-functions.h>
-	<bp-sym.h>
-
-1239265083 /usr/include/pthread.h
-	<features.h>
-	<endian.h>
-	<sched.h>
-	<time.h>
-	<signal.h>
-	<bits/pthreadtypes.h>
-	<bits/setjmp.h>
-	<bits/wordsize.h>
-
-1239265068 /usr/include/sched.h
-	<features.h>
-	<bits/types.h>
-	<stddef.h>
-	<time.h>
-	<bits/sched.h>
-
-1239265068 /usr/include/bits/sched.h
-
-1239265053 /usr/include/signal.h
-	<features.h>
-	<bits/sigset.h>
-	<bits/types.h>
-	<bits/signum.h>
-	<time.h>
-	<bits/siginfo.h>
-	<bits/sigaction.h>
-	<bits/sigcontext.h>
-	<stddef.h>
-	<bits/sigstack.h>
-	<sys/ucontext.h>
-	<bits/pthreadtypes.h>
-	<bits/sigthread.h>
-
-1239265053 /usr/include/bits/signum.h
-
-1239265053 /usr/include/bits/siginfo.h
-	<bits/wordsize.h>
-
-1239265053 /usr/include/bits/sigaction.h
-
-1239265053 /usr/include/bits/sigcontext.h
-	<bits/wordsize.h>
-
-1239265053 /usr/include/bits/sigstack.h
-
-1239265054 /usr/include/sys/ucontext.h
-	<features.h>
-	<signal.h>
-	<bits/wordsize.h>
-	<bits/sigcontext.h>
-
-1239265053 /usr/include/bits/sigthread.h
-
-1239265052 /usr/include/bits/setjmp.h
-	<bits/wordsize.h>
-
-1239265057 /usr/include/bits/libio-ldbl.h
-
-1239265055 /usr/include/bits/stdio_lim.h
-
-1239265057 /usr/include/bits/sys_errlist.h
-
-1239265068 /usr/include/getopt.h
-	<ctype.h>
-
-1239265045 /usr/include/ctype.h
-	<features.h>
-	<bits/types.h>
-	<endian.h>
-	<xlocale.h>
-
-1239265057 /usr/include/bits/stdio.h
-
-1239265057 /usr/include/bits/stdio2.h
-
-1239265057 /usr/include/bits/stdio-ldbl.h
-
-1239265044 /usr/include/assert.h
-	<features.h>
-
-1247291001 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/egoboo_typedef.h
-	"egoboo_config.h"
-	<SDL_types.h>
-
-1247092874 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/egoboo_config.h
-	"egoboo_endian.h"
-	"egoboo_platform.h"
-
-1240164987 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/egoboo_endian.h
-	"egoboo_typedef.h"
-	<SDL_endian.h>
-	<Endian.h>
-
-1235099159 /usr/include/SDL/SDL_endian.h
-	"SDL_stdinc.h"
-	"begin_code.h"
-	"close_code.h"
-
-1235099159 /usr/include/SDL/SDL_stdinc.h
-	"SDL_config.h"
-	<sys/types.h>
-	<stdio.h>
-	<stdlib.h>
-	<stddef.h>
-	<stdarg.h>
-	<stdlib.h>
-	<malloc.h>
-	<stddef.h>
-	<stdarg.h>
-	<memory.h>
-	<string.h>
-	<strings.h>
-	<inttypes.h>
-	<stdint.h>
-	<ctype.h>
-	<iconv.h>
-	"begin_code.h"
-	<alloca.h>
-	<malloc.h>
-	<malloc.h>
-	<malloc.h>
-	<stdlib.h>
-	"close_code.h"
-
-1235099159 /usr/include/SDL/SDL_config.h
-	"SDL_platform.h"
-	<stdarg.h>
-
-1235099159 /usr/include/SDL/SDL_platform.h
-
-1239265059 /usr/include/malloc.h
-	<features.h>
-	<stddef.h>
-
-1239265061 /usr/include/memory.h
-	<features.h>
-	<string.h>
-
-1239265061 /usr/include/strings.h
-	<features.h>
-	<stddef.h>
-
-1239265054 /usr/include/inttypes.h
-	<features.h>
-	<stdint.h>
-	<stddef.h>
-
-1239265054 /usr/include/stdint.h
-	<features.h>
-	<bits/wchar.h>
-	<bits/wordsize.h>
-
-1239265016 /usr/include/iconv.h
-	<features.h>
-	<stddef.h>
-
-1235099159 /usr/include/SDL/begin_code.h
-
-1235099159 /usr/include/SDL/close_code.h
-
-1244773595 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/egoboo_platform.h
-	<SDL.h>
-	<unistd.h>
-
-1235099159 /usr/include/SDL/SDL.h
-	"SDL_main.h"
-	"SDL_stdinc.h"
-	"SDL_audio.h"
-	"SDL_cdrom.h"
-	"SDL_cpuinfo.h"
-	"SDL_endian.h"
-	"SDL_error.h"
-	"SDL_events.h"
-	"SDL_loadso.h"
-	"SDL_mutex.h"
-	"SDL_rwops.h"
-	"SDL_thread.h"
-	"SDL_timer.h"
-	"SDL_video.h"
-	"SDL_version.h"
-	"begin_code.h"
-	"close_code.h"
-
-1235099159 /usr/include/SDL/SDL_main.h
-	"SDL_stdinc.h"
-	"begin_code.h"
-	"close_code.h"
-	"begin_code.h"
-	"close_code.h"
-
-1235099159 /usr/include/SDL/SDL_audio.h
-	"SDL_stdinc.h"
-	"SDL_error.h"
-	"SDL_endian.h"
-	"SDL_mutex.h"
-	"SDL_thread.h"
-	"SDL_rwops.h"
-	"begin_code.h"
-	"close_code.h"
-
-1235099159 /usr/include/SDL/SDL_error.h
-	"SDL_stdinc.h"
-	"begin_code.h"
-	"close_code.h"
-
-1235099159 /usr/include/SDL/SDL_mutex.h
-	"SDL_stdinc.h"
-	"SDL_error.h"
-	"begin_code.h"
-	"close_code.h"
-
-1235099159 /usr/include/SDL/SDL_thread.h
-	"SDL_stdinc.h"
-	"SDL_error.h"
-	"SDL_mutex.h"
-	"begin_code.h"
-	<process.h>
-	"close_code.h"
-
-1235099159 /usr/include/SDL/SDL_rwops.h
-	"SDL_stdinc.h"
-	"SDL_error.h"
-	"begin_code.h"
-	"close_code.h"
-
-1235099159 /usr/include/SDL/SDL_cdrom.h
-	"SDL_stdinc.h"
-	"SDL_error.h"
-	"begin_code.h"
-	"close_code.h"
-
-1235099159 /usr/include/SDL/SDL_cpuinfo.h
-	"SDL_stdinc.h"
-	"begin_code.h"
-	"close_code.h"
-
-1235099159 /usr/include/SDL/SDL_events.h
-	"SDL_stdinc.h"
-	"SDL_error.h"
-	"SDL_active.h"
-	"SDL_keyboard.h"
-	"SDL_mouse.h"
-	"SDL_joystick.h"
-	"SDL_quit.h"
-	"begin_code.h"
-	"close_code.h"
-
-1235099159 /usr/include/SDL/SDL_active.h
-	"SDL_stdinc.h"
-	"SDL_error.h"
-	"begin_code.h"
-	"close_code.h"
-
-1235099159 /usr/include/SDL/SDL_keyboard.h
-	"SDL_stdinc.h"
-	"SDL_error.h"
-	"SDL_keysym.h"
-	"begin_code.h"
-	"close_code.h"
-
-1235099159 /usr/include/SDL/SDL_keysym.h
-
-1235099159 /usr/include/SDL/SDL_mouse.h
-	"SDL_stdinc.h"
-	"SDL_error.h"
-	"SDL_video.h"
-	"begin_code.h"
-	"close_code.h"
-
-1235099159 /usr/include/SDL/SDL_video.h
-	"SDL_stdinc.h"
-	"SDL_error.h"
-	"SDL_rwops.h"
-	"begin_code.h"
-	"close_code.h"
-
-1235099159 /usr/include/SDL/SDL_joystick.h
-	"SDL_stdinc.h"
-	"SDL_error.h"
-	"begin_code.h"
-	"close_code.h"
-
-1235099159 /usr/include/SDL/SDL_quit.h
-	"SDL_stdinc.h"
-	"SDL_error.h"
-
-1235099159 /usr/include/SDL/SDL_loadso.h
-	"SDL_stdinc.h"
-	"SDL_error.h"
-	"begin_code.h"
-	"close_code.h"
-
-1235099159 /usr/include/SDL/SDL_timer.h
-	"SDL_stdinc.h"
-	"SDL_error.h"
-	"begin_code.h"
-	"close_code.h"
-
-1235099159 /usr/include/SDL/SDL_version.h
-	"SDL_stdinc.h"
-	"begin_code.h"
-	"close_code.h"
-
-1239265068 /usr/include/unistd.h
-	<features.h>
-	<bits/posix_opt.h>
-	<bits/environments.h>
-	<bits/types.h>
-	<stddef.h>
-	<bits/confname.h>
-	<getopt.h>
-	<bits/unistd.h>
-
-1239265068 /usr/include/bits/posix_opt.h
-
-1239265068 /usr/include/bits/environments.h
-	<bits/wordsize.h>
-
-1239265068 /usr/include/bits/confname.h
-
-1239265068 /usr/include/bits/unistd.h
-
-1235099159 /usr/include/SDL/SDL_types.h
-	"SDL_stdinc.h"
-
-1247092874 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/egoboo_math.h
-	<math.h>
-	"egoboo_typedef.h"
-
-1239265049 /usr/include/math.h
-	<features.h>
-	<bits/huge_val.h>
-	<bits/huge_valf.h>
-	<bits/huge_vall.h>
-	<bits/inf.h>
-	<bits/nan.h>
-	<bits/mathdef.h>
-	<bits/mathcalls.h>
-	<bits/mathcalls.h>
-	<bits/mathcalls.h>
-	<bits/mathinline.h>
-
-1239265049 /usr/include/bits/huge_val.h
-	<endian.h>
-
-1239265049 /usr/include/bits/huge_valf.h
-
-1239265049 /usr/include/bits/huge_vall.h
-
-1239265049 /usr/include/bits/inf.h
-
-1239265049 /usr/include/bits/nan.h
-	<endian.h>
-
-1239265049 /usr/include/bits/mathdef.h
-	<bits/wordsize.h>
-
-1239265049 /usr/include/bits/mathcalls.h
-
-1239265049 /usr/include/bits/mathinline.h
-
-1247291001 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/egoboo.h
-	"egoboo_typedef.h"
-	"egoboo_math.h"
-	"egoboo_config.h"
-	<stdlib.h>
-	<stdarg.h>
-	<stdio.h>
-	<string.h>
-	<fcntl.h>
-	<ctype.h>
-	<time.h>
-	<math.h>
-	<SDL.h>
-	<SDL_opengl.h>
-
-1239265069 /usr/include/fcntl.h
-	<features.h>
-	<bits/fcntl.h>
-	<sys/stat.h>
-	<bits/fcntl2.h>
-
-1239265069 /usr/include/bits/fcntl.h
-	<sys/types.h>
-	<bits/wordsize.h>
-	<bits/uio.h>
-
-1239265072 /usr/include/bits/uio.h
-	<sys/types.h>
-
-1239265069 /usr/include/sys/stat.h
-	<features.h>
-	<bits/types.h>
-	<time.h>
-	<bits/stat.h>
-
-1239265069 /usr/include/bits/stat.h
-
-1239265070 /usr/include/bits/fcntl2.h
-
-1235099159 /usr/include/SDL/SDL_opengl.h
-	"SDL_config.h"
-	<windows.h>
-	<OpenGL/gl.h>
-	<OpenGL/glu.h>
-	<gl.h>
-	<glu.h>
-	<GL/gl.h>
-	<GL/glu.h>
-	<windows.h>
-	<stddef.h>
-
-1241576024 /usr/include/GL/gl.h
-	"gl_mangle.h"
-	<stdlib.h>
-	<windows.h>
-	<GL/mesa_wgl.h>
-	<GL/glext.h>
-
-1241576024 /usr/include/GL/gl_mangle.h
-
-1241576024 /usr/include/GL/glext.h
-	<windows.h>
-	<stddef.h>
-	<inttypes.h>
-	<inttypes.h>
-	<inttypes.h>
-	<stdint.h>
-	<stdint.h>
-	<inttypes.h>
-
-1241576025 /usr/include/GL/glu.h
-	"glu_mangle.h"
-	<GL/gl.h>
-
-1241576025 /usr/include/GL/glu_mangle.h
-
-1244773595 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/link.h
-	"egoboo_typedef.h"
-	"egoboo_math.h"
 
 1247291001 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/char.h
+	"egoboo_typedef.h"
+	"sound.h"
+	"script.h"
+	"Md2.h"
+	"egoboo.h"
+	"egoboo_typedef.h"
+	"sound.h"
+	"script.h"
+	"Md2.h"
+	"graphic.h"
+	"egoboo.h"
 	"egoboo_typedef.h"
 	"sound.h"
 	"script.h"
@@ -3960,10 +2424,29 @@
 
 1247291001 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/sound.h
 	"egoboo_typedef.h"
+	<SDL_mixer.h>
+	"egoboo_typedef.h"
+	"egoboo_math.h"
+	<SDL_mixer.h>
+	"egoboo_typedef.h"
 	"egoboo_math.h"
 	<SDL_mixer.h>
 
 1225926379 /usr/include/SDL/SDL_mixer.h
+	"SDL_types.h"
+	"SDL_rwops.h"
+	"SDL_audio.h"
+	"SDL_endian.h"
+	"SDL_version.h"
+	"begin_code.h"
+	"close_code.h"
+	"SDL_types.h"
+	"SDL_rwops.h"
+	"SDL_audio.h"
+	"SDL_endian.h"
+	"SDL_version.h"
+	"begin_code.h"
+	"close_code.h"
 	"SDL_types.h"
 	"SDL_rwops.h"
 	"SDL_audio.h"
@@ -3974,279 +2457,38 @@
 
 1247092873 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/script.h
 	"egoboo_typedef.h"
-
-1244773595 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/Md2.h
 	"egoboo_typedef.h"
-	"egoboo.h"
+	"egoboo_typedef.h"
 
 1247092873 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/graphic.h
+	"gltexture.h"
+	"module.h"
+	"egoboo.h"
+	"ogl_texture.h"
+	"module.h"
+	"mpd.h"
+	"mad.h"
+	"egoboo.h"
 	"ogl_texture.h"
 	"module.h"
 	"mesh.h"
 	"mad.h"
 	"egoboo.h"
 
-1247092874 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/ogl_texture.h
-	"ogl_include.h"
-	"ogl_debug.h"
-	"egoboo_typedef.h"
-	"ogl_extensions.h"
+1244773595 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/gltexture.h
 	<SDL.h>
-
-1247092874 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/ogl_include.h
 	<SDL_opengl.h>
-	<cassert>
-	<cstdio>
-	<assert.h>
-	<stdio.h>
-
-1247092874 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/ogl_debug.h
-	"ogl_include.h"
-
-1247092874 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/ogl_extensions.h
+	<SDL.h>
 	<SDL_opengl.h>
-	<stdio.h>
 
 1247092874 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/module.h
 	"egoboo_typedef.h"
-
-1247291001 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/mesh.h
-	"mpd.h"
-	"ogl_include.h"
-
-1247092874 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/mpd.h
 	"egoboo_typedef.h"
-	"egoboo_math.h"
-
-1247291001 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/mad.h
 	"egoboo_typedef.h"
-	"id_md2.h"
-	"Md2.h"
-	<SDL_opengl.h>
-	"Md2.h"
-
-1240164987 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/id_md2.h
-
-1247291001 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/particle.h
-	"egoboo_typedef.h"
-	"egoboo_math.h"
-
-1247291001 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/enchant.h
-	"egoboo_typedef.h"
-	"egoboo.h"
-
-1247092874 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/passage.h
-	"egoboo_typedef.h"
-
-1247092874 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/camera.h
-	"egoboo_typedef.h"
-	"egoboo_math.h"
-
-1247092873 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/script_functions.h
-	"egoboo_typedef.h"
-
-1244798170 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/egoboo_console.c
-	"egoboo_console.inl"
-	"egoboo_config.h"
-	"egoboo_math.h"
-	"ogl_debug.h"
-	"SDL_extensions.h"
-	<SDL.h>
-	<SDL_opengl.h>
-	<stdio.h>
-	<string.h>
-
-1244773595 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/egoboo_console.inl
-	"egoboo_console.h"
-	"font.h"
-
-1240285058 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/egoboo_console.h
-	<SDL.h>
-
-1240164987 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/font.h
-
-1247092873 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/SDL_extensions.h
-	<SDL.h>
-	<cassert>
-	<cstdio>
-	<assert.h>
-	<stdio.h>
-
-1240164987 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/egoboo_endian.c
-	"egoboo_endian.h"
-
-1244773595 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/egoboo_strutil.c
-	"egoboo_strutil.h"
-
-1244773595 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/egoboo_strutil.h
-	"egoboo_typedef.h"
-	<string.h>
-	<ctype.h>
-
-1244773595 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/file_common.c
-	"file_common.h"
-	"egoboo_config.h"
-	<stdio.h>
-
-1244773595 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/file_common.h
-
-1240164987 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/file_linux.c
-	"file_common.h"
-	"log.h"
-	"egoboo.h"
-	<stdio.h>
-	<unistd.h>
-	<pwd.h>
-	<grp.h>
-	<glob.h>
-	<sys/types.h>
-	<sys/stat.h>
-	<sys/dir.h>
-
-1244773595 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/log.h
-	<stdio.h>
-
-1239265067 /usr/include/pwd.h
-	<features.h>
-	<bits/types.h>
-	<stddef.h>
-	<stdio.h>
-
-1239265066 /usr/include/grp.h
-	<features.h>
-	<bits/types.h>
-	<stddef.h>
-	<stdio.h>
-	<stddef.h>
-
-1239265068 /usr/include/glob.h
-	<sys/cdefs.h>
-	<stddef.h>
-
-1239265072 /usr/include/sys/dir.h
-	<features.h>
-	<dirent.h>
-
-1239265065 /usr/include/dirent.h
-	<features.h>
-	<bits/types.h>
-	<bits/dirent.h>
-	<bits/types.h>
-	<bits/posix1_lim.h>
-	<stddef.h>
-
-1239265065 /usr/include/bits/dirent.h
-
-1239265068 /usr/include/bits/posix1_lim.h
-	<bits/local_lim.h>
-
-1239265068 /usr/include/bits/local_lim.h
-	<linux/limits.h>
-
-1246401019 /usr/include/linux/limits.h
-
-1244773595 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/font.c
-	"font.h"
-	"log.h"
-	"egoboo_typedef.h"
-	"ogl_debug.h"
-	<stdlib.h>
-	<stddef.h>
-	<string.h>
-	<SDL.h>
-	<SDL_opengl.h>
-	<SDL_ttf.h>
-
-1186441190 /usr/include/SDL/SDL_ttf.h
-	"SDL.h"
-	"begin_code.h"
-	"close_code.h"
-
-1244773595 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/lua_console.c
-	"lua_console.h"
-	"egoboo_console.inl"
-	<stdio.h>
-	<string.h>
-	<lua.h>
-	<lauxlib.h>
-	<lualib.h>
-
-1244773595 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/lua_console.h
-	"egoboo_console.h"
-
-1047990266 /usr/include/lua50/lualib.h
-	"lua.h"
-
-1247291827 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/ogl_extensions.c
-	"ogl_extensions.h"
-	"ogl_debug.h"
-	<math.h>
-	<string.h>
-
-1244773595 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/ogl_include.c
-	"ogl_include.h"
-	"ogl_debug.h"
-
-1237779871 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/server.c
-	"server.h"
-
-1237779871 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/server.h
-
-1244773595 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/sys_linux.c
-	"log.h"
-	"System.h"
-	<stdio.h>
-	<sys/time.h>
-
-1240164987 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/System.h
-
-1239265064 /usr/include/sys/time.h
-	<features.h>
-	<bits/types.h>
-	<time.h>
-	<bits/time.h>
-	<sys/select.h>
-
-1247092874 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/Md2.c
-	"Md2.h"
-	"log.h"
-	"mad.h"
-	"egoboo.h"
-	"egoboo_endian.h"
-	"id_normals.inl"
-
-1244773595 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/id_normals.inl
-
-1247092874 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/SDL_GL_extensions.c
-	"SDL_GL_extensions.h"
-	"ogl_debug.h"
-
-1244773595 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/SDL_GL_extensions.h
-	"ogl_extensions.h"
-	"SDL_extensions.h"
-
-1247092873 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/SDL_extensions.c
-	"SDL_extensions.h"
-	<SDL_opengl.h>
-
-1247092874 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/camera.c
-	"camera.h"
-	"input.h"
-	"char.h"
-	"graphic.h"
-	"network.h"
-	"SDL_extensions.h"
-	"egoboo_setup.h"
-	"egoboo.h"
-
-1247092874 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/input.h
-	"egoboo_typedef.h"
-	<SDL.h>
 
 1247092874 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/network.h
 	"egoboo_typedef.h"
-
-1247092874 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/egoboo_setup.h
+	"egoboo_typedef.h"
 	"egoboo_typedef.h"
 
 1247291001 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/char.c
@@ -4262,6 +2504,45 @@
 	"file_common.h"
 	"Md2.h"
 	"passage.h"
+	"egoboo_fileutil.h"
+	"egoboo_strutil.h"
+	"egoboo_math.h"
+	"egoboo.h"
+	<assert.h>
+	"char.h"
+	"enchant.h"
+	"log.h"
+	"script.h"
+	"menu.h"
+	"sound.h"
+	"camera.h"
+	"input.h"
+	"particle.h"
+	"file_common.h"
+	"Md2.h"
+	"passage.h"
+	"graphic.h"
+	"mad.h"
+	"game.h"
+	"egoboo_setup.h"
+	"egoboo_fileutil.h"
+	"egoboo_strutil.h"
+	"egoboo_math.h"
+	"egoboo.h"
+	<assert.h>
+	<float.h>
+	"char.h"
+	"enchant.h"
+	"log.h"
+	"script.h"
+	"menu.h"
+	"sound.h"
+	"camera.h"
+	"input.h"
+	"particle.h"
+	"file_common.h"
+	"Md2.h"
+	"passage.h"
 	"graphic.h"
 	"mad.h"
 	"game.h"
@@ -4273,19 +2554,82 @@
 	<assert.h>
 	<float.h>
 
+1247291001 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/enchant.h
+	"egoboo_typedef.h"
+	"egoboo.h"
+	"egoboo_typedef.h"
+	"egoboo.h"
+	"egoboo_typedef.h"
+	"egoboo.h"
+
 1247092874 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/menu.h
 	"network.h"
 	"egoboo.h"
+	"network.h"
+	"egoboo.h"
+	"network.h"
+	"egoboo.h"
 
-1247092874 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/game.h
+1247291001 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/particle.h
+	"egoboo_typedef.h"
 	"egoboo_typedef.h"
 	"egoboo_math.h"
+	"egoboo_typedef.h"
+	"egoboo_math.h"
+
+1244773595 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/file_common.h
+
+1247092874 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/passage.h
+	"egoboo_typedef.h"
+	"egoboo_typedef.h"
+	"egoboo_typedef.h"
 
 1247092873 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/egoboo_fileutil.h
 	<stdio.h>
 	"egoboo_typedef.h"
+	<stdio.h>
+	"egoboo_typedef.h"
+	<stdio.h>
+	"egoboo_typedef.h"
+
+1244773595 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/egoboo_strutil.h
+	"egoboo_typedef.h"
+	<string.h>
+	<ctype.h>
+	"egoboo_typedef.h"
+	<string.h>
+	<ctype.h>
+	"egoboo_typedef.h"
+	<string.h>
+	<ctype.h>
+
+1239265044 /usr/include/assert.h
+	<features.h>
+	<features.h>
+	<features.h>
+
+1237779871 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/client.c
+	"client.h"
+	"client.h"
+	"client.h"
+
+1237779871 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/client.h
 
 1247291001 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/clock.c
+	"proto.h"
+	"clock.h"
+	"log.h"
+	"System.h"
+	<stddef.h>
+	<stdlib.h>
+	<string.h>
+	"proto.h"
+	"clock.h"
+	"log.h"
+	"System.h"
+	<stddef.h>
+	<stdlib.h>
+	<string.h>
 	"egoboo_typedef.h"
 	"clock.h"
 	"log.h"
@@ -4296,7 +2640,15 @@
 
 1240164987 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/clock.h
 
+1240164987 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/System.h
+
 1247291001 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/configfile.c
+	"configfile.h"
+	"proto.h"
+	"egoboo_strutil.h"
+	"configfile.h"
+	"proto.h"
+	"egoboo_strutil.h"
 	"configfile.h"
 	"egoboo_typedef.h"
 	"egoboo_strutil.h"
@@ -4306,8 +2658,183 @@
 	<stdio.h>
 	<stdlib.h>
 	"egoboo_strutil.h"
+	"egoboo_typedef.h"
+	<stdio.h>
+	<stdlib.h>
+	"egoboo_strutil.h"
+	"egoboo_typedef.h"
+	<stdio.h>
+	<stdlib.h>
+	"egoboo_strutil.h"
+
+1247291462 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/ego_wrap.c
+	<string.h>
+	"lua.h"
+	"lauxlib.h"
+	<stdlib.h>
+	<assert.h>
+	"egoboo_typedef.h"
+	"egoboo_config.h"
+	"egoboo_endian.h"
+	"egoboo_math.h"
+	"egoboo_typedef.h"
+	"egoboo.h"
+	"proto.h"
+	"egoboo_math.h"
+	"link.h"
+	"char.h"
+	"particle.h"
+	"enchant.h"
+	"passage.h"
+	"sound.h"
+	"script.h"
+	"module.h"
+	"graphic.h"
+	"gltexture.h"
+	"camera.h"
+	<string.h>
+	"lua.h"
+	"lauxlib.h"
+	<stdlib.h>
+	<assert.h>
+	"egoboo_typedef.h"
+	"egoboo_config.h"
+	"egoboo_endian.h"
+	"egoboo_math.h"
+	"egoboo_typedef.h"
+	"egoboo.h"
+	"proto.h"
+	"egoboo_math.h"
+	"link.h"
+	"char.h"
+	"particle.h"
+	"enchant.h"
+	"Md2.h"
+	"mpd.h"
+	"passage.h"
+	"sound.h"
+	"module.h"
+	"camera.h"
+	"script.h"
+	"script_functions.h"
+	"graphic.h"
+	"gltexture.h"
+	<string.h>
+	"lua.h"
+	"lauxlib.h"
+	<stdlib.h>
+	<assert.h>
+	"egoboo_typedef.h"
+	"egoboo_math.h"
+	"egoboo.h"
+	"egoboo_math.h"
+	"char.h"
+	"particle.h"
+	"enchant.h"
+	"camera.h"
+	"passage.h"
+	"sound.h"
+	"module.h"
+	"module.h"
+	"Md2.h"
+	"mpd.h"
+	"mesh.h"
+	"script.h"
+	"script_functions.h"
+	"log.h"
+	"clock.h"
+	"font.h"
+	"graphic.h"
+	"sound.h"
+	"link.h"
+	"game.h"
+	"ogl_texture.h"
+	"ogl_include.h"
+
+1150375112 /usr/include/lua50/lua.h
+	<stdarg.h>
+	<stddef.h>
+	<stdarg.h>
+	<stddef.h>
+	<stdarg.h>
+	<stddef.h>
+
+1049376934 /usr/include/lua50/lauxlib.h
+	<stddef.h>
+	<stdio.h>
+	"lua.h"
+	<stddef.h>
+	<stdio.h>
+	"lua.h"
+	<stddef.h>
+	<stdio.h>
+	"lua.h"
+
+1244773595 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/link.h
+	"egoboo_typedef.h"
+	"egoboo_typedef.h"
+	"egoboo_math.h"
+	"egoboo_typedef.h"
+	"egoboo_math.h"
+
+1244798170 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/egoboo_console.c
+	"egoboo_console.inl"
+	"egoboo_config.h"
+	"egoboo_math.h"
+	<SDL.h>
+	<SDL_opengl.h>
+	<stdio.h>
+	<string.h>
+	"egoboo_console.inl"
+	"egoboo_config.h"
+	"egoboo_math.h"
+	"ogl_debug.h"
+	"SDL_extensions.h"
+	<SDL.h>
+	<SDL_opengl.h>
+	<stdio.h>
+	<string.h>
+	"egoboo_console.inl"
+	"egoboo_config.h"
+	"egoboo_math.h"
+	"ogl_debug.h"
+	"SDL_extensions.h"
+	<SDL.h>
+	<SDL_opengl.h>
+	<stdio.h>
+	<string.h>
+
+1244773595 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/egoboo_console.inl
+	"egoboo_console.h"
+	"font.h"
+	"egoboo_console.h"
+	"font.h"
+	"egoboo_console.h"
+	"font.h"
+
+1240285058 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/egoboo_console.h
+	<SDL.h>
+	<SDL.h>
+	<SDL.h>
+
+1240164987 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/font.h
+
+1240164987 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/egoboo_endian.c
+	"egoboo_endian.h"
+	"egoboo_endian.h"
+	"egoboo_endian.h"
 
 1247092873 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/egoboo_fileutil.c
+	"egoboo_fileutil.h"
+	"log.h"
+	"egoboo.h"
+	"egoboo_fileutil.h"
+	"ogl_texture.h"
+	"log.h"
+	"egoboo_setup.h"
+	"egoboo_strutil.h"
+	"egoboo.h"
+	"mad.h"
 	"egoboo_fileutil.h"
 	"ogl_texture.h"
 	"log.h"
@@ -4317,6 +2844,10 @@
 	"mad.h"
 
 1247092874 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/egoboo_math.c
+	"egoboo_math.h"
+	"egoboo_math.h"
+	<assert.h>
+	<float.h>
 	"egoboo_math.h"
 	<assert.h>
 	<float.h>
@@ -4330,14 +2861,54 @@
 	"particle.h"
 	"sound.h"
 	"network.h"
+	"egoboo_fileutil.h"
+	"egoboo.h"
+	"egoboo_setup.h"
+	"log.h"
+	"configfile.h"
+	"graphic.h"
+	"input.h"
+	"particle.h"
+	"sound.h"
+	"network.h"
+	"egoboo_fileutil.h"
+	"egoboo.h"
+	"egoboo_setup.h"
+	"log.h"
+	"configfile.h"
+	"graphic.h"
+	"input.h"
+	"particle.h"
+	"sound.h"
+	"network.h"
 	"camera.h"
 	"egoboo_fileutil.h"
 	"egoboo.h"
 
-1247092874 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/egoboo_typedef.c
+1247092874 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/egoboo_setup.h
+	"egoboo_typedef.h"
+	"egoboo_typedef.h"
 	"egoboo_typedef.h"
 
+1244773595 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/egoboo_strutil.c
+	"egoboo_strutil.h"
+	"egoboo_strutil.h"
+	"egoboo_strutil.h"
+
 1247291001 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/enchant.c
+	"enchant.h"
+	"char.h"
+	"sound.h"
+	"egoboo_fileutil.h"
+	"egoboo.h"
+	"enchant.h"
+	"char.h"
+	"sound.h"
+	"camera.h"
+	"mad.h"
+	"game.h"
+	"egoboo_fileutil.h"
+	"egoboo.h"
 	"enchant.h"
 	"char.h"
 	"sound.h"
@@ -4347,7 +2918,242 @@
 	"egoboo_fileutil.h"
 	"egoboo.h"
 
+1244773595 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/file_common.c
+	"file_common.h"
+	"egoboo_config.h"
+	<stdio.h>
+	"file_common.h"
+	"egoboo_config.h"
+	<stdio.h>
+	"file_common.h"
+	"egoboo_config.h"
+	<stdio.h>
+
+1240164987 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/file_linux.c
+	"file_common.h"
+	"log.h"
+	"egoboo.h"
+	<stdio.h>
+	<unistd.h>
+	<pwd.h>
+	<grp.h>
+	<glob.h>
+	<sys/types.h>
+	<sys/stat.h>
+	<sys/dir.h>
+	"file_common.h"
+	"log.h"
+	"egoboo.h"
+	<stdio.h>
+	<unistd.h>
+	<pwd.h>
+	<grp.h>
+	<glob.h>
+	<sys/types.h>
+	<sys/stat.h>
+	<sys/dir.h>
+	"file_common.h"
+	"log.h"
+	"egoboo.h"
+	<stdio.h>
+	<unistd.h>
+	<pwd.h>
+	<grp.h>
+	<glob.h>
+	<sys/types.h>
+	<sys/stat.h>
+	<sys/dir.h>
+
+1239265067 /usr/include/pwd.h
+	<features.h>
+	<bits/types.h>
+	<stddef.h>
+	<stdio.h>
+	<features.h>
+	<bits/types.h>
+	<stddef.h>
+	<stdio.h>
+	<features.h>
+	<bits/types.h>
+	<stddef.h>
+	<stdio.h>
+
+1239265066 /usr/include/grp.h
+	<features.h>
+	<bits/types.h>
+	<stddef.h>
+	<stdio.h>
+	<stddef.h>
+	<features.h>
+	<bits/types.h>
+	<stddef.h>
+	<stdio.h>
+	<stddef.h>
+	<features.h>
+	<bits/types.h>
+	<stddef.h>
+	<stdio.h>
+	<stddef.h>
+
+1239265068 /usr/include/glob.h
+	<sys/cdefs.h>
+	<stddef.h>
+	<sys/cdefs.h>
+	<stddef.h>
+	<sys/cdefs.h>
+	<stddef.h>
+
+1239265072 /usr/include/sys/dir.h
+	<features.h>
+	<dirent.h>
+	<features.h>
+	<dirent.h>
+	<features.h>
+	<dirent.h>
+
+1239265065 /usr/include/dirent.h
+	<features.h>
+	<bits/types.h>
+	<bits/dirent.h>
+	<bits/types.h>
+	<bits/posix1_lim.h>
+	<stddef.h>
+	<features.h>
+	<bits/types.h>
+	<bits/dirent.h>
+	<bits/types.h>
+	<bits/posix1_lim.h>
+	<stddef.h>
+	<features.h>
+	<bits/types.h>
+	<bits/dirent.h>
+	<bits/types.h>
+	<bits/posix1_lim.h>
+	<stddef.h>
+
+1239265065 /usr/include/bits/dirent.h
+
+1239265068 /usr/include/bits/posix1_lim.h
+	<bits/local_lim.h>
+	<bits/local_lim.h>
+	<bits/local_lim.h>
+
+1233224530 l_lim.h>
+
+1239265068 /usr/include/bits/local_lim.h
+	<linux/limits.h>
+	<linux/limits.h>
+	<linux/limits.h>
+
+1233224530 its.h>
+
+1246401019 /usr/include/linux/limits.h
+
+1244773595 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/font.c
+	"font.h"
+	"egoboo_typedef.h"
+	<stdlib.h>
+	<stddef.h>
+	<string.h>
+	<SDL.h>
+	<SDL_opengl.h>
+	<SDL_ttf.h>
+	"font.h"
+	"log.h"
+	"egoboo_typedef.h"
+	"ogl_debug.h"
+	<stdlib.h>
+	<stddef.h>
+	<string.h>
+	<SDL.h>
+	<SDL_opengl.h>
+	<SDL_ttf.h>
+	"font.h"
+	"log.h"
+	"egoboo_typedef.h"
+	"ogl_debug.h"
+	<stdlib.h>
+	<stddef.h>
+	<string.h>
+	<SDL.h>
+	<SDL_opengl.h>
+	<SDL_ttf.h>
+
+1186441190 /usr/include/SDL/SDL_ttf.h
+	"SDL.h"
+	"begin_code.h"
+	"close_code.h"
+	"SDL.h"
+	"begin_code.h"
+	"close_code.h"
+	"SDL.h"
+	"begin_code.h"
+	"close_code.h"
+
 1247291001 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/game.c
+	"egoboo.h"
+	"clock.h"
+	"link.h"
+	"ui.h"
+	"font.h"
+	"log.h"
+	"System.h"
+	"script.h"
+	"sound.h"
+	"graphic.h"
+	"passage.h"
+	"enchant.h"
+	"input.h"
+	"menu.h"
+	"file_common.h"
+	"network.h"
+	"char.h"
+	"particle.h"
+	"camera.h"
+	"id_md2.h"
+	"script_compile.h"
+	"script.h"
+	"egoboo_endian.h"
+	"egoboo_setup.h"
+	"egoboo_strutil.h"
+	"egoboo_fileutil.h"
+	<SDL_image.h>
+	<time.h>
+	<assert.h>
+	"game.h"
+	"egoboo.h"
+	"clock.h"
+	"link.h"
+	"ui.h"
+	"font.h"
+	"log.h"
+	"System.h"
+	"script.h"
+	"sound.h"
+	"graphic.h"
+	"passage.h"
+	"enchant.h"
+	"input.h"
+	"menu.h"
+	"file_common.h"
+	"network.h"
+	"mad.h"
+	"mpd.h"
+	"char.h"
+	"particle.h"
+	"camera.h"
+	"id_md2.h"
+	"script_compile.h"
+	"script.h"
+	"egoboo_endian.h"
+	"egoboo_setup.h"
+	"egoboo_strutil.h"
+	"egoboo_fileutil.h"
+	"SDL_extensions.h"
+	<SDL_image.h>
+	<time.h>
+	<assert.h>
+	<float.h>
 	"game.h"
 	"egoboo.h"
 	"clock.h"
@@ -4385,11 +3191,23 @@
 
 1247092874 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/ui.h
 	"font.h"
+	"gltexture.h"
+	"egoboo_typedef.h"
+	<SDL.h>
+	"font.h"
+	"ogl_texture.h"
+	"egoboo_typedef.h"
+	<SDL.h>
+	"font.h"
 	"ogl_texture.h"
 	"egoboo_typedef.h"
 	<SDL.h>
 
+1240164987 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/id_md2.h
+
 1247092874 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/script_compile.h
+	"egoboo_typedef.h"
+	"egoboo_typedef.h"
 	"egoboo_typedef.h"
 
 1202785916 /usr/include/SDL/SDL_image.h
@@ -4397,8 +3215,66 @@
 	"SDL_version.h"
 	"begin_code.h"
 	"close_code.h"
+	"SDL.h"
+	"SDL_version.h"
+	"begin_code.h"
+	"close_code.h"
+	"SDL.h"
+	"SDL_version.h"
+	"begin_code.h"
+	"close_code.h"
+
+1240285058 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/gltexture.c
+	"gltexture.h"
+	"graphic.h"
+	"log.h"
+	"egoboo.h"
+	<SDL_image.h>
 
 1247291001 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/graphic.c
+	"graphic.h"
+	"log.h"
+	"script.h"
+	"camera.h"
+	"id_md2.h"
+	"input.h"
+	"char.h"
+	"particle.h"
+	"file_common.h"
+	"network.h"
+	"passage.h"
+	"lua_console.h"
+	"egoboo_console.h"
+	"egoboo_fileutil.h"
+	"egoboo.h"
+	<SDL_image.h>
+	<assert.h>
+	"graphic.h"
+	"log.h"
+	"script.h"
+	"camera.h"
+	"id_md2.h"
+	"input.h"
+	"char.h"
+	"particle.h"
+	"file_common.h"
+	"network.h"
+	"passage.h"
+	"menu.h"
+	"enchant.h"
+	"mad.h"
+	"script_compile.h"
+	"game.h"
+	"SDL_extensions.h"
+	"SDL_GL_extensions.h"
+	"egoboo_setup.h"
+	"egoboo_strutil.h"
+	"lua_console.h"
+	"egoboo_console.h"
+	"egoboo_fileutil.h"
+	"egoboo.h"
+	<SDL_image.h>
+	<assert.h>
 	"graphic.h"
 	"log.h"
 	"script.h"
@@ -4426,12 +3302,38 @@
 	<SDL_image.h>
 	<assert.h>
 
+1244773595 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/lua_console.h
+	"egoboo_console.h"
+	"egoboo_console.h"
+	"egoboo_console.h"
+
 1247092874 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/graphic_fan.c
+	"graphic.h"
+	"egoboo.h"
+	"graphic.h"
+	"game.h"
+	"egoboo.h"
 	"graphic.h"
 	"game.h"
 	"egoboo.h"
 
 1247291001 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/graphic_mad.c
+	"graphic.h"
+	"Md2.h"
+	"id_md2.h"
+	"camera.h"
+	"char.h"
+	"egoboo.h"
+	<SDL_opengl.h>
+	"graphic.h"
+	"Md2.h"
+	"id_md2.h"
+	"camera.h"
+	"char.h"
+	"mad.h"
+	"game.h"
+	"egoboo.h"
+	<SDL_opengl.h>
 	"graphic.h"
 	"Md2.h"
 	"id_md2.h"
@@ -4443,6 +3345,15 @@
 	<SDL_opengl.h>
 
 1247291001 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/graphic_prt.c
+	"graphic.h"
+	"particle.h"
+	"egoboo.h"
+	"graphic.h"
+	"particle.h"
+	"char.h"
+	"game.h"
+	"camera.h"
+	"egoboo.h"
 	"graphic.h"
 	"particle.h"
 	"char.h"
@@ -4457,12 +3368,50 @@
 	"ui.h"
 	"log.h"
 	"network.h"
+	"egoboo_fileutil.h"
+	"egoboo.h"
+	"input.h"
+	"lua_console.h"
+	"egoboo_console.h"
+	"ui.h"
+	"log.h"
+	"network.h"
+	"egoboo_setup.h"
+	"egoboo_fileutil.h"
+	"egoboo.h"
+	"input.h"
+	"lua_console.h"
+	"egoboo_console.h"
+	"ui.h"
+	"log.h"
+	"network.h"
 	"game.h"
 	"egoboo_setup.h"
 	"egoboo_fileutil.h"
 	"egoboo.h"
 
 1247291001 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/link.c
+	"link.h"
+	"menu.h"
+	"log.h"
+	"graphic.h"
+	"char.h"
+	"camera.h"
+	"egoboo_fileutil.h"
+	"egoboo.h"
+	"proto.h"
+	"link.h"
+	"char.h"
+	"camera.h"
+	"menu.h"
+	"log.h"
+	"graphic.h"
+	"module.h"
+	"game.h"
+	"egoboo_fileutil.h"
+	"egoboo_strutil.h"
+	"egoboo.h"
+	"proto.h"
 	"link.h"
 	"char.h"
 	"camera.h"
@@ -4482,17 +3431,48 @@
 	<stdlib.h>
 	<stdio.h>
 	<stdarg.h>
-
-1247291001 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/mad.c
-	"mad.h"
 	"log.h"
-	"script_compile.h"
-	"graphic.h"
-	"particle.h"
-	"egoboo_setup.h"
-	"egoboo_fileutil.h"
+	"egoboo_config.h"
+	<stdlib.h>
+	<stdio.h>
+	<stdarg.h>
+	"log.h"
+	"egoboo_config.h"
+	<stdlib.h>
+	<stdio.h>
+	<stdarg.h>
 
 1247291001 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/menu.c
+	"menu.h"
+	"ui.h"
+	"graphic.h"
+	"log.h"
+	"proto.h"
+	"sound.h"
+	"input.h"
+	"char.h"
+	"file_common.h"
+	"particle.h"
+	"egoboo_fileutil.h"
+	"egoboo_setup.h"
+	"egoboo.h"
+	"menu.h"
+	"ui.h"
+	"graphic.h"
+	"log.h"
+	"proto.h"
+	"sound.h"
+	"input.h"
+	"char.h"
+	"file_common.h"
+	"particle.h"
+	"link.h"
+	"mad.h"
+	"game.h"
+	"SDL_extensions.h"
+	"egoboo_fileutil.h"
+	"egoboo_setup.h"
+	"egoboo.h"
 	"menu.h"
 	"ui.h"
 	"graphic.h"
@@ -4511,16 +3491,31 @@
 	"egoboo_setup.h"
 	"egoboo.h"
 
-1247291001 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/mesh.c
-	"mesh.h"
-	"log.h"
-	"egoboo_math.h"
-	"egoboo_endian.h"
-	"egoboo_fileutil.h"
-	"egoboo_strutil.h"
-	"egoboo.h"
-
 1247092874 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/module.c
+	"module.h"
+	"log.h"
+	"menu.h"
+	"sound.h"
+	"graphic.h"
+	"char.h"
+	"enchant.h"
+	"passage.h"
+	"input.h"
+	"egoboo_fileutil.h"
+	"egoboo.h"
+	"module.h"
+	"log.h"
+	"menu.h"
+	"sound.h"
+	"graphic.h"
+	"char.h"
+	"enchant.h"
+	"passage.h"
+	"input.h"
+	"file_common.h"
+	"egoboo_setup.h"
+	"egoboo_fileutil.h"
+	"egoboo.h"
 	"module.h"
 	"log.h"
 	"menu.h"
@@ -4535,16 +3530,30 @@
 	"egoboo_fileutil.h"
 	"egoboo.h"
 
-1247092873 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/mpd.c
-	"mpd.h"
-	"log.h"
-	"egoboo_math.h"
-	"egoboo_endian.h"
-	"egoboo_fileutil.h"
-	"egoboo_strutil.h"
-	"egoboo.h"
-
 1247092874 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/network.c
+	"network.h"
+	"file_common.h"
+	"log.h"
+	"input.h"
+	"char.h"
+	"egoboo.h"
+	<enet/enet.h>
+	<stdio.h>
+	<stdarg.h>
+	<assert.h>
+	"network.h"
+	"file_common.h"
+	"log.h"
+	"input.h"
+	"char.h"
+	"module.h"
+	"game.h"
+	"egoboo_setup.h"
+	"egoboo.h"
+	<enet/enet.h>
+	<stdio.h>
+	<stdarg.h>
+	<assert.h>
 	"network.h"
 	"file_common.h"
 	"log.h"
@@ -4566,20 +3575,46 @@
 	"enet/list.h"
 	"enet/win32.h"
 	"enet/unix.h"
+	<stdlib.h>
+	"enet/types.h"
+	"enet/protocol.h"
+	"enet/list.h"
+	"enet/win32.h"
+	"enet/unix.h"
+	<stdlib.h>
+	"enet/types.h"
+	"enet/protocol.h"
+	"enet/list.h"
+	"enet/win32.h"
+	"enet/unix.h"
 
 1230403177 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/enet/include/enet/types.h
 
 1230403177 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/enet/include/enet/protocol.h
 	"enet/types.h"
+	"enet/types.h"
+	"enet/types.h"
 
 1230403177 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/enet/include/enet/list.h
+	<stdlib.h>
+	<stdlib.h>
 	<stdlib.h>
 
 1230403177 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/enet/include/enet/win32.h
 	<stdlib.h>
 	<winsock2.h>
+	<stdlib.h>
+	<winsock2.h>
+	<stdlib.h>
+	<winsock2.h>
 
 1230403177 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/enet/include/enet/unix.h
+	<stdlib.h>
+	<sys/types.h>
+	<netinet/in.h>
+	<stdlib.h>
+	<sys/types.h>
+	<netinet/in.h>
 	<stdlib.h>
 	<sys/types.h>
 	<netinet/in.h>
@@ -4592,8 +3627,33 @@
 	<bits/in.h>
 	<endian.h>
 	<bits/byteswap.h>
+	<features.h>
+	<stdint.h>
+	<sys/socket.h>
+	<bits/types.h>
+	<bits/in.h>
+	<endian.h>
+	<bits/byteswap.h>
+	<features.h>
+	<stdint.h>
+	<sys/socket.h>
+	<bits/types.h>
+	<bits/in.h>
+	<endian.h>
+	<bits/byteswap.h>
 
 1239265074 /usr/include/sys/socket.h
+	<features.h>
+	<sys/uio.h>
+	<stddef.h>
+	<bits/socket.h>
+	<bits/socket2.h>
+	<features.h>
+	<sys/uio.h>
+	<stddef.h>
+	<bits/sigset.h>
+	<bits/socket.h>
+	<bits/socket2.h>
 	<features.h>
 	<sys/uio.h>
 	<stddef.h>
@@ -4601,7 +3661,15 @@
 	<bits/socket.h>
 	<bits/socket2.h>
 
+1233224536 et2.h>
+
 1239265072 /usr/include/sys/uio.h
+	<features.h>
+	<sys/types.h>
+	<bits/uio.h>
+	<features.h>
+	<sys/types.h>
+	<bits/uio.h>
 	<features.h>
 	<sys/types.h>
 	<bits/uio.h>
@@ -4611,11 +3679,25 @@
 	<sys/types.h>
 	<bits/sockaddr.h>
 	<asm/socket.h>
+	<stddef.h>
+	<sys/types.h>
+	<bits/sockaddr.h>
+	<asm/socket.h>
+	<stddef.h>
+	<sys/types.h>
+	<bits/sockaddr.h>
+	<asm/socket.h>
+
+1239265064 t.h>
 
 1239265074 /usr/include/bits/sockaddr.h
 
 1246401021 /usr/include/asm/socket.h
 	<asm/sockios.h>
+	<asm/sockios.h>
+	<asm/sockios.h>
+
+1238627811 os.h>
 
 1246401021 /usr/include/asm/sockios.h
 
@@ -4623,16 +3705,168 @@
 
 1239265095 /usr/include/bits/in.h
 
-1247092874 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/ogl_texture.c
-	"ogl_texture.h"
-	"ogl_debug.h"
-	"SDL_GL_extensions.h"
+1239265061 /usr/include/bits/byteswap.h
+	<bits/wordsize.h>
+	<bits/wordsize.h>
+	<bits/wordsize.h>
+
+1247092873 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/script.c
+	"script.h"
+	"script_compile.h"
+	"log.h"
+	"link.h"
+	"camera.h"
+	"passage.h"
+	"enchant.h"
+	"char.h"
 	"graphic.h"
+	"input.h"
+	"char.h"
+	"particle.h"
+	"network.h"
+	"egoboo.h"
+	<assert.h>
+	"script.h"
+	"script_compile.h"
+	"script_functions.h"
+	"log.h"
+	"camera.h"
+	"char.h"
+	"mad.h"
+	"game.h"
+	<assert.h>
+	"script.h"
+	"script_compile.h"
+	"script_functions.h"
+	"log.h"
+	"camera.h"
+	"char.h"
+	"mad.h"
+	"game.h"
+	<assert.h>
 	"egoboo_setup.h"
-	"egoboo_strutil.h"
-	<SDL_image.h>
+
+1247092874 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/script_compile.c
+	"script_compile.h"
+	"log.h"
+	"egoboo.h"
+	"script_compile.h"
+	"log.h"
+	"egoboo_setup.h"
+	"egoboo.h"
+	"script_compile.h"
+	"log.h"
+	"egoboo_setup.h"
+	"egoboo.h"
+
+1237779871 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/server.c
+	"server.h"
+	"server.h"
+	"server.h"
+
+1237779871 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/server.h
+
+1244773595 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/sys_linux.c
+	"log.h"
+	"System.h"
+	<stdio.h>
+	<sys/time.h>
+	"log.h"
+	"System.h"
+	<stdio.h>
+	<sys/time.h>
+	"log.h"
+	"System.h"
+	<stdio.h>
+	<sys/time.h>
+
+1239265064 /usr/include/sys/time.h
+	<features.h>
+	<bits/types.h>
+	<time.h>
+	<bits/time.h>
+	<sys/select.h>
+	<features.h>
+	<bits/types.h>
+	<time.h>
+	<bits/time.h>
+	<sys/select.h>
+	<features.h>
+	<bits/types.h>
+	<time.h>
+	<bits/time.h>
+	<sys/select.h>
+
+1247092874 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/ui.c
+	"ui.h"
+	"graphic.h"
+	"egoboo.h"
+	<string.h>
+	<SDL_opengl.h>
+	"ui.h"
+	"graphic.h"
+	"egoboo.h"
+	"ogl_debug.h"
+	"SDL_extensions.h"
+	<string.h>
+	<SDL_opengl.h>
+	"ui.h"
+	"graphic.h"
+	"egoboo.h"
+	"ogl_debug.h"
+	"SDL_extensions.h"
+	<string.h>
+	<SDL_opengl.h>
+
+1244773595 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/lua_console.c
+	"lua_console.h"
+	"egoboo_console.inl"
+	<stdio.h>
+	<string.h>
+	<lua.h>
+	<lauxlib.h>
+	<lualib.h>
+	"lua_console.h"
+	"egoboo_console.inl"
+	<stdio.h>
+	<string.h>
+	<lua.h>
+	<lauxlib.h>
+	<lualib.h>
+	"lua_console.h"
+	"egoboo_console.inl"
+	<stdio.h>
+	<string.h>
+	<lua.h>
+	<lauxlib.h>
+	<lualib.h>
+
+1047990266 /usr/include/lua50/lualib.h
+	"lua.h"
+	"lua.h"
+	"lua.h"
 
 1247291001 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/particle.c
+	"particle.h"
+	"log.h"
+	"sound.h"
+	"camera.h"
+	"enchant.h"
+	"char.h"
+	"egoboo_fileutil.h"
+	"egoboo.h"
+	"particle.h"
+	"log.h"
+	"sound.h"
+	"camera.h"
+	"enchant.h"
+	"char.h"
+	"mad.h"
+	"mpd.h"
+	"game.h"
+	"egoboo_setup.h"
+	"egoboo_fileutil.h"
+	"egoboo.h"
 	"particle.h"
 	"log.h"
 	"sound.h"
@@ -4651,28 +3885,234 @@
 	"char.h"
 	"script.h"
 	"sound.h"
+	"egoboo_fileutil.h"
+	"egoboo.h"
+	"passage.h"
+	"char.h"
+	"script.h"
+	"sound.h"
+	"mpd.h"
+	"game.h"
+	"egoboo_fileutil.h"
+	"egoboo.h"
+	"passage.h"
+	"char.h"
+	"script.h"
+	"sound.h"
 	"mesh.h"
 	"game.h"
 	"egoboo_fileutil.h"
 	"egoboo.h"
 
-1247092873 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/script.c
-	"script.h"
-	"script_compile.h"
-	"script_functions.h"
-	"log.h"
+1247291001 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/sound.c
+	"sound.h"
 	"camera.h"
-	"char.h"
-	"mad.h"
-	"game.h"
-	<assert.h>
-	"egoboo_setup.h"
-
-1247092874 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/script_compile.c
-	"script_compile.h"
 	"log.h"
-	"egoboo_setup.h"
+	"file_common.h"
+	"egoboo_fileutil.h"
 	"egoboo.h"
+	<SDL.h>
+	"sound.h"
+	"camera.h"
+	"log.h"
+	"file_common.h"
+	"game.h"
+	"egoboo_setup.h"
+	"egoboo_fileutil.h"
+	"egoboo.h"
+	"egoboo_setup.h"
+	<SDL.h>
+	"sound.h"
+	"camera.h"
+	"log.h"
+	"file_common.h"
+	"game.h"
+	"char.h"
+	"egoboo_setup.h"
+	"egoboo_fileutil.h"
+	"egoboo.h"
+	"egoboo_setup.h"
+	<SDL.h>
+
+1244773595 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/egoboo_platform.h
+	<SDL.h>
+	<unistd.h>
+	<SDL.h>
+	<unistd.h>
+
+1247092874 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/ogl_texture.h
+	"ogl_include.h"
+	"ogl_debug.h"
+	"egoboo_typedef.h"
+	"ogl_extensions.h"
+	<SDL.h>
+	"ogl_include.h"
+	"ogl_debug.h"
+	"egoboo_typedef.h"
+	"ogl_extensions.h"
+	<SDL.h>
+
+1244599613 sions.h"
+
+1247092874 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/ogl_include.h
+	<SDL_opengl.h>
+	<cassert>
+	<cstdio>
+	<assert.h>
+	<stdio.h>
+	<SDL_opengl.h>
+	<cassert>
+	<cstdio>
+	<assert.h>
+	<stdio.h>
+
+1247092874 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/ogl_debug.h
+	"ogl_include.h"
+	"ogl_include.h"
+
+1246915908 de.h"
+
+1247092874 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/ogl_extensions.h
+	<SDL_opengl.h>
+	<stdio.h>
+	<SDL_opengl.h>
+	<stdio.h>
+
+1247092874 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/mpd.h
+	"egoboo_typedef.h"
+	"egoboo_math.h"
+	"egoboo_typedef.h"
+	"egoboo_math.h"
+
+1247291001 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/mad.h
+	"egoboo_typedef.h"
+	"id_md2.h"
+	"Md2.h"
+	<SDL_opengl.h>
+	"Md2.h"
+	"egoboo_typedef.h"
+	"id_md2.h"
+	"Md2.h"
+	<SDL_opengl.h>
+	"Md2.h"
+
+1244773595 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/id_normals.inl
+
+1247092874 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/SDL_GL_extensions.c
+	"SDL_GL_extensions.h"
+	"ogl_debug.h"
+	"SDL_GL_extensions.h"
+	"ogl_debug.h"
+
+1244773595 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/SDL_GL_extensions.h
+	"ogl_extensions.h"
+	"SDL_extensions.h"
+	"ogl_extensions.h"
+	"SDL_extensions.h"
+
+1247092873 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/SDL_extensions.h
+	<SDL.h>
+	<cassert>
+	<cstdio>
+	<assert.h>
+	<stdio.h>
+	<SDL.h>
+	<cassert>
+	<cstdio>
+	<assert.h>
+	<stdio.h>
+
+1247092873 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/SDL_extensions.c
+	"SDL_extensions.h"
+	<SDL_opengl.h>
+	"SDL_extensions.h"
+	<SDL_opengl.h>
+
+1247092874 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/game.h
+	"egoboo_typedef.h"
+	"egoboo_typedef.h"
+	"egoboo_math.h"
+
+1247092873 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/script_functions.h
+	"egoboo_typedef.h"
+	"egoboo_typedef.h"
+
+1247092874 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/egoboo_typedef.c
+	"egoboo_typedef.h"
+	"egoboo_typedef.h"
+
+1247291001 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/mad.c
+	"mad.h"
+	"log.h"
+	"script_compile.h"
+	"graphic.h"
+	"particle.h"
+	"egoboo_setup.h"
+	"egoboo_fileutil.h"
+	"mad.h"
+	"log.h"
+	"script_compile.h"
+	"graphic.h"
+	"particle.h"
+	"egoboo_setup.h"
+	"egoboo_fileutil.h"
+
+1244773595 leutil.h"
+
+1247092873 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/mpd.c
+	"mpd.h"
+	"log.h"
+	"egoboo_math.h"
+	"egoboo_endian.h"
+	"egoboo_fileutil.h"
+	"egoboo.h"
+	"mpd.h"
+	"log.h"
+	"egoboo_math.h"
+	"egoboo_endian.h"
+	"egoboo_fileutil.h"
+	"egoboo_strutil.h"
+	"egoboo.h"
+
+1247291827 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/ogl_debug.c
+	"ogl_debug.h"
+	<stdio.h>
+	<assert.h>
+	"ogl_debug.h"
+	<stdio.h>
+	<assert.h>
+	<memory.h>
+
+1247291827 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/ogl_extensions.c
+	"ogl_extensions.h"
+	"ogl_debug.h"
+	<math.h>
+	"ogl_extensions.h"
+	"ogl_debug.h"
+	<math.h>
+	<string.h>
+
+1244773595 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/ogl_include.c
+	"ogl_include.h"
+	"ogl_debug.h"
+	"ogl_include.h"
+	"ogl_debug.h"
+
+1247092874 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/ogl_texture.c
+	"ogl_texture.h"
+	"ogl_debug.h"
+	"SDL_GL_extensions.h"
+	"graphic.h"
+	"egoboo_setup.h"
+	"egoboo_strutil.h"
+	<SDL_image.h>
+	"ogl_texture.h"
+	"ogl_debug.h"
+	"SDL_GL_extensions.h"
+	"graphic.h"
+	"egoboo_setup.h"
+	"egoboo_strutil.h"
+	<SDL_image.h>
 
 1247291001 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/script_functions.c
 	"script_functions.h"
@@ -4689,32 +4129,100 @@
 	"mad.h"
 	"game.h"
 	"egoboo_setup.h"
-
-1247291001 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/sound.c
-	"sound.h"
+	"script_functions.h"
+	"link.h"
 	"camera.h"
-	"log.h"
-	"file_common.h"
-	"game.h"
+	"passage.h"
+	"enchant.h"
 	"char.h"
+	"graphic.h"
+	"input.h"
+	"char.h"
+	"particle.h"
+	"network.h"
+	"mad.h"
+	"game.h"
 	"egoboo_setup.h"
-	"egoboo_fileutil.h"
-	"egoboo.h"
-	"egoboo_setup.h"
+
+1248729720 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\egoboo_platform.h
+	<SDL.h>
+	<unistd.h>
+
+1248729723 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\ogl_texture.h
+	"ogl_include.h"
+	"ogl_debug.h"
+	"egoboo_typedef.h"
+	"ogl_extensions.h"
 	<SDL.h>
 
-1247092874 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/ui.c
-	"ui.h"
-	"graphic.h"
-	"egoboo.h"
-	"ogl_debug.h"
-	"SDL_extensions.h"
-	<string.h>
+1248732263 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\ogl_include.h
 	<SDL_opengl.h>
-
-1247291827 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/ogl_debug.c
-	"ogl_debug.h"
-	<stdio.h>
+	<cassert>
+	<cstdio>
 	<assert.h>
-	<memory.h>
+	<stdio.h>
+
+1248729725 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\ogl_debug.h
+	"ogl_include.h"
+
+1248729719 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\ogl_extensions.h
+	<SDL_opengl.h>
+	<stdio.h>
+
+1248729717 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\mpd.h
+	"egoboo_typedef.h"
+	"egoboo_math.h"
+
+1248729723 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\mad.h
+	"egoboo_typedef.h"
+	"id_md2.h"
+	"Md2.h"
+	<SDL_opengl.h>
+	"Md2.h"
+
+1248732819 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\game.h
+	"egoboo_typedef.h"
+	"egoboo_math.h"
+
+1242714178 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\id_normals.inl
+
+1246480797 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\script_functions.h
+	"egoboo_typedef.h"
+
+1248729717 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\sdl_extensions.h
+	<SDL.h>
+	<cassert>
+	<cstdio>
+	<assert.h>
+	<stdio.h>
+
+1244599613 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\sdl_gl_extensions.h
+	"ogl_extensions.h"
+	"SDL_extensions.h"
+
+1248732730 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\mesh.h
+	"mpd.h"
+	"ogl_include.h"
+
+1246915898 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\mesh.c
+	"mesh.h"
+	"log.h"
+	"egoboo_math.h"
+	"egoboo_endian.h"
+	"egoboo_fileutil.h"
+	"egoboo_strutil.h"
+	"egoboo.h"
+
+1247291001 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/mesh.h
+	"mpd.h"
+	"ogl_include.h"
+
+1247291001 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/mesh.c
+	"mesh.h"
+	"log.h"
+	"egoboo_math.h"
+	"egoboo_endian.h"
+	"egoboo_fileutil.h"
+	"egoboo_strutil.h"
+	"egoboo.h"
 

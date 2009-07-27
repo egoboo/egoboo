@@ -348,8 +348,9 @@ bool_t fget_pair( FILE* fileread )
 
     if ( NULL == fileread || ferror(fileread) || feof(fileread) ) return bfalse;
 
-    fscanf( fileread, "%f", &fBase );  // The first number
+    fBase = fget_float( fileread );  // The first number
     pairbase = fBase * 256;
+
     cTmp = fget_first_letter( fileread );  // The hyphen
     if ( cTmp != '-' )
     {
@@ -358,8 +359,9 @@ bool_t fget_pair( FILE* fileread )
         return btrue;
     }
 
-    fscanf( fileread, "%f", &fRand );  // The second number
+    fRand = fget_float( fileread );  // The second number
     pairrand = fRand * 256;
+
     pairrand = pairrand - pairbase;
     if ( pairrand < 1 )
         pairrand = 1;
@@ -593,14 +595,12 @@ int fget_next_int( FILE * fileread )
 }
 
 // --------------------------------------------------------------------------------------------
-bool_t fget_next_string( FILE * fileread, char * str, size_t str_len )
+bool_t fget_string( FILE * fileread, char * str, size_t str_len )
 {
     int fields;
     STRING format_str;
 
     if ( NULL == str || 0 == str_len ) return bfalse;
-
-    goto_colon( NULL, fileread, bfalse );
 
     sprintf( format_str, "%%%ds", str_len - 1 );
 
@@ -609,6 +609,14 @@ bool_t fget_next_string( FILE * fileread, char * str, size_t str_len )
     str[str_len-1] = '\0';
 
     return 1 == fields;
+}
+
+// --------------------------------------------------------------------------------------------
+bool_t fget_next_string( FILE * fileread, char * str, size_t str_len )
+{
+    goto_colon( NULL, fileread, bfalse );
+
+    return fget_string( fileread, str, str_len );
 }
 
 // --------------------------------------------------------------------------------------------

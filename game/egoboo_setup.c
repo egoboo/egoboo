@@ -258,13 +258,13 @@ bool_t setup_download(egoboo_config_t * pcfg)
     // Do we do texture filtering?
     GetKey_string( "TEXTURE_FILTERING", lTempStr, 24, "LINEAR" );
     pcfg->texturefilter_req =  cfg_default.texturefilter_req;
-    if ( toupper(lTempStr[0]) == 'U' )  pcfg->texturefilter_req = TX_UNFILTERED;
-    if ( toupper(lTempStr[0]) == 'L' )  pcfg->texturefilter_req = TX_LINEAR;
-    if ( toupper(lTempStr[0]) == 'M' )  pcfg->texturefilter_req = TX_MIPMAP;
-    if ( toupper(lTempStr[0]) == 'B' )  pcfg->texturefilter_req = TX_BILINEAR;
-    if ( toupper(lTempStr[0]) == 'T' )  pcfg->texturefilter_req = TX_TRILINEAR_1;
-    if ( toupper(lTempStr[0]) == '2' )  pcfg->texturefilter_req = TX_TRILINEAR_2;
-    if ( toupper(lTempStr[0]) == 'A' )  pcfg->texturefilter_req = TX_ANISOTROPIC;
+    if ( 'U' == toupper(lTempStr[0]) )  pcfg->texturefilter_req = TX_UNFILTERED;
+    if ( 'L' == toupper(lTempStr[0]) )  pcfg->texturefilter_req = TX_LINEAR;
+    if ( 'M' == toupper(lTempStr[0]) )  pcfg->texturefilter_req = TX_MIPMAP;
+    if ( 'B' == toupper(lTempStr[0]) )  pcfg->texturefilter_req = TX_BILINEAR;
+    if ( 'T' == toupper(lTempStr[0]) )  pcfg->texturefilter_req = TX_TRILINEAR_1;
+    if ( '2' == toupper(lTempStr[0]) )  pcfg->texturefilter_req = TX_TRILINEAR_2;
+    if ( 'A' == toupper(lTempStr[0]) )  pcfg->texturefilter_req = TX_ANISOTROPIC;
 
     // Max number of lights
     GetKey_int( "MAX_DYNAMIC_LIGHTS", pcfg->dyna_count_req, cfg_default.dyna_count_req );
@@ -308,9 +308,9 @@ bool_t setup_download(egoboo_config_t * pcfg)
     // Camera control mode
     GetKey_string( "AUTOTURN_CAMERA", lTempStr, 24, "GOOD" );
     pcfg->autoturncamera = cfg_default.autoturncamera;
-    if ( toupper(lTempStr[0]) == 'G' )  pcfg->autoturncamera = CAMTURN_GOOD;
-    else if ( toupper(lTempStr[0]) == 'T' )  pcfg->autoturncamera = CAMTURN_AUTO;
-    else if ( toupper(lTempStr[0]) == 'F' )  pcfg->autoturncamera = CAMTURN_NONE;
+    if ( 'G' == toupper(lTempStr[0]) )  pcfg->autoturncamera = CAMTURN_GOOD;
+    else if ( 'T' == toupper(lTempStr[0]) )  pcfg->autoturncamera = CAMTURN_AUTO;
+    else if ( 'F' == toupper(lTempStr[0]) )  pcfg->autoturncamera = CAMTURN_NONE;
 
     // *********************************************
     // * NETWORK Section
@@ -346,9 +346,9 @@ bool_t setup_download(egoboo_config_t * pcfg)
     // Which difficulty mode do we use?
     GetKey_string( "DIFFICULTY_MODE", lTempStr, 24, "NORMAL" );
     pcfg->difficulty = cfg_default.difficulty;
-    if ( toupper(lTempStr[0]) == 'E' )  pcfg->difficulty = GAME_EASY;
-    if ( toupper(lTempStr[0]) == 'N' )  pcfg->difficulty = GAME_NORMAL;
-    if ( toupper(lTempStr[0]) == 'H' )  pcfg->difficulty = GAME_HARD;
+    if ( 'E' == toupper(lTempStr[0]) )  pcfg->difficulty = GAME_EASY;
+    if ( 'N' == toupper(lTempStr[0]) )  pcfg->difficulty = GAME_NORMAL;
+    if ( 'H' == toupper(lTempStr[0]) )  pcfg->difficulty = GAME_HARD;
 
     return btrue;
 }
@@ -601,7 +601,7 @@ bool_t input_settings_load( const char *szFilename )
     // read the keyboard controls
     for (i = KEY_CONTROL_BEGIN; i <= KEY_CONTROL_END; i++)
     {
-        goto_colon( NULL, fileread, bfalse ); fscanf( fileread, "%s", currenttag );
+        fget_next_string( fileread, currenttag, SDL_arraysize(currenttag) );
         controls[INPUT_DEVICE_KEYBOARD].control[i].tag    = scantag_get_value( currenttag );
         controls[INPUT_DEVICE_KEYBOARD].control[i].is_key = ( currenttag[0] == 'K' );
     };
@@ -612,7 +612,7 @@ bool_t input_settings_load( const char *szFilename )
     // read the mouse controls
     for (i = MOS_CONTROL_BEGIN; i <= MOS_CONTROL_END; i++)
     {
-        goto_colon( NULL, fileread, bfalse ); fscanf( fileread, "%s", currenttag );
+        fget_next_string( fileread, currenttag, SDL_arraysize(currenttag) );
         controls[INPUT_DEVICE_MOUSE].control[i].tag    = scantag_get_value( currenttag );
         controls[INPUT_DEVICE_MOUSE].control[i].is_key = ( currenttag[0] == 'K' );
     };
@@ -625,7 +625,7 @@ bool_t input_settings_load( const char *szFilename )
     {
         for (i = JOY_CONTROL_BEGIN; i <= JOY_CONTROL_END; i++)
         {
-            goto_colon( NULL, fileread, bfalse ); fscanf( fileread, "%s", currenttag );
+            fget_next_string( fileread, currenttag, SDL_arraysize(currenttag) );
             controls[INPUT_DEVICE_JOY + cnt].control[i].tag    = scantag_get_value( currenttag );
             controls[INPUT_DEVICE_JOY + cnt].control[i].is_key = ( currenttag[0] == 'K' );
         };

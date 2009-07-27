@@ -58,7 +58,9 @@ Uint16 action_frame()
     // ZZ> This function returns the frame number in the third and fourth characters
     //     of cFrameName
     int number;
+
     sscanf( &cFrameName[2], "%d", &number );
+
     return number;
 }
 
@@ -127,9 +129,10 @@ void action_check_copy( const char* loadname, Uint16 object )
     {
         while ( goto_colon( NULL, fileread, btrue ) )
         {
-            fscanf( fileread, "%s%s", szOne, szTwo );
-
+            fget_string( fileread, szOne, SDL_arraysize(szOne) );
             actiona = action_which( szOne[0] );
+
+            fget_string( fileread, szTwo, SDL_arraysize(szTwo) );
             actionb = action_which( szTwo[0] );
 
             action_copy_correct( object, actiona + 0, actionb + 0 );
@@ -701,7 +704,7 @@ void get_message( FILE* fileread )
     }
 
     msgindex[msgtotal] = msgtotalindex;
-    fscanf( fileread, "%255s", szTmp );
+    fget_string( fileread, szTmp, SDL_arraysize(szTmp) );
     szTmp[255] = '\0';
 
     cTmp = szTmp[0];

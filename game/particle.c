@@ -896,26 +896,26 @@ int load_one_particle_profile( const char *szLoadName )
 
     // General data
     parse_filename = szLoadName;    // For debugging missing colons
-    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
+    cTmp = fget_next_char( fileread );
     ppip->force = bfalse;
-    if ( cTmp == 'T' || cTmp == 't' )  ppip->force = btrue;
+    if ( 'T' == toupper(cTmp) )  ppip->force = btrue;
 
-    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
-    if ( cTmp == 'L' || cTmp == 'l' )  ppip->type = PRTLIGHTSPRITE;
-    else if ( cTmp == 'S' || cTmp == 's' )  ppip->type = PRTSOLIDSPRITE;
-    else if ( cTmp == 'T' || cTmp == 't' )  ppip->type = PRTALPHASPRITE;
+    cTmp = fget_next_char( fileread );
+    if ( 'L' == toupper(cTmp) )  ppip->type = PRTLIGHTSPRITE;
+    else if ( 'S' == toupper(cTmp) )  ppip->type = PRTSOLIDSPRITE;
+    else if ( 'T' == toupper(cTmp) )  ppip->type = PRTALPHASPRITE;
 
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->imagebase = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->numframes = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->imageadd = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->imageaddrand = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->rotatebase = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->rotaterand = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->rotateadd = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->sizebase = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->sizeadd = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp ); ppip->spdlimit = fTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->facingadd = iTmp;
+    iTmp = fget_next_int( fileread ); ppip->imagebase = iTmp;
+    iTmp = fget_next_int( fileread ); ppip->numframes = iTmp;
+    iTmp = fget_next_int( fileread ); ppip->imageadd = iTmp;
+    iTmp = fget_next_int( fileread ); ppip->imageaddrand = iTmp;
+    iTmp = fget_next_int( fileread ); ppip->rotatebase = iTmp;
+    iTmp = fget_next_int( fileread ); ppip->rotaterand = iTmp;
+    iTmp = fget_next_int( fileread ); ppip->rotateadd = iTmp;
+    iTmp = fget_next_int( fileread ); ppip->sizebase = iTmp;
+    iTmp = fget_next_int( fileread ); ppip->sizeadd = iTmp;
+    fTmp = fget_next_float( fileread ); ppip->spdlimit = fTmp;
+    iTmp = fget_next_int( fileread ); ppip->facingadd = iTmp;
 
     // override the base rotation
     if ( 0xFFFF != prt_direction[ ppip->imagebase ] )
@@ -924,136 +924,136 @@ int load_one_particle_profile( const char *szLoadName )
     };
 
     // Ending conditions
-    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
+    cTmp = fget_next_char( fileread );
     ppip->endwater = btrue;
-    if ( cTmp == 'F' || cTmp == 'f' )  ppip->endwater = bfalse;
+    if ( 'F' == toupper(cTmp) )  ppip->endwater = bfalse;
 
-    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
+    cTmp = fget_next_char( fileread );
     ppip->endbump = btrue;
-    if ( cTmp == 'F' || cTmp == 'f' )  ppip->endbump = bfalse;
+    if ( 'F' == toupper(cTmp) )  ppip->endbump = bfalse;
 
-    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
+    cTmp = fget_next_char( fileread );
     ppip->endground = btrue;
-    if ( cTmp == 'F' || cTmp == 'f' )  ppip->endground = bfalse;
+    if ( 'F' == toupper(cTmp) )  ppip->endground = bfalse;
 
-    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
+    cTmp = fget_next_char( fileread );
     ppip->endlastframe = btrue;
-    if ( cTmp == 'F' || cTmp == 'f' )  ppip->endlastframe = bfalse;
+    if ( 'F' == toupper(cTmp) )  ppip->endlastframe = bfalse;
 
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->time = iTmp;
+    iTmp = fget_next_int( fileread ); ppip->time = iTmp;
 
     // Collision data
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp ); ppip->dampen = fTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->bumpmoney = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->bumpsize = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->bumpheight = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fget_pair( fileread );
+    fTmp = fget_next_float( fileread ); ppip->dampen = fTmp;
+    iTmp = fget_next_int( fileread );   ppip->bumpmoney = iTmp;
+    iTmp = fget_next_int( fileread );   ppip->bumpsize = iTmp;
+    iTmp = fget_next_int( fileread );   ppip->bumpheight = iTmp;
+    fget_next_pair( fileread );
     ppip->damagebase = pairbase;
     ppip->damagerand = pairrand;
-    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
-    if ( cTmp == 'S' || cTmp == 's' ) ppip->damagetype = DAMAGE_SLASH;
-    if ( cTmp == 'C' || cTmp == 'c' ) ppip->damagetype = DAMAGE_CRUSH;
-    if ( cTmp == 'P' || cTmp == 'p' ) ppip->damagetype = DAMAGE_POKE;
-    if ( cTmp == 'H' || cTmp == 'h' ) ppip->damagetype = DAMAGE_HOLY;
-    if ( cTmp == 'E' || cTmp == 'e' ) ppip->damagetype = DAMAGE_EVIL;
-    if ( cTmp == 'F' || cTmp == 'f' ) ppip->damagetype = DAMAGE_FIRE;
-    if ( cTmp == 'I' || cTmp == 'i' ) ppip->damagetype = DAMAGE_ICE;
-    if ( cTmp == 'Z' || cTmp == 'z' ) ppip->damagetype = DAMAGE_ZAP;
+    cTmp = fget_next_char( fileread );
+    if ( 'S' == toupper(cTmp) ) ppip->damagetype = DAMAGE_SLASH;
+    if ( 'C' == toupper(cTmp) ) ppip->damagetype = DAMAGE_CRUSH;
+    if ( 'P' == toupper(cTmp) ) ppip->damagetype = DAMAGE_POKE;
+    if ( 'H' == toupper(cTmp) ) ppip->damagetype = DAMAGE_HOLY;
+    if ( 'E' == toupper(cTmp) ) ppip->damagetype = DAMAGE_EVIL;
+    if ( 'F' == toupper(cTmp) ) ppip->damagetype = DAMAGE_FIRE;
+    if ( 'I' == toupper(cTmp) ) ppip->damagetype = DAMAGE_ICE;
+    if ( 'Z' == toupper(cTmp) ) ppip->damagetype = DAMAGE_ZAP;
 
     // Lighting data
-    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
+    cTmp = fget_next_char( fileread );
     ppip->dynalightmode = DYNAOFF;
-    if ( cTmp == 'T' || cTmp == 't' ) ppip->dynalightmode = DYNAON;
-    if ( cTmp == 'L' || cTmp == 'l' ) ppip->dynalightmode = DYNALOCAL;
+    if ( 'T' == toupper(cTmp) ) ppip->dynalightmode = DYNAON;
+    if ( 'L' == toupper(cTmp) ) ppip->dynalightmode = DYNALOCAL;
 
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp ); ppip->dynalevel = fTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->dynafalloff = iTmp;
+    fTmp = fget_next_float( fileread ); ppip->dynalevel = fTmp;
+    iTmp = fget_next_int( fileread ); ppip->dynafalloff = iTmp;
 //    if ( ppip->dynafalloff > MAXFALLOFF && PMod->rtscontrol )  ppip->dynafalloff = MAXFALLOFF;
 
     // Initial spawning of this particle
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->facingbase = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->facingrand = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->xyspacingbase = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->xyspacingrand = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->zspacingbase = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->zspacingrand = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->xyvelbase = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->xyvelrand = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->zvelbase = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->zvelrand = iTmp;
+    iTmp = fget_next_int( fileread ); ppip->facingbase = iTmp;
+    iTmp = fget_next_int( fileread ); ppip->facingrand = iTmp;
+    iTmp = fget_next_int( fileread ); ppip->xyspacingbase = iTmp;
+    iTmp = fget_next_int( fileread ); ppip->xyspacingrand = iTmp;
+    iTmp = fget_next_int( fileread ); ppip->zspacingbase = iTmp;
+    iTmp = fget_next_int( fileread ); ppip->zspacingrand = iTmp;
+    iTmp = fget_next_int( fileread ); ppip->xyvelbase = iTmp;
+    iTmp = fget_next_int( fileread ); ppip->xyvelrand = iTmp;
+    iTmp = fget_next_int( fileread ); ppip->zvelbase = iTmp;
+    iTmp = fget_next_int( fileread ); ppip->zvelrand = iTmp;
 
     // Continuous spawning of other particles
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->contspawntime = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->contspawnamount = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->contspawnfacingadd = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->contspawnpip = iTmp;
+    iTmp = fget_next_int( fileread ); ppip->contspawntime = iTmp;
+    iTmp = fget_next_int( fileread ); ppip->contspawnamount = iTmp;
+    iTmp = fget_next_int( fileread ); ppip->contspawnfacingadd = iTmp;
+    iTmp = fget_next_int( fileread ); ppip->contspawnpip = iTmp;
 
     // End spawning of other particles
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->endspawnamount = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->endspawnfacingadd = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->endspawnpip = iTmp;
+    iTmp = fget_next_int( fileread ); ppip->endspawnamount = iTmp;
+    iTmp = fget_next_int( fileread ); ppip->endspawnfacingadd = iTmp;
+    iTmp = fget_next_int( fileread ); ppip->endspawnpip = iTmp;
 
     // Bump spawning of attached particles
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->bumpspawnamount = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->bumpspawnpip = iTmp;
+    iTmp = fget_next_int( fileread ); ppip->bumpspawnamount = iTmp;
+    iTmp = fget_next_int( fileread ); ppip->bumpspawnpip = iTmp;
 
     // Random stuff  !!!BAD!!! Not complete
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->dazetime = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->grogtime = iTmp;
-    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
+    iTmp = fget_next_int( fileread ); ppip->dazetime = iTmp;
+    iTmp = fget_next_int( fileread ); ppip->grogtime = iTmp;
+    cTmp = fget_next_char( fileread );
     ppip->spawnenchant = bfalse;
-    if ( cTmp == 'T' || cTmp == 't' ) ppip->spawnenchant = btrue;
+    if ( 'T' == toupper(cTmp) ) ppip->spawnenchant = btrue;
 
     goto_colon( NULL, fileread, bfalse );  // !!Cause roll
 
     // Cause pancake
     goto_colon( NULL, fileread, bfalse );
     ppip->causepancake = bfalse;
-    if ( cTmp == 'T' || cTmp == 't' ) ppip->causepancake = btrue;
+    if ( 'T' == toupper(cTmp) ) ppip->causepancake = btrue;
 
-    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
+    cTmp = fget_next_char( fileread );
     ppip->needtarget = bfalse;
-    if ( cTmp == 'T' || cTmp == 't' ) ppip->needtarget = btrue;
+    if ( 'T' == toupper(cTmp) ) ppip->needtarget = btrue;
 
-    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
+    cTmp = fget_next_char( fileread );
     ppip->targetcaster = bfalse;
-    if ( cTmp == 'T' || cTmp == 't' ) ppip->targetcaster = btrue;
+    if ( 'T' == toupper(cTmp) ) ppip->targetcaster = btrue;
 
-    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
+    cTmp = fget_next_char( fileread );
     ppip->startontarget = bfalse;
-    if ( cTmp == 'T' || cTmp == 't' ) ppip->startontarget = btrue;
+    if ( 'T' == toupper(cTmp) ) ppip->startontarget = btrue;
 
-    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
+    cTmp = fget_next_char( fileread );
     ppip->onlydamagefriendly = bfalse;
-    if ( cTmp == 'T' || cTmp == 't' ) ppip->onlydamagefriendly = btrue;
+    if ( 'T' == toupper(cTmp) ) ppip->onlydamagefriendly = btrue;
 
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );
+    iTmp = fget_next_int( fileread );
     ppip->soundspawn = CLIP(iTmp, -1, MAX_WAVE);
 
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );
+    iTmp = fget_next_int( fileread );
     ppip->soundend = CLIP(iTmp, -1, MAX_WAVE);
 
-    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
+    cTmp = fget_next_char( fileread );
     ppip->friendlyfire = bfalse;
-    if ( cTmp == 'T' || cTmp == 't' ) ppip->friendlyfire = btrue;
+    if ( 'T' == toupper(cTmp) ) ppip->friendlyfire = btrue;
 
     goto_colon( NULL, fileread, bfalse );
     // ppip->hateonly = bfalse; TODO: BAD not implemented yet
 
-    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
+    cTmp = fget_next_char( fileread );
     ppip->newtargetonspawn = bfalse;
-    if ( cTmp == 'T' || cTmp == 't' ) ppip->newtargetonspawn = btrue;
+    if ( 'T' == toupper(cTmp) ) ppip->newtargetonspawn = btrue;
 
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->targetangle = iTmp >> 1;
-    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
+    iTmp = fget_next_int( fileread ); ppip->targetangle = iTmp >> 1;
+    cTmp = fget_next_char( fileread );
     ppip->homing = bfalse;
-    if ( cTmp == 'T' || cTmp == 't' ) ppip->homing = btrue;
+    if ( 'T' == toupper(cTmp) ) ppip->homing = btrue;
 
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp ); ppip->homingfriction = fTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp ); ppip->homingaccel = fTmp;
-    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
+    fTmp = fget_next_float( fileread ); ppip->homingfriction = fTmp;
+    fTmp = fget_next_float( fileread ); ppip->homingaccel = fTmp;
+    cTmp = fget_next_char( fileread );
     ppip->rotatetoface = bfalse;
-    if ( cTmp == 'T' || cTmp == 't' ) ppip->rotatetoface = btrue;
+    if ( 'T' == toupper(cTmp) ) ppip->rotatetoface = btrue;
 
     // Clear expansions...
     ppip->zaimspd = 0;

@@ -130,7 +130,7 @@ bool_t link_build( const char * fname, Link_t list[] )
     i = 0;
     while ( goto_colon( NULL, pfile, btrue ) && i < LINK_COUNT )
     {
-        fscanf( pfile, "%s", list[i].modname );
+        fget_string( pfile, list[i].modname, SDL_arraysize(list[i].modname) );
         list[i].valid = btrue;
         i++;
     }

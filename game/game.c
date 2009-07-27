@@ -141,7 +141,7 @@ typedef struct s_collision_data co_data_t;
 // --------------------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------------------
 
-static ego_mpd_t            _mesh[2];
+static ego_mpd_t         _mesh[2];
 static camera_t          _camera[2];
 static ego_process_t     _eproc;
 static menu_process_t    _mproc;
@@ -191,6 +191,9 @@ fog_instance_t        fog;
 
 Uint8  local_senseenemiesTeam = TEAM_GOOD; //TEAM_MAX;
 IDSZ   local_senseenemiesID   = IDSZ_NONE;
+
+Uint32  randindex = 0;
+Uint16  randie[RANDIE_COUNT];
 
 // --------------------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------------------
@@ -725,9 +728,10 @@ void setup_alliances( const char *modname )
     {
         while ( goto_colon( NULL, fileread, btrue ) )
         {
-            fscanf( fileread, "%s", szTemp );
+            fget_string( fileread, szTemp, SDL_arraysize(szTemp) );
             teama = ( szTemp[0] - 'A' ) % TEAM_MAX;
-            fscanf( fileread, "%s", szTemp );
+
+            fget_string( fileread, szTemp, SDL_arraysize(szTemp) );
             teamb = ( szTemp[0] - 'A' ) % TEAM_MAX;
             TeamList[teama].hatesteam[teamb] = bfalse;
         }
@@ -948,8 +952,7 @@ void make_randie()
 
     // Fill in the basic values
     cnt = 0;
-
-    while ( cnt < MAXRAND )
+    while ( cnt < RANDIE_COUNT )
     {
         randie[cnt] = rand() << 1;
         cnt++;
@@ -962,7 +965,7 @@ void make_randie()
     {
         cnt = 0;
 
-        while ( cnt < MAXRAND )
+        while ( cnt < RANDIE_COUNT )
         {
             randie[cnt] += rand();
             cnt++;
@@ -4606,7 +4609,7 @@ bool_t chr_setup_read( FILE * fileread, chr_setup_info_t *pinfo )
     // check for another entry
     if ( !goto_colon( NULL, fileread, btrue ) ) return bfalse;
 
-    fscanf( fileread, "%s", pinfo->spawn_name );
+    fget_string( fileread, pinfo->spawn_name, SDL_arraysize(pinfo->spawn_name) );
     for ( cnt = 0; cnt < sizeof(pinfo->spawn_name); cnt++ )
     {
         if ( pinfo->spawn_name[cnt] == '_' )  pinfo->spawn_name[cnt] = ' ';
@@ -4619,10 +4622,11 @@ bool_t chr_setup_read( FILE * fileread, chr_setup_info_t *pinfo )
         pinfo->pname = NULL;
     }
 
-    fscanf( fileread, "%d", &pinfo->slot );
+    pinfo->slot = fget_int( fileread );
 
-    fscanf( fileread, "%f%f%f", &(pinfo->pos.x), &(pinfo->pos.y), &(pinfo->pos.z) );
-    pinfo->pos.x *= TILE_SIZE;  pinfo->pos.y *= TILE_SIZE;  pinfo->pos.z *= TILE_SIZE;
+    pinfo->pos.x = fget_float( fileread ) * TILE_SIZE;
+    pinfo->pos.y = fget_float( fileread ) * TILE_SIZE;
+    pinfo->pos.z = fget_float( fileread ) * TILE_SIZE;
 
     pinfo->facing = NORTH;
     pinfo->attach = ATTACH_NONE;
@@ -4635,7 +4639,12 @@ bool_t chr_setup_read( FILE * fileread, chr_setup_info_t *pinfo )
     else if ( 'R' == toupper(cTmp) )  pinfo->attach = ATTACH_RIGHT;
     else if ( 'I' == toupper(cTmp) )  pinfo->attach = ATTACH_INVENTORY;
 
-    fscanf( fileread, "%d%d%d%d%d", &pinfo->money, &pinfo->skin, &pinfo->passage, &pinfo->content, &pinfo->level );
+    pinfo->money   = fget_int( fileread );
+    pinfo->skin    = fget_int( fileread );
+    pinfo->passage = fget_int( fileread );
+    pinfo->content = fget_int( fileread );
+    pinfo->level   = fget_int( fileread );
+
     if (pinfo->skin >= MAXSKIN) pinfo->skin = rand() % MAXSKIN;     // Randomize skin?
 
     cTmp = fget_first_letter( fileread );
@@ -4945,7 +4954,7 @@ Uint16 number_of_attached_particles( Uint16 character )
 {
     // ZZ> This function returns the number of particles attached to the given character
     Uint16 cnt = 0;
-	Uint16 particle;
+    Uint16 particle;
 
     for ( particle = 0; particle < maxparticles; particle++ )
     {
@@ -5810,58 +5819,58 @@ void read_wawalite( const char *modname )
     //  !!!BAD!!!
 
     // Read water data first
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer_count = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.spek_start = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.spek_level = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.douse_level = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.surface_level = iTmp;
-    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
-    if ( cTmp == 'T' || cTmp == 't' )  water_data.light = btrue;
+    iTmp = fget_next_int( fileread );  water_data.layer_count = iTmp;
+    iTmp = fget_next_int( fileread );  water_data.spek_start = iTmp;
+    iTmp = fget_next_int( fileread );  water_data.spek_level = iTmp;
+    iTmp = fget_next_int( fileread );  water_data.douse_level = iTmp;
+    iTmp = fget_next_int( fileread );  water_data.surface_level = iTmp;
+    cTmp = fget_next_char( fileread );
+    if ( 'T' == toupper(cTmp) )  water_data.light = btrue;
     else water_data.light = bfalse;
 
-    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
+    cTmp = fget_next_char( fileread );
     water_data.is_water = bfalse;
-    if ( cTmp == 'T' || cTmp == 't' )  water_data.is_water = btrue;
+    if ( 'T' == toupper(cTmp) )  water_data.is_water = btrue;
 
-    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
+    cTmp = fget_next_char( fileread );
     water_data.overlay_req = ('T' == toupper(cTmp));
 
-    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
+    cTmp = fget_next_char( fileread );
     water_data.background_req = ('T' == toupper(cTmp));
 
     // General data info
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  water_data.layer[0].dist.x = fTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  water_data.layer[0].dist.y = fTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  water_data.layer[1].dist.x = fTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  water_data.layer[1].dist.y = fTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.foregroundrepeat = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.backgroundrepeat = iTmp;
+    fTmp = fget_next_float( fileread );  water_data.layer[0].dist.x = fTmp;
+    fTmp = fget_next_float( fileread );  water_data.layer[0].dist.y = fTmp;
+    fTmp = fget_next_float( fileread );  water_data.layer[1].dist.x = fTmp;
+    fTmp = fget_next_float( fileread );  water_data.layer[1].dist.y = fTmp;
+    iTmp = fget_next_int( fileread );  water_data.foregroundrepeat = iTmp;
+    iTmp = fget_next_int( fileread );  water_data.backgroundrepeat = iTmp;
 
     // Read data on first water layer
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer[0].z = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer[0].alpha = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer[0].frame_add = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer[0].light_dir = CLIP(iTmp, 0, 63);
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer[0].light_add = CLIP(iTmp, 0, 63);
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  water_data.layer[0].amp = fTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  water_data.layer[0].tx_add.x = fTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  water_data.layer[0].tx_add.y = fTmp;
+    iTmp = fget_next_int( fileread );  water_data.layer[0].z = iTmp;
+    iTmp = fget_next_int( fileread );  water_data.layer[0].alpha = iTmp;
+    iTmp = fget_next_int( fileread );  water_data.layer[0].frame_add = iTmp;
+    iTmp = fget_next_int( fileread );  water_data.layer[0].light_dir = CLIP(iTmp, 0, 63);
+    iTmp = fget_next_int( fileread );  water_data.layer[0].light_add = CLIP(iTmp, 0, 63);
+    fTmp = fget_next_float( fileread );  water_data.layer[0].amp = fTmp;
+    fTmp = fget_next_float( fileread );  water_data.layer[0].tx_add.x = fTmp;
+    fTmp = fget_next_float( fileread );  water_data.layer[0].tx_add.y = fTmp;
 
     // Read data on second water layer
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer[1].z = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer[1].alpha = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer[1].frame_add = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer[1].light_dir = CLIP(iTmp, 0, 63);
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer[1].light_add = CLIP(iTmp, 0, 63);
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  water_data.layer[1].amp = fTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  water_data.layer[1].tx_add.x = fTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  water_data.layer[1].tx_add.y = fTmp;
+    iTmp = fget_next_int( fileread );  water_data.layer[1].z = iTmp;
+    iTmp = fget_next_int( fileread );  water_data.layer[1].alpha = iTmp;
+    iTmp = fget_next_int( fileread );  water_data.layer[1].frame_add = iTmp;
+    iTmp = fget_next_int( fileread );  water_data.layer[1].light_dir = CLIP(iTmp, 0, 63);
+    iTmp = fget_next_int( fileread );  water_data.layer[1].light_add = CLIP(iTmp, 0, 63);
+    fTmp = fget_next_float( fileread );  water_data.layer[1].amp = fTmp;
+    fTmp = fget_next_float( fileread );  water_data.layer[1].tx_add.x = fTmp;
+    fTmp = fget_next_float( fileread );  water_data.layer[1].tx_add.y = fTmp;
 
     // Read light data second
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  light_x = fTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  light_y = fTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  light_z = fTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  light_a = fTmp * 10.0f;
+    fTmp = fget_next_float( fileread );  light_x = fTmp;
+    fTmp = fget_next_float( fileread );  light_y = fTmp;
+    fTmp = fget_next_float( fileread );  light_z = fTmp;
+    fTmp = fget_next_float( fileread );  light_a = fTmp * 10.0f;
 
     light_d = 0.0f;
     if ( ABS(light_x) + ABS(light_y) + ABS(light_z) > 0 )
@@ -5878,63 +5887,63 @@ void read_wawalite( const char *modname )
     }
 
     // Read tile data third
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  hillslide = fTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  slippyfriction = fTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  airfriction = fTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  waterfriction = fTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  noslipfriction = fTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  gravity = fTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  animtile_data.update_and = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  animtile_data.frame_and = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  damagetile_data.amount = iTmp;
-    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
-    if ( cTmp == 'S' || cTmp == 's' )  damagetile_data.type = DAMAGE_SLASH;
-    if ( cTmp == 'C' || cTmp == 'c' )  damagetile_data.type = DAMAGE_CRUSH;
-    if ( cTmp == 'P' || cTmp == 'p' )  damagetile_data.type = DAMAGE_POKE;
-    if ( cTmp == 'H' || cTmp == 'h' )  damagetile_data.type = DAMAGE_HOLY;
-    if ( cTmp == 'E' || cTmp == 'e' )  damagetile_data.type = DAMAGE_EVIL;
-    if ( cTmp == 'F' || cTmp == 'f' )  damagetile_data.type = DAMAGE_FIRE;
-    if ( cTmp == 'I' || cTmp == 'i' )  damagetile_data.type = DAMAGE_ICE;
-    if ( cTmp == 'Z' || cTmp == 'z' )  damagetile_data.type = DAMAGE_ZAP;
+    fTmp = fget_next_float( fileread );  hillslide = fTmp;
+    fTmp = fget_next_float( fileread );  slippyfriction = fTmp;
+    fTmp = fget_next_float( fileread );  airfriction = fTmp;
+    fTmp = fget_next_float( fileread );  waterfriction = fTmp;
+    fTmp = fget_next_float( fileread );  noslipfriction = fTmp;
+    fTmp = fget_next_float( fileread );  gravity = fTmp;
+    iTmp = fget_next_int( fileread );  animtile_data.update_and = iTmp;
+    iTmp = fget_next_int( fileread );  animtile_data.frame_and = iTmp;
+    iTmp = fget_next_int( fileread );  damagetile_data.amount = iTmp;
+    cTmp = fget_next_char( fileread );
+    if ( 'S' == toupper(cTmp) )  damagetile_data.type = DAMAGE_SLASH;
+    if ( 'C' == toupper(cTmp) )  damagetile_data.type = DAMAGE_CRUSH;
+    if ( 'P' == toupper(cTmp) )  damagetile_data.type = DAMAGE_POKE;
+    if ( 'H' == toupper(cTmp) )  damagetile_data.type = DAMAGE_HOLY;
+    if ( 'E' == toupper(cTmp) )  damagetile_data.type = DAMAGE_EVIL;
+    if ( 'F' == toupper(cTmp) )  damagetile_data.type = DAMAGE_FIRE;
+    if ( 'I' == toupper(cTmp) )  damagetile_data.type = DAMAGE_ICE;
+    if ( 'Z' == toupper(cTmp) )  damagetile_data.type = DAMAGE_ZAP;
 
     // Read weather data fourth
-    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
+    cTmp = fget_next_char( fileread );
     weather_data.over_water = bfalse;
-    if ( cTmp == 'T' || cTmp == 't' )  weather_data.over_water = btrue;
+    if ( 'T' == toupper(cTmp) )  weather_data.over_water = btrue;
 
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  weather_data.timer_reset = iTmp;
+    iTmp = fget_next_int( fileread );  weather_data.timer_reset = iTmp;
 
     // Read extra data
-    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
+    cTmp = fget_next_char( fileread );
     gfx.exploremode = bfalse;
-    if ( cTmp == 'T' || cTmp == 't' )  gfx.exploremode = btrue;
+    if ( 'T' == toupper(cTmp) )  gfx.exploremode = btrue;
 
-    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
+    cTmp = fget_next_char( fileread );
     gfx.usefaredge = bfalse;
-    if ( cTmp == 'T' || cTmp == 't' ) gfx.usefaredge = btrue;
+    if ( 'T' == toupper(cTmp) ) gfx.usefaredge = btrue;
 
     PCamera->swing = 0;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  PCamera->swingrate = fTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  PCamera->swingamp = fTmp;
+    fTmp = fget_next_float( fileread );  PCamera->swingrate = fTmp;
+    fTmp = fget_next_float( fileread );  PCamera->swingamp = fTmp;
 
     // Read unnecessary data...  Only read if it exists...
     if ( goto_colon( NULL, fileread, btrue ) )
     {
-        fscanf( fileread, "%f", &fTmp );  fog_data.top = fTmp;
-        goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  fog_data.bottom = fTmp;
-        goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  fog_data.red = fTmp * 255;
-        goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  fog_data.grn = fTmp * 255;
-        goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  fog_data.blu = fTmp * 255;
-        goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
-        if ( cTmp == 'F' || cTmp == 'f' )  fog_data.affects_water = bfalse;
+        fTmp = fget_float( fileread );       fog_data.top = fTmp;
+        fTmp = fget_next_float( fileread );  fog_data.bottom = fTmp;
+        fTmp = fget_next_float( fileread );  fog_data.red = fTmp * 255;
+        fTmp = fget_next_float( fileread );  fog_data.grn = fTmp * 255;
+        fTmp = fget_next_float( fileread );  fog_data.blu = fTmp * 255;
+        cTmp = fget_next_char( fileread );
+        if ( 'F' == toupper(cTmp) )  fog_data.affects_water = bfalse;
 
         // Read extra stuff for damage tile particles...
         if ( goto_colon( NULL, fileread, btrue ) )
         {
-            fscanf( fileread, "%d", &iTmp );  damagetile_data.parttype = iTmp;
-            goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );
+            iTmp = fget_int( fileread );  damagetile_data.parttype = iTmp;
+            iTmp = fget_next_int( fileread );
             damagetile_data.partand = iTmp;
-            goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );
+            iTmp = fget_next_int( fileread );
             damagetile_data.sound = CLIP(iTmp, -1, MAX_WAVE);
         }
     }
@@ -6832,7 +6841,6 @@ bool_t do_line_of_sight( line_of_sight_info_t * plos )
 
     return mesh_hit || chr_hit;
 }
-
 
 // --------------------------------------------------------------------------------------------
 void reset_players()

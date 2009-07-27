@@ -55,23 +55,23 @@ bool_t open_passage( Uint16 passage )
     int x, y;
     Uint32 fan;
     bool_t useful = bfalse;
-	if( INVALID_PASSAGE(passage) ) return useful;
+    if ( INVALID_PASSAGE(passage) ) return useful;
 
-	useful = ( !PassageList[passage].open );
-	PassageList[passage].open = btrue;
-	y = PassageList[passage].toplefty;
-	while ( y <= PassageList[passage].bottomrighty )
+    useful = ( !PassageList[passage].open );
+    PassageList[passage].open = btrue;
+    y = PassageList[passage].toplefty;
+    while ( y <= PassageList[passage].bottomrighty )
     {
         useful = ( !PassageList[passage].open );
         PassageList[passage].open = btrue;
-        
-        for(y = PassageList[passage].toplefty; y <= PassageList[passage].bottomrighty; y++ )
+
+        for (y = PassageList[passage].toplefty; y <= PassageList[passage].bottomrighty; y++ )
         {
-            
+
             for (x = PassageList[passage].topleftx; x <= PassageList[passage].bottomrightx; x++ )
             {
-				fan = mesh_get_tile_int( PMesh, x, y );
-				if ( VALID_TILE(PMesh, fan) ) PMesh->mmem.tile_list[fan].fx &= ~( MPDFX_WALL | MPDFX_IMPASS );
+                fan = mesh_get_tile_int( PMesh, x, y );
+                if ( VALID_TILE(PMesh, fan) ) PMesh->mmem.tile_list[fan].fx &= ~( MPDFX_WALL | MPDFX_IMPASS );
             }
         }
     }
@@ -81,7 +81,7 @@ bool_t open_passage( Uint16 passage )
 
 // --------------------------------------------------------------------------------------------
 bool_t break_passage( script_state_t * pstate, Uint16 passage, Uint16 starttile, Uint16 frames,
-                   Uint16 become, Uint8 meshfxor )
+                      Uint16 become, Uint8 meshfxor )
 {
     // ZZ> This function breaks the tiles of a passage if there is a character standing
     //     on 'em...  Turns the tiles into damage terrain if it reaches last frame.
@@ -242,15 +242,15 @@ bool_t is_in_passage( Uint16 passage, float xpos, float ypos, float tolerance )
     // ZF> This return btrue if the specified X and Y coordinates are within the passage
     // tolerance is how much offset we allow outside the passage
     float tlx, tly, brx, bry;
-	if( INVALID_PASSAGE(passage) ) return bfalse;
-    
+    if ( INVALID_PASSAGE(passage) ) return bfalse;
+
     // Passage area
-	tolerance += CLOSETOLERANCE;	
-	tlx = ( PassageList[passage].topleftx << TILE_BITS ) - tolerance;
-	tly = ( PassageList[passage].toplefty << TILE_BITS ) - tolerance;
-	brx = ( ( PassageList[passage].bottomrightx + 1 ) << TILE_BITS ) + tolerance;
-	bry = ( ( PassageList[passage].bottomrighty + 1 ) << TILE_BITS ) + tolerance;
-    
+    tolerance += CLOSETOLERANCE;
+    tlx = ( PassageList[passage].topleftx << TILE_BITS ) - tolerance;
+    tly = ( PassageList[passage].toplefty << TILE_BITS ) - tolerance;
+    brx = ( ( PassageList[passage].bottomrightx + 1 ) << TILE_BITS ) + tolerance;
+    bry = ( ( PassageList[passage].bottomrighty + 1 ) << TILE_BITS ) + tolerance;
+
     if ( xpos > tlx && xpos < brx )
     {
         if ( ypos > tly && ypos < bry )
@@ -399,7 +399,7 @@ bool_t close_passage( Uint16 passage )
     float bumpsize;
     Uint16 numcrushed = 0;
     Uint16 crushedcharacters[MAX_CHR];
-	if( INVALID_PASSAGE( passage ) ) return bfalse;
+    if ( INVALID_PASSAGE( passage ) ) return bfalse;
 
     if ( HAS_SOME_BITS( PassageList[passage].mask, MPDFX_IMPASS | MPDFX_WALL ) )
     {
@@ -438,9 +438,9 @@ bool_t close_passage( Uint16 passage )
     }
 
     // Close it off
-	PassageList[passage].open = bfalse;
+    PassageList[passage].open = bfalse;
     for ( y = PassageList[passage].toplefty; y <= PassageList[passage].bottomrighty; y++ )
-    {        
+    {
         for (x = PassageList[passage].topleftx; x <= PassageList[passage].bottomrightx; x++ )
         {
             fan = mesh_get_tile_int( PMesh, x, y );
@@ -450,7 +450,6 @@ bool_t close_passage( Uint16 passage )
             }
         }
     }
-
 
     return btrue;
 }
@@ -533,17 +532,21 @@ void setup_passage( const char *modname )
 
     while ( goto_colon( NULL, fileread, btrue ) )
     {
-        fscanf( fileread, "%d%d%d%d", &tlx, &tly, &brx, &bry );
+        tlx  = fget_int( fileread );
+        tly  = fget_int( fileread );
+        brx  = fget_int( fileread );
+        bry  = fget_int( fileread );
+
         cTmp = fget_first_letter( fileread );
         open = bfalse;
-        if ( cTmp == 'T' || cTmp == 't' ) open = btrue;
+        if ( 'T' == toupper(cTmp) ) open = btrue;
 
         cTmp = fget_first_letter( fileread );
         mask = MPDFX_IMPASS | MPDFX_WALL;
-        if ( cTmp == 'T' || cTmp == 't' ) mask = MPDFX_IMPASS;
+        if ( 'T' == toupper(cTmp) ) mask = MPDFX_IMPASS;
 
         cTmp = fget_first_letter( fileread );
-        if ( cTmp == 'T' || cTmp == 't' ) mask = MPDFX_SLIPPY;
+        if ( 'T' == toupper(cTmp) ) mask = MPDFX_SLIPPY;
 
         add_passage( tlx, tly, brx, bry, open, mask );
     }

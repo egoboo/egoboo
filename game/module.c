@@ -31,6 +31,7 @@
 #include "passage.h"
 #include "input.h"
 #include "file_common.h"
+#include "game.h"
 
 #include "egoboo_setup.h"
 #include "egoboo_fileutil.h"
@@ -220,30 +221,31 @@ bool_t module_load_info( const char * szLoadName, mod_data_t * pmod )
     parse_filename = szLoadName;
 
     // Read basic data
-    goto_colon( NULL, fileread, bfalse );  fget_name( fileread, pmod->longname, sizeof(pmod->longname) );
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%s", pmod->reference );
-    goto_colon( NULL, fileread, bfalse );  pmod->quest_idsz = fget_idsz( fileread ); pmod->quest_level = fget_int( fileread );
+    fget_next_name( fileread, pmod->longname, sizeof(pmod->longname) );
+    fget_next_string( fileread, pmod->reference, SDL_arraysize(pmod->reference) );
+    pmod->quest_idsz = fget_next_idsz( fileread ); pmod->quest_level = fget_int( fileread );
 
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );
+    iTmp = fget_next_int( fileread );
     pmod->importamount = iTmp;
 
-    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
+    cTmp = fget_next_char( fileread );
     pmod->allowexport = bfalse;
-    if ( cTmp == 'T' || cTmp == 't' )  pmod->allowexport = btrue;
+    if ( 'T' == toupper(cTmp) )  pmod->allowexport = btrue;
 
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  pmod->minplayers = iTmp;
+    iTmp = fget_next_int( fileread );  pmod->minplayers = iTmp;
 
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  pmod->maxplayers = iTmp;
+    iTmp = fget_next_int( fileread );  pmod->maxplayers = iTmp;
 
-    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
+    cTmp = fget_next_char( fileread );
     pmod->respawnvalid = bfalse;
-    if ( cTmp == 'T' || cTmp == 't' )  pmod->respawnvalid = btrue;
-    if ( cTmp == 'A' || cTmp == 'a' )  pmod->respawnvalid = ANYTIME;
+    if ( 'T' == toupper(cTmp) )  pmod->respawnvalid = btrue;
+    if ( 'A' == toupper(cTmp) )  pmod->respawnvalid = ANYTIME;
 
     goto_colon( NULL, fileread, bfalse );   // BAD: Skip line
     //  pmod->rtscontrol = bfalse;
 
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%s", readtext );
+    fget_next_string( fileread, readtext, SDL_arraysize(readtext) );
+
     for ( iTmp = 0; iTmp < RANKSIZE - 1; iTmp++ )
     {
         pmod->rank[iTmp] = readtext[iTmp];
@@ -254,11 +256,10 @@ bool_t module_load_info( const char * szLoadName, mod_data_t * pmod )
     cnt = 0;
     while ( cnt < SUMMARYLINES )
     {
-        goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%255s", szLine );
+        fget_next_string( fileread, szLine, SDL_arraysize(szLine) );
+
         tnc = 0;
-
         cTmp = szLine[tnc];  if ( cTmp == '_' )  cTmp = ' ';
-
         while ( tnc < SUMMARYSIZE - 1 && cTmp != 0 )
         {
             pmod->summary[cnt][tnc] = cTmp;
@@ -335,7 +336,7 @@ bool_t module_upload( module_instance_t * pinst, int imod, Uint32 seed )
     pinst->respawnvalid   = ( bfalse != pdata->respawnvalid );
     pinst->respawnanytime = ( ANYTIME == pdata->respawnvalid );
 
-	strcpy(pinst->loadname, pdata->loadname);
+    strcpy(pinst->loadname, pdata->loadname);
 
     pinst->active = bfalse;
     pinst->beat   = bfalse;
@@ -367,7 +368,7 @@ bool_t module_start( module_instance_t * pinst )
 
     srand( pinst->seed );
     pinst->randsave = rand();
-    randindex = rand() % MAXRAND;
+    randindex = rand() % RANDIE_COUNT;
 
     PNet->hostactive = btrue; // very important or the input will not work
 

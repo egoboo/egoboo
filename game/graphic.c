@@ -315,9 +315,9 @@ void display_message( script_state_t * pstate, int message, Uint16 character )
 
     Uint16 target = ChrList[character].ai.target;
     Uint16 owner  = ChrList[character].ai.owner;
-	if ( NULL == pstate ) target = character;
-    
-	if ( message < msgtotal )
+    if ( NULL == pstate ) target = character;
+
+    if ( message < msgtotal )
     {
         slot = get_free_message();
         msgtime[slot] = cfg.message_duration;
@@ -365,7 +365,7 @@ void display_message( script_state_t * pstate, int message, Uint16 character )
                         else
                             sprintf( szTmp, "a %s", CapList[ChrList[target].model].classname );
                     }
-					if ( cnt == 0 && szTmp[0] == 'a' )  szTmp[0] = 'A';
+                    if ( cnt == 0 && szTmp[0] == 'a' )  szTmp[0] = 'A';
                 }
                 if ( cTmp == 'o' )  // Owner name
                 {
@@ -391,7 +391,7 @@ void display_message( script_state_t * pstate, int message, Uint16 character )
                 }
                 if ( NULL != pstate )
                 {
-					if ( cTmp == 'd' )  // tmpdistance value
+                    if ( cTmp == 'd' )  // tmpdistance value
                     {
                         sprintf( szTmp, "%d", pstate->distance );
                     }
@@ -416,7 +416,7 @@ void display_message( script_state_t * pstate, int message, Uint16 character )
                         sprintf( szTmp, "%2d", pstate->y );
                     }
                 }
-				    
+
                 if ( cTmp == 'a' )  // Character's ammo
                 {
                     if ( ChrList[character].ammoknown )
@@ -1324,13 +1324,13 @@ void font_load( const char* szBitmap, const char* szSpacing )
     stt_y = 0;
 
     // Uniform font height is at the top
-    goto_colon( NULL, fileread, bfalse );
-    fscanf( fileread, "%d", &yspacing );
+    yspacing = fget_next_int( fileread );
     fontoffset = yspacing;
 
     for ( cnt = 0; cnt < NUMFONT && goto_colon( NULL, fileread, btrue ); cnt++ )
     {
-        fscanf( fileread, "%c%d", &cTmp, &xspacing );
+        cTmp = fget_first_letter( fileread );
+        xspacing = fget_int( fileread );
         if ( asciitofont[(Uint8)cTmp] == 255 ) asciitofont[(Uint8)cTmp] = (Uint8) cnt;
         if ( stt_x + xspacing + 1 > 255 )
         {

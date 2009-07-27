@@ -764,11 +764,13 @@ void load_all_music_sounds()
     // Load the music data into memory
     for ( cnt = 0; cnt < MAXPLAYLISTLENGTH && !feof( playlist ); cnt++ )
     {
-        goto_colon( NULL, playlist, btrue );
-        fscanf( playlist, "%s", songname );
-        sprintf( loadpath, ( "basicdat" SLASH_STR "music" SLASH_STR "%s" ), songname );
+        if ( goto_colon( NULL, playlist, btrue ) )
+        {
+            fget_string( playlist, songname, SDL_arraysize(songname) );
 
-        musictracksloaded[cnt] = Mix_LoadMUS( loadpath );
+            sprintf( loadpath, ( "basicdat" SLASH_STR "music" SLASH_STR "%s" ), songname );
+            musictracksloaded[cnt] = Mix_LoadMUS( loadpath );
+        }
     }
     musicinmemory = btrue;
 
@@ -937,7 +939,7 @@ void looped_clear()
 
     for (cnt = 0; cnt < LOOPED_COUNT; cnt++)
     {
-        if( INVALID_SOUND != looped_list[cnt].channel )
+        if ( INVALID_SOUND != looped_list[cnt].channel )
         {
             Mix_FadeOutChannel( looped_list[cnt].channel, 500 );
 
@@ -989,7 +991,7 @@ int looped_add( Mix_Chunk * sound, int loops, Uint16 object )
             // set up the looped_list entry at the empty index
 
             channel = Mix_PlayChannel( -1, sound, loops );
-            if( INVALID_SOUND != channel )
+            if ( INVALID_SOUND != channel )
             {
                 looped_list[index].chunk   = sound;
                 looped_list[index].channel = channel;

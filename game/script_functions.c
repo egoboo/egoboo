@@ -4469,10 +4469,10 @@ Uint8 scr_HealTarget( script_state_t * pstate, ai_state_t * pself )
     IDSZ test;
 
     SCRIPT_FUNCTION_BEGIN();
-	returncode = bfalse;
-	if ( heal_character(pself->target, pself->index, pstate->argument, bfalse ) )
+    returncode = bfalse;
+    if ( heal_character(pself->target, pself->index, pstate->argument, bfalse ) )
     {
-		returncode = btrue;
+        returncode = btrue;
 
         // Check all enchants to see if they are removed
         iTmp = ChrList[pself->target].firstenchant;

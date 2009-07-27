@@ -869,7 +869,7 @@ int doChoosePlayer( float deltaTime )
                 menuState = MM_Running;
             }*/
 
-			//Simply fall through
+            //Simply fall through
             menuState = MM_Running;
             break;
 
@@ -981,25 +981,25 @@ int doChoosePlayer( float deltaTime )
             }
 
             // Buttons for going ahead
-            
-			//Continue
-			if ( mnu_selectedPlayerCount != 0 && BUTTON_UP == ui_doButton( 100, button_text[0], buttonLeft, buttonTop, 200, 30 ) )
+
+            //Continue
+            if ( mnu_selectedPlayerCount != 0 && BUTTON_UP == ui_doButton( 100, button_text[0], buttonLeft, buttonTop, 200, 30 ) )
             {
                 menuState = MM_Leaving;
             }
-            
-			//Back
-			if ( BUTTON_UP == ui_doButton( 101, button_text[1], buttonLeft, buttonTop + 35, 200, 30 ) )
+
+            //Back
+            if ( BUTTON_UP == ui_doButton( 101, button_text[1], buttonLeft, buttonTop + 35, 200, 30 ) )
             {
-        		mnu_selectedPlayerCount = 0;
+                mnu_selectedPlayerCount = 0;
                 menuState = MM_Leaving;
             }
-        
+
             break;
 
         case MM_Leaving:
             /*
-			// Do buttons sliding out and background fading
+            // Do buttons sliding out and background fading
             // Do the same stuff as in MM_Entering, but backwards
             GL_DEBUG(glColor4f)(1, 1, 1, 1 - SlidyButtonState.lerp );
             // Buttons
@@ -1009,10 +1009,10 @@ int doChoosePlayer( float deltaTime )
             {
                 menuState = MM_Finish;
             }
-			*/
+            */
 
-			//Simply fall through
-             menuState = MM_Finish;
+            //Simply fall through
+            menuState = MM_Finish;
             break;
 
         case MM_Finish:
@@ -2695,7 +2695,7 @@ int doGamePaused( float deltaTime )
     static const char * buttons[] =
     {
         "Quit Module",
-		"Restart Module",
+        "Restart Module",
         "Audio Options",
         "Input Controls",
         "Video Settings",
@@ -3077,16 +3077,16 @@ int doMenu( float deltaTime )
 
                     result = MENU_QUIT;
                 }
-                else if ( result == 2 ) 
-				{
-					mnu_end_menu();
-					game_begin_module( PMod->loadname, (Uint32)~0);
-					retval = MENU_END;
-				}
-				else if ( result == 3 ) mnu_begin_menu( emnu_AudioOptions );
+                else if ( result == 2 )
+                {
+                    mnu_end_menu();
+                    game_begin_module( PMod->loadname, (Uint32)~0);
+                    retval = MENU_END;
+                }
+                else if ( result == 3 ) mnu_begin_menu( emnu_AudioOptions );
                 else if ( result == 4 ) mnu_begin_menu( emnu_InputOptions );
                 else if ( result == 5 ) mnu_begin_menu( emnu_VideoOptions );
-				else if ( result == 6 ) { mnu_end_menu(); retval = MENU_END;} 
+                else if ( result == 6 ) { mnu_end_menu(); retval = MENU_END;}
             }
             break;
 
@@ -3350,9 +3350,9 @@ int get_skin( const char *filename )
     fileread = fopen( filename, "r" );
     if ( fileread )
     {
-        goto_colon( NULL, fileread, btrue );
-        fscanf( fileread, "%d", &skin );
+        skin = fget_next_int( fileread );
         skin %= MAXSKIN;
+
         fclose( fileread );
     }
 

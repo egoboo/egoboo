@@ -54,13 +54,6 @@
 
 #define VERSION "2.7.4b"                         // Version of the game
 
-// My lil' random number table
-#define MAXRAND 4096
-#define RANDIE randie[randindex];  randindex = (randindex++)&(MAXRAND-1)
-
-EXTERN Uint16  randindex EQ( 0 );
-EXTERN Uint16  randie[MAXRAND];
-
 enum e_game_difficulty
 {
     GAME_EASY  = 0,

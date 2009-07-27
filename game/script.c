@@ -1426,4 +1426,3 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
     }
 }
 
-

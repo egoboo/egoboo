@@ -49,6 +49,7 @@ bool_t goto_colon( char * buffer, FILE* fileread, bool_t optional );
 char * goto_colon_mem( char * buffer, char * pmem, char * pmem_end, bool_t optional );
 
 bool_t fget_name( FILE* fileread,  char *szName, size_t max_len );
+bool_t fget_string( FILE * fileread, char * str, size_t str_len );
 Sint32 fget_int( FILE* fileread );
 char   fget_first_letter( FILE* fileread );
 IDSZ   fget_idsz( FILE* fileread );

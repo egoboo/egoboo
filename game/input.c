@@ -356,7 +356,8 @@ bool_t scantag_read_one( FILE *fileread )
     retval = goto_colon( NULL, fileread, btrue ) && (scantag_count < MAXTAG);
     if ( retval )
     {
-        fscanf( fileread, "%s%d", scantag[scantag_count].name, &scantag[scantag_count].value );
+        fget_string( fileread, scantag[scantag_count].name, SDL_arraysize(scantag[scantag_count].name) );
+        scantag[scantag_count].value = fget_int( fileread );
         scantag_count++;
     }
 
