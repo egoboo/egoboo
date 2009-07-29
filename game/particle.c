@@ -36,8 +36,8 @@
 #include "egoboo_fileutil.h"
 #include "egoboo.h"
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 enum e_particle_direction
 {
     prt_v = 0x0000,    // particle is vertical on the bitmap
@@ -47,8 +47,8 @@ enum e_particle_direction
 };
 typedef enum e_particle_direction particle_direction_t;
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 static int       numfreeprt = 0;                            // For allocation
 static Uint16    freeprtlist[TOTAL_MAX_PRT];
 
@@ -81,14 +81,14 @@ particle_direction_t prt_direction[256] =
     prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_u, prt_u, prt_u, prt_u
 };
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 int prt_count_free()
 {
     return numfreeprt;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void free_one_particle( Uint16 particle )
 {
     // ZZ> This function sticks a particle back on the free particle stack
@@ -108,7 +108,7 @@ void free_one_particle( Uint16 particle )
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void play_particle_sound( Uint16 particle, Sint8 sound )
 {
     // This function plays a sound effect for a particle
@@ -132,7 +132,7 @@ void play_particle_sound( Uint16 particle, Sint8 sound )
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void free_one_particle_in_game( Uint16 particle )
 {
     // ZZ> This function sticks a particle back on the free particle stack and
@@ -163,7 +163,7 @@ void free_one_particle_in_game( Uint16 particle )
     free_one_particle( particle );
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 int get_free_particle( int force )
 {
     // ZZ> This function gets an unused particle.  If all particles are in use
@@ -205,7 +205,7 @@ int get_free_particle( int force )
     return (particle >= maxparticles) ? TOTAL_MAX_PRT : particle;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint16 spawn_one_particle( float x, float y, float z,
                            Uint16 facing, Uint16 model, Uint16 ipip,
                            Uint16 characterattach, Uint16 vrt_offset, Uint8 team,
@@ -433,7 +433,7 @@ Uint16 spawn_one_particle( float x, float y, float z,
     return iprt;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 __prthitawall( Uint16 particle )
 {
     // ZZ> This function returns nonzero if the particle hit a wall
@@ -457,7 +457,7 @@ Uint8 __prthitawall( Uint16 particle )
     return retval;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void move_particles( void )
 {
     // ZZ> This is the particle physics function
@@ -698,7 +698,7 @@ void move_particles( void )
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void free_all_particles()
 {
     // ZZ> This function resets the particle allocation lists
@@ -714,7 +714,7 @@ void free_all_particles()
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void setup_particles()
 {
     // ZZ> This function sets up particle data
@@ -736,7 +736,7 @@ void setup_particles()
     free_all_particles();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void spawn_bump_particles( Uint16 character, Uint16 particle )
 {
     // ZZ> This function is for catching characters on fire and such
@@ -845,7 +845,7 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 int prt_is_over_water( Uint16 cnt )
 {
     // This function returns btrue if the particle is over a water tile
@@ -862,7 +862,7 @@ int prt_is_over_water( Uint16 cnt )
     return bfalse;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 int load_one_particle_profile( const char *szLoadName )
 {
     // ZZ> This function loads a particle template, returning bfalse if the file wasn't
@@ -1109,7 +1109,7 @@ int load_one_particle_profile( const char *szLoadName )
     return retval;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void reset_particles( const char* modname )
 {
     // ZZ> This resets all particle data and reads in the coin and water particles

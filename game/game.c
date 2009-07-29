@@ -65,8 +65,8 @@
 #include <assert.h>
 #include <float.h>
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 
 enum e_attachment_type
 {
@@ -79,8 +79,8 @@ enum e_attachment_type
 #define CHR_MAX_COLLISIONS    512*16
 #define COLLISION_HASH_NODES (CHR_MAX_COLLISIONS*2)
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 struct s_line_of_sight_info
 {
     float x0, y0, z0;
@@ -99,8 +99,8 @@ static bool_t collide_ray_with_mesh( line_of_sight_info_t * plos );
 static bool_t collide_ray_with_characters( line_of_sight_info_t * plos );
 static bool_t do_line_of_sight( line_of_sight_info_t * plos );
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 struct s_chr_setup_info
 {
     STRING     spawn_name;
@@ -116,7 +116,7 @@ struct s_chr_setup_info
 };
 typedef struct s_chr_setup_info chr_setup_info_t;
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 // Bump List
 struct s_bumplist
 {
@@ -127,7 +127,7 @@ struct s_bumplist
 };
 typedef struct s_bumplist bumplist_t;
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 // pair-wise collision data
 
 struct s_collision_data
@@ -138,8 +138,8 @@ struct s_collision_data
 
 typedef struct s_collision_data co_data_t;
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 
 static ego_mpd_t         _mesh[2];
 static camera_t          _camera[2];
@@ -148,8 +148,8 @@ static menu_process_t    _mproc;
 static game_process_t    _gproc;
 static module_instance_t gmod;
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t  overrideslots      = bfalse;
 
 bool_t    screenshotkeyready = btrue;
@@ -195,8 +195,8 @@ IDSZ   local_senseenemiesID   = IDSZ_NONE;
 Uint32  randindex = 0;
 Uint16  randie[RANDIE_COUNT];
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 
 // game initialization / deinitialization - not accessible by scripts
 static void make_randie();
@@ -285,9 +285,9 @@ static void   memory_cleanUp(void);
 
 static void   do_game_hud();
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 // Random Things-----------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void export_one_character( Uint16 character, Uint16 owner, int number, bool_t is_local )
 {
     // ZZ> This function exports a character
@@ -377,8 +377,8 @@ void export_one_character( Uint16 character, Uint16 owner, int number, bool_t is
         sprintf( fromfile, "%s" SLASH_STR "credits.txt", fromdir );
         sprintf( tofile,   "%s" SLASH_STR "credits.txt", todir );
         fs_copyFile( fromfile, tofile );
-   //     sprintf( fromfile, "%s" SLASH_STR "quest.txt", fromdir );		Zefz> We can't do this yet, quests are written directly into players/x.obj
-   //     sprintf( tofile,   "%s" SLASH_STR "quest.txt", todir );       instead of import/x.obj which should be changed or all changes are lost.
+        //     sprintf( fromfile, "%s" SLASH_STR "quest.txt", fromdir );     Zefz> We can't do this yet, quests are written directly into players/x.obj
+        //     sprintf( tofile,   "%s" SLASH_STR "quest.txt", todir );       instead of import/x.obj which should be changed or all changes are lost.
         fs_copyFile( fromfile, tofile );
 
         // Copy all of the particle files
@@ -419,7 +419,7 @@ void export_one_character( Uint16 character, Uint16 owner, int number, bool_t is
     }
 }
 
-// ---------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------
 void export_all_players( bool_t require_local )
 {
     // ZZ> This function saves all the local players in the
@@ -472,7 +472,7 @@ void export_all_players( bool_t require_local )
 
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void _quit_game( ego_process_t * pgame )
 {
     // ZZ> This function exits the game entirely
@@ -488,7 +488,7 @@ void _quit_game( ego_process_t * pgame )
     empty_import_directory();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void getadd( int min, int value, int max, int* valuetoadd )
 {
     // ZZ> This function figures out what value to add should be in order
@@ -512,7 +512,7 @@ void getadd( int min, int value, int max, int* valuetoadd )
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void fgetadd( float min, float value, float max, float* valuetoadd )
 {
     // ZZ> This function figures out what value to add should be in order
@@ -536,9 +536,9 @@ void fgetadd( float min, float value, float max, float* valuetoadd )
     }
 }
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void log_madused( const char *savename )
 {
     // ZZ> This is a debug function for checking model loads
@@ -562,7 +562,7 @@ void log_madused( const char *savename )
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void statlist_add( Uint16 character )
 {
     // ZZ> This function adds a status display to the do list
@@ -574,7 +574,7 @@ void statlist_add( Uint16 character )
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void statlist_move_to_top( Uint16 character )
 {
     // ZZ> This function puts the character on top of the statlist
@@ -607,7 +607,7 @@ void statlist_move_to_top( Uint16 character )
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void statlist_sort()
 {
     // ZZ> This function puts all of the local players on top of the statlist
@@ -621,7 +621,7 @@ void statlist_sort()
         }
     }
 }
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void chr_play_action( Uint16 character, Uint16 action, Uint8 actionready )
 {
     // ZZ> This function starts a generic action for a character
@@ -647,7 +647,7 @@ void chr_play_action( Uint16 character, Uint16 action, Uint8 actionready )
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void chr_set_frame( Uint16 character, Uint16 action, int frame, Uint16 lip )
 {
     // ZZ> This function sets the frame for a character explicitly...  This is used to
@@ -691,7 +691,7 @@ void chr_set_frame( Uint16 character, Uint16 action, int frame, Uint16 lip )
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 int generate_number( int numbase, int numrand )
 {
     // ZZ> This function generates a random number
@@ -711,7 +711,7 @@ int generate_number( int numbase, int numrand )
     return tmp;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void setup_alliances( const char *modname )
 {
     // ZZ> This function reads the alliance file
@@ -739,7 +739,7 @@ void setup_alliances( const char *modname )
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void update_game()
 {
     // ZZ> This function does several iterations of character movements and such
@@ -873,7 +873,7 @@ void update_game()
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void update_timers()
 {
     // ZZ> This function updates the game timers
@@ -888,7 +888,7 @@ void update_timers()
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void reset_teams()
 {
     // ZZ> This function makes everyone hate everyone else
@@ -919,7 +919,7 @@ void reset_teams()
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void reset_messages()
 {
     // ZZ> This makes messages safe to use
@@ -943,7 +943,7 @@ void reset_messages()
     msgtext[0] = '\0';
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void make_randie()
 {
     // ZZ> This function makes the random number table
@@ -977,7 +977,7 @@ void make_randie()
     randindex = 0;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void reset_timers()
 {
     // ZZ> This function resets the timers...
@@ -994,7 +994,7 @@ void reset_timers()
     outofsync = bfalse;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 int game_do_menu( menu_process_t * mproc )
 {
     // BB> do menus
@@ -1040,8 +1040,8 @@ int game_do_menu( menu_process_t * mproc )
     return menuResult;
 }
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 int do_ego_proc_begin( ego_process_t * eproc )
 {
     // Initialize logging first, so that we can use it everywhere.
@@ -1115,7 +1115,7 @@ int do_ego_proc_begin( ego_process_t * eproc )
     return 1;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 int do_ego_proc_running( ego_process_t * eproc )
 {
     bool_t menu_valid, game_valid;
@@ -1214,7 +1214,7 @@ int do_ego_proc_running( ego_process_t * eproc )
     return 0;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 int do_ego_proc_leaving( ego_process_t * eproc )
 {
     if ( !process_instance_validate( PROC_PBASE(eproc) )  ) return -1;
@@ -1238,7 +1238,7 @@ int do_ego_proc_leaving( ego_process_t * eproc )
     return eproc->base.terminated ? 0 : 1;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 int do_ego_proc_run( ego_process_t * eproc, double frameDuration )
 {
     int result = 0, proc_result = 0;
@@ -1297,8 +1297,8 @@ int do_ego_proc_run( ego_process_t * eproc, double frameDuration )
     return result;
 }
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 int do_menu_proc_begin( menu_process_t * mproc )
 {
     // play some music
@@ -1318,7 +1318,7 @@ int do_menu_proc_begin( menu_process_t * mproc )
     return 1;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 int do_menu_proc_running( menu_process_t * mproc )
 {
     int menuResult;
@@ -1359,7 +1359,7 @@ int do_menu_proc_running( menu_process_t * mproc )
     return 0;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 int do_menu_proc_leaving( menu_process_t * mproc )
 {
     if ( !process_instance_validate( PROC_PBASE(mproc) ) ) return -1;
@@ -1370,7 +1370,7 @@ int do_menu_proc_leaving( menu_process_t * mproc )
     return 1;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 int do_menu_proc_run( menu_process_t * mproc, double frameDuration )
 {
     int result = 0, proc_result = 0;
@@ -1429,8 +1429,8 @@ int do_menu_proc_run( menu_process_t * mproc, double frameDuration )
     return result;
 }
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 int do_game_proc_begin( game_process_t * gproc )
 {
 
@@ -1470,7 +1470,7 @@ int do_game_proc_begin( game_process_t * gproc )
     return 1;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 int do_game_proc_running( game_process_t * gproc )
 {
     if ( !process_instance_validate( PROC_PBASE(gproc) ) ) return -1;
@@ -1565,7 +1565,7 @@ int do_game_proc_running( game_process_t * gproc )
     return 0;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 int do_game_proc_leaving( game_process_t * gproc )
 {
     if ( !process_instance_validate( PROC_PBASE(gproc) ) ) return -1;
@@ -1579,7 +1579,7 @@ int do_game_proc_leaving( game_process_t * gproc )
     return 1;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 int do_game_proc_run( game_process_t * gproc, double frameDuration )
 {
     int result = 0, proc_result = 0;
@@ -1639,8 +1639,8 @@ int do_game_proc_run( game_process_t * gproc, double frameDuration )
     return result;
 }
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 int SDL_main( int argc, char **argv )
 {
     // ZZ> This is where the program starts and all the high level stuff happens
@@ -1690,7 +1690,7 @@ int SDL_main( int argc, char **argv )
     return result;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void memory_cleanUp(void)
 {
     // ZF> This function releases all loaded things in memory and cleans up everything properly
@@ -1733,7 +1733,7 @@ void memory_cleanUp(void)
     log_shutdown();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 int load_one_object( const char* tmploadname, int skin )
 {
     // ZZ> This function loads one object and returns the number of skins
@@ -1762,7 +1762,7 @@ int load_one_object( const char* tmploadname, int skin )
     return numskins;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint16 get_particle_target( float pos_x, float pos_y, float pos_z, Uint16 facing,
                             Uint16 particletype, Uint8 team, Uint16 donttarget,
                             Uint16 oldtarget )
@@ -1805,7 +1805,7 @@ Uint16 get_particle_target( float pos_x, float pos_y, float pos_z, Uint16 facing
     // All done
     return besttarget;
 }
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint16 get_target( Uint16 ichr_src, Uint32 max_dist, TARGET_TYPE target_type, bool_t target_items, bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz )
 {
     // ZF> This is the new improved AI targeting system. Also includes distance in the Z direction.
@@ -1901,7 +1901,7 @@ Uint16 get_target( Uint16 ichr_src, Uint32 max_dist, TARGET_TYPE target_type, bo
     return best_target;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void make_onwhichfan( void )
 {
     // ZZ> This function figures out which fan characters are on and sets their level
@@ -2039,7 +2039,7 @@ void make_onwhichfan( void )
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint16 terp_dir( Uint16 majordir, Uint16 minordir )
 {
     // ZZ> This function returns a direction between the major and minor ones, closer
@@ -2062,7 +2062,7 @@ Uint16 terp_dir( Uint16 majordir, Uint16 minordir )
     return minordir;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint16 terp_dir_fast( Uint16 majordir, Uint16 minordir )
 {
     // ZZ> This function returns a direction between the major and minor ones, closer
@@ -2085,7 +2085,7 @@ Uint16 terp_dir_fast( Uint16 majordir, Uint16 minordir )
     return minordir;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void do_enchant_spawn()
 {
     // ZZ> This function lets enchantments spawn particles
@@ -2117,7 +2117,7 @@ void do_enchant_spawn()
         }
     }
 }
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void update_pits()
 {
     // ZZ> This function kills any character in a deep pit...
@@ -2217,7 +2217,7 @@ void update_pits()
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void do_weather_spawn()
 {
     // ZZ> This function drops snowflakes or rain or whatever, also swings the camera
@@ -2280,7 +2280,7 @@ void do_weather_spawn()
     PCamera->swing = ( PCamera->swing + PCamera->swingrate ) & 16383;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void set_one_player_latch( Uint16 player )
 {
     // ZZ> This function converts input readings to latch settings, so players can
@@ -2507,7 +2507,7 @@ void set_one_player_latch( Uint16 player )
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void set_local_latches( void )
 {
     // ZZ> This function emulates AI thinkin' by setting latches from input devices
@@ -2519,7 +2519,7 @@ void set_local_latches( void )
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void prime_names()
 {
     // ZZ> This function prepares the name chopper for use
@@ -2528,7 +2528,7 @@ void prime_names()
     chop.carat = 0;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void check_stats()
 {
     // ZZ> This function lets the players check character stats
@@ -2630,7 +2630,7 @@ void check_stats()
 
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void show_stat( Uint16 statindex )
 {
     // ZZ> This function shows the more specific stats for a character
@@ -2682,7 +2682,7 @@ void show_stat( Uint16 statindex )
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void show_armor( Uint16 statindex )
 {
     // ZF> This function shows detailed armor information for the character
@@ -2744,7 +2744,7 @@ void show_armor( Uint16 statindex )
 
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void show_full_status( Uint16 statindex )
 {
     // ZF> This function shows detailed armor information for the character including magic
@@ -2796,7 +2796,7 @@ void show_full_status( Uint16 statindex )
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void show_magic_status( Uint16 statindex )
 {
     // ZF> Displays special enchantment effects for the character
@@ -2844,7 +2844,7 @@ void show_magic_status( Uint16 statindex )
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void fill_bumplists()
 {
     Uint16 character, particle;
@@ -2917,7 +2917,7 @@ void fill_bumplists()
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void fill_collision_list( co_data_t cdata[], int * cdata_count, hash_node_t hnlst[], int * hn_count )
 {
     Uint16 ichr_a, ichr_b, iprt_b;
@@ -3017,7 +3017,7 @@ void fill_collision_list( co_data_t cdata[], int * cdata_count, hash_node_t hnls
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t can_mount( Uint16 ichr_a, Uint16 ichr_b )
 {
     bool_t is_valid_rider_a, is_valid_mount_b;
@@ -3048,7 +3048,7 @@ bool_t can_mount( Uint16 ichr_a, Uint16 ichr_b )
     return is_valid_rider_a && is_valid_mount_b;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t do_platforms( Uint16 ichr_a, Uint16 ichr_b )
 {
     float xa, ya, za;
@@ -3194,7 +3194,7 @@ bool_t do_platforms( Uint16 ichr_a, Uint16 ichr_b )
     return btrue;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t do_mounts( Uint16 ichr_a, Uint16 ichr_b )
 {
     float xa, ya, za;
@@ -3348,7 +3348,7 @@ bool_t do_mounts( Uint16 ichr_a, Uint16 ichr_b )
     return btrue;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
 {
     float xa, ya, za, xb, yb, zb;
@@ -3524,7 +3524,7 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
     was_collide_xy = (was_dist < radius_xy);
     was_collide_z  = (was_depth_z > 0);
 
-    // ------------------
+    //------------------
     // do character-character interactions
     if ( !collide_x || !collide_y || !collide_xy || depth_z < -PLATTOLERANCE ) return bfalse;
 
@@ -3857,7 +3857,7 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
     return btrue;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
 {
     Uint16 ipip_b, direction;
@@ -4181,7 +4181,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     return btrue;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 // collision data
 static int       cdata_count = 0;
 static co_data_t cdata[CHR_MAX_COLLISIONS];
@@ -4360,7 +4360,7 @@ void bump_characters( void )
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void stat_return()
 {
     // ZZ> This function brings mana and life back
@@ -4501,7 +4501,7 @@ void stat_return()
 
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void tilt_characters_to_terrain()
 {
     // ZZ> This function sets all of the character's starting tilt values
@@ -4527,7 +4527,7 @@ void tilt_characters_to_terrain()
 
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 int load_all_objects( const char *modname )
 {
     // ZZ> This function loads a module's local objects and overrides the global ones already loaded
@@ -4596,7 +4596,7 @@ int load_all_objects( const char *modname )
     return skin;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t chr_setup_read( FILE * fileread, chr_setup_info_t *pinfo )
 {
     int cnt;
@@ -4657,7 +4657,7 @@ bool_t chr_setup_read( FILE * fileread, chr_setup_info_t *pinfo )
     return btrue;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t chr_setup_apply( Uint16 ichr, chr_setup_info_t *pinfo )
 {
     // trap bad pointers
@@ -4707,7 +4707,7 @@ bool_t chr_setup_apply( Uint16 ichr, chr_setup_info_t *pinfo )
     return btrue;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void setup_characters( const char *modname )
 {
     // ZZ> This function sets up character data, loaded from "SPAWN.TXT"
@@ -4824,7 +4824,7 @@ void setup_characters( const char *modname )
     tilt_characters_to_terrain();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void load_all_global_objects(int skin)
 {
     // ZF> This function loads all global objects found in the basicdat folder
@@ -4857,7 +4857,7 @@ void load_all_global_objects(int skin)
     fs_findClose();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void game_reset_module_data()
 {
     // reset all
@@ -4874,7 +4874,7 @@ void game_reset_module_data()
     reset_renderlist();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t game_load_module_data( const char *smallname )
 {
     // ZZ> This function loads a module
@@ -4930,7 +4930,7 @@ bool_t game_load_module_data( const char *smallname )
     return btrue;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void disaffirm_attached_particles( Uint16 character )
 {
     // ZZ> This function makes sure a character has no attached particles
@@ -4948,7 +4948,7 @@ void disaffirm_attached_particles( Uint16 character )
     ChrList[character].ai.alert |= ALERTIF_DISAFFIRMED;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint16 number_of_attached_particles( Uint16 character )
 {
     // ZZ> This function returns the number of particles attached to the given character
@@ -4966,7 +4966,7 @@ Uint16 number_of_attached_particles( Uint16 character )
     return cnt;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void reaffirm_attached_particles( Uint16 character )
 {
     // ZZ> This function makes sure a character has all of it's particles
@@ -4990,7 +4990,7 @@ void reaffirm_attached_particles( Uint16 character )
     ChrList[character].ai.alert |= ALERTIF_REAFFIRMED;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void game_quit_module()
 {
     // BB > all of the de-initialization code after the module actually ends
@@ -5011,7 +5011,7 @@ void game_quit_module()
     sound_finish_sound();
 }
 
-// -----------------------------------------------------------------
+//-----------------------------------------------------------------
 bool_t game_begin_module( const char * modname, Uint32 seed )
 {
     // BB> all of the initialization code before the module actually starts
@@ -5056,7 +5056,7 @@ bool_t game_begin_module( const char * modname, Uint32 seed )
     return btrue;
 }
 
-// -----------------------------------------------------------------
+//-----------------------------------------------------------------
 bool_t game_update_imports()
 {
     // BB> This function saves all the players to the players dir
@@ -5135,7 +5135,7 @@ bool_t game_update_imports()
     return btrue;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void game_release_module_data()
 {
     // ZZ> This function frees up memory used by the module
@@ -5155,7 +5155,7 @@ void game_release_module_data()
     mesh_delete( PMesh );
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void attach_particles()
 {
     // ZZ> This function attaches particles to their characters so everything gets
@@ -5181,7 +5181,7 @@ void attach_particles()
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 int add_player( Uint16 character, Uint16 player, Uint32 device )
 {
     // ZZ> This function adds a player, returning bfalse if it fails, btrue otherwise
@@ -5220,7 +5220,7 @@ int add_player( Uint16 character, Uint16 player, Uint32 device )
     return bfalse;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void let_all_characters_think()
 {
     // ZZ> This function lets every computer controlled character do AI stuff
@@ -5262,7 +5262,7 @@ void let_all_characters_think()
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t game_begin_menu( menu_process_t * mproc, which_menu_t which )
 {
     if ( NULL == mproc ) return bfalse;
@@ -5280,7 +5280,7 @@ bool_t game_begin_menu( menu_process_t * mproc, which_menu_t which )
     return btrue;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void game_end_menu( menu_process_t * mproc )
 {
     mnu_end_menu();
@@ -5292,7 +5292,7 @@ void game_end_menu( menu_process_t * mproc )
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void game_finish_module()
 {
     // export all the local and remote characters
@@ -5302,7 +5302,7 @@ void game_finish_module()
     game_quit_module();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void free_all_objects( void )
 {
     // BB > free every instance of the three object types used in the game.
@@ -5312,8 +5312,8 @@ void free_all_objects( void )
     free_all_characters();
 }
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t add_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b, co_data_t cdata[], int * cdata_count, hash_node_t hnlst[], int * hn_count )
 {
     Uint32 hashval = 0;
@@ -5373,7 +5373,7 @@ bool_t add_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b, co_data_t cdata[], i
     return !found;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t add_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b, co_data_t cdata[], int * cdata_count, hash_node_t hnlst[], int * hn_count )
 {
     bool_t found;
@@ -5433,7 +5433,7 @@ bool_t add_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b, co_data_t cdata[], i
     return !found;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t detect_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
 {
     bool_t collide_x  = bfalse;
@@ -5509,7 +5509,7 @@ bool_t detect_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
     return btrue;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t detect_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
 {
     bool_t collide_x  = bfalse;
@@ -5564,8 +5564,8 @@ bool_t detect_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     return btrue;
 }
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 ego_mpd_t * set_PMesh( ego_mpd_t * pmpd )
 {
     ego_mpd_t * pmpd_old = PMesh;
@@ -5575,7 +5575,7 @@ ego_mpd_t * set_PMesh( ego_mpd_t * pmpd )
     return pmpd_old;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 camera_t * set_PCamera( camera_t * pcam )
 {
     camera_t * pcam_old = PCamera;
@@ -5591,7 +5591,7 @@ camera_t * set_PCamera( camera_t * pcam )
     return pcam_old;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t water_data_init( water_data_t * pdata )
 {
     if ( NULL == pdata ) return bfalse;
@@ -5650,7 +5650,7 @@ bool_t water_instance_init( water_instance_t * pinst, water_data_t * pdata )
     return btrue;
 };
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t weather_data_init( weather_data_t * pdata )
 {
     if ( NULL == pdata ) return bfalse;
@@ -5662,7 +5662,7 @@ bool_t weather_data_init( weather_data_t * pdata )
     return btrue;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t weather_instance_init( weather_instance_t * pinst, weather_data_t * pdata )
 {
     if ( NULL == pinst ) return bfalse;
@@ -5676,7 +5676,7 @@ bool_t weather_instance_init( weather_instance_t * pinst, weather_data_t * pdata
     return btrue;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t fog_data_init( fog_data_t * pdata )
 {
     if ( NULL == pdata ) return bfalse;
@@ -5691,7 +5691,7 @@ bool_t fog_data_init( fog_data_t * pdata )
     return btrue;
 };
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t fog_instance_init( fog_instance_t * pinst, fog_data_t * pdata )
 {
     if ( NULL == pinst ) return bfalse;
@@ -5716,7 +5716,7 @@ bool_t fog_instance_init( fog_instance_t * pinst, fog_data_t * pdata )
     return btrue;
 };
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t damagetile_data_init( damagetile_data_t * pdata )
 {
     if ( NULL == pdata ) return bfalse;
@@ -5730,7 +5730,7 @@ bool_t damagetile_data_init( damagetile_data_t * pdata )
     return btrue;
 };
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t damagetile_instance_init( damagetile_instance_t * pinst, damagetile_data_t * pdata )
 {
     if ( NULL == pinst ) return bfalse;
@@ -5745,7 +5745,7 @@ bool_t damagetile_instance_init( damagetile_instance_t * pinst, damagetile_data_
     return btrue;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t animtile_data_init( animtile_data_t * pdata )
 {
     if ( NULL == pdata ) return bfalse;
@@ -5758,7 +5758,7 @@ bool_t animtile_data_init( animtile_data_t * pdata )
     return btrue;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t animtile_instance_init( animtile_instance_t pinst[], animtile_data_t * pdata )
 {
     if ( NULL == pinst ) return bfalse;
@@ -5782,7 +5782,7 @@ bool_t animtile_instance_init( animtile_instance_t pinst[], animtile_data_t * pd
     return btrue;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void read_wawalite( const char *modname )
 {
     // ZZ> This function sets up water and lighting for the module
@@ -5971,7 +5971,7 @@ void read_wawalite( const char *modname )
     make_lighttospek();
 }
 
-// ---------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------
 float get_mesh_level( ego_mpd_t * pmesh, float x, float y, bool_t waterwalk )
 {
     // ZZ> This function returns the height of a point within a mesh fan, precise
@@ -5995,7 +5995,7 @@ float get_mesh_level( ego_mpd_t * pmesh, float x, float y, bool_t waterwalk )
     return zdone;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t make_water( water_instance_t * pinst, water_data_t * pdata )
 {
     // ZZ> This function sets up water movements
@@ -6045,7 +6045,7 @@ bool_t make_water( water_instance_t * pinst, water_data_t * pdata )
     return btrue;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void reset_end_text()
 {
     // ZZ> This function resets the end-module text
@@ -6074,7 +6074,7 @@ void reset_end_text()
     str_add_linebreaks( endtext, endtextwrite, 20 );
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void append_end_text( script_state_t * pstate, int message, Uint16 character )
 {
     // ZZ> This function appends a message to the end-module text
@@ -6290,7 +6290,7 @@ void append_end_text( script_state_t * pstate, int message, Uint16 character )
     str_add_linebreaks( endtext, endtextwrite, 20 );
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t game_choose_module( int imod, int seed )
 {
     if ( seed < 0 ) seed = time(NULL);
@@ -6300,8 +6300,8 @@ bool_t game_choose_module( int imod, int seed )
     return module_upload( PMod, imod, seed );
 }
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 process_instance_t * process_instance_init( process_instance_t * proc )
 {
     if ( NULL == proc ) return proc;
@@ -6404,7 +6404,7 @@ bool_t process_instance_running( process_instance_t * proc )
     return !proc->paused;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 ego_process_t * ego_process_init( ego_process_t * eproc )
 {
     if ( NULL == eproc ) return NULL;
@@ -6416,7 +6416,7 @@ ego_process_t * ego_process_init( ego_process_t * eproc )
     return eproc;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 menu_process_t * menu_process_init( menu_process_t * mproc )
 {
     if ( NULL == mproc ) return NULL;
@@ -6428,7 +6428,7 @@ menu_process_t * menu_process_init( menu_process_t * mproc )
     return mproc;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 game_process_t * game_process_init( game_process_t * gproc )
 {
     if ( NULL == gproc ) return NULL;
@@ -6443,8 +6443,8 @@ game_process_t * game_process_init( game_process_t * gproc )
     return gproc;
 }
 
-// ---------------------------------------------------------------------------------------------
-// ---------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------
 void init_all_pip()
 {
     Uint16 cnt;
@@ -6455,7 +6455,7 @@ void init_all_pip()
     }
 }
 
-// ---------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------
 void init_all_eve()
 {
     Uint16 cnt;
@@ -6466,7 +6466,7 @@ void init_all_eve()
     }
 }
 
-// ---------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------
 void init_all_cap()
 {
     Uint16 cnt;
@@ -6477,7 +6477,7 @@ void init_all_cap()
     }
 }
 
-// ---------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------
 void init_all_mad()
 {
     Uint16 cnt;
@@ -6493,7 +6493,7 @@ void init_all_mad()
     md2_loadframe = 0;
 }
 
-// ---------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------
 void init_all_profiles()
 {
     // ZZ> This function initializes all of the model profiles
@@ -6505,8 +6505,8 @@ void init_all_profiles()
     init_all_ai_scripts();
 }
 
-// ---------------------------------------------------------------------------------------------
-// ---------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------
 void release_all_pip()
 {
     int cnt;
@@ -6517,7 +6517,7 @@ void release_all_pip()
     }
 }
 
-// ---------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------
 void release_all_eve()
 {
     int cnt;
@@ -6528,7 +6528,7 @@ void release_all_eve()
     }
 }
 
-// ---------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------
 void release_all_cap()
 {
     int cnt, tnc;
@@ -6547,7 +6547,7 @@ void release_all_cap()
     };
 }
 
-// ---------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------
 void release_all_mad()
 {
     int cnt;
@@ -6562,7 +6562,7 @@ void release_all_mad()
     md2_loadframe = 0;
 }
 
-// ---------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------
 void release_all_profiles()
 {
     // ZZ> This function clears out all of the model data
@@ -6574,7 +6574,7 @@ void release_all_profiles()
     release_all_ai_scripts();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 /*Uint8 find_target_in_block( int x, int y, float chrx, float chry, Uint16 facing,
 Uint8 onlyfriends, Uint8 anyone, Uint8 team,
 Uint16 donttarget, Uint16 oldtarget )
@@ -6631,7 +6631,7 @@ cnt++;
 return returncode;
 }*/
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 /*Uint16 find_target( float chrx, float chry, Uint16 facing,
 Uint16 targetangle, Uint8 onlyfriends, Uint8 anyone,
 Uint8 team, Uint16 donttarget, Uint16 oldtarget )
@@ -6678,8 +6678,8 @@ void do_game_hud()
     }
 }
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t collide_ray_with_mesh( line_of_sight_info_t * plos )
 {
     Uint32 fan_last;
@@ -6806,7 +6806,7 @@ bool_t collide_ray_with_mesh( line_of_sight_info_t * plos )
     return bfalse;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t collide_ray_with_characters( line_of_sight_info_t * plos )
 {
     Uint16 ichr;
@@ -6823,7 +6823,7 @@ bool_t collide_ray_with_characters( line_of_sight_info_t * plos )
     return bfalse;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t do_line_of_sight( line_of_sight_info_t * plos )
 {
     bool_t mesh_hit, chr_hit;
@@ -6841,7 +6841,7 @@ bool_t do_line_of_sight( line_of_sight_info_t * plos )
     return mesh_hit || chr_hit;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void reset_players()
 {
     // ZZ> This function clears the player list data

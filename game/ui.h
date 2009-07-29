@@ -57,17 +57,17 @@ struct s_ui_Widget
     Font         *pfont;
     const char   *text;
     oglx_texture *img;
-    int           x;
-    int           y;
-    int           width;
-    int           height;
     Uint32 mask,  state, timeout;
+
+    // virtual screen coordinates
+    float         vx, vy;
+    float         vwidth, vheight;
 };
 typedef struct s_ui_Widget ui_Widget_t;
 
 bool_t ui_copyWidget( ui_Widget_t * pw2, ui_Widget_t * pw1 );
-bool_t ui_shrinkWidget( ui_Widget_t * pw2, ui_Widget_t * pw1, int pixels );
-bool_t ui_initWidget( ui_Widget_t * pw, ui_id_t id, Font * pfont, const char *text, oglx_texture *img, int x, int y, int width, int height );
+bool_t ui_shrinkWidget( ui_Widget_t * pw2, ui_Widget_t * pw1, float pixels );
+bool_t ui_initWidget( ui_Widget_t * pw, ui_id_t id, Font * pfont, const char *text, oglx_texture *img, float x, float y, float width, float height );
 bool_t ui_widgetAddMask( ui_Widget_t * pw, Uint32 mbits );
 bool_t ui_widgetRemoveMask( ui_Widget_t * pw, Uint32 mbits );
 bool_t ui_widgetSetMask( ui_Widget_t * pw, Uint32 mbits );
@@ -86,16 +86,17 @@ void ui_endFrame();
 
 // UI controls
 ui_buttonValues ui_doWidget( ui_Widget_t * pWidget );
-ui_buttonValues ui_doButton( ui_id_t id, const char *text, int x, int y, int width, int height );
-ui_buttonValues ui_doImageButton( ui_id_t id, oglx_texture *img, int x, int y, int width, int height );
-ui_buttonValues ui_doImageButtonWithText( ui_id_t id, oglx_texture *img, const char *text, int x, int y, int width, int height );
-// int  ui_doTextBox(ui_id_t id, const char *text, int x, int y, int width, int height);
+ui_buttonValues ui_doButton( ui_id_t id, const char *text, Font * font, float x, float y, float width, float height );
+ui_buttonValues ui_doImageButton( ui_id_t id, oglx_texture *img, float x, float y, float width, float height );
+ui_buttonValues ui_doImageButtonWithText( ui_id_t id, oglx_texture *img, const char *text, Font * font, float x, float y, float width, float height );
+// int  ui_doTextBox(ui_id_t id, const char *text, float x, float y, float width, float height);
 
 // Utility functions
-int  ui_mouseInside( int x, int y, int width, int height );
+int  ui_mouseInside( float x, float y, float width, float height );
 // void ui_setActive( ui_id_t id );
 // void ui_setHot( ui_id_t id );
 Font* ui_getFont();
+Font* ui_setFont( Font * font );
 
 /*****************************************************************************/
 // Most users won't need to worry about stuff below here; it's mostly for
@@ -103,12 +104,17 @@ Font* ui_getFont();
 /*****************************************************************************/
 
 // Behaviors
-ui_buttonValues  ui_buttonBehavior( ui_id_t id, int x, int y, int width, int height );
+ui_buttonValues  ui_buttonBehavior( ui_id_t id, float x, float y, float width, float height );
 ui_buttonValues  ui_WidgetBehavior( ui_Widget_t * pw );
 
 // Drawing
-void ui_drawButton( ui_id_t id, int x, int y, int width, int height, GLfloat * pcolor );
-void ui_drawImage( ui_id_t id, oglx_texture *img, int x, int y, int width, int height );
-void ui_drawTextBox( const char *text, int x, int y, int width, int height, int spacing );
+void ui_drawButton( ui_id_t id, float x, float y, float width, float height, GLfloat * pcolor );
+void ui_drawImage( ui_id_t id, oglx_texture *img, float x, float y, float width, float height );
+void ui_drawTextBox( Font * font, const char *text, float x, float y, float width, float height, float spacing );
+
+// virtual screen
+void ui_set_virtual_screen( float vw, float vh, float ww, float wh);
+Font * ui_loadFont( const char * font_name, float vpointSize );
 
 #define egoboo_ui_h
+

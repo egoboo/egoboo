@@ -27,8 +27,8 @@
 
 #include <SDL.h>  // use the basic SDL platform definitions
 
-// ------------------------------------------------------------------------------
-// ------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // osx definitions
 #if defined(__APPLE__) || defined(macintosh)
 
@@ -44,8 +44,8 @@
 
 #endif
 
-// ------------------------------------------------------------------------------
-// ------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // windows definitions
 #if defined(WIN32) || defined(_WIN32) || defined (__WIN32) || defined(__WIN32__)
 
@@ -68,8 +68,8 @@
 
 #endif
 
-// ------------------------------------------------------------------------------
-// ------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // *nix definitions
 #if defined(__unix__) || defined(__unix) || defined(_unix) || defined(unix)
 
@@ -85,8 +85,8 @@
 
 #endif
 
-// ------------------------------------------------------------------------------
-// ------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // os-dependent pathname conventions
 #if defined(WIN32) || defined(_WIN32)
 
@@ -100,16 +100,16 @@
 
 #endif
 
-// ------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // everyone uses the same convention for the internet...
 #define NET_SLASH_STR "/"
 #define NET_SLASH_CHR '/'
 
-// ------------------------------------------------------------------------------
-// ------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Compiler-specific definitions
 
-// ------------
+//------------
 // deal with gcc's the warnings about const on return types in C
 #ifdef __cplusplus
 #    define EGO_CONST const
@@ -117,7 +117,7 @@
 #    define EGO_CONST
 #endif
 
-// ------------
+//------------
 // fix how MSVC handles throw specifications on member functions
 #if defined(_MSC_VER)
 #    define DECL_THROW(XX) throw(...)
@@ -125,7 +125,7 @@
 #    define DECL_THROW(XX) throw(XX)
 #endif
 
-// ------------
+//------------
 // localize the inline keyword to the compiler
 #if defined(_MSC_VER)
 // In MS visual C, the "inline" keyword seems to be depricated. Must to be promoted to "_inline" or "__inline"
@@ -134,7 +134,7 @@
 #    define INLINE inline
 #endif
 
-// ------------
+//------------
 // Turn off warnings that we don't care about.
 #if defined(_MSC_VER)
 #    pragma warning(disable : 4090) // '=' : different 'const' qualifiers (totally unimportant in C)
@@ -149,7 +149,7 @@
 #    endif
 #endif
 
-// ------------
+//------------
 // fix the naming of some linux-flovored functions in MSVC
 #if defined(_MSC_VER)
 #    define snprintf _snprintf
@@ -163,7 +163,7 @@
 
 #endif
 
-// ------------
+//------------
 // it seems that the gcc community has a bug up its ass about the forward declaration of enums
 // to get around this (so we can use the strong type checking of c++ to look for errors in the code)
 // we will define
@@ -173,7 +173,7 @@
 #    define FWD_ENUM(XX) enum e_##XX; typedef enum e_##XX i_##XX;
 #endif
 
-// ------------
+//------------
 // set the packing of a data structure at declaration time
 #if !defined(USE_PACKING)
 

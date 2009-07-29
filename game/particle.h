@@ -22,8 +22,8 @@
 #include "egoboo_typedef.h"
 #include "egoboo_math.h"
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 
 #define PRTLEVELFIX         20                      // Fix for shooting over cliffs
 
@@ -65,9 +65,9 @@ enum e_prt_orientations
 };
 typedef enum e_prt_orientations prt_ori_t;
 
-// ------------------------------------
+//------------------------------------
 // Particle template
-// ------------------------------------
+//------------------------------------
 struct s_pip
 {
     EGO_PROFILE_STUFF
@@ -161,9 +161,9 @@ extern pip_t PipList[MAX_PIP];
 #define VALID_PIP( IPIP )       ( VALID_PIP_RANGE( IPIP ) && PipList[IPIP].loaded )
 #define INVALID_PIP( IPIP )     ( !VALID_PIP_RANGE( IPIP ) || !PipList[IPIP].loaded )
 
-// ------------------------------------
+//------------------------------------
 // Particle graphic data
-// ------------------------------------
+//------------------------------------
 struct s_prt_instance
 {
     bool_t valid;
@@ -197,9 +197,9 @@ struct s_prt_instance
 };
 typedef struct s_prt_instance prt_instance_t;
 
-// ------------------------------------
+//------------------------------------
 // Particle variables
-// ------------------------------------
+//------------------------------------
 #define SPAWNNOCHARACTER        255                                      // For particles that spawn characters...
 #define TOTAL_MAX_PRT            2048                                      // True max number of particles
 
@@ -269,7 +269,7 @@ extern prt_t            PrtList[TOTAL_MAX_PRT];
 #define VALID_PRT( IPRT )       ( VALID_PRT_RANGE( IPRT ) && PrtList[IPRT].on )
 #define INVALID_PRT( IPRT )     ( !VALID_PRT_RANGE( IPRT ) || !PrtList[IPRT].on )
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 // function prototypes
 
 void free_one_particle( Uint16 particle );

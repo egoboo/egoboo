@@ -37,8 +37,8 @@
 
 #include <assert.h>
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 
 static char * script_error_classname = "UNKNOWN";
 static Uint16 script_error_model     = (Uint16)(~0);
@@ -56,8 +56,8 @@ static void  run_operand( script_state_t * pstate, ai_state_t * pself );
 static bool_t run_operation( script_state_t * pstate, ai_state_t * pself );
 static bool_t run_function_call( script_state_t * pstate, ai_state_t * pself );
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void let_character_think( Uint16 character )
 {
     // ZZ> This function lets one character do AI stuff
@@ -229,7 +229,7 @@ void let_character_think( Uint16 character )
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void set_alerts( Uint16 character )
 {
     // ZZ> This function polls some alert conditions
@@ -264,7 +264,7 @@ void set_alerts( Uint16 character )
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void issue_order( Uint16 character, Uint32 value )
 {
     // ZZ> This function issues an value for help to all teammates
@@ -283,7 +283,7 @@ void issue_order( Uint16 character, Uint32 value )
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void issue_special_order( Uint32 value, IDSZ idsz )
 {
     // ZZ> This function issues an order to all characters with the a matching special IDSZ
@@ -306,8 +306,8 @@ void issue_special_order( Uint32 value, IDSZ idsz )
     }
 }
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t script_increment_exe( ai_state_t * pself )
 {
     if ( NULL == pself ) return bfalse;
@@ -319,7 +319,7 @@ bool_t script_increment_exe( ai_state_t * pself )
     return btrue;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t script_set_exe( ai_state_t * pself, size_t offset )
 {
     if ( NULL == pself ) return bfalse;
@@ -331,7 +331,7 @@ bool_t script_set_exe( ai_state_t * pself, size_t offset )
     return btrue;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t run_function_call( script_state_t * pstate, ai_state_t * pself )
 {
     Uint8  functionreturn;
@@ -367,7 +367,7 @@ bool_t run_function_call( script_state_t * pstate, ai_state_t * pself )
     return btrue;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t run_operation( script_state_t * pstate, ai_state_t * pself )
 {
     char * variable;
@@ -427,7 +427,7 @@ bool_t run_operation( script_state_t * pstate, ai_state_t * pself )
     return btrue;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
 {
     // BB> This is about half-way to what is needed for Lua integration
@@ -848,7 +848,7 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
 
     return returncode;
 }
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void set_operand( script_state_t * pstate, Uint8 variable )
 {
     // ZZ> This function sets one of the tmp* values for scripted AI
@@ -880,7 +880,7 @@ void set_operand( script_state_t * pstate, Uint8 variable )
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void run_operand( script_state_t * pstate, ai_state_t * pself )
 {
     // ZZ> This function does the scripted arithmetic in OPERATOR, OPERAND pairs

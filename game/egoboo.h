@@ -200,9 +200,9 @@ enum e_xp_type
 #define MAXXP 200000                                // Maximum experience
 #define MAXMONEY 9999                               // Maximum money
 
-// ------------------------------------
+//------------------------------------
 // Character defines
-// ------------------------------------
+//------------------------------------
 #define MAXSKIN   4
 
 // Display
@@ -267,9 +267,9 @@ EXTERN bool_t                    local_seekurse          EQ( bfalse );
 EXTERN bool_t                    local_listening         EQ( bfalse );  // Players with listen skill?
 EXTERN bool_t                    local_noplayers;                    // Are there any local players?
 
-// ------------------------------------
+//------------------------------------
 // Model stuff
-// ------------------------------------
+//------------------------------------
 EXTERN int             globalicon_count;                              // Number of icons
 
 EXTERN Uint16  skintoicon[MAX_TEXTURE];                  // Skin to icon

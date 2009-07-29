@@ -36,8 +36,8 @@
 
 #include "egoboo_setup.h"
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 // About half of the way to some kind of Lua integration
 // the functions below should be the stub functions for calling some "real" functions.
 // The stub functions will be the wrappers for the current scripting system and the "real" functions
@@ -58,7 +58,7 @@
 #define SCRIPT_FUNCTION_END() \
     return returncode;
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_AlertBit( script_state_t * pstate, ai_state_t * pself )
 {
     SCRIPT_FUNCTION_BEGIN();
@@ -73,7 +73,7 @@ Uint8 scr_set_AlertBit( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_ClearAlertBit( script_state_t * pstate, ai_state_t * pself )
 {
     SCRIPT_FUNCTION_BEGIN();
@@ -88,7 +88,7 @@ Uint8 scr_ClearAlertBit( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_TestAlertBit( script_state_t * pstate, ai_state_t * pself )
 {
     SCRIPT_FUNCTION_BEGIN();
@@ -102,7 +102,7 @@ Uint8 scr_TestAlertBit( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_Alert( script_state_t * pstate, ai_state_t * pself )
 {
     SCRIPT_FUNCTION_BEGIN();
@@ -112,7 +112,7 @@ Uint8 scr_set_Alert( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_ClearAlert( script_state_t * pstate, ai_state_t * pself )
 {
     SCRIPT_FUNCTION_BEGIN();
@@ -122,7 +122,7 @@ Uint8 scr_ClearAlert( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_TestAlert( script_state_t * pstate, ai_state_t * pself )
 {
     SCRIPT_FUNCTION_BEGIN();
@@ -132,7 +132,7 @@ Uint8 scr_TestAlert( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_Bit( script_state_t * pstate, ai_state_t * pself )
 {
     SCRIPT_FUNCTION_BEGIN();
@@ -147,7 +147,7 @@ Uint8 scr_set_Bit( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_ClearBit( script_state_t * pstate, ai_state_t * pself )
 {
     SCRIPT_FUNCTION_BEGIN();
@@ -162,7 +162,7 @@ Uint8 scr_ClearBit( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_TestBit( script_state_t * pstate, ai_state_t * pself )
 {
     SCRIPT_FUNCTION_BEGIN();
@@ -176,7 +176,7 @@ Uint8 scr_TestBit( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_Bits( script_state_t * pstate, ai_state_t * pself )
 {
     SCRIPT_FUNCTION_BEGIN();
@@ -186,7 +186,7 @@ Uint8 scr_set_Bits( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_ClearBits( script_state_t * pstate, ai_state_t * pself )
 {
     SCRIPT_FUNCTION_BEGIN();
@@ -196,7 +196,7 @@ Uint8 scr_ClearBits( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_TestBits( script_state_t * pstate, ai_state_t * pself )
 {
     SCRIPT_FUNCTION_BEGIN();
@@ -206,7 +206,7 @@ Uint8 scr_TestBits( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_Spawned( script_state_t * pstate, ai_state_t * pself )
 {
     // ZZ> This function proceeds if the character was spawned this update
@@ -219,7 +219,7 @@ Uint8 scr_Spawned( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_TimeOut( script_state_t * pstate, ai_state_t * pself )
 {
     // This function proceeds if the character's aitime is 0...  Use
@@ -233,7 +233,7 @@ Uint8 scr_TimeOut( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_AtWaypoint( script_state_t * pstate, ai_state_t * pself )
 {
     // This function proceeds if the character reached its waypoint this
@@ -247,7 +247,7 @@ Uint8 scr_AtWaypoint( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_AtLastWaypoint( script_state_t * pstate, ai_state_t * pself )
 {
     // This function proceeds if the character reached its last waypoint this
@@ -261,7 +261,7 @@ Uint8 scr_AtLastWaypoint( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_Attacked( script_state_t * pstate, ai_state_t * pself )
 {
     // This function proceeds if the character ( an item ) was put in its
@@ -275,7 +275,7 @@ Uint8 scr_Attacked( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_Bumped( script_state_t * pstate, ai_state_t * pself )
 {
     // This function proceeds if the character was bumped by another character
@@ -289,7 +289,7 @@ Uint8 scr_Bumped( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_Ordered( script_state_t * pstate, ai_state_t * pself )
 {
     // This function proceeds if the character got an order from another
@@ -303,7 +303,7 @@ Uint8 scr_Ordered( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_CalledForHelp( script_state_t * pstate, ai_state_t * pself )
 {
     // This function proceeds if one of the character's teammates was nearly
@@ -317,7 +317,7 @@ Uint8 scr_CalledForHelp( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_Content( script_state_t * pstate, ai_state_t * pself )
 {
     // set_Content( tmpargument )
@@ -332,7 +332,7 @@ Uint8 scr_set_Content( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_Killed( script_state_t * pstate, ai_state_t * pself )
 {
     // This function proceeds if the character was killed this update
@@ -345,7 +345,7 @@ Uint8 scr_Killed( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_TargetKilled( script_state_t * pstate, ai_state_t * pself )
 {
     // This function proceeds if the character's target from last update was
@@ -359,7 +359,7 @@ Uint8 scr_TargetKilled( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_ClearWaypoints( script_state_t * pstate, ai_state_t * pself )
 {
     // This function is used to move a character around...  Do this before
@@ -374,7 +374,7 @@ Uint8 scr_ClearWaypoints( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_AddWaypoint( script_state_t * pstate, ai_state_t * pself )
 {
     // AddWaypoint( tmpx, tmpy )
@@ -392,7 +392,7 @@ Uint8 scr_AddWaypoint( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_FindPath( script_state_t * pstate, ai_state_t * pself )
 {
     // This function doesn't work yet !!!BAD!!!
@@ -440,7 +440,7 @@ Uint8 scr_FindPath( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_Compass( script_state_t * pstate, ai_state_t * pself )
 {
     // Compass( tmpx, tmpy, tmpturn, tmpdistance )
@@ -456,7 +456,7 @@ Uint8 scr_Compass( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_get_TargetArmorPrice( script_state_t * pstate, ai_state_t * pself )
 {
     // get_TargetArmorPrice( tmpargument )
@@ -472,7 +472,7 @@ Uint8 scr_get_TargetArmorPrice( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_Time( script_state_t * pstate, ai_state_t * pself )
 {
     // set_Time( tmpargument )
@@ -490,7 +490,7 @@ Uint8 scr_set_Time( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_get_Content( script_state_t * pstate, ai_state_t * pself )
 {
     // get_Content()
@@ -505,7 +505,7 @@ Uint8 scr_get_Content( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_JoinTargetTeam( script_state_t * pstate, ai_state_t * pself )
 {
     // JoinTargetTeam()
@@ -524,7 +524,7 @@ Uint8 scr_JoinTargetTeam( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_TargetToNearbyEnemy( script_state_t * pstate, ai_state_t * pself )
 {
     // set_TargetToNearbyEnemy()
@@ -538,7 +538,7 @@ Uint8 scr_set_TargetToNearbyEnemy( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_TargetToTargetLeftHand( script_state_t * pstate, ai_state_t * pself )
 {
     // set_TargetToTargetLeftHand()
@@ -558,7 +558,7 @@ Uint8 scr_set_TargetToTargetLeftHand( script_state_t * pstate, ai_state_t * psel
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_TargetToTargetRightHand( script_state_t * pstate, ai_state_t * pself )
 {
     // set_TargetToTargetRightHand()
@@ -578,7 +578,7 @@ Uint8 scr_set_TargetToTargetRightHand( script_state_t * pstate, ai_state_t * pse
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_TargetToWhoeverAttacked( script_state_t * pstate, ai_state_t * pself )
 {
     // set_TargetToWhoeverAttacked()
@@ -597,7 +597,7 @@ Uint8 scr_set_TargetToWhoeverAttacked( script_state_t * pstate, ai_state_t * pse
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_TargetToWhoeverBumped( script_state_t * pstate, ai_state_t * pself )
 {
     // set_TargetToWhoeverBumped()
@@ -610,7 +610,7 @@ Uint8 scr_set_TargetToWhoeverBumped( script_state_t * pstate, ai_state_t * pself
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_TargetToWhoeverCalledForHelp( script_state_t * pstate, ai_state_t * pself )
 {
     // set_TargetToWhoeverCalledForHelp()
@@ -623,7 +623,7 @@ Uint8 scr_set_TargetToWhoeverCalledForHelp( script_state_t * pstate, ai_state_t 
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_TargetToOldTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // set_TargetToOldTarget( tmpargument )
@@ -637,7 +637,7 @@ Uint8 scr_set_TargetToOldTarget( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_TurnModeToVelocity( script_state_t * pstate, ai_state_t * pself )
 {
     // set_TurnModeToVelocity()
@@ -650,7 +650,7 @@ Uint8 scr_set_TurnModeToVelocity( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_TurnModeToWatch( script_state_t * pstate, ai_state_t * pself )
 {
     // set_TurnModeToWatch()
@@ -664,7 +664,7 @@ Uint8 scr_set_TurnModeToWatch( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_TurnModeToSpin( script_state_t * pstate, ai_state_t * pself )
 {
     // set_TurnModeToSpin()
@@ -679,7 +679,7 @@ Uint8 scr_set_TurnModeToSpin( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_BumpHeight( script_state_t * pstate, ai_state_t * pself )
 {
     // set_BumpHeight( tmpargument )
@@ -694,7 +694,7 @@ Uint8 scr_set_BumpHeight( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_TargetHasID( script_state_t * pstate, ai_state_t * pself )
 {
     // _TargetHasID( tmpargument )
@@ -711,7 +711,7 @@ Uint8 scr_TargetHasID( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_TargetHasItemID( script_state_t * pstate, ai_state_t * pself )
 {
     // _TargetHasItemID( tmpargument )
@@ -758,7 +758,7 @@ Uint8 scr_TargetHasItemID( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_TargetHoldingItemID( script_state_t * pstate, ai_state_t * pself )
 {
     // _TargetHoldingItemID( tmpargument )
@@ -796,7 +796,7 @@ Uint8 scr_TargetHoldingItemID( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_TargetHasSkillID( script_state_t * pstate, ai_state_t * pself )
 {
     SCRIPT_FUNCTION_BEGIN();
@@ -809,7 +809,7 @@ Uint8 scr_TargetHasSkillID( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_Else( script_state_t * pstate, ai_state_t * pself )
 {
     // Else()
@@ -824,7 +824,7 @@ Uint8 scr_Else( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_Run( script_state_t * pstate, ai_state_t * pself )
 {
     // Run()
@@ -838,7 +838,7 @@ Uint8 scr_Run( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_Walk( script_state_t * pstate, ai_state_t * pself )
 {
     // Walk()
@@ -853,7 +853,7 @@ Uint8 scr_Walk( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_Sneak( script_state_t * pstate, ai_state_t * pself )
 {
     // Sneak()
@@ -868,7 +868,7 @@ Uint8 scr_Sneak( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_DoAction( script_state_t * pstate, ai_state_t * pself )
 {
     // DoAction( tmpargument )
@@ -895,7 +895,7 @@ Uint8 scr_DoAction( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_KeepAction( script_state_t * pstate, ai_state_t * pself )
 {
     // KeepAction()
@@ -909,7 +909,7 @@ Uint8 scr_KeepAction( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_IssueOrder( script_state_t * pstate, ai_state_t * pself )
 {
     // IssueOrder( tmpargument  )
@@ -925,7 +925,7 @@ Uint8 scr_IssueOrder( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_DropWeapons( script_state_t * pstate, ai_state_t * pself )
 {
     // DropWeapons()
@@ -962,7 +962,7 @@ Uint8 scr_DropWeapons( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_TargetDoAction( script_state_t * pstate, ai_state_t * pself )
 {
     // TargetDoAction( tmpargument = "action" )
@@ -992,7 +992,7 @@ Uint8 scr_TargetDoAction( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_OpenPassage( script_state_t * pstate, ai_state_t * pself )
 {
     // OpenPassage( tmpargument = "passage" )
@@ -1011,7 +1011,7 @@ Uint8 scr_OpenPassage( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_ClosePassage( script_state_t * pstate, ai_state_t * pself )
 {
     // ClosePassage( tmpargument = "passage" )
@@ -1028,7 +1028,7 @@ Uint8 scr_ClosePassage( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_PassageOpen( script_state_t * pstate, ai_state_t * pself )
 {
     // _PassageOpen( tmpargument = "passage" )
@@ -1046,7 +1046,7 @@ Uint8 scr_PassageOpen( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_GoPoof( script_state_t * pstate, ai_state_t * pself )
 {
     // GoPoof()
@@ -1067,7 +1067,7 @@ Uint8 scr_GoPoof( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_CostTargetItemID( script_state_t * pstate, ai_state_t * pself )
 {
     // CostTargetItemID( tmpargument = "idsz" )
@@ -1158,7 +1158,7 @@ Uint8 scr_CostTargetItemID( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_DoActionOverride( script_state_t * pstate, ai_state_t * pself )
 {
     // DoActionOverride( tmpargument = "action" )
@@ -1185,7 +1185,7 @@ Uint8 scr_DoActionOverride( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_Healed( script_state_t * pstate, ai_state_t * pself )
 {
     // _Healed()
@@ -1199,7 +1199,7 @@ Uint8 scr_Healed( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_SendPlayerMessage( script_state_t * pstate, ai_state_t * pself )
 {
     // SendPlayerMessage()
@@ -1212,7 +1212,7 @@ Uint8 scr_SendPlayerMessage( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_CallForHelp( script_state_t * pstate, ai_state_t * pself )
 {
     // CallForHelp()
@@ -1227,7 +1227,7 @@ Uint8 scr_CallForHelp( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_AddIDSZ( script_state_t * pstate, ai_state_t * pself )
 {
     // AddIDSZ( tmpargument = "idsz" )
@@ -1242,7 +1242,7 @@ Uint8 scr_AddIDSZ( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_State( script_state_t * pstate, ai_state_t * pself )
 {
     // set_State( tmpargument = "state" )
@@ -1256,7 +1256,7 @@ Uint8 scr_set_State( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_get_State( script_state_t * pstate, ai_state_t * pself )
 {
     // get_State()
@@ -1269,7 +1269,7 @@ Uint8 scr_get_State( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_StateIs( script_state_t * pstate, ai_state_t * pself )
 {
     // _StateIs( tmpargument = "state" )
@@ -1282,7 +1282,7 @@ Uint8 scr_StateIs( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_TargetCanOpenStuff( script_state_t * pstate, ai_state_t * pself )
 {
     // _TargetCanOpenStuff()
@@ -1299,7 +1299,7 @@ Uint8 scr_TargetCanOpenStuff( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_Grabbed( script_state_t * pstate, ai_state_t * pself )
 {
     // _Grabbed()
@@ -1314,7 +1314,7 @@ Uint8 scr_Grabbed( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_Dropped( script_state_t * pstate, ai_state_t * pself )
 {
     // _Dropped()
@@ -1329,7 +1329,7 @@ Uint8 scr_Dropped( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_TargetToWhoeverIsHolding( script_state_t * pstate, ai_state_t * pself )
 {
     // set_TargetToWhoeverIsHolding()
@@ -1350,7 +1350,7 @@ Uint8 scr_set_TargetToWhoeverIsHolding( script_state_t * pstate, ai_state_t * ps
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_DamageTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // DamageTarget( tmpargument = "damage" )
@@ -1365,7 +1365,7 @@ Uint8 scr_DamageTarget( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_XIsLessThanY( script_state_t * pstate, ai_state_t * pself )
 {
     // _XIsLessThanY()
@@ -1378,7 +1378,7 @@ Uint8 scr_XIsLessThanY( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_WeatherTime( script_state_t * pstate, ai_state_t * pself )
 {
     // set_WeatherTime( tmpargument = "time" )
@@ -1394,7 +1394,7 @@ Uint8 scr_set_WeatherTime( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_get_BumpHeight( script_state_t * pstate, ai_state_t * pself )
 {
     // tmpargument = get_BumpHeight()
@@ -1407,7 +1407,7 @@ Uint8 scr_get_BumpHeight( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_Reaffirmed( script_state_t * pstate, ai_state_t * pself )
 {
     // _Reaffirmed()
@@ -1422,7 +1422,7 @@ Uint8 scr_Reaffirmed( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_UnkeepAction( script_state_t * pstate, ai_state_t * pself )
 {
     // UnkeepAction()
@@ -1436,7 +1436,7 @@ Uint8 scr_UnkeepAction( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_TargetIsOnOtherTeam( script_state_t * pstate, ai_state_t * pself )
 {
     // _TargetIsOnOtherTeam()
@@ -1450,7 +1450,7 @@ Uint8 scr_TargetIsOnOtherTeam( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_TargetIsOnHatedTeam( script_state_t * pstate, ai_state_t * pself )
 {
     // _TargetIsOnHatedTeam()
@@ -1464,7 +1464,7 @@ Uint8 scr_TargetIsOnHatedTeam( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_PressLatchButton( script_state_t * pstate, ai_state_t * pself )
 {
     // PressLatchButton( tmpargument = "latch bits" )
@@ -1478,7 +1478,7 @@ Uint8 scr_PressLatchButton( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_TargetToTargetOfLeader( script_state_t * pstate, ai_state_t * pself )
 {
     // set_TargetToTargetOfLeader()
@@ -1497,7 +1497,7 @@ Uint8 scr_set_TargetToTargetOfLeader( script_state_t * pstate, ai_state_t * psel
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_LeaderKilled( script_state_t * pstate, ai_state_t * pself )
 {
     // _LeaderKilled()
@@ -1511,7 +1511,7 @@ Uint8 scr_LeaderKilled( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_BecomeLeader( script_state_t * pstate, ai_state_t * pself )
 {
     // BecomeLeader()
@@ -1525,7 +1525,7 @@ Uint8 scr_BecomeLeader( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_ChangeTargetArmor( script_state_t * pstate, ai_state_t * pself )
 {
     // ChangeTargetArmor( tmpargument = "armor" )
@@ -1545,7 +1545,7 @@ Uint8 scr_ChangeTargetArmor( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_GiveMoneyToTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // GiveMoneyToTarget( tmpargument = "money" )
@@ -1574,7 +1574,7 @@ Uint8 scr_GiveMoneyToTarget( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_DropKeys( script_state_t * pstate, ai_state_t * pself )
 {
     // DropKeys()
@@ -1588,7 +1588,7 @@ Uint8 scr_DropKeys( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_LeaderIsAlive( script_state_t * pstate, ai_state_t * pself )
 {
     // _LeaderIsAlive()
@@ -1602,7 +1602,7 @@ Uint8 scr_LeaderIsAlive( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_TargetIsOldTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // _TargetIsOldTarget()
@@ -1616,7 +1616,7 @@ Uint8 scr_TargetIsOldTarget( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_TargetToLeader( script_state_t * pstate, ai_state_t * pself )
 {
     // set_TargetToLeader
@@ -1638,7 +1638,7 @@ Uint8 scr_set_TargetToLeader( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_SpawnCharacter( script_state_t * pstate, ai_state_t * pself )
 {
     // SpawnCharacter(tmpx = "x", tmpy = "y", tmpturn = "turn", tmpdistance = "speed" )
@@ -1688,7 +1688,7 @@ Uint8 scr_SpawnCharacter( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_RespawnCharacter( script_state_t * pstate, ai_state_t * pself )
 {
     // RespawnCharacter()
@@ -1702,7 +1702,7 @@ Uint8 scr_RespawnCharacter( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_ChangeTile( script_state_t * pstate, ai_state_t * pself )
 {
     // ChangeTile( tmpargument = "tile type")
@@ -1717,7 +1717,7 @@ Uint8 scr_ChangeTile( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_Used( script_state_t * pstate, ai_state_t * pself )
 {
     // _Used()
@@ -1732,7 +1732,7 @@ Uint8 scr_Used( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_DropMoney( script_state_t * pstate, ai_state_t * pself )
 {
     // DropMoney( tmpargument = "money" )
@@ -1747,7 +1747,7 @@ Uint8 scr_DropMoney( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_OldTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // set_OldTarget()
@@ -1762,7 +1762,7 @@ Uint8 scr_set_OldTarget( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_DetachFromHolder( script_state_t * pstate, ai_state_t * pself )
 {
     // DetachFromHolder()
@@ -1785,7 +1785,7 @@ Uint8 scr_DetachFromHolder( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_TargetHasVulnerabilityID( script_state_t * pstate, ai_state_t * pself )
 {
     // _TargetHasVulnerabilityID( tmpargument = "vulnerability idsz" )
@@ -1799,7 +1799,7 @@ Uint8 scr_TargetHasVulnerabilityID( script_state_t * pstate, ai_state_t * pself 
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_CleanUp( script_state_t * pstate, ai_state_t * pself )
 {
     // CleanUp()
@@ -1814,7 +1814,7 @@ Uint8 scr_CleanUp( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_CleanedUp( script_state_t * pstate, ai_state_t * pself )
 {
     // _CleanedUp()
@@ -1829,7 +1829,7 @@ Uint8 scr_CleanedUp( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_Sitting( script_state_t * pstate, ai_state_t * pself )
 {
     // _Sitting()
@@ -1844,7 +1844,7 @@ Uint8 scr_Sitting( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_TargetIsHurt( script_state_t * pstate, ai_state_t * pself )
 {
     // _TargetIsHurt()
@@ -1857,7 +1857,7 @@ Uint8 scr_TargetIsHurt( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_TargetIsAPlayer( script_state_t * pstate, ai_state_t * pself )
 {
     // _TargetIsAPlayer()
@@ -1870,7 +1870,7 @@ Uint8 scr_TargetIsAPlayer( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_PlaySound( script_state_t * pstate, ai_state_t * pself )
 {
     // PlaySound( tmpargument = "sound", tmpdistance = "frequency" )
@@ -1888,7 +1888,7 @@ Uint8 scr_PlaySound( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
 {
     // SpawnParticle(tmpargument = "particle", tmpdistance = "character vertex", tmpx = "offset x", tmpy = "offset y" )
@@ -1928,7 +1928,7 @@ Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_TargetIsAlive( script_state_t * pstate, ai_state_t * pself )
 {
     // _TargetIsAlive()
@@ -1942,7 +1942,7 @@ Uint8 scr_TargetIsAlive( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_Stop( script_state_t * pstate, ai_state_t * pself )
 {
     // Stop()
@@ -1956,7 +1956,7 @@ Uint8 scr_Stop( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_DisaffirmCharacter( script_state_t * pstate, ai_state_t * pself )
 {
     // DisaffirmCharacter()
@@ -1970,7 +1970,7 @@ Uint8 scr_DisaffirmCharacter( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_ReaffirmCharacter( script_state_t * pstate, ai_state_t * pself )
 {
     // ReaffirmCharacter()
@@ -1985,7 +1985,7 @@ Uint8 scr_ReaffirmCharacter( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_TargetIsSelf( script_state_t * pstate, ai_state_t * pself )
 {
     // _TargetIsSelf()
@@ -1999,7 +1999,7 @@ Uint8 scr_TargetIsSelf( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_TargetIsMale( script_state_t * pstate, ai_state_t * pself )
 {
     // _TargetIsMale()
@@ -2012,7 +2012,7 @@ Uint8 scr_TargetIsMale( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_TargetIsFemale( script_state_t * pstate, ai_state_t * pself )
 {
     // _TargetIsFemale()
@@ -2027,7 +2027,7 @@ Uint8 scr_TargetIsFemale( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_TargetToSelf( script_state_t * pstate, ai_state_t * pself )
 {
     // set_TargetToSelf()
@@ -2040,7 +2040,7 @@ Uint8 scr_set_TargetToSelf( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_TargetToRider( script_state_t * pstate, ai_state_t * pself )
 {
     // set_TargetToRider()
@@ -2060,7 +2060,7 @@ Uint8 scr_set_TargetToRider( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_get_AttackTurn( script_state_t * pstate, ai_state_t * pself )
 {
     // This function sets tmpturn to the direction from which the last attack
@@ -2074,7 +2074,7 @@ Uint8 scr_get_AttackTurn( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_get_DamageType( script_state_t * pstate, ai_state_t * pself )
 {
     // get_DamageType()
@@ -2089,7 +2089,7 @@ Uint8 scr_get_DamageType( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_BecomeSpell( script_state_t * pstate, ai_state_t * pself )
 {
     // BecomeSpell()
@@ -2109,7 +2109,7 @@ Uint8 scr_BecomeSpell( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_BecomeSpellbook( script_state_t * pstate, ai_state_t * pself )
 {
     // BecomeSpellbook()
@@ -2127,7 +2127,7 @@ Uint8 scr_BecomeSpellbook( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_ScoredAHit( script_state_t * pstate, ai_state_t * pself )
 {
     // _ScoredAHit()
@@ -2153,7 +2153,7 @@ Uint8 scr_ScoredAHit( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_Disaffirmed( script_state_t * pstate, ai_state_t * pself )
 {
     // _Disaffirmed()
@@ -2168,7 +2168,7 @@ Uint8 scr_Disaffirmed( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_TranslateOrder( script_state_t * pstate, ai_state_t * pself )
 {
     // TranslateOrder()
@@ -2194,7 +2194,7 @@ Uint8 scr_TranslateOrder( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_TargetToWhoeverWasHit( script_state_t * pstate, ai_state_t * pself )
 {
     // set_TargetToWhoeverWasHit()
@@ -2208,7 +2208,7 @@ Uint8 scr_set_TargetToWhoeverWasHit( script_state_t * pstate, ai_state_t * pself
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_TargetToWideEnemy( script_state_t * pstate, ai_state_t * pself )
 {
     // set_TargetToWideEnemy()
@@ -2223,7 +2223,7 @@ Uint8 scr_set_TargetToWideEnemy( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_Changed( script_state_t * pstate, ai_state_t * pself )
 {
     // _Changed
@@ -2238,7 +2238,7 @@ Uint8 scr_Changed( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_InWater( script_state_t * pstate, ai_state_t * pself )
 {
     // _InWater()
@@ -2253,7 +2253,7 @@ Uint8 scr_InWater( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_Bored( script_state_t * pstate, ai_state_t * pself )
 {
     // _Bored()
@@ -2267,7 +2267,7 @@ Uint8 scr_Bored( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_TooMuchBaggage( script_state_t * pstate, ai_state_t * pself )
 {
     // _TooMuchBaggage()
@@ -2282,7 +2282,7 @@ Uint8 scr_TooMuchBaggage( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_Grogged( script_state_t * pstate, ai_state_t * pself )
 {
     // _Grogged()
@@ -2296,7 +2296,7 @@ Uint8 scr_Grogged( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_Dazed( script_state_t * pstate, ai_state_t * pself )
 {
     // _Dazed
@@ -2311,7 +2311,7 @@ Uint8 scr_Dazed( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_TargetHasSpecialID( script_state_t * pstate, ai_state_t * pself )
 {
     // _TargetHasSpecialID( tmpargument = "special idsz" )
@@ -2324,7 +2324,7 @@ Uint8 scr_TargetHasSpecialID( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_PressTargetLatchButton( script_state_t * pstate, ai_state_t * pself )
 {
     // PressTargetLatchButton( tmpargument = "latch bits" )
@@ -2338,7 +2338,7 @@ Uint8 scr_PressTargetLatchButton( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_Invisible( script_state_t * pstate, ai_state_t * pself )
 {
     // _Invisible()
@@ -2352,7 +2352,7 @@ Uint8 scr_Invisible( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_ArmorIs( script_state_t * pstate, ai_state_t * pself )
 {
     // _ArmorIs( tmpargument = "skin" )
@@ -2369,7 +2369,7 @@ Uint8 scr_ArmorIs( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_get_TargetGrogTime( script_state_t * pstate, ai_state_t * pself )
 {
     // get_TargetGrogTime()
@@ -2385,7 +2385,7 @@ Uint8 scr_get_TargetGrogTime( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_get_TargetDazeTime( script_state_t * pstate, ai_state_t * pself )
 {
     // get_TargetDazeTime()
@@ -2401,7 +2401,7 @@ Uint8 scr_get_TargetDazeTime( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_DamageType( script_state_t * pstate, ai_state_t * pself )
 {
     // set_DamageType( tmpargument = "damage type" )
@@ -2415,7 +2415,7 @@ Uint8 scr_set_DamageType( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_WaterLevel( script_state_t * pstate, ai_state_t * pself )
 {
     // set_WaterLevel( tmpargument = "level" )
@@ -2439,7 +2439,7 @@ Uint8 scr_set_WaterLevel( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_EnchantTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // EnchantTarget()
@@ -2456,7 +2456,7 @@ Uint8 scr_EnchantTarget( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_EnchantChild( script_state_t * pstate, ai_state_t * pself )
 {
     // EnchantChild()
@@ -2474,7 +2474,7 @@ Uint8 scr_EnchantChild( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_TeleportTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // TeleportTarget( tmpx = "x", tmpy = "y" )
@@ -2516,7 +2516,7 @@ Uint8 scr_TeleportTarget( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_GiveExperienceToTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // GiveExperienceToTarget( tmpargument = "amount", tmpdistance = "type" )
@@ -2530,7 +2530,7 @@ Uint8 scr_GiveExperienceToTarget( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_IncreaseAmmo( script_state_t * pstate, ai_state_t * pself )
 {
     // IncreaseAmmo()
@@ -2545,7 +2545,7 @@ Uint8 scr_IncreaseAmmo( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_UnkurseTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // UnkurseTarget()
@@ -2558,7 +2558,7 @@ Uint8 scr_UnkurseTarget( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_GiveExperienceToTargetTeam( script_state_t * pstate, ai_state_t * pself )
 {
     // GiveExperienceToTargetTeam( tmpargument = "amount", tmpdistance = "type" )
@@ -2571,7 +2571,7 @@ Uint8 scr_GiveExperienceToTargetTeam( script_state_t * pstate, ai_state_t * psel
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_Unarmed( script_state_t * pstate, ai_state_t * pself )
 {
     // _Unarmed()
@@ -2584,7 +2584,7 @@ Uint8 scr_Unarmed( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_RestockTargetAmmoIDAll( script_state_t * pstate, ai_state_t * pself )
 {
     // RestockTargetAmmoIDAll( tmpargument = "idsz" )
@@ -2616,7 +2616,7 @@ Uint8 scr_RestockTargetAmmoIDAll( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_RestockTargetAmmoIDFirst( script_state_t * pstate, ai_state_t * pself )
 {
     // RestockTargetAmmoIDFirst( tmpargument = "idsz" )
@@ -2652,7 +2652,7 @@ Uint8 scr_RestockTargetAmmoIDFirst( script_state_t * pstate, ai_state_t * pself 
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_FlashTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // FlashTarget()
@@ -2666,7 +2666,7 @@ Uint8 scr_FlashTarget( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_RedShift( script_state_t * pstate, ai_state_t * pself )
 {
     // set_RedShift( tmpargument = "red darkening" )
@@ -2681,7 +2681,7 @@ Uint8 scr_set_RedShift( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_GreenShift( script_state_t * pstate, ai_state_t * pself )
 {
     // set_GreenShift( tmpargument = "green darkening" )
@@ -2696,7 +2696,7 @@ Uint8 scr_set_GreenShift( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_BlueShift( script_state_t * pstate, ai_state_t * pself )
 {
     // set_BlueShift( tmpargument = "blue darkening" )
@@ -2711,7 +2711,7 @@ Uint8 scr_set_BlueShift( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_Light( script_state_t * pstate, ai_state_t * pself )
 {
     // set_Light( tmpargument = "lighness" )
@@ -2725,7 +2725,7 @@ Uint8 scr_set_Light( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_Alpha( script_state_t * pstate, ai_state_t * pself )
 {
     // set_Alpha( tmpargument = "alpha" )
@@ -2740,7 +2740,7 @@ Uint8 scr_set_Alpha( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_HitFromBehind( script_state_t * pstate, ai_state_t * pself )
 {
     // _HitFromBehind()
@@ -2755,7 +2755,7 @@ Uint8 scr_HitFromBehind( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_HitFromFront( script_state_t * pstate, ai_state_t * pself )
 {
     // _HitFromFront()
@@ -2771,7 +2771,7 @@ Uint8 scr_HitFromFront( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_HitFromLeft( script_state_t * pstate, ai_state_t * pself )
 {
     // _HitFromLeft()
@@ -2788,7 +2788,7 @@ Uint8 scr_HitFromLeft( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_HitFromRight( script_state_t * pstate, ai_state_t * pself )
 {
     // _HitFromRight()
@@ -2804,7 +2804,7 @@ Uint8 scr_HitFromRight( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_TargetIsOnSameTeam( script_state_t * pstate, ai_state_t * pself )
 {
     // _TargetIsOnSameTeam()
@@ -2819,7 +2819,7 @@ Uint8 scr_TargetIsOnSameTeam( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_KillTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // KillTarget()
@@ -2834,7 +2834,7 @@ Uint8 scr_KillTarget( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_UndoEnchant( script_state_t * pstate, ai_state_t * pself )
 {
     // UndoEnchant()
@@ -2849,7 +2849,7 @@ Uint8 scr_UndoEnchant( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_get_WaterLevel( script_state_t * pstate, ai_state_t * pself )
 {
     // get_WaterLevel()
@@ -2863,7 +2863,7 @@ Uint8 scr_get_WaterLevel( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_CostTargetMana( script_state_t * pstate, ai_state_t * pself )
 {
     // CostTargetMana( tmpargument = "amount" )
@@ -2877,7 +2877,7 @@ Uint8 scr_CostTargetMana( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_TargetHasAnyID( script_state_t * pstate, ai_state_t * pself )
 {
     // _TargetHasAnyID( tmpargument = "idsz" )
@@ -2898,7 +2898,7 @@ Uint8 scr_TargetHasAnyID( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_BumpSize( script_state_t * pstate, ai_state_t * pself )
 {
     // set_BumpSize( tmpargument = "size" )
@@ -2918,7 +2918,7 @@ Uint8 scr_set_BumpSize( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_NotDropped( script_state_t * pstate, ai_state_t * pself )
 {
     // _NotDropped()
@@ -2932,7 +2932,7 @@ Uint8 scr_NotDropped( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_YIsLessThanX( script_state_t * pstate, ai_state_t * pself )
 {
     // _YIsLessThanX()
@@ -2946,7 +2946,7 @@ Uint8 scr_YIsLessThanX( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_FlyHeight( script_state_t * pstate, ai_state_t * pself )
 {
     // set_FlyHeight( tmpargument = "height" )
@@ -2960,7 +2960,7 @@ Uint8 scr_set_FlyHeight( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_Blocked( script_state_t * pstate, ai_state_t * pself )
 {
     // _Blocked()
@@ -2975,7 +2975,7 @@ Uint8 scr_Blocked( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_TargetIsDefending( script_state_t * pstate, ai_state_t * pself )
 {
     // _TargetIsDefending()
@@ -2989,7 +2989,7 @@ Uint8 scr_TargetIsDefending( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_TargetIsAttacking( script_state_t * pstate, ai_state_t * pself )
 {
     // _TargetIsAttacking()
@@ -3002,7 +3002,7 @@ Uint8 scr_TargetIsAttacking( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_StateIs0( script_state_t * pstate, ai_state_t * pself )
 {
     SCRIPT_FUNCTION_BEGIN();
@@ -3012,7 +3012,7 @@ Uint8 scr_StateIs0( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_StateIs1( script_state_t * pstate, ai_state_t * pself )
 {
     SCRIPT_FUNCTION_BEGIN();
@@ -3022,7 +3022,7 @@ Uint8 scr_StateIs1( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_StateIs2( script_state_t * pstate, ai_state_t * pself )
 {
     SCRIPT_FUNCTION_BEGIN();
@@ -3032,7 +3032,7 @@ Uint8 scr_StateIs2( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_StateIs3( script_state_t * pstate, ai_state_t * pself )
 {
     SCRIPT_FUNCTION_BEGIN();
@@ -3042,7 +3042,7 @@ Uint8 scr_StateIs3( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_StateIs4( script_state_t * pstate, ai_state_t * pself )
 {
     SCRIPT_FUNCTION_BEGIN();
@@ -3052,7 +3052,7 @@ Uint8 scr_StateIs4( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_StateIs5( script_state_t * pstate, ai_state_t * pself )
 {
     SCRIPT_FUNCTION_BEGIN();
@@ -3062,7 +3062,7 @@ Uint8 scr_StateIs5( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_StateIs6( script_state_t * pstate, ai_state_t * pself )
 {
     SCRIPT_FUNCTION_BEGIN();
@@ -3072,7 +3072,7 @@ Uint8 scr_StateIs6( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_StateIs7( script_state_t * pstate, ai_state_t * pself )
 {
     SCRIPT_FUNCTION_BEGIN();
@@ -3082,7 +3082,7 @@ Uint8 scr_StateIs7( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_ContentIs( script_state_t * pstate, ai_state_t * pself )
 {
     // _ContentIs( tmpargument = "test" )
@@ -3095,7 +3095,7 @@ Uint8 scr_ContentIs( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_TurnModeToWatchTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // set_TurnModeToWatchTarget()
@@ -3110,7 +3110,7 @@ Uint8 scr_set_TurnModeToWatchTarget( script_state_t * pstate, ai_state_t * pself
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_StateIsNot( script_state_t * pstate, ai_state_t * pself )
 {
     // _StateIsNot( tmpargument = "test" )
@@ -3123,7 +3123,7 @@ Uint8 scr_StateIsNot( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_XIsEqualToY( script_state_t * pstate, ai_state_t * pself )
 {
     // These functions proceed if tmpx and tmpy are the same
@@ -3135,7 +3135,7 @@ Uint8 scr_XIsEqualToY( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_DebugMessage( script_state_t * pstate, ai_state_t * pself )
 {
     // DebugMessage()
@@ -3157,7 +3157,7 @@ Uint8 scr_DebugMessage( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_BlackTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // BlackTarget()
@@ -3170,7 +3170,7 @@ Uint8 scr_BlackTarget( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_SendMessageNear( script_state_t * pstate, ai_state_t * pself )
 {
     // SendMessageNear( tmpargument = "message" )
@@ -3189,7 +3189,7 @@ Uint8 scr_SendMessageNear( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_HitGround( script_state_t * pstate, ai_state_t * pself )
 {
     // _HitGround()
@@ -3204,7 +3204,7 @@ Uint8 scr_HitGround( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_NameIsKnown( script_state_t * pstate, ai_state_t * pself )
 {
     // _NameIsKnown()
@@ -3217,7 +3217,7 @@ Uint8 scr_NameIsKnown( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_UsageIsKnown( script_state_t * pstate, ai_state_t * pself )
 {
     // _UsageIsKnown()
@@ -3230,7 +3230,7 @@ Uint8 scr_UsageIsKnown( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_HoldingItemID( script_state_t * pstate, ai_state_t * pself )
 {
     // _HoldingItemID( tmpargument = "idsz" )
@@ -3269,7 +3269,7 @@ Uint8 scr_HoldingItemID( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_HoldingRangedWeapon( script_state_t * pstate, ai_state_t * pself )
 {
     // _HoldingRangedWeapon()
@@ -3313,7 +3313,7 @@ Uint8 scr_HoldingRangedWeapon( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_HoldingMeleeWeapon( script_state_t * pstate, ai_state_t * pself )
 {
     // _HoldingMeleeWeapon()
@@ -3355,7 +3355,7 @@ Uint8 scr_HoldingMeleeWeapon( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_HoldingShield( script_state_t * pstate, ai_state_t * pself )
 {
     // _HoldingShield()
@@ -3395,7 +3395,7 @@ Uint8 scr_HoldingShield( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_Kursed( script_state_t * pstate, ai_state_t * pself )
 {
     // _Kursed()
@@ -3409,7 +3409,7 @@ Uint8 scr_Kursed( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_TargetIsKursed( script_state_t * pstate, ai_state_t * pself )
 {
     // _TargetIsKursed()
@@ -3422,7 +3422,7 @@ Uint8 scr_TargetIsKursed( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_TargetIsDressedUp( script_state_t * pstate, ai_state_t * pself )
 {
     // _TargetIsDressedUp()
@@ -3439,7 +3439,7 @@ Uint8 scr_TargetIsDressedUp( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_OverWater( script_state_t * pstate, ai_state_t * pself )
 {
     // _OverWater()
@@ -3456,7 +3456,7 @@ Uint8 scr_OverWater( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_Thrown( script_state_t * pstate, ai_state_t * pself )
 {
     // _Thrown()
@@ -3469,7 +3469,7 @@ Uint8 scr_Thrown( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_MakeNameKnown( script_state_t * pstate, ai_state_t * pself )
 {
     // MakeNameKnown()
@@ -3485,7 +3485,7 @@ Uint8 scr_MakeNameKnown( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_MakeUsageKnown( script_state_t * pstate, ai_state_t * pself )
 {
     // MakeUsageKnown()
@@ -3499,7 +3499,7 @@ Uint8 scr_MakeUsageKnown( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_StopTargetMovement( script_state_t * pstate, ai_state_t * pself )
 {
     // StopTargetMovement()
@@ -3517,7 +3517,7 @@ Uint8 scr_StopTargetMovement( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_XY( script_state_t * pstate, ai_state_t * pself )
 {
     // set_XY( tmpargument = "index", tmpx = "x", tmpy = "y" )
@@ -3532,7 +3532,7 @@ Uint8 scr_set_XY( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_get_XY( script_state_t * pstate, ai_state_t * pself )
 {
     // get_XY( tmpargument = "index" )
@@ -3547,7 +3547,7 @@ Uint8 scr_get_XY( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_AddXY( script_state_t * pstate, ai_state_t * pself )
 {
     // AddXY( tmpargument = "index", tmpx = "x", tmpy = "y" )
@@ -3562,7 +3562,7 @@ Uint8 scr_AddXY( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_MakeAmmoKnown( script_state_t * pstate, ai_state_t * pself )
 {
     // MakeAmmoKnown()
@@ -3575,7 +3575,7 @@ Uint8 scr_MakeAmmoKnown( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_SpawnAttachedParticle( script_state_t * pstate, ai_state_t * pself )
 {
     // SpawnAttachedParticle( tmpargument = "particle", tmpdistance = "vertex" )
@@ -3594,7 +3594,7 @@ Uint8 scr_SpawnAttachedParticle( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_SpawnExactParticle( script_state_t * pstate, ai_state_t * pself )
 {
     // SpawnExactParticle( tmpargument = "particle", tmpx = "x", tmpy = "y", tmpdistance = "z" )
@@ -3613,7 +3613,7 @@ Uint8 scr_SpawnExactParticle( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_AccelerateTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // AccelerateTarget( tmpx = "acc x", tmpy = "acc y" )
@@ -3627,7 +3627,7 @@ Uint8 scr_AccelerateTarget( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_distanceIsMoreThanTurn( script_state_t * pstate, ai_state_t * pself )
 {
     // _distanceIsMoreThanTurn()
@@ -3640,7 +3640,7 @@ Uint8 scr_distanceIsMoreThanTurn( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_Crushed( script_state_t * pstate, ai_state_t * pself )
 {
     // _Crushed()
@@ -3655,7 +3655,7 @@ Uint8 scr_Crushed( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_MakeCrushValid( script_state_t * pstate, ai_state_t * pself )
 {
     // MakeCrushValid()
@@ -3669,7 +3669,7 @@ Uint8 scr_MakeCrushValid( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_TargetToLowestTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // set_TargetToLowestTarget()
@@ -3689,7 +3689,7 @@ Uint8 scr_set_TargetToLowestTarget( script_state_t * pstate, ai_state_t * pself 
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_NotPutAway( script_state_t * pstate, ai_state_t * pself )
 {
     // _NotPutAway()
@@ -3705,7 +3705,7 @@ Uint8 scr_NotPutAway( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_TakenOut( script_state_t * pstate, ai_state_t * pself )
 {
     // _TakenOut()
@@ -3721,7 +3721,7 @@ Uint8 scr_TakenOut( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_AmmoOut( script_state_t * pstate, ai_state_t * pself )
 {
     // _AmmoOut()
@@ -3736,7 +3736,7 @@ Uint8 scr_AmmoOut( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_PlaySoundLooped( script_state_t * pstate, ai_state_t * pself )
 {
     // PlaySoundLooped( tmpargument = "sound", tmpdistance = "frequency" )
@@ -3779,7 +3779,7 @@ Uint8 scr_PlaySoundLooped( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_StopSound( script_state_t * pstate, ai_state_t * pself )
 {
     // StopSound( tmpargument = "sound" )
@@ -3792,7 +3792,7 @@ Uint8 scr_StopSound( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_HealSelf( script_state_t * pstate, ai_state_t * pself )
 {
     // HealSelf()
@@ -3818,7 +3818,7 @@ Uint8 scr_HealSelf( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_Equip( script_state_t * pstate, ai_state_t * pself )
 {
     // Equip()
@@ -3833,7 +3833,7 @@ Uint8 scr_Equip( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_TargetHasItemIDEquipped( script_state_t * pstate, ai_state_t * pself )
 {
     // _TargetHasItemIDEquipped( tmpargument = "item idsz" )
@@ -3860,7 +3860,7 @@ Uint8 scr_TargetHasItemIDEquipped( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_OwnerToTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // set_OwnerToTarget()
@@ -3874,7 +3874,7 @@ Uint8 scr_set_OwnerToTarget( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_TargetToOwner( script_state_t * pstate, ai_state_t * pself )
 {
     // set_TargetToOwner()
@@ -3889,7 +3889,7 @@ Uint8 scr_set_TargetToOwner( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_Frame( script_state_t * pstate, ai_state_t * pself )
 {
     // set_Frame( tmpargument = "frame" )
@@ -3906,7 +3906,7 @@ Uint8 scr_set_Frame( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_BreakPassage( script_state_t * pstate, ai_state_t * pself )
 {
     // BreakPassage( tmpargument = "passage", tmpturn = "tile type", tmpdistance = "number of frames", tmpx = "animate ?", tmpy = "tile fx bits" )
@@ -3923,7 +3923,7 @@ Uint8 scr_BreakPassage( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_ReloadTime( script_state_t * pstate, ai_state_t * pself )
 {
     // set_ReloadTime( tmpargument = "time" )
@@ -3939,7 +3939,7 @@ Uint8 scr_set_ReloadTime( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_TargetToWideBlahID( script_state_t * pstate, ai_state_t * pself )
 {
     // set_TargetToWideBlahID( tmpargument = "idsz", tmpdistance = "blah bits" )
@@ -3969,7 +3969,7 @@ Uint8 scr_set_TargetToWideBlahID( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_PoofTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // PoofTarget()
@@ -3999,7 +3999,7 @@ Uint8 scr_PoofTarget( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_ChildDoActionOverride( script_state_t * pstate, ai_state_t * pself )
 {
     // ChildDoActionOverride( tmpargument = action )
@@ -4029,7 +4029,7 @@ Uint8 scr_ChildDoActionOverride( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_SpawnPoof( script_state_t * pstate, ai_state_t * pself )
 {
     // SpawnPoof
@@ -4044,7 +4044,7 @@ Uint8 scr_SpawnPoof( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_SpeedPercent( script_state_t * pstate, ai_state_t * pself )
 {
     // set_SpeedPercent( tmpargument = "percent" )
@@ -4059,7 +4059,7 @@ Uint8 scr_set_SpeedPercent( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_ChildState( script_state_t * pstate, ai_state_t * pself )
 {
     // set_ChildState( tmpargument = "state" )
@@ -4073,7 +4073,7 @@ Uint8 scr_set_ChildState( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_SpawnAttachedSizedParticle( script_state_t * pstate, ai_state_t * pself )
 {
     // SpawnAttachedSizedParticle( tmpargument = "particle", tmpdistance = "vertex", tmpturn = "size" )
@@ -4100,7 +4100,7 @@ Uint8 scr_SpawnAttachedSizedParticle( script_state_t * pstate, ai_state_t * psel
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_ChangeArmor( script_state_t * pstate, ai_state_t * pself )
 {
     // ChangeArmor( tmpargument = "time" )
@@ -4121,7 +4121,7 @@ Uint8 scr_ChangeArmor( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_ShowTimer( script_state_t * pstate, ai_state_t * pself )
 {
     // ShowTimer( tmpargument = "time" )
@@ -4137,7 +4137,7 @@ Uint8 scr_ShowTimer( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_FacingTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // _FacingTarget()
@@ -4154,7 +4154,7 @@ Uint8 scr_FacingTarget( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_PlaySoundVolume( script_state_t * pstate, ai_state_t * pself )
 {
     int iTmp;
@@ -4181,7 +4181,7 @@ Uint8 scr_PlaySoundVolume( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_SpawnAttachedFacedParticle( script_state_t * pstate, ai_state_t * pself )
 {
     // SpawnAttachedFacedParticle(  tmpargument = "particle", tmpdistance = "vertex", tmpturn = "turn" )
@@ -4204,7 +4204,7 @@ Uint8 scr_SpawnAttachedFacedParticle( script_state_t * pstate, ai_state_t * psel
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_StateIsOdd( script_state_t * pstate, ai_state_t * pself )
 {
     // _StateIsOdd()
@@ -4217,7 +4217,7 @@ Uint8 scr_StateIsOdd( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_TargetToDistantEnemy( script_state_t * pstate, ai_state_t * pself )
 {
     // set_TargetToDistantEnemy( tmpdistance = "distance" )
@@ -4234,7 +4234,7 @@ Uint8 scr_set_TargetToDistantEnemy( script_state_t * pstate, ai_state_t * pself 
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_Teleport( script_state_t * pstate, ai_state_t * pself )
 {
     // Teleport( tmpx = "x", tmpy = "y" )
@@ -4276,7 +4276,7 @@ Uint8 scr_Teleport( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_GiveStrengthToTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // GiveStrengthToTarget()
@@ -4295,7 +4295,7 @@ Uint8 scr_GiveStrengthToTarget( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_GiveWisdomToTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // GiveWisdomToTarget()
@@ -4314,7 +4314,7 @@ Uint8 scr_GiveWisdomToTarget( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_GiveIntelligenceToTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // GiveIntelligenceToTarget()
@@ -4333,7 +4333,7 @@ Uint8 scr_GiveIntelligenceToTarget( script_state_t * pstate, ai_state_t * pself 
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_GiveDexterityToTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // GiveDexterityToTarget()
@@ -4352,7 +4352,7 @@ Uint8 scr_GiveDexterityToTarget( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_GiveLifeToTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // GiveLifeToTarget()
@@ -4377,7 +4377,7 @@ Uint8 scr_GiveLifeToTarget( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_GiveManaToTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // GiveManaToTarget()
@@ -4402,7 +4402,7 @@ Uint8 scr_GiveManaToTarget( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_ShowMap( script_state_t * pstate, ai_state_t * pself )
 {
     // ShowMap()
@@ -4417,7 +4417,7 @@ Uint8 scr_ShowMap( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_ShowYouAreHere( script_state_t * pstate, ai_state_t * pself )
 {
     // ShowYouAreHere()
@@ -4431,7 +4431,7 @@ Uint8 scr_ShowYouAreHere( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_ShowBlipXY( script_state_t * pstate, ai_state_t * pself )
 {
     // ShowBlipXY( tmpx = "x", tmpy = "y", tmpargument = "color" )
@@ -4458,7 +4458,7 @@ Uint8 scr_ShowBlipXY( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_HealTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // HealTarget( tmpargument = "amount" )
@@ -4492,7 +4492,7 @@ Uint8 scr_HealTarget( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_PumpTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // PumpTarget( tmpargument = "amount" )
@@ -4514,7 +4514,7 @@ Uint8 scr_PumpTarget( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_CostAmmo( script_state_t * pstate, ai_state_t * pself )
 {
     // CostAmmo()
@@ -4529,7 +4529,7 @@ Uint8 scr_CostAmmo( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_MakeSimilarNamesKnown( script_state_t * pstate, ai_state_t * pself )
 {
     // MakeSimilarNamesKnown()
@@ -4567,7 +4567,7 @@ Uint8 scr_MakeSimilarNamesKnown( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_SpawnAttachedHolderParticle( script_state_t * pstate, ai_state_t * pself )
 {
     // SpawnAttachedHolderParticle( tmpargument = "particle", tmpdistance = "vertex" )
@@ -4588,7 +4588,7 @@ Uint8 scr_SpawnAttachedHolderParticle( script_state_t * pstate, ai_state_t * pse
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_TargetReloadTime( script_state_t * pstate, ai_state_t * pself )
 {
     // set_TargetReloadTime( tmpargument = "time" )
@@ -4604,7 +4604,7 @@ Uint8 scr_set_TargetReloadTime( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_FogLevel( script_state_t * pstate, ai_state_t * pself )
 {
     // set_FogLevel( tmpargument = "level" )
@@ -4625,7 +4625,7 @@ Uint8 scr_set_FogLevel( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_get_FogLevel( script_state_t * pstate, ai_state_t * pself )
 {
     // tmpargument = get_FogLevel()
@@ -4639,7 +4639,7 @@ Uint8 scr_get_FogLevel( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_FogTAD( script_state_t * pstate, ai_state_t * pself )
 {
     // This function sets the color of the module's fog.
@@ -4657,7 +4657,7 @@ Uint8 scr_set_FogTAD( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_FogBottomLevel( script_state_t * pstate, ai_state_t * pself )
 {
     // set_FogBottomLevel( tmpargument = "level" )
@@ -4678,7 +4678,7 @@ Uint8 scr_set_FogBottomLevel( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_get_FogBottomLevel( script_state_t * pstate, ai_state_t * pself )
 {
     // tmpargument = get_FogBottomLevel()
@@ -4693,7 +4693,7 @@ Uint8 scr_get_FogBottomLevel( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_CorrectActionForHand( script_state_t * pstate, ai_state_t * pself )
 {
     // CorrectActionForHand( tmpargument = "action" )
@@ -4719,7 +4719,7 @@ Uint8 scr_CorrectActionForHand( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_TargetIsMounted( script_state_t * pstate, ai_state_t * pself )
 {
     // _TargetIsMounted()
@@ -4736,7 +4736,7 @@ Uint8 scr_TargetIsMounted( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_SparkleIcon( script_state_t * pstate, ai_state_t * pself )
 {
     // SparkleIcon( tmpargument = "color" )
@@ -4758,7 +4758,7 @@ Uint8 scr_SparkleIcon( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_UnsparkleIcon( script_state_t * pstate, ai_state_t * pself )
 {
     // UnsparkleIcon()
@@ -4772,7 +4772,7 @@ Uint8 scr_UnsparkleIcon( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_get_TileXY( script_state_t * pstate, ai_state_t * pself )
 {
     // get_TileXY( tmpx = "x", tmpy = "y" )
@@ -4794,7 +4794,7 @@ Uint8 scr_get_TileXY( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_TileXY( script_state_t * pstate, ai_state_t * pself )
 {
     // scr_set_TileXY( tmpargument = "tile type", tmpx = "x", tmpy = "y" )
@@ -4810,7 +4810,7 @@ Uint8 scr_set_TileXY( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_ShadowSize( script_state_t * pstate, ai_state_t * pself )
 {
     // set_ShadowSize( tmpargument = "size" )
@@ -4824,7 +4824,7 @@ Uint8 scr_set_ShadowSize( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_OrderTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // OrderTarget( tmpargument = "order" )
@@ -4845,7 +4845,7 @@ Uint8 scr_OrderTarget( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_TargetToWhoeverIsInPassage( script_state_t * pstate, ai_state_t * pself )
 {
     // set_TargetToWhoeverIsInPassage()
@@ -4865,7 +4865,7 @@ Uint8 scr_set_TargetToWhoeverIsInPassage( script_state_t * pstate, ai_state_t * 
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_CharacterWasABook( script_state_t * pstate, ai_state_t * pself )
 {
     // _CharacterWasABook()
@@ -4882,7 +4882,7 @@ Uint8 scr_CharacterWasABook( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_EnchantBoostValues( script_state_t * pstate, ai_state_t * pself )
 {
     // set_EnchantBoostValues( tmpargument = "owner mana regen", tmpdistance = "owner life regen", tmpx = "target mana regen", tmpy = "target life regen" )
@@ -4907,7 +4907,7 @@ Uint8 scr_set_EnchantBoostValues( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_SpawnCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
 {
     // SpawnCharacterXYZ( tmpx = "x", tmpy = "y", tmpdistance = "z", tmpturn = "turn" )
@@ -4946,7 +4946,7 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_SpawnExactCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
 {
     // SpawnCharacterXYZ( tmpargument = "slot", tmpx = "x", tmpy = "y", tmpdistance = "z", tmpturn = "turn" )
@@ -4989,7 +4989,7 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_ChangeTargetClass( script_state_t * pstate, ai_state_t * pself )
 {
     // ChangeTargetClass( tmpargument = "slot" )
@@ -5006,7 +5006,7 @@ Uint8 scr_ChangeTargetClass( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_PlayFullSound( script_state_t * pstate, ai_state_t * pself )
 {
     // PlayFullSound( tmpargument = "sound", tmpdistance = "frequency" )
@@ -5024,7 +5024,7 @@ Uint8 scr_PlayFullSound( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_SpawnExactChaseParticle( script_state_t * pstate, ai_state_t * pself )
 {
     // SpawnExactChaseParticle( tmpargument = "particle", tmpx = "x", tmpy = "y", tmpdistance = "z" )
@@ -5049,7 +5049,7 @@ Uint8 scr_SpawnExactChaseParticle( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_CreateOrder( script_state_t * pstate, ai_state_t * pself )
 {
     // tmpargument = CreateOrder( tmpx = "value1", tmpy = "value2", tmpargument = "order" )
@@ -5070,7 +5070,7 @@ Uint8 scr_CreateOrder( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_OrderSpecialID( script_state_t * pstate, ai_state_t * pself )
 {
     // OrderSpecialID( tmpargument = "compressed order", tmpdistance = "idsz" )
@@ -5084,7 +5084,7 @@ Uint8 scr_OrderSpecialID( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_UnkurseTargetInventory( script_state_t * pstate, ai_state_t * pself )
 {
     // UnkurseTargetInventory()
@@ -5108,7 +5108,7 @@ Uint8 scr_UnkurseTargetInventory( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_TargetIsSneaking( script_state_t * pstate, ai_state_t * pself )
 {
     // _TargetIsSneaking()
@@ -5122,7 +5122,7 @@ Uint8 scr_TargetIsSneaking( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_DropItems( script_state_t * pstate, ai_state_t * pself )
 {
     // DropItems()
@@ -5136,7 +5136,7 @@ Uint8 scr_DropItems( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_RespawnTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // RespawnTarget()
@@ -5153,7 +5153,7 @@ Uint8 scr_RespawnTarget( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_TargetDoActionSetFrame( script_state_t * pstate, ai_state_t * pself )
 {
     // TargetDoActionSetFrame( tmpargument = "action" )
@@ -5181,7 +5181,7 @@ Uint8 scr_TargetDoActionSetFrame( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_TargetCanSeeInvisible( script_state_t * pstate, ai_state_t * pself )
 {
     // _TargetCanSeeInvisible()
@@ -5195,7 +5195,7 @@ Uint8 scr_TargetCanSeeInvisible( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_TargetToNearestBlahID( script_state_t * pstate, ai_state_t * pself )
 {
     // set_TargetToNearestBlahID( tmpargument = "idsz", tmpdistance = "blah bits" )
@@ -5227,7 +5227,7 @@ Uint8 scr_set_TargetToNearestBlahID( script_state_t * pstate, ai_state_t * pself
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_TargetToNearestEnemy( script_state_t * pstate, ai_state_t * pself )
 {
     // set_TargetToNearestEnemy()
@@ -5240,7 +5240,7 @@ Uint8 scr_set_TargetToNearestEnemy( script_state_t * pstate, ai_state_t * pself 
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_TargetToNearestFriend( script_state_t * pstate, ai_state_t * pself )
 {
     // set_TargetToNearestFriend()
@@ -5253,7 +5253,7 @@ Uint8 scr_set_TargetToNearestFriend( script_state_t * pstate, ai_state_t * pself
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_TargetToNearestLifeform( script_state_t * pstate, ai_state_t * pself )
 {
     // set_TargetToNearestLifeform()
@@ -5268,7 +5268,7 @@ Uint8 scr_set_TargetToNearestLifeform( script_state_t * pstate, ai_state_t * pse
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_FlashPassage( script_state_t * pstate, ai_state_t * pself )
 {
     // FlashPassage( tmpargument = "passage", tmpdistance = "color" )
@@ -5284,7 +5284,7 @@ Uint8 scr_FlashPassage( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_FindTileInPassage( script_state_t * pstate, ai_state_t * pself )
 {
     // tmpx, tmpy = FindTileInPassage( tmpargument = "passage", tmpdistance = "tile type", tmpx, tmpy )
@@ -5303,7 +5303,7 @@ Uint8 scr_FindTileInPassage( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_HeldInLeftHand( script_state_t * pstate, ai_state_t * pself )
 {
     // _HeldInLeftHand()
@@ -5325,7 +5325,7 @@ Uint8 scr_HeldInLeftHand( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_NotAnItem( script_state_t * pstate, ai_state_t * pself )
 {
     // NotAnItem()
@@ -5339,7 +5339,7 @@ Uint8 scr_NotAnItem( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_ChildAmmo( script_state_t * pstate, ai_state_t * pself )
 {
     // set_ChildAmmo( tmpargument = "none" )
@@ -5352,7 +5352,7 @@ Uint8 scr_set_ChildAmmo( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_HitVulnerable( script_state_t * pstate, ai_state_t * pself )
 {
     // _HitVulnerable()
@@ -5369,7 +5369,7 @@ Uint8 scr_HitVulnerable( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_TargetIsFlying( script_state_t * pstate, ai_state_t * pself )
 {
     // _TargetIsFlying()
@@ -5382,7 +5382,7 @@ Uint8 scr_TargetIsFlying( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_IdentifyTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // IdentifyTarget()
@@ -5395,7 +5395,7 @@ Uint8 scr_IdentifyTarget( script_state_t * pstate, ai_state_t * pself )
     sTmp = pself->target;
     if ( ChrList[sTmp].ammomax != 0 )  ChrList[sTmp].ammoknown = btrue;
     if ( 'B'  != ChrList[sTmp].name[0] || 'l'  != ChrList[sTmp].name[1] ||
-         'a'  != ChrList[sTmp].name[2] || 'h'  != ChrList[sTmp].name[3] || '\0' != ChrList[sTmp].name[4] )
+            'a'  != ChrList[sTmp].name[2] || 'h'  != ChrList[sTmp].name[3] || '\0' != ChrList[sTmp].name[4] )
     {
         returncode = !ChrList[sTmp].nameknown;
         ChrList[sTmp].nameknown = btrue;
@@ -5406,7 +5406,7 @@ Uint8 scr_IdentifyTarget( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_BeatModule( script_state_t * pstate, ai_state_t * pself )
 {
     // BeatModule()
@@ -5419,7 +5419,7 @@ Uint8 scr_BeatModule( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_EndModule( script_state_t * pstate, ai_state_t * pself )
 {
     // EndModule()
@@ -5433,7 +5433,7 @@ Uint8 scr_EndModule( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_DisableExport( script_state_t * pstate, ai_state_t * pself )
 {
     // DisableExport()
@@ -5446,7 +5446,7 @@ Uint8 scr_DisableExport( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_EnableExport( script_state_t * pstate, ai_state_t * pself )
 {
     // EnableExport()
@@ -5459,7 +5459,7 @@ Uint8 scr_EnableExport( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_get_TargetState( script_state_t * pstate, ai_state_t * pself )
 {
     // tmpargument = get_TargetState()
@@ -5472,7 +5472,7 @@ Uint8 scr_get_TargetState( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_Equipped( script_state_t * pstate, ai_state_t * pself )
 {
     SCRIPT_FUNCTION_BEGIN();
@@ -5484,7 +5484,7 @@ Uint8 scr_Equipped( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_DropTargetMoney( script_state_t * pstate, ai_state_t * pself )
 {
     SCRIPT_FUNCTION_BEGIN();
@@ -5495,7 +5495,7 @@ Uint8 scr_DropTargetMoney( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_get_TargetContent( script_state_t * pstate, ai_state_t * pself )
 {
     SCRIPT_FUNCTION_BEGIN();
@@ -5506,7 +5506,7 @@ Uint8 scr_get_TargetContent( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_DropTargetKeys( script_state_t * pstate, ai_state_t * pself )
 {
     SCRIPT_FUNCTION_BEGIN();
@@ -5517,7 +5517,7 @@ Uint8 scr_DropTargetKeys( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_JoinTeam( script_state_t * pstate, ai_state_t * pself )
 {
     SCRIPT_FUNCTION_BEGIN();
@@ -5528,7 +5528,7 @@ Uint8 scr_JoinTeam( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_TargetJoinTeam( script_state_t * pstate, ai_state_t * pself )
 {
     SCRIPT_FUNCTION_BEGIN();
@@ -5539,7 +5539,7 @@ Uint8 scr_TargetJoinTeam( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_ClearMusicPassage( script_state_t * pstate, ai_state_t * pself )
 {
     SCRIPT_FUNCTION_BEGIN();
@@ -5550,7 +5550,7 @@ Uint8 scr_ClearMusicPassage( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_ClearEndMessage( script_state_t * pstate, ai_state_t * pself )
 {
     // ClearEndMessage()
@@ -5564,7 +5564,7 @@ Uint8 scr_ClearEndMessage( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_AddEndMessage( script_state_t * pstate, ai_state_t * pself )
 {
     // AddEndMessage( tmpargument = "message" )
@@ -5577,7 +5577,7 @@ Uint8 scr_AddEndMessage( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_PlayMusic( script_state_t * pstate, ai_state_t * pself )
 {
     SCRIPT_FUNCTION_BEGIN();
@@ -5591,7 +5591,7 @@ Uint8 scr_PlayMusic( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_MusicPassage( script_state_t * pstate, ai_state_t * pself )
 {
     // set_MusicPassage( tmpargument = "passage", tmpturn = "type", tmpdistance = "repetitions" )
@@ -5606,7 +5606,7 @@ Uint8 scr_set_MusicPassage( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_MakeCrushInvalid( script_state_t * pstate, ai_state_t * pself )
 {
     // MakeCrushInvalid()
@@ -5619,7 +5619,7 @@ Uint8 scr_MakeCrushInvalid( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_StopMusic( script_state_t * pstate, ai_state_t * pself )
 {
     // StopMusic()
@@ -5632,7 +5632,7 @@ Uint8 scr_StopMusic( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_FlashVariable( script_state_t * pstate, ai_state_t * pself )
 {
     // FlashVariable( tmpargument = "amount" )
@@ -5646,7 +5646,7 @@ Uint8 scr_FlashVariable( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_AccelerateUp( script_state_t * pstate, ai_state_t * pself )
 {
     // AccelerateUp( tmpargument = "acc z" )
@@ -5659,7 +5659,7 @@ Uint8 scr_AccelerateUp( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_FlashVariableHeight( script_state_t * pstate, ai_state_t * pself )
 {
     // FlashVariableHeight( tmpturn = "intensity bottom", tmpx = "bottom", tmpdistance = "intensity top", tmpy = "top" )
@@ -5672,7 +5672,7 @@ Uint8 scr_FlashVariableHeight( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_DamageTime( script_state_t * pstate, ai_state_t * pself )
 {
     // set_DamageTime( tmpargument = "time" )
@@ -5685,7 +5685,7 @@ Uint8 scr_set_DamageTime( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_StateIs8( script_state_t * pstate, ai_state_t * pself )
 {
     SCRIPT_FUNCTION_BEGIN();
@@ -5695,7 +5695,7 @@ Uint8 scr_StateIs8( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_StateIs9( script_state_t * pstate, ai_state_t * pself )
 {
     SCRIPT_FUNCTION_BEGIN();
@@ -5705,7 +5705,7 @@ Uint8 scr_StateIs9( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_StateIs10( script_state_t * pstate, ai_state_t * pself )
 {
     SCRIPT_FUNCTION_BEGIN();
@@ -5715,7 +5715,7 @@ Uint8 scr_StateIs10( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_StateIs11( script_state_t * pstate, ai_state_t * pself )
 {
     SCRIPT_FUNCTION_BEGIN();
@@ -5725,7 +5725,7 @@ Uint8 scr_StateIs11( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_StateIs12( script_state_t * pstate, ai_state_t * pself )
 {
     SCRIPT_FUNCTION_BEGIN();
@@ -5735,7 +5735,7 @@ Uint8 scr_StateIs12( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_StateIs13( script_state_t * pstate, ai_state_t * pself )
 {
     SCRIPT_FUNCTION_BEGIN();
@@ -5745,7 +5745,7 @@ Uint8 scr_StateIs13( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_StateIs14( script_state_t * pstate, ai_state_t * pself )
 {
     SCRIPT_FUNCTION_BEGIN();
@@ -5755,7 +5755,7 @@ Uint8 scr_StateIs14( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_StateIs15( script_state_t * pstate, ai_state_t * pself )
 {
     SCRIPT_FUNCTION_BEGIN();
@@ -5765,7 +5765,7 @@ Uint8 scr_StateIs15( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_TargetIsAMount( script_state_t * pstate, ai_state_t * pself )
 {
     // _TargetIsAMount()
@@ -5778,7 +5778,7 @@ Uint8 scr_TargetIsAMount( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_TargetIsAPlatform( script_state_t * pstate, ai_state_t * pself )
 {
     // _TargetIsAPlatform()
@@ -5791,7 +5791,7 @@ Uint8 scr_TargetIsAPlatform( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_AddStat( script_state_t * pstate, ai_state_t * pself )
 {
     // AddStat()
@@ -5807,7 +5807,7 @@ Uint8 scr_AddStat( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_DisenchantTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // DisenchantTarget()
@@ -5822,7 +5822,7 @@ Uint8 scr_DisenchantTarget( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_DisenchantAll( script_state_t * pstate, ai_state_t * pself )
 {
     // DisenchantAll()
@@ -5842,7 +5842,7 @@ Uint8 scr_DisenchantAll( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_VolumeNearestTeammate( script_state_t * pstate, ai_state_t * pself )
 {
     // set_VolumeNearestTeammate( tmpargument = "sound", tmpdistance = "distance" )
@@ -5881,7 +5881,7 @@ Uint8 scr_set_VolumeNearestTeammate( script_state_t * pstate, ai_state_t * pself
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_AddShopPassage( script_state_t * pstate, ai_state_t * pself )
 {
     // AddShopPassage( tmpargument = "passage" )
@@ -5895,7 +5895,7 @@ Uint8 scr_AddShopPassage( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_TargetPayForArmor( script_state_t * pstate, ai_state_t * pself )
 {
     // tmpx, tmpy = TargetPayForArmor( tmpargument = "skin" )
@@ -5934,7 +5934,7 @@ Uint8 scr_TargetPayForArmor( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_JoinEvilTeam( script_state_t * pstate, ai_state_t * pself )
 {
     // JoinEvilTeam()
@@ -5947,7 +5947,7 @@ Uint8 scr_JoinEvilTeam( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_JoinNullTeam( script_state_t * pstate, ai_state_t * pself )
 {
     // JoinNullTeam()
@@ -5960,7 +5960,7 @@ Uint8 scr_JoinNullTeam( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_JoinGoodTeam( script_state_t * pstate, ai_state_t * pself )
 {
     // JoinGoodTeam()
@@ -5973,7 +5973,7 @@ Uint8 scr_JoinGoodTeam( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_PitsKill( script_state_t * pstate, ai_state_t * pself )
 {
     // PitsKill()
@@ -5987,7 +5987,7 @@ Uint8 scr_PitsKill( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_TargetToPassageID( script_state_t * pstate, ai_state_t * pself )
 {
     // set_TargetToPassageID( tmpargument = "passage", tmpdistance = "idsz" )
@@ -6007,7 +6007,7 @@ Uint8 scr_set_TargetToPassageID( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_MakeNameUnknown( script_state_t * pstate, ai_state_t * pself )
 {
     // MakeNameUnknown()
@@ -6021,7 +6021,7 @@ Uint8 scr_MakeNameUnknown( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_SpawnExactParticleEndSpawn( script_state_t * pstate, ai_state_t * pself )
 {
     // SpawnExactParticleEndSpawn( tmpargument = "particle", tmpturn = "state", tmpx = "x", tmpy = "y", tmpdistance = "z" )
@@ -6048,7 +6048,7 @@ Uint8 scr_SpawnExactParticleEndSpawn( script_state_t * pstate, ai_state_t * psel
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_SpawnPoofSpeedSpacingDamage( script_state_t * pstate, ai_state_t * pself )
 {
     // SpawnPoofSpeedSpacingDamage( tmpx = "xy speed", tmpy = "xy spacing", tmpargument = "damage" )
@@ -6080,7 +6080,7 @@ Uint8 scr_SpawnPoofSpeedSpacingDamage( script_state_t * pstate, ai_state_t * pse
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_GiveExperienceToGoodTeam( script_state_t * pstate, ai_state_t * pself )
 {
     // GiveExperienceToGoodTeam(  tmpargument = "amount", tmpdistance = "type" )
@@ -6093,7 +6093,7 @@ Uint8 scr_GiveExperienceToGoodTeam( script_state_t * pstate, ai_state_t * pself 
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_DoNothing( script_state_t * pstate, ai_state_t * pself )
 {
     // DoNothing()
@@ -6103,7 +6103,7 @@ Uint8 scr_DoNothing( script_state_t * pstate, ai_state_t * pself )
     return btrue;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_GrogTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // GrogTarget( tmpargument = "amount" )
@@ -6117,7 +6117,7 @@ Uint8 scr_GrogTarget( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_DazeTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // DazeTarget( tmpargument = "amount" )
@@ -6131,7 +6131,7 @@ Uint8 scr_DazeTarget( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_EnableRespawn( script_state_t * pstate, ai_state_t * pself )
 {
     SCRIPT_FUNCTION_BEGIN();
@@ -6142,7 +6142,7 @@ Uint8 scr_EnableRespawn( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_DisableRespawn( script_state_t * pstate, ai_state_t * pself )
 {
     SCRIPT_FUNCTION_BEGIN();
@@ -6153,7 +6153,7 @@ Uint8 scr_DisableRespawn( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_HolderBlocked( script_state_t * pstate, ai_state_t * pself )
 {
     SCRIPT_FUNCTION_BEGIN();
@@ -6169,7 +6169,7 @@ Uint8 scr_HolderBlocked( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 // Uint8 scr_get_SkillLevel( script_state_t * pstate, ai_state_t * pself )
 // {
 //    SCRIPT_FUNCTION_BEGIN();
@@ -6180,7 +6180,7 @@ Uint8 scr_HolderBlocked( script_state_t * pstate, ai_state_t * pself )
 //    SCRIPT_FUNCTION_END();
 // }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_TargetHasNotFullMana( script_state_t * pstate, ai_state_t * pself )
 {
     SCRIPT_FUNCTION_BEGIN();
@@ -6192,7 +6192,7 @@ Uint8 scr_TargetHasNotFullMana( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_EnableListenSkill( script_state_t * pstate, ai_state_t * pself )
 {
     SCRIPT_FUNCTION_BEGIN();
@@ -6203,7 +6203,7 @@ Uint8 scr_EnableListenSkill( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_TargetToLastItemUsed( script_state_t * pstate, ai_state_t * pself )
 {
     SCRIPT_FUNCTION_BEGIN();
@@ -6215,7 +6215,7 @@ Uint8 scr_set_TargetToLastItemUsed( script_state_t * pstate, ai_state_t * pself 
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_FollowLink( script_state_t * pstate, ai_state_t * pself )
 {
     Uint16 model;
@@ -6244,7 +6244,7 @@ Uint8 scr_FollowLink( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_OperatorIsLinux( script_state_t * pstate, ai_state_t * pself )
 {
     SCRIPT_FUNCTION_BEGIN();
@@ -6259,7 +6259,7 @@ Uint8 scr_OperatorIsLinux( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_TargetIsAWeapon( script_state_t * pstate, ai_state_t * pself )
 {
     SCRIPT_FUNCTION_BEGIN();
@@ -6271,7 +6271,7 @@ Uint8 scr_TargetIsAWeapon( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_SomeoneIsStealing( script_state_t * pstate, ai_state_t * pself )
 {
     SCRIPT_FUNCTION_BEGIN();
@@ -6282,7 +6282,7 @@ Uint8 scr_SomeoneIsStealing( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_TargetIsASpell( script_state_t * pstate, ai_state_t * pself )
 {
     int iTmp;
@@ -6307,7 +6307,7 @@ Uint8 scr_TargetIsASpell( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_Backstabbed( script_state_t * pstate, ai_state_t * pself )
 {
     SCRIPT_FUNCTION_BEGIN();
@@ -6329,7 +6329,7 @@ Uint8 scr_Backstabbed( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_get_TargetDamageType( script_state_t * pstate, ai_state_t * pself )
 {
     SCRIPT_FUNCTION_BEGIN();
@@ -6340,7 +6340,7 @@ Uint8 scr_get_TargetDamageType( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_AddQuest( script_state_t * pstate, ai_state_t * pself )
 {
     SCRIPT_FUNCTION_BEGIN();
@@ -6356,7 +6356,7 @@ Uint8 scr_AddQuest( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_BeatQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
 {
     int iTmp;
@@ -6383,7 +6383,7 @@ Uint8 scr_BeatQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_TargetHasQuest( script_state_t * pstate, ai_state_t * pself )
 {
     int iTmp;
@@ -6406,7 +6406,7 @@ Uint8 scr_TargetHasQuest( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_QuestLevel( script_state_t * pstate, ai_state_t * pself )
 {
     SCRIPT_FUNCTION_BEGIN();
@@ -6422,7 +6422,7 @@ Uint8 scr_set_QuestLevel( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_AddQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
 {
     int iTmp;
@@ -6448,7 +6448,7 @@ Uint8 scr_AddQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_AddBlipAllEnemies( script_state_t * pstate, ai_state_t * pself )
 {
     SCRIPT_FUNCTION_BEGIN();
@@ -6470,7 +6470,7 @@ Uint8 scr_AddBlipAllEnemies( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_PitsFall( script_state_t * pstate, ai_state_t * pself )
 {
     SCRIPT_FUNCTION_BEGIN();
@@ -6488,7 +6488,7 @@ Uint8 scr_PitsFall( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_TargetIsOwner( script_state_t * pstate, ai_state_t * pself )
 {
     SCRIPT_FUNCTION_BEGIN();
@@ -6499,7 +6499,7 @@ Uint8 scr_TargetIsOwner( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_End( script_state_t * pstate, ai_state_t * pself )
 {
     // End()
@@ -6513,7 +6513,7 @@ Uint8 scr_End( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_TakePicture( script_state_t * pstate, ai_state_t * pself )
 {
     // scr_TakePicture()
@@ -6526,7 +6526,7 @@ Uint8 scr_TakePicture( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_Speech( script_state_t * pstate, ai_state_t * pself )
 {
     // set_Speech( tmpargument = "sound" )
@@ -6542,7 +6542,7 @@ Uint8 scr_set_Speech( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_MoveSpeech( script_state_t * pstate, ai_state_t * pself )
 {
     // set_MoveSpeech( tmpargument = "sound" )
@@ -6555,7 +6555,7 @@ Uint8 scr_set_MoveSpeech( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_SecondMoveSpeech( script_state_t * pstate, ai_state_t * pself )
 {
     // set_SecondMoveSpeech( tmpargument = "sound" )
@@ -6568,7 +6568,7 @@ Uint8 scr_set_SecondMoveSpeech( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_AttackSpeech( script_state_t * pstate, ai_state_t * pself )
 {
     // set_AttacksSpeech( tmpargument = "sound" )
@@ -6581,7 +6581,7 @@ Uint8 scr_set_AttackSpeech( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_AssistSpeech( script_state_t * pstate, ai_state_t * pself )
 {
     // set_AssistSpeech( tmpargument = "sound" )
@@ -6594,7 +6594,7 @@ Uint8 scr_set_AssistSpeech( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_TerrainSpeech( script_state_t * pstate, ai_state_t * pself )
 {
     // set_TerrainSpeech( tmpargument = "sound" )
@@ -6607,7 +6607,7 @@ Uint8 scr_set_TerrainSpeech( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_SelectSpeech( script_state_t * pstate, ai_state_t * pself )
 {
     // set_SelectSpeech( tmpargument = "sound" )
@@ -6620,7 +6620,7 @@ Uint8 scr_set_SelectSpeech( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_OperatorIsMacintosh( script_state_t * pstate, ai_state_t * pself )
 {
     SCRIPT_FUNCTION_BEGIN();
@@ -6635,7 +6635,7 @@ Uint8 scr_OperatorIsMacintosh( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_ModuleHasIDSZ( script_state_t * pstate, ai_state_t * pself )
 {
     // Proceeds if the specified module has the required IDSZ specified in tmpdistance
@@ -6647,7 +6647,7 @@ Uint8 scr_ModuleHasIDSZ( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_MorphToTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // This morphs the character into the target
@@ -6664,7 +6664,7 @@ Uint8 scr_MorphToTarget( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_GiveManaFlowToTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // GiveManaFlowToTarget()
@@ -6683,7 +6683,7 @@ Uint8 scr_GiveManaFlowToTarget( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_GiveManaReturnToTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // GiveManaReturnToTarget()
@@ -6702,7 +6702,7 @@ Uint8 scr_GiveManaReturnToTarget( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_set_Money( script_state_t * pstate, ai_state_t * pself )
 {
     // SetMoney()
@@ -6719,7 +6719,7 @@ Uint8 scr_set_Money( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_TargetCanSeeKurses( script_state_t * pstate, ai_state_t * pself )
 {
     // IfTargetCanSeeKurses()
@@ -6732,7 +6732,7 @@ Uint8 scr_TargetCanSeeKurses( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 scr_DispelTargetEnchantID( script_state_t * pstate, ai_state_t * pself )
 {
     // DispelEnchantID( tmpargument = "idsz" )

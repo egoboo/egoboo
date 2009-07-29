@@ -28,8 +28,8 @@
 
 #include "egoboo.h"
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 #define TURNSPD                         0.01f         // Cutoff for turning or same direction
 #define TURNMODEVELOCITY    0                       // Character gets rotation from velocity
 #define TURNMODEWATCH       1                       // For watch towers
@@ -117,9 +117,9 @@ slot_t        grip_offset_to_slot( grip_offset_t grip );
 #define QUEST_BEATEN         -1
 #define QUEST_NONE           -2
 
-// ------------------------------------
+//------------------------------------
 // Team variables
-// ------------------------------------
+//------------------------------------
 #define TEAM_EVIL            4                       // E
 #define TEAM_GOOD            6                       // G
 #define TEAM_NULL            13                      // N
@@ -138,9 +138,9 @@ typedef struct s_team team_t;
 
 extern team_t TeamList[TEAM_MAX];
 
-// ------------------------------------
+//------------------------------------
 // Character template
-// ------------------------------------
+//------------------------------------
 #define MAXCAPNAMESIZE      32                      // Character class names
 #define MAXSECTION                      4           // T-wi-n-k...  Most of 4 sections
 
@@ -341,9 +341,9 @@ extern cap_t CapList[MAX_PROFILE];
 #define VALID_CAP( ICAP )       ( VALID_CAP_RANGE( ICAP ) && CapList[ICAP].loaded )
 #define INVALID_CAP( ICAP )     ( !VALID_CAP_RANGE( ICAP ) || !CapList[ICAP].loaded )
 
-// ------------------------------------
+//------------------------------------
 // Character variables
-// ------------------------------------
+//------------------------------------
 
 // all the model data that the renderer needs to render the character
 struct s_chr_instance
@@ -630,8 +630,8 @@ extern chr_t ChrList[MAX_CHR];
 #define VALID_CHR( ICHR )       ( VALID_CHR_RANGE( ICHR ) && ChrList[ICHR].on )
 #define INVALID_CHR( ICHR )     ( !VALID_CHR_RANGE( ICHR ) || !ChrList[ICHR].on )
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 // This is for random naming
 
 #define CHOPPERMODEL                    32
@@ -651,8 +651,8 @@ typedef struct s_chop_data chop_data_t;
 
 extern chop_data_t chop;
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 // Function prototypes
 
 const char * undo_idsz( IDSZ idsz );
@@ -731,7 +731,7 @@ void   init_slot_idsz();
 
 bool_t ai_add_order( ai_state_t * pai, Uint32 value, Uint16 counter );
 
-// ---------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------
 // Quest system
 bool_t add_quest_idsz( const char *whichplayer, IDSZ idsz );
 Sint16 modify_quest_idsz( const char *whichplayer, IDSZ idsz, Sint16 adjustment );

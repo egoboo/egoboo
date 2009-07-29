@@ -27,8 +27,8 @@
 
 #include <SDL.h>
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 // old user interface variables
 
 extern int              cursor_x;              // Cursor position
@@ -38,7 +38,7 @@ extern bool_t           cursor_clicked;
 extern bool_t           cursor_pending_click;
 extern bool_t           cursor_wheel_event;
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 // Key/Control input defenitions
 #define MAXTAG              128                     // Number of tags in scancode.txt
 #define TAGSIZE             32                      // Size of each tag
@@ -53,7 +53,7 @@ typedef struct s_scantag scantag_t;
 extern int       scantag_count;
 extern scantag_t scantag[MAXTAG];
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 // MOUSE
 struct s_mouse
 {
@@ -73,7 +73,7 @@ typedef struct s_mouse mouse_t;
 
 extern mouse_t mous;
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 // KEYBOARD
 #define KEYB_BUFFER_SIZE 2048
 struct s_keyboard
@@ -91,7 +91,7 @@ extern keyboard_t keyb;
 
 #define SDLKEYDOWN(k) ( !console_mode &&  (NULL != keyb.state_ptr) &&  ((k) < keyb.count) && ( 0 != keyb.state_ptr[k] ) )
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 // JOYSTICK
 #define MAXJOYSTICK          2
 #define JOYBUTTON           32                      // Maximum number of joystick buttons
@@ -109,7 +109,7 @@ typedef struct s_device_joystick device_joystick_t;
 
 extern device_joystick_t joy[MAXJOYSTICK];
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 enum e_input_device
 {
     INPUT_DEVICE_KEYBOARD = 0,
@@ -229,7 +229,7 @@ typedef struct s_device_controls device_controls_t;
 
 extern device_controls_t controls[INPUT_DEVICE_COUNT + MAXJOYSTICK];
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 // Function prototypes
 
 void init_scancodes();

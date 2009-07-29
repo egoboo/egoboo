@@ -26,16 +26,16 @@
 
 #include "egoboo.h"
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 struct s_camera;
 struct s_egoboo_config;
 struct s_chr_instance;
 struct s_oglx_texture_parameters;
 struct s_egoboo_config;
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 #define DOLIST_SIZE (MAX_CHR + TOTAL_MAX_PRT)
 
 #define MAXMESHRENDER             1024                       // Max number of tiles to draw
@@ -64,6 +64,10 @@ struct s_egoboo_config;
 
 #define TRANSCOLOR                      0           // Transparent color
 
+#define GFX_WIDTH      640
+#define GFX_HEIGHT     480
+
+
 // Special Textures
 typedef enum e_tx_type
 {
@@ -90,8 +94,8 @@ enum e_color
     COLOR_MAX
 };
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 struct s_do_list_data
 {
     float  dist;
@@ -99,7 +103,7 @@ struct s_do_list_data
 };
 typedef struct s_do_list_data do_list_data_t;
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 struct s_obj_registry_entity
 {
     Uint16 ichr, iprt;
@@ -109,8 +113,8 @@ typedef struct s_obj_registry_entity obj_registry_entity_t;
 
 int obj_registry_entity_cmp( const void * pleft, const void * pright );
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 // OPENGL VERTEX
 
 typedef struct
@@ -126,8 +130,8 @@ typedef struct
     GLfloat col[4];      // the total vertex-dependent lighting (ambient + directional)
 } GLvertex;
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 struct s_renderlist
 {
     ego_mpd_t * pmesh;
@@ -151,7 +155,7 @@ typedef struct s_renderlist renderlist_t;
 
 extern renderlist_t renderlist;
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 extern Uint8           lightdirectionlookup[65536];                        // For lighting characters
 extern float           lighttable_local[MAXLIGHTROTATION][MADLIGHTINDICES];
 extern float           lighttable_global[MAXLIGHTROTATION][MADLIGHTINDICES];
@@ -159,14 +163,14 @@ extern float           indextoenvirox[MADLIGHTINDICES];                    // En
 extern float           lighttoenviroy[256];                                // Environment map
 extern Uint32          lighttospek[MAXSPEKLEVEL][256];
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 // Display messages
 extern Uint16          msgtimechange;
 extern Uint16          msgstart;                                       // The message queue
 extern Sint16          msgtime[MAXMESSAGE];
 extern char            msgtextdisplay[MAXMESSAGE][MESSAGESIZE];        // The displayed text
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 // Input player control
 extern int  nullicon;
 extern int  keybicon;
@@ -174,7 +178,7 @@ extern int  mousicon;
 extern int  joyaicon;
 extern int  joybicon;
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 // camera optimization
 
 #define ROTMESHTOPSIDE                  55          // For figuring out what to draw
@@ -187,7 +191,7 @@ extern int rotmeshbottomside;
 extern int rotmeshup;
 extern int rotmeshdown;
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 // encapsulation of all graphics options
 struct s_gfx_config
 {
@@ -210,6 +214,10 @@ struct s_gfx_config
     int    dyna_list_max;     // Max number of dynamic lights to draw
     bool_t exploremode;       // fog of war mode for mesh display
     bool_t usefaredge;        // Far edge maps? (Outdoor)
+
+    // virtual window parameters
+    float vw, vh;
+    float vdw, vdh;
 };
 typedef struct s_gfx_config gfx_config_t;
 
@@ -218,8 +226,8 @@ extern gfx_config_t gfx;
 bool_t gfx_config_init ( gfx_config_t * pgfx );
 bool_t gfx_config_synch( gfx_config_t * pgfx, struct s_egoboo_config * pcfg );
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 extern obj_registry_entity_t dolist[DOLIST_SIZE];             // List of which characters to draw
 extern size_t                dolist_count;                  // How many in the list
 
@@ -249,8 +257,8 @@ extern Uint8           blipc[MAXBLIP];
 extern bool_t          meshnotexture;
 extern Uint16          meshlasttexture;             // Last texture used
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 // Function prototypes
 void draw_blip( float sizeFactor, Uint8 color, int x, int y );
 int  get_free_message();

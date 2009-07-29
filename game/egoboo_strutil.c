@@ -23,8 +23,8 @@
 
 #include "egoboo_strutil.h"
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void str_trim( char *pStr )
 {
     // / @details ZZ> str_trim remove all space and tabs in the beginning and at the _dtor of the string
@@ -68,7 +68,7 @@ void str_trim( char *pStr )
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 char * str_decode( char *strout, size_t insize, const char * strin )
 {
     // / @details BB> str_decode converts a string from "storage mode" to an actual string
@@ -90,7 +90,7 @@ char * str_decode( char *strout, size_t insize, const char * strin )
     return strout;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 char * str_encode( char *strout, size_t insize, const char * strin )
 {
     // / @details BB> str_encode converts an actual string to "storage mode"
@@ -142,7 +142,7 @@ char * str_encode( char *strout, size_t insize, const char * strin )
     return strout;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 char * str_convert_slash_net(char * str, size_t size)
 {
     // / @details BB> converts the slashes in a string to those appropriate for the Net
@@ -162,7 +162,7 @@ char * str_convert_slash_net(char * str, size_t size)
     return str;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 char * str_convert_slash_sys(char * str, size_t size)
 {
     // / @details BB> converts the slashes in a string to those appropriate this system
@@ -182,7 +182,7 @@ char * str_convert_slash_sys(char * str, size_t size)
     return str;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 char * str_append_slash_net(char * str, size_t size)
 {
     // / @details BB> appends a network-type slash to a string, if it does not already have one
@@ -200,7 +200,7 @@ char * str_append_slash_net(char * str, size_t size)
     return str;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 char * str_append_slash(char * str, size_t size)
 {
     // / @details BB> appends this system's slash to a string, if it does not already have one
@@ -218,7 +218,7 @@ char * str_append_slash(char * str, size_t size)
     return str;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 char * str_encode_path( const char *szName )
 {
     // ZF> This turns a szName name into a proper filepath for loading and saving files
@@ -253,7 +253,7 @@ char * str_encode_path( const char *szName )
     return szPathname;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void str_add_linebreaks( const char * text, size_t text_len, size_t line_len )
 {
     char * text_end, * text_break, * text_stt;

@@ -36,13 +36,13 @@
 
 #include <SDL_opengl.h>
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 static void chr_instance_update( Uint16 character, Uint8 trans, bool_t do_lighting );
 static void chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 trans, bool_t do_lighting );
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 
 /* Storage for blended vertices */
 static GLfloat md2_blendedVertices[MD2_MAX_VERTICES][3];
@@ -113,7 +113,7 @@ static void blend_md2_vertices( const Md2Model *model, int from_, int to_, float
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 /* draw_textured_md2
  * Draws a Md2Model in the new format
  */
@@ -161,7 +161,7 @@ void draw_textured_md2( const Md2Model *model, int from_, int to_, float lerp )
     GL_DEBUG(glDisableClientState)(GL_NORMAL_ARRAY );
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void render_one_mad_enviro( Uint16 character, Uint8 trans )
 {
     // ZZ> This function draws an environment mapped model
@@ -312,7 +312,7 @@ else
 }
 */
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void render_one_mad_tex( Uint16 character, Uint8 trans )
 {
     // ZZ> This function draws a model
@@ -428,7 +428,7 @@ void render_one_mad_tex( Uint16 character, Uint8 trans )
     }
 */
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void render_one_mad( Uint16 character, Uint8 trans )
 {
     // ZZ> This function picks the actual function to use
@@ -476,7 +476,7 @@ void render_one_mad( Uint16 character, Uint8 trans )
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void render_one_mad_ref( int tnc, Uint8 trans )
 {
     // ZZ> This function draws characters reflected in the floor
@@ -541,8 +541,8 @@ void render_one_mad_ref( int tnc, Uint8 trans )
 
 }
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void chr_instance_update( Uint16 character, Uint8 trans, bool_t do_lighting )
 {
     chr_t * pchr;
@@ -559,7 +559,7 @@ void chr_instance_update( Uint16 character, Uint8 trans, bool_t do_lighting )
     chr_instance_update_lighting( pinst, pchr, trans, do_lighting );
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 trans, bool_t do_lighting )
 {
     Uint16 cnt;
@@ -682,7 +682,7 @@ void chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 t
 
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vmax )
 {
     int    i;

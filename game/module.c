@@ -37,18 +37,18 @@
 #include "egoboo_fileutil.h"
 #include "egoboo.h"
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 
 int        ModList_count = 0;                            // Number of modules
 mod_data_t ModList[MAXMODULE];
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 static bool_t module_load_info( const char * szLoadName, mod_data_t * pmod );
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 int module_reference_matches( const char *szLoadName, IDSZ idsz )
 {
     // ZZ> This function returns btrue if the named module has the required IDSZ
@@ -106,7 +106,7 @@ int module_reference_matches( const char *szLoadName, IDSZ idsz )
     return foundidsz;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void module_add_idsz( const char *szLoadName, IDSZ idsz )
 {
     // ZZ> This function appends an IDSZ to the module's menu.txt file
@@ -132,7 +132,7 @@ void module_add_idsz( const char *szLoadName, IDSZ idsz )
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 int modlist_get_mod_number( const char *szModName )
 {
     // ZZ> This function returns -1 if the module does not exist locally, the module
@@ -152,7 +152,7 @@ int modlist_get_mod_number( const char *szModName )
     return modnum;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t modlist_test_by_index( int modnumber )
 {
     int     cnt;
@@ -187,7 +187,7 @@ bool_t modlist_test_by_index( int modnumber )
     return allowed;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t modlist_test_by_name( const char *szModName )
 {
     // ZZ> This function tests to see if a module can be entered by
@@ -199,7 +199,7 @@ bool_t modlist_test_by_name( const char *szModName )
     return modlist_test_by_index( modnumber );
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t module_load_info( const char * szLoadName, mod_data_t * pmod )
 {
     // BB > this function actually reads in the module data
@@ -279,7 +279,7 @@ bool_t module_load_info( const char * szLoadName, mod_data_t * pmod )
     return pmod->loaded;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void modlist_load_all_info()
 {
     STRING loadname;
@@ -306,7 +306,7 @@ void modlist_load_all_info()
     ModList[ModList_count].longname[0] = '\0';
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t module_instance_init( module_instance_t * pinst )
 {
     if ( NULL == pinst ) return bfalse;
@@ -318,7 +318,7 @@ bool_t module_instance_init( module_instance_t * pinst )
     return btrue;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t module_upload( module_instance_t * pinst, int imod, Uint32 seed )
 {
     mod_data_t * pdata;
@@ -345,7 +345,7 @@ bool_t module_upload( module_instance_t * pinst, int imod, Uint32 seed )
     return btrue;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t module_reset( module_instance_t * pinst, Uint32 seed )
 {
     if (NULL == pinst) return bfalse;
@@ -357,7 +357,7 @@ bool_t module_reset( module_instance_t * pinst, Uint32 seed )
     return btrue;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t module_start( module_instance_t * pinst )
 {
     // BB> Let the module go
@@ -375,7 +375,7 @@ bool_t module_start( module_instance_t * pinst )
     return btrue;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t module_stop( module_instance_t * pinst )
 {
     // BB> stop the module

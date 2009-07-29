@@ -96,7 +96,7 @@ void fs_copyDirectory( const char *sourceDir, const char *destDir )
     fs_findClose();
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 int fs_fileExists( const char *filename )
 {
     FILE * ptmp;

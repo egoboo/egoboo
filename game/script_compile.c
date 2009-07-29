@@ -26,8 +26,8 @@
 
 #include "SDL_extensions.h"
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 static int    iLoadSize;
 static int    iNumLine;
 
@@ -57,8 +57,8 @@ Uint32 iCompiledAis[AISMAXCOMPILESIZE];
 bool_t debug_scripts = bfalse;
 FILE * debug_script_file = NULL;
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 static void   insert_space( int position );
 // static void   copy_one_line( int write );
 static int    load_one_line( int read );
@@ -78,8 +78,8 @@ static void   parse_jumps( int ainumber );
 static int    ai_goto_colon( int read );
 static void   get_code( int read );
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void insert_space( int position )
 {
     // ZZ> This function adds a space into the load line if there isn't one
@@ -104,7 +104,7 @@ void insert_space( int position )
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 int load_one_line( int read )
 {
     // ZZ> This function loads a line into the line buffer
@@ -231,7 +231,7 @@ int load_one_line( int read )
     return read;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void surround_space( int position )
 {
     insert_space( position + 1 );
@@ -244,7 +244,7 @@ void surround_space( int position )
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 int get_indentation()
 {
     // ZZ> This function returns the number of starting spaces in a line
@@ -275,7 +275,7 @@ int get_indentation()
     return cnt;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void fix_operators()
 {
     // ZZ> This function puts spaces around operators to seperate words
@@ -300,7 +300,7 @@ void fix_operators()
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 int parse_token( int read )
 {
     // ZZ> This function tells what code is being indexed by read, it
@@ -427,7 +427,7 @@ int parse_token( int read )
     { /* print_token(); */  return read; }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void emit_opcode( Uint32 highbits )
 {
     // detect a constant value
@@ -446,7 +446,7 @@ void emit_opcode( Uint32 highbits )
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void parse_line_by_line()
 {
     // ZZ> This function removes comments and endline codes, replacing
@@ -466,7 +466,7 @@ void parse_line_by_line()
         fix_operators();
         parseposition = 0;
 
-        // ------------------------------
+        //------------------------------
         // grab the first opcode
 
         highbits = SET_DATA_BITS( get_indentation() );
@@ -479,7 +479,7 @@ void parse_line_by_line()
                 break;
             }
 
-            // ------------------------------
+            //------------------------------
             // the code type is a function
 
             // save the opcode
@@ -492,7 +492,7 @@ void parse_line_by_line()
         }
         else if ( 'V' == Token_cType )
         {
-            // ------------------------------
+            //------------------------------
             // the code type is a math operation
 
             int operand_index;
@@ -514,7 +514,7 @@ void parse_line_by_line()
                 log_warning( "Invalid equation \"%s\"(%d) - \"%s\"\n", globalparsename, Token_iLine, cLineBuffer);
             }
 
-            // ------------------------------
+            //------------------------------
             // grab the next opcode
 
             parseposition = parse_token( parseposition );
@@ -592,7 +592,7 @@ void parse_line_by_line()
     emit_opcode( 0 );
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint32 jump_goto( int index, int index_end )
 {
     // ZZ> This function figures out where to jump to on a fail based on the
@@ -632,7 +632,7 @@ Uint32 jump_goto( int index, int index_end )
     return MIN ( index, index_end );
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void parse_jumps( int ainumber )
 {
     // ZZ> This function sets up the fail jumps for the down and dirty code
@@ -666,7 +666,7 @@ void parse_jumps( int ainumber )
         }
     }
 }
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 int ai_goto_colon( int read )
 {
     // ZZ> This function goes to spot after the next colon
@@ -683,7 +683,7 @@ int ai_goto_colon( int read )
     return read;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void get_code( int read )
 {
     // ZZ> This function gets code names and other goodies
@@ -695,7 +695,7 @@ void get_code( int read )
     iCodeValue[iNumCode] = iTmp;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void load_ai_codes( const char* loadname )
 {
     // ZZ> This function loads all of the function and variable names
@@ -723,7 +723,7 @@ void load_ai_codes( const char* loadname )
     debug_script_file = fopen( "script_debug.txt", "w" );
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 int load_ai_script( const char *loadname )
 {
     // ZZ> This function loads a script to memory and
@@ -789,7 +789,7 @@ int load_ai_script( const char *loadname )
     return retval;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void release_all_ai_scripts()
 {
     // ZZ> This function resets the ai script "pointers"
@@ -806,7 +806,7 @@ void init_all_ai_scripts()
     iNumAis = 0;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 // int load_parsed_line( int read )
 // {
 //    // ZZ> This function loads a line into the line buffer
@@ -827,7 +827,7 @@ void init_all_ai_scripts()
 //    return read;
 // }
 //
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 // void parse_null_terminate_comments()
 // {
 //    // ZZ> This function removes comments and endline codes, replacing
@@ -849,7 +849,7 @@ void init_all_ai_scripts()
 //    }
 // }
 //
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 // void print_token()
 // {
 //    printf("------------\n", globalparsename, Token_iLine);
@@ -859,7 +859,7 @@ void init_all_ai_scripts()
 //    printf("\tToken_cWord  == \"%s\"\n", Token_cWord);
 // }
 //
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 // void print_line()
 // {
 //    int i;

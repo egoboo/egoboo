@@ -30,16 +30,16 @@
 #include "egoboo_fileutil.h"
 #include "egoboo.h"
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 static Uint16       numfreeenchant = 0;         // For allocating new ones
 static Uint16       freeenchant[MAX_ENC];
 
 eve_t EveList[MAXEVE];
 enc_t EncList[MAX_ENC];
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 
 void free_one_enchant( Uint16 ienc )
 {
@@ -59,7 +59,7 @@ void free_one_enchant( Uint16 ienc )
     }
 };
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t remove_enchant( Uint16 ienc )
 {
     // ZZ> This function removes a specific enchantment and adds it to the unused list
@@ -226,7 +226,7 @@ bool_t remove_enchant( Uint16 ienc )
     return btrue;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint16 enchant_value_filled( Uint16 ienc, Uint8 valueindex )
 {
     // ZZ> This function returns MAX_ENC if the enchantment's target has no conflicting
@@ -252,7 +252,7 @@ Uint16 enchant_value_filled( Uint16 ienc, Uint8 valueindex )
     return currenchant;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void set_enchant_value( Uint16 ienc, Uint8 valueindex, Uint16 ieve )
 {
     // ZZ> This function sets and saves one of the character's stats
@@ -427,7 +427,7 @@ void set_enchant_value( Uint16 ienc, Uint8 valueindex, Uint16 ieve )
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void add_enchant_value( Uint16 ienc, Uint8 valueindex, Uint16 ieve )
 {
     // ZZ> This function does cumulative modification to character stats
@@ -582,7 +582,7 @@ void add_enchant_value( Uint16 ienc, Uint8 valueindex, Uint16 ieve )
     penc->addsave[valueindex] = valuetoadd;  // Save the value for undo
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint16 spawn_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 ienc, Uint16 modeloptional )
 {
     // ZZ> This function enchants a target, returning the enchantment index or MAX_ENC
@@ -764,7 +764,7 @@ Uint16 spawn_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 ienc, 
     return ienc;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void disenchant_character( Uint16 cnt )
 {
     // ZZ> This function removes all enchantments from a character
@@ -774,7 +774,7 @@ void disenchant_character( Uint16 cnt )
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void free_all_enchants()
 {
     // ZZ> This functions frees all of the enchantments
@@ -789,7 +789,7 @@ void free_all_enchants()
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t load_one_enchant_profile( const char* szLoadName, Uint16 profile )
 {
     // ZZ> This function loads the enchantment associated with an object
@@ -1116,7 +1116,7 @@ bool_t load_one_enchant_profile( const char* szLoadName, Uint16 profile )
     return btrue;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint16 get_free_enchant()
 {
     // ZZ> This function returns the next free enchantment or MAX_ENC if there are none
@@ -1129,7 +1129,7 @@ Uint16 get_free_enchant()
     return MAX_ENC;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void unset_enchant_value( Uint16 ienc, Uint8 valueindex )
 {
     // ZZ> This function unsets a set value
@@ -1249,7 +1249,7 @@ void unset_enchant_value( Uint16 ienc, Uint8 valueindex )
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void remove_enchant_value( Uint16 ienc, Uint8 valueindex )
 {
     // ZZ> This function undoes cumulative modification to character stats

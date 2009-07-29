@@ -35,8 +35,8 @@
 
 #include "SDL_extensions.h"
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 
 // Passages
 int   numpassage = 0;              // Number of passages in the module
@@ -47,8 +47,8 @@ int     numshoppassage = 0;
 Uint16  shoppassage[MAX_PASS];  // The passage number
 Uint16  shopowner[MAX_PASS];    // Who gets the gold?
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t open_passage( Uint16 passage )
 {
     // ZZ> This function makes a passage passable
@@ -79,7 +79,7 @@ bool_t open_passage( Uint16 passage )
     return useful;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t break_passage( script_state_t * pstate, Uint16 passage, Uint16 starttile, Uint16 frames,
                       Uint16 become, Uint8 meshfxor )
 {
@@ -133,7 +133,7 @@ bool_t break_passage( script_state_t * pstate, Uint16 passage, Uint16 starttile,
     return useful;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void flash_passage( Uint16 passage, Uint8 color )
 {
     // ZZ> This function makes a passage flash white
@@ -167,7 +167,7 @@ void flash_passage( Uint16 passage, Uint8 color )
 
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 find_tile_in_passage( script_state_t * pstate, Uint16 passage, int tiletype )
 {
     // ZZ> This function finds the next tile in the passage, pstate->x and pstate->y
@@ -236,7 +236,7 @@ Uint8 find_tile_in_passage( script_state_t * pstate, Uint16 passage, int tiletyp
     return bfalse;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t is_in_passage( Uint16 passage, float xpos, float ypos, float tolerance )
 {
     // ZF> This return btrue if the specified X and Y coordinates are within the passage
@@ -299,7 +299,7 @@ Uint16 who_is_blocking_passage( Uint16 passage )
     return foundother;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void check_passage_music()
 {
     // ZF> This function checks all passages if there is a player in it, if it is, it plays a specified
@@ -315,7 +315,7 @@ void check_passage_music()
         for ( cnt = 0; cnt < MAXPLAYER; cnt++ )
         {
             character = PlaList[cnt].index;
-			if ( !ChrList[character].on || ChrList[character].pack_ispacked || !ChrList[character].alive || !ChrList[character].isplayer ) continue;
+            if ( !ChrList[character].on || ChrList[character].pack_ispacked || !ChrList[character].alive || !ChrList[character].isplayer ) continue;
 
             // Is it in the passage?
             if (  is_in_passage( passage, ChrList[character].pos.x, ChrList[character].pos.y, ChrList[character].bumpsize  ) )
@@ -327,7 +327,7 @@ void check_passage_music()
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint16 who_is_blocking_passage_ID( Uint16 passage, IDSZ idsz )
 {
     // ZZ> This function returns MAX_CHR if there is no character in the passage who
@@ -389,7 +389,7 @@ Uint16 who_is_blocking_passage_ID( Uint16 passage, IDSZ idsz )
     return MAX_CHR;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t close_passage( Uint16 passage )
 {
     // ZZ> This function makes a passage impassable, and returns btrue if it isn't blocked
@@ -454,7 +454,7 @@ bool_t close_passage( Uint16 passage )
     return btrue;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void clear_shop_passages()
 {
     Uint16 cnt = 0;
@@ -471,7 +471,7 @@ void clear_shop_passages()
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void add_shop_passage( Uint16 owner, Uint16 passage )
 {
     // ZZ> This function creates a shop passage
@@ -484,7 +484,7 @@ void add_shop_passage( Uint16 owner, Uint16 passage )
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void add_passage( int tlx, int tly, int brx, int bry, bool_t open, Uint8 mask )
 {
     // ZZ> This function creates a passage area
@@ -511,7 +511,7 @@ void add_passage( int tlx, int tly, int brx, int bry, bool_t open, Uint8 mask )
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void setup_passage( const char *modname )
 {
     // ZZ> This function reads the passage file

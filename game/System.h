@@ -24,7 +24,7 @@
  * use a higher performance timer than SDL provides on Windows machines.
  */
 
-// ---------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------
 // Platform specific functions
 
 // Functions in this section are implemented separately on each platform. (Filesystem stuff

@@ -32,8 +32,8 @@
 #include <string.h>
 #include <SDL_opengl.h>
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 struct UiContext
 {
     // Tracking control focus stuff
@@ -41,12 +41,23 @@ struct UiContext
     ui_id_t hot;
 
     // Basic mouse state
-    int mouseX, mouseY;
-    int mouseReleased;
-    int mousePressed;
+    float mouseX, mouseY;
+    int   mouseReleased;
+    int   mousePressed;
 
-    Font *defaultFont;
-    Font *activeFont;
+    STRING defaultFontName;
+    float  defaultFontSize;
+    Font  *defaultFont;
+    Font  *activeFont;
+
+    // virtual window
+    float vw, vh, ww, wh;
+
+    // define the forward transform
+    float aw, ah, bw, bh;
+
+    // define the inverse transform
+    float iaw, iah, ibw, ibh;
 };
 
 static struct UiContext ui_context;
@@ -61,8 +72,12 @@ GLfloat ui_active_color2[] = {0.00f, 0.45f, 0.45f, 0.60f};
 GLfloat ui_hot_color2[]    = {0.00f, 0.28f, 0.28f, 1.00f};
 GLfloat ui_normal_color2[] = {0.33f, 0.00f, 0.33f, 0.60f};
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+static void ui_virtual_to_screen( float vx, float vy, float *rx, float *ry );
+static void ui_screen_to_virtual( float rx, float ry, float *vx, float *vy );
+
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 // Core functions
 int ui_initialize( const char *default_font, int default_font_size )
 {
@@ -72,12 +87,16 @@ int ui_initialize( const char *default_font, int default_font_size )
     memset( &ui_context, 0, sizeof( ui_context ) );
 
     ui_context.active = ui_context.hot = UI_Nothing;
-    ui_context.defaultFont = fnt_loadFont( default_font, default_font_size );
+
+    ui_context.defaultFontSize = default_font_size;
+    strncpy( ui_context.defaultFontName, default_font, SDL_arraysize(ui_context.defaultFontName) );
+
+    ui_set_virtual_screen( sdl_scr.x, sdl_scr.y, sdl_scr.x, sdl_scr.y );
 
     return 1;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void ui_shutdown()
 {
     if ( ui_context.defaultFont )
@@ -88,13 +107,13 @@ void ui_shutdown()
     memset( &ui_context, 0, sizeof( ui_context ) );
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void ui_Reset()
 {
     ui_context.active = ui_context.hot = UI_Nothing;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void ui_handleSDLEvent( SDL_Event *evt )
 {
     if ( evt )
@@ -114,15 +133,14 @@ void ui_handleSDLEvent( SDL_Event *evt )
                 break;
 
             case SDL_MOUSEMOTION:
-                ui_context.mouseX = evt->motion.x;
-                ui_context.mouseY = evt->motion.y;
-
+                // convert the screen coordinates to our "virtual coordinates"
+                ui_screen_to_virtual(evt->motion.x, evt->motion.y, &(ui_context.mouseX), &(ui_context.mouseY) );
                 break;
         }
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void ui_beginFrame( float deltaTime )
 {
     ATTRIB_PUSH( "ui_beginFrame", GL_ENABLE_BIT );
@@ -150,7 +168,7 @@ void ui_beginFrame( float deltaTime )
     ui_context.hot = UI_Nothing;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void ui_endFrame()
 {
     // Restore the OpenGL matrices to what they were
@@ -167,14 +185,15 @@ void ui_endFrame()
     ui_context.mousePressed = ui_context.mouseReleased = 0;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 // Utility functions
-int ui_mouseInside( int x, int y, int width, int height )
+int ui_mouseInside( float vx, float vy, float vwidth, float vheight )
 {
-    int right, bottom;
-    right = x + width;
-    bottom = y + height;
-    if ( x <= ui_context.mouseX && y <= ui_context.mouseY && ui_context.mouseX <= right && ui_context.mouseY <= bottom )
+    float vright, vbottom;
+
+    vright  = vx + vwidth;
+    vbottom = vy + vheight;
+    if ( vx <= ui_context.mouseX && vy <= ui_context.mouseY && ui_context.mouseX <= vright && ui_context.mouseY <= vbottom )
     {
         return 1;
     }
@@ -182,19 +201,19 @@ int ui_mouseInside( int x, int y, int width, int height )
     return 0;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void ui_setactive( ui_id_t id )
 {
     ui_context.active = id;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void ui_sethot( ui_id_t id )
 {
     ui_context.hot = id;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void ui_setWidgetactive( ui_Widget_t * pw )
 {
     if ( NULL == pw )
@@ -214,7 +233,7 @@ void ui_setWidgetactive( ui_Widget_t * pw )
     };
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void ui_setWidgethot( ui_Widget_t * pw )
 {
     if ( NULL == pw )
@@ -239,20 +258,28 @@ void ui_setWidgethot( ui_Widget_t * pw )
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Font* ui_getFont()
 {
-    return ( ui_context.activeFont != NULL ) ? ui_context.activeFont : ui_context.defaultFont;
+    return ( NULL != ui_context.activeFont ) ? ui_context.activeFont : ui_context.defaultFont;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+Font* ui_setFont( Font * font)
+{
+    ui_context.activeFont = font;
+
+    return ui_context.activeFont;
+}
+
+//--------------------------------------------------------------------------------------------
 // Behaviors
-ui_buttonValues ui_buttonBehavior( ui_id_t id, int x, int y, int width, int height )
+ui_buttonValues ui_buttonBehavior( ui_id_t id, float vx, float vy, float vwidth, float vheight )
 {
     ui_buttonValues result = BUTTON_NOCHANGE;
 
     // If the mouse is over the button, try and set hotness so that it can be cursor_clicked
-    if ( ui_mouseInside( x, y, width, height ) )
+    if ( ui_mouseInside( vx, vy, vwidth, vheight ) )
     {
         ui_sethot( id );
     }
@@ -280,13 +307,13 @@ ui_buttonValues ui_buttonBehavior( ui_id_t id, int x, int y, int width, int heig
     return result;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 ui_buttonValues ui_WidgetBehavior( ui_Widget_t * pWidget )
 {
     ui_buttonValues result = BUTTON_NOCHANGE;
 
     // If the mouse is over the button, try and set hotness so that it can be cursor_clicked
-    if ( ui_mouseInside( pWidget->x, pWidget->y, pWidget->width, pWidget->height ) )
+    if ( ui_mouseInside( pWidget->vx, pWidget->vy, pWidget->vwidth, pWidget->vheight ) )
     {
         ui_setWidgethot( pWidget );
     }
@@ -316,10 +343,12 @@ ui_buttonValues ui_WidgetBehavior( ui_Widget_t * pWidget )
     return result;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 // Drawing
-void ui_drawButton( ui_id_t id, int x, int y, int width, int height, GLfloat * pcolor )
+void ui_drawButton( ui_id_t id, float vx, float vy, float vwidth, float vheight, GLfloat * pcolor )
 {
+    float x1, x2, y1, y2;
+
     GLfloat color_1[4] = { 0.0f, 0.0f, 0.9f, 0.6f };
     GLfloat color_2[4] = { 0.54f, 0.0f, 0.0f, 1.0f };
     GLfloat color_3[4] = { 0.66f, 0.0f, 0.0f, 0.6f };
@@ -343,55 +372,65 @@ void ui_drawButton( ui_id_t id, int x, int y, int width, int height, GLfloat * p
         }
     }
 
+    // convert the virtual coordinates to screen coordinates
+    ui_virtual_to_screen( vx, vy, &x1, &y1 );
+    ui_virtual_to_screen( vx + vwidth, vy + vheight, &x2, &y2 );
+
     GL_DEBUG(glColor4fv)( pcolor );
     GL_DEBUG(glBegin)( GL_QUADS );
     {
-        GL_DEBUG(glVertex2f)(x, y );
-        GL_DEBUG(glVertex2f)(x, y + height );
-        GL_DEBUG(glVertex2f)(x + width, y + height );
-        GL_DEBUG(glVertex2f)(x + width, y );
+        GL_DEBUG(glVertex2f)( x1, y1 );
+        GL_DEBUG(glVertex2f)( x1, y2 );
+        GL_DEBUG(glVertex2f)( x2, y2 );
+        GL_DEBUG(glVertex2f)( x2, y1 );
     }
     GL_DEBUG_END();
 
     GL_DEBUG(glEnable)( GL_TEXTURE_2D );
 }
 
-// --------------------------------------------------------------------------------------------
-void ui_drawImage( ui_id_t id, oglx_texture *img, int x, int y, int width, int height )
+//--------------------------------------------------------------------------------------------
+void ui_drawImage( ui_id_t id, oglx_texture *img, float vx, float vy, float vwidth, float vheight )
 {
-    int w, h;
-    float x1, y1;
+    float vw, vh;
+    float tx, ty;
+    float x1, x2, y1, y2;
+
     if ( img )
     {
-        if ( width == 0 || height == 0 )
+        if ( vwidth == 0 || vheight == 0 )
         {
-            w = img->imgW;
-            h = img->imgH;
+            vw = img->imgW;
+            vh = img->imgH;
         }
         else
         {
-            w = width;
-            h = height;
+            vw = vwidth;
+            vh = vheight;
         }
 
-        x1 = ( float ) oglx_texture_GetImageWidth( img )  / ( float ) oglx_texture_GetTextureWidth( img );
-        y1 = ( float ) oglx_texture_GetImageHeight( img ) / ( float ) oglx_texture_GetTextureHeight( img );
+        tx = ( float ) oglx_texture_GetImageWidth( img )  / ( float ) oglx_texture_GetTextureWidth( img );
+        ty = ( float ) oglx_texture_GetImageHeight( img ) / ( float ) oglx_texture_GetTextureHeight( img );
+
+        // convert the virtual coordinates to screen coordinates
+        ui_virtual_to_screen( vx, vy, &x1, &y1 );
+        ui_virtual_to_screen( vx + vw, vy + vh, &x2, &y2 );
 
         // Draw the image
         oglx_texture_Bind( img );
 
         GL_DEBUG(glBegin)( GL_QUADS );
         {
-            GL_DEBUG(glTexCoord2f)( 0,  0 );  GL_DEBUG(glVertex2f)(x,     y );
-            GL_DEBUG(glTexCoord2f)(x1,  0 );  GL_DEBUG(glVertex2f)(x + w, y );
-            GL_DEBUG(glTexCoord2f)(x1, y1 );  GL_DEBUG(glVertex2f)(x + w, y + h );
-            GL_DEBUG(glTexCoord2f)( 0, y1 );  GL_DEBUG(glVertex2f)(x,     y + h );
+            GL_DEBUG(glTexCoord2f)(  0,  0 );  GL_DEBUG(glVertex2f)( x1, y1 );
+            GL_DEBUG(glTexCoord2f)( tx,  0 );  GL_DEBUG(glVertex2f)( x2, y1 );
+            GL_DEBUG(glTexCoord2f)( tx, ty );  GL_DEBUG(glVertex2f)( x2, y2 );
+            GL_DEBUG(glTexCoord2f)(  0, ty );  GL_DEBUG(glVertex2f)( x1, y2 );
         }
         GL_DEBUG_END();
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void ui_drawWidgetButton( ui_Widget_t * pw )
 {
     GLfloat * pcolor = NULL;
@@ -433,19 +472,19 @@ void ui_drawWidgetButton( ui_Widget_t * pw )
         }
     }
 
-    ui_drawButton( pw->id, pw->x, pw->y, pw->width, pw->height, pcolor );
+    ui_drawButton( pw->id, pw->vx, pw->vy, pw->vwidth, pw->vheight, pcolor );
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void ui_drawWidgetImage( ui_Widget_t * pw )
 {
     if ( NULL != pw && NULL != pw->img )
     {
-        ui_drawImage( pw->id, pw->img, pw->x, pw->y, pw->width, pw->height );
+        ui_drawImage( pw->id, pw->img, pw->vx, pw->vy, pw->vwidth, pw->vheight );
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 /** ui_drawTextBox
  * Draws a text string into a box, splitting it into lines according to newlines in the string.
  * NOTE: Doesn't pay attention to the width/height arguments yet.
@@ -457,37 +496,52 @@ void ui_drawWidgetImage( ui_Widget_t * pw )
  * height  - Maximum height of the box (not implemented)
  * spacing - Amount of space to move down between lines. (usually close to your font size)
  */
-void ui_drawTextBox( const char *text, int x, int y, int width, int height, int spacing )
+void ui_drawTextBox( Font * font, const char *text, float vx, float vy, float vwidth, float vheight, float vspacing )
 {
-    Font *font = ui_getFont();
-    fnt_drawTextBox( font, text, x, y, width, height, spacing );
+    float x1, x2, y1, y2;
+    float spacing;
+
+    if ( NULL == font ) font = ui_getFont();
+
+    // convert the virtual coordinates to screen coordinates
+    ui_virtual_to_screen( vx, vy, &x1, &y1 );
+    ui_virtual_to_screen( vx + vwidth, vy + vheight, &x2, &y2 );
+    spacing = ui_context.ah * vspacing;
+
+    // draw using screen coordinates
+    fnt_drawTextBox( font, text, x1, y1, x2 - x1, y2 - y1, spacing );
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 // Controls
-ui_buttonValues ui_doButton( ui_id_t id, const char *text, int x, int y, int width, int height )
+ui_buttonValues ui_doButton( ui_id_t id, const char *text, Font * font, float vx, float vy, float vwidth, float vheight )
 {
     ui_buttonValues result;
     int text_w, text_h;
     int text_x, text_y;
-    Font *font;
 
     // Do all the logic type work for the button
-    result = ui_buttonBehavior( id, x, y, width, height );
+    result = ui_buttonBehavior( id, vx, vy, vwidth, vheight );
 
     // Draw the button part of the button
-    ui_drawButton( id, x, y, width, height, NULL );
+    ui_drawButton( id, vx, vy, vwidth, vheight, NULL );
 
     // And then draw the text that goes on top of the button
-    font = ui_getFont();
+    if ( NULL == font ) font = ui_getFont();
     if ( NULL != font && NULL != text && '\0' != text[0] )
     {
-        // find the width & height of the text to be drawn, so that it can be centered inside
+        float x1, x2, y1, y2;
+
+        // convert the virtual coordinates to screen coordinates
+        ui_virtual_to_screen( vx, vy, &x1, &y1 );
+        ui_virtual_to_screen( vx + vwidth, vy + vheight, &x2, &y2 );
+
+        // find the vwidth & vheight of the text to be drawn, so that it can be centered inside
         // the button
         fnt_getTextSize( font, text, &text_w, &text_h );
 
-        text_x = ( width - text_w ) / 2 + x;
-        text_y = ( height - text_h ) / 2 + y;
+        text_x = ( (x2 - x1) - text_w ) / 2 + x1;
+        text_y = ( (y2 - y1) - text_h ) / 2 + y1;
 
         GL_DEBUG(glColor3f)(1, 1, 1 );
         fnt_drawText( font, text_x, text_y, text );
@@ -496,54 +550,59 @@ ui_buttonValues ui_doButton( ui_id_t id, const char *text, int x, int y, int wid
     return result;
 }
 
-// --------------------------------------------------------------------------------------------
-ui_buttonValues ui_doImageButton( ui_id_t id, oglx_texture *img, int x, int y, int width, int height )
+//--------------------------------------------------------------------------------------------
+ui_buttonValues ui_doImageButton( ui_id_t id, oglx_texture *img, float vx, float vy, float vwidth, float vheight )
 {
     ui_buttonValues result;
 
     // Do all the logic type work for the button
-    result = ui_buttonBehavior( id, x, y, width, height );
+    result = ui_buttonBehavior( id, vx, vy, vwidth, vheight );
 
     // Draw the button part of the button
-    ui_drawButton( id, x, y, width, height, NULL );
+    ui_drawButton( id, vx, vy, vwidth, vheight, NULL );
 
     // And then draw the image on top of it
     GL_DEBUG(glColor3f)(1, 1, 1 );
-    ui_drawImage( id, img, x + 5, y + 5, width - 10, height - 10 );
+    ui_drawImage( id, img, vx + 5, vy + 5, vwidth - 10, vheight - 10 );
 
     return result;
 }
 
-// --------------------------------------------------------------------------------------------
-ui_buttonValues ui_doImageButtonWithText( ui_id_t id, oglx_texture *img, const char *text, int x, int y, int width, int height )
+//--------------------------------------------------------------------------------------------
+ui_buttonValues ui_doImageButtonWithText( ui_id_t id, oglx_texture *img, const char *text, Font * font, float vx, float vy, float vwidth, float vheight )
 {
     ui_buttonValues result;
 
-    Font *font;
-    int text_x, text_y;
-    int text_w, text_h;
+    float text_x, text_y;
+    int   text_w, text_h;
 
     // Do all the logic type work for the button
-    result = ui_buttonBehavior( id, x, y, width, height );
+    result = ui_buttonBehavior( id, vx, vy, vwidth, vheight );
 
     // Draw the button part of the button
-    ui_drawButton( id, x, y, width, height, NULL );
+    ui_drawButton( id, vx, vy, vwidth, vheight, NULL );
 
     // Draw the image part
     GL_DEBUG(glColor3f)(1, 1, 1 );
-    ui_drawImage( id, img, x + 5, y + 5, 0, 0 );
+    ui_drawImage( id, img, vx + 5, vy + 5, 0, 0 );
 
     // And draw the text next to the image
     // And then draw the text that goes on top of the button
-    font = ui_getFont();
-    if ( font )
+    if ( NULL == font ) font = ui_getFont();
+    if ( NULL != font )
     {
-        // find the width & height of the text to be drawn, so that it can be centered inside
+        float x1, x2, y1, y2;
+
+        // convert the virtual coordinates to screen coordinates
+        ui_virtual_to_screen( vx, vy, &x1, &y1 );
+        ui_virtual_to_screen( vx + vwidth, vy + vheight, &x2, &y2 );
+
+        // find the vwidth & vheight of the text to be drawn, so that it can be centered inside
         // the button
         fnt_getTextSize( font, text, &text_w, &text_h );
 
-        text_x = img->imgW + 10 + x;
-        text_y = ( height - text_h ) / 2 + y;
+        text_x = (img->imgW + 10) * ui_context.aw + x1;
+        text_y = ( (y2 - y1) - text_h ) / 2         + y1;
 
         GL_DEBUG(glColor3f)(1, 1, 1 );
         fnt_drawText( font, text_x, text_y, text );
@@ -552,15 +611,15 @@ ui_buttonValues ui_doImageButtonWithText( ui_id_t id, oglx_texture *img, const c
     return result;
 }
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 ui_buttonValues ui_doWidget( ui_Widget_t * pw )
 {
     ui_buttonValues result;
 
-    int text_x, text_y;
-    int text_w, text_h;
-    int img_w;
+    float text_x, text_y;
+    int   text_w, text_h;
+    float img_w;
 
     // Do all the logic type work for the button
     result = ui_WidgetBehavior( pw );
@@ -578,30 +637,37 @@ ui_buttonValues ui_doWidget( ui_Widget_t * pw )
         GL_DEBUG(glColor3f)(1, 1, 1 );
 
         ui_shrinkWidget( &wtmp, pw, 5 );
-        wtmp.width = wtmp.height;
+        wtmp.vwidth = wtmp.vheight;
 
         ui_drawWidgetImage( &wtmp );
 
-        img_w = pw->img->imgW;
+        // get the non-virtual image width
+        img_w = pw->img->imgW * ui_context.aw;
     }
 
     // And draw the text on the right hand side of any image
     if ( NULL != pw->pfont && NULL != pw->text && '\0' != pw->text[0] )
     {
+        float x1, x2, y1, y2;
+
+        // convert the virtual coordinates to screen coordinates
+        ui_virtual_to_screen( pw->vx, pw->vy, &x1, &y1 );
+        ui_virtual_to_screen( pw->vx + pw->vwidth, pw->vy + pw->vheight, &x2, &y2 );
+
         GL_DEBUG(glColor3f)(1, 1, 1 );
 
-        // find the pw->width & pw->height of the pw->text to be drawn, so that it can be centered inside
+        // find the (x2-x1) & (y2-y1) of the pw->text to be drawn, so that it can be centered inside
         // the button
         fnt_getTextSize( pw->pfont, pw->text, &text_w, &text_h );
 
-        text_w = MIN(text_w, pw->width );
-        text_h = MIN(text_h, pw->height);
+        text_w = MIN(text_w, (x2 - x1) );
+        text_h = MIN(text_h, (y2 - y1));
 
-        text_x = ( pw->width  - text_w ) / 2 + pw->x;
-        text_y = ( pw->height - text_h ) / 2 + pw->y;
+        text_x = ( (x2 - x1) - text_w ) / 2 + x1;
+        text_y = ( (y2 - y1) - text_h ) / 2 + y1;
 
-        text_x = img_w + ( pw->width - img_w - text_w ) / 2 + pw->x;
-        text_y = ( pw->height - text_h ) / 2 + pw->y;
+        text_x = img_w + ( (x2 - x1) - img_w - text_w ) / 2 + x1;
+        text_y = ( (y2 - y1) - text_h ) / 2                + y1;
 
         GL_DEBUG(glColor3f)(1, 1, 1 );
         fnt_drawText( pw->pfont, text_x, text_y, pw->text );
@@ -610,44 +676,46 @@ ui_buttonValues ui_doWidget( ui_Widget_t * pw )
     return result;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t ui_copyWidget( ui_Widget_t * pw2, ui_Widget_t * pw1 )
 {
     if ( NULL == pw2 || NULL == pw1 ) return bfalse;
     return NULL != memcpy( pw2, pw1, sizeof( ui_Widget_t ) );
 }
 
-// --------------------------------------------------------------------------------------------
-bool_t ui_shrinkWidget( ui_Widget_t * pw2, ui_Widget_t * pw1, int pixels )
+//--------------------------------------------------------------------------------------------
+bool_t ui_shrinkWidget( ui_Widget_t * pw2, ui_Widget_t * pw1, float pixels )
 {
     if ( NULL == pw2 || NULL == pw1 ) return bfalse;
 
     if ( !ui_copyWidget( pw2, pw1 ) ) return bfalse;
 
-    pw2->x += pixels;
-    pw2->y += pixels;
-    pw2->width  -= 2 * pixels;
-    pw2->height -= 2 * pixels;
+    pw2->vx += pixels;
+    pw2->vy += pixels;
+    pw2->vwidth  -= 2 * pixels;
+    pw2->vheight -= 2 * pixels;
 
-    if ( pw2->width < 0 )  pw2->width   = 0;
-    if ( pw2->height < 0 ) pw2->height = 0;
+    if ( pw2->vwidth < 0 )  pw2->vwidth   = 0;
+    if ( pw2->vheight < 0 ) pw2->vheight = 0;
 
-    return pw2->width > 0 && pw2->height > 0;
+    return pw2->vwidth > 0 && pw2->vheight > 0;
 }
 
-// --------------------------------------------------------------------------------------------
-bool_t ui_initWidget( ui_Widget_t * pw, ui_id_t id, Font * pfont, const char *text, oglx_texture *img, int x, int y, int width, int height )
+//--------------------------------------------------------------------------------------------
+bool_t ui_initWidget( ui_Widget_t * pw, ui_id_t id, Font * pfont, const char *text, oglx_texture *img, float vx, float vy, float vwidth, float vheight )
 {
     if ( NULL == pw ) return bfalse;
+
+    if ( NULL == pfont ) pfont = ui_getFont();
 
     pw->id      = id;
     pw->pfont   = pfont;
     pw->text    = text;
     pw->img     = img;
-    pw->x       = x;
-    pw->y       = y;
-    pw->width   = width;
-    pw->height  = height;
+    pw->vx      = vx;
+    pw->vy      = vy;
+    pw->vwidth  = vwidth;
+    pw->vheight = vheight;
     pw->state   = 0;
     pw->mask    = 0;
     pw->timeout = 0;
@@ -655,7 +723,7 @@ bool_t ui_initWidget( ui_Widget_t * pw, ui_id_t id, Font * pfont, const char *te
     return btrue;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t ui_widgetAddMask( ui_Widget_t * pw, Uint32 mbits )
 {
     if ( NULL == pw ) return bfalse;
@@ -666,7 +734,7 @@ bool_t ui_widgetAddMask( ui_Widget_t * pw, Uint32 mbits )
     return btrue;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t ui_widgetRemoveMask( ui_Widget_t * pw, Uint32 mbits )
 {
     if ( NULL == pw ) return bfalse;
@@ -677,7 +745,7 @@ bool_t ui_widgetRemoveMask( ui_Widget_t * pw, Uint32 mbits )
     return btrue;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t ui_widgetSetMask( ui_Widget_t * pw, Uint32 mbits )
 {
     if ( NULL == pw ) return bfalse;
@@ -686,4 +754,77 @@ bool_t ui_widgetSetMask( ui_Widget_t * pw, Uint32 mbits )
     pw->state &= ~mbits;
 
     return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+void ui_virtual_to_screen( float vx, float vy, float * rx, float * ry)
+{
+    // BB> convert "virtual" screen positions into "real" space
+
+    *rx = ui_context.aw * vx + ui_context.bw;
+    *ry = ui_context.ah * vy + ui_context.bh;
+}
+
+//--------------------------------------------------------------------------------------------
+void ui_screen_to_virtual( float rx, float ry, float *vx, float *vy )
+{
+    // BB> convert "real" mouse positions into "virtual" space
+
+    *vx = ui_context.iaw * rx + ui_context.ibw;
+    *vy = ui_context.iah * ry + ui_context.ibh;
+}
+
+//--------------------------------------------------------------------------------------------
+void ui_set_virtual_screen( float vw, float vh, float ww, float wh)
+{
+    // BB> set up the ui's virtual screen
+
+    float k;
+    Font * ftmp;
+
+    // define the virtual screen
+    ui_context.vw = vw;
+    ui_context.vh = vh;
+    ui_context.ww = ww;
+    ui_context.wh = wh;
+
+    // define the forward transform
+    k = MIN( sdl_scr.x / ww, sdl_scr.y / wh );
+    ui_context.aw = k;
+    ui_context.ah = k;
+    ui_context.bw = (sdl_scr.x - k * ww) * 0.5f;
+    ui_context.bh = (sdl_scr.y - k * wh) * 0.5f;
+
+    // define the inverse transform
+    ui_context.iaw = 1.0f / ui_context.aw;
+    ui_context.iah = 1.0f / ui_context.ah;
+    ui_context.ibw = -ui_context.bw * ui_context.iaw;
+    ui_context.ibh = -ui_context.bh * ui_context.iah;
+
+    // make sure the font is sized right for the virtual screen
+    ftmp = ui_context.defaultFont;
+    if ( NULL != ui_context.defaultFont )
+    {
+        fnt_freeFont( ui_context.defaultFont );
+    }
+    ui_context.defaultFont = NULL;
+
+    // clear out the default font
+    if ( NULL != ui_context.activeFont && ftmp != ui_context.activeFont )
+    {
+        fnt_freeFont( ui_context.activeFont );
+    }
+    ui_context.activeFont = NULL;
+
+    ui_context.defaultFont = ui_loadFont( ui_context.defaultFontName, ui_context.defaultFontSize );
+}
+
+//--------------------------------------------------------------------------------------------
+Font * ui_loadFont( const char * font_name, float vpointSize )
+{
+    float pointSize;
+
+    pointSize = vpointSize * ui_context.aw;
+
+    return fnt_loadFont( font_name, pointSize );
 }

@@ -8,8 +8,8 @@
 #include "egoboo_setup.h"
 #include "egoboo_fileutil.h"
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 static char cActionName[ACTION_COUNT][2]; // Two letter name code
 
 mad_t   MadList[MAX_PROFILE];
@@ -21,16 +21,16 @@ char    msgtext[MESSAGEBUFFERSIZE];                         // The text buffer
 
 char    cFrameName[16];                                     // MD2 Frame Name
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 static void load_all_messages( const char *loadname, Uint16 object );
 static void get_message( FILE* fileread );
 static void md2_fix_normals( Uint16 modelindex );
 static void md2_get_transvertices( Uint16 modelindex );
 // static int  vertexconnected( md2_ogl_commandlist_t * pclist, int vertex );
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint16 action_number()
 {
     // ZZ> This function returns the number of the action in cFrameName, or
@@ -52,7 +52,7 @@ Uint16 action_number()
     return NOACTION;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint16 action_frame()
 {
     // ZZ> This function returns the frame number in the third and fourth characters
@@ -64,7 +64,7 @@ Uint16 action_frame()
     return number;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint16 test_frame_name( char letter )
 {
     // ZZ> This function returns btrue if the 4th, 5th, 6th, or 7th letters
@@ -80,7 +80,7 @@ Uint16 test_frame_name( char letter )
     return bfalse;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void action_copy_correct( Uint16 object, Uint16 actiona, Uint16 actionb )
 {
     // ZZ> This function makes sure both actions are valid if either of them
@@ -113,7 +113,7 @@ void action_copy_correct( Uint16 object, Uint16 actiona, Uint16 actionb )
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void action_check_copy( const char* loadname, Uint16 object )
 {
     // ZZ> This function copies a model's actions
@@ -145,7 +145,7 @@ void action_check_copy( const char* loadname, Uint16 object )
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 int action_which( char cTmp )
 {
     // ZZ> This function changes a letter into an action code
@@ -173,7 +173,7 @@ int action_which( char cTmp )
     return action;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void mad_get_walk_frame( Uint16 object, int lip, int action )
 {
     // ZZ> This helps make walking look right
@@ -193,7 +193,7 @@ void mad_get_walk_frame( Uint16 object, int lip, int action )
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void mad_get_framefx( int frame )
 {
     // ZZ> This function figures out the IFrame invulnerability, and Attack, Grab, and
@@ -233,7 +233,7 @@ void mad_get_framefx( int frame )
     Md2FrameList[frame].framefx = fx;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void mad_make_framelip( Uint16 object, int action )
 {
     // ZZ> This helps make walking look right
@@ -252,7 +252,7 @@ void mad_make_framelip( Uint16 object, int action )
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void mad_make_equally_lit( int model )
 {
     // ZZ> This function makes ultra low poly models look better
@@ -276,7 +276,7 @@ void mad_make_equally_lit( int model )
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void load_action_names( const char* loadname )
 {
     // ZZ> This function loads all of the 2 letter action names
@@ -302,7 +302,7 @@ void load_action_names( const char* loadname )
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 int load_one_model_profile( const char* tmploadname, Uint16 object, int skin )
 {
     int numskins, numicon;
@@ -422,7 +422,7 @@ int load_one_model_profile( const char* tmploadname, Uint16 object, int skin )
     return numskins;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void mad_rip_actions( Uint16 object )
 {
     // ZZ> This function creates the frame lists for each action based on the
@@ -556,7 +556,7 @@ void mad_rip_actions( Uint16 object )
     mad_get_walk_frame( object, LIPWC, ACTION_WC );
 }
 
-// ---------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------
 void md2_fix_normals( Uint16 modelindex )
 {
     // ZZ> This function helps light not flicker so much
@@ -617,7 +617,7 @@ void md2_fix_normals( Uint16 modelindex )
     }
 }
 
-// ---------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------
 void md2_get_transvertices( Uint16 modelindex )
 {
     // ZZ> This function gets the number of vertices to transform for a model...
@@ -634,7 +634,7 @@ void md2_get_transvertices( Uint16 modelindex )
     MadList[modelindex].transvertices = MadList[modelindex].md2.vertices;
 }
 
-// ---------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------
 /*int vertexconnected( md2_ogl_commandlist_t * pclist, int vertex )
 {
     // ZZ> This function returns 1 if the model vertex is connected, 0 otherwise
@@ -660,8 +660,8 @@ void md2_get_transvertices( Uint16 modelindex )
     return 0;
 }*/
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void load_all_messages( const char *loadname, Uint16 object )
 {
     // ZZ> This function loads all of an objects messages
@@ -682,7 +682,7 @@ void load_all_messages( const char *loadname, Uint16 object )
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void get_message( FILE* fileread )
 {
     // ZZ> This function loads a string into the message buffer, making sure it

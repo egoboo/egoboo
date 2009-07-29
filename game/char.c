@@ -47,15 +47,15 @@
 #include <assert.h>
 #include <float.h>
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 static int     numfreechr = 0;             // For allocation
 static Uint16  freechrlist[MAX_CHR];
 
 static IDSZ    inventory_idsz[INVEN_COUNT];
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 int         importobject;
 
 team_t      TeamList[TEAM_MAX];
@@ -64,22 +64,22 @@ chr_t       ChrList[MAX_CHR];
 
 chop_data_t chop = {0, 0};
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 static bool_t chr_instance_init( chr_instance_t * pinst, Uint16 profile, Uint8 skin );
 static Uint16 pack_has_a_stack( Uint16 item, Uint16 character );
 static bool_t pack_add_item( Uint16 item, Uint16 character );
 static Uint16 pack_get_item( Uint16 character, grip_offset_t grip_off, bool_t ignorekurse );
 static void set_weapongrip( Uint16 iitem, Uint16 iholder, Uint16 vrt_off );
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 int chr_count_free()
 {
     return numfreechr;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void flash_character_height( Uint16 character, Uint8 valuelow, Sint16 low,
                              Uint8 valuehigh, Sint16 high )
 {
@@ -115,7 +115,7 @@ void flash_character_height( Uint16 character, Uint8 valuelow, Sint16 low,
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void keep_weapons_with_holders()
 {
     // ZZ> This function keeps weapons near their holders
@@ -208,7 +208,7 @@ void keep_weapons_with_holders()
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void make_one_character_matrix( Uint16 cnt )
 {
     // ZZ> This function sets one character's matrix
@@ -241,7 +241,7 @@ void make_one_character_matrix( Uint16 cnt )
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void free_one_character( Uint16 character )
 {
     int cnt;
@@ -279,7 +279,7 @@ void free_one_character( Uint16 character )
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void free_one_character_in_game( Uint16 character )
 {
     // ZZ> This function sticks a character back on the free character stack
@@ -347,7 +347,7 @@ void free_one_character_in_game( Uint16 character )
     free_one_character( character );
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void free_inventory( Uint16 character )
 {
     // ZZ> This function frees every item in the character's inventory
@@ -364,7 +364,7 @@ void free_inventory( Uint16 character )
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void attach_particle_to_character( Uint16 particle, Uint16 character, int vertex_offset )
 {
     // ZZ> This function sets one particle's position to be attached to a character.
@@ -420,7 +420,7 @@ void attach_particle_to_character( Uint16 particle, Uint16 character, int vertex
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void make_one_weapon_matrix( Uint16 iweap, Uint16 iholder, bool_t do_physics )
 {
     // ZZ> This function sets one weapon's matrix, based on who it's attached to
@@ -631,7 +631,7 @@ void make_one_weapon_matrix( Uint16 iweap, Uint16 iholder, bool_t do_physics )
 
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void make_character_matrices(bool_t do_physics)
 {
     // ZZ> This function makes all of the character's matrices
@@ -786,7 +786,7 @@ void make_character_matrices(bool_t do_physics)
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 int get_free_character()
 {
     // ZZ> This function gets an unused character and returns its index
@@ -806,7 +806,7 @@ int get_free_character()
     return character;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void free_all_characters()
 {
     // ZZ> This function resets the character allocation list
@@ -828,7 +828,7 @@ void free_all_characters()
     numstat = 0;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint32 __chrhitawall( Uint16 character, float nrm[] )
 {
     // ZZ> This function returns nonzero if the character hit a wall that the
@@ -916,7 +916,7 @@ Uint32 __chrhitawall( Uint16 character, float nrm[] )
 
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void reset_character_accel( Uint16 character )
 {
     // ZZ> This function fixes a character's max acceleration
@@ -945,7 +945,7 @@ void reset_character_accel( Uint16 character )
 
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void detach_character_from_mount( Uint16 character, Uint8 ignorekurse,
                                   Uint8 doshop )
 {
@@ -1138,7 +1138,7 @@ void detach_character_from_mount( Uint16 character, Uint8 ignorekurse,
     ChrList[character].map_turn_y = 32768;
     ChrList[character].map_turn_x = 32768;
 }
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void reset_character_alpha( Uint16 character )
 {
     // ZZ> This function fixes an item's transparency
@@ -1173,7 +1173,7 @@ void reset_character_alpha( Uint16 character )
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void attach_character_to_mount( Uint16 iitem, Uint16 iholder, grip_offset_t grip_off )
 {
     // ZZ> This function attaches one character/item to another ( the holder/mount )
@@ -1260,7 +1260,7 @@ void attach_character_to_mount( Uint16 iitem, Uint16 iholder, grip_offset_t grip
     pitem->hitready = bfalse;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t inventory_add_item( Uint16 item, Uint16 character )
 {
     chr_t * pchr, * pitem;
@@ -1315,7 +1315,7 @@ bool_t inventory_add_item( Uint16 item, Uint16 character )
     return pack_added;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint16 inventory_get_item( Uint16 ichr, grip_offset_t grip_off, bool_t ignorekurse )
 {
     chr_t * pchr;
@@ -1350,7 +1350,7 @@ Uint16 inventory_get_item( Uint16 ichr, grip_offset_t grip_off, bool_t ignorekur
     return iitem;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint16 pack_has_a_stack( Uint16 item, Uint16 character )
 {
     // ZZ> This function looks in the character's pack for an item similar
@@ -1404,7 +1404,7 @@ Uint16 pack_has_a_stack( Uint16 item, Uint16 character )
     return MAX_CHR;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t pack_add_item( Uint16 item, Uint16 character )
 {
     // ZZ> This function puts one character inside the other's pack
@@ -1486,7 +1486,7 @@ bool_t pack_add_item( Uint16 item, Uint16 character )
     return btrue;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint16 pack_get_item( Uint16 character, grip_offset_t grip_off, bool_t ignorekurse )
 {
     // ZZ> This function takes the last item in the character's pack and puts
@@ -1549,7 +1549,7 @@ Uint16 pack_get_item( Uint16 character, grip_offset_t grip_off, bool_t ignorekur
     return item;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void drop_keys( Uint16 character )
 {
     // ZZ> This function drops all keys ( [KEYA] to [KEYZ] ) that are in a character's
@@ -1612,7 +1612,7 @@ void drop_keys( Uint16 character )
 
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t drop_all_items( Uint16 character )
 {
     // ZZ> This function drops all of a character's items
@@ -1655,7 +1655,7 @@ bool_t drop_all_items( Uint16 character )
 
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t character_grab_stuff( Uint16 ichr_a, grip_offset_t grip_off, bool_t grab_people )
 {
     // ZZ> This function makes the character pick up an item if there's one around
@@ -1858,7 +1858,7 @@ bool_t character_grab_stuff( Uint16 ichr_a, grip_offset_t grip_off, bool_t grab_
     return bfalse;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void character_swipe( Uint16 cnt, Uint8 slot )
 {
     // ZZ> This function spawns an attack particle
@@ -1978,7 +1978,7 @@ void character_swipe( Uint16 cnt, Uint8 slot )
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void drop_money( Uint16 character, Uint16 money )
 {
     // ZZ> This function drops some of a character's money
@@ -2019,7 +2019,7 @@ void drop_money( Uint16 character, Uint16 money )
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void call_for_help( Uint16 character )
 {
     // ZZ> This function issues a call for help to all allies
@@ -2040,7 +2040,7 @@ void call_for_help( Uint16 character )
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint32 xp_for_next_level(Uint16 character)
 {
     // This calculates the xp needed to reach next level
@@ -2069,7 +2069,7 @@ Uint32 xp_for_next_level(Uint16 character)
     return xpneeded;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void do_level_up( Uint16 character )
 {
     // BB > level gains are done here, but only once a second
@@ -2163,7 +2163,7 @@ void do_level_up( Uint16 character )
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void give_experience( Uint16 character, int amount, Uint8 xptype, bool_t override_invictus )
 {
     // ZZ> This function gives a character experience
@@ -2197,7 +2197,7 @@ void give_experience( Uint16 character, int amount, Uint8 xptype, bool_t overrid
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void give_team_experience( Uint8 team, int amount, Uint8 xptype )
 {
     // ZZ> This function gives every character on a team experience
@@ -2212,7 +2212,7 @@ void give_team_experience( Uint8 team, int amount, Uint8 xptype )
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void resize_characters()
 {
     // ZZ> This function makes the characters get bigger or smaller, depending
@@ -2279,7 +2279,7 @@ void resize_characters()
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t export_one_character_name( const char *szSaveName, Uint16 character )
 {
     // ZZ> This function makes the naming.txt file for the character
@@ -2328,7 +2328,7 @@ bool_t export_one_character_name( const char *szSaveName, Uint16 character )
 
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t export_one_character_profile( const char *szSaveName, Uint16 character )
 {
     // ZZ> This function creates a data.txt file for the given character.
@@ -2667,7 +2667,7 @@ bool_t export_one_character_profile( const char *szSaveName, Uint16 character )
     return btrue;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t export_one_character_skin( const char *szSaveName, Uint16 character )
 {
     // ZZ> This function creates a skin.txt file for the given character.
@@ -2686,7 +2686,7 @@ bool_t export_one_character_skin( const char *szSaveName, Uint16 character )
     return btrue;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 int load_one_character_profile( const char * tmploadname )
 {
     // ZZ> This function fills a character profile with data from data.txt, returning
@@ -3181,25 +3181,25 @@ int load_one_character_profile( const char * tmploadname )
     return object;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t heal_character( Uint16 character, Uint16 healer, int amount, bool_t ignoreinvincible)
 {
-	//ZF> This function gives some pure life points to the target, ignoring any resistances and so forth
-	if ( INVALID_CHR(character) || amount == 0 || !ChrList[character].alive || (ChrList[character].invictus && !ignoreinvincible) ) return bfalse;
-	
-    ChrList[character].life = CLIP(ChrList[character].life, ChrList[character].life+ABS(amount), ChrList[character].lifemax);
-	
-	//Dont alert that we healed ourselves
-	if( healer != character && ChrList[healer].attachedto != character )
-	{
-		ChrList[character].ai.alert |= ALERTIF_HEALED;
-		ChrList[character].ai.attacklast = healer;
-	}
+    //ZF> This function gives some pure life points to the target, ignoring any resistances and so forth
+    if ( INVALID_CHR(character) || amount == 0 || !ChrList[character].alive || (ChrList[character].invictus && !ignoreinvincible) ) return bfalse;
+
+    ChrList[character].life = CLIP(ChrList[character].life, ChrList[character].life + ABS(amount), ChrList[character].lifemax);
+
+    //Dont alert that we healed ourselves
+    if ( healer != character && ChrList[healer].attachedto != character )
+    {
+        ChrList[character].ai.alert |= ALERTIF_HEALED;
+        ChrList[character].ai.attacklast = healer;
+    }
 
     return btrue;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void damage_character( Uint16 character, Uint16 direction,
                        int damagebase, int damagerand, Uint8 damagetype, Uint8 team,
                        Uint16 attacker, Uint16 effects, bool_t ignoreinvincible )
@@ -3511,7 +3511,7 @@ void damage_character( Uint16 character, Uint16 direction,
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void kill_character( Uint16 character, Uint16 killer )
 {
     // ZZ> This function kills a character...  MAX_CHR killer for accidental death
@@ -3542,7 +3542,7 @@ void kill_character( Uint16 character, Uint16 killer )
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void spawn_poof( Uint16 character, Uint16 profile )
 {
     // ZZ> This function spawns a character poof
@@ -3566,7 +3566,7 @@ void spawn_poof( Uint16 character, Uint16 profile )
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 char * chop_create( Uint16 profile )
 {
     // ZZ> This function generates a random name
@@ -3608,7 +3608,7 @@ char * chop_create( Uint16 profile )
     return buffer;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void init_ai_state( ai_state_t * pself, Uint16 index, Uint16 profile, Uint16 model, Uint16 rank )
 {
     int tnc;
@@ -3647,7 +3647,7 @@ void init_ai_state( ai_state_t * pself, Uint16 index, Uint16 profile, Uint16 mod
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
                             Uint8 skin, Uint16 facing, const char *name, Uint16 override )
 {
@@ -4077,7 +4077,7 @@ Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
     return ichr;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void respawn_character( Uint16 character )
 {
     // ZZ> This function respawns a character
@@ -4150,7 +4150,7 @@ void respawn_character( Uint16 character )
     chr_instance_init( &(pchr->inst), pchr->model, pchr->skin );
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 int chr_change_skin( Uint16 character, int skin )
 {
     Uint16 model, imad;
@@ -4191,7 +4191,7 @@ int chr_change_skin( Uint16 character, int skin )
     return ChrList[character].skin;
 };
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint16 change_armor( Uint16 character, Uint16 skin )
 {
     // ZZ> This function changes the armor of the character
@@ -4254,7 +4254,7 @@ Uint16 change_armor( Uint16 character, Uint16 skin )
     return skin;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void change_character_full( Uint16 ichr, Uint16 profile, Uint8 skin, Uint8 leavewhich )
 {
     // This function polymorphs a character permanently so that it can be exported properly
@@ -4266,7 +4266,7 @@ void change_character_full( Uint16 ichr, Uint16 profile, Uint8 skin, Uint8 leave
     ChrList[ichr].basemodel = profile;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void set_weapongrip( Uint16 iitem, Uint16 iholder, Uint16 vrt_off )
 {
     int i, tnc;
@@ -4302,7 +4302,7 @@ void set_weapongrip( Uint16 iitem, Uint16 iholder, Uint16 vrt_off )
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void change_character( Uint16 ichr, Uint16 profile, Uint8 skin, Uint8 leavewhich )
 {
     // ZZ> This function polymorphs a character, changing stats, dropping weapons
@@ -4478,7 +4478,7 @@ void change_character( Uint16 ichr, Uint16 profile, Uint8 skin, Uint8 leavewhich
     reaffirm_attached_particles( ichr );
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t cost_mana( Uint16 character, int amount, Uint16 killer )
 {
     // ZZ> This function takes mana from a character ( or gives mana ),
@@ -4530,7 +4530,7 @@ bool_t cost_mana( Uint16 character, int amount, Uint16 killer )
         if ( pchr->canchannel && mana_surplus > 0 )
         {
             // use some factor, divide by 2
-			heal_character( pchr->ai.index, killer, mana_surplus << 1, btrue); 
+            heal_character( pchr->ai.index, killer, mana_surplus << 1, btrue);
         }
 
         mana_paid = btrue;
@@ -4540,7 +4540,7 @@ bool_t cost_mana( Uint16 character, int amount, Uint16 killer )
     return mana_paid;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void switch_team( Uint16 character, Uint8 team )
 {
     // ZZ> This function makes a character join another team...
@@ -4566,7 +4566,7 @@ void switch_team( Uint16 character, Uint8 team )
 
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void issue_clean( Uint16 character )
 {
     // ZZ> This function issues a clean up order to all teammates
@@ -4589,7 +4589,7 @@ void issue_clean( Uint16 character )
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 int restock_ammo( Uint16 character, IDSZ idsz )
 {
     // ZZ> This function restocks the characters ammo, if it needs ammo and if
@@ -4615,7 +4615,7 @@ int restock_ammo( Uint16 character, IDSZ idsz )
     return amount;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t add_quest_idsz( const char *whichplayer, IDSZ idsz )
 {
     // / @details ZF@> This function writes a IDSZ (With quest level 0) into a player quest.txt file, returns btrue if succeeded
@@ -4649,7 +4649,7 @@ bool_t add_quest_idsz( const char *whichplayer, IDSZ idsz )
     return btrue;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Sint16 modify_quest_idsz( const char *whichplayer, IDSZ idsz, Sint16 adjustment )
 {
     // / @details ZF@> This function increases or decreases a Quest IDSZ quest level by the amount determined in
@@ -4703,7 +4703,7 @@ Sint16 modify_quest_idsz( const char *whichplayer, IDSZ idsz, Sint16 adjustment 
                 // modify it
                 if ( newidsz == idsz )
                 {
-                    QuestLevel = MAX(adjustment, 0);		// Don't get negative
+                    QuestLevel = MAX(adjustment, 0);        // Don't get negative
                     NewQuestLevel = QuestLevel;
                 }
 
@@ -4720,7 +4720,7 @@ Sint16 modify_quest_idsz( const char *whichplayer, IDSZ idsz, Sint16 adjustment 
     return NewQuestLevel;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 const char * undo_idsz( IDSZ idsz )
 {
     // ZZ> This function takes an integer and makes a text IDSZ out of it.
@@ -4744,7 +4744,7 @@ const char * undo_idsz( IDSZ idsz )
     return value_string;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Sint16 check_player_quest( const char *whichplayer, IDSZ idsz )
 {
     // / @details ZF@> This function checks if the specified player has the IDSZ in his or her quest.txt
@@ -4779,7 +4779,7 @@ Sint16 check_player_quest( const char *whichplayer, IDSZ idsz )
     return result;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 int check_skills( Uint16 who, IDSZ whichskill )
 {
     // @details ZF@> This checks if the specified character has the required skill. Returns the level
@@ -4805,7 +4805,7 @@ int check_skills( Uint16 who, IDSZ whichskill )
     return result;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t chr_integrate_motion( chr_t * pchr )
 {
     // BB> Figure out the next position of the character.
@@ -4948,7 +4948,7 @@ bool_t chr_integrate_motion( chr_t * pchr )
     return btrue;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t chr_do_latch_button( chr_t * pchr )
 {
     // BB> Character latches for generalized buttons
@@ -5338,7 +5338,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
     return btrue;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void move_characters( void )
 {
     // ZZ> This function handles character physics
@@ -5845,7 +5845,7 @@ void move_characters( void )
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void chop_load( Uint16 profile, const char *szLoadname )
 {
     // ZZ> This function reads a naming file
@@ -5899,7 +5899,7 @@ void chop_load( Uint16 profile, const char *szLoadname )
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t is_invictus_direction( Uint16 direction, Uint16 character, Uint16 effects )
 {
     Uint16 left, right;
@@ -5956,7 +5956,7 @@ bool_t is_invictus_direction( Uint16 direction, Uint16 character, Uint16 effects
     return is_invictus;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t chr_instance_init( chr_instance_t * pinst, Uint16 profile, Uint8 skin )
 {
     int tnc;
@@ -6015,7 +6015,7 @@ bool_t chr_instance_init( chr_instance_t * pinst, Uint16 profile, Uint8 skin )
     return btrue;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 grip_offset_t slot_to_grip_offset( slot_t slot )
 {
     grip_offset_t retval = GRIP_ORIGIN;
@@ -6025,7 +6025,7 @@ grip_offset_t slot_to_grip_offset( slot_t slot )
     return retval;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 slot_t grip_offset_to_slot( grip_offset_t grip_off )
 {
     slot_t retval = SLOT_LEFT;
@@ -6049,7 +6049,7 @@ slot_t grip_offset_to_slot( grip_offset_t grip_off )
     return retval;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void init_slot_idsz()
 {
     inventory_idsz[INVEN_PACK]  = IDSZ_NONE;
@@ -6058,7 +6058,7 @@ void init_slot_idsz()
     inventory_idsz[INVEN_FOOT]  = MAKE_IDSZ( 'F', 'O', 'O', 'T' );
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t ai_add_order( ai_state_t * pai, Uint32 value, Uint16 counter )
 {
     bool_t retval;
@@ -6075,7 +6075,7 @@ bool_t ai_add_order( ai_state_t * pai, Uint32 value, Uint16 counter )
     return retval;
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 /*Uint16 get_target_in_block( int x, int y, Uint16 character, char items,
                             char friends, char enemies, char dead, char seeinvisible, IDSZ idsz,
                             char excludeid )
@@ -6131,7 +6131,7 @@ bool_t ai_add_order( ai_state_t * pai, Uint32 value, Uint16 counter )
   return MAX_CHR;
 }*/
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 /*Uint16 get_nearby_target( Uint16 character, char items,
                           char friends, char enemies, char dead, IDSZ idsz )
 {
@@ -6146,7 +6146,7 @@ bool_t ai_add_order( ai_state_t * pai, Uint32 value, Uint16 counter )
   return get_target_in_block( x, y, character, items, friends, enemies, dead, seeinvisible, idsz, 0 );
 }*/
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 /*Uint16 find_distant_target( Uint16 character, int maxdistance )
 {
   // ZZ> This function finds a target, or it returns MAX_CHR if it can't find one...
@@ -6183,7 +6183,7 @@ bool_t ai_add_order( ai_state_t * pai, Uint32 value, Uint16 counter )
   return MAX_CHR;
 }*/
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 /*void get_nearest_in_block( int x, int y, Uint16 character, char items,
                            char friends, char enemies, char dead, char seeinvisible, IDSZ idsz )
 {
@@ -6253,7 +6253,7 @@ bool_t ai_add_order( ai_state_t * pai, Uint32 value, Uint16 counter )
   return;
 }*/
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 /*Uint16 get_nearest_target( Uint16 character, char items,
                            char friends, char enemies, char dead, IDSZ idsz )
 {
@@ -6282,7 +6282,7 @@ bool_t ai_add_order( ai_state_t * pai, Uint32 value, Uint16 counter )
   return globalnearest;
 }*/
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 /*Uint16 get_wide_target( Uint16 character, char items,
                         char friends, char enemies, char dead, IDSZ idsz, char excludeid )
 {
