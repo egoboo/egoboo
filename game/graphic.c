@@ -3853,8 +3853,8 @@ void sdlinit_graphics()
 
     sdl_vparam.gl_att.buffer_size        = cfg.scrd_req;
     sdl_vparam.gl_att.depth_size         = cfg.scrz_req;
-    sdl_vparam.gl_att.multi_buffers      = 1; // (cfg.multisamples > 1) ? 1 : 0;
-    sdl_vparam.gl_att.multi_samples      = 4; // cfg.multisamples;
+    sdl_vparam.gl_att.multi_buffers      = (cfg.multisamples > 1) ? 1 : 0;
+    sdl_vparam.gl_att.multi_samples      = cfg.multisamples;
     sdl_vparam.gl_att.accelerated_visual = GL_TRUE;
 
     ogl_vparam.dither         = GL_FALSE;

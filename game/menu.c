@@ -167,7 +167,7 @@ const char *videoOptionsButtons[] =
     "N/A",    // Fog
     "N/A",    // 3D effects
     "N/A",    // Multi water layer
-    "NOT_USED",    // Unused button
+    "N/A",    // Widescreen
     "N/A",    // Screen resolution
     "Save Settings",
     "N/A",    // Max particles
@@ -2094,6 +2094,7 @@ int doVideoOptions( float deltaTime )
     static char Cscrz[128];
     static char Cmaxparticles[128];
     static char Cmaxdyna[128];
+	static bool_t widescreen;
 
     switch ( menuState )
     {
@@ -2224,21 +2225,58 @@ int doVideoOptions( float deltaTime )
             sprintf( Cmaxparticles, "%i", cfg.particle_count_req );      // Convert the integer to a char we can use
             videoOptionsButtons[14] = Cmaxparticles;
 
+			
+					
+
             switch ( cfg.scrx_req )
             {
+				//Normal resolutions
                 case 1024: videoOptionsButtons[12] = "1024X768";
+					widescreen = bfalse;
                     break;
-
                 case 640: videoOptionsButtons[12] = "640X480";
+					widescreen = bfalse;
                     break;
-
                 case 800: videoOptionsButtons[12] = "800X600";
+					widescreen = bfalse;
                     break;
 
+				//1280 can be both widescreen and normal
+                case 1280:
+					if( cfg.scry_req == 1280 )
+					{
+						videoOptionsButtons[12] = "1280X1024";
+						widescreen = bfalse;
+					}
+					if( cfg.scry_req == 800 ) 
+					{
+						videoOptionsButtons[12] = "1280X800";
+						widescreen = btrue;
+					}
+				break;
+
+				//Widescreen resolutions
+                case 1440: 
+					videoOptionsButtons[12] = "1440X900";
+					widescreen = btrue;
+                    break;
+                case 1680: 
+					videoOptionsButtons[12] = "1680X1050";
+					widescreen = btrue;
+                    break;
+                case 1920: 
+					videoOptionsButtons[12] = "1920X1200";
+					widescreen = btrue;
+                    break;
+
+				//unknown
                 default:
                     videoOptionsButtons[12] = "Custom";
                     break;
             }
+
+			if( widescreen ) videoOptionsButtons[11] = "X";
+			else			 videoOptionsButtons[11] = " ";
 
             menuState = MM_Running;
             break;
@@ -2455,7 +2493,7 @@ int doVideoOptions( float deltaTime )
                 videoOptionsButtons[8] = Cmaxdyna;
             }
 
-            // Perspective correction and phong mapping
+            // Perspective correction, overlay, underlay and phong mapping
             ui_drawTextBox( menuFont, "3D Effects:", buttonLeft + 300, GFX_HEIGHT - 250, 0, 0, 20 );
             if ( BUTTON_UP == ui_doButton( 10, videoOptionsButtons[9], menuFont, buttonLeft + 450, GFX_HEIGHT - 250, 100, 30 ) )
             {
@@ -2526,37 +2564,109 @@ int doVideoOptions( float deltaTime )
                 videoOptionsButtons[14] =  Cmaxparticles;
             }
 
+			// Widescreen
+            ui_drawTextBox( menuFont, "Widescreen:", buttonLeft + 300, GFX_HEIGHT - 70, 0, 0, 20 );
+            if ( BUTTON_UP == ui_doButton( 12, videoOptionsButtons[11], menuFont, buttonLeft + 450, GFX_HEIGHT - 70, 25, 25 ) )
+            {
+				widescreen = !widescreen;
+				if(!widescreen)
+				{
+					videoOptionsButtons[11] = " ";
+
+					//Set to default non-widescreen resolution
+					cfg.scrx_req = 640;
+                    cfg.scry_req = 480;
+                    videoOptionsButtons[12] = "640x480";            
+				}
+				else 
+				{
+					videoOptionsButtons[11] = "X";
+
+					//Set to default widescreen resolution
+					cfg.scrx_req = 1280;
+                    cfg.scry_req = 800;
+                    videoOptionsButtons[12] = "1280x800";
+				}
+			}
+
             // Screen Resolution
             ui_drawTextBox( menuFont, "Resolution:", buttonLeft + 300, GFX_HEIGHT - 110, 0, 0, 20 );
             if ( BUTTON_UP == ui_doButton( 13, videoOptionsButtons[12], menuFont, buttonLeft + 450, GFX_HEIGHT - 110, 125, 30 ) )
             {
-                // TODO: add widescreen support
-                switch ( cfg.scrx_req )
-                {
-                    case 1024:
-                        cfg.scrx_req = 640;
-                        cfg.scry_req = 480;
-                        videoOptionsButtons[12] = "640x480";
-                        break;
+                
+				// Do normal resolutions
+                if( !widescreen )
+				{
+					switch ( cfg.scrx_req )
+					{
+						case 640:
+							cfg.scrx_req = 800;
+							cfg.scry_req = 600;
+							videoOptionsButtons[12] = "800x600";
+							break;
 
-                    case 640:
-                        cfg.scrx_req = 800;
-                        cfg.scry_req = 600;
-                        videoOptionsButtons[12] = "800x600";
-                        break;
+						case 800:
+							cfg.scrx_req = 1024;
+							cfg.scry_req = 768;
+							videoOptionsButtons[12] = "1024x768";
+							break;
 
-                    case 800:
-                        cfg.scrx_req = 1024;
-                        cfg.scry_req = 768;
-                        videoOptionsButtons[12] = "1024x768";
-                        break;
+						case 1024:
+							cfg.scrx_req = 1280;
+							cfg.scry_req = 1024;
+							videoOptionsButtons[12] = "1280x1024";
+							break;
 
-                    default:
-                        cfg.scrx_req = 640;
-                        cfg.scry_req = 480;
-                        videoOptionsButtons[12] = "640x480";
-                        break;
-                }
+						case 1280:
+							cfg.scrx_req = 640;
+							cfg.scry_req = 480;
+							videoOptionsButtons[12] = "640x480";
+							break;
+
+						default:
+							cfg.scrx_req = 640;
+							cfg.scry_req = 480;
+							videoOptionsButtons[12] = "640x480";
+							break;
+					}
+				}
+
+				//Do widescreen resolutions
+				else
+				{
+					switch ( cfg.scrx_req )
+					{
+						case 1920:
+							cfg.scrx_req = 1280;
+							cfg.scry_req = 800;
+							videoOptionsButtons[12] = "1280x800";
+							break;
+
+						case 1280:
+							cfg.scrx_req = 1440;
+							cfg.scry_req = 900;
+							videoOptionsButtons[12] = "1440x900";
+							break;
+
+						case 1440:
+							cfg.scrx_req = 1680;
+							cfg.scry_req = 1050;
+							videoOptionsButtons[12] = "1680x1050";
+							break;
+
+						case 1680:
+							cfg.scrx_req = 1920;
+							cfg.scry_req = 1200;
+							videoOptionsButtons[12] = "1920x1200";
+							break;
+
+						default:
+							cfg.scrx_req = 1280;
+							cfg.scry_req = 800;
+							videoOptionsButtons[12] = "1280x800";
+							break;
+					}
+				}
             }
 
             // Save settings button

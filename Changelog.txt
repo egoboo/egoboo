@@ -1,6 +1,7 @@
 Version 2.7.5 (27.07.2009)
 - New Feature: Improved AI by adding Line of Sight detection for targeting.
-- Update: Improved some menu UI handling.
+- Update: Support for multiple new resolution formats including widescreen.
+- Update: Improved various menu UI handling and made it look nice in all resolutions.
 - Update: Improved the gameplay when using the mouse as input controller.
 - Update: Increased the amount of treasure loot found in the Ice Palace.
 - Update: Improved the Frost Lizard AI.
