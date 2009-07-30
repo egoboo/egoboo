@@ -37,11 +37,12 @@ IfStateIsNot
       tmpdistance = 128*8
       SetTargetToDistantEnemy
         IfTargetCanSeeInvisible
-          tmpdistance = [CHIM]
-          tmpargument = selfstate
-          GetXY
-          tmpargument = tmpx+10
-          OrderSpecialID
+          IfTargetCanSeeKurses
+            tmpdistance = [CHIM]
+            tmpargument = selfstate
+            GetXY
+            tmpargument = tmpx+10
+            OrderSpecialID
 
   IfOrdered
     tmpargument = selfstate

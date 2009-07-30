@@ -824,6 +824,7 @@ bool_t doChoosePlayer_load_profiles( int player, ChoosePlayer_profiles_t * prof 
     // Load the player profiles
     import_data.player = -1;
     import_data.object = 0;
+	prof->count = 0;
 
     // grab the player data
     snprintf( szFilename, SDL_arraysize(szFilename),  "players" SLASH_STR "%s", loadplayer[player].dir );
@@ -895,7 +896,8 @@ bool_t doChoosePlayer_show_stats( int player, int mode, int x, int y, int width,
     // do the actual display
     if ( player >= 0 && objects.count > 0 )
     {
-        char buffer[1024];
+        char mainstat[256];
+		char buffer[1024];
         char * carat = buffer, * carat_end = buffer + SDL_arraysize(buffer);
 
         Uint16 iobj = objects.ref[0];
@@ -903,8 +905,7 @@ bool_t doChoosePlayer_show_stats( int player, int mode, int x, int y, int width,
         if ( VALID_CAP(iobj) )
         {
             cap_t * pcap = CapList + iobj;
-            STRING mainstat;
-
+			
             ui_drawButton( UI_Nothing, x, y, width, height, NULL );
 
             //Character level and class
@@ -912,7 +913,7 @@ bool_t doChoosePlayer_show_stats( int player, int mode, int x, int y, int width,
             snprintf( mainstat, sizeof(mainstat), "Level %d %s\n\n", pcap->leveloverride + 1, pcap->classname );
             ui_drawTextBox( menuFont, mainstat, x + 10, y + 10, width - 10, height - 10, 20 );
 
-            //Life and mana (and current life/mana if not in easy mode)
+            //Life and mana (can be less than maximum if not in easy mode)
             if ( cfg.difficulty >= GAME_NORMAL )
             {
                 y = draw_one_bar( pcap->lifecolor, x, y + 40, pcap->spawnlife >> 8, pcap->lifebase >> 8 );
@@ -924,7 +925,7 @@ bool_t doChoosePlayer_show_stats( int player, int mode, int x, int y, int width,
                 y = draw_one_bar( pcap->manacolor, x, y, pcap->manabase >> 8, pcap->manabase >> 8 );
             }
 
-            //Swid
+            //SWID
             carat += snprintf( carat, carat_end - carat - 1, "Stats\n" );
             carat += snprintf( carat, carat_end - carat - 1, "  Str: %d\n", pcap->strengthbase >> 8 );
             carat += snprintf( carat, carat_end - carat - 1, "  Wis: %d\n", pcap->wisdombase >> 8 );

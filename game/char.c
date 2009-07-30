@@ -3370,9 +3370,19 @@ void damage_character( Uint16 character, Uint16 direction,
                     action = ACTION_HA;
                     if ( ChrList[character].life < 0 )
                     {
+						Uint16 iTmp = ChrList[character].firstenchant;
+
                         // Character has died
                         ChrList[character].alive = bfalse;
-                        // disenchant_character( character );
+						while ( iTmp != MAX_ENC )
+						{	
+							Uint16 sTmp = EncList[iTmp].nextenchant;
+							if ( !EveList[EncList[iTmp].eve].stayifdead  )
+							{
+								remove_enchant( iTmp );
+							}
+							iTmp = sTmp;
+						}
                         ChrList[character].waskilled = btrue;
                         ChrList[character].keepaction = btrue;
                         ChrList[character].life = -1;
@@ -4260,7 +4270,7 @@ Uint16 change_armor( Uint16 character, Uint16 skin )
 //--------------------------------------------------------------------------------------------
 void change_character_full( Uint16 ichr, Uint16 profile, Uint8 skin, Uint8 leavewhich )
 {
-    // This function polymorphs a character permanently so that it can be exported properly
+    // ZF> This function polymorphs a character permanently so that it can be exported properly
     // A character turned into a frog with this function will also export as a frog!
     if ( profile > MAX_PROFILE || !MadList[profile].loaded ) return;
 
@@ -4462,11 +4472,11 @@ void change_character( Uint16 ichr, Uint16 profile, Uint8 skin, Uint8 leavewhich
     pchr->runspd = pcap->runspd;
 
     // AI and action stuff
-    pchr->actionready = btrue;
+    pchr->actionready = bfalse;
     pchr->keepaction = bfalse;
-    pchr->loopaction = bfalse;
     pchr->action = ACTION_DA;
     pchr->nextaction = ACTION_DA;
+    pchr->loopaction = bfalse;
     pchr->holdingweight = 0;
     pchr->onwhichplatform = MAX_CHR;
 

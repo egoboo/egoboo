@@ -51,9 +51,9 @@
 40 FifthLeftdoor:    61    20     62  21        F       F             F
 41 FifthLeftdoorOpen:    60    20     61  21        T       T             F
 42 FifthMostLeftdoor:    60    9     61  10        F       F             F
-43 FifthMostLeftdoorOpen:    59    9     60  10        F       F             F
+43 FifthMostLeftdoorOpen:    59    9     60  10        T       T             F
 44 FifthMostLeftLeftdoor:    64    14     65  15        F       F             F
-45 FifthMostLeftLeftdoorOpen:    64    13     65  14        F       F             F
+45 FifthMostLeftLeftdoorOpen:    64    13     65  14        T       T             F
 
 //Special other stuff
 46 WarlockGates:    27    52     28  56        F       T             F

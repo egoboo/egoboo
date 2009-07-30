@@ -7,6 +7,8 @@ Version 2.7.5 (xx.08.2009)
 - Update: Increased the amount of treasure loot found in the Ice Palace.
 - Update: Improved the Frost Lizard AI.
 - Update: Improved the texture detail for all the title images.
+- Bugfix: Fixed a serious bug with morphing.
+- Bugfix: Fixed two impassable passages in Catacombs 2 module. (Credits to Rygwryr)
 - Bugfix: Fixed bug that made Ghosts invincible and Life Drain caused by Ghosts to disappear
   without a proper restoration.
 - Bugfix: Catacombs 1 not properly allows up to 4 player imports instead of 1.
