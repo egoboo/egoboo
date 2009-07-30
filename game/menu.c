@@ -864,9 +864,7 @@ bool_t doChoosePlayer_load_profiles( int player, ChoosePlayer_profiles_t * prof 
 //--------------------------------------------------------------------------------------------
 bool_t doChoosePlayer_show_stats( int player, int mode, int x, int y, int width, int height )
 {
-    STRING szFilename;
-    oglx_texture * ptex;
-    int i, profile_temp;
+    int i;
 
     static ChoosePlayer_profiles_t objects = { 0 };
 

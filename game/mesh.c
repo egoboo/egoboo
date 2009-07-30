@@ -1113,7 +1113,7 @@ bool_t mesh_make_normals( ego_mpd_t * pmesh )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t grid_light_one_corner( ego_mpd_t * pmesh, int fan, float height, GLXvector3f nrm, float * plight )
+bool_t grid_light_one_corner( ego_mpd_t * pmesh, int fan, float height, float nrm[], float * plight )
 {
     lighting_cache_t * lighting;
 

@@ -178,7 +178,7 @@ bool_t mesh_interpolate_vertex( mesh_mem_t * pmem, int fan, float pos[], float *
 float evaluate_lighting_vector( lighting_vector_t lvec, GLfloat nrm[] );
 float evaluate_lighting_cache( lighting_cache_t * src, GLfloat nrm[], float z, aabb_t bbox );
 
-bool_t grid_light_one_corner( ego_mpd_t * pmesh, int fan, float height, GLXvector3f nrm, float * plight );
+bool_t grid_light_one_corner( ego_mpd_t * pmesh, int fan, float height, float nrm[], float * plight );
 
 bool_t mesh_set_texture( ego_mpd_t * pmesh, Uint16 tile, Uint16 image );
 bool_t mesh_update_texture( ego_mpd_t * pmesh, Uint16 tile );

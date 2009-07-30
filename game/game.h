@@ -40,8 +40,8 @@ struct s_script_state;
 #    define RANDIE_COUNT (1 << RANDIE_BITS)
 #endif
 
-#define RANDIE_MASK  (RANDIE_COUNT - 1)
-#define RANDIE randie[randindex & RANDIE_MASK];  randindex = ((randindex++) & RANDIE_MASK)
+#define RANDIE_MASK  ((Uint32)(RANDIE_COUNT - 1))
+#define RANDIE       randie[randindex & RANDIE_MASK ];  randindex++; randindex &= RANDIE_MASK
 
 extern Uint32  randindex;
 extern Uint16  randie[RANDIE_COUNT];
