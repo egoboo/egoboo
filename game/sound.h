@@ -39,7 +39,7 @@ struct s_egoboo_config;
 #define VOLUMERATIO        7             // Volume ratio
 #define MAXPLAYLISTLENGTH 35             // Max number of different tracks loaded into memory
 #define INVALID_SOUND -1
-#define MENU_SONG           0            //default music theme played when in the menu
+#define MENU_SONG           0            // default music theme played when in the menu
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // BB > enumerated "speech" sounds, so that we COULD ge the scripts to classify which

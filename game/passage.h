@@ -59,14 +59,14 @@ extern int   numpassage;              // Number of passages in the module
 struct s_passage
 {
     // Passage positions
-    int   topleftx;             //top left X
-    int   toplefty;             //top left Y
-    int   bottomrightx;             //bottom right X
-    int   bottomrighty;             //bottom right Y
+    int   topleftx;             // top left X
+    int   toplefty;             // top left Y
+    int   bottomrightx;             // bottom right X
+    int   bottomrighty;             // bottom right Y
 
-    Sint8 music;            //Music track appointed to the specific passage
-    Uint8 mask;                 //Is it IMPASSABLE, SLIPPERY or whatever
-    bool_t open;            //Is the passage open?
+    Sint8 music;            // Music track appointed to the specific passage
+    Uint8 mask;                 // Is it IMPASSABLE, SLIPPERY or whatever
+    bool_t open;            // Is the passage open?
 };
 
 typedef struct s_passage passage_t;

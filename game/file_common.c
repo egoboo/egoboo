@@ -36,7 +36,7 @@
 void fs_removeDirectoryAndContents( const char *dirname )
 {
     // ZZ> This function deletes all files in a directory,
-    //     and the directory itself
+    //    and the directory itself
     char filePath[MAX_PATH];
     const char *fileName;
 

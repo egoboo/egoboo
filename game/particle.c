@@ -136,7 +136,7 @@ void play_particle_sound( Uint16 particle, Sint8 sound )
 void free_one_particle_in_game( Uint16 particle )
 {
     // ZZ> This function sticks a particle back on the free particle stack and
-    //     plays the sound associated with the particle
+    //    plays the sound associated with the particle
 
     if ( VALID_PRT( particle) )
     {
@@ -167,8 +167,8 @@ void free_one_particle_in_game( Uint16 particle )
 int get_free_particle( int force )
 {
     // ZZ> This function gets an unused particle.  If all particles are in use
-    //     and force is set, it grabs the first unimportant one.  The particle
-    //     index is the return value
+    //    and force is set, it grabs the first unimportant one.  The particle
+    //    index is the return value
     int particle;
 
     // Return maxparticles if we can't find one
@@ -671,7 +671,7 @@ void move_particles( void )
             else
             {
                 // Just destroy the particle
-                //                    free_one_particle_in_game(cnt);
+                //                   free_one_particle_in_game(cnt);
                 pprt->time  = frame_all + 1;
                 pprt->poofme = btrue;
             }
@@ -866,7 +866,7 @@ int prt_is_over_water( Uint16 cnt )
 int load_one_particle_profile( const char *szLoadName )
 {
     // ZZ> This function loads a particle template, returning bfalse if the file wasn't
-    //     found
+    //    found
     FILE* fileread;
     IDSZ idsz;
     int iTmp;
@@ -968,7 +968,7 @@ int load_one_particle_profile( const char *szLoadName )
 
     fTmp = fget_next_float( fileread ); ppip->dynalevel = fTmp;
     iTmp = fget_next_int( fileread ); ppip->dynafalloff = iTmp;
-//    if ( ppip->dynafalloff > MAXFALLOFF && PMod->rtscontrol )  ppip->dynafalloff = MAXFALLOFF;
+//   if ( ppip->dynafalloff > MAXFALLOFF && PMod->rtscontrol )  ppip->dynafalloff = MAXFALLOFF;
 
     // Initial spawning of this particle
     iTmp = fget_next_int( fileread ); ppip->facingbase = iTmp;

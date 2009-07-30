@@ -391,7 +391,7 @@ void scantag_read_all( const char *szFilename )
 int scantag_get_value( const char *string )
 {
     // ZZ> This function matches the string with its tag, and returns the value...
-    //     It will return 255 if there are no matches.
+    //    It will return 255 if there are no matches.
     int cnt;
 
     cnt = 0;

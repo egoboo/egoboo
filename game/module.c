@@ -136,7 +136,7 @@ void module_add_idsz( const char *szLoadName, IDSZ idsz )
 int modlist_get_mod_number( const char *szModName )
 {
     // ZZ> This function returns -1 if the module does not exist locally, the module
-    //     index otherwise
+    //    index otherwise
 
     int modnum, retval = -1;
 
@@ -191,7 +191,7 @@ bool_t modlist_test_by_index( int modnumber )
 bool_t modlist_test_by_name( const char *szModName )
 {
     // ZZ> This function tests to see if a module can be entered by
-    //     the players
+    //    the players
 
     // find the module by name
     int modnumber = modlist_get_mod_number( szModName );
@@ -242,7 +242,7 @@ bool_t module_load_info( const char * szLoadName, mod_data_t * pmod )
     if ( 'A' == toupper(cTmp) )  pmod->respawnvalid = ANYTIME;
 
     goto_colon( NULL, fileread, bfalse );   // BAD: Skip line
-    //  pmod->rtscontrol = bfalse;
+    // pmod->rtscontrol = bfalse;
 
     fget_next_string( fileread, readtext, SDL_arraysize(readtext) );
 

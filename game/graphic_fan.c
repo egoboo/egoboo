@@ -189,7 +189,7 @@ void render_hmap_fan( ego_mpd_t * pmesh, Uint32 fan )
     ptile = pmem->tile_list + fan;
 
     // BB > the water info is for TILES, not for vertices, so ignore all vertex info and just draw the water
-    //      tile where it's supposed to go
+    //     tile where it's supposed to go
 
     ix = fan % pmesh->info.tiles_x;
     iy = fan / pmesh->info.tiles_x;
@@ -269,7 +269,7 @@ void render_water_fan( ego_mpd_t * pmesh, Uint32 fan, Uint8 layer )
     ptile = pmmem->tile_list + fan;
 
     // BB > the water info is for TILES, not for vertices, so ignore all vertex info and just draw the water
-    //      tile where it's supposed to go
+    //     tile where it's supposed to go
 
     ix = fan % pinfo->tiles_x;
     iy = fan / pinfo->tiles_x;

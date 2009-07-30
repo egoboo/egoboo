@@ -222,7 +222,7 @@ char * str_append_slash(char * str, size_t size)
 char * str_encode_path( const char *szName )
 {
     // ZF> This turns a szName name into a proper filepath for loading and saving files
-    //    also turns all letter to lower case in case of case sensitive OS.
+    //   also turns all letter to lower case in case of case sensitive OS.
 
     static STRING szPathname;
 

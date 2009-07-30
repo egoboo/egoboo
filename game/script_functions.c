@@ -3480,7 +3480,7 @@ Uint8 scr_MakeNameKnown( script_state_t * pstate, ai_state_t * pself )
 
     // This function makes the name of an item/character known.
     pchr->nameknown = btrue;
-    //            pchr->icon = btrue;
+    //           pchr->icon = btrue;
 
     SCRIPT_FUNCTION_END();
 }
@@ -4630,7 +4630,7 @@ Uint8 scr_get_FogLevel( script_state_t * pstate, ai_state_t * pself )
 {
     // tmpargument = get_FogLevel()
     // This function sets tmpargument to the level of the module's fog...
-    //  Values are * 10
+    // Values are * 10
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -4684,7 +4684,7 @@ Uint8 scr_get_FogBottomLevel( script_state_t * pstate, ai_state_t * pself )
     // tmpargument = get_FogBottomLevel()
 
     // This function sets tmpargument to the level of the module's fog.
-    //  Values are * 10
+    // Values are * 10
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -6172,12 +6172,12 @@ Uint8 scr_HolderBlocked( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 // Uint8 scr_get_SkillLevel( script_state_t * pstate, ai_state_t * pself )
 // {
-//    SCRIPT_FUNCTION_BEGIN();
+//   SCRIPT_FUNCTION_BEGIN();
 //
-//    // This function sets tmpargument to the shield profiency level of the Target
-//    pstate->argument = CapList[pchr->attachedto].shieldprofiency;
+//   // This function sets tmpargument to the shield profiency level of the Target
+//   pstate->argument = CapList[pchr->attachedto].shieldprofiency;
 //
-//    SCRIPT_FUNCTION_END();
+//   SCRIPT_FUNCTION_END();
 // }
 
 //--------------------------------------------------------------------------------------------

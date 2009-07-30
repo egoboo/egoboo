@@ -250,27 +250,27 @@ GLuint oglx_texture_Convert( GLenum tx_target, oglx_texture *ptex, SDL_Surface *
     }
     // else
     // {
-    //    // convert the image to a 24-bit pixel format without alpha
-    //    // convert the image to a 32-bit pixel format
-    //    tmpformat.Amask  = 0;
-    //    tmpformat.Ashift = sdl_a_shift;
-    //    tmpformat.Aloss  = 8;
+    //   // convert the image to a 24-bit pixel format without alpha
+    //   // convert the image to a 32-bit pixel format
+    //   tmpformat.Amask  = 0;
+    //   tmpformat.Ashift = sdl_a_shift;
+    //   tmpformat.Aloss  = 8;
 
-    //    tmpformat.Bmask  = sdl_b_mask;
-    //    tmpformat.Bshift = sdl_a_shift;
-    //    tmpformat.Bloss  = 0;
+    //   tmpformat.Bmask  = sdl_b_mask;
+    //   tmpformat.Bshift = sdl_a_shift;
+    //   tmpformat.Bloss  = 0;
 
-    //    tmpformat.Gmask  = sdl_g_mask;
-    //    tmpformat.Gshift = sdl_g_shift;
-    //    tmpformat.Gloss  = 0;
+    //   tmpformat.Gmask  = sdl_g_mask;
+    //   tmpformat.Gshift = sdl_g_shift;
+    //   tmpformat.Gloss  = 0;
 
-    //    tmpformat.Rmask  = sdl_r_mask;
-    //    tmpformat.Rshift = sdl_r_shift;
-    //    tmpformat.Rloss = 0;
+    //   tmpformat.Rmask  = sdl_r_mask;
+    //   tmpformat.Rshift = sdl_r_shift;
+    //   tmpformat.Rloss = 0;
 
-    //    // make the pixel size match the screen format
-    //    tmpformat.BitsPerPixel  = 24;
-    //    tmpformat.BytesPerPixel = 3;
+    //   // make the pixel size match the screen format
+    //   tmpformat.BitsPerPixel  = 24;
+    //   tmpformat.BytesPerPixel = 3;
     // }
 
     {
@@ -289,8 +289,8 @@ GLuint oglx_texture_Convert( GLenum tx_target, oglx_texture *ptex, SDL_Surface *
         // image will be converted to BLACK!
         //
         // The following statement tells SDL
-        //   1) to set the image to opaque
-        //   2) not to alpha blend the surface on blit
+        //  1) to set the image to opaque
+        //  2) not to alpha blend the surface on blit
         SDL_SetAlpha( image, 0, SDL_ALPHA_OPAQUE );
         SDL_SetColorKey( image, 0, 0 );
     }

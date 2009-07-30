@@ -62,11 +62,10 @@ struct s_egoboo_config;
 #define DONTFLASH                       255
 #define SEEKURSEAND                     31          // Blacking flash
 
-#define TRANSCOLOR                      0           // Transparent color
+#define TRANSCOLOR                      0           // Color index of the transparent color in an 8-bit image, or the rgb components of the transparent color in a 24-bit image
 
-#define GFX_WIDTH      640
-#define GFX_HEIGHT     480
-
+#define GFX_WIDTH                       800         // 640
+#define GFX_HEIGHT                      600         // 480
 
 // Special Textures
 typedef enum e_tx_type

@@ -230,8 +230,8 @@ bool_t remove_enchant( Uint16 ienc )
 Uint16 enchant_value_filled( Uint16 ienc, Uint8 valueindex )
 {
     // ZZ> This function returns MAX_ENC if the enchantment's target has no conflicting
-    //     set values in its other enchantments.  Otherwise it returns the ienc
-    //     of the conflicting enchantment
+    //    set values in its other enchantments.  Otherwise it returns the ienc
+    //    of the conflicting enchantment
     Uint16 character, currenchant;
 
     if ( ienc > MAX_ENC || !EncList[ienc].on ) return MAX_ENC;
@@ -586,7 +586,7 @@ void add_enchant_value( Uint16 ienc, Uint8 valueindex, Uint16 ieve )
 Uint16 spawn_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 ienc, Uint16 modeloptional )
 {
     // ZZ> This function enchants a target, returning the enchantment index or MAX_ENC
-    //     if failed
+    //    if failed
     Uint16 ieve, overlay;
     int add;
     eve_t * peve;

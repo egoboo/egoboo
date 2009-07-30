@@ -161,8 +161,8 @@ SDL_bool SDL_GL_set_gl_mode(struct s_oglx_video_parameters * v)
         GL_DEBUG(glHint)(GL_POLYGON_SMOOTH_HINT,    GL_FASTEST );
 
         // PLEASE do not turn this on unless you use
-        //  GL_DEBUG(glEnable)(GL_BLEND);
-        //  GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        // GL_DEBUG(glEnable)(GL_BLEND);
+        // GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         // before every single draw command
         //
         // GL_DEBUG(glEnable)(GL_POLYGON_SMOOTH);

@@ -507,7 +507,7 @@ void net_sendPacketToPeerGuaranteed( ENetPeer *peer )
 void net_copyFileToAllPlayers( const char *source, const char *dest )
 {
     // JF> This function queues up files to send to all the hosts.
-    //     TODO: Deal with having to send to up to MAXPLAYER players...
+    //    TODO: Deal with having to send to up to MAXPLAYER players...
 
     NetFileTransfer *state;
     if ( net_numFileTransfers < NET_MAX_FILE_TRANSFERS )
@@ -540,8 +540,8 @@ void net_copyFileToAllPlayers( const char *source, const char *dest )
 void net_copyFileToAllPlayersOld( const char *source, const char *dest )
 {
     // ZZ> This function copies a file on the host to every remote computer.
-    //     Packets are sent in chunks of COPYSIZE bytes.  The max file size
-    //     that can be sent is 2 Megs ( TOTALSIZE ).
+    //    Packets are sent in chunks of COPYSIZE bytes.  The max file size
+    //    that can be sent is 2 Megs ( TOTALSIZE ).
     FILE* fileread;
     int packetsize, packetstart;
     int filesize;
@@ -581,7 +581,7 @@ void net_copyFileToAllPlayersOld( const char *source, const char *dest )
 
                     while ( packetstart < filesize )
                     {
-                        //  This will probably work...
+                        // This will probably work...
                         // fread((packetbuffer + packethead), COPYSIZE, 1, fileread);
 
                         // But I'll leave it alone for now
@@ -667,8 +667,8 @@ void net_copyFileToHost( const char *source, const char *dest )
 void net_copyFileToHostOld( const char *source, const char *dest )
 {
     // ZZ> This function copies a file on the remote to the host computer.
-    //     Packets are sent in chunks of COPYSIZE bytes.  The max file size
-    //     that can be sent is 2 Megs ( TOTALSIZE ).
+    //    Packets are sent in chunks of COPYSIZE bytes.  The max file size
+    //    that can be sent is 2 Megs ( TOTALSIZE ).
     FILE* fileread;
     int packetsize, packetstart;
     int filesize;
@@ -699,7 +699,7 @@ void net_copyFileToHostOld( const char *source, const char *dest )
             net_startNewPacket();
             packet_addUnsignedShort( TO_HOST_DIR );
             packet_addString( dest );
-//      net_sendPacketToAllPlayersGuaranteed();
+//     net_sendPacketToAllPlayersGuaranteed();
             net_sendPacketToHost();
         }
         else
@@ -925,7 +925,7 @@ void sv_talkToRemotes()
     if ( update_wld == sv_last_frame ) return;
     sv_last_frame = update_wld;
 
-//   if ( PMod->rtscontrol ) return;
+//  if ( PMod->rtscontrol ) return;
 
     if ( gnet.hostactive )
     {
@@ -1427,7 +1427,7 @@ void net_handlePacket( ENetEvent *event )
 void listen_for_packets()
 {
     // ZZ> This function reads any new messages and sets the player latch and matrix needed
-    //     lists...
+    //    lists...
     ENetEvent event;
     if ( gnet.on )
     {
@@ -1478,7 +1478,7 @@ void unbuffer_player_latches()
 {
     // ZZ> This function sets character latches based on player input to the host
     int cnt, character;
-    //  if ( PMod->rtscontrol ) { numplatimes--; return; }
+    // if ( PMod->rtscontrol ) { numplatimes--; return; }
 
     // Copy the latches
 
@@ -1745,7 +1745,7 @@ int sv_hostGame()
         }
 
         // Try to create a host player
-//    return create_player(btrue);
+//   return create_player(btrue);
         net_amHost = btrue;
 
         // Moved from net_sayHello because there they cause a race issue
@@ -1870,10 +1870,10 @@ void net_send_message()
 
     // if(gnet.on)
     // {
-    //    start_building_packet();
-    //    add_packet_us(TO_ANY_TEXT);
-    //    add_packet_sz(keyb.buffer);
-    //    send_packet_to_all_players();
+    //   start_building_packet();
+    //   add_packet_us(TO_ANY_TEXT);
+    //   add_packet_sz(keyb.buffer);
+    //   send_packet_to_all_players();
     // }
 }
 

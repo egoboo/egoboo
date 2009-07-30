@@ -34,7 +34,7 @@ static void md2_get_transvertices( Uint16 modelindex );
 Uint16 action_number()
 {
     // ZZ> This function returns the number of the action in cFrameName, or
-    //     it returns NOACTION if it could not find a match
+    //    it returns NOACTION if it could not find a match
     int cnt;
     char first, second;
 
@@ -56,7 +56,7 @@ Uint16 action_number()
 Uint16 action_frame()
 {
     // ZZ> This function returns the frame number in the third and fourth characters
-    //     of cFrameName
+    //    of cFrameName
     int number;
 
     sscanf( &cFrameName[2], "%d", &number );
@@ -68,7 +68,7 @@ Uint16 action_frame()
 Uint16 test_frame_name( char letter )
 {
     // ZZ> This function returns btrue if the 4th, 5th, 6th, or 7th letters
-    //     of the frame name matches the input argument
+    //    of the frame name matches the input argument
     if ( cFrameName[4] == letter ) return btrue;
     if ( cFrameName[4] == 0 ) return bfalse;
     if ( cFrameName[5] == letter ) return btrue;
@@ -84,7 +84,7 @@ Uint16 test_frame_name( char letter )
 void action_copy_correct( Uint16 object, Uint16 actiona, Uint16 actionb )
 {
     // ZZ> This function makes sure both actions are valid if either of them
-    //     are valid.  It will copy start and ends to mirror the valid action.
+    //    are valid.  It will copy start and ends to mirror the valid action.
 
     if ( object > MAX_PROFILE || !MadList[object].loaded ) return;
 
@@ -197,7 +197,7 @@ void mad_get_walk_frame( Uint16 object, int lip, int action )
 void mad_get_framefx( int frame )
 {
     // ZZ> This function figures out the IFrame invulnerability, and Attack, Grab, and
-    //     Drop timings
+    //    Drop timings
     Uint16 fx = 0;
     if ( test_frame_name( 'I' ) )
         fx = fx | MADFX_INVICTUS;
@@ -426,7 +426,7 @@ int load_one_model_profile( const char* tmploadname, Uint16 object, int skin )
 void mad_rip_actions( Uint16 object )
 {
     // ZZ> This function creates the frame lists for each action based on the
-    //     name of each md2 frame in the model
+    //    name of each md2 frame in the model
 
     int frame, framesinaction;
     int action, lastaction;
@@ -621,14 +621,14 @@ void md2_fix_normals( Uint16 modelindex )
 void md2_get_transvertices( Uint16 modelindex )
 {
     // ZZ> This function gets the number of vertices to transform for a model...
-    //     That means every one except the grip ( unconnected ) vertices
+    //    That means every one except the grip ( unconnected ) vertices
 
     // if (modelindex == 0)
     // {
-    //    for ( cnt = 0; cnt < MadList[modelindex].vertices; cnt++ )
-    //    {
-    //        printf("%d-%d\n", cnt, vertexconnected( modelindex, cnt ) );
-    //    }
+    //   for ( cnt = 0; cnt < MadList[modelindex].vertices; cnt++ )
+    //   {
+    //       printf("%d-%d\n", cnt, vertexconnected( modelindex, cnt ) );
+    //   }
     // }
 
     MadList[modelindex].transvertices = MadList[modelindex].md2.vertices;
@@ -686,7 +686,7 @@ void load_all_messages( const char *loadname, Uint16 object )
 void get_message( FILE* fileread )
 {
     // ZZ> This function loads a string into the message buffer, making sure it
-    //     is null terminated.
+    //    is null terminated.
     int cnt;
     char cTmp;
     STRING szTmp;

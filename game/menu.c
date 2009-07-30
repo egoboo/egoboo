@@ -670,7 +670,7 @@ int doChooseModule( float deltaTime )
             y = 20;
             for ( i = startIndex, j = 0; i < ( startIndex + 3 ) && j < numValidModules; i++ )
             {
-                //Only draw valid modules
+                // Only draw valid modules
                 if ( modlist_test_by_index(validModules[i]) )
                 {
                     // fix the menu images in case one or more of them are undefined
@@ -686,7 +686,6 @@ int doChooseModule( float deltaTime )
                     x += 138 + 20;  // Width of the button, and the spacing between buttons
                 }
             }
-
 
             // And draw the next & back buttons
             if ( selectedModule > -1 )
@@ -747,7 +746,7 @@ int doChooseModule( float deltaTime )
                 carat += snprintf( carat, carat_end - carat - 1, " \n" );
 
                 // And finally, the summary
-                //carat += snprintf( carat, carat_end-carat-1, "modules" SLASH_STR "%s" SLASH_STR "gamedat" SLASH_STR "menu.txt", ModList[imodule].loadname );
+                // carat += snprintf( carat, carat_end-carat-1, "modules" SLASH_STR "%s" SLASH_STR "gamedat" SLASH_STR "menu.txt", ModList[imodule].loadname );
 
                 for ( i = 0; i < SUMMARYLINES; i++ )
                 {
@@ -799,6 +798,115 @@ int doChooseModule( float deltaTime )
 }
 
 //--------------------------------------------------------------------------------------------
+bool_t doChoosePlayer_show_stats( int player, int mode, int x, int y, int width, int height )
+{
+    STRING szFilename;
+    oglx_texture * ptex;
+    int i, profile_temp;
+
+    static int object_ref[9], object_count = 0;
+
+    if ( player < 0 ) mode = 1;
+
+    // handle the profile data
+    switch ( mode )
+    {
+        case 0: // load new player data
+
+            if ( player >= MAXLOADPLAYER || player >= loadplayer_count )
+            {
+                player = -1;
+            }
+
+            if ( player >= 0 )
+            {
+                // grab the player data
+                snprintf( szFilename, SDL_arraysize(szFilename),  "players" SLASH_STR "%s", loadplayer[player].dir );
+                profile_temp = load_one_character_profile( szFilename, bfalse );
+                if ( MAX_PROFILE != profile_temp )
+                {
+                    object_ref[object_count++] = profile_temp;
+                }
+                else
+                {
+                    return bfalse;
+                }
+
+                // grab the inventory data
+                for ( i = 0; i < 9; i++ )
+                {
+                    int itmp;
+
+                    snprintf( szFilename, SDL_arraysize(szFilename), "players" SLASH_STR "%s" SLASH_STR "%d.obj", loadplayer[player].dir, i );
+
+                    profile_temp = load_one_character_profile( szFilename, bfalse );
+                    if ( MAX_PROFILE != profile_temp )
+                    {
+                        object_ref[object_count++] = profile_temp;
+                    }
+                }
+            }
+
+            break;
+
+        case 1: // unload player data
+
+            player = -1;
+            object_count = 0;
+
+            // release all of the temporary profiles
+            release_all_profiles();
+
+            break;
+    }
+
+    // do the actual display
+    if ( player >= 0 && object_count > 0 )
+    {
+        char buffer[1024];
+        char * carat = buffer, * carat_end = buffer + SDL_arraysize(buffer);
+
+        Uint16 iobj = object_ref[0];
+
+        if ( VALID_CAP(iobj) )
+        {
+            cap_t * pcap = CapList + iobj;
+
+            ui_doButton( 1000, NULL, NULL, x, y, width, height );
+
+            carat += snprintf( carat, carat_end - carat - 1, "Level %d %s\n", pcap->leveloverride, pcap->classname );
+            carat += snprintf( carat, carat_end - carat - 1, "  Str: %d\n", pcap->strengthbase >> 8 );
+            carat += snprintf( carat, carat_end - carat - 1, "  Wis: %d\n", pcap->wisdombase >> 8 );
+            carat += snprintf( carat, carat_end - carat - 1, "  Int: %d\n", pcap->intelligencebase >> 8 );
+            carat += snprintf( carat, carat_end - carat - 1, "  Dex: %d\n", pcap->dexteritybase >> 8 );
+            carat += snprintf( carat, carat_end - carat - 1, "\n" );
+
+            if ( object_count > 1 )
+            {
+                carat += snprintf( carat, carat_end - carat - 1, "Inventory\n" );
+
+                for ( i = 1; i < object_count; i++ )
+                {
+                    iobj = object_ref[i];
+
+                    if ( VALID_CAP(iobj) )
+                    {
+                        pcap = CapList + iobj;
+                        carat += snprintf( carat, carat_end - carat - 1, "  Item: %s\n", pcap->classname );
+                    }
+                }
+            }
+
+            GL_DEBUG(glColor4f)(1, 1, 1, 1);
+            ui_drawTextBox( menuFont, buffer, x + 10, y + 10, width - 10, height - 10, 20 );
+        }
+
+    }
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
 int doChoosePlayer( float deltaTime )
 {
     static int menuState = MM_Begin;
@@ -807,6 +915,10 @@ int doChoosePlayer( float deltaTime )
     int i, j, x, y;
     char srcDir[64], destDir[64];
     static int startIndex = 0;
+    static int    last_player = -1;
+    static bool_t new_player = bfalse;
+
+    const int x0 = 20, y0 = 20, icon_size = 42, text_width = 175, button_repeat = 47;
 
     static int numVertical, numHorizontal;
     static oglx_texture TxInput[4];
@@ -846,25 +958,25 @@ int doChoosePlayer( float deltaTime )
 
             initSlidyButtons( 1.0f, button_text );
 
-            numVertical   = buttonTop / 47 - 2;
+            numVertical   = (buttonTop - y0) / button_repeat - 1;
             numHorizontal = 1;
 
-            x = 20;
-            y = 20;
+            x = x0;
+            y = y0;
             for ( i = 0; i < numVertical; i++ )
             {
                 int m = i * 5;
 
-                ui_initWidget( mnu_widgetList + m, m, NULL, NULL, NULL, x, y, 175, 42 );
+                ui_initWidget( mnu_widgetList + m, m, NULL, NULL, NULL, x, y, text_width, icon_size );
                 ui_widgetAddMask( mnu_widgetList + m, UI_BITS_CLICKED );
 
                 for ( j = 0, m++; j < 4; j++, m++ )
                 {
-                    ui_initWidget( mnu_widgetList + m, m, menuFont, NULL, TxInput + j, x + 175 + j*42, y, 42, 42 );
+                    ui_initWidget( mnu_widgetList + m, m, menuFont, NULL, TxInput + j, x + text_width + j*icon_size, y, icon_size, icon_size );
                     ui_widgetAddMask( mnu_widgetList + m, UI_BITS_CLICKED );
                 };
 
-                y += 47;
+                y += button_repeat;
             };
 
             menuState = MM_Entering;
@@ -881,7 +993,7 @@ int doChoosePlayer( float deltaTime )
                 menuState = MM_Running;
             }*/
 
-            //Simply fall through
+            // Simply fall through
             menuState = MM_Running;
             break;
 
@@ -920,8 +1032,8 @@ int doChoosePlayer( float deltaTime )
             }
 
             // Draw the player selection buttons
-            x = 20;
-            y = 20;
+            x = x0;
+            y = y0;
             for ( i = 0; i < numVertical; i++ )
             {
                 Uint16 player;
@@ -955,7 +1067,10 @@ int doChoosePlayer( float deltaTime )
                     else if ( HAS_NO_BITS( mnu_widgetList[m].state, UI_BITS_CLICKED ) && mnu_checkSelectedPlayer( player ) )
                     {
                         // button has become unclicked
-                        mnu_removeSelectedPlayer( player );
+                        if ( mnu_removeSelectedPlayer( player ) )
+                        {
+                            last_player = -1;
+                        }
                     };
                 };
 
@@ -979,14 +1094,25 @@ int doChoosePlayer( float deltaTime )
                             // button has become cursor_clicked
                             if ( INVALID_PLA == splayer )
                             {
-                                mnu_addSelectedPlayer( player );
+                                if ( mnu_addSelectedPlayer( player ) )
+                                {
+                                    last_player = player;
+                                    new_player  = btrue;
+                                }
                             }
-                            mnu_addSelectedPlayerInput( player, BitsInput[j] );
+                            if ( mnu_addSelectedPlayerInput( player, BitsInput[j] ) )
+                            {
+                                last_player = player;
+                                new_player  = btrue;
+                            }
                         }
                         else if ( INVALID_PLA != splayer && HAS_NO_BITS( mnu_widgetList[m].state, UI_BITS_CLICKED ) )
                         {
                             // button has become unclicked
-                            mnu_removeSelectedPlayerInput( player, BitsInput[j] );
+                            if ( mnu_removeSelectedPlayerInput( player, BitsInput[j] ) )
+                            {
+                                last_player = -1;
+                            }
                         };
                     };
                 }
@@ -994,7 +1120,7 @@ int doChoosePlayer( float deltaTime )
 
             // Buttons for going ahead
 
-            //Continue
+            // Continue
             if ( mnu_selectedPlayerCount != 0 )
             {
                 if ( BUTTON_UP == ui_doButton( 100, button_text[0], NULL, buttonLeft, buttonTop, 200, 30 ) )
@@ -1003,13 +1129,32 @@ int doChoosePlayer( float deltaTime )
                 }
             }
 
-            //Back
+            // Back
             if ( BUTTON_UP == ui_doButton( 101, button_text[1], NULL, buttonLeft, buttonTop + 35, 200, 30 ) )
             {
                 mnu_selectedPlayerCount = 0;
                 menuState = MM_Leaving;
             }
 
+            // show the stats
+            if ( -1 != last_player )
+            {
+                if ( new_player )
+                {
+                    // load and display the new player data
+                    new_player = bfalse;
+                    doChoosePlayer_show_stats( last_player, 0, GFX_WIDTH - 400, 50, 350, GFX_HEIGHT - 100 );
+                }
+                else
+                {
+                    // just display the new player data
+                    doChoosePlayer_show_stats( last_player, 2, GFX_WIDTH - 400, 50, 350, GFX_HEIGHT - 100 );
+                }
+            }
+            else
+            {
+                doChoosePlayer_show_stats( last_player, 1, GFX_WIDTH - 100, 50, 100, GFX_HEIGHT - 100 );
+            }
             break;
 
         case MM_Leaving:
@@ -1026,11 +1171,14 @@ int doChoosePlayer( float deltaTime )
             }
             */
 
-            //Simply fall through
+            // Simply fall through
             menuState = MM_Finish;
             break;
 
         case MM_Finish:
+
+            // release all of the temporary profiles
+            doChoosePlayer_show_stats( -1, 1, 0, 0, 0, 0 );
 
             for (i = 0; i < 4; i++)
             {
@@ -2094,7 +2242,7 @@ int doVideoOptions( float deltaTime )
     static char Cscrz[128];
     static char Cmaxparticles[128];
     static char Cmaxdyna[128];
-	static bool_t widescreen;
+    static bool_t widescreen;
 
     switch ( menuState )
     {
@@ -2225,58 +2373,55 @@ int doVideoOptions( float deltaTime )
             sprintf( Cmaxparticles, "%i", cfg.particle_count_req );      // Convert the integer to a char we can use
             videoOptionsButtons[14] = Cmaxparticles;
 
-			
-					
-
             switch ( cfg.scrx_req )
             {
-				//Normal resolutions
+                    // Normal resolutions
                 case 1024: videoOptionsButtons[12] = "1024X768";
-					widescreen = bfalse;
+                    widescreen = bfalse;
                     break;
                 case 640: videoOptionsButtons[12] = "640X480";
-					widescreen = bfalse;
+                    widescreen = bfalse;
                     break;
                 case 800: videoOptionsButtons[12] = "800X600";
-					widescreen = bfalse;
+                    widescreen = bfalse;
                     break;
 
-				//1280 can be both widescreen and normal
+                    // 1280 can be both widescreen and normal
                 case 1280:
-					if( cfg.scry_req == 1280 )
-					{
-						videoOptionsButtons[12] = "1280X1024";
-						widescreen = bfalse;
-					}
-					if( cfg.scry_req == 800 ) 
-					{
-						videoOptionsButtons[12] = "1280X800";
-						widescreen = btrue;
-					}
-				break;
-
-				//Widescreen resolutions
-                case 1440: 
-					videoOptionsButtons[12] = "1440X900";
-					widescreen = btrue;
-                    break;
-                case 1680: 
-					videoOptionsButtons[12] = "1680X1050";
-					widescreen = btrue;
-                    break;
-                case 1920: 
-					videoOptionsButtons[12] = "1920X1200";
-					widescreen = btrue;
+                    if ( cfg.scry_req == 1280 )
+                    {
+                        videoOptionsButtons[12] = "1280X1024";
+                        widescreen = bfalse;
+                    }
+                    if ( cfg.scry_req == 800 )
+                    {
+                        videoOptionsButtons[12] = "1280X800";
+                        widescreen = btrue;
+                    }
                     break;
 
-				//unknown
+                    // Widescreen resolutions
+                case 1440:
+                    videoOptionsButtons[12] = "1440X900";
+                    widescreen = btrue;
+                    break;
+                case 1680:
+                    videoOptionsButtons[12] = "1680X1050";
+                    widescreen = btrue;
+                    break;
+                case 1920:
+                    videoOptionsButtons[12] = "1920X1200";
+                    widescreen = btrue;
+                    break;
+
+                    // unknown
                 default:
                     videoOptionsButtons[12] = "Custom";
                     break;
             }
 
-			if( widescreen ) videoOptionsButtons[11] = "X";
-			else			 videoOptionsButtons[11] = " ";
+            if ( widescreen ) videoOptionsButtons[11] = "X";
+            else             videoOptionsButtons[11] = " ";
 
             menuState = MM_Running;
             break;
@@ -2564,109 +2709,109 @@ int doVideoOptions( float deltaTime )
                 videoOptionsButtons[14] =  Cmaxparticles;
             }
 
-			// Widescreen
+            // Widescreen
             ui_drawTextBox( menuFont, "Widescreen:", buttonLeft + 300, GFX_HEIGHT - 70, 0, 0, 20 );
             if ( BUTTON_UP == ui_doButton( 12, videoOptionsButtons[11], menuFont, buttonLeft + 450, GFX_HEIGHT - 70, 25, 25 ) )
             {
-				widescreen = !widescreen;
-				if(!widescreen)
-				{
-					videoOptionsButtons[11] = " ";
+                widescreen = !widescreen;
+                if (!widescreen)
+                {
+                    videoOptionsButtons[11] = " ";
 
-					//Set to default non-widescreen resolution
-					cfg.scrx_req = 640;
+                    // Set to default non-widescreen resolution
+                    cfg.scrx_req = 640;
                     cfg.scry_req = 480;
-                    videoOptionsButtons[12] = "640x480";            
-				}
-				else 
-				{
-					videoOptionsButtons[11] = "X";
+                    videoOptionsButtons[12] = "640x480";
+                }
+                else
+                {
+                    videoOptionsButtons[11] = "X";
 
-					//Set to default widescreen resolution
-					cfg.scrx_req = 1280;
+                    // Set to default widescreen resolution
+                    cfg.scrx_req = 1280;
                     cfg.scry_req = 800;
                     videoOptionsButtons[12] = "1280x800";
-				}
-			}
+                }
+            }
 
             // Screen Resolution
             ui_drawTextBox( menuFont, "Resolution:", buttonLeft + 300, GFX_HEIGHT - 110, 0, 0, 20 );
             if ( BUTTON_UP == ui_doButton( 13, videoOptionsButtons[12], menuFont, buttonLeft + 450, GFX_HEIGHT - 110, 125, 30 ) )
             {
-                
-				// Do normal resolutions
-                if( !widescreen )
-				{
-					switch ( cfg.scrx_req )
-					{
-						case 640:
-							cfg.scrx_req = 800;
-							cfg.scry_req = 600;
-							videoOptionsButtons[12] = "800x600";
-							break;
 
-						case 800:
-							cfg.scrx_req = 1024;
-							cfg.scry_req = 768;
-							videoOptionsButtons[12] = "1024x768";
-							break;
+                // Do normal resolutions
+                if ( !widescreen )
+                {
+                    switch ( cfg.scrx_req )
+                    {
+                        case 640:
+                            cfg.scrx_req = 800;
+                            cfg.scry_req = 600;
+                            videoOptionsButtons[12] = "800x600";
+                            break;
 
-						case 1024:
-							cfg.scrx_req = 1280;
-							cfg.scry_req = 1024;
-							videoOptionsButtons[12] = "1280x1024";
-							break;
+                        case 800:
+                            cfg.scrx_req = 1024;
+                            cfg.scry_req = 768;
+                            videoOptionsButtons[12] = "1024x768";
+                            break;
 
-						case 1280:
-							cfg.scrx_req = 640;
-							cfg.scry_req = 480;
-							videoOptionsButtons[12] = "640x480";
-							break;
+                        case 1024:
+                            cfg.scrx_req = 1280;
+                            cfg.scry_req = 1024;
+                            videoOptionsButtons[12] = "1280x1024";
+                            break;
 
-						default:
-							cfg.scrx_req = 640;
-							cfg.scry_req = 480;
-							videoOptionsButtons[12] = "640x480";
-							break;
-					}
-				}
+                        case 1280:
+                            cfg.scrx_req = 640;
+                            cfg.scry_req = 480;
+                            videoOptionsButtons[12] = "640x480";
+                            break;
 
-				//Do widescreen resolutions
-				else
-				{
-					switch ( cfg.scrx_req )
-					{
-						case 1920:
-							cfg.scrx_req = 1280;
-							cfg.scry_req = 800;
-							videoOptionsButtons[12] = "1280x800";
-							break;
+                        default:
+                            cfg.scrx_req = 640;
+                            cfg.scry_req = 480;
+                            videoOptionsButtons[12] = "640x480";
+                            break;
+                    }
+                }
 
-						case 1280:
-							cfg.scrx_req = 1440;
-							cfg.scry_req = 900;
-							videoOptionsButtons[12] = "1440x900";
-							break;
+                // Do widescreen resolutions
+                else
+                {
+                    switch ( cfg.scrx_req )
+                    {
+                        case 1920:
+                            cfg.scrx_req = 1280;
+                            cfg.scry_req = 800;
+                            videoOptionsButtons[12] = "1280x800";
+                            break;
 
-						case 1440:
-							cfg.scrx_req = 1680;
-							cfg.scry_req = 1050;
-							videoOptionsButtons[12] = "1680x1050";
-							break;
+                        case 1280:
+                            cfg.scrx_req = 1440;
+                            cfg.scry_req = 900;
+                            videoOptionsButtons[12] = "1440x900";
+                            break;
 
-						case 1680:
-							cfg.scrx_req = 1920;
-							cfg.scry_req = 1200;
-							videoOptionsButtons[12] = "1920x1200";
-							break;
+                        case 1440:
+                            cfg.scrx_req = 1680;
+                            cfg.scry_req = 1050;
+                            videoOptionsButtons[12] = "1680x1050";
+                            break;
 
-						default:
-							cfg.scrx_req = 1280;
-							cfg.scry_req = 800;
-							videoOptionsButtons[12] = "1280x800";
-							break;
-					}
-				}
+                        case 1680:
+                            cfg.scrx_req = 1920;
+                            cfg.scry_req = 1200;
+                            videoOptionsButtons[12] = "1920x1200";
+                            break;
+
+                        default:
+                            cfg.scrx_req = 1280;
+                            cfg.scry_req = 800;
+                            videoOptionsButtons[12] = "1280x800";
+                            break;
+                    }
+                }
             }
 
             // Save settings button

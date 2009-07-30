@@ -333,8 +333,8 @@ GLmatrix ViewMatrix( const GLvector3 from,     // camera location
                      const GLvector3 at,        // camera look-at target
                      const GLvector3 world_up,  // world’s up, usually 0, 0, 1
                      const float roll )         // clockwise roll around
-//    viewing direction,
-//    in radians
+//   viewing direction,
+//   in radians
 {
     GLmatrix view = IdentityMatrix();
     GLvector3 up, right, view_dir;

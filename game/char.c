@@ -84,7 +84,7 @@ void flash_character_height( Uint16 character, Uint8 valuelow, Sint16 low,
                              Uint8 valuehigh, Sint16 high )
 {
     // ZZ> This function sets a character's lighting depending on vertex height...
-    //     Can make feet dark and head light...
+    //    Can make feet dark and head light...
     int cnt;
     Uint16 frame_nxt;
     Sint16 z;
@@ -368,7 +368,7 @@ void free_inventory( Uint16 character )
 void attach_particle_to_character( Uint16 particle, Uint16 character, int vertex_offset )
 {
     // ZZ> This function sets one particle's position to be attached to a character.
-    //     It will kill the particle if the character is no longer around
+    //    It will kill the particle if the character is no longer around
 
     Uint16 vertex, model;
     GLvector4 point[1], nupoint[1];
@@ -543,7 +543,7 @@ void make_one_weapon_matrix( Uint16 iweap, Uint16 iholder, bool_t do_physics )
     {
         float dx, dy, dz;
         float wt_weap, wt_holder, damp = 0.5f;
-        //GLvector3 vcom;
+        // GLvector3 vcom;
 
         // calculate the "tweety bird swinging a sledgehammer" effect
 
@@ -832,7 +832,7 @@ void free_all_characters()
 Uint32 __chrhitawall( Uint16 character, float nrm[] )
 {
     // ZZ> This function returns nonzero if the character hit a wall that the
-    //     character is not allowed to cross
+    //    character is not allowed to cross
 
     Uint32 pass;
     float x, y, bs;
@@ -1025,7 +1025,7 @@ void detach_character_from_mount( Uint16 character, Uint8 ignorekurse,
         int ix = ChrList[character].pos.x / TILE_SIZE;
         int iy = ChrList[character].pos.y / TILE_SIZE;
 
-        //This is a hack that makes spellbooks in shops cost correctly
+        // This is a hack that makes spellbooks in shops cost correctly
         if ( ChrList[mount].isshopitem ) ChrList[character].isshopitem = btrue;
 
         owner = shop_get_owner( ix, iy );
@@ -1177,7 +1177,7 @@ void reset_character_alpha( Uint16 character )
 void attach_character_to_mount( Uint16 iitem, Uint16 iholder, grip_offset_t grip_off )
 {
     // ZZ> This function attaches one character/item to another ( the holder/mount )
-    //     at a certain vertex offset ( grip_off )
+    //    at a certain vertex offset ( grip_off )
 
     slot_t slot;
 
@@ -1354,8 +1354,8 @@ Uint16 inventory_get_item( Uint16 ichr, grip_offset_t grip_off, bool_t ignorekur
 Uint16 pack_has_a_stack( Uint16 item, Uint16 character )
 {
     // ZZ> This function looks in the character's pack for an item similar
-    //     to the one given.  If it finds one, it returns the similar item's
-    //     index number, otherwise it returns MAX_CHR.
+    //    to the one given.  If it finds one, it returns the similar item's
+    //    index number, otherwise it returns MAX_CHR.
 
     Uint16 pack_ispacked, id;
     bool_t allok;
@@ -1490,7 +1490,7 @@ bool_t pack_add_item( Uint16 item, Uint16 character )
 Uint16 pack_get_item( Uint16 character, grip_offset_t grip_off, bool_t ignorekurse )
 {
     // ZZ> This function takes the last item in the character's pack and puts
-    //     it into the designated hand.  It returns the item number or MAX_CHR.
+    //    it into the designated hand.  It returns the item number or MAX_CHR.
     Uint16 item, nexttolastitem;
 
     // does the character exist?
@@ -1553,7 +1553,7 @@ Uint16 pack_get_item( Uint16 character, grip_offset_t grip_off, bool_t ignorekur
 void drop_keys( Uint16 character )
 {
     // ZZ> This function drops all keys ( [KEYA] to [KEYZ] ) that are in a character's
-    //     inventory ( Not hands ).
+    //    inventory ( Not hands ).
 
     Uint16 item, lastitem, nextitem, direction;
     IDSZ testa, testz;
@@ -2216,7 +2216,7 @@ void give_team_experience( Uint8 team, int amount, Uint8 xptype )
 void resize_characters()
 {
     // ZZ> This function makes the characters get bigger or smaller, depending
-    //     on their sizegoto and sizegototime
+    //    on their sizegoto and sizegototime
     int cnt = 0;
     bool_t willgetcaught;
     float newsize;
@@ -2332,7 +2332,7 @@ bool_t export_one_character_name( const char *szSaveName, Uint16 character )
 bool_t export_one_character_profile( const char *szSaveName, Uint16 character )
 {
     // ZZ> This function creates a data.txt file for the given character.
-    //     it is assumed that all enchantments have been done away with
+    //    it is assumed that all enchantments have been done away with
 
     FILE* filewrite;
     int icap;
@@ -2687,7 +2687,7 @@ bool_t export_one_character_skin( const char *szSaveName, Uint16 character )
 }
 
 //--------------------------------------------------------------------------------------------
-int load_one_character_profile( const char * tmploadname )
+int load_one_character_profile( const char * tmploadname, bool_t required )
 {
     // ZZ> This function fills a character profile with data from data.txt, returning
     // the object slot that the profile was stuck into.  It may cause the program
@@ -2711,8 +2711,11 @@ int load_one_character_profile( const char * tmploadname )
     fileread = fopen( szLoadName, "r" );
     if ( fileread == NULL )
     {
-        // The data file wasn't found
-        log_error( "DATA.TXT was not found! (%s)\n", szLoadName );
+        if ( required )
+        {
+            // The data file wasn't found
+            log_error( "DATA.TXT was not found! (%s)\n", szLoadName );
+        }
         return MAX_PROFILE;
     }
 
@@ -2738,11 +2741,11 @@ int load_one_character_profile( const char * tmploadname )
     // Make sure global objects don't load over existing models
     if ( pcap->loaded )
     {
-        if ( object == SPELLBOOK )
+        if ( required && object == SPELLBOOK )
             log_error( "Object slot %i is a special reserved slot number (cannot be used by %s).\n", SPELLBOOK, szLoadName );
-        else if ( overrideslots )
+        else if ( required && overrideslots )
             log_error( "Object slot %i used twice (%s, %s)\n", object, pcap->name, szLoadName );
-        else return -1;   // Stop, we don't want to override it
+        else return MAX_PROFILE;   // Stop, we don't want to override it
     }
 
     // clear out all the data
@@ -3184,12 +3187,12 @@ int load_one_character_profile( const char * tmploadname )
 //--------------------------------------------------------------------------------------------
 bool_t heal_character( Uint16 character, Uint16 healer, int amount, bool_t ignoreinvincible)
 {
-    //ZF> This function gives some pure life points to the target, ignoring any resistances and so forth
+    // ZF> This function gives some pure life points to the target, ignoring any resistances and so forth
     if ( INVALID_CHR(character) || amount == 0 || !ChrList[character].alive || (ChrList[character].invictus && !ignoreinvincible) ) return bfalse;
 
     ChrList[character].life = CLIP(ChrList[character].life, ChrList[character].life + ABS(amount), ChrList[character].lifemax);
 
-    //Dont alert that we healed ourselves
+    // Dont alert that we healed ourselves
     if ( healer != character && ChrList[healer].attachedto != character )
     {
         ChrList[character].ai.alert |= ALERTIF_HEALED;
@@ -3205,10 +3208,10 @@ void damage_character( Uint16 character, Uint16 direction,
                        Uint16 attacker, Uint16 effects, bool_t ignoreinvincible )
 {
     // ZZ> This function calculates and applies damage to a character.  It also
-    //     sets alerts and begins actions.  Blocking and frame invincibility
-    //     are done here too.  Direction is 0 if the attack is coming head on,
-    //     16384 if from the right, 32768 if from the back, 49152 if from the
-    //     left.
+    //    sets alerts and begins actions.  Blocking and frame invincibility
+    //    are done here too.  Direction is 0 if the attack is coming head on,
+    //    16384 if from the right, 32768 if from the back, 49152 if from the
+    //    left.
 
     int tnc;
     Uint16 action;
@@ -3499,7 +3502,7 @@ void damage_character( Uint16 character, Uint16 direction,
         }
         else if ( damage < 0 )
         {
-            //Heal 'em
+            // Heal 'em
             heal_character( character, attacker, damage, ignoreinvincible);
 
             // Isssue an alert
@@ -3652,7 +3655,7 @@ Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
                             Uint8 skin, Uint16 facing, const char *name, Uint16 override )
 {
     // ZZ> This function spawns a character and returns the character's index number
-    //     if it worked, MAX_CHR otherwise
+    //    if it worked, MAX_CHR otherwise
 
     Uint16 ichr, kursechance;
     int cnt, tnc;
@@ -4482,8 +4485,8 @@ void change_character( Uint16 ichr, Uint16 profile, Uint8 skin, Uint8 leavewhich
 bool_t cost_mana( Uint16 character, int amount, Uint16 killer )
 {
     // ZZ> This function takes mana from a character ( or gives mana ),
-    //     and returns btrue if the character had enough to pay, or bfalse
-    //     otherwise. This can kill a character in hard mode.
+    //    and returns btrue if the character had enough to pay, or bfalse
+    //    otherwise. This can kill a character in hard mode.
 
     int mana_final;
     bool_t mana_paid;
@@ -4593,8 +4596,8 @@ void issue_clean( Uint16 character )
 int restock_ammo( Uint16 character, IDSZ idsz )
 {
     // ZZ> This function restocks the characters ammo, if it needs ammo and if
-    //     either its parent or type idsz match the given idsz.  This
-    //     function returns the amount of ammo given.
+    //    either its parent or type idsz match the given idsz.  This
+    //    function returns the amount of ammo given.
     int amount, model;
 
     if ( INVALID_CHR(character) ) return 0;
@@ -4809,7 +4812,7 @@ int check_skills( Uint16 who, IDSZ whichskill )
 bool_t chr_integrate_motion( chr_t * pchr )
 {
     // BB> Figure out the next position of the character.
-    //     Include collisions with the mesh in this step.
+    //    Include collisions with the mesh in this step.
 
     float nrm[2], ftmp;
     Uint16 ichr;
@@ -5559,7 +5562,7 @@ void move_characters( void )
 
         chr_do_latch_button( pchr );
 
-        //  Flying
+        // Flying
         if ( 0 != pchr->flyheight )
         {
             level = pchr->phys.level;
@@ -5572,7 +5575,7 @@ void move_characters( void )
         friction_z = blah_friction;       // like real-life air friction
         if ( 0 != pchr->flyheight )
         {
-            //  Flying
+            // Flying
             pchr->jumpready = bfalse;
 
             // Airborne characters still get friction_xy to make control easier
@@ -5763,7 +5766,7 @@ void move_characters( void )
                 speed = ABS( new_vx ) + ABS( new_vy );
                 if ( speed < pchr->sneakspd )
                 {
-                    //                        pchr->nextaction = ACTION_DA;
+                    //                       pchr->nextaction = ACTION_DA;
                     // Do boredom
                     pchr->boretime--;
                     if ( pchr->boretime < 0 )
@@ -6081,7 +6084,7 @@ bool_t ai_add_order( ai_state_t * pai, Uint32 value, Uint16 counter )
                             char excludeid )
 {
   // ZZ> This is a good little helper, that returns != MAX_CHR if a suitable target
-  //     was found
+  //    was found
   int cnt;
   Uint16 charb;
   Uint32 fanblock;
@@ -6150,8 +6153,8 @@ bool_t ai_add_order( ai_state_t * pai, Uint32 value, Uint16 counter )
 /*Uint16 find_distant_target( Uint16 character, int maxdistance )
 {
   // ZZ> This function finds a target, or it returns MAX_CHR if it can't find one...
-  //     maxdistance should be the square of the actual distance you want to use
-  //     as the cutoff...
+  //    maxdistance should be the square of the actual distance you want to use
+  //    as the cutoff...
   int cnt, distance, xdistance, ydistance;
   Uint8 team;
 

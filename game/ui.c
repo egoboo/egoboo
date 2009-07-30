@@ -75,7 +75,6 @@ GLfloat ui_normal_color2[] = {0.33f, 0.00f, 0.33f, 0.60f};
 static void ui_virtual_to_screen( float vx, float vy, float *rx, float *ry );
 static void ui_screen_to_virtual( float rx, float ry, float *vx, float *vy );
 
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // Core functions

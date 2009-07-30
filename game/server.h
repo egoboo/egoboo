@@ -29,7 +29,7 @@ typedef struct GameState GameState;
 typedef struct ServerState_t
 {
     int dummy;
-//  GameState gameState;
+// GameState gameState;
 } ServerState_t;
 
 // Globally accessible server state

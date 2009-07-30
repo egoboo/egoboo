@@ -57,7 +57,7 @@ enum
 
 // Animation walking
 #define LIPDA               0                       // For smooth transitions 'tween
-#define LIPWA               1                       //   walking rates
+#define LIPWA               1                       //  walking rates
 #define LIPWB               2
 #define LIPWC               3
 

@@ -84,7 +84,7 @@ bool_t break_passage( script_state_t * pstate, Uint16 passage, Uint16 starttile,
                       Uint16 become, Uint8 meshfxor )
 {
     // ZZ> This function breaks the tiles of a passage if there is a character standing
-    //     on 'em...  Turns the tiles into damage terrain if it reaches last frame.
+    //    on 'em...  Turns the tiles into damage terrain if it reaches last frame.
     Uint16 tile, endtile;
     Uint32 fan;
     int useful, character;
@@ -171,8 +171,8 @@ void flash_passage( Uint16 passage, Uint8 color )
 Uint8 find_tile_in_passage( script_state_t * pstate, Uint16 passage, int tiletype )
 {
     // ZZ> This function finds the next tile in the passage, pstate->x and pstate->y
-    //     must be set first, and are set on a find...  Returns btrue or bfalse
-    //     depending on if it finds one or not
+    //    must be set first, and are set on a find...  Returns btrue or bfalse
+    //    depending on if it finds one or not
     int x, y;
     Uint32 fan;
 
@@ -255,7 +255,7 @@ bool_t is_in_passage( Uint16 passage, float xpos, float ypos, float tolerance )
     {
         if ( ypos > tly && ypos < bry )
         {
-            //The coordinate is within the passage
+            // The coordinate is within the passage
             return btrue;
         }
     }
@@ -267,8 +267,8 @@ bool_t is_in_passage( Uint16 passage, float xpos, float ypos, float tolerance )
 Uint16 who_is_blocking_passage( Uint16 passage )
 {
     // ZZ> This function returns MAX_CHR if there is no character in the passage,
-    //     otherwise the index of the first character found is returned...
-    //     Finds living ones, then items and corpses
+    //    otherwise the index of the first character found is returned...
+    //    Finds living ones, then items and corpses
     Uint16 character, foundother;
 
     // Look at each character
@@ -306,7 +306,7 @@ void check_passage_music()
     // song set in by the AI script functions
     Uint16 character = 0, passage, cnt;
 
-    //Check every music passage
+    // Check every music passage
     for ( passage = 0; passage < numpassage; passage++ )
     {
         if ( PassageList[passage].music == NO_MUSIC ) continue;
@@ -331,8 +331,8 @@ void check_passage_music()
 Uint16 who_is_blocking_passage_ID( Uint16 passage, IDSZ idsz )
 {
     // ZZ> This function returns MAX_CHR if there is no character in the passage who
-    //     have an item with the given ID.  Otherwise, the index of the first character
-    //     found is returned...  Only finds living characters...
+    //    have an item with the given ID.  Otherwise, the index of the first character
+    //    found is returned...  Only finds living characters...
     Uint16 character, sTmp;
 
     // Look at each character
@@ -415,7 +415,7 @@ bool_t close_passage( Uint16 passage )
                 {
                     if ( !ChrList[character].canbecrushed )
                     {
-                        //Someone is blocking, stop here
+                        // Someone is blocking, stop here
                         return bfalse;
                     }
                     else
@@ -558,7 +558,7 @@ void setup_passage( const char *modname )
 //--------------------------------------------------------------------------------------------
 Uint16 shop_get_owner( int ix, int iy )
 {
-    //This function returns the owner of a item in a shop
+    // This function returns the owner of a item in a shop
     int cnt;
     Uint16 owner = NOOWNER;
 

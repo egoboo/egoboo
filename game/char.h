@@ -427,7 +427,7 @@ struct s_chr
 
     Uint8          lifecolor;       // Bar color
     Sint16         life;            // Basic character stats
-    Sint16         lifemax;         //   All 8.8 fixed point
+    Sint16         lifemax;         //  All 8.8 fixed point
     Uint16         lifeheal;
     Sint16         lifereturn;      // Regeneration/poison
 
@@ -716,7 +716,7 @@ void chr_set_frame( Uint16 character, Uint16 action, int frame, Uint16 lip );
 bool_t export_one_character_name( const char *szSaveName, Uint16 character );
 bool_t export_one_character_profile( const char *szSaveName, Uint16 character );
 bool_t export_one_character_skin( const char *szSaveName, Uint16 character );
-int    load_one_character_profile( const char *szLoadName );
+int    load_one_character_profile( const char *szLoadName, bool_t required );
 
 void chop_load( Uint16 profile, const char *szLoadname );
 void character_swipe( Uint16 cnt, Uint8 slot );

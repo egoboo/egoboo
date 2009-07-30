@@ -710,7 +710,7 @@ bool_t mesh_mem_free( mesh_mem_t * pmem )
 void grid_make_fanstart( grid_mem_t * pgmem, ego_mpd_info_t * pinfo )
 {
     // ZZ> This function builds a look up table to ease calculating the
-    //     fan number given an x,y pair
+    //    fan number given an x,y pair
     int cnt;
 
     if ( NULL == pgmem || NULL == pinfo ) return;
@@ -779,7 +779,7 @@ void mesh_make_vrtstart( ego_mpd_t * pmesh )
 void mesh_make_twist()
 {
     // ZZ> This function precomputes surface normals and steep hill acceleration for
-    //     the mesh
+    //    the mesh
     Uint16 cnt;
 
     for ( cnt = 0; cnt < 256; cnt++ )

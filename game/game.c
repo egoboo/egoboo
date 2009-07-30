@@ -189,7 +189,7 @@ water_instance_t      water;
 fog_data_t            fog_data;
 fog_instance_t        fog;
 
-Uint8  local_senseenemiesTeam = TEAM_GOOD; //TEAM_MAX;
+Uint8  local_senseenemiesTeam = TEAM_GOOD; // TEAM_MAX;
 IDSZ   local_senseenemiesID   = IDSZ_NONE;
 
 Uint32  randindex = 0;
@@ -377,8 +377,8 @@ void export_one_character( Uint16 character, Uint16 owner, int number, bool_t is
         sprintf( fromfile, "%s" SLASH_STR "credits.txt", fromdir );
         sprintf( tofile,   "%s" SLASH_STR "credits.txt", todir );
         fs_copyFile( fromfile, tofile );
-        //     sprintf( fromfile, "%s" SLASH_STR "quest.txt", fromdir );     Zefz> We can't do this yet, quests are written directly into players/x.obj
-        //     sprintf( tofile,   "%s" SLASH_STR "quest.txt", todir );       instead of import/x.obj which should be changed or all changes are lost.
+        //    sprintf( fromfile, "%s" SLASH_STR "quest.txt", fromdir );     Zefz> We can't do this yet, quests are written directly into players/x.obj
+        //    sprintf( tofile,   "%s" SLASH_STR "quest.txt", todir );       instead of import/x.obj which should be changed or all changes are lost.
         fs_copyFile( fromfile, tofile );
 
         // Copy all of the particle files
@@ -423,7 +423,7 @@ void export_one_character( Uint16 character, Uint16 owner, int number, bool_t is
 void export_all_players( bool_t require_local )
 {
     // ZZ> This function saves all the local players in the
-    //     PLAYERS directory
+    //    PLAYERS directory
     bool_t is_local;
     int cnt, character, item, number;
 
@@ -492,7 +492,7 @@ void _quit_game( ego_process_t * pgame )
 void getadd( int min, int value, int max, int* valuetoadd )
 {
     // ZZ> This function figures out what value to add should be in order
-    //     to not overflow the min and max bounds
+    //    to not overflow the min and max bounds
     int newvalue;
 
     newvalue = value + ( *valuetoadd );
@@ -516,7 +516,7 @@ void getadd( int min, int value, int max, int* valuetoadd )
 void fgetadd( float min, float value, float max, float* valuetoadd )
 {
     // ZZ> This function figures out what value to add should be in order
-    //     to not overflow the min and max bounds
+    //    to not overflow the min and max bounds
     float newvalue;
 
     newvalue = value + ( *valuetoadd );
@@ -651,7 +651,7 @@ void chr_play_action( Uint16 character, Uint16 action, Uint8 actionready )
 void chr_set_frame( Uint16 character, Uint16 action, int frame, Uint16 lip )
 {
     // ZZ> This function sets the frame for a character explicitly...  This is used to
-    //     rotate Tank turrets
+    //    rotate Tank turrets
 
     chr_t * pchr;
     mad_t * pmad;
@@ -743,8 +743,8 @@ void setup_alliances( const char *modname )
 void update_game()
 {
     // ZZ> This function does several iterations of character movements and such
-    //     to keep the game in sync.
-    //     This is the main game loop
+    //    to keep the game in sync.
+    //    This is the main game loop
     int cnt, numdead, numalive;
 
     // Check for all local players being dead
@@ -1539,7 +1539,7 @@ int do_game_proc_running( game_process_t * gproc )
     // :TODO: local_noplayers is not set correctly
     // if( local_noplayers  )
     // {
-    //   gproc->escape_requested  = btrue;
+    //  gproc->escape_requested  = btrue;
     // }
 
     if ( gproc->escape_requested )
@@ -1742,7 +1742,7 @@ int load_one_object( const char* tmploadname, int skin )
     STRING newloadname;
 
     // Load the object data file and get the object number
-    object = load_one_character_profile( tmploadname );
+    object = load_one_character_profile( tmploadname, btrue );
 
     if ( !VALID_CAP(object) ) return 0; // no skins for an invalid object
 
@@ -1809,7 +1809,7 @@ Uint16 get_particle_target( float pos_x, float pos_y, float pos_z, Uint16 facing
 Uint16 get_target( Uint16 ichr_src, Uint32 max_dist, TARGET_TYPE target_type, bool_t target_items, bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz )
 {
     // ZF> This is the new improved AI targeting system. Also includes distance in the Z direction.
-    //     If max_dist is 0 then it searches without a max limit.
+    //    If max_dist is 0 then it searches without a max limit.
 
     int    ichr_test;
     float  max_dist2 = max_dist * max_dist;
@@ -2043,7 +2043,7 @@ void make_onwhichfan( void )
 Uint16 terp_dir( Uint16 majordir, Uint16 minordir )
 {
     // ZZ> This function returns a direction between the major and minor ones, closer
-    //     to the major.
+    //    to the major.
     Uint16 temp;
 
     // Align major direction with 0
@@ -2066,7 +2066,7 @@ Uint16 terp_dir( Uint16 majordir, Uint16 minordir )
 Uint16 terp_dir_fast( Uint16 majordir, Uint16 minordir )
 {
     // ZZ> This function returns a direction between the major and minor ones, closer
-    //     to the major, but not by much.  Makes turning faster.
+    //    to the major, but not by much.  Makes turning faster.
     Uint16 temp;
 
     // Align major direction with 0
@@ -2284,7 +2284,7 @@ void do_weather_spawn()
 void set_one_player_latch( Uint16 player )
 {
     // ZZ> This function converts input readings to latch settings, so players can
-    //     move around
+    //    move around
     float newx, newy;
     Uint16 turnsin, character;
     Uint8 device;
@@ -2333,8 +2333,8 @@ void set_one_player_latch( Uint16 player )
 
                     newx = ( inputx * turntocos[turnsin & TRIG_TABLE_MASK ] + inputy * turntosin[turnsin & TRIG_TABLE_MASK ] );
                     newy = (-inputx * turntosin[turnsin & TRIG_TABLE_MASK ] + inputy * turntocos[turnsin & TRIG_TABLE_MASK ] );
-                    //                    PlaList[player].latchx+=newx;
-                    //                    PlaList[player].latchy+=newy;
+                    //                   PlaList[player].latchx+=newx;
+                    //                   PlaList[player].latchy+=newy;
                 }
             }
 
@@ -4737,7 +4737,7 @@ void setup_characters( const char *modname )
         while ( chr_setup_read( fileread, &info ) )
         {
             // Spawn the character
-//            if ( info.team < numplayer || !PMod->rtscontrol || info.team >= MAXPLAYER )
+//           if ( info.team < numplayer || !PMod->rtscontrol || info.team >= MAXPLAYER )
             {
                 new_object = spawn_one_character( info.pos, info.slot, info.team, info.skin, info.facing, info.pname, MAX_CHR );
 
@@ -5060,7 +5060,7 @@ bool_t game_begin_module( const char * modname, Uint32 seed )
 bool_t game_update_imports()
 {
     // BB> This function saves all the players to the players dir
-    //     and also copies them into the imports dir to prepare for the next module
+    //    and also copies them into the imports dir to prepare for the next module
 
     bool_t is_local;
     int cnt, tnc, j, character, player;
@@ -5159,7 +5159,7 @@ void game_release_module_data()
 void attach_particles()
 {
     // ZZ> This function attaches particles to their characters so everything gets
-    //     drawn right
+    //    drawn right
     int cnt;
 
     cnt = 0;
@@ -5807,15 +5807,15 @@ void read_wawalite( const char *modname )
     }
 
     goto_colon( NULL, fileread, bfalse );
-    //  !!!BAD!!!
-    //  Random map...
-    //  If someone else wants to handle this, here are some thoughts for approaching
-    //  it.  The .MPD file for the level should give the basic size of the map.  Use
-    //  a standard tile set like the Palace modules.  Only use objects that are in
-    //  the module's object directory, and only use some of them.  Imagine several Rock
-    //  Moles eating through a stone filled level to make a path from the entrance to
-    //  the exit.  Door placement will be difficult.
-    //  !!!BAD!!!
+    // !!!BAD!!!
+    // Random map...
+    // If someone else wants to handle this, here are some thoughts for approaching
+    // it.  The .MPD file for the level should give the basic size of the map.  Use
+    // a standard tile set like the Palace modules.  Only use objects that are in
+    // the module's object directory, and only use some of them.  Imagine several Rock
+    // Moles eating through a stone filled level to make a path from the entrance to
+    // the exit.  Door placement will be difficult.
+    // !!!BAD!!!
 
     // Read water data first
     iTmp = fget_next_int( fileread );  water_data.layer_count = iTmp;
@@ -5975,8 +5975,8 @@ void read_wawalite( const char *modname )
 float get_mesh_level( ego_mpd_t * pmesh, float x, float y, bool_t waterwalk )
 {
     // ZZ> This function returns the height of a point within a mesh fan, precise
-    //     If waterwalk is nonzero and the fan is watery, then the level returned is the
-    //     level of the water.
+    //    If waterwalk is nonzero and the fan is watery, then the level returned is the
+    //    level of the water.
 
     float zdone;
 
@@ -6035,7 +6035,7 @@ bool_t make_water( water_instance_t * pinst, water_data_t * pdata )
         }
 
         // [claforte] Probably need to replace this with a
-        //            GL_DEBUG(glColor4f)(spek/256.0f, spek/256.0f, spek/256.0f, 1.0f) call:
+        //           GL_DEBUG(glColor4f)(spek/256.0f, spek/256.0f, spek/256.0f, 1.0f) call:
         if ( gfx.shading == GL_FLAT )
             pinst->spek[cnt] = 0;
         else

@@ -91,7 +91,7 @@ bool_t goto_colon( char * buffer, FILE* fileread, bool_t optional )
 {
     // ZZ> This function moves a file read pointer to the next colon char cTmp;
     // BB> buffer points to a 256 character buffer that will get the data between the newline and the ':'
-    //     Also, the two functions goto_colon and goto_colon_yesno have been combined
+    //    Also, the two functions goto_colon and goto_colon_yesno have been combined
 
     int cTmp, write;
 
@@ -131,7 +131,7 @@ char * goto_colon_mem( char * buffer, char * pmem, char * pmem_end, bool_t optio
 {
     // ZZ> This function moves a file read pointer to the next colon char *pmem;
     // BB> buffer points to a 256 character buffer that will get the data between the newline and the ':'
-    //     Also, the two functions goto_colon and goto_colon_yesno have been combined
+    //    Also, the two functions goto_colon and goto_colon_yesno have been combined
 
     char cTmp;
     int    write;
@@ -185,8 +185,8 @@ char fget_first_letter( FILE* fileread )
 bool_t fget_name( FILE* fileread,  char *szName, size_t max_len )
 {
     // ZZ> This function loads a string of up to MAXCAPNAMESIZE characters, parsing
-    //     it for underscores.  The szName argument is rewritten with the null terminated
-    //     string
+    //    it for underscores.  The szName argument is rewritten with the null terminated
+    //    string
 
     int fields;
 
@@ -217,7 +217,7 @@ bool_t fget_name( FILE* fileread,  char *szName, size_t max_len )
 void ftruthf( FILE* filewrite, const char* text, Uint8 truth )
 {
     // ZZ> This function kinda mimics fprintf for the output of
-    //     btrue bfalse statements
+    //    btrue bfalse statements
 
     fprintf( filewrite, "%s", text );
     if ( truth )
@@ -234,7 +234,7 @@ void ftruthf( FILE* filewrite, const char* text, Uint8 truth )
 void fdamagf( FILE* filewrite, const char* text, Uint8 damagetype )
 {
     // ZZ> This function kinda mimics fprintf for the output of
-    //     SLASH CRUSH POKE HOLY EVIL FIRE ICE ZAP statements
+    //    SLASH CRUSH POKE HOLY EVIL FIRE ICE ZAP statements
     fprintf( filewrite, "%s", text );
     if ( damagetype == DAMAGE_SLASH )
         fprintf( filewrite, "SLASH\n" );
@@ -260,7 +260,7 @@ void fdamagf( FILE* filewrite, const char* text, Uint8 damagetype )
 void factiof( FILE* filewrite, const char* text, Uint8 action )
 {
     // ZZ> This function kinda mimics fprintf for the output of
-    //     SLASH CRUSH POKE HOLY EVIL FIRE ICE ZAP statements
+    //    SLASH CRUSH POKE HOLY EVIL FIRE ICE ZAP statements
 
     fprintf( filewrite, "%s", text );
 
@@ -288,7 +288,7 @@ void factiof( FILE* filewrite, const char* text, Uint8 action )
 void fgendef( FILE* filewrite, const char* text, Uint8 gender )
 {
     // ZZ> This function kinda mimics fprintf for the output of
-    //     MALE FEMALE OTHER statements
+    //    MALE FEMALE OTHER statements
 
     fprintf( filewrite, "%s", text );
     if ( gender == GENMALE )
@@ -303,7 +303,7 @@ void fgendef( FILE* filewrite, const char* text, Uint8 gender )
 void fpairof( FILE* filewrite, const char* text, int base, int rand )
 {
     // ZZ> This function mimics fprintf in spitting out
-    //     damage/stat pairs
+    //    damage/stat pairs
     undo_pair( base, rand );
     fprintf( filewrite, "%s", text );
     fprintf( filewrite, "%4.2f-%4.2f\n", pairfrom, pairto );
@@ -313,7 +313,7 @@ void fpairof( FILE* filewrite, const char* text, int base, int rand )
 void funderf( FILE* filewrite, const char* text, const char* usename )
 {
     // ZZ> This function mimics fprintf in spitting out
-    //     a name with underscore spaces
+    //    a name with underscore spaces
     char cTmp;
     int cnt;
 
@@ -373,8 +373,8 @@ bool_t fget_pair( FILE* fileread )
 void undo_pair( int base, int rand )
 {
     // ZZ> This function generates a damage/stat pair ( eg. 3-6.5f )
-    //     from the base and random values.  It set pairfrom and
-    //     pairto
+    //    from the base and random values.  It set pairfrom and
+    //    pairto
     pairfrom = base / 256.0f;
     pairto = rand / 256.0f;
     if ( pairfrom < 0.0f )
@@ -512,7 +512,7 @@ bool_t fput_version( FILE* filewrite, int file_version )
 char * copy_mem_to_delimiter( char * pmem, char * pmem_end, FILE * filewrite, int delim, char * user_buffer, size_t user_buffer_len )
 {
     // BB> copy data from one file to another until the delimiter delim has been found
-    //     could be used to merge a template file with data
+    //    could be used to merge a template file with data
 
     int write;
     char cTmp, temp_buffer[1024];

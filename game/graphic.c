@@ -276,8 +276,8 @@ void make_lighttospek( void )
 void make_lightdirectionlookup()
 {
     // ZZ> This function builds the lighting direction table
-    //     The table is used to find which direction the light is coming
-    //     from, based on the four corner vertices of a mesh tile.
+    //    The table is used to find which direction the light is coming
+    //    from, based on the four corner vertices of a mesh tile.
     Uint32 cnt;
     Uint16 tl, tr, br, bl;
     int x, y;
@@ -584,7 +584,7 @@ bool_t load_all_global_icons()
 bool_t load_one_icon( const char *szLoadName )
 {
     // ZZ> This function is used to load an icon.  Most icons are loaded
-    //     without this function though...
+    //    without this function though...
     if ( INVALID_TX_ID == ego_texture_load( TxIcon + globalicon_count,  szLoadName, INVALID_KEY ) )
     {
         return bfalse;
@@ -1286,7 +1286,7 @@ void font_init()
 void font_load( const char* szBitmap, const char* szSpacing )
 {
     // ZZ> This function loads the font bitmap and sets up the coordinates
-    //     of each font on that bitmap...  Bitmap must have 16x6 fonts
+    //    of each font on that bitmap...  Bitmap must have 16x6 fonts
     int cnt, y, xsize, ysize, xdiv, ydiv;
     int stt_x, stt_y;
     int xspacing, yspacing;
@@ -2896,7 +2896,7 @@ int write_draw_string( int x, int y, const char *format, va_list args  )
 int _draw_string_raw( int x, int y, const char *format, ...  )
 {
     // BB> the same as draw string, but it does not use the Begin2DMode() ... End2DMode()
-    //     bookends.
+    //    bookends.
 
     va_list args;
 
@@ -2913,8 +2913,8 @@ int draw_string( int x, int y, const char *format, ...  )
     // ZZ> This function spits a line of null terminated text onto the backbuffer
     //
     // BB> Uses Begin2DMode() ... End2DMode() so that the function can basically be called from anywhere
-    //     The way they are currently implemented, this breaks the icon drawing in draw_status() if
-    //     you use draw_string() and then draw_icon(). Use _draw_string_raw(), instead.
+    //    The way they are currently implemented, this breaks the icon drawing in draw_status() if
+    //    you use draw_string() and then draw_icon(). Use _draw_string_raw(), instead.
 
     va_list args;
 
@@ -2933,7 +2933,7 @@ int draw_string( int x, int y, const char *format, ...  )
 int length_of_word( const char *szText )
 {
     // ZZ> This function returns the number of pixels the
-    //     next word will take on screen in the x direction
+    //    next word will take on screen in the x direction
 
     // Count all preceeding spaces
     int x = 0;
@@ -2969,7 +2969,7 @@ int length_of_word( const char *szText )
 int draw_wrap_string( const char *szText, int x, int y, int maxx )
 {
     // ZZ> This function spits a line of null terminated text onto the backbuffer,
-    //     wrapping over the right side and returning the new y value
+    //    wrapping over the right side and returning the new y value
     int stt_x = x;
     Uint8 cTmp = szText[0];
     int newy = y + fontyspacing;
@@ -3041,7 +3041,7 @@ int draw_wrap_string( const char *szText, int x, int y, int maxx )
 int draw_status( Uint16 character, int x, int y )
 {
     // ZZ> This function shows a character's icon, status and inventory
-    //     The x,y coordinates are the top left point of the image to draw
+    //    The x,y coordinates are the top left point of the image to draw
     Uint16 item;
     char cTmp;
     char *readtext;
@@ -3250,11 +3250,11 @@ void draw_map()
             }
         }
 
-        //// draw the camera
-        //if ( update_wld & 2 )
-        //{
-        //    draw_blip( 0.75f, COLOR_PURPLE, GET_MAP_X(PMesh, PCamera->pos.x), GET_MAP_Y(PMesh, PCamera->pos.y));
-        //}
+        // // draw the camera
+        // if ( update_wld & 2 )
+        // {
+        //   draw_blip( 0.75f, COLOR_PURPLE, GET_MAP_X(PMesh, PCamera->pos.x), GET_MAP_Y(PMesh, PCamera->pos.y));
+        // }
     }
     ATTRIB_POP("draw_map()")
 
@@ -3626,7 +3626,7 @@ void draw_main()
 Uint32 load_one_title_image( const char *szLoadName )
 {
     // ZZ> This function loads a title in the specified image slot, forcing it into
-    //     system memory.  Returns btrue if it worked
+    //    system memory.  Returns btrue if it worked
     Uint32 index;
 
     index = (Uint32)(~0);
@@ -4054,8 +4054,8 @@ void load_graphics()
         GL_DEBUG(glHint)(GL_POLYGON_SMOOTH_HINT,    GL_FASTEST );
 
         // PLEASE do not turn this on unless you use
-        //  GL_DEBUG(glEnable)(GL_BLEND);
-        //  GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        // GL_DEBUG(glEnable)(GL_BLEND);
+        // GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         // before every single draw command
         //
         // GL_DEBUG(glEnable)(GL_POLYGON_SMOOTH);
@@ -4173,8 +4173,8 @@ void make_enviro( void )
 void project_view( camera_t * pcam )
 {
     // ZZ> This function figures out where the corners of the view area
-    //     go when projected onto the plane of the PMesh->  Used later for
-    //     determining which mesh fans need to be rendered
+    //    go when projected onto the plane of the PMesh->  Used later for
+    //    determining which mesh fans need to be rendered
 
     int cnt, tnc, extra[4];
     float ztemp;
@@ -4312,7 +4312,7 @@ void clear_messages()
 void make_dynalist( camera_t * pcam )
 {
     // ZZ> This function figures out which particles are visible, and it sets up dynamic
-    //     lighting
+    //    lighting
     int cnt, tnc, slot;
     float disx, disy, disz, distance;
 
@@ -4514,8 +4514,8 @@ void dolist_make( ego_mpd_t * pmesh )
 void dolist_sort( camera_t * pcam )
 {
     // ZZ> This function orders the dolist based on distance from camera,
-    //     which is needed for reflections to properly clip themselves.
-    //     Order from closest to farthest
+    //    which is needed for reflections to properly clip themselves.
+    //    Order from closest to farthest
 
     Uint32    cnt, tnc;
     GLvector3 vcam;

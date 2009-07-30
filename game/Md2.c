@@ -24,8 +24,8 @@
 #include "egoboo.h"
 #include "egoboo_endian.h"
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 
 static int  md2_rip_header();
 static void md2_rip_commands( md2_ogl_commandlist_t * pclist );
@@ -35,8 +35,8 @@ md2_frame_t Md2FrameList[MAXFRAME];
 
 static Uint8 cLoadBuffer[MD2MAXLOADSIZE];// Where to put an MD2
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 float kMd2Normals[][3] =
 {
 #include "id_normals.inl"
@@ -48,8 +48,8 @@ float kMd2Normals[][3] =
 // is why I have to include it here at the moment.
 struct Md2Model *md2_models[MAX_PROFILE];
 
-// --------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void md2_freeModel( Md2Model *model )
 {
     if ( model != NULL )
@@ -73,13 +73,13 @@ void md2_freeModel( Md2Model *model )
     }
 }
 
-// --------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Md2Model* md2_loadFromFile( const char *filename )
 {
     return NULL;
 }
 
-// ---------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------
 int md2_rip_header()
 {
     // ZZ> This function makes sure an md2 is really an md2
@@ -95,7 +95,7 @@ int md2_rip_header()
     return btrue;
 }
 
-// ---------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------
 void md2_rip_commands( md2_ogl_commandlist_t * pclist )
 {
     // ZZ> This function converts an md2's GL commands into our little command list thing
@@ -199,11 +199,11 @@ void md2_rip_commands( md2_ogl_commandlist_t * pclist )
     pclist->count   = MIN(MAXCOMMAND, iCommandCount);
 }
 
-// ---------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------
 int md2_rip_frame_name( int frame )
 {
     // ZZ> This function gets frame names from the load buffer, it returns
-    //     btrue if the name in cFrameName[] is valid
+    //    btrue if the name in cFrameName[] is valid
     int iFrameOffset;
     int iNumVertices;
     int iNumFrames;
@@ -248,11 +248,11 @@ int md2_rip_frame_name( int frame )
     return foundname;
 }
 
-// ---------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------
 void md2_rip_frames( ego_md2_t * pmd2 )
 {
     // ZZ> This function gets frames from the load buffer and adds them to
-    //     the indexed model
+    //    the indexed model
     Uint8 cTmpx, cTmpy, cTmpz;
     Uint8 cTmpa;
     float fRealx, fRealy, fRealz;
@@ -319,11 +319,11 @@ void md2_rip_frames( ego_md2_t * pmd2 )
     }
 }
 
-// ---------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------
 int md2_load_one( const char* szLoadname, ego_md2_t * pmd2 )
 {
     // ZZ> This function loads an id md2 file, storing the converted data in the indexed model
-    //    int iFileHandleRead;
+    //   int iFileHandleRead;
     size_t iBytesRead = 0;
     int iReturnValue;
 

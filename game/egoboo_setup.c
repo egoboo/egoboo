@@ -34,9 +34,9 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // Macros for reading values from a ConfigFile
-//   - Must have a valid ConfigFilePtr_t named lConfigSetup
-//   - Must have a string named lCurSectionName to define the section
-//   - Must have temporary variables defined of the correct type (lTempBool, lTempInt, and lTempStr)
+//  - Must have a valid ConfigFilePtr_t named lConfigSetup
+//  - Must have a string named lCurSectionName to define the section
+//  - Must have temporary variables defined of the correct type (lTempBool, lTempInt, and lTempStr)
 
 #define GetKey_bool(label, var, default) \
     { \
@@ -168,7 +168,7 @@ bool_t setup_write()
 bool_t setup_download(egoboo_config_t * pcfg)
 {
     // BB > download the ConfigFile_t keys into game variables
-    //      use default values to fill in any missing keys
+    //     use default values to fill in any missing keys
 
     char  *lCurSectionName;
     bool_t lTempBool;
