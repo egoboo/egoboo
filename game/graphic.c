@@ -1214,7 +1214,6 @@ void load_basic_textures( const char *modname )
 
     // Texture 7 is the phong map
     ego_texture_load( TxTexture + TX_PHONG, "basicdat" SLASH_STR "phong", TRANSCOLOR );
-
 }
 
 //--------------------------------------------------------------------------------------------

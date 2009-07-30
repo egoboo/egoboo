@@ -1,14 +1,42 @@
 //         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
 playerAtBoss   NONE    0  76.5   76.5   1.0   N    0   0  0   0   0   T   F   G
-player1:   NONE    0  8.5   21.5   1.0   N    0   0  0   0   0   T   F   G
-unknown:   NONE    1  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
-unknown:   NONE    2  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-unknown:   NONE    3  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-unknown:   NONE    4  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-unknown:   NONE    5  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-unknown:   NONE    6  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-unknown:   NONE    7  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-unknown:   NONE    8  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+player1:   NONE    0  8.5   21.5   0.0   N    0   0  0   0   0   T   F   G
+  LeftHand:   NONE    1  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  RightHand:   NONE    2  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  Inventory1:   NONE    3  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Inventory2:   NONE    4  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Inventory3:   NONE    5  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Inventory4:   NONE    6  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Inventory5:   NONE    7  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Inventory6:   NONE    8  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+player2:   NONE    9  10.5   21.5   0.0   N    0   0  0   0   0   T   F   G
+  LeftHand:   NONE    10  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  RightHand:   NONE    11  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  Inventory1:   NONE    12  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Inventory2:   NONE    13  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Inventory3:   NONE    14  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Inventory4:   NONE    15  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Inventory5:   NONE    16  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Inventory6:   NONE    17  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+player3:   NONE    18  10.5   19.5   0.0   N    0   0  0   0   0   T   F   G
+  LeftHand:   NONE    19  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  RightHand:   NONE    20  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  Inventory1:   NONE    21  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Inventory2:   NONE    22  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Inventory3:   NONE    23  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Inventory4:   NONE    24  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Inventory5:   NONE    25  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Inventory6:   NONE    26  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+player4:   NONE    27  8.5   19.5   0.0   N    0   0  0   0   0   T   F   G
+  LeftHand:   NONE    28  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  RightHand:   NONE    29  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  Inventory1:   NONE    30  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Inventory2:   NONE    31  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Inventory3:   NONE    32  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Inventory4:   NONE    33  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Inventory5:   NONE    34  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Inventory6:   NONE    35  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+
 
 //Start room
 sporkdoor.obj:     NONE    36  16.0   28.0   0.0   W    0   0  0   0   0   F   F   N

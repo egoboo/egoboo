@@ -1,11 +1,15 @@
-Version 2.7.5 (27.07.2009)
+Version 2.7.5 (xx.08.2009)
 - New Feature: Improved AI by adding Line of Sight detection for targeting.
+- Update: Ghosts can now move through walls and impassable tiles.
 - Update: Support for multiple new resolution formats including widescreen.
 - Update: Improved various menu UI handling and made it look nice in all resolutions.
 - Update: Improved the gameplay when using the mouse as input controller.
 - Update: Increased the amount of treasure loot found in the Ice Palace.
 - Update: Improved the Frost Lizard AI.
 - Update: Improved the texture detail for all the title images.
+- Bugfix: Fixed bug that made Ghosts invincible and Life Drain caused by Ghosts to disappear
+  without a proper restoration.
+- Bugfix: Catacombs 1 not properly allows up to 4 player imports instead of 1.
 - Bugfix: Major bug fixed that caused modules not to unlock properly when exporting.
 - Bugfix: Incorrect boss music in Water Palace fixed.
 - Bugfix: Removed music resetting when loading a module.

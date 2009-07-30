@@ -556,8 +556,7 @@ int doSinglePlayerMenu( float deltaTime )
 }
 
 //--------------------------------------------------------------------------------------------
-// TODO: I totally fudged the layout of this menu by adding an offset for when
-// the game isn't in 640x480.  Needs to be fixed.
+// Choose the module
 int doChooseModule( float deltaTime )
 {
     static oglx_texture background;
@@ -706,7 +705,7 @@ int doChooseModule( float deltaTime )
             }
 
             // Draw an empty button as the backdrop for the module text
-            ui_drawButton( UI_Nothing, moduleMenuOffsetX + 21, moduleMenuOffsetY + 173, 291, 230, NULL );
+            ui_drawButton( UI_Nothing, moduleMenuOffsetX + 21, moduleMenuOffsetY + 173, 291, 250, NULL );
 
             // Draw the text description of the selected module
             if ( selectedModule > -1 && selectedModule < MAXMODULE && validModules[selectedModule] >= 0)
@@ -835,8 +834,6 @@ bool_t doChoosePlayer_show_stats( int player, int mode, int x, int y, int width,
                 // grab the inventory data
                 for ( i = 0; i < 9; i++ )
                 {
-                    int itmp;
-
                     snprintf( szFilename, SDL_arraysize(szFilename), "players" SLASH_STR "%s" SLASH_STR "%d.obj", loadplayer[player].dir, i );
 
                     profile_temp = load_one_character_profile( szFilename, bfalse );
@@ -871,11 +868,29 @@ bool_t doChoosePlayer_show_stats( int player, int mode, int x, int y, int width,
         if ( VALID_CAP(iobj) )
         {
             cap_t * pcap = CapList + iobj;
+			STRING mainstat;
 
-            ui_doButton( 1000, NULL, NULL, x, y, width, height );
+			ui_drawButton( UI_Nothing, x, y, width, height, NULL );
 
-            carat += snprintf( carat, carat_end - carat - 1, "Level %d %s\n", pcap->leveloverride, pcap->classname );
-            carat += snprintf( carat, carat_end - carat - 1, "  Str: %d\n", pcap->strengthbase >> 8 );
+			//Character level and class
+			GL_DEBUG(glColor4f)(1, 1, 1, 1);
+            snprintf( mainstat, sizeof(mainstat), "Level %d %s\n\n", pcap->leveloverride+1, pcap->classname );
+			ui_drawTextBox( menuFont, mainstat, x + 10, y + 10, width - 10, height - 10, 20 );
+			
+			//Life and mana (and current life/mana if not in easy mode)
+			if( cfg.difficulty >= GAME_NORMAL )
+			{
+				y = draw_one_bar( pcap->lifecolor, x, y + 40, pcap->spawnlife >> 8, pcap->lifebase >> 8 );
+				y = draw_one_bar( pcap->manacolor, x, y, pcap->spawnmana >> 8, pcap->manabase >> 8 );
+			}
+			else
+			{
+				y = draw_one_bar( pcap->lifecolor, x, y + 40, pcap->lifebase >> 8, pcap->lifebase >> 8 );
+				y = draw_one_bar( pcap->manacolor, x, y, pcap->manabase >> 8, pcap->manabase >> 8 );
+			}
+
+			//Swid
+			carat += snprintf( carat, carat_end - carat - 1, "  Str: %d\n", pcap->strengthbase >> 8 );
             carat += snprintf( carat, carat_end - carat - 1, "  Wis: %d\n", pcap->wisdombase >> 8 );
             carat += snprintf( carat, carat_end - carat - 1, "  Int: %d\n", pcap->intelligencebase >> 8 );
             carat += snprintf( carat, carat_end - carat - 1, "  Dex: %d\n", pcap->dexteritybase >> 8 );
@@ -897,8 +912,7 @@ bool_t doChoosePlayer_show_stats( int player, int mode, int x, int y, int width,
                 }
             }
 
-            GL_DEBUG(glColor4f)(1, 1, 1, 1);
-            ui_drawTextBox( menuFont, buffer, x + 10, y + 10, width - 10, height - 10, 20 );
+            ui_drawTextBox( menuFont, buffer, x + 10, y + 30, width - 10, height, 20 );
         }
 
     }
@@ -935,6 +949,7 @@ int doChoosePlayer( float deltaTime )
             {
                 oglx_texture_Release(TxInput + i);
             };
+			oglx_texture_Release( &TxBars );
 
             mnu_selectedPlayerCount = 0;
             mnu_selectedPlayer[0] = 0;
@@ -952,6 +967,8 @@ int doChoosePlayer( float deltaTime )
             BitsInput[3] = INPUT_BITS_JOYB;
 
             ego_texture_load( &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_sleepy", TRANSCOLOR );
+
+			ego_texture_load( &TxBars, "basicdat" SLASH_STR "bars", INVALID_KEY );
 
             // load information for all the players that could be imported
             check_player_import( "players", btrue );
@@ -1186,6 +1203,7 @@ int doChoosePlayer( float deltaTime )
             };
 
             oglx_texture_Release( &background );
+			oglx_texture_Release( &TxBars );
 
             menuState = MM_Begin;
             if ( 0 == mnu_selectedPlayerCount )
@@ -1416,6 +1434,7 @@ int doInputOptions( float deltaTime )
 
             // Load the global icons (keyboard, mouse, etc.)
             if ( !load_all_global_icons() ) log_warning( "Could not load all global icons!\n" );
+			
 
         case MM_Entering:
             // do buttons sliding in animation, and background fading in

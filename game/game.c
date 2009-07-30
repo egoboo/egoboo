@@ -5007,6 +5007,9 @@ void game_quit_module()
     // reset the "ui" mouse state
     cursor_reset();
 
+	// re-initialize all game/module data
+    game_reset_module_data();
+
     // finish whatever in-game song is playing
     sound_finish_sound();
 }
@@ -5020,9 +5023,6 @@ bool_t game_begin_module( const char * modname, Uint32 seed )
 
     // make sure the old game has been quit
     game_quit_module();
-
-    // re-initialize all game/module data
-    game_reset_module_data();
 
     // load all the in-game module data
     srand( seed );

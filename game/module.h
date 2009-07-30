@@ -40,7 +40,7 @@ struct s_mod_data
     STRING  loadname;                     // Module load names
     STRING  reference;                    // the module reference string
     Uint8   importamount;                 // # of import characters
-    Uint8   allowexport;                  // Export characters?
+    bool_t  allowexport;                  // Export characters?
     Uint8   minplayers;                   // Number of players
     Uint8   maxplayers;
     bool_t  monstersonly;                 // Only allow monsters

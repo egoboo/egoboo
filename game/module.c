@@ -351,7 +351,7 @@ bool_t module_reset( module_instance_t * pinst, Uint32 seed )
     if (NULL == pinst) return bfalse;
 
     pinst->beat        = bfalse;
-    pinst->exportvalid = bfalse;
+    //pinst->exportvalid = bfalse;  //Zefz> we can't disable export here, some modules are supposed to allow export (towns)
     pinst->seed        = seed;
 
     return btrue;

@@ -1873,7 +1873,7 @@ Uint8 scr_TargetIsAPlayer( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_PlaySound( script_state_t * pstate, ai_state_t * pself )
 {
-    // PlaySound( tmpargument = "sound", tmpdistance = "frequency" )
+    // PlaySound( tmpargument = "sound" )
     // This function plays one of the character's sounds.
     // The sound fades out depending on its distance from the viewer
 

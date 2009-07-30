@@ -32,10 +32,10 @@ Dexterity increase per level ( eg. 0-1 )	: 2-3
 Size ( eg. 1.0 )				: 1.17
 Size increase per level ( eg. 0.05 )		: 0.05
 Shadow size ( eg. 30, 0 is none )		: 30
-Bump size ( eg. 30 )				: 0	//Ghosts cannot be touched
-Bump height ( eg. 70 )				: 0
-Bump dampen ( 0.0 to 1.0, lower is massive )	: 0.35
-Weight ( 0 to 255 )				: 10
+Bump size ( eg. 30 )				: 5	//Ghosts cannot be touched
+Bump height ( eg. 70 )				: 40
+Bump dampen ( 0.0 to 1.0, lower is massive )	: 0.50
+Weight ( 0 to 255 )				: 255 //10
 Jump power ( eg. 14.0 )				: 0.0
 Number of jumps ( eg. 1 )			: 0
 Sneak speed ( 1 to 20, 1 is good )		: 1
@@ -161,7 +161,7 @@ Particle type ( 0 to 3 )			: 0
 
 // Extra stuff I forgot 
 Character can walk on water ( TRUE or FALSE )	: TRUE
-Character bounciness ( 0.00 to 0.95 )		: .60
+Character bounciness ( 0.00 to 0.95 )		: 0.00
 
 
 // More stuff I forgot

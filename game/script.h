@@ -75,7 +75,7 @@
 //--------------------------------------------------------------------------------------------
 // AI variables
 #define MAXWAY              8                       // Waypoints
-#define WAYTHRESH           64                      // Threshold for reaching waypoint
+#define WAYTHRESH           64                      // Threshold for reaching waypoint (TILE_SIZE/2)
 #define MAXSTOR             16                      // Storage data (Used in SetXY)
 #define STORAND             15
 
