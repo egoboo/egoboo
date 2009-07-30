@@ -144,11 +144,22 @@ extern team_t TeamList[TEAM_MAX];
 #define MAXCAPNAMESIZE      32                      // Character class names
 #define MAXSECTION                      4           // T-wi-n-k...  Most of 4 sections
 
+
+struct s_cap_import
+{
+    int   object;
+    int   player;
+    short slot_lst[MAX_PROFILE];
+};
+
+typedef struct s_cap_import cap_import_t;
+
+extern cap_import_t import_data;
+
+
 struct s_cap
 {
     EGO_PROFILE_STUFF
-
-    short        importslot;
 
     // naming
     char         classname[MAXCAPNAMESIZE];     // Class name
@@ -334,7 +345,6 @@ struct s_cap
 
 typedef struct s_cap cap_t;
 
-extern int   importobject;
 extern cap_t CapList[MAX_PROFILE];
 
 #define VALID_CAP_RANGE( ICAP ) ( ((ICAP) >= 0) && ((ICAP) < MAX_PROFILE) )

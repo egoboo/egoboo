@@ -56,7 +56,7 @@ static IDSZ    inventory_idsz[INVEN_COUNT];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-int         importobject;
+cap_import_t import_data;
 
 team_t      TeamList[TEAM_MAX];
 cap_t       CapList[MAX_PROFILE];
@@ -2725,13 +2725,13 @@ int load_one_character_profile( const char * tmploadname, bool_t required )
     iTmp = fget_next_int( fileread ); object = iTmp;
     if ( object < 0 )
     {
-        if ( importobject < 0 )
+        if ( import_data.object < 0 )
         {
             log_warning( "Object slot number cannot be negative (%s)\n", szLoadName );
         }
         else
         {
-            object = importobject;
+            object = import_data.object;
         }
     }
 

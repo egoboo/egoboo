@@ -797,13 +797,78 @@ int doChooseModule( float deltaTime )
 }
 
 //--------------------------------------------------------------------------------------------
+struct s_ChoosePlayer_profiles
+{
+    int count;
+    int ref[MAXIMPORTPERPLAYER + 1];
+};
+typedef struct s_ChoosePlayer_profiles ChoosePlayer_profiles_t;
+
+//--------------------------------------------------------------------------------------------
+bool_t doChoosePlayer_load_profiles( int player, ChoosePlayer_profiles_t * prof )
+{
+    int    i, cnt, ref_temp;
+    STRING szFilename;
+
+    if ( player < 0 || player >= MAXLOADPLAYER || player >= loadplayer_count ) return bfalse;
+
+    // release all of the temporary profiles
+    release_all_profiles();
+
+    // Clear the import slots...
+    for ( cnt = 0; cnt < MAX_PROFILE; cnt++ )
+    {
+        import_data.slot_lst[cnt] = 10000;
+    }
+
+    // Load the player profiles
+    import_data.player = -1;
+    import_data.object = 0;
+
+    // grab the player data
+    snprintf( szFilename, SDL_arraysize(szFilename),  "players" SLASH_STR "%s", loadplayer[player].dir );
+    ref_temp = load_one_character_profile( szFilename, bfalse );
+    if ( MAX_PROFILE != ref_temp )
+    {
+        prof->ref[prof->count++] = ref_temp;
+    }
+    else
+    {
+        return bfalse;
+    }
+
+    // grab the inventory data
+    for ( i = 0; i < MAXIMPORTPERPLAYER; i++ )
+    {
+        snprintf( szFilename, SDL_arraysize(szFilename), "players" SLASH_STR "%s" SLASH_STR "%d.obj", loadplayer[player].dir, i );
+
+        // store the slot info
+        import_data.object = i + 1;
+
+        // load it
+        ref_temp = load_one_character_profile( szFilename, bfalse );
+
+        if ( MAX_PROFILE != ref_temp )
+        {
+            prof->ref[prof->count++]                 = ref_temp;
+            import_data.slot_lst[import_data.object] = ref_temp;
+        }
+    }
+
+    // Search for .obj directories and load them
+    import_data.object = -100;
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
 bool_t doChoosePlayer_show_stats( int player, int mode, int x, int y, int width, int height )
 {
     STRING szFilename;
     oglx_texture * ptex;
     int i, profile_temp;
 
-    static int object_ref[9], object_count = 0;
+    static ChoosePlayer_profiles_t objects = { 0 };
 
     if ( player < 0 ) mode = 1;
 
@@ -812,44 +877,16 @@ bool_t doChoosePlayer_show_stats( int player, int mode, int x, int y, int width,
     {
         case 0: // load new player data
 
-            if ( player >= MAXLOADPLAYER || player >= loadplayer_count )
+            if ( !doChoosePlayer_load_profiles( player, &objects ) )
             {
                 player = -1;
             }
-
-            if ( player >= 0 )
-            {
-                // grab the player data
-                snprintf( szFilename, SDL_arraysize(szFilename),  "players" SLASH_STR "%s", loadplayer[player].dir );
-                profile_temp = load_one_character_profile( szFilename, bfalse );
-                if ( MAX_PROFILE != profile_temp )
-                {
-                    object_ref[object_count++] = profile_temp;
-                }
-                else
-                {
-                    return bfalse;
-                }
-
-                // grab the inventory data
-                for ( i = 0; i < 9; i++ )
-                {
-                    snprintf( szFilename, SDL_arraysize(szFilename), "players" SLASH_STR "%s" SLASH_STR "%d.obj", loadplayer[player].dir, i );
-
-                    profile_temp = load_one_character_profile( szFilename, bfalse );
-                    if ( MAX_PROFILE != profile_temp )
-                    {
-                        object_ref[object_count++] = profile_temp;
-                    }
-                }
-            }
-
             break;
 
         case 1: // unload player data
 
             player = -1;
-            object_count = 0;
+            objects.count = 0;
 
             // release all of the temporary profiles
             release_all_profiles();
@@ -858,51 +895,52 @@ bool_t doChoosePlayer_show_stats( int player, int mode, int x, int y, int width,
     }
 
     // do the actual display
-    if ( player >= 0 && object_count > 0 )
+    if ( player >= 0 && objects.count > 0 )
     {
         char buffer[1024];
         char * carat = buffer, * carat_end = buffer + SDL_arraysize(buffer);
 
-        Uint16 iobj = object_ref[0];
+        Uint16 iobj = objects.ref[0];
 
         if ( VALID_CAP(iobj) )
         {
             cap_t * pcap = CapList + iobj;
-			STRING mainstat;
+            STRING mainstat;
 
-			ui_drawButton( UI_Nothing, x, y, width, height, NULL );
+            ui_drawButton( UI_Nothing, x, y, width, height, NULL );
 
-			//Character level and class
-			GL_DEBUG(glColor4f)(1, 1, 1, 1);
-            snprintf( mainstat, sizeof(mainstat), "Level %d %s\n\n", pcap->leveloverride+1, pcap->classname );
-			ui_drawTextBox( menuFont, mainstat, x + 10, y + 10, width - 10, height - 10, 20 );
-			
-			//Life and mana (and current life/mana if not in easy mode)
-			if( cfg.difficulty >= GAME_NORMAL )
-			{
-				y = draw_one_bar( pcap->lifecolor, x, y + 40, pcap->spawnlife >> 8, pcap->lifebase >> 8 );
-				y = draw_one_bar( pcap->manacolor, x, y, pcap->spawnmana >> 8, pcap->manabase >> 8 );
-			}
-			else
-			{
-				y = draw_one_bar( pcap->lifecolor, x, y + 40, pcap->lifebase >> 8, pcap->lifebase >> 8 );
-				y = draw_one_bar( pcap->manacolor, x, y, pcap->manabase >> 8, pcap->manabase >> 8 );
-			}
+            //Character level and class
+            GL_DEBUG(glColor4f)(1, 1, 1, 1);
+            snprintf( mainstat, sizeof(mainstat), "Level %d %s\n\n", pcap->leveloverride + 1, pcap->classname );
+            ui_drawTextBox( menuFont, mainstat, x + 10, y + 10, width - 10, height - 10, 20 );
 
-			//Swid
-			carat += snprintf( carat, carat_end - carat - 1, "  Str: %d\n", pcap->strengthbase >> 8 );
+            //Life and mana (and current life/mana if not in easy mode)
+            if ( cfg.difficulty >= GAME_NORMAL )
+            {
+                y = draw_one_bar( pcap->lifecolor, x, y + 40, pcap->spawnlife >> 8, pcap->lifebase >> 8 );
+                y = draw_one_bar( pcap->manacolor, x, y, pcap->spawnmana >> 8, pcap->manabase >> 8 );
+            }
+            else
+            {
+                y = draw_one_bar( pcap->lifecolor, x, y + 40, pcap->lifebase >> 8, pcap->lifebase >> 8 );
+                y = draw_one_bar( pcap->manacolor, x, y, pcap->manabase >> 8, pcap->manabase >> 8 );
+            }
+
+            //Swid
+            carat += snprintf( carat, carat_end - carat - 1, "Stats\n" );
+            carat += snprintf( carat, carat_end - carat - 1, "  Str: %d\n", pcap->strengthbase >> 8 );
             carat += snprintf( carat, carat_end - carat - 1, "  Wis: %d\n", pcap->wisdombase >> 8 );
             carat += snprintf( carat, carat_end - carat - 1, "  Int: %d\n", pcap->intelligencebase >> 8 );
             carat += snprintf( carat, carat_end - carat - 1, "  Dex: %d\n", pcap->dexteritybase >> 8 );
-            carat += snprintf( carat, carat_end - carat - 1, "\n" );
+            carat += snprintf( carat, carat_end - carat - 1, " \n" );
 
-            if ( object_count > 1 )
+            if ( objects.count > 1 )
             {
                 carat += snprintf( carat, carat_end - carat - 1, "Inventory\n" );
 
-                for ( i = 1; i < object_count; i++ )
+                for ( i = 1; i < objects.count; i++ )
                 {
-                    iobj = object_ref[i];
+                    iobj = objects.ref[i];
 
                     if ( VALID_CAP(iobj) )
                     {
@@ -949,7 +987,7 @@ int doChoosePlayer( float deltaTime )
             {
                 oglx_texture_Release(TxInput + i);
             };
-			oglx_texture_Release( &TxBars );
+            oglx_texture_Release( &TxBars );
 
             mnu_selectedPlayerCount = 0;
             mnu_selectedPlayer[0] = 0;
@@ -968,7 +1006,7 @@ int doChoosePlayer( float deltaTime )
 
             ego_texture_load( &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_sleepy", TRANSCOLOR );
 
-			ego_texture_load( &TxBars, "basicdat" SLASH_STR "bars", INVALID_KEY );
+            ego_texture_load( &TxBars, "basicdat" SLASH_STR "bars", INVALID_KEY );
 
             // load information for all the players that could be imported
             check_player_import( "players", btrue );
@@ -1203,7 +1241,7 @@ int doChoosePlayer( float deltaTime )
             };
 
             oglx_texture_Release( &background );
-			oglx_texture_Release( &TxBars );
+            oglx_texture_Release( &TxBars );
 
             menuState = MM_Begin;
             if ( 0 == mnu_selectedPlayerCount )
@@ -1434,7 +1472,7 @@ int doInputOptions( float deltaTime )
 
             // Load the global icons (keyboard, mouse, etc.)
             if ( !load_all_global_icons() ) log_warning( "Could not load all global icons!\n" );
-			
+
 
         case MM_Entering:
             // do buttons sliding in animation, and background fading in

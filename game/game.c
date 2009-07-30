@@ -4537,7 +4537,6 @@ int load_all_objects( const char *modname )
     char filename[256];
     int cnt;
     int skin;
-    int importplayer;
 
     // Log all of the script errors
     parseerror = bfalse;
@@ -4548,12 +4547,12 @@ int load_all_objects( const char *modname )
     // Clear the import slots...
     for ( cnt = 0; cnt < MAX_PROFILE; cnt++ )
     {
-        CapList[cnt].importslot = 10000;
+        import_data.slot_lst[cnt] = 10000;
     }
 
     // Load the import directory
-    importplayer = -1;
-    importobject = -100;
+    import_data.player = -1;
+    import_data.object = -100;
     skin = TX_LAST;  // Character skins start after the last special texture
     if ( PMod->importvalid )
     {
@@ -4565,21 +4564,21 @@ int load_all_objects( const char *modname )
             if ( fs_fileExists(newloadname) )
             {
                 // new player found
-                if ( 0 == ( cnt % MAXIMPORTPERPLAYER ) ) importplayer++;
+                if ( 0 == ( cnt % MAXIMPORTPERPLAYER ) ) import_data.player++;
 
                 // store the slot info
-                importobject = ( importplayer * MAXIMPORTPERPLAYER ) + ( cnt % MAXIMPORTPERPLAYER );
+                import_data.object = ( import_data.player * MAXIMPORTPERPLAYER ) + ( cnt % MAXIMPORTPERPLAYER );
 
                 // load it
                 skin += load_one_object( filename, skin );
 
-                CapList[importobject].importslot = cnt;
+                import_data.slot_lst[import_data.object] = cnt;
             }
         }
     }
 
     // Search for .obj directories and load them
-    importobject = -100;
+    import_data.object = -100;
     make_newloadname( modname, "objects" SLASH_STR, newloadname );
     filehandle = fs_findFirstFile( newloadname, "obj" );
 
@@ -4786,7 +4785,7 @@ void setup_characters( const char *modname )
                             local_index = -1;
                             for ( tnc = 0; tnc < numimport; tnc++ )
                             {
-                                if ( CapList[ChrList[new_object].model].importslot == local_slot[tnc] )
+                                if ( import_data.slot_lst[ChrList[new_object].model] == local_slot[tnc] )
                                 {
                                     local_index = tnc;
                                     break;
@@ -5007,7 +5006,7 @@ void game_quit_module()
     // reset the "ui" mouse state
     cursor_reset();
 
-	// re-initialize all game/module data
+    // re-initialize all game/module data
     game_reset_module_data();
 
     // finish whatever in-game song is playing
