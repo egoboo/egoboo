@@ -2,15 +2,14 @@ MASTER TODO LIST:
 - Spellbooks not being spellbooks when spawning instead of dropped.
 - Wizards cannot use lamps
 - Runes crushed messages are missing
-- The ice in the Ice Palace is VERY slippery...
-- Squidgies still messing things up!
-- Crusader shield IfPutAway not working. It also refills mana!
 - Overlay effects do not spawn in pits.
 - The Bishopia walls should be flagged as a Wall, not as Impassable.
 - The Lich boss in the Wizard starter causes the game to freeze sometimes after 2 minutes.
-- Becoming the bad guy in Bishopia should still allow you to escape and export somehow.
 - And becoming bad guy in Zippy and Sand Weg should not export unless you escape. Maybe save
   the aggression in quest.txt for later returns? 
+- Enchanting potions while doesn't crash module they were enchanted on, they when being taken out crash other module.
+- After passing a module game seems to reset quest progress. It is restored by going back to previous menu, so it is not very significant.
+- Sand Troll in Sand Palace seems to get stuck on the pyramid in new physics system. (We might need a FindPath algorithm here) 
 
 ABYSS 2
 - Rustproof weapon for elayne

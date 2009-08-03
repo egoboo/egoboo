@@ -2124,6 +2124,14 @@ Uint8 scr_BecomeSpellbook( script_state_t * pstate, ai_state_t * pself )
     pself->state   = 0;  // Reset so it doesn't burn up
     pself->changed = btrue;
 
+	//Do dropped animation
+    pchr->action = ACTION_JB;
+    pchr->inst.lip = 0;
+    pchr->inst.frame_lst = pchr->inst.frame_nxt;
+    pchr->inst.frame_nxt = MadList[pchr->inst.imad].actionstart[ACTION_JB];
+    pchr->actionready = bfalse;
+    //pchr->keepaction = btrue;
+
     SCRIPT_FUNCTION_END();
 }
 

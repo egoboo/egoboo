@@ -129,7 +129,7 @@ IfStateIs0
               tmpx = targetx
               tmpy = targety
               tmpdistance = targetz + 50
-              tmpargument = 153             //soul carver
+              tmpargument = 154             //soul carver
               SpawnExactCharacterXYZ
             Else
               tmpargument = 6               //Repeat the revenge sentence

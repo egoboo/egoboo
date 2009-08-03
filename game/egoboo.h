@@ -111,7 +111,7 @@ enum e_damage_fx
 #define GENRANDOM           3
 
 // Messaging stuff
-#define MAXMESSAGE          6                       // Number of messages
+#define MAXMESSAGE          8                       // Number of messages
 #define MAXTOTALMESSAGE     4096
 #define MESSAGESIZE         80
 #define MESSAGEBUFFERSIZE   (MAXTOTALMESSAGE*40)

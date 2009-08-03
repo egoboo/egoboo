@@ -58,6 +58,7 @@ struct s_egoboo_config
     Uint8                   sound_volume;               // Volume of sounds played
     Uint16                  sound_channel_count;        // Max number of sounds playing at the same time
     Uint16                  sound_buffer_size;
+    bool_t                  sound_highquality;
 
     // {CONTROL}
     Uint8                   autoturncamera;             // Type of camera control...

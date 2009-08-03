@@ -2670,18 +2670,70 @@ int draw_one_bar( int bartype, int x, int y, int ticks, int maxticks )
     float xl, xr, yt, yb;
     int width, height;
 
+	if( maxticks <= 0 || ticks < 0) return y;
+
     EnableTexturing();               // Enable texture mapping
     GL_DEBUG(glColor4f)(1, 1, 1, 1 );
-    if ( maxticks > 0 && ticks >= 0 )
+    
+	// Draw the tab
+    oglx_texture_Bind( &TxBars );
+
+    xl = ( ( float )tabrect[bartype].left ) / 128;
+    xr = ( ( float )tabrect[bartype].right ) / 128;
+    yt = ( ( float )tabrect[bartype].top ) / 128;
+    yb = ( ( float )tabrect[bartype].bottom ) / 128;
+    width = tabrect[bartype].right - tabrect[bartype].left; height = tabrect[bartype].bottom - tabrect[bartype].top;
+    GL_DEBUG(glBegin)(GL_QUADS );
     {
-        // Draw the tab
+        GL_DEBUG(glTexCoord2f)(xl, yb );   GL_DEBUG(glVertex2i)(x,         y + height );
+        GL_DEBUG(glTexCoord2f)(xr, yb );   GL_DEBUG(glVertex2i)(x + width, y + height );
+        GL_DEBUG(glTexCoord2f)(xr, yt );   GL_DEBUG(glVertex2i)(x + width, y );
+        GL_DEBUG(glTexCoord2f)(xl, yt );   GL_DEBUG(glVertex2i)(x,         y );
+    }
+    GL_DEBUG_END();
+
+    // Error check
+    if ( maxticks > MAXTICK ) maxticks = MAXTICK;
+    if ( ticks > maxticks ) ticks = maxticks;
+
+    // Draw the full rows of ticks
+    x += TABX;
+
+    while ( ticks >= NUMTICK )
+    {
+        barrect[bartype].right = BARX;
         oglx_texture_Bind( &TxBars );
 
-        xl = ( ( float )tabrect[bartype].left ) / 128;
-        xr = ( ( float )tabrect[bartype].right ) / 128;
-        yt = ( ( float )tabrect[bartype].top ) / 128;
-        yb = ( ( float )tabrect[bartype].bottom ) / 128;
-        width = tabrect[bartype].right - tabrect[bartype].left; height = tabrect[bartype].bottom - tabrect[bartype].top;
+        xl = ( ( float )barrect[bartype].left ) / 128;
+        xr = ( ( float )barrect[bartype].right ) / 128;
+        yt = ( ( float )barrect[bartype].top ) / 128;
+        yb = ( ( float )barrect[bartype].bottom ) / 128;
+        width = barrect[bartype].right - barrect[bartype].left; height = barrect[bartype].bottom - barrect[bartype].top;
+        GL_DEBUG(glBegin)(GL_QUADS );
+        {
+            GL_DEBUG(glTexCoord2f)(xl, yb );   GL_DEBUG(glVertex2i)(x,         y + height );
+            GL_DEBUG(glTexCoord2f)(xr, yb );   GL_DEBUG(glVertex2i)(x + width, y + height );
+            GL_DEBUG(glTexCoord2f)(xr, yt );   GL_DEBUG(glVertex2i)(x + width, y );
+            GL_DEBUG(glTexCoord2f)(xl, yt );   GL_DEBUG(glVertex2i)(x,         y );
+        }
+        GL_DEBUG_END();
+        y += BARY;
+        ticks -= NUMTICK;
+        maxticks -= NUMTICK;
+    }
+
+    // Draw any partial rows of ticks
+    if ( maxticks > 0 )
+    {
+        // Draw the filled ones
+        barrect[bartype].right = ( ticks << 3 ) + TABX;
+        oglx_texture_Bind( &TxBars );
+
+        xl = ( ( float )barrect[bartype].left ) / 128;
+        xr = ( ( float )barrect[bartype].right ) / 128;
+        yt = ( ( float )barrect[bartype].top ) / 128;
+        yb = ( ( float )barrect[bartype].bottom ) / 128;
+        width = barrect[bartype].right - barrect[bartype].left; height = barrect[bartype].bottom - barrect[bartype].top;
         GL_DEBUG(glBegin)(GL_QUADS );
         {
             GL_DEBUG(glTexCoord2f)(xl, yb );   GL_DEBUG(glVertex2i)(x,         y + height );
@@ -2691,125 +2743,73 @@ int draw_one_bar( int bartype, int x, int y, int ticks, int maxticks )
         }
         GL_DEBUG_END();
 
-        // Error check
-        if ( maxticks > MAXTICK ) maxticks = MAXTICK;
-        if ( ticks > maxticks ) ticks = maxticks;
+        // Draw the empty ones
+        noticks = maxticks - ticks;
+        if ( noticks > ( NUMTICK - ticks ) ) noticks = ( NUMTICK - ticks );
 
-        // Draw the full rows of ticks
-        x += TABX;
+        barrect[0].right = ( noticks << 3 ) + TABX;
+        oglx_texture_Bind( &TxBars );
 
-        while ( ticks >= NUMTICK )
+        xl = ( ( float )barrect[0].left ) / 128;
+        xr = ( ( float )barrect[0].right ) / 128;
+        yt = ( ( float )barrect[0].top ) / 128;
+        yb = ( ( float )barrect[0].bottom ) / 128;
+        width = barrect[0].right - barrect[0].left; height = barrect[0].bottom - barrect[0].top;
+        GL_DEBUG(glBegin)(GL_QUADS );
         {
-            barrect[bartype].right = BARX;
-            oglx_texture_Bind( &TxBars );
-
-            xl = ( ( float )barrect[bartype].left ) / 128;
-            xr = ( ( float )barrect[bartype].right ) / 128;
-            yt = ( ( float )barrect[bartype].top ) / 128;
-            yb = ( ( float )barrect[bartype].bottom ) / 128;
-            width = barrect[bartype].right - barrect[bartype].left; height = barrect[bartype].bottom - barrect[bartype].top;
-            GL_DEBUG(glBegin)(GL_QUADS );
-            {
-                GL_DEBUG(glTexCoord2f)(xl, yb );   GL_DEBUG(glVertex2i)(x,         y + height );
-                GL_DEBUG(glTexCoord2f)(xr, yb );   GL_DEBUG(glVertex2i)(x + width, y + height );
-                GL_DEBUG(glTexCoord2f)(xr, yt );   GL_DEBUG(glVertex2i)(x + width, y );
-                GL_DEBUG(glTexCoord2f)(xl, yt );   GL_DEBUG(glVertex2i)(x,         y );
-            }
-            GL_DEBUG_END();
-            y += BARY;
-            ticks -= NUMTICK;
-            maxticks -= NUMTICK;
+            GL_DEBUG(glTexCoord2f)(xl, yb );   GL_DEBUG(glVertex2i)(( ticks << 3 ) + x,         y + height );
+            GL_DEBUG(glTexCoord2f)(xr, yb );   GL_DEBUG(glVertex2i)(( ticks << 3 ) + x + width, y + height );
+            GL_DEBUG(glTexCoord2f)(xr, yt );   GL_DEBUG(glVertex2i)(( ticks << 3 ) + x + width, y );
+            GL_DEBUG(glTexCoord2f)(xl, yt );   GL_DEBUG(glVertex2i)(( ticks << 3 ) + x,         y );
         }
+        GL_DEBUG_END();
+        maxticks -= NUMTICK;
+        y += BARY;
+    }
 
-        // Draw any partial rows of ticks
-        if ( maxticks > 0 )
+    // Draw full rows of empty ticks
+    while ( maxticks >= NUMTICK )
+    {
+        barrect[0].right = BARX;
+        oglx_texture_Bind( &TxBars );
+
+        xl = ( ( float )barrect[0].left ) / 128;
+        xr = ( ( float )barrect[0].right ) / 128;
+        yt = ( ( float )barrect[0].top ) / 128;
+        yb = ( ( float )barrect[0].bottom ) / 128;
+        width = barrect[0].right - barrect[0].left; height = barrect[0].bottom - barrect[0].top;
+        GL_DEBUG(glBegin)(GL_QUADS );
         {
-            // Draw the filled ones
-            barrect[bartype].right = ( ticks << 3 ) + TABX;
-            oglx_texture_Bind( &TxBars );
-
-            xl = ( ( float )barrect[bartype].left ) / 128;
-            xr = ( ( float )barrect[bartype].right ) / 128;
-            yt = ( ( float )barrect[bartype].top ) / 128;
-            yb = ( ( float )barrect[bartype].bottom ) / 128;
-            width = barrect[bartype].right - barrect[bartype].left; height = barrect[bartype].bottom - barrect[bartype].top;
-            GL_DEBUG(glBegin)(GL_QUADS );
-            {
-                GL_DEBUG(glTexCoord2f)(xl, yb );   GL_DEBUG(glVertex2i)(x,         y + height );
-                GL_DEBUG(glTexCoord2f)(xr, yb );   GL_DEBUG(glVertex2i)(x + width, y + height );
-                GL_DEBUG(glTexCoord2f)(xr, yt );   GL_DEBUG(glVertex2i)(x + width, y );
-                GL_DEBUG(glTexCoord2f)(xl, yt );   GL_DEBUG(glVertex2i)(x,         y );
-            }
-            GL_DEBUG_END();
-
-            // Draw the empty ones
-            noticks = maxticks - ticks;
-            if ( noticks > ( NUMTICK - ticks ) ) noticks = ( NUMTICK - ticks );
-
-            barrect[0].right = ( noticks << 3 ) + TABX;
-            oglx_texture_Bind( &TxBars );
-
-            xl = ( ( float )barrect[0].left ) / 128;
-            xr = ( ( float )barrect[0].right ) / 128;
-            yt = ( ( float )barrect[0].top ) / 128;
-            yb = ( ( float )barrect[0].bottom ) / 128;
-            width = barrect[0].right - barrect[0].left; height = barrect[0].bottom - barrect[0].top;
-            GL_DEBUG(glBegin)(GL_QUADS );
-            {
-                GL_DEBUG(glTexCoord2f)(xl, yb );   GL_DEBUG(glVertex2i)(( ticks << 3 ) + x,         y + height );
-                GL_DEBUG(glTexCoord2f)(xr, yb );   GL_DEBUG(glVertex2i)(( ticks << 3 ) + x + width, y + height );
-                GL_DEBUG(glTexCoord2f)(xr, yt );   GL_DEBUG(glVertex2i)(( ticks << 3 ) + x + width, y );
-                GL_DEBUG(glTexCoord2f)(xl, yt );   GL_DEBUG(glVertex2i)(( ticks << 3 ) + x,         y );
-            }
-            GL_DEBUG_END();
-            maxticks -= NUMTICK;
-            y += BARY;
+            GL_DEBUG(glTexCoord2f)(xl, yb );   GL_DEBUG(glVertex2i)(x,         y + height );
+            GL_DEBUG(glTexCoord2f)(xr, yb );   GL_DEBUG(glVertex2i)(x + width, y + height );
+            GL_DEBUG(glTexCoord2f)(xr, yt );   GL_DEBUG(glVertex2i)(x + width, y );
+            GL_DEBUG(glTexCoord2f)(xl, yt );   GL_DEBUG(glVertex2i)(x,         y );
         }
+        GL_DEBUG_END();
+        y += BARY;
+        maxticks -= NUMTICK;
+    }
 
-        // Draw full rows of empty ticks
-        while ( maxticks >= NUMTICK )
+    // Draw the last of the empty ones
+    if ( maxticks > 0 )
+    {
+        barrect[0].right = ( maxticks << 3 ) + TABX;
+        oglx_texture_Bind( &TxBars );
+
+        xl = ( ( float )barrect[0].left ) / 128;
+        xr = ( ( float )barrect[0].right ) / 128;
+        yt = ( ( float )barrect[0].top ) / 128;
+        yb = ( ( float )barrect[0].bottom ) / 128;
+        width = barrect[0].right - barrect[0].left; height = barrect[0].bottom - barrect[0].top;
+        GL_DEBUG(glBegin)(GL_QUADS );
         {
-            barrect[0].right = BARX;
-            oglx_texture_Bind( &TxBars );
-
-            xl = ( ( float )barrect[0].left ) / 128;
-            xr = ( ( float )barrect[0].right ) / 128;
-            yt = ( ( float )barrect[0].top ) / 128;
-            yb = ( ( float )barrect[0].bottom ) / 128;
-            width = barrect[0].right - barrect[0].left; height = barrect[0].bottom - barrect[0].top;
-            GL_DEBUG(glBegin)(GL_QUADS );
-            {
-                GL_DEBUG(glTexCoord2f)(xl, yb );   GL_DEBUG(glVertex2i)(x,         y + height );
-                GL_DEBUG(glTexCoord2f)(xr, yb );   GL_DEBUG(glVertex2i)(x + width, y + height );
-                GL_DEBUG(glTexCoord2f)(xr, yt );   GL_DEBUG(glVertex2i)(x + width, y );
-                GL_DEBUG(glTexCoord2f)(xl, yt );   GL_DEBUG(glVertex2i)(x,         y );
-            }
-            GL_DEBUG_END();
-            y += BARY;
-            maxticks -= NUMTICK;
+            GL_DEBUG(glTexCoord2f)(xl, yb );   GL_DEBUG(glVertex2i)(x,         y + height );
+            GL_DEBUG(glTexCoord2f)(xr, yb );   GL_DEBUG(glVertex2i)(x + width, y + height );
+            GL_DEBUG(glTexCoord2f)(xr, yt );   GL_DEBUG(glVertex2i)(x + width, y );
+            GL_DEBUG(glTexCoord2f)(xl, yt );   GL_DEBUG(glVertex2i)(x,         y );
         }
-
-        // Draw the last of the empty ones
-        if ( maxticks > 0 )
-        {
-            barrect[0].right = ( maxticks << 3 ) + TABX;
-            oglx_texture_Bind( &TxBars );
-
-            xl = ( ( float )barrect[0].left ) / 128;
-            xr = ( ( float )barrect[0].right ) / 128;
-            yt = ( ( float )barrect[0].top ) / 128;
-            yb = ( ( float )barrect[0].bottom ) / 128;
-            width = barrect[0].right - barrect[0].left; height = barrect[0].bottom - barrect[0].top;
-            GL_DEBUG(glBegin)(GL_QUADS );
-            {
-                GL_DEBUG(glTexCoord2f)(xl, yb );   GL_DEBUG(glVertex2i)(x,         y + height );
-                GL_DEBUG(glTexCoord2f)(xr, yb );   GL_DEBUG(glVertex2i)(x + width, y + height );
-                GL_DEBUG(glTexCoord2f)(xr, yt );   GL_DEBUG(glVertex2i)(x + width, y );
-                GL_DEBUG(glTexCoord2f)(xl, yt );   GL_DEBUG(glVertex2i)(x,         y );
-            }
-            GL_DEBUG_END();
-            y += BARY;
-        }
+        GL_DEBUG_END();
+        y += BARY;
     }
 
     return y;
@@ -3051,7 +3051,7 @@ int draw_status( Uint16 character, int x, int y )
     int mana     = FP8_TO_INT( ChrList[character].mana    );
     int manamax  = FP8_TO_INT( ChrList[character].manamax );
     int cnt = lifemax;
-
+	
     // Write the character's first name
     if ( ChrList[character].nameknown )
         readtext = ChrList[character].name;
@@ -3150,7 +3150,15 @@ int draw_status( Uint16 character, int x, int y )
         y = draw_one_bar( 0, x, y, 0, lifemax );  // Draw a black bar
 
     y = draw_one_bar( ChrList[character].manacolor, x, y, mana, manamax );
-    return y;
+
+#ifdef DRAW_XP_BARS
+	{
+		Uint32 currentxp = ((float)ChrList[character].experience / (float) xp_for_next_level(character)) * NUMTICK;
+		y = draw_one_bar( 4, x, y, currentxp, NUMTICK );
+	}
+#endif
+
+	return y;
 }
 
 //--------------------------------------------------------------------------------------------

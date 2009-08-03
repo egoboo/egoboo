@@ -151,7 +151,7 @@ RockHead:  NONE      47   48   10   0.0  S   0   0   0   1   0   F   F   Evil
 //Evil boss
 Lich:      NONE      80   47.5 10.5 0.0  S   39  0   0 32975 2   F   F   Evil
   OrbStorm:NONE      60  0    0    0    L   0   0   0   0   0   F   F   Null
-  LifeDrai:NONE      59   0    0    0    R   0   0   0   0   0   F   F   Null
+  LifeDrai:NONE      108   0    0    0    R   0   0   0   0   0   F   F   Null
 
 
 //Bodyguards

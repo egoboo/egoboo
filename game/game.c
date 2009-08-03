@@ -2724,17 +2724,17 @@ void show_armor( Uint16 statindex )
             debug_message( text );
 
             // Base speed
-            sprintf( text, "~Speed:~%3.0f~", CapList[icap].maxaccel[skinlevel]*80 );
+            sprintf( text, "~Speed:~%3.0f~", ChrList[ichr].maxaccel*80 );
 
             // jumps
             strcat( text, "Jump Skill:~" );
             switch ( CapList[icap].jumpnumber )
             {
-                case 0:  sprintf( tmps, "None    (%i)", CapList[icap].jumpnumber ); break;
-                case 1:  sprintf( tmps, "Novice  (%i)", CapList[icap].jumpnumber ); break;
-                case 2:  sprintf( tmps, "Skilled (%i)", CapList[icap].jumpnumber ); break;
-                case 3:  sprintf( tmps, "Adept   (%i)", CapList[icap].jumpnumber ); break;
-                default: sprintf( tmps, "Master  (%i)", CapList[icap].jumpnumber ); break;
+                case 0:  sprintf( tmps, "None    (%i)", ChrList[ichr].jumpnumberreset ); break;
+                case 1:  sprintf( tmps, "Novice  (%i)", ChrList[ichr].jumpnumberreset ); break;
+                case 2:  sprintf( tmps, "Skilled (%i)", ChrList[ichr].jumpnumberreset ); break;
+                case 3:  sprintf( tmps, "Adept   (%i)", ChrList[ichr].jumpnumberreset ); break;
+                default: sprintf( tmps, "Master  (%i)", ChrList[ichr].jumpnumberreset ); break;
             };
             strcat( text, tmps );
 
@@ -2749,21 +2749,14 @@ void show_full_status( Uint16 statindex )
 {
     // ZF> This function shows detailed armor information for the character including magic
     char text[64], tmps[64];
-    short character;
-    int i = 0;
+    Uint16 character, enchant;
+    float manaregen, liferegen;
     if ( statindex < numstat )
     {
         character = statlist[statindex];
 
         // Enchanted?
-        while ( i != MAX_ENC )
-        {
-            // Found a active enchantment that is not a skill of the character
-            if ( EncList[i].on && EncList[i].spawner != character && EncList[i].target == character ) break;
-
-            i++;
-        }
-        if ( i != MAX_ENC ) sprintf( text, "=%s is enchanted!=", ChrList[character].name );
+        if ( ChrList[character].firstenchant != MAX_ENC ) sprintf( text, "=%s is enchanted!=", ChrList[character].name );
         else sprintf( text, "=%s is unenchanted=", ChrList[character].name );
 
         debug_message( text );
@@ -2783,15 +2776,28 @@ void show_full_status( Uint16 statindex )
                  ChrList[character].damagemodifier[7]&DAMAGESHIFT );
         debug_message( text );
 
-        // Speed and jumps
-        if ( ChrList[character].jumpnumberreset == 0 )  sprintf( text, "None    (%i)", ChrList[character].jumpnumberreset );
-        if ( ChrList[character].jumpnumberreset == 1 )  sprintf( text, "Novice  (%i)", ChrList[character].jumpnumberreset );
-        if ( ChrList[character].jumpnumberreset == 2 )  sprintf( text, "Skilled (%i)", ChrList[character].jumpnumberreset );
-        if ( ChrList[character].jumpnumberreset == 3 )  sprintf( text, "Adept   (%i)", ChrList[character].jumpnumberreset );
-        if ( ChrList[character].jumpnumberreset > 3 )   sprintf( text, "Master  (%i)", ChrList[character].jumpnumberreset );
+        // Life and mana regeneration
+		manaregen = ChrList[character].manareturn / MANARETURNSHIFT;
+		liferegen = ChrList[character].lifereturn;
+		enchant = ChrList[character].firstenchant;
+        while ( enchant != MAX_ENC )									//Don't forget to add gains and costs from enchants
+        {
+            Uint16 nextenchant = EncList[enchant].nextenchant;
+			if( EncList[enchant].target == character )
+			{
+				liferegen += EncList[enchant].targetlife;
+				manaregen += EncList[enchant].targetmana;
+			}
+			if( EncList[enchant].owner == character )
+			{
+				liferegen += EncList[enchant].ownerlife;
+				manaregen += EncList[enchant].ownermana;
+			}
+            enchant = nextenchant;
+        }
 
-        sprintf( tmps, "Jump Skill: %s", text );
-        sprintf( text, " Speed:~%3.0f~~%s", ChrList[character].maxaccel*80, tmps );
+        sprintf( tmps, "Mana Regen:~%4.2f", manaregen / 256.0f );
+        sprintf( text, " Life Regen:~%4.2f~~%s", liferegen / 256.0f, tmps );
         debug_message( text );
     }
 }
@@ -2802,20 +2808,12 @@ void show_magic_status( Uint16 statindex )
     // ZF> Displays special enchantment effects for the character
     char text[64], tmpa[64], tmpb[64];
     short character;
-    int i = 0;
     if ( statindex < numstat )
     {
         character = statlist[statindex];
 
         // Enchanted?
-        while ( i != MAX_ENC )
-        {
-            // Found a active enchantment that is not a skill of the character
-            if ( EncList[i].on && EncList[i].spawner != character && EncList[i].target == character ) break;
-
-            i++;
-        }
-        if ( i != MAX_ENC ) sprintf( text, "=%s is enchanted!=", ChrList[character].name );
+        if ( ChrList[character].firstenchant != MAX_ENC ) sprintf( text, "=%s is enchanted!=", ChrList[character].name );
         else sprintf( text, "=%s is unenchanted=", ChrList[character].name );
         debug_message( text );
 
@@ -4058,7 +4056,17 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
                     {
                         ChrList[pprt_b->chr].ai.alert |= ALERTIF_SCOREDAHIT;
                         ChrList[pprt_b->chr].ai.hitlast = ichr_a;
-                    }
+
+						//Tell the weapons who the attacker hit last 
+						if(ChrList[pprt_b->chr].holdingwhich[SLOT_LEFT] != MAX_CHR)
+						{
+	                        ChrList[ChrList[pprt_b->chr].holdingwhich[SLOT_LEFT]].ai.hitlast = ichr_a;
+						}
+						if(ChrList[pprt_b->chr].holdingwhich[SLOT_LEFT] != MAX_CHR)
+						{						
+	                        ChrList[ChrList[pprt_b->chr].holdingwhich[SLOT_LEFT]].ai.hitlast = ichr_a;
+						}
+					}
                 }
 
                 if (  HAS_NO_BITS( frame_all, 31 ) && pprt_b->attachedtocharacter == ichr_a )

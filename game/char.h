@@ -695,6 +695,7 @@ void make_one_character_matrix( Uint16 cnt );
 void resize_characters();
 void move_characters( void );
 void do_level_up( Uint16 character );
+Uint32 xp_for_next_level(Uint16 character);
 
 void free_all_characters();
 

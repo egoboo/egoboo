@@ -1,5 +1,8 @@
 Version 2.7.5 (xx.08.2009)
 - New Feature: Improved AI by adding Line of Sight detection for targeting.
+- Update: Improved some details for the floor tiles in the Paladin Starter.
+- Update: Deamon Lords have now halved life regeneration making them much easier to defeat.
+- Update: The Haste spell costs less mana to sustain now.
 - Update: Ghosts can now move through walls and impassable tiles.
 - Update: Support for multiple new resolution formats including widescreen.
 - Update: Improved various menu UI handling and made it look nice in all resolutions.
@@ -7,6 +10,9 @@ Version 2.7.5 (xx.08.2009)
 - Update: Increased the amount of treasure loot found in the Ice Palace.
 - Update: Improved the Frost Lizard AI.
 - Update: Improved the texture detail for all the title images.
+- Bugfix: Tile Mimics can no longer move through doors and walls.
+- Bugfix: Angus in Bishopia now properly gives Soul Carver as quest reward.
+- Bugfix: Lich boss in the crypt now properly holds an attack spell instead of a treasure chest.
 - Bugfix: Fixed a serious bug with morphing.
 - Bugfix: Fixed two impassable passages in Catacombs 2 module. (Credits to Rygwryr)
 - Bugfix: Fixed bug that made Ghosts invincible and Life Drain caused by Ghosts to disappear

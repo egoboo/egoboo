@@ -45,7 +45,11 @@ Trog:      NONE      36   8.0  30.0 4.0  N   3   4   0   0   0   F   F   Trog
 Trog:      NONE      36   8.0  32.0 4.0  N   1   4   0   0   0   F   F   Trog
   Spear:   NONE      51   0    0    0    R   0   0   0   0   0   F   F   Null
 GrubSpit:  NONE      44   5    27   0    S   0   0   0   0   0   F   F   Null
-
+Chest:     NONE      59   3    25   0    E   0   0   0   0   0   F   F   Null
+  EnchantScroll:NONE 60   0    0   0     I   0   0   0   0   0   F   F   Null
+  Grub:    NONE      37   0    0   0     I   0   0   0   0   0   F   F   Insect
+  Plunger: NONE      43   0    0   0     I   0   0   0   0   0   F   F   Null
+  
 
 Grub:      NONE      37   29   47   6    N   0   0   0   0   0   F   F   Insect
 Grub:      NONE      37   36   54   6    N   0   0   0   0   0   F   F   Insect
@@ -113,7 +117,7 @@ DButton:   NONE      56   47   45   0    S   0   0   8   0   0   F   F   Null
 WButton:   NONE      72   35   49   0    N   0   0   2   0   0   F   F   Null
 KButton:   NONE      61   19.3 21   0    W   0   0   4   0   0   F   F   Null
 OButton:   NONE      58   23   24.7 0    W   0   0   5   0   0   F   F   Null
-CButton:   NONE      59   23   27.3 0    N   0   0   5   0   0   F   F   Null
+CButton:   NONE      52   23   27.3 0    N   0   0   5   0   0   F   F   Null
 OButton:   NONE      58   31.3 14   0    S   0   0   6   0   0   F   F   Null
 OButton:   NONE      58   31.3  5   0    S   0   0   7   0   0   F   F   Null
 Platform:  NONE      48   28.5 10   0.9  S   0   0   0   0   0   F   F   Null
@@ -127,3 +131,4 @@ Shaft:     NONE      49   14.5 60.5 0    N   0   0   0   0   0   F   F   Null
 Mouse:     Mickey    53   55   28   0    S   0   0   0   0   0   F   F   Vermin
 
 BossMuse:  NONE      126  55   28   0    S   0   0   0   0   0   F   F   Null
+

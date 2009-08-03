@@ -35,11 +35,14 @@ struct s_egoboo_config;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-#define MAX_WAVE           30             // Up to 30 wave/ogg per model
-#define VOLUMERATIO        7             // Volume ratio
-#define MAXPLAYLISTLENGTH 35             // Max number of different tracks loaded into memory
-#define INVALID_SOUND -1
-#define MENU_SONG           0            // default music theme played when in the menu
+#define MAX_WAVE           30           // Up to 30 wave/ogg per model
+#define MAXPLAYLISTLENGTH  35           // Max number of different tracks loaded into memory
+#define INVALID_SOUND	   -1			// Don't play this sound
+#define MENU_SONG          0            // default music theme played when in the menu
+
+#define MIX_HIGH_QUALITY   44100        // frequency 44100 for 44.1KHz, which is CD audio rate. 
+                                        // Most games use 22050, because 44100 requires too much 
+                                        // CPU power on older computers.
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // BB > enumerated "speech" sounds, so that we COULD ge the scripts to classify which
@@ -117,11 +120,12 @@ struct s_snd_config
     bool_t       soundvalid;           // Allow playing of sound?
     Uint8        soundvolume;          // Volume of sounds played
 
-    bool_t       musicvalid;                             // Allow music and loops?
-    Uint8        musicvolume;                            // The sound volume of music
+    bool_t       musicvalid;           // Allow music and loops?
+    Uint8        musicvolume;          // The sound volume of music
 
     Uint16       maxsoundchannel;      // Max number of sounds playing at the same time
     Uint16       buffersize;           // Buffer size set in setup.txt
+	bool_t       highquality;          // Allow CD quality frequency sounds?
 };
 typedef struct s_snd_config snd_config_t;
 

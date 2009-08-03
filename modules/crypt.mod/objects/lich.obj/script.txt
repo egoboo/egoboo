@@ -114,14 +114,13 @@ IfAttacked
       SetTime
 
 //------------------------------------------------------------------------------
-// ZZ> For charging a spell...
+// For charging a spell...
 IfStateIs10
   // Left hand
   IfTimeOut
     // Release the spell?
-    tmpx = targetdistance - 128
-    GetContent
-    tmpy = 600
+    tmpx = targetdistance
+    tmpy = 728
     IfXIsLessThanY
       // Distance is good...
       tmpx = selfmana
@@ -146,6 +145,43 @@ IfStateIs10
   Else
     // Keep charging
     tmpargument = LATCHLEFT
+    PressLatchButton
+    tmpx = targetx - selfx > 1 + selfx
+    tmpy = targety - selfy > 1 + selfy
+    ClearWaypoints
+    AddWaypoint
+
+// For charging a spell...
+IfStateIs11
+  // Right hand
+  IfTimeOut
+    // Release the spell?
+    tmpx = targetdistance
+    tmpy = 728
+    IfXIsLessThanY
+      // Distance is good...
+      tmpx = selfmana
+      tmpy = 256
+      IfXIsMoreThanY
+        tmpargument = 0
+        SetState
+      Else
+        // Get more mana first
+        tmpargument = LATCHRIGHT
+        PressLatchButton
+    Else
+      // Get closer first
+      tmpargument = LATCHRIGHT
+      PressLatchButton
+    tmpx = targetx - selfx > 1 + selfx
+    tmpy = targety - selfy > 1 + selfy
+    ClearWaypoints
+    AddWaypoint
+    tmpargument = 10
+    SetTime
+  Else
+    // Keep charging
+    tmpargument = LATCHRIGHT
     PressLatchButton
     tmpx = targetx - selfx > 1 + selfx
     tmpy = targety - selfy > 1 + selfy
@@ -184,15 +220,12 @@ IfTimeOut
   IfStateIs3
     // Pick a spell to use on the enemy...  Left or right
     IfTargetIsOnHatedTeam
-      tmpx = rand & 1
-      IfXIsEqualToY
-        IfFacingTarget
-          tmpx = targetdistance
-          tmpy = 300
-          IfXIsLessThanY
-            tmpargument = LATCHRIGHT
-            PressLatchButton
-        tmpargument = 50
+      tmpx = rand % 2
+      tmpy = 0
+      IfXIsEqualToY           //50% to pick either
+        tmpargument = 11
+        SetState
+        tmpargument = 40
         SetTime
       Else
         tmpargument = 10

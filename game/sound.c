@@ -246,10 +246,10 @@ bool_t sdl_audio_initialize()
 bool_t sdl_mixer_initialize()
 {
     // ZF> This intitializes the SDL_mixer services
-    if ( !mixeron )
+    if ( !mixeron && ( snd.musicvalid || snd.soundvalid ) )
     {
         log_info( "Initializing SDL_mixer audio services version %d.%d.%d... ", SDL_MIXER_MAJOR_VERSION, SDL_MIXER_MINOR_VERSION, SDL_MIXER_PATCHLEVEL );
-        if ( Mix_OpenAudio( MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, snd.buffersize ) < 0 )
+		if ( Mix_OpenAudio( cfg.sound_highquality ? MIX_HIGH_QUALITY : MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, snd.buffersize ) < 0 )
         {
             mixeron = bfalse;
             log_message( "Failure!\n" );
@@ -494,6 +494,15 @@ void sound_restart()
             mixeron = btrue;
             Mix_AllocateChannels( snd.maxsoundchannel );
             Mix_VolumeMusic( snd.musicvolume );
+
+			// initialize the music stack
+            music_stack_init();
+			
+			if( !sound_atexit_registered )
+			{
+		        atexit( sdl_mixer_quit );
+				sound_atexit_registered = btrue;
+			}
         }
         else
         {
@@ -560,7 +569,7 @@ bool_t _update_channel_volume( int channel, int volume, GLvector3 diff )
 int sound_play_chunk_looped( GLvector3 pos, Mix_Chunk * pchunk, Sint8 loops, Uint16 object )
 {
     // This function plays a specified sound and returns which channel it's using
-    int channel;
+    int channel= INVALID_SOUND;
     GLvector3 diff;
     int volume;
 
@@ -571,11 +580,9 @@ int sound_play_chunk_looped( GLvector3 pos, Mix_Chunk * pchunk, Sint8 loops, Uin
 
     // measure the distance in tiles
     diff = VSub( pos, PCamera->track_pos );
-
     volume = _calculate_volume( diff );
 
     // play the sound
-    channel = INVALID_SOUND;
     if ( volume > 0 )
     {
         // this function handles loops == 0 properly
@@ -590,7 +597,8 @@ int sound_play_chunk_looped( GLvector3 pos, Mix_Chunk * pchunk, Sint8 loops, Uin
         }
         else
         {
-            _update_channel_volume( channel, volume, diff );
+			//Set left/right panning
+			_update_channel_volume( channel, volume, diff );
         }
     }
 
@@ -781,6 +789,7 @@ void load_all_music_sounds()
 
 bool_t snd_config_init( snd_config_t * psnd )
 {
+	// Initialize the sound settings and set all values to default
     if ( NULL == psnd ) return bfalse;
 
     psnd->soundvalid        = bfalse;
@@ -789,6 +798,7 @@ bool_t snd_config_init( snd_config_t * psnd )
     psnd->soundvolume       = 75;          // Volume of sounds played
     psnd->maxsoundchannel   = 16;      // Max number of sounds playing at the same time
     psnd->buffersize        = 2048;
+	psnd->highquality       = bfalse;
 
     return btrue;
 }
@@ -815,6 +825,7 @@ bool_t snd_config_synch( snd_config_t * psnd, egoboo_config_t * pcfg )
         psnd->musicvolume     = pcfg->music_volume;
         psnd->maxsoundchannel = pcfg->sound_channel_count;
         psnd->buffersize      = pcfg->sound_buffer_size;
+		psnd->highquality	  = pcfg->sound_highquality;
     }
 
     return btrue;
@@ -961,7 +972,7 @@ int looped_add( Mix_Chunk * sound, int loops, Uint16 object )
     if ( NULL == sound )
     {
         // not a valid sound
-        channel = INVALID_SOUND;
+        return INVALID_SOUND;
     }
     else if ( 0 == loops )
     {

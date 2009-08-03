@@ -150,6 +150,7 @@ const char *audioOptionsButtons[] =
     "N/A",        // Music volume
     "N/A",        // Sound channels
     "N/A",        // Sound buffer
+    "N/A",        // Sound quality
     "Save Settings",
     ""
 };
@@ -853,6 +854,10 @@ bool_t doChoosePlayer_load_profiles( int player, ChoosePlayer_profiles_t * prof 
         {
             prof->ref[prof->count++]                 = ref_temp;
             import_data.slot_lst[import_data.object] = ref_temp;
+
+			//Load icon
+			//snprintf( szFilename, SDL_arraysize(szFilename), "players" SLASH_STR "%s" SLASH_STR "%d.obj" SLASH_STR "icon%d", loadplayer[player].dir, i, MAX(0, CapList[ref_temp].skinoverride) );
+			//ego_texture_load( TxIcon + loadplayer_count + ref_temp, szFilename, INVALID_KEY );
         }
     }
 
@@ -916,13 +921,17 @@ bool_t doChoosePlayer_show_stats( int player, int mode, int x, int y, int width,
             //Life and mana (can be less than maximum if not in easy mode)
             if ( cfg.difficulty >= GAME_NORMAL )
             {
-                y = draw_one_bar( pcap->lifecolor, x, y + 40, pcap->spawnlife >> 8, pcap->lifebase >> 8 );
-                y = draw_one_bar( pcap->manacolor, x, y, pcap->spawnmana >> 8, pcap->manabase >> 8 );
+				carat += snprintf( carat, carat_end - carat - 1, "Life: %d/%d\n", pcap->spawnlife >> 8, pcap->lifebase >> 8 );
+				carat += snprintf( carat, carat_end - carat - 1, "Mana: %d/%d\n", pcap->spawnmana >> 8, pcap->manabase >> 8 );
+				//y = draw_one_bar( pcap->lifecolor, x + 10, y + 40, pcap->spawnlife >> 8, pcap->lifebase >> 8 );
+                //y = draw_one_bar( pcap->manacolor, x + 10, y, pcap->spawnmana >> 8, pcap->manabase >> 8 );
             }
             else
             {
-                y = draw_one_bar( pcap->lifecolor, x, y + 40, pcap->lifebase >> 8, pcap->lifebase >> 8 );
-                y = draw_one_bar( pcap->manacolor, x, y, pcap->manabase >> 8, pcap->manabase >> 8 );
+                carat += snprintf( carat, carat_end - carat - 1, "Life: %d\n", pcap->lifebase >> 8 );
+				carat += snprintf( carat, carat_end - carat - 1, "Mana: %d\n", pcap->manabase >> 8 );
+				//y = draw_one_bar( pcap->lifecolor, x + 10, y + 40, pcap->lifebase >> 8, pcap->lifebase >> 8 );
+                //y = draw_one_bar( pcap->manacolor, x + 10, y, pcap->manabase >> 8, pcap->manabase >> 8 );
             }
 
             //SWID
@@ -943,8 +952,15 @@ bool_t doChoosePlayer_show_stats( int player, int mode, int x, int y, int width,
 
                     if ( VALID_CAP(iobj) )
                     {
+						char itemname[256];
                         pcap = CapList + iobj;
-                        carat += snprintf( carat, carat_end - carat - 1, "  Item: %s\n", pcap->classname );
+						if( pcap->nameknown )	strcpy(itemname, chop_create(iobj));
+						else					strcpy(itemname, pcap->classname);
+
+						if	   ( i == SLOT_LEFT+1  ) carat += snprintf( carat, carat_end - carat - 1, "  Left: %s\n", itemname );
+						else if( i == SLOT_RIGHT+1 ) carat += snprintf( carat, carat_end - carat - 1, "  Right: %s\n", itemname );
+						else carat += snprintf( carat, carat_end - carat - 1, "  Item: %s\n", itemname );
+						//draw_one_icon( loadplayer_count + iobj, x + 10, y+150+(i*32), NOSPARKLE );
                     }
                 }
             }
@@ -1117,6 +1133,8 @@ int doChoosePlayer( float deltaTime )
                     {
                         // button has become cursor_clicked
                         // mnu_addSelectedPlayer(player);
+                        last_player = player;
+                        new_player  = btrue;
                     }
                     else if ( HAS_NO_BITS( mnu_widgetList[m].state, UI_BITS_CLICKED ) && mnu_checkSelectedPlayer( player ) )
                     {
@@ -1125,8 +1143,8 @@ int doChoosePlayer( float deltaTime )
                         {
                             last_player = -1;
                         }
-                    };
-                };
+                    }
+                }
 
                 // do each of the input buttons
                 for ( j = 0, m++; j < 4; j++, m++ )
@@ -1167,8 +1185,8 @@ int doChoosePlayer( float deltaTime )
                             {
                                 last_player = -1;
                             }
-                        };
-                    };
+                        }
+                    }
                 }
             }
 
@@ -1857,7 +1875,7 @@ int doGameOptions( float deltaTime )
             }
             gameOptionsButtons[0] = Cdifficulty;
 
-            if ( maxmessage > MAXMESSAGE || maxmessage < 0 ) maxmessage = MAXMESSAGE - 1;
+            maxmessage = CLIP(maxmessage, 4, MAXMESSAGE);
             if ( maxmessage == 0 )
             {
                 sprintf( Cmaxmessage, "None" );           // Set to default
@@ -1948,19 +1966,9 @@ int doGameOptions( float deltaTime )
             ui_drawTextBox( menuFont, "Max  Messages:", buttonLeft + 350, 50, 0, 0, 20 );
             if ( BUTTON_UP == ui_doButton( 12, gameOptionsButtons[1], menuFont, buttonLeft + 500, 50, 75, 30 ) )
             {
-                if ( cfg.message_count_req < 0 )
-                {
-                    cfg.message_count_req = 0;
-                }
-                else
-                {
-                    cfg.message_count_req++;
-                }
-
-                if ( cfg.message_count_req > MAXMESSAGE )
-                {
-                    cfg.message_count_req = 0;
-                }
+				cfg.message_count_req++;
+				if ( cfg.message_count_req > MAXMESSAGE) cfg.message_count_req = 0; 
+				if ( cfg.message_count_req < 4 && cfg.message_count_req != 0 ) cfg.message_count_req = 4;
 
                 if ( 0 == cfg.message_count_req )
                 {
@@ -2091,7 +2099,8 @@ int doAudioOptions( float deltaTime )
     static char Cbuffersize[128];
     static char Csoundvolume[128];
     static char Cmusicvolume[128];
-
+	static char Chighquality[128];
+    
     int result = 0;
 
     switch ( menuState )
@@ -2116,13 +2125,12 @@ int doAudioOptions( float deltaTime )
             }
 
             // Load the current settings
-            if ( cfg.sound_allowed ) audioOptionsButtons[0] = "On";
-            else audioOptionsButtons[0] = "Off";
+			audioOptionsButtons[0] = cfg.sound_allowed? "On" : "Off";
 
             sprintf( Csoundvolume, "%i", cfg.sound_volume );
             audioOptionsButtons[1] = Csoundvolume;
-            if ( cfg.music_allowed ) audioOptionsButtons[2] = "On";
-            else audioOptionsButtons[2] = "Off";
+
+			audioOptionsButtons[2] = cfg.music_allowed? "On" : "Off";
 
             sprintf( Cmusicvolume, "%i", cfg.music_volume );
             audioOptionsButtons[3] = Cmusicvolume;
@@ -2132,6 +2140,8 @@ int doAudioOptions( float deltaTime )
 
             sprintf( Cbuffersize, "%i", cfg.sound_buffer_size );
             audioOptionsButtons[5] = Cbuffersize;
+
+			audioOptionsButtons[6] = cfg.sound_highquality ? "Normal" : "High";
 
             // Fall trough
             menuState = MM_Running;
@@ -2233,7 +2243,15 @@ int doAudioOptions( float deltaTime )
                 audioOptionsButtons[5] = Cbuffersize;
             }
 
-            if ( BUTTON_UP == ui_doButton( 7, audioOptionsButtons[6], menuFont, buttonLeft, GFX_HEIGHT - 60, 200, 30 ) )
+			ui_drawTextBox( menuFont, "Sound Quality:", buttonLeft + 300, GFX_HEIGHT - 130, 0, 0, 20 );
+            if ( BUTTON_UP == ui_doButton( 7, audioOptionsButtons[6], menuFont, buttonLeft + 450, GFX_HEIGHT - 130, 100, 30 ) )
+            {
+				cfg.sound_highquality = !cfg.sound_highquality;
+                audioOptionsButtons[6] = cfg.sound_highquality ? "Normal" : "High";
+            }
+
+			//Save settings
+            if ( BUTTON_UP == ui_doButton( 8, audioOptionsButtons[7], menuFont, buttonLeft, GFX_HEIGHT - 60, 200, 30 ) )
             {
                 // synchronoze the config values with the various game subsystems
                 setup_synch( &cfg );
@@ -2928,7 +2946,6 @@ int doVideoOptions( float deltaTime )
 //--------------------------------------------------------------------------------------------
 int doShowMenuResults( float deltaTime )
 {
-    int x, y;
     Uint8 i;
 
     static STRING  text;
@@ -2952,32 +2969,33 @@ int doShowMenuResults( float deltaTime )
             // pass through
 
         case MM_Running:
+			{
+				char buffer[1024];
+				char * carat = buffer, * carat_end = buffer + SDL_arraysize(buffer);
 
-            ui_drawButton( UI_Nothing, 30, 30, GFX_WIDTH  - 60, GFX_HEIGHT - 65, NULL );
+				ui_drawButton( UI_Nothing, 30, 30, GFX_WIDTH  - 60, GFX_HEIGHT - 65, NULL );
 
-            GL_DEBUG(glColor4f)(1, 1, 1, 1 );
+                GL_DEBUG(glColor4f)(1, 1, 1, 1 );
 
-            x =  35;
-            y = 110;
+				// the module name
+				ui_drawTextBox( font, ModList[selectedModule].longname, 50, 80, 291, 230, 20 );
 
-            // the module name
-            snprintf( text, SDL_arraysize(text), "%s", ModList[selectedModule].longname );
-            fnt_drawText( font, x, y, text );
-            y += 50;
+				// the summary
+				for ( i = 0; i < SUMMARYLINES; i++ )
+                {
+                    carat += snprintf( carat, carat_end - carat - 1, "%s\n", ModList[selectedModule].summary[i] );
+                }
 
-            // the summary
-            for ( i = 0; i < SUMMARYLINES; i++ )
-            {
-                fnt_drawText( menuFont, x, y, ModList[selectedModule].summary[i] );
-                y += 20;
-            }
+                // Draw a text box                
+				ui_drawTextBox( menuFont, buffer, 50, 120, 291, 230, 20 );
 
-            // keep track of the iterations through this section for a timer
-            count++;
-            if ( count > UPDATE_SKIP )
-            {
-                menuState  = MM_Leaving;
-            }
+				// keep track of the iterations through this section for a timer
+				count++;
+				if ( count > UPDATE_SKIP )
+				{
+					menuState  = MM_Leaving;
+				}
+			}
             break;
 
         case MM_Leaving:
