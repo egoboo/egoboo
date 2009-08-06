@@ -385,6 +385,7 @@ The symbol itself follows
 :F 369 GiveManaReturnToTarget
 :F 370 SetMoney
 :F 371 IfTargetCanSeeKurses
+:F 372 SpawnAttachedCharacter
 :C 001 BLAHDEAD
 :C 002 BLAHENEMIES
 :C 004 BLAHFRIENDS
@@ -557,6 +558,9 @@ The symbol itself follows
 :C 022 TEAMX
 :C 023 TEAMY
 :C 024 TEAMZ
+:C 000 INVENTORY
+:C 001 LEFT
+:C 002 RIGHT
 :V 000 tmpx
 :V 001 tmpy
 :V 002 tmpdist

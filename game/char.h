@@ -30,13 +30,17 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-#define TURNSPD                         0.01f         // Cutoff for turning or same direction
-#define TURNMODEVELOCITY    0                       // Character gets rotation from velocity
-#define TURNMODEWATCH       1                       // For watch towers
-#define TURNMODESPIN        2                       // For spinning objects
-#define TURNMODEWATCHTARGET 3                       // For combat intensive AI
-
-#define MAXLEVEL            6                       // Basic Levels 0-5
+enum e_turn_modes
+{
+	TURNMODE_VELOCITY = 0,                       // Character gets rotation from velocity (normal)
+    TURNMODE_WATCH,								 // For watch towers, look towards waypoint
+	TURNMODE_SPIN,								 // For spinning objects
+	TURNMODE_WATCHTARGET,                        // For combat intensive AI
+    TURNMODE_COUNT
+};
+#define TURNSPD             0.01f				  // Cutoff for turning or same direction
+#define SPINRATE            200                   // How fast spinners spin
+#define WATCHMIN            0.01f				  // Tolerance for TURNMODE_WATCH
 
 // Object positions
 enum e_slots
@@ -75,22 +79,46 @@ typedef enum e_grip_offset grip_offset_t;
 grip_offset_t slot_to_grip_offset( slot_t slot );
 slot_t        grip_offset_to_slot( grip_offset_t grip );
 
-#define SPINRATE            200                     // How fast spinners spin
-#define WATCHMIN            0.01f
 #define PITDEPTH            -30                     // Depth to kill character
 
-#define BORETIME            (rand()&255)+120
-#define CAREFULTIME         50
 
+
+#define ULTRABLUDY           2          // This makes any damage draw blud
+
+#define NOSKINOVERRIDE      -1          // For import
+
+#define HURTDAMAGE           256                     // Minimum damage for hurt animation
+
+//Damage shifts
+#define DAMAGEMANA          16                      // 000x0000 Deals damage to mana
+#define DAMAGECHARGE        8                       // 0000x000 Converts damage to mana
+#define DAMAGEINVERT        4                       // 00000x00 Makes damage heal
+#define DAMAGESHIFT         3                       // 000000xx Resistance ( 1 is common )
+
+//Knockbacks
 #define REEL                7600.0f     // Dampen for melee knock back
 #define REELBASE            0.35f
 
-#define RIPPLEAND           15          // How often ripples spawn
+//Dismounting
+#define DISMOUNTZVEL        16
+#define DISMOUNTZVELFLY     4
+#define PHYS_DISMOUNT_TIME  50          // time delay for full object-object interaction
 
+//Water
+#define WATERJUMP           12
 #define RIPPLETOLERANCE     60          // For deep water
 #define SPLASHTOLERANCE     10
+#define RIPPLEAND           15          // How often ripples spawn
 
-#define PHYS_DISMOUNT_TIME  50          // time delay for full object-object interaction
+//Levels
+#define MAXBASELEVEL            6                 // Basic Levels 0-5
+#define MAXLEVEL               20                 // Absolute max level
+
+// Stats
+#define LOWSTAT             256                     // Worst...
+#define PERFECTSTAT         (60*256)                // Maximum stat without magic effects
+#define PERFECTBIG          (100*256)               // Perfect life or mana...
+#define HIGHSTAT            (100*256)                // Absolute max adding enchantments as well
 
 // Throwing
 #define THROWFIX            30.0f                    // To correct thrown velocities
@@ -104,6 +132,7 @@ slot_t        grip_offset_to_slot( grip_offset_t grip );
 
 // Z velocity
 #define FLYDAMPEN           0.001f                    // Levelling rate for flyers
+#define JUMPDELAY           20                      // Time between jumps
 #define JUMPINFINITE        255                     // Flying character
 #define SLIDETOLERANCE      10                      // Stick to ground better
 #define PLATTOLERANCE       50                     // Platform tolerance...
@@ -111,7 +140,17 @@ slot_t        grip_offset_to_slot( grip_offset_t grip );
 #define PLATASCEND          0.10f                     // Ascension rate
 #define PLATKEEP            0.90f                     // Retention rate
 #define MOUNTTOLERANCE      (2 * PLATTOLERANCE)
-#define STOPBOUNCING         0.1f // 1.0f                // To make objects stop bouncing
+#define STOPBOUNCING        0.1f // 1.0f                // To make objects stop bouncing
+#define DROPZVEL            7
+#define DROPXYVEL           8
+
+//Timer resets
+#define DAMAGETILETIME      32                      // Invincibility time
+#define DAMAGETIME          16                      // Invincibility time
+#define DEFENDTIME          16                      // Invincibility time
+#define BORETIME            (rand()&255)+120		// IfBored timer
+#define CAREFULTIME         50						// Friendly fire timer
+#define SIZETIME            50                      // Time it takes to resize a character
 
 // Quest system
 #define QUEST_BEATEN         -1
@@ -312,7 +351,7 @@ struct s_cap
     Uint8        gopoofprtamount;               // Poof effect
     Sint16       gopoofprtfacingadd;
     Uint16       gopoofprttype;
-    bool_t       bludvalid;                    // Blud ( yuck )
+    Uint8        bludvalid;                    // Blud ( yuck )
     Uint8        bludprttype;
     bool_t       ridercanattack;                // Rider attack?
     bool_t       canbedazed;                    // Can it be dazed?
@@ -695,7 +734,7 @@ void make_one_character_matrix( Uint16 cnt );
 void resize_characters();
 void move_characters( void );
 void do_level_up( Uint16 character );
-Uint32 xp_for_next_level(Uint16 character);
+bool_t setup_xp_table(Uint16 character);
 
 void free_all_characters();
 

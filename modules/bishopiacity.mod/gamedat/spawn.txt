@@ -44,14 +44,14 @@ Player4:   NONE    27  54.5   72.5   0.0   N    0   0  0   0   0   T   F   G			/
 //-----------------------------------------------------------------------------------
 
 monk.obj:   NONE    96  24.0   42.0   0.5   N    0   0  11   4   0   F   F   N			//Paladin Shop
-achest.obj:   NONE    59  25.0   39.5   1.0   S    4   0  0   96   9   F   F   N
-achest.obj:   NONE    59  24.0   39.5   1.0   S    4   0  0   96   7   F   F   N
-moduletool.obj:   NONE    99  24.0   41.0   1.0   N    0   0  0   4   0   F   F   N
-moduletool.obj:   NONE    99  25.0   41.0   1.0   N    0   0  0   4   0   F   F   N
-moduletool.obj:   NONE    99  24.0   42.0   1.0   N    0   0  0   4   0   F   F   N
-moduletool.obj:   NONE    99  25.0   42.0   1.0   N    0   0  0   4   0   F   F   N
-moduletool.obj:   NONE    99  24.0   43.0   1.0   N    0   0  0   4   0   F   F   N
-moduletool.obj:   NONE    99  25.0   43.0   1.0   N    0   0  0   4   0   F   F   N
+  achest.obj:   NONE    59  25.0   39.5   1.0   S    4   0  0   96   9   F   F   N
+  achest.obj:   NONE    59  24.0   39.5   1.0   S    4   0  0   96   7   F   F   N
+  moduletool.obj:   NONE    99  24.0   41.0   1.0   N    0   0  0   4   0   F   F   N
+  moduletool.obj:   NONE    99  25.0   41.0   1.0   N    0   0  0   4   0   F   F   N
+  moduletool.obj:   NONE    99  24.0   42.0   1.0   N    0   0  0   4   0   F   F   N
+  moduletool.obj:   NONE    99  25.0   42.0   1.0   N    0   0  0   4   0   F   F   N
+  moduletool.obj:   NONE    99  24.0   43.0   1.0   N    0   0  0   4   0   F   F   N
+  moduletool.obj:   NONE    99  25.0   43.0   1.0   N    0   0  0   4   0   F   F   N
 
 shopkeep2.obj:   Olaf    52  9.5   98.5   0.0   N    3   0  0   1   0   F   F   G		//Junk shop
   pistol.obj:   NONE    98  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
@@ -61,12 +61,12 @@ shopkeep.obj:   Dunlar    49  51.5   27.5   0.0   N    199   0  1   1   0   F   
 
 magicshop.obj:   Zambini    80  72.0   96.0   0.0   N    999   0  6   0   0   F   F   G		//Spell shop
   qstaff.obj:   NONE    47  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-randommagic.obj:   NONE    99  68.5   96.5   1.0   N    0   0  0   3   0   F   F   N
-randommagic.obj:   NONE    99  75.5   96.5   1.0   N    0   0  0   3   0   F   F   N
-randommagic.obj:   NONE    99  75.5   94.5   1.0   N    0   0  0   3   0   F   F   N
-randommagic.obj:   NONE    99  75.5   98.5   1.0   N    0   0  0   3   0   F   F   N
-randommagic.obj:   NONE    99  68.5   98.5   1.0   N    0   0  0   3   0   F   F   N
-randommagic.obj:   NONE    99  68.5   94.5   1.0   N    0   0  0   3   0   F   F   N
+  randommagic.obj:   NONE    99  68.5   96.5   1.0   N    0   0  0   3   0   F   F   N
+  randommagic.obj:   NONE    99  75.5   96.5   1.0   N    0   0  0   3   0   F   F   N
+  randommagic.obj:   NONE    99  75.5   94.5   1.0   N    0   0  0   3   0   F   F   N
+  randommagic.obj:   NONE    99  75.5   98.5   1.0   N    0   0  0   3   0   F   F   N
+  randommagic.obj:   NONE    99  68.5   98.5   1.0   N    0   0  0   3   0   F   F   N
+  randommagic.obj:   NONE    99  68.5   94.5   1.0   N    0   0  0   3   0   F   F   N
 
 //Spell books
 moduletool.obj:   NONE    99  70.5   97.5   1.0   N    0   0  0   0   0   F   F   N
@@ -104,15 +104,15 @@ shopkeep2.obj:   Alkor    52  78.0   81.5   0.0   W    99   2  10   0   0   F   
 
 shopkeep.obj:   Gerard    49  49.0   42.0   1.0   N    399   3  10   0   0   F   F   G		//Armor shop
   spikedmace.obj:   NONE    66  0.0   0.0   1.0   I    0   0  0   0   0   F   F   N
-achest.obj:   NONE    59  53.5   44.5   1.0   N    4   0  0   96   12   F   F   Null
-achest.obj:   NONE    59  51.5   44.5   1.0   N    4   0  0   96   12   F   F   Null
-achest.obj:   NONE    59  49.5   44.5   1.0   N    4   0  0   96   12   F   F   Null
-achest.obj:   NONE    59  45.5   44.5   1.0   N    4   0  0   96   12   F   F   Null
-achest.obj:   NONE    59  47.5   44.5   1.0   N    4   0  0   96   12   F   F   Null
-achest.obj:   NONE    59  53.5   40.5   1.0   S    4   0  0   96   12   F   F   Null
-achest.obj:   NONE    59  51.5   40.5   1.0   S    4   0  0   96   12   F   F   Null
-achest.obj:   NONE    59  47.5   40.5   1.0   S    4   0  0   96   12   F   F   Null
-achest.obj:   NONE    59  45.5   40.5   1.0   S    4   0  0   96   12   F   F   Null
+  achest.obj:   NONE    59  53.5   44.5   1.0   N    4   0  0   96   12   F   F   Null
+  achest.obj:   NONE    59  51.5   44.5   1.0   N    4   0  0   96   12   F   F   Null
+  achest.obj:   NONE    59  49.5   44.5   1.0   N    4   0  0   96   12   F   F   Null
+  achest.obj:   NONE    59  45.5   44.5   1.0   N    4   0  0   96   12   F   F   Null
+  achest.obj:   NONE    59  47.5   44.5   1.0   N    4   0  0   96   12   F   F   Null
+  achest.obj:   NONE    59  53.5   40.5   1.0   S    4   0  0   96   12   F   F   Null
+  achest.obj:   NONE    59  51.5   40.5   1.0   S    4   0  0   96   12   F   F   Null
+  achest.obj:   NONE    59  47.5   40.5   1.0   S    4   0  0   96   12   F   F   Null
+  achest.obj:   NONE    59  45.5   40.5   1.0   S    4   0  0   96   12   F   F   Null
 
 Healer:   NONE    141  28.5   32.5   0.0   S    19   1  0   0   0   F   F   G			//Healer's hut
   spikedmace.obj:   NONE    66  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
@@ -121,50 +121,50 @@ Healer:   NONE    141  28.5   32.5   0.0   S    19   1  0   0   0   F   F   G			
 //GUARDS
 //-----------------------------------------------------------------------------------
 captain.obj:   NONE   133  52.0   101.5   4.0   S    50   0  0   0   0   F   F   G		//Captain
-wsword.obj:   NONE    122  65.5   32.5   3.0   R    0   0  0   0   0   F   F   N
-gshield.obj:   NONE    76  65.5   32.5   3.0   L    0   0  0   0   0   F   F   N
+  wsword.obj:   NONE    122  65.5   32.5   3.0   R    0   0  0   0   0   F   F   N
+  gshield.obj:   NONE    76  65.5   32.5   3.0   L    0   0  0   0   0   F   F   N
 
 
 guard.obj:   NONE    51  10.0   8.0   3.0   N    0   0  1   0   0   F   F   G
-sword.obj:   NONE    57  65.5   32.5   3.0   R    0   0  0   0   0   F   F   N
-gshield.obj:   NONE    76  65.5   32.5   3.0   L    0   0  0   0   0   F   F   N
+  sword.obj:   NONE    57  65.5   32.5   3.0   R    0   0  0   0   0   F   F   N
+  gshield.obj:   NONE    76  65.5   32.5   3.0   L    0   0  0   0   0   F   F   N
 guard.obj:   NONE    51  21.5   45.5   2.0   S    0   0  0   0   0   F   F   G
-sword.obj:   NONE    57  65.5   32.5   3.0   R    0   0  0   0   0   F   F   N
-gshield.obj:   NONE    76  65.5   32.5   3.0   L    0   0  0   0   0   F   F   N
+  sword.obj:   NONE    57  65.5   32.5   3.0   R    0   0  0   0   0   F   F   N
+  gshield.obj:   NONE    76  65.5   32.5   3.0   L    0   0  0   0   0   F   F   N
 guard.obj:   NONE    51  47.0   72.0   1.0   E    0   1  0   0   0   F   F   G
-sword.obj:   NONE    57  65.5   32.5   3.0   R    0   0  0   0   0   F   F   N
-gshield.obj:   NONE    76  65.5   32.5   3.0   L    0   0  0   0   0   F   F   N
+  sword.obj:   NONE    57  65.5   32.5   3.0   R    0   0  0   0   0   F   F   N
+  gshield.obj:   NONE    76  65.5   32.5   3.0   L    0   0  0   0   0   F   F   N
 guard.obj:   NONE    51  17.5   96.5   1.0   W    0   0  0   0   0   F   F   G
-lbow.obj:   NONE    61  65.5   32.5   3.0   R    0   0  0   0   0   F   F   N
+  lbow.obj:   NONE    61  65.5   32.5   3.0   R    0   0  0   0   0   F   F   N
 guard.obj:   NONE    51  85.0   13.0   1.0   S    0   1  0   0   0   F   F   G
-lbow.obj:   NONE    61  65.5   32.5   3.0   R    0   0  0   0   0   F   F   N
+  lbow.obj:   NONE    61  65.5   32.5   3.0   R    0   0  0   0   0   F   F   N
 guard.obj:   NONE    51  45.5   7.5   3.0   N    0   0  0   0   0   F   F   G
-lbow.obj:   NONE    61  65.5   32.5   3.0   R    0   0  0   0   0   F   F   N
+  lbow.obj:   NONE    61  65.5   32.5   3.0   R    0   0  0   0   0   F   F   N
 guard.obj:   NONE    51  31.5   7.5   3.0   W    0   1  0   0   0   F   F   G
-sword.obj:   NONE    57  65.5   32.5   3.0   R    0   0  0   0   0   F   F   N
-gshield.obj:   NONE    76  65.5   32.5   3.0   L    0   0  0   0   0   F   F   N
+  sword.obj:   NONE    57  65.5   32.5   3.0   R    0   0  0   0   0   F   F   N
+  gshield.obj:   NONE    76  65.5   32.5   3.0   L    0   0  0   0   0   F   F   N
 guard.obj:   NONE    51  70.5   70.5   1.0   S    0   0  0   0   0   F   F   G
-lbow.obj:   NONE    61  65.5   32.5   3.0   R    0   0  0   0   0   F   F   N
+  lbow.obj:   NONE    61  65.5   32.5   3.0   R    0   0  0   0   0   F   F   N
 guard.obj:   NONE    51  56.5   90.5   1.0   E    0   1  0   0   0   F   F   G
-sword.obj:   NONE    57  65.5   32.5   3.0   R    0   0  0   0   0   F   F   N
-gshield.obj:   NONE    76  65.5   32.5   3.0   L    0   0  0   0   0   F   F   N
+  sword.obj:   NONE    57  65.5   32.5   3.0   R    0   0  0   0   0   F   F   N
+  gshield.obj:   NONE    76  65.5   32.5   3.0   L    0   0  0   0   0   F   F   N
 guard.obj:   NONE    51  20.5   58.5   1.0   W    0   1  0   0   0   F   F   G
-sword.obj:   NONE    57  65.5   32.5   3.0   R    0   0  0   0   0   F   F   N
-gshield.obj:   NONE    76  65.5   32.5   3.0   L    0   0  0   0   0   F   F   N
+  sword.obj:   NONE    57  65.5   32.5   3.0   R    0   0  0   0   0   F   F   N
+  gshield.obj:   NONE    76  65.5   32.5   3.0   L    0   0  0   0   0   F   F   N
 guard.obj:   NONE    51  14.0   26.0   1.0   N    0   0  0   0   0   F   F   G
-lbow.obj:   NONE    61  65.5   32.5   3.0   R    0   0  0   0   0   F   F   N
+  lbow.obj:   NONE    61  65.5   32.5   3.0   R    0   0  0   0   0   F   F   N
 guard.obj:   NONE    51  13.0   23.0   1.0   S    0   1  0   0   0   F   F   G
-sword.obj:   NONE    57  65.5   32.5   3.0   R    0   0  0   0   0   F   F   N
-gshield.obj:   NONE    76  65.5   32.5   3.0   L    0   0  0   0   0   F   F   N
+  sword.obj:   NONE    57  65.5   32.5   3.0   R    0   0  0   0   0   F   F   N
+  gshield.obj:   NONE    76  65.5   32.5   3.0   L    0   0  0   0   0   F   F   N
 guard.obj:   NONE    51  11.0   25.0   1.0   E    0   0  0   0   0   F   F   G
-sword.obj:   NONE    57  65.5   32.5   3.0   R    0   0  0   0   0   F   F   N
-gshield.obj:   NONE    76  65.5   32.5   3.0   L    0   0  0   0   0   F   F   N
+  sword.obj:   NONE    57  65.5   32.5   3.0   R    0   0  0   0   0   F   F   N
+  gshield.obj:   NONE    76  65.5   32.5   3.0   L    0   0  0   0   0   F   F   N
 guard.obj:   NONE    51  52.0   103.0   4.0   N    0   1  0   0   0   F   F   G
-sword.obj:   NONE    57  65.5   32.5   3.0   R    0   0  0   0   0   F   F   N
-gshield.obj:   NONE    76  65.5   32.5   3.0   L    0   0  0   0   0   F   F   N
+  sword.obj:   NONE    57  65.5   32.5   3.0   R    0   0  0   0   0   F   F   N
+  gshield.obj:   NONE    76  65.5   32.5   3.0   L    0   0  0   0   0   F   F   N
 guard.obj:   NONE    51  49.5   100.5   3.0   N    0   0  0   0   0   F   F   G
-sword.obj:   NONE    57  65.5   32.5   3.0   R    0   0  0   0   0   F   F   N
-gshield.obj:   NONE    76  65.5   32.5   3.0   L    0   0  0   0   0   F   F   N
+  sword.obj:   NONE    57  65.5   32.5   3.0   R    0   0  0   0   0   F   F   N
+  gshield.obj:   NONE    76  65.5   32.5   3.0   L    0   0  0   0   0   F   F   N
 
 
 //Ninja guards

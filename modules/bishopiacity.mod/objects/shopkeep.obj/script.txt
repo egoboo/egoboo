@@ -13,6 +13,63 @@ tmpargument = YELLOW
 ShowBlipXY
 
 //------------------------------------------------------------------------------
+//Check if we mark the shop area with particles
+IfSpawned
+  tmpargument = 1
+  IfArmorIs			//Mark secret shop as a shop... eh
+    tmpargument = passage
+    AddShopPassage
+  IfContentIs
+    tmpargument = passage	//Yep, lets setup shop..
+    AddShopPassage
+
+    // Make the border
+    tmpargument = 2
+    tmpdistance = 0
+
+    // Top
+    tmpx = selfx - 122
+    tmpy = selfy - 324
+    SpawnExactParticle
+    tmpx = tmpx + 88
+    SpawnExactParticle
+    tmpx = tmpx + 88
+    SpawnExactParticle
+    tmpx = tmpx + 88
+    SpawnExactParticle
+
+    // Bottom
+    tmpy = selfy + 324
+    SpawnExactParticle
+    tmpx = tmpx - 88
+    SpawnExactParticle
+    tmpx = tmpx - 88
+    SpawnExactParticle
+    tmpx = tmpx - 88
+    SpawnExactParticle
+
+    // Left
+    tmpx = selfx - 304
+    tmpy = selfy - 102
+    SpawnExactParticle
+    tmpy = tmpy + 88
+    SpawnExactParticle
+    tmpy = tmpy + 88
+    SpawnExactParticle
+    tmpy = tmpy + 88
+    SpawnExactParticle
+
+    // Right
+    tmpx = selfx + 304
+    SpawnExactParticle
+    tmpy = tmpy - 88
+    SpawnExactParticle
+    tmpy = tmpy - 88
+    SpawnExactParticle
+    tmpy = tmpy - 88
+    SpawnExactParticle
+    
+//------------------------------------------------------------------------------
 // Get mean if characters wanna be bad
 IfAttacked
   CallForHelp
@@ -494,63 +551,6 @@ IfSpawned
     tmpy = selfy - 56
     tmpargument = 150		//Ammo Quiver
     SpawnExactCharacterXYZ
-
-//------------------------------------------------------------------------------
-//Check if we mark the shop area with particles
-IfSpawned
-  tmpargument = 1
-  IfArmorIs			//Mark secret shop as a shop... eh
-    tmpargument = passage
-    AddShopPassage
-  IfContentIs
-    tmpargument = passage	//Yep, lets setup shop..
-    AddShopPassage
-
-    // Make the border
-    tmpargument = 2
-    tmpdistance = 0
-
-    // Top
-    tmpx = selfx - 122
-    tmpy = selfy - 324
-    SpawnExactParticle
-    tmpx = tmpx + 88
-    SpawnExactParticle
-    tmpx = tmpx + 88
-    SpawnExactParticle
-    tmpx = tmpx + 88
-    SpawnExactParticle
-
-    // Bottom
-    tmpy = selfy + 324
-    SpawnExactParticle
-    tmpx = tmpx - 88
-    SpawnExactParticle
-    tmpx = tmpx - 88
-    SpawnExactParticle
-    tmpx = tmpx - 88
-    SpawnExactParticle
-
-    // Left
-    tmpx = selfx - 304
-    tmpy = selfy - 102
-    SpawnExactParticle
-    tmpy = tmpy + 88
-    SpawnExactParticle
-    tmpy = tmpy + 88
-    SpawnExactParticle
-    tmpy = tmpy + 88
-    SpawnExactParticle
-
-    // Right
-    tmpx = selfx + 304
-    SpawnExactParticle
-    tmpy = tmpy - 88
-    SpawnExactParticle
-    tmpy = tmpy - 88
-    SpawnExactParticle
-    tmpy = tmpy - 88
-    SpawnExactParticle
 
 //------------------------------------------------------------------------------
 //Handle orders ( purchases )

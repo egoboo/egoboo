@@ -48,12 +48,14 @@ struct s_egoboo_config;
 #define NUMTICK                         10// 50          // Number of ticks per row
 #define TICKX                           8// 4           // X size of each tick
 #define MAXTICK                         (NUMTICK*10) // Max number of ticks to draw
+#define XPTICK							6.00f
 
 #define NUMFONTX                        16          // Number of fonts in the bitmap
 #define NUMFONTY                        6
 #define NUMFONT                         (NUMFONTX*NUMFONTY)
-#define FONTADD                         4           // Gap between letters
-#define NUMBAR                          6           // Number of status bars
+#define FONTADD                         4				// Gap between letters
+#define NUMBAR                          6			    // Number of status bars
+#define NUMXPBAR                        2			    // Number of xp bars
 
 #define MAXLIGHTLEVEL                   16          // Number of premade light intensities
 #define MAXSPEKLEVEL                    16          // Number of premade specularities
@@ -242,8 +244,7 @@ extern  Uint32          TxTitleImage_count;
 extern  oglx_texture       TxTitleImage[MAXMODULE];    // OpenGL title image surfaces
 
 // Minimap stuff
-#define MAXBLIP        128
-#define NUMBLIP          6                           // Blip textures
+#define MAXBLIP        128							//Max blips on the screen
 extern Uint8           mapon;
 extern Uint8           mapvalid;
 extern Uint8           youarehereon;
@@ -302,7 +303,7 @@ void delete_txfont();
 
 void   load_graphics();
 bool_t load_blip_bitmap();
-void   load_bars( const char* szBitmap );
+void   load_bars();
 void   load_map( const char* szModule );
 bool_t load_all_global_icons();
 
@@ -316,7 +317,7 @@ void move_water();
 void draw_one_icon( int icontype, int x, int y, Uint8 sparkle );
 void draw_one_font( int fonttype, int x, int y );
 void draw_map_texture( int x, int y );
-int  draw_one_bar( int bartype, int x, int y, int ticks, int maxticks );
+int  draw_one_bar( Uint8 bartype, int x, int y, int ticks, int maxticks );
 int  draw_string( int x, int y, const char *format, ... );
 int  length_of_word( const char *szText );
 int  draw_wrap_string( const char *szText, int x, int y, int maxx );

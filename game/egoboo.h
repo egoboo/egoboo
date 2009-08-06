@@ -70,23 +70,9 @@ enum e_game_difficulty
 #define NOSPARKLE           255
 #define ANYTIME             0xFF          // Code for respawnvalid...
 
-#define SIZETIME            50                      // Time it takes to resize a character
-
-#define NOSKINOVERRIDE      -1                      // For import
-
-#define DISMOUNTZVEL        16
-#define DISMOUNTZVELFLY     4
-
-#define EDGE                128                     // Camera bounds/edge of the map
-
 #define NOHIDE              127                     // Don't hide
 
-// Stats
-#define MANARETURNSHIFT     22
-#define LOWSTAT             256                     // Worst...
-#define PERFECTSTAT         (60*256)                // Maximum stat without magic effects
-#define PERFECTBIG          (100*256)               // Perfect life or mana...
-#define HIGHSTAT            (100*256)                // Absolute max adding enchantments as well
+#define MANARETURNSHIFT     22						// ChrList[ichr].manareturn/MANARETURNSHIFT = mana regen per second
 
 enum e_damage_fx
 {
@@ -98,17 +84,17 @@ enum e_damage_fx
     DAMFX_TIME           = (1 << 5)
 };
 
-#define HURTDAMAGE           256                     // Minimum damage for hurt animation
-
-#define ULTRABLUDY           2                       // This makes any damage draw blud
-
 #define SPELLBOOK           127                     // The spellbook model
 
 // Geneder stuff
-#define GENFEMALE           0                       // Gender
-#define GENMALE             1
-#define GENOTHER            2
-#define GENRANDOM           3
+enum e_chr_gender
+{
+	GENDER_FEMALE = 0,
+	GENDER_MALE,
+	GENDER_OTHER,
+	GENDER_RANDOM,
+	GENDER_COUNT
+};
 
 // Messaging stuff
 #define MAXMESSAGE          8                       // Number of messages
@@ -135,19 +121,6 @@ enum e_damage_type
 };
 #define DAMAGE_NONE          255
 
-#define DAMAGEMANA          16                      // 000x0000 Deals damage to mana
-#define DAMAGECHARGE        8                       // 0000x000 Converts damage to mana
-#define DAMAGEINVERT        4                       // 00000x00 Makes damage heal
-#define DAMAGESHIFT         3                       // 000000xx Resistance ( 1 is common )
-
-#define DAMAGETILETIME      32                      // Invincibility time
-#define DAMAGETIME          16                      // Invincibility time
-#define DEFENDTIME          16                      // Invincibility time
-#define DROPXYVEL           8
-#define DROPZVEL            7
-#define JUMPATTACKVEL       -2
-#define WATERJUMP           12
-
 enum e_idsz_type
 {
     IDSZ_PARENT = 0,                             // Parent index
@@ -172,14 +145,11 @@ enum e_xp_type
     XP_TALKGOOD,                                // Talk good, er...  I mean well
     XP_COUNT                                    // Number of ways to get experience
 };
-#define XPDIRECT            255                     // No modification
+#define XPDIRECT            255                 // No modification
 
-// Z velocity stuff
-#define JUMPDELAY           20                      // Time between jumps
-
-#define RAISE       12 // 25                               // Helps correct z level
-#define SHADOWRAISE 5
-#define DAMAGERAISE 25
+#define RAISE				12					// Helps correct z level
+#define SHADOWRAISE			5
+#define DAMAGERAISE			25					// Tolerance for damage tiles
 
 /* SDL_GetTicks() always returns milli seconds */
 #define TICKS_PER_SEC                   1000
@@ -290,6 +260,14 @@ enum e_order
     ORDER_STAND,
     ORDER_TERRAIN,
     ORDER_COUNT
+};
+
+enum e_attachment_type
+{
+    ATTACH_NONE       = 0,
+    ATTACH_INVENTORY,
+    ATTACH_LEFT,
+    ATTACH_RIGHT
 };
 
 #define  _EGOBOO_H_

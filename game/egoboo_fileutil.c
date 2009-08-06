@@ -291,11 +291,11 @@ void fgendef( FILE* filewrite, const char* text, Uint8 gender )
     //    MALE FEMALE OTHER statements
 
     fprintf( filewrite, "%s", text );
-    if ( gender == GENMALE )
+    if ( gender == GENDER_MALE )
         fprintf( filewrite, "MALE\n" );
-    if ( gender == GENFEMALE )
+    if ( gender == GENDER_FEMALE )
         fprintf( filewrite, "FEMALE\n" );
-    if ( gender == GENOTHER )
+    if ( gender == GENDER_OTHER)
         fprintf( filewrite, "OTHER\n" );
 }
 

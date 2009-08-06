@@ -490,7 +490,7 @@ void add_enchant_value( Uint16 ienc, Uint8 valueindex, Uint16 ieve )
             fvaluetoadd = peve->addvalue[valueindex] / 128.0f;
             fgetadd( 0.5f, fnewvalue, 2.0f, &fvaluetoadd );
             valuetoadd = fvaluetoadd * 128.0f; // Get save value
-            fvaluetoadd = valuetoadd / 128.0f;
+            //fvaluetoadd = valuetoadd / 128.0f;
             ptarget->sizegoto += fvaluetoadd;
             ptarget->sizegototime = SIZETIME;
             break;

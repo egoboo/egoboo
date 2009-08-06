@@ -1760,9 +1760,10 @@ bool_t character_grab_stuff( Uint16 ichr_a, grip_offset_t grip_off, bool_t grab_
                 {
                     // Pets can try to steal in addition to invisible characters
                     STRING text;
+					Uint8 detection = generate_number( 1, 100 );
 
-                    // Check if it was detected. 50% chance +2% per pet DEX and -2% per shopkeeper wisdom
-                    if ( ChrList[owner].canseeinvisible || generate_number( 1, 100 ) - ( ChrList[ichr_a].dexterity >> 7 ) + ( ChrList[owner].wisdom >> 7 ) > 50 )
+                    // Check if it was detected. 50% chance +2% per pet DEX and -2% per shopkeeper wisdom. There is always a 5% chance it will fail.
+                    if ( ChrList[owner].canseeinvisible || detection <= 5 || detection - ( ChrList[ichr_a].dexterity >> 7 ) + ( ChrList[owner].wisdom >> 7 ) > 50 )
                     {
                         snprintf( text, sizeof(text), "%s was detected!!", ChrList[ichr_a].name );
                         debug_message( text );
@@ -2041,32 +2042,22 @@ void call_for_help( Uint16 character )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint32 xp_for_next_level(Uint16 character)
+bool_t setup_xp_table(Uint16 profile )
 {
-    // This calculates the xp needed to reach next level
-    Uint32 curlevel;
-    Uint16 profile;
-    Uint32 xpneeded = (Uint32)(~0);
+    // This calculates the xp needed to reach next level and stores it in an array for later use
+    Uint8 level;
 
-    if ( INVALID_CHR( character ) ) return xpneeded;
-
-    profile  = ChrList[character].model;
-    if ( INVALID_CAP(profile) ) return xpneeded;
+    if ( INVALID_CAP(profile) ) return bfalse;
 
     // Calculate xp needed
-    curlevel = ChrList[character].experiencelevel;
-    if ( curlevel + 1 < MAXLEVEL )
-    {
-        xpneeded = CapList[profile].experienceforlevel[curlevel+1];
-    }
-    else
-    {
-        xpneeded = CapList[profile].experienceforlevel[MAXLEVEL - 1];
-        xpneeded += ( ( curlevel + 1 ) * ( curlevel + 1 ) * ( curlevel + 1 ) * 15 );
-        xpneeded -= ( ( MAXLEVEL - 1 ) * ( MAXLEVEL - 1 ) * ( MAXLEVEL - 1 ) * 15 );
-    }
-
-    return xpneeded;
+	for(level = MAXBASELEVEL; level <= MAXLEVEL; level++)
+	{
+		Uint32 xpneeded = CapList[profile].experienceforlevel[MAXBASELEVEL - 1];
+		xpneeded += ( level * level * level * 15 );
+		xpneeded -= ( ( MAXBASELEVEL - 1 ) * ( MAXBASELEVEL - 1 ) * ( MAXBASELEVEL - 1 ) * 15 );
+		CapList[profile].experienceforlevel[level] = xpneeded;
+	}
+    return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2085,18 +2076,18 @@ void do_level_up( Uint16 character )
     if ( INVALID_CAP(profile) ) return;
 
     // Do level ups and stat changes
-    curlevel = ChrList[character].experiencelevel;
-    if ( curlevel + 1 < 20 )
+    curlevel = ChrList[character].experiencelevel + 1;
+    if ( curlevel < MAXLEVEL )
     {
         Uint32 xpcurrent, xpneeded;
 
         xpcurrent = ChrList[character].experience;
-        xpneeded  = xp_for_next_level(character);
+        xpneeded  = CapList[profile].experienceforlevel[curlevel];
         if ( xpcurrent >= xpneeded )
         {
             // do the level up
             ChrList[character].experiencelevel++;
-            xpneeded  = xp_for_next_level(character);
+			xpneeded = CapList[profile].experienceforlevel[curlevel];
 
             // The character is ready to advance...
             if ( ChrList[character].isplayer )
@@ -2776,10 +2767,10 @@ int load_one_character_profile( const char * tmploadname, bool_t required )
 
     // Gender
     cTmp = fget_next_char( fileread );
-    pcap->gender = GENOTHER;
-    if ( 'F' == toupper(cTmp) )  pcap->gender = GENFEMALE;
-    if ( 'M' == toupper(cTmp) )  pcap->gender = GENMALE;
-    if ( 'R' == toupper(cTmp) )  pcap->gender = GENRANDOM;
+    pcap->gender = GENDER_OTHER;
+    if ( 'F' == toupper(cTmp) )  pcap->gender = GENDER_FEMALE;
+    if ( 'M' == toupper(cTmp) )  pcap->gender = GENDER_MALE;
+    if ( 'R' == toupper(cTmp) )  pcap->gender = GENDER_RANDOM;
 
     // Read in the object stats
     iTmp = fget_next_int( fileread );  pcap->lifecolor = iTmp;
@@ -2917,11 +2908,11 @@ int load_one_character_profile( const char * tmploadname, bool_t required )
 
     // Experience and level data
     pcap->experienceforlevel[0] = 0;
-
-    for ( level = 1; level < MAXLEVEL; level++ )
+    for ( level = 1; level < MAXBASELEVEL; level++ )
     {
         iTmp = fget_next_int( fileread );  pcap->experienceforlevel[level] = iTmp;
     }
+	setup_xp_table(object);			//Do the rest of the levels not listed in data.txt
 
     fget_next_pair( fileread );
     pairbase = pairbase >> 8;
@@ -3749,7 +3740,7 @@ Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
     pchr->sparkle = NOSPARKLE;
     pchr->overlay = bfalse;
     pchr->missilehandler = ichr;
-    pchr->loopedsound_channel = -1;
+    pchr->loopedsound_channel = INVALID_SOUND;
 
     // sound stuff...  copy from the cap
     for ( tnc = 0; tnc < SOUND_COUNT; tnc++ )
@@ -3798,11 +3789,13 @@ Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
     pchr->canseekurse = pcap->canseekurse;
 
     // Kurse state
-    kursechance = pcap->kursechance;
-    if ( cfg.difficulty >= GAME_HARD )                        kursechance *= 2.0f;  // Hard mode doubles chance for Kurses
-    if ( cfg.difficulty < GAME_NORMAL && kursechance != 100 ) kursechance *= 0.5f;  // Easy mode halves chance for Kurses
-    pchr->iskursed = ( ( rand() % 100 ) < kursechance );
-    if ( !pcap->isitem )  pchr->iskursed = bfalse;
+	if ( pcap->isitem )
+	{
+		kursechance = pcap->kursechance;
+		if ( cfg.difficulty >= GAME_HARD )                        kursechance *= 2.0f;  // Hard mode doubles chance for Kurses
+		if ( cfg.difficulty < GAME_NORMAL && kursechance != 100 ) kursechance *= 0.5f;  // Easy mode halves chance for Kurses
+		pchr->iskursed = ( generate_number(0, 100) <= kursechance );
+    }
 
     // Ammo
     pchr->ammomax = pcap->ammomax;
@@ -3810,7 +3803,7 @@ Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
 
     // Gender
     pchr->gender = pcap->gender;
-    if ( pchr->gender == GENRANDOM )  pchr->gender = GENFEMALE + ( rand() & 1 );
+    if ( pchr->gender == GENDER_RANDOM )  pchr->gender = GENDER_FEMALE + ( rand() & 1 );
 
     pchr->isplayer = bfalse;
     pchr->islocalplayer = bfalse;
@@ -3884,7 +3877,7 @@ Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
     pchr->latchy = 0;
     pchr->latchbutton = 0;
 
-    pchr->turnmode = TURNMODEVELOCITY;
+    pchr->turnmode = TURNMODE_VELOCITY;
 
     // Flags
     pchr->stickybutt = pcap->stickybutt;
@@ -4039,42 +4032,26 @@ Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
     pchr->reaffirmdamagetype = pcap->attachedprtreaffirmdamagetype;
 
     // Experience
-    tnc = generate_number( pcap->experiencebase, pcap->experiencerand );
-    if ( tnc > MAXXP ) tnc = MAXXP;
-
-    pchr->experience = tnc;
+    pchr->experience = MIN(generate_number( pcap->experiencebase, pcap->experiencerand), MAXXP);
     pchr->experiencelevel = pcap->leveloverride;
 
     // Items that are spawned inside shop passages are more expensive than normal
     pchr->isshopitem = bfalse;
-    if (pchr->isitem && numshoppassage > 0 && !pchr->pack_ispacked && pchr->attachedto == MAX_CHR)
+    if ( pchr->isitem && numshoppassage > 0 && !pchr->pack_ispacked && pchr->attachedto == MAX_CHR )
     {
         for ( cnt = 0; cnt < numshoppassage; cnt++ )
         {
-            int loc;
-            Uint16 passage = shoppassage[cnt];
+            // Make sure the owner is not dead
+			if( shopowner[cnt] == NOOWNER ) continue;
 
-            // Check X
-            loc = pchr->pos.x;
-            loc = loc >> TILE_BITS;
-            if ( loc >= PassageList[passage].topleftx && loc <= PassageList[passage].bottomrightx )
-            {
-                // Check Y
-                loc = pchr->pos.y;
-                loc = loc >> TILE_BITS;
-                if ( loc >= PassageList[passage].toplefty && loc <= PassageList[passage].bottomrighty )
-                {
-                    // Make sure the owner is not dead
-                    if ( shopowner[cnt] != NOOWNER )
-                    {
-                        pchr->isshopitem = btrue;               // Full value
-                        pchr->iskursed = bfalse;                // Shop items are never kursed
-                        pchr->nameknown = btrue;                // Identify items in shop
-                        break;
-                    }
-                }
-            }
-        }
+			if( is_in_passage( shoppassage[cnt], pchr->pos.x, pchr->pos.y, pchr->bumpsize) )
+			{
+                pchr->isshopitem = btrue;               // Full value
+                pchr->iskursed = bfalse;                // Shop items are never kursed
+                pchr->nameknown = btrue;                // Identify items in shop
+                break;
+			}
+		}
     }
 
     // Flagged as always valuable?
@@ -4390,7 +4367,7 @@ void change_character( Uint16 ichr, Uint16 profile, Uint8 skin, Uint8 leavewhich
     pchr->ammo = pcap->ammo;
 
     // Gender
-    if ( pcap->gender != GENRANDOM )  // GENRANDOM means keep old gender
+    if ( pcap->gender != GENDER_RANDOM )  // GENDER_RANDOM means keep old gender
     {
         pchr->gender = pcap->gender;
     }
@@ -4408,7 +4385,7 @@ void change_character( Uint16 ichr, Uint16 profile, Uint8 skin, Uint8 leavewhich
     pchr->latchx = 0;
     pchr->latchy = 0;
     pchr->latchbutton = 0;
-    pchr->turnmode = TURNMODEVELOCITY;
+    pchr->turnmode = TURNMODE_VELOCITY;
 
     // Flags
     pchr->stickybutt = pcap->stickybutt;
@@ -5513,7 +5490,7 @@ void move_characters( void )
                 new_ay *= traction;
 
                 // Get direction from the DESIRED change in velocity
-                if ( pchr->turnmode == TURNMODEWATCH )
+                if ( pchr->turnmode == TURNMODE_WATCH )
                 {
                     if ( ( ABS( dvx ) > WATCHMIN || ABS( dvy ) > WATCHMIN ) )
                     {
@@ -5522,7 +5499,7 @@ void move_characters( void )
                 }
 
                 // Face the target
-                watchtarget = ( pchr->turnmode == TURNMODEWATCHTARGET );
+                watchtarget = ( pchr->turnmode == TURNMODE_WATCHTARGET );
                 if ( watchtarget )
                 {
                     if ( cnt != pchr->ai.target )
@@ -5544,7 +5521,7 @@ void move_characters( void )
                 }
 
                 // Get direction from ACTUAL change in velocity
-                if ( pchr->turnmode == TURNMODEVELOCITY )
+                if ( pchr->turnmode == TURNMODE_VELOCITY )
                 {
                     if ( dvx < -TURNSPD || dvx > TURNSPD || dvy < -TURNSPD || dvy > TURNSPD )
                     {
@@ -5562,7 +5539,7 @@ void move_characters( void )
                 }
 
                 // Otherwise make it spin
-                else if ( pchr->turnmode == TURNMODESPIN )
+                else if ( pchr->turnmode == TURNMODE_SPIN )
                 {
                     pchr->turn_z += SPINRATE;
                 }

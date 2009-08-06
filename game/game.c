@@ -68,14 +68,6 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-enum e_attachment_type
-{
-    ATTACH_NONE       = 0,
-    ATTACH_INVENTORY,
-    ATTACH_LEFT,
-    ATTACH_RIGHT
-};
-
 #define CHR_MAX_COLLISIONS    512*16
 #define COLLISION_HASH_NODES (CHR_MAX_COLLISIONS*2)
 
@@ -1858,7 +1850,7 @@ Uint16 get_target( Uint16 ichr_src, Uint32 max_dist, TARGET_TYPE target_type, bo
         // set the line-of-sight source
         los_info.x1 = ChrList[ichr_test].pos.x;
         los_info.y1 = ChrList[ichr_test].pos.y;
-        los_info.z1 = ChrList[ichr_test].pos.z + ChrList[ichr_test].bumpheight;
+        los_info.z1 = ChrList[ichr_test].pos.z + MAX(1, ChrList[ichr_test].bumpheight);
 
         // assume it is not a match
         found = bfalse;
@@ -1879,7 +1871,7 @@ Uint16 get_target( Uint16 ichr_src, Uint32 max_dist, TARGET_TYPE target_type, bo
 
                 if ( (MAX_CHR == best_target || dist2 < best_dist2) && (0 == max_dist2 || dist2 <= max_dist2) )
                 {
-                    if ( !do_line_of_sight( &los_info ) )
+                    if ( target_items || target_dead || !do_line_of_sight( &los_info ) )
                     {
                         best_target = ichr_test;
                         best_dist2  = dist2;
@@ -2649,11 +2641,11 @@ void show_stat( Uint16 statindex )
         gender[0] = 0;
         if ( ChrList[character].alive )
         {
-            if ( ChrList[character].gender == GENMALE )
+            if ( ChrList[character].gender == GENDER_MALE )
             {
                 sprintf( gender, "male " );
             }
-            if ( ChrList[character].gender == GENFEMALE )
+            if ( ChrList[character].gender == GENDER_FEMALE )
             {
                 sprintf( gender, "female " );
             }
@@ -4735,7 +4727,7 @@ void setup_characters( const char *modname )
     info.parent = MAX_CHR;
     if ( NULL == fileread )
     {
-        log_error( "Cannot read file: %s", newloadname );
+        log_error( "Cannot read file: %s\n", newloadname );
     }
     else
     {
@@ -4743,78 +4735,75 @@ void setup_characters( const char *modname )
 
         while ( chr_setup_read( fileread, &info ) )
         {
-            // Spawn the character
-//           if ( info.team < numplayer || !PMod->rtscontrol || info.team >= MAXPLAYER )
+			// Spawn the character
+            new_object = spawn_one_character( info.pos, info.slot, info.team, info.skin, info.facing, info.pname, MAX_CHR );
+
+            if ( MAX_CHR != new_object )
             {
-                new_object = spawn_one_character( info.pos, info.slot, info.team, info.skin, info.facing, info.pname, MAX_CHR );
-
-                if ( MAX_CHR != new_object )
+                // determine the attachment
+                if ( info.attach == ATTACH_NONE )
                 {
-                    // determine the attachment
-                    if ( info.attach == ATTACH_NONE )
+                    // Free character
+                    info.parent = new_object;
+                    make_one_character_matrix( new_object );
+                }
+
+                chr_setup_apply( new_object, &info );
+
+                // Turn on numpla input devices
+                if ( info.stat )
+                {
+
+                    if ( 0 == PMod->importamount && numpla < PMod->playeramount )
                     {
-                        // Free character
-                        info.parent = new_object;
-                        make_one_character_matrix( new_object );
-                    }
-
-                    chr_setup_apply( new_object, &info );
-
-                    // Turn on numpla input devices
-                    if ( info.stat )
-                    {
-
-                        if ( 0 == PMod->importamount && numpla < PMod->playeramount )
+                        if ( 0 == local_numlpla )
                         {
-                            if ( 0 == local_numlpla )
-                            {
-                                // the first player gets everything
-                                add_player( new_object, numpla, (Uint32)(~0) );
-                            }
-                            else
-                            {
-                                int i;
-                                Uint32 bits;
-
-                                // each new player steals an input device from the 1st player
-                                bits = 1 << local_numlpla;
-                                for ( i = 0; i < MAXPLAYER; i++ )
-                                {
-                                    PlaList[i].device &= ~bits;
-                                }
-
-                                add_player( new_object, numpla, bits );
-                            }
-
+                            // the first player gets everything
+                            add_player( new_object, numpla, (Uint32)(~0) );
                         }
-                        else if ( numpla < numimport && numpla < PMod->importamount && numpla < PMod->playeramount )
+                        else
                         {
-                            // Multiplayer import module
-                            local_index = -1;
-                            for ( tnc = 0; tnc < numimport; tnc++ )
+                            int i;
+                            Uint32 bits;
+
+                            // each new player steals an input device from the 1st player
+                            bits = 1 << local_numlpla;
+                            for ( i = 0; i < MAXPLAYER; i++ )
                             {
-                                if ( import_data.slot_lst[ChrList[new_object].model] == local_slot[tnc] )
-                                {
-                                    local_index = tnc;
-                                    break;
-                                }
+                                PlaList[i].device &= ~bits;
                             }
 
-                            if ( -1 != local_index )
+                            add_player( new_object, numpla, bits );
+                        }
+
+                    }
+                    else if ( numpla < numimport && numpla < PMod->importamount && numpla < PMod->playeramount )
+                    {
+                        // Multiplayer import module
+                        local_index = -1;
+                        for ( tnc = 0; tnc < numimport; tnc++ )
+                        {
+                            if ( import_data.slot_lst[ChrList[new_object].model] == local_slot[tnc] )
                             {
-                                // It's a local numpla
-                                add_player( new_object, numpla, local_control[local_index] );
-                            }
-                            else
-                            {
-                                // It's a remote numpla
-                                add_player( new_object, numpla, INPUT_BITS_NONE );
+                                local_index = tnc;
+                                break;
                             }
                         }
 
-                        // Turn on the stat display
-                        statlist_add( new_object );
+                        if ( -1 != local_index )
+                        {
+                            // It's a local numpla
+                            add_player( new_object, numpla, local_control[local_index] );
+                        }
+                        else
+                        {
+                            // It's a remote numpla
+                            add_player( new_object, numpla, INPUT_BITS_NONE );
+                        }
                     }
+
+                    // Turn on the stat display
+                    statlist_add( new_object );
                 }
             }
         }
@@ -4907,7 +4896,7 @@ bool_t game_load_module_data( const char *smallname )
     read_wawalite( modname );
     load_basic_textures( modname );
     load_blip_bitmap();
-    load_bars( "basicdat" SLASH_STR "bars" );
+    load_bars();
 
     // Load all objects
     {
@@ -6210,13 +6199,13 @@ void append_end_text( script_state_t * pstate, int message, Uint16 character )
                 }
                 if ( 'p' == cTmp )  // Character's possessive
                 {
-                    if ( ChrList[character].gender == GENFEMALE )
+                    if ( ChrList[character].gender == GENDER_FEMALE )
                     {
                         sprintf( szTmp, "her" );
                     }
                     else
                     {
-                        if ( ChrList[character].gender == GENMALE )
+                        if ( ChrList[character].gender == GENDER_MALE )
                         {
                             sprintf( szTmp, "his" );
                         }
@@ -6228,13 +6217,13 @@ void append_end_text( script_state_t * pstate, int message, Uint16 character )
                 }
                 if ( 'm' == cTmp )  // Character's gender
                 {
-                    if ( ChrList[character].gender == GENFEMALE )
+                    if ( ChrList[character].gender == GENDER_FEMALE )
                     {
                         sprintf( szTmp, "female " );
                     }
                     else
                     {
-                        if ( ChrList[character].gender == GENMALE )
+                        if ( ChrList[character].gender == GENDER_MALE )
                         {
                             sprintf( szTmp, "male " );
                         }
@@ -6246,13 +6235,13 @@ void append_end_text( script_state_t * pstate, int message, Uint16 character )
                 }
                 if ( 'g' == cTmp )  // Target's possessive
                 {
-                    if ( ChrList[target].gender == GENFEMALE )
+                    if ( ChrList[target].gender == GENDER_FEMALE )
                     {
                         sprintf( szTmp, "her" );
                     }
                     else
                     {
-                        if ( ChrList[target].gender == GENMALE )
+                        if ( ChrList[target].gender == GENDER_MALE )
                         {
                             sprintf( szTmp, "his" );
                         }
@@ -6833,17 +6822,18 @@ bool_t collide_ray_with_characters( line_of_sight_info_t * plos )
 //--------------------------------------------------------------------------------------------
 bool_t do_line_of_sight( line_of_sight_info_t * plos )
 {
-    bool_t mesh_hit, chr_hit;
+    bool_t mesh_hit = bfalse, chr_hit = bfalse;
 
     mesh_hit = collide_ray_with_mesh( plos );
 
-    if ( mesh_hit )
+    /*if ( mesh_hit )
     {
         plos->x1 = (plos->collide_x + 0.5f) * TILE_SIZE;
         plos->y1 = (plos->collide_y + 0.5f) * TILE_SIZE;
     }
 
     chr_hit = collide_ray_with_characters( plos );
+	*/
 
     return mesh_hit || chr_hit;
 }

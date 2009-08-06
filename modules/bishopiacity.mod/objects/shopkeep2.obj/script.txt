@@ -4,6 +4,58 @@ tmpy = selfy
 tmpargument = YELLOW
 ShowBlipXY
 
+//Setup the shop
+IfSpawned
+  tmpargument = passage
+  AddShopPassage
+
+  // Make the border
+  tmpargument = 2
+  tmpdistance = 0
+
+  // Top
+  tmpx = selfx - 192
+  tmpy = selfy - 384
+  SpawnExactParticle
+  tmpx = tmpx + 128
+  SpawnExactParticle
+  tmpx = tmpx + 128
+  SpawnExactParticle
+  tmpx = tmpx + 128
+  SpawnExactParticle
+
+  // Bottom
+  tmpy = selfy + 384
+  SpawnExactParticle
+  tmpx = tmpx - 128
+  SpawnExactParticle
+  tmpx = tmpx - 128
+  SpawnExactParticle
+  tmpx = tmpx - 128
+  SpawnExactParticle
+
+  // Left
+  tmpx = selfx - 384
+  tmpy = selfy - 192
+  SpawnExactParticle
+  tmpy = tmpy + 128
+  SpawnExactParticle
+  tmpy = tmpy + 128
+  SpawnExactParticle
+  tmpy = tmpy + 128
+  SpawnExactParticle
+
+  // Right
+  tmpx = selfx + 384
+  SpawnExactParticle
+  tmpy = tmpy - 128
+  SpawnExactParticle
+  tmpy = tmpy - 128
+  SpawnExactParticle
+  tmpy = tmpy - 128
+  SpawnExactParticle
+  
+//------------------------------------------------------------------------------
 // Get mean if characters wanna be bad
 IfAttacked
   SetTargetToWhoeverAttacked
@@ -441,57 +493,6 @@ IfSpawned
     tmpturn = rand
     tmpargument = 118		//Bomb
     SpawnExactCharacterXYZ
-
-//Setup the shop
-IfSpawned
-  tmpargument = passage
-  AddShopPassage
-
-  // Make the border
-  tmpargument = 2
-  tmpdistance = 0
-
-  // Top
-  tmpx = selfx - 192
-  tmpy = selfy - 384
-  SpawnExactParticle
-  tmpx = tmpx + 128
-  SpawnExactParticle
-  tmpx = tmpx + 128
-  SpawnExactParticle
-  tmpx = tmpx + 128
-  SpawnExactParticle
-
-  // Bottom
-  tmpy = selfy + 384
-  SpawnExactParticle
-  tmpx = tmpx - 128
-  SpawnExactParticle
-  tmpx = tmpx - 128
-  SpawnExactParticle
-  tmpx = tmpx - 128
-  SpawnExactParticle
-
-  // Left
-  tmpx = selfx - 384
-  tmpy = selfy - 192
-  SpawnExactParticle
-  tmpy = tmpy + 128
-  SpawnExactParticle
-  tmpy = tmpy + 128
-  SpawnExactParticle
-  tmpy = tmpy + 128
-  SpawnExactParticle
-
-  // Right
-  tmpx = selfx + 384
-  SpawnExactParticle
-  tmpy = tmpy - 128
-  SpawnExactParticle
-  tmpy = tmpy - 128
-  SpawnExactParticle
-  tmpy = tmpy - 128
-  SpawnExactParticle
 
 //------------------------------------------------------------------------------
 // ZZ> Handle orders ( purchases )

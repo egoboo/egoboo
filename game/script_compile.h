@@ -437,7 +437,8 @@ enum e_script_functions
     FGIVEMANAFLOWTOTARGET,       // == 368
     FGIVEMANARETURNTOTARGET,     // == 369
     FSETMONEY,                   // == 370
-    FIFTARGETCANSEEKURSES        // == 371
+    FIFTARGETCANSEEKURSES,       // == 371
+    FSPAWNATTACHEDCHARACTER      // == 372
 };
 
 //--------------------------------------------------------------------------------------------

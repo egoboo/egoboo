@@ -32,6 +32,9 @@
 #define   MOVE_CHARGE  111
 #define   MOVE_FOLLOW  0
 
+ // Camera bounds/edge of the map
+#define EDGE                128                    
+
 // AI targeting
 #define NEARBY      3*TILE_SIZE    // 3 tiles away
 #define WIDE        6*TILE_SIZE    // 6 tiles away

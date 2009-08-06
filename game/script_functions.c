@@ -645,7 +645,7 @@ Uint8 scr_set_TurnModeToVelocity( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->turnmode = TURNMODEVELOCITY;
+    pchr->turnmode = TURNMODE_VELOCITY;
 
     SCRIPT_FUNCTION_END();
 }
@@ -659,7 +659,7 @@ Uint8 scr_set_TurnModeToWatch( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->turnmode = TURNMODEWATCH;
+    pchr->turnmode = TURNMODE_WATCH;
 
     SCRIPT_FUNCTION_END();
 }
@@ -674,7 +674,7 @@ Uint8 scr_set_TurnModeToSpin( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // This function sets the turn mode
-    pchr->turnmode = TURNMODESPIN;
+    pchr->turnmode = TURNMODE_SPIN;
 
     SCRIPT_FUNCTION_END();
 }
@@ -2007,7 +2007,7 @@ Uint8 scr_TargetIsMale( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // This function proceeds only if the target is male
-    returncode = ( ChrList[pself->target].gender == GENMALE );
+    returncode = ( ChrList[pself->target].gender == GENDER_MALE );
 
     SCRIPT_FUNCTION_END();
 }
@@ -2022,7 +2022,7 @@ Uint8 scr_TargetIsFemale( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // This function proceeds only if the target is female
-    returncode = ( ChrList[pself->target].gender == GENFEMALE );
+    returncode = ( ChrList[pself->target].gender == GENDER_FEMALE );
 
     SCRIPT_FUNCTION_END();
 }
@@ -3113,7 +3113,7 @@ Uint8 scr_set_TurnModeToWatchTarget( script_state_t * pstate, ai_state_t * pself
     SCRIPT_FUNCTION_BEGIN();
 
     // This function sets the turn mode
-    pchr->turnmode = TURNMODEWATCHTARGET;
+    pchr->turnmode = TURNMODE_WATCHTARGET;
 
     SCRIPT_FUNCTION_END();
 }
@@ -4453,7 +4453,7 @@ Uint8 scr_ShowBlipXY( script_state_t * pstate, ai_state_t * pself )
     {
         if ( pstate->x > 0 && pstate->x < PMesh->info.edge_x && pstate->y > 0 && pstate->y < PMesh->info.edge_y )
         {
-            if ( pstate->argument < NUMBAR && pstate->argument >= 0 )
+            if ( pstate->argument < COLOR_MAX && pstate->argument >= 0 )
             {
                 blipx[numblip] = pstate->x * MAPSIZE / PMesh->info.edge_x;
                 blipy[numblip] = pstate->y * MAPSIZE / PMesh->info.edge_y;
@@ -4751,7 +4751,7 @@ Uint8 scr_SparkleIcon( script_state_t * pstate, ai_state_t * pself )
     // This function starts little sparklies going around the character's icon
 
     SCRIPT_FUNCTION_BEGIN();
-    if ( pstate->argument < NUMBAR )
+    if ( pstate->argument < COLOR_MAX )
     {
         if ( pstate->argument < -1 || pstate->argument >= COLOR_MAX )
         {
@@ -6501,8 +6501,86 @@ Uint8 scr_TargetIsOwner( script_state_t * pstate, ai_state_t * pself )
 {
     SCRIPT_FUNCTION_BEGIN();
 
-    // ThIs function proceeds only if the Target Is on another Team
+    // ThIs function proceeds only if the Target is the character's owner
     returncode = ( ChrList[pself->target].alive && pself->owner == pself->target );
+
+    SCRIPT_FUNCTION_END();
+}
+
+//--------------------------------------------------------------------------------------------
+Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
+{
+    // This function spawns a character defined in tmpargument to the characters AI target using
+	// the slot specified in tmpdistance (LEFT, RIGHT or INVENTORY). Fails if the inventory or
+	// grip specified is full or already in use.
+
+    // DON'T USE THIS FOR EXPORTABLE ITEMS OR CHARACTERS,
+    // AS THE MODEL SLOTS MAY VARY FROM MODULE TO MODULE...
+
+    GLvector3 pos;
+
+    SCRIPT_FUNCTION_BEGIN();
+
+    pos.x = pstate->x;
+    pos.y = pstate->y;
+    pos.z = pstate->distance;
+
+    sTmp = spawn_one_character( pos, pstate->argument, pchr->team, 0, NORTH, NULL, MAX_CHR );
+    if ( VALID_CHR(sTmp) )
+    {
+        Uint8 grip = CLIP( pstate->distance, ATTACH_INVENTORY, ATTACH_RIGHT );
+
+		if ( grip == ATTACH_INVENTORY )
+		{
+			// Inventory character
+			if( inventory_add_item( sTmp, pchr->ai.target ) )
+			{
+				ChrList[sTmp].ai.alert |= ALERTIF_GRABBED;  // Make spellbooks change
+				ChrList[sTmp].attachedto = pchr->ai.target;  // Make grab work
+				let_character_think( sTmp );  // Empty the grabbed messages
+
+				ChrList[sTmp].attachedto = MAX_CHR;  // Fix grab
+
+				//Set some AI values
+				pself->child = sTmp;
+				ChrList[sTmp].ai.passage = pself->passage;
+				ChrList[sTmp].ai.owner   = pself->owner;
+			}
+
+			//No more room!
+			else
+			{
+				free_one_character_in_game( sTmp );
+				sTmp = MAX_CHR;
+			}
+		}
+		else if ( grip == ATTACH_LEFT || grip == ATTACH_RIGHT )
+		{
+			if( ChrList[pchr->ai.target].holdingwhich[grip] == MAX_CHR )
+			{
+				// Wielded character
+				grip_offset_t grip_off = ( ATTACH_LEFT == grip ) ? GRIP_LEFT : GRIP_RIGHT;
+				attach_character_to_mount( sTmp, pchr->ai.target, grip_off );
+
+				// Handle the "grabbed" messages
+				let_character_think( sTmp );
+
+				//Set some AI values
+				pself->child = sTmp;
+				ChrList[sTmp].ai.passage = pself->passage;
+				ChrList[sTmp].ai.owner   = pself->owner;
+			}
+
+			//Grip is already used
+			else
+			{
+				free_one_character_in_game( sTmp );
+				sTmp = MAX_CHR;
+			}
+		}
+	}
+
+    returncode = VALID_CHR(sTmp);
 
     SCRIPT_FUNCTION_END();
 }

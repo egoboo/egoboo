@@ -122,8 +122,8 @@ static SDL_Rect           fontrect[NUMFONT];          // The font rectangles
 static Uint8              fontxspacing[NUMFONT];      // The spacing stuff
 static Uint8              fontyspacing;
 
-static rect_t             tabrect[NUMBAR];            // The tab rectangles
-static rect_t             barrect[NUMBAR];            // The bar rectangles
+static rect_t             tabrect[NUMBAR];   // The tab rectangles
+static rect_t             barrect[NUMBAR];   // The bar rectangles
 static rect_t             bliprect[COLOR_MAX];        // The blip rectangles
 static rect_t             maprect;                    // The map rectangle
 
@@ -144,6 +144,7 @@ STRING           TxFormatSupported[20];      // List of texture formats that we 
 oglx_texture       TxIcon[MAX_ICON];           // OpenGL icon surfaces
 oglx_texture       TxFont;                     // OpenGL font surface
 oglx_texture       TxBars;                     // OpenGL status bar surface
+oglx_texture       TxXpBar;                    // OpenGL xp bar surface
 oglx_texture       TxBlip;                     // OpenGL you are here surface
 oglx_texture       TxMap;                      // OpenGL map surface
 oglx_texture       TxTexture[MAX_TEXTURE];     // All textures
@@ -434,13 +435,13 @@ void display_message( script_state_t * pstate, int message, Uint16 character )
                 }
                 if ( 'p' == cTmp )  // Character's possessive
                 {
-                    if ( ChrList[character].gender == GENFEMALE )
+                    if ( ChrList[character].gender == GENDER_FEMALE )
                     {
                         sprintf( szTmp, "her" );
                     }
                     else
                     {
-                        if ( ChrList[character].gender == GENMALE )
+                        if ( ChrList[character].gender == GENDER_MALE )
                         {
                             sprintf( szTmp, "his" );
                         }
@@ -452,13 +453,13 @@ void display_message( script_state_t * pstate, int message, Uint16 character )
                 }
                 if ( 'm' == cTmp )  // Character's gender
                 {
-                    if ( ChrList[character].gender == GENFEMALE )
+                    if ( ChrList[character].gender == GENDER_FEMALE )
                     {
                         sprintf( szTmp, "female " );
                     }
                     else
                     {
-                        if ( ChrList[character].gender == GENMALE )
+                        if ( ChrList[character].gender == GENDER_MALE )
                         {
                             sprintf( szTmp, "male " );
                         }
@@ -470,13 +471,13 @@ void display_message( script_state_t * pstate, int message, Uint16 character )
                 }
                 if ( 'g' == cTmp )  // Target's possessive
                 {
-                    if ( ChrList[target].gender == GENFEMALE )
+                    if ( ChrList[target].gender == GENDER_FEMALE )
                     {
                         sprintf( szTmp, "her" );
                     }
                     else
                     {
-                        if ( ChrList[target].gender == GENMALE )
+                        if ( ChrList[target].gender == GENDER_MALE )
                         {
                             sprintf( szTmp, "his" );
                         }
@@ -641,11 +642,11 @@ void init_all_titleimages()
 //---------------------------------------------------------------------------------------------
 void init_bars()
 {
-    int cnt;
+    Uint8 cnt;
 
     oglx_texture_new( &TxBars );
 
-    // Make the blit rectangles
+    // Initialize the life and mana bars
     for ( cnt = 0; cnt < NUMBAR; cnt++ )
     {
         tabrect[cnt].left = 0;
@@ -657,6 +658,7 @@ void init_bars()
         barrect[cnt].right = BARX;  // This is reset whenever a bar is drawn
         barrect[cnt].top = tabrect[cnt].top;
         barrect[cnt].bottom = tabrect[cnt].bottom;
+
     }
 }
 
@@ -766,7 +768,9 @@ void release_all_titleimages()
 //---------------------------------------------------------------------------------------------
 void release_bars()
 {
+	// Removes the bar textures from memory
     oglx_texture_Release( &TxBars );
+    oglx_texture_Release( &TxXpBar );
 }
 
 //---------------------------------------------------------------------------------------------
@@ -1217,12 +1221,17 @@ void load_basic_textures( const char *modname )
 }
 
 //--------------------------------------------------------------------------------------------
-void load_bars( const char* szBitmap )
+void load_bars()
 {
     // ZZ> This function loads the status bar bitmap
-    if ( INVALID_TX_ID == ego_texture_load( &TxBars, szBitmap, TRANSCOLOR ) )
+    if ( INVALID_TX_ID == ego_texture_load( &TxBars, "basicdat" SLASH_STR "bars", TRANSCOLOR ) )
     {
-        log_warning( "Cannot load file! (\"%s\")\n", szBitmap );
+        log_warning( "Cannot load file! (\"%s\")\n", "basicdat" SLASH_STR "bars" );
+    }
+
+    if ( INVALID_TX_ID == ego_texture_load( &TxXpBar, "basicdat" SLASH_STR "xpbar", TRANSCOLOR ) )
+    {
+        log_warning( "Cannot load file! (\"%s\")\n", "basicdat" SLASH_STR "xpbar" );
     }
 }
 
@@ -2663,20 +2672,96 @@ void draw_map_texture( int x, int y )
 }
 
 //--------------------------------------------------------------------------------------------
-int draw_one_bar( int bartype, int x, int y, int ticks, int maxticks )
+int draw_one_xp_bar( int x, int y, Uint8 ticks )
+{
+    // ZF> This function draws a xp bar and returns the y position for the next one
+    float xl, xr, yt, yb;
+    int width, height;
+	Uint8 cnt;
+
+	if( ticks < 0 ) return y;
+	ticks = MIN(ticks, NUMTICK);
+
+    EnableTexturing();               // Enable texture mapping
+    GL_DEBUG(glColor4f)(1, 1, 1, 1 );
+
+	// Draw the tab (always colored)
+    oglx_texture_Bind( &TxXpBar );
+    xl = 0;
+    xr = 32.00f / 128;
+    yt = XPTICK / 16;
+    yb = XPTICK*2 / 16;
+    width = 16; 
+	height = XPTICK;
+    GL_DEBUG(glBegin)(GL_QUADS );
+    {
+        GL_DEBUG(glTexCoord2f)(xl, yb );   GL_DEBUG(glVertex2i)(x,         y + height );
+        GL_DEBUG(glTexCoord2f)(xr, yb );   GL_DEBUG(glVertex2i)(x + width, y + height );
+        GL_DEBUG(glTexCoord2f)(xr, yt );   GL_DEBUG(glVertex2i)(x + width, y );
+        GL_DEBUG(glTexCoord2f)(xl, yt );   GL_DEBUG(glVertex2i)(x,         y );
+    }
+    GL_DEBUG_END();
+	x += 16;
+
+    // Draw the filled ones
+    xl = 0;
+    xr = 32.00f / 128;
+    yt = XPTICK / 16;
+    yb = XPTICK*2 / 16;
+	width = XPTICK; 
+	height = XPTICK;
+	for ( cnt = 0; cnt < ticks; cnt++)
+	{
+		oglx_texture_Bind( &TxXpBar );
+		GL_DEBUG(glBegin)(GL_QUADS );
+		{
+			GL_DEBUG(glTexCoord2f)(xl, yb );   GL_DEBUG(glVertex2i)(( cnt * width ) + x,         y + height );
+			GL_DEBUG(glTexCoord2f)(xr, yb );   GL_DEBUG(glVertex2i)(( cnt * width ) + x + width, y + height );
+			GL_DEBUG(glTexCoord2f)(xr, yt );   GL_DEBUG(glVertex2i)(( cnt * width ) + x + width, y );
+			GL_DEBUG(glTexCoord2f)(xl, yt );   GL_DEBUG(glVertex2i)(( cnt * width ) + x,         y );
+		}
+		GL_DEBUG_END();
+	}
+
+    // Draw the remaining empty ones
+    xl = 0;
+    xr = 32.00f / 128;
+    yt = 0;
+    yb = XPTICK / 16;
+	width = XPTICK; 
+	height = XPTICK;
+	for ( /*nothing*/; cnt < NUMTICK; cnt++)
+	{
+		oglx_texture_Bind( &TxXpBar );
+		GL_DEBUG(glBegin)(GL_QUADS );
+		{
+			GL_DEBUG(glTexCoord2f)(xl, yb );   GL_DEBUG(glVertex2i)(( cnt * width ) + x,         y + height );
+			GL_DEBUG(glTexCoord2f)(xr, yb );   GL_DEBUG(glVertex2i)(( cnt * width ) + x + width, y + height );
+			GL_DEBUG(glTexCoord2f)(xr, yt );   GL_DEBUG(glVertex2i)(( cnt * width ) + x + width, y );
+			GL_DEBUG(glTexCoord2f)(xl, yt );   GL_DEBUG(glVertex2i)(( cnt * width ) + x,         y );
+		}
+		GL_DEBUG_END();
+	}
+
+
+    return y + XPTICK;
+}
+
+//--------------------------------------------------------------------------------------------
+int draw_one_bar( Uint8 bartype, int x, int y, int ticks, int maxticks )
 {
     // ZZ> This function draws a bar and returns the y position for the next one
     int noticks;
     float xl, xr, yt, yb;
     int width, height;
 
-	if( maxticks <= 0 || ticks < 0) return y;
+	if( maxticks <= 0 || ticks < 0 || bartype > NUMBAR ) return y;
 
     EnableTexturing();               // Enable texture mapping
     GL_DEBUG(glColor4f)(1, 1, 1, 1 );
     
 	// Draw the tab
-    oglx_texture_Bind( &TxBars );
+   oglx_texture_Bind( &TxBars );
 
     xl = ( ( float )tabrect[bartype].left ) / 128;
     xr = ( ( float )tabrect[bartype].right ) / 128;
@@ -2813,6 +2898,7 @@ int draw_one_bar( int bartype, int x, int y, int ticks, int maxticks )
     }
 
     return y;
+
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3141,22 +3227,26 @@ int draw_status( Uint16 character, int x, int y )
         draw_one_icon( nullicon, x + 72, y, NOSPARKLE );
     }
 
-    y += 32;
+	y += 32;
 
-    // Draw the bars
+	//Draw the small XP progress bar
+	if( ChrList[character].experiencelevel < MAXLEVEL)
+	{
+		Uint16 profile = ChrList[character].model;
+		Uint8 curlevel = ChrList[character].experiencelevel + 1;
+		Uint32 xplastlevel = CapList[profile].experienceforlevel[curlevel-1];
+		Uint32 xpneed = CapList[profile].experienceforlevel[curlevel];
+
+		y = draw_one_xp_bar( x + 16, y, ( ( (float)MAX(ChrList[character].experience - xplastlevel, 0) / MAX( xpneed - xplastlevel, 1 ) ) * NUMTICK) );
+	}
+
+    // Draw the status bars
     if ( ChrList[character].alive )
         y = draw_one_bar( ChrList[character].lifecolor, x, y, life, lifemax );
     else
         y = draw_one_bar( 0, x, y, 0, lifemax );  // Draw a black bar
 
     y = draw_one_bar( ChrList[character].manacolor, x, y, mana, manamax );
-
-#ifdef DRAW_XP_BARS
-	{
-		Uint32 currentxp = ((float)ChrList[character].experience / (float) xp_for_next_level(character)) * NUMTICK;
-		y = draw_one_bar( 4, x, y, currentxp, NUMTICK );
-	}
-#endif
 
 	return y;
 }

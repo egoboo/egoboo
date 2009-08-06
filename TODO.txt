@@ -7,10 +7,16 @@ MASTER TODO LIST:
 - The Lich boss in the Wizard starter causes the game to freeze sometimes after 2 minutes.
 - And becoming bad guy in Zippy and Sand Weg should not export unless you escape. Maybe save
   the aggression in quest.txt for later returns? 
-- Enchanting potions while doesn't crash module they were enchanted on, they when being taken out crash other module.
 - After passing a module game seems to reset quest progress. It is restored by going back to previous menu, so it is not very significant.
 - Sand Troll in Sand Palace seems to get stuck on the pyramid in new physics system. (We might need a FindPath algorithm here) 
-
+- Enchants don't properly increase size when less than 1.00
+- also i found a bug, equipping jewelry doesn't always bestow enchant on user, i had much trouble with amulet on strength it seemed to 
+  work 1 on 4 tries, weird (tires of throwing away and grabbing back)
+- Halve mana loss caused by potions
+- Allow book of Enchant to recharge wands.
+- Allow use of TECH while morphed?
+- Faeries follow lumpkin in Elf Starter when elf is morphed.
+  
 ABYSS 2
 - Rustproof weapon for elayne
 - Elayne should not like zombor

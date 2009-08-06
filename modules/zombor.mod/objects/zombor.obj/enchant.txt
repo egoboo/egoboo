@@ -54,8 +54,8 @@ Target may now channel life ( TRUE )		: F TRUE
 // Modify target's attributes...  These are cumulative, and
 // are simply undone when removed.
 Jump power increase ( -5.0 to 5.0 )		: 5.0
-Bump dampen change ( -1.0 to 1.0 )		: 0.0
-Bounciness change ( -.95 to .95 )		: 0.0
+Bump dampen change ( -1.0 to 1.0 )		: -0.15
+Bounciness change ( -.95 to .95 )		: -0.1
 Damage bonus ( -4.0 to 4.0 )			: 0.0
 Size increase ( -.5 to .5 )			: 0.50
 Acceleration booost ( -40 to 40 )		: -5
@@ -63,7 +63,7 @@ Darkening red shift change ( -3 to 3 )		: 0
 Darkening green shift ( -3 to 3 )		: 0
 Darkening blue shift ( -3 to 3 )		: 0
 Base defense increase ( -50 to 50 )		: 20
-Maximum mana increase ( -3.0 to 3.0 )		: 0.0
+Maximum mana increase ( -3.0 to 3.0 )		: 3.0
 Maximum life increase ( -3.0 to 3.0 )		: 0.0
 Strength boost ( -3.0 to 3.0 )			: 10.0
 Wisdom boost ( -3.0 to 3.0 )			: 0.0
@@ -71,3 +71,4 @@ Intelligence boost ( -3.0 to 3.0 )		: 0.0
 Dexterity boost ( -3.0 to 3.0 )			: 0.0
 
 :[STAY] 1
+:[DEAD] 1 // Stay around even if the target is dead

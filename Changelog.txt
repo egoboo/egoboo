@@ -1,5 +1,6 @@
 Version 2.7.5 (xx.08.2009)
 - New Feature: Improved AI by adding Line of Sight detection for targeting.
+- Update: There is always a minimum 5% chance stealing from shops will be detected.
 - Update: Improved some details for the floor tiles in the Paladin Starter.
 - Update: Deamon Lords have now halved life regeneration making them much easier to defeat.
 - Update: The Haste spell costs less mana to sustain now.
@@ -10,6 +11,9 @@ Version 2.7.5 (xx.08.2009)
 - Update: Increased the amount of treasure loot found in the Ice Palace.
 - Update: Improved the Frost Lizard AI.
 - Update: Improved the texture detail for all the title images.
+- Bugfix: Water is now properly impassable terrain in Bishopia City once again.
+- Bugfix: Fixed bug where items in shop were only sold for half value.
+- Bugfix: Fixed mushrooms having 0 value when bought or sold.
 - Bugfix: Tile Mimics can no longer move through doors and walls.
 - Bugfix: Angus in Bishopia now properly gives Soul Carver as quest reward.
 - Bugfix: Lich boss in the crypt now properly holds an attack spell instead of a treasure chest.

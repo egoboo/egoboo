@@ -743,7 +743,7 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
 
     int cnt;
     Sint16 x, y, z;
-    int distance, bestdistance;
+    Uint32 distance, bestdistance;
     Uint16 frame;
     Uint16 facing, bestvertex;
     Uint16 amount;
@@ -795,16 +795,17 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
         // Spawn particles
         if ( amount != 0 && !pcap->resistbumpspawn && !pchr->invictus && vertices != 0 && ( pchr->damagemodifier[pprt->damagetype]&DAMAGESHIFT ) < 3 )
         {
-            if ( amount == 1 )
+            
+			if ( amount == 1 )
             {
                 // A single particle ( arrow? ) has been stuck in the character...
                 // Find best vertex to attach to
 
                 bestvertex = 0;
-                bestdistance = 9999999;
+                bestdistance = 1 << 31;			//Really high number
 
                 z = -pchr->pos.z + pprt->pos.z + RAISE;
-                facing = pprt->facing - pchr->turn_z - 16384;
+                facing = pprt->facing - pchr->turn_z - NORTH;
                 facing = facing >> 2;
                 fsin = turntosin[facing & TRIG_TABLE_MASK ];
                 fcos = turntocos[facing & TRIG_TABLE_MASK ];
@@ -812,9 +813,8 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
                 y =  8192 * fcos;
                 z = z << 10;// / pchr->scale;
                 frame = pmad->md2.framestart;
-                cnt = 0;
 
-                while ( cnt < vertices )
+                for ( cnt = 0; cnt < amount; cnt++ )
                 {
                     distance = ABS( x - Md2FrameList[frame].vrtx[vertices-cnt-1] ) + ABS( y - Md2FrameList[frame].vrty[vertices-cnt-1] ) + ( ABS( z - Md2FrameList[frame].vrtz[vertices-cnt-1] ) );
                     if ( distance < bestdistance )
@@ -822,25 +822,25 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
                         bestdistance = distance;
                         bestvertex = cnt;
                     }
-
-                    cnt++;
                 }
 
                 spawn_one_particle( pchr->pos.x, pchr->pos.y, pchr->pos.z, 0, pprt->model, ppip->bumpspawnpip,
                                     character, bestvertex + 1, pprt->team, pprt->chr, cnt, character );
             }
+
             else
             {
-                amount = ( amount * vertices ) >> 5;  // Correct amount for size of character
-                cnt = 0;
+				//Multiple particles are attached to character
 
-                while ( cnt < amount )
+                amount = ( amount * vertices ) >> 5;  // Correct amount for size of character
+
+                for ( cnt = 0; cnt < amount; cnt++ )
                 {
                     spawn_one_particle( pchr->pos.x, pchr->pos.y, pchr->pos.z, 0, pprt->model, ppip->bumpspawnpip,
                                         character, rand() % vertices, pprt->team, pprt->chr, cnt, character );
-                    cnt++;
                 }
             }
+
         }
     }
 }

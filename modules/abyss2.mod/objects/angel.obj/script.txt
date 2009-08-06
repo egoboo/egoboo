@@ -276,6 +276,7 @@ IfKilled
 
   //Make no body! (for ressurections)
   GoPoof
+  SpawnPoof
 
 //------------------------------------------------------------------------------
 //Say ouch

@@ -838,6 +838,7 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
         case FGIVEMANARETURNTOTARGET:returncode = scr_GiveManaReturnToTarget( pstate, pself ); break;
         case FSETMONEY:              returncode = scr_set_Money( pstate, pself );           break;
         case FIFTARGETCANSEEKURSES:  returncode = scr_TargetCanSeeKurses( pstate, pself );  break;
+        case FSPAWNATTACHEDCHARACTER:returncode = scr_SpawnAttachedCharacter( pstate, pself );  break;
 
             // if none of the above, skip the line and log an error
         default:
