@@ -508,7 +508,7 @@ void ui_drawTextBox( Font * font, const char *text, float vx, float vy, float vw
     spacing = ui_context.ah * vspacing;
 
     // draw using screen coordinates
-    fnt_drawTextBox( font, text, x1, y1, x2 - x1, y2 - y1, spacing );
+    fnt_drawTextBox( font, x1, y1, x2 - x1, y2 - y1, spacing, text );
 }
 
 //--------------------------------------------------------------------------------------------

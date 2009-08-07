@@ -26,6 +26,8 @@
 
 #include "egoboo.h"
 
+#include <SDL.h>
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 struct s_camera;
@@ -33,6 +35,7 @@ struct s_egoboo_config;
 struct s_chr_instance;
 struct s_oglx_texture_parameters;
 struct s_egoboo_config;
+struct Font;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -224,6 +227,38 @@ extern Uint8           blipc[MAXBLIP];
 extern bool_t          meshnotexture;
 extern Uint16          meshlasttexture;             // Last texture used
 
+#define BILLBOARD_COUNT     100
+#define INVALID_BILLBOARD   BILLBOARD_COUNT
+
+struct s_billboard_data
+{
+    bool_t    valid;        // has the billboard data been initialized?
+
+    Uint32    time;         // the time when the billboard will expire
+    int       tex_ref;      // our texture index
+    GLvector3 pos;          // the position of the bottom-missle of the box
+
+    Uint16    ichr;         // the character we are attached to
+};
+typedef struct s_billboard_data billboard_data_t;
+
+billboard_data_t * billboard_data_init( billboard_data_t * pbb );
+bool_t             billboard_data_free( billboard_data_t * pbb );
+bool_t             billboard_data_update( billboard_data_t * pbb );
+bool_t             billboard_data_printf_ttf( billboard_data_t * pbb, struct Font *font, SDL_Color color, const char * format, ... );
+
+DEFINE_LIST( billboard_data_t, BillboardList, BILLBOARD_COUNT );
+
+void               BillboardList_init_all();
+void               BillboardList_update_all();
+void               BillboardList_free_all();
+int                BillboardList_get_free( Uint32 lifetime_secs );
+bool_t             BillboardList_free_one(int ibb);
+billboard_data_t * BillboardList_get_ptr( int ibb );
+
+#define VALID_BILLBOARD_RANGE( IBB ) ( ( (IBB) >= 0 ) && ( (IBB) < BILLBOARD_COUNT ) )
+#define VALID_BILLBOARD( IBB )       ( VALID_BILLBOARD_RANGE( IBB ) && BillboardList.lst[IBB].valid )
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // Function prototypes
@@ -338,3 +373,5 @@ bool_t interpolate_lighting( lighting_cache_t * dst, lighting_cache_t * src[], f
 bool_t project_sum_lighting( lighting_cache_t * dst, lighting_cache_t * src, GLvector3 vec, int dir );
 
 bool_t bbox_gl_draw(aabb_t * pbbox);
+
+void render_all_billboards( struct s_camera * pcam );

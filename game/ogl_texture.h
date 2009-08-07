@@ -39,7 +39,6 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-#define INVALID_TX_ID  ( (GLuint) (~0) )
 #define INVALID_KEY    ( (Uint32) (~0) )
 
 // OpenGL Texture filtering
@@ -60,6 +59,7 @@ typedef enum e_tx_filters
 
 struct s_oglx_texture
 {
+    GLboolean    base_valid;
     gl_texture_t base;
 
     GLuint        valid;           // whether or not the texture has been initialized
@@ -98,4 +98,8 @@ typedef struct s_oglx_texture_parameters oglx_texture_parameters_t;
 
 extern oglx_texture_parameters_t tex_params;
 
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+void      oglx_grab_texture_state(GLenum target, GLint level, oglx_texture * texture);
 GLboolean oglx_texture_Valid( oglx_texture *ptex );

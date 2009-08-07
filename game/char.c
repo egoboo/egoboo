@@ -36,6 +36,7 @@
 #include "mad.h"
 #include "game.h"
 #include "texture.h"
+#include "ui.h"
 
 #include "egoboo_setup.h"
 #include "egoboo_fileutil.h"
@@ -72,6 +73,8 @@ static Uint16 pack_has_a_stack( Uint16 item, Uint16 character );
 static bool_t pack_add_item( Uint16 item, Uint16 character );
 static Uint16 pack_get_item( Uint16 character, grip_offset_t grip_off, bool_t ignorekurse );
 static void set_weapongrip( Uint16 iitem, Uint16 iholder, Uint16 vrt_off );
+
+static int chr_add_billboard( Uint16 ichr, Uint32 lifetime_secs );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -3719,6 +3722,8 @@ Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
     // clear out all data
     memset(pchr, 0, sizeof(chr_t));
 
+    pchr->ibillboard = INVALID_BILLBOARD;
+
     // Make sure the team is valid
     team = MIN( team, TEAM_MAX - 1 );
 
@@ -4050,6 +4055,15 @@ Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
     };
 
     pchr->on = btrue;
+
+    chr_add_billboard( ichr, 200 );
+    if( INVALID_BILLBOARD != pchr->ibillboard )
+    {
+        SDL_Color          color = {0x1F,0x1F,0xFF,0xFF};
+        billboard_data_t * pbb = BillboardList_get_ptr( pchr->ibillboard );
+
+        billboard_data_printf_ttf( pbb, ui_getFont(), color, "%s", pchr->name );
+    }
 
     return ichr;
 }
@@ -6050,6 +6064,42 @@ bool_t ai_add_order( ai_state_t * pai, Uint32 value, Uint16 counter )
 
     return retval;
 }
+
+//--------------------------------------------------------------------------------------------
+int chr_add_billboard( Uint16 ichr, Uint32 lifetime_secs )
+{
+    // BB> Attach a basic billboard to a character. You set the billboard texture
+    //     at any time after this. Returns the index of the billboard or INVALID_BILLBOARD
+    //     if the allocation fails.
+    //
+    //    must be called with a valid character, so be careful if you call this function from within
+    //    spawn_one_character()
+
+    chr_t * pchr;
+
+    if( INVALID_CHR(ichr) ) return INVALID_BILLBOARD;
+    pchr = ChrList + ichr;
+
+    if( INVALID_BILLBOARD != pchr->ibillboard )
+    {
+        BillboardList_free_one(pchr->ibillboard);
+        pchr->ibillboard = INVALID_BILLBOARD;
+    }
+
+    pchr->ibillboard = BillboardList_get_free(lifetime_secs);
+
+    // attachr the billboard to the character
+    if( INVALID_BILLBOARD != pchr->ibillboard )
+    {
+        billboard_data_t * pbb = BillboardList.lst + pchr->ibillboard;
+
+        pbb->ichr = ichr;
+    }
+
+    return pchr->ibillboard;
+}
+
+
 
 //--------------------------------------------------------------------------------------------
 /*Uint16 get_target_in_block( int x, int y, Uint16 character, char items,

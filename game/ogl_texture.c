@@ -185,6 +185,7 @@ void oglx_texture_delete(oglx_texture * ptex)
 //--------------------------------------------------------------------------------------------
 GLuint oglx_texture_Convert( GLenum tx_target, oglx_texture *ptex, SDL_Surface * image, Uint32 key )
 {
+    int               src_imgW, src_imgH;
     SDL_Surface     * screen;
     SDL_PixelFormat * pformat;
     SDL_PixelFormat   tmpformat;
@@ -211,8 +212,8 @@ GLuint oglx_texture_Convert( GLenum tx_target, oglx_texture *ptex, SDL_Surface *
     ptex->alpha = image->format->alpha / 255.0f;
 
     /* Set the original image's size (incase it's not an exact square of a power of two) */
-    ptex->imgH = image->h;
-    ptex->imgW = image->w;
+    src_imgH = image->h;
+    src_imgW = image->w;
 
     // adjust the texture target
     tx_target = ((1 == image->h) && (image->w > 1)) ? GL_TEXTURE_1D : GL_TEXTURE_2D;
@@ -296,7 +297,7 @@ GLuint oglx_texture_Convert( GLenum tx_target, oglx_texture *ptex, SDL_Surface *
     }
 
     // create a ptex that is acceptable to OpenGL (height and width are powers of 2)
-    if ( ptex->imgH != ptex->base.height || ptex->imgW != ptex->base.width )
+    if ( src_imgH != ptex->base.height || src_imgW != ptex->base.width )
     {
         SDL_Surface * tmp = SDL_CreateRGBSurface( SDL_SWSURFACE, ptex->base.width, ptex->base.height, tmpformat.BitsPerPixel, tmpformat.Rmask, tmpformat.Gmask, tmpformat.Bmask, tmpformat.Amask );
 
@@ -315,6 +316,7 @@ GLuint oglx_texture_Convert( GLenum tx_target, oglx_texture *ptex, SDL_Surface *
     ptex->surface      = image;
 
     /* Set up some parameters for the format of the oglx_texture */
+    ptex->base_valid = btrue;
     oglx_texture_Bind( ptex );
 
     /* actually create the OpenGL textures */
@@ -338,6 +340,14 @@ GLuint oglx_texture_Convert( GLenum tx_target, oglx_texture *ptex, SDL_Surface *
     {
         assert(0);
     }
+
+    ptex->base_valid = bfalse;
+    oglx_grab_texture_state( tx_target, 0, ptex );
+
+    ptex->alpha = 1.0f;
+    ptex->imgW  = src_imgW;
+    ptex->imgH  = src_imgH;
+    strncpy( ptex->name, "SDL_Surface()", SDL_arraysize(ptex->name) );
 
     return ptex->base.binding;
 }
@@ -383,43 +393,46 @@ GLuint oglx_texture_Load( GLenum tx_target, oglx_texture *ptex, const char *file
 /********************> oglx_texture_GetTextureID() <*****/
 GLuint  oglx_texture_GetTextureID( oglx_texture *texture )
 {
-    return texture->base.binding;
+    return (NULL == texture) ? INVALID_TX_ID : texture->base.binding;
 }
 
 /********************> oglx_texture_GetImageHeight() <*****/
 GLsizei  oglx_texture_GetImageHeight( oglx_texture *texture )
 {
-    return texture->imgH;
+    return (NULL == texture) ? 0 : texture->imgH;
 }
 
 /********************> oglx_texture_GetImageWidth() <*****/
 GLsizei  oglx_texture_GetImageWidth( oglx_texture *texture )
 {
-    return texture->imgW;
+    return (NULL == texture) ? 0 : texture->imgW;
 }
 
 /********************> oglx_texture_GetTextureWidth() <*****/
 GLsizei  oglx_texture_GetTextureWidth( oglx_texture *texture )
 {
-    return texture->base.width;
+    return (NULL == texture) ? 0 : texture->base.width;
 }
 
 /********************> oglx_texture_GetTextureHeight() <*****/
 GLsizei  oglx_texture_GetTextureHeight( oglx_texture *texture )
 {
-    return texture->base.height;
+    return (NULL == texture) ? 0 : texture->base.height;
 }
 
 /********************> oglx_texture_SetAlpha() <*****/
 void  oglx_texture_SetAlpha( oglx_texture *texture, GLfloat alpha )
 {
-    texture->alpha = alpha;
+    if( NULL != texture )
+    {
+        texture->alpha = alpha;
+    }
 }
 
 /********************> oglx_texture_GetAlpha() <*****/
 GLfloat  oglx_texture_GetAlpha( oglx_texture *texture )
 {
-    return texture->alpha;
+    return (NULL == texture) ? 0 : texture->alpha;
 }
 
 /********************> oglx_texture_Release() <*****/
@@ -448,6 +461,7 @@ void  oglx_texture_Release( oglx_texture *texture )
     texture->base.wrap_s = GL_REPEAT;
     texture->base.wrap_t = GL_REPEAT;
 
+    oglx_grab_texture_state( GL_TEXTURE_2D, 0, texture );
 }
 
 /********************> oglx_texture_Release() <*****/
@@ -529,6 +543,10 @@ void oglx_texture_Bind( oglx_texture *texture )
         };
     }
 
+    if( NULL != texture && !texture->base_valid )
+    {
+        oglx_grab_texture_state( target, 0, texture );
+    }
 };
 
 //---------------------------------------------------------------------------------------------
@@ -536,3 +554,14 @@ GLboolean oglx_texture_Valid( oglx_texture *ptex )
 {
     return VALID_TEXTURE( ptex );
 }
+
+//---------------------------------------------------------------------------------------------
+void oglx_grab_texture_state(GLenum target, GLint level, oglx_texture * texture)
+{
+    if( NULL == texture ) return;
+
+    gl_grab_texture_state( target, level, &(texture->base) );
+
+    texture->base_valid = GL_TRUE;
+}
+

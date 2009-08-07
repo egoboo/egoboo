@@ -26,13 +26,13 @@
 #include "log.h"
 
 #include "egoboo_typedef.h"
+#include "ogl_include.h"
 #include "ogl_debug.h"
 
 #include <stdlib.h>
 #include <stddef.h>
 #include <string.h>
 #include <SDL.h>
-#include <SDL_opengl.h>
 #include <SDL_ttf.h>
 
 //--------------------------------------------------------------------------------------------
@@ -101,8 +101,8 @@ int copySurfaceToTexture( SDL_Surface *surface, GLuint texture, GLfloat *texCoor
     int w, h;
     SDL_Surface *image;
     SDL_Rect area;
-    Uint32  saved_flags;
-    Uint8  saved_alpha;
+    Uint32   saved_flags;
+    Uint8    saved_alpha;
 
     // Use the surface width & height expanded to the next powers of two
     w = powerOfTwo( surface->w );
@@ -194,45 +194,92 @@ void fnt_freeFont( Font *font )
 }
 
 //--------------------------------------------------------------------------------------------
-void fnt_drawText( Font *font, int x, int y, const char *text )
+int fnt_vprintf( Font *font, SDL_Color color, SDL_Surface ** psurf, GLuint itex, float texCoords[], const char *format, va_list args )
 {
+    int rv;
+    STRING szText;
+    SDL_Surface *textSurf, **pptmp;
+    bool_t sdl_surf_external;
+
+    if( NULL == font || NULL == texCoords ) return -1;
+
+    if( NULL != psurf )
+    {
+        sdl_surf_external = btrue;
+        pptmp = psurf;
+    }
+    else
+    {
+        sdl_surf_external = bfalse;
+        pptmp = &textSurf;
+    }
+
+    if( INVALID_TX_ID == itex ) return -1;
+
+    // evaluate the variable args
+    rv = vsnprintf( szText, SDL_arraysize(szText) - 1, format, args );
+    if ( rv < 0 )
+    {
+        return rv;
+    }
+
+    // create the text
+    (*pptmp) = TTF_RenderText_Blended( font->ttfFont, szText, color );
+    if (NULL == (*pptmp)) return -1;
+
+    // upload the texture
+    if( !copySurfaceToTexture( (*pptmp), itex, texCoords ) )
+    {
+        rv = -1;
+    }
+
+    if( !sdl_surf_external )
+    {
+        // Done with the surface
+        SDL_FreeSurface( *pptmp );
+        *pptmp = NULL;
+    }
+
+    return rv;
+}
+
+//--------------------------------------------------------------------------------------------
+void fnt_drawText( Font *font, int x, int y, const char *format, ...   )
+{
+    va_list args;
+    int rv;
     SDL_Surface *textSurf;
     SDL_Color color = { 0xFF, 0xFF, 0xFF, 0 };
-    if ( NULL == font ) return;
 
-    // Let TTF render the text
-    textSurf = TTF_RenderText_Blended( font->ttfFont, text, color );
-    if (NULL == textSurf) return;
+    va_start( args, format );
+    rv = fnt_vprintf( font, color, &textSurf, font->texture, font->texCoords, format, args );
+    va_end( args );
 
-    // Does this font already have a texture?  If not, allocate it here
-    if ( (GLuint)(~0) == font->texture )
+    if( rv < 0 ) return;
+
+    // And draw the darn thing
+    GL_DEBUG(glBegin)( GL_QUADS );
     {
-        GL_DEBUG(glGenTextures)(1, &font->texture );
-    }
+        GL_DEBUG(glTexCoord2f)(font->texCoords[0], font->texCoords[1] );
+        GL_DEBUG(glVertex2f)( x, y );
 
-    // Copy the surface to the texture
-    if ( copySurfaceToTexture( textSurf, font->texture, font->texCoords ) )
+        GL_DEBUG(glTexCoord2f)(font->texCoords[2], font->texCoords[1] );
+        GL_DEBUG(glVertex2f)( x + textSurf->w, y );
+
+        GL_DEBUG(glTexCoord2f)(font->texCoords[2], font->texCoords[3] );
+        GL_DEBUG(glVertex2f)( x + textSurf->w, y + textSurf->h );
+
+        GL_DEBUG(glTexCoord2f)(font->texCoords[0], font->texCoords[3] );
+        GL_DEBUG(glVertex2f)( x, y + textSurf->h );
+    }
+    GL_DEBUG_END();
+
+    if( NULL != textSurf )
     {
-        // And draw the darn thing
-        GL_DEBUG(glBegin)( GL_QUADS );
-        {
-            GL_DEBUG(glTexCoord2f)(font->texCoords[0], font->texCoords[1] );
-            GL_DEBUG(glVertex2f)( x, y );
-
-            GL_DEBUG(glTexCoord2f)(font->texCoords[2], font->texCoords[1] );
-            GL_DEBUG(glVertex2f)( x + textSurf->w, y );
-
-            GL_DEBUG(glTexCoord2f)(font->texCoords[2], font->texCoords[3] );
-            GL_DEBUG(glVertex2f)( x + textSurf->w, y + textSurf->h );
-
-            GL_DEBUG(glTexCoord2f)(font->texCoords[0], font->texCoords[3] );
-            GL_DEBUG(glVertex2f)( x, y + textSurf->h );
-        }
-        GL_DEBUG_END();
+        // Done with the surface
+        SDL_FreeSurface( textSurf );
+        textSurf = NULL;
     }
-
-    // Done with the surface
-    SDL_FreeSurface( textSurf );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -257,14 +304,20 @@ void fnt_getTextSize( Font *font, const char *text, int *width, int *height )
  * height  - Maximum height of the box (not implemented)
  * spacing - Amount of space to move down between lines. (usually close to your font size)
  */
-void fnt_drawTextBox( Font *font, const char *text, int x, int y, int width, int height, int spacing )
+void fnt_drawTextBox( Font *font, int x, int y, int width, int height, int spacing, const char *format, ...   )
 {
+    va_list args;
+    int rv;
     int len;
     char *buffer, *line;
-    if ( !font ) return;
+    char text[4096];
 
-    // If text is empty, there's nothing to draw
-    if ( !text || !text[0] ) return;
+    va_start( args, format );
+    rv = vsnprintf( text, SDL_arraysize(text), format, args );
+    va_end( args );
+
+    // some problem printing the text
+    if( rv < 0 ) return;
 
     // Split the passed in text into separate lines
     len = strlen( text );

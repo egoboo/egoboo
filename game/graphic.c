@@ -196,6 +196,11 @@ static void init_bar_data();
 static void init_blip_data();
 static void init_map_data();
 
+DECLARE_LIST ( billboard_data_t, BillboardList );
+
+
+static bool_t render_billboard( struct s_camera * pcam, billboard_data_t * pbb, float scale );
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 void EnableTexturing()
@@ -647,6 +652,7 @@ void init_all_graphics()
     init_map_data();
     font_init();
 
+    BillboardList_free_all();
     TxTexture_init_all();
     TxTitleImage_init_all();
 };
@@ -658,6 +664,7 @@ void release_all_graphics()
     init_blip_data();
     init_map_data();
 
+    BillboardList_free_all();
     TxTexture_release_all();
     TxTitleImage_release_all();
 }
@@ -669,6 +676,7 @@ void delete_all_graphics()
     init_blip_data();
     init_map_data();
 
+    BillboardList_free_all();
     TxTexture_delete_all();
     TxTitleImage_delete_all();
 }
@@ -2205,6 +2213,9 @@ void draw_scene_solid()
             render_one_prt_solid( dolist[cnt].iprt );
         }
     }
+
+    // Render the solid billboards
+    render_all_billboards( PCamera );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4887,4 +4898,371 @@ void release_all_object_textures()
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+billboard_data_t * billboard_data_init(billboard_data_t * pbb)
+{
+    if ( NULL == pbb ) return pbb;
+
+    memset( pbb, 0, sizeof(billboard_data_t) );
+
+    pbb->tex_ref = INVALID_TEXTURE;
+    pbb->ichr    = MAX_CHR;
+
+    return pbb;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t billboard_data_free(billboard_data_t * pbb)
+{
+    if ( NULL == pbb || !pbb->valid ) return bfalse;
+
+    // free any allocated texture
+    TxTexture_free_one( pbb->tex_ref );
+
+    billboard_data_init(pbb);
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t billboard_data_update( billboard_data_t * pbb )
+{
+    GLvector3   vup, pos_new;
+    chr_t     * pchr;
+
+    if( NULL == pbb || !pbb->valid ) return bfalse;
+
+    if( INVALID_CHR(pbb->ichr) ) return bfalse;
+    pchr = ChrList + pbb->ichr;
+
+    // determine where the new position should be
+    if( pchr->inst.matrixvalid )
+    {
+        vup = mat_getChrUp( pchr->inst.matrix );
+    }
+    else
+    {
+        vup.x = vup.y = 0.0f;
+        vup.z = 1.0f;
+    }
+
+    pos_new.x = pchr->pos.x + vup.x * pchr->bumpheight;
+    pos_new.y = pchr->pos.y + vup.y * pchr->bumpheight;
+    pos_new.z = pchr->pos.z + vup.z * pchr->bumpheight;
+
+    // allow the billboards to be a bit bouncy
+    pbb->pos.x = pbb->pos.x * 0.5f + pos_new.x * 0.5f;
+    pbb->pos.y = pbb->pos.y * 0.5f + pos_new.y * 0.5f;
+    pbb->pos.z = pbb->pos.z * 0.5f + pos_new.z * 0.5f;
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t billboard_data_printf_ttf( billboard_data_t * pbb, Font *font, SDL_Color color, const char * format, ... )
+{
+    va_list args;
+    int rv;
+    oglx_texture * ptex;
+    float texCoords[4];
+
+    if( NULL == pbb || !pbb->valid ) return bfalse;
+
+    // release any existing texture in case there is an error
+    ptex = TxTexture_get_ptr(pbb->tex_ref);
+    oglx_texture_Release( ptex );
+
+    va_start( args, format );
+    rv = fnt_vprintf( font, color, &(ptex->surface), ptex->base.binding, texCoords, format, args );
+    va_end( args );
+
+    ptex->base_valid = bfalse;
+    oglx_grab_texture_state( GL_TEXTURE_2D, 0, ptex );
+
+    ptex->alpha = 1.0f;
+    ptex->imgW  = ptex->surface->w;
+    ptex->imgH  = ptex->surface->h;
+    strncpy( ptex->name, "billboard text", SDL_arraysize(ptex->name) );
+
+    return ( rv >= 0 );
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+void BillboardList_clear_data()
+{
+    // BB> reset the free billboard list.
+
+    int cnt;
+
+    for ( cnt = 0; cnt < BILLBOARD_COUNT; cnt++ )
+    {
+        BillboardList.free_ref[cnt] = cnt;
+    }
+    BillboardList.free_count = cnt;
+
+}
+
+//--------------------------------------------------------------------------------------------
+void BillboardList_init_all()
+{
+    int cnt;
+
+    for( cnt = 0; cnt<BILLBOARD_COUNT; cnt++ )
+    {
+        billboard_data_init( BillboardList.lst + cnt );
+    }
+
+    BillboardList_clear_data();
+}
+
+//--------------------------------------------------------------------------------------------
+void BillboardList_update_all()
+{
+    int cnt, ticks;
+
+    ticks = SDL_GetTicks();
+
+    for( cnt = 0; cnt<BILLBOARD_COUNT; cnt++ )
+    {
+        bool_t is_invalid;
+
+        billboard_data_t * pbb = BillboardList.lst + cnt;
+
+        if( !pbb->valid ) continue;
+
+        is_invalid = bfalse;
+        if( ticks >= pbb->time || NULL == TxTexture_get_ptr( pbb->tex_ref ) )    
+        {
+            is_invalid = btrue;
+        }
+
+        if( is_invalid )
+        {
+            // the billboard has expired
+
+            // unlink it from the character
+            if( VALID_CHR(pbb->ichr) )
+            {
+                ChrList[pbb->ichr].ibillboard = INVALID_BILLBOARD;
+            }
+
+            // deallocate the billboard
+            BillboardList_free_one(cnt);
+        }
+        else
+        { 
+            billboard_data_update( BillboardList.lst + cnt );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+void BillboardList_free_all()
+{
+    int cnt;
+
+    for( cnt = 0; cnt<BILLBOARD_COUNT; cnt++ )
+    {
+        if( !BillboardList.lst[cnt].valid ) continue;
+
+        billboard_data_update( BillboardList.lst + cnt );
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+int BillboardList_get_free( Uint32 lifetime_secs )
+{
+    int                itex = INVALID_TEXTURE;
+    int                ibb  = INVALID_BILLBOARD;
+    billboard_data_t * pbb  = NULL;
+
+    if ( BillboardList.free_count <= 0 ) return INVALID_BILLBOARD;
+
+    if( 0 == lifetime_secs ) return INVALID_BILLBOARD;
+
+    itex = TxTexture_get_free( INVALID_TEXTURE );
+    if( INVALID_TEXTURE == itex ) return INVALID_BILLBOARD;
+
+    // grab the top index
+    BillboardList.free_count--;
+    ibb = BillboardList.free_ref[BillboardList.free_count];
+
+    if( VALID_BILLBOARD_RANGE(ibb) )
+    {
+        pbb = BillboardList.lst + ibb;
+        billboard_data_init( pbb );
+
+        pbb->tex_ref = itex;
+        pbb->time    = SDL_GetTicks() + lifetime_secs * TICKS_PER_SEC;
+        pbb->valid   = btrue;
+    }
+    else
+    {
+        // the billboard allocation returned an ivaild value
+        // deallocate the texture
+        TxTexture_free_one( itex );
+
+        ibb = INVALID_BILLBOARD;
+    }
+
+    return ibb;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t BillboardList_free_one(int ibb)
+{
+    billboard_data_t * pbb;
+
+    if ( !VALID_BILLBOARD_RANGE(ibb) ) return bfalse;
+
+    pbb = BillboardList.lst + ibb;
+
+    billboard_data_free( pbb );
+
+#if defined(DEBUG)
+    {
+        int cnt;
+        // determine whether this texture is already in the list of free textures
+        // that is an error
+        for ( cnt = 0; cnt < BillboardList.free_count; cnt++ )
+        {
+            if ( ibb == BillboardList.free_ref[cnt] ) return bfalse;
+        }
+    }
+#endif
+
+    if ( BillboardList.free_count >= BILLBOARD_COUNT )
+        return bfalse;
+
+    // do not put anything below TX_LAST back onto the SDL_free stack
+    BillboardList.free_ref[BillboardList.free_count] = ibb;
+    BillboardList.free_count++;
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+billboard_data_t * BillboardList_get_ptr( int ibb )
+{
+    if( !VALID_BILLBOARD(ibb) ) return NULL;
+
+    return BillboardList.lst + ibb;
+}
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+bool_t render_billboard( camera_t * pcam, billboard_data_t * pbb, float scale )
+{
+    int i;
+    GLvertex vtlist[4];
+    float x1, y1;
+    float w,h;
+    GLvector4 vector_up, vector_right;
+
+    oglx_texture     * ptex;
+
+    if( NULL == pbb || !pbb->valid ) return bfalse;
+
+    ptex = TxTexture_get_ptr( pbb->tex_ref );
+
+    oglx_texture_Bind( ptex );
+
+    w = oglx_texture_GetImageWidth ( ptex );
+    h = oglx_texture_GetImageHeight ( ptex );
+
+    x1 = w  / ( float ) oglx_texture_GetTextureWidth ( ptex );
+    y1 = h  / ( float ) oglx_texture_GetTextureHeight( ptex );
+
+    vector_right.x =  pcam->mView.CNV(0, 0) * w * scale;
+    vector_right.y =  pcam->mView.CNV(1, 0) * w * scale;
+    vector_right.z =  pcam->mView.CNV(2, 0) * w * scale;
+
+    vector_up.x    = -pcam->mView.CNV(0, 1) * h * scale;
+    vector_up.y    = -pcam->mView.CNV(1, 1) * h * scale;
+    vector_up.z    = -pcam->mView.CNV(2, 1) * h * scale;
+
+    // bottom left
+    vtlist[0].pos[XX] = pbb->pos.x + ( -vector_right.x - 0 * vector_up.x );
+    vtlist[0].pos[YY] = pbb->pos.y + ( -vector_right.y - 0 * vector_up.y );
+    vtlist[0].pos[ZZ] = pbb->pos.z + ( -vector_right.z - 0 * vector_up.z );
+    vtlist[0].tex[SS] = x1;
+    vtlist[0].tex[TT] = y1;
+
+    // top left
+    vtlist[1].pos[XX] = pbb->pos.x + ( -vector_right.x + 2 * vector_up.x );
+    vtlist[1].pos[YY] = pbb->pos.y + ( -vector_right.y + 2 * vector_up.y );
+    vtlist[1].pos[ZZ] = pbb->pos.z + ( -vector_right.z + 2 * vector_up.z );
+    vtlist[1].tex[SS] = x1;
+    vtlist[1].tex[TT] = 0;
+
+    // top right
+    vtlist[2].pos[XX] = pbb->pos.x + ( vector_right.x + 2 * vector_up.x );
+    vtlist[2].pos[YY] = pbb->pos.y + ( vector_right.y + 2 * vector_up.y );
+    vtlist[2].pos[ZZ] = pbb->pos.z + ( vector_right.z + 2 * vector_up.z );
+    vtlist[2].tex[SS] = 0;
+    vtlist[2].tex[TT] = 0;
+
+    // bottom right
+    vtlist[3].pos[XX] = pbb->pos.x + ( vector_right.x - 0 * vector_up.x );
+    vtlist[3].pos[YY] = pbb->pos.y + ( vector_right.y - 0 * vector_up.y );
+    vtlist[3].pos[ZZ] = pbb->pos.z + ( vector_right.z - 0 * vector_up.z );
+    vtlist[3].tex[SS] = 0;
+    vtlist[3].tex[TT] = y1;
+
+    // Go on and draw it
+    GL_DEBUG(glBegin)( GL_QUADS );
+    {
+        for ( i = 0; i < 4; i++ )
+        {
+            GL_DEBUG(glTexCoord2fv)( vtlist[i].tex );
+            GL_DEBUG(glVertex3fv)  ( vtlist[i].pos );
+        }
+    }
+    GL_DEBUG_END();
+
+
+    return btrue;
+}
+
+
+//--------------------------------------------------------------------------------------------
+void render_all_billboards( camera_t * pcam )
+{
+    int cnt;
+
+    if ( NULL == pcam ) pcam = PCamera;
+    if ( NULL == pcam ) return;
+
+    Begin3DMode( pcam );
+    {
+        ATTRIB_PUSH( "render_all_billboards()", GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_POLYGON_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT );
+        {
+            GL_DEBUG(glShadeModel)( GL_FLAT );      // GL_LIGHTING_BIT - Flat shade this
+            GL_DEBUG(glDepthMask )( GL_FALSE );     // GL_DEPTH_BUFFER_BIT
+            GL_DEBUG(glDepthFunc )( GL_LEQUAL );    // GL_DEPTH_BUFFER_BIT
+            GL_DEBUG(glDisable   )( GL_CULL_FACE ); // GL_POLYGON_BIT | GL_ENABLE_BIT
+
+            GL_DEBUG(glDisable   )( GL_CULL_FACE ); // GL_POLYGON_BIT | GL_ENABLE_BIT
+
+            GL_DEBUG(glEnable)( GL_BLEND );                                       // GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT
+            GL_DEBUG(glBlendFunc)( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );        // GL_COLOR_BUFFER_BIT
+
+            GL_DEBUG(glColor4f)(1.0f, 1.0f, 1.0f, 1.0f );
+
+            for( cnt = 0; cnt<BILLBOARD_COUNT; cnt++ )
+            {
+                billboard_data_t * pbb = BillboardList.lst + cnt;
+
+                if( !pbb->valid ) continue;
+
+                render_billboard( pcam, pbb, 1 );
+            }
+        }
+        ATTRIB_POP( "render_all_billboards()" );
+    }
+    End3DMode();
+
 }

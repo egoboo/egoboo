@@ -836,6 +836,9 @@ void update_game()
         move_water();
         looped_update_all_sound();
 
+        // update all the billboards
+        BillboardList_update_all();
+
         // Timers
         clock_wld  += UPDATE_SKIP;
         clock_stat += UPDATE_SKIP;
@@ -1426,6 +1429,7 @@ int do_menu_proc_run( menu_process_t * mproc, double frameDuration )
 //--------------------------------------------------------------------------------------------
 int do_game_proc_begin( game_process_t * gproc )
 {
+    BillboardList_init_all();
 
     gproc->escape_latch = bfalse;
 

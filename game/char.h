@@ -592,6 +592,7 @@ struct s_chr
     Uint16         voffvel;
     Uint32         shadowsize;      // Size of shadow
     Uint32         shadowsizesave;  // Without size modifiers
+    Uint16         ibillboard;      // The attached billboard
 
     // action info
     Uint8          actionready;                   // Ready to play a new one
