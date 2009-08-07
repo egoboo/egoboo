@@ -1,5 +1,8 @@
 Version 2.7.5 (xx.08.2009)
 - New Feature: Improved AI by adding Line of Sight detection for targeting.
+- Update: Most wands have now increased charge limit making them much more useful.
+- Update: The Book of Enchant can now be used to recharge wands.
+- Update: The Morph spell now allows you to use [TECH] skill but disables spellcasting.
 - Update: There is always a minimum 5% chance stealing from shops will be detected.
 - Update: Improved some details for the floor tiles in the Paladin Starter.
 - Update: Deamon Lords have now halved life regeneration making them much easier to defeat.
@@ -11,6 +14,8 @@ Version 2.7.5 (xx.08.2009)
 - Update: Increased the amount of treasure loot found in the Ice Palace.
 - Update: Improved the Frost Lizard AI.
 - Update: Improved the texture detail for all the title images.
+- Bugfix: Book of Summon Crabs should now properly export as a spell and not as a crab monster.
+- Bugfix: Fixed bug where the Faeries in the Elf Starter would follow a lumpkin instead of the player.
 - Bugfix: Water is now properly impassable terrain in Bishopia City once again.
 - Bugfix: Fixed bug where items in shop were only sold for half value.
 - Bugfix: Fixed mushrooms having 0 value when bought or sold.
@@ -29,6 +34,7 @@ Version 2.7.5 (xx.08.2009)
 - Bugfix: Corrected some character hitboxes.
 - Bugfix: Fixed some acceleration issues that made the Tourist Starter almost impossible.
 - Bugfix: Fixed Lord Hagen AI movement bug in the Soldier Starter.
+- Bugfix: Multiple minor bugs fixed.
 
 Version 2.7.4 (19.07.2009)
 - New Feature: New menu section for Game Options where you can change the game difficulty.

@@ -1,5 +1,2 @@
-:a_Book_of_
-:STOP
-
-:Enchant_Weapon
+:a_Book_of_Enchant
 :STOP

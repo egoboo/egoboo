@@ -30,6 +30,11 @@ IfSpawned
     //Summon sound
     tmpargument = 0
     PlaySound
+IfChanged
+  // It's a spell in hand
+  tmpargument = 0
+  SetState
+  KeepAction
 
 //Make monster crushable (Only monster is valid)
 IfCrushed

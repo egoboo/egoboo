@@ -51,8 +51,7 @@ Else
       SetReloadTime
     // Nope, so charge
     Else
-      GetContent
-      tmpx = tmpargument
+      tmpx = selfcontent
       tmpy = 380
       IfXIsLessThanY
         SetTargetToWhoeverIsHolding
@@ -71,11 +70,12 @@ Else
               tmpdistance = selfz
               tmpargument = 5
               SpawnExactParticle
-
+        Else
+          tmpargument = 5
+          SendMessageNear
   // Let it be cast
   Else
-    GetContent
-    tmpx = tmpargument
+    tmpx = selfcontent
     tmpy = 0
     IfXIsMoreThanY
       tmpy = 379

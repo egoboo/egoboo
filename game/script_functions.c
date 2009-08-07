@@ -1880,7 +1880,7 @@ Uint8 scr_PlaySound( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // This function plays a sound
-    if ( pchr->pos_old.z > PITNOSOUND && pstate->argument >= 0 && pstate->argument < MAX_WAVE )
+    if ( pchr->pos_old.z > PITNOSOUND && VALID_SND( pstate->argument ) )
     {
         sound_play_chunk( pchr->pos_old, CapList[pchr->model].wavelist[pstate->argument] );
     }
@@ -3756,7 +3756,7 @@ Uint8 scr_PlaySoundLooped( script_state_t * pstate, ai_state_t * pself )
 
     returncode = 0;
     icap = pchr->model;
-    if ( VALID_CAP(icap) && pstate->argument >= 0 && pstate->argument < MAX_WAVE )
+	if ( VALID_CAP(icap) && VALID_SND( pstate->argument ) )
     {
         Mix_Chunk * new_chunk;
 
@@ -4174,13 +4174,13 @@ Uint8 scr_PlaySoundVolume( script_state_t * pstate, ai_state_t * pself )
     if ( pstate->distance >= 0 )
     {
         volume = pstate->distance;
-        iTmp = -1;
-        if ( pstate->argument >= 0 && pstate->argument < MAX_WAVE )
+        iTmp = INVALID_SOUND;
+		if ( VALID_SND( pstate->argument ) )
         {
             iTmp = sound_play_chunk( pchr->pos_old, CapList[pchr->model].wavelist[pstate->argument] );
         }
 
-        if ( -1 != iTmp )
+        if ( INVALID_SOUND != iTmp )
         {
             Mix_Volume( iTmp, pstate->distance );
         }
@@ -5024,7 +5024,7 @@ Uint8 scr_PlayFullSound( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // This function plays a sound loud for everyone...  Victory music
-    if ( pstate->argument >= 0 && pstate->argument < MAX_WAVE )
+	if ( VALID_SND( pstate->argument ) )
     {
         sound_play_chunk( PCamera->track_pos, CapList[pchr->model].wavelist[pstate->argument] );
     }
@@ -6371,13 +6371,13 @@ Uint8 scr_BeatQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    // ThIs function marks a IDSZ in the Targets quest.txt as beaten
+    // ThIs function marks a IDSZ in the targets quest.txt as beaten
     returncode = bfalse;
     iTmp = 0;
 
-    while (iTmp < MAX_CHR)
+    while (iTmp < MAXPLAYER)
     {
-        if ( ChrList[iTmp].isplayer )
+        if ( ChrList[PlaList[iTmp].index].isplayer )
         {
             if (QUEST_BEATEN == modify_quest_idsz( ChrList[iTmp].name, (IDSZ)pstate->argument, 0 ) )
             {

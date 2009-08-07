@@ -13,9 +13,6 @@ MASTER TODO LIST:
 - also i found a bug, equipping jewelry doesn't always bestow enchant on user, i had much trouble with amulet on strength it seemed to 
   work 1 on 4 tries, weird (tires of throwing away and grabbing back)
 - Halve mana loss caused by potions
-- Allow book of Enchant to recharge wands.
-- Allow use of TECH while morphed?
-- Faeries follow lumpkin in Elf Starter when elf is morphed.
   
 ABYSS 2
 - Rustproof weapon for elayne

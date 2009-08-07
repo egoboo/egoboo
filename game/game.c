@@ -2770,12 +2770,12 @@ void show_full_status( Uint16 statindex )
         debug_message( text );
 
         // Life and mana regeneration
-        manaregen = ChrList[character].manareturn / MANARETURNSHIFT;
-        liferegen = ChrList[character].lifereturn;
-        enchant = ChrList[character].firstenchant;
-        while ( enchant != MAX_ENC )                                    //Don't forget to add gains and costs from enchants
+		manaregen = ChrList[character].manareturn / MANARETURNSHIFT;
+		liferegen = ChrList[character].lifereturn;
+        for ( enchant = 0; enchant < MAX_ENC; enchant++ )									//Don't forget to add gains and costs from enchants
         {
-            Uint16 nextenchant = EncList[enchant].nextenchant;
+			if( !EncList[enchant].on ) continue;
+
             if ( EncList[enchant].target == character )
             {
                 liferegen += EncList[enchant].targetlife;
@@ -2786,7 +2786,7 @@ void show_full_status( Uint16 statindex )
                 liferegen += EncList[enchant].ownerlife;
                 manaregen += EncList[enchant].ownermana;
             }
-            enchant = nextenchant;
+
         }
 
         sprintf( tmps, "Mana Regen:~%4.2f", manaregen / 256.0f );

@@ -104,7 +104,7 @@ Experience rate... Talking in character ( 1.0 )	: 1.0
 // IDSZ Identification tags ( [NONE] is valid )
 Parent ID ( eg. [FROG] for Trogs )		: [HUMA]
 Type ID ( eg. [TROG] for Trogs )		: [LUMP]
-Skill ID ( eg. [WMAG] for wizard spells )	: [WMAG]  // Since wiz cast it
+Skill ID ( eg. [WMAG] for wizard spells )	: [TECH]          // Disable WMAG and enable TECH
 Special ID ( eg. [SUM0] for animated bones )	: [NONE]
 Hate group ID ( eg. [GOBL] for dwarves )	: [NONE]
 Vuilnerability ID ( eg. [SILV] for werewolves )	: [NONE]
@@ -117,7 +117,7 @@ Object is stackable ( TRUE or FALSE )		: FALSE
 Object's name is known ( TRUE or FALSE )	: FALSE
 Item of known usage ( TRUE or FALSE )		: FALSE
 Item carries to next module ( TRUE or FALSE )	: TRUE
-Item requires skill ID to use ( TRUE or FALSE )	: TRUE
+Item requires skill ID to use ( TRUE or FALSE )	: FALSE
 Object is a platform ( TRUE or FALSE)		: FALSE
 Object collects money ( TRUE or FALSE )		: TRUE
 Object can open chests/doors ( TRUE or FALSE )	: TRUE
@@ -195,7 +195,6 @@ Sound of Jump ( -1 for none )			: 1
 // Expansion
 :[HIDE] 0       // Don't draw the character when state is 0
 :[VALU] 1       //Always sold at 100% price
-
 
 //-Notes------------------------------------------------------------------------
 // Money, items, skin, name, team, and position are all set at spawn time

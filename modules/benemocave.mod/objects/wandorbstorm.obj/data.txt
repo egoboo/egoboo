@@ -1,8 +1,8 @@
 Object slot number ( 0 to 63, don't use twice )	: 61
 Class name     : Wand
 Uniform light  : FALSE
-Maximum ammo   : 6
-Current ammo   : 3
+Maximum ammo   : 12
+Current ammo   : 6
 Gender         : OTHER
 
 Life color     : 1

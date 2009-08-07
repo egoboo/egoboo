@@ -65,7 +65,6 @@ IfStateIsNot
       tmpargument = 200
       SetTime
       tmpargument = rand & 1 + 1
-      tmpdistance = rand & 2047 + 10000
       PlaySound
     IfBumped
       // Attack anyone

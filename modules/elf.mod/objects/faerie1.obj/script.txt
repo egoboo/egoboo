@@ -13,17 +13,15 @@ IfTimeOut
   SetTime
   IfStateIs0
     // Circle around start location
-    tmpx = selfspawnx
-    tmpy = selfspawny
-    tmpturn = xyturnto + 16384
-    tmpdistance = 100
-    Compass
+    tmpx = rand & 511 + selfx - 256
+    tmpy = rand & 511 + selfy - 256
     ClearWaypoints
     AddWaypoint
-    // Look for a player
-    tmpargument = [HUMA]
-    tmpdistance = 14 // Items, friends and enemies
-    SetTargetToNearestBlahID
+    
+    // Look for a player to follow
+    tmpargument = [ELFF]
+    tmpdistance = BLAHFRIENDS // Items, friends and enemies
+    SetTargetToWideBlahID
       SetOwnerToTarget
       tmpargument = 1
       SetState

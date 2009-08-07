@@ -21,17 +21,14 @@ IfUsed
     SetTargetToWhoeverIsHolding
     tmpargument = [WMAG]
     IfTargetHasSkillID
-      GetContent
-      tmpx = tmpargument
-      tmpy = 256
+      tmpx = selfcontent
+      tmpy = 511
       IfXIsLessThanY
         tmpy = targetmanaflow
         IfXIsLessThanY
-          tmpx = 4
-          tmpargument = tmpx
+          tmpargument = 4
           CostTargetMana
-            GetContent
-            tmpargument = tmpargument + 4
+            tmpargument = selfcontent + 4
             SetContent
             tmpx = targetx
             tmpy = targety
@@ -44,7 +41,7 @@ Else
   tmpx = selfcontent
   tmpy = 0
   IfXIsMoreThanY
-    tmpy = 255
+    tmpy = 511
     IfXIsMoreThanY
       // Cast the spell...
       UndoEnchant  // There can be only one
@@ -64,7 +61,6 @@ Else
         EnchantTarget
           MakeUsageKnown
           MakeNameKnown
-          UnkurseTarget
           tmpargument = BLUE
           SparkleIcon
           tmpargument = 2
@@ -95,10 +91,66 @@ Else
           tmpargument = 4
           SendMessageNear
         
-        // No valid target...
+        //Neither a potion!
         Else
-          tmpargument = 0
-          SendMessageNear
+          
+          //Allow wands to be recharged
+          tmpargument = [WAND]
+          IfTargetHasAnyID
+            
+            //Get the holder's INT without losing our current target
+            SetOldTarget
+            SetTargetToWhoeverIsHolding
+            tmpturn = targetint > 9
+            SetTargetToOldTarget
+            
+            //1 in INT/2 to blow it up
+            tmpx = rand % tmpturn
+            tmpy = 0
+            IfXIsEqualToY
+              tmpargument = 6
+              SendMessageNear
+              tmpargument = 1
+              PlaySound
+              
+              //Now make it explode
+              PoofTarget
+                tmpargument = 2
+                tmpdistance = targetz
+                tmpx = targetx
+                tmpy = targety
+                SpawnExactParticle
+                SpawnExactParticle
+                SetTargetToWhoeverIsHolding
+                tmpargument = rand % 1024 + 2048      //8-12 base damage
+                DamageTarget
+                tmpargument = 3             //Apply some confusion as well
+                DazeTarget
+              Else
+                tmpargument = 0
+                SendMessageNear
+              tmpargument = 120
+              SetReloadTime
+            Else    
+              tmpargument = 5
+              SendMessageNear
+              
+              SetTargetToWhoeverIsHolding
+              tmpargument = [WAND]
+              RestockTargetAmmoIDFirst
+              tmpargument = 0
+              PlaySound
+              tmpargument = 60
+              SetReloadTime
+              
+              //And pay the price!
+              tmpargument = -50         //5 recharges = 1 mana point
+              GiveManaToTarget
+            
+          // No valid target...
+          Else
+            tmpargument = 0
+            SendMessageNear
           
     // Nothing happens...
     Else

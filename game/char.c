@@ -1477,6 +1477,7 @@ bool_t pack_add_item( Uint16 item, Uint16 character )
         ChrList[character].pack_next = item;
         ChrList[item].pack_next = oldfirstitem;
         ChrList[character].pack_count++;
+
         if ( CapList[ChrList[item].model].isequipment )
         {
             // AtLastWaypoint doubles as PutAway
@@ -2213,9 +2214,11 @@ void resize_characters()
     bool_t willgetcaught;
     float newsize;
 
-    while ( cnt < MAX_CHR )
+    for ( cnt = 0; cnt < MAX_CHR; cnt++ )
     {
-        if ( ChrList[cnt].on && ChrList[cnt].sizegototime && ChrList[cnt].sizegoto != ChrList[cnt].fat )
+		if ( !ChrList[cnt].on || ChrList[cnt].sizegototime != 0 ) continue;
+
+        if ( ChrList[cnt].sizegoto != ChrList[cnt].fat )
         {
             int bump_increase;
             float nrm[2];
@@ -2266,8 +2269,6 @@ void resize_characters()
                 }
             }
         }
-
-        cnt++;
     }
 }
 
@@ -3406,59 +3407,44 @@ void damage_character( Uint16 character, Uint16 direction,
                         }
 
                         // Clear all shop passages that it owned...
-                        tnc = 0;
-
-                        while ( tnc < numshoppassage )
+                        for(tnc = 0; tnc < numshoppassage; tnc++ )
                         {
-                            if ( shopowner[tnc] == character )
-                            {
-                                shopowner[tnc] = NOOWNER;
-                            }
-
-                            tnc++;
+                            if ( shopowner[tnc] != character ) continue;
+                            shopowner[tnc] = NOOWNER;
                         }
 
-                        // Let the other characters know it died
-                        tnc = 0;
-
-                        while ( tnc < MAX_CHR )
+                        //Set various alerts to let others know it has died
+                        for( tnc = 0; tnc < MAX_CHR; tnc++ )
                         {
-                            if ( ChrList[tnc].on && ChrList[tnc].alive )
+                            if ( !ChrList[tnc].on || !ChrList[tnc].alive ) continue;
+
+							// Let the other characters know it died
+                            if ( ChrList[tnc].ai.target == character )
                             {
-                                if ( ChrList[tnc].ai.target == character )
-                                {
-                                    ChrList[tnc].ai.alert |= ALERTIF_TARGETKILLED;
-                                }
-                                if ( !TeamList[ChrList[tnc].team].hatesteam[team] && ( TeamList[ChrList[tnc].team].hatesteam[ChrList[character].team] ) )
-                                {
-                                    // All allies get team experience, but only if they also hate the dead guy's team
-                                    give_experience( tnc, experience, XP_TEAMKILL, bfalse );
-                                }
+                                ChrList[tnc].ai.alert |= ALERTIF_TARGETKILLED;
                             }
 
-                            tnc++;
+                            // All allies get team experience, but only if they also hate the dead guy's team
+                            if ( !TeamList[ChrList[tnc].team].hatesteam[team] && ( TeamList[ChrList[tnc].team].hatesteam[ChrList[character].team] ) )
+                            {
+                                give_experience( tnc, experience, XP_TEAMKILL, bfalse );
+							}
+
+							 // Check if it was a leader
+							if ( TeamList[ChrList[character].team].leader == character && ChrList[tnc].team == ChrList[character].team )
+							{
+                                // All folks on the leaders team get the alert
+                                ChrList[tnc].ai.alert |= ALERTIF_LEADERKILLED;
+							}
                         }
 
-                        // Check if it was a leader
+                       
+                        // The team now has no leader if the character is the leader
                         if ( TeamList[ChrList[character].team].leader == character )
                         {
-                            // It was a leader, so set more alerts
-                            tnc = 0;
-
-                            while ( tnc < MAX_CHR )
-                            {
-                                if ( ChrList[tnc].on && ChrList[tnc].team == ChrList[character].team )
-                                {
-                                    // All folks on the leaders team get the alert
-                                    ChrList[tnc].ai.alert |= ALERTIF_LEADERKILLED;
-                                }
-
-                                tnc++;
-                            }
-
-                            // The team now has no leader
-                            TeamList[ChrList[character].team].leader = NOLEADER;
-                        }
+                             TeamList[ChrList[character].team].leader = NOLEADER;
+						}
+                           
 
                         detach_character_from_mount( character, btrue, bfalse );
 

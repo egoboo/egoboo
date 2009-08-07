@@ -95,7 +95,7 @@ bool_t remove_enchant( Uint16 ienc )
     if ( VALID_EVE( ieve ) )
     {
         iwave = EveList[ieve].endsoundindex;
-        if ( iwave >= 0 && iwave < MAX_WAVE )
+        if ( VALID_SND( iwave ) )
         {
             Uint16 ispawner = penc->spawner;
             if ( VALID_CHR(ispawner) )
