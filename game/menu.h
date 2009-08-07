@@ -27,6 +27,12 @@
 #include "network.h"
 #include "egoboo.h"
 
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+struct s_oglx_texture;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 // All the different menus.  yay!
 enum e_which_menu
 {
@@ -56,24 +62,31 @@ typedef enum e_which_menu which_menu_t;
 #define MENU_END     -1
 #define MENU_QUIT    -2
 
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 // Input player control
 #define MAXLOADPLAYER     100
 struct s_load_player_info
 {
     STRING name;
     STRING dir;
+    int    tx_ref;
 };
 typedef struct s_load_player_info LOAD_PLAYER_INFO;
 
 extern int              loadplayer_count;
 extern LOAD_PLAYER_INFO loadplayer[MAXLOADPLAYER];
 
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 extern int    mnu_selectedPlayerCount;
 extern int    mnu_selectedInput[MAXPLAYER];
 extern Uint16 mnu_selectedPlayer[MAXPLAYER];
 
 extern bool_t mnu_draw_background;
 
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void  check_player_import( const char *dirname, bool_t initialize );
 
 int doMenu( float deltaTime );
@@ -83,5 +96,10 @@ bool_t mnu_begin_menu( int which );
 void   mnu_end_menu();
 
 int mnu_get_menu_depth();
+
+void           TxTitleImage_init_all();
+void           TxTitleImage_release_all();
+void           TxTitleImage_delete_all();
+struct s_oglx_texture * TxTitleImage_get_ptr( int itex );
 
 #define egoboo_Menu_h

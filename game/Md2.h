@@ -120,6 +120,8 @@ extern md2_frame_t Md2FrameList[MAXFRAME];
 
 extern Uint16 md2_loadframe;                               // Where to load next
 
+float kMd2Normals[][3];
+
 // Function prototypes
 int  md2_rip_frame_name( int frame );
 void md2_rip_frames( ego_md2_t * pflist );

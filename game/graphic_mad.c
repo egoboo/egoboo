@@ -30,6 +30,7 @@
 #include "mad.h"
 #include "game.h"
 #include "input.h"
+#include "texture.h"
 
 #include "egoboo_setup.h"
 #include "egoboo.h"
@@ -169,13 +170,12 @@ void render_one_mad_enviro( Uint16 character, Uint8 trans )
     int    cmd_count, vrt_count, entry_count;
     Uint16 cnt, tnc, entry;
     Uint16 vertex;
-
-    Uint16 texture;
     float  uoffset, voffset;
 
-    chr_t * pchr;
-    mad_t * pmad;
+    chr_t          * pchr;
+    mad_t          * pmad;
     chr_instance_t * pinst;
+    oglx_texture   * ptex;
 
     if ( INVALID_CHR(character) ) return;
     pchr  = ChrList + character;
@@ -184,7 +184,7 @@ void render_one_mad_enviro( Uint16 character, Uint8 trans )
     if ( INVALID_MAD(pinst->imad) ) return;
     pmad = MadList + pinst->imad;
 
-    texture = pinst->texture;
+    ptex = TxTexture_get_ptr( pinst->texture );
 
     uoffset = pinst->uoffset - PCamera->turn_z_one;
     voffset = pinst->voffset;
@@ -197,7 +197,7 @@ void render_one_mad_enviro( Uint16 character, Uint8 trans )
     GL_DEBUG(glMultMatrixf)(pinst->matrix.v );
 
     // Choose texture and matrix
-    oglx_texture_Bind( TxTexture + texture );
+    oglx_texture_Bind( ptex );
 
     // Render each command
     cmd_count   = MIN(pmad->md2.cmd.count,   MAXCOMMAND);
@@ -320,13 +320,12 @@ void render_one_mad_tex( Uint16 character, Uint8 trans )
     int    cmd_count, vrt_count, entry_count;
     Uint16 cnt, tnc, entry;
     Uint16 vertex;
-
-    Uint16 texture;
     float  uoffset, voffset;
 
-    chr_t * pchr;
-    mad_t * pmad;
+    chr_t          * pchr;
+    mad_t          * pmad;
     chr_instance_t * pinst;
+    oglx_texture   * ptex;
 
     if ( INVALID_CHR(character) ) return;
     pchr  = ChrList + character;
@@ -336,7 +335,7 @@ void render_one_mad_tex( Uint16 character, Uint8 trans )
     pmad = MadList + pinst->imad;
 
     // To make life easier
-    texture = pinst->texture;
+    ptex = TxTexture_get_ptr( pinst->texture );
 
     uoffset = pinst->uoffset * INV_FFFF;
     voffset = pinst->voffset * INV_FFFF;
@@ -345,7 +344,7 @@ void render_one_mad_tex( Uint16 character, Uint8 trans )
     chr_instance_update( character, trans, btrue );
 
     // Choose texture and matrix
-    oglx_texture_Bind( TxTexture + texture );
+    oglx_texture_Bind( ptex );
 
     GL_DEBUG(glMatrixMode)( GL_MODELVIEW );
     GL_DEBUG(glPushMatrix)();

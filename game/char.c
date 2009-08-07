@@ -35,6 +35,7 @@
 #include "graphic.h"
 #include "mad.h"
 #include "game.h"
+#include "texture.h"
 
 #include "egoboo_setup.h"
 #include "egoboo_fileutil.h"
@@ -1760,7 +1761,7 @@ bool_t character_grab_stuff( Uint16 ichr_a, grip_offset_t grip_off, bool_t grab_
                 {
                     // Pets can try to steal in addition to invisible characters
                     STRING text;
-					Uint8 detection = generate_number( 1, 100 );
+                    Uint8 detection = generate_number( 1, 100 );
 
                     // Check if it was detected. 50% chance +2% per pet DEX and -2% per shopkeeper wisdom. There is always a 5% chance it will fail.
                     if ( ChrList[owner].canseeinvisible || detection <= 5 || detection - ( ChrList[ichr_a].dexterity >> 7 ) + ( ChrList[owner].wisdom >> 7 ) > 50 )
@@ -2050,13 +2051,13 @@ bool_t setup_xp_table(Uint16 profile )
     if ( INVALID_CAP(profile) ) return bfalse;
 
     // Calculate xp needed
-	for(level = MAXBASELEVEL; level <= MAXLEVEL; level++)
-	{
-		Uint32 xpneeded = CapList[profile].experienceforlevel[MAXBASELEVEL - 1];
-		xpneeded += ( level * level * level * 15 );
-		xpneeded -= ( ( MAXBASELEVEL - 1 ) * ( MAXBASELEVEL - 1 ) * ( MAXBASELEVEL - 1 ) * 15 );
-		CapList[profile].experienceforlevel[level] = xpneeded;
-	}
+    for (level = MAXBASELEVEL; level <= MAXLEVEL; level++)
+    {
+        Uint32 xpneeded = CapList[profile].experienceforlevel[MAXBASELEVEL - 1];
+        xpneeded += ( level * level * level * 15 );
+        xpneeded -= ( ( MAXBASELEVEL - 1 ) * ( MAXBASELEVEL - 1 ) * ( MAXBASELEVEL - 1 ) * 15 );
+        CapList[profile].experienceforlevel[level] = xpneeded;
+    }
     return btrue;
 }
 
@@ -2087,7 +2088,7 @@ void do_level_up( Uint16 character )
         {
             // do the level up
             ChrList[character].experiencelevel++;
-			xpneeded = CapList[profile].experienceforlevel[curlevel];
+            xpneeded = CapList[profile].experienceforlevel[curlevel];
 
             // The character is ready to advance...
             if ( ChrList[character].isplayer )
@@ -2912,7 +2913,7 @@ int load_one_character_profile( const char * tmploadname, bool_t required )
     {
         iTmp = fget_next_int( fileread );  pcap->experienceforlevel[level] = iTmp;
     }
-	setup_xp_table(object);			//Do the rest of the levels not listed in data.txt
+    setup_xp_table(object);         //Do the rest of the levels not listed in data.txt
 
     fget_next_pair( fileread );
     pairbase = pairbase >> 8;
@@ -3361,19 +3362,19 @@ void damage_character( Uint16 character, Uint16 direction,
                     action = ACTION_HA;
                     if ( ChrList[character].life < 0 )
                     {
-						Uint16 iTmp = ChrList[character].firstenchant;
+                        Uint16 iTmp = ChrList[character].firstenchant;
 
                         // Character has died
                         ChrList[character].alive = bfalse;
-						while ( iTmp != MAX_ENC )
-						{	
-							Uint16 sTmp = EncList[iTmp].nextenchant;
-							if ( !EveList[EncList[iTmp].eve].stayifdead  )
-							{
-								remove_enchant( iTmp );
-							}
-							iTmp = sTmp;
-						}
+                        while ( iTmp != MAX_ENC )
+                        {
+                            Uint16 sTmp = EncList[iTmp].nextenchant;
+                            if ( !EveList[EncList[iTmp].eve].stayifdead  )
+                            {
+                                remove_enchant( iTmp );
+                            }
+                            iTmp = sTmp;
+                        }
                         ChrList[character].waskilled = btrue;
                         ChrList[character].keepaction = btrue;
                         ChrList[character].life = -1;
@@ -3789,12 +3790,12 @@ Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
     pchr->canseekurse = pcap->canseekurse;
 
     // Kurse state
-	if ( pcap->isitem )
-	{
-		kursechance = pcap->kursechance;
-		if ( cfg.difficulty >= GAME_HARD )                        kursechance *= 2.0f;  // Hard mode doubles chance for Kurses
-		if ( cfg.difficulty < GAME_NORMAL && kursechance != 100 ) kursechance *= 0.5f;  // Easy mode halves chance for Kurses
-		pchr->iskursed = ( generate_number(0, 100) <= kursechance );
+    if ( pcap->isitem )
+    {
+        kursechance = pcap->kursechance;
+        if ( cfg.difficulty >= GAME_HARD )                        kursechance *= 2.0f;  // Hard mode doubles chance for Kurses
+        if ( cfg.difficulty < GAME_NORMAL && kursechance != 100 ) kursechance *= 0.5f;  // Easy mode halves chance for Kurses
+        pchr->iskursed = ( generate_number(0, 100) <= kursechance );
     }
 
     // Ammo
@@ -4042,16 +4043,16 @@ Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
         for ( cnt = 0; cnt < numshoppassage; cnt++ )
         {
             // Make sure the owner is not dead
-			if( shopowner[cnt] == NOOWNER ) continue;
+            if ( shopowner[cnt] == NOOWNER ) continue;
 
-			if( is_in_passage( shoppassage[cnt], pchr->pos.x, pchr->pos.y, pchr->bumpsize) )
-			{
+            if ( is_in_passage( shoppassage[cnt], pchr->pos.x, pchr->pos.y, pchr->bumpsize) )
+            {
                 pchr->isshopitem = btrue;               // Full value
                 pchr->iskursed = bfalse;                // Shop items are never kursed
                 pchr->nameknown = btrue;                // Identify items in shop
                 break;
-			}
-		}
+            }
+        }
     }
 
     // Flagged as always valuable?
@@ -4152,6 +4153,7 @@ int chr_change_skin( Uint16 character, int skin )
     {
         ChrList[character].skin    = 0;
         ChrList[character].inst.texture = TX_WATER_TOP;
+
         return 0;
     }
 
@@ -4164,19 +4166,17 @@ int chr_change_skin( Uint16 character, int skin )
     }
 
     // do the best we can to change the skin
-    if ( MadList[imad].skins == 0 )
+    if ( 0 == MadList[imad].skins )
     {
-        ChrList[character].skin    = 0;
-        ChrList[character].inst.texture = TX_WATER_TOP;
+        MadList[imad].skins = 1;
+        MadList[imad].tex_ref[0] = TX_WATER_TOP;
     }
-    else
-    {
-        // limit the skin
-        if ( skin > MadList[imad].skins) skin = 0;
 
-        ChrList[character].skin         = skin;
-        ChrList[character].inst.texture = MadList[imad].skinstart + skin;
-    }
+    // limit the skin
+    if ( skin > MadList[imad].skins) skin = 0;
+
+    ChrList[character].skin         = skin;
+    ChrList[character].inst.texture = MadList[imad].tex_ref[skin];
 
     return ChrList[character].skin;
 };
@@ -5973,7 +5973,7 @@ bool_t chr_instance_init( chr_instance_t * pinst, Uint16 profile, Uint8 skin )
     pcap = CapList + profile;
 
     pinst->imad      = profile;
-    pinst->texture   = pmad->skinstart + skin;
+    pinst->texture   = pmad->tex_ref[skin];
     pinst->enviro    = pcap->enviro;
     pinst->alpha     = pcap->alpha;
     pinst->light     = pcap->light;

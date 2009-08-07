@@ -178,18 +178,18 @@
 #if !defined(USE_PACKING)
 
 // do not actually do anything about the packing
-#    define SET_PACKING(NAME,PACKING) NAME
+#    define SET_PACKED()
 
 #else
 
 // use compiler-specific macro definitions
 #    if defined(__GNUC__)
 
-// #        define SET_PACKING(NAME,PACKING) __declspec( align( PACKING ) ) NAME
+#        define SET_PACKED() __attribute__ ((__packed__))
 
 #    elif defined(_MSC_VER)
 
-// #        define SET_PACKING(NAME,PACKING) __declspec( align( PACKING ) ) NAME
+#        define SET_PACKED()
 
 #    endif
 

@@ -4,6 +4,7 @@
 #include "script_compile.h"
 #include "graphic.h"
 #include "particle.h"
+#include "texture.h"
 
 #include "egoboo_setup.h"
 #include "egoboo_fileutil.h"
@@ -303,18 +304,115 @@ void load_action_names( const char* loadname )
 }
 
 //--------------------------------------------------------------------------------------------
-int load_one_model_profile( const char* tmploadname, Uint16 object, int skin )
+int load_one_model_skins( const char * tmploadname, Uint16 object )
 {
-    int numskins, numicon;
-    STRING newloadname;
+    int min_skin_tx, min_icon_tx;
+    int max_skin, max_icon, max_tex;
+    int iskin, iicon;
     int cnt;
+
+    STRING newloadname;
+
     mad_t * pmad;
+
+    if ( object > MAX_PROFILE ) return 0;
+    pmad = MadList + object;
+
+    // Load the skins and icons
+    max_skin    = max_icon    = -1;
+    min_skin_tx = min_icon_tx = INVALID_TEXTURE;
+    for ( cnt = 0; cnt < MAXSKIN; cnt++)
+    {
+        snprintf( newloadname, sizeof(newloadname), "%s" SLASH_STR "tris%d", tmploadname, cnt );
+
+        pmad->tex_ref[cnt] = TxTexture_load_one( newloadname, INVALID_TEXTURE, TRANSCOLOR );
+        if ( INVALID_TEXTURE != pmad->tex_ref[cnt] )
+        {
+            max_skin = cnt;
+            if ( INVALID_TEXTURE == min_skin_tx )
+            {
+                min_skin_tx = pmad->tex_ref[cnt];
+            }
+        }
+
+        snprintf( newloadname, sizeof(newloadname), "%s" SLASH_STR "icon%d", tmploadname, cnt );
+        pmad->ico_ref[cnt] = TxTexture_load_one( newloadname, INVALID_TEXTURE, INVALID_KEY );
+
+        if ( INVALID_TEXTURE != pmad->ico_ref[cnt] )
+        {
+            max_icon = cnt;
+
+            if ( INVALID_TEXTURE == min_icon_tx )
+            {
+                min_icon_tx = pmad->ico_ref[cnt];
+            }
+
+            if ( SPELLBOOK == object )
+            {
+                if ( bookicon_count < MAXSKIN )
+                {
+                    bookicon_ref[bookicon_count] = pmad->ico_ref[cnt];
+                    bookicon_count++;
+                }
+            }
+        }
+    }
+
+    if ( max_skin < 0 )
+    {
+        // If we didn't get a skin, set it to the water texture
+        max_skin = 0;
+        pmad->tex_ref[cnt] = TX_WATER_TOP;
+
+        if (cfg.dev_mode)
+        {
+            log_message( "NOTE: Object is missing a skin (%s)!\n", tmploadname );
+        }
+    }
+
+    max_tex = MAX(max_skin, max_icon);
+
+    // fill in any missing textures
+    iskin = min_skin_tx;
+    iicon = min_icon_tx;
+    for ( cnt = 0; cnt <= max_tex; cnt++ )
+    {
+        if ( INVALID_TEXTURE != pmad->tex_ref[cnt] && iskin != pmad->tex_ref[cnt] )
+        {
+            iskin = pmad->tex_ref[cnt];
+        }
+
+        if ( INVALID_TEXTURE != pmad->ico_ref[cnt] && iicon != pmad->ico_ref[cnt] )
+        {
+            iicon = pmad->ico_ref[cnt];
+        }
+
+        pmad->tex_ref[cnt] = iskin;
+        pmad->ico_ref[cnt] = iicon;
+    }
+
+    return max_tex + 1;
+}
+
+//--------------------------------------------------------------------------------------------
+int load_one_model_profile( const char* tmploadname, Uint16 object )
+{
+    int     cnt;
+    mad_t * pmad;
+    STRING  newloadname;
 
     if ( object > MAX_PROFILE ) return 0;
     pmad = MadList + object;
 
     // clear out the mad
     memset( pmad, 0, sizeof(mad_t) );
+
+    // clear out the textures
+    for ( cnt = 0; cnt < MAXSKIN; cnt++)
+    {
+        pmad->tex_ref[cnt] = INVALID_TEXTURE;
+        pmad->ico_ref[cnt] = INVALID_TEXTURE;
+    }
 
     // mark it as used
     pmad->loaded = btrue;
@@ -374,52 +472,9 @@ int load_one_model_profile( const char* tmploadname, Uint16 object, int skin )
         pmad->prtpip[cnt] = load_one_particle_profile( newloadname );
     }
 
-    // Load the skins and icons
-    pmad->skinstart = skin;
-    numskins = 0;
-    numicon = 0;
-    for ( cnt = 0; cnt < MAXSKIN; cnt++)
-    {
-        snprintf( newloadname, sizeof(newloadname), "%s" SLASH_STR "tris%d", tmploadname, cnt );
-        if ( INVALID_TX_ID != ego_texture_load( TxTexture + (skin + numskins), newloadname, TRANSCOLOR ) )
-        {
-            numskins++;
+    pmad->skins = load_one_model_skins( tmploadname, object );
 
-            snprintf( newloadname, sizeof(newloadname), "%s" SLASH_STR "icon%d", tmploadname, cnt );
-            if ( INVALID_TX_ID != ego_texture_load( TxIcon + globalicon_count, newloadname, INVALID_KEY ) )
-            {
-                for ( /* nothing */ ; numicon < numskins; numicon++ )
-                {
-                    skintoicon[skin + numicon] = globalicon_count;
-                    if ( SPELLBOOK == object )
-                    {
-                        if ( bookicon_count < MAXSKIN )
-                        {
-                            bookicon[bookicon_count] = globalicon_count;
-                            bookicon_count++;
-                        }
-                    }
-                }
-
-                globalicon_count++;
-            }
-        }
-    }
-
-    if ( 0 == numskins )
-    {
-        // If we didn't get a skin, set it to the water texture
-        pmad->skinstart = TX_WATER_TOP;
-        numskins = 1;
-        if (cfg.dev_mode)
-        {
-            log_message( "NOTE: Object is missing a skin (%s)!\n", tmploadname );
-        }
-    }
-
-    pmad->skins = numskins;
-
-    return numskins;
+    return pmad->skins;
 }
 
 //--------------------------------------------------------------------------------------------

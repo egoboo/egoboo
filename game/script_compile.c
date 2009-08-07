@@ -811,36 +811,36 @@ void init_all_ai_scripts()
 // {
 //   // ZZ> This function loads a line into the line buffer
 //   char cTmp;
-//
+
 //   // Parse to start to maintain indentation
 //   iLineSize = 0;
 //   cTmp = cLoadBuffer[read];
-//
+
 //   while ( '\0' != cTmp )
 //   {
 //       cLineBuffer[iLineSize] = cTmp;  iLineSize++;
 //       read++;  cTmp = cLoadBuffer[read];
 //   }
-//
+
 //   cLineBuffer[iLineSize] = '\0';
 //   read++; // skip terminating zero for next call of load_parsed_line()
 //   return read;
 // }
-//
+
 //--------------------------------------------------------------------------------------------
 // void parse_null_terminate_comments()
 // {
 //   // ZZ> This function removes comments and endline codes, replacing
 //   //    them with a 0
 //   int read, write;
-//
+
 //   read = 0;
 //   write = 0;
-//
+
 //   while ( read < iLoadSize )
 //   {
 //       read = load_one_line( read );
-//
+
 //       if ( iLineSize > 2 )
 //       {
 //           copy_one_line( write );
@@ -848,7 +848,7 @@ void init_all_ai_scripts()
 //       }
 //   }
 // }
-//
+
 //--------------------------------------------------------------------------------------------
 // void print_token()
 // {
@@ -858,17 +858,17 @@ void init_all_ai_scripts()
 //   printf("\tToken_cType  == \'%c\'\n", Token_cType);
 //   printf("\tToken_cWord  == \"%s\"\n", Token_cWord);
 // }
-//
+
 //--------------------------------------------------------------------------------------------
 // void print_line()
 // {
 //   int i;
 //   char cTmp;
-//
+
 //   printf("\n===========\n\tfile == \"%s\"\n\tline == %d\n", globalparsename, Token_iLine);
-//
+
 //   printf( "\tline == \"" );
-//
+
 //   for(i=0; i<iLineSize; i++)
 //   {
 //       cTmp = cLineBuffer[i];
@@ -881,6 +881,6 @@ void init_all_ai_scripts()
 //           printf( "\\%03d", cTmp );
 //       }
 //   };
-//
+
 //   printf( "\", length == %d\n", iLineSize);
 // }

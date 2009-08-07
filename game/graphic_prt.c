@@ -26,6 +26,7 @@
 #include "particle.h"
 #include "char.h"
 #include "game.h"
+#include "texture.h"
 
 #include "camera.h"
 
@@ -218,7 +219,7 @@ bool_t render_one_prt_solid( Uint16 iprt )
         GL_DEBUG(glEnable)(GL_ALPHA_TEST );
         GL_DEBUG(glAlphaFunc)(GL_EQUAL, 1 );
 
-        oglx_texture_Bind( TxTexture + TX_PARTICLE_TRANS );
+        oglx_texture_Bind( TxTexture_get_ptr( TX_PARTICLE_TRANS ) );
 
         GL_DEBUG(glColor4f)(pinst->fintens, pinst->fintens, pinst->fintens, 1.0f );
 
@@ -303,7 +304,7 @@ bool_t render_one_prt_trans( Uint16 iprt )
 
             GL_DEBUG(glColor4f)(pinst->fintens, pinst->fintens, pinst->fintens, pinst->falpha );
 
-            oglx_texture_Bind( TxTexture + TX_PARTICLE_TRANS );
+            oglx_texture_Bind( TxTexture_get_ptr( TX_PARTICLE_TRANS ) );
         }
         else if ( PRTLIGHTSPRITE == PrtList[iprt].type )
         {
@@ -315,7 +316,7 @@ bool_t render_one_prt_trans( Uint16 iprt )
             GL_DEBUG(glBlendFunc)(GL_ONE, GL_ONE_MINUS_SRC_COLOR );
             GL_DEBUG(glColor4f)(1.0f, 1.0f, 1.0f, 1.0f );
 
-            oglx_texture_Bind( TxTexture + TX_PARTICLE_LIGHT );
+            oglx_texture_Bind( TxTexture_get_ptr( TX_PARTICLE_LIGHT ) );
         }
         else if ( PRTALPHASPRITE == PrtList[iprt].type )
         {
@@ -329,7 +330,7 @@ bool_t render_one_prt_trans( Uint16 iprt )
 
             GL_DEBUG(glColor4f)(pinst->fintens, pinst->fintens, pinst->fintens, pinst->falpha );
 
-            oglx_texture_Bind( TxTexture + TX_PARTICLE_TRANS );
+            oglx_texture_Bind( TxTexture_get_ptr( TX_PARTICLE_TRANS ) );
         }
         else
         {
@@ -477,7 +478,7 @@ bool_t render_one_prt_ref( Uint16 iprt )
                 GL_DEBUG(glBlendFunc)(GL_ONE, GL_ONE_MINUS_SRC_COLOR );
                 GL_DEBUG(glColor4f)(alpha, alpha, alpha, 1.0f );
 
-                oglx_texture_Bind( TxTexture + TX_PARTICLE_LIGHT );
+                oglx_texture_Bind( TxTexture_get_ptr( TX_PARTICLE_LIGHT ) );
             }
             else if ( PRTSOLIDSPRITE == PrtList[iprt].type || PRTALPHASPRITE == PrtList[iprt].type )
             {
@@ -493,7 +494,7 @@ bool_t render_one_prt_ref( Uint16 iprt )
 
                 GL_DEBUG(glColor4f)(pinst->fintens, pinst->fintens, pinst->fintens, alpha );
 
-                oglx_texture_Bind( TxTexture + TX_PARTICLE_TRANS );
+                oglx_texture_Bind( TxTexture_get_ptr( TX_PARTICLE_TRANS ) );
             }
             else
             {

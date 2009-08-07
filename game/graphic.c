@@ -40,6 +40,7 @@
 #include "script_compile.h"
 #include "game.h"
 #include "ui.h"
+#include "texture.h"
 
 #include "SDL_extensions.h"
 #include "SDL_GL_extensions.h"
@@ -122,8 +123,8 @@ static SDL_Rect           fontrect[NUMFONT];          // The font rectangles
 static Uint8              fontxspacing[NUMFONT];      // The spacing stuff
 static Uint8              fontyspacing;
 
-static rect_t             tabrect[NUMBAR];   // The tab rectangles
-static rect_t             barrect[NUMBAR];   // The bar rectangles
+static rect_t             tabrect[NUMBAR];            // The tab rectangles
+static rect_t             barrect[NUMBAR];            // The bar rectangles
 static rect_t             bliprect[COLOR_MAX];        // The blip rectangles
 static rect_t             maprect;                    // The map rectangle
 
@@ -140,17 +141,6 @@ oglx_video_parameters_t ogl_vparam;
 
 Uint8            maxformattypes = 0;
 STRING           TxFormatSupported[20];      // List of texture formats that we search for
-
-oglx_texture       TxIcon[MAX_ICON];           // OpenGL icon surfaces
-oglx_texture       TxFont;                     // OpenGL font surface
-oglx_texture       TxBars;                     // OpenGL status bar surface
-oglx_texture       TxXpBar;                    // OpenGL xp bar surface
-oglx_texture       TxBlip;                     // OpenGL you are here surface
-oglx_texture       TxMap;                      // OpenGL map surface
-oglx_texture       TxTexture[MAX_TEXTURE];     // All textures
-
-Uint32            TxTitleImage_count = 0;
-oglx_texture      TxTitleImage[MAXMODULE];    // OpenGL title image surfaces
 
 size_t                dolist_count = 0;
 obj_registry_entity_t dolist[DOLIST_SIZE];
@@ -186,12 +176,6 @@ Uint16  msgstart      = 0;
 Sint16  msgtime[MAXMESSAGE];
 char    msgtextdisplay[MAXMESSAGE][MESSAGESIZE];
 
-int  nullicon  = 0;
-int  keybicon  = 0;
-int  mousicon  = 0;
-int  joyaicon  = 0;
-int  joybicon  = 0;
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -206,6 +190,11 @@ static void make_dynalist( camera_t * pcam );
 static int _draw_string_raw( int x, int y, const char *format, ...  );
 
 static bool_t sum_dyna_lighting( dynalight_t * pdyna, float lighting[], float dx, float dy, float dz );
+
+static void init_icon_data();
+static void init_bar_data();
+static void init_blip_data();
+static void init_map_data();
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -564,87 +553,40 @@ bool_t load_all_global_icons()
 {
     // Setup
     bool_t result = bfalse;
-    globalicon_count = 0;
 
     // Now load every icon
-    nullicon = globalicon_count;
-    result = load_one_icon( "basicdat" SLASH_STR "nullicon" );
-    keybicon = globalicon_count;
-    result = load_one_icon( "basicdat" SLASH_STR "keybicon" );
-    mousicon = globalicon_count;
-    result = load_one_icon( "basicdat" SLASH_STR "mousicon" );
-    joyaicon = globalicon_count;
-    result = load_one_icon( "basicdat" SLASH_STR "joyaicon" );
-    joybicon = globalicon_count;
-    result = load_one_icon( "basicdat" SLASH_STR "joybicon" );
+    result = TxTexture_load_one( "basicdat" SLASH_STR "nullicon", ICON_NULL, INVALID_KEY );
+    result = TxTexture_load_one( "basicdat" SLASH_STR "keybicon", ICON_KEYB, INVALID_KEY );
+    result = TxTexture_load_one( "basicdat" SLASH_STR "mousicon", ICON_MOUS, INVALID_KEY );
+    result = TxTexture_load_one( "basicdat" SLASH_STR "joyaicon", ICON_JOYA, INVALID_KEY );
+    result = TxTexture_load_one( "basicdat" SLASH_STR "joybicon", ICON_JOYB, INVALID_KEY );
 
     return result;
 }
 
-//--------------------------------------------------------------------------------------------
-bool_t load_one_icon( const char *szLoadName )
-{
-    // ZZ> This function is used to load an icon.  Most icons are loaded
-    //    without this function though...
-    if ( INVALID_TX_ID == ego_texture_load( TxIcon + globalicon_count,  szLoadName, INVALID_KEY ) )
-    {
-        return bfalse;
-    }
-
-    globalicon_count++;
-    return btrue;
-}
-
 //---------------------------------------------------------------------------------------------
-void init_all_graphics()
-{
-    init_all_icons();
-    init_all_titleimages();
-    init_all_textures();
-    init_all_icons();
-    init_bars();
-    init_blip();
-    init_map();
-    init_txfont();
-};
-
 //---------------------------------------------------------------------------------------------
-void init_all_icons()
+void init_icon_data()
 {
     // ZZ> This function sets the icon pointers to NULL
     int cnt;
-
-    for ( cnt = 0; cnt < MAX_ICON; cnt++ )
-    {
-        oglx_texture_new( TxIcon + cnt );
-    }
 
     iconrect.left = 0;
     iconrect.right = 32;
     iconrect.top = 0;
     iconrect.bottom = 32;
 
-    release_all_icons();
-}
-
-//---------------------------------------------------------------------------------------------
-void init_all_titleimages()
-{
-    // ZZ> This function clears out all of the title images
-    int cnt;
-
-    for ( cnt = 0; cnt < MAXMODULE; cnt++ )
+    bookicon_count = 0;
+    for ( cnt = 0; cnt < MAXSKIN; cnt++ )
     {
-        oglx_texture_new( TxTitleImage + cnt );
+        bookicon_ref[cnt] = 0;
     }
 }
 
 //---------------------------------------------------------------------------------------------
-void init_bars()
+void init_bar_data()
 {
     Uint8 cnt;
-
-    oglx_texture_new( &TxBars );
 
     // Initialize the life and mana bars
     for ( cnt = 0; cnt < NUMBAR; cnt++ )
@@ -663,11 +605,9 @@ void init_bars()
 }
 
 //---------------------------------------------------------------------------------------------
-void init_blip()
+void init_blip_data()
 {
     int cnt;
-
-    oglx_texture_new( &TxBlip );
 
     // Set up the rectangles
     for ( cnt = 0; cnt < COLOR_MAX; cnt++ )
@@ -678,213 +618,62 @@ void init_blip()
         bliprect[cnt].bottom = BLIPSIZE;
     }
 
+    youarehereon = bfalse;
+    numblip      = 0;
+
 }
 
 //---------------------------------------------------------------------------------------------
-void init_map()
+void init_map_data()
 {
     // ZZ> This function releases all the map images
-    oglx_texture_new( &TxMap );
 
     // Set up the rectangles
     maprect.left   = 0;
     maprect.right  = MAPSIZE;
     maprect.top    = 0;
     maprect.bottom = MAPSIZE;
-}
-
-//---------------------------------------------------------------------------------------------
-void init_all_textures()
-{
-    // ZZ> This function clears out all of the textures
-    int cnt;
-
-    for ( cnt = 0; cnt < MAX_TEXTURE; cnt++ )
-    {
-        oglx_texture_new( TxTexture + cnt );
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void init_txfont()
-{
-    // Intitializes the font, ready to use
-    oglx_texture_new( &TxFont );
-
-    font_init();
-}
-
-//---------------------------------------------------------------------------------------------
-void release_all_graphics()
-{
-    release_all_icons();
-    release_all_titleimages();
-    release_all_textures();
-    release_all_icons();
-    release_bars();
-    release_blip();
-    release_map();
-    release_txfont();
-}
-
-//---------------------------------------------------------------------------------------------
-void release_all_icons()
-{
-    // ZZ> This function clears out all of the icons
-    int cnt;
-
-    // release all icon textures
-    for ( cnt = 0; cnt < MAX_ICON; cnt++ )
-    {
-        oglx_texture_Release( TxIcon + cnt );
-    }
-    globalicon_count = 0;
-
-    // remove the texture references
-    for ( cnt = 0; cnt < MAX_TEXTURE; cnt++ )
-    {
-        skintoicon[cnt] = 0;
-    }
-
-    bookicon_count = 0;
-    for ( cnt = 0; cnt < MAXSKIN; cnt++ )
-    {
-        bookicon[cnt] = 0;
-    }
-}
-
-//---------------------------------------------------------------------------------------------
-void release_all_titleimages()
-{
-    // ZZ> This function clears out all of the title images
-    int cnt;
-
-    for ( cnt = 0; cnt < MAXMODULE; cnt++ )
-    {
-        oglx_texture_Release( TxTitleImage + cnt );
-    }
-}
-
-//---------------------------------------------------------------------------------------------
-void release_bars()
-{
-	// Removes the bar textures from memory
-    oglx_texture_Release( &TxBars );
-    oglx_texture_Release( &TxXpBar );
-}
-
-//---------------------------------------------------------------------------------------------
-void release_blip()
-{
-    oglx_texture_Release( &TxBlip );
-
-    youarehereon = bfalse;
-    numblip      = 0;
-}
-
-//---------------------------------------------------------------------------------------------
-void release_map()
-{
-    oglx_texture_Release( &TxMap );
 
     mapvalid = bfalse;
     mapon    = bfalse;
 }
 
 //---------------------------------------------------------------------------------------------
-void release_all_textures()
+void init_all_graphics()
 {
-    // ZZ> This function releases all of the textures
-    int cnt;
+    init_icon_data();
+    init_bar_data();
+    init_blip_data();
+    init_map_data();
+    font_init();
 
-    for ( cnt = 0; cnt < MAX_TEXTURE; cnt++ )
-    {
-        oglx_texture_Release( TxTexture + cnt );
-    }
+    TxTexture_init_all();
+    TxTitleImage_init_all();
+};
+
+//---------------------------------------------------------------------------------------------
+void release_all_graphics()
+{
+    init_icon_data();
+    init_blip_data();
+    init_map_data();
+
+    TxTexture_release_all();
+    TxTitleImage_release_all();
 }
 
-//--------------------------------------------------------------------------------------------
-void release_txfont()
-{
-    oglx_texture_Release( &TxFont );
-}
-
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 void delete_all_graphics()
 {
-    delete_all_icons();
-    delete_all_titleimages();
-    delete_all_textures();
-    delete_all_icons();
-    delete_bars();
-    delete_blip();
-    delete_map();
-    delete_txfont();
-}
+    init_icon_data();
+    init_blip_data();
+    init_map_data();
 
-//---------------------------------------------------------------------------------------------
-void delete_all_icons()
-{
-    // ZZ> This function sets the icon pointers to NULL
-    int cnt;
-
-    for ( cnt = 0; cnt < MAX_ICON; cnt++ )
-    {
-        oglx_texture_delete( TxIcon + cnt );
-    }
-}
-
-//---------------------------------------------------------------------------------------------
-void delete_all_titleimages()
-{
-    // ZZ> This function clears out all of the title images
-    int cnt;
-
-    for ( cnt = 0; cnt < MAXMODULE; cnt++ )
-    {
-        oglx_texture_delete( TxTitleImage + cnt );
-    }
-}
-
-//---------------------------------------------------------------------------------------------
-void delete_bars()
-{
-    oglx_texture_delete( &TxBars );
-}
-
-//---------------------------------------------------------------------------------------------
-void delete_blip()
-{
-    oglx_texture_delete( &TxBlip );
-}
-
-//---------------------------------------------------------------------------------------------
-void delete_map()
-{
-    // ZZ> This function releases all the map images
-    oglx_texture_delete( &TxMap );
-}
-
-//---------------------------------------------------------------------------------------------
-void delete_all_textures()
-{
-    // ZZ> This function clears out all of the textures
-    int cnt;
-
-    for ( cnt = 0; cnt < MAX_TEXTURE; cnt++ )
-    {
-        oglx_texture_delete( TxTexture + cnt );
-    }
+    TxTexture_delete_all();
+    TxTitleImage_delete_all();
 }
 
 //--------------------------------------------------------------------------------------------
-void delete_txfont()
-{
-    // Deletes the texture font from memory
-    oglx_texture_delete( &TxFont );
-}
-
 //--------------------------------------------------------------------------------------------
 void debug_message( const char *text )
 {
@@ -1193,45 +982,50 @@ void load_basic_textures( const char *modname )
     char newloadname[256];
 
     // Particle sprites
-    ego_texture_load( TxTexture + TX_PARTICLE_TRANS, "basicdat" SLASH_STR "globalparticles" SLASH_STR "particle_trans", TRANSCOLOR );
-    ego_texture_load( TxTexture + TX_PARTICLE_LIGHT, "basicdat" SLASH_STR "globalparticles" SLASH_STR "particle_light", INVALID_KEY );
+    TxTexture_load_one( "basicdat" SLASH_STR "globalparticles" SLASH_STR "particle_trans", TX_PARTICLE_TRANS, TRANSCOLOR );
+    TxTexture_load_one( "basicdat" SLASH_STR "globalparticles" SLASH_STR "particle_light", TX_PARTICLE_LIGHT, INVALID_KEY );
 
     // Module background tiles
     make_newloadname( modname, "gamedat" SLASH_STR "tile0", newloadname );
-    ego_texture_load( TxTexture + TX_TILE_0, newloadname, TRANSCOLOR );
+    TxTexture_load_one( newloadname, TX_TILE_0, TRANSCOLOR );
 
     make_newloadname( modname, "gamedat" SLASH_STR "tile1", newloadname );
-    ego_texture_load(  TxTexture + TX_TILE_1, newloadname, TRANSCOLOR );
+    TxTexture_load_one( newloadname, TX_TILE_1, TRANSCOLOR );
 
     make_newloadname( modname, "gamedat" SLASH_STR "tile2", newloadname );
-    ego_texture_load( TxTexture + TX_TILE_2, newloadname, TRANSCOLOR);
+    TxTexture_load_one( newloadname, TX_TILE_2, TRANSCOLOR);
 
     make_newloadname( modname, "gamedat" SLASH_STR "tile3", newloadname );
-    ego_texture_load( TxTexture + TX_TILE_3, newloadname, TRANSCOLOR );
+    TxTexture_load_one( newloadname, TX_TILE_3, TRANSCOLOR );
 
     // Water textures
     make_newloadname( modname, "gamedat" SLASH_STR "watertop", newloadname );
-    ego_texture_load( TxTexture + TX_WATER_TOP, newloadname, TRANSCOLOR );
+    TxTexture_load_one( newloadname, TX_WATER_TOP, TRANSCOLOR );
 
     make_newloadname( modname, "gamedat" SLASH_STR "waterlow", newloadname );
-    ego_texture_load( TxTexture + TX_WATER_LOW, newloadname, TRANSCOLOR);
+    TxTexture_load_one( newloadname, TX_WATER_LOW, TRANSCOLOR);
 
     // Texture 7 is the phong map
-    ego_texture_load( TxTexture + TX_PHONG, "basicdat" SLASH_STR "phong", TRANSCOLOR );
+    TxTexture_load_one( "basicdat" SLASH_STR "phong", TX_PHONG, TRANSCOLOR );
 }
 
 //--------------------------------------------------------------------------------------------
 void load_bars()
 {
     // ZZ> This function loads the status bar bitmap
-    if ( INVALID_TX_ID == ego_texture_load( &TxBars, "basicdat" SLASH_STR "bars", TRANSCOLOR ) )
+
+    const char * pname;
+
+    pname = "basicdat" SLASH_STR "bars";
+    if ( INVALID_TEXTURE == TxTexture_load_one( pname, TX_BARS, TRANSCOLOR ) )
     {
-        log_warning( "Cannot load file! (\"%s\")\n", "basicdat" SLASH_STR "bars" );
+        log_warning( "Cannot load file! (\"%s\")\n", pname );
     }
 
-    if ( INVALID_TX_ID == ego_texture_load( &TxXpBar, "basicdat" SLASH_STR "xpbar", TRANSCOLOR ) )
+    pname = "basicdat" SLASH_STR "xpbar";
+    if ( INVALID_TEXTURE == TxTexture_load_one( pname, TX_XP_BAR, TRANSCOLOR ) )
     {
-        log_warning( "Cannot load file! (\"%s\")\n", "basicdat" SLASH_STR "xpbar" );
+        log_warning( "Cannot load file! (\"%s\")\n", pname );
     }
 }
 
@@ -1249,7 +1043,8 @@ void load_map( const char* szModule )
 
     // Load the images
     sprintf( szMap, "%sgamedat" SLASH_STR "plan", szModule );
-    if ( INVALID_TX_ID == ego_texture_load( &TxMap, szMap, INVALID_KEY ) )
+
+    if ( INVALID_TEXTURE == TxTexture_load_one( szMap, TX_MAP, INVALID_KEY ) )
     {
         log_warning( "Cannot load file! (\"%s\")\n", szMap );
     }
@@ -1302,14 +1097,14 @@ void font_load( const char* szBitmap, const char* szSpacing )
     FILE *fileread;
 
     font_init();
-    if ( INVALID_TX_ID == ego_texture_load( &TxFont, szBitmap, TRANSCOLOR ) )
+    if ( INVALID_TEXTURE == TxTexture_load_one( szBitmap, TX_FONT, TRANSCOLOR ) )
     {
         log_error( "Cannot load file! (\"%s\")\n", szBitmap );
     }
 
     // Get the size of the bitmap
-    xsize = oglx_texture_GetImageWidth( &TxFont );
-    ysize = oglx_texture_GetImageHeight( &TxFont );
+    xsize = oglx_texture_GetImageWidth( TxTexture_get_ptr( TX_FONT ) );
+    ysize = oglx_texture_GetImageHeight( TxTexture_get_ptr( TX_FONT ) );
     if ( xsize == 0 || ysize == 0 )
     {
         log_error( "Bad font size! (%i, %i)\n", xsize, ysize );
@@ -1371,6 +1166,7 @@ void render_background( Uint16 texture )
     float light = 1.0f, intens = 1.0f, alpha = 1.0f;
 
     ego_mpd_info_t * pinfo;
+    oglx_texture   * ptex;
 
     water_data_layer_t     * dlayer = water_data.layer + 0;
     water_instance_layer_t * ilayer = water.layer      + 0;
@@ -1438,9 +1234,11 @@ void render_background( Uint16 texture )
         intens = CLIP(intens, 0.0f, 1.0f);
     }
 
+    ptex = TxTexture_get_ptr( texture );
+
     ATTRIB_PUSH( "render_background()", GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_POLYGON_BIT | GL_ENABLE_BIT );
     {
-        oglx_texture_Bind ( TxTexture + texture );
+        oglx_texture_Bind ( ptex );
 
         GL_DEBUG(glShadeModel)( GL_FLAT );   // GL_LIGHTING_BIT - Flat shade this
         GL_DEBUG(glDepthMask)( GL_FALSE );   // GL_DEPTH_BUFFER_BIT
@@ -1490,6 +1288,8 @@ void render_foreground_overlay( Uint16 texture )
 
     float alpha, ftmp;
     GLvector3 vforw_wind, vforw_cam;
+
+    oglx_texture           * ptex;
 
     water_data_layer_t     * dlayer = water_data.layer + 1;
     water_instance_layer_t * ilayer = water.layer      + 1;
@@ -1548,6 +1348,8 @@ void render_foreground_overlay( Uint16 texture )
         vtlist[3].tex[SS] = ilayer->tx.x;
         vtlist[3].tex[TT] = ilayer->tx.y + loc_foregroundrepeat;
 
+        ptex = TxTexture_get_ptr( texture );
+
         ATTRIB_PUSH( "render_foreground_overlay()", GL_ENABLE_BIT | GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_POLYGON_BIT | GL_COLOR_BUFFER_BIT );
         {
             GL_DEBUG(glHint)(GL_POLYGON_SMOOTH_HINT, GL_NICEST );             // GL_HINT_BIT make sure that the texture is as smooth as possible
@@ -1565,7 +1367,7 @@ void render_foreground_overlay( Uint16 texture )
             GL_DEBUG(glEnable)( GL_BLEND );                                 // GL_COLOR_BUFFER_BIT GL_ENABLE_BIT
             GL_DEBUG(glBlendFunc)( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_COLOR );  // GL_COLOR_BUFFER_BIT - make the texture a filter
 
-            oglx_texture_Bind ( TxTexture + texture );
+            oglx_texture_Bind ( ptex );
 
             GL_DEBUG(glColor4f)( 1.0f, 1.0f, 1.0f, 1.0f - ABS(alpha) );
             GL_DEBUG(glBegin)( GL_TRIANGLE_FAN );
@@ -1666,7 +1468,7 @@ void render_shadow( Uint16 character )
     y = pchr->inst.matrix.CNV( 3, 1 );
 
     // Choose texture.
-    oglx_texture_Bind( TxTexture + TX_PARTICLE_LIGHT );
+    oglx_texture_Bind( TxTexture_get_ptr( TX_PARTICLE_LIGHT ) );
 
     // GOOD SHADOW
     v[0].tex[SS] = sprite_list_u[238][0];
@@ -1790,7 +1592,7 @@ void render_bad_shadow( Uint16 character )
     v[3].pos[ZZ] = ( float ) level;
 
     // Choose texture and matrix
-    oglx_texture_Bind( TxTexture + TX_PARTICLE_LIGHT );
+    oglx_texture_Bind( TxTexture_get_ptr( TX_PARTICLE_LIGHT ) );
 
     v[0].tex[SS] = sprite_list_u[236][0];
     v[0].tex[TT] = sprite_list_v[236][0];
@@ -2542,16 +2344,19 @@ void draw_blip( float sizeFactor, Uint8 color, int x, int y )
     // ZZ> This function draws a blip
     if ( x > 0 && y > 0 )
     {
+        oglx_texture * ptex = TxTexture_get_ptr( TX_BLIP );
+
         EnableTexturing();
         GL_DEBUG(glColor4f)(1.0f, 1.0f, 1.0f, 1.0f );
         GL_DEBUG(glNormal3f)(0.0f, 0.0f, 1.0f );
 
-        oglx_texture_Bind( &TxBlip );
+        oglx_texture_Bind( ptex );
 
-        xl = ( float )bliprect[color].left   / (float)oglx_texture_GetTextureWidth ( &TxBlip );
-        xr = ( float )bliprect[color].right  / (float)oglx_texture_GetTextureWidth ( &TxBlip );
-        yt = ( float )bliprect[color].top    / (float)oglx_texture_GetTextureHeight( &TxBlip );
-        yb = ( float )bliprect[color].bottom / (float)oglx_texture_GetTextureHeight( &TxBlip );
+        xl = ( float )bliprect[color].left   / (float)oglx_texture_GetTextureWidth ( ptex );
+        xr = ( float )bliprect[color].right  / (float)oglx_texture_GetTextureWidth ( ptex );
+        yt = ( float )bliprect[color].top    / (float)oglx_texture_GetTextureHeight( ptex );
+        yb = ( float )bliprect[color].bottom / (float)oglx_texture_GetTextureHeight( ptex );
+
         width  = bliprect[color].right  - bliprect[color].left;
         height = bliprect[color].bottom - bliprect[color].top;
 
@@ -2573,31 +2378,33 @@ void draw_blip( float sizeFactor, Uint8 color, int x, int y )
 void draw_one_icon( int icontype, int x, int y, Uint8 sparkle )
 {
     // ZZ> This function draws an icon
-    int position, blipx, blipy;
+    int   position, blipx, blipy;
     float xl, xr, yt, yb;
-    int width, height;
+    int   width, height;
 
-    if ( icontype >= 0 && icontype < MAX_ICON )
+    oglx_texture * ptex = TxTexture_get_ptr( icontype );
+
+    EnableTexturing();    // Enable texture mapping
+    GL_DEBUG(glColor4f)(1.0f, 1.0f, 1.0f, 1.0f );
+
+    oglx_texture_Bind( ptex );
+
+    xl = ( ( float )iconrect.left   ) / 32.0f;
+    xr = ( ( float )iconrect.right  ) / 32.0f;
+    yt = ( ( float )iconrect.top    ) / 32.0f;
+    yb = ( ( float )iconrect.bottom ) / 32.0f;
+
+    width  = iconrect.right  - iconrect.left;
+    height = iconrect.bottom - iconrect.top;
+
+    GL_DEBUG(glBegin)(GL_QUADS );
     {
-        EnableTexturing();    // Enable texture mapping
-        GL_DEBUG(glColor4f)(1.0f, 1.0f, 1.0f, 1.0f );
-
-        oglx_texture_Bind( TxIcon + icontype );
-
-        xl = ( ( float )iconrect.left ) / 32;
-        xr = ( ( float )iconrect.right ) / 32;
-        yt = ( ( float )iconrect.top ) / 32;
-        yb = ( ( float )iconrect.bottom ) / 32;
-        width = iconrect.right - iconrect.left; height = iconrect.bottom - iconrect.top;
-        GL_DEBUG(glBegin)(GL_QUADS );
-        {
-            GL_DEBUG(glTexCoord2f)(xl, yb );   GL_DEBUG(glVertex2i)(x,         y + height );
-            GL_DEBUG(glTexCoord2f)(xr, yb );   GL_DEBUG(glVertex2i)(x + width, y + height );
-            GL_DEBUG(glTexCoord2f)(xr, yt );   GL_DEBUG(glVertex2i)(x + width, y );
-            GL_DEBUG(glTexCoord2f)(xl, yt );   GL_DEBUG(glVertex2i)(x,         y );
-        }
-        GL_DEBUG_END();
+        GL_DEBUG(glTexCoord2f)(xl, yb );   GL_DEBUG(glVertex2i)(x,         y + height );
+        GL_DEBUG(glTexCoord2f)(xr, yb );   GL_DEBUG(glVertex2i)(x + width, y + height );
+        GL_DEBUG(glTexCoord2f)(xr, yt );   GL_DEBUG(glVertex2i)(x + width, y );
+        GL_DEBUG(glTexCoord2f)(xl, yt );   GL_DEBUG(glVertex2i)(x,         y );
     }
+    GL_DEBUG_END();
 
     if ( sparkle != NOSPARKLE )
     {
@@ -2659,7 +2466,7 @@ void draw_map_texture( int x, int y )
     // ZZ> This function draws the map
     EnableTexturing();
 
-    oglx_texture_Bind( &TxMap );
+    oglx_texture_Bind( TxTexture_get_ptr( TX_MAP ) );
 
     GL_DEBUG(glBegin)(GL_QUADS );
     {
@@ -2677,22 +2484,22 @@ int draw_one_xp_bar( int x, int y, Uint8 ticks )
     // ZF> This function draws a xp bar and returns the y position for the next one
     float xl, xr, yt, yb;
     int width, height;
-	Uint8 cnt;
+    Uint8 cnt;
 
-	if( ticks < 0 ) return y;
-	ticks = MIN(ticks, NUMTICK);
+    if ( ticks < 0 ) return y;
+    ticks = MIN(ticks, NUMTICK);
 
     EnableTexturing();               // Enable texture mapping
     GL_DEBUG(glColor4f)(1, 1, 1, 1 );
 
-	// Draw the tab (always colored)
-    oglx_texture_Bind( &TxXpBar );
+    // Draw the tab (always colored)
+    oglx_texture_Bind( TxTexture_get_ptr( TX_XP_BAR ) );
     xl = 0;
     xr = 32.00f / 128;
     yt = XPTICK / 16;
-    yb = XPTICK*2 / 16;
-    width = 16; 
-	height = XPTICK;
+    yb = XPTICK * 2 / 16;
+    width = 16;
+    height = XPTICK;
     GL_DEBUG(glBegin)(GL_QUADS );
     {
         GL_DEBUG(glTexCoord2f)(xl, yb );   GL_DEBUG(glVertex2i)(x,         y + height );
@@ -2701,47 +2508,47 @@ int draw_one_xp_bar( int x, int y, Uint8 ticks )
         GL_DEBUG(glTexCoord2f)(xl, yt );   GL_DEBUG(glVertex2i)(x,         y );
     }
     GL_DEBUG_END();
-	x += 16;
+    x += 16;
 
     // Draw the filled ones
     xl = 0;
     xr = 32.00f / 128;
     yt = XPTICK / 16;
-    yb = XPTICK*2 / 16;
-	width = XPTICK; 
-	height = XPTICK;
-	for ( cnt = 0; cnt < ticks; cnt++)
-	{
-		oglx_texture_Bind( &TxXpBar );
-		GL_DEBUG(glBegin)(GL_QUADS );
-		{
-			GL_DEBUG(glTexCoord2f)(xl, yb );   GL_DEBUG(glVertex2i)(( cnt * width ) + x,         y + height );
-			GL_DEBUG(glTexCoord2f)(xr, yb );   GL_DEBUG(glVertex2i)(( cnt * width ) + x + width, y + height );
-			GL_DEBUG(glTexCoord2f)(xr, yt );   GL_DEBUG(glVertex2i)(( cnt * width ) + x + width, y );
-			GL_DEBUG(glTexCoord2f)(xl, yt );   GL_DEBUG(glVertex2i)(( cnt * width ) + x,         y );
-		}
-		GL_DEBUG_END();
-	}
+    yb = XPTICK * 2 / 16;
+    width = XPTICK;
+    height = XPTICK;
+    for ( cnt = 0; cnt < ticks; cnt++)
+    {
+        oglx_texture_Bind( TxTexture_get_ptr( TX_XP_BAR ) );
+        GL_DEBUG(glBegin)(GL_QUADS );
+        {
+            GL_DEBUG(glTexCoord2f)(xl, yb );   GL_DEBUG(glVertex2i)(( cnt * width ) + x,         y + height );
+            GL_DEBUG(glTexCoord2f)(xr, yb );   GL_DEBUG(glVertex2i)(( cnt * width ) + x + width, y + height );
+            GL_DEBUG(glTexCoord2f)(xr, yt );   GL_DEBUG(glVertex2i)(( cnt * width ) + x + width, y );
+            GL_DEBUG(glTexCoord2f)(xl, yt );   GL_DEBUG(glVertex2i)(( cnt * width ) + x,         y );
+        }
+        GL_DEBUG_END();
+    }
 
     // Draw the remaining empty ones
     xl = 0;
     xr = 32.00f / 128;
     yt = 0;
     yb = XPTICK / 16;
-	width = XPTICK; 
-	height = XPTICK;
-	for ( /*nothing*/; cnt < NUMTICK; cnt++)
-	{
-		oglx_texture_Bind( &TxXpBar );
-		GL_DEBUG(glBegin)(GL_QUADS );
-		{
-			GL_DEBUG(glTexCoord2f)(xl, yb );   GL_DEBUG(glVertex2i)(( cnt * width ) + x,         y + height );
-			GL_DEBUG(glTexCoord2f)(xr, yb );   GL_DEBUG(glVertex2i)(( cnt * width ) + x + width, y + height );
-			GL_DEBUG(glTexCoord2f)(xr, yt );   GL_DEBUG(glVertex2i)(( cnt * width ) + x + width, y );
-			GL_DEBUG(glTexCoord2f)(xl, yt );   GL_DEBUG(glVertex2i)(( cnt * width ) + x,         y );
-		}
-		GL_DEBUG_END();
-	}
+    width = XPTICK;
+    height = XPTICK;
+    for ( /*nothing*/; cnt < NUMTICK; cnt++)
+    {
+        oglx_texture_Bind( TxTexture_get_ptr( TX_XP_BAR ) );
+        GL_DEBUG(glBegin)(GL_QUADS );
+        {
+            GL_DEBUG(glTexCoord2f)(xl, yb );   GL_DEBUG(glVertex2i)(( cnt * width ) + x,         y + height );
+            GL_DEBUG(glTexCoord2f)(xr, yb );   GL_DEBUG(glVertex2i)(( cnt * width ) + x + width, y + height );
+            GL_DEBUG(glTexCoord2f)(xr, yt );   GL_DEBUG(glVertex2i)(( cnt * width ) + x + width, y );
+            GL_DEBUG(glTexCoord2f)(xl, yt );   GL_DEBUG(glVertex2i)(( cnt * width ) + x,         y );
+        }
+        GL_DEBUG_END();
+    }
 
 
     return y + XPTICK;
@@ -2755,13 +2562,13 @@ int draw_one_bar( Uint8 bartype, int x, int y, int ticks, int maxticks )
     float xl, xr, yt, yb;
     int width, height;
 
-	if( maxticks <= 0 || ticks < 0 || bartype > NUMBAR ) return y;
+    if ( maxticks <= 0 || ticks < 0 || bartype > NUMBAR ) return y;
 
     EnableTexturing();               // Enable texture mapping
     GL_DEBUG(glColor4f)(1, 1, 1, 1 );
-    
-	// Draw the tab
-   oglx_texture_Bind( &TxBars );
+
+    // Draw the tab
+    oglx_texture_Bind( TxTexture_get_ptr( TX_BARS ) );
 
     xl = ( ( float )tabrect[bartype].left ) / 128;
     xr = ( ( float )tabrect[bartype].right ) / 128;
@@ -2787,7 +2594,7 @@ int draw_one_bar( Uint8 bartype, int x, int y, int ticks, int maxticks )
     while ( ticks >= NUMTICK )
     {
         barrect[bartype].right = BARX;
-        oglx_texture_Bind( &TxBars );
+        oglx_texture_Bind( TxTexture_get_ptr( TX_BARS ) );
 
         xl = ( ( float )barrect[bartype].left ) / 128;
         xr = ( ( float )barrect[bartype].right ) / 128;
@@ -2812,7 +2619,7 @@ int draw_one_bar( Uint8 bartype, int x, int y, int ticks, int maxticks )
     {
         // Draw the filled ones
         barrect[bartype].right = ( ticks << 3 ) + TABX;
-        oglx_texture_Bind( &TxBars );
+        oglx_texture_Bind( TxTexture_get_ptr( TX_BARS ) );
 
         xl = ( ( float )barrect[bartype].left ) / 128;
         xr = ( ( float )barrect[bartype].right ) / 128;
@@ -2833,7 +2640,7 @@ int draw_one_bar( Uint8 bartype, int x, int y, int ticks, int maxticks )
         if ( noticks > ( NUMTICK - ticks ) ) noticks = ( NUMTICK - ticks );
 
         barrect[0].right = ( noticks << 3 ) + TABX;
-        oglx_texture_Bind( &TxBars );
+        oglx_texture_Bind( TxTexture_get_ptr( TX_BARS ) );
 
         xl = ( ( float )barrect[0].left ) / 128;
         xr = ( ( float )barrect[0].right ) / 128;
@@ -2856,7 +2663,7 @@ int draw_one_bar( Uint8 bartype, int x, int y, int ticks, int maxticks )
     while ( maxticks >= NUMTICK )
     {
         barrect[0].right = BARX;
-        oglx_texture_Bind( &TxBars );
+        oglx_texture_Bind( TxTexture_get_ptr( TX_BARS ) );
 
         xl = ( ( float )barrect[0].left ) / 128;
         xr = ( ( float )barrect[0].right ) / 128;
@@ -2879,7 +2686,7 @@ int draw_one_bar( Uint8 bartype, int x, int y, int ticks, int maxticks )
     if ( maxticks > 0 )
     {
         barrect[0].right = ( maxticks << 3 ) + TABX;
-        oglx_texture_Bind( &TxBars );
+        oglx_texture_Bind( TxTexture_get_ptr( TX_BARS ) );
 
         xl = ( ( float )barrect[0].left ) / 128;
         xr = ( ( float )barrect[0].right ) / 128;
@@ -2906,7 +2713,7 @@ void BeginText()
 {
     EnableTexturing();    // Enable texture mapping
 
-    oglx_texture_Bind( &TxFont );
+    oglx_texture_Bind( TxTexture_get_ptr( TX_FONT ) );
 
     GL_DEBUG(glEnable)(GL_ALPHA_TEST );
     GL_DEBUG(glAlphaFunc)(GL_GREATER, 0 );
@@ -3127,7 +2934,7 @@ int draw_status( Uint16 character, int x, int y )
 {
     // ZZ> This function shows a character's icon, status and inventory
     //    The x,y coordinates are the top left point of the image to draw
-    Uint16 item;
+    Uint16 item, imad, iskin;
     char cTmp;
     char *readtext;
     STRING generictext;
@@ -3137,7 +2944,7 @@ int draw_status( Uint16 character, int x, int y )
     int mana     = FP8_TO_INT( ChrList[character].mana    );
     int manamax  = FP8_TO_INT( ChrList[character].manamax );
     int cnt = lifemax;
-	
+
     // Write the character's first name
     if ( ChrList[character].nameknown )
         readtext = ChrList[character].name;
@@ -3163,14 +2970,26 @@ int draw_status( Uint16 character, int x, int y )
     y = _draw_string_raw( x + 8, y, "$%4d", ChrList[character].money ) + 8;
 
     // Draw the icons
-    draw_one_icon( skintoicon[ChrList[character].inst.texture], x + 40, y, ChrList[character].sparkle );
+    imad  = ChrList[character].inst.imad;
+    iskin = ChrList[character].skin;
+    if ( VALID_MAD(imad) )
+    {
+        draw_one_icon( MadList[imad].ico_ref[iskin], x + 40, y, ChrList[character].sparkle );
+    }
 
     item = ChrList[character].holdingwhich[SLOT_LEFT];
-    if ( item != MAX_CHR )
+    if ( VALID_CHR(item) )
     {
-        if ( ChrList[item].icon )
+        imad  = ChrList[item].inst.imad;
+        iskin = ChrList[item].skin;
+
+        if ( !VALID_MAD(imad) )
         {
-            draw_one_icon( skintoicon[ChrList[item].inst.texture], x + 8, y, ChrList[item].sparkle );
+            draw_one_icon( ICON_NULL, x + 8, y, ChrList[item].sparkle );
+        }
+        else if ( ChrList[item].icon )
+        {
+            draw_one_icon( MadList[imad].ico_ref[iskin], x + 8, y, ChrList[item].sparkle );
             if ( ChrList[item].ammomax != 0 && ChrList[item].ammoknown )
             {
                 if ( !CapList[ChrList[item].model].isstackable || ChrList[item].ammo > 1 )
@@ -3184,24 +3003,31 @@ int draw_status( Uint16 character, int x, int y )
         {
             Uint16 icon = ChrList[item].money;
             if (icon > bookicon_count) icon = bookicon_count;
-            draw_one_icon( bookicon[ icon ], x + 8, y, ChrList[item].sparkle );
+            draw_one_icon( bookicon_ref[ icon ], x + 8, y, ChrList[item].sparkle );
         }
         else
         {
-            draw_one_icon( nullicon, x + 8, y, ChrList[item].sparkle );
+            draw_one_icon( ICON_NULL, x + 8, y, ChrList[item].sparkle );
         }
     }
     else
     {
-        draw_one_icon( nullicon, x + 8, y, NOSPARKLE );
+        draw_one_icon( ICON_NULL, x + 8, y, NOSPARKLE );
     }
 
     item = ChrList[character].holdingwhich[SLOT_RIGHT];
     if ( item != MAX_CHR )
     {
-        if ( ChrList[item].icon )
+        imad  = ChrList[item].inst.imad;
+        iskin = ChrList[item].skin;
+
+        if ( !VALID_MAD(imad) )
         {
-            draw_one_icon( skintoicon[ChrList[item].inst.texture], x + 72, y, ChrList[item].sparkle );
+            draw_one_icon( ICON_NULL, x + 72, y, ChrList[item].sparkle );
+        }
+        else if ( VALID_MAD(imad) && ChrList[item].icon )
+        {
+            draw_one_icon( MadList[imad].ico_ref[iskin], x + 72, y, ChrList[item].sparkle );
             if ( ChrList[item].ammomax != 0 && ChrList[item].ammoknown )
             {
                 if ( !CapList[ChrList[item].model].isstackable || ChrList[item].ammo > 1 )
@@ -3215,30 +3041,30 @@ int draw_status( Uint16 character, int x, int y )
         {
             Uint16 icon = ChrList[item].money;
             if (icon > bookicon_count) icon = bookicon_count;
-            draw_one_icon( bookicon[ icon ], x + 72, y, ChrList[item].sparkle );
+            draw_one_icon( bookicon_ref[ icon ], x + 72, y, ChrList[item].sparkle );
         }
         else
         {
-            draw_one_icon( nullicon, x + 72, y, ChrList[item].sparkle );
+            draw_one_icon( ICON_NULL, x + 72, y, ChrList[item].sparkle );
         }
     }
     else
     {
-        draw_one_icon( nullicon, x + 72, y, NOSPARKLE );
+        draw_one_icon( ICON_NULL, x + 72, y, NOSPARKLE );
     }
 
-	y += 32;
+    y += 32;
 
-	//Draw the small XP progress bar
-	if( ChrList[character].experiencelevel < MAXLEVEL)
-	{
-		Uint16 profile = ChrList[character].model;
-		Uint8 curlevel = ChrList[character].experiencelevel + 1;
-		Uint32 xplastlevel = CapList[profile].experienceforlevel[curlevel-1];
-		Uint32 xpneed = CapList[profile].experienceforlevel[curlevel];
+    //Draw the small XP progress bar
+    if ( ChrList[character].experiencelevel < MAXLEVEL)
+    {
+        Uint16 profile = ChrList[character].model;
+        Uint8 curlevel = ChrList[character].experiencelevel + 1;
+        Uint32 xplastlevel = CapList[profile].experienceforlevel[curlevel-1];
+        Uint32 xpneed = CapList[profile].experienceforlevel[curlevel];
 
-		y = draw_one_xp_bar( x + 16, y, ( ( (float)MAX(ChrList[character].experience - xplastlevel, 0) / MAX( xpneed - xplastlevel, 1 ) ) * NUMTICK) );
-	}
+        y = draw_one_xp_bar( x + 16, y, ( ( (float)MAX(ChrList[character].experience - xplastlevel, 0) / MAX( xpneed - xplastlevel, 1 ) ) * NUMTICK) );
+    }
 
     // Draw the status bars
     if ( ChrList[character].alive )
@@ -3248,7 +3074,7 @@ int draw_status( Uint16 character, int x, int y )
 
     y = draw_one_bar( ChrList[character].manacolor, x, y, mana, manamax );
 
-	return y;
+    return y;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3720,27 +3546,10 @@ void draw_main()
 }
 
 //--------------------------------------------------------------------------------------------
-Uint32 load_one_title_image( const char *szLoadName )
-{
-    // ZZ> This function loads a title in the specified image slot, forcing it into
-    //    system memory.  Returns btrue if it worked
-    Uint32 index;
-
-    index = (Uint32)(~0);
-    if ( INVALID_TX_ID != ego_texture_load( TxTitleImage + TxTitleImage_count, szLoadName, INVALID_KEY ) )
-    {
-        index = TxTitleImage_count;
-        TxTitleImage_count++;
-    }
-
-    return index;
-}
-
-//--------------------------------------------------------------------------------------------
 bool_t load_blip_bitmap()
 {
     // This function loads the blip bitmaps
-    if ( INVALID_TX_ID == ego_texture_load( &TxBlip, "basicdat" SLASH_STR "blip", INVALID_KEY ) )
+    if ( INVALID_TEXTURE == TxTexture_load_one( "basicdat" SLASH_STR "blip", TX_BLIP, INVALID_KEY ) )
     {
         log_warning( "Blip bitmap not loaded! (\"%s\")\n", "basicdat" SLASH_STR "blip" );
         return bfalse;
@@ -5046,4 +4855,36 @@ bool_t bbox_gl_draw(aabb_t * pbbox)
     GL_DEBUG(glPopMatrix)();
 
     return btrue;
+}
+
+
+//--------------------------------------------------------------------------------------------
+void release_all_object_textures()
+{
+    int cnt, tnc;
+    mad_t  * pmad;
+
+    for ( cnt = 0; cnt < MAX_PROFILE; cnt++ )
+    {
+        if ( !MadList[cnt].loaded ) continue;
+
+        pmad = MadList + cnt;
+
+        for ( tnc = 0; tnc < MAXSKIN; tnc++ )
+        {
+            int itex;
+
+            itex = pmad->tex_ref[tnc] ;
+            if ( itex > TX_LAST )
+            {
+                TxTexture_free_one( itex );
+            }
+
+            itex = pmad->ico_ref[tnc] ;
+            if ( itex > TX_LAST )
+            {
+                TxTexture_free_one( itex );
+            }
+        }
+    }
 }

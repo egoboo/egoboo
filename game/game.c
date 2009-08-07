@@ -43,6 +43,7 @@
 #include "network.h"
 #include "mad.h"
 #include "mesh.h"
+#include "texture.h"
 
 #include "char.h"
 #include "particle.h"
@@ -219,9 +220,9 @@ static void   game_release_module_data();
 
 static void   setup_characters( const char *modname );
 static void   setup_alliances( const char *modname );
-static int    load_one_object( const char* tmploadname , int skin );
+static int    load_one_object( const char* tmploadname );
 static int    load_all_objects( const char *modname );
-static void   load_all_global_objects(int skin);
+static void   load_all_global_objects();
 
 static bool_t chr_setup_read( FILE * fileread, chr_setup_info_t *pinfo );
 static bool_t chr_setup_apply( Uint16 ichr, chr_setup_info_t *pinfo );
@@ -1297,7 +1298,7 @@ int do_menu_proc_begin( menu_process_t * mproc )
     sound_play_song( MENU_SONG, 0, -1 );
 
     // initialize all these structures
-    init_all_titleimages();
+    TxTitleImage_init_all();
     initMenus();        // start the menu menu
 
     // load all module info at menu initialization
@@ -1726,7 +1727,7 @@ void memory_cleanUp(void)
 }
 
 //--------------------------------------------------------------------------------------------
-int load_one_object( const char* tmploadname, int skin )
+int load_one_object( const char* tmploadname )
 {
     // ZZ> This function loads one object and returns the number of skins
     int object;
@@ -1739,7 +1740,7 @@ int load_one_object( const char* tmploadname, int skin )
     if ( !VALID_CAP(object) ) return 0; // no skins for an invalid object
 
     // Load the model for this object
-    numskins = load_one_model_profile( tmploadname, object, skin );
+    numskins = load_one_model_profile( tmploadname, object );
 
     // Load the enchantment for this object
     make_newloadname( tmploadname, SLASH_STR "enchant.txt", newloadname );
@@ -2769,22 +2770,22 @@ void show_full_status( Uint16 statindex )
         debug_message( text );
 
         // Life and mana regeneration
-		manaregen = ChrList[character].manareturn / MANARETURNSHIFT;
-		liferegen = ChrList[character].lifereturn;
-		enchant = ChrList[character].firstenchant;
-        while ( enchant != MAX_ENC )									//Don't forget to add gains and costs from enchants
+        manaregen = ChrList[character].manareturn / MANARETURNSHIFT;
+        liferegen = ChrList[character].lifereturn;
+        enchant = ChrList[character].firstenchant;
+        while ( enchant != MAX_ENC )                                    //Don't forget to add gains and costs from enchants
         {
             Uint16 nextenchant = EncList[enchant].nextenchant;
-			if( EncList[enchant].target == character )
-			{
-				liferegen += EncList[enchant].targetlife;
-				manaregen += EncList[enchant].targetmana;
-			}
-			if( EncList[enchant].owner == character )
-			{
-				liferegen += EncList[enchant].ownerlife;
-				manaregen += EncList[enchant].ownermana;
-			}
+            if ( EncList[enchant].target == character )
+            {
+                liferegen += EncList[enchant].targetlife;
+                manaregen += EncList[enchant].targetmana;
+            }
+            if ( EncList[enchant].owner == character )
+            {
+                liferegen += EncList[enchant].ownerlife;
+                manaregen += EncList[enchant].ownermana;
+            }
             enchant = nextenchant;
         }
 
@@ -4049,16 +4050,16 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
                         ChrList[pprt_b->chr].ai.alert |= ALERTIF_SCOREDAHIT;
                         ChrList[pprt_b->chr].ai.hitlast = ichr_a;
 
-						//Tell the weapons who the attacker hit last 
-						if(ChrList[pprt_b->chr].holdingwhich[SLOT_LEFT] != MAX_CHR)
-						{
-	                        ChrList[ChrList[pprt_b->chr].holdingwhich[SLOT_LEFT]].ai.hitlast = ichr_a;
-						}
-						if(ChrList[pprt_b->chr].holdingwhich[SLOT_LEFT] != MAX_CHR)
-						{						
-	                        ChrList[ChrList[pprt_b->chr].holdingwhich[SLOT_LEFT]].ai.hitlast = ichr_a;
-						}
-					}
+                        //Tell the weapons who the attacker hit last
+                        if (ChrList[pprt_b->chr].holdingwhich[SLOT_LEFT] != MAX_CHR)
+                        {
+                            ChrList[ChrList[pprt_b->chr].holdingwhich[SLOT_LEFT]].ai.hitlast = ichr_a;
+                        }
+                        if (ChrList[pprt_b->chr].holdingwhich[SLOT_LEFT] != MAX_CHR)
+                        {
+                            ChrList[ChrList[pprt_b->chr].holdingwhich[SLOT_LEFT]].ai.hitlast = ichr_a;
+                        }
+                    }
                 }
 
                 if (  HAS_NO_BITS( frame_all, 31 ) && pprt_b->attachedtocharacter == ichr_a )
@@ -4570,7 +4571,7 @@ int load_all_objects( const char *modname )
                 import_data.object = ( import_data.player * MAXIMPORTPERPLAYER ) + ( cnt % MAXIMPORTPERPLAYER );
 
                 // load it
-                skin += load_one_object( filename, skin );
+                load_one_object( filename );
 
                 import_data.slot_lst[import_data.object] = cnt;
             }
@@ -4586,7 +4587,7 @@ int load_all_objects( const char *modname )
     while ( filehandle != NULL )
     {
         sprintf( filename, "%s%s", newloadname, filehandle );
-        skin += load_one_object( filename, skin );
+        load_one_object( filename );
 
         filehandle = fs_findNextFile();
     }
@@ -4735,7 +4736,7 @@ void setup_characters( const char *modname )
 
         while ( chr_setup_read( fileread, &info ) )
         {
-			// Spawn the character
+            // Spawn the character
             new_object = spawn_one_character( info.pos, info.slot, info.team, info.skin, info.facing, info.pname, MAX_CHR );
 
             if ( MAX_CHR != new_object )
@@ -4821,7 +4822,7 @@ void setup_characters( const char *modname )
 }
 
 //--------------------------------------------------------------------------------------------
-void load_all_global_objects(int skin)
+void load_all_global_objects()
 {
     // ZF> This function loads all global objects found in the basicdat folder
     const char *filehandle;
@@ -4842,7 +4843,7 @@ void load_all_global_objects(int skin)
         while ( keeplooking )
         {
             sprintf( filename, "%s%s", newloadname, filehandle );
-            skin += load_one_object( filename, skin );
+            load_one_object( filename );
 
             filehandle = fs_findNextFile();
 
@@ -4884,7 +4885,7 @@ bool_t game_load_module_data( const char *smallname )
         log_warning( "Could not load all global icons!\n" );
     }
 
-    load_one_icon( "basicdat" SLASH_STR "nullicon" );
+    TxTexture_load_one( "basicdat" SLASH_STR "nullicon", ICON_NULL, INVALID_KEY );
     load_ai_script( "basicdat" SLASH_STR "script.txt" );
 
     // generate the module directory
@@ -4897,13 +4898,11 @@ bool_t game_load_module_data( const char *smallname )
     load_basic_textures( modname );
     load_blip_bitmap();
     load_bars();
+    font_load( "basicdat" SLASH_STR "font", "basicdat" SLASH_STR "font.txt" );
 
     // Load all objects
-    {
-        int skin;
-        skin = load_all_objects(modname);
-        load_all_global_objects(skin);
-    }
+    load_all_objects(modname);
+    load_all_global_objects();
 
     if ( NULL == mesh_load( modname, PMesh ) )
     {
@@ -5140,11 +5139,8 @@ void game_release_module_data()
     local_senseenemiesID = IDSZ_NONE;
     local_senseenemiesTeam = TEAM_MAX;
 
-    release_all_icons();
-    release_all_titleimages();
-    release_bars();
-    release_map();
-    release_all_textures();
+    TxTitleImage_release_all();
+    TxTexture_release_all();
     release_all_profiles();
     release_all_ai_scripts();
 
@@ -6833,7 +6829,7 @@ bool_t do_line_of_sight( line_of_sight_info_t * plos )
     }
 
     chr_hit = collide_ray_with_characters( plos );
-	*/
+    */
 
     return mesh_hit || chr_hit;
 }

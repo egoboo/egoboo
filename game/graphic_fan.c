@@ -23,6 +23,7 @@
 
 #include "graphic.h"
 #include "game.h"
+#include "texture.h"
 
 #include "egoboo.h"
 
@@ -97,16 +98,20 @@ void render_fan( ego_mpd_t * pmesh, Uint32 fan )
     // Change texture if need be
     if ( meshlasttexture != texture )
     {
+        oglx_texture * ptex = NULL;
+
         if ( meshnotexture )
         {
-            oglx_texture_Bind( NULL );
+            ptex = NULL;
             meshlasttexture = (Uint16)(~0);
         }
         else
         {
-            oglx_texture_Bind( TxTexture + texture );
+            ptex = TxTexture_get_ptr( texture );
             meshlasttexture = texture;
         }
+
+        oglx_texture_Bind( ptex );
     }
 
     GL_DEBUG(glPushClientAttrib)(GL_CLIENT_VERTEX_ARRAY_BIT);
@@ -259,6 +264,7 @@ void render_water_fan( ego_mpd_t * pmesh, Uint32 fan, Uint8 layer )
     mesh_mem_t     * pmmem;
     grid_mem_t     * pgmem;
     tile_info_t    * ptile;
+    oglx_texture   * ptex;
 
     if ( NULL == pmesh ) return;
     pinfo = &(pmesh->info);
@@ -284,8 +290,10 @@ void render_water_fan( ego_mpd_t * pmesh, Uint32 fan, Uint8 layer )
     vertices = tile_dict[type].numvertices;            // Number of vertices
     commands = tile_dict[type].command_count;          // Number of commands
 
-    x1 = ( float ) oglx_texture_GetTextureWidth( TxTexture + texture ) / ( float ) oglx_texture_GetImageWidth( TxTexture + texture );
-    y1 = ( float ) oglx_texture_GetTextureHeight( TxTexture + texture ) / ( float ) oglx_texture_GetImageHeight( TxTexture + texture );
+    ptex = TxTexture_get_ptr( texture );
+
+    x1 = ( float ) oglx_texture_GetTextureWidth( ptex ) / ( float ) oglx_texture_GetImageWidth( ptex );
+    y1 = ( float ) oglx_texture_GetTextureHeight( ptex ) / ( float ) oglx_texture_GetImageHeight( ptex );
 
     for ( cnt = 0; cnt < 4; cnt ++)
     {
@@ -362,7 +370,7 @@ void render_water_fan( ego_mpd_t * pmesh, Uint32 fan, Uint8 layer )
     // Change texture if need be
     if ( meshlasttexture != texture )
     {
-        oglx_texture_Bind( TxTexture + texture );
+        oglx_texture_Bind( ptex );
         meshlasttexture = texture;
     }
 

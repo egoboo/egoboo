@@ -32,15 +32,15 @@
 //--------------------------------------------------------------------------------------------
 enum e_turn_modes
 {
-	TURNMODE_VELOCITY = 0,                       // Character gets rotation from velocity (normal)
-    TURNMODE_WATCH,								 // For watch towers, look towards waypoint
-	TURNMODE_SPIN,								 // For spinning objects
-	TURNMODE_WATCHTARGET,                        // For combat intensive AI
+    TURNMODE_VELOCITY = 0,                       // Character gets rotation from velocity (normal)
+    TURNMODE_WATCH,                              // For watch towers, look towards waypoint
+    TURNMODE_SPIN,                               // For spinning objects
+    TURNMODE_WATCHTARGET,                        // For combat intensive AI
     TURNMODE_COUNT
 };
-#define TURNSPD             0.01f				  // Cutoff for turning or same direction
+#define TURNSPD             0.01f                 // Cutoff for turning or same direction
 #define SPINRATE            200                   // How fast spinners spin
-#define WATCHMIN            0.01f				  // Tolerance for TURNMODE_WATCH
+#define WATCHMIN            0.01f                 // Tolerance for TURNMODE_WATCH
 
 // Object positions
 enum e_slots
@@ -148,8 +148,8 @@ slot_t        grip_offset_to_slot( grip_offset_t grip );
 #define DAMAGETILETIME      32                      // Invincibility time
 #define DAMAGETIME          16                      // Invincibility time
 #define DEFENDTIME          16                      // Invincibility time
-#define BORETIME            (rand()&255)+120		// IfBored timer
-#define CAREFULTIME         50						// Friendly fire timer
+#define BORETIME            (rand()&255)+120        // IfBored timer
+#define CAREFULTIME         50                      // Friendly fire timer
 #define SIZETIME            50                      // Time it takes to resize a character
 
 // Quest system

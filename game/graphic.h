@@ -48,14 +48,14 @@ struct s_egoboo_config;
 #define NUMTICK                         10// 50          // Number of ticks per row
 #define TICKX                           8// 4           // X size of each tick
 #define MAXTICK                         (NUMTICK*10) // Max number of ticks to draw
-#define XPTICK							6.00f
+#define XPTICK                          6.00f
 
 #define NUMFONTX                        16          // Number of fonts in the bitmap
 #define NUMFONTY                        6
 #define NUMFONT                         (NUMFONTX*NUMFONTY)
-#define FONTADD                         4				// Gap between letters
-#define NUMBAR                          6			    // Number of status bars
-#define NUMXPBAR                        2			    // Number of xp bars
+#define FONTADD                         4               // Gap between letters
+#define NUMBAR                          6               // Number of status bars
+#define NUMXPBAR                        2               // Number of xp bars
 
 #define MAXLIGHTLEVEL                   16          // Number of premade light intensities
 #define MAXSPEKLEVEL                    16          // Number of premade specularities
@@ -68,21 +68,6 @@ struct s_egoboo_config;
 
 #define GFX_WIDTH                       800         // 640
 #define GFX_HEIGHT                      600         // 480
-
-// Special Textures
-typedef enum e_tx_type
-{
-    TX_PARTICLE_TRANS = 0,
-    TX_PARTICLE_LIGHT,
-    TX_TILE_0,
-    TX_TILE_1,
-    TX_TILE_2,
-    TX_TILE_3,
-    TX_WATER_TOP,
-    TX_WATER_LOW,
-    TX_PHONG,
-    TX_LAST
-} TX_TYPE;
 
 enum e_color
 {
@@ -172,14 +157,6 @@ extern Sint16          msgtime[MAXMESSAGE];
 extern char            msgtextdisplay[MAXMESSAGE][MESSAGESIZE];        // The displayed text
 
 //--------------------------------------------------------------------------------------------
-// Input player control
-extern int  nullicon;
-extern int  keybicon;
-extern int  mousicon;
-extern int  joyaicon;
-extern int  joybicon;
-
-//--------------------------------------------------------------------------------------------
 // camera optimization
 
 #define ROTMESHTOPSIDE                  55          // For figuring out what to draw
@@ -232,19 +209,9 @@ bool_t gfx_config_synch( gfx_config_t * pgfx, struct s_egoboo_config * pcfg );
 extern obj_registry_entity_t dolist[DOLIST_SIZE];             // List of which characters to draw
 extern size_t                dolist_count;                  // How many in the list
 
-/*OpenGL Textures*/
-extern  oglx_texture       TxIcon[MAX_ICON];       // OpenGL icon surfaces
-extern  oglx_texture       TxFont;                     // OpenGL font surface
-extern  oglx_texture       TxBars;                     // OpenGL status bar surface
-extern  oglx_texture       TxBlip;                     // OpenGL you are here surface
-extern  oglx_texture       TxMap;                      // OpenGL map surface
-extern  oglx_texture       TxTexture[MAX_TEXTURE];      // All textures
-
-extern  Uint32          TxTitleImage_count;
-extern  oglx_texture       TxTitleImage[MAXMODULE];    // OpenGL title image surfaces
 
 // Minimap stuff
-#define MAXBLIP        128							//Max blips on the screen
+#define MAXBLIP        128                          //Max blips on the screen
 extern Uint8           mapon;
 extern Uint8           mapvalid;
 extern Uint8           youarehereon;
@@ -275,31 +242,10 @@ bool_t dolist_add_chr( ego_mpd_t * pmesh, Uint16 cnt );
 bool_t dolist_add_prt( ego_mpd_t * pmesh, Uint16 cnt );
 
 void init_all_graphics();
-void init_all_icons();
-void init_all_titleimages();
-void init_bars();
-void init_blip();
-void init_map();
-void init_all_textures();
-void init_txfont();
-
 void release_all_graphics();
-void release_all_icons();
-void release_all_titleimages();
-void release_bars();
-void release_blip();
-void release_map();
-void release_all_textures();
-void release_txfont();
-
 void delete_all_graphics();
-void delete_all_icons();
-void delete_all_titleimages();
-void delete_bars();
-void delete_blip();
-void delete_map();
-void delete_all_textures();
-void delete_txfont();
+
+void release_all_object_textures();
 
 void   load_graphics();
 bool_t load_blip_bitmap();
@@ -359,8 +305,6 @@ int ogl_init();
 bool_t dump_screenshot();
 
 void make_enviro();
-
-bool_t load_one_icon( const char *szLoadName );
 
 void load_basic_textures( const char *modname );
 

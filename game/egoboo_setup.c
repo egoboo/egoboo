@@ -300,7 +300,7 @@ bool_t setup_download(egoboo_config_t * pcfg)
     GetKey_int( "OUTPUT_BUFFER_SIZE", pcfg->sound_buffer_size, cfg_default.sound_buffer_size );
 
     // Extra high sound quality?
-	GetKey_int( "HIGH_SOUND_QUALITY", pcfg->sound_highquality, cfg_default.sound_highquality );
+    GetKey_int( "HIGH_SOUND_QUALITY", pcfg->sound_highquality, cfg_default.sound_highquality );
 
     // *********************************************
     // * CONTROL Section
@@ -511,7 +511,7 @@ bool_t setup_upload( egoboo_config_t * pcfg )
     SetKey_int( "OUTPUT_BUFFER_SIZE", pcfg->sound_buffer_size );
 
     // Extra high sound quality
-	SetKey_bool( "HIGH_SOUND_QUALITY", pcfg->sound_highquality );
+    SetKey_bool( "HIGH_SOUND_QUALITY", pcfg->sound_highquality );
 
     // *********************************************
     // * CONTROL Section

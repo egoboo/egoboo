@@ -98,3 +98,4 @@ typedef struct s_oglx_texture_parameters oglx_texture_parameters_t;
 
 extern oglx_texture_parameters_t tex_params;
 
+GLboolean oglx_texture_Valid( oglx_texture *ptex );

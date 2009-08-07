@@ -72,7 +72,7 @@ enum e_game_difficulty
 
 #define NOHIDE              127                     // Don't hide
 
-#define MANARETURNSHIFT     22						// ChrList[ichr].manareturn/MANARETURNSHIFT = mana regen per second
+#define MANARETURNSHIFT     22                      // ChrList[ichr].manareturn/MANARETURNSHIFT = mana regen per second
 
 enum e_damage_fx
 {
@@ -89,11 +89,11 @@ enum e_damage_fx
 // Geneder stuff
 enum e_chr_gender
 {
-	GENDER_FEMALE = 0,
-	GENDER_MALE,
-	GENDER_OTHER,
-	GENDER_RANDOM,
-	GENDER_COUNT
+    GENDER_FEMALE = 0,
+    GENDER_MALE,
+    GENDER_OTHER,
+    GENDER_RANDOM,
+    GENDER_COUNT
 };
 
 // Messaging stuff
@@ -147,9 +147,9 @@ enum e_xp_type
 };
 #define XPDIRECT            255                 // No modification
 
-#define RAISE				12					// Helps correct z level
-#define SHADOWRAISE			5
-#define DAMAGERAISE			25					// Tolerance for damage tiles
+#define RAISE               12                  // Helps correct z level
+#define SHADOWRAISE         5
+#define DAMAGERAISE         25                  // Tolerance for damage tiles
 
 /* SDL_GetTicks() always returns milli seconds */
 #define TICKS_PER_SEC                   1000
@@ -240,12 +240,9 @@ EXTERN bool_t                    local_noplayers;                    // Are ther
 //------------------------------------
 // Model stuff
 //------------------------------------
-EXTERN int             globalicon_count;                              // Number of icons
-
-EXTERN Uint16  skintoicon[MAX_TEXTURE];                  // Skin to icon
 
 EXTERN Uint16  bookicon_count    EQ(0);
-EXTERN Uint16  bookicon[MAXSKIN];                      // The first book icon
+EXTERN Uint16  bookicon_ref[MAXSKIN];                      // The first book icon
 
 EXTERN const char *globalparsename  EQ( NULL ); // The SCRIPT.TXT filename
 

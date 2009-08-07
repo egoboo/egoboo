@@ -67,21 +67,21 @@ typedef struct s_ConfigFile
     ConfigFileValuePtr_t    CurrentValue;
 } *ConfigFilePtr_t;
 
-//
+
 extern ConfigFilePtr_t   ConfigFile_create();
 extern ConfigFile_retval ConfigFile_destroy( ConfigFilePtr_t * ptmp );
 
-//
+
 extern ConfigFilePtr_t   LoadConfigFile( const char *szFileName );
 extern ConfigFile_retval SaveConfigFile( ConfigFilePtr_t pConfigFile );
 extern ConfigFile_retval SaveConfigFileAs( ConfigFilePtr_t pConfigFile, const char *szFileName );
 
-//
+
 extern ConfigFile_retval ConfigFile_GetValue_String( ConfigFilePtr_t pConfigFile, const char *pSection, const char *pKey, char *pValue, Sint32 pValueBufferLength );
 extern ConfigFile_retval ConfigFile_GetValue_Boolean( ConfigFilePtr_t pConfigFile, const char *pSection, const char *pKey, bool_t *pBool );
 extern ConfigFile_retval ConfigFile_GetValue_Int( ConfigFilePtr_t pConfigFile, const char *pSection, const char *pKey, Sint32 *pInt );
 
-//
+
 extern ConfigFile_retval ConfigFile_SetValue_String( ConfigFilePtr_t pConfigFile, const char *pSection, const char *pKey, const char *pValue );
 extern ConfigFile_retval ConfigFile_SetValue_Boolean( ConfigFilePtr_t pConfigFile, const char *pSection, const char *pKey, bool_t pBool );
 extern ConfigFile_retval ConfigFile_SetValue_Int( ConfigFilePtr_t pConfigFile, const char *pSection, const char *pKey, int pInt );

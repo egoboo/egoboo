@@ -153,18 +153,19 @@ struct s_mad
     EGO_PROFILE_STUFF
 
     // templates
-    Uint16  ai;                            // AI for each model
-    Uint16  prtpip[MAX_PIP_PER_PROFILE];    // Local particles
+    Uint16  ai;                               // AI for each model
+    Uint16  prtpip[MAX_PIP_PER_PROFILE];      // Local particles
 
-    Uint16  skins;                         // Number of skins
-    Uint16  skinstart;                     // Starting skin of model
+    Uint16  skins;                            // Number of skins
+    int     tex_ref[MAXSKIN];                 // references to the icon textures
+    int     ico_ref[MAXSKIN];                 // references to the skin textures
 
-    Uint16  msgstart;                      // The first message
-    Uint16  transvertices;                 // Number to transform
+    Uint16  msgstart;                         // The first message
+    Uint16  transvertices;                    // Number to transform
 
-    ego_md2_t md2;           // the OpenGL commands
+    ego_md2_t md2;                            // the md2 data
 
-    Uint16  frameliptowalkframe[4][16];    // For walk animations
+    Uint16  frameliptowalkframe[4][16];       // For walk animations
 
     Uint8   actionvalid[ACTION_COUNT];        // bfalse if not valid
     Uint16  actionstart[ACTION_COUNT];        // First frame of anim
@@ -214,4 +215,4 @@ void   log_objused( const char *savename );
 
 int load_model_data( const char * filename, int imad, int skin_stt  );
 
-int load_one_model_profile( const char* tmploadname, Uint16 object, int skin );
+int load_one_model_profile( const char* tmploadname, Uint16 object );

@@ -42,6 +42,21 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+// a template-like declaration of a list that tracks free elements
+
+#define DEFINE_LIST(TYPE, NAME, COUNT)        \
+    struct s_list_##TYPE##NAME                \
+    {                                         \
+        int  free_count;                      \
+        int  free_ref[COUNT];                 \
+        TYPE lst[COUNT];                      \
+    };                                        \
+    extern struct s_list_##TYPE##NAME NAME;
+
+#define DECLARE_LIST(TYPE,NAME) struct s_list_##TYPE##NAME NAME = {0};
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 // RECTANGLE
 typedef struct s_rect
 {

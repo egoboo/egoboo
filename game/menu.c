@@ -31,6 +31,7 @@
 #include "link.h"
 #include "mad.h"
 #include "game.h"
+#include "texture.h"
 
 // To allow changing settings
 #include "sound.h"
@@ -186,6 +187,10 @@ Font *menuFont = NULL;
 
 static int selectedPlayer = 0;           // Which player is currently selected to play
 
+Uint32            TxTitleImage_count = 0;
+oglx_texture      TxTitleImage[MAXMODULE];    // OpenGL title image surfaces
+
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 static int  get_skin( const char *filename );
@@ -206,6 +211,9 @@ static bool_t mnu_addSelectedPlayer( Uint16 player );
 static bool_t mnu_removeSelectedPlayer( Uint16 player );
 static bool_t mnu_addSelectedPlayerInput( Uint16 player, Uint32 input );
 static bool_t mnu_removeSelectedPlayerInput( Uint16 player, Uint32 input );
+
+static int  TxTitleImage_load_one( const char *szLoadName );
+static void TxTitleImage_clear_data();
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -676,7 +684,7 @@ int doChooseModule( float deltaTime )
                     // fix the menu images in case one or more of them are undefined
                     int         imod       = validModules[i];
                     Uint32      tex_offset = ModList[imod].tex;
-                    oglx_texture * ptex       = ((Uint32)(~0) == tex_offset) ? NULL : TxTitleImage + tex_offset;
+                    oglx_texture * ptex    = TxTitleImage_get_ptr( tex_offset );
 
                     if ( ui_doImageButton( i, ptex, moduleMenuOffsetX + x, moduleMenuOffsetY + y, 138, 138 ) )
                     {
@@ -825,7 +833,7 @@ bool_t doChoosePlayer_load_profiles( int player, ChoosePlayer_profiles_t * prof 
     // Load the player profiles
     import_data.player = -1;
     import_data.object = 0;
-	prof->count = 0;
+    prof->count = 0;
 
     // grab the player data
     snprintf( szFilename, SDL_arraysize(szFilename),  "players" SLASH_STR "%s", loadplayer[player].dir );
@@ -855,9 +863,9 @@ bool_t doChoosePlayer_load_profiles( int player, ChoosePlayer_profiles_t * prof 
             prof->ref[prof->count++]                 = ref_temp;
             import_data.slot_lst[import_data.object] = ref_temp;
 
-			//Load icon
-			//snprintf( szFilename, SDL_arraysize(szFilename), "players" SLASH_STR "%s" SLASH_STR "%d.obj" SLASH_STR "icon%d", loadplayer[player].dir, i, MAX(0, CapList[ref_temp].skinoverride) );
-			//ego_texture_load( TxIcon + loadplayer_count + ref_temp, szFilename, INVALID_KEY );
+            //Load icon
+            //snprintf( szFilename, SDL_arraysize(szFilename), "players" SLASH_STR "%s" SLASH_STR "%d.obj" SLASH_STR "icon%d", loadplayer[player].dir, i, MAX(0, CapList[ref_temp].skinoverride) );
+            //ego_texture_load( TxTexture_get_ptr( ?BLAH? ), szFilename, INVALID_KEY );
         }
     }
 
@@ -902,7 +910,7 @@ bool_t doChoosePlayer_show_stats( int player, int mode, int x, int y, int width,
     if ( player >= 0 && objects.count > 0 )
     {
         char mainstat[256];
-		char buffer[1024];
+        char buffer[1024];
         char * carat = buffer, * carat_end = buffer + SDL_arraysize(buffer);
 
         Uint16 iobj = objects.ref[0];
@@ -910,7 +918,7 @@ bool_t doChoosePlayer_show_stats( int player, int mode, int x, int y, int width,
         if ( VALID_CAP(iobj) )
         {
             cap_t * pcap = CapList + iobj;
-			
+
             ui_drawButton( UI_Nothing, x, y, width, height, NULL );
 
             //Character level and class
@@ -921,16 +929,16 @@ bool_t doChoosePlayer_show_stats( int player, int mode, int x, int y, int width,
             //Life and mana (can be less than maximum if not in easy mode)
             if ( cfg.difficulty >= GAME_NORMAL )
             {
-				carat += snprintf( carat, carat_end - carat - 1, "Life: %d/%d\n", pcap->spawnlife >> 8, pcap->lifebase >> 8 );
-				carat += snprintf( carat, carat_end - carat - 1, "Mana: %d/%d\n", pcap->spawnmana >> 8, pcap->manabase >> 8 );
-				//y = draw_one_bar( pcap->lifecolor, x + 10, y + 40, pcap->spawnlife >> 8, pcap->lifebase >> 8 );
+                carat += snprintf( carat, carat_end - carat - 1, "Life: %d/%d\n", pcap->spawnlife >> 8, pcap->lifebase >> 8 );
+                carat += snprintf( carat, carat_end - carat - 1, "Mana: %d/%d\n", pcap->spawnmana >> 8, pcap->manabase >> 8 );
+                //y = draw_one_bar( pcap->lifecolor, x + 10, y + 40, pcap->spawnlife >> 8, pcap->lifebase >> 8 );
                 //y = draw_one_bar( pcap->manacolor, x + 10, y, pcap->spawnmana >> 8, pcap->manabase >> 8 );
             }
             else
             {
                 carat += snprintf( carat, carat_end - carat - 1, "Life: %d\n", pcap->lifebase >> 8 );
-				carat += snprintf( carat, carat_end - carat - 1, "Mana: %d\n", pcap->manabase >> 8 );
-				//y = draw_one_bar( pcap->lifecolor, x + 10, y + 40, pcap->lifebase >> 8, pcap->lifebase >> 8 );
+                carat += snprintf( carat, carat_end - carat - 1, "Mana: %d\n", pcap->manabase >> 8 );
+                //y = draw_one_bar( pcap->lifecolor, x + 10, y + 40, pcap->lifebase >> 8, pcap->lifebase >> 8 );
                 //y = draw_one_bar( pcap->manacolor, x + 10, y, pcap->manabase >> 8, pcap->manabase >> 8 );
             }
 
@@ -952,15 +960,15 @@ bool_t doChoosePlayer_show_stats( int player, int mode, int x, int y, int width,
 
                     if ( VALID_CAP(iobj) )
                     {
-						char itemname[256];
+                        char itemname[256];
                         pcap = CapList + iobj;
-						if( pcap->nameknown )	strcpy(itemname, chop_create(iobj));
-						else					strcpy(itemname, pcap->classname);
+                        if ( pcap->nameknown )   strcpy(itemname, chop_create(iobj));
+                        else                    strcpy(itemname, pcap->classname);
 
-						if	   ( i == SLOT_LEFT+1  ) carat += snprintf( carat, carat_end - carat - 1, "  Left: %s\n", itemname );
-						else if( i == SLOT_RIGHT+1 ) carat += snprintf( carat, carat_end - carat - 1, "  Right: %s\n", itemname );
-						else carat += snprintf( carat, carat_end - carat - 1, "  Item: %s\n", itemname );
-						//draw_one_icon( loadplayer_count + iobj, x + 10, y+150+(i*32), NOSPARKLE );
+                        if     ( i == SLOT_LEFT + 1  ) carat += snprintf( carat, carat_end - carat - 1, "  Left: %s\n", itemname );
+                        else if ( i == SLOT_RIGHT + 1 ) carat += snprintf( carat, carat_end - carat - 1, "  Right: %s\n", itemname );
+                        else carat += snprintf( carat, carat_end - carat - 1, "  Item: %s\n", itemname );
+                        //draw_one_icon( loadplayer_count + iobj, x + 10, y+150+(i*32), NOSPARKLE );
                     }
                 }
             }
@@ -988,7 +996,6 @@ int doChoosePlayer( float deltaTime )
     const int x0 = 20, y0 = 20, icon_size = 42, text_width = 175, button_repeat = 47;
 
     static int numVertical, numHorizontal;
-    static oglx_texture TxInput[4];
     static Uint32 BitsInput[4];
 
     static const char * button_text[] = { "Select Player", "Back", ""};
@@ -998,30 +1005,26 @@ int doChoosePlayer( float deltaTime )
         case MM_Begin:
             mnu_selectedPlayerCount = 0;
 
-            for (i = 0; i < 4; i++)
-            {
-                oglx_texture_Release(TxInput + i);
-            };
-            oglx_texture_Release( &TxBars );
+            TxTexture_free_one( TX_BARS );
 
             mnu_selectedPlayerCount = 0;
             mnu_selectedPlayer[0] = 0;
 
-            ego_texture_load( TxInput + 0, "basicdat" SLASH_STR "keybicon", INVALID_KEY );
+            TxTexture_load_one( "basicdat" SLASH_STR "keybicon", ICON_KEYB, INVALID_KEY );
             BitsInput[0] = INPUT_BITS_KEYBOARD;
 
-            ego_texture_load( TxInput + 1, "basicdat" SLASH_STR "mousicon", INVALID_KEY );
+            TxTexture_load_one( "basicdat" SLASH_STR "mousicon", ICON_MOUS, INVALID_KEY );
             BitsInput[1] = INPUT_BITS_MOUSE;
 
-            ego_texture_load( TxInput + 2, "basicdat" SLASH_STR "joyaicon", INVALID_KEY );
+            TxTexture_load_one( "basicdat" SLASH_STR "joyaicon", ICON_JOYA, INVALID_KEY );
             BitsInput[2] = INPUT_BITS_JOYA;
 
-            ego_texture_load( TxInput + 3, "basicdat" SLASH_STR "joybicon", INVALID_KEY );
+            TxTexture_load_one( "basicdat" SLASH_STR "joybicon", ICON_JOYB, INVALID_KEY );
             BitsInput[3] = INPUT_BITS_JOYB;
 
             ego_texture_load( &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_sleepy", TRANSCOLOR );
 
-            ego_texture_load( &TxBars, "basicdat" SLASH_STR "bars", INVALID_KEY );
+            TxTexture_load_one( "basicdat" SLASH_STR "bars", TX_BARS, INVALID_KEY );
 
             // load information for all the players that could be imported
             check_player_import( "players", btrue );
@@ -1042,7 +1045,7 @@ int doChoosePlayer( float deltaTime )
 
                 for ( j = 0, m++; j < 4; j++, m++ )
                 {
-                    ui_initWidget( mnu_widgetList + m, m, menuFont, NULL, TxInput + j, x + text_width + j*icon_size, y, icon_size, icon_size );
+                    ui_initWidget( mnu_widgetList + m, m, menuFont, NULL, TxTexture_get_ptr( ICON_KEYB + j), x + text_width + j*icon_size, y, icon_size, icon_size );
                     ui_widgetAddMask( mnu_widgetList + m, UI_BITS_CLICKED );
                 };
 
@@ -1116,7 +1119,7 @@ int doChoosePlayer( float deltaTime )
                 splayer = mnu_getSelectedPlayer( player );
 
                 // do the character button
-                mnu_widgetList[m].img  = TxIcon + player;
+                mnu_widgetList[m].img  = TxTexture_get_ptr( loadplayer[player].tx_ref );
                 mnu_widgetList[m].text = loadplayer[player].name;
                 if ( INVALID_PLA != splayer )
                 {
@@ -1252,13 +1255,8 @@ int doChoosePlayer( float deltaTime )
             // release all of the temporary profiles
             doChoosePlayer_show_stats( -1, 1, 0, 0, 0, 0 );
 
-            for (i = 0; i < 4; i++)
-            {
-                oglx_texture_Release(TxInput + i);
-            };
-
             oglx_texture_Release( &background );
-            oglx_texture_Release( &TxBars );
+            TxTexture_free_one( TX_BARS );
 
             menuState = MM_Begin;
             if ( 0 == mnu_selectedPlayerCount )
@@ -1784,7 +1782,7 @@ int doInputOptions( float deltaTime )
                     player = 0;
                 }
             }
-            else if ( BUTTON_UP ==  ui_doImageButtonWithText( 16, TxIcon + (keybicon + iicon), inputOptionsButtons[CONTROL_COMMAND_COUNT+0], menuFont, buttonLeft + 300, GFX_HEIGHT - 90, 140, 50 ))
+            else if ( BUTTON_UP ==  ui_doImageButtonWithText( 16, TxTexture_get_ptr( ICON_KEYB + iicon ), inputOptionsButtons[CONTROL_COMMAND_COUNT+0], menuFont, buttonLeft + 300, GFX_HEIGHT - 90, 140, 50 ))
             {
                 if (input_device_count > 0)
                 {
@@ -1966,9 +1964,9 @@ int doGameOptions( float deltaTime )
             ui_drawTextBox( menuFont, "Max  Messages:", buttonLeft + 350, 50, 0, 0, 20 );
             if ( BUTTON_UP == ui_doButton( 12, gameOptionsButtons[1], menuFont, buttonLeft + 500, 50, 75, 30 ) )
             {
-				cfg.message_count_req++;
-				if ( cfg.message_count_req > MAXMESSAGE) cfg.message_count_req = 0; 
-				if ( cfg.message_count_req < 4 && cfg.message_count_req != 0 ) cfg.message_count_req = 4;
+                cfg.message_count_req++;
+                if ( cfg.message_count_req > MAXMESSAGE) cfg.message_count_req = 0;
+                if ( cfg.message_count_req < 4 && cfg.message_count_req != 0 ) cfg.message_count_req = 4;
 
                 if ( 0 == cfg.message_count_req )
                 {
@@ -2099,8 +2097,8 @@ int doAudioOptions( float deltaTime )
     static char Cbuffersize[128];
     static char Csoundvolume[128];
     static char Cmusicvolume[128];
-	static char Chighquality[128];
-    
+    static char Chighquality[128];
+
     int result = 0;
 
     switch ( menuState )
@@ -2125,12 +2123,12 @@ int doAudioOptions( float deltaTime )
             }
 
             // Load the current settings
-			audioOptionsButtons[0] = cfg.sound_allowed? "On" : "Off";
+            audioOptionsButtons[0] = cfg.sound_allowed ? "On" : "Off";
 
             sprintf( Csoundvolume, "%i", cfg.sound_volume );
             audioOptionsButtons[1] = Csoundvolume;
 
-			audioOptionsButtons[2] = cfg.music_allowed? "On" : "Off";
+            audioOptionsButtons[2] = cfg.music_allowed ? "On" : "Off";
 
             sprintf( Cmusicvolume, "%i", cfg.music_volume );
             audioOptionsButtons[3] = Cmusicvolume;
@@ -2141,7 +2139,7 @@ int doAudioOptions( float deltaTime )
             sprintf( Cbuffersize, "%i", cfg.sound_buffer_size );
             audioOptionsButtons[5] = Cbuffersize;
 
-			audioOptionsButtons[6] = cfg.sound_highquality ? "Normal" : "High";
+            audioOptionsButtons[6] = cfg.sound_highquality ? "Normal" : "High";
 
             // Fall trough
             menuState = MM_Running;
@@ -2243,14 +2241,14 @@ int doAudioOptions( float deltaTime )
                 audioOptionsButtons[5] = Cbuffersize;
             }
 
-			ui_drawTextBox( menuFont, "Sound Quality:", buttonLeft + 300, GFX_HEIGHT - 130, 0, 0, 20 );
+            ui_drawTextBox( menuFont, "Sound Quality:", buttonLeft + 300, GFX_HEIGHT - 130, 0, 0, 20 );
             if ( BUTTON_UP == ui_doButton( 7, audioOptionsButtons[6], menuFont, buttonLeft + 450, GFX_HEIGHT - 130, 100, 30 ) )
             {
-				cfg.sound_highquality = !cfg.sound_highquality;
+                cfg.sound_highquality = !cfg.sound_highquality;
                 audioOptionsButtons[6] = cfg.sound_highquality ? "Normal" : "High";
             }
 
-			//Save settings
+            //Save settings
             if ( BUTTON_UP == ui_doButton( 8, audioOptionsButtons[7], menuFont, buttonLeft, GFX_HEIGHT - 60, 200, 30 ) )
             {
                 // synchronoze the config values with the various game subsystems
@@ -2969,33 +2967,33 @@ int doShowMenuResults( float deltaTime )
             // pass through
 
         case MM_Running:
-			{
-				char buffer[1024];
-				char * carat = buffer, * carat_end = buffer + SDL_arraysize(buffer);
+            {
+                char buffer[1024];
+                char * carat = buffer, * carat_end = buffer + SDL_arraysize(buffer);
 
-				ui_drawButton( UI_Nothing, 30, 30, GFX_WIDTH  - 60, GFX_HEIGHT - 65, NULL );
+                ui_drawButton( UI_Nothing, 30, 30, GFX_WIDTH  - 60, GFX_HEIGHT - 65, NULL );
 
                 GL_DEBUG(glColor4f)(1, 1, 1, 1 );
 
-				// the module name
-				ui_drawTextBox( font, ModList[selectedModule].longname, 50, 80, 291, 230, 20 );
+                // the module name
+                ui_drawTextBox( font, ModList[selectedModule].longname, 50, 80, 291, 230, 20 );
 
-				// the summary
-				for ( i = 0; i < SUMMARYLINES; i++ )
+                // the summary
+                for ( i = 0; i < SUMMARYLINES; i++ )
                 {
                     carat += snprintf( carat, carat_end - carat - 1, "%s\n", ModList[selectedModule].summary[i] );
                 }
 
-                // Draw a text box                
-				ui_drawTextBox( menuFont, buffer, 50, 120, 291, 230, 20 );
+                // Draw a text box
+                ui_drawTextBox( menuFont, buffer, 50, 120, 291, 230, 20 );
 
-				// keep track of the iterations through this section for a timer
-				count++;
-				if ( count > UPDATE_SKIP )
-				{
-					menuState  = MM_Leaving;
-				}
-			}
+                // keep track of the iterations through this section for a timer
+                count++;
+                if ( count > UPDATE_SKIP )
+                {
+                    menuState  = MM_Leaving;
+                }
+            }
             break;
 
         case MM_Leaving:
@@ -3649,7 +3647,7 @@ void check_player_import( const char *dirname, bool_t initialize )
     {
         // restart from nothing
         loadplayer_count = 0;
-        globalicon_count = 0;
+        release_all_object_textures();
     };
 
     // Search for all objects
@@ -3668,7 +3666,7 @@ void check_player_import( const char *dirname, bool_t initialize )
         md2_load_one( filename, &(MadList[loadplayer_count].md2) );
 
         sprintf( filename, "%s" SLASH_STR "%s" SLASH_STR "icon%d", dirname, foundfile, skin );
-        load_one_icon( filename );
+        loadplayer[loadplayer_count].tx_ref = TxTexture_load_one( filename, INVALID_TEXTURE, INVALID_KEY );
 
         sprintf( filename, "%s" SLASH_STR "%s" SLASH_STR "naming.txt", dirname, foundfile );
         chop_load( loadplayer_count, filename );
@@ -3714,8 +3712,7 @@ void load_all_menu_images()
     FILE* filesave;
 
     // reset all the title images
-    release_all_titleimages();
-    TxTitleImage_count = 0;
+    TxTitleImage_release_all();
 
     // Log a directory list
     filesave = fopen( "modules.txt", "w" );
@@ -3741,7 +3738,7 @@ void load_all_menu_images()
             // NOTE: just because we can't load the title image DOES NOT mean that we ignore the module
             sprintf( loadname, "modules" SLASH_STR "%s" SLASH_STR "gamedat" SLASH_STR "title", ModList[cnt].loadname );
 
-            ModList[cnt].tex = load_one_title_image( loadname );
+            ModList[cnt].tex = TxTitleImage_load_one( loadname );
 
             fprintf( filesave, "%02d.  %s\n", cnt, ModList[cnt].longname );
         }
@@ -3827,3 +3824,88 @@ void menu_stack_clear()
     menu_stack_index = 0;
     menu_stack[0] = emnu_Main;
 }
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------
+void TxTitleImage_clear_data()
+{
+    TxTitleImage_count = 0;
+}
+
+//---------------------------------------------------------------------------------------------
+void TxTitleImage_init_all()
+{
+    // ZZ> This function clears out all of the textures
+
+    int cnt;
+
+    for ( cnt = 0; cnt < MAXMODULE; cnt++ )
+    {
+        oglx_texture_new( TxTitleImage + cnt );
+    }
+
+    TxTitleImage_clear_data();
+}
+
+//---------------------------------------------------------------------------------------------
+void TxTitleImage_release_all()
+{
+    // ZZ> This function releases all of the textures
+
+    int cnt;
+
+    for ( cnt = 0; cnt < MAXMODULE; cnt++ )
+    {
+        oglx_texture_Release( TxTitleImage + cnt );
+    }
+
+    TxTitleImage_clear_data();
+}
+
+//---------------------------------------------------------------------------------------------
+void TxTitleImage_delete_all()
+{
+    // ZZ> This function clears out all of the textures
+
+    int cnt;
+
+    for ( cnt = 0; cnt < MAXMODULE; cnt++ )
+    {
+        oglx_texture_delete( TxTitleImage + cnt );
+    }
+
+    TxTitleImage_clear_data();
+}
+
+
+//--------------------------------------------------------------------------------------------
+int TxTitleImage_load_one( const char *szLoadName )
+{
+    // ZZ> This function loads a title in the specified image slot, forcing it into
+    //    system memory.  Returns btrue if it worked
+
+    int    index;
+
+    if ( NULL == szLoadName || '\0' == *szLoadName ) return MAXMODULE;
+
+    if ( TxTitleImage_count >= MAXMODULE ) return MAXMODULE;
+
+    index = MAXMODULE;
+    if ( INVALID_TX_ID != ego_texture_load( TxTitleImage + TxTitleImage_count, szLoadName, INVALID_KEY ) )
+    {
+        index = TxTitleImage_count;
+        TxTitleImage_count++;
+    }
+
+    return index;
+}
+
+//--------------------------------------------------------------------------------------------
+oglx_texture * TxTitleImage_get_ptr( int itex )
+{
+    if ( itex < 0 || itex >= TxTitleImage_count || itex >= MAXMODULE ) return NULL;
+
+    return TxTitleImage + itex;
+}
+

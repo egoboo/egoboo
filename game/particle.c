@@ -795,14 +795,14 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
         // Spawn particles
         if ( amount != 0 && !pcap->resistbumpspawn && !pchr->invictus && vertices != 0 && ( pchr->damagemodifier[pprt->damagetype]&DAMAGESHIFT ) < 3 )
         {
-            
-			if ( amount == 1 )
+
+            if ( amount == 1 )
             {
                 // A single particle ( arrow? ) has been stuck in the character...
                 // Find best vertex to attach to
 
                 bestvertex = 0;
-                bestdistance = 1 << 31;			//Really high number
+                bestdistance = 1 << 31;         //Really high number
 
                 z = -pchr->pos.z + pprt->pos.z + RAISE;
                 facing = pprt->facing - pchr->turn_z - NORTH;
@@ -830,7 +830,7 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
 
             else
             {
-				//Multiple particles are attached to character
+                //Multiple particles are attached to character
 
                 amount = ( amount * vertices ) >> 5;  // Correct amount for size of character
 

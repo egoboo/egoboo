@@ -327,7 +327,7 @@ GLmatrix FourPoints( float orix, float oriy, float oriz,
 
 //--------------------------------------------------------------------------------------------
 // MN This probably should be replaced by a call to gluLookAt, don't see why we need to make our own...
-//
+
 // inline D3DMATRIX ViewMatrix(const D3DVECTOR from,      // camera location
 GLmatrix ViewMatrix( const GLvector3 from,     // camera location
                      const GLvector3 at,        // camera look-at target
@@ -369,7 +369,7 @@ GLmatrix ViewMatrix( const GLvector3 from,     // camera location
 
 //--------------------------------------------------------------------------------------------
 // MN Again, there is a gl function for this, glFrustum or gluPerspective... does this account for viewport ratio?
-//
+
 // inline D3DMATRIX ProjectionMatrix(const float near_plane,     // distance to near clipping plane
 GLmatrix ProjectionMatrix( const float near_plane,    // distance to near clipping plane
                            const float far_plane,      // distance to far clipping plane
@@ -392,7 +392,7 @@ GLmatrix ProjectionMatrix( const float near_plane,    // distance to near clippi
 
 //----------------------------------------------------
 // GS - Normally we souldn't this function but I found it in the rendering of the particules.
-//
+
 // This is just a MulVectorMatrix for now. The W division and screen size multiplication
 // must be done afterward.
 // Isn't tested!!!!

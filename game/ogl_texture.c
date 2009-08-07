@@ -50,7 +50,7 @@ oglx_texture_parameters_t tex_params = {TX_UNFILTERED, 0};
 
 static GLboolean ErrorImage_defined = GL_FALSE;
 
-typedef GLubyte SET_PACKING( image_row_t[ErrorImage_width][4], 1 );
+typedef GLubyte image_row_t[ErrorImage_width][4];
 
 static GLubyte ErrorImage[ErrorImage_height][ErrorImage_width][4];
 
@@ -531,3 +531,8 @@ void oglx_texture_Bind( oglx_texture *texture )
 
 };
 
+//---------------------------------------------------------------------------------------------
+GLboolean oglx_texture_Valid( oglx_texture *ptex )
+{
+    return VALID_TEXTURE( ptex );
+}

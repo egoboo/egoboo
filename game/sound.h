@@ -37,12 +37,12 @@ struct s_egoboo_config;
 
 #define MAX_WAVE           30           // Up to 30 wave/ogg per model
 #define MAXPLAYLISTLENGTH  35           // Max number of different tracks loaded into memory
-#define INVALID_SOUND	   -1			// Don't play this sound
+#define INVALID_SOUND      -1           // Don't play this sound
 #define MENU_SONG          0            // default music theme played when in the menu
 
-#define MIX_HIGH_QUALITY   44100        // frequency 44100 for 44.1KHz, which is CD audio rate. 
-                                        // Most games use 22050, because 44100 requires too much 
-                                        // CPU power on older computers.
+#define MIX_HIGH_QUALITY   44100        // frequency 44100 for 44.1KHz, which is CD audio rate.
+// Most games use 22050, because 44100 requires too much
+// CPU power on older computers.
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // BB > enumerated "speech" sounds, so that we COULD ge the scripts to classify which
@@ -125,7 +125,7 @@ struct s_snd_config
 
     Uint16       maxsoundchannel;      // Max number of sounds playing at the same time
     Uint16       buffersize;           // Buffer size set in setup.txt
-	bool_t       highquality;          // Allow CD quality frequency sounds?
+    bool_t       highquality;          // Allow CD quality frequency sounds?
 };
 typedef struct s_snd_config snd_config_t;
 
