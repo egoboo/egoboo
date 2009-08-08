@@ -445,3 +445,5 @@ void init_all_profiles();
 void release_all_profiles();
 
 void reset_players();
+
+void expand_escape_codes( Uint16 ichr, struct s_script_state * pstate, char * src, char * src_end, char * dst, char * dst_end );

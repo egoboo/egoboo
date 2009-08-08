@@ -6071,217 +6071,370 @@ void reset_end_text()
 }
 
 //--------------------------------------------------------------------------------------------
+void expand_escape_codes( Uint16 ichr, script_state_t * pstate, char * src, char * src_end, char * dst, char * dst_end )
+{
+    int    cnt;
+    STRING szTmp;
+    char   lTmp;
+
+    chr_t      * pchr, *ptarget, *powner;
+    ai_state_t * pai;
+
+    pchr    = INVALID_CHR(ichr) ? NULL : ChrList + ichr;
+    pai     = (NULL == pchr)    ? NULL : &(pchr->ai);
+
+    ptarget = ((NULL == pai) || INVALID_CHR(pai->target)) ? NULL : ChrList + pai->target;
+    powner  = ((NULL == pai) || INVALID_CHR(pai->owner )) ? NULL : ChrList + pai->owner;
+
+    cnt = 0;
+    while ( '\0' != *src && src < src_end && dst < dst_end )
+    {
+        if ( '%' == *src )
+        {
+            char * ebuffer, * ebuffer_end;
+
+            // go to the escape character
+            src++;
+
+            // set up the buffer to hold the escape data
+            ebuffer     = szTmp;
+            ebuffer_end = szTmp + SDL_arraysize(szTmp)-1;
+
+            // make the excape buffer an empty string
+            *ebuffer = '\0';
+
+            switch( *src )
+            {
+                case '%' : // the % symbol
+                    {
+                        sprintf( szTmp, "%%" );
+                    }
+                    break;
+
+                case 'n' : // Name
+                    {
+                        if( NULL != pchr )
+                        {
+                            if ( pchr->nameknown )
+                            {
+                                sprintf( szTmp, "%s", pchr->name );
+                            }
+                            else
+                            {
+                                lTmp = toupper( CapList[pchr->model].classname[0] );
+                                if ( 'A' == lTmp || 'E' == lTmp || 'I' == lTmp || 'O' == lTmp || 'U' == lTmp )
+                                {
+                                    sprintf( szTmp, "an %s", CapList[pchr->model].classname );
+                                }
+                                else
+                                {
+                                    sprintf( szTmp, "a %s", CapList[pchr->model].classname );
+                                }
+                            }
+                        }
+                    }
+                    break;
+
+                case 'c':  // Class name
+                    {
+                        if( NULL != pchr )
+                        {
+                            ebuffer     = CapList[pchr->model].classname;
+                            ebuffer_end = ebuffer + SDL_arraysize(CapList[pchr->model].classname);
+                        }
+                    }
+                    break;
+
+                case 't':  // Target name
+                    {
+                        if( NULL != ptarget)
+                        {
+                            if ( ptarget->nameknown )
+                            {
+                                sprintf( szTmp, "%s", ptarget->name );
+                            }
+                            else
+                            {
+                                lTmp = toupper( CapList[ptarget->model].classname[0] );
+                                if ( 'A' == lTmp || 'E' == lTmp || 'I' == lTmp || 'O' == lTmp || 'U' == lTmp )
+                                {
+                                    sprintf( szTmp, "an %s", CapList[ptarget->model].classname );
+                                }
+                                else
+                                {
+                                    sprintf( szTmp, "a %s", CapList[ptarget->model].classname );
+                                }
+                            }
+                        }
+                    }
+                    break;
+
+                case 'o':  // Owner name
+                    {
+                        if( NULL != powner)
+                        {
+                            if ( powner->nameknown )
+                            {
+                                sprintf( szTmp, "%s", powner->name );
+                            }
+                            else
+                            {
+                                lTmp = toupper( CapList[powner->model].classname[0] );
+                                if ( 'A' == lTmp || 'E' == lTmp || 'I' == lTmp || 'O' == lTmp || 'U' == lTmp )
+                                {
+                                    sprintf( szTmp, "an %s", CapList[powner->model].classname );
+                                }
+                                else
+                                {
+                                    sprintf( szTmp, "a %s", CapList[powner->model].classname );
+                                }
+                            }
+                        }
+                    }
+                    break;
+
+                case 's':  // Target class name
+                    {
+                        if( NULL != ptarget)
+                        {
+                            ebuffer     = CapList[ptarget->model].classname;
+                            ebuffer_end = ebuffer + SDL_arraysize(CapList[ptarget->model].classname);
+                        }
+                    }
+                    break;
+
+                case '0': 
+                case '1': 
+                case '2': 
+                case '3': // Target's skin name
+                    {
+                        if( NULL != ptarget)
+                        {
+                            ebuffer = CapList[ptarget->model].skinname[(*src)-'0'];
+                            ebuffer_end = ebuffer + SDL_arraysize(CapList[ptarget->model].skinname[(*src)-'0']);
+                        }
+                    }
+                    break;
+
+                case 'a':  // Character's ammo
+                    {
+                        if( NULL != pchr)
+                        {
+                            if ( pchr->ammoknown )
+                            {
+                                sprintf( szTmp, "%d", pchr->ammo );
+                            }
+                            else
+                            {
+                                sprintf( szTmp, "?" );
+                            }
+                        }
+                    }
+                    break;
+
+                case 'k':  // Kurse state
+                    {
+                        if( NULL != pchr )
+                        {
+                            if ( pchr->iskursed )
+                            {
+                                sprintf( szTmp, "kursed" );
+                            }
+                            else
+                            {
+                                sprintf( szTmp, "unkursed" );
+                            }
+                        }
+                    }
+                    break;
+
+                case 'p':  // Character's possessive
+                    {
+                        if( NULL != pchr )
+                        {
+                            if ( pchr->gender == GENDER_FEMALE )
+                            {
+                                sprintf( szTmp, "her" );
+                            }
+                            else if ( pchr->gender == GENDER_MALE )
+                            {
+                                sprintf( szTmp, "his" );
+                            }
+                            else
+                            {
+                                sprintf( szTmp, "its" );
+                            }
+                        }
+                    }
+                    break;
+
+                case 'm':  // Character's gender
+                    {
+                        if( NULL != pchr )
+                        {
+                            if ( pchr->gender == GENDER_FEMALE )
+                            {
+                                sprintf( szTmp, "female " );
+                            }
+                            else if ( pchr->gender == GENDER_MALE )
+                            {
+                                sprintf( szTmp, "male " );
+                            }
+                            else
+                            {
+                                sprintf( szTmp, " " );
+                            }
+                        }
+                    }
+                    break;
+
+                case 'g':  // Target's possessive
+                    {
+                        if( NULL != ptarget )
+                        {
+                            if ( ptarget->gender == GENDER_FEMALE )
+                            {
+                                sprintf( szTmp, "her" );
+                            }
+                            else if ( ptarget->gender == GENDER_MALE )
+                            {
+                                sprintf( szTmp, "his" );
+                            }
+                            else
+                            {
+                                sprintf( szTmp, "its" );
+                            }
+                        }
+                    }
+                    break;
+
+                case '#':  // New line (enter)
+                    {
+                        sprintf( szTmp, "\n" );
+                    }
+                    break;
+
+                case 'd':  // tmpdistance value
+                    {
+                        if( NULL != pstate )
+                        {
+                            sprintf( szTmp, "%d", pstate->distance );
+                        }
+                    }
+                    break;
+
+                case 'x':  // tmpx value
+                    {
+                        if( NULL != pstate )
+                        {
+                            sprintf( szTmp, "%d", pstate->x );
+                        }
+                    }
+                    break;
+
+                case 'y':  // tmpy value
+                    {
+                        if( NULL != pstate )
+                        {
+                            sprintf( szTmp, "%d", pstate->y );
+                        }
+                    }
+                    break;
+
+                case 'D':  // tmpdistance value
+                    {
+                        if( NULL != pstate )
+                        {
+                            sprintf( szTmp, "%2d", pstate->distance );
+                        }
+                    }
+                    break;
+
+                case 'X':  // tmpx value
+                    {
+                        if( NULL != pstate )
+                        {
+                            sprintf( szTmp, "%2d", pstate->x );
+                        }
+                    }
+                    break;
+
+                case 'Y':  // tmpy value
+                    {
+                        if( NULL != pstate )
+                        {
+                            sprintf( szTmp, "%2d", pstate->y );
+                        }
+                    }
+                    break;
+
+                default:
+                    sprintf( szTmp, "%%%c???", (*src) );
+                    break;
+            }
+
+            if( '\0' == *ebuffer )
+            {
+                ebuffer     = szTmp;
+                ebuffer_end = szTmp + SDL_arraysize(szTmp);
+                sprintf( szTmp, "%%%c???", (*src) );
+            }
+
+            // make the line capitalized if necessary
+            if ( 0 == cnt && NULL != ebuffer )  *ebuffer = toupper( *ebuffer );
+
+            // Copy the generated text
+            while ( '\0' != *ebuffer && ebuffer < ebuffer_end && dst < dst_end )
+            {
+                *dst++ = *ebuffer++;
+            }
+            *dst = '\0';
+        }
+        else
+        {
+            // Copy the letter
+            *dst = *src;
+            dst++;
+        }
+
+        src++;
+        cnt++;
+    }
+
+    // make sure the destination string is terminated
+    if( dst < dst_end )
+    {
+        *dst = '\0';
+    }
+    *dst_end = '\0';
+}
+
+//--------------------------------------------------------------------------------------------
 void append_end_text( script_state_t * pstate, int message, Uint16 character )
 {
     // ZZ> This function appends a message to the end-module text
-    int read, cnt;
-    char *eread;
-    char szTmp[256];
-    char cTmp, lTmp;
-    Uint16 target, owner;
+    int read;
 
-    target = ChrList[character].ai.target;
-    owner = ChrList[character].ai.owner;
+    endtext[0] = '\0';
+
     if ( message < msgtotal )
     {
+        char * src, * src_end;
+        char * dst, * dst_end;
+
         // Copy the message
         read = msgindex[message];
-        cnt = 0;
-        cTmp = msgtext[read];  read++;
 
-        while ( cTmp != 0 )
-        {
-            if ( '%' == cTmp )
-            {
-                // Escape sequence
-                eread = szTmp;
-                szTmp[0] = 0;
-                cTmp = msgtext[read];  read++;
-                if ( 'n' == cTmp )  // Name
-                {
-                    if ( ChrList[character].nameknown )
-                        sprintf( szTmp, "%s", ChrList[character].name );
-                    else
-                    {
-                        lTmp = CapList[ChrList[character].model].classname[0];
-                        if ( 'A' == lTmp || 'E' == lTmp || 'I' == lTmp || 'O' == lTmp || 'U' == lTmp )
-                            sprintf( szTmp, "an %s", CapList[ChrList[character].model].classname );
-                        else
-                            sprintf( szTmp, "a %s", CapList[ChrList[character].model].classname );
-                    }
-                    if ( cnt == 0 && 'a' == szTmp[0] )  szTmp[0] = 'A';
-                }
-                if ( 'c' == cTmp )  // Class name
-                {
-                    eread = CapList[ChrList[character].model].classname;
-                }
-                if ( 't' == cTmp )  // Target name
-                {
-                    if ( ChrList[target].nameknown )
-                        sprintf( szTmp, "%s", ChrList[target].name );
-                    else
-                    {
-                        lTmp = CapList[ChrList[target].model].classname[0];
-                        if ( 'A' == lTmp || 'E' == lTmp || 'I' == lTmp || 'O' == lTmp || 'U' == lTmp )
-                            sprintf( szTmp, "an %s", CapList[ChrList[target].model].classname );
-                        else
-                            sprintf( szTmp, "a %s", CapList[ChrList[target].model].classname );
-                    }
-                    if ( cnt == 0 && 'a' == szTmp[0] )  szTmp[0] = 'A';
-                }
-                if ( 'o' == cTmp )  // Owner name
-                {
-                    if ( ChrList[owner].nameknown )
-                        sprintf( szTmp, "%s", ChrList[owner].name );
-                    else
-                    {
-                        lTmp = CapList[ChrList[owner].model].classname[0];
-                        if ( 'A' == lTmp || 'E' == lTmp || 'I' == lTmp || 'O' == lTmp || 'U' == lTmp )
-                            sprintf( szTmp, "an %s", CapList[ChrList[owner].model].classname );
-                        else
-                            sprintf( szTmp, "a %s", CapList[ChrList[owner].model].classname );
-                    }
-                    if ( cnt == 0 && 'a' == szTmp[0] )  szTmp[0] = 'A';
-                }
-                if ( 's' == cTmp )  // Target class name
-                {
-                    eread = CapList[ChrList[target].model].classname;
-                }
-                if ( cTmp >= '0' && cTmp <= '3' )  // Target's skin name
-                {
-                    eread = CapList[ChrList[target].model].skinname[cTmp-'0'];
-                }
-                if ( NULL == pstate )
-                {
-                    sprintf( szTmp, "%%%c???", cTmp );
-                }
-                else
-                {
-                    if ( 'd' == cTmp )  // tmpdistance value
-                    {
-                        sprintf( szTmp, "%d", pstate->distance );
-                    }
-                    if ( 'x' == cTmp )  // tmpx value
-                    {
-                        sprintf( szTmp, "%d", pstate->x );
-                    }
-                    if ( 'y' == cTmp )  // tmpy value
-                    {
-                        sprintf( szTmp, "%d", pstate->y );
-                    }
-                    if ( 'D' == cTmp )  // tmpdistance value
-                    {
-                        sprintf( szTmp, "%2d", pstate->distance );
-                    }
-                    if ( 'X' == cTmp )  // tmpx value
-                    {
-                        sprintf( szTmp, "%2d", pstate->x );
-                    }
-                    if ( 'Y' == cTmp )  // tmpy value
-                    {
-                        sprintf( szTmp, "%2d", pstate->y );
-                    }
+        src     = msgtext + read;
+        src_end = msgtext + MESSAGEBUFFERSIZE;
 
-                }
-                if ( 'a' == cTmp )  // Character's ammo
-                {
-                    if ( ChrList[character].ammoknown )
-                        sprintf( szTmp, "%d", ChrList[character].ammo );
-                    else
-                        sprintf( szTmp, "?" );
-                }
-                if ( 'k' == cTmp )  // Kurse state
-                {
-                    if ( ChrList[character].iskursed )
-                        sprintf( szTmp, "kursed" );
-                    else
-                        sprintf( szTmp, "unkursed" );
-                }
-                if ( 'p' == cTmp )  // Character's possessive
-                {
-                    if ( ChrList[character].gender == GENDER_FEMALE )
-                    {
-                        sprintf( szTmp, "her" );
-                    }
-                    else
-                    {
-                        if ( ChrList[character].gender == GENDER_MALE )
-                        {
-                            sprintf( szTmp, "his" );
-                        }
-                        else
-                        {
-                            sprintf( szTmp, "its" );
-                        }
-                    }
-                }
-                if ( 'm' == cTmp )  // Character's gender
-                {
-                    if ( ChrList[character].gender == GENDER_FEMALE )
-                    {
-                        sprintf( szTmp, "female " );
-                    }
-                    else
-                    {
-                        if ( ChrList[character].gender == GENDER_MALE )
-                        {
-                            sprintf( szTmp, "male " );
-                        }
-                        else
-                        {
-                            sprintf( szTmp, " " );
-                        }
-                    }
-                }
-                if ( 'g' == cTmp )  // Target's possessive
-                {
-                    if ( ChrList[target].gender == GENDER_FEMALE )
-                    {
-                        sprintf( szTmp, "her" );
-                    }
-                    else
-                    {
-                        if ( ChrList[target].gender == GENDER_MALE )
-                        {
-                            sprintf( szTmp, "his" );
-                        }
-                        else
-                        {
-                            sprintf( szTmp, "its" );
-                        }
-                    }
-                }
-                if ( '#' == cTmp )  // New line (enter)
-                {
-                    sprintf( szTmp, "\n" );
-                }
+        dst     = endtext;
+        dst_end = endtext + MAXENDTEXT - 1;
 
-                // Copy the generated text
-                cTmp = *eread;  eread++;
+        expand_escape_codes( character, pstate, src, src_end, dst, dst_end );
 
-                while ( cTmp != 0 && endtextwrite < MAXENDTEXT - 1 )
-                {
-                    endtext[endtextwrite] = cTmp;
-                    cTmp = *eread;  eread++;
-                    endtextwrite++;
-                }
-            }
-            else
-            {
-                // Copy the letter
-                if ( endtextwrite < MAXENDTEXT - 1 )
-                {
-                    endtext[endtextwrite] = cTmp;
-                    endtextwrite++;
-                }
-            }
-
-            cTmp = msgtext[read];  read++;
-            cnt++;
-        }
+        *dst_end = '\0';
     }
-
-    endtext[endtextwrite] = 0;
 
     str_add_linebreaks( endtext, endtextwrite, 20 );
 }

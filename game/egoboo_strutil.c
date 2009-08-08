@@ -233,13 +233,13 @@ char * str_encode_path( const char *szName )
     pname = szName;
     pname_end = pname + 255;
 
-    ppath = szPathname;
-    ppath_end = ppath + 255 - 5;
+    ppath     = szPathname;
+    ppath_end = szPathname + SDL_arraysize(szPathname) - 5;
     while ( '\0' != *pname && pname < pname_end && ppath < ppath_end )
     {
         letter = tolower( *pname );
 
-        if ( ( letter < 'a' || letter > 'z' ) )  letter = '_';
+        if ( isspace(letter) || !(isalpha(letter) || isdigit(letter)) ) letter = '_';
 
         *ppath = letter;
 

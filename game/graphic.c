@@ -315,197 +315,25 @@ void display_message( script_state_t * pstate, int message, Uint16 character )
 
     if ( message < msgtotal )
     {
+
+        char * src, * src_end;
+        char * dst, * dst_end;
+
         slot = get_free_message();
         msgtime[slot] = cfg.message_duration;
+
         // Copy the message
         read = msgindex[message];
-        cnt = 0;
-        write = 0;
-        cTmp = msgtext[read];  read++;
 
-        while ( cTmp != 0 )
-        {
-            if ( '%' == cTmp )
-            {
-                // Escape sequence
-                eread = szTmp;
-                szTmp[0] = 0;
-                cTmp = msgtext[read];  read++;
-                if ( 'n' == cTmp )  // Name
-                {
-                    if ( ChrList[character].nameknown )
-                        sprintf( szTmp, "%s", ChrList[character].name );
-                    else
-                    {
-                        lTmp = CapList[ChrList[character].model].classname[0];
-                        if ( 'A' == lTmp || 'E' == lTmp || 'I' == lTmp || 'O' == lTmp || 'U' == lTmp )
-                            sprintf( szTmp, "an %s", CapList[ChrList[character].model].classname );
-                        else
-                            sprintf( szTmp, "a %s", CapList[ChrList[character].model].classname );
-                    }
-                    if ( cnt == 0 && 'a' == szTmp[0] )  szTmp[0] = 'A';
-                }
-                if ( 'c' == cTmp )  // Class name
-                {
-                    eread = CapList[ChrList[character].model].classname;
-                }
-                if ( 't' == cTmp )  // Target name
-                {
-                    if ( ChrList[target].nameknown )
-                        sprintf( szTmp, "%s", ChrList[target].name );
-                    else
-                    {
-                        lTmp = CapList[ChrList[target].model].classname[0];
-                        if ( 'A' == lTmp || 'E' == lTmp || 'I' == lTmp || 'O' == lTmp || 'U' == lTmp )
-                            sprintf( szTmp, "an %s", CapList[ChrList[target].model].classname );
-                        else
-                            sprintf( szTmp, "a %s", CapList[ChrList[target].model].classname );
-                    }
-                    if ( cnt == 0 && 'a' == szTmp[0] )  szTmp[0] = 'A';
-                }
-                if ( 'o' == cTmp )  // Owner name
-                {
-                    if ( ChrList[owner].nameknown )
-                        sprintf( szTmp, "%s", ChrList[owner].name );
-                    else
-                    {
-                        lTmp = CapList[ChrList[owner].model].classname[0];
-                        if ( 'A' == lTmp || 'E' == lTmp || 'I' == lTmp || 'O' == lTmp || 'U' == lTmp )
-                            sprintf( szTmp, "an %s", CapList[ChrList[owner].model].classname );
-                        else
-                            sprintf( szTmp, "a %s", CapList[ChrList[owner].model].classname );
-                    }
-                    if ( cnt == 0 && 'a' == szTmp[0] )  szTmp[0] = 'A';
-                }
-                if ( 's' == cTmp )  // Target class name
-                {
-                    eread = CapList[ChrList[target].model].classname;
-                }
-                if ( cTmp >= '0' && cTmp <= '3' )  // Target's skin name
-                {
-                    eread = CapList[ChrList[target].model].skinname[cTmp-'0'];
-                }
-                if ( NULL != pstate )
-                {
-                    if ( 'd' == cTmp )  // tmpdistance value
-                    {
-                        sprintf( szTmp, "%d", pstate->distance );
-                    }
-                    if ( 'x' == cTmp )  // tmpx value
-                    {
-                        sprintf( szTmp, "%d", pstate->x );
-                    }
-                    if ( 'y' == cTmp )  // tmpy value
-                    {
-                        sprintf( szTmp, "%d", pstate->y );
-                    }
-                    if ( 'D' == cTmp )  // tmpdistance value
-                    {
-                        sprintf( szTmp, "%2d", pstate->distance );
-                    }
-                    if ( 'X' == cTmp )  // tmpx value
-                    {
-                        sprintf( szTmp, "%2d", pstate->x );
-                    }
-                    if ( 'Y' == cTmp )  // tmpy value
-                    {
-                        sprintf( szTmp, "%2d", pstate->y );
-                    }
-                }
+        src     = msgtext + read;
+        src_end = msgtext + MESSAGEBUFFERSIZE;
 
-                if ( 'a' == cTmp )  // Character's ammo
-                {
-                    if ( ChrList[character].ammoknown )
-                        sprintf( szTmp, "%d", ChrList[character].ammo );
-                    else
-                        sprintf( szTmp, "?" );
-                }
-                if ( 'k' == cTmp )  // Kurse state
-                {
-                    if ( ChrList[character].iskursed )
-                        sprintf( szTmp, "kursed" );
-                    else
-                        sprintf( szTmp, "unkursed" );
-                }
-                if ( 'p' == cTmp )  // Character's possessive
-                {
-                    if ( ChrList[character].gender == GENDER_FEMALE )
-                    {
-                        sprintf( szTmp, "her" );
-                    }
-                    else
-                    {
-                        if ( ChrList[character].gender == GENDER_MALE )
-                        {
-                            sprintf( szTmp, "his" );
-                        }
-                        else
-                        {
-                            sprintf( szTmp, "its" );
-                        }
-                    }
-                }
-                if ( 'm' == cTmp )  // Character's gender
-                {
-                    if ( ChrList[character].gender == GENDER_FEMALE )
-                    {
-                        sprintf( szTmp, "female " );
-                    }
-                    else
-                    {
-                        if ( ChrList[character].gender == GENDER_MALE )
-                        {
-                            sprintf( szTmp, "male " );
-                        }
-                        else
-                        {
-                            sprintf( szTmp, " " );
-                        }
-                    }
-                }
-                if ( 'g' == cTmp )  // Target's possessive
-                {
-                    if ( ChrList[target].gender == GENDER_FEMALE )
-                    {
-                        sprintf( szTmp, "her" );
-                    }
-                    else
-                    {
-                        if ( ChrList[target].gender == GENDER_MALE )
-                        {
-                            sprintf( szTmp, "his" );
-                        }
-                        else
-                        {
-                            sprintf( szTmp, "its" );
-                        }
-                    }
-                }
+        dst     = msgtextdisplay[slot];
+        dst_end = msgtextdisplay[slot] + MESSAGESIZE - 1;
 
-                cTmp = *eread;  eread++;
+        expand_escape_codes( character, pstate, src, src_end, dst, dst_end );
 
-                while ( cTmp != 0 && write < MESSAGESIZE - 1 )
-                {
-                    msgtextdisplay[slot][write] = cTmp;
-                    cTmp = *eread;  eread++;
-                    write++;
-                }
-            }
-            else
-            {
-                // Copy the letter
-                if ( write < MESSAGESIZE - 1 )
-                {
-                    msgtextdisplay[slot][write] = cTmp;
-                    write++;
-                }
-            }
-
-            cTmp = msgtext[read];  read++;
-            cnt++;
-        }
-
-        msgtextdisplay[slot][write] = 0;
+        *dst_end = '\0';
     }
 }
 
@@ -4932,6 +4760,7 @@ bool_t billboard_data_update( billboard_data_t * pbb )
 {
     GLvector3   vup, pos_new;
     chr_t     * pchr;
+    float       height, offset;
 
     if( NULL == pbb || !pbb->valid ) return bfalse;
 
@@ -4949,9 +4778,12 @@ bool_t billboard_data_update( billboard_data_t * pbb )
         vup.z = 1.0f;
     }
 
-    pos_new.x = pchr->pos.x + vup.x * pchr->bumpheight;
-    pos_new.y = pchr->pos.y + vup.y * pchr->bumpheight;
-    pos_new.z = pchr->pos.z + vup.z * pchr->bumpheight;
+    height = pchr->bumpheight;
+    offset = MIN(pchr->bumpheight * 0.5f, pchr->bumpsize);
+
+    pos_new.x = pchr->pos.x + vup.x * (height + offset);
+    pos_new.y = pchr->pos.y + vup.y * (height + offset);
+    pos_new.z = pchr->pos.z + vup.z * (height + offset);
 
     // allow the billboards to be a bit bouncy
     pbb->pos.x = pbb->pos.x * 0.5f + pos_new.x * 0.5f;
@@ -5258,7 +5090,7 @@ void render_all_billboards( camera_t * pcam )
 
                 if( !pbb->valid ) continue;
 
-                render_billboard( pcam, pbb, 1 );
+                render_billboard( pcam, pbb, 0.75 );
             }
         }
         ATTRIB_POP( "render_all_billboards()" );

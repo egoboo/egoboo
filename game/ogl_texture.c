@@ -128,7 +128,7 @@ oglx_texture * oglx_texture_new(oglx_texture * ptex)
 
     memset( ptex, 0, sizeof(oglx_texture) );
 
-    // only need one textureID per texture
+    // only need one base.binding per texture
     // do not need to ask for a new id, even if we change the texture data
     GL_DEBUG(glGenTextures)( 1, &(ptex->base.binding) );
 

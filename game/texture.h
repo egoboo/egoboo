@@ -53,7 +53,7 @@ enum e_global_tx_type
 //---------------------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------------------
 
-#define TEXTURE_COUNT   (MAX_TEXTURE + MAX_ICON)
+#define TEXTURE_COUNT   (2*(MAX_TEXTURE + MAX_ICON))
 #define INVALID_TEXTURE TEXTURE_COUNT
 
 // declare special arrays of textures
