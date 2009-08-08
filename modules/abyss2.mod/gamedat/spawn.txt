@@ -303,7 +303,7 @@ cursetrap.obj:   NONE    91  62.0   23.0   1.0   N    0   0  33   0   0   F   F 
 devildoor.obj:   NONE    74  69.0   12.0   1.0   E    0   0  26   10   0   F   F   N
 Angel:   NONE   	 94  79.0   12.0   1.0   W    16   0  0   0   0   F   F   Angel
   MagicCage:   NONE    73  0.0   0.0   0.0   R   0   0  0   1   0   F   F   Angel
-  spkmace.obj:   NONE    51  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  retribution.obj:   NONE    130  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
 //Saving the slayer
 demon.obj:   NONE    42  35.0   70.0   1.0   N    0   0  0   0   0   F   F   E

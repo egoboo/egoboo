@@ -16,7 +16,7 @@ IfStateIs0
   IfXIsLessThanY
     tmpx = selfx - 175
     tmpy = selfy
-    tmpdistance = selfz + 2000
+    tmpdistance = selfz + 1024
     tmpargument = 53
     SpawnExactCharacterXYZ
       tmpargument = 0

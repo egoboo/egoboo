@@ -53,6 +53,9 @@ IfKilled
   AddIDSZ
   BeatModule
   EnableExport
+  tmpargument = [COBO]
+  tmpdistance = 1
+  AddQuestAllPlayers
   
   //Victory tune
   tmpargument = 14

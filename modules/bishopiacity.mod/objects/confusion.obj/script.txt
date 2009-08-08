@@ -3,6 +3,22 @@ IfSpawned
   tmpargument = ACTIONJB
   DoAction
   KeepAction
+  MakeCrushValid
+  
+//Crushed in a passage
+IfCrushed
+  tmpargument = 5
+  tmpdistance = selfz
+  tmpx = selfx
+  tmpy = selfy
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  GoPoof
+  tmpargument = 5
+  SendMessageNear
+  
 IfDropped				// Make it lie on floor
   KeepAction
 IfGrabbed				// Tell them what they've won, Johnny!
@@ -12,6 +28,7 @@ IfGrabbed				// Tell them what they've won, Johnny!
     SendMessageNear
 IfHitGround
   tmpargument = 0
+  tmpdistance = rand % 2047 + 8000
   PlaySound
   tmpargument = ACTIONDB
   DoAction
@@ -31,7 +48,8 @@ IfUsed
 
     //Aiming Cursor
     SetTargetToOwner
-    tmpdistance = selfcontent > 8 + 4 < 6
+    GetContent
+    tmpdistance = tmpargument > 8 + 4 < 6
     tmpturn = targetturn
     tmpx = targetx
     tmpy = targety
@@ -40,7 +58,8 @@ IfUsed
     tmpargument = 4
     SpawnExactParticle
 
-    tmpx = selfcontent
+    GetContent
+    tmpx = tmpargument
     tmpy = 768					//Don't overcharge
     IfXIsLessThanY
       tmpy = targetmanaflow			//Enough spell power?
@@ -62,10 +81,12 @@ IfUsed
     SparkleIcon
 
 Else
-  tmpx = selfcontent
+  GetContent
+  tmpx = tmpargument
   tmpy = 750
   IfXIsMoreThanY		//Enough power to activate?
-    tmpdistance = selfcontent > 8 + 4 < 6
+    GetContent
+    tmpdistance = tmpargument > 8 + 4 < 6
     tmpturn = targetturn
     tmpx = targetx
     tmpy = targety
@@ -73,24 +94,13 @@ Else
     tmpdistance = targetz
     tmpargument = 2
     SpawnExactParticle
-    
     tmpargument = 100		//Set cooldown time
     SetReloadTime
-    
     tmpargument = 3
     SendMessageNear		//Tell what happened
     tmpargument = 1
-    PlaySound    
-      
-    //Award xp and stuff for daring to do it
-    IfNameIsKnown
-      DoNothing
-    Else
-      tmpargument = 20
-      tmpdistance = EXPDARE
-      GiveExperienceToTarget
-      MakeNameKnown
-      MakeUsageKnown
+    tmpdistance = rand % 6000 + 11000
+    PlaySound
   Else
     GetContent
     tmpx = tmpargument
@@ -99,10 +109,21 @@ Else
       tmpargument = 1
       SendMessageNear		//Tell it didn't work
       tmpargument = 2
+      tmpdistance = rand % 6000 + 11000
       PlaySound
   tmpargument = 0
   SetContent			//Reset counter
   UnsparkleIcon
+
+  //Award xp and stuff for daring to do it
+  IfNameIsKnown
+    DoNothing
+  Else
+    tmpargument = 20
+    tmpdistance = EXPDARE
+    GiveExperienceToTarget
+    MakeNameKnown
+    MakeUsageKnown
 
 // Put the little mana ball on the
 // character's hand

@@ -3054,6 +3054,9 @@ int doGamePaused( float deltaTime )
             menuChoice = 0;
             menuState = MM_Entering;
 
+			if( PMod->exportvalid && !local_allpladead ) buttons[0] = "Save and Exit";
+			else					  					 buttons[0] = "Quit Module";
+
             initSlidyButtons( 1.0f, buttons );
 
         case MM_Entering:
@@ -3071,6 +3074,7 @@ int doGamePaused( float deltaTime )
             // Do normal run
             // Background
             GL_DEBUG(glColor4f)(1, 1, 1, 1 );
+
 
             // Buttons
             for ( cnt = 0; cnt < 6; cnt ++ )

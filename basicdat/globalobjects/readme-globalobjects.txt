@@ -79,7 +79,9 @@ SLOT  OBJECT
 124   Rune of Regeneration
 125   Rune of Exorcism
 127   *RESERVED FOR BOOK.OBJ*
+128   Rune of Restoration
 129   Rune of Holybolt
+130   Retribution
 131   Scythe
 132   Mallet
 133   Rebirth

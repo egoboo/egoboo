@@ -133,7 +133,7 @@ IfStateIs0
         
         tmpargument = [COBO]
         IfTargetHasQuest                //Have they already beaten it?
-          tmpturn = 2
+          tmpturn = 1
           IfDistanceIsMoreThanTurn        //TODO: IfQuestBeaten
             tmpargument = 6
             SetContent
@@ -141,7 +141,7 @@ IfStateIs0
             SendMessageNear
           Else
             //Check if anyone is claiming their quest reward
-            tmpturn = 1
+            tmpturn = 0
             IfDistanceIsMoreThanTurn
               
               tmpargument = [COBO]          //Dont repeat this

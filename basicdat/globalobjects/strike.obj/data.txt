@@ -92,7 +92,7 @@ EXPROLEPLAY    : 1.00
 IDSZ Parent    : [SWOR]
 IDSZ Type      : [MAGI]
 IDSZ Skill     : [NONE]
-IDSZ Special   : [NONE]
+IDSZ Special   : [XWEP]
 IDSZ Hate      : [NONE]
 IDSZ Vulnie    : [NONE]
 

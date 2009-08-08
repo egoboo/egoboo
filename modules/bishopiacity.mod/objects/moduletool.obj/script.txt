@@ -130,7 +130,7 @@ IfContentIs
   IfStateIs1
     tmpargument = 115
 
-  //Fireward
+  //Resist Elements
   IfStateIs2
     tmpargument = 125
 
@@ -138,11 +138,11 @@ IfContentIs
   IfStateIs3
     tmpargument = 119
 
-  //Evilward
+  //Divine Shield
   IfStateIs4
     tmpargument = 124
 
-  //Frostward
+  //Sanctify
   IfStateIs5
     tmpargument = 126
 

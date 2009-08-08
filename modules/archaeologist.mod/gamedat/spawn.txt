@@ -2,8 +2,8 @@
 
 //Encampment
 HERO:   NONE    0  9.5   87.0   0.0   N    0   0  0   0   0   T   F   G
-pistol.obj:   NONE    58  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-whip.obj:   NONE    59  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  pistol.obj:   NONE    58  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  whip.obj:   NONE    59  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 
 marcus.obj:   NONE    62  8.5   85.5   0.0   S    4   0  0   0   0   F   F   G
   shovel.obj:   NONE    63  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N

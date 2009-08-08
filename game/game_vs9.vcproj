@@ -432,6 +432,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\texture.c"
+				>
+			</File>
+			<File
 				RelativePath=".\ui.c"
 				>
 			</File>
@@ -615,6 +619,10 @@
 			</File>
 			<File
 				RelativePath=".\system.h"
+				>
+			</File>
+			<File
+				RelativePath=".\texture.h"
 				>
 			</File>
 			<File

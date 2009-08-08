@@ -1,11 +1,11 @@
-Version 2.7.5 (xx.08.2009)
+Version 2.7.8 (xx.08.2009)
 - New Feature: Improved AI by adding Line of Sight detection for targeting.
 - Update: Most wands have now increased charge limit making them much more useful.
 - Update: The Book of Enchant can now be used to recharge wands.
 - Update: The Morph spell now allows you to use [TECH] skill but disables spellcasting.
 - Update: There is always a minimum 5% chance stealing from shops will be detected.
 - Update: Improved some details for the floor tiles in the Paladin Starter.
-- Update: Deamon Lords have now halved life regeneration making them much easier to defeat.
+- Update: Deamon Lords have now halved life regeneration making them easier to defeat.
 - Update: The Haste spell costs less mana to sustain now.
 - Update: Ghosts can now move through walls and impassable tiles.
 - Update: Support for multiple new resolution formats including widescreen.
@@ -14,6 +14,9 @@ Version 2.7.5 (xx.08.2009)
 - Update: Increased the amount of treasure loot found in the Ice Palace.
 - Update: Improved the Frost Lizard AI.
 - Update: Improved the texture detail for all the title images.
+- Bugfix: All Divine Runes now properly display messages when crushed.
+- Bugfix: Fixed invisible boulder trap in Archaeologist Starter
+- Bugfix: Scimitars can now properly be enchanted by the Book of Enchant.
 - Bugfix: Book of Summon Crabs should now properly export as a spell and not as a crab monster.
 - Bugfix: Fixed bug where the Faeries in the Elf Starter would follow a lumpkin instead of the player.
 - Bugfix: Water is now properly impassable terrain in Bishopia City once again.

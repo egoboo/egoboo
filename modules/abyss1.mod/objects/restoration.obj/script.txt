@@ -4,6 +4,21 @@ IfSpawned
   DoAction
   KeepAction
   MakeCrushValid
+  
+//Crushed in a passage
+IfCrushed
+  tmpargument = 4
+  tmpdistance = selfz
+  tmpx = selfx
+  tmpy = selfy
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  GoPoof
+  tmpargument = 4
+  SendMessageNear
+  
 IfDropped				// Make it lie on floor
   KeepAction
 IfGrabbed				// Tell them what they've won, Johnny!
@@ -104,7 +119,7 @@ Else
 tmpx = selfcontent
 tmpy = 0
 IfXIsMoreThanY
-  tmpturn = tmpargument < 4 + 3000
+  tmpturn = selfcontent < 4 + 3000
   tmpdistance = SPAWNORIGIN
   tmpargument = 0
   SpawnAttachedSizedParticle

@@ -4,6 +4,21 @@ IfSpawned
   DoAction
   KeepAction
   MakeCrushValid
+  
+//Crushed in a passage
+IfCrushed
+  tmpargument = 4
+  tmpdistance = selfz
+  tmpx = selfx
+  tmpy = selfy
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  GoPoof
+  tmpargument = 4
+  SendMessageNear
+  
 IfDropped				// Make it lie on floor
   KeepAction
 IfGrabbed				// Tell them what they've won, Johnny!
@@ -28,8 +43,7 @@ IfUsed
   SetTargetToWhoeverIsHolding
   tmpargument = [HMAG]
   IfTargetHasSkillID				//Need divine spell skill
-    GetContent
-    tmpx = tmpargument
+    tmpx = selfcontent
     tmpy = 512					//Don't overcharge
     IfXIsLessThanY
       tmpy = targetmanaflow			//Enough spell power?
@@ -41,8 +55,7 @@ IfUsed
           SetContent
 
 Else
-  GetContent
-  tmpx = tmpargument
+  tmpx = selfcontent
   tmpy = 511
   IfXIsMoreThanY		//Enough power to activate?
     tmpargument = 2
@@ -54,7 +67,7 @@ Else
     SetReloadTime
     tmpargument = 3
     SendMessageNear		//Tell what happened
-  Else
+  Else				
     GetContent
     tmpx = tmpargument
     tmpy = 0

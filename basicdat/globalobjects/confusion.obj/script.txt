@@ -3,6 +3,22 @@ IfSpawned
   tmpargument = ACTIONJB
   DoAction
   KeepAction
+  MakeCrushValid
+  
+//Crushed in a passage
+IfCrushed
+  tmpargument = 5
+  tmpdistance = selfz
+  tmpx = selfx
+  tmpy = selfy
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  GoPoof
+  tmpargument = 5
+  SendMessageNear
+  
 IfDropped				// Make it lie on floor
   KeepAction
 IfGrabbed				// Tell them what they've won, Johnny!

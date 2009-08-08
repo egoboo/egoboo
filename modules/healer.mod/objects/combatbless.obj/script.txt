@@ -3,6 +3,22 @@ IfSpawned
   tmpargument = ACTIONJB
   DoAction
   KeepAction
+  MakeCrushValid
+  
+//Crushed in a passage
+IfCrushed
+  tmpargument = 4
+  tmpdistance = selfz
+  tmpx = selfx
+  tmpy = selfy
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  GoPoof
+  tmpargument = 5
+  SendMessageNear
+  
 IfDropped				// Make it lie on floor
   KeepAction
 IfGrabbed				// Tell them what they've won, Johnny!
@@ -28,8 +44,7 @@ IfUsed
   SetOwnerToTarget
   tmpargument = [HMAG]
   IfTargetHasSkillID				//Need divine spell skill
-    GetContent
-    tmpx = tmpargument
+    tmpx = selfcontent
     tmpy = 512					//Don't overcharge
     IfXIsLessThanY
       tmpy = targetmanaflow			//Enough spell power?
@@ -43,8 +58,7 @@ IfUsed
     SparkleIcon
 
 Else
-  GetContent
-  tmpx = tmpargument
+  tmpx = selfcontent
   tmpy = 511
   IfXIsMoreThanY		//Enough power to activate?
     tmpx = selfx
@@ -58,18 +72,17 @@ Else
     SendMessageNear		//Tell what happened
     tmpargument = 1
     PlaySound
-  Else				
-    GetContent
-    tmpx = tmpargument
+  Else
+    tmpx = selfcontent
     tmpy = 0
     IfXIsMoreThanY		//Only if there was a charge
       tmpargument = 1
       SendMessageNear		//Tell it didn't work
       tmpargument = 2
       PlaySound
-  tmpargument = 0
-  SetContent			//Reset counter
-  UnsparkleIcon
+      tmpargument = 0
+      SetContent			//Reset counter
+      UnsparkleIcon
 
   //Award xp and stuff for daring to do it
   IfNameIsKnown
@@ -83,11 +96,10 @@ Else
 
 // Put the little mana ball on the
 // character's hand
-GetContent
-tmpx = tmpargument
+tmpx = selfcontent
 tmpy = 0
 IfXIsMoreThanY
-  tmpturn = tmpargument < 4 + 3000
+  tmpturn = selfcontent < 4 + 3000
   tmpdistance = SPAWNORIGIN
   tmpargument = 0
   SpawnAttachedSizedParticle

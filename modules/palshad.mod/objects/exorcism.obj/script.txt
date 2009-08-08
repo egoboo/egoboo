@@ -3,7 +3,7 @@
 tmpx = selfcontent
 tmpy = 0
 IfXIsMoreThanY
-  tmpturn = tmpargument < 4 + 3000
+  tmpturn = selfcontent < 4 + 3000
   tmpdistance = SPAWNORIGIN
   tmpargument = 0
   SpawnAttachedSizedParticle
@@ -12,6 +12,20 @@ IfXIsMoreThanY
 IfSpawned
   KeepAction
   MakeCrushValid
+  
+//Crushed in a passage
+IfCrushed
+  tmpargument = 2
+  tmpdistance = selfz
+  tmpx = selfx
+  tmpy = selfy
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  GoPoof
+  tmpargument = 0
+  SendMessageNear
   
 //Hide in hand
 IfHeld			

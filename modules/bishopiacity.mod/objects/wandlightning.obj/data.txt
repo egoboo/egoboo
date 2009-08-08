@@ -2,8 +2,8 @@
 Object slot number ( 0 to 63, don't use twice )	: 114
 Object class name ( use underscore for spaces ) : Wand
 Object is lit uniformly ( TRUE or FALSE )	: FALSE
-Maximum ammo ( 0 for doesn't matter )		: 16
-Starting ammo ( 0 for doesn't matter )		: 16
+Maximum ammo ( 0 for doesn't matter )		: 20
+Starting ammo ( 0 for doesn't matter )		: 20
 Gender ( MALE or FEMALE or OTHER )		: OTHER
 
 

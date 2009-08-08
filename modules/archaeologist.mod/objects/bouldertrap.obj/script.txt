@@ -15,7 +15,7 @@ IfSpawned
 IfHitGround
   tmpargument = 0
   PlaySound
-  tmpargument = 50
+  tmpargument = 60
   SetSpeedPercent
 
 //------------------------------------------------------------------------------
