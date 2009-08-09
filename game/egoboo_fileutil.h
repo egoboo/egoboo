@@ -33,8 +33,8 @@ struct s_oglx_texture;
 extern const char *parse_filename;          // For debuggin' goto_colon
 
 // For damage/stat pair reads/writes
-extern int pairbase, pairrand;
-extern float pairfrom, pairto;
+extern IPair  pair;
+extern FRange range;
 
 extern  STRING          TxFormatSupported[20]; // OpenGL icon surfaces
 extern  Uint8           maxformattypes;
@@ -58,7 +58,7 @@ void ftruthf( FILE* filewrite, const char* text, Uint8 truth );
 void fdamagf( FILE* filewrite, const char* text, Uint8 damagetype );
 void factiof( FILE* filewrite, const char* text, Uint8 action );
 void fgendef( FILE* filewrite, const char* text, Uint8 gender );
-void fpairof( FILE* filewrite, const char* text, int base, int rand );
+void fpairof( FILE* filewrite, const char* text, IPair val );
 void funderf( FILE* filewrite, const char* text, const char* usename );
 
 bool_t fcopy_line(FILE * fileread, FILE * filewrite);

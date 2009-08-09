@@ -172,6 +172,5 @@ bool_t snd_config_synch( snd_config_t * psnd, struct s_egoboo_config * pcfg );
 
 bool_t looped_stop_object_sounds( Uint16 ichr );
 void   looped_update_all_sound();
-void   looped_clear();
 
 void   sound_finish_sound();

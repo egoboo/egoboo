@@ -27,14 +27,15 @@
 #include "egoboo.h"
 
 #include "mad.h"
+#include "char.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 const char *parse_filename  = NULL;
 
-int   pairbase, pairrand;
-float pairfrom, pairto;
+IPair   pair;
+FRange  range;
 
 STRING          TxFormatSupported[20]; // OpenGL icon surfaces
 Uint8           maxformattypes;
@@ -300,13 +301,15 @@ void fgendef( FILE* filewrite, const char* text, Uint8 gender )
 }
 
 //--------------------------------------------------------------------------------------------
-void fpairof( FILE* filewrite, const char* text, int base, int rand )
+void fpairof( FILE* filewrite, const char* text, IPair val )
 {
     // ZZ> This function mimics fprintf in spitting out
     //    damage/stat pairs
-    undo_pair( base, rand );
+
+    undo_pair( val.base, val.rand );
+
     fprintf( filewrite, "%s", text );
-    fprintf( filewrite, "%4.2f-%4.2f\n", pairfrom, pairto );
+    fprintf( filewrite, "%4.2f-%4.2f\n", range.from, range.to );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -349,22 +352,22 @@ bool_t fget_pair( FILE* fileread )
     if ( NULL == fileread || ferror(fileread) || feof(fileread) ) return bfalse;
 
     fBase = fget_float( fileread );  // The first number
-    pairbase = fBase * 256;
+    pair.base = fBase * 256;
 
     cTmp = fget_first_letter( fileread );  // The hyphen
     if ( '-' != cTmp )
     {
         // Not in correct format, so fail
-        pairrand = 1;
+        pair.rand = 1;
         return btrue;
     }
 
     fRand = fget_float( fileread );  // The second number
-    pairrand = fRand * 256;
+    pair.rand = fRand * 256;
 
-    pairrand = pairrand - pairbase;
-    if ( pairrand < 1 )
-        pairrand = 1;
+    pair.rand = pair.rand - pair.base;
+    if ( pair.rand < 1 )
+        pair.rand = 1;
 
     return btrue;
 }
@@ -373,22 +376,22 @@ bool_t fget_pair( FILE* fileread )
 void undo_pair( int base, int rand )
 {
     // ZZ> This function generates a damage/stat pair ( eg. 3-6.5f )
-    //    from the base and random values.  It set pairfrom and
-    //    pairto
-    pairfrom = base / 256.0f;
-    pairto = rand / 256.0f;
-    if ( pairfrom < 0.0f )
+    //    from the base and random values.  It set range.from and
+    //    range.to
+    range.from = base / 256.0f;
+    range.to = rand / 256.0f;
+    if ( range.from < 0.0f )
     {
-        pairfrom = 0.0f;
+        range.from = 0.0f;
         log_warning( "We got a randomization error again! (Base is less than 0)\n" );
     }
-    if ( pairto < 0.0f )
+    if ( range.to < 0.0f )
     {
-        pairto = 0.0f;
+        range.to = 0.0f;
         log_warning( "We got a randomization error again! (Max is less than 0)\n" );
     }
 
-    pairto += pairfrom;
+    range.to += range.from;
 }
 
 //--------------------------------------------------------------------------------------------

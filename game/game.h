@@ -30,6 +30,11 @@ struct s_script_state;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
+#define EXPKEEP 0.85f                                // Experience to keep when respawning
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 // My lil' random number table
 #ifdef SWIG
 // swig chokes on the definition below
@@ -176,7 +181,7 @@ struct s_damagetile_data
     Sint16  partand;
     Sint16  sound;
     Uint8   type;                      // Type of damage
-    int     amount;                    // Amount of damage
+    IPair   amount;                    // Amount of damage
 };
 typedef struct s_damagetile_data damagetile_data_t;
 extern damagetile_data_t damagetile_data;
@@ -382,7 +387,8 @@ void statlist_move_to_top( Uint16 character );
 void statlist_sort();
 
 // Math
-int    generate_number( int numbase, int numrand );
+int    generate_number( IPair num );
+int    generate_randmask( int base, int mask );
 Uint16 terp_dir( Uint16 majordir, Uint16 minordir );
 Uint16 terp_dir_fast( Uint16 majordir, Uint16 minordir );
 void   getadd( int min, int value, int max, int* valuetoadd );

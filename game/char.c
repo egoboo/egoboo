@@ -1213,6 +1213,11 @@ void attach_character_to_mount( Uint16 iitem, Uint16 iholder, grip_offset_t grip
     if ( INVALID_CHR(iitem) || ChrList.lst[iitem].pack_ispacked ) return;
     pitem = ChrList.lst + iitem;
 
+    // make a reasonable time for the character to remount something
+    // for characters jumping out of pots, etc
+    if( pitem->phys.dismount_timer > 0 ) 
+        return;
+
     // Make sure the holder/mount is valid
     if ( INVALID_CHR(iholder) || ChrList.lst[iholder].pack_ispacked ) return;
     pholder = ChrList.lst + iholder;
@@ -1857,7 +1862,8 @@ bool_t character_grab_stuff( Uint16 ichr_a, grip_offset_t grip_off, bool_t grab_
                 {
                     // Pets can try to steal in addition to invisible characters
                     STRING text;
-                    Uint8 detection = generate_number( 1, 100 );
+                    IPair  tmp_rand = {1,100};
+                    Uint8  detection = generate_number( tmp_rand );
 
                     // Check if it was detected. 50% chance +2% per pet DEX and -2% per shopkeeper wisdom. There is always a 5% chance it will fail.
                     if ( ChrList.lst[owner].canseeinvisible || detection <= 5 || detection - ( ChrList.lst[ichr_a].dexterity >> 7 ) + ( ChrList.lst[owner].wisdom >> 7 ) > 50 )
@@ -2061,10 +2067,10 @@ void character_swipe( Uint16 cnt, Uint8 slot )
                     }
 
                     // Initial particles get a strength bonus, which may be 0.00f
-                    PrtList.lst[particle].damagebase += ( ChrList.lst[cnt].strength * CapList[ChrList.lst[weapon].model].strengthdampen );
+                    PrtList.lst[particle].damage.base += ( ChrList.lst[cnt].strength * CapList[ChrList.lst[weapon].model].strengthdampen );
 
                     // Initial particles get an enchantment bonus
-                    PrtList.lst[particle].damagebase += ChrList.lst[weapon].damageboost;
+                    PrtList.lst[particle].damage.base += ChrList.lst[weapon].damageboost;
 
                     // Initial particles inherit damage type of weapon
                     // PrtList.lst[particle].damagetype = ChrList.lst[weapon].damagetargettype;  // Zefz: not sure if we want this. we can have weapons with different damage types
@@ -2201,51 +2207,51 @@ void do_level_up( Uint16 character )
             ChrList.lst[character].sizegototime += SIZETIME;
 
             // Strength
-            number = generate_number( CapList[profile].strengthperlevelbase, CapList[profile].strengthperlevelrand );
+            number = generate_number( CapList[profile].strength_stat.perlevel );
             number += ChrList.lst[character].strength;
             if ( number > PERFECTSTAT ) number = PERFECTSTAT;
             ChrList.lst[character].strength = number;
 
             // Wisdom
-            number = generate_number( CapList[profile].wisdomperlevelbase, CapList[profile].wisdomperlevelrand );
+            number = generate_number( CapList[profile].wisdom_stat.perlevel );
             number += ChrList.lst[character].wisdom;
             if ( number > PERFECTSTAT ) number = PERFECTSTAT;
             ChrList.lst[character].wisdom = number;
 
             // Intelligence
-            number = generate_number( CapList[profile].intelligenceperlevelbase, CapList[profile].intelligenceperlevelrand );
+            number = generate_number( CapList[profile].intelligence_stat.perlevel );
             number += ChrList.lst[character].intelligence;
             if ( number > PERFECTSTAT ) number = PERFECTSTAT;
             ChrList.lst[character].intelligence = number;
 
             // Dexterity
-            number = generate_number( CapList[profile].dexterityperlevelbase, CapList[profile].dexterityperlevelrand );
+            number = generate_number( CapList[profile].dexterity_stat.perlevel );
             number += ChrList.lst[character].dexterity;
             if ( number > PERFECTSTAT ) number = PERFECTSTAT;
             ChrList.lst[character].dexterity = number;
 
             // Life
-            number = generate_number( CapList[profile].lifeperlevelbase, CapList[profile].lifeperlevelrand );
+            number = generate_number( CapList[profile].life_stat.perlevel );
             number += ChrList.lst[character].lifemax;
             if ( number > PERFECTBIG ) number = PERFECTBIG;
             ChrList.lst[character].life += ( number - ChrList.lst[character].lifemax );
             ChrList.lst[character].lifemax = number;
 
             // Mana
-            number = generate_number( CapList[profile].manaperlevelbase, CapList[profile].manaperlevelrand );
+            number = generate_number( CapList[profile].mana_stat.perlevel );
             number += ChrList.lst[character].manamax;
             if ( number > PERFECTBIG ) number = PERFECTBIG;
             ChrList.lst[character].mana += ( number - ChrList.lst[character].manamax );
             ChrList.lst[character].manamax = number;
 
             // Mana Return
-            number = generate_number( CapList[profile].manareturnperlevelbase, CapList[profile].manareturnperlevelrand );
+            number = generate_number( CapList[profile].manareturn_stat.perlevel );
             number += ChrList.lst[character].manareturn;
             if ( number > PERFECTSTAT ) number = PERFECTSTAT;
             ChrList.lst[character].manareturn = number;
 
             // Mana Flow
-            number = generate_number( CapList[profile].manaflowperlevelbase, CapList[profile].manaflowperlevelrand );
+            number = generate_number( CapList[profile].manaflow_stat.perlevel );
             number += ChrList.lst[character].manaflow;
             if ( number > PERFECTSTAT ) number = PERFECTSTAT;
             ChrList.lst[character].manaflow = number;
@@ -2457,21 +2463,21 @@ bool_t export_one_character_profile( const char *szSaveName, Uint16 character )
     fprintf( filewrite, "Life color     : %d\n", pchr->lifecolor );
     fprintf( filewrite, "Mana color     : %d\n", pchr->manacolor );
     fprintf( filewrite, "Life           : %4.2f\n", pchr->lifemax / 256.0f );
-    fpairof( filewrite, "Life up        : ", pcap->lifeperlevelbase, pcap->lifeperlevelrand );
+    fpairof( filewrite, "Life up        : ", pcap->life_stat.perlevel );
     fprintf( filewrite, "Mana           : %4.2f\n", pchr->manamax / 256.0f );
-    fpairof( filewrite, "Mana up        : ", pcap->manaperlevelbase, pcap->manaperlevelrand );
+    fpairof( filewrite, "Mana up        : ", pcap->mana_stat.perlevel );
     fprintf( filewrite, "Mana return    : %4.2f\n", pchr->manareturn / 256.0f );
-    fpairof( filewrite, "Mana return up : ", pcap->manareturnperlevelbase, pcap->manareturnperlevelrand );
+    fpairof( filewrite, "Mana return up : ", pcap->manareturn_stat.perlevel );
     fprintf( filewrite, "Mana flow      : %4.2f\n", pchr->manaflow / 256.0f );
-    fpairof( filewrite, "Mana flow up   : ", pcap->manaflowperlevelbase, pcap->manaflowperlevelrand );
+    fpairof( filewrite, "Mana flow up   : ", pcap->manaflow_stat.perlevel );
     fprintf( filewrite, "STR            : %4.2f\n", pchr->strength / 256.0f );
-    fpairof( filewrite, "STR up         : ", pcap->strengthperlevelbase, pcap->strengthperlevelrand );
+    fpairof( filewrite, "STR up         : ", pcap->strength_stat.perlevel );
     fprintf( filewrite, "WIS            : %4.2f\n", pchr->wisdom / 256.0f );
-    fpairof( filewrite, "WIS up         : ", pcap->wisdomperlevelbase, pcap->wisdomperlevelrand );
+    fpairof( filewrite, "WIS up         : ", pcap->wisdom_stat.perlevel );
     fprintf( filewrite, "INT            : %4.2f\n", pchr->intelligence / 256.0f );
-    fpairof( filewrite, "INT up         : ", pcap->intelligenceperlevelbase, pcap->intelligenceperlevelrand );
+    fpairof( filewrite, "INT up         : ", pcap->intelligence_stat.perlevel );
     fprintf( filewrite, "DEX            : %4.2f\n", pchr->dexterity / 256.0f );
-    fpairof( filewrite, "DEX up         : ", pcap->dexterityperlevelbase, pcap->dexterityperlevelrand );
+    fpairof( filewrite, "DEX up         : ", pcap->dexterity_stat.perlevel );
     fprintf( filewrite, "\n" );
 
     // More physical attributes
@@ -2868,38 +2874,30 @@ int load_one_character_profile( const char * tmploadname, bool_t required )
     // Read in the object stats
     iTmp = fget_next_int( fileread );  pcap->lifecolor = iTmp;
     iTmp = fget_next_int( fileread );  pcap->manacolor = iTmp;
-    fget_next_pair( fileread );
-    pcap->lifebase = pairbase;  pcap->liferand = pairrand;
-    fget_next_pair( fileread );
-    pcap->lifeperlevelbase = pairbase;  pcap->lifeperlevelrand = pairrand;
-    fget_next_pair( fileread );
-    pcap->manabase = pairbase;  pcap->manarand = pairrand;
-    fget_next_pair( fileread );
-    pcap->manaperlevelbase = pairbase;  pcap->manaperlevelrand = pairrand;
-    fget_next_pair( fileread );
-    pcap->manareturnbase = pairbase;  pcap->manareturnrand = pairrand;
-    fget_next_pair( fileread );
-    pcap->manareturnperlevelbase = pairbase;  pcap->manareturnperlevelrand = pairrand;
-    fget_next_pair( fileread );
-    pcap->manaflowbase = pairbase;  pcap->manaflowrand = pairrand;
-    fget_next_pair( fileread );
-    pcap->manaflowperlevelbase = pairbase;  pcap->manaflowperlevelrand = pairrand;
-    fget_next_pair( fileread );
-    pcap->strengthbase = pairbase;  pcap->strengthrand = pairrand;
-    fget_next_pair( fileread );
-    pcap->strengthperlevelbase = pairbase;  pcap->strengthperlevelrand = pairrand;
-    fget_next_pair( fileread );
-    pcap->wisdombase = pairbase;  pcap->wisdomrand = pairrand;
-    fget_next_pair( fileread );
-    pcap->wisdomperlevelbase = pairbase;  pcap->wisdomperlevelrand = pairrand;
-    fget_next_pair( fileread );
-    pcap->intelligencebase = pairbase;  pcap->intelligencerand = pairrand;
-    fget_next_pair( fileread );
-    pcap->intelligenceperlevelbase = pairbase;  pcap->intelligenceperlevelrand = pairrand;
-    fget_next_pair( fileread );
-    pcap->dexteritybase = pairbase;  pcap->dexterityrand = pairrand;
-    fget_next_pair( fileread );
-    pcap->dexterityperlevelbase = pairbase;  pcap->dexterityperlevelrand = pairrand;
+
+    fget_next_pair( fileread ); pcap->life_stat.val = pair;
+    fget_next_pair( fileread ); pcap->life_stat.perlevel = pair;
+
+    fget_next_pair( fileread ); pcap->mana_stat.val = pair;
+    fget_next_pair( fileread ); pcap->mana_stat.perlevel = pair;
+
+    fget_next_pair( fileread ); pcap->manareturn_stat.val = pair;
+    fget_next_pair( fileread ); pcap->manareturn_stat.perlevel = pair;
+
+    fget_next_pair( fileread ); pcap->manaflow_stat.val = pair;
+    fget_next_pair( fileread ); pcap->manaflow_stat.perlevel = pair;
+
+    fget_next_pair( fileread ); pcap->strength_stat.val = pair;
+    fget_next_pair( fileread ); pcap->strength_stat.perlevel = pair;
+
+    fget_next_pair( fileread ); pcap->wisdom_stat.val = pair;
+    fget_next_pair( fileread ); pcap->wisdom_stat.perlevel = pair;
+
+    fget_next_pair( fileread ); pcap->intelligence_stat.val = pair;
+    fget_next_pair( fileread ); pcap->intelligence_stat.perlevel = pair;
+
+    fget_next_pair( fileread ); pcap->dexterity_stat.val = pair;
+    fget_next_pair( fileread ); pcap->dexterity_stat.perlevel = pair;
 
     // More physical attributes
     fTmp = fget_next_float( fileread );  pcap->size = fTmp;
@@ -3007,13 +3005,11 @@ int load_one_character_profile( const char * tmploadname, bool_t required )
     }
     setup_xp_table(object);         //Do the rest of the levels not listed in data.txt
 
-    fget_next_pair( fileread );
-    pairbase = pairbase >> 8;
-    pairrand = pairrand >> 8;
-    if ( pairrand < 1 )  pairrand = 1;
+    fget_next_pair( fileread ); pcap->experience = pair;
+    pcap->experience.base >>= 8;
+    pcap->experience.rand >>= 8;
+    if ( pcap->experience.rand < 1 )  pcap->experience.rand = 1;
 
-    pcap->experiencebase = pairbase;
-    pcap->experiencerand = pairrand;
     iTmp = fget_next_int( fileread );  pcap->experienceworth = iTmp;
     fTmp = fget_next_float( fileread );  pcap->experienceexchange = fTmp;
 
@@ -3237,6 +3233,7 @@ int load_one_character_profile( const char * tmploadname, bool_t required )
         else if ( idsz == MAKE_IDSZ( 'V', 'A', 'L', 'U' ) ) pcap->isvaluable = fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'L', 'I', 'F', 'E' ) ) pcap->spawnlife = 256 * fget_float( fileread );
         else if ( idsz == MAKE_IDSZ( 'M', 'A', 'N', 'A' ) ) pcap->spawnmana = 256 * fget_float( fileread );
+        else if ( idsz == MAKE_IDSZ( 'B', 'O', 'O', 'K' ) ) pcap->is_spelleffect = fget_int( fileread );
 
         // Read Skills
         else if ( idsz == MAKE_IDSZ( 'A', 'W', 'E', 'P' ) ) pcap->canuseadvancedweapons = fget_int( fileread );
@@ -3288,10 +3285,10 @@ bool_t heal_character( Uint16 character, Uint16 healer, int amount, bool_t ignor
 
 //--------------------------------------------------------------------------------------------
 void damage_character( Uint16 character, Uint16 direction,
-                       int damagebase, int damagerand, Uint8 damagetype, Uint8 team,
+                       IPair  damage, Uint8 damagetype, Uint8 team,
                        Uint16 attacker, Uint16 effects, bool_t ignoreinvincible )
 {
-    // ZZ> This function calculates and applies damage to a character.  It also
+    // ZZ> This function calculates and applies actual_damage to a character.  It also
     //    sets alerts and begins actions.  Blocking and frame invincibility
     //    are done here too.  Direction is 0 if the attack is coming head on,
     //    16384 if from the right, 32768 if from the back, 49152 if from the
@@ -3299,34 +3296,34 @@ void damage_character( Uint16 character, Uint16 direction,
 
     int tnc;
     Uint16 action;
-    int damage, basedamage;
+    int    actual_damage, base_damage;
     Uint16 experience, model, left, right;
 
     if ( INVALID_CHR(character) ) return;
 
-    if ( ChrList.lst[character].alive && damagebase >= 0 && damagerand >= 1 )
+    if ( ChrList.lst[character].alive && damage.base >= 0 && damage.rand >= 1 )
     {
-        // Lessen damage for resistance, 0 = Weakness, 1 = Normal, 2 = Resist, 3 = Big Resist
+        // Lessen actual_damage for resistance, 0 = Weakness, 1 = Normal, 2 = Resist, 3 = Big Resist
         // This can also be used to lessen effectiveness of healing
-        damage = damagebase + ( rand() % damagerand );
-        basedamage = damage;
-        damage = damage >> ( ChrList.lst[character].damagemodifier[damagetype] & DAMAGESHIFT );
+        actual_damage = generate_number( damage );
+        base_damage   = actual_damage;
+        actual_damage = actual_damage >> ( ChrList.lst[character].damagemodifier[damagetype] & DAMAGESHIFT );
 
-        // Allow damage to be dealt to mana (mana shield spell)
+        // Allow actual_damage to be dealt to mana (mana shield spell)
         if ( ChrList.lst[character].damagemodifier[damagetype]&DAMAGEMANA )
         {
             int manadamage;
-            manadamage = MAX(ChrList.lst[character].mana - damage, 0);
+            manadamage = MAX(ChrList.lst[character].mana - actual_damage, 0);
             ChrList.lst[character].mana = manadamage;
-            damage -= manadamage;
+            actual_damage -= manadamage;
             ChrList.lst[character].ai.alert |= ALERTIF_ATTACKED;
             ChrList.lst[character].ai.attacklast = attacker;
         }
 
-        // Allow charging (Invert damage to mana)
+        // Allow charging (Invert actual_damage to mana)
         if ( ChrList.lst[character].damagemodifier[damagetype]&DAMAGECHARGE )
         {
-            ChrList.lst[character].mana += damage;
+            ChrList.lst[character].mana += actual_damage;
             if ( ChrList.lst[character].mana > ChrList.lst[character].manamax )
             {
                 ChrList.lst[character].mana = ChrList.lst[character].manamax;
@@ -3334,35 +3331,35 @@ void damage_character( Uint16 character, Uint16 direction,
             return;
         }
 
-        // Invert damage to heal
+        // Invert actual_damage to heal
         if ( ChrList.lst[character].damagemodifier[damagetype]&DAMAGEINVERT )
-            damage = -damage;
+            actual_damage = -actual_damage;
 
-        // Remember the damage type
+        // Remember the actual_damage type
         ChrList.lst[character].ai.damagetypelast = damagetype;
         ChrList.lst[character].ai.directionlast = direction;
 
         // Do it already
-        if ( damage > 0 )
+        if ( actual_damage > 0 )
         {
-            // Only damage if not invincible
+            // Only actual_damage if not invincible
             if ( (0 == ChrList.lst[character].damagetime || ignoreinvincible) && !ChrList.lst[character].invictus )
             {
                 model = ChrList.lst[character].model;
 
-                // Hard mode deals 25% extra damage to players!
-                if ( cfg.difficulty >= GAME_HARD && ChrList.lst[character].isplayer && !ChrList.lst[attacker].isplayer ) damage *= 1.25f;
+                // Hard mode deals 25% extra actual_damage to players!
+                if ( cfg.difficulty >= GAME_HARD && ChrList.lst[character].isplayer && !ChrList.lst[attacker].isplayer ) actual_damage *= 1.25f;
 
-                // East mode deals 25% extra damage by players and 25% less to players
+                // East mode deals 25% extra actual_damage by players and 25% less to players
                 if ( cfg.difficulty <= GAME_EASY )
                 {
-                    if ( ChrList.lst[attacker].isplayer && !ChrList.lst[character].isplayer ) damage *= 1.25f;
-                    if ( !ChrList.lst[attacker].isplayer && ChrList.lst[character].isplayer ) damage *= 0.75f;
+                    if ( ChrList.lst[attacker].isplayer && !ChrList.lst[character].isplayer ) actual_damage *= 1.25f;
+                    if ( !ChrList.lst[attacker].isplayer && ChrList.lst[character].isplayer ) actual_damage *= 0.75f;
                 }
 
                 if ( HAS_NO_BITS( effects, DAMFX_NBLOC ) )
                 {
-                    // Only damage if hitting from proper direction
+                    // Only actual_damage if hitting from proper direction
                     if ( Md2FrameList[ChrList.lst[character].inst.frame_nxt].framefx & MADFX_INVICTUS )
                     {
                         // I Frame...
@@ -3405,21 +3402,21 @@ void damage_character( Uint16 character, Uint16 direction,
                     // Check that direction
                     if ( direction > left || direction < right )
                     {
-                        damage = 0;
+                        actual_damage = 0;
                     }
                 }
 
-                if ( damage != 0 )
+                if ( actual_damage != 0 )
                 {
                     if ( effects&DAMFX_ARMO )
                     {
-                        ChrList.lst[character].life -= damage;
+                        ChrList.lst[character].life -= actual_damage;
                     }
                     else
                     {
-                        ChrList.lst[character].life -= FF_MUL( damage, ChrList.lst[character].defense );
+                        ChrList.lst[character].life -= FF_MUL( actual_damage, ChrList.lst[character].defense );
                     }
-                    if ( basedamage > HURTDAMAGE )
+                    if ( base_damage > HURTDAMAGE )
                     {
                         // Spawn blud particles
                         if ( CapList[model].bludvalid && ( damagetype < DAMAGE_HOLY || CapList[model].bludvalid == ULTRABLUDY ) )
@@ -3450,7 +3447,7 @@ void damage_character( Uint16 character, Uint16 direction,
                         }
                     }
 
-                    // Taking damage action
+                    // Taking actual_damage action
                     action = ACTION_HA;
                     if ( ChrList.lst[character].life < 0 )
                     {
@@ -3540,7 +3537,7 @@ void damage_character( Uint16 character, Uint16 direction,
                         detach_character_from_mount( character, btrue, bfalse );
 
                         // Play the death animation
-                        action += ( rand() & 3 );
+                        action += generate_randmask( 0, 3 );
                         chr_play_action( character, action, bfalse );
 
                         // If it's a player, let it die properly before enabling respawn
@@ -3558,9 +3555,9 @@ void damage_character( Uint16 character, Uint16 direction,
                     }
                     else
                     {
-                        if ( basedamage > HURTDAMAGE )
+                        if ( base_damage > HURTDAMAGE )
                         {
-                            action += ( rand() & 3 );
+                            action += generate_randmask( 0, 3 );
                             chr_play_action( character, action, bfalse );
 
                             // Make the character invincible for a limited time only
@@ -3579,10 +3576,10 @@ void damage_character( Uint16 character, Uint16 direction,
                 }
             }
         }
-        else if ( damage < 0 )
+        else if ( actual_damage < 0 )
         {
             // Heal 'em
-            heal_character( character, attacker, damage, ignoreinvincible);
+            heal_character( character, attacker, actual_damage, ignoreinvincible);
 
             // Isssue an alert
             if ( team != TEAM_DAMAGE )
@@ -3606,6 +3603,8 @@ void kill_character( Uint16 character, Uint16 killer )
 
     if ( pchr->alive )
     {
+        IPair tmp_damage = {512,1};
+
         pchr->damagetime = 0;
         pchr->life = 1;
         modifier = pchr->damagemodifier[DAMAGE_CRUSH];
@@ -3613,11 +3612,11 @@ void kill_character( Uint16 character, Uint16 killer )
 
         if ( VALID_CHR( killer ) )
         {
-            damage_character( character, 0, 512, 1, DAMAGE_CRUSH, ChrList.lst[killer].team, killer, DAMFX_ARMO | DAMFX_NBLOC, btrue );
+            damage_character( character, ATK_FRONT, tmp_damage, DAMAGE_CRUSH, ChrList.lst[killer].team, killer, DAMFX_ARMO | DAMFX_NBLOC, btrue );
         }
         else
         {
-            damage_character( character, 0, 512, 1, DAMAGE_CRUSH, TEAM_DAMAGE, pchr->ai.bumplast, DAMFX_ARMO | DAMFX_NBLOC, btrue );
+            damage_character( character, ATK_FRONT, tmp_damage, DAMAGE_CRUSH, TEAM_DAMAGE, pchr->ai.bumplast, DAMFX_ARMO | DAMFX_NBLOC, btrue );
         }
 
         pchr->damagemodifier[DAMAGE_CRUSH] = modifier;
@@ -3669,7 +3668,9 @@ char * chop_create( Uint16 profile )
         {
             if ( 0 != CapList[profile].chop_sectionsize[section] )
             {
-                mychop = CapList[profile].chop_sectionstart[section] + ( rand() % CapList[profile].chop_sectionsize[section] );
+                int irand = RANDIE;
+
+                mychop = CapList[profile].chop_sectionstart[section] + ( irand % CapList[profile].chop_sectionsize[section] );
 
                 read = chop.start[mychop];
                 cTmp = chop.buffer[read];
@@ -3871,10 +3872,12 @@ Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
     // Kurse state
     if ( pcap->isitem )
     {
+        IPair loc_rand = {0,100};
+
         kursechance = pcap->kursechance;
         if ( cfg.difficulty >= GAME_HARD )                        kursechance *= 2.0f;  // Hard mode doubles chance for Kurses
         if ( cfg.difficulty < GAME_NORMAL && kursechance != 100 ) kursechance *= 0.5f;  // Easy mode halves chance for Kurses
-        pchr->iskursed = ( generate_number(0, 100) <= kursechance );
+        pchr->iskursed = ( generate_number(loc_rand) <= kursechance );
     }
 
     // Ammo
@@ -3883,7 +3886,7 @@ Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
 
     // Gender
     pchr->gender = pcap->gender;
-    if ( pchr->gender == GENDER_RANDOM )  pchr->gender = GENDER_FEMALE + ( rand() & 1 );
+    if ( pchr->gender == GENDER_RANDOM )  pchr->gender = generate_randmask( GENDER_FEMALE, 1 );
 
     pchr->isplayer = bfalse;
     pchr->islocalplayer = bfalse;
@@ -3912,7 +3915,8 @@ Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
         skin = 0;
         if ( MadList[profile].skins > 1 )
         {
-            skin = rand() % MadList[profile].skins;
+            int irand = RANDIE;
+            skin = irand % MadList[profile].skins;
         }
     }
 
@@ -3922,11 +3926,11 @@ Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
     pchr->alive = btrue;
     pchr->lifecolor = pcap->lifecolor;
     pchr->manacolor = pcap->manacolor;
-    pchr->lifemax = generate_number( pcap->lifebase, pcap->liferand );
+    pchr->lifemax = generate_number( pcap->life_stat.val );
     pchr->lifereturn = pcap->lifereturn;
-    pchr->manamax = generate_number( pcap->manabase, pcap->manarand );
-    pchr->manaflow = generate_number( pcap->manaflowbase, pcap->manaflowrand );
-    pchr->manareturn = generate_number( pcap->manareturnbase, pcap->manareturnrand );
+    pchr->manamax = generate_number( pcap->mana_stat.val );
+    pchr->manaflow = generate_number( pcap->manaflow_stat.val );
+    pchr->manareturn = generate_number( pcap->manareturn_stat.val );
 
     // Load current life and mana or refill them (based on difficulty)
     if ( cfg.difficulty >= GAME_NORMAL ) pchr->life = CLIP( pcap->spawnlife, LOWSTAT, pchr->lifemax );
@@ -3935,10 +3939,10 @@ Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
     else pchr->mana = pchr->manamax;
 
     // SWID
-    pchr->strength = generate_number( pcap->strengthbase, pcap->strengthrand );
-    pchr->wisdom = generate_number( pcap->wisdombase, pcap->wisdomrand );
-    pchr->intelligence = generate_number( pcap->intelligencebase, pcap->intelligencerand );
-    pchr->dexterity = generate_number( pcap->dexteritybase, pcap->dexterityrand );
+    pchr->strength = generate_number( pcap->strength_stat.val );
+    pchr->wisdom = generate_number( pcap->wisdom_stat.val );
+    pchr->intelligence = generate_number( pcap->intelligence_stat.val );
+    pchr->dexterity = generate_number( pcap->dexterity_stat.val );
 
     // Damage
     pchr->defense = pcap->defense[skin];
@@ -4112,7 +4116,7 @@ Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
     pchr->reaffirmdamagetype = pcap->attachedprtreaffirmdamagetype;
 
     // Experience
-    pchr->experience = MIN(generate_number( pcap->experiencebase, pcap->experiencerand), MAXXP);
+    pchr->experience = MIN(generate_number( pcap->experience ), MAXXP);
     pchr->experiencelevel = pcap->leveloverride;
 
     // Items that are spawned inside shop passages are more expensive than normal
@@ -5245,7 +5249,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
                 {
                     if ( ( action != ACTION_PA || !allowedtoattack ) && pchr->actionready )
                     {
-                        chr_play_action( pchr->attachedto, ACTION_UA + ( rand()&1 ), bfalse );
+                        chr_play_action( pchr->attachedto,  generate_randmask( ACTION_UA, 1 ), bfalse );
                         ChrList.lst[pchr->attachedto].ai.alert |= ALERTIF_USED;
                         pchr->ai.lastitemused = mount;
                     }
@@ -5274,7 +5278,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
                         if ( action == ACTION_PA )
                             actionready = btrue;
 
-                        action += rand() & 1;
+                        action += generate_randmask( 0, 1 );
                         chr_play_action( ichr, action, actionready );
                         if ( weapon != ichr )
                         {
@@ -5355,7 +5359,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
                 {
                     if ( ( action != ACTION_PC || !allowedtoattack ) && pchr->actionready )
                     {
-                        chr_play_action( pchr->attachedto, ACTION_UC + ( rand()&1 ), bfalse );
+                        chr_play_action( pchr->attachedto,  generate_randmask( ACTION_UC, 1 ), bfalse );
                         ChrList.lst[pchr->attachedto].ai.alert |= ALERTIF_USED;
                         pchr->ai.lastitemused = pchr->attachedto;
                     }
@@ -5383,7 +5387,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
                         if ( action == ACTION_PC )
                             actionready = btrue;
 
-                        action += rand() & 1;
+                        action += generate_randmask( 0, 1 );
                         chr_play_action( ichr, action, actionready );
                         if ( weapon != ichr )
                         {

@@ -28,16 +28,6 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static int    iLoadSize;
-static int    iNumLine;
-
-static int    iLineSize;
-static char   cLineBuffer[MAXLINESIZE];
-
-static Uint8  cLoadBuffer[AISMAXLOADSIZE];
-
-DECLARE_STACK( opcode_data_t, OpList );
-
 struct s_token
 {
     int    iLine;
@@ -48,15 +38,33 @@ struct s_token
 };
 typedef struct s_token token_t;
 
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+static int     iNumLine;
+
+static int     iLineSize;
+static char    cLineBuffer[MAXLINESIZE];
+
+static int     iLoadSize;
+static Uint8   cLoadBuffer[AISMAXLOADSIZE];
+
 static token_t Token;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+DECLARE_STACK( opcode_data_t, OpList );
+
+DECLARE_STACK( script_storage_info_t, AisStorage );
 
 int    AisCompiled_offset = 0;
 Uint32 AisCompiled_buffer[AISMAXCOMPILESIZE];
 
-DECLARE_STACK( script_storage_info_t, AisStorage );
-
-bool_t debug_scripts = bfalse;
+bool_t debug_scripts     = bfalse;
 FILE * debug_script_file = NULL;
+
+bool_t parseerror  = bfalse;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

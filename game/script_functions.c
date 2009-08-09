@@ -409,14 +409,14 @@ Uint8 scr_FindPath( script_state_t * pstate, ai_state_t * pself )
         }
         else
         {
-            pstate->x = ( rand() & 1023 ) - 512 + ChrList.lst[ ChrList.lst[ ChrList.lst[pself->target].model ].ai.target ].pos.x;
-            pstate->y = ( rand() & 1023 ) - 512 + ChrList.lst[ ChrList.lst[ ChrList.lst[pself->target].model ].ai.target ].pos.y;
+            pstate->x = generate_randmask( -512, 1023 ) + ChrList.lst[ ChrList.lst[ ChrList.lst[pself->target].model ].ai.target ].pos.x;
+            pstate->y = generate_randmask( -512, 1023 ) + ChrList.lst[ ChrList.lst[ ChrList.lst[pself->target].model ].ai.target ].pos.y;
         }
 
         pstate->turn = ATAN2( ChrList.lst[pself->target].pos.y - pchr->pos.y, ChrList.lst[pself->target].pos.x - pchr->pos.x ) * 0xFFFF / ( TWO_PI );
         if ( pstate->distance == MOVE_RETREAT )
         {
-            pstate->turn += ( rand() & 16383 ) - 8192;
+            pstate->turn += generate_randmask( -8192, 16383 );
         }
         else
         {
@@ -1359,11 +1359,16 @@ Uint8 scr_DamageTarget( script_state_t * pstate, ai_state_t * pself )
     // DamageTarget( tmpargument = "damage" )
     // This function damages the target
 
+    IPair tmp_damage;
+
     SCRIPT_FUNCTION_BEGIN();
 
     // This function applies little bit of love to the character's target.
     // The amount is set in tmpargument
-    damage_character( pself->target, FRONT, pstate->argument, 1, pchr->damagetargettype, pchr->team, pself->index, DAMFX_NBLOC, btrue );
+    tmp_damage.base = pstate->argument;
+    tmp_damage.rand = 1;
+
+    damage_character( pself->target, ATK_FRONT, tmp_damage, pchr->damagetargettype, pchr->team, pself->index, DAMFX_NBLOC, btrue );
 
     SCRIPT_FUNCTION_END();
 }
@@ -2109,6 +2114,11 @@ Uint8 scr_BecomeSpell( script_state_t * pstate, ai_state_t * pself )
     pself->state   = 0;  // Reset so it doesn't mess up
     pself->changed = btrue;
 
+    if( VALID_CAP(pchr->model) )
+    {
+        CapList[pchr->model].is_spelleffect = btrue;
+    }
+
     SCRIPT_FUNCTION_END();
 }
 
@@ -2121,6 +2131,11 @@ Uint8 scr_BecomeSpellbook( script_state_t * pstate, ai_state_t * pself )
     // them too much
 
     SCRIPT_FUNCTION_BEGIN();
+
+    if( VALID_CAP(pchr->model) )
+    {
+        CapList[pchr->model].is_spelleffect = btrue;
+    }
 
     pself->content = pchr->model;
     change_character( pself->index, SPELLBOOK, pchr->money % MAXSKIN, LEAVENONE );
@@ -2763,7 +2778,7 @@ Uint8 scr_HitFromBehind( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = bfalse;
-    if ( pself->directionlast >= BEHIND - 8192 && pself->directionlast < BEHIND + 8192 )
+    if ( pself->directionlast >= ATK_BEHIND - 8192 && pself->directionlast < ATK_BEHIND + 8192 )
         returncode = btrue;
 
     SCRIPT_FUNCTION_END();
@@ -2779,7 +2794,7 @@ Uint8 scr_HitFromFront( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = bfalse;
-    if ( pself->directionlast >= 49152 + 8192 || pself->directionlast < FRONT + 8192 )
+    if ( pself->directionlast >= 49152 + 8192 || pself->directionlast < ATK_FRONT + 8192 )
         returncode = btrue;
 
     SCRIPT_FUNCTION_END();
@@ -2796,7 +2811,7 @@ Uint8 scr_HitFromLeft( script_state_t * pstate, ai_state_t * pself )
 
     // This function proceeds if the character was attacked from the left
     returncode = bfalse;
-    if ( pself->directionlast >= LEFT - 8192 && pself->directionlast < LEFT + 8192 )
+    if ( pself->directionlast >= ATK_LEFT - 8192 && pself->directionlast < ATK_LEFT + 8192 )
         returncode = btrue;
 
     SCRIPT_FUNCTION_END();
@@ -2812,7 +2827,7 @@ Uint8 scr_HitFromRight( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = bfalse;
-    if ( pself->directionlast >= RIGHT - 8192 && pself->directionlast < RIGHT + 8192 )
+    if ( pself->directionlast >= ATK_RIGHT - 8192 && pself->directionlast < ATK_RIGHT + 8192 )
         returncode = btrue;
 
     SCRIPT_FUNCTION_END();
@@ -3274,7 +3289,7 @@ Uint8 scr_HoldingItemID( script_state_t * pstate, ai_state_t * pself )
         if ( CapList[sTmp].idsz[IDSZ_PARENT] == ( IDSZ ) pstate->argument || CapList[sTmp].idsz[IDSZ_TYPE] == ( Uint32 ) pstate->argument )
         {
             pstate->argument = LATCHBUTTON_RIGHT;
-            if ( returncode )  pstate->argument = LATCHBUTTON_LEFT + ( rand() & 1 );
+            if ( returncode )  pstate->argument = generate_randmask( LATCHBUTTON_LEFT, 1 );
 
             returncode = btrue;
         }
@@ -4727,12 +4742,12 @@ Uint8 scr_CorrectActionForHand( script_state_t * pstate, ai_state_t * pself )
         if ( pchr->inwhich_slot == SLOT_LEFT )
         {
             // A or B
-            pstate->argument = pstate->argument + ( rand() & 1 );
+            pstate->argument = generate_randmask( pstate->argument, 1 );
         }
         else
         {
             // C or D
-            pstate->argument = pstate->argument + 2 + ( rand() & 1 );
+            pstate->argument = generate_randmask( pstate->argument + 2, 1 );
         }
     }
 
@@ -4888,14 +4903,16 @@ Uint8 scr_set_TargetToWhoeverIsInPassage( script_state_t * pstate, ai_state_t * 
 //--------------------------------------------------------------------------------------------
 Uint8 scr_CharacterWasABook( script_state_t * pstate, ai_state_t * pself )
 {
-    // _CharacterWasABook()
+    // IfCharacterWasABook()
     // This function proceeds if the base model is the same as the current
     // model or if the base model is SPELLBOOK
     // USAGE: USED BY THE MORPH SPELL. Not much use elsewhere
+
     SCRIPT_FUNCTION_BEGIN();
 
     // This function proceeds if the base model is the same as the current
     // model or if the base model is SPELLBOOK
+
     returncode = ( pchr->basemodel == SPELLBOOK ||
                    pchr->basemodel == pchr->model );
 
@@ -5233,7 +5250,7 @@ Uint8 scr_set_TargetToNearestBlahID( script_state_t * pstate, ai_state_t * pself
         // Determine which team to target
         if ( ( pstate->distance >> 3 ) & 1 )  blahteam = TARGET_ALL;
         if ( ( pstate->distance >> 2 ) & 1 )  blahteam = TARGET_FRIEND;
-        if ( (( pstate->distance >> 1 ) & 1) )
+        if ( ( pstate->distance >> 1 ) & 1 )
         {
             if ( blahteam == TARGET_FRIEND ) blahteam = TARGET_ALL;
             else blahteam = TARGET_ENEMY;
@@ -6099,15 +6116,15 @@ Uint8 scr_SpawnPoofSpeedSpacingDamage( script_state_t * pstate, ai_state_t * pse
     sTmp = MadList[sTmp].prtpip[CapList[sTmp].gopoofprttype];
     iTmp = PipStack.lst[sTmp].xyvelbase;
     tTmp = PipStack.lst[sTmp].xyspacingbase;
-    test = PipStack.lst[sTmp].damagebase;
+    test = PipStack.lst[sTmp].damage.base;
     PipStack.lst[sTmp].xyvelbase = pstate->x;
     PipStack.lst[sTmp].xyspacingbase = pstate->y;
-    PipStack.lst[sTmp].damagebase = pstate->argument;
+    PipStack.lst[sTmp].damage.base = pstate->argument;
     spawn_poof( pself->index, pchr->model );
     // Restore the saved values
     PipStack.lst[sTmp].xyvelbase = iTmp;
     PipStack.lst[sTmp].xyspacingbase = tTmp;
-    PipStack.lst[sTmp].damagebase = test;
+    PipStack.lst[sTmp].damage.base = test;
 
     SCRIPT_FUNCTION_END();
 }
@@ -6347,7 +6364,7 @@ Uint8 scr_Backstabbed( script_state_t * pstate, ai_state_t * pself )
     returncode = bfalse;
     if ( HAS_SOME_BITS( pself->alert, ALERTIF_ATTACKED ) )
     {
-        if ( pself->directionlast >= BEHIND - 8192 && pself->directionlast < BEHIND + 8192 )
+        if ( pself->directionlast >= ATK_BEHIND - 8192 && pself->directionlast < ATK_BEHIND + 8192 )
         {
             if ( check_skills( pself->attacklast, MAKE_IDSZ( 'S', 'T', 'A', 'B' ) ) )
             {
@@ -6534,7 +6551,7 @@ Uint8 scr_TargetIsOwner( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
 {
     // This function spawns a character defined in tmpargument to the characters AI target using
-    // the slot specified in tmpdistance (LEFT, RIGHT or INVENTORY). Fails if the inventory or
+    // the slot specified in tmpdistance (ATK_LEFT, ATK_RIGHT or INVENTORY). Fails if the inventory or
     // grip specified is full or already in use.
 
     // DON'T USE THIS FOR EXPORTABLE ITEMS OR CHARACTERS,
@@ -6548,7 +6565,7 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
     pos.y = pstate->y;
     pos.z = pstate->distance;
 
-    sTmp = spawn_one_character( pos, pstate->argument, pchr->team, 0, NORTH, NULL, MAX_CHR );
+    sTmp = spawn_one_character( pos, pstate->argument, pchr->team, 0, FACE_NORTH, NULL, MAX_CHR );
     if ( VALID_CHR(sTmp) )
     {
         Uint8 grip = CLIP( pstate->distance, ATTACH_INVENTORY, ATTACH_RIGHT );

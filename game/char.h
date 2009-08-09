@@ -30,6 +30,25 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+#define MAXXP      200000                        // Maximum experience
+#define MAXMONEY     9999                        // Maximum money
+
+// XP stuff
+enum e_xp_type
+{
+    XP_FINDSECRET = 0,                          // Finding a secret
+    XP_WINQUEST,                                // Beating a module or a subquest
+    XP_USEDUNKOWN,                              // Used an unknown item
+    XP_KILLENEMY,                               // Killed an enemy
+    XP_KILLSLEEPY,                              // Killed a sleeping enemy
+    XP_KILLHATED,                               // Killed a hated enemy
+    XP_TEAMKILL,                                // Team has killed an enemy
+    XP_TALKGOOD,                                // Talk good, er...  I mean well
+    XP_COUNT,                                   // Number of ways to get experience
+
+    XP_DIRECT     = 255                         // No modification
+};
+
 enum e_turn_modes
 {
     TURNMODE_VELOCITY = 0,                       // Character gets rotation from velocity (normal)
@@ -38,6 +57,46 @@ enum e_turn_modes
     TURNMODE_WATCHTARGET,                        // For combat intensive AI
     TURNMODE_COUNT
 };
+
+enum e_idsz_type
+{
+    IDSZ_PARENT = 0,                             // Parent index
+    IDSZ_TYPE,                                   // Self index
+    IDSZ_SKILL,                                  // Skill index
+    IDSZ_SPECIAL,                                // Special index
+    IDSZ_HATE,                                   // Hate index
+    IDSZ_VULNERABILITY,                          // Vulnerability index
+    IDSZ_COUNT                                   // ID strings per character
+};
+
+enum e_damage_type
+{
+    DAMAGE_SLASH = 0,
+    DAMAGE_CRUSH,
+    DAMAGE_POKE,
+    DAMAGE_HOLY,                             // (Most invert Holy damage )
+    DAMAGE_EVIL,
+    DAMAGE_FIRE,
+    DAMAGE_ICE,
+    DAMAGE_ZAP,
+    DAMAGE_COUNT,
+
+    DAMAGE_NONE      = 255
+};
+
+// Geneder stuff
+enum e_chr_gender
+{
+    GENDER_FEMALE = 0,
+    GENDER_MALE,
+    GENDER_OTHER,
+    GENDER_RANDOM,
+    GENDER_COUNT
+};
+
+#define MANARETURNSHIFT     22                      // ChrList.lst[ichr].manareturn/MANARETURNSHIFT = mana regen per second
+
+
 #define TURNSPD             0.01f                 // Cutoff for turning or same direction
 #define SPINRATE            200                   // How fast spinners spin
 #define WATCHMIN            0.01f                 // Tolerance for TURNMODE_WATCH
@@ -99,10 +158,6 @@ slot_t        grip_offset_to_slot( grip_offset_t grip );
 #define REEL                7600.0f     // Dampen for melee knock back
 #define REELBASE            0.35f
 
-//Dismounting
-#define DISMOUNTZVEL        16
-#define DISMOUNTZVELFLY     4
-#define PHYS_DISMOUNT_TIME  50          // time delay for full object-object interaction
 
 //Water
 #define WATERJUMP           12
@@ -145,12 +200,12 @@ slot_t        grip_offset_to_slot( grip_offset_t grip );
 #define DROPXYVEL           8
 
 //Timer resets
-#define DAMAGETILETIME      32                      // Invincibility time
-#define DAMAGETIME          16                      // Invincibility time
-#define DEFENDTIME          16                      // Invincibility time
-#define BORETIME            (rand()&255)+120        // IfBored timer
-#define CAREFULTIME         50                      // Friendly fire timer
-#define SIZETIME            50                      // Time it takes to resize a character
+#define DAMAGETILETIME      32                            // Invincibility time
+#define DAMAGETIME          16                            // Invincibility time
+#define DEFENDTIME          16                            // Invincibility time
+#define BORETIME            generate_randmask( 120, 255 ) // IfBored timer
+#define CAREFULTIME         50                            // Friendly fire timer
+#define SIZETIME            50                            // Time it takes to resize a character
 
 // Quest system
 #define QUEST_BEATEN         -1
@@ -195,6 +250,12 @@ typedef struct s_cap_import cap_import_t;
 
 extern cap_import_t import_data;
 
+struct s_cap_stat
+{
+    IPair val;
+    IPair perlevel;
+};
+typedef struct s_cap_stat cap_stat_t;
 
 struct s_cap
 {
@@ -228,42 +289,22 @@ struct s_cap
     Sint16       money;                         // Money
 
     // characer stats
+
     Uint8        gender;                        // Gender
-    Uint16       lifebase;                      // Life
-    Uint16       liferand;
-    Uint16       lifeperlevelbase;
-    Uint16       lifeperlevelrand;
+
+    cap_stat_t   life_stat;                     // Life
     Sint16       lifereturn;
     Uint16       lifeheal;
-    Uint16       manabase;                      // Mana
-    Uint16       manarand;
+
+    cap_stat_t   mana_stat;                     // Mana
+    cap_stat_t   manareturn_stat;
+    cap_stat_t   manaflow_stat;
     Sint16       manacost;
-    Uint16       manaperlevelbase;
-    Uint16       manaperlevelrand;
-    Uint16       manareturnbase;
-    Uint16       manareturnrand;
-    Uint16       manareturnperlevelbase;
-    Uint16       manareturnperlevelrand;
-    Uint16       manaflowbase;
-    Uint16       manaflowrand;
-    Uint16       manaflowperlevelbase;
-    Uint16       manaflowperlevelrand;
-    Uint16       strengthbase;                  // Strength
-    Uint16       strengthrand;
-    Uint16       strengthperlevelbase;
-    Uint16       strengthperlevelrand;
-    Uint16       wisdombase;                    // Wisdom
-    Uint16       wisdomrand;
-    Uint16       wisdomperlevelbase;
-    Uint16       wisdomperlevelrand;
-    Uint16       intelligencebase;              // Intlligence
-    Uint16       intelligencerand;
-    Uint16       intelligenceperlevelbase;
-    Uint16       intelligenceperlevelrand;
-    Uint16       dexteritybase;                 // Dexterity
-    Uint16       dexterityrand;
-    Uint16       dexterityperlevelbase;
-    Uint16       dexterityperlevelrand;
+
+    cap_stat_t   strength_stat;                 // Strength
+    cap_stat_t   wisdom_stat;                   // Wisdom
+    cap_stat_t   intelligence_stat;             // Intlligence
+    cap_stat_t   dexterity_stat;                // Dexterity
 
     // physics
     Uint8        weight;                        // Weight
@@ -313,8 +354,7 @@ struct s_cap
 
     // xp
     Uint32       experienceforlevel[MAXLEVEL];  // Experience needed for next level
-    Uint32       experiencebase;                // Starting experience
-    Uint16       experiencerand;
+    IPair        experience;                // Starting experience
     Uint16       experienceworth;               // Amount given to killer/user
     float        experienceexchange;            // Adds to worth
     float        experiencerate[XP_COUNT];
@@ -324,6 +364,7 @@ struct s_cap
     Mix_Chunk *  wavelist[MAX_WAVE];             // sounds in a object
 
     // flags
+    bool_t       is_spelleffect;                // is the object that a spellbook generates
     bool_t       isitem;                        // Is it an item?
     bool_t       invictus;                      // Is it invincible?
     bool_t       ismount;                       // Can you ride it?
@@ -711,7 +752,7 @@ void call_for_help( Uint16 character );
 void give_experience( Uint16 character, int amount, Uint8 xptype, bool_t override_invictus );
 void give_team_experience( Uint8 team, int amount, Uint8 xptype );
 void damage_character( Uint16 character, Uint16 direction,
-                       int damagebase, int damagerand, Uint8 damagetype, Uint8 team,
+                       IPair damage, Uint8 damagetype, Uint8 team,
                        Uint16 attacker, Uint16 effects, bool_t ignoreinvincible );
 void kill_character( Uint16 character, Uint16 killer );
 bool_t heal_character( Uint16 character, Uint16 healer, int amount, bool_t ignoreinvincible);

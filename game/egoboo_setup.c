@@ -676,9 +676,9 @@ bool_t input_settings_save( const char* szFilename)
     fputs( "ESC                   - End module\n", filewrite );
     fputs( "SPACE                 - Respawn character (if dead and possible)\n", filewrite );
     fputs( "1 to 7                - Show character detailed stats\n", filewrite );
-    fputs( "LEFT SHIFT   + 1 to 7 - Show selected character armor without magic enchants\n", filewrite );
-    fputs( "LEFT CONTROL + 1 to 7 - Show armor stats with magic enchants included\n", filewrite );
-    fputs( "LEFT ALT     + 1 to 7 - Show character magic enchants\n", filewrite );
+    fputs( "ATK_LEFT SHIFT   + 1 to 7 - Show selected character armor without magic enchants\n", filewrite );
+    fputs( "ATK_LEFT CONTROL + 1 to 7 - Show armor stats with magic enchants included\n", filewrite );
+    fputs( "ATK_LEFT ALT     + 1 to 7 - Show character magic enchants\n", filewrite );
     fputs( "F11                   - Take screenshot\n", filewrite );
     fputs( "\n", filewrite );
 

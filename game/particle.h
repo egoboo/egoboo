@@ -95,8 +95,7 @@ struct s_pip
     bool_t  endground;                    // End if on ground
     bool_t  endwall;                      // End if hit a wall
     bool_t  endlastframe;                 // End on last frame
-    Uint16  damagebase;                   // Damage
-    Uint16  damagerand;                   // Damage
+    IPair   damage;                       // Damage
     Uint8   damagetype;                   // Damage type
     Sint16  facingbase;                   // Facing
     Uint16  facingadd;                    // Facing
@@ -242,9 +241,8 @@ struct s_prt
     Uint32  bumpsize;                        // Size of bumpers
     Uint32  bumpsizebig;
     Uint8   bumpheight;                      // Bounding box height
-    Uint16  fanblock_next;                        // Next particle on fanblock
-    Uint16  damagebase;                      // For strength
-    Uint16  damagerand;                      // For fixes...
+    Uint16  fanblock_next;                   // Next particle on fanblock
+    IPair   damage;                          // For strength
     Uint8   damagetype;                      // Damage type
     Uint16  chr;                             // The character that is attacking
     float   dynalightfalloff;                // Dyna light...

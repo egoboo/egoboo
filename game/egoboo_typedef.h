@@ -45,7 +45,7 @@
 // a template-like declaration of a list that tracks free elements
 
 #define DEFINE_LIST(ACCESS, TYPE, NAME, COUNT) \
-    struct s_list_##TYPE##NAME                 \
+    struct s_list__##TYPE__##NAME                 \
     {                                          \
         int  used_count;                       \
         int  free_count;                       \
@@ -53,23 +53,23 @@
         int  free_ref[COUNT];                  \
         TYPE lst[COUNT];                       \
     };                                         \
-    ACCESS struct s_list_##TYPE##NAME NAME;
+    ACCESS struct s_list__##TYPE__##NAME NAME;
 
-#define DECLARE_LIST(TYPE,NAME) struct s_list_##TYPE##NAME NAME = {0, 0};
+#define DECLARE_LIST(TYPE,NAME) struct s_list__##TYPE__##NAME NAME = {0, 0};
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // a template-like declaration of a list that tracks free elements
 
 #define DEFINE_STACK(ACCESS, TYPE, NAME, COUNT) \
-    struct s_stack_##TYPE##NAME                 \
+    struct s_stack__##TYPE__##NAME                 \
     {                                           \
         int  count;                             \
         TYPE lst[COUNT];                        \
     };                                          \
-    ACCESS struct s_stack_##TYPE##NAME NAME;
+    ACCESS struct s_stack__##TYPE__##NAME NAME;
 
-#define DECLARE_STACK(TYPE,NAME) struct s_stack_##TYPE##NAME NAME = {0};
+#define DECLARE_STACK(TYPE,NAME) struct s_stack__##TYPE__##NAME NAME = {0};
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -81,6 +81,21 @@ typedef struct s_rect
     Sint32 top;
     Sint32 bottom;
 } rect_t;
+
+//--------------------------------------------------------------------------------------------
+// PAIR AND RANGE
+
+struct s_pair
+{
+    int base, rand;
+};
+typedef struct s_pair IPair;
+
+struct s_range
+{
+    float from, to;
+};
+typedef struct s_range FRange;
 
 //--------------------------------------------------------------------------------------------
 // BOOLEAN
@@ -118,7 +133,8 @@ typedef Uint32 IDSZ;
            ))
 #endif
 
-#define IDSZ_NONE            MAKE_IDSZ( 'N', 'O', 'N', 'E' )       // [NONE]
+#define IDSZ_NONE            MAKE_IDSZ('N','O','N','E' )       // [NONE]
+#define IDSZ_BOOK            MAKE_IDSZ('B','O','O','K' )       // [BOOK]
 
 //--------------------------------------------------------------------------------------------
 // STRING

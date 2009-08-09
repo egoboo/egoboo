@@ -238,7 +238,7 @@ bool_t module_load_info( const char * szLoadName, mod_data_t * pmod )
     cTmp = fget_next_char( fileread );
     pmod->respawnvalid = bfalse;
     if ( 'T' == toupper(cTmp) )  pmod->respawnvalid = btrue;
-    if ( 'A' == toupper(cTmp) )  pmod->respawnvalid = ANYTIME;
+    if ( 'A' == toupper(cTmp) )  pmod->respawnvalid = RESPAWN_ANYTIME;
 
     goto_colon( NULL, fileread, bfalse );   // BAD: Skip line
     // pmod->rtscontrol = bfalse;
@@ -332,7 +332,7 @@ bool_t module_upload( module_instance_t * pinst, int imod, Uint32 seed )
     pinst->playeramount   = pdata->maxplayers;
     pinst->importvalid    = ( pinst->importamount > 0 );
     pinst->respawnvalid   = ( bfalse != pdata->respawnvalid );
-    pinst->respawnanytime = ( ANYTIME == pdata->respawnvalid );
+    pinst->respawnanytime = ( RESPAWN_ANYTIME == pdata->respawnvalid );
 
     strcpy(pinst->loadname, pdata->loadname);
 

@@ -500,4 +500,3 @@ void camera_reset( camera_t * pcam, ego_mpd_t * pmesh )
     }
 
 }
-

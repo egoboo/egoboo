@@ -403,11 +403,11 @@ void init_icon_data()
     iconrect.top = 0;
     iconrect.bottom = 32;
 
-    bookicon_count = 0;
     for ( cnt = 0; cnt < MAXSKIN; cnt++ )
     {
-        bookicon_ref[cnt] = 0;
+        bookicon_ref[cnt] = INVALID_TEXTURE;
     }
+    bookicon_count = 0;
 }
 
 //---------------------------------------------------------------------------------------------
@@ -447,7 +447,6 @@ void init_blip_data()
 
     youarehereon = bfalse;
     numblip      = 0;
-
 }
 
 //---------------------------------------------------------------------------------------------
@@ -483,6 +482,7 @@ void init_all_graphics()
 void release_all_graphics()
 {
     init_icon_data();
+    init_bar_data();
     init_blip_data();
     init_map_data();
 
@@ -495,6 +495,7 @@ void release_all_graphics()
 void delete_all_graphics()
 {
     init_icon_data();
+    init_bar_data();
     init_blip_data();
     init_map_data();
 
@@ -2813,34 +2814,38 @@ int draw_status( Uint16 character, int x, int y )
     item = ChrList.lst[character].holdingwhich[SLOT_LEFT];
     if ( VALID_CHR(item) )
     {
-        imad  = ChrList.lst[item].inst.imad;
-        iskin = ChrList.lst[item].skin;
+        chr_t * pitem = ChrList.lst + item;
+        bool_t is_spell_fx, is_book, draw_book;
+        
+        is_spell_fx = CapList[pitem->model].is_spelleffect; 
+        is_book     = SPELLBOOK == pitem->model; 
+            
+        imad  = pitem->inst.imad;
+        iskin = pitem->skin;
 
-        if ( !VALID_MAD(imad) )
+        draw_book = (is_book || (is_spell_fx && !pitem->icon)) && (bookicon_count > 0);
+
+        if ( VALID_MAD(imad) && !draw_book )
         {
-            draw_one_icon( ICON_NULL, x + 8, y, ChrList.lst[item].sparkle );
-        }
-        else if ( ChrList.lst[item].icon )
-        {
-            draw_one_icon( MadList[imad].ico_ref[iskin], x + 8, y, ChrList.lst[item].sparkle );
-            if ( ChrList.lst[item].ammomax != 0 && ChrList.lst[item].ammoknown )
+            draw_one_icon( MadList[imad].ico_ref[iskin], x + 8, y, pitem->sparkle );
+            if ( pitem->ammomax != 0 && pitem->ammoknown )
             {
-                if ( !CapList[ChrList.lst[item].model].isstackable || ChrList.lst[item].ammo > 1 )
+                if ( !CapList[pitem->model].isstackable || pitem->ammo > 1 )
                 {
                     // Show amount of ammo left
-                    _draw_string_raw( x + 8, y - 8, "%2d", ChrList.lst[item].ammo );
+                    _draw_string_raw( x + 8, y - 8, "%2d", pitem->ammo );
                 }
             }
         }
-        else if ( bookicon_count > 0 )
+        else if ( VALID_MAD(imad) && draw_book )
         {
-            Uint16 icon = ChrList.lst[item].money;
+            Uint16 icon = pitem->money;
             if (icon > bookicon_count) icon = bookicon_count;
-            draw_one_icon( bookicon_ref[ icon ], x + 8, y, ChrList.lst[item].sparkle );
+            draw_one_icon( bookicon_ref[ icon ], x + 8, y, pitem->sparkle );
         }
         else
         {
-            draw_one_icon( ICON_NULL, x + 8, y, ChrList.lst[item].sparkle );
+            draw_one_icon( ICON_NULL, x + 8, y, pitem->sparkle );
         }
     }
     else
@@ -2849,36 +2854,40 @@ int draw_status( Uint16 character, int x, int y )
     }
 
     item = ChrList.lst[character].holdingwhich[SLOT_RIGHT];
-    if ( item != MAX_CHR )
+    if ( VALID_CHR(item) )
     {
-        imad  = ChrList.lst[item].inst.imad;
-        iskin = ChrList.lst[item].skin;
+        chr_t * pitem = ChrList.lst + item;
+        bool_t is_spell_fx, is_book, draw_book;
+        
+        is_spell_fx = CapList[pitem->model].is_spelleffect; 
+        is_book     = SPELLBOOK == pitem->model; 
 
-        if ( !VALID_MAD(imad) )
+        draw_book = (is_book || (is_spell_fx && !pitem->icon)) && (bookicon_count > 0);
+
+        imad  = pitem->inst.imad;
+        iskin = pitem->skin;
+
+        if ( VALID_MAD(imad) && !draw_book )
         {
-            draw_one_icon( ICON_NULL, x + 72, y, ChrList.lst[item].sparkle );
-        }
-        else if ( VALID_MAD(imad) && ChrList.lst[item].icon )
-        {
-            draw_one_icon( MadList[imad].ico_ref[iskin], x + 72, y, ChrList.lst[item].sparkle );
-            if ( ChrList.lst[item].ammomax != 0 && ChrList.lst[item].ammoknown )
+            draw_one_icon( MadList[imad].ico_ref[iskin], x + 72, y, pitem->sparkle );
+            if ( pitem->ammomax != 0 && pitem->ammoknown )
             {
-                if ( !CapList[ChrList.lst[item].model].isstackable || ChrList.lst[item].ammo > 1 )
+                if ( !CapList[pitem->model].isstackable || pitem->ammo > 1 )
                 {
                     // Show amount of ammo left
-                    _draw_string_raw( x + 72, y - 8, "%2d", ChrList.lst[item].ammo );
+                    _draw_string_raw( x + 72, y - 8, "%2d", pitem->ammo );
                 }
             }
         }
-        else if ( bookicon_count > 0 )
+        else if ( VALID_MAD(imad) && draw_book )
         {
-            Uint16 icon = ChrList.lst[item].money;
+            Uint16 icon = pitem->money;
             if (icon > bookicon_count) icon = bookicon_count;
-            draw_one_icon( bookicon_ref[ icon ], x + 72, y, ChrList.lst[item].sparkle );
+            draw_one_icon( bookicon_ref[ icon ], x + 72, y, pitem->sparkle );
         }
         else
         {
-            draw_one_icon( ICON_NULL, x + 72, y, ChrList.lst[item].sparkle );
+            draw_one_icon( ICON_NULL, x + 72, y, pitem->sparkle );
         }
     }
     else

@@ -441,8 +441,8 @@ Uint16 spawn_one_particle( float x, float y, float z,
     pprt->onwhichblock = mesh_get_block( PMesh, pprt->pos.x, pprt->pos.y );
 
     // Damage stuff
-    pprt->damagebase = ppip->damagebase;
-    pprt->damagerand = ppip->damagerand;
+    pprt->damage.base = ppip->damage.base;
+    pprt->damage.rand = ppip->damage.rand;
 
     // Spawning data
     pprt->spawntime = ppip->contspawntime;
@@ -577,15 +577,15 @@ void move_particles( void )
                     facing = pprt->facing;
                     if ( facing < 32768 )
                     {
-                        facing -= NORTH;
+                        facing -= FACE_NORTH;
                         facing = ~facing;
-                        facing += NORTH;
+                        facing += FACE_NORTH;
                     }
                     else
                     {
-                        facing -= SOUTH;
+                        facing -= FACE_SOUTH;
                         facing = ~facing;
-                        facing += SOUTH;
+                        facing += FACE_SOUTH;
                     }
 
                     pprt->facing = facing;
@@ -612,9 +612,9 @@ void move_particles( void )
                     }
                     else
                     {
-                        facing -= EAST;
+                        facing -= FACE_EAST;
                         facing = ~facing;
-                        facing += EAST;
+                        facing += FACE_EAST;
                     }
 
                     pprt->facing = facing;
@@ -834,7 +834,7 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
                 bestdistance = 1 << 31;         //Really high number
 
                 z = -pchr->pos.z + pprt->pos.z + RAISE;
-                facing = pprt->facing - pchr->turn_z - NORTH;
+                facing = pprt->facing - pchr->turn_z - FACE_NORTH;
                 facing = facing >> 2;
                 fsin = turntosin[facing & TRIG_TABLE_MASK ];
                 fcos = turntocos[facing & TRIG_TABLE_MASK ];
@@ -865,8 +865,9 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
 
                 for ( cnt = 0; cnt < amount; cnt++ )
                 {
+                    int irand = RANDIE;
                     spawn_one_particle( pchr->pos.x, pchr->pos.y, pchr->pos.z, 0, pprt->model, ppip->bumpspawnpip,
-                                        character, rand() % vertices, pprt->team, pprt->chr, cnt, character );
+                                        character, irand % vertices, pprt->team, pprt->chr, cnt, character );
                 }
             }
 
@@ -976,9 +977,8 @@ int load_one_particle_profile( const char *szLoadName )
     iTmp = fget_next_int( fileread );   ppip->bumpmoney = iTmp;
     iTmp = fget_next_int( fileread );   ppip->bumpsize = iTmp;
     iTmp = fget_next_int( fileread );   ppip->bumpheight = iTmp;
-    fget_next_pair( fileread );
-    ppip->damagebase = pairbase;
-    ppip->damagerand = pairrand;
+
+    fget_next_pair( fileread ); ppip->damage = pair;
     cTmp = fget_next_char( fileread );
     if ( 'S' == toupper(cTmp) ) ppip->damagetype = DAMAGE_SLASH;
     if ( 'C' == toupper(cTmp) ) ppip->damagetype = DAMAGE_CRUSH;

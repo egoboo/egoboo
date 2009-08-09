@@ -54,25 +54,14 @@
 
 #define VERSION "2.7.5"                         // Version of the game
 
-enum e_game_difficulty
-{
-    GAME_EASY  = 0,
-    GAME_NORMAL,
-    GAME_HARD
-};
-
-#define EXPKEEP 0.85f                                // Experience to keep when respawning
-
 #define MAXINVENTORY        7
 #define MAXIMPORTPERPLAYER  (MAXINVENTORY + 2)
 #define MAXIMPORT           (4*MAXIMPORTPERPLAYER)          // Number of subdirs in IMPORT directory
 
 #define NOSPARKLE           255
-#define ANYTIME             0xFF          // Code for respawnvalid...
+#define RESPAWN_ANYTIME     0xFF          // Code for respawnvalid...
 
 #define NOHIDE              127                     // Don't hide
-
-#define MANARETURNSHIFT     22                      // ChrList.lst[ichr].manareturn/MANARETURNSHIFT = mana regen per second
 
 enum e_damage_fx
 {
@@ -86,15 +75,7 @@ enum e_damage_fx
 
 #define SPELLBOOK           127                     // The spellbook model
 
-// Geneder stuff
-enum e_chr_gender
-{
-    GENDER_FEMALE = 0,
-    GENDER_MALE,
-    GENDER_OTHER,
-    GENDER_RANDOM,
-    GENDER_COUNT
-};
+
 
 // Messaging stuff
 #define MAX_MESSAGE          8                       // Number of messages
@@ -107,46 +88,6 @@ enum e_chr_gender
 #define GRABSIZE            90.0f                      // Grab tolerance
 #define SEEINVISIBLE        128                        // Cutoff for invisible characters
 
-enum e_damage_type
-{
-    DAMAGE_SLASH = 0,
-    DAMAGE_CRUSH,
-    DAMAGE_POKE,
-    DAMAGE_HOLY,                             // (Most invert Holy damage )
-    DAMAGE_EVIL,
-    DAMAGE_FIRE,
-    DAMAGE_ICE,
-    DAMAGE_ZAP,
-    DAMAGE_COUNT                             // Damage types
-};
-#define DAMAGE_NONE          255
-
-enum e_idsz_type
-{
-    IDSZ_PARENT = 0,                             // Parent index
-    IDSZ_TYPE,                                   // Self index
-    IDSZ_SKILL,                                  // Skill index
-    IDSZ_SPECIAL,                                // Special index
-    IDSZ_HATE,                                   // Hate index
-    IDSZ_VULNERABILITY,                          // Vulnerability index
-    IDSZ_COUNT                                   // ID strings per character
-};
-
-// XP stuff
-enum e_xp_type
-{
-    XP_FINDSECRET = 0,                          // Finding a secret
-    XP_WINQUEST,                                // Beating a module or a subquest
-    XP_USEDUNKOWN,                              // Used an unknown item
-    XP_KILLENEMY,                               // Killed an enemy
-    XP_KILLSLEEPY,                              // Killed a sleeping enemy
-    XP_KILLHATED,                               // Killed a hated enemy
-    XP_TEAMKILL,                                // Team has killed an enemy
-    XP_TALKGOOD,                                // Talk good, er...  I mean well
-    XP_COUNT                                    // Number of ways to get experience
-};
-#define XPDIRECT            255                 // No modification
-
 #define RAISE               12                  // Helps correct z level
 #define SHADOWRAISE         5
 #define DAMAGERAISE         25                  // Tolerance for damage tiles
@@ -157,43 +98,50 @@ enum e_xp_type
 #define UPDATE_SKIP                     ((float)TICKS_PER_SEC/(float)UPDATES_PER_SEC)
 #define ONESECOND                       TICKS_PER_SEC
 
-#define NORTH 16384                                 // Character facings
-#define SOUTH 49152
-#define EAST 32768
-#define WEST 0
-#define RANDOM rand() % 65535
-#define FRONT 0                                     // Attack directions
-#define BEHIND 32768
-#define LEFT 49152
-#define RIGHT 16384
+#define FACE_WEST    0x0000
+#define FACE_NORTH   0x4000                                 // Character facings
+#define FACE_EAST    0x8000
+#define FACE_SOUTH   0xC000
+#define FACE_RANDOM  generate_randmask(0, 0xFFFF)
 
-#define MAXXP 200000                                // Maximum experience
-#define MAXMONEY 9999                               // Maximum money
+#define ATK_FRONT  0x0000                                     // Attack directions
+#define ATK_RIGHT  0x4000
+#define ATK_BEHIND 0x8000
+#define ATK_LEFT   0xC000
 
 //------------------------------------
 // Character defines
 //------------------------------------
 #define MAXSKIN   4
 
+//Dismounting
+#define DISMOUNTZVEL        16
+#define DISMOUNTZVELFLY     4
+#define PHYS_DISMOUNT_TIME  (TICKS_PER_SEC*0.5f)          // time delay for full object-object interaction (approximately 0.5 second)
+
+//------------------------------------
+// Timers
+//------------------------------------
+
 // Display
-EXTERN Uint8                   timeron  EQ( bfalse );          // Game timer displayed?
-EXTERN Uint32                  timervalue  EQ( 0 );           // Timer time ( 50ths of a second )
-EXTERN bool_t                  fpson EQ(btrue);
-EXTERN char                    szfpstext[]  EQ( "000 FPS" );
+EXTERN Uint8           timeron     EQ( bfalse );          // Game timer displayed?
+EXTERN Uint32          timervalue  EQ( 0 );           // Timer time ( 50ths of a second )
+
+EXTERN bool_t          fpson        EQ(btrue);
+EXTERN char            szfpstext[]  EQ( "000 FPS" );
 
 // Timers
 EXTERN Sint32          clock_stt;                   // GetTickCount at start
-EXTERN Sint32          clock_all  EQ( 0 );             // The total number of ticks so far
-EXTERN Sint32          clock_lst  EQ( 0 );             // The last total of ticks so far
-EXTERN Sint32          clock_wld  EQ( 0 );             // The sync clock
-EXTERN Sint32          clock_fps  EQ( 0 );             // The number of ticks this second
+EXTERN Sint32          clock_all   EQ( 0 );             // The total number of ticks so far
+EXTERN Sint32          clock_lst   EQ( 0 );             // The last total of ticks so far
+EXTERN Sint32          clock_wld   EQ( 0 );             // The sync clock
+EXTERN Sint32          clock_fps   EQ( 0 );             // The number of ticks this second
 EXTERN Uint32          update_wld  EQ( 0 );            // The number of times the game has been updated
-EXTERN Uint32          frame_all  EQ( 0 );             // The total number of frames drawn so far
-EXTERN Uint32          frame_fps  EQ( 0 );             // The number of frames drawn this second
+EXTERN Uint32          frame_all   EQ( 0 );             // The total number of frames drawn so far
+EXTERN Uint32          frame_fps   EQ( 0 );             // The number of frames drawn this second
 EXTERN Uint32          clock_stat  EQ( 0 );            // For stat regeneration
-EXTERN Uint32          clock_pit  EQ( 0 );             // For pit kills
-EXTERN Uint32          outofsync  EQ( 0 );
-EXTERN Uint8           parseerror  EQ( bfalse );
+EXTERN Uint32          clock_pit   EQ( 0 );             // For pit kills
+EXTERN Uint32          outofsync   EQ( 0 );;
 
 EXTERN bool_t          soundon  EQ( btrue );              // Is the sound alive?
 

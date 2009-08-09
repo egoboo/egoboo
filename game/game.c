@@ -685,24 +685,39 @@ void chr_set_frame( Uint16 character, Uint16 action, int frame, Uint16 lip )
 }
 
 //--------------------------------------------------------------------------------------------
-int generate_number( int numbase, int numrand )
+int generate_number( IPair num )
 {
     // ZZ> This function generates a random number
-    int tmp = 0;
 
-    tmp = numbase;
-    if ( numrand > 0 )
+    int tmp = 0;
+    int irand = RANDIE;
+
+    tmp = num.base;
+    if ( num.rand > 1 )
     {
-        tmp += ( rand() % numrand );
-    }
-    else
-    {
-        log_warning( "One of the data pairs is wrong! (%i and %i) Cannot be 0 or less.\n", numbase, numrand );
-        numrand = numbase;
+        tmp += irand % num.rand;
     }
 
     return tmp;
 }
+
+
+//--------------------------------------------------------------------------------------------
+int generate_randmask( int base, int mask )
+{
+    // ZZ> This function generates a random number
+    int tmp;
+    int irand = RANDIE;
+
+    tmp = base;
+    if ( mask > 0 )
+    {
+        tmp += irand & mask;
+    }
+
+    return tmp;
+}
+
 
 //--------------------------------------------------------------------------------------------
 void setup_alliances( const char *modname )
@@ -1779,7 +1794,7 @@ Uint16 get_particle_target( float pos_x, float pos_y, float pos_z, Uint16 facing
                 if (cnt != oldtarget && cnt != donttarget)
                 {
                     Uint16 angle = (ATAN2( ChrList.lst[cnt].pos.y - pos_y, ChrList.lst[cnt].pos.x - pos_x ) * 0xFFFF / ( TWO_PI ))
-                                   + BEHIND - facing;
+                                   + ATK_BEHIND - facing;
 
                     // Only proceed if we are facing the target
                     if (angle < PipStack.lst[particletype].targetangle || angle > ( 0xFFFF - PipStack.lst[particletype].targetangle ) )
@@ -1826,7 +1841,10 @@ Uint16 get_target( Uint16 ichr_src, Uint32 max_dist, TARGET_TYPE target_type, bo
         return ChrList.lst[ichr_src].ai.target;
     }
 
-    ChrList.lst[ichr_src].ai.los_timer = current_ticks + TICKS_PER_SEC * 0.5f * ( 1.0f + rand() / (float)RAND_MAX );
+    {
+        int irand = RANDIE;
+        ChrList.lst[ichr_src].ai.los_timer = current_ticks + TICKS_PER_SEC * 0.5f * ( 1.0f + irand / (float)RAND_MAX );
+    }
 
     // set the line-of-sight source
     los_info.x0         = ChrList.lst[ichr_src].pos.x;
@@ -1964,7 +1982,7 @@ void make_onwhichfan( void )
                     }
                     if ( ChrList.lst[character].damagetime == 0 )
                     {
-                        damage_character( character, 32768, damagetile_data.amount, 1, damagetile_data.type, TEAM_DAMAGE, ChrList.lst[character].ai.bumplast, DAMFX_NBLOC | DAMFX_ARMO, bfalse );
+                        damage_character( character, ATK_BEHIND, damagetile_data.amount, damagetile_data.type, TEAM_DAMAGE, ChrList.lst[character].ai.bumplast, DAMFX_NBLOC | DAMFX_ARMO, bfalse );
                         ChrList.lst[character].damagetime = DAMAGETILETIME;
                     }
                     if ( (damagetile_data.parttype != ((Sint16)~0)) && ( update_wld & damagetile_data.partand ) == 0 )
@@ -2213,7 +2231,7 @@ void update_pits()
                         }
 
                         // Do some damage (same as damage tile)
-                        damage_character( cnt, 32768, damagetile_data.amount, 1, damagetile_data.type, TEAM_DAMAGE, ChrList.lst[cnt].ai.bumplast, DAMFX_NBLOC | DAMFX_ARMO, btrue );
+                        damage_character( cnt, ATK_BEHIND, damagetile_data.amount, damagetile_data.type, TEAM_DAMAGE, ChrList.lst[cnt].ai.bumplast, DAMFX_NBLOC | DAMFX_ARMO, btrue );
                     }
                 }
             }
@@ -3970,7 +3988,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
         {
             spawn_bump_particles( ichr_a, iprt_b ); // Catch on fire
 
-            if ( ( pprt_b->damagebase | pprt_b->damagerand ) > 1 )
+            if ( ( pprt_b->damage.base | pprt_b->damage.rand ) > 1 )
             {
                 prtidparent = CapList[pprt_b->model].idsz[IDSZ_PARENT];
                 prtidtype = CapList[pprt_b->model].idsz[IDSZ_TYPE];
@@ -4037,7 +4055,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
                         float percent;
                         percent = ( (FP8_TO_INT(ChrList.lst[pprt_b->chr].intelligence)) - 14 ) * 2;
                         percent /= 100;
-                        pprt_b->damagebase *= 1.00f + percent;
+                        pprt_b->damage.base *= 1.00f + percent;
                     }
 
                     if ( ppip_b->wisdamagebonus )
@@ -4045,18 +4063,23 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
                         float percent;
                         percent = ( FP8_TO_INT(ChrList.lst[pprt_b->chr].wisdom) - 14 ) * 2;
                         percent /= 100;
-                        pprt_b->damagebase *= 1.00f + percent;
+                        pprt_b->damage.base *= 1.00f + percent;
                     }
 
                     // Damage the character
                     if ( pcap_a->idsz[IDSZ_VULNERABILITY] != IDSZ_NONE && ( pcap_a->idsz[IDSZ_VULNERABILITY] == prtidtype || pcap_a->idsz[IDSZ_VULNERABILITY] == prtidparent ) )
                     {
-                        damage_character( ichr_a, direction, pprt_b->damagebase << 1, pprt_b->damagerand << 1, pprt_b->damagetype, pprt_b->team, pprt_b->chr, ppip_b->damfx, bfalse );
+                        IPair tmp_damage;
+
+                        tmp_damage.base = (pprt_b->damage.base << 1);
+                        tmp_damage.rand = (pprt_b->damage.rand << 1) | 1;
+
+                        damage_character( ichr_a, direction, tmp_damage, pprt_b->damagetype, pprt_b->team, pprt_b->chr, ppip_b->damfx, bfalse );
                         pchr_a->ai.alert |= ALERTIF_HITVULNERABLE;
                     }
                     else
                     {
-                        damage_character( ichr_a, direction, pprt_b->damagebase, pprt_b->damagerand, pprt_b->damagetype, pprt_b->team, pprt_b->chr, ppip_b->damfx, bfalse );
+                        damage_character( ichr_a, direction, pprt_b->damage, pprt_b->damagetype, pprt_b->team, pprt_b->chr, ppip_b->damfx, bfalse );
                     }
 
                     // Notify the attacker of a scored hit
@@ -4087,7 +4110,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
                         pchr_a->phys.avel.y += -pchr_a->vel.y;
                     }
 
-                    damage_character( ichr_a, 32768, pprt_b->damagebase, pprt_b->damagerand, pprt_b->damagetype, pprt_b->team, pprt_b->chr, ppip_b->damfx, bfalse );
+                    damage_character( ichr_a, ATK_BEHIND, pprt_b->damage, pprt_b->damagetype, pprt_b->team, pprt_b->chr, ppip_b->damfx, bfalse );
                 }
             }
 
@@ -4128,8 +4151,8 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
                     pprt_b->poofme = btrue;
 
                     // Only hit one character, not several
-                    pprt_b->damagebase = 0;
-                    pprt_b->damagerand = 1;
+                    pprt_b->damage.base = 0;
+                    pprt_b->damage.rand = 1;
                 }
             }
         }
@@ -4642,13 +4665,13 @@ bool_t chr_setup_read( FILE * fileread, chr_setup_info_t *pinfo )
     pinfo->pos.y = fget_float( fileread ) * TILE_SIZE;
     pinfo->pos.z = fget_float( fileread ) * TILE_SIZE;
 
-    pinfo->facing = NORTH;
+    pinfo->facing = FACE_NORTH;
     pinfo->attach = ATTACH_NONE;
     cTmp = fget_first_letter( fileread );
-    if ( 'S' == toupper(cTmp) )       pinfo->facing = SOUTH;
-    else if ( 'E' == toupper(cTmp) )  pinfo->facing = EAST;
-    else if ( 'W' == toupper(cTmp) )  pinfo->facing = WEST;
-    else if ( '?' == toupper(cTmp) )  pinfo->facing = RANDOM;
+    if ( 'S' == toupper(cTmp) )       pinfo->facing = FACE_SOUTH;
+    else if ( 'E' == toupper(cTmp) )  pinfo->facing = FACE_EAST;
+    else if ( 'W' == toupper(cTmp) )  pinfo->facing = FACE_WEST;
+    else if ( '?' == toupper(cTmp) )  pinfo->facing = FACE_RANDOM;
     else if ( 'L' == toupper(cTmp) )  pinfo->attach = ATTACH_LEFT;
     else if ( 'R' == toupper(cTmp) )  pinfo->attach = ATTACH_RIGHT;
     else if ( 'I' == toupper(cTmp) )  pinfo->attach = ATTACH_INVENTORY;
@@ -4659,7 +4682,11 @@ bool_t chr_setup_read( FILE * fileread, chr_setup_info_t *pinfo )
     pinfo->content = fget_int( fileread );
     pinfo->level   = fget_int( fileread );
 
-    if (pinfo->skin >= MAXSKIN) pinfo->skin = rand() % MAXSKIN;     // Randomize skin?
+    if (pinfo->skin >= MAXSKIN) 
+    {
+        int irand = RANDIE;
+        pinfo->skin = irand % MAXSKIN;     // Randomize skin?
+    }
 
     cTmp = fget_first_letter( fileread );
     pinfo->stat = ( 'T' == toupper(cTmp) );
@@ -4714,7 +4741,7 @@ bool_t chr_setup_apply( Uint16 ichr, chr_setup_info_t *pinfo )
     {
         while ( ChrList.lst[ichr].experiencelevel < pinfo->level && ChrList.lst[ichr].experience < MAXXP )
         {
-            give_experience( ichr, 25, XPDIRECT, btrue );
+            give_experience( ichr, 25, XP_DIRECT, btrue );
             do_level_up( ichr );
         }
     }
@@ -5154,8 +5181,7 @@ void game_release_module_data()
     local_senseenemiesID = IDSZ_NONE;
     local_senseenemiesTeam = TEAM_MAX;
 
-    TxTitleImage_release_all();
-    TxTexture_release_all();
+    release_all_graphics();
     release_all_profiles();
     release_all_ai_scripts();
 
@@ -5634,7 +5660,7 @@ bool_t water_instance_init( water_instance_t * pinst, water_data_t * pdata )
 
     for ( layer = 0; layer < MAXWATERLAYER; layer++)
     {
-        pinst->layer[layer].frame = rand() & WATERFRAMEAND;
+        pinst->layer[layer].frame = generate_randmask( 0 , WATERFRAMEAND );
     }
 
     if ( NULL != pdata )
@@ -5728,11 +5754,12 @@ bool_t damagetile_data_init( damagetile_data_t * pdata )
 {
     if ( NULL == pdata ) return bfalse;
 
-    pdata->parttype = -1;
-    pdata->partand  = 255;
-    pdata->sound    = INVALID_SOUND;
-    pdata->type     = DAMAGE_FIRE;
-    pdata->amount   = 256;
+    pdata->parttype    = -1;
+    pdata->partand     = 255;
+    pdata->sound       = INVALID_SOUND;
+    pdata->type        = DAMAGE_FIRE;
+    pdata->amount.base = 256;
+    pdata->amount.rand = 1;
 
     return btrue;
 };
@@ -5901,7 +5928,10 @@ void read_wawalite( const char *modname )
     fTmp = fget_next_float( fileread );  gravity = fTmp;
     iTmp = fget_next_int( fileread );  animtile_data.update_and = iTmp;
     iTmp = fget_next_int( fileread );  animtile_data.frame_and = iTmp;
-    iTmp = fget_next_int( fileread );  damagetile_data.amount = iTmp;
+
+    iTmp = fget_next_int( fileread );  
+    damagetile_data.amount.base = iTmp; damagetile_data.amount.rand = 1;
+
     cTmp = fget_next_char( fileread );
     if ( 'S' == toupper(cTmp) )  damagetile_data.type = DAMAGE_SLASH;
     if ( 'C' == toupper(cTmp) )  damagetile_data.type = DAMAGE_CRUSH;

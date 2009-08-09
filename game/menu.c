@@ -929,25 +929,25 @@ bool_t doChoosePlayer_show_stats( int player, int mode, int x, int y, int width,
             //Life and mana (can be less than maximum if not in easy mode)
             if ( cfg.difficulty >= GAME_NORMAL )
             {
-                carat += snprintf( carat, carat_end - carat - 1, "Life: %d/%d\n", pcap->spawnlife >> 8, pcap->lifebase >> 8 );
-                carat += snprintf( carat, carat_end - carat - 1, "Mana: %d/%d\n", pcap->spawnmana >> 8, pcap->manabase >> 8 );
-                //y = draw_one_bar( pcap->lifecolor, x + 10, y + 40, pcap->spawnlife >> 8, pcap->lifebase >> 8 );
-                //y = draw_one_bar( pcap->manacolor, x + 10, y, pcap->spawnmana >> 8, pcap->manabase >> 8 );
+                carat += snprintf( carat, carat_end - carat - 1, "Life: %d/%d\n", pcap->spawnlife >> 8, pcap->life_stat.val.base >> 8 );
+                carat += snprintf( carat, carat_end - carat - 1, "Mana: %d/%d\n", pcap->spawnmana >> 8, pcap->mana_stat.val.base >> 8 );
+                //y = draw_one_bar( pcap->lifecolor, x + 10, y + 40, pcap->spawnlife >> 8, pcap->life_stat.val.base >> 8 );
+                //y = draw_one_bar( pcap->manacolor, x + 10, y, pcap->spawnmana >> 8, pcap->mana_stat.val.base >> 8 );
             }
             else
             {
-                carat += snprintf( carat, carat_end - carat - 1, "Life: %d\n", pcap->lifebase >> 8 );
-                carat += snprintf( carat, carat_end - carat - 1, "Mana: %d\n", pcap->manabase >> 8 );
-                //y = draw_one_bar( pcap->lifecolor, x + 10, y + 40, pcap->lifebase >> 8, pcap->lifebase >> 8 );
-                //y = draw_one_bar( pcap->manacolor, x + 10, y, pcap->manabase >> 8, pcap->manabase >> 8 );
+                carat += snprintf( carat, carat_end - carat - 1, "Life: %d\n", pcap->life_stat.val.base >> 8 );
+                carat += snprintf( carat, carat_end - carat - 1, "Mana: %d\n", pcap->mana_stat.val.base >> 8 );
+                //y = draw_one_bar( pcap->lifecolor, x + 10, y + 40, pcap->life.base >> 8, pcap->life_stat.val.base >> 8 );
+                //y = draw_one_bar( pcap->manacolor, x + 10, y, pcap->mana.base >> 8, pcap->mana_stat.val.base >> 8 );
             }
 
             //SWID
             carat += snprintf( carat, carat_end - carat - 1, "Stats\n" );
-            carat += snprintf( carat, carat_end - carat - 1, "  Str: %d\n", pcap->strengthbase >> 8 );
-            carat += snprintf( carat, carat_end - carat - 1, "  Wis: %d\n", pcap->wisdombase >> 8 );
-            carat += snprintf( carat, carat_end - carat - 1, "  Int: %d\n", pcap->intelligencebase >> 8 );
-            carat += snprintf( carat, carat_end - carat - 1, "  Dex: %d\n", pcap->dexteritybase >> 8 );
+            carat += snprintf( carat, carat_end - carat - 1, "  Str: %d\n", pcap->strength_stat.val.base >> 8 );
+            carat += snprintf( carat, carat_end - carat - 1, "  Wis: %d\n", pcap->wisdom_stat.val.base >> 8 );
+            carat += snprintf( carat, carat_end - carat - 1, "  Int: %d\n", pcap->intelligence_stat.val.base >> 8 );
+            carat += snprintf( carat, carat_end - carat - 1, "  Dex: %d\n", pcap->dexterity_stat.val.base >> 8 );
             carat += snprintf( carat, carat_end - carat - 1, " \n" );
 
             if ( objects.count > 1 )
@@ -1502,7 +1502,7 @@ int doInputOptions( float deltaTime )
             // Do normal run
             // Background
             GL_DEBUG(glColor4f)(1, 1, 1, 1 );
-            ui_drawTextBox( menuFont, "LEFT HAND", buttonLeft, GFX_HEIGHT - 470, 0, 0, 20 );
+            ui_drawTextBox( menuFont, "ATK_LEFT HAND", buttonLeft, GFX_HEIGHT - 470, 0, 0, 20 );
 
             // Are we waiting for input?
             if (SDLKEYDOWN( SDLK_ESCAPE )) waitingforinput = -1;  // Someone cursor_pressed abort
@@ -1648,7 +1648,7 @@ int doInputOptions( float deltaTime )
             }
 
             // Right hand
-            ui_drawTextBox( menuFont, "RIGHT HAND", buttonLeft + 300, GFX_HEIGHT - 470, 0, 0, 20 );
+            ui_drawTextBox( menuFont, "ATK_RIGHT HAND", buttonLeft + 300, GFX_HEIGHT - 470, 0, 0, 20 );
             if ( '\0' != inputOptionsButtons[CONTROL_RIGHT_USE][0] )
             {
                 ui_drawTextBox( menuFont, "Use:", buttonLeft + 300, GFX_HEIGHT - 440, 0, 0, 20 );

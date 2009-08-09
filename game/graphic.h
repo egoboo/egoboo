@@ -353,8 +353,6 @@ void clear_messages();
 
 void font_load( const char* szBitmap, const char* szSpacing );
 
-Uint32 load_one_title_image( const char *szLoadName );
-
 void font_init();
 
 void update_all_prt_instance( struct s_camera * pcam );
