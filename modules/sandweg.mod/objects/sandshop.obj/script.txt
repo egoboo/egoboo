@@ -97,7 +97,7 @@ IfAttacked
   SetTargetToWhoeverAttacked
   IfTargetIsAPlayer
     CallForHelp
-    tmpargument = 5     //Team Evil
+    tmpargument = TEAME     //Team Evil
     TargetJoinTeam
     tmpargument = STATECOMBAT
     SetState
@@ -107,7 +107,7 @@ IfCalledForHelp
   Walk
 IfKilled
   CallForHelp			//Warn friends
-  tmpargument = 5
+  tmpargument = TEAME
   TargetJoinTeam
 
 //------------------------------------------------------------------------------

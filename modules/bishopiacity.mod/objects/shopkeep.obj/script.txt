@@ -73,16 +73,20 @@ IfSpawned
 // Get mean if characters wanna be bad
 IfAttacked
   CallForHelp
-  JoinEvilTeam
+  IfTargetIsAPlayer
+    tmpargument = TEAME
+    TargetJoinTeam
   tmpargument = 1	//Combat stance
   SetState
 
 IfCalledForHelp
-  JoinEvilTeam
   tmpargument = 1	//Combat stance
   SetState
 
 IfKilled
+  tmpargument = TEAME
+  TargetJoinTeam
+  
   //Make chests lootable
   tmpdistance = [LOOT]
   tmpargument = 983  	// The unique code for a looted shop
@@ -91,7 +95,8 @@ IfKilled
 
 IfSomeoneIsStealing     //Someone is stealing from our shop! ><
   CallForHelp           //Call the guards!
-  JoinEvilTeam
+  tmpargument = TEAME
+  TargetJoinTeam
 
 //------------------------------------------------------------------------------
 //Setup the shops with all the goods

@@ -5,7 +5,6 @@ IfTimeOut
   tmpy=0
   IfXIsEqualToY
     tmpargument = 0
-    tmpdistance = rand & 1027 + 40000
     PlaySound
 
   tmpx = rand & 511 - 256 + selfspawnx
@@ -23,7 +22,6 @@ IfBumped
     tmpargument = 1
     SetState
     tmpargument = 0
-    tmpdistance = rand & 1027 + 40000
     PlaySound
 
 //------------------------------------------------------------------------------
@@ -35,7 +33,8 @@ IfKilled
   Else
     tmpargument = 0
 
-  JoinEvilTeam
+  tmpargument = TEAME
+  TargetJoinTeam
   SendMessage
   CallForHelp
 
@@ -43,11 +42,9 @@ IfKilled
   tmpargument = 45
   SetBumpHeight
 
-IfCalledForHelp
-  JoinEvilTeam
-
 IfAttacked
-  JoinEvilTeam
+  tmpargument = TEAME
+  TargetJoinTeam
   CallForHelp
 
 //------------------------------------------------------------------------------

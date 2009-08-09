@@ -1,15 +1,20 @@
-// Get mean if characters wanna be bad
+//Make attackers hostile
 IfAttacked
   Run
-  CallForHelp
-  JoinEvilTeam
-  tmpargument = 2
+  SetTargetToWhoeverAttacked
+  IfTargetIsAPlayer
+    CallForHelp
+    tmpargument = TEAME
+    TargetJoinTeam
+  tmpargument = 2               //Combat
   SetState
 IfCalledForHelp
-  JoinEvilTeam
-  Walk
+  tmpargument = 2               //Combat
+  SetState
+  Run
 IfKilled
-  CallForHelp			//Warn friends
+  tmpargument = TEAME
+  TargetJoinTeam
 
 IfSpawned
   Sneak				//Dont run around

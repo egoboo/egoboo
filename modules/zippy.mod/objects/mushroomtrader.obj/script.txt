@@ -16,8 +16,7 @@ IfBumped
   IfStateIs0
     IfTargetIsOnSameTeam
       IfTargetIsAPlayer
-        GetContent
-        tmpx = tmpargument
+        tmpx = selfcontent
         
         //Hey there!
         tmpy = 0

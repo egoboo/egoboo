@@ -8,6 +8,14 @@ IfSpawned
   tmpargument = 26
   tmpdistance = 0
   PlayMusic
+  
+  //Check if any outlaws have entered town
+  tmpargument = 9
+  SetTargetToWhoeverIsInPassage
+    tmpargument = [EVIL]
+    IfTargetHasQuestID
+      tmpargument = TEAME
+      TargetJoinTeam
 
 IfTimeOut
   SetTargetToSelf
@@ -23,5 +31,45 @@ IfTimeOut
   Else
     tmpargument = passage
     ClosePassage
+    
+  //Check the two exits for runners
+  tmpargument = 7
+  SetTargetToWhoeverIsInPassage
+    IfTargetIsAPlayer
+      tmpx = targetteam
+      tmpy = TEAME
+      IfXIsEqualToY
+        EnableExport
+        EndModule
+        BeatModule
+        ClearEndMessage
+        tmpargument = 0
+        AddEndMessage
+        tmpargument = 1
+        AddEndMessage
+        
+        //Remember them for next time
+        tmpargument = [EVIL]
+        tmpdistance = 0
+        AddQuestAllPlayers
+  tmpargument = 8
+  SetTargetToWhoeverIsInPassage
+    IfTargetIsAPlayer
+      tmpx = targetteam
+      tmpy = TEAME
+      IfXIsEqualToY
+        EnableExport
+        EndModule
+        BeatModule
+        ClearEndMessage
+        tmpargument = 0
+        AddEndMessage
+        tmpargument = 1
+        AddEndMessage
+        
+        //Remember them for next time
+        tmpargument = [EVIL]
+        tmpdistance = 0
+        AddQuestAllPlayers
     
 End					// All done

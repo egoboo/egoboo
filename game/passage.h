@@ -99,8 +99,8 @@ void   check_passage_music();
 bool_t break_passage( struct s_script_state * pstate, Uint16 passage, Uint16 starttile, Uint16 frames, Uint16 become, Uint8 meshfxor );
 void   flash_passage( Uint16 passage, Uint8 color );
 Uint8  find_tile_in_passage( struct s_script_state * pstate, Uint16 passage, int tiletype );
-Uint16 who_is_blocking_passage( Uint16 passage );
-Uint16 who_is_blocking_passage_ID( Uint16 passage, IDSZ idsz );
+Uint16 who_is_blocking_passage( Uint16 passage, bool_t targetitems, bool_t targetdead, bool_t targetquest, 
+							   bool_t requireitem, IDSZ findidsz );
 void   clear_all_passages();
 void   add_shop_passage( Uint16 owner, Uint16 passage );
 void   add_passage( int tlx, int tly, int brx, int bry, bool_t open, Uint8 mask );

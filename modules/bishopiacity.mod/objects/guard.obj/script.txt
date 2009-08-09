@@ -43,19 +43,19 @@ IfAttacked
   tmpargument = rand & 1 + 4
   PlaySound
   SetTargetToWhoeverAttacked
-    IfTargetIsAPlayer		//Player got into trouble
-      CallForHelp
-      JoinEvilTeam
-    Else			//Wops, a friendly NPC attacked
-      IfTargetIsOnSameTeam
-        SetTargetToOldTarget
+  IfTargetIsAPlayer		//Player got into trouble
+    CallForHelp
+    tmpargument = TEAME
+    TargetJoinTeam
+  Else			//Wops, a friendly NPC attacked
+    IfTargetIsOnSameTeam
+      SetTargetToOldTarget
   IfStateIs5
     tmpargument = 0
     SetState
 
 IfCalledForHelp
   DisableExport
-  JoinEvilTeam
   SetTargetToWideEnemy
     DoNothing
   Else
@@ -397,6 +397,8 @@ IfBumped				// Bumped
 //-----------------------------------------------------------------------------------------
 //Handle death
 IfKilled
+  tmpargument = TEAME
+  TargetJoinTeam
   CallForHelp			//Warn friends
 
   //Drop goodies

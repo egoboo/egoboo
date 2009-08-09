@@ -2,7 +2,7 @@
 IfAttacked
   SetTargetToWhoeverAttacked
   CallForHelp
-  tmpargument = 5       //Team EVIL
+  tmpargument = TEAME
   TargetJoinTeam
   
 //------------------------------------------------------------------------------

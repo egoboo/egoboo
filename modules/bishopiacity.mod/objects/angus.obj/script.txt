@@ -4,17 +4,15 @@ IfAttacked
   SetTargetToWhoeverAttacked
   IfTargetIsAPlayer
     CallForHelp
-    JoinEvilTeam
+    tmpargument = TEAME
+    TargetJoinTeam
     tmpargument = 2
     SetState
   tmpargument = rand & 1 + 2
   PlaySound
-IfCalledForHelp
-  JoinEvilTeam
-  Walk
 IfKilled
-  IfTargetIsAPlayer
-    CallForHelp			//Warn friends
+  tmpargument = TEAME
+  TargetJoinTeam
 
 IfSpawned
   Sneak				//Dont run around
@@ -154,14 +152,12 @@ IfStateIs0
 
           //The normal talking progression
           Else
-            GetContent
             PlayFullSound
-            tmpargument = tmpargument - 3
+            tmpargument = selfcontent - 3
             SendMessageNear
 
             //Prepeare the next thing to say
-            GetContent
-            tmpargument = tmpargument + 1
+            tmpargument = selfcontent + 1
             SetContent
 
 //------------------------------------------------------------------------------

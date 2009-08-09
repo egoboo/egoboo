@@ -15,7 +15,7 @@ IfAttacked
   SetTargetToWhoeverAttacked
   IfTargetIsAPlayer
     CallForHelp
-    tmpargument = 5     //Team Evil
+    tmpargument = TEAME     //Team Evil
     TargetJoinTeam
     tmpargument = 2
     SetState
@@ -25,7 +25,8 @@ IfKilled
   tmpargument = TEAME
   TargetJoinTeam
   CallForHelp			//Warn friends
-
+IfCalledForHelp
+  DisableExport
 //------------------------------------------------------------------------------
 // ZZ> Handle normal state
 IfTimeOut

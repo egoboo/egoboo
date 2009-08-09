@@ -3,7 +3,6 @@ MASTER TODO LIST:
 - Wizards cannot use lamps
 - Overlay effects do not spawn in pits (or is it background?).
 - The Bishopia walls should be flagged as a Wall, not as Impassable.
-- The Lich boss in the Wizard starter causes the game to freeze sometimes after 2 minutes.
 - And becoming bad guy in Zippy and Sand Weg should not export unless you escape. Maybe save
   the aggression in quest.txt for later returns? 
 - After passing a module game seems to reset quest progress. It is restored by going back to previous menu, so it is not very significant.
@@ -11,8 +10,7 @@ MASTER TODO LIST:
 - Enchants don't properly increase size when less than 1.00
 - also i found a bug, equipping jewelry doesn't always bestow enchant on user, i had much trouble with amulet on strength it seemed to 
   work 1 on 4 tries, weird (tires of throwing away and grabbing back)
-- Halve mana loss caused by potions
-- Enchant end sounds doesnt work
+- Halve mana/life loss caused by potions
 - Runes need to be repriced much like Arcane Spellbooks were
   
 ABYSS 2

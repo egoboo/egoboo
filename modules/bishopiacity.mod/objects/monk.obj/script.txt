@@ -10,6 +10,11 @@ IfTimeOut
   tmpargument = rand & 15 + 30
   SetTime
   
+IfSomeoneIsStealing
+  tmpargument = TEAME
+  TargetJoinTeam
+  CallForHelp  
+  
 // Show the character's location
 tmpx = selfx
 tmpy = selfy
@@ -75,6 +80,9 @@ IfKilled
   // Make the character body
   tmpargument = 45
   SetBumpHeight
+  
+  tmpargument = TEAME
+  TargetJoinTeam
 
 //------------------------------------------------------------------------------
 // ZZ> Handle being attacked by screaming

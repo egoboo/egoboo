@@ -165,8 +165,8 @@ IfBumped
 
 //What to do if killed
 IfKilled
-  IfTargetIsAPlayer
-    CallForHelp			//Warn friends
+  tmpargument = TEAME
+  TargetJoinTeam
   
   //Play a sound when killed
   tmpargument = 6
@@ -190,7 +190,8 @@ IfAttacked
   SetTime
   IfTargetIsAPlayer
     CallForHelp
-    JoinEvilTeam
+    tmpargument = TEAME
+    TargetJoinTeam
   Else
     SetTargetToOldTarget
 
@@ -199,6 +200,5 @@ IfCalledForHelp
     SetOwnerToTarget
     tmpargument = 5
     SetState
-    JoinEvilTeam
 
 End	//The end

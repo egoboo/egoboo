@@ -113,23 +113,20 @@ bool_t remove_enchant( Uint16 ienc )
         iwave = EveStack.lst[ieve].endsoundindex;
         if ( VALID_SND( iwave ) )
         {
-            Uint16 ispawner = penc->spawner;
-            if ( VALID_CHR(ispawner) )
+			Uint16 imodel = penc->spawnermodel;
+            if ( VALID_CAP(imodel) )
             {
-                Uint16 imodel = ChrList.lst[ispawner].model;
-                if ( VALID_CAP(imodel) )
+                if ( VALID_CHR(itarget) )
                 {
-                    if ( VALID_CHR(itarget) )
-                    {
-                        sound_play_chunk(ChrList.lst[itarget].pos_old, CapList[imodel].wavelist[iwave]);
-                    }
-                    else
-                    {
-                        sound_play_chunk( PCamera->track_pos, CapList[imodel].wavelist[iwave]);
-                    }
+                    sound_play_chunk(ChrList.lst[itarget].pos_old, CapList[imodel].wavelist[iwave]);
+                }
+                else
+                {
+                    sound_play_chunk( PCamera->track_pos, CapList[imodel].wavelist[iwave]);
                 }
             }
         }
+        
     }
 
     // Unset enchant values, doing morph last
@@ -693,6 +690,7 @@ Uint16 spawn_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 ienc, 
         penc->target  = VALID_CHR(target)  ? target  : MAX_CHR;
         penc->owner   = VALID_CHR(owner)   ? owner   : MAX_CHR;
         penc->spawner = VALID_CHR(spawner) ? spawner : MAX_CHR;
+		penc->spawnermodel = VALID_CAP(ChrList.lst[spawner].model) ? ChrList.lst[spawner].model : MAX_CHR;
 
         if ( VALID_CHR(spawner) )
         {
@@ -1157,7 +1155,7 @@ void unset_enchant_value( Uint16 ienc, Uint8 valueindex )
     enc_t * penc;
     chr_t * ptarget;
 
-    if ( ienc >= MAX_ENC || !EncList.lst[ienc].on) return;
+    if ( INVALID_ENC( ienc ) ) return;
     penc = EncList.lst + ienc;
 
     character = penc->target;

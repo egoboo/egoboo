@@ -21,6 +21,9 @@ IfKilled
   // Make the character body
   tmpargument = 45
   SetBumpHeight
+  
+  tmpargument = TEAME
+  TargetJoinTeam
 
 //------------------------------------------------------------------------------
 //Handle being attacked by blocking or countering or running away
@@ -31,7 +34,7 @@ IfAttacked
   
   //Get mean
   IfTargetIsAPlayer
-    tmpargument = 5
+    tmpargument = TEAME
     TargetJoinTeam
     CallForHelp
     tmpargument = 1

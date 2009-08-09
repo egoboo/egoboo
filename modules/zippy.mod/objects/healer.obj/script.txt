@@ -9,7 +9,8 @@ IfAttacked
   SetTargetToWhoeverAttacked
     IfTargetIsAPlayer
       CallForHelp
-      JoinEvilTeam
+      tmpargument = TEAME   //Team EVIL
+      TargetJoinTeam
   SetTargetToOldTarget
 IfCalledForHelp
   SetTargetToWhoeverCalledForHelp	  //
@@ -18,7 +19,6 @@ IfCalledForHelp
       SetState				      // State 2 ( Helper )
     Else				    // Too late
       SetTargetToOldTarget		      //
-  JoinEvilTeam
 
 IfKilled				// This reduces the height of the char
   tmpargument = 1
@@ -29,6 +29,9 @@ IfKilled				// This reduces the height of the char
   DropMoney				  //
   tmpargument = 45			  //
   SetBumpHeight				  //
+  
+  tmpargument = TEAME   //Team EVIL
+  TargetJoinTeam
 
 IfTimeOut				// This is done every so often
   

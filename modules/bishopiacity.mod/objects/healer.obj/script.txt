@@ -3,20 +3,23 @@ IfAttacked
   SetTargetToWhoeverAttacked
     IfTargetIsAPlayer
       CallForHelp
-      JoinEvilTeam
+      tmpargument = TEAME
+      TargetJoinTeam
   SetTargetToOldTarget
 IfCalledForHelp
-  SetTargetToWhoeverCalledForHelp	  //
+  SetTargetToWhoeverCalledForHelp
     IfTargetIsAlive			    // Go heal 'em
       tmpargument = 2			      //
       SetState				      // State 2 ( Helper )
     Else				    // Too late
-      SetTargetToOldTarget		      //
-  JoinEvilTeam
+      SetTargetToOldTarget
 
 IfKilled				// This reduces the height of the char
   tmpargument = 1
   PlaySound
+  
+  tmpargument = TEAME
+  TargetJoinTeam
 
   tmpargument = 0			  // Last words...
   SetState				  //

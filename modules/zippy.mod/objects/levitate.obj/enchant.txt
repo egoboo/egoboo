@@ -77,4 +77,3 @@ Dexterity boost ( -3.0 to 3.0 )			: 0.0
 :[TYPE] 0       // Spawn particles of type 0
 :[FACE] 0       // Facing add for each one...
 :[SEND] 0	// The end sound
-:[SFRQ] 15000	// The end sound frequency

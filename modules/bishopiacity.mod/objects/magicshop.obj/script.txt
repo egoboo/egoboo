@@ -73,17 +73,20 @@ IfAttacked			//Sombody dares to attack zambini?!
     CallForHelp
     BecomeLeader
 
-  JoinEvilTeam			//Give them hell
+  tmpargument = TEAME
+  TargetJoinTeam			//Give them hell
+  
   tmpargument = 1		//Enter combat
   SetState
+  
 IfCalledForHelp			//Somebody else is under attack
-  JoinEvilTeam
   tmpargument = 1		//Enter combat
   SetState
 
 IfSomeoneIsStealing     //Someone is stealing from our shop! ><
   CallForHelp           //Call the guards!
-  JoinEvilTeam
+  tmpargument = TEAME
+  TargetJoinTeam
   tmpargument = 1
   SetState                  //combat mode
 

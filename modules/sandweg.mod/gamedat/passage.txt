@@ -9,3 +9,6 @@
 4 DivineGate:    22 17     23  18          F       T             F
 5 DivineGateOpen:22 16     23  19          T       T             F
 6 DivineShop:    19 11     26  15          T       T             F
+7 EscapeZoneOne: 10 2      12  3           T       T             F
+8 EscapeZoneTwo: 60 36     61  38          T       T             F
+9 SpawnZone:     35 37     39  41          T       T             F

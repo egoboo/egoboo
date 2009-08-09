@@ -12,10 +12,11 @@ IfAttacked
   SetTargetToWhoeverAttacked
     IfTargetIsAPlayer
       CallForHelp
-      tmpargument = 5
+      tmpargument = TEAME
       TargetJoinTeam
   SetTargetToOldTarget
 IfCalledForHelp
+  DisableExport
   SetTargetToWhoeverCalledForHelp
     tmpargument = 0
     
@@ -44,7 +45,7 @@ IfTargetIsOnHatedTeam
 //----------------------------------------------------------------------------------
 IfKilled				// This reduces the height of the char
   CallForHelp			//Alert friends
-  tmpargument = 5
+  tmpargument = TEAME
   TargetJoinTeam
 
   IfTargetIsOnSameTeam			  // Fragged!

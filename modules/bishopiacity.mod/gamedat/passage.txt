@@ -11,4 +11,7 @@
 9 SecretShop:    77    34     79  37         T       T             F
 10 AlkorShop:    75    79     80  83         T       T             F
 11 PaladinShop:    23    39     25  43         T       T             F
+12 GateEscapeOne:    36    0     40  3         T       T             F
+13 GateEscapeTwo:    36    115     40  117         T       T             F
+14 SpawnZone:    56    72     59  75         T       T             F
 

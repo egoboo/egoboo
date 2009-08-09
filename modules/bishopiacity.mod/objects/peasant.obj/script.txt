@@ -7,14 +7,17 @@
 IfAttacked
   Run
   CallForHelp
-  JoinEvilTeam
+  IfTargetIsAPlayer
+    tmpargument = TEAME
+    TargetJoinTeam
   tmpargument = 2
   SetState
 IfCalledForHelp
-  JoinEvilTeam
   Walk
 IfKilled
   CallForHelp			//Warn friends
+  tmpargument = TEAME
+  TargetJoinTeam
 
 IfSpawned
   tmpargument = rand & 3	//Randomize skin

@@ -2510,21 +2510,17 @@ bool_t export_one_character_profile( const char *szSaveName, Uint16 character )
     // Skin defenses
     fprintf( filewrite, "Base defense   : %3d %3d %3d %3d\n", 255 - pcap->defense[0], 255 - pcap->defense[1],
              255 - pcap->defense[2], 255 - pcap->defense[3] );
-    damagetype = 0;
-
-    while ( damagetype < DAMAGE_COUNT )
+    
+    for ( damagetype = 0; damagetype < DAMAGE_COUNT; damagetype++ )
     {
         fprintf( filewrite, "%c damage shift : %3d %3d %3d %3d\n", types[damagetype],
                  pcap->damagemodifier[damagetype][0]&DAMAGESHIFT,
                  pcap->damagemodifier[damagetype][1]&DAMAGESHIFT,
                  pcap->damagemodifier[damagetype][2]&DAMAGESHIFT,
-                 pcap->damagemodifier[damagetype][3]&DAMAGESHIFT );
-        damagetype++;
+                 pcap->damagemodifier[damagetype][3]&DAMAGESHIFT );   
     }
-
-    damagetype = 0;
-
-    while ( damagetype < DAMAGE_COUNT )
+    
+    for ( damagetype = 0; damagetype < DAMAGE_COUNT; damagetype++ )
     {
         skin = 0;
 
@@ -2540,9 +2536,7 @@ bool_t export_one_character_profile( const char *szSaveName, Uint16 character )
 
             skin++;
         }
-
         fprintf( filewrite, "%c damage code  : %3c %3c %3c %3c\n", types[damagetype], codes[0], codes[1], codes[2], codes[3] );
-        damagetype++;
     }
 
     fprintf( filewrite, "Acceleration   : %3.0f %3.0f %3.0f %3.0f\n", pcap->maxaccel[0]*80,
@@ -5058,7 +5052,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
 
             // Play the jump sound
             ijump = CapList[pchr->model].soundindex[SOUND_JUMP];
-            if ( ijump >= 0 && ijump < MAX_WAVE )
+            if ( VALID_SND( ijump ) )
             {
                 sound_play_chunk( pchr->pos, CapList[pchr->model].wavelist[ijump] );
             }
@@ -5089,7 +5083,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
                 // Play the jump sound (Boing!)
                 {
                     int ijump = CapList[pchr->model].soundindex[SOUND_JUMP];
-                    if ( ijump >= 0 && ijump < MAX_WAVE )
+                    if ( VALID_SND( ijump ) )
                     {
                         sound_play_chunk( pchr->pos, CapList[pchr->model].wavelist[ijump] );
                     }
@@ -5778,7 +5772,7 @@ void move_characters( void )
             if ( Md2FrameList[pchr->inst.frame_nxt].framefx&MADFX_FOOTFALL )
             {
                 int ifoot = CapList[pchr->model].soundindex[SOUND_FOOTFALL];
-                if ( ifoot >= 0 && ifoot < MAX_WAVE )
+                if ( VALID_SND( ifoot ) )
                 {
                     sound_play_chunk( pchr->pos, CapList[pchr->model].wavelist[ifoot] );
                 }

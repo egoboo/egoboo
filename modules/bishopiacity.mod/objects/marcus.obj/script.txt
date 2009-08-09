@@ -2,10 +2,12 @@
 IfAttacked
   SetTargetToWhoeverAttacked
   IfTargetIsOnSameTeam
-    JoinEvilTeam
+    tmpargument = TEAME
+    TargetJoinTeam
     CallForHelp
-IfCalledForHelp
-  JoinEvilTeam
+IfKilled
+  tmpargument = TEAME
+  TargetJoinTeam
 
 //Talk
 IfBumped

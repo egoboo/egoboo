@@ -50,6 +50,7 @@ IfCalledForHelp
   
   tmpargument = STATECOMBAT
   SetState
+  DisableExport
   
 //------------------------------------------------------------------------------
 //Handle the AI

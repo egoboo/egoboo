@@ -63,7 +63,6 @@ IfBumped
 
 //become bad
 IfCalledForHelp
-  JoinEvilTeam
   tmpargument = 1               //Combat
   SetState
 
@@ -76,6 +75,9 @@ IfAttacked
     tmpargument = 4
   PlaySound
 
+  IfTargetIsAPlayer
+    tmpargument = TEAME
+    TargetJoinTeam
 //Yah!
 IfUsed
   tmpargument = 5
@@ -96,6 +98,9 @@ IfKilled
   Else
     tmpargument = 1
   SendMessage
+  
+  tmpargument = TEAME
+  TargetJoinTeam
 
 //Use shield and attack
 IfTargetIsOnHatedTeam

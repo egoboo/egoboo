@@ -14,8 +14,8 @@ IfSpawned
 //-----------------------------------------------------------------------------------------
 //Handle death
 IfKilled
-  IfTargetIsAPlayer
-    CallForHelp			//Warn friends
+  tmpargument = TEAME
+  TargetJoinTeam
 
   //Drop goodies
   tmpargument = selfmoney
@@ -45,17 +45,17 @@ IfAttacked
   tmpargument = rand & 1 + 4
   PlaySound
   SetTargetToWhoeverAttacked
-    IfTargetIsAPlayer		//Player got into trouble
-      CallForHelp
-      JoinEvilTeam
-      tmpargument = 1
-      SetState
-    Else			//Wops, a friendly NPC attacked
-      SetTargetToOldTarget
+  IfTargetIsAPlayer		//Player got into trouble
+    CallForHelp
+    tmpargument = TEAME
+    TargetJoinTeam
+    tmpargument = 1
+    SetState
+  Else			//Wops, a friendly NPC attacked
+    SetTargetToOldTarget
 
 IfCalledForHelp
   DisableExport
-  JoinEvilTeam
   tmpargument = 1
   SetState
 

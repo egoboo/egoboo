@@ -3,18 +3,18 @@ IfAttacked
   SetTargetToWhoeverAttacked
   IfTargetIsAPlayer
     CallForHelp
-    tmpargument = 5       //Team EVIL
+    tmpargument = TEAME       //Team EVIL
     TargetJoinTeam
   tmpargument = rand & 1
   PlaySound
 IfKilled
   SetTargetToWhoeverAttacked
   CallForHelp
-  tmpargument = 5   //Team EVIL
+  tmpargument = TEAME   //Team EVIL
   TargetJoinTeam
 IfSomeoneIsStealing     //Someone is stealing from our shop! ><
   CallForHelp           //Call the guards!
-  tmpargument = 5       //Team EVIL
+  tmpargument = TEAME       //Team EVIL
   TargetJoinTeam
 
 //------------------------------------------------------------------------------

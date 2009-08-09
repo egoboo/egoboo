@@ -4874,7 +4874,7 @@ Uint8 scr_set_TargetToWhoeverIsInPassage( script_state_t * pstate, ai_state_t * 
 
     SCRIPT_FUNCTION_BEGIN();
 
-    sTmp = who_is_blocking_passage( pstate->argument );
+    sTmp = who_is_blocking_passage( pstate->argument, btrue, btrue, bfalse, bfalse, 0 );
     returncode = bfalse;
     if ( sTmp != MAX_CHR )
     {
@@ -6028,7 +6028,7 @@ Uint8 scr_set_TargetToPassageID( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    sTmp = who_is_blocking_passage_ID( pstate->argument, pstate->distance );
+    sTmp = who_is_blocking_passage( pstate->argument, bfalse, bfalse, bfalse, btrue, pstate->distance );
     returncode = bfalse;
     if ( sTmp != MAX_CHR )
     {
@@ -6307,7 +6307,7 @@ Uint8 scr_SomeoneIsStealing( script_state_t * pstate, ai_state_t * pself )
 {
     SCRIPT_FUNCTION_BEGIN();
 
-    // ThIs function passes if someone stealed from it's shop
+    // This function passes if someone stealed from it's shop
     returncode = ( pself->order_value == STOLEN && pself->order_counter == SHOP_THEFT );
 
     SCRIPT_FUNCTION_END();

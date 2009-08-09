@@ -1,5 +1,6 @@
 Version 2.7.8 (xx.08.2009)
 - New Feature: Improved AI by adding Line of Sight detection for targeting.
+- New Feature: Improved UI by implementing in-game popup text.
 - Update: Most wands have now increased charge limit making them much more useful.
 - Update: The Book of Enchant can now be used to recharge wands.
 - Update: The Morph spell now allows you to use [TECH] skill but disables spellcasting.

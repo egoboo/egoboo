@@ -44,8 +44,7 @@ IfBumped
   IfStateIs0
     IfTargetIsOnSameTeam
       IfTargetIsAPlayer
-        GetContent
-        tmpx = tmpargument
+        tmpx = selfcontent
         
         //Trade finished PART 2
         tmpy = 7
@@ -281,8 +280,7 @@ IfStateIs2
     tmpargument = 0
     SetContent
   Else
-    GetContent
-    tmpx = tmpargument
+    tmpx = selfcontent
     tmpy = 175                  //3,5 sec
     IfXIsLessThanY
       tmpargument = LATCHLEFT
@@ -310,7 +308,7 @@ IfAttacked
   SetTargetToWhoeverAttacked
   IfTargetIsOnSameTeam
     IfTargetIsAPlayer
-      tmpargument = 5       //Team EVIL
+      tmpargument = TEAME
       TargetJoinTeam
       CallForHelp
       tmpargument = 2

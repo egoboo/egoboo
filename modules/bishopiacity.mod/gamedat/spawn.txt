@@ -29,7 +29,7 @@ Player3:   NONE    18  58.5   72.5   0.0   N    0   0  0   0   0   T   F   G			/
   unknown:   NONE    24  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   unknown:   NONE    25  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   unknown:   NONE    26  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-Player4:   NONE    27  54.5   72.5   0.0   N    0   0  0   0   0   T   F   G			//Player 4 stuff
+Player4:   NONE    27  56.5   72.5   0.0   N    0   0  0   0   0   T   F   G			//Player 4 stuff
   unknown:   NONE    28  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
   unknown:   NONE    29  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
   unknown:   NONE    30  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
@@ -38,6 +38,8 @@ Player4:   NONE    27  54.5   72.5   0.0   N    0   0  0   0   0   T   F   G			/
   unknown:   NONE    33  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   unknown:   NONE    34  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   unknown:   NONE    35  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  
+moduletool.obj:   NONE    99  56.0   74.0   0.0   N    0   0  12   2   0   F   F   N
 
 //-----------------------------------------------------------------------------------
 //SHOPS

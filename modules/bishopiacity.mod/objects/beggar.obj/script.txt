@@ -69,11 +69,21 @@ IfBumped
           tmpargument = 75               //Wait before talking
           SetTime
 
-//become bad
-IfCalledForHelp
-  JoinEvilTeam
+//Make attackers hostile
+IfAttacked
+  SetTargetToWhoeverAttacked
+  IfTargetIsAPlayer
+    CallForHelp
+    tmpargument = TEAME
+    TargetJoinTeam
   tmpargument = 1               //Combat
   SetState
+IfCalledForHelp
+  tmpargument = 1               //Combat
+  SetState
+IfKilled
+  tmpargument = TEAME
+  TargetJoinTeam
 
 //Ouch
 IfAttacked

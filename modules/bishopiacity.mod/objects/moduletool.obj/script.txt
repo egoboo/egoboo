@@ -21,27 +21,67 @@ IfContentIs
     DropItems
     GoPoof
 
-  //DEBUG
-  tmpargument = 1
-  tmpdistance = 0
-  PlayMusic
-  //DEBUG END
-
-  ShowMap
-  ShowYouAreHere
-
 //------------------------------------------------------------------------------------
 //Display the map and play music
 tmpargument = 2
 IfContentIs
-  ShowMap
-  ShowYouAreHere
-  tmpargument = 1
-  tmpdistance = 0
-  PlayMusic
-
-  //Do last
-  GoPoof
+  IfSpawned
+    ShowMap
+    ShowYouAreHere
+    tmpargument = 1
+    tmpdistance = 0
+    PlayMusic
+    
+    //Check if any outlaws have entered town
+    tmpargument = passage + 2
+    SetTargetToWhoeverIsInPassage
+      tmpargument = [EVIL]
+      IfTargetHasQuestID
+        tmpargument = TEAME
+        TargetJoinTeam
+    
+  //Check the two exits for runners
+  IfTimeOut
+    tmpargument = 35
+    SetTime
+    tmpargument = passage
+    SetTargetToWhoeverIsInPassage
+      IfTargetIsAPlayer
+        tmpx = targetteam
+        tmpy = TEAME
+        IfXIsEqualToY
+          EnableExport
+          EndModule
+          BeatModule
+          ClearEndMessage
+          tmpargument = 0
+          AddEndMessage
+          tmpargument = 1
+          AddEndMessage
+          
+          //Remember them for next time
+          tmpargument = [EVIL]
+          tmpdistance = 0
+          AddQuestAllPlayers
+    tmpargument = passage + 1
+    SetTargetToWhoeverIsInPassage
+      IfTargetIsAPlayer
+        tmpx = targetteam
+        tmpy = TEAME
+        IfXIsEqualToY
+          EnableExport
+          EndModule
+          BeatModule
+          ClearEndMessage
+          tmpargument = 0
+          AddEndMessage
+          tmpargument = 1
+          AddEndMessage
+          
+          //Remember them for next time
+          tmpargument = [EVIL]
+          tmpdistance = 0
+          AddQuestAllPlayers
 
 //------------------------------------------------------------------------------------
 //Create some random magic stuff

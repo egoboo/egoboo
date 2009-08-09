@@ -61,18 +61,20 @@ IfAttacked
   SetTargetToWhoeverAttacked
   IfTargetIsAPlayer
     CallForHelp
-    JoinEvilTeam
+    tmpargument = TEAME
+    TargetJoinTeam
     tmpargument = 1	//Go combat
     SetState
   Else
     SetTargetToOldTarget
 IfKilled
   CallForHelp			//Warn friends
-IfCalledForHelp
-  JoinEvilTeam
+  tmpargument = TEAME
+  TargetJoinTeam
 IfSomeoneIsStealing     //Someone is stealing from our shop! ><
   CallForHelp           //Call the guards!
-  JoinEvilTeam
+  tmpargument = TEAME
+  TargetJoinTeam
 
 //------------------------------------------------------------------------------
 // Add some random goodies

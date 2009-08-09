@@ -1,14 +1,14 @@
 // Get mean if characters wanna be bad
 IfAttacked
   CallForHelp
-  tmpargument = 5       //Team EVIL
+  tmpargument = TEAME       //Team EVIL
   TargetJoinTeam
 IfKilled
-  tmpargument = 5       //Team EVIL
+  tmpargument = TEAME       //Team EVIL
   TargetJoinTeam
 IfSomeoneIsStealing     //Someone is stealing from our shop! ><
   CallForHelp           //Call the guards!
-  tmpargument = 5       //Team EVIL
+  tmpargument = TEAME       //Team EVIL
   TargetJoinTeam
 
 //------------------------------------------------------------------------------
