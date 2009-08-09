@@ -2361,8 +2361,8 @@ void resize_characters()
                 }
                 else
                 {
-                    int itmp = CapList[ChrList.lst[cnt].model].weight * ChrList.lst[cnt].fat * ChrList.lst[cnt].fat * ChrList.lst[cnt].fat;
-                    ChrList.lst[cnt].weight = MIN( itmp, 0xFFFFFFFE );
+                    Uint32 itmp = CapList[ChrList.lst[cnt].model].weight * ChrList.lst[cnt].fat * ChrList.lst[cnt].fat * ChrList.lst[cnt].fat;
+                    ChrList.lst[cnt].weight = MIN( itmp, (Uint32)0xFFFFFFFE );
                 }
             }
         }
@@ -4010,8 +4010,8 @@ Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
     }
     else
     {
-        int itmp = pcap->weight * pchr->fat * pchr->fat * pchr->fat;
-        pchr->weight = MIN( itmp, 0xFFFFFFFE );
+        Uint32 itmp = pcap->weight * pchr->fat * pchr->fat * pchr->fat;
+        pchr->weight = MIN( itmp, (Uint32)0xFFFFFFFE );
     }
 
     // Grip info
@@ -4502,8 +4502,8 @@ void change_character( Uint16 ichr, Uint16 profile, Uint8 skin, Uint8 leavewhich
     }
     else
     {
-        int itmp = pcap->weight * pchr->fat * pchr->fat * pchr->fat;
-        pchr->weight = MIN( itmp, 0xFFFFFFFE );
+        Uint32 itmp = pcap->weight * pchr->fat * pchr->fat * pchr->fat;
+        pchr->weight = MIN( itmp, (Uint32)0xFFFFFFFE );
     }
 
     // Character scales...  Magic numbers

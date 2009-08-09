@@ -50,7 +50,7 @@ typedef struct s_looped_sound_data looped_sound_data_t;
 
 DEFINE_LIST( static, looped_sound_data_t, LoopedList, LOOPED_COUNT );
 
-DECLARE_LIST( looped_sound_data_t, LoopedList );
+static DECLARE_LIST( looped_sound_data_t, LoopedList );
 
 void   LoopedList_init();
 void   LoopedList_clear();

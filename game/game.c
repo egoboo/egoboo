@@ -1814,8 +1814,19 @@ Uint16 get_target( Uint16 ichr_src, Uint32 max_dist, TARGET_TYPE target_type, bo
 
     Uint16 best_target;
     float  best_dist2;
+    int    current_ticks;
 
     if ( INVALID_CHR(ichr_src) ||  TARGET_NONE == target_type ) return MAX_CHR;
+
+    current_ticks = SDL_GetTicks();
+
+    // just return the old target if
+    if ( 0 != ChrList.lst[ichr_src].stoppedby && ChrList.lst[ichr_src].ai.los_timer > current_ticks )
+    {
+        return ChrList.lst[ichr_src].ai.target;
+    }
+
+    ChrList.lst[ichr_src].ai.los_timer = current_ticks + TICKS_PER_SEC * 0.5f * ( 1.0f + rand() / (float)RAND_MAX );
 
     // set the line-of-sight source
     los_info.x0         = ChrList.lst[ichr_src].pos.x;
@@ -6075,7 +6086,6 @@ void expand_escape_codes( Uint16 ichr, script_state_t * pstate, char * src, char
 {
     int    cnt;
     STRING szTmp;
-    char   lTmp;
 
     chr_t      * pchr, *ptarget, *powner;
     ai_state_t * pai;

@@ -37,7 +37,7 @@ static Uint8 cLoadBuffer[MD2MAXLOADSIZE];// Where to put an MD2
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-float kMd2Normals[][3] =
+float kMd2Normals[MADLIGHTINDICES][3] =
 {
 #include "id_normals.inl"
     ,
@@ -90,7 +90,7 @@ int md2_rip_header()
     ipIntPointer = ( int* ) cLoadBuffer;
 
     iTmp = ENDIAN_INT32( ipIntPointer[0] );
-    if ( iTmp != MD2START ) return bfalse;
+    if ( iTmp != MD2_MAGIC_NUMBER ) return bfalse;
 
     return btrue;
 }

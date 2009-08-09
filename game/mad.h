@@ -33,9 +33,6 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-#define MADLIGHTINDICES                 (MD2LIGHTINDICES + 1) // MD2's store vertices as x,y,z,normal
-#define EQUALLIGHTINDEX                 162                // I added an extra index to do the spikey mace...
-
 // Model tags
 enum
 {

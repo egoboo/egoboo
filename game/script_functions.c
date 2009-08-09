@@ -530,10 +530,13 @@ Uint8 scr_set_TargetToNearbyEnemy( script_state_t * pstate, ai_state_t * pself )
     // set_TargetToNearbyEnemy()
     // This function sets the target to a nearby enemy, failing if there are none
 
+    Uint16 ichr;
+
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = bfalse;
-    if (get_target( pself->index, NEARBY, TARGET_ENEMY, bfalse, bfalse, IDSZ_NONE, bfalse) != MAX_CHR) returncode = btrue;
+    ichr = get_target( pself->index, NEARBY, TARGET_ENEMY, bfalse, bfalse, IDSZ_NONE, bfalse);
+
+    returncode = (ichr != pself->index) && VALID_CHR(ichr);
 
     SCRIPT_FUNCTION_END();
 }
@@ -2223,10 +2226,13 @@ Uint8 scr_set_TargetToWideEnemy( script_state_t * pstate, ai_state_t * pself )
     // This function sets the target to an enemy in the vicinity around the
     // character, failing if there are none
 
+    Uint16 ichr;
     SCRIPT_FUNCTION_BEGIN();
 
     // This function finds an enemy, and proceeds only if there is one
-    returncode = (MAX_CHR != get_target( pself->index, WIDE, TARGET_ENEMY, bfalse, bfalse, IDSZ_NONE, bfalse));
+    ichr = get_target( pself->index, WIDE, TARGET_ENEMY, bfalse, bfalse, IDSZ_NONE, bfalse);
+
+    returncode = (ichr != pself->index) && VALID_CHR( ichr );
 
     SCRIPT_FUNCTION_END();
 }
@@ -3954,6 +3960,8 @@ Uint8 scr_set_TargetToWideBlahID( script_state_t * pstate, ai_state_t * pself )
     // This function sets the target to a character that matches the description,
     // and who is located in the general vicinity of the character
 
+    Uint16 ichr;
+
     SCRIPT_FUNCTION_BEGIN();
     {
         TARGET_TYPE blahteam = TARGET_NONE;
@@ -3969,9 +3977,10 @@ Uint8 scr_set_TargetToWideBlahID( script_state_t * pstate, ai_state_t * pself )
         }
 
         // Try to find one
-        returncode =  (MAX_CHR != get_target(
-                           pself->index, WIDE, blahteam, ( pstate->distance >> 3 ) & 1 , ( pstate->distance ) & 1,
-                           pstate->argument, ( pstate->distance >> 4 ) & 1 ));
+        ichr = get_target( pself->index, WIDE, blahteam, ( pstate->distance >> 3 ) & 1 , ( pstate->distance ) & 1,
+                           pstate->argument, ( pstate->distance >> 4 ) & 1 );
+
+        returncode =  (ichr != pself->index) && VALID_CHR(ichr);
     }
 
     SCRIPT_FUNCTION_END();
@@ -4232,12 +4241,15 @@ Uint8 scr_set_TargetToDistantEnemy( script_state_t * pstate, ai_state_t * pself 
     // This function finds a character within a certain distance of the
     // character, failing if there are none
 
+    Uint16 ichr;
     SCRIPT_FUNCTION_BEGIN();
 
     // This function finds an enemy, within a certain distance to the character, and
     // proceeds only if there is one
-    returncode = bfalse;
-    if (get_target(pself->index, pstate->distance, TARGET_ENEMY, bfalse, bfalse, IDSZ_NONE, bfalse) != MAX_CHR) returncode = btrue;
+
+    ichr = get_target(pself->index, pstate->distance, TARGET_ENEMY, bfalse, bfalse, IDSZ_NONE, bfalse);
+
+    returncode = (ichr != pself->index) && VALID_CHR(ichr);
 
     SCRIPT_FUNCTION_END();
 }
@@ -5211,6 +5223,7 @@ Uint8 scr_set_TargetToNearestBlahID( script_state_t * pstate, ai_state_t * pself
     // This function finds the NEAREST ( exact ) character that fits the given
     // parameters, failing if it finds none
 
+    Uint16 ichr;
     SCRIPT_FUNCTION_BEGIN();
 
     {
@@ -5227,8 +5240,10 @@ Uint8 scr_set_TargetToNearestBlahID( script_state_t * pstate, ai_state_t * pself
         }
 
         // Try to find one
-        if (get_target(pself->index, NEAREST, blahteam, ( ( pstate->distance >> 3 ) & 1 ),
-                       ( ( pstate->distance ) & 1 ), pstate->argument, (( pstate->distance >> 4 ) & 1) ) != MAX_CHR) returncode = btrue;
+        ichr = get_target( pself->index, NEAREST, blahteam, ( ( pstate->distance >> 3 ) & 1 ),
+                           ( ( pstate->distance ) & 1 ), pstate->argument, (( pstate->distance >> 4 ) & 1) );
+
+        returncode = (ichr != pself->index) && VALID_CHR(ichr);
 
     }
 
@@ -5241,9 +5256,12 @@ Uint8 scr_set_TargetToNearestEnemy( script_state_t * pstate, ai_state_t * pself 
     // set_TargetToNearestEnemy()
     // This function finds the NEAREST ( exact ) enemy, failing if it finds none
 
+    Uint16 ichr;
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = (MAX_CHR != get_target(pself->index, 0, TARGET_ENEMY, bfalse, bfalse, IDSZ_NONE, bfalse ) );
+    ichr = get_target(pself->index, 0, TARGET_ENEMY, bfalse, bfalse, IDSZ_NONE, bfalse );
+
+    returncode = (ichr != pself->index) && VALID_CHR( ichr );
 
     SCRIPT_FUNCTION_END();
 }
@@ -5254,9 +5272,12 @@ Uint8 scr_set_TargetToNearestFriend( script_state_t * pstate, ai_state_t * pself
     // set_TargetToNearestFriend()
     // This function finds the NEAREST ( exact ) friend, failing if it finds none
 
+    Uint16 ichr;
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = (MAX_CHR != get_target(pself->index, 0, TARGET_FRIEND, bfalse, bfalse, IDSZ_NONE, bfalse ) );
+    ichr = get_target(pself->index, 0, TARGET_FRIEND, bfalse, bfalse, IDSZ_NONE, bfalse );
+
+    returncode = (ichr != pself->index) && VALID_CHR(ichr);
 
     SCRIPT_FUNCTION_END();
 }
@@ -5269,9 +5290,12 @@ Uint8 scr_set_TargetToNearestLifeform( script_state_t * pstate, ai_state_t * pse
     // This function finds the NEAREST ( exact ) friend or enemy, failing if it
     // finds none
 
+    Uint16 ichr;
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = (MAX_CHR != get_target(pself->index, 0, TARGET_ALL, bfalse, bfalse, IDSZ_NONE, bfalse ) );
+    ichr = get_target(pself->index, 0, TARGET_ALL, bfalse, bfalse, IDSZ_NONE, bfalse );
+
+    returncode = (ichr != pself->index) && VALID_CHR(ichr);
 
     SCRIPT_FUNCTION_END();
 }
