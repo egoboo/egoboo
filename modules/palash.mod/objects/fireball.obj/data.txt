@@ -197,6 +197,7 @@ Sound of Jump ( -1 for none )			: -1
 :[GOLD] 0
 :[HIDE] 0	// Hidden when in hand
 :[VALU] 1       //Always sold at 100% price
+:[BOOK] 1
 
 
 //-Notes------------------------------------------------------------------------

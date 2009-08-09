@@ -160,3 +160,4 @@ Jump sound     : -1
 :[HIDE] 0	//Dont show in hand
 :[ICON] 0	//Always show icon
 :[PLAT] 1	//Platform
+:[BOOK] 1

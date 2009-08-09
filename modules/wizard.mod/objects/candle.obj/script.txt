@@ -1,92 +1,95 @@
 // This plops down some particles and activates the summoning
-tmpx = selfx
-tmpy = selfy
-tmpturn = 0
-tmpdistance = 80
-Compass
-tmpdistance = 0
-tmpargument = 0
-SpawnExactParticle
-tmpargument = 1
-SpawnExactParticle
 
-tmpx = selfx
-tmpy = selfy
-tmpturn = tmpturn + 8192
-tmpdistance = 80
-Compass
-tmpdistance = 0
-tmpargument = 0
-SpawnExactParticle
-tmpargument = 1
-SpawnExactParticle
+IfSpawned
 
-tmpx = selfx
-tmpy = selfy
-tmpturn = tmpturn + 8192
-tmpdistance = 80
-Compass
-tmpdistance = 0
-tmpargument = 0
-SpawnExactParticle
-tmpargument = 1
-SpawnExactParticle
-
-tmpx = selfx
-tmpy = selfy
-tmpturn = tmpturn + 8192
-tmpdistance = 80
-Compass
-tmpdistance = 0
-tmpargument = 0
-SpawnExactParticle
-tmpargument = 1
-SpawnExactParticle
-
-tmpx = selfx
-tmpy = selfy
-tmpturn = tmpturn + 8192
-tmpdistance = 80
-Compass
-tmpdistance = 0
-tmpargument = 0
-SpawnExactParticle
-tmpargument = 1
-SpawnExactParticle
-
-tmpx = selfx
-tmpy = selfy
-tmpturn = tmpturn + 8192
-tmpdistance = 80
-Compass
-tmpdistance = 0
-tmpargument = 0
-SpawnExactParticle
-tmpargument = 1
-SpawnExactParticle
-
-tmpx = selfx
-tmpy = selfy
-tmpturn = tmpturn + 8192
-tmpdistance = 80
-Compass
-tmpdistance = 0
-tmpargument = 0
-SpawnExactParticle
-tmpargument = 1
-SpawnExactParticle
-
-tmpx = selfx
-tmpy = selfy
-tmpturn = tmpturn + 8192
-tmpdistance = 80
-Compass
-tmpdistance = 0
-tmpargument = 0
-SpawnExactParticle
-tmpargument = 1
-SpawnExactParticle
-
-GoPoof
-
+  tmpx = selfx
+  tmpy = selfy
+  tmpturn = 0
+  tmpdistance = 80
+  Compass
+  tmpdistance = 0
+  tmpargument = 0
+  SpawnExactParticle
+  tmpargument = 1
+  SpawnExactParticle
+  
+  tmpx = selfx
+  tmpy = selfy
+  tmpturn = tmpturn + 8192
+  tmpdistance = 80
+  Compass
+  tmpdistance = 0
+  tmpargument = 0
+  SpawnExactParticle
+  tmpargument = 1
+  SpawnExactParticle
+  
+  tmpx = selfx
+  tmpy = selfy
+  tmpturn = tmpturn + 8192
+  tmpdistance = 80
+  Compass
+  tmpdistance = 0
+  tmpargument = 0
+  SpawnExactParticle
+  tmpargument = 1
+  SpawnExactParticle
+  
+  tmpx = selfx
+  tmpy = selfy
+  tmpturn = tmpturn + 8192
+  tmpdistance = 80
+  Compass
+  tmpdistance = 0
+  tmpargument = 0
+  SpawnExactParticle
+  tmpargument = 1
+  SpawnExactParticle
+  
+  tmpx = selfx
+  tmpy = selfy
+  tmpturn = tmpturn + 8192
+  tmpdistance = 80
+  Compass
+  tmpdistance = 0
+  tmpargument = 0
+  SpawnExactParticle
+  tmpargument = 1
+  SpawnExactParticle
+  
+  tmpx = selfx
+  tmpy = selfy
+  tmpturn = tmpturn + 8192
+  tmpdistance = 80
+  Compass
+  tmpdistance = 0
+  tmpargument = 0
+  SpawnExactParticle
+  tmpargument = 1
+  SpawnExactParticle
+  
+  tmpx = selfx
+  tmpy = selfy
+  tmpturn = tmpturn + 8192
+  tmpdistance = 80
+  Compass
+  tmpdistance = 0
+  tmpargument = 0
+  SpawnExactParticle
+  tmpargument = 1
+  SpawnExactParticle
+  
+  tmpx = selfx
+  tmpy = selfy
+  tmpturn = tmpturn + 8192
+  tmpdistance = 80
+  Compass
+  tmpdistance = 0
+  tmpargument = 0
+  SpawnExactParticle
+  tmpargument = 1
+  SpawnExactParticle
+  
+  GoPoof
+  
 End					// All done

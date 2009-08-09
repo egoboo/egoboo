@@ -160,3 +160,4 @@ Jump sound     : -1
 :[ICON] 0
 :[SKIN] 0
 :[VALU] 1
+:[BOOK] 1

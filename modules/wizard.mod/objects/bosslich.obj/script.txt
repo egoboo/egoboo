@@ -146,13 +146,17 @@ IfAttacked
       tmpargument = 1
       SetState
       tmpargument = 20
-      SetTime
+      SetTime 
 
 //------------------------------------------------------------------------------
-// ZZ> For charging a spell...
-IfStateIs10
-  // Left hand
-  IfTimeOut
+// ZZ> Find something to do...
+IfTimeOut
+
+  //Make ghouls ressurect
+  CleanUp     
+  
+  // Charging a left hand spell?
+  IfStateIs10
     // Release the spell?
     tmpx = targetdistance - 128
     GetContent
@@ -178,17 +182,9 @@ IfStateIs10
     AddWaypoint
     tmpargument = 10
     SetTime
-  Else
-    // Keep charging
-    tmpargument = LATCHLEFT
-    PressLatchButton
-    tmpx = targetx - selfx > 1 + selfx
-    tmpy = targety - selfy > 1 + selfy
-    ClearWaypoints
-    AddWaypoint
-IfStateIs11
-  // Right hand
-  IfTimeOut
+
+  // Charging a right hand spell?
+  IfStateIs11  
     // Release the spell?
     tmpx = targetdistance - 128
     GetContent
@@ -213,28 +209,15 @@ IfStateIs11
     ClearWaypoints
     AddWaypoint
     tmpargument = 10
-    SetTime
-  Else
-    // Keep charging
-    tmpargument = LATCHRIGHT
-    PressLatchButton
-    tmpx = targetx - selfx > 1 + selfx
-    tmpy = targety - selfy > 1 + selfy
-    ClearWaypoints
-    AddWaypoint
-
-//------------------------------------------------------------------------------
-// ZZ> Find something to do...
-IfTimeOut
-  CleanUp     //Make ghouls ressurect
-  
+    SetTime  
+    
+  // Fall through to normal state
   IfStateIs15
-    // Fall through to normal state
     tmpargument = 0
     SetState
 
+  // Un-charged spell in right hand...
   IfStateIs13
-    // Un-charged spell in right hand...
     IfTargetIsOnHatedTeam
       tmpx = targetdistance - 128
       GetContent
@@ -252,9 +235,9 @@ IfTimeOut
       tmpargument = 0
       SetState
 
+  // Un-charged spell in left hand...
   IfStateIs12
     IfTargetIsOnHatedTeam
-      // Un-charged spell in left hand...
       tmpx = targetdistance - 128
       GetContent
       tmpy = tmpargument & 7 < 7
@@ -271,8 +254,8 @@ IfTimeOut
       tmpargument = 0
       SetState
 
-  IfStateIs3
-    // Pick a spell to use on the enemy...  Left or right
+  // Pick a spell to use on the enemy...  Left or right
+  IfStateIs3  
     IfTargetIsOnHatedTeam
       GetContent
       tmpx = tmpargument & 32896
@@ -322,8 +305,8 @@ IfTimeOut
           tmpargument = tmpturn
           SetState
 
+  // Halfway through a teleport
   IfStateIs2
-    // Halfway through a teleport
     tmpargument = rand & 15 + 35
     SetTime
     tmpargument = 7
@@ -346,8 +329,8 @@ IfTimeOut
     ClearWaypoints
     AddWaypoint
 
+  // Want to start a teleport
   IfStateIs1
-    // Want to start a teleport
     tmpargument = ACTIONMJ
     DoAction
       tmpargument = 2
@@ -388,7 +371,29 @@ IfTimeOut
         tmpy = rand & 511 - 256 + selfspawny
       ClearWaypoints
       AddWaypoint
+      
+Else
 
+  // Continue timed action actions
+
+  // Keep charging right hand spell
+  IfStateIs11
+    tmpargument = LATCHRIGHT
+    PressLatchButton
+    tmpx = targetx - selfx > 1 + selfx
+    tmpy = targety - selfy > 1 + selfy
+    ClearWaypoints
+    AddWaypoint
+    
+  // Keep charging left hand spell
+  IfStateIs10
+    tmpargument = LATCHLEFT
+    PressLatchButton
+    tmpx = targetx - selfx > 1 + selfx
+    tmpy = targety - selfy > 1 + selfy
+    ClearWaypoints
+    AddWaypoint 
+    
 //------------------------------------------------------------------------------
 End
 //------------------------------------------------------------------------------

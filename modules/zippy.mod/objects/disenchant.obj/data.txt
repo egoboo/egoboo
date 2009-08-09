@@ -158,3 +158,4 @@ Jump sound     : -1
 :[RANG] 1		//Ranged
 :[SQUA] 1		//Square formed
 :[ICON] 0
+:[BOOK] 1

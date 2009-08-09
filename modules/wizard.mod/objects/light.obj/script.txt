@@ -25,6 +25,7 @@ Else
   // Handle disenchantment
   IfKilled
     GoPoof
+    
   // Move around the owner
   IfTimeOut
     tmpx = ownerdistance

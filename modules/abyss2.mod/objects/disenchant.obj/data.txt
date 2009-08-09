@@ -158,3 +158,4 @@ Jump sound     : -1
 :[SQUA] 1		//Square formed
 :[ICON] 0
 :[VALU] 1       //Always sold at 100% price
+:[BOOK] 1

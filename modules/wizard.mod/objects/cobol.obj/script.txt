@@ -66,24 +66,6 @@ IfBumped
     SetTargetToOldTarget
 
 //------------------------------------------------------------------------------
-IfStateIs7
-  // Blocking...  Need to keep that button pressed
-  IfTimeOut
-    // Revert to combat state
-    tmpargument = 5
-    SetState
-    // Attack now if possible
-    GetContent
-    tmpx = targetdistance
-    tmpy = tmpargument
-    IfXIsLessThanY
-      IfHoldingMeleeWeapon
-        PressLatchButton
-  Else
-    IfHoldingShield
-      PressLatchButton
-
-//------------------------------------------------------------------------------
 IfKilled
   // Tell the players
   tmpargument = 0
@@ -205,6 +187,20 @@ IfAttacked
 
 //------------------------------------------------------------------------------
 IfTimeOut
+
+  // Finished blocking
+  IfStateIs7
+    // Revert to combat state
+    tmpargument = 5
+    SetState
+    // Attack now if possible
+    GetContent
+    tmpx = targetdistance
+    tmpy = tmpargument
+    IfXIsLessThanY
+      IfHoldingMeleeWeapon
+        PressLatchButton
+        
   // Check if the current target is alive or not
   IfStateIs8
     DoNothing
@@ -267,7 +263,9 @@ IfTimeOut
       AddWaypoint
       tmpargument = rand & 31 + 30 // TIme
   Else
+  
     // Foot soldier...
+    
     // Behave according to state
     IfStateIsOdd
       // Odd states are for melee weapons
@@ -289,8 +287,10 @@ IfTimeOut
               tmpargument = 5
               IssueOrder
               tmpargument = rand & 15 + 15 // Time
+
+      // Circle around the enemy              
       IfStateIs3
-        // Circle around the enemy
+      
         SetTurnModeToWatchTarget
 
         tmpx = targetx
@@ -332,8 +332,9 @@ IfTimeOut
             PressLatchButton
 
         tmpargument = rand & 15 + 10 // Time
+        
+      // Randomly issue the retreat order  
       IfStateIs5
-        // Randomly issue the retreat order
         tmpx = rand & 1023
         tmpy = 20
         IfXIsLessThanY
@@ -375,8 +376,9 @@ IfTimeOut
           ClearWaypoints
           AddWaypoint
           tmpargument = rand & 15 + 8 // Time
+          
+      // Rummage for a weapon
       IfStateIs1
-        // Rummage for a weapon
         IfHoldingMeleeWeapon
           // Acquire a target
           SetTurnModeToVelocity
@@ -406,7 +408,9 @@ IfTimeOut
           tmpargument = 15 // Time
     Else
       // Even states are for ranged weapons...
-      IfStateIs8    // ...and sleeping
+      
+      // ...and sleeping
+      IfStateIs8
         // Sleepy Z's
         tmpx = selfx
         tmpy = selfy
@@ -445,8 +449,9 @@ IfTimeOut
             tmpargument = 30 // Time
           Else
             tmpargument = 100 // Time
+            
+      // Decide whether to shoot again or not
       IfStateIs6
-        // Decide whether to shoot again or not
         tmpy = 120
         tmpargument = 1
         IfArmorIs
@@ -469,8 +474,11 @@ IfTimeOut
             tmpargument = 4
             SetState
         // Time needn't be set here
+        
+        
+      // Fire at the enemy
       IfStateIs4
-        // Fire at the enemy
+        
         tmpargument = 6
         SetState
 
@@ -533,8 +541,10 @@ IfTimeOut
             SetState
 
         tmpargument = rand & 7 + 10 // Time before next check
+        
+      // Get into firing position  
       IfStateIs2
-        // Get into firing position
+        
         SetTurnModeToVelocity
         tmpx = targetx
         tmpy = targety
@@ -574,8 +584,9 @@ IfTimeOut
             SetState
             SetTurnModeToWatchTarget
             tmpargument = 30 // Time before shooting
+            
+      // Acquire a target
       IfStateIs0
-        // Acquire a target
         SetTurnModeToVelocity
         SetTargetToWideEnemy
           // Move away from enemy
@@ -601,7 +612,14 @@ IfTimeOut
 
   // tmpargument is set above
   SetTime
+  
+Else
 
+  // Blocking...  Need to keep that button pressed
+  IfStateIs7  
+    IfHoldingShield
+      PressLatchButton
+      
 //------------------------------------------------------------------------------
 IfOrdered
   // Someone said to wake up

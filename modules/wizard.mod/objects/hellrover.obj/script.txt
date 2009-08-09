@@ -119,9 +119,10 @@ IfAttacked				// Attacked
   IfHitFromBehind
     DropWeapons
   
-//Unmounted AI
-IfStateIs0
-  IfTimeOut				// This is done every so often
+// This is done every so often    
+IfTimeOut
+  //Unmounted AI
+  IfStateIs0
     SetTurnModeToVelocity
     tmpargument = rand & 15 + 35		 // Try again later
     SetTime

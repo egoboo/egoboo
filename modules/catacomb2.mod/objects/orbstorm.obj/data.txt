@@ -160,3 +160,4 @@ Jump sound     : -1
 :[ICON] 0	//Dont show icon
 :[PLAT] 1	//Platform
 :[VALU] 1       //Always sold at 100% price
+:[BOOK] 1

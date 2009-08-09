@@ -160,3 +160,4 @@ Jump sound     : -1
 :[SQUA] 1
 :[ICON] 0
 :[PLAT] 1
+:[BOOK] 1

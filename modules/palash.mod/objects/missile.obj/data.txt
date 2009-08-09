@@ -156,4 +156,5 @@ Jump sound     : -1
 :[RANG] 1
 :[GOLD] 2
 :[VALU] 1       //Always sold at 100% price
+:[BOOK] 1
 

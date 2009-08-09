@@ -162,3 +162,4 @@ Jump sound     : -1
 :[ICON] 0	//Show icon (If name not known)
 :[PLAT] 1	//Platfrom object
 :[RANG] 1	//ranged
+:[BOOK] 1

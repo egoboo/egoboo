@@ -164,3 +164,4 @@ Jump sound     : -1
 :[STAT] 2
 :[LEVL] 0
 :[VALU] 1       //Always sold at 100% price
+:[BOOK] 1

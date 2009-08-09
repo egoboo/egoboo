@@ -158,4 +158,5 @@ Jump sound     : -1
 :[HIDE] 0
 :[PLAT] 0
 :[ICON] 0
+:[BOOK] 1
 

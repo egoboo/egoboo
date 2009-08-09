@@ -161,3 +161,4 @@ Jump sound     : -1
 :[CONT] 0
 :[STAT] 0
 :[LEVL] 0
+:[BOOK] 1

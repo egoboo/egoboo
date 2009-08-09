@@ -159,3 +159,4 @@ Jump sound     : -1
 :[PLAT] 1
 :[ICON] 0
 :[VALU] 1       //Always sold at 100% price
+:[BOOK] 1
