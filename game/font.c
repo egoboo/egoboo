@@ -1,21 +1,21 @@
-// ********************************************************************************************
-// *
-// *    This file is part of Egoboo.
-// *
-// *    Egoboo is free software: you can redistribute it and/or modify it
-// *    under the terms of the GNU General Public License as published by
-// *    the Free Software Foundation, either version 3 of the License, or
-// *    (at your option) any later version.
-// *
-// *    Egoboo is distributed in the hope that it will be useful, but
-// *    WITHOUT ANY WARRANTY; without even the implied warranty of
-// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-// *    General Public License for more details.
-// *
-// *    You should have received a copy of the GNU General Public License
-// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-// *
-// ********************************************************************************************
+//********************************************************************************************
+//*
+//*    This file is part of Egoboo.
+//*
+//*    Egoboo is free software: you can redistribute it and/or modify it
+//*    under the terms of the GNU General Public License as published by
+//*    the Free Software Foundation, either version 3 of the License, or
+//*    (at your option) any later version.
+//*
+//*    Egoboo is distributed in the hope that it will be useful, but
+//*    WITHOUT ANY WARRANTY; without even the implied warranty of
+//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//*    General Public License for more details.
+//*
+//*    You should have received a copy of the GNU General Public License
+//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+//*
+//********************************************************************************************
 
 /* Egoboo - Font.c
  * True-type font drawing functionality.  Uses Freetype 2 & OpenGL
@@ -201,9 +201,9 @@ int fnt_vprintf( Font *font, SDL_Color color, SDL_Surface ** psurf, GLuint itex,
     SDL_Surface *textSurf, **pptmp;
     bool_t sdl_surf_external;
 
-    if( NULL == font || NULL == texCoords ) return -1;
+    if ( NULL == font || NULL == texCoords ) return -1;
 
-    if( NULL != psurf )
+    if ( NULL != psurf )
     {
         sdl_surf_external = btrue;
         pptmp = psurf;
@@ -214,7 +214,7 @@ int fnt_vprintf( Font *font, SDL_Color color, SDL_Surface ** psurf, GLuint itex,
         pptmp = &textSurf;
     }
 
-    if( INVALID_TX_ID == itex ) return -1;
+    if ( INVALID_TX_ID == itex ) return -1;
 
     // evaluate the variable args
     rv = vsnprintf( szText, SDL_arraysize(szText) - 1, format, args );
@@ -228,12 +228,12 @@ int fnt_vprintf( Font *font, SDL_Color color, SDL_Surface ** psurf, GLuint itex,
     if (NULL == (*pptmp)) return -1;
 
     // upload the texture
-    if( !copySurfaceToTexture( (*pptmp), itex, texCoords ) )
+    if ( !copySurfaceToTexture( (*pptmp), itex, texCoords ) )
     {
         rv = -1;
     }
 
-    if( !sdl_surf_external )
+    if ( !sdl_surf_external )
     {
         // Done with the surface
         SDL_FreeSurface( *pptmp );
@@ -255,7 +255,7 @@ void fnt_drawText( Font *font, int x, int y, const char *format, ...   )
     rv = fnt_vprintf( font, color, &textSurf, font->texture, font->texCoords, format, args );
     va_end( args );
 
-    if( rv < 0 ) return;
+    if ( rv < 0 ) return;
 
     // And draw the darn thing
     GL_DEBUG(glBegin)( GL_QUADS );
@@ -274,7 +274,7 @@ void fnt_drawText( Font *font, int x, int y, const char *format, ...   )
     }
     GL_DEBUG_END();
 
-    if( NULL != textSurf )
+    if ( NULL != textSurf )
     {
         // Done with the surface
         SDL_FreeSurface( textSurf );
@@ -317,7 +317,7 @@ void fnt_drawTextBox( Font *font, int x, int y, int width, int height, int spaci
     va_end( args );
 
     // some problem printing the text
-    if( rv < 0 ) return;
+    if ( rv < 0 ) return;
 
     // Split the passed in text into separate lines
     len = strlen( text );

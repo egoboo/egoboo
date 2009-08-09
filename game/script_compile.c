@@ -1,21 +1,21 @@
-// ********************************************************************************************
-// *
-// *    This file is part of Egoboo.
-// *
-// *    Egoboo is free software: you can redistribute it and/or modify it
-// *    under the terms of the GNU General Public License as published by
-// *    the Free Software Foundation, either version 3 of the License, or
-// *    (at your option) any later version.
-// *
-// *    Egoboo is distributed in the hope that it will be useful, but
-// *    WITHOUT ANY WARRANTY; without even the implied warranty of
-// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-// *    General Public License for more details.
-// *
-// *    You should have received a copy of the GNU General Public License
-// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-// *
-// ********************************************************************************************
+//********************************************************************************************
+//*
+//*    This file is part of Egoboo.
+//*
+//*    Egoboo is free software: you can redistribute it and/or modify it
+//*    under the terms of the GNU General Public License as published by
+//*    the Free Software Foundation, either version 3 of the License, or
+//*    (at your option) any later version.
+//*
+//*    Egoboo is distributed in the hope that it will be useful, but
+//*    WITHOUT ANY WARRANTY; without even the implied warranty of
+//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//*    General Public License for more details.
+//*
+//*    You should have received a copy of the GNU General Public License
+//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+//*
+//********************************************************************************************
 
 #include "script_compile.h"
 
@@ -36,23 +36,24 @@ static char   cLineBuffer[MAXLINESIZE];
 
 static Uint8  cLoadBuffer[AISMAXLOADSIZE];
 
-int    iNumCode = 0;
-Uint8  cCodeType[MAXCODE];
-Uint32 iCodeValue[MAXCODE];
-char   cCodeName[MAXCODE][MAXCODENAMESIZE];
+DECLARE_STACK( opcode_data_t, OpList );
 
-static int    Token_iLine;
-static int    Token_iIndex;
-static int    Token_iValue;
-static char   Token_cType;
-static char   Token_cWord[MAXCODENAMESIZE];
+struct s_token
+{
+    int    iLine;
+    int    iIndex;
+    int    iValue;
+    char   cType;
+    char   cWord[MAXCODENAMESIZE];
+};
+typedef struct s_token token_t;
 
-int    iNumAis = 0;
-int    iAisIndex = 0;
-STRING szAisName[MAX_AI];
-Uint32 iAisStartPosition[MAX_AI];
-Uint32 iAisEndPosition[MAX_AI];
-Uint32 iCompiledAis[AISMAXCOMPILESIZE];
+static token_t Token;
+
+int    AisCompiled_offset = 0;
+Uint32 AisCompiled_buffer[AISMAXCOMPILESIZE];
+
+DECLARE_STACK( script_storage_info_t, AisStorage );
 
 bool_t debug_scripts = bfalse;
 FILE * debug_script_file = NULL;
@@ -203,7 +204,7 @@ int load_one_line( int read )
 
     if ( iLineSize > 0  && tabs_warning_needed )
     {
-        log_warning( "Tab character used to define spacing will cause an error \"%s\"(%d) - \n\t\"%s\"\n", globalparsename, Token_iLine, cLineBuffer );
+        log_warning( "Tab character used to define spacing will cause an error \"%s\"(%d) - \n\t\"%s\"\n", globalparsename, Token.iLine, cLineBuffer );
     }
 
     // Parse to end of line
@@ -260,14 +261,14 @@ int get_indentation()
     }
     if ( HAS_SOME_BITS(cnt, 1) )
     {
-        log_warning( "Invalid indentation \"%s\"(%d) - \"%s\"\n", globalparsename, Token_iLine, cLineBuffer );
+        log_warning( "Invalid indentation \"%s\"(%d) - \"%s\"\n", globalparsename, Token.iLine, cLineBuffer );
         parseerror = btrue;
     }
 
     cnt >>= 1;
     if ( cnt > 15 )
     {
-        log_warning( "Too many levels of indentation \"%s\"(%d) - \"%s\"\n", globalparsename, Token_iLine, cLineBuffer );
+        log_warning( "Too many levels of indentation \"%s\"(%d) - \"%s\"\n", globalparsename, Token.iLine, cLineBuffer );
         parseerror = btrue;
         cnt = 15;
     }
@@ -305,16 +306,16 @@ int parse_token( int read )
 {
     // ZZ> This function tells what code is being indexed by read, it
     //    will return the next spot to read from and stick the code number
-    //    in Token_iIndex
+    //    in Token.iIndex
     int cnt, wordsize;
     char cTmp;
     IDSZ idsz;
 
     // Reset the token
-    Token_iIndex   = MAXCODE;
-    Token_iValue   = 0;
-    Token_cType    = '?';
-    Token_cWord[0] = '\0';
+    Token.iIndex   = MAX_OPCODE;
+    Token.iValue   = 0;
+    Token.cType    = '?';
+    Token.cWord[0] = '\0';
 
     // Check bounds
     if ( read >= iLineSize )
@@ -333,48 +334,48 @@ int parse_token( int read )
     wordsize = 0;
     while ( !isspace(cTmp) && '\0' != cTmp )
     {
-        Token_cWord[wordsize] = cTmp;  wordsize++;
+        Token.cWord[wordsize] = cTmp;  wordsize++;
         read++;
         cTmp = cLineBuffer[read];
     }
-    Token_cWord[wordsize] = '\0';
+    Token.cWord[wordsize] = '\0';
 
     // Check for numeric constant
-    if ( Token_cWord[0] >= '0' && Token_cWord[0] <= '9' )
+    if ( Token.cWord[0] >= '0' && Token.cWord[0] <= '9' )
     {
-        sscanf( Token_cWord, "%d", &Token_iValue );
-        Token_cType  = 'C';
-        Token_iIndex = MAXCODE;
+        sscanf( Token.cWord, "%d", &Token.iValue );
+        Token.cType  = 'C';
+        Token.iIndex = MAX_OPCODE;
         { /* print_token(); */  return read; }
     }
 
     // Check for IDSZ constant
-    if ( '[' == Token_cWord[0] )
+    if ( '[' == Token.cWord[0] )
     {
         idsz = 0;
 
-        cTmp = (Token_cWord[1] - 'A') & 0x1F;  idsz |= cTmp << 15;
-        cTmp = (Token_cWord[2] - 'A') & 0x1F;  idsz |= cTmp << 10;
-        cTmp = (Token_cWord[3] - 'A') & 0x1F;  idsz |= cTmp << 5;
-        cTmp = (Token_cWord[4] - 'A') & 0x1F;  idsz |= cTmp;
+        cTmp = (Token.cWord[1] - 'A') & 0x1F;  idsz |= cTmp << 15;
+        cTmp = (Token.cWord[2] - 'A') & 0x1F;  idsz |= cTmp << 10;
+        cTmp = (Token.cWord[3] - 'A') & 0x1F;  idsz |= cTmp << 5;
+        cTmp = (Token.cWord[4] - 'A') & 0x1F;  idsz |= cTmp;
 
-        Token_iValue = idsz;
-        Token_cType  = 'C';
-        Token_iIndex = MAXCODE;
+        Token.iValue = idsz;
+        Token.cType  = 'C';
+        Token.iIndex = MAX_OPCODE;
 
         { /* print_token(); */  return read; }
     }
 
     // compare in a case-insensitive manner. there is a unix-based function that does this,
     // but it is not sommon enough on non-linux compilers to be cross platform compatible
-    // for ( cnt = 0; cnt < iNumCode; cnt++ )
+    // for ( cnt = 0; cnt < OpList.count; cnt++ )
     // {
     //   int i, maxlen;
     //   char * ptok, *pcode;
     //   bool_t found;
 
-    //   ptok   = Token_cWord;
-    //   pcode  = cCodeName[cnt];
+    //   ptok   = Token.cWord;
+    //   pcode  = OpList.lst[cnt].cName;
     //   maxlen = MAXCODENAMESIZE;
 
     //   found = btrue;
@@ -393,33 +394,33 @@ int parse_token( int read )
     //   if ( '\0' == *ptok && '\0' == *pcode && found ) break;
     // }
 
-    for ( cnt = 0; cnt < iNumCode; cnt++ )
+    for ( cnt = 0; cnt < OpList.count; cnt++ )
     {
-        if ( 0 == strncmp( Token_cWord, cCodeName[cnt], MAXCODENAMESIZE ) )
+        if ( 0 == strncmp( Token.cWord, OpList.lst[cnt].cName, MAXCODENAMESIZE ) )
         {
             break;
         }
     }
-    if ( cnt < iNumCode )
+    if ( cnt < OpList.count )
     {
-        Token_iValue = iCodeValue[cnt];
-        Token_cType  = cCodeType[cnt];
-        Token_iIndex = cnt;
+        Token.iValue = OpList.lst[cnt].iValue;
+        Token.cType  = OpList.lst[cnt].cType;
+        Token.iIndex = cnt;
     }
-    else if ( 0 == strcmp( Token_cWord, "=" ) )
+    else if ( 0 == strcmp( Token.cWord, "=" ) )
     {
-        Token_iValue = -1;
-        Token_cType  = 'O';
-        Token_iIndex = MAXCODE;
+        Token.iValue = -1;
+        Token.cType  = 'O';
+        Token.iIndex = MAX_OPCODE;
     }
     else
     {
         // Throw out an error code if we're loggin' 'em
-        log_message( "SCRIPT ERROR: \"%s\"(%d) - unknown opcode \"%s\"\n", globalparsename, Token_iLine, Token_cWord );
+        log_message( "SCRIPT ERROR: \"%s\"(%d) - unknown opcode \"%s\"\n", globalparsename, Token.iLine, Token.cWord );
 
-        Token_iValue = -1;
-        Token_cType  = '?';
-        Token_iIndex = MAXCODE;
+        Token.iValue = -1;
+        Token.cType  = '?';
+        Token.iIndex = MAX_OPCODE;
 
         parseerror = btrue;
     }
@@ -431,14 +432,14 @@ int parse_token( int read )
 void emit_opcode( Uint32 highbits )
 {
     // detect a constant value
-    if ( 'C' == Token_cType || 'F' == Token_cType )
+    if ( 'C' == Token.cType || 'F' == Token.cType )
     {
         highbits |= FUNCTION_BIT;
     }
-    if ( iAisIndex < AISMAXCOMPILESIZE )
+    if ( AisCompiled_offset < AISMAXCOMPILESIZE )
     {
-        iCompiledAis[iAisIndex] = highbits | Token_iValue;
-        iAisIndex++;
+        AisCompiled_buffer[AisCompiled_offset] = highbits | Token.iValue;
+        AisCompiled_offset++;
     }
     else
     {
@@ -456,7 +457,7 @@ void parse_line_by_line()
     int parseposition;
 
     read = 0;
-    for ( Token_iLine = 0; read < iLoadSize; Token_iLine++ )
+    for ( Token.iLine = 0; read < iLoadSize; Token.iLine++ )
     {
         read = load_one_line( read );
         if ( 0 == iLineSize ) continue;
@@ -471,9 +472,9 @@ void parse_line_by_line()
 
         highbits = SET_DATA_BITS( get_indentation() );
         parseposition = parse_token( parseposition );
-        if ( 'F' == Token_cType )
+        if ( 'F' == Token.cType )
         {
-            if ( FEND == Token_iValue && 0 == highbits )
+            if ( FEND == Token.iValue && 0 == highbits )
             {
                 // stop processing the lines, since we're finished
                 break;
@@ -486,11 +487,11 @@ void parse_line_by_line()
             emit_opcode( highbits );
 
             // leave a space for the control code
-            Token_iValue = 0;
+            Token.iValue = 0;
             emit_opcode( 0 );
 
         }
-        else if ( 'V' == Token_cType )
+        else if ( 'V' == Token.cType )
         {
             //------------------------------
             // the code type is a math operation
@@ -502,23 +503,23 @@ void parse_line_by_line()
             emit_opcode( highbits );
 
             // save a position for the operand count
-            Token_iValue = 0;
-            operand_index = iAisIndex;
+            Token.iValue = 0;
+            operand_index = AisCompiled_offset;
             emit_opcode( 0 );
 
             // handle the "="
             highbits = 0;
             parseposition = parse_token( parseposition );  // EQUALS
-            if ( 'O' != Token_cType || 0 != strcmp(Token_cWord, "=") )
+            if ( 'O' != Token.cType || 0 != strcmp(Token.cWord, "=") )
             {
-                log_warning( "Invalid equation \"%s\"(%d) - \"%s\"\n", globalparsename, Token_iLine, cLineBuffer);
+                log_warning( "Invalid equation \"%s\"(%d) - \"%s\"\n", globalparsename, Token.iLine, cLineBuffer);
             }
 
             //------------------------------
             // grab the next opcode
 
             parseposition = parse_token( parseposition );
-            if ( 'V' == Token_cType || 'C' == Token_cType )
+            if ( 'V' == Token.cType || 'C' == Token.cType )
             {
                 // this is a value or a constant
                 emit_opcode( 0 );
@@ -526,10 +527,10 @@ void parse_line_by_line()
 
                 parseposition = parse_token( parseposition );
             }
-            else if ( 'O' != Token_cType )
+            else if ( 'O' != Token.cType )
             {
                 // this is a function or an unknown value. do not break the script.
-                log_warning( "Invalid operand \"%s\"(%d) - \"%s\"\n", globalparsename, Token_iLine, Token_cWord);
+                log_warning( "Invalid operand \"%s\"(%d) - \"%s\"\n", globalparsename, Token.iLine, Token.cWord);
 
                 emit_opcode( 0 );
                 operands++;
@@ -541,22 +542,22 @@ void parse_line_by_line()
             while ( parseposition < iLineSize )
             {
                 // the current token should be an operator
-                if ( 'O' != Token_cType )
+                if ( 'O' != Token.cType )
                 {
                     // problem with the loop
-                    log_warning( "Expected an operator \"%s\"(%d) - \"%s\"\n", globalparsename, Token_iLine, cLineBuffer);
+                    log_warning( "Expected an operator \"%s\"(%d) - \"%s\"\n", globalparsename, Token.iLine, cLineBuffer);
                     break;
                 }
 
                 // the highbits are the operator's value
-                highbits = SET_DATA_BITS( Token_iValue );
+                highbits = SET_DATA_BITS( Token.iValue );
 
                 // VALUE
                 parseposition = parse_token( parseposition );
-                if ( 'C' != Token_cType && 'V' != Token_cType )
+                if ( 'C' != Token.cType && 'V' != Token.cType )
                 {
                     // not having a constant or a value here breaks the function. stop processing
-                    log_warning( "Invalid operand \"%s\"(%d) - \"%s\"\n", globalparsename, Token_iLine, Token_cWord);
+                    log_warning( "Invalid operand \"%s\"(%d) - \"%s\"\n", globalparsename, Token.iLine, Token.cWord);
                     break;
                 }
 
@@ -567,28 +568,28 @@ void parse_line_by_line()
                 parseposition = parse_token( parseposition );
             }
 
-            iCompiledAis[operand_index] = operands;  // Number of operands
+            AisCompiled_buffer[operand_index] = operands;  // Number of operands
         }
-        else if ( 'C' == Token_cType )
+        else if ( 'C' == Token.cType )
         {
-            log_warning( "Invalid constant \"%s\"(%d) - \"%s\"\n", globalparsename, Token_iLine, Token_cWord );
+            log_warning( "Invalid constant \"%s\"(%d) - \"%s\"\n", globalparsename, Token.iLine, Token.cWord );
         }
-        else if ( '?' == Token_cType )
+        else if ( '?' == Token.cType )
         {
             // unknown opcode, do not process this line
-            log_warning( "Invalid operand \"%s\"(%d) - \"%s\"\n", globalparsename, Token_iLine, Token_cWord );
+            log_warning( "Invalid operand \"%s\"(%d) - \"%s\"\n", globalparsename, Token.iLine, Token.cWord );
         }
         else
         {
-            log_warning( "Compiler is broken \"%s\"(%d) - \"%s\"\n", globalparsename, Token_iLine, Token_cWord );
+            log_warning( "Compiler is broken \"%s\"(%d) - \"%s\"\n", globalparsename, Token.iLine, Token.cWord );
             break;
         }
     }
 
-    Token_iValue = FEND;
-    Token_cType  = 'F';
+    Token.iValue = FEND;
+    Token.cType  = 'F';
     emit_opcode( 0 );
-    Token_iValue = iAisIndex + 1;
+    Token.iValue = AisCompiled_offset + 1;
     emit_opcode( 0 );
 }
 
@@ -601,13 +602,13 @@ Uint32 jump_goto( int index, int index_end )
     Uint32 value;
     int targetindent, indent;
 
-    value = iCompiledAis[index];  index += 2;
+    value = AisCompiled_buffer[index];  index += 2;
     targetindent = GET_DATA_BITS( value );
     indent = 100;
 
     while ( indent > targetindent && index < index_end )
     {
-        value = iCompiledAis[index];
+        value = AisCompiled_buffer[index];
         indent = GET_DATA_BITS( value );
         if ( indent > targetindent )
         {
@@ -622,7 +623,7 @@ Uint32 jump_goto( int index, int index_end )
             {
                 // Operations cover each operand
                 index++;
-                value = iCompiledAis[index];
+                value = AisCompiled_buffer[index];
                 index++;
                 index += ( value & 255 );
             }
@@ -639,13 +640,13 @@ void parse_jumps( int ainumber )
     int index, index_end;
     Uint32 value, iTmp;
 
-    index     = iAisStartPosition[ainumber];
-    index_end = iAisEndPosition[ainumber];
+    index     = AisStorage.lst[ainumber].iStartPosition;
+    index_end = AisStorage.lst[ainumber].iEndPosition;
 
-    value = iCompiledAis[index];
+    value = AisCompiled_buffer[index];
     while ( index < index_end )
     {
-        value = iCompiledAis[index];
+        value = AisCompiled_buffer[index];
 
         // Was it a function
         if ( HAS_SOME_BITS( value, FUNCTION_BIT ) )
@@ -653,14 +654,14 @@ void parse_jumps( int ainumber )
             // Each function needs a jump
             iTmp = jump_goto( index, index_end );
             index++;
-            iCompiledAis[index] = iTmp;
+            AisCompiled_buffer[index] = iTmp;
             index++;
         }
         else
         {
             // Operations cover each operand
             index++;
-            iTmp = iCompiledAis[index];
+            iTmp = AisCompiled_buffer[index];
             index++;
             index += ( iTmp & 0xFF );
         }
@@ -689,10 +690,13 @@ void get_code( int read )
     // ZZ> This function gets code names and other goodies
     char cTmp;
     int iTmp;
+    STRING sTmp;
 
-    sscanf( ( char* ) &cLoadBuffer[read], "%c%d%s", &cTmp, &iTmp, &cCodeName[iNumCode][0] );
-    cCodeType[iNumCode] = toupper(cTmp);
-    iCodeValue[iNumCode] = iTmp;
+    sscanf( ( char* ) (cLoadBuffer + read), "%c%d%255s", &cTmp, &iTmp, sTmp );
+
+    strncpy( OpList.lst[OpList.count].cName, sTmp, SDL_arraysize(OpList.lst[OpList.count].cName) );
+    OpList.lst[OpList.count].cType  = toupper(cTmp);
+    OpList.lst[OpList.count].iValue = iTmp;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -702,7 +706,7 @@ void load_ai_codes( const char* loadname )
     FILE* fileread;
     int read;
 
-    iNumCode = 0;
+    OpList.count = 0;
     fileread = fopen( loadname, "rb" );
     if ( fileread )
     {
@@ -713,7 +717,7 @@ void load_ai_codes( const char* loadname )
         while ( read != iLoadSize )
         {
             get_code( read );
-            iNumCode++;
+            OpList.count++;
             read = ai_goto_colon( read );
         }
 
@@ -745,7 +749,7 @@ int load_ai_script( const char *loadname )
 
         return retval;
     }
-    if ( iNumAis >= MAX_AI )
+    if ( AisStorage.count >= MAX_AI )
     {
         log_warning( "Too many script files. Cannot load file \"%s\"\n", loadname );
         return retval;
@@ -763,28 +767,28 @@ int load_ai_script( const char *loadname )
     }
 
     // save the filename for error logging
-    strncpy( szAisName[iNumAis], loadname, sizeof(STRING) );
+    strncpy( AisStorage.lst[AisStorage.count].szName, loadname, sizeof(STRING) );
     globalparsename = loadname;
 
     // initialize the start and end position
-    iAisStartPosition[iNumAis] = iAisIndex;
-    iAisEndPosition[iNumAis]   = iAisIndex;
+    AisStorage.lst[AisStorage.count].iStartPosition = AisCompiled_offset;
+    AisStorage.lst[AisStorage.count].iEndPosition   = AisCompiled_offset;
 
     // parse/compile the scripts
     // parse_null_terminate_comments();
     parse_line_by_line();
 
     // set the end position of the script
-    iAisEndPosition[iNumAis] = iAisIndex;
+    AisStorage.lst[AisStorage.count].iEndPosition = AisCompiled_offset;
 
     // determine the correct jumps
-    parse_jumps( iNumAis );
+    parse_jumps( AisStorage.count );
 
     // get the ai script index
-    retval = iNumAis;
+    retval = AisStorage.count;
 
     // increase the ai script index
-    iNumAis++;
+    AisStorage.count++;
 
     return retval;
 }
@@ -794,16 +798,16 @@ void release_all_ai_scripts()
 {
     // ZZ> This function resets the ai script "pointers"
 
-    iAisIndex = 0;
-    iNumAis = 0;
+    AisCompiled_offset = 0;
+    AisStorage.count = 0;
 }
 
 void init_all_ai_scripts()
 {
     // ZZ> This function initializes the ai script "pointers"
 
-    iAisIndex = 0;
-    iNumAis = 0;
+    AisCompiled_offset = 0;
+    AisStorage.count = 0;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -852,11 +856,11 @@ void init_all_ai_scripts()
 //--------------------------------------------------------------------------------------------
 // void print_token()
 // {
-//   printf("------------\n", globalparsename, Token_iLine);
-//   printf("\tToken_iIndex == %d\n", Token_iIndex);
-//   printf("\tToken_iValue == %d\n", Token_iValue);
-//   printf("\tToken_cType  == \'%c\'\n", Token_cType);
-//   printf("\tToken_cWord  == \"%s\"\n", Token_cWord);
+//   printf("------------\n", globalparsename, Token.iLine);
+//   printf("\tToken.iIndex == %d\n", Token.iIndex);
+//   printf("\tToken.iValue == %d\n", Token.iValue);
+//   printf("\tToken.cType  == \'%c\'\n", Token.cType);
+//   printf("\tToken.cWord  == \"%s\"\n", Token.cWord);
 // }
 
 //--------------------------------------------------------------------------------------------
@@ -865,7 +869,7 @@ void init_all_ai_scripts()
 //   int i;
 //   char cTmp;
 
-//   printf("\n===========\n\tfile == \"%s\"\n\tline == %d\n", globalparsename, Token_iLine);
+//   printf("\n===========\n\tfile == \"%s\"\n\tline == %d\n", globalparsename, Token.iLine);
 
 //   printf( "\tline == \"" );
 

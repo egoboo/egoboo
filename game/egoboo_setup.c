@@ -1,21 +1,21 @@
-// ********************************************************************************************
-// *
-// *    This file is part of Egoboo.
-// *
-// *    Egoboo is free software: you can redistribute it and/or modify it
-// *    under the terms of the GNU General Public License as published by
-// *    the Free Software Foundation, either version 3 of the License, or
-// *    (at your option) any later version.
-// *
-// *    Egoboo is distributed in the hope that it will be useful, but
-// *    WITHOUT ANY WARRANTY; without even the implied warranty of
-// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-// *    General Public License for more details.
-// *
-// *    You should have received a copy of the GNU General Public License
-// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-// *
-// ********************************************************************************************
+//********************************************************************************************
+//*
+//*    This file is part of Egoboo.
+//*
+//*    Egoboo is free software: you can redistribute it and/or modify it
+//*    under the terms of the GNU General Public License as published by
+//*    the Free Software Foundation, either version 3 of the License, or
+//*    (at your option) any later version.
+//*
+//*    Egoboo is distributed in the hope that it will be useful, but
+//*    WITHOUT ANY WARRANTY; without even the implied warranty of
+//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//*    General Public License for more details.
+//*
+//*    You should have received a copy of the GNU General Public License
+//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+//*
+//********************************************************************************************
 
 #include "egoboo_setup.h"
 
@@ -182,9 +182,9 @@ bool_t setup_download(egoboo_config_t * pcfg)
 
     memcpy( pcfg, &cfg_default, sizeof(egoboo_config_t) );
 
-    // *********************************************
-    // * GRAPHIC Section
-    // *********************************************
+    //*********************************************
+    //* GRAPHIC Section
+    //*********************************************
 
     lCurSectionName = "GRAPHIC";
 
@@ -275,9 +275,9 @@ bool_t setup_download(egoboo_config_t * pcfg)
     // Get the particle limit
     GetKey_int( "MAX_PARTICLES", pcfg->particle_count_req, cfg_default.particle_count_req );
 
-    // *********************************************
-    // * SOUND Section
-    // *********************************************
+    //*********************************************
+    //* SOUND Section
+    //*********************************************
 
     lCurSectionName = "SOUND";
 
@@ -302,9 +302,9 @@ bool_t setup_download(egoboo_config_t * pcfg)
     // Extra high sound quality?
     GetKey_int( "HIGH_SOUND_QUALITY", pcfg->sound_highquality, cfg_default.sound_highquality );
 
-    // *********************************************
-    // * CONTROL Section
-    // *********************************************
+    //*********************************************
+    //* CONTROL Section
+    //*********************************************
 
     lCurSectionName = "CONTROL";
 
@@ -315,9 +315,9 @@ bool_t setup_download(egoboo_config_t * pcfg)
     else if ( 'T' == toupper(lTempStr[0]) )  pcfg->autoturncamera = CAMTURN_AUTO;
     else if ( 'F' == toupper(lTempStr[0]) )  pcfg->autoturncamera = CAMTURN_NONE;
 
-    // *********************************************
-    // * NETWORK Section
-    // *********************************************
+    //*********************************************
+    //* NETWORK Section
+    //*********************************************
 
     lCurSectionName = "NETWORK";
 
@@ -333,9 +333,9 @@ bool_t setup_download(egoboo_config_t * pcfg)
     // Multiplayer name
     GetKey_string( "MULTIPLAYER_NAME", pcfg->network_messagename, SDL_arraysize(pcfg->network_messagename), cfg_default.network_messagename );
 
-    // *********************************************
-    // * DEBUG Section
-    // *********************************************
+    //*********************************************
+    //* DEBUG Section
+    //*********************************************
 
     lCurSectionName = "DEBUG";
 
@@ -366,7 +366,7 @@ bool_t setup_synch( egoboo_config_t * pcfg )
 
     // message display
     messageon  = (pcfg->message_count_req > 0);
-    maxmessage = CLIP(pcfg->message_count_req, 1, MAXMESSAGE);
+    maxmessage = CLIP(pcfg->message_count_req, 1, MAX_MESSAGE);
 
     wraptolerance = pcfg->staton ? 90 : 32;
 
@@ -393,9 +393,9 @@ bool_t setup_upload( egoboo_config_t * pcfg )
     char  *lCurSectionName;
     if (NULL == lConfigSetup || NULL == pcfg) return bfalse;
 
-    // *********************************************
-    // * GRAPHIC Section
-    // *********************************************
+    //*********************************************
+    //* GRAPHIC Section
+    //*********************************************
 
     lCurSectionName = "GRAPHIC";
 
@@ -486,9 +486,9 @@ bool_t setup_upload( egoboo_config_t * pcfg )
     // Get the particle limit
     SetKey_int( "MAX_PARTICLES", pcfg->particle_count_req );
 
-    // *********************************************
-    // * SOUND Section
-    // *********************************************
+    //*********************************************
+    //* SOUND Section
+    //*********************************************
 
     lCurSectionName = "SOUND";
 
@@ -513,9 +513,9 @@ bool_t setup_upload( egoboo_config_t * pcfg )
     // Extra high sound quality
     SetKey_bool( "HIGH_SOUND_QUALITY", pcfg->sound_highquality );
 
-    // *********************************************
-    // * CONTROL Section
-    // *********************************************
+    //*********************************************
+    //* CONTROL Section
+    //*********************************************
 
     lCurSectionName = "CONTROL";
 
@@ -529,9 +529,9 @@ bool_t setup_upload( egoboo_config_t * pcfg )
         case CAMTURN_AUTO : SetKey_bool( "AUTOTURN_CAMERA", btrue );  break;
     }
 
-    // *********************************************
-    // * NETWORK Section
-    // *********************************************
+    //*********************************************
+    //* NETWORK Section
+    //*********************************************
 
     lCurSectionName = "NETWORK";
 
@@ -547,9 +547,9 @@ bool_t setup_upload( egoboo_config_t * pcfg )
     // Max lag
     SetKey_int( "LAG_TOLERANCE", pcfg->network_lag );
 
-    // *********************************************
-    // * DEBUG Section
-    // *********************************************
+    //*********************************************
+    //* DEBUG Section
+    //*********************************************
 
     lCurSectionName = "DEBUG";
 

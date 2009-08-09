@@ -1,21 +1,21 @@
-// ********************************************************************************************
-// *
-// *    This file is part of Egoboo.
-// *
-// *    Egoboo is free software: you can redistribute it and/or modify it
-// *    under the terms of the GNU General Public License as published by
-// *    the Free Software Foundation, either version 3 of the License, or
-// *    (at your option) any later version.
-// *
-// *    Egoboo is distributed in the hope that it will be useful, but
-// *    WITHOUT ANY WARRANTY; without even the implied warranty of
-// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-// *    General Public License for more details.
-// *
-// *    You should have received a copy of the GNU General Public License
-// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-// *
-// ********************************************************************************************
+//********************************************************************************************
+//*
+//*    This file is part of Egoboo.
+//*
+//*    Egoboo is free software: you can redistribute it and/or modify it
+//*    under the terms of the GNU General Public License as published by
+//*    the Free Software Foundation, either version 3 of the License, or
+//*    (at your option) any later version.
+//*
+//*    Egoboo is distributed in the hope that it will be useful, but
+//*    WITHOUT ANY WARRANTY; without even the implied warranty of
+//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//*    General Public License for more details.
+//*
+//*    You should have received a copy of the GNU General Public License
+//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+//*
+//********************************************************************************************
 
 /* Egoboo - graphic_mad.c
  * Character model drawing code.
@@ -178,7 +178,7 @@ void render_one_mad_enviro( Uint16 character, Uint8 trans )
     oglx_texture   * ptex;
 
     if ( INVALID_CHR(character) ) return;
-    pchr  = ChrList + character;
+    pchr  = ChrList.lst + character;
     pinst = &(pchr->inst);
 
     if ( INVALID_MAD(pinst->imad) ) return;
@@ -328,7 +328,7 @@ void render_one_mad_tex( Uint16 character, Uint8 trans )
     oglx_texture   * ptex;
 
     if ( INVALID_CHR(character) ) return;
-    pchr  = ChrList + character;
+    pchr  = ChrList.lst + character;
     pinst = &(pchr->inst);
 
     if ( INVALID_MAD(pinst->imad) ) return;
@@ -435,7 +435,7 @@ void render_one_mad( Uint16 character, Uint8 trans )
     chr_t * pchr;
 
     if ( INVALID_CHR(character) ) return;
-    pchr = ChrList + character;
+    pchr = ChrList.lst + character;
 
     if ( pchr->is_hidden ) return;
 
@@ -489,7 +489,7 @@ void render_one_mad_ref( int tnc, Uint8 trans )
     chr_instance_t * pinst;
 
     if ( INVALID_CHR(tnc) ) return;
-    pchr = ChrList + tnc;
+    pchr = ChrList.lst + tnc;
     pinst = &(pchr->inst);
 
     if ( pchr->is_hidden ) return;
@@ -548,7 +548,7 @@ void chr_instance_update( Uint16 character, Uint8 trans, bool_t do_lighting )
     chr_instance_t * pinst;
 
     if ( INVALID_CHR(character) ) return;
-    pchr = ChrList + character;
+    pchr = ChrList.lst + character;
     pinst = &(pchr->inst);
 
     // make sure that the vertices are interpolated

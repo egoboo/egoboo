@@ -1,21 +1,21 @@
-// ********************************************************************************************
-// *
-// *    This file is part of Egoboo.
-// *
-// *    Egoboo is free software: you can redistribute it and/or modify it
-// *    under the terms of the GNU General Public License as published by
-// *    the Free Software Foundation, either version 3 of the License, or
-// *    (at your option) any later version.
-// *
-// *    Egoboo is distributed in the hope that it will be useful, but
-// *    WITHOUT ANY WARRANTY; without even the implied warranty of
-// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-// *    General Public License for more details.
-// *
-// *    You should have received a copy of the GNU General Public License
-// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-// *
-// ********************************************************************************************
+//********************************************************************************************
+//*
+//*    This file is part of Egoboo.
+//*
+//*    Egoboo is free software: you can redistribute it and/or modify it
+//*    under the terms of the GNU General Public License as published by
+//*    the Free Software Foundation, either version 3 of the License, or
+//*    (at your option) any later version.
+//*
+//*    Egoboo is distributed in the hope that it will be useful, but
+//*    WITHOUT ANY WARRANTY; without even the implied warranty of
+//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//*    General Public License for more details.
+//*
+//*    You should have received a copy of the GNU General Public License
+//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+//*
+//********************************************************************************************
 
 /* Egoboo - graphic.c
  * All sorts of stuff related to drawing the game, and all sorts of other stuff
@@ -172,9 +172,8 @@ Uint16  blipy[MAXBLIP];
 Uint8   blipc[MAXBLIP];
 
 Uint16  msgtimechange = 0;
-Uint16  msgstart      = 0;
-Sint16  msgtime[MAXMESSAGE];
-char    msgtextdisplay[MAXMESSAGE][MESSAGESIZE];
+
+DECLARE_STACK( msg_t, DisplayMsg );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -197,7 +196,6 @@ static void init_blip_data();
 static void init_map_data();
 
 DECLARE_LIST ( billboard_data_t, BillboardList );
-
 
 static bool_t render_billboard( struct s_camera * pcam, billboard_data_t * pbb, float scale );
 
@@ -290,13 +288,16 @@ void make_lightdirectionlookup()
 }
 
 //--------------------------------------------------------------------------------------------
-int get_free_message()
+int DisplayMsg_get_free()
 {
     // This function finds the best message to use
     // Pick the first one
-    int tnc = msgstart;
-    msgstart++;
-    msgstart = msgstart % maxmessage;
+
+    int tnc = DisplayMsg.count;
+
+    DisplayMsg.count++;
+    DisplayMsg.count = DisplayMsg.count % maxmessage;
+
     return tnc;
 }
 
@@ -304,32 +305,25 @@ int get_free_message()
 void display_message( script_state_t * pstate, int message, Uint16 character )
 {
     // ZZ> This function sticks a message in the display queue and sets its timer
-    int slot, read, write, cnt;
-    char *eread;
-    char szTmp[256];
-    char cTmp, lTmp;
 
-    Uint16 target = ChrList[character].ai.target;
-    Uint16 owner  = ChrList[character].ai.owner;
-    if ( NULL == pstate ) target = character;
+    int slot, read;
 
-    if ( message < msgtotal )
+    if ( message < MessageOffset.count )
     {
-
         char * src, * src_end;
         char * dst, * dst_end;
 
-        slot = get_free_message();
-        msgtime[slot] = cfg.message_duration;
+        slot = DisplayMsg_get_free();
+        DisplayMsg.lst[slot].time = cfg.message_duration;
 
         // Copy the message
-        read = msgindex[message];
+        read = MessageOffset.lst[message];
 
-        src     = msgtext + read;
-        src_end = msgtext + MESSAGEBUFFERSIZE;
+        src     = message_buffer + read;
+        src_end = message_buffer + MESSAGEBUFFERSIZE;
 
-        dst     = msgtextdisplay[slot];
-        dst_end = msgtextdisplay[slot] + MESSAGESIZE - 1;
+        dst     = DisplayMsg.lst[slot].textdisplay;
+        dst_end = DisplayMsg.lst[slot].textdisplay + MESSAGESIZE - 1;
 
         expand_escape_codes( character, pstate, src, src_end, dst, dst_end );
 
@@ -514,21 +508,21 @@ void delete_all_graphics()
 void debug_message( const char *text )
 {
     // ZZ> This function sticks a message in the display queue and sets its timer
-    int slot = get_free_message();
+    int slot = DisplayMsg_get_free();
     // Copy the message
     int write = 0;
     int read = 0;
     char cTmp = text[read];  read++;
-    msgtime[slot] = cfg.message_duration;
+    DisplayMsg.lst[slot].time = cfg.message_duration;
 
     while ( cTmp != 0 )
     {
-        msgtextdisplay[slot][write] = cTmp;
+        DisplayMsg.lst[slot].textdisplay[write] = cTmp;
         write++;
         cTmp = text[read];  read++;
     }
 
-    msgtextdisplay[slot][write] = 0;
+    DisplayMsg.lst[slot].textdisplay[write] = 0;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -779,13 +773,13 @@ void do_chr_flashing()
         if ( INVALID_CHR(ichr) ) continue;
 
         // Do flashing
-        if ( HAS_NO_BITS( frame_all, ChrList[ichr].flashand ) && ChrList[ichr].flashand != DONTFLASH )
+        if ( HAS_NO_BITS( frame_all, ChrList.lst[ichr].flashand ) && ChrList.lst[ichr].flashand != DONTFLASH )
         {
             flash_character( ichr, 255 );
         }
 
         // Do blacking
-        if ( HAS_NO_BITS( frame_all, SEEKURSEAND ) && local_seekurse && ChrList[ichr].iskursed )
+        if ( HAS_NO_BITS( frame_all, SEEKURSEAND ) && local_seekurse && ChrList.lst[ichr].iskursed )
         {
             flash_character( ichr, 0 );
         }
@@ -797,7 +791,7 @@ void flash_character( Uint16 character, Uint8 value )
 {
     // ZZ> This function sets a character's lighting
 
-    ChrList[character].inst.color_amb = value;
+    ChrList.lst[character].inst.color_amb = value;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1251,8 +1245,8 @@ void render_shadow( Uint16 character )
     float alpha, alpha_umbra, alpha_penumbra;
     chr_t * pchr;
 
-    if ( character >= MAX_CHR || !ChrList[character].on || ChrList[character].pack_ispacked ) return;
-    pchr = ChrList + character;
+    if ( character >= MAX_CHR || !ChrList.lst[character].on || ChrList.lst[character].pack_ispacked ) return;
+    pchr = ChrList.lst + character;
 
     // if the character is hidden, not drawn at all, so no shadow
     if ( pchr->is_hidden ) return;
@@ -1372,8 +1366,8 @@ void render_bad_shadow( Uint16 character )
     float level, height, height_factor, alpha;
     chr_t * pchr;
 
-    if ( character >= MAX_CHR || !ChrList[character].on || ChrList[character].pack_ispacked ) return;
-    pchr = ChrList + character;
+    if ( character >= MAX_CHR || !ChrList.lst[character].on || ChrList.lst[character].pack_ispacked ) return;
+    pchr = ChrList.lst + character;
 
     // if the character is hidden, not drawn at all, so no shadow
     if ( pchr->is_hidden ) return;
@@ -1525,14 +1519,14 @@ void light_particles( ego_mpd_t * pmesh )
         prt_t * pprt;
         prt_instance_t * pinst;
 
-        if ( !PrtList[iprt].on ) continue;
-        pprt = PrtList + iprt;
+        if ( !PrtList.lst[iprt].on ) continue;
+        pprt = PrtList.lst + iprt;
         pinst = &(pprt->inst);
 
         pprt->inst.light = 0;
         if ( VALID_CHR( pprt->attachedtocharacter ) )
         {
-            chr_t * pchr = ChrList + pprt->attachedtocharacter;
+            chr_t * pchr = ChrList.lst + pprt->attachedtocharacter;
             Uint16  imad = pchr->inst.imad;
 
             // grab the lighting from the vertex that the particle is attached to
@@ -1903,7 +1897,7 @@ void draw_scene_mesh( renderlist_t * prlist )
                 GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE );
 
                 tnc = dolist[cnt].ichr;
-                itile = ChrList[tnc].onwhichfan;
+                itile = ChrList.lst[tnc].onwhichfan;
 
                 if ( VALID_TILE(pmesh, itile) && (0 != mesh_test_fx( pmesh, itile, MPDFX_DRAWREF )) )
                 {
@@ -1914,7 +1908,7 @@ void draw_scene_mesh( renderlist_t * prlist )
             {
                 Uint32 itile;
                 tnc = dolist[cnt].iprt;
-                itile = PrtList[tnc].onwhichfan;
+                itile = PrtList.lst[tnc].onwhichfan;
 
                 GL_DEBUG(glDisable)(GL_CULL_FACE );
 
@@ -1985,7 +1979,7 @@ void draw_scene_mesh( renderlist_t * prlist )
             for ( cnt = 0; cnt < dolist_count; cnt++ )
             {
                 tnc = dolist[cnt].ichr;
-                if ( 0 == ChrList[tnc].shadowsize ) continue;
+                if ( 0 == ChrList.lst[tnc].shadowsize ) continue;
 
                 render_bad_shadow( tnc );
             }
@@ -1996,7 +1990,7 @@ void draw_scene_mesh( renderlist_t * prlist )
             for ( cnt = 0; cnt < dolist_count; cnt++ )
             {
                 tnc = dolist[cnt].ichr;
-                if ( 0 == ChrList[tnc].shadowsize ) continue;
+                if ( 0 == ChrList.lst[tnc].shadowsize ) continue;
 
                 render_shadow( tnc );
             }
@@ -2029,7 +2023,7 @@ void draw_scene_solid()
         {
             tnc = dolist[cnt].ichr;
 
-            if ( ChrList[tnc].inst.alpha == 255 && ChrList[tnc].inst.light == 255 )
+            if ( ChrList.lst[tnc].inst.alpha == 255 && ChrList.lst[tnc].inst.light == 255 )
             {
                 render_one_mad( tnc, 255 );
             }
@@ -2092,7 +2086,7 @@ void draw_scene_trans()
         if ( TOTAL_MAX_PRT == dolist[cnt].iprt && VALID_CHR( dolist[cnt].ichr ) )
         {
             Uint16  ichr = dolist[cnt].ichr;
-            chr_t * pchr = ChrList + ichr;
+            chr_t * pchr = ChrList.lst + ichr;
             chr_instance_t * pinst = &(pchr->inst);
 
             GL_DEBUG(glEnable)(GL_CULL_FACE );
@@ -2778,17 +2772,17 @@ int draw_status( Uint16 character, int x, int y )
     char *readtext;
     STRING generictext;
 
-    int life     = FP8_TO_INT( ChrList[character].life    );
-    int lifemax  = FP8_TO_INT( ChrList[character].lifemax );
-    int mana     = FP8_TO_INT( ChrList[character].mana    );
-    int manamax  = FP8_TO_INT( ChrList[character].manamax );
+    int life     = FP8_TO_INT( ChrList.lst[character].life    );
+    int lifemax  = FP8_TO_INT( ChrList.lst[character].lifemax );
+    int mana     = FP8_TO_INT( ChrList.lst[character].mana    );
+    int manamax  = FP8_TO_INT( ChrList.lst[character].manamax );
     int cnt = lifemax;
 
     // Write the character's first name
-    if ( ChrList[character].nameknown )
-        readtext = ChrList[character].name;
+    if ( ChrList.lst[character].nameknown )
+        readtext = ChrList.lst[character].name;
     else
-        readtext = CapList[ChrList[character].model].classname;
+        readtext = CapList[ChrList.lst[character].model].classname;
 
     for ( cnt = 0; cnt < 6; cnt++ )
     {
@@ -2806,47 +2800,47 @@ int draw_status( Uint16 character, int x, int y )
     y = _draw_string_raw( x + 8, y, generictext );
 
     // Write the character's money
-    y = _draw_string_raw( x + 8, y, "$%4d", ChrList[character].money ) + 8;
+    y = _draw_string_raw( x + 8, y, "$%4d", ChrList.lst[character].money ) + 8;
 
     // Draw the icons
-    imad  = ChrList[character].inst.imad;
-    iskin = ChrList[character].skin;
+    imad  = ChrList.lst[character].inst.imad;
+    iskin = ChrList.lst[character].skin;
     if ( VALID_MAD(imad) )
     {
-        draw_one_icon( MadList[imad].ico_ref[iskin], x + 40, y, ChrList[character].sparkle );
+        draw_one_icon( MadList[imad].ico_ref[iskin], x + 40, y, ChrList.lst[character].sparkle );
     }
 
-    item = ChrList[character].holdingwhich[SLOT_LEFT];
+    item = ChrList.lst[character].holdingwhich[SLOT_LEFT];
     if ( VALID_CHR(item) )
     {
-        imad  = ChrList[item].inst.imad;
-        iskin = ChrList[item].skin;
+        imad  = ChrList.lst[item].inst.imad;
+        iskin = ChrList.lst[item].skin;
 
         if ( !VALID_MAD(imad) )
         {
-            draw_one_icon( ICON_NULL, x + 8, y, ChrList[item].sparkle );
+            draw_one_icon( ICON_NULL, x + 8, y, ChrList.lst[item].sparkle );
         }
-        else if ( ChrList[item].icon )
+        else if ( ChrList.lst[item].icon )
         {
-            draw_one_icon( MadList[imad].ico_ref[iskin], x + 8, y, ChrList[item].sparkle );
-            if ( ChrList[item].ammomax != 0 && ChrList[item].ammoknown )
+            draw_one_icon( MadList[imad].ico_ref[iskin], x + 8, y, ChrList.lst[item].sparkle );
+            if ( ChrList.lst[item].ammomax != 0 && ChrList.lst[item].ammoknown )
             {
-                if ( !CapList[ChrList[item].model].isstackable || ChrList[item].ammo > 1 )
+                if ( !CapList[ChrList.lst[item].model].isstackable || ChrList.lst[item].ammo > 1 )
                 {
                     // Show amount of ammo left
-                    _draw_string_raw( x + 8, y - 8, "%2d", ChrList[item].ammo );
+                    _draw_string_raw( x + 8, y - 8, "%2d", ChrList.lst[item].ammo );
                 }
             }
         }
         else if ( bookicon_count > 0 )
         {
-            Uint16 icon = ChrList[item].money;
+            Uint16 icon = ChrList.lst[item].money;
             if (icon > bookicon_count) icon = bookicon_count;
-            draw_one_icon( bookicon_ref[ icon ], x + 8, y, ChrList[item].sparkle );
+            draw_one_icon( bookicon_ref[ icon ], x + 8, y, ChrList.lst[item].sparkle );
         }
         else
         {
-            draw_one_icon( ICON_NULL, x + 8, y, ChrList[item].sparkle );
+            draw_one_icon( ICON_NULL, x + 8, y, ChrList.lst[item].sparkle );
         }
     }
     else
@@ -2854,37 +2848,37 @@ int draw_status( Uint16 character, int x, int y )
         draw_one_icon( ICON_NULL, x + 8, y, NOSPARKLE );
     }
 
-    item = ChrList[character].holdingwhich[SLOT_RIGHT];
+    item = ChrList.lst[character].holdingwhich[SLOT_RIGHT];
     if ( item != MAX_CHR )
     {
-        imad  = ChrList[item].inst.imad;
-        iskin = ChrList[item].skin;
+        imad  = ChrList.lst[item].inst.imad;
+        iskin = ChrList.lst[item].skin;
 
         if ( !VALID_MAD(imad) )
         {
-            draw_one_icon( ICON_NULL, x + 72, y, ChrList[item].sparkle );
+            draw_one_icon( ICON_NULL, x + 72, y, ChrList.lst[item].sparkle );
         }
-        else if ( VALID_MAD(imad) && ChrList[item].icon )
+        else if ( VALID_MAD(imad) && ChrList.lst[item].icon )
         {
-            draw_one_icon( MadList[imad].ico_ref[iskin], x + 72, y, ChrList[item].sparkle );
-            if ( ChrList[item].ammomax != 0 && ChrList[item].ammoknown )
+            draw_one_icon( MadList[imad].ico_ref[iskin], x + 72, y, ChrList.lst[item].sparkle );
+            if ( ChrList.lst[item].ammomax != 0 && ChrList.lst[item].ammoknown )
             {
-                if ( !CapList[ChrList[item].model].isstackable || ChrList[item].ammo > 1 )
+                if ( !CapList[ChrList.lst[item].model].isstackable || ChrList.lst[item].ammo > 1 )
                 {
                     // Show amount of ammo left
-                    _draw_string_raw( x + 72, y - 8, "%2d", ChrList[item].ammo );
+                    _draw_string_raw( x + 72, y - 8, "%2d", ChrList.lst[item].ammo );
                 }
             }
         }
         else if ( bookicon_count > 0 )
         {
-            Uint16 icon = ChrList[item].money;
+            Uint16 icon = ChrList.lst[item].money;
             if (icon > bookicon_count) icon = bookicon_count;
-            draw_one_icon( bookicon_ref[ icon ], x + 72, y, ChrList[item].sparkle );
+            draw_one_icon( bookicon_ref[ icon ], x + 72, y, ChrList.lst[item].sparkle );
         }
         else
         {
-            draw_one_icon( ICON_NULL, x + 72, y, ChrList[item].sparkle );
+            draw_one_icon( ICON_NULL, x + 72, y, ChrList.lst[item].sparkle );
         }
     }
     else
@@ -2895,23 +2889,23 @@ int draw_status( Uint16 character, int x, int y )
     y += 32;
 
     //Draw the small XP progress bar
-    if ( ChrList[character].experiencelevel < MAXLEVEL)
+    if ( ChrList.lst[character].experiencelevel < MAXLEVEL)
     {
-        Uint16 profile = ChrList[character].model;
-        Uint8 curlevel = ChrList[character].experiencelevel + 1;
+        Uint16 profile = ChrList.lst[character].model;
+        Uint8 curlevel = ChrList.lst[character].experiencelevel + 1;
         Uint32 xplastlevel = CapList[profile].experienceforlevel[curlevel-1];
         Uint32 xpneed = CapList[profile].experienceforlevel[curlevel];
 
-        y = draw_one_xp_bar( x + 16, y, ( ( (float)MAX(ChrList[character].experience - xplastlevel, 0) / MAX( xpneed - xplastlevel, 1 ) ) * NUMTICK) );
+        y = draw_one_xp_bar( x + 16, y, ( ( (float)MAX(ChrList.lst[character].experience - xplastlevel, 0) / MAX( xpneed - xplastlevel, 1 ) ) * NUMTICK) );
     }
 
     // Draw the status bars
-    if ( ChrList[character].alive )
-        y = draw_one_bar( ChrList[character].lifecolor, x, y, life, lifemax );
+    if ( ChrList.lst[character].alive )
+        y = draw_one_bar( ChrList.lst[character].lifecolor, x, y, life, lifemax );
     else
         y = draw_one_bar( 0, x, y, 0, lifemax );  // Draw a black bar
 
-    y = draw_one_bar( ChrList[character].manacolor, x, y, mana, manamax );
+    y = draw_one_bar( ChrList.lst[character].manacolor, x, y, mana, manamax );
 
     return y;
 }
@@ -2960,13 +2954,13 @@ void draw_map()
             {
                 Uint16 icap;
 
-                if ( !ChrList[iTmp].on ) continue;
+                if ( !ChrList.lst[iTmp].on ) continue;
 
-                icap = ChrList[iTmp].model;
+                icap = ChrList.lst[iTmp].model;
                 if ( !VALID_CAP(icap) ) continue;
 
                 // Show only teams that will attack the player
-                if ( TeamList[ChrList[iTmp].team].hatesteam[local_senseenemiesTeam] )
+                if ( TeamList[ChrList.lst[iTmp].team].hatesteam[local_senseenemiesTeam] )
                 {
                     // Only if they match the required IDSZ ([NONE] always works)
                     if ( local_senseenemiesID == IDSZ_NONE ||
@@ -2974,11 +2968,11 @@ void draw_map()
                             local_senseenemiesID == CapList[icap].idsz[IDSZ_TYPE  ])
                     {
                         // Inside the map?
-                        if ( ChrList[iTmp].pos.x < PMesh->info.edge_x && ChrList[iTmp].pos.y < PMesh->info.edge_y )
+                        if ( ChrList.lst[iTmp].pos.x < PMesh->info.edge_x && ChrList.lst[iTmp].pos.y < PMesh->info.edge_y )
                         {
                             // Valid colors only
-                            blipx[numblip] = GET_MAP_X(PMesh, ChrList[iTmp].pos.x);
-                            blipy[numblip] = ChrList[iTmp].pos.y * MAPSIZE / PMesh->info.edge_y;
+                            blipx[numblip] = GET_MAP_X(PMesh, ChrList.lst[iTmp].pos.x);
+                            blipy[numblip] = ChrList.lst[iTmp].pos.y * MAPSIZE / PMesh->info.edge_y;
                             blipc[numblip] = COLOR_RED; // Red blips
                             numblip++;
                         }
@@ -3004,15 +2998,15 @@ void draw_map()
                 if ( INPUT_BITS_NONE != PlaList[cnt].device )
                 {
                     tnc = PlaList[cnt].index;
-                    if ( VALID_CHR(tnc) && ChrList[tnc].alive )
+                    if ( VALID_CHR(tnc) && ChrList.lst[tnc].alive )
                     {
-                        draw_blip( 0.75f, COLOR_WHITE, GET_MAP_X(PMesh, ChrList[tnc].pos.x), GET_MAP_Y(PMesh, ChrList[tnc].pos.y));
+                        draw_blip( 0.75f, COLOR_WHITE, GET_MAP_X(PMesh, ChrList.lst[tnc].pos.x), GET_MAP_Y(PMesh, ChrList.lst[tnc].pos.y));
                     }
                 }
             }
         }
 
-        // // draw the camera
+        //// draw the camera
         // if ( update_wld & 2 )
         // {
         //   draw_blip( 0.75f, COLOR_PURPLE, GET_MAP_X(PMesh, PCamera->pos.x), GET_MAP_Y(PMesh, PCamera->pos.y));
@@ -3098,20 +3092,20 @@ int draw_debug( int y )
 
         tnc = PlaList[0].index;
         y = _draw_string_raw( 0, y, "~~PLA0DEF %d %d %d %d %d %d %d %d",
-                              ChrList[tnc].damagemodifier[0] & 3,
-                              ChrList[tnc].damagemodifier[1] & 3,
-                              ChrList[tnc].damagemodifier[2] & 3,
-                              ChrList[tnc].damagemodifier[3] & 3,
-                              ChrList[tnc].damagemodifier[4] & 3,
-                              ChrList[tnc].damagemodifier[5] & 3,
-                              ChrList[tnc].damagemodifier[6] & 3,
-                              ChrList[tnc].damagemodifier[7] & 3  );
+                              ChrList.lst[tnc].damagemodifier[0] & 3,
+                              ChrList.lst[tnc].damagemodifier[1] & 3,
+                              ChrList.lst[tnc].damagemodifier[2] & 3,
+                              ChrList.lst[tnc].damagemodifier[3] & 3,
+                              ChrList.lst[tnc].damagemodifier[4] & 3,
+                              ChrList.lst[tnc].damagemodifier[5] & 3,
+                              ChrList.lst[tnc].damagemodifier[6] & 3,
+                              ChrList.lst[tnc].damagemodifier[7] & 3  );
 
         tnc = PlaList[0].index;
-        y = _draw_string_raw( 0, y, "~~PLA0 %5.1f %5.1f", ChrList[tnc].pos.x / 128.0f, ChrList[tnc].pos.y / 128.0f );
+        y = _draw_string_raw( 0, y, "~~PLA0 %5.1f %5.1f", ChrList.lst[tnc].pos.x / 128.0f, ChrList.lst[tnc].pos.y / 128.0f );
 
         tnc = PlaList[1].index;
-        y = _draw_string_raw( 0, y, "~~PLA1 %5.1f %5.1f", ChrList[tnc].pos.x / 128.0f, ChrList[tnc].pos.y / 128.0f );
+        y = _draw_string_raw( 0, y, "~~PLA1 %5.1f %5.1f", ChrList.lst[tnc].pos.x / 128.0f, ChrList.lst[tnc].pos.y / 128.0f );
     }
 
     if ( SDLKEYDOWN( SDLK_F6 ) )
@@ -3126,7 +3120,7 @@ int draw_debug( int y )
         if ( PMod->exportvalid ) sprintf( text, "~~EXPORT: TRUE" );
         else                    sprintf( text, "~~EXPORT: FALSE" );
         y = _draw_string_raw( 0, y, text, PMod->exportvalid );
-        y = _draw_string_raw( 0, y, "~~PASS %d/%d", numshoppassage, numpassage );
+        y = _draw_string_raw( 0, y, "~~PASS %d/%d", ShopStack.count, PassageStack.count );
         y = _draw_string_raw( 0, y, "~~NETPLAYERS %d", numplayer );
         y = _draw_string_raw( 0, y, "~~DAMAGEPART %d", damagetile_data.parttype );
 
@@ -3201,19 +3195,19 @@ int draw_messages( int y )
     if ( messageon )
     {
         // Display the messages
-        tnc = msgstart;
+        tnc = DisplayMsg.count;
         for ( cnt = 0; cnt < maxmessage; cnt++ )
         {
-            if ( msgtime[tnc] > 0 )
+            if ( DisplayMsg.lst[tnc].time > 0 )
             {
-                y = draw_wrap_string( msgtextdisplay[tnc], 0, y, sdl_scr.x - wraptolerance );
-                if (msgtime[tnc] > msgtimechange)
+                y = draw_wrap_string( DisplayMsg.lst[tnc].textdisplay, 0, y, sdl_scr.x - wraptolerance );
+                if (DisplayMsg.lst[tnc].time > msgtimechange)
                 {
-                    msgtime[tnc] -= msgtimechange;
+                    DisplayMsg.lst[tnc].time -= msgtimechange;
                 }
                 else
                 {
-                    msgtime[tnc] = 0;
+                    DisplayMsg.lst[tnc].time = 0;
                 }
             }
 
@@ -3703,13 +3697,13 @@ bool_t dump_screenshot()
 
                 GL_DEBUG(glGetError)();
 
-                // // use the allocated screen to tell OpenGL about the row length (including the lapse) in pixels
-                // // stolen from SDL ;)
+                //// use the allocated screen to tell OpenGL about the row length (including the lapse) in pixels
+                //// stolen from SDL ;)
                 // GL_DEBUG(glPixelStorei)(GL_UNPACK_ROW_LENGTH, temp->pitch / temp->format->BytesPerPixel );
                 // assert( GL_NO_ERROR == GL_DEBUG(glGetError)() );
 
-                // // since we have specified the row actual length and will give a pointer to the actual pixel buffer,
-                // // it is not necesssaty to mess with the alignment
+                //// since we have specified the row actual length and will give a pointer to the actual pixel buffer,
+                //// it is not necesssaty to mess with the alignment
                 // GL_DEBUG(glPixelStorei)(GL_UNPACK_ALIGNMENT, 1 );
                 // assert( GL_NO_ERROR == GL_DEBUG(glGetError)() );
 
@@ -4046,9 +4040,9 @@ void clear_messages()
 
     cnt = 0;
 
-    while ( cnt < MAXMESSAGE )
+    while ( cnt < MAX_MESSAGE )
     {
-        msgtime[cnt] = 0;
+        DisplayMsg.lst[cnt].time = 0;
         cnt++;
     }
 }
@@ -4066,19 +4060,19 @@ void make_dynalist( camera_t * pcam )
     dyna_distancetobeat = MAXDYNADIST * MAXDYNADIST;
     for ( cnt = 0; cnt < maxparticles; cnt++ )
     {
-        PrtList[cnt].inview = bfalse;
-        if ( !PrtList[cnt].on ) continue;
+        PrtList.lst[cnt].inview = bfalse;
+        if ( !PrtList.lst[cnt].on ) continue;
 
-        if ( !VALID_TILE(PMesh, PrtList[cnt].onwhichfan) ) continue;
+        if ( !VALID_TILE(PMesh, PrtList.lst[cnt].onwhichfan) ) continue;
 
-        PrtList[cnt].inview = PMesh->mmem.tile_list[PrtList[cnt].onwhichfan].inrenderlist;
+        PrtList.lst[cnt].inview = PMesh->mmem.tile_list[PrtList.lst[cnt].onwhichfan].inrenderlist;
 
         // Set up the lights we need
-        if ( !PrtList[cnt].dynalighton ) continue;
+        if ( !PrtList.lst[cnt].dynalighton ) continue;
 
-        disx = PrtList[cnt].pos.x - pcam->track_pos.x;
-        disy = PrtList[cnt].pos.y - pcam->track_pos.y;
-        disz = PrtList[cnt].pos.z - pcam->track_pos.z;
+        disx = PrtList.lst[cnt].pos.x - pcam->track_pos.x;
+        disy = PrtList.lst[cnt].pos.y - pcam->track_pos.y;
+        disz = PrtList.lst[cnt].pos.z - pcam->track_pos.z;
 
         distance = disx * disx + disy * disy + disz * disz;
         if ( distance < dyna_distancetobeat )
@@ -4124,11 +4118,11 @@ void make_dynalist( camera_t * pcam )
 
             if ( found )
             {
-                dyna_list[slot].x       = PrtList[cnt].pos.x;
-                dyna_list[slot].y       = PrtList[cnt].pos.y;
-                dyna_list[slot].z       = PrtList[cnt].pos.z;
-                dyna_list[slot].level   = PrtList[cnt].dynalightlevel;
-                dyna_list[slot].falloff = PrtList[cnt].dynalightfalloff;
+                dyna_list[slot].x       = PrtList.lst[cnt].pos.x;
+                dyna_list[slot].y       = PrtList.lst[cnt].pos.y;
+                dyna_list[slot].z       = PrtList.lst[cnt].pos.z;
+                dyna_list[slot].level   = PrtList.lst[cnt].dynalightlevel;
+                dyna_list[slot].falloff = PrtList.lst[cnt].dynalightfalloff;
             }
         }
     }
@@ -4147,7 +4141,7 @@ bool_t dolist_add_chr( ego_mpd_t * pmesh, Uint16 ichr )
     if ( dolist_count >= DOLIST_SIZE ) return bfalse;
 
     if ( INVALID_CHR(ichr) ) return bfalse;
-    pchr  = ChrList + ichr;
+    pchr  = ChrList.lst + ichr;
     pinst = &(pchr->inst);
 
     if ( pinst->indolist ) return btrue;
@@ -4198,7 +4192,7 @@ bool_t dolist_add_prt( ego_mpd_t * pmesh, Uint16 iprt )
     if ( dolist_count >= DOLIST_SIZE ) return bfalse;
 
     if ( INVALID_PRT(iprt) ) return bfalse;
-    pprt = PrtList + iprt;
+    pprt = PrtList.lst + iprt;
     pinst = &(pprt->inst);
 
     if ( pinst->indolist ) return btrue;
@@ -4226,11 +4220,11 @@ void dolist_make( ego_mpd_t * pmesh )
     {
         if ( TOTAL_MAX_PRT == dolist[cnt].iprt && MAX_CHR != dolist[cnt].ichr )
         {
-            ChrList[ dolist[cnt].ichr ].inst.indolist = bfalse;
+            ChrList.lst[ dolist[cnt].ichr ].inst.indolist = bfalse;
         }
         else if ( MAX_CHR == dolist[cnt].ichr && TOTAL_MAX_PRT != dolist[cnt].iprt )
         {
-            PrtList[ dolist[cnt].iprt ].inst.indolist = bfalse;
+            PrtList.lst[ dolist[cnt].iprt ].inst.indolist = bfalse;
         }
     }
     dolist_count = 0;
@@ -4238,7 +4232,7 @@ void dolist_make( ego_mpd_t * pmesh )
     // Now fill it up again
     for ( cnt = 0; cnt < MAX_CHR; cnt++ )
     {
-        if ( ChrList[cnt].on && !ChrList[cnt].pack_ispacked )
+        if ( ChrList.lst[cnt].on && !ChrList.lst[cnt].pack_ispacked )
         {
             // Add the character
             dolist_add_chr( pmesh, cnt );
@@ -4247,7 +4241,7 @@ void dolist_make( ego_mpd_t * pmesh )
 
     for ( cnt = 0; cnt < maxparticles; cnt++ )
     {
-        if ( PrtList[cnt].on && VALID_TILE(pmesh, PrtList[cnt].onwhichfan) )
+        if ( PrtList.lst[cnt].on && VALID_TILE(pmesh, PrtList.lst[cnt].onwhichfan) )
         {
             // Add the character
             dolist_add_prt( pmesh, cnt );
@@ -4278,12 +4272,12 @@ void dolist_sort( camera_t * pcam )
         if ( TOTAL_MAX_PRT == dolist[cnt].iprt && VALID_CHR(dolist[cnt].ichr) )
         {
             tnc = dolist[cnt].ichr;
-            vtmp = VSub( ChrList[tnc].pos, pcam->pos );
+            vtmp = VSub( ChrList.lst[tnc].pos, pcam->pos );
         }
         else if ( MAX_CHR == dolist[cnt].ichr && VALID_PRT(dolist[cnt].iprt) )
         {
             tnc = dolist[cnt].iprt;
-            vtmp = VSub( PrtList[tnc].pos, pcam->pos );
+            vtmp = VSub( PrtList.lst[tnc].pos, pcam->pos );
         }
         else
         {
@@ -4312,7 +4306,25 @@ int obj_registry_entity_cmp( const void * pleft, const void * pright )
     obj_registry_entity_t * dleft  = (obj_registry_entity_t *) pleft;
     obj_registry_entity_t * dright = (obj_registry_entity_t *) pright;
 
-    return dleft->dist - dright->dist;
+    int   rv;
+    float diff;
+
+    diff = dleft->dist - dright->dist;
+
+    if ( diff < 0.0f )
+    {
+        rv = -1;
+    }
+    else if ( diff > 0.0f )
+    {
+        rv = 1;
+    }
+    else
+    {
+        rv = 0;
+    }
+
+    return rv;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4405,7 +4417,7 @@ bool_t gfx_config_init ( gfx_config_t * pgfx )
 //--------------------------------------------------------------------------------------------
 bool_t oglx_texture_parameters_synch( oglx_texture_parameters_t * ptex, egoboo_config_t * pcfg )
 {
-    // / BB > synch the texture parameters with the video mode
+    /// BB > synch the texture parameters with the video mode
 
     if ( NULL == ptex || NULL == pcfg ) return GL_FALSE;
 
@@ -4762,13 +4774,13 @@ bool_t billboard_data_update( billboard_data_t * pbb )
     chr_t     * pchr;
     float       height, offset;
 
-    if( NULL == pbb || !pbb->valid ) return bfalse;
+    if ( NULL == pbb || !pbb->valid ) return bfalse;
 
-    if( INVALID_CHR(pbb->ichr) ) return bfalse;
-    pchr = ChrList + pbb->ichr;
+    if ( INVALID_CHR(pbb->ichr) ) return bfalse;
+    pchr = ChrList.lst + pbb->ichr;
 
     // determine where the new position should be
-    if( pchr->inst.matrixvalid )
+    if ( pchr->inst.matrixvalid )
     {
         vup = mat_getChrUp( pchr->inst.matrix );
     }
@@ -4801,7 +4813,7 @@ bool_t billboard_data_printf_ttf( billboard_data_t * pbb, Font *font, SDL_Color 
     oglx_texture * ptex;
     float texCoords[4];
 
-    if( NULL == pbb || !pbb->valid ) return bfalse;
+    if ( NULL == pbb || !pbb->valid ) return bfalse;
 
     // release any existing texture in case there is an error
     ptex = TxTexture_get_ptr(pbb->tex_ref);
@@ -4843,7 +4855,7 @@ void BillboardList_init_all()
 {
     int cnt;
 
-    for( cnt = 0; cnt<BILLBOARD_COUNT; cnt++ )
+    for ( cnt = 0; cnt < BILLBOARD_COUNT; cnt++ )
     {
         billboard_data_init( BillboardList.lst + cnt );
     }
@@ -4858,35 +4870,35 @@ void BillboardList_update_all()
 
     ticks = SDL_GetTicks();
 
-    for( cnt = 0; cnt<BILLBOARD_COUNT; cnt++ )
+    for ( cnt = 0; cnt < BILLBOARD_COUNT; cnt++ )
     {
         bool_t is_invalid;
 
         billboard_data_t * pbb = BillboardList.lst + cnt;
 
-        if( !pbb->valid ) continue;
+        if ( !pbb->valid ) continue;
 
         is_invalid = bfalse;
-        if( ticks >= pbb->time || NULL == TxTexture_get_ptr( pbb->tex_ref ) )    
+        if ( ticks >= pbb->time || NULL == TxTexture_get_ptr( pbb->tex_ref ) )
         {
             is_invalid = btrue;
         }
 
-        if( is_invalid )
+        if ( is_invalid )
         {
             // the billboard has expired
 
             // unlink it from the character
-            if( VALID_CHR(pbb->ichr) )
+            if ( VALID_CHR(pbb->ichr) )
             {
-                ChrList[pbb->ichr].ibillboard = INVALID_BILLBOARD;
+                ChrList.lst[pbb->ichr].ibillboard = INVALID_BILLBOARD;
             }
 
             // deallocate the billboard
             BillboardList_free_one(cnt);
         }
         else
-        { 
+        {
             billboard_data_update( BillboardList.lst + cnt );
         }
     }
@@ -4897,9 +4909,9 @@ void BillboardList_free_all()
 {
     int cnt;
 
-    for( cnt = 0; cnt<BILLBOARD_COUNT; cnt++ )
+    for ( cnt = 0; cnt < BILLBOARD_COUNT; cnt++ )
     {
-        if( !BillboardList.lst[cnt].valid ) continue;
+        if ( !BillboardList.lst[cnt].valid ) continue;
 
         billboard_data_update( BillboardList.lst + cnt );
     }
@@ -4914,16 +4926,16 @@ int BillboardList_get_free( Uint32 lifetime_secs )
 
     if ( BillboardList.free_count <= 0 ) return INVALID_BILLBOARD;
 
-    if( 0 == lifetime_secs ) return INVALID_BILLBOARD;
+    if ( 0 == lifetime_secs ) return INVALID_BILLBOARD;
 
     itex = TxTexture_get_free( INVALID_TEXTURE );
-    if( INVALID_TEXTURE == itex ) return INVALID_BILLBOARD;
+    if ( INVALID_TEXTURE == itex ) return INVALID_BILLBOARD;
 
     // grab the top index
     BillboardList.free_count--;
     ibb = BillboardList.free_ref[BillboardList.free_count];
 
-    if( VALID_BILLBOARD_RANGE(ibb) )
+    if ( VALID_BILLBOARD_RANGE(ibb) )
     {
         pbb = BillboardList.lst + ibb;
         billboard_data_init( pbb );
@@ -4980,7 +4992,7 @@ bool_t BillboardList_free_one(int ibb)
 //--------------------------------------------------------------------------------------------
 billboard_data_t * BillboardList_get_ptr( int ibb )
 {
-    if( !VALID_BILLBOARD(ibb) ) return NULL;
+    if ( !VALID_BILLBOARD(ibb) ) return NULL;
 
     return BillboardList.lst + ibb;
 }
@@ -4991,12 +5003,12 @@ bool_t render_billboard( camera_t * pcam, billboard_data_t * pbb, float scale )
     int i;
     GLvertex vtlist[4];
     float x1, y1;
-    float w,h;
+    float w, h;
     GLvector4 vector_up, vector_right;
 
     oglx_texture     * ptex;
 
-    if( NULL == pbb || !pbb->valid ) return bfalse;
+    if ( NULL == pbb || !pbb->valid ) return bfalse;
 
     ptex = TxTexture_get_ptr( pbb->tex_ref );
 
@@ -5084,11 +5096,11 @@ void render_all_billboards( camera_t * pcam )
 
             GL_DEBUG(glColor4f)(1.0f, 1.0f, 1.0f, 1.0f );
 
-            for( cnt = 0; cnt<BILLBOARD_COUNT; cnt++ )
+            for ( cnt = 0; cnt < BILLBOARD_COUNT; cnt++ )
             {
                 billboard_data_t * pbb = BillboardList.lst + cnt;
 
-                if( !pbb->valid ) continue;
+                if ( !pbb->valid ) continue;
 
                 render_billboard( pcam, pbb, 0.75 );
             }

@@ -1,26 +1,26 @@
-// ********************************************************************************************
-// *
-// *    This file is part of Egoboo.
-// *
-// *    Egoboo is free software: you can redistribute it and/or modify it
-// *    under the terms of the GNU General Public License as published by
-// *    the Free Software Foundation, either version 3 of the License, or
-// *    (at your option) any later version.
-// *
-// *    Egoboo is distributed in the hope that it will be useful, but
-// *    WITHOUT ANY WARRANTY; without even the implied warranty of
-// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-// *    General Public License for more details.
-// *
-// *    You should have received a copy of the GNU General Public License
-// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-// *
-// ********************************************************************************************
+//********************************************************************************************
+//*
+//*    This file is part of Egoboo.
+//*
+//*    Egoboo is free software: you can redistribute it and/or modify it
+//*    under the terms of the GNU General Public License as published by
+//*    the Free Software Foundation, either version 3 of the License, or
+//*    (at your option) any later version.
+//*
+//*    Egoboo is distributed in the hope that it will be useful, but
+//*    WITHOUT ANY WARRANTY; without even the implied warranty of
+//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//*    General Public License for more details.
+//*
+//*    You should have received a copy of the GNU General Public License
+//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+//*
+//********************************************************************************************
 
-// /
-// / @file
-// / @brief Egoboo OpenGL texture interface
-// / @details Implements OpenGL texture loading using SDL_image
+///
+/// @file
+/// @brief Egoboo OpenGL texture interface
+/// @details Implements OpenGL texture loading using SDL_image
 
 #include "ogl_texture.h"
 #include "ogl_debug.h"
@@ -423,7 +423,7 @@ GLsizei  oglx_texture_GetTextureHeight( oglx_texture *texture )
 /********************> oglx_texture_SetAlpha() <*****/
 void  oglx_texture_SetAlpha( oglx_texture *texture, GLfloat alpha )
 {
-    if( NULL != texture )
+    if ( NULL != texture )
     {
         texture->alpha = alpha;
     }
@@ -543,7 +543,7 @@ void oglx_texture_Bind( oglx_texture *texture )
         };
     }
 
-    if( NULL != texture && !texture->base_valid )
+    if ( NULL != texture && !texture->base_valid )
     {
         oglx_grab_texture_state( target, 0, texture );
     }
@@ -558,7 +558,7 @@ GLboolean oglx_texture_Valid( oglx_texture *ptex )
 //---------------------------------------------------------------------------------------------
 void oglx_grab_texture_state(GLenum target, GLint level, oglx_texture * texture)
 {
-    if( NULL == texture ) return;
+    if ( NULL == texture ) return;
 
     gl_grab_texture_state( target, level, &(texture->base) );
 

@@ -1,21 +1,21 @@
-// ********************************************************************************************
-// *
-// *    This file is part of Egoboo.
-// *
-// *    Egoboo is free software: you can redistribute it and/or modify it
-// *    under the terms of the GNU General Public License as published by
-// *    the Free Software Foundation, either version 3 of the License, or
-// *    (at your option) any later version.
-// *
-// *    Egoboo is distributed in the hope that it will be useful, but
-// *    WITHOUT ANY WARRANTY; without even the implied warranty of
-// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-// *    General Public License for more details.
-// *
-// *    You should have received a copy of the GNU General Public License
-// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-// *
-// ********************************************************************************************
+//********************************************************************************************
+//*
+//*    This file is part of Egoboo.
+//*
+//*    Egoboo is free software: you can redistribute it and/or modify it
+//*    under the terms of the GNU General Public License as published by
+//*    the Free Software Foundation, either version 3 of the License, or
+//*    (at your option) any later version.
+//*
+//*    Egoboo is distributed in the hope that it will be useful, but
+//*    WITHOUT ANY WARRANTY; without even the implied warranty of
+//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//*    General Public License for more details.
+//*
+//*    You should have received a copy of the GNU General Public License
+//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+//*
+//********************************************************************************************
 
 /* Egoboo - module.c
  */
@@ -40,8 +40,7 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-int        ModList_count = 0;                            // Number of modules
-mod_data_t ModList[MAXMODULE];
+DECLARE_STACK( mod_data_t, ModList );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -140,9 +139,9 @@ int modlist_get_mod_number( const char *szModName )
 
     int modnum, retval = -1;
 
-    for ( modnum = 0; modnum < ModList_count; modnum++ )
+    for ( modnum = 0; modnum < ModList.count; modnum++ )
     {
-        if ( 0 == strcmp( ModList[modnum].loadname, szModName ) )
+        if ( 0 == strcmp( ModList.lst[modnum].loadname, szModName ) )
         {
             retval = modnum;
             break;
@@ -160,8 +159,8 @@ bool_t modlist_test_by_index( int modnumber )
     bool_t  allowed;
     bool_t  playerhasquest;
 
-    if ( modnumber < 0 || modnumber >= ModList_count || modnumber >= MAXMODULE ) return bfalse;
-    pmod = ModList + modnumber;
+    if ( modnumber < 0 || modnumber >= ModList.count || modnumber >= MAX_MODULE ) return bfalse;
+    pmod = ModList.lst + modnumber;
 
     // if the module data was never loaded, then it is not valid
     if ( !pmod->loaded ) return bfalse;
@@ -286,24 +285,23 @@ void modlist_load_all_info()
     const char *FileName;
 
     // Search for all .mod directories and load the module info
-    ModList_count = 0;
+    ModList.count = 0;
     FileName = fs_findFirstFile( "modules", "mod" );
-    while ( NULL != FileName && ModList_count < MAXMODULE )
+    while ( NULL != FileName && ModList.count < MAX_MODULE )
     {
         // save the filename
         sprintf( loadname, "modules" SLASH_STR "%s" SLASH_STR "gamedat" SLASH_STR "menu.txt", FileName );
 
-        if ( module_load_info( loadname, ModList + ModList_count ) )
+        if ( module_load_info( loadname, ModList.lst + ModList.count ) )
         {
-            strncpy( ModList[ModList_count].loadname, FileName, MAXCAPNAMESIZE );
-
-            ModList_count++;
+            strncpy( ModList.lst[ModList.count].loadname, FileName, MAXCAPNAMESIZE );
+            ModList.count++;
         };
 
         FileName = fs_findNextFile();
     }
     fs_findClose();
-    ModList[ModList_count].longname[0] = '\0';
+    ModList.lst[ModList.count].longname[0] = '\0';
 }
 
 //--------------------------------------------------------------------------------------------
@@ -323,11 +321,11 @@ bool_t module_upload( module_instance_t * pinst, int imod, Uint32 seed )
 {
     mod_data_t * pdata;
 
-    if ( imod < 0 || imod >= ModList_count ) return bfalse;
+    if ( imod < 0 || imod >= ModList.count ) return bfalse;
 
     if ( !module_instance_init(pinst) ) return bfalse;
 
-    pdata = ModList + imod;
+    pdata = ModList.lst + imod;
 
     pinst->importamount   = pdata->importamount;
     pinst->exportvalid    = pdata->allowexport;

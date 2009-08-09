@@ -193,7 +193,7 @@ void oglx_Get_Screen_Info( oglx_caps_t * pcaps )
     pcaps->maxAnisotropy  = 0;
     pcaps->log2Anisotropy = 0;
 
-    // / get the supported values for anisotropic filtering
+    /// get the supported values for anisotropic filtering
     pcaps->anisotropic_supported = GL_FALSE;
     pcaps->maxAnisotropy  = 1.0f;
     pcaps->log2Anisotropy = 0.0f;
@@ -211,11 +211,11 @@ GLboolean oglx_video_parameters_default(oglx_video_parameters_t * pvid)
 {
     if (NULL == pvid) return GL_FALSE;
 
-    pvid->multisample     = GL_FALSE;            // /< current antialiasing used through GL_MULTISAMPLES
-    pvid->multisample_arb = GL_FALSE;            // /< current antialiasing used through GL_MULTISAMPLES_ARB
-    pvid->perspective     = GL_FASTEST;          // /< current correction hint
-    pvid->dither          = GL_FALSE;            // /< current dithering flag
-    pvid->shading         = GL_SMOOTH;           // /< current shading type
+    pvid->multisample     = GL_FALSE;            ///< current antialiasing used through GL_MULTISAMPLES
+    pvid->multisample_arb = GL_FALSE;            ///< current antialiasing used through GL_MULTISAMPLES_ARB
+    pvid->perspective     = GL_FASTEST;          ///< current correction hint
+    pvid->dither          = GL_FALSE;            ///< current dithering flag
+    pvid->shading         = GL_SMOOTH;           ///< current shading type
     pvid->userAnisotropy  = 0.0f;
 
     return GL_TRUE;

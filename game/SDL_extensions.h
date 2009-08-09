@@ -82,11 +82,11 @@ extern "C"
 
         SDL_Rect **   video_mode_list;
 
-        char          szDriver[256];    // /< graphics driver name;
+        char          szDriver[256];    ///< graphics driver name;
 
-        int           d;                // /< Screen bit depth
-        int           x;                // /< Screen X size
-        int           y;                // /< Screen Y size
+        int           d;                ///< Screen bit depth
+        int           x;                ///< Screen X size
+        int           y;                ///< Screen Y size
 
         // SDL OpenGL attributes
         SDLX_sdl_gl_attrib_t gl_att;

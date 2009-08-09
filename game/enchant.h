@@ -1,23 +1,23 @@
 #pragma once
 
-// ********************************************************************************************
-// *
-// *    This file is part of Egoboo.
-// *
-// *    Egoboo is free software: you can redistribute it and/or modify it
-// *    under the terms of the GNU General Public License as published by
-// *    the Free Software Foundation, either version 3 of the License, or
-// *    (at your option) any later version.
-// *
-// *    Egoboo is distributed in the hope that it will be useful, but
-// *    WITHOUT ANY WARRANTY; without even the implied warranty of
-// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-// *    General Public License for more details.
-// *
-// *    You should have received a copy of the GNU General Public License
-// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-// *
-// ********************************************************************************************
+//********************************************************************************************
+//*
+//*    This file is part of Egoboo.
+//*
+//*    Egoboo is free software: you can redistribute it and/or modify it
+//*    under the terms of the GNU General Public License as published by
+//*    the Free Software Foundation, either version 3 of the License, or
+//*    (at your option) any later version.
+//*
+//*    Egoboo is distributed in the hope that it will be useful, but
+//*    WITHOUT ANY WARRANTY; without even the implied warranty of
+//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//*    General Public License for more details.
+//*
+//*    You should have received a copy of the GNU General Public License
+//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+//*
+//********************************************************************************************
 
 /* Egoboo - enchant.h
  * Decleares some stuff used for handling enchants
@@ -95,7 +95,7 @@ typedef enum enchant_add
 //--------------------------------------------------------------------------------------------
 // Enchantment template
 
-#define MAXEVE                          MAX_PROFILE    // One enchant type per model
+#define MAX_EVE                          MAX_PROFILE    // One enchant type per model
 
 struct s_eve
 {
@@ -131,11 +131,11 @@ struct s_eve
 };
 typedef struct s_eve eve_t;
 
-extern eve_t EveList[MAXEVE];
+DEFINE_STACK( extern, eve_t, EveStack, MAX_EVE );
 
-#define VALID_EVE_RANGE( IEVE ) ( ((IEVE) >= 0) && ((IEVE) < MAXEVE) )
-#define VALID_EVE( IEVE )       ( VALID_EVE_RANGE( IEVE ) && EveList[IEVE].loaded )
-#define INVALID_EVE( IEVE )     ( !VALID_EVE_RANGE( IEVE ) || !EveList[IEVE].loaded )
+#define VALID_EVE_RANGE( IEVE ) ( ((IEVE) >= 0) && ((IEVE) < MAX_EVE) )
+#define VALID_EVE( IEVE )       ( VALID_EVE_RANGE( IEVE ) && EveStack.lst[IEVE].loaded )
+#define INVALID_EVE( IEVE )     ( !VALID_EVE_RANGE( IEVE ) || !EveStack.lst[IEVE].loaded )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -169,19 +169,19 @@ struct s_enc
 };
 typedef struct s_enc enc_t;
 
-extern enc_t EncList[MAX_ENC];
+DEFINE_LIST( extern, enc_t, EncList, MAX_ENC );
 
 #define VALID_ENC_RANGE( IENC ) ( ((IENC) >= 0) && ((IENC) < MAX_ENC) )
-#define VALID_ENC( IENC )       ( VALID_ENC_RANGE( IENC ) && EncList[IENC].on )
-#define INVALID_ENC( IENC )     ( !VALID_ENC_RANGE( IENC ) || !EncList[IENC].on )
+#define VALID_ENC( IENC )       ( VALID_ENC_RANGE( IENC ) && EncList.lst[IENC].on )
+#define INVALID_ENC( IENC )     ( !VALID_ENC_RANGE( IENC ) || !EncList.lst[IENC].on )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // Prototypes
-void free_all_enchants();
+void EncList_free_all();
 void getadd( int min, int value, int max, int* valuetoadd );
 void fgetadd( float min, float value, float max, float* valuetoadd );
-Uint16 get_free_enchant();
+Uint16 EncList_get_free();
 Uint16 enchant_value_filled( Uint16 enchantindex, Uint8 valueindex );
 bool_t remove_enchant( Uint16 enchantindex );
 void set_enchant_value( Uint16 enchantindex, Uint8 valueindex,

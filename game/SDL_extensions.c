@@ -594,7 +594,7 @@ void SDLX_report_mode( SDL_Surface * surface, SDLX_video_parameters_t * v )
 //------------------------------------------------------------------------------
 SDLX_video_parameters_t * SDLX_set_mode(SDLX_video_parameters_t * v_old, SDLX_video_parameters_t * v_new, SDL_bool make_report )
 {
-    // / @details BB> let SDL try to set a new video mode.
+    /// @details BB> let SDL try to set a new video mode.
 
     SDLX_video_parameters_t   param_old, param_new;
     SDLX_video_parameters_t * retval = NULL;

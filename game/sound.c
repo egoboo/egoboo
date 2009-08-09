@@ -1,21 +1,21 @@
-// ********************************************************************************************
-// *
-// *    This file is part of Egoboo.
-// *
-// *    Egoboo is free software: you can redistribute it and/or modify it
-// *    under the terms of the GNU General Public License as published by
-// *    the Free Software Foundation, either version 3 of the License, or
-// *    (at your option) any later version.
-// *
-// *    Egoboo is distributed in the hope that it will be useful, but
-// *    WITHOUT ANY WARRANTY; without even the implied warranty of
-// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-// *    General Public License for more details.
-// *
-// *    You should have received a copy of the GNU General Public License
-// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-// *
-// ********************************************************************************************
+//********************************************************************************************
+//*
+//*    This file is part of Egoboo.
+//*
+//*    Egoboo is free software: you can redistribute it and/or modify it
+//*    under the terms of the GNU General Public License as published by
+//*    the Free Software Foundation, either version 3 of the License, or
+//*    (at your option) any later version.
+//*
+//*    Egoboo is distributed in the hope that it will be useful, but
+//*    WITHOUT ANY WARRANTY; without even the implied warranty of
+//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//*    General Public License for more details.
+//*
+//*    You should have received a copy of the GNU General Public License
+//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+//*
+//********************************************************************************************
 
 /* Egoboo - sound.c
  * Sound code in Egoboo is implemented using SDL_mixer.
@@ -48,20 +48,18 @@ struct s_looped_sound_data
 };
 typedef struct s_looped_sound_data looped_sound_data_t;
 
-size_t looped_used_count;
-int    looped_used[LOOPED_COUNT];
-size_t looped_free_count;
-int    looped_free[LOOPED_COUNT];
+DEFINE_LIST( static, looped_sound_data_t, LoopedList, LOOPED_COUNT );
 
-looped_sound_data_t looped_list[LOOPED_COUNT];
+DECLARE_LIST( looped_sound_data_t, LoopedList );
 
-void   looped_setup();
-bool_t looped_validate();
-bool_t looped_free_one( int index );
-int    looped_get_one_free();
+void   LoopedList_init();
+void   LoopedList_clear();
+bool_t LoopedList_free_one( int index );
+int    LoopedList_get_free();
 
-int    looped_add( Mix_Chunk * sound, int loops, Uint16 object );
-bool_t looped_remove( int channel );
+bool_t LoopedList_validate();
+int    LoopedList_add( Mix_Chunk * sound, int loops, Uint16 object );
+bool_t LoopedList_remove( int channel );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -298,7 +296,7 @@ bool_t sound_initialize()
 
     if ( retval )
     {
-        looped_setup();
+        LoopedList_init();
     }
 
     return retval;
@@ -586,7 +584,7 @@ int sound_play_chunk_looped( GLvector3 pos, Mix_Chunk * pchunk, Sint8 loops, Uin
     if ( volume > 0 )
     {
         // this function handles loops == 0 properly
-        channel = looped_add( pchunk, loops, object );
+        channel = LoopedList_add( pchunk, loops, object );
 
         if ( INVALID_SOUND == channel )
         {
@@ -851,38 +849,40 @@ void fade_in_music( Mix_Music * music )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void   looped_setup()
+void   LoopedList_init()
 {
     // BB> setup the looped sound list
     int cnt;
 
-    memset(looped_list, 0, sizeof(looped_sound_data_t) );
-
     for (cnt = 0; cnt < LOOPED_COUNT; cnt++)
     {
-        looped_list[cnt].channel = -1;
-        looped_list[cnt].chunk   = NULL;
-        looped_list[cnt].object  = MAX_CHR;
+        // clear out all of the data
+        memset(LoopedList.lst + cnt, 0, sizeof(looped_sound_data_t) );
 
-        looped_used[cnt] = LOOPED_COUNT;
-        looped_free[cnt] = cnt;
+        LoopedList.lst[cnt].channel = -1;
+        LoopedList.lst[cnt].chunk   = NULL;
+        LoopedList.lst[cnt].object  = MAX_CHR;
+
+        LoopedList.used_ref[cnt] = LOOPED_COUNT;
+        LoopedList.free_ref[cnt] = cnt;
     }
-    looped_used_count = 0;
-    looped_free_count = LOOPED_COUNT;
+
+    LoopedList.used_count = 0;
+    LoopedList.free_count = LOOPED_COUNT;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t looped_validate()
+bool_t LoopedList_validate()
 {
     // BB> do the free and used indices have valid values?
 
     bool_t retval;
 
     retval = btrue;
-    if ( LOOPED_COUNT != looped_free_count + looped_used_count )
+    if ( LOOPED_COUNT != LoopedList.free_count + LoopedList.used_count )
     {
         // punt!
-        looped_clear();
+        LoopedList_clear();
         retval = bfalse;
     }
 
@@ -890,57 +890,57 @@ bool_t looped_validate()
 };
 
 //--------------------------------------------------------------------------------------------
-bool_t looped_free_one( int index )
+bool_t LoopedList_free_one( int index )
 {
     // BB> free a looped sound only if it is actually being used
     Uint32 cnt;
 
-    if ( !looped_validate() ) return bfalse;
+    if ( !LoopedList_validate() ) return bfalse;
 
     // is the index actually free?
-    for ( cnt = 0; cnt < looped_used_count; cnt++ )
+    for ( cnt = 0; cnt < LoopedList.used_count; cnt++ )
     {
-        if ( index == looped_used[cnt] ) break;
+        if ( index == LoopedList.used_ref[cnt] ) break;
     }
 
     // was anything found?
-    if ( cnt >= looped_used_count ) return bfalse;
+    if ( cnt >= LoopedList.used_count ) return bfalse;
 
     // swap the value with the one on the top of the stack
-    SWAP(int, looped_used[cnt], looped_used[looped_used_count-1] );
-    looped_used_count--;
+    SWAP(int, LoopedList.used_ref[cnt], LoopedList.used_ref[LoopedList.used_count-1] );
+    LoopedList.used_count--;
 
     // push the value onto the free stack
-    looped_free[looped_free_count] = index;
-    looped_free_count++;
+    LoopedList.free_ref[LoopedList.free_count] = index;
+    LoopedList.free_count++;
 
     // clear out the data
-    looped_list[index].channel = -1;
-    looped_list[index].chunk   = NULL;
-    looped_list[index].object  = MAX_CHR;
+    LoopedList.lst[index].channel = -1;
+    LoopedList.lst[index].chunk   = NULL;
+    LoopedList.lst[index].object  = MAX_CHR;
 
     return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-int looped_get_one_free()
+int LoopedList_get_free()
 {
     int index;
 
-    if ( !looped_validate() ) return bfalse;
+    if ( !LoopedList_validate() ) return bfalse;
 
-    looped_free_count--;
-    index = looped_free[looped_free_count];
+    LoopedList.free_count--;
+    index = LoopedList.free_ref[LoopedList.free_count];
 
     // push the value onto the used stack
-    looped_used[looped_used_count] = index;
-    looped_used_count++;
+    LoopedList.used_ref[LoopedList.used_count] = index;
+    LoopedList.used_count++;
 
     return index;
 }
 
 //--------------------------------------------------------------------------------------------
-void looped_clear()
+void LoopedList_clear()
 {
     // BB> shut off all the looped sounds
 
@@ -948,22 +948,22 @@ void looped_clear()
 
     for (cnt = 0; cnt < LOOPED_COUNT; cnt++)
     {
-        if ( INVALID_SOUND != looped_list[cnt].channel )
+        if ( INVALID_SOUND != LoopedList.lst[cnt].channel )
         {
-            Mix_FadeOutChannel( looped_list[cnt].channel, 500 );
+            Mix_FadeOutChannel( LoopedList.lst[cnt].channel, 500 );
 
             // clear out the data
-            looped_list[cnt].channel = INVALID_SOUND;
-            looped_list[cnt].chunk   = NULL;
-            looped_list[cnt].object  = MAX_CHR;
+            LoopedList.lst[cnt].channel = INVALID_SOUND;
+            LoopedList.lst[cnt].chunk   = NULL;
+            LoopedList.lst[cnt].object  = MAX_CHR;
         }
     }
 
-    looped_setup();
+    LoopedList_init();
 }
 
 //--------------------------------------------------------------------------------------------
-int looped_add( Mix_Chunk * sound, int loops, Uint16 object )
+int LoopedList_add( Mix_Chunk * sound, int loops, Uint16 object )
 {
     // BB> add a looped sound to the list
 
@@ -985,10 +985,10 @@ int looped_add( Mix_Chunk * sound, int loops, Uint16 object )
 
         int index;
 
-        if ( looped_used_count >= LOOPED_COUNT ) return -1;
-        if ( !looped_validate() ) return -1;
+        if ( LoopedList.used_count >= LOOPED_COUNT ) return -1;
+        if ( !LoopedList_validate() ) return -1;
 
-        index = looped_get_one_free();
+        index = LoopedList_get_free();
 
         if ( LOOPED_COUNT == index )
         {
@@ -997,18 +997,18 @@ int looped_add( Mix_Chunk * sound, int loops, Uint16 object )
         }
         else
         {
-            // set up the looped_list entry at the empty index
+            // set up the LoopedList entry at the empty index
 
             channel = Mix_PlayChannel( -1, sound, loops );
             if ( INVALID_SOUND != channel )
             {
-                looped_list[index].chunk   = sound;
-                looped_list[index].channel = channel;
-                looped_list[index].object  = object;
+                LoopedList.lst[index].chunk   = sound;
+                LoopedList.lst[index].channel = channel;
+                LoopedList.lst[index].object  = object;
             }
             else
             {
-                looped_free_one( index );
+                LoopedList_free_one( index );
             }
         }
     }
@@ -1017,25 +1017,25 @@ int looped_add( Mix_Chunk * sound, int loops, Uint16 object )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t looped_remove( int channel )
+bool_t LoopedList_remove( int channel )
 {
     // BB> remove a looped sound from the used list
 
     Uint32 cnt;
     bool_t retval;
 
-    if ( 0 == looped_used_count ) return bfalse;
+    if ( 0 == LoopedList.used_count ) return bfalse;
 
-    if ( !looped_validate() ) return bfalse;
+    if ( !LoopedList_validate() ) return bfalse;
 
     retval = bfalse;
-    for (cnt = 0; cnt < looped_used_count; cnt++)
+    for (cnt = 0; cnt < LoopedList.used_count; cnt++)
     {
-        int index = looped_used[cnt];
+        int index = LoopedList.used_ref[cnt];
 
-        if ( channel == looped_list[index].channel )
+        if ( channel == LoopedList.lst[index].channel )
         {
-            retval = looped_free_one(cnt);
+            retval = LoopedList_free_one(cnt);
             break;
         }
     }
@@ -1061,17 +1061,17 @@ void looped_update_all_sound()
 {
     Uint32 cnt;
 
-    for (cnt = 0; cnt < looped_used_count; cnt++)
+    for (cnt = 0; cnt < LoopedList.used_count; cnt++)
     {
         GLvector3 diff;
         int       index;
         looped_sound_data_t * plooped;
 
-        index = looped_used[cnt];
+        index = LoopedList.used_ref[cnt];
 
         if ( index < 0 || index >= LOOPED_COUNT ) continue;
-        if ( -1 == looped_list[index].channel   ) continue;
-        plooped = looped_list + index;
+        if ( -1 == LoopedList.lst[index].channel   ) continue;
+        plooped = LoopedList.lst + index;
 
         if ( INVALID_CHR( plooped->object ) )
         {
@@ -1083,7 +1083,7 @@ void looped_update_all_sound()
         else
         {
             // make the sound stick to the object
-            diff = VSub( ChrList[plooped->object].pos, PCamera->track_pos );
+            diff = VSub( ChrList.lst[plooped->object].pos, PCamera->track_pos );
 
             _update_stereo_channel( plooped->channel, diff );
         }
@@ -1102,21 +1102,21 @@ bool_t looped_stop_object_sounds( Uint16 ichr )
     if ( MAX_CHR == ichr ) return bfalse;
 
     // we have to do this a funny way, because it is hard to guarantee how the
-    // "delete"/"free" function looped_free_one() will free an entry, and because
+    // "delete"/"free" function LoopedList_free_one() will free an entry, and because
     // each object could have multiple looped sounds
 
     freed = 0;
     found = btrue;
-    while ( found && looped_used_count > 0 )
+    while ( found && LoopedList.used_count > 0 )
     {
         found = bfalse;
-        for (cnt = 0; cnt < looped_used_count; cnt++)
+        for (cnt = 0; cnt < LoopedList.used_count; cnt++)
         {
-            int index = looped_used[cnt];
+            int index = LoopedList.used_ref[cnt];
 
-            if ( looped_list[cnt].object == ichr )
+            if ( LoopedList.lst[cnt].object == ichr )
             {
-                if ( looped_free_one( index ) )
+                if ( LoopedList_free_one( index ) )
                 {
                     freed++;
                     found = btrue;

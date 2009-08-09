@@ -1,23 +1,23 @@
 #pragma once
 
-// ********************************************************************************************
-// *
-// *    This file is part of Egoboo.
-// *
-// *    Egoboo is free software: you can redistribute it and/or modify it
-// *    under the terms of the GNU General Public License as published by
-// *    the Free Software Foundation, either version 3 of the License, or
-// *    (at your option) any later version.
-// *
-// *    Egoboo is distributed in the hope that it will be useful, but
-// *    WITHOUT ANY WARRANTY; without even the implied warranty of
-// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-// *    General Public License for more details.
-// *
-// *    You should have received a copy of the GNU General Public License
-// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-// *
-// ********************************************************************************************
+//********************************************************************************************
+//*
+//*    This file is part of Egoboo.
+//*
+//*    Egoboo is free software: you can redistribute it and/or modify it
+//*    under the terms of the GNU General Public License as published by
+//*    the Free Software Foundation, either version 3 of the License, or
+//*    (at your option) any later version.
+//*
+//*    Egoboo is distributed in the hope that it will be useful, but
+//*    WITHOUT ANY WARRANTY; without even the implied warranty of
+//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//*    General Public License for more details.
+//*
+//*    You should have received a copy of the GNU General Public License
+//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+//*
+//********************************************************************************************
 
 /* Egoboo - egoboo_typedef.h
  * Defines some basic types that are used throughout the game code.
@@ -44,16 +44,32 @@
 //--------------------------------------------------------------------------------------------
 // a template-like declaration of a list that tracks free elements
 
-#define DEFINE_LIST(TYPE, NAME, COUNT)        \
-    struct s_list_##TYPE##NAME                \
-    {                                         \
-        int  free_count;                      \
-        int  free_ref[COUNT];                 \
-        TYPE lst[COUNT];                      \
-    };                                        \
-    extern struct s_list_##TYPE##NAME NAME;
+#define DEFINE_LIST(ACCESS, TYPE, NAME, COUNT) \
+    struct s_list_##TYPE##NAME                 \
+    {                                          \
+        int  used_count;                       \
+        int  free_count;                       \
+        int  used_ref[COUNT];                  \
+        int  free_ref[COUNT];                  \
+        TYPE lst[COUNT];                       \
+    };                                         \
+    ACCESS struct s_list_##TYPE##NAME NAME;
 
-#define DECLARE_LIST(TYPE,NAME) struct s_list_##TYPE##NAME NAME = {0};
+#define DECLARE_LIST(TYPE,NAME) struct s_list_##TYPE##NAME NAME = {0, 0};
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+// a template-like declaration of a list that tracks free elements
+
+#define DEFINE_STACK(ACCESS, TYPE, NAME, COUNT) \
+    struct s_stack_##TYPE##NAME                 \
+    {                                           \
+        int  count;                             \
+        TYPE lst[COUNT];                        \
+    };                                          \
+    ACCESS struct s_stack_##TYPE##NAME NAME;
+
+#define DECLARE_STACK(TYPE,NAME) struct s_stack_##TYPE##NAME NAME = {0};
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

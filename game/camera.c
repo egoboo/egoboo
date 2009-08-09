@@ -1,21 +1,21 @@
-// ********************************************************************************************
-// *
-// *    This file is part of Egoboo.
-// *
-// *    Egoboo is free software: you can redistribute it and/or modify it
-// *    under the terms of the GNU General Public License as published by
-// *    the Free Software Foundation, either version 3 of the License, or
-// *    (at your option) any later version.
-// *
-// *    Egoboo is distributed in the hope that it will be useful, but
-// *    WITHOUT ANY WARRANTY; without even the implied warranty of
-// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-// *    General Public License for more details.
-// *
-// *    You should have received a copy of the GNU General Public License
-// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-// *
-// ********************************************************************************************
+//********************************************************************************************
+//*
+//*    This file is part of Egoboo.
+//*
+//*    Egoboo is free software: you can redistribute it and/or modify it
+//*    under the terms of the GNU General Public License as published by
+//*    the Free Software Foundation, either version 3 of the License, or
+//*    (at your option) any later version.
+//*
+//*    Egoboo is distributed in the hope that it will be useful, but
+//*    WITHOUT ANY WARRANTY; without even the implied warranty of
+//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//*    General Public License for more details.
+//*
+//*    You should have received a copy of the GNU General Public License
+//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+//*
+//********************************************************************************************
 
 /* Egoboo - camera.c
  * Various functions related to how the game camera works.
@@ -225,24 +225,24 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
                     continue;
                 }
 
-                if ( ChrList[character].alive )
+                if ( ChrList.lst[character].alive )
                 {
-                    Uint16 imount = ChrList[character].attachedto;
+                    Uint16 imount = ChrList.lst[character].attachedto;
                     if ( imount == MAX_CHR )
                     {
                         // The character is on foot
-                        x += ChrList[character].pos.x;
-                        y += ChrList[character].pos.y;
-                        z += ChrList[character].pos.z;
-                        level += ChrList[character].phys.level;
+                        x += ChrList.lst[character].pos.x;
+                        y += ChrList.lst[character].pos.y;
+                        z += ChrList.lst[character].pos.z;
+                        level += ChrList.lst[character].phys.level;
                     }
                     else
                     {
                         // The character is mounted
-                        x += ChrList[imount].pos.x;
-                        y += ChrList[imount].pos.y;
-                        z += ChrList[imount].pos.z;
-                        level += ChrList[imount].phys.level;
+                        x += ChrList.lst[imount].pos.x;
+                        y += ChrList.lst[imount].pos.y;
+                        z += ChrList.lst[imount].pos.z;
+                        level += ChrList.lst[imount].phys.level;
                     }
 
                     locoalive++;

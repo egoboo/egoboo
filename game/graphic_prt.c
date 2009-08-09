@@ -1,21 +1,21 @@
-// ********************************************************************************************
-// *
-// *    This file is part of Egoboo.
-// *
-// *    Egoboo is free software: you can redistribute it and/or modify it
-// *    under the terms of the GNU General Public License as published by
-// *    the Free Software Foundation, either version 3 of the License, or
-// *    (at your option) any later version.
-// *
-// *    Egoboo is distributed in the hope that it will be useful, but
-// *    WITHOUT ANY WARRANTY; without even the implied warranty of
-// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-// *    General Public License for more details.
-// *
-// *    You should have received a copy of the GNU General Public License
-// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-// *
-// ********************************************************************************************
+//********************************************************************************************
+//*
+//*    This file is part of Egoboo.
+//*
+//*    Egoboo is free software: you can redistribute it and/or modify it
+//*    under the terms of the GNU General Public License as published by
+//*    the Free Software Foundation, either version 3 of the License, or
+//*    (at your option) any later version.
+//*
+//*    Egoboo is distributed in the hope that it will be useful, but
+//*    WITHOUT ANY WARRANTY; without even the implied warranty of
+//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//*    General Public License for more details.
+//*
+//*    You should have received a copy of the GNU General Public License
+//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+//*
+//********************************************************************************************
 
 /* Egoboo - graphic_prt.c
 * Particle system drawing and management code.
@@ -82,7 +82,7 @@ size_t render_all_prt_begin( camera_t * pcam, prt_registry_entity_t reg[], size_
     numparticle = 0;
     for ( cnt = 0; cnt < maxparticles && numparticle < reg_count; cnt++ )
     {
-        prt_t * pprt = PrtList + cnt;
+        prt_t * pprt = PrtList.lst + cnt;
         prt_instance_t * pinst = &(pprt->inst);
 
         if ( !pprt->on || !pprt->inview ) continue;
@@ -127,7 +127,7 @@ bool_t render_one_prt_solid( Uint16 iprt )
     prt_instance_t * pinst;
 
     if ( INVALID_PRT(iprt) ) return bfalse;
-    pprt = PrtList + iprt;
+    pprt = PrtList.lst + iprt;
     pinst = &(pprt->inst);
 
     // if the particle instance data is not valid, do not continue
@@ -207,7 +207,7 @@ bool_t render_one_prt_trans( Uint16 iprt )
     prt_instance_t * pinst;
 
     if ( INVALID_PRT(iprt) ) return bfalse;
-    pprt = PrtList + iprt;
+    pprt = PrtList.lst + iprt;
     pinst = &(pprt->inst);
 
     // if the particle instance data is not valid, do not continue
@@ -227,7 +227,7 @@ bool_t render_one_prt_trans( Uint16 iprt )
         GL_DEBUG(glEnable)(GL_DEPTH_TEST );
         GL_DEBUG(glDepthFunc)(GL_LEQUAL );
 
-        if ( PRTSOLIDSPRITE == PrtList[iprt].type )
+        if ( PRTSOLIDSPRITE == PrtList.lst[iprt].type )
         {
             // do the alpha blended edge of the solid particle
 
@@ -241,7 +241,7 @@ bool_t render_one_prt_trans( Uint16 iprt )
 
             oglx_texture_Bind( TxTexture_get_ptr( TX_PARTICLE_TRANS ) );
         }
-        else if ( PRTLIGHTSPRITE == PrtList[iprt].type )
+        else if ( PRTLIGHTSPRITE == PrtList.lst[iprt].type )
         {
             // do the light sprites
 
@@ -253,7 +253,7 @@ bool_t render_one_prt_trans( Uint16 iprt )
 
             oglx_texture_Bind( TxTexture_get_ptr( TX_PARTICLE_LIGHT ) );
         }
-        else if ( PRTALPHASPRITE == PrtList[iprt].type )
+        else if ( PRTALPHASPRITE == PrtList.lst[iprt].type )
         {
             // do the transparent sprites
 
@@ -339,7 +339,7 @@ size_t render_all_prt_ref_begin( camera_t * pcam, prt_registry_entity_t reg[], s
     numparticle = 0;
     for ( cnt = 0; cnt < maxparticles && numparticle < reg_count; cnt++ )
     {
-        prt_t * pprt = PrtList + cnt;
+        prt_t * pprt = PrtList.lst + cnt;
         prt_instance_t * pinst = &(pprt->inst);
 
         if ( !pprt->on || !pprt->inview || !VALID_TILE(PMesh, pprt->onwhichfan) ) continue;
@@ -380,7 +380,7 @@ bool_t render_one_prt_ref( Uint16 iprt )
 
     if ( INVALID_PRT(iprt) ) return bfalse;
 
-    pprt = PrtList + iprt;
+    pprt = PrtList.lst + iprt;
     pinst = &(pprt->inst);
     if (!pinst->valid) return bfalse;
 
@@ -402,7 +402,7 @@ bool_t render_one_prt_ref( Uint16 iprt )
             GL_DEBUG(glDisable)(GL_CULL_FACE );
             GL_DEBUG(glDisable)(GL_DITHER );
 
-            if ( PRTLIGHTSPRITE == PrtList[iprt].type )
+            if ( PRTLIGHTSPRITE == PrtList.lst[iprt].type )
             {
                 // do the light sprites
                 float alpha = startalpha * INV_FF * pinst->fintens / 2.0f;
@@ -415,7 +415,7 @@ bool_t render_one_prt_ref( Uint16 iprt )
 
                 oglx_texture_Bind( TxTexture_get_ptr( TX_PARTICLE_LIGHT ) );
             }
-            else if ( PRTSOLIDSPRITE == PrtList[iprt].type || PRTALPHASPRITE == PrtList[iprt].type )
+            else if ( PRTSOLIDSPRITE == PrtList.lst[iprt].type || PRTALPHASPRITE == PrtList.lst[iprt].type )
             {
                 // do the transparent sprites
 
@@ -501,7 +501,7 @@ void update_all_prt_instance( camera_t * pcam )
 
     for ( cnt = 0; cnt < maxparticles; cnt++ )
     {
-        prt_t * pprt = PrtList + cnt;
+        prt_t * pprt = PrtList.lst + cnt;
         prt_instance_t * pinst = &(pprt->inst);
 
         if ( !pprt->on || !pprt->inview || !VALID_TILE(PMesh, pprt->onwhichfan) || 0 == pprt->size )
@@ -526,7 +526,7 @@ void prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_
     if ( NULL == pprt || !pprt->on ) return;
 
     if ( !VALID_PIP( pprt->pip ) ) return;
-    ppip = PipList + pprt->pip;
+    ppip = PipStack.lst + pprt->pip;
 
     pinst->type = pprt->type;
 
@@ -564,7 +564,7 @@ void prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_
     }
     else if ( VALID_CHR( pprt->attachedtocharacter ) )
     {
-        chr_instance_t * cinst = &(ChrList[pprt->attachedtocharacter].inst);
+        chr_instance_t * cinst = &(ChrList.lst[pprt->attachedtocharacter].inst);
 
         if ( cinst->matrixvalid )
         {
@@ -760,7 +760,7 @@ void prt_instance_update( camera_t * pcam, Uint16 particle, Uint8 trans, bool_t 
     prt_instance_t * pinst;
 
     if ( INVALID_PRT(particle) ) return;
-    pprt = PrtList + particle;
+    pprt = PrtList.lst + particle;
     pinst = &(pprt->inst);
 
     // make sure that the vertices are interpolated

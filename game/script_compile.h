@@ -1,23 +1,23 @@
 #pragma once
 
-// ********************************************************************************************
-// *
-// *    This file is part of Egoboo.
-// *
-// *    Egoboo is free software: you can redistribute it and/or modify it
-// *    under the terms of the GNU General Public License as published by
-// *    the Free Software Foundation, either version 3 of the License, or
-// *    (at your option) any later version.
-// *
-// *    Egoboo is distributed in the hope that it will be useful, but
-// *    WITHOUT ANY WARRANTY; without even the implied warranty of
-// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-// *    General Public License for more details.
-// *
-// *    You should have received a copy of the GNU General Public License
-// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-// *
-// ********************************************************************************************
+//********************************************************************************************
+//*
+//*    This file is part of Egoboo.
+//*
+//*    Egoboo is free software: you can redistribute it and/or modify it
+//*    under the terms of the GNU General Public License as published by
+//*    the Free Software Foundation, either version 3 of the License, or
+//*    (at your option) any later version.
+//*
+//*    Egoboo is distributed in the hope that it will be useful, but
+//*    WITHOUT ANY WARRANTY; without even the implied warranty of
+//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//*    General Public License for more details.
+//*
+//*    You should have received a copy of the GNU General Public License
+//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+//*
+//********************************************************************************************
 
 #include "egoboo_typedef.h"
 
@@ -29,7 +29,7 @@
 #define AISMAXLOADSIZE      (1024*1024)            // For parsing AI scripts
 #define AISMAXCOMPILESIZE   (MAX_AI*4096/4)            // For parsing AI scripts
 #define MAXLINESIZE         1024
-#define MAXCODE             1024                    // Number of lines in AICODES.TXT
+#define MAX_OPCODE             1024                    // Number of lines in AICODES.TXT
 #define MAXCODENAMESIZE     64
 
 #define FUNCTION_BIT 0x80000000
@@ -42,20 +42,33 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-extern int    iNumAis;
-extern int    iAisIndex;
-extern STRING szAisName[MAX_AI];
-extern Uint32 iAisStartPosition[MAX_AI];
-extern Uint32 iAisEndPosition[MAX_AI];
-extern Uint32 iCompiledAis[AISMAXCOMPILESIZE];
+struct s_script_storage_info
+{
+    STRING szName;
+    Uint32 iStartPosition;
+    Uint32 iEndPosition;
+};
+typedef struct s_script_storage_info script_storage_info_t;
+
+DEFINE_STACK( extern, script_storage_info_t, AisStorage, MAX_AI );
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+extern int    AisCompiled_offset;
+extern Uint32 AisCompiled_buffer[AISMAXCOMPILESIZE];
 
 extern bool_t debug_scripts;
 extern FILE * debug_script_file;
 
-extern int    iNumCode;
-extern Uint8  cCodeType[MAXCODE];
-extern Uint32 iCodeValue[MAXCODE];
-extern char   cCodeName[MAXCODE][MAXCODENAMESIZE];
+struct s_opcode_data
+{
+    Uint8  cType;
+    Uint32 iValue;
+    char   cName[MAXCODENAMESIZE];
+};
+typedef struct s_opcode_data opcode_data_t;
+
+DEFINE_STACK( extern, opcode_data_t, OpList, MAX_OPCODE );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -451,8 +464,8 @@ enum e_script_operators
     OPAND,                // &
     OPSHR,                // >
     OPSHL,                // <
-    OPMUL,                // *
-    OPDIV,                // /
+    OPMUL,                //*
+    OPDIV,                ///
     OPMOD                 // %
 };
 

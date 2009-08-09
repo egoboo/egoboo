@@ -1,21 +1,21 @@
-// ********************************************************************************************
-// *
-// *    This file is part of Egoboo.
-// *
-// *    Egoboo is free software: you can redistribute it and/or modify it
-// *    under the terms of the GNU General Public License as published by
-// *    the Free Software Foundation, either version 3 of the License, or
-// *    (at your option) any later version.
-// *
-// *    Egoboo is distributed in the hope that it will be useful, but
-// *    WITHOUT ANY WARRANTY; without even the implied warranty of
-// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-// *    General Public License for more details.
-// *
-// *    You should have received a copy of the GNU General Public License
-// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-// *
-// ********************************************************************************************
+//********************************************************************************************
+//*
+//*    This file is part of Egoboo.
+//*
+//*    Egoboo is free software: you can redistribute it and/or modify it
+//*    under the terms of the GNU General Public License as published by
+//*    the Free Software Foundation, either version 3 of the License, or
+//*    (at your option) any later version.
+//*
+//*    Egoboo is distributed in the hope that it will be useful, but
+//*    WITHOUT ANY WARRANTY; without even the implied warranty of
+//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//*    General Public License for more details.
+//*
+//*    You should have received a copy of the GNU General Public License
+//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+//*
+//********************************************************************************************
 
 /* Egoboo - particle.c
 * Manages particle systems.
@@ -49,17 +49,13 @@ typedef enum e_particle_direction particle_direction_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static int       numfreeprt = 0;                            // For allocation
-static Uint16    freeprtlist[TOTAL_MAX_PRT];
-
-int              numpip   = 0;
-pip_t            PipList[MAX_PIP];
-
 float            sprite_list_u[MAXPARTICLEIMAGE][2];        // Texture coordinates
 float            sprite_list_v[MAXPARTICLEIMAGE][2];
 
 Uint16           maxparticles = 512;                            // max number of particles
-prt_t            PrtList[TOTAL_MAX_PRT];
+
+DECLARE_STACK( pip_t, PipStack );
+DECLARE_LIST ( prt_t, PrtList );
 
 particle_direction_t prt_direction[256] =
 {
@@ -85,27 +81,44 @@ particle_direction_t prt_direction[256] =
 //--------------------------------------------------------------------------------------------
 int prt_count_free()
 {
-    return numfreeprt;
+    return PrtList.free_count;
 }
 
 //--------------------------------------------------------------------------------------------
-void free_one_particle( Uint16 particle )
+bool_t PrtList_free_one( Uint16 iprt )
 {
     // ZZ> This function sticks a particle back on the free particle stack
 
-    if ( VALID_PRT_RANGE(particle) )
-    {
-        // particle "destructor"
-        // sets all boolean values to false, incluting the "on" flag
-        memset( PrtList + particle, 0, sizeof(prt_t) );
+    bool_t retval;
 
-        // push it on the stack
-        if ( numfreeprt < TOTAL_MAX_PRT )
+    if ( !VALID_PRT_RANGE(iprt) ) return bfalse;
+
+    // particle "destructor"
+    // sets all boolean values to false, incluting the "on" flag
+    memset( PrtList.lst + iprt, 0, sizeof(prt_t) );
+
+#if defined(DEBUG)
+    {
+        int cnt;
+        // determine whether this texture is already in the list of free textures
+        // that is an error
+        for ( cnt = 0; cnt < PrtList.free_count; cnt++ )
         {
-            freeprtlist[numfreeprt] = particle;
-            numfreeprt++;
+            if ( iprt == PrtList.free_ref[cnt] ) return bfalse;
         }
     }
+#endif
+
+    // push it on the free stack
+    retval = bfalse;
+    if ( PrtList.free_count < TOTAL_MAX_PRT )
+    {
+        PrtList.free_ref[PrtList.free_count] = iprt;
+        PrtList.free_count++;
+        retval = btrue;
+    }
+
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -116,7 +129,7 @@ void play_particle_sound( Uint16 particle, Sint8 sound )
     prt_t * pprt;
 
     if ( !VALID_PRT(particle) ) return;
-    pprt = PrtList + particle;
+    pprt = PrtList.lst + particle;
 
     if ( sound >= 0 && sound < MAX_WAVE )
     {
@@ -141,26 +154,42 @@ void free_one_particle_in_game( Uint16 particle )
     if ( VALID_PRT( particle) )
     {
         Uint16 child;
-        prt_t * pprt = PrtList + particle;
+        prt_t * pprt = PrtList.lst + particle;
 
         if ( pprt->spawncharacterstate != SPAWNNOCHARACTER )
         {
             child = spawn_one_character( pprt->pos, pprt->model, pprt->team, 0, pprt->facing, NULL, MAX_CHR );
             if ( VALID_CHR(child) )
             {
-                ChrList[child].ai.state = pprt->spawncharacterstate;
-                ChrList[child].ai.owner = pprt->chr;
+                ChrList.lst[child].ai.state = pprt->spawncharacterstate;
+                ChrList.lst[child].ai.owner = pprt->chr;
             }
         }
 
         if ( VALID_PIP(pprt->pip) )
         {
-            play_particle_sound( particle, PipList[pprt->pip].soundend );
+            play_particle_sound( particle, PipStack.lst[pprt->pip].soundend );
         }
 
     }
 
-    free_one_particle( particle );
+    PrtList_free_one( particle );
+}
+
+//--------------------------------------------------------------------------------------------
+Uint16 PrtList_get_free()
+{
+    // ZZ> This function returns the next free particle or TOTAL_MAX_PRT if there are none
+
+    Uint16 retval = TOTAL_MAX_PRT;
+
+    if ( PrtList.free_count > 0 )
+    {
+        PrtList.free_count--;
+        retval = PrtList.free_ref[PrtList.free_count];
+    }
+
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -173,7 +202,7 @@ int get_free_particle( int force )
 
     // Return maxparticles if we can't find one
     particle = TOTAL_MAX_PRT;
-    if ( numfreeprt == 0 )
+    if ( 0 == PrtList.free_count )
     {
         if ( force )
         {
@@ -182,7 +211,7 @@ int get_free_particle( int force )
 
             while ( particle < maxparticles )
             {
-                if ( PrtList[particle].bumpsize == 0 )
+                if ( PrtList.lst[particle].bumpsize == 0 )
                 {
                     // Found one
                     return particle;
@@ -194,11 +223,10 @@ int get_free_particle( int force )
     }
     else
     {
-        if ( force || numfreeprt > ( maxparticles / 4 ) )
+        if ( force || PrtList.free_count > ( maxparticles / 4 ) )
         {
             // Just grab the next one
-            numfreeprt--;
-            particle = freeprtlist[numfreeprt];
+            particle = PrtList_get_free();
         }
     }
 
@@ -226,11 +254,11 @@ Uint16 spawn_one_particle( float x, float y, float z,
         ipip = MadList[model].prtpip[ipip];
     }
     if ( INVALID_PIP(ipip) ) return TOTAL_MAX_PRT;
-    ppip = PipList + ipip;
+    ppip = PipStack.lst + ipip;
 
     iprt = get_free_particle( ppip->force );
     if ( !VALID_PRT_RANGE(iprt) ) return TOTAL_MAX_PRT;
-    pprt = PrtList + iprt;
+    pprt = PrtList.lst + iprt;
 
     // clear out all data
     memset( pprt, 0, sizeof(prt_t));
@@ -292,25 +320,25 @@ Uint16 spawn_one_particle( float x, float y, float z,
 
             // Correct facing for dexterity...
             offsetfacing = 0;
-            if ( ChrList[characterorigin].dexterity < PERFECTSTAT )
+            if ( ChrList.lst[characterorigin].dexterity < PERFECTSTAT )
             {
                 // Correct facing for randomness
                 offsetfacing = RANDIE;
                 offsetfacing = offsetfacing & ppip->facingrand;
                 offsetfacing -= ( ppip->facingrand >> 1 );
-                offsetfacing = ( offsetfacing * ( PERFECTSTAT - ChrList[characterorigin].dexterity ) ) / PERFECTSTAT;  // Divided by PERFECTSTAT
+                offsetfacing = ( offsetfacing * ( PERFECTSTAT - ChrList.lst[characterorigin].dexterity ) ) / PERFECTSTAT;  // Divided by PERFECTSTAT
             }
             if ( pprt->target != MAX_CHR && ppip->zaimspd != 0 )
             {
                 // These aren't velocities...  This is to do aiming on the Z axis
                 if ( velocity > 0 )
                 {
-                    vel.x = ChrList[pprt->target].pos.x - x;
-                    vel.y = ChrList[pprt->target].pos.y - y;
+                    vel.x = ChrList.lst[pprt->target].pos.x - x;
+                    vel.y = ChrList.lst[pprt->target].pos.y - y;
                     tvel = SQRT( vel.x * vel.x + vel.y * vel.y ) / velocity;  // This is the number of steps...
                     if ( tvel > 0 )
                     {
-                        vel.z = ( ChrList[pprt->target].pos.z + ( ChrList[pprt->target].bumpsize >> 1 ) - z ) / tvel;  // This is the vel.z alteration
+                        vel.z = ( ChrList.lst[pprt->target].pos.z + ( ChrList.lst[pprt->target].bumpsize >> 1 ) - z ) / tvel;  // This is the vel.z alteration
                         if ( vel.z < -( ppip->zaimspd >> 1 ) ) vel.z = -( ppip->zaimspd >> 1 );
                         if ( vel.z > ppip->zaimspd ) vel.z = ppip->zaimspd;
                     }
@@ -328,8 +356,8 @@ Uint16 spawn_one_particle( float x, float y, float z,
         // Start on top of target
         if ( pprt->target != MAX_CHR && ppip->startontarget )
         {
-            x = ChrList[pprt->target].pos.x;
-            y = ChrList[pprt->target].pos.y;
+            x = ChrList.lst[pprt->target].pos.x;
+            y = ChrList.lst[pprt->target].pos.y;
         }
     }
     else
@@ -441,10 +469,10 @@ Uint8 __prthitawall( Uint16 particle )
     Uint32 fan;
     Uint8  retval = MPDFX_IMPASS | MPDFX_WALL;
 
-    fan = mesh_get_tile( PMesh, PrtList[particle].pos.x, PrtList[particle].pos.y );
+    fan = mesh_get_tile( PMesh, PrtList.lst[particle].pos.x, PrtList.lst[particle].pos.y );
     if ( VALID_TILE(PMesh, fan) )
     {
-        if ( PipList[PrtList[particle].pip].bumpmoney )
+        if ( PipStack.lst[PrtList.lst[particle].pip].bumpmoney )
         {
             retval = mesh_test_fx(PMesh, fan, MPDFX_IMPASS | MPDFX_WALL );
         }
@@ -472,8 +500,8 @@ void move_particles( void )
         pip_t * ppip;
         prt_t * pprt;
 
-        if ( !PrtList[cnt].on ) continue;
-        pprt = PrtList + cnt;
+        if ( !PrtList.lst[cnt].on ) continue;
+        pprt = PrtList.lst + cnt;
 
         if ( pprt->is_hidden ) continue;
 
@@ -484,7 +512,7 @@ void move_particles( void )
         // To make it easier
         ipip = pprt->pip;
         if ( INVALID_PIP( ipip ) ) continue;
-        ppip = PipList + ipip;
+        ppip = PipStack.lst + ipip;
 
         // Animate particle
         pprt->image = pprt->image + pprt->imageadd;
@@ -600,7 +628,7 @@ void move_particles( void )
         // Do homing
         if ( ppip->homing && VALID_CHR( pprt->target ) )
         {
-            if ( !ChrList[pprt->target].alive )
+            if ( !ChrList.lst[pprt->target].alive )
             {
                 pprt->time  = frame_all + 1;
                 pprt->poofme = btrue;
@@ -609,15 +637,15 @@ void move_particles( void )
             {
                 if ( INVALID_CHR( pprt->attachedtocharacter ) )
                 {
-                    pprt->vel.x = ( pprt->vel.x + ( ( ChrList[pprt->target].pos.x - pprt->pos.x ) * ppip->homingaccel ) ) * ppip->homingfriction;
-                    pprt->vel.y = ( pprt->vel.y + ( ( ChrList[pprt->target].pos.y - pprt->pos.y ) * ppip->homingaccel ) ) * ppip->homingfriction;
-                    pprt->vel.z = ( pprt->vel.z + ( ( ChrList[pprt->target].pos.z + ( ChrList[pprt->target].bumpheight >> 1 ) - pprt->pos.z ) * ppip->homingaccel ) );
+                    pprt->vel.x = ( pprt->vel.x + ( ( ChrList.lst[pprt->target].pos.x - pprt->pos.x ) * ppip->homingaccel ) ) * ppip->homingfriction;
+                    pprt->vel.y = ( pprt->vel.y + ( ( ChrList.lst[pprt->target].pos.y - pprt->pos.y ) * ppip->homingaccel ) ) * ppip->homingfriction;
+                    pprt->vel.z = ( pprt->vel.z + ( ( ChrList.lst[pprt->target].pos.z + ( ChrList.lst[pprt->target].bumpheight >> 1 ) - pprt->pos.z ) * ppip->homingaccel ) );
 
                 }
                 if ( ppip->rotatetoface )
                 {
                     // Turn to face target
-                    facing = ATAN2( ChrList[pprt->target].pos.y - pprt->pos.y, ChrList[pprt->target].pos.x - pprt->pos.x ) * 0xFFFF / ( TWO_PI );
+                    facing = ATAN2( ChrList.lst[pprt->target].pos.y - pprt->pos.y, ChrList.lst[pprt->target].pos.x - pprt->pos.x ) * 0xFFFF / ( TWO_PI );
                     facing += 32768;
                     pprt->facing = facing;
                 }
@@ -642,11 +670,11 @@ void move_particles( void )
                     particle = spawn_one_particle( pprt->pos.x, pprt->pos.y, pprt->pos.z,
                                                    facing, pprt->model, ppip->contspawnpip,
                                                    MAX_CHR, GRIP_LAST, pprt->team, pprt->chr, tnc, pprt->target );
-                    if ( PipList[pprt->pip].facingadd != 0 && particle != TOTAL_MAX_PRT )
+                    if ( PipStack.lst[pprt->pip].facingadd != 0 && particle != TOTAL_MAX_PRT )
                     {
                         // Hack to fix velocity
-                        PrtList[particle].vel.x += pprt->vel.x;
-                        PrtList[particle].vel.y += pprt->vel.y;
+                        PrtList.lst[particle].vel.x += pprt->vel.x;
+                        PrtList.lst[particle].vel.y += pprt->vel.y;
                     }
 
                     facing += ppip->contspawnfacingadd;
@@ -699,18 +727,19 @@ void move_particles( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void free_all_particles()
+void PrtList_free_all()
 {
     // ZZ> This function resets the particle allocation lists
 
     int cnt;
 
     // free all the particles
-    numfreeprt = 0;
+    PrtList.free_count = 0;
+
     for ( cnt = 0; cnt < maxparticles; cnt++ )
     {
         // reuse this code
-        free_one_particle( cnt );
+        PrtList_free_one( cnt );
     }
 }
 
@@ -733,7 +762,7 @@ void setup_particles()
     }
 
     // Reset the allocation table
-    free_all_particles();
+    PrtList_free_all();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -757,17 +786,17 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
     cap_t * pcap;
 
     if ( INVALID_PRT(particle) ) return;
-    pprt = PrtList + particle;
+    pprt = PrtList.lst + particle;
 
     if ( INVALID_PIP(pprt->pip) ) return;
-    ppip = PipList + pprt->pip;
+    ppip = PipStack.lst + pprt->pip;
 
     // no point in going on, is there?
     if ( 0 == ppip->bumpspawnamount && !ppip->spawnenchant ) return;
     amount = ppip->bumpspawnamount;
 
     if ( INVALID_CHR(character) ) return;
-    pchr = ChrList + character;
+    pchr = ChrList.lst + character;
 
     model = pchr->inst.imad;
     if ( model > MAX_PROFILE || !MadList[model].loaded ) return;
@@ -811,7 +840,7 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
                 fcos = turntocos[facing & TRIG_TABLE_MASK ];
                 x = -8192 * fsin;
                 y =  8192 * fcos;
-                z = z << 10;// / pchr->scale;
+                z = z << 10;/// pchr->scale;
                 frame = pmad->md2.framestart;
 
                 for ( cnt = 0; cnt < amount; cnt++ )
@@ -853,7 +882,7 @@ int prt_is_over_water( Uint16 cnt )
 
     if ( INVALID_PRT(cnt) ) return bfalse;
 
-    fan = mesh_get_tile( PMesh, PrtList[cnt].pos.x, PrtList[cnt].pos.y );
+    fan = mesh_get_tile( PMesh, PrtList.lst[cnt].pos.x, PrtList.lst[cnt].pos.y );
     if ( VALID_TILE(PMesh, fan) )
     {
         if ( 0 != mesh_test_fx( PMesh, fan, MPDFX_WATER ) )  return btrue;
@@ -876,8 +905,8 @@ int load_one_particle_profile( const char *szLoadName )
 
     Uint16 retval = MAX_PIP;
 
-    if ( numpip >= MAX_PIP ) return MAX_PIP;
-    ppip = PipList + numpip;
+    if ( PipStack.count >= MAX_PIP ) return MAX_PIP;
+    ppip = PipStack.lst + PipStack.count;
 
     // clear the pip
     memset( ppip, 0, sizeof(pip_t) );
@@ -888,8 +917,8 @@ int load_one_particle_profile( const char *szLoadName )
         return MAX_PIP;
     }
 
-    retval = numpip;
-    numpip++;
+    retval = PipStack.count;
+    PipStack.count++;
 
     strncpy( ppip->name, szLoadName, SDL_arraysize(ppip->name) );
     ppip->loaded = btrue;
@@ -1118,7 +1147,7 @@ void reset_particles( const char* modname )
     char *loadpath;
 
     // Load in the standard global particles ( the coins for example )
-    numpip = 0;
+    PipStack.count = 0;
     loadpath = "basicdat" SLASH_STR "globalparticles" SLASH_STR "1money.txt";
     if ( MAX_PIP == load_one_particle_profile( loadpath ) )
     {

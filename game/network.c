@@ -1,21 +1,21 @@
-// ********************************************************************************************
-// *
-// *    This file is part of Egoboo.
-// *
-// *    Egoboo is free software: you can redistribute it and/or modify it
-// *    under the terms of the GNU General Public License as published by
-// *    the Free Software Foundation, either version 3 of the License, or
-// *    (at your option) any later version.
-// *
-// *    Egoboo is distributed in the hope that it will be useful, but
-// *    WITHOUT ANY WARRANTY; without even the implied warranty of
-// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-// *    General Public License for more details.
-// *
-// *    You should have received a copy of the GNU General Public License
-// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-// *
-// ********************************************************************************************
+//********************************************************************************************
+//*
+//*    This file is part of Egoboo.
+//*
+//*    Egoboo is free software: you can redistribute it and/or modify it
+//*    under the terms of the GNU General Public License as published by
+//*    the Free Software Foundation, either version 3 of the License, or
+//*    (at your option) any later version.
+//*
+//*    Egoboo is distributed in the hope that it will be useful, but
+//*    WITHOUT ANY WARRANTY; without even the implied warranty of
+//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//*    General Public License for more details.
+//*
+//*    You should have received a copy of the GNU General Public License
+//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+//*
+//********************************************************************************************
 
 /* Egoboo - network.c
  * Shuttles bits across the network, using Enet.  Networked play doesn't
@@ -1493,9 +1493,9 @@ void unbuffer_player_latches()
 
         // grab all valid playtimes
         weight = 0;
-        ChrList[character].latchx      = 0;
-        ChrList[character].latchy      = 0;
-        ChrList[character].latchbutton = 0;
+        ChrList.lst[character].latchx      = 0;
+        ChrList.lst[character].latchy      = 0;
+        ChrList.lst[character].latchbutton = 0;
         for ( tnc = 0; tnc < PlaList[cnt].tlatch_count; tnc++ )
         {
             int dt;
@@ -1505,9 +1505,9 @@ void unbuffer_player_latches()
 
             weight += dt * dt;
 
-            ChrList[character].latchx      += PlaList[cnt].tlatch[tnc].x * dt * dt;
-            ChrList[character].latchy      += PlaList[cnt].tlatch[tnc].y * dt * dt;
-            ChrList[character].latchbutton |= PlaList[cnt].tlatch[tnc].button;
+            ChrList.lst[character].latchx      += PlaList[cnt].tlatch[tnc].x * dt * dt;
+            ChrList.lst[character].latchy      += PlaList[cnt].tlatch[tnc].y * dt * dt;
+            ChrList.lst[character].latchbutton |= PlaList[cnt].tlatch[tnc].button;
         }
 
         // compact the remaining values
@@ -1523,26 +1523,26 @@ void unbuffer_player_latches()
         numplatimes = MAX( numplatimes, PlaList[cnt].tlatch_count );
         if ( weight > 0.0f )
         {
-            ChrList[character].latchx /= (float)weight;
-            ChrList[character].latchy /= (float)weight;
+            ChrList.lst[character].latchx /= (float)weight;
+            ChrList.lst[character].latchy /= (float)weight;
         }
 
         // Let players respawn
-        if ( cfg.difficulty < GAME_HARD && ( ChrList[character].latchbutton & LATCHBUTTON_RESPAWN ) && PMod->respawnvalid )
+        if ( cfg.difficulty < GAME_HARD && ( ChrList.lst[character].latchbutton & LATCHBUTTON_RESPAWN ) && PMod->respawnvalid )
         {
-            if ( !ChrList[character].alive && 0 == revivetimer )
+            if ( !ChrList.lst[character].alive && 0 == revivetimer )
             {
                 respawn_character( character );
-                TeamList[ChrList[character].team].leader = character;
-                ChrList[character].ai.alert |= ALERTIF_CLEANEDUP;
+                TeamList[ChrList.lst[character].team].leader = character;
+                ChrList.lst[character].ai.alert |= ALERTIF_CLEANEDUP;
 
                 // Cost some experience for doing this...  Never lose a level
-                ChrList[character].experience *= EXPKEEP;
-                if (cfg.difficulty > GAME_EASY) ChrList[character].money *= EXPKEEP;
+                ChrList.lst[character].experience *= EXPKEEP;
+                if (cfg.difficulty > GAME_EASY) ChrList.lst[character].money *= EXPKEEP;
             }
 
             // remove all latches other than LATCHBUTTON_RESPAWN
-            ChrList[character].latchbutton &= ~LATCHBUTTON_RESPAWN;
+            ChrList.lst[character].latchbutton &= ~LATCHBUTTON_RESPAWN;
         }
     }
 }

@@ -1,3 +1,22 @@
+//********************************************************************************************
+//*
+//*    This file is part of Egoboo.
+//*
+//*    Egoboo is free software: you can redistribute it and/or modify it
+//*    under the terms of the GNU General Public License as published by
+//*    the Free Software Foundation, either version 3 of the License, or
+//*    (at your option) any later version.
+//*
+//*    Egoboo is distributed in the hope that it will be useful, but
+//*    WITHOUT ANY WARRANTY; without even the implied warranty of
+//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//*    General Public License for more details.
+//*
+//*    You should have received a copy of the GNU General Public License
+//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+//*
+//********************************************************************************************
+
 #include "mad.h"
 
 #include "log.h"
@@ -15,10 +34,10 @@ static char cActionName[ACTION_COUNT][2]; // Two letter name code
 
 mad_t   MadList[MAX_PROFILE];
 
-Uint16  msgtotal      = 0;                                  // The number of messages
-Uint32  msgtotalindex = 0;                                  // Where to put letter
-Uint32  msgindex[MAXTOTALMESSAGE];                          // Where it is
-char    msgtext[MESSAGEBUFFERSIZE];                         // The text buffer
+DECLARE_STACK( int, MessageOffset );
+
+Uint32  message_buffer_carat = 0;                           // Where to put letter
+char    message_buffer[MESSAGEBUFFERSIZE];                  // The text buffer
 
 char    cFrameName[16];                                     // MD2 Frame Name
 
@@ -124,7 +143,7 @@ void action_check_copy( const char* loadname, Uint16 object )
 
     if ( object > MAX_PROFILE || !MadList[object].loaded ) return;
 
-    MadList[object].msgstart = 0;
+    MadList[object].message_start = 0;
     fileread = fopen( loadname, "r" );
     if ( fileread )
     {
@@ -722,11 +741,11 @@ void load_all_messages( const char *loadname, Uint16 object )
     // ZZ> This function loads all of an objects messages
     FILE *fileread;
 
-    MadList[object].msgstart = 0;
+    MadList[object].message_start = 0;
     fileread = fopen( loadname, "r" );
     if ( fileread )
     {
-        MadList[object].msgstart = msgtotal;
+        MadList[object].message_start = MessageOffset.count;
 
         while ( goto_colon( NULL, fileread, btrue ) )
         {
@@ -746,35 +765,35 @@ void get_message( FILE* fileread )
     char cTmp;
     STRING szTmp;
 
-    if ( msgtotalindex >= MESSAGEBUFFERSIZE )
+    if ( message_buffer_carat >= MESSAGEBUFFERSIZE )
     {
-        msgtotalindex = MESSAGEBUFFERSIZE - 1;
-        msgtext[msgtotalindex] = '\0';
+        message_buffer_carat = MESSAGEBUFFERSIZE - 1;
+        message_buffer[message_buffer_carat] = '\0';
         return;
     }
 
-    if ( msgtotal >= MAXTOTALMESSAGE )
+    if ( MessageOffset.count >= MAXTOTALMESSAGE )
     {
         return;
     }
 
-    msgindex[msgtotal] = msgtotalindex;
+    MessageOffset.lst[MessageOffset.count] = message_buffer_carat;
     fget_string( fileread, szTmp, SDL_arraysize(szTmp) );
     szTmp[255] = '\0';
 
     cTmp = szTmp[0];
     cnt = 1;
-    while ( '\0' != cTmp && msgtotalindex < MESSAGEBUFFERSIZE - 1 )
+    while ( '\0' != cTmp && message_buffer_carat < MESSAGEBUFFERSIZE - 1 )
     {
         if ( '_' == cTmp )  cTmp = ' ';
 
-        msgtext[msgtotalindex] = cTmp;
-        msgtotalindex++;
+        message_buffer[message_buffer_carat] = cTmp;
+        message_buffer_carat++;
         cTmp = szTmp[cnt];
         cnt++;
     }
 
-    msgtext[msgtotalindex] = '\0';
-    msgtotalindex++;
-    msgtotal++;
+    message_buffer[message_buffer_carat] = '\0';
+    message_buffer_carat++;
+    MessageOffset.count++;
 }

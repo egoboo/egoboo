@@ -1,23 +1,23 @@
 #pragma once
 
-// ********************************************************************************************
-// *
-// *    This file is part of Egoboo.
-// *
-// *    Egoboo is free software: you can redistribute it and/or modify it
-// *    under the terms of the GNU General Public License as published by
-// *    the Free Software Foundation, either version 3 of the License, or
-// *    (at your option) any later version.
-// *
-// *    Egoboo is distributed in the hope that it will be useful, but
-// *    WITHOUT ANY WARRANTY; without even the implied warranty of
-// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-// *    General Public License for more details.
-// *
-// *    You should have received a copy of the GNU General Public License
-// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-// *
-// ********************************************************************************************
+//********************************************************************************************
+//*
+//*    This file is part of Egoboo.
+//*
+//*    Egoboo is free software: you can redistribute it and/or modify it
+//*    under the terms of the GNU General Public License as published by
+//*    the Free Software Foundation, either version 3 of the License, or
+//*    (at your option) any later version.
+//*
+//*    Egoboo is distributed in the hope that it will be useful, but
+//*    WITHOUT ANY WARRANTY; without even the implied warranty of
+//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//*    General Public License for more details.
+//*
+//*    You should have received a copy of the GNU General Public License
+//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+//*
+//********************************************************************************************
 
 #include "ogl_texture.h"
 #include "module.h"
@@ -155,9 +155,15 @@ extern Uint32          lighttospek[MAXSPEKLEVEL][256];
 //--------------------------------------------------------------------------------------------
 // Display messages
 extern Uint16          msgtimechange;
-extern Uint16          msgstart;                                       // The message queue
-extern Sint16          msgtime[MAXMESSAGE];
-extern char            msgtextdisplay[MAXMESSAGE][MESSAGESIZE];        // The displayed text
+
+struct s_msg
+{
+    Sint16          time;                            // The time for this message
+    char            textdisplay[MESSAGESIZE];        // The displayed text
+};
+typedef struct s_msg msg_t;
+
+DEFINE_STACK( extern, msg_t, DisplayMsg, MAX_MESSAGE );
 
 //--------------------------------------------------------------------------------------------
 // camera optimization
@@ -227,7 +233,7 @@ extern Uint8           blipc[MAXBLIP];
 extern bool_t          meshnotexture;
 extern Uint16          meshlasttexture;             // Last texture used
 
-#define BILLBOARD_COUNT     100
+#define BILLBOARD_COUNT     (2 * MAX_CHR)
 #define INVALID_BILLBOARD   BILLBOARD_COUNT
 
 struct s_billboard_data
@@ -247,7 +253,7 @@ bool_t             billboard_data_free( billboard_data_t * pbb );
 bool_t             billboard_data_update( billboard_data_t * pbb );
 bool_t             billboard_data_printf_ttf( billboard_data_t * pbb, struct Font *font, SDL_Color color, const char * format, ... );
 
-DEFINE_LIST( billboard_data_t, BillboardList, BILLBOARD_COUNT );
+DEFINE_LIST( extern, billboard_data_t, BillboardList, BILLBOARD_COUNT );
 
 void               BillboardList_init_all();
 void               BillboardList_update_all();
@@ -263,7 +269,7 @@ billboard_data_t * BillboardList_get_ptr( int ibb );
 //--------------------------------------------------------------------------------------------
 // Function prototypes
 void draw_blip( float sizeFactor, Uint8 color, int x, int y );
-int  get_free_message();
+int  DisplayMsg_get_free();
 void create_szfpstext( int frames );
 
 void make_lighttospek();

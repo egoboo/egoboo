@@ -1,36 +1,34 @@
 #pragma once
 
+//********************************************************************************************
+//*
+//*    This file is part of Egoboo.
+//*
+//*    Egoboo is free software: you can redistribute it and/or modify it
+//*    under the terms of the GNU General Public License as published by
+//*    the Free Software Foundation, either version 3 of the License, or
+//*    (at your option) any later version.
+//*
+//*    Egoboo is distributed in the hope that it will be useful, but
+//*    WITHOUT ANY WARRANTY; without even the implied warranty of
+//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//*    General Public License for more details.
+//*
+//*    You should have received a copy of the GNU General Public License
+//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+//*
+//********************************************************************************************
+
+/* Egoboo - mad.h
+ *
+ */
+
 #include "egoboo_typedef.h"
 
 #include "id_md2.h"
 #include "Md2.h"
 
 #include <SDL_opengl.h>
-
-// ********************************************************************************************
-// *
-// *    This file is part of Egoboo.
-// *
-// *    Egoboo is free software: you can redistribute it and/or modify it
-// *    under the terms of the GNU General Public License as published by
-// *    the Free Software Foundation, either version 3 of the License, or
-// *    (at your option) any later version.
-// *
-// *    Egoboo is distributed in the hope that it will be useful, but
-// *    WITHOUT ANY WARRANTY; without even the implied warranty of
-// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-// *    General Public License for more details.
-// *
-// *    You should have received a copy of the GNU General Public License
-// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-// *
-// ********************************************************************************************
-
-/* Egoboo - mad.h
- *
- */
-
-#include "Md2.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -160,7 +158,7 @@ struct s_mad
     int     tex_ref[MAXSKIN];                 // references to the icon textures
     int     ico_ref[MAXSKIN];                 // references to the skin textures
 
-    Uint16  msgstart;                         // The first message
+    Uint16  message_start;                    // The first message
     Uint16  transvertices;                    // Number to transform
 
     ego_md2_t md2;                            // the md2 data
@@ -185,10 +183,11 @@ extern mad_t   MadList[MAX_PROFILE];
 
 //--------------------------------------------------------------------------------------------
 // Message files
-extern Uint16          msgtotal;                                       // The number of messages
-extern Uint32          msgtotalindex;                                  // Where to put letter
-extern Uint32          msgindex[MAXTOTALMESSAGE];                      // Where it is
-extern char            msgtext[MESSAGEBUFFERSIZE];                     // The text buffer
+
+DEFINE_STACK(extern, int, MessageOffset, MAXTOTALMESSAGE);
+
+extern Uint32          message_buffer_carat;                                  // Where to put letter
+extern char            message_buffer[MESSAGEBUFFERSIZE];                     // The text buffer
 
 //--------------------------------------------------------------------------------------------
 extern char            cFrameName[16];                                     // MD2 Frame Name

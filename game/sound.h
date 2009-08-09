@@ -1,23 +1,23 @@
 #pragma once
 
-// ********************************************************************************************
-// *
-// *    This file is part of Egoboo.
-// *
-// *    Egoboo is free software: you can redistribute it and/or modify it
-// *    under the terms of the GNU General Public License as published by
-// *    the Free Software Foundation, either version 3 of the License, or
-// *    (at your option) any later version.
-// *
-// *    Egoboo is distributed in the hope that it will be useful, but
-// *    WITHOUT ANY WARRANTY; without even the implied warranty of
-// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-// *    General Public License for more details.
-// *
-// *    You should have received a copy of the GNU General Public License
-// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-// *
-// ********************************************************************************************
+//********************************************************************************************
+//*
+//*    This file is part of Egoboo.
+//*
+//*    Egoboo is free software: you can redistribute it and/or modify it
+//*    under the terms of the GNU General Public License as published by
+//*    the Free Software Foundation, either version 3 of the License, or
+//*    (at your option) any later version.
+//*
+//*    Egoboo is distributed in the hope that it will be useful, but
+//*    WITHOUT ANY WARRANTY; without even the implied warranty of
+//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//*    General Public License for more details.
+//*
+//*    You should have received a copy of the GNU General Public License
+//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+//*
+//********************************************************************************************
 
 /* Egoboo - sound.h
  * Sound handling using SDL_mixer
@@ -41,8 +41,8 @@ struct s_egoboo_config;
 #define MENU_SONG          0            // default music theme played when in the menu
 
 #define MIX_HIGH_QUALITY   44100        // frequency 44100 for 44.1KHz, which is CD audio rate.
-										// Most games use 22050, because 44100 requires too much
-										// CPU power on older computers.
+// Most games use 22050, because 44100 requires too much
+// CPU power on older computers.
 
 #define VALID_SND( ISND )       ( ISND > INVALID_SOUND && ISND < MAX_WAVE )
 //--------------------------------------------------------------------------------------------

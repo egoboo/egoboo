@@ -1,23 +1,23 @@
 #pragma once
 
-// ********************************************************************************************
-// *
-// *    This file is part of Egoboo.
-// *
-// *    Egoboo is free software: you can redistribute it and/or modify it
-// *    under the terms of the GNU General Public License as published by
-// *    the Free Software Foundation, either version 3 of the License, or
-// *    (at your option) any later version.
-// *
-// *    Egoboo is distributed in the hope that it will be useful, but
-// *    WITHOUT ANY WARRANTY; without even the implied warranty of
-// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-// *    General Public License for more details.
-// *
-// *    You should have received a copy of the GNU General Public License
-// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-// *
-// ********************************************************************************************
+//********************************************************************************************
+//*
+//*    This file is part of Egoboo.
+//*
+//*    Egoboo is free software: you can redistribute it and/or modify it
+//*    under the terms of the GNU General Public License as published by
+//*    the Free Software Foundation, either version 3 of the License, or
+//*    (at your option) any later version.
+//*
+//*    Egoboo is distributed in the hope that it will be useful, but
+//*    WITHOUT ANY WARRANTY; without even the implied warranty of
+//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//*    General Public License for more details.
+//*
+//*    You should have received a copy of the GNU General Public License
+//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+//*
+//********************************************************************************************
 
 #include "egoboo_typedef.h"
 
@@ -674,11 +674,11 @@ struct s_chr
 
 typedef struct s_chr chr_t;
 
-extern chr_t ChrList[MAX_CHR];
+DEFINE_LIST( extern, chr_t, ChrList, MAX_CHR );
 
 #define VALID_CHR_RANGE( ICHR ) ( ((ICHR) >= 0) && ((ICHR) < MAX_CHR) )
-#define VALID_CHR( ICHR )       ( VALID_CHR_RANGE( ICHR ) && ChrList[ICHR].on )
-#define INVALID_CHR( ICHR )     ( !VALID_CHR_RANGE( ICHR ) || !ChrList[ICHR].on )
+#define VALID_CHR( ICHR )       ( VALID_CHR_RANGE( ICHR ) && ChrList.lst[ICHR].on )
+#define INVALID_CHR( ICHR )     ( !VALID_CHR_RANGE( ICHR ) || !ChrList.lst[ICHR].on )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -727,7 +727,6 @@ void flash_character( Uint16 character, Uint8 value );
 void free_one_character_in_game( Uint16 character );
 void make_one_weapon_matrix( Uint16 iweap, Uint16 iholder, bool_t do_phys  );
 void make_character_matrices(bool_t do_physics);
-int get_free_character();
 void free_inventory( Uint16 character );
 
 void keep_weapons_with_holders();
@@ -781,6 +780,11 @@ bool_t is_invictus_direction( Uint16 direction, Uint16 character, Uint16 effects
 void   init_slot_idsz();
 
 bool_t ai_add_order( ai_state_t * pai, Uint32 value, Uint16 counter );
+
+bool_t chr_make_text_billboard( Uint16 ichr, const char * txt, SDL_Color color, int lifetime_secs );
+const char * chr_get_name( Uint16 ichr );
+
+Uint16 ChrList_get_free();
 
 //---------------------------------------------------------------------------------------------
 // Quest system

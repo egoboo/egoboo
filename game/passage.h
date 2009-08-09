@@ -1,23 +1,23 @@
 #pragma once
 
-// ********************************************************************************************
-// *
-// *    This file is part of Egoboo.
-// *
-// *    Egoboo is free software: you can redistribute it and/or modify it
-// *    under the terms of the GNU General Public License as published by
-// *    the Free Software Foundation, either version 3 of the License, or
-// *    (at your option) any later version.
-// *
-// *    Egoboo is distributed in the hope that it will be useful, but
-// *    WITHOUT ANY WARRANTY; without even the implied warranty of
-// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-// *    General Public License for more details.
-// *
-// *    You should have received a copy of the GNU General Public License
-// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-// *
-// ********************************************************************************************
+//********************************************************************************************
+//*
+//*    This file is part of Egoboo.
+//*
+//*    Egoboo is free software: you can redistribute it and/or modify it
+//*    under the terms of the GNU General Public License as published by
+//*    the Free Software Foundation, either version 3 of the License, or
+//*    (at your option) any later version.
+//*
+//*    Egoboo is distributed in the hope that it will be useful, but
+//*    WITHOUT ANY WARRANTY; without even the implied warranty of
+//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//*    General Public License for more details.
+//*
+//*    You should have received a copy of the GNU General Public License
+//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+//*
+//********************************************************************************************
 
 /* Egoboo - passage.h
  * Passages and doors and whatnot.  Things that impede your progress!
@@ -54,31 +54,40 @@ enum e_shop_orders
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // Passages
-extern int   numpassage;              // Number of passages in the module
 
 struct s_passage
 {
     // Passage positions
-    int   topleftx;             // top left X
-    int   toplefty;             // top left Y
-    int   bottomrightx;             // bottom right X
-    int   bottomrighty;             // bottom right Y
+    int    topleftx;             // top left X
+    int    toplefty;             // top left Y
+    int    bottomrightx;         // bottom right X
+    int    bottomrighty;         // bottom right Y
 
-    Sint8 music;            // Music track appointed to the specific passage
-    Uint8 mask;                 // Is it IMPASSABLE, SLIPPERY or whatever
-    bool_t open;            // Is the passage open?
+    Sint8  music;                // Music track appointed to the specific passage
+    Uint8  mask;                 // Is it IMPASSABLE, SLIPPERY or whatever
+    bool_t open;                 // Is the passage open?
 };
 
 typedef struct s_passage passage_t;
-extern passage_t PassageList[MAX_PASS];
 
-#define VALID_PASSAGE( IPASS )       ( ((IPASS) <= numpassage) && ((IPASS) >= 0) )
-#define INVALID_PASSAGE( IPASS )     ( ((IPASS) > numpassage) && ((IPASS) < 0) )
+DEFINE_STACK( extern, passage_t, PassageStack, MAX_PASS );
+
+#define VALID_PASSAGE( IPASS )       ( ((IPASS) <= PassageStack.count) && ((IPASS) >= 0) )
+#define INVALID_PASSAGE( IPASS )     ( ((IPASS) >  PassageStack.count) && ((IPASS) < 0) )
 
 // For shops
-extern int     numshoppassage;
-extern Uint16  shoppassage[MAX_PASS];  // The passage number
-extern Uint16  shopowner[MAX_PASS];    // Who gets the gold?
+struct s_shop
+{
+    Uint16  passage;  // The passage number
+    Uint16  owner;    // Who gets the gold?
+};
+typedef struct s_shop shop_t;
+
+DEFINE_STACK( extern, shop_t, ShopStack, MAX_PASS );
+
+#define VALID_SHOP( IPASS )       ( ((IPASS) <= ShopStack.count) && ((IPASS) >= 0) )
+#define INVALID_SHOP( IPASS )     ( ((IPASS) >  ShopStack.count) && ((IPASS) < 0) )
+
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -92,7 +101,7 @@ void   flash_passage( Uint16 passage, Uint8 color );
 Uint8  find_tile_in_passage( struct s_script_state * pstate, Uint16 passage, int tiletype );
 Uint16 who_is_blocking_passage( Uint16 passage );
 Uint16 who_is_blocking_passage_ID( Uint16 passage, IDSZ idsz );
-void   clear_shop_passages();
+void   clear_all_passages();
 void   add_shop_passage( Uint16 owner, Uint16 passage );
 void   add_passage( int tlx, int tly, int brx, int bry, bool_t open, Uint8 mask );
 void   setup_passage( const char *modname );

@@ -1,23 +1,23 @@
 #pragma once
 
-// ********************************************************************************************
-// *
-// *    This file is part of Egoboo.
-// *
-// *    Egoboo is free software: you can redistribute it and/or modify it
-// *    under the terms of the GNU General Public License as published by
-// *    the Free Software Foundation, either version 3 of the License, or
-// *    (at your option) any later version.
-// *
-// *    Egoboo is distributed in the hope that it will be useful, but
-// *    WITHOUT ANY WARRANTY; without even the implied warranty of
-// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-// *    General Public License for more details.
-// *
-// *    You should have received a copy of the GNU General Public License
-// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-// *
-// ********************************************************************************************
+//********************************************************************************************
+//*
+//*    This file is part of Egoboo.
+//*
+//*    Egoboo is free software: you can redistribute it and/or modify it
+//*    under the terms of the GNU General Public License as published by
+//*    the Free Software Foundation, either version 3 of the License, or
+//*    (at your option) any later version.
+//*
+//*    Egoboo is distributed in the hope that it will be useful, but
+//*    WITHOUT ANY WARRANTY; without even the implied warranty of
+//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//*    General Public License for more details.
+//*
+//*    You should have received a copy of the GNU General Public License
+//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+//*
+//********************************************************************************************
 
 #include "egoboo_typedef.h"
 #include "egoboo_math.h"
@@ -154,12 +154,11 @@ struct s_pip
 
 typedef struct s_pip pip_t;
 
-extern int   numpip;
-extern pip_t PipList[MAX_PIP];
+DEFINE_STACK( extern, pip_t, PipStack, MAX_PIP );
 
 #define VALID_PIP_RANGE( IPIP ) ( ((IPIP) >= 0) && ((IPIP) < MAX_PIP) )
-#define VALID_PIP( IPIP )       ( VALID_PIP_RANGE( IPIP ) && PipList[IPIP].loaded )
-#define INVALID_PIP( IPIP )     ( !VALID_PIP_RANGE( IPIP ) || !PipList[IPIP].loaded )
+#define VALID_PIP( IPIP )       ( VALID_PIP_RANGE( IPIP ) && PipStack.lst[IPIP].loaded )
+#define INVALID_PIP( IPIP )     ( !VALID_PIP_RANGE( IPIP ) || !PipStack.lst[IPIP].loaded )
 
 //------------------------------------
 // Particle graphic data
@@ -263,20 +262,21 @@ extern float            sprite_list_u[MAXPARTICLEIMAGE][2];        // Texture co
 extern float            sprite_list_v[MAXPARTICLEIMAGE][2];
 
 extern Uint16           maxparticles;                              // max number of particles
-extern prt_t            PrtList[TOTAL_MAX_PRT];
+
+DEFINE_LIST(extern, prt_t, PrtList, TOTAL_MAX_PRT);
 
 #define VALID_PRT_RANGE( IPRT ) ( ((IPRT) >= 0) && ((IPRT) < maxparticles) && ((IPRT) < TOTAL_MAX_PRT) )
-#define VALID_PRT( IPRT )       ( VALID_PRT_RANGE( IPRT ) && PrtList[IPRT].on )
-#define INVALID_PRT( IPRT )     ( !VALID_PRT_RANGE( IPRT ) || !PrtList[IPRT].on )
+#define VALID_PRT( IPRT )       ( VALID_PRT_RANGE( IPRT ) && PrtList.lst[IPRT].on )
+#define INVALID_PRT( IPRT )     ( !VALID_PRT_RANGE( IPRT ) || !PrtList.lst[IPRT].on )
 
 //--------------------------------------------------------------------------------------------
 // function prototypes
 
-void free_one_particle( Uint16 particle );
-void free_one_particle_in_game( Uint16 particle );
+bool_t PrtList_free_one( Uint16 particle );
+void   free_one_particle_in_game( Uint16 particle );
 
 void move_particles( void );
-void free_all_particles();
+void PrtList_free_all();
 
 void setup_particles();
 

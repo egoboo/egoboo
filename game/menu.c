@@ -1,21 +1,21 @@
-// ********************************************************************************************
-// *
-// *    This file is part of Egoboo.
-// *
-// *    Egoboo is free software: you can redistribute it and/or modify it
-// *    under the terms of the GNU General Public License as published by
-// *    the Free Software Foundation, either version 3 of the License, or
-// *    (at your option) any later version.
-// *
-// *    Egoboo is distributed in the hope that it will be useful, but
-// *    WITHOUT ANY WARRANTY; without even the implied warranty of
-// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-// *    General Public License for more details.
-// *
-// *    You should have received a copy of the GNU General Public License
-// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-// *
-// ********************************************************************************************
+//********************************************************************************************
+//*
+//*    This file is part of Egoboo.
+//*
+//*    Egoboo is free software: you can redistribute it and/or modify it
+//*    under the terms of the GNU General Public License as published by
+//*    the Free Software Foundation, either version 3 of the License, or
+//*    (at your option) any later version.
+//*
+//*    Egoboo is distributed in the hope that it will be useful, but
+//*    WITHOUT ANY WARRANTY; without even the implied warranty of
+//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//*    General Public License for more details.
+//*
+//*    You should have received a copy of the GNU General Public License
+//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+//*
+//********************************************************************************************
 
 /* Egoboo - menu.c
 * Implements the main menu tree, using the code in Ui.*
@@ -188,7 +188,7 @@ Font *menuFont = NULL;
 static int selectedPlayer = 0;           // Which player is currently selected to play
 
 Uint32            TxTitleImage_count = 0;
-oglx_texture      TxTitleImage[MAXMODULE];    // OpenGL title image surfaces
+oglx_texture      TxTitleImage[MAX_MODULE];    // OpenGL title image surfaces
 
 
 //--------------------------------------------------------------------------------------------
@@ -571,7 +571,7 @@ int doChooseModule( float deltaTime )
     static oglx_texture background;
     static int menuState = MM_Begin;
     static int startIndex;
-    static int validModules[MAXMODULE];
+    static int validModules[MAX_MODULE];
     static int numValidModules;
 
     static int moduleMenuOffsetX;
@@ -594,15 +594,15 @@ int doChooseModule( float deltaTime )
             // Find the module's that we want to allow loading for.  If startNewPlayer
             // is true, we want ones that don't allow imports (e.g. starter modules).
             // Otherwise, we want modules that allow imports
-            memset( validModules, 0, sizeof( int ) * MAXMODULE );
+            memset( validModules, 0, sizeof( int ) * MAX_MODULE );
             numValidModules = 0;
-            for ( i = 0; i < ModList_count; i++ )
+            for ( i = 0; i < ModList.count; i++ )
             {
                 // if this module is not valid given the game options and the
                 // selected players, skip it
                 if ( !modlist_test_by_index(i) ) continue;
 
-                if ( startNewPlayer && 0 == ModList[i].importamount )
+                if ( startNewPlayer && 0 == ModList.lst[i].importamount )
                 {
                     // starter module
                     validModules[numValidModules] = i;
@@ -610,9 +610,9 @@ int doChooseModule( float deltaTime )
                 }
                 else
                 {
-                    if ( mnu_selectedPlayerCount > ModList[i].importamount ) continue;
-                    if ( mnu_selectedPlayerCount < ModList[i].minplayers   ) continue;
-                    if ( mnu_selectedPlayerCount > ModList[i].maxplayers   ) continue;
+                    if ( mnu_selectedPlayerCount > ModList.lst[i].importamount ) continue;
+                    if ( mnu_selectedPlayerCount < ModList.lst[i].minplayers   ) continue;
+                    if ( mnu_selectedPlayerCount > ModList.lst[i].maxplayers   ) continue;
 
                     // regular module
                     validModules[numValidModules] = i;
@@ -683,7 +683,7 @@ int doChooseModule( float deltaTime )
                 {
                     // fix the menu images in case one or more of them are undefined
                     int         imod       = validModules[i];
-                    Uint32      tex_offset = ModList[imod].tex;
+                    Uint32      tex_offset = ModList.lst[imod].tex;
                     oglx_texture * ptex    = TxTitleImage_get_ptr( tex_offset );
 
                     if ( ui_doImageButton( i, ptex, moduleMenuOffsetX + x, moduleMenuOffsetY + y, 138, 138 ) )
@@ -717,7 +717,7 @@ int doChooseModule( float deltaTime )
             ui_drawButton( UI_Nothing, moduleMenuOffsetX + 21, moduleMenuOffsetY + 173, 291, 250, NULL );
 
             // Draw the text description of the selected module
-            if ( selectedModule > -1 && selectedModule < MAXMODULE && validModules[selectedModule] >= 0)
+            if ( selectedModule > -1 && selectedModule < MAX_MODULE && validModules[selectedModule] >= 0)
             {
                 char buffer[1024];
                 char * carat = buffer, * carat_end = buffer + SDL_arraysize(buffer);
@@ -725,24 +725,24 @@ int doChooseModule( float deltaTime )
 
                 GL_DEBUG(glColor4f)(1, 1, 1, 1 );
 
-                carat += snprintf(carat, carat_end - carat - 1, "%s\n", ModList[imodule].longname );
+                carat += snprintf(carat, carat_end - carat - 1, "%s\n", ModList.lst[imodule].longname );
 
-                carat += snprintf( carat, carat_end - carat - 1, "Difficulty: %s\n", ModList[imodule].rank );
+                carat += snprintf( carat, carat_end - carat - 1, "Difficulty: %s\n", ModList.lst[imodule].rank );
 
-                if ( ModList[imodule].maxplayers > 1 )
+                if ( ModList.lst[imodule].maxplayers > 1 )
                 {
-                    if ( ModList[imodule].minplayers == ModList[imodule].maxplayers )
+                    if ( ModList.lst[imodule].minplayers == ModList.lst[imodule].maxplayers )
                     {
-                        carat += snprintf( carat, carat_end - carat - 1, "%d Players\n", ModList[imodule].minplayers );
+                        carat += snprintf( carat, carat_end - carat - 1, "%d Players\n", ModList.lst[imodule].minplayers );
                     }
                     else
                     {
-                        carat += snprintf( carat, carat_end - carat - 1, "%d - %d Players\n", ModList[imodule].minplayers, ModList[imodule].maxplayers );
+                        carat += snprintf( carat, carat_end - carat - 1, "%d - %d Players\n", ModList.lst[imodule].minplayers, ModList.lst[imodule].maxplayers );
                     }
                 }
                 else
                 {
-                    if ( 0 != ModList[imodule].importamount )
+                    if ( 0 != ModList.lst[imodule].importamount )
                     {
                         carat += snprintf( carat, carat_end - carat - 1, "Single Player\n" );
                     }
@@ -754,11 +754,11 @@ int doChooseModule( float deltaTime )
                 carat += snprintf( carat, carat_end - carat - 1, " \n" );
 
                 // And finally, the summary
-                // carat += snprintf( carat, carat_end-carat-1, "modules" SLASH_STR "%s" SLASH_STR "gamedat" SLASH_STR "menu.txt", ModList[imodule].loadname );
+                // carat += snprintf( carat, carat_end-carat-1, "modules" SLASH_STR "%s" SLASH_STR "gamedat" SLASH_STR "menu.txt", ModList.lst[imodule].loadname );
 
                 for ( i = 0; i < SUMMARYLINES; i++ )
                 {
-                    carat += snprintf( carat, carat_end - carat - 1, "%s\n", ModList[imodule].summary[i] );
+                    carat += snprintf( carat, carat_end - carat - 1, "%s\n", ModList.lst[imodule].summary[i] );
                 }
 
                 // Draw a text box
@@ -782,7 +782,7 @@ int doChooseModule( float deltaTime )
             {
                 // Save the name of the module that we've picked
                 pickedmodule_index = selectedModule;
-                strncpy( pickedmodule_name, ModList[selectedModule].loadname, SDL_arraysize(pickedmodule_name) );
+                strncpy( pickedmodule_name, ModList.lst[selectedModule].loadname, SDL_arraysize(pickedmodule_name) );
 
                 if ( !game_choose_module(selectedModule, -1) )
                 {
@@ -1873,7 +1873,7 @@ int doGameOptions( float deltaTime )
             }
             gameOptionsButtons[0] = Cdifficulty;
 
-            maxmessage = CLIP(maxmessage, 4, MAXMESSAGE);
+            maxmessage = CLIP(maxmessage, 4, MAX_MESSAGE);
             if ( maxmessage == 0 )
             {
                 sprintf( Cmaxmessage, "None" );           // Set to default
@@ -1965,7 +1965,7 @@ int doGameOptions( float deltaTime )
             if ( BUTTON_UP == ui_doButton( 12, gameOptionsButtons[1], menuFont, buttonLeft + 500, 50, 75, 30 ) )
             {
                 cfg.message_count_req++;
-                if ( cfg.message_count_req > MAXMESSAGE) cfg.message_count_req = 0;
+                if ( cfg.message_count_req > MAX_MESSAGE) cfg.message_count_req = 0;
                 if ( cfg.message_count_req < 4 && cfg.message_count_req != 0 ) cfg.message_count_req = 4;
 
                 if ( 0 == cfg.message_count_req )
@@ -2976,12 +2976,12 @@ int doShowMenuResults( float deltaTime )
                 GL_DEBUG(glColor4f)(1, 1, 1, 1 );
 
                 // the module name
-                ui_drawTextBox( font, ModList[selectedModule].longname, 50, 80, 291, 230, 20 );
+                ui_drawTextBox( font, ModList.lst[selectedModule].longname, 50, 80, 291, 230, 20 );
 
                 // the summary
                 for ( i = 0; i < SUMMARYLINES; i++ )
                 {
-                    carat += snprintf( carat, carat_end - carat - 1, "%s\n", ModList[selectedModule].summary[i] );
+                    carat += snprintf( carat, carat_end - carat - 1, "%s\n", ModList.lst[selectedModule].summary[i] );
                 }
 
                 // Draw a text box
@@ -3054,8 +3054,8 @@ int doGamePaused( float deltaTime )
             menuChoice = 0;
             menuState = MM_Entering;
 
-			if( PMod->exportvalid && !local_allpladead ) buttons[0] = "Save and Exit";
-			else					  					 buttons[0] = "Quit Module";
+            if ( PMod->exportvalid && !local_allpladead ) buttons[0] = "Save and Exit";
+            else                                         buttons[0] = "Quit Module";
 
             initSlidyButtons( 1.0f, buttons );
 
@@ -3231,7 +3231,7 @@ int doShowEndgame( float deltaTime )
                 // try to go to the world map
                 // if( !reloaded )
                 // {
-                //    reloaded = link_load_parent( ModList[pickedmodule_index].parent_modname, ModList[pickedmodule_index].parent_pos );
+                //    reloaded = link_load_parent( ModList.lst[pickedmodule_index].parent_modname, ModList.lst[pickedmodule_index].parent_pos );
                 // }
 
                 // fix the menu that is returned when you break out of the game
@@ -3412,7 +3412,7 @@ int doMenu( float deltaTime )
                     // try to go to the world map
                     // if( !reloaded )
                     // {
-                    //    reloaded = link_load_parent( ModList[pickedmodule_index].parent_modname, ModList[pickedmodule_index].parent_pos );
+                    //    reloaded = link_load_parent( ModList.lst[pickedmodule_index].parent_modname, ModList.lst[pickedmodule_index].parent_pos );
                     // }
 
                     if ( !reloaded )
@@ -3728,27 +3728,27 @@ void load_all_menu_images()
     }
 
     // load all the title images for modules that we are going to display
-    for ( cnt = 0; cnt < ModList_count; cnt++ )
+    for ( cnt = 0; cnt < ModList.count; cnt++ )
     {
         // set the texture to some invlid value
-        ModList[cnt].tex = (Uint32)(~0);
+        ModList.lst[cnt].tex = (Uint32)(~0);
 
-        if ( !ModList[cnt].loaded )
+        if ( !ModList.lst[cnt].loaded )
         {
-            fprintf( filesave, "**.  %s\n", ModList[cnt].loadname );
+            fprintf( filesave, "**.  %s\n", ModList.lst[cnt].loadname );
         }
         else if ( modlist_test_by_index( cnt ) )
         {
             // NOTE: just because we can't load the title image DOES NOT mean that we ignore the module
-            sprintf( loadname, "modules" SLASH_STR "%s" SLASH_STR "gamedat" SLASH_STR "title", ModList[cnt].loadname );
+            sprintf( loadname, "modules" SLASH_STR "%s" SLASH_STR "gamedat" SLASH_STR "title", ModList.lst[cnt].loadname );
 
-            ModList[cnt].tex = TxTitleImage_load_one( loadname );
+            ModList.lst[cnt].tex = TxTitleImage_load_one( loadname );
 
-            fprintf( filesave, "%02d.  %s\n", cnt, ModList[cnt].longname );
+            fprintf( filesave, "%02d.  %s\n", cnt, ModList.lst[cnt].longname );
         }
         else
         {
-            fprintf( filesave, "##.  %s\n", ModList[cnt].longname );
+            fprintf( filesave, "##.  %s\n", ModList.lst[cnt].longname );
         }
     }
 
@@ -3844,7 +3844,7 @@ void TxTitleImage_init_all()
 
     int cnt;
 
-    for ( cnt = 0; cnt < MAXMODULE; cnt++ )
+    for ( cnt = 0; cnt < MAX_MODULE; cnt++ )
     {
         oglx_texture_new( TxTitleImage + cnt );
     }
@@ -3859,7 +3859,7 @@ void TxTitleImage_release_all()
 
     int cnt;
 
-    for ( cnt = 0; cnt < MAXMODULE; cnt++ )
+    for ( cnt = 0; cnt < MAX_MODULE; cnt++ )
     {
         oglx_texture_Release( TxTitleImage + cnt );
     }
@@ -3874,7 +3874,7 @@ void TxTitleImage_delete_all()
 
     int cnt;
 
-    for ( cnt = 0; cnt < MAXMODULE; cnt++ )
+    for ( cnt = 0; cnt < MAX_MODULE; cnt++ )
     {
         oglx_texture_delete( TxTitleImage + cnt );
     }
@@ -3891,11 +3891,11 @@ int TxTitleImage_load_one( const char *szLoadName )
 
     int    index;
 
-    if ( NULL == szLoadName || '\0' == *szLoadName ) return MAXMODULE;
+    if ( NULL == szLoadName || '\0' == *szLoadName ) return MAX_MODULE;
 
-    if ( TxTitleImage_count >= MAXMODULE ) return MAXMODULE;
+    if ( TxTitleImage_count >= MAX_MODULE ) return MAX_MODULE;
 
-    index = MAXMODULE;
+    index = MAX_MODULE;
     if ( INVALID_TX_ID != ego_texture_load( TxTitleImage + TxTitleImage_count, szLoadName, INVALID_KEY ) )
     {
         index = TxTitleImage_count;
@@ -3908,7 +3908,7 @@ int TxTitleImage_load_one( const char *szLoadName )
 //--------------------------------------------------------------------------------------------
 oglx_texture * TxTitleImage_get_ptr( int itex )
 {
-    if ( itex < 0 || itex >= TxTitleImage_count || itex >= MAXMODULE ) return NULL;
+    if ( itex < 0 || itex >= TxTitleImage_count || itex >= MAX_MODULE ) return NULL;
 
     return TxTitleImage + itex;
 }

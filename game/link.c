@@ -1,21 +1,21 @@
-// ********************************************************************************************
-// *
-// *    This file is part of Egoboo.
-// *
-// *    Egoboo is free software: you can redistribute it and/or modify it
-// *    under the terms of the GNU General Public License as published by
-// *    the Free Software Foundation, either version 3 of the License, or
-// *    (at your option) any later version.
-// *
-// *    Egoboo is distributed in the hope that it will be useful, but
-// *    WITHOUT ANY WARRANTY; without even the implied warranty of
-// *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-// *    General Public License for more details.
-// *
-// *    You should have received a copy of the GNU General Public License
-// *    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-// *
-// ********************************************************************************************
+//********************************************************************************************
+//*
+//*    This file is part of Egoboo.
+//*
+//*    Egoboo is free software: you can redistribute it and/or modify it
+//*    under the terms of the GNU General Public License as published by
+//*    the Free Software Foundation, either version 3 of the License, or
+//*    (at your option) any later version.
+//*
+//*    Egoboo is distributed in the hope that it will be useful, but
+//*    WITHOUT ANY WARRANTY; without even the implied warranty of
+//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//*    General Public License for more details.
+//*
+//*    You should have received a copy of the GNU General Public License
+//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+//*
+//********************************************************************************************
 
 #include "link.h"
 
@@ -109,7 +109,7 @@ bool_t link_follow_modname( const char * modname, bool_t push_current_module )
         pickedmodule_index = modlist_get_mod_number(modname);
         if ( -1 != pickedmodule_index )
         {
-            strncpy( pickedmodule_name, ModList[pickedmodule_index].loadname, SDL_arraysize(pickedmodule_name) );
+            strncpy( pickedmodule_name, ModList.lst[pickedmodule_index].loadname, SDL_arraysize(pickedmodule_name) );
         }
     }
 
@@ -164,11 +164,11 @@ bool_t link_pop_module()
             pchr = NULL;
             for (j = 0; j < MAX_CHR; j++)
             {
-                if ( !ChrList[j].on ) continue;
+                if ( !ChrList.lst[j].on ) continue;
 
-                if ( phero->object_index == ChrList[j].model )
+                if ( phero->object_index == ChrList.lst[j].model )
                 {
-                    pchr = ChrList + j;
+                    pchr = ChrList.lst + j;
                     break;
                 };
             }
@@ -203,7 +203,7 @@ bool_t link_push_module()
     // store the load name of the module
     strncpy(
         pentry->modname,
-        ModList[pickedmodule_index].loadname,
+        ModList.lst[pickedmodule_index].loadname,
         SDL_arraysize(pentry->modname) );
 
     // find all of the exportable characters
@@ -220,7 +220,7 @@ bool_t link_push_module()
         // Is it alive?
         ichr = PlaList[cnt].index;
         if ( INVALID_CHR( ichr ) ) continue;
-        pchr = ChrList + ichr;
+        pchr = ChrList.lst + ichr;
 
         if ( pentry->hero_count < LINK_HEROES_MAX )
         {
