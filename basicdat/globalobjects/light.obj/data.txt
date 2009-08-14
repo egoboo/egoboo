@@ -1,4 +1,4 @@
-Slot number    : 54
+Slot number    : -1
 Class name     : Ball_of_Light
 Uniform light  : TRUE
 Maximum ammo   : 0

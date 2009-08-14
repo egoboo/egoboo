@@ -1,4 +1,4 @@
-Slot number    : 62
+Slot number    : -1
 Class name     : Spear
 Uniform light  : FALSE
 Maximum ammo   : 5

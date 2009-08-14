@@ -1,4 +1,4 @@
-Object slot number ( 0 to 63, don't use twice )	: 122
+Object slot number ( 0 to 63, don't use twice )	: -1
 Class name     : Rune
 Uniform light  : FALSE
 Maximum ammo   : 0

@@ -1,6 +1,6 @@
 // Real general data
-Object slot number ( 0 to 63, don't use twice )	: 57
-Object class name ( use underscore for spaces ) : Trident
+Object slot number ( 0 to 63, don't use twice )	: -1
+Object class name ( use underscore for spaces ) : Spear
 Object is lit uniformly ( TRUE or FALSE )	: FALSE
 Maximum ammo ( 0 for doesn't matter )		: 10
 Starting ammo ( 0 for doesn't matter )		: 1

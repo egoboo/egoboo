@@ -1,4 +1,4 @@
-Object slot number ( 0 to 63, don't use twice )	: 121
+Object slot number ( 0 to 63, don't use twice )	: -1
 Class name     : Holy_Symbol
 Uniform light  : FALSE
 Maximum ammo   : 0

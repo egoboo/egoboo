@@ -1,4 +1,4 @@
-Slot number    : 128
+Slot number    : -1
 Class name     : Rune
 Uniform light  : FALSE
 Maximum ammo   : 0

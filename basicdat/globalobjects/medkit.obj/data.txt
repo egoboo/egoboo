@@ -1,4 +1,4 @@
-Slot number    : 80
+Slot number    : -1
 Class name     : Box
 Uniform light  : FALSE
 Maximum ammo   : 10

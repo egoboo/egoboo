@@ -1,4 +1,4 @@
-Slot number    : 90
+Slot number    : -1
 Class name     : Quiver
 Uniform light  : FALSE
 Maximum ammo   : 3
