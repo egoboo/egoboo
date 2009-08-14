@@ -1,0 +1,3 @@
+Message 0: %t_thinks_this_dead_tree_is_spooky.
+Message 1: This_tree_has_died_by_drought...
+Message 2: What_a_lovely_tree!

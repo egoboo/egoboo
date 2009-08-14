@@ -1,0 +1,151 @@
+//This function makes an item fall to the floor when spawned
+IfSpawned
+  tmpargument = ACTIONJB
+  DoAction
+  KeepAction
+  MakeCrushValid
+IfCrushed
+  tmpargument = 4
+  SendMessageNear
+IfDropped				// Make it lie on floor
+  KeepAction
+IfGrabbed				// Tell them what they've won, Johnny!
+  SetTargetToWhoeverIsHolding
+  IfTargetIsAPlayer
+    tmpargument = 0
+    SendMessageNear
+IfHitGround
+  tmpargument = 0
+  PlaySound
+  tmpargument = ACTIONDB
+  DoAction
+IfHeld			//Hide in hand
+  IfStateIs0
+    tmpargument = 1
+    SetState
+Else
+  tmpargument = 0
+  SetState
+
+//Spell stuff
+IfUsed
+  SetTargetToWhoeverIsHolding
+  tmpargument = [HMAG]
+  IfTargetHasSkillID				//Need divine spell skill
+    GetContent
+    tmpx = tmpargument
+    tmpy = targetmanaflow					//Don't overcharge
+    IfXIsLessThanY
+      tmpargument = 12				//Mana cost
+      CostTargetMana
+        GetContent				//Increase the charge
+        tmpargument = tmpargument + 12		//Casting Time
+        SetContent
+
+    // Spawn particles around caster
+    SetTargetToWhoeverIsHolding
+    tmpx = targetx
+    tmpy = targety
+    tmpdistance = targetz
+    tmpargument = 1
+    SpawnExactParticle
+    SpawnExactParticle
+
+Else
+  GetContent
+  tmpx = tmpargument
+  tmpy = 511
+  IfXIsMoreThanY		//Enough power to activate?
+    tmpargument = tmpargument - 256 //Reduce charge with 1
+    SetContent
+
+    //Award xp and stuff for daring to do it
+    IfNameIsKnown
+      DoNothing
+    Else
+      tmpargument = 20
+      tmpdistance = EXPDARE
+      GiveExperienceToTarget
+      MakeNameKnown
+      MakeUsageKnown
+      MakeAmmoKnown
+
+    tmpargument = 80		//Set cooldown time
+    SetReloadTime
+    GetContent
+    tmpargument = tmpargument > 8 + selfstate
+    SetState
+    tmpx = selfstate
+    tmpy = targetmanaflow > 8 + targetlevel
+    IfXIsMoreThanY
+      tmpargument = tmpy     //Dont overflow the limit
+      SetState
+    IfTargetIsAPlayer
+      tmpx = selfstate-1        //The number of charges
+      tmpargument = 3
+      SendMessageNear
+  Else
+    GetContent
+    tmpx = tmpargument
+    tmpy = 0
+    IfXIsMoreThanY		//Only if there was a charge
+      tmpargument = 1
+      SendMessageNear		//Tell it didn't work
+      tmpargument = 2
+      PlaySound
+  tmpargument = 0
+  SetContent
+
+IfTimeOut
+  SetTargetToWhoeverIsHolding
+  tmpargument = targetwis > 8 * 3
+  tmpx = 130 - tmpargument          //Wisdom increases attack speed
+  tmpy = 10                         //40 wisdom is perfect
+  IfXIsLessThanY
+    tmpargument = 10            //Absolute maximum attack speed
+  Else
+    tmpargument = tmpx
+  SetTime
+
+  //Check if we are to spawn a falling star
+  tmpx = selfstate
+  tmpy = 1
+  IfXIsMoreThanY
+    tmpargument = WHITE
+    SparkleIcon
+    SetTargetToWideEnemy            //Shoot one star
+      tmpx = targetx
+      tmpy = targety
+      tmpdistance = targetz
+      tmpargument = 2
+      SpawnExactParticle
+      tmpargument = selfstate -1
+      SetState
+  Else
+    UnsparkleIcon
+
+// Put the little mana ball on the
+// character's hand
+GetContent
+tmpx = tmpargument
+tmpy = 0
+IfXIsMoreThanY
+  tmpturn = tmpargument < 4 + 3000
+  tmpdistance = SPAWNORIGIN
+  tmpargument = 0
+  SpawnAttachedSizedParticle
+
+//Show how many are left
+tmpx = selfstate
+tmpy = 1
+IfXIsMoreThanY
+  tmpturn = selfstate<12 + 10000
+  tmpx = tmpturn
+  tmpy = 65535
+  IfXIsMoreThanY
+    tmpturn = 65535             //Absolute max size
+  tmpdistance = SPAWNORIGIN
+  tmpargument = 5
+  SpawnAttachedSizedParticle
+
+End					// All done
