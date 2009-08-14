@@ -337,7 +337,7 @@ IfBumped				// Bumped
               tmpargument = 8
               PlaySound
 
-            //Hey! (If male) or Hey baby! (If female), Rouges get a warning instead
+            //Hey! (If male) or Hey baby! (If female), Rogues get a warning instead
             tmpy = 1
             IfXIsEqualToY
               tmpargument = [DISA]

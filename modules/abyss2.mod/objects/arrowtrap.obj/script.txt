@@ -14,7 +14,7 @@ IfStateIs1
           SpawnExactParticle
 
 IfTimeOut
-  //Check for rouges to find it
+  //Check for rogues to find it
   SetTargetToNearestLifeform
     tmpargument = [TECH]			//Does the target have disarm skill?
     IfTargetHasSkillID

@@ -40,97 +40,97 @@ HERO 1:    NONE    0  15.5   51.5   6.0   N    0   0  0   0   0   T   F   G
   unknown:   NONE    7  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   unknown:   NONE    8  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
-moduletool.obj:   NONE    44  15.5   51.5   1.0   N    0   0  0   2   0   F   F   L
+moduletool:   NONE    44  15.5   51.5   1.0   N    0   0  0   2   0   F   F   L
 
 //Start room
-mephit.obj:   NONE    40  14.5   46.5   1.0   N    1   0  0   0   1   F   F   E
-  mephitwing.obj:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
-mephit.obj:   NONE    40  16.5   57.5   1.0   N    2   0  0   0   1   F   F   E
-  mephitwing.obj:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
-mephit.obj:   NONE    40  13.5   55.5   1.0   N    0   0  0   0   1   F   F   E
- mephitwing.obj:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
-mephit.obj:   NONE    40  20.5   56.5   1.0   N    3   0  0   0   1   F   F   E
-  mephitwing.obj:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
-mephit.obj:   NONE    40  20.5   51.5   1.0   N    0   0  0   0   1   F   F   E
-mephitwing.obj:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
-mephit.obj:   NONE    40  23.5   53.5   1.0   N    5   0  0   0   1   F   F   E
-mephitwing.obj:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
-mephit.obj:   NONE    40  15.0   59.0   1.0   N    0   0  0   0   1   F   F   E
-mephitwing.obj:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
-mephit.obj:   NONE    40  29.0   57.0   1.0   N    0   0  0   0   1   F   F   E
-mephitwing.obj:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
-mephit.obj:   NONE    40  20.5   47.5   1.0   N    4   0  0   0   1   F   F   E
-mephitwing.obj:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
-mephit.obj:   NONE    40  11.5   50.5   1.0   N    0   0  0   0   1   F   F   E
-mephitwing.obj:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
-mephit.obj:   NONE    40  22.5   49.5   1.0   N    6   0  0   0   1   F   F   E
-mephitwing.obj:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
-mephit.obj:   NONE    40  11.0   46.0   1.0   N    0   0  0   0   1   F   F   E
-mephitwing.obj:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
-mephit.obj:   NONE    40  10.0   53.0   1.0   N    7   0  0   0   1   F   F   E
-mephitwing.obj:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
-mephit.obj:   NONE    40  10.0   58.0   1.0   N    0   0  0   0   1   F   F   E
-mephitwing.obj:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
-mephit.obj:   NONE    40  18.0   44.0   1.0   N    8   0  0   0   1   F   F   E
-mephitwing.obj:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
-mephit.obj:   NONE    40  26.0   46.0   1.0   N    0   0  0   0   1   F   F   E
-mephitwing.obj:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
-mephit.obj:   NONE    40  6.0   49.0   1.0   N    2   0  0   0   1   F   F   E
-mephitwing.obj:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
-mephit.obj:   NONE    40  6.0   59.0   1.0   N    0   0  0   0   1   F   F   E
-mephitwing.obj:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
-mephit.obj:   NONE    40  6.0   44.0   1.0   N    10   0  0   0   1   F   F   E
-mephitwing.obj:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
-mephit.obj:   NONE    40  17.0   43.0   1.0   N    0   0  0   0   1   F   F   E
-mephitwing.obj:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
-mephit.obj:   NONE    40  26.0   43.0   1.0   N    9   0  0   0   1   F   F   E
-mephitwing.obj:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
+mephit:   NONE    40  14.5   46.5   1.0   N    1   0  0   0   1   F   F   E
+  mephitwing:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
+mephit:   NONE    40  16.5   57.5   1.0   N    2   0  0   0   1   F   F   E
+  mephitwing:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
+mephit:   NONE    40  13.5   55.5   1.0   N    0   0  0   0   1   F   F   E
+ mephitwing:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
+mephit:   NONE    40  20.5   56.5   1.0   N    3   0  0   0   1   F   F   E
+  mephitwing:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
+mephit:   NONE    40  20.5   51.5   1.0   N    0   0  0   0   1   F   F   E
+  mephitwing:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
+mephit:   NONE    40  23.5   53.5   1.0   N    5   0  0   0   1   F   F   E
+  mephitwing:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
+mephit:   NONE    40  15.0   59.0   1.0   N    0   0  0   0   1   F   F   E
+  mephitwing:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
+mephit:   NONE    40  29.0   57.0   1.0   N    0   0  0   0   1   F   F   E
+  mephitwing:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
+mephit:   NONE    40  20.5   47.5   1.0   N    4   0  0   0   1   F   F   E
+  mephitwing:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
+mephit:   NONE    40  11.5   50.5   1.0   N    0   0  0   0   1   F   F   E
+  mephitwing:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
+mephit:   NONE    40  22.5   49.5   1.0   N    6   0  0   0   1   F   F   E
+  mephitwing:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
+mephit:   NONE    40  11.0   46.0   1.0   N    0   0  0   0   1   F   F   E
+  mephitwing:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
+mephit:   NONE    40  10.0   53.0   1.0   N    7   0  0   0   1   F   F   E
+  mephitwing:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
+mephit:   NONE    40  10.0   58.0   1.0   N    0   0  0   0   1   F   F   E
+  mephitwing:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
+mephit:   NONE    40  18.0   44.0   1.0   N    8   0  0   0   1   F   F   E
+  mephitwing:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
+mephit:   NONE    40  26.0   46.0   1.0   N    0   0  0   0   1   F   F   E
+  mephitwing:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
+mephit:   NONE    40  6.0   49.0   1.0   N    2   0  0   0   1   F   F   E
+  mephitwing:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
+mephit:   NONE    40  6.0   59.0   1.0   N    0   0  0   0   1   F   F   E
+  mephitwing:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
+mephit:   NONE    40  6.0   44.0   1.0   N    10   0  0   0   1   F   F   E
+  mephitwing:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
+mephit:   NONE    40  17.0   43.0   1.0   N    0   0  0   0   1   F   F   E
+  mephitwing:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
+mephit:   NONE    40  26.0   43.0   1.0   N    9   0  0   0   1   F   F   E
+  mephitwing:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
 
-firetrapchest.obj:   NONE    78  8.5   47.0   1.0   E    0   0  0   1   0   F   F   N
-  clencher.obj:   NONE    72  0.0   0.0   0.0   I    0   0  0   0   0   F   F   E
-  clencher.obj:   NONE    72  0.0   0.0   0.0   I    0   0  0   0   0   F   F   E
-  clencher.obj:   NONE    72  0.0   0.0   0.0   I    0   0  0   0   0   F   F   E  
+firetrapchest:   NONE    78  8.5   47.0   1.0   E    0   0  0   1   0   F   F   N
+  clencher:   NONE    72  0.0   0.0   0.0   I    0   0  0   0   0   F   F   E
+  clencher:   NONE    72  0.0   0.0   0.0   I    0   0  0   0   0   F   F   E
+  clencher:   NONE    72  0.0   0.0   0.0   I    0   0  0   0   0   F   F   E  
 
-normalchest.obj:   NONE    46  5.5   60.5   1.0   S    999   0  0   0   0   F   F   N
+normalchest:   NONE    46  5.5   60.5   1.0   S    999   0  0   0   0   F   F   N
 
 //Hall of the lords
-daemonlord.obj:   NONE    38  34.5   21.5   1.0   N    999   0  0   0   0   F   F   L
-  daemonlordwing.obj:   NONE    39  0.0   0.0   0.0   L    0   0  0   0   0   F   F   S
-daemonlord.obj:   NONE    38  31.5   23.5   1.0   N    999   0  0   0   0   F   F   L
-  daemonlordwing.obj:   NONE    39  0.0   0.0   0.0   L    0   0  0   0   0   F   F   S
+daemonlord:   NONE    38  34.5   21.5   1.0   N    999   0  0   0   0   F   F   L
+  daemonlordwing:   NONE    39  0.0   0.0   0.0   L    0   0  0   0   0   F   F   S
+daemonlord:   NONE    38  31.5   23.5   1.0   N    999   0  0   0   0   F   F   L
+  daemonlordwing:   NONE    39  0.0   0.0   0.0   L    0   0  0   0   0   F   F   S
 
-normalchest.obj:   NONE    46  52.5   30.5   1.0   S    0   0  0   1   0   F   F   N
-  lpotion.obj:   NONE    36  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-  ammobox.obj:   NONE    60  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-  quiver.obj:   NONE    61  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+normalchest:   NONE    46  52.5   30.5   1.0   S    0   0  0   1   0   F   F   N
+  LPotion:   NONE    36  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  AmmoBox:   NONE    60  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Quiver:   NONE    61  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
-invisiblechest.obj:   NONE    48  55.5   35.5   1.0   N    0   0  0   1   0   F   F   N
-  mpotion.obj:   NONE    43  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-  magpotion.obj:   NONE    62  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-  wandiceball.obj:   NONE    59  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+invisiblechest:   NONE    48  55.5   35.5   1.0   N    0   0  0   1   0   F   F   N
+  MPotion:   NONE    43  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  magpotion:   NONE    62  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  wandiceball:   NONE    59  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
-deadfall.obj:   NONE    52  13.5   19.0   2.0   N    0   0  2   0   0   F   F   E
-deadfall.obj:   NONE    52  9.5   14.0   3.0   N    0   0  4   0   0   F   F   E
-arrowtrap.obj:   NONE    53  15.0   14.0   2.0   N    0   0  5   0   0   F   F   E
-arrowtrap.obj:   NONE    53  11.5   9.0   4.0   N    0   0  3   0   0   F   F   E
-gate.obj:   NONE    58  45.5   32.0   1.0   E    0   0  7   0   0   F   F   N
-gate.obj:   NONE    58  24.0   17.0   1.0   E    0   0  9   0   0   F   F   N
-seal.obj:   NONE    57  5.0   23.0   4.0   N    0   0  0   0   0   F   F   E
+deadfall:   NONE    52  13.5   19.0   2.0   N    0   0  2   0   0   F   F   E
+deadfall:   NONE    52  9.5   14.0   3.0   N    0   0  4   0   0   F   F   E
+arrowtrap:   NONE    53  15.0   14.0   2.0   N    0   0  5   0   0   F   F   E
+arrowtrap:   NONE    53  11.5   9.0   4.0   N    0   0  3   0   0   F   F   E
+gate:   NONE    58  45.5   32.0   1.0   E    0   0  7   0   0   F   F   N
+gate:   NONE    58  24.0   17.0   1.0   E    0   0  9   0   0   F   F   N
+seal:   NONE    57  5.0   23.0   4.0   N    0   0  0   0   0   F   F   E
   Crown:    NONE    112  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-gate.obj:   NONE    58  43.0   17.0   1.0   E    0   0  24   1   0   F   F   N
+gate:   NONE    58  43.0   17.0   1.0   E    0   0  24   1   0   F   F   N
 
 //Hell ball room
-toast.obj:   NONE    49  50.5   67.5   1.0   N    0   0  0   0   0   F   F   E
-toast.obj:   NONE    49  55.5   69.5   1.0   N    0   0  0   0   0   F   F   E
-toast.obj:   NONE    49  57.0   77.0   1.0   N    0   0  0   0   0   F   F   E
-toast.obj:   NONE    49  51.5   82.5   1.0   N    0   0  0   0   0   F   F   E
-toast.obj:   NONE    49  56.5   86.5   1.0   N    0   0  0   0   0   F   F   E
-toast.obj:   NONE    49  48.5   89.5   1.0   N    0   0  0   0   0   F   F   E
-toast.obj:   NONE    49  54.5   92.5   1.0   N    0   0  0   0   0   F   F   E
-toast.obj:   NONE    49  50.0   98.0   1.0   N    0   0  0   0   0   F   F   E
-toast.obj:   NONE    49  50.5   73.5   1.0   N    0   0  0   0   0   F   F   E
-toast.obj:   NONE    49  57.5   105.0   1.0   N    0   0  0   0   0   F   F   E
-toast.obj:   NONE    49  56.0   99.0   1.0   N    0   0  0   0   0   F   F   E
+toast:   NONE    49  50.5   67.5   1.0   N    0   0  0   0   0   F   F   E
+toast:   NONE    49  55.5   69.5   1.0   N    0   0  0   0   0   F   F   E
+toast:   NONE    49  57.0   77.0   1.0   N    0   0  0   0   0   F   F   E
+toast:   NONE    49  51.5   82.5   1.0   N    0   0  0   0   0   F   F   E
+toast:   NONE    49  56.5   86.5   1.0   N    0   0  0   0   0   F   F   E
+toast:   NONE    49  48.5   89.5   1.0   N    0   0  0   0   0   F   F   E
+toast:   NONE    49  54.5   92.5   1.0   N    0   0  0   0   0   F   F   E
+toast:   NONE    49  50.0   98.0   1.0   N    0   0  0   0   0   F   F   E
+toast:   NONE    49  50.5   73.5   1.0   N    0   0  0   0   0   F   F   E
+toast:   NONE    49  57.5   105.0   1.0   N    0   0  0   0   0   F   F   E
+toast:   NONE    49  56.0   99.0   1.0   N    0   0  0   0   0   F   F   E
 GigaGel:   NONE    93  47.5   72.5   1.0   N    0   0  0   0   0   F   F   E
 GigaGel:   NONE    93  47.5   83.5   1.0   N    0   0  0   0   0   F   F   E
 GigaGel:   NONE    93  47.5   95.5   1.0   N    0   0  0   0   0   F   F   E
@@ -139,102 +139,102 @@ GigaGel:   NONE    93  59.5   80.5   1.0   N    0   0  0   0   0   F   F   E
 GigaGel:   NONE    93  59.5   86.5   1.0   N    0   0  0   0   0   F   F   E
 GigaGel:   NONE    93  59.5   95.5   1.0   N    0   0  0   0   0   F   F   E
 
-normalchest.obj:   NONE    46  48.5   106.5   1.0   N    199   0  0   0   0   F   F   N
+normalchest:   NONE    46  48.5   106.5   1.0   N    199   0  0   0   0   F   F   N
 
 
 //Middle room
-glyphplate.obj:   NONE    47  14.0   51.0   1.0   N    0   0  0   0   0   F   F   N
-dragonstatue.obj:   NONE    45  56.5   46.5   3.0   N    0   0  0   55000   0   F   F   N
-dragonstatue.obj:   NONE    45  49.5   46.5   3.0   N    0   0  0   41000   0   F   F   N
-dragonstatue.obj:   NONE    45  56.5   53.5   3.0   N    0   0  0   12000   0   F   F   N
-dragonstatue.obj:   NONE    45  49.5   53.5   3.0   N    0   0  0   24000   0   F   F   N
-dreadnaught.obj:   NONE    50  37.0   47.0   1.0   N    5   0  0   0   0   F   F   E
-  spkmace.obj:   NONE    51  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-dreadnaught.obj:   NONE    50  37.0   56.0   1.0   N    8   0  0   0   0   F   F   E
-  spkmace.obj:   NONE    51  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-mephit.obj:   NONE    40  37.0   49.0   1.0   N    0   3  0   0   0   F   F   E
-mephitwing.obj:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
-mephit.obj:   NONE    40  37.0   53.0   1.0   N    0   3  0   0   0   F   F   E
-mephitwing.obj:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
-eyeball.obj:   NONE    37  45.0   57.0   1.0   N    0   0  0   0   0   F   F   E
-demon.obj:   NONE    42  49.0   42.0   1.0   N    0   0  0   0   0   F   F   E
-demon.obj:   NONE    42  51.0   41.0   1.0   N    0   0  0   0   0   F   F   E
-demon.obj:   NONE    42  51.0   43.0   1.0   N    0   0  0   0   0   F   F   E
-mephit.obj:   NONE    40  60.0   53.0   1.0   N    0   2  0   0   0   F   F   E
-mephitwing.obj:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
-mephit.obj:   NONE    40  61.0   56.0   1.0   N    0   2  0   0   0   F   F   E
-mephitwing.obj:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
-mephit.obj:   NONE    40  61.0   54.0   1.0   N    0   2  0   0   0   F   F   E
-mephitwing.obj:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
+glyphplate:   NONE    47  14.0   51.0   1.0   N    0   0  0   0   0   F   F   N
+dragonstatue:   NONE    45  56.5   46.5   3.0   N    0   0  0   55000   0   F   F   N
+dragonstatue:   NONE    45  49.5   46.5   3.0   N    0   0  0   41000   0   F   F   N
+dragonstatue:   NONE    45  56.5   53.5   3.0   N    0   0  0   12000   0   F   F   N
+dragonstatue:   NONE    45  49.5   53.5   3.0   N    0   0  0   24000   0   F   F   N
+dreadnaught:   NONE    50  37.0   47.0   1.0   N    5   0  0   0   0   F   F   E
+  SpkMace:   NONE    51  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+dreadnaught:   NONE    50  37.0   56.0   1.0   N    8   0  0   0   0   F   F   E
+  SpkMace:   NONE    51  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+mephit:   NONE    40  37.0   49.0   1.0   N    0   3  0   0   0   F   F   E
+  mephitwing:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
+mephit:   NONE    40  37.0   53.0   1.0   N    0   3  0   0   0   F   F   E
+  mephitwing:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
+eyeball:   NONE    37  45.0   57.0   1.0   N    0   0  0   0   0   F   F   E
+demon:   NONE    42  49.0   42.0   1.0   N    0   0  0   0   0   F   F   E
+demon:   NONE    42  51.0   41.0   1.0   N    0   0  0   0   0   F   F   E
+demon:   NONE    42  51.0   43.0   1.0   N    0   0  0   0   0   F   F   E
+mephit:   NONE    40  60.0   53.0   1.0   N    0   2  0   0   0   F   F   E
+  mephitwing:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
+mephit:   NONE    40  61.0   56.0   1.0   N    0   2  0   0   0   F   F   E
+  mephitwing:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
+mephit:   NONE    40  61.0   54.0   1.0   N    0   2  0   0   0   F   F   E
+  mephitwing:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
 
 //The amazing maze
-seal.obj:   NONE    57  15.5   104.5   3.0   N    0   0  0   1   0   F   F   E
+seal:   NONE    57  15.5   104.5   3.0   N    0   0  0   1   0   F   F   E
   Crown:    NONE    112  0.0   0.0   0.0   I    0   0  0   1   0   F   F   N
-dreadnaught.obj:   NONE    50  16.5   90.5   1.0   N    2   0  0   0   0   F   F   E
-  spkmace.obj:   NONE    51  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-dreadnaught.obj:   NONE    50  6.0   83.0   1.0   N    4   0  0   0   0   F   F   E
-  spkmace.obj:   NONE    51  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-dreadnaught.obj:   NONE    50  8.0   83.5   1.0   N    5   0  0   0   0   F   F   E
-  spkmace.obj:   NONE    51  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-dreadnaught.obj:   NONE    50  18.5   90.5   1.0   N    0   0  0   0   0   F   F   E
-  spkmace.obj:   NONE    51  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-dreadnaught.obj:   NONE    50  15.5   90.5   1.0   N    0   0  0   0   0   F   F   E
-  spkmace.obj:   NONE    51  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-invisiblechest.obj:   NONE    48  25.5   83.0   1.0   W    0   0  0   1   0   F   F   N
-  rebirth.obj:   NONE    67  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-  mpotion.obj:   NONE    43  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-  rgpotion.obj:   NONE    71  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-  clencher.obj:   NONE    72  0.0   0.0   0.0   I    0   0  0   0   0   F   F   E
-normalchest.obj:   NONE    46  23.5   99.5   1.0   S    0   0  0   1   0   F   F   N
-  bludmace.obj:   NONE    70  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+dreadnaught:   NONE    50  16.5   90.5   1.0   N    2   0  0   0   0   F   F   E
+  SpkMace:   NONE    51  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+dreadnaught:   NONE    50  6.0   83.0   1.0   N    4   0  0   0   0   F   F   E
+  SpkMace:   NONE    51  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+dreadnaught:   NONE    50  8.0   83.5   1.0   N    5   0  0   0   0   F   F   E
+  SpkMace:   NONE    51  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+dreadnaught:   NONE    50  18.5   90.5   1.0   N    0   0  0   0   0   F   F   E
+  SpkMace:   NONE    51  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+dreadnaught:   NONE    50  15.5   90.5   1.0   N    0   0  0   0   0   F   F   E
+  SpkMace:   NONE    51  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+invisiblechest:   NONE    48  25.5   83.0   1.0   W    0   0  0   1   0   F   F   N
+  rebirth:   NONE    67  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  MPotion:   NONE    43  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  rgpotion:   NONE    71  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  clencher:   NONE    72  0.0   0.0   0.0   I    0   0  0   0   0   F   F   E
+normalchest:   NONE    46  23.5   99.5   1.0   S    0   0  0   1   0   F   F   N
+  bludmace:   NONE    70  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
 //Area between hell room and amazing maze
-pchest.obj:   NONE    63  36.0   93.0   1.0   S    59   0  0   2   0   F   F   N
+pchest:   NONE    63  36.0   93.0   1.0   S    59   0  0   2   0   F   F   N
   mushroom:  NONE    98  0.0    0.0   0.0   I    0   0  0   0   0   F   F   N
-  rebirth.obj:   NONE    67  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-  quiver.obj:   NONE    61  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-mephit.obj:   NONE    40  36.0   93.0   1.0   N    0   0  0   0   0   F   F   E
-  mephitwing.obj:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
-mephit.obj:   NONE    40  38.0   93.0   1.0   N    0   1  0   0   0   F   F   E
-  mephitwing.obj:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
-mephit.obj:   NONE    40  36.0   95.0   1.0   N    5   2  0   0   0   F   F   E
-  mephitwing.obj:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
-mephit.obj:   NONE    40  34.0   92.0   1.0   N    0   3  0   0   0   F   F   E
-  mephitwing.obj:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
+  rebirth:   NONE    67  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Quiver:   NONE    61  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+mephit:   NONE    40  36.0   93.0   1.0   N    0   0  0   0   0   F   F   E
+  mephitwing:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
+mephit:   NONE    40  38.0   93.0   1.0   N    0   1  0   0   0   F   F   E
+  mephitwing:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
+mephit:   NONE    40  36.0   95.0   1.0   N    5   2  0   0   0   F   F   E
+  mephitwing:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
+mephit:   NONE    40  34.0   92.0   1.0   N    0   3  0   0   0   F   F   E
+  mephitwing:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
 
 
 //Prison cell of the betrayer
-betrayer.obj:   NONE    64  36.0   112.0   1.0   N    59   0  0   0   0   F   F   Xar
-  elemental.obj:   NONE    66  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-  teleport.obj:   NONE    65  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+betrayer:   NONE    64  36.0   112.0   1.0   N    59   0  0   0   0   F   F   Xar
+  elemental:   NONE    66  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  teleport:   NONE    65  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
   MagicCage:   NONE    73  0.0   0.0   0.0   R   0   0  0   0   0   F   F   Xar
 DevilGate:   NONE    74  36.00   102.75   0.0   S    0   0  11   11   0   F   F   N
 
 
 //Chamber of oblivion
-seal.obj:   NONE    57  92.0   100.0   1.0   N    0   0  0   2   0   F   F   E
+seal:   NONE    57  92.0   100.0   1.0   N    0   0  0   2   0   F   F   E
   Crown:    NONE    112  0.0   0.0   0.0   I    0   0  0   2   0   F   F   N
-GoldenChest.obj:   NONE    86  86.5   107.5   1.0   N    0   0  0   2   0   F   F   N
+GoldenChest:   NONE    86  86.5   107.5   1.0   N    0   0  0   2   0   F   F   N
 
 ManaElixir:   NONE    83  72.5   90.5   0.0   S    0   0  0   0   0   F   F   N
   
-platform.obj:   NONE    79  79.5   91.5   1.0   N    0   0  0   1   0   F   F   N
-platform.obj:   NONE    79  68.5   97.5   1.0   N    0   0  0   1   0   F   F   N
+platform:   NONE    79  79.5   91.5   1.0   N    0   0  0   1   0   F   F   N
+platform:   NONE    79  68.5   97.5   1.0   N    0   0  0   1   0   F   F   N
 
-platform.obj:   NONE    79  74.5   107.5   1.0   N    0   0  0   2   0   F   F   N
-platform.obj:   NONE    79  86.5   94.5   1.0   N    0   0  0   2   0   F   F   N
+platform:   NONE    79  74.5   107.5   1.0   N    0   0  0   2   0   F   F   N
+platform:   NONE    79  86.5   94.5   1.0   N    0   0  0   2   0   F   F   N
 
-platform.obj:   NONE    79  79.0   91.5   1.0   N    0   0  0   3   0   F   F   N
-platform.obj:   NONE    79  68.0   107.5   1.0   N    0   0  0   3   0   F   F   N
+platform:   NONE    79  79.0   91.5   1.0   N    0   0  0   3   0   F   F   N
+platform:   NONE    79  68.0   107.5   1.0   N    0   0  0   3   0   F   F   N
 
-platform.obj:   NONE    79  74.0   107.5   1.0   N    0   0  0   4   0   F   F   N
+platform:   NONE    79  74.0   107.5   1.0   N    0   0  0   4   0   F   F   N
 
-platform.obj:   NONE    79  78.0   97.0   1.0   N    0   0  0   5   0   F   F   N
-platform.obj:   NONE    79  74.0   106.0   1.0   N    0   0  0   5   0   F   F   N
+platform:   NONE    79  78.0   97.0   1.0   N    0   0  0   5   0   F   F   N
+platform:   NONE    79  74.0   106.0   1.0   N    0   0  0   5   0   F   F   N
 
-platform.obj:   NONE    79  81.0   99.0   1.0   N    0   0  0   6   0   F   F   N
+platform:   NONE    79  81.0   99.0   1.0   N    0   0  0   6   0   F   F   N
 
-platform.obj:   NONE    79  69.0   109.0   1.0   N    0   0  0   7   0   F   F   N
+platform:   NONE    79  69.0   109.0   1.0   N    0   0  0   7   0   F   F   N
 
 EyeBall:          NONE    37  67.0   109.0   1.0   N    0   0  0   0   0   F   F   E
 EyeBall:          NONE    37  76.0   95.0   1.0   N    0   0  0   0   0   F   F   E
@@ -243,49 +243,49 @@ EyeBall:          NONE    37  86.0   93.0   1.0   N    0   0  0   0   0   F   F 
 
 Lich:          NONE    80  66.5   105.5   1.0   N    486   0  0   0   0   F   F   E
   Disenchant:  NONE    81  0.0    0.0   0.0   L    0   0  0   0   0   F   F   N
-  lightning.obj:   NONE    82  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  lightning:   NONE    82  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 
-gate.obj:   NONE    58  95.0   100.0   1.0   E    0   0  14   1   0   F   F   N
-GoldenChest.obj:   NONE    86  102.0   100.0   1.0   W    0   0  0   1   0   F   F   N
+gate:   NONE    58  95.0   100.0   1.0   E    0   0  14   1   0   F   F   N
+GoldenChest:   NONE    86  102.0   100.0   1.0   W    0   0  0   1   0   F   F   N
 
-clencher.obj:   NONE    72  100.0   91.0   1.0   N    0   0  0   0   0   F   F   E
-clencher.obj:   NONE    72  98.0   88.0   1.0   N    0   0  0   0   0   F   F   E
-clencher.obj:   NONE    72  102.0   88.0   1.0   N    0   0  0   0   0   F   F   E
-clencher.obj:   NONE    72  103.0   92.0   1.0   N    0   0  0   0   0   F   F   E
-clencher.obj:   NONE    72  97.0   91.0   1.0   N    0   0  0   0   0   F   F   E
-gate.obj:   NONE    58  100.0   79.0   1.0   N    0   0  15   1   0   F   F   N
+clencher:   NONE    72  100.0   91.0   1.0   N    0   0  0   0   0   F   F   E
+clencher:   NONE    72  98.0   88.0   1.0   N    0   0  0   0   0   F   F   E
+clencher:   NONE    72  102.0   88.0   1.0   N    0   0  0   0   0   F   F   E
+clencher:   NONE    72  103.0   92.0   1.0   N    0   0  0   0   0   F   F   E
+clencher:   NONE    72  97.0   91.0   1.0   N    0   0  0   0   0   F   F   E
+gate:   NONE    58  100.0   79.0   1.0   N    0   0  15   1   0   F   F   N
 
-demon.obj:   NONE    42  99.0   74.0   1.0   N    0   0  0   0   0   F   F   E
-demon.obj:   NONE    42  101.0   75.0   1.0   N    0   0  0   0   0   F   F   E
-demon.obj:   NONE    42  97.0   72.0   1.0   N    0   0  0   0   0   F   F   E
-dreadnaught.obj:   NONE    50  100.0   73.0   1.0   N    19   0  0   0   0   F   F   E
-  spkmace.obj:   NONE    51  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-normalchest.obj:   NONE    46  101.5   72.5   1.0   W    0   0  0   1   0   F   F   N
+demon:   NONE    42  99.0   74.0   1.0   N    0   0  0   0   0   F   F   E
+demon:   NONE    42  101.0   75.0   1.0   N    0   0  0   0   0   F   F   E
+demon:   NONE    42  97.0   72.0   1.0   N    0   0  0   0   0   F   F   E
+dreadnaught:   NONE    50  100.0   73.0   1.0   N    19   0  0   0   0   F   F   E
+  SpkMace:   NONE    51  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+normalchest:   NONE    46  101.5   72.5   1.0   W    0   0  0   1   0   F   F   N
  Identify:  NONE    90  0.0    0.0   0.0   I    0   0  0   0   0   F   F   N
  RegenPotion:  NONE    71  0.0    0.0   0.0   I    0   0  0   0   0   F   F   N
  Quiver:  NONE    61  0.0    0.0   0.0   I    0   0  0   0   0   F   F   N
 
 //Trap hall
-arrowtrap.obj:   NONE    53  90.0   75.0   1.0   N    0   0  18   0   0   F   F   N
-deadfall.obj:   NONE    52  88.0   75.0   1.0   N    0   0  19   0   0   F   F   N
-deadfall.obj:   NONE    52  84.0   75.0   1.0   N    0   0  20   0   0   F   F   N
-toast.obj:   NONE    49  86.0   75.0   1.0   N    0   0  0   0   0   F   F   E
-deadfall.obj:   NONE    52  81.0   75.0   1.0   N    0   0  21   0   0   F   F   N
+arrowtrap:   NONE    53  90.0   75.0   1.0   N    0   0  18   0   0   F   F   N
+deadfall:   NONE    52  88.0   75.0   1.0   N    0   0  19   0   0   F   F   N
+deadfall:   NONE    52  84.0   75.0   1.0   N    0   0  20   0   0   F   F   N
+toast:   NONE    49  86.0   75.0   1.0   N    0   0  0   0   0   F   F   E
+deadfall:   NONE    52  81.0   75.0   1.0   N    0   0  21   0   0   F   F   N
 CurseTrap:   NONE    91  78.0   75.0   1.0   N    0   0  22   0   0   F   F   E
-arrowtrap2.obj:   NONE    53  75.0   75.0   1.0   N    0   0  23   0   0   F   F   N
+arrowtrap2:   NONE    53  75.0   75.0   1.0   N    0   0  23   0   0   F   F   N
 mushroom:  NONE    98  67.0    78.25   0.5   W    0   0  0   0   0   F   F   N
-eyeball.obj:   NONE    37  80.0   73.0   1.0   N    0   0  0   0   0   F   F   E
+eyeball:   NONE    37  80.0   73.0   1.0   N    0   0  0   0   0   F   F   E
 
 //Last seal
-gate.obj:   NONE    58  65.0   25.0   1.0   N    0   0  37   0   0   F   F   N
-seal.obj:   NONE    57  77.0   31.0   1.0   N    0   0  0   3   0   F   F   E
+gate:   NONE    58  65.0   25.0   1.0   N    0   0  37   0   0   F   F   N
+seal:   NONE    57  77.0   31.0   1.0   N    0   0  0   3   0   F   F   E
   Crown:    NONE    112  0.0   0.0   0.0   I    0   0  0   3   0   F   F   N
 MagmaYeti:    NONE    105  65.0   31.0   1.0   E    39   0  0   0   0   F   F   E
 
-sabotager.obj:   NONE    56  62.5   12.5   1.0   N    0   0  0   0   0   F   F   E
-sabotager.obj:   NONE    56  63.0   10.0   1.0   N    0   0  0   0   0   F   F   E
-sabotager.obj:   NONE    56  64.5   13.5   1.0   N    0   0  0   0   0   F   F   E
-sabotager.obj:   NONE    56  64.0   12.0   1.0   N    0   0  0   0   0   F   F   E
+sabotager:   NONE    56  62.5   12.5   1.0   N    0   0  0   0   0   F   F   E
+sabotager:   NONE    56  63.0   10.0   1.0   N    0   0  0   0   0   F   F   E
+sabotager:   NONE    56  64.5   13.5   1.0   N    0   0  0   0   0   F   F   E
+sabotager:   NONE    56  64.0   12.0   1.0   N    0   0  0   0   0   F   F   E
 
 DarkSpirit:   NONE    117  54.5   17.5   1.0   N    0   0  0   0   0   F   F   E
   WithLance:   NONE    119  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
@@ -294,60 +294,60 @@ DarkSpirit:   NONE    117  54.5   13.5   1.0   N    0   0  0   0   0   F   F   E
   WithLance:   NONE    119  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 OnAHellrover:   NONE    118  54.5   13.5   1.0   N    0   0  0   0   0   F   F   E
 
-normalchest.obj:   NONE    46  62.0   23.0   1.0   N    17   0  0   4   0   F   F   N
-  rgpotion.obj:   NONE    71  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+normalchest:   NONE    46  62.0   23.0   1.0   N    17   0  0   4   0   F   F   N
+  rgpotion:   NONE    71  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   mushroom:  NONE    98  0.0    0.0   0.0   I    0   0  0   0   0   F   F   N
-cursetrap.obj:   NONE    91  62.0   23.0   1.0   N    0   0  33   0   0   F   F   E
+cursetrap:   NONE    91  62.0   23.0   1.0   N    0   0  33   0   0   F   F   E
 
 //Prison cell of elayne
-devildoor.obj:   NONE    74  69.0   12.0   1.0   E    0   0  26   10   0   F   F   N
+devildoor:   NONE    74  69.0   12.0   1.0   E    0   0  26   10   0   F   F   N
 Angel:   NONE   	 94  79.0   12.0   1.0   W    16   0  0   0   0   F   F   Angel
   MagicCage:   NONE    73  0.0   0.0   0.0   R   0   0  0   1   0   F   F   Angel
-  retribution.obj:   NONE    130  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  retribution:   NONE    130  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
 //Saving the slayer
-demon.obj:   NONE    42  35.0   70.0   1.0   N    0   0  0   0   0   F   F   E
-demon.obj:   NONE    42  36.0   72.0   1.0   N    0   0  0   0   0   F   F   E
-demon.obj:   NONE    42  37.0   70.0   1.0   N    0   0  0   0   0   F   F   E
-demon.obj:   NONE    42  35.0   73.0   1.0   N    0   0  0   0   0   F   F   E
-demon.obj:   NONE    42  38.0   73.0   1.0   N    0   0  0   0   0   F   F   E
-demon.obj:   NONE    42  34.0   74.0   1.0   N    0   0  0   0   0   F   F   E
-demon.obj:   NONE    42  38.0   74.0   1.0   N    0   0  0   0   0   F   F   E
-dreadnaught.obj:   NONE    50  34.0   76.0   1.0   N    4   0  0   0   0   F   F   E
-  spkmace.obj:   NONE    51  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-dreadnaught.obj:   NONE    50  37.0   76.0   1.0   N    7   0  0   0   0   F   F   E
-  spkmace.obj:   NONE    51  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-dreadnaught.obj:   NONE    50  36.0   78.0   1.0   N    1   0  0   0   0   F   F   E
-  spkmace.obj:   NONE    51  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-mephit.obj:   NONE    40  38.0   71.0   1.0   N    1   4  0   0   0   F   F   E
-  mephitwing.obj:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
-mephit.obj:   NONE    40  36.0   75.0   1.0   N    2   4  0   0   0   F   F   E
-  mephitwing.obj:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
-mephit.obj:   NONE    40  34.0   72.0   1.0   N    3   4  0   0   0   F   F   E
-  mephitwing.obj:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
-fiendbug.obj:   NONE    55  38.0   76.0   1.0   N    0   0  0   0   0   F   F   E
-fiendbug.obj:   NONE    55  36.0   74.0   1.0   N    0   0  0   0   0   F   F   E
+demon:   NONE    42  35.0   70.0   1.0   N    0   0  0   0   0   F   F   E
+demon:   NONE    42  36.0   72.0   1.0   N    0   0  0   0   0   F   F   E
+demon:   NONE    42  37.0   70.0   1.0   N    0   0  0   0   0   F   F   E
+demon:   NONE    42  35.0   73.0   1.0   N    0   0  0   0   0   F   F   E
+demon:   NONE    42  38.0   73.0   1.0   N    0   0  0   0   0   F   F   E
+demon:   NONE    42  34.0   74.0   1.0   N    0   0  0   0   0   F   F   E
+demon:   NONE    42  38.0   74.0   1.0   N    0   0  0   0   0   F   F   E
+dreadnaught:   NONE    50  34.0   76.0   1.0   N    4   0  0   0   0   F   F   E
+  SpkMace:   NONE    51  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+dreadnaught:   NONE    50  37.0   76.0   1.0   N    7   0  0   0   0   F   F   E
+  SpkMace:   NONE    51  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+dreadnaught:   NONE    50  36.0   78.0   1.0   N    1   0  0   0   0   F   F   E
+  SpkMace:   NONE    51  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+mephit:   NONE    40  38.0   71.0   1.0   N    1   4  0   0   0   F   F   E
+  mephitwing:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
+mephit:   NONE    40  36.0   75.0   1.0   N    2   4  0   0   0   F   F   E
+  mephitwing:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
+mephit:   NONE    40  34.0   72.0   1.0   N    3   4  0   0   0   F   F   E
+  mephitwing:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
+fiendbug:   NONE    55  38.0   76.0   1.0   N    0   0  0   0   0   F   F   E
+fiendbug:   NONE    55  36.0   74.0   1.0   N    0   0  0   0   0   F   F   E
 
-invisiblechest.obj:   NONE    48  39.5   78.5   1.0   W    29   0  0   1   0   F   F   N
-  SizeSpell:  NONE    96  0.0    0.0   0.0   I    0   0  0   0   0   F   F   N
-  ammobox.obj:   NONE    60  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-  magpotion.obj:   NONE    62  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+invisiblechest:   NONE    48  39.5   78.5   1.0   W    29   0  0   1   0   F   F   N
+  Size:  NONE    96  0.0    0.0   0.0   I    0   0  0   0   0   F   F   N
+  AmmoBox:   NONE    60  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  magpotion:   NONE    62  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
-gelfeet.obj:   NONE    93  23.5   70.5   1.0   N    0   0  0   1   0   F   F   E
-gelfeet.obj:   NONE    93  23.5   72.0   1.0   N    0   0  0   1   0   F   F   E
-gelfeet.obj:   NONE    93  23.5   73.5   1.0   N    0   0  0   1   0   F   F   E
-gelfeet.obj:   NONE    93  23.5   75.0   1.0   N    0   0  0   1   0   F   F   E
+gelfeet:   NONE    93  23.5   70.5   1.0   N    0   0  0   1   0   F   F   E
+gelfeet:   NONE    93  23.5   72.0   1.0   N    0   0  0   1   0   F   F   E
+gelfeet:   NONE    93  23.5   73.5   1.0   N    0   0  0   1   0   F   F   E
+gelfeet:   NONE    93  23.5   75.0   1.0   N    0   0  0   1   0   F   F   E
 
 
 //Prison cell of the slayer
-devildoor.obj:   NONE    74  16.0   73.0   1.0   W    0   0  30   9   0   F   F   N
-loknar.obj:   NONE    75  6.5   73.0   1.0   E    32   0  0   0   0   F   F   Hatred
+devildoor:   NONE    74  16.0   73.0   1.0   W    0   0  30   9   0   F   F   N
+loknar:   NONE    75  6.5   73.0   1.0   E    32   0  0   0   0   F   F   Hatred
   MagicCage:   NONE    73  0.0   0.0   0.0   R   0   0  0   1   0   F   F   Hatred
-  axe.obj:   NONE    69  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-  bigshield.obj:   NONE    68  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  axe:   NONE    69  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  bigshield:   NONE    68  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
 //The boss chamber!
-bossdoor.obj:   NONE    99  66.0   50.0   1.0   W    0   0  34   0   0   F   F   N
+bossdoor:   NONE    99  66.0   50.0   1.0   W    0   0  34   0   0   F   F   N
 Dark Glower:    NONE    100  74.5   57.5   1.0   N    0   0  0   0   0   F   F   S
 Dark Glower:    NONE    100  73.5   47.5   1.0   N    0   0  0   0   0   F   F   S
 Dark Glower:    NONE    100  75.5   53.5   1.0   N    0   0  0   0   0   F   F   S
@@ -370,14 +370,14 @@ DaBigBossDude:  NONE    108  94.5   50.5   8.0   W    9000   0  39   0   0   F  
 KingBishop:  NONE    113  97.5   50.5   8.0   W    999   0  0   0   0   F   F   King
   MagicCage:   NONE    73  0.0   0.0   0.0   R   0   0  0   2   0   F   F   King
 
-dragonstatue.obj:   NONE    45  97.0   46.5   8.0   N    0   0  0   55000   0   F   F   N
-dragonstatue.obj:   NONE    45  97.0   54.0   8.0   N    0   0  0   12000   0   F   F   N  
+dragonstatue:   NONE    45  97.0   46.5   8.0   N    0   0  0   55000   0   F   F   N
+dragonstatue:   NONE    45  97.0   54.0   8.0   N    0   0  0   12000   0   F   F   N  
   
 WatcherBoss:   NONE    107  77.0   45.5   1.0   S    0   0  0   0   0   F   F   E
 WierdBoss:    NONE    106  84.5   55.5   1.0   N    0   0  0   0   0   F   F   E
 BlackShineKnight:    NONE    104  84.5   45.5   1.0   S    59   0  0   0   0   F   F   E
-  darkmace.obj:   NONE    56  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-  darkmace.obj:   NONE    56  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  darkmace:   NONE    56  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  darkmace:   NONE    56  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 ManaScorpion:    NONE    102  77.0   55.5   1.0   N    0   0  0   0   0   F   F   E
   WithHisClaw:   NONE    103  0.0   0.0   0.0   L    0   1  0   0   0   F   F   N
   WithHisClaw:   NONE    103  0.0   0.0   0.0   R    0   1  0   0   0   F   F   N

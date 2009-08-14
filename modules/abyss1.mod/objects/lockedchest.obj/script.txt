@@ -157,7 +157,7 @@ IfBumped
         IfContentIs
           tmpx = rand % 4352 + targetwis
           tmpargument = [DISA]
-          IfTargetHasSkillID		//Rouges always make it
+          IfTargetHasSkillID		//Rogues always make it
             tmpx = 9000
           tmpy = 8704			//50% chance at 17 wis
           IfXIsMoreThanY

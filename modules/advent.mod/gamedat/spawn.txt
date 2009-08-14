@@ -29,9 +29,8 @@ Knight:    NONE      41   15.5 60.5 4.0  W   15  0   0   2   0   T   F   Good
   Sword:   NONE      50   0    0    0    R   0   0   0   0   0   F   F   Null
   Shield:  NONE      71   0    0    0    L   0   0   0   0   0   F   F   Null
 Healer:    NONE      42   13.5 60.5 4.0  N   8   0   0   0   0   T   F   Good
-  Mace:    NONE      46   0    0    0    R   0   0   0   0   0   F   F   Null
+  SpkMace: NONE      46   0    0    0    R   0   0   0   0   0   F   F   Null
 GrubMum:   NONE      38   16.5 60.5 0    S   0   0   0   0   0   F   F   Insect
-
 
 
 Trog:      NONE      36   7.0  31.0 4.0  N   3   0   0   0   0   F   F   Trog
@@ -46,59 +45,56 @@ Trog:      NONE      36   8.0  32.0 4.0  N   1   4   0   0   0   F   F   Trog
   Spear:   NONE      51   0    0    0    R   0   0   0   0   0   F   F   Null
 GrubSpit:  NONE      44   5    27   0    S   0   0   0   0   0   F   F   Null
 Chest:     NONE      59   3    25   0    E   0   0   0   0   0   F   F   Null
-  EnchantScroll:NONE 60   0    0   0     I   0   0   0   0   0   F   F   Null
-  Grub:    NONE      37   0    0   0     I   0   0   0   0   0   F   F   Insect
+  EnchantWeaponScroll:NONE 60   0    0   0     I   0   0   0   0   0   F   F   Null
+  GrubBug: NONE      37   0    0   0     I   0   0   0   0   0   F   F   Insect
   Plunger: NONE      43   0    0   0     I   0   0   0   0   0   F   F   Null
   
+GrubBug:   NONE      37   29   47   6    N   0   0   0   0   0   F   F   Insect
+GrubBug:   NONE      37   36   54   6    N   0   0   0   0   0   F   F   Insect
+GrubBug:   NONE      37   53   59   6    N   0   0   0   0   0   F   F   Insect
+GrubBug:   NONE      37   35   36   6    N   0   0   0   0   0   F   F   Insect
+GrubBug:   NONE      37   37   34   6    N   0   0   0   0   0   F   F   Insect
+GrubBug:   NONE      37   35   34   6    N   0   0   0   0   0   F   F   Insect
+GrubBug:   NONE      37   30   27   6    N   0   0   0   0   0   F   F   Insect
+GrubBug:   NONE      37   30   14   6    N   0   0   0   0   0   F   F   Insect
+GrubBug:   NONE      37   30   12   6    N   0   0   0   0   0   F   F   Insect
 
-Grub:      NONE      37   29   47   6    N   0   0   0   0   0   F   F   Insect
-Grub:      NONE      37   36   54   6    N   0   0   0   0   0   F   F   Insect
-Grub:      NONE      37   53   59   6    N   0   0   0   0   0   F   F   Insect
-Grub:      NONE      37   35   36   6    N   0   0   0   0   0   F   F   Insect
-Grub:      NONE      37   37   34   6    N   0   0   0   0   0   F   F   Insect
-Grub:      NONE      37   35   34   6    N   0   0   0   0   0   F   F   Insect
-Grub:      NONE      37   30   27   6    N   0   0   0   0   0   F   F   Insect
-Grub:      NONE      37   30   14   6    N   0   0   0   0   0   F   F   Insect
-Grub:      NONE      37   30   12   6    N   0   0   0   0   0   F   F   Insect
+GrubBug:   NONE      37   28   44   6    N   0   0   0   0   0   F   F   Insect
+GrubBug:   NONE      37   27   31   6    N   0   0   0   0   0   F   F   Insect
+GrubBug:   NONE      37   5    29   6    N   0   0   0   0   0   F   F   Insect
+GrubBug:   NONE      37   29   28   6    N   0   0   0   0   0   F   F   Insect
+GrubBug:   NONE      37   32   30   6    N   0   0   0   0   0   F   F   Insect
+GrubBug:   NONE      37   39   19   6    N   0   0   0   0   0   F   F   Insect
+GrubBug:   NONE      37   41   8    6    N   0   0   0   0   0   F   F   Insect
 
-Grub:      NONE      37   28   44   6    N   0   0   0   0   0   F   F   Insect
-Grub:      NONE      37   27   31   6    N   0   0   0   0   0   F   F   Insect
-Grub:      NONE      37   5    29   6    N   0   0   0   0   0   F   F   Insect
-Grub:      NONE      37   29   28   6    N   0   0   0   0   0   F   F   Insect
-Grub:      NONE      37   32   30   6    N   0   0   0   0   0   F   F   Insect
-Grub:      NONE      37   39   19   6    N   0   0   0   0   0   F   F   Insect
-Grub:      NONE      37   41   8    6    N   0   0   0   0   0   F   F   Insect
+GrubBug:   NONE      37   4    7    6    N   0   0   0   0   0   F   F   Insect
+GrubBug:   NONE      37   5    5    6    N   0   0   0   0   0   F   F   Insect
+GrubBug:   NONE      37   6    10   6    N   0   0   0   0   0   F   F   Insect
+GrubBug:   NONE      37   7    15   6    N   0   0   0   0   0   F   F   Insect
+GrubBug:   NONE      37   8    14   6    N   0   0   0   0   0   F   F   Insect
+GrubBug:   NONE      37   9    11   6    N   0   0   0   0   0   F   F   Insect
+GrubBug:   NONE      37   10   8    6    N   0   0   0   0   0   F   F   Insect
+GrubBug:   NONE      37   11   12   6    N   0   0   0   0   0   F   F   Insect
+GrubBug:   NONE      37   12   10   6    N   0   0   0   0   0   F   F   Insect
+GrubBug:   NONE      37   13   8    6    N   0   0   0   0   0   F   F   Insect
+GrubBug:   NONE      37   8    15   6    N   0   0   0   0   0   F   F   Insect
+GrubBug:   NONE      37   10   6    6    N   0   0   0   0   0   F   F   Insect
 
-Grub:      NONE      37   4    7    6    N   0   0   0   0   0   F   F   Insect
-Grub:      NONE      37   5    5    6    N   0   0   0   0   0   F   F   Insect
-Grub:      NONE      37   6    10   6    N   0   0   0   0   0   F   F   Insect
-Grub:      NONE      37   7    15   6    N   0   0   0   0   0   F   F   Insect
-Grub:      NONE      37   8    14   6    N   0   0   0   0   0   F   F   Insect
-Grub:      NONE      37   9    11   6    N   0   0   0   0   0   F   F   Insect
-Grub:      NONE      37   10   8    6    N   0   0   0   0   0   F   F   Insect
-Grub:      NONE      37   11   12   6    N   0   0   0   0   0   F   F   Insect
-Grub:      NONE      37   12   10   6    N   0   0   0   0   0   F   F   Insect
-Grub:      NONE      37   13   8    6    N   0   0   0   0   0   F   F   Insect
-Grub:      NONE      37   8    15   6    N   0   0   0   0   0   F   F   Insect
-Grub:      NONE      37   10   6    6    N   0   0   0   0   0   F   F   Insect
-
-Grub:      NONE      37   5    5    6    N   0   0   0   0   0   F   F   Insect
-Grub:      NONE      37   6    10   6    N   0   0   0   0   0   F   F   Insect
-Grub:      NONE      37   7    15   6    N   0   0   0   0   0   F   F   Insect
-Grub:      NONE      37   8    14   6    N   0   0   0   0   0   F   F   Insect
-Grub:      NONE      37   9    11   6    N   0   0   0   0   0   F   F   Insect
-Grub:      NONE      37   10   8    6    N   0   0   0   0   0   F   F   Insect
-Grub:      NONE      37   11   12   6    N   0   0   0   0   0   F   F   Insect
-Grub:      NONE      37   12   10   6    N   0   0   0   0   0   F   F   Insect
-Grub:      NONE      37   13   8    6    N   0   0   0   0   0   F   F   Insect
-Grub:      NONE      37   8    15   6    N   0   0   0   0   0   F   F   Insect
-Grub:      NONE      37   10   6    6    N   0   0   0   0   0   F   F   Insect
-
+GrubBug:   NONE      37   5    5    6    N   0   0   0   0   0   F   F   Insect
+GrubBug:   NONE      37   6    10   6    N   0   0   0   0   0   F   F   Insect
+GrubBug:   NONE      37   7    15   6    N   0   0   0   0   0   F   F   Insect
+GrubBug:   NONE      37   8    14   6    N   0   0   0   0   0   F   F   Insect
+GrubBug:   NONE      37   9    11   6    N   0   0   0   0   0   F   F   Insect
+GrubBug:   NONE      37   10   8    6    N   0   0   0   0   0   F   F   Insect
+GrubBug:   NONE      37   11   12   6    N   0   0   0   0   0   F   F   Insect
+GrubBug:   NONE      37   12   10   6    N   0   0   0   0   0   F   F   Insect
+GrubBug:   NONE      37   13   8    6    N   0   0   0   0   0   F   F   Insect
+GrubBug:   NONE      37   8    15   6    N   0   0   0   0   0   F   F   Insect
+GrubBug:   NONE      37   10   6    6    N   0   0   0   0   0   F   F   Insect
 
 Mimic:     NONE      63   17   39   0    E   24  0   0   0   0   F   F   Magic
 Gelfeet:   NONE      39   60.4 41.3 0    S   0   0   0   0   0   F   F   Magic
-Key:       NONE      45   0    0    0    L   0   0   0   0   0   F   F   Null
-
+  Key:       NONE      45   0    0    0    L   0   0   0   0   0   F   F   Null
 
 Deadend:   NONE      64   4    51   0    N   0   0   0   0   0   F   F   Null
 Deadend:   NONE      64   53   8    0    W   0   0   1   0   0   F   F   Null
@@ -122,13 +118,11 @@ OButton:   NONE      58   31.3 14   0    S   0   0   6   0   0   F   F   Null
 OButton:   NONE      58   31.3  5   0    S   0   0   7   0   0   F   F   Null
 Platform:  NONE      48   28.5 10   0.9  S   0   0   0   0   0   F   F   Null
 
-
+Missile:   NONE      73   24.5 10.5 0    S   0   0   0   0   0   F   F   Null
 Chest:     NONE      40   58   30   0    W   0   0   0   1   0   F   F   Null
-:a_Book_of_Missile   127  24.5 10.5 0    S   0   0   0   73  0   F   F   Null
+Book:a_Book_of_Missile   127  24.5 10.5 0    S   0   0   0   73  0   F   F   Null
 Shaft:     NONE      49   14.5 60.5 0    N   0   0   0   0   0   F   F   Null
-
 
 Mouse:     Mickey    53   55   28   0    S   0   0   0   0   0   F   F   Vermin
 
 BossMuse:  NONE      126  55   28   0    S   0   0   0   0   0   F   F   Null
-

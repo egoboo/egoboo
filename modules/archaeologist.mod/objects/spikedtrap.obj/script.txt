@@ -10,7 +10,7 @@ IfSpawned
 KeepAction
 SetTargetToNearestLifeform
 
-  //Check for rouges to find it
+  //Check for rogues to find it
   tmpargument = [TECH]			//Does the target have disarm skill?
   IfTargetHasSkillID
     IfTargetIsAPlayer			//Only for players

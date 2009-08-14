@@ -92,7 +92,7 @@ protect2.obj:   NONE    111  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 shopkeep2.obj:   Mylvin    52  50.5   75.5   1.0   N    125   1  7   0   0   F   F   G		//Potion shop
 pistol.obj:   NONE    98  0.0   0.0   1.0   I    0   0  0   0   0   F   F   N
 
-shopkeep.obj:   Shady    49  63.5   28.0   1.0   N    59   2  8   1   0   F   F   G		//Rouge shop
+shopkeep.obj:   Shady    49  63.5   28.0   1.0   N    59   2  8   1   0   F   F   G		//Rogue shop
 pstiletto.obj:   NONE    107  0.0   0.0   1.0   I    0   0  0   0   0   F   F   N
 
 shopkeep.obj:   Secret    49  79.0   36.0   1.0   N    0   1  9   0   0   F   F   G		//Secret shop
@@ -300,7 +300,7 @@ sign.obj:   NONE    56  16.0   100.5   1.0   W    0   0  0   3   0   F   F   N		
 sign.obj:   NONE    56  16.5   57.5   1.0   W    0   3  0   4   0   F   F   N		//Council hall
 sign.obj:   NONE    56  25.5   23.5   1.0   N    0   3  0   5   0   F   F   N		//Barracks
 sign.obj:   NONE    56  19.8   43.3   1.0   E    0   0  0   6   0   F   F   N		//Paladin order
-sign.obj:   NONE    56  71.3   34.0   1.0   N    0   0  0   7   0   F   F   N		//Rouge shop
+sign.obj:   NONE    56  71.3   34.0   1.0   N    0   0  0   7   0   F   F   N		//Rogue shop
 sign.obj:   NONE    56  77.3   47.8   1.0   N    0   0  0   8   0   F   F   N		//Tavern
 sign.obj:   NONE    56  50.5   33.5   1.0   N    0   1  0   9   0   F   F   N		//Smith
 sign.obj:   NONE    56  72.5   90.0   1.0   E    0   2  0   10   0   F   F   N		//Zambini

@@ -133,7 +133,7 @@ IfAttacked
   //Backstab?
   IfStateIs0				//Hasn't seen a enemy yet
     IfHitFromBehind
-      tmpargument = [DISA]		//Is it a rouge?
+      tmpargument = [DISA]		//Is it a rogue?
       IfTargetHasSkillID
         SetTargetToSelf
         KillTarget			//Yep, instant kill

@@ -36,7 +36,7 @@ IfContentIs
     tmpargument = passage + 2
     SetTargetToWhoeverIsInPassage
       tmpargument = [EVIL]
-      IfTargetHasQuestID
+      IfTargetHasQuest
         tmpargument = TEAME
         TargetJoinTeam
     

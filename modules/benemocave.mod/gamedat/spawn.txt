@@ -131,10 +131,10 @@ ItemChest: NONE     40    8.5  21.5 0    E  49   0   0   3   0   F   F   Null
 LockChest: NONE     45    13.5 58   0    E   0   0   0   0   0   F   F   Null
   CAmulet: NONE     83    0    0    0    I   0   0   0   0   0   F   F   Null
 ItemChest: NONE     40    11.5 28.5 0    S   0   0   0   1   0   F   F   Null
-  LRing:   NONE     136   0    0    0    I   0   0   0   0   0   F   F   Null
+  LuckRing:   NONE     136   0    0    0    I   0   0   0   0   0   F   F   Null
 ItemChest: NONE     40    45   48.5 0    N  99   0   0   0   0   F   F   Null
 ItemChest: NONE     40    46.5 44.5 0    W  99   0   0   3   0   F   F   Null
-  DAmulet: NONE     99    0    0    0    I   0   0   0   0   0   F   F   Null
+  DexAmulet: NONE     99    0    0    0    I   0   0   0   0   0   F   F   Null
 LockChest: NONE     45    45.5 41.5 0    S   0   0   0   0   0   F   F   Null
   EAmulet: NONE     84    0    0    0    I   0   0   0   0   0   F   F   Null
 ItemChest: NONE     40    42.5 43.5 0    E  99   0   0   2   0   F   F   Null
@@ -167,17 +167,17 @@ Lumpkin:   NONE     52    39.5 15.5 0    W   7   0   0   0   1   F   F   Evil
   Claw:    NONE     86    0    0    0    L   0   0   0   0   0   F   F   Null
 
 Bandit:    NONE     50    10.5 21.5 0    N   4   0   0   0   0   F   F   Evil
-  PStiltt: NONE     67    0    0    0    R   0   0   0   0   0   F   F   Null
+  PStiletto: NONE     67    0    0    0    R   0   0   0   0   0   F   F   Null
 Mercenary: NONE     51    10   22   0    N  11   0   0   0   4   F   F   Evil
   XBow:    NONE     55    0    0    0    R   0   0   0   0   0   F   F   Null
 Bandit:    NONE     50    10   23   0    N   8   0   0   0   1   F   F   Evil
-  PStiltt: NONE     67    0    0    0    L   0   0   0   0   0   F   F   Null
+  PStiletto: NONE     67    0    0    0    L   0   0   0   0   0   F   F   Null
 Bandit:    NONE     50    10.5 24   0    N   7   0   0   0   0   F   F   Evil
   NStars:  NONE     58    0    0    0    R   0   0   0   0   0   F   F   Null
   Knife:   NONE     65    0    0    0    I   0   0   0   0   0   F   F   Null
 
 Bandit:    NONE     50    9.5  30   0    N   6   0   0   0   1   F   F   Evil
-  PStiltt: NONE     67    0    0    0    R   0   0   0   0   0   F   F   Null
+  PStiletto: NONE     67    0    0    0    R   0   0   0   0   0   F   F   Null
 Mercenary: NONE     51    10   31   0    N   7   0   0   0   2   F   F   Evil
   Sword:   NONE     69    0    0    0    R   0   0   0   0   0   F   F   Null
   KShield: NONE     73    0    0    0    L   0   0   0   0   0   F   F   Null
@@ -190,13 +190,13 @@ Bandit:    NONE     50    11   35   0    N   8   0   0   0   2   F   F   Evil
   PKatana: NONE     66    0    0    0    R   0   0   0   0   0   F   F   Null
 
 Bandit:    NONE     50    13   38   0    N   7   0   0   0   1   F   F   Evil
-  Cinq:    NONE     64    0    0    0    R   0   0   0   0   0   F   F   Null
-  Cinq:    NONE     64    0    0    0    L   0   0   0   0   0   F   F   Null
+  Cinquedea:    NONE     64    0    0    0    R   0   0   0   0   0   F   F   Null
+  Cinquedea:    NONE     64    0    0    0    L   0   0   0   0   0   F   F   Null
 Mercenary: NONE     51    14   41   0    N  10   0   0   0   4   F   F   Evil
   LBow:    NONE     56    0    0    0    R   0   0   0   0   0   F   F   Null
   Sword:   NONE     69    0    0    0    I   0   0   0   0   0   F   F   Null
 Bandit:    NONE     50    17   39   0    N   2   0   0   0   2   F   F   Evil
-  PStiltt: NONE     67    0    0    0    R   0   0   0   0   0   F   F   Null
+  PStiletto: NONE     67    0    0    0    R   0   0   0   0   0   F   F   Null
 Bandit:    NONE     50    19   39   0    N   6   0   0   0   0   F   F   Evil
   Hatchet: NONE     82    0    0    0    R   0   0   0   0   0   F   F   Null
   LPotion: NONE     53    0    0    0    I   0   0   0   0   0   F   F   Null
@@ -244,11 +244,11 @@ Bandit:    NONE     50    22   21   0    W   6   0   0   0   1   F   F   Evil
   XBow:    NONE     55    0    0    0    L   0   0   0   0   0   F   F   Null
 Bandit:    NONE     50    25   25   0    W   6   0   0   0   1   F   F   Evil
   PKatana: NONE     66    0    0    0    R   0   0   0   0   0   F   F   Null
-  Cinq:    NONE     64    0    0    0    L   0   0   0   0   0   F   F   Null
+  Cinquedea:    NONE     64    0    0    0    L   0   0   0   0   0   F   F   Null
 Bandit:    NONE     50    23   23   0    W   6   0   0   0   1   F   F   Evil
-  Cinq:    NONE     64    0    0    0    L   0   0   0   0   0   F   F   Null
+  Cinquedea:    NONE     64    0    0    0    L   0   0   0   0   0   F   F   Null
 Bandit:    NONE     50    25   21   0    W   6   0   0   0   1   F   F   Evil
-  PStiltt: NONE     67    0    0    0    R   0   0   0   0   0   F   F   Null
+  PStiletto: NONE     67    0    0    0    R   0   0   0   0   0   F   F   Null
 Bandit:    NONE     50    22   25   0    W   6   0   0   0   1   F   F   Evil
   Sword:   NONE     69    0    0    0    R   0   0   0   0   0   F   F   Null
   RShield: NONE     72    0    0    0    L   0   0   0   0   0   F   F   Null
@@ -283,7 +283,7 @@ Bandit:    NONE     50    40   22   0    W   7   0   0   0   3   F   F   Evil
   Whip:    NONE     70    0    0    0    R   0   0   0   0   0   F   F   Null
 Bandit:    NONE     50    38   25   0    W   9   0   0   0   1   F   F   Evil
   PKatana: NONE     66    0    0    0    R   0   0   0   0   0   F   F   Null
-  Cinq:    NONE     64    0    0    0    L   0   0   0   0   0   F   F   Null
+  Cinquedea:    NONE     64    0    0    0    L   0   0   0   0   0   F   F   Null
 
 
 //Boss room!

@@ -491,7 +491,7 @@ IfSpawned
   tmpargument = 0
   SetState
 
-  //SETUP SHADY ROUGE GOODS
+  //SETUP SHADY ROGUE GOODS
   tmpargument = 2
   IfArmorIs
 //ITEM 0

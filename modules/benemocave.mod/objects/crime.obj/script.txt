@@ -1,4 +1,4 @@
-//Rouges get a nifty bonus
+//Rogues get a nifty bonus
 IfHeld
   SetTargetToWhoeverIsHolding
   tmpargument = [ROGU]

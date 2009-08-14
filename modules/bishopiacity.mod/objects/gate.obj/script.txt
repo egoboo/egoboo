@@ -11,7 +11,7 @@ IfTimeOut
   Else
     tmpargument = 1
     IfContentIs
-      tmpargument = [ROGU]	//Rouge
+      tmpargument = [ROGU]	//Rogue
 
   IfTargetHasID 		//Open the gate
     tmpargument = passage
