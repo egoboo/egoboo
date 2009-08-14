@@ -16,7 +16,7 @@ Level rating ( * to  ***** ) 		:*****
 :to_preform_this_task!
 :_
 :_
-:Note:_Rouges_Only!
+:Note:_Rogues_Only!
 :_
 
 

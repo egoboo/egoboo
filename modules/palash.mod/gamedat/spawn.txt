@@ -46,14 +46,12 @@ Cobol:     NONE      42   25.5 30.5 0.0  N   9   1   0  100  6   F   F   Evil
   Hatchet: NONE      55   0    0    0    R   0   0   0   0   0   F   F   Null
   FShield: NONE      57   0    0    0    L   0   0   0   0   0   F   F   Null
 
-
-
 // Brazier guards
 Cobol:     NONE      42   24.5 18.5 0.0  S   7   1   0  100  2   F   F   Evil
   Hatchet: NONE      55   0    0    0    R   0   0   0   0   0   F   F   Null
   FShield: NONE      57   0    0    0    L   0   0   0   0   0   F   F   Null
 Cobol:     NONE      42   25.5 18.5 0.0  S   4   0   0  100  0   F   F   Evil
-  Cinq:    NONE      56   0    0    0    R   0   0   0   0   0   F   F   Null
+  Cinquedea:    NONE      56   0    0    0    R   0   0   0   0   0   F   F   Null
   FShield: NONE      57   0    0    0    L   0   0   0   0   0   F   F   Null
 Cobol:     NONE      42   28.5 18.5 0.0  S   2   0   0  100  0   F   F   Evil
   Hatchet: NONE      55   0    0    0    R   0   0   0   0   0   F   F   Null
@@ -85,7 +83,7 @@ Cobol:     NONE      42   25.5 41.5 1.0  N   9   1   0  200  0   F   F   Evil
   Whip:    NONE      58   0    0    0    R   0   0   0   0   0   F   F   Null
 HotDog:    NONE      40   25.5 41.5 0.0  N   0   0   0   0   0   F   F   Null
 Cobol:     NONE      42   28.5 40.5 1.0  N   3   0   0  100  0   F   F   Evil
-  Cinq:    NONE      56   0    0    0    L   0   0   0   0   0   F   F   Null
+  Cinquedea:    NONE      56   0    0    0    L   0   0   0   0   0   F   F   Null
 HotDog:    NONE      40   28.5 40.5 0.0  N   0   0   0   0   0   F   F   Null
 
 
@@ -104,7 +102,7 @@ Warlock:   NONE      41   51.5 19.5 0.0  N   0   0   0 32975 0   F   F   Evil
   Sword:   NONE      50   0    0    0    R   0   0   0   0   0   F   F   Null
   Enchant: NONE      61   0    0    0    L   0   0   0   0   0   F   F   Null
 Warlock:   NONE      41   54.5 19.5 0.0  N   0   0   0 39400 0   F   F   Evil
-  Firball: NONE      60   0    0    0    R   0   0   0   0   0   F   F   Null
+  Fireball:NONE      60   0    0    0    R   0   0   0   0   0   F   F   Null
 Warlock:   NONE      41   51.5 21.5 0.0  N   0   0   0 32768 0   F   F   Evil
   Shock:   NONE      109  0    0    0    R   0   0   0   0   0   F   F   Null
 
@@ -112,11 +110,11 @@ Warlock:   NONE      41   51.5 21.5 0.0  N   0   0   0 32768 0   F   F   Evil
 
 // Sleeping Cobols...
 Cobol:     NONE      42   9.5  28.5 0.0  N   2   2   0  100  0   F   F   Evil
-  Cinq:    NONE      56   0    0    0    L   0   0   0   0   0   F   F   Null
+  Cinquedea:    NONE      56   0    0    0    L   0   0   0   0   0   F   F   Null
 Cobol:     NONE      42   7.5  29.5 0.0  N   4   2   0  100  0   F   F   Evil
-  Cinq:    NONE      56   0    0    0    R   0   0   0   0   0   F   F   Null
+  Cinquedea:    NONE      56   0    0    0    R   0   0   0   0   0   F   F   Null
 Cobol:     NONE      42   52.5 54.5 0.0  N   2   2   0  100  0   F   F   Evil
-  Cinq:    NONE      56   0    0    0    R   0   0   0   0   0   F   F   Null
+  Cinquedea:    NONE      56   0    0    0    R   0   0   0   0   0   F   F   Null
 Cobol:     NONE      42   53.5 53.5 1.0  N   3   2   0  200  0   F   F   Evil
   Whip:    NONE      58   0    0    0    R   0   0   0   0   0   F   F   Null
 

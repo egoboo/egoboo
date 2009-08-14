@@ -23,7 +23,7 @@ IfBumped
   SetTargetToOldTarget
 
 //------------------------------------------------------------------------------
-//Wait for a rouge to bump
+//Wait for a rogue to bump
 IfStateIs0
   IfBumped
     SetTargetToWhoeverBumped
