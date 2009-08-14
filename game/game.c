@@ -65,6 +65,7 @@
 #include <time.h>
 #include <assert.h>
 #include <float.h>
+#include <string.h>
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -4728,7 +4729,7 @@ bool_t chr_setup_read( FILE * fileread, chr_setup_info_t *pinfo )
         pinfo->content = fget_int( fileread );
         pinfo->level   = fget_int( fileread );
 
-        if (pinfo->skin >= MAXSKIN) 
+        if (pinfo->skin >= MAXSKIN)
         {
             int irand = RANDIE;
             pinfo->skin = irand % MAXSKIN;     // Randomize skin?
@@ -4744,7 +4745,7 @@ bool_t chr_setup_read( FILE * fileread, chr_setup_info_t *pinfo )
     else if( '#' == delim )
     {
         STRING szTmp1, szTmp2;
-        int    iTmp, fields;          
+        int    iTmp, fields;
 
         pinfo->do_spawn = bfalse;
 
@@ -4815,6 +4816,23 @@ bool_t chr_setup_apply( Uint16 ichr, chr_setup_info_t *pinfo )
 
     return btrue;
 }
+
+//--------------------------------------------------------------------------------------------
+#if defined(__GNUC__)
+int strlwr( char * str )
+{
+    if( NULL == str ) return -1;
+
+    while( '\0' != *str )
+    {
+        *str = tolower(*str);
+        str++;
+    }
+
+    return 0;
+}
+#endif
+
 //--------------------------------------------------------------------------------------------
 bool_t setup_characters_load_object( chr_setup_info_t * pinfo )
 {
@@ -4855,7 +4873,7 @@ bool_t setup_characters_spawn( chr_setup_info_t * pinfo )
 
     // Spawn the character
     new_object = spawn_one_character( pinfo->pos, pinfo->slot, pinfo->team, pinfo->skin, pinfo->facing, pinfo->pname, MAX_CHR );
-    if ( INVALID_CHR(new_object) ) 
+    if ( INVALID_CHR(new_object) )
         return bfalse;
 
     // determine the attachment
@@ -5074,7 +5092,7 @@ bool_t game_load_module_data( const char *smallname )
     // Load all objects
     load_all_objects(modname);
 
-    // do the global objec load dynamically using the GOR and the slot numbers in the 
+    // do the global objec load dynamically using the GOR and the slot numbers in the
     // spawn.txt file
     // load_all_global_objects();
 
@@ -6062,7 +6080,7 @@ void read_wawalite( const char *modname )
     animtile_data.update_and = fget_next_int( fileread );
     animtile_data.frame_and  = fget_next_int( fileread );
 
-    damagetile_data.amount.base = fget_next_int( fileread ); 
+    damagetile_data.amount.base = fget_next_int( fileread );
     damagetile_data.amount.rand = 1;
     damagetile_data.type        = fget_next_damage_type( fileread );
 
