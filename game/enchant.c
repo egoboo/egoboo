@@ -155,7 +155,7 @@ bool_t remove_enchant( Uint16 ienc )
     unset_enchant_value( ienc, SETMORPH );
 
     // Remove all of the cumulative values
-    for ( add = 0; add < MAXEVEADDVALUE; add++ )
+    for ( add = 0; add < MAX_ENCHANT_ADD; add++ )
     {
         remove_enchant_value( ienc, add );
     }
@@ -735,11 +735,9 @@ Uint16 spawn_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 ienc, 
         set_enchant_value( ienc, SETCHANNEL, ieve );
 
         // Now do all of the stat adds
-        add = 0;
-        while ( add < MAXEVEADDVALUE )
+        for ( add = 0; add < MAX_ENCHANT_ADD; add++ )
         {
             add_enchant_value( ienc, add, ieve );
-            add++;
         }
 
         // Create an overlay character?
@@ -810,10 +808,7 @@ bool_t load_one_enchant_profile( const char* szLoadName, Uint16 profile )
     // ZZ> This function loads the enchantment associated with an object
     FILE* fileread;
     char cTmp;
-    int iTmp, tTmp;
     IDSZ idsz;
-    float fTmp;
-    int num;
     eve_t * peve;
 
     if ( profile > MAX_EVE ) return bfalse;
@@ -830,266 +825,121 @@ bool_t load_one_enchant_profile( const char* szLoadName, Uint16 profile )
     parse_filename = szLoadName;
 
     // btrue/bfalse values
-    cTmp = fget_next_char( fileread );
-    peve->retarget = bfalse;
-    if ( 'T' == toupper(cTmp) )  peve->retarget = btrue;
+    peve->retarget = fget_next_bool( fileread );
+    peve->override = fget_next_bool( fileread );
+    peve->removeoverridden = fget_next_bool( fileread );
+    peve->killonend = fget_next_bool( fileread );
 
-    cTmp = fget_next_char( fileread );
-    peve->override = bfalse;
-    if ( 'T' == toupper(cTmp) )  peve->override = btrue;
-
-    cTmp = fget_next_char( fileread );
-    peve->removeoverridden = bfalse;
-    if ( 'T' == toupper(cTmp) )  peve->removeoverridden = btrue;
-
-    cTmp = fget_next_char( fileread );
-    peve->killonend = bfalse;
-    if ( 'T' == toupper(cTmp) )  peve->killonend = btrue;
-
-    cTmp = fget_next_char( fileread );
-    peve->poofonend = bfalse;
-    if ( 'T' == toupper(cTmp) )  peve->poofonend = btrue;
+    peve->poofonend = fget_next_bool( fileread );
 
     // More stuff
-    iTmp = fget_next_int( fileread );  peve->time = iTmp;
-    iTmp = fget_next_int( fileread );  peve->endmessage = iTmp;
+    peve->time = fget_next_int( fileread );
+    peve->endmessage = fget_next_int( fileread );
 
     // Drain stuff
-    fTmp = fget_next_float( fileread );  peve->ownermana = fTmp * 256;
-    fTmp = fget_next_float( fileread );  peve->targetmana = fTmp * 256;
-    cTmp = fget_next_char( fileread );
-    peve->endifcantpay = bfalse;
-    if ( 'T' == toupper(cTmp) )  peve->endifcantpay = btrue;
-
-    fTmp = fget_next_float( fileread );  peve->ownerlife = fTmp * 256;
-    fTmp = fget_next_float( fileread );  peve->targetlife = fTmp * 256;
+    peve->ownermana    = fget_next_float( fileread ) * 256;
+    peve->targetmana   = fget_next_float( fileread ) * 256;
+    peve->endifcantpay = fget_next_bool( fileread );
+    peve->ownerlife    = fget_next_float( fileread ) * 256;
+    peve->targetlife   = fget_next_float( fileread ) * 256;
 
     // Specifics
-    cTmp = fget_next_char( fileread );
-    peve->dontdamagetype = DAMAGE_NONE;
-    if ( 'S' == toupper(cTmp) )  peve->dontdamagetype = DAMAGE_SLASH;
-    if ( 'C' == toupper(cTmp) )  peve->dontdamagetype = DAMAGE_CRUSH;
-    if ( 'P' == toupper(cTmp) )  peve->dontdamagetype = DAMAGE_POKE;
-    if ( 'H' == toupper(cTmp) )  peve->dontdamagetype = DAMAGE_HOLY;
-    if ( 'E' == toupper(cTmp) )  peve->dontdamagetype = DAMAGE_EVIL;
-    if ( 'F' == toupper(cTmp) )  peve->dontdamagetype = DAMAGE_FIRE;
-    if ( 'I' == toupper(cTmp) )  peve->dontdamagetype = DAMAGE_ICE;
-    if ( 'Z' == toupper(cTmp) )  peve->dontdamagetype = DAMAGE_ZAP;
-
-    cTmp = fget_next_char( fileread );
-    peve->onlydamagetype = DAMAGE_NONE;
-    if ( 'S' == toupper(cTmp) )  peve->onlydamagetype = DAMAGE_SLASH;
-    if ( 'C' == toupper(cTmp) )  peve->onlydamagetype = DAMAGE_CRUSH;
-    if ( 'P' == toupper(cTmp) )  peve->onlydamagetype = DAMAGE_POKE;
-    if ( 'H' == toupper(cTmp) )  peve->onlydamagetype = DAMAGE_HOLY;
-    if ( 'E' == toupper(cTmp) )  peve->onlydamagetype = DAMAGE_EVIL;
-    if ( 'F' == toupper(cTmp) )  peve->onlydamagetype = DAMAGE_FIRE;
-    if ( 'I' == toupper(cTmp) )  peve->onlydamagetype = DAMAGE_ICE;
-    if ( 'Z' == toupper(cTmp) )  peve->onlydamagetype = DAMAGE_ZAP;
-
-    peve->removedbyidsz = fget_next_idsz( fileread );
+    peve->dontdamagetype = fget_next_damage_type( fileread );
+    peve->onlydamagetype = fget_next_damage_type( fileread );
+    peve->removedbyidsz  = fget_next_idsz( fileread );
 
     // Now the set values
-    num = 0;
-    cTmp = fget_next_char( fileread );
-    peve->setyesno[num] = ( 'T' == toupper(cTmp) );
+    peve->setyesno[SETDAMAGETYPE] = fget_next_bool( fileread );
+    peve->setvalue[SETDAMAGETYPE] = fget_damage_type( fileread );
+
+    peve->setyesno[SETNUMBEROFJUMPS] = fget_next_bool( fileread );
+    peve->setvalue[SETNUMBEROFJUMPS] = fget_int( fileread );
+
+    peve->setyesno[SETLIFEBARCOLOR] = fget_next_bool( fileread );
+    peve->setvalue[SETLIFEBARCOLOR] = fget_int( fileread );
+
+    peve->setyesno[SETMANABARCOLOR] = fget_next_bool( fileread );
+    peve->setvalue[SETMANABARCOLOR] = fget_int( fileread );
+
+    peve->setyesno[SETSLASHMODIFIER] = fget_next_bool( fileread );
+    peve->setvalue[SETSLASHMODIFIER] = fget_damage_modifier( fileread );
+
+    peve->setyesno[SETCRUSHMODIFIER] = fget_next_bool( fileread );
+    peve->setvalue[SETCRUSHMODIFIER] = fget_damage_modifier( fileread );
+
+    peve->setyesno[SETPOKEMODIFIER] = fget_next_bool( fileread );
+    peve->setvalue[SETPOKEMODIFIER] = fget_damage_modifier( fileread );
+
+    peve->setyesno[SETHOLYMODIFIER] = fget_next_bool( fileread );
+    peve->setvalue[SETHOLYMODIFIER] = fget_damage_modifier( fileread );
+
+    peve->setyesno[SETEVILMODIFIER] = fget_next_bool( fileread );
+    peve->setvalue[SETEVILMODIFIER] = fget_damage_modifier( fileread );
+
+    peve->setyesno[SETFIREMODIFIER] = fget_next_bool( fileread );
+    peve->setvalue[SETFIREMODIFIER] = fget_damage_modifier( fileread );
+
+    peve->setyesno[SETICEMODIFIER] = fget_next_bool( fileread );
+    peve->setvalue[SETICEMODIFIER] = fget_damage_modifier( fileread );
+
+    peve->setyesno[SETZAPMODIFIER] = fget_next_bool( fileread );
+    peve->setvalue[SETZAPMODIFIER] = fget_damage_modifier( fileread );
+
+    peve->setyesno[SETFLASHINGAND] = fget_next_bool( fileread );
+    peve->setvalue[SETFLASHINGAND] = fget_int( fileread );
+
+    peve->setyesno[SETLIGHTBLEND] = fget_next_bool( fileread );
+    peve->setvalue[SETLIGHTBLEND] = fget_int( fileread );
+
+    peve->setyesno[SETALPHABLEND] = fget_next_bool( fileread );
+    peve->setvalue[SETALPHABLEND] = fget_int( fileread );
+
+    peve->setyesno[SETSHEEN] = fget_next_bool( fileread );
+    peve->setvalue[SETSHEEN] = fget_int( fileread );
+
+    peve->setyesno[SETFLYTOHEIGHT] = fget_next_bool( fileread );
+    peve->setvalue[SETFLYTOHEIGHT] = fget_int( fileread );
+
+    peve->setyesno[SETWALKONWATER] = fget_next_bool( fileread );
+    peve->setvalue[SETWALKONWATER] = fget_bool( fileread );
+
+    peve->setyesno[SETCANSEEINVISIBLE] = fget_next_bool( fileread );
+    peve->setvalue[SETCANSEEINVISIBLE] = fget_bool( fileread );
+
+    peve->setyesno[SETMISSILETREATMENT] = fget_next_bool( fileread );
     cTmp = fget_first_letter( fileread );
-    peve->setvalue[num] = DAMAGE_SLASH;
-    if ( 'C' == toupper(cTmp) )  peve->setvalue[num] = DAMAGE_CRUSH;
-    if ( 'P' == toupper(cTmp) )  peve->setvalue[num] = DAMAGE_POKE;
-    if ( 'H' == toupper(cTmp) )  peve->setvalue[num] = DAMAGE_HOLY;
-    if ( 'E' == toupper(cTmp) )  peve->setvalue[num] = DAMAGE_EVIL;
-    if ( 'F' == toupper(cTmp) )  peve->setvalue[num] = DAMAGE_FIRE;
-    if ( 'I' == toupper(cTmp) )  peve->setvalue[num] = DAMAGE_ICE;
-    if ( 'Z' == toupper(cTmp) )  peve->setvalue[num] = DAMAGE_ZAP;
+    peve->setvalue[SETMISSILETREATMENT] = MISNORMAL;
+    if ( 'R' == toupper(cTmp) )  peve->setvalue[SETMISSILETREATMENT] = MISREFLECT;
+    if ( 'D' == toupper(cTmp) )  peve->setvalue[SETMISSILETREATMENT] = MISDEFLECT;
 
-    num++;
-    cTmp = fget_next_char( fileread );
-    peve->setyesno[num] = ( 'T' == toupper(cTmp) );
-    iTmp = fget_int( fileread );  peve->setvalue[num] = iTmp;
-    num++;
-    cTmp = fget_next_char( fileread );
-    peve->setyesno[num] = ( 'T' == toupper(cTmp) );
-    iTmp = fget_int( fileread );  peve->setvalue[num] = iTmp;
-    num++;
-    cTmp = fget_next_char( fileread );
-    peve->setyesno[num] = ( 'T' == toupper(cTmp) );
-    iTmp = fget_int( fileread );  peve->setvalue[num] = iTmp;
-    num++;
-    cTmp = fget_next_char( fileread );
-    peve->setyesno[num] = ( 'T' == toupper(cTmp) );
-    cTmp = fget_first_letter( fileread );  iTmp = 0;
-    if ( 'T' == toupper(cTmp) ) iTmp = DAMAGEINVERT;
-    if ( 'C' == toupper(cTmp) ) iTmp = DAMAGECHARGE;
-    if ( 'M' == toupper(cTmp) ) iTmp = DAMAGEMANA;
+    peve->setyesno[SETCOSTFOREACHMISSILE] = fget_next_bool( fileread );
+    peve->setvalue[SETCOSTFOREACHMISSILE] = (Uint8) fget_float( fileread ) * 16;
 
-    tTmp = fget_int( fileread );  peve->setvalue[num] = iTmp | tTmp;
-    num++;
-    cTmp = fget_next_char( fileread );
-    peve->setyesno[num] = ( 'T' == toupper(cTmp) );
-    cTmp = fget_first_letter( fileread );  iTmp = 0;
-    if ( 'T' == toupper(cTmp) ) iTmp = DAMAGEINVERT;
-    if ( 'C' == toupper(cTmp) ) iTmp = DAMAGECHARGE;
-    if ( 'M' == toupper(cTmp) ) iTmp = DAMAGEMANA;
+    peve->setyesno[SETMORPH] = fget_next_bool( fileread );
+    peve->setvalue[SETMORPH] = btrue;
 
-    tTmp = fget_int( fileread );  peve->setvalue[num] = iTmp | tTmp;
-    num++;
-    cTmp = fget_next_char( fileread );
-    peve->setyesno[num] = ( 'T' == toupper(cTmp) );
-    cTmp = fget_first_letter( fileread );  iTmp = 0;
-    if ( 'T' == toupper(cTmp) ) iTmp = DAMAGEINVERT;
-    if ( 'C' == toupper(cTmp) ) iTmp = DAMAGECHARGE;
-    if ( 'M' == toupper(cTmp) ) iTmp = DAMAGEMANA;
+    peve->setyesno[SETCHANNEL] = fget_next_bool( fileread );
+    peve->setvalue[SETCHANNEL] = btrue;
 
-    tTmp = fget_int( fileread );  peve->setvalue[num] = iTmp | tTmp;
-    num++;
-    cTmp = fget_next_char( fileread );
-    peve->setyesno[num] = ( 'T' == toupper(cTmp) );
-    cTmp = fget_first_letter( fileread );  iTmp = 0;
-    if ( 'T' == toupper(cTmp) ) iTmp = DAMAGEINVERT;
-    if ( 'C' == toupper(cTmp) ) iTmp = DAMAGECHARGE;
-    if ( 'M' == toupper(cTmp) ) iTmp = DAMAGEMANA;
-
-    tTmp = fget_int( fileread );  peve->setvalue[num] = iTmp | tTmp;
-    num++;
-    cTmp = fget_next_char( fileread );
-    peve->setyesno[num] = ( 'T' == toupper(cTmp) );
-    cTmp = fget_first_letter( fileread );  iTmp = 0;
-    if ( 'T' == toupper(cTmp) ) iTmp = DAMAGEINVERT;
-    if ( 'C' == toupper(cTmp) ) iTmp = DAMAGECHARGE;
-    if ( 'M' == toupper(cTmp) ) iTmp = DAMAGEMANA;
-
-    tTmp = fget_int( fileread );  peve->setvalue[num] = iTmp | tTmp;
-    num++;
-    cTmp = fget_next_char( fileread );
-    peve->setyesno[num] = ( 'T' == toupper(cTmp) );
-    cTmp = fget_first_letter( fileread );  iTmp = 0;
-    if ( 'T' == toupper(cTmp) ) iTmp = DAMAGEINVERT;
-    if ( 'C' == toupper(cTmp) ) iTmp = DAMAGECHARGE;
-    if ( 'M' == toupper(cTmp) ) iTmp = DAMAGEMANA;
-
-    tTmp = fget_int( fileread );  peve->setvalue[num] = iTmp | tTmp;
-    num++;
-    cTmp = fget_next_char( fileread );
-    peve->setyesno[num] = ( 'T' == toupper(cTmp) );
-    cTmp = fget_first_letter( fileread );  iTmp = 0;
-    if ( 'T' == toupper(cTmp) ) iTmp = DAMAGEINVERT;
-    if ( 'C' == toupper(cTmp) ) iTmp = DAMAGECHARGE;
-    if ( 'M' == toupper(cTmp) ) iTmp = DAMAGEMANA;
-
-    tTmp = fget_int( fileread );  peve->setvalue[num] = iTmp | tTmp;
-    num++;
-    cTmp = fget_next_char( fileread );
-    peve->setyesno[num] = ( 'T' == toupper(cTmp) );
-    cTmp = fget_first_letter( fileread );  iTmp = 0;
-    if ( 'T' == toupper(cTmp) ) iTmp = DAMAGEINVERT;
-    if ( 'C' == toupper(cTmp) ) iTmp = DAMAGECHARGE;
-    if ( 'M' == toupper(cTmp) ) iTmp = DAMAGEMANA;
-
-    tTmp = fget_int( fileread );  peve->setvalue[num] = iTmp | tTmp;
-    num++;
-    cTmp = fget_next_char( fileread );
-    peve->setyesno[num] = ( 'T' == toupper(cTmp) );
-    iTmp = fget_int( fileread );  peve->setvalue[num] = iTmp;
-    num++;
-    cTmp = fget_next_char( fileread );
-    peve->setyesno[num] = ( 'T' == toupper(cTmp) );
-    iTmp = fget_int( fileread );  peve->setvalue[num] = iTmp;
-    num++;
-    cTmp = fget_next_char( fileread );
-    peve->setyesno[num] = ( 'T' == toupper(cTmp) );
-    iTmp = fget_int( fileread );  peve->setvalue[num] = iTmp;
-    num++;
-    cTmp = fget_next_char( fileread );
-    peve->setyesno[num] = ( 'T' == toupper(cTmp) );
-    iTmp = fget_int( fileread );  peve->setvalue[num] = iTmp;
-    num++;
-    cTmp = fget_next_char( fileread );
-    peve->setyesno[num] = ( 'T' == toupper(cTmp) );
-    iTmp = fget_int( fileread );  peve->setvalue[num] = iTmp;
-    num++;
-    cTmp = fget_next_char( fileread );
-    peve->setyesno[num] = ( 'T' == toupper(cTmp) );
-    cTmp = fget_first_letter( fileread );
-    peve->setvalue[num] = ( 'T' == toupper(cTmp) );
-    num++;
-    cTmp = fget_next_char( fileread );
-    peve->setyesno[num] = ( 'T' == toupper(cTmp) );
-    cTmp = fget_first_letter( fileread );
-    peve->setvalue[num] = ( 'T' == toupper(cTmp) );
-    num++;
-    cTmp = fget_next_char( fileread );
-    peve->setyesno[num] = ( 'T' == toupper(cTmp) );
-    cTmp = fget_first_letter( fileread );
-    peve->setvalue[num] = MISNORMAL;
-    if ( 'R' == toupper(cTmp) )  peve->setvalue[num] = MISREFLECT;
-    if ( 'D' == toupper(cTmp) )  peve->setvalue[num] = MISDEFLECT;
-
-    num++;
-    cTmp = fget_next_char( fileread );
-    peve->setyesno[num] = ( 'T' == toupper(cTmp) );
-    fTmp = fget_float( fileread );  fTmp = fTmp * 16;
-    peve->setvalue[num] = (Uint8) fTmp;
-    num++;
-    cTmp = fget_next_char( fileread );
-    peve->setyesno[num] = ( 'T' == toupper(cTmp) );
-    peve->setvalue[num] = btrue;
-    num++;
-    cTmp = fget_next_char( fileread );
-    peve->setyesno[num] = ( 'T' == toupper(cTmp) );
-    peve->setvalue[num] = btrue;
-    num++;
 
     // Now read in the add values
-    num = 0;
-    fTmp = fget_next_float( fileread );
-    peve->addvalue[num] = (Sint32) fTmp * 16;
-    num++;
-    fTmp = fget_next_float( fileread );
-    peve->addvalue[num] = (Sint32) fTmp * 127;
-    num++;
-    fTmp = fget_next_float( fileread );
-    peve->addvalue[num] = (Sint32) fTmp * 127;
-    num++;
-    fTmp = fget_next_float( fileread );
-    peve->addvalue[num] = (Sint32) fTmp * 4;
-    num++;
-    fTmp = fget_next_float( fileread );
-    peve->addvalue[num] = (Sint32) fTmp * 127;
-    num++;
-    iTmp = fget_next_int( fileread );
-    peve->addvalue[num] = iTmp;
-    num++;
-    iTmp = fget_next_int( fileread );
-    peve->addvalue[num] = iTmp;
-    num++;
-    iTmp = fget_next_int( fileread );
-    peve->addvalue[num] = iTmp;
-    num++;
-    iTmp = fget_next_int( fileread );
-    peve->addvalue[num] = iTmp;
-    num++;
-    iTmp = fget_next_int( fileread );  // Defense is backwards
-    peve->addvalue[num] = -iTmp;
-    num++;
-    fTmp = fget_next_float( fileread );
-    peve->addvalue[num] = (Sint32) fTmp * 4;
-    num++;
-    fTmp = fget_next_float( fileread );
-    peve->addvalue[num] = (Sint32) fTmp * 4;
-    num++;
-    fTmp = fget_next_float( fileread );
-    peve->addvalue[num] = (Sint32) fTmp * 4;
-    num++;
-    fTmp = fget_next_float( fileread );
-    peve->addvalue[num] = (Sint32) fTmp * 4;
-    num++;
-    fTmp = fget_next_float( fileread );
-    peve->addvalue[num] = (Sint32) fTmp * 4;
-    num++;
-    fTmp = fget_next_float( fileread );
-    peve->addvalue[num] = (Sint32) fTmp * 4;
-    num++;
+    peve->addvalue[ADDJUMPPOWER]    = (Sint32) fget_next_float( fileread ) * 16;
+    peve->addvalue[ADDBUMPDAMPEN]   = (Sint32) fget_next_float( fileread ) * 127;
+    peve->addvalue[ADDBOUNCINESS]   = (Sint32) fget_next_float( fileread ) * 127;
+    peve->addvalue[ADDDAMAGE]       = (Sint32) fget_next_float( fileread ) * 4;
+    peve->addvalue[ADDSIZE]         = (Sint32) fget_next_float( fileread ) * 127;
+    peve->addvalue[ADDACCEL]        = fget_next_int( fileread );
+    peve->addvalue[ADDRED]          = fget_next_int( fileread );
+    peve->addvalue[ADDGRN]          = fget_next_int( fileread );
+    peve->addvalue[ADDBLU]          = fget_next_int( fileread );
+    peve->addvalue[ADDDEFENSE]      = -fget_next_int( fileread );  // Defense is backwards
+    peve->addvalue[ADDMANA]         = (Sint32) fget_next_float( fileread ) * 4;
+    peve->addvalue[ADDLIFE]         = (Sint32) fget_next_float( fileread ) * 4;
+    peve->addvalue[ADDSTRENGTH]     = (Sint32) fget_next_float( fileread ) * 4;
+    peve->addvalue[ADDWISDOM]       = (Sint32) fget_next_float( fileread ) * 4;
+    peve->addvalue[ADDINTELLIGENCE] = (Sint32) fget_next_float( fileread ) * 4;
+    peve->addvalue[ADDDEXTERITY]    = (Sint32) fget_next_float( fileread ) * 4;
+
 
     // Clear expansions...
     peve->contspawntime = 0;

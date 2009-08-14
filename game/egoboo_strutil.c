@@ -27,17 +27,18 @@
 //--------------------------------------------------------------------------------------------
 void str_trim( char *pStr )
 {
-    /// @details ZZ> str_trim remove all space and tabs in the beginning and at the _dtor of the string
+    /// @details ZZ> str_trim remove all space and tabs in the beginning and at the end of the string
 
     Sint32 DebPos = 0, EndPos = 0, CurPos = 0;
 
-    if ( NULL == pStr  )
+    if ( NULL == pStr || '\0' == *pStr  )
     {
         return;
     }
+
     // look for the first character in string
     DebPos = 0;
-    while ( isspace( pStr[DebPos] ) && pStr[DebPos] != 0 )
+    while ( isspace( pStr[DebPos] ) && '\0' != pStr[DebPos] )
     {
         DebPos++;
     }
@@ -60,11 +61,11 @@ void str_trim( char *pStr )
         {
             pStr[CurPos] = pStr[CurPos + DebPos];
         }
-        pStr[CurPos] = 0;
+        pStr[CurPos] = '\0';
     }
     else
     {
-        pStr[EndPos + 1] = 0;
+        pStr[EndPos + 1] = '\0';
     }
 }
 

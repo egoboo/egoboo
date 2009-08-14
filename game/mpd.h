@@ -25,7 +25,9 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 #define TILE_BITS     7
-#define TILE_SIZE     ((float)(1<<(TILE_BITS)))
+#define TILE_ISIZE     (1<<(TILE_BITS))
+#define TILE_SIZE     ((float)TILE_ISIZE)
+#define TILE_MASK     (TILE_ISIZE - 1)
 
 #define MAPID                     0x4470614d                   // The string... MapD
 #define MESH_MAXTOTALVERTRICES    1024*100

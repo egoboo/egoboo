@@ -38,9 +38,6 @@
 #define MISDEFLECT              1                  // Deflect incoming missiles
 #define MISREFLECT              2                  // Reflect them back!
 
-#define MAXEVESETVALUE                  24          // Number of sets
-#define MAXEVEADDVALUE                  16          // Number of adds
-
 // Different set values for enchants
 typedef enum enchant_set
 {
@@ -88,7 +85,8 @@ typedef enum enchant_add
     ADDSTRENGTH,
     ADDWISDOM,
     ADDINTELLIGENCE,
-    ADDDEXTERITY
+    ADDDEXTERITY,
+    MAX_ENCHANT_ADD
 } enum_enchant_add;
 
 //--------------------------------------------------------------------------------------------
@@ -103,9 +101,6 @@ struct s_eve
 
     bool_t  override;                    // Override other enchants?
     bool_t  removeoverridden;            // Remove other enchants?
-    bool_t  setyesno[MAXEVESETVALUE];    // Set this value?
-    Uint8   setvalue[MAXEVESETVALUE];    // Value to use
-    Sint32  addvalue[MAXEVEADDVALUE];    // The values to add
     bool_t  retarget;                    // Pick a weapon?
     bool_t  killonend;                   // Kill the target on end?
     bool_t  poofonend;                   // Spawn a poof on end?
@@ -128,6 +123,11 @@ struct s_eve
     Uint8   overlay;                     // Spawn an overlay?
     Uint16  seekurse;                    // Allow target to see kurses
     bool_t  stayifdead;                  // Stay if target has died?
+
+    bool_t  setyesno[MAX_ENCHANT_SET];    // Set this value?
+    Uint8   setvalue[MAX_ENCHANT_SET];    // Value to use
+    Sint32  addvalue[MAX_ENCHANT_ADD];    // The values to add
+
 };
 typedef struct s_eve eve_t;
 
@@ -164,9 +164,9 @@ struct s_enc
 
     Uint16  nextenchant;             // Next in the list
 
-    bool_t  setyesno[MAXEVESETVALUE];// Was it set?
-    bool_t  setsave[MAXEVESETVALUE]; // The value to restore
-    Sint16  addsave[MAXEVEADDVALUE]; // The value to take away
+    bool_t  setyesno[MAX_ENCHANT_SET];// Was it set?
+    bool_t  setsave[MAX_ENCHANT_SET]; // The value to restore
+    Sint16  addsave[MAX_ENCHANT_ADD]; // The value to take away
 };
 typedef struct s_enc enc_t;
 

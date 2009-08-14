@@ -33,6 +33,7 @@
 #include "file_common.h"
 #include "game.h"
 
+#include "egoboo_strutil.h"
 #include "egoboo_setup.h"
 #include "egoboo_fileutil.h"
 #include "egoboo.h"
@@ -204,8 +205,7 @@ bool_t module_load_info( const char * szLoadName, mod_data_t * pmod )
     // BB > this function actually reads in the module data
 
     FILE * fileread;
-    STRING readtext, szLine;
-    int cnt, tnc, iTmp;
+    int cnt;
     char cTmp;
 
     // clear all the module info
@@ -222,18 +222,13 @@ bool_t module_load_info( const char * szLoadName, mod_data_t * pmod )
     // Read basic data
     fget_next_name( fileread, pmod->longname, sizeof(pmod->longname) );
     fget_next_string( fileread, pmod->reference, SDL_arraysize(pmod->reference) );
-    pmod->quest_idsz = fget_next_idsz( fileread ); pmod->quest_level = fget_int( fileread );
+    pmod->quest_idsz = fget_next_idsz( fileread ); 
+    pmod->quest_level = fget_int( fileread );
 
-    iTmp = fget_next_int( fileread );
-    pmod->importamount = iTmp;
-
-    cTmp = fget_next_char( fileread );
-    pmod->allowexport = bfalse;
-    if ( 'T' == toupper(cTmp) )  pmod->allowexport = btrue;
-
-    iTmp = fget_next_int( fileread );  pmod->minplayers = iTmp;
-
-    iTmp = fget_next_int( fileread );  pmod->maxplayers = iTmp;
+    pmod->importamount = fget_next_int( fileread );
+    pmod->allowexport  = fget_next_bool( fileread );
+    pmod->minplayers   = fget_next_int( fileread );
+    pmod->maxplayers   = fget_next_int( fileread );
 
     cTmp = fget_next_char( fileread );
     pmod->respawnvalid = bfalse;
@@ -243,32 +238,19 @@ bool_t module_load_info( const char * szLoadName, mod_data_t * pmod )
     goto_colon( NULL, fileread, bfalse );   // BAD: Skip line
     // pmod->rtscontrol = bfalse;
 
-    fget_next_string( fileread, readtext, SDL_arraysize(readtext) );
-
-    for ( iTmp = 0; iTmp < RANKSIZE - 1; iTmp++ )
-    {
-        pmod->rank[iTmp] = readtext[iTmp];
-    }
-    pmod->rank[iTmp] = '\0';
+    fget_next_string( fileread, pmod->rank, SDL_arraysize(pmod->rank) );
+    pmod->rank[RANKSIZE-1] = '\0';
+    str_trim( pmod->rank );
 
     // Read the summary
-    cnt = 0;
-    while ( cnt < SUMMARYLINES )
+    for ( cnt = 0; cnt < SUMMARYLINES; cnt++ )
     {
-        fget_next_string( fileread, szLine, SDL_arraysize(szLine) );
+        // load hte string
+        fget_next_string( fileread,  pmod->summary[cnt], SDL_arraysize(pmod->summary[cnt]) );
+        pmod->summary[cnt][SUMMARYSIZE-1] = '\0';
 
-        tnc = 0;
-        cTmp = szLine[tnc];  if ( '_' == cTmp )  cTmp = ' ';
-        while ( tnc < SUMMARYSIZE - 1 && cTmp != 0 )
-        {
-            pmod->summary[cnt][tnc] = cTmp;
-            tnc++;
-
-            cTmp = szLine[tnc];  if ( '_' == cTmp )  cTmp = ' ';
-        }
-
-        pmod->summary[cnt][tnc] = '\0';
-        cnt++;
+        // remove the '_' characters
+        str_decode( pmod->summary[cnt], SDL_arraysize(pmod->summary[cnt]), pmod->summary[cnt] );
     }
 
     fclose(fileread);

@@ -293,14 +293,12 @@ Uint16 spawn_one_particle( float x, float y, float z,
     pprt->vrt_off = vrt_offset;
 
     // Correct facing
-    facing += ppip->facingbase;
+    facing += ppip->facing_pair.base;
 
     // Targeting...
     vel.z = 0;
-    newrand = RANDIE;
-    z = z + ppip->zspacingbase + ( newrand & ppip->zspacingrand ) - ( ppip->zspacingrand >> 1 );
-    newrand = RANDIE;
-    velocity = ( ppip->xyvelbase + ( newrand & ppip->xyvelrand ) );
+    z = z + generate_randmask( ppip->zspacing_pair.base, ppip->zspacing_pair.rand ) - ( ppip->zspacing_pair.rand >> 1 );
+    velocity = generate_randmask( ppip->xyvel_pair.base, ppip->xyvel_pair.rand );
     pprt->target = oldtarget;
     if ( ppip->newtargetonspawn )
     {
@@ -323,10 +321,9 @@ Uint16 spawn_one_particle( float x, float y, float z,
             if ( ChrList.lst[characterorigin].dexterity < PERFECTSTAT )
             {
                 // Correct facing for randomness
-                offsetfacing = RANDIE;
-                offsetfacing = offsetfacing & ppip->facingrand;
-                offsetfacing -= ( ppip->facingrand >> 1 );
-                offsetfacing = ( offsetfacing * ( PERFECTSTAT - ChrList.lst[characterorigin].dexterity ) ) / PERFECTSTAT;  // Divided by PERFECTSTAT
+                offsetfacing  = generate_randmask( -(ppip->facing_pair.rand >> 1), ppip->facing_pair.rand);
+                offsetfacing -= ppip->facing_pair.rand >> 1;
+                offsetfacing  = ( offsetfacing * ( PERFECTSTAT - ChrList.lst[characterorigin].dexterity ) ) / PERFECTSTAT;  // Divided by PERFECTSTAT
             }
             if ( pprt->target != MAX_CHR && ppip->zaimspd != 0 )
             {
@@ -363,9 +360,8 @@ Uint16 spawn_one_particle( float x, float y, float z,
     else
     {
         // Correct facing for randomness
-        offsetfacing = RANDIE;
-        offsetfacing = offsetfacing & ppip->facingrand;
-        offsetfacing -= ( ppip->facingrand >> 1 );
+        offsetfacing = generate_randmask( 0,  ppip->facing_pair.rand );
+        offsetfacing -= ppip->facing_pair.rand >> 1;
     }
 
     facing += offsetfacing;
@@ -373,9 +369,9 @@ Uint16 spawn_one_particle( float x, float y, float z,
     facing = facing >> 2;
 
     // Location data from arguments
-    newrand = RANDIE;
-    x += turntocos[( facing+8192 ) & TRIG_TABLE_MASK] * ( ppip->xyspacingbase + ( newrand & ppip->xyspacingrand ) );
-    y += turntosin[( facing+8192 ) & TRIG_TABLE_MASK] * ( ppip->xyspacingbase + ( newrand & ppip->xyspacingrand ) );
+    newrand = generate_randmask( ppip->xyspacing_pair.base, ppip->xyspacing_pair.rand );
+    x += turntocos[( facing+8192 ) & TRIG_TABLE_MASK] * newrand;
+    y += turntosin[( facing+8192 ) & TRIG_TABLE_MASK] * newrand;
     x = CLIP(x, 0, PMesh->info.edge_x - 2);
     y = CLIP(y, 0, PMesh->info.edge_y - 2);
 
@@ -386,25 +382,22 @@ Uint16 spawn_one_particle( float x, float y, float z,
     // Velocity data
     vel.x = turntocos[( facing+8192 ) & TRIG_TABLE_MASK] * velocity;
     vel.y = turntosin[( facing+8192 ) & TRIG_TABLE_MASK] * velocity;
-    newrand = RANDIE;
-    vel.z += ppip->zvelbase + ( newrand & ppip->zvelrand ) - ( ppip->zvelrand >> 1 );
+    vel.z += generate_randmask( ppip->zvel_pair.base, ppip->zvel_pair.rand ) - ( ppip->zvel_pair.rand >> 1 );
     pprt->vel = vel;
 
     // Template values
     pprt->bumpsize = ppip->bumpsize;
-    pprt->bumpsizebig = pprt->bumpsize + ( pprt->bumpsize >> 1 );
+    pprt->bumpsizebig = pprt->bumpsize * SQRT_TWO;
     pprt->bumpheight = ppip->bumpheight;
     pprt->type = ppip->type;
 
     // Image data
-    newrand = RANDIE;
-    pprt->rotate = ( newrand & ppip->rotaterand ) + ppip->rotatebase;
+    pprt->rotate = generate_randmask( ppip->rotate_pair.base, ppip->rotate_pair.rand );
     pprt->rotateadd = ppip->rotateadd;
     pprt->size = ppip->sizebase;
     pprt->sizeadd = ppip->sizeadd;
     pprt->image = 0;
-    newrand = RANDIE;
-    pprt->imageadd = ppip->imageadd + ( newrand & ppip->imageaddrand );
+    pprt->imageadd = generate_randmask( ppip->imageadd , ppip->imageaddrand );
     pprt->imagestt = INT_TO_FP8( ppip->imagebase );
     pprt->imagemax = INT_TO_FP8( ppip->numframes );
     prt_lifetime = ppip->time;
@@ -893,6 +886,20 @@ int prt_is_over_water( Uint16 cnt )
 }
 
 //--------------------------------------------------------------------------------------------
+Uint16 PipStack_get_free()
+{
+    Uint16 retval = MAX_PIP;
+
+    if( PipStack.count < MAX_PIP )
+    {
+        retval = PipStack.count;
+        PipStack.count++;
+    }
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
 int load_one_particle_profile( const char *szLoadName )
 {
     // ZZ> This function loads a particle template, returning bfalse if the file wasn't
@@ -900,7 +907,6 @@ int load_one_particle_profile( const char *szLoadName )
     FILE* fileread;
     IDSZ idsz;
     int iTmp;
-    float fTmp;
     char cTmp;
     pip_t * ppip;
 
@@ -918,76 +924,54 @@ int load_one_particle_profile( const char *szLoadName )
         return MAX_PIP;
     }
 
-    retval = PipStack.count;
-    PipStack.count++;
+    retval = PipStack_get_free();
 
     strncpy( ppip->name, szLoadName, SDL_arraysize(ppip->name) );
     ppip->loaded = btrue;
 
     // General data
     parse_filename = szLoadName;    // For debugging missing colons
-    cTmp = fget_next_char( fileread );
-    ppip->force = bfalse;
-    if ( 'T' == toupper(cTmp) )  ppip->force = btrue;
+    ppip->force = fget_next_bool( fileread );
 
     cTmp = fget_next_char( fileread );
     if ( 'L' == toupper(cTmp) )  ppip->type = PRTLIGHTSPRITE;
     else if ( 'S' == toupper(cTmp) )  ppip->type = PRTSOLIDSPRITE;
     else if ( 'T' == toupper(cTmp) )  ppip->type = PRTALPHASPRITE;
 
-    iTmp = fget_next_int( fileread ); ppip->imagebase = iTmp;
-    iTmp = fget_next_int( fileread ); ppip->numframes = iTmp;
-    iTmp = fget_next_int( fileread ); ppip->imageadd = iTmp;
-    iTmp = fget_next_int( fileread ); ppip->imageaddrand = iTmp;
-    iTmp = fget_next_int( fileread ); ppip->rotatebase = iTmp;
-    iTmp = fget_next_int( fileread ); ppip->rotaterand = iTmp;
-    iTmp = fget_next_int( fileread ); ppip->rotateadd = iTmp;
-    iTmp = fget_next_int( fileread ); ppip->sizebase = iTmp;
-    iTmp = fget_next_int( fileread ); ppip->sizeadd = iTmp;
-    fTmp = fget_next_float( fileread ); ppip->spdlimit = fTmp;
-    iTmp = fget_next_int( fileread ); ppip->facingadd = iTmp;
+    ppip->imagebase = fget_next_int( fileread );
+    ppip->numframes = fget_next_int( fileread );
+    ppip->imageadd = fget_next_int( fileread );
+    ppip->imageaddrand = fget_next_int( fileread );
+    ppip->rotate_pair.base = fget_next_int( fileread );
+    ppip->rotate_pair.rand = fget_next_int( fileread );
+    ppip->rotateadd = fget_next_int( fileread );
+    ppip->sizebase = fget_next_int( fileread );
+    ppip->sizeadd = fget_next_int( fileread );
+    ppip->spdlimit = fget_next_float( fileread );
+    ppip->facingadd = fget_next_int( fileread );
 
     // override the base rotation
     if ( 0xFFFF != prt_direction[ ppip->imagebase ] )
     {
-        ppip->rotatebase = prt_direction[ ppip->imagebase ];
+        ppip->rotate_pair.base = prt_direction[ ppip->imagebase ];
     };
 
     // Ending conditions
-    cTmp = fget_next_char( fileread );
-    ppip->endwater = btrue;
-    if ( 'F' == toupper(cTmp) )  ppip->endwater = bfalse;
+    ppip->endwater = fget_next_bool( fileread );
+    ppip->endbump = fget_next_bool( fileread );
+    ppip->endground = fget_next_bool( fileread );
+    ppip->endlastframe = fget_next_bool( fileread );
 
-    cTmp = fget_next_char( fileread );
-    ppip->endbump = btrue;
-    if ( 'F' == toupper(cTmp) )  ppip->endbump = bfalse;
-
-    cTmp = fget_next_char( fileread );
-    ppip->endground = btrue;
-    if ( 'F' == toupper(cTmp) )  ppip->endground = bfalse;
-
-    cTmp = fget_next_char( fileread );
-    ppip->endlastframe = btrue;
-    if ( 'F' == toupper(cTmp) )  ppip->endlastframe = bfalse;
-
-    iTmp = fget_next_int( fileread ); ppip->time = iTmp;
+    ppip->time = fget_next_int( fileread );
 
     // Collision data
-    fTmp = fget_next_float( fileread ); ppip->dampen = fTmp;
-    iTmp = fget_next_int( fileread );   ppip->bumpmoney = iTmp;
-    iTmp = fget_next_int( fileread );   ppip->bumpsize = iTmp;
-    iTmp = fget_next_int( fileread );   ppip->bumpheight = iTmp;
+    ppip->dampen     = fget_next_float( fileread );
+    ppip->bumpmoney  = fget_next_int( fileread );
+    ppip->bumpsize   = fget_next_int( fileread );
+    ppip->bumpheight = fget_next_int( fileread );
 
     fget_next_pair( fileread ); ppip->damage = pair;
-    cTmp = fget_next_char( fileread );
-    if ( 'S' == toupper(cTmp) ) ppip->damagetype = DAMAGE_SLASH;
-    if ( 'C' == toupper(cTmp) ) ppip->damagetype = DAMAGE_CRUSH;
-    if ( 'P' == toupper(cTmp) ) ppip->damagetype = DAMAGE_POKE;
-    if ( 'H' == toupper(cTmp) ) ppip->damagetype = DAMAGE_HOLY;
-    if ( 'E' == toupper(cTmp) ) ppip->damagetype = DAMAGE_EVIL;
-    if ( 'F' == toupper(cTmp) ) ppip->damagetype = DAMAGE_FIRE;
-    if ( 'I' == toupper(cTmp) ) ppip->damagetype = DAMAGE_ICE;
-    if ( 'Z' == toupper(cTmp) ) ppip->damagetype = DAMAGE_ZAP;
+    ppip->damagetype = fget_next_damage_type( fileread );
 
     // Lighting data
     cTmp = fget_next_char( fileread );
@@ -995,66 +979,50 @@ int load_one_particle_profile( const char *szLoadName )
     if ( 'T' == toupper(cTmp) ) ppip->dynalightmode = DYNAON;
     if ( 'L' == toupper(cTmp) ) ppip->dynalightmode = DYNALOCAL;
 
-    fTmp = fget_next_float( fileread ); ppip->dynalevel = fTmp;
-    iTmp = fget_next_int( fileread ); ppip->dynafalloff = iTmp;
+    ppip->dynalevel = fget_next_float( fileread );
+    ppip->dynafalloff = fget_next_int( fileread );
 //   if ( ppip->dynafalloff > MAXFALLOFF && PMod->rtscontrol )  ppip->dynafalloff = MAXFALLOFF;
 
     // Initial spawning of this particle
-    iTmp = fget_next_int( fileread ); ppip->facingbase = iTmp;
-    iTmp = fget_next_int( fileread ); ppip->facingrand = iTmp;
-    iTmp = fget_next_int( fileread ); ppip->xyspacingbase = iTmp;
-    iTmp = fget_next_int( fileread ); ppip->xyspacingrand = iTmp;
-    iTmp = fget_next_int( fileread ); ppip->zspacingbase = iTmp;
-    iTmp = fget_next_int( fileread ); ppip->zspacingrand = iTmp;
-    iTmp = fget_next_int( fileread ); ppip->xyvelbase = iTmp;
-    iTmp = fget_next_int( fileread ); ppip->xyvelrand = iTmp;
-    iTmp = fget_next_int( fileread ); ppip->zvelbase = iTmp;
-    iTmp = fget_next_int( fileread ); ppip->zvelrand = iTmp;
+    ppip->facing_pair.base    = fget_next_int( fileread );
+    ppip->facing_pair.rand    = fget_next_int( fileread );
+    ppip->xyspacing_pair.base = fget_next_int( fileread );
+    ppip->xyspacing_pair.rand = fget_next_int( fileread );
+    ppip->zspacing_pair.base  = fget_next_int( fileread );
+    ppip->zspacing_pair.rand  = fget_next_int( fileread );
+    ppip->xyvel_pair.base     = fget_next_int( fileread );
+    ppip->xyvel_pair.rand     = fget_next_int( fileread );
+    ppip->zvel_pair.base      = fget_next_int( fileread );
+    ppip->zvel_pair.rand      = fget_next_int( fileread );
 
     // Continuous spawning of other particles
-    iTmp = fget_next_int( fileread ); ppip->contspawntime = iTmp;
-    iTmp = fget_next_int( fileread ); ppip->contspawnamount = iTmp;
-    iTmp = fget_next_int( fileread ); ppip->contspawnfacingadd = iTmp;
-    iTmp = fget_next_int( fileread ); ppip->contspawnpip = iTmp;
+    ppip->contspawntime      = fget_next_int( fileread );
+    ppip->contspawnamount    = fget_next_int( fileread );
+    ppip->contspawnfacingadd = fget_next_int( fileread );
+    ppip->contspawnpip       = fget_next_int( fileread );
 
     // End spawning of other particles
-    iTmp = fget_next_int( fileread ); ppip->endspawnamount = iTmp;
-    iTmp = fget_next_int( fileread ); ppip->endspawnfacingadd = iTmp;
-    iTmp = fget_next_int( fileread ); ppip->endspawnpip = iTmp;
+    ppip->endspawnamount    = fget_next_int( fileread );
+    ppip->endspawnfacingadd = fget_next_int( fileread );
+    ppip->endspawnpip       = fget_next_int( fileread );
 
     // Bump spawning of attached particles
-    iTmp = fget_next_int( fileread ); ppip->bumpspawnamount = iTmp;
-    iTmp = fget_next_int( fileread ); ppip->bumpspawnpip = iTmp;
+    ppip->bumpspawnamount = fget_next_int( fileread );
+    ppip->bumpspawnpip    = fget_next_int( fileread );
 
     // Random stuff  !!!BAD!!! Not complete
-    iTmp = fget_next_int( fileread ); ppip->dazetime = iTmp;
-    iTmp = fget_next_int( fileread ); ppip->grogtime = iTmp;
-    cTmp = fget_next_char( fileread );
-    ppip->spawnenchant = bfalse;
-    if ( 'T' == toupper(cTmp) ) ppip->spawnenchant = btrue;
+    ppip->dazetime     = fget_next_int( fileread );
+    ppip->grogtime     = fget_next_int( fileread );
+    ppip->spawnenchant = fget_next_bool( fileread );
 
     goto_colon( NULL, fileread, bfalse );  // !!Cause roll
 
-    // Cause pancake
-    goto_colon( NULL, fileread, bfalse );
-    ppip->causepancake = bfalse;
-    if ( 'T' == toupper(cTmp) ) ppip->causepancake = btrue;
+    ppip->causepancake = fget_next_bool( fileread );
 
-    cTmp = fget_next_char( fileread );
-    ppip->needtarget = bfalse;
-    if ( 'T' == toupper(cTmp) ) ppip->needtarget = btrue;
-
-    cTmp = fget_next_char( fileread );
-    ppip->targetcaster = bfalse;
-    if ( 'T' == toupper(cTmp) ) ppip->targetcaster = btrue;
-
-    cTmp = fget_next_char( fileread );
-    ppip->startontarget = bfalse;
-    if ( 'T' == toupper(cTmp) ) ppip->startontarget = btrue;
-
-    cTmp = fget_next_char( fileread );
-    ppip->onlydamagefriendly = bfalse;
-    if ( 'T' == toupper(cTmp) ) ppip->onlydamagefriendly = btrue;
+    ppip->needtarget         = fget_next_bool( fileread );
+    ppip->targetcaster       = fget_next_bool( fileread );
+    ppip->startontarget      = fget_next_bool( fileread );
+    ppip->onlydamagefriendly = fget_next_bool( fileread );
 
     iTmp = fget_next_int( fileread );
     ppip->soundspawn = CLIP(iTmp, -1, MAX_WAVE);
@@ -1062,27 +1030,19 @@ int load_one_particle_profile( const char *szLoadName )
     iTmp = fget_next_int( fileread );
     ppip->soundend = CLIP(iTmp, -1, MAX_WAVE);
 
-    cTmp = fget_next_char( fileread );
-    ppip->friendlyfire = bfalse;
-    if ( 'T' == toupper(cTmp) ) ppip->friendlyfire = btrue;
+    ppip->friendlyfire = fget_next_bool( fileread );
 
-    goto_colon( NULL, fileread, bfalse );
-    // ppip->hateonly = bfalse; TODO: BAD not implemented yet
+    fget_next_bool( fileread );
+    // ppip->hateonly = fget_next_bool( fileread ); TODO: BAD not implemented yet
 
-    cTmp = fget_next_char( fileread );
-    ppip->newtargetonspawn = bfalse;
-    if ( 'T' == toupper(cTmp) ) ppip->newtargetonspawn = btrue;
+    ppip->newtargetonspawn = fget_next_bool( fileread );
 
-    iTmp = fget_next_int( fileread ); ppip->targetangle = iTmp >> 1;
-    cTmp = fget_next_char( fileread );
-    ppip->homing = bfalse;
-    if ( 'T' == toupper(cTmp) ) ppip->homing = btrue;
+    ppip->targetangle = fget_next_int( fileread ) >> 1;
+    ppip->homing = fget_next_bool( fileread );
 
-    fTmp = fget_next_float( fileread ); ppip->homingfriction = fTmp;
-    fTmp = fget_next_float( fileread ); ppip->homingaccel = fTmp;
-    cTmp = fget_next_char( fileread );
-    ppip->rotatetoface = bfalse;
-    if ( 'T' == toupper(cTmp) ) ppip->rotatetoface = btrue;
+    ppip->homingfriction = fget_next_float( fileread );
+    ppip->homingaccel = fget_next_float( fileread );
+    ppip->rotatetoface = fget_next_bool( fileread );
 
     // Clear expansions...
     ppip->zaimspd = 0;

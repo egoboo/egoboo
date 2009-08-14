@@ -31,6 +31,7 @@
 #include "network.h"
 #include "mad.h"
 #include "game.h"
+#include "log.h"
 
 #include "SDL_extensions.h"
 
@@ -1668,7 +1669,14 @@ Uint8 scr_SpawnCharacter( script_state_t * pstate, ai_state_t * pself )
     pos.z = 0;
 
     sTmp = spawn_one_character( pos, pchr->model, pchr->team, 0, pstate->turn & 0xFFFF, NULL, MAX_CHR );
-    if ( VALID_CHR(sTmp) )
+    if( INVALID_CHR(sTmp) )
+    {
+        if ( sTmp > PMod->importamount * MAXIMPORTPERPLAYER )
+        {
+            log_warning( "Object %s failed to spawn ac copy of itself\n", pchr->name ); 
+        }
+    }
+    else
     {
         float nrm[2];
         if ( __chrhitawall( sTmp, nrm ) )
@@ -1920,7 +1928,7 @@ Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
         // Correct X, Y, Z spacing
         PrtList.lst[tTmp].pos.x += pstate->x;
         PrtList.lst[tTmp].pos.y += pstate->y;
-        PrtList.lst[tTmp].pos.z += PipStack.lst[PrtList.lst[tTmp].pip].zspacingbase;
+        PrtList.lst[tTmp].pos.z += PipStack.lst[PrtList.lst[tTmp].pip].zspacing_pair.base;
 
         // Don't spawn in walls
         if ( __prthitawall( tTmp ) )
@@ -2439,7 +2447,7 @@ Uint8 scr_set_DamageType( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // This function sets the bump damage type
-    pchr->damagetargettype = pstate->argument & ( DAMAGE_COUNT - 1 );
+    pchr->damagetargettype = pstate->argument % DAMAGE_COUNT;
 
     SCRIPT_FUNCTION_END();
 }
@@ -4960,7 +4968,14 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
     pos.z = pstate->distance;
 
     sTmp = spawn_one_character( pos, pchr->model, pchr->team, 0, pstate->turn & 0xFFFF, NULL, MAX_CHR );
-    if ( VALID_CHR(sTmp) )
+    if( INVALID_CHR(sTmp) )
+    {
+        if ( sTmp > PMod->importamount * MAXIMPORTPERPLAYER )
+        {
+            log_warning( "Object %s failed to spawn ac copy of itself\n", pchr->name ); 
+        }
+    }
+    else
     {
         if ( __chrhitawall( sTmp, nrm ) )
         {
@@ -5003,7 +5018,14 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
     pos.z = pstate->distance;
 
     sTmp = spawn_one_character( pos, pstate->argument, pchr->team, 0, pstate->turn & 0xFFFF, NULL, MAX_CHR );
-    if ( VALID_CHR(sTmp) )
+    if( INVALID_CHR(sTmp) )
+    {
+        if ( sTmp > PMod->importamount * MAXIMPORTPERPLAYER )
+        {
+            log_warning( "Object \"%s\"(\"%s\") failed to spawn profile index %d\n", pchr->name, CapList[pchr->model].classname, pstate->argument ); 
+        }
+    }
+    else
     {
         if ( __chrhitawall( sTmp, nrm ) )
         {
@@ -6114,16 +6136,16 @@ Uint8 scr_SpawnPoofSpeedSpacingDamage( script_state_t * pstate, ai_state_t * pse
 
     sTmp = pchr->model;
     sTmp = MadList[sTmp].prtpip[CapList[sTmp].gopoofprttype];
-    iTmp = PipStack.lst[sTmp].xyvelbase;
-    tTmp = PipStack.lst[sTmp].xyspacingbase;
+    iTmp = PipStack.lst[sTmp].xyvel_pair.base;
+    tTmp = PipStack.lst[sTmp].xyspacing_pair.base;
     test = PipStack.lst[sTmp].damage.base;
-    PipStack.lst[sTmp].xyvelbase = pstate->x;
-    PipStack.lst[sTmp].xyspacingbase = pstate->y;
+    PipStack.lst[sTmp].xyvel_pair.base = pstate->x;
+    PipStack.lst[sTmp].xyspacing_pair.base = pstate->y;
     PipStack.lst[sTmp].damage.base = pstate->argument;
     spawn_poof( pself->index, pchr->model );
     // Restore the saved values
-    PipStack.lst[sTmp].xyvelbase = iTmp;
-    PipStack.lst[sTmp].xyspacingbase = tTmp;
+    PipStack.lst[sTmp].xyvel_pair.base = iTmp;
+    PipStack.lst[sTmp].xyspacing_pair.base = tTmp;
     PipStack.lst[sTmp].damage.base = test;
 
     SCRIPT_FUNCTION_END();
@@ -6434,19 +6456,20 @@ Uint8 scr_BeatQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_TargetHasQuest( script_state_t * pstate, ai_state_t * pself )
 {
+    // This function proceeds if the Target has the unfinIshed quest specIfied in tmpargument
+    // and sets tmpdistance to the Quest Level of the specIfied quest.    
+    
     int iTmp;
 
     SCRIPT_FUNCTION_BEGIN();
 
-    // ThIs function proceeds if the Target has the unfinIshed quest specIfied in tmpargument
-    // and sets tmpdistance to the Quest Level of the specIfied quest.
     returncode = bfalse;
     if ( ChrList.lst[pself->target].isplayer )
     {
         iTmp = check_player_quest( ChrList.lst[pself->target].name, pstate->argument );
         if ( iTmp > QUEST_BEATEN )
         {
-            returncode = btrue;
+            returncode       = btrue;
             pstate->distance = iTmp;
         }
     }
@@ -6566,7 +6589,14 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
     pos.z = pstate->distance;
 
     sTmp = spawn_one_character( pos, pstate->argument, pchr->team, 0, FACE_NORTH, NULL, MAX_CHR );
-    if ( VALID_CHR(sTmp) )
+    if( INVALID_CHR(sTmp) )
+    {
+        if ( sTmp > PMod->importamount * MAXIMPORTPERPLAYER )
+        {
+            log_warning( "Object \"%s\"(\"%s\") failed to spawn profile index %d\n", pchr->name, CapList[pchr->model].classname, pstate->argument ); 
+        }
+    }
+    else
     {
         Uint8 grip = CLIP( pstate->distance, ATTACH_INVENTORY, ATTACH_RIGHT );
 

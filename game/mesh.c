@@ -826,17 +826,17 @@ float mesh_get_level( ego_mpd_t * pmesh, float x, float y )
     ix = x;
     iy = y;
 
-    ix &= 127;
-    iy &= 127;
+    ix &= TILE_MASK;
+    iy &= TILE_MASK;
 
     z0 = pmesh->mmem.plst[ pmesh->mmem.tile_list[tile].vrtstart + 0 ][ZZ];
     z1 = pmesh->mmem.plst[ pmesh->mmem.tile_list[tile].vrtstart + 1 ][ZZ];
     z2 = pmesh->mmem.plst[ pmesh->mmem.tile_list[tile].vrtstart + 2 ][ZZ];
     z3 = pmesh->mmem.plst[ pmesh->mmem.tile_list[tile].vrtstart + 3 ][ZZ];
 
-    zleft  = ( z0 * ( 128 - iy ) + z3 * iy ) / TILE_SIZE;
-    zright = ( z1 * ( 128 - iy ) + z2 * iy ) / TILE_SIZE;
-    zdone  = ( zleft * ( 128 - ix ) + zright * ix ) / TILE_SIZE;
+    zleft  = ( z0 * ( TILE_SIZE - iy ) + z3 * iy ) / TILE_SIZE;
+    zright = ( z1 * ( TILE_SIZE - iy ) + z2 * iy ) / TILE_SIZE;
+    zdone  = ( zleft * ( TILE_SIZE - ix ) + zright * ix ) / TILE_SIZE;
 
     return zdone;
 }
@@ -853,8 +853,8 @@ Uint32 mesh_get_block( ego_mpd_t * pmesh, float pos_x, float pos_y )
         ix = pos_x;
         iy = pos_y;
 
-        ix >>= 9;
-        iy >>= 9;
+        ix >>= BLOCK_BITS;
+        iy >>= BLOCK_BITS;
 
         block = mesh_get_block_int(pmesh, ix, iy);
     }
@@ -874,8 +874,8 @@ Uint32 mesh_get_tile( ego_mpd_t * pmesh, float pos_x, float pos_y )
         ix = pos_x;
         iy = pos_y;
 
-        ix >>= 7;
-        iy >>= 7;
+        ix >>= TILE_BITS;
+        iy >>= TILE_BITS;
 
         tile = mesh_get_tile_int( pmesh, ix, iy );
     }

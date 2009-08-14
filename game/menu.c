@@ -180,7 +180,7 @@ const char *videoOptionsButtons[] =
 static int buttonLeft = 0;
 static int buttonTop = 0;
 
-static bool_t startNewPlayer = bfalse;
+bool_t startNewPlayer = bfalse;
 
 /* The font used for drawing text.  It's smaller than the button font */
 Font *menuFont = NULL;
@@ -193,7 +193,6 @@ oglx_texture      TxTitleImage[MAX_MODULE];    // OpenGL title image surfaces
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static int  get_skin( const char *filename );
 static void load_all_menu_images();
 
 static bool_t       menu_stack_push( int menu );
@@ -837,7 +836,7 @@ bool_t doChoosePlayer_load_profiles( int player, ChoosePlayer_profiles_t * prof 
 
     // grab the player data
     snprintf( szFilename, SDL_arraysize(szFilename),  "players" SLASH_STR "%s", loadplayer[player].dir );
-    ref_temp = load_one_character_profile( szFilename, bfalse );
+    ref_temp = load_one_character_profile( szFilename, MAX_PROFILE, bfalse );
     if ( MAX_PROFILE != ref_temp )
     {
         prof->ref[prof->count++] = ref_temp;
@@ -856,7 +855,7 @@ bool_t doChoosePlayer_load_profiles( int player, ChoosePlayer_profiles_t * prof 
         import_data.object = i + 1;
 
         // load it
-        ref_temp = load_one_character_profile( szFilename, bfalse );
+        ref_temp = load_one_character_profile( szFilename, MAX_PROFILE, bfalse );
 
         if ( MAX_PROFILE != ref_temp )
         {
@@ -3683,26 +3682,6 @@ void check_player_import( const char *dirname, bool_t initialize )
     }
 
     fs_findClose();
-}
-
-//--------------------------------------------------------------------------------------------
-int get_skin( const char *filename )
-{
-    // ZZ> This function reads the skin.txt file...
-    FILE*   fileread;
-    int skin;
-
-    skin = 0;
-    fileread = fopen( filename, "r" );
-    if ( fileread )
-    {
-        skin = fget_next_int( fileread );
-        skin %= MAXSKIN;
-
-        fclose( fileread );
-    }
-
-    return skin;
 }
 
 //--------------------------------------------------------------------------------------------

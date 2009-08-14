@@ -159,9 +159,9 @@ void render_fan( ego_mpd_t * pmesh, Uint32 fan )
         {
             GL_DEBUG(glVertex3fv)(pmem->plst[entry]);
             GL_DEBUG(glVertex3f)(
-                pmem->plst[entry][XX] + 128*pmem->ncache[fan][cnt][XX],
-                pmem->plst[entry][YY] + 128*pmem->ncache[fan][cnt][YY],
-                pmem->plst[entry][ZZ] + 128*pmem->ncache[fan][cnt][ZZ] );
+                pmem->plst[entry][XX] + TILE_SIZE*pmem->ncache[fan][cnt][XX],
+                pmem->plst[entry][YY] + TILE_SIZE*pmem->ncache[fan][cnt][YY],
+                pmem->plst[entry][ZZ] + TILE_SIZE*pmem->ncache[fan][cnt][ZZ] );
 
         }
         GL_DEBUG_END();

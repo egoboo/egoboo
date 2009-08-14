@@ -502,7 +502,6 @@ void setup_passage( const char *modname )
 {
     // ZZ> This function reads the passage file
     char newloadname[256];
-    char cTmp;
     int tlx, tly, brx, bry;
     bool_t open;
     Uint8 mask;
@@ -523,16 +522,11 @@ void setup_passage( const char *modname )
         brx  = fget_int( fileread );
         bry  = fget_int( fileread );
 
-        cTmp = fget_first_letter( fileread );
-        open = bfalse;
-        if ( 'T' == toupper(cTmp) ) open = btrue;
+        open = fget_bool( fileread );
 
-        cTmp = fget_first_letter( fileread );
         mask = MPDFX_IMPASS | MPDFX_WALL;
-        if ( 'T' == toupper(cTmp) ) mask = MPDFX_IMPASS;
-
-        cTmp = fget_first_letter( fileread );
-        if ( 'T' == toupper(cTmp) ) mask = MPDFX_SLIPPY;
+        if ( fget_bool( fileread ) ) mask = MPDFX_IMPASS;
+        if ( fget_bool( fileread ) ) mask = MPDFX_SLIPPY;
 
         add_passage( tlx, tly, brx, bry, open, mask );
     }

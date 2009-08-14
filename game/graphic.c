@@ -1583,13 +1583,13 @@ void light_particles( ego_mpd_t * pmesh )
                 Uint32 light;
 
                 // Interpolate lighting level using tile corners
-                ix = ((int)pprt->pos.x) & 127;
-                iy = ((int)pprt->pos.y) & 127;
+                ix = ((int)pprt->pos.x) & TILE_MASK;
+                iy = ((int)pprt->pos.y) & TILE_MASK;
 
-                itop = tl * (128 - ix) + tr * ix;
-                ibot = bl * (128 - ix) + br * ix;
-                light = (128 - iy) * itop + iy * ibot;
-                light >>= 14;
+                itop = tl * (TILE_ISIZE - ix) + tr * ix;
+                ibot = bl * (TILE_ISIZE - ix) + br * ix;
+                light = (TILE_ISIZE - iy) * itop + iy * ibot;
+                light >>= 2 * TILE_BITS;
 
                 pprt->inst.light = light;
             }
@@ -3111,10 +3111,10 @@ int draw_debug( int y )
                               ChrList.lst[tnc].damagemodifier[7] & 3  );
 
         tnc = PlaList[0].index;
-        y = _draw_string_raw( 0, y, "~~PLA0 %5.1f %5.1f", ChrList.lst[tnc].pos.x / 128.0f, ChrList.lst[tnc].pos.y / 128.0f );
+        y = _draw_string_raw( 0, y, "~~PLA0 %5.1f %5.1f", ChrList.lst[tnc].pos.x / TILE_SIZE, ChrList.lst[tnc].pos.y / TILE_SIZE );
 
         tnc = PlaList[1].index;
-        y = _draw_string_raw( 0, y, "~~PLA1 %5.1f %5.1f", ChrList.lst[tnc].pos.x / 128.0f, ChrList.lst[tnc].pos.y / 128.0f );
+        y = _draw_string_raw( 0, y, "~~PLA1 %5.1f %5.1f", ChrList.lst[tnc].pos.x / TILE_SIZE, ChrList.lst[tnc].pos.y / TILE_SIZE );
     }
 
     if ( SDLKEYDOWN( SDLK_F6 ) )
@@ -4893,6 +4893,11 @@ void BillboardList_update_all()
             is_invalid = btrue;
         }
 
+        if( INVALID_CHR(pbb->ichr) || VALID_CHR(ChrList.lst[pbb->ichr].attachedto) )
+        {
+            is_invalid = btrue;
+        }
+
         if ( is_invalid )
         {
             // the billboard has expired
@@ -5019,6 +5024,9 @@ bool_t render_billboard( camera_t * pcam, billboard_data_t * pbb, float scale )
 
     if ( NULL == pbb || !pbb->valid ) return bfalse;
 
+    // do not display for objects that are mounted or being held
+    if( VALID_CHR(pbb->ichr) && VALID_CHR(ChrList.lst[pbb->ichr].attachedto) ) return bfalse;
+
     ptex = TxTexture_get_ptr( pbb->tex_ref );
 
     oglx_texture_Bind( ptex );
@@ -5103,7 +5111,7 @@ void render_all_billboards( camera_t * pcam )
             GL_DEBUG(glEnable)( GL_BLEND );                                       // GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT
             GL_DEBUG(glBlendFunc)( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );        // GL_COLOR_BUFFER_BIT
 
-            GL_DEBUG(glColor4f)(1.0f, 1.0f, 1.0f, 1.0f );
+            GL_DEBUG(glColor4f)( 1.0f, 1.0f, 1.0f, 1.0f );
 
             for ( cnt = 0; cnt < BILLBOARD_COUNT; cnt++ )
             {

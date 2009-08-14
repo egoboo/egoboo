@@ -88,11 +88,10 @@ bool_t fcopy_line(FILE * fileread, FILE * filewrite)
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t goto_colon( char * buffer, FILE* fileread, bool_t optional )
+bool_t goto_delimiter( char * buffer, FILE* fileread, char delim, bool_t optional )
 {
-    // ZZ> This function moves a file read pointer to the next colon char cTmp;
-    // BB> buffer points to a 256 character buffer that will get the data between the newline and the ':'
-    //    Also, the two functions goto_colon and goto_colon_yesno have been combined
+    // ZZ> This function moves a file read pointer to the next delimiter char cTmp;
+    // BB> buffer points to a 256 character buffer that will get the data between the newline and the delim
 
     int cTmp, write;
 
@@ -103,9 +102,9 @@ bool_t goto_colon( char * buffer, FILE* fileread, bool_t optional )
     cTmp = fgetc( fileread );
     while ( !feof(fileread) && !ferror(fileread) )
     {
-        if ( ':' == cTmp ) break;
+        if ( delim == cTmp ) break;
 
-        if ( 0x0A == cTmp || 0x0D == cTmp )
+        if ( 0x0A == cTmp || 0x0D == cTmp || '\0' == cTmp )
         {
             write = 0;
         }
@@ -118,13 +117,83 @@ bool_t goto_colon( char * buffer, FILE* fileread, bool_t optional )
     }
     if (NULL != buffer) buffer[write] = '\0';
 
-    if ( !optional && ':' != cTmp )
+    if ( !optional && delim != cTmp )
     {
         // not enough colons in file!
-        log_error( "There are not enough colons in file! (%s)\n", parse_filename );
+        log_error( "There are not enough %s's in file! (%s)\n", delim, parse_filename );
     }
 
-    return (':' == cTmp);
+    return (delim == cTmp);
+}
+
+//--------------------------------------------------------------------------------------------
+char goto_delimiter_list( char * buffer, FILE* fileread, const char * delim_list, bool_t optional )
+{
+    // ZZ> This function moves a file read pointer to the next colon char cTmp;
+    // BB> buffer points to a 256 character buffer that will get the data between the newline and the ':'
+    //
+    //    returns the delimiter that was found, or '\0' if no delimiter found
+
+    char   retval = '\0';
+    int    cTmp, write;
+    bool_t is_delim;
+
+    if ( NULL == delim_list || '\0' == delim_list[0] ) return bfalse;
+
+    if ( feof(fileread) || ferror(fileread) ) return bfalse;
+
+    // use a simpler function if it is easier
+    if( 1 == strlen(delim_list) )
+    {
+        bool_t rv = goto_delimiter( buffer, fileread, delim_list[0], optional );
+        retval = rv ? delim_list[0] : retval;
+    }
+
+    if (NULL != buffer) buffer[0] = '\0';
+
+    is_delim = bfalse;
+    write    = 0;
+    cTmp = fgetc( fileread );
+    while ( !feof(fileread) && !ferror(fileread) )
+    {
+        is_delim = (NULL != strchr( delim_list, cTmp ));
+
+        if ( is_delim )
+        {
+            retval = cTmp;
+            break;
+        }
+
+        if ( 0x0A == cTmp || 0x0D == cTmp || '\0' == cTmp )
+        {
+            write = 0;
+        }
+        else
+        {
+            if (NULL != buffer) buffer[write++] = cTmp;
+        }
+
+        cTmp = fgetc( fileread );
+    }
+    if (NULL != buffer) buffer[write] = '\0';
+
+    if ( !optional && !is_delim )
+    {
+        // not enough colons in file!
+        log_error( "There are not enough delimiters (%s) in file! (%s)\n", delim_list, parse_filename );
+    }
+
+    return retval;
+}
+
+
+
+//--------------------------------------------------------------------------------------------
+bool_t goto_colon( char * buffer, FILE* fileread, bool_t optional )
+{
+    // BB> the two functions goto_colon and goto_colon_yesno have been combined
+
+    return goto_delimiter( buffer, fileread, ':', optional );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -806,4 +875,45 @@ Uint32  ego_texture_load( oglx_texture *texture, const char *filename, Uint32 ke
     }
 
     return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+Uint8 fget_damage_modifier( FILE * fileread )
+{
+    int  iTmp, tTmp;
+    char cTmp;
+
+    cTmp = fget_first_letter( fileread ); 
+
+    switch( toupper(cTmp) )
+    {
+        case 'T': iTmp = DAMAGEINVERT; break;
+        case 'C': iTmp = DAMAGECHARGE; break;
+        case 'M': iTmp = DAMAGEMANA;   break;
+        default:  iTmp = 0;            break;
+    };
+
+    tTmp = fget_int( fileread );
+
+    return iTmp | tTmp;
+}
+
+//--------------------------------------------------------------------------------------------
+int get_skin( const char *filename )
+{
+    // ZZ> This function reads the skin.txt file...
+    FILE*   fileread;
+    int skin;
+
+    skin = 0;
+    fileread = fopen( filename, "r" );
+    if ( fileread )
+    {
+        skin = fget_next_int( fileread );
+        skin %= MAXSKIN;
+
+        fclose( fileread );
+    }
+
+    return skin;
 }

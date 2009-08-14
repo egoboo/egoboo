@@ -102,4 +102,6 @@ void           TxTitleImage_release_all();
 void           TxTitleImage_delete_all();
 struct s_oglx_texture * TxTitleImage_get_ptr( int itex );
 
+extern bool_t startNewPlayer;
+
 #define egoboo_Menu_h

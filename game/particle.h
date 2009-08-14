@@ -80,8 +80,7 @@ struct s_pip
     Uint16  imageadd;                     // Frame rate
     Uint16  imageaddrand;                 // Frame rate randomness
     Uint16  time;                         // Time until end
-    Uint16  rotatebase;                   // Rotation
-    Uint16  rotaterand;                   // Rotation
+    IPair   rotate_pair;                   // Rotation
     Sint16  rotateadd;                    // Rotation rate
     Uint16  sizebase;                     // Size
     Sint16  sizeadd;                      // Size rate
@@ -97,17 +96,12 @@ struct s_pip
     bool_t  endlastframe;                 // End on last frame
     IPair   damage;                       // Damage
     Uint8   damagetype;                   // Damage type
-    Sint16  facingbase;                   // Facing
     Uint16  facingadd;                    // Facing
-    Uint16  facingrand;                   // Facing
-    Sint16  xyspacingbase;                // Spacing
-    Uint16  xyspacingrand;                // Spacing
-    Sint16  zspacingbase;                 // Altitude
-    Uint16  zspacingrand;                 // Altitude
-    Sint8   xyvelbase;                    // Shot velocity
-    Uint8   xyvelrand;                    // Shot velocity
-    Sint8   zvelbase;                     // Up velocity
-    Uint8   zvelrand;                     // Up velocity
+    IPair   facing_pair;                   // Facing
+    IPair   xyspacing_pair;                // Spacing
+    IPair   zspacing_pair;                 // Altitude
+    IPair   xyvel_pair;                    // Shot velocity
+    IPair   zvel_pair;                     // Up velocity
     Uint16  contspawntime;                // Spawn timer
     Uint8   contspawnamount;              // Spawn amount
     Uint16  contspawnfacingadd;           // Spawn in circle

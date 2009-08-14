@@ -875,13 +875,13 @@ Uint32 __chrhitawall( Uint16 character, float nrm[] )
     x = ChrList.lst[character].pos.x;
     bs = ChrList.lst[character].bumpsize >> 1;
 
-    tx_min = floor( (x - bs) / 128.0f );
-    tx_max = (int) ( (x + bs) / 128.0f );
-    ty_min = floor( (y - bs) / 128.0f );
-    ty_max = (int) ( (y + bs) / 128.0f );
+    tx_min = floor( (x - bs) / TILE_SIZE );
+    tx_max = (int)( (x + bs) / TILE_SIZE );
+    ty_min = floor( (y - bs) / TILE_SIZE );
+    ty_max = (int)( (y + bs) / TILE_SIZE );
 
-    tx0 = (int)x / 128;
-    ty0 = (int)y / 128;
+    tx0 = (int)x / TILE_ISIZE;
+    ty0 = (int)y / TILE_ISIZE;
 
     pass = 0;
     nrm[XX] = nrm[YY] = 0.0f;
@@ -892,7 +892,7 @@ Uint32 __chrhitawall( Uint16 character, float nrm[] )
         if ( iy < 0 || iy >= PMesh->info.tiles_y )
         {
             pass  |=  MPDFX_IMPASS | MPDFX_WALL;
-            nrm[YY]  += (iy + 0.5f) * 128.0f - y;
+            nrm[YY]  += (iy + 0.5f) * TILE_SIZE - y;
             invalid = btrue;
         }
 
@@ -901,7 +901,7 @@ Uint32 __chrhitawall( Uint16 character, float nrm[] )
             if ( ix < 0 || ix >= PMesh->info.tiles_x )
             {
                 pass  |=  MPDFX_IMPASS | MPDFX_WALL;
-                nrm[XX]  += (ix + 0.5f) * 128.0f - x;
+                nrm[XX]  += (ix + 0.5f) * TILE_SIZE - x;
                 invalid = btrue;
             }
 
@@ -912,13 +912,13 @@ Uint32 __chrhitawall( Uint16 character, float nrm[] )
                 {
                     if ( PMesh->mmem.tile_list[itile].fx & ChrList.lst[character].stoppedby )
                     {
-                        nrm[XX] += (ix + 0.5f) * 128.0f - x;
-                        nrm[YY] += (iy + 0.5f) * 128.0f - y;
+                        nrm[XX] += (ix + 0.5f) * TILE_SIZE - x;
+                        nrm[YY] += (iy + 0.5f) * TILE_SIZE - y;
                     }
                     else
                     {
-                        nrm[XX] -= (ix + 0.5f) * 128.0f - x;
-                        nrm[YY] -= (iy + 0.5f) * 128.0f - y;
+                        nrm[XX] -= (ix + 0.5f) * TILE_SIZE - x;
+                        nrm[YY] -= (iy + 0.5f) * TILE_SIZE - y;
                     }
 
                     pass |= PMesh->mmem.tile_list[itile].fx;
@@ -2040,7 +2040,7 @@ void character_swipe( Uint16 cnt, Uint8 slot )
                         {
                             attach_particle_to_character( particle, weapon, spawngrip );
                             // Correct Z spacing base, but nothing else...
-                            PrtList.lst[particle].pos.z += PipStack.lst[PrtList.lst[particle].pip].zspacingbase;
+                            PrtList.lst[particle].pos.z += PipStack.lst[PrtList.lst[particle].pip].zspacing_pair.base;
                         }
 
                         PrtList.lst[particle].attachedtocharacter = MAX_CHR;
@@ -2691,7 +2691,7 @@ bool_t export_one_character_profile( const char *szSaveName, Uint16 character )
     if ( pcap->isequipment )
         fprintf( filewrite, ":[EQUI] 1\n" );
 
-    if ( pcap->bumpsizebig == ( pcap->bumpsize << 1 ) )
+    if ( pcap->bumpsizebig >= pcap->bumpsize * 2 )
         fprintf( filewrite, ":[SQUA] 1\n" );
 
     if ( pcap->icon != pcap->usageknown )
@@ -2777,7 +2777,7 @@ bool_t export_one_character_skin( const char *szSaveName, Uint16 character )
 }
 
 //--------------------------------------------------------------------------------------------
-int load_one_character_profile( const char * tmploadname, bool_t required )
+int load_one_character_profile( const char * tmploadname, int slot_override, bool_t required )
 {
     // ZZ> This function fills a character profile with data from data.txt, returning
     // the object slot that the profile was stuck into.  It may cause the program
@@ -2786,7 +2786,6 @@ int load_one_character_profile( const char * tmploadname, bool_t required )
     FILE* fileread;
     Sint16 object = -1;
     int iTmp;
-    float fTmp;
     char cTmp;
     Uint8 damagetype, level, xptype;
     int idsz_cnt;
@@ -2799,30 +2798,53 @@ int load_one_character_profile( const char * tmploadname, bool_t required )
 
     // Open the file
     fileread = fopen( szLoadName, "r" );
-    if ( fileread == NULL )
+    if ( NULL == fileread )
     {
+        // The data file wasn't found        
+
         if ( required )
         {
-            // The data file wasn't found
-            log_error( "DATA.TXT was not found! (%s)\n", szLoadName );
+            log_error( "load_one_character_profile() - DATA.TXT was not found! (%s)\n", szLoadName );
         }
+        else
+        {
+            log_warning( "load_one_character_profile() - Not able to open file \"%s\"\n", szLoadName );
+        }
+
         return MAX_PROFILE;
     }
 
     parse_filename = szLoadName;  // For debugging goto_colon()
 
-    // Read in the object slot
-    iTmp = fget_next_int( fileread ); object = iTmp;
-    if ( object < 0 )
+    // load the object's slot no matter what
+    iTmp = fget_next_int( fileread );
+
+    if( !VALID_CAP_RANGE(slot_override) )
     {
-        if ( import_data.object < 0 )
+        // set the object slot
+        object = iTmp;
+        
+        if ( object < 0 )
         {
-            log_warning( "Object slot number cannot be negative (%s)\n", szLoadName );
+            if ( import_data.object < 0 )
+            {
+                log_warning( "Object slot number cannot be negative (%s)\n", szLoadName );
+            }
+            else
+            {
+                object = import_data.object;
+            }
         }
-        else
-        {
-            object = import_data.object;
-        }
+    }
+    else
+    {
+        // just use the slot that was provided
+        object = slot_override;
+
+        // tell the cap that it is not loaded to avoid the error that will be generated below
+        CapList[object].loaded = bfalse;
+
+        // ?? do we need to free anything a cap_t, pip_t, mad_t or any other profile thing ??
     }
 
     if ( !VALID_CAP_RANGE( object ) ) return MAX_PROFILE;
@@ -2831,11 +2853,19 @@ int load_one_character_profile( const char * tmploadname, bool_t required )
     // Make sure global objects don't load over existing models
     if ( pcap->loaded )
     {
-        if ( required && object == SPELLBOOK )
+        if ( required && SPELLBOOK == object )
+        {
             log_error( "Object slot %i is a special reserved slot number (cannot be used by %s).\n", SPELLBOOK, szLoadName );
+        }
         else if ( required && overrideslots )
+        {
             log_error( "Object slot %i used twice (%s, %s)\n", object, pcap->name, szLoadName );
-        else return MAX_PROFILE;   // Stop, we don't want to override it
+        }
+        else 
+        {
+            // Stop, we don't want to override it
+            return MAX_PROFILE;   
+        }
     }
 
     // clear out all the data
@@ -2856,13 +2886,12 @@ int load_one_character_profile( const char * tmploadname, bool_t required )
     fget_next_name( fileread, pcap->classname, sizeof(pcap->classname) );
 
     // Light cheat
-    cTmp = fget_next_char( fileread );
-    pcap->uniformlit = bfalse;
-    if ( 'T' == toupper(cTmp) || !cfg.gourard_req )  pcap->uniformlit = btrue;
+    pcap->uniformlit = fget_next_bool( fileread );
+    if( cfg.gourard_req ) pcap->uniformlit = bfalse;
 
     // Ammo
-    iTmp = fget_next_int( fileread );  pcap->ammomax = iTmp;
-    iTmp = fget_next_int( fileread );  pcap->ammo = iTmp;
+    pcap->ammomax = fget_next_int( fileread );
+    pcap->ammo = fget_next_int( fileread );
 
     // Gender
     cTmp = fget_next_char( fileread );
@@ -2872,8 +2901,8 @@ int load_one_character_profile( const char * tmploadname, bool_t required )
     if ( 'R' == toupper(cTmp) )  pcap->gender = GENDER_RANDOM;
 
     // Read in the object stats
-    iTmp = fget_next_int( fileread );  pcap->lifecolor = iTmp;
-    iTmp = fget_next_int( fileread );  pcap->manacolor = iTmp;
+    pcap->lifecolor = fget_next_int( fileread );
+    pcap->manacolor = fget_next_int( fileread );
 
     fget_next_pair( fileread ); pcap->life_stat.val = pair;
     fget_next_pair( fileread ); pcap->life_stat.perlevel = pair;
@@ -2900,46 +2929,38 @@ int load_one_character_profile( const char * tmploadname, bool_t required )
     fget_next_pair( fileread ); pcap->dexterity_stat.perlevel = pair;
 
     // More physical attributes
-    fTmp = fget_next_float( fileread );  pcap->size = fTmp;
-    fTmp = fget_next_float( fileread );  pcap->sizeperlevel = fTmp;
-    iTmp = fget_next_int( fileread );  pcap->shadowsize = iTmp;
-    iTmp = fget_next_int( fileread );  pcap->bumpsize = iTmp;
-    iTmp = fget_next_int( fileread );  pcap->bumpheight = iTmp;
-    fTmp = fget_next_float( fileread );  pcap->bumpdampen = MAX(0.01, fTmp);
-    iTmp = fget_next_int( fileread );  pcap->weight = iTmp;
-    fTmp = fget_next_float( fileread );  pcap->jump = fTmp;
-    iTmp = fget_next_int( fileread );  pcap->jumpnumber = iTmp;
-    iTmp = fget_next_int( fileread );  pcap->sneakspd = iTmp;
-    iTmp = fget_next_int( fileread );  pcap->walkspd = iTmp;
-    iTmp = fget_next_int( fileread );  pcap->runspd = iTmp;
-    iTmp = fget_next_int( fileread );  pcap->flyheight = iTmp;
-    iTmp = fget_next_int( fileread );  pcap->flashand = iTmp;
-    iTmp = fget_next_int( fileread );  pcap->alpha = iTmp;
-    iTmp = fget_next_int( fileread );  pcap->light = iTmp;
-    cTmp = fget_next_char( fileread );
-    pcap->transferblend = bfalse;
-    if ( 'T' == toupper(cTmp) )  pcap->transferblend = btrue;
+    pcap->size = fget_next_float( fileread );
+    pcap->sizeperlevel = fget_next_float( fileread );
+    pcap->shadowsize = fget_next_int( fileread );
+    pcap->bumpsize = fget_next_int( fileread );
+    pcap->bumpheight = fget_next_int( fileread );
+    pcap->bumpdampen = fget_next_float( fileread );  pcap->bumpdampen = MAX(0.01, pcap->bumpdampen);
+    pcap->weight = fget_next_int( fileread );
+    pcap->jump = fget_next_float( fileread );
+    pcap->jumpnumber = fget_next_int( fileread );
+    pcap->sneakspd = fget_next_int( fileread );
+    pcap->walkspd = fget_next_int( fileread );
+    pcap->runspd = fget_next_int( fileread );
+    pcap->flyheight = fget_next_int( fileread );
+    pcap->flashand = fget_next_int( fileread );
+    pcap->alpha = fget_next_int( fileread );
+    pcap->light = fget_next_int( fileread );
+    pcap->transferblend = fget_next_bool( fileread );
 
-    iTmp = fget_next_int( fileread );  pcap->sheen = iTmp;
-    cTmp = fget_next_char( fileread );
-    pcap->enviro = bfalse;
-    if ( 'T' == toupper(cTmp) )  pcap->enviro = btrue;
+    pcap->sheen = fget_next_int( fileread );
+    pcap->enviro = fget_next_bool( fileread );
 
-    fTmp = fget_next_float( fileread );  pcap->uoffvel = fTmp * 0xFFFF;
-    fTmp = fget_next_float( fileread );  pcap->voffvel = fTmp * 0xFFFF;
-    cTmp = fget_next_char( fileread );
-    pcap->stickybutt = bfalse;
-    if ( 'T' == toupper(cTmp) )  pcap->stickybutt = btrue;
+    pcap->uoffvel = fget_next_float( fileread ) * 0xFFFF;
+    pcap->voffvel = fget_next_float( fileread ) * 0xFFFF;
+    pcap->stickybutt = fget_next_bool( fileread );
 
     // Invulnerability data
-    cTmp = fget_next_char( fileread );
-    pcap->invictus = bfalse;
-    if ( 'T' == toupper(cTmp) )  pcap->invictus = btrue;
+    pcap->invictus = fget_next_bool( fileread );
 
-    iTmp = fget_next_int( fileread );  pcap->nframefacing = iTmp;
-    iTmp = fget_next_int( fileread );  pcap->nframeangle = iTmp;
-    iTmp = fget_next_int( fileread );  pcap->iframefacing = iTmp;
-    iTmp = fget_next_int( fileread );  pcap->iframeangle = iTmp;
+    pcap->nframefacing = fget_next_int( fileread );
+    pcap->nframeangle = fget_next_int( fileread );
+    pcap->iframefacing = fget_next_int( fileread );
+    pcap->iframeangle = fget_next_int( fileread );
 
     // Resist burning and stuck arrows with nframe angle of 1 or more
     if ( pcap->nframeangle > 0 )
@@ -2952,56 +2973,44 @@ int load_one_character_profile( const char * tmploadname, bool_t required )
 
     // Skin defenses ( 4 skins )
     goto_colon( NULL, fileread, bfalse );
-    iTmp = fget_int( fileread );  pcap->defense[0] = 255 - iTmp;
-    iTmp = fget_int( fileread );  pcap->defense[1] = 255 - iTmp;
-    iTmp = fget_int( fileread );  pcap->defense[2] = 255 - iTmp;
-    iTmp = fget_int( fileread );  pcap->defense[3] = 255 - iTmp;
+    for( cnt=0; cnt<MAXSKIN; cnt++ )
+    {
+        pcap->defense[cnt] = 255 - fget_int( fileread );
+    }
 
     for ( damagetype = 0; damagetype < DAMAGE_COUNT; damagetype++ )
     {
         goto_colon( NULL, fileread, bfalse );
-        iTmp = fget_int( fileread );  pcap->damagemodifier[damagetype][0] = iTmp;
-        iTmp = fget_int( fileread );  pcap->damagemodifier[damagetype][1] = iTmp;
-        iTmp = fget_int( fileread );  pcap->damagemodifier[damagetype][2] = iTmp;
-        iTmp = fget_int( fileread );  pcap->damagemodifier[damagetype][3] = iTmp;
+        for( cnt=0; cnt<MAXSKIN; cnt++ )
+        {
+            pcap->damagemodifier[damagetype][cnt] = fget_int( fileread );
+        }
     }
 
     for ( damagetype = 0; damagetype < DAMAGE_COUNT; damagetype++ )
     {
         goto_colon( NULL, fileread, bfalse );
 
-        cTmp = fget_first_letter( fileread );
-        if ( 'T' == toupper(cTmp) )  pcap->damagemodifier[damagetype][0] |= DAMAGEINVERT;
-        else if ( 'C' == toupper(cTmp) )  pcap->damagemodifier[damagetype][0] |= DAMAGECHARGE;
-        else if ( 'M' == toupper(cTmp) )  pcap->damagemodifier[damagetype][0] |= DAMAGEMANA;
-
-        cTmp = fget_first_letter( fileread );
-        if ( 'T' == toupper(cTmp) )  pcap->damagemodifier[damagetype][1] |= DAMAGEINVERT;
-        else if ( 'C' == toupper(cTmp) )  pcap->damagemodifier[damagetype][1] |= DAMAGECHARGE;
-        else if ( 'M' == toupper(cTmp) )  pcap->damagemodifier[damagetype][1] |= DAMAGEMANA;
-
-        cTmp = fget_first_letter( fileread );
-        if ( 'T' == toupper(cTmp) )  pcap->damagemodifier[damagetype][2] |= DAMAGEINVERT;
-        else if ( 'C' == toupper(cTmp) )  pcap->damagemodifier[damagetype][2] |= DAMAGECHARGE;
-        else if ( 'M' == toupper(cTmp) )  pcap->damagemodifier[damagetype][2] |= DAMAGEMANA;
-
-        cTmp = fget_first_letter( fileread );
-        if ( 'T' == toupper(cTmp) )  pcap->damagemodifier[damagetype][3] |= DAMAGEINVERT;
-        else if ( 'C' == toupper(cTmp) )  pcap->damagemodifier[damagetype][3] |= DAMAGECHARGE;
-        else if ( 'M' == toupper(cTmp) )  pcap->damagemodifier[damagetype][3] |= DAMAGEMANA;
+        for( cnt=0; cnt<MAXSKIN; cnt++ )
+        {
+            cTmp = fget_first_letter( fileread );
+                 if ( 'T' == toupper(cTmp) )  pcap->damagemodifier[damagetype][cnt] |= DAMAGEINVERT;
+            else if ( 'C' == toupper(cTmp) )  pcap->damagemodifier[damagetype][cnt] |= DAMAGECHARGE;
+            else if ( 'M' == toupper(cTmp) )  pcap->damagemodifier[damagetype][cnt] |= DAMAGEMANA;
+        }
     }
 
     goto_colon( NULL, fileread, bfalse );
-    fTmp = fget_float( fileread );  pcap->maxaccel[0] = fTmp / 80.0f;
-    fTmp = fget_float( fileread );  pcap->maxaccel[1] = fTmp / 80.0f;
-    fTmp = fget_float( fileread );  pcap->maxaccel[2] = fTmp / 80.0f;
-    fTmp = fget_float( fileread );  pcap->maxaccel[3] = fTmp / 80.0f;
+    for( cnt=0; cnt<MAXSKIN; cnt++ )
+    {
+        pcap->maxaccel[cnt] = fget_float( fileread ) / 80.0f;
+    }
 
     // Experience and level data
     pcap->experienceforlevel[0] = 0;
     for ( level = 1; level < MAXBASELEVEL; level++ )
     {
-        iTmp = fget_next_int( fileread );  pcap->experienceforlevel[level] = iTmp;
+        pcap->experienceforlevel[level] = fget_next_int( fileread );
     }
     setup_xp_table(object);         //Do the rest of the levels not listed in data.txt
 
@@ -3010,110 +3019,55 @@ int load_one_character_profile( const char * tmploadname, bool_t required )
     pcap->experience.rand >>= 8;
     if ( pcap->experience.rand < 1 )  pcap->experience.rand = 1;
 
-    iTmp = fget_next_int( fileread );  pcap->experienceworth = iTmp;
-    fTmp = fget_next_float( fileread );  pcap->experienceexchange = fTmp;
+    pcap->experienceworth    = fget_next_int( fileread );
+    pcap->experienceexchange = fget_next_float( fileread );
 
     for ( xptype = 0; xptype < XP_COUNT; xptype++ )
     {
-        fTmp = fget_next_float( fileread );  pcap->experiencerate[xptype] = fTmp + 0.001f;
+        pcap->experiencerate[xptype] = fget_next_float( fileread ) + 0.001f;
     }
 
     // IDSZ tags
     for ( idsz_cnt = 0; idsz_cnt < IDSZ_COUNT; idsz_cnt++ )
     {
-        iTmp = fget_next_idsz( fileread );  pcap->idsz[idsz_cnt] = iTmp;
+        pcap->idsz[idsz_cnt] = fget_next_idsz( fileread );
     }
 
     // Item and damage flags
-    cTmp = fget_next_char( fileread );
-    pcap->isitem = bfalse;  pcap->ripple = btrue;
-    if ( 'T' == toupper(cTmp) )  { pcap->isitem = btrue; pcap->ripple = bfalse; }
+    pcap->isitem = fget_next_bool( fileread ); 
+    pcap->ismount = fget_next_bool( fileread );
+    pcap->isstackable = fget_next_bool( fileread );
+    pcap->nameknown = fget_next_bool( fileread );
+    pcap->usageknown = fget_next_bool( fileread );
+    pcap->cancarrytonextmodule = fget_next_bool( fileread );
+    pcap->needskillidtouse = fget_next_bool( fileread );
+    pcap->platform = fget_next_bool( fileread );
+    pcap->cangrabmoney = fget_next_bool( fileread );
+    pcap->canopenstuff = fget_next_bool( fileread );
 
-    cTmp = fget_next_char( fileread );
-    pcap->ismount = bfalse;
-    if ( 'T' == toupper(cTmp) )  pcap->ismount = btrue;
-
-    cTmp = fget_next_char( fileread );
-    pcap->isstackable = bfalse;
-    if ( 'T' == toupper(cTmp) )  pcap->isstackable = btrue;
-
-    cTmp = fget_next_char( fileread );
-    pcap->nameknown = bfalse;
-    if ( 'T' == toupper(cTmp) )  pcap->nameknown = btrue;
-
-    cTmp = fget_next_char( fileread );
-    pcap->usageknown = bfalse;
-    if ( 'T' == toupper(cTmp) )  pcap->usageknown = btrue;
-
-    cTmp = fget_next_char( fileread );
-    pcap->cancarrytonextmodule = bfalse;
-    if ( 'T' == toupper(cTmp) )  pcap->cancarrytonextmodule = btrue;
-
-    cTmp = fget_next_char( fileread );
-    pcap->needskillidtouse = bfalse;
-    if ( 'T' == toupper(cTmp) )  pcap->needskillidtouse = btrue;
-
-    cTmp = fget_next_char( fileread );
-    pcap->platform = bfalse;
-    if ( 'T' == toupper(cTmp) )  pcap->platform = btrue;
-
-    cTmp = fget_next_char( fileread );
-    pcap->cangrabmoney = bfalse;
-    if ( 'T' == toupper(cTmp) )  pcap->cangrabmoney = btrue;
-
-    cTmp = fget_next_char( fileread );
-    pcap->canopenstuff = bfalse;
-    if ( 'T' == toupper(cTmp) )  pcap->canopenstuff = btrue;
+    pcap->ripple = !pcap->isitem;
 
     // More item and damage stuff
-    cTmp = fget_next_char( fileread );
-    if ( 'S' == toupper(cTmp) )  pcap->damagetargettype = DAMAGE_SLASH;
-    if ( 'C' == toupper(cTmp) )  pcap->damagetargettype = DAMAGE_CRUSH;
-    if ( 'P' == toupper(cTmp) )  pcap->damagetargettype = DAMAGE_POKE;
-    if ( 'H' == toupper(cTmp) )  pcap->damagetargettype = DAMAGE_HOLY;
-    if ( 'E' == toupper(cTmp) )  pcap->damagetargettype = DAMAGE_EVIL;
-    if ( 'F' == toupper(cTmp) )  pcap->damagetargettype = DAMAGE_FIRE;
-    if ( 'I' == toupper(cTmp) )  pcap->damagetargettype = DAMAGE_ICE;
-    if ( 'Z' == toupper(cTmp) )  pcap->damagetargettype = DAMAGE_ZAP;
-
-    cTmp = fget_next_char( fileread );
-    pcap->weaponaction = action_which( cTmp );
+    pcap->damagetargettype = fget_next_damage_type( fileread );
+    pcap->weaponaction     = action_which( fget_next_char( fileread ) );
 
     // Particle attachments
-    iTmp = fget_next_int( fileread );  pcap->attachedprtamount = iTmp;
-    cTmp = fget_next_char( fileread );
-    if ( 'N' == toupper(cTmp) )  pcap->attachedprtreaffirmdamagetype = DAMAGE_NONE;
-    if ( 'S' == toupper(cTmp) )  pcap->attachedprtreaffirmdamagetype = DAMAGE_SLASH;
-    if ( 'C' == toupper(cTmp) )  pcap->attachedprtreaffirmdamagetype = DAMAGE_CRUSH;
-    if ( 'P' == toupper(cTmp) )  pcap->attachedprtreaffirmdamagetype = DAMAGE_POKE;
-    if ( 'H' == toupper(cTmp) )  pcap->attachedprtreaffirmdamagetype = DAMAGE_HOLY;
-    if ( 'E' == toupper(cTmp) )  pcap->attachedprtreaffirmdamagetype = DAMAGE_EVIL;
-    if ( 'F' == toupper(cTmp) )  pcap->attachedprtreaffirmdamagetype = DAMAGE_FIRE;
-    if ( 'I' == toupper(cTmp) )  pcap->attachedprtreaffirmdamagetype = DAMAGE_ICE;
-    if ( 'Z' == toupper(cTmp) )  pcap->attachedprtreaffirmdamagetype = DAMAGE_ZAP;
-
-    iTmp = fget_next_int( fileread );  pcap->attachedprttype = iTmp;
+    pcap->attachedprtamount             = fget_next_int( fileread );
+    pcap->attachedprtreaffirmdamagetype = fget_next_damage_type( fileread );
+    pcap->attachedprttype               = fget_next_int( fileread );
 
     // Character hands
-    pcap->slotvalid[SLOT_LEFT] = bfalse;
-    pcap->slotvalid[SLOT_RIGHT] = bfalse;
-    cTmp = fget_next_char( fileread );
-    if ( 'T' == toupper(cTmp) )  pcap->slotvalid[SLOT_LEFT] = btrue;
-
-    cTmp = fget_next_char( fileread );
-    if ( 'T' == toupper(cTmp) )  pcap->slotvalid[SLOT_RIGHT] = btrue;
+    pcap->slotvalid[SLOT_LEFT]  = fget_next_bool( fileread );
+    pcap->slotvalid[SLOT_RIGHT] = fget_next_bool( fileread );
 
     // Attack order ( weapon )
-    cTmp = fget_next_char( fileread );
-    pcap->attackattached = bfalse;
-    if ( 'T' == toupper(cTmp) )  pcap->attackattached = btrue;
-
-    iTmp = fget_next_int( fileread );  pcap->attackprttype = iTmp;
+    pcap->attackattached = fget_next_bool( fileread );
+    pcap->attackprttype  = fget_next_int( fileread );
 
     // GoPoof
-    iTmp = fget_next_int( fileread );  pcap->gopoofprtamount = iTmp;
-    iTmp = fget_next_int( fileread );  pcap->gopoofprtfacingadd = iTmp;
-    iTmp = fget_next_int( fileread );  pcap->gopoofprttype = iTmp;
+    pcap->gopoofprtamount    = fget_next_int( fileread );
+    pcap->gopoofprtfacingadd = fget_next_int( fileread );
+    pcap->gopoofprttype      = fget_next_int( fileread );
 
     // Blud
     cTmp = fget_next_char( fileread );
@@ -3121,53 +3075,41 @@ int load_one_character_profile( const char * tmploadname, bool_t required )
     if ( 'T' == toupper(cTmp) )  pcap->bludvalid = btrue;
     if ( 'U' == toupper(cTmp) )  pcap->bludvalid = ULTRABLUDY;
 
-    iTmp = fget_next_int( fileread );  pcap->bludprttype = iTmp;
+    pcap->bludprttype = fget_next_int( fileread );
 
     // Stuff I forgot
-    cTmp = fget_next_char( fileread );
-    pcap->waterwalk = bfalse;
-    if ( 'T' == toupper(cTmp) )  pcap->waterwalk = btrue;
-
-    fTmp = fget_next_float( fileread );  pcap->dampen = fTmp;
+    pcap->waterwalk = fget_next_bool( fileread );
+    pcap->dampen    = fget_next_float( fileread );
 
     // More stuff I forgot
-    fTmp = fget_next_float( fileread );  pcap->lifeheal = fTmp * 256;
-    fTmp = fget_next_float( fileread );  pcap->manacost = fTmp * 256;
-    iTmp = fget_next_int( fileread );  pcap->lifereturn = iTmp;
-    iTmp = fget_next_int( fileread );  pcap->stoppedby = iTmp | MPDFX_IMPASS;
-    fget_next_name( fileread, pcap->skinname[0], sizeof(pcap->skinname[0]) );
-    fget_next_name( fileread, pcap->skinname[1], sizeof(pcap->skinname[1]) );
-    fget_next_name( fileread, pcap->skinname[2], sizeof(pcap->skinname[2]) );
-    fget_next_name( fileread, pcap->skinname[3], sizeof(pcap->skinname[3]) );
-    iTmp = fget_next_int( fileread );  pcap->skincost[0] = iTmp;
-    iTmp = fget_next_int( fileread );  pcap->skincost[1] = iTmp;
-    iTmp = fget_next_int( fileread );  pcap->skincost[2] = iTmp;
-    iTmp = fget_next_int( fileread );  pcap->skincost[3] = iTmp;
-    fTmp = fget_next_float( fileread );  pcap->strengthdampen = fTmp;
+    pcap->lifeheal   = fget_next_float( fileread ) * 256;
+    pcap->manacost   = fget_next_float( fileread ) * 256;
+    pcap->lifereturn = fget_next_int( fileread );
+    pcap->stoppedby  = fget_next_int( fileread ) | MPDFX_IMPASS;
+    for(cnt=0; cnt<MAXSKIN; cnt++)
+    {
+        fget_next_name( fileread, pcap->skinname[cnt], sizeof(pcap->skinname[cnt]) );
+    }
+    for(cnt=0; cnt<MAXSKIN; cnt++)
+    {
+        pcap->skincost[cnt] = fget_next_int( fileread );
+    }
+    pcap->strengthdampen = fget_next_float( fileread );
 
     // Another memory lapse
-    cTmp = fget_next_char( fileread );
-    pcap->ridercanattack = btrue;
-    if ( 'T' == toupper(cTmp) )  pcap->ridercanattack = bfalse;
-
-    cTmp = fget_next_char( fileread );  // Can be dazed
-    pcap->canbedazed = bfalse;
-    if ( 'T' == toupper(cTmp) )  pcap->canbedazed = btrue;
-
-    cTmp = fget_next_char( fileread );  // Can be grogged
-    pcap->canbegrogged = bfalse;
-    if ( 'T' == toupper(cTmp) )  pcap->canbegrogged = btrue;
+    pcap->ridercanattack = !fget_next_bool( fileread );
+    pcap->canbedazed     =  fget_next_bool( fileread );
+    pcap->canbegrogged   =  fget_next_bool( fileread );
 
     goto_colon( NULL, fileread, bfalse );  // !!!BAD!!! Life add
     goto_colon( NULL, fileread, bfalse );  // !!!BAD!!! Mana add
-    cTmp = fget_next_char( fileread );  // Can see invisible
-    pcap->canseeinvisible = bfalse;
-    if ( 'T' == toupper(cTmp) )  pcap->canseeinvisible = btrue;
+    pcap->canseeinvisible = fget_next_bool( fileread );
 
-    iTmp = fget_next_int( fileread );  // Chance of kursed
-    pcap->kursechance = iTmp;
+    pcap->kursechance = fget_next_int( fileread );
+
     iTmp = fget_next_int( fileread );  // Footfall sound
     pcap->soundindex[SOUND_FOOTFALL] = CLIP(iTmp, -1, MAX_WAVE);
+
     iTmp = fget_next_int( fileread );  // Jump sound
     pcap->soundindex[SOUND_JUMP] = CLIP(iTmp, -1, MAX_WAVE);
 
@@ -3180,7 +3122,7 @@ int load_one_character_profile( const char * tmploadname, bool_t required )
     pcap->isranged = bfalse;
     pcap->hidestate = NOHIDE;
     pcap->isequipment = bfalse;
-    pcap->bumpsizebig = pcap->bumpsize + ( pcap->bumpsize >> 1 );
+    pcap->bumpsizebig = pcap->bumpsize * SQRT_TWO;
     pcap->canseekurse = bfalse;
     pcap->money = 0;
     pcap->icon = pcap->usageknown;
@@ -3220,7 +3162,7 @@ int load_one_character_profile( const char * tmploadname, bool_t required )
         else if ( idsz == MAKE_IDSZ( 'R', 'A', 'N', 'G' ) ) pcap->isranged = fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'H', 'I', 'D', 'E' ) ) pcap->hidestate = fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'E', 'Q', 'U', 'I' ) ) pcap->isequipment = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'S', 'Q', 'U', 'A' ) ) pcap->bumpsizebig = pcap->bumpsize << 1;
+        else if ( idsz == MAKE_IDSZ( 'S', 'Q', 'U', 'A' ) ) pcap->bumpsizebig = pcap->bumpsize * 2;
         else if ( idsz == MAKE_IDSZ( 'I', 'C', 'O', 'N' ) ) pcap->icon = fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'S', 'H', 'A', 'D' ) ) pcap->forceshadow = fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'C', 'K', 'U', 'R' ) ) pcap->canseekurse = fget_int( fileread );
@@ -3261,6 +3203,8 @@ int load_one_character_profile( const char * tmploadname, bool_t required )
         make_newloadname( tmploadname, wavename, szLoadName );
         pcap->wavelist[cnt] = sound_load_chunk( szLoadName );
     }
+
+    //log_info( "load_one_character_profile() - loaded object %s (%d)\n", pcap->classname, object );
 
     return object;
 }
@@ -3750,9 +3694,9 @@ Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
         return MAX_CHR;
     }
 
-    if ( !MadList[profile].loaded )
+    if ( !VALID_MAD(profile) || !VALID_CAP(profile) )
     {
-        if ( profile > PMod->importamount * 9 )
+        if ( profile > PMod->importamount * MAXIMPORTPERPLAYER )
         {
             log_warning( "spawn_one_character() - trying to spawn using invalid profile %d\n", profile );
         }
@@ -5320,7 +5264,9 @@ bool_t chr_do_latch_button( chr_t * pchr )
             // Then check if a skill is needed
             if ( CapList[ChrList.lst[weapon].model].needskillidtouse )
             {
-                if ( check_skills( ichr, CapList[ChrList.lst[weapon].model].idsz[IDSZ_SKILL]) == bfalse   )
+                IDSZ idsz = CapList[ChrList.lst[weapon].model].idsz[IDSZ_SKILL];
+
+                if ( check_skills( ichr, idsz) == bfalse   )
                     allowedtoattack = bfalse;
             }
         }

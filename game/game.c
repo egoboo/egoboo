@@ -96,6 +96,9 @@ static bool_t do_line_of_sight( line_of_sight_info_t * plos );
 //--------------------------------------------------------------------------------------------
 struct s_chr_setup_info
 {
+    bool_t     do_spawn;
+    STRING     spawn_coment;
+
     STRING     spawn_name;
     char      *pname;
     Sint32     slot;
@@ -220,7 +223,7 @@ static void   game_release_module_data();
 
 static void   setup_characters( const char *modname );
 static void   setup_alliances( const char *modname );
-static int    load_one_object( const char* tmploadname );
+static int    load_one_object( const char* tmploadname, int slot_override );
 static int    load_all_objects( const char *modname );
 static void   load_all_global_objects();
 
@@ -1746,20 +1749,20 @@ void memory_cleanUp(void)
 }
 
 //--------------------------------------------------------------------------------------------
-int load_one_object( const char* tmploadname )
+int load_one_object( const char* tmploadname, int slot_override )
 {
-    // ZZ> This function loads one object and returns the number of skins
+    // ZZ> This function loads one object and returns the object slot
+
     int object;
-    int numskins;
     STRING newloadname;
 
     // Load the object data file and get the object number
-    object = load_one_character_profile( tmploadname, btrue );
+    object = load_one_character_profile( tmploadname, slot_override, !VALID_CAP_RANGE(slot_override) );
 
-    if ( !VALID_CAP(object) ) return 0; // no skins for an invalid object
+    if ( !VALID_CAP(object) ) return MAX_PROFILE; // no skins for an invalid object
 
     // Load the model for this object
-    numskins = load_one_model_profile( tmploadname, object );
+    load_one_model_profile( tmploadname, object );
 
     // Load the enchantment for this object
     make_newloadname( tmploadname, SLASH_STR "enchant.txt", newloadname );
@@ -1771,7 +1774,7 @@ int load_one_object( const char* tmploadname )
         mad_make_equally_lit( object );
     }
 
-    return numskins;
+    return object;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4103,7 +4106,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
                 if (  HAS_NO_BITS( frame_all, 31 ) && pprt_b->attachedtocharacter == ichr_a )
                 {
                     // Attached iprt_b damage ( Burning )
-                    if ( ppip_b->xyvelbase == 0 )
+                    if ( ppip_b->xyvel_pair.base == 0 )
                     {
                         // Make character limp
                         pchr_a->phys.avel.x += -pchr_a->vel.x;
@@ -4570,6 +4573,7 @@ void tilt_characters_to_terrain()
 int load_all_objects( const char *modname )
 {
     // ZZ> This function loads a module's local objects and overrides the global ones already loaded
+
     const char *filehandle;
     bool_t keeplooking;
     char newloadname[256];
@@ -4609,7 +4613,7 @@ int load_all_objects( const char *modname )
                 import_data.object = ( import_data.player * MAXIMPORTPERPLAYER ) + ( cnt % MAXIMPORTPERPLAYER );
 
                 // load it
-                load_one_object( filename );
+                load_one_object( filename, MAX_PROFILE );
 
                 import_data.slot_lst[import_data.object] = cnt;
             }
@@ -4625,7 +4629,7 @@ int load_all_objects( const char *modname )
     while ( filehandle != NULL )
     {
         sprintf( filename, "%s%s", newloadname, filehandle );
-        load_one_object( filename );
+        load_one_object( filename, MAX_PROFILE );
 
         filehandle = fs_findNextFile();
     }
@@ -4635,95 +4639,158 @@ int load_all_objects( const char *modname )
 }
 
 //--------------------------------------------------------------------------------------------
+chr_setup_info_t * chr_setup_info_init( chr_setup_info_t *pinfo )
+{
+    // BB> safe values for all parameters
+
+    if( NULL == pinfo ) return pinfo;
+
+    memset( pinfo, 0, sizeof(chr_setup_info_t) );
+
+    pinfo->attach = ATTACH_NONE;
+    pinfo->team   = TEAM_NULL;
+
+    return pinfo;
+}
+
+//--------------------------------------------------------------------------------------------
+chr_setup_info_t * chr_setup_info_reinit( chr_setup_info_t *pinfo )
+{
+    Uint16 old_parent;
+
+    if( NULL == pinfo ) return pinfo;
+
+    // save the parent data just in case
+    old_parent = pinfo->parent;
+
+    // init the data
+    chr_setup_info_init( pinfo );
+
+    // restore the parent data
+    pinfo->parent = old_parent;
+
+    return pinfo;
+}
+
+//--------------------------------------------------------------------------------------------
 bool_t chr_setup_read( FILE * fileread, chr_setup_info_t *pinfo )
 {
-    int cnt;
-    char cTmp;
+    char cTmp, delim;
+    bool_t retval;
+
 
     // trap bad pointers
     if ( NULL == fileread || NULL == pinfo ) return bfalse;
 
-    // check for another entry
-    if ( !goto_colon( NULL, fileread, btrue ) ) return bfalse;
+    chr_setup_info_reinit( pinfo );
 
-    fget_string( fileread, pinfo->spawn_name, SDL_arraysize(pinfo->spawn_name) );
-    for ( cnt = 0; cnt < sizeof(pinfo->spawn_name); cnt++ )
+    // check for another entry, either the "#" or ":" delimiters
+    delim = goto_delimiter_list( pinfo->spawn_coment, fileread, "#:", btrue );
+    if ( '\0' == delim ) return bfalse;
+
+    retval = bfalse;
+    if( ':' == delim )
     {
-        if ( '_' == pinfo->spawn_name[cnt] )  pinfo->spawn_name[cnt] = ' ';
+        retval = btrue;
+
+        pinfo->do_spawn = btrue;
+
+        fget_string( fileread, pinfo->spawn_name, SDL_arraysize(pinfo->spawn_name) );
+        str_decode( pinfo->spawn_name, SDL_arraysize(pinfo->spawn_name), pinfo->spawn_name );
+
+        pinfo->pname = pinfo->spawn_name;
+        if ( 0 == strcmp( pinfo->spawn_name, "NONE") )
+        {
+            // Random pinfo->pname
+            pinfo->pname = NULL;
+        }
+
+        pinfo->slot = fget_int( fileread );
+
+        pinfo->pos.x = fget_float( fileread ) * TILE_SIZE;
+        pinfo->pos.y = fget_float( fileread ) * TILE_SIZE;
+        pinfo->pos.z = fget_float( fileread ) * TILE_SIZE;
+
+        pinfo->facing = FACE_NORTH;
+        pinfo->attach = ATTACH_NONE;
+        cTmp = fget_first_letter( fileread );
+        if ( 'S' == toupper(cTmp) )       pinfo->facing = FACE_SOUTH;
+        else if ( 'E' == toupper(cTmp) )  pinfo->facing = FACE_EAST;
+        else if ( 'W' == toupper(cTmp) )  pinfo->facing = FACE_WEST;
+        else if ( '?' == toupper(cTmp) )  pinfo->facing = FACE_RANDOM;
+        else if ( 'L' == toupper(cTmp) )  pinfo->attach = ATTACH_LEFT;
+        else if ( 'R' == toupper(cTmp) )  pinfo->attach = ATTACH_RIGHT;
+        else if ( 'I' == toupper(cTmp) )  pinfo->attach = ATTACH_INVENTORY;
+
+        pinfo->money   = fget_int( fileread );
+        pinfo->skin    = fget_int( fileread );
+        pinfo->passage = fget_int( fileread );
+        pinfo->content = fget_int( fileread );
+        pinfo->level   = fget_int( fileread );
+
+        if (pinfo->skin >= MAXSKIN) 
+        {
+            int irand = RANDIE;
+            pinfo->skin = irand % MAXSKIN;     // Randomize skin?
+        }
+
+        pinfo->stat = fget_bool( fileread );
+
+        fget_first_letter( fileread );   // BAD! Unused ghost value
+
+        cTmp = fget_first_letter( fileread );
+        pinfo->team = ( cTmp - 'A' ) % TEAM_MAX;
+    }
+    else if( '#' == delim )
+    {
+        STRING szTmp1, szTmp2;
+        int    iTmp, fields;          
+
+        pinfo->do_spawn = bfalse;
+
+        fields = fscanf( fileread, "%255s%255s%d", szTmp1, szTmp2, &iTmp );
+        if( 3 == fields && 0 == strcmp(szTmp1, "dependency") )
+        {
+            retval = btrue;
+
+            // seed the info with the data
+            strncpy( pinfo->spawn_coment, szTmp2, SDL_arraysize(pinfo->spawn_coment) );
+            pinfo->slot = iTmp;
+        }
     }
 
-    pinfo->pname = pinfo->spawn_name;
-    if ( 0 == strcmp( pinfo->spawn_name, "NONE") )
-    {
-        // Random pinfo->pname
-        pinfo->pname = NULL;
-    }
 
-    pinfo->slot = fget_int( fileread );
-
-    pinfo->pos.x = fget_float( fileread ) * TILE_SIZE;
-    pinfo->pos.y = fget_float( fileread ) * TILE_SIZE;
-    pinfo->pos.z = fget_float( fileread ) * TILE_SIZE;
-
-    pinfo->facing = FACE_NORTH;
-    pinfo->attach = ATTACH_NONE;
-    cTmp = fget_first_letter( fileread );
-    if ( 'S' == toupper(cTmp) )       pinfo->facing = FACE_SOUTH;
-    else if ( 'E' == toupper(cTmp) )  pinfo->facing = FACE_EAST;
-    else if ( 'W' == toupper(cTmp) )  pinfo->facing = FACE_WEST;
-    else if ( '?' == toupper(cTmp) )  pinfo->facing = FACE_RANDOM;
-    else if ( 'L' == toupper(cTmp) )  pinfo->attach = ATTACH_LEFT;
-    else if ( 'R' == toupper(cTmp) )  pinfo->attach = ATTACH_RIGHT;
-    else if ( 'I' == toupper(cTmp) )  pinfo->attach = ATTACH_INVENTORY;
-
-    pinfo->money   = fget_int( fileread );
-    pinfo->skin    = fget_int( fileread );
-    pinfo->passage = fget_int( fileread );
-    pinfo->content = fget_int( fileread );
-    pinfo->level   = fget_int( fileread );
-
-    if (pinfo->skin >= MAXSKIN) 
-    {
-        int irand = RANDIE;
-        pinfo->skin = irand % MAXSKIN;     // Randomize skin?
-    }
-
-    cTmp = fget_first_letter( fileread );
-    pinfo->stat = ( 'T' == toupper(cTmp) );
-
-    cTmp = fget_first_letter( fileread );   // BAD! Unused ghost value
-
-    cTmp = fget_first_letter( fileread );
-    pinfo->team = ( cTmp - 'A' ) % TEAM_MAX;
-
-    return btrue;
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
 bool_t chr_setup_apply( Uint16 ichr, chr_setup_info_t *pinfo )
 {
+    chr_t * pchr;
+
     // trap bad pointers
     if ( NULL == pinfo ) return bfalse;
 
-    if ( ichr >= MAX_CHR || !ChrList.lst[ichr].on ) return bfalse;
+    if ( INVALID_CHR(ichr) ) return bfalse;
+    pchr = ChrList.lst + ichr;
 
-    ChrList.lst[ichr].money += pinfo->money;
-    if ( ChrList.lst[ichr].money > MAXMONEY )  ChrList.lst[ichr].money = MAXMONEY;
-    if ( ChrList.lst[ichr].money < 0 )  ChrList.lst[ichr].money = 0;
+    pchr->money += pinfo->money;
+    if ( pchr->money > MAXMONEY )  pchr->money = MAXMONEY;
+    if ( pchr->money < 0 )  pchr->money = 0;
 
-    ChrList.lst[ichr].ai.content = pinfo->content;
-    ChrList.lst[ichr].ai.passage = pinfo->passage;
+    pchr->ai.content = pinfo->content;
+    pchr->ai.passage = pinfo->passage;
 
     if ( pinfo->attach == ATTACH_INVENTORY )
     {
         // Inventory character
         inventory_add_item( ichr, pinfo->parent );
 
-        ChrList.lst[ichr].ai.alert |= ALERTIF_GRABBED;  // Make spellbooks change
-        ChrList.lst[ichr].attachedto = pinfo->parent;  // Make grab work
+        pchr->ai.alert |= ALERTIF_GRABBED;  // Make spellbooks change
+        pchr->attachedto = pinfo->parent;  // Make grab work
         let_character_think( ichr );  // Empty the grabbed messages
 
-        ChrList.lst[ichr].attachedto = MAX_CHR;  // Fix grab
+        pchr->attachedto = MAX_CHR;  // Fix grab
 
     }
     else if ( pinfo->attach == ATTACH_LEFT || pinfo->attach == ATTACH_RIGHT )
@@ -4739,11 +4806,119 @@ bool_t chr_setup_apply( Uint16 ichr, chr_setup_info_t *pinfo )
     // Set the starting pinfo->level
     if ( pinfo->level > 0 )
     {
-        while ( ChrList.lst[ichr].experiencelevel < pinfo->level && ChrList.lst[ichr].experience < MAXXP )
+        while ( pchr->experiencelevel < pinfo->level && pchr->experience < MAXXP )
         {
             give_experience( ichr, 25, XP_DIRECT, btrue );
             do_level_up( ichr );
         }
+    }
+
+    return btrue;
+}
+//--------------------------------------------------------------------------------------------
+bool_t setup_characters_load_object( chr_setup_info_t * pinfo )
+{
+    // BB> Try to load a global object named pinfo->spawn_coment into slot pinfo->slot
+
+    STRING filename;
+
+    if( NULL == pinfo || VALID_CAP(pinfo->slot) ) return bfalse;
+
+    // trim any excess spaces off the pinfo->spawn_coment
+    str_trim(pinfo->spawn_coment);
+
+    if( NULL == strstr(pinfo->spawn_coment, ".obj" ) )
+    {
+        strcat( pinfo->spawn_coment, ".obj" );
+    }
+
+    strlwr( pinfo->spawn_coment );
+
+    // do the loading
+    if( '\0' != pinfo->spawn_coment[0] )
+    {
+        snprintf( filename, SDL_arraysize(filename), "basicdat" SLASH_STR "globalobjects" SLASH_STR "%s", pinfo->spawn_coment );
+
+        pinfo->slot = load_one_object( filename, pinfo->slot );
+    }
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t setup_characters_spawn( chr_setup_info_t * pinfo )
+{
+    int tnc;
+    int new_object, local_index = 0;
+
+    if( NULL == pinfo || !pinfo->do_spawn ) return bfalse;
+
+    // Spawn the character
+    new_object = spawn_one_character( pinfo->pos, pinfo->slot, pinfo->team, pinfo->skin, pinfo->facing, pinfo->pname, MAX_CHR );
+    if ( INVALID_CHR(new_object) ) 
+        return bfalse;
+
+    // determine the attachment
+    if ( pinfo->attach == ATTACH_NONE )
+    {
+        // Free character
+        pinfo->parent = new_object;
+        make_one_character_matrix( new_object );
+    }
+
+    chr_setup_apply( new_object, pinfo );
+
+    // Turn on numpla input devices
+    if ( pinfo->stat )
+    {
+        if ( 0 == PMod->importamount && numpla < PMod->playeramount )
+        {
+            if ( 0 == local_numlpla )
+            {
+                // the first player gets everything
+                add_player( new_object, numpla, (Uint32)(~0) );
+            }
+            else
+            {
+                Uint32 bits;
+
+                // each new player steals an input device from the 1st player
+                bits = 1 << local_numlpla;
+                for ( tnc = 0; tnc < MAXPLAYER; tnc++ )
+                {
+                    PlaList[tnc].device &= ~bits;
+                }
+
+                add_player( new_object, numpla, bits );
+            }
+        }
+        else if ( numpla < numimport && numpla < PMod->importamount && numpla < PMod->playeramount )
+        {
+            // Multiplayer import module
+            local_index = -1;
+            for ( tnc = 0; tnc < numimport; tnc++ )
+            {
+                if ( import_data.slot_lst[ChrList.lst[new_object].model] == local_slot[tnc] )
+                {
+                    local_index = tnc;
+                    break;
+                }
+            }
+
+            if ( -1 != local_index )
+            {
+                // It's a local numpla
+                add_player( new_object, numpla, local_control[local_index] );
+            }
+            else
+            {
+                // It's a remote numpla
+                add_player( new_object, numpla, INPUT_BITS_NONE );
+            }
+        }
+
+        // Turn on the stat display
+        statlist_add( new_object );
     }
 
     return btrue;
@@ -4753,11 +4928,10 @@ bool_t chr_setup_apply( Uint16 ichr, chr_setup_info_t *pinfo )
 void setup_characters( const char *modname )
 {
     // ZZ> This function sets up character data, loaded from "SPAWN.TXT"
-    int new_object, tnc, local_index = 0;
-    STRING newloadname;
-    FILE *fileread;
 
     chr_setup_info_t info;
+    STRING newloadname;
+    FILE  *fileread;
 
     // Turn all objects off
     free_all_objects();
@@ -4778,77 +4952,32 @@ void setup_characters( const char *modname )
 
         while ( chr_setup_read( fileread, &info ) )
         {
-            // Spawn the character
-            new_object = spawn_one_character( info.pos, info.slot, info.team, info.skin, info.facing, info.pname, MAX_CHR );
+            int save_slot = info.slot;
 
-            if ( MAX_CHR != new_object )
+            // check to see if the slot is valid
+            if( -1 == info.slot || info.slot >= MAX_PROFILE )
             {
-                // determine the attachment
-                if ( info.attach == ATTACH_NONE )
-                {
-                    // Free character
-                    info.parent = new_object;
-                    make_one_character_matrix( new_object );
-                }
-
-                chr_setup_apply( new_object, &info );
-
-                // Turn on numpla input devices
-                if ( info.stat )
-                {
-
-                    if ( 0 == PMod->importamount && numpla < PMod->playeramount )
-                    {
-                        if ( 0 == local_numlpla )
-                        {
-                            // the first player gets everything
-                            add_player( new_object, numpla, (Uint32)(~0) );
-                        }
-                        else
-                        {
-                            int i;
-                            Uint32 bits;
-
-                            // each new player steals an input device from the 1st player
-                            bits = 1 << local_numlpla;
-                            for ( i = 0; i < MAXPLAYER; i++ )
-                            {
-                                PlaList[i].device &= ~bits;
-                            }
-
-                            add_player( new_object, numpla, bits );
-                        }
-
-                    }
-                    else if ( numpla < numimport && numpla < PMod->importamount && numpla < PMod->playeramount )
-                    {
-                        // Multiplayer import module
-                        local_index = -1;
-                        for ( tnc = 0; tnc < numimport; tnc++ )
-                        {
-                            if ( import_data.slot_lst[ChrList.lst[new_object].model] == local_slot[tnc] )
-                            {
-                                local_index = tnc;
-                                break;
-                            }
-                        }
-
-                        if ( -1 != local_index )
-                        {
-                            // It's a local numpla
-                            add_player( new_object, numpla, local_control[local_index] );
-                        }
-                        else
-                        {
-                            // It's a remote numpla
-                            add_player( new_object, numpla, INPUT_BITS_NONE );
-                        }
-                    }
-
-                    // Turn on the stat display
-                    statlist_add( new_object );
-                }
+                log_warning( "Invalid slot %d for \"%s\" in file \"%s\"\n", info.slot, info.spawn_coment, newloadname );
+                continue;
             }
+
+            // check to see if something is in that slot
+            if( INVALID_CAP(info.slot) )
+            {
+                setup_characters_load_object( &info );
+            }
+
+            if( INVALID_CAP(info.slot) )
+            {
+                if ( save_slot > PMod->importamount * MAXIMPORTPERPLAYER )
+                {
+                    log_warning( "The object \"%s\"(slot %d) in file \"%s\" does not exist on this machine\n", info.spawn_coment, save_slot, newloadname );
+                }
+                continue;
+            }
+
+            // do the spawning if need be
+            setup_characters_spawn( &info );
         }
 
         fclose( fileread );
@@ -4885,7 +5014,7 @@ void load_all_global_objects()
         while ( keeplooking )
         {
             sprintf( filename, "%s%s", newloadname, filehandle );
-            load_one_object( filename );
+            load_one_object( filename, MAX_PROFILE );
 
             filehandle = fs_findNextFile();
 
@@ -4944,7 +5073,10 @@ bool_t game_load_module_data( const char *smallname )
 
     // Load all objects
     load_all_objects(modname);
-    load_all_global_objects();
+
+    // do the global objec load dynamically using the GOR and the slot numbers in the 
+    // spawn.txt file
+    // load_all_global_objects();
 
     if ( NULL == mesh_load( modname, PMesh ) )
     {
@@ -5049,6 +5181,9 @@ void game_quit_module()
 
     // finish whatever in-game song is playing
     sound_finish_sound();
+
+    // if we are quitting a module, we are definitely not starting a new player
+    startNewPlayer = bfalse;
 }
 
 //-----------------------------------------------------------------
@@ -5823,7 +5958,6 @@ void read_wawalite( const char *modname )
     char newloadname[256];
     FILE* fileread;
     float fTmp;
-    char cTmp;
     int iTmp;
 
     water_data_init( &water_data );
@@ -5852,58 +5986,56 @@ void read_wawalite( const char *modname )
     // !!!BAD!!!
 
     // Read water data first
-    iTmp = fget_next_int( fileread );  water_data.layer_count = iTmp;
-    iTmp = fget_next_int( fileread );  water_data.spek_start = iTmp;
-    iTmp = fget_next_int( fileread );  water_data.spek_level = iTmp;
-    iTmp = fget_next_int( fileread );  water_data.douse_level = iTmp;
-    iTmp = fget_next_int( fileread );  water_data.surface_level = iTmp;
-    cTmp = fget_next_char( fileread );
-    if ( 'T' == toupper(cTmp) )  water_data.light = btrue;
-    else water_data.light = bfalse;
-
-    cTmp = fget_next_char( fileread );
-    water_data.is_water = bfalse;
-    if ( 'T' == toupper(cTmp) )  water_data.is_water = btrue;
-
-    cTmp = fget_next_char( fileread );
-    water_data.overlay_req = ('T' == toupper(cTmp));
-
-    cTmp = fget_next_char( fileread );
-    water_data.background_req = ('T' == toupper(cTmp));
+    water_data.layer_count    = fget_next_int( fileread );
+    water_data.spek_start     = fget_next_int( fileread );
+    water_data.spek_level     = fget_next_int( fileread );
+    water_data.douse_level    = fget_next_int( fileread );
+    water_data.surface_level  = fget_next_int( fileread );
+    water_data.light          = fget_next_bool( fileread );
+    water_data.is_water       = fget_next_bool( fileread );
+    water_data.overlay_req    = fget_next_bool( fileread );
+    water_data.background_req = fget_next_bool( fileread );
 
     // General data info
-    fTmp = fget_next_float( fileread );  water_data.layer[0].dist.x = fTmp;
-    fTmp = fget_next_float( fileread );  water_data.layer[0].dist.y = fTmp;
-    fTmp = fget_next_float( fileread );  water_data.layer[1].dist.x = fTmp;
-    fTmp = fget_next_float( fileread );  water_data.layer[1].dist.y = fTmp;
-    iTmp = fget_next_int( fileread );  water_data.foregroundrepeat = iTmp;
-    iTmp = fget_next_int( fileread );  water_data.backgroundrepeat = iTmp;
+    water_data.layer[0].dist.x  = fget_next_float( fileread );
+    water_data.layer[0].dist.y  = fget_next_float( fileread );
+    water_data.layer[1].dist.x  = fget_next_float( fileread );
+    water_data.layer[1].dist.y  = fget_next_float( fileread );
+    water_data.foregroundrepeat = fget_next_int( fileread );
+    water_data.backgroundrepeat = fget_next_int( fileread );
 
     // Read data on first water layer
-    iTmp = fget_next_int( fileread );  water_data.layer[0].z = iTmp;
-    iTmp = fget_next_int( fileread );  water_data.layer[0].alpha = iTmp;
-    iTmp = fget_next_int( fileread );  water_data.layer[0].frame_add = iTmp;
-    iTmp = fget_next_int( fileread );  water_data.layer[0].light_dir = CLIP(iTmp, 0, 63);
-    iTmp = fget_next_int( fileread );  water_data.layer[0].light_add = CLIP(iTmp, 0, 63);
-    fTmp = fget_next_float( fileread );  water_data.layer[0].amp = fTmp;
-    fTmp = fget_next_float( fileread );  water_data.layer[0].tx_add.x = fTmp;
-    fTmp = fget_next_float( fileread );  water_data.layer[0].tx_add.y = fTmp;
+    water_data.layer[0].z         = fget_next_int( fileread );
+    water_data.layer[0].alpha     = fget_next_int( fileread );
+    water_data.layer[0].frame_add = fget_next_int( fileread );
+    water_data.layer[0].light_dir = fget_next_int( fileread );
+    water_data.layer[0].light_add = fget_next_int( fileread );
+    water_data.layer[0].amp       = fget_next_float( fileread );
+    water_data.layer[0].tx_add.x  = fget_next_float( fileread );
+    water_data.layer[0].tx_add.y  = fget_next_float( fileread );
+
+    water_data.layer[0].light_dir = CLIP(water_data.layer[0].light_dir, 0, 63);
+    water_data.layer[0].light_add = CLIP(water_data.layer[0].light_dir, 0, 63);
 
     // Read data on second water layer
-    iTmp = fget_next_int( fileread );  water_data.layer[1].z = iTmp;
-    iTmp = fget_next_int( fileread );  water_data.layer[1].alpha = iTmp;
-    iTmp = fget_next_int( fileread );  water_data.layer[1].frame_add = iTmp;
-    iTmp = fget_next_int( fileread );  water_data.layer[1].light_dir = CLIP(iTmp, 0, 63);
-    iTmp = fget_next_int( fileread );  water_data.layer[1].light_add = CLIP(iTmp, 0, 63);
-    fTmp = fget_next_float( fileread );  water_data.layer[1].amp = fTmp;
-    fTmp = fget_next_float( fileread );  water_data.layer[1].tx_add.x = fTmp;
-    fTmp = fget_next_float( fileread );  water_data.layer[1].tx_add.y = fTmp;
+    water_data.layer[1].z         = fget_next_int( fileread );
+    water_data.layer[1].alpha     = fget_next_int( fileread );
+    water_data.layer[1].frame_add = fget_next_int( fileread );
+    water_data.layer[1].light_dir = fget_next_int( fileread );
+    water_data.layer[1].light_add = fget_next_int( fileread );
+    water_data.layer[1].amp       = fget_next_float( fileread );
+    water_data.layer[1].tx_add.x  = fget_next_float( fileread );
+    water_data.layer[1].tx_add.y  = fget_next_float( fileread );
+
+    water_data.layer[1].light_dir = CLIP(water_data.layer[1].light_dir, 0, 63);
+    water_data.layer[1].light_add = CLIP(water_data.layer[1].light_dir, 0, 63);
+
 
     // Read light data second
-    fTmp = fget_next_float( fileread );  light_x = fTmp;
-    fTmp = fget_next_float( fileread );  light_y = fTmp;
-    fTmp = fget_next_float( fileread );  light_z = fTmp;
-    fTmp = fget_next_float( fileread );  light_a = fTmp * 10.0f;
+    light_x = fget_next_float( fileread );
+    light_y = fget_next_float( fileread );
+    light_z = fget_next_float( fileread );
+    light_a = fget_next_float( fileread ) * 10.0f;
 
     light_d = 0.0f;
     if ( ABS(light_x) + ABS(light_y) + ABS(light_z) > 0 )
@@ -5920,65 +6052,47 @@ void read_wawalite( const char *modname )
     }
 
     // Read tile data third
-    fTmp = fget_next_float( fileread );  hillslide = fTmp;
-    fTmp = fget_next_float( fileread );  slippyfriction = fTmp;
-    fTmp = fget_next_float( fileread );  airfriction = fTmp;
-    fTmp = fget_next_float( fileread );  waterfriction = fTmp;
-    fTmp = fget_next_float( fileread );  noslipfriction = fTmp;
-    fTmp = fget_next_float( fileread );  gravity = fTmp;
-    iTmp = fget_next_int( fileread );  animtile_data.update_and = iTmp;
-    iTmp = fget_next_int( fileread );  animtile_data.frame_and = iTmp;
+    hillslide      = fget_next_float( fileread );
+    slippyfriction = fget_next_float( fileread );
+    airfriction    = fget_next_float( fileread );
+    waterfriction  = fget_next_float( fileread );
+    noslipfriction = fget_next_float( fileread );
+    gravity        = fget_next_float( fileread );
 
-    iTmp = fget_next_int( fileread );  
-    damagetile_data.amount.base = iTmp; damagetile_data.amount.rand = 1;
+    animtile_data.update_and = fget_next_int( fileread );
+    animtile_data.frame_and  = fget_next_int( fileread );
 
-    cTmp = fget_next_char( fileread );
-    if ( 'S' == toupper(cTmp) )  damagetile_data.type = DAMAGE_SLASH;
-    if ( 'C' == toupper(cTmp) )  damagetile_data.type = DAMAGE_CRUSH;
-    if ( 'P' == toupper(cTmp) )  damagetile_data.type = DAMAGE_POKE;
-    if ( 'H' == toupper(cTmp) )  damagetile_data.type = DAMAGE_HOLY;
-    if ( 'E' == toupper(cTmp) )  damagetile_data.type = DAMAGE_EVIL;
-    if ( 'F' == toupper(cTmp) )  damagetile_data.type = DAMAGE_FIRE;
-    if ( 'I' == toupper(cTmp) )  damagetile_data.type = DAMAGE_ICE;
-    if ( 'Z' == toupper(cTmp) )  damagetile_data.type = DAMAGE_ZAP;
+    damagetile_data.amount.base = fget_next_int( fileread ); 
+    damagetile_data.amount.rand = 1;
+    damagetile_data.type        = fget_next_damage_type( fileread );
 
     // Read weather data fourth
-    cTmp = fget_next_char( fileread );
-    weather_data.over_water = bfalse;
-    if ( 'T' == toupper(cTmp) )  weather_data.over_water = btrue;
-
-    iTmp = fget_next_int( fileread );  weather_data.timer_reset = iTmp;
+    weather_data.over_water  = fget_next_bool( fileread );
+    weather_data.timer_reset = fget_next_int( fileread );
 
     // Read extra data
-    cTmp = fget_next_char( fileread );
-    gfx.exploremode = bfalse;
-    if ( 'T' == toupper(cTmp) )  gfx.exploremode = btrue;
+    gfx.exploremode = fget_next_bool( fileread );
+    gfx.usefaredge = fget_next_bool( fileread );
 
-    cTmp = fget_next_char( fileread );
-    gfx.usefaredge = bfalse;
-    if ( 'T' == toupper(cTmp) ) gfx.usefaredge = btrue;
-
-    PCamera->swing = 0;
-    fTmp = fget_next_float( fileread );  PCamera->swingrate = fTmp;
-    fTmp = fget_next_float( fileread );  PCamera->swingamp = fTmp;
+    PCamera->swing     = 0;
+    PCamera->swingrate = fget_next_float( fileread );
+    PCamera->swingamp  = fget_next_float( fileread );
 
     // Read unnecessary data...  Only read if it exists...
     if ( goto_colon( NULL, fileread, btrue ) )
     {
-        fTmp = fget_float( fileread );       fog_data.top = fTmp;
-        fTmp = fget_next_float( fileread );  fog_data.bottom = fTmp;
-        fTmp = fget_next_float( fileread );  fog_data.red = fTmp * 255;
-        fTmp = fget_next_float( fileread );  fog_data.grn = fTmp * 255;
-        fTmp = fget_next_float( fileread );  fog_data.blu = fTmp * 255;
-        cTmp = fget_next_char( fileread );
-        if ( 'F' == toupper(cTmp) )  fog_data.affects_water = bfalse;
+        fog_data.top    = fget_float( fileread );
+        fog_data.bottom = fget_next_float( fileread );
+        fog_data.red    = fget_next_float( fileread ) * 255;
+        fog_data.grn    = fget_next_float( fileread ) * 255;
+        fog_data.blu    = fget_next_float( fileread ) * 255;
+        fog_data.affects_water = fget_next_bool( fileread );
 
         // Read extra stuff for damage tile particles...
         if ( goto_colon( NULL, fileread, btrue ) )
         {
-            iTmp = fget_int( fileread );  damagetile_data.parttype = iTmp;
-            iTmp = fget_next_int( fileread );
-            damagetile_data.partand = iTmp;
+            damagetile_data.parttype = fget_int( fileread );
+            damagetile_data.partand  = fget_next_int( fileread );
             iTmp = fget_next_int( fileread );
             damagetile_data.sound = CLIP(iTmp, -1, MAX_WAVE);
         }

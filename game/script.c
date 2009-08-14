@@ -201,8 +201,8 @@ void let_character_think( Uint16 character )
         else if ( pself->wp_tail != pself->wp_head )
         {
             // Normal AI
-            ChrList.lst[pself->index].latchx = ( pself->wp_pos_x[pself->wp_tail] - ChrList.lst[pself->index].pos.x ) / (128 << 2);
-            ChrList.lst[pself->index].latchy = ( pself->wp_pos_y[pself->wp_tail] - ChrList.lst[pself->index].pos.y ) / (128 << 2);
+            ChrList.lst[pself->index].latchx = ( pself->wp_pos_x[pself->wp_tail] - ChrList.lst[pself->index].pos.x ) / (TILE_ISIZE << 2);
+            ChrList.lst[pself->index].latchy = ( pself->wp_pos_y[pself->wp_tail] - ChrList.lst[pself->index].pos.y ) / (TILE_ISIZE << 2);
         }
         else
         {
@@ -842,7 +842,7 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
 
             // if none of the above, skip the line and log an error
         default:
-            log_message( "SCRIPT ERROR: run_function_obsolete() - ai script %d - unhandled script function %d\n", pself->type, valuecode );
+            log_message( "SCRIPT ERROR: run_function() - ai script %d - unhandled script function %d\n", pself->type, valuecode );
             returncode = bfalse;
             break;
     }
