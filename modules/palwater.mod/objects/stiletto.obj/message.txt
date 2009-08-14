@@ -1,8 +1,0 @@
-Message 0: %t_got_%c.
-Message 1: A_%c_was_destroyed!
-Message 2: %t's_%c_is_%k...
-Message 3: The_%c_won't_cooperate!
-Message 4: %t_drew_%g_%c.
-Message 5: %t_accidentially_poisoned_himself!
-Message 6: Paladins_don't_use_cowardly_tricks_of_poison!
-

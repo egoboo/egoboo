@@ -1,2 +1,0 @@
-Message 0: %t_got_a_%c.
-Message 1: The_%c_was_destroyed!

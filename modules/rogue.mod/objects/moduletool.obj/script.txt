@@ -3,7 +3,7 @@
 //elsewhere...
 //Content commands:
 //0 = play music
-//Module Setting: Rouge Starter
+//Module Setting: Rogue Starter
 
 //------------------------------------------------------------------------------------
 //Play Music

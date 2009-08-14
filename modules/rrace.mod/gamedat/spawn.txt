@@ -74,4 +74,4 @@ TBunny:    NONE     75    34.5 33.5 0.0  N   0   0   0   3   0   F   F   Evil
 TBunny:    NONE     75    34.5 33.5 0.0  N   0   0   0   4   0   F   F   Evil
 TBunny:    NONE     75    34.5 33.5 0.0  N   0   0   0   5   0   F   F   Evil
 
-moduletool.obj:   NONE    126  15.5   11.5   0.0   W    0   3  0   0   0   F   F   N
+moduletool:   NONE    126  15.5   11.5   0.0   W    0   3  0   0   0   F   F   N

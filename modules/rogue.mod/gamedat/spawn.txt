@@ -33,12 +33,12 @@ PRISONER:  Butch     96   10.5 9.5  0.0  E   0   2   0   0   0   F   F   Null
 // Scattered chests
 GASCHEST:  NONE      51   55   33   0.0  W   0   0   0   1   0   F   F   Null
   Pick:    NONE      45   0    0    0    I   0   0   0   0   0   F   F   Null
-  Cinq:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   Null
-  Cinq:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   Null
+  Cinquedea:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   Null
+  Cinquedea:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   Null
 MCHEST:    NONE      52   27.5 7.5  0.0  S   0   0   0   0   0   F   F   Null
 FCHEST:    NONE      53   14.5 31.5 0.0  W   0   0   0   1   0   F   F   Null
   XBOW50:  NONE      49   0    0    0    I   0   0   0   0   0   F   F   Null
-  GLOBAL LPOTION: NONE      86   0    0    0    I   0   0   0   0   0   F   F   Null
+  LPotion: NONE      86   0    0    0    I   0   0   0   0   0   F   F   Null
 FCHEST:    NONE      53   7.5  48.5 0.0  S   0   0   0   1   0   F   F   Null
   KEYA:    NONE      46   0    0    0    I   0   0   0   0   0   F   F   Null
 
@@ -51,16 +51,16 @@ $CHEST:    NONE      53   40.5 19.5 0.0  W   24  0   0   0   0   F   F   Null
 FCHEST:    NONE      53   40.5 21.0 0.0  W   24  0   0   2   0   F   F   Null
   HANXBOW: NONE      43   0    0    0    I   0   0   0   0   0   F   F   Null
   STILETT: NONE      44   0    0    0    I   0   0   0   0   0   F   F   Null
-  GLOBAL LPOTION: NONE      86   0    0    0    I   0   0   0   0   0   F   F   Null
-$CHEST:    NONE      53   40.5 22.5 0.0  W   24  0   0   0   0   F   F   Null
+  LPotion: NONE      86   0    0    0    I   0   0   0   0   0   F   F   Null
+$Chest:    NONE      53   40.5 22.5 0.0  W   24  0   0   0   0   F   F   Null
 
 
 
 // Guards by prisoners
 COBOL:     NONE      36   11.5 19.5 0.0  N   4   0   0   100 0   F   F   Evil
-  Cinq:    NONE      47   0    0    0    R   0   0   0   0   0   F   F   Null
+  Cinquedea:    NONE      47   0    0    0    R   0   0   0   0   0   F   F   Null
 COBOL:     NONE      36   12.5 18.5 0.0  N   3   0   0   100 0   F   F   Evil
-  Cinq:    NONE      47   0    0    0    R   0   0   0   0   0   F   F   Null
+  Cinquedea:    NONE      47   0    0    0    R   0   0   0   0   0   F   F   Null
 
 
 
@@ -69,64 +69,64 @@ COBOL:     NONE      36   22.5 9.5  0.0  N   3   2   0   200 0   F   F   Evil
   Shield:  NONE      72   0    0    0    R   0   0   0   0   0   F   F   Null
   Whip:    NONE      16   0    0    0    L   0   0   0   0   0   F   F   Null
 COBOL:     NONE      36   22.5 12.5 0.0  S   2   2   0   100 0   F   F   Evil
-  Cinq:    NONE      47   0    0    0    L   0   0   0   0   0   F   F   Null
+  Cinquedea:    NONE      47   0    0    0    L   0   0   0   0   0   F   F   Null
 COBOL:     NONE      36   25.5 11.5 0.0  E   3   2   0   100 0   F   F   Evil
-  Cinq:    NONE      47   0    0    0    R   0   0   0   0   0   F   F   Null
+  Cinquedea:    NONE      47   0    0    0    R   0   0   0   0   0   F   F   Null
   Shield:  NONE      73   0    0    0    L   0   0   0   0   0   F   F   Null
 COBOL:     NONE      36   27.5 12.5 0.0  W   4   2   0   200 0   F   F   Evil
   Whip:    NONE      16   0    0    0    R   0   0   0   0   0   F   F   Null
 COBOL:     NONE      36   28.5 8.5  0.0  S   1   2   0   100 0   F   F   Evil
-  Cinq:    NONE      47   0    0    0    R   0   0   0   0   0   F   F   Null
+  Cinquedea:    NONE      47   0    0    0    R   0   0   0   0   0   F   F   Null
 
 
 
 // Guards by chest
 COBOL:     NONE      36   9.5  31.5 0.0  S   1   0   0   100 0   F   F   Evil
-  Cinq:    NONE      47   0    0    0    R   0   0   0   0   0   F   F   Null
+  Cinquedea:    NONE      47   0    0    0    R   0   0   0   0   0   F   F   Null
 COBOL:     NONE      36   11.5 32.5 0.0  N   2   1   0   100 0   F   F   Evil
   Shield:  NONE      74   0    0    0    R   0   0   0   0   0   F   F   Null
   Hatchet: NONE      42   0    0    0    L   0   0   0   0   0   F   F   Null
 COBOL:     NONE      36   12.5 30.5 0.0  S   0   0   0   100 0   F   F   Evil
-  Cinq:    NONE      47   0    0    0    R   0   0   0   0   0   F   F   Null
+  Cinquedea:    NONE      47   0    0    0    R   0   0   0   0   0   F   F   Null
 
 
 
 // Guards in empty cave
 COBOL:     NONE      36   26.5 25.5 0.0  N   1   0   0   100 0   F   F   Evil
-  Cinq:    NONE      47   0    0    0    R   0   0   0   0   0   F   F   Null
+  Cinquedea:    NONE      47   0    0    0    R   0   0   0   0   0   F   F   Null
 COBOL:     NONE      36   24.5 28.5 0.0  N   0   0   0   400 0   F   F   Evil
   LBow:    NONE      11   0    0    0    R   0   0   0   0   0   F   F   Null
-  Cinq:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   Null
+  Cinquedea:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   Null
 COBOL:     NONE      36   26.5 28.5 0.0  N   2   0   0   450 0   F   F   Evil
   LBow:    NONE      11   0    0    0    R   0   0   0   0   0   F   F   Null
-  Cinq:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   Null
+  Cinquedea:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   Null
 COBOL:     NONE      36   29.5 27.5 0.0  N   0   0   0   500 0   F   F   Evil
   LBow:    NONE      11   0    0    0    R   0   0   0   0   0   F   F   Null
-  Cinq:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   Null
+  Cinquedea:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   Null
 
 
 
 // Sleeping guards at intersection
 COBOL:     NONE      36   15.7 42.5 0.0  N   1   2   0   100 0   F   F   Evil
-  Cinq:    NONE      47   0    0    0    L   0   0   0   0   0   F   F   Null
+  Cinquedea:    NONE      47   0    0    0    L   0   0   0   0   0   F   F   Null
 COBOL:     NONE      36   26.5 42.5 0.0  S   2   2   0   400 0   F   F   Evil
   XBow:    NONE      48   0    0    0    R   0   0   0   0   0   F   F   Null
-  Cinq:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   Null
+  Cinquedea:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   Null
 COBOL:     NONE      36   24.5 45.5 0.0  E   1   2   0   100 0   F   F   Evil
-  Cinq:    NONE      47   0    0    0    L   0   0   0   0   0   F   F   Null
+  Cinquedea:    NONE      47   0    0    0    L   0   0   0   0   0   F   F   Null
 
 
 
 // Archer guards by wrong-way shutter
 COBOL:     NONE      36   29.5 53.5 0.0  N   3   1   0   400 0   F   F   Evil
   XBow:    NONE      48   0    0    0    R   0   0   0   0   0   F   F   Null
-  Cinq:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   Null
+  Cinquedea:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   Null
 COBOL:     NONE      36   27.5 57.5 0.0  N   2   0   0   450 0   F   F   Evil
   LBow:    NONE      11   0    0    0    R   0   0   0   0   0   F   F   Null
-  Cinq:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   Null
+  Cinquedea:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   Null
 COBOL:     NONE      36   31.5 57.5 0.0  N   1   0   0   500 0   F   F   Evil
   LBow:    NONE      11   0    0    0    R   0   0   0   0   0   F   F   Null
-  Cinq:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   Null
+  Cinquedea:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   Null
 
 
 
@@ -156,13 +156,13 @@ BULLWOLF:  NONE      37   40.5 31.5 0.0  E   0   0   0   0   0   F   F   Null
 // Mine gate guards...  Longbows must be in right hand for Cobol to use
 COBOL:     NONE      36   53.5 10.5 0.0  S   2   1   0   400 0   F   F   Evil
   XBow50:  NONE      49   0    0    0    R   0   0   0   0   0   F   F   Null
-  Cinq:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   Null
+  Cinquedea:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   Null
 COBOL:     NONE      36   53.5 16.5 0.0  S   3   1   0   400 0   F   F   Evil
   XBow50:  NONE      49   0    0    0    R   0   0   0   0   0   F   F   Null
-  Cinq:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   Null
+  Cinquedea:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   Null
 COBOL:     NONE      36   53.5 22.5 0.0  S   3   1   0   400 0   F   F   Evil
   XBow50:  NONE      49   0    0    0    R   0   0   0   0   0   F   F   Null
-  Cinq:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   Null
+  Cinquedea:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   Null
 
 
 // Tranches by deadfall chest ( may trigger trap... )
@@ -181,11 +181,11 @@ DEADFALL:  NONE      105  7.5  50   0    N   0   0   2   0   0   F   F   Evil
 
 
 // Some traps
-GLOBAL BEARTRAP:  NONE      41   40.4 43.1 0    N   0   0   0   0   0   F   F   Null
-GLOBAL BEARTRAP:  NONE      41   39.8 43.5 0    W   0   0   0   0   0   F   F   Null
-GLOBAL BEARTRAP:  NONE      41   40.3 43.8 0    S   0   0   0   0   0   F   F   Null
-GLOBAL BEARTRAP:  NONE      41   40.5 44.7 0    E   0   0   0   0   0   F   F   Null
-GLOBAL BEARTRAP:  NONE      41   40.2 44.1 0    W   0   0   0   0   0   F   F   Null
+BearTrap:  NONE      41   40.4 43.1 0    N   0   0   0   0   0   F   F   Null
+BearTrap:  NONE      41   39.8 43.5 0    W   0   0   0   0   0   F   F   Null
+BearTrap:  NONE      41   40.3 43.8 0    S   0   0   0   0   0   F   F   Null
+BearTrap:  NONE      41   40.5 44.7 0    E   0   0   0   0   0   F   F   Null
+BearTrap:  NONE      41   40.2 44.1 0    W   0   0   0   0   0   F   F   Null
 
 
 // The way out
