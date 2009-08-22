@@ -47,11 +47,11 @@
 #define DEFINE_LIST(ACCESS, TYPE, NAME, COUNT) \
     struct s_list__##TYPE__##NAME                 \
     {                                          \
-        int  used_count;                       \
-        int  free_count;                       \
-        int  used_ref[COUNT];                  \
-        int  free_ref[COUNT];                  \
-        TYPE lst[COUNT];                       \
+        Uint32 used_count;                     \
+        int    free_count;                     \
+        int    used_ref[COUNT];                \
+        int    free_ref[COUNT];                \
+        TYPE   lst[COUNT];                     \
     };                                         \
     ACCESS struct s_list__##TYPE__##NAME NAME
 

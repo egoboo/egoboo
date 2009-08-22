@@ -4272,7 +4272,7 @@ Uint8 scr_set_TargetToDistantEnemy( script_state_t * pstate, ai_state_t * pself 
 
     ichr = get_target(pself->index, pstate->distance, TARGET_ENEMY, bfalse, bfalse, IDSZ_NONE, bfalse);
 
-    returncode = (ichr != pself->index) && VALID_CHR(ichr);
+    returncode = (ichr != pself->index) &&  VALID_CHR(ichr);
 
     SCRIPT_FUNCTION_END();
 }
@@ -6914,6 +6914,22 @@ Uint8 scr_DispelTargetEnchantID( script_state_t * pstate, ai_state_t * pself )
             iTmp = sTmp;
         }
     }
+
+    SCRIPT_FUNCTION_END();
+}
+
+//--------------------------------------------------------------------------------------------
+Uint8 scr_KurseTarget( script_state_t * pstate, ai_state_t * pself )
+{
+    SCRIPT_FUNCTION_BEGIN();
+
+    // This makes the target kursed
+	returncode = bfalse;
+	if( ChrList.lst[pself->target].isitem && !ChrList.lst[pself->target].iskursed )
+	{
+		ChrList.lst[pself->target].iskursed = btrue;
+		returncode = btrue;
+	}
 
     SCRIPT_FUNCTION_END();
 }

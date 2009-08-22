@@ -55,7 +55,7 @@ IfTimeOut			//Every so often
         IfStateIs2
           tmpargument = 55	//Fiend bug
         IfStateIs3
-          tmpargument = 56	//Sabotager
+          tmpargument = 92	//Sabotager
         SpawnExactCharacterXYZ
           tmpargument = 6	//Spell effect
           SpawnExactParticle

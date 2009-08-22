@@ -418,3 +418,4 @@ Uint8 scr_GiveManaReturnToTarget( struct s_script_state * pstate, struct s_ai_st
 Uint8 scr_set_Money( struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_TargetCanSeeKurses( struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_SpawnAttachedCharacter( struct s_script_state * pstate, struct s_ai_state * pself );
+Uint8 scr_KurseTarget( struct s_script_state * pstate, struct s_ai_state * pself );

@@ -94,6 +94,7 @@ IfTimeOut
       IfXIsLessThanY
         tmpx = 1
       Else
+        tmpargument = 0
         GetXY
     Else
       tmpx = 0    //Cannot read...

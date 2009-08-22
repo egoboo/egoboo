@@ -1,5 +1,5 @@
 IfSpawned
-  tmpargument=80
+  tmpargument = rand % 30 + 50
   SetTime
 IfTimeOut
   DropItems

@@ -22,23 +22,53 @@
 //         A-Z ( caps only ).
 //         Null is predefined to be the neutral team.
 
-//         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
+#dependency ManaElixir     83
+#dependency VorporalBlade  84
+#dependency ArcaneNova     45
+#dependency Darkritual     92
 
-//Player 1
+//         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
 PlayerAtOblivion    NONE    0  67.5   108.5   6.0   N    0   0  0   0   0   T   F   G
 PlayerAtBoss    NONE    0  80.5   50.5   6.0   N    0   0  0   0   0   T   F   G
 PlayerAtXar   NONE    0  36.0   111.5   1.0   N    0   0  0   0   0   T   F   G
 PlayerAtElayne   NONE    0  74.5   11.5   1.0   N    0   0  0   0   0   T   F   G
 PlayerAtYeti   NONE    0  64.5   21.5   1.0   N    0   0  0   0   0   T   F   G
-HERO 1:    NONE    0  15.5   51.5   6.0   N    0   0  0   0   0   T   F   G
-  unknown:   NONE    1  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
-  unknown:   NONE    2  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-  unknown:   NONE    3  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-  unknown:   NONE    4  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-  unknown:   NONE    5  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-  unknown:   NONE    6  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-  unknown:   NONE    7  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-  unknown:   NONE    8  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+HERO 1:         NONE    0  15.5   51.5   6.0   N    0   0  0   0   0   T   F   G
+  LEFT HAND:    NONE    1  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  RIGHT HAND:   NONE    2  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  ITEM 1:       NONE    3  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  ITEM 2:       NONE    4  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  ITEM 3:       NONE    5  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  ITEM 4:       NONE    6  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  ITEM 5:       NONE    7  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  ITEM 6:       NONE    8  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+HERO 2:         NONE    9  16.0   52.0   8.0   N    0   0  0   0   0   T   F   G
+  LEFT HAND:    NONE    10  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  RIGHT HAND:   NONE    11  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  ITEM 1:       NONE    12  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  ITEM 2:       NONE    13  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  ITEM 3:       NONE    14  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  ITEM 4:       NONE    15  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  ITEM 5:       NONE    16  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  ITEM 6:       NONE    17  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+HERO 3:         NONE    18  15.0  51.5  9.0   N    0   0  0   0   0   T   F   G
+  LEFT HAND:    NONE    19  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  RIGHT HAND:   NONE    20  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  ITEM 1:       NONE    21  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  ITEM 2:       NONE    22  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  ITEM 3:       NONE    23  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  ITEM 4:       NONE    24  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  ITEM 5:       NONE    25  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  ITEM 6:       NONE    26  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+HERO 4:         NONE    27  15.5  51.0   7.0   N    0   0  0   0   0   T   F   G
+  LEFT HAND:    NONE    28  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  RIGHT HAND:   NONE    29  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  ITEM 1:       NONE    30  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  ITEM 2:       NONE    31  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  ITEM 3:       NONE    32  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  ITEM 4:       NONE    33  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  ITEM 5:       NONE    34  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  ITEM 6:       NONE    35  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
 moduletool:   NONE    44  15.5   51.5   1.0   N    0   0  0   2   0   F   F   L
 
@@ -282,10 +312,10 @@ seal:   NONE    57  77.0   31.0   1.0   N    0   0  0   3   0   F   F   E
   Crown:    NONE    112  0.0   0.0   0.0   I    0   0  0   3   0   F   F   N
 MagmaYeti:    NONE    105  65.0   31.0   1.0   E    39   0  0   0   0   F   F   E
 
-sabotager:   NONE    56  62.5   12.5   1.0   N    0   0  0   0   0   F   F   E
-sabotager:   NONE    56  63.0   10.0   1.0   N    0   0  0   0   0   F   F   E
-sabotager:   NONE    56  64.5   13.5   1.0   N    0   0  0   0   0   F   F   E
-sabotager:   NONE    56  64.0   12.0   1.0   N    0   0  0   0   0   F   F   E
+saboteur.obj:   NONE    92  62.5   12.5   1.0   N    0   0  0   0   0   F   F   E
+saboteur.obj:   NONE    92  63.0   10.0   1.0   N    0   0  0   0   0   F   F   E
+saboteur.obj:   NONE    92  64.5   13.5   1.0   N    0   0  0   0   0   F   F   E
+saboteur.obj:   NONE    92  64.0   12.0   1.0   N    0   0  0   0   0   F   F   E
 
 DarkSpirit:   NONE    117  54.5   17.5   1.0   N    0   0  0   0   0   F   F   E
   WithLance:   NONE    119  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N

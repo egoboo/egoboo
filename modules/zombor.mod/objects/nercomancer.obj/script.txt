@@ -484,7 +484,8 @@ IfAttacked
     tmpx = selflife
     tmpy = 768
     IfXIsLessThanY       //Half life only left
-      JoinGoodTeam		//TODO: Join other team
+      tmpargument = TEAMR
+      JoinTeam
 
   IfStateIs2
     tmpargument = 15				//Reset charge

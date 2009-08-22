@@ -167,6 +167,9 @@ IfTimeOut
         //Dont forget to actually open the boss door =)
         tmpargument = 34
         OpenPassage
+        
+        tmpargument = 500
+        SetTime
 
       IfStateIs0			//First time introductions (check last)
         tmpargument = 1

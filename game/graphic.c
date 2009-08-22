@@ -4142,7 +4142,7 @@ void make_dynalist( camera_t * pcam )
 bool_t dolist_add_chr( ego_mpd_t * pmesh, Uint16 ichr )
 {
     // This function puts a character in the list
-    int itile;
+    Uint32 itile;
     chr_t * pchr;
     cap_t * pcap;
     chr_instance_t * pinst;
@@ -4875,7 +4875,7 @@ void BillboardList_init_all()
 //--------------------------------------------------------------------------------------------
 void BillboardList_update_all()
 {
-    int cnt, ticks;
+    Uint32 cnt, ticks;
 
     ticks = SDL_GetTicks();
 

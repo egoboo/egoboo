@@ -132,12 +132,16 @@ IfLeaderKilled
 IfAttacked
   SetTargetToWhoeverAttacked
   IfTargetIsOnSameTeam
-    tmpargument = 3
-    PlaySound
     tmpargument = 2
     SendMessageNear
-  Else
+
+  //Different ouch sounds in Butcher form
+  tmpargument = 0
+  IfArmorIs
     tmpargument = rand & 1 + 3
+    PlaySound
+  Else
+    tmpargument = rand & 1 + 11
     PlaySound
   
   //Holy damage is a instant kill

@@ -18,6 +18,7 @@ IfOrdered
       tmpargument = 1
       SendMessageNear		//Tell it dint work
       PlaySound
+      
 //------------------------------------------------------------------
 // Handle the animation and sound
 tmpargument = passage	// Is the passage clear?

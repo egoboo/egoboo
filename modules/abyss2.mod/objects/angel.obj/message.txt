@@ -12,3 +12,4 @@ Message 10: Oh_do_not_harm_me_kind_sister!
 Message 11: Oh_do_not_harm_me_kind_sir!
 Message 12: Blessings_be_upon_you_my_sister...
 Message 13: %t_was_brought_back_by_the_dead_by_%n!
+Message 14: Die_spawn_of_evil!

@@ -100,7 +100,7 @@ int mnu_get_menu_depth();
 void           TxTitleImage_init_all();
 void           TxTitleImage_release_all();
 void           TxTitleImage_delete_all();
-struct s_oglx_texture * TxTitleImage_get_ptr( int itex );
+struct s_oglx_texture * TxTitleImage_get_ptr( Uint32 itex );
 
 extern bool_t startNewPlayer;
 

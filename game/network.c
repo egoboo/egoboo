@@ -925,8 +925,6 @@ void sv_talkToRemotes()
     if ( update_wld == sv_last_frame ) return;
     sv_last_frame = update_wld;
 
-//  if ( PMod->rtscontrol ) return;
-
     if ( gnet.hostactive )
     {
         if ( gnet.on )

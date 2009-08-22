@@ -799,6 +799,7 @@ void update_game()
         }
     }
 
+	// Did everyone die?
     if ( numdead >= local_numlpla )
     {
         local_allpladead = btrue;
@@ -1831,9 +1832,9 @@ Uint16 get_target( Uint16 ichr_src, Uint32 max_dist, TARGET_TYPE target_type, bo
     float  max_dist2 = max_dist * max_dist;
     line_of_sight_info_t los_info;
 
-    Uint16 best_target;
-    float  best_dist2;
-    int    current_ticks;
+    Uint16	best_target;
+    float	best_dist2;
+    Uint32	current_ticks;
 
     if ( INVALID_CHR(ichr_src) ||  TARGET_NONE == target_type ) return MAX_CHR;
 
@@ -1842,7 +1843,8 @@ Uint16 get_target( Uint16 ichr_src, Uint32 max_dist, TARGET_TYPE target_type, bo
     // just return the old target if
     if ( 0 != ChrList.lst[ichr_src].stoppedby && ChrList.lst[ichr_src].ai.los_timer > current_ticks )
     {
-        return ChrList.lst[ichr_src].ai.target;
+		// Zefz> we can't return the old AI target here, it makes the scripts think it has found a target 
+        return MAX_CHR; //ChrList.lst[ichr_src].ai.target;
     }
 
     {
@@ -3982,11 +3984,11 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     }
 
     // Check for missile treatment
-    if (  pchr_a->missiletreatment == MISNORMAL ||
-            /*pchr_a->damagemodifier[pprt_b->damagetype]&3 ) < 2 ||*/
-            pprt_b->attachedtocharacter != MAX_CHR ||
-            ( pprt_b->chr == ichr_a && !ppip_b->friendlyfire ) ||
-            ( ChrList.lst[pchr_a->missilehandler].mana < ( pchr_a->missilecost << 8 ) && !ChrList.lst[pchr_a->missilehandler].canchannel ) )
+    if (  pchr_a->missiletreatment == MISNORMAL            ||
+		  pprt_b->damage.base+pprt_b->damage.rand == 0     ||
+          pprt_b->attachedtocharacter != MAX_CHR		   ||
+        ( pprt_b->chr == ichr_a && !ppip_b->friendlyfire ) ||
+        ( ChrList.lst[pchr_a->missilehandler].mana < ( pchr_a->missilecost << 8 ) && !ChrList.lst[pchr_a->missilehandler].canchannel ) )
     {
         if ( ( TeamList[pprt_b->team].hatesteam[pchr_a->team] || ( ppip_b->friendlyfire && ( ( ichr_a != pprt_b->chr && ichr_a != ChrList.lst[pprt_b->chr].attachedto ) || ppip_b->onlydamagefriendly ) ) ) && !pchr_a->invictus )
         {

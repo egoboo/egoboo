@@ -155,6 +155,7 @@
 #    define snprintf _snprintf
 #    define stricmp  _stricmp
 #    define isnan    _isnan
+#    define strlwr   _strlwr
 
 // This isn't needed in MSVC 2008 and causes errors
 #    if _MSC_VER < 1500

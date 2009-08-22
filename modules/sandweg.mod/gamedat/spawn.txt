@@ -29,37 +29,42 @@
 #dependency Clairvoyance     85
 #dependency Confusion        88
 #dependency SyphonMana      112
-#dependency CombatBless		122	
-#dependency Regeneration	124	
+#dependency CombatBless		  122	
+#dependency Regeneration	  124	
 #dependency Exorcism        125
 #dependency Restoration     128
 #dependency HolyBolt        129
 #dependency Mallet          132
 #dependency TrueSightScroll 140
-#dependency PRing	        158
+#dependency PRing	          158
 
 // Lamp Shop
 #dependency Lamp             44
 #dependency OilFlask         49
-#dependency Torch	         47
+#dependency Torch	           47
 #dependency Everburn         48
 
 // Shopkeeper
 #dependency Sword            50 
-#dependency Spear		     51 
+#dependency Spear		         51 
 #dependency Trident	         57
 #dependency ThunderSpear     62
-#dependency XBow	         71 
-#dependency Stiletto	     74 
+#dependency XBow	           71 
+#dependency Stiletto	       74 
 #dependency KShield	         78 
-#dependency Sojurn		     82
-#dependency Strike		     83
-#dependency Pike		     89
+#dependency Sojurn		       82
+#dependency Strike		       83
+#dependency Pike		         89
 #dependency Quiver	         90 
-#dependency Bomb		     96 
+#dependency Bomb		         96 
 #dependency Scimitar         92 
 #dependency Scythe	        131
 #dependency AmmoBox	        123
+
+//Quest Rewards
+#dependency JRing           135
+#dependency LRing  	        136
+#dependency LuckRing        137
 
 
 //         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team

@@ -451,7 +451,8 @@ enum e_script_functions
     FGIVEMANARETURNTOTARGET,     // == 369
     FSETMONEY,                   // == 370
     FIFTARGETCANSEEKURSES,       // == 371
-    FSPAWNATTACHEDCHARACTER      // == 372
+    FSPAWNATTACHEDCHARACTER,     // == 372
+    FKURSETARGET                 // == 373
 };
 
 //--------------------------------------------------------------------------------------------

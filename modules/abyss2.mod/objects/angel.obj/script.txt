@@ -31,7 +31,11 @@ IfOrdered
           IfTargetHasID
             tmpargument = 12
           Else
-            tmpargument = 8		//Others get normal
+            tmpargument = [UNDE]
+            IfTargetHasID
+              tmpargument = 14    //Attack undead players
+            Else
+              tmpargument = 8		//Others get normal
     PlayFullSound
     SendMessage
     tmpargument = 3             //Follow mode
@@ -40,6 +44,16 @@ IfOrdered
     tmpdistance = EXPDARE
     GiveExperienceToGoodTeam
     SetOwnerToTarget            //Make the nearest saviour the new boss
+
+    //She attacks Zombor or Undead players at sight
+    tmpargument = [UNDE]
+    IfTargetHasID
+      tmpargument = TEAMH
+      JoinTeam
+      SetTargetToSelf
+      SetOwnerToTarget
+      tmpargument = 4
+      SetState
 
 //------------------------------------------------------------------------------
 //Show where you are on the map
@@ -92,7 +106,11 @@ IfTimeOut
               IfTargetHasID
                 tmpargument = 14		//Special talk
               Else
-                tmpargument = rand % 3 + 5	//Normal random talk
+                tmpargument = [UNDE]
+                IfTargetHasID
+                  tmpargument = 14        //It's Zombor or something undeady!
+                Else
+                  tmpargument = rand % 3 + 5	//Normal random talk
             PlayFullSound
             SendMessage
 

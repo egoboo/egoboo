@@ -31,7 +31,7 @@ Hero 00:   NONE      0    8.5  8.5  0.0  S   0   0   0   0   0   T   F   Good
   Hero 05: NONE      5    0    0    0    I   0   0   0   0   0   F   F   Null
   Hero 06: NONE      6    0    0    0    I   0   0   0   0   0   F   F   Null
   Hero 07: NONE      7    0    0    0    I   0   0   0   0   0   F   F   Null
-  Retribution: NONE      130    0    0    0    I   0   0   0   0   0   F   F   Null
+  Hero 08: NONE      8    0    0    0    I   0   0   0   0   0   F   F   Null
 
 Hero 09:   NONE      9    8.5  9.5  0.0  S   0   0   0   0   0   T   F   Good
   Hero 10: NONE     10    0    0    0    L   0   0   0   0   0   F   F   Null

@@ -1,10 +1,6 @@
 MASTER TODO LIST:
 - Spellbooks not being spellbooks when spawning instead of dropped.
-- Wizards cannot use lamps
-- Overlay effects do not spawn in pits (or is it background?).
 - The Bishopia walls should be flagged as a Wall, not as Impassable.
-- And becoming bad guy in Zippy and Sand Weg should not export unless you escape. Maybe save
-  the aggression in quest.txt for later returns? 
 - After passing a module game seems to reset quest progress. It is restored by going back to previous menu, so it is not very significant.
 - Sand Troll in Sand Palace seems to get stuck on the pyramid in new physics system. (We might need a FindPath algorithm here) 
 - Enchants don't properly increase size when less than 1.00
@@ -12,6 +8,4 @@ MASTER TODO LIST:
   work 1 on 4 tries, weird (tires of throwing away and grabbing back)
 - Halve mana/life loss caused by potions
 - Runes need to be repriced much like Arcane Spellbooks were
-  
-ABYSS 2
-- Elayne should not like zombor
+- Platforms in Abyss don't work properly, for some time they lift normally, then give a pretty massive boost thus throwing into the void. 

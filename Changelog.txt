@@ -1,6 +1,9 @@
 Version 2.7.8 (xx.08.2009)
 - New Feature: Improved AI by adding Line of Sight detection for targeting.
 - New Feature: Improved UI by implementing in-game popup text.
+- New Feature: Implemented the PhysFS file system.
+- Update: Made multiple improvements to how the GOR system is handled.
+- Update: The Angel Elayne in the lower Abyss now attacks undead players on sight.
 - Update: Most wands have now increased charge limit making them much more useful.
 - Update: The Book of Enchant can now be used to recharge wands.
 - Update: The Morph spell now allows you to use [TECH] skill but disables spellcasting.
@@ -15,6 +18,11 @@ Version 2.7.8 (xx.08.2009)
 - Update: Increased the amount of treasure loot found in the Ice Palace.
 - Update: Improved the Frost Lizard AI.
 - Update: Improved the texture detail for all the title images.
+- Bugfix: Devil Doors should function properly again.
+- Bugfix: Glyph plates in Abyss 2 should now properly display messages again.
+- Bugfix: Fixed infinite sound loop being played in Abyss 2.
+- Bugfix: Beating the final level now properly lets you save your character progress.
+- Bugfix: Changed the use animation for Lamps so that Wizards can use them as well.
 - Bugfix: All Divine Runes now properly display messages when crushed.
 - Bugfix: Fixed invisible boulder trap in Archaeologist Starter
 - Bugfix: Scimitars can now properly be enchanted by the Book of Enchant.
@@ -30,7 +38,7 @@ Version 2.7.8 (xx.08.2009)
 - Bugfix: Fixed two impassable passages in Catacombs 2 module. (Credits to Rygwryr)
 - Bugfix: Fixed bug that made Ghosts invincible and Life Drain caused by Ghosts to disappear
   without a proper restoration.
-- Bugfix: Catacombs 1 not properly allows up to 4 player imports instead of 1.
+- Bugfix: Catacombs 1 and Abyss 2 now properly allows up to 4 player imports instead of 1.
 - Bugfix: Major bug fixed that caused modules not to unlock properly when exporting.
 - Bugfix: Incorrect boss music in Water Palace fixed.
 - Bugfix: Removed music resetting when loading a module.
@@ -38,7 +46,7 @@ Version 2.7.8 (xx.08.2009)
 - Bugfix: Corrected some character hitboxes.
 - Bugfix: Fixed some acceleration issues that made the Tourist Starter almost impossible.
 - Bugfix: Fixed Lord Hagen AI movement bug in the Soldier Starter.
-- Bugfix: Multiple minor bugs fixed.
+- Bugfix: Many, many other bugs fixed!
 
 Version 2.7.4 (19.07.2009)
 - New Feature: New menu section for Game Options where you can change the game difficulty.

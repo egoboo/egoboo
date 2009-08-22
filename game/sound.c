@@ -915,7 +915,7 @@ bool_t LoopedList_free_one( int index )
     LoopedList.free_count++;
 
     // clear out the data
-    LoopedList.lst[index].channel = -1;
+    LoopedList.lst[index].channel = INVALID_SOUND;
     LoopedList.lst[index].chunk   = NULL;
     LoopedList.lst[index].object  = MAX_CHR;
 

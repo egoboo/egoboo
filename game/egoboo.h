@@ -52,7 +52,7 @@
 #    define EQ(x)
 #endif
 
-#define VERSION "2.7.5"                         // Version of the game
+#define VERSION "2.7.8"                         // Version of the game
 
 #define MAXINVENTORY        7
 #define MAXIMPORTPERPLAYER  (MAXINVENTORY + 2)

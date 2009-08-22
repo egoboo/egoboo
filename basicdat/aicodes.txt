@@ -386,6 +386,7 @@ The symbol itself follows
 :F 370 SetMoney
 :F 371 IfTargetCanSeeKurses
 :F 372 SpawnAttachedCharacter
+:F 373 KurseTarget
 :C 001 BLAHDEAD
 :C 002 BLAHENEMIES
 :C 004 BLAHFRIENDS

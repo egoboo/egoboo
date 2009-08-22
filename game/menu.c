@@ -3885,7 +3885,7 @@ int TxTitleImage_load_one( const char *szLoadName )
 }
 
 //--------------------------------------------------------------------------------------------
-oglx_texture * TxTitleImage_get_ptr( int itex )
+oglx_texture * TxTitleImage_get_ptr( Uint32 itex )
 {
     if ( itex < 0 || itex >= TxTitleImage_count || itex >= MAX_MODULE ) return NULL;
 

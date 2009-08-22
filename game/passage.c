@@ -273,7 +273,7 @@ Uint16 who_is_blocking_passage( Uint16 passage, bool_t targetitems, bool_t targe
     for ( character = 0; character < MAX_CHR; character++ )
     {
         if ( !ChrList.lst[character].on || ChrList.lst[character].pack_ispacked || ChrList.lst[character].attachedto != MAX_CHR ) continue;
-		if ( ChrList.lst[character].invictus ) continue;
+		if ( ChrList.lst[character].invictus || ChrList.lst[character].weight == 0xFFFFFFFF ) continue;
 
 		//Do items?
 		if( !targetitems && ChrList.lst[character].isitem ) continue;

@@ -1,5 +1,6 @@
 //Sustained by magic!
 IfSpawned
+  MakeCrushValid                    //To allow the passage to close
   SetTargetToSelf
   SetOwnerToTarget
   EnchantTarget
@@ -19,7 +20,7 @@ IfSpawned
   tmpx = 0
   tmpy = 2
   SetXY
-
+  
 //Become yellow if attacked by holy!
 IfAttacked
   GetDamageType
@@ -85,11 +86,10 @@ IfArmorIs
     SetTargetToWhoeverIsInPassage
       tmpturn = 0
       tmpdistance = 0       //0 = Riddle not solved    1 = Riddle solved
-      GetContent
-      tmpx = tmpargument    //Content
+      tmpx = selfcontent
 
       //Riddle of the dead (opens up to dead stuff only)
-      tmpy = 7
+      tmpy = 9
       IfXIsEqualToY
         IfTargetIsAlive
           tmpargument = [UNDE]
@@ -99,7 +99,7 @@ IfArmorIs
           tmpdistance = 1       //It's a body, works fine for me...
 
       //Riddle of the darkness (opens up to light sources only)
-      tmpy = 8
+      tmpy = 10
       IfXIsEqualToY
         tmpargument = [TORC]
         IfTargetHoldingItemID
@@ -114,7 +114,7 @@ IfArmorIs
             tmpdistance = 1     //Assume it's a book of light and open up!
 
       //Riddle of the greed (opens up to valuable items only)
-      tmpy = 9
+      tmpy = 11
       IfXIsEqualToY
         IfTargetIsOnHatedTeam       //Don't check enemies
           DoNothing
@@ -227,6 +227,8 @@ IfArmorIs
       IfXIsMoreThanY                  //Open up for soul traders
         tmpargument = passage
         OpenPassage
+        tmpargument = 0
+        SetBumpSize
       Else
         tmpargument = [GOOD]
         IfTargetHasSpecialID            //Still refuses to open to really good guys
@@ -241,9 +243,13 @@ IfArmorIs
         Else
           tmpargument = passage
           OpenPassage
+          tmpargument = 0
+          SetBumpSize
   Else
     tmpargument = passage
     ClosePassage
+    tmpargument = 10
+    SetBumpSize
 
 
 // Someone cast an unlock spell
@@ -255,6 +261,8 @@ IfOrdered
     IfArmorIs                   //dead, so open up!
       tmpargument = passage
       OpenPassage
+      tmpargument = 0
+      SetBumpSize
       tmpargument = 3
       SendMessageNear
       tmpargument = 50

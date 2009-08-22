@@ -34,6 +34,7 @@ IfTimeOut
         tmpargument = 2
         SetContent
       Else
+        EnableExport
         BeatModule
         tmpargument = [MAIN]
         tmpdistance = 8
@@ -131,6 +132,7 @@ IfKilled
   tmpargument = 2
   PlayFullSound
 
+  EnableExport
   BeatModule
   tmpargument = [MAIN]
   tmpdistance = 8
