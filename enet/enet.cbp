@@ -3,13 +3,14 @@
 	<FileVersion major="1" minor="6" />
 	<Project>
 		<Option title="enet" />
+		<Option platforms="Windows;Unix;" />
 		<Option pch_mode="2" />
 		<Option compiler="msvctk" />
 		<Build>
-			<Target title="Debug Win32">
-				<Option output="Debug\enet" prefix_auto="1" extension_auto="1" />
+			<Target title="win32-msvc-debug">
+				<Option output="lib/enet_d.lib" prefix_auto="0" extension_auto="0" />
 				<Option working_dir="" />
-				<Option object_output="Debug" />
+				<Option object_output="win32-msvc-debug" />
 				<Option type="2" />
 				<Option compiler="msvctk" />
 				<Option createDefFile="1" />
@@ -22,16 +23,16 @@
 					<Add option="/ZI" />
 					<Add option="/Od" />
 					<Add option="/MDd" />
-					<Add directory="D:\Program Files\Egoboo Development Team\Egoboo-2.6.7_beta\source\enet\include" />
+					<Add directory="D:/Program Files/Egoboo Development Team/Egoboo-2.6.7_beta/source/enet/include" />
 				</Compiler>
 				<ResourceCompiler>
-					<Add directory="D:\Program Files\Egoboo Development Team\Egoboo-2.6.7_beta\source\enet\include" />
+					<Add directory="D:/Program Files/Egoboo Development Team/Egoboo-2.6.7_beta/source/enet/include" />
 				</ResourceCompiler>
 			</Target>
-			<Target title="Release Win32">
-				<Option output="Release\enet" prefix_auto="1" extension_auto="1" />
+			<Target title="win32-msvc-release">
+				<Option output="lib/enet.lib" prefix_auto="0" extension_auto="0" />
 				<Option working_dir="" />
-				<Option object_output="Release" />
+				<Option object_output="win32-msvc-release" />
 				<Option type="2" />
 				<Option compiler="msvctk" />
 				<Option createDefFile="1" />
@@ -43,16 +44,69 @@
 					<Add option="/W3" />
 					<Add option="/Zi" />
 					<Add option="/MD" />
-					<Add directory="D:\Program Files\Egoboo Development Team\Egoboo-2.6.7_beta\source\enet\include" />
+					<Add directory="D:/Program Files/Egoboo Development Team/Egoboo-2.6.7_beta/source/enet/include" />
 				</Compiler>
 				<ResourceCompiler>
-					<Add directory="D:\Program Files\Egoboo Development Team\Egoboo-2.6.7_beta\source\enet\include" />
+					<Add directory="D:/Program Files/Egoboo Development Team/Egoboo-2.6.7_beta/source/enet/include" />
 				</ResourceCompiler>
+			</Target>
+			<Target title="nix-gcc-debug">
+				<Option output="lib/libenet_d.a" prefix_auto="0" extension_auto="0" />
+				<Option working_dir="" />
+				<Option object_output="nix-gcc-debug" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-Wmain" />
+					<Add option="-pedantic" />
+					<Add option="-Wfatal-errors" />
+					<Add option="-W" />
+					<Add option="-Wall" />
+					<Add option="-pg" />
+					<Add option="-g" />
+					<Add option="-D_DEBUG" />
+					<Add option="-D_LIB" />
+					<Add directory="../enet/include" />
+				</Compiler>
+				<Linker>
+					<Add option="-pg" />
+				</Linker>
+			</Target>
+			<Target title="nix-gcc-release">
+				<Option output="lib/libenet.a" prefix_auto="0" extension_auto="0" />
+				<Option working_dir="" />
+				<Option object_output="nix-gcc-release" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-fexpensive-optimizations" />
+					<Add option="-O3" />
+					<Add option="-Wmain" />
+					<Add option="-W" />
+					<Add option="-Wall" />
+					<Add option="-DNDEBUG" />
+					<Add option="-D_LIB" />
+					<Add directory="../enet/include" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
 			</Target>
 		</Build>
 		<Unit filename="host.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="include/enet/enet.h" />
+		<Unit filename="include/enet/list.h" />
+		<Unit filename="include/enet/memory.h" />
+		<Unit filename="include/enet/protocol.h" />
+		<Unit filename="include/enet/time.h" />
+		<Unit filename="include/enet/types.h" />
+		<Unit filename="include/enet/unix.h" />
+		<Unit filename="include/enet/utility.h" />
+		<Unit filename="include/enet/win32.h" />
 		<Unit filename="list.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -74,18 +128,10 @@
 		<Unit filename="win32.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="include\enet\enet.h" />
-		<Unit filename="include\enet\list.h" />
-		<Unit filename="include\enet\memory.h" />
-		<Unit filename="include\enet\protocol.h" />
-		<Unit filename="include\enet\time.h" />
-		<Unit filename="include\enet\types.h" />
-		<Unit filename="include\enet\unix.h" />
-		<Unit filename="include\enet\utility.h" />
-		<Unit filename="include\enet\win32.h" />
 		<Extensions>
 			<code_completion />
 			<debugger />
+			<envvars />
 		</Extensions>
 	</Project>
 </CodeBlocks_project_file>

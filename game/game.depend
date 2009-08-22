@@ -5560,7 +5560,7 @@
 
 1239265057 /usr/include/bits/stdio-ldbl.h
 
-1249886439 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/egoboo_typedef.h
+1250965947 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/egoboo_typedef.h
 	"egoboo_config.h"
 	<SDL_types.h>
 
@@ -5806,7 +5806,7 @@
 1235099159 /usr/include/SDL/SDL_types.h
 	"SDL_stdinc.h"
 
-1250216661 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/egoboo.h
+1250970911 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/egoboo.h
 	"egoboo_typedef.h"
 	"egoboo_math.h"
 	"egoboo_config.h"
@@ -5892,7 +5892,7 @@
 
 1244773595 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/id_normals.inl
 
-1249806978 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/SDL_GL_extensions.c
+1250965946 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/SDL_GL_extensions.c
 	"SDL_GL_extensions.h"
 	"ogl_debug.h"
 
@@ -5914,7 +5914,7 @@
 1248992399 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/ogl_debug.h
 	"ogl_include.h"
 
-1249806978 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/SDL_extensions.c
+1250965947 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/SDL_extensions.c
 	"SDL_extensions.h"
 	<SDL_opengl.h>
 
@@ -5983,7 +5983,7 @@
 	"mpd.h"
 	"ogl_include.h"
 
-1250216661 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/mpd.h
+1250966023 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/mpd.h
 	"egoboo_typedef.h"
 	"egoboo_math.h"
 
@@ -6034,14 +6034,14 @@
 
 1249806978 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/file_common.h
 
-1249886439 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/passage.h
+1250966023 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/passage.h
 	"egoboo_typedef.h"
 
 1249886439 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/game.h
 	"egoboo_typedef.h"
 	"egoboo_math.h"
 
-1249806978 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/texture.h
+1250966023 /home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/texture.h
 	"egoboo_typedef.h"
 	"ogl_texture.h"
 
@@ -6180,9 +6180,9 @@
 1239265068 /usr/include/bits/local_lim.h
 	<linux/limits.h>
 
-1248489880 /usr/include/linux/limits.h
+1250628963 /usr/include/linux/limits.h
 
-1249806978 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/font.c
+1250970911 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/font.c
 	"font.h"
 	"log.h"
 	"egoboo_typedef.h"
@@ -6220,7 +6220,7 @@
 	"egoboo.h"
 	<SDL_opengl.h>
 
-1249806978 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/graphic_prt.c
+1250970081 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/graphic_prt.c
 	"graphic.h"
 	"particle.h"
 	"char.h"
@@ -6398,16 +6398,16 @@
 
 1239265074 /usr/include/bits/sockaddr.h
 
-1248489882 /usr/include/asm/socket.h
+1250628965 /usr/include/asm/socket.h
 	<asm/sockios.h>
 
-1248489882 /usr/include/asm/sockios.h
+1250628965 /usr/include/asm/sockios.h
 
 1239265074 /usr/include/bits/socket2.h
 
 1239265095 /usr/include/bits/in.h
 
-1248992399 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/ogl_debug.c
+1250970984 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/ogl_debug.c
 	"ogl_debug.h"
 	<stdio.h>
 	<assert.h>
@@ -6419,11 +6419,11 @@
 	<math.h>
 	<string.h>
 
-1249806978 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/ogl_include.c
+1250970081 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/ogl_include.c
 	"ogl_include.h"
 	"ogl_debug.h"
 
-1249806978 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/ogl_texture.c
+1250970081 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/ogl_texture.c
 	"ogl_texture.h"
 	"ogl_debug.h"
 	"SDL_GL_extensions.h"
@@ -6499,7 +6499,7 @@
 	<string.h>
 	<SDL_opengl.h>
 
-1250217244 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/ego_wrap.c
+1250966765 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/ego_wrap.c
 	<string.h>
 	"lua.h"
 	"lauxlib.h"
@@ -6572,7 +6572,7 @@
 	"egoboo_fileutil.h"
 	"egoboo.h"
 
-1250216661 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/graphic.c
+1250970913 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/graphic.c
 	"graphic.h"
 	"log.h"
 	"script.h"
@@ -6654,7 +6654,7 @@
 	"egoboo_fileutil.h"
 	"egoboo.h"
 
-1250216661 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/passage.c
+1250966704 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/passage.c
 	"passage.h"
 	"char.h"
 	"script.h"
@@ -6683,4 +6683,118 @@
 	"log.h"
 	"SDL_extensions.h"
 	"egoboo_setup.h"
+
+1250970912 source:/home/bgbirdsey/svn/sf_egoboo/branches/2.6.x/game/game.c
+	"game.h"
+	"egoboo.h"
+	"clock.h"
+	"link.h"
+	"ui.h"
+	"font.h"
+	"log.h"
+	"System.h"
+	"script.h"
+	"sound.h"
+	"graphic.h"
+	"passage.h"
+	"enchant.h"
+	"input.h"
+	"menu.h"
+	"file_common.h"
+	"network.h"
+	"mad.h"
+	"mesh.h"
+	"texture.h"
+	"char.h"
+	"particle.h"
+	"camera.h"
+	"id_md2.h"
+	"script_compile.h"
+	"script.h"
+	"egoboo_endian.h"
+	"egoboo_setup.h"
+	"egoboo_strutil.h"
+	"egoboo_fileutil.h"
+	"SDL_extensions.h"
+	<SDL_image.h>
+	<time.h>
+	<assert.h>
+	<float.h>
+	<string.h>
+
+1218029412 /usr/include/lua5.1/lua.h
+	<stdarg.h>
+	<stddef.h>
+	"luaconf.h"
+
+1238408465 /usr/include/lua5.1/luaconf.h
+	<limits.h>
+	<stddef.h>
+	<unistd.h>
+	<io.h>
+	<stdio.h>
+	<stdio.h>
+	<readline/readline.h>
+	<readline/history.h>
+	<assert.h>
+	<math.h>
+	<unistd.h>
+
+1239265014 /usr/include/limits.h
+	<features.h>
+	<bits/wordsize.h>
+	<bits/posix1_lim.h>
+	<bits/posix2_lim.h>
+	<bits/xopen_lim.h>
+
+1239265068 /usr/include/bits/posix2_lim.h
+
+1239265014 /usr/include/bits/xopen_lim.h
+	<bits/stdio_lim.h>
+	<bits/wordsize.h>
+
+1236368092 /usr/include/readline/readline.h
+	"rlstdc.h"
+	"rltypedefs.h"
+	"keymaps.h"
+	"tilde.h"
+	<stdio.h>
+	<readline/rlstdc.h>
+	<readline/rltypedefs.h>
+	<readline/keymaps.h>
+	<readline/tilde.h>
+
+1236368092 /usr/include/readline/rlstdc.h
+
+1236368092 /usr/include/readline/rltypedefs.h
+
+1236368092 /usr/include/readline/keymaps.h
+	"rlstdc.h"
+	"chardefs.h"
+	"rltypedefs.h"
+	<readline/rlstdc.h>
+	<readline/chardefs.h>
+	<readline/rltypedefs.h>
+
+1236368093 /usr/include/readline/chardefs.h
+	<ctype.h>
+	<string.h>
+
+1236368092 /usr/include/readline/tilde.h
+
+1236368092 /usr/include/readline/history.h
+	<time.h>
+	"rlstdc.h"
+	"rltypedefs.h"
+	<stdio.h>
+	<readline/rlstdc.h>
+	<readline/rltypedefs.h>
+
+1198760545 /usr/include/lua5.1/lauxlib.h
+	<stddef.h>
+	<stdio.h>
+	"lua.h"
+
+1198760545 /usr/include/lua5.1/lualib.h
+	"lua.h"
 

@@ -11,9 +11,9 @@ These are general controls and cannot be changed
 ESC                   - End module
 SPACE                 - Respawn character (if dead and possible)
 1 to 7                - Show character detailed stats
-LEFT SHIFT   + 1 to 7 - Show selected character armor without magic enchants
-LEFT CONTROL + 1 to 7 - Show armor stats with magic enchants included
-LEFT ALT     + 1 to 7 - Show character magic enchants
+ATK_LEFT SHIFT   + 1 to 7 - Show selected character armor without magic enchants
+ATK_LEFT CONTROL + 1 to 7 - Show armor stats with magic enchants included
+ATK_LEFT ALT     + 1 to 7 - Show character magic enchants
 F11                   - Take screenshot
 
 Keyboard

@@ -547,7 +547,7 @@ void oglx_texture_Bind( oglx_texture *texture )
     {
         oglx_grab_texture_state( target, 0, texture );
     }
-};
+}
 
 //---------------------------------------------------------------------------------------------
 GLboolean oglx_texture_Valid( oglx_texture *ptex )

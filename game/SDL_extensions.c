@@ -312,7 +312,7 @@ void SDLX_synch_video_parameters( SDL_Surface * ret, SDLX_video_parameters_t * v
 
     // grab all SDL_GL_* attributes
     SDLX_read_sdl_gl_attrib( &(v->gl_att) );
-};
+}
 
 //------------------------------------------------------------------------------
 SDL_bool SDLX_set_sdl_gl_attrib( SDLX_video_parameters_t * v )
@@ -523,7 +523,7 @@ SDL_bool SDLX_sdl_video_flags_default(SDLX_sdl_video_flags_t * pflags)
     pflags->opengl      = 1;
 
     return  SDL_TRUE;
-};
+}
 
 //------------------------------------------------------------------------------
 SDL_bool SDLX_sdl_gl_attrib_default(SDLX_sdl_gl_attrib_t * patt)
@@ -662,7 +662,7 @@ SDLX_video_parameters_t * SDLX_set_mode(SDLX_video_parameters_t * v_old, SDLX_vi
     }
 
     return retval;
-};
+}
 
 //--------------------------------------------------------------------------------------------
 SDL_bool SDLX_ExpandFormat(SDL_PixelFormat * pformat)

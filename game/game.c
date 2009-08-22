@@ -5834,7 +5834,7 @@ bool_t water_instance_init( water_instance_t * pinst, water_data_t * pdata )
     make_water( pinst, pdata );
 
     return btrue;
-};
+}
 
 //--------------------------------------------------------------------------------------------
 bool_t weather_data_init( weather_data_t * pdata )
@@ -5875,7 +5875,7 @@ bool_t fog_data_init( fog_data_t * pdata )
     pdata->affects_water = btrue;
 
     return btrue;
-};
+}
 
 //--------------------------------------------------------------------------------------------
 bool_t fog_instance_init( fog_instance_t * pinst, fog_data_t * pdata )
@@ -5900,7 +5900,7 @@ bool_t fog_instance_init( fog_instance_t * pinst, fog_data_t * pdata )
     if ( pinst->distance < 1.0f )  pinst->on = bfalse;
 
     return btrue;
-};
+}
 
 //--------------------------------------------------------------------------------------------
 bool_t damagetile_data_init( damagetile_data_t * pdata )
@@ -5915,7 +5915,7 @@ bool_t damagetile_data_init( damagetile_data_t * pdata )
     pdata->amount.rand = 1;
 
     return btrue;
-};
+}
 
 //--------------------------------------------------------------------------------------------
 bool_t damagetile_instance_init( damagetile_instance_t * pinst, damagetile_data_t * pdata )

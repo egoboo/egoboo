@@ -28,13 +28,13 @@ void handle_gl_error()
         const GLubyte * err_str = gluErrorString(err);
         fprintf(LOCAL_STDERR, "%s (\"%s\" - %d)- %s\n", next_cmd, next_file, next_line, err_str );
     }
-};
+}
 
 //------------------------------------------------------------------------------
 void print_gl_command()
 {
     fprintf(LOCAL_STDERR, "%s (\"%s\" - %d)\n", next_cmd, next_file, next_line );
-};
+}
 
 //------------------------------------------------------------------------------
 void gl_grab_texture_state(GLenum target, GLint level, gl_texture_t * pi)
@@ -86,7 +86,7 @@ void gl_grab_unpacking_state(gl_packing_t * pp)
     GL_DEBUG(glGetIntegerv)(GL_UNPACK_SKIP_ROWS,   pp->skip_rows);
     GL_DEBUG(glGetIntegerv)(GL_UNPACK_SKIP_PIXELS, pp->skip_pixels);
     GL_DEBUG(glGetIntegerv)(GL_UNPACK_ALIGNMENT,   pp->alignment);
-};
+}
 
 //------------------------------------------------------------------------------
 void gl_grab_packing_state(gl_packing_t * pp)
@@ -97,7 +97,7 @@ void gl_grab_packing_state(gl_packing_t * pp)
     GL_DEBUG(glGetIntegerv)(GL_PACK_SKIP_ROWS,   pp->skip_rows);
     GL_DEBUG(glGetIntegerv)(GL_PACK_SKIP_PIXELS, pp->skip_pixels);
     GL_DEBUG(glGetIntegerv)(GL_PACK_ALIGNMENT,   pp->alignment);
-};
+}
 
 //------------------------------------------------------------------------------
 void gl_grab_blend_state(gl_blend_t * pb)
@@ -270,7 +270,7 @@ void gl_grab_depth_state( gl_depth_t * pd )
     GL_DEBUG(glGetFloatv)(GL_DEPTH_RANGE, pd->range);
     GL_DEBUG(glGetFloatv)(GL_DEPTH_SCALE, pd->scale);
     GL_DEBUG(glGetFloatv)(GL_DEPTH_BIAS,  pd->bias);
-};
+}
 
 //------------------------------------------------------------------------------
 void gl_grab_texture_gen_state( gl_texture_gen_t * pt, GLenum coord )
@@ -279,7 +279,7 @@ void gl_grab_texture_gen_state( gl_texture_gen_t * pt, GLenum coord )
     GL_DEBUG(glGetTexGenfv)(coord, GL_OBJECT_PLANE, pt->object_plane);
     GL_DEBUG(glGetTexGenfv)(coord, GL_OBJECT_PLANE, pt->object_plane);
     GL_DEBUG(glGetTexGeniv)(coord, GL_TEXTURE_GEN_MODE, pt->mode);
-};
+}
 
 //------------------------------------------------------------------------------
 void gl_grab_matrix_state( gl_matrix_t * pm )
@@ -374,7 +374,7 @@ void gl_grab_state( ogl_state_t * ps )
         ps->error_value_sz = gluErrorString(ps->error_value);
     }
 
-};
+}
 
 //------------------------------------------------------------------------------
 void gl_comp_state( ogl_state_comp_t * pcomp, ogl_state_t * ps1, ogl_state_t * ps2 )
@@ -385,15 +385,15 @@ void gl_comp_state( ogl_state_comp_t * pcomp, ogl_state_t * ps1, ogl_state_t * p
     // compare the sub states
     pcomp->texturing = ( 0 != memcmp( &ps1->texturing, &ps2->texturing,   sizeof(gl_texturing_t) ) );
     pcomp->clipping  = ( 0 != memcmp( &ps1->clipping,  &ps2->clipping,    sizeof(gl_clipping_t) ) );
-    pcomp->options   = ( 0 != memcmp( &ps1->options,  &ps2->options,      sizeof(gl_render_options_t) ) ); ;
-    pcomp->mapping   = ( 0 != memcmp( &ps1->mapping,  &ps2->mapping,      sizeof(gl_mapping_t) ) ); ;
+    pcomp->options   = ( 0 != memcmp( &ps1->options,  &ps2->options,      sizeof(gl_render_options_t) ) );
+    pcomp->mapping   = ( 0 != memcmp( &ps1->mapping,  &ps2->mapping,      sizeof(gl_mapping_t) ) );
 
     pcomp->pack      = ( 0 != memcmp( &ps1->pack,    &ps2->pack,    sizeof(gl_packing_t) ) );
     pcomp->unpack    = ( 0 != memcmp( &ps1->unpack,  &ps2->unpack,  sizeof(gl_packing_t) ) );
 
-    pcomp->matrix    = ( 0 != memcmp( &ps1->matrix,  &ps2->matrix,      sizeof(gl_matrix_t) ) ); ;;
-    pcomp->attrib    = ( 0 != memcmp( &ps1->attrib,  &ps2->attrib,      sizeof(gl_attrib_t) ) ); ;;
-    pcomp->logic_op  = ( 0 != memcmp( &ps1->logic_op,  &ps2->logic_op,      sizeof(gl_logic_op_t) ) ); ;;
+    pcomp->matrix    = ( 0 != memcmp( &ps1->matrix,  &ps2->matrix,      sizeof(gl_matrix_t) ) );
+    pcomp->attrib    = ( 0 != memcmp( &ps1->attrib,  &ps2->attrib,      sizeof(gl_attrib_t) ) );
+    pcomp->logic_op  = ( 0 != memcmp( &ps1->logic_op,  &ps2->logic_op,      sizeof(gl_logic_op_t) ) );
 }
 
 //------------------------------------------------------------------------------
@@ -672,7 +672,7 @@ void gl_grab_buffer_state( gl_buffer_t * pb )
     GL_DEBUG(glGetFloatv)(GL_RED_BIAS,   pb->red_bias  );
     GL_DEBUG(glGetFloatv)(GL_GREEN_BIAS, pb->green_bias);
     GL_DEBUG(glGetFloatv)(GL_BLUE_BIAS,  pb->blue_bias );
-};
+}
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------

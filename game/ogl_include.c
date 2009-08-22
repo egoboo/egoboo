@@ -32,7 +32,7 @@ GLboolean handle_opengl_error()
     if ( error ) fflush( LOCAL_STDERR );
 
     return error;
-};
+}
 
 //--------------------------------------------------------------------------------------------
 // MN This probably should be replaced by a call to gluLookAt, don't see why we need to make our own...

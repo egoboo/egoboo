@@ -46,7 +46,7 @@
 // The following magic allows this include to work in multiple files
 #ifdef DECLARE_GLOBALS
 #    define EXTERN
-#    define EQ(x) = x;
+#    define EQ(x) = x
 #else
 #    define EXTERN extern
 #    define EQ(x)
@@ -141,7 +141,7 @@ EXTERN Uint32          frame_all   EQ( 0 );             // The total number of f
 EXTERN Uint32          frame_fps   EQ( 0 );             // The number of frames drawn this second
 EXTERN Uint32          clock_stat  EQ( 0 );            // For stat regeneration
 EXTERN Uint32          clock_pit   EQ( 0 );             // For pit kills
-EXTERN Uint32          outofsync   EQ( 0 );;
+EXTERN Uint32          outofsync   EQ( 0 );
 
 EXTERN bool_t          soundon  EQ( btrue );              // Is the sound alive?
 

@@ -476,7 +476,7 @@ void init_all_graphics()
     BillboardList_free_all();
     TxTexture_init_all();
     TxTitleImage_init_all();
-};
+}
 
 //---------------------------------------------------------------------------------------------
 void release_all_graphics()
@@ -2816,10 +2816,10 @@ int draw_status( Uint16 character, int x, int y )
     {
         chr_t * pitem = ChrList.lst + item;
         bool_t is_spell_fx, is_book, draw_book;
-        
-        is_spell_fx = CapList[pitem->model].is_spelleffect; 
-        is_book     = SPELLBOOK == pitem->model; 
-            
+
+        is_spell_fx = CapList[pitem->model].is_spelleffect;
+        is_book     = SPELLBOOK == pitem->model;
+
         imad  = pitem->inst.imad;
         iskin = pitem->skin;
 
@@ -2858,9 +2858,9 @@ int draw_status( Uint16 character, int x, int y )
     {
         chr_t * pitem = ChrList.lst + item;
         bool_t is_spell_fx, is_book, draw_book;
-        
-        is_spell_fx = CapList[pitem->model].is_spelleffect; 
-        is_book     = SPELLBOOK == pitem->model; 
+
+        is_spell_fx = CapList[pitem->model].is_spelleffect;
+        is_book     = SPELLBOOK == pitem->model;
 
         draw_book = (is_book || (is_spell_fx && !pitem->icon)) && (bookicon_count > 0);
 
@@ -4421,7 +4421,7 @@ bool_t gfx_config_init ( gfx_config_t * pgfx )
     pgfx->dyna_list_max    = 8;
 
     return btrue;
-};
+}
 
 //--------------------------------------------------------------------------------------------
 bool_t oglx_texture_parameters_synch( oglx_texture_parameters_t * ptex, egoboo_config_t * pcfg )

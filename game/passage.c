@@ -37,7 +37,7 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-DECLARE_STACK( passage_t, PassageStack )
+DECLARE_STACK( passage_t, PassageStack );
 DECLARE_STACK( shop_t,    ShopStack    );
 
 //--------------------------------------------------------------------------------------------
@@ -257,7 +257,7 @@ bool_t is_in_passage( Uint16 passage, float xpos, float ypos, float tolerance )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint16 who_is_blocking_passage( Uint16 passage, bool_t targetitems, bool_t targetdead, bool_t targetquest, 
+Uint16 who_is_blocking_passage( Uint16 passage, bool_t targetitems, bool_t targetdead, bool_t targetquest,
 							   bool_t requireitem, IDSZ findidsz )
 {
     // ZZ> This function returns MAX_CHR if there is no character in the passage,
@@ -283,14 +283,14 @@ Uint16 who_is_blocking_passage( Uint16 passage, bool_t targetitems, bool_t targe
 
 		//Require target to have specific quest?
 		if( targetquest && (!ChrList.lst[character].isplayer || QUEST_NONE  >= check_player_quest( ChrList.lst[character].name, findidsz )) ) continue;
-		
+
 		//Now check if it actually is inside the passage area
         if ( is_in_passage( passage, ChrList.lst[character].pos.x, ChrList.lst[character].pos.y, ChrList.lst[character].bumpsize ) )
         {
             if ( ChrList.lst[character].alive && !ChrList.lst[character].isitem )
             {
 				Uint16 item;
-				
+
 				// Found a live one, do we need to check for required items as well?
                 if( !requireitem ) return character;
 

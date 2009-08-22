@@ -514,7 +514,7 @@ void update_all_prt_instance( camera_t * pcam )
             prt_instance_update( pcam, cnt, 255, bfalse );
         }
     }
-};
+}
 
 //--------------------------------------------------------------------------------------------
 void prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_t * pprt )

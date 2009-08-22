@@ -59,7 +59,7 @@ enum e_mpd_fx
     MPDFX_WALL            = (1 << 4),               // 4 Wall ( Passable by ghosts, particles )
     MPDFX_IMPASS          = (1 << 5),               // 5 Impassable
     MPDFX_DAMAGE          = (1 << 6),               // 6 Damage
-    MPDFX_SLIPPY          = (1 << 7),               // 7 Ice or normal
+    MPDFX_SLIPPY          = (1 << 7)                // 7 Ice or normal
 };
 
 //--------------------------------------------------------------------------------------------

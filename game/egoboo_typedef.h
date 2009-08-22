@@ -53,9 +53,9 @@
         int  free_ref[COUNT];                  \
         TYPE lst[COUNT];                       \
     };                                         \
-    ACCESS struct s_list__##TYPE__##NAME NAME;
+    ACCESS struct s_list__##TYPE__##NAME NAME
 
-#define DECLARE_LIST(TYPE,NAME) struct s_list__##TYPE__##NAME NAME = {0, 0};
+#define DECLARE_LIST(TYPE,NAME) struct s_list__##TYPE__##NAME NAME = {0, 0}
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -67,9 +67,9 @@
         int  count;                             \
         TYPE lst[COUNT];                        \
     };                                          \
-    ACCESS struct s_stack__##TYPE__##NAME NAME;
+    ACCESS struct s_stack__##TYPE__##NAME NAME
 
-#define DECLARE_STACK(TYPE,NAME) struct s_stack__##TYPE__##NAME NAME = {0};
+#define DECLARE_STACK(TYPE,NAME) struct s_stack__##TYPE__##NAME NAME = {0}
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
