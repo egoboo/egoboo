@@ -4623,10 +4623,15 @@ int load_all_objects( const char *modname )
         }
     }
 
+	//First load the special spellbook character who is located in a special folder
+    strcpy( filename, "basicdat/book.obj");
+	load_one_object( filename, SPELLBOOK );
+
     // Search for .obj directories and load them
     import_data.object = -100;
     make_newloadname( modname, "objects" SLASH_STR, newloadname );
     filehandle = fs_findFirstFile( newloadname, "obj" );
+
 
     keeplooking = btrue;
     while ( filehandle != NULL )
