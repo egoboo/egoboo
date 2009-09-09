@@ -44,7 +44,10 @@
 //--------------------------------------------------------------------------------------------
 // a template-like declaration of a list that tracks free elements
 
-#define DEFINE_LIST(ACCESS, TYPE, NAME, COUNT) \
+#define ACCESS_TYPE_NONE 
+
+
+#define DEFINE_LIST_TYPE(TYPE, NAME, COUNT) \
     struct s_list__##TYPE__##NAME                 \
     {                                          \
         Uint32 used_count;                     \
@@ -52,24 +55,37 @@
         int    used_ref[COUNT];                \
         int    free_ref[COUNT];                \
         TYPE   lst[COUNT];                     \
-    };                                         \
-    ACCESS struct s_list__##TYPE__##NAME NAME
+    }
 
-#define DECLARE_LIST(TYPE,NAME) struct s_list__##TYPE__##NAME NAME = {0, 0}
+#define DEFINE_LIST_EXTERN(TYPE, NAME, COUNT)   \
+    DEFINE_LIST_TYPE(TYPE, NAME, COUNT);        \
+    extern struct s_list__##TYPE__##NAME NAME
+
+#define DEFINE_LIST_STATIC(TYPE, NAME, COUNT)   \
+    DEFINE_LIST_TYPE(TYPE, NAME, COUNT)
+
+#define DECLARE_LIST(ACCESS,TYPE,NAME) ACCESS struct s_list__##TYPE__##NAME NAME = {0, 0}
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // a template-like declaration of a list that tracks free elements
 
-#define DEFINE_STACK(ACCESS, TYPE, NAME, COUNT) \
-    struct s_stack__##TYPE__##NAME                 \
-    {                                           \
-        int  count;                             \
-        TYPE lst[COUNT];                        \
-    };                                          \
-    ACCESS struct s_stack__##TYPE__##NAME NAME
 
-#define DECLARE_STACK(TYPE,NAME) struct s_stack__##TYPE__##NAME NAME = {0}
+#define DEFINE_STACK_TYPE(TYPE, NAME, COUNT) \
+    struct s_stack__##TYPE__##NAME           \
+    {                                        \
+        int  count;                          \
+        TYPE lst[COUNT];                     \
+    }
+
+#define DEFINE_STACK_EXTERN(TYPE, NAME, COUNT) \
+    DEFINE_STACK_TYPE(TYPE, NAME, COUNT);       \
+    extern struct s_stack__##TYPE__##NAME NAME
+
+#define DEFINE_STACK_STATIC(TYPE, NAME, COUNT) \
+    DEFINE_STACK_TYPE(TYPE, NAME, COUNT)
+
+#define DECLARE_STACK(ACCESS,TYPE,NAME) ACCESS struct s_stack__##TYPE__##NAME NAME = {0}
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -124,13 +140,13 @@ enum
 typedef Uint32 IDSZ;
 
 #ifndef MAKE_IDSZ
-#define MAKE_IDSZ(C0,C1,C2,C3) \
+#define MAKE_IDSZ(C0,C1,C2,C3)     \
     ((IDSZ)(                       \
-                                   (((C0)-'A') << 15) |       \
-                                   (((C1)-'A') << 10) |       \
-                                   (((C2)-'A') <<  5) |       \
-                                   (((C3)-'A') <<  0)         \
-           ))
+		((((C0)-'A')&0x1F) << 15) |       \
+		((((C1)-'A')&0x1F) << 10) |       \
+		((((C2)-'A')&0x1F) <<  5) |       \
+		((((C3)-'A')&0x1F) <<  0)         \
+     ))
 #endif
 
 #define IDSZ_NONE            MAKE_IDSZ('N','O','N','E' )       // [NONE]

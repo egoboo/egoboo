@@ -54,8 +54,8 @@ float            sprite_list_v[MAXPARTICLEIMAGE][2];
 
 Uint16           maxparticles = 512;                            // max number of particles
 
-DECLARE_STACK( pip_t, PipStack );
-DECLARE_LIST ( prt_t, PrtList );
+DECLARE_STACK( ACCESS_TYPE_NONE, pip_t, PipStack );
+DECLARE_LIST ( ACCESS_TYPE_NONE, prt_t, PrtList );
 
 particle_direction_t prt_direction[256] =
 {
@@ -133,10 +133,9 @@ void play_particle_sound( Uint16 particle, Sint8 sound )
 
     if ( sound >= 0 && sound < MAX_WAVE )
     {
-        if ( VALID_CAP( pprt->model ) )
+        if ( VALID_MAD( pprt->model ) )
         {
-            cap_t * pcap = CapList + pprt->model;
-            sound_play_chunk( pprt->pos, pcap->wavelist[sound] );
+            sound_play_chunk( pprt->pos, MadList[pprt->model].wavelist[sound] );
         }
         else
         {
@@ -728,7 +727,6 @@ void PrtList_free_all()
 
     // free all the particles
     PrtList.free_count = 0;
-
     for ( cnt = 0; cnt < maxparticles; cnt++ )
     {
         // reuse this code
@@ -806,7 +804,7 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
     // Check that direction
     if ( !is_invictus_direction( direction, character, ppip->damfx) )
     {
-        vertices = pmad->md2.vertices;
+        vertices = pmad->md2_data.vertices;
 
         // Spawn new enchantments
         if ( ppip->spawnenchant )
@@ -834,7 +832,7 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
                 x = -8192 * fsin;
                 y =  8192 * fcos;
                 z = z << 10;/// pchr->scale;
-                frame = pmad->md2.framestart;
+                frame = pmad->md2_data.framestart;
 
                 for ( cnt = 0; cnt < amount; cnt++ )
                 {
@@ -904,7 +902,7 @@ int load_one_particle_profile( const char *szLoadName )
 {
     // ZZ> This function loads a particle template, returning bfalse if the file wasn't
     //    found
-    FILE* fileread;
+    vfs_FILE* fileread;
     IDSZ idsz;
     int iTmp;
     char cTmp;
@@ -918,7 +916,7 @@ int load_one_particle_profile( const char *szLoadName )
     // clear the pip
     memset( ppip, 0, sizeof(pip_t) );
 
-    fileread = fopen( szLoadName, "r" );
+    fileread = vfs_openRead( szLoadName );
     if ( NULL == fileread )
     {
         return MAX_PIP;
@@ -1093,7 +1091,7 @@ int load_one_particle_profile( const char *szLoadName )
         }
     }
 
-    fclose( fileread );
+    vfs_close( fileread );
 
     return retval;
 }
@@ -1190,4 +1188,22 @@ void reset_particles( const char* modname )
 
         object++;
     }
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t release_one_pip( Uint16 ipip )
+{
+	pip_t * ppip;
+
+	if( !VALID_PIP_RANGE(ipip) ) return bfalse;
+	ppip = PipStack.lst + ipip;
+
+	if( !ppip->loaded ) return btrue;
+
+    memset( ppip, 0, sizeof(pip_t) );
+
+	ppip->loaded  = bfalse;
+	ppip->name[0] = '\0';
+
+	return btrue;
 }

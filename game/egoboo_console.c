@@ -555,7 +555,7 @@ SDL_Event * egoboo_console_handle_events( SDL_Event * pevt )
 
                 if ( pcon->save_count > 0)
                 {
-                    strncpy(pcon->buffer, pcon->save_buffer[pcon->save_index], sizeof(pcon->buffer) );
+                    strncpy(pcon->buffer, pcon->save_buffer[pcon->save_index], SDL_arraysize(pcon->buffer) );
                     pcon->buffer_carat = strlen(pcon->buffer) - 1;
                 }
             }

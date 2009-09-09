@@ -90,6 +90,8 @@ struct s_ego_process
     bool_t escape_requested, escape_latch;
 
     int    frame_next, frame_now;
+
+    char * argv0;
 };
 typedef struct s_ego_process ego_process_t;
 
@@ -363,7 +365,6 @@ void export_all_players( bool_t require_local );
 
 // Messages
 void display_message( struct s_script_state * pstate, int message, Uint16 character );
-void debug_message( const char *text );
 void show_stat( Uint16 statindex );
 void show_armor( Uint16 statindex );
 void show_full_status( Uint16 statindex );
@@ -443,7 +444,7 @@ bool_t               process_instance_pause( process_instance_t * proc );
 bool_t               process_instance_resume( process_instance_t * proc );
 bool_t               process_instance_running( process_instance_t * proc );
 
-ego_process_t      * ego_process_init ( ego_process_t  * eproc );
+ego_process_t      * ego_process_init ( ego_process_t  * eproc, int argc, char **argv );
 menu_process_t     * menu_process_init( menu_process_t * mproc );
 game_process_t     * game_process_init( game_process_t * gproc );
 
@@ -453,3 +454,6 @@ void release_all_profiles();
 void reset_players();
 
 void expand_escape_codes( Uint16 ichr, struct s_script_state * pstate, char * src, char * src_end, char * dst, char * dst_end );
+
+
+bool_t release_one_model_profile( Uint16 object );

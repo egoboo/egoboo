@@ -31,6 +31,7 @@
 #include "mad.h"
 #include "game.h"
 
+#include "egoboo_vfs.h"
 #include "egoboo_setup.h"
 
 #include "SDL_extensions.h"
@@ -902,7 +903,7 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
     {
         // Get the working opcode from a constant, constants are all but high 5 bits
         iTmp = pself->opcode & VALUE_BITS;
-        if ( debug_scripts ) snprintf( buffer, sizeof(STRING), "%d", iTmp );
+        if ( debug_scripts ) snprintf( buffer, SDL_arraysize(buffer), "%d", iTmp );
     }
     else
     {

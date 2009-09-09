@@ -174,3 +174,4 @@ bool_t looped_stop_object_sounds( Uint16 ichr );
 void   looped_update_all_sound();
 
 void   sound_finish_sound();
+void   sound_free_chunk( Mix_Chunk * pchunk );

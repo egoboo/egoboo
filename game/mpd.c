@@ -60,7 +60,7 @@ void tile_dictionary_load(tile_definition_t dict[], size_t dict_size)
     int numcommand, command;
     int itmp;
     float ftmp;
-    FILE* fileread;
+    vfs_FILE* fileread;
 
     if ( NULL == dict || dict_size < 2 ) return;
 
@@ -72,7 +72,7 @@ void tile_dictionary_load(tile_definition_t dict[], size_t dict_size)
     }
 
     // Open the file and go to it
-    fileread = fopen( "basicdat" SLASH_STR "fans.txt", "r" );
+    fileread = vfs_openRead( "basicdat" SLASH_STR "fans.txt" );
     if ( NULL == fileread )
     {
         log_error( "Cannot load the tile definitions \"basicdat" SLASH_STR "fans.txt\" \n" );
@@ -123,7 +123,7 @@ void tile_dictionary_load(tile_definition_t dict[], size_t dict_size)
         }
     }
 
-    fclose( fileread );
+    vfs_close( fileread );
 
     // Correct all of them silly texture positions for seamless tiling
     for ( entry = 0; entry < dict_size / 2; entry++ )
@@ -206,7 +206,7 @@ mpd_t * mpd_load( const char *loadname, mpd_t * pmesh )
     fileread = fopen( loadname, "rb" );
     if ( NULL == fileread )
     {
-        log_warning( "mpd_load() - cannot find level.mpd!!\n" );
+        log_warning( "mpd_load() - cannot find \"%s\"!!\n", loadname );
         return NULL;
     }
 

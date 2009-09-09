@@ -459,7 +459,7 @@ ego_mpd_t * mesh_load( const char *modname, ego_mpd_t * pmesh )
 
         // load a raw mpd
         mpd_new( &local_mpd );
-        pmpd = mpd_load( loadname, &local_mpd);
+        pmpd = mpd_load( vfs_resolveReadFilename(loadname), &local_mpd);
 
         // convert it into a convenient version for egoboo
         if ( !mesh_convert( pmesh, pmpd ) )

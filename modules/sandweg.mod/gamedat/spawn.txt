@@ -63,7 +63,7 @@
 
 //Quest Rewards
 #dependency JRing           135
-#dependency LRing  	        136
+#dependency LifeRing  	    136
 #dependency LuckRing        137
 
 

@@ -108,7 +108,7 @@ ItemChest: NONE     40    6.5  7.5  0    E   0   0   0   1   0   F   F   Null
 ItemChest: NONE     40    11.5 7.5  0    W   0   0   0   1   0   F   F   Null
   MPotion: NONE     54    0    0    0    I   0   0   0   0   0   F   F   Null
   MPotion: NONE     54    0    0    0    I   0   0   0   0   0   F   F   Null
-FakeChest: NONE     47    25   5    0    S  49   0   0   0   0   F   F   Evil
+Mimic: NONE     47    25   5    0    S  49   0   0   0   0   F   F   Evil
 FireChest: NONE     46    23.5 26.5 0    N 199   0   0   0   0   F   F   Null
 GasChest:  NONE     75    35.5 10.5 0    N   0   0   0   1   0   F   F   Null
   LWand:   NONE     60    0    0    0    I   0   0   0   0   0   F   F   Null

@@ -243,7 +243,8 @@ struct s_cap_import
 {
     int   object;
     int   player;
-    short slot_lst[MAX_PROFILE];
+    int   slot_lst[MAX_PROFILE];
+	int   max_slot;
 };
 
 typedef struct s_cap_import cap_import_t;
@@ -257,6 +258,7 @@ struct s_cap_stat
 };
 typedef struct s_cap_stat cap_stat_t;
 
+// a representation of the file data.txt
 struct s_cap
 {
     EGO_PROFILE_STUFF
@@ -361,7 +363,6 @@ struct s_cap
 
     // sound
     Sint8        soundindex[SOUND_COUNT];       // a map for soundX.wav to sound types
-    Mix_Chunk *  wavelist[MAX_WAVE];             // sounds in a object
 
     // flags
     bool_t       is_spelleffect;                // is the object that a spellbook generates
@@ -567,7 +568,7 @@ struct s_chr
 
     // attachments
     Uint16         attachedto;                    // !=MAX_CHR if character is a held weapon
-    Uint8          inwhich_slot;                  // SLOT_LEFT or SLOT_RIGHT
+    slot_t         inwhich_slot;                  // SLOT_LEFT or SLOT_RIGHT
     Uint16         weapongrip[GRIP_VERTS];        // Vertices which describe the weapon grip
 
     // platform stuff
@@ -715,7 +716,7 @@ struct s_chr
 
 typedef struct s_chr chr_t;
 
-DEFINE_LIST( extern, chr_t, ChrList, MAX_CHR );
+DEFINE_LIST_EXTERN(chr_t, ChrList, MAX_CHR );
 
 #define VALID_CHR_RANGE( ICHR ) ( ((ICHR) >= 0) && ((ICHR) < MAX_CHR) )
 #define VALID_CHR( ICHR )       ( VALID_CHR_RANGE( ICHR ) && ChrList.lst[ICHR].on )
@@ -777,7 +778,7 @@ void move_characters( void );
 void do_level_up( Uint16 character );
 bool_t setup_xp_table(Uint16 character);
 
-void free_all_characters();
+void free_all_chraracters();
 
 Uint32 __chrhitawall( Uint16 character, float nrm[] );
 
@@ -810,7 +811,7 @@ bool_t export_one_character_skin( const char *szSaveName, Uint16 character );
 int    load_one_character_profile( const char *szLoadName, int slot_override, bool_t required );
 
 void chop_load( Uint16 profile, const char *szLoadname );
-void character_swipe( Uint16 cnt, Uint8 slot );
+void character_swipe( Uint16 cnt, slot_t slot );
 
 int check_skills( Uint16 who, IDSZ whichskill );
 
@@ -833,3 +834,9 @@ bool_t add_quest_idsz( const char *whichplayer, IDSZ idsz );
 Sint16 modify_quest_idsz( const char *whichplayer, IDSZ idsz, Sint16 adjustment );
 Sint16 check_player_quest( const char *whichplayer, IDSZ idsz );
 
+//---------------------------------------------------------------------------------------------
+// helper functions
+Mix_Chunk * chr_get_chunk_ptr( chr_t * pchr, int index );
+Mix_Chunk * chr_get_chunk( Uint16 ichr, int index );
+
+bool_t release_one_cap( Uint16 icap );

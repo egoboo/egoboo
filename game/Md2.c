@@ -21,8 +21,9 @@
 #include "log.h"                // For error logging
 #include "mad.h"
 
-#include "egoboo.h"
+#include "egoboo_strutil.h"
 #include "egoboo_endian.h"
+#include "egoboo.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -320,25 +321,31 @@ void md2_rip_frames( ego_md2_t * pmd2 )
 }
 
 //---------------------------------------------------------------------------------------------
-int md2_load_one( const char* szLoadname, ego_md2_t * pmd2 )
+bool_t md2_load_one( const char* szLoadname, ego_md2_t * pmd2 )
 {
     // ZZ> This function loads an id md2 file, storing the converted data in the indexed model
     //   int iFileHandleRead;
     size_t iBytesRead = 0;
     int iReturnValue;
+	FILE *file;
+
+	if( INVALID_CSTR(szLoadname) ) return bfalse;
 
     // Read the input file
-    FILE *file = fopen( szLoadname, "rb" );
+    file = fopen( szLoadname, "rb" );
     if ( !file )
     {
-        log_warning( "Cannot load file! (\"%s\")\n", szLoadname );
+        log_warning( "md2_load_one() - Cannot load file! (\"%s\")\n", szLoadname );
         return bfalse;
     }
 
     // Read up to MD2MAXLOADSIZE bytes from the file into the cLoadBuffer array.
     iBytesRead = fread( cLoadBuffer, 1, MD2MAXLOADSIZE, file );
-    if ( iBytesRead == 0 )
-        return bfalse;
+
+	// done with the file
+	fclose( file );
+
+    if ( iBytesRead == 0 ) return bfalse;
 
     // save the filename for debugging
     globalparsename = szLoadname;
@@ -355,7 +362,7 @@ int md2_load_one( const char* szLoadname, ego_md2_t * pmd2 )
     // Get the commands
     md2_rip_commands( &(pmd2->cmd) );
 
-    fclose( file );
+
 
     return btrue;
 }

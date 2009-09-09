@@ -18,15 +18,15 @@ extern "C"
 #endif
 
 #if defined(DEBUG_ATTRIB) && USE_DEBUG
-#    define ATTRIB_PUSH(TXT, BITS)    { GLint xx=0; GL_DEBUG(glGetIntegerv)(GL_ATTRIB_STACK_DEPTH,&xx); GL_DEBUG(glPushAttrib)(BITS); fprintf( stdout, "INFO: PUSH  ATTRIB: %s before attrib stack push. level == %d\n", TXT, xx); }
-#    define ATTRIB_POP(TXT)           { GLint xx=0; GL_DEBUG(glPopAttrib)(); GL_DEBUG(glGetIntegerv)(GL_ATTRIB_STACK_DEPTH,&xx); fprintf( stdout, "INFO: POP   ATTRIB: %s after attrib stack pop. level == %d\n", TXT, xx); }
-#    define ATTRIB_GUARD_OPEN(XX)     { GL_DEBUG(glGetIntegerv)(GL_ATTRIB_STACK_DEPTH,&XX); fprintf( stdout, "INFO: OPEN ATTRIB_GUARD: before attrib stack push. level == %d\n", XX); }
-#    define ATTRIB_GUARD_CLOSE(XX,YY) { GL_DEBUG(glGetIntegerv)(GL_ATTRIB_STACK_DEPTH,&YY); if(XX!=YY) { fprintf( stderr, "ERROR: CLOSE ATTRIB_GUARD: after attrib stack pop. level conflict %d != %d\n", XX, YY); exit(-1); } else fprintf( stdout, "INFO: CLOSE ATTRIB_GUARD: after attrib stack pop. level == %d\n", XX); }
+#    define ATTRIB_PUSH(TXT, BITS)    { GLint xx=0; GL_DEBUG(glGetIntegerv)(GL_ATTRIB_STACK_DEPTH,&xx); GL_DEBUG(glPushAttrib)(BITS); vfs_printf( stdout, "INFO: PUSH  ATTRIB: %s before attrib stack push. level == %d\n", TXT, xx); }
+#    define ATTRIB_POP(TXT)           { GLint xx=0; GL_DEBUG(glPopAttrib)(); GL_DEBUG(glGetIntegerv)(GL_ATTRIB_STACK_DEPTH,&xx); vfs_printf( stdout, "INFO: POP   ATTRIB: %s after attrib stack pop. level == %d\n", TXT, xx); }
+#    define ATTRIB_GUARD_OPEN(XX)     { GL_DEBUG(glGetIntegerv)(GL_ATTRIB_STACK_DEPTH,&XX); vfs_printf( stdout, "INFO: OPEN ATTRIB_GUARD: before attrib stack push. level == %d\n", XX); }
+#    define ATTRIB_GUARD_CLOSE(XX,YY) { GL_DEBUG(glGetIntegerv)(GL_ATTRIB_STACK_DEPTH,&YY); if(XX!=YY) { vfs_printf( stderr, "ERROR: CLOSE ATTRIB_GUARD: after attrib stack pop. level conflict %d != %d\n", XX, YY); exit(-1); } else vfs_printf( stdout, "INFO: CLOSE ATTRIB_GUARD: after attrib stack pop. level == %d\n", XX); }
 #elif USE_DEBUG
 #    define ATTRIB_PUSH(TXT, BITS)    GL_DEBUG(glPushAttrib)(BITS);
 #    define ATTRIB_POP(TXT)           GL_DEBUG(glPopAttrib)();
 #    define ATTRIB_GUARD_OPEN(XX)     { GL_DEBUG(glGetIntegerv)(GL_ATTRIB_STACK_DEPTH,&XX);  }
-#    define ATTRIB_GUARD_CLOSE(XX,YY) { GL_DEBUG(glGetIntegerv)(GL_ATTRIB_STACK_DEPTH,&YY); assert(XX==YY); if(XX!=YY) { fprintf( stderr, "ERROR: CLOSE ATTRIB_GUARD: after attrib stack pop. level conflict %d != %d\n", XX, YY); exit(-1); }  }
+#    define ATTRIB_GUARD_CLOSE(XX,YY) { GL_DEBUG(glGetIntegerv)(GL_ATTRIB_STACK_DEPTH,&YY); assert(XX==YY); if(XX!=YY) { vfs_printf( stderr, "ERROR: CLOSE ATTRIB_GUARD: after attrib stack pop. level conflict %d != %d\n", XX, YY); exit(-1); }  }
 #else
 #    define ATTRIB_PUSH(TXT, BITS)    GL_DEBUG(glPushAttrib)(BITS);
 #    define ATTRIB_POP(TXT)           GL_DEBUG(glPopAttrib)();

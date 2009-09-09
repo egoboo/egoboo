@@ -126,7 +126,7 @@ treasurechest:   NONE    65  62.5   69.5   1.0   S    9   1  0   1   0   F   F  
   levpotion:   NONE    70  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   LBow:   NONE    58  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   ninjastars:   NONE    57  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-  PhanXBow:   NONE    71  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  PHanXBow:   NONE    71  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 treasurechest:   NONE    65  64.5   72.0   1.0   W    59   0  0   3   0   F   F   N  	//The big one
 
 //Zelda room

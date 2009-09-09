@@ -68,7 +68,7 @@ static void input_read_keyboard();
 static void input_read_joystick(Uint16 which);
 
 static void   scantag_reset();
-static bool_t scantag_read_one( FILE *fileread );
+static bool_t scantag_read_one( vfs_FILE *fileread );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -347,7 +347,7 @@ void scantag_reset()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t scantag_read_one( FILE *fileread )
+bool_t scantag_read_one( vfs_FILE *fileread )
 {
     // ZZ> This function finds the next tag, returning btrue if it found one
 
@@ -368,12 +368,12 @@ bool_t scantag_read_one( FILE *fileread )
 void scantag_read_all( const char *szFilename )
 {
     // ZZ> This function reads the scancode.txt file
-    FILE* fileread;
+    vfs_FILE* fileread;
 
     scantag_reset();
 
     parse_filename = "";
-    fileread = fopen( szFilename, "r" );
+    fileread = vfs_openRead( szFilename );
     if ( NULL == fileread )
     {
         log_error( "Cannot read %s.", szFilename );
@@ -382,7 +382,7 @@ void scantag_read_all( const char *szFilename )
 
     while ( scantag_read_one( fileread ) );
 
-    fclose( fileread );
+    vfs_close( fileread );
 
     parse_filename = "";
 }

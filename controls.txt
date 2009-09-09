@@ -56,7 +56,7 @@ Left Hand Get/Drop	 : JOY_6
 Left Hand Inventory	 : JOY_7
 Right Hand Use		 : JOY_0
 Right Hand Get/Drop	 : JOY_2
-Right Hand Inventory : KEY_SPACE
+Right Hand Inventory : JOY_5
 Camera Control Mode	 : KEY_BACK_SPACE
 
 

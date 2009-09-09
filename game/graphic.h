@@ -163,7 +163,7 @@ struct s_msg
 };
 typedef struct s_msg msg_t;
 
-DEFINE_STACK( extern, msg_t, DisplayMsg, MAX_MESSAGE );
+DEFINE_STACK_EXTERN(msg_t, DisplayMsg, MAX_MESSAGE );
 
 //--------------------------------------------------------------------------------------------
 // camera optimization
@@ -253,7 +253,7 @@ bool_t             billboard_data_free( billboard_data_t * pbb );
 bool_t             billboard_data_update( billboard_data_t * pbb );
 bool_t             billboard_data_printf_ttf( billboard_data_t * pbb, struct Font *font, SDL_Color color, const char * format, ... );
 
-DEFINE_LIST( extern, billboard_data_t, BillboardList, BILLBOARD_COUNT );
+DEFINE_LIST_EXTERN(billboard_data_t, BillboardList, BILLBOARD_COUNT );
 
 void               BillboardList_init_all();
 void               BillboardList_update_all();
@@ -363,7 +363,7 @@ bool_t render_one_prt_ref( Uint16 iprt );
 void Begin3DMode( struct s_camera * pcam );
 void End3DMode();
 
-void debug_message( const char *text );
+int debug_printf( const char *format, ... );
 
 bool_t chr_instance_update_vertices( struct s_chr_instance * pinst, int vmin, int vmax );
 

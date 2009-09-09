@@ -31,7 +31,6 @@
 #include "input.h"
 #include "char.h"
 #include "particle.h"
-#include "file_common.h"
 #include "network.h"
 #include "passage.h"
 #include "menu.h"
@@ -45,6 +44,7 @@
 #include "SDL_extensions.h"
 #include "SDL_GL_extensions.h"
 
+#include "egoboo_vfs.h"
 #include "egoboo_setup.h"
 #include "egoboo_strutil.h"
 
@@ -139,9 +139,6 @@ gfx_config_t     gfx;
 SDLX_video_parameters_t sdl_vparam;
 oglx_video_parameters_t ogl_vparam;
 
-Uint8            maxformattypes = 0;
-STRING           TxFormatSupported[20];      // List of texture formats that we search for
-
 size_t                dolist_count = 0;
 obj_registry_entity_t dolist[DOLIST_SIZE];
 
@@ -173,7 +170,7 @@ Uint8   blipc[MAXBLIP];
 
 Uint16  msgtimechange = 0;
 
-DECLARE_STACK( msg_t, DisplayMsg );
+DECLARE_STACK( extern, msg_t, DisplayMsg );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -195,7 +192,7 @@ static void init_bar_data();
 static void init_blip_data();
 static void init_map_data();
 
-DECLARE_LIST ( billboard_data_t, BillboardList );
+DECLARE_LIST ( ACCESS_TYPE_NONE, billboard_data_t, BillboardList );
 
 static bool_t render_billboard( struct s_camera * pcam, billboard_data_t * pbb, float scale );
 
@@ -504,27 +501,67 @@ void delete_all_graphics()
     TxTitleImage_delete_all();
 }
 
+
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void debug_message( const char *text )
+void _debug_print( const char *text )
 {
     // ZZ> This function sticks a message in the display queue and sets its timer
-    int slot = DisplayMsg_get_free();
-    // Copy the message
-    int write = 0;
-    int read = 0;
-    char cTmp = text[read];  read++;
-    DisplayMsg.lst[slot].time = cfg.message_duration;
 
-    while ( cTmp != 0 )
+    int          slot;
+	const char * src;
+	char       * dst, * dst_end;
+	msg_t      * pmsg;
+
+	if( INVALID_CSTR(text) ) return;
+
+	// Get a "free" message
+	slot = DisplayMsg_get_free();
+	pmsg = DisplayMsg.lst + slot;
+
+    // Copy the message
+    for ( src = text, dst = pmsg->textdisplay, dst_end = dst + MESSAGESIZE;
+		  '\0' != *src && dst < dst_end;
+		  src++, dst++)
     {
-        DisplayMsg.lst[slot].textdisplay[write] = cTmp;
-        write++;
-        cTmp = text[read];  read++;
+        *dst = *src;
+    }
+	if( dst < dst_end ) *dst = '\0';
+
+	// Set the time
+    pmsg->time = cfg.message_duration;
+}
+
+//--------------------------------------------------------------------------------------------
+int _debug_vprintf( const char *format, va_list args )
+{
+	int retval = 0;
+
+	if( VALID_CSTR(format) )
+	{
+		STRING szTmp;
+
+        retval = vsnprintf( szTmp, SDL_arraysize(szTmp), format, args );
+		_debug_print( szTmp );
     }
 
-    DisplayMsg.lst[slot].textdisplay[write] = 0;
+	return retval;
 }
+
+//--------------------------------------------------------------------------------------------
+int debug_printf( const char *format, ... )
+{
+    va_list args;
+	int retval;
+
+    va_start( args, format );
+    retval = _debug_vprintf( format, args );
+    va_end( args );
+
+	return retval;
+}
+
 
 //--------------------------------------------------------------------------------------------
 void create_szfpstext( int frames )
@@ -810,7 +847,7 @@ void animate_tiles()
 void load_basic_textures( const char *modname )
 {
     // ZZ> This function loads the standard textures for a module
-    char newloadname[256];
+    STRING newloadname;
 
     // Particle sprites
     TxTexture_load_one( "basicdat" SLASH_STR "globalparticles" SLASH_STR "particle_trans", TX_PARTICLE_TRANS, TRANSCOLOR );
@@ -850,13 +887,13 @@ void load_bars()
     pname = "basicdat" SLASH_STR "bars";
     if ( INVALID_TEXTURE == TxTexture_load_one( pname, TX_BARS, TRANSCOLOR ) )
     {
-        log_warning( "Cannot load file! (\"%s\")\n", pname );
+        log_warning( "load_bars() - Cannot load file! (\"%s\")\n", pname );
     }
 
     pname = "basicdat" SLASH_STR "xpbar";
     if ( INVALID_TEXTURE == TxTexture_load_one( pname, TX_XP_BAR, TRANSCOLOR ) )
     {
-        log_warning( "Cannot load file! (\"%s\")\n", pname );
+        log_warning( "load_bars() - Cannot load file! (\"%s\")\n", pname );
     }
 }
 
@@ -864,7 +901,7 @@ void load_bars()
 void load_map( const char* szModule )
 {
     // ZZ> This function loads the map bitmap
-    char szMap[256];
+    STRING szMap;
 
     // Turn it all off
     mapvalid = bfalse;
@@ -873,11 +910,11 @@ void load_map( const char* szModule )
     numblip = 0;
 
     // Load the images
-    sprintf( szMap, "%sgamedat" SLASH_STR "plan", szModule );
+    snprintf( szMap, SDL_arraysize( szMap), "%sgamedat" SLASH_STR "plan", szModule );
 
     if ( INVALID_TEXTURE == TxTexture_load_one( szMap, TX_MAP, INVALID_KEY ) )
     {
-        log_warning( "Cannot load file! (\"%s\")\n", szMap );
+        log_warning( "load_map() - Cannot load file! (\"%s\")\n", szMap );
     }
     else
     {
@@ -925,12 +962,12 @@ void font_load( const char* szBitmap, const char* szSpacing )
     int stt_x, stt_y;
     int xspacing, yspacing;
     char cTmp;
-    FILE *fileread;
+    vfs_FILE *fileread;
 
     font_init();
     if ( INVALID_TEXTURE == TxTexture_load_one( szBitmap, TX_FONT, TRANSCOLOR ) )
     {
-        log_error( "Cannot load file! (\"%s\")\n", szBitmap );
+        log_error( "load_font() - Cannot load file! (\"%s\")\n", szBitmap );
     }
 
     // Get the size of the bitmap
@@ -947,7 +984,7 @@ void font_load( const char* szBitmap, const char* szSpacing )
 
     // Figure out where each font is and its spacing
     parse_filename = "";
-    fileread = fopen( szSpacing, "r" );
+    fileread = vfs_openRead( szSpacing );
     if ( fileread == NULL )
     {
         log_error( "Font spacing not avalible! (%i, %i)\n", xsize, ysize );
@@ -963,7 +1000,7 @@ void font_load( const char* szBitmap, const char* szSpacing )
     fontoffset = yspacing;
     for ( cnt = 0; cnt < NUMFONT && goto_colon( NULL, fileread, btrue ); cnt++ )
     {
-        fscanf( fileread, "%c", &cTmp );
+        vfs_scanf( fileread, "%c", &cTmp );
         xspacing = fget_int( fileread );
         if ( asciitofont[(Uint8)cTmp] == 255 ) asciitofont[(Uint8)cTmp] = (Uint8) cnt;
         if ( stt_x + xspacing + 1 > 255 )
@@ -980,7 +1017,7 @@ void font_load( const char* szBitmap, const char* szSpacing )
 
         stt_x += xspacing + 1;
     }
-    fclose( fileread );
+    vfs_close( fileread );
     parse_filename = "";
 
     // Space between lines
@@ -1538,7 +1575,7 @@ void light_particles( ego_mpd_t * pmesh )
             }
             else if ( VALID_MAD(imad) )
             {
-                int vertex = MAX(0, MadList[imad].md2.vertices - pprt->vrt_off);
+                int vertex = MAX(0, MadList[imad].md2_data.vertices - pprt->vrt_off);
                 int light  = pchr->inst.color_amb + pchr->inst.vlst[vertex].color_dir;
 
                 pprt->inst.light = CLIP(light, 0, 255);
@@ -3126,8 +3163,8 @@ int draw_debug( int y )
         y = _draw_string_raw( 0, y, "~~FREEPRT %d", prt_count_free() );
         y = _draw_string_raw( 0, y, "~~FREECHR %d", chr_count_free() );
         y = _draw_string_raw( 0, y, "~~MACHINE %d", local_machine );
-        if ( PMod->exportvalid ) sprintf( text, "~~EXPORT: TRUE" );
-        else                    sprintf( text, "~~EXPORT: FALSE" );
+        if ( PMod->exportvalid ) snprintf( text, SDL_arraysize( text), "~~EXPORT: TRUE" );
+        else                    snprintf( text, SDL_arraysize( text), "~~EXPORT: FALSE" );
         y = _draw_string_raw( 0, y, text, PMod->exportvalid );
         y = _draw_string_raw( 0, y, "~~PASS %d/%d", ShopStack.count, PassageStack.count );
         y = _draw_string_raw( 0, y, "~~NETPLAYERS %d", numplayer );
@@ -3253,7 +3290,7 @@ void draw_text()
         {
             char buffer[KEYB_BUFFER_SIZE + 128];
 
-            snprintf( buffer, sizeof(buffer), "%s > %s%s", cfg.network_messagename, keyb.buffer, HAS_NO_BITS( update_wld, 8 ) ? "x" : "+" );
+            snprintf( buffer, SDL_arraysize(buffer), "%s > %s%s", cfg.network_messagename, keyb.buffer, HAS_NO_BITS( update_wld, 8 ) ? "x" : "+" );
 
             y = draw_wrap_string( buffer, 0, y, sdl_scr.x - wraptolerance );
         }
@@ -3641,28 +3678,22 @@ bool_t dump_screenshot()
     // returns btrue if successful, bfalse otherwise
 
     int i;
-    FILE *test;
     bool_t savefound = bfalse;
     bool_t saved     = bfalse;
-    char szFilename[100];
+    STRING szFilename;
 
     // find a valid file name
     savefound = bfalse;
     i = 0;
     while ( !savefound && ( i < 100 ) )
     {
-        sprintf( szFilename, "ego%02d.bmp", i );
+        snprintf( szFilename, SDL_arraysize( szFilename), "ego%02d.bmp", i );
 
         // lame way of checking if the file already exists...
-        test = fopen( szFilename, "rb" );
-        if ( test != NULL )
+        savefound = !vfs_exists( szFilename );
+        if ( !savefound )
         {
-            fclose( test );
             i++;
-        }
-        else
-        {
-            savefound = btrue;
         }
     }
     if ( !savefound ) return bfalse;
@@ -3678,7 +3709,6 @@ bool_t dump_screenshot()
     GL_DEBUG(glPushClientAttrib)( GL_CLIENT_PIXEL_STORE_BIT ) ;
     {
         SDL_Surface *temp;
-        char buff2[100];
 
         // create a SDL surface
         temp = SDL_CreateRGBSurface( SDL_SWSURFACE, sdl_scr.x, sdl_scr.y, 24,
@@ -3741,8 +3771,7 @@ bool_t dump_screenshot()
         if ( saved )
         {
             // tell the user what we did
-            sprintf( buff2, "Saved to %s", szFilename );
-            debug_message( buff2 );
+            debug_printf( "Saved to %s", szFilename );
         }
     }
     GL_DEBUG(glPopClientAttrib)();
@@ -4433,11 +4462,11 @@ bool_t oglx_texture_parameters_synch( oglx_texture_parameters_t * ptex, egoboo_c
     if ( ogl_caps.maxAnisotropy == 0.0f )
     {
         ptex->userAnisotropy = 0.0f;
-        ptex->texturefilter  = MIN( pcfg->texturefilter_req, TX_TRILINEAR_2 );
+        ptex->texturefilter  = (TX_FILTERS)MIN( pcfg->texturefilter_req, TX_TRILINEAR_2 );
     }
     else
     {
-        ptex->texturefilter  = MIN( pcfg->texturefilter_req, TX_FILTER_COUNT );
+        ptex->texturefilter  = (TX_FILTERS)MIN( pcfg->texturefilter_req, TX_FILTER_COUNT );
         ptex->userAnisotropy = ogl_caps.maxAnisotropy * MAX(0, (int)ptex->texturefilter - (int)TX_TRILINEAR_2);
     }
 

@@ -554,7 +554,7 @@ Version 2.4.1 (16.08.2007)
 - New Feature: Over 10 new different music tracks for different modules and themes
 - New Feature: Graphic enchantments like Anti-aliasing, Shading, Dithering and Perspective Correction is now added and
   is fully functional.
-- Update: The ultimate powers of the rouge and paladin has changed (Rouge can do triple jumps while paladin converts evil
+- Update: The ultimate powers of the rogue and paladin has changed (Rogue can do triple jumps while paladin converts evil
   damage to mana).
 - Update: A sound effect is played whenever a player gains a level up.
 - Update: Instead of losing all their money, players lose an amount dependant on their level.
@@ -655,8 +655,8 @@ Version 2.2.4 (08.01.2007)
 - New Feature: Module unlock system has been enabled! You now need to beat a specific palace before you 
   can advance to the next one.
 - Update: Players no longer need to identify spellbooks they buy in cities
-- Update: Poisoned weapon system has been updated, rouges and characters with high wisdom are more able to   
-  use these weapons (None-rouges with low wisdom will often poison themselves)
+- Update: Poisoned weapon system has been updated, rogues and characters with high wisdom are more able to   
+  use these weapons (None-rogues with low wisdom will often poison themselves)
 - Update: Textures for Random Maps have been greatly improved
 - Update: Game Manual has been updated a lot for 2.2.4
 - Update: Ice Palace had some finishing touches (Last boss still needs better animation)
@@ -702,5 +702,5 @@ Version 2.2.1 (29.July 2006)
 - New Feature: Starter Modules including Elf, Wizard, Soldier and Paladin Starters!
 - Update: The Egoboo Manual is now up to date!
 - Bugfix: Fixed Healer Starter bug: Always exporting the character
-- Bugfix: Rouge Starter bug: K'nife not responding properly
+- Bugfix: Rogue Starter bug: K'nife not responding properly
 - Bugfix: A bug making all shields in Ash Palace disappear (Credits to Denis Jaimes)

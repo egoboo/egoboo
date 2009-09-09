@@ -36,23 +36,23 @@ GASCHEST:  NONE      51   55   33   0.0  W   0   0   0   1   0   F   F   Null
   Cinquedea:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   Null
   Cinquedea:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   Null
 MCHEST:    NONE      52   27.5 7.5  0.0  S   0   0   0   0   0   F   F   Null
-FCHEST:    NONE      53   14.5 31.5 0.0  W   0   0   0   1   0   F   F   Null
+FChest:    NONE      53   14.5 31.5 0.0  W   0   0   0   1   0   F   F   Null
   XBOW50:  NONE      49   0    0    0    I   0   0   0   0   0   F   F   Null
   LPotion: NONE      86   0    0    0    I   0   0   0   0   0   F   F   Null
-FCHEST:    NONE      53   7.5  48.5 0.0  S   0   0   0   1   0   F   F   Null
+FChest:    NONE      53   7.5  48.5 0.0  S   0   0   0   1   0   F   F   Null
   KEYA:    NONE      46   0    0    0    I   0   0   0   0   0   F   F   Null
 
 
 // Item room
-$CHEST:    NONE      53   37.5 19.5 0.0  E   24  0   0   0   0   F   F   Null
+FChest:    NONE      53   37.5 19.5 0.0  E   24  0   0   0   0   F   F   Null
 LRCHEST:   NONE      50   37.5 21.0 0.0  E   0   0   0   1   0   F   F   Null
-$CHEST:    NONE      53   37.5 22.5 0.0  E   24  0   0   0   0   F   F   Null
-$CHEST:    NONE      53   40.5 19.5 0.0  W   24  0   0   0   0   F   F   Null
-FCHEST:    NONE      53   40.5 21.0 0.0  W   24  0   0   2   0   F   F   Null
-  HANXBOW: NONE      43   0    0    0    I   0   0   0   0   0   F   F   Null
-  STILETT: NONE      44   0    0    0    I   0   0   0   0   0   F   F   Null
+FChest:    NONE      53   37.5 22.5 0.0  E   24  0   0   0   0   F   F   Null
+FChest:    NONE      53   40.5 19.5 0.0  W   24  0   0   0   0   F   F   Null
+FChest:    NONE      53   40.5 21.0 0.0  W   24  0   0   2   0   F   F   Null
+  HanXBow: NONE      43   0    0    0    I   0   0   0   0   0   F   F   Null
+  Stiletto: NONE      44   0    0    0    I   0   0   0   0   0   F   F   Null
   LPotion: NONE      86   0    0    0    I   0   0   0   0   0   F   F   Null
-$Chest:    NONE      53   40.5 22.5 0.0  W   24  0   0   0   0   F   F   Null
+FChest:    NONE      53   40.5 22.5 0.0  W   24  0   0   0   0   F   F   Null
 
 
 
@@ -66,13 +66,13 @@ COBOL:     NONE      36   12.5 18.5 0.0  N   3   0   0   100 0   F   F   Evil
 
 // Sleeping guards by map
 COBOL:     NONE      36   22.5 9.5  0.0  N   3   2   0   200 0   F   F   Evil
-  Shield:  NONE      72   0    0    0    R   0   0   0   0   0   F   F   Null
+  KShield:  NONE      72   0    0    0    R   0   0   0   0   0   F   F   Null
   Whip:    NONE      16   0    0    0    L   0   0   0   0   0   F   F   Null
 COBOL:     NONE      36   22.5 12.5 0.0  S   2   2   0   100 0   F   F   Evil
   Cinquedea:    NONE      47   0    0    0    L   0   0   0   0   0   F   F   Null
 COBOL:     NONE      36   25.5 11.5 0.0  E   3   2   0   100 0   F   F   Evil
   Cinquedea:    NONE      47   0    0    0    R   0   0   0   0   0   F   F   Null
-  Shield:  NONE      73   0    0    0    L   0   0   0   0   0   F   F   Null
+  KShield:  NONE      73   0    0    0    L   0   0   0   0   0   F   F   Null
 COBOL:     NONE      36   27.5 12.5 0.0  W   4   2   0   200 0   F   F   Evil
   Whip:    NONE      16   0    0    0    R   0   0   0   0   0   F   F   Null
 COBOL:     NONE      36   28.5 8.5  0.0  S   1   2   0   100 0   F   F   Evil
@@ -84,7 +84,7 @@ COBOL:     NONE      36   28.5 8.5  0.0  S   1   2   0   100 0   F   F   Evil
 COBOL:     NONE      36   9.5  31.5 0.0  S   1   0   0   100 0   F   F   Evil
   Cinquedea:    NONE      47   0    0    0    R   0   0   0   0   0   F   F   Null
 COBOL:     NONE      36   11.5 32.5 0.0  N   2   1   0   100 0   F   F   Evil
-  Shield:  NONE      74   0    0    0    R   0   0   0   0   0   F   F   Null
+  KShield:  NONE      74   0    0    0    R   0   0   0   0   0   F   F   Null
   Hatchet: NONE      42   0    0    0    L   0   0   0   0   0   F   F   Null
 COBOL:     NONE      36   12.5 30.5 0.0  S   0   0   0   100 0   F   F   Evil
   Cinquedea:    NONE      47   0    0    0    R   0   0   0   0   0   F   F   Null
@@ -133,13 +133,13 @@ COBOL:     NONE      36   31.5 57.5 0.0  N   1   0   0   500 0   F   F   Evil
 // Welcome party after bear traps
 COBOL:     NONE      36   47.5 41.5 0.0  W   1   0   0   120 0   F   F   Evil
   Hatchet: NONE      42   0    0    0    R   0   0   0   0   0   F   F   Null
-  Shield:  NONE      75   0    0    0    L   0   0   0   0   0   F   F   Null
+  KShield:  NONE      75   0    0    0    L   0   0   0   0   0   F   F   Null
 COBOL:     NONE      36   50.5 44.0 0.0  W   6   1   0   140 0   F   F   Evil
   Hatchet: NONE      42   0    0    0    R   0   0   0   0   0   F   F   Null
-  Shield:  NONE      72   0    0    0    L   0   0   0   0   0   F   F   Null
+  KShield:  NONE      72   0    0    0    L   0   0   0   0   0   F   F   Null
 COBOL:     NONE      36   47.5 46.5 0.0  W   2   0   0   120 0   F   F   Evil
   Hatchet: NONE      42   0    0    0    L   0   0   0   0   0   F   F   Null
-  Shield:  NONE      73   0    0    0    R   0   0   0   0   0   F   F   Null
+  KShield:  NONE      73   0    0    0    R   0   0   0   0   0   F   F   Null
 
 
 

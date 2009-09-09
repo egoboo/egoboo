@@ -24,6 +24,7 @@
 #include "graphic.h"
 #include "particle.h"
 #include "texture.h"
+#include "sound.h"
 
 #include "egoboo_setup.h"
 #include "egoboo_fileutil.h"
@@ -34,7 +35,7 @@ static char cActionName[ACTION_COUNT][2]; // Two letter name code
 
 mad_t   MadList[MAX_PROFILE];
 
-DECLARE_STACK( int, MessageOffset );
+DECLARE_STACK( ACCESS_TYPE_NONE, int, MessageOffset );
 
 Uint32  message_buffer_carat = 0;                           // Where to put letter
 char    message_buffer[MESSAGEBUFFERSIZE];                  // The text buffer
@@ -44,7 +45,7 @@ char    cFrameName[16];                                     // MD2 Frame Name
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 static void load_all_messages( const char *loadname, Uint16 object );
-static void get_message( FILE* fileread );
+static void get_message( vfs_FILE* fileread );
 static void md2_fix_normals( Uint16 modelindex );
 static void md2_get_transvertices( Uint16 modelindex );
 // static int  vertexconnected( md2_ogl_commandlist_t * pclist, int vertex );
@@ -137,14 +138,14 @@ void action_copy_correct( Uint16 object, Uint16 actiona, Uint16 actionb )
 void action_check_copy( const char* loadname, Uint16 object )
 {
     // ZZ> This function copies a model's actions
-    FILE *fileread;
+    vfs_FILE *fileread;
     int actiona, actionb;
     char szOne[16], szTwo[16];
 
     if ( object > MAX_PROFILE || !MadList[object].loaded ) return;
 
     MadList[object].message_start = 0;
-    fileread = fopen( loadname, "r" );
+    fileread = vfs_openRead( loadname );
     if ( fileread )
     {
         while ( goto_colon( NULL, fileread, btrue ) )
@@ -161,7 +162,7 @@ void action_check_copy( const char* loadname, Uint16 object )
             action_copy_correct( object, actiona + 3, actionb + 3 );
         }
 
-        fclose( fileread );
+        vfs_close( fileread );
     }
 }
 
@@ -279,9 +280,9 @@ void mad_make_equally_lit( int model )
     int frame, cnt, vert;
     if ( MadList[model].loaded )
     {
-        frame = MadList[model].md2.framestart;
+        frame = MadList[model].md2_data.framestart;
 
-        for ( cnt = 0; cnt < MadList[model].md2.frames; cnt++ )
+        for ( cnt = 0; cnt < MadList[model].md2_data.frames; cnt++ )
         {
             vert = 0;
 
@@ -300,11 +301,11 @@ void mad_make_equally_lit( int model )
 void load_action_names( const char* loadname )
 {
     // ZZ> This function loads all of the 2 letter action names
-    FILE* fileread;
+    vfs_FILE* fileread;
     int cnt;
     char first, second;
 
-    fileread = fopen( loadname, "r" );
+    fileread = vfs_openRead( loadname );
     if ( fileread )
     {
         cnt = 0;
@@ -312,13 +313,13 @@ void load_action_names( const char* loadname )
         while ( cnt < ACTION_COUNT )
         {
             goto_colon( NULL, fileread, bfalse );
-            fscanf( fileread, "%c%c", &first, &second );
+            vfs_scanf( fileread, "%c%c", &first, &second );
             cActionName[cnt][0] = first;
             cActionName[cnt][1] = second;
             cnt++;
         }
 
-        fclose( fileread );
+        vfs_close( fileread );
     }
 }
 
@@ -342,7 +343,7 @@ int load_one_model_skins( const char * tmploadname, Uint16 object )
     min_skin_tx = min_icon_tx = INVALID_TEXTURE;
     for ( cnt = 0; cnt < MAXSKIN; cnt++)
     {
-        snprintf( newloadname, sizeof(newloadname), "%s" SLASH_STR "tris%d", tmploadname, cnt );
+        snprintf( newloadname, SDL_arraysize(newloadname), "%s" SLASH_STR "tris%d", tmploadname, cnt );
 
         pmad->tex_ref[cnt] = TxTexture_load_one( newloadname, INVALID_TEXTURE, TRANSCOLOR );
         if ( INVALID_TEXTURE != pmad->tex_ref[cnt] )
@@ -354,7 +355,7 @@ int load_one_model_skins( const char * tmploadname, Uint16 object )
             }
         }
 
-        snprintf( newloadname, sizeof(newloadname), "%s" SLASH_STR "icon%d", tmploadname, cnt );
+        snprintf( newloadname, SDL_arraysize(newloadname), "%s" SLASH_STR "icon%d", tmploadname, cnt );
         pmad->ico_ref[cnt] = TxTexture_load_one( newloadname, INVALID_TEXTURE, INVALID_KEY );
 
         if ( INVALID_TEXTURE != pmad->ico_ref[cnt] )
@@ -465,7 +466,7 @@ int load_one_model_profile( const char* tmploadname, Uint16 object )
 
 #endif
 
-    md2_load_one( newloadname, &(MadList[object].md2) );
+    md2_load_one( vfs_resolveReadFilename(newloadname), &(MadList[object].md2_data) );
     // md2_fix_normals( object );        // Fix them normals
     md2_get_transvertices( object );  // Figure out how many vertices to transform
 
@@ -485,13 +486,23 @@ int load_one_model_profile( const char* tmploadname, Uint16 object )
     // Load the particles for this object
     for ( cnt = 0; cnt < MAX_PIP_PER_PROFILE; cnt++ )
     {
-        sprintf( newloadname, "%s" SLASH_STR "part%d.txt", tmploadname, cnt );
+        snprintf( newloadname, SDL_arraysize( newloadname), "%s" SLASH_STR "part%d.txt", tmploadname, cnt );
 
         // Make sure it's referenced properly
         pmad->prtpip[cnt] = load_one_particle_profile( newloadname );
     }
 
     pmad->skins = load_one_model_skins( tmploadname, object );
+
+    // Load the waves for this object
+    for ( cnt = 0; cnt < MAX_WAVE; cnt++ )
+    {
+		STRING  szLoadName, wavename;
+
+        snprintf( wavename, SDL_arraysize( wavename), SLASH_STR "sound%d", cnt );
+        make_newloadname( tmploadname, wavename, szLoadName );
+        pmad->wavelist[cnt] = sound_load_chunk( szLoadName );
+    }
 
     return pmad->skins;
 }
@@ -516,15 +527,15 @@ void mad_rip_actions( Uint16 object )
 
     // Set the primary dance action to be the first frame, just as a default
     MadList[object].actionvalid[ACTION_DA] = btrue;
-    MadList[object].actionstart[ACTION_DA] = MadList[object].md2.framestart;
-    MadList[object].actionend[ACTION_DA] = MadList[object].md2.framestart + 1;
+    MadList[object].actionstart[ACTION_DA] = MadList[object].md2_data.framestart;
+    MadList[object].actionend[ACTION_DA] = MadList[object].md2_data.framestart + 1;
 
     // Now go huntin' to see what each frame is, look for runs of same action
     md2_rip_frame_name( 0 );
     lastaction = action_number();  framesinaction = 0;
     frame = 0;
 
-    while ( frame < MadList[object].md2.frames )
+    while ( frame < MadList[object].md2_data.frames )
     {
         md2_rip_frame_name( frame );
         action = action_number();
@@ -538,15 +549,15 @@ void mad_rip_actions( Uint16 object )
             if ( lastaction < ACTION_COUNT )
             {
                 MadList[object].actionvalid[lastaction] = btrue;
-                MadList[object].actionstart[lastaction] = MadList[object].md2.framestart + frame - framesinaction;
-                MadList[object].actionend[lastaction] = MadList[object].md2.framestart + frame;
+                MadList[object].actionstart[lastaction] = MadList[object].md2_data.framestart + frame - framesinaction;
+                MadList[object].actionend[lastaction] = MadList[object].md2_data.framestart + frame;
             }
 
             framesinaction = 1;
             lastaction = action;
         }
 
-        mad_get_framefx( MadList[object].md2.framestart + frame );
+        mad_get_framefx( MadList[object].md2_data.framestart + frame );
         frame++;
     }
 
@@ -554,8 +565,8 @@ void mad_rip_actions( Uint16 object )
     if ( lastaction < ACTION_COUNT )
     {
         MadList[object].actionvalid[lastaction] = btrue;
-        MadList[object].actionstart[lastaction] = MadList[object].md2.framestart + frame - framesinaction;
-        MadList[object].actionend[lastaction]   = MadList[object].md2.framestart + frame;
+        MadList[object].actionstart[lastaction] = MadList[object].md2_data.framestart + frame - framesinaction;
+        MadList[object].actionend[lastaction]   = MadList[object].md2_data.framestart + frame;
     }
 
     // Make sure actions are made valid if a similar one exists
@@ -613,9 +624,9 @@ void mad_rip_actions( Uint16 object )
 
     // Create table for doing transition from one type of walk to another...
     // Clear 'em all to start
-    for ( frame = 0; frame < MadList[object].md2.frames; frame++ )
+    for ( frame = 0; frame < MadList[object].md2_data.frames; frame++ )
     {
-        Md2FrameList[frame+MadList[object].md2.framestart].framelip = 0;
+        Md2FrameList[frame+MadList[object].md2_data.framestart].framelip = 0;
     }
 
     // Need to figure out how far into action each frame is
@@ -639,14 +650,14 @@ void md2_fix_normals( Uint16 modelindex )
     Uint16 indexofnextnextnextnext;
     Uint32 frame;
 
-    frame = MadList[modelindex].md2.framestart;
+    frame = MadList[modelindex].md2_data.framestart;
     cnt = 0;
 
-    while ( cnt < MadList[modelindex].md2.vertices )
+    while ( cnt < MadList[modelindex].md2_data.vertices )
     {
         tnc = 0;
 
-        while ( tnc < MadList[modelindex].md2.frames )
+        while ( tnc < MadList[modelindex].md2_data.frames )
         {
             indexofcurrent = Md2FrameList[frame].vrta[cnt];
             indexofnext = Md2FrameList[frame+1].vrta[cnt];
@@ -705,7 +716,7 @@ void md2_get_transvertices( Uint16 modelindex )
     //   }
     // }
 
-    MadList[modelindex].transvertices = MadList[modelindex].md2.vertices;
+    MadList[modelindex].transvertices = MadList[modelindex].md2_data.vertices;
 }
 
 //---------------------------------------------------------------------------------------------
@@ -739,10 +750,10 @@ void md2_get_transvertices( Uint16 modelindex )
 void load_all_messages( const char *loadname, Uint16 object )
 {
     // ZZ> This function loads all of an objects messages
-    FILE *fileread;
+    vfs_FILE *fileread;
 
     MadList[object].message_start = 0;
-    fileread = fopen( loadname, "r" );
+    fileread = vfs_openRead( loadname );
     if ( fileread )
     {
         MadList[object].message_start = MessageOffset.count;
@@ -752,12 +763,12 @@ void load_all_messages( const char *loadname, Uint16 object )
             get_message( fileread );
         }
 
-        fclose( fileread );
+        vfs_close( fileread );
     }
 }
 
 //--------------------------------------------------------------------------------------------
-void get_message( FILE* fileread )
+void get_message( vfs_FILE* fileread )
 {
     // ZZ> This function loads a string into the message buffer, making sure it
     //    is null terminated.
@@ -797,3 +808,40 @@ void get_message( FILE* fileread )
     message_buffer_carat++;
     MessageOffset.count++;
 }
+
+//--------------------------------------------------------------------------------------------
+bool_t release_one_mad( Uint16 imad )
+{
+	int cnt;
+	mad_t * pmad;
+
+	if( !VALID_MAD_RANGE(imad) ) return bfalse;
+	pmad = MadList + imad;
+
+	if( !pmad->loaded ) return btrue;
+
+	// free any md2 data
+	md2_freeModel( pmad->md2_ptr );
+
+	// free all sounds
+	for ( cnt = 0; cnt < MAX_WAVE; cnt++ )
+	{
+		sound_free_chunk( pmad->wavelist[cnt] );
+	}
+
+	// free any local pips
+	for( cnt = 0; cnt<MAX_PIP_PER_PROFILE; cnt++ )
+	{
+		release_one_pip(cnt);
+	}
+
+    memset( pmad, 0, sizeof(mad_t) );
+
+    pmad->ai = 0;
+
+	pmad->loaded   = bfalse;
+    strncpy( pmad->name, "*NONE*", SDL_arraysize(pmad->name) );
+
+	return btrue;
+}
+

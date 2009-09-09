@@ -147,7 +147,7 @@ struct s_pip
 
 typedef struct s_pip pip_t;
 
-DEFINE_STACK( extern, pip_t, PipStack, MAX_PIP );
+DEFINE_STACK_EXTERN(pip_t, PipStack, MAX_PIP );
 
 #define VALID_PIP_RANGE( IPIP ) ( ((IPIP) >= 0) && ((IPIP) < MAX_PIP) )
 #define VALID_PIP( IPIP )       ( VALID_PIP_RANGE( IPIP ) && PipStack.lst[IPIP].loaded )
@@ -255,7 +255,7 @@ extern float            sprite_list_v[MAXPARTICLEIMAGE][2];
 
 extern Uint16           maxparticles;                              // max number of particles
 
-DEFINE_LIST(extern, prt_t, PrtList, TOTAL_MAX_PRT);
+DEFINE_LIST_EXTERN(prt_t, PrtList, TOTAL_MAX_PRT);
 
 #define VALID_PRT_RANGE( IPRT ) ( ((IPRT) >= 0) && ((IPRT) < maxparticles) && ((IPRT) < TOTAL_MAX_PRT) )
 #define VALID_PRT( IPRT )       ( VALID_PRT_RANGE( IPRT ) && PrtList.lst[IPRT].on )
@@ -287,3 +287,5 @@ void reset_particles( const char* modname );
 Uint8 __prthitawall( Uint16 particle );
 
 int    prt_is_over_water( Uint16 cnt );
+
+bool_t release_one_pip( Uint16 ipip );

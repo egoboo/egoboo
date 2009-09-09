@@ -37,8 +37,8 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-DECLARE_STACK( passage_t, PassageStack );
-DECLARE_STACK( shop_t,    ShopStack    );
+DECLARE_STACK( ACCESS_TYPE_NONE, passage_t, PassageStack );
+DECLARE_STACK( ACCESS_TYPE_NONE, shop_t,    ShopStack    );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -501,18 +501,18 @@ void add_passage( int tlx, int tly, int brx, int bry, bool_t open, Uint8 mask )
 void setup_passage( const char *modname )
 {
     // ZZ> This function reads the passage file
-    char newloadname[256];
+    STRING newloadname;
     int tlx, tly, brx, bry;
     bool_t open;
     Uint8 mask;
-    FILE *fileread;
+    vfs_FILE *fileread;
 
     // Reset all of the old passages
     clear_all_passages();
 
     // Load the file
     make_newloadname( modname, "gamedat" SLASH_STR "passage.txt", newloadname );
-    fileread = fopen( newloadname, "r" );
+    fileread = vfs_openRead( newloadname );
     if ( NULL == fileread ) return;
 
     while ( goto_colon( NULL, fileread, btrue ) )
@@ -531,8 +531,7 @@ void setup_passage( const char *modname )
         add_passage( tlx, tly, brx, bry, open, mask );
     }
 
-    fclose( fileread );
-
+    vfs_close( fileread );
 }
 
 //--------------------------------------------------------------------------------------------

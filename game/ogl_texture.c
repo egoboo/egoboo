@@ -195,7 +195,7 @@ GLuint oglx_texture_Convert( GLenum tx_target, oglx_texture *ptex, SDL_Surface *
 
     if ( NULL == ptex ) return INVALID_TX_ID;
 
-    SDLX_Get_Screen_Info(&sdl_scr, bfalse);
+    SDLX_Get_Screen_Info(&sdl_scr, SDL_FALSE);
 
     // make sure the old texture has been freed
     oglx_texture_Release( ptex );
@@ -381,7 +381,7 @@ GLuint oglx_texture_Load( GLenum tx_target, oglx_texture *ptex, const char *file
     }
     else
     {
-        strncpy( ptex->name, filename, sizeof(ptex->name) );
+        strncpy( ptex->name, filename, SDL_arraysize(ptex->name) );
 
         ptex->base.wrap_s = GL_REPEAT;
         ptex->base.wrap_t = GL_REPEAT;

@@ -54,9 +54,9 @@
 
 #define VERSION "2.7.8"                         // Version of the game
 
-#define MAXINVENTORY        7
-#define MAXIMPORTPERPLAYER  (MAXINVENTORY + 2)
-#define MAXIMPORT           (4*MAXIMPORTPERPLAYER)          // Number of subdirs in IMPORT directory
+#define MAXINVENTORY        6
+#define MAXIMPORTOBJECTS    (MAXINVENTORY + 2)      // left hand + right hand + MAXINVENTORY
+#define MAXIMPORTPERPLAYER  (1 + MAXIMPORTOBJECTS)  // player + MAXIMPORTOBJECTS
 
 #define NOSPARKLE           255
 #define RESPAWN_ANYTIME     0xFF          // Code for respawnvalid...

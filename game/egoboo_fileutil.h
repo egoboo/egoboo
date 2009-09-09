@@ -21,9 +21,12 @@
 
 // Read/write values from/to files
 
-#include <stdio.h>
 #include "egoboo_typedef.h"
+#include "egoboo_vfs.h"
 
+#include <stdio.h>
+
+//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 struct s_oglx_texture;
 
@@ -45,56 +48,56 @@ extern  Uint8           maxformattypes;
 
 void   make_newloadname( const char *modname, const char *appendname, char *newloadname );
 
-bool_t goto_delimiter( char * buffer, FILE* fileread, char delim, bool_t optional );
-char   goto_delimiter_list( char * buffer, FILE* fileread, const char * delim_list, bool_t optional );
-bool_t goto_colon( char * buffer, FILE* fileread, bool_t optional );
+bool_t goto_delimiter( char * buffer, vfs_FILE* fileread, char delim, bool_t optional );
+char   goto_delimiter_list( char * buffer, vfs_FILE* fileread, const char * delim_list, bool_t optional );
+bool_t goto_colon( char * buffer, vfs_FILE* fileread, bool_t optional );
 char * goto_colon_mem( char * buffer, char * pmem, char * pmem_end, bool_t optional );
 
-bool_t fget_name( FILE* fileread,  char *szName, size_t max_len );
-bool_t fget_string( FILE * fileread, char * str, size_t str_len );
-Sint32 fget_int( FILE* fileread );
-char   fget_first_letter( FILE* fileread );
-IDSZ   fget_idsz( FILE* fileread );
+bool_t fget_name( vfs_FILE* fileread,  char *szName, size_t max_len );
+bool_t fget_string( vfs_FILE * fileread, char * str, size_t str_len );
+Sint32 fget_int( vfs_FILE* fileread );
+char   fget_first_letter( vfs_FILE* fileread );
+IDSZ   fget_idsz( vfs_FILE* fileread );
 
-void ftruthf( FILE* filewrite, const char* text, Uint8 truth );
-void fdamagf( FILE* filewrite, const char* text, Uint8 damagetype );
-void factiof( FILE* filewrite, const char* text, Uint8 action );
-void fgendef( FILE* filewrite, const char* text, Uint8 gender );
-void fpairof( FILE* filewrite, const char* text, IPair val );
-void funderf( FILE* filewrite, const char* text, const char* usename );
+void ftruthf( vfs_FILE* filewrite, const char* text, Uint8 truth );
+void fdamagf( vfs_FILE* filewrite, const char* text, Uint8 damagetype );
+void factiof( vfs_FILE* filewrite, const char* text, Uint8 action );
+void fgendef( vfs_FILE* filewrite, const char* text, Uint8 gender );
+void fpairof( vfs_FILE* filewrite, const char* text, IPair val );
+void funderf( vfs_FILE* filewrite, const char* text, const char* usename );
 
-bool_t fcopy_line(FILE * fileread, FILE * filewrite);
+bool_t fcopy_line(vfs_FILE * fileread, vfs_FILE * filewrite);
 
-bool_t fget_pair( FILE* fileread );
+bool_t fget_pair( vfs_FILE* fileread );
 void   undo_pair( int base, int rand );
 
-int    fget_version( FILE* fileread );
-bool_t fput_version( FILE* filewrite, int version );
+int    fget_version( vfs_FILE* fileread );
+bool_t fput_version( vfs_FILE* filewrite, int version );
 
-bool_t copy_file_to_delimiter( FILE * fileread, FILE * filewrite, int delim, char * buffer, size_t bufflen );
-char * copy_mem_to_delimiter( char * pmem, char * pmem_end, FILE * filewrite, int delim, char * user_buffer, size_t user_buffer_len );
-char   fget_next_char( FILE * fileread );
-int    fget_next_int( FILE * fileread );
-bool_t fget_next_string( FILE * fileread, char * str, size_t str_len );
-float  fget_next_float( FILE * fileread );
+bool_t copy_file_to_delimiter( vfs_FILE * fileread, vfs_FILE * filewrite, int delim, char * buffer, size_t bufflen );
+char * copy_mem_to_delimiter( char * pmem, char * pmem_end, vfs_FILE * filewrite, int delim, char * user_buffer, size_t user_buffer_len );
+char   fget_next_char( vfs_FILE * fileread );
+int    fget_next_int( vfs_FILE * fileread );
+bool_t fget_next_string( vfs_FILE * fileread, char * str, size_t str_len );
+float  fget_next_float( vfs_FILE * fileread );
 
-bool_t fget_next_name( FILE * fileread, char * name, size_t name_len );
+bool_t fget_next_name( vfs_FILE * fileread, char * name, size_t name_len );
 
-bool_t fget_next_pair( FILE * fileread );
-IDSZ   fget_next_idsz( FILE * fileread );
+bool_t fget_next_pair( vfs_FILE * fileread );
+IDSZ   fget_next_idsz( vfs_FILE * fileread );
 
-int   fget_int( FILE * fileread );
-float fget_float( FILE * fileread );
+int   fget_int( vfs_FILE * fileread );
+float fget_float( vfs_FILE * fileread );
 
-int fget_damage_type( FILE * fileread );
-int fget_next_damage_type( FILE * fileread );
+int fget_damage_type( vfs_FILE * fileread );
+int fget_next_damage_type( vfs_FILE * fileread );
 
-bool_t fget_bool( FILE * fileread );
-bool_t fget_next_bool( FILE * fileread );
+bool_t fget_bool( vfs_FILE * fileread );
+bool_t fget_next_bool( vfs_FILE * fileread );
 
 void    GLSetup_SupportedFormats();
 Uint32  ego_texture_load( struct s_oglx_texture *texture, const char *filename, Uint32 key );
 
-Uint8 fget_damage_modifier( FILE * fileread );
+Uint8 fget_damage_modifier( vfs_FILE * fileread );
 
 int   get_skin( const char *filename );

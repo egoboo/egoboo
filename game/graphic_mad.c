@@ -200,17 +200,17 @@ void render_one_mad_enviro( Uint16 character, Uint8 trans )
     oglx_texture_Bind( ptex );
 
     // Render each command
-    cmd_count   = MIN(pmad->md2.cmd.count,   MAXCOMMAND);
-    entry_count = MIN(pmad->md2.cmd.entries, MAXCOMMANDENTRIES);
-    vrt_count   = MIN(pmad->md2.vertices,    MAXVERTICES);
+    cmd_count   = MIN(pmad->md2_data.cmd.count,   MAXCOMMAND);
+    entry_count = MIN(pmad->md2_data.cmd.entries, MAXCOMMANDENTRIES);
+    vrt_count   = MIN(pmad->md2_data.vertices,    MAXVERTICES);
     entry = 0;
     for ( cnt = 0; cnt < cmd_count; cnt++ )
     {
         if ( entry >= entry_count ) break;
 
-        GL_DEBUG(glBegin)(pmad->md2.cmd.type[cnt] );
+        GL_DEBUG(glBegin)(pmad->md2_data.cmd.type[cnt] );
         {
-            for ( tnc = 0; tnc < pmad->md2.cmd.size[cnt]; tnc++ )
+            for ( tnc = 0; tnc < pmad->md2_data.cmd.size[cnt]; tnc++ )
             {
                 float     cmax, cmin;
                 GLvector4 col;
@@ -218,7 +218,7 @@ void render_one_mad_enviro( Uint16 character, Uint8 trans )
 
                 if ( entry >= entry_count ) break;
 
-                vertex = pmad->md2.cmd.vrt[entry];
+                vertex = pmad->md2_data.cmd.vrt[entry];
 
                 // normalize the color
                 cmax = 1.0f;
@@ -351,29 +351,29 @@ void render_one_mad_tex( Uint16 character, Uint8 trans )
     GL_DEBUG(glMultMatrixf)(pinst->matrix.v );
 
     // Render each command
-    cmd_count   = MIN(pmad->md2.cmd.count,   MAXCOMMAND);
-    entry_count = MIN(pmad->md2.cmd.entries, MAXCOMMANDENTRIES);
-    vrt_count   = MIN(pmad->md2.vertices,    MAXVERTICES);
+    cmd_count   = MIN(pmad->md2_data.cmd.count,   MAXCOMMAND);
+    entry_count = MIN(pmad->md2_data.cmd.entries, MAXCOMMANDENTRIES);
+    vrt_count   = MIN(pmad->md2_data.vertices,    MAXVERTICES);
     entry = 0;
     for (cnt = 0; cnt < cmd_count; cnt++ )
     {
         if ( entry >= entry_count ) break;
 
-        GL_DEBUG(glBegin)(pmad->md2.cmd.type[cnt] );
+        GL_DEBUG(glBegin)(pmad->md2_data.cmd.type[cnt] );
         {
-            for ( tnc = 0; tnc < pmad->md2.cmd.size[cnt]; tnc++ )
+            for ( tnc = 0; tnc < pmad->md2_data.cmd.size[cnt]; tnc++ )
             {
                 GLfloat tex[2];
 
                 if ( entry >= entry_count ) break;
 
-                vertex = pmad->md2.cmd.vrt[entry];
+                vertex = pmad->md2_data.cmd.vrt[entry];
 
                 if ( vertex < vrt_count )
                 {
 
-                    tex[0] = pmad->md2.cmd.u[entry] + uoffset;
-                    tex[1] = pmad->md2.cmd.v[entry] + voffset;
+                    tex[0] = pmad->md2_data.cmd.u[entry] + uoffset;
+                    tex[1] = pmad->md2_data.cmd.v[entry] + voffset;
 
                     GL_DEBUG(glColor4fv)(pinst->vlst[vertex].col );
                     GL_DEBUG(glNormal3fv)(pinst->vlst[vertex].nrm );
@@ -619,7 +619,7 @@ void chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 t
 
     pinst->max_light = 0;
     pinst->min_light = 255;
-    for ( cnt = 0; cnt < pmad->md2.vertices; cnt++ )
+    for ( cnt = 0; cnt < pmad->md2_data.vertices; cnt++ )
     {
         Uint16 lite;
 
@@ -698,10 +698,10 @@ bool_t chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vmax 
 
     // handle the default parameters
     if ( vmin < 0 ) vmin = 0;
-    if ( vmax < 0 ) vmax = pmad->md2.vertices - 1;
+    if ( vmax < 0 ) vmax = pmad->md2_data.vertices - 1;
 
-    vmin = CLIP(vmin, 0, pmad->md2.vertices - 1);
-    vmax = CLIP(vmax, 0, pmad->md2.vertices - 1);
+    vmin = CLIP(vmin, 0, pmad->md2_data.vertices - 1);
+    vmax = CLIP(vmax, 0, pmad->md2_data.vertices - 1);
 
     flip = pinst->lip / 256.0f;
 

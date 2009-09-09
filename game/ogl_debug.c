@@ -421,13 +421,13 @@ void gl_grab_render_options_state(gl_render_options_t * po)
     if ( GL_SELECT == po->mode.mode[0] )
     {
         GL_DEBUG(glGetIntegerv)(GL_NAME_STACK_DEPTH,         po->mode.selection.name_stack_depth);
-        GL_DEBUG(glGetPointerv)(GL_SELECTION_BUFFER_POINTER, po->mode.selection.buffer_pointer);
+        GL_DEBUG(glGetPointerv)(GL_SELECTION_BUFFER_POINTER, &po->mode.selection.buffer_pointer);
         GL_DEBUG(glGetIntegerv)(GL_SELECTION_BUFFER_SIZE,    po->mode.selection.buffer_size);
     }
 
     if ( GL_FEEDBACK == po->mode.mode[0] )
     {
-        GL_DEBUG(glGetPointerv)(GL_FEEDBACK_BUFFER_POINTER, po->mode.feedback.buffer_pointer );
+        GL_DEBUG(glGetPointerv)(GL_FEEDBACK_BUFFER_POINTER, &po->mode.feedback.buffer_pointer );
         GL_DEBUG(glGetIntegerv)(GL_FEEDBACK_BUFFER_SIZE,    po->mode.feedback.buffer_size    );
         GL_DEBUG(glGetIntegerv)(GL_FEEDBACK_BUFFER_TYPE,    po->mode.feedback.buffer_type    );
     }

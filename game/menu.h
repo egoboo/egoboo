@@ -92,7 +92,7 @@ void  check_player_import( const char *dirname, bool_t initialize );
 int doMenu( float deltaTime );
 int initMenus();
 
-bool_t mnu_begin_menu( int which );
+bool_t mnu_begin_menu( which_menu_t which );
 void   mnu_end_menu();
 
 int mnu_get_menu_depth();

@@ -198,7 +198,7 @@ shutdoor:   NONE    82  61.0   57.0   0.0   W    0   0  40   0   0   F   F   N
 slayercobol:   NONE    62  50.0   54.0   1.0   N    0   0  0   0   0   F   F   E
   PStiletto:   NONE    74  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 slayercobol:   NONE    62  50.0   60.0   1.0   N    0   0  0   0   0   F   F   E
-  PhanXBow:   NONE    75  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  PHanXBow:   NONE    75  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 slayercobol:   NONE    62  57.0   54.0   1.0   N    0   0  0   0   0   F   F   E
   PStiletto:   NONE    74  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 slayercobol:   NONE    62  58.0   61.0   1.0   N    0   0  0   0   0   F   F   E
@@ -214,7 +214,7 @@ slayercobol:   NONE    62  66.0   33.0   1.0   N    0   0  0   0   0   F   F   E
 slayercobol:   NONE    62  64.0   33.0   1.0   N    0   0  0   0   0   F   F   E
   PStiletto:   NONE    74  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 slayercobol:   NONE    62  72.0   25.0   1.0   N    0   0  0   0   0   F   F   E
-  PhanXBow:   NONE    75  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  PHanXBow:   NONE    75  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 
 //Battle room
 shutdoor:   NONE    82  61.0   71.0   0.0   E    0   0  34   0   0   F   F   N

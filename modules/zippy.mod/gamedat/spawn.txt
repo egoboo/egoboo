@@ -22,16 +22,22 @@
 //         A-Z ( caps only ).
 //         Null is predefined to be the neutral team.
 
-#dependency Unseen     45
-#dependency Storms     48
-#dependency Missile    53
-#dependency Fireball   56
-#dependency Sword      69
-#dependency Spear      71
-#dependency Mallet     75
-#dependency LPotion    76
-#dependency Rebirth    77
-#dependency XBow       92
+#dependency Unseen             45
+#dependency SpkMace            46
+#dependency Torch              47
+#dependency Storms             48
+#dependency OilFlask           49
+#dependency Protect            51
+#dependency Missile            53
+#dependency Fireball           55
+#dependency Cinquedea          56
+#dependency Trident            57
+#dependency EnchantArmorScroll 58
+#dependency MPotion            59
+#dependency LPotion            50
+#dependency BullWolf           76
+#dependency Rebirth            77
+#dependency Identify           82
 
 //         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
 HERO 0:    NONE      0    31.5 31.5 0.0  N   0   0   0   0   0   T   F   Good
@@ -74,72 +80,75 @@ HERO 27:   NONE      27   32.5 32.5 0.0  N   0   0   0   0   0   T   F   Good
   HERO 34: NONE      34   0    0    0    I   0   0   0   0   0   F   F   Null
   HERO 35: NONE      35   0    0    0    I   0   0   0   0   0   F   F   Null
 
-magic: Frazzle       43   20.5   55.5   0    S   0 1   1   0   0   F   F   Good
+// Magic Shop
+SHOPKEEP: Frazzle       43   20.5   55.5   0    S   0 1   1   0   0   F   F   Good
   FireRing: NONE     56   0    0    0    R   0   0   0   0   0   F   F   Null
   Protect : NONE     51   0    0    0    L   0   0   0   0   0   F   F   Null
+  
 MPotion: NONE        59   22    57    0    S   0   0   0   0   0   F   F   Null
 dropper: NONE 112 21 57  0    S   0 0   0   0   0   F   F   NULL
-  Book:    NONE      58   0    0    0    R   0   0   0   0   0   F   F   Null
+  object:    NONE      58   0    0    0    R   0   0   0   0   0   F   F   Null
 dropper: NONE 112 20 57  0    S   0 0   0   0   0   F   F   NULL
-  Book:    NONE      57   0    0    0    R   0   0   0   0   0   F   F   Null
+  object:    NONE      57   0    0    0    R   0   0   0   0   0   F   F   Null
 dropper: NONE 112 19 57  0    S   0 0   0   0   0   F   F   NULL
-  Book:    NONE      56   0    0    0    R   0   0   0   0   0   F   F   Null
+  object:    NONE      56   0    0    0    R   0   0   0   0   0   F   F   Null
 dropper: NONE 112 22 56  0    S   0 0   0   0   0   F   F   NULL
-  Book:    NONE      55   0    0    0    R   0   0   0   0   0   F   F   Null
+  Object:    NONE      55   0    0    0    R   0   0   0   0   0   F   F   Null
 dropper: NONE 112 21 56  0    S   0 0   0   0   0   F   F   NULL
-  Book:    NONE      54   0    0    0    R   0   0   0   0   0   F   F   Null
+  Storms:    NONE      54   0    0    0    R   0   0   0   0   0   F   F   Null
 dropper: NONE 112 20 56  0    S   0 0   0   0   0   F   F   NULL
-  Book:    NONE      53   0    0    0    R   0   0   0   0   0   F   F   Null
+  Object:    NONE      53   0    0    0    R   0   0   0   0   0   F   F   Null
 dropper: NONE 112 19 56  0    S   0 0   0   0   0   F   F   NULL
-  Book:    NONE      52   0    0    0    R   0   0   0   0   0   F   F   Null
+  object:   NONE      52   0    0    0    R   0   0   0   0   0   F   F   Null
 dropper: NONE 112 22 55  0    S   0 0   0   0   0   F   F   NULL
-  Book:    NONE      51   0    0    0    R   0   0   0   0   0   F   F   Null
+  Object:    NONE      51   0    0    0    R   0   0   0   0   0   F   F   Null
 dropper: NONE 112 21 55  0    S   0 0   0   0   0   F   F   NULL
-  Book:    NONE      50   0    0    0    R   0   0   0   0   0   F   F   Null
+  LPotion:    NONE      50   0    0    0    R   0   0   0   0   0   F   F   Null
 dropper: NONE 112 20 55  0    S   0 0   0   0   0   F   F   NULL
-  Book:    NONE      49   0    0    0    R   0   0   0   0   0   F   F   Null
+  object:    NONE      49   0    0    0    R   0   0   0   0   0   F   F   Null
 dropper: NONE 112 19 55  0    S   0 0   0   0   0   F   F   NULL
-  Book:    NONE      48   0    0    0    R   0   0   0   0   0   F   F   Null
+  Object:    NONE      48   0    0    0    R   0   0   0   0   0   F   F   Null
 dropper: NONE 112 22 54  0    S   0 0   0   0   0   F   F   NULL
-  Book:    NONE      47   0    0    0    R   0   0   0   0   0   F   F   Null
+  object:    NONE    47   0    0    0    R   0   0   0   0   0   F   F   Null
 dropper: NONE 112 21 54  0    S   0 0   0   0   0   F   F   NULL
-  Book:    NONE      46   0    0    0    R   0   0   0   0   0   F   F   Null
+  object:    NONE      46   0    0    0    R   0   0   0   0   0   F   F   Null
 MPotion: NONE      59   20 54   0    S   0   0   0   0   0   F   F   Null
 dropper: NONE 112 19 54  0    S   0 0   0   0   0   F   F   NULL
-  Book:    NONE      45   0    0    0    R   0   0   0   0   0   F   F   Null
+  Object:    NONE      45   0    0    0    R   0   0   0   0   0   F   F   Null
 
 Cleric: a_healer     42   41.5   47.5   0    S   0 0   0   0   0   F   F   Good
   Mace:    NONE      74   0    0    0    R   0   0   0   0   0   F   F   Null
 GUARD:  a_guard         39 22   52.5   0    N   0 4   0   0   0   F   F   Good
-  SWORD: NONE        69   0    0    0    R   0   0   0   0   0   F   F   Null
-  SHIELD: NONE      70   0    0    0    L   0   0   0   0   0   F   F   Null
+  Sword: NONE        69   0    0    0    R   0   0   0   0   0   F   F   Null
+  KShield: NONE      70   0    0    0    L   0   0   0   0   0   F   F   Null
 GUARD:  a_guard         39 11   6   0    N   0 4   0   0   0   F   F   Good
-  SWORD: NONE        69   0    0    0    R   0   0   0   0   0   F   F   Null
-  SHIELD: NONE      70   0    0    0    L   0   0   0   0   0   F   F   Null
+  Sword: NONE        69   0    0    0    R   0   0   0   0   0   F   F   Null
+  KShield: NONE      70   0    0    0    L   0   0   0   0   0   F   F   Null
 GUARD:  a_guard         39 6   10.5   0    N   0 4   0   1   0   F   F   Good
-  SWORD: NONE        69   0    0    0    R   0   0   0   0   0   F   F   Null
-  SHIELD: NONE      70   0    0    0    L   0   0   0   0   0   F   F   Null
+  Sword: NONE        69   0    0    0    R   0   0   0   0   0   F   F   Null
+  KShield: NONE      70   0    0    0    L   0   0   0   0   0   F   F   Null
 GUARD:  a_guard         39 11   16.5   0    N   0 4   0   2   0   F   F   Good
-  SWORD: NONE        69   0    0    0    R   0   0   0   0   0   F   F   Null
-  SHIELD: NONE      70   0    0    0    L   0   0   0   0   0   F   F   Null
+  Sword: NONE        69   0    0    0    R   0   0   0   0   0   F   F   Null
+  KShield: NONE      70   0    0    0    L   0   0   0   0   0   F   F   Null
 GUARD:  a_guard         39 16   10   0    N   0 4   0   3   0   F   F   Good
-  SWORD: NONE        69   0    0    0    R   0   0   0   0   0   F   F   Null
-  SHIELD: NONE      70   0    0    0    L   0   0   0   0   0   F   F   Null
+  Sword: NONE        69   0    0    0    R   0   0   0   0   0   F   F   Null
+  KShield: NONE      70   0    0    0    L   0   0   0   0   0   F   F   Null
+  
 SHOPKEEP:  Watts     36   11   10   0    N   600 0   0   0   0   F   F   Good
 LAMP:  NONE          44   11   10   0    N   0   0   0   0   0   F   F   Null
-IDENTIFY:  NONE      82   10   12   0    S   0   0   0   0   0   F   F   Null
-IDENTIFY:  NONE      82   11   12   0    S   0   0   0   0   0   F   F   Null
-IDENTIFY:  NONE      82   12   12   0    S   0   0   0   0   0   F   F   Null
-REBIRTH:   NONE      77   10   8    0    S   0   0   0   0   0   F   F   Null
-REBIRTH:   NONE      77   11   8    0    S   0   0   0   0   0   F   F   Null
-REBIRTH:   NONE      77   12   8    0    S   0   0   0   0   0   F   F   Null
+Identify:  NONE      82   10   12   0    S   0   0   0   0   0   F   F   Null
+Identify:  NONE      82   11   12   0    S   0   0   0   0   0   F   F   Null
+Identify:  NONE      82   12   12   0    S   0   0   0   0   0   F   F   Null
+Rebirth:   NONE      77   10   8    0    S   0   0   0   0   0   F   F   Null
+Rebirth:   NONE      77   11   8    0    S   0   0   0   0   0   F   F   Null
+Rebirth:   NONE      77   12   8    0    S   0   0   0   0   0   F   F   Null
 
 GUARD:  a_guard     39 25.5   55.0   0    ?   0 4   0   0   0   F   F   Good
-  XBOW: NONE        92   0    0    0    R   0   0   0   0   0   F   F   Null
-  SHIELD: NONE      70   0    0    0    L   0   0   0   0   0   F   F   Null
+  XBow: NONE        92   0    0    0    R   0   0   0   0   0   F   F   Null
+  KShield: NONE      70   0    0    0    L   0   0   0   0   0   F   F   Null
 GUARD:  a_guard     39 15.0   55.0   0    ?   0 4   0   1   0   F   F   Good
-  XBOW: NONE        92   0    0    0    R   0   0   0   0   0   F   F   Null
-  SHIELD: NONE      70   0    0    0    L   0   0   0   0   0   F   F   Null
+  XBow: NONE        92   0    0    0    R   0   0   0   0   0   F   F   Null
+  KShield: NONE      70   0    0    0    L   0   0   0   0   0   F   F   Null
 
 SHEP:       NONE      38   34   38   0    N   0   0   0   0   0   F   F   Good
 LAMB:       NONE      37   34.5   38.5   0    N   0   0   0   0   0   F   F   Good
@@ -156,8 +165,8 @@ LAMB:       NONE      37   22.5   50.5 0    N   0   0   0   0   0   F   F   Good
 FREEMAP:   NONE      126  32.5 32.5 0.0  N   0   0   2   0   0   F   F   Null
 
 ALRIC:     NONE      79    34.5 20.5 0.0  S   99   0   0   0   0   F   F   Good
-  MALLET: NONE        75   0    0    0    R   0   0   0   0   0   F   F   Null
-  UNSEEN: NONE        45   0    0    0    L   0   0   0   0   0   F   F   Null
+  Mallet: NONE        75   0    0    0    R   0   0   0   0   0   F   F   Null
+  Unseen: NONE        45   0    0    0    L   0   0   0   0   0   F   F   Null
 
 BLERF:     NONE      85   42.2 53.6 0.0  S   19  0   0   0   0   F   F   Good
   Cinquedea  : NONE        72   0    0    0    I   0   0   0   0   0   F   F   Null

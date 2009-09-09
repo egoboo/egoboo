@@ -70,7 +70,7 @@ struct s_passage
 
 typedef struct s_passage passage_t;
 
-DEFINE_STACK( extern, passage_t, PassageStack, MAX_PASS );
+DEFINE_STACK_EXTERN(passage_t, PassageStack, MAX_PASS );
 
 #define VALID_PASSAGE( IPASS )       ( ((IPASS) <= PassageStack.count) && ((IPASS) >= 0) )
 #define INVALID_PASSAGE( IPASS )     ( ((IPASS) >  PassageStack.count) && ((IPASS) < 0) )
@@ -83,7 +83,7 @@ struct s_shop
 };
 typedef struct s_shop shop_t;
 
-DEFINE_STACK( extern, shop_t, ShopStack, MAX_PASS );
+DEFINE_STACK_EXTERN(shop_t, ShopStack, MAX_PASS );
 
 #define VALID_SHOP( IPASS )       ( ((IPASS) <= ShopStack.count) && ((IPASS) >= 0) )
 #define INVALID_SHOP( IPASS )     ( ((IPASS) >  ShopStack.count) && ((IPASS) < 0) )

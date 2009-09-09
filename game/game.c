@@ -39,7 +39,6 @@
 #include "enchant.h"
 #include "input.h"
 #include "menu.h"
-#include "file_common.h"
 #include "network.h"
 #include "mad.h"
 #include "mesh.h"
@@ -53,10 +52,12 @@
 #include "script_compile.h"
 #include "script.h"
 
+#include "egoboo_vfs.h"
 #include "egoboo_endian.h"
 #include "egoboo_setup.h"
 #include "egoboo_strutil.h"
 #include "egoboo_fileutil.h"
+#include "egoboo_vfs.h"
 
 #include "SDL_extensions.h"
 
@@ -221,14 +222,14 @@ static void let_all_characters_think();
 // module initialization / deinitialization - not accessible by scripts
 static bool_t game_load_module_data( const char *smallname );
 static void   game_release_module_data();
+static void   game_load_all_objects( const char *modname );
 
 static void   setup_characters( const char *modname );
 static void   setup_alliances( const char *modname );
 static int    load_one_object( const char* tmploadname, int slot_override );
-static int    load_all_objects( const char *modname );
 static void   load_all_global_objects();
 
-static bool_t chr_setup_read( FILE * fileread, chr_setup_info_t *pinfo );
+static bool_t chr_setup_read( vfs_FILE * fileread, chr_setup_info_t *pinfo );
 static bool_t chr_setup_apply( Uint16 ichr, chr_setup_info_t *pinfo );
 static void   setup_characters( const char *modname );
 
@@ -289,12 +290,12 @@ void export_one_character( Uint16 character, Uint16 owner, int number, bool_t is
 {
     // ZZ> This function exports a character
     int tnc = 0, profile;
-    char fromdir[128];
-    char todir[128];
-    char fromfile[128];
-    char tofile[128];
-    char todirname[16];
-    char todirfullname[64];
+    STRING fromdir;
+    STRING todir;
+    STRING fromfile;
+    STRING tofile;
+    STRING todirname;
+    STRING todirfullname;
 
     // Don't export enchants
     disenchant_character( character );
@@ -303,99 +304,99 @@ void export_one_character( Uint16 character, Uint16 owner, int number, bool_t is
     if ( ( CapList[profile].cancarrytonextmodule || !CapList[profile].isitem ) && PMod->exportvalid )
     {
         // TWINK_BO.OBJ
-        sprintf(todirname, "%s", str_encode_path(ChrList.lst[owner].name) );
+        snprintf( todirname, SDL_arraysize( todirname), "%s", str_encode_path(ChrList.lst[owner].name) );
 
         // Is it a character or an item?
         if ( owner != character )
         {
             // Item is a subdirectory of the owner directory...
-            sprintf( todirfullname, "%s" SLASH_STR "%d.obj", todirname, number );
+            snprintf( todirfullname, SDL_arraysize( todirfullname), "%s" SLASH_STR "%d.obj", todirname, number );
         }
         else
         {
             // Character directory
-            sprintf( todirfullname, "%s", todirname );
+            snprintf( todirfullname, SDL_arraysize( todirfullname), "%s", todirname );
         }
 
         // players/twink.obj or players/twink.obj/sword.obj
         if ( is_local )
         {
-            sprintf( todir, "players" SLASH_STR "%s", todirfullname );
+            snprintf( todir, SDL_arraysize( todir), "players" SLASH_STR "%s", todirfullname );
         }
         else
         {
-            sprintf( todir, "remote" SLASH_STR "%s", todirfullname );
+            snprintf( todir, SDL_arraysize( todir), "remote" SLASH_STR "%s", todirfullname );
         }
 
         // modules/advent.mod/objects/advent.obj
-        sprintf( fromdir, "%s", MadList[profile].name );
+        snprintf( fromdir, SDL_arraysize( fromdir), "%s", MadList[profile].name );
 
         // Delete all the old items
         if ( owner == character )
         {
-            for ( tnc = 0; tnc < 8; tnc++ )
+            for ( tnc = 0; tnc < MAXIMPORTOBJECTS; tnc++ )
             {
-                sprintf( tofile, "%s" SLASH_STR "%d.obj", todir, tnc );  /*.OBJ*/
-                fs_removeDirectoryAndContents( tofile );
+                snprintf( tofile, SDL_arraysize( tofile), "%s" SLASH_STR "%d.obj", todir, tnc );  /*.OBJ*/
+                vfs_removeDirectoryAndContents( tofile, btrue );
             }
         }
 
         // Make the directory
-        fs_createDirectory( todir );
+        vfs_mkdir( todir );
 
         // Build the DATA.TXT file
-        sprintf( tofile, "%s" SLASH_STR "data.txt", todir );  /*DATA.TXT*/
+        snprintf( tofile, SDL_arraysize( tofile), "%s" SLASH_STR "data.txt", todir );  /*DATA.TXT*/
         export_one_character_profile( tofile, character );
 
         // Build the SKIN.TXT file
-        sprintf( tofile, "%s" SLASH_STR "skin.txt", todir );  /*SKIN.TXT*/
+        snprintf( tofile, SDL_arraysize( tofile), "%s" SLASH_STR "skin.txt", todir );  /*SKIN.TXT*/
         export_one_character_skin( tofile, character );
 
         // Build the NAMING.TXT file
-        sprintf( tofile, "%s" SLASH_STR "naming.txt", todir );  /*NAMING.TXT*/
+        snprintf( tofile, SDL_arraysize( tofile), "%s" SLASH_STR "naming.txt", todir );  /*NAMING.TXT*/
         export_one_character_name( tofile, character );
 
         // Copy all of the misc. data files
-        sprintf( fromfile, "%s" SLASH_STR "message.txt", fromdir );  /*MESSAGE.TXT*/
-        sprintf( tofile, "%s" SLASH_STR "message.txt", todir );  /*MESSAGE.TXT*/
-        fs_copyFile( fromfile, tofile );
-        sprintf( fromfile, "%s" SLASH_STR "tris.md2", fromdir );  /*TRIS.MD2*/
-        sprintf( tofile,   "%s" SLASH_STR "tris.md2", todir );  /*TRIS.MD2*/
-        fs_copyFile( fromfile, tofile );
-        sprintf( fromfile, "%s" SLASH_STR "copy.txt", fromdir );  /*COPY.TXT*/
-        sprintf( tofile,   "%s" SLASH_STR "copy.txt", todir );  /*COPY.TXT*/
-        fs_copyFile( fromfile, tofile );
-        sprintf( fromfile, "%s" SLASH_STR "script.txt", fromdir );
-        sprintf( tofile,   "%s" SLASH_STR "script.txt", todir );
-        fs_copyFile( fromfile, tofile );
-        sprintf( fromfile, "%s" SLASH_STR "enchant.txt", fromdir );
-        sprintf( tofile,   "%s" SLASH_STR "enchant.txt", todir );
-        fs_copyFile( fromfile, tofile );
-        sprintf( fromfile, "%s" SLASH_STR "credits.txt", fromdir );
-        sprintf( tofile,   "%s" SLASH_STR "credits.txt", todir );
-        fs_copyFile( fromfile, tofile );
-        //    sprintf( fromfile, "%s" SLASH_STR "quest.txt", fromdir );     Zefz> We can't do this yet, quests are written directly into players/x.obj
-        //    sprintf( tofile,   "%s" SLASH_STR "quest.txt", todir );       instead of import/x.obj which should be changed or all changes are lost.
-        fs_copyFile( fromfile, tofile );
+        snprintf( fromfile, SDL_arraysize( fromfile), "%s" SLASH_STR "message.txt", fromdir );  /*MESSAGE.TXT*/
+        snprintf( tofile, SDL_arraysize( tofile), "%s" SLASH_STR "message.txt", todir );  /*MESSAGE.TXT*/
+        vfs_copyFile( fromfile, tofile );
+        snprintf( fromfile, SDL_arraysize( fromfile), "%s" SLASH_STR "tris.md2", fromdir );  /*TRIS.MD2*/
+        snprintf( tofile, SDL_arraysize( tofile),   "%s" SLASH_STR "tris.md2", todir );  /*TRIS.MD2*/
+        vfs_copyFile( fromfile, tofile );
+        snprintf( fromfile, SDL_arraysize( fromfile), "%s" SLASH_STR "copy.txt", fromdir );  /*COPY.TXT*/
+        snprintf( tofile, SDL_arraysize( tofile),   "%s" SLASH_STR "copy.txt", todir );  /*COPY.TXT*/
+        vfs_copyFile( fromfile, tofile );
+        snprintf( fromfile, SDL_arraysize( fromfile), "%s" SLASH_STR "script.txt", fromdir );
+        snprintf( tofile, SDL_arraysize( tofile),   "%s" SLASH_STR "script.txt", todir );
+        vfs_copyFile( fromfile, tofile );
+        snprintf( fromfile, SDL_arraysize( fromfile), "%s" SLASH_STR "enchant.txt", fromdir );
+        snprintf( tofile, SDL_arraysize( tofile),   "%s" SLASH_STR "enchant.txt", todir );
+        vfs_copyFile( fromfile, tofile );
+        snprintf( fromfile, SDL_arraysize( fromfile), "%s" SLASH_STR "credits.txt", fromdir );
+        snprintf( tofile, SDL_arraysize( tofile),   "%s" SLASH_STR "credits.txt", todir );
+        vfs_copyFile( fromfile, tofile );
+        //    snprintf( fromfile, SDL_arraysize( fromfile), "%s" SLASH_STR "quest.txt", fromdir );     Zefz> We can't do this yet, quests are written directly into players/x.obj
+        //    snprintf( tofile, SDL_arraysize( tofile),   "%s" SLASH_STR "quest.txt", todir );       instead of import/x.obj which should be changed or all changes are lost.
+        vfs_copyFile( fromfile, tofile );
 
         // Copy all of the particle files
         for ( tnc = 0; tnc < MAX_PIP_PER_PROFILE; tnc++ )
         {
-            sprintf( fromfile, "%s" SLASH_STR "part%d.txt", fromdir, tnc );
-            sprintf( tofile,   "%s" SLASH_STR "part%d.txt", todir,   tnc );
-            fs_copyFile( fromfile, tofile );
+            snprintf( fromfile, SDL_arraysize( fromfile), "%s" SLASH_STR "part%d.txt", fromdir, tnc );
+            snprintf( tofile, SDL_arraysize( tofile),   "%s" SLASH_STR "part%d.txt", todir,   tnc );
+            vfs_copyFile( fromfile, tofile );
         }
 
         // Copy all of the sound files
         for ( tnc = 0; tnc < MAX_WAVE; tnc++ )
         {
-            sprintf( fromfile, "%s" SLASH_STR "sound%d.wav", fromdir, tnc );
-            sprintf( tofile,   "%s" SLASH_STR "sound%d.wav", todir,   tnc );
-            fs_copyFile( fromfile, tofile );
+            snprintf( fromfile, SDL_arraysize( fromfile), "%s" SLASH_STR "sound%d.wav", fromdir, tnc );
+            snprintf( tofile, SDL_arraysize( tofile),   "%s" SLASH_STR "sound%d.wav", todir,   tnc );
+            vfs_copyFile( fromfile, tofile );
 
-            sprintf( fromfile, "%s" SLASH_STR "sound%d.ogg", fromdir, tnc );
-            sprintf( tofile,   "%s" SLASH_STR "sound%d.ogg", todir,   tnc );
-            fs_copyFile( fromfile, tofile );
+            snprintf( fromfile, SDL_arraysize( fromfile), "%s" SLASH_STR "sound%d.ogg", fromdir, tnc );
+            snprintf( tofile, SDL_arraysize( tofile),   "%s" SLASH_STR "sound%d.ogg", todir,   tnc );
+            vfs_copyFile( fromfile, tofile );
         }
 
         // Copy all of the image files (try to copy all supported formats too)
@@ -405,12 +406,12 @@ void export_one_character( Uint16 character, Uint16 owner, int number, bool_t is
 
             for (type = 0; type < maxformattypes; type++)
             {
-                sprintf( fromfile, "%s" SLASH_STR "tris%d%s", fromdir, tnc, TxFormatSupported[type] );
-                sprintf( tofile,   "%s" SLASH_STR "tris%d%s", todir,   tnc, TxFormatSupported[type] );
-                fs_copyFile( fromfile, tofile );
-                sprintf( fromfile, "%s" SLASH_STR "icon%d%s", fromdir, tnc, TxFormatSupported[type] );
-                sprintf( tofile,   "%s" SLASH_STR "icon%d%s", todir,   tnc, TxFormatSupported[type] );
-                fs_copyFile( fromfile, tofile );
+                snprintf( fromfile, SDL_arraysize( fromfile), "%s" SLASH_STR "tris%d%s", fromdir, tnc, TxFormatSupported[type] );
+                snprintf( tofile, SDL_arraysize( tofile),   "%s" SLASH_STR "tris%d%s", todir,   tnc, TxFormatSupported[type] );
+                vfs_copyFile( fromfile, tofile );
+                snprintf( fromfile, SDL_arraysize( fromfile), "%s" SLASH_STR "icon%d%s", fromdir, tnc, TxFormatSupported[type] );
+                snprintf( tofile, SDL_arraysize( tofile),   "%s" SLASH_STR "icon%d%s", todir,   tnc, TxFormatSupported[type] );
+                vfs_copyFile( fromfile, tofile );
             }
         }
     }
@@ -457,7 +458,7 @@ void export_all_players( bool_t require_local )
 
         // Export the inventory
         for ( number = 2, item = ChrList.lst[character].pack_next;
-                number < 8 && item != MAX_CHR;
+                number < MAXIMPORTOBJECTS && item != MAX_CHR;
                 item = ChrList.lst[item].pack_next )
         {
             if ( ChrList.lst[item].isitem )
@@ -482,7 +483,7 @@ void _quit_game( ego_process_t * pgame )
     // tell the game to kill itself
     process_instance_kill( PROC_PBASE(pgame) );
 
-    empty_import_directory();
+    vfs_empty_import_directory();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -539,23 +540,23 @@ void fgetadd( float min, float value, float max, float* valuetoadd )
 void log_madused( const char *savename )
 {
     // ZZ> This is a debug function for checking model loads
-    FILE* hFileWrite;
+    vfs_FILE* hFileWrite;
     int cnt;
 
-    hFileWrite = fopen( savename, "w" );
+    hFileWrite = vfs_openWrite( savename );
     if ( hFileWrite )
     {
-        fprintf( hFileWrite, "Slot usage for objects in last module loaded...\n" );
-        fprintf( hFileWrite, "%d of %d frames used...\n", md2_loadframe, MAXFRAME );
+        vfs_printf( hFileWrite, "Slot usage for objects in last module loaded...\n" );
+        vfs_printf( hFileWrite, "%d of %d frames used...\n", md2_loadframe, MAXFRAME );
         cnt = 0;
 
         while ( cnt < MAX_PROFILE )
         {
-            fprintf( hFileWrite, "%3d %32s %s\n", cnt, CapList[cnt].classname, MadList[cnt].name );
+            vfs_printf( hFileWrite, "%3d %32s %s\n", cnt, CapList[cnt].classname, MadList[cnt].name );
             cnt++;
         }
 
-        fclose( hFileWrite );
+        vfs_close( hFileWrite );
     }
 }
 
@@ -727,14 +728,14 @@ int generate_randmask( int base, int mask )
 void setup_alliances( const char *modname )
 {
     // ZZ> This function reads the alliance file
-    char newloadname[256];
-    char szTemp[256];
+    STRING newloadname;
+    STRING szTemp;
     Uint8 teama, teamb;
-    FILE *fileread;
+    vfs_FILE *fileread;
 
     // Load the file
     make_newloadname( modname, "gamedat" SLASH_STR "alliance.txt", newloadname );
-    fileread = fopen( newloadname, "r" );
+    fileread = vfs_openRead( newloadname );
     if ( fileread )
     {
         while ( goto_colon( NULL, fileread, btrue ) )
@@ -747,7 +748,7 @@ void setup_alliances( const char *modname )
             TeamList[teama].hatesteam[teamb] = bfalse;
         }
 
-        fclose( fileread );
+        vfs_close( fileread );
     }
 }
 
@@ -1069,7 +1070,7 @@ int do_ego_proc_begin( ego_process_t * eproc )
 
     sys_initialize();
     clk_init();
-    fs_init();
+    vfs_init( eproc->argv0 );
 
     // read the "setup.txt" file
     if ( !setup_read( "setup.txt" ) )
@@ -1113,7 +1114,7 @@ int do_ego_proc_begin( ego_process_t * eproc )
     font_load( "basicdat" SLASH_STR "font", "basicdat" SLASH_STR "font.txt" );  // must be done after init_all_graphics()
 
     // clear out the import directory
-    empty_import_directory();
+    vfs_empty_import_directory();
 
     // register the memory_cleanUp function to automatically run whenever the program exits
     atexit( memory_cleanUp );
@@ -1199,7 +1200,7 @@ int do_ego_proc_running( ego_process_t * eproc )
 
         if ( !dump_screenshot() )                // Take the shot, returns bfalse if failed
         {
-            debug_message( "Error writing screenshot!" );
+            debug_printf( "Error writing screenshot!" );
             log_warning( "Error writing screenshot\n" );    // Log the error in log.txt
         }
     }
@@ -1666,7 +1667,7 @@ int SDL_main( int argc, char **argv )
     float frameskip;
 
     // initialize the process
-    ego_process_init( EProc );
+    ego_process_init( EProc, argc, argv );
 
     // turn on all basic services
     do_ego_proc_begin( EProc );
@@ -1843,7 +1844,7 @@ Uint16 get_target( Uint16 ichr_src, Uint32 max_dist, TARGET_TYPE target_type, bo
     // just return the old target if
     if ( 0 != ChrList.lst[ichr_src].stoppedby && ChrList.lst[ichr_src].ai.los_timer > current_ticks )
     {
-		// Zefz> we can't return the old AI target here, it makes the scripts think it has found a target 
+		// Zefz> we can't return the old AI target here, it makes the scripts think it has found a target
         return MAX_CHR; //ChrList.lst[ichr_src].ai.target;
     }
 
@@ -2667,50 +2668,56 @@ void show_stat( Uint16 statindex )
 {
     // ZZ> This function shows the more specific stats for a character
     int character, level;
-    char text[64];
+    STRING text;
     char gender[8];
     if ( statindex < numstat )
     {
         character = statlist[statindex];
 
         // Name
-        sprintf( text, "=%s=", ChrList.lst[character].name );
-        debug_message( text );
+        debug_printf( "=%s=", ChrList.lst[character].name );
 
         // Level and gender and class
         gender[0] = 0;
         if ( ChrList.lst[character].alive )
         {
-            if ( ChrList.lst[character].gender == GENDER_MALE )
-            {
-                sprintf( gender, "male " );
-            }
-            if ( ChrList.lst[character].gender == GENDER_FEMALE )
-            {
-                sprintf( gender, "female " );
-            }
+			int itmp;
+			char * gender_str;
 
-            level = ChrList.lst[character].experiencelevel;
-            if ( level == 0 )
-                sprintf( text, " 1st level %s%s", gender, CapList[ChrList.lst[character].model].classname );
-            if ( level == 1 )
-                sprintf( text, " 2nd level %s%s", gender, CapList[ChrList.lst[character].model].classname );
-            if ( level == 2 )
-                sprintf( text, " 3rd level %s%s", gender, CapList[ChrList.lst[character].model].classname );
-            if ( level >  2 )
-                sprintf( text, " %dth level %s%s", level + 1, gender, CapList[ChrList.lst[character].model].classname );
+			gender_str = "";
+			switch( ChrList.lst[character].gender )
+			{
+				case GENDER_MALE: gender_str = "male "; break;
+			    case GENDER_FEMALE: gender_str = "female "; break;
+			}
+
+            level = 1 + ChrList.lst[character].experiencelevel;
+			itmp = level % 10;
+            if ( 1 == itmp )
+			{
+                debug_printf( " %dst level %s%s", level, gender_str, CapList[ChrList.lst[character].model].classname );
+			}
+            else if ( 2 == itmp )
+			{
+                debug_printf( " %dnd level %s%s", level, gender_str, CapList[ChrList.lst[character].model].classname );
+			}
+            else if ( 3 == itmp )
+			{
+                debug_printf( " %drd level %s%s", level, gender_str, CapList[ChrList.lst[character].model].classname );
+			}
+            else
+			{
+                debug_printf( " %dth level %s%s", level, gender_str, CapList[ChrList.lst[character].model].classname );
+			}
         }
         else
         {
-            sprintf( text, " Dead %s", CapList[ChrList.lst[character].model].classname );
+            debug_printf( " Dead %s", CapList[ChrList.lst[character].model].classname );
         }
 
         // Stats
-        debug_message( text );
-        sprintf( text, " STR:~%2d~WIS:~%2d~DEF:~%d", FP8_TO_INT( ChrList.lst[character].strength ), FP8_TO_INT( ChrList.lst[character].wisdom ), 255 - ChrList.lst[character].defense );
-        debug_message( text );
-        sprintf( text, " INT:~%2d~DEX:~%2d~EXP:~%d", FP8_TO_INT( ChrList.lst[character].intelligence ), FP8_TO_INT( ChrList.lst[character].dexterity ), ChrList.lst[character].experience );
-        debug_message( text );
+        debug_printf( " STR:~%2d~WIS:~%2d~DEF:~%d", FP8_TO_INT( ChrList.lst[character].strength ), FP8_TO_INT( ChrList.lst[character].wisdom ), 255 - ChrList.lst[character].defense );
+        debug_printf( " INT:~%2d~DEX:~%2d~EXP:~%d", FP8_TO_INT( ChrList.lst[character].intelligence ), FP8_TO_INT( ChrList.lst[character].dexterity ), ChrList.lst[character].experience );
     }
 }
 
@@ -2733,44 +2740,35 @@ void show_armor( Uint16 statindex )
             skinlevel = ChrList.lst[ichr].skin;
 
             // Armor Name
-            sprintf( text, "=%s=", CapList[icap].skinname[skinlevel] );
-            debug_message( text );
+            debug_printf( "=%s=", CapList[icap].skinname[skinlevel] );
 
             // Armor Stats
-            sprintf( text, "~DEF: %d  SLASH:%3d~CRUSH:%3d POKE:%3d", 255 - CapList[icap].defense[skinlevel],
+            debug_printf( "~DEF: %d  SLASH:%3d~CRUSH:%3d POKE:%3d", 255 - CapList[icap].defense[skinlevel],
                      CapList[icap].damagemodifier[0][skinlevel]&DAMAGESHIFT,
                      CapList[icap].damagemodifier[1][skinlevel]&DAMAGESHIFT,
                      CapList[icap].damagemodifier[2][skinlevel]&DAMAGESHIFT );
-            debug_message( text );
 
-            sprintf( text, "~HOLY:~%i~EVIL:~%i~FIRE:~%i~ICE:~%i~ZAP:~%i",
+            debug_printf( "~HOLY:~%i~EVIL:~%i~FIRE:~%i~ICE:~%i~ZAP:~%i",
                      CapList[icap].damagemodifier[3][skinlevel]&DAMAGESHIFT,
                      CapList[icap].damagemodifier[4][skinlevel]&DAMAGESHIFT,
                      CapList[icap].damagemodifier[5][skinlevel]&DAMAGESHIFT,
                      CapList[icap].damagemodifier[6][skinlevel]&DAMAGESHIFT,
                      CapList[icap].damagemodifier[7][skinlevel]&DAMAGESHIFT );
-            debug_message( text );
 
-            strcpy( text, "~Type: " );
-            if ( CapList[icap].skindressy & (1 << skinlevel) ) strcat( text, CapList[icap].skindressy ? "Light Armor" : "Heavy Armor" );
-            debug_message( text );
-
-            // Base speed
-            sprintf( text, "~Speed:~%3.0f~", ChrList.lst[ichr].maxaccel*80 );
+            debug_printf( "~Type: %s", ( CapList[icap].skindressy & (1 << skinlevel) ) ? "Light Armor" : "Heavy Armor" );
 
             // jumps
-            strcat( text, "Jump Skill:~" );
+			tmps[0] = '\0';
             switch ( CapList[icap].jumpnumber )
             {
-                case 0:  sprintf( tmps, "None    (%i)", ChrList.lst[ichr].jumpnumberreset ); break;
-                case 1:  sprintf( tmps, "Novice  (%i)", ChrList.lst[ichr].jumpnumberreset ); break;
-                case 2:  sprintf( tmps, "Skilled (%i)", ChrList.lst[ichr].jumpnumberreset ); break;
-                case 3:  sprintf( tmps, "Adept   (%i)", ChrList.lst[ichr].jumpnumberreset ); break;
-                default: sprintf( tmps, "Master  (%i)", ChrList.lst[ichr].jumpnumberreset ); break;
+                case 0:  snprintf( tmps, SDL_arraysize( tmps), "None    (%i)", ChrList.lst[ichr].jumpnumberreset ); break;
+                case 1:  snprintf( tmps, SDL_arraysize( tmps), "Novice  (%i)", ChrList.lst[ichr].jumpnumberreset ); break;
+                case 2:  snprintf( tmps, SDL_arraysize( tmps), "Skilled (%i)", ChrList.lst[ichr].jumpnumberreset ); break;
+                case 3:  snprintf( tmps, SDL_arraysize( tmps), "Adept   (%i)", ChrList.lst[ichr].jumpnumberreset ); break;
+                default: snprintf( tmps, SDL_arraysize( tmps), "Master  (%i)", ChrList.lst[ichr].jumpnumberreset ); break;
             };
-            strcat( text, tmps );
 
-            debug_message( text );
+            debug_printf( "~Speed:~%3.0f~Jump Skill:~%s", ChrList.lst[ichr].maxaccel*80, tmps );
         }
     }
 
@@ -2780,7 +2778,7 @@ void show_armor( Uint16 statindex )
 void show_full_status( Uint16 statindex )
 {
     // ZF> This function shows detailed armor information for the character including magic
-    char text[64], tmps[64];
+    STRING text, tmps;
     Uint16 character, enchant;
     float manaregen, liferegen;
     if ( statindex < numstat )
@@ -2788,25 +2786,28 @@ void show_full_status( Uint16 statindex )
         character = statlist[statindex];
 
         // Enchanted?
-        if ( ChrList.lst[character].firstenchant != MAX_ENC ) sprintf( text, "=%s is enchanted!=", ChrList.lst[character].name );
-        else sprintf( text, "=%s is unenchanted=", ChrList.lst[character].name );
-
-        debug_message( text );
+        if ( ChrList.lst[character].firstenchant != MAX_ENC )
+		{
+			debug_printf( text, SDL_arraysize( text), "=%s is enchanted!=", ChrList.lst[character].name );
+		}
+        else 
+		{
+			debug_printf( text, SDL_arraysize( text), "=%s is unenchanted=", ChrList.lst[character].name );
+		}
 
         // Armor Stats
-        sprintf( text, " DEF: %d  SLASH:%3d~CRUSH:%3d POKE:%3d",
+        debug_printf( " DEF: %d  SLASH:%3d~CRUSH:%3d POKE:%3d",
                  255 - ChrList.lst[character].defense,
                  ChrList.lst[character].damagemodifier[0]&DAMAGESHIFT,
                  ChrList.lst[character].damagemodifier[1]&DAMAGESHIFT,
                  ChrList.lst[character].damagemodifier[2]&DAMAGESHIFT );
-        debug_message( text );
-        sprintf( text, " HOLY: %i~~EVIL:~%i~FIRE:~%i~ICE:~%i~ZAP: ~%i",
+
+        debug_printf( " HOLY: %i~~EVIL:~%i~FIRE:~%i~ICE:~%i~ZAP: ~%i",
                  ChrList.lst[character].damagemodifier[3]&DAMAGESHIFT,
                  ChrList.lst[character].damagemodifier[4]&DAMAGESHIFT,
                  ChrList.lst[character].damagemodifier[5]&DAMAGESHIFT,
                  ChrList.lst[character].damagemodifier[6]&DAMAGESHIFT,
                  ChrList.lst[character].damagemodifier[7]&DAMAGESHIFT );
-        debug_message( text );
 
         // Life and mana regeneration
         manaregen = ChrList.lst[character].manareturn / MANARETURNSHIFT;
@@ -2828,9 +2829,7 @@ void show_full_status( Uint16 statindex )
 
         }
 
-        sprintf( tmps, "Mana Regen:~%4.2f", manaregen / 256.0f );
-        sprintf( text, " Life Regen:~%4.2f~~%s", liferegen / 256.0f, tmps );
-        debug_message( text );
+        debug_printf( "Mana Regen:~%4.2f Life Regen:~%4.2f~~%s", manaregen / 256.0f, liferegen / 256.0f, tmps );
     }
 }
 
@@ -2838,39 +2837,47 @@ void show_full_status( Uint16 statindex )
 void show_magic_status( Uint16 statindex )
 {
     // ZF> Displays special enchantment effects for the character
-    char text[64], tmpa[64], tmpb[64];
-    short character;
+    STRING text, tmpa, tmpb;
+    Uint16 character;
+
     if ( statindex < numstat )
     {
         character = statlist[statindex];
+		if( VALID_CHR(character) )
+		{
+			char * missile_str;
+			chr_t * pchr = ChrList.lst + character;
 
-        // Enchanted?
-        if ( ChrList.lst[character].firstenchant != MAX_ENC ) sprintf( text, "=%s is enchanted!=", ChrList.lst[character].name );
-        else sprintf( text, "=%s is unenchanted=", ChrList.lst[character].name );
-        debug_message( text );
+			// Enchanted?
+			if ( pchr->firstenchant != MAX_ENC ) 
+			{
+				debug_printf( "=%s is enchanted!=", pchr->name );
+			}
+			else 
+			{
+				debug_printf( "=%s is unenchanted=", pchr->name );
+			}
 
-        // Enchantment status
-        if ( ChrList.lst[character].canseeinvisible )  sprintf( tmpa, "Yes" );
-        else                 sprintf( tmpa, "No" );
-        if ( ChrList.lst[character].canseekurse )      sprintf( tmpb, "Yes" );
-        else                 sprintf( tmpb, "No" );
-        sprintf( text, " See Invisible: %s~~See Kurses: %s", tmpa, tmpb );
-        debug_message( text );
+			// Enchantment status
+			debug_printf( " See Invisible: %s~~See Kurses: %s", 
+				pchr->canseeinvisible ? "Yes" : "No", 
+				pchr->canseekurse ? "Yes" : "No" );
 
-        if ( ChrList.lst[character].canchannel )     sprintf( tmpa, "Yes" );
-        else                 sprintf( tmpa, "No" );
-        if ( ChrList.lst[character].waterwalk )        sprintf( tmpb, "Yes" );
-        else                 sprintf( tmpb, "No" );
-        sprintf( text, " Channel Life: %s~~Waterwalking: %s", tmpa, tmpb );
-        debug_message( text );
+			debug_printf( " Channel Life: %s~~Waterwalking: %s", 
+				pchr->canchannel ? "Yes" : "No", 
+				pchr->waterwalk ? "Yes" : "No" );
 
-        if ( ChrList.lst[character].flyheight > 0 )    sprintf( tmpa, "Yes" );
-        else                 sprintf( tmpa, "No" );
-        if ( ChrList.lst[character].missiletreatment == MISREFLECT )       sprintf( tmpb, "Reflect" );
-        else if ( ChrList.lst[character].missiletreatment == MISREFLECT )  sprintf( tmpb, "Deflect" );
-        else                           sprintf( tmpb, "None" );
-        sprintf( text, " Flying: %s~~Missile Protection: %s", tmpa, tmpb );
-        debug_message( text );
+			missile_str = "None";
+			switch( pchr->missiletreatment )
+			{
+				case MISREFLECT: missile_str = "Reflect"; break;
+				case MISDEFLECT: missile_str = "Deflect"; break;
+			}
+
+			debug_printf( text, SDL_arraysize( text), " Flying: %s~~Missile Protection: %s", 
+				(pchr->flyheight > 0) ? "Yes" : "No", missile_str );
+
+		}
     }
 }
 
@@ -3288,7 +3295,7 @@ bool_t do_mounts( Uint16 ichr_a, Uint16 ichr_b )
             lip = pinst->lip >> 6;
             flip = lip / 4.0f;
 
-            vertex = MadList[pinst->imad].md2.vertices - GRIP_LEFT;
+            vertex = MadList[pinst->imad].md2_data.vertices - GRIP_LEFT;
 
             // do the automatic update
             chr_instance_update_vertices( &(ChrList.lst[ichr_b].inst), vertex, vertex );
@@ -3340,7 +3347,7 @@ bool_t do_mounts( Uint16 ichr_a, Uint16 ichr_b )
             lip = pinst->lip >> 6;
             flip = lip / 256.0f;
 
-            vertex = MadList[pinst->imad].md2.vertices - GRIP_LEFT;
+            vertex = MadList[pinst->imad].md2_data.vertices - GRIP_LEFT;
 
             // do the automatic update
             chr_instance_update_vertices( &(ChrList.lst[ichr_a].inst), vertex, vertex );
@@ -4573,77 +4580,108 @@ void tilt_characters_to_terrain()
 }
 
 //--------------------------------------------------------------------------------------------
-int load_all_objects( const char *modname )
+void load_all_objects_import_dir( const char * dirname )
 {
-    // ZZ> This function loads a module's local objects and overrides the global ones already loaded
-
-    const char *filehandle;
-    bool_t keeplooking;
-    char newloadname[256];
-    char filename[256];
+    STRING newloadname;
+    STRING filename;
     int cnt;
-    int skin;
 
-    // Log all of the script errors
-    parseerror = bfalse;
+	if( NULL == PMod || INVALID_CSTR(dirname) ) return;
 
-    // This overwrites existing loaded slots that are loaded globally
-    overrideslots = btrue;
+	if( !PMod->importvalid || 0 == PMod->importamount ) return;
+
+    for ( cnt = 0; cnt < PMod->importamount*MAXIMPORTPERPLAYER; cnt++ )
+    {
+        // Make sure the object exists...
+        snprintf( filename, SDL_arraysize( filename), "%s" SLASH_STR "temp%04d.obj", dirname, cnt );
+        snprintf( newloadname, SDL_arraysize( newloadname), "%s" SLASH_STR "data.txt", filename );
+
+        if ( vfs_exists(newloadname) )
+        {
+            // new player found
+            if ( 0 == ( cnt % MAXIMPORTPERPLAYER ) ) import_data.player++;
+
+			// store the slot info
+			import_data.object = cnt;
+
+            // load it
+            import_data.slot_lst[cnt] = load_one_object( filename, MAX_PROFILE );
+			import_data.max_slot      = cnt;
+        }
+    }
+
+}
+
+
+//--------------------------------------------------------------------------------------------
+void load_all_objects_import()
+{
+    int cnt;
 
     // Clear the import slots...
     for ( cnt = 0; cnt < MAX_PROFILE; cnt++ )
     {
         import_data.slot_lst[cnt] = 10000;
     }
+	import_data.max_slot = 0;
 
-    // Load the import directory
+    // This overwrites existing loaded slots that are loaded globally
+    overrideslots = btrue;
     import_data.player = -1;
     import_data.object = -100;
-    skin = TX_LAST;  // Character skins start after the last special texture
-    if ( PMod->importvalid )
-    {
-        for ( cnt = 0; cnt < MAXIMPORT; cnt++ )
-        {
-            // Make sure the object exists...
-            sprintf( filename, "import" SLASH_STR "temp%04d.obj", cnt );
-            sprintf( newloadname, "%s" SLASH_STR "data.txt", filename );
-            if ( fs_fileExists(newloadname) )
-            {
-                // new player found
-                if ( 0 == ( cnt % MAXIMPORTPERPLAYER ) ) import_data.player++;
 
-                // store the slot info
-                import_data.object = ( import_data.player * MAXIMPORTPERPLAYER ) + ( cnt % MAXIMPORTPERPLAYER );
+    load_all_objects_import_dir( "import" );
+    load_all_objects_import_dir( "remote" );
+}
 
-                // load it
-                load_one_object( filename, MAX_PROFILE );
+//--------------------------------------------------------------------------------------------
+void game_load_module_objects( const char *modname )
+{
+    // BB> Search for .obj directories int the module directory and load them
 
-                import_data.slot_lst[import_data.object] = cnt;
-            }
-        }
-    }
+    const char *filehandle;
+    STRING newloadname;
 
-	//First load the special spellbook character who is located in a special folder
-    strcpy( filename, "basicdat/book.obj");
-	load_one_object( filename, SPELLBOOK );
-
-    // Search for .obj directories and load them
     import_data.object = -100;
-    make_newloadname( modname, "objects" SLASH_STR, newloadname );
-    filehandle = fs_findFirstFile( newloadname, "obj" );
+    make_newloadname( modname, "objects", newloadname );
 
-
-    keeplooking = btrue;
+    filehandle = vfs_findFirst( newloadname, "obj", VFS_SEARCH_DIR );
     while ( filehandle != NULL )
     {
-        sprintf( filename, "%s%s", newloadname, filehandle );
-        load_one_object( filename, MAX_PROFILE );
-
-        filehandle = fs_findNextFile();
+        load_one_object( filehandle, MAX_PROFILE );
+        filehandle = vfs_findNext();
     }
+    vfs_findClose();
+}
 
-    fs_findClose();
-    return skin;
+//--------------------------------------------------------------------------------------------
+void game_load_global_objects()
+{
+	// load all special objects
+	load_one_object( "basicdat" SLASH_STR "book.obj", SPELLBOOK );
+
+    // load the objects from various import directories
+    load_all_objects_import();
+}
+
+//--------------------------------------------------------------------------------------------
+void game_load_all_objects( const char *modname )
+{
+    // ZZ> This function loads a module's local objects and overrides the global ones already loaded
+
+    // Log all of the script errors
+    parseerror = bfalse;
+
+	// clear out all old objrct definitions
+    free_all_objects();
+
+	// load the global objects
+    game_load_global_objects();
+
+    // load the objects from the module's directory
+    game_load_module_objects( modname );
+
+    log_madused( "slotused.txt" );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4681,11 +4719,10 @@ chr_setup_info_t * chr_setup_info_reinit( chr_setup_info_t *pinfo )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t chr_setup_read( FILE * fileread, chr_setup_info_t *pinfo )
+bool_t chr_setup_read( vfs_FILE * fileread, chr_setup_info_t *pinfo )
 {
     char cTmp, delim;
     bool_t retval;
-
 
     // trap bad pointers
     if ( NULL == fileread || NULL == pinfo ) return bfalse;
@@ -4756,7 +4793,7 @@ bool_t chr_setup_read( FILE * fileread, chr_setup_info_t *pinfo )
 
         pinfo->do_spawn = bfalse;
 
-        fields = fscanf( fileread, "%255s%255s%d", szTmp1, szTmp2, &iTmp );
+        fields = vfs_scanf( fileread, "%255s%255s%d", szTmp1, szTmp2, &iTmp );
         if( 3 == fields && 0 == strcmp(szTmp1, "dependency") )
         {
             retval = btrue;
@@ -4826,18 +4863,18 @@ bool_t chr_setup_apply( Uint16 ichr, chr_setup_info_t *pinfo )
 
 //--------------------------------------------------------------------------------------------
 #if defined(__GNUC__)
-int strlwr( char * str )
-{
-    if( NULL == str ) return -1;
-
-    while( '\0' != *str )
-    {
-        *str = tolower(*str);
-        str++;
-    }
-
-    return 0;
-}
+//int strlwr( char * str )
+//{
+//    if( NULL == str ) return -1;
+//
+//    while( '\0' != *str )
+//    {
+//        *str = tolower(*str);
+//        str++;
+//    }
+//
+//    return 0;
+//}
 #endif
 
 //--------------------------------------------------------------------------------------------
@@ -4923,11 +4960,14 @@ bool_t setup_characters_spawn( chr_setup_info_t * pinfo )
             local_index = -1;
             for ( tnc = 0; tnc < numimport; tnc++ )
             {
-                if ( import_data.slot_lst[ChrList.lst[new_object].model] == local_slot[tnc] )
-                {
-                    local_index = tnc;
-                    break;
-                }
+				if ( ChrList.lst[new_object].model < import_data.max_slot && ChrList.lst[new_object].model < MAX_PROFILE )
+				{
+					if( import_data.slot_lst[ChrList.lst[new_object].model] == local_slot[tnc] )
+					{
+						local_index = tnc;
+						break;
+					}
+				}
             }
 
             if ( -1 != local_index )
@@ -4956,14 +4996,12 @@ void setup_characters( const char *modname )
 
     chr_setup_info_t info;
     STRING newloadname;
-    FILE  *fileread;
+    vfs_FILE  *fileread;
 
-    // Turn all objects off
-    free_all_objects();
 
     // Turn some back on
     make_newloadname( modname, "gamedat" SLASH_STR "spawn.txt", newloadname );
-    fileread = fopen( newloadname, "r" );
+    fileread = vfs_openRead( newloadname );
 
     numpla = 0;
     info.parent = MAX_CHR;
@@ -5005,7 +5043,7 @@ void setup_characters( const char *modname )
             setup_characters_spawn( &info );
         }
 
-        fclose( fileread );
+        vfs_close( fileread );
     }
 
     clear_messages();
@@ -5022,32 +5060,19 @@ void load_all_global_objects()
 {
     // ZF> This function loads all global objects found in the basicdat folder
     const char *filehandle;
-    bool_t keeplooking;
-    STRING newloadname;
-    STRING filename;
 
     // Warn the user for any duplicate slots
     overrideslots = bfalse;
 
     // Search for .obj directories and load them
-    sprintf( newloadname, "basicdat" SLASH_STR "globalobjects" SLASH_STR );
-    filehandle = fs_findFirstFile( newloadname, "obj" );
-
-    keeplooking = btrue;
-    if ( filehandle != NULL )
+    filehandle = vfs_findFirst( "basicdat" SLASH_STR "globalobjects", "obj", VFS_SEARCH_DIR );
+    while ( VALID_CSTR(filehandle) )
     {
-        while ( keeplooking )
-        {
-            sprintf( filename, "%s%s", newloadname, filehandle );
-            load_one_object( filename, MAX_PROFILE );
-
-            filehandle = fs_findNextFile();
-
-            keeplooking = ( filehandle != NULL );
-        }
+        load_one_object( filehandle, MAX_PROFILE );
+        filehandle = vfs_findNext();
     }
 
-    fs_findClose();
+    vfs_findClose();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5067,6 +5092,58 @@ void game_reset_module_data()
     reset_renderlist();
 }
 
+
+//--------------------------------------------------------------------------------------------
+void game_load_global_assets()
+{
+    // load a bunch of assets that are used in the module
+
+    // Load all the global icons
+    if ( !load_all_global_icons() )
+    {
+        log_warning( "Could not load all global icons!\n" );
+    }
+    load_blip_bitmap();
+    load_bars();
+    font_load( "basicdat" SLASH_STR "font", "basicdat" SLASH_STR "font.txt" );
+}
+
+//--------------------------------------------------------------------------------------------
+void game_load_module_assets( const char *modname )
+{
+    // load a bunch of assets that are used in the module
+    load_global_waves( modname );
+    reset_particles( modname );
+    read_wawalite( modname );
+    load_basic_textures( modname );
+	load_map( modname );
+}
+
+//--------------------------------------------------------------------------------------------
+void game_load_all_assets( const char *modname )
+{
+	game_load_global_assets();
+
+	game_load_module_assets( modname );
+}
+
+//--------------------------------------------------------------------------------------------
+void game_setup_module( const char *smallname )
+{
+    // ZZ> This runst the setup functions for a module
+
+    STRING modname;
+
+    // generate the module directory
+	strncpy(modname, smallname, SDL_arraysize(modname));
+	str_append_slash(modname, SDL_arraysize(modname));
+
+    setup_particles();
+    setup_passage( modname );
+    setup_characters( modname );
+    setup_alliances( modname );
+}
+
 //--------------------------------------------------------------------------------------------
 bool_t game_load_module_data( const char *smallname )
 {
@@ -5075,33 +5152,17 @@ bool_t game_load_module_data( const char *smallname )
 
     log_info( "Loading module \"%s\"\n", smallname );
 
-    // Load all the global icons
-    if ( !load_all_global_icons() )
-    {
-        log_warning( "Could not load all global icons!\n" );
-    }
-
-    TxTexture_load_one( "basicdat" SLASH_STR "nullicon", ICON_NULL, INVALID_KEY );
     load_ai_script( "basicdat" SLASH_STR "script.txt" );
 
     // generate the module directory
-    snprintf( modname, sizeof(modname), "modules" SLASH_STR "%s" SLASH_STR, smallname );
+	strncpy(modname, smallname, SDL_arraysize(modname));
+	str_append_slash(modname, SDL_arraysize(modname));
 
-    // load a bunch of assets that are used in the module
-    load_global_waves( modname );
-    reset_particles( modname );
-    read_wawalite( modname );
-    load_basic_textures( modname );
-    load_blip_bitmap();
-    load_bars();
-    font_load( "basicdat" SLASH_STR "font", "basicdat" SLASH_STR "font.txt" );
+	// load all module assets
+	game_load_all_assets( modname );
 
-    // Load all objects
-    load_all_objects(modname);
-
-    // do the global objec load dynamically using the GOR and the slot numbers in the
-    // spawn.txt file
-    // load_all_global_objects();
+    // load all module objects
+    game_load_all_objects(modname);
 
     if ( NULL == mesh_load( modname, PMesh ) )
     {
@@ -5111,15 +5172,7 @@ bool_t game_load_module_data( const char *smallname )
         return bfalse;
     }
 
-    setup_particles();
-    setup_passage( modname );
-    setup_characters( modname );
-    setup_alliances( modname );
 
-    // Load fonts and bars after other images, as not to hog videomem
-    load_map( modname );
-
-    log_madused( "slotused.txt" );
 
     return btrue;
 }
@@ -5229,6 +5282,8 @@ bool_t game_begin_module( const char * modname, Uint32 seed )
         return bfalse;
     };
 
+	game_setup_module( modname );
+
     timeron = bfalse;
     reset_timers();
 
@@ -5271,8 +5326,8 @@ bool_t game_update_imports()
     check_player_import( "remote",  bfalse );
 
     // build the import directory using the player info
-    empty_import_directory();
-    fs_createDirectory( "import" );
+    vfs_empty_import_directory();
+    vfs_mkdir( "import" );
 
     // export all of the players directly from memory straight to the "import" dir
     for ( player = 0, cnt = 0; cnt < MAXPLAYER; cnt++ )
@@ -5309,23 +5364,23 @@ bool_t game_update_imports()
         // Copy the character to the import directory
         if ( is_local )
         {
-            sprintf( srcPlayer, "players" SLASH_STR "%s", loadplayer[tnc].dir );
+            snprintf( srcPlayer, SDL_arraysize( srcPlayer), "players" SLASH_STR "%s", loadplayer[tnc].dir );
         }
         else
         {
-            sprintf( srcPlayer, "remote" SLASH_STR "%s", loadplayer[tnc].dir );
+            snprintf( srcPlayer, SDL_arraysize( srcPlayer), "remote" SLASH_STR "%s", loadplayer[tnc].dir );
         }
 
-        sprintf( destDir, "import" SLASH_STR "temp%04d.obj", local_slot[tnc] );
-        fs_copyDirectory( srcPlayer, destDir );
+        snprintf( destDir, SDL_arraysize( destDir), "import" SLASH_STR "temp%04d.obj", local_slot[tnc] );
+        vfs_copyDirectory( srcPlayer, destDir );
 
         // Copy all of the character's items to the import directory
-        for ( j = 0; j < 8; j++ )
+        for ( j = 0; j < MAXIMPORTOBJECTS; j++ )
         {
-            sprintf( srcDir, "%s" SLASH_STR "%d.obj", srcPlayer, j );
-            sprintf( destDir, "import" SLASH_STR "temp%04d.obj", local_slot[tnc] + j + 1 );
+            snprintf( srcDir, SDL_arraysize( srcDir), "%s" SLASH_STR "%d.obj", srcPlayer, j );
+            snprintf( destDir, SDL_arraysize( destDir), "import" SLASH_STR "temp%04d.obj", local_slot[tnc] + j + 1 );
 
-            fs_copyDirectory( srcDir, destDir );
+            vfs_copyDirectory( srcDir, destDir );
         }
     }
 
@@ -5502,7 +5557,7 @@ void free_all_objects( void )
 
     PrtList_free_all();
     EncList_free_all();
-    free_all_characters();
+    free_all_chraracters();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5980,8 +6035,8 @@ bool_t animtile_instance_init( animtile_instance_t pinst[], animtile_data_t * pd
 void read_wawalite( const char *modname )
 {
     // ZZ> This function sets up water and lighting for the module
-    char newloadname[256];
-    FILE* fileread;
+    STRING newloadname;
+    vfs_FILE* fileread;
     float fTmp;
     int iTmp;
 
@@ -5992,7 +6047,7 @@ void read_wawalite( const char *modname )
     animtile_data_init( &animtile_data );
 
     make_newloadname( modname, "gamedat" SLASH_STR "wawalite.txt", newloadname );
-    fileread = fopen( newloadname, "r" );
+    fileread = vfs_openRead( newloadname );
     if ( NULL == fileread )
     {
         log_error( "Could not read file! (wawalite.txt)\n" );
@@ -6123,7 +6178,7 @@ void read_wawalite( const char *modname )
         }
     }
 
-    fclose( fileread );
+    vfs_close( fileread );
 
     fog_instance_init( &fog, &fog_data );
     water_instance_init( &water, &water_data );
@@ -6225,24 +6280,24 @@ bool_t make_water( water_instance_t * pinst, water_data_t * pdata )
 void reset_end_text()
 {
     // ZZ> This function resets the end-module text
-    endtextwrite = sprintf( endtext, "The game has ended..." );
+    endtextwrite = snprintf( endtext, SDL_arraysize( endtext), "The game has ended..." );
 
     /*
     if ( numpla > 1 )
     {
-        endtextwrite = sprintf( endtext, "Sadly, they were never heard from again..." );
+        endtextwrite = snprintf( endtext, SDL_arraysize( endtext), "Sadly, they were never heard from again..." );
     }
     else
     {
         if ( numpla == 0 )
         {
             // No players???
-            endtextwrite = sprintf( endtext, "The game has ended..." );
+            endtextwrite = snprintf( endtext, SDL_arraysize( endtext), "The game has ended..." );
         }
         else
         {
             // One player
-            endtextwrite = sprintf( endtext, "Sadly, no trace was ever found..." );
+            endtextwrite = snprintf( endtext, SDL_arraysize( endtext), "Sadly, no trace was ever found..." );
         }
     }
     */
@@ -6286,13 +6341,13 @@ void expand_escape_codes( Uint16 ichr, script_state_t * pstate, char * src, char
             {
                 case '%' : // the % symbol
                     {
-                        sprintf( szTmp, "%%" );
+                        snprintf( szTmp, SDL_arraysize( szTmp), "%%" );
                     }
                     break;
 
                 case 'n' : // Name
                     {
-                        sprintf( szTmp, "%s", chr_get_name( ichr ) );
+                        snprintf( szTmp, SDL_arraysize( szTmp), "%s", chr_get_name( ichr ) );
                     }
                     break;
 
@@ -6310,7 +6365,7 @@ void expand_escape_codes( Uint16 ichr, script_state_t * pstate, char * src, char
                     {
                         if ( NULL != pai )
                         {
-                            sprintf( szTmp, "%s", chr_get_name( pai->target ) );
+                            snprintf( szTmp, SDL_arraysize( szTmp), "%s", chr_get_name( pai->target ) );
                         }
                     }
                     break;
@@ -6319,7 +6374,7 @@ void expand_escape_codes( Uint16 ichr, script_state_t * pstate, char * src, char
                     {
                         if ( NULL != pai )
                         {
-                            sprintf( szTmp, "%s", chr_get_name( pai->owner ) );
+                            snprintf( szTmp, SDL_arraysize( szTmp), "%s", chr_get_name( pai->owner ) );
                         }
                     }
                     break;
@@ -6353,11 +6408,11 @@ void expand_escape_codes( Uint16 ichr, script_state_t * pstate, char * src, char
                         {
                             if ( pchr->ammoknown )
                             {
-                                sprintf( szTmp, "%d", pchr->ammo );
+                                snprintf( szTmp, SDL_arraysize( szTmp), "%d", pchr->ammo );
                             }
                             else
                             {
-                                sprintf( szTmp, "?" );
+                                snprintf( szTmp, SDL_arraysize( szTmp), "?" );
                             }
                         }
                     }
@@ -6369,11 +6424,11 @@ void expand_escape_codes( Uint16 ichr, script_state_t * pstate, char * src, char
                         {
                             if ( pchr->iskursed )
                             {
-                                sprintf( szTmp, "kursed" );
+                                snprintf( szTmp, SDL_arraysize( szTmp), "kursed" );
                             }
                             else
                             {
-                                sprintf( szTmp, "unkursed" );
+                                snprintf( szTmp, SDL_arraysize( szTmp), "unkursed" );
                             }
                         }
                     }
@@ -6385,15 +6440,15 @@ void expand_escape_codes( Uint16 ichr, script_state_t * pstate, char * src, char
                         {
                             if ( pchr->gender == GENDER_FEMALE )
                             {
-                                sprintf( szTmp, "her" );
+                                snprintf( szTmp, SDL_arraysize( szTmp), "her" );
                             }
                             else if ( pchr->gender == GENDER_MALE )
                             {
-                                sprintf( szTmp, "his" );
+                                snprintf( szTmp, SDL_arraysize( szTmp), "his" );
                             }
                             else
                             {
-                                sprintf( szTmp, "its" );
+                                snprintf( szTmp, SDL_arraysize( szTmp), "its" );
                             }
                         }
                     }
@@ -6405,15 +6460,15 @@ void expand_escape_codes( Uint16 ichr, script_state_t * pstate, char * src, char
                         {
                             if ( pchr->gender == GENDER_FEMALE )
                             {
-                                sprintf( szTmp, "female " );
+                                snprintf( szTmp, SDL_arraysize( szTmp), "female " );
                             }
                             else if ( pchr->gender == GENDER_MALE )
                             {
-                                sprintf( szTmp, "male " );
+                                snprintf( szTmp, SDL_arraysize( szTmp), "male " );
                             }
                             else
                             {
-                                sprintf( szTmp, " " );
+                                snprintf( szTmp, SDL_arraysize( szTmp), " " );
                             }
                         }
                     }
@@ -6425,15 +6480,15 @@ void expand_escape_codes( Uint16 ichr, script_state_t * pstate, char * src, char
                         {
                             if ( ptarget->gender == GENDER_FEMALE )
                             {
-                                sprintf( szTmp, "her" );
+                                snprintf( szTmp, SDL_arraysize( szTmp), "her" );
                             }
                             else if ( ptarget->gender == GENDER_MALE )
                             {
-                                sprintf( szTmp, "his" );
+                                snprintf( szTmp, SDL_arraysize( szTmp), "his" );
                             }
                             else
                             {
-                                sprintf( szTmp, "its" );
+                                snprintf( szTmp, SDL_arraysize( szTmp), "its" );
                             }
                         }
                     }
@@ -6441,7 +6496,7 @@ void expand_escape_codes( Uint16 ichr, script_state_t * pstate, char * src, char
 
                 case '#':  // New line (enter)
                     {
-                        sprintf( szTmp, "\n" );
+                        snprintf( szTmp, SDL_arraysize( szTmp), "\n" );
                     }
                     break;
 
@@ -6449,7 +6504,7 @@ void expand_escape_codes( Uint16 ichr, script_state_t * pstate, char * src, char
                     {
                         if ( NULL != pstate )
                         {
-                            sprintf( szTmp, "%d", pstate->distance );
+                            snprintf( szTmp, SDL_arraysize( szTmp), "%d", pstate->distance );
                         }
                     }
                     break;
@@ -6458,7 +6513,7 @@ void expand_escape_codes( Uint16 ichr, script_state_t * pstate, char * src, char
                     {
                         if ( NULL != pstate )
                         {
-                            sprintf( szTmp, "%d", pstate->x );
+                            snprintf( szTmp, SDL_arraysize( szTmp), "%d", pstate->x );
                         }
                     }
                     break;
@@ -6467,7 +6522,7 @@ void expand_escape_codes( Uint16 ichr, script_state_t * pstate, char * src, char
                     {
                         if ( NULL != pstate )
                         {
-                            sprintf( szTmp, "%d", pstate->y );
+                            snprintf( szTmp, SDL_arraysize( szTmp), "%d", pstate->y );
                         }
                     }
                     break;
@@ -6476,7 +6531,7 @@ void expand_escape_codes( Uint16 ichr, script_state_t * pstate, char * src, char
                     {
                         if ( NULL != pstate )
                         {
-                            sprintf( szTmp, "%2d", pstate->distance );
+                            snprintf( szTmp, SDL_arraysize( szTmp), "%2d", pstate->distance );
                         }
                     }
                     break;
@@ -6485,7 +6540,7 @@ void expand_escape_codes( Uint16 ichr, script_state_t * pstate, char * src, char
                     {
                         if ( NULL != pstate )
                         {
-                            sprintf( szTmp, "%2d", pstate->x );
+                            snprintf( szTmp, SDL_arraysize( szTmp), "%2d", pstate->x );
                         }
                     }
                     break;
@@ -6494,13 +6549,13 @@ void expand_escape_codes( Uint16 ichr, script_state_t * pstate, char * src, char
                     {
                         if ( NULL != pstate )
                         {
-                            sprintf( szTmp, "%2d", pstate->y );
+                            snprintf( szTmp, SDL_arraysize( szTmp), "%2d", pstate->y );
                         }
                     }
                     break;
 
                 default:
-                    sprintf( szTmp, "%%%c???", (*src) );
+                    snprintf( szTmp, SDL_arraysize( szTmp), "%%%c???", (*src) );
                     break;
             }
 
@@ -6508,7 +6563,7 @@ void expand_escape_codes( Uint16 ichr, script_state_t * pstate, char * src, char
             {
                 ebuffer     = szTmp;
                 ebuffer_end = szTmp + SDL_arraysize(szTmp);
-                sprintf( szTmp, "%%%c???", (*src) );
+                snprintf( szTmp, SDL_arraysize( szTmp), "%%%c???", (*src) );
             }
 
             // make the line capitalized if necessary
@@ -6685,13 +6740,15 @@ bool_t process_instance_running( process_instance_t * proc )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_process_t * ego_process_init( ego_process_t * eproc )
+ego_process_t * ego_process_init( ego_process_t * eproc, int argc, char **argv )
 {
     if ( NULL == eproc ) return NULL;
 
     memset( eproc, 0, sizeof(ego_process_t) );
 
     process_instance_init( PROC_PBASE(eproc) );
+
+    eproc->argv0 = (argc > 0) ? argv[0] : NULL;
 
     return eproc;
 }
@@ -6766,7 +6823,7 @@ void init_all_mad()
     {
         memset( MadList + cnt, 0, sizeof(mad_t) );
 
-        strncpy( MadList[cnt].name, "*NONE*", sizeof(MadList[cnt].name) );
+        strncpy( MadList[cnt].name, "*NONE*", SDL_arraysize(MadList[cnt].name) );
         MadList[cnt].ai = 0;
     }
 
@@ -6793,8 +6850,24 @@ void release_all_pip()
 
     for ( cnt = 0; cnt < MAX_PIP; cnt++ )
     {
-        memset( PipStack.lst + cnt, 0, sizeof(pip_t) );
+		release_one_pip( cnt );
     }
+}
+
+
+//---------------------------------------------------------------------------------------------
+bool_t release_one_eve( Uint16 ieve )
+{
+	eve_t * peve;
+
+	if( !VALID_EVE_RANGE( ieve) ) return bfalse;
+	peve = EveStack.lst + ieve;
+
+	if(!peve->loaded) return btrue;
+	
+	memset( peve, 0, sizeof(pip_t) );
+
+	return btrue;
 }
 
 //---------------------------------------------------------------------------------------------
@@ -6804,26 +6877,18 @@ void release_all_eve()
 
     for ( cnt = 0; cnt < MAX_EVE; cnt++ )
     {
-        memset( EveStack.lst + cnt, 0, sizeof(pip_t) );
+        release_one_eve( cnt );
     }
 }
 
 //---------------------------------------------------------------------------------------------
 void release_all_cap()
 {
-    int cnt, tnc;
+    int cnt;
 
     for ( cnt = 0; cnt < MAX_PROFILE; cnt++ )
     {
-        cap_t * pcap = CapList + cnt;
-
-        memset( pcap, 0, sizeof(cap_t) );
-
-        for ( tnc = 0; tnc < MAXSECTION; tnc++ )
-        {
-            pcap->chop_sectionstart[tnc] = MAXCHOP;
-            pcap->chop_sectionsize[tnc] = 0;
-        }
+		release_one_cap( cnt );
     };
 }
 
@@ -6834,9 +6899,7 @@ void release_all_mad()
 
     for ( cnt = 0; cnt < MAX_PROFILE; cnt++ )
     {
-        memset( MadList + cnt, 0, sizeof(mad_t) );
-        strncpy( MadList[cnt].name, "*NONE*", sizeof(MadList[cnt].name) );
-        MadList[cnt].ai = 0;
+		release_one_mad( cnt );
     }
 
     md2_loadframe = 0;
@@ -7143,4 +7206,18 @@ void reset_players()
 
     nexttimestamp = ((Uint32)~0);
     numplatimes   = 0;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t release_one_model_profile( Uint16 object )
+{
+	if( object > MAX_PROFILE ) return bfalse;
+
+	// free the model definition
+	release_one_cap( object );
+
+	// free the model data
+	release_one_mad( object );
+
+	return btrue;
 }

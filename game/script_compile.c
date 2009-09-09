@@ -21,6 +21,7 @@
 
 #include "log.h"
 
+#include "egoboo_vfs.h"
 #include "egoboo_setup.h"
 #include "egoboo.h"
 
@@ -54,9 +55,9 @@ static token_t Token;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-DECLARE_STACK( opcode_data_t, OpList );
+DECLARE_STACK( ACCESS_TYPE_NONE, opcode_data_t, OpList );
 
-DECLARE_STACK( script_storage_info_t, AisStorage );
+DECLARE_STACK( ACCESS_TYPE_NONE, script_storage_info_t, AisStorage );
 
 int    AisCompiled_offset = 0;
 Uint32 AisCompiled_buffer[AISMAXCOMPILESIZE];
@@ -298,8 +299,8 @@ void fix_operators()
     {
         cTmp = cLineBuffer[cnt];
         if ( '+' == cTmp || '-' == cTmp || '/' == cTmp || '*' == cTmp ||
-                '%' == cTmp || '>' == cTmp || '<' == cTmp || '&' == cTmp ||
-                '=' == cTmp )
+             '%' == cTmp || '>' == cTmp || '<' == cTmp || '&' == cTmp ||
+             '=' == cTmp )
         {
             surround_space( cnt );
             cnt++;
@@ -360,12 +361,7 @@ int parse_token( int read )
     // Check for IDSZ constant
     if ( '[' == Token.cWord[0] )
     {
-        idsz = 0;
-
-        cTmp = (Token.cWord[1] - 'A') & 0x1F;  idsz |= cTmp << 15;
-        cTmp = (Token.cWord[2] - 'A') & 0x1F;  idsz |= cTmp << 10;
-        cTmp = (Token.cWord[3] - 'A') & 0x1F;  idsz |= cTmp << 5;
-        cTmp = (Token.cWord[4] - 'A') & 0x1F;  idsz |= cTmp;
+        idsz = MAKE_IDSZ(Token.cWord[1], Token.cWord[2], Token.cWord[3], Token.cWord[4]);
 
         Token.iValue = idsz;
         Token.cType  = 'C';
@@ -711,14 +707,14 @@ void get_code( int read )
 void load_ai_codes( const char* loadname )
 {
     // ZZ> This function loads all of the function and variable names
-    FILE* fileread;
+    vfs_FILE* fileread;
     int read;
 
     OpList.count = 0;
-    fileread = fopen( loadname, "rb" );
+    fileread = vfs_openRead( loadname );
     if ( fileread )
     {
-        iLoadSize = ( int )fread( cLoadBuffer, 1, AISMAXLOADSIZE, fileread );
+        iLoadSize = ( int )vfs_read( cLoadBuffer, 1, AISMAXLOADSIZE, fileread );
         read = 0;
         read = ai_goto_colon( read );
 
@@ -729,10 +725,10 @@ void load_ai_codes( const char* loadname )
             read = ai_goto_colon( read );
         }
 
-        fclose( fileread );
+        vfs_close( fileread );
     }
 
-    debug_script_file = fopen( "script_debug.txt", "w" );
+    debug_script_file = fopen( "script_debug.txt", "wt" );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -740,11 +736,11 @@ int load_ai_script( const char *loadname )
 {
     // ZZ> This function loads a script to memory and
     //    returns bfalse if it fails to do so
-    FILE* fileread;
+    vfs_FILE* fileread;
     int retval = 0;
 
     iNumLine = 0;
-    fileread = fopen( loadname, "rb" );
+    fileread = vfs_openRead( loadname );
 
     // No such file
     if ( NULL == fileread )
@@ -764,8 +760,8 @@ int load_ai_script( const char *loadname )
     }
 
     // load the file
-    iLoadSize = ( int )fread( cLoadBuffer, 1, AISMAXLOADSIZE, fileread );
-    fclose( fileread );
+    iLoadSize = ( int )vfs_read( cLoadBuffer, 1, AISMAXLOADSIZE, fileread );
+    vfs_close( fileread );
 
     // if the file is empty, use the default script
     if (0 == iLoadSize)

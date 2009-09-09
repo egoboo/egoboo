@@ -29,7 +29,6 @@
 #include "camera.h"
 #include "input.h"
 #include "particle.h"
-#include "file_common.h"
 #include "Md2.h"
 #include "passage.h"
 #include "graphic.h"
@@ -38,6 +37,7 @@
 #include "texture.h"
 #include "ui.h"
 
+#include "egoboo_vfs.h"
 #include "egoboo_setup.h"
 #include "egoboo_fileutil.h"
 #include "egoboo_strutil.h"
@@ -60,7 +60,7 @@ cap_import_t import_data;
 cap_t        CapList[MAX_PROFILE];
 team_t       TeamList[TEAM_MAX];
 
-DECLARE_LIST ( chr_t,  ChrList  );
+DECLARE_LIST ( ACCESS_TYPE_NONE, chr_t,  ChrList  );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -425,7 +425,7 @@ void attach_particle_to_character( Uint16 particle, Uint16 character, int vertex
             return;
         }
 
-        vertex = MadList[model].md2.vertices - vertex_offset;
+        vertex = MadList[model].md2_data.vertices - vertex_offset;
 
         // do the automatic update
         chr_instance_update_vertices( &(ChrList.lst[character].inst), vertex, vertex );
@@ -706,17 +706,20 @@ void make_character_matrices(bool_t do_physics)
     done = bfalse;
     while ( !done )
     {
-        cnt = 0;
-        for ( ichr = 0; ichr < MAX_CHR; ichr++ )
+        for ( cnt = 0, ichr = 0; ichr < MAX_CHR; ichr++ )
         {
             Uint16 imount;
 
             if ( !ChrList.lst[ichr].on ) continue;
-            if ( ChrList.lst[cnt].inst.matrixvalid ) continue;
+            if ( ChrList.lst[ichr].inst.matrixvalid ) continue;
 
             imount = ChrList.lst[ichr].attachedto;
-            if ( INVALID_CHR(imount) ) { ChrList.lst[ichr].attachedto = MAX_CHR; continue; }
-            if ( imount == ichr ) { imount = MAX_CHR; continue; }
+            if ( INVALID_CHR(imount) || imount == ichr ) 
+			{ 
+				ChrList.lst[ichr].attachedto = MAX_CHR; 
+				make_one_character_matrix( ichr );
+				continue; 
+			}
 
             // can't evaluate this link yet
             if ( !ChrList.lst[imount].inst.matrixvalid )
@@ -832,8 +835,22 @@ Uint16 ChrList_get_free()
     return retval;
 }
 
+
 //--------------------------------------------------------------------------------------------
-void free_all_characters()
+void ChrList_free_all()
+{
+	int cnt;
+
+    for ( cnt = 0; cnt < MAX_CHR; cnt++ )
+    {
+        ChrList_free_one( cnt );
+    }
+
+	ChrList.free_count = 0;
+ }
+
+//--------------------------------------------------------------------------------------------
+void free_all_chraracters()
 {
     // ZZ> This function resets the character allocation list
 
@@ -1748,7 +1765,7 @@ bool_t character_grab_stuff( Uint16 ichr_a, grip_offset_t grip_off, bool_t grab_
     {
         // Transform the weapon grip_off from model to world space
         frame_nxt = ChrList.lst[ichr_a].inst.frame_nxt;
-        vertex = MadList[model].md2.vertices - grip_off;
+        vertex = MadList[model].md2_data.vertices - grip_off;
 
         // do the automatic update
         chr_instance_update_vertices( &(ChrList.lst[ichr_a].inst), vertex, vertex );
@@ -1861,23 +1878,20 @@ bool_t character_grab_stuff( Uint16 ichr_a, grip_offset_t grip_off, bool_t grab_
                 if ( can_steal )
                 {
                     // Pets can try to steal in addition to invisible characters
-                    STRING text;
                     IPair  tmp_rand = {1,100};
                     Uint8  detection = generate_number( tmp_rand );
 
                     // Check if it was detected. 50% chance +2% per pet DEX and -2% per shopkeeper wisdom. There is always a 5% chance it will fail.
                     if ( ChrList.lst[owner].canseeinvisible || detection <= 5 || detection - ( ChrList.lst[ichr_a].dexterity >> 7 ) + ( ChrList.lst[owner].wisdom >> 7 ) > 50 )
                     {
-                        snprintf( text, sizeof(text), "%s was detected!!", ChrList.lst[ichr_a].name );
-                        debug_message( text );
+                        debug_printf( "%s was detected!!", ChrList.lst[ichr_a].name );
 
                         ai_add_order( &(ChrList.lst[owner].ai), STOLEN, SHOP_THEFT );
                         ChrList.lst[owner].ai.target = ichr_a;
                     }
                     else
                     {
-                        snprintf( text, sizeof(text), "%s stole something! (%s)", ChrList.lst[ichr_a].name, CapList[pchr_b->model].classname );
-                        debug_message( text );
+                        debug_printf( "%s stole something! (%s)", ChrList.lst[ichr_a].name, CapList[pchr_b->model].classname );
                     }
                 }
                 else
@@ -1965,7 +1979,7 @@ bool_t character_grab_stuff( Uint16 ichr_a, grip_offset_t grip_off, bool_t grab_
 }
 
 //--------------------------------------------------------------------------------------------
-void character_swipe( Uint16 cnt, Uint8 slot )
+void character_swipe( Uint16 cnt, slot_t slot )
 {
     // ZZ> This function spawns an attack particle
     int weapon, particle, spawngrip, thrown;
@@ -2173,7 +2187,6 @@ void do_level_up( Uint16 character )
     Uint8 curlevel;
     int number;
     Uint16 profile;
-    STRING text;
 
     if ( INVALID_CHR(character) ) return;
 
@@ -2197,8 +2210,7 @@ void do_level_up( Uint16 character )
             // The character is ready to advance...
             if ( ChrList.lst[character].isplayer )
             {
-                snprintf( text, sizeof(text), "%s gained a level!!!", ChrList.lst[character].name );
-                debug_message( text );
+                debug_printf( "%s gained a level!!!", ChrList.lst[character].name );
                 sound_play_chunk( PCamera->track_pos, g_wavelist[GSND_LEVELUP] );
             }
 
@@ -2379,14 +2391,14 @@ void resize_characters()
 bool_t export_one_character_name( const char *szSaveName, Uint16 character )
 {
     // ZZ> This function makes the naming.txt file for the character
-    FILE* filewrite;
+    vfs_FILE* filewrite;
     char cTmp;
     int cnt, tnc;
 
     if ( INVALID_CHR(character) ) return bfalse;
 
     // Can it export?
-    filewrite = fopen( szSaveName, "w" );
+    filewrite = vfs_openWrite( szSaveName );
     if ( NULL == filewrite ) return bfalse;
 
     cnt = 0;
@@ -2395,18 +2407,18 @@ bool_t export_one_character_name( const char *szSaveName, Uint16 character )
 
     while ( cnt < MAXCAPNAMESIZE && cTmp != 0 )
     {
-        fprintf( filewrite, ":" );
+        vfs_printf( filewrite, ":" );
         tnc = 0;
 
         while ( tnc < 8 && cTmp != 0 )
         {
             if ( ' ' == cTmp )
             {
-                fprintf( filewrite, "_" );
+                vfs_printf( filewrite, "_" );
             }
             else
             {
-                fprintf( filewrite, "%c", cTmp );
+                vfs_printf( filewrite, "%c", cTmp );
             }
 
             cTmp = ChrList.lst[character].name[cnt];
@@ -2414,11 +2426,11 @@ bool_t export_one_character_name( const char *szSaveName, Uint16 character )
             cnt++;
         }
 
-        fprintf( filewrite, "\n" );
-        fprintf( filewrite, ":STOP\n\n" );
+        vfs_printf( filewrite, "\n" );
+        vfs_printf( filewrite, ":STOP\n\n" );
     }
 
-    fclose( filewrite );
+    vfs_close( filewrite );
 
     return btrue;
 
@@ -2430,7 +2442,7 @@ bool_t export_one_character_profile( const char *szSaveName, Uint16 character )
     // ZZ> This function creates a data.txt file for the given character.
     //    it is assumed that all enchantments have been done away with
 
-    FILE* filewrite;
+    vfs_FILE* filewrite;
     int icap;
     int damagetype, skin;
     char types[10] = "SCPHEFIZ";
@@ -2447,79 +2459,79 @@ bool_t export_one_character_profile( const char *szSaveName, Uint16 character )
     pcap = CapList + icap;
 
     // Open the file
-    filewrite = fopen( szSaveName, "w" );
+    filewrite = vfs_openWrite( szSaveName );
     if ( NULL == filewrite ) return bfalse;
 
     // Real general data
-    fprintf( filewrite, "Slot number    : -1\n" );  // -1 signals a flexible load thing
+    vfs_printf( filewrite, "Slot number    : -1\n" );  // -1 signals a flexible load thing
     funderf( filewrite, "Class name     : ", pcap->classname );
     ftruthf( filewrite, "Uniform light  : ", pcap->uniformlit );
-    fprintf( filewrite, "Maximum ammo   : %d\n", pcap->ammomax );
-    fprintf( filewrite, "Current ammo   : %d\n", pchr->ammo );
+    vfs_printf( filewrite, "Maximum ammo   : %d\n", pcap->ammomax );
+    vfs_printf( filewrite, "Current ammo   : %d\n", pchr->ammo );
     fgendef( filewrite, "Gender         : ", pchr->gender );
-    fprintf( filewrite, "\n" );
+    vfs_printf( filewrite, "\n" );
 
     // Object stats
-    fprintf( filewrite, "Life color     : %d\n", pchr->lifecolor );
-    fprintf( filewrite, "Mana color     : %d\n", pchr->manacolor );
-    fprintf( filewrite, "Life           : %4.2f\n", pchr->lifemax / 256.0f );
+    vfs_printf( filewrite, "Life color     : %d\n", pchr->lifecolor );
+    vfs_printf( filewrite, "Mana color     : %d\n", pchr->manacolor );
+    vfs_printf( filewrite, "Life           : %4.2f\n", pchr->lifemax / 256.0f );
     fpairof( filewrite, "Life up        : ", pcap->life_stat.perlevel );
-    fprintf( filewrite, "Mana           : %4.2f\n", pchr->manamax / 256.0f );
+    vfs_printf( filewrite, "Mana           : %4.2f\n", pchr->manamax / 256.0f );
     fpairof( filewrite, "Mana up        : ", pcap->mana_stat.perlevel );
-    fprintf( filewrite, "Mana return    : %4.2f\n", pchr->manareturn / 256.0f );
+    vfs_printf( filewrite, "Mana return    : %4.2f\n", pchr->manareturn / 256.0f );
     fpairof( filewrite, "Mana return up : ", pcap->manareturn_stat.perlevel );
-    fprintf( filewrite, "Mana flow      : %4.2f\n", pchr->manaflow / 256.0f );
+    vfs_printf( filewrite, "Mana flow      : %4.2f\n", pchr->manaflow / 256.0f );
     fpairof( filewrite, "Mana flow up   : ", pcap->manaflow_stat.perlevel );
-    fprintf( filewrite, "STR            : %4.2f\n", pchr->strength / 256.0f );
+    vfs_printf( filewrite, "STR            : %4.2f\n", pchr->strength / 256.0f );
     fpairof( filewrite, "STR up         : ", pcap->strength_stat.perlevel );
-    fprintf( filewrite, "WIS            : %4.2f\n", pchr->wisdom / 256.0f );
+    vfs_printf( filewrite, "WIS            : %4.2f\n", pchr->wisdom / 256.0f );
     fpairof( filewrite, "WIS up         : ", pcap->wisdom_stat.perlevel );
-    fprintf( filewrite, "INT            : %4.2f\n", pchr->intelligence / 256.0f );
+    vfs_printf( filewrite, "INT            : %4.2f\n", pchr->intelligence / 256.0f );
     fpairof( filewrite, "INT up         : ", pcap->intelligence_stat.perlevel );
-    fprintf( filewrite, "DEX            : %4.2f\n", pchr->dexterity / 256.0f );
+    vfs_printf( filewrite, "DEX            : %4.2f\n", pchr->dexterity / 256.0f );
     fpairof( filewrite, "DEX up         : ", pcap->dexterity_stat.perlevel );
-    fprintf( filewrite, "\n" );
+    vfs_printf( filewrite, "\n" );
 
     // More physical attributes
-    fprintf( filewrite, "Size           : %4.2f\n", pchr->sizegoto );
-    fprintf( filewrite, "Size up        : %4.2f\n", pcap->sizeperlevel );
-    fprintf( filewrite, "Shadow size    : %d\n", pcap->shadowsize );
-    fprintf( filewrite, "Bump size      : %d\n", pcap->bumpsize );
-    fprintf( filewrite, "Bump height    : %d\n", pcap->bumpheight );
-    fprintf( filewrite, "Bump dampen    : %4.2f\n", pcap->bumpdampen );
-    fprintf( filewrite, "Weight         : %d\n", pcap->weight );
-    fprintf( filewrite, "Jump power     : %4.2f\n", pcap->jump );
-    fprintf( filewrite, "Jump number    : %d\n", pcap->jumpnumber );
-    fprintf( filewrite, "Sneak speed    : %d\n", pcap->sneakspd );
-    fprintf( filewrite, "Walk speed     : %d\n", pcap->walkspd );
-    fprintf( filewrite, "Run speed      : %d\n", pcap->runspd );
-    fprintf( filewrite, "Fly to height  : %d\n", pcap->flyheight );
-    fprintf( filewrite, "Flashing AND   : %d\n", pcap->flashand );
-    fprintf( filewrite, "Alpha blending : %d\n", pcap->alpha );
-    fprintf( filewrite, "Light blending : %d\n", pcap->light );
+    vfs_printf( filewrite, "Size           : %4.2f\n", pchr->sizegoto );
+    vfs_printf( filewrite, "Size up        : %4.2f\n", pcap->sizeperlevel );
+    vfs_printf( filewrite, "Shadow size    : %d\n", pcap->shadowsize );
+    vfs_printf( filewrite, "Bump size      : %d\n", pcap->bumpsize );
+    vfs_printf( filewrite, "Bump height    : %d\n", pcap->bumpheight );
+    vfs_printf( filewrite, "Bump dampen    : %4.2f\n", pcap->bumpdampen );
+    vfs_printf( filewrite, "Weight         : %d\n", pcap->weight );
+    vfs_printf( filewrite, "Jump power     : %4.2f\n", pcap->jump );
+    vfs_printf( filewrite, "Jump number    : %d\n", pcap->jumpnumber );
+    vfs_printf( filewrite, "Sneak speed    : %d\n", pcap->sneakspd );
+    vfs_printf( filewrite, "Walk speed     : %d\n", pcap->walkspd );
+    vfs_printf( filewrite, "Run speed      : %d\n", pcap->runspd );
+    vfs_printf( filewrite, "Fly to height  : %d\n", pcap->flyheight );
+    vfs_printf( filewrite, "Flashing AND   : %d\n", pcap->flashand );
+    vfs_printf( filewrite, "Alpha blending : %d\n", pcap->alpha );
+    vfs_printf( filewrite, "Light blending : %d\n", pcap->light );
     ftruthf( filewrite, "Transfer blend : ", pcap->transferblend );
-    fprintf( filewrite, "Sheen          : %d\n", pcap->sheen );
+    vfs_printf( filewrite, "Sheen          : %d\n", pcap->sheen );
     ftruthf( filewrite, "Phong mapping  : ", pcap->enviro );
-    fprintf( filewrite, "Texture X add  : %4.2f\n", pcap->uoffvel / (float)0xFFFF );
-    fprintf( filewrite, "Texture Y add  : %4.2f\n", pcap->voffvel / (float)0xFFFF );
+    vfs_printf( filewrite, "Texture X add  : %4.2f\n", pcap->uoffvel / (float)0xFFFF );
+    vfs_printf( filewrite, "Texture Y add  : %4.2f\n", pcap->voffvel / (float)0xFFFF );
     ftruthf( filewrite, "Sticky butt    : ", pcap->stickybutt );
-    fprintf( filewrite, "\n" );
+    vfs_printf( filewrite, "\n" );
 
     // Invulnerability data
     ftruthf( filewrite, "Invictus       : ", pcap->invictus );
-    fprintf( filewrite, "NonI facing    : %d\n", pcap->nframefacing );
-    fprintf( filewrite, "NonI angle     : %d\n", pcap->nframeangle );
-    fprintf( filewrite, "I facing       : %d\n", pcap->iframefacing );
-    fprintf( filewrite, "I angle        : %d\n", pcap->iframeangle );
-    fprintf( filewrite, "\n" );
+    vfs_printf( filewrite, "NonI facing    : %d\n", pcap->nframefacing );
+    vfs_printf( filewrite, "NonI angle     : %d\n", pcap->nframeangle );
+    vfs_printf( filewrite, "I facing       : %d\n", pcap->iframefacing );
+    vfs_printf( filewrite, "I angle        : %d\n", pcap->iframeangle );
+    vfs_printf( filewrite, "\n" );
 
     // Skin defenses
-    fprintf( filewrite, "Base defense   : %3d %3d %3d %3d\n", 255 - pcap->defense[0], 255 - pcap->defense[1],
+    vfs_printf( filewrite, "Base defense   : %3d %3d %3d %3d\n", 255 - pcap->defense[0], 255 - pcap->defense[1],
              255 - pcap->defense[2], 255 - pcap->defense[3] );
     
     for ( damagetype = 0; damagetype < DAMAGE_COUNT; damagetype++ )
     {
-        fprintf( filewrite, "%c damage shift : %3d %3d %3d %3d\n", types[damagetype],
+        vfs_printf( filewrite, "%c damage shift : %3d %3d %3d %3d\n", types[damagetype],
                  pcap->damagemodifier[damagetype][0]&DAMAGESHIFT,
                  pcap->damagemodifier[damagetype][1]&DAMAGESHIFT,
                  pcap->damagemodifier[damagetype][2]&DAMAGESHIFT,
@@ -2542,42 +2554,42 @@ bool_t export_one_character_profile( const char *szSaveName, Uint16 character )
 
             skin++;
         }
-        fprintf( filewrite, "%c damage code  : %3c %3c %3c %3c\n", types[damagetype], codes[0], codes[1], codes[2], codes[3] );
+        vfs_printf( filewrite, "%c damage code  : %3c %3c %3c %3c\n", types[damagetype], codes[0], codes[1], codes[2], codes[3] );
     }
 
-    fprintf( filewrite, "Acceleration   : %3.0f %3.0f %3.0f %3.0f\n", pcap->maxaccel[0]*80,
+    vfs_printf( filewrite, "Acceleration   : %3.0f %3.0f %3.0f %3.0f\n", pcap->maxaccel[0]*80,
              pcap->maxaccel[1]*80,
              pcap->maxaccel[2]*80,
              pcap->maxaccel[3]*80 );
-    fprintf( filewrite, "\n" );
+    vfs_printf( filewrite, "\n" );
 
     // Experience and level data
-    fprintf( filewrite, "EXP for 2nd    : %d\n", pcap->experienceforlevel[1] );
-    fprintf( filewrite, "EXP for 3rd    : %d\n", pcap->experienceforlevel[2] );
-    fprintf( filewrite, "EXP for 4th    : %d\n", pcap->experienceforlevel[3] );
-    fprintf( filewrite, "EXP for 5th    : %d\n", pcap->experienceforlevel[4] );
-    fprintf( filewrite, "EXP for 6th    : %d\n", pcap->experienceforlevel[5] );
-    fprintf( filewrite, "Starting EXP   : %d\n", pchr->experience );
-    fprintf( filewrite, "EXP worth      : %d\n", pcap->experienceworth );
-    fprintf( filewrite, "EXP exchange   : %5.3f\n", pcap->experienceexchange );
-    fprintf( filewrite, "EXPSECRET      : %4.2f\n", pcap->experiencerate[0] );
-    fprintf( filewrite, "EXPQUEST       : %4.2f\n", pcap->experiencerate[1] );
-    fprintf( filewrite, "EXPDARE        : %4.2f\n", pcap->experiencerate[2] );
-    fprintf( filewrite, "EXPKILL        : %4.2f\n", pcap->experiencerate[3] );
-    fprintf( filewrite, "EXPMURDER      : %4.2f\n", pcap->experiencerate[4] );
-    fprintf( filewrite, "EXPREVENGE     : %4.2f\n", pcap->experiencerate[5] );
-    fprintf( filewrite, "EXPTEAMWORK    : %4.2f\n", pcap->experiencerate[6] );
-    fprintf( filewrite, "EXPROLEPLAY    : %4.2f\n", pcap->experiencerate[7] );
-    fprintf( filewrite, "\n" );
+    vfs_printf( filewrite, "EXP for 2nd    : %d\n", pcap->experienceforlevel[1] );
+    vfs_printf( filewrite, "EXP for 3rd    : %d\n", pcap->experienceforlevel[2] );
+    vfs_printf( filewrite, "EXP for 4th    : %d\n", pcap->experienceforlevel[3] );
+    vfs_printf( filewrite, "EXP for 5th    : %d\n", pcap->experienceforlevel[4] );
+    vfs_printf( filewrite, "EXP for 6th    : %d\n", pcap->experienceforlevel[5] );
+    vfs_printf( filewrite, "Starting EXP   : %d\n", pchr->experience );
+    vfs_printf( filewrite, "EXP worth      : %d\n", pcap->experienceworth );
+    vfs_printf( filewrite, "EXP exchange   : %5.3f\n", pcap->experienceexchange );
+    vfs_printf( filewrite, "EXPSECRET      : %4.2f\n", pcap->experiencerate[0] );
+    vfs_printf( filewrite, "EXPQUEST       : %4.2f\n", pcap->experiencerate[1] );
+    vfs_printf( filewrite, "EXPDARE        : %4.2f\n", pcap->experiencerate[2] );
+    vfs_printf( filewrite, "EXPKILL        : %4.2f\n", pcap->experiencerate[3] );
+    vfs_printf( filewrite, "EXPMURDER      : %4.2f\n", pcap->experiencerate[4] );
+    vfs_printf( filewrite, "EXPREVENGE     : %4.2f\n", pcap->experiencerate[5] );
+    vfs_printf( filewrite, "EXPTEAMWORK    : %4.2f\n", pcap->experiencerate[6] );
+    vfs_printf( filewrite, "EXPROLEPLAY    : %4.2f\n", pcap->experiencerate[7] );
+    vfs_printf( filewrite, "\n" );
 
     // IDSZ identification tags
-    fprintf( filewrite, "IDSZ Parent    : [%s]\n", undo_idsz( pcap->idsz[IDSZ_PARENT] ) );
-    fprintf( filewrite, "IDSZ Type      : [%s]\n", undo_idsz( pcap->idsz[IDSZ_TYPE] ) );
-    fprintf( filewrite, "IDSZ Skill     : [%s]\n", undo_idsz( pcap->idsz[IDSZ_SKILL] ) );
-    fprintf( filewrite, "IDSZ Special   : [%s]\n", undo_idsz( pcap->idsz[IDSZ_SPECIAL] ) );
-    fprintf( filewrite, "IDSZ Hate      : [%s]\n", undo_idsz( pcap->idsz[IDSZ_HATE] ) );
-    fprintf( filewrite, "IDSZ Vulnie    : [%s]\n", undo_idsz( pcap->idsz[IDSZ_VULNERABILITY] ) );
-    fprintf( filewrite, "\n" );
+    vfs_printf( filewrite, "IDSZ Parent    : [%s]\n", undo_idsz( pcap->idsz[IDSZ_PARENT] ) );
+    vfs_printf( filewrite, "IDSZ Type      : [%s]\n", undo_idsz( pcap->idsz[IDSZ_TYPE] ) );
+    vfs_printf( filewrite, "IDSZ Skill     : [%s]\n", undo_idsz( pcap->idsz[IDSZ_SKILL] ) );
+    vfs_printf( filewrite, "IDSZ Special   : [%s]\n", undo_idsz( pcap->idsz[IDSZ_SPECIAL] ) );
+    vfs_printf( filewrite, "IDSZ Hate      : [%s]\n", undo_idsz( pcap->idsz[IDSZ_HATE] ) );
+    vfs_printf( filewrite, "IDSZ Vulnie    : [%s]\n", undo_idsz( pcap->idsz[IDSZ_VULNERABILITY] ) );
+    vfs_printf( filewrite, "\n" );
 
     // Item and damage flags
     ftruthf( filewrite, "Is an item     : ", pcap->isitem );
@@ -2590,169 +2602,169 @@ bool_t export_one_character_profile( const char *szSaveName, Uint16 character )
     ftruthf( filewrite, "Is platform    : ", pcap->platform );
     ftruthf( filewrite, "Collects money : ", pcap->cangrabmoney );
     ftruthf( filewrite, "Can open stuff : ", pcap->canopenstuff );
-    fprintf( filewrite, "\n" );
+    vfs_printf( filewrite, "\n" );
 
     // Other item and damage stuff
     fdamagf( filewrite, "Damage type    : ", pcap->damagetargettype );
     factiof( filewrite, "Attack type    : ", pcap->weaponaction );
-    fprintf( filewrite, "\n" );
+    vfs_printf( filewrite, "\n" );
 
     // Particle attachments
-    fprintf( filewrite, "Attached parts : %d\n", pcap->attachedprtamount );
+    vfs_printf( filewrite, "Attached parts : %d\n", pcap->attachedprtamount );
     fdamagf( filewrite, "Reaffirm type  : ", pcap->attachedprtreaffirmdamagetype );
-    fprintf( filewrite, "Particle type  : %d\n", pcap->attachedprttype );
-    fprintf( filewrite, "\n" );
+    vfs_printf( filewrite, "Particle type  : %d\n", pcap->attachedprttype );
+    vfs_printf( filewrite, "\n" );
 
     // Character hands
     ftruthf( filewrite, "Left valid     : ", pcap->slotvalid[SLOT_LEFT] );
     ftruthf( filewrite, "Right valid    : ", pcap->slotvalid[SLOT_RIGHT] );
-    fprintf( filewrite, "\n" );
+    vfs_printf( filewrite, "\n" );
 
     // Particle spawning on attack
     ftruthf( filewrite, "Part on weapon : ", pcap->attackattached );
-    fprintf( filewrite, "Part type      : %d\n", pcap->attackprttype );
-    fprintf( filewrite, "\n" );
+    vfs_printf( filewrite, "Part type      : %d\n", pcap->attackprttype );
+    vfs_printf( filewrite, "\n" );
 
     // Particle spawning for GoPoof
-    fprintf( filewrite, "Poof amount    : %d\n", pcap->gopoofprtamount );
-    fprintf( filewrite, "Facing add     : %d\n", pcap->gopoofprtfacingadd );
-    fprintf( filewrite, "Part type      : %d\n", pcap->gopoofprttype );
-    fprintf( filewrite, "\n" );
+    vfs_printf( filewrite, "Poof amount    : %d\n", pcap->gopoofprtamount );
+    vfs_printf( filewrite, "Facing add     : %d\n", pcap->gopoofprtfacingadd );
+    vfs_printf( filewrite, "Part type      : %d\n", pcap->gopoofprttype );
+    vfs_printf( filewrite, "\n" );
 
     // Particle spawning for blud
     ftruthf( filewrite, "Blud valid     : ", pcap->bludvalid );
-    fprintf( filewrite, "Part type      : %d\n", pcap->bludprttype );
-    fprintf( filewrite, "\n" );
+    vfs_printf( filewrite, "Part type      : %d\n", pcap->bludprttype );
+    vfs_printf( filewrite, "\n" );
 
     // Extra stuff
     ftruthf( filewrite, "Waterwalking   : ", pcap->waterwalk );
-    fprintf( filewrite, "Bounce dampen  : %5.3f\n", pcap->dampen );
-    fprintf( filewrite, "\n" );
+    vfs_printf( filewrite, "Bounce dampen  : %5.3f\n", pcap->dampen );
+    vfs_printf( filewrite, "\n" );
 
     // More stuff
-    fprintf( filewrite, "NOT USED       : %5.3f\n", pcap->lifeheal / 256.0f );       // These two are seriously outdated
-    fprintf( filewrite, "NOT USED       : %5.3f\n", pcap->manacost / 256.0f );       // and shouldnt be used. Use scripts instead.
-    fprintf( filewrite, "Regeneration   : %d\n", pcap->lifereturn );
-    fprintf( filewrite, "Stopped by     : %d\n", pcap->stoppedby );
+    vfs_printf( filewrite, "NOT USED       : %5.3f\n", pcap->lifeheal / 256.0f );       // These two are seriously outdated
+    vfs_printf( filewrite, "NOT USED       : %5.3f\n", pcap->manacost / 256.0f );       // and shouldnt be used. Use scripts instead.
+    vfs_printf( filewrite, "Regeneration   : %d\n", pcap->lifereturn );
+    vfs_printf( filewrite, "Stopped by     : %d\n", pcap->stoppedby );
     funderf( filewrite, "Skin 0 name    : ", pcap->skinname[0] );
     funderf( filewrite, "Skin 1 name    : ", pcap->skinname[1] );
     funderf( filewrite, "Skin 2 name    : ", pcap->skinname[2] );
     funderf( filewrite, "Skin 3 name    : ", pcap->skinname[3] );
-    fprintf( filewrite, "Skin 0 cost    : %d\n", pcap->skincost[0] );
-    fprintf( filewrite, "Skin 1 cost    : %d\n", pcap->skincost[1] );
-    fprintf( filewrite, "Skin 2 cost    : %d\n", pcap->skincost[2] );
-    fprintf( filewrite, "Skin 3 cost    : %d\n", pcap->skincost[3] );
-    fprintf( filewrite, "STR dampen     : %5.3f\n", pcap->strengthdampen );
-    fprintf( filewrite, "\n" );
+    vfs_printf( filewrite, "Skin 0 cost    : %d\n", pcap->skincost[0] );
+    vfs_printf( filewrite, "Skin 1 cost    : %d\n", pcap->skincost[1] );
+    vfs_printf( filewrite, "Skin 2 cost    : %d\n", pcap->skincost[2] );
+    vfs_printf( filewrite, "Skin 3 cost    : %d\n", pcap->skincost[3] );
+    vfs_printf( filewrite, "STR dampen     : %5.3f\n", pcap->strengthdampen );
+    vfs_printf( filewrite, "\n" );
 
     // Another memory lapse
     ftruthf( filewrite, "No rider attak : ", btrue - pcap->ridercanattack );
     ftruthf( filewrite, "Can be dazed   : ", pcap->canbedazed );
     ftruthf( filewrite, "Can be grogged : ", pcap->canbegrogged );
-    fprintf( filewrite, "NOT USED       : 0\n" );
-    fprintf( filewrite, "NOT USED       : 0\n" );
+    vfs_printf( filewrite, "NOT USED       : 0\n" );
+    vfs_printf( filewrite, "NOT USED       : 0\n" );
     ftruthf( filewrite, "Can see invisi : ", pcap->canseeinvisible );
-    fprintf( filewrite, "Kursed chance  : %d\n", pchr->iskursed*100 );
-    fprintf( filewrite, "Footfall sound : %d\n", pcap->soundindex[SOUND_FOOTFALL] );
-    fprintf( filewrite, "Jump sound     : %d\n", pcap->soundindex[SOUND_JUMP] );
-    fprintf( filewrite, "\n" );
+    vfs_printf( filewrite, "Kursed chance  : %d\n", pchr->iskursed*100 );
+    vfs_printf( filewrite, "Footfall sound : %d\n", pcap->soundindex[SOUND_FOOTFALL] );
+    vfs_printf( filewrite, "Jump sound     : %d\n", pcap->soundindex[SOUND_JUMP] );
+    vfs_printf( filewrite, "\n" );
 
     // Expansions
     if ( pcap->skindressy&1 )
-        fprintf( filewrite, ":[DRES] 0\n" );
+        vfs_printf( filewrite, ":[DRES] 0\n" );
 
     if ( pcap->skindressy&2 )
-        fprintf( filewrite, ":[DRES] 1\n" );
+        vfs_printf( filewrite, ":[DRES] 1\n" );
 
     if ( pcap->skindressy&4 )
-        fprintf( filewrite, ":[DRES] 2\n" );
+        vfs_printf( filewrite, ":[DRES] 2\n" );
 
     if ( pcap->skindressy&8 )
-        fprintf( filewrite, ":[DRES] 3\n" );
+        vfs_printf( filewrite, ":[DRES] 3\n" );
 
     if ( pcap->resistbumpspawn )
-        fprintf( filewrite, ":[STUK] 0\n" );
+        vfs_printf( filewrite, ":[STUK] 0\n" );
 
     if ( pcap->istoobig )
-        fprintf( filewrite, ":[PACK] 0\n" );
+        vfs_printf( filewrite, ":[PACK] 0\n" );
 
     if ( !pcap->reflect )
-        fprintf( filewrite, ":[VAMP] 1\n" );
+        vfs_printf( filewrite, ":[VAMP] 1\n" );
 
     if ( pcap->alwaysdraw )
-        fprintf( filewrite, ":[DRAW] 1\n" );
+        vfs_printf( filewrite, ":[DRAW] 1\n" );
 
     if ( pcap->isranged )
-        fprintf( filewrite, ":[RANG] 1\n" );
+        vfs_printf( filewrite, ":[RANG] 1\n" );
 
     if ( pcap->hidestate != NOHIDE )
-        fprintf( filewrite, ":[HIDE] %d\n", pcap->hidestate );
+        vfs_printf( filewrite, ":[HIDE] %d\n", pcap->hidestate );
 
     if ( pcap->isequipment )
-        fprintf( filewrite, ":[EQUI] 1\n" );
+        vfs_printf( filewrite, ":[EQUI] 1\n" );
 
     if ( pcap->bumpsizebig >= pcap->bumpsize * 2 )
-        fprintf( filewrite, ":[SQUA] 1\n" );
+        vfs_printf( filewrite, ":[SQUA] 1\n" );
 
     if ( pcap->icon != pcap->usageknown )
-        fprintf( filewrite, ":[ICON] %d\n", pcap->icon );
+        vfs_printf( filewrite, ":[ICON] %d\n", pcap->icon );
 
     if ( pcap->forceshadow )
-        fprintf( filewrite, ":[SHAD] 1\n" );
+        vfs_printf( filewrite, ":[SHAD] 1\n" );
 
     if ( pcap->ripple == pcap->isitem )
-        fprintf( filewrite, ":[RIPP] %d\n", pcap->ripple );
+        vfs_printf( filewrite, ":[RIPP] %d\n", pcap->ripple );
 
     if ( pcap->isvaluable != -1 )
-        fprintf( filewrite, ":[VALU] %d\n", pcap->isvaluable );
+        vfs_printf( filewrite, ":[VALU] %d\n", pcap->isvaluable );
 
     // Basic stuff that is always written
-    fprintf( filewrite, ":[GOLD] %d\n", pchr->money );
-    fprintf( filewrite, ":[PLAT] %d\n", pcap->canuseplatforms );
-    fprintf( filewrite, ":[SKIN] %d\n", pchr->skin );
-    fprintf( filewrite, ":[CONT] %d\n", pchr->ai.content );
-    fprintf( filewrite, ":[STAT] %d\n", pchr->ai.state );
-    fprintf( filewrite, ":[LEVL] %d\n", pchr->experiencelevel );
-    fprintf( filewrite, ":[LIFE] %4.2f\n", FP8_TO_FLOAT(pchr->life) );
-    fprintf( filewrite, ":[MANA] %4.2f\n", FP8_TO_FLOAT(pchr->mana) );
+    vfs_printf( filewrite, ":[GOLD] %d\n", pchr->money );
+    vfs_printf( filewrite, ":[PLAT] %d\n", pcap->canuseplatforms );
+    vfs_printf( filewrite, ":[SKIN] %d\n", pchr->skin );
+    vfs_printf( filewrite, ":[CONT] %d\n", pchr->ai.content );
+    vfs_printf( filewrite, ":[STAT] %d\n", pchr->ai.state );
+    vfs_printf( filewrite, ":[LEVL] %d\n", pchr->experiencelevel );
+    vfs_printf( filewrite, ":[LIFE] %4.2f\n", FP8_TO_FLOAT(pchr->life) );
+    vfs_printf( filewrite, ":[MANA] %4.2f\n", FP8_TO_FLOAT(pchr->mana) );
 
     // Copy all skill expansions
 
     if ( pchr->shieldproficiency > 0 )
-        fprintf( filewrite, ":[SHPR] %d\n", pchr->shieldproficiency );
+        vfs_printf( filewrite, ":[SHPR] %d\n", pchr->shieldproficiency );
 
     if ( pchr->canuseadvancedweapons > 0 )
-        fprintf( filewrite, ":[AWEP] %d\n", pchr->canuseadvancedweapons );
+        vfs_printf( filewrite, ":[AWEP] %d\n", pchr->canuseadvancedweapons );
 
     if ( pchr->canjoust )
-        fprintf( filewrite, ":[JOUS] %d\n", pchr->canjoust );
+        vfs_printf( filewrite, ":[JOUS] %d\n", pchr->canjoust );
 
     if ( pchr->candisarm )
-        fprintf( filewrite, ":[DISA] %d\n", pchr->candisarm );
+        vfs_printf( filewrite, ":[DISA] %d\n", pchr->candisarm );
 
     if ( pcap->canseekurse )
-        fprintf( filewrite, ":[CKUR] %d\n", pcap->canseekurse );
+        vfs_printf( filewrite, ":[CKUR] %d\n", pcap->canseekurse );
 
     if ( pchr->canusepoison )
-        fprintf( filewrite, ":[POIS] %d\n", pchr->canusepoison );
+        vfs_printf( filewrite, ":[POIS] %d\n", pchr->canusepoison );
 
     if ( pchr->canread )
-        fprintf( filewrite, ":[READ] %d\n", pchr->canread );
+        vfs_printf( filewrite, ":[READ] %d\n", pchr->canread );
 
     if ( pchr->canbackstab )
-        fprintf( filewrite, ":[STAB] %d\n", pchr->canbackstab );
+        vfs_printf( filewrite, ":[STAB] %d\n", pchr->canbackstab );
 
     if ( pchr->canusedivine )
-        fprintf( filewrite, ":[HMAG] %d\n", pchr->canusedivine );
+        vfs_printf( filewrite, ":[HMAG] %d\n", pchr->canusedivine );
 
     if ( pchr->canusearcane )
-        fprintf( filewrite, ":[WMAG] %d\n", pchr->canusearcane );
+        vfs_printf( filewrite, ":[WMAG] %d\n", pchr->canusearcane );
 
     if ( pchr->canusetech )
-        fprintf( filewrite, ":[TECH] %d\n", pchr->canusetech );
+        vfs_printf( filewrite, ":[TECH] %d\n", pchr->canusetech );
 
     // The end
-    fclose( filewrite );
+    vfs_close( filewrite );
 
     return btrue;
 }
@@ -2761,17 +2773,17 @@ bool_t export_one_character_profile( const char *szSaveName, Uint16 character )
 bool_t export_one_character_skin( const char *szSaveName, Uint16 character )
 {
     // ZZ> This function creates a skin.txt file for the given character.
-    FILE* filewrite;
+    vfs_FILE* filewrite;
 
     if ( INVALID_CHR(character) ) return bfalse;
 
     // Open the file
-    filewrite = fopen( szSaveName, "w" );
+    filewrite = vfs_openWrite( szSaveName );
     if ( NULL == filewrite ) return bfalse;
 
-    fprintf( filewrite, "// This file is used only by the import menu\n" );
-    fprintf( filewrite, ": %d\n", ChrList.lst[character].skin );
-    fclose( filewrite );
+    vfs_printf( filewrite, "// This file is used only by the import menu\n" );
+    vfs_printf( filewrite, ": %d\n", ChrList.lst[character].skin );
+    vfs_close( filewrite );
 
     return btrue;
 }
@@ -2783,7 +2795,7 @@ int load_one_character_profile( const char * tmploadname, int slot_override, boo
     // the object slot that the profile was stuck into.  It may cause the program
     // to abort if bad things happen.
 
-    FILE* fileread;
+    vfs_FILE* fileread;
     Sint16 object = -1;
     int iTmp;
     char cTmp;
@@ -2792,21 +2804,21 @@ int load_one_character_profile( const char * tmploadname, int slot_override, boo
     IDSZ idsz;
     cap_t * pcap;
     int cnt;
-    STRING szLoadName, wavename;
+    STRING szLoadName;
 
     make_newloadname( tmploadname, SLASH_STR "data.txt", szLoadName );
 
     // Open the file
-    fileread = fopen( szLoadName, "r" );
+    fileread = vfs_openRead( szLoadName );
     if ( NULL == fileread )
     {
         // The data file wasn't found        
 
         if ( required )
         {
-            log_error( "load_one_character_profile() - DATA.TXT was not found! (%s)\n", szLoadName );
+            log_error( "load_one_character_profile() - \"%s\" was not found!\n", szLoadName );
         }
-        else
+        else if( VALID_CAP_RANGE(slot_override) && slot_override > PMod->importamount * MAXIMPORTPERPLAYER )
         {
             log_warning( "load_one_character_profile() - Not able to open file \"%s\"\n", szLoadName );
         }
@@ -2883,7 +2895,7 @@ int load_one_character_profile( const char * tmploadname, int slot_override, boo
     }
 
     // Read in the real general data
-    fget_next_name( fileread, pcap->classname, sizeof(pcap->classname) );
+    fget_next_name( fileread, pcap->classname, SDL_arraysize(pcap->classname) );
 
     // Light cheat
     pcap->uniformlit = fget_next_bool( fileread );
@@ -3190,19 +3202,11 @@ int load_one_character_profile( const char * tmploadname, int slot_override, boo
         else if ( idsz == MAKE_IDSZ( 'R', 'E', 'A', 'D' ) ) pcap->canread = fget_int( fileread );
     }
 
-    fclose( fileread );
+    vfs_close( fileread );
 
     // Load the random naming table for this object
     make_newloadname( tmploadname, SLASH_STR "naming.txt", szLoadName );
     chop_load( object, szLoadName );
-
-    // Load the waves for this object
-    for ( cnt = 0; cnt < MAX_WAVE; cnt++ )
-    {
-        sprintf( wavename, SLASH_STR "sound%d", cnt );
-        make_newloadname( tmploadname, wavename, szLoadName );
-        pcap->wavelist[cnt] = sound_load_chunk( szLoadName );
-    }
 
     //log_info( "load_one_character_profile() - loaded object %s (%d)\n", pcap->classname, object );
 
@@ -3602,7 +3606,7 @@ char * chop_create( Uint16 profile )
 
     if ( 0 == CapList[profile].chop_sectionsize[0] )
     {
-        strcpy(buffer, CapList[profile].classname);
+        strncpy(buffer, CapList[profile].classname, SDL_arraysize(buffer) );
     }
     else
     {
@@ -4028,7 +4032,7 @@ Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
     if ( name == NULL )
     {
         // Generate a random name
-        sprintf( pchr->name, "%s", chop_create( profile ) );
+        snprintf( pchr->name, SDL_arraysize( pchr->name), "%s", chop_create( profile ) );
     }
     else
     {
@@ -4278,7 +4282,7 @@ void change_character_full( Uint16 ichr, Uint16 profile, Uint8 skin, Uint8 leave
     // A character turned into a frog with this function will also export as a frog!
     if ( profile > MAX_PROFILE || !MadList[profile].loaded ) return;
 
-    strcpy(MadList[ChrList.lst[ichr].model].name, MadList[profile].name);
+    strncpy(MadList[ChrList.lst[ichr].model].name, MadList[profile].name, SDL_arraysize(MadList[ChrList.lst[ichr].model].name));
     change_character( ichr, profile, skin, leavewhich );
     ChrList.lst[ichr].basemodel = profile;
 }
@@ -4305,10 +4309,10 @@ void set_weapongrip( Uint16 iitem, Uint16 iholder, Uint16 vrt_off )
     if ( INVALID_MAD(pholder->inst.imad) ) return;
     pholder_mad = MadList + pholder->inst.imad;
 
-    tnc = pholder_mad->md2.vertices - vrt_off;
+    tnc = pholder_mad->md2_data.vertices - vrt_off;
     for (i = 0; i < GRIP_VERTS; i++)
     {
-        if (tnc + i < pholder_mad->md2.vertices )
+        if (tnc + i < pholder_mad->md2_data.vertices )
         {
             pitem->weapongrip[i] = tnc + i;
         }
@@ -4637,31 +4641,31 @@ bool_t add_quest_idsz( const char *whichplayer, IDSZ idsz )
 {
     /// @details ZF@> This function writes a IDSZ (With quest level 0) into a player quest.txt file, returns btrue if succeeded
 
-    FILE *filewrite;
+    vfs_FILE *filewrite;
     STRING newloadname;
 
     // Only add quest IDSZ if it doesnt have it already
     if (check_player_quest(whichplayer, idsz) >= QUEST_BEATEN) return bfalse;
 
     // Try to open the file in read and append mode
-    snprintf(newloadname, sizeof(newloadname), "players/%s/quest.txt", str_encode_path(whichplayer) );
-    filewrite = fopen( newloadname, "a" );
+    snprintf(newloadname, SDL_arraysize(newloadname), "players/%s/quest.txt", str_encode_path(whichplayer) );
+    filewrite = vfs_openAppend( newloadname );
     if ( !filewrite )
     {
         // Create the file if it does not exist
-        filewrite = fopen( newloadname, "w" );
+        filewrite = vfs_openWrite( newloadname );
         if (!filewrite)
         {
             log_warning("Cannot write to %s!\n", newloadname);
             return bfalse;
         }
 
-        fprintf( filewrite, "// This file keeps order of all the quests for the player (%s)\n", whichplayer);
-        fprintf( filewrite, "// The number after the IDSZ shows the quest level. -1 means it is completed.");
+        vfs_printf( filewrite, "// This file keeps order of all the quests for the player (%s)\n", whichplayer);
+        vfs_printf( filewrite, "// The number after the IDSZ shows the quest level. -1 means it is completed.");
     }
 
-    fprintf( filewrite, "\n:[%4s] 0", undo_idsz( idsz ));
-    fclose( filewrite );
+    vfs_printf( filewrite, "\n:[%4s] 0", undo_idsz( idsz ));
+    vfs_close( filewrite );
 
     return btrue;
 }
@@ -4673,7 +4677,7 @@ Sint16 modify_quest_idsz( const char *whichplayer, IDSZ idsz, Sint16 adjustment 
     ///     adjustment. It then returns the current quest level it now has.
     ///     It returns QUEST_NONE if failed and if the adjustment is 0, the quest is marked as beaten...
 
-    FILE *filewrite, *fileread;
+    vfs_FILE *filewrite, *fileread;
     STRING newloadname, copybuffer;
     IDSZ newidsz;
     Sint8 NewQuestLevel = QUEST_NONE, QuestLevel;
@@ -4686,13 +4690,13 @@ Sint16 modify_quest_idsz( const char *whichplayer, IDSZ idsz, Sint16 adjustment 
         char ctmp;
 
         // create a "tmp_*" copy of the file
-        snprintf( newloadname, sizeof( newloadname ), "players/%s/quest.txt", str_encode_path(whichplayer));
-        snprintf( copybuffer, sizeof( copybuffer ), "players/%s/tmp_quest.txt", str_encode_path(whichplayer));
-        fs_copyFile( newloadname, copybuffer );
+        snprintf( newloadname, SDL_arraysize( newloadname ), "players/%s/quest.txt", str_encode_path(whichplayer));
+        snprintf( copybuffer, SDL_arraysize( copybuffer ), "players/%s/tmp_quest.txt", str_encode_path(whichplayer));
+        vfs_copyFile( newloadname, copybuffer );
 
         // open the tmp file for reading and overwrite the original file
-        fileread  = fopen( copybuffer, "r" );
-        filewrite = fopen( newloadname, "w" );
+        fileread  = vfs_openRead( copybuffer );
+        filewrite = vfs_openWrite( newloadname );
 
         // Something went wrong
         if (!fileread || !filewrite)
@@ -4702,10 +4706,10 @@ Sint16 modify_quest_idsz( const char *whichplayer, IDSZ idsz, Sint16 adjustment 
         }
 
         // read the tmp file line-by line
-        while ( !feof(fileread) )
+        while ( !vfs_eof(fileread) )
         {
-            ctmp = fgetc(fileread);
-            ungetc(ctmp, fileread);
+            ctmp = vfs_getc(fileread);
+            vfs_ungetc(ctmp, fileread);
             if ( '/' == ctmp )
             {
                 // copy comments exactly
@@ -4724,15 +4728,15 @@ Sint16 modify_quest_idsz( const char *whichplayer, IDSZ idsz, Sint16 adjustment 
                     NewQuestLevel = QuestLevel;
                 }
 
-                fprintf(filewrite, "\n:[%s] %i", undo_idsz(newidsz), QuestLevel);
+                vfs_printf(filewrite, "\n:[%s] %i", undo_idsz(newidsz), QuestLevel);
             }
         }
     }
 
     // clean it up
-    fclose( fileread );
-    fclose( filewrite );
-    fs_deleteFile( copybuffer );
+    vfs_close( fileread );
+    vfs_close( filewrite );
+    vfs_delete_file( copybuffer );
 
     return NewQuestLevel;
 }
@@ -4767,14 +4771,14 @@ Sint16 check_player_quest( const char *whichplayer, IDSZ idsz )
     /// @details ZF@> This function checks if the specified player has the IDSZ in his or her quest.txt
     /// and returns the quest level of that specific quest (Or QUEST_NONE if it is not found, QUEST_BEATEN if it is finished)
 
-    FILE *fileread;
+    vfs_FILE *fileread;
     STRING newloadname;
     IDSZ newidsz;
     bool_t foundidsz = bfalse;
     Sint8 result = QUEST_NONE;
 
-    snprintf( newloadname, sizeof(newloadname), "players/%s/quest.txt", str_encode_path(whichplayer) );
-    fileread = fopen( newloadname, "r" );
+    snprintf( newloadname, SDL_arraysize(newloadname), "players/%s/quest.txt", str_encode_path(whichplayer) );
+    fileread = vfs_openRead( newloadname );
     if ( NULL == fileread ) return result;
 
     // Always return "true" for [NONE] IDSZ checks
@@ -4791,7 +4795,7 @@ Sint16 check_player_quest( const char *whichplayer, IDSZ idsz )
         }
     }
 
-    fclose( fileread );
+    vfs_close( fileread );
 
     return result;
 }
@@ -5002,7 +5006,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
             ijump = CapList[pchr->model].soundindex[SOUND_JUMP];
             if ( VALID_SND( ijump ) )
             {
-                sound_play_chunk( pchr->pos, CapList[pchr->model].wavelist[ijump] );
+                sound_play_chunk( pchr->pos, chr_get_chunk_ptr( pchr,ijump ) );
             }
 
         }
@@ -5033,7 +5037,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
                     int ijump = CapList[pchr->model].soundindex[SOUND_JUMP];
                     if ( VALID_SND( ijump ) )
                     {
-                        sound_play_chunk( pchr->pos, CapList[pchr->model].wavelist[ijump] );
+                        sound_play_chunk( pchr->pos, chr_get_chunk_ptr( pchr,ijump ) );
                     }
                 }
             }
@@ -5079,9 +5083,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
                 ChrList.lst[item].ai.alert |= ALERTIF_NOTPUTAWAY;
                 if ( pchr->isplayer && CapList[ChrList.lst[item].model].istoobig )
                 {
-                    STRING text;
-                    snprintf( text, sizeof(text), "The %s is too big to be put away...", CapList[ChrList.lst[item].model].classname);
-                    debug_message( text );
+                    debug_printf( "The %s is too big to be put away...", CapList[ChrList.lst[item].model].classname );
                 }
             }
             else
@@ -5111,9 +5113,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
                 ChrList.lst[item].ai.alert |= ALERTIF_NOTPUTAWAY;
                 if ( pchr->isplayer && CapList[ChrList.lst[item].model].istoobig )
                 {
-                    STRING text;
-                    snprintf( text, sizeof(text), "The %s is too big to be put away...", CapList[ChrList.lst[item].model].classname);
-                    debug_message( text );
+                    debug_printf( "The %s is too big to be put away...", CapList[ChrList.lst[item].model].classname );
                 }
             }
             else
@@ -5168,9 +5168,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
                 if ( pchr->staton )
                 {
                     // Tell the player that they can't use this weapon
-                    STRING text;
-                    snprintf( text, sizeof(text),  "%s can't use this item...", pchr->name );
-                    debug_message( text );
+                    debug_printf( "%s can't use this item...", pchr->name );
                 }
             }
         }
@@ -5279,9 +5277,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
                 if ( pchr->staton )
                 {
                     // Tell the player that they can't use this weapon
-                    STRING text;
-                    snprintf( text, sizeof(text), "%s can't use this item...", pchr->name );
-                    debug_message( text );
+                    debug_printf( "%s can't use this item...", pchr->name );
                 }
             }
         }
@@ -5702,9 +5698,9 @@ void move_characters( void )
         {
             // Check frame effects
             if ( Md2FrameList[pchr->inst.frame_nxt].framefx&MADFX_ACTLEFT )
-                character_swipe( cnt, 0 );
+                character_swipe( cnt, SLOT_LEFT );
             if ( Md2FrameList[pchr->inst.frame_nxt].framefx&MADFX_ACTRIGHT )
-                character_swipe( cnt, 1 );
+                character_swipe( cnt, SLOT_RIGHT );
             if ( Md2FrameList[pchr->inst.frame_nxt].framefx&MADFX_GRABLEFT )
                 character_grab_stuff( cnt, GRIP_LEFT, bfalse );
             if ( Md2FrameList[pchr->inst.frame_nxt].framefx&MADFX_GRABRIGHT )
@@ -5724,7 +5720,7 @@ void move_characters( void )
                 int ifoot = CapList[pchr->model].soundindex[SOUND_FOOTFALL];
                 if ( VALID_SND( ifoot ) )
                 {
-                    sound_play_chunk( pchr->pos, CapList[pchr->model].wavelist[ifoot] );
+                    sound_play_chunk( pchr->pos, chr_get_chunk_ptr( pchr,ifoot ) );
                 }
             }
         }
@@ -5868,11 +5864,11 @@ void move_characters( void )
 void chop_load( Uint16 profile, const char *szLoadname )
 {
     // ZZ> This function reads a naming file
-    FILE *fileread;
+    vfs_FILE *fileread;
     int   section, chopinsection;
     char  tmp_chop[32];
 
-    fileread = fopen( szLoadname, "r" );
+    fileread = vfs_openRead( szLoadname );
     if ( NULL == fileread ) return;
 
     section = 0;
@@ -5919,7 +5915,7 @@ void chop_load( Uint16 profile, const char *szLoadname )
         CapList[profile].chop_sectionstart[section] = chop.count - chopinsection;
     }
 
-    fclose( fileread );
+    vfs_close( fileread );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -6015,7 +6011,7 @@ bool_t chr_instance_init( chr_instance_t * pinst, Uint16 profile, Uint8 skin )
     pinst->redshift  = redsave;
     pinst->blushift  = bluesave;
 
-    pinst->frame_nxt = pmad->md2.framestart;
+    pinst->frame_nxt = pmad->md2_data.framestart;
     pinst->frame_lst = pinst->frame_nxt;
 
     // Set up initial fade in lighting
@@ -6041,11 +6037,11 @@ bool_t chr_instance_init( chr_instance_t * pinst, Uint16 profile, Uint8 skin )
 //--------------------------------------------------------------------------------------------
 grip_offset_t slot_to_grip_offset( slot_t slot )
 {
-    grip_offset_t retval = GRIP_ORIGIN;
+    int retval = GRIP_ORIGIN;
 
     retval = ( slot + 1 ) * GRIP_VERTS;
 
-    return retval;
+    return (grip_offset_t)retval;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -6173,7 +6169,7 @@ const char * chr_get_name( Uint16 ichr )
     static STRING szName;
 
     // the default name
-    strcpy( szName, "Unknown" );
+    strncpy( szName, "Unknown", SDL_arraysize(szName) );
 
     if ( VALID_CHR(ichr) )
     {
@@ -6181,7 +6177,7 @@ const char * chr_get_name( Uint16 ichr )
 
         if ( pchr->nameknown )
         {
-            sprintf( szName, "%s", pchr->name );
+            snprintf( szName, SDL_arraysize( szName), "%s", pchr->name );
         }
         else
         {
@@ -6194,7 +6190,7 @@ const char * chr_get_name( Uint16 ichr )
                 article = "an";
             }
 
-            sprintf( szName, "%s %s", article, CapList[pchr->model].classname );
+            snprintf( szName, SDL_arraysize( szName), "%s %s", article, CapList[pchr->model].classname );
         }
     }
 
@@ -6204,7 +6200,50 @@ const char * chr_get_name( Uint16 ichr )
     return szName;
 }
 
+//--------------------------------------------------------------------------------------------
+Mix_Chunk * chr_get_chunk( Uint16 ichr, int index )
+{
+	if( INVALID_CHR(ichr) ) return NULL;
+	if( INVALID_MAD(ChrList.lst[ichr].inst.imad) ) return NULL;
+	if( index < 0 || index >= MAX_WAVE ) return NULL;
 
+	return MadList[ChrList.lst[ichr].inst.imad].wavelist[index];
+}
+
+//--------------------------------------------------------------------------------------------
+Mix_Chunk * chr_get_chunk_ptr( chr_t * pchr, int index )
+{
+	if( NULL == pchr || !pchr->on ) return NULL;
+	if( INVALID_MAD(pchr->inst.imad) ) return NULL;
+	if( index < 0 || index >= MAX_WAVE ) return NULL;
+
+	return MadList[pchr->inst.imad].wavelist[index];
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t release_one_cap( Uint16 icap )
+{
+	int tnc;
+	cap_t * pcap;
+
+	if( !VALID_CAP_RANGE(icap) ) return bfalse;
+	pcap = CapList + icap;
+
+	if( !pcap->loaded ) return btrue;
+
+    memset( pcap, 0, sizeof(cap_t) );
+
+    for ( tnc = 0; tnc < MAXSECTION; tnc++ )
+    {
+        pcap->chop_sectionstart[tnc] = MAXCHOP;
+        pcap->chop_sectionsize[tnc]  = 0;
+    }
+
+	pcap->loaded  = bfalse;
+	pcap->name[0] = '\0';
+
+	return btrue;
+}
 
 //--------------------------------------------------------------------------------------------
 /*Uint16 get_target_in_block( int x, int y, Uint16 character, char items,

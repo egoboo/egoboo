@@ -45,6 +45,12 @@ static void writeLogMessage( const char *prefix, const char *format, va_list arg
         vsnprintf( logBuffer, MAX_LOG_MESSAGE - 1, format, args );
         fputs( prefix, logFile );
         fputs( logBuffer, logFile );
+
+#if defined(_CONSOLE) && defined(_DEBUG) && defined(LOG_TO_CONSOLE)
+        fputs( prefix, stdout );
+        fputs( logBuffer, stdout );
+#endif
+
         fflush( logFile );
     }
 }

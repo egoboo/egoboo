@@ -61,5 +61,6 @@
 
 #undef  RENDER_HMAP           // render the mesh's heightmap?
 #undef  DEBUG_MESH_NORMALS    // render the mesh normals
+#define LOG_TO_CONSOLE
 
 #define EGOBOO_CONFIG

@@ -215,7 +215,7 @@ ConfigFile_retval ConfigFileString_destroy(char ** ptmp )
 //--------------------------------------------------------------------------------------------
 char * ConfigFileString_resize(char * str, size_t new_len )
 {
-    size_t old_len = sizeof( str );
+	size_t old_len = (NULL == str || '\0' == *str) ? 0 : strlen( str );
 
     // if value already exist, verify if allocated memory is enough
     // if not allocate more memory
@@ -452,7 +452,7 @@ ConfigFile_retval ConfigFile_ReadValue( ConfigFilePtr_t pConfigFile, ConfigFileV
                     // allocate memory for value
                     pValue->Value = CONFIG_NEW_ARY( char, lLengthName + 1 );
                     // copy string
-                    strcpy( pValue->Value, lTempStr );
+                    strncpy( pValue->Value, lTempStr, lLengthName + 1 );
                     // exit scan
                     lEndScan = 1;
                 }
@@ -527,7 +527,7 @@ ConfigFile_retval ConfigFile_ReadCommentary( ConfigFilePtr_t pConfigFile, Config
                     // allocate memory for commentary
                     pValue->Commentary = CONFIG_NEW_ARY( char, lLengthName + 1 );
                     // copy string
-                    strcpy( pValue->Commentary, lTempStr );
+                    strncpy( pValue->Commentary, lTempStr, lLengthName );
                     // exit scan
                     lEndScan = 1;
                 }
@@ -578,11 +578,14 @@ ConfigFilePtr_t ConfigFile_open( ConfigFilePtr_t pConfigFile, const char *szFile
 
     // open a file stream for access using the szAttribute attribute
     lTempFile = fopen( szFileName, szAttribute );
-    if ( NULL == lTempFile  ) return pConfigFile;
+    if ( NULL == lTempFile  ) 
+    {
+        return pConfigFile;
+    }
 
     // assign the file info
     pConfigFile->f = lTempFile;
-    strncpy(pConfigFile->filename, szFileName, sizeof(pConfigFile->filename));
+    strncpy(pConfigFile->filename, szFileName, SDL_arraysize(pConfigFile->filename));
 
     return pConfigFile;
 }
@@ -599,6 +602,7 @@ ConfigFile_retval ConfigFile_read( ConfigFilePtr_t pConfigFile )
     Sint32  lError = 0;
     Sint32  lState = 0;
     char    lc;
+
     if ( NULL == pConfigFile ) return ConfigFile_fail;
     if ( NULL == pConfigFile->f || feof(pConfigFile->f) ) return ConfigFile_fail;
 
@@ -830,7 +834,7 @@ ConfigFile_retval ConfigFile_GetValue_String( ConfigFilePtr_t pConfigFile, const
     }
     else
     {
-        strcpy( pValue, pConfigFile->CurrentValue->Value );
+        strncpy( pValue, pConfigFile->CurrentValue->Value, pValueBufferLength );
     }
 
     return ConfigFile_succeed;
@@ -907,8 +911,8 @@ ConfigFile_retval ConfigFile_SetValue_String( ConfigFilePtr_t pConfigFile, const
     }
 
     // make sure section name and key name are made of valid char
-    strcpy( lNewSectionName, pSection );
-    strcpy( lNewKeyName, pKey );
+    strncpy( lNewSectionName, pSection, sizeof(lNewSectionName) );
+    strncpy( lNewKeyName, pKey, sizeof(lNewKeyName) );
     ConfigFileString_Encode( lNewSectionName );
     ConfigFileString_Encode( lNewKeyName );
 
@@ -919,12 +923,12 @@ ConfigFile_retval ConfigFile_SetValue_String( ConfigFilePtr_t pConfigFile, const
         lTempSection = ConfigFileSection_create();
         lTempSection->NextSection = pConfigFile->ConfigSectionList;
         pConfigFile->ConfigSectionList = lTempSection;
-        strcpy( lTempSection->SectionName, lNewSectionName );
+        strncpy( lTempSection->SectionName, lNewSectionName, sizeof(lTempSection->SectionName) );
 
         // create the new value
         lTempValue = ConfigFileValue_create();
         lTempSection->FirstValue = lTempValue;
-        strcpy( lTempValue->KeyName, lNewKeyName );
+        strncpy( lTempValue->KeyName, lNewKeyName, sizeof(lTempValue->KeyName) );
 
         // set current section and value
         pConfigFile->CurrentSection = lTempSection;
@@ -941,7 +945,7 @@ ConfigFile_retval ConfigFile_SetValue_String( ConfigFilePtr_t pConfigFile, const
             lTempValue = ConfigFileValue_create();
             lTempValue->NextValue = pConfigFile->CurrentSection->FirstValue;
             pConfigFile->CurrentSection->FirstValue = lTempValue;
-            strcpy( lTempValue->KeyName, lNewKeyName );
+            strncpy( lTempValue->KeyName, lNewKeyName, sizeof(lTempValue->KeyName) );
 
             // set current section and value
             pConfigFile->CurrentValue = lTempValue;
@@ -959,7 +963,7 @@ ConfigFile_retval ConfigFile_SetValue_String( ConfigFilePtr_t pConfigFile, const
         pConfigFile->CurrentValue->Value = ConfigFileString_resize(pConfigFile->CurrentValue->Value, lLengthNewValue + 1 );
     }
 
-    strncpy( pConfigFile->CurrentValue->Value, pValue, lLengthNewValue );
+    strncpy( pConfigFile->CurrentValue->Value, pValue, lLengthNewValue + 1 );
 
     return ConfigFile_succeed;
 }
@@ -986,7 +990,7 @@ ConfigFile_retval ConfigFile_SetValue_Int( ConfigFilePtr_t pConfigFile, const ch
 {
     static char lIntStr[16];
 
-    snprintf( lIntStr, sizeof( lIntStr ), "%i", pInt );
+    snprintf( lIntStr, SDL_arraysize( lIntStr ), "%i", pInt );
     return ConfigFile_SetValue_String( pConfigFile, pSection, pKey, lIntStr );
 }
 
@@ -997,7 +1001,7 @@ ConfigFile_retval ConfigFile_SetValue_Float( ConfigFilePtr_t pConfigFile, const 
 {
     static char lFloatStr[16];
 
-    snprintf( lFloatStr, sizeof( lFloatStr ), "%f", pFloat );
+    snprintf( lFloatStr, SDL_arraysize( lFloatStr ), "%f", pFloat );
     return ConfigFile_SetValue_String( pConfigFile, pSection, pKey, lFloatStr );
 }
 
@@ -1141,11 +1145,12 @@ ConfigFile_retval SaveConfigFileAs( ConfigFilePtr_t pConfigFile, const char *szF
 {
     ConfigFile_retval retval;
     char old_filename[256];
+
     if (NULL == pConfigFile) return ConfigFile_fail;
     if (NULL == szFileName || '\0' == szFileName) return ConfigFile_fail;
 
     // save the original filename
-    strncpy( old_filename, pConfigFile->filename, sizeof(old_filename) );
+    strncpy( old_filename, pConfigFile->filename, SDL_arraysize(old_filename) );
 
     // try to open the target file
     if ( !ConfigFile_open( pConfigFile, szFileName, "wt" ) )
@@ -1160,7 +1165,7 @@ ConfigFile_retval SaveConfigFileAs( ConfigFilePtr_t pConfigFile, const char *szF
     ConfigFile_close( pConfigFile );
 
     // restore the old filename info
-    strncpy( pConfigFile->filename, old_filename, sizeof(old_filename) );
+    strncpy( pConfigFile->filename, old_filename, SDL_arraysize(old_filename) );
 
     return retval;
 }

@@ -24,6 +24,7 @@
 
 #include "file_common.h"
 
+#include "egoboo_vfs.h"
 #include "egoboo_config.h"
 
 #include <stdio.h>
@@ -33,16 +34,16 @@
 #endif
 
 // FIXME: Doesn't handle deleting directories recursively yet.
-void fs_removeDirectoryAndContents( const char *dirname )
+void fs_removeDirectoryAndContents( const char *dirname, int recursive )
 {
     // ZZ> This function deletes all files in a directory,
     //    and the directory itself
+
     char filePath[MAX_PATH];
     const char *fileName;
 
     // List all the files in the directory
     fileName = fs_findFirstFile( dirname, NULL );
-
     while ( fileName != NULL )
     {
         // Ignore files that start with a ., like .svn for example.
@@ -51,14 +52,16 @@ void fs_removeDirectoryAndContents( const char *dirname )
             snprintf( filePath, MAX_PATH, "%s" SLASH_STR "%s", dirname, fileName );
             if ( fs_fileIsDirectory( filePath ) )
             {
-                // fs_removeDirectoryAndContents(filePath);
+                if( recursive )
+                {
+                    fs_removeDirectoryAndContents(filePath, recursive);
+                }
             }
             else
             {
                 fs_deleteFile( filePath );
             }
         }
-
         fileName = fs_findNextFile();
     }
 

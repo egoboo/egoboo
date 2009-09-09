@@ -1,4 +1,5 @@
 #include "SDL_md2.h"
+#include "egoboo_vfs.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -339,7 +340,7 @@ SDL_md2_model_t * SDL_md2_load_RW( SDL_RWops * rw, SDL_md2_model_t * pdata )
     if ( MD2_MAGIC_NUMBER != pdata->header.ident )
     {
         /* Error! */
-        sprintf ( error_str, "Error: bad identifier\n");
+        sprintf( error_str, "Error: bad identifier\n");
         goto load_SDL_md2_model_RW_error;
     }
 
@@ -385,11 +386,11 @@ load_SDL_md2_model_RW_error:
 //    SDL_md2_free( mdl );
 
 //    // try to open the file
-//    if( NULL == filename || '\0' == *filename ) return NULL;
+//    if( INVALID_CSTR(filename) ) return NULL;
 //  rw = SDL_RWFromFile (filename, "rb");
 //  if (NULL == rw)
 //  {
-//      sprintf ( error_str, "Error: couldn't open \"%s\"!\n", filename );
+//      snprintf( error_str, SDL_arraysize( error_str), "Error: couldn't open \"%s\"!\n", filename );
 //      goto SDL_md2_load_error;
 //  }
 
@@ -400,7 +401,7 @@ load_SDL_md2_model_RW_error:
 //    return mdl;
 
 //SDL_md2_load_error:
-//    fprintf (stderr, "%s", error_str);
+//    vfs_printf (stderr, "%s", error_str);
 //    SDL_RWclose(rw);
 //    return mdl;
 //}

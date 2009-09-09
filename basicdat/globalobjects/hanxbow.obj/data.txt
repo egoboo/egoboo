@@ -1,9 +1,9 @@
 // Real general data
-Object slot number ( 0 to 63, don't use twice )	: 66
-Object class name ( use underscore for spaces ) : Shield
+Object slot number ( 0 to 63, don't use twice )	: -1
+Object class name ( use underscore for spaces ) : Crossbow
 Object is lit uniformly ( TRUE or FALSE )	: FALSE
-Maximum ammo ( 0 for doesn't matter )		: 0
-Starting ammo ( 0 for doesn't matter )		: 0
+Maximum ammo ( 0 for doesn't matter )		: 50
+Starting ammo ( 0 for doesn't matter )		: 50
 Gender ( MALE or FEMALE or OTHER )		: OTHER
 
 
@@ -29,7 +29,7 @@ Dexterity increase per level ( eg. 0-1 )	: 0
 
 
 // More physical attributes
-Size ( eg. 1.0 )				: 1.0
+Size ( eg. 1.0 )				: .75
 Size increase per level ( eg. 0.05 )		: 0.05
 Shadow size ( eg. 30, 0 is none )		: 15
 Bump size ( eg. 30 )				: 1
@@ -46,7 +46,7 @@ Flashing AND ( 1, 3, 7, 15...  255 is don't )	: 255
 Transparency blending ( 255 is normal )		: 255
 Light blending ( 255 is normal )		: 255
 Transfer blending to weapons ( TRUE or FALSE )	: FALSE
-Sheen ( 0 - 15, 0 is dull, 15 is shiny )	: 6
+Sheen ( 0 - 15, 0 is dull, 15 is shiny )	: 0
 Phong mapping ( TRUE or FALSE )			: FALSE
 Texture X movement rate ( eg. 0.0 )		: 0.0
 Texture Y movement rate ( eg. 0.0 )		: 0.0
@@ -58,7 +58,7 @@ Object is totally invincible ( TRUE or FALSE )	: TRUE
 NonIFrame Invulnerability facing ( 0 to 65535 )	: 0
 NonIFrame Invulnerability angle ( 0 to 32768 )	: 0
 IFrame Invulnerability facing ( 0 to 65535 )	: 0
-IFrame Invulnerability angle ( 0 to 32768 )	: 14000
+IFrame Invulnerability angle ( 0 to 32768 )	: 32768
 
 
 // Skin defenses
@@ -102,10 +102,10 @@ Experience rate... Talking in character ( 1.0 )	: 1.0
 
 
 // IDSZ Identification tags ( [NONE] is valid )
-Parent ID ( eg. [FROG] for Trogs )		: [SHIE]
-Type ID ( eg. [TROG] for Trogs )		: [MAGI]
+Parent ID ( eg. [FROG] for Trogs )		: [XBOW]
+Type ID ( eg. [TROG] for Trogs )		: [WOOD]
 Skill ID ( eg. [WMAG] for wizard spells )	: [NONE]
-Special ID ( eg. [SUM0] for animated bones )	: [NONE]
+Special ID ( eg. [SUM0] for animated bones )	: [XWEP]
 Hate group ID ( eg. [GOBL] for dwarves )	: [NONE]
 Vuilnerability ID ( eg. [SILV] for werewolves )	: [NONE]
 
@@ -125,10 +125,10 @@ Object can open chests/doors ( TRUE or FALSE )	: FALSE
 
 // Other item and damage stuff
 DamageTarget type ( SLASH, CRUSH, POKE, HOLY,
-                    EVIL, FIRE, ICE, or ZAP )	: CRUSH
+                    EVIL, FIRE, ICE, or ZAP )	: POKE
 Attack type if it's a weapon ( UNARMED, THRUST,
                      SLICE, CHOP, BASH, LONGBOW,
-                     XBOW, FLINGED, PARRY, ZAP)	: PARRY
+                     XBOW, FLINGED, PARRY, ZAP)	: XBOW
 
 
 // Particle attachments
@@ -145,7 +145,7 @@ Right grip valid ( TRUE or FALSE )		: TRUE
 
 // Particle spawning on attack order ( for weapon characters )
 Particle attached to weapon ( TRUE or FALSE )	: FALSE
-Particle type ( 0 to 3 )			: -1
+Particle type ( 0 to 3 )			: 0
 
 
 // Particle spawning for GoPoof
@@ -154,8 +154,8 @@ Facing add for each one ( 0 to 65535 )		: 0
 Particle type ( 0 to 3 )			: 0
 
 
-// Particle spawning for Blud ( If you want it, you put it in... )
-Blud valid ( TRUE or FALSE )			: FALSE
+// Particle spawning for Blood ( If you want it, you put it in... )
+Blood valid ( TRUE or FALSE )			: FALSE
 Particle type ( 0 to 3 )			: 0
 
 
@@ -173,7 +173,7 @@ Skin Name 0 ( use underscores for spaces )	: Skin_0
 Skin Name 1 ( use underscores for spaces )	: Skin_1
 Skin Name 2 ( use underscores for spaces )	: Skin_2
 Skin Name 3 ( use underscores for spaces )	: Skin_3
-Skin Cost 0 ( 0 to 65535 )			: 500
+Skin Cost 0 ( 0 to 65535 )			: 0
 Skin Cost 1 ( 0 to 65535 )			: 0
 Skin Cost 2 ( 0 to 65535 )			: 0
 Skin Cost 3 ( 0 to 65535 )			: 0
@@ -190,6 +190,10 @@ Can see invisible ( TRUE or FALSE )		: FALSE
 Chance of being cursed ( 0 to 100 )		: 0
 Sound of Footfall ( -1 for none )		: -1
 Sound of Jump ( -1 for none )			: -1
+
+
+// Expansions
+:[RANG]	1	// Ranged weapon
 
 
 //-Notes------------------------------------------------------------------------

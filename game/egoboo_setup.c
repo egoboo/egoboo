@@ -33,6 +33,10 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+static STRING _config_filename = { '\0' };
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 // Macros for reading values from a ConfigFile
 //  - Must have a valid ConfigFilePtr_t named lConfigSetup
 //  - Must have a string named lCurSectionName to define the section
@@ -75,9 +79,9 @@
 //--------------------------------------------------------------------------------------------
 
 static ConfigFilePtr_t lConfigSetup = NULL;
+static egoboo_config_t cfg_default;
 
 egoboo_config_t cfg;
-egoboo_config_t cfg_default;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -127,8 +131,8 @@ void egoboo_config_init()
     // {NETWORK}
     cfg_default.network_allowed       = bfalse;            // Try to connect?
     cfg_default.network_lag           = 2;                             // Lag tolerance
-    strcpy( cfg_default.network_hostname,    "no host"     );                            // Name for hosting session
-    strcpy( cfg_default.network_messagename, "little Raoul");                         // Name for messages
+    strncpy( cfg_default.network_hostname,    "no host",      SDL_arraysize(cfg_default.network_hostname)   );                            // Name for hosting session
+    strncpy( cfg_default.network_messagename, "little Raoul", SDL_arraysize(cfg_default.network_messagename));                         // Name for messages
 
     // {DEBUG}
     cfg_default.fps_allowed       = btrue;             // FPS displayed?
@@ -151,7 +155,11 @@ bool_t setup_read( const char* filename )
 {
     // BB> read the setup file
 
-    lConfigSetup = LoadConfigFile( filename );
+	if( INVALID_CSTR(filename) ) return bfalse;
+
+	strncpy( _config_filename, filename, SDL_arraysize(_config_filename) );
+
+    lConfigSetup = LoadConfigFile( vfs_resolveReadFilename( _config_filename ) );
 
     return NULL != lConfigSetup;
 }
@@ -161,7 +169,9 @@ bool_t setup_write()
 {
     // BB> save the current setup file
 
-    return ConfigFile_succeed == SaveConfigFile( lConfigSetup );
+	if( INVALID_CSTR(_config_filename) ) return bfalse;
+
+    return ConfigFile_succeed == SaveConfigFileAs( lConfigSetup, vfs_resolveWriteFilename( _config_filename ) );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -173,7 +183,7 @@ bool_t setup_download(egoboo_config_t * pcfg)
     char  *lCurSectionName;
     bool_t lTempBool;
     Sint32 lTempInt;
-    char   lTempStr[256];
+    STRING lTempStr;
 
     if (NULL == lConfigSetup || NULL == pcfg) return bfalse;
 
@@ -575,25 +585,25 @@ bool_t setup_upload( egoboo_config_t * pcfg )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static void export_control( FILE * filewrite, const char * text, Sint32 device, control_t * pcontrol )
+static void export_control( vfs_FILE * filewrite, const char * text, Sint32 device, control_t * pcontrol )
 {
     STRING write;
 
-    snprintf( write, sizeof(write), "%s : %s\n", text, scantag_get_string(device, pcontrol->tag, pcontrol->is_key) );
-    fputs( write, filewrite );
+    snprintf( write, SDL_arraysize(write), "%s : %s\n", text, scantag_get_string(device, pcontrol->tag, pcontrol->is_key) );
+    vfs_puts( write, filewrite );
 }
 
 //--------------------------------------------------------------------------------------------
 bool_t input_settings_load( const char *szFilename )
 {
     // ZZ> This function reads the controls.txt file
-    FILE* fileread;
+    vfs_FILE* fileread;
     char currenttag[TAGSIZE];
     int i, cnt;
 
     parse_filename = "";
 
-    fileread = fopen( szFilename, "r" );
+    fileread = vfs_openRead( szFilename );
     if (NULL == fileread)
     {
         log_error("Could not load input settings (%s)!\n", szFilename);
@@ -627,7 +637,7 @@ bool_t input_settings_load( const char *szFilename )
     input_device_count++;
 
     // read in however many joysticks there are...
-    for ( cnt = 0; !feof(fileread) && cnt < MAXJOYSTICK; cnt++ )
+    for ( cnt = 0; !vfs_eof(fileread) && cnt < MAXJOYSTICK; cnt++ )
     {
         for (i = JOY_CONTROL_BEGIN; i <= JOY_CONTROL_END; i++)
         {
@@ -640,7 +650,7 @@ bool_t input_settings_load( const char *szFilename )
         input_device_count++;
     }
 
-    fclose( fileread );
+    vfs_close( fileread );
     parse_filename = "";
 
     return btrue;
@@ -651,11 +661,11 @@ bool_t input_settings_save( const char* szFilename)
 {
     // ZF> This function saves all current game settings to "controls.txt"
     device_controls_t * pdevice;
-    FILE* filewrite;
+    vfs_FILE* filewrite;
     STRING write;
     Uint32 i;
 
-    filewrite = fopen( szFilename, "w" );
+    filewrite = vfs_openWrite( szFilename );
     if ( NULL == filewrite )
     {
         log_warning("Could not save input settings (%s)!\n", szFilename);
@@ -663,29 +673,29 @@ bool_t input_settings_save( const char* szFilename)
     }
 
     // Just some information
-    fputs( "Controls\n", filewrite );
-    fputs( "========\n", filewrite );
-    fputs( "This file lets users modify the handling of input devices.\n", filewrite );
-    fputs( "See the game manual for a list of settings and more info.\n", filewrite );
-    fputs( "Note that you can mix KEY_ type settings with other \n", filewrite );
-    fputs( "devices... Write the input after the colons!\n\n", filewrite );
+    vfs_puts( "Controls\n", filewrite );
+    vfs_puts( "========\n", filewrite );
+    vfs_puts( "This file lets users modify the handling of input devices.\n", filewrite );
+    vfs_puts( "See the game manual for a list of settings and more info.\n", filewrite );
+    vfs_puts( "Note that you can mix KEY_ type settings with other \n", filewrite );
+    vfs_puts( "devices... Write the input after the colons!\n\n", filewrite );
 
-    fputs( "General Controls\n", filewrite );
-    fputs( "========\n", filewrite );
-    fputs( "These are general controls and cannot be changed\n", filewrite );
-    fputs( "ESC                   - End module\n", filewrite );
-    fputs( "SPACE                 - Respawn character (if dead and possible)\n", filewrite );
-    fputs( "1 to 7                - Show character detailed stats\n", filewrite );
-    fputs( "ATK_LEFT SHIFT   + 1 to 7 - Show selected character armor without magic enchants\n", filewrite );
-    fputs( "ATK_LEFT CONTROL + 1 to 7 - Show armor stats with magic enchants included\n", filewrite );
-    fputs( "ATK_LEFT ALT     + 1 to 7 - Show character magic enchants\n", filewrite );
-    fputs( "F11                   - Take screenshot\n", filewrite );
-    fputs( "\n", filewrite );
+    vfs_puts( "General Controls\n", filewrite );
+    vfs_puts( "========\n", filewrite );
+    vfs_puts( "These are general controls and cannot be changed\n", filewrite );
+    vfs_puts( "ESC                   - End module\n", filewrite );
+    vfs_puts( "SPACE                 - Respawn character (if dead and possible)\n", filewrite );
+    vfs_puts( "1 to 7                - Show character detailed stats\n", filewrite );
+    vfs_puts( "ATK_LEFT SHIFT   + 1 to 7 - Show selected character armor without magic enchants\n", filewrite );
+    vfs_puts( "ATK_LEFT CONTROL + 1 to 7 - Show armor stats with magic enchants included\n", filewrite );
+    vfs_puts( "ATK_LEFT ALT     + 1 to 7 - Show character magic enchants\n", filewrite );
+    vfs_puts( "F11                   - Take screenshot\n", filewrite );
+    vfs_puts( "\n", filewrite );
 
     // The actual settings
     pdevice = controls + INPUT_DEVICE_KEYBOARD;
-    fputs( "Keyboard\n", filewrite );
-    fputs( "========\n", filewrite );
+    vfs_puts( "Keyboard\n", filewrite );
+    vfs_puts( "========\n", filewrite );
     export_control( filewrite, "Jump\t\t\t\t", pdevice->device, pdevice->control + CONTROL_JUMP );
     export_control( filewrite, "Left Hand Use\t\t", pdevice->device, pdevice->control + CONTROL_LEFT_USE );
     export_control( filewrite, "Left Hand Get/Drop\t", pdevice->device, pdevice->control + CONTROL_LEFT_GET );
@@ -704,8 +714,8 @@ bool_t input_settings_save( const char* szFilename)
     export_control( filewrite, "Right\t\t\t\t", pdevice->device, pdevice->control + CONTROL_RIGHT );
 
     pdevice = controls + INPUT_DEVICE_MOUSE;
-    fputs( "\n\nMouse\n", filewrite );
-    fputs( "========\n", filewrite );
+    vfs_puts( "\n\nMouse\n", filewrite );
+    vfs_puts( "========\n", filewrite );
     export_control( filewrite, "Jump\t\t\t\t", pdevice->device, pdevice->control + CONTROL_JUMP );
     export_control( filewrite, "Left Hand Use\t\t", pdevice->device, pdevice->control + CONTROL_LEFT_USE );
     export_control( filewrite, "Left Hand Get/Drop\t", pdevice->device, pdevice->control + CONTROL_LEFT_GET );
@@ -720,9 +730,9 @@ bool_t input_settings_save( const char* szFilename)
     {
         pdevice = controls + i;
 
-        snprintf( write, sizeof(write), "\n\nJoystick %d\n", i - INPUT_DEVICE_JOY );
-        fputs( write, filewrite );
-        fputs( "========\n", filewrite );
+        snprintf( write, SDL_arraysize(write), "\n\nJoystick %d\n", i - INPUT_DEVICE_JOY );
+        vfs_puts( write, filewrite );
+        vfs_puts( "========\n", filewrite );
         export_control( filewrite, "Jump\t\t\t\t", pdevice->device, pdevice->control + CONTROL_JUMP );
         export_control( filewrite, "Left Hand Use\t\t", pdevice->device, pdevice->control + CONTROL_LEFT_USE );
         export_control( filewrite, "Left Hand Get/Drop\t", pdevice->device, pdevice->control + CONTROL_LEFT_GET );
@@ -734,7 +744,7 @@ bool_t input_settings_save( const char* szFilename)
     }
 
     // All done
-    fclose(filewrite);
+    vfs_close(filewrite);
 
     return btrue;
 }

@@ -119,12 +119,12 @@ bool_t link_follow_modname( const char * modname, bool_t push_current_module )
 //--------------------------------------------------------------------------------------------
 bool_t link_build( const char * fname, Link_t list[] )
 {
-    FILE * pfile;
+    vfs_FILE * pfile;
     int i;
 
     if ( !VALID_CSTR(fname) ) return bfalse;
 
-    pfile = fopen( fname, "r" );
+    pfile = vfs_openRead( fname );
     if ( NULL == pfile ) return bfalse;
 
     i = 0;

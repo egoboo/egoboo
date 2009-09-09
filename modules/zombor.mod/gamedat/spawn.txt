@@ -12,8 +12,10 @@ healer:   NONE    29  34.0   24.25   1.0   N    6   1  0   0   0   F   F   G
 
 //Necromancer boss
 nercomancer:   NONE    45  13.0   33.0   1.0   N    128   0  0   0   0   T   F   E
-  SCYTHE MODE   NONE    59  14.0   48.0   2.0   L    0   0  0   0   0   F   F   N
-SHOCK SPELL MODE: NONE    54  14.0   48.0   2.0   L    0   0  0   0   0   F   F   N
+  //SCYTHE MODE
+  Scythe   NONE    59  14.0   48.0   2.0   L    0   0  0   0   0   F   F   N
+  //SHOCK SPELL MODE  
+  Shock: NONE    54  14.0   48.0   2.0   L    0   0  0   0   0   F   F   N
   unknown:   NONE    34  14.0   48.0   2.0   R    0   0  0   0   0   F   F   N
   unknown:   NONE    31  14.0   48.0   2.0   I    0   0  0   0   0   F   F   N
 
@@ -31,7 +33,7 @@ knight:   NONE    36  12.0   46.0   1.0   N    14   0  0   0   0   F   F   G
 unknown:   NONE    32  14.0   48.0   1.0   N    0   0  0   0   0   F   F   N
 unknown:   NONE    35  12.0   46.0   1.0   N    6   0  0   0   0   F   F   G
   shock:   NONE    54  14.0   48.0   2.0   R    0   0  0   0   0   F   F   N
-  unknown:   NONE    30  14.0   48.0   2.0   L    0   0  0   0   0   F   F   N
+  Torch:   NONE    30  14.0   48.0   2.0   L    0   0  0   0   0   F   F   N
 shutdoor:   NONE    46  28.0   48.0   1.0   N    0   0  2   0   0   F   F   N
 shutdoor:   NONE    46  23.0   39.0   1.0   N    0   0  0   0   0   F   F   N
 shutdoor:   NONE    46  42.0   44.0   1.0   E    0   0  6   0   0   F   F   N
@@ -53,7 +55,7 @@ chest:   NONE    49  48.5   50.5   1.0   W    0   0  0   0   0   F   F   N
   tranch:   NONE    37  48.5   46.5   1.0   I    0   0  0   0   0   F   F   G
   claw:   NONE    41  14.0   48.0   2.0   I    0   0  0   0   0   F   F   N
 unknown:   NONE    35  34.5   42.5   1.0   N    3   0  0   0   0   F   F   G
-  unknown:   NONE    30  14.0   48.0   2.0   R    0   0  0   0   0   F   F   N
+  Torch:   NONE    30  14.0   48.0   2.0   R    0   0  0   0   0   F   F   N
 unknown:   NONE    35  36.5   42.5   1.0   N    4   0  0   0   0   F   F   G
   claw:   NONE    41  14.0   48.0   2.0   R    0   0  0   0   0   F   F   N
 unknown:   NONE    35  35.5   42.5   1.0   N    5   0  0   0   0   F   F   G
@@ -96,7 +98,7 @@ grubbug:   NONE    48  13.0   9.0   1.0   N    0   0  0   0   0   F   F   V
 grubbug:   NONE    48  13.0   11.0   1.0   N    0   0  0   0   0   F   F   V
 grubbug:   NONE    48  14.0   10.0   1.0   N    0   0  0   0   0   F   F   V
 chest:   NONE    49  11.5   12.5   1.0   E    19   0  0   0   0   F   F   N
-  unknown:   NONE    30  14.0   48.0   2.0   I    0   0  0   0   0   F   F   N
+  Torch:   NONE    30  14.0   48.0   2.0   I    0   0  0   0   0   F   F   N
 chest:   NONE    49  48.5   17.5   1.0   S    0   0  0   0   0   F   F   N
   spotion:   NONE    55  14.0   48.0   2.0   I    0   0  0   0   0   F   F   N
   Scimitar:   NONE    53  14.0   48.0   2.0   I    0   0  0   0   0   F   F   N

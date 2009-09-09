@@ -1898,7 +1898,7 @@ Uint8 scr_PlaySound( script_state_t * pstate, ai_state_t * pself )
     // This function plays a sound
     if ( pchr->pos_old.z > PITNOSOUND && VALID_SND( pstate->argument ) )
     {
-        sound_play_chunk( pchr->pos_old, CapList[pchr->model].wavelist[pstate->argument] );
+        sound_play_chunk( pchr->pos_old, chr_get_chunk_ptr(pchr, pstate->argument) );
     }
 
     SCRIPT_FUNCTION_END();
@@ -3178,18 +3178,12 @@ Uint8 scr_DebugMessage( script_state_t * pstate, ai_state_t * pself )
     // DebugMessage()
     // This function spits out some useful numbers
 
-    char cTmp[256];
-
     SCRIPT_FUNCTION_BEGIN();
 
-    sprintf( cTmp, "aistate %d, aicontent %d, target %d", pself->state, pself->content, pself->target );
-    debug_message( cTmp );
-    sprintf( cTmp, "tmpx %d, tmpy %d", pstate->x, pstate->y );
-    debug_message( cTmp );
-    sprintf( cTmp, "tmpdistance %d, tmpturn %d", pstate->distance, pstate->turn );
-    debug_message( cTmp );
-    sprintf( cTmp, "tmpargument %d, selfturn %d", pstate->argument, pchr->turn_z );
-    debug_message( cTmp );
+    debug_printf( "aistate %d, aicontent %d, target %d", pself->state, pself->content, pself->target );
+    debug_printf( "tmpx %d, tmpy %d", pstate->x, pstate->y );
+    debug_printf( "tmpdistance %d, tmpturn %d", pstate->distance, pstate->turn );
+    debug_printf( "tmpargument %d, selfturn %d", pstate->argument, pchr->turn_z );
 
     SCRIPT_FUNCTION_END();
 }
@@ -3779,40 +3773,36 @@ Uint8 scr_PlaySoundLooped( script_state_t * pstate, ai_state_t * pself )
     // PlaySoundLooped( tmpargument = "sound", tmpdistance = "frequency" )
 
     // This function starts playing a continuous sound
-    Uint16 icap;
+	Mix_Chunk * new_chunk;
 
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = 0;
-    icap = pchr->model;
-    if ( VALID_CAP(icap) && VALID_SND( pstate->argument ) )
+
+	new_chunk = chr_get_chunk_ptr( pchr, pstate->argument );
+
+    if ( NULL == new_chunk )
     {
-        Mix_Chunk * new_chunk;
-
-        new_chunk = CapList[icap].wavelist[pstate->argument];
-
-        if ( NULL == new_chunk )
-        {
-            looped_stop_object_sounds( pself->index );       // Stop existing sound loop (if any)
-        }
-        else
-        {
-            Mix_Chunk * playing_chunk = NULL;
-
-            // check whatever might be playing on the channel now
-            if ( -1 != pchr->loopedsound_channel )
-            {
-                playing_chunk = Mix_GetChunk(pchr->loopedsound_channel);
-            }
-
-            if ( playing_chunk != new_chunk )
-            {
-                pchr->loopedsound_channel = sound_play_chunk_looped(pchr->pos_old, new_chunk, -1, pself->index);
-            }
-        }
-
-        returncode = (-1 != pchr->loopedsound_channel);
+        looped_stop_object_sounds( pself->index );       // Stop existing sound loop (if any)
     }
+    else
+    {
+        Mix_Chunk * playing_chunk = NULL;
+
+        // check whatever might be playing on the channel now
+        if ( -1 != pchr->loopedsound_channel )
+        {
+            playing_chunk = Mix_GetChunk(pchr->loopedsound_channel);
+        }
+
+        if ( playing_chunk != new_chunk )
+        {
+            pchr->loopedsound_channel = sound_play_chunk_looped(pchr->pos_old, new_chunk, -1, pself->index);
+        }
+    }
+
+    returncode = (-1 != pchr->loopedsound_channel);
+
     SCRIPT_FUNCTION_END();
 }
 
@@ -4209,7 +4199,7 @@ Uint8 scr_PlaySoundVolume( script_state_t * pstate, ai_state_t * pself )
         iTmp = INVALID_SOUND;
         if ( VALID_SND( pstate->argument ) )
         {
-            iTmp = sound_play_chunk( pchr->pos_old, CapList[pchr->model].wavelist[pstate->argument] );
+            iTmp = sound_play_chunk( pchr->pos_old, chr_get_chunk_ptr(pchr, pstate->argument) );
         }
 
         if ( INVALID_SOUND != iTmp )
@@ -5077,7 +5067,7 @@ Uint8 scr_PlayFullSound( script_state_t * pstate, ai_state_t * pself )
     // This function plays a sound loud for everyone...  Victory music
     if ( VALID_SND( pstate->argument ) )
     {
-        sound_play_chunk( PCamera->track_pos, CapList[pchr->model].wavelist[pstate->argument] );
+        sound_play_chunk( PCamera->track_pos, chr_get_chunk_ptr(pchr,pstate->argument) );
     }
 
     SCRIPT_FUNCTION_END();
@@ -6303,12 +6293,9 @@ Uint8 scr_FollowLink( script_state_t * pstate, ai_state_t * pself )
 
     // Skips to the next module!
     returncode = link_follow_modname( ptext, btrue );
-
     if (!returncode)
     {
-        STRING tmpbuf;
-        snprintf(tmpbuf, sizeof(tmpbuf), "That's too scary for %s", pchr->name );
-        debug_message(tmpbuf);
+        debug_printf( "That's too scary for %s", pchr->name );
     }
 
     SCRIPT_FUNCTION_END();

@@ -60,7 +60,7 @@ void fs_init()
     // The save path goes into the user's ApplicationData directory,
     // according to Microsoft's standards.  Will people like this, or
     // should I stick saves someplace easier to find, like My Documents?
-    SHGetFolderPath( NULL, CSIDL_PERSONAL, NULL, 0, win32_savePath );
+    SHGetFolderPath( NULL, CSIDL_APPDATA, NULL, 0, win32_savePath );
     strncat( win32_savePath, SLASH_STR "egoboo" SLASH_STR, MAX_PATH );
 
     // Last, try and determine where the game data is.  First, try the working
@@ -126,7 +126,7 @@ int fs_fileIsDirectory( const char *filename )
     fileAttrs = GetFileAttributes( filename );
     fileAttrs = fileAttrs & FILE_ATTRIBUTE_DIRECTORY;
 
-    return fileAttrs;
+    return (0 != fileAttrs);
 }
 
 // Had to revert back to prog x code to prevent import/skin bug
@@ -212,44 +212,14 @@ const char *fs_findNextFile( void )
 // Close anything left open
 void fs_findClose()
 {
-    FindClose( win32_hFind );
-    win32_hFind = NULL;
+    if( NULL != win32_hFind )
+	{
+		FindClose( win32_hFind );
+		win32_hFind = NULL;
+	}
 }
 
 int DirGetAttrib( const char *fromdir )
 {
     return( GetFileAttributes( fromdir ) );
-}
-
-//---------------------------------------------------------------------------------------------
-void empty_import_directory( void )
-{
-    // ZZ> This function deletes all the TEMP????.OBJ subdirectories in the IMPORT directory
-    WIN32_FIND_DATA wfdData;
-    HANDLE hFind;
-    char searchName[MAX_PATH];
-    char filePath[MAX_PATH];
-    char *fileName;
-
-    // List all the files in the directory
-    _snprintf( searchName, MAX_PATH, "import" SLASH_STR "*.obj" );
-    hFind = FindFirstFile( searchName, &wfdData );
-
-    while ( hFind != NULL && hFind != INVALID_HANDLE_VALUE )
-    {
-        fileName = wfdData.cFileName;
-
-        // Ignore files that start with a ., like .svn for example.
-        if ( '.' != fileName[0] )
-        {
-            _snprintf( filePath, MAX_PATH, "import" SLASH_STR "%s", fileName );
-            if ( fs_fileIsDirectory( filePath ) )
-            {
-                fs_removeDirectoryAndContents( filePath );
-            }
-        }
-        if ( !FindNextFile( hFind, &wfdData ) ) break;
-    }
-
-    FindClose( hFind );
 }

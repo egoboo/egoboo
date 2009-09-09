@@ -31,6 +31,8 @@
 #include "module.h"
 #include "game.h"
 
+#include "egoboo_strutil.h"
+#include "egoboo_vfs.h"
 #include "egoboo_setup.h"
 #include "egoboo.h"
 
@@ -542,7 +544,7 @@ void net_copyFileToAllPlayersOld( const char *source, const char *dest )
     // ZZ> This function copies a file on the host to every remote computer.
     //    Packets are sent in chunks of COPYSIZE bytes.  The max file size
     //    that can be sent is 2 Megs ( TOTALSIZE ).
-    FILE* fileread;
+    vfs_FILE* fileread;
     int packetsize, packetstart;
     int filesize;
     int fileisdir;
@@ -551,7 +553,7 @@ void net_copyFileToAllPlayersOld( const char *source, const char *dest )
     log_info( "net_copyFileToAllPlayers: %s, %s\n", source, dest );
     if ( gnet.on && gnet.hostactive )
     {
-        fileisdir = fs_fileIsDirectory( source );
+        fileisdir = vfs_isDirectory( source );
         if ( fileisdir )
         {
             net_startNewPacket();
@@ -561,12 +563,11 @@ void net_copyFileToAllPlayersOld( const char *source, const char *dest )
         }
         else
         {
-            fileread = fopen( source, "rb" );
+            fileread = vfs_openReadB( source );
             if ( fileread )
             {
-                fseek( fileread, 0, SEEK_END );
-                filesize = ftell( fileread );
-                fseek( fileread, 0, SEEK_SET );
+                filesize = vfs_fileLength( fileread );
+                vfs_seek( fileread, 0 );
                 if ( filesize > 0 && filesize < TOTALSIZE )
                 {
                     packetsize = 0;
@@ -582,10 +583,10 @@ void net_copyFileToAllPlayersOld( const char *source, const char *dest )
                     while ( packetstart < filesize )
                     {
                         // This will probably work...
-                        // fread((packetbuffer + packethead), COPYSIZE, 1, fileread);
+                        // vfs_read((packetbuffer + packethead), COPYSIZE, 1, fileread);
 
                         // But I'll leave it alone for now
-                        fscanf( fileread, "%c", &cTmp );
+                        vfs_scanf( fileread, "%c", &cTmp );
 
                         packet_addUnsignedByte( cTmp );
                         packetsize++;
@@ -610,7 +611,7 @@ void net_copyFileToAllPlayersOld( const char *source, const char *dest )
                     net_sendPacketToAllPlayersGuaranteed();
                 }
 
-                fclose( fileread );
+                vfs_close( fileread );
             }
         }
     }
@@ -627,13 +628,13 @@ void net_copyFileToHost( const char *source, const char *dest )
     if ( gnet.hostactive )
     {
         // Simulate a network transfer
-        if ( fs_fileIsDirectory( source ) )
+        if ( vfs_isDirectory( source ) )
         {
-            fs_createDirectory( dest );
+            vfs_mkdir( dest );
         }
         else
         {
-            fs_copyFile( source, dest );
+            vfs_copyFile( source, dest );
         }
 
         return;
@@ -669,26 +670,26 @@ void net_copyFileToHostOld( const char *source, const char *dest )
     // ZZ> This function copies a file on the remote to the host computer.
     //    Packets are sent in chunks of COPYSIZE bytes.  The max file size
     //    that can be sent is 2 Megs ( TOTALSIZE ).
-    FILE* fileread;
+    vfs_FILE* fileread;
     int packetsize, packetstart;
     int filesize;
     int fileisdir;
     char cTmp;
 
     log_info( "net_copyFileToHost: " );
-    fileisdir = fs_fileIsDirectory( source );
+    fileisdir = vfs_isDirectory( source );
     if ( gnet.hostactive )
     {
         // Simulate a network transfer
         if ( fileisdir )
         {
             log_info( "Creating local directory %s\n", dest );
-            fs_createDirectory( dest );
+            vfs_mkdir( dest );
         }
         else
         {
             log_info( "Copying local file %s --> %s\n", source, dest );
-            fs_copyFile( source, dest );
+            vfs_copyFile( source, dest );
         }
     }
     else
@@ -705,12 +706,11 @@ void net_copyFileToHostOld( const char *source, const char *dest )
         else
         {
             log_info( "Copying local file to host file: %s --> %s\n", source, dest );
-            fileread = fopen( source, "rb" );
+            fileread = vfs_openReadB( source );
             if ( fileread )
             {
-                fseek( fileread, 0, SEEK_END );
-                filesize = ftell( fileread );
-                fseek( fileread, 0, SEEK_SET );
+                filesize = vfs_fileLength( fileread );
+                vfs_seek( fileread, 0 );
                 if ( filesize > 0 && filesize < TOTALSIZE )
                 {
                     numfilesent++;
@@ -724,7 +724,7 @@ void net_copyFileToHostOld( const char *source, const char *dest )
 
                     while ( packetstart < filesize )
                     {
-                        fscanf( fileread, "%c", &cTmp );
+                        vfs_scanf( fileread, "%c", &cTmp );
                         packet_addUnsignedByte( cTmp );
                         packetsize++;
                         packetstart++;
@@ -748,7 +748,7 @@ void net_copyFileToHostOld( const char *source, const char *dest )
                     net_sendPacketToHostGuaranteed();
                 }
 
-                fclose( fileread );
+                vfs_close( fileread );
             }
         }
     }
@@ -758,84 +758,82 @@ void net_copyFileToHostOld( const char *source, const char *dest )
 void net_copyDirectoryToHost( const char *dirname, const char *todirname )
 {
     // ZZ> This function copies all files in a directory
-    char searchname[128];
-    char fromname[128];
-    char toname[128];
+    STRING fromname;
+    STRING toname;
     const char *searchResult;
 
     log_info( "net_copyDirectoryToHost: %s, %s\n", dirname, todirname );
+
     // Search for all files
-    sprintf( searchname, "%s" SLASH_STR "*", dirname );
-    searchResult = fs_findFirstFile( dirname, NULL );
-    if ( searchResult != NULL )
+    searchResult = vfs_findFirst( dirname, NULL, VFS_SEARCH_FILE | VFS_SEARCH_BARE );
+    if ( VALID_CSTR(searchResult) )
     {
         // Make the new directory
         net_copyFileToHost( dirname, todirname );
 
         // Copy each file
-        while ( searchResult != NULL )
+        while ( VALID_CSTR(searchResult) )
         {
             // If a file begins with a dot, assume it's something
             // that we don't want to copy.  This keeps repository
             // directories, /., and /.. from being copied
             // Also avoid copying directories in general.
-            sprintf( fromname, "%s" SLASH_STR "%s", dirname, searchResult );
-            if ( '.' == searchResult[0] || fs_fileIsDirectory( fromname ) )
+            snprintf( fromname, SDL_arraysize( fromname), "%s" SLASH_STR "%s", dirname, searchResult );
+            if ( '.' == searchResult[0] || vfs_isDirectory( fromname ) )
             {
-                searchResult = fs_findNextFile();
+                searchResult = vfs_findNext();
                 continue;
             }
 
-            sprintf( fromname, "%s" SLASH_STR "%s", dirname, searchResult );
-            sprintf( toname, "%s" SLASH_STR "%s", todirname, searchResult );
+            snprintf( fromname, SDL_arraysize( fromname), "%s" SLASH_STR "%s", dirname, searchResult );
+            snprintf( toname, SDL_arraysize( toname), "%s" SLASH_STR "%s", todirname, searchResult );
 
             net_copyFileToHost( fromname, toname );
-            searchResult = fs_findNextFile();
+            searchResult = vfs_findNext();
         }
     }
 
-    fs_findClose();
+    vfs_findClose();
 }
 
 //--------------------------------------------------------------------------------------------
 void net_copyDirectoryToAllPlayers( const char *dirname, const char *todirname )
 {
     // ZZ> This function copies all files in a directory
-    char searchname[128];
-    char fromname[128];
-    char toname[128];
+    STRING fromname;
+    STRING toname;
     const char *searchResult;
 
     log_info( "net_copyDirectoryToAllPlayers: %s, %s\n", dirname, todirname );
+
     // Search for all files
-    sprintf( searchname, "%s" SLASH_STR "*.*", dirname );
-    searchResult = fs_findFirstFile( dirname, NULL );
-    if ( searchResult != NULL )
+    searchResult = vfs_findFirst( dirname, NULL, VFS_SEARCH_FILE | VFS_SEARCH_BARE );
+    if ( VALID_CSTR(searchResult) )
     {
         // Make the new directory
         net_copyFileToAllPlayers( dirname, todirname );
 
         // Copy each file
-        while ( searchResult != NULL )
+        while ( VALID_CSTR(searchResult) )
         {
             // If a file begins with a dot, assume it's something
             // that we don't want to copy.  This keeps repository
             // directories, /., and /.. from being copied
             if ( '.' == searchResult[0] )
             {
-                searchResult = fs_findNextFile();
+                searchResult = vfs_findNext();
                 continue;
             }
 
-            sprintf( fromname, "%s" SLASH_STR "%s", dirname, searchResult );
-            sprintf( toname, "%s" SLASH_STR "%s", todirname, searchResult );
+            snprintf( fromname, SDL_arraysize( fromname), "%s" SLASH_STR "%s", dirname, searchResult );
+            snprintf( toname, SDL_arraysize( toname), "%s" SLASH_STR "%s", todirname, searchResult );
             net_copyFileToAllPlayers( fromname, toname );
 
-            searchResult = fs_findNextFile();
+            searchResult = vfs_findNext();
         }
     }
 
-    fs_findClose();
+    vfs_findClose();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -989,13 +987,13 @@ void sv_talkToRemotes()
 void net_handlePacket( ENetEvent *event )
 {
     Uint16 header;
-    char filename[256];      // also used for reading various strings
+    STRING filename;      // also used for reading various strings
     int filesize, newfilesize, fileposition;
     char newfile;
     Uint16 player;
     Uint32 stamp;
     int time;
-    FILE *file;
+    vfs_FILE *file;
     size_t fileSize;
 
     log_info( "net_handlePacket: Received " );
@@ -1008,7 +1006,7 @@ void net_handlePacket( ENetEvent *event )
         case TO_ANY_TEXT:
             log_info( "TO_ANY_TEXT\n" );
             packet_readString( filename, 255 );
-            debug_message( filename );
+            debug_printf( filename );
             break;
 
         case TO_HOST_MODULEOK:
@@ -1097,11 +1095,11 @@ void net_handlePacket( ENetEvent *event )
             log_info( "NET_TRANSFER_FILE: %s with size %d.\n", filename, fileSize );
 
             // Try and save the file
-            file = fopen( filename, "wb" );
+            file = vfs_openWriteB( filename );
             if ( file != NULL )
             {
-                fwrite( net_readPacket->data + net_readLocation, 1, fileSize, file );
-                fclose( file );
+                vfs_write( net_readPacket->data + net_readLocation, 1, fileSize, file );
+                vfs_close( file );
             }
             else
             {
@@ -1128,7 +1126,7 @@ void net_handlePacket( ENetEvent *event )
             packet_readString( filename, 256 );
             log_info( "NET_CREATE_DIRECTORY: %s\n", filename );
 
-            fs_createDirectory( filename );
+            vfs_mkdir( filename );
 
             // Acknowledge that we got this file
             net_startNewPacket();
@@ -1155,12 +1153,11 @@ void net_handlePacket( ENetEvent *event )
 
             // Change the size of the file if need be
             newfile = 0;
-            file = fopen( filename, "rb" );
+            file = vfs_openReadB( filename );
             if ( file )
             {
-                fseek( file, 0, SEEK_END );
-                filesize = ftell( file );
-                fclose( file );
+                filesize = vfs_fileLength( file );
+                vfs_close( file );
                 if ( filesize != newfilesize )
                 {
                     // Destroy the old file
@@ -1175,35 +1172,35 @@ void net_handlePacket( ENetEvent *event )
             {
                 // file must be created.  Write zeroes to the file to do it
                 numfile++;
-                file = fopen( filename, "wb" );
+                file = vfs_openWriteB( filename );
                 if ( file )
                 {
                     filesize = 0;
 
                     while ( filesize < newfilesize )
                     {
-                        fputc( 0, file );
+                        vfs_putc( 0, file );
                         filesize++;
                     }
 
-                    fclose( file );
+                    vfs_close( file );
                 }
             }
 
             // Go to the position in the file and copy data
             fileposition = packet_readUnsignedInt();
-            file = fopen( filename, "r+b" );
+            file = vfs_openReadB( filename );
             if ( file )
             {
-                if ( fseek( file, fileposition, SEEK_SET ) == 0 )
+                if ( vfs_seek( file, fileposition ) == 0 )
                 {
                     while ( packet_remainingSize() > 0 )
                     {
-                        fputc( packet_readUnsignedByte(), file );
+                        vfs_putc( packet_readUnsignedByte(), file );
                     }
                 }
 
-                fclose( file );
+                vfs_close( file );
             }
             break;
 
@@ -1212,7 +1209,7 @@ void net_handlePacket( ENetEvent *event )
             if ( gnet.hostactive )
             {
                 packet_readString( filename, 255 );
-                fs_createDirectory( filename );
+                vfs_mkdir( filename );
             }
             break;
 
@@ -1240,7 +1237,7 @@ void net_handlePacket( ENetEvent *event )
             {
                 PMod->seed = packet_readUnsignedInt();
                 packet_readString( filename, 255 );
-                strcpy( pickedmodule_name, filename );
+                strncpy( pickedmodule_name, filename, SDL_arraysize(pickedmodule_name) );
 
                 // Check to see if the module exists
                 pickedmodule_index = modlist_get_mod_number( pickedmodule_name );
@@ -1312,12 +1309,11 @@ void net_handlePacket( ENetEvent *event )
 
                 // Change the size of the file if need be
                 newfile = 0;
-                file = fopen( filename, "rb" );
+                file = vfs_openReadB( filename );
                 if ( file )
                 {
-                    fseek( file, 0, SEEK_END );
-                    filesize = ftell( file );
-                    fclose( file );
+                    filesize = vfs_fileLength( file );
+                    vfs_close( file );
                     if ( filesize != newfilesize )
                     {
                         // Destroy the old file
@@ -1332,35 +1328,35 @@ void net_handlePacket( ENetEvent *event )
                 {
                     // file must be created.  Write zeroes to the file to do it
                     numfile++;
-                    file = fopen( filename, "wb" );
+                    file = vfs_openWriteB( filename );
                     if ( file )
                     {
                         filesize = 0;
 
                         while ( filesize < newfilesize )
                         {
-                            fputc( 0, file );
+                            vfs_putc( 0, file );
                             filesize++;
                         }
 
-                        fclose( file );
+                        vfs_close( file );
                     }
                 }
 
                 // Go to the position in the file and copy data
                 fileposition = packet_readUnsignedInt();
-                file = fopen( filename, "r+b" );
+                file = vfs_openReadB( filename );
                 if ( file )
                 {
-                    if ( fseek( file, fileposition, SEEK_SET ) == 0 )
+                    if ( vfs_seek( file, fileposition ) == 0 )
                     {
                         while ( packet_remainingSize() > 0 )
                         {
-                            fputc( packet_readUnsignedByte(), file );
+                            vfs_putc( packet_readUnsignedByte(), file );
                         }
                     }
 
-                    fclose( file );
+                    vfs_close( file );
                 }
             }
             break;
@@ -1370,7 +1366,7 @@ void net_handlePacket( ENetEvent *event )
             if ( !gnet.hostactive )
             {
                 packet_readString( filename, 255 );
-                fs_createDirectory( filename );
+                vfs_mkdir( filename );
             }
             break;
 
@@ -1605,12 +1601,12 @@ void find_open_sessions()
     if(gnet.on)
       {
     numsession = 0;
-    if(globalnetworkerr)  fprintf(globalnetworkerr, "  Looking for open games...\n");
+    if(globalnetworkerr)  vfs_printf(globalnetworkerr, "  Looking for open games...\n");
     ZeroMemory(&sessionDesc, sizeof(DPSESSIONDESC2));
     sessionDesc.dwSize = sizeof(DPSESSIONDESC2);
     sessionDesc.guidApplication = NETWORKID;
     hr = lpDirectPlay3A->EnumSessions(&sessionDesc, 0, SessionsCallback, hGlobalWindow, DPENUMSESSIONS_AVAILABLE);
-    if(globalnetworkerr)  fprintf(globalnetworkerr, "    %d sessions found\n", numsession);
+    if(globalnetworkerr)  vfs_printf(globalnetworkerr, "    %d sessions found\n", numsession);
       }
     */
 }
@@ -1620,7 +1616,7 @@ void sv_letPlayersJoin()
 {
     // ZZ> This function finds all the players in the game
     ENetEvent event;
-    char hostName[64];
+    STRING hostName;
 
     // Check all pending events for players joining
     while ( enet_host_service( net_myHost, &event, 0 ) > 0 )
@@ -1774,7 +1770,7 @@ void net_updateFileTransfers()
     ENetPacket *packet;
     size_t nameLen, fileSize;
     Uint32 networkSize;
-    FILE *file;
+    vfs_FILE *file;
     char *p;
 
     // Are there any pending file sends?
@@ -1785,7 +1781,7 @@ void net_updateFileTransfers()
             state = &net_transferStates[net_fileTransferHead];
 
             // Check and see if this is a directory, instead of a file
-            if ( fs_fileIsDirectory( state->sourceName ) )
+            if ( vfs_isDirectory( state->sourceName ) )
             {
                 // Tell the target to create a directory
                 log_info( "net_updateFileTranfers: Creating directory %s on target\n", state->destName );
@@ -1798,14 +1794,13 @@ void net_updateFileTransfers()
             }
             else
             {
-                file = fopen( state->sourceName, "rb" );
+                file = vfs_openReadB( state->sourceName );
                 if ( file )
                 {
                     log_info( "net_updateFileTransfers: Attempting to send %s to %s\n", state->sourceName, state->destName );
 
-                    fseek( file, 0, SEEK_END );
-                    fileSize = ftell( file );
-                    fseek( file, 0, SEEK_SET );
+                    fileSize = vfs_fileLength( file );
+                    vfs_seek( file, 0 );
 
                     // Make room for the file's name
                     nameLen = strlen( state->destName ) + 1;
@@ -1827,8 +1822,8 @@ void net_updateFileTransfers()
                     *( size_t* )p = networkSize;
                     p += 4;
 
-                    fread( p, 1, fileSize, file );
-                    fclose( file );
+                    vfs_read( p, 1, fileSize, file );
+                    vfs_close( file );
 
                     packet = enet_packet_create( transferBuffer, transferSize, ENET_PACKET_FLAG_RELIABLE );
                     enet_peer_send( state->target, NET_GUARANTEED_CHANNEL, packet );

@@ -1,4 +1,5 @@
 #include "id_md2.h"
+#include "egoboo_vfs.h"
 
 #include <malloc.h>
 
@@ -31,7 +32,7 @@ id_md2_model_t * id_md2_load (const char *filename, id_md2_model_t * mdl)
 
     if ( NULL == mdl )
     {
-        mdl = calloc( 1, sizeof(id_md2_model_t) );
+        mdl = (id_md2_model_t*)calloc( 1, sizeof(id_md2_model_t) );
     }
 
     if ( NULL == mdl ) return NULL;

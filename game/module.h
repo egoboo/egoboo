@@ -35,6 +35,7 @@ struct s_mod_data
 {
     bool_t  loaded;
 
+	// data from menu.txt
     char    rank[RANKSIZE];               // Number of stars
     STRING  longname;                     // Module names
     STRING  loadname;                     // Module load names
@@ -43,20 +44,20 @@ struct s_mod_data
     bool_t  allowexport;                  // Export characters?
     Uint8   minplayers;                   // Number of players
     Uint8   maxplayers;
-    bool_t  monstersonly;                 // Only allow monsters
-    Uint8   respawnvalid;                 // Allow respawn
-    int     numlines;                                   // Lines in summary
-    char    summary[SUMMARYLINES][SUMMARYSIZE];      // Quest description
+    bool_t  monstersonly;                           // Only allow monsters
+    Uint8   respawnvalid;                           // Allow respawn
+    int     numlines;                               // Lines in summary
+    char    summary[SUMMARYLINES][SUMMARYSIZE];     // Quest description
 
-    IDSZ    quest_idsz;                   // the quest required to unlock this module
-    int     quest_level;                  // the quest level required to unlock this module
+    IDSZ    quest_idsz;                             // the quest required to unlock this module
+    int     quest_level;                            // the quest level required to unlock this module
 
-    Uint32  tex;                          // the index of the tile image
-
+	// extended data
+    Uint32  tex_index;                              // the index of the tile image
 };
 typedef struct s_mod_data mod_data_t;
 
-DEFINE_STACK( extern, mod_data_t, ModList, MAX_MODULE );
+DEFINE_STACK_EXTERN(mod_data_t, ModList, MAX_MODULE );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

@@ -30,9 +30,9 @@
 #include "enchant.h"
 #include "passage.h"
 #include "input.h"
-#include "file_common.h"
 #include "game.h"
 
+#include "egoboo_vfs.h"
 #include "egoboo_strutil.h"
 #include "egoboo_setup.h"
 #include "egoboo_fileutil.h"
@@ -41,7 +41,7 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-DECLARE_STACK( mod_data_t, ModList );
+DECLARE_STACK( ACCESS_TYPE_NONE, mod_data_t, ModList );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -52,8 +52,8 @@ static bool_t module_load_info( const char * szLoadName, mod_data_t * pmod );
 int module_reference_matches( const char *szLoadName, IDSZ idsz )
 {
     // ZZ> This function returns btrue if the named module has the required IDSZ
-    FILE *fileread;
-    char newloadname[256];
+    vfs_FILE *fileread;
+    STRING newloadname;
     Uint32 newidsz;
     int foundidsz;
     int cnt;
@@ -62,10 +62,10 @@ int module_reference_matches( const char *szLoadName, IDSZ idsz )
 
     if ( 0 == strcmp( szLoadName, "NONE" )  ) return bfalse;
 
-    sprintf( newloadname, "modules" SLASH_STR "%s" SLASH_STR "gamedat" SLASH_STR "menu.txt", szLoadName );
+    snprintf( newloadname, SDL_arraysize( newloadname), "modules" SLASH_STR "%s" SLASH_STR "gamedat" SLASH_STR "menu.txt", szLoadName );
 
     parse_filename = "";
-    fileread = fopen( newloadname, "r" );
+    fileread = vfs_openRead( newloadname );
     if ( NULL == fileread ) return bfalse;
     parse_filename = newloadname;
 
@@ -100,7 +100,7 @@ int module_reference_matches( const char *szLoadName, IDSZ idsz )
         }
     }
 
-    fclose( fileread );
+    vfs_close( fileread );
     parse_filename = "";
 
     return foundidsz;
@@ -110,24 +110,24 @@ int module_reference_matches( const char *szLoadName, IDSZ idsz )
 void module_add_idsz( const char *szLoadName, IDSZ idsz )
 {
     // ZZ> This function appends an IDSZ to the module's menu.txt file
-    FILE *filewrite;
-    char newloadname[256];
+    vfs_FILE *filewrite;
+    STRING newloadname;
     char chara, charb, charc, chard;
 
     // Only add if there isn't one already
     if ( !module_reference_matches( szLoadName, idsz ) )
     {
         // Try to open the file in append mode
-        sprintf( newloadname, "modules" SLASH_STR "%s" SLASH_STR "gamedat" SLASH_STR "menu.txt", szLoadName );
-        filewrite = fopen( newloadname, "a" );
+        snprintf( newloadname, SDL_arraysize( newloadname), "modules" SLASH_STR "%s" SLASH_STR "gamedat" SLASH_STR "menu.txt", szLoadName );
+        filewrite = vfs_openAppend( newloadname );
         if ( filewrite )
         {
             chara = ( ( idsz >> 15 ) & 31 ) + 'A';
             charb = ( ( idsz >> 10 ) & 31 ) + 'A';
             charc = ( ( idsz >> 5 ) & 31 ) + 'A';
             chard = ( ( idsz ) & 31 ) + 'A';
-            fprintf( filewrite, "\n:[%c%c%c%c]\n", chara, charb, charc, chard );
-            fclose( filewrite );
+            vfs_printf( filewrite, "\n:[%c%c%c%c]\n", chara, charb, charc, chard );
+            vfs_close( filewrite );
         }
     }
 }
@@ -204,7 +204,7 @@ bool_t module_load_info( const char * szLoadName, mod_data_t * pmod )
 {
     // BB > this function actually reads in the module data
 
-    FILE * fileread;
+    vfs_FILE * fileread;
     int cnt;
     char cTmp;
 
@@ -213,7 +213,7 @@ bool_t module_load_info( const char * szLoadName, mod_data_t * pmod )
     memset( pmod, 0, sizeof(mod_data_t) );
 
     // see if we can open the file
-    fileread = fopen( szLoadName, "r" );
+    fileread = vfs_openRead( szLoadName );
     if ( NULL == fileread ) return bfalse;
 
     // the file is open
@@ -253,7 +253,7 @@ bool_t module_load_info( const char * szLoadName, mod_data_t * pmod )
         str_decode( pmod->summary[cnt], SDL_arraysize(pmod->summary[cnt]), pmod->summary[cnt] );
     }
 
-    fclose(fileread);
+    vfs_close(fileread);
 
     pmod->loaded = btrue;
 
@@ -268,11 +268,11 @@ void modlist_load_all_info()
 
     // Search for all .mod directories and load the module info
     ModList.count = 0;
-    FileName = fs_findFirstFile( "modules", "mod" );
-    while ( NULL != FileName && ModList.count < MAX_MODULE )
+    FileName = vfs_findFirst( "modules", "mod", VFS_SEARCH_DIR );
+    while ( VALID_CSTR(FileName) && ModList.count < MAX_MODULE )
     {
         // save the filename
-        sprintf( loadname, "modules" SLASH_STR "%s" SLASH_STR "gamedat" SLASH_STR "menu.txt", FileName );
+        snprintf( loadname, SDL_arraysize( loadname), "%s" SLASH_STR "gamedat" SLASH_STR "menu.txt", FileName );
 
         if ( module_load_info( loadname, ModList.lst + ModList.count ) )
         {
@@ -280,9 +280,9 @@ void modlist_load_all_info()
             ModList.count++;
         };
 
-        FileName = fs_findNextFile();
+        FileName = vfs_findNext();
     }
-    fs_findClose();
+    vfs_findClose();
     ModList.lst[ModList.count].longname[0] = '\0';
 }
 
@@ -316,7 +316,7 @@ bool_t module_upload( module_instance_t * pinst, int imod, Uint32 seed )
     pinst->respawnvalid   = ( bfalse != pdata->respawnvalid );
     pinst->respawnanytime = ( RESPAWN_ANYTIME == pdata->respawnvalid );
 
-    strcpy(pinst->loadname, pdata->loadname);
+    strncpy(pinst->loadname, pdata->loadname, SDL_arraysize(pinst->loadname));
 
     pinst->active = bfalse;
     pinst->beat   = bfalse;

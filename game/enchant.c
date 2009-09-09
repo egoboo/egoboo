@@ -32,8 +32,8 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-DECLARE_STACK( eve_t, EveStack );
-DECLARE_LIST ( enc_t, EncList );
+DECLARE_STACK( ACCESS_TYPE_NONE, eve_t, EveStack );
+DECLARE_LIST ( ACCESS_TYPE_NONE, enc_t, EncList );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -118,11 +118,11 @@ bool_t remove_enchant( Uint16 ienc )
             {
                 if ( VALID_CHR(itarget) )
                 {
-                    sound_play_chunk(ChrList.lst[itarget].pos_old, CapList[imodel].wavelist[iwave]);
+                    sound_play_chunk(ChrList.lst[itarget].pos_old, MadList[imodel].wavelist[iwave]);
                 }
                 else
                 {
-                    sound_play_chunk( PCamera->track_pos, CapList[imodel].wavelist[iwave]);
+                    sound_play_chunk( PCamera->track_pos, MadList[imodel].wavelist[iwave]);
                 }
             }
         }
@@ -794,7 +794,6 @@ void EncList_free_all()
     int cnt;
 
     EncList.free_count = 0;
-
     for ( cnt = 0; cnt < MAX_ENC; cnt++)
     {
         // reuse this code
@@ -806,7 +805,7 @@ void EncList_free_all()
 bool_t load_one_enchant_profile( const char* szLoadName, Uint16 profile )
 {
     // ZZ> This function loads the enchantment associated with an object
-    FILE* fileread;
+    vfs_FILE* fileread;
     char cTmp;
     IDSZ idsz;
     eve_t * peve;
@@ -817,7 +816,7 @@ bool_t load_one_enchant_profile( const char* szLoadName, Uint16 profile )
     memset( peve, 0, sizeof(eve_t) );
 
     parse_filename = "";
-    fileread = fopen( szLoadName, "r" );
+    fileread = vfs_openRead( szLoadName );
     if ( NULL == fileread )
     {
         return bfalse;
@@ -973,7 +972,7 @@ bool_t load_one_enchant_profile( const char* szLoadName, Uint16 profile )
     }
 
     // All done ( finally )
-    fclose( fileread );
+    vfs_close( fileread );
     parse_filename = "";
 
     peve->loaded = btrue;

@@ -54,12 +54,12 @@ void fs_init()
     username = getenv( "USER" );
 
     // this is just a skeleton. the USER needs to be replaced by an environment variable
-    snprintf( linux_tempPath,   sizeof(linux_tempPath),   "/home/%s/.egoboo/temp/",    username );
-    snprintf( linux_importPath, sizeof(linux_importPath), "/home/%s/.egoboo/import/",  username );
-    snprintf( linux_savePath,   sizeof(linux_savePath),   "/home/%s/.egoboo/players/", username );
+    snprintf( linux_tempPath,   SDL_arraysize(linux_tempPath),   "/home/%s/.egoboo/temp/",    username );
+    snprintf( linux_importPath, SDL_arraysize(linux_importPath), "/home/%s/.egoboo/import/",  username );
+    snprintf( linux_savePath,   SDL_arraysize(linux_savePath),   "/home/%s/.egoboo/players/", username );
 
     // this is a read-only directory
-    strncpy( linux_gamePath,  "/usr/share/games/egoboo/", sizeof(linux_gamePath) );
+    strncpy( linux_gamePath,  "/usr/share/games/egoboo/", SDL_arraysize(linux_gamePath) );
 
     log_info( "Game directories are:\n\tGame: %s\n\tTemp: %s\n\tSave: %s\n\tImport: %s\n",
               linux_gamePath, linux_tempPath, linux_savePath, linux_importPath );
@@ -105,11 +105,11 @@ void fs_copyFile( const char *source, const char *dest )
     char buf[4096];
     int bytes_read;
 
-    sourcef = fopen( source, "r" );
+    sourcef = vfs_openRead( source );
     if ( !sourcef )
         return;
 
-    destf = fopen( dest, "w" );
+    destf = vfs_openWrite( dest );
     if ( !destf )
     {
         fclose( sourcef );
@@ -121,13 +121,6 @@ void fs_copyFile( const char *source, const char *dest )
 
     fclose( sourcef );
     fclose( destf );
-}
-
-//--------------------------------------------------------------------------------------------
-void empty_import_directory( void )
-{
-    // ZZ> This function deletes all the TEMP????.OBJ subdirectories in the IMPORT directory
-    system( "rm -rf import" SLASH_STR "temp*.obj\n" );
 }
 
 //--------------------------------------------------------------------------------------------

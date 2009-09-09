@@ -124,12 +124,12 @@ extern md2_frame_t Md2FrameList[MAXFRAME];
 
 extern Uint16 md2_loadframe;                               // Where to load next
 
-float kMd2Normals[MADLIGHTINDICES][3];
+extern float kMd2Normals[MADLIGHTINDICES][3];
 
 // Function prototypes
-int  md2_rip_frame_name( int frame );
-void md2_rip_frames( ego_md2_t * pflist );
-int  md2_load_one( const char* szLoadname, ego_md2_t * pmd2 );
+int    md2_rip_frame_name( int frame );
+void   md2_rip_frames( ego_md2_t * pflist );
+bool_t md2_load_one( const char* szLoadname, ego_md2_t * pmd2 );
 
 Md2Model *md2_loadFromFile( const char *fileName );
 void      md2_freeModel( Md2Model *model );

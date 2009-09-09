@@ -26,7 +26,6 @@
 #include "ui.h"
 #include "log.h"
 #include "char.h"
-#include "file_common.h"
 #include "particle.h"
 #include "link.h"
 #include "mad.h"
@@ -41,9 +40,12 @@
 
 #include "SDL_extensions.h"
 
+#include "egoboo_vfs.h"
 #include "egoboo_typedef.h"
 #include "egoboo_fileutil.h"
 #include "egoboo_setup.h"
+#include "egoboo_strutil.h"
+
 #include "egoboo.h"
 
 //--------------------------------------------------------------------------------------------
@@ -195,7 +197,7 @@ oglx_texture      TxTitleImage[MAX_MODULE];    // OpenGL title image surfaces
 //--------------------------------------------------------------------------------------------
 static void load_all_menu_images();
 
-static bool_t       menu_stack_push( int menu );
+static bool_t       menu_stack_push( which_menu_t menu );
 static which_menu_t menu_stack_pop();
 static which_menu_t menu_stack_peek();
 static void         menu_stack_clear();
@@ -682,7 +684,7 @@ int doChooseModule( float deltaTime )
                 {
                     // fix the menu images in case one or more of them are undefined
                     int         imod       = validModules[i];
-                    Uint32      tex_offset = ModList.lst[imod].tex;
+                    Uint32      tex_offset = ModList.lst[imod].tex_index;
                     oglx_texture * ptex    = TxTitleImage_get_ptr( tex_offset );
 
                     if ( ui_doImageButton( i, ptex, moduleMenuOffsetX + x, moduleMenuOffsetY + y, 138, 138 ) )
@@ -828,6 +830,7 @@ bool_t doChoosePlayer_load_profiles( int player, ChoosePlayer_profiles_t * prof 
     {
         import_data.slot_lst[cnt] = 10000;
     }
+	import_data.max_slot = 0;
 
     // Load the player profiles
     import_data.player = -1;
@@ -835,8 +838,7 @@ bool_t doChoosePlayer_load_profiles( int player, ChoosePlayer_profiles_t * prof 
     prof->count = 0;
 
     // grab the player data
-    snprintf( szFilename, SDL_arraysize(szFilename),  "players" SLASH_STR "%s", loadplayer[player].dir );
-    ref_temp = load_one_character_profile( szFilename, MAX_PROFILE, bfalse );
+    ref_temp = load_one_character_profile( loadplayer[player].dir, MAX_PROFILE, bfalse );
     if ( MAX_PROFILE != ref_temp )
     {
         prof->ref[prof->count++] = ref_temp;
@@ -849,18 +851,21 @@ bool_t doChoosePlayer_load_profiles( int player, ChoosePlayer_profiles_t * prof 
     // grab the inventory data
     for ( i = 0; i < MAXIMPORTPERPLAYER; i++ )
     {
-        snprintf( szFilename, SDL_arraysize(szFilename), "players" SLASH_STR "%s" SLASH_STR "%d.obj", loadplayer[player].dir, i );
+        snprintf( szFilename, SDL_arraysize(szFilename), "%s" SLASH_STR "%d.obj", loadplayer[player].dir, i );
 
         // store the slot info
         import_data.object = i + 1;
 
         // load it
         ref_temp = load_one_character_profile( szFilename, MAX_PROFILE, bfalse );
-
         if ( MAX_PROFILE != ref_temp )
         {
             prof->ref[prof->count++]                 = ref_temp;
             import_data.slot_lst[import_data.object] = ref_temp;
+			if( import_data.object > import_data.max_slot && VALID_CAP(ref_temp) )
+			{
+				import_data.max_slot = import_data.object;
+			}
 
             //Load icon
             //snprintf( szFilename, SDL_arraysize(szFilename), "players" SLASH_STR "%s" SLASH_STR "%d.obj" SLASH_STR "icon%d", loadplayer[player].dir, i, MAX(0, CapList[ref_temp].skinoverride) );
@@ -908,7 +913,7 @@ bool_t doChoosePlayer_show_stats( int player, int mode, int x, int y, int width,
     // do the actual display
     if ( player >= 0 && objects.count > 0 )
     {
-        char mainstat[256];
+        STRING mainstat;
         char buffer[1024];
         char * carat = buffer, * carat_end = buffer + SDL_arraysize(buffer);
 
@@ -922,7 +927,7 @@ bool_t doChoosePlayer_show_stats( int player, int mode, int x, int y, int width,
 
             //Character level and class
             GL_DEBUG(glColor4f)(1, 1, 1, 1);
-            snprintf( mainstat, sizeof(mainstat), "Level %d %s\n\n", pcap->leveloverride + 1, pcap->classname );
+            snprintf( mainstat, SDL_arraysize(mainstat), "Level %d %s\n\n", pcap->leveloverride + 1, pcap->classname );
             ui_drawTextBox( menuFont, mainstat, x + 10, y + 10, width - 10, height - 10, 20 );
 
             //Life and mana (can be less than maximum if not in easy mode)
@@ -959,10 +964,10 @@ bool_t doChoosePlayer_show_stats( int player, int mode, int x, int y, int width,
 
                     if ( VALID_CAP(iobj) )
                     {
-                        char itemname[256];
+                        STRING itemname;
                         pcap = CapList + iobj;
-                        if ( pcap->nameknown )   strcpy(itemname, chop_create(iobj));
-                        else                    strcpy(itemname, pcap->classname);
+                        if ( pcap->nameknown ) strncpy(itemname, chop_create(iobj), SDL_arraysize(itemname));
+                        else                   strncpy(itemname, pcap->classname,   SDL_arraysize(itemname));
 
                         if     ( i == SLOT_LEFT + 1  ) carat += snprintf( carat, carat_end - carat - 1, "  Left: %s\n", itemname );
                         else if ( i == SLOT_RIGHT + 1 ) carat += snprintf( carat, carat_end - carat - 1, "  Right: %s\n", itemname );
@@ -987,7 +992,7 @@ int doChoosePlayer( float deltaTime )
     static oglx_texture background;
     int result = 0;
     int i, j, x, y;
-    char srcDir[64], destDir[64];
+    STRING srcDir, destDir;
     static int startIndex = 0;
     static int    last_player = -1;
     static bool_t new_player = bfalse;
@@ -1265,8 +1270,8 @@ int doChoosePlayer( float deltaTime )
             else
             {
                 // Build the import directory
-                empty_import_directory();
-                fs_createDirectory( "import" );
+                vfs_empty_import_directory();
+                vfs_mkdir( "import" );
 
                 // set up the slots and the import stuff for the selected players
                 numimport = mnu_selectedPlayerCount;
@@ -1278,19 +1283,22 @@ int doChoosePlayer( float deltaTime )
                     local_slot[i]    = i * MAXIMPORTPERPLAYER;
 
                     // Copy the character to the import directory
-                    sprintf( srcDir, "players" SLASH_STR "%s", loadplayer[selectedPlayer].dir );
-                    sprintf( destDir, "import" SLASH_STR "temp%04d.obj", local_slot[i] );
-                    fs_copyDirectory( srcDir, destDir );
+                    strncpy( srcDir, loadplayer[selectedPlayer].dir, SDL_arraysize(srcDir) );
+                    snprintf( destDir, SDL_arraysize(destDir), "import" SLASH_STR "temp%04d.obj", local_slot[i] );
+                    vfs_copyDirectory( srcDir, destDir );
 
                     // Copy all of the character's items to the import directory
-                    for ( j = 0; j < 8; j++ )
+                    for ( j = 0; j < MAXIMPORTOBJECTS; j++ )
                     {
-                        sprintf( srcDir, "players" SLASH_STR "%s" SLASH_STR "%d.obj", loadplayer[selectedPlayer].dir, j );
-                        sprintf( destDir, "import" SLASH_STR "temp%04d.obj", local_slot[i] + j + 1 );
+                        snprintf( srcDir, SDL_arraysize( srcDir), "%s" SLASH_STR "%d.obj", loadplayer[selectedPlayer].dir, j );
 
-                        fs_copyDirectory( srcDir, destDir );
+						// make sure the source directory exists
+						if( vfs_isDirectory(srcDir) )
+						{
+							snprintf( destDir, SDL_arraysize( destDir), "import" SLASH_STR "temp%04d.obj", local_slot[i] + j + 1 );
+							vfs_copyDirectory( srcDir, destDir );
+						}
                     }
-
                 }
 
                 result = 1;
@@ -1832,8 +1840,8 @@ int doGameOptions( float deltaTime )
     static int menuState = MM_Begin;
     static oglx_texture background;
     static int menuChoice = 0;
-    static char Cdifficulty[128];
-    static char Cmaxmessage[128];
+    static STRING Cdifficulty;
+    static STRING Cmaxmessage;
 
     int result = 0;
 
@@ -1861,11 +1869,11 @@ int doGameOptions( float deltaTime )
             // Load the current settings
             switch ( cfg.difficulty )
             {
-                case GAME_HARD: sprintf(Cdifficulty, "Punishing"); break;
-                case GAME_NORMAL: sprintf(Cdifficulty, "Challenging"); break;
+                case GAME_HARD: snprintf(Cdifficulty, SDL_arraysize(Cdifficulty), "Punishing"); break;
+                case GAME_NORMAL: snprintf(Cdifficulty, SDL_arraysize(Cdifficulty), "Challenging"); break;
             default: case GAME_EASY:
                     {
-                        sprintf(Cdifficulty, "Forgiving");
+                        snprintf(Cdifficulty, SDL_arraysize(Cdifficulty), "Forgiving");
                         cfg.difficulty = GAME_EASY;
                         break;
                     }
@@ -1875,11 +1883,11 @@ int doGameOptions( float deltaTime )
             maxmessage = CLIP(maxmessage, 4, MAX_MESSAGE);
             if ( maxmessage == 0 )
             {
-                sprintf( Cmaxmessage, "None" );           // Set to default
+                snprintf( Cmaxmessage, SDL_arraysize( Cmaxmessage), "None" );           // Set to default
             }
             else
             {
-                sprintf( Cmaxmessage, "%i", maxmessage );
+                snprintf( Cmaxmessage, SDL_arraysize( Cmaxmessage), "%i", maxmessage );
             }
             gameOptionsButtons[1] = Cmaxmessage;
 
@@ -1933,11 +1941,11 @@ int doGameOptions( float deltaTime )
                 cfg.difficulty++;
                 switch ( cfg.difficulty )
                 {
-                    case GAME_HARD: sprintf(Cdifficulty, "Punishing"); break;
-                    case GAME_NORMAL: sprintf(Cdifficulty, "Challenging"); break;
+                    case GAME_HARD: snprintf(Cdifficulty, SDL_arraysize(Cdifficulty), "Punishing"); break;
+                    case GAME_NORMAL: snprintf(Cdifficulty, SDL_arraysize(Cdifficulty), "Challenging"); break;
                 default: case GAME_EASY:
                         {
-                            sprintf(Cdifficulty, "Forgiving");
+                            snprintf(Cdifficulty, SDL_arraysize(Cdifficulty), "Forgiving");
                             cfg.difficulty = GAME_EASY;
                             break;
                         }
@@ -1969,11 +1977,11 @@ int doGameOptions( float deltaTime )
 
                 if ( 0 == cfg.message_count_req )
                 {
-                    sprintf( Cmaxmessage, "None" );
+                    snprintf( Cmaxmessage, SDL_arraysize( Cmaxmessage), "None" );
                 }
                 else
                 {
-                    sprintf( Cmaxmessage, "%i", cfg.message_count_req );    // Convert integer to a char we can use
+                    snprintf( Cmaxmessage, SDL_arraysize( Cmaxmessage), "%i", cfg.message_count_req );    // Convert integer to a char we can use
                 }
 
                 gameOptionsButtons[1] = Cmaxmessage;
@@ -2092,11 +2100,11 @@ int doAudioOptions( float deltaTime )
     static int menuState = MM_Begin;
     static oglx_texture background;
     static int menuChoice = 0;
-    static char Cmaxsoundchannel[128];
-    static char Cbuffersize[128];
-    static char Csoundvolume[128];
-    static char Cmusicvolume[128];
-    static char Chighquality[128];
+    static STRING Cmaxsoundchannel;
+    static STRING Cbuffersize;
+    static STRING Csoundvolume;
+    static STRING Cmusicvolume;
+    static STRING Chighquality;
 
     int result = 0;
 
@@ -2124,18 +2132,18 @@ int doAudioOptions( float deltaTime )
             // Load the current settings
             audioOptionsButtons[0] = cfg.sound_allowed ? "On" : "Off";
 
-            sprintf( Csoundvolume, "%i", cfg.sound_volume );
+            snprintf( Csoundvolume, SDL_arraysize( Csoundvolume), "%i", cfg.sound_volume );
             audioOptionsButtons[1] = Csoundvolume;
 
             audioOptionsButtons[2] = cfg.music_allowed ? "On" : "Off";
 
-            sprintf( Cmusicvolume, "%i", cfg.music_volume );
+            snprintf( Cmusicvolume, SDL_arraysize( Cmusicvolume), "%i", cfg.music_volume );
             audioOptionsButtons[3] = Cmusicvolume;
 
-            sprintf( Cmaxsoundchannel, "%i", cfg.sound_channel_count );
+            snprintf( Cmaxsoundchannel, SDL_arraysize( Cmaxsoundchannel), "%i", cfg.sound_channel_count );
             audioOptionsButtons[4] = Cmaxsoundchannel;
 
-            sprintf( Cbuffersize, "%i", cfg.sound_buffer_size );
+            snprintf( Cbuffersize, SDL_arraysize( Cbuffersize), "%i", cfg.sound_buffer_size );
             audioOptionsButtons[5] = Cbuffersize;
 
             audioOptionsButtons[6] = cfg.sound_highquality ? "Normal" : "High";
@@ -2169,7 +2177,7 @@ int doAudioOptions( float deltaTime )
                 cfg.sound_volume += 5;
                 if (cfg.sound_volume > 100) cfg.sound_volume = 0;
 
-                sprintf( Csoundvolume, "%i", cfg.sound_volume );
+                snprintf( Csoundvolume, SDL_arraysize( Csoundvolume), "%i", cfg.sound_volume );
                 audioOptionsButtons[1] = Csoundvolume;
             }
 
@@ -2194,7 +2202,7 @@ int doAudioOptions( float deltaTime )
 
                 if (cfg.music_volume > 100) cfg.music_volume = 0;
 
-                sprintf( Cmusicvolume, "%i", cfg.music_volume );
+                snprintf( Cmusicvolume, SDL_arraysize( Cmusicvolume), "%i", cfg.music_volume );
                 audioOptionsButtons[3] = Cmusicvolume;
             }
 
@@ -2215,7 +2223,7 @@ int doAudioOptions( float deltaTime )
                     cfg.sound_channel_count = 8;
                 }
 
-                sprintf( Cmaxsoundchannel, "%i", cfg.sound_channel_count );
+                snprintf( Cmaxsoundchannel, SDL_arraysize( Cmaxsoundchannel), "%i", cfg.sound_channel_count );
                 audioOptionsButtons[4] = Cmaxsoundchannel;
             }
 
@@ -2236,7 +2244,7 @@ int doAudioOptions( float deltaTime )
                     cfg.sound_buffer_size = 512;
                 }
 
-                sprintf( Cbuffersize, "%i", cfg.sound_buffer_size );
+                snprintf( Cbuffersize, SDL_arraysize( Cbuffersize), "%i", cfg.sound_buffer_size );
                 audioOptionsButtons[5] = Cbuffersize;
             }
 
@@ -2309,10 +2317,10 @@ int doVideoOptions( float deltaTime )
     static int menuChoice = 0;
     int result = 0;
     static STRING Cantialiasing;
-    static char Cmaxlights[128];
-    static char Cscrz[128];
-    static char Cmaxparticles[128];
-    static char Cmaxdyna[128];
+    static STRING Cmaxlights;
+    static STRING Cscrz;
+    static STRING Cmaxparticles;
+    static STRING Cmaxdyna;
     static bool_t widescreen;
 
     switch ( menuState )
@@ -2336,7 +2344,7 @@ int doVideoOptions( float deltaTime )
             }
 
             // Load all the current video settings
-            if (cfg.multisamples == 0) strcpy(Cantialiasing , "Off");
+            if (cfg.multisamples == 0) strncpy(Cantialiasing , "Off", SDL_arraysize(Cantialiasing));
             else snprintf(Cantialiasing, SDL_arraysize(Cantialiasing), "X%i", cfg.multisamples);
             videoOptionsButtons[0] = Cantialiasing;
 
@@ -2405,10 +2413,10 @@ int doVideoOptions( float deltaTime )
             {
                 cfg.scrz_req = 16;              // Set to default
             }
-            sprintf( Cscrz, "%i", cfg.scrz_req );      // Convert the integer to a char we can use
+            snprintf( Cscrz, SDL_arraysize( Cscrz), "%i", cfg.scrz_req );      // Convert the integer to a char we can use
             videoOptionsButtons[7] = Cscrz;
 
-            sprintf( Cmaxlights, "%i", cfg.dyna_count_req );
+            snprintf( Cmaxlights, SDL_arraysize( Cmaxlights), "%i", cfg.dyna_count_req );
             videoOptionsButtons[8] = Cmaxlights;
 
             if ( cfg.use_phong )
@@ -2441,7 +2449,7 @@ int doVideoOptions( float deltaTime )
             if ( cfg.twolayerwater_allowed ) videoOptionsButtons[10] = "On";
             else videoOptionsButtons[10] = "Off";
 
-            sprintf( Cmaxparticles, "%i", cfg.particle_count_req );      // Convert the integer to a char we can use
+            snprintf( Cmaxparticles, SDL_arraysize( Cmaxparticles), "%i", cfg.particle_count_req );      // Convert the integer to a char we can use
             videoOptionsButtons[14] = Cmaxparticles;
 
             switch ( cfg.scrx_req )
@@ -2525,7 +2533,7 @@ int doVideoOptions( float deltaTime )
                 // set some arbitrary limit
                 if ( cfg.multisamples > 4 ) cfg.multisamples = 0;
 
-                if (cfg.multisamples == 0) strcpy(Cantialiasing , "Off");
+                if (cfg.multisamples == 0) strncpy(Cantialiasing , "Off", SDL_arraysize(Cantialiasing));
                 else snprintf(Cantialiasing, SDL_arraysize(Cantialiasing), "X%i", cfg.multisamples);
 
                 videoOptionsButtons[0] = Cantialiasing;
@@ -3641,7 +3649,6 @@ void check_player_import( const char *dirname, bool_t initialize )
     // ZZ> This function figures out which players may be imported, and loads basic
     //     data for each
 
-    char searchname[128];
     STRING filename;
     int skin;
     const char *foundfile;
@@ -3654,34 +3661,31 @@ void check_player_import( const char *dirname, bool_t initialize )
     };
 
     // Search for all objects
-    sprintf( searchname, "%s" SLASH_STR "*.obj", dirname );
-    foundfile = fs_findFirstFile( dirname, "obj" );
-
-    while ( NULL != foundfile && loadplayer_count < MAXLOADPLAYER )
+    foundfile = vfs_findFirst( dirname, "obj", VFS_SEARCH_DIR );
+    while ( VALID_CSTR(foundfile) && loadplayer_count < MAXLOADPLAYER )
     {
         prime_names();
-        sprintf( loadplayer[loadplayer_count].dir, "%s", foundfile );
+        snprintf( loadplayer[loadplayer_count].dir, SDL_arraysize( loadplayer[loadplayer_count].dir), "%s", foundfile );
 
-        sprintf( filename, "%s" SLASH_STR "%s" SLASH_STR "skin.txt", dirname, foundfile );
+        snprintf( filename, SDL_arraysize( filename), "%s" SLASH_STR "skin.txt", foundfile );
         skin = get_skin( filename );
 
-        snprintf( filename, SDL_arraysize(filename), "%s" SLASH_STR "%s" SLASH_STR "tris.md2", dirname, foundfile );
-        md2_load_one( filename, &(MadList[loadplayer_count].md2) );
+        //snprintf( filename, SDL_arraysize(filename), "%s" SLASH_STR "tris.md2", foundfile );
+        //md2_load_one( vfs_resolveReadFilename(filename), &(MadList[loadplayer_count].md2_data) );
 
-        sprintf( filename, "%s" SLASH_STR "%s" SLASH_STR "icon%d", dirname, foundfile, skin );
+        snprintf( filename, SDL_arraysize( filename), "%s" SLASH_STR "icon%d", foundfile, skin );
         loadplayer[loadplayer_count].tx_ref = TxTexture_load_one( filename, INVALID_TEXTURE, INVALID_KEY );
 
-        sprintf( filename, "%s" SLASH_STR "%s" SLASH_STR "naming.txt", dirname, foundfile );
+        snprintf( filename, SDL_arraysize( filename), "%s" SLASH_STR "naming.txt", foundfile );
         chop_load( loadplayer_count, filename );
 
-        sprintf( loadplayer[loadplayer_count].name, "%s", chop_create( loadplayer_count ) );
+        snprintf( loadplayer[loadplayer_count].name, SDL_arraysize( loadplayer[loadplayer_count].name), "%s", chop_create( loadplayer_count ) );
 
         loadplayer_count++;
 
-        foundfile = fs_findNextFile();
+        foundfile = vfs_findNext();
     }
-
-    fs_findClose();
+    vfs_findClose();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3690,52 +3694,52 @@ void load_all_menu_images()
     // ZZ> This function loads the title image for each module.  Modules without a
     //     title are marked as invalid
 
-    char loadname[256];
+    STRING loadname;
     int cnt;
-    FILE* filesave;
+    vfs_FILE* filesave;
 
     // reset all the title images
     TxTitleImage_release_all();
 
     // Log a directory list
-    filesave = fopen( "modules.txt", "w" );
+    filesave = vfs_openWrite( "modules.txt" );
     if ( filesave != NULL )
     {
-        fprintf( filesave, "This file logs all of the modules found\n" );
-        fprintf( filesave, "** Denotes an invalid module\n" );
-        fprintf( filesave, "## Denotes an unlockable module\n\n" );
+        vfs_printf( filesave, "This file logs all of the modules found\n" );
+        vfs_printf( filesave, "** Denotes an invalid module\n" );
+        vfs_printf( filesave, "## Denotes an unlockable module\n\n" );
     }
 
     // load all the title images for modules that we are going to display
     for ( cnt = 0; cnt < ModList.count; cnt++ )
     {
         // set the texture to some invlid value
-        ModList.lst[cnt].tex = (Uint32)(~0);
+        ModList.lst[cnt].tex_index = (Uint32)(~0);
 
         if ( !ModList.lst[cnt].loaded )
         {
-            fprintf( filesave, "**.  %s\n", ModList.lst[cnt].loadname );
+            vfs_printf( filesave, "**.  %s\n", ModList.lst[cnt].loadname );
         }
         else if ( modlist_test_by_index( cnt ) )
         {
             // NOTE: just because we can't load the title image DOES NOT mean that we ignore the module
-            sprintf( loadname, "modules" SLASH_STR "%s" SLASH_STR "gamedat" SLASH_STR "title", ModList.lst[cnt].loadname );
+            snprintf( loadname, SDL_arraysize( loadname), "%s" SLASH_STR "gamedat" SLASH_STR "title", ModList.lst[cnt].loadname );
 
-            ModList.lst[cnt].tex = TxTitleImage_load_one( loadname );
+            ModList.lst[cnt].tex_index = TxTitleImage_load_one( loadname );
 
-            fprintf( filesave, "%02d.  %s\n", cnt, ModList.lst[cnt].longname );
+            vfs_printf( filesave, "%02d.  %s\n", cnt, ModList.lst[cnt].longname );
         }
         else
         {
-            fprintf( filesave, "##.  %s\n", ModList.lst[cnt].longname );
+            vfs_printf( filesave, "##.  %s\n", ModList.lst[cnt].longname );
         }
     }
 
-    if ( filesave != NULL ) fclose( filesave );
+    if ( filesave != NULL ) vfs_close( filesave );
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t mnu_begin_menu( int which )
+bool_t mnu_begin_menu( which_menu_t which )
 {
     if ( !menu_stack_push( mnu_whichMenu ) ) return bfalse;
     mnu_whichMenu = which;
@@ -3757,7 +3761,7 @@ int mnu_get_menu_depth()
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t menu_stack_push( int menu )
+bool_t menu_stack_push( which_menu_t menu )
 {
     menu_stack_index = CLIP( menu_stack_index, 0, MENU_STACK_COUNT) ;
 
@@ -3870,7 +3874,7 @@ int TxTitleImage_load_one( const char *szLoadName )
 
     int    index;
 
-    if ( NULL == szLoadName || '\0' == *szLoadName ) return MAX_MODULE;
+    if ( INVALID_CSTR(szLoadName) ) return MAX_MODULE;
 
     if ( TxTitleImage_count >= MAX_MODULE ) return MAX_MODULE;
 
