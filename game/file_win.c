@@ -213,10 +213,10 @@ const char *fs_findNextFile( void )
 void fs_findClose()
 {
     if( NULL != win32_hFind )
-	{
-		FindClose( win32_hFind );
-		win32_hFind = NULL;
-	}
+    {
+        FindClose( win32_hFind );
+        win32_hFind = NULL;
+    }
 }
 
 int DirGetAttrib( const char *fromdir )

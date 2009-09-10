@@ -155,7 +155,7 @@ struct s_enc
     Uint16  target;                  // Who it enchants
     Uint16  owner;                   // Who cast the enchant
     Uint16  spawner;                 // The spellbook character
-	Uint16  spawnermodel;			 // The spellbook character's CapList index
+    Uint16  spawnermodel;             // The spellbook character's CapList index
     Uint16  overlay;                 // The overlay character
     Sint16  ownermana;               // Boost values
     Sint16  ownerlife;

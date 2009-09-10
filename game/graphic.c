@@ -501,8 +501,6 @@ void delete_all_graphics()
     TxTitleImage_delete_all();
 }
 
-
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 void _debug_print( const char *text )
@@ -510,58 +508,57 @@ void _debug_print( const char *text )
     // ZZ> This function sticks a message in the display queue and sets its timer
 
     int          slot;
-	const char * src;
-	char       * dst, * dst_end;
-	msg_t      * pmsg;
+    const char * src;
+    char       * dst, * dst_end;
+    msg_t      * pmsg;
 
-	if( INVALID_CSTR(text) ) return;
+    if( INVALID_CSTR(text) ) return;
 
-	// Get a "free" message
-	slot = DisplayMsg_get_free();
-	pmsg = DisplayMsg.lst + slot;
+    // Get a "free" message
+    slot = DisplayMsg_get_free();
+    pmsg = DisplayMsg.lst + slot;
 
     // Copy the message
     for ( src = text, dst = pmsg->textdisplay, dst_end = dst + MESSAGESIZE;
-		  '\0' != *src && dst < dst_end;
-		  src++, dst++)
+          '\0' != *src && dst < dst_end;
+          src++, dst++)
     {
         *dst = *src;
     }
-	if( dst < dst_end ) *dst = '\0';
+    if( dst < dst_end ) *dst = '\0';
 
-	// Set the time
+    // Set the time
     pmsg->time = cfg.message_duration;
 }
 
 //--------------------------------------------------------------------------------------------
 int _debug_vprintf( const char *format, va_list args )
 {
-	int retval = 0;
+    int retval = 0;
 
-	if( VALID_CSTR(format) )
-	{
-		STRING szTmp;
+    if( VALID_CSTR(format) )
+    {
+        STRING szTmp;
 
         retval = vsnprintf( szTmp, SDL_arraysize(szTmp), format, args );
-		_debug_print( szTmp );
+        _debug_print( szTmp );
     }
 
-	return retval;
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
 int debug_printf( const char *format, ... )
 {
     va_list args;
-	int retval;
+    int retval;
 
     va_start( args, format );
     retval = _debug_vprintf( format, args );
     va_end( args );
 
-	return retval;
+    return retval;
 }
-
 
 //--------------------------------------------------------------------------------------------
 void create_szfpstext( int frames )
@@ -2418,7 +2415,6 @@ int draw_one_xp_bar( int x, int y, Uint8 ticks )
         }
         GL_DEBUG_END();
     }
-
 
     return y + XPTICK;
 }
@@ -4744,7 +4740,6 @@ bool_t bbox_gl_draw(aabb_t * pbbox)
     return btrue;
 }
 
-
 //--------------------------------------------------------------------------------------------
 void release_all_object_textures()
 {
@@ -5111,10 +5106,8 @@ bool_t render_billboard( camera_t * pcam, billboard_data_t * pbb, float scale )
     }
     GL_DEBUG_END();
 
-
     return btrue;
 }
-
 
 //--------------------------------------------------------------------------------------------
 void render_all_billboards( camera_t * pcam )

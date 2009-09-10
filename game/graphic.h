@@ -218,7 +218,6 @@ bool_t gfx_config_synch( gfx_config_t * pgfx, struct s_egoboo_config * pcfg );
 extern obj_registry_entity_t dolist[DOLIST_SIZE];             // List of which characters to draw
 extern size_t                dolist_count;                  // How many in the list
 
-
 // Minimap stuff
 #define MAXBLIP        128                          //Max blips on the screen
 extern Uint8           mapon;

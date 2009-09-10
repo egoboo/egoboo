@@ -4,40 +4,39 @@
 
 #define MAXWATERLAYER 2                             // Maximum water layers
 
-
 // a wrapper for the wawalite.txt file
 struct s_wawalite_water_layer
 {
     Uint32  frame_add;      // Speed
-							
-    float   z;				// Base height of water
-    float   amp;			// Amplitude of waves
-							
-	vec2f_t dist;			// For distant backgrounds
-    Uint32  light_dir;		// direct  reflectivity 0 - 63
-    Uint32  light_add;		// ambient reflectivity 0 - 63
-							
-    vec2f_t tx_add;			// Texture movement
-	Uint8   alpha;			// Transparency
+
+    float   z;                // Base height of water
+    float   amp;            // Amplitude of waves
+
+    vec2f_t dist;            // For distant backgrounds
+    Uint32  light_dir;        // direct  reflectivity 0 - 63
+    Uint32  light_add;        // ambient reflectivity 0 - 63
+
+    vec2f_t tx_add;            // Texture movement
+    Uint8   alpha;            // Transparency
 };
 typedef struct s_wawalite_water_layer wawalite_water_layer_t;
 
 struct s_wawalite_water
 {
     int                    layer_count;
-	wawalite_water_layer_t layer[MAXWATERLAYER];
+    wawalite_water_layer_t layer[MAXWATERLAYER];
 
     float  surface_level;    // Surface level for water striders
-    float  douse_level;		 // Surface level for torches
-    Uint8  spek_start;		 // Specular begins at which light value
-    Uint8  spek_level;		 // General specular amount (0-255)
-    bool_t is_water;		 // Is it water?  ( Or lava... )
+    float  douse_level;         // Surface level for torches
+    Uint8  spek_start;         // Specular begins at which light value
+    Uint8  spek_level;         // General specular amount (0-255)
+    bool_t is_water;         // Is it water?  ( Or lava... )
     bool_t overlay_req;
     bool_t background_req;
 
-	bool_t light;            // Is it light ( default is alpha )
+    bool_t light;            // Is it light ( default is alpha )
 
-	float  foregroundrepeat;
+    float  foregroundrepeat;
     float  backgroundrepeat;
 };
 typedef struct s_wawalite_water wawalite_water_t;

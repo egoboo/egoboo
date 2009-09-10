@@ -1673,7 +1673,7 @@ Uint8 scr_SpawnCharacter( script_state_t * pstate, ai_state_t * pself )
     {
         if ( sTmp > PMod->importamount * MAXIMPORTPERPLAYER )
         {
-            log_warning( "Object %s failed to spawn ac copy of itself\n", pchr->name ); 
+            log_warning( "Object %s failed to spawn ac copy of itself\n", pchr->name );
         }
     }
     else
@@ -3773,13 +3773,13 @@ Uint8 scr_PlaySoundLooped( script_state_t * pstate, ai_state_t * pself )
     // PlaySoundLooped( tmpargument = "sound", tmpdistance = "frequency" )
 
     // This function starts playing a continuous sound
-	Mix_Chunk * new_chunk;
+    Mix_Chunk * new_chunk;
 
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = 0;
 
-	new_chunk = chr_get_chunk_ptr( pchr, pstate->argument );
+    new_chunk = chr_get_chunk_ptr( pchr, pstate->argument );
 
     if ( NULL == new_chunk )
     {
@@ -4962,7 +4962,7 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
     {
         if ( sTmp > PMod->importamount * MAXIMPORTPERPLAYER )
         {
-            log_warning( "Object %s failed to spawn ac copy of itself\n", pchr->name ); 
+            log_warning( "Object %s failed to spawn ac copy of itself\n", pchr->name );
         }
     }
     else
@@ -5012,7 +5012,7 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
     {
         if ( sTmp > PMod->importamount * MAXIMPORTPERPLAYER )
         {
-            log_warning( "Object \"%s\"(\"%s\") failed to spawn profile index %d\n", pchr->name, CapList[pchr->model].classname, pstate->argument ); 
+            log_warning( "Object \"%s\"(\"%s\") failed to spawn profile index %d\n", pchr->name, CapList[pchr->model].classname, pstate->argument );
         }
     }
     else
@@ -6444,8 +6444,8 @@ Uint8 scr_BeatQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_TargetHasQuest( script_state_t * pstate, ai_state_t * pself )
 {
     // This function proceeds if the Target has the unfinIshed quest specIfied in tmpargument
-    // and sets tmpdistance to the Quest Level of the specIfied quest.    
-    
+    // and sets tmpdistance to the Quest Level of the specIfied quest.
+
     int iTmp;
 
     SCRIPT_FUNCTION_BEGIN();
@@ -6580,7 +6580,7 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
     {
         if ( sTmp > PMod->importamount * MAXIMPORTPERPLAYER )
         {
-            log_warning( "Object \"%s\"(\"%s\") failed to spawn profile index %d\n", pchr->name, CapList[pchr->model].classname, pstate->argument ); 
+            log_warning( "Object \"%s\"(\"%s\") failed to spawn profile index %d\n", pchr->name, CapList[pchr->model].classname, pstate->argument );
         }
     }
     else
@@ -6911,12 +6911,12 @@ Uint8 scr_KurseTarget( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // This makes the target kursed
-	returncode = bfalse;
-	if( ChrList.lst[pself->target].isitem && !ChrList.lst[pself->target].iskursed )
-	{
-		ChrList.lst[pself->target].iskursed = btrue;
-		returncode = btrue;
-	}
+    returncode = bfalse;
+    if( ChrList.lst[pself->target].isitem && !ChrList.lst[pself->target].iskursed )
+    {
+        ChrList.lst[pself->target].iskursed = btrue;
+        returncode = btrue;
+    }
 
     SCRIPT_FUNCTION_END();
 }

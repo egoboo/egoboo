@@ -222,7 +222,7 @@ bool_t module_load_info( const char * szLoadName, mod_data_t * pmod )
     // Read basic data
     fget_next_name( fileread, pmod->longname, sizeof(pmod->longname) );
     fget_next_string( fileread, pmod->reference, SDL_arraysize(pmod->reference) );
-    pmod->quest_idsz = fget_next_idsz( fileread ); 
+    pmod->quest_idsz = fget_next_idsz( fileread );
     pmod->quest_level = fget_int( fileread );
 
     pmod->importamount = fget_next_int( fileread );

@@ -169,14 +169,13 @@ struct s_mad
     Uint16  actionstart[ACTION_COUNT];        // First frame of anim
     Uint16  actionend[ACTION_COUNT];          // One past last frame
 
+    //---- per-object data ----
 
-	//---- per-object data ----
-
-	// model data
+    // model data
     ego_md2_t  md2_data;                            // the old-style md2 data
     Md2Model * md2_ptr;                            // the pointer that will eventually be used
 
-	// sounds
+    // sounds
     struct Mix_Chunk *  wavelist[MAX_WAVE];             // sounds in a object
 };
 typedef struct s_mad mad_t;

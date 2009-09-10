@@ -128,7 +128,6 @@ struct s_ai_state
     Uint32         order_value;           // The last order given the character
     Uint16         order_counter;         // The rank of the character on the order chain
 
-
     // timers to limit the the rate of some calls
     Uint32         los_timer;
 

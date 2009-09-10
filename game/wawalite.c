@@ -58,7 +58,6 @@ wawalite_data_t * wawalite_data_init( wawalite_data_t * pdata )
     return pdata;
 };
 
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 wawalite_water_t * read_wawalite_water( vfs_FILE * fileread, wawalite_water_t * pwater )
@@ -264,7 +263,7 @@ wawalite_data_t * read_wawalite( const char *modname )
     int    cnt;
     vfs_FILE*  fileread;
     STRING newloadname;
-	wawalite_data_t * pdata = &_wawalite_file;
+    wawalite_data_t * pdata = &_wawalite_file;
 
     if( NULL == wawalite_data_init( pdata ) ) return pdata;
 
@@ -306,7 +305,7 @@ wawalite_data_t * read_wawalite( const char *modname )
         pdata->water.layer[cnt].light_add = CLIP(pdata->water.layer[cnt].light_add, 0, 63);
     }
 
-	memcpy( &wawalite_data, &_wawalite_file, sizeof(wawalite_data_t) );
+    memcpy( &wawalite_data, &_wawalite_file, sizeof(wawalite_data_t) );
 
     return &wawalite_data;
 }
@@ -571,7 +570,6 @@ bool_t wawalite_fog_init( wawalite_fog_t * pdata )
     return btrue;
 }
 
-
 //--------------------------------------------------------------------------------------------
 bool_t wawalite_animtile_init( wawalite_animtile_t * pdata )
 {
@@ -584,7 +582,6 @@ bool_t wawalite_animtile_init( wawalite_animtile_t * pdata )
 
     return btrue;
 }
-
 
 //--------------------------------------------------------------------------------------------
 bool_t wawalite_damagetile_init( wawalite_damagetile_t * pdata )

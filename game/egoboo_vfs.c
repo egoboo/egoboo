@@ -51,9 +51,9 @@ struct s_vfs_search_context
     char ** file_list;
     char ** ptr;
 
-	char    path[VFS_MAX_PATH];
+    char    path[VFS_MAX_PATH];
     char    ext[255];
-	Uint32  bits;
+    Uint32  bits;
 };
 
 //--------------------------------------------------------------------------------------------
@@ -174,7 +174,7 @@ const char * _vfs_convert_fname_sys( const char * fname )
         return local_fname;
     }
 
-    // make a copy of the original filename, in case fname is 
+    // make a copy of the original filename, in case fname is
     // actualy a pointer to local_fname
     strncpy( copy_fname, fname, SDL_arraysize(copy_fname) );
 
@@ -203,7 +203,7 @@ const char * _vfs_convert_fname_physfs( const char * fname )
         return local_fname;
     }
 
-    // make a copy of the original filename, in case fname is 
+    // make a copy of the original filename, in case fname is
     // actualy a pointer to local_fname
     strncpy( copy_fname, fname, SDL_arraysize(copy_fname) );
 
@@ -222,28 +222,28 @@ const char * _vfs_convert_fname_physfs( const char * fname )
 //--------------------------------------------------------------------------------------------
 const char * vfs_resolveReadFilename(const char * src_filename )
 {
-	static STRING read_name_str = { '\0' };
-	STRING        loc_fname;
-	int           retval_len = 0;
+    static STRING read_name_str = { '\0' };
+    STRING        loc_fname;
+    int           retval_len = 0;
     const char   *retval = NULL;
 
     if( INVALID_CSTR(src_filename) ) return NULL;
 
-	// make sure that PHYSFS gets the filename with the slashes it wants
-	strncpy( loc_fname, _vfs_convert_fname_physfs( src_filename ), SDL_arraysize(loc_fname) );
+    // make sure that PHYSFS gets the filename with the slashes it wants
+    strncpy( loc_fname, _vfs_convert_fname_physfs( src_filename ), SDL_arraysize(loc_fname) );
 
     retval = NULL;
-	retval_len = 0;
+    retval_len = 0;
     if( PHYSFS_isDirectory(loc_fname) )
     {
         retval = PHYSFS_getRealDir( loc_fname );
 
-		if( VALID_CSTR(retval) )
-		{
+        if( VALID_CSTR(retval) )
+        {
             snprintf( read_name_str, SDL_arraysize(read_name_str), "%s" SLASH_STR "%s", retval, loc_fname );
             retval     = read_name_str;
-			retval_len = SDL_arraysize(read_name_str);
-		}
+            retval_len = SDL_arraysize(read_name_str);
+        }
     }
     else
     {
@@ -254,28 +254,27 @@ const char * vfs_resolveReadFilename(const char * src_filename )
 
         if( INVALID_CSTR(tmp_dirnane) )
         {
-			// not found... just punt
+            // not found... just punt
             strncpy( read_name_str, loc_fname, SDL_arraysize(read_name_str) );
             retval     = read_name_str;
-			retval_len = SDL_arraysize(read_name_str);
+            retval_len = SDL_arraysize(read_name_str);
         }
         else
         {
-			// found. apprnd the local filename to the directory
+            // found. apprnd the local filename to the directory
             snprintf( read_name_str, SDL_arraysize(read_name_str), "%s" SLASH_STR "%s", tmp_dirnane, loc_fname );
             retval     = read_name_str;
-			retval_len = SDL_arraysize(read_name_str);
+            retval_len = SDL_arraysize(read_name_str);
         }
     }
 
-	if( VALID_CSTR(retval) && retval_len > 0 )
-	{
-		retval = str_convert_slash_sys((char*)retval, retval_len);
-	}
+    if( VALID_CSTR(retval) && retval_len > 0 )
+    {
+        retval = str_convert_slash_sys((char*)retval, retval_len);
+    }
 
     return retval;
 }
-
 
 //--------------------------------------------------------------------------------------------
 const char * vfs_resolveWriteFilename(const char * src_filename )
@@ -298,7 +297,7 @@ const char * vfs_resolveWriteFilename(const char * src_filename )
 vfs_FILE * vfs_openRead( const char * filename )
 {
     // open a file for reading in text mode, using c stdio
-    
+
     const char  * real_filename;
     vfs_FILE    * vfs_file;
     FILE        * ftmp;
@@ -322,7 +321,7 @@ vfs_FILE * vfs_openRead( const char * filename )
 vfs_FILE * vfs_openWrite( const char * filename )
 {
     // open a file for writing in text mode,  using c stdio
-    
+
     const char  * real_filename;
     vfs_FILE    * vfs_file;
     FILE        * ftmp;
@@ -346,7 +345,7 @@ vfs_FILE * vfs_openWrite( const char * filename )
 vfs_FILE * vfs_openAppend( const char * filename )
 {
     // open a file for appending in text mode,  using c stdio
-    
+
     const char  * real_filename;
     vfs_FILE    * vfs_file;
     FILE * ftmp;
@@ -421,7 +420,7 @@ int vfs_flush( vfs_FILE * pfile )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-int vfs_eof ( vfs_FILE * pfile )   	
+int vfs_eof ( vfs_FILE * pfile )
 {
     int retval;
 
@@ -474,10 +473,10 @@ long vfs_tell ( vfs_FILE * pfile )
     }
     else if ( vfs_physfs == pfile->type )
     {
-        retval = PHYSFS_tell( pfile->ptr.p ); 	
+        retval = PHYSFS_tell( pfile->ptr.p );
     }
 
-    return retval;	
+    return retval;
 };
 
 //--------------------------------------------------------------------------------------------
@@ -499,7 +498,6 @@ int vfs_seek ( vfs_FILE * pfile , long offset )
 
     return retval;
 }
-
 
 //--------------------------------------------------------------------------------------------
 long vfs_fileLength( vfs_FILE * pfile )
@@ -593,7 +591,6 @@ size_t vfs_write( void * buffer, size_t size, size_t count, vfs_FILE * pfile )
 
     return retval;
 }
-
 
 //--------------------------------------------------------------------------------------------
 int vfs_read_Sint16( vfs_FILE * pfile, Sint16 * val )
@@ -762,7 +759,7 @@ int vfs_read_float( vfs_FILE * pfile, float * val )
 //    int    argcount = 0;
 //    void * ptr;
 //
-//    if( NULL == file || INVALID_CSTR(format) ) return 0;  
+//    if( NULL == file || INVALID_CSTR(format) ) return 0;
 //
 //    format_end = (char *)(format + strlen(format));
 //
@@ -895,7 +892,7 @@ int vfs_scanf( vfs_FILE * pfile, const char *format, ... )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-char ** vfs_enumerateFiles( const char * dir_name ) 	
+char ** vfs_enumerateFiles( const char * dir_name )
 {
     return PHYSFS_enumerateFiles( _vfs_convert_fname_physfs(dir_name) );
 };
@@ -921,11 +918,11 @@ void _vfs_findClose( struct s_vfs_search_context * ctxt )
 //--------------------------------------------------------------------------------------------
 const char * _vfs_search( struct s_vfs_search_context * ctxt )
 {
-	const char * retval = NULL;
-	static VFS_PATH  path_buffer;
+    const char * retval = NULL;
+    static VFS_PATH  path_buffer;
 
     // uninitialized file list?
-    if( NULL == ctxt || NULL == ctxt->file_list ) 
+    if( NULL == ctxt || NULL == ctxt->file_list )
     {
         return NULL;
     }
@@ -936,15 +933,15 @@ const char * _vfs_search( struct s_vfs_search_context * ctxt )
         goto _vfs_search_file_error;
     }
 
-	if( NULL == ctxt->ptr )
-	{
-		// if we haven't begun the search yet, get started
-		ctxt->ptr = ctxt->file_list;
-	}
-	else
-	{
-		ctxt->ptr++;
-	}
+    if( NULL == ctxt->ptr )
+    {
+        // if we haven't begun the search yet, get started
+        ctxt->ptr = ctxt->file_list;
+    }
+    else
+    {
+        ctxt->ptr++;
+    }
 
     // NULL == *(ctxt->ptr) signals the end of the list
     // if we exhausted the list, reset everything
@@ -953,161 +950,160 @@ const char * _vfs_search( struct s_vfs_search_context * ctxt )
         goto _vfs_search_file_error;
     }
 
+    // search for the correct extension (if any)
+    retval = NULL;
+    if( '\0' == *ctxt->ext )
+    {
+        int  found;
 
-	// search for the correct extension (if any)
-	retval = NULL;
-	if( '\0' == *ctxt->ext )
-	{
-		int  found;
+        for( /* nothing */; NULL != *(ctxt->ptr); ctxt->ptr++ )
+        {
+            int is_dir;
+            char * loc_path;
 
-		for( /* nothing */; NULL != *(ctxt->ptr); ctxt->ptr++ )
-		{
-			int is_dir;
-		    char * loc_path;
+            if( INVALID_CSTR(ctxt->path) )
+            {
+                snprintf( path_buffer, SDL_arraysize(path_buffer), NET_SLASH_STR "%s", *(ctxt->ptr) );
+            }
+            else
+            {
+                snprintf( path_buffer, SDL_arraysize(path_buffer), "%s" NET_SLASH_STR "%s", ctxt->path, *(ctxt->ptr) );
+            }
 
-			if( INVALID_CSTR(ctxt->path) )
-			{
-				snprintf( path_buffer, SDL_arraysize(path_buffer), NET_SLASH_STR "%s", *(ctxt->ptr) );
-			}
-			else
-			{
-				snprintf( path_buffer, SDL_arraysize(path_buffer), "%s" NET_SLASH_STR "%s", ctxt->path, *(ctxt->ptr) );
-			}
+            loc_path = _vfs_convert_fname_physfs(path_buffer);
 
-			loc_path = _vfs_convert_fname_physfs(path_buffer);
+            // have we found the correct type of object?
+            found  = VFS_FALSE;
+            is_dir = vfs_isDirectory( loc_path );
 
-			// have we found the correct type of object?
-			found  = VFS_FALSE;
-			is_dir = vfs_isDirectory( loc_path );
+            if( 0 != (VFS_SEARCH_FILE & ctxt->bits ) )
+            {
+                found = !is_dir;
+            }
+            else if( 0 != (VFS_SEARCH_DIR & ctxt->bits ) )
+            {
+                found = is_dir;
+            }
+            else
+            {
+                found = VFS_TRUE;
+            }
 
-			if( 0 != (VFS_SEARCH_FILE & ctxt->bits ) )
-			{
-				found = !is_dir;
-			}
-			else if( 0 != (VFS_SEARCH_DIR & ctxt->bits ) )
-			{
-				found = is_dir;
-			}
-			else
-			{
-				found = VFS_TRUE;
-			}
+            if( found )
+            {
+                retval = loc_path;
+                break;
+            }
+        }
+    }
+    else
+    {
+        int extension_length = strlen( ctxt->ext );
 
-			if( found ) 
-			{
-				retval = loc_path;
-				break;
-			}
-		}
-	}
-	else
-	{
-		int extension_length = strlen( ctxt->ext );
-	    
-		// scan through the list
-		for( /* nothing */; NULL != *(ctxt->ptr); ctxt->ptr++ )
-		{
-			int found, is_dir;
-			int    string_length;
-			char * sztest;
-		    char * loc_path;
+        // scan through the list
+        for( /* nothing */; NULL != *(ctxt->ptr); ctxt->ptr++ )
+        {
+            int found, is_dir;
+            int    string_length;
+            char * sztest;
+            char * loc_path;
 
-			//---- have we found the correct type of object?
+            //---- have we found the correct type of object?
 
-			if( INVALID_CSTR(ctxt->path) )
-			{
-				snprintf( path_buffer, SDL_arraysize(path_buffer), NET_SLASH_STR "%s", *(ctxt->ptr) );
-			}
-			else
-			{
-				snprintf( path_buffer, SDL_arraysize(path_buffer), "%s" NET_SLASH_STR "%s", ctxt->path, *(ctxt->ptr) );
-			}
+            if( INVALID_CSTR(ctxt->path) )
+            {
+                snprintf( path_buffer, SDL_arraysize(path_buffer), NET_SLASH_STR "%s", *(ctxt->ptr) );
+            }
+            else
+            {
+                snprintf( path_buffer, SDL_arraysize(path_buffer), "%s" NET_SLASH_STR "%s", ctxt->path, *(ctxt->ptr) );
+            }
 
-			loc_path = _vfs_convert_fname_physfs(path_buffer);
+            loc_path = _vfs_convert_fname_physfs(path_buffer);
 
-			found = VFS_FALSE;
-			is_dir = vfs_isDirectory( loc_path );
-			if( 0 != (VFS_SEARCH_FILE & ctxt->bits ) )
-			{
-				found = !is_dir;
-			}
-			else if( 0 != (VFS_SEARCH_DIR & ctxt->bits ) )
-			{
-				found = is_dir;
-			}
-			else
-			{
-				found = VFS_TRUE;
-			}
+            found = VFS_FALSE;
+            is_dir = vfs_isDirectory( loc_path );
+            if( 0 != (VFS_SEARCH_FILE & ctxt->bits ) )
+            {
+                found = !is_dir;
+            }
+            else if( 0 != (VFS_SEARCH_DIR & ctxt->bits ) )
+            {
+                found = is_dir;
+            }
+            else
+            {
+                found = VFS_TRUE;
+            }
 
-			if( !found ) continue;
+            if( !found ) continue;
 
-			//---- does the extension match?
-			sztest = *(ctxt->ptr);
+            //---- does the extension match?
+            sztest = *(ctxt->ptr);
 
-			// get the length
-			string_length = strlen( sztest );
+            // get the length
+            string_length = strlen( sztest );
 
-			// grab the last bit of the test string
-			if( string_length-extension_length >= 0 )
-			{
-				sztest += (string_length-extension_length);
-			}
-			else
-			{
-				sztest = NULL;
-			}
-			if( INVALID_CSTR(sztest) ) continue;
-			
-			if( 0 == strcmp(sztest, ctxt->ext ) )
-			{
-				retval = loc_path;
-				break;
-			}
-		};
-	}
+            // grab the last bit of the test string
+            if( string_length-extension_length >= 0 )
+            {
+                sztest += (string_length-extension_length);
+            }
+            else
+            {
+                sztest = NULL;
+            }
+            if( INVALID_CSTR(sztest) ) continue;
 
-	// reset the path buffer
-	path_buffer[0] = '\0';
+            if( 0 == strcmp(sztest, ctxt->ext ) )
+            {
+                retval = loc_path;
+                break;
+            }
+        };
+    }
+
+    // reset the path buffer
+    path_buffer[0] = '\0';
 
     // test for the end condition again
     if( NULL == ctxt->ptr || NULL == *(ctxt->ptr) )
     {
         fs_findClose();
-		retval = NULL;
+        retval = NULL;
     }
-	else
-	{
-		if( 0 != (VFS_SEARCH_BARE & ctxt->bits) )
-		{
-			// do the "bare" option
-			retval = NULL;
-			if( VALID_CSTR( *(ctxt->ptr) ) )
-			{
-				strncpy( path_buffer, *(ctxt->ptr), SDL_arraysize(path_buffer) );
-				retval = path_buffer;
-			}
-		}
-		else
-		{
-			// return the full path
-			if( VALID_CSTR( retval ) )
-			{
-				strncpy( path_buffer, retval, SDL_arraysize(path_buffer) );
-				retval = path_buffer;
-			}
-			else
-			{
-				retval = NULL;
-			}
-		}
-	}
+    else
+    {
+        if( 0 != (VFS_SEARCH_BARE & ctxt->bits) )
+        {
+            // do the "bare" option
+            retval = NULL;
+            if( VALID_CSTR( *(ctxt->ptr) ) )
+            {
+                strncpy( path_buffer, *(ctxt->ptr), SDL_arraysize(path_buffer) );
+                retval = path_buffer;
+            }
+        }
+        else
+        {
+            // return the full path
+            if( VALID_CSTR( retval ) )
+            {
+                strncpy( path_buffer, retval, SDL_arraysize(path_buffer) );
+                retval = path_buffer;
+            }
+            else
+            {
+                retval = NULL;
+            }
+        }
+    }
 
     return (NULL == retval) ? NULL : path_buffer;
 
 _vfs_search_file_error:
-	vfs_findClose();
-	return NULL;
+    vfs_findClose();
+    return NULL;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1153,7 +1149,7 @@ const char * vfs_findFirst( const char * search_path, const char * search_extens
         strncpy( vfs_search_context.path, search_path, SDL_arraysize(vfs_search_context.path) );
     }
 
-	vfs_search_context.bits = search_bits;
+    vfs_search_context.bits = search_bits;
 
     return _vfs_search( &vfs_search_context );
 }
@@ -1253,11 +1249,11 @@ int vfs_copyFile( const char *source, const char *dest )
     // if they are the same files, do nothing
     if( 0 == strcmp( real_src, real_dst ) ) return VFS_FALSE;
 
-    // !assume! that we are not dealing with archives, and just use the 
+    // !assume! that we are not dealing with archives, and just use the
     // fs_* copy command
     fs_copyFile( real_src, real_dst );
 
-	return VFS_TRUE;
+    return VFS_TRUE;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1289,11 +1285,11 @@ int vfs_copyDirectory( const char *sourceDir, const char *destDir )
     {
         // Ignore files that begin with a .
         if ( '.' != fileName[0] )
-		{
-			snprintf( srcPath, SDL_arraysize(srcPath), "%s" SLASH_STR "%s", sourceDir, fileName );
-			snprintf( destPath, SDL_arraysize(destPath), "%s" SLASH_STR "%s", destDir, fileName );
-			vfs_copyFile( srcPath, destPath );
-		}
+        {
+            snprintf( srcPath, SDL_arraysize(srcPath), "%s" SLASH_STR "%s", sourceDir, fileName );
+            snprintf( destPath, SDL_arraysize(destPath), "%s" SLASH_STR "%s", destDir, fileName );
+            vfs_copyFile( srcPath, destPath );
+        }
         fileName = vfs_findNext();
     }
     vfs_findClose();
@@ -1301,8 +1297,6 @@ int vfs_copyDirectory( const char *sourceDir, const char *destDir )
     return VFS_TRUE;
 }
 
-
- 
 //--------------------------------------------------------------------------------------------
 int vfs_ungetc(int c, vfs_FILE * pfile)
 {
@@ -1433,7 +1427,6 @@ void vfs_empty_import_directory()
     vfs_removeDirectoryAndContents( "remote", VFS_TRUE );
 }
 
-
 //--------------------------------------------------------------------------------------------
 int _vfs_vfscanf( FILE * file, const char * format, va_list args )
 {
@@ -1444,7 +1437,7 @@ int _vfs_vfscanf( FILE * file, const char * format, va_list args )
     int    argcount = 0;
     void * ptr;
 
-    if( NULL == file || INVALID_CSTR(format) ) return 0;  
+    if( NULL == file || INVALID_CSTR(format) ) return 0;
 
     format_end = (char *)(format + strlen(format));
 

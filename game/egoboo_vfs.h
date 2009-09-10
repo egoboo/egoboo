@@ -27,18 +27,17 @@
 #include <stdio.h>
 #include <SDL_types.h>
 
-
 enum e_vfs_serach_bits
 {
-	// file types
-	VFS_SEARCH_NONE = 0,                // NONE == ALL
-	VFS_SEARCH_DIR  = (1 << 0),
-	VFS_SEARCH_FILE = (1 << 1),
+    // file types
+    VFS_SEARCH_NONE = 0,                // NONE == ALL
+    VFS_SEARCH_DIR  = (1 << 0),
+    VFS_SEARCH_FILE = (1 << 1),
 
-	// search options
-	VFS_SEARCH_BARE = (1 << 2),        // return only the bare filename, not the whole relative path
+    // search options
+    VFS_SEARCH_BARE = (1 << 2),        // return only the bare filename, not the whole relative path
 
-	VFS_SEARCH_ALL  = VFS_SEARCH_DIR | VFS_SEARCH_FILE
+    VFS_SEARCH_ALL  = VFS_SEARCH_DIR | VFS_SEARCH_FILE
 };
 
 // physfs does not distinguish between these functions
@@ -63,7 +62,6 @@ vfs_FILE * vfs_openAppendB( const char * filename );
 vfs_FILE * vfs_openRead( const char * filename );
 vfs_FILE * vfs_openWrite( const char * filename );
 vfs_FILE * vfs_openAppend( const char * filename );
-
 
 int        vfs_close( vfs_FILE * pfile );
 int        vfs_flush( vfs_FILE * pfile );
@@ -114,7 +112,7 @@ int          vfs_copyDirectory( const char *sourceDir, const char *destDir );
 int    vfs_ungetc(int, vfs_FILE *);
 int    vfs_getc (vfs_FILE *);
 int    vfs_removeDirectoryAndContents( const char * dirname, int recursive );
-int    vfs_putc( int , vfs_FILE *); 
+int    vfs_putc( int , vfs_FILE *);
 int    vfs_puts( const char * , vfs_FILE *);
 char * vfs_gets( char *, int, vfs_FILE *);
 

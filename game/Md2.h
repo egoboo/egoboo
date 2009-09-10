@@ -40,7 +40,6 @@
 #define MADLIGHTINDICES                 (MD2_MAX_NORMALS + 1) // MD2's store vertices as x,y,z,normal
 #define EQUALLIGHTINDEX                 162                // I added an extra index to do the spikey mace...
 
-
 struct s_md2_ogl_commandlist
 {
     Uint16  count;                  // Number of commands

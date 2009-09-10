@@ -327,9 +327,9 @@ bool_t md2_load_one( const char* szLoadname, ego_md2_t * pmd2 )
     //   int iFileHandleRead;
     size_t iBytesRead = 0;
     int iReturnValue;
-	FILE *file;
+    FILE *file;
 
-	if( INVALID_CSTR(szLoadname) ) return bfalse;
+    if( INVALID_CSTR(szLoadname) ) return bfalse;
 
     // Read the input file
     file = fopen( szLoadname, "rb" );
@@ -342,8 +342,8 @@ bool_t md2_load_one( const char* szLoadname, ego_md2_t * pmd2 )
     // Read up to MD2MAXLOADSIZE bytes from the file into the cLoadBuffer array.
     iBytesRead = fread( cLoadBuffer, 1, MD2MAXLOADSIZE, file );
 
-	// done with the file
-	fclose( file );
+    // done with the file
+    fclose( file );
 
     if ( iBytesRead == 0 ) return bfalse;
 
@@ -361,8 +361,6 @@ bool_t md2_load_one( const char* szLoadname, ego_md2_t * pmd2 )
 
     // Get the commands
     md2_rip_commands( &(pmd2->cmd) );
-
-
 
     return btrue;
 }

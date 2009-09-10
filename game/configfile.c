@@ -67,10 +67,8 @@
 // util
 static void ConfigFileString_Encode( char *pStr );
 
-
 static ConfigFilePtr_t   ConfigFile_open( ConfigFilePtr_t pConfigFile, const char *szFileName, const char * szAttribute );
 static ConfigFile_retval ConfigFile_close( ConfigFilePtr_t pConfigFile );
-
 
 static ConfigFile_retval ConfigFile_read( ConfigFilePtr_t pConfigFile );
 static ConfigFile_retval ConfigFile_write( ConfigFilePtr_t pConfigFile );
@@ -215,7 +213,7 @@ ConfigFile_retval ConfigFileString_destroy(char ** ptmp )
 //--------------------------------------------------------------------------------------------
 char * ConfigFileString_resize(char * str, size_t new_len )
 {
-	size_t old_len = (NULL == str || '\0' == *str) ? 0 : strlen( str );
+    size_t old_len = (NULL == str || '\0' == *str) ? 0 : strlen( str );
 
     // if value already exist, verify if allocated memory is enough
     // if not allocate more memory
@@ -578,7 +576,7 @@ ConfigFilePtr_t ConfigFile_open( ConfigFilePtr_t pConfigFile, const char *szFile
 
     // open a file stream for access using the szAttribute attribute
     lTempFile = fopen( szFileName, szAttribute );
-    if ( NULL == lTempFile  ) 
+    if ( NULL == lTempFile  )
     {
         return pConfigFile;
     }

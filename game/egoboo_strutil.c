@@ -152,8 +152,8 @@ char * str_clean_path(char * str, size_t size)
 
     if ( INVALID_CSTR(str) ) return str;
 
-    for ( psrc = str, pdst = str, psrc_end = str + size, pdst_end = str + size; 
-          psrc < psrc_end && pdst < pdst_end; 
+    for ( psrc = str, pdst = str, psrc_end = str + size, pdst_end = str + size;
+          psrc < psrc_end && pdst < pdst_end;
           /*nothing*/ )
     {
         if ( '/' == *psrc || '\\' == *psrc )
@@ -175,10 +175,10 @@ char * str_clean_path(char * str, size_t size)
         }
     }
 
-	if( pdst < pdst_end )
-	{
-		*pdst = '\0';
-	}
+    if( pdst < pdst_end )
+    {
+        *pdst = '\0';
+    }
 
     return str;
 }
@@ -191,9 +191,9 @@ char * str_convert_slash_net(char * str, size_t size)
     char * psrc, *psrc_end, *pdst, *pdst_end;
 
     if ( INVALID_CSTR(str) ) return str;
-    
-    for ( psrc = str, pdst = str, psrc_end = str + size, pdst_end = str + size; 
-          '\0' != *psrc && psrc < psrc_end && pdst < pdst_end; 
+
+    for ( psrc = str, pdst = str, psrc_end = str + size, pdst_end = str + size;
+          '\0' != *psrc && psrc < psrc_end && pdst < pdst_end;
           psrc++, pdst++ )
     {
         char cTmp = *psrc;
@@ -203,10 +203,10 @@ char * str_convert_slash_net(char * str, size_t size)
         *pdst = cTmp;
     }
 
-	if(pdst < pdst_end)
-	{
-		*pdst = '\0';
-	}
+    if(pdst < pdst_end)
+    {
+        *pdst = '\0';
+    }
 
     return str_clean_path( str, size );
 }
@@ -219,9 +219,9 @@ char * str_convert_slash_sys(char * str, size_t size)
     char * psrc, *psrc_end, *pdst, *pdst_end;
 
     if ( INVALID_CSTR(str) ) return str;
-    
-    for ( psrc = str, pdst = str, psrc_end = str + size, pdst_end = str + size; 
-          '\0' != *psrc && psrc < psrc_end && pdst < pdst_end; 
+
+    for ( psrc = str, pdst = str, psrc_end = str + size, pdst_end = str + size;
+          '\0' != *psrc && psrc < psrc_end && pdst < pdst_end;
           psrc++, pdst++ )
     {
         char cTmp = *psrc;
@@ -231,10 +231,10 @@ char * str_convert_slash_sys(char * str, size_t size)
         *pdst = cTmp;
     }
 
-	if(pdst < pdst_end)
-	{
-		*pdst = '\0';
-	}
+    if(pdst < pdst_end)
+    {
+        *pdst = '\0';
+    }
 
     return str_clean_path( str, size );
 }

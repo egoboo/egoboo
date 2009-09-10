@@ -75,8 +75,6 @@ enum e_damage_fx
 
 #define SPELLBOOK           127                     // The spellbook model
 
-
-
 // Messaging stuff
 #define MAX_MESSAGE          8                       // Number of messages
 #define MAXTOTALMESSAGE     4096
@@ -218,177 +216,177 @@ enum e_attachment_type
 #define  _EGOBOO_H_
 
 // list of global objects
-// 37	grubbug.obj
-// 40	strider.obj
-// 41	beartrap.obj
-// 44	lamp.obj
-// 46	spkmace.obj
-// 47	torch.obj
-// 48	everburn.obj
-// 49	oilflask.obj
-// 50	sword.obj
-// 51	spear.obj
-// 54	light.obj
-// 55	pitcobra.obj
-// 56	cinquedea.obj
-// 57	trident.obj
-// 58	enchantarmorscroll.obj
-// 59	chest.obj
-// 60	enchantweaponscroll.obj
-// 61	lbow.obj
-// 62	thunderspear.obj
-// 63	towershield.obj
-// 64	enchant.obj
-// 65	fireball.obj
-// 66	unseen.obj
-// 67	storms.obj
-// 68	size.obj
-// 69	protect.obj
-// 70	icicles.obj
-// 71	xbow.obj
-// 72	mimic.obj
-// 73	missile.obj
-// 74	pstiletto.obj
-// 75	phanxbow.obj
-// 76	bullwolf.obj
-// 77	hatchet.obj
-// 78	kshield.obj
-// 79	ressurection.obj
-// 80	medkit.obj
-// 81	msword.obj
-// 82	sojurn.obj
-// 83	strike.obj
-// 84	armorchest.obj
-// 85	clairvoyance.obj
-// 86	lpotion.obj
-// 87	mpotion.obj
-// 88	confusion.obj
-// 89	pike.obj
-// 90	quiver.obj
-// 91	firering.obj
-// 92	scimitar.obj
-// 93	keya.obj
-// 94	keyc.obj
-// 95	blob.obj
-// 96	bomb.obj
-// 97	cockatrice.obj
-// 98	pkatana.obj
-// 99	dsamulet.obj
-//100	rack.obj
-//101	carpet.obj
-//108	iceray.obj
-//109	shock.obj
-//110	haste.obj
-//111	battleward.obj
-//112	syphonmana.obj
-//114	metamorph.obj
-//115	meteorswarm.obj
-//116	darkritual.obj
-//117	disjunction.obj
-//118	arcanenova.obj
-//119	disintergrate.obj
-//120	wonder.obj
-//121	hrune.obj
-//122	combatbless.obj
-//123	ammobox.obj
-//124	regeneration.obj
-//125	exorcism.obj
-//127	book.obj
-//128	restoration.obj
-//129	holybolt.obj
-//130	retribution.obj
-//131	scythe.obj
-//132	mallet.obj
-//133	rebirth.obj
-//135	jring.obj
-//136	lifering.obj
-//137	luckring.obj
-//140	truesightscroll.obj
-//156	lifedrain.obj
-//158	pring.obj
-//160	touristguide.obj
+// 37    grubbug.obj
+// 40    strider.obj
+// 41    beartrap.obj
+// 44    lamp.obj
+// 46    spkmace.obj
+// 47    torch.obj
+// 48    everburn.obj
+// 49    oilflask.obj
+// 50    sword.obj
+// 51    spear.obj
+// 54    light.obj
+// 55    pitcobra.obj
+// 56    cinquedea.obj
+// 57    trident.obj
+// 58    enchantarmorscroll.obj
+// 59    chest.obj
+// 60    enchantweaponscroll.obj
+// 61    lbow.obj
+// 62    thunderspear.obj
+// 63    towershield.obj
+// 64    enchant.obj
+// 65    fireball.obj
+// 66    unseen.obj
+// 67    storms.obj
+// 68    size.obj
+// 69    protect.obj
+// 70    icicles.obj
+// 71    xbow.obj
+// 72    mimic.obj
+// 73    missile.obj
+// 74    pstiletto.obj
+// 75    phanxbow.obj
+// 76    bullwolf.obj
+// 77    hatchet.obj
+// 78    kshield.obj
+// 79    ressurection.obj
+// 80    medkit.obj
+// 81    msword.obj
+// 82    sojurn.obj
+// 83    strike.obj
+// 84    armorchest.obj
+// 85    clairvoyance.obj
+// 86    lpotion.obj
+// 87    mpotion.obj
+// 88    confusion.obj
+// 89    pike.obj
+// 90    quiver.obj
+// 91    firering.obj
+// 92    scimitar.obj
+// 93    keya.obj
+// 94    keyc.obj
+// 95    blob.obj
+// 96    bomb.obj
+// 97    cockatrice.obj
+// 98    pkatana.obj
+// 99    dsamulet.obj
+//100    rack.obj
+//101    carpet.obj
+//108    iceray.obj
+//109    shock.obj
+//110    haste.obj
+//111    battleward.obj
+//112    syphonmana.obj
+//114    metamorph.obj
+//115    meteorswarm.obj
+//116    darkritual.obj
+//117    disjunction.obj
+//118    arcanenova.obj
+//119    disintergrate.obj
+//120    wonder.obj
+//121    hrune.obj
+//122    combatbless.obj
+//123    ammobox.obj
+//124    regeneration.obj
+//125    exorcism.obj
+//127    book.obj
+//128    restoration.obj
+//129    holybolt.obj
+//130    retribution.obj
+//131    scythe.obj
+//132    mallet.obj
+//133    rebirth.obj
+//135    jring.obj
+//136    lifering.obj
+//137    luckring.obj
+//140    truesightscroll.obj
+//156    lifedrain.obj
+//158    pring.obj
+//160    touristguide.obj
 
 // list of objects that spawn other ("named") objects
 //
 // module               object
 //
-// abyss2.mod			bossyeti.obj
-// abyss2.mod			cage.obj
-// abyss2.mod			daemonlord.obj
-// abyss2.mod			daemonlordwing.obj
-// abyss2.mod			dracolich.obj
-// abyss2.mod			goldenchest.obj
-// abyss2.mod			seal.obj
-// abyss2.mod			thebetrayer.obj
+// abyss2.mod            bossyeti.obj
+// abyss2.mod            cage.obj
+// abyss2.mod            daemonlord.obj
+// abyss2.mod            daemonlordwing.obj
+// abyss2.mod            dracolich.obj
+// abyss2.mod            goldenchest.obj
+// abyss2.mod            seal.obj
+// abyss2.mod            thebetrayer.obj
 //
-// archaeologist.mod	brazier.obj
-// archaeologist.mod	pedestal.obj
+// archaeologist.mod    brazier.obj
+// archaeologist.mod    pedestal.obj
 //
-// archmage.mod			archghost.obj
-// archmage.mod			pedestal.obj
-// archmage.mod			specialchest.obj
+// archmage.mod            archghost.obj
+// archmage.mod            pedestal.obj
+// archmage.mod            specialchest.obj
 //
-// benemocave.mod		bossbandit.obj
+// benemocave.mod        bossbandit.obj
 //
-// bishopiacity.mod		angus.obj
-// bishopiacity.mod		marcus.obj
-// bishopiacity.mod		moduletool.obj
-// bishopiacity.mod		outhouse.obj
-// bishopiacity.mod		shopkeep.obj
-// bishopiacity.mod		shopkeep2.obj
-// bishopiacity.mod		touristguide.obj
+// bishopiacity.mod        angus.obj
+// bishopiacity.mod        marcus.obj
+// bishopiacity.mod        moduletool.obj
+// bishopiacity.mod        outhouse.obj
+// bishopiacity.mod        shopkeep.obj
+// bishopiacity.mod        shopkeep2.obj
+// bishopiacity.mod        touristguide.obj
 //
-// catacomb1.mod		body.obj
-// catacomb1.mod		brazier.obj
-// catacomb1.mod		moduletool.obj
-// catacomb1.mod		puzzle.obj
-// catacomb1.mod		puzzlemod.obj
-// catacomb1.mod		sarcophagus.obj
-// catacomb1.mod		sporkbutton.obj
+// catacomb1.mod        body.obj
+// catacomb1.mod        brazier.obj
+// catacomb1.mod        moduletool.obj
+// catacomb1.mod        puzzle.obj
+// catacomb1.mod        puzzlemod.obj
+// catacomb1.mod        sarcophagus.obj
+// catacomb1.mod        sporkbutton.obj
 //
-// catacomb2.mod		body.obj
+// catacomb2.mod        body.obj
 //
-// crypt.mod			rockhead.obj
+// crypt.mod            rockhead.obj
 //
-// elf.mod			    grave.obj
-// elf.mod			    rockhead.obj
+// elf.mod                grave.obj
+// elf.mod                rockhead.obj
 //
-// forgotten.mod		droptrap.obj
+// forgotten.mod        droptrap.obj
 //
-// healer.mod			rockhead.obj
+// healer.mod            rockhead.obj
 //
-// heist.mod			eyeballguard.obj
-// heist.mod			goldenchest.obj
-// heist.mod			moduletool.obj
-// heist.mod			puzzlemod.obj
+// heist.mod            eyeballguard.obj
+// heist.mod            goldenchest.obj
+// heist.mod            moduletool.obj
+// heist.mod            puzzlemod.obj
 //
-// paladin.mod			bpopper.obj
-// paladin.mod			evilaltar.obj
-// paladin.mod			popper.obj
-// paladin.mod			rockhead.obj
-// paladin.mod			sarcophagus.obj
+// paladin.mod            bpopper.obj
+// paladin.mod            evilaltar.obj
+// paladin.mod            popper.obj
+// paladin.mod            rockhead.obj
+// paladin.mod            sarcophagus.obj
 //
-// palice.mod			monsterdrop.obj
-// palice.mod			yeti.obj
+// palice.mod            monsterdrop.obj
+// palice.mod            yeti.obj
 //
-// palsand.mod			bossdrop.obj
-// palsand.mod			bossfall.obj
-// palshad.mod			popper.obj
-// palshad.mod			sacripit.obj
+// palsand.mod            bossdrop.obj
+// palsand.mod            bossfall.obj
+// palshad.mod            popper.obj
+// palshad.mod            sacripit.obj
 //
-// palwater.mod			filldrop.obj
-// palwater.mod			grubdrop.obj
-// palwater.mod			trapdrop.obj
+// palwater.mod            filldrop.obj
+// palwater.mod            grubdrop.obj
+// palwater.mod            trapdrop.obj
 //
-// tourist.mod			sarcophagus.obj
+// tourist.mod            sarcophagus.obj
 //
-// wizard.mod			ritual.obj
+// wizard.mod            ritual.obj
 //
-// worldmap.mod			encounter.obj
+// worldmap.mod            encounter.obj
 //
-// zippy.mod			lamb.obj
-// zippy.mod			mushroomtrader.obj
-// zippy.mod			pettrader.obj
-// zippy.mod			shopkeep.obj
+// zippy.mod            lamb.obj
+// zippy.mod            mushroomtrader.obj
+// zippy.mod            pettrader.obj
+// zippy.mod            shopkeep.obj
 //
-// zombor.mod			nercomancer.obj
+// zombor.mod            nercomancer.obj

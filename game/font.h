@@ -51,5 +51,4 @@ extern void    fnt_getTextBoxSize( Font *font, const char *text, int spacing, in
 // handle variable arguments to print text to a GL texture
 extern int fnt_vprintf( Font *font, SDL_Color color, SDL_Surface ** psurf, GLuint itex, float texCoords[], const char *format, va_list args );
 
-
 #define egoboo_Font_h

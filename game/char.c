@@ -714,12 +714,12 @@ void make_character_matrices(bool_t do_physics)
             if ( ChrList.lst[ichr].inst.matrixvalid ) continue;
 
             imount = ChrList.lst[ichr].attachedto;
-            if ( INVALID_CHR(imount) || imount == ichr ) 
-			{ 
-				ChrList.lst[ichr].attachedto = MAX_CHR; 
-				make_one_character_matrix( ichr );
-				continue; 
-			}
+            if ( INVALID_CHR(imount) || imount == ichr )
+            {
+                ChrList.lst[ichr].attachedto = MAX_CHR;
+                make_one_character_matrix( ichr );
+                continue;
+            }
 
             // can't evaluate this link yet
             if ( !ChrList.lst[imount].inst.matrixvalid )
@@ -835,18 +835,17 @@ Uint16 ChrList_get_free()
     return retval;
 }
 
-
 //--------------------------------------------------------------------------------------------
 void ChrList_free_all()
 {
-	int cnt;
+    int cnt;
 
     for ( cnt = 0; cnt < MAX_CHR; cnt++ )
     {
         ChrList_free_one( cnt );
     }
 
-	ChrList.free_count = 0;
+    ChrList.free_count = 0;
  }
 
 //--------------------------------------------------------------------------------------------
@@ -1232,7 +1231,7 @@ void attach_character_to_mount( Uint16 iitem, Uint16 iholder, grip_offset_t grip
 
     // make a reasonable time for the character to remount something
     // for characters jumping out of pots, etc
-    if( pitem->phys.dismount_timer > 0 ) 
+    if( pitem->phys.dismount_timer > 0 )
         return;
 
     // Make sure the holder/mount is valid
@@ -1974,7 +1973,6 @@ bool_t character_grab_stuff( Uint16 ichr_a, grip_offset_t grip_off, bool_t grab_
 
     }
 
-
     return retval;
 }
 
@@ -2528,16 +2526,16 @@ bool_t export_one_character_profile( const char *szSaveName, Uint16 character )
     // Skin defenses
     vfs_printf( filewrite, "Base defense   : %3d %3d %3d %3d\n", 255 - pcap->defense[0], 255 - pcap->defense[1],
              255 - pcap->defense[2], 255 - pcap->defense[3] );
-    
+
     for ( damagetype = 0; damagetype < DAMAGE_COUNT; damagetype++ )
     {
         vfs_printf( filewrite, "%c damage shift : %3d %3d %3d %3d\n", types[damagetype],
                  pcap->damagemodifier[damagetype][0]&DAMAGESHIFT,
                  pcap->damagemodifier[damagetype][1]&DAMAGESHIFT,
                  pcap->damagemodifier[damagetype][2]&DAMAGESHIFT,
-                 pcap->damagemodifier[damagetype][3]&DAMAGESHIFT );   
+                 pcap->damagemodifier[damagetype][3]&DAMAGESHIFT );
     }
-    
+
     for ( damagetype = 0; damagetype < DAMAGE_COUNT; damagetype++ )
     {
         skin = 0;
@@ -2812,7 +2810,7 @@ int load_one_character_profile( const char * tmploadname, int slot_override, boo
     fileread = vfs_openRead( szLoadName );
     if ( NULL == fileread )
     {
-        // The data file wasn't found        
+        // The data file wasn't found
 
         if ( required )
         {
@@ -2835,7 +2833,7 @@ int load_one_character_profile( const char * tmploadname, int slot_override, boo
     {
         // set the object slot
         object = iTmp;
-        
+
         if ( object < 0 )
         {
             if ( import_data.object < 0 )
@@ -2873,10 +2871,10 @@ int load_one_character_profile( const char * tmploadname, int slot_override, boo
         {
             log_error( "Object slot %i used twice (%s, %s)\n", object, pcap->name, szLoadName );
         }
-        else 
+        else
         {
             // Stop, we don't want to override it
-            return MAX_PROFILE;   
+            return MAX_PROFILE;
         }
     }
 
@@ -3046,7 +3044,7 @@ int load_one_character_profile( const char * tmploadname, int slot_override, boo
     }
 
     // Item and damage flags
-    pcap->isitem = fget_next_bool( fileread ); 
+    pcap->isitem = fget_next_bool( fileread );
     pcap->ismount = fget_next_bool( fileread );
     pcap->isstackable = fget_next_bool( fileread );
     pcap->nameknown = fget_next_bool( fileread );
@@ -3474,13 +3472,11 @@ void damage_character( Uint16 character, Uint16 direction,
                             }
                         }
 
-
                         // The team now has no leader if the character is the leader
                         if ( TeamList[ChrList.lst[character].team].leader == character )
                         {
                             TeamList[ChrList.lst[character].team].leader = NOLEADER;
                         }
-
 
                         detach_character_from_mount( character, btrue, bfalse );
 
@@ -4267,6 +4263,7 @@ Uint16 change_armor( Uint16 character, Uint16 skin )
         set_enchant_value( enchant, SETFIREMODIFIER, EncList.lst[enchant].eve );
         set_enchant_value( enchant, SETICEMODIFIER, EncList.lst[enchant].eve );
         set_enchant_value( enchant, SETZAPMODIFIER, EncList.lst[enchant].eve );
+
         add_enchant_value( enchant, ADDACCEL, EncList.lst[enchant].eve );
         add_enchant_value( enchant, ADDDEFENSE, EncList.lst[enchant].eve );
         enchant = EncList.lst[enchant].nextenchant;
@@ -4388,10 +4385,10 @@ void change_character( Uint16 ichr, Uint16 profile, Uint8 skin, Uint8 leavewhich
     }
 
     // Stuff that must be set
-    pchr->model = profile;
+    pchr->model     = profile;
     pchr->stoppedby = pcap->stoppedby;
-    pchr->lifeheal = pcap->lifeheal;
-    pchr->manacost = pcap->manacost;
+    pchr->lifeheal  = pcap->lifeheal;
+    pchr->manacost  = pcap->manacost;
 
     // Ammo
     pchr->ammomax = pcap->ammomax;
@@ -4430,15 +4427,15 @@ void change_character( Uint16 ichr, Uint16 profile, Uint8 skin, Uint8 leavewhich
     pchr->jumptime = JUMPDELAY;
 
     // Character size and bumping
-    pchr->shadowsize = (Uint8)(pcap->shadowsize * pchr->fat);
-    pchr->bumpsize = (Uint8) (pcap->bumpsize * pchr->fat);
+    pchr->shadowsize  = (Uint8)(pcap->shadowsize * pchr->fat);
+    pchr->bumpsize    = (Uint8) (pcap->bumpsize * pchr->fat);
     pchr->bumpsizebig = pcap->bumpsizebig * pchr->fat;
-    pchr->bumpheight = pcap->bumpheight * pchr->fat;
+    pchr->bumpheight  = pcap->bumpheight  * pchr->fat;
 
-    pchr->shadowsizesave = pcap->shadowsize;
-    pchr->bumpsizesave = pcap->bumpsize;
+    pchr->shadowsizesave  = pcap->shadowsize;
+    pchr->bumpsizesave    = pcap->bumpsize;
     pchr->bumpsizebigsave = pcap->bumpsizebig;
-    pchr->bumpheightsave = pcap->bumpheight;
+    pchr->bumpheightsave  = pcap->bumpheight;
 
     pchr->bumpdampen = pcap->bumpdampen;
 
@@ -4827,146 +4824,435 @@ int check_skills( Uint16 who, IDSZ whichskill )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t chr_integrate_motion( chr_t * pchr )
+//--------------------------------------------------------------------------------------------
+struct s_chr_environment
 {
-    // BB> Figure out the next position of the character.
-    //    Include collisions with the mesh in this step.
+    float  air_friction, ice_friction;
+    bool_t is_slippy,    is_watery;
 
-    float nrm[2], ftmp;
-    Uint16 ichr;
-    ai_state_t * pai;
+    Uint8 twist;
+    float level, zlerp;
 
-    if ( NULL == pchr || !pchr->on ) return bfalse;
-    pai = &(pchr->ai);
-    ichr = pai->index;
+    bool_t is_slipping;
 
-    // Move the character
-    pchr->pos.z += pchr->vel.z;
-    LOG_NAN(pchr->pos.z);
-    if ( pchr->pos.z < pchr->floor_level )
-    {
-        pchr->vel.z *= -pchr->bumpdampen;
+    float fluid_friction_xy, fluid_friction_z;
+    float traction, friction_xy;
 
-        if ( ABS(pchr->vel.z) < STOPBOUNCING )
-        {
-            pchr->vel.z = 0;
-            pchr->pos.z = pchr->phys.level;
-        }
-        else
-        {
-            float diff = pchr->phys.level - pchr->pos.z;
-            pchr->pos.z = pchr->phys.level + diff;
-        }
-    }
-    else
-    {
-        pchr->pos_safe.z = pchr->pos.z;
-    }
+    float new_vx, new_vy;
+    GLvector3 acc;
+};
+typedef struct s_chr_environment chr_environment_t;
+//--------------------------------------------------------------------------------------------
+void move_characters_get_environment( chr_t * pchr, chr_environment_t * penviro )
+{
+    Uint32 itile;
 
+    if( NULL == pchr || NULL == penviro ) return;
+
+    //---- character "floor" level
     if ( 0 != pchr->flyheight )
     {
-        if ( pchr->pos.z < 0 )
+        penviro->level = pchr->phys.level;
+        if ( penviro->level < 0 ) penviro->level = 0;  // fly above pits...
+    }
+    else
+    {
+        penviro->level = pchr->phys.level;
+    }
+    penviro->zlerp = (pchr->pos.z - penviro->level) / PLATTOLERANCE;
+    penviro->zlerp = CLIP(penviro->zlerp, 0, 1);
+
+    pchr->phys.grounded = (0 == pchr->flyheight) && (penviro->zlerp < 0.25f);
+
+    //---- the "twist" of the floor
+    penviro->twist = TWIST_FLAT;
+    itile          = INVALID_TILE;
+    if( VALID_CHR(pchr->onwhichplatform) )
+    {
+        // this only works for 1 level of attachment
+        itile = ChrList.lst[pchr->onwhichplatform].onwhichfan;
+    }
+    else
+    {
+        itile = pchr->onwhichfan;
+    }
+
+    if( VALID_TILE(PMesh,itile) )
+    {
+        penviro->twist = PMesh->mmem.tile_list[itile].twist;
+    }
+
+    // the "watery-ness" of whatever water might be here
+    penviro->is_watery = water.is_water && pchr->inwater;
+    penviro->is_slippy = !penviro->is_watery && (0 != mesh_test_fx( PMesh, pchr->onwhichfan, MPDFX_SLIPPY ));
+
+    //---- traction
+    penviro->traction = 1.0f;
+    if ( 0 != pchr->flyheight )
+    {
+        // any traction factor here
+        /* traction = ??; */
+    }
+    else if ( VALID_CHR( pchr->onwhichplatform ) )
+    {
+        // in case the platform is tilted
+
+        GLvector3 platform_up = mat_getChrUp( ChrList.lst[pchr->onwhichplatform].inst.matrix );
+        platform_up = VNormalize(platform_up);
+
+        penviro->traction = ABS(platform_up.z) * (1.0f - penviro->zlerp) + 0.25 * penviro->zlerp;
+
+        if ( penviro->is_slippy )
         {
-            pchr->pos.z = 0;  // Don't fall in pits...
+            penviro->traction /= hillslide * (1.0f - penviro->zlerp) + 1.0f * penviro->zlerp;
+        }
+    }
+    else if ( VALID_TILE(PMesh, pchr->onwhichfan) )
+    {
+        penviro->traction = ABS(map_twist_nrm[penviro->twist].z) * (1.0f - penviro->zlerp) + 0.25 * penviro->zlerp;
+
+        if ( penviro->is_slippy )
+        {
+            penviro->traction /= hillslide * (1.0f - penviro->zlerp) + 1.0f * penviro->zlerp;
         }
     }
 
-    ftmp = pchr->pos.x;
-    pchr->pos.x += pchr->vel.x;
-    LOG_NAN(pchr->pos.x);
-    if ( __chrhitawall( ichr, nrm ) )
+    //---- the friction of the fluid we are in
+    if ( penviro->is_watery )
     {
-        if ( ABS(pchr->vel.x) + ABS(pchr->vel.y) > 0 )
+        penviro->fluid_friction_z  = waterfriction;
+        penviro->fluid_friction_xy = waterfriction;
+    }
+    else
+    {
+        penviro->fluid_friction_xy = penviro->air_friction;       // like real-life air friction
+        penviro->fluid_friction_z  = penviro->air_friction;
+    }
+
+    //---- friction
+    penviro->friction_xy       = 1.0f;
+    if ( 0 != pchr->flyheight )
+    {
+        if( pchr->platform )
         {
-            if ( ABS(nrm[XX]) + ABS(nrm[YY]) > 0 )
-            {
-                float dotprod;
-                float vpara[2], vperp[2];
-
-                dotprod = pchr->vel.x * nrm[XX] + pchr->vel.y * nrm[YY];
-                if ( dotprod < 0 )
-                {
-                    vperp[XX] = dotprod * nrm[XX];
-                    vperp[YY] = dotprod * nrm[YY];
-
-                    vpara[XX] = pchr->vel.x - vperp[XX];
-                    vpara[YY] = pchr->vel.y - vperp[YY];
-
-                    pchr->vel.x = vpara[XX] - /* pchr->bumpdampen * */ vperp[XX];
-                    pchr->vel.y = vpara[YY] - /* pchr->bumpdampen * */ vperp[YY];
-                }
-            }
-            else
-            {
-                pchr->vel.x *= -1 /* pchr->bumpdampen * */;
-            }
-        }
-
-        if ( !pchr->safe_valid )
-        {
-            pchr->pos.x += nrm[XX] * 5;
-        }
-        else
-        {
-            pchr->pos.x = pchr->pos_safe.x;
+            // override the z friction for platforms.
+            // friction in the z direction will make the bouncing stop
+            penviro->fluid_friction_z = 1.0f;
         }
     }
     else
     {
-        pchr->pos_safe.x = pchr->pos.x;
+        // Make the characters slide
+        float temp_friction_xy = noslipfriction;
+        if ( VALID_TILE(PMesh, pchr->onwhichfan) && penviro->is_slippy )
+        {
+            // It's slippy all right...
+            temp_friction_xy = slippyfriction;
+        }
+
+        penviro->friction_xy = penviro->zlerp * 1.0f + (1.0f - penviro->zlerp) * temp_friction_xy;
     }
 
-    ftmp = pchr->pos.y;
-    pchr->pos.y += pchr->vel.y;
-    LOG_NAN(pchr->pos.y);
-    if ( __chrhitawall( ichr, nrm ) )
+    //---- jump stuff
+    if ( 0 != pchr->flyheight )
     {
-        if ( ABS(pchr->vel.x) + ABS(pchr->vel.y) > 0 )
-        {
-            if ( ABS(nrm[XX]) + ABS(nrm[YY]) > 0 )
-            {
-                float dotprod;
-                float vpara[2], vperp[2];
-
-                dotprod = pchr->vel.x * nrm[XX] + pchr->vel.y * nrm[YY];
-                if ( dotprod < 0 )
-                {
-                    vperp[XX] = dotprod * nrm[XX];
-                    vperp[YY] = dotprod * nrm[YY];
-
-                    vpara[XX] = pchr->vel.x - vperp[XX];
-                    vpara[YY] = pchr->vel.y - vperp[YY];
-
-                    pchr->vel.x = vpara[XX] - /* pchr->bumpdampen * */ vperp[XX];
-                    pchr->vel.y = vpara[YY] - /* pchr->bumpdampen * */ vperp[YY];
-                }
-            }
-            else
-            {
-                pchr->vel.y *= - 1 /* pchr->bumpdampen * */;
-            }
-        }
-
-        if ( !pchr->safe_valid )
-        {
-            pchr->pos.y += nrm[YY] * 5;
-        }
-        else
-        {
-            pchr->pos.y = pchr->pos_safe.y;
-        }
+        // Flying
+        pchr->jumpready = bfalse;
     }
     else
     {
-        pchr->pos_safe.y = pchr->pos.y;
-    }
+        // Character is in the air
+        pchr->jumpready = pchr->phys.grounded;
 
-    if ( __chrhitawall(ichr, nrm) )
+        // Down jump timer
+        if ( pchr->jumptime > 0 ) pchr->jumptime--;
+
+        // Do ground hits
+        if ( pchr->phys.grounded && pchr->vel.z < -STOPBOUNCING && pchr->hitready )
+        {
+            pchr->ai.alert |= ALERTIF_HITGROUND;
+            pchr->hitready = bfalse;
+        }
+
+        // Special considerations for slippy surfaces
+        if ( penviro->is_slippy )
+        {
+            if ( map_twist_flat[penviro->twist] )
+            {
+                // Reset jumping on flat areas of slippiness
+                if ( pchr->phys.grounded && pchr->jumptime == 0 )
+                {
+                    pchr->jumpnumber = pchr->jumpnumberreset;
+                }
+            }
+        }
+        else if ( pchr->phys.grounded && pchr->jumptime == 0 )
+        {
+            // Reset jumping
+            pchr->jumpnumber = pchr->jumpnumberreset;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+void move_characters_do_floor_friction( chr_t * pchr, chr_environment_t * penviro )
+{
+    // BB> Friction is complicated when you want to have sliding characters :P
+
+    float temp_friction_xy;
+    GLvector3 vup, floor_acc, fric, fric_floor;
+
+    if( NULL == pchr || NULL == penviro ) return;
+
+    if( 0 != pchr->flyheight ) return;
+
+    // figure out the acceleration due to the current "floor"
+    floor_acc.x = floor_acc.y = floor_acc.z = 0.0f;
+    temp_friction_xy = 1.0f;
+    if ( VALID_CHR(pchr->onwhichplatform) )
     {
-        pchr->safe_valid = btrue;
+        chr_t * pplat = ChrList.lst + pchr->onwhichplatform;
+
+        temp_friction_xy = platstick;
+
+        floor_acc.x = pplat->vel.x - pplat->vel_old.x;
+        floor_acc.y = pplat->vel.y - pplat->vel_old.y;
+        floor_acc.z = pplat->vel.z - pplat->vel_old.z;
+
+        vup = mat_getChrUp( pplat->inst.matrix );
+    }
+    else if ( !pchr->alive || pchr->isitem )
+    {
+        temp_friction_xy = 0.5f;
+        floor_acc.x = -pchr->vel.x;
+        floor_acc.y = -pchr->vel.y;
+        floor_acc.z = -pchr->vel.z;
+
+        if( TWIST_FLAT == penviro->twist )
+        {
+            vup.x = vup.y = 0.0f;
+            vup.z = 1.0f;
+        }
+        else
+        {
+            vup = map_twist_nrm[penviro->twist];
+        }
+
+    }
+    else
+    {
+        temp_friction_xy = penviro->friction_xy;
+
+        if( TWIST_FLAT == penviro->twist )
+        {
+            vup.x = vup.y = 0.0f;
+            vup.z = 1.0f;
+        }
+        else
+        {
+            vup = map_twist_nrm[penviro->twist];
+        }
+
+        if( ABS(pchr->vel.x) + ABS(pchr->vel.y) + ABS(pchr->vel.z) > 0.0f )
+        {
+            float ftmp;
+            GLvector3 vfront = mat_getChrForward( pchr->inst.matrix );
+
+            floor_acc.x = -pchr->vel.x;
+            floor_acc.y = -pchr->vel.y;
+            floor_acc.z = -pchr->vel.z;
+
+            //---- get the "bad" velocity (perpendicular to the direction of motion)
+            vfront = VNormalize(vfront);
+            ftmp = VDotProduct( floor_acc, vfront );
+
+            floor_acc.x -= ftmp * vfront.x;
+            floor_acc.y -= ftmp * vfront.y;
+            floor_acc.z -= ftmp * vfront.z;
+        }
     }
 
-    return btrue;
+    // the first guess about the floor friction
+    fric_floor.x = floor_acc.x * (1.0f - penviro->zlerp) * (1.0f-temp_friction_xy) * penviro->traction;
+    fric_floor.y = floor_acc.y * (1.0f - penviro->zlerp) * (1.0f-temp_friction_xy) * penviro->traction;
+    fric_floor.z = floor_acc.z * (1.0f - penviro->zlerp) * (1.0f-temp_friction_xy) * penviro->traction;
+
+    // the total "friction" due to the floor
+    fric.x = fric_floor.x + penviro->acc.x;
+    fric.y = fric_floor.y + penviro->acc.y;
+    fric.z = fric_floor.z + penviro->acc.z;
+
+    //---- limit the friction to whatever is horizontal to the mesh
+    if( TWIST_FLAT == penviro->twist )
+    {
+        floor_acc.z = 0.0f;
+        fric.z      = 0.0f;
+    }
+    else
+    {
+        float ftmp;
+        GLvector3 vup = map_twist_nrm[penviro->twist];
+
+        ftmp = VDotProduct( floor_acc, vup );
+
+        floor_acc.x -= ftmp * vup.x;
+        floor_acc.y -= ftmp * vup.y;
+        floor_acc.z -= ftmp * vup.z;
+
+        ftmp = VDotProduct( fric, vup );
+
+        fric.x -= ftmp * vup.x;
+        fric.y -= ftmp * vup.y;
+        fric.z -= ftmp * vup.z;
+    }
+
+    // test to see if the player has any more friction left?
+    penviro->is_slipping = (ABS(fric.x) + ABS(fric.y) + ABS(fric.z) > penviro->friction_xy);
+
+    if( penviro->is_slipping )
+    {
+        penviro->traction *= 0.5f;
+        temp_friction_xy  = SQRT(temp_friction_xy);
+
+        fric_floor.x = floor_acc.x * (1.0f - penviro->zlerp) * (1.0f-temp_friction_xy) * penviro->traction;
+        fric_floor.y = floor_acc.y * (1.0f - penviro->zlerp) * (1.0f-temp_friction_xy) * penviro->traction;
+        fric_floor.z = floor_acc.z * (1.0f - penviro->zlerp) * (1.0f-temp_friction_xy) * penviro->traction;
+    }
+
+    //apply the floor friction
+    pchr->vel.x += fric_floor.x;
+    pchr->vel.y += fric_floor.y;
+    pchr->vel.z += fric_floor.z;
+
+    // Apply fluid friction from last time
+    pchr->vel.x += -pchr->vel.x * (1.0f - penviro->fluid_friction_xy);
+    pchr->vel.y += -pchr->vel.y * (1.0f - penviro->fluid_friction_xy);
+    pchr->vel.z += -pchr->vel.z * (1.0f - penviro->fluid_friction_z );
+}
+
+//--------------------------------------------------------------------------------------------
+void move_characters_do_volontary( chr_t * pchr, chr_environment_t * penviro )
+{
+    float  dvx, dvy, dvmax;
+    bool_t watchtarget;
+
+    if( NULL == pchr || NULL == penviro ) return;
+
+    if( !pchr->alive ) return;
+
+    // do volontary motion
+
+    penviro->new_vx = pchr->vel.x;
+    penviro->new_vy = pchr->vel.y;
+
+    if ( pchr->attachedto == MAX_CHR )
+    {
+        float new_ax, new_ay;
+
+        // Character latches for generalized movement
+        dvx = pchr->latchx;
+        dvy = pchr->latchy;
+
+        // Reverse movements for daze
+        if ( pchr->dazetime > 0 )
+        {
+            dvx = -dvx;
+            dvy = -dvy;
+        }
+
+        // Switch x and y for grog
+        if ( pchr->grogtime > 0 )
+        {
+            float savex;
+            savex = dvx;
+            dvx = dvy;
+            dvy = savex;
+        }
+
+        penviro->new_vx = dvx * pchr->maxaccel * airfriction / (1.0f - airfriction);
+        penviro->new_vy = dvy * pchr->maxaccel * airfriction / (1.0f - airfriction);
+
+        if ( VALID_CHR(pchr->onwhichplatform) )
+        {
+            chr_t * pplat = ChrList.lst + pchr->onwhichplatform;
+
+            new_ax = (pplat->vel.x + penviro->new_vx - pchr->vel.x);
+            new_ay = (pplat->vel.y + penviro->new_vy - pchr->vel.y);
+        }
+        else
+        {
+            new_ax = (penviro->new_vx - pchr->vel.x);
+            new_ay = (penviro->new_vy - pchr->vel.y);
+        }
+
+        dvmax = pchr->maxaccel;
+        if ( new_ax < -dvmax ) new_ax = -dvmax;
+        if ( new_ax >  dvmax ) new_ax =  dvmax;
+        if ( new_ay < -dvmax ) new_ay = -dvmax;
+        if ( new_ay >  dvmax ) new_ay =  dvmax;
+
+        penviro->new_vx = new_ax * airfriction / (1.0f - airfriction);
+        penviro->new_vy = new_ay * airfriction / (1.0f - airfriction);
+
+        new_ax *= penviro->traction;
+        new_ay *= penviro->traction;
+
+        // Get direction from the DESIRED change in velocity
+        if ( pchr->turnmode == TURNMODE_WATCH )
+        {
+            if ( ( ABS( dvx ) > WATCHMIN || ABS( dvy ) > WATCHMIN ) )
+            {
+                pchr->turn_z = terp_dir( pchr->turn_z, ( ATAN2( dvx, dvy ) + PI ) * 0xFFFF / ( TWO_PI ) );
+            }
+        }
+
+        // Face the target
+        watchtarget = ( pchr->turnmode == TURNMODE_WATCHTARGET );
+        if ( watchtarget )
+        {
+            if ( pchr->ai.index != pchr->ai.target )
+            {
+                pchr->turn_z = terp_dir( pchr->turn_z, ( ATAN2( ChrList.lst[pchr->ai.target].pos.y - pchr->pos.y, ChrList.lst[pchr->ai.target].pos.x - pchr->pos.x ) + PI ) * 0xFFFF / ( TWO_PI ) );
+            }
+        }
+
+        if ( Md2FrameList[pchr->inst.frame_nxt].framefx & MADFX_STOP )
+        {
+            new_ax = 0;
+            new_ay = 0;
+        }
+        else
+        {
+            // Limit to max acceleration
+            pchr->vel.x += new_ax;
+            pchr->vel.y += new_ay;
+        }
+
+        // Get direction from ACTUAL change in velocity
+        if ( pchr->turnmode == TURNMODE_VELOCITY )
+        {
+            if ( dvx < -TURNSPD || dvx > TURNSPD || dvy < -TURNSPD || dvy > TURNSPD )
+            {
+                if ( pchr->isplayer )
+                {
+                    // Players turn quickly
+                    pchr->turn_z = terp_dir_fast( pchr->turn_z, ( ATAN2( dvy, dvx ) + PI ) * 0xFFFF / ( TWO_PI ) );
+                }
+                else
+                {
+                    // AI turn slowly
+                    pchr->turn_z = terp_dir( pchr->turn_z, ( ATAN2( dvy, dvx ) + PI ) * 0xFFFF / ( TWO_PI ) );
+                }
+            }
+        }
+
+        // Otherwise make it spin
+        else if ( pchr->turnmode == TURNMODE_SPIN )
+        {
+            pchr->turn_z += SPINRATE;
+        }
+    }
+
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5354,482 +5640,430 @@ bool_t chr_do_latch_button( chr_t * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
+void move_characters_do_z_motion( chr_t * pchr, chr_environment_t * penviro )
+{
+    if( NULL == pchr || NULL == penviro ) return;
+
+    //---- do z acceleration
+    if ( 0 != pchr->flyheight )
+    {
+        pchr->vel.z += ( penviro->level + pchr->flyheight - pchr->pos.z ) * FLYDAMPEN;
+    }
+    else
+    {
+        if ( penviro->is_slippy && pchr->weight != 0xFFFFFFFF &&
+             penviro->twist != TWIST_FLAT && penviro->zlerp < 1.0f)
+        {
+            // Slippy hills make characters slide
+
+            GLvector3 gpara, gperp;
+
+            gperp.x = map_twistvel_x[penviro->twist];
+            gperp.y = map_twistvel_y[penviro->twist];
+            gperp.z = map_twistvel_z[penviro->twist];
+
+            gpara.x = 0       - gperp.x;
+            gpara.y = 0       - gperp.y;
+            gpara.z = gravity - gperp.z;
+
+            pchr->vel.x += gpara.x + gperp.x * penviro->zlerp;
+            pchr->vel.y += gpara.y + gperp.y * penviro->zlerp;
+            pchr->vel.z += gpara.z + gperp.z * penviro->zlerp;
+        }
+        else
+        {
+            pchr->vel.z += penviro->zlerp * gravity;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t move_characters_integrate_motion( chr_t * pchr )
+{
+    // BB> Figure out the next position of the character.
+    //    Include collisions with the mesh in this step.
+
+    float nrm[2], ftmp;
+    Uint16 ichr;
+    ai_state_t * pai;
+
+    if ( NULL == pchr || !pchr->on ) return bfalse;
+    pai = &(pchr->ai);
+    ichr = pai->index;
+
+    // Move the character
+    pchr->pos.z += pchr->vel.z;
+    LOG_NAN(pchr->pos.z);
+    if ( pchr->pos.z < pchr->floor_level )
+    {
+        pchr->vel.z *= -pchr->bumpdampen;
+
+        if ( ABS(pchr->vel.z) < STOPBOUNCING )
+        {
+            pchr->vel.z = 0;
+            pchr->pos.z = pchr->phys.level;
+        }
+        else
+        {
+            float diff = pchr->phys.level - pchr->pos.z;
+            pchr->pos.z = pchr->phys.level + diff;
+        }
+    }
+    else
+    {
+        pchr->pos_safe.z = pchr->pos.z;
+    }
+
+    if ( 0 != pchr->flyheight )
+    {
+        if ( pchr->pos.z < 0 )
+        {
+            pchr->pos.z = 0;  // Don't fall in pits...
+        }
+    }
+
+    ftmp = pchr->pos.x;
+    pchr->pos.x += pchr->vel.x;
+    LOG_NAN(pchr->pos.x);
+    if ( __chrhitawall( ichr, nrm ) )
+    {
+        if ( ABS(pchr->vel.x) + ABS(pchr->vel.y) > 0 )
+        {
+            if ( ABS(nrm[XX]) + ABS(nrm[YY]) > 0 )
+            {
+                float dotprod;
+                float vpara[2], vperp[2];
+
+                dotprod = pchr->vel.x * nrm[XX] + pchr->vel.y * nrm[YY];
+                if ( dotprod < 0 )
+                {
+                    vperp[XX] = dotprod * nrm[XX];
+                    vperp[YY] = dotprod * nrm[YY];
+
+                    vpara[XX] = pchr->vel.x - vperp[XX];
+                    vpara[YY] = pchr->vel.y - vperp[YY];
+
+                    pchr->vel.x = vpara[XX] - /* pchr->bumpdampen * */ vperp[XX];
+                    pchr->vel.y = vpara[YY] - /* pchr->bumpdampen * */ vperp[YY];
+                }
+            }
+            else
+            {
+                pchr->vel.x *= -1 /* pchr->bumpdampen * */;
+            }
+        }
+
+        if ( !pchr->safe_valid )
+        {
+            pchr->pos.x += nrm[XX] * 5;
+        }
+        else
+        {
+            pchr->pos.x = pchr->pos_safe.x;
+        }
+    }
+    else
+    {
+        pchr->pos_safe.x = pchr->pos.x;
+    }
+
+    ftmp = pchr->pos.y;
+    pchr->pos.y += pchr->vel.y;
+    LOG_NAN(pchr->pos.y);
+    if ( __chrhitawall( ichr, nrm ) )
+    {
+        if ( ABS(pchr->vel.x) + ABS(pchr->vel.y) > 0 )
+        {
+            if ( ABS(nrm[XX]) + ABS(nrm[YY]) > 0 )
+            {
+                float dotprod;
+                float vpara[2], vperp[2];
+
+                dotprod = pchr->vel.x * nrm[XX] + pchr->vel.y * nrm[YY];
+                if ( dotprod < 0 )
+                {
+                    vperp[XX] = dotprod * nrm[XX];
+                    vperp[YY] = dotprod * nrm[YY];
+
+                    vpara[XX] = pchr->vel.x - vperp[XX];
+                    vpara[YY] = pchr->vel.y - vperp[YY];
+
+                    pchr->vel.x = vpara[XX] - /* pchr->bumpdampen * */ vperp[XX];
+                    pchr->vel.y = vpara[YY] - /* pchr->bumpdampen * */ vperp[YY];
+                }
+            }
+            else
+            {
+                pchr->vel.y *= - 1 /* pchr->bumpdampen * */;
+            }
+        }
+
+        if ( !pchr->safe_valid )
+        {
+            pchr->pos.y += nrm[YY] * 5;
+        }
+        else
+        {
+            pchr->pos.y = pchr->pos_safe.y;
+        }
+    }
+    else
+    {
+        pchr->pos_safe.y = pchr->pos.y;
+    }
+
+    if ( __chrhitawall(ichr, nrm) )
+    {
+        pchr->safe_valid = btrue;
+    }
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+void move_characters_do_animation( chr_t * pchr, chr_environment_t * penviro )
+{
+    Uint8 speed, framelip;
+
+    if( NULL == pchr || NULL == penviro ) return;
+
+    // Animate the character
+    pchr->inst.lip = ( pchr->inst.lip + 64 );
+
+    // handle frame FX for the new frame
+    if ( pchr->inst.lip == 192 )
+    {
+        // Check frame effects
+        if ( Md2FrameList[pchr->inst.frame_nxt].framefx&MADFX_ACTLEFT )
+            character_swipe( pchr->ai.index, SLOT_LEFT );
+
+        if ( Md2FrameList[pchr->inst.frame_nxt].framefx&MADFX_ACTRIGHT )
+            character_swipe( pchr->ai.index, SLOT_RIGHT );
+
+        if ( Md2FrameList[pchr->inst.frame_nxt].framefx&MADFX_GRABLEFT )
+            character_grab_stuff( pchr->ai.index, GRIP_LEFT, bfalse );
+
+        if ( Md2FrameList[pchr->inst.frame_nxt].framefx&MADFX_GRABRIGHT )
+            character_grab_stuff( pchr->ai.index, GRIP_RIGHT, bfalse );
+
+        if ( Md2FrameList[pchr->inst.frame_nxt].framefx&MADFX_CHARLEFT )
+            character_grab_stuff( pchr->ai.index, GRIP_LEFT, btrue );
+
+        if ( Md2FrameList[pchr->inst.frame_nxt].framefx&MADFX_CHARRIGHT )
+            character_grab_stuff( pchr->ai.index, GRIP_RIGHT, btrue );
+
+        if ( Md2FrameList[pchr->inst.frame_nxt].framefx&MADFX_DROPLEFT )
+            detach_character_from_mount( pchr->holdingwhich[SLOT_LEFT], bfalse, btrue );
+
+        if ( Md2FrameList[pchr->inst.frame_nxt].framefx&MADFX_DROPRIGHT )
+            detach_character_from_mount( pchr->holdingwhich[SLOT_RIGHT], bfalse, btrue );
+
+        if ( Md2FrameList[pchr->inst.frame_nxt].framefx&MADFX_POOF && !pchr->isplayer )
+            pchr->ai.poof_time = update_wld;
+
+        if ( Md2FrameList[pchr->inst.frame_nxt].framefx&MADFX_FOOTFALL )
+        {
+            int ifoot = CapList[pchr->model].soundindex[SOUND_FOOTFALL];
+            if ( VALID_SND( ifoot ) )
+            {
+                sound_play_chunk( pchr->pos, chr_get_chunk_ptr( pchr,ifoot ) );
+            }
+        }
+    }
+
+    if ( pchr->inst.lip == 0 )
+    {
+        // Change frames
+        pchr->inst.frame_lst = pchr->inst.frame_nxt;
+        pchr->inst.frame_nxt++;
+
+        if ( pchr->inst.frame_nxt == MadList[pchr->inst.imad].actionend[pchr->action] )
+        {
+            // Action finished
+            if ( pchr->keepaction )
+            {
+                // Keep the last frame going
+                pchr->inst.frame_nxt = pchr->inst.frame_lst;
+            }
+            else
+            {
+                if ( !pchr->loopaction )
+                {
+                    // Go on to the next action
+                    pchr->action = pchr->nextaction;
+                    pchr->nextaction = ACTION_DA;
+                }
+                else
+                {
+                    // See if the character is mounted...
+                    if ( pchr->attachedto != MAX_CHR )
+                    {
+                        pchr->action = ACTION_MI;
+                    }
+                }
+
+                pchr->inst.frame_nxt = MadList[pchr->inst.imad].actionstart[pchr->action];
+            }
+
+            pchr->actionready = btrue;
+        }
+    }
+
+    // Get running, walking, sneaking, or dancing, from speed
+    if ( !pchr->keepaction && !pchr->loopaction )
+    {
+        framelip = Md2FrameList[pchr->inst.frame_nxt].framelip;  // 0 - 15...  Way through animation
+        if ( pchr->actionready && pchr->inst.lip == 0 && pchr->phys.grounded && pchr->flyheight == 0 && ( framelip&7 ) < 2 )
+        {
+            // Do the motion stuff
+            speed = ABS( penviro->new_vx ) + ABS( penviro->new_vy );
+            if ( speed < pchr->sneakspd )
+            {
+                //                       pchr->nextaction = ACTION_DA;
+                // Do boredom
+                pchr->boretime--;
+                if ( pchr->boretime < 0 )
+                {
+                    pchr->ai.alert |= ALERTIF_BORED;
+                    pchr->boretime = BORETIME;
+                }
+                else
+                {
+                    // Do standstill
+                    if ( pchr->action > ACTION_DD )
+                    {
+                        pchr->action = ACTION_DA;
+                        pchr->inst.frame_nxt = MadList[pchr->inst.imad].actionstart[pchr->action];
+                    }
+                }
+            }
+            else
+            {
+                pchr->boretime = BORETIME;
+                if ( speed < pchr->walkspd )
+                {
+                    pchr->nextaction = ACTION_WA;
+                    if ( pchr->action != ACTION_WA )
+                    {
+                        pchr->inst.frame_nxt = MadList[pchr->inst.imad].frameliptowalkframe[LIPWA][framelip];
+                        pchr->action = ACTION_WA;
+                    }
+                }
+                else
+                {
+                    if ( speed < pchr->runspd )
+                    {
+                        pchr->nextaction = ACTION_WB;
+                        if ( pchr->action != ACTION_WB )
+                        {
+                            pchr->inst.frame_nxt = MadList[pchr->inst.imad].frameliptowalkframe[LIPWB][framelip];
+                            pchr->action = ACTION_WB;
+                        }
+                    }
+                    else
+                    {
+                        pchr->nextaction = ACTION_WC;
+                        if ( pchr->action != ACTION_WC )
+                        {
+                            pchr->inst.frame_nxt = MadList[pchr->inst.imad].frameliptowalkframe[LIPWC][framelip];
+                            pchr->action = ACTION_WC;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------
 void move_characters( void )
 {
     // ZZ> This function handles character physics
 
-    Uint16 cnt;
-    Uint8 twist;
-    Uint8 speed, framelip;
-    float level, friction_xy, friction_z;
-    float dvx, dvy, dvmax;
-    bool_t watchtarget;
-    const float blah_friction = 0.9868f;
-    float fric_acc_x, fric_acc_y;
+    const float air_friction = 0.9868f;  // gives the same terminal velocity in terms of the size of the game characters
+    const float ice_friction = 0.9738f;  // the square of air_friction
 
-    bool_t is_slippy, is_watery;
+    Uint16 cnt;
+
+    chr_environment_t enviro;
+    chr_environment_t * penviro = &enviro;
+
+    // prime the environment
+    enviro.air_friction = air_friction;
+    enviro.ice_friction = ice_friction;
 
     // Move every character
     for ( cnt = 0; cnt < MAX_CHR; cnt++ )
     {
-        float zlerp;
-        float new_vx, new_vy;
-        float traction;
-
         chr_t * pchr;
 
         if ( !ChrList.lst[cnt].on || ChrList.lst[cnt].pack_ispacked ) continue;
         pchr = ChrList.lst + cnt;
 
-        // Down that ol' damage timer
-        if (pchr->damagetime > 0) pchr->damagetime--;
+        // save the acceleration from the last time-step
+        penviro->acc = VSub(pchr->vel, pchr->vel_old);
 
         // Character's old location
         pchr->pos_old    = pchr->pos;
         pchr->vel_old    = pchr->vel;
         pchr->turn_old_z = pchr->turn_z;
 
-        new_vx = pchr->vel.x;
-        new_vy = pchr->vel.y;
+        penviro->new_vx = pchr->vel.x;
+        penviro->new_vy = pchr->vel.y;
 
-        // Is the character in the air?
-        level = pchr->phys.level;
-        zlerp = (pchr->pos.z - level) / PLATTOLERANCE;
-        zlerp = CLIP(zlerp, 0, 1);
+        move_characters_get_environment(pchr, penviro);
 
-        pchr->phys.grounded = (0 == pchr->flyheight) && (zlerp < 0.25f);
+        // do friction with the floor before volontary motion
+        move_characters_do_floor_friction(pchr, penviro);
 
-        // get the tile twist
-        twist = TWIST_FLAT;
-        if ( VALID_TILE(PMesh, pchr->onwhichfan) && INVALID_CHR(pchr->onwhichplatform) )
+        move_characters_do_volontary(pchr, penviro);
+
+        chr_do_latch_button( pchr );
+
+        move_characters_do_z_motion(pchr, penviro);
+
+        move_characters_integrate_motion( pchr );
+
+        move_characters_do_animation(pchr, penviro);
+
+        // Characters with sticky butts lie on the surface of the mesh
+        if ( pchr->stickybutt || !pchr->alive )
         {
-            twist = PMesh->mmem.tile_list[pchr->onwhichfan].twist;
-        }
-        is_watery = water.is_water && pchr->inwater;
-        is_slippy = !is_watery && (0 != mesh_test_fx( PMesh, pchr->onwhichfan, MPDFX_SLIPPY ));
+            float fkeep = (7 + penviro->zlerp) / 8.0f;
+            float fnew  = (1 - penviro->zlerp) / 8.0f;
 
-        traction = 1.0f;
-        if ( 0 != pchr->flyheight )
-        {
-            // any traction factor here
-            /* traction = ??; */
-        }
-        else if ( VALID_CHR( pchr->onwhichplatform ) )
-        {
-            // any traction factor here
-            /* traction = ??; */
-        }
-        else if ( VALID_TILE(PMesh, pchr->onwhichfan) )
-        {
-            traction = ABS(map_twist_nrm[twist].z) * (1.0f - zlerp) + 0.25 * zlerp;
-
-            if ( is_slippy )
+            if ( fnew > 0 )
             {
-                traction /= hillslide * (1.0f - zlerp) + 1.0f * zlerp;
+                pchr->map_turn_x = pchr->map_turn_x * fkeep + map_twist_x[penviro->twist] * fnew;
+                pchr->map_turn_y = pchr->map_turn_y * fkeep + map_twist_y[penviro->twist] * fnew;
             }
         }
+    }
+
+    // update every character
+    for ( cnt = 0; cnt < MAX_CHR; cnt++ )
+    {
+        chr_t * pchr;
+
+        if ( !ChrList.lst[cnt].on ) continue;
+        pchr = ChrList.lst + cnt;
 
         // Texture movement
         pchr->inst.uoffset += pchr->uoffvel;
         pchr->inst.voffset += pchr->voffvel;
 
-        if ( VALID_CHR(pchr->onwhichplatform) )
+        if( !pchr->pack_ispacked )
         {
-            chr_t * pplat = ChrList.lst + pchr->onwhichplatform;
-
-            fric_acc_x = (pplat->vel.x - pplat->vel_old.x) * (1.0f - zlerp) * platstick;
-            fric_acc_y = (pplat->vel.y - pplat->vel_old.y) * (1.0f - zlerp) * platstick;
-        }
-        else if ( !pchr->alive )
-        {
-            fric_acc_x = -pchr->vel.x * (1.0f - zlerp) * 0.5f;
-            fric_acc_y = -pchr->vel.y * (1.0f - zlerp) * 0.5f;
-        }
-        else
-        {
-            fric_acc_x = 0.0f;
-            fric_acc_y = 0.0f;
-        }
-
-        // do friction with the floor before volontary motion
-        if ( 0 == pchr->flyheight )
-        {
-            pchr->vel.x += fric_acc_x * traction;
-            pchr->vel.y += fric_acc_y * traction;
-        }
-
-        if ( pchr->alive )
-        {
-            new_vx = pchr->vel.x;
-            new_vy = pchr->vel.y;
-            if ( pchr->attachedto == MAX_CHR )
+            // Down that ol' damage timer
+            if (pchr->damagetime > 0)
             {
-                float new_ax, new_ay;
-
-                // Character latches for generalized movement
-                dvx = pchr->latchx;
-                dvy = pchr->latchy;
-
-                // Reverse movements for daze
-                if ( pchr->dazetime > 0 )
-                {
-                    dvx = -dvx;
-                    dvy = -dvy;
-                }
-
-                // Switch x and y for grog
-                if ( pchr->grogtime > 0 )
-                {
-                    float savex;
-                    savex = dvx;
-                    dvx = dvy;
-                    dvy = savex;
-                }
-
-                new_vx = dvx * pchr->maxaccel * airfriction / (1.0f - airfriction);
-                new_vy = dvy * pchr->maxaccel * airfriction / (1.0f - airfriction);
-
-                if ( VALID_CHR(pchr->onwhichplatform) )
-                {
-                    chr_t * pplat = ChrList.lst + pchr->onwhichplatform;
-
-                    new_ax = (pplat->vel.x + new_vx - pchr->vel.x);
-                    new_ay = (pplat->vel.y + new_vy - pchr->vel.y);
-                }
-                else
-                {
-                    new_ax = (new_vx - pchr->vel.x);
-                    new_ay = (new_vy - pchr->vel.y);
-                }
-
-                dvmax = pchr->maxaccel;
-                if ( new_ax < -dvmax ) new_ax = -dvmax;
-                if ( new_ax >  dvmax ) new_ax =  dvmax;
-                if ( new_ay < -dvmax ) new_ay = -dvmax;
-                if ( new_ay >  dvmax ) new_ay =  dvmax;
-
-                new_vx = new_ax * airfriction / (1.0f - airfriction);
-                new_vy = new_ay * airfriction / (1.0f - airfriction);
-
-                new_ax *= traction;
-                new_ay *= traction;
-
-                // Get direction from the DESIRED change in velocity
-                if ( pchr->turnmode == TURNMODE_WATCH )
-                {
-                    if ( ( ABS( dvx ) > WATCHMIN || ABS( dvy ) > WATCHMIN ) )
-                    {
-                        pchr->turn_z = terp_dir( pchr->turn_z, ( ATAN2( dvx, dvy ) + PI ) * 0xFFFF / ( TWO_PI ) );
-                    }
-                }
-
-                // Face the target
-                watchtarget = ( pchr->turnmode == TURNMODE_WATCHTARGET );
-                if ( watchtarget )
-                {
-                    if ( cnt != pchr->ai.target )
-                    {
-                        pchr->turn_z = terp_dir( pchr->turn_z, ( ATAN2( ChrList.lst[pchr->ai.target].pos.y - pchr->pos.y, ChrList.lst[pchr->ai.target].pos.x - pchr->pos.x ) + PI ) * 0xFFFF / ( TWO_PI ) );
-                    }
-                }
-
-                if ( Md2FrameList[pchr->inst.frame_nxt].framefx & MADFX_STOP )
-                {
-                    new_ax = 0;
-                    new_ay = 0;
-                }
-                else
-                {
-                    // Limit to max acceleration
-                    pchr->vel.x += new_ax;
-                    pchr->vel.y += new_ay;
-                }
-
-                // Get direction from ACTUAL change in velocity
-                if ( pchr->turnmode == TURNMODE_VELOCITY )
-                {
-                    if ( dvx < -TURNSPD || dvx > TURNSPD || dvy < -TURNSPD || dvy > TURNSPD )
-                    {
-                        if ( pchr->isplayer )
-                        {
-                            // Players turn quickly
-                            pchr->turn_z = terp_dir_fast( pchr->turn_z, ( ATAN2( dvy, dvx ) + PI ) * 0xFFFF / ( TWO_PI ) );
-                        }
-                        else
-                        {
-                            // AI turn slowly
-                            pchr->turn_z = terp_dir( pchr->turn_z, ( ATAN2( dvy, dvx ) + PI ) * 0xFFFF / ( TWO_PI ) );
-                        }
-                    }
-                }
-
-                // Otherwise make it spin
-                else if ( pchr->turnmode == TURNMODE_SPIN )
-                {
-                    pchr->turn_z += SPINRATE;
-                }
+                pchr->damagetime--;
             }
 
-        }
-
-        chr_do_latch_button( pchr );
-
-        // Flying
-        if ( 0 != pchr->flyheight )
-        {
-            level = pchr->phys.level;
-            if ( level < 0 ) level = 0;  // fly above pits...
-
-            pchr->vel.z += ( level + pchr->flyheight - pchr->pos.z ) * FLYDAMPEN;
-        }
-
-        // determine the character environment
-        friction_z = blah_friction;       // like real-life air friction
-        if ( 0 != pchr->flyheight )
-        {
-            // Flying
-            pchr->jumpready = bfalse;
-
-            // Airborne characters still get friction_xy to make control easier
-            friction_xy = blah_friction;
-            friction_z = 1.0f;
-        }
-        else
-        {
-            float temp_friction_xy = blah_friction;
-
-            // Character is in the air
-            pchr->jumpready = pchr->phys.grounded;
-
-            // Down jump timer
-            if ( pchr->jumptime > 0 ) pchr->jumptime--;
-
-            // Do ground hits
-            if ( pchr->phys.grounded && pchr->vel.z < -STOPBOUNCING && pchr->hitready )
+            // Do "Be careful!" delay
+            if ( pchr->carefultime > 0 )
             {
-                pchr->ai.alert |= ALERTIF_HITGROUND;
-                pchr->hitready = bfalse;
-            }
-
-            // Make the characters slide
-            temp_friction_xy = noslipfriction;
-            if ( VALID_TILE(PMesh, pchr->onwhichfan) )
-            {
-                if ( is_slippy )
-                {
-                    // It's slippy all right...
-                    temp_friction_xy = slippyfriction;
-
-                    if ( map_twist_flat[twist] )
-                    {
-                        // Reset jumping on flat areas of slippiness
-                        if ( pchr->phys.grounded && pchr->jumptime == 0 ) pchr->jumpnumber = pchr->jumpnumberreset;
-                    }
-                }
-                else if ( pchr->phys.grounded && pchr->jumptime == 0 )
-                {
-                    // Reset jumping
-                    temp_friction_xy = noslipfriction;
-                    pchr->jumpnumber = pchr->jumpnumberreset;
-                }
-            }
-
-            friction_xy = zlerp * blah_friction + (1.0f - zlerp) * temp_friction_xy;
-        }
-
-        // override friction with water friction, if appropriate
-        if ( is_watery )
-        {
-            friction_z  = waterfriction;
-            friction_xy = waterfriction;
-        }
-
-        // do gravity
-        if ( 0 == pchr->flyheight )
-        {
-            if ( is_slippy && pchr->weight != 0xFFFFFFFF &&
-                    twist != TWIST_FLAT && zlerp < 1.0f)
-            {
-                // Slippy hills make characters slide
-
-                GLvector3 gpara, gperp;
-
-                gperp.x = map_twistvel_x[twist];
-                gperp.y = map_twistvel_y[twist];
-                gperp.z = map_twistvel_z[twist];
-
-                gpara.x = 0       - gperp.x;
-                gpara.y = 0       - gperp.y;
-                gpara.z = gravity - gperp.z;
-
-                pchr->vel.x += gpara.x + gperp.x * zlerp;
-                pchr->vel.y += gpara.y + gperp.y * zlerp;
-                pchr->vel.z += gpara.z + gperp.z * zlerp;
-            }
-            else
-            {
-                pchr->vel.z += zlerp * gravity;
-            }
-        }
-
-        chr_integrate_motion( pchr );
-
-        // Apply fluid friction for next time
-        pchr->vel.x *= friction_xy;
-        pchr->vel.y *= friction_xy;
-        pchr->vel.z *= friction_z;
-
-        // Characters with sticky butts lie on the surface of the mesh
-        if ( pchr->stickybutt || !pchr->alive )
-        {
-            float fkeep = (7 + zlerp) / 8.0f;
-            float fnew  = (1 - zlerp) / 8.0f;
-
-            if ( fnew > 0 )
-            {
-                pchr->map_turn_x = pchr->map_turn_x * fkeep + map_twist_x[twist] * fnew;
-                pchr->map_turn_y = pchr->map_turn_y * fkeep + map_twist_y[twist] * fnew;
-            }
-        }
-
-        // Animate the character
-        pchr->inst.lip = ( pchr->inst.lip + 64 );
-        if ( pchr->inst.lip == 192 )
-        {
-            // Check frame effects
-            if ( Md2FrameList[pchr->inst.frame_nxt].framefx&MADFX_ACTLEFT )
-                character_swipe( cnt, SLOT_LEFT );
-            if ( Md2FrameList[pchr->inst.frame_nxt].framefx&MADFX_ACTRIGHT )
-                character_swipe( cnt, SLOT_RIGHT );
-            if ( Md2FrameList[pchr->inst.frame_nxt].framefx&MADFX_GRABLEFT )
-                character_grab_stuff( cnt, GRIP_LEFT, bfalse );
-            if ( Md2FrameList[pchr->inst.frame_nxt].framefx&MADFX_GRABRIGHT )
-                character_grab_stuff( cnt, GRIP_RIGHT, bfalse );
-            if ( Md2FrameList[pchr->inst.frame_nxt].framefx&MADFX_CHARLEFT )
-                character_grab_stuff( cnt, GRIP_LEFT, btrue );
-            if ( Md2FrameList[pchr->inst.frame_nxt].framefx&MADFX_CHARRIGHT )
-                character_grab_stuff( cnt, GRIP_RIGHT, btrue );
-            if ( Md2FrameList[pchr->inst.frame_nxt].framefx&MADFX_DROPLEFT )
-                detach_character_from_mount( pchr->holdingwhich[SLOT_LEFT], bfalse, btrue );
-            if ( Md2FrameList[pchr->inst.frame_nxt].framefx&MADFX_DROPRIGHT )
-                detach_character_from_mount( pchr->holdingwhich[SLOT_RIGHT], bfalse, btrue );
-            if ( Md2FrameList[pchr->inst.frame_nxt].framefx&MADFX_POOF && !pchr->isplayer )
-                pchr->ai.poof_time = update_wld;
-            if ( Md2FrameList[pchr->inst.frame_nxt].framefx&MADFX_FOOTFALL )
-            {
-                int ifoot = CapList[pchr->model].soundindex[SOUND_FOOTFALL];
-                if ( VALID_SND( ifoot ) )
-                {
-                    sound_play_chunk( pchr->pos, chr_get_chunk_ptr( pchr,ifoot ) );
-                }
-            }
-        }
-
-        if ( pchr->inst.lip == 0 )
-        {
-            // Change frames
-            pchr->inst.frame_lst = pchr->inst.frame_nxt;
-            pchr->inst.frame_nxt++;
-            if ( pchr->inst.frame_nxt == MadList[pchr->inst.imad].actionend[pchr->action] )
-            {
-                // Action finished
-                if ( pchr->keepaction )
-                {
-                    // Keep the last frame going
-                    pchr->inst.frame_nxt = pchr->inst.frame_lst;
-                }
-                else
-                {
-                    if ( !pchr->loopaction )
-                    {
-                        // Go on to the next action
-                        pchr->action = pchr->nextaction;
-                        pchr->nextaction = ACTION_DA;
-                    }
-                    else
-                    {
-                        // See if the character is mounted...
-                        if ( pchr->attachedto != MAX_CHR )
-                        {
-                            pchr->action = ACTION_MI;
-                        }
-                    }
-
-                    pchr->inst.frame_nxt = MadList[pchr->inst.imad].actionstart[pchr->action];
-                }
-
-                pchr->actionready = btrue;
-            }
-        }
-
-        // Do "Be careful!" delay
-        if ( pchr->carefultime > 0 )
-        {
-            pchr->carefultime--;
-        }
-
-        // Get running, walking, sneaking, or dancing, from speed
-        if ( !( pchr->keepaction || pchr->loopaction ) )
-        {
-            framelip = Md2FrameList[pchr->inst.frame_nxt].framelip;  // 0 - 15...  Way through animation
-            if ( pchr->actionready && pchr->inst.lip == 0 && pchr->phys.grounded && pchr->flyheight == 0 && ( framelip&7 ) < 2 )
-            {
-                // Do the motion stuff
-                speed = ABS( new_vx ) + ABS( new_vy );
-                if ( speed < pchr->sneakspd )
-                {
-                    //                       pchr->nextaction = ACTION_DA;
-                    // Do boredom
-                    pchr->boretime--;
-                    if ( pchr->boretime < 0 )
-                    {
-                        pchr->ai.alert |= ALERTIF_BORED;
-                        pchr->boretime = BORETIME;
-                    }
-                    else
-                    {
-                        // Do standstill
-                        if ( pchr->action > ACTION_DD )
-                        {
-                            pchr->action = ACTION_DA;
-                            pchr->inst.frame_nxt = MadList[pchr->inst.imad].actionstart[pchr->action];
-                        }
-                    }
-                }
-                else
-                {
-                    pchr->boretime = BORETIME;
-                    if ( speed < pchr->walkspd )
-                    {
-                        pchr->nextaction = ACTION_WA;
-                        if ( pchr->action != ACTION_WA )
-                        {
-                            pchr->inst.frame_nxt = MadList[pchr->inst.imad].frameliptowalkframe[LIPWA][framelip];
-                            pchr->action = ACTION_WA;
-                        }
-                    }
-                    else
-                    {
-                        if ( speed < pchr->runspd )
-                        {
-                            pchr->nextaction = ACTION_WB;
-                            if ( pchr->action != ACTION_WB )
-                            {
-                                pchr->inst.frame_nxt = MadList[pchr->inst.imad].frameliptowalkframe[LIPWB][framelip];
-                                pchr->action = ACTION_WB;
-                            }
-                        }
-                        else
-                        {
-                            pchr->nextaction = ACTION_WC;
-                            if ( pchr->action != ACTION_WC )
-                            {
-                                pchr->inst.frame_nxt = MadList[pchr->inst.imad].frameliptowalkframe[LIPWC][framelip];
-                                pchr->action = ACTION_WC;
-                            }
-                        }
-                    }
-                }
+                pchr->carefultime--;
             }
         }
     }
@@ -6203,33 +6437,33 @@ const char * chr_get_name( Uint16 ichr )
 //--------------------------------------------------------------------------------------------
 Mix_Chunk * chr_get_chunk( Uint16 ichr, int index )
 {
-	if( INVALID_CHR(ichr) ) return NULL;
-	if( INVALID_MAD(ChrList.lst[ichr].inst.imad) ) return NULL;
-	if( index < 0 || index >= MAX_WAVE ) return NULL;
+    if( INVALID_CHR(ichr) ) return NULL;
+    if( INVALID_MAD(ChrList.lst[ichr].inst.imad) ) return NULL;
+    if( index < 0 || index >= MAX_WAVE ) return NULL;
 
-	return MadList[ChrList.lst[ichr].inst.imad].wavelist[index];
+    return MadList[ChrList.lst[ichr].inst.imad].wavelist[index];
 }
 
 //--------------------------------------------------------------------------------------------
 Mix_Chunk * chr_get_chunk_ptr( chr_t * pchr, int index )
 {
-	if( NULL == pchr || !pchr->on ) return NULL;
-	if( INVALID_MAD(pchr->inst.imad) ) return NULL;
-	if( index < 0 || index >= MAX_WAVE ) return NULL;
+    if( NULL == pchr || !pchr->on ) return NULL;
+    if( INVALID_MAD(pchr->inst.imad) ) return NULL;
+    if( index < 0 || index >= MAX_WAVE ) return NULL;
 
-	return MadList[pchr->inst.imad].wavelist[index];
+    return MadList[pchr->inst.imad].wavelist[index];
 }
 
 //--------------------------------------------------------------------------------------------
 bool_t release_one_cap( Uint16 icap )
 {
-	int tnc;
-	cap_t * pcap;
+    int tnc;
+    cap_t * pcap;
 
-	if( !VALID_CAP_RANGE(icap) ) return bfalse;
-	pcap = CapList + icap;
+    if( !VALID_CAP_RANGE(icap) ) return bfalse;
+    pcap = CapList + icap;
 
-	if( !pcap->loaded ) return btrue;
+    if( !pcap->loaded ) return btrue;
 
     memset( pcap, 0, sizeof(cap_t) );
 
@@ -6239,10 +6473,10 @@ bool_t release_one_cap( Uint16 icap )
         pcap->chop_sectionsize[tnc]  = 0;
     }
 
-	pcap->loaded  = bfalse;
-	pcap->name[0] = '\0';
+    pcap->loaded  = bfalse;
+    pcap->name[0] = '\0';
 
-	return btrue;
+    return btrue;
 }
 
 //--------------------------------------------------------------------------------------------

@@ -3,7 +3,6 @@
 
 // Icon
 
-
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDI_ICON1               ICON                    "egoboo.ico"
@@ -13,7 +12,6 @@ IDI_ICON3               ICON                    "old-egoboo.ico"
 //// //// //// //// //// //// //// //// //// //// //// //// //// //// //// //// //// //// ///
 
 // Version
-
 
 VS_VERSION_INFO VERSIONINFO
  FILEVERSION 2,6,0,0

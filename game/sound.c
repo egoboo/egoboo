@@ -1137,12 +1137,11 @@ void sound_finish_sound()
     sound_finish_song( 500 );          // Fade out the existing song and pop the music stack
 }
 
-
 //--------------------------------------------------------------------------------------------
 void sound_free_chunk( Mix_Chunk * pchunk )
 {
-	if( mixeron )
-	{
-		Mix_FreeChunk(pchunk);
-	}
+    if( mixeron )
+    {
+        Mix_FreeChunk(pchunk);
+    }
 }

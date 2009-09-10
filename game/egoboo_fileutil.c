@@ -51,34 +51,34 @@ IDSZ fget_idsz( vfs_FILE* fileread )
     char cTmp = fget_first_letter( fileread );
     if ( '[' == cTmp )
     {
-		long fpos;
-		int  i;
-		char idsz_str[5];
+        long fpos;
+        int  i;
+        char idsz_str[5];
 
-		fpos = vfs_tell( fileread);
+        fpos = vfs_tell( fileread);
 
-		for(i=0; i<4; i++)
-		{
-			cTmp = toupper(vfs_getc( fileread ));
-			if( !isalpha(cTmp) && !isdigit(cTmp) && ('_' != cTmp)  ) break;
+        for(i=0; i<4; i++)
+        {
+            cTmp = toupper(vfs_getc( fileread ));
+            if( !isalpha(cTmp) && !isdigit(cTmp) && ('_' != cTmp)  ) break;
 
-			idsz_str[i] = cTmp;
-		}
+            idsz_str[i] = cTmp;
+        }
 
-		if( i != 4 )
-		{
-			log_warning("Problem reading IDSZ in \"%s\"\n", parse_filename );
-		}
-		else
-		{
-			idsz = MAKE_IDSZ(idsz_str[0], idsz_str[1], idsz_str[2], idsz_str[3] );
+        if( i != 4 )
+        {
+            log_warning("Problem reading IDSZ in \"%s\"\n", parse_filename );
+        }
+        else
+        {
+            idsz = MAKE_IDSZ(idsz_str[0], idsz_str[1], idsz_str[2], idsz_str[3] );
 
-			cTmp = vfs_getc( fileread );
-			if ( ']' != cTmp )
-			{
-				log_warning("Problem reading IDSZ in \"%s\"\n", parse_filename );
-			}
-		}
+            cTmp = vfs_getc( fileread );
+            if ( ']' != cTmp )
+            {
+                log_warning("Problem reading IDSZ in \"%s\"\n", parse_filename );
+            }
+        }
     }
 
     return idsz;
@@ -204,8 +204,6 @@ char goto_delimiter_list( char * buffer, vfs_FILE* fileread, const char * delim_
     return retval;
 }
 
-
-
 //--------------------------------------------------------------------------------------------
 bool_t goto_colon( char * buffer, vfs_FILE* fileread, bool_t optional )
 {
@@ -324,8 +322,8 @@ void fput_bool( vfs_FILE* filewrite, const char* text, bool_t truth )
     //    btrue bfalse statements
 
     vfs_printf( filewrite, "%s", text );
-	vfs_printf( filewrite, truth ? "TRUE" : "FALSE" );
-	vfs_printf( filewrite, "\n" );
+    vfs_printf( filewrite, truth ? "TRUE" : "FALSE" );
+    vfs_printf( filewrite, "\n" );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -911,7 +909,7 @@ Uint8 fget_damage_modifier( vfs_FILE * fileread )
     int  iTmp, tTmp;
     char cTmp;
 
-    cTmp = fget_first_letter( fileread ); 
+    cTmp = fget_first_letter( fileread );
 
     switch( toupper(cTmp) )
     {

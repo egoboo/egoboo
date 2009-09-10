@@ -497,7 +497,7 @@ int load_one_model_profile( const char* tmploadname, Uint16 object )
     // Load the waves for this object
     for ( cnt = 0; cnt < MAX_WAVE; cnt++ )
     {
-		STRING  szLoadName, wavename;
+        STRING  szLoadName, wavename;
 
         snprintf( wavename, SDL_arraysize( wavename), SLASH_STR "sound%d", cnt );
         make_newloadname( tmploadname, wavename, szLoadName );
@@ -812,36 +812,36 @@ void get_message( vfs_FILE* fileread )
 //--------------------------------------------------------------------------------------------
 bool_t release_one_mad( Uint16 imad )
 {
-	int cnt;
-	mad_t * pmad;
+    int cnt;
+    mad_t * pmad;
 
-	if( !VALID_MAD_RANGE(imad) ) return bfalse;
-	pmad = MadList + imad;
+    if( !VALID_MAD_RANGE(imad) ) return bfalse;
+    pmad = MadList + imad;
 
-	if( !pmad->loaded ) return btrue;
+    if( !pmad->loaded ) return btrue;
 
-	// free any md2 data
-	md2_freeModel( pmad->md2_ptr );
+    // free any md2 data
+    md2_freeModel( pmad->md2_ptr );
 
-	// free all sounds
-	for ( cnt = 0; cnt < MAX_WAVE; cnt++ )
-	{
-		sound_free_chunk( pmad->wavelist[cnt] );
-	}
+    // free all sounds
+    for ( cnt = 0; cnt < MAX_WAVE; cnt++ )
+    {
+        sound_free_chunk( pmad->wavelist[cnt] );
+    }
 
-	// free any local pips
-	for( cnt = 0; cnt<MAX_PIP_PER_PROFILE; cnt++ )
-	{
-		release_one_pip(cnt);
-	}
+    // free any local pips
+    for( cnt = 0; cnt<MAX_PIP_PER_PROFILE; cnt++ )
+    {
+        release_one_pip(cnt);
+    }
 
     memset( pmad, 0, sizeof(mad_t) );
 
     pmad->ai = 0;
 
-	pmad->loaded   = bfalse;
+    pmad->loaded   = bfalse;
     strncpy( pmad->name, "*NONE*", SDL_arraysize(pmad->name) );
 
-	return btrue;
+    return btrue;
 }
 

@@ -155,9 +155,9 @@ bool_t setup_read( const char* filename )
 {
     // BB> read the setup file
 
-	if( INVALID_CSTR(filename) ) return bfalse;
+    if( INVALID_CSTR(filename) ) return bfalse;
 
-	strncpy( _config_filename, filename, SDL_arraysize(_config_filename) );
+    strncpy( _config_filename, filename, SDL_arraysize(_config_filename) );
 
     lConfigSetup = LoadConfigFile( vfs_resolveReadFilename( _config_filename ) );
 
@@ -169,7 +169,7 @@ bool_t setup_write()
 {
     // BB> save the current setup file
 
-	if( INVALID_CSTR(_config_filename) ) return bfalse;
+    if( INVALID_CSTR(_config_filename) ) return bfalse;
 
     return ConfigFile_succeed == SaveConfigFileAs( lConfigSetup, vfs_resolveWriteFilename( _config_filename ) );
 }

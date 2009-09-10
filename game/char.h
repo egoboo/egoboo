@@ -96,7 +96,6 @@ enum e_chr_gender
 
 #define MANARETURNSHIFT     22                      // ChrList.lst[ichr].manareturn/MANARETURNSHIFT = mana regen per second
 
-
 #define TURNSPD             0.01f                 // Cutoff for turning or same direction
 #define SPINRATE            200                   // How fast spinners spin
 #define WATCHMIN            0.01f                 // Tolerance for TURNMODE_WATCH
@@ -140,8 +139,6 @@ slot_t        grip_offset_to_slot( grip_offset_t grip );
 
 #define PITDEPTH            -30                     // Depth to kill character
 
-
-
 #define ULTRABLUDY           2          // This makes any damage draw blud
 
 #define NOSKINOVERRIDE      -1          // For import
@@ -157,7 +154,6 @@ slot_t        grip_offset_to_slot( grip_offset_t grip );
 //Knockbacks
 #define REEL                7600.0f     // Dampen for melee knock back
 #define REELBASE            0.35f
-
 
 //Water
 #define WATERJUMP           12
@@ -238,13 +234,12 @@ extern team_t TeamList[TEAM_MAX];
 #define MAXCAPNAMESIZE      32                      // Character class names
 #define MAXSECTION                      4           // T-wi-n-k...  Most of 4 sections
 
-
 struct s_cap_import
 {
     int   object;
     int   player;
     int   slot_lst[MAX_PROFILE];
-	int   max_slot;
+    int   max_slot;
 };
 
 typedef struct s_cap_import cap_import_t;

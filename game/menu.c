@@ -192,7 +192,6 @@ static int selectedPlayer = 0;           // Which player is currently selected t
 Uint32            TxTitleImage_count = 0;
 oglx_texture      TxTitleImage[MAX_MODULE];    // OpenGL title image surfaces
 
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 static void load_all_menu_images();
@@ -830,7 +829,7 @@ bool_t doChoosePlayer_load_profiles( int player, ChoosePlayer_profiles_t * prof 
     {
         import_data.slot_lst[cnt] = 10000;
     }
-	import_data.max_slot = 0;
+    import_data.max_slot = 0;
 
     // Load the player profiles
     import_data.player = -1;
@@ -862,10 +861,10 @@ bool_t doChoosePlayer_load_profiles( int player, ChoosePlayer_profiles_t * prof 
         {
             prof->ref[prof->count++]                 = ref_temp;
             import_data.slot_lst[import_data.object] = ref_temp;
-			if( import_data.object > import_data.max_slot && VALID_CAP(ref_temp) )
-			{
-				import_data.max_slot = import_data.object;
-			}
+            if( import_data.object > import_data.max_slot && VALID_CAP(ref_temp) )
+            {
+                import_data.max_slot = import_data.object;
+            }
 
             //Load icon
             //snprintf( szFilename, SDL_arraysize(szFilename), "players" SLASH_STR "%s" SLASH_STR "%d.obj" SLASH_STR "icon%d", loadplayer[player].dir, i, MAX(0, CapList[ref_temp].skinoverride) );
@@ -1292,12 +1291,12 @@ int doChoosePlayer( float deltaTime )
                     {
                         snprintf( srcDir, SDL_arraysize( srcDir), "%s" SLASH_STR "%d.obj", loadplayer[selectedPlayer].dir, j );
 
-						// make sure the source directory exists
-						if( vfs_isDirectory(srcDir) )
-						{
-							snprintf( destDir, SDL_arraysize( destDir), "import" SLASH_STR "temp%04d.obj", local_slot[i] + j + 1 );
-							vfs_copyDirectory( srcDir, destDir );
-						}
+                        // make sure the source directory exists
+                        if( vfs_isDirectory(srcDir) )
+                        {
+                            snprintf( destDir, SDL_arraysize( destDir), "import" SLASH_STR "temp%04d.obj", local_slot[i] + j + 1 );
+                            vfs_copyDirectory( srcDir, destDir );
+                        }
                     }
                 }
 
@@ -1494,7 +1493,6 @@ int doInputOptions( float deltaTime )
 
             // Load the global icons (keyboard, mouse, etc.)
             if ( !load_all_global_icons() ) log_warning( "Could not load all global icons!\n" );
-
 
         case MM_Entering:
             // do buttons sliding in animation, and background fading in
@@ -3082,7 +3080,6 @@ int doGamePaused( float deltaTime )
             // Background
             GL_DEBUG(glColor4f)(1, 1, 1, 1 );
 
-
             // Buttons
             for ( cnt = 0; cnt < 6; cnt ++ )
             {
@@ -3864,7 +3861,6 @@ void TxTitleImage_delete_all()
 
     TxTitleImage_clear_data();
 }
-
 
 //--------------------------------------------------------------------------------------------
 int TxTitleImage_load_one( const char *szLoadName )

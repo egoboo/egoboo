@@ -88,7 +88,6 @@ DEFINE_STACK_EXTERN(shop_t, ShopStack, MAX_PASS );
 #define VALID_SHOP( IPASS )       ( ((IPASS) <= ShopStack.count) && ((IPASS) >= 0) )
 #define INVALID_SHOP( IPASS )     ( ((IPASS) >  ShopStack.count) && ((IPASS) < 0) )
 
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // prototypes
@@ -100,7 +99,7 @@ bool_t break_passage( struct s_script_state * pstate, Uint16 passage, Uint16 sta
 void   flash_passage( Uint16 passage, Uint8 color );
 Uint8  find_tile_in_passage( struct s_script_state * pstate, Uint16 passage, int tiletype );
 Uint16 who_is_blocking_passage( Uint16 passage, bool_t targetitems, bool_t targetdead, bool_t targetquest,
-							   bool_t requireitem, IDSZ findidsz );
+                               bool_t requireitem, IDSZ findidsz );
 void   clear_all_passages();
 void   add_shop_passage( Uint16 owner, Uint16 passage );
 void   add_passage( int tlx, int tly, int brx, int bry, bool_t open, Uint8 mask );

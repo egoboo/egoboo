@@ -703,7 +703,6 @@ int generate_number( IPair num )
     return tmp;
 }
 
-
 //--------------------------------------------------------------------------------------------
 int generate_randmask( int base, int mask )
 {
@@ -719,7 +718,6 @@ int generate_randmask( int base, int mask )
 
     return tmp;
 }
-
 
 //--------------------------------------------------------------------------------------------
 void setup_alliances( const char *modname )
@@ -797,7 +795,7 @@ void update_game()
         }
     }
 
-	// Did everyone die?
+    // Did everyone die?
     if ( numdead >= local_numlpla )
     {
         local_allpladead = btrue;
@@ -1830,9 +1828,9 @@ Uint16 get_target( Uint16 ichr_src, Uint32 max_dist, TARGET_TYPE target_type, bo
     float  max_dist2 = max_dist * max_dist;
     line_of_sight_info_t los_info;
 
-    Uint16	best_target;
-    float	best_dist2;
-    Uint32	current_ticks;
+    Uint16    best_target;
+    float    best_dist2;
+    Uint32    current_ticks;
 
     if ( INVALID_CHR(ichr_src) ||  TARGET_NONE == target_type ) return MAX_CHR;
 
@@ -1841,7 +1839,7 @@ Uint16 get_target( Uint16 ichr_src, Uint32 max_dist, TARGET_TYPE target_type, bo
     // just return the old target if
     if ( 0 != ChrList.lst[ichr_src].stoppedby && ChrList.lst[ichr_src].ai.los_timer > current_ticks )
     {
-		// Zefz> we can't return the old AI target here, it makes the scripts think it has found a target
+        // Zefz> we can't return the old AI target here, it makes the scripts think it has found a target
         return MAX_CHR; //ChrList.lst[ichr_src].ai.target;
     }
 
@@ -2678,34 +2676,34 @@ void show_stat( Uint16 statindex )
         gender[0] = 0;
         if ( ChrList.lst[character].alive )
         {
-			int itmp;
-			char * gender_str;
+            int itmp;
+            char * gender_str;
 
-			gender_str = "";
-			switch( ChrList.lst[character].gender )
-			{
-				case GENDER_MALE: gender_str = "male "; break;
-			    case GENDER_FEMALE: gender_str = "female "; break;
-			}
+            gender_str = "";
+            switch( ChrList.lst[character].gender )
+            {
+                case GENDER_MALE: gender_str = "male "; break;
+                case GENDER_FEMALE: gender_str = "female "; break;
+            }
 
             level = 1 + ChrList.lst[character].experiencelevel;
-			itmp = level % 10;
+            itmp = level % 10;
             if ( 1 == itmp )
-			{
+            {
                 debug_printf( " %dst level %s%s", level, gender_str, CapList[ChrList.lst[character].model].classname );
-			}
+            }
             else if ( 2 == itmp )
-			{
+            {
                 debug_printf( " %dnd level %s%s", level, gender_str, CapList[ChrList.lst[character].model].classname );
-			}
+            }
             else if ( 3 == itmp )
-			{
+            {
                 debug_printf( " %drd level %s%s", level, gender_str, CapList[ChrList.lst[character].model].classname );
-			}
+            }
             else
-			{
+            {
                 debug_printf( " %dth level %s%s", level, gender_str, CapList[ChrList.lst[character].model].classname );
-			}
+            }
         }
         else
         {
@@ -2755,7 +2753,7 @@ void show_armor( Uint16 statindex )
             debug_printf( "~Type: %s", ( CapList[icap].skindressy & (1 << skinlevel) ) ? "Light Armor" : "Heavy Armor" );
 
             // jumps
-			tmps[0] = '\0';
+            tmps[0] = '\0';
             switch ( CapList[icap].jumpnumber )
             {
                 case 0:  snprintf( tmps, SDL_arraysize( tmps), "None    (%i)", ChrList.lst[ichr].jumpnumberreset ); break;
@@ -2784,13 +2782,13 @@ void show_full_status( Uint16 statindex )
 
         // Enchanted?
         if ( ChrList.lst[character].firstenchant != MAX_ENC )
-		{
-			debug_printf( text, SDL_arraysize( text), "=%s is enchanted!=", ChrList.lst[character].name );
-		}
-        else 
-		{
-			debug_printf( text, SDL_arraysize( text), "=%s is unenchanted=", ChrList.lst[character].name );
-		}
+        {
+            debug_printf( text, SDL_arraysize( text), "=%s is enchanted!=", ChrList.lst[character].name );
+        }
+        else
+        {
+            debug_printf( text, SDL_arraysize( text), "=%s is unenchanted=", ChrList.lst[character].name );
+        }
 
         // Armor Stats
         debug_printf( " DEF: %d  SLASH:%3d~CRUSH:%3d POKE:%3d",
@@ -2840,41 +2838,41 @@ void show_magic_status( Uint16 statindex )
     if ( statindex < numstat )
     {
         character = statlist[statindex];
-		if( VALID_CHR(character) )
-		{
-			char * missile_str;
-			chr_t * pchr = ChrList.lst + character;
+        if( VALID_CHR(character) )
+        {
+            char * missile_str;
+            chr_t * pchr = ChrList.lst + character;
 
-			// Enchanted?
-			if ( pchr->firstenchant != MAX_ENC ) 
-			{
-				debug_printf( "=%s is enchanted!=", pchr->name );
-			}
-			else 
-			{
-				debug_printf( "=%s is unenchanted=", pchr->name );
-			}
+            // Enchanted?
+            if ( pchr->firstenchant != MAX_ENC )
+            {
+                debug_printf( "=%s is enchanted!=", pchr->name );
+            }
+            else
+            {
+                debug_printf( "=%s is unenchanted=", pchr->name );
+            }
 
-			// Enchantment status
-			debug_printf( " See Invisible: %s~~See Kurses: %s", 
-				pchr->canseeinvisible ? "Yes" : "No", 
-				pchr->canseekurse ? "Yes" : "No" );
+            // Enchantment status
+            debug_printf( " See Invisible: %s~~See Kurses: %s",
+                pchr->canseeinvisible ? "Yes" : "No",
+                pchr->canseekurse ? "Yes" : "No" );
 
-			debug_printf( " Channel Life: %s~~Waterwalking: %s", 
-				pchr->canchannel ? "Yes" : "No", 
-				pchr->waterwalk ? "Yes" : "No" );
+            debug_printf( " Channel Life: %s~~Waterwalking: %s",
+                pchr->canchannel ? "Yes" : "No",
+                pchr->waterwalk ? "Yes" : "No" );
 
-			missile_str = "None";
-			switch( pchr->missiletreatment )
-			{
-				case MISREFLECT: missile_str = "Reflect"; break;
-				case MISDEFLECT: missile_str = "Deflect"; break;
-			}
+            missile_str = "None";
+            switch( pchr->missiletreatment )
+            {
+                case MISREFLECT: missile_str = "Reflect"; break;
+                case MISDEFLECT: missile_str = "Deflect"; break;
+            }
 
-			debug_printf( text, SDL_arraysize( text), " Flying: %s~~Missile Protection: %s", 
-				(pchr->flyheight > 0) ? "Yes" : "No", missile_str );
+            debug_printf( text, SDL_arraysize( text), " Flying: %s~~Missile Protection: %s",
+                (pchr->flyheight > 0) ? "Yes" : "No", missile_str );
 
-		}
+        }
     }
 }
 
@@ -3989,8 +3987,8 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
 
     // Check for missile treatment
     if (  pchr_a->missiletreatment == MISNORMAL            ||
-		  pprt_b->damage.base+pprt_b->damage.rand == 0     ||
-          pprt_b->attachedtocharacter != MAX_CHR		   ||
+          pprt_b->damage.base+pprt_b->damage.rand == 0     ||
+          pprt_b->attachedtocharacter != MAX_CHR           ||
         ( pprt_b->chr == ichr_a && !ppip_b->friendlyfire ) ||
         ( ChrList.lst[pchr_a->missilehandler].mana < ( pchr_a->missilecost << 8 ) && !ChrList.lst[pchr_a->missilehandler].canchannel ) )
     {
@@ -4583,9 +4581,9 @@ void load_all_objects_import_dir( const char * dirname )
     STRING filename;
     int cnt;
 
-	if( NULL == PMod || INVALID_CSTR(dirname) ) return;
+    if( NULL == PMod || INVALID_CSTR(dirname) ) return;
 
-	if( !PMod->importvalid || 0 == PMod->importamount ) return;
+    if( !PMod->importvalid || 0 == PMod->importamount ) return;
 
     for ( cnt = 0; cnt < PMod->importamount*MAXIMPORTPERPLAYER; cnt++ )
     {
@@ -4598,17 +4596,16 @@ void load_all_objects_import_dir( const char * dirname )
             // new player found
             if ( 0 == ( cnt % MAXIMPORTPERPLAYER ) ) import_data.player++;
 
-			// store the slot info
-			import_data.object = cnt;
+            // store the slot info
+            import_data.object = cnt;
 
             // load it
             import_data.slot_lst[cnt] = load_one_object( filename, MAX_PROFILE );
-			import_data.max_slot      = cnt;
+            import_data.max_slot      = cnt;
         }
     }
 
 }
-
 
 //--------------------------------------------------------------------------------------------
 void load_all_objects_import()
@@ -4620,7 +4617,7 @@ void load_all_objects_import()
     {
         import_data.slot_lst[cnt] = 10000;
     }
-	import_data.max_slot = 0;
+    import_data.max_slot = 0;
 
     // This overwrites existing loaded slots that are loaded globally
     overrideslots = btrue;
@@ -4654,8 +4651,8 @@ void game_load_module_objects( const char *modname )
 //--------------------------------------------------------------------------------------------
 void game_load_global_objects()
 {
-	// load all special objects
-	load_one_object( "basicdat" SLASH_STR "book.obj", SPELLBOOK );
+    // load all special objects
+    load_one_object( "basicdat" SLASH_STR "book.obj", SPELLBOOK );
 
     // load the objects from various import directories
     load_all_objects_import();
@@ -4669,10 +4666,10 @@ void game_load_all_objects( const char *modname )
     // Log all of the script errors
     parseerror = bfalse;
 
-	// clear out all old objrct definitions
+    // clear out all old objrct definitions
     free_all_objects();
 
-	// load the global objects
+    // load the global objects
     game_load_global_objects();
 
     // load the objects from the module's directory
@@ -4800,7 +4797,6 @@ bool_t chr_setup_read( vfs_FILE * fileread, chr_setup_info_t *pinfo )
             pinfo->slot = iTmp;
         }
     }
-
 
     return retval;
 }
@@ -4957,14 +4953,14 @@ bool_t setup_characters_spawn( chr_setup_info_t * pinfo )
             local_index = -1;
             for ( tnc = 0; tnc < numimport; tnc++ )
             {
-				if ( ChrList.lst[new_object].model < import_data.max_slot && ChrList.lst[new_object].model < MAX_PROFILE )
-				{
-					if( import_data.slot_lst[ChrList.lst[new_object].model] == local_slot[tnc] )
-					{
-						local_index = tnc;
-						break;
-					}
-				}
+                if ( ChrList.lst[new_object].model < import_data.max_slot && ChrList.lst[new_object].model < MAX_PROFILE )
+                {
+                    if( import_data.slot_lst[ChrList.lst[new_object].model] == local_slot[tnc] )
+                    {
+                        local_index = tnc;
+                        break;
+                    }
+                }
             }
 
             if ( -1 != local_index )
@@ -4994,7 +4990,6 @@ void setup_characters( const char *modname )
     chr_setup_info_t info;
     STRING newloadname;
     vfs_FILE  *fileread;
-
 
     // Turn some back on
     make_newloadname( modname, "gamedat" SLASH_STR "spawn.txt", newloadname );
@@ -5089,7 +5084,6 @@ void game_reset_module_data()
     reset_renderlist();
 }
 
-
 //--------------------------------------------------------------------------------------------
 void game_load_global_assets()
 {
@@ -5113,17 +5107,17 @@ void game_load_module_assets( const char *modname )
     reset_particles( modname );
     read_wawalite( modname, NULL );
     load_basic_textures( modname );
-	load_map( modname );
+    load_map( modname );
 
-	upload_wawalite();
+    upload_wawalite();
 }
 
 //--------------------------------------------------------------------------------------------
 void game_load_all_assets( const char *modname )
 {
-	game_load_global_assets();
+    game_load_global_assets();
 
-	game_load_module_assets( modname );
+    game_load_module_assets( modname );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5134,8 +5128,8 @@ void game_setup_module( const char *smallname )
     STRING modname;
 
     // generate the module directory
-	strncpy(modname, smallname, SDL_arraysize(modname));
-	str_append_slash(modname, SDL_arraysize(modname));
+    strncpy(modname, smallname, SDL_arraysize(modname));
+    str_append_slash(modname, SDL_arraysize(modname));
 
     setup_particles();
     setup_passage( modname );
@@ -5154,11 +5148,11 @@ bool_t game_load_module_data( const char *smallname )
     load_ai_script( "basicdat" SLASH_STR "script.txt" );
 
     // generate the module directory
-	strncpy(modname, smallname, SDL_arraysize(modname));
-	str_append_slash(modname, SDL_arraysize(modname));
+    strncpy(modname, smallname, SDL_arraysize(modname));
+    str_append_slash(modname, SDL_arraysize(modname));
 
-	// load all module assets
-	game_load_all_assets( modname );
+    // load all module assets
+    game_load_all_assets( modname );
 
     // load all module objects
     game_load_all_objects(modname);
@@ -5170,8 +5164,6 @@ bool_t game_load_module_data( const char *smallname )
         log_warning( "Uh oh! Problems loading the mesh! (%s)\n", modname );
         return bfalse;
     }
-
-
 
     return btrue;
 }
@@ -5281,7 +5273,7 @@ bool_t game_begin_module( const char * modname, Uint32 seed )
         return bfalse;
     };
 
-	game_setup_module( modname );
+    game_setup_module( modname );
 
     timeron = bfalse;
     reset_timers();
@@ -6486,24 +6478,23 @@ void release_all_pip()
 
     for ( cnt = 0; cnt < MAX_PIP; cnt++ )
     {
-		release_one_pip( cnt );
+        release_one_pip( cnt );
     }
 }
-
 
 //---------------------------------------------------------------------------------------------
 bool_t release_one_eve( Uint16 ieve )
 {
-	eve_t * peve;
+    eve_t * peve;
 
-	if( !VALID_EVE_RANGE( ieve) ) return bfalse;
-	peve = EveStack.lst + ieve;
+    if( !VALID_EVE_RANGE( ieve) ) return bfalse;
+    peve = EveStack.lst + ieve;
 
-	if(!peve->loaded) return btrue;
-	
-	memset( peve, 0, sizeof(pip_t) );
+    if(!peve->loaded) return btrue;
 
-	return btrue;
+    memset( peve, 0, sizeof(pip_t) );
+
+    return btrue;
 }
 
 //---------------------------------------------------------------------------------------------
@@ -6524,7 +6515,7 @@ void release_all_cap()
 
     for ( cnt = 0; cnt < MAX_PROFILE; cnt++ )
     {
-		release_one_cap( cnt );
+        release_one_cap( cnt );
     };
 }
 
@@ -6535,7 +6526,7 @@ void release_all_mad()
 
     for ( cnt = 0; cnt < MAX_PROFILE; cnt++ )
     {
-		release_one_mad( cnt );
+        release_one_mad( cnt );
     }
 
     md2_loadframe = 0;
@@ -6847,41 +6838,40 @@ void reset_players()
 //--------------------------------------------------------------------------------------------
 bool_t release_one_model_profile( Uint16 object )
 {
-	if( object > MAX_PROFILE ) return bfalse;
+    if( object > MAX_PROFILE ) return bfalse;
 
-	// free the model definition
-	release_one_cap( object );
+    // free the model definition
+    release_one_cap( object );
 
-	// free the model data
-	release_one_mad( object );
+    // free the model data
+    release_one_mad( object );
 
-	return btrue;
+    return btrue;
 }
-
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 bool_t upload_water_layer_data( water_instance_layer_t inst[], wawalite_water_layer_t data[], int layer_count )
 {
-	int layer;
+    int layer;
 
-	if( NULL == inst || 0 == layer_count ) return bfalse;
+    if( NULL == inst || 0 == layer_count ) return bfalse;
 
-	// clear all data
+    // clear all data
     memset(inst, 0, layer_count * sizeof(water_instance_layer_t));
 
-	// set the frame 
+    // set the frame
     for ( layer = 0; layer < layer_count; layer++)
     {
         inst[layer].frame = generate_randmask( 0 , WATERFRAMEAND );
     }
 
     if ( NULL != data )
-	{
+    {
         for ( layer = 0; layer < layer_count; layer++)
         {
             inst[layer].z         = data[layer].z;
-			inst[layer].amp       = data[layer].amp;
+            inst[layer].amp       = data[layer].amp;
 
             inst[layer].dist.x    = data[layer].dist[XX];
             inst[layer].dist.y    = data[layer].dist[YY];
@@ -6892,11 +6882,11 @@ bool_t upload_water_layer_data( water_instance_layer_t inst[], wawalite_water_la
             inst[layer].tx_add.x    = data[layer].tx_add[XX];
             inst[layer].tx_add.y    = data[layer].tx_add[YY];
 
-			inst[layer].alpha       = data[layer].alpha;
-		}
-	}
+            inst[layer].alpha       = data[layer].alpha;
+        }
+    }
 
-	return btrue;
+    return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -6910,33 +6900,33 @@ bool_t upload_water_data( water_instance_t * pinst, wawalite_water_t * pdata )
 
     if ( NULL != pdata )
     {
-		// upload the data
+        // upload the data
 
         pinst->surface_level = pdata->surface_level;
         pinst->douse_level   = pdata->douse_level;
 
-		pinst->is_water         = pdata->is_water;
-		pinst->overlay_req      = pdata->overlay_req;
-		pinst->background_req   = pdata->background_req;
+        pinst->is_water         = pdata->is_water;
+        pinst->overlay_req      = pdata->overlay_req;
+        pinst->background_req   = pdata->background_req;
 
-		pinst->light            = pdata->light;
+        pinst->light            = pdata->light;
 
-		pinst->foregroundrepeat = pdata->foregroundrepeat;
-		pinst->backgroundrepeat = pdata->backgroundrepeat;
+        pinst->foregroundrepeat = pdata->foregroundrepeat;
+        pinst->backgroundrepeat = pdata->backgroundrepeat;
 
-		// upload the layer data
-		pinst->layer_count   = pdata->layer_count;
-		upload_water_layer_data( pinst->layer, pdata->layer, pdata->layer_count );
+        // upload the layer data
+        pinst->layer_count   = pdata->layer_count;
+        upload_water_layer_data( pinst->layer, pdata->layer, pdata->layer_count );
     }
 
-	// fix the alpha in case of self-lit textures
-	if ( pdata->light )
-	{
-		for ( layer = 0; layer < pinst->layer_count; layer++ )
-		{
-			pinst->layer[layer].alpha = 255;  // Some cards don't support alpha lights...
-		}
-	}
+    // fix the alpha in case of self-lit textures
+    if ( pdata->light )
+    {
+        for ( layer = 0; layer < pinst->layer_count; layer++ )
+        {
+            pinst->layer[layer].alpha = 255;  // Some cards don't support alpha lights...
+        }
+    }
 
     make_water( pinst, pdata );
 
@@ -6954,8 +6944,6 @@ bool_t upload_water_data( water_instance_t * pinst, wawalite_water_t * pdata )
     return btrue;
 }
 
-
-
 //--------------------------------------------------------------------------------------------
 bool_t upload_weather_data( weather_instance_t * pinst, wawalite_weather_t * pdata )
 {
@@ -6963,17 +6951,17 @@ bool_t upload_weather_data( weather_instance_t * pinst, wawalite_weather_t * pda
 
     memset( pinst, 0, sizeof(weather_instance_t) );
 
-	// set a default value
-	pinst->timer_reset = 10;
+    // set a default value
+    pinst->timer_reset = 10;
 
     if ( NULL != pdata )
-	{
-		// copy the data
-		pinst->timer_reset = pdata->timer_reset;
-		pinst->over_water  = pdata->over_water;
-	}
+    {
+        // copy the data
+        pinst->timer_reset = pdata->timer_reset;
+        pinst->over_water  = pdata->over_water;
+    }
 
-	// set the new data
+    // set the new data
     pinst->time = pinst->timer_reset;
 
     return btrue;
@@ -6986,23 +6974,23 @@ bool_t upload_fog_data( fog_instance_t * pinst, wawalite_fog_t * pdata )
 
     memset( pinst, 0, sizeof(fog_instance_t) );
 
-	pdata->top      = 0;
-	pdata->bottom   = -100;
+    pdata->top      = 0;
+    pdata->bottom   = -100;
     pinst->on       = cfg.fog_allowed;
 
     if ( NULL != pdata )
-	{
-		pinst->on     = pdata->found && pinst->on;
-		pinst->top    = pdata->top;
-		pinst->bottom = pdata->bottom;
+    {
+        pinst->on     = pdata->found && pinst->on;
+        pinst->top    = pdata->top;
+        pinst->bottom = pdata->bottom;
 
-		pinst->red    = pdata->red * 0xFF;
-		pinst->grn    = pdata->grn * 0xFF;
-		pinst->blu    = pdata->blu * 0xFF;
-	}
+        pinst->red    = pdata->red * 0xFF;
+        pinst->grn    = pdata->grn * 0xFF;
+        pinst->blu    = pdata->blu * 0xFF;
+    }
 
-	pinst->distance = ( pdata->top - pdata->bottom );
-	pinst->on       = ( pinst->distance < 1.0f ) && pinst->on;
+    pinst->distance = ( pdata->top - pdata->bottom );
+    pinst->on       = ( pinst->distance < 1.0f ) && pinst->on;
 
     return btrue;
 }
@@ -7018,15 +7006,15 @@ bool_t upload_damagetile_data( damagetile_instance_t * pinst, wawalite_damagetil
     pinst->min_distance = 9999;
 
     if ( NULL != pdata )
-	{
-		pinst->amount.base  = pdata->amount;
-		pinst->amount.rand  = 1;
-		pinst->type         = pdata->type;
-							  
-		pinst->parttype     = pdata->parttype;
-		pinst->partand      = pdata->partand;
-		pinst->sound        = CLIP(pdata->sound, -1, MAX_WAVE);
-	}
+    {
+        pinst->amount.base  = pdata->amount;
+        pinst->amount.rand  = 1;
+        pinst->type         = pdata->type;
+
+        pinst->parttype     = pdata->parttype;
+        pinst->partand      = pdata->partand;
+        pinst->sound        = CLIP(pdata->sound, -1, MAX_WAVE);
+    }
 
     return btrue;
 }
@@ -7034,32 +7022,32 @@ bool_t upload_damagetile_data( damagetile_instance_t * pinst, wawalite_damagetil
 //--------------------------------------------------------------------------------------------
 bool_t upload_animtile_data( animtile_instance_t inst[], wawalite_animtile_t * pdata, size_t animtile_count )
 {
-	int size;
+    int size;
 
     if ( NULL == inst || 0 == animtile_count ) return bfalse;
 
     memset( inst, 0, sizeof(damagetile_instance_t) );
 
-	for( size = 0; size < animtile_count; size++ )
-	{
-		inst[size].frame_and  = (1 << (size+2)) - 1;
-		inst[size].base_and   = ~inst[size].frame_and;
-		inst[size].frame_add  = 0;
-	}
+    for( size = 0; size < animtile_count; size++ )
+    {
+        inst[size].frame_and  = (1 << (size+2)) - 1;
+        inst[size].base_and   = ~inst[size].frame_and;
+        inst[size].frame_add  = 0;
+    }
 
     if ( NULL != pdata )
-	{
-		inst[0].update_and = pdata->update_and;
-		inst[0].frame_and  = pdata->frame_and;
-		inst[0].base_and   = ~inst[0].frame_and;
+    {
+        inst[0].update_and = pdata->update_and;
+        inst[0].frame_and  = pdata->frame_and;
+        inst[0].base_and   = ~inst[0].frame_and;
 
-		for( size = 1; size < animtile_count; size++ )
-		{
-			inst[size].update_and = pdata->update_and;
-			inst[size].frame_and  = ( inst[size-1].frame_and << 1 ) | 1;
-			inst[size].base_and   = ~inst[size].frame_and;
-		}
-	}
+        for( size = 1; size < animtile_count; size++ )
+        {
+            inst[size].update_and = pdata->update_and;
+            inst[size].frame_and  = ( inst[size-1].frame_and << 1 ) | 1;
+            inst[size].base_and   = ~inst[size].frame_and;
+        }
+    }
 
     return btrue;
 }
@@ -7067,10 +7055,10 @@ bool_t upload_animtile_data( animtile_instance_t inst[], wawalite_animtile_t * p
 //--------------------------------------------------------------------------------------------
 bool_t upload_light_data( wawalite_data_t * pdata )
 {
-	if( NULL == pdata ) return bfalse;
+    if( NULL == pdata ) return bfalse;
 
     // upload the lighting data
-	light_x = pdata->light_x;
+    light_x = pdata->light_x;
     light_y = pdata->light_y;
     light_z = pdata->light_z;
     light_a = pdata->light_a * 10.0f;
@@ -7092,47 +7080,47 @@ bool_t upload_light_data( wawalite_data_t * pdata )
     make_lighttable( pdata->light_x, pdata->light_y, pdata->light_z, pdata->light_a * 10.0f );
     make_lighttospek();
 
-	return btrue;
+    return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
 bool_t upload_phys_data( wawalite_physics_t * pdata )
 {
-	if( NULL == pdata ) return bfalse;
+    if( NULL == pdata ) return bfalse;
 
     // upload the physics data
-	hillslide      = pdata->hillslide;
+    hillslide      = pdata->hillslide;
     slippyfriction = pdata->slippyfriction;
     airfriction    = pdata->airfriction;
     waterfriction  = pdata->waterfriction;
     noslipfriction = pdata->noslipfriction;
     gravity        = pdata->gravity;
 
-	return btrue;
+    return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
 bool_t upload_graphics_data( wawalite_graphics_t * pdata )
 {
-	if( NULL == pdata ) return bfalse;
+    if( NULL == pdata ) return bfalse;
 
     // Read extra data
-	gfx.exploremode = pdata->exploremode;
-	gfx.usefaredge  = pdata->usefaredge;
+    gfx.exploremode = pdata->exploremode;
+    gfx.usefaredge  = pdata->usefaredge;
 
-	return btrue;
+    return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
 bool_t upload_camera_data( wawalite_camera_t * pdata )
 {
-	if( NULL == pdata ) return bfalse;
+    if( NULL == pdata ) return bfalse;
 
-	PCamera->swing     = pdata->swing;
-	PCamera->swingrate = pdata->swingrate;
-	PCamera->swingamp  = pdata->swingamp;
+    PCamera->swing     = pdata->swing;
+    PCamera->swingrate = pdata->swingrate;
+    PCamera->swingamp  = pdata->swingamp;
 
-	return btrue;
+    return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -7140,12 +7128,12 @@ void upload_wawalite()
 {
     // ZZ> This function sets up water and lighting for the module
 
-	wawalite_data_t * pdata = &wawalite_data;
+    wawalite_data_t * pdata = &wawalite_data;
 
-	upload_light_data( pdata );
-	upload_phys_data( &(pdata->phys) );
-	upload_graphics_data( &(pdata->graphics) );
-	upload_camera_data( &(pdata->camera) );
+    upload_light_data( pdata );
+    upload_phys_data( &(pdata->phys) );
+    upload_graphics_data( &(pdata->graphics) );
+    upload_camera_data( &(pdata->camera) );
     upload_fog_data( &fog, &(pdata->fog) );
     upload_water_data( &water, &(pdata->water) );
     upload_weather_data( &weather, &(pdata->weather) );

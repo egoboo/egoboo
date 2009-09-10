@@ -44,8 +44,7 @@
 //--------------------------------------------------------------------------------------------
 // a template-like declaration of a list that tracks free elements
 
-#define ACCESS_TYPE_NONE 
-
+#define ACCESS_TYPE_NONE
 
 #define DEFINE_LIST_TYPE(TYPE, NAME, COUNT) \
     struct s_list__##TYPE__##NAME                 \
@@ -69,7 +68,6 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // a template-like declaration of a list that tracks free elements
-
 
 #define DEFINE_STACK_TYPE(TYPE, NAME, COUNT) \
     struct s_stack__##TYPE__##NAME           \
@@ -154,10 +152,10 @@ typedef Uint32 IDSZ;
 #ifndef MAKE_IDSZ
 #define MAKE_IDSZ(C0,C1,C2,C3)     \
     ((IDSZ)(                       \
-		((((C0)-'A')&0x1F) << 15) |       \
-		((((C1)-'A')&0x1F) << 10) |       \
-		((((C2)-'A')&0x1F) <<  5) |       \
-		((((C3)-'A')&0x1F) <<  0)         \
+        ((((C0)-'A')&0x1F) << 15) |       \
+        ((((C1)-'A')&0x1F) << 10) |       \
+        ((((C2)-'A')&0x1F) <<  5) |       \
+        ((((C3)-'A')&0x1F) <<  0)         \
      ))
 #endif
 

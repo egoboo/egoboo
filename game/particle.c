@@ -1193,17 +1193,17 @@ void reset_particles( const char* modname )
 //--------------------------------------------------------------------------------------------
 bool_t release_one_pip( Uint16 ipip )
 {
-	pip_t * ppip;
+    pip_t * ppip;
 
-	if( !VALID_PIP_RANGE(ipip) ) return bfalse;
-	ppip = PipStack.lst + ipip;
+    if( !VALID_PIP_RANGE(ipip) ) return bfalse;
+    ppip = PipStack.lst + ipip;
 
-	if( !ppip->loaded ) return btrue;
+    if( !ppip->loaded ) return btrue;
 
     memset( ppip, 0, sizeof(pip_t) );
 
-	ppip->loaded  = bfalse;
-	ppip->name[0] = '\0';
+    ppip->loaded  = bfalse;
+    ppip->name[0] = '\0';
 
-	return btrue;
+    return btrue;
 }

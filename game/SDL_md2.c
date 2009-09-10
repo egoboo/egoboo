@@ -375,7 +375,6 @@ load_SDL_md2_model_RW_error:
     return pdata;
 }
 
-
 //--------------------------------------------------------------------------------------------
 //SDL_md2_model_t * SDL_md2_load (const char *filename, SDL_md2_model_t * mdl)
 //{

@@ -113,7 +113,7 @@ bool_t remove_enchant( Uint16 ienc )
         iwave = EveStack.lst[ieve].endsoundindex;
         if ( VALID_SND( iwave ) )
         {
-			Uint16 imodel = penc->spawnermodel;
+            Uint16 imodel = penc->spawnermodel;
             if ( VALID_CAP(imodel) )
             {
                 if ( VALID_CHR(itarget) )
@@ -126,7 +126,7 @@ bool_t remove_enchant( Uint16 ienc )
                 }
             }
         }
-        
+
     }
 
     // Unset enchant values, doing morph last
@@ -690,7 +690,7 @@ Uint16 spawn_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 ienc, 
         penc->target  = VALID_CHR(target)  ? target  : MAX_CHR;
         penc->owner   = VALID_CHR(owner)   ? owner   : MAX_CHR;
         penc->spawner = VALID_CHR(spawner) ? spawner : MAX_CHR;
-		penc->spawnermodel = VALID_CAP(ChrList.lst[spawner].model) ? ChrList.lst[spawner].model : MAX_CHR;
+        penc->spawnermodel = VALID_CAP(ChrList.lst[spawner].model) ? ChrList.lst[spawner].model : MAX_CHR;
 
         if ( VALID_CHR(spawner) )
         {
@@ -920,7 +920,6 @@ bool_t load_one_enchant_profile( const char* szLoadName, Uint16 profile )
     peve->setyesno[SETCHANNEL] = fget_next_bool( fileread );
     peve->setvalue[SETCHANNEL] = btrue;
 
-
     // Now read in the add values
     peve->addvalue[ADDJUMPPOWER]    = (Sint32) fget_next_float( fileread ) * 16;
     peve->addvalue[ADDBUMPDAMPEN]   = (Sint32) fget_next_float( fileread ) * 127;
@@ -938,7 +937,6 @@ bool_t load_one_enchant_profile( const char* szLoadName, Uint16 profile )
     peve->addvalue[ADDWISDOM]       = (Sint32) fget_next_float( fileread ) * 4;
     peve->addvalue[ADDINTELLIGENCE] = (Sint32) fget_next_float( fileread ) * 4;
     peve->addvalue[ADDDEXTERITY]    = (Sint32) fget_next_float( fileread ) * 4;
-
 
     // Clear expansions...
     peve->contspawntime = 0;

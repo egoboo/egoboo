@@ -258,81 +258,81 @@ bool_t is_in_passage( Uint16 passage, float xpos, float ypos, float tolerance )
 
 //--------------------------------------------------------------------------------------------
 Uint16 who_is_blocking_passage( Uint16 passage, bool_t targetitems, bool_t targetdead, bool_t targetquest,
-							   bool_t requireitem, IDSZ findidsz )
+                               bool_t requireitem, IDSZ findidsz )
 {
     // ZZ> This function returns MAX_CHR if there is no character in the passage,
     //    otherwise the index of the first character found is returned...
-	//    Can also look for characters with a specific quest or item in his or her inventory
+    //    Can also look for characters with a specific quest or item in his or her inventory
     //    Finds living ones, then items and corpses
     Uint16 character, foundother;
 
-	if ( INVALID_PASSAGE(passage) ) return MAX_CHR;
+    if ( INVALID_PASSAGE(passage) ) return MAX_CHR;
 
     // Look at each character
     foundother = MAX_CHR;
     for ( character = 0; character < MAX_CHR; character++ )
     {
         if ( !ChrList.lst[character].on || ChrList.lst[character].pack_ispacked || ChrList.lst[character].attachedto != MAX_CHR ) continue;
-		if ( ChrList.lst[character].invictus || ChrList.lst[character].weight == 0xFFFFFFFF ) continue;
+        if ( ChrList.lst[character].invictus || ChrList.lst[character].weight == 0xFFFFFFFF ) continue;
 
-		//Do items?
-		if( !targetitems && ChrList.lst[character].isitem ) continue;
+        //Do items?
+        if( !targetitems && ChrList.lst[character].isitem ) continue;
 
-		//Do dead stuff?
-		if( !targetdead && !ChrList.lst[character].alive ) continue;
+        //Do dead stuff?
+        if( !targetdead && !ChrList.lst[character].alive ) continue;
 
-		//Require target to have specific quest?
-		if( targetquest && (!ChrList.lst[character].isplayer || QUEST_NONE  >= check_player_quest( ChrList.lst[character].name, findidsz )) ) continue;
+        //Require target to have specific quest?
+        if( targetquest && (!ChrList.lst[character].isplayer || QUEST_NONE  >= check_player_quest( ChrList.lst[character].name, findidsz )) ) continue;
 
-		//Now check if it actually is inside the passage area
+        //Now check if it actually is inside the passage area
         if ( is_in_passage( passage, ChrList.lst[character].pos.x, ChrList.lst[character].pos.y, ChrList.lst[character].bumpsize ) )
         {
             if ( ChrList.lst[character].alive && !ChrList.lst[character].isitem )
             {
-				Uint16 item;
+                Uint16 item;
 
-				// Found a live one, do we need to check for required items as well?
+                // Found a live one, do we need to check for required items as well?
                 if( !requireitem ) return character;
 
-				// It needs to have a specific item as well
-				else
-				{
-					// I: Check left hand
-					item = ChrList.lst[character].holdingwhich[SLOT_LEFT];
-					if ( item != MAX_CHR )
-					{
-						item = ChrList.lst[item].model;
-						if ( CapList[item].idsz[IDSZ_PARENT] == findidsz || CapList[item].idsz[IDSZ_TYPE] == findidsz )
-						{
-							// It has the item...
-							return character;
-						}
-					}
+                // It needs to have a specific item as well
+                else
+                {
+                    // I: Check left hand
+                    item = ChrList.lst[character].holdingwhich[SLOT_LEFT];
+                    if ( item != MAX_CHR )
+                    {
+                        item = ChrList.lst[item].model;
+                        if ( CapList[item].idsz[IDSZ_PARENT] == findidsz || CapList[item].idsz[IDSZ_TYPE] == findidsz )
+                        {
+                            // It has the item...
+                            return character;
+                        }
+                    }
 
-					// II: Check right hand
-					item = ChrList.lst[character].holdingwhich[SLOT_RIGHT];
-					if ( item != MAX_CHR )
-					{
-						item = ChrList.lst[item].model;
-						if ( CapList[item].idsz[IDSZ_PARENT] == findidsz || CapList[item].idsz[IDSZ_TYPE] == findidsz )
-						{
-							// It has the item...
-							return character;
-						}
-					}
+                    // II: Check right hand
+                    item = ChrList.lst[character].holdingwhich[SLOT_RIGHT];
+                    if ( item != MAX_CHR )
+                    {
+                        item = ChrList.lst[item].model;
+                        if ( CapList[item].idsz[IDSZ_PARENT] == findidsz || CapList[item].idsz[IDSZ_TYPE] == findidsz )
+                        {
+                            // It has the item...
+                            return character;
+                        }
+                    }
 
-					// III: Check the pack
-					item = ChrList.lst[character].pack_next;
-					while ( item != MAX_CHR )
-					{
-						if ( CapList[ChrList.lst[item].model].idsz[IDSZ_PARENT] == findidsz || CapList[ChrList.lst[item].model].idsz[IDSZ_TYPE] == findidsz )
-						{
-							// It has the item in inventory...
-							return character;
-						}
-						item = ChrList.lst[item].pack_next;
-					}
-				}
+                    // III: Check the pack
+                    item = ChrList.lst[character].pack_next;
+                    while ( item != MAX_CHR )
+                    {
+                        if ( CapList[ChrList.lst[item].model].idsz[IDSZ_PARENT] == findidsz || CapList[ChrList.lst[item].model].idsz[IDSZ_TYPE] == findidsz )
+                        {
+                            // It has the item in inventory...
+                            return character;
+                        }
+                        item = ChrList.lst[item].pack_next;
+                    }
+                }
 
             }
             else

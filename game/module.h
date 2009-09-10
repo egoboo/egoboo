@@ -35,7 +35,7 @@ struct s_mod_data
 {
     bool_t  loaded;
 
-	// data from menu.txt
+    // data from menu.txt
     char    rank[RANKSIZE];               // Number of stars
     STRING  longname;                     // Module names
     STRING  loadname;                     // Module load names
@@ -52,7 +52,7 @@ struct s_mod_data
     IDSZ    quest_idsz;                             // the quest required to unlock this module
     int     quest_level;                            // the quest level required to unlock this module
 
-	// extended data
+    // extended data
     Uint32  tex_index;                              // the index of the tile image
 };
 typedef struct s_mod_data mod_data_t;

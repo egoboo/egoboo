@@ -207,7 +207,7 @@ struct s_water_layer_instance
     Uint32    frame_add;      // Speed
 
     float     z;            // Base height of water
-    float     amp;			// Amplitude of waves
+    float     amp;            // Amplitude of waves
 
     GLvector2 dist;
 
@@ -215,9 +215,9 @@ struct s_water_layer_instance
 
     float     light_dir;    // direct  reflectivity 0 - 1
     float     light_add;    // ambient reflectivity 0 - 1
-	Uint8     alpha;	    // Transparency
+    Uint8     alpha;        // Transparency
 
-    GLvector2 tx_add;			// Texture movement
+    GLvector2 tx_add;            // Texture movement
 };
 typedef struct s_water_layer_instance water_instance_layer_t;
 
@@ -225,15 +225,15 @@ struct s_water_instance
 {
     float  surface_level;          // Surface level for water striders
     float  douse_level;            // Surface level for torches
-    bool_t is_water;		 // Is it water?  ( Or lava... )
+    bool_t is_water;         // Is it water?  ( Or lava... )
     bool_t overlay_req;
     bool_t background_req;
-	bool_t light;            // Is it light ( default is alpha )
-	
-	float  foregroundrepeat;
+    bool_t light;            // Is it light ( default is alpha )
+
+    float  foregroundrepeat;
     float  backgroundrepeat;
 
-	Uint32 spek[256];              // Specular highlights
+    Uint32 spek[256];              // Specular highlights
 
     int                    layer_count;
     water_instance_layer_t layer[MAXWATERLAYER];
@@ -391,7 +391,6 @@ void release_all_profiles();
 void reset_players();
 
 void expand_escape_codes( Uint16 ichr, struct s_script_state * pstate, char * src, char * src_end, char * dst, char * dst_end );
-
 
 bool_t release_one_model_profile( Uint16 object );
 

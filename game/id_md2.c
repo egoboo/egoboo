@@ -88,7 +88,6 @@ id_md2_model_t * id_md2_load (const char *filename, id_md2_model_t * mdl)
     return mdl;
 }
 
-
 //--------------------------------------------------------------------------------------------
 // Free resources allocated for the model.
 
