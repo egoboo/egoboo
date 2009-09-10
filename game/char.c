@@ -4842,6 +4842,7 @@ struct s_chr_environment
     GLvector3 acc;
 };
 typedef struct s_chr_environment chr_environment_t;
+
 //--------------------------------------------------------------------------------------------
 void move_characters_get_environment( chr_t * pchr, chr_environment_t * penviro )
 {
@@ -4896,7 +4897,6 @@ void move_characters_get_environment( chr_t * pchr, chr_environment_t * penviro 
     else if ( VALID_CHR( pchr->onwhichplatform ) )
     {
         // in case the platform is tilted
-
         GLvector3 platform_up = mat_getChrUp( ChrList.lst[pchr->onwhichplatform].inst.matrix );
         platform_up = VNormalize(platform_up);
 
@@ -5135,6 +5135,9 @@ void move_characters_do_volontary( chr_t * pchr, chr_environment_t * penviro )
 {
     float  dvx, dvy, dvmax;
     bool_t watchtarget;
+    float maxspeed;
+    float dv2;
+    float new_ax, new_ay;
 
     if( NULL == pchr || NULL == penviro ) return;
 
@@ -5145,112 +5148,167 @@ void move_characters_do_volontary( chr_t * pchr, chr_environment_t * penviro )
     penviro->new_vx = pchr->vel.x;
     penviro->new_vy = pchr->vel.y;
 
-    if ( pchr->attachedto == MAX_CHR )
+    if ( VALID_CHR(pchr->attachedto) ) return;
+
+    // Character latches for generalized movement
+    dvx = pchr->latchx;
+    dvy = pchr->latchy;
+
+    // Reverse movements for daze
+    if ( pchr->dazetime > 0 )
     {
-        float new_ax, new_ay;
+        dvx = -dvx;
+        dvy = -dvy;
+    }
 
-        // Character latches for generalized movement
-        dvx = pchr->latchx;
-        dvy = pchr->latchy;
+    // Switch x and y for grog
+    if ( pchr->grogtime > 0 )
+    {
+        float savex;
+        savex = dvx;
+        dvx = dvy;
+        dvy = savex;
+    }
 
-        // Reverse movements for daze
-        if ( pchr->dazetime > 0 )
+    // this is the maximum speed that a character could go under the v2.22 system
+    maxspeed = pchr->maxaccel * airfriction / (1.0f - airfriction);
+
+    penviro->new_vx = penviro->new_vy = 0.0f;
+    if( ABS(dvx) + ABS(dvy) > 0 )
+    {
+        dv2 = dvx*dvx + dvy*dvy;
+
+        if( pchr->isplayer )
         {
-            dvx = -dvx;
-            dvy = -dvy;
-        }
+            float speed;
+            float dv = POW(dv2, 0.25f);
 
-        // Switch x and y for grog
-        if ( pchr->grogtime > 0 )
-        {
-            float savex;
-            savex = dvx;
-            dvx = dvy;
-            dvy = savex;
-        }
+            if(maxspeed < pchr->runspd)
+            {
+                maxspeed = pchr->runspd;
+                dv *= 0.75f;
+            }
 
-        penviro->new_vx = dvx * pchr->maxaccel * airfriction / (1.0f - airfriction);
-        penviro->new_vy = dvy * pchr->maxaccel * airfriction / (1.0f - airfriction);
+            if( dv >= 1.0f )
+            {
+                speed = maxspeed;
+            }
+            else if( dv >= 0.75f )
+            {
+                speed = (dv - 0.75f) / 0.25f * maxspeed + (1.0f - dv) / 0.25f * pchr->runspd;
+            }
+            else if( dv >= 0.50f )
+            {
+                speed = (dv - 0.50f) / 0.25f * pchr->runspd + (0.75f - dv) / 0.25f * pchr->walkspd;
+            }
+            else if ( dv >= 0.25f )
+            {
+                speed = (dv - 0.25f) / 0.25f * pchr->walkspd + (0.25f - dv) / 0.25f * pchr->sneakspd;
+            }
+            else
+            {
+                speed = dv / 0.25f * pchr->sneakspd;
+            }
 
-        if ( VALID_CHR(pchr->onwhichplatform) )
-        {
-            chr_t * pplat = ChrList.lst + pchr->onwhichplatform;
-
-            new_ax = (pplat->vel.x + penviro->new_vx - pchr->vel.x);
-            new_ay = (pplat->vel.y + penviro->new_vy - pchr->vel.y);
+            penviro->new_vx = speed * dvx / dv;
+            penviro->new_vy = speed * dvy / dv;
         }
         else
         {
-            new_ax = (penviro->new_vx - pchr->vel.x);
-            new_ay = (penviro->new_vy - pchr->vel.y);
-        }
+            float scale = 1.0f;
 
-        dvmax = pchr->maxaccel;
-        if ( new_ax < -dvmax ) new_ax = -dvmax;
-        if ( new_ax >  dvmax ) new_ax =  dvmax;
-        if ( new_ay < -dvmax ) new_ay = -dvmax;
-        if ( new_ay >  dvmax ) new_ay =  dvmax;
-
-        penviro->new_vx = new_ax * airfriction / (1.0f - airfriction);
-        penviro->new_vy = new_ay * airfriction / (1.0f - airfriction);
-
-        new_ax *= penviro->traction;
-        new_ay *= penviro->traction;
-
-        // Get direction from the DESIRED change in velocity
-        if ( pchr->turnmode == TURNMODE_WATCH )
-        {
-            if ( ( ABS( dvx ) > WATCHMIN || ABS( dvy ) > WATCHMIN ) )
+            if( dv2 > 1.0f )
             {
-                pchr->turn_z = terp_dir( pchr->turn_z, ( ATAN2( dvx, dvy ) + PI ) * 0xFFFF / ( TWO_PI ) );
+                scale = 1.0f / POW(dv2, 0.5f);
+            }
+            else
+            {
+                scale = POW(dv2, 0.25f) / POW(dv2, 0.5f);
+            }
+
+            penviro->new_vx = dvx * maxspeed * scale;
+            penviro->new_vy = dvy * maxspeed * scale;
+        }
+    }
+
+    if ( VALID_CHR(pchr->onwhichplatform) )
+    {
+        chr_t * pplat = ChrList.lst + pchr->onwhichplatform;
+
+        new_ax = (pplat->vel.x + penviro->new_vx - pchr->vel.x);
+        new_ay = (pplat->vel.y + penviro->new_vy - pchr->vel.y);
+    }
+    else
+    {
+        new_ax = (penviro->new_vx - pchr->vel.x);
+        new_ay = (penviro->new_vy - pchr->vel.y);
+    }
+
+    dvmax = pchr->maxaccel;
+    if ( new_ax < -dvmax ) new_ax = -dvmax;
+    if ( new_ax >  dvmax ) new_ax =  dvmax;
+    if ( new_ay < -dvmax ) new_ay = -dvmax;
+    if ( new_ay >  dvmax ) new_ay =  dvmax;
+
+    //penviro->new_vx = new_ax * airfriction / (1.0f - airfriction);
+    //penviro->new_vy = new_ay * airfriction / (1.0f - airfriction);
+
+    new_ax *= penviro->traction;
+    new_ay *= penviro->traction;
+
+    // Get direction from the DESIRED change in velocity
+    if ( pchr->turnmode == TURNMODE_WATCH )
+    {
+        if ( ( ABS( dvx ) > WATCHMIN || ABS( dvy ) > WATCHMIN ) )
+        {
+            pchr->turn_z = terp_dir( pchr->turn_z, ( ATAN2( dvx, dvy ) + PI ) * 0xFFFF / ( TWO_PI ) );
+        }
+    }
+
+    // Face the target
+    watchtarget = ( pchr->turnmode == TURNMODE_WATCHTARGET );
+    if ( watchtarget )
+    {
+        if ( pchr->ai.index != pchr->ai.target )
+        {
+            pchr->turn_z = terp_dir( pchr->turn_z, ( ATAN2( ChrList.lst[pchr->ai.target].pos.y - pchr->pos.y, ChrList.lst[pchr->ai.target].pos.x - pchr->pos.x ) + PI ) * 0xFFFF / ( TWO_PI ) );
+        }
+    }
+
+    if ( Md2FrameList[pchr->inst.frame_nxt].framefx & MADFX_STOP )
+    {
+        new_ax = 0;
+        new_ay = 0;
+    }
+    else
+    {
+        // Limit to max acceleration
+        pchr->vel.x += new_ax;
+        pchr->vel.y += new_ay;
+    }
+
+    // Get direction from ACTUAL change in velocity
+    if ( pchr->turnmode == TURNMODE_VELOCITY )
+    {
+        if ( dvx < -TURNSPD || dvx > TURNSPD || dvy < -TURNSPD || dvy > TURNSPD )
+        {
+            if ( pchr->isplayer )
+            {
+                // Players turn quickly
+                pchr->turn_z = terp_dir_fast( pchr->turn_z, ( ATAN2( dvy, dvx ) + PI ) * 0xFFFF / ( TWO_PI ) );
+            }
+            else
+            {
+                // AI turn slowly
+                pchr->turn_z = terp_dir( pchr->turn_z, ( ATAN2( dvy, dvx ) + PI ) * 0xFFFF / ( TWO_PI ) );
             }
         }
+    }
 
-        // Face the target
-        watchtarget = ( pchr->turnmode == TURNMODE_WATCHTARGET );
-        if ( watchtarget )
-        {
-            if ( pchr->ai.index != pchr->ai.target )
-            {
-                pchr->turn_z = terp_dir( pchr->turn_z, ( ATAN2( ChrList.lst[pchr->ai.target].pos.y - pchr->pos.y, ChrList.lst[pchr->ai.target].pos.x - pchr->pos.x ) + PI ) * 0xFFFF / ( TWO_PI ) );
-            }
-        }
-
-        if ( Md2FrameList[pchr->inst.frame_nxt].framefx & MADFX_STOP )
-        {
-            new_ax = 0;
-            new_ay = 0;
-        }
-        else
-        {
-            // Limit to max acceleration
-            pchr->vel.x += new_ax;
-            pchr->vel.y += new_ay;
-        }
-
-        // Get direction from ACTUAL change in velocity
-        if ( pchr->turnmode == TURNMODE_VELOCITY )
-        {
-            if ( dvx < -TURNSPD || dvx > TURNSPD || dvy < -TURNSPD || dvy > TURNSPD )
-            {
-                if ( pchr->isplayer )
-                {
-                    // Players turn quickly
-                    pchr->turn_z = terp_dir_fast( pchr->turn_z, ( ATAN2( dvy, dvx ) + PI ) * 0xFFFF / ( TWO_PI ) );
-                }
-                else
-                {
-                    // AI turn slowly
-                    pchr->turn_z = terp_dir( pchr->turn_z, ( ATAN2( dvy, dvx ) + PI ) * 0xFFFF / ( TWO_PI ) );
-                }
-            }
-        }
-
-        // Otherwise make it spin
-        else if ( pchr->turnmode == TURNMODE_SPIN )
-        {
-            pchr->turn_z += SPINRATE;
-        }
+    // Otherwise make it spin
+    else if ( pchr->turnmode == TURNMODE_SPIN )
+    {
+        pchr->turn_z += SPINRATE;
     }
 
 }

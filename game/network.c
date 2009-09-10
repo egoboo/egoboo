@@ -1481,15 +1481,19 @@ void unbuffer_player_latches()
     {
         int weight;
         Uint32 index, tnc;
+        chr_t * pchr;
+
         if ( !PlaList[cnt].valid ) continue;
 
         character = PlaList[cnt].index;
+        if( INVALID_CHR(character) ) continue;
+        pchr = ChrList.lst + character;
 
         // grab all valid playtimes
         weight = 0;
-        ChrList.lst[character].latchx      = 0;
-        ChrList.lst[character].latchy      = 0;
-        ChrList.lst[character].latchbutton = 0;
+        pchr->latchx      = 0;
+        pchr->latchy      = 0;
+        pchr->latchbutton = 0;
         for ( tnc = 0; tnc < PlaList[cnt].tlatch_count; tnc++ )
         {
             int dt;
@@ -1499,9 +1503,9 @@ void unbuffer_player_latches()
 
             weight += dt * dt;
 
-            ChrList.lst[character].latchx      += PlaList[cnt].tlatch[tnc].x * dt * dt;
-            ChrList.lst[character].latchy      += PlaList[cnt].tlatch[tnc].y * dt * dt;
-            ChrList.lst[character].latchbutton |= PlaList[cnt].tlatch[tnc].button;
+            pchr->latchx      += PlaList[cnt].tlatch[tnc].x * dt * dt;
+            pchr->latchy      += PlaList[cnt].tlatch[tnc].y * dt * dt;
+            pchr->latchbutton |= PlaList[cnt].tlatch[tnc].button;
         }
 
         // compact the remaining values
@@ -1517,26 +1521,26 @@ void unbuffer_player_latches()
         numplatimes = MAX( numplatimes, PlaList[cnt].tlatch_count );
         if ( weight > 0.0f )
         {
-            ChrList.lst[character].latchx /= (float)weight;
-            ChrList.lst[character].latchy /= (float)weight;
+            pchr->latchx /= (float)weight;
+            pchr->latchy /= (float)weight;
         }
 
         // Let players respawn
-        if ( cfg.difficulty < GAME_HARD && ( ChrList.lst[character].latchbutton & LATCHBUTTON_RESPAWN ) && PMod->respawnvalid )
+        if ( cfg.difficulty < GAME_HARD && ( pchr->latchbutton & LATCHBUTTON_RESPAWN ) && PMod->respawnvalid )
         {
-            if ( !ChrList.lst[character].alive && 0 == revivetimer )
+            if ( !pchr->alive && 0 == revivetimer )
             {
                 respawn_character( character );
-                TeamList[ChrList.lst[character].team].leader = character;
-                ChrList.lst[character].ai.alert |= ALERTIF_CLEANEDUP;
+                TeamList[pchr->team].leader = character;
+                pchr->ai.alert |= ALERTIF_CLEANEDUP;
 
                 // Cost some experience for doing this...  Never lose a level
-                ChrList.lst[character].experience *= EXPKEEP;
-                if (cfg.difficulty > GAME_EASY) ChrList.lst[character].money *= EXPKEEP;
+                pchr->experience *= EXPKEEP;
+                if (cfg.difficulty > GAME_EASY) pchr->money *= EXPKEEP;
             }
 
             // remove all latches other than LATCHBUTTON_RESPAWN
-            ChrList.lst[character].latchbutton &= ~LATCHBUTTON_RESPAWN;
+            pchr->latchbutton &= ~LATCHBUTTON_RESPAWN;
         }
     }
 }

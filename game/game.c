@@ -2403,14 +2403,15 @@ void set_one_player_latch( Uint16 player )
             {
                 newx = 0;
                 newy = 0;
-                inputx = 0;
-                inputy = 0;
-                dist = SQRT( joy[0].x * joy[0].x + joy[0].y * joy[0].y );
-                if ( dist > 0 )
+                inputx = joy[0].x;
+                inputy = joy[0].y;
+
+                dist = inputx * inputx + inputy * inputy;
+                if ( dist > 1.0f )
                 {
-                    scale = 1.0f / dist;
-                    inputx = joy[0].x * scale;
-                    inputy = joy[0].y * scale;
+                    scale = 1.0f / SQRT( dist );
+                    inputx *= scale;
+                    inputy *= scale;
                 }
 
                 turnsin = PCamera->turn_z >> 2;
@@ -2451,14 +2452,15 @@ void set_one_player_latch( Uint16 player )
             {
                 newx = 0;
                 newy = 0;
-                inputx = 0;
-                inputy = 0;
-                dist = SQRT( joy[1].x * joy[1].x + joy[1].y * joy[1].y );
-                if ( dist > 0 )
+                inputx = joy[1].x;
+                inputy = joy[1].y;
+
+                dist = inputx * inputx + inputy * inputy;
+                if ( dist > 1.0f )
                 {
-                    scale = 1.0f / dist;
-                    inputx = joy[1].x * scale;
-                    inputy = joy[1].y * scale;
+                    scale = 1.0f / SQRT( dist );
+                    inputx *= scale;
+                    inputy *= scale;
                 }
 
                 turnsin = PCamera->turn_z >> 2;
