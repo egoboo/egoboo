@@ -2464,32 +2464,32 @@ bool_t export_one_character_profile( const char *szSaveName, Uint16 character )
 
     // Real general data
     vfs_printf( filewrite, "Slot number    : -1\n" );  // -1 signals a flexible load thing
-    funderf( filewrite, "Class name     : ", pcap->classname );
-    ftruthf( filewrite, "Uniform light  : ", pcap->uniformlit );
+    fput_string_under( filewrite, "Class name     : ", pcap->classname );
+    fput_bool( filewrite, "Uniform light  : ", pcap->uniformlit );
     vfs_printf( filewrite, "Maximum ammo   : %d\n", pcap->ammomax );
     vfs_printf( filewrite, "Current ammo   : %d\n", pchr->ammo );
-    fgendef( filewrite, "Gender         : ", pchr->gender );
+    fput_gender( filewrite, "Gender         : ", pchr->gender );
     vfs_printf( filewrite, "\n" );
 
     // Object stats
     vfs_printf( filewrite, "Life color     : %d\n", pchr->lifecolor );
     vfs_printf( filewrite, "Mana color     : %d\n", pchr->manacolor );
     vfs_printf( filewrite, "Life           : %4.2f\n", pchr->lifemax / 256.0f );
-    fpairof( filewrite, "Life up        : ", pcap->life_stat.perlevel );
+    fput_pair( filewrite, "Life up        : ", pcap->life_stat.perlevel );
     vfs_printf( filewrite, "Mana           : %4.2f\n", pchr->manamax / 256.0f );
-    fpairof( filewrite, "Mana up        : ", pcap->mana_stat.perlevel );
+    fput_pair( filewrite, "Mana up        : ", pcap->mana_stat.perlevel );
     vfs_printf( filewrite, "Mana return    : %4.2f\n", pchr->manareturn / 256.0f );
-    fpairof( filewrite, "Mana return up : ", pcap->manareturn_stat.perlevel );
+    fput_pair( filewrite, "Mana return up : ", pcap->manareturn_stat.perlevel );
     vfs_printf( filewrite, "Mana flow      : %4.2f\n", pchr->manaflow / 256.0f );
-    fpairof( filewrite, "Mana flow up   : ", pcap->manaflow_stat.perlevel );
+    fput_pair( filewrite, "Mana flow up   : ", pcap->manaflow_stat.perlevel );
     vfs_printf( filewrite, "STR            : %4.2f\n", pchr->strength / 256.0f );
-    fpairof( filewrite, "STR up         : ", pcap->strength_stat.perlevel );
+    fput_pair( filewrite, "STR up         : ", pcap->strength_stat.perlevel );
     vfs_printf( filewrite, "WIS            : %4.2f\n", pchr->wisdom / 256.0f );
-    fpairof( filewrite, "WIS up         : ", pcap->wisdom_stat.perlevel );
+    fput_pair( filewrite, "WIS up         : ", pcap->wisdom_stat.perlevel );
     vfs_printf( filewrite, "INT            : %4.2f\n", pchr->intelligence / 256.0f );
-    fpairof( filewrite, "INT up         : ", pcap->intelligence_stat.perlevel );
+    fput_pair( filewrite, "INT up         : ", pcap->intelligence_stat.perlevel );
     vfs_printf( filewrite, "DEX            : %4.2f\n", pchr->dexterity / 256.0f );
-    fpairof( filewrite, "DEX up         : ", pcap->dexterity_stat.perlevel );
+    fput_pair( filewrite, "DEX up         : ", pcap->dexterity_stat.perlevel );
     vfs_printf( filewrite, "\n" );
 
     // More physical attributes
@@ -2509,16 +2509,16 @@ bool_t export_one_character_profile( const char *szSaveName, Uint16 character )
     vfs_printf( filewrite, "Flashing AND   : %d\n", pcap->flashand );
     vfs_printf( filewrite, "Alpha blending : %d\n", pcap->alpha );
     vfs_printf( filewrite, "Light blending : %d\n", pcap->light );
-    ftruthf( filewrite, "Transfer blend : ", pcap->transferblend );
+    fput_bool( filewrite, "Transfer blend : ", pcap->transferblend );
     vfs_printf( filewrite, "Sheen          : %d\n", pcap->sheen );
-    ftruthf( filewrite, "Phong mapping  : ", pcap->enviro );
+    fput_bool( filewrite, "Phong mapping  : ", pcap->enviro );
     vfs_printf( filewrite, "Texture X add  : %4.2f\n", pcap->uoffvel / (float)0xFFFF );
     vfs_printf( filewrite, "Texture Y add  : %4.2f\n", pcap->voffvel / (float)0xFFFF );
-    ftruthf( filewrite, "Sticky butt    : ", pcap->stickybutt );
+    fput_bool( filewrite, "Sticky butt    : ", pcap->stickybutt );
     vfs_printf( filewrite, "\n" );
 
     // Invulnerability data
-    ftruthf( filewrite, "Invictus       : ", pcap->invictus );
+    fput_bool( filewrite, "Invictus       : ", pcap->invictus );
     vfs_printf( filewrite, "NonI facing    : %d\n", pcap->nframefacing );
     vfs_printf( filewrite, "NonI angle     : %d\n", pcap->nframeangle );
     vfs_printf( filewrite, "I facing       : %d\n", pcap->iframefacing );
@@ -2592,36 +2592,36 @@ bool_t export_one_character_profile( const char *szSaveName, Uint16 character )
     vfs_printf( filewrite, "\n" );
 
     // Item and damage flags
-    ftruthf( filewrite, "Is an item     : ", pcap->isitem );
-    ftruthf( filewrite, "Is a mount     : ", pcap->ismount );
-    ftruthf( filewrite, "Is stackable   : ", pcap->isstackable );
-    ftruthf( filewrite, "Name known     : ", pchr->nameknown );
-    ftruthf( filewrite, "Usage known    : ", pcap->usageknown );
-    ftruthf( filewrite, "Is exportable  : ", pcap->cancarrytonextmodule );
-    ftruthf( filewrite, "Requires skill : ", pcap->needskillidtouse );
-    ftruthf( filewrite, "Is platform    : ", pcap->platform );
-    ftruthf( filewrite, "Collects money : ", pcap->cangrabmoney );
-    ftruthf( filewrite, "Can open stuff : ", pcap->canopenstuff );
+    fput_bool( filewrite, "Is an item     : ", pcap->isitem );
+    fput_bool( filewrite, "Is a mount     : ", pcap->ismount );
+    fput_bool( filewrite, "Is stackable   : ", pcap->isstackable );
+    fput_bool( filewrite, "Name known     : ", pchr->nameknown );
+    fput_bool( filewrite, "Usage known    : ", pcap->usageknown );
+    fput_bool( filewrite, "Is exportable  : ", pcap->cancarrytonextmodule );
+    fput_bool( filewrite, "Requires skill : ", pcap->needskillidtouse );
+    fput_bool( filewrite, "Is platform    : ", pcap->platform );
+    fput_bool( filewrite, "Collects money : ", pcap->cangrabmoney );
+    fput_bool( filewrite, "Can open stuff : ", pcap->canopenstuff );
     vfs_printf( filewrite, "\n" );
 
     // Other item and damage stuff
-    fdamagf( filewrite, "Damage type    : ", pcap->damagetargettype );
-    factiof( filewrite, "Attack type    : ", pcap->weaponaction );
+    fput_damage_type( filewrite, "Damage type    : ", pcap->damagetargettype );
+    fput_action( filewrite, "Attack type    : ", pcap->weaponaction );
     vfs_printf( filewrite, "\n" );
 
     // Particle attachments
     vfs_printf( filewrite, "Attached parts : %d\n", pcap->attachedprtamount );
-    fdamagf( filewrite, "Reaffirm type  : ", pcap->attachedprtreaffirmdamagetype );
+    fput_damage_type( filewrite, "Reaffirm type  : ", pcap->attachedprtreaffirmdamagetype );
     vfs_printf( filewrite, "Particle type  : %d\n", pcap->attachedprttype );
     vfs_printf( filewrite, "\n" );
 
     // Character hands
-    ftruthf( filewrite, "Left valid     : ", pcap->slotvalid[SLOT_LEFT] );
-    ftruthf( filewrite, "Right valid    : ", pcap->slotvalid[SLOT_RIGHT] );
+    fput_bool( filewrite, "Left valid     : ", pcap->slotvalid[SLOT_LEFT] );
+    fput_bool( filewrite, "Right valid    : ", pcap->slotvalid[SLOT_RIGHT] );
     vfs_printf( filewrite, "\n" );
 
     // Particle spawning on attack
-    ftruthf( filewrite, "Part on weapon : ", pcap->attackattached );
+    fput_bool( filewrite, "Part on weapon : ", pcap->attackattached );
     vfs_printf( filewrite, "Part type      : %d\n", pcap->attackprttype );
     vfs_printf( filewrite, "\n" );
 
@@ -2632,12 +2632,12 @@ bool_t export_one_character_profile( const char *szSaveName, Uint16 character )
     vfs_printf( filewrite, "\n" );
 
     // Particle spawning for blud
-    ftruthf( filewrite, "Blud valid     : ", pcap->bludvalid );
+    fput_bool( filewrite, "Blud valid     : ", pcap->bludvalid );
     vfs_printf( filewrite, "Part type      : %d\n", pcap->bludprttype );
     vfs_printf( filewrite, "\n" );
 
     // Extra stuff
-    ftruthf( filewrite, "Waterwalking   : ", pcap->waterwalk );
+    fput_bool( filewrite, "Waterwalking   : ", pcap->waterwalk );
     vfs_printf( filewrite, "Bounce dampen  : %5.3f\n", pcap->dampen );
     vfs_printf( filewrite, "\n" );
 
@@ -2646,10 +2646,10 @@ bool_t export_one_character_profile( const char *szSaveName, Uint16 character )
     vfs_printf( filewrite, "NOT USED       : %5.3f\n", pcap->manacost / 256.0f );       // and shouldnt be used. Use scripts instead.
     vfs_printf( filewrite, "Regeneration   : %d\n", pcap->lifereturn );
     vfs_printf( filewrite, "Stopped by     : %d\n", pcap->stoppedby );
-    funderf( filewrite, "Skin 0 name    : ", pcap->skinname[0] );
-    funderf( filewrite, "Skin 1 name    : ", pcap->skinname[1] );
-    funderf( filewrite, "Skin 2 name    : ", pcap->skinname[2] );
-    funderf( filewrite, "Skin 3 name    : ", pcap->skinname[3] );
+    fput_string_under( filewrite, "Skin 0 name    : ", pcap->skinname[0] );
+    fput_string_under( filewrite, "Skin 1 name    : ", pcap->skinname[1] );
+    fput_string_under( filewrite, "Skin 2 name    : ", pcap->skinname[2] );
+    fput_string_under( filewrite, "Skin 3 name    : ", pcap->skinname[3] );
     vfs_printf( filewrite, "Skin 0 cost    : %d\n", pcap->skincost[0] );
     vfs_printf( filewrite, "Skin 1 cost    : %d\n", pcap->skincost[1] );
     vfs_printf( filewrite, "Skin 2 cost    : %d\n", pcap->skincost[2] );
@@ -2658,12 +2658,12 @@ bool_t export_one_character_profile( const char *szSaveName, Uint16 character )
     vfs_printf( filewrite, "\n" );
 
     // Another memory lapse
-    ftruthf( filewrite, "No rider attak : ", btrue - pcap->ridercanattack );
-    ftruthf( filewrite, "Can be dazed   : ", pcap->canbedazed );
-    ftruthf( filewrite, "Can be grogged : ", pcap->canbegrogged );
+    fput_bool( filewrite, "No rider attak : ", btrue - pcap->ridercanattack );
+    fput_bool( filewrite, "Can be dazed   : ", pcap->canbedazed );
+    fput_bool( filewrite, "Can be grogged : ", pcap->canbegrogged );
     vfs_printf( filewrite, "NOT USED       : 0\n" );
     vfs_printf( filewrite, "NOT USED       : 0\n" );
-    ftruthf( filewrite, "Can see invisi : ", pcap->canseeinvisible );
+    fput_bool( filewrite, "Can see invisi : ", pcap->canseeinvisible );
     vfs_printf( filewrite, "Kursed chance  : %d\n", pchr->iskursed*100 );
     vfs_printf( filewrite, "Footfall sound : %d\n", pcap->soundindex[SOUND_FOOTFALL] );
     vfs_printf( filewrite, "Jump sound     : %d\n", pcap->soundindex[SOUND_JUMP] );
@@ -5405,7 +5405,7 @@ void move_characters( void )
         {
             twist = PMesh->mmem.tile_list[pchr->onwhichfan].twist;
         }
-        is_watery = water_data.is_water && pchr->inwater;
+        is_watery = water.is_water && pchr->inwater;
         is_slippy = !is_watery && (0 != mesh_test_fx( PMesh, pchr->onwhichfan, MPDFX_SLIPPY ));
 
         traction = 1.0f;

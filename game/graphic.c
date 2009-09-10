@@ -223,15 +223,15 @@ void move_water( void )
 
     for ( layer = 0; layer < MAXWATERLAYER; layer++ )
     {
-        water.layer[layer].tx.x += water_data.layer[layer].tx_add.x;
-        water.layer[layer].tx.y += water_data.layer[layer].tx_add.y;
+        water.layer[layer].tx.x += water.layer[layer].tx_add.x;
+        water.layer[layer].tx.y += water.layer[layer].tx_add.y;
 
         if ( water.layer[layer].tx.x >  1.0f )  water.layer[layer].tx.x -= 1.0f;
         if ( water.layer[layer].tx.y >  1.0f )  water.layer[layer].tx.y -= 1.0f;
         if ( water.layer[layer].tx.x < -1.0f )  water.layer[layer].tx.x += 1.0f;
         if ( water.layer[layer].tx.y < -1.0f )  water.layer[layer].tx.y += 1.0f;
 
-        water.layer[layer].frame = ( water.layer[layer].frame + water_data.layer[layer].frame_add ) & WATERFRAMEAND;
+        water.layer[layer].frame = ( water.layer[layer].frame + water.layer[layer].frame_add ) & WATERFRAMEAND;
     }
 }
 
@@ -836,7 +836,7 @@ void flash_character( Uint16 character, Uint8 value )
 void animate_tiles()
 {
     // This function changes the animated tile frame
-    if ( ( update_wld & animtile_data.update_and ) == 0 )
+    if ( ( update_wld & animtile_update_and ) == 0 )
     {
         animtile[0].frame_add = ( animtile[0].frame_add + 1 ) & animtile[0].frame_and;
         animtile[1].frame_add = ( animtile[1].frame_add + 1 ) & animtile[1].frame_and;
@@ -1036,7 +1036,6 @@ void render_background( Uint16 texture )
     ego_mpd_info_t * pinfo;
     oglx_texture   * ptex;
 
-    water_data_layer_t     * dlayer = water_data.layer + 0;
     water_instance_layer_t * ilayer = water.layer      + 0;
 
     z0 = 1500; // the original height of the camera
@@ -1084,8 +1083,8 @@ void render_background( Uint16 texture )
     vtlist[3].tex[SS] = Qx * mag1 + ilayer->tx.x;
     vtlist[3].tex[TT] = Qy * mag1 + ilayer->tx.y;
 
-    light = water_data.light ? 1.0f : 0.0f;
-    alpha = dlayer->alpha * INV_FF;
+    light = water.light ? 1.0f : 0.0f;
+    alpha = ilayer->alpha * INV_FF;
 
     if ( gfx.usefaredge )
     {
@@ -1159,11 +1158,10 @@ void render_foreground_overlay( Uint16 texture )
 
     oglx_texture           * ptex;
 
-    water_data_layer_t     * dlayer = water_data.layer + 1;
     water_instance_layer_t * ilayer = water.layer      + 1;
 
-    vforw_wind.x = dlayer->tx_add.x;
-    vforw_wind.y = dlayer->tx_add.y;
+    vforw_wind.x = ilayer->tx_add.x;
+    vforw_wind.y = ilayer->tx_add.y;
     vforw_wind.z = 0;
     vforw_wind = VNormalize( vforw_wind );
 
@@ -1172,7 +1170,7 @@ void render_foreground_overlay( Uint16 texture )
     // make the texture begin to disappear if you are not looking straight down
     ftmp = VDotProduct( vforw_wind, vforw_cam );
 
-    alpha = (1.0f - ftmp * ftmp) * (dlayer->alpha * INV_FF);
+    alpha = (1.0f - ftmp * ftmp) * (ilayer->alpha * INV_FF);
 
     if ( alpha != 0.0f )
     {
@@ -1190,7 +1188,7 @@ void render_foreground_overlay( Uint16 texture )
         size = x + y + 1;
         sinsize = turntosin[( 3*2047 ) & TRIG_TABLE_MASK] * size;
         cossize = turntocos[( 3*2047 ) & TRIG_TABLE_MASK] * size;
-        loc_foregroundrepeat = water_data.foregroundrepeat * MIN( x / sdl_scr.x, y / sdl_scr.x );
+        loc_foregroundrepeat = water.foregroundrepeat * MIN( x / sdl_scr.x, y / sdl_scr.x );
 
         vtlist[0].pos[XX] = x + cossize;
         vtlist[0].pos[YY] = y - sinsize;
@@ -1819,7 +1817,7 @@ void render_water( renderlist_t * prlist )
     int cnt;
 
     // Bottom layer first
-    if ( gfx.draw_water_1 && water.layer[1].z > -water_data.layer[1].amp )
+    if ( gfx.draw_water_1 && water.layer[1].z > -water.layer[1].amp )
     {
         for ( cnt = 0; cnt < prlist->all_count; cnt++ )
         {
@@ -1831,7 +1829,7 @@ void render_water( renderlist_t * prlist )
     }
 
     // Top layer second
-    if ( gfx.draw_water_0 && water.layer[0].z > -water_data.layer[0].amp )
+    if ( gfx.draw_water_0 && water.layer[0].z > -water.layer[0].amp )
     {
         for ( cnt = 0; cnt < prlist->all_count; cnt++ )
         {
@@ -2090,7 +2088,7 @@ void draw_scene_water( renderlist_t * prlist )
     GL_DEBUG(glFrontFace)(GL_CW );
 
     // And transparent water floors
-    if ( !water_data.light )
+    if ( !water.light )
     {
         GL_DEBUG(glEnable)(GL_BLEND );
         GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
@@ -3168,7 +3166,7 @@ int draw_debug( int y )
         y = _draw_string_raw( 0, y, text, PMod->exportvalid );
         y = _draw_string_raw( 0, y, "~~PASS %d/%d", ShopStack.count, PassageStack.count );
         y = _draw_string_raw( 0, y, "~~NETPLAYERS %d", numplayer );
-        y = _draw_string_raw( 0, y, "~~DAMAGEPART %d", damagetile_data.parttype );
+        y = _draw_string_raw( 0, y, "~~DAMAGEPART %d", damagetile.parttype );
 
         // y = _draw_string_raw( 0, y, "~~FOGAFF %d", fog_data.affects_water );
     }
@@ -4390,14 +4388,14 @@ bool_t gfx_config_synch(gfx_config_t * pgfx, egoboo_config_t * pcfg )
     pgfx->perspective  = pcfg->use_perspective;
     pgfx->phongon      = pcfg->use_phong;
 
-    pgfx->draw_background = pcfg->background_allowed && water_data.background_req;
-    pgfx->draw_overlay    = pcfg->overlay_allowed && water_data.overlay_req;
+    pgfx->draw_background = pcfg->background_allowed && water.background_req;
+    pgfx->draw_overlay    = pcfg->overlay_allowed && water.overlay_req;
 
     pgfx->dyna_list_max = CLIP(pcfg->dyna_count_req, 0, TOTAL_MAX_DYNA);
 
-    pgfx->draw_water_0 = !pgfx->draw_overlay && (water_data.layer_count > 0);
+    pgfx->draw_water_0 = !pgfx->draw_overlay && (water.layer_count > 0);
     pgfx->clearson     = !pgfx->draw_background;
-    pgfx->draw_water_1 = !pgfx->draw_background && (water_data.layer_count > 1);
+    pgfx->draw_water_1 = !pgfx->draw_background && (water.layer_count > 1);
 
     kx = (float)GFX_WIDTH  / (float)sdl_scr.x;
     ky = (float)GFX_HEIGHT / (float)sdl_scr.y;

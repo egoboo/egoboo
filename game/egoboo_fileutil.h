@@ -59,12 +59,15 @@ Sint32 fget_int( vfs_FILE* fileread );
 char   fget_first_letter( vfs_FILE* fileread );
 IDSZ   fget_idsz( vfs_FILE* fileread );
 
-void ftruthf( vfs_FILE* filewrite, const char* text, Uint8 truth );
-void fdamagf( vfs_FILE* filewrite, const char* text, Uint8 damagetype );
-void factiof( vfs_FILE* filewrite, const char* text, Uint8 action );
-void fgendef( vfs_FILE* filewrite, const char* text, Uint8 gender );
-void fpairof( vfs_FILE* filewrite, const char* text, IPair val );
-void funderf( vfs_FILE* filewrite, const char* text, const char* usename );
+void fput_int( vfs_FILE* filewrite, const char* text, int ival );
+void fput_float( vfs_FILE* filewrite, const char* text, float fval );
+void fput_bool( vfs_FILE* filewrite, const char* text, bool_t truth );
+void fput_damage_type( vfs_FILE* filewrite, const char* text, Uint8 damagetype );
+void fput_action( vfs_FILE* filewrite, const char* text, Uint8 action );
+void fput_gender( vfs_FILE* filewrite, const char* text, Uint8 gender );
+void fput_pair( vfs_FILE* filewrite, const char* text, IPair val );
+void fput_string_under( vfs_FILE* filewrite, const char* text, const char* usename );
+
 
 bool_t fcopy_line(vfs_FILE * fileread, vfs_FILE * filewrite);
 

@@ -302,24 +302,34 @@ bool_t fget_name( vfs_FILE* fileread,  char *szName, size_t max_len )
 }
 
 //--------------------------------------------------------------------------------------------
-void ftruthf( vfs_FILE* filewrite, const char* text, Uint8 truth )
+void fput_int( vfs_FILE* filewrite, const char* text, int ival )
+{
+    // ZZ> This function kinda mimics fprintf for integers
+
+    vfs_printf( filewrite, "%s %d\n", text, ival );
+}
+
+//--------------------------------------------------------------------------------------------
+void fput_float( vfs_FILE* filewrite, const char* text, float fval )
+{
+    // ZZ> This function kinda mimics fprintf for integers
+
+    vfs_printf( filewrite, "%s %f\n", text, fval );
+}
+
+//--------------------------------------------------------------------------------------------
+void fput_bool( vfs_FILE* filewrite, const char* text, bool_t truth )
 {
     // ZZ> This function kinda mimics vfs_printf for the output of
     //    btrue bfalse statements
 
     vfs_printf( filewrite, "%s", text );
-    if ( truth )
-    {
-        vfs_printf( filewrite, "TRUE\n" );
-    }
-    else
-    {
-        vfs_printf( filewrite, "FALSE\n" );
-    }
+	vfs_printf( filewrite, truth ? "TRUE" : "FALSE" );
+	vfs_printf( filewrite, "\n" );
 }
 
 //--------------------------------------------------------------------------------------------
-void fdamagf( vfs_FILE* filewrite, const char* text, Uint8 damagetype )
+void fput_damage_type( vfs_FILE* filewrite, const char* text, Uint8 damagetype )
 {
     // ZZ> This function kinda mimics vfs_printf for the output of
     //    SLASH CRUSH POKE HOLY EVIL FIRE ICE ZAP statements
@@ -345,7 +355,7 @@ void fdamagf( vfs_FILE* filewrite, const char* text, Uint8 damagetype )
 }
 
 //--------------------------------------------------------------------------------------------
-void factiof( vfs_FILE* filewrite, const char* text, Uint8 action )
+void fput_action( vfs_FILE* filewrite, const char* text, Uint8 action )
 {
     // ZZ> This function kinda mimics vfs_printf for the output of
     //    SLASH CRUSH POKE HOLY EVIL FIRE ICE ZAP statements
@@ -373,7 +383,7 @@ void factiof( vfs_FILE* filewrite, const char* text, Uint8 action )
 }
 
 //--------------------------------------------------------------------------------------------
-void fgendef( vfs_FILE* filewrite, const char* text, Uint8 gender )
+void fput_gender( vfs_FILE* filewrite, const char* text, Uint8 gender )
 {
     // ZZ> This function kinda mimics vfs_printf for the output of
     //    MALE FEMALE OTHER statements
@@ -388,7 +398,7 @@ void fgendef( vfs_FILE* filewrite, const char* text, Uint8 gender )
 }
 
 //--------------------------------------------------------------------------------------------
-void fpairof( vfs_FILE* filewrite, const char* text, IPair val )
+void fput_pair( vfs_FILE* filewrite, const char* text, IPair val )
 {
     // ZZ> This function mimics vfs_printf in spitting out
     //    damage/stat pairs
@@ -400,7 +410,7 @@ void fpairof( vfs_FILE* filewrite, const char* text, IPair val )
 }
 
 //--------------------------------------------------------------------------------------------
-void funderf( vfs_FILE* filewrite, const char* text, const char* usename )
+void fput_string_under( vfs_FILE* filewrite, const char* text, const char* usename )
 {
     // ZZ> This function mimics vfs_printf in spitting out
     //    a name with underscore spaces

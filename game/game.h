@@ -28,6 +28,12 @@ struct s_ego_mpd;
 struct s_camera;
 struct s_script_state;
 
+struct s_wawalite_animtile;
+struct s_wawalite_damagetile;
+struct s_wawalite_weather;
+struct s_wawalite_water;
+struct s_wawalite_fog;
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -154,43 +160,28 @@ enum e_latchbutton
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-// animtile data in the wawalite.txt file
-struct s_animtile_data
-{
-    int    update_and;             // New tile every 7 frames
-    Uint16 frame_and;              // Only 4 frames for small tiles
-    Uint16 frame_add;              // Current frame
-
-};
-typedef struct s_animtile_data animtile_data_t;
-extern animtile_data_t animtile_data;
-
-//--------------------------------------------------------------------------------------------
 struct s_animtile_instance
 {
+    int    update_and;             // New tile every 7 frames
     Uint16 frame_and;
     Uint16 base_and;
     Uint16 frame_add;
 };
 typedef struct s_animtile_instance animtile_instance_t;
-extern animtile_instance_t animtile[2];
 
-//--------------------------------------------------------------------------------------------
-// damagetile data in the wawalite.txt file
-struct s_damagetile_data
-{
-    Sint16  parttype;
-    Sint16  partand;
-    Sint16  sound;
-    Uint8   type;                      // Type of damage
-    IPair   amount;                    // Amount of damage
-};
-typedef struct s_damagetile_data damagetile_data_t;
-extern damagetile_data_t damagetile_data;
+extern Uint32              animtile_update_and;
+extern animtile_instance_t animtile[2];
 
 //--------------------------------------------------------------------------------------------
 struct s_damagetile_instance
 {
+    IPair   amount;                    // Amount of damage
+    int    type;
+
+    int    parttype;
+    Uint32 partand;
+    int    sound;
+
     Sint16  sound_time;
     Uint16  min_distance;
 };
@@ -198,18 +189,11 @@ typedef struct s_damagetile_instance damagetile_instance_t;
 extern damagetile_instance_t damagetile;
 
 //--------------------------------------------------------------------------------------------
-// weather data in the wawalite.txt file
-struct s_weather_data
-{
-    int over_water;           // Only spawn over water?
-    int timer_reset;          // Rate at which weather particles spawn
-};
-typedef struct s_weather_data weather_data_t;
-extern weather_data_t weather_data;
-
-//--------------------------------------------------------------------------------------------
 struct s_weather_instance
 {
+    int     timer_reset;
+    bool_t  over_water;
+
     Uint16  iplayer;
     int     time;                // 0 is no weather
 };
@@ -217,58 +201,23 @@ typedef struct s_weather_instance weather_instance_t;
 extern weather_instance_t weather;
 
 //--------------------------------------------------------------------------------------------
-// water data in the wawalite.txt file
-
-struct s_water_layer_data
-{
-    Uint16    frame_add;    // Speed
-
-    float     z;            // Base height of water
-    float     amp;          // Amplitude of waves
-
-    GLvector2 dist;         // For distant backgrounds
-    Uint8     light_dir;    // direct  reflectivity 0 - 63
-    Uint8     light_add;    // ambient reflectivity 0 - 63
-
-    GLvector2 tx_add;       // Texture movement
-    Uint8     alpha;        // Transparency
-};
-typedef struct s_water_layer_data water_data_layer_t;
-
-struct s_water_data
-{
-    float   surface_level;          // Surface level for water striders
-    float   douse_level;            // Surface level for torches
-    Uint8   spek_start;             // Specular begins at which light value
-    Uint8   spek_level;             // General specular amount (0-255)
-    bool_t  is_water;               // Is it water?  ( Or lava... )
-    bool_t  background_req;
-    bool_t  overlay_req;
-
-    bool_t  light;                               // Is it light ( default is alpha )
-
-    int                layer_count;              // Number of layers
-    water_data_layer_t layer[MAXWATERLAYER];     // layer data
-
-    float   foregroundrepeat;
-    float   backgroundrepeat;
-
-};
-typedef struct s_water_data water_data_t;
-extern water_data_t water_data;
-
-//--------------------------------------------------------------------------------------------
-
 struct s_water_layer_instance
 {
     Uint16    frame;        // Frame
+    Uint32    frame_add;      // Speed
+
     float     z;            // Base height of water
+    float     amp;			// Amplitude of waves
+
     GLvector2 dist;
 
     GLvector2 tx;           // Coordinates of texture
 
     float     light_dir;    // direct  reflectivity 0 - 1
     float     light_add;    // ambient reflectivity 0 - 1
+	Uint8     alpha;	    // Transparency
+
+    GLvector2 tx_add;			// Texture movement
 };
 typedef struct s_water_layer_instance water_instance_layer_t;
 
@@ -276,8 +225,17 @@ struct s_water_instance
 {
     float  surface_level;          // Surface level for water striders
     float  douse_level;            // Surface level for torches
-    Uint32 spek[256];              // Specular highlights
+    bool_t is_water;		 // Is it water?  ( Or lava... )
+    bool_t overlay_req;
+    bool_t background_req;
+	bool_t light;            // Is it light ( default is alpha )
+	
+	float  foregroundrepeat;
+    float  backgroundrepeat;
 
+	Uint32 spek[256];              // Specular highlights
+
+    int                    layer_count;
     water_instance_layer_t layer[MAXWATERLAYER];
 
     float  layer_z_add[MAXWATERLAYER][MAXWATERFRAME][WATERPOINTS];
@@ -285,17 +243,6 @@ struct s_water_instance
 
 typedef struct s_water_instance water_instance_t;
 extern water_instance_t water;
-
-//--------------------------------------------------------------------------------------------
-// fog data in the wawalite.txt file
-struct s_fog_data
-{
-    float  top, bottom;
-    Uint8  red, grn, blu;
-    bool_t affects_water;
-};
-typedef struct s_fog_data fog_data_t;
-extern fog_data_t fog_data;
 
 //--------------------------------------------------------------------------------------------
 struct s_fog_instance
@@ -413,25 +360,15 @@ void  free_all_objects( void );
 struct s_ego_mpd   * set_PMesh( struct s_ego_mpd * pmpd );
 struct s_camera * set_PCamera( struct s_camera * pcam );
 
-bool_t animtile_data_init( animtile_data_t * pdata );
-bool_t animtile_instance_init( animtile_instance_t pinst[], animtile_data_t * pdata );
-
-bool_t damagetile_data_init( damagetile_data_t * pdata );
-bool_t damagetile_instance_init( damagetile_instance_t * pinst, damagetile_data_t * pdata );
-
-bool_t weather_data_init( weather_data_t * pdata );
-bool_t weather_instance_init( weather_instance_t * pinst, weather_data_t * pdata );
-
-bool_t water_data_init( water_data_t * pdata );
-bool_t water_instance_init( water_instance_t * pinst, water_data_t * pdata );
-
-bool_t fog_data_init( fog_data_t * pdata );
-bool_t fog_instance_init( fog_instance_t * pinst, fog_data_t * pdata );
+bool_t upload_animtile_data( animtile_instance_t pinst[], struct s_wawalite_animtile * pdata, size_t animtile_count );
+bool_t upload_damagetile_data( damagetile_instance_t * pinst, struct s_wawalite_damagetile * pdata );
+bool_t upload_weather_data( weather_instance_t * pinst, struct s_wawalite_weather * pdata );
+bool_t upload_water_data( water_instance_t * pinst, struct s_wawalite_water * pdata );
+bool_t upload_fog_data( fog_instance_t * pinst, struct s_wawalite_fog * pdata );
 
 float get_mesh_level( struct s_ego_mpd * pmesh, float x, float y, bool_t waterwalk );
 
-bool_t make_water( water_instance_t * pinst, water_data_t * pdata );
-void read_wawalite( const char *modname );
+bool_t make_water( water_instance_t * pinst, struct s_wawalite_water * pdata );
 
 bool_t game_choose_module( int imod, int seed );
 
@@ -457,3 +394,5 @@ void expand_escape_codes( Uint16 ichr, struct s_script_state * pstate, char * sr
 
 
 bool_t release_one_model_profile( Uint16 object );
+
+void upload_wawalite();

@@ -220,6 +220,9 @@
 			<File
 				RelativePath=".\ui.c">
 			</File>
+			<File
+				RelativePath=".\wawalite.c">
+			</File>
 		</Filter>
 		<Filter
 			Name="Game Headers"
@@ -296,6 +299,9 @@
 			</File>
 			<File
 				RelativePath=".\ui.h">
+			</File>
+			<File
+				RelativePath=".\wawalite.h">
 			</File>
 		</Filter>
 		<Filter

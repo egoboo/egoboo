@@ -1397,7 +1397,7 @@ Uint8 scr_set_WeatherTime( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // set_ the weather timer
-    weather_data.timer_reset = pstate->argument;
+    weather.timer_reset = pstate->argument;
     weather.time = pstate->argument;
 
     SCRIPT_FUNCTION_END();
@@ -3481,7 +3481,7 @@ Uint8 scr_OverWater( script_state_t * pstate, ai_state_t * pself )
     returncode = bfalse;
     if ( VALID_TILE(PMesh, pchr->onwhichfan) )
     {
-        returncode = ( ( 0 != mesh_test_fx( PMesh, pchr->onwhichfan, MPDFX_WATER ) ) && water_data.is_water );
+        returncode = ( ( 0 != mesh_test_fx( PMesh, pchr->onwhichfan, MPDFX_WATER ) ) && water.is_water );
     }
 
     SCRIPT_FUNCTION_END();

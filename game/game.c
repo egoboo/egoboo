@@ -43,6 +43,7 @@
 #include "mad.h"
 #include "mesh.h"
 #include "texture.h"
+#include "wawalite.h"
 
 #include "char.h"
 #include "particle.h"
@@ -176,15 +177,11 @@ Uint32  pitz;
 
 Uint16  glouseangle = 0;                                        // actually still used
 
-animtile_data_t       animtile_data;
+Uint32                animtile_update_and = 0;
 animtile_instance_t   animtile[2];
-damagetile_data_t     damagetile_data;
 damagetile_instance_t damagetile;
-weather_data_t        weather_data;
 weather_instance_t    weather;
-water_data_t          water_data;
 water_instance_t      water;
-fog_data_t            fog_data;
 fog_instance_t        fog;
 
 Uint8  local_senseenemiesTeam = TEAM_GOOD; // TEAM_MAX;
@@ -1976,7 +1973,7 @@ void make_onwhichfan( void )
                     ( ChrList.lst[character].pos.z <= ChrList.lst[character].floor_level + DAMAGERAISE ) &&
                     ( MAX_CHR == ChrList.lst[character].attachedto ) )
             {
-                if ( ( ChrList.lst[character].damagemodifier[damagetile_data.type]&DAMAGESHIFT ) != 3 && !ChrList.lst[character].invictus ) // 3 means they're pretty well immune
+                if ( ( ChrList.lst[character].damagemodifier[damagetile.type]&DAMAGESHIFT ) != 3 && !ChrList.lst[character].invictus ) // 3 means they're pretty well immune
                 {
                     distance = ABS( PCamera->track_pos.x - ChrList.lst[character].pos.x ) + ABS( PCamera->track_pos.y - ChrList.lst[character].pos.y );
                     if ( distance < damagetile.min_distance )
@@ -1989,16 +1986,16 @@ void make_onwhichfan( void )
                     }
                     if ( ChrList.lst[character].damagetime == 0 )
                     {
-                        damage_character( character, ATK_BEHIND, damagetile_data.amount, damagetile_data.type, TEAM_DAMAGE, ChrList.lst[character].ai.bumplast, DAMFX_NBLOC | DAMFX_ARMO, bfalse );
+                        damage_character( character, ATK_BEHIND, damagetile.amount, damagetile.type, TEAM_DAMAGE, ChrList.lst[character].ai.bumplast, DAMFX_NBLOC | DAMFX_ARMO, bfalse );
                         ChrList.lst[character].damagetime = DAMAGETILETIME;
                     }
-                    if ( (damagetile_data.parttype != ((Sint16)~0)) && ( update_wld & damagetile_data.partand ) == 0 )
+                    if ( (damagetile.parttype != ((Sint16)~0)) && ( update_wld & damagetile.partand ) == 0 )
                     {
                         spawn_one_particle( ChrList.lst[character].pos.x, ChrList.lst[character].pos.y, ChrList.lst[character].pos.z,
-                                            0, MAX_PROFILE, damagetile_data.parttype, MAX_CHR, GRIP_LAST, TEAM_NULL, MAX_CHR, 0, MAX_CHR );
+                                            0, MAX_PROFILE, damagetile.parttype, MAX_CHR, GRIP_LAST, TEAM_NULL, MAX_CHR, 0, MAX_CHR );
                     }
                 }
-                if ( ChrList.lst[character].reaffirmdamagetype == damagetile_data.type )
+                if ( ChrList.lst[character].reaffirmdamagetype == damagetile.type )
                 {
                     if ( ( update_wld&TILEREAFFIRMAND ) == 0 )
                         reaffirm_attached_particles( character );
@@ -2017,7 +2014,7 @@ void make_onwhichfan( void )
                                         0, MAX_PROFILE, SPLASH, MAX_CHR, GRIP_LAST, TEAM_NULL, MAX_CHR, 0, MAX_CHR );
                 }
 
-                if ( water_data.is_water )
+                if ( water.is_water )
                 {
                     ChrList.lst[character].ai.alert |= ALERTIF_INWATER;
                 }
@@ -2036,7 +2033,7 @@ void make_onwhichfan( void )
                                             0, MAX_PROFILE, RIPPLE, MAX_CHR, GRIP_LAST, TEAM_NULL, MAX_CHR, 0, MAX_CHR );
                     }
                 }
-                if ( water_data.is_water && HAS_NO_BITS( frame_all, 7 ) )
+                if ( water.is_water && HAS_NO_BITS( frame_all, 7 ) )
                 {
                     ChrList.lst[character].jumpready = btrue;
                     ChrList.lst[character].jumpnumber = 1; // ChrList.lst[character].jumpnumberreset;
@@ -2238,7 +2235,7 @@ void update_pits()
                         }
 
                         // Do some damage (same as damage tile)
-                        damage_character( cnt, ATK_BEHIND, damagetile_data.amount, damagetile_data.type, TEAM_DAMAGE, ChrList.lst[cnt].ai.bumplast, DAMFX_NBLOC | DAMFX_ARMO, btrue );
+                        damage_character( cnt, ATK_BEHIND, damagetile.amount, damagetile.type, TEAM_DAMAGE, ChrList.lst[cnt].ai.bumplast, DAMFX_NBLOC | DAMFX_ARMO, btrue );
                     }
                 }
             }
@@ -2263,7 +2260,7 @@ void do_weather_spawn()
         weather.time--;
         if ( weather.time == 0 )
         {
-            weather.time = weather_data.timer_reset;
+            weather.time = weather.timer_reset;
 
             // Find a valid player
             foundone = bfalse;
@@ -2296,7 +2293,7 @@ void do_weather_spawn()
                     if (particle != TOTAL_MAX_PRT)
                     {
                         if (__prthitawall( particle ) ) PrtList_free_one( particle );
-                        else if ( weather_data.over_water )
+                        else if ( weather.over_water )
                         {
                             if ( !prt_is_over_water( particle ) )
                             {
@@ -2668,8 +2665,8 @@ void show_stat( Uint16 statindex )
 {
     // ZZ> This function shows the more specific stats for a character
     int character, level;
-    STRING text;
     char gender[8];
+
     if ( statindex < numstat )
     {
         character = statlist[statindex];
@@ -2725,7 +2722,7 @@ void show_stat( Uint16 statindex )
 void show_armor( Uint16 statindex )
 {
     // ZF> This function shows detailed armor information for the character
-    STRING text, tmps;
+    STRING tmps;
 
     if ( statindex < numstat )
     {
@@ -2837,7 +2834,7 @@ void show_full_status( Uint16 statindex )
 void show_magic_status( Uint16 statindex )
 {
     // ZF> Displays special enchantment effects for the character
-    STRING text, tmpa, tmpb;
+    STRING text;
     Uint16 character;
 
     if ( statindex < numstat )
@@ -5114,9 +5111,11 @@ void game_load_module_assets( const char *modname )
     // load a bunch of assets that are used in the module
     load_global_waves( modname );
     reset_particles( modname );
-    read_wawalite( modname );
+    read_wawalite( modname, NULL );
     load_basic_textures( modname );
 	load_map( modname );
+
+	upload_wawalite();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5839,369 +5838,6 @@ camera_t * set_PCamera( camera_t * pcam )
     return pcam_old;
 }
 
-//--------------------------------------------------------------------------------------------
-bool_t water_data_init( water_data_t * pdata )
-{
-    if ( NULL == pdata ) return bfalse;
-
-    memset( pdata, 0, sizeof(water_data_t) );
-
-    pdata->spek_start =   128;
-    pdata->spek_level =   128;
-    pdata->is_water   = btrue;
-
-    pdata->foregroundrepeat = 1;
-    pdata->backgroundrepeat = 1;
-
-    if ( pdata->light )
-    {
-        int layer;
-        for ( layer = 0; layer < pdata->layer_count; layer++ )
-        {
-            pdata->layer[layer].alpha = 255;  // Some cards don't support alpha lights...
-        }
-    }
-
-    return btrue;
-}
-
-bool_t water_instance_init( water_instance_t * pinst, water_data_t * pdata )
-{
-    int layer;
-
-    if (NULL == pinst) return bfalse;
-
-    memset(pinst, 0, sizeof(water_instance_t));
-
-    for ( layer = 0; layer < MAXWATERLAYER; layer++)
-    {
-        pinst->layer[layer].frame = generate_randmask( 0 , WATERFRAMEAND );
-    }
-
-    if ( NULL != pdata )
-    {
-        pinst->surface_level = pdata->surface_level;
-        pinst->douse_level   = pdata->douse_level;
-
-        for ( layer = 0; layer < MAXWATERLAYER; layer++)
-        {
-            pinst->layer[layer].z         = pdata->layer[layer].z;
-            pinst->layer[layer].dist      = pdata->layer[layer].dist;
-
-            pinst->layer[layer].light_dir = pdata->layer[layer].light_dir / 63.0f;
-            pinst->layer[layer].light_add = pdata->layer[layer].light_add / 63.0f;
-        }
-    }
-
-    make_water( pinst, pdata );
-
-    return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t weather_data_init( weather_data_t * pdata )
-{
-    if ( NULL == pdata ) return bfalse;
-
-    memset( pdata, 0, sizeof(weather_data_t) );
-
-    pdata->timer_reset = 10;
-
-    return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t weather_instance_init( weather_instance_t * pinst, weather_data_t * pdata )
-{
-    if ( NULL == pinst ) return bfalse;
-
-    memset( pinst, 0, sizeof(weather_instance_t) );
-
-    if ( NULL == pdata ) return bfalse;
-
-    pinst->time = pdata->timer_reset;
-
-    return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t fog_data_init( fog_data_t * pdata )
-{
-    if ( NULL == pdata ) return bfalse;
-
-    pdata->top           = 100;
-    pdata->bottom        = 0.0f;
-    pdata->red           = 255;
-    pdata->grn           = 255;
-    pdata->blu           = 255;
-    pdata->affects_water = btrue;
-
-    return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t fog_instance_init( fog_instance_t * pinst, fog_data_t * pdata )
-{
-    if ( NULL == pinst ) return bfalse;
-
-    memset( pinst, 0, sizeof(fog_instance_t) );
-
-    pinst->distance = 100;
-    pinst->on       = cfg.fog_allowed;
-
-    if ( NULL == pdata ) return bfalse;
-
-    pinst->top    = pdata->top;
-    pinst->bottom = pdata->bottom;
-
-    pinst->red    = pdata->red;
-    pinst->grn    = pdata->grn;
-    pinst->blu    = pdata->blu;
-
-    pinst->distance = ( pdata->top - pdata->bottom );
-    if ( pinst->distance < 1.0f )  pinst->on = bfalse;
-
-    return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t damagetile_data_init( damagetile_data_t * pdata )
-{
-    if ( NULL == pdata ) return bfalse;
-
-    pdata->parttype    = -1;
-    pdata->partand     = 255;
-    pdata->sound       = INVALID_SOUND;
-    pdata->type        = DAMAGE_FIRE;
-    pdata->amount.base = 256;
-    pdata->amount.rand = 1;
-
-    return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t damagetile_instance_init( damagetile_instance_t * pinst, damagetile_data_t * pdata )
-{
-    if ( NULL == pinst ) return bfalse;
-
-    memset( pinst, 0, sizeof(damagetile_instance_t) );
-
-    pinst->sound_time   = TILESOUNDTIME;
-    pinst->min_distance = 9999;
-
-    if ( NULL == pdata ) return bfalse;
-
-    return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t animtile_data_init( animtile_data_t * pdata )
-{
-    if ( NULL == pdata ) return bfalse;
-
-    memset( pdata, 0, sizeof(animtile_data_t) );
-
-    pdata->update_and    = 7;                        // New tile every 7 frames
-    pdata->frame_and     = 3;              // Only 4 frames
-
-    return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t animtile_instance_init( animtile_instance_t pinst[], animtile_data_t * pdata )
-{
-    if ( NULL == pinst ) return bfalse;
-
-    pinst[0].frame_and  = (1 << 2) - 1;
-    pinst[0].base_and   = ~pinst[0].frame_and;
-    pinst[0].frame_add  = 0;
-
-    pinst[1].frame_and  = (1 << 3) - 1;
-    pinst[1].base_and   = ~pinst[1].frame_and;
-    pinst[1].frame_add  = 0;
-
-    if ( NULL == pdata ) return bfalse;
-
-    pinst[0].frame_and = pdata->frame_and;
-    pinst[0].base_and  = ~pinst[0].frame_and;
-
-    pinst[1].frame_and = ( pdata->frame_and << 1 ) | 1;
-    pinst[1].base_and  = ~pinst[1].frame_and;
-
-    return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-void read_wawalite( const char *modname )
-{
-    // ZZ> This function sets up water and lighting for the module
-    STRING newloadname;
-    vfs_FILE* fileread;
-    float fTmp;
-    int iTmp;
-
-    water_data_init( &water_data );
-    weather_data_init( &weather_data );
-    fog_data_init( &fog_data );
-    damagetile_data_init( &damagetile_data );
-    animtile_data_init( &animtile_data );
-
-    make_newloadname( modname, "gamedat" SLASH_STR "wawalite.txt", newloadname );
-    fileread = vfs_openRead( newloadname );
-    if ( NULL == fileread )
-    {
-        log_error( "Could not read file! (wawalite.txt)\n" );
-        return;
-    }
-
-    goto_colon( NULL, fileread, bfalse );
-    // !!!BAD!!!
-    // Random map...
-    // If someone else wants to handle this, here are some thoughts for approaching
-    // it.  The .MPD file for the level should give the basic size of the map.  Use
-    // a standard tile set like the Palace modules.  Only use objects that are in
-    // the module's object directory, and only use some of them.  Imagine several Rock
-    // Moles eating through a stone filled level to make a path from the entrance to
-    // the exit.  Door placement will be difficult.
-    // !!!BAD!!!
-
-    // Read water data first
-    water_data.layer_count    = fget_next_int( fileread );
-    water_data.spek_start     = fget_next_int( fileread );
-    water_data.spek_level     = fget_next_int( fileread );
-    water_data.douse_level    = fget_next_int( fileread );
-    water_data.surface_level  = fget_next_int( fileread );
-    water_data.light          = fget_next_bool( fileread );
-    water_data.is_water       = fget_next_bool( fileread );
-    water_data.overlay_req    = fget_next_bool( fileread );
-    water_data.background_req = fget_next_bool( fileread );
-
-    // General data info
-    water_data.layer[0].dist.x  = fget_next_float( fileread );
-    water_data.layer[0].dist.y  = fget_next_float( fileread );
-    water_data.layer[1].dist.x  = fget_next_float( fileread );
-    water_data.layer[1].dist.y  = fget_next_float( fileread );
-    water_data.foregroundrepeat = fget_next_int( fileread );
-    water_data.backgroundrepeat = fget_next_int( fileread );
-
-    // Read data on first water layer
-    water_data.layer[0].z         = fget_next_int( fileread );
-    water_data.layer[0].alpha     = fget_next_int( fileread );
-    water_data.layer[0].frame_add = fget_next_int( fileread );
-    water_data.layer[0].light_dir = fget_next_int( fileread );
-    water_data.layer[0].light_add = fget_next_int( fileread );
-    water_data.layer[0].amp       = fget_next_float( fileread );
-    water_data.layer[0].tx_add.x  = fget_next_float( fileread );
-    water_data.layer[0].tx_add.y  = fget_next_float( fileread );
-
-    water_data.layer[0].light_dir = CLIP(water_data.layer[0].light_dir, 0, 63);
-    water_data.layer[0].light_add = CLIP(water_data.layer[0].light_dir, 0, 63);
-
-    // Read data on second water layer
-    water_data.layer[1].z         = fget_next_int( fileread );
-    water_data.layer[1].alpha     = fget_next_int( fileread );
-    water_data.layer[1].frame_add = fget_next_int( fileread );
-    water_data.layer[1].light_dir = fget_next_int( fileread );
-    water_data.layer[1].light_add = fget_next_int( fileread );
-    water_data.layer[1].amp       = fget_next_float( fileread );
-    water_data.layer[1].tx_add.x  = fget_next_float( fileread );
-    water_data.layer[1].tx_add.y  = fget_next_float( fileread );
-
-    water_data.layer[1].light_dir = CLIP(water_data.layer[1].light_dir, 0, 63);
-    water_data.layer[1].light_add = CLIP(water_data.layer[1].light_dir, 0, 63);
-
-
-    // Read light data second
-    light_x = fget_next_float( fileread );
-    light_y = fget_next_float( fileread );
-    light_z = fget_next_float( fileread );
-    light_a = fget_next_float( fileread ) * 10.0f;
-
-    light_d = 0.0f;
-    if ( ABS(light_x) + ABS(light_y) + ABS(light_z) > 0 )
-    {
-        fTmp = SQRT( light_x * light_x + light_y * light_y + light_z * light_z );
-
-        // get the extra magnitude of the direct light
-        light_d = (1.0f - light_a) * fTmp;
-        light_d = CLIP(light_d, 0.0f, 1.0f);
-
-        light_x /= fTmp;
-        light_y /= fTmp;
-        light_z /= fTmp;
-    }
-
-    // Read tile data third
-    hillslide      = fget_next_float( fileread );
-    slippyfriction = fget_next_float( fileread );
-    airfriction    = fget_next_float( fileread );
-    waterfriction  = fget_next_float( fileread );
-    noslipfriction = fget_next_float( fileread );
-    gravity        = fget_next_float( fileread );
-
-    animtile_data.update_and = fget_next_int( fileread );
-    animtile_data.frame_and  = fget_next_int( fileread );
-
-    damagetile_data.amount.base = fget_next_int( fileread );
-    damagetile_data.amount.rand = 1;
-    damagetile_data.type        = fget_next_damage_type( fileread );
-
-    // Read weather data fourth
-    weather_data.over_water  = fget_next_bool( fileread );
-    weather_data.timer_reset = fget_next_int( fileread );
-
-    // Read extra data
-    gfx.exploremode = fget_next_bool( fileread );
-    gfx.usefaredge = fget_next_bool( fileread );
-
-    PCamera->swing     = 0;
-    PCamera->swingrate = fget_next_float( fileread );
-    PCamera->swingamp  = fget_next_float( fileread );
-
-    // Read unnecessary data...  Only read if it exists...
-    if ( goto_colon( NULL, fileread, btrue ) )
-    {
-        fog_data.top    = fget_float( fileread );
-        fog_data.bottom = fget_next_float( fileread );
-        fog_data.red    = fget_next_float( fileread ) * 255;
-        fog_data.grn    = fget_next_float( fileread ) * 255;
-        fog_data.blu    = fget_next_float( fileread ) * 255;
-        fog_data.affects_water = fget_next_bool( fileread );
-
-        // Read extra stuff for damage tile particles...
-        if ( goto_colon( NULL, fileread, btrue ) )
-        {
-            damagetile_data.parttype = fget_int( fileread );
-            damagetile_data.partand  = fget_next_int( fileread );
-            iTmp = fget_next_int( fileread );
-            damagetile_data.sound = CLIP(iTmp, -1, MAX_WAVE);
-        }
-    }
-
-    vfs_close( fileread );
-
-    fog_instance_init( &fog, &fog_data );
-    water_instance_init( &water, &water_data );
-    weather_instance_init( &weather, &weather_data );
-    damagetile_instance_init( &damagetile, &damagetile_data );
-    animtile_instance_init( animtile, &animtile_data );
-
-    // Allow slow machines to ignore the fancy stuff
-    if ( !cfg.twolayerwater_allowed && water_data.layer_count > 1 )
-    {
-        water_data.layer_count = 1;
-        iTmp = water_data.layer[0].alpha;
-        iTmp = FF_MUL( water_data.layer[1].alpha, iTmp ) + iTmp;
-        if ( iTmp > 255 ) iTmp = 255;
-
-        water_data.layer[0].alpha = iTmp;
-    }
-
-    // Do it
-    make_lighttable( light_x, light_y, light_z, light_a );
-    make_lighttospek();
-}
-
 //---------------------------------------------------------------------------------------------
 float get_mesh_level( ego_mpd_t * pmesh, float x, float y, bool_t waterwalk )
 {
@@ -6213,7 +5849,7 @@ float get_mesh_level( ego_mpd_t * pmesh, float x, float y, bool_t waterwalk )
 
     zdone = mesh_get_level( pmesh, x, y );
 
-    if ( waterwalk && water.surface_level > zdone && water_data.is_water )
+    if ( waterwalk && water.surface_level > zdone && water.is_water )
     {
         int tile = mesh_get_tile( pmesh, x, y );
 
@@ -6227,7 +5863,7 @@ float get_mesh_level( ego_mpd_t * pmesh, float x, float y, bool_t waterwalk )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t make_water( water_instance_t * pinst, water_data_t * pdata )
+bool_t make_water( water_instance_t * pinst, wawalite_water_t * pdata )
 {
     // ZZ> This function sets up water movements
     int layer, frame, point, cnt;
@@ -7220,4 +6856,299 @@ bool_t release_one_model_profile( Uint16 object )
 	release_one_mad( object );
 
 	return btrue;
+}
+
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+bool_t upload_water_layer_data( water_instance_layer_t inst[], wawalite_water_layer_t data[], int layer_count )
+{
+	int layer;
+
+	if( NULL == inst || 0 == layer_count ) return bfalse;
+
+	// clear all data
+    memset(inst, 0, layer_count * sizeof(water_instance_layer_t));
+
+	// set the frame 
+    for ( layer = 0; layer < layer_count; layer++)
+    {
+        inst[layer].frame = generate_randmask( 0 , WATERFRAMEAND );
+    }
+
+    if ( NULL != data )
+	{
+        for ( layer = 0; layer < layer_count; layer++)
+        {
+            inst[layer].z         = data[layer].z;
+			inst[layer].amp       = data[layer].amp;
+
+            inst[layer].dist.x    = data[layer].dist[XX];
+            inst[layer].dist.y    = data[layer].dist[YY];
+
+            inst[layer].light_dir = data[layer].light_dir / 63.0f;
+            inst[layer].light_add = data[layer].light_add / 63.0f;
+
+            inst[layer].tx_add.x    = data[layer].tx_add[XX];
+            inst[layer].tx_add.y    = data[layer].tx_add[YY];
+
+			inst[layer].alpha       = data[layer].alpha;
+		}
+	}
+
+	return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t upload_water_data( water_instance_t * pinst, wawalite_water_t * pdata )
+{
+    int layer;
+
+    if (NULL == pinst) return bfalse;
+
+    memset(pinst, 0, sizeof(water_instance_t));
+
+    if ( NULL != pdata )
+    {
+		// upload the data
+
+        pinst->surface_level = pdata->surface_level;
+        pinst->douse_level   = pdata->douse_level;
+
+		pinst->is_water         = pdata->is_water;
+		pinst->overlay_req      = pdata->overlay_req;
+		pinst->background_req   = pdata->background_req;
+
+		pinst->light            = pdata->light;
+
+		pinst->foregroundrepeat = pdata->foregroundrepeat;
+		pinst->backgroundrepeat = pdata->backgroundrepeat;
+
+		// upload the layer data
+		pinst->layer_count   = pdata->layer_count;
+		upload_water_layer_data( pinst->layer, pdata->layer, pdata->layer_count );
+    }
+
+	// fix the alpha in case of self-lit textures
+	if ( pdata->light )
+	{
+		for ( layer = 0; layer < pinst->layer_count; layer++ )
+		{
+			pinst->layer[layer].alpha = 255;  // Some cards don't support alpha lights...
+		}
+	}
+
+    make_water( pinst, pdata );
+
+    // Allow slow machines to ignore the fancy stuff
+    if ( !cfg.twolayerwater_allowed && pinst->layer_count > 1 )
+    {
+        int iTmp = pdata->layer[0].alpha;
+        iTmp = FF_MUL( pdata->layer[1].alpha, iTmp ) + iTmp;
+        if ( iTmp > 255 ) iTmp = 255;
+
+        pinst->layer_count = 1;
+        pinst->layer[0].alpha = iTmp;
+    }
+
+    return btrue;
+}
+
+
+
+//--------------------------------------------------------------------------------------------
+bool_t upload_weather_data( weather_instance_t * pinst, wawalite_weather_t * pdata )
+{
+    if ( NULL == pinst ) return bfalse;
+
+    memset( pinst, 0, sizeof(weather_instance_t) );
+
+	// set a default value
+	pinst->timer_reset = 10;
+
+    if ( NULL != pdata )
+	{
+		// copy the data
+		pinst->timer_reset = pdata->timer_reset;
+		pinst->over_water  = pdata->over_water;
+	}
+
+	// set the new data
+    pinst->time = pinst->timer_reset;
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t upload_fog_data( fog_instance_t * pinst, wawalite_fog_t * pdata )
+{
+    if ( NULL == pinst ) return bfalse;
+
+    memset( pinst, 0, sizeof(fog_instance_t) );
+
+	pdata->top      = 0;
+	pdata->bottom   = -100;
+    pinst->on       = cfg.fog_allowed;
+
+    if ( NULL != pdata )
+	{
+		pinst->on     = pdata->found && pinst->on;
+		pinst->top    = pdata->top;
+		pinst->bottom = pdata->bottom;
+
+		pinst->red    = pdata->red * 0xFF;
+		pinst->grn    = pdata->grn * 0xFF;
+		pinst->blu    = pdata->blu * 0xFF;
+	}
+
+	pinst->distance = ( pdata->top - pdata->bottom );
+	pinst->on       = ( pinst->distance < 1.0f ) && pinst->on;
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t upload_damagetile_data( damagetile_instance_t * pinst, wawalite_damagetile_t * pdata )
+{
+    if ( NULL == pinst ) return bfalse;
+
+    memset( pinst, 0, sizeof(damagetile_instance_t) );
+
+    pinst->sound_time   = TILESOUNDTIME;
+    pinst->min_distance = 9999;
+
+    if ( NULL != pdata )
+	{
+		pinst->amount.base  = pdata->amount;
+		pinst->amount.rand  = 1;
+		pinst->type         = pdata->type;
+							  
+		pinst->parttype     = pdata->parttype;
+		pinst->partand      = pdata->partand;
+		pinst->sound        = CLIP(pdata->sound, -1, MAX_WAVE);
+	}
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t upload_animtile_data( animtile_instance_t inst[], wawalite_animtile_t * pdata, size_t animtile_count )
+{
+	int size;
+
+    if ( NULL == inst || 0 == animtile_count ) return bfalse;
+
+    memset( inst, 0, sizeof(damagetile_instance_t) );
+
+	for( size = 0; size < animtile_count; size++ )
+	{
+		inst[size].frame_and  = (1 << (size+2)) - 1;
+		inst[size].base_and   = ~inst[size].frame_and;
+		inst[size].frame_add  = 0;
+	}
+
+    if ( NULL != pdata )
+	{
+		inst[0].update_and = pdata->update_and;
+		inst[0].frame_and  = pdata->frame_and;
+		inst[0].base_and   = ~inst[0].frame_and;
+
+		for( size = 1; size < animtile_count; size++ )
+		{
+			inst[size].update_and = pdata->update_and;
+			inst[size].frame_and  = ( inst[size-1].frame_and << 1 ) | 1;
+			inst[size].base_and   = ~inst[size].frame_and;
+		}
+	}
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t upload_light_data( wawalite_data_t * pdata )
+{
+	if( NULL == pdata ) return bfalse;
+
+    // upload the lighting data
+	light_x = pdata->light_x;
+    light_y = pdata->light_y;
+    light_z = pdata->light_z;
+    light_a = pdata->light_a * 10.0f;
+
+    light_d = 0.0f;
+    if ( ABS(light_x) + ABS(light_y) + ABS(light_z) > 0 )
+    {
+        float fTmp = SQRT( light_x * light_x + light_y * light_y + light_z * light_z );
+
+        // get the extra magnitude of the direct light
+        light_d = (1.0f - light_a) * fTmp;
+        light_d = CLIP(light_d, 0.0f, 1.0f);
+
+        light_x /= fTmp;
+        light_y /= fTmp;
+        light_z /= fTmp;
+    }
+
+    make_lighttable( pdata->light_x, pdata->light_y, pdata->light_z, pdata->light_a * 10.0f );
+    make_lighttospek();
+
+	return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t upload_phys_data( wawalite_physics_t * pdata )
+{
+	if( NULL == pdata ) return bfalse;
+
+    // upload the physics data
+	hillslide      = pdata->hillslide;
+    slippyfriction = pdata->slippyfriction;
+    airfriction    = pdata->airfriction;
+    waterfriction  = pdata->waterfriction;
+    noslipfriction = pdata->noslipfriction;
+    gravity        = pdata->gravity;
+
+	return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t upload_graphics_data( wawalite_graphics_t * pdata )
+{
+	if( NULL == pdata ) return bfalse;
+
+    // Read extra data
+	gfx.exploremode = pdata->exploremode;
+	gfx.usefaredge  = pdata->usefaredge;
+
+	return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t upload_camera_data( wawalite_camera_t * pdata )
+{
+	if( NULL == pdata ) return bfalse;
+
+	PCamera->swing     = pdata->swing;
+	PCamera->swingrate = pdata->swingrate;
+	PCamera->swingamp  = pdata->swingamp;
+
+	return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+void upload_wawalite()
+{
+    // ZZ> This function sets up water and lighting for the module
+
+	wawalite_data_t * pdata = &wawalite_data;
+
+	upload_light_data( pdata );
+	upload_phys_data( &(pdata->phys) );
+	upload_graphics_data( &(pdata->graphics) );
+	upload_camera_data( &(pdata->camera) );
+    upload_fog_data( &fog, &(pdata->fog) );
+    upload_water_data( &water, &(pdata->water) );
+    upload_weather_data( &weather, &(pdata->weather) );
+    upload_damagetile_data( &damagetile, &(pdata->damagetile) );
+    upload_animtile_data( animtile, &(pdata->animtile), SDL_arraysize(animtile) );
 }

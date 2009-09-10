@@ -361,7 +361,7 @@ void render_water_fan( ego_mpd_t * pmesh, Uint32 fan, Uint8 layer )
                         v[cnt].col[BB] = 0.0f;
             }
 
-            v[cnt].col[AA] = FF_TO_FLOAT( water_data.layer[layer].alpha );
+            v[cnt].col[AA] = FF_TO_FLOAT( water.layer[layer].alpha );
 
             badvertex++;
         }
