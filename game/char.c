@@ -1231,7 +1231,7 @@ void attach_character_to_mount( Uint16 iitem, Uint16 iholder, grip_offset_t grip
 
     // make a reasonable time for the character to remount something
     // for characters jumping out of pots, etc
-    if( pitem->phys.dismount_timer > 0 )
+    if( !pitem->isitem && pitem->phys.dismount_timer > 0 )
         return;
 
     // Make sure the holder/mount is valid
@@ -1740,50 +1740,68 @@ int grab_data_cmp( const void * pleft, const void * pright )
 bool_t character_grab_stuff( Uint16 ichr_a, grip_offset_t grip_off, bool_t grab_people )
 {
     // ZZ> This function makes the character pick up an item if there's one around
+
+    int    cnt;
     Uint16 ichr_b;
     Uint16 model, vertex, frame_nxt;
     slot_t slot;
     GLvector4 point[1], nupoint[1];
+    SDL_Color color_red = {0xFF, 0x7F, 0x7F, 0xFF};
+    SDL_Color color_grn = {0x7F, 0xFF, 0x7F, 0xFF};
+    SDL_Color color_blu = {0x7F, 0x7F, 0xFF, 0xFF};
+
+    chr_t * pchr_a;
+
+    int ticks, iline;
 
     bool_t retval;
 
-    int         cnt;
+    // valid objects that can be grabbed
     int         grab_count = 0;
     grab_data_t grab_list[MAX_CHR];
 
+    // valid objects that cannot be grabbed
+    int         ungrab_count = 0;
+    grab_data_t ungrab_list[MAX_CHR];
+
+    if( INVALID_CHR(ichr_a) ) return bfalse;
+    pchr_a = ChrList.lst + ichr_a;
+
+    ticks = SDL_GetTicks();
+
     // Make life easier
-    model = ChrList.lst[ichr_a].model;
+    model = pchr_a->model;
     slot = grip_offset_to_slot( grip_off );  // 0 is left, 1 is right
 
     // Make sure the character doesn't have something already, and that it has hands
-    if ( VALID_CHR(ChrList.lst[ichr_a].holdingwhich[slot]) || !CapList[model].slotvalid[slot] )
+    if ( VALID_CHR(pchr_a->holdingwhich[slot]) || !CapList[model].slotvalid[slot] )
         return bfalse;
 
     // Do we have a matrix???
-    if ( ChrList.lst[ichr_a].inst.matrixvalid )
+    if ( pchr_a->inst.matrixvalid )
     {
         // Transform the weapon grip_off from model to world space
-        frame_nxt = ChrList.lst[ichr_a].inst.frame_nxt;
+        frame_nxt = pchr_a->inst.frame_nxt;
         vertex = MadList[model].md2_data.vertices - grip_off;
 
         // do the automatic update
-        chr_instance_update_vertices( &(ChrList.lst[ichr_a].inst), vertex, vertex );
+        chr_instance_update_vertices( &(pchr_a->inst), vertex, vertex );
 
         // Calculate grip_off point locations with linear interpolation and other silly things
-        point[0].x = ChrList.lst[ichr_a].inst.vlst[vertex].pos[XX];
-        point[0].y = ChrList.lst[ichr_a].inst.vlst[vertex].pos[YY];
-        point[0].z = ChrList.lst[ichr_a].inst.vlst[vertex].pos[ZZ];
+        point[0].x = pchr_a->inst.vlst[vertex].pos[XX];
+        point[0].y = pchr_a->inst.vlst[vertex].pos[YY];
+        point[0].z = pchr_a->inst.vlst[vertex].pos[ZZ];
         point[0].w = 1.0f;
 
         // Do the transform
-        TransformVertices( &(ChrList.lst[ichr_a].inst.matrix), point, nupoint, 1 );
+        TransformVertices( &(pchr_a->inst.matrix), point, nupoint, 1 );
     }
     else
     {
         // Just wing it
-        nupoint[0].x = ChrList.lst[ichr_a].pos.x;
-        nupoint[0].y = ChrList.lst[ichr_a].pos.y;
-        nupoint[0].z = ChrList.lst[ichr_a].pos.z;
+        nupoint[0].x = pchr_a->pos.x;
+        nupoint[0].y = pchr_a->pos.y;
+        nupoint[0].z = pchr_a->pos.z;
         nupoint[0].w = 1.0f;
     }
 
@@ -1791,23 +1809,24 @@ bool_t character_grab_stuff( Uint16 ichr_a, grip_offset_t grip_off, bool_t grab_
     for ( ichr_b = 0; ichr_b < MAX_CHR; ichr_b++ )
     {
         GLvector3 pos_b;
-        float dx, dy, dz, dxy;
+        float     dx, dy, dz, dxy;
+        chr_t   * pchr_b;
+        bool_t    can_grab = btrue;
 
         if ( !ChrList.lst[ichr_b].on ) continue;
+        pchr_b = ChrList.lst + ichr_b;
 
-        if ( ChrList.lst[ichr_b].pack_ispacked ) continue;              // pickpocket not allowed yet
-        if ( MAX_CHR != ChrList.lst[ichr_b].attachedto) continue; // disarm not allowed yet
+        // do nothing to yourself
+        if( ichr_a == ichr_b ) continue;
 
-        if ( ChrList.lst[ichr_b].weight > ChrList.lst[ichr_a].weight + ChrList.lst[ichr_a].strength ) continue; // reasonable carrying capacity
-
-        // grab_people == btrue allows you to pick up living non-items
-        // grab_people == false allows you to pick up living (functioning) items
-        if ( ChrList.lst[ichr_b].alive && (grab_people == ChrList.lst[ichr_b].isitem) ) continue;
+        if ( pchr_b->pack_ispacked ) continue;        // pickpocket not allowed yet
+        if ( MAX_CHR != pchr_b->attachedto) continue; // disarm not allowed yet
 
         // do not pick up your mount
-        if ( ChrList.lst[ichr_b].holdingwhich[SLOT_LEFT] == ichr_a || ChrList.lst[ichr_b].holdingwhich[SLOT_RIGHT] == ichr_a ) continue;
+        if ( pchr_b->holdingwhich[SLOT_LEFT] == ichr_a || 
+             pchr_b->holdingwhich[SLOT_RIGHT] == ichr_a ) continue; 
 
-        pos_b = ChrList.lst[ichr_b].pos;
+        pos_b = pchr_b->pos;
 
         // First check absolute value diamond
         dx = ABS( nupoint[0].x - pos_b.x );
@@ -1815,23 +1834,57 @@ bool_t character_grab_stuff( Uint16 ichr_a, grip_offset_t grip_off, bool_t grab_
         dz = ABS( nupoint[0].z - pos_b.z );
         dxy = dx + dy;
 
-        if ( dxy > TILE_SIZE * 2 || dz > MAX(ChrList.lst[ichr_b].bumpheight, GRABSIZE) ) continue;
+        if ( dxy > TILE_SIZE * 2 || dz > MAX(pchr_b->bumpheight, GRABSIZE) ) continue;
 
-        grab_list[grab_count].ichr = ichr_b;
-        grab_list[grab_count].dist = dxy;
-        grab_count++;
-    }
+        // reasonable carrying capacity
+        if ( pchr_b->weight > pchr_a->weight + pchr_a->strength * INV_FF ) 
+        {
+            can_grab = bfalse;
+        }
 
-    if ( 0 == grab_count ) return bfalse;
+        // grab_people == btrue allows you to pick up living non-items
+        // grab_people == false allows you to pick up living (functioning) items
+        if ( pchr_b->alive && (grab_people == pchr_b->isitem) ) 
+        {
+            can_grab = bfalse;
+        }
 
-    // generate billboards for all the things that can be grabbed (5 secs and green)
-    for ( cnt = 0; cnt < grab_count; cnt++ )
-    {
-        SDL_Color color = {0x7F, 0xFF, 0x7F, 0xFF};
+        if( can_grab )
+        {
+            grab_list[grab_count].ichr = ichr_b;
+            grab_list[grab_count].dist = dxy;
+            grab_count++;
 
-        ichr_b = grab_list[cnt].ichr;
+            //iline = get_free_line();
+            //if( iline >= 0)
+            //{
+            //    line_list[iline].src     = nupoint[0];
+            //    line_list[iline].dst     = pchr_b->pos;
+            //    line_list[iline].color.r = color_grn.r * INV_FF;
+            //    line_list[iline].color.g = color_grn.g * INV_FF;
+            //    line_list[iline].color.b = color_grn.b * INV_FF;
+            //    line_list[iline].color.a = 1.0f;
+            //    line_list[iline].time    = ticks + ONESECOND * 5;
+            //}
+        }
+        else
+        {
+            ungrab_list[grab_count].ichr = ichr_b;
+            ungrab_list[grab_count].dist = dxy;
+            ungrab_count++;
 
-        chr_make_text_billboard( ichr_b, chr_get_name(ichr_b), color, 5 );
+            //iline = get_free_line();
+            //if( iline >= 0)
+            //{
+            //    line_list[iline].src     = nupoint[0];
+            //    line_list[iline].dst     = pchr_b->pos;
+            //    line_list[iline].color.r = color_red.r * INV_FF;
+            //    line_list[iline].color.g = color_red.g * INV_FF;
+            //    line_list[iline].color.b = color_red.b * INV_FF;
+            //    line_list[iline].color.a = 1.0f;
+            //    line_list[iline].time    = ticks + ONESECOND * 5;
+            //}
+        }
     }
 
     // sort the grab list
@@ -1840,6 +1893,7 @@ bool_t character_grab_stuff( Uint16 ichr_a, grip_offset_t grip_off, bool_t grab_
         qsort( grab_list, grab_count, sizeof(grab_data_t), grab_data_cmp );
     }
 
+    // try to grab something
     retval = bfalse;
     for ( cnt = 0; cnt < grab_count; cnt++ )
     {
@@ -1871,8 +1925,8 @@ bool_t character_grab_stuff( Uint16 ichr_a, grip_offset_t grip_off, bool_t grab_
                 // Pay the shop owner, or don't allow grab...
                 bool_t is_invis, can_steal;
 
-                is_invis  = FF_MUL(ChrList.lst[ichr_a].inst.alpha, ChrList.lst[ichr_a].inst.max_light) < INVISIBLE;
-                can_steal = is_invis || ChrList.lst[ichr_a].isitem;
+                is_invis  = FF_MUL(pchr_a->inst.alpha, pchr_a->inst.max_light) < INVISIBLE;
+                can_steal = is_invis || pchr_a->isitem;
 
                 if ( can_steal )
                 {
@@ -1881,16 +1935,16 @@ bool_t character_grab_stuff( Uint16 ichr_a, grip_offset_t grip_off, bool_t grab_
                     Uint8  detection = generate_number( tmp_rand );
 
                     // Check if it was detected. 50% chance +2% per pet DEX and -2% per shopkeeper wisdom. There is always a 5% chance it will fail.
-                    if ( ChrList.lst[owner].canseeinvisible || detection <= 5 || detection - ( ChrList.lst[ichr_a].dexterity >> 7 ) + ( ChrList.lst[owner].wisdom >> 7 ) > 50 )
+                    if ( ChrList.lst[owner].canseeinvisible || detection <= 5 || detection - ( pchr_a->dexterity >> 7 ) + ( ChrList.lst[owner].wisdom >> 7 ) > 50 )
                     {
-                        debug_printf( "%s was detected!!", ChrList.lst[ichr_a].name );
+                        debug_printf( "%s was detected!!", pchr_a->name );
 
                         ai_add_order( &(ChrList.lst[owner].ai), STOLEN, SHOP_THEFT );
                         ChrList.lst[owner].ai.target = ichr_a;
                     }
                     else
                     {
-                        debug_printf( "%s stole something! (%s)", ChrList.lst[ichr_a].name, CapList[pchr_b->model].classname );
+                        debug_printf( "%s stole something! (%s)", pchr_a->name, CapList[pchr_b->model].classname );
                     }
                 }
                 else
@@ -1929,13 +1983,13 @@ bool_t character_grab_stuff( Uint16 ichr_a, grip_offset_t grip_off, bool_t grab_
                     // round to int value
                     price = (Sint32) price;
 
-                    if ( ChrList.lst[ichr_a].money >= price )
+                    if ( pchr_a->money >= price )
                     {
                         // Okay to sell
                         ai_add_order( &(ChrList.lst[owner].ai), (Uint32) price, SHOP_SELL );
 
-                        ChrList.lst[ichr_a].money -= (Sint16) price;
-                        ChrList.lst[ichr_a].money  = CLIP(ChrList.lst[ichr_a].money, 0, MAXMONEY);
+                        pchr_a->money -= (Sint16) price;
+                        pchr_a->money  = CLIP(pchr_a->money, 0, MAXMONEY);
 
                         ChrList.lst[owner].money += (Sint16) price;
                         ChrList.lst[owner].money  = CLIP(ChrList.lst[owner].money, 0, MAXMONEY);
@@ -1971,6 +2025,62 @@ bool_t character_grab_stuff( Uint16 ichr_a, grip_offset_t grip_off, bool_t grab_
             break;
         }
 
+    }
+
+
+    if( !retval )
+    {
+        GLvector3 vforward;
+
+        //---- generate billboards for things that players can interact with
+        if( pchr_a->isplayer )
+        {
+            // things that can be grabbed (5 secs and green)
+            for ( cnt = 0; cnt < grab_count; cnt++ )
+            {
+                ichr_b = grab_list[cnt].ichr;
+                chr_make_text_billboard( ichr_b, chr_get_name(ichr_b), color_grn, 5 );
+            }
+
+            // things that can't be grabbed (5 secs and red)
+            for ( cnt = 0; cnt < ungrab_count; cnt++ )
+            {
+                ichr_b = ungrab_list[cnt].ichr;
+                chr_make_text_billboard( ichr_b, chr_get_name(ichr_b), color_red, 5 );
+            }
+        }
+
+
+        //---- if you can't grab anything, activate something using ALERTIF_BUMPED
+
+        vforward = mat_getChrForward( pchr_a->inst.matrix );
+
+        // sort the ungrab list
+        if ( ungrab_count > 1 )
+        {
+            qsort( ungrab_list, ungrab_count, sizeof(grab_data_t), grab_data_cmp );
+        }
+
+        for ( cnt = 0; cnt < ungrab_count; cnt++ )
+        {
+            float       ftmp;
+            GLvector3   diff;
+            chr_t     * pchr_b;
+
+            if( grab_list[cnt].dist > GRABSIZE ) continue;
+
+            ichr_b = grab_list[cnt].ichr;
+            pchr_b = ChrList.lst + ichr_b;
+
+            diff = VSub(pchr_a->pos, pchr_b->pos);
+
+            // ignore vertical displacement in the dot product
+            ftmp = vforward.x * diff.x + vforward.y * diff.y;
+            if( ftmp > 0.0f )
+            {
+                pchr_b->ai.alert |= ALERTIF_BUMPED;
+            }
+        }
     }
 
     return retval;

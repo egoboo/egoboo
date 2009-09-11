@@ -172,6 +172,8 @@ Uint16  msgtimechange = 0;
 
 DECLARE_STACK( extern, msg_t, DisplayMsg );
 
+line_data_t line_list[LINE_COUNT];
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -2068,6 +2070,10 @@ void draw_scene_solid()
 
     // Render the solid billboards
     render_all_billboards( PCamera );
+
+    // daw some debugging lines
+    draw_all_lines( PCamera );
+
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2196,6 +2202,7 @@ void draw_scene_zreflection( ego_mpd_t * pmesh, camera_t * pcam )
 
     // do the render pass for transparent objects
     draw_scene_trans();
+
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5142,5 +5149,69 @@ void render_all_billboards( camera_t * pcam )
         ATTRIB_POP( "render_all_billboards()" );
     }
     End3DMode();
+
+}
+
+int get_free_line()
+{
+    int cnt;
+
+    for( cnt = 0; cnt < LINE_COUNT; cnt++)
+    {
+        if( line_list[cnt].time < 0 )
+        {
+            break;
+        }
+    }
+
+    return cnt < LINE_COUNT ? cnt : -1;
+}
+
+void draw_all_lines( camera_t * pcam )
+{
+    // BB> draw some lines for debugging purposes
+
+    int cnt, ticks;
+
+    GL_DEBUG(glDisable)( GL_TEXTURE_2D );
+
+    Begin3DMode( pcam );
+    {
+        ATTRIB_PUSH( "render_all_billboards()", GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_POLYGON_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT );
+        {
+            GL_DEBUG(glShadeModel)( GL_FLAT );      // GL_LIGHTING_BIT - Flat shade this
+            GL_DEBUG(glDepthMask )( GL_FALSE );     // GL_DEPTH_BUFFER_BIT
+            GL_DEBUG(glDepthFunc )( GL_LEQUAL );    // GL_DEPTH_BUFFER_BIT
+            GL_DEBUG(glDisable   )( GL_CULL_FACE ); // GL_POLYGON_BIT | GL_ENABLE_BIT
+
+            GL_DEBUG(glDisable)( GL_BLEND );                                       // GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT
+            //GL_DEBUG(glBlendFunc)( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );        // GL_COLOR_BUFFER_BIT
+
+            ticks = SDL_GetTicks();
+
+            for( cnt = 0; cnt < LINE_COUNT; cnt++)
+            {
+                if( line_list[cnt].time < 0 ) continue;
+
+                if( line_list[cnt].time < ticks )
+                {
+                    line_list[cnt].time = -1;
+                    continue;
+                }
+
+                GL_DEBUG(glColor4fv)( line_list[cnt].color.v );
+                GL_DEBUG(glBegin)( GL_LINES );
+                {
+                    glVertex3fv( line_list[cnt].src.v );
+                    glVertex3fv( line_list[cnt].dst.v );
+                }
+                GL_DEBUG_END();
+            }
+        }
+        ATTRIB_POP( "render_all_billboards()" );
+    }
+    End3DMode();
+
+    GL_DEBUG(glEnable)( GL_TEXTURE_2D );
 
 }

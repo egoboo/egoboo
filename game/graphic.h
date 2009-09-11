@@ -266,6 +266,20 @@ billboard_data_t * BillboardList_get_ptr( int ibb );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+// some lines to be drawn in the display
+#define LINE_COUNT 100
+struct s_line_data
+{
+    GLvector3 dst;
+    GLvector4 src, color;
+    int time;
+};
+typedef struct s_line_data line_data_t;
+
+extern line_data_t line_list[LINE_COUNT];
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 // Function prototypes
 void draw_blip( float sizeFactor, Uint8 color, int x, int y );
 int  DisplayMsg_get_free();
@@ -378,3 +392,6 @@ bool_t project_sum_lighting( lighting_cache_t * dst, lighting_cache_t * src, GLv
 bool_t bbox_gl_draw(aabb_t * pbbox);
 
 void render_all_billboards( struct s_camera * pcam );
+
+void draw_all_lines( struct s_camera * pcam );
+int get_free_line();
