@@ -1317,7 +1317,6 @@ int do_menu_proc_begin( menu_process_t * mproc )
     sound_play_song( MENU_SONG, 0, -1 );
 
     // initialize all these structures
-    TxTitleImage_init_all();
     initMenus();        // start the menu menu
 
     // load all module info at menu initialization
@@ -1818,101 +1817,140 @@ Uint16 get_particle_target( float pos_x, float pos_y, float pos_z, Uint16 facing
     // All done
     return besttarget;
 }
+
 //--------------------------------------------------------------------------------------------
-Uint16 get_target( Uint16 ichr_src, Uint32 max_dist, TARGET_TYPE target_type, bool_t target_items, bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz )
+Uint16 check_target( Uint16 ichr_src, Uint16 ichr_test, TARGET_TYPE target_type, bool_t target_items, bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz )
+{
+    bool_t retval;
+
+    bool_t is_hated, hates_me;
+    bool_t is_friend, is_prey, is_predator, is_mutual;
+    chr_t * psrc, * ptst;       
+
+    // Skip non-existing objects
+    if( INVALID_CHR(ichr_src) || INVALID_CHR(ichr_test) ) return bfalse;
+    psrc = ChrList.lst + ichr_src;
+    ptst = ChrList.lst + ichr_test;
+
+    // Skip held objects and self
+    if ( ichr_test == ichr_src || psrc->attachedto == ichr_test || VALID_CHR(ptst->attachedto) || ptst->pack_ispacked ) return bfalse;
+
+    // Target items
+    if ( !target_items && ( ptst->isitem || ptst->invictus ) ) return bfalse;
+
+    // Either only target dead stuff or alive stuff
+    if ( target_dead == ptst->alive ) return bfalse;
+
+    // Dont target invisible stuff, unless we can actually see them
+    if ( !psrc->canseeinvisible && FF_MUL( ptst->inst.alpha, ptst->inst.max_light ) < INVISIBLE ) return bfalse;
+
+    is_hated = TeamList[psrc->team].hatesteam[ptst->team];
+    hates_me = TeamList[ptst->team].hatesteam[psrc->team];
+
+    is_friend    = !is_hated && !hates_me;
+    is_prey      =  is_hated && !hates_me;
+    is_predator  = !is_hated &&  hates_me;
+    is_mutual    =  is_hated &&  hates_me;
+
+    // Which target_type to target
+    retval = bfalse;  
+    if ( target_type == TARGET_ALL || (target_type == TARGET_ENEMY && is_hated) || (target_type == TARGET_FRIEND && !is_hated) )
+    {
+        bool_t match_idsz = (target_idsz == CapList[ptst->model].idsz[IDSZ_PARENT] ) || ( target_idsz == CapList[ptst->model].idsz[IDSZ_TYPE] );
+
+        // Check for specific IDSZ too?
+        if ( target_idsz == IDSZ_NONE || ( exclude_idsz != match_idsz ) )
+        {
+            retval = btrue;
+        }
+    }
+
+    return retval;
+}
+
+
+//--------------------------------------------------------------------------------------------
+Uint16 get_target( Uint16 ichr_src, Uint32 max_dist, TARGET_TYPE target_type, bool_t target_items, bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz  )
 {
     // ZF> This is the new improved AI targeting system. Also includes distance in the Z direction.
     //    If max_dist is 0 then it searches without a max limit.
 
     int    ichr_test;
+    int    irand;
     float  max_dist2 = max_dist * max_dist;
     line_of_sight_info_t los_info;
 
     Uint16    best_target;
-    float    best_dist2;
+    float     best_dist2;
     Uint32    current_ticks;
+    chr_t   * psrc;
 
-    if ( INVALID_CHR(ichr_src) ||  TARGET_NONE == target_type ) return MAX_CHR;
+    if( TARGET_NONE == target_type ) return MAX_CHR;
+
+    if ( INVALID_CHR(ichr_src) ) return MAX_CHR;
+    psrc = ChrList.lst + ichr_src;  
 
     current_ticks = SDL_GetTicks();
 
-    // just return the old target if
-    if ( 0 != ChrList.lst[ichr_src].stoppedby && ChrList.lst[ichr_src].ai.los_timer > current_ticks )
+    // do not run another search if it is too soon
+    if ( psrc->ai.los_timer > current_ticks )
     {
         // Zefz> we can't return the old AI target here, it makes the scripts think it has found a target
-        return MAX_CHR; //ChrList.lst[ichr_src].ai.target;
+        // BB>   I took the distance test out of here. The target should not lose it's target only because it is too far away
+
+        Uint16 retval = MAX_CHR;
+
+        if( VALID_CHR(psrc->ai.target) )
+        {
+            if( check_target( ichr_src, psrc->ai.target, target_type, target_items, target_dead, target_idsz, exclude_idsz) )
+            {
+                retval = psrc->ai.target;
+            }
+        }
+
+        return retval;
     }
 
-    {
-        int irand = RANDIE;
-        ChrList.lst[ichr_src].ai.los_timer = current_ticks + TICKS_PER_SEC * 0.5f * ( 1.0f + irand / (float)RAND_MAX );
-    }
+    // set the timer for next time
+    irand = RANDIE;
+    psrc->ai.los_timer = current_ticks + TICKS_PER_SEC * 0.5f * ( 1.0f + irand / (float)RAND_MAX );
 
     // set the line-of-sight source
-    los_info.x0         = ChrList.lst[ichr_src].pos.x;
-    los_info.y0         = ChrList.lst[ichr_src].pos.y;
-    los_info.z0         = ChrList.lst[ichr_src].pos.z + ChrList.lst[ichr_src].bumpheight;
-    los_info.stopped_by = ChrList.lst[ichr_src].stoppedby;
+    los_info.x0         = psrc->pos.x;
+    los_info.y0         = psrc->pos.y;
+    los_info.z0         = psrc->pos.z + psrc->bumpheight;
+    los_info.stopped_by = psrc->stoppedby;
 
     best_target = MAX_CHR;
     best_dist2  = max_dist2;
     for ( ichr_test = 0; ichr_test < MAX_CHR; ichr_test++ )
     {
-        bool_t found;
-        bool_t is_hated, hates_me;
-        bool_t is_friend, is_prey, is_predator, is_mutual;
         float  dist2;
+        GLvector3 diff;
+        chr_t * ptst;
 
-        // Skip non-existing objects, held objects and self
-        if ( !ChrList.lst[ichr_test].on || VALID_CHR(ChrList.lst[ichr_test].attachedto) || ChrList.lst[ichr_test].pack_ispacked || ichr_test == ichr_src || ChrList.lst[ichr_src].attachedto == ichr_test ) continue;
+        if( INVALID_CHR(ichr_test) ) continue;
+        ptst = ChrList.lst + ichr_test;    
 
-        // Target items
-        if ( !target_items && ( ChrList.lst[ichr_test].isitem || ChrList.lst[ichr_test].invictus ) ) continue;
-
-        // Either only target dead stuff or alive stuff
-        if ( target_dead == ChrList.lst[ichr_test].alive ) continue;
-
-        // Dont target hostile invisible stuff, unless we can actually see them
-        if ( !ChrList.lst[ichr_src].canseeinvisible && FF_MUL( ChrList.lst[ichr_test].inst.alpha, ChrList.lst[ichr_test].inst.max_light ) < INVISIBLE ) continue;
-
-        is_hated = TeamList[ChrList.lst[ichr_src].team].hatesteam[ChrList.lst[ichr_test].team];
-        hates_me = TeamList[ChrList.lst[ichr_test].team].hatesteam[ChrList.lst[ichr_src].team];
-
-        is_friend    = !is_hated && !hates_me;
-        is_prey      =  is_hated && !hates_me;
-        is_predator  = !is_hated &&  hates_me;
-        is_mutual    =  is_hated &&  hates_me;
-
-        // set the line-of-sight source
-        los_info.x1 = ChrList.lst[ichr_test].pos.x;
-        los_info.y1 = ChrList.lst[ichr_test].pos.y;
-        los_info.z1 = ChrList.lst[ichr_test].pos.z + MAX(1, ChrList.lst[ichr_test].bumpheight);
-
-        // assume it is not a match
-        found = bfalse;
-        dist2 = max_dist2;
-
-        // Which target_type to target
-        if ( target_type == TARGET_ALL || (target_type == TARGET_ENEMY && is_hated) || (target_type == TARGET_FRIEND && !is_hated) )
+        if( !check_target( ichr_src, ichr_test, target_type, target_items, target_dead, target_idsz, exclude_idsz) ) 
         {
-            bool_t match_idsz = (target_idsz == CapList[ChrList.lst[ichr_test].model].idsz[IDSZ_PARENT] ) || ( target_idsz == CapList[ChrList.lst[ichr_test].model].idsz[IDSZ_TYPE] );
+            continue;
+        }
 
-            // Check for specific IDSZ too?
-            if ( target_idsz == IDSZ_NONE || ( exclude_idsz != match_idsz ) )
+        diff  = VSub( psrc->pos, ptst->pos );
+        dist2 = VDotProduct( diff, diff );
+
+        if ( (0 == max_dist2 || dist2 <= max_dist2) && (MAX_CHR == best_target || dist2 < best_dist2) )
+        {
+            // set the line-of-sight source
+            los_info.x1 = ptst->pos.x;
+            los_info.y1 = ptst->pos.y;
+            los_info.z1 = ptst->pos.z + MAX(1, ptst->bumpheight);
+
+            if ( !do_line_of_sight( &los_info ) )
             {
-                GLvector3 diff;
-
-                diff  = VSub( ChrList.lst[ichr_test].pos, ChrList.lst[ichr_src].pos );
-                dist2 = VDotProduct( diff, diff );
-
-                if ( (MAX_CHR == best_target || dist2 < best_dist2) && (0 == max_dist2 || dist2 <= max_dist2) )
-                {
-                    if ( target_items || target_dead || !do_line_of_sight( &los_info ) )
-                    {
-                        best_target = ichr_test;
-                        best_dist2  = dist2;
-                    }
-                }
+                best_target = ichr_test;
+                best_dist2  = dist2;
             }
         }
     }
@@ -1923,7 +1961,7 @@ Uint16 get_target( Uint16 ichr_src, Uint32 max_dist, TARGET_TYPE target_type, bo
     // set the ai target
     if ( MAX_CHR != best_target )
     {
-        ChrList.lst[ichr_src].ai.target = best_target;
+        psrc->ai.target = best_target;
     }
 
     return best_target;
@@ -5252,9 +5290,6 @@ void game_quit_module()
 
     // finish whatever in-game song is playing
     sound_finish_sound();
-
-    // if we are quitting a module, we are definitely not starting a new player
-    startNewPlayer = bfalse;
 }
 
 //-----------------------------------------------------------------

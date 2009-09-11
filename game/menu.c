@@ -296,6 +296,9 @@ int initMenus()
     // And relative to the bottom of the screen
     optionsTextTop = GFX_HEIGHT - optionsTextTop - 20;
 
+    // initialize the title images
+    TxTitleImage_init_all();
+
     return 1;
 }
 
@@ -3697,6 +3700,12 @@ void load_all_menu_images()
 
     // reset all the title images
     TxTitleImage_release_all();
+
+    // blank out the texture references
+    for(cnt = 0; cnt <MAX_MODULE; cnt++  )
+    {
+        ModList.lst[cnt].tex_index = INVALID_TX_ID;
+    }
 
     // Log a directory list
     filesave = vfs_openWrite( "modules.txt" );

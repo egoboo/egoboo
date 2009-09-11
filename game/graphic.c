@@ -472,7 +472,6 @@ void init_all_graphics()
 
     BillboardList_free_all();
     TxTexture_init_all();
-    TxTitleImage_init_all();
 }
 
 //---------------------------------------------------------------------------------------------
@@ -485,7 +484,6 @@ void release_all_graphics()
 
     BillboardList_free_all();
     TxTexture_release_all();
-    TxTitleImage_release_all();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -498,7 +496,6 @@ void delete_all_graphics()
 
     BillboardList_free_all();
     TxTexture_delete_all();
-    TxTitleImage_delete_all();
 }
 
 //--------------------------------------------------------------------------------------------
