@@ -1752,7 +1752,7 @@ bool_t character_grab_stuff( Uint16 ichr_a, grip_offset_t grip_off, bool_t grab_
 
     chr_t * pchr_a;
 
-    int ticks, iline;
+    int ticks;
 
     bool_t retval;
 
@@ -1812,6 +1812,8 @@ bool_t character_grab_stuff( Uint16 ichr_a, grip_offset_t grip_off, bool_t grab_
         float     dx, dy, dz, dxy;
         chr_t   * pchr_b;
         bool_t    can_grab = btrue;
+		
+        if ( !ChrList.lst[ichr_b].on  ) continue;
 
         if ( !ChrList.lst[ichr_b].on ) continue;
         pchr_b = ChrList.lst + ichr_b;
@@ -3228,10 +3230,10 @@ int load_one_character_profile( const char * tmploadname, int slot_override, boo
     pcap->kursechance = fget_next_int( fileread );
 
     iTmp = fget_next_int( fileread );  // Footfall sound
-    pcap->soundindex[SOUND_FOOTFALL] = CLIP(iTmp, -1, MAX_WAVE);
+    pcap->soundindex[SOUND_FOOTFALL] = CLIP(iTmp, INVALID_SOUND, MAX_WAVE);
 
     iTmp = fget_next_int( fileread );  // Jump sound
-    pcap->soundindex[SOUND_JUMP] = CLIP(iTmp, -1, MAX_WAVE);
+    pcap->soundindex[SOUND_JUMP] = CLIP(iTmp, INVALID_SOUND, MAX_WAVE);
 
     // Clear expansions...
     pcap->skindressy = bfalse;
@@ -5464,6 +5466,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
             }
 
         }
+
         if ( pchr->jumptime == 0 && pchr->jumpnumber != 0 && pchr->flyheight == 0 )
         {
             if ( pchr->jumpnumberreset != 1 || pchr->jumpready )

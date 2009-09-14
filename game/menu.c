@@ -935,8 +935,8 @@ bool_t doChoosePlayer_show_stats( int player, int mode, int x, int y, int width,
             //Life and mana (can be less than maximum if not in easy mode)
             if ( cfg.difficulty >= GAME_NORMAL )
             {
-                carat += snprintf( carat, carat_end - carat - 1, "Life: %d/%d\n", pcap->spawnlife >> 8, pcap->life_stat.val.base >> 8 );
-                carat += snprintf( carat, carat_end - carat - 1, "Mana: %d/%d\n", pcap->spawnmana >> 8, pcap->mana_stat.val.base >> 8 );
+                carat += snprintf( carat, carat_end - carat - 1, "Life: %d/%d\n", MIN( pcap->spawnlife >> 8, pcap->life_stat.val.base >> 8 ), pcap->life_stat.val.base >> 8 );
+                carat += snprintf( carat, carat_end - carat - 1, "Mana: %d/%d\n", MIN( pcap->spawnmana >> 8, pcap->mana_stat.val.base >> 8 ), pcap->mana_stat.val.base >> 8 );
                 //y = draw_one_bar( pcap->lifecolor, x + 10, y + 40, pcap->spawnlife >> 8, pcap->life_stat.val.base >> 8 );
                 //y = draw_one_bar( pcap->manacolor, x + 10, y, pcap->spawnmana >> 8, pcap->mana_stat.val.base >> 8 );
             }
@@ -1958,13 +1958,13 @@ int doGameOptions( float deltaTime )
             switch ( cfg.difficulty )
             {
                 case GAME_EASY:
-                    ui_drawTextBox( menuFont, "FORGIVING (Easy)\n - 15% XP loss upon death\n - Monsters take 25% extra damage by players\n - Players take 25% less damage by monsters\n - Halves the chance for Kursed items\n - Cannot unlock the final level in this mode\n - Life and Mana is refilled after quitting a module", buttonLeft, 100, 0, 0, 20 );
+                    ui_drawTextBox( menuFont, "FORGIVING (Easy)\n - 15 percent XP loss upon death\n - Monsters take 25 percent extra damage by players\n - Players take 25 percent less damage by monsters\n - Halves the chance for Kursed items\n - Cannot unlock the final level in this mode\n - Life and Mana is refilled after quitting a module", buttonLeft, 100, 0, 0, 20 );
                     break;
                 case GAME_NORMAL:
-                    ui_drawTextBox( menuFont, "CHALLENGING (Normal)\n - 15% XP loss upon death \n - 15% money loss upon death", buttonLeft, 100, 0, 0, 20 );
+                    ui_drawTextBox( menuFont, "CHALLENGING (Normal)\n - 15 percent XP loss upon death \n - 15 percent money loss upon death", buttonLeft, 100, 0, 0, 20 );
                     break;
                 case GAME_HARD:
-                    ui_drawTextBox( menuFont, "PUNISHING (Hard)\n - 15% XP loss upon death\n - 15% money loss upon death\n - No respawning\n - Channeling life can kill you\n - Players take 25% more damage\n - Monsters award 10% extra xp!\n - Doubles the chance for Kursed items", buttonLeft, 100, 0, 0, 20 );
+                    ui_drawTextBox( menuFont, "PUNISHING (Hard)\n - 15 percent XP loss upon death\n - 15 percent money loss upon death\n - No respawning\n - Channeling life can kill you\n - Players take 25 percent more damage\n - Monsters award 10 percent extra xp!\n - Doubles the chance for Kursed items", buttonLeft, 100, 0, 0, 20 );
                     break;
             }
 

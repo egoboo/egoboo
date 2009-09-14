@@ -824,7 +824,8 @@ bool_t snd_config_synch( snd_config_t * psnd, egoboo_config_t * pcfg )
         psnd->musicvolume     = pcfg->music_volume;
         psnd->maxsoundchannel = pcfg->sound_channel_count;
         psnd->buffersize      = pcfg->sound_buffer_size;
-        psnd->highquality     = pcfg->sound_highquality;
+        psnd->highquality     = bfalse;
+//        psnd->highquality     = pcfg->sound_highquality;
     }
 
     return btrue;

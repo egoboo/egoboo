@@ -452,7 +452,8 @@ enum e_script_functions
     FSETMONEY,                   // == 370
     FIFTARGETCANSEEKURSES,       // == 371
     FSPAWNATTACHEDCHARACTER,     // == 372
-    FKURSETARGET                 // == 373
+    FKURSETARGET,                // == 373
+    FSETCHILDCONTENT             // == 374
 };
 
 //--------------------------------------------------------------------------------------------

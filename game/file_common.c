@@ -42,6 +42,7 @@ void fs_removeDirectoryAndContents( const char *dirname, int recursive )
     char filePath[MAX_PATH];
     const char *fileName;
 
+
     // List all the files in the directory
     fileName = fs_findFirstFile( dirname, NULL );
     while ( fileName != NULL )

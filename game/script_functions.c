@@ -6920,3 +6920,17 @@ Uint8 scr_KurseTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_END();
 }
+
+//--------------------------------------------------------------------------------------------
+Uint8 scr_set_ChildContent( script_state_t * pstate, ai_state_t * pself )
+{
+    // set_ChildContent( tmpargument = "content" )
+    // This function lets a character set the content of the last character it
+    // spawned last
+
+    SCRIPT_FUNCTION_BEGIN();
+
+	ChrList.lst[pself->child].ai.content = pstate->argument;
+
+    SCRIPT_FUNCTION_END();
+}

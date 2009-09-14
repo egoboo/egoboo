@@ -160,6 +160,8 @@ IfUsed
     SpawnCharacter	//Spawn a copy
       tmpargument = 1
       SetChildAmmo
+      tmpargument = selfcontent
+      SetChildContent
       
   //We are supposed to show a message
   IfStateIs3

@@ -3716,7 +3716,15 @@ bool_t dump_screenshot()
                                      0x00FF0000, 0x0000FF00, 0x000000FF, 0
 #endif
                                    );
-        if ( temp == NULL ) return bfalse;
+        
+		if ( temp == NULL )
+		{
+			//Something went wrong
+			SDL_FreeSurface( temp );
+        	return bfalse;
+		}
+
+		//Now lock the surface so that we can read it
         if ( -1 != SDL_LockSurface( temp ) )
         {
             SDL_Rect rect;

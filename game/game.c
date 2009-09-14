@@ -5145,7 +5145,7 @@ void game_load_module_assets( const char *modname )
     // load a bunch of assets that are used in the module
     load_global_waves( modname );
     reset_particles( modname );
-    read_wawalite( modname, NULL );
+    read_wawalite( modname );
     load_basic_textures( modname );
     load_map( modname );
 

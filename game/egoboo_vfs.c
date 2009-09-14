@@ -1,6 +1,7 @@
 #include "egoboo_vfs.h"
 
 #include "file_common.h"
+#include "log.h"
 
 #include "egoboo_strutil.h"
 #include "egoboo_endian.h"
@@ -283,7 +284,11 @@ const char * vfs_resolveWriteFilename(const char * src_filename )
     const  char    * write_dir;
 
     write_dir = PHYSFS_getWriteDir();
-    if( NULL == write_dir ) return NULL;
+    if( NULL == write_dir ) 
+	{
+		log_warning("PhysFS could not get write directory!\n");
+		return NULL;
+	}
 
     // append the write_dir to the src_filename to get the total path
     snprintf( szFname, SDL_arraysize(szFname), "%s" SLASH_STR "%s", write_dir, src_filename );
@@ -1185,7 +1190,9 @@ int vfs_removeDirectoryAndContents( const char * dirname, int recursive )
     write_dir = vfs_resolveWriteFilename( dirname );
     if( !fs_fileIsDirectory(write_dir) ) return VFS_FALSE;
 
+	//ZF> uncommented because it made my egoboo crash
     fs_removeDirectoryAndContents( write_dir, recursive );
+	//ZF> end
 
     return VFS_TRUE;
 }
