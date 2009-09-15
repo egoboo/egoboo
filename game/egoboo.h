@@ -15,7 +15,7 @@
 //*    General Public License for more details.
 //*
 //*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+//*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
 
@@ -91,10 +91,17 @@ enum e_damage_fx
 #define DAMAGERAISE         25                  // Tolerance for damage tiles
 
 /* SDL_GetTicks() always returns milli seconds */
-#define TICKS_PER_SEC                   1000
-#define UPDATES_PER_SEC                 50
-#define UPDATE_SKIP                     ((float)TICKS_PER_SEC/(float)UPDATES_PER_SEC)
-#define ONESECOND                       TICKS_PER_SEC
+#define TICKS_PER_SEC                   1000.0f
+
+#define TARGET_FPS                      30.0f
+#define FRAME_SKIP                      (TICKS_PER_SEC/TARGET_FPS)    // 1000 tics per sec / 50 fps = 20 ticks per frame
+
+#define EMULATE_UPS                     50.0f
+#define TARGET_UPS                      50.0f
+#define UPDATE_SCALE                    (EMULATE_UPS/(stabilized_ups_sum/stabilized_ups_weight))
+#define UPDATE_SKIP                     (TICKS_PER_SEC/TARGET_UPS)    // 1000 tics per sec / 50 fps = 20 ticks per frame
+#define ONESECOND                       (TICKS_PER_SEC/UPDATE_SKIP)    // 1000 tics per sec / 20 ticks per frame = 50 fps
+
 
 #define FACE_WEST    0x0000
 #define FACE_NORTH   0x4000                                 // Character facings
@@ -127,6 +134,24 @@ EXTERN Uint32          timervalue  EQ( 0 );           // Timer time ( 50ths of a
 
 EXTERN bool_t          fpson        EQ(btrue);
 EXTERN char            szfpstext[]  EQ( "000 FPS" );
+
+
+  // fps stuff
+EXTERN float           est_max_fps           EQ( TARGET_FPS );
+EXTERN float           est_gfx_time          EQ( 1.0f );
+EXTERN Sint32          fps_clock             EQ(0);               ///< The number of ticks this second
+EXTERN Uint32          fps_loops             EQ(0);               ///< The number of frames drawn this second
+EXTERN float           stabilized_fps        EQ( TARGET_FPS );
+EXTERN float           stabilized_fps_sum    EQ( 0 );
+EXTERN float           stabilized_fps_weight EQ( 0 );
+
+EXTERN float           est_update_time       EQ( 1.0f / TARGET_UPS );
+EXTERN float           est_max_ups           EQ( TARGET_UPS );
+EXTERN Sint32          ups_clock             EQ( 0 );             ///< The number of ticks this second
+EXTERN Uint32          ups_loops             EQ( 0 );             ///< The number of frames drawn this second
+EXTERN float           stabilized_ups        EQ( TARGET_UPS );
+EXTERN float           stabilized_ups_sum    EQ( 0 );
+EXTERN float           stabilized_ups_weight EQ( 0 );
 
 // Timers
 EXTERN Sint32          clock_stt;                   // GetTickCount at start

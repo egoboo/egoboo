@@ -15,7 +15,7 @@
 //*    General Public License for more details.
 //*
 //*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+//*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
 
@@ -395,3 +395,9 @@ void render_all_billboards( struct s_camera * pcam );
 
 void draw_all_lines( struct s_camera * pcam );
 int get_free_line();
+
+extern float time_draw_scene_init;
+extern float time_draw_scene_mesh;
+extern float time_draw_scene_solid;
+extern float time_draw_scene_water;
+extern float time_draw_scene_trans;

@@ -13,7 +13,7 @@
 //*    General Public License for more details.
 //*
 //*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+//*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
 
@@ -35,8 +35,7 @@ void render_fan( ego_mpd_t * pmesh, Uint32 fan )
 {
     // ZZ> This function draws a mesh fan
 
-    // vertex is a value from 0-15, for the meshcommandref/u/v variables
-    // badvertex is a value that references the actual vertex number
+    // optimized to use gl*Pointer() and glArrayElement() for vertex presentation
 
     int    cnt, tnc, entry, vertex;
     Uint16 commands, vertices;
@@ -87,32 +86,15 @@ void render_fan( ego_mpd_t * pmesh, Uint32 fan )
         image    = frame_add + basetile;
     }
 
+    tile     = image & 0x3F;                     // tile type
+    texture  = (( image >> 6 ) & 3) + TX_TILE_0; // 64 tiles in each 256x256 texture
+    vertices = tile_dict[type].numvertices;      // Number of vertices
+    commands = tile_dict[type].command_count;    // Number of commands
+
+    if( !meshnotexture && texture != meshlasttexture ) return;
+
     // actually update the animated texture info
     mesh_set_texture( pmesh, fan, image );
-
-    tile    = image & 0x3F;
-    texture = (( image >> 6 ) & 3) + TX_TILE_0;       // 64 tiles in each 256x256 texture
-    vertices = tile_dict[type].numvertices;    // Number of vertices
-    commands = tile_dict[type].command_count;  // Number of commands
-
-    // Change texture if need be
-    if ( meshlasttexture != texture )
-    {
-        oglx_texture * ptex = NULL;
-
-        if ( meshnotexture )
-        {
-            ptex = NULL;
-            meshlasttexture = (Uint16)(~0);
-        }
-        else
-        {
-            ptex = TxTexture_get_ptr( texture );
-            meshlasttexture = texture;
-        }
-
-        oglx_texture_Bind( ptex );
-    }
 
     GL_DEBUG(glPushClientAttrib)(GL_CLIENT_VERTEX_ARRAY_BIT);
     {

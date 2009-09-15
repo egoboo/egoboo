@@ -13,7 +13,7 @@
 //*    General Public License for more details.
 //*
 //*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+//*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
 
@@ -575,7 +575,7 @@ int sound_play_chunk_looped( GLvector3 pos, Mix_Chunk * pchunk, Sint8 loops, Uin
     if ( !snd.soundvalid || !mixeron || NULL == pchunk ) return INVALID_SOUND;
 
     // only play sound effects if the game is running
-    if ( !process_instance_running( PROC_PBASE(GProc) ) )  return INVALID_SOUND;
+    if ( !process_running( PROC_PBASE(GProc) ) )  return INVALID_SOUND;
 
     // measure the distance in tiles
     diff = VSub( pos, PCamera->track_pos );

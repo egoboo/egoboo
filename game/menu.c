@@ -13,7 +13,7 @@
 //*    General Public License for more details.
 //*
 //*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+//*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
 
@@ -98,7 +98,7 @@ Uint16 mnu_selectedPlayer[MAXPLAYER] = {0};
 static int selectedModule = -1;
 
 /* Copyright text variables.  Change these to change how the copyright text appears */
-static char copyrightText[] = "Welcome to Egoboo!\nhttp:// egoboo.sourceforge.net\nVersion " VERSION "\n";
+static char copyrightText[] = "Welcome to Egoboo!\nhttp://egoboo.sourceforge.net\nVersion " VERSION "\n";
 static int  copyrightLeft = 0;
 static int  copyrightTop  = 0;
 
@@ -812,7 +812,8 @@ int doChooseModule( float deltaTime )
 struct s_ChoosePlayer_profiles
 {
     int count;
-    int ref[MAXIMPORTPERPLAYER + 1];
+    int obj_ref[MAXIMPORTPERPLAYER + 1];
+    int tx_ref[MAXIMPORTPERPLAYER + 1];
 };
 typedef struct s_ChoosePlayer_profiles ChoosePlayer_profiles_t;
 
@@ -822,10 +823,20 @@ bool_t doChoosePlayer_load_profiles( int player, ChoosePlayer_profiles_t * prof 
     int    i, cnt, ref_temp;
     STRING szFilename;
 
+    // release any data that we have accumulated
+    for( i=0; i<prof->count; i++)
+    {
+        TxTexture_free_one( prof->tx_ref[i] );
+        prof->obj_ref[i] = MAX_CHR;
+        prof->tx_ref[i]  = INVALID_TEXTURE;
+    }
+    prof->count = 0;
+
     if ( player < 0 || player >= MAXLOADPLAYER || player >= loadplayer_count ) return bfalse;
 
     // release all of the temporary profiles
     release_all_profiles();
+
 
     // Clear the import slots...
     for ( cnt = 0; cnt < MAX_PROFILE; cnt++ )
@@ -843,7 +854,7 @@ bool_t doChoosePlayer_load_profiles( int player, ChoosePlayer_profiles_t * prof 
     ref_temp = load_one_character_profile( loadplayer[player].dir, MAX_PROFILE, bfalse );
     if ( MAX_PROFILE != ref_temp )
     {
-        prof->ref[prof->count++] = ref_temp;
+        prof->obj_ref[prof->count++] = ref_temp;
     }
     else
     {
@@ -862,7 +873,8 @@ bool_t doChoosePlayer_load_profiles( int player, ChoosePlayer_profiles_t * prof 
         ref_temp = load_one_character_profile( szFilename, MAX_PROFILE, bfalse );
         if ( MAX_PROFILE != ref_temp )
         {
-            prof->ref[prof->count++]                 = ref_temp;
+            int iobj = prof->count++;
+            prof->obj_ref[iobj]                      = ref_temp;
             import_data.slot_lst[import_data.object] = ref_temp;
             if( import_data.object > import_data.max_slot && VALID_CAP(ref_temp) )
             {
@@ -870,8 +882,8 @@ bool_t doChoosePlayer_load_profiles( int player, ChoosePlayer_profiles_t * prof 
             }
 
             //Load icon
-            //snprintf( szFilename, SDL_arraysize(szFilename), "players" SLASH_STR "%s" SLASH_STR "%d.obj" SLASH_STR "icon%d", loadplayer[player].dir, i, MAX(0, CapList[ref_temp].skinoverride) );
-            //ego_texture_load( TxTexture_get_ptr( ?BLAH? ), szFilename, INVALID_KEY );
+            snprintf( szFilename, SDL_arraysize(szFilename), "%s" SLASH_STR "%d.obj" SLASH_STR "icon%d", loadplayer[player].dir, i, MAX(0, CapList[ref_temp].skinoverride) );
+            prof->tx_ref[iobj] = TxTexture_load_one( szFilename, INVALID_TEXTURE, INVALID_KEY );
         }
     }
 
@@ -884,7 +896,7 @@ bool_t doChoosePlayer_load_profiles( int player, ChoosePlayer_profiles_t * prof 
 //--------------------------------------------------------------------------------------------
 bool_t doChoosePlayer_show_stats( int player, int mode, int x, int y, int width, int height )
 {
-    int i;
+    int i, x1, y1;
 
     static ChoosePlayer_profiles_t objects = { 0 };
 
@@ -913,13 +925,15 @@ bool_t doChoosePlayer_show_stats( int player, int mode, int x, int y, int width,
     }
 
     // do the actual display
+    x1 = x + 10;
+    y1 = y + 10;
     if ( player >= 0 && objects.count > 0 )
     {
         STRING mainstat;
         char buffer[1024];
         char * carat = buffer, * carat_end = buffer + SDL_arraysize(buffer);
 
-        Uint16 iobj = objects.ref[0];
+        Uint16 iobj = objects.obj_ref[0];
 
         if ( VALID_CAP(iobj) )
         {
@@ -929,40 +943,41 @@ bool_t doChoosePlayer_show_stats( int player, int mode, int x, int y, int width,
 
             //Character level and class
             GL_DEBUG(glColor4f)(1, 1, 1, 1);
-            snprintf( mainstat, SDL_arraysize(mainstat), "Level %d %s\n\n", pcap->leveloverride + 1, pcap->classname );
-            ui_drawTextBox( menuFont, mainstat, x + 10, y + 10, width - 10, height - 10, 20 );
+            fnt_drawText( menuFont, x1, y1, "Level %d %s", pcap->leveloverride + 1, pcap->classname ); 
+            y1 += 40;
 
             //Life and mana (can be less than maximum if not in easy mode)
             if ( cfg.difficulty >= GAME_NORMAL )
             {
-                carat += snprintf( carat, carat_end - carat - 1, "Life: %d/%d\n", MIN( pcap->spawnlife >> 8, pcap->life_stat.val.base >> 8 ), pcap->life_stat.val.base >> 8 );
-                carat += snprintf( carat, carat_end - carat - 1, "Mana: %d/%d\n", MIN( pcap->spawnmana >> 8, pcap->mana_stat.val.base >> 8 ), pcap->mana_stat.val.base >> 8 );
-                //y = draw_one_bar( pcap->lifecolor, x + 10, y + 40, pcap->spawnlife >> 8, pcap->life_stat.val.base >> 8 );
-                //y = draw_one_bar( pcap->manacolor, x + 10, y, pcap->spawnmana >> 8, pcap->mana_stat.val.base >> 8 );
+                fnt_drawText( menuFont, x1, y1, "Life: %d/%d", MIN( pcap->spawnlife >> 8, pcap->life_stat.val.base >> 8 ), pcap->life_stat.val.base >> 8 ); y1 += 20;
+                y1 = draw_one_bar( pcap->lifecolor, x1, y1, pcap->spawnlife >> 8, pcap->life_stat.val.base >> 8 ); y1 += 20;
+                fnt_drawText( menuFont, x1, y1, "Mana: %d/%d", MIN( pcap->spawnmana >> 8, pcap->mana_stat.val.base >> 8 ), pcap->mana_stat.val.base >> 8 ); y1 += 20;
+                y1 = draw_one_bar( pcap->manacolor, x1, y1, pcap->spawnmana >> 8, pcap->mana_stat.val.base >> 8 ); y1 += 20;
             }
             else
             {
-                carat += snprintf( carat, carat_end - carat - 1, "Life: %d\n", pcap->life_stat.val.base >> 8 );
-                carat += snprintf( carat, carat_end - carat - 1, "Mana: %d\n", pcap->mana_stat.val.base >> 8 );
-                //y = draw_one_bar( pcap->lifecolor, x + 10, y + 40, pcap->life.base >> 8, pcap->life_stat.val.base >> 8 );
-                //y = draw_one_bar( pcap->manacolor, x + 10, y, pcap->mana.base >> 8, pcap->mana_stat.val.base >> 8 );
+                fnt_drawText( menuFont, x1, y1, "Life: %d", pcap->life_stat.val.base >> 8 ); y1 += 20;
+                y1 = draw_one_bar( pcap->lifecolor, x1, y1, pcap->life_stat.val.base >> 8, pcap->life_stat.val.base >> 8 );
+                fnt_drawText( menuFont, x1, y1, "Mana: %d", pcap->mana_stat.val.base >> 8 ); y1 += 20;
+                y1 = draw_one_bar( pcap->manacolor, x1, y1, pcap->mana_stat.val.base >> 8, pcap->mana_stat.val.base >> 8 );
             }
+            y1 += 20;
 
             //SWID
-            carat += snprintf( carat, carat_end - carat - 1, "Stats\n" );
-            carat += snprintf( carat, carat_end - carat - 1, "  Str: %d\n", pcap->strength_stat.val.base >> 8 );
-            carat += snprintf( carat, carat_end - carat - 1, "  Wis: %d\n", pcap->wisdom_stat.val.base >> 8 );
-            carat += snprintf( carat, carat_end - carat - 1, "  Int: %d\n", pcap->intelligence_stat.val.base >> 8 );
-            carat += snprintf( carat, carat_end - carat - 1, "  Dex: %d\n", pcap->dexterity_stat.val.base >> 8 );
-            carat += snprintf( carat, carat_end - carat - 1, " \n" );
+            fnt_drawText( menuFont, x1, y1, "Stats" ); y1 += 20;
+            fnt_drawText( menuFont, x1, y1, "  Str: %d", pcap->strength_stat.val.base >> 8 ); y1 += 20;
+            fnt_drawText( menuFont, x1, y1, "  Wis: %d", pcap->wisdom_stat.val.base >> 8 ); y1 += 20;
+            fnt_drawText( menuFont, x1, y1, "  Int: %d", pcap->intelligence_stat.val.base >> 8 ); y1 += 20;
+            fnt_drawText( menuFont, x1, y1, "  Dex: %d", pcap->dexterity_stat.val.base >> 8 ); y1 += 20;
+            y1 += 20;
 
             if ( objects.count > 1 )
             {
-                carat += snprintf( carat, carat_end - carat - 1, "Inventory\n" );
+                fnt_drawText( menuFont, x1, y1, "Inventory" ); y1 += 20;
 
                 for ( i = 1; i < objects.count; i++ )
                 {
-                    iobj = objects.ref[i];
+                    iobj = objects.obj_ref[i];
 
                     if ( VALID_CAP(iobj) )
                     {
@@ -971,17 +986,24 @@ bool_t doChoosePlayer_show_stats( int player, int mode, int x, int y, int width,
                         if ( pcap->nameknown ) strncpy(itemname, chop_create(iobj), SDL_arraysize(itemname));
                         else                   strncpy(itemname, pcap->classname,   SDL_arraysize(itemname));
 
-                        if     ( i == SLOT_LEFT + 1  ) carat += snprintf( carat, carat_end - carat - 1, "  Left: %s\n", itemname );
-                        else if ( i == SLOT_RIGHT + 1 ) carat += snprintf( carat, carat_end - carat - 1, "  Right: %s\n", itemname );
-                        else carat += snprintf( carat, carat_end - carat - 1, "  Item: %s\n", itemname );
-                        //draw_one_icon( loadplayer_count + iobj, x + 10, y+150+(i*32), NOSPARKLE );
+                        draw_one_icon( objects.tx_ref[i], x1, y1, NOSPARKLE );
+
+                        if     ( i == SLOT_LEFT + 1  )
+                        {
+                            fnt_drawText( menuFont, x1+32, y1 + 6, "  Left: %s", itemname ); y1 += 32;
+                        }
+                        else if ( i == SLOT_RIGHT + 1 ) 
+                        {
+                            fnt_drawText( menuFont, x1+32, y1 + 6, "  Right: %s", itemname ); y1 += 32;
+                        }
+                        else 
+                        {
+                            fnt_drawText( menuFont, x1+32, y1 + 6, "  Item: %s", itemname ); y1 += 32;
+                        }
                     }
                 }
             }
-
-            ui_drawTextBox( menuFont, buffer, x + 10, y + 30, width - 10, height, 20 );
         }
-
     }
 
     return btrue;
@@ -1292,7 +1314,7 @@ int doChoosePlayer( float deltaTime )
                     // Copy all of the character's items to the import directory
                     for ( j = 0; j < MAXIMPORTOBJECTS; j++ )
                     {
-                        snprintf( srcDir, SDL_arraysize( srcDir), "%s" SLASH_STR "%d.obj", loadplayer[selectedPlayer].dir, j );
+                        snprintf( srcDir, SDL_arraysize( srcDir), "%s" SLASH_STR "%d.obj", loadplayer[selectedPlayer].dir, j + 1 );
 
                         // make sure the source directory exists
                         if( vfs_isDirectory(srcDir) )
@@ -1843,6 +1865,7 @@ int doGameOptions( float deltaTime )
     static int menuChoice = 0;
     static STRING Cdifficulty;
     static STRING Cmaxmessage;
+    char   szDifficulty[4096];
 
     int result = 0;
 
@@ -1958,19 +1981,21 @@ int doGameOptions( float deltaTime )
             switch ( cfg.difficulty )
             {
                 case GAME_EASY:
-                    ui_drawTextBox( menuFont, "FORGIVING (Easy)\n - 15 percent XP loss upon death\n - Monsters take 25 percent extra damage by players\n - Players take 25 percent less damage by monsters\n - Halves the chance for Kursed items\n - Cannot unlock the final level in this mode\n - Life and Mana is refilled after quitting a module", buttonLeft, 100, 0, 0, 20 );
+                    strncpy( szDifficulty, "FORGIVING (Easy)\n - 15%% XP loss upon death\n - Monsters take 25%% extra damage by players\n - Players take 25%% less damage by monsters\n - Halves the chance for Kursed items\n - Cannot unlock the final level in this mode\n - Life and Mana is refilled after quitting a module", SDL_arraysize(szDifficulty) );
                     break;
                 case GAME_NORMAL:
-                    ui_drawTextBox( menuFont, "CHALLENGING (Normal)\n - 15 percent XP loss upon death \n - 15 percent money loss upon death", buttonLeft, 100, 0, 0, 20 );
+                    strncpy( szDifficulty, "CHALLENGING (Normal)\n - 15%% XP loss upon death \n - 15%% money loss upon death", SDL_arraysize(szDifficulty) );
                     break;
                 case GAME_HARD:
-                    ui_drawTextBox( menuFont, "PUNISHING (Hard)\n - 15 percent XP loss upon death\n - 15 percent money loss upon death\n - No respawning\n - Channeling life can kill you\n - Players take 25 percent more damage\n - Monsters award 10 percent extra xp!\n - Doubles the chance for Kursed items", buttonLeft, 100, 0, 0, 20 );
+                    strncpy( szDifficulty, "PUNISHING (Hard)\n - 15%% XP loss upon death\n - 15%% money loss upon death\n - No respawning\n - Channeling life can kill you\n - Players take 25%% more damage\n - Monsters award 10%% extra xp!\n - Doubles the chance for Kursed items", SDL_arraysize(szDifficulty) );
                     break;
             }
+            str_add_linebreaks( szDifficulty, SDL_arraysize(szDifficulty), 30 );
+            ui_drawTextBox( menuFont, szDifficulty, buttonLeft, 100, 0, 0, 20 );
 
             // Text messages
             ui_drawTextBox( menuFont, "Max  Messages:", buttonLeft + 350, 50, 0, 0, 20 );
-            if ( BUTTON_UP == ui_doButton( 12, gameOptionsButtons[1], menuFont, buttonLeft + 500, 50, 75, 30 ) )
+            if ( BUTTON_UP == ui_doButton( 12, gameOptionsButtons[1], menuFont, buttonLeft + 515, 50, 75, 30 ) )
             {
                 cfg.message_count_req++;
                 if ( cfg.message_count_req > MAX_MESSAGE) cfg.message_count_req = 0;
@@ -1990,7 +2015,7 @@ int doGameOptions( float deltaTime )
 
             // Message time
             ui_drawTextBox( menuFont, "Message Duration:", buttonLeft + 350, 100, 0, 0, 20 );
-            if ( BUTTON_UP == ui_doButton( 3, gameOptionsButtons[2], menuFont, buttonLeft + 500, 100, 100, 30 ) )
+            if ( BUTTON_UP == ui_doButton( 3, gameOptionsButtons[2], menuFont, buttonLeft + 515, 100, 100, 30 ) )
             {
                 if ( cfg.message_duration <= 0 )
                 {
@@ -2022,7 +2047,7 @@ int doGameOptions( float deltaTime )
 
             // Autoturn camera
             ui_drawTextBox( menuFont, "Autoturn Camera:", buttonLeft + 350, 150, 0, 0, 20 );
-            if ( BUTTON_UP == ui_doButton( 4, gameOptionsButtons[3], menuFont, buttonLeft + 500, 150, 100, 30 ) )
+            if ( BUTTON_UP == ui_doButton( 4, gameOptionsButtons[3], menuFont, buttonLeft + 515, 150, 100, 30 ) )
             {
                 if ( cfg.autoturncamera == CAMTURN_GOOD )
                 {
@@ -2043,11 +2068,11 @@ int doGameOptions( float deltaTime )
 
             // Show the fps?
             ui_drawTextBox( menuFont, "Display FPS:", buttonLeft + 350, 200, 0, 0, 20 );
-            if ( BUTTON_UP == ui_doButton( 5, gameOptionsButtons[4], menuFont, buttonLeft + 500, 200, 100, 30 ) )
+            if ( BUTTON_UP == ui_doButton( 5, gameOptionsButtons[4], menuFont, buttonLeft + 515, 200, 100, 30 ) )
             {
                 cfg.fps_allowed = !cfg.fps_allowed;
                 if ( cfg.fps_allowed )   gameOptionsButtons[4] = "On";
-                else                    gameOptionsButtons[4] = "Off";
+                else                     gameOptionsButtons[4] = "Off";
             }
 
             // Save settings
@@ -3264,7 +3289,7 @@ int doShowEndgame( float deltaTime )
                 {
                     game_finish_module();
                     pickedmodule_index = -1;
-                    process_instance_kill( PROC_PBASE(GProc) );
+                    process_kill( PROC_PBASE(GProc) );
                 }
 
                 menuState = MM_Begin;
@@ -3425,7 +3450,7 @@ int doMenu( float deltaTime )
                     if ( !reloaded )
                     {
                         game_finish_module();
-                        process_instance_kill( PROC_PBASE(GProc) );
+                        process_kill( PROC_PBASE(GProc) );
                     }
 
                     result = MENU_QUIT;
@@ -3708,7 +3733,7 @@ void load_all_menu_images()
     }
 
     // Log a directory list
-    filesave = vfs_openWrite( "modules.txt" );
+    filesave = vfs_openWrite( "debug" SLASH_STR "modules.txt" );
     if ( filesave != NULL )
     {
         vfs_printf( filesave, "This file logs all of the modules found\n" );

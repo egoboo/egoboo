@@ -13,13 +13,13 @@
 //*    General Public License for more details.
 //*
 //*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+//*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
 
 /* Egoboo - Ui.c
  * A basic library for implementing user interfaces, based off of Casey Muratori's
- * IMGUI.  (https:// mollyrocket.com/forums/viewtopic.php?t=134)
+ * IMGUI.  (https://mollyrocket.com/forums/viewtopic.php?t=134)
  */
 
 #include "ui.h"

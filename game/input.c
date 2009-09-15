@@ -13,7 +13,7 @@
 //*    General Public License for more details.
 //*
 //*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+//*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
 
@@ -117,7 +117,7 @@ void input_init()
 void input_read_mouse()
 {
     int x, y, b;
-    if ( process_instance_running( PROC_PBASE(MProc) ) )
+    if ( process_running( PROC_PBASE(MProc) ) )
     {
         b = SDL_GetMouseState( &x, &y );
     }

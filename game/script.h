@@ -15,7 +15,7 @@
 //*    General Public License for more details.
 //*
 //*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+//*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
 
@@ -123,6 +123,7 @@ struct s_ai_state
     Uint16         damagetypelast;  // Last damage type
     Uint16         lastitemused;    // The last item the character used
     Uint16         target_old;      // Target in the previous update
+    Uint16         searchlast;      // The target returned the last time the seach was run
 
     // message handling
     Uint32         order_value;           // The last order given the character

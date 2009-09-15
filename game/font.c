@@ -13,7 +13,7 @@
 //*    General Public License for more details.
 //*
 //*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+//*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
 
@@ -194,10 +194,9 @@ void fnt_freeFont( Font *font )
 }
 
 //--------------------------------------------------------------------------------------------
-int fnt_vprintf( Font *font, SDL_Color color, SDL_Surface ** psurf, GLuint itex, float texCoords[], const char *format, va_list args )
+int fnt_print_raw( Font *font, SDL_Color color, SDL_Surface ** psurf, GLuint itex, float texCoords[], const char * szText )
 {
     int rv;
-    STRING szText;
     SDL_Surface *textSurf, **pptmp;
     bool_t sdl_surf_external;
 
@@ -216,18 +215,12 @@ int fnt_vprintf( Font *font, SDL_Color color, SDL_Surface ** psurf, GLuint itex,
 
     if ( INVALID_TX_ID == itex ) return -1;
 
-    // evaluate the variable args
-    rv = vsnprintf( szText, SDL_arraysize(szText) - 1, format, args );
-    if ( rv < 0 )
-    {
-        return rv;
-    }
-
-    // create the text
+   // create the text
     (*pptmp) = TTF_RenderText_Blended( font->ttfFont, szText, color );
     if (NULL == (*pptmp)) return -1;
 
     // upload the texture
+    rv = 0;
     if ( !copySurfaceToTexture( (*pptmp), itex, texCoords ) )
     {
         rv = -1;
@@ -242,6 +235,58 @@ int fnt_vprintf( Font *font, SDL_Color color, SDL_Surface ** psurf, GLuint itex,
 
     return rv;
 }
+
+//--------------------------------------------------------------------------------------------
+int fnt_vprintf( Font *font, SDL_Color color, SDL_Surface ** psurf, GLuint itex, float texCoords[], const char *format, va_list args )
+{
+    int rv;
+    STRING szText;
+
+    // evaluate the variable args
+    rv = vsnprintf( szText, SDL_arraysize(szText) - 1, format, args );
+    if ( rv < 0 )
+    {
+        return rv;
+    }
+
+    return fnt_print_raw( font, color, psurf, itex, texCoords, szText );
+}
+
+//--------------------------------------------------------------------------------------------
+void fnt_drawText_raw( Font *font, int x, int y, const char *text )
+{
+    int rv;
+    SDL_Surface *textSurf;
+    SDL_Color color = { 0xFF, 0xFF, 0xFF, 0 };
+
+    rv = fnt_print_raw( font, color, &textSurf, font->texture, font->texCoords, text );
+    if ( rv < 0 ) return;
+
+    // And draw the darn thing
+    GL_DEBUG(glBegin)( GL_QUADS );
+    {
+        GL_DEBUG(glTexCoord2f)(font->texCoords[0], font->texCoords[1] );
+        GL_DEBUG(glVertex2f)( x, y );
+
+        GL_DEBUG(glTexCoord2f)(font->texCoords[2], font->texCoords[1] );
+        GL_DEBUG(glVertex2f)( x + textSurf->w, y );
+
+        GL_DEBUG(glTexCoord2f)(font->texCoords[2], font->texCoords[3] );
+        GL_DEBUG(glVertex2f)( x + textSurf->w, y + textSurf->h );
+
+        GL_DEBUG(glTexCoord2f)(font->texCoords[0], font->texCoords[3] );
+        GL_DEBUG(glVertex2f)( x, y + textSurf->h );
+    }
+    GL_DEBUG_END();
+
+    if ( NULL != textSurf )
+    {
+        // Done with the surface
+        SDL_FreeSurface( textSurf );
+        textSurf = NULL;
+    }
+}
+
 
 //--------------------------------------------------------------------------------------------
 void fnt_drawText( Font *font, int x, int y, const char *format, ...   )
@@ -328,7 +373,7 @@ void fnt_drawTextBox( Font *font, int x, int y, int width, int height, int spaci
 
     while ( line != NULL )
     {
-        fnt_drawText( font, x, y, line );
+        fnt_drawText_raw( font, x, y, line );
         y += spacing;
         line = strtok( NULL, "\n" );
     }

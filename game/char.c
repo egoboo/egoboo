@@ -13,7 +13,7 @@
 //*    General Public License for more details.
 //*
 //*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+//*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
 
@@ -2080,7 +2080,8 @@ bool_t character_grab_stuff( Uint16 ichr_a, grip_offset_t grip_off, bool_t grab_
             ftmp = vforward.x * diff.x + vforward.y * diff.y;
             if( ftmp > 0.0f )
             {
-                pchr_b->ai.alert |= ALERTIF_BUMPED;
+                pchr_b->ai.bumplast  = ichr_a;
+                pchr_b->ai.alert    |= ALERTIF_BUMPED;
             }
         }
     }
@@ -3773,6 +3774,7 @@ void init_ai_state( ai_state_t * pself, Uint16 index, Uint16 profile, Uint16 mod
     pself->bumplast   = index;
     pself->attacklast = MAX_CHR;
     pself->hitlast    = index;
+    pself->searchlast = MAX_CHR;
 
     pself->order_counter = rank;
     pself->order_value   = 0;

@@ -13,7 +13,7 @@
 //*    General Public License for more details.
 //*
 //*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+//*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
 
@@ -40,6 +40,7 @@
 #include "game.h"
 #include "ui.h"
 #include "texture.h"
+#include "clock.h"
 
 #include "SDL_extensions.h"
 #include "SDL_GL_extensions.h"
@@ -131,6 +132,22 @@ static rect_t             maprect;                    // The map rectangle
 static bool_t             gfx_page_flip_requested  = bfalse;
 static bool_t             gfx_page_clear_requested = btrue;
 
+DECLARE_LIST ( ACCESS_TYPE_NONE, billboard_data_t, BillboardList );
+
+PROFILE_DECLARE( gfx_loop );
+PROFILE_DECLARE( draw_scene_init );
+PROFILE_DECLARE( draw_scene_mesh );
+PROFILE_DECLARE( draw_scene_solid );
+PROFILE_DECLARE( draw_scene_water );
+PROFILE_DECLARE( draw_scene_trans );
+
+float time_draw_scene       = 0.0f;
+float time_draw_scene_init  = 0.0f;
+float time_draw_scene_mesh  = 0.0f;
+float time_draw_scene_solid = 0.0f;
+float time_draw_scene_water = 0.0f;
+float time_draw_scene_trans = 0.0f;
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -180,7 +197,7 @@ line_data_t line_list[LINE_COUNT];
 static void sdlinit_base();
 static void sdlinit_graphics();
 
-static void flip_pages();
+static void _flip_pages();
 
 static void project_view( camera_t * pcam );
 static void make_dynalist( camera_t * pcam );
@@ -194,9 +211,10 @@ static void init_bar_data();
 static void init_blip_data();
 static void init_map_data();
 
-DECLARE_LIST ( ACCESS_TYPE_NONE, billboard_data_t, BillboardList );
-
 static bool_t render_billboard( struct s_camera * pcam, billboard_data_t * pbb, float scale );
+
+static void gfx_update_timers();
+
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -474,6 +492,14 @@ void init_all_graphics()
 
     BillboardList_free_all();
     TxTexture_init_all();
+
+    PROFILE_INIT( gfx_loop );
+
+    PROFILE_INIT( draw_scene_init );
+    PROFILE_INIT( draw_scene_mesh );
+    PROFILE_INIT( draw_scene_solid );
+    PROFILE_INIT( draw_scene_water );
+    PROFILE_INIT( draw_scene_trans );
 }
 
 //---------------------------------------------------------------------------------------------
@@ -1860,6 +1886,41 @@ void draw_scene_init( ego_mpd_t * pmesh, camera_t * pcam )
 }
 
 //--------------------------------------------------------------------------------------------
+bool_t draw_fans_by_list( ego_mpd_t * pmesh, int list[], size_t list_size )
+{
+    int cnt, tx;
+
+    if( NULL == pmesh || NULL == list || 0 == list_size ) return bfalse;
+
+    if( meshnotexture )
+    {
+        meshlasttexture = ~0;
+        oglx_texture_Bind( NULL );
+
+        for ( cnt = 0; cnt < list_size; cnt++ )
+        {
+            render_fan( pmesh, list[cnt] );
+        }
+    }
+    else
+    {
+        for( tx = TX_TILE_0; tx <= TX_TILE_3; tx++ )
+        {
+            meshlasttexture = tx;
+            oglx_texture_Bind( TxTexture_get_ptr(tx) );
+
+            for ( cnt = 0; cnt < list_size; cnt++ )
+            {
+                render_fan( pmesh, list[cnt] );
+            }
+        }
+    }
+
+    return btrue;
+}
+
+
+//--------------------------------------------------------------------------------------------
 void draw_scene_mesh( renderlist_t * prlist )
 {
     // BB> draw the mesh and any reflected objects
@@ -1883,11 +1944,8 @@ void draw_scene_mesh( renderlist_t * prlist )
     GL_DEBUG(glEnable)(GL_ALPHA_TEST );         // use alpha test to allow the thatched roof tiles to look like thatch
     GL_DEBUG(glAlphaFunc)(GL_GREATER, 0 );
 
-    meshlasttexture = (Uint16)(~0);
-    for ( cnt = 0; cnt < prlist->ndr_count; cnt++ )
-    {
-        render_fan( pmesh, prlist->ndr[cnt] );
-    }
+    // reduce texture hashing by loading up each texture only once
+    draw_fans_by_list( pmesh, prlist->ndr, prlist->ndr_count ); 
 
     //--------------------------------
     // draw the reflective tiles and any reflected objects
@@ -1903,11 +1961,7 @@ void draw_scene_mesh( renderlist_t * prlist )
         GL_DEBUG(glEnable)(GL_BLEND );
         GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
-        meshlasttexture = (Uint16)(~0);
-        for ( cnt = 0; cnt < prlist->drf_count; cnt++ )
-        {
-            render_fan( pmesh, prlist->drf[cnt] );
-        }
+        draw_fans_by_list( pmesh, prlist->drf, prlist->drf_count ); 
 
         //------------------------------
         // Render all reflected objects
@@ -1969,21 +2023,16 @@ void draw_scene_mesh( renderlist_t * prlist )
         GL_DEBUG(glEnable)(GL_DEPTH_TEST );
         GL_DEBUG(glDepthMask)(GL_TRUE );
 
-        meshlasttexture = (Uint16)(~0);
-        for ( cnt = 0; cnt < prlist->drf_count; cnt++ )
-        {
-            render_fan( pmesh, prlist->drf[cnt] );
-        }
+        // reduce texture hashing by loading up each texture only once
+        draw_fans_by_list( pmesh, prlist->drf, prlist->drf_count );
+
     }
     else
     {
         //------------------------------
         // Render the shadow floors as normal solid floors
-        meshlasttexture = (Uint16)(~0);
-        for ( cnt = 0; cnt < prlist->drf_count; cnt++ )
-        {
-            render_fan( pmesh, prlist->drf[cnt] );
-        }
+
+        draw_fans_by_list( pmesh, prlist->drf, prlist->drf_count );
     }
 
 #if defined(RENDER_HMAP)
@@ -2189,20 +2238,48 @@ void draw_scene_zreflection( ego_mpd_t * pmesh, camera_t * pcam )
     if ( NULL == pcam  ) pcam = PCamera;
     if ( NULL == pmesh ) pmesh = PMesh;
 
-    draw_scene_init( pmesh, pcam );
+    PROFILE_BEGIN( draw_scene_init );
+    {
+        draw_scene_init( pmesh, pcam );
+    }
+    PROFILE_END( draw_scene_init );
 
-    // do the render pass for the mesh
-    draw_scene_mesh( &renderlist );
+    PROFILE_BEGIN( draw_scene_mesh );
+    {
+        // do the render pass for the mesh
+        draw_scene_mesh( &renderlist );
+    }
+    PROFILE_END( draw_scene_mesh );
 
-    // do the render pass for solid objects
-    draw_scene_solid();
+    PROFILE_BEGIN( draw_scene_solid );
+    {
+        // do the render pass for solid objects
+        draw_scene_solid();
+    }
+    PROFILE_END( draw_scene_solid );
 
-    // draw the water
-    draw_scene_water( &renderlist );
+    PROFILE_BEGIN( draw_scene_water );
+    {
+        // draw the water
+        draw_scene_water( &renderlist );
+    }
+    PROFILE_END( draw_scene_water );
 
-    // do the render pass for transparent objects
-    draw_scene_trans();
+    PROFILE_BEGIN( draw_scene_trans );
+    {
+        // do the render pass for transparent objects
+        draw_scene_trans();
+    }
+    PROFILE_END( draw_scene_trans );
 
+    time_draw_scene_init  = PROFILE_QUERY(draw_scene_init ) * TARGET_FPS;
+    time_draw_scene_mesh  = PROFILE_QUERY(draw_scene_mesh ) * TARGET_FPS;
+    time_draw_scene_solid = PROFILE_QUERY(draw_scene_solid) * TARGET_FPS;
+    time_draw_scene_water = PROFILE_QUERY(draw_scene_water) * TARGET_FPS;
+    time_draw_scene_trans = PROFILE_QUERY(draw_scene_trans) * TARGET_FPS;
+
+    time_draw_scene       = time_draw_scene_init + time_draw_scene_mesh + 
+                            time_draw_scene_solid + time_draw_scene_water + time_draw_scene_trans;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3077,7 +3154,14 @@ int draw_fps( int y )
 
     if ( fpson )
     {
-        y = _draw_string_raw( 0, y, szfpstext );
+        y = _draw_string_raw( 0, y, "%2.3f FPS, %2.3f UPS", stabilized_fps, stabilized_ups );
+
+#if defined(DEBUG_PROFILE)
+        //y = _draw_string_raw( 0, y, "estimated max FPS %2.3f UPS %2.3f", est_max_fps, est_max_ups );
+        y = _draw_string_raw( 0, y, "gfxtime %2.4f, drawtime %2.4f", est_gfx_time, time_draw_scene );
+        y = _draw_string_raw( 0, y, "init %1.4f,  mesh %1.4f, solid %1.4f", time_draw_scene_init, time_draw_scene_mesh, time_draw_scene_solid );
+        y = _draw_string_raw( 0, y, "water %1.4f, trans %1.4f", time_draw_scene_water, time_draw_scene_trans );
+#endif
     }
 
     return y;
@@ -3310,11 +3394,11 @@ void do_clear_screen()
     bool_t try_clear;
 
     try_clear = bfalse;
-    if ( process_instance_running( PROC_PBASE(GProc) ) && PROC_PBASE(GProc)->state > proc_begin )
+    if ( process_running( PROC_PBASE(GProc) ) && PROC_PBASE(GProc)->state > proc_begin )
     {
         try_clear = gfx_page_clear_requested;
     }
-    else if ( process_instance_running( PROC_PBASE(MProc) ) && PROC_PBASE(MProc)->state > proc_begin )
+    else if ( process_running( PROC_PBASE(MProc) ) && PROC_PBASE(MProc)->state > proc_begin )
     {
         try_clear = gfx_page_clear_requested;
     }
@@ -3330,8 +3414,8 @@ void do_clear_screen()
         GL_DEBUG(glClear)( GL_DEPTH_BUFFER_BIT );
 
         // clear the color buffer only if necessary
-        game_needs_clear = gfx.clearson && process_instance_running( PROC_PBASE(GProc) );
-        menu_needs_clear = mnu_draw_background && process_instance_running( PROC_PBASE(MProc) );
+        game_needs_clear = gfx.clearson && process_running( PROC_PBASE(GProc) );
+        menu_needs_clear = mnu_draw_background && process_running( PROC_PBASE(MProc) );
 
         if ( game_needs_clear || menu_needs_clear )
         {
@@ -3346,11 +3430,11 @@ void do_flip_pages()
     bool_t try_flip;
 
     try_flip = bfalse;
-    if ( process_instance_running( PROC_PBASE(GProc) ) && PROC_PBASE(GProc)->state > proc_begin )
+    if ( process_running( PROC_PBASE(GProc) ) && PROC_PBASE(GProc)->state > proc_begin )
     {
         try_flip = gfx_page_flip_requested;
     }
-    else if ( process_instance_running( PROC_PBASE(MProc) ) && PROC_PBASE(MProc)->state > proc_begin )
+    else if ( process_running( PROC_PBASE(MProc) ) && PROC_PBASE(MProc)->state > proc_begin )
     {
         try_flip = gfx_page_flip_requested;
     }
@@ -3358,7 +3442,7 @@ void do_flip_pages()
     if ( try_flip )
     {
         gfx_page_flip_requested = bfalse;
-        flip_pages();
+        _flip_pages();
 
         gfx_page_clear_requested = btrue;
     }
@@ -3377,7 +3461,7 @@ bool_t flip_pages_requested()
 }
 
 //--------------------------------------------------------------------------------------------
-void flip_pages()
+void _flip_pages()
 {
     GL_DEBUG(glFlush)();
 
@@ -3385,30 +3469,43 @@ void flip_pages()
 
     frame_all++;
     frame_fps++;
+    fps_loops++;
 
     SDL_GL_SwapBuffers();
+
+    gfx_update_timers();
 }
 
 //--------------------------------------------------------------------------------------------
 void draw_scene( camera_t * pcam )
 {
-    Begin3DMode( pcam );
+    PROFILE_BEGIN( gfx_loop );
     {
-        if ( gfx.draw_background )
+        Begin3DMode( pcam );
         {
-            // Render the background
-            render_background( TX_WATER_LOW );  // TX_WATER_LOW for waterlow.bmp
-        }
+            if ( gfx.draw_background )
+            {
+                // Render the background
+                render_background( TX_WATER_LOW );  // TX_WATER_LOW for waterlow.bmp
+            }
 
-        draw_scene_zreflection( PMesh, pcam );
+            draw_scene_zreflection( PMesh, pcam );
 
-        // Foreground overlay
-        if ( gfx.draw_overlay )
-        {
-            render_foreground_overlay( TX_WATER_TOP );  // TX_WATER_TOP is watertop.bmp
+            // Foreground overlay
+            if ( gfx.draw_overlay )
+            {
+                render_foreground_overlay( TX_WATER_TOP );  // TX_WATER_TOP is watertop.bmp
+            }
         }
+        End3DMode();
+
     }
-    End3DMode();
+    PROFILE_END2( gfx_loop );
+
+    // estimate how much time the main loop is taking per second
+    est_gfx_time = PROFILE_QUERY(gfx_loop) * TARGET_FPS;
+    est_max_fps  = 0.9 * est_max_fps + 0.1 * (1.0f - est_update_time * TARGET_UPS) / PROFILE_QUERY(gfx_loop);
+
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5160,6 +5257,8 @@ void render_all_billboards( camera_t * pcam )
 
 }
 
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 int get_free_line()
 {
     int cnt;
@@ -5175,6 +5274,7 @@ int get_free_line()
     return cnt < LINE_COUNT ? cnt : -1;
 }
 
+//--------------------------------------------------------------------------------------------
 void draw_all_lines( camera_t * pcam )
 {
     // BB> draw some lines for debugging purposes
@@ -5223,3 +5323,41 @@ void draw_all_lines( camera_t * pcam )
     GL_DEBUG(glEnable)( GL_TEXTURE_2D );
 
 }
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+void gfx_update_timers()
+{
+    // ZZ> This function updates the graphics timers
+
+    const float fold = 0.90f;
+    const float fnew = 1.0f - fold;
+
+    static int gfx_clock_last = 0;
+    static int gfx_clock      = 0;
+    static int gfx_clock_stt  = -1;
+
+    if( gfx_clock_stt < 0 )
+    {
+        gfx_clock_stt  = SDL_GetTicks();
+        gfx_clock_last = gfx_clock_stt;
+        gfx_clock      = gfx_clock_stt;
+    }
+
+    gfx_clock_last = gfx_clock;
+    gfx_clock      = SDL_GetTicks() - gfx_clock_stt;
+
+    fps_clock     += gfx_clock - gfx_clock_last;
+
+    if ( fps_loops > 0 && fps_clock > 0 )
+    {
+        stabilized_fps_sum    = fold * stabilized_fps_sum    + fnew * ( float ) fps_loops / (( float ) fps_clock / TICKS_PER_SEC );
+        stabilized_fps_weight = fold * stabilized_fps_weight + fnew;
+    };
+
+    if ( stabilized_fps_weight > 0.5 )
+    {
+        stabilized_fps = stabilized_fps_sum / stabilized_fps_weight;
+    }
+}
+

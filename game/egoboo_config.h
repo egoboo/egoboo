@@ -15,7 +15,7 @@
 //*    General Public License for more details.
 //*
 //*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+//*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
 
@@ -62,5 +62,6 @@
 #undef  RENDER_HMAP           // render the mesh's heightmap?
 #undef  DEBUG_MESH_NORMALS    // render the mesh normals
 #define LOG_TO_CONSOLE
+#undef DEBUG_PROFILE
 
 #define EGOBOO_CONFIG

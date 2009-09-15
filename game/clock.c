@@ -13,212 +13,270 @@
 //*    General Public License for more details.
 //*
 //*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+//*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
 
-/* Egoboo - Clock.c
- * Clock & timer functionality
- * This implementation was adapted from Noel Lopis' article in
- * Game Programming Gems 4.
- */
+///
+/// @file
+/// @brief Clock & timer implementation
+/// @details This implementation was adapted from Noel Lopis' article in
+///  Game Programming Gems 4.
 
-#include "egoboo_typedef.h"
-#include "clock.h"
-#include "log.h"
+#include "Clock.h"
+
 #include "System.h"
-
+#include "Log.h"
 #include <stddef.h>
 #include <stdlib.h>
-#include <string.h> // memcpy & memset
+#include <memory.h>
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-// Clock data
-static double ( *clk_timeSource )();  // Function that the clock get it's time values from
-static double clk_sourceStartTime;    // The first value the clock receives from above function
-static double clk_sourceLastTime;    // The last value the clock received from above function
-static double clk_currentTime;      // The current time, not necessarily in sync w/ the source time
-static double clk_frameTime;      // The time this frame takes
-static Uint32 clk_frameNumber;  // Which frame the clock is on
+static clock_source_ptr_t _clock_timeSource = NULL;
 
-const double clk_maximumFrameTime = 0.2f; // The maximum time delta the clock accepts (default 0.2f seconds)
+static clock_source_ptr_t clock_getTimeSource()
+{
+  if(NULL == _clock_timeSource)
+  {
+    _clock_timeSource = sys_getTime;
+  }
 
-// Circular buffer to hold frame histories
-static double *clk_frameHistory = NULL;
-static int clk_frameHistorySize;
-static int clk_frameHistoryWindow;
-static int clk_frameHistoryHead;
+  return _clock_timeSource;
+}
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 void clk_init()
 {
-    log_info( "Initializing clock services...\n" );
+  log_info( "Initializing clock services...\n" );
 
-    clk_shutdown();  // Use this to set everything to 0
-
-    clk_setTimeSource( sys_getTime );
-    clk_setFrameHistoryWindow( 1 );
+  clock_getTimeSource();
 }
 
-//--------------------------------------------------------------------------------------------
 void clk_shutdown()
 {
-    if ( clk_frameHistory != NULL )
-    {
-        free( clk_frameHistory );
-    }
-
-    clk_timeSource = NULL;
-    clk_sourceStartTime = 0;
-    clk_sourceLastTime = 0;
-    clk_currentTime = 0;
-    clk_frameTime = 0;
-    clk_frameNumber = 0;
-
-    clk_frameHistory = NULL;
-    clk_frameHistorySize = 0;
-    clk_frameHistoryWindow = 0;
-    clk_frameHistoryHead = 0;
+  _clock_timeSource = NULL;
 }
 
-//--------------------------------------------------------------------------------------------
-void clk_setTimeSource( clk_timeSourcePtr_t timeSource )
+// Clock data
+struct s_ClockState
 {
-    clk_timeSource = timeSource;
-    if ( clk_timeSource )
-    {
-        clk_sourceStartTime = clk_timeSource();
-        clk_sourceLastTime = clk_sourceStartTime;
-    }
+  // Clock data
+  EGO_CONST char * name;
+
+  double sourceStartTime;  // The first value the clock receives from above function
+  double sourceLastTime;  // The last value the clock received from above function
+  double currentTime;   // The current time, not necessarily in sync w/ the source time
+  double frameTime;   // The time this frame takes
+  Uint32 frameNumber; // Which frame the clock is on
+
+  double maximumFrameTime; // The maximum time delta the clock accepts (default .2 seconds)
+
+  // Circular buffer to hold frame histories
+  double *frameHistory;
+  int frameHistorySize;
+  int frameHistoryWindow;
+  int frameHistoryHead;
+};
+
+
+static ClockState_t * clk_new( ClockState_t * cs, const char * name, int size  );
+static bool_t         clk_delete( ClockState_t * cs );
+
+//static void   clk_initTime( ClockState_t * cs );
+static void   clk_setFrameHistoryWindow( ClockState_t * cs, int size );
+static void   clk_addToFrameHistory( ClockState_t * cs, double frame );
+static double clk_getExactLastFrameDuration( ClockState_t * cs );
+static double clk_guessFrameDuration( ClockState_t * cs );
+
+
+ClockState_t * clk_create(const char * name, int size)
+{
+  ClockState_t * cs;
+
+  cs = EGOBOO_NEW( ClockState_t );
+
+  return clk_new( cs, name, size );
 }
 
-//--------------------------------------------------------------------------------------------
-void clk_setFrameHistoryWindow( int size )
+bool_t clk_destroy( ClockState_t ** pcs )
 {
-    double *history;
-    int oldSize = clk_frameHistoryWindow;
-    int less;
+  bool_t retval;
 
-    // The frame history has to be at least 1
-    clk_frameHistoryWindow = ( size > 1 ) ? size : 1;
-    history = ( double* )malloc( sizeof( double ) * clk_frameHistoryWindow );
-    if ( clk_frameHistory != NULL )
-    {
-        // Copy over the older history.  Make sure that only the size of the
-        // smaller buffer is copied
-        less = ( clk_frameHistoryWindow < oldSize ) ? clk_frameHistoryWindow : oldSize;
-        memcpy( history, clk_frameHistory, less );
-        free( clk_frameHistory );
-    }
-    else
-    {
-        memset( history, 0, sizeof( double ) * clk_frameHistoryWindow );
-    }
+  if(NULL == pcs || NULL == *pcs) return bfalse;
 
-    clk_frameHistoryHead = 0;
-    clk_frameHistory = history;
+  retval = clk_delete( *pcs );
+  EGOBOO_DELETE( *pcs );
+
+  return retval;
 }
 
-//--------------------------------------------------------------------------------------------
-double clk_guessFrameDuration()
+
+ClockState_t * clk_new( ClockState_t * cs, const char * name, int size )
 {
+  clock_source_ptr_t psrc;
+  if(NULL == cs) return cs;
+
+  if(size<0) size = 1;
+  //log_info("clk_new() - \n\t\"%s\"\t%d buffer(s)\n", name, size);
+
+  memset( cs, 0, sizeof( ClockState_t ) );
+
+  cs->maximumFrameTime = 0.2;
+  cs->name = name;
+  clk_setFrameHistoryWindow( cs, size );
+
+  psrc = clock_getTimeSource();
+  cs->sourceStartTime = psrc();
+  cs->sourceLastTime  = cs->sourceStartTime;
+
+  return cs;
+}
+
+bool_t clk_delete( ClockState_t * cs )
+{
+  if(NULL == cs) return bfalse;
+
+  EGOBOO_DELETE ( cs->frameHistory );
+
+  return btrue;
+}
+
+ClockState_t * clk_renew( ClockState_t * cs )
+{
+  EGO_CONST char * name;
+  int size;
+
+  name = cs->name;
+  size = cs->frameHistorySize;
+
+  clk_delete(cs);
+  return clk_new(cs, name, size);
+}
+
+void clk_setFrameHistoryWindow( ClockState_t * cs, int size )
+{
+  double *history;
+  int oldSize = cs->frameHistoryWindow;
+  int less;
+
+  // The frame history has to be at least 1
+  cs->frameHistoryWindow = ( size > 1 ) ? size : 1;
+  history = EGOBOO_NEW_ARY( double, cs->frameHistoryWindow );
+
+  if (NULL == cs->frameHistory)
+  {
+    memset( history, 0, sizeof( double ) * cs->frameHistoryWindow );
+  }
+  else
+  {
+    // Copy over the older history.  Make sure that only the size of the
+    // smaller buffer is copied
+    less = ( cs->frameHistoryWindow < oldSize ) ? cs->frameHistoryWindow : oldSize;
+    memcpy( history, cs->frameHistory, less );
+
+    EGOBOO_DELETE( cs->frameHistory );
+  }
+
+  cs->frameHistoryHead = 0;
+  cs->frameHistory = history;
+}
+
+double clk_guessFrameDuration( ClockState_t * cs )
+{
+  double time = 0;
+
+  if( cs->frameHistorySize == 1 )
+  {
+    time = cs->frameHistory[0];
+  }
+  else
+  {
     int c;
     double totalTime = 0;
 
-    if ( NULL == clk_frameHistory ) return 0;
-
-    for ( c = 0; c < clk_frameHistorySize; c++ )
+    for ( c = 0; c < cs->frameHistorySize; c++ )
     {
-        totalTime += clk_frameHistory[c];
+      totalTime += cs->frameHistory[c];
     }
 
-    return totalTime / clk_frameHistorySize;
+    time = totalTime / cs->frameHistorySize;
+  };
+
+  return time;
 }
 
-//--------------------------------------------------------------------------------------------
-void clk_addToFrameHistory( double frame )
+void clk_addToFrameHistory( ClockState_t * cs, double frame )
 {
-    if (NULL == clk_frameHistory) return;
+  cs->frameHistory[cs->frameHistoryHead] = frame;
 
-    clk_frameHistory[clk_frameHistoryHead] = frame;
+  cs->frameHistoryHead++;
+  if ( cs->frameHistoryHead >= cs->frameHistoryWindow )
+  {
+    cs->frameHistoryHead = 0;
+  }
 
-    clk_frameHistoryHead++;
-    if ( clk_frameHistoryHead >= clk_frameHistoryWindow )
-    {
-        clk_frameHistoryHead = 0;
-    }
-
-    clk_frameHistorySize++;
-    if ( clk_frameHistorySize > clk_frameHistoryWindow )
-    {
-        clk_frameHistorySize = clk_frameHistoryWindow;
-    }
+  cs->frameHistorySize++;
+  if ( cs->frameHistorySize > cs->frameHistoryWindow )
+  {
+    cs->frameHistorySize = cs->frameHistoryWindow;
+  }
 }
 
-//--------------------------------------------------------------------------------------------
-double clk_getExactLastFrameDuration()
+double clk_getExactLastFrameDuration( ClockState_t * cs )
 {
-    double sourceTime;
-    double timeElapsed;
-    if ( clk_timeSource )
-    {
-        sourceTime = clk_timeSource();
-    }
-    else
-    {
-        sourceTime = 0;
-    }
+  clock_source_ptr_t psrc;
+  double sourceTime;
+  double timeElapsed;
 
-    timeElapsed = sourceTime - clk_sourceLastTime;
+  psrc = clock_getTimeSource();
+  if ( NULL != psrc )
+  {
+    sourceTime = psrc();
+  }
+  else
+  {
+    sourceTime = 0;
+  }
 
-    // If more time elapsed than the maximum we allow, say that only the maximum occurred
-    if ( timeElapsed > clk_maximumFrameTime )
-    {
-        timeElapsed = clk_maximumFrameTime;
-    }
+  timeElapsed = sourceTime - cs->sourceLastTime;
+  // If more time elapsed than the maximum we allow, say that only the maximum occurred
+  if ( timeElapsed > cs->maximumFrameTime )
+  {
+    timeElapsed = cs->maximumFrameTime;
+  }
 
-    clk_sourceLastTime = sourceTime;
-    return timeElapsed;
+  cs->sourceLastTime = sourceTime;
+  return timeElapsed;
 }
 
-//--------------------------------------------------------------------------------------------
-void clk_frameStep()
+void clk_frameStep( ClockState_t * cs )
 {
-    double lastFrame = clk_getExactLastFrameDuration();
+  double lastFrame = clk_getExactLastFrameDuration( cs );
+  clk_addToFrameHistory( cs, lastFrame );
 
-    clk_addToFrameHistory( lastFrame );
+  // This feels wrong to me; we're guessing at how long this
+  // frame is going to be and accepting that as our time value.
+  // I'll trust Mr. Lopis for now, but it may change.
+  cs->frameTime = clk_guessFrameDuration( cs );
+  cs->currentTime += cs->frameTime;
 
-    // This feels wrong to me; we're guessing at how long this
-    // frame is going to be and accepting that as our time value.
-    // I'll trust Mr. Lopis for now, but it may change.
-    clk_frameTime = clk_guessFrameDuration();
-    clk_currentTime += clk_frameTime;
-
-    clk_frameNumber++;
+  cs->frameNumber++;
 }
 
-//--------------------------------------------------------------------------------------------
-double clk_getTime()
+double clk_getTime( ClockState_t * cs )
 {
-    return clk_currentTime;
+  return cs->currentTime;
 }
 
-//--------------------------------------------------------------------------------------------
-double clk_getFrameDuration()
+double clk_getFrameDuration( ClockState_t * cs )
 {
-    return clk_frameTime;
+  return cs->frameTime;
 }
 
-//--------------------------------------------------------------------------------------------
-Uint32 clk_getFrameNumber()
+Uint32 clk_getFrameNumber( ClockState_t * cs )
 {
-    return clk_frameNumber;
+  return cs->frameNumber;
 }
 
-//--------------------------------------------------------------------------------------------
-float clk_getFrameRate()
+float clk_getFrameRate( ClockState_t * cs )
 {
-    return ( float )( 1.0f / clk_frameTime );
+  return ( float )( 1.0 / cs->frameTime );
 }

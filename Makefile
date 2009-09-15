@@ -13,7 +13,7 @@ clean:
 
 install: 
 	mkdir -p ${PREFIX}/bin
-	install -p -m 755 game/{PROJ_NAME}.sh ${PREFIX}/bin/${PROJ_NAME}
+	install -p -m 755 game/${PROJ_NAME}.sh ${PREFIX}/bin/${PROJ_NAME}
 
 	mkdir -p ${PREFIX}/libexec
 	install -m 755 game/${PROJ_NAME} ${PREFIX}/libexec

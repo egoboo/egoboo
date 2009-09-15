@@ -13,7 +13,7 @@
 //*    General Public License for more details.
 //*
 //*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+//*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
 
@@ -44,6 +44,7 @@
 #include "mesh.h"
 #include "texture.h"
 #include "wawalite.h"
+#include "clock.h"
 
 #include "char.h"
 #include "particle.h"
@@ -147,6 +148,8 @@ static menu_process_t    _mproc;
 static game_process_t    _gproc;
 static module_instance_t gmod;
 
+static ClockState_t    * _gclock = NULL;
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 bool_t  overrideslots      = bfalse;
@@ -190,6 +193,9 @@ IDSZ   local_senseenemiesID   = IDSZ_NONE;
 Uint32  randindex = 0;
 Uint16  randie[RANDIE_COUNT];
 
+// declare the variables to do profiling
+PROFILE_DECLARE( update_loop );
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -210,7 +216,7 @@ static void do_weather_spawn();
 static void stat_return();
 static void update_pits();
 static void update_game();
-static void update_timers();
+static void game_update_timers();
 static void make_onwhichfan( void );
 static void set_local_latches( void );
 static void make_onwhichfan( void );
@@ -357,24 +363,30 @@ void export_one_character( Uint16 character, Uint16 owner, int number, bool_t is
         snprintf( fromfile, SDL_arraysize( fromfile), "%s" SLASH_STR "message.txt", fromdir );  /*MESSAGE.TXT*/
         snprintf( tofile, SDL_arraysize( tofile), "%s" SLASH_STR "message.txt", todir );  /*MESSAGE.TXT*/
         vfs_copyFile( fromfile, tofile );
+
         snprintf( fromfile, SDL_arraysize( fromfile), "%s" SLASH_STR "tris.md2", fromdir );  /*TRIS.MD2*/
         snprintf( tofile, SDL_arraysize( tofile),   "%s" SLASH_STR "tris.md2", todir );  /*TRIS.MD2*/
         vfs_copyFile( fromfile, tofile );
+
         snprintf( fromfile, SDL_arraysize( fromfile), "%s" SLASH_STR "copy.txt", fromdir );  /*COPY.TXT*/
         snprintf( tofile, SDL_arraysize( tofile),   "%s" SLASH_STR "copy.txt", todir );  /*COPY.TXT*/
         vfs_copyFile( fromfile, tofile );
+
         snprintf( fromfile, SDL_arraysize( fromfile), "%s" SLASH_STR "script.txt", fromdir );
         snprintf( tofile, SDL_arraysize( tofile),   "%s" SLASH_STR "script.txt", todir );
         vfs_copyFile( fromfile, tofile );
+
         snprintf( fromfile, SDL_arraysize( fromfile), "%s" SLASH_STR "enchant.txt", fromdir );
         snprintf( tofile, SDL_arraysize( tofile),   "%s" SLASH_STR "enchant.txt", todir );
         vfs_copyFile( fromfile, tofile );
+
         snprintf( fromfile, SDL_arraysize( fromfile), "%s" SLASH_STR "credits.txt", fromdir );
         snprintf( tofile, SDL_arraysize( tofile),   "%s" SLASH_STR "credits.txt", todir );
         vfs_copyFile( fromfile, tofile );
-        //    snprintf( fromfile, SDL_arraysize( fromfile), "%s" SLASH_STR "quest.txt", fromdir );     Zefz> We can't do this yet, quests are written directly into players/x.obj
-        //    snprintf( tofile, SDL_arraysize( tofile),   "%s" SLASH_STR "quest.txt", todir );       instead of import/x.obj which should be changed or all changes are lost.
-        vfs_copyFile( fromfile, tofile );
+
+        //snprintf( fromfile, SDL_arraysize( fromfile), "%s" SLASH_STR "quest.txt", fromdir );     Zefz> We can't do this yet, quests are written directly into players/x.obj
+        //snprintf( tofile, SDL_arraysize( tofile),   "%s" SLASH_STR "quest.txt", todir );       instead of import/x.obj which should be changed or all changes are lost.
+        //vfs_copyFile( fromfile, tofile );
 
         // Copy all of the particle files
         for ( tnc = 0; tnc < MAX_PIP_PER_PROFILE; tnc++ )
@@ -406,6 +418,7 @@ void export_one_character( Uint16 character, Uint16 owner, int number, bool_t is
                 snprintf( fromfile, SDL_arraysize( fromfile), "%s" SLASH_STR "tris%d%s", fromdir, tnc, TxFormatSupported[type] );
                 snprintf( tofile, SDL_arraysize( tofile),   "%s" SLASH_STR "tris%d%s", todir,   tnc, TxFormatSupported[type] );
                 vfs_copyFile( fromfile, tofile );
+
                 snprintf( fromfile, SDL_arraysize( fromfile), "%s" SLASH_STR "icon%d%s", fromdir, tnc, TxFormatSupported[type] );
                 snprintf( tofile, SDL_arraysize( tofile),   "%s" SLASH_STR "icon%d%s", todir,   tnc, TxFormatSupported[type] );
                 vfs_copyFile( fromfile, tofile );
@@ -423,7 +436,7 @@ void export_all_players( bool_t require_local )
     int cnt, character, item, number;
 
     // Don't export if the module isn't running
-    if ( !process_instance_running( PROC_PBASE(GProc) ) ) return;
+    if ( !process_running( PROC_PBASE(GProc) ) ) return;
 
     // Stop if export isnt valid
     if (!PMod->exportvalid) return;
@@ -440,27 +453,31 @@ void export_all_players( bool_t require_local )
         if ( !ChrList.lst[character].on || !ChrList.lst[character].alive ) continue;
 
         // Export the character
-        number = 0;
-        export_one_character( character, character, number, is_local );
+        export_one_character( character, character, 0, is_local );
 
         // Export the left hand item
-        number = SLOT_LEFT;
-        item = ChrList.lst[character].holdingwhich[number];
-        if ( item != MAX_CHR && ChrList.lst[item].isitem )  export_one_character( item, character, number, is_local );
+        item = ChrList.lst[character].holdingwhich[SLOT_LEFT];
+        if ( item != MAX_CHR && ChrList.lst[item].isitem )  
+        {
+            export_one_character( item, character, SLOT_LEFT + 1, is_local );
+        }
 
         // Export the right hand item
-        number = SLOT_RIGHT;
-        item = ChrList.lst[character].holdingwhich[number];
-        if ( item != MAX_CHR && ChrList.lst[item].isitem )  export_one_character( item, character, number, is_local );
+        item = ChrList.lst[character].holdingwhich[SLOT_RIGHT];
+        if ( item != MAX_CHR && ChrList.lst[item].isitem )  
+        {
+            export_one_character( item, character, SLOT_RIGHT + 1, is_local );
+        }
 
         // Export the inventory
-        for ( number = 2, item = ChrList.lst[character].pack_next;
-                number < MAXIMPORTOBJECTS && item != MAX_CHR;
-                item = ChrList.lst[item].pack_next )
+        for ( number = 0, item = ChrList.lst[character].pack_next;
+              number < MAXINVENTORY && item != MAX_CHR;
+              item = ChrList.lst[item].pack_next  )
         {
             if ( ChrList.lst[item].isitem )
             {
-                export_one_character( item, character, number++, is_local );
+                export_one_character( item, character, number + 3, is_local );
+                number++;
             }
         }
     }
@@ -472,13 +489,13 @@ void _quit_game( ego_process_t * pgame )
 {
     // ZZ> This function exits the game entirely
 
-    if ( process_instance_running( PROC_PBASE(pgame) ) )
+    if ( process_running( PROC_PBASE(pgame) ) )
     {
         game_quit_module();
     }
 
     // tell the game to kill itself
-    process_instance_kill( PROC_PBASE(pgame) );
+    process_kill( PROC_PBASE(pgame) );
 
     vfs_empty_import_directory();
 }
@@ -866,6 +883,7 @@ void update_game()
         }
 
         update_wld++;
+        ups_loops++;
     }
 
     if ( PNet->on )
@@ -886,17 +904,48 @@ void update_game()
 }
 
 //--------------------------------------------------------------------------------------------
-void update_timers()
+void game_update_timers()
 {
     // ZZ> This function updates the game timers
+
+    static bool_t update_was_paused = bfalse;
+
+    const float fold = 0.90f;
+    const float fnew = 1.0f - fold;
+
+    // check to make sure that the game is running
+    if( !process_running( PROC_PBASE(GProc) ) || GProc->mod_paused ) 
+    {
+        update_was_paused = btrue;
+        return;
+    }
+
+    // if there has been a gap in time (where the game was paused for instance)
+    // make sure we do not count that gap
+    if( update_was_paused )
+    {
+        // just reset the clocks this loop so we can blank out the missing time
+        clock_all = SDL_GetTicks() - clock_stt;
+        clock_lst = clock_all;
+        return;
+    }
+
+    // measure the time since the last call
     clock_lst = clock_all;
     clock_all = SDL_GetTicks() - clock_stt;
-    clock_fps += clock_all - clock_lst;
-    if ( clock_fps >= TICKS_PER_SEC )
+
+    // figure out the update rate
+    ups_clock += clock_all - clock_lst;
+
+    if ( ups_loops > 0 && ups_clock > 0)
     {
-        create_szfpstext( frame_fps );
-        clock_fps = 0;
-        frame_fps = 0;
+        stabilized_ups_sum    = stabilized_ups_sum * fold + fnew * ( float ) ups_loops / (( float ) ups_clock / TICKS_PER_SEC );
+        stabilized_ups_weight = stabilized_ups_weight * fold + fnew;
+    };
+
+    if ( stabilized_ups_weight > 0.5)
+    {
+        stabilized_ups = stabilized_ups_sum / stabilized_ups_weight;
     }
 }
 
@@ -1024,14 +1073,15 @@ int game_do_menu( menu_process_t * mproc )
         // force the menu to be displayed immediately when the game stops
         mproc->base.dtime = 1.0f / (float)cfg.framelimit;
     }
-    else if (  !process_instance_running( PROC_PBASE(GProc) ) )
+    else if ( !process_running( PROC_PBASE(GProc) ) )
     {
         // the menu's frame rate is controlled by a timer
-        mproc->frame_now = SDL_GetTicks();
-        if (mproc->frame_now > mproc->frame_next)
+        mproc->ticks_now = SDL_GetTicks();
+        if (mproc->ticks_now > mproc->ticks_next)
         {
+            // FPS limit
             float  frameskip = (float)TICKS_PER_SEC / (float)cfg.framelimit;
-            mproc->frame_next = mproc->frame_now + frameskip; // FPS limit
+            mproc->ticks_next = mproc->ticks_now + frameskip;
 
             need_menu = btrue;
             mproc->base.dtime = 1.0f / (float)cfg.framelimit;
@@ -1056,8 +1106,11 @@ int game_do_menu( menu_process_t * mproc )
 //--------------------------------------------------------------------------------------------
 int do_ego_proc_begin( ego_process_t * eproc )
 {
-    // Initialize logging first, so that we can use it everywhere.
-    log_init();
+    // initialize the virtual filesystem first
+    vfs_init( eproc->argv0 );
+
+    // Initialize logging next, so that we can use it everywhere.
+    log_init( vfs_resolveWriteFilename("debug/log.txt") );
     log_setLoggingLevel( 2 );
 
     // start initializing the various subsystems
@@ -1065,7 +1118,8 @@ int do_ego_proc_begin( ego_process_t * eproc )
 
     sys_initialize();
     clk_init();
-    vfs_init( eproc->argv0 );
+    _gclock = clk_create("global clock", -1);
+
 
     // read the "setup.txt" file
     if ( !setup_read( "setup.txt" ) )
@@ -1119,10 +1173,13 @@ int do_ego_proc_begin( ego_process_t * eproc )
 
     // initialize the menu process (active)
     menu_process_init( MProc );
-    process_instance_start( PROC_PBASE(MProc) );
+    process_start( PROC_PBASE(MProc) );
 
     // Initialize the process
-    process_instance_start( PROC_PBASE(eproc) );
+    process_start( PROC_PBASE(eproc) );
+
+    // initialize all the profile variables
+    PROFILE_INIT( update_loop );
 
     return 1;
 }
@@ -1132,21 +1189,21 @@ int do_ego_proc_running( ego_process_t * eproc )
 {
     bool_t menu_valid, game_valid;
 
-    if ( !process_instance_validate( PROC_PBASE(eproc) ) ) return -1;
+    if ( !process_validate( PROC_PBASE(eproc) ) ) return -1;
 
     eproc->was_active  = eproc->base.valid;
 
-    menu_valid = process_instance_validate( PROC_PBASE(MProc) );
-    game_valid = process_instance_validate( PROC_PBASE(GProc) );
+    menu_valid = process_validate( PROC_PBASE(MProc) );
+    game_valid = process_validate( PROC_PBASE(GProc) );
     if ( !menu_valid && !game_valid )
     {
-        process_instance_kill( PROC_PBASE(eproc) );
+        process_kill( PROC_PBASE(eproc) );
         return 1;
     }
 
     if ( eproc->base.paused ) return 0;
 
-    if ( process_instance_running( PROC_PBASE(MProc) ) )
+    if ( process_running( PROC_PBASE(MProc) ) )
     {
         // menu settings
         SDL_WM_GrabInput ( SDL_GRAB_OFF );
@@ -1160,13 +1217,13 @@ int do_ego_proc_running( ego_process_t * eproc )
     }
 
     // Clock updates each frame
-    clk_frameStep();
-    eproc->frameDuration = clk_getFrameDuration();
+    clk_frameStep( _gclock );
+    eproc->frameDuration = clk_getFrameDuration( _gclock );
 
     // read the input values
     input_read();
 
-    if ( pickedmodule_ready && !process_instance_running( PROC_PBASE(MProc) ) )
+    if ( pickedmodule_ready && !process_running( PROC_PBASE(MProc) ) )
     {
         // a new module has been picked
 
@@ -1174,14 +1231,14 @@ int do_ego_proc_running( ego_process_t * eproc )
         pickedmodule_ready = bfalse;
 
         // start the game process
-        process_instance_start( PROC_PBASE(GProc) );
+        process_start( PROC_PBASE(GProc) );
     }
 
     // Test the panic button
     if ( SDLKEYDOWN( SDLK_q ) && SDLKEYDOWN( SDLK_LCTRL ) )
     {
         // terminate the program
-        process_instance_kill( PROC_PBASE(eproc) );
+        process_kill( PROC_PBASE(eproc) );
     }
 
     // Check for screenshots
@@ -1205,12 +1262,12 @@ int do_ego_proc_running( ego_process_t * eproc )
     {
         eproc->escape_requested = bfalse;
 
-        if ( process_instance_running( PROC_PBASE(GProc) ) )
+        if ( process_running( PROC_PBASE(GProc) ) )
         {
             GProc->escape_requested = btrue;
         }
 
-        if ( process_instance_running( PROC_PBASE(MProc) ) )
+        if ( process_running( PROC_PBASE(MProc) ) )
         {
             MProc->escape_requested = btrue;
         }
@@ -1229,7 +1286,7 @@ int do_ego_proc_running( ego_process_t * eproc )
 //--------------------------------------------------------------------------------------------
 int do_ego_proc_leaving( ego_process_t * eproc )
 {
-    if ( !process_instance_validate( PROC_PBASE(eproc) )  ) return -1;
+    if ( !process_validate( PROC_PBASE(eproc) )  ) return -1;
 
     // make sure that the
     if ( !GProc->base.terminated )
@@ -1244,7 +1301,7 @@ int do_ego_proc_leaving( ego_process_t * eproc )
 
     if ( GProc->base.terminated && MProc->base.terminated )
     {
-        process_instance_terminate( PROC_PBASE(eproc) );
+        process_terminate( PROC_PBASE(eproc) );
     }
 
     return eproc->base.terminated ? 0 : 1;
@@ -1255,7 +1312,7 @@ int do_ego_proc_run( ego_process_t * eproc, double frameDuration )
 {
     int result = 0, proc_result = 0;
 
-    if ( !process_instance_validate( PROC_PBASE(eproc) )  ) return -1;
+    if ( !process_validate( PROC_PBASE(eproc) )  ) return -1;
     eproc->base.dtime = frameDuration;
 
     if ( !eproc->base.paused ) return 0;
@@ -1302,7 +1359,7 @@ int do_ego_proc_run( ego_process_t * eproc, double frameDuration )
             break;
 
         case proc_finish:
-            process_instance_terminate( PROC_PBASE(eproc) );
+            process_terminate( PROC_PBASE(eproc) );
             break;
     }
 
@@ -1334,26 +1391,26 @@ int do_menu_proc_running( menu_process_t * mproc )
 {
     int menuResult;
 
-    if ( !process_instance_validate( PROC_PBASE(mproc) ) ) return -1;
+    if ( !process_validate( PROC_PBASE(mproc) ) ) return -1;
 
     mproc->was_active = mproc->base.valid;
 
     if ( mproc->base.paused ) return 0;
 
     // play the menu music
-    mnu_draw_background = !process_instance_running( PROC_PBASE(GProc) );
+    mnu_draw_background = !process_running( PROC_PBASE(GProc) );
     menuResult          = game_do_menu( mproc );
 
     switch ( menuResult )
     {
         case MENU_SELECT:
             // go ahead and start the game
-            process_instance_pause( PROC_PBASE(mproc) );
+            process_pause( PROC_PBASE(mproc) );
             break;
 
         case MENU_QUIT:
             // the user selected "quit"
-            process_instance_kill( PROC_PBASE(mproc) );
+            process_kill( PROC_PBASE(mproc) );
             break;
     }
 
@@ -1364,7 +1421,7 @@ int do_menu_proc_running( menu_process_t * mproc )
 
         // We have exited the menu and restarted the game
         GProc->mod_paused = bfalse;
-        process_instance_pause( PROC_PBASE(MProc) );
+        process_pause( PROC_PBASE(MProc) );
     }
 
     return 0;
@@ -1373,7 +1430,7 @@ int do_menu_proc_running( menu_process_t * mproc )
 //--------------------------------------------------------------------------------------------
 int do_menu_proc_leaving( menu_process_t * mproc )
 {
-    if ( !process_instance_validate( PROC_PBASE(mproc) ) ) return -1;
+    if ( !process_validate( PROC_PBASE(mproc) ) ) return -1;
 
     // finish the menu song
     sound_finish_song( 500 );
@@ -1386,7 +1443,7 @@ int do_menu_proc_run( menu_process_t * mproc, double frameDuration )
 {
     int result = 0, proc_result = 0;
 
-    if ( !process_instance_validate( PROC_PBASE(mproc) ) ) return -1;
+    if ( !process_validate( PROC_PBASE(mproc) ) ) return -1;
     mproc->base.dtime = frameDuration;
 
     if ( mproc->base.paused ) return 0;
@@ -1433,7 +1490,7 @@ int do_menu_proc_run( menu_process_t * mproc, double frameDuration )
             break;
 
         case proc_finish:
-            process_instance_terminate( PROC_PBASE(mproc) );
+            process_terminate( PROC_PBASE(mproc) );
             break;
     }
 
@@ -1451,6 +1508,12 @@ int do_game_proc_begin( game_process_t * gproc )
     // initialize math objects
     make_randie();
     make_turntosin();
+
+    // reset the fps counter 
+    fps_clock             = 0;
+    fps_loops             = 0;
+    stabilized_fps_sum    = 0;
+    stabilized_fps_weight = 0;
 
     // Linking system
     log_info( "Initializing module linking... " );
@@ -1472,8 +1535,8 @@ int do_game_proc_begin( game_process_t * gproc )
     if ( !game_begin_module( pickedmodule_name, (Uint32)~0 ) )
     {
         // failure - kill the game process
-        process_instance_kill( PROC_PBASE(gproc) );
-        process_instance_resume( PROC_PBASE(MProc) );
+        process_kill( PROC_PBASE(gproc) );
+        process_resume( PROC_PBASE(MProc) );
     }
 
     // Initialize the process
@@ -1485,61 +1548,79 @@ int do_game_proc_begin( game_process_t * gproc )
 //--------------------------------------------------------------------------------------------
 int do_game_proc_running( game_process_t * gproc )
 {
-    if ( !process_instance_validate( PROC_PBASE(gproc) ) ) return -1;
+    if ( !process_validate( PROC_PBASE(gproc) ) ) return -1;
 
     gproc->was_active  = gproc->base.valid;
 
     if ( gproc->base.paused ) return 0;
 
-    // This is the control loop
-    if ( PNet->on && console_done )
+    PROFILE_BEGIN( update_loop );
     {
-        net_send_message();
-    }
-
-    // Do important things
-    if ( !gproc->mod_paused || PNet->on )
-    {
-        // start the console mode?
-        if ( control_is_pressed( INPUT_DEVICE_KEYBOARD, CONTROL_MESSAGE ) )
+        // This is the control loop
+        if ( PNet->on && console_done )
         {
-            // reset the keyboard buffer
-            SDL_EnableKeyRepeat(20, SDL_DEFAULT_REPEAT_DELAY);
-            console_mode = btrue;
-            console_done = bfalse;
-            keyb.buffer_count = 0;
-            keyb.buffer[0] = '\0';
+            net_send_message();
         }
 
-        check_stats();
-        set_local_latches();
-        update_timers();
-        check_passage_music();
+        // update all the timers
+        game_update_timers();
 
-        // NETWORK PORT
-        listen_for_packets();
-        if ( !PNet->waitingforplayers )
-        {
-            cl_talkToHost();
-            update_game();
-        }
-        else
+        // do the updates
+        if ( gproc->mod_paused && !PNet->on )
         {
             clock_wld = clock_all;
         }
+        else
+        {
+            // start the console mode?
+            if ( control_is_pressed( INPUT_DEVICE_KEYBOARD, CONTROL_MESSAGE ) )
+            {
+                // reset the keyboard buffer
+                SDL_EnableKeyRepeat(20, SDL_DEFAULT_REPEAT_DELAY);
+                console_mode = btrue;
+                console_done = bfalse;
+                keyb.buffer_count = 0;
+                keyb.buffer[0] = '\0';
+            }
+
+            // NETWORK PORT
+            listen_for_packets();
+
+            gproc->ups_ticks_now = SDL_GetTicks();
+            //if (gproc->ups_ticks_now > gproc->ups_ticks_next)
+            {
+                // UPS limit
+                gproc->ups_ticks_next = gproc->ups_ticks_now + UPDATE_SKIP;
+
+                check_stats();
+                set_local_latches();
+                check_passage_music();
+
+                if ( !PNet->waitingforplayers )
+                {
+                    cl_talkToHost();
+                    update_game();
+                }
+                else
+                {
+                    clock_wld = clock_all;
+                }
+            }
+        }
     }
-    else
-    {
-        update_timers();
-        clock_wld = clock_all;
-    }
+    PROFILE_END2( update_loop );
+
+    // estimate how much time the main loop is taking per second
+    est_update_time = 0.9 * est_update_time + 0.1 * PROFILE_QUERY(update_loop);
+    est_max_ups     = 0.9 * est_max_ups     + 0.1 * (1.0f / PROFILE_QUERY(update_loop) );
 
     // Do the display stuff
-    gproc->frame_now = SDL_GetTicks();
-    if (gproc->frame_now > gproc->frame_next)
+    gproc->fps_ticks_now = SDL_GetTicks();
+    if (gproc->fps_ticks_now > gproc->fps_ticks_next)
     {
+        // FPS limit
         float  frameskip = (float)TICKS_PER_SEC / (float)cfg.framelimit;
-        gproc->frame_next = gproc->frame_now + frameskip; // FPS limit
+        gproc->fps_ticks_next = gproc->fps_ticks_now + frameskip;
 
         camera_move(PCamera, PMesh);
         draw_main();
@@ -1580,13 +1661,19 @@ int do_game_proc_running( game_process_t * gproc )
 //--------------------------------------------------------------------------------------------
 int do_game_proc_leaving( game_process_t * gproc )
 {
-    if ( !process_instance_validate( PROC_PBASE(gproc) ) ) return -1;
+    if ( !process_validate( PROC_PBASE(gproc) ) ) return -1;
 
     // get rid of all module data
     game_quit_module();
 
     // resume the menu
-    process_instance_resume( PROC_PBASE(MProc) );
+    process_resume( PROC_PBASE(MProc) );
+
+    // reset the fps counter 
+    fps_clock             = 0;
+    fps_loops             = 0;
+    stabilized_fps_sum    = 0;
+    stabilized_fps_weight = 0;
 
     return 1;
 }
@@ -1596,7 +1683,7 @@ int do_game_proc_run( game_process_t * gproc, double frameDuration )
 {
     int result = 0, proc_result = 0;
 
-    if ( !process_instance_validate( PROC_PBASE(gproc) ) ) return -1;
+    if ( !process_validate( PROC_PBASE(gproc) ) ) return -1;
     gproc->base.dtime = frameDuration;
 
     if ( gproc->base.paused ) return 0;
@@ -1643,8 +1730,8 @@ int do_game_proc_run( game_process_t * gproc, double frameDuration )
             break;
 
         case proc_finish:
-            process_instance_terminate( PROC_PBASE(gproc) );
-            process_instance_resume   ( PROC_PBASE(MProc) );
+            process_terminate( PROC_PBASE(gproc) );
+            process_resume   ( PROC_PBASE(MProc) );
             break;
     }
 
@@ -1657,8 +1744,7 @@ int SDL_main( int argc, char **argv )
 {
     // ZZ> This is where the program starts and all the high level stuff happens
 
-    int   max_rate, result = 0;
-    float frameskip;
+    int result = 0;
 
     // initialize the process
     ego_process_init( EProc, argc, argv );
@@ -1668,16 +1754,17 @@ int SDL_main( int argc, char **argv )
 
     // run the processes
     request_clear_screen();
-    max_rate  = MAX(cfg.framelimit, UPDATE_SKIP) * 10;
-    frameskip = (float)TICKS_PER_SEC / (float)max_rate;
     while ( !EProc->base.killme && !EProc->base.terminated )
     {
+        // let the OS breathe. It may delay as long as 10ms
+        //SDL_Delay(1);
+
         // put a throttle on the ego process
-        EProc->frame_now = SDL_GetTicks();
-        if (EProc->frame_now < EProc->frame_next) continue;
+        EProc->ticks_now = SDL_GetTicks();
+        if (EProc->ticks_now < EProc->ticks_next) continue;
 
         // update the timer
-        EProc->frame_next = EProc->frame_now + frameskip;
+        EProc->ticks_next = EProc->ticks_now + 10;
 
         // clear the screen if needed
         do_clear_screen();
@@ -1686,14 +1773,11 @@ int SDL_main( int argc, char **argv )
 
         // flip the graphics page if need be
         do_flip_pages();
-
-        // let the OS breathe. It may delay as long as 10ms
-        // SDL_Delay(1);
     }
 
     // terminate the game and menu processes
-    process_instance_kill( PROC_PBASE(GProc) );
-    process_instance_kill( PROC_PBASE(MProc) );
+    process_kill( PROC_PBASE(GProc) );
+    process_kill( PROC_PBASE(MProc) );
     while ( !EProc->base.terminated )
     {
         result = do_ego_proc_leaving( EProc );
@@ -1736,6 +1820,7 @@ void memory_cleanUp(void)
     }
 
     // shut down the clock services
+    clk_destroy( &_gclock );
     clk_shutdown();
 
     log_message("Success!\n");
@@ -1870,7 +1955,7 @@ Uint16 check_target( Uint16 ichr_src, Uint16 ichr_test, TARGET_TYPE target_type,
 
 
 //--------------------------------------------------------------------------------------------
-Uint16 get_target( Uint16 ichr_src, Uint32 max_dist, TARGET_TYPE target_type, bool_t target_items, bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz  )
+Uint16 chr_get_target( Uint16 ichr_src, Uint32 max_dist, TARGET_TYPE target_type, bool_t target_items, bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz  )
 {
     // ZF> This is the new improved AI targeting system. Also includes distance in the Z direction.
     //    If max_dist is 0 then it searches without a max limit.
@@ -1902,9 +1987,9 @@ Uint16 get_target( Uint16 ichr_src, Uint32 max_dist, TARGET_TYPE target_type, bo
 
         if( VALID_CHR(psrc->ai.target) )
         {
-            if( check_target( ichr_src, psrc->ai.target, target_type, target_items, target_dead, target_idsz, exclude_idsz) )
+            if( check_target( ichr_src, psrc->ai.searchlast, target_type, target_items, target_dead, target_idsz, exclude_idsz) )
             {
-                retval = psrc->ai.target;
+                retval = psrc->ai.searchlast;
             }
         }
 
@@ -1947,7 +2032,7 @@ Uint16 get_target( Uint16 ichr_src, Uint32 max_dist, TARGET_TYPE target_type, bo
             los_info.y1 = ptst->pos.y;
             los_info.z1 = ptst->pos.z + MAX(1, ptst->bumpheight);
 
-            if ( !do_line_of_sight( &los_info ) )
+            //if ( !do_line_of_sight( &los_info ) )
             {
                 best_target = ichr_test;
                 best_dist2  = dist2;
@@ -1957,6 +2042,9 @@ Uint16 get_target( Uint16 ichr_src, Uint32 max_dist, TARGET_TYPE target_type, bo
 
     // make sure the target is valid
     if ( INVALID_CHR(best_target) ) best_target = MAX_CHR;
+
+    // remember the value of this search
+    psrc->ai.searchlast = best_target;
 
     // set the ai target
     if ( MAX_CHR != best_target )
@@ -4615,7 +4703,7 @@ void tilt_characters_to_terrain()
 }
 
 //--------------------------------------------------------------------------------------------
-void load_all_objects_import_dir( const char * dirname )
+void import_dir_objects( const char * dirname )
 {
     STRING newloadname;
     STRING filename;
@@ -4664,8 +4752,8 @@ void load_all_objects_import()
     import_data.player = -1;
     import_data.object = -100;
 
-    load_all_objects_import_dir( "import" );
-    load_all_objects_import_dir( "remote" );
+    import_dir_objects( "import" );
+    import_dir_objects( "remote" );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4715,7 +4803,7 @@ void game_load_all_objects( const char *modname )
     // load the objects from the module's directory
     game_load_module_objects( modname );
 
-    log_madused( "slotused.txt" );
+    log_madused( "debug" SLASH_STR "slotused.txt" );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5543,14 +5631,14 @@ bool_t game_begin_menu( menu_process_t * mproc, which_menu_t which )
 {
     if ( NULL == mproc ) return bfalse;
 
-    if ( !process_instance_running( PROC_PBASE(mproc) ) )
+    if ( !process_running( PROC_PBASE(mproc) ) )
     {
         GProc->menu_depth = mnu_get_menu_depth();
     }
 
     if ( mnu_begin_menu( which ) )
     {
-        process_instance_start( PROC_PBASE(mproc) );
+        process_start( PROC_PBASE(mproc) );
     }
 
     return btrue;
@@ -5563,7 +5651,7 @@ void game_end_menu( menu_process_t * mproc )
 
     if ( mnu_get_menu_depth() <= GProc->menu_depth )
     {
-        process_instance_resume( PROC_PBASE(MProc) );
+        process_resume( PROC_PBASE(MProc) );
         GProc->menu_depth = -1;
     }
 }
@@ -6302,18 +6390,18 @@ bool_t game_choose_module( int imod, int seed )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-process_instance_t * process_instance_init( process_instance_t * proc )
+process_t * process_init( process_t * proc )
 {
     if ( NULL == proc ) return proc;
 
-    memset( proc, 0, sizeof(process_instance_t) );
+    memset( proc, 0, sizeof(process_t) );
 
     proc->terminated = btrue;
 
     return proc;
 }
 
-bool_t process_instance_start( process_instance_t * proc )
+bool_t process_start( process_t * proc )
 {
     if ( NULL == proc ) return bfalse;
 
@@ -6338,10 +6426,10 @@ bool_t process_instance_start( process_instance_t * proc )
     return btrue;
 }
 
-bool_t process_instance_kill( process_instance_t * proc )
+bool_t process_kill( process_t * proc )
 {
     if ( NULL == proc ) return bfalse;
-    if ( !process_instance_validate(proc) ) return btrue;
+    if ( !process_validate(proc) ) return btrue;
 
     // turn the process back on with an order to commit suicide
     proc->paused = bfalse;
@@ -6350,19 +6438,19 @@ bool_t process_instance_kill( process_instance_t * proc )
     return btrue;
 }
 
-bool_t process_instance_validate( process_instance_t * proc )
+bool_t process_validate( process_t * proc )
 {
     if (NULL == proc) return bfalse;
 
     if ( !proc->valid || proc->terminated )
     {
-        process_instance_terminate( proc );
+        process_terminate( proc );
     }
 
     return proc->valid;
 }
 
-bool_t process_instance_terminate( process_instance_t * proc )
+bool_t process_terminate( process_t * proc )
 {
     if (NULL == proc) return bfalse;
 
@@ -6373,11 +6461,11 @@ bool_t process_instance_terminate( process_instance_t * proc )
     return btrue;
 }
 
-bool_t process_instance_pause( process_instance_t * proc )
+bool_t process_pause( process_t * proc )
 {
     bool_t old_value;
 
-    if ( !process_instance_validate(proc) ) return bfalse;
+    if ( !process_validate(proc) ) return bfalse;
 
     old_value    = proc->paused;
     proc->paused = btrue;
@@ -6385,11 +6473,11 @@ bool_t process_instance_pause( process_instance_t * proc )
     return old_value != proc->paused;
 }
 
-bool_t process_instance_resume( process_instance_t * proc )
+bool_t process_resume( process_t * proc )
 {
     bool_t old_value;
 
-    if ( !process_instance_validate(proc) ) return bfalse;
+    if ( !process_validate(proc) ) return bfalse;
 
     old_value    = proc->paused;
     proc->paused = bfalse;
@@ -6397,9 +6485,9 @@ bool_t process_instance_resume( process_instance_t * proc )
     return old_value != proc->paused;
 }
 
-bool_t process_instance_running( process_instance_t * proc )
+bool_t process_running( process_t * proc )
 {
-    if ( !process_instance_validate(proc) ) return bfalse;
+    if ( !process_validate(proc) ) return bfalse;
 
     return !proc->paused;
 }
@@ -6411,7 +6499,7 @@ ego_process_t * ego_process_init( ego_process_t * eproc, int argc, char **argv )
 
     memset( eproc, 0, sizeof(ego_process_t) );
 
-    process_instance_init( PROC_PBASE(eproc) );
+    process_init( PROC_PBASE(eproc) );
 
     eproc->argv0 = (argc > 0) ? argv[0] : NULL;
 
@@ -6425,7 +6513,7 @@ menu_process_t * menu_process_init( menu_process_t * mproc )
 
     memset( mproc, 0, sizeof(menu_process_t) );
 
-    process_instance_init( PROC_PBASE(mproc) );
+    process_init( PROC_PBASE(mproc) );
 
     return mproc;
 }
@@ -6437,7 +6525,7 @@ game_process_t * game_process_init( game_process_t * gproc )
 
     memset( gproc, 0, sizeof(game_process_t) );
 
-    process_instance_init( PROC_PBASE(gproc) );
+    process_init( PROC_PBASE(gproc) );
 
     gproc->menu_depth = -1;
     gproc->pause_key_ready = btrue;
@@ -6678,7 +6766,8 @@ void do_game_hud()
         GL_DEBUG(glColor4f)( 1, 1, 1, 1 );
         if ( fpson )
         {
-            y = draw_string( 0, y, szfpstext );
+            y = draw_string( 0, y, "%2.3f FPS, %2.3f UPS", stabilized_fps, stabilized_ups );
+            y = draw_string( 0, y, "estimated max FPS %2.3f", est_max_fps );
         }
 
         y = draw_string( 0, y, "Menu time %f", MProc->base.dtime );

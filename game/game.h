@@ -15,7 +15,7 @@
 //*    General Public License for more details.
 //*
 //*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+//*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
 
@@ -82,12 +82,12 @@ struct s_process_instance
     process_state_t state;
     double          dtime;
 };
-typedef struct s_process_instance process_instance_t;
+typedef struct s_process_instance process_t;
 
 //--------------------------------------------------------------------------------------------
 struct s_ego_process
 {
-    process_instance_t base;
+    process_t base;
 
     double frameDuration;
     int    menuResult;
@@ -95,7 +95,7 @@ struct s_ego_process
     bool_t was_active;
     bool_t escape_requested, escape_latch;
 
-    int    frame_next, frame_now;
+    int    ticks_next, ticks_now;
 
     char * argv0;
 };
@@ -106,7 +106,7 @@ extern ego_process_t * EProc;
 //--------------------------------------------------------------------------------------------
 struct s_game_process
 {
-    process_instance_t base;
+    process_t base;
 
     double frameDuration;
     bool_t mod_paused, pause_key_ready;
@@ -115,7 +115,8 @@ struct s_game_process
     int    menu_depth;
     bool_t escape_requested, escape_latch;
 
-    int    frame_next, frame_now;
+    int    fps_ticks_next, fps_ticks_now;
+    int    ups_ticks_next, ups_ticks_now;
 
 };
 typedef struct s_game_process game_process_t;
@@ -125,12 +126,12 @@ extern game_process_t * GProc;
 //--------------------------------------------------------------------------------------------
 struct s_menu_process
 {
-    process_instance_t base;
+    process_t base;
 
     bool_t was_active;
     bool_t escape_requested, escape_latch;
 
-    int    frame_next, frame_now;
+    int    ticks_next, ticks_now;
 };
 typedef struct s_menu_process menu_process_t;
 
@@ -347,7 +348,7 @@ void set_one_player_latch( Uint16 player );
 int  add_player( Uint16 character, Uint16 player, Uint32 device );
 
 // AI targeting
-Uint16 get_target( Uint16 character, Uint32 maxdistance, TARGET_TYPE team, bool_t targetitems, bool_t targetdead, IDSZ idsz, bool_t excludeidsz);
+Uint16 chr_get_target( Uint16 character, Uint32 maxdistance, TARGET_TYPE team, bool_t targetitems, bool_t targetdead, IDSZ idsz, bool_t excludeidsz);
 Uint16 get_particle_target( float pos_x, float pos_y, float pos_z, Uint16 facing,
                             Uint16 particletype, Uint8 team, Uint16 donttarget,
                             Uint16 oldtarget );
@@ -372,14 +373,14 @@ bool_t make_water( water_instance_t * pinst, struct s_wawalite_water * pdata );
 
 bool_t game_choose_module( int imod, int seed );
 
-process_instance_t * process_instance_init( process_instance_t * proc );
-bool_t               process_instance_start( process_instance_t * proc );
-bool_t               process_instance_kill( process_instance_t * proc );
-bool_t               process_instance_validate( process_instance_t * proc );
-bool_t               process_instance_terminate( process_instance_t * proc );
-bool_t               process_instance_pause( process_instance_t * proc );
-bool_t               process_instance_resume( process_instance_t * proc );
-bool_t               process_instance_running( process_instance_t * proc );
+process_t * process_init( process_t * proc );
+bool_t      process_start( process_t * proc );
+bool_t      process_kill( process_t * proc );
+bool_t      process_validate( process_t * proc );
+bool_t      process_terminate( process_t * proc );
+bool_t      process_pause( process_t * proc );
+bool_t      process_resume( process_t * proc );
+bool_t      process_running( process_t * proc );
 
 ego_process_t      * ego_process_init ( ego_process_t  * eproc, int argc, char **argv );
 menu_process_t     * menu_process_init( menu_process_t * mproc );

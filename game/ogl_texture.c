@@ -13,7 +13,7 @@
 //*    General Public License for more details.
 //*
 //*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+//*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
 
@@ -543,10 +543,12 @@ void oglx_texture_Bind( oglx_texture *texture )
         };
     }
 
-    if ( NULL != texture && !texture->base_valid )
-    {
-        oglx_grab_texture_state( target, 0, texture );
-    }
+    // use the following command to grab every possible texture attribute in OpenGL v1.4 for
+    // this texture. Useful for debugging
+    //if ( NULL != texture && !texture->base_valid )
+    //{
+    //    oglx_grab_texture_state( target, 0, texture );
+    //}
 }
 
 //---------------------------------------------------------------------------------------------

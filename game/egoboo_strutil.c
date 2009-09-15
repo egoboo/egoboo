@@ -13,7 +13,7 @@
 //*    General Public License for more details.
 //*
 //*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+//*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
 
@@ -323,7 +323,12 @@ void str_add_linebreaks( char * text, size_t text_len, size_t line_len )
     {
         // scan for the next whitespace
         text = strpbrk(text, " \n");
-        if ( '\0' == text )
+        
+        if( text >= text_end )
+        {
+            break;
+        }
+        else if ( '\0' == text )
         {
             // reached the end of the string
             break;

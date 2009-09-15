@@ -13,7 +13,7 @@
 //*    General Public License for more details.
 //*
 //*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+//*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
 
@@ -36,6 +36,8 @@ static FILE *logFile = NULL;
 static char  logBuffer[MAX_LOG_MESSAGE];
 static int   logLevel = 1;
 
+static int _atexit_registered = 0;
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 static void writeLogMessage( const char *prefix, const char *format, va_list args )
@@ -56,12 +58,16 @@ static void writeLogMessage( const char *prefix, const char *format, va_list arg
 }
 
 //--------------------------------------------------------------------------------------------
-void log_init()
+void log_init( const char * logname)
 {
-    if ( logFile == NULL )
+    if ( NULL == logFile )
     {
-        logFile = fopen( "log.txt", "wt" );
-        atexit( log_shutdown );
+        logFile = fopen( logname, "wt" );
+        if( NULL != logFile && !_atexit_registered )
+        {
+            _atexit_registered = 1;
+            atexit( log_shutdown );
+        }
     }
 }
 
