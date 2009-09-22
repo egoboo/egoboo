@@ -332,24 +332,23 @@ void fput_damage_type( vfs_FILE* filewrite, const char* text, Uint8 damagetype )
     // ZZ> This function kinda mimics vfs_printf for the output of
     //    SLASH CRUSH POKE HOLY EVIL FIRE ICE ZAP statements
     vfs_printf( filewrite, "%s", text );
-    if ( damagetype == DAMAGE_SLASH )
-        vfs_printf( filewrite, "SLASH\n" );
-    if ( damagetype == DAMAGE_CRUSH )
-        vfs_printf( filewrite, "CRUSH\n" );
-    if ( damagetype == DAMAGE_POKE )
-        vfs_printf( filewrite, "POKE\n" );
-    if ( damagetype == DAMAGE_HOLY )
-        vfs_printf( filewrite, "HOLY\n" );
-    if ( damagetype == DAMAGE_EVIL )
-        vfs_printf( filewrite, "EVIL\n" );
-    if ( damagetype == DAMAGE_FIRE )
-        vfs_printf( filewrite, "FIRE\n" );
-    if ( damagetype == DAMAGE_ICE )
-        vfs_printf( filewrite, "ICE\n" );
-    if ( damagetype == DAMAGE_ZAP )
-        vfs_printf( filewrite, "ZAP\n" );
-    if ( damagetype == DAMAGE_NONE )
-        vfs_printf( filewrite, "NONE\n" );
+
+    switch( damagetype )
+    {
+        case DAMAGE_SLASH: vfs_printf( filewrite, "SLASH" ); break;
+        case DAMAGE_CRUSH: vfs_printf( filewrite, "CRUSH" ); break;
+        case DAMAGE_POKE : vfs_printf( filewrite, "POKE"  ); break;
+        case DAMAGE_HOLY : vfs_printf( filewrite, "HOLY"  ); break;
+        case DAMAGE_EVIL : vfs_printf( filewrite, "EVIL"  ); break;
+        case DAMAGE_FIRE : vfs_printf( filewrite, "FIRE"  ); break;
+        case DAMAGE_ICE  : vfs_printf( filewrite, "ICE"   ); break;
+        case DAMAGE_ZAP  : vfs_printf( filewrite, "ZAP"   ); break;
+
+        default:
+        case DAMAGE_NONE : vfs_printf( filewrite, "NONE"  ); break;
+    }
+
+    vfs_printf( filewrite, "\n" );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -387,12 +386,15 @@ void fput_gender( vfs_FILE* filewrite, const char* text, Uint8 gender )
     //    MALE FEMALE OTHER statements
 
     vfs_printf( filewrite, "%s", text );
-    if ( gender == GENDER_MALE )
-        vfs_printf( filewrite, "MALE\n" );
-    if ( gender == GENDER_FEMALE )
-        vfs_printf( filewrite, "FEMALE\n" );
-    if ( gender == GENDER_OTHER)
-        vfs_printf( filewrite, "OTHER\n" );
+
+    switch( gender )
+    {
+        case GENDER_MALE  : vfs_printf( filewrite, "MALE\n"   ); break;
+        case GENDER_FEMALE: vfs_printf( filewrite, "FEMALE\n" ); break;
+        default:
+        case GENDER_OTHER : vfs_printf( filewrite, "OTHER\n"  ); break;
+    }
+
 }
 
 //--------------------------------------------------------------------------------------------
@@ -437,6 +439,16 @@ void fput_string_under( vfs_FILE* filewrite, const char* text, const char* usena
     vfs_printf( filewrite, "\n" );
 }
 
+//--------------------------------------------------------------------------------------------
+void fput_expansion( vfs_FILE* filewrite, const char* text, IDSZ idsz, int value )
+{
+    // ZZ> This function mimics vfs_printf in spitting out
+    //    damage/stat pairs
+
+    vfs_printf( filewrite, "%s: [%s] %d\n", text, undo_idsz(idsz), value );
+}
+
+//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 bool_t fget_pair( vfs_FILE* fileread )
 {
@@ -936,7 +948,7 @@ int get_skin( const char *filename )
     if ( fileread )
     {
         skin = fget_next_int( fileread );
-        skin %= MAXSKIN;
+        skin %= MAX_SKIN;
 
         vfs_close( fileread );
     }

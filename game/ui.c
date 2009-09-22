@@ -408,8 +408,8 @@ void ui_drawImage( ui_id_t id, oglx_texture *img, float vx, float vy, float vwid
             vh = vheight;
         }
 
-        tx = ( float ) oglx_texture_GetImageWidth( img )  / ( float ) oglx_texture_GetTextureWidth( img );
-        ty = ( float ) oglx_texture_GetImageHeight( img ) / ( float ) oglx_texture_GetTextureHeight( img );
+        tx = (float) oglx_texture_GetImageWidth( img )  / (float) oglx_texture_GetTextureWidth( img );
+        ty = (float) oglx_texture_GetImageHeight( img ) / (float) oglx_texture_GetTextureHeight( img );
 
         // convert the virtual coordinates to screen coordinates
         ui_virtual_to_screen( vx, vy, &x1, &y1 );

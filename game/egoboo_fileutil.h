@@ -67,6 +67,7 @@ void fput_action( vfs_FILE* filewrite, const char* text, Uint8 action );
 void fput_gender( vfs_FILE* filewrite, const char* text, Uint8 gender );
 void fput_pair( vfs_FILE* filewrite, const char* text, IPair val );
 void fput_string_under( vfs_FILE* filewrite, const char* text, const char* usename );
+void fput_expansion( vfs_FILE* filewrite, const char* text, IDSZ idsz, int value );
 
 bool_t fcopy_line(vfs_FILE * fileread, vfs_FILE * filewrite);
 

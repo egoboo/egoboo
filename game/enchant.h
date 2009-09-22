@@ -26,6 +26,8 @@
 #include "egoboo_typedef.h"
 #include "egoboo.h"
 
+#include "eve_file.h"
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -33,103 +35,8 @@
 #define LEAVEFIRST              1
 #define LEAVENONE               2
 
-// missile treatments
-#define MISNORMAL               0                  // Treat missiles normally
-#define MISDEFLECT              1                  // Deflect incoming missiles
-#define MISREFLECT              2                  // Reflect them back!
-
-// Different set values for enchants
-typedef enum enchant_set
-{
-    SETDAMAGETYPE = 0,      // Type of damage dealt
-    SETNUMBEROFJUMPS,       // Max number of jumps
-    SETLIFEBARCOLOR,        // Color of life bar
-    SETMANABARCOLOR,        // Color of mana bar
-    SETSLASHMODIFIER,      // Damage modifiers
-    SETCRUSHMODIFIER,
-    SETPOKEMODIFIER,
-    SETHOLYMODIFIER,
-    SETEVILMODIFIER,
-    SETFIREMODIFIER,
-    SETICEMODIFIER,
-    SETZAPMODIFIER,
-    SETFLASHINGAND,             // Flash rate
-    SETLIGHTBLEND,              // Transparency
-    SETALPHABLEND,              // Alpha
-    SETSHEEN,                   // Shinyness
-    SETFLYTOHEIGHT,             // Fly to this height
-    SETWALKONWATER,             // Walk on water?
-    SETCANSEEINVISIBLE,         // Can it see invisible?
-    SETMISSILETREATMENT,        // How to treat missiles
-    SETCOSTFOREACHMISSILE,      // Cost for each missile treat
-    SETMORPH,                   // Morph character?
-    SETCHANNEL,                 // Can channel life as mana?
-    MAX_ENCHANT_SET
-} enum_enchant_set;
-
-//--------------------------------------------------------------------------------------------
-typedef enum enchant_add
-{
-    ADDJUMPPOWER = 0,
-    ADDBUMPDAMPEN,
-    ADDBOUNCINESS,
-    ADDDAMAGE,
-    ADDSIZE,
-    ADDACCEL,
-    ADDRED,                        // Red shift
-    ADDGRN,                        // Green shift
-    ADDBLU,                        // Blue shift
-    ADDDEFENSE,                    // Defence adjustments
-    ADDMANA,
-    ADDLIFE,
-    ADDSTRENGTH,
-    ADDWISDOM,
-    ADDINTELLIGENCE,
-    ADDDEXTERITY,
-    MAX_ENCHANT_ADD
-} enum_enchant_add;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 // Enchantment template
-
 #define MAX_EVE                          MAX_PROFILE    // One enchant type per model
-
-struct s_eve
-{
-    EGO_PROFILE_STUFF
-
-    bool_t  override;                    // Override other enchants?
-    bool_t  removeoverridden;            // Remove other enchants?
-    bool_t  retarget;                    // Pick a weapon?
-    bool_t  killonend;                   // Kill the target on end?
-    bool_t  poofonend;                   // Spawn a poof on end?
-    bool_t  endifcantpay;                // End on out of mana
-    bool_t  stayifnoowner;               // Stay if owner has died?
-    Sint16  time;                        // Time in seconds
-    Sint32  endmessage;                  // Message for end -1 for none
-    Sint16  ownermana;                   // Boost values
-    Sint16  ownerlife;
-    Sint16  targetmana;
-    Sint16  targetlife;
-    Uint8   dontdamagetype;              // Don't work if ...
-    Uint8   onlydamagetype;              // Only work if ...
-    IDSZ    removedbyidsz;               // By particle or [NONE]
-    Uint16  contspawntime;               // Spawn timer
-    Uint8   contspawnamount;             // Spawn amount
-    Uint16  contspawnfacingadd;          // Spawn in circle
-    Uint16  contspawnpip;                // Spawn type ( local )
-    Sint16  endsoundindex;               // Sound on end (-1 for none)
-    Uint8   overlay;                     // Spawn an overlay?
-    Uint16  seekurse;                    // Allow target to see kurses
-    bool_t  stayifdead;                  // Stay if target has died?
-
-    bool_t  setyesno[MAX_ENCHANT_SET];    // Set this value?
-    Uint8   setvalue[MAX_ENCHANT_SET];    // Value to use
-    Sint32  addvalue[MAX_ENCHANT_ADD];    // The values to add
-
-};
-typedef struct s_eve eve_t;
 
 DEFINE_STACK_EXTERN(eve_t, EveStack, MAX_EVE );
 
@@ -150,13 +57,15 @@ struct s_enc
     Sint16  time;                    // Time before end
     Uint16  spawntime;               // Time before spawn
 
-    Uint16  eve;                     // The type
+    Uint16  iprofile;                // The object  profile index that spawned this enchant
+    Uint16  eve;                     // The enchant profile index
 
     Uint16  target;                  // Who it enchants
     Uint16  owner;                   // Who cast the enchant
     Uint16  spawner;                 // The spellbook character
-    Uint16  spawnermodel;             // The spellbook character's CapList index
+    Uint16  spawnermodel;            // The spellbook character's CapList index
     Uint16  overlay;                 // The overlay character
+
     Sint16  ownermana;               // Boost values
     Sint16  ownerlife;
     Sint16  targetmana;
@@ -189,9 +98,19 @@ void set_enchant_value( Uint16 enchantindex, Uint8 valueindex,
                         Uint16 enchanttype );
 void add_enchant_value( Uint16 enchantindex, Uint8 valueindex,
                         Uint16 enchanttype );
-Uint16 spawn_enchant( Uint16 owner, Uint16 target,
-                      Uint16 spawner, Uint16 enchantindex, Uint16 modeloptional );
-bool_t load_one_enchant_profile( const char* szLoadName, Uint16 profile );
+Uint16 spawn_one_enchant( Uint16 owner, Uint16 target,
+                      Uint16 spawner, Uint16 enc_override, Uint16 modeloptional );
+Uint16 load_one_enchant_profile( const char* szLoadName, Uint16 profile );
 void unset_enchant_value( Uint16 enchantindex, Uint8 valueindex );
 void remove_enchant_value( Uint16 enchantindex, Uint8 valueindex );
 void disenchant_character( Uint16 cnt );
+
+Uint16         enc_get_iowner( Uint16 ienc );
+Uint16         enc_get_ieve  ( Uint16 ienc );
+
+struct s_chr * enc_get_powner( Uint16 ienc );
+eve_t        * enc_get_peve  ( Uint16 ienc );
+
+
+IDSZ   enc_get_idszremove( Uint16 ienc );
+bool_t enc_is_removed( Uint16 ienc, Uint16 test_profile );

@@ -25,10 +25,12 @@
 #include "script_compile.h"
 #include "script_functions.h"
 
-#include "log.h"
-#include "camera.h"
 #include "char.h"
 #include "mad.h"
+#include "profile.h"
+
+#include "log.h"
+#include "camera.h"
 #include "game.h"
 
 #include "egoboo_vfs.h"
@@ -79,21 +81,21 @@ void let_character_think( Uint16 character )
     // if ( !pchr->alive ) return;
 
     // debug a certain script
-    // debug_scripts = ( pself->index == 385 && ChrList.lst[pself->index].model == 76 );
+    // debug_scripts = ( pself->index == 385 && pchr->iprofile == 76 );
 
     // target_old is set to the target every time the script is run
     pself->target_old = pself->target;
 
     // Make life easier
     script_error_classname = "UNKNOWN";
-    script_error_model     = pchr->model;
+    script_error_model     = pchr->iprofile;
     script_error_index     = (Uint16)(~0);
     script_error_name      = "UNKNOWN";
     if ( script_error_model < MAX_PROFILE )
     {
         script_error_classname = CapList[ script_error_model ].classname;
 
-        script_error_index = MadList[script_error_model].ai;
+        script_error_index = ProList.lst[script_error_model].iai;
         if ( script_error_index < MAX_AI )
         {
             script_error_name = AisStorage.lst[script_error_index].szName;
@@ -139,15 +141,17 @@ void let_character_think( Uint16 character )
     }
 
     // Clear the button latches
-    if ( !ChrList.lst[pself->index].isplayer )
+    if ( !pchr->isplayer )
     {
-        ChrList.lst[pself->index].latchbutton = 0;
+        pchr->latchbutton = 0;
     }
 
     // Reset the target if it can't be seen
-    if ( !ChrList.lst[pself->index].canseeinvisible && ChrList.lst[pself->index].alive )
+    if ( !pchr->canseeinvisible && pchr->alive )
     {
-        if ( FF_MUL( ChrList.lst[pself->target].inst.alpha, ChrList.lst[pself->target].inst.max_light ) <= INVISIBLE )
+        chr_instance_t * pinst = chr_get_pinstance(pself->target);
+
+        if ( NULL == pinst || FF_MUL( pinst->alpha, pinst->max_light ) <= INVISIBLE )
         {
             pself->target = pself->index;
         }
@@ -190,34 +194,34 @@ void let_character_think( Uint16 character )
     }
 
     // Set latches
-    if ( !ChrList.lst[pself->index].isplayer )
+    if ( !pchr->isplayer )
     {
         float latch2;
-        if ( ChrList.lst[pself->index].ismount && MAX_CHR != ChrList.lst[pself->index].holdingwhich[SLOT_LEFT] && ChrList.lst[ChrList.lst[pself->index].holdingwhich[SLOT_LEFT]].on )
+        if ( pchr->ismount && MAX_CHR != pchr->holdingwhich[SLOT_LEFT] && ChrList.lst[pchr->holdingwhich[SLOT_LEFT]].on )
         {
             // Mount
-            ChrList.lst[pself->index].latchx = ChrList.lst[ChrList.lst[pself->index].holdingwhich[SLOT_LEFT]].latchx;
-            ChrList.lst[pself->index].latchy = ChrList.lst[ChrList.lst[pself->index].holdingwhich[SLOT_LEFT]].latchy;
+            pchr->latchx = ChrList.lst[pchr->holdingwhich[SLOT_LEFT]].latchx;
+            pchr->latchy = ChrList.lst[pchr->holdingwhich[SLOT_LEFT]].latchy;
         }
         else if ( pself->wp_tail != pself->wp_head )
         {
             // Normal AI
-            ChrList.lst[pself->index].latchx = ( pself->wp_pos_x[pself->wp_tail] - ChrList.lst[pself->index].pos.x ) / (TILE_ISIZE << 2);
-            ChrList.lst[pself->index].latchy = ( pself->wp_pos_y[pself->wp_tail] - ChrList.lst[pself->index].pos.y ) / (TILE_ISIZE << 2);
+            pchr->latchx = ( pself->wp_pos_x[pself->wp_tail] - pchr->pos.x ) / (TILE_ISIZE << 2);
+            pchr->latchy = ( pself->wp_pos_y[pself->wp_tail] - pchr->pos.y ) / (TILE_ISIZE << 2);
         }
         else
         {
             // AI, but no valid waypoints
-            ChrList.lst[pself->index].latchx = 0;
-            ChrList.lst[pself->index].latchy = 0;
+            pchr->latchx = 0;
+            pchr->latchy = 0;
         }
 
-        latch2 = ChrList.lst[pself->index].latchx * ChrList.lst[pself->index].latchx + ChrList.lst[pself->index].latchy * ChrList.lst[pself->index].latchy;
+        latch2 = pchr->latchx * pchr->latchx + pchr->latchy * pchr->latchy;
         if (latch2 > 1.0f)
         {
             latch2 = 1.0f / sqrt(latch2);
-            ChrList.lst[pself->index].latchx *= latch2;
-            ChrList.lst[pself->index].latchy *= latch2;
+            pchr->latchx *= latch2;
+            pchr->latchy *= latch2;
         }
     }
 
@@ -235,31 +239,38 @@ void set_alerts( Uint16 character )
 {
     // ZZ> This function polls some alert conditions
 
+    chr_t      * pchr;
+    ai_state_t * pai;
+
     // invalid characters do not think
     if ( !ChrList.lst[character].on ) return;
+    pchr = ChrList.lst + character;
+    pai  = chr_get_pai(character);
 
-    // mounts do not get to think for themselves
-    if ( MAX_CHR != ChrList.lst[character].attachedto ) return;
-    if ( ChrList.lst[character].ai.wp_tail != ChrList.lst[character].ai.wp_head )
+    // mounts do not get alerts
+    if ( VALID_CHR(pchr->attachedto) ) return;
+
+    if ( pai->wp_tail != pai->wp_head )
     {
-        if ( ChrList.lst[character].pos.x < ChrList.lst[character].ai.wp_pos_x[ChrList.lst[character].ai.wp_tail] + WAYTHRESH &&
-                ChrList.lst[character].pos.x > ChrList.lst[character].ai.wp_pos_x[ChrList.lst[character].ai.wp_tail] - WAYTHRESH &&
-                ChrList.lst[character].pos.y < ChrList.lst[character].ai.wp_pos_y[ChrList.lst[character].ai.wp_tail] + WAYTHRESH &&
-                ChrList.lst[character].pos.y > ChrList.lst[character].ai.wp_pos_y[ChrList.lst[character].ai.wp_tail] - WAYTHRESH )
+        if ( pchr->pos.x < pai->wp_pos_x[pai->wp_tail] + WAYTHRESH &&
+             pchr->pos.x > pai->wp_pos_x[pai->wp_tail] - WAYTHRESH &&
+             pchr->pos.y < pai->wp_pos_y[pai->wp_tail] + WAYTHRESH &&
+             pchr->pos.y > pai->wp_pos_y[pai->wp_tail] - WAYTHRESH )
         {
-            ChrList.lst[character].ai.alert |= ALERTIF_ATWAYPOINT;
-            ChrList.lst[character].ai.wp_tail++;
-            if ( ChrList.lst[character].ai.wp_tail > MAXWAY - 1 ) ChrList.lst[character].ai.wp_tail = MAXWAY - 1;
+            pai->alert |= ALERTIF_ATWAYPOINT;
+            pai->wp_tail++;
+            if ( pai->wp_tail > MAXWAY - 1 ) pai->wp_tail = MAXWAY - 1;
         }
-        if ( ChrList.lst[character].ai.wp_tail >= ChrList.lst[character].ai.wp_head )
+
+        if ( pai->wp_tail >= pai->wp_head )
         {
             // !!!!restart the waypoint list, do not clear them!!!!
-            ChrList.lst[character].ai.wp_tail    = 0;
+            pai->wp_tail    = 0;
 
             // if the object can be alerted to last waypoint, do it
-            if ( !CapList[ChrList.lst[character].model].isequipment )
+            if ( !chr_get_pcap(character)->isequipment )
             {
-                ChrList.lst[character].ai.alert |= ALERTIF_ATLASTWAYPOINT;
+                pai->alert |= ALERTIF_ATLASTWAYPOINT;
             }
         }
     }
@@ -276,9 +287,9 @@ void issue_order( Uint16 character, Uint32 value )
     {
         if ( !ChrList.lst[cnt].on ) continue;
 
-        if ( ChrList.lst[cnt].team == ChrList.lst[character].team )
+        if ( chr_get_iteam(cnt) == chr_get_iteam(character) )
         {
-            ai_add_order( &(ChrList.lst[cnt].ai), value, counter );
+            ai_add_order( chr_get_pai(cnt), value, counter );
             counter++;
         }
     }
@@ -292,16 +303,16 @@ void issue_special_order( Uint32 value, IDSZ idsz )
 
     for ( cnt = 0, counter = 0; cnt < MAX_CHR; cnt++ )
     {
-        Uint16 icap;
+        cap_t * pcap;
 
         if ( !ChrList.lst[cnt].on ) continue;
 
-        icap = ChrList.lst[cnt].model;
-        if ( INVALID_CAP(icap) ) continue;
+        pcap = chr_get_pcap(cnt);
+        if ( NULL == pcap ) continue;
 
-        if ( idsz == CapList[icap].idsz[IDSZ_SPECIAL] )
+        if ( idsz == pcap->idsz[IDSZ_SPECIAL] )
         {
-            ai_add_order( &(ChrList.lst[cnt].ai), value, counter );
+            ai_add_order( chr_get_pai(cnt), value, counter );
             counter++;
         }
     }
@@ -910,7 +921,10 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
     else
     {
         // Get the variable opcode from a register
+        chr_t * pchr;
         variable = pself->opcode & VALUE_BITS;
+
+        pchr = ChrList.lst + pself->index;
 
         switch ( variable )
         {
@@ -946,17 +960,17 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARSELFX:
                 varname = "SELFX";
-                iTmp = ChrList.lst[pself->index].pos.x;
+                iTmp = pchr->pos.x;
                 break;
 
             case VARSELFY:
                 varname = "SELFY";
-                iTmp = ChrList.lst[pself->index].pos.y;
+                iTmp = pchr->pos.y;
                 break;
 
             case VARSELFTURN:
                 varname = "SELFTURN";
-                iTmp = ChrList.lst[pself->index].turn_z;
+                iTmp = pchr->turn_z;
                 break;
 
             case VARSELFCOUNTER:
@@ -971,12 +985,12 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARSELFMORALE:
                 varname = "SELFMORALE";
-                iTmp = TeamList[ChrList.lst[pself->index].baseteam].morale;
+                iTmp = TeamList[pchr->baseteam].morale;
                 break;
 
             case VARSELFLIFE:
                 varname = "SELFLIFE";
-                iTmp = ChrList.lst[pself->index].life;
+                iTmp = pchr->life;
                 break;
 
             case VARTARGETX:
@@ -991,8 +1005,8 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARTARGETDISTANCE:
                 varname = "TARGETdistance";
-                iTmp = ABS( ( int )( ChrList.lst[pself->target].pos.x - ChrList.lst[pself->index].pos.x ) ) +
-                       ABS( ( int )( ChrList.lst[pself->target].pos.y - ChrList.lst[pself->index].pos.y ) );
+                iTmp = ABS( ( int )( ChrList.lst[pself->target].pos.x - pchr->pos.x ) ) +
+                       ABS( ( int )( ChrList.lst[pself->target].pos.y - pchr->pos.y ) );
                 break;
 
             case VARTARGETTURN:
@@ -1002,34 +1016,34 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARLEADERX:
                 varname = "LEADERX";
-                iTmp = ChrList.lst[pself->index].pos.x;
-                if ( TeamList[ChrList.lst[pself->index].team].leader != NOLEADER )
-                    iTmp = ChrList.lst[TeamList[ChrList.lst[pself->index].team].leader].pos.x;
+                iTmp = pchr->pos.x;
+                if ( TeamList[pchr->team].leader != NOLEADER )
+                    iTmp = team_get_pleader(pchr->team)->pos.x;
 
                 break;
 
             case VARLEADERY:
                 varname = "LEADERY";
-                iTmp = ChrList.lst[pself->index].pos.y;
-                if ( TeamList[ChrList.lst[pself->index].team].leader != NOLEADER )
-                    iTmp = ChrList.lst[TeamList[ChrList.lst[pself->index].team].leader].pos.y;
+                iTmp = pchr->pos.y;
+                if ( TeamList[pchr->team].leader != NOLEADER )
+                    iTmp = team_get_pleader(pchr->team)->pos.y;
 
                 break;
 
             case VARLEADERDISTANCE:
                 varname = "LEADERdistance";
                 iTmp = 10000;
-                if ( TeamList[ChrList.lst[pself->index].team].leader != NOLEADER )
-                    iTmp = ABS( ( int )( ChrList.lst[TeamList[ChrList.lst[pself->index].team].leader].pos.x - ChrList.lst[pself->index].pos.x ) ) +
-                           ABS( ( int )( ChrList.lst[TeamList[ChrList.lst[pself->index].team].leader].pos.y - ChrList.lst[pself->index].pos.y ) );
+                if ( TeamList[pchr->team].leader != NOLEADER )
+                    iTmp = ABS( ( int )( team_get_pleader(pchr->team)->pos.x - pchr->pos.x ) ) +
+                           ABS( ( int )( team_get_pleader(pchr->team)->pos.y - pchr->pos.y ) );
 
                 break;
 
             case VARLEADERTURN:
                 varname = "LEADERTURN";
-                iTmp = ChrList.lst[pself->index].turn_z;
-                if ( TeamList[ChrList.lst[pself->index].team].leader != NOLEADER )
-                    iTmp = ChrList.lst[TeamList[ChrList.lst[pself->index].team].leader].turn_z;
+                iTmp = pchr->turn_z;
+                if ( TeamList[pchr->team].leader != NOLEADER )
+                    iTmp = team_get_pleader(pchr->team)->turn_z;
 
                 break;
 
@@ -1037,7 +1051,7 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
                 varname = "GOTOX";
                 if (pself->wp_tail == pself->wp_head)
                 {
-                    iTmp = ChrList.lst[pself->index].pos.x;
+                    iTmp = pchr->pos.x;
                 }
                 else
                 {
@@ -1049,7 +1063,7 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
                 varname = "GOTOY";
                 if (pself->wp_tail == pself->wp_head)
                 {
-                    iTmp = ChrList.lst[pself->index].pos.y;
+                    iTmp = pchr->pos.y;
                 }
                 else
                 {
@@ -1065,14 +1079,14 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
                 }
                 else
                 {
-                    iTmp = ABS( ( int )( pself->wp_pos_x[pself->wp_tail] - ChrList.lst[pself->index].pos.x ) ) +
-                           ABS( ( int )( pself->wp_pos_y[pself->wp_tail] - ChrList.lst[pself->index].pos.y ) );
+                    iTmp = ABS( ( int )( pself->wp_pos_x[pself->wp_tail] - pchr->pos.x ) ) +
+                           ABS( ( int )( pself->wp_pos_y[pself->wp_tail] - pchr->pos.y ) );
                 }
                 break;
 
             case VARTARGETTURNTO:
                 varname = "TARGETTURNTO";
-                iTmp = ATAN2( ChrList.lst[pself->target].pos.y - ChrList.lst[pself->index].pos.y, ChrList.lst[pself->target].pos.x - ChrList.lst[pself->index].pos.x ) * 0xFFFF / ( TWO_PI );
+                iTmp = ATAN2( ChrList.lst[pself->target].pos.y - pchr->pos.y, ChrList.lst[pself->target].pos.x - pchr->pos.x ) * 0xFFFF / ( TWO_PI );
                 iTmp += 32768;
                 iTmp &= 0xFFFF;
                 break;
@@ -1084,28 +1098,28 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARWEIGHT:
                 varname = "WEIGHT";
-                iTmp = ChrList.lst[pself->index].holdingweight;
+                iTmp = pchr->holdingweight;
                 break;
 
             case VARSELFALTITUDE:
                 varname = "SELFALTITUDE";
-                iTmp = ChrList.lst[pself->index].pos.z - ChrList.lst[pself->index].floor_level;
+                iTmp = pchr->pos.z - pchr->floor_level;
                 break;
 
             case VARSELFID:
                 varname = "SELFID";
-                iTmp = CapList[ChrList.lst[pself->index].model].idsz[IDSZ_TYPE];
+                iTmp = chr_get_idsz(pself->index,IDSZ_TYPE);
                 break;
 
             case VARSELFHATEID:
                 varname = "SELFHATEID";
-                iTmp = CapList[ChrList.lst[pself->index].model].idsz[IDSZ_HATE];
+                iTmp = chr_get_idsz(pself->index,IDSZ_HATE);
                 break;
 
             case VARSELFMANA:
                 varname = "SELFMANA";
-                iTmp = ChrList.lst[pself->index].mana;
-                if ( ChrList.lst[pself->index].canchannel )  iTmp += ChrList.lst[pself->index].life;
+                iTmp = pchr->mana;
+                if ( pchr->canchannel )  iTmp += pchr->life;
 
                 break;
 
@@ -1163,12 +1177,12 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARSELFSPAWNX:
                 varname = "SELFSPAWNX";
-                iTmp = ChrList.lst[pself->index].pos_stt.x;
+                iTmp = pchr->pos_stt.x;
                 break;
 
             case VARSELFSPAWNY:
                 varname = "SELFSPAWNY";
-                iTmp = ChrList.lst[pself->index].pos_stt.y;
+                iTmp = pchr->pos_stt.y;
                 break;
 
             case VARSELFSTATE:
@@ -1183,27 +1197,27 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARSELFSTR:
                 varname = "SELFSTR";
-                iTmp = ChrList.lst[pself->index].strength;
+                iTmp = pchr->strength;
                 break;
 
             case VARSELFWIS:
                 varname = "SELFWIS";
-                iTmp = ChrList.lst[pself->index].wisdom;
+                iTmp = pchr->wisdom;
                 break;
 
             case VARSELFINT:
                 varname = "SELFINT";
-                iTmp = ChrList.lst[pself->index].intelligence;
+                iTmp = pchr->intelligence;
                 break;
 
             case VARSELFDEX:
                 varname = "SELFDEX";
-                iTmp = ChrList.lst[pself->index].dexterity;
+                iTmp = pchr->dexterity;
                 break;
 
             case VARSELFMANAFLOW:
                 varname = "SELFMANAFLOW";
-                iTmp = ChrList.lst[pself->index].manaflow;
+                iTmp = pchr->manaflow;
                 break;
 
             case VARTARGETMANAFLOW:
@@ -1228,7 +1242,7 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARSELFZ:
                 varname = "SELFZ";
-                iTmp = ChrList.lst[pself->index].pos.z;
+                iTmp = pchr->pos.z;
                 break;
 
             case VARTARGETALTITUDE:
@@ -1263,32 +1277,32 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VAROWNERDISTANCE:
                 varname = "OWNERdistance";
-                iTmp = ABS( ( int )( ChrList.lst[pself->owner].pos.x - ChrList.lst[pself->index].pos.x ) ) +
-                       ABS( ( int )( ChrList.lst[pself->owner].pos.y - ChrList.lst[pself->index].pos.y ) );
+                iTmp = ABS( ( int )( ChrList.lst[pself->owner].pos.x - pchr->pos.x ) ) +
+                       ABS( ( int )( ChrList.lst[pself->owner].pos.y - pchr->pos.y ) );
                 break;
 
             case VAROWNERTURNTO:
                 varname = "OWNERTURNTO";
-                iTmp = ATAN2( ChrList.lst[pself->owner].pos.y - ChrList.lst[pself->index].pos.y, ChrList.lst[pself->owner].pos.x - ChrList.lst[pself->index].pos.x ) * 0xFFFF / ( TWO_PI );
+                iTmp = ATAN2( ChrList.lst[pself->owner].pos.y - pchr->pos.y, ChrList.lst[pself->owner].pos.x - pchr->pos.x ) * 0xFFFF / ( TWO_PI );
                 iTmp += 32768;
                 iTmp &= 0xFFFF;
                 break;
 
             case VARXYTURNTO:
                 varname = "XYTURNTO";
-                iTmp = ATAN2( pstate->y - ChrList.lst[pself->index].pos.y, pstate->x - ChrList.lst[pself->index].pos.x ) * 0xFFFF / ( TWO_PI );
+                iTmp = ATAN2( pstate->y - pchr->pos.y, pstate->x - pchr->pos.x ) * 0xFFFF / ( TWO_PI );
                 iTmp += 32768;
                 iTmp &= 0xFFFF;
                 break;
 
             case VARSELFMONEY:
                 varname = "SELFMONEY";
-                iTmp = ChrList.lst[pself->index].money;
+                iTmp = pchr->money;
                 break;
 
             case VARSELFACCEL:
                 varname = "SELFACCEL";
-                iTmp = ( ChrList.lst[pself->index].maxaccel * 100.0f );
+                iTmp = ( pchr->maxaccel * 100.0f );
                 break;
 
             case VARTARGETEXP:
@@ -1298,7 +1312,7 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARSELFAMMO:
                 varname = "SELFAMMO";
-                iTmp = ChrList.lst[pself->index].ammo;
+                iTmp = pchr->ammo;
                 break;
 
             case VARTARGETAMMO:
@@ -1313,14 +1327,14 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARTARGETTURNAWAY:
                 varname = "TARGETTURNAWAY";
-                iTmp = ATAN2( ChrList.lst[pself->target].pos.y - ChrList.lst[pself->index].pos.y, ChrList.lst[pself->target].pos.x - ChrList.lst[pself->index].pos.x ) * 0xFFFF / ( TWO_PI );
+                iTmp = ATAN2( ChrList.lst[pself->target].pos.y - pchr->pos.y, ChrList.lst[pself->target].pos.x - pchr->pos.x ) * 0xFFFF / ( TWO_PI );
                 iTmp += 32768;
                 iTmp &= 0xFFFF;
                 break;
 
             case VARSELFLEVEL:
                 varname = "SELFLEVEL";
-                iTmp = ChrList.lst[pself->index].experiencelevel;
+                iTmp = pchr->experiencelevel;
                 break;
 
             case VARTARGETRELOADTIME:
@@ -1330,8 +1344,8 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARSPAWNDISTANCE:
                 varname = "SPAWNDISTANCE";
-                iTmp = ABS( ( int )( ChrList.lst[pself->index].pos_stt.x - ChrList.lst[pself->index].pos.x ) ) +
-                       ABS( ( int )( ChrList.lst[pself->index].pos_stt.y - ChrList.lst[pself->index].pos.y ) );
+                iTmp = ABS( ( int )( pchr->pos_stt.x - pchr->pos.x ) ) +
+                       ABS( ( int )( pchr->pos_stt.y - pchr->pos.y ) );
                 break;
 
             case VARTARGETMAXLIFE:
@@ -1341,7 +1355,7 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARTARGETTEAM:
                 varname = "TARGETTEAM";
-                iTmp = ChrList.lst[pself->target].team;
+                iTmp = chr_get_iteam(pself->target);
                 break;
 
             case VARTARGETARMOR:

@@ -20,6 +20,7 @@
 //********************************************************************************************
 
 #include "egoboo_typedef.h"
+#include "cap_file.h"
 
 #include "sound.h"
 #include "script.h"
@@ -30,24 +31,17 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
+// Attack directions
+#define ATK_FRONT  0x0000
+#define ATK_RIGHT  0x4000
+#define ATK_BEHIND 0x8000
+#define ATK_LEFT   0xC000
+
 #define MAXXP      200000                        // Maximum experience
 #define MAXMONEY     9999                        // Maximum money
 
-// XP stuff
-enum e_xp_type
-{
-    XP_FINDSECRET = 0,                          // Finding a secret
-    XP_WINQUEST,                                // Beating a module or a subquest
-    XP_USEDUNKOWN,                              // Used an unknown item
-    XP_KILLENEMY,                               // Killed an enemy
-    XP_KILLSLEEPY,                              // Killed a sleeping enemy
-    XP_KILLHATED,                               // Killed a hated enemy
-    XP_TEAMKILL,                                // Team has killed an enemy
-    XP_TALKGOOD,                                // Talk good, er...  I mean well
-    XP_COUNT,                                   // Number of ways to get experience
-
-    XP_DIRECT     = 255                         // No modification
-};
+#define MAX_CAP    MAX_PROFILE
 
 enum e_turn_modes
 {
@@ -58,67 +52,11 @@ enum e_turn_modes
     TURNMODE_COUNT
 };
 
-enum e_idsz_type
-{
-    IDSZ_PARENT = 0,                             // Parent index
-    IDSZ_TYPE,                                   // Self index
-    IDSZ_SKILL,                                  // Skill index
-    IDSZ_SPECIAL,                                // Special index
-    IDSZ_HATE,                                   // Hate index
-    IDSZ_VULNERABILITY,                          // Vulnerability index
-    IDSZ_COUNT                                   // ID strings per character
-};
-
-enum e_damage_type
-{
-    DAMAGE_SLASH = 0,
-    DAMAGE_CRUSH,
-    DAMAGE_POKE,
-    DAMAGE_HOLY,                             // (Most invert Holy damage )
-    DAMAGE_EVIL,
-    DAMAGE_FIRE,
-    DAMAGE_ICE,
-    DAMAGE_ZAP,
-    DAMAGE_COUNT,
-
-    DAMAGE_NONE      = 255
-};
-
-// Geneder stuff
-enum e_chr_gender
-{
-    GENDER_FEMALE = 0,
-    GENDER_MALE,
-    GENDER_OTHER,
-    GENDER_RANDOM,
-    GENDER_COUNT
-};
-
 #define MANARETURNSHIFT     22                      // ChrList.lst[ichr].manareturn/MANARETURNSHIFT = mana regen per second
 
 #define TURNSPD             0.01f                 // Cutoff for turning or same direction
 #define SPINRATE            200                   // How fast spinners spin
 #define WATCHMIN            0.01f                 // Tolerance for TURNMODE_WATCH
-
-// Object positions
-enum e_slots
-{
-    SLOT_LEFT  = 0,
-    SLOT_RIGHT,
-    SLOT_COUNT
-};
-typedef enum e_slots slot_t;
-
-enum e_inventory
-{
-    INVEN_PACK = 0,
-    INVEN_NECK,
-    INVEN_WRIS,
-    INVEN_FOOT,
-    INVEN_COUNT
-};
-
-typedef enum e_inventory inventory_t;
 
 #define GRIP_VERTS                       4
 enum e_grip_offset
@@ -139,17 +77,10 @@ slot_t        grip_offset_to_slot( grip_offset_t grip );
 
 #define PITDEPTH            -30                     // Depth to kill character
 
-#define ULTRABLUDY           2          // This makes any damage draw blud
-
 #define NOSKINOVERRIDE      -1          // For import
 
 #define HURTDAMAGE           256                     // Minimum damage for hurt animation
 
-//Damage shifts
-#define DAMAGEMANA          16                      // 000x0000 Deals damage to mana
-#define DAMAGECHARGE        8                       // 0000x000 Converts damage to mana
-#define DAMAGEINVERT        4                       // 00000x00 Makes damage heal
-#define DAMAGESHIFT         3                       // 000000xx Resistance ( 1 is common )
 
 //Knockbacks
 #define REEL                7600.0f     // Dampen for melee knock back
@@ -160,10 +91,6 @@ slot_t        grip_offset_to_slot( grip_offset_t grip );
 #define RIPPLETOLERANCE     60          // For deep water
 #define SPLASHTOLERANCE     10
 #define RIPPLEAND           15          // How often ripples spawn
-
-//Levels
-#define MAXBASELEVEL            6                 // Basic Levels 0-5
-#define MAXLEVEL               20                 // Absolute max level
 
 // Stats
 #define LOWSTAT             256                     // Worst...
@@ -203,10 +130,6 @@ slot_t        grip_offset_to_slot( grip_offset_t grip );
 #define CAREFULTIME         50                            // Friendly fire timer
 #define SIZETIME            50                            // Time it takes to resize a character
 
-// Quest system
-#define QUEST_BEATEN         -1
-#define QUEST_NONE           -2
-
 //------------------------------------
 // Team variables
 //------------------------------------
@@ -217,6 +140,8 @@ slot_t        grip_offset_to_slot( grip_offset_t grip );
 #define TEAM_MAX             27                      // Teams A-Z, +1 more for damage tiles
 #define NOLEADER            0xFFFF                   // If the team has no leader...
 
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 struct s_team
 {
     bool_t  hatesteam[TEAM_MAX];     // Don't damage allies...
@@ -226,211 +151,8 @@ struct s_team
 };
 typedef struct s_team team_t;
 
-extern team_t TeamList[TEAM_MAX];
-
-//------------------------------------
-// Character template
-//------------------------------------
-#define MAXCAPNAMESIZE      32                      // Character class names
-#define MAXSECTION                      4           // T-wi-n-k...  Most of 4 sections
-
-struct s_cap_import
-{
-    int   object;
-    int   player;
-    int   slot_lst[MAX_PROFILE];
-    int   max_slot;
-};
-
-typedef struct s_cap_import cap_import_t;
-
-extern cap_import_t import_data;
-
-struct s_cap_stat
-{
-    IPair val;
-    IPair perlevel;
-};
-typedef struct s_cap_stat cap_stat_t;
-
-// a representation of the file data.txt
-struct s_cap
-{
-    EGO_PROFILE_STUFF
-
-    // naming
-    char         classname[MAXCAPNAMESIZE];     // Class name
-    Uint16       chop_sectionsize[MAXSECTION];   // Number of choices, 0
-    Uint16       chop_sectionstart[MAXSECTION];
-
-    // skins
-    char         skinname[MAXSKIN][MAXCAPNAMESIZE];   // Skin name
-    Uint16       skincost[MAXSKIN];                   // Store prices
-    float        maxaccel[MAXSKIN];                   // Acceleration for each skin
-    Uint8        skindressy;                         // Dressy
-
-    // overrides
-    Sint8        skinoverride;                  // -1 or 0-3.. For import
-    Uint8        leveloverride;                 // 0 for normal
-    int          stateoverride;                 // 0 for normal
-    int          contentoverride;               // 0 for normal
-
-    IDSZ         idsz[IDSZ_COUNT];                 // ID strings
-
-    float        strengthdampen;                // Strength damage factor
-    Uint8        stoppedby;                     // Collision Mask
-
-    // inventory
-    Uint8        ammomax;                       // Ammo stuff
-    Uint8        ammo;
-    Sint16       money;                         // Money
-
-    // characer stats
-
-    Uint8        gender;                        // Gender
-
-    cap_stat_t   life_stat;                     // Life
-    Sint16       lifereturn;
-    Uint16       lifeheal;
-
-    cap_stat_t   mana_stat;                     // Mana
-    cap_stat_t   manareturn_stat;
-    cap_stat_t   manaflow_stat;
-    Sint16       manacost;
-
-    cap_stat_t   strength_stat;                 // Strength
-    cap_stat_t   wisdom_stat;                   // Wisdom
-    cap_stat_t   intelligence_stat;             // Intlligence
-    cap_stat_t   dexterity_stat;                // Dexterity
-
-    // physics
-    Uint8        weight;                        // Weight
-    float        dampen;                        // Bounciness
-    float        bumpdampen;                    // Mass
-
-    float        size;                          // Scale of model
-    float        sizeperlevel;                  // Scale increases
-    Uint32       shadowsize;                    // Shadow size
-    Uint32       bumpsize;                      // Bounding octagon
-    Uint32       bumpsizebig;                   // For octagonal bumpers
-    Uint32       bumpheight;
-
-    // movement
-    float        jump;                          // Jump power
-    Uint8        jumpnumber;                    // Number of jumps ( Ninja )
-    Uint8        sneakspd;                      // Sneak threshold
-    Uint8        walkspd;                       // Walk threshold
-    Uint8        runspd;                        // Run threshold
-    Uint8        flyheight;                     // Fly height
-
-    // graphics
-    Uint8        flashand;                      // Flashing rate
-    Uint8        alpha;                         // Transparency
-    Uint8        light;                         // Light blending
-    bool_t       transferblend;                 // Transfer blending to rider/weapons
-    bool_t       sheen;                         // How shiny it is ( 0-15 )
-    bool_t       enviro;                        // Phong map this baby?
-    Uint16       uoffvel;                       // Texture movement rates
-    Uint16       voffvel;
-    bool_t       uniformlit;                    // Bad lighting?
-    Uint8        lifecolor;                     // Bar colors
-    Uint8        manacolor;
-
-    // random stuff
-    bool_t       stickybutt;                    // Stick to the ground?
-
-    Uint16       iframefacing;                  // Invincibility frame
-    Uint16       iframeangle;
-    Uint16       nframefacing;                  // Normal frame
-    Uint16       nframeangle;
-
-    // defense
-    Uint8        resistbumpspawn;               // Don't catch fire
-    Uint8        defense[MAXSKIN];                    // Defense for each skin
-    Uint8        damagemodifier[DAMAGE_COUNT][MAXSKIN];
-
-    // xp
-    Uint32       experienceforlevel[MAXLEVEL];  // Experience needed for next level
-    IPair        experience;                // Starting experience
-    Uint16       experienceworth;               // Amount given to killer/user
-    float        experienceexchange;            // Adds to worth
-    float        experiencerate[XP_COUNT];
-
-    // sound
-    Sint8        soundindex[SOUND_COUNT];       // a map for soundX.wav to sound types
-
-    // flags
-    bool_t       is_spelleffect;                // is the object that a spellbook generates
-    bool_t       isitem;                        // Is it an item?
-    bool_t       invictus;                      // Is it invincible?
-    bool_t       ismount;                       // Can you ride it?
-    bool_t       isstackable;                   // Is it arrowlike?
-    bool_t       nameknown;                     // Is the class name known?
-    bool_t       usageknown;                    // Is its usage known
-    bool_t       cancarrytonextmodule;          // Take it with you?
-    bool_t       needskillidtouse;              // Check IDSZ first?
-    bool_t       waterwalk;                     // Walk on water?
-    bool_t       platform;                      // Can be stood on?
-    bool_t       canuseplatforms;               // Can use platforms?
-    bool_t       cangrabmoney;                  // Collect money?
-    bool_t       canopenstuff;                  // Open chests/doors?
-    bool_t       icon;                          // Draw icon
-    bool_t       forceshadow;                   // Draw a shadow?
-    bool_t       ripple;                        // Spawn ripples?
-    Uint8        damagetargettype;              // For AI DamageTarget
-    Uint8        weaponaction;                  // Animation needed to swing
-    bool_t       slotvalid[SLOT_COUNT];            // Left/Right hands valid
-    Uint8        attackattached;
-    Sint8        attackprttype;
-    Uint8        attachedprtamount;             // Sticky particles
-    Uint8        attachedprtreaffirmdamagetype; // Relight that torch...
-    Uint16       attachedprttype;
-    Uint8        gopoofprtamount;               // Poof effect
-    Sint16       gopoofprtfacingadd;
-    Uint16       gopoofprttype;
-    Uint8        bludvalid;                    // Blud ( yuck )
-    Uint8        bludprttype;
-    bool_t       ridercanattack;                // Rider attack?
-    bool_t       canbedazed;                    // Can it be dazed?
-    bool_t       canbegrogged;                  // Can it be grogged?
-    Uint8        kursechance;                   // Chance of being kursed
-    bool_t       istoobig;                      // Can't be put in pack
-    bool_t       reflect;                       // Draw the reflection
-    bool_t       alwaysdraw;                    // Always render
-    bool_t       isranged;                      // Flag for ranged weapon
-    Sint8        hidestate;                       // Don't draw when...
-    bool_t       isequipment;                     // Behave in silly ways
-    Sint8        isvaluable;                      // Force to be valuable
-    Uint16       spawnlife;                      // Life left from last module
-    Uint16       spawnmana;                      // Life left from last module
-
-    // skill system
-    Sint8        shieldproficiency;               // Can it use shields?
-    bool_t       canjoust;                        // Can it use advanced weapons?
-    bool_t       canuseadvancedweapons;           // Can it use advanced weapons?
-    bool_t       canseeinvisible;                 // Can it see invisible?
-    bool_t       canseekurse;                     // Can it see kurses?
-    bool_t       canusedivine;
-    bool_t       canusearcane;
-    bool_t       canusetech;
-    bool_t       candisarm;
-    bool_t       canbackstab;
-    bool_t       canusepoison;
-    bool_t       canread;
-};
-
-typedef struct s_cap cap_t;
-
-extern cap_t CapList[MAX_PROFILE];
-
-#define VALID_CAP_RANGE( ICAP ) ( ((ICAP) >= 0) && ((ICAP) < MAX_PROFILE) )
-#define VALID_CAP( ICAP )       ( VALID_CAP_RANGE( ICAP ) && CapList[ICAP].loaded )
-#define INVALID_CAP( ICAP )     ( !VALID_CAP_RANGE( ICAP ) || !CapList[ICAP].loaded )
-
-//------------------------------------
-// Character variables
-//------------------------------------
-
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 // all the model data that the renderer needs to render the character
 struct s_chr_instance
 {
@@ -482,10 +204,14 @@ struct s_chr_instance
     int    save_vmax;
     Uint16 save_frame_nxt;
     Uint16 save_frame_lst;
+
+    // the save data to determine whether re-calculation of lighting data is necessary
+    Uint32 save_lighting_wldframe;
 };
 
 typedef struct s_chr_instance chr_instance_t;
 
+//--------------------------------------------------------------------------------------------
 // Data for doing the physics in bump_characters(). should prevent you from being bumped into a wall
 struct s_phys_data
 {
@@ -497,6 +223,17 @@ struct s_phys_data
 };
 typedef struct s_phys_data phys_data_t;
 
+//--------------------------------------------------------------------------------------------
+// definition of the character "bumper"
+struct s_chr_bumper
+{
+    float  size;        // Size of bumpers
+    float  sizebig;     // For octagonal bumpers
+    float  height;      // Distance from head to toe
+};
+typedef struct s_chr_bumper chr_bumper_t;
+
+//--------------------------------------------------------------------------------------------
 struct s_chr
 {
     EGO_OBJECT_STUFF
@@ -551,8 +288,8 @@ struct s_chr
     Uint16         undoenchant;                   // Last enchantment spawned
 
     float          fat;                           // Character's size
-    float          sizegoto;                      // Character's size goto
-    Uint8          sizegototime;                  // Time left in size change
+    float          fat_goto;                      // Character's size goto
+    Uint8          fat_goto_time;                  // Time left in size change
 
     // jump stuff
     float          jump_power;                    // Jump power
@@ -641,9 +378,10 @@ struct s_chr
     // model info
     bool_t         overlay;                       // Is this an overlay?  Track aitarget...
     Uint16         skin;                          // Character's skin
-    Uint8          model;                         // Character's model
+    Uint8          iprofile;                      // Character's profile
     Uint8          basemodel;                     // The true form
     Uint8          basealpha;
+    Uint8          baselight;
     chr_instance_t inst;                          // the render data
 
     // Skills
@@ -661,12 +399,17 @@ struct s_chr
     bool_t          canread;
 
     // collision info
-    Uint32         bumpsize;        // Size of bumpers
-    Uint32         bumpsizebig;     // For octagonal bumpers
-    Uint32         bumpheight;      // Distance from head to toe
-    Uint32         bumpsizesave;
-    Uint32         bumpsizebigsave;
-    Uint32         bumpheightsave;
+
+    // note - to make it easier for things to "hit" one another (like a damage particle from
+    //        a torch hitting a grub bug), Aaron sometimes made the bumper size much different
+    //        than the shape of the actual object.
+    //        The old bumper data that is read from the data.txt file will be kept in 
+    //        the struct "bump". A new bumper that actually matches the size of the object will
+    //        be kept in the struct "collision"
+    chr_bumper_t   bump;
+    chr_bumper_t   bump_save;
+    chr_bumper_t   collision;
+
     float          bumpdampen;                    // Character bump mass
     Uint32         weight;                        // Weight ( for pressure plates )
     float          dampen;          // Bounciness
@@ -711,6 +454,19 @@ struct s_chr
 
 typedef struct s_chr chr_t;
 
+//--------------------------------------------------------------------------------------------
+// list definitions
+//--------------------------------------------------------------------------------------------
+
+extern team_t TeamList[TEAM_MAX];
+
+extern cap_t CapList[MAX_CAP];
+
+#define VALID_CAP_RANGE( ICAP ) ( ((ICAP) >= 0) && ((ICAP) < MAX_CAP) )
+#define VALID_CAP( ICAP )       ( VALID_CAP_RANGE( ICAP ) && CapList[ICAP].loaded )
+#define INVALID_CAP( ICAP )     ( !VALID_CAP_RANGE( ICAP ) || !CapList[ICAP].loaded )
+
+
 DEFINE_LIST_EXTERN(chr_t, ChrList, MAX_CHR );
 
 #define VALID_CHR_RANGE( ICHR ) ( ((ICHR) >= 0) && ((ICHR) < MAX_CHR) )
@@ -719,30 +475,8 @@ DEFINE_LIST_EXTERN(chr_t, ChrList, MAX_CHR );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-// This is for random naming
-
-#define CHOPPERMODEL                    32
-#define MAXCHOP                         (MAX_PROFILE*CHOPPERMODEL)
-#define CHOPSIZE                        8
-#define CHOPDATACHUNK                   (MAXCHOP*CHOPSIZE)
-
-struct s_chop_data
-{
-    Uint16  count;                  // The number of name parts
-
-    Uint32  carat;                  // The data pointer
-    char    buffer[CHOPDATACHUNK];  // The name parts
-    Uint16  start[MAXCHOP];         // The first character of each part
-};
-typedef struct s_chop_data chop_data_t;
-
-extern chop_data_t chop;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 // Function prototypes
 
-const char * undo_idsz( IDSZ idsz );
 void drop_money( Uint16 character, Uint16 money );
 void call_for_help( Uint16 character );
 void give_experience( Uint16 character, int amount, Uint8 xptype, bool_t override_invictus );
@@ -805,7 +539,6 @@ bool_t export_one_character_profile( const char *szSaveName, Uint16 character );
 bool_t export_one_character_skin( const char *szSaveName, Uint16 character );
 int    load_one_character_profile( const char *szLoadName, int slot_override, bool_t required );
 
-void chop_load( Uint16 profile, const char *szLoadname );
 void character_swipe( Uint16 cnt, slot_t slot );
 
 int check_skills( Uint16 who, IDSZ whichskill );
@@ -825,13 +558,53 @@ Uint16 ChrList_get_free();
 
 //---------------------------------------------------------------------------------------------
 // Quest system
-bool_t add_quest_idsz( const char *whichplayer, IDSZ idsz );
-Sint16 modify_quest_idsz( const char *whichplayer, IDSZ idsz, Sint16 adjustment );
-Sint16 check_player_quest( const char *whichplayer, IDSZ idsz );
+bool_t quest_add_idsz( const char *whichplayer, IDSZ idsz );
+Sint16 quest_modify_idsz( const char *whichplayer, IDSZ idsz, Sint16 adjustment );
+Sint16 quest_check( const char *whichplayer, IDSZ idsz );
 
 //---------------------------------------------------------------------------------------------
 // helper functions
-Mix_Chunk * chr_get_chunk_ptr( chr_t * pchr, int index );
-Mix_Chunk * chr_get_chunk( Uint16 ichr, int index );
 
 bool_t release_one_cap( Uint16 icap );
+
+Uint16 chr_get_iobj(Uint16 ichr);
+Uint16 chr_get_icap(Uint16 ichr);
+Uint16 chr_get_imad(Uint16 ichr);
+Uint16 chr_get_ieve(Uint16 ichr);
+Uint16 chr_get_ipip(Uint16 ichr, Uint16 ipip);
+Uint16 chr_get_iteam(Uint16 ichr);
+Uint16 chr_get_iteam_base(Uint16 ichr);
+
+struct s_object_profile * chr_get_pobj(Uint16 ichr);
+struct s_cap * chr_get_pcap(Uint16 ichr);
+struct s_mad * chr_get_pmad(Uint16 ichr);
+struct s_eve * chr_get_peve(Uint16 ichr);
+struct s_pip * chr_get_ppip(Uint16 ichr, Uint16 ipip);
+
+Mix_Chunk      * chr_get_chunk_ptr( chr_t * pchr, int index );
+Mix_Chunk      * chr_get_chunk( Uint16 ichr, int index );
+team_t         * chr_get_pteam(Uint16 ichr);
+team_t         * chr_get_pteam_base(Uint16 ichr);
+ai_state_t     * chr_get_pai(Uint16 ichr);
+chr_instance_t * chr_get_pinstance(Uint16 ichr);
+
+Uint16   team_get_ileader( Uint16 iteam );
+chr_t  * team_get_pleader( Uint16 iteam );
+
+bool_t team_hates_team(Uint16 ipredator, Uint16 iprey);
+
+bool_t cap_is_type_idsz( Uint16 icap, IDSZ test_idsz );
+
+IDSZ chr_get_idsz(Uint16 ichr, Uint16 type);
+
+void chr_update_size( chr_t * pchr );
+void chr_init_size( chr_t * pchr, cap_t * pcap );
+void chr_set_size( chr_t * pchr, float size );
+void chr_set_width( chr_t * pchr, float width );
+void chr_set_shadow( chr_t * pchr, float width );
+void chr_set_height( chr_t * pchr, float height );
+void chr_set_fat( chr_t * pchr, float fat );
+
+bool_t chr_has_idsz( Uint16 ichr, IDSZ idsz );
+bool_t chr_is_type_idsz( Uint16 ichr, IDSZ idsz );
+bool_t chr_has_vulnie( Uint16 item, Uint16 weapon_profile );

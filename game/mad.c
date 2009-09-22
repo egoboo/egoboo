@@ -44,8 +44,6 @@ char    cFrameName[16];                                     // MD2 Frame Name
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static void load_all_messages( const char *loadname, Uint16 object );
-static void get_message( vfs_FILE* fileread );
 static void md2_fix_normals( Uint16 modelindex );
 static void md2_get_transvertices( Uint16 modelindex );
 // static int  vertexconnected( md2_ogl_commandlist_t * pclist, int vertex );
@@ -144,7 +142,6 @@ void action_check_copy( const char* loadname, Uint16 object )
 
     if ( object > MAX_PROFILE || !MadList[object].loaded ) return;
 
-    MadList[object].message_start = 0;
     fileread = vfs_openRead( loadname );
     if ( fileread )
     {
@@ -324,115 +321,16 @@ void load_action_names( const char* loadname )
 }
 
 //--------------------------------------------------------------------------------------------
-int load_one_model_skins( const char * tmploadname, Uint16 object )
+Uint16 load_one_model_profile( const char* tmploadname, Uint16 imad )
 {
-    int min_skin_tx, min_icon_tx;
-    int max_skin, max_icon, max_tex;
-    int iskin, iicon;
-    int cnt;
-
-    STRING newloadname;
-
-    mad_t * pmad;
-
-    if ( object > MAX_PROFILE ) return 0;
-    pmad = MadList + object;
-
-    // Load the skins and icons
-    max_skin    = max_icon    = -1;
-    min_skin_tx = min_icon_tx = INVALID_TEXTURE;
-    for ( cnt = 0; cnt < MAXSKIN; cnt++)
-    {
-        snprintf( newloadname, SDL_arraysize(newloadname), "%s" SLASH_STR "tris%d", tmploadname, cnt );
-
-        pmad->tex_ref[cnt] = TxTexture_load_one( newloadname, INVALID_TEXTURE, TRANSCOLOR );
-        if ( INVALID_TEXTURE != pmad->tex_ref[cnt] )
-        {
-            max_skin = cnt;
-            if ( INVALID_TEXTURE == min_skin_tx )
-            {
-                min_skin_tx = pmad->tex_ref[cnt];
-            }
-        }
-
-        snprintf( newloadname, SDL_arraysize(newloadname), "%s" SLASH_STR "icon%d", tmploadname, cnt );
-        pmad->ico_ref[cnt] = TxTexture_load_one( newloadname, INVALID_TEXTURE, INVALID_KEY );
-
-        if ( INVALID_TEXTURE != pmad->ico_ref[cnt] )
-        {
-            max_icon = cnt;
-
-            if ( INVALID_TEXTURE == min_icon_tx )
-            {
-                min_icon_tx = pmad->ico_ref[cnt];
-            }
-
-            if ( SPELLBOOK == object )
-            {
-                if ( bookicon_count < MAXSKIN )
-                {
-                    bookicon_ref[bookicon_count] = pmad->ico_ref[cnt];
-                    bookicon_count++;
-                }
-            }
-        }
-    }
-
-    if ( max_skin < 0 )
-    {
-        // If we didn't get a skin, set it to the water texture
-        max_skin = 0;
-        pmad->tex_ref[cnt] = TX_WATER_TOP;
-
-        if (cfg.dev_mode)
-        {
-            log_message( "NOTE: Object is missing a skin (%s)!\n", tmploadname );
-        }
-    }
-
-    max_tex = MAX(max_skin, max_icon);
-
-    // fill in any missing textures
-    iskin = min_skin_tx;
-    iicon = min_icon_tx;
-    for ( cnt = 0; cnt <= max_tex; cnt++ )
-    {
-        if ( INVALID_TEXTURE != pmad->tex_ref[cnt] && iskin != pmad->tex_ref[cnt] )
-        {
-            iskin = pmad->tex_ref[cnt];
-        }
-
-        if ( INVALID_TEXTURE != pmad->ico_ref[cnt] && iicon != pmad->ico_ref[cnt] )
-        {
-            iicon = pmad->ico_ref[cnt];
-        }
-
-        pmad->tex_ref[cnt] = iskin;
-        pmad->ico_ref[cnt] = iicon;
-    }
-
-    return max_tex + 1;
-}
-
-//--------------------------------------------------------------------------------------------
-int load_one_model_profile( const char* tmploadname, Uint16 object )
-{
-    int     cnt;
     mad_t * pmad;
     STRING  newloadname;
 
-    if ( object > MAX_PROFILE ) return 0;
-    pmad = MadList + object;
+    if ( !VALID_MAD_RANGE(imad) ) return MAX_MAD;
+    pmad = MadList + imad;
 
     // clear out the mad
     memset( pmad, 0, sizeof(mad_t) );
-
-    // clear out the textures
-    for ( cnt = 0; cnt < MAXSKIN; cnt++)
-    {
-        pmad->tex_ref[cnt] = INVALID_TEXTURE;
-        pmad->ico_ref[cnt] = INVALID_TEXTURE;
-    }
 
     // mark it as used
     pmad->loaded = btrue;
@@ -441,13 +339,7 @@ int load_one_model_profile( const char* tmploadname, Uint16 object )
     strncpy( pmad->name, tmploadname, SDL_arraysize(pmad->name) );
     pmad->name[ SDL_arraysize(pmad->name) - 1 ] = '\0';
 
-    // Load the AI script for this object
-    make_newloadname( tmploadname, SLASH_STR "script.txt", newloadname );
-
-    // Create a reference to the one we just loaded
-    pmad->ai = load_ai_script( newloadname );
-
-    // Load the object model
+    // Load the imad model
     make_newloadname( tmploadname, SLASH_STR "tris.md2", newloadname );
 
 #ifdef __unix__
@@ -466,45 +358,20 @@ int load_one_model_profile( const char* tmploadname, Uint16 object )
 
 #endif
 
-    md2_load_one( vfs_resolveReadFilename(newloadname), &(MadList[object].md2_data) );
-    // md2_fix_normals( object );        // Fix them normals
-    md2_get_transvertices( object );  // Figure out how many vertices to transform
+    md2_load_one( vfs_resolveReadFilename(newloadname), &(MadList[imad].md2_data) );
+    // md2_fix_normals( imad );        // Fix them normals
+    md2_get_transvertices( imad );  // Figure out how many vertices to transform
 
     pmad->md2_ptr = md2_loadFromFile( newloadname );
 
-    // Create the actions table for this object
-    mad_rip_actions( object );
+    // Create the actions table for this imad
+    mad_rip_actions( imad );
 
     // Copy entire actions to save frame space COPY.TXT
     make_newloadname( tmploadname, SLASH_STR "copy.txt", newloadname );
-    action_check_copy( newloadname, object );
+    action_check_copy( newloadname, imad );
 
-    // Load the messages for this object
-    make_newloadname( tmploadname, SLASH_STR "message.txt", newloadname );
-    load_all_messages( newloadname, object );
-
-    // Load the particles for this object
-    for ( cnt = 0; cnt < MAX_PIP_PER_PROFILE; cnt++ )
-    {
-        snprintf( newloadname, SDL_arraysize( newloadname), "%s" SLASH_STR "part%d.txt", tmploadname, cnt );
-
-        // Make sure it's referenced properly
-        pmad->prtpip[cnt] = load_one_particle_profile( newloadname );
-    }
-
-    pmad->skins = load_one_model_skins( tmploadname, object );
-
-    // Load the waves for this object
-    for ( cnt = 0; cnt < MAX_WAVE; cnt++ )
-    {
-        STRING  szLoadName, wavename;
-
-        snprintf( wavename, SDL_arraysize( wavename), SLASH_STR "sound%d", cnt );
-        make_newloadname( tmploadname, wavename, szLoadName );
-        pmad->wavelist[cnt] = sound_load_chunk( szLoadName );
-    }
-
-    return pmad->skins;
+    return imad;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -747,72 +614,8 @@ void md2_get_transvertices( Uint16 modelindex )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void load_all_messages( const char *loadname, Uint16 object )
-{
-    // ZZ> This function loads all of an objects messages
-    vfs_FILE *fileread;
-
-    MadList[object].message_start = 0;
-    fileread = vfs_openRead( loadname );
-    if ( fileread )
-    {
-        MadList[object].message_start = MessageOffset.count;
-
-        while ( goto_colon( NULL, fileread, btrue ) )
-        {
-            get_message( fileread );
-        }
-
-        vfs_close( fileread );
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void get_message( vfs_FILE* fileread )
-{
-    // ZZ> This function loads a string into the message buffer, making sure it
-    //    is null terminated.
-    int cnt;
-    char cTmp;
-    STRING szTmp;
-
-    if ( message_buffer_carat >= MESSAGEBUFFERSIZE )
-    {
-        message_buffer_carat = MESSAGEBUFFERSIZE - 1;
-        message_buffer[message_buffer_carat] = '\0';
-        return;
-    }
-
-    if ( MessageOffset.count >= MAXTOTALMESSAGE )
-    {
-        return;
-    }
-
-    MessageOffset.lst[MessageOffset.count] = message_buffer_carat;
-    fget_string( fileread, szTmp, SDL_arraysize(szTmp) );
-    szTmp[255] = '\0';
-
-    cTmp = szTmp[0];
-    cnt = 1;
-    while ( '\0' != cTmp && message_buffer_carat < MESSAGEBUFFERSIZE - 1 )
-    {
-        if ( '_' == cTmp )  cTmp = ' ';
-
-        message_buffer[message_buffer_carat] = cTmp;
-        message_buffer_carat++;
-        cTmp = szTmp[cnt];
-        cnt++;
-    }
-
-    message_buffer[message_buffer_carat] = '\0';
-    message_buffer_carat++;
-    MessageOffset.count++;
-}
-
-//--------------------------------------------------------------------------------------------
 bool_t release_one_mad( Uint16 imad )
 {
-    int cnt;
     mad_t * pmad;
 
     if( !VALID_MAD_RANGE(imad) ) return bfalse;
@@ -823,21 +626,7 @@ bool_t release_one_mad( Uint16 imad )
     // free any md2 data
     md2_freeModel( pmad->md2_ptr );
 
-    // free all sounds
-    for ( cnt = 0; cnt < MAX_WAVE; cnt++ )
-    {
-        sound_free_chunk( pmad->wavelist[cnt] );
-    }
-
-    // free any local pips
-    for( cnt = 0; cnt<MAX_PIP_PER_PROFILE; cnt++ )
-    {
-        release_one_pip(cnt);
-    }
-
     memset( pmad, 0, sizeof(mad_t) );
-
-    pmad->ai = 0;
 
     pmad->loaded   = bfalse;
     strncpy( pmad->name, "*NONE*", SDL_arraysize(pmad->name) );

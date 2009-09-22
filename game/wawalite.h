@@ -1,9 +1,36 @@
 #pragma once
 
+//********************************************************************************************
+//*
+//*    This file is part of Egoboo.
+//*
+//*    Egoboo is free software: you can redistribute it and/or modify it
+//*    under the terms of the GNU General Public License as published by
+//*    the Free Software Foundation, either version 3 of the License, or
+//*    (at your option) any later version.
+//*
+//*    Egoboo is distributed in the hope that it will be useful, but
+//*    WITHOUT ANY WARRANTY; without even the implied warranty of
+//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//*    General Public License for more details.
+//*
+//*    You should have received a copy of the GNU General Public License
+//*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
+//*
+//********************************************************************************************
+
+/* Egoboo - wawalite.h
+ * loading the environment definitions for a module
+ */
+
 #include "egoboo_typedef.h"
 
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 #define MAXWATERLAYER 2                             // Maximum water layers
 
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 // a wrapper for the wawalite.txt file
 struct s_wawalite_water_layer
 {
@@ -21,6 +48,7 @@ struct s_wawalite_water_layer
 };
 typedef struct s_wawalite_water_layer wawalite_water_layer_t;
 
+//--------------------------------------------------------------------------------------------
 struct s_wawalite_water
 {
     int                    layer_count;
@@ -41,6 +69,7 @@ struct s_wawalite_water
 };
 typedef struct s_wawalite_water wawalite_water_t;
 
+//--------------------------------------------------------------------------------------------
 struct s_wawalite_physics
 {
     float hillslide;
@@ -52,6 +81,7 @@ struct s_wawalite_physics
 };
 typedef struct s_wawalite_physics wawalite_physics_t;
 
+//--------------------------------------------------------------------------------------------
 struct s_wawalite_animtile
 {
     Uint32 update_and;
@@ -59,6 +89,7 @@ struct s_wawalite_animtile
 };
 typedef struct s_wawalite_animtile wawalite_animtile_t;
 
+//--------------------------------------------------------------------------------------------
 struct s_wawalite_damagetile
 {
     Uint32 amount;
@@ -70,6 +101,7 @@ struct s_wawalite_damagetile
 };
 typedef struct s_wawalite_damagetile wawalite_damagetile_t;
 
+//--------------------------------------------------------------------------------------------
 struct s_wawalite_weather
 {
     bool_t over_water;
@@ -84,6 +116,7 @@ struct s_wawalite_graphics
 };
 typedef struct s_wawalite_graphics wawalite_graphics_t;
 
+//--------------------------------------------------------------------------------------------
 struct s_wawalite_camera
 {
     bool_t swing;
@@ -92,6 +125,7 @@ struct s_wawalite_camera
 };
 typedef struct s_wawalite_camera wawalite_camera_t;
 
+//--------------------------------------------------------------------------------------------
 struct s_wawalite_fog
 {
     bool_t found;
@@ -104,6 +138,7 @@ struct s_wawalite_fog
 };
 typedef struct s_wawalite_fog wawalite_fog_t;
 
+//--------------------------------------------------------------------------------------------
 struct s_wawalite_data
 {
     Uint32 seed;
@@ -126,7 +161,11 @@ struct s_wawalite_data
 
 typedef struct s_wawalite_data wawalite_data_t;
 
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 extern wawalite_data_t wawalite_data;
 
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t            write_wawalite( const char *modname, wawalite_data_t * pdata );
 wawalite_data_t * read_wawalite( const char *modname );

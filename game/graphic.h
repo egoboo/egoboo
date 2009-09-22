@@ -20,7 +20,7 @@
 //********************************************************************************************
 
 #include "ogl_texture.h"
-#include "module.h"
+#include "module_file.h"
 #include "mesh.h"
 #include "mad.h"
 
@@ -283,7 +283,6 @@ extern line_data_t line_list[LINE_COUNT];
 // Function prototypes
 void draw_blip( float sizeFactor, Uint8 color, int x, int y );
 int  DisplayMsg_get_free();
-void create_szfpstext( int frames );
 
 void make_lighttospek();
 void make_lighttable( float lx, float ly, float lz, float ambi );
@@ -353,8 +352,8 @@ void do_grid_dynalight();
 
 void do_cursor();
 
-int sdl_init();
-int ogl_init();
+void gfx_init();
+int  ogl_init();
 
 bool_t dump_screenshot();
 

@@ -40,7 +40,6 @@ extern int      fnt_init();
 extern Font    *fnt_loadFont( const char *fileName, int pointSize );
 extern void    fnt_freeFont( Font *font );
 
-
 extern void    fnt_drawTextBox( Font *font, int x, int y, int width, int height, int spacing, const char *format, ...   );
 extern void    fnt_drawText( Font *font, int x, int y, const char *format, ...   );
 

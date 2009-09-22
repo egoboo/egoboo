@@ -25,7 +25,7 @@
 #include "menu.h"
 #include "log.h"
 #include "graphic.h"
-#include "module.h"
+#include "module_file.h"
 #include "game.h"
 
 #include "egoboo_fileutil.h"
@@ -82,7 +82,7 @@ bool_t link_follow_modname( const char * modname, bool_t push_current_module )
 
     if ( !VALID_CSTR(modname) ) return bfalse;
 
-    if ( !modlist_test_by_name(modname) ) return bfalse;
+    if ( !mnu_test_by_name(modname) ) return bfalse;
 
     // push the link BEFORE you change the module data
     // otherwise you won't save the correct data!
@@ -106,10 +106,10 @@ bool_t link_follow_modname( const char * modname, bool_t push_current_module )
     else
     {
         pickedmodule_name[0] = '\0';
-        pickedmodule_index = modlist_get_mod_number(modname);
+        pickedmodule_index = mnu_get_mod_number(modname);
         if ( -1 != pickedmodule_index )
         {
-            strncpy( pickedmodule_name, ModList.lst[pickedmodule_index].loadname, SDL_arraysize(pickedmodule_name) );
+            strncpy( pickedmodule_name, mnu_ModList_get_name(pickedmodule_index), SDL_arraysize(pickedmodule_name) );
         }
     }
 
@@ -166,7 +166,7 @@ bool_t link_pop_module()
             {
                 if ( !ChrList.lst[j].on ) continue;
 
-                if ( phero->object_index == ChrList.lst[j].model )
+                if ( phero->object_index == ChrList.lst[j].iprofile )
                 {
                     pchr = ChrList.lst + j;
                     break;
@@ -201,10 +201,7 @@ bool_t link_push_module()
     memset( pentry, 0, sizeof(link_stack_entry_t) );
 
     // store the load name of the module
-    strncpy(
-        pentry->modname,
-        ModList.lst[pickedmodule_index].loadname,
-        SDL_arraysize(pentry->modname) );
+    strncpy( pentry->modname, mnu_ModList_get_name(pickedmodule_index), SDL_arraysize(pentry->modname) );
 
     // find all of the exportable characters
     pentry->hero_count = 0;
@@ -228,7 +225,7 @@ bool_t link_push_module()
             pentry->hero_count++;
 
             // copy some important info
-            phero->object_index = pchr->model;
+            phero->object_index = pchr->iprofile;
 
             phero->pos_stt.x    = pchr->pos_stt.x;
             phero->pos_stt.y    = pchr->pos_stt.y;

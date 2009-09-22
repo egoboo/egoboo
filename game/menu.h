@@ -30,6 +30,7 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 struct s_oglx_texture;
+struct s_mod_file;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -90,18 +91,27 @@ extern bool_t mnu_draw_background;
 void  check_player_import( const char *dirname, bool_t initialize );
 
 int doMenu( float deltaTime );
-int initMenus();
+int mnu_init();
 
 bool_t mnu_begin_menu( which_menu_t which );
 void   mnu_end_menu();
 
 int mnu_get_menu_depth();
 
-void           TxTitleImage_init_all();
-void           TxTitleImage_release_all();
-void           TxTitleImage_delete_all();
+void                    TxTitleImage_init_all();
+void                    TxTitleImage_release_all();
+void                    TxTitleImage_delete_all();
 struct s_oglx_texture * TxTitleImage_get_ptr( Uint32 itex );
 
 extern bool_t startNewPlayer;
+
+void                mnu_ModList_release_all();
+struct s_mod_file * mnu_ModList_get_base( int imod );
+const char *        mnu_ModList_get_name( int imod );
+
+void   mnu_load_all_module_info();
+int    mnu_get_mod_number( const char *szModName );
+bool_t mnu_test_by_name( const char *szModName );
+bool_t mnu_test_by_index( int modnumber );
 
 #define egoboo_Menu_h

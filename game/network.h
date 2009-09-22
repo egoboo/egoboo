@@ -60,7 +60,7 @@
 #define STARTTALK   10
 
 // Network orders
-/*extern unsigned char           ordervalid[MAXORDER];           
+/*extern unsigned char           ordervalid[MAXORDER];
 extern unsigned char           orderwho[MAXORDER][MAXSELECT];  //
 extern unsigned int            orderwhat[MAXORDER];            //
 extern unsigned int            orderwhen[MAXORDER];            //*/
@@ -111,9 +111,12 @@ typedef struct s_player player_t;
 
 extern Uint32                  numplatimes;
 
-extern int                     numpla;                                   // Number of players
-extern int                     local_numlpla;
+extern int                     local_numlpla;                                   // Number of local players
+extern int                     PlaList_count;                                   // Number of players
 extern player_t                PlaList[MAXPLAYER];
+
+Uint16         pla_get_ichr( Uint16 iplayer );
+struct s_chr * pla_get_pchr( Uint16 iplayer );
 
 struct s_net_instance
 {

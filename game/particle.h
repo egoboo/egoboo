@@ -22,130 +22,19 @@
 #include "egoboo_typedef.h"
 #include "egoboo_math.h"
 
+#include "pip_file.h"
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 #define PRTLEVELFIX         20                      // Fix for shooting over cliffs
 
 // Particles
-#define PRTLIGHTSPRITE                  0           // Magic effect particle
-#define PRTSOLIDSPRITE                  1           // Sprite particle
-#define PRTALPHASPRITE                  2           // Smoke particle
 #define MAXPARTICLEIMAGE                256         // Number of particle images ( frames )
 #define DYNAFANS  12
 
-// dynalight constants
-#define DYNAOFF   0
-#define DYNAON    1
-#define DYNALOCAL 2
-// #define MAXFALLOFF 1400
-
 // Physics
 #define STOPBOUNCINGPART                5.0f         // To make particles stop bouncing
-
-// pre-defined global particles
-#define COIN1               0                       // Coins are the first particles loaded
-#define COIN5               1
-#define COIN25              2
-#define COIN100             3
-#define WEATHER4            4                       // Weather particles
-#define WEATHER5            5                       // Weather particle finish
-#define SPLASH              6                       // Water effects are next
-#define RIPPLE              7
-#define DEFEND              8                       // Defend particle
-
-enum e_prt_orientations
-{
-    ORIENTATION_B = 0,   // billboard
-    ORIENTATION_X,       // put particle up along the world or body-fixed x-axis
-    ORIENTATION_Y,       // put particle up along the world or body-fixed y-axis
-    ORIENTATION_Z,       // put particle up along the world or body-fixed z-axis
-    ORIENTATION_V,       // vertical, like a candle
-    ORIENTATION_H        // horizontal, like a plate
-};
-typedef enum e_prt_orientations prt_ori_t;
-
-//------------------------------------
-// Particle template
-//------------------------------------
-struct s_pip
-{
-    EGO_PROFILE_STUFF
-
-    bool_t  force;                        // Force spawn?
-
-    Uint8   type;                         // Transparency mode
-    Uint8   numframes;                    // Number of frames
-    Uint8   imagebase;                    // Starting image
-    Uint16  imageadd;                     // Frame rate
-    Uint16  imageaddrand;                 // Frame rate randomness
-    Uint16  time;                         // Time until end
-    IPair   rotate_pair;                   // Rotation
-    Sint16  rotateadd;                    // Rotation rate
-    Uint16  sizebase;                     // Size
-    Sint16  sizeadd;                      // Size rate
-    float   spdlimit;                     // Speed limit
-    float   dampen;                       // Bounciness
-    Sint8   bumpmoney;                    // Value of particle
-    Uint32  bumpsize;                     // Bounding box size
-    Uint32  bumpheight;                   // Bounding box height
-    bool_t  endwater;                     // End if underwater
-    bool_t  endbump;                      // End if bumped
-    bool_t  endground;                    // End if on ground
-    bool_t  endwall;                      // End if hit a wall
-    bool_t  endlastframe;                 // End on last frame
-    IPair   damage;                       // Damage
-    Uint8   damagetype;                   // Damage type
-    Uint16  facingadd;                    // Facing
-    IPair   facing_pair;                   // Facing
-    IPair   xyspacing_pair;                // Spacing
-    IPair   zspacing_pair;                 // Altitude
-    IPair   xyvel_pair;                    // Shot velocity
-    IPair   zvel_pair;                     // Up velocity
-    Uint16  contspawntime;                // Spawn timer
-    Uint8   contspawnamount;              // Spawn amount
-    Uint16  contspawnfacingadd;           // Spawn in circle
-    Uint16  contspawnpip;                 // Spawn type ( local )
-    Uint8   endspawnamount;               // Spawn amount
-    Uint16  endspawnfacingadd;            // Spawn in circle
-    Uint8   endspawnpip;                  // Spawn type ( local )
-    Uint8   bumpspawnamount;              // Spawn amount
-    Uint8   bumpspawnpip;                 // Spawn type ( global )
-    Uint8   dynalightmode;                // Dynamic light on?
-    float   dynalevel;                    // Intensity
-    Uint16  dynafalloff;                  // Falloff
-    Uint16  dazetime;                     // Daze
-    Uint16  grogtime;                     // Drunkeness
-    Sint8   soundspawn;                   // Beginning sound
-    Sint8   soundend;                     // Ending sound
-    Sint8   soundfloor;                   // Floor sound
-    Sint8   soundwall;                    // Ricochet sound
-    bool_t  friendlyfire;                 // Friendly fire
-    bool_t  hateonly;                     // Only hit hategroup
-    bool_t  rotatetoface;                 // Arrows/Missiles
-    bool_t  newtargetonspawn;             // Get new target?
-    bool_t  homing;                       // Homing?
-    Uint16  targetangle;                  // To find target
-    float   homingaccel;                  // Acceleration rate
-    float   homingfriction;               // Deceleration rate
-    float   dynalightleveladd;            // Dyna light changes
-    float   dynalightfalloffadd;
-    bool_t  targetcaster;                 // Target caster?
-    bool_t  spawnenchant;                 // Spawn enchant?
-    bool_t  causepancake;                 // !!BAD: Not implemented!!
-    bool_t  needtarget;                   // Need a target?
-    bool_t  onlydamagefriendly;           // Only friends?
-    bool_t  startontarget;                // Start on target?
-    int     zaimspd;                      // [ZSPD] For Z aiming
-    Uint16  damfx;                        // Damage effects
-    bool_t  allowpush;                    // Allow particle to push characters around
-    bool_t  intdamagebonus;               // Add intelligence as damage bonus
-    bool_t  wisdamagebonus;               // Add wisdom as damage bonus
-
-    prt_ori_t orientation;
-};
-
-typedef struct s_pip pip_t;
 
 DEFINE_STACK_EXTERN(pip_t, PipStack, MAX_PIP );
 
@@ -201,7 +90,7 @@ struct s_prt
 
     // profiles
     Uint16  pip;                             // The part template
-    Uint16  model;                           // Pip spawn model
+    Uint16  iprofile;                        // the profile related to the spawned particle
 
     Uint16  attachedtocharacter;             // For torch flame
     Uint16  vrt_off;                         // It's vertex offset
@@ -239,9 +128,9 @@ struct s_prt
     IPair   damage;                          // For strength
     Uint8   damagetype;                      // Damage type
     Uint16  chr;                             // The character that is attacking
-    float   dynalightfalloff;                // Dyna light...
-    float   dynalightlevel;
-    bool_t  dynalighton;                     // Dynamic light?
+    float   dynalight_falloff;                // Dyna light...
+    float   dynalight_level;
+    bool_t  dynalight_on;                     // Dynamic light?
     Uint16  target;                          // Who it's chasing
 
     bool_t  is_eternal;
@@ -281,7 +170,7 @@ Uint16 spawn_one_particle( float x, float y, float z,
 
 int prt_count_free();
 
-int load_one_particle_profile( const char *szLoadName );
+int load_one_particle_profile( const char *szLoadName, Uint16 pip_override );
 void reset_particles( const char* modname );
 
 Uint8 __prthitawall( Uint16 particle );
@@ -289,3 +178,8 @@ Uint8 __prthitawall( Uint16 particle );
 int    prt_is_over_water( Uint16 cnt );
 
 bool_t release_one_pip( Uint16 ipip );
+
+Uint16  prt_get_ipip( Uint16 cnt );
+pip_t * prt_get_ppip( Uint16 cnt );
+
+void release_all_pip();

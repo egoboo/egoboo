@@ -22,30 +22,20 @@
 */
 
 #include "particle.h"
+#include "enchant.h"
+#include "char.h"
+#include "mad.h"
+#include "profile.h"
 
 #include "log.h"
 #include "sound.h"
 #include "camera.h"
-#include "enchant.h"
-#include "char.h"
-#include "mad.h"
 #include "mesh.h"
 #include "game.h"
 
 #include "egoboo_setup.h"
 #include "egoboo_fileutil.h"
 #include "egoboo.h"
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-enum e_particle_direction
-{
-    prt_v = 0x0000,    // particle is vertical on the bitmap
-    prt_d = 0x2000,    // particle is diagonal (rotated 45 degrees to the right = 8192)
-    prt_h = 0x4000,    // particle is horizontal (rotated 90 degrees = 16384)
-    prt_u = 0xFFFF,    // particle is of unknown orientation
-};
-typedef enum e_particle_direction particle_direction_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -56,26 +46,6 @@ Uint16           maxparticles = 512;                            // max number of
 
 DECLARE_STACK( ACCESS_TYPE_NONE, pip_t, PipStack );
 DECLARE_LIST ( ACCESS_TYPE_NONE, prt_t, PrtList );
-
-particle_direction_t prt_direction[256] =
-{
-    prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_d, prt_v,
-    prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v,
-    prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v,
-    prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v,
-    prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v,
-    prt_v, prt_v, prt_v, prt_d, prt_v, prt_v, prt_v, prt_v, prt_d, prt_d, prt_v, prt_d, prt_d, prt_d, prt_d, prt_d,
-    prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v,
-    prt_v, prt_d, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v,
-    prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v,
-    prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_d, prt_d, prt_d, prt_d,
-    prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_d, prt_d, prt_d, prt_d, prt_v, prt_v, prt_v, prt_v,
-    prt_u, prt_u, prt_u, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v,
-    prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v,
-    prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_d, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v,
-    prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_d, prt_u, prt_u, prt_u, prt_u,
-    prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_u, prt_u, prt_u, prt_u
-};
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -133,9 +103,9 @@ void play_particle_sound( Uint16 particle, Sint8 sound )
 
     if ( sound >= 0 && sound < MAX_WAVE )
     {
-        if ( VALID_MAD( pprt->model ) )
+        if ( VALID_PRO( pprt->iprofile ) )
         {
-            sound_play_chunk( pprt->pos, MadList[pprt->model].wavelist[sound] );
+            sound_play_chunk( pprt->pos, pro_get_chunk(pprt->iprofile, sound) );
         }
         else
         {
@@ -157,11 +127,11 @@ void free_one_particle_in_game( Uint16 particle )
 
         if ( pprt->spawncharacterstate != SPAWNNOCHARACTER )
         {
-            child = spawn_one_character( pprt->pos, pprt->model, pprt->team, 0, pprt->facing, NULL, MAX_CHR );
+            child = spawn_one_character( pprt->pos, pprt->iprofile, pprt->team, 0, pprt->facing, NULL, MAX_CHR );
             if ( VALID_CHR(child) )
             {
-                ChrList.lst[child].ai.state = pprt->spawncharacterstate;
-                ChrList.lst[child].ai.owner = pprt->chr;
+                chr_get_pai(child)->state = pprt->spawncharacterstate;
+                chr_get_pai(child)->owner = pprt->chr;
             }
         }
 
@@ -233,8 +203,30 @@ int get_free_particle( int force )
 }
 
 //--------------------------------------------------------------------------------------------
+void prt_init( prt_t * pprt )
+{
+    if( NULL == pprt ) return;
+
+    memset( pprt, 0, sizeof(prt_t) );
+
+    /* pprt->floor_level = 0; */
+    pprt->spawncharacterstate = SPAWNNOCHARACTER;
+
+    // Lighting and sound
+    /* pprt->dynalight_on = bfalse; */
+
+    // Image data
+    /* pprt->image = 0; */
+
+    // "no lifetime" = "eternal"
+    /* pprt->is_eternal = bfalse; */
+    pprt->time      = (Uint32)~0;
+
+}
+
+//--------------------------------------------------------------------------------------------
 Uint16 spawn_one_particle( float x, float y, float z,
-                           Uint16 facing, Uint16 model, Uint16 ipip,
+                           Uint16 facing, Uint16 iprofile, Uint16 ipip,
                            Uint16 characterattach, Uint16 vrt_offset, Uint8 team,
                            Uint16 characterorigin, Uint16 multispawn, Uint16 oldtarget )
 {
@@ -248,44 +240,58 @@ Uint16 spawn_one_particle( float x, float y, float z,
     Uint32 prt_lifetime;
 
     // Convert from local ipip to global ipip
-    if ( ipip < MAX_PIP_PER_PROFILE && model < MAX_PROFILE && MadList[model].loaded )
+    if ( ipip < MAX_PIP_PER_PROFILE && VALID_PRO(iprofile) )
     {
-        ipip = MadList[model].prtpip[ipip];
+        ipip = pro_get_ipip(iprofile, ipip);
     }
-    if ( INVALID_PIP(ipip) ) return TOTAL_MAX_PRT;
+
+    if ( INVALID_PIP(ipip) )
+    {
+        log_warning( "spawn_one_particle() - cannot spawn particle with invalid pip == %d (owner == %d(\"%s\"), profile == %d(\"%s\"))\n",
+            ipip,
+            characterorigin, VALID_CHR(characterorigin) ? ChrList.lst[characterorigin].name : "INVALID",
+            iprofile, VALID_PRO(iprofile) ? ProList.lst[iprofile].name : "INVALID" );
+        return TOTAL_MAX_PRT;
+    }
     ppip = PipStack.lst + ipip;
 
     iprt = get_free_particle( ppip->force );
-    if ( !VALID_PRT_RANGE(iprt) ) return TOTAL_MAX_PRT;
+    if ( !VALID_PRT_RANGE(iprt) )
+    {
+        log_warning( "spawn_one_particle() - cannot allocate a particle owner == %d(\"%s\"), pip == %d(\"%s\"), profile == %d(\"%s\")\n",
+            characterorigin, VALID_CHR(characterorigin) ? ChrList.lst[characterorigin].name : "INVALID",
+            ipip, VALID_PIP(ipip) ? PipStack.lst[ipip].name : "INVALID",
+            iprofile, VALID_PRO(iprofile) ? ProList.lst[iprofile].name : "INVALID" );
+        return TOTAL_MAX_PRT;
+    }
     pprt = PrtList.lst + iprt;
 
     // clear out all data
-    memset( pprt, 0, sizeof(prt_t));
+    prt_init( pprt );
 
     // Necessary data for any part
+    strncpy( pprt->name, ppip->name, SDL_arraysize(pprt->name) );
     pprt->on = btrue;
+
     pprt->pip = ipip;
-    pprt->model = model;
+    pprt->iprofile = iprofile;
     pprt->inview = bfalse;
-    pprt->floor_level = 0;
     pprt->team = team;
     pprt->chr = characterorigin;
     pprt->damagetype = ppip->damagetype;
-    pprt->spawncharacterstate = SPAWNNOCHARACTER;
 
     // Lighting and sound
-    pprt->dynalighton = bfalse;
     if ( multispawn == 0 )
     {
-        pprt->dynalighton = ppip->dynalightmode;
-        if ( ppip->dynalightmode == DYNALOCAL )
+        pprt->dynalight_on = ppip->dynalight_mode;
+        if ( ppip->dynalight_mode == DYNALOCAL )
         {
-            pprt->dynalighton = bfalse;
+            pprt->dynalight_on = bfalse;
         }
     }
 
-    pprt->dynalightlevel = ppip->dynalevel;
-    pprt->dynalightfalloff = ppip->dynafalloff;
+    pprt->dynalight_level = ppip->dynalight_level;
+    pprt->dynalight_falloff = ppip->dynalight_falloff;
 
     // Set character attachments ( characterattach==MAX_CHR means none )
     pprt->attachedtocharacter = characterattach;
@@ -334,7 +340,7 @@ Uint16 spawn_one_particle( float x, float y, float z,
                     tvel = SQRT( vel.x * vel.x + vel.y * vel.y ) / velocity;  // This is the number of steps...
                     if ( tvel > 0 )
                     {
-                        vel.z = ( ChrList.lst[pprt->target].pos.z + ( ChrList.lst[pprt->target].bumpsize >> 1 ) - z ) / tvel;  // This is the vel.z alteration
+                        vel.z = ( ChrList.lst[pprt->target].pos.z + ( ChrList.lst[pprt->target].bump.height * 0.5f ) - z ) / tvel;  // This is the vel.z alteration
                         if ( vel.z < -( ppip->zaimspd >> 1 ) ) vel.z = -( ppip->zaimspd >> 1 );
                         if ( vel.z > ppip->zaimspd ) vel.z = ppip->zaimspd;
                     }
@@ -395,7 +401,6 @@ Uint16 spawn_one_particle( float x, float y, float z,
     pprt->rotateadd = ppip->rotateadd;
     pprt->size = ppip->sizebase;
     pprt->sizeadd = ppip->sizeadd;
-    pprt->image = 0;
     pprt->imageadd = generate_randmask( ppip->imageadd , ppip->imageaddrand );
     pprt->imagestt = INT_TO_FP8( ppip->imagebase );
     pprt->imagemax = INT_TO_FP8( ppip->numframes );
@@ -417,8 +422,6 @@ Uint16 spawn_one_particle( float x, float y, float z,
     }
 
     // "no lifetime" = "eternal"
-    pprt->is_eternal = bfalse;
-    pprt->time      = (Uint32)~0;
     if ( 0 == prt_lifetime )
     {
         pprt->is_eternal = btrue;
@@ -458,13 +461,21 @@ Uint8 __prthitawall( Uint16 particle )
 {
     // ZZ> This function returns nonzero if the particle hit a wall
 
-    Uint32 fan;
     Uint8  retval = MPDFX_IMPASS | MPDFX_WALL;
+    Uint32 fan;
 
-    fan = mesh_get_tile( PMesh, PrtList.lst[particle].pos.x, PrtList.lst[particle].pos.y );
+    pip_t * ppip;
+    prt_t * pprt;
+
+    if( INVALID_PRT(particle) ) return retval;
+    pprt = PrtList.lst + particle;
+
+    ppip = prt_get_ppip(particle);
+
+    fan = mesh_get_tile( PMesh, pprt->pos.x, pprt->pos.y );
     if ( VALID_TILE(PMesh, fan) )
     {
-        if ( PipStack.lst[PrtList.lst[particle].pip].bumpmoney )
+        if ( ppip->bumpmoney )
         {
             retval = mesh_test_fx(PMesh, fan, MPDFX_IMPASS | MPDFX_WALL );
         }
@@ -516,8 +527,8 @@ void move_particles( void )
         else pprt->size += pprt->sizeadd;
 
         // Change dyna light values
-        pprt->dynalightlevel += ppip->dynalightleveladd;
-        pprt->dynalightfalloff += ppip->dynalightfalloffadd;
+        pprt->dynalight_level += ppip->dynalight_leveladd;
+        pprt->dynalight_falloff += ppip->dynalight_falloffadd;
 
         // Make it sit on the floor...  Shift is there to correct for sprite size
         level = pprt->floor_level + (FP8_TO_INT( pprt->size ) >> 1);
@@ -631,7 +642,7 @@ void move_particles( void )
                 {
                     pprt->vel.x = ( pprt->vel.x + ( ( ChrList.lst[pprt->target].pos.x - pprt->pos.x ) * ppip->homingaccel ) ) * ppip->homingfriction;
                     pprt->vel.y = ( pprt->vel.y + ( ( ChrList.lst[pprt->target].pos.y - pprt->pos.y ) * ppip->homingaccel ) ) * ppip->homingfriction;
-                    pprt->vel.z = ( pprt->vel.z + ( ( ChrList.lst[pprt->target].pos.z + ( ChrList.lst[pprt->target].bumpheight >> 1 ) - pprt->pos.z ) * ppip->homingaccel ) );
+                    pprt->vel.z = ( pprt->vel.z + ( ( ChrList.lst[pprt->target].pos.z + ( ChrList.lst[pprt->target].bump.height * 0.5f ) - pprt->pos.z ) * ppip->homingaccel ) );
 
                 }
                 if ( ppip->rotatetoface )
@@ -660,7 +671,7 @@ void move_particles( void )
                 while ( tnc < ppip->contspawnamount )
                 {
                     particle = spawn_one_particle( pprt->pos.x, pprt->pos.y, pprt->pos.z,
-                                                   facing, pprt->model, ppip->contspawnpip,
+                                                   facing, pprt->iprofile, ppip->contspawnpip,
                                                    MAX_CHR, GRIP_LAST, pprt->team, pprt->chr, tnc, pprt->target );
                     if ( PipStack.lst[pprt->pip].facingadd != 0 && particle != TOTAL_MAX_PRT )
                     {
@@ -705,7 +716,7 @@ void move_particles( void )
             for ( tnc = 0; tnc < ppip->endspawnamount; tnc++ )
             {
                 spawn_one_particle( pprt->pos.x - pprt->vel.x, pprt->pos.y - pprt->vel.y, pprt->pos.z,
-                                    facing, pprt->model, ppip->endspawnpip,
+                                    facing, pprt->iprofile, ppip->endspawnpip,
                                     MAX_CHR, GRIP_LAST, pprt->team, pprt->chr, tnc, pprt->target );
                 facing += ppip->endspawnfacingadd;
                 tnc++;
@@ -746,10 +757,10 @@ void setup_particles()
     {
         x = cnt & 15;
         y = cnt >> 4;
-        sprite_list_u[cnt][0] = ( float )( ( 0.05f + x ) / 16.0f );
-        sprite_list_u[cnt][1] = ( float )( ( 0.95f + x ) / 16.0f );
-        sprite_list_v[cnt][0] = ( float )( ( 0.05f + y ) / 16.0f );
-        sprite_list_v[cnt][1] = ( float )( ( 0.95f + y ) / 16.0f );
+        sprite_list_u[cnt][0] = (float)( ( 0.05f + x ) / 16.0f );
+        sprite_list_u[cnt][1] = (float)( ( 0.95f + x ) / 16.0f );
+        sprite_list_v[cnt][0] = (float)( ( 0.05f + y ) / 16.0f );
+        sprite_list_v[cnt][1] = (float)( ( 0.95f + y ) / 16.0f );
     }
 
     // Reset the allocation table
@@ -768,7 +779,7 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
     Uint16 facing, bestvertex;
     Uint16 amount;
     Uint16 vertices;
-    Uint16 direction, model;
+    Uint16 direction;
     float fsin, fcos;
     pip_t * ppip;
     chr_t * pchr;
@@ -789,13 +800,11 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
     if ( INVALID_CHR(character) ) return;
     pchr = ChrList.lst + character;
 
-    model = pchr->inst.imad;
-    if ( model > MAX_PROFILE || !MadList[model].loaded ) return;
-    pmad = MadList + model;
+    pmad = chr_get_pmad( character );
+    if ( NULL == pmad ) return;
 
-    model = pchr->model;
-    if ( INVALID_CAP( model ) ) return;
-    pcap = CapList + model;
+    pcap = chr_get_pcap( character );
+    if ( NULL == pcap ) return;
 
     // Only damage if hitting from proper direction
     direction = ( ATAN2( pprt->vel.y, pprt->vel.x ) + PI ) * 0xFFFF / TWO_PI;
@@ -809,7 +818,7 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
         // Spawn new enchantments
         if ( ppip->spawnenchant )
         {
-            spawn_enchant( pprt->chr, character, MAX_CHR, MAX_ENC, pprt->model );
+            spawn_one_enchant( pprt->chr, character, MAX_CHR, MAX_ENC, pprt->iprofile );
         }
 
         // Spawn particles
@@ -844,7 +853,7 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
                     }
                 }
 
-                spawn_one_particle( pchr->pos.x, pchr->pos.y, pchr->pos.z, 0, pprt->model, ppip->bumpspawnpip,
+                spawn_one_particle( pchr->pos.x, pchr->pos.y, pchr->pos.z, 0, pprt->iprofile, ppip->bumpspawnpip,
                                     character, bestvertex + 1, pprt->team, pprt->chr, cnt, character );
             }
 
@@ -857,7 +866,7 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
                 for ( cnt = 0; cnt < amount; cnt++ )
                 {
                     int irand = RANDIE;
-                    spawn_one_particle( pchr->pos.x, pchr->pos.y, pchr->pos.z, 0, pprt->model, ppip->bumpspawnpip,
+                    spawn_one_particle( pchr->pos.x, pchr->pos.y, pchr->pos.z, 0, pprt->iprofile, ppip->bumpspawnpip,
                                         character, irand % vertices, pprt->team, pprt->chr, cnt, character );
                 }
             }
@@ -898,270 +907,111 @@ Uint16 PipStack_get_free()
 }
 
 //--------------------------------------------------------------------------------------------
-int load_one_particle_profile( const char *szLoadName )
+int load_one_particle_profile( const char *szLoadName, Uint16 pip_override )
 {
     // ZZ> This function loads a particle template, returning bfalse if the file wasn't
     //    found
-    vfs_FILE* fileread;
-    IDSZ idsz;
-    int iTmp;
-    char cTmp;
+
+    Uint16  ipip;
     pip_t * ppip;
 
-    Uint16 retval = MAX_PIP;
+    ipip = MAX_PIP;
+    if( VALID_PIP_RANGE(pip_override) )
+    {
+        release_one_pip(pip_override);
+        ipip = pip_override;
+    }
+    else
+    {
+        ipip = PipStack_get_free();
+    }
 
-    if ( PipStack.count >= MAX_PIP ) return MAX_PIP;
-    ppip = PipStack.lst + PipStack.count;
+    if ( !VALID_PIP_RANGE(ipip) )
+    {
+        return MAX_PIP;
+    }
+    ppip = PipStack.lst + ipip;
 
-    // clear the pip
-    memset( ppip, 0, sizeof(pip_t) );
-
-    fileread = vfs_openRead( szLoadName );
-    if ( NULL == fileread )
+    if( NULL == load_one_pip_file( szLoadName, ppip ) )
     {
         return MAX_PIP;
     }
 
-    retval = PipStack_get_free();
+    ppip->soundend = CLIP(ppip->soundend, -1, MAX_WAVE);
+    ppip->soundspawn = CLIP(ppip->soundspawn, -1, MAX_WAVE);
+//   if ( ppip->dynalight_falloff > MAXFALLOFF && PMod->rtscontrol )  ppip->dynalight_falloff = MAXFALLOFF;
 
-    strncpy( ppip->name, szLoadName, SDL_arraysize(ppip->name) );
-    ppip->loaded = btrue;
-
-    // General data
-    parse_filename = szLoadName;    // For debugging missing colons
-    ppip->force = fget_next_bool( fileread );
-
-    cTmp = fget_next_char( fileread );
-    if ( 'L' == toupper(cTmp) )  ppip->type = PRTLIGHTSPRITE;
-    else if ( 'S' == toupper(cTmp) )  ppip->type = PRTSOLIDSPRITE;
-    else if ( 'T' == toupper(cTmp) )  ppip->type = PRTALPHASPRITE;
-
-    ppip->imagebase = fget_next_int( fileread );
-    ppip->numframes = fget_next_int( fileread );
-    ppip->imageadd = fget_next_int( fileread );
-    ppip->imageaddrand = fget_next_int( fileread );
-    ppip->rotate_pair.base = fget_next_int( fileread );
-    ppip->rotate_pair.rand = fget_next_int( fileread );
-    ppip->rotateadd = fget_next_int( fileread );
-    ppip->sizebase = fget_next_int( fileread );
-    ppip->sizeadd = fget_next_int( fileread );
-    ppip->spdlimit = fget_next_float( fileread );
-    ppip->facingadd = fget_next_int( fileread );
-
-    // override the base rotation
-    if ( 0xFFFF != prt_direction[ ppip->imagebase ] )
-    {
-        ppip->rotate_pair.base = prt_direction[ ppip->imagebase ];
-    };
-
-    // Ending conditions
-    ppip->endwater = fget_next_bool( fileread );
-    ppip->endbump = fget_next_bool( fileread );
-    ppip->endground = fget_next_bool( fileread );
-    ppip->endlastframe = fget_next_bool( fileread );
-
-    ppip->time = fget_next_int( fileread );
-
-    // Collision data
-    ppip->dampen     = fget_next_float( fileread );
-    ppip->bumpmoney  = fget_next_int( fileread );
-    ppip->bumpsize   = fget_next_int( fileread );
-    ppip->bumpheight = fget_next_int( fileread );
-
-    fget_next_pair( fileread ); ppip->damage = pair;
-    ppip->damagetype = fget_next_damage_type( fileread );
-
-    // Lighting data
-    cTmp = fget_next_char( fileread );
-    ppip->dynalightmode = DYNAOFF;
-    if ( 'T' == toupper(cTmp) ) ppip->dynalightmode = DYNAON;
-    if ( 'L' == toupper(cTmp) ) ppip->dynalightmode = DYNALOCAL;
-
-    ppip->dynalevel = fget_next_float( fileread );
-    ppip->dynafalloff = fget_next_int( fileread );
-//   if ( ppip->dynafalloff > MAXFALLOFF && PMod->rtscontrol )  ppip->dynafalloff = MAXFALLOFF;
-
-    // Initial spawning of this particle
-    ppip->facing_pair.base    = fget_next_int( fileread );
-    ppip->facing_pair.rand    = fget_next_int( fileread );
-    ppip->xyspacing_pair.base = fget_next_int( fileread );
-    ppip->xyspacing_pair.rand = fget_next_int( fileread );
-    ppip->zspacing_pair.base  = fget_next_int( fileread );
-    ppip->zspacing_pair.rand  = fget_next_int( fileread );
-    ppip->xyvel_pair.base     = fget_next_int( fileread );
-    ppip->xyvel_pair.rand     = fget_next_int( fileread );
-    ppip->zvel_pair.base      = fget_next_int( fileread );
-    ppip->zvel_pair.rand      = fget_next_int( fileread );
-
-    // Continuous spawning of other particles
-    ppip->contspawntime      = fget_next_int( fileread );
-    ppip->contspawnamount    = fget_next_int( fileread );
-    ppip->contspawnfacingadd = fget_next_int( fileread );
-    ppip->contspawnpip       = fget_next_int( fileread );
-
-    // End spawning of other particles
-    ppip->endspawnamount    = fget_next_int( fileread );
-    ppip->endspawnfacingadd = fget_next_int( fileread );
-    ppip->endspawnpip       = fget_next_int( fileread );
-
-    // Bump spawning of attached particles
-    ppip->bumpspawnamount = fget_next_int( fileread );
-    ppip->bumpspawnpip    = fget_next_int( fileread );
-
-    // Random stuff  !!!BAD!!! Not complete
-    ppip->dazetime     = fget_next_int( fileread );
-    ppip->grogtime     = fget_next_int( fileread );
-    ppip->spawnenchant = fget_next_bool( fileread );
-
-    goto_colon( NULL, fileread, bfalse );  // !!Cause roll
-
-    ppip->causepancake = fget_next_bool( fileread );
-
-    ppip->needtarget         = fget_next_bool( fileread );
-    ppip->targetcaster       = fget_next_bool( fileread );
-    ppip->startontarget      = fget_next_bool( fileread );
-    ppip->onlydamagefriendly = fget_next_bool( fileread );
-
-    iTmp = fget_next_int( fileread );
-    ppip->soundspawn = CLIP(iTmp, -1, MAX_WAVE);
-
-    iTmp = fget_next_int( fileread );
-    ppip->soundend = CLIP(iTmp, -1, MAX_WAVE);
-
-    ppip->friendlyfire = fget_next_bool( fileread );
-
-    fget_next_bool( fileread );
-    // ppip->hateonly = fget_next_bool( fileread ); TODO: BAD not implemented yet
-
-    ppip->newtargetonspawn = fget_next_bool( fileread );
-
-    ppip->targetangle = fget_next_int( fileread ) >> 1;
-    ppip->homing = fget_next_bool( fileread );
-
-    ppip->homingfriction = fget_next_float( fileread );
-    ppip->homingaccel = fget_next_float( fileread );
-    ppip->rotatetoface = fget_next_bool( fileread );
-
-    // Clear expansions...
-    ppip->zaimspd = 0;
-    ppip->soundfloor = -1;
-    ppip->soundwall = -1;
-    ppip->endwall = ppip->endground;
-    ppip->damfx = DAMFX_TURN;
-    if ( ppip->homing )  ppip->damfx = DAMFX_NONE;
-
-    ppip->allowpush = btrue;
-    ppip->dynalightfalloffadd = 0;
-    ppip->dynalightleveladd = 0;
-    ppip->intdamagebonus = bfalse;
-    ppip->wisdamagebonus = bfalse;
-    ppip->orientation = ORIENTATION_B;  // make the orientation the normal billboarded orientation
-
-    // Read expansions
-    while ( goto_colon( NULL, fileread, btrue ) )
-    {
-        idsz = fget_idsz( fileread );
-
-        if ( idsz == MAKE_IDSZ( 'T', 'U', 'R', 'N' ) )  ppip->damfx = DAMFX_NONE;
-        else if ( idsz == MAKE_IDSZ( 'A', 'R', 'M', 'O' ) )  ppip->damfx |= DAMFX_ARMO;
-        else if ( idsz == MAKE_IDSZ( 'B', 'L', 'O', 'C' ) )  ppip->damfx |= DAMFX_NBLOC;
-        else if ( idsz == MAKE_IDSZ( 'A', 'R', 'R', 'O' ) )  ppip->damfx |= DAMFX_ARRO;
-        else if ( idsz == MAKE_IDSZ( 'T', 'I', 'M', 'E' ) )  ppip->damfx |= DAMFX_TIME;
-        else if ( idsz == MAKE_IDSZ( 'Z', 'S', 'P', 'D' ) )  ppip->zaimspd = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'F', 'S', 'N', 'D' ) )  ppip->soundfloor = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'W', 'S', 'N', 'D' ) )  ppip->soundwall = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'W', 'E', 'N', 'D' ) )  ppip->endwall = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'P', 'U', 'S', 'H' ) )  ppip->allowpush = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'D', 'L', 'E', 'V' ) )  ppip->dynalightleveladd = fget_int( fileread ) / 1000.0f;
-        else if ( idsz == MAKE_IDSZ( 'D', 'R', 'A', 'D' ) )  ppip->dynalightfalloffadd = fget_int( fileread ) / 1000.0f;
-        else if ( idsz == MAKE_IDSZ( 'I', 'D', 'A', 'M' ) )  ppip->intdamagebonus = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'W', 'D', 'A', 'M' ) )  ppip->wisdamagebonus = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'O', 'R', 'N', 'T' ) )
-        {
-            char cTmp = fget_first_letter( fileread );
-            switch ( toupper(cTmp) )
-            {
-                case 'X': ppip->orientation = ORIENTATION_X; break;  // put particle up along the world or body-fixed x-axis
-                case 'Y': ppip->orientation = ORIENTATION_Y; break;  // put particle up along the world or body-fixed y-axis
-                case 'Z': ppip->orientation = ORIENTATION_Z; break;  // put particle up along the world or body-fixed z-axis
-                case 'V': ppip->orientation = ORIENTATION_V; break;  // vertical, like a candle
-                case 'H': ppip->orientation = ORIENTATION_H; break;  // horizontal, like a plate
-                case 'B': ppip->orientation = ORIENTATION_B; break;  // billboard
-            }
-        }
-    }
-
-    vfs_close( fileread );
-
-    return retval;
+    return ipip;
 }
 
 //--------------------------------------------------------------------------------------------
 void reset_particles( const char* modname )
 {
     // ZZ> This resets all particle data and reads in the coin and water particles
-    int cnt, object;
+
     STRING newloadname;
     char *loadpath;
 
+    release_all_local_pips();
+    release_all_pip();
+
     // Load in the standard global particles ( the coins for example )
-    PipStack.count = 0;
     loadpath = "basicdat" SLASH_STR "globalparticles" SLASH_STR "1money.txt";
-    if ( MAX_PIP == load_one_particle_profile( loadpath ) )
+    if ( MAX_PIP == load_one_particle_profile( loadpath, COIN1 ) )
     {
         log_error( "Data file was not found! (%s)\n", loadpath );
     }
 
     loadpath = "basicdat" SLASH_STR "globalparticles" SLASH_STR "5money.txt";
-    if ( MAX_PIP == load_one_particle_profile( loadpath ) )
+    if ( MAX_PIP == load_one_particle_profile( loadpath, COIN5 ) )
     {
         log_error( "Data file was not found! (%s)\n", loadpath );
     }
 
     loadpath = "basicdat" SLASH_STR "globalparticles" SLASH_STR "25money.txt";
-    if ( MAX_PIP == load_one_particle_profile( loadpath ) )
+    if ( MAX_PIP == load_one_particle_profile( loadpath, COIN25 ) )
     {
         log_error( "Data file was not found! (%s)\n", loadpath );
     }
 
     loadpath = "basicdat" SLASH_STR "globalparticles" SLASH_STR "100money.txt";
-    if ( MAX_PIP == load_one_particle_profile( loadpath ) )
+    if ( MAX_PIP == load_one_particle_profile( loadpath, COIN100 ) )
     {
         log_error( "Data file was not found! (%s)\n", loadpath );
     }
 
     // Load module specific information
     make_newloadname( modname, "gamedat" SLASH_STR "weather4.txt", newloadname );
-    if ( MAX_PIP == load_one_particle_profile( newloadname ) )
+    if ( MAX_PIP == load_one_particle_profile( newloadname, WEATHER4 ) )
     {
         log_error( "Data file was not found! (%s)\n", newloadname );
     }
 
     make_newloadname( modname, "gamedat" SLASH_STR "weather5.txt", newloadname );
-    if ( MAX_PIP == load_one_particle_profile( newloadname ) )
+    if ( MAX_PIP == load_one_particle_profile( newloadname, WEATHER5 ) )
     {
         log_error( "Data file was not found! (%s)\n", newloadname );
     }
 
     make_newloadname( modname, "gamedat" SLASH_STR "splash.txt", newloadname );
-    if ( MAX_PIP == load_one_particle_profile( newloadname ) )
+    if ( MAX_PIP == load_one_particle_profile( newloadname, SPLASH ) )
     {
         if (cfg.dev_mode) log_message( "DEBUG: Data file was not found! (%s) - Defaulting to global particle.\n", newloadname );
 
         loadpath = "basicdat" SLASH_STR "globalparticles" SLASH_STR "splash.txt";
-        if ( MAX_PIP == load_one_particle_profile( loadpath ) )
+        if ( MAX_PIP == load_one_particle_profile( loadpath, SPLASH ) )
         {
             log_error( "Data file was not found! (%s)\n", loadpath );
         }
     }
 
     make_newloadname( modname, "gamedat" SLASH_STR "ripple.txt", newloadname );
-    if ( MAX_PIP == load_one_particle_profile( newloadname ) )
+    if ( MAX_PIP == load_one_particle_profile( newloadname, RIPPLE ) )
     {
         if (cfg.dev_mode) log_message( "DEBUG: Data file was not found! (%s) - Defaulting to global particle.\n", newloadname );
 
         loadpath = "basicdat" SLASH_STR "globalparticles" SLASH_STR "ripple.txt";
-        if ( MAX_PIP == load_one_particle_profile( loadpath ) )
+        if ( MAX_PIP == load_one_particle_profile( loadpath, RIPPLE ) )
         {
             log_error( "Data file was not found! (%s)\n", loadpath );
         }
@@ -1169,25 +1019,12 @@ void reset_particles( const char* modname )
 
     // This is also global...
     loadpath = "basicdat" SLASH_STR "globalparticles" SLASH_STR "defend.txt";
-    if ( MAX_PIP == load_one_particle_profile( loadpath ) )
+    if ( MAX_PIP == load_one_particle_profile( loadpath, DEFEND ) )
     {
         log_error( "Data file was not found! (%s)\n", loadpath );
     }
 
-    // Now clear out the local pips
-    object = 0;
-    while ( object < MAX_PROFILE )
-    {
-        cnt = 0;
-
-        while ( cnt < MAX_PIP_PER_PROFILE )
-        {
-            MadList[object].prtpip[cnt] = 0;
-            cnt++;
-        }
-
-        object++;
-    }
+    PipStack.count = DEFEND;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1206,4 +1043,42 @@ bool_t release_one_pip( Uint16 ipip )
     ppip->name[0] = '\0';
 
     return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+Uint16  prt_get_ipip( Uint16 iprt )
+{
+    prt_t * pprt;
+
+    if( INVALID_PRT(iprt) ) return MAX_PIP;
+    pprt = PrtList.lst + iprt;
+
+    if( INVALID_PIP(pprt->pip) ) return MAX_PIP;
+
+    return pprt->pip;
+}
+
+//--------------------------------------------------------------------------------------------
+pip_t * prt_get_ppip( Uint16 iprt )
+{
+    prt_t * pprt;
+
+    if( INVALID_PRT(iprt) ) return NULL;
+    pprt = PrtList.lst + iprt;
+
+    if( INVALID_PIP(pprt->pip) ) return NULL;
+
+    return PipStack.lst + pprt->pip;
+}
+
+//--------------------------------------------------------------------------------------------
+void release_all_pip()
+{
+    int cnt;
+
+    for ( cnt = 0; cnt < MAX_PIP; cnt++ )
+    {
+        release_one_pip( cnt );
+    }
 }

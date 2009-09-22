@@ -86,6 +86,15 @@
 #define DECLARE_STACK(ACCESS,TYPE,NAME) ACCESS struct s_stack__##TYPE__##NAME NAME = {0}
 
 //--------------------------------------------------------------------------------------------
+// BOOLEAN
+typedef char bool_t;
+enum
+{
+    btrue = ( 1 == 1 ),
+    bfalse = ( !btrue )
+};
+
+//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // basic vector types
 
@@ -100,13 +109,25 @@ typedef double vec4d_t[4];
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // RECTANGLE
-typedef struct s_rect
+typedef struct s_irect
 {
-    Sint32 left;
-    Sint32 right;
-    Sint32 top;
-    Sint32 bottom;
-} rect_t;
+    int left;
+    int right;
+    int top;
+    int bottom;
+} irect_t;
+
+bool_t irect_point_inside( irect_t * prect, int   ix, int   iy );
+
+typedef struct s_frect
+{
+    float left;
+    float right;
+    float top;
+    float bottom;
+} frect_t;
+
+bool_t frect_point_inside( frect_t * prect, float fx, float fy );
 
 //--------------------------------------------------------------------------------------------
 // PAIR AND RANGE
@@ -124,15 +145,6 @@ struct s_range
 typedef struct s_range FRange;
 
 //--------------------------------------------------------------------------------------------
-// BOOLEAN
-typedef char bool_t;
-enum
-{
-    btrue = ( 1 == 1 ),
-    bfalse = ( !btrue )
-};
-
-//--------------------------------------------------------------------------------------------
 // some basic data that all egoboo objects should have
 #define  EGO_OBJECT_STUFF \
     bool_t         on;      /* Does it exist? */ \
@@ -143,7 +155,7 @@ enum
 // some basic data that all egoboo profiles should have
 #define  EGO_PROFILE_STUFF \
     bool_t         loaded;      /* Does it exist? */ \
-    STRING         name;
+    STRING         name
 
 //--------------------------------------------------------------------------------------------
 // IDSZ
@@ -159,8 +171,10 @@ typedef Uint32 IDSZ;
      ))
 #endif
 
-#define IDSZ_NONE            MAKE_IDSZ('N','O','N','E' )       // [NONE]
-#define IDSZ_BOOK            MAKE_IDSZ('B','O','O','K' )       // [BOOK]
+#define IDSZ_NONE            MAKE_IDSZ('N','O','N','E')       // [NONE]
+#define IDSZ_BOOK            MAKE_IDSZ('B','O','O','K')       // [BOOK]
+
+const char * undo_idsz( IDSZ idsz );
 
 //--------------------------------------------------------------------------------------------
 // STRING

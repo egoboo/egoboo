@@ -461,12 +461,12 @@ void render_one_mad( Uint16 character, Uint8 trans )
                 bb.mins[cnt] = bb.maxs[cnt] = pchr->pos.v[cnt];
             }
 
-            bb.mins[XX] -= pchr->bumpsize;
-            bb.mins[YY] -= pchr->bumpsize;
+            bb.mins[XX] -= pchr->bump.size;
+            bb.mins[YY] -= pchr->bump.size;
 
-            bb.maxs[XX] += pchr->bumpsize;
-            bb.maxs[YY] += pchr->bumpsize;
-            bb.maxs[ZZ] += pchr->bumpheight;
+            bb.maxs[XX] += pchr->bump.size;
+            bb.maxs[YY] += pchr->bump.size;
+            bb.maxs[ZZ] += pchr->bump.height;
 
             GL_DEBUG(glColor4f)(1, 1, 1, 1);
             bbox_gl_draw( &bb );
@@ -486,6 +486,7 @@ void render_one_mad_ref( int tnc, Uint8 trans )
     Uint8 sheen_save;
     GLvector4 pos_save;
     chr_t * pchr;
+    cap_t * pcap;
     chr_instance_t * pinst;
 
     if ( INVALID_CHR(tnc) ) return;
@@ -494,7 +495,8 @@ void render_one_mad_ref( int tnc, Uint8 trans )
 
     if ( pchr->is_hidden ) return;
 
-    if ( INVALID_CAP(pchr->model) || !CapList[pchr->model].reflect ) return;
+    pcap = chr_get_pcap( tnc );
+    if ( NULL == pcap || !pcap->reflect ) return;
 
     level = pchr->floor_level;
     trans_temp = FF_MUL( pchr->inst.alpha, trans) >> 1;
@@ -575,6 +577,10 @@ void chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 t
 
     if ( NULL == pinst || NULL == pchr ) return;
 
+    // has this already been calculated this update?
+    if( pinst->save_lighting_wldframe >= update_wld ) return;
+    pinst->save_lighting_wldframe = update_wld;
+
     if ( INVALID_MAD(pinst->imad) ) return;
     pmad = MadList + pinst->imad;
 
@@ -601,6 +607,7 @@ void chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 t
         loc_light.lighting_low[cnt] -= min_light;
         loc_light.lighting_hgh[cnt] -= min_light;
     }
+    loc_light.max_light -= min_light;
 
     rs = pinst->redshift;
     gs = pinst->grnshift;
@@ -611,9 +618,9 @@ void chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 t
     pinst->color_amb = 0.9f * pinst->color_amb + 0.1f * (self_light + min_light);
 
     pinst->col_amb.a = (alpha * INV_FF) * (pinst->alpha * INV_FF);
-    pinst->col_amb.r = ( float )( pinst->color_amb >> rs ) * INV_FF;
-    pinst->col_amb.g = ( float )( pinst->color_amb >> gs ) * INV_FF;
-    pinst->col_amb.b = ( float )( pinst->color_amb >> bs ) * INV_FF;
+    pinst->col_amb.r = (float)( pinst->color_amb >> rs ) * INV_FF;
+    pinst->col_amb.g = (float)( pinst->color_amb >> gs ) * INV_FF;
+    pinst->col_amb.b = (float)( pinst->color_amb >> bs ) * INV_FF;
 
     pinst->col_amb.a = CLIP(pinst->col_amb.a, 0, 1);
 
@@ -646,9 +653,9 @@ void chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 t
 
         pinst->vlst[cnt].color_dir = 0.9f * pinst->vlst[cnt].color_dir + 0.1f * lite;
 
-        pinst->vlst[cnt].col_dir[RR] = ( float )( pinst->vlst[cnt].color_dir >> rs ) * INV_FF;
-        pinst->vlst[cnt].col_dir[GG] = ( float )( pinst->vlst[cnt].color_dir >> gs ) * INV_FF;
-        pinst->vlst[cnt].col_dir[BB] = ( float )( pinst->vlst[cnt].color_dir >> bs ) * INV_FF;
+        pinst->vlst[cnt].col_dir[RR] = (float)( pinst->vlst[cnt].color_dir >> rs ) * INV_FF;
+        pinst->vlst[cnt].col_dir[GG] = (float)( pinst->vlst[cnt].color_dir >> gs ) * INV_FF;
+        pinst->vlst[cnt].col_dir[BB] = (float)( pinst->vlst[cnt].color_dir >> bs ) * INV_FF;
 
         if ( do_lighting )
         {
@@ -678,7 +685,6 @@ void chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 t
             pinst->vlst[cnt].col[AA] = pinst->col_amb.a;
         }
     }
-
 }
 
 //--------------------------------------------------------------------------------------------
@@ -686,7 +692,7 @@ bool_t chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vmax 
 {
     int    i;
     float  flip;
-    bool_t vertices_match, frames_match;
+    bool_t vertices_match, flips_match, frames_match;
 
     mad_t * pmad;
 
@@ -708,9 +714,11 @@ bool_t chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vmax 
     // test to see if we have already calculated this data
     vertices_match = (pinst->save_vmin <= vmin) && (pinst->save_vmax >= vmax);
 
-    frames_match = ( pinst->save_frame_nxt == pinst->frame_nxt && flip == 1.0f ) ||
-                   ( pinst->save_frame_lst == pinst->frame_lst && flip == 0.0f ) ||
-                   ( pinst->save_frame_nxt == pinst->frame_nxt && pinst->save_frame_lst == pinst->frame_lst && pinst->save_flip == flip );
+    flips_match = ( pinst->frame_nxt == pinst->frame_lst ) || ( pinst->save_flip == flip );
+
+    frames_match = ( flip == 1.0f && pinst->save_frame_nxt == pinst->frame_nxt ) ||
+                   ( flip == 0.0f && pinst->save_frame_lst == pinst->frame_lst ) ||
+                   ( flips_match  && pinst->save_frame_nxt == pinst->frame_nxt && pinst->save_frame_lst == pinst->frame_lst );
 
     if ( frames_match && vertices_match ) return bfalse;
 

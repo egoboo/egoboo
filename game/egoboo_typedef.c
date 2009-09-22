@@ -204,3 +204,50 @@ bool_t hash_list_destroy(hash_list_t ** plst)
 
     return retval;
 }
+
+//--------------------------------------------------------------------------------------------
+const char * undo_idsz( IDSZ idsz )
+{
+    // ZZ> This function takes an integer and makes a text IDSZ out of it.
+
+    static char value_string[5] = {"NONE"};
+
+    if ( idsz == IDSZ_NONE )
+    {
+        strncpy( value_string, "NONE", SDL_arraysize( value_string ) );
+    }
+    else
+    {
+        // Bad! both function return and return to global variable!
+        value_string[0] = (( idsz >> 15 ) & 31 ) + 'A';
+        value_string[1] = (( idsz >> 10 ) & 31 ) + 'A';
+        value_string[2] = (( idsz >> 5 ) & 31 ) + 'A';
+        value_string[3] = (( idsz ) & 31 ) + 'A';
+        value_string[4] = 0;
+    }
+
+    return value_string;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+bool_t irect_point_inside( irect_t * prect, int   ix, int   iy )
+{
+    if( NULL == prect ) return bfalse;
+
+    if( ix < prect->left || ix > prect->right  + 1 ) return bfalse;
+    if( iy < prect->top  || iy > prect->bottom + 1 ) return bfalse;
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t frect_point_inside( frect_t * prect, float fx, float fy )
+{
+    if( NULL == prect ) return bfalse;
+
+    if( fx < prect->left || fx > prect->right  ) return bfalse;
+    if( fy < prect->top  || fy > prect->bottom ) return bfalse;
+
+    return btrue;
+}

@@ -27,10 +27,12 @@
 #include "char.h"
 #include "graphic.h"
 #include "network.h"
-#include "SDL_extensions.h"
+#include "controls.h"
 
 #include "egoboo_setup.h"
 #include "egoboo.h"
+
+#include "SDL_extensions.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -67,11 +69,11 @@ camera_t * camera_new( camera_t * pcam )
     pcam->turn_z     = ((Uint32)(pcam->turn_z_one * 0x00010000L)) & 0x0000FFFFL;
     pcam->turnadd    =  0;
     pcam->sustain    =  0.60f;
-    pcam->turnupdown =  ( float )( PI / 4 );
+    pcam->turnupdown =  (float)( PI / 4 );
     pcam->roll       =  0;
 
     pcam->mView       = pcam->mViewSave = ViewMatrix( t1, t2, t3, 0 );
-    pcam->mProjection = ProjectionMatrix( .001f, 2000.0f, ( float )( FOV * PI / 180 ) ); // 60 degree FOV
+    pcam->mProjection = ProjectionMatrix( .001f, 2000.0f, (float)( FOV * PI / 180 ) ); // 60 degree FOV
     pcam->mProjection = MatrixMult( Translate( 0, 0, -0.999996f ), pcam->mProjection ); // Fix Z value...
     pcam->mProjection = MatrixMult( ScaleXYZ( -1, -1, 100000 ), pcam->mProjection );  // HUK // ...'cause it needs it
 
@@ -80,10 +82,10 @@ camera_t * camera_new( camera_t * pcam )
     pcam->mProjection.v[11] /= 2.0f;
 
     // Matrix init stuff (from remove.c)
-    rotmeshtopside    = ( ( float )sdl_scr.x / sdl_scr.y ) * ROTMESHTOPSIDE / ( 1.33333f );
-    rotmeshbottomside = ( ( float )sdl_scr.x / sdl_scr.y ) * ROTMESHBOTTOMSIDE / ( 1.33333f );
-    rotmeshup         = ( ( float )sdl_scr.x / sdl_scr.y ) * ROTMESHUP / ( 1.33333f );
-    rotmeshdown       = ( ( float )sdl_scr.x / sdl_scr.y ) * ROTMESHDOWN / ( 1.33333f );
+    rotmeshtopside    = ( (float)sdl_scr.x / sdl_scr.y ) * ROTMESHTOPSIDE / ( 1.33333f );
+    rotmeshbottomside = ( (float)sdl_scr.x / sdl_scr.y ) * ROTMESHBOTTOMSIDE / ( 1.33333f );
+    rotmeshup         = ( (float)sdl_scr.x / sdl_scr.y ) * ROTMESHUP / ( 1.33333f );
+    rotmeshdown       = ( (float)sdl_scr.x / sdl_scr.y ) * ROTMESHDOWN / ( 1.33333f );
 
     return pcam;
 }
@@ -141,7 +143,7 @@ void camera_adjust_angle( camera_t * pcam, float height )
     float percentmin, percentmax;
     if ( height < MINZADD )  height = MINZADD;
 
-    percentmax = ( height - MINZADD ) / ( float )( MAXZADD - MINZADD );
+    percentmax = ( height - MINZADD ) / (float)( MAXZADD - MINZADD );
     percentmin = 1.0f - percentmax;
 
     pcam->turnupdown = ( ( MINUPDOWN * percentmin ) + ( MAXUPDOWN * percentmax ) );
@@ -214,6 +216,7 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
             locoalive = 0;
             for ( cnt = 0; cnt < MAXPLAYER; cnt++ )
             {
+                chr_t * pchr;
                 if ( !PlaList[cnt].valid || INPUT_BITS_NONE == PlaList[cnt].device ) continue;
 
                 character = PlaList[cnt].index;
@@ -225,16 +228,17 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
                     continue;
                 }
 
-                if ( ChrList.lst[character].alive )
+                pchr = ChrList.lst + character;
+                if ( pchr->alive )
                 {
-                    Uint16 imount = ChrList.lst[character].attachedto;
+                    Uint16 imount = pchr->attachedto;
                     if ( imount == MAX_CHR )
                     {
                         // The character is on foot
-                        x += ChrList.lst[character].pos.x;
-                        y += ChrList.lst[character].pos.y;
-                        z += ChrList.lst[character].pos.z;
-                        level += ChrList.lst[character].phys.level;
+                        x += pchr->pos.x;
+                        y += pchr->pos.y;
+                        z += pchr->pos.z;
+                        level += pchr->phys.level;
                     }
                     else
                     {
@@ -322,7 +326,7 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
             if ( control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_CAMERA ) )
             {
                 pcam->turnadd += ( mous.x / 3.0f );
-                pcam->zaddgoto += ( float ) mous.y / 3.0f;
+                pcam->zaddgoto += (float) mous.y / 3.0f;
                 if ( pcam->zaddgoto < MINZADD )  pcam->zaddgoto = MINZADD;
                 if ( pcam->zaddgoto > MAXZADD )  pcam->zaddgoto = MAXZADD;
 
@@ -376,8 +380,8 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
         }
     }
 
-    pcam->pos.x -= ( float ) ( pcam->mView.CNV( 0, 0 ) ) * pcam->turnadd;  // xgg
-    pcam->pos.y += ( float ) ( pcam->mView.CNV( 1, 0 ) ) * -pcam->turnadd;
+    pcam->pos.x -= (float) ( pcam->mView.CNV( 0, 0 ) ) * pcam->turnadd;  // xgg
+    pcam->pos.y += (float) ( pcam->mView.CNV( 1, 0 ) ) * -pcam->turnadd;
 
     // Center on target for doing rotation...
     if ( pcam->turn_time != 0 )
@@ -439,8 +443,8 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
 
     // Finish up the camera
     camera_look_at( pcam, pcam->center.x, pcam->center.y );
-    pcam->pos.x = ( float ) pcam->center.x + ( pcam->zoom * SIN( pcam->turn_z_rad ) );
-    pcam->pos.y = ( float ) pcam->center.y + ( pcam->zoom * COS( pcam->turn_z_rad ) );
+    pcam->pos.x = (float) pcam->center.x + ( pcam->zoom * SIN( pcam->turn_z_rad ) );
+    pcam->pos.y = (float) pcam->center.y + ( pcam->zoom * COS( pcam->turn_z_rad ) );
 
     camera_adjust_angle( pcam, pcam->pos.z );
 

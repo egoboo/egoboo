@@ -38,6 +38,8 @@ struct Mix_Chunk;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+#define MAX_MAD MAX_PROFILE
+
 // Model tags
 enum
 {
@@ -150,17 +152,9 @@ enum e_action
 //--------------------------------------------------------------------------------------------
 struct s_mad
 {
-    EGO_PROFILE_STUFF
+    EGO_PROFILE_STUFF;
 
     // templates
-    Uint16  ai;                               // AI for each model
-    Uint16  prtpip[MAX_PIP_PER_PROFILE];      // Local particles
-
-    Uint16  skins;                            // Number of skins
-    int     tex_ref[MAXSKIN];                 // references to the icon textures
-    int     ico_ref[MAXSKIN];                 // references to the skin textures
-
-    Uint16  message_start;                    // The first message
     Uint16  transvertices;                    // Number to transform
 
     Uint16  frameliptowalkframe[4][16];       // For walk animations
@@ -174,15 +168,12 @@ struct s_mad
     // model data
     ego_md2_t  md2_data;                            // the old-style md2 data
     Md2Model * md2_ptr;                            // the pointer that will eventually be used
-
-    // sounds
-    struct Mix_Chunk *  wavelist[MAX_WAVE];             // sounds in a object
 };
 typedef struct s_mad mad_t;
 
 extern mad_t   MadList[MAX_PROFILE];
 
-#define VALID_MAD_RANGE( IMAD ) ( ((IMAD) >= 0) && ((IMAD) < MAX_PROFILE) )
+#define VALID_MAD_RANGE( IMAD ) ( ((IMAD) >= 0) && ((IMAD) < MAX_MAD) )
 #define VALID_MAD( IMAD )       ( VALID_MAD_RANGE( IMAD ) && MadList[IMAD].loaded )
 #define INVALID_MAD( IMAD )     ( !VALID_MAD_RANGE( IMAD ) || !MadList[IMAD].loaded )
 
@@ -219,5 +210,5 @@ void   log_objused( const char *savename );
 
 int load_model_data( const char * filename, int imad, int skin_stt  );
 
-int    load_one_model_profile( const char* tmploadname, Uint16 object );
+Uint16 load_one_model_profile( const char* tmploadname, Uint16 object );
 bool_t release_one_mad( Uint16 imad );

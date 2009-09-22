@@ -27,12 +27,15 @@
 struct s_ego_mpd;
 struct s_camera;
 struct s_script_state;
+struct s_mod_file;
 
 struct s_wawalite_animtile;
 struct s_wawalite_damagetile;
 struct s_wawalite_weather;
 struct s_wawalite_water;
 struct s_wawalite_fog;
+
+struct s_chr;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -257,6 +260,26 @@ typedef struct s_fog_instance fog_instance_t;
 extern fog_instance_t fog;
 
 //--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+// the module data that the game needs
+struct s_game_module
+{
+    Uint8   importamount;               // Number of imports for this module
+    bool_t  exportvalid;                // Can it export?
+    Uint8   playeramount;               // How many players?
+    bool_t  importvalid;                // Can it import?
+    bool_t  respawnvalid;               // Can players respawn with Spacebar?
+    bool_t  respawnanytime;             // True if it's a small level...
+    STRING  loadname;                     // Module load names
+
+    bool_t  active;                     // Is the control loop still going?
+    bool_t  beat;                       // Show Module Ended text?
+    Uint32  seed;                       // The module seed
+    Uint32  randsave;
+};
+typedef struct s_game_module game_module_t;
+
+//--------------------------------------------------------------------------------------------
 // Status displays
 
 #define MAXSTAT             16                      // Maximum status displays
@@ -281,7 +304,7 @@ extern bool_t    screenshotkeyready;    // Ready to take screenshot?
 
 extern struct s_ego_mpd         * PMesh;
 extern struct s_camera          * PCamera;
-extern struct s_module_instance * PMod;
+extern struct s_game_module * PMod;
 
 // Pitty stuff
 extern bool_t  pitskill;          // Do they kill?
@@ -320,7 +343,6 @@ void show_magic_status( Uint16 statindex );
 
 // End Text
 void reset_end_text();
-void append_end_text( struct s_script_state * pstate, int message, Uint16 character );
 
 // Particles
 Uint16 number_of_attached_particles( Uint16 character );
@@ -348,13 +370,12 @@ void set_one_player_latch( Uint16 player );
 int  add_player( Uint16 character, Uint16 player, Uint32 device );
 
 // AI targeting
-Uint16 chr_get_target( Uint16 character, Uint32 maxdistance, TARGET_TYPE team, bool_t targetitems, bool_t targetdead, IDSZ idsz, bool_t excludeidsz);
+Uint16 chr_get_target( struct s_chr * psrc, float max_dist2, TARGET_TYPE team, bool_t targetitems, bool_t targetdead, IDSZ idsz, bool_t excludeidsz);
 Uint16 get_particle_target( float pos_x, float pos_y, float pos_z, Uint16 facing,
                             Uint16 particletype, Uint8 team, Uint16 donttarget,
                             Uint16 oldtarget );
 
 // object initialization
-void  prime_names( void );
 void  free_all_objects( void );
 
 // Data
@@ -393,6 +414,14 @@ void reset_players();
 
 void expand_escape_codes( Uint16 ichr, struct s_script_state * pstate, char * src, char * src_end, char * dst, char * dst_end );
 
-bool_t release_one_model_profile( Uint16 object );
-
 void upload_wawalite();
+
+void ego_init_SDL_base();
+
+bool_t game_module_setup( game_module_t * pinst, struct s_mod_file * pdata, const char * loadname, Uint32 seed );
+bool_t game_module_init ( game_module_t * pinst );
+bool_t game_module_reset( game_module_t * pinst, Uint32 seed );
+bool_t game_module_start( game_module_t * pinst );
+bool_t game_module_stop ( game_module_t * pinst );
+
+bool_t check_target( struct s_chr * psrc, Uint16 ichr_test, TARGET_TYPE target_type, bool_t target_items, bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz );

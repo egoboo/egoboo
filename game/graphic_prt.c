@@ -564,7 +564,7 @@ void prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_
     }
     else if ( VALID_CHR( pprt->attachedtocharacter ) )
     {
-        chr_instance_t * cinst = &(ChrList.lst[pprt->attachedtocharacter].inst);
+        chr_instance_t * cinst = chr_get_pinstance(pprt->attachedtocharacter);
 
         if ( cinst->matrixvalid )
         {

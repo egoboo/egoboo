@@ -40,8 +40,18 @@
 #define TRIG_TABLE_MASK   (TRIG_TABLE_SIZE-1)
 #define TRIG_TABLE_OFFSET (TRIG_TABLE_SIZE>>2)
 
+// note - Aaron uses two terms without much attention to their meaning
+//        I think that we should use "face" or "facing" to mean the fill 16-bit value
+//        and use "turn" to be the TRIG_TABLE_BITS-bit value
+
 extern float turntosin[TRIG_TABLE_SIZE];           // Convert chrturn>>2...  to sine
 extern float turntocos[TRIG_TABLE_SIZE];           // Convert chrturn>>2...  to cosine
+
+// pre defined directions
+#define FACE_WEST    0x0000
+#define FACE_NORTH   0x4000                                 // Character facings
+#define FACE_EAST    0x8000
+#define FACE_SOUTH   0xC000
 
 // Just define ABS, MIN, and MAX using macros for the moment. This is likely to be the
 // fastest and most cross-platform solution

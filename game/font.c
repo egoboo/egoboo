@@ -287,7 +287,6 @@ void fnt_drawText_raw( Font *font, int x, int y, const char *text )
     }
 }
 
-
 //--------------------------------------------------------------------------------------------
 void fnt_drawText( Font *font, int x, int y, const char *format, ...   )
 {

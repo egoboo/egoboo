@@ -24,18 +24,20 @@
 
 #include "graphic.h"
 
+#include "char.h"
+#include "particle.h"
+#include "enchant.h"
+#include "mad.h"
+#include "profile.h"
+
 #include "log.h"
 #include "script.h"
 #include "camera.h"
 #include "id_md2.h"
 #include "input.h"
-#include "char.h"
-#include "particle.h"
 #include "network.h"
 #include "passage.h"
 #include "menu.h"
-#include "enchant.h"
-#include "mad.h"
 #include "script_compile.h"
 #include "game.h"
 #include "ui.h"
@@ -93,9 +95,7 @@ typedef struct s_dynalight dynalight_t;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static bool_t _sdl_atexit_registered    = bfalse;
 static bool_t _sdl_initialized_graphics = bfalse;
-static bool_t _sdl_initialized_base     = bfalse;
 static bool_t _ogl_initialized          = bfalse;
 
 static Uint8 asciitofont[256];                                   // Conversion table
@@ -117,17 +117,17 @@ static int         dyna_list_count = 0;           // Number of dynamic lights
 static dynalight_t dyna_list[TOTAL_MAX_DYNA];
 
 // Interface stuff
-static rect_t             iconrect;                   // The 32x32 icon rectangle
+static irect_t             iconrect;                   // The 32x32 icon rectangle
 
 static int                fontoffset;                 // Line up fonts from top of screen
 static SDL_Rect           fontrect[NUMFONT];          // The font rectangles
 static Uint8              fontxspacing[NUMFONT];      // The spacing stuff
 static Uint8              fontyspacing;
 
-static rect_t             tabrect[NUMBAR];            // The tab rectangles
-static rect_t             barrect[NUMBAR];            // The bar rectangles
-static rect_t             bliprect[COLOR_MAX];        // The blip rectangles
-static rect_t             maprect;                    // The map rectangle
+static irect_t             tabrect[NUMBAR];            // The tab rectangles
+static irect_t             barrect[NUMBAR];            // The bar rectangles
+static irect_t             bliprect[COLOR_MAX];        // The blip rectangles
+static irect_t             maprect;                    // The map rectangle
 
 static bool_t             gfx_page_flip_requested  = bfalse;
 static bool_t             gfx_page_clear_requested = btrue;
@@ -194,8 +194,7 @@ line_data_t line_list[LINE_COUNT];
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static void sdlinit_base();
-static void sdlinit_graphics();
+static void gfx_init_SDL_graphics();
 
 static void _flip_pages();
 
@@ -214,7 +213,6 @@ static void init_map_data();
 static bool_t render_billboard( struct s_camera * pcam, billboard_data_t * pbb, float scale );
 
 static void gfx_update_timers();
-
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -313,39 +311,9 @@ int DisplayMsg_get_free()
     int tnc = DisplayMsg.count;
 
     DisplayMsg.count++;
-    DisplayMsg.count = DisplayMsg.count % maxmessage;
+    DisplayMsg.count %= maxmessage;
 
     return tnc;
-}
-
-//--------------------------------------------------------------------------------------------
-void display_message( script_state_t * pstate, int message, Uint16 character )
-{
-    // ZZ> This function sticks a message in the display queue and sets its timer
-
-    int slot, read;
-
-    if ( message < MessageOffset.count )
-    {
-        char * src, * src_end;
-        char * dst, * dst_end;
-
-        slot = DisplayMsg_get_free();
-        DisplayMsg.lst[slot].time = cfg.message_duration;
-
-        // Copy the message
-        read = MessageOffset.lst[message];
-
-        src     = message_buffer + read;
-        src_end = message_buffer + MESSAGEBUFFERSIZE;
-
-        dst     = DisplayMsg.lst[slot].textdisplay;
-        dst_end = DisplayMsg.lst[slot].textdisplay + MESSAGESIZE - 1;
-
-        expand_escape_codes( character, pstate, src, src_end, dst, dst_end );
-
-        *dst_end = '\0';
-    }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -420,7 +388,7 @@ void init_icon_data()
     iconrect.top = 0;
     iconrect.bottom = 32;
 
-    for ( cnt = 0; cnt < MAXSKIN; cnt++ )
+    for ( cnt = 0; cnt < MAX_SKIN; cnt++ )
     {
         bookicon_ref[cnt] = INVALID_TEXTURE;
     }
@@ -583,16 +551,6 @@ int debug_printf( const char *format, ... )
     va_end( args );
 
     return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-void create_szfpstext( int frames )
-{
-    // ZZ> This function fills in the number of frames in "000 Frames per Second"
-    frames = frames & 511;
-    szfpstext[0] = '0' + ( frames / 100 );
-    szfpstext[1] = '0' + ( ( frames / 10 ) % 10 );
-    szfpstext[2] = '0' + ( frames % 10 );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -851,7 +809,12 @@ void flash_character( Uint16 character, Uint8 value )
 {
     // ZZ> This function sets a character's lighting
 
-    ChrList.lst[character].inst.color_amb = value;
+    chr_instance_t * pinst = chr_get_pinstance(character);
+
+    if( NULL != pinst )
+    {
+        pinst->color_amb = value;
+    }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1005,13 +968,11 @@ void font_load( const char* szBitmap, const char* szSpacing )
     xdiv = xsize / NUMFONTX;
 
     // Figure out where each font is and its spacing
-    parse_filename = "";
     fileread = vfs_openRead( szSpacing );
     if ( fileread == NULL )
     {
         log_error( "Font spacing not avalible! (%i, %i)\n", xsize, ysize );
     }
-    parse_filename = szSpacing;
 
     y = 0;
     stt_x = 0;
@@ -1040,7 +1001,6 @@ void font_load( const char* szBitmap, const char* szSpacing )
         stt_x += xspacing + 1;
     }
     vfs_close( fileread );
-    parse_filename = "";
 
     // Space between lines
     fontyspacing = ( yspacing >> 1 ) + FONTADD;
@@ -1332,15 +1292,15 @@ void render_shadow( Uint16 character )
     height = pchr->inst.matrix.CNV( 3, 2 ) - level;
     if ( height < 0 ) height = 0;
 
-    size_umbra    = 1.5f * ( pchr->bumpsize - height / 30.0f );
-    size_penumbra = 1.5f * ( pchr->bumpsize + height / 30.0f );
+    size_umbra    = 1.5f * ( pchr->bump.size - height / 30.0f );
+    size_penumbra = 1.5f * ( pchr->bump.size + height / 30.0f );
 
     alpha *= 0.3f;
     alpha_umbra = alpha_penumbra = alpha;
     if ( height > 0 )
     {
-        float factor_penumbra = ( 1.5f ) * ( ( pchr->bumpsize ) / size_penumbra );
-        float factor_umbra    = ( 1.5f ) * ( ( pchr->bumpsize ) / size_umbra );
+        float factor_penumbra = ( 1.5f ) * ( ( pchr->bump.size ) / size_penumbra );
+        float factor_umbra    = ( 1.5f ) * ( ( pchr->bump.size ) / size_umbra );
 
         factor_umbra    = MAX(1.0f, factor_umbra);
         factor_penumbra = MAX(1.0f, factor_penumbra);
@@ -1463,21 +1423,21 @@ void render_bad_shadow( Uint16 character )
 
     size = pchr->shadowsize * height_factor;
 
-    v[0].pos[XX] = ( float ) x + size;
-    v[0].pos[YY] = ( float ) y - size;
-    v[0].pos[ZZ] = ( float ) level;
+    v[0].pos[XX] = (float) x + size;
+    v[0].pos[YY] = (float) y - size;
+    v[0].pos[ZZ] = (float) level;
 
-    v[1].pos[XX] = ( float ) x + size;
-    v[1].pos[YY] = ( float ) y + size;
-    v[1].pos[ZZ] = ( float ) level;
+    v[1].pos[XX] = (float) x + size;
+    v[1].pos[YY] = (float) y + size;
+    v[1].pos[ZZ] = (float) level;
 
-    v[2].pos[XX] = ( float ) x - size;
-    v[2].pos[YY] = ( float ) y + size;
-    v[2].pos[ZZ] = ( float ) level;
+    v[2].pos[XX] = (float) x - size;
+    v[2].pos[YY] = (float) y + size;
+    v[2].pos[ZZ] = (float) level;
 
-    v[3].pos[XX] = ( float ) x - size;
-    v[3].pos[YY] = ( float ) y - size;
-    v[3].pos[ZZ] = ( float ) level;
+    v[3].pos[XX] = (float) x - size;
+    v[3].pos[YY] = (float) y - size;
+    v[3].pos[ZZ] = (float) level;
 
     // Choose texture and matrix
     oglx_texture_Bind( TxTexture_get_ptr( TX_PARTICLE_LIGHT ) );
@@ -1585,7 +1545,7 @@ void light_particles( ego_mpd_t * pmesh )
         if ( VALID_CHR( pprt->attachedtocharacter ) )
         {
             chr_t * pchr = ChrList.lst + pprt->attachedtocharacter;
-            Uint16  imad = pchr->inst.imad;
+            Uint16  imad = chr_get_imad(pprt->attachedtocharacter);
 
             // grab the lighting from the vertex that the particle is attached to
             if ( 0 == pprt->vrt_off )
@@ -1886,7 +1846,7 @@ void draw_scene_init( ego_mpd_t * pmesh, camera_t * pcam )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t draw_fans_by_list( ego_mpd_t * pmesh, int list[], size_t list_size )
+bool_t draw_fans_by_list( ego_mpd_t * pmesh, Uint32 list[], size_t list_size )
 {
     int cnt, tx;
 
@@ -1919,7 +1879,6 @@ bool_t draw_fans_by_list( ego_mpd_t * pmesh, int list[], size_t list_size )
     return btrue;
 }
 
-
 //--------------------------------------------------------------------------------------------
 void draw_scene_mesh( renderlist_t * prlist )
 {
@@ -1945,7 +1904,7 @@ void draw_scene_mesh( renderlist_t * prlist )
     GL_DEBUG(glAlphaFunc)(GL_GREATER, 0 );
 
     // reduce texture hashing by loading up each texture only once
-    draw_fans_by_list( pmesh, prlist->ndr, prlist->ndr_count ); 
+    draw_fans_by_list( pmesh, prlist->ndr, prlist->ndr_count );
 
     //--------------------------------
     // draw the reflective tiles and any reflected objects
@@ -1961,7 +1920,7 @@ void draw_scene_mesh( renderlist_t * prlist )
         GL_DEBUG(glEnable)(GL_BLEND );
         GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
-        draw_fans_by_list( pmesh, prlist->drf, prlist->drf_count ); 
+        draw_fans_by_list( pmesh, prlist->drf, prlist->drf_count );
 
         //------------------------------
         // Render all reflected objects
@@ -2082,7 +2041,7 @@ void draw_scene_mesh( renderlist_t * prlist )
 //--------------------------------------------------------------------------------------------
 void draw_scene_solid()
 {
-    Uint32 cnt, tnc;
+    Uint32 cnt;
 
     //------------------------------
     // Render all solid objects
@@ -2100,13 +2059,13 @@ void draw_scene_solid()
 
         GL_DEBUG(glDisable)( GL_CULL_FACE );
 
-        if ( TOTAL_MAX_PRT == dolist[cnt].iprt && VALID_CHR( dolist[cnt].ichr ) )
+        if ( TOTAL_MAX_PRT == dolist[cnt].iprt )
         {
-            tnc = dolist[cnt].ichr;
+            chr_instance_t * pinst = chr_get_pinstance(dolist[cnt].ichr);
 
-            if ( ChrList.lst[tnc].inst.alpha == 255 && ChrList.lst[tnc].inst.light == 255 )
+            if ( NULL != pinst && pinst->alpha == 255 && pinst->light == 255 )
             {
-                render_one_mad( tnc, 255 );
+                render_one_mad( dolist[cnt].ichr, 255 );
             }
         }
         else if ( MAX_CHR == dolist[cnt].ichr && VALID_PRT( dolist[cnt].iprt ) )
@@ -2278,15 +2237,15 @@ void draw_scene_zreflection( ego_mpd_t * pmesh, camera_t * pcam )
     time_draw_scene_water = PROFILE_QUERY(draw_scene_water) * TARGET_FPS;
     time_draw_scene_trans = PROFILE_QUERY(draw_scene_trans) * TARGET_FPS;
 
-    time_draw_scene       = time_draw_scene_init + time_draw_scene_mesh + 
+    time_draw_scene       = time_draw_scene_init + time_draw_scene_mesh +
                             time_draw_scene_solid + time_draw_scene_water + time_draw_scene_trans;
 }
 
 //--------------------------------------------------------------------------------------------
 void draw_blip( float sizeFactor, Uint8 color, int x, int y )
 {
-    float xl, xr, yt, yb;
-    float width, height;
+    frect_t txrect;
+    float   width, height;
 
     // ZZ> This function draws a blip
     if ( x > 0 && y > 0 )
@@ -2299,10 +2258,10 @@ void draw_blip( float sizeFactor, Uint8 color, int x, int y )
 
         oglx_texture_Bind( ptex );
 
-        xl = ( float )bliprect[color].left   / (float)oglx_texture_GetTextureWidth ( ptex );
-        xr = ( float )bliprect[color].right  / (float)oglx_texture_GetTextureWidth ( ptex );
-        yt = ( float )bliprect[color].top    / (float)oglx_texture_GetTextureHeight( ptex );
-        yb = ( float )bliprect[color].bottom / (float)oglx_texture_GetTextureHeight( ptex );
+        txrect.left   = (float)bliprect[color].left   / (float)oglx_texture_GetTextureWidth ( ptex );
+        txrect.right  = (float)bliprect[color].right  / (float)oglx_texture_GetTextureWidth ( ptex );
+        txrect.top    = (float)bliprect[color].top    / (float)oglx_texture_GetTextureHeight( ptex );
+        txrect.bottom = (float)bliprect[color].bottom / (float)oglx_texture_GetTextureHeight( ptex );
 
         width  = bliprect[color].right  - bliprect[color].left;
         height = bliprect[color].bottom - bliprect[color].top;
@@ -2312,10 +2271,10 @@ void draw_blip( float sizeFactor, Uint8 color, int x, int y )
 
         GL_DEBUG(glBegin)(GL_QUADS );
         {
-            GL_DEBUG(glTexCoord2f)( xl, yb ); GL_DEBUG(glVertex2f)( x - (width / 2), y + (height / 2) );
-            GL_DEBUG(glTexCoord2f)( xr, yb ); GL_DEBUG(glVertex2f)( x + (width / 2), y + (height / 2) );
-            GL_DEBUG(glTexCoord2f)( xr, yt ); GL_DEBUG(glVertex2f)( x + (width / 2), y - (height / 2) );
-            GL_DEBUG(glTexCoord2f)( xl, yt ); GL_DEBUG(glVertex2f)( x - (width / 2), y - (height / 2) );
+            GL_DEBUG(glTexCoord2f)( txrect.left,  txrect.bottom ); GL_DEBUG(glVertex2f)( x - (width / 2), y + (height / 2) );
+            GL_DEBUG(glTexCoord2f)( txrect.right, txrect.bottom ); GL_DEBUG(glVertex2f)( x + (width / 2), y + (height / 2) );
+            GL_DEBUG(glTexCoord2f)( txrect.right, txrect.top    ); GL_DEBUG(glVertex2f)( x + (width / 2), y - (height / 2) );
+            GL_DEBUG(glTexCoord2f)( txrect.left,  txrect.top    ); GL_DEBUG(glVertex2f)( x - (width / 2), y - (height / 2) );
         }
         GL_DEBUG_END();
     }
@@ -2325,9 +2284,9 @@ void draw_blip( float sizeFactor, Uint8 color, int x, int y )
 void draw_one_icon( int icontype, int x, int y, Uint8 sparkle )
 {
     // ZZ> This function draws an icon
-    int   position, blipx, blipy;
-    float xl, xr, yt, yb;
-    int   width, height;
+    int     position, blipx, blipy;
+    int     width, height;
+    frect_t txrect;
 
     oglx_texture * ptex = TxTexture_get_ptr( icontype );
 
@@ -2336,20 +2295,20 @@ void draw_one_icon( int icontype, int x, int y, Uint8 sparkle )
 
     oglx_texture_Bind( ptex );
 
-    xl = ( ( float )iconrect.left   ) / 32.0f;
-    xr = ( ( float )iconrect.right  ) / 32.0f;
-    yt = ( ( float )iconrect.top    ) / 32.0f;
-    yb = ( ( float )iconrect.bottom ) / 32.0f;
+    txrect.left   = ( (float)iconrect.left   ) / 32.0f;
+    txrect.right  = ( (float)iconrect.right  ) / 32.0f;
+    txrect.top    = ( (float)iconrect.top    ) / 32.0f;
+    txrect.bottom = ( (float)iconrect.bottom ) / 32.0f;
 
     width  = iconrect.right  - iconrect.left;
     height = iconrect.bottom - iconrect.top;
 
     GL_DEBUG(glBegin)(GL_QUADS );
     {
-        GL_DEBUG(glTexCoord2f)(xl, yb );   GL_DEBUG(glVertex2i)(x,         y + height );
-        GL_DEBUG(glTexCoord2f)(xr, yb );   GL_DEBUG(glVertex2i)(x + width, y + height );
-        GL_DEBUG(glTexCoord2f)(xr, yt );   GL_DEBUG(glVertex2i)(x + width, y );
-        GL_DEBUG(glTexCoord2f)(xl, yt );   GL_DEBUG(glVertex2i)(x,         y );
+        GL_DEBUG(glTexCoord2f)(txrect.left,  txrect.bottom ); GL_DEBUG(glVertex2i)(x,         y + height );
+        GL_DEBUG(glTexCoord2f)(txrect.right, txrect.bottom ); GL_DEBUG(glVertex2i)(x + width, y + height );
+        GL_DEBUG(glTexCoord2f)(txrect.right, txrect.top    ); GL_DEBUG(glVertex2i)(x + width, y );
+        GL_DEBUG(glTexCoord2f)(txrect.left,  txrect.top    ); GL_DEBUG(glVertex2i)(x,         y );
     }
     GL_DEBUG_END();
 
@@ -2504,9 +2463,10 @@ int draw_one_xp_bar( int x, int y, Uint8 ticks )
 int draw_one_bar( Uint8 bartype, int x, int y, int ticks, int maxticks )
 {
     // ZZ> This function draws a bar and returns the y position for the next one
-    int noticks;
-    float xl, xr, yt, yb;
-    int width, height;
+
+    int     noticks;
+    int     width, height;
+    frect_t txrect;
 
     if ( maxticks <= 0 || ticks < 0 || bartype > NUMBAR ) return y;
 
@@ -2516,17 +2476,20 @@ int draw_one_bar( Uint8 bartype, int x, int y, int ticks, int maxticks )
     // Draw the tab
     oglx_texture_Bind( TxTexture_get_ptr( TX_BARS ) );
 
-    xl = ( ( float )tabrect[bartype].left ) / 128;
-    xr = ( ( float )tabrect[bartype].right ) / 128;
-    yt = ( ( float )tabrect[bartype].top ) / 128;
-    yb = ( ( float )tabrect[bartype].bottom ) / 128;
-    width = tabrect[bartype].right - tabrect[bartype].left; height = tabrect[bartype].bottom - tabrect[bartype].top;
+    txrect.left   = tabrect[bartype].left   / 128.0f;
+    txrect.right  = tabrect[bartype].right  / 128.0f;
+    txrect.top    = tabrect[bartype].top    / 128.0f;
+    txrect.bottom = tabrect[bartype].bottom / 128.0f;
+
+    width  = tabrect[bartype].right  - tabrect[bartype].left; 
+    height = tabrect[bartype].bottom - tabrect[bartype].top;
+
     GL_DEBUG(glBegin)(GL_QUADS );
     {
-        GL_DEBUG(glTexCoord2f)(xl, yb );   GL_DEBUG(glVertex2i)(x,         y + height );
-        GL_DEBUG(glTexCoord2f)(xr, yb );   GL_DEBUG(glVertex2i)(x + width, y + height );
-        GL_DEBUG(glTexCoord2f)(xr, yt );   GL_DEBUG(glVertex2i)(x + width, y );
-        GL_DEBUG(glTexCoord2f)(xl, yt );   GL_DEBUG(glVertex2i)(x,         y );
+        GL_DEBUG(glTexCoord2f)(txrect.left,  txrect.bottom ); GL_DEBUG(glVertex2i)(x,         y + height );
+        GL_DEBUG(glTexCoord2f)(txrect.right, txrect.bottom ); GL_DEBUG(glVertex2i)(x + width, y + height );
+        GL_DEBUG(glTexCoord2f)(txrect.right, txrect.top    ); GL_DEBUG(glVertex2i)(x + width, y );
+        GL_DEBUG(glTexCoord2f)(txrect.left,  txrect.top    ); GL_DEBUG(glVertex2i)(x,         y );
     }
     GL_DEBUG_END();
 
@@ -2542,17 +2505,20 @@ int draw_one_bar( Uint8 bartype, int x, int y, int ticks, int maxticks )
         barrect[bartype].right = BARX;
         oglx_texture_Bind( TxTexture_get_ptr( TX_BARS ) );
 
-        xl = ( ( float )barrect[bartype].left ) / 128;
-        xr = ( ( float )barrect[bartype].right ) / 128;
-        yt = ( ( float )barrect[bartype].top ) / 128;
-        yb = ( ( float )barrect[bartype].bottom ) / 128;
-        width = barrect[bartype].right - barrect[bartype].left; height = barrect[bartype].bottom - barrect[bartype].top;
+        txrect.left   = barrect[bartype].left   / 128.0f;
+        txrect.right  = barrect[bartype].right  / 128.0f;
+        txrect.top    = barrect[bartype].top    / 128.0f;
+        txrect.bottom = barrect[bartype].bottom / 128.0f;
+
+        width  = barrect[bartype].right - barrect[bartype].left; 
+        height = barrect[bartype].bottom - barrect[bartype].top;
+
         GL_DEBUG(glBegin)(GL_QUADS );
         {
-            GL_DEBUG(glTexCoord2f)(xl, yb );   GL_DEBUG(glVertex2i)(x,         y + height );
-            GL_DEBUG(glTexCoord2f)(xr, yb );   GL_DEBUG(glVertex2i)(x + width, y + height );
-            GL_DEBUG(glTexCoord2f)(xr, yt );   GL_DEBUG(glVertex2i)(x + width, y );
-            GL_DEBUG(glTexCoord2f)(xl, yt );   GL_DEBUG(glVertex2i)(x,         y );
+            GL_DEBUG(glTexCoord2f)(txrect.left,  txrect.bottom ); GL_DEBUG(glVertex2i)(x,         y + height );
+            GL_DEBUG(glTexCoord2f)(txrect.right, txrect.bottom ); GL_DEBUG(glVertex2i)(x + width, y + height );
+            GL_DEBUG(glTexCoord2f)(txrect.right, txrect.top    ); GL_DEBUG(glVertex2i)(x + width, y );
+            GL_DEBUG(glTexCoord2f)(txrect.left,  txrect.top    ); GL_DEBUG(glVertex2i)(x,         y );
         }
         GL_DEBUG_END();
         y += BARY;
@@ -2567,17 +2533,20 @@ int draw_one_bar( Uint8 bartype, int x, int y, int ticks, int maxticks )
         barrect[bartype].right = ( ticks << 3 ) + TABX;
         oglx_texture_Bind( TxTexture_get_ptr( TX_BARS ) );
 
-        xl = ( ( float )barrect[bartype].left ) / 128;
-        xr = ( ( float )barrect[bartype].right ) / 128;
-        yt = ( ( float )barrect[bartype].top ) / 128;
-        yb = ( ( float )barrect[bartype].bottom ) / 128;
-        width = barrect[bartype].right - barrect[bartype].left; height = barrect[bartype].bottom - barrect[bartype].top;
+        txrect.left   = barrect[bartype].left   / 128.0f;
+        txrect.right  = barrect[bartype].right  / 128.0f;
+        txrect.top    = barrect[bartype].top    / 128.0f;
+        txrect.bottom = barrect[bartype].bottom / 128.0f;
+
+        width = barrect[bartype].right - barrect[bartype].left; 
+        height = barrect[bartype].bottom - barrect[bartype].top;
+
         GL_DEBUG(glBegin)(GL_QUADS );
         {
-            GL_DEBUG(glTexCoord2f)(xl, yb );   GL_DEBUG(glVertex2i)(x,         y + height );
-            GL_DEBUG(glTexCoord2f)(xr, yb );   GL_DEBUG(glVertex2i)(x + width, y + height );
-            GL_DEBUG(glTexCoord2f)(xr, yt );   GL_DEBUG(glVertex2i)(x + width, y );
-            GL_DEBUG(glTexCoord2f)(xl, yt );   GL_DEBUG(glVertex2i)(x,         y );
+            GL_DEBUG(glTexCoord2f)(txrect.left,  txrect.bottom ); GL_DEBUG(glVertex2i)(x,         y + height );
+            GL_DEBUG(glTexCoord2f)(txrect.right, txrect.bottom ); GL_DEBUG(glVertex2i)(x + width, y + height );
+            GL_DEBUG(glTexCoord2f)(txrect.right, txrect.top    ); GL_DEBUG(glVertex2i)(x + width, y );
+            GL_DEBUG(glTexCoord2f)(txrect.left,  txrect.top    ); GL_DEBUG(glVertex2i)(x,         y );
         }
         GL_DEBUG_END();
 
@@ -2588,17 +2557,20 @@ int draw_one_bar( Uint8 bartype, int x, int y, int ticks, int maxticks )
         barrect[0].right = ( noticks << 3 ) + TABX;
         oglx_texture_Bind( TxTexture_get_ptr( TX_BARS ) );
 
-        xl = ( ( float )barrect[0].left ) / 128;
-        xr = ( ( float )barrect[0].right ) / 128;
-        yt = ( ( float )barrect[0].top ) / 128;
-        yb = ( ( float )barrect[0].bottom ) / 128;
-        width = barrect[0].right - barrect[0].left; height = barrect[0].bottom - barrect[0].top;
+        txrect.left   = barrect[0].left   / 128.0f;
+        txrect.right  = barrect[0].right  / 128.0f;
+        txrect.top    = barrect[0].top    / 128.0f;
+        txrect.bottom = barrect[0].bottom / 128.0f;
+
+        width = barrect[0].right - barrect[0].left; 
+        height = barrect[0].bottom - barrect[0].top;
+
         GL_DEBUG(glBegin)(GL_QUADS );
         {
-            GL_DEBUG(glTexCoord2f)(xl, yb );   GL_DEBUG(glVertex2i)(( ticks << 3 ) + x,         y + height );
-            GL_DEBUG(glTexCoord2f)(xr, yb );   GL_DEBUG(glVertex2i)(( ticks << 3 ) + x + width, y + height );
-            GL_DEBUG(glTexCoord2f)(xr, yt );   GL_DEBUG(glVertex2i)(( ticks << 3 ) + x + width, y );
-            GL_DEBUG(glTexCoord2f)(xl, yt );   GL_DEBUG(glVertex2i)(( ticks << 3 ) + x,         y );
+            GL_DEBUG(glTexCoord2f)(txrect.left,  txrect.bottom ); GL_DEBUG(glVertex2i)(( ticks << 3 ) + x,         y + height );
+            GL_DEBUG(glTexCoord2f)(txrect.right, txrect.bottom ); GL_DEBUG(glVertex2i)(( ticks << 3 ) + x + width, y + height );
+            GL_DEBUG(glTexCoord2f)(txrect.right, txrect.top    ); GL_DEBUG(glVertex2i)(( ticks << 3 ) + x + width, y );
+            GL_DEBUG(glTexCoord2f)(txrect.left,  txrect.top    ); GL_DEBUG(glVertex2i)(( ticks << 3 ) + x,         y );
         }
         GL_DEBUG_END();
         maxticks -= NUMTICK;
@@ -2611,17 +2583,20 @@ int draw_one_bar( Uint8 bartype, int x, int y, int ticks, int maxticks )
         barrect[0].right = BARX;
         oglx_texture_Bind( TxTexture_get_ptr( TX_BARS ) );
 
-        xl = ( ( float )barrect[0].left ) / 128;
-        xr = ( ( float )barrect[0].right ) / 128;
-        yt = ( ( float )barrect[0].top ) / 128;
-        yb = ( ( float )barrect[0].bottom ) / 128;
-        width = barrect[0].right - barrect[0].left; height = barrect[0].bottom - barrect[0].top;
+        txrect.left   = tabrect[0].left   / 128.0f;
+        txrect.right  = tabrect[0].right  / 128.0f;
+        txrect.top    = tabrect[0].top    / 128.0f;
+        txrect.bottom = tabrect[0].bottom / 128.0f;
+
+        width = barrect[0].right - barrect[0].left; 
+        height = barrect[0].bottom - barrect[0].top;
+
         GL_DEBUG(glBegin)(GL_QUADS );
         {
-            GL_DEBUG(glTexCoord2f)(xl, yb );   GL_DEBUG(glVertex2i)(x,         y + height );
-            GL_DEBUG(glTexCoord2f)(xr, yb );   GL_DEBUG(glVertex2i)(x + width, y + height );
-            GL_DEBUG(glTexCoord2f)(xr, yt );   GL_DEBUG(glVertex2i)(x + width, y );
-            GL_DEBUG(glTexCoord2f)(xl, yt );   GL_DEBUG(glVertex2i)(x,         y );
+            GL_DEBUG(glTexCoord2f)(txrect.left,  txrect.bottom );   GL_DEBUG(glVertex2i)(x,         y + height );
+            GL_DEBUG(glTexCoord2f)(txrect.right, txrect.bottom );   GL_DEBUG(glVertex2i)(x + width, y + height );
+            GL_DEBUG(glTexCoord2f)(txrect.right, txrect.top    );   GL_DEBUG(glVertex2i)(x + width, y );
+            GL_DEBUG(glTexCoord2f)(txrect.left,  txrect.top    );   GL_DEBUG(glVertex2i)(x,         y );
         }
         GL_DEBUG_END();
         y += BARY;
@@ -2634,17 +2609,20 @@ int draw_one_bar( Uint8 bartype, int x, int y, int ticks, int maxticks )
         barrect[0].right = ( maxticks << 3 ) + TABX;
         oglx_texture_Bind( TxTexture_get_ptr( TX_BARS ) );
 
-        xl = ( ( float )barrect[0].left ) / 128;
-        xr = ( ( float )barrect[0].right ) / 128;
-        yt = ( ( float )barrect[0].top ) / 128;
-        yb = ( ( float )barrect[0].bottom ) / 128;
-        width = barrect[0].right - barrect[0].left; height = barrect[0].bottom - barrect[0].top;
+        txrect.left   = tabrect[0].left   / 128.0f;
+        txrect.right  = tabrect[0].right  / 128.0f;
+        txrect.top    = tabrect[0].top    / 128.0f;
+        txrect.bottom = tabrect[0].bottom / 128.0f;
+
+        width = barrect[0].right - barrect[0].left; 
+        height = barrect[0].bottom - barrect[0].top;
+
         GL_DEBUG(glBegin)(GL_QUADS );
         {
-            GL_DEBUG(glTexCoord2f)(xl, yb );   GL_DEBUG(glVertex2i)(x,         y + height );
-            GL_DEBUG(glTexCoord2f)(xr, yb );   GL_DEBUG(glVertex2i)(x + width, y + height );
-            GL_DEBUG(glTexCoord2f)(xr, yt );   GL_DEBUG(glVertex2i)(x + width, y );
-            GL_DEBUG(glTexCoord2f)(xl, yt );   GL_DEBUG(glVertex2i)(x,         y );
+            GL_DEBUG(glTexCoord2f)(txrect.left,  txrect.bottom ); GL_DEBUG(glVertex2i)(x,         y + height );
+            GL_DEBUG(glTexCoord2f)(txrect.right, txrect.bottom ); GL_DEBUG(glVertex2i)(x + width, y + height );
+            GL_DEBUG(glTexCoord2f)(txrect.right, txrect.top    ); GL_DEBUG(glVertex2i)(x + width, y );
+            GL_DEBUG(glTexCoord2f)(txrect.left,  txrect.top    ); GL_DEBUG(glVertex2i)(x,         y );
         }
         GL_DEBUG_END();
         y += BARY;
@@ -2895,7 +2873,7 @@ int draw_status( Uint16 character, int x, int y )
     if ( ChrList.lst[character].nameknown )
         readtext = ChrList.lst[character].name;
     else
-        readtext = CapList[ChrList.lst[character].model].classname;
+        readtext = chr_get_pcap(character)->classname;
 
     for ( cnt = 0; cnt < 6; cnt++ )
     {
@@ -2916,11 +2894,11 @@ int draw_status( Uint16 character, int x, int y )
     y = _draw_string_raw( x + 8, y, "$%4d", ChrList.lst[character].money ) + 8;
 
     // Draw the icons
-    imad  = ChrList.lst[character].inst.imad;
+    imad  = chr_get_imad(character);
     iskin = ChrList.lst[character].skin;
     if ( VALID_MAD(imad) )
     {
-        draw_one_icon( MadList[imad].ico_ref[iskin], x + 40, y, ChrList.lst[character].sparkle );
+        draw_one_icon( ProList.lst[imad].ico_ref[iskin], x + 40, y, ChrList.lst[character].sparkle );
     }
 
     item = ChrList.lst[character].holdingwhich[SLOT_LEFT];
@@ -2929,20 +2907,20 @@ int draw_status( Uint16 character, int x, int y )
         chr_t * pitem = ChrList.lst + item;
         bool_t is_spell_fx, is_book, draw_book;
 
-        is_spell_fx = CapList[pitem->model].is_spelleffect;
-        is_book     = SPELLBOOK == pitem->model;
+        is_spell_fx = chr_get_pcap(item)->is_spelleffect;
+        is_book     = SPELLBOOK == pitem->iprofile;
 
-        imad  = pitem->inst.imad;
+        imad  = chr_get_imad(item);
         iskin = pitem->skin;
 
         draw_book = (is_book || (is_spell_fx && !pitem->icon)) && (bookicon_count > 0);
 
         if ( VALID_MAD(imad) && !draw_book )
         {
-            draw_one_icon( MadList[imad].ico_ref[iskin], x + 8, y, pitem->sparkle );
+            draw_one_icon( ProList.lst[imad].ico_ref[iskin], x + 8, y, pitem->sparkle );
             if ( pitem->ammomax != 0 && pitem->ammoknown )
             {
-                if ( !CapList[pitem->model].isstackable || pitem->ammo > 1 )
+                if ( !chr_get_pcap(item)->isstackable || pitem->ammo > 1 )
                 {
                     // Show amount of ammo left
                     _draw_string_raw( x + 8, y - 8, "%2d", pitem->ammo );
@@ -2971,20 +2949,20 @@ int draw_status( Uint16 character, int x, int y )
         chr_t * pitem = ChrList.lst + item;
         bool_t is_spell_fx, is_book, draw_book;
 
-        is_spell_fx = CapList[pitem->model].is_spelleffect;
-        is_book     = SPELLBOOK == pitem->model;
+        is_spell_fx = chr_get_pcap(item)->is_spelleffect;
+        is_book     = SPELLBOOK == pitem->iprofile;
 
         draw_book = (is_book || (is_spell_fx && !pitem->icon)) && (bookicon_count > 0);
 
-        imad  = pitem->inst.imad;
+        imad  = chr_get_imad(item);
         iskin = pitem->skin;
 
         if ( VALID_MAD(imad) && !draw_book )
         {
-            draw_one_icon( MadList[imad].ico_ref[iskin], x + 72, y, pitem->sparkle );
+            draw_one_icon( ProList.lst[imad].ico_ref[iskin], x + 72, y, pitem->sparkle );
             if ( pitem->ammomax != 0 && pitem->ammoknown )
             {
-                if ( !CapList[pitem->model].isstackable || pitem->ammo > 1 )
+                if ( !chr_get_pcap(item)->isstackable || pitem->ammo > 1 )
                 {
                     // Show amount of ammo left
                     _draw_string_raw( x + 72, y - 8, "%2d", pitem->ammo );
@@ -3012,12 +2990,13 @@ int draw_status( Uint16 character, int x, int y )
     //Draw the small XP progress bar
     if ( ChrList.lst[character].experiencelevel < MAXLEVEL)
     {
-        Uint16 profile = ChrList.lst[character].model;
-        Uint8 curlevel = ChrList.lst[character].experiencelevel + 1;
-        Uint32 xplastlevel = CapList[profile].experienceforlevel[curlevel-1];
-        Uint32 xpneed = CapList[profile].experienceforlevel[curlevel];
+        chr_t * pchr       = ChrList.lst + character;
+        cap_t * pcap       = chr_get_pcap(character);
+        Uint8  curlevel    = pchr->experiencelevel + 1;
+        Uint32 xplastlevel = pcap->experienceforlevel[curlevel-1];
+        Uint32 xpneed      = pcap->experienceforlevel[curlevel];
 
-        y = draw_one_xp_bar( x + 16, y, ( ( (float)MAX(ChrList.lst[character].experience - xplastlevel, 0) / MAX( xpneed - xplastlevel, 1 ) ) * NUMTICK) );
+        y = draw_one_xp_bar( x + 16, y, ( ( (float)MAX(pchr->experience - xplastlevel, 0) / MAX( xpneed - xplastlevel, 1 ) ) * NUMTICK) );
     }
 
     // Draw the status bars
@@ -3071,29 +3050,31 @@ void draw_map()
         {
             Uint16 iTmp;
 
-            for ( iTmp = 0; numblip < MAXBLIP && iTmp < MAX_CHR; iTmp++ )
+            for ( iTmp = 0; iTmp < MAX_CHR && numblip < MAXBLIP; iTmp++ )
             {
-                Uint16 icap;
+                chr_t * pchr;
+                cap_t * pcap;
 
                 if ( !ChrList.lst[iTmp].on ) continue;
+                pchr = ChrList.lst + iTmp;
 
-                icap = ChrList.lst[iTmp].model;
-                if ( !VALID_CAP(icap) ) continue;
+                pcap = chr_get_pcap(iTmp);
+                if ( NULL == pcap ) continue;
 
                 // Show only teams that will attack the player
-                if ( TeamList[ChrList.lst[iTmp].team].hatesteam[local_senseenemiesTeam] )
+                if ( TeamList[pchr->team].hatesteam[local_senseenemiesTeam] )
                 {
                     // Only if they match the required IDSZ ([NONE] always works)
                     if ( local_senseenemiesID == IDSZ_NONE ||
-                            local_senseenemiesID == CapList[icap].idsz[IDSZ_PARENT] ||
-                            local_senseenemiesID == CapList[icap].idsz[IDSZ_TYPE  ])
+                         local_senseenemiesID == pcap->idsz[IDSZ_PARENT] ||
+                         local_senseenemiesID == pcap->idsz[IDSZ_TYPE  ])
                     {
                         // Inside the map?
-                        if ( ChrList.lst[iTmp].pos.x < PMesh->info.edge_x && ChrList.lst[iTmp].pos.y < PMesh->info.edge_y )
+                        if ( pchr->pos.x < PMesh->info.edge_x && pchr->pos.y < PMesh->info.edge_y )
                         {
                             // Valid colors only
-                            blipx[numblip] = GET_MAP_X(PMesh, ChrList.lst[iTmp].pos.x);
-                            blipy[numblip] = ChrList.lst[iTmp].pos.y * MAPSIZE / PMesh->info.edge_y;
+                            blipx[numblip] = GET_MAP_X(PMesh, pchr->pos.x);
+                            blipy[numblip] = pchr->pos.y * MAPSIZE / PMesh->info.edge_y;
                             blipc[numblip] = COLOR_RED; // Red blips
                             numblip++;
                         }
@@ -3565,10 +3546,7 @@ void Reshape3D( int w, int h )
 //---------------------------------------------------------------------------------------------
 int ogl_init()
 {
-    if ( !_sdl_initialized_graphics )
-    {
-        sdlinit_graphics();
-    }
+    gfx_init_SDL_graphics();
 
     // GL_DEBUG(glClear)) stuff
     GL_DEBUG(glClearColor)(0.0f, 0.0f, 0.0f, 0.0f); // Set the background black
@@ -3609,80 +3587,40 @@ int ogl_init()
 
     _ogl_initialized = btrue;
 
-    return _ogl_initialized && _sdl_initialized_base && _sdl_initialized_graphics;
+    return _ogl_initialized && _sdl_initialized_graphics;
 }
 
 //---------------------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------------------
-int sdl_init()
+void gfx_init()
 {
-    sdlinit_base();
-    sdlinit_graphics();
+    // set the graphics state
+    gfx_init_SDL_graphics();
+    ogl_init();
 
-    input_init();
+    // initialize the gfx data dtructures
+    BillboardList_free_all();
+    TxTexture_init_all();
 
-#if defined(USE_LUA_CONSOLE)
-    {
-        SDL_Rect blah = {0, 0, scrx, scry / 4};
-        lua_console_new(NULL, blah);
-    };
-#endif
+    // initialize the profiling variables
+    PROFILE_INIT( gfx_loop );
+    PROFILE_INIT( draw_scene_init );
+    PROFILE_INIT( draw_scene_mesh );
+    PROFILE_INIT( draw_scene_solid );
+    PROFILE_INIT( draw_scene_water );
+    PROFILE_INIT( draw_scene_trans );
 
-    return _sdl_initialized_base && _sdl_initialized_graphics;
-}
+    // init some other variables
+    stabilized_fps_sum    = 0.1f * TARGET_FPS;
+    stabilized_fps_weight = 0.1f;
+};
 
 //---------------------------------------------------------------------------------------------
-void sdlinit_base()
+void gfx_init_SDL_graphics()
 {
-    log_info ( "Initializing SDL version %d.%d.%d... ", SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL );
-    if ( SDL_Init(0) < 0 )
-    {
-        log_message( "Failure!\n" );
-        log_error( "Unable to initialize SDL: %s\n", SDL_GetError() );
-    }
-    else
-    {
-        log_message( "Success!\n" );
-    }
+    if( _sdl_initialized_graphics ) return;
 
-    if ( !_sdl_atexit_registered )
-    {
-        atexit( SDL_Quit );
-        _sdl_atexit_registered = bfalse;
-    }
-
-    log_info( "Intializing SDL Timing Services... " );
-    if ( SDL_InitSubSystem( SDL_INIT_TIMER ) < 0 )
-    {
-        log_message( "Failed!\n" );
-        log_warning( "SDL error == \"%s\"\n", SDL_GetError() );
-    }
-    else
-    {
-        log_message( "Succeess!\n" );
-    }
-
-    log_info( "Intializing SDL Event Threading... " );
-    if ( SDL_InitSubSystem( SDL_INIT_EVENTTHREAD ) < 0 )
-    {
-        log_message( "Failed!\n" );
-        log_warning( "SDL error == \"%s\"\n", SDL_GetError() );
-    }
-    else
-    {
-        log_message( "Succeess!\n" );
-    }
-
-    _sdl_initialized_base = btrue;
-}
-
-//---------------------------------------------------------------------------------------------
-void sdlinit_graphics()
-{
-    if ( !_sdl_initialized_base )
-    {
-        sdlinit_base();
-    }
+    ego_init_SDL_base();
 
     log_info( "Intializing SDL Video... " );
     if ( SDL_InitSubSystem( SDL_INIT_VIDEO ) < 0 )
@@ -3813,7 +3751,7 @@ bool_t dump_screenshot()
                                      0x00FF0000, 0x0000FF00, 0x000000FF, 0
 #endif
                                    );
-        
+
 		if ( temp == NULL )
 		{
 			//Something went wrong
@@ -4209,7 +4147,7 @@ void make_dynalist( camera_t * pcam )
         PrtList.lst[cnt].inview = PMesh->mmem.tile_list[PrtList.lst[cnt].onwhichfan].inrenderlist;
 
         // Set up the lights we need
-        if ( !PrtList.lst[cnt].dynalighton ) continue;
+        if ( !PrtList.lst[cnt].dynalight_on ) continue;
 
         disx = PrtList.lst[cnt].pos.x - pcam->track_pos.x;
         disy = PrtList.lst[cnt].pos.y - pcam->track_pos.y;
@@ -4262,8 +4200,8 @@ void make_dynalist( camera_t * pcam )
                 dyna_list[slot].x       = PrtList.lst[cnt].pos.x;
                 dyna_list[slot].y       = PrtList.lst[cnt].pos.y;
                 dyna_list[slot].z       = PrtList.lst[cnt].pos.z;
-                dyna_list[slot].level   = PrtList.lst[cnt].dynalightlevel;
-                dyna_list[slot].falloff = PrtList.lst[cnt].dynalightfalloff;
+                dyna_list[slot].level   = PrtList.lst[cnt].dynalight_level;
+                dyna_list[slot].falloff = PrtList.lst[cnt].dynalight_falloff;
             }
         }
     }
@@ -4287,8 +4225,8 @@ bool_t dolist_add_chr( ego_mpd_t * pmesh, Uint16 ichr )
 
     if ( pinst->indolist ) return btrue;
 
-    if ( INVALID_CAP( pchr->model ) ) return bfalse;
-    pcap = CapList + pchr->model;
+    pcap = chr_get_pcap( ichr );
+    if ( NULL == pcap ) return bfalse;
 
     itile = pchr->onwhichfan;
     if ( !VALID_TILE(pmesh, itile) ) return bfalse;
@@ -4739,51 +4677,51 @@ bool_t project_sum_lighting( lighting_cache_t * dst, lighting_cache_t * src, GLv
     if ( vec.x > 0 )
     {
         dst->lighting_low[dir+0] += ABS(vec.x) * src->lighting_low[0];
-        dst->lighting_hgh[dir+1] += ABS(vec.x) * src->lighting_hgh[1];
+        dst->lighting_low[dir+1] += ABS(vec.x) * src->lighting_low[1];
 
-        dst->lighting_low[dir+0] += ABS(vec.x) * src->lighting_low[0];
+        dst->lighting_hgh[dir+0] += ABS(vec.x) * src->lighting_hgh[0];
         dst->lighting_hgh[dir+1] += ABS(vec.x) * src->lighting_hgh[1];
     }
     else if (vec.x < 0)
     {
         dst->lighting_low[dir+0] += ABS(vec.x) * src->lighting_low[1];
-        dst->lighting_hgh[dir+1] += ABS(vec.x) * src->lighting_hgh[0];
+        dst->lighting_low[dir+1] += ABS(vec.x) * src->lighting_low[0];
 
-        dst->lighting_low[dir+0] += ABS(vec.x) * src->lighting_low[1];
+        dst->lighting_hgh[dir+0] += ABS(vec.x) * src->lighting_hgh[1];
         dst->lighting_hgh[dir+1] += ABS(vec.x) * src->lighting_hgh[0];
     }
 
     if ( vec.y > 0 )
     {
         dst->lighting_low[dir+0] += ABS(vec.y) * src->lighting_low[2];
-        dst->lighting_hgh[dir+1] += ABS(vec.y) * src->lighting_hgh[3];
+        dst->lighting_low[dir+1] += ABS(vec.y) * src->lighting_low[3];
 
-        dst->lighting_low[dir+0] += ABS(vec.y) * src->lighting_low[2];
+        dst->lighting_hgh[dir+0] += ABS(vec.y) * src->lighting_hgh[2];
         dst->lighting_hgh[dir+1] += ABS(vec.y) * src->lighting_hgh[3];
     }
     else if (vec.y < 0)
     {
         dst->lighting_low[dir+0] += ABS(vec.y) * src->lighting_low[3];
-        dst->lighting_hgh[dir+1] += ABS(vec.y) * src->lighting_hgh[2];
+        dst->lighting_low[dir+1] += ABS(vec.y) * src->lighting_low[2];
 
-        dst->lighting_low[dir+0] += ABS(vec.y) * src->lighting_low[3];
+        dst->lighting_hgh[dir+0] += ABS(vec.y) * src->lighting_hgh[3];
         dst->lighting_hgh[dir+1] += ABS(vec.y) * src->lighting_hgh[2];
     }
 
     if ( vec.z > 0 )
     {
         dst->lighting_low[dir+0] += ABS(vec.z) * src->lighting_low[4];
-        dst->lighting_hgh[dir+1] += ABS(vec.z) * src->lighting_hgh[5];
+        dst->lighting_low[dir+1] += ABS(vec.z) * src->lighting_low[5];
 
-        dst->lighting_low[dir+0] += ABS(vec.z) * src->lighting_low[4];
+        dst->lighting_hgh[dir+0] += ABS(vec.z) * src->lighting_hgh[4];
         dst->lighting_hgh[dir+1] += ABS(vec.z) * src->lighting_hgh[5];
     }
     else if (vec.z < 0)
     {
         dst->lighting_low[dir+0] += ABS(vec.z) * src->lighting_low[5];
-        dst->lighting_hgh[dir+1] += ABS(vec.z) * src->lighting_hgh[4];
+        dst->lighting_low[dir+1] += ABS(vec.z) * src->lighting_low[4];
 
-        dst->lighting_low[dir+0] += ABS(vec.z) * src->lighting_low[5];
+        dst->lighting_hgh[dir+0] += ABS(vec.z) * src->lighting_hgh[5];
         dst->lighting_hgh[dir+1] += ABS(vec.z) * src->lighting_hgh[4];
     }
 
@@ -4850,37 +4788,6 @@ bool_t bbox_gl_draw(aabb_t * pbbox)
 }
 
 //--------------------------------------------------------------------------------------------
-void release_all_object_textures()
-{
-    int cnt, tnc;
-    mad_t  * pmad;
-
-    for ( cnt = 0; cnt < MAX_PROFILE; cnt++ )
-    {
-        if ( !MadList[cnt].loaded ) continue;
-
-        pmad = MadList + cnt;
-
-        for ( tnc = 0; tnc < MAXSKIN; tnc++ )
-        {
-            int itex;
-
-            itex = pmad->tex_ref[tnc] ;
-            if ( itex > TX_LAST )
-            {
-                TxTexture_free_one( itex );
-            }
-
-            itex = pmad->ico_ref[tnc] ;
-            if ( itex > TX_LAST )
-            {
-                TxTexture_free_one( itex );
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 billboard_data_t * billboard_data_init(billboard_data_t * pbb)
 {
@@ -4930,8 +4837,8 @@ bool_t billboard_data_update( billboard_data_t * pbb )
         vup.z = 1.0f;
     }
 
-    height = pchr->bumpheight;
-    offset = MIN(pchr->bumpheight * 0.5f, pchr->bumpsize);
+    height = pchr->bump.height;
+    offset = MIN(pchr->bump.height * 0.5f, pchr->bump.size);
 
     pos_new.x = pchr->pos.x + vup.x * (height + offset);
     pos_new.y = pchr->pos.y + vup.y * (height + offset);
@@ -5165,8 +5072,8 @@ bool_t render_billboard( camera_t * pcam, billboard_data_t * pbb, float scale )
     w = oglx_texture_GetImageWidth ( ptex );
     h = oglx_texture_GetImageHeight ( ptex );
 
-    x1 = w  / ( float ) oglx_texture_GetTextureWidth ( ptex );
-    y1 = h  / ( float ) oglx_texture_GetTextureHeight( ptex );
+    x1 = w  / (float) oglx_texture_GetTextureWidth ( ptex );
+    y1 = h  / (float) oglx_texture_GetTextureHeight( ptex );
 
     vector_right.x =  pcam->mView.CNV(0, 0) * w * scale;
     vector_right.y =  pcam->mView.CNV(1, 0) * w * scale;
@@ -5330,12 +5237,14 @@ void gfx_update_timers()
 {
     // ZZ> This function updates the graphics timers
 
-    const float fold = 0.90f;
+    const float fold = 0.77f;
     const float fnew = 1.0f - fold;
 
     static int gfx_clock_last = 0;
     static int gfx_clock      = 0;
     static int gfx_clock_stt  = -1;
+
+    int dclock;
 
     if( gfx_clock_stt < 0 )
     {
@@ -5346,16 +5255,30 @@ void gfx_update_timers()
 
     gfx_clock_last = gfx_clock;
     gfx_clock      = SDL_GetTicks() - gfx_clock_stt;
+    dclock         = gfx_clock - gfx_clock_last;
 
-    fps_clock     += gfx_clock - gfx_clock_last;
+    // if there has been a gap in time (the module was loading, for instance)
+    // make sure we do not count that gap
+    if( dclock > TICKS_PER_SEC / 5 )
+    {
+        return;
+    }
+    fps_clock += dclock;
 
     if ( fps_loops > 0 && fps_clock > 0 )
     {
-        stabilized_fps_sum    = fold * stabilized_fps_sum    + fnew * ( float ) fps_loops / (( float ) fps_clock / TICKS_PER_SEC );
+        stabilized_fps_sum    = fold * stabilized_fps_sum    + fnew * (float) fps_loops / ((float) fps_clock / TICKS_PER_SEC );
         stabilized_fps_weight = fold * stabilized_fps_weight + fnew;
+
+        // blank these every so often so that the numbers don't overflow
+        if( fps_loops > 10 * TARGET_FPS)
+        {
+            fps_loops = 0;
+            fps_clock = 0;
+        }
     };
 
-    if ( stabilized_fps_weight > 0.5 )
+    if ( stabilized_fps_weight > 0.5f )
     {
         stabilized_fps = stabilized_fps_sum / stabilized_fps_weight;
     }

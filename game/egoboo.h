@@ -63,16 +63,6 @@
 
 #define NOHIDE              127                     // Don't hide
 
-enum e_damage_fx
-{
-    DAMFX_NONE           = 0,                       // Damage effects
-    DAMFX_ARMO           = (1 << 1),                // Armor piercing
-    DAMFX_NBLOC          = (1 << 2),                // Cannot be blocked by shield
-    DAMFX_ARRO           = (1 << 3),                // Only hurts the one it's attached to
-    DAMFX_TURN           = (1 << 4),                // Turn to attached direction
-    DAMFX_TIME           = (1 << 5)
-};
-
 #define SPELLBOOK           127                     // The spellbook model
 
 // Messaging stuff
@@ -102,22 +92,9 @@ enum e_damage_fx
 #define UPDATE_SKIP                     (TICKS_PER_SEC/TARGET_UPS)    // 1000 tics per sec / 50 fps = 20 ticks per frame
 #define ONESECOND                       (TICKS_PER_SEC/UPDATE_SKIP)    // 1000 tics per sec / 20 ticks per frame = 50 fps
 
-
-#define FACE_WEST    0x0000
-#define FACE_NORTH   0x4000                                 // Character facings
-#define FACE_EAST    0x8000
-#define FACE_SOUTH   0xC000
-#define FACE_RANDOM  generate_randmask(0, 0xFFFF)
-
-#define ATK_FRONT  0x0000                                     // Attack directions
-#define ATK_RIGHT  0x4000
-#define ATK_BEHIND 0x8000
-#define ATK_LEFT   0xC000
-
 //------------------------------------
 // Character defines
 //------------------------------------
-#define MAXSKIN   4
 
 //Dismounting
 #define DISMOUNTZVEL        16
@@ -133,10 +110,8 @@ EXTERN Uint8           timeron     EQ( bfalse );          // Game timer displaye
 EXTERN Uint32          timervalue  EQ( 0 );           // Timer time ( 50ths of a second )
 
 EXTERN bool_t          fpson        EQ(btrue);
-EXTERN char            szfpstext[]  EQ( "000 FPS" );
 
-
-  // fps stuff
+// fps stuff
 EXTERN float           est_max_fps           EQ( TARGET_FPS );
 EXTERN float           est_gfx_time          EQ( 1.0f );
 EXTERN Sint32          fps_clock             EQ(0);               ///< The number of ticks this second
@@ -213,7 +188,7 @@ EXTERN bool_t                    local_noplayers;                    // Are ther
 //------------------------------------
 
 EXTERN Uint16  bookicon_count    EQ(0);
-EXTERN Uint16  bookicon_ref[MAXSKIN];                      // The first book icon
+EXTERN Uint16  bookicon_ref[MAX_SKIN];                      // The first book icon
 
 EXTERN const char *globalparsename  EQ( NULL ); // The SCRIPT.TXT filename
 
@@ -228,14 +203,6 @@ enum e_order
     ORDER_STAND,
     ORDER_TERRAIN,
     ORDER_COUNT
-};
-
-enum e_attachment_type
-{
-    ATTACH_NONE       = 0,
-    ATTACH_INVENTORY,
-    ATTACH_LEFT,
-    ATTACH_RIGHT
 };
 
 #define  _EGOBOO_H_

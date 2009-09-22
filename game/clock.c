@@ -76,7 +76,6 @@ struct s_ClockState
   int frameHistoryHead;
 };
 
-
 static ClockState_t * clk_new( ClockState_t * cs, const char * name, int size  );
 static bool_t         clk_delete( ClockState_t * cs );
 
@@ -85,7 +84,6 @@ static void   clk_setFrameHistoryWindow( ClockState_t * cs, int size );
 static void   clk_addToFrameHistory( ClockState_t * cs, double frame );
 static double clk_getExactLastFrameDuration( ClockState_t * cs );
 static double clk_guessFrameDuration( ClockState_t * cs );
-
 
 ClockState_t * clk_create(const char * name, int size)
 {
@@ -107,7 +105,6 @@ bool_t clk_destroy( ClockState_t ** pcs )
 
   return retval;
 }
-
 
 ClockState_t * clk_new( ClockState_t * cs, const char * name, int size )
 {
@@ -278,5 +275,5 @@ Uint32 clk_getFrameNumber( ClockState_t * cs )
 
 float clk_getFrameRate( ClockState_t * cs )
 {
-  return ( float )( 1.0 / cs->frameTime );
+  return (float)( 1.0 / cs->frameTime );
 }

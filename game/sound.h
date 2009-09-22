@@ -45,40 +45,6 @@ struct s_egoboo_config;
 // CPU power on older computers.
 
 #define VALID_SND( ISND )       ( ISND > INVALID_SOUND && ISND < MAX_WAVE )
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-// BB > enumerated "speech" sounds, so that we COULD ge the scripts to classify which
-// sound to use for the "ouch", the "too much baggage", etc.
-// also some left-over sounds from the RTS days, but they might be useful if an NPC
-// uses messages to control his minions.
-
-// for example:
-// necromancer sends message to all minions "attack blah"
-// zombie minion responds with "moooooaaaaannn" automatically because that is the sound
-// registered as his SPEECH_ATTACK sound.
-// It seems to have a lot of potential to me. It *could* be done completely in the scripts,
-// but the idea of having registered sounds for certain actions makes a lot of sense to me! :)
-
-enum e_sound_types
-{
-    SOUND_FOOTFALL = 0,
-    SOUND_JUMP,
-    SOUND_SPAWN,
-    SOUND_DEATH,
-
-    // old "RTS" stuff
-    SPEECH_MOVE,
-    SPEECH_MOVEALT,
-    SPEECH_ATTACK,
-    SPEECH_ASSIST,
-    SPEECH_TERRAIN,
-    SPEECH_SELECT,
-
-    SOUND_COUNT,
-
-    SPEECH_BEGIN = SPEECH_MOVE,
-    SPEECH_END   = SPEECH_SELECT
-};
 
 typedef enum e_global_sounds
 {

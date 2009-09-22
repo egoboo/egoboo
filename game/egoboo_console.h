@@ -40,6 +40,8 @@ extern Uint8  scancode_to_ascii_shift[SDLK_LAST];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+void   init_scancodes();
+
 egoboo_console_t * egoboo_console_new( egoboo_console_t * pcon, SDL_Rect Con_rect, egoboo_console_callback_t pcall, void * data );
 SDL_bool           egoboo_console_delete( egoboo_console_t * pcon, SDL_bool do_free );
 

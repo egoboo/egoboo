@@ -203,7 +203,7 @@ SDL_bool lua_console_run( egoboo_console_t * ego_con, void * data )
 //--------------------------------------------------------------------------------------------
 /*
 ** An override for the global Lua "print" function. Modified from the version of luaL_print int the Lua source
-** prints to teh top console, not to the top Lua console. Probably need to fix this!
+** prints to the top console, not to the top Lua console. Probably need to fix this!
 */
 int lua_console_print ( lua_State * L )
 {

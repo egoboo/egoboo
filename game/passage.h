@@ -25,6 +25,8 @@
 
 #include "egoboo_typedef.h"
 
+#include "passage_file.h"
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -37,7 +39,6 @@ struct s_script_state;
 
 #define NOOWNER 0xFFFF        // Shop has no owner
 #define STOLEN  0xFFFF        // Someone stole a item
-#define NO_MUSIC -1            // For passages that play no music
 
 // These are shop orders
 enum e_shop_orders
@@ -50,25 +51,7 @@ enum e_shop_orders
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 // Passages
-
-struct s_passage
-{
-    // Passage positions
-    int    topleftx;             // top left X
-    int    toplefty;             // top left Y
-    int    bottomrightx;         // bottom right X
-    int    bottomrighty;         // bottom right Y
-
-    Sint8  music;                // Music track appointed to the specific passage
-    Uint8  mask;                 // Is it IMPASSABLE, SLIPPERY or whatever
-    bool_t open;                 // Is the passage open?
-};
-
-typedef struct s_passage passage_t;
 
 DEFINE_STACK_EXTERN(passage_t, PassageStack, MAX_PASS );
 
@@ -95,16 +78,15 @@ DEFINE_STACK_EXTERN(shop_t, ShopStack, MAX_PASS );
 bool_t open_passage( Uint16 passage );
 bool_t close_passage( Uint16 passage );
 void   check_passage_music();
-bool_t break_passage( struct s_script_state * pstate, Uint16 passage, Uint16 starttile, Uint16 frames, Uint16 become, Uint8 meshfxor );
 void   flash_passage( Uint16 passage, Uint8 color );
-Uint8  find_tile_in_passage( struct s_script_state * pstate, Uint16 passage, int tiletype );
 Uint16 who_is_blocking_passage( Uint16 passage, bool_t targetitems, bool_t targetdead, bool_t targetquest,
                                bool_t requireitem, IDSZ findidsz );
 void   clear_all_passages();
 void   add_shop_passage( Uint16 owner, Uint16 passage );
-void   add_passage( int tlx, int tly, int brx, int bry, bool_t open, Uint8 mask );
-void   setup_passage( const char *modname );
+void   add_passage( passage_t * pdata );
+void   setup_all_passages( const char *modname );
 Uint16 shop_get_owner( int ix, int iy );
-bool_t is_in_passage( Uint16 passage, float xpos, float ypos, float tolerance );
+bool_t point_is_in_passage( Uint16 passage, float xpos, float ypos );
+bool_t object_is_in_passage( Uint16 passage, float xpos, float ypos, float radius );
 
 Uint16 shop_get_owner( int ix, int iy );

@@ -20,12 +20,14 @@
 /* Egoboo - enchant.c handles enchantments attached to objects
  */
 #include "enchant.h"
-
 #include "char.h"
+#include "mad.h"
+#include "profile.h"
+
 #include "sound.h"
 #include "camera.h"
-#include "mad.h"
 #include "game.h"
+#include "script_functions.h"
 
 #include "egoboo_fileutil.h"
 #include "egoboo.h"
@@ -114,15 +116,15 @@ bool_t remove_enchant( Uint16 ienc )
         if ( VALID_SND( iwave ) )
         {
             Uint16 imodel = penc->spawnermodel;
-            if ( VALID_CAP(imodel) )
+            if ( VALID_PRO( imodel ) )
             {
                 if ( VALID_CHR(itarget) )
                 {
-                    sound_play_chunk(ChrList.lst[itarget].pos_old, MadList[imodel].wavelist[iwave]);
+                    sound_play_chunk(ChrList.lst[itarget].pos_old, pro_get_chunk(imodel,iwave));
                 }
                 else
                 {
-                    sound_play_chunk( PCamera->track_pos, MadList[imodel].wavelist[iwave]);
+                    sound_play_chunk( PCamera->track_pos, pro_get_chunk(imodel,iwave));
                 }
             }
         }
@@ -187,13 +189,13 @@ bool_t remove_enchant( Uint16 ienc )
     // See if we spit out an end message
     if ( EveStack.lst[penc->eve].endmessage >= 0 )
     {
-        display_message( NULL, MadList[penc->eve].message_start + EveStack.lst[penc->eve].endmessage, penc->target );
+        _display_message( penc->target, penc->iprofile, EveStack.lst[penc->eve].endmessage, NULL );
     }
 
     // Check to see if we spawn a poof
     if ( EveStack.lst[penc->eve].poofonend )
     {
-        spawn_poof( penc->target, penc->eve );
+        spawn_poof( penc->target, penc->iprofile );
     }
 
     // Check to see if the character dies
@@ -201,7 +203,7 @@ bool_t remove_enchant( Uint16 ienc )
     {
         if ( VALID_CHR(itarget) )
         {
-            if ( ChrList.lst[itarget].invictus )  TeamList[ChrList.lst[itarget].baseteam].morale++;
+            if ( ChrList.lst[itarget].invictus )  chr_get_pteam_base(itarget)->morale++;
 
             ChrList.lst[itarget].invictus = bfalse;
             kill_character( itarget, MAX_CHR );
@@ -212,7 +214,7 @@ bool_t remove_enchant( Uint16 ienc )
     overlay = penc->overlay;
     if ( VALID_CHR(overlay) )
     {
-        if ( ChrList.lst[overlay].invictus )  TeamList[ChrList.lst[overlay].baseteam].morale++;
+        if ( ChrList.lst[overlay].invictus )  chr_get_pteam_base(overlay)->morale++;
 
         ChrList.lst[overlay].invictus = bfalse;
         kill_character( overlay, MAX_CHR );
@@ -221,7 +223,7 @@ bool_t remove_enchant( Uint16 ienc )
     // Remove see kurse enchant
     if ( VALID_CHR( itarget ) )
     {
-        if ( EveStack.lst[penc->eve].seekurse && !CapList[ChrList.lst[itarget].model].canseekurse )
+        if ( EveStack.lst[penc->eve].seekurse && !chr_get_pcap(itarget)->canseekurse )
         {
             ChrList.lst[itarget].canseekurse = bfalse;
         }
@@ -427,7 +429,7 @@ void set_enchant_value( Uint16 ienc, Uint8 valueindex, Uint16 ieve )
                         penc->setsave[valueindex] = ptarget->skin;
                         // Special handler for morph
                         change_character( character, ieve, 0, LEAVEALL ); // LEAVEFIRST);
-                        ptarget->ai.alert |= ALERTIF_CHANGED;
+                        ptarget->ai.changed = btrue;
                         break;
 
                     case SETCHANNEL:
@@ -499,13 +501,13 @@ void add_enchant_value( Uint16 ienc, Uint8 valueindex, Uint16 ieve )
             break;
 
         case ADDSIZE:
-            fnewvalue = ptarget->sizegoto;
+            fnewvalue = ptarget->fat_goto;
             fvaluetoadd = peve->addvalue[valueindex] / 128.0f;
             fgetadd( 0.5f, fnewvalue, 2.0f, &fvaluetoadd );
             valuetoadd = fvaluetoadd * 128.0f; // Get save value
             //fvaluetoadd = valuetoadd / 128.0f;
-            ptarget->sizegoto += fvaluetoadd;
-            ptarget->sizegototime = SIZETIME;
+            ptarget->fat_goto += fvaluetoadd;
+            ptarget->fat_goto_time = SIZETIME;
             break;
 
         case ADDACCEL:
@@ -596,181 +598,213 @@ void add_enchant_value( Uint16 ienc, Uint8 valueindex, Uint16 ieve )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint16 spawn_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 ienc, Uint16 modeloptional )
+void enc_init( enc_t * penc )
+{
+    if( NULL == penc ) return;
+
+    memset( penc, 0, sizeof(enc_t) );
+
+    penc->overlay = MAX_CHR;
+}
+
+//--------------------------------------------------------------------------------------------
+Uint16 spawn_one_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 enc_override, Uint16 modeloptional )
 {
     // ZZ> This function enchants a target, returning the enchantment index or MAX_ENC
     //    if failed
-    Uint16 ieve, overlay;
+    Uint16 ienc, ieve, iprofile, overlay;
     int add;
     eve_t * peve;
+    enc_t * penc;
+    chr_t * ptarget;
 
     // Target must both be alive and on and valid
-    if ( INVALID_CHR(target) || !ChrList.lst[target].alive )
-        return MAX_ENC;
+    if ( INVALID_CHR(target) ) return MAX_ENC;
+    ptarget = ChrList.lst + target;
 
-    if ( modeloptional < MAX_PROFILE )
+    // you should be able to enchant dead stuff to raise the dead...
+    // if( !ptarget->alive ) return MAX_ENC;
+
+    if ( VALID_PRO(modeloptional) )
     {
         // The enchantment type is given explicitly
-        ieve = modeloptional;
+        iprofile = modeloptional;
+        ieve     = pro_get_ieve(modeloptional);
     }
     else
     {
         // The enchantment type is given by the spawner
-        ieve = ChrList.lst[spawner].model;
+        iprofile = chr_get_iobj(spawner);
+        ieve     = chr_get_ieve(spawner);
     }
 
-    // Owner must both be alive and on and valid if it isn't a stayifnoowner enchant
-    if ( !EveStack.lst[ieve].stayifnoowner && ( INVALID_CHR(owner) || !ChrList.lst[target].alive) )
-        return MAX_ENC;
-
-    if ( ieve >= MAX_EVE || !EveStack.lst[ieve].loaded ) return MAX_PROFILE;
+    if ( INVALID_EVE(ieve) ) return MAX_ENC;
     peve = EveStack.lst + ieve;
 
-    if ( ienc == MAX_ENC )
+    // Owner must both be alive and on and valid if it isn't a stayifnoowner enchant
+    if ( !peve->stayifnoowner && ( INVALID_CHR(owner) || !ChrList.lst[owner].alive ) )
+        return MAX_ENC;
+
+    if ( VALID_ENC_RANGE(enc_override) )
+    {
+        // are we re-enchanting something? enc_override always == MEX_ENC, so there is no knowning
+        // what this was really intended to do...
+
+        if( INVALID_ENC(enc_override) )
+        {
+            ienc = EncList_get_free(enc_override);
+        }
+        else
+        {
+            ienc = enc_override;
+        }
+    }
+    else
     {
         // Should it choose an inhand item?
         if ( peve->retarget )
         {
-            // Is at least one valid?
-            if ( ChrList.lst[target].holdingwhich[SLOT_LEFT] == MAX_CHR && ChrList.lst[target].holdingwhich[SLOT_RIGHT] == MAX_CHR )
-            {
-                // No weapons to pick
-                return MAX_ENC;
-            }
-
             // Left, right, or both are valid
-            if ( ChrList.lst[target].holdingwhich[SLOT_LEFT] == MAX_CHR )
+            if ( VALID_CHR(ptarget->holdingwhich[SLOT_LEFT]) )
             {
                 // Only right hand is valid
-                target = ChrList.lst[target].holdingwhich[SLOT_RIGHT];
+                target = ptarget->holdingwhich[SLOT_RIGHT];
+            }
+            else if( VALID_CHR(ptarget->holdingwhich[SLOT_LEFT]) )
+            {
+                // Pick left hand
+                target = ptarget->holdingwhich[SLOT_LEFT];
             }
             else
             {
-                // Pick left hand
-                target = ChrList.lst[target].holdingwhich[SLOT_LEFT];
+                // No weapons to pick
+                target = MAX_CHR;
             }
         }
 
-        if ( INVALID_CHR(target) || !ChrList.lst[target].alive ) return MAX_ENC;
+        if ( INVALID_CHR(target) || !ptarget->alive ) return MAX_ENC;
+        ptarget = ChrList.lst + target;
 
         // Make sure it's valid
         if ( peve->dontdamagetype != DAMAGE_NONE )
         {
-            if ( ( ChrList.lst[target].damagemodifier[peve->dontdamagetype]&DAMAGESHIFT ) >= 3
-                    || ChrList.lst[target].damagemodifier[peve->dontdamagetype]&DAMAGECHARGE )
+            if ( ( ptarget->damagemodifier[peve->dontdamagetype]&DAMAGESHIFT ) >= 3 ||
+                   ptarget->damagemodifier[peve->dontdamagetype]&DAMAGECHARGE )
             {
                 return MAX_ENC;
             }
         }
+
         if ( peve->onlydamagetype != DAMAGE_NONE )
         {
-            if ( ChrList.lst[target].damagetargettype != peve->onlydamagetype )
+            if ( ptarget->damagetargettype != peve->onlydamagetype )
             {
                 return MAX_ENC;
             }
         }
 
         // Find one to use
-        ienc = EncList_get_free();
-    }
-    else
-    {
-        EncList.free_count--;  // To keep it in order
+        ienc = EncList_get_free(enc_override);
     }
 
-    if ( ienc < MAX_ENC )
+    if ( !VALID_ENC_RANGE(ienc) ) return MAX_ENC;
+    penc = EncList.lst + ienc;
+    ptarget = ChrList.lst + target;
+
+    // initialize the enchant
+    enc_init( penc );
+
+    // Make a new one
+    penc->on           = btrue;
+    penc->target       = VALID_CHR(target)  ? target  : MAX_CHR;
+    penc->owner        = VALID_CHR(owner)   ? owner   : MAX_CHR;
+    penc->spawner      = VALID_CHR(spawner) ? spawner : MAX_CHR;
+    penc->spawnermodel = chr_get_iobj(spawner);
+
+    if ( VALID_CHR(spawner) )
     {
-        enc_t * penc = EncList.lst + ienc;
-        chr_t * ptarget = ChrList.lst + target;
+        ChrList.lst[spawner].undoenchant = ienc;
+    }
 
-        memset( penc, 0, sizeof(enc_t) );
+    penc->eve        = ieve;
+    penc->iprofile   = iprofile;
+    penc->time       = peve->time;
+    penc->spawntime  = 1;
+    penc->ownermana  = peve->ownermana;
+    penc->ownerlife  = peve->ownerlife;
+    penc->targetmana = peve->targetmana;
+    penc->targetlife = peve->targetlife;
 
-        // Make a new one
-        penc->on      = btrue;
-        penc->target  = VALID_CHR(target)  ? target  : MAX_CHR;
-        penc->owner   = VALID_CHR(owner)   ? owner   : MAX_CHR;
-        penc->spawner = VALID_CHR(spawner) ? spawner : MAX_CHR;
-        penc->spawnermodel = VALID_CAP(ChrList.lst[spawner].model) ? ChrList.lst[spawner].model : MAX_CHR;
+    // Add it as first in the list
+    penc->nextenchant     = ptarget->firstenchant;
+    ptarget->firstenchant = ienc;
 
-        if ( VALID_CHR(spawner) )
+    // Now set all of the specific values, morph first
+    set_enchant_value( ienc, SETMORPH, ieve );
+    set_enchant_value( ienc, SETDAMAGETYPE, ieve );
+    set_enchant_value( ienc, SETNUMBEROFJUMPS, ieve );
+    set_enchant_value( ienc, SETLIFEBARCOLOR, ieve );
+    set_enchant_value( ienc, SETMANABARCOLOR, ieve );
+    set_enchant_value( ienc, SETSLASHMODIFIER, ieve );
+    set_enchant_value( ienc, SETCRUSHMODIFIER, ieve );
+    set_enchant_value( ienc, SETPOKEMODIFIER, ieve );
+    set_enchant_value( ienc, SETHOLYMODIFIER, ieve );
+    set_enchant_value( ienc, SETEVILMODIFIER, ieve );
+    set_enchant_value( ienc, SETFIREMODIFIER, ieve );
+    set_enchant_value( ienc, SETICEMODIFIER, ieve );
+    set_enchant_value( ienc, SETZAPMODIFIER, ieve );
+    set_enchant_value( ienc, SETFLASHINGAND, ieve );
+    set_enchant_value( ienc, SETLIGHTBLEND, ieve );
+    set_enchant_value( ienc, SETALPHABLEND, ieve );
+    set_enchant_value( ienc, SETSHEEN, ieve );
+    set_enchant_value( ienc, SETFLYTOHEIGHT, ieve );
+    set_enchant_value( ienc, SETWALKONWATER, ieve );
+    set_enchant_value( ienc, SETCANSEEINVISIBLE, ieve );
+    set_enchant_value( ienc, SETMISSILETREATMENT, ieve );
+    set_enchant_value( ienc, SETCOSTFOREACHMISSILE, ieve );
+    set_enchant_value( ienc, SETCHANNEL, ieve );
+
+    // Now do all of the stat adds
+    for ( add = 0; add < MAX_ENCHANT_ADD; add++ )
+    {
+        add_enchant_value( ienc, add, ieve );
+    }
+
+    // Create an overlay character?
+    if ( peve->overlay )
+    {
+        overlay = spawn_one_character( ptarget->pos, iprofile, ptarget->team, 0, ptarget->turn_z, NULL, MAX_CHR );
+        if ( VALID_CHR(overlay) )
         {
-            ChrList.lst[spawner].undoenchant = ienc;
-        }
+            chr_t * povl;
+            mad_t * povl_mad;
 
-        penc->eve = ieve;
-        penc->time = peve->time;
-        penc->spawntime = 1;
-        penc->ownermana = peve->ownermana;
-        penc->ownerlife = peve->ownerlife;
-        penc->targetmana = peve->targetmana;
-        penc->targetlife = peve->targetlife;
+            povl     = ChrList.lst + overlay;
+            povl_mad = chr_get_pmad(overlay);
 
-        // Add it as first in the list
-        penc->nextenchant = ptarget->firstenchant;
-        ptarget->firstenchant = ienc;
+            penc->overlay = overlay;  // Kill this character on end...
+            povl->ai.target = target;
+            povl->ai.state = peve->overlay;
+            povl->overlay = btrue;
 
-        // Now set all of the specific values, morph first
-        set_enchant_value( ienc, SETMORPH, ieve );
-        set_enchant_value( ienc, SETDAMAGETYPE, ieve );
-        set_enchant_value( ienc, SETNUMBEROFJUMPS, ieve );
-        set_enchant_value( ienc, SETLIFEBARCOLOR, ieve );
-        set_enchant_value( ienc, SETMANABARCOLOR, ieve );
-        set_enchant_value( ienc, SETSLASHMODIFIER, ieve );
-        set_enchant_value( ienc, SETCRUSHMODIFIER, ieve );
-        set_enchant_value( ienc, SETPOKEMODIFIER, ieve );
-        set_enchant_value( ienc, SETHOLYMODIFIER, ieve );
-        set_enchant_value( ienc, SETEVILMODIFIER, ieve );
-        set_enchant_value( ienc, SETFIREMODIFIER, ieve );
-        set_enchant_value( ienc, SETICEMODIFIER, ieve );
-        set_enchant_value( ienc, SETZAPMODIFIER, ieve );
-        set_enchant_value( ienc, SETFLASHINGAND, ieve );
-        set_enchant_value( ienc, SETLIGHTBLEND, ieve );
-        set_enchant_value( ienc, SETALPHABLEND, ieve );
-        set_enchant_value( ienc, SETSHEEN, ieve );
-        set_enchant_value( ienc, SETFLYTOHEIGHT, ieve );
-        set_enchant_value( ienc, SETWALKONWATER, ieve );
-        set_enchant_value( ienc, SETCANSEEINVISIBLE, ieve );
-        set_enchant_value( ienc, SETMISSILETREATMENT, ieve );
-        set_enchant_value( ienc, SETCOSTFOREACHMISSILE, ieve );
-        set_enchant_value( ienc, SETCHANNEL, ieve );
-
-        // Now do all of the stat adds
-        for ( add = 0; add < MAX_ENCHANT_ADD; add++ )
-        {
-            add_enchant_value( ienc, add, ieve );
-        }
-
-        // Create an overlay character?
-        penc->overlay = MAX_CHR;
-        if ( peve->overlay )
-        {
-            overlay = spawn_one_character( ptarget->pos, ieve, ptarget->team, 0, ptarget->turn_z, NULL, MAX_CHR );
-
-            if ( VALID_CHR(overlay) )
+            // Start out with ActionMJ...  Object activated
+            if ( povl_mad->actionvalid[ACTION_MJ] )
             {
-                chr_t * povl = ChrList.lst + overlay;
-
-                penc->overlay = overlay;  // Kill this character on end...
-                povl->ai.target = target;
-                povl->ai.state = peve->overlay;
-                povl->overlay = btrue;
-
-                // Start out with ActionMJ...  Object activated
-                if ( MadList[povl->inst.imad].actionvalid[ACTION_MJ] )
-                {
-                    povl->action = ACTION_MJ;
-                    povl->inst.lip = 0;
-                    povl->inst.frame_nxt = MadList[povl->inst.imad].actionstart[ACTION_MJ];
-                    povl->inst.frame_lst = povl->inst.frame_nxt;
-                    povl->actionready = bfalse;
-                }
-
-                povl->inst.light = 254;  // Assume it's transparent...
+                povl->action = ACTION_MJ;
+                povl->inst.lip = 0;
+                povl->inst.frame_nxt = povl_mad->actionstart[ACTION_MJ];
+                povl->inst.frame_lst = povl->inst.frame_nxt;
+                povl->actionready = bfalse;
             }
-        }
 
-        // Allow them to see kurses?
-        if (peve->seekurse) ChrList.lst[target].canseekurse = btrue;
+            povl->inst.light = 254;  // Assume it's transparent...
+        }
+    }
+
+    // Allow them to see kurses?
+    if (peve->seekurse)
+    {
+        ptarget->canseekurse = btrue;
     }
 
     return ienc;
@@ -802,180 +836,21 @@ void EncList_free_all()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t load_one_enchant_profile( const char* szLoadName, Uint16 profile )
+Uint16 load_one_enchant_profile( const char* szLoadName, Uint16 ieve )
 {
-    // ZZ> This function loads the enchantment associated with an object
-    vfs_FILE* fileread;
-    char cTmp;
-    IDSZ idsz;
+    // ZZ> This function loads an enchantment profile into the EveList
+
     eve_t * peve;
 
-    if ( profile > MAX_EVE ) return bfalse;
-    peve = EveStack.lst + profile;
+    if ( ieve > MAX_EVE ) return MAX_EVE;
+    peve = EveStack.lst + ieve;
 
-    memset( peve, 0, sizeof(eve_t) );
-
-    parse_filename = "";
-    fileread = vfs_openRead( szLoadName );
-    if ( NULL == fileread )
+    if( NULL == load_one_enchant_file( szLoadName, peve ) )
     {
-        return bfalse;
-    }
-    parse_filename = szLoadName;
-
-    // btrue/bfalse values
-    peve->retarget = fget_next_bool( fileread );
-    peve->override = fget_next_bool( fileread );
-    peve->removeoverridden = fget_next_bool( fileread );
-    peve->killonend = fget_next_bool( fileread );
-
-    peve->poofonend = fget_next_bool( fileread );
-
-    // More stuff
-    peve->time = fget_next_int( fileread );
-    peve->endmessage = fget_next_int( fileread );
-
-    // Drain stuff
-    peve->ownermana    = fget_next_float( fileread ) * 256;
-    peve->targetmana   = fget_next_float( fileread ) * 256;
-    peve->endifcantpay = fget_next_bool( fileread );
-    peve->ownerlife    = fget_next_float( fileread ) * 256;
-    peve->targetlife   = fget_next_float( fileread ) * 256;
-
-    // Specifics
-    peve->dontdamagetype = fget_next_damage_type( fileread );
-    peve->onlydamagetype = fget_next_damage_type( fileread );
-    peve->removedbyidsz  = fget_next_idsz( fileread );
-
-    // Now the set values
-    peve->setyesno[SETDAMAGETYPE] = fget_next_bool( fileread );
-    peve->setvalue[SETDAMAGETYPE] = fget_damage_type( fileread );
-
-    peve->setyesno[SETNUMBEROFJUMPS] = fget_next_bool( fileread );
-    peve->setvalue[SETNUMBEROFJUMPS] = fget_int( fileread );
-
-    peve->setyesno[SETLIFEBARCOLOR] = fget_next_bool( fileread );
-    peve->setvalue[SETLIFEBARCOLOR] = fget_int( fileread );
-
-    peve->setyesno[SETMANABARCOLOR] = fget_next_bool( fileread );
-    peve->setvalue[SETMANABARCOLOR] = fget_int( fileread );
-
-    peve->setyesno[SETSLASHMODIFIER] = fget_next_bool( fileread );
-    peve->setvalue[SETSLASHMODIFIER] = fget_damage_modifier( fileread );
-
-    peve->setyesno[SETCRUSHMODIFIER] = fget_next_bool( fileread );
-    peve->setvalue[SETCRUSHMODIFIER] = fget_damage_modifier( fileread );
-
-    peve->setyesno[SETPOKEMODIFIER] = fget_next_bool( fileread );
-    peve->setvalue[SETPOKEMODIFIER] = fget_damage_modifier( fileread );
-
-    peve->setyesno[SETHOLYMODIFIER] = fget_next_bool( fileread );
-    peve->setvalue[SETHOLYMODIFIER] = fget_damage_modifier( fileread );
-
-    peve->setyesno[SETEVILMODIFIER] = fget_next_bool( fileread );
-    peve->setvalue[SETEVILMODIFIER] = fget_damage_modifier( fileread );
-
-    peve->setyesno[SETFIREMODIFIER] = fget_next_bool( fileread );
-    peve->setvalue[SETFIREMODIFIER] = fget_damage_modifier( fileread );
-
-    peve->setyesno[SETICEMODIFIER] = fget_next_bool( fileread );
-    peve->setvalue[SETICEMODIFIER] = fget_damage_modifier( fileread );
-
-    peve->setyesno[SETZAPMODIFIER] = fget_next_bool( fileread );
-    peve->setvalue[SETZAPMODIFIER] = fget_damage_modifier( fileread );
-
-    peve->setyesno[SETFLASHINGAND] = fget_next_bool( fileread );
-    peve->setvalue[SETFLASHINGAND] = fget_int( fileread );
-
-    peve->setyesno[SETLIGHTBLEND] = fget_next_bool( fileread );
-    peve->setvalue[SETLIGHTBLEND] = fget_int( fileread );
-
-    peve->setyesno[SETALPHABLEND] = fget_next_bool( fileread );
-    peve->setvalue[SETALPHABLEND] = fget_int( fileread );
-
-    peve->setyesno[SETSHEEN] = fget_next_bool( fileread );
-    peve->setvalue[SETSHEEN] = fget_int( fileread );
-
-    peve->setyesno[SETFLYTOHEIGHT] = fget_next_bool( fileread );
-    peve->setvalue[SETFLYTOHEIGHT] = fget_int( fileread );
-
-    peve->setyesno[SETWALKONWATER] = fget_next_bool( fileread );
-    peve->setvalue[SETWALKONWATER] = fget_bool( fileread );
-
-    peve->setyesno[SETCANSEEINVISIBLE] = fget_next_bool( fileread );
-    peve->setvalue[SETCANSEEINVISIBLE] = fget_bool( fileread );
-
-    peve->setyesno[SETMISSILETREATMENT] = fget_next_bool( fileread );
-    cTmp = fget_first_letter( fileread );
-    peve->setvalue[SETMISSILETREATMENT] = MISNORMAL;
-    if ( 'R' == toupper(cTmp) )  peve->setvalue[SETMISSILETREATMENT] = MISREFLECT;
-    if ( 'D' == toupper(cTmp) )  peve->setvalue[SETMISSILETREATMENT] = MISDEFLECT;
-
-    peve->setyesno[SETCOSTFOREACHMISSILE] = fget_next_bool( fileread );
-    peve->setvalue[SETCOSTFOREACHMISSILE] = (Uint8) fget_float( fileread ) * 16;
-
-    peve->setyesno[SETMORPH] = fget_next_bool( fileread );
-    peve->setvalue[SETMORPH] = btrue;
-
-    peve->setyesno[SETCHANNEL] = fget_next_bool( fileread );
-    peve->setvalue[SETCHANNEL] = btrue;
-
-    // Now read in the add values
-    peve->addvalue[ADDJUMPPOWER]    = (Sint32) fget_next_float( fileread ) * 16;
-    peve->addvalue[ADDBUMPDAMPEN]   = (Sint32) fget_next_float( fileread ) * 127;
-    peve->addvalue[ADDBOUNCINESS]   = (Sint32) fget_next_float( fileread ) * 127;
-    peve->addvalue[ADDDAMAGE]       = (Sint32) fget_next_float( fileread ) * 4;
-    peve->addvalue[ADDSIZE]         = (Sint32) fget_next_float( fileread ) * 127;
-    peve->addvalue[ADDACCEL]        = fget_next_int( fileread );
-    peve->addvalue[ADDRED]          = fget_next_int( fileread );
-    peve->addvalue[ADDGRN]          = fget_next_int( fileread );
-    peve->addvalue[ADDBLU]          = fget_next_int( fileread );
-    peve->addvalue[ADDDEFENSE]      = -fget_next_int( fileread );  // Defense is backwards
-    peve->addvalue[ADDMANA]         = (Sint32) fget_next_float( fileread ) * 4;
-    peve->addvalue[ADDLIFE]         = (Sint32) fget_next_float( fileread ) * 4;
-    peve->addvalue[ADDSTRENGTH]     = (Sint32) fget_next_float( fileread ) * 4;
-    peve->addvalue[ADDWISDOM]       = (Sint32) fget_next_float( fileread ) * 4;
-    peve->addvalue[ADDINTELLIGENCE] = (Sint32) fget_next_float( fileread ) * 4;
-    peve->addvalue[ADDDEXTERITY]    = (Sint32) fget_next_float( fileread ) * 4;
-
-    // Clear expansions...
-    peve->contspawntime = 0;
-    peve->contspawnamount = 0;
-    peve->contspawnfacingadd = 0;
-    peve->contspawnpip = 0;
-    peve->endsoundindex = INVALID_SOUND;
-    peve->stayifnoowner = 0;
-    peve->overlay = 0;
-    peve->seekurse = bfalse;
-
-    // Read expansions
-    while ( goto_colon( NULL, fileread, btrue ) )
-    {
-        idsz = fget_idsz( fileread );
-
-        if ( idsz == MAKE_IDSZ( 'A', 'M', 'O', 'U' ) )  peve->contspawnamount = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'T', 'Y', 'P', 'E' ) )  peve->contspawnpip = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'T', 'I', 'M', 'E' ) )  peve->contspawntime = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'F', 'A', 'C', 'E' ) )  peve->contspawnfacingadd = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'S', 'E', 'N', 'D' ) )
-        {
-            // This is wrong, it gets stored or loaded incorrectly (Loaded in game.c)
-            int itmp = fget_int( fileread );
-            peve->endsoundindex = CLIP(itmp, INVALID_SOUND, MAX_WAVE);
-        }
-        else if ( idsz == MAKE_IDSZ( 'S', 'T', 'A', 'Y' ) ) peve->stayifnoowner = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'O', 'V', 'E', 'R' ) ) peve->overlay = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'C', 'K', 'U', 'R' ) ) peve->seekurse = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'D', 'E', 'A', 'D' ) ) peve->stayifdead = fget_int( fileread );
+        ieve = MAX_EVE;
     }
 
-    // All done ( finally )
-    vfs_close( fileread );
-    parse_filename = "";
-
-    peve->loaded = btrue;
-
-    return btrue;
+    return ieve;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1155,8 +1030,8 @@ void remove_enchant_value( Uint16 ienc, Uint8 valueindex )
 
         case ADDSIZE:
             fvaluetoadd = penc->addsave[valueindex] / 128.0f;
-            ptarget->sizegoto -= fvaluetoadd;
-            ptarget->sizegototime = SIZETIME;
+            ptarget->fat_goto -= fvaluetoadd;
+            ptarget->fat_goto_time = SIZETIME;
             break;
 
         case ADDACCEL:
@@ -1218,4 +1093,83 @@ void remove_enchant_value( Uint16 ienc, Uint8 valueindex )
             ptarget->dexterity -= valuetoadd;
             break;
     }
+}
+
+//--------------------------------------------------------------------------------------------
+Uint16  enc_get_iowner( Uint16 ienc )
+{
+    enc_t * penc;
+
+    if( INVALID_ENC(ienc) ) return MAX_CHR;
+    penc = EncList.lst + ienc;
+
+    if( INVALID_CHR(penc->owner) ) return MAX_CHR;
+
+    return penc->owner;
+}
+
+//--------------------------------------------------------------------------------------------
+chr_t * enc_get_powner( Uint16 ienc )
+{
+    enc_t * penc;
+
+    if( INVALID_ENC(ienc) ) return NULL;
+    penc = EncList.lst + ienc;
+
+    if( INVALID_CHR(penc->owner) ) return NULL;
+
+    return ChrList.lst + penc->owner;
+}
+
+//--------------------------------------------------------------------------------------------
+Uint16  enc_get_ieve( Uint16 ienc )
+{
+    enc_t * penc;
+
+    if( INVALID_ENC(ienc) ) return MAX_EVE;
+    penc = EncList.lst + ienc;
+
+    if( INVALID_EVE(penc->eve) ) return MAX_EVE;
+
+    return penc->eve;
+}
+
+//--------------------------------------------------------------------------------------------
+eve_t * enc_get_peve( Uint16 ienc )
+{
+    enc_t * penc;
+
+    if( INVALID_ENC(ienc) ) return NULL;
+    penc = EncList.lst + ienc;
+
+    if( INVALID_EVE(penc->eve) ) return NULL;
+
+    return EveStack.lst + penc->eve;
+}
+
+//--------------------------------------------------------------------------------------------
+IDSZ enc_get_idszremove( Uint16 ienc )
+{
+    eve_t * peve = enc_get_peve( ienc );
+    if( NULL == peve ) return IDSZ_NONE;
+
+    return peve->removedbyidsz;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t enc_is_removed( Uint16 ienc, Uint16 test_profile )
+{
+    IDSZ idsz_remove;
+
+    if( INVALID_ENC(ienc) ) return bfalse;
+    idsz_remove = enc_get_idszremove( ienc );
+
+    // if nothing can remove it, just go on with your business
+    if( IDSZ_NONE == idsz_remove ) return bfalse;
+
+    // check vs. every IDSZ that could have something to do with cancelling the enchant
+    if( idsz_remove == pro_get_idsz(test_profile, IDSZ_TYPE  ) ) return btrue;
+    if( idsz_remove == pro_get_idsz(test_profile, IDSZ_PARENT) ) return btrue;
+
+    return bfalse;
 }

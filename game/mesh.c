@@ -1319,11 +1319,19 @@ float evaluate_lighting_cache( lighting_cache_t * src, GLfloat nrm[], float z, a
     if ( src->max_light <= 0.0f ) return 0.0f;
 
     hgh_wt = (z - bbox.mins[ZZ]) / (bbox.maxs[ZZ] - bbox.mins[ZZ]);
+    hgh_wt = CLIP( hgh_wt, 0.0f, 1.0f);
+
     low_wt = 1.0f - hgh_wt;
 
     lighting = 0.0f;
-    lighting += low_wt * evaluate_lighting_vector( src->lighting_low, nrm );
-    lighting += hgh_wt * evaluate_lighting_vector( src->lighting_hgh, nrm );
+    if( low_wt > 0.0f )
+    {
+        lighting += low_wt * evaluate_lighting_vector( src->lighting_low, nrm );
+    }
+    if( hgh_wt > 0.0f )
+    {
+        lighting += hgh_wt * evaluate_lighting_vector( src->lighting_hgh, nrm );
+    }
 
     return lighting;
 }

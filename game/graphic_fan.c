@@ -274,8 +274,8 @@ void render_water_fan( ego_mpd_t * pmesh, Uint32 fan, Uint8 layer )
 
     ptex = TxTexture_get_ptr( texture );
 
-    x1 = ( float ) oglx_texture_GetTextureWidth( ptex ) / ( float ) oglx_texture_GetImageWidth( ptex );
-    y1 = ( float ) oglx_texture_GetTextureHeight( ptex ) / ( float ) oglx_texture_GetImageHeight( ptex );
+    x1 = (float) oglx_texture_GetTextureWidth( ptex ) / (float) oglx_texture_GetImageWidth( ptex );
+    y1 = (float) oglx_texture_GetTextureHeight( ptex ) / (float) oglx_texture_GetImageHeight( ptex );
 
     for ( cnt = 0; cnt < 4; cnt ++)
     {

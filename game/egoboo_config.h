@@ -41,6 +41,8 @@
 #define MAX_TEXTURE        (MAX_CHR * 4)     // Maximum number of textures
 #define MAX_ICON           (MAX_TEXTURE + 4) // Maximum number of icons
 
+#define MAX_SKIN             4
+
 // profile pre-allocations
 #define MAX_PROFILE        256        // Maximum number of object profiles
 #define MAX_AI             129        // Maximum number of scripts

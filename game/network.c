@@ -28,8 +28,9 @@
 #include "log.h"
 #include "input.h"
 #include "char.h"
-#include "module.h"
+#include "module_file.h"
 #include "game.h"
+#include "menu.h"
 
 #include "egoboo_strutil.h"
 #include "egoboo_vfs.h"
@@ -53,8 +54,8 @@ static bool_t net_instance_init( net_instance_t * pnet );
 int         lag  = 3;                       // Lag tolerance
 Uint32      numplatimes = 0;
 
-int         numpla = 0;                     // Number of players
-int         local_numlpla;
+int         local_numlpla;                         // number of players on the local machine
+int         PlaList_count = 0;                     // Number of players
 player_t    PlaList[MAXPLAYER];
 
 FILE *      globalnetworkerr = NULL;
@@ -1240,7 +1241,7 @@ void net_handlePacket( ENetEvent *event )
                 strncpy( pickedmodule_name, filename, SDL_arraysize(pickedmodule_name) );
 
                 // Check to see if the module exists
-                pickedmodule_index = modlist_get_mod_number( pickedmodule_name );
+                pickedmodule_index = mnu_get_mod_number( pickedmodule_name );
                 if ( -1 != pickedmodule_index )
                 {
                     pickedmodule_ready = btrue;
@@ -1882,4 +1883,31 @@ bool_t net_instance_init( net_instance_t * pnet )
     memset( pnet, 0, sizeof(net_instance_t) );
 
     return bfalse;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+Uint16   pla_get_ichr( Uint16 iplayer )
+{
+    player_t * pplayer;
+
+    if( iplayer >= MAXPLAYER && !PlaList[iplayer].valid ) return MAX_CHR;
+    pplayer = PlaList + iplayer;
+
+    if( INVALID_CHR(pplayer->index) ) return MAX_CHR;
+
+    return pplayer->index;
+}
+
+//--------------------------------------------------------------------------------------------
+chr_t  * pla_get_pchr( Uint16 iplayer )
+{
+    player_t * pplayer;
+
+    if( iplayer >= MAXPLAYER && !PlaList[iplayer].valid ) return NULL;
+    pplayer = PlaList + iplayer;
+
+    if( INVALID_CHR(pplayer->index) ) return NULL;
+
+    return ChrList.lst + pplayer->index;
 }

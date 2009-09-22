@@ -5,6 +5,7 @@
 
 #include "egoboo_strutil.h"
 #include "egoboo_endian.h"
+#include "egoboo_fileutil.h"
 
 #include <physfs.h>
 
@@ -284,7 +285,7 @@ const char * vfs_resolveWriteFilename(const char * src_filename )
     const  char    * write_dir;
 
     write_dir = PHYSFS_getWriteDir();
-    if( NULL == write_dir ) 
+    if( NULL == write_dir )
 	{
 		log_warning("PhysFS could not get write directory!\n");
 		return NULL;
@@ -307,6 +308,8 @@ vfs_FILE * vfs_openRead( const char * filename )
     vfs_FILE    * vfs_file;
     FILE        * ftmp;
 
+    parse_filename = "";
+
     real_filename = vfs_resolveReadFilename( filename );
     if( NULL == real_filename ) return NULL;
 
@@ -315,6 +318,8 @@ vfs_FILE * vfs_openRead( const char * filename )
 
     vfs_file = (vfs_FILE*)calloc(1, sizeof(vfs_FILE));
     if( NULL == vfs_file ) return NULL;
+
+    parse_filename = filename;
 
     vfs_file->type  = vfs_cfile;
     vfs_file->ptr.c = ftmp;
@@ -378,6 +383,8 @@ int vfs_close( vfs_FILE * pfile )
     int retval;
 
     if( NULL == pfile ) return 0;
+
+    parse_filename = "";
 
     retval = 0;
     if( vfs_cfile == pfile->type )
