@@ -23,7 +23,7 @@
 
 #include "input.h"
 
-#include "controls.h"
+#include "controls_file.h"
 
 #if defined(USE_LUA_CONSOLE)
 #    include "lua_console.h"

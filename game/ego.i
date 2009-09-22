@@ -35,7 +35,7 @@
 #include "passage.h"
 #include "script.h"
 #include "script_functions.h"
-#include "wawalite.h"
+#include "wawalite_file.h"
 
 #include "egoboo_typedef.h"
 #include "egoboo_config.h"
@@ -75,4 +75,4 @@
 %include "passage.h"
 %include "script.h"
 %include "exported_script_functions.h"
-%include "wawalite.h"
+%include "wawalite_file.h"

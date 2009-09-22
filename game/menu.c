@@ -28,7 +28,7 @@
 #include "char.h"
 #include "profile.h"
 #include "quest.h"
-#include "controls.h"
+#include "controls_file.h"
 #include "scancode_file.h"
 
 #include "ui.h"

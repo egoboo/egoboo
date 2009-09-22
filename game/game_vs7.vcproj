@@ -176,6 +176,9 @@
 				RelativePath=".\mad.c">
 			</File>
 			<File
+				RelativePath=".\Md2.c">
+			</File>
+			<File
 				RelativePath=".\menu.c">
 			</File>
 			<File
@@ -239,6 +242,9 @@
 			</File>
 			<File
 				RelativePath=".\mad.h">
+			</File>
+			<File
+				RelativePath=".\Md2.h">
 			</File>
 			<File
 				RelativePath=".\menu.h">
@@ -538,24 +544,6 @@
 				<File
 					RelativePath=".\file_formats\id_normals.inl">
 				</File>
-				<File
-					RelativePath=".\file_formats\Md2.c">
-					<FileConfiguration
-						Name="Debug|Win32">
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32">
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath=".\file_formats\Md2.h">
-				</File>
 			</Filter>
 			<Filter
 				Name="level.mpd"
@@ -635,10 +623,10 @@
 				Name="quest.txt"
 				Filter="">
 				<File
-					RelativePath=".\file_formats\quest_file.c">
+					RelativePath=".\quest.c">
 				</File>
 				<File
-					RelativePath=".\file_formats\quest_file.h">
+					RelativePath=".\quest.h">
 				</File>
 			</Filter>
 			<Filter

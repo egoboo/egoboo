@@ -21,7 +21,7 @@
  * routines for reading and writing the file "controls.txt" and "scancode.txt"
  */
 
-#include "controls.h"
+#include "controls_file.h"
 
 #include "scancode_file.h"
 #include "log.h"

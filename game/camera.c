@@ -27,7 +27,7 @@
 #include "char.h"
 #include "graphic.h"
 #include "network.h"
-#include "controls.h"
+#include "controls_file.h"
 
 #include "egoboo_setup.h"
 #include "egoboo.h"

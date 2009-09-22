@@ -28,7 +28,7 @@
 #include "particle.h"
 #include "mad.h"
 #include "profile.h"
-#include "controls.h"
+#include "controls_file.h"
 #include "scancode_file.h"
 
 #include "clock.h"
@@ -47,7 +47,7 @@
 #include "network.h"
 #include "mesh.h"
 #include "texture.h"
-#include "wawalite.h"
+#include "wawalite_file.h"
 #include "clock.h"
 #include "spawn_file.h"
 
