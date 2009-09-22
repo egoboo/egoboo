@@ -20,7 +20,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)enet\include&quot;"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)enet\include&quot;;&quot;$(SolutionDir)game&quot;;file_formats;extensions"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_CONSOLE;_CRT_SECURE_NO_DEPRECATE"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -176,9 +176,6 @@
 				RelativePath=".\mad.c">
 			</File>
 			<File
-				RelativePath=".\Md2.c">
-			</File>
-			<File
 				RelativePath=".\menu.c">
 			</File>
 			<File
@@ -242,9 +239,6 @@
 			</File>
 			<File
 				RelativePath=".\mad.h">
-			</File>
-			<File
-				RelativePath=".\Md2.h">
 			</File>
 			<File
 				RelativePath=".\menu.h">
@@ -345,44 +339,44 @@
 			Name="SDL extensions"
 			Filter="">
 			<File
-				RelativePath=".\SDL_extensions.c">
+				RelativePath=".\extensions\SDL_extensions.c">
 			</File>
 			<File
-				RelativePath=".\SDL_extensions.h">
+				RelativePath=".\extensions\SDL_extensions.h">
 			</File>
 			<File
-				RelativePath=".\SDL_GL_extensions.c">
+				RelativePath=".\extensions\SDL_GL_extensions.c">
 			</File>
 			<File
-				RelativePath=".\SDL_GL_extensions.h">
+				RelativePath=".\extensions\SDL_GL_extensions.h">
 			</File>
 		</Filter>
 		<Filter
 			Name="OpenGL extensions"
 			Filter="">
 			<File
-				RelativePath=".\ogl_debug.c">
+				RelativePath=".\extensions\ogl_debug.c">
 			</File>
 			<File
-				RelativePath=".\ogl_debug.h">
+				RelativePath=".\extensions\ogl_debug.h">
 			</File>
 			<File
-				RelativePath=".\ogl_extensions.c">
+				RelativePath=".\extensions\ogl_extensions.c">
 			</File>
 			<File
-				RelativePath=".\ogl_extensions.h">
+				RelativePath=".\extensions\ogl_extensions.h">
 			</File>
 			<File
-				RelativePath=".\ogl_include.c">
+				RelativePath=".\extensions\ogl_include.c">
 			</File>
 			<File
-				RelativePath=".\ogl_include.h">
+				RelativePath=".\extensions\ogl_include.h">
 			</File>
 			<File
-				RelativePath=".\ogl_texture.c">
+				RelativePath=".\extensions\ogl_texture.c">
 			</File>
 			<File
-				RelativePath=".\ogl_texture.h">
+				RelativePath=".\extensions\ogl_texture.h">
 			</File>
 		</Filter>
 		<Filter
@@ -536,39 +530,51 @@
 				Name="tris.md2"
 				Filter="">
 				<File
-					RelativePath=".\id_md2.c">
+					RelativePath=".\file_formats\id_md2.c">
 				</File>
 				<File
-					RelativePath=".\id_md2.h">
+					RelativePath=".\file_formats\id_md2.h">
 				</File>
 				<File
-					RelativePath=".\id_normals.inl">
+					RelativePath=".\file_formats\id_normals.inl">
 				</File>
 				<File
-					RelativePath=".\SDL_md2.c">
+					RelativePath=".\file_formats\Md2.c">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)/$(InputName)1.obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)/$(InputName)1.obj"/>
+					</FileConfiguration>
 				</File>
 				<File
-					RelativePath=".\SDL_md2.h">
+					RelativePath=".\file_formats\Md2.h">
 				</File>
 			</Filter>
 			<Filter
 				Name="level.mpd"
 				Filter="">
 				<File
-					RelativePath=".\mpd_file.c">
+					RelativePath=".\file_formats\mpd_file.c">
 				</File>
 				<File
-					RelativePath=".\mpd_file.h">
+					RelativePath=".\file_formats\mpd_file.h">
 				</File>
 			</Filter>
 			<Filter
 				Name="menu.txt"
 				Filter="">
 				<File
-					RelativePath=".\module_file.c">
+					RelativePath=".\file_formats\module_file.c">
 				</File>
 				<File
-					RelativePath=".\module_file.h">
+					RelativePath=".\file_formats\module_file.h">
 				</File>
 			</Filter>
 			<Filter
@@ -579,110 +585,110 @@
 				Name="data.txt"
 				Filter="">
 				<File
-					RelativePath=".\cap_file.c">
+					RelativePath=".\file_formats\cap_file.c">
 				</File>
 				<File
-					RelativePath=".\cap_file.h">
+					RelativePath=".\file_formats\cap_file.h">
 				</File>
 			</Filter>
 			<Filter
 				Name="enchant.txt"
 				Filter="">
 				<File
-					RelativePath=".\eve_file.c">
+					RelativePath=".\file_formats\eve_file.c">
 				</File>
 				<File
-					RelativePath=".\eve_file.h">
+					RelativePath=".\file_formats\eve_file.h">
 				</File>
 			</Filter>
 			<Filter
 				Name="partX.txt"
 				Filter="">
 				<File
-					RelativePath=".\pip_file.c">
+					RelativePath=".\file_formats\pip_file.c">
 				</File>
 				<File
-					RelativePath=".\pip_file.h">
+					RelativePath=".\file_formats\pip_file.h">
 				</File>
 			</Filter>
 			<Filter
 				Name="passage.txt"
 				Filter="">
 				<File
-					RelativePath=".\passage_file.c">
+					RelativePath=".\file_formats\passage_file.c">
 				</File>
 				<File
-					RelativePath=".\passage_file.h">
+					RelativePath=".\file_formats\passage_file.h">
 				</File>
 			</Filter>
 			<Filter
 				Name="controls.txt"
 				Filter="">
 				<File
-					RelativePath=".\controls.c">
+					RelativePath=".\file_formats\controls_file.c">
 				</File>
 				<File
-					RelativePath=".\controls.h">
+					RelativePath=".\file_formats\controls_file.h">
 				</File>
 			</Filter>
 			<Filter
 				Name="quest.txt"
 				Filter="">
 				<File
-					RelativePath=".\quest.c">
+					RelativePath=".\file_formats\quest_file.c">
 				</File>
 				<File
-					RelativePath=".\quest.h">
+					RelativePath=".\file_formats\quest_file.h">
 				</File>
 			</Filter>
 			<Filter
 				Name="template"
 				Filter="">
 				<File
-					RelativePath=".\template.c">
+					RelativePath=".\file_formats\template.c">
 				</File>
 				<File
-					RelativePath=".\template.h">
+					RelativePath=".\file_formats\template.h">
 				</File>
 			</Filter>
 			<Filter
 				Name="settings.txt"
 				Filter="">
 				<File
-					RelativePath=".\configfile.c">
+					RelativePath=".\file_formats\configfile.c">
 				</File>
 				<File
-					RelativePath=".\configfile.h">
+					RelativePath=".\file_formats\configfile.h">
 				</File>
 			</Filter>
 			<Filter
 				Name="wawalite.txt"
 				Filter="">
 				<File
-					RelativePath=".\wawalite.c">
+					RelativePath=".\file_formats\wawalite_file.c">
 				</File>
 				<File
-					RelativePath=".\wawalite.h">
+					RelativePath=".\file_formats\wawalite_file.h">
 				</File>
 			</Filter>
 			<Filter
 				Name="spawn.txt"
 				Filter="">
 				<File
-					RelativePath=".\spawn_file.c">
+					RelativePath=".\file_formats\spawn_file.c">
 				</File>
 				<File
-					RelativePath=".\spawn_file.h">
+					RelativePath=".\file_formats\spawn_file.h">
 				</File>
 			</Filter>
 			<Filter
 				Name="scancodes.txt"
 				Filter="">
 				<File
-					RelativePath=".\scancode_file.c">
+					RelativePath=".\file_formats\scancode_file.c">
 				</File>
 				<File
-					RelativePath=".\scancode_file.h">
+					RelativePath=".\file_formats\scancode_file.h">
 				</File>
 			</Filter>
 		</Filter>
