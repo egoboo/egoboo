@@ -23,7 +23,7 @@
 
 #include "graphic.h"
 
-#include "Md2.h"
+#include "md2.h"
 #include "id_md2.h"
 #include "camera.h"
 #include "char.h"

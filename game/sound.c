@@ -889,7 +889,7 @@ bool_t LoopedList_validate()
     }
 
     return retval;
-};
+}
 
 //--------------------------------------------------------------------------------------------
 bool_t LoopedList_free_one( int index )

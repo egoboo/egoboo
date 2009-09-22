@@ -1891,7 +1891,7 @@ Uint16   pla_get_ichr( Uint16 iplayer )
 {
     player_t * pplayer;
 
-    if( iplayer >= MAXPLAYER && !PlaList[iplayer].valid ) return MAX_CHR;
+    if( iplayer >= MAXPLAYER || !PlaList[iplayer].valid ) return MAX_CHR;
     pplayer = PlaList + iplayer;
 
     if( INVALID_CHR(pplayer->index) ) return MAX_CHR;
@@ -1904,7 +1904,7 @@ chr_t  * pla_get_pchr( Uint16 iplayer )
 {
     player_t * pplayer;
 
-    if( iplayer >= MAXPLAYER && !PlaList[iplayer].valid ) return NULL;
+    if( iplayer >= MAXPLAYER || !PlaList[iplayer].valid ) return NULL;
     pplayer = PlaList + iplayer;
 
     if( INVALID_CHR(pplayer->index) ) return NULL;

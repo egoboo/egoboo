@@ -1,7 +1,7 @@
 #include "wawalite_file.h"
 #include "char.h"
 
-#include "Log.h"
+#include "log.h"
 
 #include "egoboo_fileutil.h"
 #include "egoboo_math.h"

@@ -36,7 +36,7 @@
 #include "ui.h"
 #include "font.h"
 #include "log.h"
-#include "System.h"
+#include "system.h"
 #include "script.h"
 #include "sound.h"
 #include "graphic.h"
@@ -878,7 +878,7 @@ void update_game()
         // Timers
         clock_wld += UPDATE_SKIP;
         clock_stat++;	//clock_stat += UPDATE_SKIP;
-        
+
         // Reset the respawn timer
         if ( revivetimer > 0 )
         {
@@ -1896,7 +1896,7 @@ bool_t check_target( chr_t * psrc, Uint16 ichr_test, TARGET_TYPE target_type, bo
 
     // Skip non-existing objects
     if( NULL == psrc || !psrc->on ) return bfalse;
-    
+
     if( INVALID_CHR(ichr_test) ) return bfalse;
     ptst = ChrList.lst + ichr_test;
 
@@ -1932,7 +1932,7 @@ bool_t check_target( chr_t * psrc, Uint16 ichr_test, TARGET_TYPE target_type, bo
         }
         else
         {
-            bool_t match_idsz = ( target_idsz == pro_get_idsz(ptst->iprofile,IDSZ_PARENT) ) || 
+            bool_t match_idsz = ( target_idsz == pro_get_idsz(ptst->iprofile,IDSZ_PARENT) ) ||
                                 ( target_idsz == pro_get_idsz(ptst->iprofile,IDSZ_TYPE  ) );
 
             if (  match_idsz )
@@ -1952,11 +1952,11 @@ bool_t check_target( chr_t * psrc, Uint16 ichr_test, TARGET_TYPE target_type, bo
 //--------------------------------------------------------------------------------------------
 Uint16 chr_get_target( chr_t * psrc, float max_dist2, TARGET_TYPE target_type, bool_t target_items, bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz )
 {
-    // BB> this is the raw character targetting code, this is not throttled at all. You should call 
+    // BB> this is the raw character targetting code, this is not throttled at all. You should call
     //     scr_get_chr_target() if you are calling this function from the scripting system.
 
     line_of_sight_info_t los_info;
-    
+
     Uint16 ichr_test;
     Uint16 best_target = MAX_CHR;
     float  best_dist2;
@@ -4512,7 +4512,7 @@ void stat_return()
     {
         // Reset the clock
 		clock_stat -= ONESECOND;
-		
+
         // Do all the characters
         for ( cnt = 0; cnt < MAX_CHR; cnt++ )
         {
@@ -4816,18 +4816,18 @@ bool_t chr_setup_apply( Uint16 ichr, spawn_file_info_t *pinfo )
 
 //--------------------------------------------------------------------------------------------
 #if defined(__GNUC__)
-//int strlwr( char * str )
-//{
-//    if( NULL == str ) return -1;
-//
-//    while( '\0' != *str )
-//    {
-//        *str = tolower(*str);
-//        str++;
-//    }
-//
-//    return 0;
-//}
+int strlwr( char * str )
+{
+    if( NULL == str ) return -1;
+
+    while( '\0' != *str )
+    {
+        *str = tolower(*str);
+        str++;
+    }
+
+    return 0;
+}
 #endif
 
 //--------------------------------------------------------------------------------------------

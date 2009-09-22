@@ -102,7 +102,7 @@ void mesh_info_init( ego_mpd_info_t * pinfo, int numvert, size_t tiles_x, size_t
     // set the mesh edge info
     pinfo->edge_x = pinfo->tiles_x << TILE_BITS;
     pinfo->edge_y = pinfo->tiles_y << TILE_BITS;
-};
+}
 
 //--------------------------------------------------------------------------------------------
 ego_mpd_info_t * mesh_info_delete( ego_mpd_info_t * pinfo )

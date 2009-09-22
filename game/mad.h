@@ -26,7 +26,7 @@
 #include "egoboo_typedef.h"
 
 #include "id_md2.h"
-#include "Md2.h"
+#include "md2.h"
 
 #include <SDL_opengl.h>
 
@@ -206,9 +206,9 @@ void   mad_make_equally_lit( int model );
 void   mad_make_framelip( Uint16 object, int action );
 void   mad_rip_actions( Uint16 object );
 
-void   log_objused( const char *savename );
+//void   log_objused( const char *savename );
 
-int load_model_data( const char * filename, int imad, int skin_stt  );
+//int load_model_data( const char * filename, int imad, int skin_stt  );
 
 Uint16 load_one_model_profile( const char* tmploadname, Uint16 object );
 bool_t release_one_mad( Uint16 imad );

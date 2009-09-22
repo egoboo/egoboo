@@ -775,7 +775,7 @@ Uint8 scr_TargetHasItemID( script_state_t * pstate, ai_state_t * pself )
         {
             cap_t * pcap = chr_get_pcap(sTmp);
 
-            if ( NULL != pcap && pcap->idsz[IDSZ_PARENT] == ( Uint32 ) pstate->argument || pcap->idsz[IDSZ_TYPE] == ( Uint32 ) pstate->argument )
+            if ( NULL != pcap && (pcap->idsz[IDSZ_PARENT] == ( Uint32 ) pstate->argument || pcap->idsz[IDSZ_TYPE] == ( Uint32 ) pstate->argument) )
             {
                 returncode = btrue;
             }
@@ -790,13 +790,13 @@ Uint8 scr_TargetHasItemID( script_state_t * pstate, ai_state_t * pself )
         {
             cap_t * pcap = chr_get_pcap(sTmp);
 
-            if ( NULL != pcap && pcap->idsz[IDSZ_PARENT] == ( Uint32 ) pstate->argument || pcap->idsz[IDSZ_TYPE] == ( Uint32 ) pstate->argument )
+            if ( NULL != pcap && (pcap->idsz[IDSZ_PARENT] == ( Uint32 ) pstate->argument || pcap->idsz[IDSZ_TYPE] == ( Uint32 ) pstate->argument) )
             {
                 returncode = btrue;
             }
         }
     }
-    
+
     if( !returncode )
     {
         // Check the pack
@@ -805,7 +805,7 @@ Uint8 scr_TargetHasItemID( script_state_t * pstate, ai_state_t * pself )
         {
             cap_t * pcap = chr_get_pcap(sTmp);
 
-            if ( NULL != pcap && pcap->idsz[IDSZ_PARENT] == ( Uint32 ) pstate->argument || pcap->idsz[IDSZ_TYPE] == ( Uint32 ) pstate->argument )
+            if ( NULL != pcap && (pcap->idsz[IDSZ_PARENT] == ( Uint32 ) pstate->argument || pcap->idsz[IDSZ_TYPE] == ( Uint32 ) pstate->argument) )
             {
                 returncode = btrue;
                 break;
@@ -840,7 +840,7 @@ Uint8 scr_TargetHoldingItemID( script_state_t * pstate, ai_state_t * pself )
         {
             cap_t * pcap = chr_get_pcap(sTmp);
 
-            if ( NULL != pcap && pcap->idsz[IDSZ_PARENT] == ( IDSZ ) pstate->argument || pcap->idsz[IDSZ_TYPE] == ( IDSZ ) pstate->argument )
+            if ( NULL != pcap && (pcap->idsz[IDSZ_PARENT] == ( IDSZ ) pstate->argument || pcap->idsz[IDSZ_TYPE] == ( IDSZ ) pstate->argument) )
             {
                 pstate->argument = LATCHBUTTON_LEFT;
                 returncode = btrue;
@@ -848,7 +848,7 @@ Uint8 scr_TargetHoldingItemID( script_state_t * pstate, ai_state_t * pself )
         }
     }
 
-    
+
     if( !returncode )
     {
         // Check right hand
@@ -857,7 +857,7 @@ Uint8 scr_TargetHoldingItemID( script_state_t * pstate, ai_state_t * pself )
         {
             cap_t * pcap = chr_get_pcap(sTmp);
 
-            if ( NULL != pcap && pcap->idsz[IDSZ_PARENT] == ( IDSZ ) pstate->argument || pcap->idsz[IDSZ_TYPE] == ( IDSZ ) pstate->argument )
+            if ( NULL != pcap && (pcap->idsz[IDSZ_PARENT] == ( IDSZ ) pstate->argument || pcap->idsz[IDSZ_TYPE] == ( IDSZ ) pstate->argument) )
             {
                 pstate->argument = LATCHBUTTON_RIGHT;
                 returncode = btrue;
@@ -1168,7 +1168,7 @@ Uint8 scr_CostTargetItemID( script_state_t * pstate, ai_state_t * pself )
         {
             cap_t * pcap = chr_get_pcap(sTmp);
 
-            if ( NULL != pcap && pcap->idsz[IDSZ_PARENT] == ( IDSZ ) pstate->argument || pcap->idsz[IDSZ_TYPE] == ( IDSZ ) pstate->argument )
+            if ( NULL != pcap && (pcap->idsz[IDSZ_PARENT] == ( IDSZ ) pstate->argument || pcap->idsz[IDSZ_TYPE] == ( IDSZ ) pstate->argument) )
             {
                 returncode = btrue;
                 iTmp = ChrList.lst[pself->target].holdingwhich[SLOT_RIGHT];
@@ -1184,7 +1184,7 @@ Uint8 scr_CostTargetItemID( script_state_t * pstate, ai_state_t * pself )
         {
             cap_t * pcap = chr_get_pcap(sTmp);
 
-            if ( NULL != pcap && pcap->idsz[IDSZ_PARENT] == ( IDSZ ) pstate->argument || pcap->idsz[IDSZ_TYPE] == ( IDSZ ) pstate->argument )
+            if ( NULL != pcap && (pcap->idsz[IDSZ_PARENT] == ( IDSZ ) pstate->argument || pcap->idsz[IDSZ_TYPE] == ( IDSZ ) pstate->argument) )
             {
                 returncode = btrue;
                 iTmp = ChrList.lst[pself->target].holdingwhich[SLOT_LEFT];
@@ -1201,7 +1201,7 @@ Uint8 scr_CostTargetItemID( script_state_t * pstate, ai_state_t * pself )
         {
             cap_t * pcap = chr_get_pcap(sTmp);
 
-            if ( NULL != pcap && pcap->idsz[IDSZ_PARENT] == ( IDSZ) pstate->argument || pcap->idsz[IDSZ_TYPE] == ( IDSZ ) pstate->argument )
+            if ( NULL != pcap && (pcap->idsz[IDSZ_PARENT] == ( IDSZ) pstate->argument || pcap->idsz[IDSZ_TYPE] == ( IDSZ ) pstate->argument) )
             {
                 returncode = btrue;
                 iTmp = sTmp;
@@ -3406,7 +3406,7 @@ Uint8 scr_HoldingItemID( script_state_t * pstate, ai_state_t * pself )
         {
             cap_t * pcap = chr_get_pcap(sTmp);
 
-            if ( NULL != pcap && pcap->idsz[IDSZ_PARENT] == ( IDSZ ) pstate->argument || pcap->idsz[IDSZ_TYPE] == ( Uint32 ) pstate->argument )
+            if ( NULL != pcap && (pcap->idsz[IDSZ_PARENT] == ( IDSZ ) pstate->argument || pcap->idsz[IDSZ_TYPE] == ( Uint32 ) pstate->argument) )
             {
                 pstate->argument = LATCHBUTTON_RIGHT;
                 if ( returncode )  pstate->argument = generate_randmask( LATCHBUTTON_LEFT, 1 );
@@ -3424,7 +3424,7 @@ Uint8 scr_HoldingItemID( script_state_t * pstate, ai_state_t * pself )
         {
             cap_t * pcap = chr_get_pcap(sTmp);
 
-            if ( NULL != pcap && pcap->idsz[IDSZ_PARENT] == ( IDSZ ) pstate->argument || pcap->idsz[IDSZ_TYPE] == ( Uint32 ) pstate->argument )
+            if ( NULL != pcap && (pcap->idsz[IDSZ_PARENT] == ( IDSZ ) pstate->argument || pcap->idsz[IDSZ_TYPE] == ( Uint32 ) pstate->argument) )
             {
                 pstate->argument = LATCHBUTTON_LEFT;
                 returncode = btrue;
@@ -4770,7 +4770,7 @@ Uint8 scr_MakeSimilarNamesKnown( script_state_t * pstate, ai_state_t * pself )
 
         pcap_test = chr_get_pcap(iTmp);
         if( NULL == pcap_test ) continue;
-        
+
         sTmp = btrue;
         for ( tTmp = 0; tTmp < IDSZ_COUNT; tTmp++ )
         {
@@ -6414,7 +6414,7 @@ Uint8 scr_GrogTarget( script_state_t * pstate, ai_state_t * pself )
     pcap = chr_get_pcap( pself->target );
 
     returncode = bfalse;
-    if ( NULL != pcap && pcap->canbegrogged && VALID_CHR(pself->target) ) 
+    if ( NULL != pcap && pcap->canbegrogged && VALID_CHR(pself->target) )
     {
         ChrList.lst[pself->target].grogtime += pstate->argument;
         returncode = btrue;
@@ -6438,7 +6438,7 @@ Uint8 scr_DazeTarget( script_state_t * pstate, ai_state_t * pself )
     pcap = chr_get_pcap( pself->target );
 
     returncode = bfalse;
-    if( NULL != pcap && pcap->canbedazed ) 
+    if( NULL != pcap && pcap->canbedazed )
     {
         ChrList.lst[pself->target].dazetime += pstate->argument;
         returncode = btrue;
@@ -6580,7 +6580,7 @@ Uint8 scr_TargetIsAWeapon( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     if( INVALID_CHR(pself->target) ) return bfalse;
-    
+
     pcap = chr_get_pcap(pself->target);
     if( NULL == pcap ) return bfalse;
 
@@ -6608,7 +6608,7 @@ Uint8 scr_TargetIsASpell( script_state_t * pstate, ai_state_t * pself )
     int iTmp;
 
     SCRIPT_FUNCTION_BEGIN();
-    
+
     returncode = bfalse;
     for (iTmp = 0; iTmp < MAX_PIP_PER_PROFILE; iTmp++ )
     {
@@ -6683,7 +6683,7 @@ Uint8 scr_BeatQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
 
     // ThIs function marks a IDSZ in the targets quest.txt as beaten
     returncode = bfalse;
-    
+
 
     for (iTmp = 0; iTmp < MAXPLAYER; iTmp++ )
     {
@@ -6699,7 +6699,7 @@ Uint8 scr_BeatQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
             {
                 returncode = btrue;
             }
-        } 
+        }
     }
 
     SCRIPT_FUNCTION_END();
@@ -6754,7 +6754,7 @@ Uint8 scr_AddQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
 
     // ThIs function adds a quest idsz set in tmpargument into all local player's quest logs
     // The quest level Is set to tmpdistance if the level Is not already higher or QUEST_BEATEN
-    
+
     returncode = bfalse;
     for (iTmp = 0; iTmp < MAXPLAYER; iTmp++)
     {
@@ -7081,10 +7081,10 @@ Uint8 scr_MorphToTarget( script_state_t * pstate, ai_state_t * pself )
 
     // let the resizing take some time
     pchr->fat_goto      = ChrList.lst[pself->target].fat;
-    pchr->fat_goto_time = SIZETIME; 
+    pchr->fat_goto_time = SIZETIME;
 
     // change back to our original AI
-    pchr->ai.type      = ProList.lst[pchr->basemodel].iai;    
+    pchr->ai.type      = ProList.lst[pchr->basemodel].iai;
 
     SCRIPT_FUNCTION_END();
 }
@@ -7429,7 +7429,7 @@ Uint16 _get_chr_target( chr_t * pchr, Uint32 max_dist, TARGET_TYPE target_type, 
         pself->los_timer = current_ticks + TICKS_PER_SEC * 0.5f * ( 1.0f + irand / (float)RAND_MAX );
 
         best_target = chr_get_target( pchr, max_dist2, target_type, target_items, target_dead, target_idsz, exclude_idsz  );
-        
+
         // remember the value of this search
         if( VALID_CHR(best_target) )
         {

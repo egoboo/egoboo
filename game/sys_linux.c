@@ -23,7 +23,7 @@
 /// @details Unix/GNU/Linux/*nix - specific code
 
 #include "log.h"
-#include "System.h"
+#include "system.h"
 
 #include <stdio.h> /* for NULL */
 #include <sys/time.h>

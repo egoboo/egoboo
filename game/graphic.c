@@ -187,7 +187,7 @@ Uint8   blipc[MAXBLIP];
 
 Uint16  msgtimechange = 0;
 
-DECLARE_STACK( extern, msg_t, DisplayMsg );
+DECLARE_STACK( ACCESS_TYPE_NONE, msg_t, DisplayMsg );
 
 line_data_t line_list[LINE_COUNT];
 
@@ -2481,7 +2481,7 @@ int draw_one_bar( Uint8 bartype, int x, int y, int ticks, int maxticks )
     txrect.top    = tabrect[bartype].top    / 128.0f;
     txrect.bottom = tabrect[bartype].bottom / 128.0f;
 
-    width  = tabrect[bartype].right  - tabrect[bartype].left; 
+    width  = tabrect[bartype].right  - tabrect[bartype].left;
     height = tabrect[bartype].bottom - tabrect[bartype].top;
 
     GL_DEBUG(glBegin)(GL_QUADS );
@@ -2510,7 +2510,7 @@ int draw_one_bar( Uint8 bartype, int x, int y, int ticks, int maxticks )
         txrect.top    = barrect[bartype].top    / 128.0f;
         txrect.bottom = barrect[bartype].bottom / 128.0f;
 
-        width  = barrect[bartype].right - barrect[bartype].left; 
+        width  = barrect[bartype].right - barrect[bartype].left;
         height = barrect[bartype].bottom - barrect[bartype].top;
 
         GL_DEBUG(glBegin)(GL_QUADS );
@@ -2538,7 +2538,7 @@ int draw_one_bar( Uint8 bartype, int x, int y, int ticks, int maxticks )
         txrect.top    = barrect[bartype].top    / 128.0f;
         txrect.bottom = barrect[bartype].bottom / 128.0f;
 
-        width = barrect[bartype].right - barrect[bartype].left; 
+        width = barrect[bartype].right - barrect[bartype].left;
         height = barrect[bartype].bottom - barrect[bartype].top;
 
         GL_DEBUG(glBegin)(GL_QUADS );
@@ -2562,7 +2562,7 @@ int draw_one_bar( Uint8 bartype, int x, int y, int ticks, int maxticks )
         txrect.top    = barrect[0].top    / 128.0f;
         txrect.bottom = barrect[0].bottom / 128.0f;
 
-        width = barrect[0].right - barrect[0].left; 
+        width = barrect[0].right - barrect[0].left;
         height = barrect[0].bottom - barrect[0].top;
 
         GL_DEBUG(glBegin)(GL_QUADS );
@@ -2588,7 +2588,7 @@ int draw_one_bar( Uint8 bartype, int x, int y, int ticks, int maxticks )
         txrect.top    = tabrect[0].top    / 128.0f;
         txrect.bottom = tabrect[0].bottom / 128.0f;
 
-        width = barrect[0].right - barrect[0].left; 
+        width = barrect[0].right - barrect[0].left;
         height = barrect[0].bottom - barrect[0].top;
 
         GL_DEBUG(glBegin)(GL_QUADS );
@@ -2614,7 +2614,7 @@ int draw_one_bar( Uint8 bartype, int x, int y, int ticks, int maxticks )
         txrect.top    = tabrect[0].top    / 128.0f;
         txrect.bottom = tabrect[0].bottom / 128.0f;
 
-        width = barrect[0].right - barrect[0].left; 
+        width = barrect[0].right - barrect[0].left;
         height = barrect[0].bottom - barrect[0].top;
 
         GL_DEBUG(glBegin)(GL_QUADS );
@@ -3613,7 +3613,7 @@ void gfx_init()
     // init some other variables
     stabilized_fps_sum    = 0.1f * TARGET_FPS;
     stabilized_fps_weight = 0.1f;
-};
+}
 
 //---------------------------------------------------------------------------------------------
 void gfx_init_SDL_graphics()

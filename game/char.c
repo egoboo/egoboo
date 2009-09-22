@@ -32,7 +32,7 @@
 #include "sound.h"
 #include "camera.h"
 #include "input.h"
-#include "Md2.h"
+#include "md2.h"
 #include "passage.h"
 #include "graphic.h"
 #include "game.h"
@@ -6631,22 +6631,22 @@ void chr_update_collision_size( chr_t * pchr )
     //    tmp_y = pchr->inst.vlst[cnt].pos[YY];
     //    tmp_z = pchr->inst.vlst[cnt].pos[ZZ];
 
-    //    min_x  = MIN( min_x, tmp_x ); 
-    //    max_x  = MAX( max_x, tmp_x ); 
+    //    min_x  = MIN( min_x, tmp_x );
+    //    max_x  = MAX( max_x, tmp_x );
 
-    //    min_y  = MIN( min_y, tmp_y ); 
-    //    max_y  = MAX( max_y, tmp_y ); 
+    //    min_y  = MIN( min_y, tmp_y );
+    //    max_y  = MAX( max_y, tmp_y );
 
-    //    min_z  = MIN( min_z, tmp_z ); 
-    //    max_z  = MAX( max_z, tmp_z ); 
+    //    min_z  = MIN( min_z, tmp_z );
+    //    max_z  = MAX( max_z, tmp_z );
 
     //    tmp_xy = tmp_x + tmp_y;
-    //    min_xy = MIN( min_xy, tmp_xy ); 
-    //    max_xy = MAX( max_xy, tmp_xy ); 
+    //    min_xy = MIN( min_xy, tmp_xy );
+    //    max_xy = MAX( max_xy, tmp_xy );
 
     //    tmp_yx = tmp_x - tmp_y;
-    //    min_yx = MIN( min_yx, tmp_yx ); 
-    //    max_yx = MAX( max_yx, tmp_yx ); 
+    //    min_yx = MIN( min_yx, tmp_yx );
+    //    max_yx = MAX( max_yx, tmp_yx );
     //}
 
     //// determine the intersection points
@@ -6668,22 +6668,22 @@ void chr_update_collision_size( chr_t * pchr )
     //    tmp_y = dst[cnt].y;
     //    tmp_z = dst[cnt].z;
 
-    //    min_x  = MIN( min_x, tmp_x ); 
-    //    max_x  = MAX( max_x, tmp_x ); 
+    //    min_x  = MIN( min_x, tmp_x );
+    //    max_x  = MAX( max_x, tmp_x );
 
-    //    min_y  = MIN( min_y, tmp_y ); 
-    //    max_y  = MAX( max_y, tmp_y ); 
+    //    min_y  = MIN( min_y, tmp_y );
+    //    max_y  = MAX( max_y, tmp_y );
 
-    //    min_z  = MIN( min_z, tmp_z ); 
-    //    max_z  = MAX( max_z, tmp_z ); 
+    //    min_z  = MIN( min_z, tmp_z );
+    //    max_z  = MAX( max_z, tmp_z );
 
     //    tmp_xy = tmp_x + tmp_y;
-    //    min_xy = MIN( min_xy, tmp_xy ); 
-    //    max_xy = MAX( max_xy, tmp_xy ); 
+    //    min_xy = MIN( min_xy, tmp_xy );
+    //    max_xy = MAX( max_xy, tmp_xy );
 
     //    tmp_yx = tmp_x - tmp_y;
-    //    min_yx = MIN( min_yx, tmp_yx ); 
-    //    max_yx = MAX( max_yx, tmp_yx ); 
+    //    min_yx = MIN( min_yx, tmp_yx );
+    //    max_yx = MAX( max_yx, tmp_yx );
     //}
 
 
@@ -6799,7 +6799,7 @@ bool_t cap_has_idsz( Uint16 icap, IDSZ idsz )
         retval = btrue;
     }
     else
-    { 
+    {
         for ( cnt = 0; cnt < IDSZ_COUNT; cnt++ )
         {
             if ( pcap->idsz[cnt] == idsz )
@@ -6816,7 +6816,7 @@ bool_t cap_has_idsz( Uint16 icap, IDSZ idsz )
 //--------------------------------------------------------------------------------------------
 bool_t cap_is_type_idsz( Uint16 icap, IDSZ test_idsz )
 {
-    // BB> check IDSZ_PARENT and IDSZ_TYPE to see if the test_idsz matches. If we are not 
+    // BB> check IDSZ_PARENT and IDSZ_TYPE to see if the test_idsz matches. If we are not
     //     picky (i.e. IDSZ_NONE == test_idsz), then it matches any valid item.
 
     cap_t * pcap;
@@ -6842,7 +6842,7 @@ bool_t chr_has_idsz( Uint16 ichr, IDSZ idsz )
 //--------------------------------------------------------------------------------------------
 bool_t chr_is_type_idsz( Uint16 item, IDSZ test_idsz )
 {
-    // BB> check IDSZ_PARENT and IDSZ_TYPE to see if the test_idsz matches. If we are not 
+    // BB> check IDSZ_PARENT and IDSZ_TYPE to see if the test_idsz matches. If we are not
     //     picky (i.e. IDSZ_NONE == test_idsz), then it matches any valid item.
 
     Uint16 icap;

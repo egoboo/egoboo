@@ -310,7 +310,7 @@ void mnu_ModList_release_all()
     }
 
     mnu_ModList.count = 0;
-};
+}
 
 //--------------------------------------------------------------------------------------------
 void mnu_ModList_release_images()
@@ -330,9 +330,7 @@ void mnu_ModList_release_images()
     // make sure that mnu_ModList.count is the right size, in case some modules were unloaded?
     mnu_ModList.count = tnc + 1;
 
-};
-
-
+}
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -382,7 +380,7 @@ int mnu_init()
     // Loads resources for the menus, and figures out where things should
     // be positioned.  If we ever allow changing resolution on the fly, this
     // function will have to be updated/called more than once.
-    
+
     ui_set_virtual_screen(gfx.vw, gfx.vh, GFX_WIDTH, GFX_HEIGHT);
 
     menuFont = ui_loadFont( "basicdat" SLASH_STR "Negatori.ttf", 18 );
@@ -2259,7 +2257,7 @@ int doAudioOptions( float deltaTime )
     static STRING Cbuffersize;
     static STRING Csoundvolume;
     static STRING Cmusicvolume;
-    static STRING Chighquality;
+    //static STRING Chighquality;
     static const char *sz_buttons[] =
     {
         "N/A",        // Enable sound
@@ -2519,8 +2517,8 @@ int doVideoOptions( float deltaTime )
             ego_texture_load( &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_gnome", TRANSCOLOR );
 
             menuChoice = 0;
-            menuState = MM_Entering;    
-            
+            menuState = MM_Entering;
+
             initSlidyButtons( 1.0f, sz_buttons );
             // let this fall through into MM_Entering
 
@@ -3628,13 +3626,13 @@ int doMenu( float deltaTime )
                     game_begin_module( PMod->loadname, (Uint32)~0);
                     retval = MENU_END;
                 }
-                else if ( result == 3 ) 
-                { 
+                else if ( result == 3 )
+                {
                     // "Return to Module"
-                    mnu_end_menu(); 
+                    mnu_end_menu();
                     retval = MENU_END;
                 }
-                else if ( result == 4 ) 
+                else if ( result == 4 )
                 {
                     // "Options"
                     mnu_begin_menu( emnu_Options );

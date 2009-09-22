@@ -55,8 +55,8 @@ enum e_shop_orders
 
 DEFINE_STACK_EXTERN(passage_t, PassageStack, MAX_PASS );
 
-#define VALID_PASSAGE( IPASS )       ( ((IPASS) <= PassageStack.count) && ((IPASS) >= 0) )
-#define INVALID_PASSAGE( IPASS )     ( ((IPASS) >  PassageStack.count) && ((IPASS) < 0) )
+#define VALID_PASSAGE( IPASS )       ( ((IPASS) <= PassageStack.count) || ((IPASS) >= 0) )
+#define INVALID_PASSAGE( IPASS )     ( ((IPASS) >  PassageStack.count) || ((IPASS) < 0) )
 
 // For shops
 struct s_shop
@@ -68,8 +68,8 @@ typedef struct s_shop shop_t;
 
 DEFINE_STACK_EXTERN(shop_t, ShopStack, MAX_PASS );
 
-#define VALID_SHOP( IPASS )       ( ((IPASS) <= ShopStack.count) && ((IPASS) >= 0) )
-#define INVALID_SHOP( IPASS )     ( ((IPASS) >  ShopStack.count) && ((IPASS) < 0) )
+#define VALID_SHOP( IPASS )       ( ((IPASS) <= ShopStack.count) || ((IPASS) >= 0) )
+#define INVALID_SHOP( IPASS )     ( ((IPASS) >  ShopStack.count) || ((IPASS) < 0) )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

@@ -112,7 +112,7 @@ DEFINE_LIST_EXTERN(pro_t, ProList, MAX_PROFILE );
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 void   ProList_init();
-void   ProList_free_all();
+//void   ProList_free_all();
 Uint16 ProList_get_free( Uint16 override );
 bool_t ProList_free_one( Uint16 iobj );
 

@@ -23,10 +23,10 @@
 /// @details This implementation was adapted from Noel Lopis' article in
 ///  Game Programming Gems 4.
 
-#include "Clock.h"
+#include "clock.h"
 
-#include "System.h"
-#include "Log.h"
+#include "system.h"
+#include "log.h"
 #include <stddef.h>
 #include <stdlib.h>
 #include <memory.h>
@@ -41,6 +41,14 @@ static clock_source_ptr_t clock_getTimeSource()
   }
 
   return _clock_timeSource;
+}
+
+void clk_setTimeSource( clock_source_ptr_t tsrc )
+{
+  if(NULL != tsrc)
+  {
+    _clock_timeSource = tsrc;
+  }
 }
 
 void clk_init()

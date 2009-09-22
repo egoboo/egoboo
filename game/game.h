@@ -335,7 +335,6 @@ void export_one_character( Uint16 character, Uint16 owner, int number, bool_t is
 void export_all_players( bool_t require_local );
 
 // Messages
-void display_message( struct s_script_state * pstate, int message, Uint16 character );
 void show_stat( Uint16 statindex );
 void show_armor( Uint16 statindex );
 void show_full_status( Uint16 statindex );
