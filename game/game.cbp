@@ -25,16 +25,19 @@
 					<Add option="-D_WINDOWS" />
 					<Add option="-D_CONSOLE" />
 					<Add option="-DMT" />
+					<Add directory="..\game" />
+					<Add directory=".\file_formats" />
+					<Add directory=".\extensions" />
 					<Add directory="..\enet\include" />
 					<Add directory="C:\SDKs\SDL\include" />
 					<Add directory="C:\SDKs\SDL_image" />
 					<Add directory="C:\SDKs\SDL_mixer" />
 					<Add directory="C:\SDKs\SDL_ttf" />
-					<Add directory="..\game" />
 					<Add directory="C:\SDKs\lua-5.1.2\include" />
 					<Add directory="C:\SDKs\SDL_console-2.1\include" />
 				</Compiler>
 				<Linker>
+					<Add option="-pg -lgmon" />
 					<Add option="-pg" />
 					<Add library="SDLmain" />
 					<Add library="SDL" />
@@ -72,12 +75,16 @@
 					<Add option="-D_WINDOWS" />
 					<Add option="-D_CONSOLE" />
 					<Add option="-DMT" />
+					<Add directory="..\game" />
+					<Add directory=".\file_formats" />
+					<Add directory=".\extensions" />
 					<Add directory="..\enet\include" />
 					<Add directory="C:\SDKs\SDL\include" />
 					<Add directory="C:\SDKs\SDL_image" />
 					<Add directory="C:\SDKs\SDL_mixer" />
 					<Add directory="C:\SDKs\SDL_ttf" />
-					<Add directory="..\game" />
+					<Add directory="C:\SDKs\lua-5.1.2\include" />
+					<Add directory="C:\SDKs\SDL_console-2.1\include" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -228,35 +235,40 @@
 				<Option working_dir=".." />
 				<Option object_output="win32-msvc-debug" />
 				<Option type="1" />
-				<Option compiler="gcc" />
+				<Option compiler="msvctk" />
 				<Compiler>
-					<Add option="-pg" />
-					<Add option="-g" />
 					<Add option="/MDd" />
 					<Add option="/Gd" />
 					<Add option="/Od" />
 					<Add option="/Wp64" />
 					<Add option="/Wall" />
 					<Add option="/Zi /D_DEBUG" />
+					<Add option="-pg" />
+					<Add option="-g" />
+					<Add option="/Zi" />
 					<Add option="/DWIN32" />
 					<Add option="/D_DEBUG" />
 					<Add option="/D_WINDOWS" />
 					<Add option="/D_CRT_SECURE_NO_DEPRECATE" />
 					<Add option="/D_CONSOLE" />
+					<Add directory="." />
+					<Add directory=".." />
+					<Add directory=".\file_formats" />
+					<Add directory=".\extensions" />
 					<Add directory="$(SolutionDir)\enet\include" />
 					<Add directory="C:\SDKs\SDL\include" />
 					<Add directory="C:\SDKs\SDL_image" />
 					<Add directory="C:\SDKs\SDL_mixer" />
 					<Add directory="C:\SDKs\SDL_ttf" />
-					<Add directory="$(SolutionDir)\game" />
 				</Compiler>
 				<ResourceCompiler>
 					<Add directory="$(SolutionDir)\res" />
 				</ResourceCompiler>
 				<Linker>
-					<Add option="-s" />
-					<Add option="-pg" />
 					<Add option="/DEBUG" />
+					<Add option="-s" />
+					<Add option="-pg -lgmon" />
+					<Add option="-pg" />
 					<Add library="SDLmain" />
 					<Add library="SDL" />
 					<Add library="SDL_image" />
@@ -280,7 +292,7 @@
 				<Option working_dir=".." />
 				<Option object_output="win32-msvc-release" />
 				<Option type="0" />
-				<Option compiler="gcc" />
+				<Option compiler="msvctk" />
 				<Compiler>
 					<Add option="/MD" />
 					<Add option="/Gd" />
@@ -297,11 +309,13 @@
 					<Add option="/D_CRT_SECURE_NO_DEPRECATE" />
 					<Add option="/D_CONSOLE" />
 					<Add directory="$(SolutionDir)\enet\include" />
+					<Add directory="$(SolutionDir)\game" />
+					<Add directory=".\file_formats" />
+					<Add directory=".\extensions" />
 					<Add directory="C:\SDKs\SDL\include" />
 					<Add directory="C:\SDKs\SDL_image" />
 					<Add directory="C:\SDKs\SDL_mixer" />
 					<Add directory="C:\SDKs\SDL_ttf" />
-					<Add directory="$(SolutionDir)\game" />
 				</Compiler>
 				<ResourceCompiler>
 					<Add directory="$(SolutionDir)\res" />
@@ -336,24 +350,6 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="Md2.h" />
-		<Unit filename="SDL_GL_extensions.c">
-			<Option compilerVar="CC" />
-			<Option target="nix-gcc-debug" />
-			<Option target="nix-gcc-release" />
-		</Unit>
-		<Unit filename="SDL_GL_extensions.h">
-			<Option target="nix-gcc-debug" />
-			<Option target="nix-gcc-release" />
-		</Unit>
-		<Unit filename="SDL_extensions.c">
-			<Option compilerVar="CC" />
-			<Option target="nix-gcc-debug" />
-			<Option target="nix-gcc-release" />
-		</Unit>
-		<Unit filename="SDL_extensions.h">
-			<Option target="nix-gcc-debug" />
-			<Option target="nix-gcc-release" />
-		</Unit>
 		<Unit filename="System.h" />
 		<Unit filename="camera.c">
 			<Option compilerVar="CC" />
@@ -371,10 +367,6 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="clock.h" />
-		<Unit filename="configfile.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="configfile.h" />
 		<Unit filename="ego_wrap.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -423,10 +415,91 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="enchant.h" />
+		<Unit filename="extensions\SDL_GL_extensions.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="extensions\SDL_GL_extensions.h" />
+		<Unit filename="extensions\SDL_extensions.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="extensions\SDL_extensions.h" />
+		<Unit filename="extensions\ogl_debug.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="extensions\ogl_debug.h" />
+		<Unit filename="extensions\ogl_extensions.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="extensions\ogl_extensions.h" />
+		<Unit filename="extensions\ogl_include.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="extensions\ogl_include.h" />
+		<Unit filename="extensions\ogl_texture.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="extensions\ogl_texture.h" />
 		<Unit filename="file_common.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="file_common.h" />
+		<Unit filename="file_formats\SDL_md2.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="file_formats\SDL_md2.h" />
+		<Unit filename="file_formats\cap_file.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="file_formats\cap_file.h" />
+		<Unit filename="file_formats\configfile.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="file_formats\configfile.h" />
+		<Unit filename="file_formats\controls_file.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="file_formats\controls_file.h" />
+		<Unit filename="file_formats\eve_file.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="file_formats\eve_file.h" />
+		<Unit filename="file_formats\id_md2.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="file_formats\id_md2.h" />
+		<Unit filename="file_formats\id_normals.inl" />
+		<Unit filename="file_formats\module_file.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="file_formats\module_file.h" />
+		<Unit filename="file_formats\mpd_file.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="file_formats\mpd_file.h" />
+		<Unit filename="file_formats\passage_file.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="file_formats\passage_file.h" />
+		<Unit filename="file_formats\pip_file.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="file_formats\pip_file.h" />
+		<Unit filename="file_formats\scancode_file.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="file_formats\scancode_file.h" />
+		<Unit filename="file_formats\spawn_file.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="file_formats\spawn_file.h" />
+		<Unit filename="file_formats\template.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="file_formats\template.h" />
+		<Unit filename="file_formats\wawalite_file.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="file_formats\wawalite_file.h" />
 		<Unit filename="file_linux.c">
 			<Option compilerVar="CC" />
 			<Option target="nix-gcc-debug" />
@@ -464,11 +537,6 @@
 		<Unit filename="graphic_prt.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="id_md2.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="id_md2.h" />
-		<Unit filename="id_normals.inl" />
 		<Unit filename="input.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -502,59 +570,10 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="mesh.h" />
-		<Unit filename="module.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="module.h" />
-		<Unit filename="mpd.c">
-			<Option compilerVar="CC" />
-			<Option target="nix-gcc-debug" />
-			<Option target="nix-gcc-release" />
-		</Unit>
-		<Unit filename="mpd.h">
-			<Option target="nix-gcc-debug" />
-			<Option target="nix-gcc-release" />
-		</Unit>
 		<Unit filename="network.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="network.h" />
-		<Unit filename="ogl_debug.c">
-			<Option compilerVar="CC" />
-			<Option target="nix-gcc-debug" />
-			<Option target="nix-gcc-release" />
-		</Unit>
-		<Unit filename="ogl_debug.h">
-			<Option target="nix-gcc-debug" />
-			<Option target="nix-gcc-release" />
-		</Unit>
-		<Unit filename="ogl_extensions.c">
-			<Option compilerVar="CC" />
-			<Option target="nix-gcc-debug" />
-			<Option target="nix-gcc-release" />
-		</Unit>
-		<Unit filename="ogl_extensions.h">
-			<Option target="nix-gcc-debug" />
-			<Option target="nix-gcc-release" />
-		</Unit>
-		<Unit filename="ogl_include.c">
-			<Option compilerVar="CC" />
-			<Option target="nix-gcc-debug" />
-			<Option target="nix-gcc-release" />
-		</Unit>
-		<Unit filename="ogl_include.h">
-			<Option target="nix-gcc-debug" />
-			<Option target="nix-gcc-release" />
-		</Unit>
-		<Unit filename="ogl_texture.c">
-			<Option compilerVar="CC" />
-			<Option target="nix-gcc-debug" />
-			<Option target="nix-gcc-release" />
-		</Unit>
-		<Unit filename="ogl_texture.h">
-			<Option target="nix-gcc-debug" />
-			<Option target="nix-gcc-release" />
-		</Unit>
 		<Unit filename="particle.c">
 			<Option compilerVar="CC" />
 		</Unit>
