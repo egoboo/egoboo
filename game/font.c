@@ -58,7 +58,7 @@ int fnt_init()
     initialized = TTF_WasInit();
     if ( !initialized )
     {
-        log_info( "Initializing the SDL_ttf font handler... " );
+        log_info( "Initializing the SDL_ttf font handler version %i.%i.%i... ", SDL_TTF_MAJOR_VERSION, SDL_TTF_MINOR_VERSION, SDL_TTF_PATCHLEVEL );
         if ( TTF_Init() < 0 )
         {
             log_message( "Failed!\n" );

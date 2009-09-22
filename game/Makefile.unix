@@ -1,15 +1,15 @@
 # note if you change the prefix also update egoboo.sh
 PREFIX	:= ${HOME}/.local
-EGO_SRC  := camera.c char.c client.c clock.c configfile.c egoboo_endian.c \
-	egoboo_fileutil.c egoboo_math.c egoboo_setup.c egoboo_strutil.c \
-	enchant.c file_common.c file_linux.c font.c game.c graphic.c\
+EGO_SRC  := camera.c char.c cap_file.c client.c clock.c configfile.c controls.c \
+	egoboo_endian.c egoboo_fileutil.c egoboo_math.c egoboo_setup.c egoboo_strutil.c \
+	eve_file.c enchant.c file_common.c file_linux.c font.c game.c graphic.c\
 	graphic_fan.c graphic_mad.c graphic_prt.c input.c link.c log.c Md2.c \
-	menu.c module.c network.c particle.c passage.c script.c \
-	script_compile.c server.c sound.c sys_linux.c ui.c \
-	egoboo_console.c script_functions.c mad.c mpd.c egoboo_typedef.c \
-	ogl_texture.c ogl_extensions.c ogl_include.c ogl_debug.c \
-	SDL_extensions.c SDL_GL_extensions.c mesh.c id_md2.c texture.c \
-  wawalite.c egoboo_vfs.c
+	module_file.c mpd_file.c menu.c network.c particle.c passage.c script.c \
+	passage_file.c pip_file.c profile.c quest.c script_compile.c server.c \
+	sound.c sys_linux.c ui.c egoboo_console.c script_functions.c mad.c \
+	egoboo_typedef.c ogl_texture.c ogl_extensions.c ogl_include.c ogl_debug.c \
+	scancode_file.c spawn_file.c SDL_extensions.c SDL_GL_extensions.c mesh.c id_md2.c \
+  texture.c template.c wawalite.c egoboo_vfs.c
 
 EGO_OBJ  := ${EGO_SRC:.c=.o}
 ENET_SRC := ../enet/host.c ../enet/list.c ../enet/memory.c \

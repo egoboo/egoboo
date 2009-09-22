@@ -2023,8 +2023,8 @@ int doGameOptions( float deltaTime )
             switch ( cfg.difficulty )
             {
                 case GAME_HARD: snprintf(Cdifficulty, SDL_arraysize(Cdifficulty), "Punishing"); break;
-                case GAME_NORMAL: snprintf(Cdifficulty, SDL_arraysize(Cdifficulty), "Challenging"); break;
-            default: case GAME_EASY:
+				default: case GAME_NORMAL: snprintf(Cdifficulty, SDL_arraysize(Cdifficulty), "Challenging"); break;
+				case GAME_EASY:
                     {
                         snprintf(Cdifficulty, SDL_arraysize(Cdifficulty), "Forgiving");
                         cfg.difficulty = GAME_EASY;
@@ -2088,7 +2088,7 @@ int doGameOptions( float deltaTime )
             ui_drawTextBox( menuFont, "Game Difficulty:", buttonLeft, 50, 0, 0, 20 );
 
             // Buttons
-            if ( BUTTON_UP == ui_doButton( 1, sz_buttons[0], menuFont, buttonLeft + 150, 50, 150, 30 ) )
+			if ( !PMod->active && BUTTON_UP == ui_doButton( 1, sz_buttons[0], menuFont, buttonLeft + 150, 50, 150, 30 ) )
             {
                 // Increase difficulty
                 cfg.difficulty++;

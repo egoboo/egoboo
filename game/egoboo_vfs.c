@@ -1227,7 +1227,7 @@ static bool_t _vfs_copyFile( const char *source, const char *dest )
 
     retval = VFS_TRUE;
 
-    while ( 1 )
+    while ( btrue )
     {
         bytes_read = PHYSFS_read( sourcef, buf, sizeof(char), SDL_arraysize( buf ) );
         if ( 0 == bytes_read ) break;

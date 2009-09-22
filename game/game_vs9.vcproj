@@ -41,7 +41,10 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="0"
+				Optimization="4"
+				EnableIntrinsicFunctions="false"
+				FavorSizeOrSpeed="0"
+				WholeProgramOptimization="false"
 				AdditionalIncludeDirectories="&quot;$(SolutionDir)enet\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE"
 				MinimalRebuild="true"
@@ -73,6 +76,7 @@
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)/game.pdb"
 				SubSystem="1"
+				LinkTimeCodeGeneration="0"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
 				TargetMachine="1"
@@ -124,10 +128,12 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				InlineFunctionExpansion="0"
+				Optimization="4"
+				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="false"
-				FavorSizeOrSpeed="0"
-				WholeProgramOptimization="false"
+				FavorSizeOrSpeed="1"
+				OmitFramePointers="true"
+				WholeProgramOptimization="true"
 				AdditionalIncludeDirectories="&quot;$(SolutionDir)enet\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE"
 				RuntimeLibrary="2"
@@ -137,7 +143,7 @@
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="false"
-				DebugInformationFormat="3"
+				DebugInformationFormat="0"
 				CompileAs="1"
 			/>
 			<Tool
@@ -160,6 +166,7 @@
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
+				LinkTimeCodeGeneration="1"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
 				TargetMachine="1"
@@ -200,6 +207,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\cap_file.c"
+				>
+			</File>
+			<File
 				RelativePath=".\char.c"
 				>
 			</File>
@@ -213,6 +224,10 @@
 			</File>
 			<File
 				RelativePath=".\configfile.c"
+				>
+			</File>
+			<File
+				RelativePath=".\controls.c"
 				>
 			</File>
 			<File
@@ -245,6 +260,10 @@
 			</File>
 			<File
 				RelativePath=".\enchant.c"
+				>
+			</File>
+			<File
+				RelativePath=".\eve_file.c"
 				>
 			</File>
 			<File
@@ -300,6 +319,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\id_md2.c"
+				>
+			</File>
+			<File
 				RelativePath=".\input.c"
 				>
 			</File>
@@ -328,11 +351,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\module.c"
+				RelativePath=".\module_file.c"
 				>
 			</File>
 			<File
-				RelativePath=".\mpd.c"
+				RelativePath=".\mpd_file.c"
 				>
 			</File>
 			<File
@@ -364,6 +387,26 @@
 				>
 			</File>
 			<File
+				RelativePath=".\passage_file.c"
+				>
+			</File>
+			<File
+				RelativePath=".\pip_file.c"
+				>
+			</File>
+			<File
+				RelativePath=".\profile.c"
+				>
+			</File>
+			<File
+				RelativePath=".\quest.c"
+				>
+			</File>
+			<File
+				RelativePath=".\scancode_file.c"
+				>
+			</File>
+			<File
 				RelativePath=".\script.c"
 				>
 			</File>
@@ -384,11 +427,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\SDL_md2.c"
+				>
+			</File>
+			<File
 				RelativePath=".\server.c"
 				>
 			</File>
 			<File
 				RelativePath=".\sound.c"
+				>
+			</File>
+			<File
+				RelativePath=".\spawn_file.c"
 				>
 			</File>
 			<File
@@ -436,6 +487,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\template.c"
+				>
+			</File>
+			<File
 				RelativePath=".\texture.c"
 				>
 			</File>
@@ -458,6 +513,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\cap_file.h"
+				>
+			</File>
+			<File
 				RelativePath=".\char.h"
 				>
 			</File>
@@ -471,6 +530,10 @@
 			</File>
 			<File
 				RelativePath=".\configfile.h"
+				>
+			</File>
+			<File
+				RelativePath=".\controls.h"
 				>
 			</File>
 			<File
@@ -518,11 +581,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\eve_file.h"
+				>
+			</File>
+			<File
 				RelativePath=".\file_common.h"
 				>
 			</File>
 			<File
 				RelativePath=".\font.h"
+				>
+			</File>
+			<File
+				RelativePath=".\game.h"
 				>
 			</File>
 			<File
@@ -566,11 +637,15 @@
 				>
 			</File>
 			<File
-				RelativePath=".\module.h"
+				RelativePath=".\module_file.h"
 				>
 			</File>
 			<File
 				RelativePath=".\mpd.h"
+				>
+			</File>
+			<File
+				RelativePath=".\mpd_file.h"
 				>
 			</File>
 			<File
@@ -602,6 +677,26 @@
 				>
 			</File>
 			<File
+				RelativePath=".\passage_file.h"
+				>
+			</File>
+			<File
+				RelativePath=".\pip_file.h"
+				>
+			</File>
+			<File
+				RelativePath=".\profile.h"
+				>
+			</File>
+			<File
+				RelativePath=".\quest.h"
+				>
+			</File>
+			<File
+				RelativePath=".\scancode_file.h"
+				>
+			</File>
+			<File
 				RelativePath=".\script.h"
 				>
 			</File>
@@ -622,6 +717,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\SDL_md2.h"
+				>
+			</File>
+			<File
 				RelativePath=".\server.h"
 				>
 			</File>
@@ -630,7 +729,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\spawn_file.h"
+				>
+			</File>
+			<File
 				RelativePath=".\system.h"
+				>
+			</File>
+			<File
+				RelativePath=".\template.h"
 				>
 			</File>
 			<File

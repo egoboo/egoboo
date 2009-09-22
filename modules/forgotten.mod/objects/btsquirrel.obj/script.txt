@@ -6,6 +6,8 @@ IfSpawned
       SetOwnerToTarget
       JoinTargetTeam
       MakeNameKnown
+  
+  //Randomize skin when first found
   IfNameIsKnown
     DoNothing
   Else
@@ -122,19 +124,20 @@ IfKilled				// This reduces the height of the char
     SendMessageNear
   tmpargument = 30			  // Dead height
   SetBumpHeight				  //
-  tmpargument = 5			  // Sound
-  tmpdistance = rand & 2047 + 12000	  //
+  tmpargument = rand & 1 + 1			  // Sound
   PlaySound				  //
+
 IfAttacked				// Don't take kindly to attackers
   SetTargetToWhoeverAttacked		  //
-    tmpargument = 4			    // Sound
-    tmpdistance = rand & 2047 + 9300	    //
-    PlaySound				    //
+  tmpargument = rand & 1 + 1			    // Sound
+  PlaySound				    //
+
 IfBumped				// Scooch around
   tmpx = rand & 1023 + targetx - 512
   tmpy = rand & 1023 + targety - 512
   ClearWaypoints
   AddWaypoint
+
 IfTimeOut				// This is done every so often
   GetContent
   tmpx = tmpargument
@@ -142,7 +145,6 @@ IfTimeOut				// This is done every so often
   IfXIsMoreThanY
     tmpargument = tmpargument - 1
     SetContent
-    tmpdistance = rand & 2047 + 10000
     tmpargument = 12
   Else
     tmpx = rand & 15
@@ -159,28 +161,33 @@ IfTimeOut				// This is done every so often
   Else
     SetTargetToOwner
     IfTargetIsSelf
+      //No owner, move around spawn
       tmpx = rand & 1023 - 512 + selfspawnx
       tmpy = rand & 1023 - 512 + selfspawny
     Else
       SetTargetToNearbyEnemy
+      
+        // Attack the enemy...
         tmpx = targetdistance
         tmpy = 150
         IfXIsLessThanY
           IfFacingTarget
-            // Attack the enemy...
             DropItems
             tmpargument = ACTIONUA
             DoAction
 
+        //move towards enemy
         tmpx = targetx
         tmpy = targety
         tmpturn = targetturnto
         tmpdistance = 200
         Compass
-      Else  // Munch a corpse
+      Else  
+      
+        //No enemies around, find a humanoid corpse to munch
         tmpargument = [HUMA]
-        tmpdistance = 7  // Dead Friends and Enemies...
-        SetTargetToNearestBlahID
+        tmpdistance = BLAHDEAD + BLAHENEMIES + BLAHFRIENDS  // Dead Friends and Enemies...
+        SetTargetToWideBlahID
           tmpy = 50
           tmpx = targetdistance
           IfXIsLessThanY
@@ -198,13 +205,14 @@ IfTimeOut				// This is done every so often
               SpawnExactParticle       
               SpawnExactParticle       
               tmpargument = 0            // burp
-              tmpdistance = 1024
               PlaySound
               tmpargument = 1024         // Get 4 life back
               HealSelf                   
-          tmpx = targetx
+          tmpx = targetx              //Move towards corpse
           tmpy = targety
         Else
+        
+          //No corpses around to eat, follow owner
           SetTargetToOwner
             tmpy = 100
             tmpx = targetdistance
@@ -212,8 +220,11 @@ IfTimeOut				// This is done every so often
               tmpx = rand & 1023 - 512 + selfx
               tmpy = rand & 1023 - 512 + selfy
             Else
-              tmpx = ownerx
+              tmpx = ownerx             //Move fast
               tmpy = ownery
+              tmpdistance = 600
+              tmpturn = targetturnto
+              Compass
 
     ClearWaypoints			  //
     AddWaypoint				  //

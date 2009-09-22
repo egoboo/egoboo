@@ -1319,6 +1319,10 @@ void attach_character_to_mount( Uint16 iitem, Uint16 iholder, grip_offset_t grip
     // Make sure the the slot is valid
     if ( !chr_get_pcap(iholder)->slotvalid[slot] ) return;
 
+	// This is a small fix that allows special grabbable mounts not to be mountable while
+	// held by another character (such as the magic carpet for example)
+	if( !pitem->isitem && pholder->ismount && pholder->attachedto != MAX_CHR ) return;
+
     // Put 'em together
     pitem->inwhich_slot   = slot;
     pitem->attachedto     = iholder;
@@ -1831,7 +1835,7 @@ bool_t character_grab_stuff( Uint16 ichr_a, grip_offset_t grip_off, bool_t grab_
     GLvector4 point[1], nupoint[1];
     SDL_Color color_red = {0xFF, 0x7F, 0x7F, 0xFF};
     SDL_Color color_grn = {0x7F, 0xFF, 0x7F, 0xFF};
-    SDL_Color color_blu = {0x7F, 0x7F, 0xFF, 0xFF};
+ //   SDL_Color color_blu = {0x7F, 0x7F, 0xFF, 0xFF};
 
     chr_t * pchr_a;
 

@@ -9,8 +9,5 @@ MASTER TODO LIST:
 - Halve mana/life loss caused by potions
 - Runes need to be repriced much like Arcane Spellbooks were
 - Platforms in Abyss don't work properly, for some time they lift normally, then give a pretty massive boost thus throwing into the void. 
-- Walking next to someone , with the magic carpet in hand, makes them ride it without you dropping it
-- Splitting a stack of fortune cookies makes the dropped cookie unburned and unsoggied.
 - If I start bishopia city or forgotten fortress comes only the text: press escape for quit.
 - The position of the end text when you finish a module is wrong
-- My squirrel get no exp

@@ -876,9 +876,9 @@ void update_game()
         BillboardList_update_all();
 
         // Timers
-        clock_wld  += UPDATE_SKIP;
-        clock_stat += UPDATE_SKIP;
-
+        clock_wld += UPDATE_SKIP;
+        clock_stat++;	//clock_stat += UPDATE_SKIP;
+        
         // Reset the respawn timer
         if ( revivetimer > 0 )
         {
@@ -4511,8 +4511,8 @@ void stat_return()
     if ( clock_stat >= ONESECOND )
     {
         // Reset the clock
-        clock_stat -= ONESECOND;
-
+		clock_stat -= ONESECOND;
+		
         // Do all the characters
         for ( cnt = 0; cnt < MAX_CHR; cnt++ )
         {
@@ -6939,7 +6939,7 @@ bool_t upload_damagetile_data( damagetile_instance_t * pinst, wawalite_damagetil
 //--------------------------------------------------------------------------------------------
 bool_t upload_animtile_data( animtile_instance_t inst[], wawalite_animtile_t * pdata, size_t animtile_count )
 {
-    int size;
+    Uint32 size;
 
     if ( NULL == inst || 0 == animtile_count ) return bfalse;
 

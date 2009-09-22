@@ -35,7 +35,7 @@ typedef struct s_ClockState ClockState_t;
 
 void clk_init( void );                                 ///< Init the clock module
 void clk_shutdown( void );                             ///< Shut down the clock module
-void clk_setTimeSource( clock_source_ptr_t tsrc );     ///< Specify where the clock gets its time values from
+//void clk_setTimeSource( clock_source_ptr_t tsrc );     ///< Specify where the clock gets its time values from
 
 ClockState_t * clk_create( const char * name, int size );
 bool_t         clk_destroy( ClockState_t ** cs );

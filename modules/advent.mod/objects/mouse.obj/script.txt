@@ -6,7 +6,6 @@ IfKilled				// Size
   tmpargument = 0			  //
   SendMessageNear			  //
   tmpargument = rand & 1
-  tmpdistance = 22050
   PlaySound
 IfSpawned
   JoinNullTeam // For rebirth...
@@ -14,11 +13,9 @@ IfSpawned
   SetTime
 IfAttacked
   tmpargument = rand & 1
-  tmpdistance = 22050
   PlaySound
 IfMounted
   tmpargument = rand & 1
-  tmpdistance = 22050
   PlaySound
 IfTimeOut				// This is done every so often
   ClearWaypoints			  //

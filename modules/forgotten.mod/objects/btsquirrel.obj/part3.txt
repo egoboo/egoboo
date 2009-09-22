@@ -87,7 +87,7 @@ Need target to spawn ( TRUE or FALSE )			: FALSE
 Target is caster ( TRUE or FALSE )			: FALSE
 Start on target ( TRUE or FALSE )			: FALSE
 Only damage friendly ( TRUE or FALSE )			: FALSE
-Spawn sound ( -1 for none )				: -1
+Spawn sound ( -1 for none )				: 3
 End sound ( -1 for none )				: -1
 Friendly fire ( TRUE or FALSE )				: FALSE
 Only hit hate group ( TRUE or FALSE )			: FALSE

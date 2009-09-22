@@ -1,17 +1,19 @@
-Version 2.7.8 (xx.08.2009)
+Version 2.7.8 (xx.09.2009)
+- New Feature: Major improvements to how Egoboo handles objects and the GOR.
 - New Feature: Improved AI by adding Line of Sight detection for targeting.
 - New Feature: Improved UI by implementing in-game pop up text.
 - New Feature: Implemented the PhysFS file system.
+- Update: Fixed various formatting issues so that text, icons and bars now display better.
+- Update: Made some AI and sound effect improvements to the Squirrel pet.
 - Update: Reimplemented the Visual C++ redistributable package for windows users
   (Should fix a startup error complaining about configuration settings being incorrect).
-- Update: Made multiple improvements to how the GOR system is handled.
 - Update: The Angel Elayne in the lower Abyss now attacks undead players on sight.
 - Update: Most wands have now increased charge limit making them much more useful.
 - Update: The Book of Enchant can now be used to recharge wands.
 - Update: The Morph spell now allows you to use [TECH] skill but disables spell casting.
 - Update: There is always a minimum 5% chance stealing from shops will be detected.
 - Update: Improved some details for the floor tiles in the Paladin Starter.
-- Update: Deamon Lords have now halved life regeneration making them easier to defeat.
+- Update: Deamon Lords have now halved life regeneration making them much easier to defeat.
 - Update: The Haste spell costs less mana to sustain now.
 - Update: Ghosts can now move through walls and impassable tiles.
 - Update: Support for multiple new resolution formats including wide-screen.
@@ -20,6 +22,8 @@ Version 2.7.8 (xx.08.2009)
 - Update: Increased the amount of treasure loot found in the Ice Palace.
 - Update: Improved the Frost Lizard AI.
 - Update: Improved the texture detail for all the title images.
+- Bugfix: The Magic Carpet is no longer mountable while being held.
+- Bugfix: When cookie stacks are splilt, they should now retain their burned and watered status.
 - Bugfix: Fixed a bug in the joystick reading function. Analog joysticks should work much better now.
 - Bugfix: Devil Doors should function properly again.
 - Bugfix: Glyph plates in Abyss 2 should now properly display messages again.
