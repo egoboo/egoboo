@@ -57,7 +57,7 @@ void fs_init()
     // The save path goes into the user's ApplicationData directory,
     // according to Microsoft's standards.  Will people like this, or
     // should I stick saves someplace easier to find, like My Documents?
-    SHGetFolderPath( NULL, CSIDL_APPDATA, NULL, 0, win32_savePath );
+    SHGetFolderPath( NULL, CSIDL_APPDATA, NULL, 0, win32_userDataPath );
     strncat( win32_userDataPath, SLASH_STR "egoboo" SLASH_STR, MAX_PATH );
 
     // grab the actual location of the binary
@@ -99,11 +99,12 @@ void fs_init()
         exit(-1);
     }
 
+    strncpy( win32_configPath, win32_dataPath, SDL_arraysize(win32_configPath) );
 
     // the log file cannot be started until there is a user data path to dump the file into
     // so dump this debug info to stdout
-    fprintf( "Game directories are:\n\tBinaries: %s\n\Data: %s\n\tUser Data: %s\n\tConfig Files: %s\n",
-              win32_binaryPath, win32_dataPath, win32_userdataPath, win32_configPath );
+    printf( "Game directories are:\n\tBinaries: %s\n\tData: %s\n\tUser Data: %s\n\tConfig Files: %s\n",
+              win32_binaryPath, win32_dataPath, win32_userDataPath, win32_configPath );
 }
 
 const char *fs_getBinaryDirectory()

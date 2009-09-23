@@ -83,6 +83,7 @@ void vfs_init( const char * argv0 )
 
     PHYSFS_addToSearchPath( fs_getConfigDirectory(), 1 );
     PHYSFS_addToSearchPath( fs_getDataDirectory(), 1 );
+    PHYSFS_addToSearchPath( fs_getUserDirectory(), 1 );
 
     atexit( _vfs_exit );
 }
