@@ -34,10 +34,10 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // Paths that the game will deal with
-static char win32_tempPath[MAX_PATH] = {0};
-static char win32_importPath[MAX_PATH] = {0};
-static char win32_savePath[MAX_PATH] = {0};
-static char win32_gamePath[MAX_PATH] = {0};
+static char win32_binaryPath[MAX_PATH] = {0};
+static char win32_dataPath[MAX_PATH] = {0};
+static char win32_userDataPath[MAX_PATH] = {0};
+static char win32_configPath[MAX_PATH] = {0};
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -47,75 +47,83 @@ void fs_init()
 {
     // JF> This function determines the temporary, import,
     // game data and save paths
+
     HANDLE hFile;
+    char currentPath[MAX_PATH];
     char basicdatPath[MAX_PATH];
 
-    log_info( "Initializing filesystem services...\n" );
-
-    // Put the import path in the user's temporary data directory
-    GetTempPath( MAX_PATH, win32_tempPath );
-    strncpy( win32_importPath, win32_tempPath, MAX_PATH );
-    strncat( win32_importPath, "import" SLASH_STR, MAX_PATH );
+    printf( "Initializing filesystem services...\n" );
 
     // The save path goes into the user's ApplicationData directory,
     // according to Microsoft's standards.  Will people like this, or
     // should I stick saves someplace easier to find, like My Documents?
     SHGetFolderPath( NULL, CSIDL_APPDATA, NULL, 0, win32_savePath );
-    strncat( win32_savePath, SLASH_STR "egoboo" SLASH_STR, MAX_PATH );
+    strncat( win32_userDataPath, SLASH_STR "egoboo" SLASH_STR, MAX_PATH );
+
+    // grab the actual location of the binary
+    GetModuleFileName( NULL, win32_binaryPath, MAX_PATH );
+    PathRemoveFileSpec( win32_binaryPath );
 
     // Last, try and determine where the game data is.  First, try the working
     // directory.  If it's not there, try the directory where the executable
     // is located.
-    GetCurrentDirectory( MAX_PATH, win32_gamePath );
+    GetCurrentDirectory( MAX_PATH, currentPath );
 
-    // See if the basicdat directory exists
-    strncpy( basicdatPath, win32_gamePath, MAX_PATH );
-    strncpy( basicdatPath, "basicdat", MAX_PATH );
+    // try to find the basicdat directory in the current directory
+    snprintf( basicdatPath, MAX_PATH, "%s" SLASH_STR "basicdat", currentPath, MAX_PATH );
     hFile = CreateFile( basicdatPath, 0, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
                         OPEN_EXISTING, 0, NULL );
-    if ( hFile == NULL )
-    {
-        // didn't find the basicdat directory, give the executable's directory
-        // a try next
-        GetModuleFileName( NULL, win32_gamePath, MAX_PATH );
-        PathRemoveFileSpec( win32_gamePath );
 
-        // See if the basicdat directory exists
-        strncpy( basicdatPath, win32_gamePath, MAX_PATH );
-        strncpy( basicdatPath, "basicdat", MAX_PATH );
+    if ( NULL != hFile )
+    {
+        strncpy( win32_dataPath, currentPath, MAX_PATH );
+        CloseHandle( hFile );
+    }
+    else
+    {
+        // look in the binary directory
+        snprintf( basicdatPath, MAX_PATH, "%s" SLASH_STR "basicdat", win32_binaryPath, MAX_PATH );
         hFile = CreateFile( basicdatPath, 0, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
                             OPEN_EXISTING, 0, NULL );
-        if ( hFile == NULL )
+        if ( NULL != hFile )
         {
-            // fatal error here, we can't find the game data.
-            log_error( "Could not find basicdat directory!\n" );
+            strncpy( win32_dataPath, win32_binaryPath, MAX_PATH );
+            CloseHandle( hFile );
         }
     }
 
-    CloseHandle( hFile );
+    if( '\0' == win32_dataPath[0] )
+    {
+        // fatal error here, we can't find the game data.
+        printf( "Could not find basicdat directory!\n" );
+        exit(-1);
+    }
 
-    log_info( "Game directories are:\n\tGame: %s\n\tTemp: %s\n\tSave: %s\n\tImport: %s\n",
-              win32_gamePath, win32_tempPath, win32_savePath, win32_importPath );
+
+    // the log file cannot be started until there is a user data path to dump the file into
+    // so dump this debug info to stdout
+    fprintf( "Game directories are:\n\tBinaries: %s\n\Data: %s\n\tUser Data: %s\n\tConfig Files: %s\n",
+              win32_binaryPath, win32_dataPath, win32_userdataPath, win32_configPath );
 }
 
-const char *fs_getTempDirectory()
+const char *fs_getBinaryDirectory()
 {
-    return win32_tempPath;
+    return win32_binaryPath;
 }
 
-const char *fs_getImportDirectory()
+const char *fs_getDataDirectory()
 {
-    return win32_importPath;
+    return win32_dataPath;
 }
 
-const char *fs_getGameDirectory()
+const char *fs_getUserDirectory()
 {
-    return win32_gamePath;
+    return win32_userDataPath;
 }
 
-const char *fs_getSaveDirectory()
+const char *fs_getConfigDirectory()
 {
-    return win32_savePath;
+    return win32_configPath;
 }
 
 //---------------------------------------------------------------------------------------------

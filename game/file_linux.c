@@ -36,10 +36,10 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // Paths that the game will deal with
-static char linux_tempPath[PATH_MAX] = {0};
-static char linux_importPath[PATH_MAX] = {0};
-static char linux_savePath[PATH_MAX] = {0};
-static char linux_gamePath[PATH_MAX] = {0};
+static char linux_binaryPath[PATH_MAX] = {0};
+static char linux_dataPath[PATH_MAX] = {0};
+static char linux_userdataPath[PATH_MAX] = {0};
+static char linux_configPath[PATH_MAX] = {0};
 
 static glob_t last_find_glob;
 static size_t glob_find_index;
@@ -51,18 +51,22 @@ void fs_init()
 {
     char * username;
 
+    printf( "Initializing filesystem services...\n" );
+
     username = getenv( "USER" );
 
     // this is just a skeleton. the USER needs to be replaced by an environment variable
-    snprintf( linux_tempPath,   SDL_arraysize(linux_tempPath),   "/home/%s/.egoboo/temp/",    username );
-    snprintf( linux_importPath, SDL_arraysize(linux_importPath), "/home/%s/.egoboo/import/",  username );
-    snprintf( linux_savePath,   SDL_arraysize(linux_savePath),   "/home/%s/.egoboo/players/", username );
+    snprintf( linux_userdataPath, SDL_arraysize(linux_userdataPath), "/home/%s/.egoboo-2.x/", username );
 
     // this is a read-only directory
-    strncpy( linux_gamePath,  "/usr/share/games/egoboo/", SDL_arraysize(linux_gamePath) );
+    strncpy( linux_configPath, "/etc/egoboo-2.x/",             SDL_arraysize(linux_configPath) );
+    strncpy( linux_binaryPath, "/usr/games/egoboo-2.x/",       SDL_arraysize(linux_binaryPath) );
+    strncpy( linux_dataPath,   "/usr/share/games/egoboo-2.x/", SDL_arraysize(linux_dataPath)   );
 
-    log_info( "Game directories are:\n\tGame: %s\n\tTemp: %s\n\tSave: %s\n\tImport: %s\n",
-              linux_gamePath, linux_tempPath, linux_savePath, linux_importPath );
+    // the log file cannot be started until there is a user data path to dump the file into
+    // so dump this debug info to stdout
+    printf( "Game directories are:\n\tBinaries: %s\n\tData: %s\n\tUser Data: %s\n\tConfig Files: %s\n",
+              linux_binaryPath, linux_dataPath, linux_userdataPath, linux_configPath );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -100,16 +104,17 @@ void fs_deleteFile( const char *filename )
 void fs_copyFile( const char *source, const char *dest )
 {
     // ZZ> This function copies a file on the local machine
+
     FILE *sourcef;
     FILE *destf;
     char buf[4096];
     int bytes_read;
 
-    sourcef = vfs_openRead( source );
+    sourcef = fopen( source, "rb" );
     if ( !sourcef )
         return;
 
-    destf = vfs_openWrite( dest );
+    destf = fopen( source, "wb" );
     if ( !destf )
     {
         fclose( sourcef );
@@ -172,25 +177,25 @@ void fs_findClose()
 }
 
 //--------------------------------------------------------------------------------------------
-const char *fs_getTempDirectory()
+const char *fs_getBinaryDirectory()
 {
-    return linux_tempPath;
+    return linux_binaryPath;
 }
 
 //--------------------------------------------------------------------------------------------
-const char *fs_getImportDirectory()
+const char *fs_getDataDirectory()
 {
-    return linux_importPath;
+    return linux_dataPath;
 }
 
 //--------------------------------------------------------------------------------------------
-const char *fs_getGameDirectory()
+const char *fs_getUserDirectory()
 {
-    return linux_gamePath;
+    return linux_userdataPath;
 }
 
 //--------------------------------------------------------------------------------------------
-const char *fs_getSaveDirectory()
+const char *fs_getConfigDirectory()
 {
-    return linux_savePath;
+    return linux_configPath;
 }

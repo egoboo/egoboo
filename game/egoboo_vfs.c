@@ -79,10 +79,10 @@ void vfs_init( const char * argv0 )
 
     PHYSFS_init( argv0 );
 
-    PHYSFS_setWriteDir    ( fs_getSaveDirectory() );
+    PHYSFS_setWriteDir    ( fs_getUserDirectory() );
 
-    PHYSFS_addToSearchPath( fs_getSaveDirectory(), 1 );
-    PHYSFS_addToSearchPath( fs_getGameDirectory(), 1 );
+    PHYSFS_addToSearchPath( fs_getConfigDirectory(), 1 );
+    PHYSFS_addToSearchPath( fs_getDataDirectory(), 1 );
 
     atexit( _vfs_exit );
 }

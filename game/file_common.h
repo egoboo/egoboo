@@ -26,10 +26,11 @@ int DirGetAttrib( const char *fromdir );
 
 void fs_init();
 
-const char *fs_getTempDirectory();
-const char *fs_getImportDirectory();
-const char *fs_getGameDirectory();
-const char *fs_getSaveDirectory();
+const char *fs_getBinaryDirectory();
+const char *fs_getDataDirectory();
+const char *fs_getUserDirectory();
+const char *fs_getConfigDirectory();
+
 
 int  fs_fileExists( const char *filename );
 int  fs_fileIsDirectory( const char *filename );

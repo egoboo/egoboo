@@ -117,7 +117,6 @@
 					<Add option="-Wmain" />
 					<Add option="-Wfatal-errors" />
 					<Add option="-Wall" />
-					<Add option="-pg" />
 					<Add option="-g" />
 					<Add option="-D_DEBUG" />
 					<Add option="-D_CONSOLE" />
@@ -133,8 +132,6 @@
 					<Add directory="/usr/include/lua50" />
 				</Compiler>
 				<Linker>
-					<Add option="-s" />
-					<Add option="-pg" />
 					<Add library="libSDL" />
 					<Add library="libSDLmain" />
 					<Add library="libSDL_ttf" />
