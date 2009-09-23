@@ -11,10 +11,10 @@
 //8			n/a
 //9			n/a
 //10		Guardian Angel
-//11	    n/a
+//11	  n/a
 //12		n/a
 //13		Immune vs. Kurses
-//14	    n/a
+//14	  n/a
 //15		n/a
 //16		Last Boon
 //-----------------------------------------------------------------------------
@@ -112,6 +112,7 @@ IfKilled
         SpawnExactParticle
         tmpargument = 11
         SendMessage
+
 //-------------------------------------------
 // Gong sound
 IfCleanedUp

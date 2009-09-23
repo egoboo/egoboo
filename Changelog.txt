@@ -3,6 +3,7 @@ Version 2.7.8 (xx.09.2009)
 - New Feature: Improved AI by adding Line of Sight detection for targeting.
 - New Feature: Improved UI by implementing in-game pop up text.
 - New Feature: Implemented the PhysFS file system.
+- Update: Various new class skills and updates to existing ones. See Classes.txt for a detailed list.
 - Update: Fixed various formatting issues so that text, icons and bars now display better.
 - Update: Made some AI and sound effect improvements to the Squirrel pet.
 - Update: Reimplemented the Visual C++ redistributable package for windows users

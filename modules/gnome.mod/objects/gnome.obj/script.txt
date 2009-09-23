@@ -1,18 +1,26 @@
 //G'NOME
 //-------------------------------------------
 //Level       Abillity
-//1			Use Technological Items, Read G'nomish, Poison Resistance, Immune vs. Grog
+//1			Use Technological Items, Read G'nomish, Immune vs. Grog, Poison Resistance, Literate
 //2			n/a
-//3			Listen
-//4			n/a
-//5			Crackshot
+//3			n/a
+//4			Listen
+//5			n/a
 //6			n/a
-//7			Ancient Blud
+//7			Crackshot
 //8			n/a
-//9			Sharpshooter
-//10		n/a
-//11        Hardy
-//12        n/a
+//9			n/a
+//10		Sharpshooter
+//11		n/a
+//12		n/a
+//13    Hardy
+//14    n/a
+//15    n/a
+//16    Ancient Blood
+//17    n/a
+//18    n/a
+//19    n/a
+//20    Things that go Boom
 //-----------------------------------------------------------------------------
 //Reset
 IfSpawned
@@ -23,14 +31,32 @@ IfSpawned
 //-----------------------------------------------------------------------------
 //Listen skill
 tmpx = selflevel
-tmpy = 1            //At least level 3
+tmpy = 2            //At least level 4
 IfXIsMoreThanY
   EnableListenSkill
+  
+//-----------------------------------------------------------------------------
+//Nuclear blast death (Things that go Boom skill)
+IfKilled
+  tmpx = selflevel
+  tmpy = 18           //Level 20 or above
+  IfXIsMoreThanY
+    tmpargument = 2
+    tmpx = selfx
+    tmpy = selfy
+    tmpdistance = selfz
+    SpawnExactParticle
+    tmpargument = 9
+    SpawnExactParticle
+    
+    tmpargument = 13
+    tmpdistance = 150
+    PlaySoundVolume
 
 //-----------------------------------------------------------------------------
 //Sharpshooter skill
 tmpx = selflevel
-tmpy = 7            //Need level 9
+tmpy = 8            //Need level 10
 IfXIsMoreThanY
   IfScoredAHit
     SetTargetToLastItemUsed
@@ -43,7 +69,7 @@ IfXIsMoreThanY
 //-----------------------------------------------------------------------------
 //Crackshot skill
 tmpx = selflevel
-tmpy = 3            //Need level 5
+tmpy = 5            //Need level 7
 IfXIsMoreThanY
   IfScoredAHit
     SetTargetToLastItemUsed
@@ -59,7 +85,7 @@ IfXIsMoreThanY
 //-----------------------------------------------------------------------------
 //Damage resist skill
 tmpx = selflevel
-tmpy = 9            //At least level 11
+tmpy = 11            //At least level 13
 IfXIsMoreThanY
   IfAttacked
     tmpargument = selflevel * 24       //Reduce all damage by 1/10 per level
@@ -95,9 +121,9 @@ IfTimeOut
 
   //Ancient blud skill
   tmpx = selflevel
-  tmpy = 5            //Need level 7
+  tmpy = 14            //Need level 16
   IfXIsMoreThanY
-    tmpargument = 192   //regenerate 3/4 life point
+    tmpargument = 192   //regenerate 3/4 life point every 4 seconds
     HealSelf
   
   

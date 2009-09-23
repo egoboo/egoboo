@@ -11,3 +11,6 @@ MASTER TODO LIST:
 - Platforms in Abyss don't work properly, for some time they lift normally, then give a pretty massive boost thus throwing into the void. 
 - If I start bishopia city or forgotten fortress comes only the text: press escape for quit.
 - The position of the end text when you finish a module is wrong
+
+EGOBOO AWARDS:
+http://img.informer.com/awards/si_editor4.gif

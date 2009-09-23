@@ -6,13 +6,14 @@
 //4     - n/a
 //5     - Sunder Strike
 //6     - n/a
-//7     - Weapon Mastery
-//8     - n/a
+//7     - n/a 
+//8     - Weapon Mastery
 //9     - n/a
-//10    - Grogging Hit
-//11    - n/a
+//10    - n/a 
+//11    - Grogging Hit
 //12    - n/a
-//13    - Hardy
+//13    - n/a
+//14    - Hardy
 //-----------------------------------------------------------------------------
 //Reset
 IfSpawned
@@ -28,13 +29,12 @@ IfSpawned
 //-----------------------------------------------------------------------------
 //Damage resist skill
 tmpx = selflevel
-tmpy = 11            //At least level 13
+tmpy = 12            //At least level 14
 IfXIsMoreThanY
   IfAttacked
-    tmpargument = selflevel > 2
-    tmpargument = tmpargument * 128       //Reduce all damage by 1/2 per 4 levels
+    tmpargument = selflevel * 24       //Reduce all damage by 1/10 per level
     HealSelf
-  
+
 //-----------------------------------------------------------------------------
 IfHitGround
   tmpargument = 0
@@ -44,7 +44,7 @@ IfHitGround
 //Weapon mastery skill
 SetTargetToSelf
 tmpx = selflevel
-tmpy = 5             //Need level 7
+tmpy = 6             //Need level 8
 IfXIsMoreThanY
   IfScoredAHit
     SetTargetToWhoeverWasHit
@@ -88,7 +88,7 @@ IfXIsMoreThanY
 //-----------------------------------------------------------------------------
 //Grog strike abillity
 tmpx = selflevel
-tmpy = 8            //Need level 10
+tmpy = 9            //Need level 11
 IfXIsMoreThanY
   IfScoredAHit
     SetTargetToWhoeverWasHit

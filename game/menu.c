@@ -164,6 +164,8 @@ static void TxTitleImage_clear_data();
 
 static void mnu_release_one_module( int imod );
 
+char* describe_stat(int value_high);
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // the module data that the menu system needs
@@ -1052,25 +1054,31 @@ bool_t doChoosePlayer_show_stats( int player, int mode, int x, int y, int width,
                 fnt_drawText( menuFont, x1, y1, "Life: %d/%d", MIN( FP8_TO_INT(pcap->spawnlife), FP8_TO_INT(pcap->life_stat.val.base) ), FP8_TO_INT(pcap->life_stat.val.base) ); y1 += 20;
                 y1 = draw_one_bar( pcap->lifecolor, x1, y1, FP8_TO_INT(pcap->spawnlife), FP8_TO_INT(pcap->life_stat.val.base) );
 
-                fnt_drawText( menuFont, x1, y1, "Mana: %d/%d", MIN( FP8_TO_INT(pcap->spawnmana), FP8_TO_INT(pcap->mana_stat.val.base) ), FP8_TO_INT(pcap->mana_stat.val.base) ); y1 += 20;
-                y1 = draw_one_bar( pcap->manacolor, x1, y1, FP8_TO_INT(pcap->spawnmana), FP8_TO_INT(pcap->mana_stat.val.base) );
-            }
+				if( pcap->mana_stat.val.base > 0)
+				{
+					fnt_drawText( menuFont, x1, y1, "Mana: %d/%d", MIN( FP8_TO_INT(pcap->spawnmana), FP8_TO_INT(pcap->mana_stat.val.base) ), FP8_TO_INT(pcap->mana_stat.val.base) ); y1 += 20;
+					y1 = draw_one_bar( pcap->manacolor, x1, y1, FP8_TO_INT(pcap->spawnmana), FP8_TO_INT(pcap->mana_stat.val.base) );
+				}
+			}
             else
             {
                 fnt_drawText( menuFont, x1, y1, "Life: %d", FP8_TO_INT(pcap->life_stat.val.base) ); y1 += 20;
                 y1 = draw_one_bar( pcap->lifecolor, x1, y1, FP8_TO_INT(pcap->life_stat.val.base), FP8_TO_INT(pcap->life_stat.val.base) );
 
-                fnt_drawText( menuFont, x1, y1, "Mana: %d", FP8_TO_INT(pcap->mana_stat.val.base) ); y1 += 20;
-                y1 = draw_one_bar( pcap->manacolor, x1, y1, FP8_TO_INT(pcap->mana_stat.val.base), FP8_TO_INT(pcap->mana_stat.val.base) );
-            }
+				if( pcap->mana_stat.val.base > 0)
+				{
+					fnt_drawText( menuFont, x1, y1, "Mana: %d", FP8_TO_INT(pcap->mana_stat.val.base) ); y1 += 20;
+					y1 = draw_one_bar( pcap->manacolor, x1, y1, FP8_TO_INT(pcap->mana_stat.val.base), FP8_TO_INT(pcap->mana_stat.val.base) );
+            	}
+			}
             y1 += 20;
 
             //SWID
             fnt_drawText( menuFont, x1, y1, "Stats" ); y1 += 20;
-            fnt_drawText( menuFont, x1, y1, "  Str: %d", FP8_TO_INT(pcap->strength_stat.val.base     ) ); y1 += 20;
-            fnt_drawText( menuFont, x1, y1, "  Wis: %d", FP8_TO_INT(pcap->wisdom_stat.val.base       ) ); y1 += 20;
-            fnt_drawText( menuFont, x1, y1, "  Int: %d", FP8_TO_INT(pcap->intelligence_stat.val.base ) ); y1 += 20;
-            fnt_drawText( menuFont, x1, y1, "  Dex: %d", FP8_TO_INT(pcap->dexterity_stat.val.base    ) ); y1 += 20;
+            fnt_drawText( menuFont, x1, y1, "  Str: %s (%d)", describe_stat(pcap->strength_stat.val.base),     FP8_TO_INT(pcap->strength_stat.val.base	   ) ); y1 += 20;
+            fnt_drawText( menuFont, x1, y1, "  Wis: %s (%d)", describe_stat(pcap->wisdom_stat.val.base),       FP8_TO_INT(pcap->wisdom_stat.val.base	   ) ); y1 += 20;
+            fnt_drawText( menuFont, x1, y1, "  Int: %s (%d)", describe_stat(pcap->intelligence_stat.val.base), FP8_TO_INT(pcap->intelligence_stat.val.base ) ); y1 += 20;
+            fnt_drawText( menuFont, x1, y1, "  Dex: %s (%d)", describe_stat(pcap->dexterity_stat.val.base),    FP8_TO_INT(pcap->dexterity_stat.val.base	   ) ); y1 += 20;
             y1 += 20;
 
             if ( objects.count > 1 )
@@ -2021,13 +2029,13 @@ int doGameOptions( float deltaTime )
             switch ( cfg.difficulty )
             {
                 case GAME_HARD: snprintf(Cdifficulty, SDL_arraysize(Cdifficulty), "Punishing"); break;
-				default: case GAME_NORMAL: snprintf(Cdifficulty, SDL_arraysize(Cdifficulty), "Challenging"); break;
-				case GAME_EASY:
-                    {
-                        snprintf(Cdifficulty, SDL_arraysize(Cdifficulty), "Forgiving");
-                        cfg.difficulty = GAME_EASY;
-                        break;
-                    }
+				case GAME_EASY: snprintf(Cdifficulty, SDL_arraysize(Cdifficulty), "Forgiving"); break;
+				default: case GAME_NORMAL: 
+				{
+					snprintf(Cdifficulty, SDL_arraysize(Cdifficulty), "Challenging"); 
+					cfg.difficulty = GAME_NORMAL;
+					break;
+				}
             }
             sz_buttons[0] = Cdifficulty;
 
@@ -2093,11 +2101,11 @@ int doGameOptions( float deltaTime )
                 switch ( cfg.difficulty )
                 {
                     case GAME_HARD: snprintf(Cdifficulty, SDL_arraysize(Cdifficulty), "Punishing"); break;
-                    case GAME_NORMAL: snprintf(Cdifficulty, SDL_arraysize(Cdifficulty), "Challenging"); break;
-                default: case GAME_EASY:
+					case GAME_EASY: snprintf(Cdifficulty, SDL_arraysize(Cdifficulty), "Forgiving"); break;
+                	default: case GAME_NORMAL:
                         {
-                            snprintf(Cdifficulty, SDL_arraysize(Cdifficulty), "Forgiving");
-                            cfg.difficulty = GAME_EASY;
+                            snprintf(Cdifficulty, SDL_arraysize(Cdifficulty), "Challenging");
+                            cfg.difficulty = GAME_NORMAL;
                             break;
                         }
                 }
@@ -2108,13 +2116,13 @@ int doGameOptions( float deltaTime )
             switch ( cfg.difficulty )
             {
                 case GAME_EASY:
-                    strncpy( szDifficulty, "FORGIVING (Easy)\n - 15%% XP loss upon death\n - Monsters take 25%% extra damage by players\n - Players take 25%% less damage by monsters\n - Halves the chance for Kursed items\n - Cannot unlock the final level in this mode\n - Life and Mana is refilled after quitting a module", SDL_arraysize(szDifficulty) );
+                    strncpy( szDifficulty, "FORGIVING (Easy)\n - Players gain no bonus XP \n - 15%% XP loss upon death\n - Monsters take 25%% extra damage by players\n - Players take 25%% less damage by monsters\n - Halves the chance for Kursed items\n - Cannot unlock the final level in this mode\n - Life and Mana is refilled after quitting a module", SDL_arraysize(szDifficulty) );
                     break;
                 case GAME_NORMAL:
-                    strncpy( szDifficulty, "CHALLENGING (Normal)\n - 15%% XP loss upon death \n - 15%% money loss upon death", SDL_arraysize(szDifficulty) );
+                    strncpy( szDifficulty, "CHALLENGING (Normal)\n - Players gain 10%% bonus XP \n - 15%% XP loss upon death \n - 15%% money loss upon death", SDL_arraysize(szDifficulty) );
                     break;
                 case GAME_HARD:
-                    strncpy( szDifficulty, "PUNISHING (Hard)\n - 15%% XP loss upon death\n - 15%% money loss upon death\n - No respawning\n - Channeling life can kill you\n - Players take 25%% more damage\n - Monsters award 10%% extra xp!\n - Doubles the chance for Kursed items", SDL_arraysize(szDifficulty) );
+                    strncpy( szDifficulty, "PUNISHING (Hard)\n - Monsters award 20%% extra xp! \n - 15%% XP loss upon death\n - 15%% money loss upon death\n - No respawning\n - Channeling life can kill you\n - Players take 25%% more damage\n - Doubles the chance for Kursed items", SDL_arraysize(szDifficulty) );
                     break;
             }
             str_add_linebreaks( szDifficulty, SDL_arraysize(szDifficulty), 30 );
@@ -3031,13 +3039,7 @@ int doVideoOptions( float deltaTime )
                             sz_buttons[12] = "1280x1024";
                             break;
 
-                        case 1280:
-                            cfg.scrx_req = 640;
-                            cfg.scry_req = 480;
-                            sz_buttons[12] = "640x480";
-                            break;
-
-                        default:
+						default: case 1280:
                             cfg.scrx_req = 640;
                             cfg.scry_req = 480;
                             sz_buttons[12] = "640x480";
@@ -3050,7 +3052,7 @@ int doVideoOptions( float deltaTime )
                 {
                     switch ( cfg.scrx_req )
                     {
-                        case 1920:
+						default: case 1920:
                             cfg.scrx_req = 1280;
                             cfg.scry_req = 800;
                             sz_buttons[12] = "1280x800";
@@ -3072,12 +3074,6 @@ int doVideoOptions( float deltaTime )
                             cfg.scrx_req = 1920;
                             cfg.scry_req = 1200;
                             sz_buttons[12] = "1920x1200";
-                            break;
-
-                        default:
-                            cfg.scrx_req = 1280;
-                            cfg.scry_req = 800;
-                            sz_buttons[12] = "1280x800";
                             break;
                     }
                 }
@@ -4132,3 +4128,26 @@ void mnu_load_all_module_info()
     vfs_findClose();
 }
 
+//--------------------------------------------------------------------------------------------
+char* describe_stat(int value)
+{
+	//ZF> This converts a stat number into a more descriptive word
+	char* retval = "None";
+    value = FP8_TO_INT(value);
+	
+	if     ( value >= 50 )	strcpy(retval, "Godlike!");
+	else if( value >= 40 )	strcpy(retval, "Ultimate");
+	else if( value >= 34 )	strcpy(retval, "Epic");
+	else if( value >= 30 )	strcpy(retval, "Powerful");
+	else if( value >= 26 )	strcpy(retval, "Heroic");
+	else if( value >= 22 )	strcpy(retval, "Very High");
+	else if( value >= 18 )	strcpy(retval, "High");
+	else if( value >= 14 )	strcpy(retval, "Good");
+	else if( value >= 10 )	strcpy(retval, "Average");
+	else if( value >= 7  )	strcpy(retval, "Pretty Low");
+	else if( value >= 4  )	strcpy(retval, "Bad");
+	else if( value >= 1  )	strcpy(retval, "Terrible");
+	else					strcpy(retval, "None");
+	
+	return retval;
+}

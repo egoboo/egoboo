@@ -45,7 +45,7 @@
 				EnableIntrinsicFunctions="false"
 				FavorSizeOrSpeed="0"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)enet\include&quot;"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)enet\include&quot;;&quot;$(SolutionDir)game&quot;;file_formats;extensions"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -134,12 +134,12 @@
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
 				WholeProgramOptimization="true"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)enet\include&quot;"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)game\extensions&quot;;&quot;$(SolutionDir)enet\include&quot;;&quot;$(SolutionDir)game\file_formats&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE"
 				RuntimeLibrary="2"
 				BufferSecurityCheck="true"
 				EnableFunctionLevelLinking="false"
-				EnableEnhancedInstructionSet="0"
+				EnableEnhancedInstructionSet="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="false"
@@ -198,16 +198,12 @@
 	</References>
 	<Files>
 		<Filter
-			Name="Source Files"
+			Name="Game Source"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
 				RelativePath=".\camera.c"
-				>
-			</File>
-			<File
-				RelativePath=".\cap_file.c"
 				>
 			</File>
 			<File
@@ -219,15 +215,345 @@
 				>
 			</File>
 			<File
+				RelativePath=".\enchant.c"
+				>
+			</File>
+			<File
+				RelativePath=".\game.c"
+				>
+			</File>
+			<File
+				RelativePath=".\graphic.c"
+				>
+			</File>
+			<File
+				RelativePath=".\graphic_fan.c"
+				>
+			</File>
+			<File
+				RelativePath=".\graphic_mad.c"
+				>
+			</File>
+			<File
+				RelativePath=".\graphic_prt.c"
+				>
+			</File>
+			<File
+				RelativePath=".\input.c"
+				>
+			</File>
+			<File
+				RelativePath=".\link.c"
+				>
+			</File>
+			<File
+				RelativePath=".\mad.c"
+				>
+			</File>
+			<File
+				RelativePath=".\Md2.c"
+				>
+			</File>
+			<File
+				RelativePath=".\menu.c"
+				>
+			</File>
+			<File
+				RelativePath=".\mesh.c"
+				>
+			</File>
+			<File
+				RelativePath=".\network.c"
+				>
+			</File>
+			<File
+				RelativePath=".\particle.c"
+				>
+			</File>
+			<File
+				RelativePath=".\passage.c"
+				>
+			</File>
+			<File
+				RelativePath=".\profile.c"
+				>
+			</File>
+			<File
+				RelativePath=".\script.c"
+				>
+			</File>
+			<File
+				RelativePath=".\script_compile.c"
+				>
+			</File>
+			<File
+				RelativePath=".\script_functions.c"
+				>
+			</File>
+			<File
+				RelativePath=".\server.c"
+				>
+			</File>
+			<File
+				RelativePath=".\sound.c"
+				>
+			</File>
+			<File
+				RelativePath=".\texture.c"
+				>
+			</File>
+			<File
+				RelativePath=".\ui.c"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Game Headers"
+			Filter="h;hpp;hxx;hm;inl;inc;xsd"
+			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
+			>
+			<File
+				RelativePath=".\camera.h"
+				>
+			</File>
+			<File
+				RelativePath=".\char.h"
+				>
+			</File>
+			<File
+				RelativePath=".\client.h"
+				>
+			</File>
+			<File
+				RelativePath=".\egoboo.h"
+				>
+			</File>
+			<File
+				RelativePath=".\enchant.h"
+				>
+			</File>
+			<File
+				RelativePath=".\game.h"
+				>
+			</File>
+			<File
+				RelativePath=".\graphic.h"
+				>
+			</File>
+			<File
+				RelativePath=".\input.h"
+				>
+			</File>
+			<File
+				RelativePath=".\link.h"
+				>
+			</File>
+			<File
+				RelativePath=".\mad.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Md2.h"
+				>
+			</File>
+			<File
+				RelativePath=".\menu.h"
+				>
+			</File>
+			<File
+				RelativePath=".\mesh.h"
+				>
+			</File>
+			<File
+				RelativePath=".\network.h"
+				>
+			</File>
+			<File
+				RelativePath=".\particle.h"
+				>
+			</File>
+			<File
+				RelativePath=".\passage.h"
+				>
+			</File>
+			<File
+				RelativePath=".\profile.h"
+				>
+			</File>
+			<File
+				RelativePath=".\script.h"
+				>
+			</File>
+			<File
+				RelativePath=".\script_compile.h"
+				>
+			</File>
+			<File
+				RelativePath=".\script_functions.h"
+				>
+			</File>
+			<File
+				RelativePath=".\server.h"
+				>
+			</File>
+			<File
+				RelativePath=".\sound.h"
+				>
+			</File>
+			<File
+				RelativePath=".\texture.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ui.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Resource Files"
+			>
+			<File
+				RelativePath="..\res\egoboo.ico"
+				>
+			</File>
+			<File
+				RelativePath="..\res\egoboo.rc"
+				>
+			</File>
+			<File
+				RelativePath="..\res\egoboo3.ico"
+				>
+			</File>
+			<File
+				RelativePath="..\res\old-egoboo.ico"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="lua_interface"
+			>
+			<File
+				RelativePath=".\ego.i"
+				>
+			</File>
+			<File
+				RelativePath=".\ego_wrap.c"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\egoboo_console.c"
+				>
+			</File>
+			<File
+				RelativePath=".\egoboo_console.h"
+				>
+			</File>
+			<File
+				RelativePath=".\egoboo_console.inl"
+				>
+			</File>
+			<File
+				RelativePath=".\lua_console.c"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\lua_console.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="SDL extensions"
+			>
+			<File
+				RelativePath=".\extensions\SDL_extensions.c"
+				>
+			</File>
+			<File
+				RelativePath=".\extensions\SDL_extensions.h"
+				>
+			</File>
+			<File
+				RelativePath=".\extensions\SDL_GL_extensions.c"
+				>
+			</File>
+			<File
+				RelativePath=".\extensions\SDL_GL_extensions.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="OpenGL extensions"
+			>
+			<File
+				RelativePath=".\extensions\ogl_debug.c"
+				>
+			</File>
+			<File
+				RelativePath=".\extensions\ogl_debug.h"
+				>
+			</File>
+			<File
+				RelativePath=".\extensions\ogl_extensions.c"
+				>
+			</File>
+			<File
+				RelativePath=".\extensions\ogl_extensions.h"
+				>
+			</File>
+			<File
+				RelativePath=".\extensions\ogl_include.c"
+				>
+			</File>
+			<File
+				RelativePath=".\extensions\ogl_include.h"
+				>
+			</File>
+			<File
+				RelativePath=".\extensions\ogl_texture.c"
+				>
+			</File>
+			<File
+				RelativePath=".\extensions\ogl_texture.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Core Source"
+			>
+			<File
 				RelativePath=".\clock.c"
-				>
-			</File>
-			<File
-				RelativePath=".\configfile.c"
-				>
-			</File>
-			<File
-				RelativePath=".\controls.c"
 				>
 			</File>
 			<File
@@ -255,191 +581,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\egoboo_vfs.c"
-				>
-			</File>
-			<File
-				RelativePath=".\enchant.c"
-				>
-			</File>
-			<File
-				RelativePath=".\eve_file.c"
-				>
-			</File>
-			<File
-				RelativePath=".\file_common.c"
-				>
-			</File>
-			<File
-				RelativePath=".\file_linux.c"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\file_win.c"
-				>
-			</File>
-			<File
 				RelativePath=".\font.c"
 				>
 			</File>
 			<File
-				RelativePath=".\game.c"
-				>
-			</File>
-			<File
-				RelativePath=".\graphic.c"
-				>
-			</File>
-			<File
-				RelativePath=".\graphic_fan.c"
-				>
-			</File>
-			<File
-				RelativePath=".\graphic_mad.c"
-				>
-			</File>
-			<File
-				RelativePath=".\graphic_prt.c"
-				>
-			</File>
-			<File
-				RelativePath=".\id_md2.c"
-				>
-			</File>
-			<File
-				RelativePath=".\input.c"
-				>
-			</File>
-			<File
-				RelativePath=".\link.c"
-				>
-			</File>
-			<File
 				RelativePath=".\log.c"
-				>
-			</File>
-			<File
-				RelativePath=".\mad.c"
-				>
-			</File>
-			<File
-				RelativePath=".\Md2.c"
-				>
-			</File>
-			<File
-				RelativePath=".\menu.c"
-				>
-			</File>
-			<File
-				RelativePath=".\mesh.c"
-				>
-			</File>
-			<File
-				RelativePath=".\module_file.c"
-				>
-			</File>
-			<File
-				RelativePath=".\mpd_file.c"
-				>
-			</File>
-			<File
-				RelativePath=".\network.c"
-				>
-			</File>
-			<File
-				RelativePath=".\ogl_debug.c"
-				>
-			</File>
-			<File
-				RelativePath=".\ogl_extensions.c"
-				>
-			</File>
-			<File
-				RelativePath=".\ogl_include.c"
-				>
-			</File>
-			<File
-				RelativePath=".\ogl_texture.c"
-				>
-			</File>
-			<File
-				RelativePath=".\particle.c"
-				>
-			</File>
-			<File
-				RelativePath=".\passage.c"
-				>
-			</File>
-			<File
-				RelativePath=".\passage_file.c"
-				>
-			</File>
-			<File
-				RelativePath=".\pip_file.c"
-				>
-			</File>
-			<File
-				RelativePath=".\profile.c"
-				>
-			</File>
-			<File
-				RelativePath=".\quest.c"
-				>
-			</File>
-			<File
-				RelativePath=".\scancode_file.c"
-				>
-			</File>
-			<File
-				RelativePath=".\script.c"
-				>
-			</File>
-			<File
-				RelativePath=".\script_compile.c"
-				>
-			</File>
-			<File
-				RelativePath=".\script_functions.c"
-				>
-			</File>
-			<File
-				RelativePath=".\SDL_extensions.c"
-				>
-			</File>
-			<File
-				RelativePath=".\SDL_GL_extensions.c"
-				>
-			</File>
-			<File
-				RelativePath=".\SDL_md2.c"
-				>
-			</File>
-			<File
-				RelativePath=".\server.c"
-				>
-			</File>
-			<File
-				RelativePath=".\sound.c"
-				>
-			</File>
-			<File
-				RelativePath=".\spawn_file.c"
 				>
 			</File>
 			<File
@@ -486,58 +632,12 @@
 				RelativePath=".\sys_win32.c"
 				>
 			</File>
-			<File
-				RelativePath=".\template.c"
-				>
-			</File>
-			<File
-				RelativePath=".\texture.c"
-				>
-			</File>
-			<File
-				RelativePath=".\ui.c"
-				>
-			</File>
-			<File
-				RelativePath=".\wawalite.c"
-				>
-			</File>
 		</Filter>
 		<Filter
-			Name="Header Files"
-			Filter="h;hpp;hxx;hm;inl;inc;xsd"
-			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
+			Name="Core Headers"
 			>
 			<File
-				RelativePath=".\camera.h"
-				>
-			</File>
-			<File
-				RelativePath=".\cap_file.h"
-				>
-			</File>
-			<File
-				RelativePath=".\char.h"
-				>
-			</File>
-			<File
-				RelativePath=".\client.h"
-				>
-			</File>
-			<File
 				RelativePath=".\clock.h"
-				>
-			</File>
-			<File
-				RelativePath=".\configfile.h"
-				>
-			</File>
-			<File
-				RelativePath=".\controls.h"
-				>
-			</File>
-			<File
-				RelativePath=".\egoboo.h"
 				>
 			</File>
 			<File
@@ -573,47 +673,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\egoboo_vfs.h"
-				>
-			</File>
-			<File
-				RelativePath=".\enchant.h"
-				>
-			</File>
-			<File
-				RelativePath=".\eve_file.h"
-				>
-			</File>
-			<File
-				RelativePath=".\file_common.h"
-				>
-			</File>
-			<File
 				RelativePath=".\font.h"
-				>
-			</File>
-			<File
-				RelativePath=".\game.h"
-				>
-			</File>
-			<File
-				RelativePath=".\graphic.h"
-				>
-			</File>
-			<File
-				RelativePath=".\id_md2.h"
-				>
-			</File>
-			<File
-				RelativePath=".\id_normals.inl"
-				>
-			</File>
-			<File
-				RelativePath=".\input.h"
-				>
-			</File>
-			<File
-				RelativePath=".\link.h"
 				>
 			</File>
 			<File
@@ -621,163 +681,39 @@
 				>
 			</File>
 			<File
-				RelativePath=".\mad.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Md2.h"
-				>
-			</File>
-			<File
-				RelativePath=".\menu.h"
-				>
-			</File>
-			<File
-				RelativePath=".\mesh.h"
-				>
-			</File>
-			<File
-				RelativePath=".\module_file.h"
-				>
-			</File>
-			<File
-				RelativePath=".\mpd.h"
-				>
-			</File>
-			<File
-				RelativePath=".\mpd_file.h"
-				>
-			</File>
-			<File
-				RelativePath=".\network.h"
-				>
-			</File>
-			<File
-				RelativePath=".\ogl_debug.h"
-				>
-			</File>
-			<File
-				RelativePath=".\ogl_extensions.h"
-				>
-			</File>
-			<File
-				RelativePath=".\ogl_include.h"
-				>
-			</File>
-			<File
-				RelativePath=".\ogl_texture.h"
-				>
-			</File>
-			<File
-				RelativePath=".\particle.h"
-				>
-			</File>
-			<File
-				RelativePath=".\passage.h"
-				>
-			</File>
-			<File
-				RelativePath=".\passage_file.h"
-				>
-			</File>
-			<File
-				RelativePath=".\pip_file.h"
-				>
-			</File>
-			<File
-				RelativePath=".\profile.h"
-				>
-			</File>
-			<File
-				RelativePath=".\quest.h"
-				>
-			</File>
-			<File
-				RelativePath=".\scancode_file.h"
-				>
-			</File>
-			<File
-				RelativePath=".\script.h"
-				>
-			</File>
-			<File
-				RelativePath=".\script_compile.h"
-				>
-			</File>
-			<File
-				RelativePath=".\script_functions.h"
-				>
-			</File>
-			<File
-				RelativePath=".\SDL_extensions.h"
-				>
-			</File>
-			<File
-				RelativePath=".\SDL_GL_extensions.h"
-				>
-			</File>
-			<File
-				RelativePath=".\SDL_md2.h"
-				>
-			</File>
-			<File
-				RelativePath=".\server.h"
-				>
-			</File>
-			<File
-				RelativePath=".\sound.h"
-				>
-			</File>
-			<File
-				RelativePath=".\spawn_file.h"
-				>
-			</File>
-			<File
 				RelativePath=".\system.h"
 				>
 			</File>
-			<File
-				RelativePath=".\template.h"
-				>
-			</File>
-			<File
-				RelativePath=".\texture.h"
-				>
-			</File>
-			<File
-				RelativePath=".\ui.h"
-				>
-			</File>
-			<File
-				RelativePath=".\wawalite.h"
-				>
-			</File>
 		</Filter>
 		<Filter
-			Name="Resource Files"
+			Name="File System"
 			>
 			<File
-				RelativePath="..\res\egoboo.ico"
+				RelativePath=".\egoboo_vfs.c"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						GeneratePreprocessedFile="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\egoboo_vfs.h"
 				>
 			</File>
 			<File
-				RelativePath="..\res\egoboo.rc"
+				RelativePath=".\file_common.c"
 				>
 			</File>
 			<File
-				RelativePath="..\res\egoboo3.ico"
+				RelativePath=".\file_common.h"
 				>
 			</File>
 			<File
-				RelativePath="..\res\old-egoboo.ico"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="Obsolete"
-			>
-			<File
-				RelativePath=".\gltexture.c"
+				RelativePath=".\file_linux.c"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -797,9 +733,193 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\gltexture.h"
+				RelativePath=".\file_win.c"
 				>
 			</File>
+			<Filter
+				Name="file formats"
+				>
+				<Filter
+					Name="tris.md2"
+					>
+					<File
+						RelativePath=".\file_formats\id_md2.c"
+						>
+					</File>
+					<File
+						RelativePath=".\file_formats\id_md2.h"
+						>
+					</File>
+					<File
+						RelativePath=".\file_formats\id_normals.inl"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="level.mpd"
+					>
+					<File
+						RelativePath=".\file_formats\mpd_file.c"
+						>
+					</File>
+					<File
+						RelativePath=".\file_formats\mpd_file.h"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="menu.txt"
+					>
+					<File
+						RelativePath=".\file_formats\module_file.c"
+						>
+					</File>
+					<File
+						RelativePath=".\file_formats\module_file.h"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="naming.txt"
+					>
+				</Filter>
+				<Filter
+					Name="data.txt"
+					>
+					<File
+						RelativePath=".\file_formats\cap_file.c"
+						>
+					</File>
+					<File
+						RelativePath=".\file_formats\cap_file.h"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="enchant.txt"
+					>
+					<File
+						RelativePath=".\file_formats\eve_file.c"
+						>
+					</File>
+					<File
+						RelativePath=".\file_formats\eve_file.h"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="partX.txt"
+					>
+					<File
+						RelativePath=".\file_formats\pip_file.c"
+						>
+					</File>
+					<File
+						RelativePath=".\file_formats\pip_file.h"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="passage.txt"
+					>
+					<File
+						RelativePath=".\file_formats\passage_file.c"
+						>
+					</File>
+					<File
+						RelativePath=".\file_formats\passage_file.h"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="controls.txt"
+					>
+					<File
+						RelativePath=".\file_formats\controls_file.c"
+						>
+					</File>
+					<File
+						RelativePath=".\file_formats\controls_file.h"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="quest.txt"
+					>
+					<File
+						RelativePath=".\quest.c"
+						>
+					</File>
+					<File
+						RelativePath=".\quest.h"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="template"
+					>
+					<File
+						RelativePath=".\file_formats\template.c"
+						>
+					</File>
+					<File
+						RelativePath=".\file_formats\template.h"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="settings.txt"
+					>
+					<File
+						RelativePath=".\file_formats\configfile.c"
+						>
+					</File>
+					<File
+						RelativePath=".\file_formats\configfile.h"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="wawalite.txt"
+					>
+					<File
+						RelativePath=".\file_formats\wawalite_file.c"
+						>
+					</File>
+					<File
+						RelativePath=".\file_formats\wawalite_file.h"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="spawn.txt"
+					>
+					<File
+						RelativePath=".\file_formats\spawn_file.c"
+						>
+					</File>
+					<File
+						RelativePath=".\file_formats\spawn_file.h"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="scancodes.txt"
+					>
+					<File
+						RelativePath=".\file_formats\scancode_file.c"
+						>
+					</File>
+					<File
+						RelativePath=".\file_formats\scancode_file.h"
+						>
+					</File>
+				</Filter>
+			</Filter>
+		</Filter>
+		<Filter
+			Name="Obsolete"
+			>
 			<File
 				RelativePath=".\MainLoop.c"
 				>
@@ -939,62 +1059,6 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
-			</File>
-		</Filter>
-		<Filter
-			Name="lua_interface"
-			>
-			<File
-				RelativePath=".\ego.i"
-				>
-			</File>
-			<File
-				RelativePath=".\ego_wrap.c"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						DisableSpecificWarnings="4127"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\egoboo_console.c"
-				>
-			</File>
-			<File
-				RelativePath=".\egoboo_console.h"
-				>
-			</File>
-			<File
-				RelativePath=".\egoboo_console.inl"
-				>
-			</File>
-			<File
-				RelativePath=".\lua_console.c"
-				>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\lua_console.h"
-				>
 			</File>
 		</Filter>
 	</Files>

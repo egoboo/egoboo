@@ -2,7 +2,7 @@
 //LEVEL   ABILLITY
 //1     - Backstab, Disarm Traps, Poison Use, Acrobatics
 //2     - Stealth (Standing still)
-//3     - n/a
+//3     - Mobility
 //4     - Sneak (Can move 1 step at the time while stealthing)
 //5     - Listen
 //6     - Stalker (Can sneak while stealthing)
@@ -12,13 +12,59 @@
 //10    - Shade (Move and jump while stealthed)
 //11    - n/a
 //12    - n/a
-//13    - Walk in Plain Sight
+//13    - Hide in Plain Sight
+//14    - n/a
+//15    - n/a
+//16    - Deadly Strike
+//17    - n/a
+//18    - n/a
+//19    - n/a
+//20    - n/a
 //-----------------------------------------------------------------------------
 //Reset
 IfSpawned
   tmpargument = 0
   SetState
   SetContent
+  
+//-----------------------------------------------------------------------------
+//Auto jump over corpses (Mobility skill)
+tmpx = selflevel
+tmpy = 2          //Need level 3
+IfXIsLessThanY
+  DoNothing
+Else
+  IfBumped
+    SetTargetToWhoeverBumped
+    IfTargetIsAlive
+      DoNothing
+    Else
+      tmpargument = LATCHJUMP
+      PressLatchButton
+
+//-----------------------------------------------------------------------------
+//Deadly Strike skill
+IfScoredAHit
+  IfInvisible           //Only if hidden
+    tmpx = selflevel
+    tmpy = 14           //Level 16 or higher
+    IfXIsMoreThanY
+      SetTargetToWhoeverWasHit
+      IfTargetCanSeeInvisible
+        DoNothing               //No good if they can see us
+      Else
+        tmpargument = [UNDE]
+        IfTargetHasID
+          DoNothing             //Undead are immune to this
+        Else
+          tmpargument = selfdex >> 6    //+1 damage for every 4 DEX
+          DamageTarget
+          
+          //Sound and message
+          tmpargument = 8
+          SendMessageNear
+          tmpargument = 13
+          PlaySound
 
 //-----------------------------------------------------------------------------
 //Listen skill

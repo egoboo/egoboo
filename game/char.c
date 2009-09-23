@@ -2506,7 +2506,7 @@ void give_experience( Uint16 character, int amount, Uint8 xptype, bool_t overrid
     if ( !pchr->invictus || override_invictus )
     {
         float intadd = (FP8_TO_INT(pchr->intelligence) - 10.0f) / 200.0f;
-        float wisadd = (FP8_TO_INT(pchr->wisdom) - 10.0f)       / 400.0f;
+        float wisadd = (FP8_TO_INT(pchr->wisdom)       - 10.0f) / 400.0f;
 
         // Figure out how much experience to give
         newamount = amount;
@@ -2519,7 +2519,8 @@ void give_experience( Uint16 character, int amount, Uint8 xptype, bool_t overrid
         newamount *= 1.00f + intadd + wisadd;
 
         // Apply XP bonus/penality depending on game difficulty
-        if ( cfg.difficulty >= GAME_HARD ) newamount *= 1.10f;          // 10% extra on hard
+        if ( cfg.difficulty >= GAME_HARD ) newamount *= 1.20f;				// 20% extra on hard
+        else if ( cfg.difficulty >= GAME_NORMAL ) newamount *= 1.10f;       // 10% extra on normal
 
         pchr->experience += newamount;
     }
@@ -3174,10 +3175,10 @@ void damage_character( Uint16 character, Uint16 direction,
             // Only actual_damage if not invincible
             if ( (0 == pchr->damagetime || ignoreinvincible) && !pchr->invictus )
             {
-                // Hard mode deals 25% extra actual_damage to players!
+                // Hard mode deals 25% extra actual damage to players!
                 if ( cfg.difficulty >= GAME_HARD && pchr->isplayer && !ChrList.lst[attacker].isplayer ) actual_damage *= 1.25f;
 
-                // East mode deals 25% extra actual_damage by players and 25% less to players
+                // Easy mode deals 25% extra actual damage by players and 25% less to players
                 if ( cfg.difficulty <= GAME_EASY )
                 {
                     if ( ChrList.lst[attacker].isplayer && !pchr->isplayer ) actual_damage *= 1.25f;

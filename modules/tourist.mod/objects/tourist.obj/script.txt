@@ -23,7 +23,23 @@ tmpy = 6            //Need level 8
 IfXIsMoreThanY
   ShowMap
   ShowYouAreHere
- 
+  
+//-------------------------------------------
+//To Silly To Die skill
+IfKilled
+  tmpx = selflevel
+  tmpy = 8            //Need level 10
+  IfXIsMoreThanY
+    tmpx = rand % 100
+    tmpy = selflevel          //% chance equal to level
+    IfXIsLessThanY
+      SetTargetToSelf
+      RespawnTarget
+      tmpargument = 1
+      SendMessage
+      tmpargument = 11
+      PlayFullSound
+      
 //-----------------------------------------------------------------------------
 //Invoke Lucky skill if enough xp gained
 SetTargetToSelf
