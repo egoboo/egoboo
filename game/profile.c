@@ -1078,4 +1078,3 @@ void reset_messages()
 
     message_buffer[0] = '\0';
 }
-
