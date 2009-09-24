@@ -2745,3 +2745,248 @@ void input_net_message()
     }
   */
 }
+
+
+
+
+//--------------------------------------------------------------------------------------------
+Uint16 get_target_in_block( int x, int y, Uint16 character, char items,
+                            char friends, char enemies, char dead, char seeinvisible, IDSZ idsz,
+                            char excludeid )
+{
+  // ZZ> This is a good little helper, that returns != MAX_CHR if a suitable target
+  //    was found
+  int cnt;
+  Uint16 charb;
+  Uint32 fanblock;
+  Uint8 team;
+  if ( x >= 0 && x < meshbloksx && y >= 0 && y < meshbloksy )
+  {
+    team = chr_get_iteam(character);
+    fanblock = mesh_get_block_int(PMesh, x,y);
+    charb = bumplist[fanblock].chr;
+    cnt = 0;
+    while ( cnt < bumplist[fanblock].chrnum )
+    {
+      if ( dead != ChrList.lst[charb].alive && ( seeinvisible || FF_MUL( chr_get_pinstance(charb)->alpha, chr_get_pinstance(charb)->max_light ) > INVISIBLE ) ) )
+      {
+        if ( ( enemies && TeamList[team].hatesteam[chr_get_iteam(charb)] && !ChrList.lst[charb].invictus ) ||
+             ( items && ChrList.lst[charb].isitem ) ||
+             ( friends && ChrList.lst[charb].baseteam == team ) )
+        {
+          if ( charb != character && ChrList.lst[character].attachedto != charb )
+          {
+            if ( !ChrList.lst[charb].isitem || items )
+            {
+              if ( idsz != IDSZ_NONE )
+              {
+                if ( chr_get_idsz(charb,IDSZ_PARENT) == idsz ||
+                     chr_get_idsz(charb,IDSZ_TYPE) == idsz )
+                {
+                  if ( !excludeid ) return charb;
+                }
+                else
+                {
+                  if ( excludeid )  return charb;
+                }
+              }
+              else
+              {
+                return charb;
+              }
+            }
+          }
+        }
+      }
+      charb = ChrList.lst[charb].fanblock_next;
+      cnt++;
+    }
+  }
+  return MAX_CHR;
+}
+
+//--------------------------------------------------------------------------------------------
+Uint16 get_nearby_target( Uint16 character, char items,
+                          char friends, char enemies, char dead, IDSZ idsz )
+{
+  // ZZ> This function finds a nearby target, or it returns MAX_CHR if it can't find one
+  int x, y;
+  char seeinvisible;
+  seeinvisible = ChrList.lst[character].canseeinvisible;
+
+  // Current fanblock
+  x = ( ( int )ChrList.lst[character].pos.x ) >> BLOCK_BITS;
+  y = ( ( int )ChrList.lst[character].pos.y ) >> BLOCK_BITS;
+  return get_target_in_block( x, y, character, items, friends, enemies, dead, seeinvisible, idsz, 0 );
+}
+
+//--------------------------------------------------------------------------------------------
+Uint16 find_distant_target( Uint16 character, int maxdistance )
+{
+  // ZZ> This function finds a target, or it returns MAX_CHR if it can't find one...
+  //    maxdistance should be the square of the actual distance you want to use
+  //    as the cutoff...
+  int cnt, distance, xdistance, ydistance;
+  Uint8 team;
+
+  team = chr_get_iteam(character);
+  cnt = 0;
+  while ( cnt < MAX_CHR )
+  {
+    if ( ChrList.lst[cnt].on )
+    {
+      if ( ChrList.lst[cnt].attachedto == MAX_CHR && !ChrList.lst[cnt].pack_ispacked )
+      {
+        if ( TeamList[team].hatesteam[chr_get_iteam(cnt)] && ChrList.lst[cnt].alive && !ChrList.lst[cnt].invictus )
+        {
+          if ( ChrList.lst[character].canseeinvisible || FF_MUL( chr_get_pinstance(cnt)->alpha, chr_get_pinstance(cnt)->max_light ) > INVISIBLE ) )
+          {
+            xdistance = (int) (ChrList.lst[cnt].pos.x - ChrList.lst[character].pos.x);
+            ydistance = (int) (ChrList.lst[cnt].pos.y - ChrList.lst[character].pos.y);
+            distance = xdistance * xdistance + ydistance * ydistance;
+            if ( distance < maxdistance )
+            {
+              return cnt;
+            }
+          }
+        }
+      }
+    }
+    cnt++;
+  }
+  return MAX_CHR;
+}
+
+//--------------------------------------------------------------------------------------------
+void get_nearest_in_block( int x, int y, Uint16 character, char items,
+                           char friends, char enemies, char dead, char seeinvisible, IDSZ idsz )
+{
+  // ZZ> This is a good little helper
+  float distance, xdis, ydis;
+  int cnt;
+  Uint8 team;
+  Uint16 charb;
+  Uint32 fanblock;
+  if ( x >= 0 && x < meshbloksx && y >= 0 && y < meshbloksy )
+  {
+    team = chr_get_iteam(character);
+    fanblock = mesh_get_block_int(PMesh, x,y);
+    charb = bumplist[fanblock].chr;
+    cnt = 0;
+    while ( cnt < bumplist[fanblock].chrnum )
+    {
+      if ( dead != ChrList.lst[charb].alive && ( seeinvisible || FF_MUL( chr_get_pinstance(charb)->alpha, chr_get_pinstance(charb)->max_light ) > INVISIBLE ) ) )
+      {
+        if ( ( enemies && TeamList[team].hatesteam[chr_get_iteam(charb)] ) ||
+             ( items && ChrList.lst[charb].isitem ) ||
+             ( friends && chr_get_iteam(charb) == team ) ||
+             ( friends && enemies ) )
+        {
+          if ( charb != character && ChrList.lst[character].attachedto != charb && ChrList.lst[charb].attachedto == MAX_CHR && !ChrList.lst[charb].pack_ispacked )
+          {
+            if ( !ChrList.lst[charb].invictus || items )
+            {
+              if ( idsz != IDSZ_NONE )
+              {
+                if ( chr_get_idsz(charb,IDSZ_PARENT) == idsz ||
+                     chr_get_idsz(charb,IDSZ_TYPE) == idsz )
+                {
+                  xdis = ChrList.lst[character].pos.x - ChrList.lst[charb].pos.x;
+                  ydis = ChrList.lst[character].pos.y - ChrList.lst[charb].pos.y;
+                  xdis = xdis * xdis;
+                  ydis = ydis * ydis;
+                  distance = xdis + ydis;
+                  if ( distance < globaldistance )
+                  {
+                    globalnearest = charb;
+                    globaldistance = distance;
+                  }
+                }
+              }
+              else
+              {
+                xdis = ChrList.lst[character].pos.x - ChrList.lst[charb].pos.x;
+                ydis = ChrList.lst[character].pos.y - ChrList.lst[charb].pos.y;
+                xdis = xdis * xdis;
+                ydis = ydis * ydis;
+                distance = xdis + ydis;
+                if ( distance < globaldistance )
+                {
+                  globalnearest = charb;
+                  globaldistance = distance;
+                }
+              }
+            }
+          }
+        }
+      }
+      charb = ChrList.lst[charb].fanblock_next;
+      cnt++;
+    }
+  }
+  return;
+}
+
+//--------------------------------------------------------------------------------------------
+Uint16 get_nearest_target( Uint16 character, char items,
+                           char friends, char enemies, char dead, IDSZ idsz )
+{
+  // ZZ> This function finds a target, or it returns MAX_CHR if it can't find one
+  int x, y;
+  char seeinvisible;
+  seeinvisible = ChrList.lst[character].canseeinvisible;
+
+  // Current fanblock
+  x = ( ( int )ChrList.lst[character].pos.x ) >> BLOCK_BITS;
+  y = ( ( int )ChrList.lst[character].pos.y ) >> BLOCK_BITS;
+
+  globalnearest = MAX_CHR;
+  globaldistance = 999999;
+  get_nearest_in_block( x, y, character, items, friends, enemies, dead, seeinvisible, idsz );
+
+  get_nearest_in_block( x - 1, y, character, items, friends, enemies, dead, seeinvisible, idsz );
+  get_nearest_in_block( x + 1, y, character, items, friends, enemies, dead, seeinvisible, idsz );
+  get_nearest_in_block( x, y - 1, character, items, friends, enemies, dead, seeinvisible, idsz );
+  get_nearest_in_block( x, y + 1, character, items, friends, enemies, dead, seeinvisible, idsz );
+
+  get_nearest_in_block( x - 1, y + 1, character, items, friends, enemies, dead, seeinvisible, idsz );
+  get_nearest_in_block( x + 1, y - 1, character, items, friends, enemies, dead, seeinvisible, idsz );
+  get_nearest_in_block( x - 1, y - 1, character, items, friends, enemies, dead, seeinvisible, idsz );
+  get_nearest_in_block( x + 1, y + 1, character, items, friends, enemies, dead, seeinvisible, idsz );
+  return globalnearest;
+}
+
+//--------------------------------------------------------------------------------------------
+Uint16 get_wide_target( Uint16 character, char items,
+                        char friends, char enemies, char dead, IDSZ idsz, char excludeid )
+{
+  // ZZ> This function finds a target, or it returns MAX_CHR if it can't find one
+  int x, y;
+  Uint16 enemy;
+  char seeinvisible;
+  seeinvisible = ChrList.lst[character].canseeinvisible;
+
+  // Current fanblock
+  x = ( ( int )ChrList.lst[character].pos.x ) >> BLOCK_BITS;
+  y = ( ( int )ChrList.lst[character].pos.y ) >> BLOCK_BITS;
+  enemy = get_target_in_block( x, y, character, items, friends, enemies, dead, seeinvisible, idsz, excludeid );
+  if ( enemy != MAX_CHR )  return enemy;
+
+  enemy = get_target_in_block( x - 1, y, character, items, friends, enemies, dead, seeinvisible, idsz, excludeid );
+  if ( enemy != MAX_CHR )  return enemy;
+  enemy = get_target_in_block( x + 1, y, character, items, friends, enemies, dead, seeinvisible, idsz, excludeid );
+  if ( enemy != MAX_CHR )  return enemy;
+  enemy = get_target_in_block( x, y - 1, character, items, friends, enemies, dead, seeinvisible, idsz, excludeid );
+  if ( enemy != MAX_CHR )  return enemy;
+  enemy = get_target_in_block( x, y + 1, character, items, friends, enemies, dead, seeinvisible, idsz, excludeid );
+  if ( enemy != MAX_CHR )  return enemy;
+
+  enemy = get_target_in_block( x - 1, y + 1, character, items, friends, enemies, dead, seeinvisible, idsz, excludeid );
+  if ( enemy != MAX_CHR )  return enemy;
+  enemy = get_target_in_block( x + 1, y - 1, character, items, friends, enemies, dead, seeinvisible, idsz, excludeid );
+  if ( enemy != MAX_CHR )  return enemy;
+  enemy = get_target_in_block( x - 1, y - 1, character, items, friends, enemies, dead, seeinvisible, idsz, excludeid );
+  if ( enemy != MAX_CHR )  return enemy;
+  enemy = get_target_in_block( x + 1, y + 1, character, items, friends, enemies, dead, seeinvisible, idsz, excludeid );
+  return enemy;
+}

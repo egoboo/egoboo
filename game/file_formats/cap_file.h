@@ -169,7 +169,7 @@ struct s_cap
     Uint8        skindressy;                         // Dressy
 
     // overrides
-    Sint8        skinoverride;                  // -1 or 0-3.. For import
+    int          skinoverride;                  // -1 or 0-3.. For import
     Uint8        leveloverride;                 // 0 for normal
     int          stateoverride;                 // 0 for normal
     int          contentoverride;               // 0 for normal
@@ -259,7 +259,7 @@ struct s_cap
     Sint8        soundindex[SOUND_COUNT];       // a map for soundX.wav to sound types
 
     // flags
-    bool_t       is_spelleffect;                // is the object that a spellbook generates
+    int          spelleffect_type;              // is the object that a spellbook generates
     bool_t       isitem;                        // Is it an item?
     bool_t       invictus;                      // Is it invincible?
     bool_t       ismount;                       // Can you ride it?

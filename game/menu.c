@@ -164,8 +164,6 @@ static void TxTitleImage_clear_data();
 
 static void mnu_release_one_module( int imod );
 
-char* describe_stat(int value_high);
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // the module data that the menu system needs
@@ -950,6 +948,15 @@ bool_t doChoosePlayer_load_profiles( int player, ChoosePlayer_profiles_t * prof 
     int    i, ref_temp;
     STRING szFilename;
 
+    // release all of the temporary profiles
+    release_all_profiles();
+    overrideslots = btrue;
+
+    if( 0 == bookicon_count )
+    {
+        load_one_profile( "basicdat" SLASH_STR "book.obj", SPELLBOOK );
+    }
+
     // release any data that we have accumulated
     for( i=0; i<prof->count; i++)
     {
@@ -960,10 +967,6 @@ bool_t doChoosePlayer_load_profiles( int player, ChoosePlayer_profiles_t * prof 
     prof->count = 0;
 
     if ( player < 0 || player >= MAXLOADPLAYER || player >= loadplayer_count ) return bfalse;
-
-    // release all of the temporary profiles
-    release_all_profiles();
-    overrideslots = btrue;
 
     // grab the player data
     ref_temp = load_one_character_profile( loadplayer[player].dir, 0, bfalse );
@@ -1091,13 +1094,16 @@ bool_t doChoosePlayer_show_stats( int player, int mode, int x, int y, int width,
 
                     if ( VALID_CAP(icap) )
                     {
+                        Uint32  icon_ref;
                         cap_t * pcap = CapList + icap;
 
                         STRING itemname;
                         if ( pcap->nameknown ) strncpy(itemname, chop_create(icap), SDL_arraysize(itemname));
                         else                   strncpy(itemname, pcap->classname,   SDL_arraysize(itemname));
 
-                        draw_one_icon( objects.tx_ref[i], x1, y1, NOSPARKLE );
+                        icon_ref = mnu_get_icon_ref( icap, objects.tx_ref[i], btrue );
+
+                        draw_one_icon( icon_ref, x1, y1, NOSPARKLE );
 
                         if     ( i == SLOT_LEFT + 1  )
                         {
@@ -3850,7 +3856,7 @@ void check_player_import( const char *dirname, bool_t initialize )
     {
         // restart from nothing
         loadplayer_count = 0;
-        release_all_object_textures();
+        release_all_profile_textures();
     };
 
     // Search for all objects
@@ -4129,25 +4135,52 @@ void mnu_load_all_module_info()
 }
 
 //--------------------------------------------------------------------------------------------
-char* describe_stat(int value)
+Uint32 mnu_get_icon_ref( Uint16 icap, Uint32 default_ref, bool_t draw_icon )
 {
-	//ZF> This converts a stat number into a more descriptive word
-	char* retval = "None";
-    value = FP8_TO_INT(value);
-	
-	if     ( value >= 50 )	strcpy(retval, "Godlike!");
-	else if( value >= 40 )	strcpy(retval, "Ultimate");
-	else if( value >= 34 )	strcpy(retval, "Epic");
-	else if( value >= 30 )	strcpy(retval, "Powerful");
-	else if( value >= 26 )	strcpy(retval, "Heroic");
-	else if( value >= 22 )	strcpy(retval, "Very High");
-	else if( value >= 18 )	strcpy(retval, "High");
-	else if( value >= 14 )	strcpy(retval, "Good");
-	else if( value >= 10 )	strcpy(retval, "Average");
-	else if( value >= 7  )	strcpy(retval, "Pretty Low");
-	else if( value >= 4  )	strcpy(retval, "Bad");
-	else if( value >= 1  )	strcpy(retval, "Terrible");
-	else					strcpy(retval, "None");
-	
-	return retval;
+    // BB> This function gets the proper icon for a an object profile.
+    //
+    //     In the character preview section of the menu system, we do not load
+    //     entire profiles, just the character definition file ("data.txt")
+    //     and one icon. Sometimes, though the item is actually a spell effect which means
+    //     that we need to display the book icon.
+
+    Uint32 icon_ref = ICON_NULL;
+    bool_t is_spell_fx, is_book, draw_book;
+
+    cap_t * pitem_cap;
+
+    if( INVALID_CAP(icap) ) return icon_ref;
+    pitem_cap = CapList + icap;
+
+    // what do we need to draw?
+    is_spell_fx = pitem_cap->spelleffect_type > 0;
+    is_book     = (SPELLBOOK == icap);
+    draw_book   = (is_book || is_spell_fx) && (bookicon_count > 0);
+   
+    if ( !draw_book )
+    {
+        icon_ref = default_ref;
+    }
+    else if ( draw_book )
+    {
+        int iskin = 0;
+
+        if ( pitem_cap->spelleffect_type > 0 )
+        {
+            iskin = pitem_cap->spelleffect_type;
+        }
+        else if ( pitem_cap->skinoverride > 0 )
+        {
+            iskin = pitem_cap->skinoverride;
+        }
+
+        iskin = CLIP(iskin, 0, bookicon_count);
+
+        icon_ref = bookicon_ref[ iskin ];
+    }
+
+    return icon_ref;
 }
+
+
+

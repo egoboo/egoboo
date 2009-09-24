@@ -406,11 +406,6 @@ ego_process_t      * ego_process_init ( ego_process_t  * eproc, int argc, char *
 menu_process_t     * menu_process_init( menu_process_t * mproc );
 game_process_t     * game_process_init( game_process_t * gproc );
 
-void init_all_profiles();
-void release_all_profiles();
-
-void reset_players();
-
 void expand_escape_codes( Uint16 ichr, struct s_script_state * pstate, char * src, char * src_end, char * dst, char * dst_end );
 
 void upload_wawalite();

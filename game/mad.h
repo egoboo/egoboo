@@ -178,18 +178,15 @@ extern mad_t   MadList[MAX_PROFILE];
 #define INVALID_MAD( IMAD )     ( !VALID_MAD_RANGE( IMAD ) || !MadList[IMAD].loaded )
 
 //--------------------------------------------------------------------------------------------
-// Message files
-
-DEFINE_STACK_EXTERN(int, MessageOffset, MAXTOTALMESSAGE);
-
-extern Uint32          message_buffer_carat;                                  // Where to put letter
-extern char            message_buffer[MESSAGEBUFFERSIZE];                     // The text buffer
-
-//--------------------------------------------------------------------------------------------
 extern char            cFrameName[16];                                     // MD2 Frame Name
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
+void   init_all_mad();
+void   release_all_mad();
+bool_t release_one_mad( Uint16 imad );
+Uint16 load_one_model_profile( const char* tmploadname, Uint16 object );
 
 Uint16 test_frame_name( char letter );
 
@@ -205,10 +202,3 @@ void   mad_get_walk_frame( Uint16 object, int lip, int action );
 void   mad_make_equally_lit( int model );
 void   mad_make_framelip( Uint16 object, int action );
 void   mad_rip_actions( Uint16 object );
-
-//void   log_objused( const char *savename );
-
-//int load_model_data( const char * filename, int imad, int skin_stt  );
-
-Uint16 load_one_model_profile( const char* tmploadname, Uint16 object );
-bool_t release_one_mad( Uint16 imad );

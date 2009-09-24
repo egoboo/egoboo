@@ -1911,3 +1911,19 @@ chr_t  * pla_get_pchr( Uint16 iplayer )
 
     return ChrList.lst + pplayer->index;
 }
+
+//--------------------------------------------------------------------------------------------
+void net_reset_players()
+{
+    int cnt;
+
+    // Reset the initial player data and latches
+    for ( cnt = 0; cnt < MAXPLAYER; cnt++ )
+    {
+        memset( PlaList + cnt, 0, sizeof(player_t) );
+    }
+    PlaList_count        = 0;
+
+    nexttimestamp = ((Uint32)~0);
+    numplatimes   = 0;
+}

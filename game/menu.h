@@ -114,4 +114,7 @@ int    mnu_get_mod_number( const char *szModName );
 bool_t mnu_test_by_name( const char *szModName );
 bool_t mnu_test_by_index( int modnumber );
 
+Uint32 mnu_get_icon_ref( Uint16 icap, Uint32 default_ref, bool_t draw_icon );
+
 #define egoboo_Menu_h
+

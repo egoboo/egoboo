@@ -410,7 +410,10 @@
 				RelativePath=".\egoboo_typedef.c">
 			</File>
 			<File
-				RelativePath=".\font.c">
+				RelativePath=".\font_bmp.c">
+			</File>
+			<File
+				RelativePath=".\font_ttf.c">
 			</File>
 			<File
 				RelativePath=".\log.c">
@@ -480,7 +483,10 @@
 				RelativePath=".\egoboo_typedef.h">
 			</File>
 			<File
-				RelativePath=".\font.h">
+				RelativePath=".\font_bmp.h">
+			</File>
+			<File
+				RelativePath=".\font_ttf.h">
 			</File>
 			<File
 				RelativePath=".\log.h">

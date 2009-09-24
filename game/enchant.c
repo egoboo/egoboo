@@ -1173,3 +1173,41 @@ bool_t enc_is_removed( Uint16 ienc, Uint16 test_profile )
 
     return bfalse;
 }
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+void init_all_eve()
+{
+    Uint16 cnt;
+
+    for ( cnt = 0; cnt < MAX_EVE; cnt++ )
+    {
+        memset( EveStack.lst + cnt, 0, sizeof(eve_t) );
+    }
+}
+
+//---------------------------------------------------------------------------------------------
+void release_all_eve()
+{
+    int cnt;
+
+    for ( cnt = 0; cnt < MAX_EVE; cnt++ )
+    {
+        release_one_eve( cnt );
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t release_one_eve( Uint16 ieve )
+{
+    eve_t * peve;
+
+    if( !VALID_EVE_RANGE( ieve) ) return bfalse;
+    peve = EveStack.lst + ieve;
+
+    if(!peve->loaded) return btrue;
+
+    memset( peve, 0, sizeof(eve_t) );
+
+    return btrue;
+}

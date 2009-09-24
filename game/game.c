@@ -34,7 +34,8 @@
 #include "clock.h"
 #include "link.h"
 #include "ui.h"
-#include "font.h"
+#include "font_bmp.h"
+#include "font_ttf.h"
 #include "log.h"
 #include "system.h"
 #include "script.h"
@@ -187,8 +188,6 @@ PROFILE_DECLARE( update_loop );
 
 // game initialization / deinitialization - not accessible by scripts
 static void make_randie();
-static void reset_teams();
-static void reset_messages();
 static void reset_timers();
 static void _quit_game( ego_process_t * pgame );
 
@@ -220,6 +219,8 @@ static void   load_all_global_objects();
 static bool_t chr_setup_apply( Uint16 ichr, spawn_file_info_t *pinfo );
 static void   setup_characters( const char *modname );
 
+static void   game_reset_players();
+
 // Model stuff
 static void log_madused( const char *savename );
 
@@ -250,16 +251,6 @@ static int do_game_proc_begin( game_process_t * gproc );
 static int do_game_proc_running( game_process_t * gproc );
 static int do_game_proc_leaving( game_process_t * gproc );
 static int do_game_proc_run( game_process_t * gproc, double frameDuration );
-
-// profile handling
-static void init_all_pip();
-static void init_all_eve();
-static void init_all_cap();
-static void init_all_mad();
-
-static void release_all_eve();
-static void release_all_cap();
-static void release_all_mad();
 
 // misc
 static bool_t game_begin_menu( menu_process_t * mproc, which_menu_t which );
@@ -960,61 +951,6 @@ void game_update_timers()
 }
 
 //--------------------------------------------------------------------------------------------
-void reset_teams()
-{
-    // ZZ> This function makes everyone hate everyone else
-    int teama, teamb;
-
-    for ( teama = 0; teama < TEAM_MAX; teama++ )
-    {
-        // Make the team hate everyone
-        for ( teamb = 0; teamb < TEAM_MAX; teamb++ )
-        {
-            TeamList[teama].hatesteam[teamb] = btrue;
-        }
-
-        // Make the team like itself
-        TeamList[teama].hatesteam[teama] = bfalse;
-
-        // Set defaults
-        TeamList[teama].leader = NOLEADER;
-        TeamList[teama].sissy = 0;
-        TeamList[teama].morale = 0;
-    }
-
-    // Keep the null team neutral
-    for ( teama = 0; teama < TEAM_MAX; teama++ )
-    {
-        TeamList[teama].hatesteam[TEAM_NULL] = bfalse;
-        TeamList[TEAM_NULL].hatesteam[teama] = bfalse;
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void reset_messages()
-{
-    // ZZ> This makes messages safe to use
-    int cnt;
-
-    MessageOffset.count = 0;
-    message_buffer_carat = 0;
-    msgtimechange = 0;
-    DisplayMsg.count = 0;
-
-    for ( cnt = 0; cnt < MAX_MESSAGE; cnt++ )
-    {
-        DisplayMsg.lst[cnt].time = 0;
-    }
-
-    for ( cnt = 0; cnt < MAXTOTALMESSAGE; cnt++ )
-    {
-        MessageOffset.lst[cnt] = 0;
-    }
-
-    message_buffer[0] = '\0';
-}
-
-//--------------------------------------------------------------------------------------------
 void make_randie()
 {
     // ZZ> This function makes the random number table
@@ -1162,17 +1098,14 @@ int do_ego_proc_begin( ego_process_t * eproc )
 
     // make sure that a bunch of stuff gets initialized properly
     game_module_init( &gmod );
-    init_all_graphics();
-    init_all_profiles();
     free_all_objects();
     mesh_new( PMesh );
-
-    // initialize the pre-allocated arrays
-    ProList_init();
+    init_all_graphics();
+    profile_init();
 
     // setup the menu system's gui
     ui_initialize( "basicdat" SLASH_STR "Negatori.ttf", 24 );
-    font_load( "basicdat" SLASH_STR "font", "basicdat" SLASH_STR "font.txt" );  // must be done after init_all_graphics()
+    font_bmp_load( "basicdat" SLASH_STR "font", "basicdat" SLASH_STR "font.txt" );  // must be done after init_all_graphics()
 
     // clear out the import directory
     vfs_empty_import_directory();
@@ -1532,11 +1465,8 @@ int do_game_proc_begin( game_process_t * gproc )
     if ( link_build( "basicdat" SLASH_STR "link.txt", LinkList ) ) log_message( "Success!\n" );
     else log_message( "Failure!\n" );
 
-    load_ai_codes( "basicdat" SLASH_STR "aicodes.txt" );
-    load_action_names( "basicdat" SLASH_STR "actions.txt" );
-
-    // initialize the IDSZ values for various slots
-    init_slot_idsz();
+    // intialize the "profile system"
+    profile_init();
 
     // do some graphics initialization
     make_lightdirectionlookup();
@@ -5039,7 +4969,7 @@ void game_reset_module_data()
     free_all_objects();
     reset_messages();
     prime_names();
-    reset_players();
+    game_reset_players();
 
     reset_end_text();
     reset_renderlist();
@@ -5057,7 +4987,7 @@ void game_load_global_assets()
     }
     load_blip_bitmap();
     load_bars();
-    font_load( "basicdat" SLASH_STR "font", "basicdat" SLASH_STR "font.txt" );
+    font_bmp_load( "basicdat" SLASH_STR "font", "basicdat" SLASH_STR "font.txt" );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -6347,133 +6277,6 @@ game_process_t * game_process_init( game_process_t * gproc )
 }
 
 //---------------------------------------------------------------------------------------------
-//---------------------------------------------------------------------------------------------
-void init_all_pip()
-{
-    Uint16 cnt;
-
-    for ( cnt = 0; cnt < MAX_PIP; cnt++ )
-    {
-        memset( PipStack.lst + cnt, 0, sizeof(pip_t) );
-    }
-}
-
-//---------------------------------------------------------------------------------------------
-void init_all_eve()
-{
-    Uint16 cnt;
-
-    for ( cnt = 0; cnt < MAX_EVE; cnt++ )
-    {
-        memset( EveStack.lst + cnt, 0, sizeof(pip_t) );
-    }
-}
-
-//---------------------------------------------------------------------------------------------
-void init_all_cap()
-{
-    Uint16 cnt;
-
-    for ( cnt = 0; cnt < MAX_PROFILE; cnt++ )
-    {
-        memset( CapList + cnt, 0, sizeof(cap_t) );
-    }
-}
-
-//---------------------------------------------------------------------------------------------
-void init_all_mad()
-{
-    Uint16 cnt;
-
-    for ( cnt = 0; cnt < MAX_PROFILE; cnt++ )
-    {
-        memset( MadList + cnt, 0, sizeof(mad_t) );
-
-        strncpy( MadList[cnt].name, "*NONE*", SDL_arraysize(MadList[cnt].name) );
-    }
-
-    md2_loadframe = 0;
-}
-
-//---------------------------------------------------------------------------------------------
-void init_all_profiles()
-{
-    // ZZ> This function initializes all of the model profiles
-
-    init_all_pip();
-    init_all_eve();
-    init_all_cap();
-    init_all_mad();
-    init_all_ai_scripts();
-}
-
-//---------------------------------------------------------------------------------------------
-//---------------------------------------------------------------------------------------------
-bool_t release_one_eve( Uint16 ieve )
-{
-    eve_t * peve;
-
-    if( !VALID_EVE_RANGE( ieve) ) return bfalse;
-    peve = EveStack.lst + ieve;
-
-    if(!peve->loaded) return btrue;
-
-    memset( peve, 0, sizeof(pip_t) );
-
-    return btrue;
-}
-
-//---------------------------------------------------------------------------------------------
-void release_all_eve()
-{
-    int cnt;
-
-    for ( cnt = 0; cnt < MAX_EVE; cnt++ )
-    {
-        release_one_eve( cnt );
-    }
-}
-
-//---------------------------------------------------------------------------------------------
-void release_all_cap()
-{
-    int cnt;
-
-    for ( cnt = 0; cnt < MAX_PROFILE; cnt++ )
-    {
-        release_one_cap( cnt );
-    };
-}
-
-//---------------------------------------------------------------------------------------------
-void release_all_mad()
-{
-    int cnt;
-
-    for ( cnt = 0; cnt < MAX_PROFILE; cnt++ )
-    {
-        release_one_mad( cnt );
-    }
-
-    md2_loadframe = 0;
-}
-
-//---------------------------------------------------------------------------------------------
-void release_all_profiles()
-{
-    // ZZ> This function clears out all of the model data
-
-    // relese every profile
-    release_all_pip();
-    release_all_eve();
-    release_all_cap();
-    release_all_mad();
-    release_all_ai_scripts();
-
-    // re-initialize the profile list
-    ProList_init();
-}
-
 //--------------------------------------------------------------------------------------------
 /*Uint8 find_target_in_block( int x, int y, float chrx, float chry, Uint16 facing,
 Uint8 onlyfriends, Uint8 anyone, Uint8 team,
@@ -6744,10 +6547,9 @@ bool_t do_line_of_sight( line_of_sight_info_t * plos )
 }
 
 //--------------------------------------------------------------------------------------------
-void reset_players()
+void game_reset_players()
 {
     // ZZ> This function clears the player list data
-    int cnt;
 
     // Reset the local data stuff
     local_seekurse         = bfalse;
@@ -6755,15 +6557,7 @@ void reset_players()
     local_seeinvisible     = bfalse;
     local_allpladead       = bfalse;
 
-    // Reset the initial player data and latches
-    for ( cnt = 0; cnt < MAXPLAYER; cnt++ )
-    {
-        memset( PlaList + cnt, 0, sizeof(player_t) );
-    }
-    PlaList_count        = 0;
-
-    nexttimestamp = ((Uint32)~0);
-    numplatimes   = 0;
+    net_reset_players();
 }
 
 //--------------------------------------------------------------------------------------------

@@ -565,7 +565,11 @@ Sint16 quest_check( const char *whichplayer, IDSZ idsz );
 //---------------------------------------------------------------------------------------------
 // helper functions
 
+void init_all_cap();
+void release_all_cap();
 bool_t release_one_cap( Uint16 icap );
+
+bool_t cap_is_type_idsz( Uint16 icap, IDSZ test_idsz );
 
 Uint16 chr_get_iobj(Uint16 ichr);
 Uint16 chr_get_icap(Uint16 ichr);
@@ -593,7 +597,6 @@ chr_t  * team_get_pleader( Uint16 iteam );
 
 bool_t team_hates_team(Uint16 ipredator, Uint16 iprey);
 
-bool_t cap_is_type_idsz( Uint16 icap, IDSZ test_idsz );
 
 IDSZ chr_get_idsz(Uint16 ichr, Uint16 type);
 
@@ -608,3 +611,9 @@ void chr_set_fat( chr_t * pchr, float fat );
 bool_t chr_has_idsz( Uint16 ichr, IDSZ idsz );
 bool_t chr_is_type_idsz( Uint16 ichr, IDSZ idsz );
 bool_t chr_has_vulnie( Uint16 item, Uint16 weapon_profile );
+
+Uint32 chr_get_icon_ref( Uint16 item );
+
+const char * describe_stat(int value_high);
+
+void reset_teams();

@@ -17,12 +17,12 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - Font.c
+/* Egoboo - font_ttf.c
  * True-type font drawing functionality.  Uses Freetype 2 & OpenGL
  * to do it's business.
  */
 
-#include "font.h"
+#include "font_ttf.h"
 #include "log.h"
 
 #include "egoboo_typedef.h"
@@ -240,7 +240,7 @@ int fnt_print_raw( Font *font, SDL_Color color, SDL_Surface ** psurf, GLuint ite
 int fnt_vprintf( Font *font, SDL_Color color, SDL_Surface ** psurf, GLuint itex, float texCoords[], const char *format, va_list args )
 {
     int rv;
-    STRING szText;
+    STRING szText = {'\0'};
 
     // evaluate the variable args
     rv = vsnprintf( szText, SDL_arraysize(szText) - 1, format, args );

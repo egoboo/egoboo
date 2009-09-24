@@ -43,6 +43,7 @@
 #include "ui.h"
 #include "texture.h"
 #include "clock.h"
+#include "font_bmp.h"
 
 #include "SDL_extensions.h"
 #include "SDL_GL_extensions.h"
@@ -98,8 +99,6 @@ typedef struct s_dynalight dynalight_t;
 static bool_t _sdl_initialized_graphics = bfalse;
 static bool_t _ogl_initialized          = bfalse;
 
-static Uint8 asciitofont[256];                                   // Conversion table
-
 static float sinlut[MAXLIGHTROTATION];
 static float coslut[MAXLIGHTROTATION];
 
@@ -119,11 +118,6 @@ static dynalight_t dyna_list[TOTAL_MAX_DYNA];
 // Interface stuff
 static irect_t             iconrect;                   // The 32x32 icon rectangle
 
-static int                fontoffset;                 // Line up fonts from top of screen
-static SDL_Rect           fontrect[NUMFONT];          // The font rectangles
-static Uint8              fontxspacing[NUMFONT];      // The spacing stuff
-static Uint8              fontyspacing;
-
 static irect_t             tabrect[NUMBAR];            // The tab rectangles
 static irect_t             barrect[NUMBAR];            // The bar rectangles
 static irect_t             bliprect[COLOR_MAX];        // The blip rectangles
@@ -135,11 +129,11 @@ static bool_t             gfx_page_clear_requested = btrue;
 DECLARE_LIST ( ACCESS_TYPE_NONE, billboard_data_t, BillboardList );
 
 PROFILE_DECLARE( gfx_loop );
-PROFILE_DECLARE( draw_scene_init );
-PROFILE_DECLARE( draw_scene_mesh );
-PROFILE_DECLARE( draw_scene_solid );
-PROFILE_DECLARE( draw_scene_water );
-PROFILE_DECLARE( draw_scene_trans );
+PROFILE_DECLARE( render_scene_init );
+PROFILE_DECLARE( render_scene_mesh );
+PROFILE_DECLARE( render_scene_solid );
+PROFILE_DECLARE( render_scene_water );
+PROFILE_DECLARE( render_scene_trans );
 
 float time_draw_scene       = 0.0f;
 float time_draw_scene_init  = 0.0f;
@@ -213,6 +207,40 @@ static void init_map_data();
 static bool_t render_billboard( struct s_camera * pcam, billboard_data_t * pbb, float scale );
 
 static void gfx_update_timers();
+
+void BeginText();
+void EndText();
+
+void EnableTexturing();
+void DisableTexturing();
+
+//--------------------------------------------------------------------------------------------
+void BeginText()
+{
+    EnableTexturing();    // Enable texture mapping
+
+    oglx_texture_Bind( TxTexture_get_ptr( TX_FONT ) );
+
+    GL_DEBUG(glEnable)(GL_ALPHA_TEST );
+    GL_DEBUG(glAlphaFunc)(GL_GREATER, 0 );
+
+    GL_DEBUG(glEnable)(GL_BLEND );
+    GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+
+    GL_DEBUG(glDisable)(GL_DEPTH_TEST );
+    GL_DEBUG(glDisable)(GL_CULL_FACE );
+
+    GL_DEBUG(glColor4f)(1, 1, 1, 1 );
+}
+
+//--------------------------------------------------------------------------------------------
+void EndText()
+{
+    GL_DEBUG(glDisable)(GL_BLEND );
+    GL_DEBUG(glDisable)(GL_ALPHA_TEST );
+}
+
+
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -387,12 +415,6 @@ void init_icon_data()
     iconrect.right = 32;
     iconrect.top = 0;
     iconrect.bottom = 32;
-
-    for ( cnt = 0; cnt < MAX_SKIN; cnt++ )
-    {
-        bookicon_ref[cnt] = INVALID_TEXTURE;
-    }
-    bookicon_count = 0;
 }
 
 //---------------------------------------------------------------------------------------------
@@ -456,18 +478,18 @@ void init_all_graphics()
     init_bar_data();
     init_blip_data();
     init_map_data();
-    font_init();
+    font_bmp_init();
 
     BillboardList_free_all();
     TxTexture_init_all();
 
     PROFILE_INIT( gfx_loop );
 
-    PROFILE_INIT( draw_scene_init );
-    PROFILE_INIT( draw_scene_mesh );
-    PROFILE_INIT( draw_scene_solid );
-    PROFILE_INIT( draw_scene_water );
-    PROFILE_INIT( draw_scene_trans );
+    PROFILE_INIT( render_scene_init );
+    PROFILE_INIT( render_scene_mesh );
+    PROFILE_INIT( render_scene_solid );
+    PROFILE_INIT( render_scene_water );
+    PROFILE_INIT( render_scene_trans );
 }
 
 //---------------------------------------------------------------------------------------------
@@ -906,104 +928,6 @@ void load_map( const char* szModule )
         mapvalid = btrue;
     }
 
-}
-
-//--------------------------------------------------------------------------------------------
-void font_init()
-{
-    // BB > fill in default values
-
-    Uint16 i, ix, iy, cnt;
-    float dx, dy;
-
-    // Mark all as unused
-    for ( cnt = 0; cnt < 256; cnt++ )
-    {
-        asciitofont[cnt] = 255;
-    }
-
-    dx = 256 / NUMFONTX;
-    dy = 256 / NUMFONTY;
-    for ( i = 0; i < NUMFONT; i++ )
-    {
-        ix = i % NUMFONTX;
-        iy = i / NUMFONTX;
-
-        fontrect[i].x = ix * dx;
-        fontrect[i].w = dx;
-        fontrect[i].y = iy * dy;
-        fontrect[i].h = dy;
-        fontxspacing[i] = 0;
-    }
-    fontyspacing = dy;
-}
-
-//--------------------------------------------------------------------------------------------
-void font_load( const char* szBitmap, const char* szSpacing )
-{
-    // ZZ> This function loads the font bitmap and sets up the coordinates
-    //    of each font on that bitmap...  Bitmap must have 16x6 fonts
-    int cnt, y, xsize, ysize, xdiv, ydiv;
-    int stt_x, stt_y;
-    int xspacing, yspacing;
-    char cTmp;
-    vfs_FILE *fileread;
-
-    font_init();
-    if ( INVALID_TEXTURE == TxTexture_load_one( szBitmap, TX_FONT, TRANSCOLOR ) )
-    {
-        log_error( "load_font() - Cannot load file! (\"%s\")\n", szBitmap );
-    }
-
-    // Get the size of the bitmap
-    xsize = oglx_texture_GetImageWidth( TxTexture_get_ptr( TX_FONT ) );
-    ysize = oglx_texture_GetImageHeight( TxTexture_get_ptr( TX_FONT ) );
-    if ( xsize == 0 || ysize == 0 )
-    {
-        log_error( "Bad font size! (%i, %i)\n", xsize, ysize );
-    }
-
-    // Figure out the general size of each font
-    ydiv = ysize / NUMFONTY;
-    xdiv = xsize / NUMFONTX;
-
-    // Figure out where each font is and its spacing
-    fileread = vfs_openRead( szSpacing );
-    if ( fileread == NULL )
-    {
-        log_error( "Font spacing not avalible! (%i, %i)\n", xsize, ysize );
-    }
-
-    y = 0;
-    stt_x = 0;
-    stt_y = 0;
-
-    // Uniform font height is at the top
-    yspacing = fget_next_int( fileread );
-    fontoffset = yspacing;
-    for ( cnt = 0; cnt < NUMFONT && goto_colon( NULL, fileread, btrue ); cnt++ )
-    {
-        vfs_scanf( fileread, "%c", &cTmp );
-        xspacing = fget_int( fileread );
-        if ( asciitofont[(Uint8)cTmp] == 255 ) asciitofont[(Uint8)cTmp] = (Uint8) cnt;
-        if ( stt_x + xspacing + 1 > 255 )
-        {
-            stt_x = 0;
-            stt_y += yspacing;
-        }
-
-        fontrect[cnt].x = stt_x;
-        fontrect[cnt].w = xspacing;
-        fontrect[cnt].y = stt_y;
-        fontrect[cnt].h = yspacing - 2;
-        fontxspacing[cnt] = xspacing + 1;
-
-        stt_x += xspacing + 1;
-    }
-    vfs_close( fileread );
-
-    // Space between lines
-    fontyspacing = ( yspacing >> 1 ) + FONTADD;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1824,7 +1748,7 @@ void render_water( renderlist_t * prlist )
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_scene_init( ego_mpd_t * pmesh, camera_t * pcam )
+void render_scene_init( ego_mpd_t * pmesh, camera_t * pcam )
 {
     // Which tiles can be displayed
     make_renderlist( pmesh, pcam );
@@ -1846,7 +1770,7 @@ void draw_scene_init( ego_mpd_t * pmesh, camera_t * pcam )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t draw_fans_by_list( ego_mpd_t * pmesh, Uint32 list[], size_t list_size )
+bool_t render_fans_by_list( ego_mpd_t * pmesh, Uint32 list[], size_t list_size )
 {
     int cnt, tx;
 
@@ -1880,7 +1804,7 @@ bool_t draw_fans_by_list( ego_mpd_t * pmesh, Uint32 list[], size_t list_size )
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_scene_mesh( renderlist_t * prlist )
+void render_scene_mesh( renderlist_t * prlist )
 {
     // BB> draw the mesh and any reflected objects
 
@@ -1904,7 +1828,7 @@ void draw_scene_mesh( renderlist_t * prlist )
     GL_DEBUG(glAlphaFunc)(GL_GREATER, 0 );
 
     // reduce texture hashing by loading up each texture only once
-    draw_fans_by_list( pmesh, prlist->ndr, prlist->ndr_count );
+    render_fans_by_list( pmesh, prlist->ndr, prlist->ndr_count );
 
     //--------------------------------
     // draw the reflective tiles and any reflected objects
@@ -1920,7 +1844,7 @@ void draw_scene_mesh( renderlist_t * prlist )
         GL_DEBUG(glEnable)(GL_BLEND );
         GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
-        draw_fans_by_list( pmesh, prlist->drf, prlist->drf_count );
+        render_fans_by_list( pmesh, prlist->drf, prlist->drf_count );
 
         //------------------------------
         // Render all reflected objects
@@ -1983,7 +1907,7 @@ void draw_scene_mesh( renderlist_t * prlist )
         GL_DEBUG(glDepthMask)(GL_TRUE );
 
         // reduce texture hashing by loading up each texture only once
-        draw_fans_by_list( pmesh, prlist->drf, prlist->drf_count );
+        render_fans_by_list( pmesh, prlist->drf, prlist->drf_count );
 
     }
     else
@@ -1991,7 +1915,7 @@ void draw_scene_mesh( renderlist_t * prlist )
         //------------------------------
         // Render the shadow floors as normal solid floors
 
-        draw_fans_by_list( pmesh, prlist->drf, prlist->drf_count );
+        render_fans_by_list( pmesh, prlist->drf, prlist->drf_count );
     }
 
 #if defined(RENDER_HMAP)
@@ -2039,7 +1963,7 @@ void draw_scene_mesh( renderlist_t * prlist )
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_scene_solid()
+void render_scene_solid()
 {
     Uint32 cnt;
 
@@ -2085,7 +2009,7 @@ void draw_scene_solid()
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_scene_water( renderlist_t * prlist )
+void render_scene_water( renderlist_t * prlist )
 {
     // set the the transparency parameters
     GL_DEBUG(glDepthMask)(GL_FALSE );
@@ -2111,7 +2035,7 @@ void draw_scene_water( renderlist_t * prlist )
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_scene_trans()
+void render_scene_trans()
 {
     // BB > draw transparent objects
 
@@ -2190,52 +2114,52 @@ void draw_scene_trans()
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_scene_zreflection( ego_mpd_t * pmesh, camera_t * pcam )
+void render_scene_zreflection( ego_mpd_t * pmesh, camera_t * pcam )
 {
     // ZZ> This function draws 3D objects
 
     if ( NULL == pcam  ) pcam = PCamera;
     if ( NULL == pmesh ) pmesh = PMesh;
 
-    PROFILE_BEGIN( draw_scene_init );
+    PROFILE_BEGIN( render_scene_init );
     {
-        draw_scene_init( pmesh, pcam );
+        render_scene_init( pmesh, pcam );
     }
-    PROFILE_END( draw_scene_init );
+    PROFILE_END( render_scene_init );
 
-    PROFILE_BEGIN( draw_scene_mesh );
+    PROFILE_BEGIN( render_scene_mesh );
     {
         // do the render pass for the mesh
-        draw_scene_mesh( &renderlist );
+        render_scene_mesh( &renderlist );
     }
-    PROFILE_END( draw_scene_mesh );
+    PROFILE_END( render_scene_mesh );
 
-    PROFILE_BEGIN( draw_scene_solid );
+    PROFILE_BEGIN( render_scene_solid );
     {
         // do the render pass for solid objects
-        draw_scene_solid();
+        render_scene_solid();
     }
-    PROFILE_END( draw_scene_solid );
+    PROFILE_END( render_scene_solid );
 
-    PROFILE_BEGIN( draw_scene_water );
+    PROFILE_BEGIN( render_scene_water );
     {
         // draw the water
-        draw_scene_water( &renderlist );
+        render_scene_water( &renderlist );
     }
-    PROFILE_END( draw_scene_water );
+    PROFILE_END( render_scene_water );
 
-    PROFILE_BEGIN( draw_scene_trans );
+    PROFILE_BEGIN( render_scene_trans );
     {
         // do the render pass for transparent objects
-        draw_scene_trans();
+        render_scene_trans();
     }
-    PROFILE_END( draw_scene_trans );
+    PROFILE_END( render_scene_trans );
 
-    time_draw_scene_init  = PROFILE_QUERY(draw_scene_init ) * TARGET_FPS;
-    time_draw_scene_mesh  = PROFILE_QUERY(draw_scene_mesh ) * TARGET_FPS;
-    time_draw_scene_solid = PROFILE_QUERY(draw_scene_solid) * TARGET_FPS;
-    time_draw_scene_water = PROFILE_QUERY(draw_scene_water) * TARGET_FPS;
-    time_draw_scene_trans = PROFILE_QUERY(draw_scene_trans) * TARGET_FPS;
+    time_draw_scene_init  = PROFILE_QUERY(render_scene_init ) * TARGET_FPS;
+    time_draw_scene_mesh  = PROFILE_QUERY(render_scene_mesh ) * TARGET_FPS;
+    time_draw_scene_solid = PROFILE_QUERY(render_scene_solid) * TARGET_FPS;
+    time_draw_scene_water = PROFILE_QUERY(render_scene_water) * TARGET_FPS;
+    time_draw_scene_trans = PROFILE_QUERY(render_scene_trans) * TARGET_FPS;
 
     time_draw_scene       = time_draw_scene_init + time_draw_scene_mesh +
                             time_draw_scene_solid + time_draw_scene_water + time_draw_scene_trans;
@@ -2388,9 +2312,10 @@ void draw_map_texture( int x, int y )
 int draw_one_xp_bar( int x, int y, Uint8 ticks )
 {
     // ZF> This function draws a xp bar and returns the y position for the next one
-    float xl, xr, yt, yb;
+
     int width, height;
     Uint8 cnt;
+    frect_t txrect;
 
     if ( ticks < 0 ) return y;
     ticks = MIN(ticks, NUMTICK);
@@ -2400,58 +2325,65 @@ int draw_one_xp_bar( int x, int y, Uint8 ticks )
 
     // Draw the tab (always colored)
     oglx_texture_Bind( TxTexture_get_ptr( TX_XP_BAR ) );
-    xl = 0;
-    xr = 32.00f / 128;
-    yt = XPTICK / 16;
-    yb = XPTICK * 2 / 16;
+
+    txrect.left   = 0;
+    txrect.right  = 32.00f / 128;
+    txrect.top    = XPTICK / 16;
+    txrect.bottom = XPTICK * 2 / 16;
+
     width = 16;
     height = XPTICK;
+
     GL_DEBUG(glBegin)(GL_QUADS );
     {
-        GL_DEBUG(glTexCoord2f)(xl, yb );   GL_DEBUG(glVertex2i)(x,         y + height );
-        GL_DEBUG(glTexCoord2f)(xr, yb );   GL_DEBUG(glVertex2i)(x + width, y + height );
-        GL_DEBUG(glTexCoord2f)(xr, yt );   GL_DEBUG(glVertex2i)(x + width, y );
-        GL_DEBUG(glTexCoord2f)(xl, yt );   GL_DEBUG(glVertex2i)(x,         y );
+        GL_DEBUG(glTexCoord2f)(txrect.left,  txrect.bottom ); GL_DEBUG(glVertex2i)(x,         y + height );
+        GL_DEBUG(glTexCoord2f)(txrect.right, txrect.bottom ); GL_DEBUG(glVertex2i)(x + width, y + height );
+        GL_DEBUG(glTexCoord2f)(txrect.right, txrect.top    ); GL_DEBUG(glVertex2i)(x + width, y );
+        GL_DEBUG(glTexCoord2f)(txrect.left,  txrect.top    ); GL_DEBUG(glVertex2i)(x,         y );
     }
     GL_DEBUG_END();
     x += 16;
 
     // Draw the filled ones
-    xl = 0;
-    xr = 32.00f / 128;
-    yt = XPTICK / 16;
-    yb = XPTICK * 2 / 16;
-    width = XPTICK;
+    txrect.left   = 0;
+    txrect.right  = 32.00f / 128;
+    txrect.top    = XPTICK / 16;
+    txrect.bottom = XPTICK * 2 / 16;
+
+    width  = XPTICK;
     height = XPTICK;
+
     for ( cnt = 0; cnt < ticks; cnt++)
     {
         oglx_texture_Bind( TxTexture_get_ptr( TX_XP_BAR ) );
         GL_DEBUG(glBegin)(GL_QUADS );
         {
-            GL_DEBUG(glTexCoord2f)(xl, yb );   GL_DEBUG(glVertex2i)(( cnt * width ) + x,         y + height );
-            GL_DEBUG(glTexCoord2f)(xr, yb );   GL_DEBUG(glVertex2i)(( cnt * width ) + x + width, y + height );
-            GL_DEBUG(glTexCoord2f)(xr, yt );   GL_DEBUG(glVertex2i)(( cnt * width ) + x + width, y );
-            GL_DEBUG(glTexCoord2f)(xl, yt );   GL_DEBUG(glVertex2i)(( cnt * width ) + x,         y );
+            GL_DEBUG(glTexCoord2f)(txrect.left,  txrect.bottom ); GL_DEBUG(glVertex2i)(( cnt * width ) + x,         y + height );
+            GL_DEBUG(glTexCoord2f)(txrect.right, txrect.bottom ); GL_DEBUG(glVertex2i)(( cnt * width ) + x + width, y + height );
+            GL_DEBUG(glTexCoord2f)(txrect.right, txrect.top    ); GL_DEBUG(glVertex2i)(( cnt * width ) + x + width, y );
+            GL_DEBUG(glTexCoord2f)(txrect.left,  txrect.top    ); GL_DEBUG(glVertex2i)(( cnt * width ) + x,         y );
         }
         GL_DEBUG_END();
     }
 
     // Draw the remaining empty ones
-    xl = 0;
-    xr = 32.00f / 128;
-    yt = 0;
-    yb = XPTICK / 16;
+    txrect.left   = 0;
+    txrect.right  = 32.00f / 128;
+    txrect.top    = 0;
+    txrect.bottom = XPTICK / 16;
+
     width = XPTICK;
     height = XPTICK;
+
     for ( /*nothing*/; cnt < NUMTICK; cnt++)
     {
         oglx_texture_Bind( TxTexture_get_ptr( TX_XP_BAR ) );
         GL_DEBUG(glBegin)(GL_QUADS );
         {
-            GL_DEBUG(glTexCoord2f)(xl, yb );   GL_DEBUG(glVertex2i)(( cnt * width ) + x,         y + height );
-            GL_DEBUG(glTexCoord2f)(xr, yb );   GL_DEBUG(glVertex2i)(( cnt * width ) + x + width, y + height );
-            GL_DEBUG(glTexCoord2f)(xr, yt );   GL_DEBUG(glVertex2i)(( cnt * width ) + x + width, y );
-            GL_DEBUG(glTexCoord2f)(xl, yt );   GL_DEBUG(glVertex2i)(( cnt * width ) + x,         y );
+            GL_DEBUG(glTexCoord2f)( txrect.left,  txrect.bottom ); GL_DEBUG(glVertex2i)(( cnt * width ) + x,         y + height );
+            GL_DEBUG(glTexCoord2f)( txrect.right, txrect.bottom ); GL_DEBUG(glVertex2i)(( cnt * width ) + x + width, y + height );
+            GL_DEBUG(glTexCoord2f)( txrect.right, txrect.top    ); GL_DEBUG(glVertex2i)(( cnt * width ) + x + width, y );
+            GL_DEBUG(glTexCoord2f)( txrect.left,  txrect.top    ); GL_DEBUG(glVertex2i)(( cnt * width ) + x,         y );
         }
         GL_DEBUG_END();
     }
@@ -2497,13 +2429,15 @@ int draw_one_bar( Uint8 bartype, int x, int y, int ticks, int maxticks )
     if ( maxticks > MAXTICK ) maxticks = MAXTICK;
     if ( ticks > maxticks ) ticks = maxticks;
 
+    // use the bars texture
+    oglx_texture_Bind( TxTexture_get_ptr( TX_BARS ) );
+
     // Draw the full rows of ticks
     x += TABX;
 
     while ( ticks >= NUMTICK )
     {
         barrect[bartype].right = BARX;
-        oglx_texture_Bind( TxTexture_get_ptr( TX_BARS ) );
 
         txrect.left   = barrect[bartype].left   / 128.0f;
         txrect.right  = barrect[bartype].right  / 128.0f;
@@ -2521,6 +2455,7 @@ int draw_one_bar( Uint8 bartype, int x, int y, int ticks, int maxticks )
             GL_DEBUG(glTexCoord2f)(txrect.left,  txrect.top    ); GL_DEBUG(glVertex2i)(x,         y );
         }
         GL_DEBUG_END();
+
         y += BARY;
         ticks -= NUMTICK;
         maxticks -= NUMTICK;
@@ -2531,7 +2466,6 @@ int draw_one_bar( Uint8 bartype, int x, int y, int ticks, int maxticks )
     {
         // Draw the filled ones
         barrect[bartype].right = ( ticks << 3 ) + TABX;
-        oglx_texture_Bind( TxTexture_get_ptr( TX_BARS ) );
 
         txrect.left   = barrect[bartype].left   / 128.0f;
         txrect.right  = barrect[bartype].right  / 128.0f;
@@ -2573,6 +2507,7 @@ int draw_one_bar( Uint8 bartype, int x, int y, int ticks, int maxticks )
             GL_DEBUG(glTexCoord2f)(txrect.left,  txrect.top    ); GL_DEBUG(glVertex2i)(( ticks << 3 ) + x,         y );
         }
         GL_DEBUG_END();
+
         maxticks -= NUMTICK;
         y += BARY;
     }
@@ -2581,7 +2516,6 @@ int draw_one_bar( Uint8 bartype, int x, int y, int ticks, int maxticks )
     while ( maxticks >= NUMTICK )
     {
         barrect[0].right = BARX;
-        oglx_texture_Bind( TxTexture_get_ptr( TX_BARS ) );
 
         txrect.left   = tabrect[0].left   / 128.0f;
         txrect.right  = tabrect[0].right  / 128.0f;
@@ -2599,6 +2533,7 @@ int draw_one_bar( Uint8 bartype, int x, int y, int ticks, int maxticks )
             GL_DEBUG(glTexCoord2f)(txrect.left,  txrect.top    );   GL_DEBUG(glVertex2i)(x,         y );
         }
         GL_DEBUG_END();
+
         y += BARY;
         maxticks -= NUMTICK;
     }
@@ -2609,22 +2544,24 @@ int draw_one_bar( Uint8 bartype, int x, int y, int ticks, int maxticks )
         barrect[0].right = ( maxticks << 3 ) + TABX;
         oglx_texture_Bind( TxTexture_get_ptr( TX_BARS ) );
 
-        txrect.left   = tabrect[0].left   / 128.0f;
-        txrect.right  = tabrect[0].right  / 128.0f;
-        txrect.top    = tabrect[0].top    / 128.0f;
-        txrect.bottom = tabrect[0].bottom / 128.0f;
+        txrect.left   = barrect[0].left   / 128.0f;
+        txrect.right  = barrect[0].right  / 128.0f;
+        txrect.top    = barrect[0].top    / 128.0f;
+        txrect.bottom = barrect[0].bottom / 128.0f;
 
         width = barrect[0].right - barrect[0].left;
         height = barrect[0].bottom - barrect[0].top;
 
         GL_DEBUG(glBegin)(GL_QUADS );
         {
-            GL_DEBUG(glTexCoord2f)(txrect.left,  txrect.bottom ); GL_DEBUG(glVertex2i)(x,         y + height );
-            GL_DEBUG(glTexCoord2f)(txrect.right, txrect.bottom ); GL_DEBUG(glVertex2i)(x + width, y + height );
-            GL_DEBUG(glTexCoord2f)(txrect.right, txrect.top    ); GL_DEBUG(glVertex2i)(x + width, y );
-            GL_DEBUG(glTexCoord2f)(txrect.left,  txrect.top    ); GL_DEBUG(glVertex2i)(x,         y );
+            GL_DEBUG(glTexCoord2f)(txrect.left,  txrect.bottom ); GL_DEBUG(glVertex2i)( x,         y + height );
+            GL_DEBUG(glTexCoord2f)(txrect.right, txrect.bottom ); GL_DEBUG(glVertex2i)( x + width, y + height );
+            GL_DEBUG(glTexCoord2f)(txrect.right, txrect.top    ); GL_DEBUG(glVertex2i)( x + width, y );
+            GL_DEBUG(glTexCoord2f)(txrect.left,  txrect.top    ); GL_DEBUG(glVertex2i)( x,         y );
         }
         GL_DEBUG_END();
+
+        maxticks -= NUMTICK;
         y += BARY;
     }
 
@@ -2633,33 +2570,7 @@ int draw_one_bar( Uint8 bartype, int x, int y, int ticks, int maxticks )
 }
 
 //--------------------------------------------------------------------------------------------
-void BeginText()
-{
-    EnableTexturing();    // Enable texture mapping
-
-    oglx_texture_Bind( TxTexture_get_ptr( TX_FONT ) );
-
-    GL_DEBUG(glEnable)(GL_ALPHA_TEST );
-    GL_DEBUG(glAlphaFunc)(GL_GREATER, 0 );
-
-    GL_DEBUG(glEnable)(GL_BLEND );
-    GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-
-    GL_DEBUG(glDisable)(GL_DEPTH_TEST );
-    GL_DEBUG(glDisable)(GL_CULL_FACE );
-
-    GL_DEBUG(glColor4f)(1, 1, 1, 1 );
-}
-
-//--------------------------------------------------------------------------------------------
-void EndText()
-{
-    GL_DEBUG(glDisable)(GL_BLEND );
-    GL_DEBUG(glDisable)(GL_ALPHA_TEST );
-}
-
-//--------------------------------------------------------------------------------------------
-int write_draw_string( int x, int y, const char *format, va_list args  )
+int _va_draw_string( int x, int y, const char *format, va_list args  )
 {
     int cnt = 1;
     int x_stt;
@@ -2717,7 +2628,7 @@ int _draw_string_raw( int x, int y, const char *format, ...  )
     va_list args;
 
     va_start( args, format );
-    y = write_draw_string( x, y, format, args );
+    y = _va_draw_string( x, y, format, args );
     va_end( args );
 
     return y;
@@ -2737,7 +2648,7 @@ int draw_string( int x, int y, const char *format, ...  )
     Begin2DMode();
     {
         va_start( args, format );
-        y = write_draw_string( x, y, format, args );
+        y = _va_draw_string( x, y, format, args );
         va_end( args );
     }
     End2DMode();
@@ -2745,41 +2656,6 @@ int draw_string( int x, int y, const char *format, ...  )
     return y;
 }
 
-//--------------------------------------------------------------------------------------------
-int length_of_word( const char *szText )
-{
-    // ZZ> This function returns the number of pixels the
-    //    next word will take on screen in the x direction
-
-    // Count all preceeding spaces
-    int x = 0;
-    int cnt = 0;
-    Uint8 cTmp = szText[cnt];
-
-    while ( ' ' == cTmp || '~' == cTmp || '\n' == cTmp )
-    {
-        if ( ' ' == cTmp )
-        {
-            x += fontxspacing[asciitofont[cTmp]];
-        }
-        else if ( '~' == cTmp )
-        {
-            x = (x & TABAND) + TABADD;
-        }
-
-        cnt++;
-        cTmp = szText[cnt];
-    }
-
-    while ( ' ' != cTmp && '~' != cTmp && '\n' != cTmp && cTmp != 0 )
-    {
-        x += fontxspacing[asciitofont[cTmp]];
-        cnt++;
-        cTmp = szText[cnt];
-    }
-
-    return x;
-}
 
 //--------------------------------------------------------------------------------------------
 int draw_wrap_string( const char *szText, int x, int y, int maxx )
@@ -2801,7 +2677,7 @@ int draw_wrap_string( const char *szText, int x, int y, int maxx )
         // Check each new word for wrapping
         if ( newword )
         {
-            int endx = x + length_of_word( szText + cnt - 1 );
+            int endx = x + font_bmp_length_of_word( szText + cnt - 1 );
 
             newword = bfalse;
             if ( endx > maxx )
@@ -2854,158 +2730,151 @@ int draw_wrap_string( const char *szText, int x, int y, int maxx )
 }
 
 //--------------------------------------------------------------------------------------------
+void draw_one_character_icon( Uint16 item, int x, int y, bool_t draw_ammo )
+{
+    // BB> Draw an icon for the given item at the position <x,y>.
+    //     If the object is invalid, draw the null icon instead of failing
+
+    Uint32 icon_ref;
+    bool_t draw_sparkle;
+
+    chr_t * pitem = INVALID_CHR( item ) ? NULL : ChrList.lst + item;
+
+    // grab the icon reference
+    icon_ref = chr_get_icon_ref( item );
+
+    // draw the icon
+    draw_sparkle = (NULL == pitem) ? NOSPARKLE : pitem->sparkle;
+    draw_one_icon( icon_ref, x, y, draw_sparkle );
+
+    // draw the ammo, if requested
+    if ( draw_ammo && (NULL != pitem) )
+    {   
+        if ( pitem->ammomax != 0 && pitem->ammoknown )
+        {
+            cap_t * pitem_cap = chr_get_pcap( item );
+
+            if ( (NULL != pitem_cap && !pitem_cap->isstackable) || pitem->ammo > 1 )
+            {
+                // Show amount of ammo left
+                _draw_string_raw( x, y - 8, "%2d", pitem->ammo );
+            }
+        }
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------
+int draw_character_xp_bar( Uint16 character, int x, int y )
+{
+    chr_t * pchr;
+    cap_t * pcap;
+
+    if( INVALID_CHR( character ) ) return y;
+    pchr = ChrList.lst + character;
+
+    pcap = pro_get_pcap( pchr->iprofile );
+    if( NULL == pcap ) return y;
+
+    //Draw the small XP progress bar
+    if ( pchr->experiencelevel < MAXLEVEL)
+    {
+        Uint8  curlevel    = pchr->experiencelevel + 1;
+        Uint32 xplastlevel = pcap->experienceforlevel[curlevel-1];
+        Uint32 xpneed      = pcap->experienceforlevel[curlevel];
+
+        float fraction = (float)MAX(pchr->experience - xplastlevel, 0) / (float)MAX( xpneed - xplastlevel, 1 );
+        int   numticks = fraction * NUMTICK;
+
+        y = draw_one_xp_bar( x, y, numticks );
+    }
+
+    return y;
+}
+
+//--------------------------------------------------------------------------------------------
 int draw_status( Uint16 character, int x, int y )
 {
     // ZZ> This function shows a character's icon, status and inventory
     //    The x,y coordinates are the top left point of the image to draw
-    Uint16 item, imad, iskin;
+
+    int cnt;
     char cTmp;
     char *readtext;
-    STRING generictext;
+    STRING generictext;    
+    int life, lifemax;
+    int mana, manamax;
 
-    int life     = FP8_TO_INT( ChrList.lst[character].life    );
-    int lifemax  = FP8_TO_INT( ChrList.lst[character].lifemax );
-    int mana     = FP8_TO_INT( ChrList.lst[character].mana    );
-    int manamax  = FP8_TO_INT( ChrList.lst[character].manamax );
-    int cnt = lifemax;
+    chr_t * pchr;
+    cap_t * pcap;
 
-    // Write the character's first name
-    if ( ChrList.lst[character].nameknown )
-        readtext = ChrList.lst[character].name;
-    else
-        readtext = chr_get_pcap(character)->classname;
+    if( INVALID_CHR(character) ) return y;
+    pchr = ChrList.lst + character;
 
+    pcap = chr_get_pcap( character );
+    if( NULL == pcap ) return y;
+
+    life     = FP8_TO_INT( pchr->life    );
+    lifemax  = FP8_TO_INT( pchr->lifemax );
+    mana     = FP8_TO_INT( pchr->mana    );
+    manamax  = FP8_TO_INT( pchr->manamax );
+
+    // grab the character's display name
+    readtext = chr_get_name( character );
+
+    // make a short name for the actual display
     for ( cnt = 0; cnt < 6; cnt++ )
     {
         cTmp = readtext[cnt];
+
         if ( ' ' == cTmp || '\0' == cTmp )
         {
             generictext[cnt] = '\0';
             break;
         }
         else
+        {
             generictext[cnt] = cTmp;
+        }
     }
-
     generictext[6] = '\0';
+
+    // draw the name
     y = _draw_string_raw( x + 8, y, generictext );
 
-    // Write the character's money
-    y = _draw_string_raw( x + 8, y, "$%4d", ChrList.lst[character].money ) + 8;
+    // draw the character's money
+    y = _draw_string_raw( x + 8, y, "$%4d", pchr->money ) + 8;
 
-    // Draw the icons
-    imad  = chr_get_imad(character);
-    iskin = ChrList.lst[character].skin;
-    if ( VALID_MAD(imad) )
-    {
-        draw_one_icon( ProList.lst[imad].ico_ref[iskin], x + 40, y, ChrList.lst[character].sparkle );
-    }
+    // draw the character's main icon
+    draw_one_character_icon( character, x + 40, y, bfalse );
 
-    item = ChrList.lst[character].holdingwhich[SLOT_LEFT];
-    if ( VALID_CHR(item) )
-    {
-        chr_t * pitem = ChrList.lst + item;
-        bool_t is_spell_fx, is_book, draw_book;
+    // draw the left hand item icon
+    draw_one_character_icon( pchr->holdingwhich[SLOT_LEFT], x + 8, y, btrue );
 
-        is_spell_fx = chr_get_pcap(item)->is_spelleffect;
-        is_book     = SPELLBOOK == pitem->iprofile;
+    // draw the right hand item icon
+    draw_one_character_icon( pchr->holdingwhich[SLOT_RIGHT], x + 72, y, btrue );
 
-        imad  = chr_get_imad(item);
-        iskin = pitem->skin;
-
-        draw_book = (is_book || (is_spell_fx && !pitem->icon)) && (bookicon_count > 0);
-
-        if ( VALID_MAD(imad) && !draw_book )
-        {
-            draw_one_icon( ProList.lst[imad].ico_ref[iskin], x + 8, y, pitem->sparkle );
-            if ( pitem->ammomax != 0 && pitem->ammoknown )
-            {
-                if ( !chr_get_pcap(item)->isstackable || pitem->ammo > 1 )
-                {
-                    // Show amount of ammo left
-                    _draw_string_raw( x + 8, y - 8, "%2d", pitem->ammo );
-                }
-            }
-        }
-        else if ( VALID_MAD(imad) && draw_book )
-        {
-            Uint16 icon = pitem->money;
-            if (icon > bookicon_count) icon = bookicon_count;
-            draw_one_icon( bookicon_ref[ icon ], x + 8, y, pitem->sparkle );
-        }
-        else
-        {
-            draw_one_icon( ICON_NULL, x + 8, y, pitem->sparkle );
-        }
-    }
-    else
-    {
-        draw_one_icon( ICON_NULL, x + 8, y, NOSPARKLE );
-    }
-
-    item = ChrList.lst[character].holdingwhich[SLOT_RIGHT];
-    if ( VALID_CHR(item) )
-    {
-        chr_t * pitem = ChrList.lst + item;
-        bool_t is_spell_fx, is_book, draw_book;
-
-        is_spell_fx = chr_get_pcap(item)->is_spelleffect;
-        is_book     = SPELLBOOK == pitem->iprofile;
-
-        draw_book = (is_book || (is_spell_fx && !pitem->icon)) && (bookicon_count > 0);
-
-        imad  = chr_get_imad(item);
-        iskin = pitem->skin;
-
-        if ( VALID_MAD(imad) && !draw_book )
-        {
-            draw_one_icon( ProList.lst[imad].ico_ref[iskin], x + 72, y, pitem->sparkle );
-            if ( pitem->ammomax != 0 && pitem->ammoknown )
-            {
-                if ( !chr_get_pcap(item)->isstackable || pitem->ammo > 1 )
-                {
-                    // Show amount of ammo left
-                    _draw_string_raw( x + 72, y - 8, "%2d", pitem->ammo );
-                }
-            }
-        }
-        else if ( VALID_MAD(imad) && draw_book )
-        {
-            Uint16 icon = pitem->money;
-            if (icon > bookicon_count) icon = bookicon_count;
-            draw_one_icon( bookicon_ref[ icon ], x + 72, y, pitem->sparkle );
-        }
-        else
-        {
-            draw_one_icon( ICON_NULL, x + 72, y, pitem->sparkle );
-        }
-    }
-    else
-    {
-        draw_one_icon( ICON_NULL, x + 72, y, NOSPARKLE );
-    }
-
+    // skip to the next row
     y += 32;
 
     //Draw the small XP progress bar
-    if ( ChrList.lst[character].experiencelevel < MAXLEVEL)
-    {
-        chr_t * pchr       = ChrList.lst + character;
-        cap_t * pcap       = chr_get_pcap(character);
-        Uint8  curlevel    = pchr->experiencelevel + 1;
-        Uint32 xplastlevel = pcap->experienceforlevel[curlevel-1];
-        Uint32 xpneed      = pcap->experienceforlevel[curlevel];
+    y = draw_character_xp_bar( character, x + 16, y );
 
-        y = draw_one_xp_bar( x + 16, y, ( ( (float)MAX(pchr->experience - xplastlevel, 0) / MAX( xpneed - xplastlevel, 1 ) ) * NUMTICK) );
+    // Draw the life bar
+    if ( pchr->alive )
+    {
+        y = draw_one_bar( pchr->lifecolor, x, y, life, lifemax );
+    }
+    else
+    {
+        y = draw_one_bar( 0, x, y, 0, lifemax );  // Draw a black bar
     }
 
-    // Draw the status bars
-    if ( ChrList.lst[character].alive )
-        y = draw_one_bar( ChrList.lst[character].lifecolor, x, y, life, lifemax );
-    else
-        y = draw_one_bar( 0, x, y, 0, lifemax );  // Draw a black bar
-
-    y = draw_one_bar( ChrList.lst[character].manacolor, x, y, mana, manamax );
+    // Draw the mana bar
+    if( manamax > 0 )
+    {
+        y = draw_one_bar( pchr->manacolor, x, y, mana, manamax );
+    }
 
     return y;
 }
@@ -3470,7 +3339,7 @@ void draw_scene( camera_t * pcam )
                 render_background( TX_WATER_LOW );  // TX_WATER_LOW for waterlow.bmp
             }
 
-            draw_scene_zreflection( PMesh, pcam );
+            render_scene_zreflection( PMesh, pcam );
 
             // Foreground overlay
             if ( gfx.draw_overlay )
@@ -3604,11 +3473,11 @@ void gfx_init()
 
     // initialize the profiling variables
     PROFILE_INIT( gfx_loop );
-    PROFILE_INIT( draw_scene_init );
-    PROFILE_INIT( draw_scene_mesh );
-    PROFILE_INIT( draw_scene_solid );
-    PROFILE_INIT( draw_scene_water );
-    PROFILE_INIT( draw_scene_trans );
+    PROFILE_INIT( render_scene_init );
+    PROFILE_INIT( render_scene_mesh );
+    PROFILE_INIT( render_scene_solid );
+    PROFILE_INIT( render_scene_water );
+    PROFILE_INIT( render_scene_trans );
 
     // init some other variables
     stabilized_fps_sum    = 0.1f * TARGET_FPS;

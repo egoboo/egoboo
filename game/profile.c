@@ -39,10 +39,21 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+static _profile_initialized = bfalse;
+
 chop_data_t  chop = {0, 0};
 pro_import_t import_data;
 
+Uint16  bookicon_count   = 0;
+Uint16  bookicon_ref[MAX_SKIN];                      // The first book icon
+
 DECLARE_LIST ( ACCESS_TYPE_NONE, pro_t,  ProList  );
+
+DECLARE_STACK( ACCESS_TYPE_NONE, int, MessageOffset );
+
+Uint32  message_buffer_carat = 0;                           // Where to put letter
+char    message_buffer[MESSAGEBUFFERSIZE];                  // The text buffer
+
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -50,7 +61,90 @@ static void get_message( vfs_FILE* fileread );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t obj_init( pro_t * pobj )
+void init_all_profiles()
+{
+    // ZZ> This function initializes all of the model profiles
+
+    int tnc;
+
+    // initialize all the sub-profile lists
+    init_all_pip();
+    init_all_eve();
+    init_all_cap();
+    init_all_mad();
+    init_all_ai_scripts();
+
+    // initialize the profile list
+    ProList_init();
+
+    // fix the book icon list
+    for( tnc = 0; tnc < MAX_SKIN; tnc++ )
+    {
+        bookicon_ref[tnc] = INVALID_TEXTURE;
+    }
+    bookicon_count = 0;
+}
+
+//---------------------------------------------------------------------------------------------
+void release_all_profiles()
+{
+    // ZZ> This function clears out all of the model data
+
+    // release the allocated data in all profiles (sounds, textures, etc.)
+    release_all_pro_data();
+
+    // relese every type of sub-profile and re-initalize the lists
+    release_all_pip();
+    release_all_eve();
+    release_all_cap();
+    release_all_mad();
+    release_all_ai_scripts();
+
+    // re-initialize the profile list
+    ProList_init();
+}
+
+
+//---------------------------------------------------------------------------------------------
+void profile_init()
+{
+    // BB> initialize the profile list and load up some intialization files 
+    //     necessary for the the profile loading code to work
+
+    if( _profile_initialized )
+    {
+        // release all profile data and reinitialize the profile list
+        release_all_profiles();
+
+        _profile_initialized = bfalse;
+    }
+
+    // initialize all the profile lists
+    init_all_profiles();
+
+    // necessary for loading up the ai script
+    init_all_ai_scripts();
+    load_ai_codes( "basicdat" SLASH_STR "aicodes.txt" );
+
+    // necessary for loading up the copy.txt file
+    load_action_names( "basicdat" SLASH_STR "actions.txt" );
+
+    // necessary for properly reading the "message.txt"
+    reset_messages();
+
+    // necessary for reading "naming.txt" properly
+    prime_names();
+
+    // something that is used in the game that is somewhat related to the profile stuff
+    init_slot_idsz();
+
+    // let the code know that everything is initialized
+    _profile_initialized = btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+bool_t pro_init( pro_t * pobj )
 {
     int cnt;
 
@@ -58,7 +152,7 @@ bool_t obj_init( pro_t * pobj )
 
     if( pobj->loaded )
     {
-        log_warning( "obj_init() - trying to init an object in use" );
+        log_warning( "pro_init() - trying to init an object in use" );
     }
 
     //---- reset everything to safe values
@@ -193,7 +287,7 @@ void ProList_init()
     {
         // make sure we don't get a stupid warning
         ProList.lst[cnt].loaded = bfalse;
-        obj_init( ProList.lst + cnt );
+        pro_init( ProList.lst + cnt );
 
         ProList_push_free( cnt );
     }
@@ -239,7 +333,7 @@ bool_t ProList_free_one( Uint16 iobj )
 
     // object "destructor"
     // inilializes an object to safe values
-    obj_init( ProList.lst + iobj );
+    pro_init( ProList.lst + iobj );
 
     return ProList_push_free( iobj );
 }
@@ -248,7 +342,7 @@ bool_t ProList_free_one( Uint16 iobj )
 // object functions
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t release_one_object_texture( Uint16 iobj )
+bool_t release_one_profile_textures( Uint16 iobj )
 {
     int tnc;
     pro_t  * pobj;
@@ -273,24 +367,55 @@ bool_t release_one_object_texture( Uint16 iobj )
         }
     }
 
+    // reset the bookicon stuff if this object is a book
+    if ( SPELLBOOK == iobj )
+    {
+        for( tnc = 0; tnc < MAX_SKIN; tnc++ )
+        {
+            bookicon_ref[tnc] = INVALID_TEXTURE;
+        }
+        bookicon_count = 0;
+    }
+
     return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-void release_all_object_textures()
+void release_all_profile_textures()
 {
     int cnt;
 
     for ( cnt = 0; cnt < MAX_PROFILE; cnt++ )
     {
-        release_one_object_texture(cnt);
+        release_one_profile_textures(cnt);
     }
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t release_one_pro_data( Uint16 iobj )
+{
+    int cnt;
+    pro_t * pobj;
+
+    if( !VALID_PRO(iobj) ) return bfalse;
+    pobj = ProList.lst + iobj;
+
+    // free all sounds
+    for ( cnt = 0; cnt < MAX_WAVE; cnt++ )
+    {
+        sound_free_chunk( pobj->wavelist[cnt] );
+        pobj->wavelist[cnt] = NULL;
+    }
+
+    // release whatever textures are being used
+    release_one_profile_textures( iobj );
+
+    return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
 bool_t release_one_pro( Uint16 iobj )
 {
-    int cnt;
     pro_t * pobj;
 
     if( !VALID_PRO_RANGE(iobj) ) return bfalse;
@@ -298,6 +423,7 @@ bool_t release_one_pro( Uint16 iobj )
     if( !VALID_PRO(iobj) ) return btrue;
     pobj = ProList.lst + iobj;
 
+    // release all of the sub-profiles
     //release_one_ai ( pobj->iai  );
     release_one_cap( pobj->icap );
     release_one_mad( pobj->imad );
@@ -305,19 +431,14 @@ bool_t release_one_pro( Uint16 iobj )
 
     release_one_local_pips( iobj );
 
-    // free all sounds
-    for ( cnt = 0; cnt < MAX_WAVE; cnt++ )
-    {
-        sound_free_chunk( pobj->wavelist[cnt] );
-    }
+    // release the allocated data
+    release_one_pro_data( iobj );
 
-    // release whatever textures are being used
-    release_one_object_texture( iobj );
-
-    obj_init( pobj );
+    pro_init( pobj );
 
     return btrue;
 }
+
 //--------------------------------------------------------------------------------------------
 void release_all_pro()
 {
@@ -327,6 +448,18 @@ void release_all_pro()
     for ( cnt = 0; cnt < MAX_PROFILE; cnt++ )
     {
         release_one_pro( cnt );
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+void release_all_pro_data()
+{
+    // BB> release the allocated data for all objects
+    int cnt;
+
+    for ( cnt = 0; cnt < MAX_PROFILE; cnt++ )
+    {
+        release_one_pro_data( cnt );
     }
 }
 
@@ -920,5 +1053,29 @@ void chop_load( Uint16 profile, const char *szLoadname )
     }
 
     vfs_close( fileread );
+}
+
+//--------------------------------------------------------------------------------------------
+void reset_messages()
+{
+    // ZZ> This makes messages safe to use
+    int cnt;
+
+    MessageOffset.count = 0;
+    message_buffer_carat = 0;
+    msgtimechange = 0;
+    DisplayMsg.count = 0;
+
+    for ( cnt = 0; cnt < MAX_MESSAGE; cnt++ )
+    {
+        DisplayMsg.lst[cnt].time = 0;
+    }
+
+    for ( cnt = 0; cnt < MAXTOTALMESSAGE; cnt++ )
+    {
+        MessageOffset.lst[cnt] = 0;
+    }
+
+    message_buffer[0] = '\0';
 }
 

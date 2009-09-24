@@ -33,6 +33,16 @@ struct Mix_Chunk;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+// Message files
+
+DEFINE_STACK_EXTERN(int, MessageOffset, MAXTOTALMESSAGE);
+
+extern Uint32          message_buffer_carat;                                  // Where to put letter
+extern char            message_buffer[MESSAGEBUFFERSIZE];                     // The text buffer
+
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 // for loading objects
 struct s_pro_import
 {
@@ -43,8 +53,6 @@ struct s_pro_import
 };
 
 typedef struct s_pro_import pro_import_t;
-
-extern pro_import_t import_data;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -65,8 +73,6 @@ struct s_chop_data
     Uint16  start[MAXCHOP];         // The first character of each part
 };
 typedef struct s_chop_data chop_data_t;
-
-extern chop_data_t chop;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -103,14 +109,26 @@ struct s_object_profile
 typedef struct s_object_profile object_profile_t;
 typedef struct s_object_profile pro_t;
 
-DEFINE_LIST_EXTERN(pro_t, ProList, MAX_PROFILE );
-
 #define VALID_PRO_RANGE( IOBJ ) ( ((IOBJ) >= 0) && ((IOBJ) < MAX_PROFILE) )
 #define VALID_PRO( IOBJ )       ( VALID_PRO_RANGE( IOBJ ) && ProList.lst[IOBJ].loaded )
 #define INVALID_PRO( IOBJ )     ( !VALID_PRO_RANGE( IOBJ ) || !ProList.lst[IOBJ].loaded )
 
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+extern Uint16  bookicon_count;
+extern Uint16  bookicon_ref[MAX_SKIN];                      // The first book icon
+
+extern pro_import_t import_data;
+
+extern chop_data_t chop;
+
+DEFINE_LIST_EXTERN(pro_t, ProList, MAX_PROFILE );
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+void profile_init();
+
 void   ProList_init();
 //void   ProList_free_all();
 Uint16 ProList_get_free( Uint16 override );
@@ -142,3 +160,10 @@ void   release_all_local_pips();
 
 void   prime_names( void );
 void   chop_load( Uint16 profile, const char *szLoadname );
+
+void   release_all_pro_data();
+
+void init_all_profiles();
+void release_all_profiles();
+
+void reset_messages();

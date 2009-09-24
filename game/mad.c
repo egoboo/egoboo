@@ -35,11 +35,6 @@ static char cActionName[ACTION_COUNT][2]; // Two letter name code
 
 mad_t   MadList[MAX_PROFILE];
 
-DECLARE_STACK( ACCESS_TYPE_NONE, int, MessageOffset );
-
-Uint32  message_buffer_carat = 0;                           // Where to put letter
-char    message_buffer[MESSAGEBUFFERSIZE];                  // The text buffer
-
 char    cFrameName[16];                                     // MD2 Frame Name
 
 //--------------------------------------------------------------------------------------------
@@ -614,6 +609,34 @@ void md2_get_transvertices( Uint16 modelindex )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+void init_all_mad()
+{
+    Uint16 cnt;
+
+    for ( cnt = 0; cnt < MAX_PROFILE; cnt++ )
+    {
+        memset( MadList + cnt, 0, sizeof(mad_t) );
+
+        strncpy( MadList[cnt].name, "*NONE*", SDL_arraysize(MadList[cnt].name) );
+    }
+
+    md2_loadframe = 0;
+}
+
+//---------------------------------------------------------------------------------------------
+void release_all_mad()
+{
+    int cnt;
+
+    for ( cnt = 0; cnt < MAX_PROFILE; cnt++ )
+    {
+        release_one_mad( cnt );
+    }
+
+    md2_loadframe = 0;
+}
+
+//---------------------------------------------------------------------------------------------
 bool_t release_one_mad( Uint16 imad )
 {
     mad_t * pmad;
@@ -633,4 +656,3 @@ bool_t release_one_mad( Uint16 imad )
 
     return btrue;
 }
-

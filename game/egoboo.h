@@ -70,8 +70,6 @@
 #define MAXTOTALMESSAGE     4096
 #define MESSAGESIZE         80
 #define MESSAGEBUFFERSIZE   (MAXTOTALMESSAGE*40)
-#define TABADD              (1<<5)
-#define TABAND              (~(TABADD-1))                      // Tab size
 
 #define GRABSIZE            90.0f                      // Grab tolerance
 #define SEEINVISIBLE        128                        // Cutoff for invisible characters
@@ -186,9 +184,6 @@ EXTERN bool_t                    local_noplayers;                    // Are ther
 //------------------------------------
 // Model stuff
 //------------------------------------
-
-EXTERN Uint16  bookicon_count    EQ(0);
-EXTERN Uint16  bookicon_ref[MAX_SKIN];                      // The first book icon
 
 EXTERN const char *globalparsename  EQ( NULL ); // The SCRIPT.TXT filename
 

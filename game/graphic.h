@@ -53,10 +53,6 @@ struct Font;
 #define MAXTICK                         (NUMTICK*10) // Max number of ticks to draw
 #define XPTICK                          6.00f
 
-#define NUMFONTX                        16          // Number of fonts in the bitmap
-#define NUMFONTY                        6
-#define NUMFONT                         (NUMFONTX*NUMFONTY)
-#define FONTADD                         4               // Gap between letters
 #define NUMBAR                          6               // Number of status bars
 #define NUMXPBAR                        2               // Number of xp bars
 
@@ -66,8 +62,6 @@ struct Font;
 
 #define DONTFLASH                       255
 #define SEEKURSEAND                     31          // Blacking flash
-
-#define TRANSCOLOR                      0           // Color index of the transparent color in an 8-bit image, or the rgb components of the transparent color in a 24-bit image
 
 #define GFX_WIDTH                       800         // 640
 #define GFX_HEIGHT                      600         // 480
@@ -298,7 +292,7 @@ void init_all_graphics();
 void release_all_graphics();
 void delete_all_graphics();
 
-void release_all_object_textures();
+void release_all_profile_textures();
 
 void   load_graphics();
 bool_t load_blip_bitmap();
@@ -309,7 +303,7 @@ bool_t load_all_global_icons();
 void  make_lighttable( float lx, float ly, float lz, float ambi );
 
 void render_water();
-void draw_scene_zreflection( ego_mpd_t * pmesh, struct s_camera * pcam );
+void render_scene_zreflection( ego_mpd_t * pmesh, struct s_camera * pcam );
 void animate_tiles();
 void move_water();
 
@@ -318,10 +312,11 @@ void draw_one_font( int fonttype, int x, int y );
 void draw_map_texture( int x, int y );
 int  draw_one_bar( Uint8 bartype, int x, int y, int ticks, int maxticks );
 int  draw_string( int x, int y, const char *format, ... );
-int  length_of_word( const char *szText );
+int  font_bmp_length_of_word( const char *szText );
 int  draw_wrap_string( const char *szText, int x, int y, int maxx );
 int  draw_status( Uint16 character, int x, int y );
 void draw_text();
+void draw_one_character_icon( Uint16 item, int x, int y, bool_t draw_ammo );
 
 void request_clear_screen();
 void do_clear_screen();
@@ -363,9 +358,9 @@ void load_basic_textures( const char *modname );
 
 void clear_messages();
 
-void font_load( const char* szBitmap, const char* szSpacing );
+void font_bmp_load( const char* szBitmap, const char* szSpacing );
 
-void font_init();
+void font_bmp_init();
 
 void update_all_prt_instance( struct s_camera * pcam );
 bool_t render_one_prt_solid( Uint16 iprt );
@@ -393,7 +388,7 @@ bool_t bbox_gl_draw(aabb_t * pbbox);
 void render_all_billboards( struct s_camera * pcam );
 
 void draw_all_lines( struct s_camera * pcam );
-int get_free_line();
+int  get_free_line();
 
 extern float time_draw_scene_init;
 extern float time_draw_scene_mesh;

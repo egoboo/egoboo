@@ -1028,24 +1028,6 @@ void reset_particles( const char* modname )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t release_one_pip( Uint16 ipip )
-{
-    pip_t * ppip;
-
-    if( !VALID_PIP_RANGE(ipip) ) return bfalse;
-    ppip = PipStack.lst + ipip;
-
-    if( !ppip->loaded ) return btrue;
-
-    memset( ppip, 0, sizeof(pip_t) );
-
-    ppip->loaded  = bfalse;
-    ppip->name[0] = '\0';
-
-    return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 Uint16  prt_get_ipip( Uint16 iprt )
 {
@@ -1072,6 +1054,18 @@ pip_t * prt_get_ppip( Uint16 iprt )
     return PipStack.lst + pprt->pip;
 }
 
+//---------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------
+void init_all_pip()
+{
+    Uint16 cnt;
+
+    for ( cnt = 0; cnt < MAX_PIP; cnt++ )
+    {
+        memset( PipStack.lst + cnt, 0, sizeof(pip_t) );
+    }
+}
+
 //--------------------------------------------------------------------------------------------
 void release_all_pip()
 {
@@ -1081,4 +1075,22 @@ void release_all_pip()
     {
         release_one_pip( cnt );
     }
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t release_one_pip( Uint16 ipip )
+{
+    pip_t * ppip;
+
+    if( !VALID_PIP_RANGE(ipip) ) return bfalse;
+    ppip = PipStack.lst + ipip;
+
+    if( !ppip->loaded ) return btrue;
+
+    memset( ppip, 0, sizeof(pip_t) );
+
+    ppip->loaded  = bfalse;
+    ppip->name[0] = '\0';
+
+    return btrue;
 }

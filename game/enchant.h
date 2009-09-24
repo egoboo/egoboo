@@ -87,6 +87,10 @@ DEFINE_LIST_EXTERN(enc_t, EncList, MAX_ENC );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+void init_all_eve();
+void release_all_eve();
+bool_t release_one_eve( Uint16 ieve );
+
 // Prototypes
 void EncList_free_all();
 void getadd( int min, int value, int max, int* valuetoadd );

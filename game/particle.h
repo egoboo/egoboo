@@ -153,6 +153,10 @@ DEFINE_LIST_EXTERN(prt_t, PrtList, TOTAL_MAX_PRT);
 //--------------------------------------------------------------------------------------------
 // function prototypes
 
+void   init_all_pip();
+void   release_all_pip();
+bool_t release_one_pip( Uint16 ipip );
+
 bool_t PrtList_free_one( Uint16 particle );
 void   free_one_particle_in_game( Uint16 particle );
 
@@ -181,5 +185,3 @@ bool_t release_one_pip( Uint16 ipip );
 
 Uint16  prt_get_ipip( Uint16 cnt );
 pip_t * prt_get_ppip( Uint16 cnt );
-
-void release_all_pip();

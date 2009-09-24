@@ -6250,29 +6250,36 @@ const char * chr_get_name( Uint16 ichr )
 {
     static STRING szName;
 
-    // the default name
-    strncpy( szName, "Unknown", SDL_arraysize(szName) );
-
-    if ( VALID_CHR(ichr) )
+    if ( INVALID_CHR(ichr) )
+    {
+        // the default name
+        strncpy( szName, "Unknown", SDL_arraysize(szName) );
+    }
+    else
     {
         chr_t * pchr = ChrList.lst + ichr;
+        cap_t * pcap = pro_get_pcap(pchr->iprofile);
 
         if ( pchr->nameknown )
         {
             snprintf( szName, SDL_arraysize( szName), "%s", pchr->name );
         }
-        else
+        else if ( NULL != pcap )
         {
             char lTmp;
             const char * article = "a";
 
-            lTmp = toupper( pro_get_pcap(pchr->iprofile)->classname[0] );
+            lTmp = toupper( pcap->classname[0] );
             if ( 'A' == lTmp || 'E' == lTmp || 'I' == lTmp || 'O' == lTmp || 'U' == lTmp )
             {
                 article = "an";
             }
 
-            snprintf( szName, SDL_arraysize( szName), "%s %s", article, pro_get_pcap(pchr->iprofile)->classname );
+            snprintf( szName, SDL_arraysize( szName), "%s %s", article, pcap->classname );
+        }
+        else
+        {
+            strncpy( szName, "Invalid", SDL_arraysize(szName) );
         }
     }
 
@@ -6280,24 +6287,6 @@ const char * chr_get_name( Uint16 ichr )
     szName[0] = toupper( szName[0] );
 
     return szName;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t release_one_cap( Uint16 icap )
-{
-    cap_t * pcap;
-
-    if( !VALID_CAP_RANGE(icap) ) return bfalse;
-    pcap = CapList + icap;
-
-    if( !pcap->loaded ) return btrue;
-
-    memset( pcap, 0, sizeof(cap_t) );
-
-    pcap->loaded  = bfalse;
-    pcap->name[0] = '\0';
-
-    return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -6872,243 +6861,152 @@ bool_t chr_has_vulnie( Uint16 item, Uint16 test_profile )
 }
 
 //--------------------------------------------------------------------------------------------
-/*Uint16 get_target_in_block( int x, int y, Uint16 character, char items,
-                            char friends, char enemies, char dead, char seeinvisible, IDSZ idsz,
-                            char excludeid )
+Uint32 chr_get_icon_ref( Uint16 item )
 {
-  // ZZ> This is a good little helper, that returns != MAX_CHR if a suitable target
-  //    was found
-  int cnt;
-  Uint16 charb;
-  Uint32 fanblock;
-  Uint8 team;
-  if ( x >= 0 && x < meshbloksx && y >= 0 && y < meshbloksy )
-  {
-    team = chr_get_iteam(character);
-    fanblock = mesh_get_block_int(PMesh, x,y);
-    charb = bumplist[fanblock].chr;
-    cnt = 0;
-    while ( cnt < bumplist[fanblock].chrnum )
+    Uint16 iskin;
+    Uint32 icon_ref = ICON_NULL;
+    bool_t is_spell_fx, is_book, draw_book;
+
+    cap_t * pitem_cap;
+    chr_t * pitem;
+    pro_t * pitem_pro;
+
+    if( INVALID_CHR(item) ) return icon_ref;
+    pitem = ChrList.lst + item;
+
+    if( INVALID_PRO(pitem->iprofile) ) return icon_ref;
+    pitem_pro = ProList.lst + pitem->iprofile;
+
+    pitem_cap = pro_get_pcap( pitem->iprofile );
+    if( NULL == pitem_cap ) return icon_ref;
+
+    // what do we need to draw?
+    is_spell_fx = pitem_cap->spelleffect_type > 0;
+    is_book     = (SPELLBOOK == pitem->iprofile);
+    draw_book = (is_book || (is_spell_fx && !pitem->icon)) && (bookicon_count > 0);
+   
+    if ( !draw_book )
     {
-      if ( dead != ChrList.lst[charb].alive && ( seeinvisible || FF_MUL( chr_get_pinstance(charb)->alpha, chr_get_pinstance(charb)->max_light ) > INVISIBLE ) ) )
-      {
-        if ( ( enemies && TeamList[team].hatesteam[chr_get_iteam(charb)] && !ChrList.lst[charb].invictus ) ||
-             ( items && ChrList.lst[charb].isitem ) ||
-             ( friends && ChrList.lst[charb].baseteam == team ) )
-        {
-          if ( charb != character && ChrList.lst[character].attachedto != charb )
-          {
-            if ( !ChrList.lst[charb].isitem || items )
-            {
-              if ( idsz != IDSZ_NONE )
-              {
-                if ( chr_get_idsz(charb,IDSZ_PARENT) == idsz ||
-                     chr_get_idsz(charb,IDSZ_TYPE) == idsz )
-                {
-                  if ( !excludeid ) return charb;
-                }
-                else
-                {
-                  if ( excludeid )  return charb;
-                }
-              }
-              else
-              {
-                return charb;
-              }
-            }
-          }
-        }
-      }
-      charb = ChrList.lst[charb].fanblock_next;
-      cnt++;
+        iskin = pitem->skin;
+
+        icon_ref = pitem_pro->ico_ref[iskin];
     }
-  }
-  return MAX_CHR;
-}*/
-
-//--------------------------------------------------------------------------------------------
-/*Uint16 get_nearby_target( Uint16 character, char items,
-                          char friends, char enemies, char dead, IDSZ idsz )
-{
-  // ZZ> This function finds a nearby target, or it returns MAX_CHR if it can't find one
-  int x, y;
-  char seeinvisible;
-  seeinvisible = ChrList.lst[character].canseeinvisible;
-
-  // Current fanblock
-  x = ( ( int )ChrList.lst[character].pos.x ) >> BLOCK_BITS;
-  y = ( ( int )ChrList.lst[character].pos.y ) >> BLOCK_BITS;
-  return get_target_in_block( x, y, character, items, friends, enemies, dead, seeinvisible, idsz, 0 );
-}*/
-
-//--------------------------------------------------------------------------------------------
-/*Uint16 find_distant_target( Uint16 character, int maxdistance )
-{
-  // ZZ> This function finds a target, or it returns MAX_CHR if it can't find one...
-  //    maxdistance should be the square of the actual distance you want to use
-  //    as the cutoff...
-  int cnt, distance, xdistance, ydistance;
-  Uint8 team;
-
-  team = chr_get_iteam(character);
-  cnt = 0;
-  while ( cnt < MAX_CHR )
-  {
-    if ( ChrList.lst[cnt].on )
+    else if ( draw_book )
     {
-      if ( ChrList.lst[cnt].attachedto == MAX_CHR && !ChrList.lst[cnt].pack_ispacked )
-      {
-        if ( TeamList[team].hatesteam[chr_get_iteam(cnt)] && ChrList.lst[cnt].alive && !ChrList.lst[cnt].invictus )
+        iskin = 0;
+
+        if ( pitem_cap->spelleffect_type > 0 )
         {
-          if ( ChrList.lst[character].canseeinvisible || FF_MUL( chr_get_pinstance(cnt)->alpha, chr_get_pinstance(cnt)->max_light ) > INVISIBLE ) )
-          {
-            xdistance = (int) (ChrList.lst[cnt].pos.x - ChrList.lst[character].pos.x);
-            ydistance = (int) (ChrList.lst[cnt].pos.y - ChrList.lst[character].pos.y);
-            distance = xdistance * xdistance + ydistance * ydistance;
-            if ( distance < maxdistance )
-            {
-              return cnt;
-            }
-          }
+            iskin = pitem_cap->spelleffect_type;
         }
-      }
+        else if ( pitem_cap->skinoverride > 0 )
+        {
+            iskin = pitem_cap->skinoverride;
+        }
+
+        iskin = CLIP(iskin, 0, bookicon_count);
+
+        icon_ref = bookicon_ref[ iskin ];
     }
-    cnt++;
-  }
-  return MAX_CHR;
-}*/
+
+    return icon_ref;
+}
 
 //--------------------------------------------------------------------------------------------
-/*void get_nearest_in_block( int x, int y, Uint16 character, char items,
-                           char friends, char enemies, char dead, char seeinvisible, IDSZ idsz )
+const char* describe_stat(int value)
 {
-  // ZZ> This is a good little helper
-  float distance, xdis, ydis;
-  int cnt;
-  Uint8 team;
-  Uint16 charb;
-  Uint32 fanblock;
-  if ( x >= 0 && x < meshbloksx && y >= 0 && y < meshbloksy )
-  {
-    team = chr_get_iteam(character);
-    fanblock = mesh_get_block_int(PMesh, x,y);
-    charb = bumplist[fanblock].chr;
-    cnt = 0;
-    while ( cnt < bumplist[fanblock].chrnum )
+	//ZF> This converts a stat number into a more descriptive word
+
+    static STRING retval;
+
+    value = FP8_TO_INT(value);
+	
+	if     ( value >= 50 )	strcpy(retval, "Godlike!");
+	else if( value >= 40 )	strcpy(retval, "Ultimate");
+	else if( value >= 34 )	strcpy(retval, "Epic");
+	else if( value >= 30 )	strcpy(retval, "Powerful");
+	else if( value >= 26 )	strcpy(retval, "Heroic");
+	else if( value >= 22 )	strcpy(retval, "Very High");
+	else if( value >= 18 )	strcpy(retval, "High");
+	else if( value >= 14 )	strcpy(retval, "Good");
+	else if( value >= 10 )	strcpy(retval, "Average");
+	else if( value >= 7  )	strcpy(retval, "Pretty Low");
+	else if( value >= 4  )	strcpy(retval, "Bad");
+	else if( value >= 1  )	strcpy(retval, "Terrible");
+	else					strcpy(retval, "None");
+	
+	return retval;
+}
+
+//---------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------
+void init_all_cap()
+{
+    Uint16 cnt;
+
+    for ( cnt = 0; cnt < MAX_PROFILE; cnt++ )
     {
-      if ( dead != ChrList.lst[charb].alive && ( seeinvisible || FF_MUL( chr_get_pinstance(charb)->alpha, chr_get_pinstance(charb)->max_light ) > INVISIBLE ) ) )
-      {
-        if ( ( enemies && TeamList[team].hatesteam[chr_get_iteam(charb)] ) ||
-             ( items && ChrList.lst[charb].isitem ) ||
-             ( friends && chr_get_iteam(charb) == team ) ||
-             ( friends && enemies ) )
-        {
-          if ( charb != character && ChrList.lst[character].attachedto != charb && ChrList.lst[charb].attachedto == MAX_CHR && !ChrList.lst[charb].pack_ispacked )
-          {
-            if ( !ChrList.lst[charb].invictus || items )
-            {
-              if ( idsz != IDSZ_NONE )
-              {
-                if ( chr_get_idsz(charb,IDSZ_PARENT) == idsz ||
-                     chr_get_idsz(charb,IDSZ_TYPE) == idsz )
-                {
-                  xdis = ChrList.lst[character].pos.x - ChrList.lst[charb].pos.x;
-                  ydis = ChrList.lst[character].pos.y - ChrList.lst[charb].pos.y;
-                  xdis = xdis * xdis;
-                  ydis = ydis * ydis;
-                  distance = xdis + ydis;
-                  if ( distance < globaldistance )
-                  {
-                    globalnearest = charb;
-                    globaldistance = distance;
-                  }
-                }
-              }
-              else
-              {
-                xdis = ChrList.lst[character].pos.x - ChrList.lst[charb].pos.x;
-                ydis = ChrList.lst[character].pos.y - ChrList.lst[charb].pos.y;
-                xdis = xdis * xdis;
-                ydis = ydis * ydis;
-                distance = xdis + ydis;
-                if ( distance < globaldistance )
-                {
-                  globalnearest = charb;
-                  globaldistance = distance;
-                }
-              }
-            }
-          }
-        }
-      }
-      charb = ChrList.lst[charb].fanblock_next;
-      cnt++;
+        memset( CapList + cnt, 0, sizeof(cap_t) );
     }
-  }
-  return;
-}*/
+}
+
+//---------------------------------------------------------------------------------------------
+void release_all_cap()
+{
+    int cnt;
+
+    for ( cnt = 0; cnt < MAX_PROFILE; cnt++ )
+    {
+        release_one_cap( cnt );
+    };
+}
 
 //--------------------------------------------------------------------------------------------
-/*Uint16 get_nearest_target( Uint16 character, char items,
-                           char friends, char enemies, char dead, IDSZ idsz )
+bool_t release_one_cap( Uint16 icap )
 {
-  // ZZ> This function finds a target, or it returns MAX_CHR if it can't find one
-  int x, y;
-  char seeinvisible;
-  seeinvisible = ChrList.lst[character].canseeinvisible;
+    cap_t * pcap;
 
-  // Current fanblock
-  x = ( ( int )ChrList.lst[character].pos.x ) >> BLOCK_BITS;
-  y = ( ( int )ChrList.lst[character].pos.y ) >> BLOCK_BITS;
+    if( !VALID_CAP_RANGE(icap) ) return bfalse;
+    pcap = CapList + icap;
 
-  globalnearest = MAX_CHR;
-  globaldistance = 999999;
-  get_nearest_in_block( x, y, character, items, friends, enemies, dead, seeinvisible, idsz );
+    if( !pcap->loaded ) return btrue;
 
-  get_nearest_in_block( x - 1, y, character, items, friends, enemies, dead, seeinvisible, idsz );
-  get_nearest_in_block( x + 1, y, character, items, friends, enemies, dead, seeinvisible, idsz );
-  get_nearest_in_block( x, y - 1, character, items, friends, enemies, dead, seeinvisible, idsz );
-  get_nearest_in_block( x, y + 1, character, items, friends, enemies, dead, seeinvisible, idsz );
+    memset( pcap, 0, sizeof(cap_t) );
 
-  get_nearest_in_block( x - 1, y + 1, character, items, friends, enemies, dead, seeinvisible, idsz );
-  get_nearest_in_block( x + 1, y - 1, character, items, friends, enemies, dead, seeinvisible, idsz );
-  get_nearest_in_block( x - 1, y - 1, character, items, friends, enemies, dead, seeinvisible, idsz );
-  get_nearest_in_block( x + 1, y + 1, character, items, friends, enemies, dead, seeinvisible, idsz );
-  return globalnearest;
-}*/
+    pcap->loaded  = bfalse;
+    pcap->name[0] = '\0';
+
+    return btrue;
+}
 
 //--------------------------------------------------------------------------------------------
-/*Uint16 get_wide_target( Uint16 character, char items,
-                        char friends, char enemies, char dead, IDSZ idsz, char excludeid )
+void reset_teams()
 {
-  // ZZ> This function finds a target, or it returns MAX_CHR if it can't find one
-  int x, y;
-  Uint16 enemy;
-  char seeinvisible;
-  seeinvisible = ChrList.lst[character].canseeinvisible;
+    // ZZ> This function makes everyone hate everyone else
+    int teama, teamb;
 
-  // Current fanblock
-  x = ( ( int )ChrList.lst[character].pos.x ) >> BLOCK_BITS;
-  y = ( ( int )ChrList.lst[character].pos.y ) >> BLOCK_BITS;
-  enemy = get_target_in_block( x, y, character, items, friends, enemies, dead, seeinvisible, idsz, excludeid );
-  if ( enemy != MAX_CHR )  return enemy;
+    for ( teama = 0; teama < TEAM_MAX; teama++ )
+    {
+        // Make the team hate everyone
+        for ( teamb = 0; teamb < TEAM_MAX; teamb++ )
+        {
+            TeamList[teama].hatesteam[teamb] = btrue;
+        }
 
-  enemy = get_target_in_block( x - 1, y, character, items, friends, enemies, dead, seeinvisible, idsz, excludeid );
-  if ( enemy != MAX_CHR )  return enemy;
-  enemy = get_target_in_block( x + 1, y, character, items, friends, enemies, dead, seeinvisible, idsz, excludeid );
-  if ( enemy != MAX_CHR )  return enemy;
-  enemy = get_target_in_block( x, y - 1, character, items, friends, enemies, dead, seeinvisible, idsz, excludeid );
-  if ( enemy != MAX_CHR )  return enemy;
-  enemy = get_target_in_block( x, y + 1, character, items, friends, enemies, dead, seeinvisible, idsz, excludeid );
-  if ( enemy != MAX_CHR )  return enemy;
+        // Make the team like itself
+        TeamList[teama].hatesteam[teama] = bfalse;
 
-  enemy = get_target_in_block( x - 1, y + 1, character, items, friends, enemies, dead, seeinvisible, idsz, excludeid );
-  if ( enemy != MAX_CHR )  return enemy;
-  enemy = get_target_in_block( x + 1, y - 1, character, items, friends, enemies, dead, seeinvisible, idsz, excludeid );
-  if ( enemy != MAX_CHR )  return enemy;
-  enemy = get_target_in_block( x - 1, y - 1, character, items, friends, enemies, dead, seeinvisible, idsz, excludeid );
-  if ( enemy != MAX_CHR )  return enemy;
-  enemy = get_target_in_block( x + 1, y + 1, character, items, friends, enemies, dead, seeinvisible, idsz, excludeid );
-  return enemy;
-}*/
+        // Set defaults
+        TeamList[teama].leader = NOLEADER;
+        TeamList[teama].sissy = 0;
+        TeamList[teama].morale = 0;
+    }
+
+    // Keep the null team neutral
+    for ( teama = 0; teama < TEAM_MAX; teama++ )
+    {
+        TeamList[teama].hatesteam[TEAM_NULL] = bfalse;
+        TeamList[TEAM_NULL].hatesteam[teama] = bfalse;
+    }
+}
+

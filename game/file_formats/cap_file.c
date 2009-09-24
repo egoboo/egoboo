@@ -90,7 +90,7 @@ void cap_init( cap_t * pcap )
     /* pcap->canusepoison = 0; */
     /* pcap->canread = 0; */
 
-    /* pcap->is_spelleffect = bfalse; */
+    pcap->spelleffect_type = -1;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -395,7 +395,7 @@ cap_t * load_one_cap_file( const char * tmploadname, cap_t * pcap )
         else if ( idsz == MAKE_IDSZ( 'V', 'A', 'L', 'U' ) ) pcap->isvaluable = fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'L', 'I', 'F', 'E' ) ) pcap->spawnlife = 256 * fget_float( fileread );
         else if ( idsz == MAKE_IDSZ( 'M', 'A', 'N', 'A' ) ) pcap->spawnmana = 256 * fget_float( fileread );
-        else if ( idsz == MAKE_IDSZ( 'B', 'O', 'O', 'K' ) ) pcap->is_spelleffect = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'B', 'O', 'O', 'K' ) ) pcap->spelleffect_type = fget_int( fileread );
 
         // Read Skills
         else if ( idsz == MAKE_IDSZ( 'A', 'W', 'E', 'P' ) ) pcap->canuseadvancedweapons = fget_int( fileread );

@@ -177,3 +177,5 @@ void sv_letPlayersJoin();
 void stop_players_from_joining();
 // int create_player(int host);
 // void turn_on_service(int service);
+
+void net_reset_players();

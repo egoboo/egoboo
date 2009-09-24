@@ -2206,11 +2206,13 @@ Uint8 scr_BecomeSpell( script_state_t * pstate, ai_state_t * pself )
 
     // TOO COMPLICATED TO EXPLAIN...  SHOULDN'T EVER BE NEEDED BY YOU...
 
+    int iskin;
     cap_t * pcap;
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->money = ( pchr->skin ) % MAX_SKIN;
+    iskin = pchr->skin;
+    pchr->money = iskin % MAX_SKIN;
     change_character( pself->index, pself->content, 0, LEAVENONE );
     pself->content = 0;  // Reset so it doesn't mess up
     pself->state   = 0;  // Reset so it doesn't mess up
@@ -2219,7 +2221,7 @@ Uint8 scr_BecomeSpell( script_state_t * pstate, ai_state_t * pself )
     pcap = pro_get_pcap( pchr->iprofile );
     if( NULL != pcap )
     {
-        pcap->is_spelleffect = btrue;
+        pcap->spelleffect_type = iskin;
     }
 
     SCRIPT_FUNCTION_END();
@@ -2244,7 +2246,7 @@ Uint8 scr_BecomeSpellbook( script_state_t * pstate, ai_state_t * pself )
     returncode = bfalse;
     if( NULL != pcap && NULL != pmad )
     {
-        pcap->is_spelleffect = btrue;
+        pcap->spelleffect_type = pchr->money;
 
         pself->content = pchr->iprofile;
         change_character( pself->index, SPELLBOOK, pchr->money % MAX_SKIN, LEAVENONE );

@@ -24,7 +24,7 @@
  * IMGUI.  (https://mollyrocket.com/forums/viewtopic.php?t=134)
  */
 
-#include "font.h"
+#include "font_ttf.h"
 #include "ogl_texture.h"
 #include "egoboo_typedef.h"
 

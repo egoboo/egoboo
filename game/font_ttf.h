@@ -19,7 +19,7 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - Font.h
+/* Egoboo - font.h
  * True-type font drawing functionality.  Uses Freetype 2 & OpenGL
  * to do it's business.
  */
