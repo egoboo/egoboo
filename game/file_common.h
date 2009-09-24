@@ -31,7 +31,6 @@ const char *fs_getDataDirectory();
 const char *fs_getUserDirectory();
 const char *fs_getConfigDirectory();
 
-
 int  fs_fileExists( const char *filename );
 int  fs_fileIsDirectory( const char *filename );
 int  fs_createDirectory( const char *dirname );

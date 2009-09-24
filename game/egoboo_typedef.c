@@ -251,3 +251,13 @@ bool_t frect_point_inside( frect_t * prect, float fx, float fy )
 
     return btrue;
 }
+
+//--------------------------------------------------------------------------------------------
+void latch_init( latch_t * platch )
+{
+    if( NULL == platch ) return;
+
+    platch->x = 0.0f;
+    platch->y = 0.0f;
+    platch->b = 0;
+}

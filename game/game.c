@@ -69,6 +69,10 @@
 
 #include "SDL_extensions.h"
 
+#if defined(USE_LUA_CONSOLE)
+#include "lua_console.h"
+#endif
+
 #include <SDL_image.h>
 
 #include <time.h>
@@ -192,12 +196,12 @@ static void reset_timers();
 static void _quit_game( ego_process_t * pgame );
 
 // looping - stuff called every loop - not accessible by scripts
-static void do_enchant_spawn();
+static void do_enchant_spawn_particles();
 static void attach_particles();
 static void check_stats();
 static void tilt_characters_to_terrain();
 static void bump_characters( void );
-static void do_weather_spawn();
+static void do_weather_spawn_particles();
 static void stat_return();
 static void update_pits();
 static void update_game();
@@ -431,7 +435,7 @@ void export_all_players( bool_t require_local )
     // Check each player
     for ( cnt = 0; cnt < MAXPLAYER; cnt++ )
     {
-        is_local = ( 0 != PlaList[cnt].device );
+        is_local = ( 0 != PlaList[cnt].device.bits );
         if ( require_local && !is_local ) continue;
         if ( !PlaList[cnt].valid ) continue;
 
@@ -621,7 +625,7 @@ void statlist_sort()
 
     for ( cnt = 0; cnt < PlaList_count; cnt++ )
     {
-        if ( PlaList[cnt].valid && PlaList[cnt].device != INPUT_BITS_NONE )
+        if ( PlaList[cnt].valid && PlaList[cnt].device.bits != INPUT_BITS_NONE )
         {
             statlist_move_to_top( PlaList[cnt].index );
         }
@@ -777,7 +781,7 @@ void update_game()
         if ( !PlaList[cnt].valid) continue;
 
         // only interested in local players
-        if ( INPUT_BITS_NONE == PlaList[cnt].device ) continue;
+        if ( INPUT_BITS_NONE == PlaList[cnt].device.bits ) continue;
 
         // fix bad players
         if ( INVALID_CHR(PlaList[cnt].index) )
@@ -844,8 +848,8 @@ void update_game()
         resize_characters();
         keep_weapons_with_holders();
         let_all_characters_think();
-        do_weather_spawn();
-        do_enchant_spawn();
+        do_weather_spawn_particles();
+        do_enchant_spawn_particles();
         unbuffer_player_latches();
 
         make_onwhichfan();
@@ -1050,6 +1054,23 @@ int game_do_menu( menu_process_t * mproc )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+void console_init()
+{
+    // BB> initialize the console. This must happen after the screen has been defines,
+    //     otherwise sdl_scr.x == sdl_scr.y == 0 and the screen will be defined to
+    //     have no area...
+
+    SDL_Rect blah = {0, 0, sdl_scr.x, sdl_scr.y / 4};
+
+#if defined(USE_LUA_CONSOLE)
+    lua_console_new(NULL, blah);
+#else
+    egoboo_console_new(NULL, blah, egoboo_console_run, NULL);
+#endif
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 int do_ego_proc_begin( ego_process_t * eproc )
 {
     // initialize the virtual filesystem first
@@ -1078,6 +1099,7 @@ int do_ego_proc_begin( ego_process_t * eproc )
     // do basic system initialization
     ego_init_SDL();
     gfx_init();
+    console_init();
     net_initialize();
 
     log_info( "Initializing SDL_Image version %d.%d.%d... ", SDL_IMAGE_MAJOR_VERSION, SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_PATCHLEVEL ); \
@@ -2143,7 +2165,7 @@ Uint16 terp_dir_fast( Uint16 majordir, Uint16 minordir )
 }
 
 //--------------------------------------------------------------------------------------------
-void do_enchant_spawn()
+void do_enchant_spawn_particles()
 {
     // ZZ> This function lets enchantments spawn particles
 
@@ -2159,13 +2181,13 @@ void do_enchant_spawn()
         if ( !EncList.lst[cnt].on ) continue;
         penc = EncList.lst + cnt;
 
-        penc->spawntime--;
+        if ( penc->spawntime > 0 ) penc->spawntime--;
         if ( penc->spawntime > 0 ) continue;
-
-        penc->spawntime = peve->contspawntime;
 
         peve = enc_get_peve(cnt);
         if( NULL == peve ) continue;
+
+        penc->spawntime = peve->contspawntime;
 
         if ( peve->contspawnamount <= 0 ) continue;
 
@@ -2286,7 +2308,7 @@ void update_pits()
 }
 
 //--------------------------------------------------------------------------------------------
-void do_weather_spawn()
+void do_weather_spawn_particles()
 {
     // ZZ> This function drops snowflakes or rain or whatever, also swings the camera
     int particle, cnt;
@@ -2353,227 +2375,232 @@ void set_one_player_latch( Uint16 player )
     // ZZ> This function converts input readings to latch settings, so players can
     //    move around
     float newx, newy;
-    Uint16 turnsin, character;
-    Uint8 device;
+    Uint16 turnsin;
     float dist, scale;
     float inputx, inputy;
+    float fsin, fcos;
+    latch_t sum;
 
-    // Check to see if we need to bother
-    if ( PlaList[player].valid && PlaList[player].device != INPUT_BITS_NONE )
+    chr_t          * pchr;
+    player_t       * ppla;
+    input_device_t * pdevice;
+
+    if ( INVALID_PLA(player) ) return;
+    ppla = PlaList + player;
+
+    pdevice = &(ppla->device);
+
+    if( INVALID_CHR(ppla->index) ) return;
+    pchr = ChrList.lst + ppla->index;
+
+    // is the device a local device or an internet device?
+    if( pdevice->bits == INPUT_BITS_NONE ) return;
+
+    // Clear the player's latch buffers
+    latch_init( &(sum) );
+
+    // generate the transforms relative to the camera
+    turnsin = PCamera->turn_z >> 2;
+    fsin    = turntosin[turnsin & TRIG_TABLE_MASK ];
+    fcos    = turntocos[turnsin & TRIG_TABLE_MASK ];
+
+    // Mouse routines
+    if ( HAS_SOME_BITS( pdevice->bits , INPUT_BITS_MOUSE ) && mous.on )
     {
-        // Make life easier
-        character = PlaList[player].index;
-        device = PlaList[player].device;
-
-        // Clear the player's latch buffers
-        PlaList[player].latchbutton = 0;
-        PlaList[player].latchx = 0;
-        PlaList[player].latchy = 0;
-
-        // Mouse routines
-        if ( ( device & INPUT_BITS_MOUSE ) && mous.on )
+        // Movement
+        newx = 0;
+        newy = 0;
+        if ( ( PCamera->turn_mode == CAMTURN_GOOD && local_numlpla == 1 ) ||
+            !control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_CAMERA ) )  // Don't allow movement in camera control mode
         {
-            // Movement
-            newx = 0;
-            newy = 0;
-            if ( ( PCamera->turn_mode == CAMTURN_GOOD && local_numlpla == 1 ) ||
-                    !control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_CAMERA ) )  // Don't allow movement in camera control mode
+            dist = SQRT( mous.x * mous.x + mous.y * mous.y );
+            if ( dist > 0 )
             {
-                dist = SQRT( mous.x * mous.x + mous.y * mous.y );
-                if ( dist > 0 )
+                scale = mous.sense / dist;
+                if ( dist < mous.sense )
                 {
-                    scale = mous.sense / dist;
-                    if ( dist < mous.sense )
-                    {
-                        scale = dist / mous.sense;
-                    }
-
-                    scale = scale / mous.sense;
-                    inputx = mous.x * scale;
-                    inputy = mous.y * scale;
-
-                    turnsin = PCamera->turn_z >> 2;
-                    turnsin = turnsin & 16383;
-                    if ( PCamera->turn_mode == CAMTURN_GOOD &&
-                            local_numlpla == 1 &&
-                            control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_CAMERA ) == 0 )  inputx = 0;
-
-                    newx = ( inputx * turntocos[turnsin & TRIG_TABLE_MASK ] + inputy * turntosin[turnsin & TRIG_TABLE_MASK ] );
-                    newy = (-inputx * turntosin[turnsin & TRIG_TABLE_MASK ] + inputy * turntocos[turnsin & TRIG_TABLE_MASK ] );
-                    //                   PlaList[player].latchx+=newx;
-                    //                   PlaList[player].latchy+=newy;
-                }
-            }
-
-            PlaList[player].latchx += newx * mous.cover + mous.latcholdx * mous.sustain;
-            PlaList[player].latchy += newy * mous.cover + mous.latcholdy * mous.sustain;
-            mous.latcholdx = PlaList[player].latchx;
-            mous.latcholdy = PlaList[player].latchy;
-
-            // Sustain old movements to ease mouse play
-            PlaList[player].latchx += mous.latcholdx * mous.sustain;
-            PlaList[player].latchy += mous.latcholdy * mous.sustain;
-            mous.latcholdx = PlaList[player].latchx;
-            mous.latcholdy = PlaList[player].latchy;
-
-            // Read buttons
-            if ( control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_JUMP ) )
-                PlaList[player].latchbutton |= LATCHBUTTON_JUMP;
-            if ( control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_LEFT_USE ) )
-                PlaList[player].latchbutton |= LATCHBUTTON_LEFT;
-            if ( control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_LEFT_GET ) )
-                PlaList[player].latchbutton |= LATCHBUTTON_ALTLEFT;
-            if ( control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_LEFT_PACK ) )
-                PlaList[player].latchbutton |= LATCHBUTTON_PACKLEFT;
-            if ( control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_RIGHT_USE ) )
-                PlaList[player].latchbutton |= LATCHBUTTON_RIGHT;
-            if ( control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_RIGHT_GET ) )
-                PlaList[player].latchbutton |= LATCHBUTTON_ALTRIGHT;
-            if ( control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_RIGHT_PACK ) )
-                PlaList[player].latchbutton |= LATCHBUTTON_PACKRIGHT;
-        }
-
-        // Joystick A routines
-        if ( ( device & INPUT_BITS_JOYA ) && joy[0].on )
-        {
-            // Movement
-            if ( ( PCamera->turn_mode == CAMTURN_GOOD && local_numlpla == 1 ) ||
-                    !control_is_pressed( INPUT_DEVICE_JOY + 0, CONTROL_CAMERA ) )
-            {
-                newx = 0;
-                newy = 0;
-                inputx = joy[0].x;
-                inputy = joy[0].y;
-
-                dist = inputx * inputx + inputy * inputy;
-                if ( dist > 1.0f )
-                {
-                    scale = 1.0f / SQRT( dist );
-                    inputx *= scale;
-                    inputy *= scale;
+                    scale = dist / mous.sense;
                 }
 
-                turnsin = PCamera->turn_z >> 2;
-                turnsin = turnsin & 16383;
+                scale = scale / mous.sense;
+                inputx = mous.x * scale;
+                inputy = mous.y * scale;
+
                 if ( PCamera->turn_mode == CAMTURN_GOOD &&
-                        local_numlpla == 1 &&
-                        !control_is_pressed( INPUT_DEVICE_JOY + 0, CONTROL_CAMERA ) )  inputx = 0;
+                    local_numlpla == 1 &&
+                    control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_CAMERA ) == 0 )  inputx = 0;
 
-                newx = (  inputx * turntocos[turnsin & TRIG_TABLE_MASK ] + inputy * turntosin[turnsin & TRIG_TABLE_MASK ] );
-                newy = ( -inputx * turntosin[turnsin & TRIG_TABLE_MASK ] + inputy * turntocos[turnsin & TRIG_TABLE_MASK ] );
-                PlaList[player].latchx += newx;
-                PlaList[player].latchy += newy;
+                newx = ( inputx * fcos + inputy * fsin );
+                newy = (-inputx * fsin + inputy * fcos );
             }
-
-            // Read buttons
-            if ( control_is_pressed( INPUT_DEVICE_JOY + 0, CONTROL_JUMP ) )
-                PlaList[player].latchbutton |= LATCHBUTTON_JUMP;
-            if ( control_is_pressed( INPUT_DEVICE_JOY + 0, CONTROL_LEFT_USE ) )
-                PlaList[player].latchbutton |= LATCHBUTTON_LEFT;
-            if ( control_is_pressed( INPUT_DEVICE_JOY + 0, CONTROL_LEFT_GET ) )
-                PlaList[player].latchbutton |= LATCHBUTTON_ALTLEFT;
-            if ( control_is_pressed( INPUT_DEVICE_JOY + 0, CONTROL_LEFT_PACK ) )
-                PlaList[player].latchbutton |= LATCHBUTTON_PACKLEFT;
-            if ( control_is_pressed( INPUT_DEVICE_JOY + 0, CONTROL_RIGHT_USE ) )
-                PlaList[player].latchbutton |= LATCHBUTTON_RIGHT;
-            if ( control_is_pressed( INPUT_DEVICE_JOY + 0, CONTROL_RIGHT_GET ) )
-                PlaList[player].latchbutton |= LATCHBUTTON_ALTRIGHT;
-            if ( control_is_pressed( INPUT_DEVICE_JOY + 0, CONTROL_RIGHT_PACK ) )
-                PlaList[player].latchbutton |= LATCHBUTTON_PACKRIGHT;
         }
 
-        // Joystick B routines
-        if ( ( device & INPUT_BITS_JOYB ) && joy[1].on )
-        {
-            // Movement
-            if ( ( PCamera->turn_mode == CAMTURN_GOOD && local_numlpla == 1 ) ||
-                    !control_is_pressed( INPUT_DEVICE_JOY + 1, CONTROL_CAMERA ) )
-            {
-                newx = 0;
-                newy = 0;
-                inputx = joy[1].x;
-                inputy = joy[1].y;
+        sum.x += newx;
+        sum.y += newy;
 
-                dist = inputx * inputx + inputy * inputy;
-                if ( dist > 1.0f )
-                {
-                    scale = 1.0f / SQRT( dist );
-                    inputx *= scale;
-                    inputy *= scale;
-                }
-
-                turnsin = PCamera->turn_z >> 2;
-                turnsin = turnsin & 16383;
-                if ( PCamera->turn_mode == CAMTURN_GOOD &&
-                        local_numlpla == 1 &&
-                        !control_is_pressed( INPUT_DEVICE_JOY + 1, CONTROL_CAMERA ) )  inputx = 0;
-
-                newx = (  inputx * turntocos[turnsin & TRIG_TABLE_MASK ] + inputy * turntosin[turnsin & TRIG_TABLE_MASK ] );
-                newy = ( -inputx * turntosin[turnsin & TRIG_TABLE_MASK ] + inputy * turntocos[turnsin & TRIG_TABLE_MASK ] );
-                PlaList[player].latchx += newx;
-                PlaList[player].latchy += newy;
-            }
-
-            // Read buttons
-            if ( control_is_pressed( INPUT_DEVICE_JOY + 1, CONTROL_JUMP ) )
-                PlaList[player].latchbutton |= LATCHBUTTON_JUMP;
-            if ( control_is_pressed( INPUT_DEVICE_JOY + 1, CONTROL_LEFT_USE ) )
-                PlaList[player].latchbutton |= LATCHBUTTON_LEFT;
-            if ( control_is_pressed( INPUT_DEVICE_JOY + 1, CONTROL_LEFT_GET ) )
-                PlaList[player].latchbutton |= LATCHBUTTON_ALTLEFT;
-            if ( control_is_pressed( INPUT_DEVICE_JOY + 1, CONTROL_LEFT_PACK ) )
-                PlaList[player].latchbutton |= LATCHBUTTON_PACKLEFT;
-            if ( control_is_pressed( INPUT_DEVICE_JOY + 1, CONTROL_RIGHT_USE ) )
-                PlaList[player].latchbutton |= LATCHBUTTON_RIGHT;
-            if ( control_is_pressed( INPUT_DEVICE_JOY + 1, CONTROL_RIGHT_GET ) )
-                PlaList[player].latchbutton |= LATCHBUTTON_ALTRIGHT;
-            if ( control_is_pressed( INPUT_DEVICE_JOY + 1, CONTROL_RIGHT_PACK ) )
-                PlaList[player].latchbutton |= LATCHBUTTON_PACKRIGHT;
-        }
-
-        // Keyboard routines
-        if ( ( device & INPUT_BITS_KEYBOARD ) && keyb.on )
-        {
-            // Movement
-            if ( ChrList.lst[character].attachedto != MAX_CHR )
-            {
-                // Mounted
-                inputx = ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_RIGHT ) - control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_LEFT ) );
-                inputy = ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_DOWN ) - control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_UP ) );
-            }
-            else
-            {
-                // Unmounted
-                inputx = ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_RIGHT ) - control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_LEFT ) );
-                inputy = ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_DOWN ) - control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_UP ) );
-            }
-
-            turnsin = PCamera->turn_z >> 2;
-            turnsin = turnsin & 16383;
-            if ( PCamera->turn_mode == CAMTURN_GOOD && local_numlpla == 1 )  inputx = 0;
-
-            newx = (  inputx * turntocos[turnsin & TRIG_TABLE_MASK ] + inputy * turntosin[turnsin & TRIG_TABLE_MASK ] );
-            newy = ( -inputx * turntosin[turnsin & TRIG_TABLE_MASK ] + inputy * turntocos[turnsin & TRIG_TABLE_MASK ] );
-            PlaList[player].latchx += newx;
-            PlaList[player].latchy += newy;
-
-            // Read buttons
-            if ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_JUMP ) )
-                PlaList[player].latchbutton |= LATCHBUTTON_JUMP;
-            if ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_LEFT_USE ) )
-                PlaList[player].latchbutton |= LATCHBUTTON_LEFT;
-            if ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_LEFT_GET ) )
-                PlaList[player].latchbutton |= LATCHBUTTON_ALTLEFT;
-            if ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_LEFT_PACK ) )
-                PlaList[player].latchbutton |= LATCHBUTTON_PACKLEFT;
-            if ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_RIGHT_USE ) )
-                PlaList[player].latchbutton |= LATCHBUTTON_RIGHT;
-            if ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_RIGHT_GET ) )
-                PlaList[player].latchbutton |= LATCHBUTTON_ALTRIGHT;
-            if ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_RIGHT_PACK ) )
-                PlaList[player].latchbutton |= LATCHBUTTON_PACKRIGHT;
-        }
+        // Read buttons
+        if ( control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_JUMP ) )
+            sum.b |= LATCHBUTTON_JUMP;
+        if ( control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_LEFT_USE ) )
+            sum.b |= LATCHBUTTON_LEFT;
+        if ( control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_LEFT_GET ) )
+            sum.b |= LATCHBUTTON_ALTLEFT;
+        if ( control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_LEFT_PACK ) )
+            sum.b |= LATCHBUTTON_PACKLEFT;
+        if ( control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_RIGHT_USE ) )
+            sum.b |= LATCHBUTTON_RIGHT;
+        if ( control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_RIGHT_GET ) )
+            sum.b |= LATCHBUTTON_ALTRIGHT;
+        if ( control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_RIGHT_PACK ) )
+            sum.b |= LATCHBUTTON_PACKRIGHT;
     }
+
+    // Joystick A routines
+    if ( HAS_SOME_BITS( pdevice->bits , INPUT_BITS_JOYA ) && joy[0].on )
+    {
+        newx = 0;
+        newy = 0;
+        // Movement
+        if ( ( PCamera->turn_mode == CAMTURN_GOOD && local_numlpla == 1 ) ||
+            !control_is_pressed( INPUT_DEVICE_JOY + 0, CONTROL_CAMERA ) )
+        {
+            inputx = joy[0].x;
+            inputy = joy[0].y;
+
+            dist = inputx * inputx + inputy * inputy;
+            if ( dist > 1.0f )
+            {
+                scale = 1.0f / SQRT( dist );
+                inputx *= scale;
+                inputy *= scale;
+            }
+
+            if ( PCamera->turn_mode == CAMTURN_GOOD &&
+                local_numlpla == 1 &&
+                !control_is_pressed( INPUT_DEVICE_JOY + 0, CONTROL_CAMERA ) )  inputx = 0;
+
+            newx = (  inputx * fcos + inputy * fsin );
+            newy = ( -inputx * fsin + inputy * fcos );
+        }
+
+        sum.x += newx;
+        sum.y += newy;
+
+        // Read buttons
+        if ( control_is_pressed( INPUT_DEVICE_JOY + 0, CONTROL_JUMP ) )
+            sum.b |= LATCHBUTTON_JUMP;
+        if ( control_is_pressed( INPUT_DEVICE_JOY + 0, CONTROL_LEFT_USE ) )
+            sum.b |= LATCHBUTTON_LEFT;
+        if ( control_is_pressed( INPUT_DEVICE_JOY + 0, CONTROL_LEFT_GET ) )
+            sum.b |= LATCHBUTTON_ALTLEFT;
+        if ( control_is_pressed( INPUT_DEVICE_JOY + 0, CONTROL_LEFT_PACK ) )
+            sum.b |= LATCHBUTTON_PACKLEFT;
+        if ( control_is_pressed( INPUT_DEVICE_JOY + 0, CONTROL_RIGHT_USE ) )
+            sum.b |= LATCHBUTTON_RIGHT;
+        if ( control_is_pressed( INPUT_DEVICE_JOY + 0, CONTROL_RIGHT_GET ) )
+            sum.b |= LATCHBUTTON_ALTRIGHT;
+        if ( control_is_pressed( INPUT_DEVICE_JOY + 0, CONTROL_RIGHT_PACK ) )
+            sum.b |= LATCHBUTTON_PACKRIGHT;
+    }
+
+    // Joystick B routines
+    if ( HAS_SOME_BITS( pdevice->bits , INPUT_BITS_JOYB ) && joy[1].on )
+    {
+        newx = 0;
+        newy = 0;
+
+        // Movement
+        if ( ( PCamera->turn_mode == CAMTURN_GOOD && local_numlpla == 1 ) ||
+            !control_is_pressed( INPUT_DEVICE_JOY + 1, CONTROL_CAMERA ) )
+        {
+            inputx = joy[1].x;
+            inputy = joy[1].y;
+
+            dist = inputx * inputx + inputy * inputy;
+            if ( dist > 1.0f )
+            {
+                scale = 1.0f / SQRT( dist );
+                inputx *= scale;
+                inputy *= scale;
+            }
+
+            if ( PCamera->turn_mode == CAMTURN_GOOD &&
+                local_numlpla == 1 &&
+                !control_is_pressed( INPUT_DEVICE_JOY + 1, CONTROL_CAMERA ) )  inputx = 0;
+
+            newx = (  inputx * fcos + inputy * fsin );
+            newy = ( -inputx * fsin + inputy * fcos );
+        }
+
+        sum.x += newx;
+        sum.y += newy;
+
+        // Read buttons
+        if ( control_is_pressed( INPUT_DEVICE_JOY + 1, CONTROL_JUMP ) )
+            sum.b |= LATCHBUTTON_JUMP;
+        if ( control_is_pressed( INPUT_DEVICE_JOY + 1, CONTROL_LEFT_USE ) )
+            sum.b |= LATCHBUTTON_LEFT;
+        if ( control_is_pressed( INPUT_DEVICE_JOY + 1, CONTROL_LEFT_GET ) )
+            sum.b |= LATCHBUTTON_ALTLEFT;
+        if ( control_is_pressed( INPUT_DEVICE_JOY + 1, CONTROL_LEFT_PACK ) )
+            sum.b |= LATCHBUTTON_PACKLEFT;
+        if ( control_is_pressed( INPUT_DEVICE_JOY + 1, CONTROL_RIGHT_USE ) )
+            sum.b |= LATCHBUTTON_RIGHT;
+        if ( control_is_pressed( INPUT_DEVICE_JOY + 1, CONTROL_RIGHT_GET ) )
+            sum.b |= LATCHBUTTON_ALTRIGHT;
+        if ( control_is_pressed( INPUT_DEVICE_JOY + 1, CONTROL_RIGHT_PACK ) )
+            sum.b |= LATCHBUTTON_PACKRIGHT;
+    }
+
+    // Keyboard routines
+    if ( HAS_SOME_BITS( pdevice->bits , INPUT_BITS_KEYBOARD ) && keyb.on )
+    {
+        // Movement
+
+        // ???? is this if statement doing anything ????
+        if ( VALID_CHR(pchr->attachedto) )
+        {
+            // Mounted
+            inputx = ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_RIGHT ) - control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_LEFT ) );
+            inputy = ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_DOWN ) - control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_UP ) );
+        }
+        else
+        {
+            // Unmounted
+            inputx = ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_RIGHT ) - control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_LEFT ) );
+            inputy = ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_DOWN ) - control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_UP ) );
+        }
+
+        if ( PCamera->turn_mode == CAMTURN_GOOD && local_numlpla == 1 )  inputx = 0;
+
+        newx = (  inputx * fcos + inputy * fsin );
+        newy = ( -inputx * fsin + inputy * fcos );
+
+        sum.x += newx;
+        sum.y += newy;
+
+        // Read buttons
+        if ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_JUMP ) )
+            sum.b |= LATCHBUTTON_JUMP;
+        if ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_LEFT_USE ) )
+            sum.b |= LATCHBUTTON_LEFT;
+        if ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_LEFT_GET ) )
+            sum.b |= LATCHBUTTON_ALTLEFT;
+        if ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_LEFT_PACK ) )
+            sum.b |= LATCHBUTTON_PACKLEFT;
+        if ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_RIGHT_USE ) )
+            sum.b |= LATCHBUTTON_RIGHT;
+        if ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_RIGHT_GET ) )
+            sum.b |= LATCHBUTTON_ALTRIGHT;
+        if ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_RIGHT_PACK ) )
+            sum.b |= LATCHBUTTON_PACKRIGHT;
+    }
+
+    input_device_add_latch( pdevice, sum.x, sum.y );
+
+    ppla->latch.x = pdevice->latch.x;
+    ppla->latch.y = pdevice->latch.y;
+    ppla->latch.b = sum.b;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2707,7 +2734,6 @@ void show_stat( Uint16 statindex )
             chr_t * pchr = ChrList.lst + character;
 
             pcap = pro_get_pcap( pchr->iprofile );
-
 
             // Name
             debug_printf( "=%s=", pchr->name );
@@ -4847,7 +4873,7 @@ bool_t setup_characters_spawn( spawn_file_info_t * psp_info )
                 bits = 1 << local_numlpla;
                 for ( tnc = 0; tnc < MAXPLAYER; tnc++ )
                 {
-                    PlaList[tnc].device &= ~bits;
+                    PlaList[tnc].device.bits &= ~bits;
                 }
 
                 add_player( new_object, PlaList_count, bits );
@@ -5129,7 +5155,6 @@ void reaffirm_attached_particles( Uint16 character )
     pcap = pro_get_pcap(pchr->iprofile);
     if( NULL == pcap ) return;
 
-
     numberattached = number_of_attached_particles( character );
 
     while ( numberattached < pcap->attachedprt_amount )
@@ -5245,7 +5270,7 @@ bool_t game_update_imports()
         character = PlaList[cnt].index;
         if ( !ChrList.lst[character].on ) continue;
 
-        is_local = ( 0 != PlaList[cnt].device );
+        is_local = ( INPUT_BITS_NONE != PlaList[cnt].device.bits );
 
         // find the saved copy of the players that are in memory right now
         for ( tnc = 0; tnc < loadplayer_count; tnc++ )
@@ -5264,7 +5289,7 @@ bool_t game_update_imports()
 
         // grab the controls from the currently loaded players
         // calculate the slot from the current player count
-        local_control[player] = PlaList[cnt].device;
+        local_control[player] = PlaList[cnt].device.bits;
         local_slot[player]    = player * MAXIMPORTPERPLAYER;
         player++;
 
@@ -5337,31 +5362,24 @@ void attach_particles()
 }
 
 //--------------------------------------------------------------------------------------------
-int add_player( Uint16 character, Uint16 player, Uint32 device )
+int add_player( Uint16 character, Uint16 player, Uint32 device_bits )
 {
     // ZZ> This function adds a player, returning bfalse if it fails, btrue otherwise
-    int cnt;
 
-    if ( !PlaList[player].valid )
+    bool_t retval = bfalse;
+
+    if ( VALID_PLA_RANGE(player) && !PlaList[player].valid )
     {
+        player_t * ppla = PlaList + player;
+
+        player_init( ppla );
+
         ChrList.lst[character].isplayer = btrue;
-        PlaList[player].index = character;
-        PlaList[player].valid = btrue;
-        PlaList[player].device = device;
+        ppla->index           = character;
+        ppla->valid           = btrue;
+        ppla->device.bits     = device_bits;
 
-        PlaList[player].latchx = 0;
-        PlaList[player].latchy = 0;
-        PlaList[player].latchbutton = 0;
-
-        for ( cnt = 0; cnt < MAXLAG; cnt++ )
-        {
-            PlaList[player].tlatch[cnt].x      = 0;
-            PlaList[player].tlatch[cnt].y      = 0;
-            PlaList[player].tlatch[cnt].button = 0;
-            PlaList[player].tlatch[cnt].time   = (Uint32)(~0);
-        }
-
-        if ( device != INPUT_BITS_NONE )
+        if ( device_bits != INPUT_BITS_NONE )
         {
             local_noplayers = bfalse;
             ChrList.lst[character].islocalplayer = btrue;
@@ -5369,10 +5387,11 @@ int add_player( Uint16 character, Uint16 player, Uint32 device )
         }
 
         PlaList_count++;
-        return btrue;
+
+        retval = btrue;
     }
 
-    return bfalse;
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -6873,13 +6892,6 @@ int ego_init_SDL()
 {
     ego_init_SDL_base();
     input_init();
-
-#if defined(USE_LUA_CONSOLE)
-    {
-        SDL_Rect blah = {0, 0, scrx, scry / 4};
-        lua_console_new(NULL, blah);
-    };
-#endif
 
     return _sdl_initialized_base;
 }

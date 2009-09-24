@@ -240,8 +240,6 @@ void EndText()
     GL_DEBUG(glDisable)(GL_ALPHA_TEST );
 }
 
-
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 void EnableTexturing()
@@ -409,7 +407,6 @@ bool_t load_all_global_icons()
 void init_icon_data()
 {
     // ZZ> This function sets the icon pointers to NULL
-    int cnt;
 
     iconrect.left = 0;
     iconrect.right = 32;
@@ -1778,7 +1775,7 @@ bool_t render_fans_by_list( ego_mpd_t * pmesh, Uint32 list[], size_t list_size )
 
     if( meshnotexture )
     {
-        meshlasttexture = ~0;
+        meshlasttexture = (Uint16)(~0);
         oglx_texture_Bind( NULL );
 
         for ( cnt = 0; cnt < list_size; cnt++ )
@@ -2656,7 +2653,6 @@ int draw_string( int x, int y, const char *format, ...  )
     return y;
 }
 
-
 //--------------------------------------------------------------------------------------------
 int draw_wrap_string( const char *szText, int x, int y, int maxx )
 {
@@ -2749,7 +2745,7 @@ void draw_one_character_icon( Uint16 item, int x, int y, bool_t draw_ammo )
 
     // draw the ammo, if requested
     if ( draw_ammo && (NULL != pitem) )
-    {   
+    {
         if ( pitem->ammomax != 0 && pitem->ammoknown )
         {
             cap_t * pitem_cap = chr_get_pcap( item );
@@ -2762,7 +2758,6 @@ void draw_one_character_icon( Uint16 item, int x, int y, bool_t draw_ammo )
         }
     }
 }
-
 
 //--------------------------------------------------------------------------------------------
 int draw_character_xp_bar( Uint16 character, int x, int y )
@@ -2801,7 +2796,7 @@ int draw_status( Uint16 character, int x, int y )
     int cnt;
     char cTmp;
     char *readtext;
-    STRING generictext;    
+    STRING generictext;
     int life, lifemax;
     int mana, manamax;
 
@@ -2966,7 +2961,7 @@ void draw_map()
             {
                 if ( !PlaList[cnt].valid ) continue;
 
-                if ( INPUT_BITS_NONE != PlaList[cnt].device )
+                if ( INPUT_BITS_NONE != PlaList[cnt].device.bits )
                 {
                     tnc = PlaList[cnt].index;
                     if ( VALID_CHR(tnc) && ChrList.lst[tnc].alive )

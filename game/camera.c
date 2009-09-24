@@ -217,14 +217,12 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
             for ( cnt = 0; cnt < MAXPLAYER; cnt++ )
             {
                 chr_t * pchr;
-                if ( !PlaList[cnt].valid || INPUT_BITS_NONE == PlaList[cnt].device ) continue;
+                if ( !PlaList[cnt].valid || INPUT_BITS_NONE == PlaList[cnt].device.bits ) continue;
 
                 character = PlaList[cnt].index;
                 if ( INVALID_CHR(character) )
                 {
-                    PlaList[cnt].valid  = bfalse;
-                    PlaList[cnt].index  = MAX_CHR;
-                    PlaList[cnt].device = INPUT_BITS_NONE;
+                    pla_reinit( PlaList + cnt );
                     continue;
                 }
 

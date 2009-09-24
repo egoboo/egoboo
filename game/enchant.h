@@ -115,6 +115,5 @@ Uint16         enc_get_ieve  ( Uint16 ienc );
 struct s_chr * enc_get_powner( Uint16 ienc );
 eve_t        * enc_get_peve  ( Uint16 ienc );
 
-
 IDSZ   enc_get_idszremove( Uint16 ienc );
 bool_t enc_is_removed( Uint16 ienc, Uint16 test_profile );

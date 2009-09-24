@@ -848,7 +848,6 @@ Uint8 scr_TargetHoldingItemID( script_state_t * pstate, ai_state_t * pself )
         }
     }
 
-
     if( !returncode )
     {
         // Check right hand
@@ -1213,7 +1212,6 @@ Uint8 scr_CostTargetItemID( script_state_t * pstate, ai_state_t * pself )
         }
     }
 
-
     if ( returncode )
     {
         if ( ChrList.lst[iTmp].ammo <= 1 )
@@ -1565,7 +1563,7 @@ Uint8 scr_PressLatchButton( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // This function sets the latch buttons
-    pchr->latchbutton = pchr->latchbutton | pstate->argument;
+    pchr->latch.b = pchr->latch.b | pstate->argument;
 
     SCRIPT_FUNCTION_END();
 }
@@ -2489,7 +2487,7 @@ Uint8 scr_PressTargetLatchButton( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    ChrList.lst[pself->target].latchbutton = ChrList.lst[pself->target].latchbutton | pstate->argument;
+    ChrList.lst[pself->target].latch.b = ChrList.lst[pself->target].latch.b | pstate->argument;
 
     SCRIPT_FUNCTION_END();
 }
@@ -3538,8 +3536,6 @@ Uint8 scr_HoldingMeleeWeapon( script_state_t * pstate, ai_state_t * pself )
         }
     }
 
-
-
     SCRIPT_FUNCTION_END();
 }
 
@@ -4159,7 +4155,6 @@ Uint8 scr_set_TargetToWideBlahID( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-
     blahteam = TARGET_NONE;
     returncode = bfalse;
 
@@ -4167,7 +4162,6 @@ Uint8 scr_set_TargetToWideBlahID( script_state_t * pstate, ai_state_t * pself )
     if ( ( pstate->distance >> 3 ) & 1 ) blahteam = TARGET_ALL;
     if ( ( pstate->distance >> 2 ) & 1 ) blahteam = TARGET_FRIEND;
     if ( ( pstate->distance >> 1 ) & 1 ) blahteam = (TARGET_FRIEND  == blahteam) ? TARGET_ALL : TARGET_ENEMY;
-
 
     // Try to find one
     ichr = _get_chr_target( pchr, WIDE, blahteam, ( pstate->distance >> 3 ) & 1 , ( pstate->distance ) & 1,
@@ -6218,7 +6212,6 @@ Uint8 scr_TargetPayForArmor( script_state_t * pstate, ai_state_t * pself )
         returncode = btrue;
     }
 
-
     SCRIPT_FUNCTION_END();
 }
 
@@ -6547,7 +6540,6 @@ Uint8 scr_FollowLink( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-
     message_number = ppro->message_start + pstate->argument;
     message_index  = MessageOffset.lst[message_number];
 
@@ -6691,7 +6683,6 @@ Uint8 scr_BeatQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
 
     // ThIs function marks a IDSZ in the targets quest.txt as beaten
     returncode = bfalse;
-
 
     for (iTmp = 0; iTmp < MAXPLAYER; iTmp++ )
     {
@@ -7228,7 +7219,6 @@ Uint8 scr_set_ChildContent( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -7451,7 +7441,6 @@ Uint16 _get_chr_target( chr_t * pchr, Uint32 max_dist, TARGET_TYPE target_type, 
 
     return best_target;
 }
-
 
 //--------------------------------------------------------------------------------------------
 Uint8 _display_message( int ichr, int iprofile, int message, script_state_t * pstate  )

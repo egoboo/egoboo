@@ -54,7 +54,6 @@ DECLARE_STACK( ACCESS_TYPE_NONE, int, MessageOffset );
 Uint32  message_buffer_carat = 0;                           // Where to put letter
 char    message_buffer[MESSAGEBUFFERSIZE];                  // The text buffer
 
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 static void get_message( vfs_FILE* fileread );
@@ -104,11 +103,10 @@ void release_all_profiles()
     ProList_init();
 }
 
-
 //---------------------------------------------------------------------------------------------
 void profile_init()
 {
-    // BB> initialize the profile list and load up some intialization files 
+    // BB> initialize the profile list and load up some intialization files
     //     necessary for the the profile loading code to work
 
     if( _profile_initialized )

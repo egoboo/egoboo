@@ -143,7 +143,7 @@ void let_character_think( Uint16 character )
     // Clear the button latches
     if ( !pchr->isplayer )
     {
-        pchr->latchbutton = 0;
+        pchr->latch.b = 0;
     }
 
     // Reset the target if it can't be seen
@@ -200,28 +200,28 @@ void let_character_think( Uint16 character )
         if ( pchr->ismount && MAX_CHR != pchr->holdingwhich[SLOT_LEFT] && ChrList.lst[pchr->holdingwhich[SLOT_LEFT]].on )
         {
             // Mount
-            pchr->latchx = ChrList.lst[pchr->holdingwhich[SLOT_LEFT]].latchx;
-            pchr->latchy = ChrList.lst[pchr->holdingwhich[SLOT_LEFT]].latchy;
+            pchr->latch.x = ChrList.lst[pchr->holdingwhich[SLOT_LEFT]].latch.x;
+            pchr->latch.y = ChrList.lst[pchr->holdingwhich[SLOT_LEFT]].latch.y;
         }
         else if ( pself->wp_tail != pself->wp_head )
         {
             // Normal AI
-            pchr->latchx = ( pself->wp_pos_x[pself->wp_tail] - pchr->pos.x ) / (TILE_ISIZE << 2);
-            pchr->latchy = ( pself->wp_pos_y[pself->wp_tail] - pchr->pos.y ) / (TILE_ISIZE << 2);
+            pchr->latch.x = ( pself->wp_pos_x[pself->wp_tail] - pchr->pos.x ) / (TILE_ISIZE << 2);
+            pchr->latch.y = ( pself->wp_pos_y[pself->wp_tail] - pchr->pos.y ) / (TILE_ISIZE << 2);
         }
         else
         {
             // AI, but no valid waypoints
-            pchr->latchx = 0;
-            pchr->latchy = 0;
+            pchr->latch.x = 0;
+            pchr->latch.y = 0;
         }
 
-        latch2 = pchr->latchx * pchr->latchx + pchr->latchy * pchr->latchy;
+        latch2 = pchr->latch.x * pchr->latch.x + pchr->latch.y * pchr->latch.y;
         if (latch2 > 1.0f)
         {
-            latch2 = 1.0f / sqrt(latch2);
-            pchr->latchx *= latch2;
-            pchr->latchy *= latch2;
+            float scale = 1.0f / sqrt(latch2);
+            pchr->latch.x *= scale;
+            pchr->latch.y *= scale;
         }
     }
 

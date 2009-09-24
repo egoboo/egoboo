@@ -17,8 +17,6 @@
 //*
 //********************************************************************************************
 
-%module ego
-
 %{
 #include "camera.h"
 #include "char.h"
@@ -55,23 +53,27 @@
 #define Sint16 signed short
 #define Sint32 signed int
 
+%module ego
+
 %include "egoboo_typedef.h"
 %include "egoboo.h"
 %include "egoboo_config.h"
 %include "egoboo_setup.h"
 %include "egoboo_strutil.h"
 
-%include "camera.h"
-%include "char.h"
-%include "enchant.h"
 %include "game.h"
 %include "input.h"
 %include "link.h"
+
+%include "camera.h"
+%include "char.h"
+%include "enchant.h"
 %include "mad.h"
 %include "mesh.h"
 %include "profile.h"
 %include "particle.h"
 %include "passage.h"
+
 %include "script.h"
 %include "script_functions.h"
 

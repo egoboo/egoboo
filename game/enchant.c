@@ -107,7 +107,6 @@ bool_t remove_enchant( Uint16 ienc )
         }
     }
 
-
     // Unset enchant values, doing morph last
     unset_enchant_value( ienc, SETDAMAGETYPE );
     unset_enchant_value( ienc, SETNUMBEROFJUMPS );
@@ -140,29 +139,28 @@ bool_t remove_enchant( Uint16 ienc )
     }
 
     // Now fix dem weapons
-    if ( VALID_CHR( itarget ) )
+    if ( VALID_CHR( penc->target_ref ) )
     {
-        reset_character_alpha( ChrList.lst[itarget].holdingwhich[SLOT_LEFT] );
-        reset_character_alpha( ChrList.lst[itarget].holdingwhich[SLOT_RIGHT] );
+        reset_character_alpha( ChrList.lst[penc->target_ref].holdingwhich[SLOT_LEFT] );
+        reset_character_alpha( ChrList.lst[penc->target_ref].holdingwhich[SLOT_RIGHT] );
     }
 
     // Unlink it
-    if ( VALID_CHR(itarget) )
+    if ( VALID_CHR(penc->target_ref) )
     {
-        if ( ChrList.lst[itarget].firstenchant == ienc )
+        if ( ChrList.lst[penc->target_ref].firstenchant == ienc )
         {
             // It was the first in the list
-            ChrList.lst[itarget].firstenchant = penc->nextenchant_ref;
+            ChrList.lst[penc->target_ref].firstenchant = penc->nextenchant_ref;
         }
         else
         {
             // Search until we find it
-            lastenchant = currentenchant = ChrList.lst[itarget].firstenchant;
-
+            lastenchant = currentenchant = ChrList.lst[penc->target_ref].firstenchant;
             while ( currentenchant != ienc )
             {
                 lastenchant = currentenchant;
-                currentenchant = EncList.lst[currentenchant].nextenchant_ref;
+                currentenchant = EncList.lst[penc->target_ref].nextenchant_ref;
             }
 
             // Relink the last enchantment
@@ -179,7 +177,6 @@ bool_t remove_enchant( Uint16 ienc )
         ChrList.lst[overlay_ref].invictus = bfalse;
         kill_character( overlay_ref, MAX_CHR );
     }
-
 
     // nothing above this demends on having a valid enchant profile
     peve = enc_get_peve( ienc );
@@ -206,7 +203,6 @@ bool_t remove_enchant( Uint16 ienc )
                 }
             }
         }
-
 
         // See if we spit out an end message
         if ( peve->endmessage >= 0 )
@@ -241,7 +237,6 @@ bool_t remove_enchant( Uint16 ienc )
             }
         }
     }
-
 
     EncList_free_one( ienc );
 

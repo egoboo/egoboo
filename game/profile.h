@@ -40,7 +40,6 @@ DEFINE_STACK_EXTERN(int, MessageOffset, MAXTOTALMESSAGE);
 extern Uint32          message_buffer_carat;                                  // Where to put letter
 extern char            message_buffer[MESSAGEBUFFERSIZE];                     // The text buffer
 
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // for loading objects
@@ -112,7 +111,6 @@ typedef struct s_object_profile pro_t;
 #define VALID_PRO_RANGE( IOBJ ) ( ((IOBJ) >= 0) && ((IOBJ) < MAX_PROFILE) )
 #define VALID_PRO( IOBJ )       ( VALID_PRO_RANGE( IOBJ ) && ProList.lst[IOBJ].loaded )
 #define INVALID_PRO( IOBJ )     ( !VALID_PRO_RANGE( IOBJ ) || !ProList.lst[IOBJ].loaded )
-
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

@@ -3611,7 +3611,7 @@ void chr_init( chr_t * pchr )
     // latches
     /* pchr->latchx = 0; */
     /* pchr->latchy = 0; */
-    /* pchr->latchbutton = 0; */
+    /* pchr->latch.b = 0; */
 
     pchr->turnmode = TURNMODE_VELOCITY;
 
@@ -4363,9 +4363,8 @@ void change_character( Uint16 ichr, Uint16 profile, Uint8 skin, Uint8 leavewhich
     pchr->ai.state = 0;
     pchr->ai.timer = 0;
 
-    pchr->latchx = 0;
-    pchr->latchy = 0;
-    pchr->latchbutton = 0;
+    latch_init( &(pchr->latch) );
+
     pchr->turnmode = TURNMODE_VELOCITY;
 
     // Flags
@@ -4969,8 +4968,8 @@ void move_characters_do_volontary( chr_t * pchr, chr_environment_t * penviro )
     if ( VALID_CHR(pchr->attachedto) ) return;
 
     // Character latches for generalized movement
-    dvx = pchr->latchx;
-    dvy = pchr->latchy;
+    dvx = pchr->latch.x;
+    dvy = pchr->latch.y;
 
     // Reverse movements for daze
     if ( pchr->dazetime > 0 )
@@ -5146,9 +5145,9 @@ bool_t chr_do_latch_button( chr_t * pchr )
     pai = &(pchr->ai);
     ichr = pai->index;
 
-    if ( !pchr->alive || 0 == pchr->latchbutton ) return btrue;
+    if ( !pchr->alive || 0 == pchr->latch.b ) return btrue;
 
-    if ( HAS_SOME_BITS( pchr->latchbutton, LATCHBUTTON_JUMP ) )
+    if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_JUMP ) )
     {
         if ( pchr->attachedto != MAX_CHR && pchr->jumptime == 0 )
         {
@@ -5206,7 +5205,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
             }
         }
     }
-    if ( HAS_SOME_BITS( pchr->latchbutton, LATCHBUTTON_ALTLEFT ) && pchr->actionready && 0 == pchr->reloadtime )
+    if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_ALTLEFT ) && pchr->actionready && 0 == pchr->reloadtime )
     {
         pchr->reloadtime = GRABDELAY;
         if ( pchr->holdingwhich[SLOT_LEFT] == MAX_CHR )
@@ -5220,7 +5219,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
             chr_play_action( ichr, ACTION_MA, bfalse );
         }
     }
-    if ( HAS_SOME_BITS( pchr->latchbutton, LATCHBUTTON_ALTRIGHT ) && pchr->actionready && 0 == pchr->reloadtime )
+    if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_ALTRIGHT ) && pchr->actionready && 0 == pchr->reloadtime )
     {
         pchr->reloadtime = GRABDELAY;
         if ( pchr->holdingwhich[SLOT_RIGHT] == MAX_CHR )
@@ -5234,7 +5233,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
             chr_play_action( ichr, ACTION_MB, bfalse );
         }
     }
-    if ( HAS_SOME_BITS( pchr->latchbutton, LATCHBUTTON_PACKLEFT ) && pchr->actionready && 0 == pchr->reloadtime )
+    if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_PACKLEFT ) && pchr->actionready && 0 == pchr->reloadtime )
     {
         pchr->reloadtime = PACKDELAY;
         item = pchr->holdingwhich[SLOT_LEFT];
@@ -5267,7 +5266,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
         // Make it take a little time
         chr_play_action( ichr, ACTION_MG, bfalse );
     }
-    if ( HAS_SOME_BITS( pchr->latchbutton, LATCHBUTTON_PACKRIGHT ) && pchr->actionready && 0 == pchr->reloadtime )
+    if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_PACKRIGHT ) && pchr->actionready && 0 == pchr->reloadtime )
     {
         pchr->reloadtime = PACKDELAY;
         item = pchr->holdingwhich[SLOT_RIGHT];
@@ -5301,7 +5300,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
     }
 
     // LATCHBUTTON_LEFT and LATCHBUTTON_RIGHT are mutually exclusive
-    if ( HAS_SOME_BITS( pchr->latchbutton, LATCHBUTTON_LEFT ) && 0 == pchr->reloadtime )
+    if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_LEFT ) && 0 == pchr->reloadtime )
     {
         chr_t * pweapon;
 
@@ -5411,7 +5410,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
             }
         }
     }
-    else if ( HAS_SOME_BITS( pchr->latchbutton, LATCHBUTTON_RIGHT ) && 0 == pchr->reloadtime )
+    else if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_RIGHT ) && 0 == pchr->reloadtime )
     {
         chr_t * pweapon;
 
@@ -6595,7 +6594,6 @@ void chr_update_collision_size( chr_t * pchr )
 
     mad_t * pmad;
 
-
     if( NULL == pchr || !pchr->onwhichblock ) return;
 
     pmad = chr_get_pmad( pchr->ai.index );
@@ -6673,7 +6671,6 @@ void chr_update_collision_size( chr_t * pchr )
     //    min_yx = MIN( min_yx, tmp_yx );
     //    max_yx = MAX( max_yx, tmp_yx );
     //}
-
 
     //pchr->collision.size   = MAX(MAX(max_x-pchr->pos.x, pchr->pos.x-min_x), MAX(max_y-pchr->pos.y, pchr->pos.y-min_y));
     //pchr->collision.height = (max_z-pchr->pos.z);

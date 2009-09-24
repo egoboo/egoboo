@@ -49,30 +49,76 @@ mouse_t           mous;
 keyboard_t        keyb;
 device_joystick_t joy[MAXJOYSTICK];
 
-int               cursor_x = 0;
-int               cursor_y = 0;
-bool_t            cursor_pressed = bfalse;
-bool_t            cursor_clicked = bfalse;
+int               cursor_x             = 0;
+int               cursor_y             = 0;
+bool_t            cursor_pressed       = bfalse;
+bool_t            cursor_clicked       = bfalse;
 bool_t            cursor_pending_click = bfalse;
-bool_t            cursor_wheel_event = bfalse;
+bool_t            cursor_wheel_event   = bfalse;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 static void input_read_mouse();
 static void input_read_keyboard();
+static void input_read_joysticks();
 static void input_read_joystick(Uint16 which);
 
-static void   scantag_reset();
-static bool_t scantag_read_one( vfs_FILE *fileread );
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+void input_device_init( input_device_t * pdevice )
+{
+    if( NULL == pdevice ) return;
+
+    memset( pdevice, 0, sizeof(input_device_t) );
+
+    pdevice->sustain = 0.58f;
+    pdevice->cover   = 1.0f - pdevice->cover;
+}
 
 //--------------------------------------------------------------------------------------------
+void input_init_keyboard()
+{
+    // set up the keyboard
+    memset( &keyb, 0, sizeof(mouse_t) );
+    init_scancodes();
+    keyb.on        = btrue;
+    keyb.count     = 0;
+    keyb.state_ptr = NULL;
+}
+
+//--------------------------------------------------------------------------------------------
+void input_init_mouse()
+{
+    // BB> set up the mouse
+    memset( &mous, 0, sizeof(mouse_t) );
+    mous.on      = btrue;
+    mous.sense   = 24;
+}
+
+//--------------------------------------------------------------------------------------------
+void input_init_joysticks()
+{
+    // BB> init the joysticks
+
+    int i;
+
+    for (i = 0; i < MAXJOYSTICK; i++)
+    {
+        memset( joy + i, 0, sizeof(device_joystick_t) );
+
+        if (i < SDL_NumJoysticks() )
+        {
+            joy[i].sdl_ptr = SDL_JoystickOpen( i );
+            joy[i].on      = (NULL != joy[i].sdl_ptr);
+        }
+    }
+}
+
 //--------------------------------------------------------------------------------------------
 void input_init()
 {
     // BB > initialize the inputs
-
-    int i;
 
     log_info( "Intializing SDL Joystick... " );
     if ( SDL_InitSubSystem( SDL_INIT_JOYSTICK ) < 0 )
@@ -84,35 +130,16 @@ void input_init()
         log_message( "Succeess!\n" );
     }
 
-    // init the keyboard info
-    init_scancodes();
-    keyb.on        = btrue;
-    keyb.count     = 0;
-    keyb.state_ptr = NULL;
-
-    // init the mouse info
-    memset( &mous, 0, sizeof(mouse_t) );
-    mous.on      = btrue;
-    mous.sense   = 24;
-    mous.sustain = 0.58f;
-    mous.cover   = 0.58f;
-
-    // init the joystick info
-    for (i = 0; i < MAXJOYSTICK; i++)
-    {
-        memset( joy + i, 0, sizeof(device_joystick_t) );
-        if (i < SDL_NumJoysticks() )
-        {
-            joy[i].sdl_ptr = SDL_JoystickOpen( i );
-            joy[i].on      = (NULL != joy[i].sdl_ptr);
-        }
-    }
+    input_init_keyboard();
+    input_init_mouse();
+    input_init_joysticks();
 }
 
 //--------------------------------------------------------------------------------------------
 void input_read_mouse()
 {
     int x, y, b;
+
     if ( process_running( PROC_PBASE(MProc) ) )
     {
         b = SDL_GetMouseState( &x, &y );
@@ -185,10 +212,22 @@ void input_read_joystick(Uint16 which)
 }
 
 //--------------------------------------------------------------------------------------------
+void input_read_joysticks()
+{
+    int cnt;
+
+    SDL_JoystickUpdate();
+    for ( cnt = 0; cnt < MAXJOYSTICK; cnt++ )
+    {
+        input_read_joystick(cnt);
+    }
+}
+
+//--------------------------------------------------------------------------------------------
 void input_read()
 {
     // ZZ> This function gets all the current player input states
-    int cnt;
+
     SDL_Event evt;
 
     if ( 0 == SDL_WasInit(SDL_INIT_EVERYTHING) ) return;
@@ -197,7 +236,6 @@ void input_read()
     // it for the Gui code
     while ( SDL_PollEvent( &evt ) )
     {
-
         if ( cfg.dev_mode )
         {
             if ( NULL == egoboo_console_handle_events( &evt ) )
@@ -299,12 +337,7 @@ void input_read()
     // Get immediate mode state for the rest of the game
     input_read_keyboard();
     input_read_mouse();
-
-    SDL_JoystickUpdate();
-    for ( cnt = 0; cnt < MAXJOYSTICK; cnt++ )
-    {
-        input_read_joystick(cnt);
-    }
+    input_read_joysticks();
 }
 
 //--------------------------------------------------------------------------------------------

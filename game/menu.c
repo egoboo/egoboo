@@ -57,7 +57,7 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-#define INVALID_PLA MAXPLAYER
+#define MNU_INVALID_PLA MAXPLAYER
 
 enum MenuStates
 {
@@ -90,7 +90,6 @@ struct s_ChoosePlayer_profiles
     int tx_ref[MAXIMPORTPERPLAYER + 1];
 };
 typedef struct s_ChoosePlayer_profiles ChoosePlayer_profiles_t;
-
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -941,7 +940,6 @@ int doChooseModule( float deltaTime )
     return result;
 }
 
-
 //--------------------------------------------------------------------------------------------
 bool_t doChoosePlayer_load_profiles( int player, ChoosePlayer_profiles_t * prof )
 {
@@ -1266,7 +1264,7 @@ int doChoosePlayer( float deltaTime )
                 // do the character button
                 mnu_widgetList[m].img  = TxTexture_get_ptr( loadplayer[player].tx_ref );
                 mnu_widgetList[m].text = loadplayer[player].name;
-                if ( INVALID_PLA != splayer )
+                if ( MNU_INVALID_PLA != splayer )
                 {
                     mnu_widgetList[m].state |= UI_BITS_CLICKED;
                 }
@@ -1298,7 +1296,7 @@ int doChoosePlayer( float deltaTime )
                 for ( j = 0, m++; j < 4; j++, m++ )
                 {
                     // make the button states reflect the chosen input devices
-                    if ( INVALID_PLA == splayer || HAS_NO_BITS( mnu_selectedInput[ splayer ], BitsInput[j] ) )
+                    if ( MNU_INVALID_PLA == splayer || HAS_NO_BITS( mnu_selectedInput[ splayer ], BitsInput[j] ) )
                     {
                         mnu_widgetList[m].state &= ~UI_BITS_CLICKED;
                     }
@@ -1312,7 +1310,7 @@ int doChoosePlayer( float deltaTime )
                         if ( HAS_SOME_BITS( mnu_widgetList[m].state, UI_BITS_CLICKED ) )
                         {
                             // button has become cursor_clicked
-                            if ( INVALID_PLA == splayer )
+                            if ( MNU_INVALID_PLA == splayer )
                             {
                                 if ( mnu_addSelectedPlayer( player ) )
                                 {
@@ -1326,7 +1324,7 @@ int doChoosePlayer( float deltaTime )
                                 new_player  = btrue;
                             }
                         }
-                        else if ( INVALID_PLA != splayer && HAS_NO_BITS( mnu_widgetList[m].state, UI_BITS_CLICKED ) )
+                        else if ( MNU_INVALID_PLA != splayer && HAS_NO_BITS( mnu_widgetList[m].state, UI_BITS_CLICKED ) )
                         {
                             // button has become unclicked
                             if ( mnu_removeSelectedPlayerInput( player, BitsInput[j] ) )
@@ -1470,7 +1468,6 @@ int doOptions( float deltaTime )
         "Back",
         ""
     };
-
 
     int result = 0;
 
@@ -2036,9 +2033,9 @@ int doGameOptions( float deltaTime )
             {
                 case GAME_HARD: snprintf(Cdifficulty, SDL_arraysize(Cdifficulty), "Punishing"); break;
 				case GAME_EASY: snprintf(Cdifficulty, SDL_arraysize(Cdifficulty), "Forgiving"); break;
-				default: case GAME_NORMAL: 
+				default: case GAME_NORMAL:
 				{
-					snprintf(Cdifficulty, SDL_arraysize(Cdifficulty), "Challenging"); 
+					snprintf(Cdifficulty, SDL_arraysize(Cdifficulty), "Challenging");
 					cfg.difficulty = GAME_NORMAL;
 					break;
 				}
@@ -3683,14 +3680,14 @@ bool_t mnu_checkSelectedPlayer( Uint16 player )
 Uint16 mnu_getSelectedPlayer( Uint16 player )
 {
     Uint16 ipla;
-    if ( player > loadplayer_count ) return INVALID_PLA;
+    if ( player > loadplayer_count ) return MNU_INVALID_PLA;
 
     for ( ipla = 0; ipla < MAXPLAYER && ipla < mnu_selectedPlayerCount; ipla++ )
     {
         if ( mnu_selectedPlayer[ ipla ] == player ) return ipla;
     }
 
-    return INVALID_PLA;
+    return MNU_INVALID_PLA;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4156,7 +4153,7 @@ Uint32 mnu_get_icon_ref( Uint16 icap, Uint32 default_ref, bool_t draw_icon )
     is_spell_fx = pitem_cap->spelleffect_type > 0;
     is_book     = (SPELLBOOK == icap);
     draw_book   = (is_book || is_spell_fx) && (bookicon_count > 0);
-   
+
     if ( !draw_book )
     {
         icon_ref = default_ref;
@@ -4181,6 +4178,4 @@ Uint32 mnu_get_icon_ref( Uint16 icap, Uint32 default_ref, bool_t draw_icon )
 
     return icon_ref;
 }
-
-
 

@@ -81,7 +81,6 @@ slot_t        grip_offset_to_slot( grip_offset_t grip );
 
 #define HURTDAMAGE           256                     // Minimum damage for hurt animation
 
-
 //Knockbacks
 #define REEL                7600.0f     // Dampen for melee knock back
 #define REELBASE            0.35f
@@ -240,10 +239,7 @@ struct s_chr
 
     // character state
     ai_state_t     ai;              // ai data
-
-    float          latchx;
-    float          latchy;
-    Uint32         latchbutton;
+    latch_t        latch;
 
     // character stats
     Uint8          gender;          // Gender
@@ -466,7 +462,6 @@ extern cap_t CapList[MAX_CAP];
 #define VALID_CAP( ICAP )       ( VALID_CAP_RANGE( ICAP ) && CapList[ICAP].loaded )
 #define INVALID_CAP( ICAP )     ( !VALID_CAP_RANGE( ICAP ) || !CapList[ICAP].loaded )
 
-
 DEFINE_LIST_EXTERN(chr_t, ChrList, MAX_CHR );
 
 #define VALID_CHR_RANGE( ICHR ) ( ((ICHR) >= 0) && ((ICHR) < MAX_CHR) )
@@ -596,7 +591,6 @@ Uint16   team_get_ileader( Uint16 iteam );
 chr_t  * team_get_pleader( Uint16 iteam );
 
 bool_t team_hates_team(Uint16 ipredator, Uint16 iprey);
-
 
 IDSZ chr_get_idsz(Uint16 ichr, Uint16 type);
 

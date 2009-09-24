@@ -22,8 +22,8 @@
 #include "egoboo_typedef.h"
 
 //---------------------------------------------------------------------------------------------
-//---------------------------------------------------------------------------------------------
 // Network stuff
+//--------------------------------------------------------------------------------------------
 
 #define NETREFRESH          1000                    // Every second
 #define NONETWORK           numservice
@@ -59,6 +59,82 @@
 #define LAGAND      63
 #define STARTTALK   10
 
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+struct s_time_latch
+{
+    float   x;
+    float   y;
+    Uint32  button;
+    Uint32  time;
+};
+typedef struct s_time_latch time_latch_t;
+
+//--------------------------------------------------------------------------------------------
+struct s_input_device
+{
+    bool_t                  on;              // Is it alive?
+    Uint32                  bits;
+
+    float                   sustain;         // Falloff rate for old movement
+    float                   cover;           // For falloff
+
+    latch_t                 latch;
+    latch_t                 latch_old;       // For sustain
+};
+typedef struct s_input_device input_device_t;
+
+void input_device_init( input_device_t * pdevice );
+void input_device_add_latch( input_device_t * pdevice, float newx, float newy );
+
+//--------------------------------------------------------------------------------------------
+struct s_player
+{
+    bool_t                  valid;                    // Player used?
+    Uint16                  index;                    // Which character?
+
+    // the buffered input from the local input devices
+    input_device_t          device;
+
+    // Local latch
+    latch_t                 latch;
+
+    // Timed latches
+    Uint32                  tlatch_count;
+    time_latch_t            tlatch[MAXLAG];
+};
+
+typedef struct s_player player_t;
+
+extern int                     local_numlpla;                                   // Number of local players
+extern int                     PlaList_count;                                   // Number of players
+extern player_t                PlaList[MAXPLAYER];
+
+#define VALID_PLA_RANGE(IPLA) ( ((IPLA) >= 0) && ((IPLA) < MAXPLAYER) )
+#define VALID_PLA(IPLA)       ( VALID_PLA_RANGE(IPLA) && ((IPLA) < PlaList_count) && PlaList[IPLA].valid )
+#define INVALID_PLA(IPLA)     ( !VALID_PLA_RANGE(IPLA) || ((IPLA) >= PlaList_count)|| !PlaList[IPLA].valid )
+
+void           player_init( player_t * ppla );
+void           pla_reinit( player_t * ppla );
+Uint16         pla_get_ichr( Uint16 iplayer );
+struct s_chr * pla_get_pchr( Uint16 iplayer );
+
+//--------------------------------------------------------------------------------------------
+struct s_net_instance
+{
+    bool_t  on;                      // Try to connect?
+    bool_t  serviceon;               // Do I need to free the interface?
+    bool_t  hostactive;              // Hosting?
+    bool_t  readytostart;            // Ready to hit the Start Game button?
+    bool_t  waitingforplayers;       // Has everyone talked to the host?
+};
+typedef struct s_net_instance net_instance_t;
+
+extern net_instance_t * PNet;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
 // Network orders
 /*extern unsigned char           ordervalid[MAXORDER];
 extern unsigned char           orderwho[MAXORDER][MAXSELECT];  //
@@ -82,56 +158,11 @@ extern int                     local_machine;        // 0 is host, 1 is 1st remo
 extern int                     playersready;               // Number of players ready to start
 extern int                     playersloaded;
 
-struct s_time_latch
-{
-    float   x;
-    float   y;
-    Uint32  button;
-    Uint32  time;
-};
-typedef struct s_time_latch time_latch_t;
-
-struct s_player
-{
-    bool_t                  valid;                    // Player used?
-    Uint16                  index;                    // Which character?
-    Uint8                   device;                   // Input device
-
-    // Local latch
-    float                   latchx;
-    float                   latchy;
-    Uint32                  latchbutton;
-
-    // Timed latches
-    Uint32                  tlatch_count;
-    time_latch_t            tlatch[MAXLAG];
-};
-
-typedef struct s_player player_t;
-
 extern Uint32                  numplatimes;
-
-extern int                     local_numlpla;                                   // Number of local players
-extern int                     PlaList_count;                                   // Number of players
-extern player_t                PlaList[MAXPLAYER];
-
-Uint16         pla_get_ichr( Uint16 iplayer );
-struct s_chr * pla_get_pchr( Uint16 iplayer );
-
-struct s_net_instance
-{
-    bool_t  on;                      // Try to connect?
-    bool_t  serviceon;               // Do I need to free the interface?
-    bool_t  hostactive;              // Hosting?
-    bool_t  readytostart;            // Ready to hit the Start Game button?
-    bool_t  waitingforplayers;       // Has everyone talked to the host?
-};
-typedef struct s_net_instance net_instance_t;
-
-extern net_instance_t * PNet;
 
 //---------------------------------------------------------------------------------------------
 // Networking functions
+//--------------------------------------------------------------------------------------------
 
 void listen_for_packets();
 void unbuffer_player_latches();
@@ -179,3 +210,5 @@ void stop_players_from_joining();
 // void turn_on_service(int service);
 
 void net_reset_players();
+
+void tlatch_ary_init(time_latch_t ary[], size_t len);

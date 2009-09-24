@@ -11,6 +11,9 @@
 int       scantag_count = 0;
 scantag_t scantag[MAXTAG];
 
+static void   scantag_reset();
+static bool_t scantag_read_one( vfs_FILE *fileread );
+
 //--------------------------------------------------------------------------------------------
 // Tag Reading
 //--------------------------------------------------------------------------------------------

@@ -42,7 +42,6 @@ Uint8  _find_tile_in_passage( const int x0, const int y0, const int tiletype, co
 Uint8  _append_end_text( struct s_chr * pchr, const int message, struct s_script_state * pstate );
 Uint16 _get_chr_target( struct s_chr * pchr, Uint32 max_dist, TARGET_TYPE target_type, bool_t target_items, bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz  );
 
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 

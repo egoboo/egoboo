@@ -30,6 +30,8 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+#define MAXJOYSTICK          2     //the maximum number of supported joysticks
+
 enum e_input_device
 {
     INPUT_DEVICE_KEYBOARD = 0,
@@ -37,9 +39,7 @@ enum e_input_device
     INPUT_DEVICE_JOY,
     INPUT_DEVICE_COUNT
 };
-typedef enum  e_input_device input_device_t;
-
-#define MAXJOYSTICK          2     //the maximum number of supported joysticks
+typedef enum  e_input_device INPUT_DEVICE;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -56,17 +56,16 @@ extern bool_t           cursor_wheel_event;
 // MOUSE
 struct s_mouse
 {
-    bool_t                  on;              // Is the mouse alive?
+    bool_t                  on;              // Is it alive?
     float                   sense;           // Sensitivity threshold
-    float                   sustain;         // Falloff rate for old movement
-    float                   cover;           // For falloff
+
     Sint32                  x;               // Mouse X movement counter
     Sint32                  y;               // Mouse Y movement counter
     Sint32                  z;               // Mouse wheel movement counter
-    float                   latcholdx;       // For sustain
-    float                   latcholdy;
+
     Uint8                   button[4];       // Mouse button states
     Uint32                  b;               // Button masks
+
 };
 typedef struct s_mouse mouse_t;
 
