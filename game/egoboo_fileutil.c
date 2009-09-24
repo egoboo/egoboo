@@ -398,15 +398,27 @@ void fput_gender( vfs_FILE* filewrite, const char* text, Uint8 gender )
 }
 
 //--------------------------------------------------------------------------------------------
+void fput_range( vfs_FILE* filewrite, const char* text, FRange val )
+{
+    // ZZ> This function mimics vfs_printf in spitting out
+    //    damage/stat pairs
+
+    vfs_printf( filewrite, "%s", text );
+    vfs_printf( filewrite, "%4.2f-%4.2f\n", val.from, val.to );
+}
+
+//--------------------------------------------------------------------------------------------
 void fput_pair( vfs_FILE* filewrite, const char* text, IPair val )
 {
     // ZZ> This function mimics vfs_printf in spitting out
     //    damage/stat pairs
 
-    undo_pair( val.base, val.rand );
+    FRange loc_range;
+
+    pair_to_range( val, &loc_range );
 
     vfs_printf( filewrite, "%s", text );
-    vfs_printf( filewrite, "%4.2f-%4.2f\n", range.from, range.to );
+    vfs_printf( filewrite, "%4.2f-%4.2f\n", loc_range.from, loc_range.to );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -450,55 +462,72 @@ void fput_expansion( vfs_FILE* filewrite, const char* text, IDSZ idsz, int value
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t fget_pair( vfs_FILE* fileread )
+bool_t fget_range( vfs_FILE* fileread, FRange * prange )
 {
-    // ZZ> This function reads a damage/stat pair ( eg. 5-9 )
-    char cTmp;
-    float  fBase, fRand;
+    // ZZ> This function reads a damage/stat range ( eg. 5-9 )
+
+    char  cTmp;
+    float fFrom, fTo;
+    long fpos;
 
     if ( NULL == fileread || vfs_error(fileread) || vfs_eof(fileread) ) return bfalse;
 
-    fBase = fget_float( fileread );  // The first number
-    pair.base = fBase * 256;
+    // read the range
+    fFrom = fget_float( fileread );  // The first number
+    fTo   = fFrom;
 
-    cTmp = fget_first_letter( fileread );  // The hyphen
+    // The optional hyphen
+    fpos = vfs_tell( fileread );
+    cTmp = fget_first_letter( fileread );
+
     if ( '-' != cTmp )
     {
-        // Not in correct format, so fail
-        pair.rand = 1;
-        return btrue;
+        // oops... reset the file position, just in calse
+        vfs_seek( fileread, fpos );
+    }
+    else
+    {
+        // The optional second number
+        fTo = fget_float( fileread );
     }
 
-    fRand = fget_float( fileread );  // The second number
-    pair.rand = fRand * 256;
-
-    pair.rand = pair.rand - pair.base;
-    if ( pair.rand < 1 )
-        pair.rand = 1;
+    if( NULL != prange )
+    {
+        prange->from = MIN(fFrom, fTo);
+        prange->to   = MAX(fFrom, fTo);
+    }
 
     return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-void undo_pair( int base, int rand )
+bool_t fget_next_range( vfs_FILE* fileread, FRange * prange )
 {
-    // ZZ> This function generates a damage/stat pair ( eg. 3-6.5f )
-    //    from the base and random values.  It set range.from and
-    //    range.to
-    range.from = base / 256.0f;
-    range.to = rand / 256.0f;
-    if ( range.from < 0.0f )
+    // ZZ> This function reads a damage/stat range ( eg. 5-9 )
+
+    goto_colon( NULL, fileread, bfalse );
+
+    return fget_range( fileread, prange );
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+bool_t fget_pair( vfs_FILE* fileread, IPair * ppair )
+{
+    // ZZ> This function reads a damage/stat loc_pair ( eg. 5-9 )
+
+    FRange loc_range;
+
+    if( !fget_range( fileread, &loc_range ) ) return bfalse;
+
+    if( NULL != ppair )
     {
-        range.from = 0.0f;
-        log_warning( "We got a randomization error again! (Base is less than 0)\n" );
-    }
-    if ( range.to < 0.0f )
-    {
-        range.to = 0.0f;
-        log_warning( "We got a randomization error again! (Max is less than 0)\n" );
+        // convert the range to a pair
+        ppair->base = FLOAT_TO_FP8(loc_range.from);
+        ppair->rand = FLOAT_TO_FP8(loc_range.to - loc_range.from);
     }
 
-    range.to += range.from;
+    return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -757,11 +786,11 @@ bool_t fget_next_name ( vfs_FILE * fileread, char * name, size_t name_len )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t fget_next_pair( vfs_FILE * fileread )
+bool_t fget_next_pair( vfs_FILE * fileread, IPair * ppair  )
 {
     goto_colon( NULL, fileread, bfalse );
 
-    return fget_pair( fileread );
+    return fget_pair( fileread, ppair );
 }
 
 //--------------------------------------------------------------------------------------------

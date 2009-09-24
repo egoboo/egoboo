@@ -127,15 +127,15 @@ pip_t * load_one_pip_file( const char *szLoadName, pip_t * ppip )
     ppip->facingadd = fget_next_int( fileread );
 
     // override the base rotation
-    if ( 0xFFFF != prt_direction[ ppip->imagebase ] )
+    if ( ppip->imagebase < 256 && prt_u != prt_direction[ ppip->imagebase ] )
     {
         ppip->rotate_pair.base = prt_direction[ ppip->imagebase ];
     };
 
     // Ending conditions
-    ppip->endwater = fget_next_bool( fileread );
-    ppip->endbump = fget_next_bool( fileread );
-    ppip->endground = fget_next_bool( fileread );
+    ppip->endwater     = fget_next_bool( fileread );
+    ppip->endbump      = fget_next_bool( fileread );
+    ppip->endground    = fget_next_bool( fileread );
     ppip->endlastframe = fget_next_bool( fileread );
 
     ppip->time = fget_next_int( fileread );
@@ -146,7 +146,7 @@ pip_t * load_one_pip_file( const char *szLoadName, pip_t * ppip )
     ppip->bumpsize   = fget_next_int( fileread );
     ppip->bumpheight = fget_next_int( fileread );
 
-    fget_next_pair( fileread ); ppip->damage = pair;
+    fget_next_range( fileread, &(ppip->damage) );
     ppip->damagetype = fget_next_damage_type( fileread );
 
     // Lighting data
@@ -155,7 +155,7 @@ pip_t * load_one_pip_file( const char *szLoadName, pip_t * ppip )
     else if ( 'L' == toupper(cTmp) ) ppip->dynalight_mode = DYNALOCAL;
     else                             ppip->dynalight_mode = DYNAOFF;
 
-    ppip->dynalight_level = fget_next_float( fileread );
+    ppip->dynalight_level   = fget_next_float( fileread );
     ppip->dynalight_falloff = fget_next_int( fileread );
 
     // Initial spawning of this particle
@@ -210,14 +210,16 @@ pip_t * load_one_pip_file( const char *szLoadName, pip_t * ppip )
     ppip->newtargetonspawn = fget_next_bool( fileread );
 
     ppip->targetangle = fget_next_int( fileread ) >> 1;
-    ppip->homing = fget_next_bool( fileread );
+    ppip->homing      = fget_next_bool( fileread );
 
     ppip->homingfriction = fget_next_float( fileread );
-    ppip->homingaccel = fget_next_float( fileread );
-    ppip->rotatetoface = fget_next_bool( fileread );
+    ppip->homingaccel    = fget_next_float( fileread );
+    ppip->rotatetoface   = fget_next_bool( fileread );
 
-    // Clear expansions...
+    // assume default endwall
     ppip->endwall = ppip->endground;
+
+    // assume default damfx
     if ( ppip->homing )  ppip->damfx = DAMFX_NONE;
 
     // Read expansions

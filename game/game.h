@@ -44,24 +44,6 @@ struct s_chr;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-// My lil' random number table
-#ifdef SWIG
-// swig chokes on the definition below
-#    define RANDIE_BITS    12
-#    define RANDIE_COUNT 4096
-#else
-#    define RANDIE_BITS   12
-#    define RANDIE_COUNT (1 << RANDIE_BITS)
-#endif
-
-#define RANDIE_MASK  ((Uint32)(RANDIE_COUNT - 1))
-#define RANDIE       randie[randindex & RANDIE_MASK ];  randindex++; randindex &= RANDIE_MASK
-
-extern Uint32  randindex;
-extern Uint16  randie[RANDIE_COUNT];
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 enum e_process_states
 {
     proc_begin,
@@ -357,8 +339,6 @@ void statlist_move_to_top( Uint16 character );
 void statlist_sort();
 
 // Math
-int    generate_number( IPair num );
-int    generate_randmask( int base, int mask );
 Uint16 terp_dir( Uint16 majordir, Uint16 minordir );
 Uint16 terp_dir_fast( Uint16 majordir, Uint16 minordir );
 void   getadd( int min, int value, int max, int* valuetoadd );

@@ -181,9 +181,6 @@ fog_instance_t        fog;
 Uint8  local_senseenemiesTeam = TEAM_GOOD; // TEAM_MAX;
 IDSZ   local_senseenemiesID   = IDSZ_NONE;
 
-Uint32  randindex = 0;
-Uint16  randie[RANDIE_COUNT];
-
 // declare the variables to do profiling
 PROFILE_DECLARE( update_loop );
 
@@ -191,7 +188,6 @@ PROFILE_DECLARE( update_loop );
 //--------------------------------------------------------------------------------------------
 
 // game initialization / deinitialization - not accessible by scripts
-static void make_randie();
 static void reset_timers();
 static void _quit_game( ego_process_t * pgame );
 
@@ -702,39 +698,6 @@ void chr_set_frame( Uint16 character, Uint16 action, int frame, Uint16 lip )
 }
 
 //--------------------------------------------------------------------------------------------
-int generate_number( IPair num )
-{
-    // ZZ> This function generates a random number
-
-    int tmp = 0;
-    int irand = RANDIE;
-
-    tmp = num.base;
-    if ( num.rand > 1 )
-    {
-        tmp += irand % num.rand;
-    }
-
-    return tmp;
-}
-
-//--------------------------------------------------------------------------------------------
-int generate_randmask( int base, int mask )
-{
-    // ZZ> This function generates a random number
-    int tmp;
-    int irand = RANDIE;
-
-    tmp = base;
-    if ( mask > 0 )
-    {
-        tmp += irand & mask;
-    }
-
-    return tmp;
-}
-
-//--------------------------------------------------------------------------------------------
 void setup_alliances( const char *modname )
 {
     // ZZ> This function reads the alliance file
@@ -952,40 +915,6 @@ void game_update_timers()
     {
         stabilized_ups = stabilized_ups_sum / stabilized_ups_weight;
     }
-}
-
-//--------------------------------------------------------------------------------------------
-void make_randie()
-{
-    // ZZ> This function makes the random number table
-    int tnc, cnt;
-
-    // Fill in the basic values
-    cnt = 0;
-    while ( cnt < RANDIE_COUNT )
-    {
-        randie[cnt] = rand() << 1;
-        cnt++;
-    }
-
-    // Keep adjusting those values
-    tnc = 0;
-
-    while ( tnc < 20 )
-    {
-        cnt = 0;
-
-        while ( cnt < RANDIE_COUNT )
-        {
-            randie[cnt] += rand();
-            cnt++;
-        }
-
-        tnc++;
-    }
-
-    // All done
-    randindex = 0;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2350,15 +2279,15 @@ void do_weather_spawn_particles()
                     z = ChrList.lst[cnt].pos.z;
                     particle = spawn_one_particle( x, y, z, 0, MAX_PROFILE, WEATHER4, MAX_CHR, GRIP_LAST, TEAM_NULL, MAX_CHR, 0, MAX_CHR );
 
-                    if (particle != TOTAL_MAX_PRT)
+                    if ( VALID_PRT(particle) )
                     {
-                        if (__prthitawall( particle ) ) PrtList_free_one( particle );
-                        else if ( weather.over_water )
+                        if ( __prthitawall( particle ) ) 
                         {
-                            if ( !prt_is_over_water( particle ) )
-                            {
-                                PrtList_free_one( particle );
-                            }
+                            PrtList_free_one( particle );
+                        }
+                        else if ( weather.over_water && !prt_is_over_water( particle ) )
+                        {
+                            PrtList_free_one( particle );
                         }
                     }
                 }

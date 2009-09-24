@@ -31,6 +31,9 @@
 float turntosin[TRIG_TABLE_SIZE];           // Convert chrturn>>2...  to sine
 float turntocos[TRIG_TABLE_SIZE];           // Convert chrturn>>2...  to cosine
 
+Uint32  randindex = 0;
+Uint16  randie[RANDIE_COUNT];
+
 //--------------------------------------------------------------------------------------------
 void make_turntosin( void )
 {
@@ -530,4 +533,85 @@ GLvector3 mat_getCamForward(GLmatrix mat)
 
     return frw;
 };
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+int generate_irand_pair( IPair num )
+{
+    // ZZ> This function generates a random number
+
+    int tmp = 0;
+    int irand = RANDIE;
+
+    tmp = num.base;
+    if ( num.rand > 1 )
+    {
+        tmp += irand % num.rand;
+    }
+
+    return tmp;
+}
+
+//--------------------------------------------------------------------------------------------
+int generate_irand_range( FRange num )
+{
+    // ZZ> This function generates a random number
+
+    IPair loc_pair;
+
+    range_to_pair( num, &loc_pair );
+
+    return generate_irand_pair( loc_pair );
+}
+
+//--------------------------------------------------------------------------------------------
+int generate_randmask( int base, int mask )
+{
+    // ZZ> This function generates a random number
+    int tmp;
+    int irand = RANDIE;
+
+    tmp = base;
+    if ( mask > 0 )
+    {
+        tmp += irand & mask;
+    }
+
+    return tmp;
+}
+
+
+//--------------------------------------------------------------------------------------------
+void make_randie()
+{
+    // ZZ> This function makes the random number table
+    int tnc, cnt;
+
+    // Fill in the basic values
+    cnt = 0;
+    while ( cnt < RANDIE_COUNT )
+    {
+        randie[cnt] = rand() << 1;
+        cnt++;
+    }
+
+    // Keep adjusting those values
+    tnc = 0;
+
+    while ( tnc < 20 )
+    {
+        cnt = 0;
+
+        while ( cnt < RANDIE_COUNT )
+        {
+            randie[cnt] += rand();
+            cnt++;
+        }
+
+        tnc++;
+    }
+
+    // All done
+    randindex = 0;
+}
 

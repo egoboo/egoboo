@@ -511,7 +511,7 @@ void update_all_prt_instance( camera_t * pcam )
         else
         {
             // calculate the "billboard" for this particle
-            prt_instance_update( pcam, cnt, 255, bfalse );
+            prt_instance_update( pcam, cnt, 255, btrue );
         }
     }
 }
@@ -713,7 +713,7 @@ void prt_instance_update_lighting( prt_instance_t * pinst, prt_t * pprt, Uint8 t
     alpha = trans;
 
     // interpolate the lighting for the origin of the object
-    interpolate_mesh_lighting( PMesh, &global_light, pinst->pos );
+    interpolate_grid_lighting( PMesh, &global_light, pinst->pos );
 
     // rotate the lighting data to body_centered coordinates
     mat = prt_inst_make_matrix( pinst );
@@ -738,7 +738,7 @@ void prt_instance_update_lighting( prt_instance_t * pinst, prt_t * pprt, Uint8 t
     pinst->famb   = 0.9f * pinst->famb + 0.1f * (self_light + min_light);
 
     // determine the normal dependent amount of light
-    lite = evaluate_lighting_cache( &loc_light, pinst->nrm.v, pinst->pos.z, PMesh->mmem.bbox );
+    lite = evaluate_lighting_cache( &loc_light, pinst->nrm.v, pinst->pos.z, PMesh->mmem.bbox, NULL, NULL );
     pinst->fdir = 0.9f * pinst->fdir + 0.1f * lite;
 
     // determine the overall lighting

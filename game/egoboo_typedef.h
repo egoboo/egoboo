@@ -144,6 +144,9 @@ struct s_range
 };
 typedef struct s_range FRange;
 
+void pair_to_range( IPair pair, FRange * prange );
+void range_to_pair( FRange range, IPair * ppair );
+
 //--------------------------------------------------------------------------------------------
 // some basic data that all egoboo objects should have
 #define  EGO_OBJECT_STUFF \
@@ -183,7 +186,7 @@ typedef char STRING[256];
 //--------------------------------------------------------------------------------------------
 // FAST CONVERSIONS
 #define FP8_TO_FLOAT(XX)   ( (float)(XX) * INV_0100 )
-#define FLOAT_TO_FP8(XX)   ( (Uint32)((XX) * (float)(0x0100) )
+#define FLOAT_TO_FP8(XX)   ( (Uint32)((XX) * (float)(0x0100) ) )
 #define FP8_TO_INT(XX)     ( (XX) >> 8 )                      // fast version of XX / 256
 #define INT_TO_FP8(XX)     ( (XX) << 8 )                      // fast version of XX * 256
 #define FP8_MUL(XX, YY)    ( ((XX)*(YY)) >> 8 )

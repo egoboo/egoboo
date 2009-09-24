@@ -152,29 +152,29 @@ cap_t * load_one_cap_file( const char * tmploadname, cap_t * pcap )
     pcap->lifecolor = fget_next_int( fileread );
     pcap->manacolor = fget_next_int( fileread );
 
-    fget_next_pair( fileread ); pcap->life_stat.val = pair;
-    fget_next_pair( fileread ); pcap->life_stat.perlevel = pair;
+    fget_next_range( fileread, &(pcap->life_stat.val) );
+    fget_next_range( fileread, &(pcap->life_stat.perlevel) );
 
-    fget_next_pair( fileread ); pcap->mana_stat.val = pair;
-    fget_next_pair( fileread ); pcap->mana_stat.perlevel = pair;
+    fget_next_range( fileread, &(pcap->mana_stat.val) );
+    fget_next_range( fileread, &(pcap->mana_stat.perlevel) );
 
-    fget_next_pair( fileread ); pcap->manareturn_stat.val = pair;
-    fget_next_pair( fileread ); pcap->manareturn_stat.perlevel = pair;
+    fget_next_range( fileread, &(pcap->manareturn_stat.val) );
+    fget_next_range( fileread, &(pcap->manareturn_stat.perlevel) );
 
-    fget_next_pair( fileread ); pcap->manaflow_stat.val = pair;
-    fget_next_pair( fileread ); pcap->manaflow_stat.perlevel = pair;
+    fget_next_range( fileread, &(pcap->manaflow_stat.val) );
+    fget_next_range( fileread, &(pcap->manaflow_stat.perlevel) );
 
-    fget_next_pair( fileread ); pcap->strength_stat.val = pair;
-    fget_next_pair( fileread ); pcap->strength_stat.perlevel = pair;
+    fget_next_range( fileread, &(pcap->strength_stat.val) );
+    fget_next_range( fileread, &(pcap->strength_stat.perlevel) );
 
-    fget_next_pair( fileread ); pcap->wisdom_stat.val = pair;
-    fget_next_pair( fileread ); pcap->wisdom_stat.perlevel = pair;
+    fget_next_range( fileread, &(pcap->wisdom_stat.val) );
+    fget_next_range( fileread, &(pcap->wisdom_stat.perlevel) );
 
-    fget_next_pair( fileread ); pcap->intelligence_stat.val = pair;
-    fget_next_pair( fileread ); pcap->intelligence_stat.perlevel = pair;
+    fget_next_range( fileread, &(pcap->intelligence_stat.val) );
+    fget_next_range( fileread, &(pcap->intelligence_stat.perlevel) );
 
-    fget_next_pair( fileread ); pcap->dexterity_stat.val = pair;
-    fget_next_pair( fileread ); pcap->dexterity_stat.perlevel = pair;
+    fget_next_range( fileread, &(pcap->dexterity_stat.val) );
+    fget_next_range( fileread, &(pcap->dexterity_stat.perlevel) );
 
     // More physical attributes
     pcap->size = fget_next_float( fileread );
@@ -261,9 +261,9 @@ cap_t * load_one_cap_file( const char * tmploadname, cap_t * pcap )
         pcap->experienceforlevel[level] = fget_next_int( fileread );
     }
 
-    fget_next_pair( fileread ); pcap->experience = pair;
-    pcap->experience.base >>= 8;
-    pcap->experience.rand >>= 8;
+    fget_next_range( fileread, &(pcap->experience) );
+    pcap->experience.from /= 256.0f;
+    pcap->experience.to   /= 256.0f;
 
     pcap->experienceworth    = fget_next_int( fileread );
     pcap->experienceexchange = fget_next_float( fileread );

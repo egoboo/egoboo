@@ -271,7 +271,7 @@ bool_t ChrList_free_one( Uint16 ichr )
     // sets all boolean values to false, incluting the "on" flag
     memset( ChrList.lst + ichr, 0, sizeof(chr_t) );
 
-#if defined(DEBUG)
+#if defined(USE_DEBUG)
     {
         int cnt;
         // determine whether this character is already in the list of free textures
@@ -2016,7 +2016,7 @@ bool_t character_grab_stuff( Uint16 ichr_a, grip_offset_t grip_off, bool_t grab_
                 {
                     // Pets can try to steal in addition to invisible characters
                     IPair  tmp_rand = {1,100};
-                    Uint8  detection = generate_number( tmp_rand );
+                    Uint8  detection = generate_irand_pair( tmp_rand );
 
                     // Check if it was detected. 50% chance +2% per pet DEX and -2% per shopkeeper wisdom. There is always a 5% chance it will fail.
                     if ( ChrList.lst[owner].canseeinvisible || detection <= 5 || detection - ( pchr_a->dexterity >> 7 ) + ( ChrList.lst[owner].wisdom >> 7 ) > 50 )
@@ -2431,51 +2431,51 @@ void do_level_up( Uint16 character )
             pchr->fat_goto_time += SIZETIME;
 
             // Strength
-            number = generate_number( pcap->strength_stat.perlevel );
+            number = generate_irand_range( pcap->strength_stat.perlevel );
             number += pchr->strength;
             if ( number > PERFECTSTAT ) number = PERFECTSTAT;
             pchr->strength = number;
 
             // Wisdom
-            number = generate_number( pcap->wisdom_stat.perlevel );
+            number = generate_irand_range( pcap->wisdom_stat.perlevel );
             number += pchr->wisdom;
             if ( number > PERFECTSTAT ) number = PERFECTSTAT;
             pchr->wisdom = number;
 
             // Intelligence
-            number = generate_number( pcap->intelligence_stat.perlevel );
+            number = generate_irand_range( pcap->intelligence_stat.perlevel );
             number += pchr->intelligence;
             if ( number > PERFECTSTAT ) number = PERFECTSTAT;
             pchr->intelligence = number;
 
             // Dexterity
-            number = generate_number( pcap->dexterity_stat.perlevel );
+            number = generate_irand_range( pcap->dexterity_stat.perlevel );
             number += pchr->dexterity;
             if ( number > PERFECTSTAT ) number = PERFECTSTAT;
             pchr->dexterity = number;
 
             // Life
-            number = generate_number( pcap->life_stat.perlevel );
+            number = generate_irand_range( pcap->life_stat.perlevel );
             number += pchr->lifemax;
             if ( number > PERFECTBIG ) number = PERFECTBIG;
             pchr->life += ( number - pchr->lifemax );
             pchr->lifemax = number;
 
             // Mana
-            number = generate_number( pcap->mana_stat.perlevel );
+            number = generate_irand_range( pcap->mana_stat.perlevel );
             number += pchr->manamax;
             if ( number > PERFECTBIG ) number = PERFECTBIG;
             pchr->mana += ( number - pchr->manamax );
             pchr->manamax = number;
 
             // Mana Return
-            number = generate_number( pcap->manareturn_stat.perlevel );
+            number = generate_irand_range( pcap->manareturn_stat.perlevel );
             number += pchr->manareturn;
             if ( number > PERFECTSTAT ) number = PERFECTSTAT;
             pchr->manareturn = number;
 
             // Mana Flow
-            number = generate_number( pcap->manaflow_stat.perlevel );
+            number = generate_irand_range( pcap->manaflow_stat.perlevel );
             number += pchr->manaflow;
             if ( number > PERFECTSTAT ) number = PERFECTSTAT;
             pchr->manaflow = number;
@@ -2696,21 +2696,21 @@ bool_t export_one_character_profile( const char *szSaveName, Uint16 character )
     vfs_printf( filewrite, "Life color     : %d\n", pchr->lifecolor );
     vfs_printf( filewrite, "Mana color     : %d\n", pchr->manacolor );
     vfs_printf( filewrite, "Life           : %4.2f\n", pchr->lifemax / 256.0f );
-    fput_pair( filewrite, "Life up        : ", pcap->life_stat.perlevel );
+    fput_range( filewrite, "Life up        : ", pcap->life_stat.perlevel );
     vfs_printf( filewrite, "Mana           : %4.2f\n", pchr->manamax / 256.0f );
-    fput_pair( filewrite, "Mana up        : ", pcap->mana_stat.perlevel );
+    fput_range( filewrite, "Mana up        : ", pcap->mana_stat.perlevel );
     vfs_printf( filewrite, "Mana return    : %4.2f\n", pchr->manareturn / 256.0f );
-    fput_pair( filewrite, "Mana return up : ", pcap->manareturn_stat.perlevel );
+    fput_range( filewrite, "Mana return up : ", pcap->manareturn_stat.perlevel );
     vfs_printf( filewrite, "Mana flow      : %4.2f\n", pchr->manaflow / 256.0f );
-    fput_pair( filewrite, "Mana flow up   : ", pcap->manaflow_stat.perlevel );
+    fput_range( filewrite, "Mana flow up   : ", pcap->manaflow_stat.perlevel );
     vfs_printf( filewrite, "STR            : %4.2f\n", pchr->strength / 256.0f );
-    fput_pair( filewrite, "STR up         : ", pcap->strength_stat.perlevel );
+    fput_range( filewrite, "STR up         : ", pcap->strength_stat.perlevel );
     vfs_printf( filewrite, "WIS            : %4.2f\n", pchr->wisdom / 256.0f );
-    fput_pair( filewrite, "WIS up         : ", pcap->wisdom_stat.perlevel );
+    fput_range( filewrite, "WIS up         : ", pcap->wisdom_stat.perlevel );
     vfs_printf( filewrite, "INT            : %4.2f\n", pchr->intelligence / 256.0f );
-    fput_pair( filewrite, "INT up         : ", pcap->intelligence_stat.perlevel );
+    fput_range( filewrite, "INT up         : ", pcap->intelligence_stat.perlevel );
     vfs_printf( filewrite, "DEX            : %4.2f\n", pchr->dexterity / 256.0f );
-    fput_pair( filewrite, "DEX up         : ", pcap->dexterity_stat.perlevel );
+    fput_range( filewrite, "DEX up         : ", pcap->dexterity_stat.perlevel );
     vfs_printf( filewrite, "\n" );
 
     // More physical attributes
@@ -3133,7 +3133,7 @@ void damage_character( Uint16 character, Uint16 direction,
     {
         // Lessen actual_damage for resistance, 0 = Weakness, 1 = Normal, 2 = Resist, 3 = Big Resist
         // This can also be used to lessen effectiveness of healing
-        actual_damage = generate_number( damage );
+        actual_damage = generate_irand_pair( damage );
         base_damage   = actual_damage;
         actual_damage = actual_damage >> ( pchr->damagemodifier[damagetype] & DAMAGESHIFT );
 
@@ -3714,7 +3714,7 @@ Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
     //    if it worked, MAX_CHR otherwise
 
     Uint16 ichr, kursechance;
-    int cnt, tnc;
+    int cnt, tnc, iTmp;
     chr_t * pchr;
     cap_t * pcap;
     float nrm[2];
@@ -3807,7 +3807,7 @@ Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
         kursechance = pcap->kursechance;
         if ( cfg.difficulty >= GAME_HARD )                        kursechance *= 2.0f;  // Hard mode doubles chance for Kurses
         if ( cfg.difficulty < GAME_NORMAL && kursechance != 100 ) kursechance *= 0.5f;  // Easy mode halves chance for Kurses
-        pchr->iskursed = ( generate_number(loc_rand) <= kursechance );
+        pchr->iskursed = ( generate_irand_pair(loc_rand) <= kursechance );
     }
 
     // Ammo
@@ -3852,11 +3852,11 @@ Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
     // Life and Mana
     pchr->lifecolor = pcap->lifecolor;
     pchr->manacolor = pcap->manacolor;
-    pchr->lifemax = generate_number( pcap->life_stat.val );
+    pchr->lifemax = generate_irand_range( pcap->life_stat.val );
     pchr->lifereturn = pcap->lifereturn;
-    pchr->manamax = generate_number( pcap->mana_stat.val );
-    pchr->manaflow = generate_number( pcap->manaflow_stat.val );
-    pchr->manareturn = generate_number( pcap->manareturn_stat.val );
+    pchr->manamax = generate_irand_range( pcap->mana_stat.val );
+    pchr->manaflow = generate_irand_range( pcap->manaflow_stat.val );
+    pchr->manareturn = generate_irand_range( pcap->manareturn_stat.val );
 
     // Load current life and mana or refill them (based on difficulty)
     if ( cfg.difficulty >= GAME_NORMAL ) pchr->life = CLIP( pcap->spawnlife, LOWSTAT, pchr->lifemax );
@@ -3865,10 +3865,10 @@ Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
     else pchr->mana = pchr->manamax;
 
     // SWID
-    pchr->strength = generate_number( pcap->strength_stat.val );
-    pchr->wisdom = generate_number( pcap->wisdom_stat.val );
-    pchr->intelligence = generate_number( pcap->intelligence_stat.val );
-    pchr->dexterity = generate_number( pcap->dexterity_stat.val );
+    pchr->strength = generate_irand_range( pcap->strength_stat.val );
+    pchr->wisdom = generate_irand_range( pcap->wisdom_stat.val );
+    pchr->intelligence = generate_irand_range( pcap->intelligence_stat.val );
+    pchr->dexterity = generate_irand_range( pcap->dexterity_stat.val );
 
     // Damage
     pchr->defense = pcap->defense[skin];
@@ -3979,7 +3979,8 @@ Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
     pchr->reaffirmdamagetype = pcap->attachedprt_reaffirmdamagetype;
 
     // Experience
-    pchr->experience = MIN(generate_number( pcap->experience ), MAXXP);
+    iTmp = generate_irand_range( pcap->experience );
+    pchr->experience      = MIN(iTmp, MAXXP);
     pchr->experiencelevel = pcap->leveloverride;
 
     // Items that are spawned inside shop passages are more expensive than normal

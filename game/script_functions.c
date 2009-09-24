@@ -6338,9 +6338,9 @@ Uint8 scr_SpawnPoofSpeedSpacingDamage( script_state_t * pstate, ai_state_t * pse
     // adjusting the xy speed and spacing and the base damage first
     // Temporarily adjust the values for the particle type
 
-    int tTmp;
-    int iTmp;
-    IDSZ test;
+    int   tTmp, iTmp;
+    float fTmp;
+    IDSZ  test;
 
     cap_t * pcap;
     pip_t * ppip;
@@ -6359,19 +6359,19 @@ Uint8 scr_SpawnPoofSpeedSpacingDamage( script_state_t * pstate, ai_state_t * pse
         // save some values
         iTmp = ppip->xyvel_pair.base;
         tTmp = ppip->xyspacing_pair.base;
-        test = ppip->damage.base;
+        fTmp = ppip->damage.from;
 
         // set some values
         ppip->xyvel_pair.base     = pstate->x;
         ppip->xyspacing_pair.base = pstate->y;
-        ppip->damage.base         = pstate->argument;
+        ppip->damage.from         = FP8_TO_FLOAT(pstate->argument);
 
         spawn_poof( pself->index, pchr->iprofile );
 
         // Restore the saved values
         ppip->xyvel_pair.base     = iTmp;
         ppip->xyspacing_pair.base = tTmp;
-        ppip->damage.base         = test;
+        ppip->damage.from         = fTmp;
 
         returncode = btrue;
     }

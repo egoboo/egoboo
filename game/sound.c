@@ -565,7 +565,7 @@ bool_t _update_channel_volume( int channel, int volume, GLvector3 diff )
     return btrue;
 }
 
-int sound_play_chunk_looped( GLvector3 pos, Mix_Chunk * pchunk, Sint8 loops, Uint16 object )
+int sound_play_chunk_looped( GLvector3 pos, Mix_Chunk * pchunk, Sint8 loops, Uint16 owner )
 {
     // This function plays a specified sound and returns which channel it's using
     int channel = INVALID_SOUND;
@@ -584,18 +584,24 @@ int sound_play_chunk_looped( GLvector3 pos, Mix_Chunk * pchunk, Sint8 loops, Uin
     // play the sound
     if ( volume > 0 )
     {
-        // this function handles loops == 0 properly
-        channel = LoopedList_add( pchunk, loops, object );
+        // play the sound
+        channel = Mix_PlayChannel( -1, pchunk, loops );
 
         if ( INVALID_SOUND == channel )
         {
             if (cfg.dev_mode)
             {
-                log_warning( "Unable to play sound. (%s)\n", Mix_GetError() );
+                //log_warning( "Unable to play sound. (%s)\n", Mix_GetError() );
             }
         }
         else
         {
+            if( 0 != loops )
+            {
+                // add the sound to the LoopedList
+                LoopedList_add( pchunk, channel, owner );
+            }
+
             //Set left/right panning
             _update_channel_volume( channel, volume, diff );
         }
@@ -964,57 +970,28 @@ void LoopedList_clear()
 }
 
 //--------------------------------------------------------------------------------------------
-int LoopedList_add( Mix_Chunk * sound, int loops, Uint16 object )
+int LoopedList_add( Mix_Chunk * sound, int channel, Uint16 ichr )
 {
     // BB> add a looped sound to the list
 
-    int channel;
+    int index;
 
-    if ( NULL == sound )
+    if ( NULL == sound || INVALID_SOUND == channel || INVALID_CHR(ichr) ) return LOOPED_COUNT;
+
+    if ( LoopedList.used_count >= LOOPED_COUNT ) return -1;
+    if ( !LoopedList_validate() ) return -1;
+
+    index = LoopedList_get_free();
+
+    if ( index != LOOPED_COUNT )
     {
-        // not a valid sound
-        return INVALID_SOUND;
-    }
-    else if ( 0 == loops )
-    {
-        // not looped
-        channel = Mix_PlayChannel( -1, sound, 0 );
-    }
-    else
-    {
-        // valid, looped sound
-
-        int index;
-
-        if ( LoopedList.used_count >= LOOPED_COUNT ) return -1;
-        if ( !LoopedList_validate() ) return -1;
-
-        index = LoopedList_get_free();
-
-        if ( LOOPED_COUNT == index )
-        {
-            // there are no free indices, just play the sound once
-            channel = Mix_PlayChannel( -1, sound, 0 );
-        }
-        else
-        {
-            // set up the LoopedList entry at the empty index
-
-            channel = Mix_PlayChannel( -1, sound, loops );
-            if ( INVALID_SOUND != channel )
-            {
-                LoopedList.lst[index].chunk   = sound;
-                LoopedList.lst[index].channel = channel;
-                LoopedList.lst[index].object  = object;
-            }
-            else
-            {
-                LoopedList_free_one( index );
-            }
-        }
+        // set up the LoopedList entry at the empty index
+        LoopedList.lst[index].chunk   = sound;
+        LoopedList.lst[index].channel = channel;
+        LoopedList.lst[index].object  = ichr;
     }
 
-    return channel;
+    return index;
 }
 
 //--------------------------------------------------------------------------------------------

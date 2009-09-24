@@ -1052,34 +1052,34 @@ bool_t doChoosePlayer_show_stats( int player, int mode, int x, int y, int width,
             //Life and mana (can be less than maximum if not in easy mode)
             if ( cfg.difficulty >= GAME_NORMAL )
             {
-                fnt_drawText( menuFont, x1, y1, "Life: %d/%d", MIN( FP8_TO_INT(pcap->spawnlife), FP8_TO_INT(pcap->life_stat.val.base) ), FP8_TO_INT(pcap->life_stat.val.base) ); y1 += 20;
-                y1 = draw_one_bar( pcap->lifecolor, x1, y1, FP8_TO_INT(pcap->spawnlife), FP8_TO_INT(pcap->life_stat.val.base) );
+                fnt_drawText( menuFont, x1, y1, "Life: %d/%d", MIN( FP8_TO_INT(pcap->spawnlife), (int)pcap->life_stat.val.from ), (int)pcap->life_stat.val.from ); y1 += 20;
+                y1 = draw_one_bar( pcap->lifecolor, x1, y1, FP8_TO_INT(pcap->spawnlife), (int)pcap->life_stat.val.from );
 
-				if( pcap->mana_stat.val.base > 0)
+				if( pcap->mana_stat.val.from > 0)
 				{
-					fnt_drawText( menuFont, x1, y1, "Mana: %d/%d", MIN( FP8_TO_INT(pcap->spawnmana), FP8_TO_INT(pcap->mana_stat.val.base) ), FP8_TO_INT(pcap->mana_stat.val.base) ); y1 += 20;
-					y1 = draw_one_bar( pcap->manacolor, x1, y1, FP8_TO_INT(pcap->spawnmana), FP8_TO_INT(pcap->mana_stat.val.base) );
+					fnt_drawText( menuFont, x1, y1, "Mana: %d/%d", MIN( FP8_TO_INT(pcap->spawnmana), (int)pcap->mana_stat.val.from ), (int)pcap->mana_stat.val.from ); y1 += 20;
+					y1 = draw_one_bar( pcap->manacolor, x1, y1, FP8_TO_INT(pcap->spawnmana), (int)pcap->mana_stat.val.from );
 				}
 			}
             else
             {
-                fnt_drawText( menuFont, x1, y1, "Life: %d", FP8_TO_INT(pcap->life_stat.val.base) ); y1 += 20;
-                y1 = draw_one_bar( pcap->lifecolor, x1, y1, FP8_TO_INT(pcap->life_stat.val.base), FP8_TO_INT(pcap->life_stat.val.base) );
+                fnt_drawText( menuFont, x1, y1, "Life: %d", (int)pcap->life_stat.val.from ); y1 += 20;
+                y1 = draw_one_bar( pcap->lifecolor, x1, y1, (int)pcap->life_stat.val.from, (int)pcap->life_stat.val.from );
 
-				if( pcap->mana_stat.val.base > 0)
+				if( pcap->mana_stat.val.from > 0)
 				{
-					fnt_drawText( menuFont, x1, y1, "Mana: %d", FP8_TO_INT(pcap->mana_stat.val.base) ); y1 += 20;
-					y1 = draw_one_bar( pcap->manacolor, x1, y1, FP8_TO_INT(pcap->mana_stat.val.base), FP8_TO_INT(pcap->mana_stat.val.base) );
+					fnt_drawText( menuFont, x1, y1, "Mana: %d", (int)pcap->mana_stat.val.from ); y1 += 20;
+					y1 = draw_one_bar( pcap->manacolor, x1, y1, (int)pcap->mana_stat.val.from, (int)pcap->mana_stat.val.from );
             	}
 			}
             y1 += 20;
 
             //SWID
             fnt_drawText( menuFont, x1, y1, "Stats" ); y1 += 20;
-            fnt_drawText( menuFont, x1, y1, "  Str: %s (%d)", describe_stat(pcap->strength_stat.val.base),     FP8_TO_INT(pcap->strength_stat.val.base	   ) ); y1 += 20;
-            fnt_drawText( menuFont, x1, y1, "  Wis: %s (%d)", describe_stat(pcap->wisdom_stat.val.base),       FP8_TO_INT(pcap->wisdom_stat.val.base	   ) ); y1 += 20;
-            fnt_drawText( menuFont, x1, y1, "  Int: %s (%d)", describe_stat(pcap->intelligence_stat.val.base), FP8_TO_INT(pcap->intelligence_stat.val.base ) ); y1 += 20;
-            fnt_drawText( menuFont, x1, y1, "  Dex: %s (%d)", describe_stat(pcap->dexterity_stat.val.base),    FP8_TO_INT(pcap->dexterity_stat.val.base	   ) ); y1 += 20;
+            fnt_drawText( menuFont, x1, y1, "  Str: %s (%d)", describe_stat(FLOAT_TO_FP8(pcap->strength_stat.val.from)),     (int)pcap->strength_stat.val.from	    ); y1 += 20;
+            fnt_drawText( menuFont, x1, y1, "  Wis: %s (%d)", describe_stat(FLOAT_TO_FP8(pcap->wisdom_stat.val.from)),       (int)pcap->wisdom_stat.val.from	    ); y1 += 20;
+            fnt_drawText( menuFont, x1, y1, "  Int: %s (%d)", describe_stat(FLOAT_TO_FP8(pcap->intelligence_stat.val.from)), (int)pcap->intelligence_stat.val.from  ); y1 += 20;
+            fnt_drawText( menuFont, x1, y1, "  Dex: %s (%d)", describe_stat(FLOAT_TO_FP8(pcap->dexterity_stat.val.from)),    (int)pcap->dexterity_stat.val.from	    ); y1 += 20;
             y1 += 20;
 
             if ( objects.count > 1 )

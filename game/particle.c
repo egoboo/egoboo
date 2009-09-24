@@ -49,6 +49,10 @@ DECLARE_LIST ( ACCESS_TYPE_NONE, prt_t, PrtList );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+static void prt_init( prt_t * pprt );
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 int prt_count_free()
 {
     return PrtList.free_count;
@@ -65,16 +69,19 @@ bool_t PrtList_free_one( Uint16 iprt )
 
     // particle "destructor"
     // sets all boolean values to false, incluting the "on" flag
-    memset( PrtList.lst + iprt, 0, sizeof(prt_t) );
+    prt_init( PrtList.lst + iprt );
 
-#if defined(DEBUG)
+#if defined(USE_DEBUG)
     {
         int cnt;
-        // determine whether this texture is already in the list of free textures
+        // determine whether this particle is already in the list of free textures
         // that is an error
         for ( cnt = 0; cnt < PrtList.free_count; cnt++ )
         {
-            if ( iprt == PrtList.free_ref[cnt] ) return bfalse;
+            if ( iprt == PrtList.free_ref[cnt] ) 
+            {
+                return bfalse;
+            }
         }
     }
 #endif
@@ -247,10 +254,10 @@ Uint16 spawn_one_particle( float x, float y, float z,
 
     if ( INVALID_PIP(ipip) )
     {
-        log_warning( "spawn_one_particle() - cannot spawn particle with invalid pip == %d (owner == %d(\"%s\"), profile == %d(\"%s\"))\n",
-            ipip,
-            characterorigin, VALID_CHR(characterorigin) ? ChrList.lst[characterorigin].name : "INVALID",
-            iprofile, VALID_PRO(iprofile) ? ProList.lst[iprofile].name : "INVALID" );
+        //log_warning( "spawn_one_particle() - cannot spawn particle with invalid pip == %d (owner == %d(\"%s\"), profile == %d(\"%s\"))\n",
+        //    ipip,
+        //    characterorigin, VALID_CHR(characterorigin) ? ChrList.lst[characterorigin].name : "INVALID",
+        //    iprofile, VALID_PRO(iprofile) ? ProList.lst[iprofile].name : "INVALID" );
         return TOTAL_MAX_PRT;
     }
     ppip = PipStack.lst + ipip;
@@ -258,10 +265,10 @@ Uint16 spawn_one_particle( float x, float y, float z,
     iprt = get_free_particle( ppip->force );
     if ( !VALID_PRT_RANGE(iprt) )
     {
-        log_warning( "spawn_one_particle() - cannot allocate a particle owner == %d(\"%s\"), pip == %d(\"%s\"), profile == %d(\"%s\")\n",
-            characterorigin, VALID_CHR(characterorigin) ? ChrList.lst[characterorigin].name : "INVALID",
-            ipip, VALID_PIP(ipip) ? PipStack.lst[ipip].name : "INVALID",
-            iprofile, VALID_PRO(iprofile) ? ProList.lst[iprofile].name : "INVALID" );
+        //log_warning( "spawn_one_particle() - cannot allocate a particle owner == %d(\"%s\"), pip == %d(\"%s\"), profile == %d(\"%s\")\n",
+        //    characterorigin, VALID_CHR(characterorigin) ? ChrList.lst[characterorigin].name : "INVALID",
+        //    ipip, VALID_PIP(ipip) ? PipStack.lst[ipip].name : "INVALID",
+        //    iprofile, VALID_PRO(iprofile) ? ProList.lst[iprofile].name : "INVALID" );
         return TOTAL_MAX_PRT;
     }
     pprt = PrtList.lst + iprt;
@@ -349,7 +356,7 @@ Uint16 spawn_one_particle( float x, float y, float z,
         }
 
         // Does it go away?
-        if ( pprt->target == MAX_CHR && ppip->needtarget )
+        if ( INVALID_CHR(pprt->target) && ppip->needtarget )
         {
             free_one_particle_in_game( iprt );
             return maxparticles;
@@ -436,8 +443,7 @@ Uint16 spawn_one_particle( float x, float y, float z,
     pprt->onwhichblock = mesh_get_block( PMesh, pprt->pos.x, pprt->pos.y );
 
     // Damage stuff
-    pprt->damage.base = ppip->damage.base;
-    pprt->damage.rand = ppip->damage.rand;
+    range_to_pair(ppip->damage, &(pprt->damage));
 
     // Spawning data
     pprt->spawntime = ppip->contspawntime;
@@ -701,12 +707,27 @@ void move_particles( void )
             }
             else
             {
-                // Just destroy the particle
-                //                   free_one_particle_in_game(cnt);
+                // destroy the particle
                 pprt->time  = frame_all + 1;
                 pprt->poofme = btrue;
             }
         }
+
+        pprt->facing += ppip->facingadd;
+    }
+
+    for ( cnt = 0; cnt < maxparticles; cnt++ )
+    {
+        pip_t * ppip;
+        prt_t * pprt;
+
+        if ( !PrtList.lst[cnt].on ) continue;
+        pprt = PrtList.lst + cnt;
+
+        // To make it easier
+        ipip = pprt->pip;
+        if ( INVALID_PIP( ipip ) ) continue;
+        ppip = PipStack.lst + ipip;
 
         // Spawn new particles if time for old one is up
         if ( pprt->poofme || ( !pprt->is_eternal && frame_all >= pprt->time ) )
@@ -724,8 +745,6 @@ void move_particles( void )
 
             free_one_particle_in_game( cnt );
         }
-
-        pprt->facing += ppip->facingadd;
     }
 }
 
@@ -1084,6 +1103,7 @@ bool_t release_one_pip( Uint16 ipip )
 
     if( !VALID_PIP_RANGE(ipip) ) return bfalse;
     ppip = PipStack.lst + ipip;
+
 
     if( !ppip->loaded ) return btrue;
 

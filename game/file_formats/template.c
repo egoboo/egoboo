@@ -266,8 +266,10 @@ void template_put_pair( vfs_FILE* filetemp, vfs_FILE* filewrite, IPair val )
 {
     if( template_copy_to_marker( filewrite, filetemp, "#" ) )
     {
-        undo_pair( val.base, val.rand );
-        vfs_printf( filewrite, "%4.2f-%4.2f", range.from, range.to );
+        FRange loc_range;
+        pair_to_range( val, &loc_range);
+
+        vfs_printf( filewrite, "%4.2f-%4.2f", loc_range.from, loc_range.to );
     }
 }
 

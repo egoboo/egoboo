@@ -18,9 +18,14 @@
 //********************************************************************************************
 
 #include "egoboo_typedef.h"
+#include "egoboo_math.h"
 
-static bool_t        hash_list_dtor(hash_list_t * lst);
-static bool_t        hash_node_dtor(hash_node_t * n);
+#include "log.h"
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+static bool_t hash_list_dtor(hash_list_t * lst);
+static bool_t hash_node_dtor(hash_node_t * n);
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -260,4 +265,54 @@ void latch_init( latch_t * platch )
     platch->x = 0.0f;
     platch->y = 0.0f;
     platch->b = 0;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+void pair_to_range( IPair pair, FRange * prange )
+{
+    // ZZ> convert from a pair to a range
+
+    if ( pair.base < 0 )
+    {
+        log_warning( "We got a randomization error again! (Base is less than 0)\n" );
+    }
+
+    if ( pair.rand < 0 )
+    {
+        log_warning( "We got a randomization error again! (rand is less than 0)\n" );
+    }
+
+    if( NULL != prange )
+    {
+        float fFrom, fTo;
+
+        fFrom = FP8_TO_FLOAT(pair.base);
+        fTo   = FP8_TO_FLOAT(pair.base + pair.rand);
+
+        prange->from = MIN(fFrom, fTo);
+        prange->to   = MAX(fFrom, fTo);
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+void range_to_pair( FRange range, IPair * ppair )
+{
+    // ZZ> convert from a range to a pair
+
+    if ( range.from > range.to )
+    {
+        log_warning( "We got a range error! (to is less than from)\n" );
+    }
+
+    if( NULL != ppair )
+    {
+        float fFrom, fTo;
+
+        fFrom = MIN(range.from, range.to);
+        fTo   = MAX(range.from, range.to);
+
+        ppair->base = FLOAT_TO_FP8(fFrom);
+        ppair->rand = FLOAT_TO_FP8(fTo - fFrom);
+    }
 }

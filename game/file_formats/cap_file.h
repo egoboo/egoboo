@@ -149,8 +149,8 @@ enum e_chr_gender
 //--------------------------------------------------------------------------------------------
 struct s_cap_stat
 {
-    IPair val;
-    IPair perlevel;
+    FRange val;
+    FRange perlevel;
 };
 typedef struct s_cap_stat cap_stat_t;
 
@@ -250,7 +250,7 @@ struct s_cap
 
     // xp
     Uint32       experienceforlevel[MAXLEVEL];  // Experience needed for next level
-    IPair        experience;                // Starting experience
+    FRange       experience;                    // Starting experience
     Uint16       experienceworth;               // Amount given to killer/user
     float        experienceexchange;            // Adds to worth
     float        experiencerate[XP_COUNT];

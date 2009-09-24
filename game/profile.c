@@ -251,7 +251,7 @@ bool_t ProList_push_free( Uint16 iobj )
 
     int retval;
 
-#if defined(DEBUG)
+#if defined(USE_DEBUG)
     // determine whether this character is already in the list of free objects
     // that is an error
     if( -1 != ProList_search_free(iobj) ) return bfalse;

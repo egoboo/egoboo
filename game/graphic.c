@@ -1594,15 +1594,20 @@ bool_t sum_global_lighting( float lighting[] )
 
     if ( NULL == lighting ) return bfalse;
 
+    // do ambient lighting. if the module is inside, the ambient lighting
+    // is reduced by up to a facror of 8. It is still kept just high enough
+    // so that ordnary objects will not be made invisible. This was breaking some of the AIs
     glob_amb = gfx.usefaredge ? (light_a * 255.0f) : MAX( 32.0f * light_a, INVISIBLE );
     for ( cnt = 0; cnt < 6; cnt++ )
     {
+        // the 0.362 is so that an object being lit by half ambient light
+        // will have half brightness, not 1.38 * full brightness
         lighting[cnt] = glob_amb * 0.362f;
     }
 
     if ( !gfx.usefaredge ) return btrue;
 
-    // do global lighting
+    // do "outside" directional lighting (i.e. sunlight)
     if ( light_x > 0 )
     {
         lighting[0] += ABS(light_x) * light_d * 255;
@@ -4379,30 +4384,40 @@ bool_t oglx_texture_parameters_synch( oglx_texture_parameters_t * ptex, egoboo_c
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t interpolate_mesh_lighting( ego_mpd_t * pmesh, lighting_cache_t * dst, GLvector3 pos )
+bool_t interpolate_grid_lighting( ego_mpd_t * pmesh, lighting_cache_t * dst, GLvector3 pos )
 {
-    lighting_cache_t * cache_list[4];
     int ix, iy, cnt;
     Uint32 fan[4];
     float u, v, min_x, max_x, min_y, max_y;
 
-    fan[0] = mesh_get_tile( pmesh, pos.x,             pos.y             );
-    fan[1] = mesh_get_tile( pmesh, pos.x + TILE_SIZE, pos.y             );
-    fan[2] = mesh_get_tile( pmesh, pos.x,             pos.y + TILE_SIZE );
-    fan[3] = mesh_get_tile( pmesh, pos.x + TILE_SIZE, pos.y + TILE_SIZE );
+    grid_lighting_t  * glight;
+    lighting_cache_t * cache_list[4];
+
+    if( NULL == pmesh ) return bfalse;
+    glight = pmesh->gmem.light;
+
+    ix = pos.x / TILE_SIZE;
+    iy = pos.y / TILE_SIZE;
+
+    fan[0] = mesh_get_tile_int( pmesh, ix,     iy     );
+    fan[1] = mesh_get_tile_int( pmesh, ix + 1, iy     );
+    fan[2] = mesh_get_tile_int( pmesh, ix,     iy + 1 );
+    fan[3] = mesh_get_tile_int( pmesh, ix + 1, iy + 1 );
 
     for ( cnt = 0; cnt < 4; cnt++ )
     {
-        cache_list[cnt] = VALID_TILE(pmesh, fan[cnt]) ? &(pmesh->gmem.light[fan[cnt]].cache) : NULL;
+        cache_list[cnt] = NULL;
+        if( VALID_TILE(pmesh, fan[cnt]) )
+        {
+            cache_list[cnt] = &(glight[fan[cnt]].cache);
+        }
     }
 
-    ix    = floor( pos.x / TILE_SIZE );
-    min_x = ix * TILE_SIZE;
-    max_x = (ix + 1) * TILE_SIZE;
+    min_x = floor( pos.x / TILE_SIZE ) * TILE_SIZE;
+    max_x = ceil ( pos.x / TILE_SIZE ) * TILE_SIZE;
 
-    iy    = floor( pos.y / TILE_SIZE );
-    min_y = iy * TILE_SIZE;
-    max_y = (iy + 1) * TILE_SIZE;
+    min_y = floor( pos.y / TILE_SIZE ) * TILE_SIZE;
+    max_y = ceil ( pos.y / TILE_SIZE ) * TILE_SIZE;
 
     u = (pos.x - min_x) / (max_x - min_x);
     v = (pos.y - min_y) / (max_y - min_y);
@@ -4471,6 +4486,7 @@ bool_t interpolate_lighting( lighting_cache_t * dst, lighting_cache_t * src[], f
     v = CLIP(v, 0, 1);
 
     wt_sum = 0.0f;
+
     if ( NULL != src[0] )
     {
         float wt = (1 - u) * (1 - v);
@@ -4517,11 +4533,17 @@ bool_t interpolate_lighting( lighting_cache_t * dst, lighting_cache_t * src[], f
 
     if ( wt_sum > 0.0f )
     {
+        if( wt_sum != 1.0f )
+        {
+            for (tnc = 0; tnc < 6; tnc++)
+            {
+                dst->lighting_low[tnc] /= wt_sum;
+                dst->lighting_hgh[tnc] /= wt_sum;
+            }
+        }
+
         for (tnc = 0; tnc < 6; tnc++)
         {
-            dst->lighting_low[tnc] /= wt_sum;
-            dst->lighting_hgh[tnc] /= wt_sum;
-
             dst->max_light = MAX(dst->max_light, dst->lighting_low[tnc]);
             dst->max_light = MAX(dst->max_light, dst->lighting_hgh[tnc]);
         }
@@ -4883,7 +4905,7 @@ bool_t BillboardList_free_one(int ibb)
 
     billboard_data_free( pbb );
 
-#if defined(DEBUG)
+#if defined(USE_DEBUG)
     {
         int cnt;
         // determine whether this texture is already in the list of free textures

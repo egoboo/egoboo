@@ -99,7 +99,7 @@ struct s_pip
     bool_t  endground;                    // End if on ground
     bool_t  endwall;                      // End if hit a wall
     bool_t  endlastframe;                 // End on last frame
-    IPair   damage;                       // Damage
+    FRange  damage;                       // Damage
     Uint8   damagetype;                   // Damage type
     Uint16  facingadd;                    // Facing
     IPair   facing_pair;                   // Facing

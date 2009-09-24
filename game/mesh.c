@@ -1115,6 +1115,7 @@ bool_t mesh_make_normals( ego_mpd_t * pmesh )
 //--------------------------------------------------------------------------------------------
 bool_t grid_light_one_corner( ego_mpd_t * pmesh, int fan, float height, float nrm[], float * plight )
 {
+    bool_t             reflective;
     lighting_cache_t * lighting;
 
     if ( NULL == pmesh || NULL == plight || !VALID_TILE(pmesh, fan) ) return bfalse;
@@ -1122,8 +1123,22 @@ bool_t grid_light_one_corner( ego_mpd_t * pmesh, int fan, float height, float nr
     // get the grid lighting
     lighting = &(pmesh->gmem.light[fan].cache);
 
+    reflective = HAS_SOME_BITS( pmesh->mmem.tile_list[fan].fx, MPDFX_DRAWREF );
+
     // evaluate the grid lighting at this node
-    (*plight) = evaluate_lighting_cache(lighting, nrm, height, pmesh->mmem.bbox );
+    if( reflective )
+    {
+        float light_dir, light_amb;
+
+        evaluate_lighting_cache(lighting, nrm, height, pmesh->mmem.bbox, &light_amb, &light_dir );
+
+        // make ambient light only illuminate 1/2
+        (*plight) = light_amb + 0.5f * light_dir;
+    }
+    else
+    {
+        (*plight) = evaluate_lighting_cache(lighting, nrm, height, pmesh->mmem.bbox, NULL, NULL );
+    }
 
     // clip the light to a reasonable value
     (*plight) = CLIP((*plight), 0, 255);
@@ -1180,10 +1195,27 @@ bool_t mesh_light_one_corner( ego_mpd_t * pmesh, GLXvector3f pos, GLXvector3f nr
         // add in the effect of this lighting cache node
         if ( 0.0f != wt )
         {
-            (*plight) += wt * evaluate_lighting_cache( lighting, nrm, pos[ZZ], pmesh->mmem.bbox );
+            bool_t reflective = HAS_SOME_BITS( pmesh->mmem.tile_list[fan1].fx, MPDFX_DRAWREF );
+
+            if( reflective )
+            {
+                float light_dir, light_amb;
+
+                evaluate_lighting_cache(lighting, nrm, pos[ZZ], pmesh->mmem.bbox, &light_amb, &light_dir );
+
+                // make ambient light only illuminate 1/2
+                (*plight) += wt * (light_amb + 0.5f * light_dir);
+            }
+            else
+            {
+                (*plight) += wt * evaluate_lighting_cache(lighting, nrm, pos[ZZ], pmesh->mmem.bbox, NULL, NULL );
+            }
+
             wt_sum    += wt;
         }
     }
+
+
 
     // normalize the lighting value, if needed
     if ( (*plight) > 0.0f && wt_sum > 0.0f )
@@ -1309,7 +1341,7 @@ float grid_get_mix(float u0, float u, float v0, float v)
 }
 
 //--------------------------------------------------------------------------------------------
-float evaluate_lighting_cache( lighting_cache_t * src, GLfloat nrm[], float z, aabb_t bbox )
+float evaluate_lighting_cache( lighting_cache_t * src, GLfloat nrm[], float z, aabb_t bbox, float * light_amb, float * light_dir )
 {
     float lighting;
     float hgh_wt, low_wt;
@@ -1323,6 +1355,7 @@ float evaluate_lighting_cache( lighting_cache_t * src, GLfloat nrm[], float z, a
 
     low_wt = 1.0f - hgh_wt;
 
+
     lighting = 0.0f;
     if( low_wt > 0.0f )
     {
@@ -1331,6 +1364,47 @@ float evaluate_lighting_cache( lighting_cache_t * src, GLfloat nrm[], float z, a
     if( hgh_wt > 0.0f )
     {
         lighting += hgh_wt * evaluate_lighting_vector( src->lighting_hgh, nrm );
+    }
+
+    if( NULL != light_amb || NULL != light_dir )
+    {
+        if( lighting <= 0.0f )
+        {
+            if( NULL != light_amb )
+            {
+                *light_amb = 0.0f;
+            }
+
+            if( NULL != light_dir )
+            {
+                *light_dir = 0.0f;
+            }
+        }
+        else
+        {
+            // we are interested in splitting the light up into ambient and
+            // directional components... do a bit more calculation
+
+            int cnt;
+            float ftmp, lighting_amb;
+
+            lighting_amb = low_wt * src->lighting_low[0] + hgh_wt *src->lighting_hgh[0];
+            for( cnt = 1; cnt < 6; cnt++ )
+            {
+                ftmp = low_wt * src->lighting_low[cnt] + hgh_wt *src->lighting_hgh[cnt];
+                lighting_amb = MIN(lighting_amb, ftmp);
+            }
+
+            if( NULL != light_amb )
+            {
+                *light_amb = lighting_amb;
+            }
+
+            if( NULL != light_dir )
+            {
+                *light_dir = lighting - lighting_amb;
+            }
+        }
     }
 
     return lighting;

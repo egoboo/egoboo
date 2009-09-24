@@ -147,6 +147,7 @@
 #    ifndef _DEBUG
 #        pragma warning(disable : 4554) // possibly operator precendence error
 #    endif
+
 #endif
 
 //------------

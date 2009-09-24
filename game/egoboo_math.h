@@ -27,6 +27,8 @@
 #include <math.h>
 #include "egoboo_typedef.h"
 
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 #define PI                  3.1415926535897932384626433832795f
 #define TWO_PI              6.283185307179586476925286766559f
 #define SQRT_TWO            1.4142135623730950488016887242097f
@@ -53,6 +55,8 @@ extern float turntocos[TRIG_TABLE_SIZE];           // Convert chrturn>>2...  to 
 #define FACE_EAST    0x8000
 #define FACE_SOUTH   0xC000
 
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 // Just define ABS, MIN, and MAX using macros for the moment. This is likely to be the
 // fastest and most cross-platform solution
 #ifndef ABS
@@ -98,6 +102,14 @@ extern float turntocos[TRIG_TABLE_SIZE];           // Convert chrturn>>2...  to 
 #define CNV(i,j) v[4*i+j]
 #define CopyMatrix( pMatrixDest, pMatrixSource ) memcpy( (pMatrixDest), (pMatrixSource), sizeof( GLmatrix ) )
 
+#if defined(TEST_NAN_RESULT)
+#    define LOG_NAN(XX)      if( isnan(XX) ) log_error( "**** A math operation resulted in an invalid result (NAN) ****\n\t(\"%s\" - %d)\n", __FILE__, __LINE__ );
+#else
+#    define LOG_NAN(XX)
+#endif
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 typedef float glmatrix_base_t[16];
 typedef float glvector2_base_t[2];
 typedef float glvector3_base_t[3];
@@ -116,15 +128,31 @@ typedef union  u_glvector4 { glvector4_base_t v; struct { float x, y, z, w; }; s
 #define VECT3(XX,YY,ZZ) { {XX,YY,ZZ} }
 #define VECT4(XX,YY,ZZ,WW) { {XX,YY,ZZ,WW} }
 
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 /**> GLOBAL VARIABLES <**/
 extern float                   turntosin[TRIG_TABLE_SIZE];           // Convert chrturn>>2...  to sine
 
-#if defined(TEST_NAN_RESULT)
-#    define LOG_NAN(XX)      if( isnan(XX) ) log_error( "**** A math operation resulted in an invalid result (NAN) ****\n\t(\"%s\" - %d)\n", __FILE__, __LINE__ );
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+// My lil' random number table
+#ifdef SWIG
+// swig chokes on the definition below
+#    define RANDIE_BITS    12
+#    define RANDIE_COUNT 4096
 #else
-#    define LOG_NAN(XX)
+#    define RANDIE_BITS   12
+#    define RANDIE_COUNT (1 << RANDIE_BITS)
 #endif
 
+#define RANDIE_MASK  ((Uint32)(RANDIE_COUNT - 1))
+#define RANDIE       randie[randindex & RANDIE_MASK ];  randindex++; randindex &= RANDIE_MASK
+
+extern Uint32  randindex;
+extern Uint16  randie[RANDIE_COUNT];
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 /**> FUNCTION PROTOTYPES <**/
 GLvector3 VSub( GLvector3 A, GLvector3 B );
 GLvector3 VNormalize( GLvector3 vec );
@@ -155,3 +183,8 @@ GLvector3 mat_getCamForward(GLmatrix mat);
 GLvector3 mat_getTranslate(GLmatrix mat);
 
 void make_turntosin( void );
+
+void   make_randie();
+int    generate_irand_pair( IPair num );
+int    generate_irand_range( FRange num );
+int    generate_randmask( int base, int mask );

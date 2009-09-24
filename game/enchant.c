@@ -52,7 +52,7 @@ bool_t EncList_free_one( Uint16 ienc )
     // sets all boolean values to false, incluting the "on" flag
     memset( EncList.lst + ienc, 0, sizeof(enc_t) );
 
-#if defined(DEBUG)
+#if defined(USE_DEBUG)
     {
         int cnt;
         // determine whether this texture is already in the list of free textures

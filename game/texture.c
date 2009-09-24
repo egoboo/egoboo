@@ -141,7 +141,7 @@ bool_t TxTexture_free_one( int itex )
     // release the texture
     oglx_texture_Release( TxTexture.lst + itex );
 
-#if defined(DEBUG)
+#if defined(USE_DEBUG)
     {
         int cnt;
         // determine whether this texture is already in the list of free textures

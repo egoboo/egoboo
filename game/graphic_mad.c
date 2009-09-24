@@ -495,6 +495,11 @@ void render_one_mad_ref( int tnc, Uint8 trans )
 
     if ( pchr->is_hidden ) return;
 
+    // we need to force the calculation of lighting for the the non-reflected
+    // object here, or there will be problems later
+    //pinst->save_lighting_wldframe = 0;
+    chr_instance_update( tnc, trans, !pinst->enviro );
+    
     pcap = chr_get_pcap( tnc );
     if ( NULL == pcap || !pcap->reflect ) return;
 
@@ -590,7 +595,7 @@ void chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 t
     alpha = trans;
 
     // interpolate the lighting for the origin of the object
-    interpolate_mesh_lighting( PMesh, &global_light, pchr->pos );
+    interpolate_grid_lighting( PMesh, &global_light, pchr->pos );
 
     // rotate the lighting data to body_centered coordinates
     project_lighting( &loc_light, &global_light, pinst->matrix );
@@ -638,17 +643,17 @@ void chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 t
             // this is the "ambient only" index, but it really means to sum up all the light
             GLfloat tnrm[3];
             tnrm[0] = tnrm[1] = tnrm[2] = 1.0f;
-            lite  = evaluate_lighting_cache( &loc_light, tnrm, hgt, PMesh->mmem.bbox );
+            lite  = evaluate_lighting_cache( &loc_light, tnrm, hgt, PMesh->mmem.bbox, NULL, NULL );
 
             tnrm[0] = tnrm[1] = tnrm[2] = -1.0f;
-            lite += evaluate_lighting_cache( &loc_light, tnrm, hgt, PMesh->mmem.bbox );
+            lite += evaluate_lighting_cache( &loc_light, tnrm, hgt, PMesh->mmem.bbox, NULL, NULL );
 
             // average all the directions
             lite /= 6;
         }
         else
         {
-            lite  = evaluate_lighting_cache( &loc_light, pinst->vlst[cnt].nrm, hgt, PMesh->mmem.bbox );
+            lite  = evaluate_lighting_cache( &loc_light, pinst->vlst[cnt].nrm, hgt, PMesh->mmem.bbox, NULL, NULL );
         }
 
         pinst->vlst[cnt].color_dir = 0.9f * pinst->vlst[cnt].color_dir + 0.1f * lite;

@@ -176,7 +176,7 @@ bool_t mesh_light_corners( ego_mpd_t * pmesh, int fan1 );
 bool_t mesh_interpolate_vertex( mesh_mem_t * pmem, int fan, float pos[], float * plight );
 
 float evaluate_lighting_vector( lighting_vector_t lvec, GLfloat nrm[] );
-float evaluate_lighting_cache( lighting_cache_t * src, GLfloat nrm[], float z, aabb_t bbox );
+float evaluate_lighting_cache( lighting_cache_t * src, GLfloat nrm[], float z, aabb_t bbox, float * light_amb, float * light_dir );
 
 bool_t grid_light_one_corner( ego_mpd_t * pmesh, int fan, float height, float nrm[], float * plight );
 

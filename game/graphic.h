@@ -378,7 +378,7 @@ bool_t oglx_texture_parameters_synch( struct s_oglx_texture_parameters * ptex, s
 
 void reset_renderlist();
 
-bool_t interpolate_mesh_lighting( ego_mpd_t * pmesh, lighting_cache_t * dst, GLvector3 pos );
+bool_t interpolate_grid_lighting( ego_mpd_t * pmesh, lighting_cache_t * dst, GLvector3 pos );
 bool_t project_lighting( lighting_cache_t * dst, lighting_cache_t * src, GLmatrix mat );
 bool_t interpolate_lighting( lighting_cache_t * dst, lighting_cache_t * src[], float u, float v );
 bool_t project_sum_lighting( lighting_cache_t * dst, lighting_cache_t * src, GLvector3 vec, int dir );
