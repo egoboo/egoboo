@@ -42,7 +42,7 @@ eve_t * eve_init( eve_t * peve )
     /* peve->contspawnpip = 0; */
     peve->endsoundindex = INVALID_SOUND;
     /* peve->stayifnoowner = 0; */
-    /* peve->overlay = 0; */
+    /* peve->spawn_overlay = bfalse; */
     /* peve->seekurse = bfalse; */
 
     return peve;
@@ -195,7 +195,7 @@ eve_t * load_one_enchant_file( const char* szLoadName, eve_t * peve )
             peve->endsoundindex = CLIP(itmp, INVALID_SOUND, MAX_WAVE);
         }
         else if ( idsz == MAKE_IDSZ( 'S', 'T', 'A', 'Y' ) ) peve->stayifnoowner = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'O', 'V', 'E', 'R' ) ) peve->overlay = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'O', 'V', 'E', 'R' ) ) peve->spawn_overlay = fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'C', 'K', 'U', 'R' ) ) peve->seekurse = fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'D', 'E', 'A', 'D' ) ) peve->stayifdead = fget_int( fileread );
     }
@@ -368,9 +368,9 @@ bool_t save_one_enchant_file( const char* szLoadName, eve_t * peve )
         fput_expansion( filewrite, "", MAKE_IDSZ( 'S', 'T', 'A', 'Y' ), 1 );
     }
 
-    if( peve->overlay )
+    if( peve->spawn_overlay )
     {
-        fput_expansion( filewrite, "", MAKE_IDSZ( 'O', 'V', 'E', 'R' ), 1 );
+        fput_expansion( filewrite, "", MAKE_IDSZ( 'O', 'V', 'E', 'R' ), peve->spawn_overlay );
     }
 
     if( peve->seekurse )

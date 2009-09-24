@@ -376,7 +376,7 @@ struct s_chr
     Uint8          nextaction;                    // Character's action to play next
 
     // model info
-    bool_t         overlay;                       // Is this an overlay?  Track aitarget...
+    bool_t         is_overlay;                    // Is this an overlay? Track aitarget...
     Uint16         skin;                          // Character's skin
     Uint8          iprofile;                      // Character's profile
     Uint8          basemodel;                     // The true form

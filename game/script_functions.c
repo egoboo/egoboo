@@ -4700,12 +4700,18 @@ Uint8 scr_HealTarget( script_state_t * pstate, ai_state_t * pself )
         iTmp = ChrList.lst[pself->target].firstenchant;
         while ( iTmp != MAX_ENC )
         {
+            eve_t * peve;
+
             test = MAKE_IDSZ( 'H', 'E', 'A', 'L' );  // [HEAL]
-            sTmp = EncList.lst[iTmp].nextenchant;
-            if ( test == EveStack.lst[EncList.lst[iTmp].eve].removedbyidsz )
+            sTmp = EncList.lst[iTmp].nextenchant_ref;
+
+            peve = enc_get_peve( iTmp );
+
+            if ( NULL != peve && test == peve->removedbyidsz )
             {
                 remove_enchant( iTmp );
             }
+
             iTmp = sTmp;
         }
     }
@@ -7176,8 +7182,12 @@ Uint8 scr_DispelTargetEnchantID( script_state_t * pstate, ai_state_t * pself )
 
         while ( iTmp != MAX_ENC )
         {
-            sTmp = EncList.lst[iTmp].nextenchant;
-            if ( idsz == EveStack.lst[EncList.lst[iTmp].eve].removedbyidsz )
+            eve_t * peve;
+            sTmp = EncList.lst[iTmp].nextenchant_ref;
+
+            peve = enc_get_peve( iTmp );
+
+            if ( NULL != peve && idsz == peve->removedbyidsz )
             {
                 remove_enchant( iTmp );
             }

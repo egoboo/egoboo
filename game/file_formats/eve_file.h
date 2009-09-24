@@ -104,7 +104,7 @@ struct s_eve
     Uint16  contspawnfacingadd;          // Spawn in circle
     Uint16  contspawnpip;                // Spawn type ( local )
     Sint16  endsoundindex;               // Sound on end (-1 for none)
-    Uint8   overlay;                     // Spawn an overlay?
+    bool_t  spawn_overlay;               // Spawn an overlay?
     bool_t  stayifdead;                  // Stay if target has died?
 
     // Boost values

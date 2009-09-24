@@ -57,21 +57,21 @@ struct s_enc
     Sint16  time;                    // Time before end
     Uint16  spawntime;               // Time before spawn
 
-    Uint16  iprofile;                // The object  profile index that spawned this enchant
-    Uint16  eve;                     // The enchant profile index
+    Uint16  profile_ref;             // The object  profile index that spawned this enchant
+    Uint16  eve_ref;                 // The enchant profile index
 
-    Uint16  target;                  // Who it enchants
-    Uint16  owner;                   // Who cast the enchant
-    Uint16  spawner;                 // The spellbook character
-    Uint16  spawnermodel;            // The spellbook character's CapList index
-    Uint16  overlay;                 // The overlay character
+    Uint16  target_ref;              // Who it enchants
+    Uint16  owner_ref;               // Who cast the enchant
+    Uint16  spawner_ref;             // The spellbook character
+    Uint16  spawnermodel_ref;        // The spellbook character's CapList index
+    Uint16  overlay_ref;             // The overlay character
 
     Sint16  ownermana;               // Boost values
     Sint16  ownerlife;
     Sint16  targetmana;
     Sint16  targetlife;
 
-    Uint16  nextenchant;             // Next in the list
+    Uint16  nextenchant_ref;             // Next in the list
 
     bool_t  setyesno[MAX_ENCHANT_SET];// Was it set?
     bool_t  setsave[MAX_ENCHANT_SET]; // The value to restore

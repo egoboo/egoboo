@@ -2148,30 +2148,40 @@ void do_enchant_spawn()
     // ZZ> This function lets enchantments spawn particles
 
     int cnt, tnc;
-    Uint16 facing, eve, character;
+    Uint16 facing;
 
     for ( cnt = 0; cnt < MAX_ENC; cnt++ )
     {
-        if ( !EncList.lst[cnt].on ) continue;
+        enc_t * penc;
+        eve_t * peve;
+        chr_t * ptarget;
 
-        eve = enc_get_ieve(cnt);
-        if ( EveStack.lst[eve].contspawnamount > 0 )
+        if ( !EncList.lst[cnt].on ) continue;
+        penc = EncList.lst + cnt;
+
+        penc->spawntime--;
+        if ( penc->spawntime > 0 ) continue;
+
+        penc->spawntime = peve->contspawntime;
+
+        peve = enc_get_peve(cnt);
+        if( NULL == peve ) continue;
+
+        if ( peve->contspawnamount <= 0 ) continue;
+
+        if( INVALID_CHR(penc->target_ref) ) continue;
+        ptarget = ChrList.lst + penc->target_ref;
+
+        facing = ptarget->turn_z;
+        for ( tnc = 0; tnc < peve->contspawnamount; tnc++ )
         {
-            EncList.lst[cnt].spawntime--;
-            if ( EncList.lst[cnt].spawntime == 0 )
-            {
-                character = EncList.lst[cnt].target;
-                EncList.lst[cnt].spawntime = EveStack.lst[eve].contspawntime;
-                facing = ChrList.lst[character].turn_z;
-                for ( tnc = 0; tnc < EveStack.lst[eve].contspawnamount; tnc++ )
-                {
-                    spawn_one_particle( ChrList.lst[character].pos.x, ChrList.lst[character].pos.y, ChrList.lst[character].pos.z,
-                                        facing, eve, EveStack.lst[eve].contspawnpip,
-                                        MAX_CHR, GRIP_LAST, enc_get_powner(cnt)->team, enc_get_iowner(cnt), tnc, MAX_CHR );
-                    facing += EveStack.lst[eve].contspawnfacingadd;
-                }
-            }
+            spawn_one_particle( ptarget->pos.x, ptarget->pos.y, ptarget->pos.z,
+                                facing, penc->profile_ref, peve->contspawnpip,
+                                MAX_CHR, GRIP_LAST, chr_get_iteam(penc->owner_ref), penc->owner_ref, tnc, MAX_CHR );
+
+            facing += peve->contspawnfacingadd;
         }
+
     }
 }
 
@@ -2845,17 +2855,20 @@ void show_full_status( Uint16 statindex )
         liferegen = ChrList.lst[character].lifereturn;
         for ( enchant = 0; enchant < MAX_ENC; enchant++ )                                   //Don't forget to add gains and costs from enchants
         {
-            if ( !EncList.lst[enchant].on ) continue;
+            enc_t * penc;
 
-            if ( EncList.lst[enchant].target == character )
+            if ( !EncList.lst[enchant].on ) continue;
+            penc = EncList.lst + enchant;
+
+            if ( penc->target_ref == character )
             {
-                liferegen += EncList.lst[enchant].targetlife;
-                manaregen += EncList.lst[enchant].targetmana;
+                liferegen += penc->targetlife;
+                manaregen += penc->targetmana;
             }
-            if ( enc_get_iowner(enchant) == character )
+            if ( penc->owner_ref == character )
             {
-                liferegen += EncList.lst[enchant].ownerlife;
-                manaregen += EncList.lst[enchant].ownermana;
+                liferegen += penc->ownerlife;
+                manaregen += penc->ownermana;
             }
 
         }
@@ -4046,7 +4059,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
                     enchant = pchr_a->firstenchant;
                     while ( enchant != MAX_ENC )
                     {
-                        temp = EncList.lst[enchant].nextenchant;
+                        temp = EncList.lst[enchant].nextenchant_ref;
                         if ( enc_is_removed( enchant, pprt_b->iprofile ) )
                         {
                             remove_enchant( enchant );
@@ -4476,23 +4489,26 @@ void stat_return()
         // Run through all the enchants as well
         for ( cnt = 0; cnt < MAX_ENC; cnt++ )
         {
-            if ( !EncList.lst[cnt].on ) continue;
+            enc_t * penc;
 
-            if ( 0 == EncList.lst[cnt].time )
+            if ( !EncList.lst[cnt].on ) continue;
+            penc = EncList.lst + cnt;
+
+            if ( 0 == penc->time )
             {
                 remove_enchant( cnt );
             }
             else
             {
                 // Do enchant timer
-                if ( EncList.lst[cnt].time > 0 )
+                if ( penc->time > 0 )
                 {
-                    EncList.lst[cnt].time--;
+                    penc->time--;
                 }
 
                 // To make life easier
                 owner  = enc_get_iowner(cnt);
-                target = EncList.lst[cnt].target;
+                target = penc->target_ref;
                 eve    = enc_get_ieve(cnt);
 
                 // Do drains
@@ -4501,7 +4517,7 @@ void stat_return()
                     bool_t mana_paid;
 
                     // Change life
-                    ChrList.lst[owner].life += EncList.lst[cnt].ownerlife;
+                    ChrList.lst[owner].life += penc->ownerlife;
                     if ( ChrList.lst[owner].life < 1 )
                     {
                         ChrList.lst[owner].life = 1;
@@ -4514,7 +4530,7 @@ void stat_return()
                     }
 
                     // Change mana
-                    mana_paid = cost_mana(owner, -EncList.lst[cnt].ownermana, target);
+                    mana_paid = cost_mana(owner, -penc->ownermana, target);
                     if ( EveStack.lst[eve].endifcantpay && !mana_paid )
                     {
                         remove_enchant( cnt );
@@ -4525,14 +4541,14 @@ void stat_return()
                     remove_enchant( cnt );
                 }
 
-                if ( EncList.lst[cnt].on )
+                if ( penc->on )
                 {
                     if ( ChrList.lst[target].alive )
                     {
                         bool_t mana_paid;
 
                         // Change life
-                        ChrList.lst[target].life += EncList.lst[cnt].targetlife;
+                        ChrList.lst[target].life += penc->targetlife;
                         if ( ChrList.lst[target].life < 1 )
                         {
                             ChrList.lst[target].life = 1;
@@ -4544,7 +4560,7 @@ void stat_return()
                         }
 
                         // Change mana
-                        mana_paid = cost_mana( target, -EncList.lst[cnt].targetmana, owner );
+                        mana_paid = cost_mana( target, -penc->targetmana, owner );
                         if ( EveStack.lst[eve].endifcantpay && !mana_paid )
                         {
                             remove_enchant( cnt );

@@ -56,7 +56,7 @@
 #define USE_DEBUG (defined(_DEBUG) || !defined(NDEBUG))
 
 #undef  OLD_CAMERA_MODE       // Use the old camera style
-#undef  USE_LUA_CONSOLE       // LUA support for the console
+//#undef  USE_LUA_CONSOLE       // LUA support for the console
 #undef  ENABLE_BODY_GRAB      // Enable the grabbing of bodies?
 #undef  TEST_NAN_RESULT       // Test the result of certain math operations?
 #undef  DRAW_XP_BARS          // Draws XP bars in the status displays (buggy)

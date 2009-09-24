@@ -128,5 +128,4 @@ Uint32 input_get_buttonmask( Uint32 idevice );
 
 bool_t control_is_pressed( Uint32 idevice, Uint8 icontrol );
 
-void reset_players();
 void cursor_reset();

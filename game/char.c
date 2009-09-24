@@ -230,23 +230,21 @@ void make_one_character_matrix( Uint16 cnt )
     pchr = ChrList.lst + cnt;
     pinst = &(pchr->inst);
 
+    // invalidate this matrix
     pinst->matrixvalid = bfalse;
-    if ( VALID_CHR(pchr->overlay) )
+
+    if ( pchr->is_overlay )
     {
+        // This character is an overlay and its ai.target points to the object it is overlaying
         // Overlays are kept with their target...
-        chr_t * povl = ChrList.lst + pchr->overlay;
-
-        if ( VALID_CHR(povl->ai.target) )
+        if ( VALID_CHR(pchr->ai.target) )
         {
-            chr_t * ptarget = ChrList.lst + povl->ai.target;
+            chr_t * ptarget = ChrList.lst + pchr->ai.target;
 
-            povl->pos              = ptarget->pos;
-            povl->inst.matrixvalid = ptarget->inst.matrixvalid;
-            CopyMatrix( &(povl->inst.matrix), &(ptarget->inst.matrix) );
+            pchr->pos = ptarget->pos;
 
-            pchr->pos              = ptarget->pos;
-            pchr->inst.matrixvalid = ptarget->inst.matrixvalid;
-            CopyMatrix( &(pchr->inst.matrix), &(ptarget->inst.matrix) );
+            CopyMatrix( &(pinst->matrix), &(ptarget->inst.matrix) );
+            pinst->matrixvalid = ptarget->inst.matrixvalid;
         }
     }
     else
@@ -1027,7 +1025,7 @@ void reset_character_accel( Uint16 character )
     while ( enchant < MAX_ENC )
     {
         remove_enchant_value( enchant, ADDACCEL );
-        enchant = EncList.lst[enchant].nextenchant;
+        enchant = EncList.lst[enchant].nextenchant_ref;
     }
 
     // Set the starting value
@@ -1043,7 +1041,7 @@ void reset_character_accel( Uint16 character )
     while ( enchant < MAX_ENC )
     {
         add_enchant_value( enchant, ADDACCEL, enc_get_ieve(enchant) );
-        enchant = EncList.lst[enchant].nextenchant;
+        enchant = EncList.lst[enchant].nextenchant_ref;
     }
 
 }
@@ -1226,7 +1224,7 @@ void detach_character_from_mount( Uint16 character, Uint8 ignorekurse,
         {
             unset_enchant_value( enchant, SETALPHABLEND );
             unset_enchant_value( enchant, SETLIGHTBLEND );
-            enchant = EncList.lst[enchant].nextenchant;
+            enchant = EncList.lst[enchant].nextenchant_ref;
         }
 
         pchr->inst.alpha = pchr->basealpha;
@@ -1237,7 +1235,7 @@ void detach_character_from_mount( Uint16 character, Uint8 ignorekurse,
         {
             set_enchant_value( enchant, SETALPHABLEND, enc_get_ieve(enchant) );
             set_enchant_value( enchant, SETLIGHTBLEND, enc_get_ieve(enchant) );
-            enchant = EncList.lst[enchant].nextenchant;
+            enchant = EncList.lst[enchant].nextenchant_ref;
         }
     }
 
@@ -1270,7 +1268,7 @@ void reset_character_alpha( Uint16 character )
         {
             unset_enchant_value( enchant, SETALPHABLEND );
             unset_enchant_value( enchant, SETLIGHTBLEND );
-            enchant = EncList.lst[enchant].nextenchant;
+            enchant = EncList.lst[enchant].nextenchant_ref;
         }
 
         pchr->inst.alpha = pchr->basealpha;
@@ -1281,7 +1279,7 @@ void reset_character_alpha( Uint16 character )
         {
             set_enchant_value( enchant, SETALPHABLEND, enc_get_ieve(enchant) );
             set_enchant_value( enchant, SETLIGHTBLEND, enc_get_ieve(enchant) );
-            enchant = EncList.lst[enchant].nextenchant;
+            enchant = EncList.lst[enchant].nextenchant_ref;
         }
     }
 }
@@ -3285,7 +3283,7 @@ void damage_character( Uint16 character, Uint16 direction,
                         pchr->alive = bfalse;
                         while ( iTmp != MAX_ENC )
                         {
-                            Uint16 sTmp = EncList.lst[iTmp].nextenchant;
+                            Uint16 sTmp = EncList.lst[iTmp].nextenchant_ref;
                             if ( !enc_get_peve(iTmp)->stayifdead  )
                             {
                                 remove_enchant( iTmp );
@@ -4159,7 +4157,7 @@ Uint16 change_armor( Uint16 character, Uint16 skin )
         unset_enchant_value( enchant, SETFIREMODIFIER );
         unset_enchant_value( enchant, SETICEMODIFIER );
         unset_enchant_value( enchant, SETZAPMODIFIER );
-        enchant = EncList.lst[enchant].nextenchant;
+        enchant = EncList.lst[enchant].nextenchant_ref;
     }
 
     // Change the skin
@@ -4201,7 +4199,7 @@ Uint16 change_armor( Uint16 character, Uint16 skin )
             add_enchant_value( enchant, ADDDEFENSE,       ieve );
         }
 
-        enchant = EncList.lst[enchant].nextenchant;
+        enchant = EncList.lst[enchant].nextenchant_ref;
     }
 
     return skin;
@@ -4326,9 +4324,9 @@ void change_character( Uint16 ichr, Uint16 profile, Uint8 skin, Uint8 leavewhich
         enchant = pchr->firstenchant;
         if ( enchant != MAX_ENC )
         {
-            while ( EncList.lst[enchant].nextenchant != MAX_ENC )
+            while ( EncList.lst[enchant].nextenchant_ref != MAX_ENC )
             {
-                remove_enchant( EncList.lst[enchant].nextenchant );
+                remove_enchant( EncList.lst[enchant].nextenchant_ref );
             }
         }
     }
@@ -6884,7 +6882,7 @@ Uint32 chr_get_icon_ref( Uint16 item )
     is_spell_fx = pitem_cap->spelleffect_type > 0;
     is_book     = (SPELLBOOK == pitem->iprofile);
     draw_book = (is_book || (is_spell_fx && !pitem->icon)) && (bookicon_count > 0);
-   
+
     if ( !draw_book )
     {
         iskin = pitem->skin;
@@ -6920,7 +6918,7 @@ const char* describe_stat(int value)
     static STRING retval;
 
     value = FP8_TO_INT(value);
-	
+
 	if     ( value >= 50 )	strcpy(retval, "Godlike!");
 	else if( value >= 40 )	strcpy(retval, "Ultimate");
 	else if( value >= 34 )	strcpy(retval, "Epic");
@@ -6934,7 +6932,7 @@ const char* describe_stat(int value)
 	else if( value >= 4  )	strcpy(retval, "Bad");
 	else if( value >= 1  )	strcpy(retval, "Terrible");
 	else					strcpy(retval, "None");
-	
+
 	return retval;
 }
 

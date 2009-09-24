@@ -83,17 +83,19 @@ bool_t remove_enchant( Uint16 ienc )
     // ZZ> This function removes a specific enchantment and adds it to the unused list
 
     Sint16 iwave;
-    Uint16 itarget, ispawner, ieve;
-    Uint16 overlay;
+    Uint16 itarget, ispawner;
+    Uint16 overlay_ref;
     Uint16 lastenchant, currentenchant;
     int add;
+
     enc_t * penc;
+    eve_t * peve;
 
     if ( INVALID_ENC(ienc) ) return bfalse;
     penc = EncList.lst + ienc;
 
     // Unsparkle the spellbook
-    ispawner = penc->spawner;
+    ispawner = penc->spawner_ref;
     if ( VALID_CHR(ispawner) )
     {
         ChrList.lst[ispawner].sparkle = NOSPARKLE;
@@ -105,31 +107,6 @@ bool_t remove_enchant( Uint16 ienc )
         }
     }
 
-    // who is the target?
-    itarget = penc->target;
-
-    // Play the end sound
-    ieve = penc->eve;
-    if ( VALID_EVE( ieve ) )
-    {
-        iwave = EveStack.lst[ieve].endsoundindex;
-        if ( VALID_SND( iwave ) )
-        {
-            Uint16 imodel = penc->spawnermodel;
-            if ( VALID_PRO( imodel ) )
-            {
-                if ( VALID_CHR(itarget) )
-                {
-                    sound_play_chunk(ChrList.lst[itarget].pos_old, pro_get_chunk(imodel,iwave));
-                }
-                else
-                {
-                    sound_play_chunk( PCamera->track_pos, pro_get_chunk(imodel,iwave));
-                }
-            }
-        }
-
-    }
 
     // Unset enchant values, doing morph last
     unset_enchant_value( ienc, SETDAMAGETYPE );
@@ -162,13 +139,20 @@ bool_t remove_enchant( Uint16 ienc )
         remove_enchant_value( ienc, add );
     }
 
+    // Now fix dem weapons
+    if ( VALID_CHR( itarget ) )
+    {
+        reset_character_alpha( ChrList.lst[itarget].holdingwhich[SLOT_LEFT] );
+        reset_character_alpha( ChrList.lst[itarget].holdingwhich[SLOT_RIGHT] );
+    }
+
     // Unlink it
     if ( VALID_CHR(itarget) )
     {
         if ( ChrList.lst[itarget].firstenchant == ienc )
         {
             // It was the first in the list
-            ChrList.lst[itarget].firstenchant = penc->nextenchant;
+            ChrList.lst[itarget].firstenchant = penc->nextenchant_ref;
         }
         else
         {
@@ -178,63 +162,86 @@ bool_t remove_enchant( Uint16 ienc )
             while ( currentenchant != ienc )
             {
                 lastenchant = currentenchant;
-                currentenchant = EncList.lst[currentenchant].nextenchant;
+                currentenchant = EncList.lst[currentenchant].nextenchant_ref;
             }
 
             // Relink the last enchantment
-            EncList.lst[lastenchant].nextenchant = penc->nextenchant;
-        }
-    }
-
-    // See if we spit out an end message
-    if ( EveStack.lst[penc->eve].endmessage >= 0 )
-    {
-        _display_message( penc->target, penc->iprofile, EveStack.lst[penc->eve].endmessage, NULL );
-    }
-
-    // Check to see if we spawn a poof
-    if ( EveStack.lst[penc->eve].poofonend )
-    {
-        spawn_poof( penc->target, penc->iprofile );
-    }
-
-    // Check to see if the character dies
-    if ( EveStack.lst[penc->eve].killonend )
-    {
-        if ( VALID_CHR(itarget) )
-        {
-            if ( ChrList.lst[itarget].invictus )  chr_get_pteam_base(itarget)->morale++;
-
-            ChrList.lst[itarget].invictus = bfalse;
-            kill_character( itarget, MAX_CHR );
+            EncList.lst[lastenchant].nextenchant_ref = penc->nextenchant_ref;
         }
     }
 
     // Kill overlay too...
-    overlay = penc->overlay;
-    if ( VALID_CHR(overlay) )
+    overlay_ref = penc->overlay_ref;
+    if ( VALID_CHR(overlay_ref) )
     {
-        if ( ChrList.lst[overlay].invictus )  chr_get_pteam_base(overlay)->morale++;
+        if ( ChrList.lst[overlay_ref].invictus )  chr_get_pteam_base(overlay_ref)->morale++;
 
-        ChrList.lst[overlay].invictus = bfalse;
-        kill_character( overlay, MAX_CHR );
+        ChrList.lst[overlay_ref].invictus = bfalse;
+        kill_character( overlay_ref, MAX_CHR );
     }
 
-    // Remove see kurse enchant
-    if ( VALID_CHR( itarget ) )
+
+    // nothing above this demends on having a valid enchant profile
+    peve = enc_get_peve( ienc );
+    if( NULL != peve )
     {
-        if ( EveStack.lst[penc->eve].seekurse && !chr_get_pcap(itarget)->canseekurse )
+
+        // who is the target?
+        itarget = penc->target_ref;
+
+        // Play the end sound
+        iwave = peve->endsoundindex;
+        if ( VALID_SND( iwave ) )
         {
-            ChrList.lst[itarget].canseekurse = bfalse;
+            Uint16 imodel = penc->spawnermodel_ref;
+            if ( VALID_PRO( imodel ) )
+            {
+                if ( VALID_CHR(itarget) )
+                {
+                    sound_play_chunk(ChrList.lst[itarget].pos_old, pro_get_chunk(imodel,iwave));
+                }
+                else
+                {
+                    sound_play_chunk( PCamera->track_pos, pro_get_chunk(imodel,iwave));
+                }
+            }
+        }
+
+
+        // See if we spit out an end message
+        if ( peve->endmessage >= 0 )
+        {
+            _display_message( penc->target_ref, penc->profile_ref, peve->endmessage, NULL );
+        }
+
+        // Check to see if we spawn a poof
+        if ( peve->poofonend )
+        {
+            spawn_poof( penc->target_ref, penc->profile_ref );
+        }
+
+        // Check to see if the character dies
+        if ( peve->killonend )
+        {
+            if ( VALID_CHR(itarget) )
+            {
+                if ( ChrList.lst[itarget].invictus )  chr_get_pteam_base(itarget)->morale++;
+
+                ChrList.lst[itarget].invictus = bfalse;
+                kill_character( itarget, MAX_CHR );
+            }
+        }
+
+        // Remove see kurse enchant
+        if ( VALID_CHR( itarget ) )
+        {
+            if ( peve->seekurse && !chr_get_pcap(itarget)->canseekurse )
+            {
+                ChrList.lst[itarget].canseekurse = bfalse;
+            }
         }
     }
 
-    // Now fix dem weapons
-    if ( VALID_CHR( itarget ) )
-    {
-        reset_character_alpha( ChrList.lst[itarget].holdingwhich[SLOT_LEFT] );
-        reset_character_alpha( ChrList.lst[itarget].holdingwhich[SLOT_RIGHT] );
-    }
 
     EncList_free_one( ienc );
 
@@ -251,9 +258,9 @@ Uint16 enchant_value_filled( Uint16 ienc, Uint8 valueindex )
 
     if ( ienc > MAX_ENC || !EncList.lst[ienc].on ) return MAX_ENC;
 
-    character = EncList.lst[ienc].target;
-    currenchant = ChrList.lst[character].firstenchant;
+    character = EncList.lst[ienc].target_ref;
 
+    currenchant = ChrList.lst[character].firstenchant;
     while ( currenchant != MAX_ENC )
     {
         if ( EncList.lst[currenchant].setyesno[valueindex] )
@@ -261,7 +268,7 @@ Uint16 enchant_value_filled( Uint16 ienc, Uint8 valueindex )
             break;
         }
 
-        currenchant = EncList.lst[currenchant].nextenchant;
+        currenchant = EncList.lst[currenchant].nextenchant_ref;
     }
 
     return currenchant;
@@ -305,10 +312,11 @@ void set_enchant_value( Uint16 ienc, Uint8 valueindex, Uint16 ieve )
             }
 
             // Set the value, and save the character's real stat
-            character = penc->target;
-            if ( VALID_CHR(penc->target) )
+            if ( VALID_CHR(penc->target_ref) )
             {
+                character = penc->target_ref;
                 ptarget = ChrList.lst + character;
+
                 penc->setyesno[valueindex] = btrue;
 
                 switch ( valueindex )
@@ -422,7 +430,7 @@ void set_enchant_value( Uint16 ienc, Uint8 valueindex, Uint16 ieve )
                     case SETCOSTFOREACHMISSILE:
                         penc->setsave[valueindex] = ptarget->missilecost;
                         ptarget->missilecost = peve->setvalue[valueindex];
-                        ptarget->missilehandler = penc->owner;
+                        ptarget->missilehandler = penc->owner_ref;
                         break;
 
                     case SETMORPH:
@@ -459,8 +467,8 @@ void add_enchant_value( Uint16 ienc, Uint8 valueindex, Uint16 ieve )
     if ( ieve >= MAX_EVE || !EveStack.lst[ieve].loaded ) return;
     peve = EveStack.lst + ieve;
 
-    character = penc->target;
-    if ( INVALID_CHR(penc->target) ) return;
+    if ( INVALID_CHR(penc->target_ref) ) return;
+    character = penc->target_ref;
     ptarget = ChrList.lst + character;
 
     valuetoadd = 0;
@@ -604,7 +612,16 @@ void enc_init( enc_t * penc )
 
     memset( penc, 0, sizeof(enc_t) );
 
-    penc->overlay = MAX_CHR;
+    penc->profile_ref      = MAX_PROFILE;
+    penc->eve_ref          = MAX_EVE;
+
+    penc->target_ref       = MAX_CHR;
+    penc->owner_ref        = MAX_CHR;
+    penc->spawner_ref      = MAX_CHR;
+    penc->spawnermodel_ref = MAX_PROFILE;
+    penc->overlay_ref      = MAX_CHR;
+
+    penc->nextenchant_ref      = MAX_ENC;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -715,28 +732,28 @@ Uint16 spawn_one_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 en
     enc_init( penc );
 
     // Make a new one
-    penc->on           = btrue;
-    penc->target       = VALID_CHR(target)  ? target  : MAX_CHR;
-    penc->owner        = VALID_CHR(owner)   ? owner   : MAX_CHR;
-    penc->spawner      = VALID_CHR(spawner) ? spawner : MAX_CHR;
-    penc->spawnermodel = chr_get_iobj(spawner);
+    penc->on               = btrue;
+    penc->target_ref       = VALID_CHR(target)  ? target  : MAX_CHR;
+    penc->owner_ref        = VALID_CHR(owner)   ? owner   : MAX_CHR;
+    penc->spawner_ref      = VALID_CHR(spawner) ? spawner : MAX_CHR;
+    penc->spawnermodel_ref = chr_get_iobj(spawner);
 
     if ( VALID_CHR(spawner) )
     {
         ChrList.lst[spawner].undoenchant = ienc;
     }
 
-    penc->eve        = ieve;
-    penc->iprofile   = iprofile;
-    penc->time       = peve->time;
-    penc->spawntime  = 1;
-    penc->ownermana  = peve->ownermana;
-    penc->ownerlife  = peve->ownerlife;
-    penc->targetmana = peve->targetmana;
-    penc->targetlife = peve->targetlife;
+    penc->eve_ref      = ieve;
+    penc->profile_ref  = iprofile;
+    penc->time         = peve->time;
+    penc->spawntime    = 1;
+    penc->ownermana    = peve->ownermana;
+    penc->ownerlife    = peve->ownerlife;
+    penc->targetmana   = peve->targetmana;
+    penc->targetlife   = peve->targetlife;
 
     // Add it as first in the list
-    penc->nextenchant     = ptarget->firstenchant;
+    penc->nextenchant_ref     = ptarget->firstenchant;
     ptarget->firstenchant = ienc;
 
     // Now set all of the specific values, morph first
@@ -771,7 +788,7 @@ Uint16 spawn_one_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 en
     }
 
     // Create an overlay character?
-    if ( peve->overlay )
+    if ( peve->spawn_overlay )
     {
         overlay = spawn_one_character( ptarget->pos, iprofile, ptarget->team, 0, ptarget->turn_z, NULL, MAX_CHR );
         if ( VALID_CHR(overlay) )
@@ -782,10 +799,10 @@ Uint16 spawn_one_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 en
             povl     = ChrList.lst + overlay;
             povl_mad = chr_get_pmad(overlay);
 
-            penc->overlay = overlay;  // Kill this character on end...
-            povl->ai.target = target;
-            povl->ai.state = peve->overlay;
-            povl->overlay = btrue;
+            penc->overlay_ref = overlay;  // Kill this character on end...
+            povl->ai.target   = target;
+            povl->ai.state    = peve->spawn_overlay;    // ??? WHY DO THIS ???
+            povl->is_overlay  = btrue;
 
             // Start out with ActionMJ...  Object activated
             if ( povl_mad->actionvalid[ACTION_MJ] )
@@ -880,14 +897,12 @@ void unset_enchant_value( Uint16 ienc, Uint8 valueindex )
     if ( INVALID_ENC( ienc ) ) return;
     penc = EncList.lst + ienc;
 
-    character = penc->target;
-    if ( INVALID_CHR(penc->target) ) return;
-    ptarget = ChrList.lst + character;
+    if ( INVALID_CHR(penc->target_ref) ) return;
+    character = penc->target_ref;
+    ptarget = ChrList.lst + penc->target_ref;
 
     if ( penc->setyesno[valueindex] )
     {
-        character = penc->target;
-
         switch ( valueindex )
         {
             case SETDAMAGETYPE:
@@ -1002,9 +1017,9 @@ void remove_enchant_value( Uint16 ienc, Uint8 valueindex )
     if ( ienc >= MAX_ENC || !EncList.lst[ienc].on) return;
     penc = EncList.lst + ienc;
 
-    character = penc->target;
-    if ( INVALID_CHR(penc->target) ) return;
-    ptarget = ChrList.lst + character;
+    if ( INVALID_CHR(penc->target_ref) ) return;
+    character = penc->target_ref;
+    ptarget = ChrList.lst + penc->target_ref;
 
     switch ( valueindex )
     {
@@ -1103,9 +1118,9 @@ Uint16  enc_get_iowner( Uint16 ienc )
     if( INVALID_ENC(ienc) ) return MAX_CHR;
     penc = EncList.lst + ienc;
 
-    if( INVALID_CHR(penc->owner) ) return MAX_CHR;
+    if( INVALID_CHR(penc->owner_ref) ) return MAX_CHR;
 
-    return penc->owner;
+    return penc->owner_ref;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1116,9 +1131,9 @@ chr_t * enc_get_powner( Uint16 ienc )
     if( INVALID_ENC(ienc) ) return NULL;
     penc = EncList.lst + ienc;
 
-    if( INVALID_CHR(penc->owner) ) return NULL;
+    if( INVALID_CHR(penc->owner_ref) ) return NULL;
 
-    return ChrList.lst + penc->owner;
+    return ChrList.lst + penc->owner_ref;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1129,9 +1144,9 @@ Uint16  enc_get_ieve( Uint16 ienc )
     if( INVALID_ENC(ienc) ) return MAX_EVE;
     penc = EncList.lst + ienc;
 
-    if( INVALID_EVE(penc->eve) ) return MAX_EVE;
+    if( INVALID_EVE(penc->eve_ref) ) return MAX_EVE;
 
-    return penc->eve;
+    return penc->eve_ref;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1142,9 +1157,9 @@ eve_t * enc_get_peve( Uint16 ienc )
     if( INVALID_ENC(ienc) ) return NULL;
     penc = EncList.lst + ienc;
 
-    if( INVALID_EVE(penc->eve) ) return NULL;
+    if( INVALID_EVE(penc->eve_ref) ) return NULL;
 
-    return EveStack.lst + penc->eve;
+    return EveStack.lst + penc->eve_ref;
 }
 
 //--------------------------------------------------------------------------------------------
