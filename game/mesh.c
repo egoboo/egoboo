@@ -792,8 +792,8 @@ void mesh_make_twist()
         map_twist_nrm[cnt].y = nrm[YY];
         map_twist_nrm[cnt].z = nrm[ZZ];
 
-        map_twist_x[cnt] = 32768 - ATAN2( nrm[1], nrm[2] ) / TWO_PI * 0xFFFF;
-        map_twist_y[cnt] = 32768 + ATAN2( nrm[0], nrm[2] ) / TWO_PI * 0xFFFF;
+        map_twist_x[cnt] = 0x10000 - vec_to_facing( nrm[2], nrm[1] );
+        map_twist_y[cnt] = vec_to_facing( nrm[2], nrm[0] );
 
         // this is about 5 degrees off of vertical
         map_twist_flat[cnt] = bfalse;

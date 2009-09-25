@@ -588,30 +588,44 @@ void make_randie()
     int tnc, cnt;
 
     // Fill in the basic values
-    cnt = 0;
-    while ( cnt < RANDIE_COUNT )
+    for ( cnt = 0; cnt < RANDIE_COUNT; cnt++  )
     {
-        randie[cnt] = rand() << 1;
-        cnt++;
+        randie[cnt] = 0;
     }
 
     // Keep adjusting those values
-    tnc = 0;
-
-    while ( tnc < 20 )
+    for ( tnc = 0; tnc < 20; tnc++ )
     {
-        cnt = 0;
-
-        while ( cnt < RANDIE_COUNT )
+        for ( cnt = 0; cnt < RANDIE_COUNT; cnt++ )
         {
-            randie[cnt] += rand();
-            cnt++;
+            randie[cnt] = ( randie[cnt] << 1 ) + rand();
         }
-
-        tnc++;
     }
 
     // All done
     randindex = 0;
 }
 
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+Uint16 vec_to_facing( float dx, float dy )
+{
+    return ( ATAN2( dy, dx ) + PI ) * RAD_TO_TURN;
+}
+
+//--------------------------------------------------------------------------------------------
+void facing_to_vec( Uint16 facing, float * dx, float * dy )
+{
+    Uint16 turn = ( facing - 0x8000 ) >> 2;
+
+    if( NULL != dx )
+    {
+        *dx = turntocos[turn & TRIG_TABLE_MASK];
+    }
+
+    if( NULL != dy )
+    {
+        *dy = turntosin[turn & TRIG_TABLE_MASK];
+    }
+}

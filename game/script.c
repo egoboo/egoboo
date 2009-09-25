@@ -1086,8 +1086,7 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARTARGETTURNTO:
                 varname = "TARGETTURNTO";
-                iTmp = ATAN2( ChrList.lst[pself->target].pos.y - pchr->pos.y, ChrList.lst[pself->target].pos.x - pchr->pos.x ) * 0xFFFF / ( TWO_PI );
-                iTmp += 32768;
+                iTmp = vec_to_facing( ChrList.lst[pself->target].pos.x - pchr->pos.x , ChrList.lst[pself->target].pos.y - pchr->pos.y );
                 iTmp &= 0xFFFF;
                 break;
 
@@ -1283,15 +1282,13 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VAROWNERTURNTO:
                 varname = "OWNERTURNTO";
-                iTmp = ATAN2( ChrList.lst[pself->owner].pos.y - pchr->pos.y, ChrList.lst[pself->owner].pos.x - pchr->pos.x ) * 0xFFFF / ( TWO_PI );
-                iTmp += 32768;
+                iTmp = vec_to_facing( ChrList.lst[pself->owner].pos.x - pchr->pos.x , ChrList.lst[pself->owner].pos.y - pchr->pos.y );
                 iTmp &= 0xFFFF;
                 break;
 
             case VARXYTURNTO:
                 varname = "XYTURNTO";
-                iTmp = ATAN2( pstate->y - pchr->pos.y, pstate->x - pchr->pos.x ) * 0xFFFF / ( TWO_PI );
-                iTmp += 32768;
+                iTmp = vec_to_facing( pstate->x - pchr->pos.x , pstate->y - pchr->pos.y );
                 iTmp &= 0xFFFF;
                 break;
 
@@ -1327,8 +1324,7 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARTARGETTURNAWAY:
                 varname = "TARGETTURNAWAY";
-                iTmp = ATAN2( ChrList.lst[pself->target].pos.y - pchr->pos.y, ChrList.lst[pself->target].pos.x - pchr->pos.x ) * 0xFFFF / ( TWO_PI );
-                iTmp += 32768;
+                iTmp = vec_to_facing( ChrList.lst[pself->target].pos.x - pchr->pos.x , ChrList.lst[pself->target].pos.y - pchr->pos.y );
                 iTmp &= 0xFFFF;
                 break;
 

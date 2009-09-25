@@ -5079,7 +5079,7 @@ void move_characters_do_volontary( chr_t * pchr, chr_environment_t * penviro )
     {
         if ( ( ABS( dvx ) > WATCHMIN || ABS( dvy ) > WATCHMIN ) )
         {
-            pchr->turn_z = terp_dir( pchr->turn_z, ( ATAN2( dvx, dvy ) + PI ) * 0xFFFF / ( TWO_PI ) );
+            pchr->turn_z = terp_dir( pchr->turn_z, vec_to_facing( dvx , dvy ) );
         }
     }
 
@@ -5089,7 +5089,7 @@ void move_characters_do_volontary( chr_t * pchr, chr_environment_t * penviro )
     {
         if ( pchr->ai.index != pchr->ai.target )
         {
-            pchr->turn_z = terp_dir( pchr->turn_z, ( ATAN2( ChrList.lst[pchr->ai.target].pos.y - pchr->pos.y, ChrList.lst[pchr->ai.target].pos.x - pchr->pos.x ) + PI ) * 0xFFFF / ( TWO_PI ) );
+            pchr->turn_z = terp_dir( pchr->turn_z, vec_to_facing( ChrList.lst[pchr->ai.target].pos.x - pchr->pos.x , ChrList.lst[pchr->ai.target].pos.y - pchr->pos.y ) );
         }
     }
 
@@ -5113,12 +5113,12 @@ void move_characters_do_volontary( chr_t * pchr, chr_environment_t * penviro )
             if ( pchr->isplayer )
             {
                 // Players turn quickly
-                pchr->turn_z = terp_dir_fast( pchr->turn_z, ( ATAN2( dvy, dvx ) + PI ) * 0xFFFF / ( TWO_PI ) );
+                pchr->turn_z = terp_dir_fast( pchr->turn_z, vec_to_facing( dvx , dvy ) );
             }
             else
             {
                 // AI turn slowly
-                pchr->turn_z = terp_dir( pchr->turn_z, ( ATAN2( dvy, dvx ) + PI ) * 0xFFFF / ( TWO_PI ) );
+                pchr->turn_z = terp_dir( pchr->turn_z, vec_to_facing( dvx , dvy ) );
             }
         }
     }

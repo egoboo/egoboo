@@ -612,13 +612,19 @@ void move_particles( void )
         if( pprt->dynalight_level < 0 ) pprt->dynalight_level = 0;
 
         pprt->dynalight_falloff += ppip->dynalight_falloffadd;
+
+        pprt->facing += ppip->facingadd;
     }
 
+    // do the iterative physics
     for ( cnt = 0; cnt < maxparticles; cnt++ )
     {
-        float lerp_z;
+        float lerp_z, ftmp;
         pip_t * ppip;
         prt_t * pprt;
+
+        bool_t hit_a_wall, hit_a_floor;
+        GLvector3 nrm;
 
         if ( !PrtList.lst[cnt].on ) continue;
         pprt = PrtList.lst + cnt;
@@ -643,230 +649,161 @@ void move_particles( void )
         hit_a_floor = bfalse;
         nrm.x = nrm.y = nrm.z = 0.0f;
 
-
-        if ( ( pprt->pos.z < level && pprt->vel.z < 0.1f ) || ( pprt->pos.z < level - PRTLEVELFIX ) )
+        // check for a floor collision
+        ftmp = pprt->pos.z;
+        pprt->pos.z += pprt->vel.z;
+        if ( pprt->pos.z < level )
         {
-            hit_a_floor = btrue;
-        }
-
-        ftmp = pprt->pos.x;
-        pprt->pos.x += pprt->vel.x;
-        if ( __prthitawall( cnt ) )
-        {
-            hit_a_wall = btrue;
-
-            nrm.x = -SGN(pprt->vel.x);
-            pprt->pos.x = ftmp;
-        }
-
-        ftmp = pprt->pos.y;
-        pprt->pos.y += pprt->vel.y;
-        if ( __prthitawall( cnt ) )
-        {
-            hit_a_wall = btrue;
-
-            nrm.y = -SGN(pprt->vel.y);
-            pprt->pos.y = ftmp;
-        }
-
-        if( hit_a_wall )
-        {
-            // Play the sound for hitting a wall [WSND]
-            play_particle_sound( cnt, ppip->soundwall );
-
-            nrm = VNormalize( nrm );
-
-
-
-            pprt->vel.x *= -ppip->dampen;
-            pprt->vel.y *= -ppip->dampen;
-
-            if ( ppip->endwall )
+            if( pprt->vel.z < - STOPBOUNCINGPART )
             {
-                pprt->time  = frame_all + 1;
-                pprt->poofme = btrue;
+                // the particle will bounce
+                hit_a_floor = btrue;
+
+                nrm.z = 1.0f;
+                pprt->pos.z = ftmp;
             }
-
-            // fix the facing
-        }
-
-
-                if ( ppip->endwall )
-                {
-                    pprt->time  = frame_all + 1;
-                    pprt->poofme = btrue;
-                }
-                else
-                {
-                    // Change facing
-                    facing = pprt->facing;
-                    if ( facing < 32768 )
-                    {
-                        facing -= FACE_NORTH;
-                        facing = ~facing;
-                        facing += FACE_NORTH;
-                    }
-                    else
-                    {
-                        facing -= FACE_SOUTH;
-                        facing = ~facing;
-                        facing += FACE_SOUTH;
-                    }
-
-                    pprt->facing = facing;
-                }
-            }
-
-            pprt->pos.y += pprt->vel.y;
-            if ( __prthitawall( cnt ) )
+            else if ( pprt->vel.z > 0.0f )
             {
-                pprt->pos.y -= pprt->vel.y;
-                pprt->vel.y = ( -pprt->vel.y * ppip->dampen );
-                if ( ppip->endwall )
-                {
-                    pprt->time  = frame_all + 1;
-                    pprt->poofme = btrue;
-                }
-                else
-                {
-                    // Change facing
-                    facing = pprt->facing;
-                    if ( facing < 16384 || facing > 49152 )
-                    {
-                        facing = ~facing;
-                    }
-                    else
-                    {
-                        facing -= FACE_EAST;
-                        facing = ~facing;
-                        facing += FACE_EAST;
-                    }
-
-                    pprt->facing = facing;
-                }
-            }
-
-
-
-
-        // Check floor collision and do iterative physics
-        if(  INVALID_CHR( pprt->attachedto_ref ) )
-        {
-            // only do mesh collisions with free particles
-        if ( ( pprt->pos.z < level && pprt->vel.z < 0.1f ) || ( pprt->pos.z < level - PRTLEVELFIX ) )
-        {
-            float fx, fy;
-            pprt->pos.z = level;
-
-            fx = -SGN(pprt->vel.x) * (1.0f + ppip->dampen) * ABS(pprt->vel.z);
-
-            if( ABS(fx) > ABS(pprt->vel.x) )
-            {
-                pprt->vel.x = 0;
+                // the particle is not bouncing, it is just at the wrong height
+                pprt->pos.z = level;
             }
             else
             {
-                pprt->vel.x += fx;
-            }
-
-            fy = -SGN(pprt->vel.y) * (1.0f + ppip->dampen) * ABS(pprt->vel.z);
-            if( ABS(fy) > ABS(pprt->vel.y) )
-            {
-                pprt->vel.y = 0;
-            }
-            else
-            {
-                pprt->vel.y += fy;
-            }
-
-            if ( ppip->endground )
-            {
-                pprt->time  = frame_all + 1;
-                pprt->poofme = btrue;
-            }
-
-            if ( pprt->vel.z < 0 )
-            {
-                if ( pprt->vel.z > -STOPBOUNCINGPART )
-                {
-                    // Make it not bounce
-                    pprt->pos.z -= 0.0001f;
-                }
-                else
-                {
-                    // Make it bounce
-                    pprt->vel.z = -pprt->vel.z * ppip->dampen;
-                    // Play the sound for hitting the floor [FSND]
-                    play_particle_sound( cnt, ppip->soundfloor );
-                }
+                // the particle is in the "stop bouncing zone"
+                pprt->pos.z = level + 1;
+                pprt->vel.z = 0.0f;
             }
         }
-        else
+
+        // check for an x wall collision
+        if( ABS(pprt->vel.x) > 0.0f )
         {
+            ftmp = pprt->pos.x;
             pprt->pos.x += pprt->vel.x;
             if ( __prthitawall( cnt ) )
             {
-                // Play the sound for hitting a wall [WSND]
-                play_particle_sound( cnt, ppip->soundwall );
-                pprt->pos.x -= pprt->vel.x;
-                pprt->vel.x = ( -pprt->vel.x * ppip->dampen );
-                if ( ppip->endwall )
-                {
-                    pprt->time  = frame_all + 1;
-                    pprt->poofme = btrue;
-                }
-                else
-                {
-                    // Change facing
-                    facing = pprt->facing;
-                    if ( facing < 32768 )
-                    {
-                        facing -= FACE_NORTH;
-                        facing = ~facing;
-                        facing += FACE_NORTH;
-                    }
-                    else
-                    {
-                        facing -= FACE_SOUTH;
-                        facing = ~facing;
-                        facing += FACE_SOUTH;
-                    }
+                hit_a_wall = btrue;
 
-                    pprt->facing = facing;
-                }
+                nrm.x = -SGN(pprt->vel.x);
+                pprt->pos.x = ftmp;
             }
+        }
 
+        // check for an y wall collision
+        if( ABS(pprt->vel.y) > 0.0f )
+        {
+            ftmp = pprt->pos.y;
             pprt->pos.y += pprt->vel.y;
             if ( __prthitawall( cnt ) )
             {
-                pprt->pos.y -= pprt->vel.y;
-                pprt->vel.y = ( -pprt->vel.y * ppip->dampen );
-                if ( ppip->endwall )
-                {
-                    pprt->time  = frame_all + 1;
-                    pprt->poofme = btrue;
-                }
-                else
-                {
-                    // Change facing
-                    facing = pprt->facing;
-                    if ( facing < 16384 || facing > 49152 )
-                    {
-                        facing = ~facing;
-                    }
-                    else
-                    {
-                        facing -= FACE_EAST;
-                        facing = ~facing;
-                        facing += FACE_EAST;
-                    }
+                hit_a_wall = btrue;
 
-                    pprt->facing = facing;
+                nrm.y = -SGN(pprt->vel.y);
+                pprt->pos.y = ftmp;
+            }
+        }
+
+        // handle the collision
+        if( (hit_a_wall && ppip->endwall) || (hit_a_floor && ppip->endground) )
+        {
+            pprt->time  = frame_all + 1;
+            pprt->poofme = btrue;
+
+            continue;
+        }
+
+        // handle the sounds
+        if( hit_a_wall )
+        {
+            // Play the sound for hitting the floor [FSND]
+            play_particle_sound( cnt, ppip->soundwall );
+        }
+
+        if( hit_a_floor )
+        {
+            // Play the sound for hitting the floor [FSND]
+            play_particle_sound( cnt, ppip->soundfloor );
+        }
+        
+        if( INVALID_CHR( pprt->attachedto_ref ) && (hit_a_wall || hit_a_floor) )
+        {
+            float fx, fy;
+
+            // do the reflections off the walls
+            if( (hit_a_wall && ABS(pprt->vel.x) + ABS(pprt->vel.y) > 0.0f) ||
+                (hit_a_floor && pprt->vel.z < 0.0f) )
+            {
+                float vdot;
+                GLvector3 vpara, vperp, imp;
+
+                nrm = VNormalize( nrm );
+
+                vdot  = VDotProduct( nrm, pprt->vel );
+
+                vperp.x = nrm.x * vdot;
+                vperp.y = nrm.y * vdot;
+                vperp.z = nrm.z * vdot;
+
+                vpara.x = pprt->vel.x - vperp.x;
+                vpara.y = pprt->vel.y - vperp.y;
+                vpara.z = pprt->vel.z - vperp.z;
+
+                // we can use the impulse to determine how much velocity to kill in the parallel direction
+                //imp.x = vperp.x * (1.0f + ppip->dampen);
+                //imp.y = vperp.y * (1.0f + ppip->dampen);
+                //imp.z = vperp.z * (1.0f + ppip->dampen);
+
+                // do the reflection
+                vperp.x *= -ppip->dampen;
+                vperp.y *= -ppip->dampen;
+                vperp.z *= -ppip->dampen;
+
+                // fake the friction, for now
+                if( 0.0f != nrm.y || 0.0f != nrm.z )
+                {
+                    vpara.x *= ppip->dampen;
                 }
+
+                if( 0.0f != nrm.x || 0.0f != nrm.z )
+                {
+                    vpara.y *= ppip->dampen;
+                }
+
+                if( 0.0f != nrm.x || 0.0f != nrm.y )
+                {
+                    vpara.z *= ppip->dampen;
+                }
+
+                // add the components back together
+                pprt->vel.x = vpara.x + vperp.x;
+                pprt->vel.y = vpara.y + vperp.y;
+                pprt->vel.z = vpara.z + vperp.z;
             }
 
-            pprt->pos.z += pprt->vel.z;
-            pprt->vel.z += gravity;
+            if( nrm.z != 0.0f && pprt->vel.z < STOPBOUNCINGPART )
+            {
+                // this is the very last bounce
+                pprt->vel.z = 0.0f;
+                pprt->pos.z = level + 0.0001f;
+            }
+
+            if( hit_a_wall )
+            {
+                // fix the facing
+                facing_to_vec( pprt->facing, &fx, &fy );
+
+                if( 0.0f != nrm.x )
+                {
+                    fx *= -1;
+                }
+
+                if( 0.0f != nrm.y )
+                {
+                    fy *= -1;
+                }
+
+                pprt->facing = vec_to_facing( fx, fy );
+            }
         }
 
         // Do homing
@@ -881,24 +818,66 @@ void move_particles( void )
             {
                 if ( INVALID_CHR( pprt->attachedto_ref ) )
                 {
-                    pprt->vel.x = ( pprt->vel.x + ( ( ChrList.lst[pprt->target_ref].pos.x - pprt->pos.x ) * ppip->homingaccel ) ) * ppip->homingfriction;
-                    pprt->vel.y = ( pprt->vel.y + ( ( ChrList.lst[pprt->target_ref].pos.y - pprt->pos.y ) * ppip->homingaccel ) ) * ppip->homingfriction;
-                    pprt->vel.z = ( pprt->vel.z + ( ( ChrList.lst[pprt->target_ref].pos.z + ( ChrList.lst[pprt->target_ref].bump.height * 0.5f ) - pprt->pos.z ) * ppip->homingaccel ) );
+                    int       ival;
+                    float     vlen, min_length, uncertainty;
+                    GLvector3 vdiff;
 
+                    vdiff = VSub( ChrList.lst[pprt->target_ref].pos, pprt->pos );
+                    vdiff.z += ChrList.lst[pprt->target_ref].bump.height * 0.5f;
+
+                    min_length = ( 2 * 5 * 256 * ChrList.lst[pprt->owner_ref].wisdom ) / PERFECTBIG;
+
+                    // make a little incertainty about the target
+                    uncertainty = 256 - ( 256 * ChrList.lst[pprt->owner_ref].intelligence ) / PERFECTBIG;
+
+                    ival = RANDIE;
+                    vdiff.x += ( ((float) ival / 0x8000) - 1.0f )  * uncertainty;
+
+                    ival = RANDIE;
+                    vdiff.y += ( ((float) ival / 0x8000) - 1.0f )  * uncertainty;
+
+                    ival = RANDIE;
+                    vdiff.z += ( ((float) ival / 0x8000) - 1.0f )  * uncertainty;
+
+                    // Make sure that vdiff doesn't ever get too small.
+                    // That just makes the particle slooooowww down when it approaches the target.
+                    // Do a real kludge here. this should be a lot faster than a square root, but ...
+                    vlen = ABS(vdiff.x) + ABS(vdiff.y) + ABS(vdiff.z);
+                    if( vlen != 0.0f )
+                    {
+                        float factor = min_length / vlen; 
+
+                        vdiff.x *= factor;
+                        vdiff.y *= factor;
+                        vdiff.z *= factor;
+                    }
+
+                    pprt->vel.x = ( pprt->vel.x + vdiff.x * ppip->homingaccel ) * ppip->homingfriction;
+                    pprt->vel.y = ( pprt->vel.y + vdiff.y * ppip->homingaccel ) * ppip->homingfriction;
+                    pprt->vel.z = ( pprt->vel.z + vdiff.z * ppip->homingaccel ) * ppip->homingfriction;
                 }
+
                 if ( ppip->rotatetoface )
                 {
                     // Turn to face target
-                    facing = ATAN2( ChrList.lst[pprt->target_ref].pos.y - pprt->pos.y, ChrList.lst[pprt->target_ref].pos.x - pprt->pos.x ) * 0xFFFF / ( TWO_PI );
-                    facing += 32768;
-                    pprt->facing = facing;
+                    pprt->facing =vec_to_facing( ChrList.lst[pprt->target_ref].pos.x - pprt->pos.x , ChrList.lst[pprt->target_ref].pos.y - pprt->pos.y );
                 }
             }
         }
 
-        // Do speed limit on Z
-        if ( pprt->vel.z < -ppip->spdlimit )  pprt->vel.z = -ppip->spdlimit;
+        // do gravitational acceleration
+        if( INVALID_CHR( pprt->attachedto_ref ) && !ppip->homing )
+        {
+            pprt->vel.z += gravity * lerp_z;
 
+            // Do speed limit on Z
+            if ( pprt->vel.z < -ppip->spdlimit )  
+            {
+                pprt->vel.z = -ppip->spdlimit;
+            }
+        }
+        
+        
         // Spawn new particles if continually spawning
         if ( ppip->contspawn_amount > 0 )
         {
@@ -953,8 +932,6 @@ void move_particles( void )
                 pprt->poofme = btrue;
             }
         }
-
-        pprt->facing += ppip->facingadd;
     }
 
     // do end-of-life care for particles
@@ -1068,7 +1045,7 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
     if ( NULL == pcap ) return;
 
     // Only damage if hitting from proper direction
-    direction = ( ATAN2( pprt->vel.y, pprt->vel.x ) + PI ) * 0xFFFF / TWO_PI;
+    direction = vec_to_facing( pprt->vel.x , pprt->vel.y );
     direction = pchr->turn_z - direction + 32768;
 
     // Check that direction

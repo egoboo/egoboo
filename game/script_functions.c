@@ -41,6 +41,7 @@
 
 #include "egoboo_strutil.h"
 #include "egoboo_setup.h"
+#include "egoboo_math.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -433,16 +434,15 @@ Uint8 scr_FindPath( script_state_t * pstate, ai_state_t * pself )
             fy = generate_randmask( -512, 1023 ) + ChrList.lst[ pself->target ].pos.y;
         }
 
-        pstate->turn = ATAN2( fy - pchr->pos.y, fx - pchr->pos.x ) * 0xFFFF / ( TWO_PI );
+        pstate->turn = vec_to_facing( fx - pchr->pos.x , fy - pchr->pos.y );
+
         if ( pstate->distance == MOVE_RETREAT )
         {
-            pstate->turn += generate_randmask( -8192, 16383 );
-        }
-        else
-        {
-            pstate->turn += 32768;
+            // flip around to the other direction and add in some randomness
+            pstate->turn += 32768 + generate_randmask( -8192, 16383 );
         }
         pstate->turn &= 0xFFFF;
+
         if ( pstate->distance == MOVE_CHARGE || pstate->distance == MOVE_RETREAT )
         {
             reset_character_accel( pself->index ); // Force 100% speed
@@ -4359,8 +4359,8 @@ Uint8 scr_FacingTarget( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // This function proceeds only if the character is facing the target
-    sTmp = ATAN2( ChrList.lst[pself->target].pos.y - pchr->pos.y, ChrList.lst[pself->target].pos.x - pchr->pos.x ) * 0xFFFF / ( TWO_PI );
-    sTmp += 32768 - pchr->turn_z;
+    sTmp = vec_to_facing( ChrList.lst[pself->target].pos.x - pchr->pos.x , ChrList.lst[pself->target].pos.y - pchr->pos.y );
+    sTmp -= pchr->turn_z;
     returncode = ( sTmp > 55535 || sTmp < 10000 );
 
     SCRIPT_FUNCTION_END();

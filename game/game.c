@@ -1744,7 +1744,7 @@ Uint16 get_particle_target( float pos_x, float pos_y, float pos_z, Uint16 facing
                 // Don't retarget someone we already had or not supposed to target
                 if (cnt != oldtarget && cnt != donttarget)
                 {
-                    Uint16 angle = ATK_BEHIND - facing + (ATAN2( ChrList.lst[cnt].pos.y - pos_y, ChrList.lst[cnt].pos.x - pos_x ) * 0xFFFF / ( TWO_PI ));
+                    Uint16 angle = - facing + vec_to_facing( ChrList.lst[cnt].pos.x - pos_x , ChrList.lst[cnt].pos.y - pos_y );
 
                     // Only proceed if we are facing the target
                     if (angle < PipStack.lst[particletype].targetangle || angle > ( 0xFFFF - PipStack.lst[particletype].targetangle ) )
@@ -4019,7 +4019,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
                         }
                     }
 
-                    direction = ( ATAN2( pprt_b->vel.y, pprt_b->vel.x ) + PI ) * 0xFFFF / ( TWO_PI );
+                    direction = vec_to_facing( pprt_b->vel.x , pprt_b->vel.y );
                     direction = pchr_a->turn_z - direction + 32768;
 
                     // Check all enchants to see if they are removed
@@ -4211,8 +4211,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
             if ( ppip_b->rotatetoface )
             {
                 // Turn to face new direction
-                facing = ATAN2( pprt_b->vel.y, pprt_b->vel.x ) * 0xFFFF / ( TWO_PI );
-                facing += 32768;
+                facing = vec_to_facing( pprt_b->vel.x , pprt_b->vel.y );
                 pprt_b->facing = facing;
             }
         }
@@ -6294,7 +6293,7 @@ if ( anyone || ( chr_get_iteam(charb) == team && onlyfriends ) || ( TeamList[tea
 distance = ABS( ChrList.lst[charb].pos.x - chrx ) + ABS( ChrList.lst[charb].pos.y - chry );
 if ( distance < globestdistance )
 {
-angle = ( ATAN2( ChrList.lst[charb].pos.y - chry, ChrList.lst[charb].pos.x - chrx ) + PI ) * 0xFFFF / ( TWO_PI );
+angle = vec_to_facing( ChrList.lst[charb].pos.x - chrx , ChrList.lst[charb].pos.y - chry );
 angle = facing - angle;
 if ( angle < globestangle || angle > ( 0xFFFF - globestangle ) )
 {

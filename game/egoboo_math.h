@@ -37,6 +37,9 @@
 #define INV_0100            0.00390625f
 #define INV_FFFF            0.000015259021896696421759365224689097f
 
+#define RAD_TO_TURN         10430.378350470452724949566316381f
+#define TURN_TO_RAD         0.000095873799242852576857380474343257
+
 #define TRIG_TABLE_BITS   14
 #define TRIG_TABLE_SIZE   (1<<TRIG_TABLE_BITS)
 #define TRIG_TABLE_MASK   (TRIG_TABLE_SIZE-1)
@@ -61,6 +64,10 @@ extern float turntocos[TRIG_TABLE_SIZE];           // Convert chrturn>>2...  to 
 // fastest and most cross-platform solution
 #ifndef ABS
 #    define ABS(X)  (((X) > 0) ? (X) : -(X))
+#endif
+
+#ifndef SGN
+#    define SGN(X)  (((X) == 0) ? 0 : (((X) > 0) ? 1 : -1) )
 #endif
 
 #ifndef MIN
@@ -191,5 +198,4 @@ int    generate_randmask( int base, int mask );
 
 
 Uint16 vec_to_facing( float dx, float dy );
-
-ATAN2( ChrList.lst[pself->target].pos.y - pchr->pos.y, ChrList.lst[pself->target].pos.x - pchr->pos.x ) * 0xFFFF / ( TWO_PI );
+void facing_to_vec( Uint16 facing, float * dx, float * dy );
