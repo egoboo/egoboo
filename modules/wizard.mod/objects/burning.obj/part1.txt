@@ -102,3 +102,4 @@ Mana drain on hit ( 0 to 50 )				: 0
 Life drain on hit ( 0 to 50 )				: 0
 
 :[IDAM] 1	//Intelligence adds extra damage
+:[ORNT] Vert

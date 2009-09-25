@@ -104,3 +104,4 @@ Life drain on hit ( 0 to 50 )				: 0
 // Expansions...
 :[BLOC] 0
 :[WDAM] 1	//Wisdom adds extra damage
+:[ORNT] Vert

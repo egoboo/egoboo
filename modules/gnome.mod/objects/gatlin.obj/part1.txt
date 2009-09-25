@@ -106,3 +106,4 @@ Life drain on hit ( 0 to 50 )				: 0
 :[ZSPD] 30	Max Z velocity for aiming up and down at targets
 :[ARMO] 1	Armor piercing ( base defense for target = 0 )
 :[BLOC] 1	Can't be blocked
+:[ORNT] Z Axis

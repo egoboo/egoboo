@@ -105,3 +105,4 @@ Life drain on hit ( 0 to 50 )				: 0
 // Expansion IDSZ
 :[DLEV] -44
 :[DRAD] -50000
+:[ORNT] Vert

@@ -1,7 +1,7 @@
 // Evil glow particles
 Force spawn ( TRUE or FALSE )				: FALSE
 Image type ( SOLID, LIGHT, or TRANS )			: LIGHT
-Starting frame ( 0 to 255 )				: 56 57
+Starting frame ( 0 to 255 )				: 56
 Number of frames ( 1 to 16 )				: 4 1
 Frame rate ( 0 to 1000 )				: 80
 Frame rate randomness ( 0, 1, 3, 7, 15, 31, 63... )	: 15
@@ -100,3 +100,4 @@ Respawn character on hit ( TRUE or FALSE )		: FALSE
 Mana drain on hit ( 0 to 50 )				: 0
 Life drain on hit ( 0 to 50 )				: 1-4
 
+:[ORNT] Vert
