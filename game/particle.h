@@ -52,7 +52,7 @@ struct s_prt_instance
     // basic info
     Uint8    type;               // particle type
     Uint16   image;              // which image
-    Uint8    alpha;              // base alpha
+    float    alpha;              // base alpha
     Uint8    light;              // base self lighting
 
     // position info
@@ -89,28 +89,35 @@ struct s_prt
     EGO_OBJECT_STUFF
 
     // profiles
-    Uint16  pip;                             // The part template
-    Uint16  iprofile;                        // the profile related to the spawned particle
+    Uint16  pip_ref;                         // The part template
+    Uint16  profile_ref;                     // the profile related to the spawned particle
 
-    Uint16  attachedtocharacter;             // For torch flame
+    // links
+    Uint16  attachedto_ref;                  // For torch flame
+    Uint16  owner_ref;                       // The character that is attacking
+    Uint16  target_ref;                      // Who it's chasing
+    Uint16  parent_ref;                      // Did a another particle spawn this one?
+
     Uint16  vrt_off;                         // It's vertex offset
     Uint8   type;                            // Transparency mode, 0-2
     Uint16  facing;                          // Direction of the part
     Uint8   team;                            // Team
 
-    GLvector3   pos;                            // Position
-    GLvector3   vel;                            // Velocity
+    GLvector3   pos, pos_old;                // Position
+    GLvector3   vel, vel_old;                // Velocity
 
     Uint32  onwhichfan;                      // Where the part is
-    Uint32  onwhichblock;                         // The particle's collision block
+    Uint32  onwhichblock;                    // The particle's collision block
     bool_t  is_hidden;
 
-    float   floor_level;                           // Height of tile
+    float   floor_level;                     // Height of tile
     Uint8   spawncharacterstate;
     Uint16  rotate;                          // Rotation direction
     Sint16  rotateadd;                       // Rotation rate
-    Uint16  size;                            // Size of particle>>8
-    Sint16  sizeadd;                         // Change in size
+
+    Uint16  size;                            // Size of particle ( >> 8 )
+    Uint16  size_stt;                        // the starting size of the particle ( >> 8 )
+    Sint16  size_add;                        // Change in size
     bool_t  inview;                          // Render this one?
     Uint16  image;                           // Which image ( >> 8 )
     Uint16  imageadd;                        // Animation rate
@@ -127,11 +134,9 @@ struct s_prt
     Uint16  fanblock_next;                   // Next particle on fanblock
     IPair   damage;                          // For strength
     Uint8   damagetype;                      // Damage type
-    Uint16  chr;                             // The character that is attacking
     float   dynalight_falloff;                // Dyna light...
     float   dynalight_level;
     bool_t  dynalight_on;                     // Dynamic light?
-    Uint16  target;                          // Who it's chasing
 
     bool_t  is_eternal;
 
@@ -167,10 +172,9 @@ void setup_particles();
 
 void play_particle_sound( Uint16 particle, Sint8 sound );
 int get_free_particle( int force );
-Uint16 spawn_one_particle( float x, float y, float z,
-                           Uint16 facing, Uint16 model, Uint16 pip,
-                           Uint16 characterattach, Uint16 vrt_offset, Uint8 team,
-                           Uint16 characterorigin, Uint16 multispawn, Uint16 oldtarget );
+Uint16 spawn_one_particle( GLvector3 pos, Uint16 facing, Uint16 iprofile, Uint16 ipip,
+                           Uint16 chr_attach, Uint16 vrt_offset, Uint8 team,
+                           Uint16 chr_origin, Uint16 prt_origin, Uint16 multispawn, Uint16 oldtarget );
 
 int prt_count_free();
 

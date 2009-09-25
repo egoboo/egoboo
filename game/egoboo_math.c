@@ -454,7 +454,7 @@ GLvector3 mat_getTranslate(GLmatrix mat)
     pos.z = mat.CNV( 3, 2 );
 
     return pos;
-};
+}
 
 //----------------------------------------------------
 GLvector3 mat_getChrUp(GLmatrix mat)
@@ -467,7 +467,7 @@ GLvector3 mat_getChrUp(GLmatrix mat)
     up.z = mat.CNV( 2, 2 );
 
     return up;
-};
+}
 
 //----------------------------------------------------
 GLvector3 mat_getChrRight(GLmatrix mat)
@@ -480,7 +480,7 @@ GLvector3 mat_getChrRight(GLmatrix mat)
     right.z = -mat.CNV( 0, 2 );
 
     return right;
-};
+}
 
 //----------------------------------------------------
 GLvector3 mat_getChrForward(GLmatrix mat)
@@ -493,7 +493,7 @@ GLvector3 mat_getChrForward(GLmatrix mat)
     frw.z = mat.CNV( 1, 2 );
 
     return frw;
-};
+}
 
 //----------------------------------------------------
 GLvector3 mat_getCamUp(GLmatrix mat)
@@ -506,7 +506,7 @@ GLvector3 mat_getCamUp(GLmatrix mat)
     up.z = -mat.CNV( 2, 1 );
 
     return up;
-};
+}
 
 //----------------------------------------------------
 GLvector3 mat_getCamRight(GLmatrix mat)
@@ -519,7 +519,7 @@ GLvector3 mat_getCamRight(GLmatrix mat)
     right.z = mat.CNV( 2, 0 );
 
     return right;
-};
+}
 
 //----------------------------------------------------
 GLvector3 mat_getCamForward(GLmatrix mat)
@@ -532,7 +532,7 @@ GLvector3 mat_getCamForward(GLmatrix mat)
     frw.z = mat.CNV( 2, 2 );
 
     return frw;
-};
+}
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

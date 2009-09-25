@@ -28,34 +28,23 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-enum e_particle_direction
-{
-    prt_v = 0x0000,    // particle is vertical on the bitmap
-    prt_d = 0x2000,    // particle is diagonal (rotated 45 degrees to the right = 8192)
-    prt_h = 0x4000,    // particle is horizontal (rotated 90 degrees = 16384)
-    prt_u = 0xFFFF,    // particle is of unknown orientation
-};
-typedef enum e_particle_direction particle_direction_t;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 particle_direction_t prt_direction[256] =
 {
-    prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_d, prt_v,
+    prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_l, prt_v,
     prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v,
     prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v,
     prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v,
     prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v,
-    prt_v, prt_v, prt_v, prt_d, prt_v, prt_v, prt_v, prt_v, prt_d, prt_d, prt_v, prt_d, prt_d, prt_d, prt_d, prt_d,
+    prt_v, prt_v, prt_v, prt_l, prt_v, prt_v, prt_v, prt_v, prt_l, prt_l, prt_l, prt_r, prt_r, prt_r, prt_r, prt_r,
     prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v,
-    prt_v, prt_d, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v,
+    prt_v, prt_l, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v,
     prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v,
-    prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_d, prt_d, prt_d, prt_d,
-    prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_d, prt_d, prt_d, prt_d, prt_v, prt_v, prt_v, prt_v,
+    prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_l, prt_l, prt_l, prt_v, prt_v, prt_v, prt_v, prt_v,
+    prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_l, prt_l, prt_l, prt_l, prt_l,
     prt_u, prt_u, prt_u, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v,
     prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v,
-    prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_d, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v,
-    prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_d, prt_u, prt_u, prt_u, prt_u,
+    prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_l, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v,
+    prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_l, prt_u, prt_u, prt_u, prt_u,
     prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_v, prt_u, prt_u, prt_u, prt_u
 };
 
@@ -116,8 +105,8 @@ pip_t * load_one_pip_file( const char *szLoadName, pip_t * ppip )
 
     ppip->imagebase = fget_next_int( fileread );
     ppip->numframes = fget_next_int( fileread );
-    ppip->imageadd = fget_next_int( fileread );
-    ppip->imageaddrand = fget_next_int( fileread );
+    ppip->imageadd.base = fget_next_int( fileread );
+    ppip->imageadd.rand = fget_next_int( fileread );
     ppip->rotate_pair.base = fget_next_int( fileread );
     ppip->rotate_pair.rand = fget_next_int( fileread );
     ppip->rotateadd = fget_next_int( fileread );
@@ -171,19 +160,19 @@ pip_t * load_one_pip_file( const char *szLoadName, pip_t * ppip )
     ppip->zvel_pair.rand      = fget_next_int( fileread );
 
     // Continuous spawning of other particles
-    ppip->contspawntime      = fget_next_int( fileread );
-    ppip->contspawnamount    = fget_next_int( fileread );
-    ppip->contspawnfacingadd = fget_next_int( fileread );
-    ppip->contspawnpip       = fget_next_int( fileread );
+    ppip->contspawn_time      = fget_next_int( fileread );
+    ppip->contspawn_amount    = fget_next_int( fileread );
+    ppip->contspawn_facingadd = fget_next_int( fileread );
+    ppip->contspawn_pip       = fget_next_int( fileread );
 
     // End spawning of other particles
-    ppip->endspawnamount    = fget_next_int( fileread );
-    ppip->endspawnfacingadd = fget_next_int( fileread );
-    ppip->endspawnpip       = fget_next_int( fileread );
+    ppip->endspawn_amount    = fget_next_int( fileread );
+    ppip->endspawn_facingadd = fget_next_int( fileread );
+    ppip->endspawn_pip       = fget_next_int( fileread );
 
     // Bump spawning of attached particles
-    ppip->bumpspawnamount = fget_next_int( fileread );
-    ppip->bumpspawnpip    = fget_next_int( fileread );
+    ppip->bumpspawn_amount = fget_next_int( fileread );
+    ppip->bumpspawn_pip    = fget_next_int( fileread );
 
     // Random stuff  !!!BAD!!! Not complete
     ppip->dazetime     = fget_next_int( fileread );

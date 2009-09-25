@@ -188,3 +188,8 @@ void   make_randie();
 int    generate_irand_pair( IPair num );
 int    generate_irand_range( FRange num );
 int    generate_randmask( int base, int mask );
+
+
+Uint16 vec_to_facing( float dx, float dy );
+
+ATAN2( ChrList.lst[pself->target].pos.y - pchr->pos.y, ChrList.lst[pself->target].pos.x - pchr->pos.x ) * 0xFFFF / ( TWO_PI );

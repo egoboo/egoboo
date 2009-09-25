@@ -35,6 +35,7 @@ struct s_script_state;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 #define MAX_PASS             256                     // Maximum number of passages ( mul 32 )
+#define MAX_SHOP             MAX_PASS
 #define CLOSETOLERANCE       2                       // For closing doors
 
 #define NOOWNER 0xFFFF        // Shop has no owner
@@ -55,8 +56,9 @@ enum e_shop_orders
 
 DEFINE_STACK_EXTERN(passage_t, PassageStack, MAX_PASS );
 
-#define VALID_PASSAGE( IPASS )       ( ((IPASS) <= PassageStack.count) || ((IPASS) >= 0) )
-#define INVALID_PASSAGE( IPASS )     ( ((IPASS) >  PassageStack.count) || ((IPASS) < 0) )
+#define VALID_PASSAGE_RANGE( IPASS ) ( ((IPASS) >= 0) && ((IPASS) <   MAX_PASS) )
+#define VALID_PASSAGE( IPASS )       ( VALID_PASSAGE_RANGE( IPASS ) && ((IPASS) <  PassageStack.count) )
+#define INVALID_PASSAGE( IPASS )     ( !VALID_PASSAGE( IPASS ) )
 
 // For shops
 struct s_shop
@@ -66,10 +68,11 @@ struct s_shop
 };
 typedef struct s_shop shop_t;
 
-DEFINE_STACK_EXTERN(shop_t, ShopStack, MAX_PASS );
+DEFINE_STACK_EXTERN(shop_t, ShopStack, MAX_SHOP );
 
-#define VALID_SHOP( IPASS )       ( ((IPASS) <= ShopStack.count) || ((IPASS) >= 0) )
-#define INVALID_SHOP( IPASS )     ( ((IPASS) >  ShopStack.count) || ((IPASS) < 0) )
+#define VALID_SHOP_RANGE( ISHOP ) ( ((ISHOP) >= 0) && ((ISHOP) <   MAX_SHOP) )
+#define VALID_SHOP( ISHOP )       ( VALID_SHOP_RANGE( ISHOP ) && ((ISHOP) <  ShopStack.count) )
+#define INVALID_SHOP( ISHOP )     ( !VALID_SHOP( ISHOP ) )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

@@ -1463,10 +1463,10 @@ void light_particles( ego_mpd_t * pmesh )
         pinst = &(pprt->inst);
 
         pprt->inst.light = 0;
-        if ( VALID_CHR( pprt->attachedtocharacter ) )
+        if ( VALID_CHR( pprt->attachedto_ref ) )
         {
-            chr_t * pchr = ChrList.lst + pprt->attachedtocharacter;
-            Uint16  imad = chr_get_imad(pprt->attachedtocharacter);
+            chr_t * pchr = ChrList.lst + pprt->attachedto_ref;
+            Uint16  imad = chr_get_imad(pprt->attachedto_ref);
 
             // grab the lighting from the vertex that the particle is attached to
             if ( 0 == pprt->vrt_off )
@@ -2319,7 +2319,6 @@ int draw_one_xp_bar( int x, int y, Uint8 ticks )
     Uint8 cnt;
     frect_t txrect;
 
-    if ( ticks < 0 ) return y;
     ticks = MIN(ticks, NUMTICK);
 
     EnableTexturing();               // Enable texture mapping

@@ -27,6 +27,8 @@
 #include "game.h"
 #include "char.h"
 
+#include "pip_file.h"
+
 #include "egoboo_vfs.h"
 #include "egoboo_setup.h"
 #include "egoboo_fileutil.h"
@@ -76,16 +78,6 @@ Mix_Music * musictracksloaded[MAXPLAYLISTLENGTH];
 Sint8       songplaying   = INVALID_SOUND;
 
 Mix_Chunk * g_wavelist[GSND_COUNT];
-
-#define COIN1               0                       // Coins are the first particles loaded
-#define COIN5               1
-#define COIN25              2
-#define COIN100             3
-#define WEATHER4            4                       // Weather particles
-#define WEATHER5            5                       // Weather particle finish
-#define SPLASH              6                       // Water effects are next
-#define RIPPLE              7
-#define DEFEND              8                       // Defend particle
 
 // text filenames for the global sounds
 static const char * wavenames[GSND_COUNT] =

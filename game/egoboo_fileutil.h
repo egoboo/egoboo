@@ -87,6 +87,7 @@ void fput_bool( vfs_FILE* filewrite, const char* text, bool_t truth );
 void fput_damage_type( vfs_FILE* filewrite, const char* text, Uint8 damagetype );
 void fput_action( vfs_FILE* filewrite, const char* text, Uint8 action );
 void fput_gender( vfs_FILE* filewrite, const char* text, Uint8 gender );
+void fput_range( vfs_FILE* filewrite, const char* text, FRange val );
 void fput_pair( vfs_FILE* filewrite, const char* text, IPair val );
 void fput_string_under( vfs_FILE* filewrite, const char* text, const char* usename );
 void fput_expansion( vfs_FILE* filewrite, const char* text, IDSZ idsz, int value );

@@ -29,15 +29,18 @@
 //--------------------------------------------------------------------------------------------
 
 // pre-defined global particles
-#define COIN1               0                       // Coins are the first particles loaded
-#define COIN5               1
-#define COIN25              2
-#define COIN100             3
-#define WEATHER4            4                       // Weather particles
-#define WEATHER5            5                       // Weather particle finish
-#define SPLASH              6                       // Water effects are next
-#define RIPPLE              7
-#define DEFEND              8                       // Defend particle
+enum e_global_pips
+{
+    PIP_COIN1 = 0,                                 // Coins are the first particles loaded
+    PIP_COIN5,               
+    PIP_COIN25,              
+    PIP_COIN100,             
+    PIP_WEATHER4,                                  // Weather particles
+    PIP_WEATHER5,                                  // Weather particle finish
+    PIP_SPLASH,                                    // Water effects are next
+    PIP_RIPPLE,              
+    PIP_DEFEND                                     // Defend particle
+};
 
 #define PRTLIGHTSPRITE                  0           // Magic effect particle
 #define PRTSOLIDSPRITE                  1           // Sprite particle
@@ -70,6 +73,16 @@ enum e_damage_fx
     DAMFX_TIME           = (1 << 5)
 };
 
+enum e_particle_direction
+{
+    prt_v = 0x0000,    // particle is vertical on the bitmap
+    prt_r = 0x2000,    // particle is diagonal (rotated 45 degrees to the right = 8192)
+    prt_h = 0x4000,    // particle is horizontal (rotated 90 degrees = 16384)
+    prt_l = 0xE000,    // particle is diagonal (rotated 45 degrees to the right = 8192)
+    prt_u = 0xFFFF,    // particle is of unknown orientation
+};
+typedef enum e_particle_direction particle_direction_t;
+
 //--------------------------------------------------------------------------------------------
 // Particle template
 //--------------------------------------------------------------------------------------------
@@ -82,8 +95,7 @@ struct s_pip
     Uint8   type;                         // Transparency mode
     Uint8   numframes;                    // Number of frames
     Uint8   imagebase;                    // Starting image
-    Uint16  imageadd;                     // Frame rate
-    Uint16  imageaddrand;                 // Frame rate randomness
+    IPair   imageadd;                     // Frame rate
     Uint16  time;                         // Time until end
     IPair   rotate_pair;                   // Rotation
     Sint16  rotateadd;                    // Rotation rate
@@ -107,15 +119,15 @@ struct s_pip
     IPair   zspacing_pair;                 // Altitude
     IPair   xyvel_pair;                    // Shot velocity
     IPair   zvel_pair;                     // Up velocity
-    Uint16  contspawntime;                // Spawn timer
-    Uint8   contspawnamount;              // Spawn amount
-    Uint16  contspawnfacingadd;           // Spawn in circle
-    Uint16  contspawnpip;                 // Spawn type ( local )
-    Uint8   endspawnamount;               // Spawn amount
-    Uint16  endspawnfacingadd;            // Spawn in circle
-    Uint8   endspawnpip;                  // Spawn type ( local )
-    Uint8   bumpspawnamount;              // Spawn amount
-    Uint8   bumpspawnpip;                 // Spawn type ( global )
+    Uint16  contspawn_time;                // Spawn timer
+    Uint8   contspawn_amount;              // Spawn amount
+    Uint16  contspawn_facingadd;           // Spawn in circle
+    Uint16  contspawn_pip;                 // Spawn type ( local )
+    Uint8   endspawn_amount;               // Spawn amount
+    Uint16  endspawn_facingadd;            // Spawn in circle
+    Uint8   endspawn_pip;                  // Spawn type ( local )
+    Uint8   bumpspawn_amount;              // Spawn amount
+    Uint8   bumpspawn_pip;                 // Spawn type ( global )
     Uint8   dynalight_mode;                // Dynamic light on?
     float   dynalight_level;                    // Intensity
     Uint16  dynalight_falloff;                  // Falloff
@@ -151,6 +163,10 @@ struct s_pip
 };
 
 typedef struct s_pip pip_t;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+extern particle_direction_t prt_direction[256];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

@@ -490,7 +490,7 @@ long vfs_tell ( vfs_FILE * pfile )
     }
 
     return retval;
-};
+}
 
 //--------------------------------------------------------------------------------------------
 int vfs_seek ( vfs_FILE * pfile , long offset )
@@ -908,7 +908,7 @@ int vfs_scanf( vfs_FILE * pfile, const char *format, ... )
 char ** vfs_enumerateFiles( const char * dir_name )
 {
     return PHYSFS_enumerateFiles( _vfs_convert_fname_physfs(dir_name) );
-};
+}
 
 //--------------------------------------------------------------------------------------------
 void    vfs_freeList( void * listVar )

@@ -57,7 +57,7 @@ void cap_init( cap_t * pcap )
 
     // Clear expansions...
     /* pcap->skindressy = bfalse; */
-    /* pcap->resistbumpspawn = bfalse; */
+    /* pcap->resistbumpspawn_ = bfalse; */
     /* pcap->istoobig = bfalse; */
     pcap->reflect = btrue;
     /* pcap->alwaysdraw = bfalse; */
@@ -305,21 +305,21 @@ cap_t * load_one_cap_file( const char * tmploadname, cap_t * pcap )
     pcap->slotvalid[SLOT_RIGHT] = fget_next_bool( fileread );
 
     // Attack order ( weapon )
-    pcap->attackattached = fget_next_bool( fileread );
-    pcap->attackprttype  = fget_next_int( fileread );
+    pcap->attack_attached = fget_next_bool( fileread );
+    pcap->attack_pip  = fget_next_int( fileread );
 
     // GoPoof
-    pcap->gopoofprtamount    = fget_next_int( fileread );
-    pcap->gopoofprtfacingadd = fget_next_int( fileread );
-    pcap->gopoofprttype      = fget_next_int( fileread );
+    pcap->gopoofprt_amount    = fget_next_int( fileread );
+    pcap->gopoofprt_facingadd = fget_next_int( fileread );
+    pcap->gopoofprt_pip       = fget_next_int( fileread );
 
     // Blud
     cTmp = fget_next_char( fileread );
-         if ( 'T' == toupper(cTmp) )  pcap->bludvalid = btrue;
-    else if ( 'U' == toupper(cTmp) )  pcap->bludvalid = ULTRABLUDY;
-    else                              pcap->bludvalid = bfalse;
+         if ( 'T' == toupper(cTmp) )  pcap->blud_valid = btrue;
+    else if ( 'U' == toupper(cTmp) )  pcap->blud_valid = ULTRABLUDY;
+    else                              pcap->blud_valid = bfalse;
 
-    pcap->bludprttype = fget_next_int( fileread );
+    pcap->blud_pip = fget_next_int( fileread );
 
     // Stuff I forgot
     pcap->waterwalk = fget_next_bool( fileread );
@@ -375,7 +375,7 @@ cap_t * load_one_cap_file( const char * tmploadname, cap_t * pcap )
 
              if ( idsz == MAKE_IDSZ( 'D', 'R', 'E', 'S' ) ) pcap->skindressy |= 1 << fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'G', 'O', 'L', 'D' ) ) pcap->money = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'S', 'T', 'U', 'K' ) ) pcap->resistbumpspawn = 1 - fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'S', 'T', 'U', 'K' ) ) pcap->resistbumpspawn_ = 1 - fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'P', 'A', 'C', 'K' ) ) pcap->istoobig = 1 - fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'V', 'A', 'M', 'P' ) ) pcap->reflect = 1 - fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'D', 'R', 'A', 'W' ) ) pcap->alwaysdraw = fget_int( fileread );

@@ -2009,16 +2009,16 @@ Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
     tTmp = pself->index;
     if ( VALID_CHR(pchr->attachedto) )  tTmp = pchr->attachedto;
 
-    tTmp = spawn_one_particle( pchr->pos.x, pchr->pos.y, pchr->pos.z, pchr->turn_z, pchr->iprofile, pstate->argument, pself->index, pstate->distance, pchr->team, tTmp, 0, MAX_CHR );
+    tTmp = spawn_one_particle( pchr->pos, pchr->turn_z, pchr->iprofile, pstate->argument, pself->index, pstate->distance, pchr->team, tTmp, TOTAL_MAX_PRT, 0, MAX_CHR );
     if ( VALID_PRT(tTmp) )
     {
         // Detach the particle
         attach_particle_to_character( tTmp, pself->index, pstate->distance );
-        PrtList.lst[tTmp].attachedtocharacter = MAX_CHR;
+        PrtList.lst[tTmp].attachedto_ref = MAX_CHR;
         // Correct X, Y, Z spacing
         PrtList.lst[tTmp].pos.x += pstate->x;
         PrtList.lst[tTmp].pos.y += pstate->y;
-        PrtList.lst[tTmp].pos.z += PipStack.lst[PrtList.lst[tTmp].pip].zspacing_pair.base;
+        PrtList.lst[tTmp].pos.z += PipStack.lst[PrtList.lst[tTmp].pip_ref].zspacing_pair.base;
 
         // Don't spawn in walls
         if ( __prthitawall( tTmp ) )
@@ -3793,7 +3793,7 @@ Uint8 scr_SpawnAttachedParticle( script_state_t * pstate, ai_state_t * pself )
     tTmp = pself->index;
     if ( VALID_CHR(pchr->attachedto) )  tTmp = pchr->attachedto;
 
-    tTmp = spawn_one_particle( pchr->pos.x, pchr->pos.y, pchr->pos.z, pchr->turn_z, pchr->iprofile, pstate->argument, pself->index, pstate->distance, pchr->team, tTmp, 0, MAX_CHR );
+    tTmp = spawn_one_particle( pchr->pos, pchr->turn_z, pchr->iprofile, pstate->argument, pself->index, pstate->distance, pchr->team, tTmp, TOTAL_MAX_PRT, 0, MAX_CHR );
     returncode = VALID_PRT(tTmp);
 
     SCRIPT_FUNCTION_END();
@@ -3812,7 +3812,11 @@ Uint8 scr_SpawnExactParticle( script_state_t * pstate, ai_state_t * pself )
     tTmp = pself->index;
     if ( VALID_CHR(pchr->attachedto) )  tTmp = pchr->attachedto;
 
-    tTmp = spawn_one_particle( pstate->x, pstate->y, pstate->distance, pchr->turn_z, pchr->iprofile, pstate->argument, MAX_CHR, 0, pchr->team, tTmp, 0, MAX_CHR );
+    {
+        GLvector3 vtmp = VECT3(pstate->x, pstate->y, pstate->distance);
+        tTmp = spawn_one_particle( vtmp, pchr->turn_z, pchr->iprofile, pstate->argument, MAX_CHR, 0, pchr->team, tTmp, TOTAL_MAX_PRT, 0, MAX_CHR );
+    }
+
     returncode = VALID_PRT(tTmp);
 
     SCRIPT_FUNCTION_END();
@@ -4297,7 +4301,7 @@ Uint8 scr_SpawnAttachedSizedParticle( script_state_t * pstate, ai_state_t * psel
     tTmp = pself->index;
     if ( VALID_CHR(pchr->attachedto) )  tTmp = pchr->attachedto;
 
-    tTmp = spawn_one_particle( pchr->pos.x, pchr->pos.y, pchr->pos.z, pchr->turn_z, pchr->iprofile, pstate->argument, pself->index, pstate->distance, pchr->team, tTmp, 0, MAX_CHR );
+    tTmp = spawn_one_particle( pchr->pos, pchr->turn_z, pchr->iprofile, pstate->argument, pself->index, pstate->distance, pchr->team, tTmp, TOTAL_MAX_PRT, 0, MAX_CHR );
     if ( VALID_PRT(tTmp) )
     {
         PrtList.lst[tTmp].size = pstate->turn;
@@ -4405,7 +4409,7 @@ Uint8 scr_SpawnAttachedFacedParticle( script_state_t * pstate, ai_state_t * psel
     tTmp = pself->index;
     if ( VALID_CHR(pchr->attachedto) )  tTmp = pchr->attachedto;
 
-    tTmp = spawn_one_particle( pchr->pos.x, pchr->pos.y, pchr->pos.z, pstate->turn & 0xFFFF, pchr->iprofile, pstate->argument, pself->index, pstate->distance, pchr->team, tTmp, 0, MAX_CHR );
+    tTmp = spawn_one_particle( pchr->pos, pstate->turn & 0xFFFF, pchr->iprofile, pstate->argument, pself->index, pstate->distance, pchr->team, tTmp, TOTAL_MAX_PRT, 0, MAX_CHR );
 
     returncode = VALID_PRT(tTmp);
 
@@ -4805,7 +4809,7 @@ Uint8 scr_SpawnAttachedHolderParticle( script_state_t * pstate, ai_state_t * pse
     tTmp = pself->index;
     if ( VALID_CHR(pchr->attachedto) )  tTmp = pchr->attachedto;
 
-    tTmp = spawn_one_particle( pchr->pos.x, pchr->pos.y, pchr->pos.z, pchr->turn_z, pchr->iprofile, pstate->argument, tTmp, pstate->distance, pchr->team, tTmp, 0, MAX_CHR );
+    tTmp = spawn_one_particle( pchr->pos, pchr->turn_z, pchr->iprofile, pstate->argument, tTmp, pstate->distance, pchr->team, tTmp, TOTAL_MAX_PRT, 0, MAX_CHR );
 
     returncode = VALID_PRT(tTmp);
 
@@ -5282,10 +5286,14 @@ Uint8 scr_SpawnExactChaseParticle( script_state_t * pstate, ai_state_t * pself )
     tTmp = pself->index;
     if ( VALID_CHR(pchr->attachedto) )  tTmp = pchr->attachedto;
 
-    tTmp = spawn_one_particle( pstate->x, pstate->y, pstate->distance, pchr->turn_z, pchr->iprofile, pstate->argument, MAX_CHR, 0, pchr->team, tTmp, 0, MAX_CHR );
+    {
+        GLvector3 vtmp = VECT3(pstate->x, pstate->y, pstate->distance);
+        tTmp = spawn_one_particle( vtmp, pchr->turn_z, pchr->iprofile, pstate->argument, MAX_CHR, 0, pchr->team, tTmp, TOTAL_MAX_PRT, 0, MAX_CHR );
+    }
+
     if ( VALID_PRT(tTmp) )
     {
-        PrtList.lst[tTmp].target = pself->target;
+        PrtList.lst[tTmp].target_ref = pself->target;
     }
 
     returncode = VALID_PRT(tTmp);
@@ -6318,7 +6326,11 @@ Uint8 scr_SpawnExactParticleEndSpawn( script_state_t * pstate, ai_state_t * psel
     tTmp = pself->index;
     if ( VALID_CHR(pchr->attachedto) )  tTmp = pchr->attachedto;
 
-    tTmp = spawn_one_particle( pstate->x, pstate->y, pstate->distance, pchr->turn_z, pchr->iprofile, pstate->argument, MAX_CHR, 0, pchr->team, tTmp, 0, MAX_CHR );
+    {
+        GLvector3 vtmp = VECT3(pstate->x, pstate->y, pstate->distance);
+        tTmp = spawn_one_particle( vtmp, pchr->turn_z, pchr->iprofile, pstate->argument, MAX_CHR, 0, pchr->team, tTmp, TOTAL_MAX_PRT, 0, MAX_CHR );
+    }
+
     if ( VALID_PRT(tTmp) )
     {
         PrtList.lst[tTmp].spawncharacterstate = pstate->turn;
@@ -6340,7 +6352,6 @@ Uint8 scr_SpawnPoofSpeedSpacingDamage( script_state_t * pstate, ai_state_t * pse
 
     int   tTmp, iTmp;
     float fTmp;
-    IDSZ  test;
 
     cap_t * pcap;
     pip_t * ppip;
@@ -6351,7 +6362,7 @@ Uint8 scr_SpawnPoofSpeedSpacingDamage( script_state_t * pstate, ai_state_t * pse
 
     if( NULL == pcap ) return bfalse;
 
-    ppip = pro_get_ppip(pchr->iprofile, pcap->gopoofprttype );
+    ppip = pro_get_ppip( pchr->iprofile, pcap->gopoofprt_pip );
 
     returncode = bfalse;
     if( NULL != ppip )

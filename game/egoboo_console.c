@@ -209,7 +209,7 @@ SDL_bool egoboo_console_run( egoboo_console_t * pcon )
     }
 
     return retval;
-};
+}
 
 //--------------------------------------------------------------------------------------------
 SDL_bool egoboo_console_delete( egoboo_console_t * pcon, SDL_bool do_free )

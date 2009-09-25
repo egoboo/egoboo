@@ -49,8 +49,6 @@ static int cmp_prt_registry_entity(const void * vlhs, const void * vrhs);
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-Uint32  particletrans   = 0x80;
-Uint32  antialiastrans  = 0xC0;
 Uint32  instance_update = (Uint32)~0;
 
 //--------------------------------------------------------------------------------------------
@@ -237,7 +235,7 @@ bool_t render_one_prt_trans( Uint16 iprt )
             GL_DEBUG(glEnable)(GL_BLEND );
             GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
-            GL_DEBUG(glColor4f)(pinst->fintens, pinst->fintens, pinst->fintens, pinst->falpha );
+            GL_DEBUG(glColor4f)( pinst->fintens, pinst->fintens, pinst->fintens, 1.0f );
 
             oglx_texture_Bind( TxTexture_get_ptr( TX_PARTICLE_TRANS ) );
         }
@@ -247,9 +245,9 @@ bool_t render_one_prt_trans( Uint16 iprt )
 
             GL_DEBUG(glDisable)(GL_ALPHA_TEST );
 
-            GL_DEBUG(glEnable)(GL_BLEND );
-            GL_DEBUG(glBlendFunc)(GL_ONE, GL_ONE_MINUS_SRC_COLOR );
-            GL_DEBUG(glColor4f)(1.0f, 1.0f, 1.0f, 1.0f );
+            GL_DEBUG(glEnable)( GL_BLEND );
+            GL_DEBUG(glBlendFunc)( GL_ONE, GL_ONE_MINUS_SRC_COLOR );
+            GL_DEBUG(glColor4f)( pinst->falpha, pinst->falpha, pinst->falpha, 1.0f );
 
             oglx_texture_Bind( TxTexture_get_ptr( TX_PARTICLE_LIGHT ) );
         }
@@ -525,8 +523,8 @@ void prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_
 
     if ( NULL == pprt || !pprt->on ) return;
 
-    if ( !VALID_PIP( pprt->pip ) ) return;
-    ppip = PipStack.lst + pprt->pip;
+    if ( !VALID_PIP( pprt->pip_ref ) ) return;
+    ppip = PipStack.lst + pprt->pip_ref;
 
     pinst->type = pprt->type;
 
@@ -541,7 +539,7 @@ void prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_
     vfwd = VNormalize( vfwd );
 
     // set the up and right vectors
-    if ( ppip->rotatetoface && INVALID_CHR( pprt->attachedtocharacter ) && (ABS( pprt->vel.x ) + ABS( pprt->vel.y ) + ABS( pprt->vel.z ) > 0) )
+    if ( ppip->rotatetoface && INVALID_CHR( pprt->attachedto_ref ) && (ABS( pprt->vel.x ) + ABS( pprt->vel.y ) + ABS( pprt->vel.z ) > 0) )
     {
         // the particle points along its direction of travel
 
@@ -562,9 +560,9 @@ void prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_
         vright = VCrossProduct( vfwd, vup );
         vright = VNormalize( vright );
     }
-    else if ( VALID_CHR( pprt->attachedtocharacter ) )
+    else if ( VALID_CHR( pprt->attachedto_ref ) )
     {
-        chr_instance_t * cinst = chr_get_pinstance(pprt->attachedtocharacter);
+        chr_instance_t * cinst = chr_get_pinstance(pprt->attachedto_ref);
 
         if ( cinst->matrixvalid )
         {
@@ -666,12 +664,11 @@ void prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_
     }
 
     // set some particle dependent properties
-    pinst->alpha = 0xFF;
     pinst->size  = FP8_TO_FLOAT( pprt->size ) * 0.25f;
     switch ( pinst->type )
     {
         case PRTSOLIDSPRITE: pinst->size *= 0.9384f; break;
-        case PRTALPHASPRITE: pinst->size *= 0.9353f; pinst->alpha = particletrans; break;
+        case PRTALPHASPRITE: pinst->size *= 0.9353f; break;
         case PRTLIGHTSPRITE: pinst->size *= 1.5912f; break;
     }
 
@@ -734,8 +731,8 @@ void prt_instance_update_lighting( prt_instance_t * pinst, prt_t * pprt, Uint8 t
     }
 
     // determine the ambient lighting
-    self_light = ( 255 == pinst->light ) ? 0 : pinst->light;
-    pinst->famb   = 0.9f * pinst->famb + 0.1f * (self_light + min_light);
+    self_light  = ( 255 == pinst->light ) ? 0 : pinst->light;
+    pinst->famb = 0.9f * pinst->famb + 0.1f * (self_light + min_light);
 
     // determine the normal dependent amount of light
     lite = evaluate_lighting_cache( &loc_light, pinst->nrm.v, pinst->pos.z, PMesh->mmem.bbox, NULL, NULL );

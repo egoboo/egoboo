@@ -244,7 +244,7 @@ struct s_cap
     Uint16       nframeangle;
 
     // defense
-    Uint8        resistbumpspawn;               // Don't catch fire
+    Uint8        resistbumpspawn_;               // Don't catch fire
     Uint8        defense[MAX_SKIN];                    // Defense for each skin
     Uint8        damagemodifier[DAMAGE_COUNT][MAX_SKIN];
 
@@ -279,16 +279,16 @@ struct s_cap
     Uint8        damagetargettype;              // For AI DamageTarget
     Uint8        weaponaction;                  // Animation needed to swing
     bool_t       slotvalid[SLOT_COUNT];            // Left/Right hands valid
-    Uint8        attackattached;
-    Sint8        attackprttype;
+    Uint8        attack_attached;
+    Sint8        attack_pip;
     Uint8        attachedprt_amount;             // Sticky particles
     Uint8        attachedprt_reaffirmdamagetype; // Relight that torch...
     Uint16       attachedprt_pip;
-    Uint8        gopoofprtamount;               // Poof effect
-    Sint16       gopoofprtfacingadd;
-    Uint16       gopoofprttype;
-    Uint8        bludvalid;                    // Blud ( yuck )
-    Uint8        bludprttype;
+    Uint8        gopoofprt_amount;               // Poof effect
+    Sint16       gopoofprt_facingadd;
+    Uint16       gopoofprt_pip;
+    Uint8        blud_valid;                    // Blud ( yuck )
+    Uint8        blud_pip;
     bool_t       ridercanattack;                // Rider attack?
     bool_t       canbedazed;                    // Can it be dazed?
     bool_t       canbegrogged;                  // Can it be grogged?

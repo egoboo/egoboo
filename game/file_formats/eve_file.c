@@ -36,10 +36,10 @@ eve_t * eve_init( eve_t * peve )
 
     memset( peve, 0, sizeof(eve_t) );
 
-    /* peve->contspawntime = 0; */
-    /* peve->contspawnamount = 0; */
-    /* peve->contspawnfacingadd = 0; */
-    /* peve->contspawnpip = 0; */
+    /* peve->contspawn_time = 0; */
+    /* peve->contspawn_amount = 0; */
+    /* peve->contspawn_facingadd = 0; */
+    /* peve->contspawn_pip = 0; */
     peve->endsoundindex = INVALID_SOUND;
     /* peve->stayifnoowner = 0; */
     /* peve->spawn_overlay = bfalse; */
@@ -184,10 +184,10 @@ eve_t * load_one_enchant_file( const char* szLoadName, eve_t * peve )
     {
         idsz = fget_idsz( fileread );
 
-        if ( idsz == MAKE_IDSZ( 'A', 'M', 'O', 'U' ) )  peve->contspawnamount = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'T', 'Y', 'P', 'E' ) )  peve->contspawnpip = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'T', 'I', 'M', 'E' ) )  peve->contspawntime = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'F', 'A', 'C', 'E' ) )  peve->contspawnfacingadd = fget_int( fileread );
+        if ( idsz == MAKE_IDSZ( 'A', 'M', 'O', 'U' ) )  peve->contspawn_amount = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'T', 'Y', 'P', 'E' ) )  peve->contspawn_pip = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'T', 'I', 'M', 'E' ) )  peve->contspawn_time = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'F', 'A', 'C', 'E' ) )  peve->contspawn_facingadd = fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'S', 'E', 'N', 'D' ) )
         {
             // This is wrong, it gets stored or loaded incorrectly (Loaded in game.c)
@@ -338,24 +338,24 @@ bool_t save_one_enchant_file( const char* szLoadName, eve_t * peve )
     // copy the template file to the next free output section
     template_seek_free( filewrite, filetemp );
 
-    if( peve->contspawnamount > 0 )
+    if( peve->contspawn_amount > 0 )
     {
-        fput_expansion( filewrite, "", MAKE_IDSZ( 'A', 'M', 'O', 'U' ), peve->contspawnamount );
+        fput_expansion( filewrite, "", MAKE_IDSZ( 'A', 'M', 'O', 'U' ), peve->contspawn_amount );
     }
 
-    if( peve->contspawnpip > 0 )
+    if( peve->contspawn_pip > 0 )
     {
-        fput_expansion( filewrite, "", MAKE_IDSZ( 'T', 'Y', 'P', 'E' ), peve->contspawnpip );
+        fput_expansion( filewrite, "", MAKE_IDSZ( 'T', 'Y', 'P', 'E' ), peve->contspawn_pip );
     }
 
-    if( peve->contspawnfacingadd > 0 )
+    if( peve->contspawn_facingadd > 0 )
     {
-        fput_expansion( filewrite, "", MAKE_IDSZ( 'T', 'I', 'M', 'E' ), peve->contspawnfacingadd );
+        fput_expansion( filewrite, "", MAKE_IDSZ( 'T', 'I', 'M', 'E' ), peve->contspawn_facingadd );
     }
 
-    if( peve->contspawntime > 0 )
+    if( peve->contspawn_time > 0 )
     {
-        fput_expansion( filewrite, "", MAKE_IDSZ( 'F', 'A', 'C', 'E' ), peve->contspawntime );
+        fput_expansion( filewrite, "", MAKE_IDSZ( 'F', 'A', 'C', 'E' ), peve->contspawn_time );
     }
 
     if( peve->endsoundindex != INVALID_SOUND )

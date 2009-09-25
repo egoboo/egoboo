@@ -69,6 +69,7 @@
 
 #include "SDL_extensions.h"
 
+#include "egoboo_console.h"
 #if defined(USE_LUA_CONSOLE)
 #include "lua_console.h"
 #endif
@@ -994,7 +995,8 @@ void console_init()
 #if defined(USE_LUA_CONSOLE)
     lua_console_new(NULL, blah);
 #else
-    egoboo_console_new(NULL, blah, egoboo_console_run, NULL);
+    // without a callback, this console just dumps the input and generates no output
+    egoboo_console_new(NULL, blah, NULL, NULL);
 #endif
 }
 
@@ -1928,18 +1930,45 @@ void make_onwhichfan( void )
         }
     }
 
+    for ( particle = 0; particle < maxparticles; particle++ )
+    {
+        prt_t * pprt;
+        Uint16 ichr;
+
+        if ( !PrtList.lst[particle].on ) continue;
+        pprt = PrtList.lst + particle;
+
+        pprt->onwhichfan   = mesh_get_tile ( PMesh, pprt->pos.x, pprt->pos.y );
+        pprt->onwhichblock = mesh_get_block( PMesh, pprt->pos.x, pprt->pos.y );
+        pprt->floor_level  = mesh_get_level( PMesh, PrtList.lst[character].pos.x, PrtList.lst[character].pos.y );
+
+        // reject particles that are hidden
+        pprt->is_hidden = bfalse;
+
+        ichr = pprt->attachedto_ref;
+        if ( VALID_CHR( ichr ) )
+        {
+            pprt->is_hidden = ChrList.lst[ichr].is_hidden;
+        }
+    }
+
     // Get levels every update
     for ( character = 0; character < MAX_CHR; character++ )
     {
+        cap_t * pcap;
         chr_t * pchr;
 
         if ( !ChrList.lst[character].on ) continue;
         pchr = ChrList.lst + character;
 
+        pcap = pro_get_pcap( pchr->iprofile );
+        if( NULL == pcap ) continue;
+
         if( pchr->pack_ispacked ) continue;
 
         level = get_mesh_level( PMesh, pchr->pos.x, pchr->pos.y, pchr->waterwalk ) + RAISE;
 
+        // do damage tile stuff
         if ( pchr->alive )
         {
             if ( VALID_TILE( PMesh, pchr->onwhichfan ) &&
@@ -1960,13 +1989,13 @@ void make_onwhichfan( void )
                     }
                     if ( pchr->damagetime == 0 )
                     {
-                        damage_character( character, ATK_BEHIND, damagetile.amount, damagetile.type, TEAM_DAMAGE, chr_get_pai(character)->bumplast, DAMFX_NBLOC | DAMFX_ARMO, bfalse );
+                        damage_character( character, ATK_BEHIND, damagetile.amount, damagetile.type, TEAM_DAMAGE, MAX_CHR, DAMFX_NBLOC | DAMFX_ARMO, bfalse );
                         pchr->damagetime = DAMAGETILETIME;
                     }
                     if ( (damagetile.parttype != ((Sint16)~0)) && ( update_wld & damagetile.partand ) == 0 )
                     {
-                        spawn_one_particle( pchr->pos.x, pchr->pos.y, pchr->pos.z,
-                                            0, MAX_PROFILE, damagetile.parttype, MAX_CHR, GRIP_LAST, TEAM_NULL, MAX_CHR, 0, MAX_CHR );
+                        spawn_one_particle( pchr->pos, 0, MAX_PROFILE, damagetile.parttype, 
+                                            MAX_CHR, GRIP_LAST, TEAM_NULL, MAX_CHR, TOTAL_MAX_PRT, 0, MAX_CHR );
                     }
                 }
                 if ( pchr->reaffirmdamagetype == damagetile.type )
@@ -1977,6 +2006,7 @@ void make_onwhichfan( void )
             }
         }
 
+        // do splash and ripple
         if ( pchr->pos.z < water.surface_level && (0 != mesh_test_fx( PMesh, pchr->onwhichfan, MPDFX_WATER )) )
         {
             if ( !pchr->inwater )
@@ -1984,29 +2014,34 @@ void make_onwhichfan( void )
                 // Splash
                 if ( INVALID_CHR( pchr->attachedto ) )
                 {
-                    spawn_one_particle( pchr->pos.x, pchr->pos.y, water.surface_level + RAISE,
-                                        0, MAX_PROFILE, SPLASH, MAX_CHR, GRIP_LAST, TEAM_NULL, MAX_CHR, 0, MAX_CHR );
+                    GLvector3 vtmp = VECT3( pchr->pos.x, pchr->pos.y, water.surface_level + RAISE );
+
+                    spawn_one_particle( vtmp, 0, MAX_PROFILE, PIP_SPLASH, MAX_CHR, GRIP_LAST, 
+                                        TEAM_NULL, MAX_CHR, TOTAL_MAX_PRT, 0, MAX_CHR );
                 }
 
                 if ( water.is_water )
                 {
-                    chr_get_pai(character)->alert |= ALERTIF_INWATER;
+                    pchr->ai.alert |= ALERTIF_INWATER;
                 }
             }
             else
             {
                 // Ripple
-                if ( pchr->pos.z > water.surface_level - RIPPLETOLERANCE && chr_get_pcap(character)->ripple )
+                if ( pchr->pos.z > water.surface_level - RIPPLETOLERANCE && pcap->ripple )
                 {
                     // Ripples
                     ripand = ( ( int )pchr->vel.x != 0 ) | ( ( int )pchr->vel.y != 0 );
                     ripand = RIPPLEAND >> ripand;
                     if ( ( update_wld&ripand ) == 0 && pchr->pos.z < water.surface_level && pchr->alive )
                     {
-                        spawn_one_particle( pchr->pos.x, pchr->pos.y, water.surface_level,
-                                            0, MAX_PROFILE, RIPPLE, MAX_CHR, GRIP_LAST, TEAM_NULL, MAX_CHR, 0, MAX_CHR );
+                        GLvector3 vtmp = VECT3( pchr->pos.x, pchr->pos.y, water.surface_level );
+
+                        spawn_one_particle( vtmp, 0, MAX_PROFILE, PIP_RIPPLE, MAX_CHR, GRIP_LAST, 
+                                            TEAM_NULL, MAX_CHR, TOTAL_MAX_PRT, 0, MAX_CHR );
                     }
                 }
+
                 if ( water.is_water && HAS_NO_BITS( frame_all, 7 ) )
                 {
                     pchr->jumpready = btrue;
@@ -2024,27 +2059,6 @@ void make_onwhichfan( void )
         pchr->floor_level = level;
     }
 
-    for ( particle = 0; particle < maxparticles; particle++ )
-    {
-        prt_t * pprt;
-        Uint16 ichr;
-
-        if ( !PrtList.lst[particle].on ) continue;
-        pprt = PrtList.lst + particle;
-
-        pprt->onwhichfan   = mesh_get_tile ( PMesh, pprt->pos.x, pprt->pos.y );
-        pprt->onwhichblock = mesh_get_block( PMesh, pprt->pos.x, pprt->pos.y );
-        pprt->floor_level  = mesh_get_level( PMesh, PrtList.lst[character].pos.x, PrtList.lst[character].pos.y );
-
-        // reject particles that are hidden
-        pprt->is_hidden = bfalse;
-
-        ichr = pprt->attachedtocharacter;
-        if ( VALID_CHR( ichr ) )
-        {
-            pprt->is_hidden = ChrList.lst[ichr].is_hidden;
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2116,21 +2130,20 @@ void do_enchant_spawn_particles()
         peve = enc_get_peve(cnt);
         if( NULL == peve ) continue;
 
-        penc->spawntime = peve->contspawntime;
+        penc->spawntime = peve->contspawn_time;
 
-        if ( peve->contspawnamount <= 0 ) continue;
+        if ( peve->contspawn_amount <= 0 ) continue;
 
         if( INVALID_CHR(penc->target_ref) ) continue;
         ptarget = ChrList.lst + penc->target_ref;
 
         facing = ptarget->turn_z;
-        for ( tnc = 0; tnc < peve->contspawnamount; tnc++ )
+        for ( tnc = 0; tnc < peve->contspawn_amount; tnc++ )
         {
-            spawn_one_particle( ptarget->pos.x, ptarget->pos.y, ptarget->pos.z,
-                                facing, penc->profile_ref, peve->contspawnpip,
-                                MAX_CHR, GRIP_LAST, chr_get_iteam(penc->owner_ref), penc->owner_ref, tnc, MAX_CHR );
+            spawn_one_particle( ptarget->pos, facing, penc->profile_ref, peve->contspawn_pip,
+                                MAX_CHR, GRIP_LAST, chr_get_iteam(penc->owner_ref), penc->owner_ref, TOTAL_MAX_PRT, tnc, MAX_CHR );
 
-            facing += peve->contspawnfacingadd;
+            facing += peve->contspawn_facingadd;
         }
 
     }
@@ -2150,7 +2163,7 @@ void update_pits()
             // Kill any particles that fell in a pit, if they die in water...
             for ( cnt = 0; cnt < maxparticles; cnt++ )
             {
-                if ( INVALID_PRT( cnt ) || INVALID_PIP( PrtList.lst[cnt].pip ) ) continue;
+                if ( INVALID_PRT( cnt ) || INVALID_PIP( PrtList.lst[cnt].pip_ref ) ) continue;
 
                 if ( PrtList.lst[cnt].pos.z < PITDEPTH && prt_get_ppip(cnt)->endwater )
                 {
@@ -2241,7 +2254,6 @@ void do_weather_spawn_particles()
 {
     // ZZ> This function drops snowflakes or rain or whatever, also swings the camera
     int particle, cnt;
-    float x, y, z;
     bool_t foundone;
 
     if ( weather.time > 0 )
@@ -2274,14 +2286,11 @@ void do_weather_spawn_particles()
                 if ( ChrList.lst[cnt].on && !ChrList.lst[cnt].pack_ispacked )
                 {
                     // Yes, so spawn over that character
-                    x = ChrList.lst[cnt].pos.x;
-                    y = ChrList.lst[cnt].pos.y;
-                    z = ChrList.lst[cnt].pos.z;
-                    particle = spawn_one_particle( x, y, z, 0, MAX_PROFILE, WEATHER4, MAX_CHR, GRIP_LAST, TEAM_NULL, MAX_CHR, 0, MAX_CHR );
+                    particle = spawn_one_particle( ChrList.lst[cnt].pos, 0, MAX_PROFILE, PIP_WEATHER4, MAX_CHR, GRIP_LAST, TEAM_NULL, MAX_CHR, TOTAL_MAX_PRT, 0, MAX_CHR );
 
                     if ( VALID_PRT(particle) )
                     {
-                        if ( __prthitawall( particle ) ) 
+                        if ( __prthitawall( particle ) )
                         {
                             PrtList_free_one( particle );
                         }
@@ -3882,6 +3891,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     int enchant, temp;
     float ax, ay, nx, ny, scale;  // For deflection
     Uint16 facing;
+    bool_t is_not_missile;
 
     float xa, ya, za, xb, yb, zb;
     float was_xa, was_ya, was_za, was_xb, was_yb, was_zb;
@@ -3909,15 +3919,15 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     if ( !VALID_PRT( iprt_b ) ) return bfalse;
     pprt_b = PrtList.lst + iprt_b;
 
-    ipip_b = pprt_b->pip;
+    ipip_b = pprt_b->pip_ref;
     if ( INVALID_PIP( ipip_b ) ) return bfalse;
     ppip_b = PipStack.lst + ipip_b;
 
     // do not collide with the thing that you're attached to
-    if ( ichr_a == pprt_b->attachedtocharacter ) return bfalse;
+    if ( ichr_a == pprt_b->attachedto_ref ) return bfalse;
 
     // if there's no friendly fire, particles issued by ichr_a can't hit it
-    if ( !ppip_b->friendlyfire && ichr_a == pprt_b->chr ) return bfalse;
+    if ( !ppip_b->friendlyfire && ichr_a == pprt_b->owner_ref ) return bfalse;
 
     xa = pchr_a->pos.x;
     ya = pchr_a->pos.y;
@@ -3951,7 +3961,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
 
     if ( !collide_x || !collide_y || !collide_xy || !collide_z ) return bfalse;
 
-    if ( pchr_a->platform && INVALID_CHR(pprt_b->attachedtocharacter) &&
+    if ( pchr_a->platform && INVALID_CHR(pprt_b->attachedto_ref) &&
             (zb > za + pchr_a->bump.height + pprt_b->vel.z) && (pprt_b->vel.z - pchr_a->vel.z < 0) )
     {
         // Particle is falling on A
@@ -3964,26 +3974,28 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     // Check reaffirmation of particles
     if ( pchr_a->reloadtime == 0 && pchr_a->damagetime == 0 )
     {
-        if ( ichr_a != pprt_b->attachedtocharacter && pchr_a->reaffirmdamagetype == pprt_b->damagetype )
+        if ( ichr_a != pprt_b->attachedto_ref && pchr_a->reaffirmdamagetype == pprt_b->damagetype )
         {
             reaffirm_attached_particles( ichr_a );
         }
     }
 
+    is_not_missile = pchr_a->missiletreatment == MISNORMAL            ||
+                     pprt_b->damage.base + pprt_b->damage.rand == 0   ||
+                     VALID_CHR(pprt_b->attachedto_ref)                ||
+                     ( pprt_b->owner_ref == ichr_a && !ppip_b->friendlyfire ) ||
+                     ( ChrList.lst[pchr_a->missilehandler].mana < ( pchr_a->missilecost << 8 ) && !ChrList.lst[pchr_a->missilehandler].canchannel );
+
     // Check for missile treatment
-    if (  pchr_a->missiletreatment == MISNORMAL            ||
-          pprt_b->damage.base+pprt_b->damage.rand == 0     ||
-          pprt_b->attachedtocharacter != MAX_CHR           ||
-        ( pprt_b->chr == ichr_a && !ppip_b->friendlyfire ) ||
-        ( ChrList.lst[pchr_a->missilehandler].mana < ( pchr_a->missilecost << 8 ) && !ChrList.lst[pchr_a->missilehandler].canchannel ) )
+    if ( is_not_missile  )
     {
-        if ( ( TeamList[pprt_b->team].hatesteam[pchr_a->team] || ( ppip_b->friendlyfire && ( ( ichr_a != pprt_b->chr && ichr_a != ChrList.lst[pprt_b->chr].attachedto ) || ppip_b->onlydamagefriendly ) ) ) && !pchr_a->invictus )
+        if ( ( TeamList[pprt_b->team].hatesteam[pchr_a->team] || ( ppip_b->friendlyfire && ( ( ichr_a != pprt_b->owner_ref && ichr_a != ChrList.lst[pprt_b->owner_ref].attachedto ) || ppip_b->onlydamagefriendly ) ) ) && !pchr_a->invictus )
         {
             spawn_bump_particles( ichr_a, iprt_b ); // Catch on fire
 
             if ( ( pprt_b->damage.base | pprt_b->damage.rand ) > 1 )
             {
-                if ( pchr_a->damagetime == 0 && pprt_b->attachedtocharacter != ichr_a && ( ppip_b->damfx&DAMFX_ARRO ) == 0 )
+                if ( pchr_a->damagetime == 0 && pprt_b->attachedto_ref != ichr_a && ( ppip_b->damfx&DAMFX_ARRO ) == 0 )
                 {
                     // Normal iprt_b damage
                     if ( ppip_b->allowpush && pchr_a->weight != 0xFFFFFFFF )
@@ -4015,7 +4027,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
                     while ( enchant != MAX_ENC )
                     {
                         temp = EncList.lst[enchant].nextenchant_ref;
-                        if ( enc_is_removed( enchant, pprt_b->iprofile ) )
+                        if ( enc_is_removed( enchant, pprt_b->profile_ref ) )
                         {
                             remove_enchant( enchant );
                         }
@@ -4042,7 +4054,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
                     if ( ppip_b->intdamagebonus )
                     {
                         float percent;
-                        percent = ( (FP8_TO_INT(ChrList.lst[pprt_b->chr].intelligence)) - 14 ) * 2;
+                        percent = ( (FP8_TO_INT(ChrList.lst[pprt_b->owner_ref].intelligence)) - 14 ) * 2;
                         percent /= 100;
                         pprt_b->damage.base *= 1.00f + percent;
                     }
@@ -4050,46 +4062,51 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
                     if ( ppip_b->wisdamagebonus )
                     {
                         float percent;
-                        percent = ( FP8_TO_INT(ChrList.lst[pprt_b->chr].wisdom) - 14 ) * 2;
+                        percent = ( FP8_TO_INT(ChrList.lst[pprt_b->owner_ref].wisdom) - 14 ) * 2;
                         percent /= 100;
                         pprt_b->damage.base *= 1.00f + percent;
                     }
 
                     // Damage the character
-                    if ( chr_has_vulnie( ichr_a, pprt_b->iprofile ) )
+                    if ( chr_has_vulnie( ichr_a, pprt_b->profile_ref ) )
                     {
                         IPair tmp_damage;
 
                         tmp_damage.base = (pprt_b->damage.base << 1);
                         tmp_damage.rand = (pprt_b->damage.rand << 1) | 1;
 
-                        damage_character( ichr_a, direction, tmp_damage, pprt_b->damagetype, pprt_b->team, pprt_b->chr, ppip_b->damfx, bfalse );
+                        damage_character( ichr_a, direction, tmp_damage, pprt_b->damagetype, pprt_b->team, pprt_b->owner_ref, ppip_b->damfx, bfalse );
                         pchr_a->ai.alert |= ALERTIF_HITVULNERABLE;
                     }
                     else
                     {
-                        damage_character( ichr_a, direction, pprt_b->damage, pprt_b->damagetype, pprt_b->team, pprt_b->chr, ppip_b->damfx, bfalse );
+                        damage_character( ichr_a, direction, pprt_b->damage, pprt_b->damagetype, pprt_b->team, pprt_b->owner_ref, ppip_b->damfx, bfalse );
                     }
 
                     // Notify the attacker of a scored hit
-                    if ( pprt_b->chr != MAX_CHR )
+                    if ( VALID_CHR(pprt_b->owner_ref) )
                     {
-                        chr_get_pai(pprt_b->chr)->alert |= ALERTIF_SCOREDAHIT;
-                        chr_get_pai(pprt_b->chr)->hitlast = ichr_a;
+                        Uint16 item;
+
+                        chr_get_pai(pprt_b->owner_ref)->alert |= ALERTIF_SCOREDAHIT;
+                        chr_get_pai(pprt_b->owner_ref)->hitlast = ichr_a;
 
                         //Tell the weapons who the attacker hit last
-                        if (ChrList.lst[pprt_b->chr].holdingwhich[SLOT_LEFT] != MAX_CHR)
+                        item = ChrList.lst[pprt_b->owner_ref].holdingwhich[SLOT_LEFT];
+                        if ( VALID_CHR(item) )
                         {
-                            ChrList.lst[ChrList.lst[pprt_b->chr].holdingwhich[SLOT_LEFT]].ai.hitlast = ichr_a;
+                            ChrList.lst[item].ai.hitlast = ichr_a;
                         }
-                        if (ChrList.lst[pprt_b->chr].holdingwhich[SLOT_LEFT] != MAX_CHR)
+
+                        item = ChrList.lst[pprt_b->owner_ref].holdingwhich[SLOT_RIGHT];
+                        if ( VALID_CHR(item) )
                         {
-                            ChrList.lst[ChrList.lst[pprt_b->chr].holdingwhich[SLOT_LEFT]].ai.hitlast = ichr_a;
+                            ChrList.lst[item].ai.hitlast = ichr_a;
                         }
                     }
                 }
 
-                if (  HAS_NO_BITS( frame_all, 31 ) && pprt_b->attachedtocharacter == ichr_a )
+                if (  HAS_NO_BITS( frame_all, 31 ) && pprt_b->attachedto_ref == ichr_a )
                 {
                     // Attached iprt_b damage ( Burning )
                     if ( ppip_b->xyvel_pair.base == 0 )
@@ -4099,7 +4116,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
                         pchr_a->phys.avel.y += -pchr_a->vel.y;
                     }
 
-                    damage_character( ichr_a, ATK_BEHIND, pprt_b->damage, pprt_b->damagetype, pprt_b->team, pprt_b->chr, ppip_b->damfx, bfalse );
+                    damage_character( ichr_a, ATK_BEHIND, pprt_b->damage, pprt_b->damagetype, pprt_b->team, pprt_b->owner_ref, ppip_b->damfx, bfalse );
                 }
             }
 
@@ -4146,9 +4163,9 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
             }
         }
     }
-    else if ( pprt_b->chr != ichr_a )
+    else if ( pprt_b->owner_ref != ichr_a )
     {
-        bool_t mana_paid = cost_mana( pchr_a->missilehandler, pchr_a->missilecost << 8, pprt_b->chr );
+        bool_t mana_paid = cost_mana( pchr_a->missilehandler, pchr_a->missilecost << 8, pprt_b->owner_ref );
 
         if ( mana_paid )
         {
@@ -4187,7 +4204,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
 
             // Change the owner of the missile
             pprt_b->team = pchr_a->team;
-            pprt_b->chr = ichr_a;
+            pprt_b->owner_ref = ichr_a;
             ppip_b->homing = bfalse;
 
             // Change the direction of the particle
@@ -4716,7 +4733,11 @@ bool_t chr_setup_apply( Uint16 ichr, spawn_file_info_t *pinfo )
 }
 
 //--------------------------------------------------------------------------------------------
-#if defined(__GNUC__)
+// gcc does not define this function on linux (at least not Ubuntu),
+// but it is defined under MinGW, which is yucky.
+// I actually had to spend like 45 minutes looking up the compiler flags
+// to catch this... good documentation, guys!
+#if defined(__GNUC__) && !(defined (__MINGW) || defined(__MINGW32__))
 int strlwr( char * str )
 {
     if( NULL == str ) return -1;
@@ -5041,7 +5062,7 @@ void disaffirm_attached_particles( Uint16 character )
 
     for ( particle = 0; particle < maxparticles; particle++ )
     {
-        if ( PrtList.lst[particle].on && PrtList.lst[particle].attachedtocharacter == character )
+        if ( PrtList.lst[particle].on && PrtList.lst[particle].attachedto_ref == character )
         {
             free_one_particle_in_game( particle );
         }
@@ -5060,7 +5081,7 @@ Uint16 number_of_attached_particles( Uint16 character )
 
     for ( particle = 0; particle < maxparticles; particle++ )
     {
-        if ( PrtList.lst[particle].on && PrtList.lst[particle].attachedtocharacter == character )
+        if ( PrtList.lst[particle].on && PrtList.lst[particle].attachedto_ref == character )
         {
             cnt++;
         }
@@ -5088,7 +5109,7 @@ void reaffirm_attached_particles( Uint16 character )
 
     while ( numberattached < pcap->attachedprt_amount )
     {
-        particle = spawn_one_particle( pchr->pos.x, pchr->pos.y, pchr->pos.z, 0, pchr->iprofile, pcap->attachedprt_pip, character, GRIP_LAST + numberattached, chr_get_iteam(character), character, numberattached, MAX_CHR );
+        particle = spawn_one_particle( pchr->pos, 0, pchr->iprofile, pcap->attachedprt_pip, character, GRIP_LAST + numberattached, chr_get_iteam(character), character, TOTAL_MAX_PRT, numberattached, MAX_CHR );
         if ( VALID_PRT(particle) )
         {
             attach_particle_to_character( particle, character, PrtList.lst[particle].vrt_off );
@@ -5271,22 +5292,20 @@ void attach_particles()
     //    drawn right
     int cnt;
 
-    cnt = 0;
-
-    while ( cnt < maxparticles )
+    for ( cnt = 0; cnt < maxparticles; cnt++ )
     {
-        if ( PrtList.lst[cnt].on && PrtList.lst[cnt].attachedtocharacter != MAX_CHR )
+        if ( !PrtList.lst[cnt].on ) continue;
+
+        if( VALID_CHR(PrtList.lst[cnt].attachedto_ref) )
         {
-            attach_particle_to_character( cnt, PrtList.lst[cnt].attachedtocharacter, PrtList.lst[cnt].vrt_off );
+            attach_particle_to_character( cnt, PrtList.lst[cnt].attachedto_ref, PrtList.lst[cnt].vrt_off );
 
             // Correct facing so swords knock characters in the right direction...
-            if ( prt_get_ppip(cnt)->damfx&DAMFX_TURN )
+            if ( prt_get_ppip(cnt)->damfx & DAMFX_TURN )
             {
-                PrtList.lst[cnt].facing = ChrList.lst[PrtList.lst[cnt].attachedtocharacter].turn_z;
+                PrtList.lst[cnt].facing = ChrList.lst[PrtList.lst[cnt].attachedto_ref].turn_z;
             }
         }
-
-        cnt++;
     }
 }
 

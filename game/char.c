@@ -2247,25 +2247,36 @@ void character_swipe( Uint16 cnt, slot_t slot )
             }
 
             // Spawn an attack particle
-            if ( pweapon_cap->attackprttype != -1 )
+            if ( pweapon_cap->attack_pip != -1 )
             {
-                particle = spawn_one_particle( pweapon->pos.x, pweapon->pos.y, pweapon->pos.z, pchr->turn_z, pweapon->iprofile, pweapon_cap->attackprttype, weapon, spawngrip, chr_get_iteam(cnt), cnt, 0, MAX_CHR );
+                particle = spawn_one_particle( pweapon->pos, pchr->turn_z, pweapon->iprofile, pweapon_cap->attack_pip, weapon, spawngrip, chr_get_iteam(cnt), cnt, TOTAL_MAX_PRT, 0, MAX_CHR );
+
                 if ( VALID_PRT(particle) )
                 {
                     prt_t * pprt = PrtList.lst + particle;
 
-                    if ( !pweapon_cap->attackattached )
+                    if ( pweapon_cap->attack_attached )
                     {
+                        // attached particles get a strength bonus for reeling...
+                        dampen = REELBASE + ( pchr->strength / REEL );
+
+                        pprt->vel.x *= dampen;
+                        pprt->vel.y *= dampen;
+                        pprt->vel.z *= dampen;
+                    }
+                    else
+                    {
+                        // NOT ATTACHED
+                        pprt->attachedto_ref = MAX_CHR;
+
                         // Detach the particle
-                        if ( !prt_get_ppip(particle)->startontarget || pprt->target == MAX_CHR )
+                        if ( !prt_get_ppip(particle)->startontarget || INVALID_CHR(pprt->target_ref) )
                         {
                             attach_particle_to_character( particle, weapon, spawngrip );
 
                             // Correct Z spacing base, but nothing else...
                             pprt->pos.z += prt_get_ppip(particle)->zspacing_pair.base;
                         }
-
-                        pprt->attachedtocharacter = MAX_CHR;
 
                         // Don't spawn in walls
                         if ( __prthitawall( particle ) )
@@ -2278,14 +2289,6 @@ void character_swipe( Uint16 cnt, slot_t slot )
                                 pprt->pos.y = pchr->pos.y;
                             }
                         }
-                    }
-                    else
-                    {
-                        // Attached particles get a strength bonus for reeling...
-                        dampen = REELBASE + ( pchr->strength / REEL );
-                        pprt->vel.x = pprt->vel.x * dampen;
-                        pprt->vel.y = pprt->vel.y * dampen;
-                        pprt->vel.z = pprt->vel.z * dampen;
                     }
 
                     // Initial particles get a strength bonus, which may be 0.00f
@@ -2325,22 +2328,22 @@ void drop_money( Uint16 character, Uint16 money )
 
         for ( cnt = 0; cnt < ones; cnt++ )
         {
-            spawn_one_particle( ChrList.lst[character].pos.x, ChrList.lst[character].pos.y,  ChrList.lst[character].pos.z, 0, MAX_PROFILE, COIN1, MAX_CHR, GRIP_LAST, TEAM_NULL, MAX_CHR, cnt, MAX_CHR );
+            spawn_one_particle( ChrList.lst[character].pos, 0, MAX_PROFILE, PIP_COIN1, MAX_CHR, GRIP_LAST, TEAM_NULL, MAX_CHR, TOTAL_MAX_PRT, cnt, MAX_CHR );
         }
 
         for ( cnt = 0; cnt < fives; cnt++ )
         {
-            spawn_one_particle( ChrList.lst[character].pos.x, ChrList.lst[character].pos.y,  ChrList.lst[character].pos.z, 0, MAX_PROFILE, COIN5, MAX_CHR, GRIP_LAST, TEAM_NULL, MAX_CHR, cnt, MAX_CHR );
+            spawn_one_particle( ChrList.lst[character].pos, 0, MAX_PROFILE, PIP_COIN5, MAX_CHR, GRIP_LAST, TEAM_NULL, MAX_CHR, TOTAL_MAX_PRT, cnt, MAX_CHR );
         }
 
         for ( cnt = 0; cnt < tfives; cnt++ )
         {
-            spawn_one_particle( ChrList.lst[character].pos.x, ChrList.lst[character].pos.y,  ChrList.lst[character].pos.z, 0, MAX_PROFILE, COIN25, MAX_CHR, GRIP_LAST, TEAM_NULL, MAX_CHR, cnt, MAX_CHR );
+            spawn_one_particle( ChrList.lst[character].pos, 0, MAX_PROFILE, PIP_COIN25, MAX_CHR, GRIP_LAST, TEAM_NULL, MAX_CHR, TOTAL_MAX_PRT, cnt, MAX_CHR );
         }
 
         for ( cnt = 0; cnt < huns; cnt++ )
         {
-            spawn_one_particle( ChrList.lst[character].pos.x, ChrList.lst[character].pos.y,  ChrList.lst[character].pos.z, 0, MAX_PROFILE, COIN100, MAX_CHR, GRIP_LAST, TEAM_NULL, MAX_CHR, cnt, MAX_CHR );
+            spawn_one_particle( ChrList.lst[character].pos, 0, MAX_PROFILE, PIP_COIN100, MAX_CHR, GRIP_LAST, TEAM_NULL, MAX_CHR, TOTAL_MAX_PRT, cnt, MAX_CHR );
         }
 
         ChrList.lst[character].damagetime = DAMAGETIME;  // So it doesn't grab it again
@@ -2842,19 +2845,19 @@ bool_t export_one_character_profile( const char *szSaveName, Uint16 character )
     vfs_printf( filewrite, "\n" );
 
     // Particle spawning on attack
-    fput_bool( filewrite, "Part on weapon : ", pcap->attackattached );
-    vfs_printf( filewrite, "Part type      : %d\n", pcap->attackprttype );
+    fput_bool( filewrite, "Part on weapon : ", pcap->attack_attached );
+    vfs_printf( filewrite, "Part type      : %d\n", pcap->attack_pip );
     vfs_printf( filewrite, "\n" );
 
     // Particle spawning for GoPoof
-    vfs_printf( filewrite, "Poof amount    : %d\n", pcap->gopoofprtamount );
-    vfs_printf( filewrite, "Facing add     : %d\n", pcap->gopoofprtfacingadd );
-    vfs_printf( filewrite, "Part type      : %d\n", pcap->gopoofprttype );
+    vfs_printf( filewrite, "Poof amount    : %d\n", pcap->gopoofprt_amount );
+    vfs_printf( filewrite, "Facing add     : %d\n", pcap->gopoofprt_facingadd );
+    vfs_printf( filewrite, "Part type      : %d\n", pcap->gopoofprt_pip );
     vfs_printf( filewrite, "\n" );
 
     // Particle spawning for blud
-    fput_bool( filewrite, "Blud valid     : ", pcap->bludvalid );
-    vfs_printf( filewrite, "Part type      : %d\n", pcap->bludprttype );
+    fput_bool( filewrite, "Blud valid     : ", pcap->blud_valid );
+    vfs_printf( filewrite, "Part type      : %d\n", pcap->blud_pip );
     vfs_printf( filewrite, "\n" );
 
     // Extra stuff
@@ -2903,7 +2906,7 @@ bool_t export_one_character_profile( const char *szSaveName, Uint16 character )
     if ( pcap->skindressy&8 )
         vfs_printf( filewrite, ":[DRES] 3\n" );
 
-    if ( pcap->resistbumpspawn )
+    if ( pcap->resistbumpspawn_ )
         vfs_printf( filewrite, ":[STUK] 0\n" );
 
     if ( pcap->istoobig )
@@ -3245,11 +3248,10 @@ void damage_character( Uint16 character, Uint16 direction,
                     if ( base_damage > HURTDAMAGE )
                     {
                         // Spawn blud particles
-                        if ( chr_get_pcap(character)->bludvalid && ( damagetype < DAMAGE_HOLY || chr_get_pcap(character)->bludvalid == ULTRABLUDY ) )
+                        if ( chr_get_pcap(character)->blud_valid && ( damagetype < DAMAGE_HOLY || chr_get_pcap(character)->blud_valid == ULTRABLUDY ) )
                         {
-                            spawn_one_particle( pchr->pos.x, pchr->pos.y, pchr->pos.z,
-                                                pchr->turn_z + direction, pchr->iprofile, chr_get_pcap(character)->bludprttype,
-                                                MAX_CHR, GRIP_LAST, pchr->team, character, 0, MAX_CHR );
+                            spawn_one_particle( pchr->pos, pchr->turn_z + direction, pchr->iprofile, chr_get_pcap(character)->blud_pip,
+                                                MAX_CHR, GRIP_LAST, pchr->team, character, TOTAL_MAX_PRT, 0, MAX_CHR );
                         }
 
                         // Set attack alert if it wasn't an accident
@@ -3398,7 +3400,7 @@ void damage_character( Uint16 character, Uint16 direction,
                 else
                 {
                     // Spawn a defend particle
-                    spawn_one_particle( pchr->pos.x, pchr->pos.y, pchr->pos.z, pchr->turn_z, MAX_PROFILE, DEFEND, MAX_CHR, GRIP_LAST, TEAM_NULL, MAX_CHR, 0, MAX_CHR );
+                    spawn_one_particle( pchr->pos, pchr->turn_z, MAX_PROFILE, PIP_DEFEND, MAX_CHR, GRIP_LAST, TEAM_NULL, MAX_CHR, TOTAL_MAX_PRT, 0, MAX_CHR );
                     pchr->damagetime    = DEFENDTIME;
                     pchr->ai.alert     |= ALERTIF_BLOCKED;
                     pchr->ai.attacklast = attacker;     // For the ones attacking a shield
@@ -3471,13 +3473,12 @@ void spawn_poof( Uint16 character, Uint16 profile )
 
     origin = pchr->ai.owner;
     sTmp = pchr->turn_z;
-    for ( iTmp = 0; iTmp < pcap->gopoofprtamount; iTmp++ )
+    for ( iTmp = 0; iTmp < pcap->gopoofprt_amount; iTmp++ )
     {
-        spawn_one_particle( pchr->pos_old.x, pchr->pos_old.y, pchr->pos_old.z,
-                            sTmp, profile, pcap->gopoofprttype,
-                            MAX_CHR, GRIP_LAST, pchr->team, origin, iTmp, MAX_CHR );
+        spawn_one_particle( pchr->pos_old, sTmp, profile, pcap->gopoofprt_pip,
+                            MAX_CHR, GRIP_LAST, pchr->team, origin, TOTAL_MAX_PRT, iTmp, MAX_CHR );
 
-        sTmp += pcap->gopoofprtfacingadd;
+        sTmp += pcap->gopoofprt_facingadd;
     }
 }
 
@@ -3972,9 +3973,8 @@ Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
     // Particle attachments
     for ( tnc = 0; tnc < pcap->attachedprt_amount; tnc++ )
     {
-        spawn_one_particle( pchr->pos.x, pchr->pos.y, pchr->pos.z,
-                            0, pchr->iprofile, pcap->attachedprt_pip,
-                            ichr, GRIP_LAST + tnc, pchr->team, ichr, tnc, MAX_CHR );
+        spawn_one_particle( pchr->pos, 0, pchr->iprofile, pcap->attachedprt_pip,
+                            ichr, GRIP_LAST + tnc, pchr->team, ichr, TOTAL_MAX_PRT, tnc, MAX_CHR );
     }
     pchr->reaffirmdamagetype = pcap->attachedprt_reaffirmdamagetype;
 
@@ -4133,7 +4133,7 @@ int chr_change_skin( Uint16 character, int skin )
     }
 
     return pchr->skin;
-};
+}
 
 //--------------------------------------------------------------------------------------------
 Uint16 change_armor( Uint16 character, Uint16 skin )
@@ -6365,9 +6365,7 @@ Uint16 chr_get_iteam(Uint16 ichr)
     if( INVALID_CHR(ichr) ) return TEAM_MAX;
     pchr = ChrList.lst + ichr;
 
-    if( pchr->team < 0 && pchr->team >= TEAM_MAX ) return TEAM_MAX;
-
-    return pchr->team;
+    return CLIP(pchr->team, 0, TEAM_MAX);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -6378,9 +6376,7 @@ Uint16 chr_get_iteam_base(Uint16 ichr)
     if( INVALID_CHR(ichr) ) return TEAM_MAX;
     pchr = ChrList.lst + ichr;
 
-    if( pchr->baseteam < 0 && pchr->baseteam >= TEAM_MAX ) return TEAM_MAX;
-
-    return pchr->baseteam;
+    return CLIP(pchr->baseteam, 0, TEAM_MAX);
 }
 
 //--------------------------------------------------------------------------------------------
