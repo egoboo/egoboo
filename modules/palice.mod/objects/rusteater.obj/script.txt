@@ -8,7 +8,7 @@ IfKilled
 IfSpawned
   tmpargument = 8  // sleeping
   SetState
-  //AddStat
+
 //------------------------------------------------------------------------------
 // ZZ> Shhh.... I'm sleeping
 IfStateIs8
@@ -101,6 +101,7 @@ IfScoredAHit
     IfTargetIsDressedUp
       tmpargument = rand % 512 + 512    //2-4 extra damage
       DamageTarget
+      EnchantTarget           //Make their armor less effective from now on
       
     SetTargetToOldTarget
 

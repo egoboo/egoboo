@@ -2205,10 +2205,6 @@ Uint8 scr_BecomeSpell( script_state_t * pstate, ai_state_t * pself )
     // content.
 
     // TOO COMPLICATED TO EXPLAIN...  SHOULDN'T EVER BE NEEDED BY YOU...
-
-    int iskin;
-    cap_t * pcap;
-
     SCRIPT_FUNCTION_BEGIN();
 
     // change the spellbook to a spell effect
@@ -7370,10 +7366,6 @@ Uint16 _get_chr_target( chr_t * pchr, Uint32 max_dist, TARGET_TYPE target_type, 
 {
     // ZF> This is the new improved AI targeting system. Also includes distance in the Z direction.
     //     If max_dist is 0 then it searches without a max limit.
-
-    int    irand;
-    Uint16 best_target;
-    Uint32 current_ticks;
     float max_dist2;
 
     ai_state_t * pself;
@@ -7422,7 +7414,7 @@ Uint16 _get_chr_target( chr_t * pchr, Uint32 max_dist, TARGET_TYPE target_type, 
     //    }
     //}
 
-    // return best_target;
+    //return best_target;
 }
 
 //--------------------------------------------------------------------------------------------

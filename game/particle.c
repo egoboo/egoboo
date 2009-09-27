@@ -876,7 +876,7 @@ void move_all_particles( void )
                 (hit_a_floor && pprt->vel.z < 0.0f) )
             {
                 float vdot;
-                GLvector3 vpara, vperp, imp;
+                GLvector3 vpara, vperp;
 
                 nrm = VNormalize( nrm );
 
@@ -1154,7 +1154,6 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
     int cnt;
     Sint16 x, y, z;
     Uint32 distance, bestdistance;
-    Uint16 frame;
     Uint16 facing, bestvertex;
     Uint16 amount;
     Uint16 vertices;

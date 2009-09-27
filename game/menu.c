@@ -1099,7 +1099,7 @@ bool_t doChoosePlayer_show_stats( int player, int mode, int x, int y, int width,
                         if ( pcap->nameknown ) strncpy(itemname, chop_create(icap), SDL_arraysize(itemname));
                         else                   strncpy(itemname, pcap->classname,   SDL_arraysize(itemname));
 
-                        icon_ref = mnu_get_icon_ref( icap, objects.tx_ref[i], btrue );
+                        icon_ref = mnu_get_icon_ref( icap, objects.tx_ref[i] );
 
                         draw_one_icon( icon_ref, x1, y1, NOSPARKLE );
 
@@ -4132,7 +4132,7 @@ void mnu_load_all_module_info()
 }
 
 //--------------------------------------------------------------------------------------------
-Uint32 mnu_get_icon_ref( Uint16 icap, Uint32 default_ref, bool_t draw_icon )
+Uint32 mnu_get_icon_ref( Uint16 icap, Uint32 default_ref )
 {
     // BB> This function gets the proper icon for a an object profile.
     //

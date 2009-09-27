@@ -117,7 +117,7 @@ Uint8 run_function_obsolete( script_state_t * pstate, ai_state_t * pself )
 
         case FIFTARGETKILLED:
             // Proceed only if the character's target has just died
-            returncode = ( 0 != ( pself->alert & ALERTIF_TARGETKILLED ) );
+			returncode = ( 0 != ( pself->alert & ALERTIF_TARGETKILLED ) || !ChrList.lst[pself->target].alive );
             break;
 
         case FCLEARWAYPOINTS:

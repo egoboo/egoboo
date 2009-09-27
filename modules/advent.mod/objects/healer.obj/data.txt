@@ -88,7 +88,7 @@ Experience for level 2 ( 400 )			: 400
 Experience for level 3 ( 800 )			: 800
 Experience for level 4 ( 1600 )			: 1600
 Experience for level 5 ( 3200 )			: 3200
-Starting experience ( eg. 0-500 )		: 800
+Starting experience ( eg. 0-500 )		: 940
 Experience worth for this object ( 10 )		: 30
 Experience exchange for this object ( 0.001 )	: 0.01
 Experience rate... Finding secret ( 0.0 )	: 0.0

@@ -194,6 +194,7 @@ Sound of Jump ( -1 for none )			: 1
 
 // Expansions
 :[DRES] 3
+:[DRES] 0
 :[READ] 1		//Literate
 :[AWEP] 1             //Advanced weapons profiency
 

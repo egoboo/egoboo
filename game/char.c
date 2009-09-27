@@ -2343,7 +2343,7 @@ void call_for_help( Uint16 character )
 
     for ( cnt = 0; cnt < MAX_CHR; cnt++ )
     {
-        if ( ACTIVE_CHR(cnt) && cnt != character && !team_hates_team(cnt,team) )
+        if ( ACTIVE_CHR(cnt) && cnt != character && !team_hates_team(ChrList.lst[cnt].team, team) )
         {
             chr_get_pai(cnt)->alert |= ALERTIF_CALLEDFORHELP;
         }
@@ -2470,7 +2470,7 @@ void give_experience( Uint16 character, int amount, Uint8 xptype, bool_t overrid
 {
     // ZZ> This function gives a character experience
 
-    int newamount;
+    float newamount;
 
     chr_t * pchr;
     cap_t * pcap;
@@ -3306,7 +3306,7 @@ void damage_character( Uint16 character, Uint16 direction,
                             if ( team == TEAM_NULL )  pchr->ai.target = character;
 
                             // Award direct kill experience
-                            if ( team_hates_team(attacker,pchr->team) )
+                            if ( team_hates_team( ChrList.lst[attacker].team, pchr->team ) )
                             {
                                 give_experience( attacker, experience, XP_KILLENEMY, bfalse );
                             }
@@ -3343,7 +3343,7 @@ void damage_character( Uint16 character, Uint16 direction,
                             }
 
                             // All allies get team experience, but only if they also hate the dead guy's team
-                            if ( !team_hates_team(tnc,team) && ( team_hates_team(tnc,pchr->team) ) )
+							if ( !team_hates_team(ChrList.lst[tnc].team,team) && ( team_hates_team(tnc,pchr->team) ) )
                             {
                                 give_experience( tnc, experience, XP_TEAMKILL, bfalse );
                             }
@@ -4116,8 +4116,6 @@ void respawn_character( Uint16 character )
 //--------------------------------------------------------------------------------------------
 int chr_change_skin( Uint16 character, int skin )
 {
-    Uint16 imad;
-
     chr_t * pchr;
     pro_t * ppro;
     mad_t * pmad;
@@ -6798,7 +6796,7 @@ chr_t  * team_get_pleader( Uint16 iteam )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t team_hates_team(Uint16 ipredator, Uint16 iprey)\
+bool_t team_hates_team(Uint16 ipredator, Uint16 iprey)
 {
     if( ipredator >= TEAM_MAX || iprey >= TEAM_MAX ) return bfalse;
 

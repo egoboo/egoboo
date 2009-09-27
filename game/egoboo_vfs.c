@@ -293,7 +293,7 @@ const char * vfs_resolveWriteFilename(const char * src_filename )
     }
 
     // append the write_dir to the src_filename to get the total path
-    snprintf( szFname, SDL_arraysize(szFname), "%s" SLASH_STR "%s", write_dir, src_filename );
+    snprintf( szFname, SDL_arraysize(szFname), "%s%s", write_dir, src_filename );
 
     // make sure that the slashes are correct for this system, and that they are not doubled
 

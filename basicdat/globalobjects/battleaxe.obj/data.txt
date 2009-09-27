@@ -1,4 +1,4 @@
-Slot number    : 32
+Slot number    : -1
 Class name     : Battle_Axe
 Uniform light  : FALSE
 Maximum ammo   : 0
@@ -102,7 +102,7 @@ Is stackable   : FALSE
 Name known     : FALSE
 Usage known    : TRUE
 Is exportable  : TRUE
-Requires skill : FALSE
+Requires skill : TRUE
 Is platform    : FALSE
 Collects money : FALSE
 Can open stuff : FALSE

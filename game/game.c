@@ -1052,7 +1052,7 @@ int do_ego_proc_begin( ego_process_t * eproc )
     vfs_init( eproc->argv0 );
 
     // Initialize logging next, so that we can use it everywhere.
-    log_init( vfs_resolveWriteFilename("debug/log.txt") );
+    log_init( vfs_resolveWriteFilename("log.txt") );
     log_setLoggingLevel( 2 );
 
     // start initializing the various subsystems
@@ -2467,10 +2467,10 @@ void check_stats()
     // !!!BAD!!!  XP CHEAT
     if ( cfg.dev_mode && SDLKEYDOWN( SDLK_x ) )
     {
-        if ( SDLKEYDOWN( SDLK_1 ) && ACTIVE_CHR(PlaList[0].index) )  { pla_get_pchr(0)->experience += 25; stat_check_delay = 1; }
-        if ( SDLKEYDOWN( SDLK_2 ) && ACTIVE_CHR(PlaList[1].index) )  { pla_get_pchr(1)->experience += 25; stat_check_delay = 1; }
-        if ( SDLKEYDOWN( SDLK_3 ) && ACTIVE_CHR(PlaList[2].index) )  { pla_get_pchr(2)->experience += 25; stat_check_delay = 1; }
-        if ( SDLKEYDOWN( SDLK_4 ) && ACTIVE_CHR(PlaList[3].index) )  { pla_get_pchr(3)->experience += 25; stat_check_delay = 1; }
+        if ( SDLKEYDOWN( SDLK_1 ) && ACTIVE_CHR(PlaList[0].index) )  { pla_get_pchr(0)->experience = ((float)pla_get_pchr(0)->experience+10)*1.10f; stat_check_delay = 1; }
+        if ( SDLKEYDOWN( SDLK_2 ) && ACTIVE_CHR(PlaList[1].index) )  { pla_get_pchr(1)->experience = ((float)pla_get_pchr(1)->experience+10)*1.10f; stat_check_delay = 1; }
+        if ( SDLKEYDOWN( SDLK_3 ) && ACTIVE_CHR(PlaList[2].index) )  { pla_get_pchr(2)->experience = ((float)pla_get_pchr(2)->experience+10)*1.10f; stat_check_delay = 1; }
+        if ( SDLKEYDOWN( SDLK_4 ) && ACTIVE_CHR(PlaList[3].index) )  { pla_get_pchr(3)->experience = ((float)pla_get_pchr(3)->experience+10)*1.10f; stat_check_delay = 1; }
 
     }
 

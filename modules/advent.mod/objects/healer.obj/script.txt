@@ -19,17 +19,25 @@ IfKilled				// This reduces the height of the char
   DropMoney				  //
   tmpargument = 45			  //
   SetBumpHeight				  //
-
-IfCalledForHelp				// Help others
-  SetTargetToWhoeverCalledForHelp	  //
-    IfTargetIsAlive			    // Go heal 'em
-      tmpargument = 2			      //
-      SetState				      // State 2 ( Helper )
-    Else				    // Too late
-      SetTargetToOldTarget		      //
+      
 IfTimeOut				// This is done every so often
-  
-  IfStateIs2				  // State 2 ( Helper )
+  tmpargument = rand & 15 + 15		  // Try again later
+  SetTime				  //
+
+  //Find someone to heal
+  tmpargument = 2
+  IfStateIsNot
+    SetTargetToNearestFriend
+    IfTargetIsHurt
+      tmpx = targetdistance
+      tmpy = 400
+      IfXIsLessThanY
+        tmpargument = 2
+        SetState
+
+  // State 2 ( Helper )
+  IfStateIs2
+    SetTargetToNearestFriend
     IfTargetIsHurt			    // Heal wounded
       tmpx = targetdistance		      //
       tmpy = 300			      //
@@ -40,99 +48,122 @@ IfTimeOut				// This is done every so often
           IfFacingTarget
             tmpargument = LATCHLEFT	          // Left Attack == 1
             PressLatchButton		          //
-        Else					// Do something else
-          tmpargument = 0		          //
-          SetState			          //
-    Else				    // Switch to follow
-      tmpargument = 0			      //
-      SetState				      //
+        Else					        //Not enough mana, do something else
+          tmpargument = 0
+          SetState
+    Else				    
+      tmpargument = 0     // Switch to follow
+      SetState				      //    
+
+    //move towards target
     tmpx = targetx			    //
     tmpy = targety			    //
-  Else					  // Find someone to bash
-    tmpx = leaderdistance
-    tmpy = 128*6
-    IfXIsMoreThanY
-      SetTargetToNearbyEnemy		    //
-        tmpargument = 1			      //
-        SetState				      //
+    ClearWaypoints			  //
+    AddWaypoint				  //
 
-  IfStateIs0				  // State 0 ( Follow )
-    tmpargument = 100
-    SetSpeedPercent
-    tmpx = leaderdistance
-    tmpy = 700
-    IfXIsMoreThanY
-      tmpdistance = 133        //Catch up fast!
-      SetSpeedPercent
-    tmpdistance = 100         //Walk normal
-    tmpx = leaderx			    //
-    tmpy = leadery			    //
-    tmpturn = 49152 + leaderturn	    // Stand to side
-    Compass
+  // State 0 ( Follow )
+  IfStateIs0				  
+    //Find someone to bash
+    SetTargetToWideEnemy
+      tmpargument = 1
+      SetState
+    Else    
+      //Follow the player
+      tmpx = leaderdistance
+      tmpy = 128*6
+      IfXIsMoreThanY
+        tmpargument = 133        //Catch up fast!
+        SetSpeedPercent
+      Else
+        tmpargument = 100
+        SetSpeedPercent
+      tmpdistance = 100         //Walk normal
+      tmpx = leaderx			    //
+      tmpy = leadery			    //
+      tmpturn = 49152 + leaderturn	    // Stand to side
+      Compass
+      ClearWaypoints			  //
+      AddWaypoint				  //
 
-  IfStateIs1				  // State 1 ( Combat )
-    tmpx = targetdistance		    // Close enough to attack?
-    tmpy = 200				    //
-    IfXIsLessThanY			    //
-      tmpargument = LATCHRIGHT		      // Right Attack == 2
-      PressLatchButton			      //
-    tmpy = 700
-    IfXIsMoreThanY
-      tmpargument = 0
-      SetState
-    tmpx = leaderdistance
-    IfXIsMoreThanY
-      tmpargument = 0
-      SetState
-    tmpx = targetx			    // Move towards enemy
-    tmpy = targety			    //
-    tmpturn = targetturnto		    //
-    tmpargument = [CUBE]
-    IfTargetHasID
-      tmpdistance = 0 - 250     //Keep away from the gelfeet
+  // State 1 ( Combat )
+  IfStateIs1				  
+    SetTargetToNearbyEnemy		    //
+      tmpx = targetdistance		    // Close enough to attack?
+      tmpy = 250				    //
+      IfXIsLessThanY			    //
+        IfFacingTarget
+          tmpargument = LATCHRIGHT		      // Right Attack == 2
+          PressLatchButton			      //
+      
+      //Retreat if leader is running and not in combat
+      tmpx = leaderdistance
+      tmpy = 128*6
+      IfXIsMoreThanY
+        tmpx = targetdistance
+        tmpy = 250
+        IfXIsLessThanY
+          tmpargument = 0
+          SetState
+      
+      //Move towards enemy
+      tmpargument = [CUBE]
+      IfTargetHasID
+        tmpdistance = -250     //Keep away from the gelfeet
+      Else
+        tmpdistance = -50			//Else move in to attack
+      
+      tmpx = targetx			    
+      tmpy = targety			    
+      tmpturn = targetturnto		    //
+      Compass				    
+      ClearWaypoints			  //
+      AddWaypoint
+    
+    //No enemies around, return to wander
     Else
-      tmpdistance = 200			//Else move in to attack
-    Compass				    //
-  ClearWaypoints			  //
-  AddWaypoint				  //
-  tmpargument = rand & 15 + 15		  // Try again later
-  SetTime				  //
-
+      tmpargument = 0
+      SetState
+      
 IfAttacked				// Counter attack if not healing
-  tmpargument = 0			  //
-  IfStateIs				  //
-    SetTargetToWhoeverAttacked		    //
-      IfTargetIsAlive			      //
-        IfTargetIsOnHatedTeam		        // Go get 'em
-          tmpargument = 1		          //
-          SetState			          //
-          tmpargument = rand & 1 + 2
-          PlaySound
-        IfTargetIsOnSameTeam		        // Yell at 'em
-          tmpargument = MESSAGEOUCH	          //
-          SendMessageNear		          //
-          SetTargetToOldTarget		          //
-          tmpargument = 4
-          tmpdistance = rand & 1023 + 11000
-          PlaySound
-      Else				      // Attacker dead already
-        SetTargetToOldTarget		        //
+  SetTargetToWhoeverAttacked		    //
+    IfTargetIsAlive			      //
+      IfTargetIsOnHatedTeam		        // Go get 'em
+        tmpargument = 1		          //
+        SetState			          //
+        tmpargument = rand & 1 + 2
+        PlaySound
+      IfTargetIsOnSameTeam		        // Yell at 'em
+        tmpargument = MESSAGEOUCH	          //
+        SendMessageNear		          //
+        SetTargetToOldTarget		          //
+        tmpargument = 4
+        PlaySound
+    Else				      // Attacker dead already
+      SetTargetToOldTarget		        //  
+
 IfBumped				// Bumped
   SetTargetToWhoeverBumped		  //
-  IfTargetIsHurt			  //
-    IfTargetIsOnOtherTeam		    // Revert
-      SetTargetToOldTarget		      //
-    Else				    // Heal 'em
+  
+  // Heal 'em
+  IfTargetIsOnSameTeam
+    IfTargetIsHurt			  
       tmpargument = 2			      // State 2 ( Helper )
       SetState				      //
-  Else					  // Revert
-    SetTargetToOldTarget		    //
-  tmpx = rand&511+selfx-256		  //
-  tmpy = rand&511+selfy-256		  //
+  
+  //Bash 'em
+  IfTargetIsOnHatedTeam
+    IfFacingTarget
+      tmpargument = LATCHRIGHT		      // Right Attack == 2
+      PressLatchButton			      //
+      
+  SetTargetToOldTarget		    //
+  tmpx = rand & 511 + selfx - 256		  //
+  tmpy = rand & 511 + selfy - 256		  //
   ClearWaypoints			  //
   AddWaypoint				  //
   tmpargument = 40			  // Try again soon
   SetTime				  //
+
 IfTargetKilled				// Mode switch
   tmpargument = 0			  // Return to follow mode
   SetState				  //
@@ -140,7 +171,6 @@ IfTargetKilled				// Mode switch
 // Heal sound and effect
 IfUsed
   tmpargument = 0
-  tmpdistance = 11025
   PlayFullSound
   tmpargument = 50
   SetReloadTime

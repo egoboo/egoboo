@@ -9,11 +9,10 @@ IfOrdered
     SetContent
     
 //Update timer
-GetContent
-tmpx = tmpargument
+tmpx = selfcontent
 tmpy = 0
 IfXIsMoreThanY
-  tmpargument = tmpargument -1
+  tmpargument = selfcontent -1
   SetContent
 
 // ZZ> This item is goes away when picked up, Runs end conditions
@@ -25,6 +24,7 @@ IfTimeOut
   SpawnPoof
   tmpargument = 10
   SetTime
+  
 IfGrabbed
   EnableExport
   BeatModule
@@ -34,8 +34,7 @@ IfGrabbed
 
   //Check if they made it within the time limit!
   IfStateIs1
-    GetContent
-    tmpx = tmpargument
+    tmpx = selfcontent
     tmpy = 0
     IfXIsMoreThanY    
       tmpargument = 100

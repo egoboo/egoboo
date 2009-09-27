@@ -1,0 +1,8 @@
+Message 0: Yum!_Tasty!_(You_eat_some_of_the_meat.)
+Message 1: There_is_nothing_left!
+Message 2: %t_is_not_hungry_right_now...
+
+
+
+
+
