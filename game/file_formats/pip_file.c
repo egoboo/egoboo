@@ -70,7 +70,7 @@ void pip_init( pip_t * ppip )
     /* ppip->wisdamagebonus = bfalse; */
 
     ppip->orientation = ORIENTATION_B;  // make the orientation the normal billboarded orientation
-    ppip->type        = PRTSOLIDSPRITE;
+    ppip->type        = SPRITE_LIGHT;
 
 }
 
@@ -99,9 +99,9 @@ pip_t * load_one_pip_file( const char *szLoadName, pip_t * ppip )
     ppip->force = fget_next_bool( fileread );
 
     cTmp = fget_next_char( fileread );
-         if ( 'L' == toupper(cTmp) )  ppip->type = PRTLIGHTSPRITE;
-    else if ( 'S' == toupper(cTmp) )  ppip->type = PRTSOLIDSPRITE;
-    else if ( 'T' == toupper(cTmp) )  ppip->type = PRTALPHASPRITE;
+         if ( 'L' == toupper(cTmp) )  ppip->type = SPRITE_LIGHT;
+    else if ( 'S' == toupper(cTmp) )  ppip->type = SPRITE_LIGHT;
+    else if ( 'T' == toupper(cTmp) )  ppip->type = SPRITE_ALPHA;
 
     ppip->imagebase = fget_next_int( fileread );
     ppip->numframes = fget_next_int( fileread );

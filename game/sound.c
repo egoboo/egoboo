@@ -583,7 +583,7 @@ int sound_play_chunk_looped( GLvector3 pos, Mix_Chunk * pchunk, Sint8 loops, Uin
         {
             if (cfg.dev_mode)
             {
-                //log_warning( "Unable to play sound. (%s)\n", Mix_GetError() );
+                log_warning( "Unable to play sound. (%s)\n", Mix_GetError() );
             }
         }
         else
@@ -968,7 +968,7 @@ int LoopedList_add( Mix_Chunk * sound, int channel, Uint16 ichr )
 
     int index;
 
-    if ( NULL == sound || INVALID_SOUND == channel || INVALID_CHR(ichr) ) return LOOPED_COUNT;
+    if ( NULL == sound || INVALID_SOUND == channel || INACTIVE_CHR(ichr) ) return LOOPED_COUNT;
 
     if ( LoopedList.used_count >= LOOPED_COUNT ) return -1;
     if ( !LoopedList_validate() ) return -1;
@@ -1043,7 +1043,7 @@ void looped_update_all_sound()
         if ( -1 == LoopedList.lst[index].channel   ) continue;
         plooped = LoopedList.lst + index;
 
-        if ( INVALID_CHR( plooped->object ) )
+        if ( INACTIVE_CHR( plooped->object ) )
         {
             // not a valid object
             GLvector3 diff = VECT3(0, 0, 0);

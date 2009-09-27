@@ -399,3 +399,6 @@ bool_t game_module_start( game_module_t * pinst );
 bool_t game_module_stop ( game_module_t * pinst );
 
 bool_t check_target( struct s_chr * psrc, Uint16 ichr_test, TARGET_TYPE target_type, bool_t target_items, bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz );
+
+void do_weather_spawn_particles();
+void attach_particles();

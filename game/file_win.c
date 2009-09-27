@@ -132,7 +132,7 @@ int fs_fileIsDirectory( const char *filename )
 {
     // Returns 1 if this filename is a directory
     DWORD fileAttrs;
-	if( NULL == filename ) return bfalse;
+    if( NULL == filename ) return bfalse;
 
     fileAttrs = GetFileAttributes( filename );
     fileAttrs = fileAttrs & FILE_ATTRIBUTE_DIRECTORY;

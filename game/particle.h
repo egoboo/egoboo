@@ -124,8 +124,7 @@ struct s_prt
     Uint16  imagemax;                        // End of image loop
     Uint16  imagestt;                        // Start of image loop
 
-    Uint32  time;                           // Duration of particle
-    bool_t  poofme;                          // end this particle for being out of time
+    int     time;                            // Duration of particle
     Uint16  spawntime;                       // Time until spawn
 
     Uint32  bumpsize;                        // Size of bumpers
@@ -141,6 +140,9 @@ struct s_prt
     bool_t  is_eternal;
 
     prt_instance_t inst;
+
+    bool_t is_bumpspawn;                      // this particle is like a flame, burning something
+    bool_t inwater;
 };
 typedef struct s_prt prt_t;
 
@@ -152,8 +154,9 @@ extern Uint16           maxparticles;                              // max number
 DEFINE_LIST_EXTERN(prt_t, PrtList, TOTAL_MAX_PRT);
 
 #define VALID_PRT_RANGE( IPRT ) ( ((IPRT) >= 0) && ((IPRT) < maxparticles) && ((IPRT) < TOTAL_MAX_PRT) )
-#define VALID_PRT( IPRT )       ( VALID_PRT_RANGE( IPRT ) && PrtList.lst[IPRT].on )
-#define INVALID_PRT( IPRT )     ( !VALID_PRT_RANGE( IPRT ) || !PrtList.lst[IPRT].on )
+#define ALLOCATED_PRT( IPRT )   ( VALID_PRT_RANGE( IPRT ) && PrtList.lst[IPRT].allocated )
+#define ACTIVE_PRT( IPRT )       ( ALLOCATED_PRT( IPRT ) && PrtList.lst[IPRT].active )
+#define INACTIVE_PRT( IPRT )     ( !ALLOCATED_PRT( IPRT ) || !PrtList.lst[IPRT].active )
 
 //--------------------------------------------------------------------------------------------
 // function prototypes
@@ -163,12 +166,14 @@ void   release_all_pip();
 bool_t release_one_pip( Uint16 ipip );
 
 bool_t PrtList_free_one( Uint16 particle );
+void   PrtList_free_all();
 void   free_one_particle_in_game( Uint16 particle );
 
-void move_particles( void );
-void PrtList_free_all();
-
 void setup_particles();
+
+void update_all_particles( void );
+void move_all_particles( void );
+void cleanup_all_particles( void );
 
 void play_particle_sound( Uint16 particle, Sint8 sound );
 int get_free_particle( int force );
@@ -189,3 +194,6 @@ bool_t release_one_pip( Uint16 ipip );
 
 Uint16  prt_get_ipip( Uint16 cnt );
 pip_t * prt_get_ppip( Uint16 cnt );
+
+
+bool_t prt_request_terminate( Uint16 iprt );

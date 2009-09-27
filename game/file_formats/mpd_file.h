@@ -54,7 +54,7 @@ enum e_mpd_fx
     MPDFX_REF             =       0,     // NOT USED
                                          // Egoboo v1.0 : "0 This tile is drawn 1st"
 
-    MPDFX_SHA             = (1 << 0),    // 0 == (val & MPDFX_SHA) means that the tile is reflected in the floors 
+    MPDFX_SHA             = (1 << 0),    // 0 == (val & MPDFX_SHA) means that the tile is reflected in the floors
                                          // Egoboo v1.0: "0 This tile is drawn 2nd"
                                          // aicodes.txt : FXNOREFLECT
 

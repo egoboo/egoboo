@@ -807,7 +807,7 @@ void do_chr_flashing()
     {
         Uint16 ichr = dolist[i].ichr;
 
-        if ( INVALID_CHR(ichr) ) continue;
+        if ( INACTIVE_CHR(ichr) ) continue;
 
         // Do flashing
         if ( HAS_NO_BITS( frame_all, ChrList.lst[ichr].flashand ) && ChrList.lst[ichr].flashand != DONTFLASH )
@@ -1184,7 +1184,7 @@ void render_shadow( Uint16 character )
     float alpha, alpha_umbra, alpha_penumbra;
     chr_t * pchr;
 
-    if ( character >= MAX_CHR || !ChrList.lst[character].on || ChrList.lst[character].pack_ispacked ) return;
+    if ( character >= MAX_CHR || INACTIVE_CHR(character) || ChrList.lst[character].pack_ispacked ) return;
     pchr = ChrList.lst + character;
 
     // if the character is hidden, not drawn at all, so no shadow
@@ -1305,7 +1305,7 @@ void render_bad_shadow( Uint16 character )
     float level, height, height_factor, alpha;
     chr_t * pchr;
 
-    if ( character >= MAX_CHR || !ChrList.lst[character].on || ChrList.lst[character].pack_ispacked ) return;
+    if ( character >= MAX_CHR || INACTIVE_CHR(character) || ChrList.lst[character].pack_ispacked ) return;
     pchr = ChrList.lst + character;
 
     // if the character is hidden, not drawn at all, so no shadow
@@ -1458,12 +1458,12 @@ void light_particles( ego_mpd_t * pmesh )
         prt_t * pprt;
         prt_instance_t * pinst;
 
-        if ( !PrtList.lst[iprt].on ) continue;
+        if ( INACTIVE_PRT(iprt) ) continue;
         pprt = PrtList.lst + iprt;
         pinst = &(pprt->inst);
 
         pprt->inst.light = 0;
-        if ( VALID_CHR( pprt->attachedto_ref ) )
+        if ( ACTIVE_CHR( pprt->attachedto_ref ) )
         {
             chr_t * pchr = ChrList.lst + pprt->attachedto_ref;
             Uint16  imad = chr_get_imad(pprt->attachedto_ref);
@@ -1857,7 +1857,7 @@ void render_scene_mesh( renderlist_t * prlist )
         {
             tnc = dolist[cnt].ichr;
 
-            if ( TOTAL_MAX_PRT == dolist[cnt].iprt && VALID_CHR( dolist[cnt].ichr ) )
+            if ( TOTAL_MAX_PRT == dolist[cnt].iprt && ACTIVE_CHR( dolist[cnt].ichr ) )
             {
                 Uint32 itile;
 
@@ -1875,7 +1875,7 @@ void render_scene_mesh( renderlist_t * prlist )
                     render_one_mad_ref( tnc, 255 );
                 }
             }
-            else if ( MAX_CHR == dolist[cnt].ichr && VALID_PRT( dolist[cnt].iprt ) )
+            else if ( MAX_CHR == dolist[cnt].ichr && ACTIVE_PRT( dolist[cnt].iprt ) )
             {
                 Uint32 itile;
                 tnc = dolist[cnt].iprt;
@@ -1994,7 +1994,7 @@ void render_scene_solid()
                 render_one_mad( dolist[cnt].ichr, 255 );
             }
         }
-        else if ( MAX_CHR == dolist[cnt].ichr && VALID_PRT( dolist[cnt].iprt ) )
+        else if ( MAX_CHR == dolist[cnt].ichr && ACTIVE_PRT( dolist[cnt].iprt ) )
         {
             GL_DEBUG(glDisable)( GL_CULL_FACE );
 
@@ -2053,7 +2053,7 @@ void render_scene_trans()
     // Now render all transparent and light objects
     for ( cnt = dolist_count - 1; cnt >= 0; cnt-- )
     {
-        if ( TOTAL_MAX_PRT == dolist[cnt].iprt && VALID_CHR( dolist[cnt].ichr ) )
+        if ( TOTAL_MAX_PRT == dolist[cnt].iprt && ACTIVE_CHR( dolist[cnt].ichr ) )
         {
             Uint16  ichr = dolist[cnt].ichr;
             chr_t * pchr = ChrList.lst + ichr;
@@ -2108,7 +2108,7 @@ void render_scene_trans()
                 pinst->enviro  = save_enviro;
             }
         }
-        else if ( MAX_CHR == dolist[cnt].ichr && VALID_PRT( dolist[cnt].iprt ) )
+        else if ( MAX_CHR == dolist[cnt].ichr && ACTIVE_PRT( dolist[cnt].iprt ) )
         {
             render_one_prt_trans( dolist[cnt].iprt );
         }
@@ -2738,7 +2738,7 @@ void draw_one_character_icon( Uint16 item, int x, int y, bool_t draw_ammo )
     Uint32 icon_ref;
     bool_t draw_sparkle;
 
-    chr_t * pitem = INVALID_CHR( item ) ? NULL : ChrList.lst + item;
+    chr_t * pitem = INACTIVE_CHR( item ) ? NULL : ChrList.lst + item;
 
     // grab the icon reference
     icon_ref = chr_get_icon_ref( item );
@@ -2769,7 +2769,7 @@ int draw_character_xp_bar( Uint16 character, int x, int y )
     chr_t * pchr;
     cap_t * pcap;
 
-    if( INVALID_CHR( character ) ) return y;
+    if( INACTIVE_CHR( character ) ) return y;
     pchr = ChrList.lst + character;
 
     pcap = pro_get_pcap( pchr->iprofile );
@@ -2807,7 +2807,7 @@ int draw_status( Uint16 character, int x, int y )
     chr_t * pchr;
     cap_t * pcap;
 
-    if( INVALID_CHR(character) ) return y;
+    if( INACTIVE_CHR(character) ) return y;
     pchr = ChrList.lst + character;
 
     pcap = chr_get_pcap( character );
@@ -2923,7 +2923,7 @@ void draw_map()
                 chr_t * pchr;
                 cap_t * pcap;
 
-                if ( !ChrList.lst[iTmp].on ) continue;
+                if ( INACTIVE_CHR(iTmp) ) continue;
                 pchr = ChrList.lst + iTmp;
 
                 pcap = chr_get_pcap(iTmp);
@@ -2968,7 +2968,7 @@ void draw_map()
                 if ( INPUT_BITS_NONE != PlaList[cnt].device.bits )
                 {
                     tnc = PlaList[cnt].index;
-                    if ( VALID_CHR(tnc) && ChrList.lst[tnc].alive )
+                    if ( ACTIVE_CHR(tnc) && ChrList.lst[tnc].alive )
                     {
                         draw_blip( 0.75f, COLOR_WHITE, GET_MAP_X(PMesh, ChrList.lst[tnc].pos.x), GET_MAP_Y(PMesh, ChrList.lst[tnc].pos.y));
                     }
@@ -3314,6 +3314,7 @@ void _flip_pages()
 {
     GL_DEBUG(glFlush)();
 
+    // draw the console on top of everything
     egoboo_console_draw_all();
 
     frame_all++;
@@ -3620,14 +3621,14 @@ bool_t dump_screenshot()
 #endif
                                    );
 
-		if ( temp == NULL )
-		{
-			//Something went wrong
-			SDL_FreeSurface( temp );
-        	return bfalse;
-		}
+        if ( temp == NULL )
+        {
+            //Something went wrong
+            SDL_FreeSurface( temp );
+            return bfalse;
+        }
 
-		//Now lock the surface so that we can read it
+        //Now lock the surface so that we can read it
         if ( -1 != SDL_LockSurface( temp ) )
         {
             SDL_Rect rect;
@@ -4008,7 +4009,7 @@ void make_dynalist( camera_t * pcam )
     for ( cnt = 0; cnt < maxparticles; cnt++ )
     {
         PrtList.lst[cnt].inview = bfalse;
-        if ( !PrtList.lst[cnt].on ) continue;
+        if ( INACTIVE_PRT(cnt) ) continue;
 
         if ( !VALID_TILE(PMesh, PrtList.lst[cnt].onwhichfan) ) continue;
 
@@ -4087,7 +4088,7 @@ bool_t dolist_add_chr( ego_mpd_t * pmesh, Uint16 ichr )
 
     if ( dolist_count >= DOLIST_SIZE ) return bfalse;
 
-    if ( INVALID_CHR(ichr) ) return bfalse;
+    if ( INACTIVE_CHR(ichr) ) return bfalse;
     pchr  = ChrList.lst + ichr;
     pinst = &(pchr->inst);
 
@@ -4138,7 +4139,7 @@ bool_t dolist_add_prt( ego_mpd_t * pmesh, Uint16 iprt )
 
     if ( dolist_count >= DOLIST_SIZE ) return bfalse;
 
-    if ( INVALID_PRT(iprt) ) return bfalse;
+    if ( INACTIVE_PRT(iprt) ) return bfalse;
     pprt = PrtList.lst + iprt;
     pinst = &(pprt->inst);
 
@@ -4179,7 +4180,7 @@ void dolist_make( ego_mpd_t * pmesh )
     // Now fill it up again
     for ( cnt = 0; cnt < MAX_CHR; cnt++ )
     {
-        if ( ChrList.lst[cnt].on && !ChrList.lst[cnt].pack_ispacked )
+        if ( ACTIVE_CHR(cnt) && !ChrList.lst[cnt].pack_ispacked )
         {
             // Add the character
             dolist_add_chr( pmesh, cnt );
@@ -4188,7 +4189,7 @@ void dolist_make( ego_mpd_t * pmesh )
 
     for ( cnt = 0; cnt < maxparticles; cnt++ )
     {
-        if ( PrtList.lst[cnt].on && VALID_TILE(pmesh, PrtList.lst[cnt].onwhichfan) )
+        if ( ACTIVE_PRT(cnt) && VALID_TILE(pmesh, PrtList.lst[cnt].onwhichfan) )
         {
             // Add the character
             dolist_add_prt( pmesh, cnt );
@@ -4216,12 +4217,12 @@ void dolist_sort( camera_t * pcam )
         GLvector3 vtmp;
         float dist;
 
-        if ( TOTAL_MAX_PRT == dolist[cnt].iprt && VALID_CHR(dolist[cnt].ichr) )
+        if ( TOTAL_MAX_PRT == dolist[cnt].iprt && ACTIVE_CHR(dolist[cnt].ichr) )
         {
             tnc = dolist[cnt].ichr;
             vtmp = VSub( ChrList.lst[tnc].pos, pcam->pos );
         }
-        else if ( MAX_CHR == dolist[cnt].ichr && VALID_PRT(dolist[cnt].iprt) )
+        else if ( MAX_CHR == dolist[cnt].ichr && ACTIVE_PRT(dolist[cnt].iprt) )
         {
             tnc = dolist[cnt].iprt;
             vtmp = VSub( PrtList.lst[tnc].pos, pcam->pos );
@@ -4708,7 +4709,7 @@ bool_t billboard_data_update( billboard_data_t * pbb )
 
     if ( NULL == pbb || !pbb->valid ) return bfalse;
 
-    if ( INVALID_CHR(pbb->ichr) ) return bfalse;
+    if ( INACTIVE_CHR(pbb->ichr) ) return bfalse;
     pchr = ChrList.lst + pbb->ichr;
 
     // determine where the new position should be
@@ -4816,7 +4817,7 @@ void BillboardList_update_all()
             is_invalid = btrue;
         }
 
-        if( INVALID_CHR(pbb->ichr) || VALID_CHR(ChrList.lst[pbb->ichr].attachedto) )
+        if( INACTIVE_CHR(pbb->ichr) || ACTIVE_CHR(ChrList.lst[pbb->ichr].attachedto) )
         {
             is_invalid = btrue;
         }
@@ -4826,7 +4827,7 @@ void BillboardList_update_all()
             // the billboard has expired
 
             // unlink it from the character
-            if ( VALID_CHR(pbb->ichr) )
+            if ( ACTIVE_CHR(pbb->ichr) )
             {
                 ChrList.lst[pbb->ichr].ibillboard = INVALID_BILLBOARD;
             }
@@ -4948,7 +4949,7 @@ bool_t render_billboard( camera_t * pcam, billboard_data_t * pbb, float scale )
     if ( NULL == pbb || !pbb->valid ) return bfalse;
 
     // do not display for objects that are mounted or being held
-    if( VALID_CHR(pbb->ichr) && VALID_CHR(ChrList.lst[pbb->ichr].attachedto) ) return bfalse;
+    if( ACTIVE_CHR(pbb->ichr) && ACTIVE_CHR(ChrList.lst[pbb->ichr].attachedto) ) return bfalse;
 
     ptex = TxTexture_get_ptr( pbb->tex_ref );
 
@@ -5085,7 +5086,6 @@ void draw_all_lines( camera_t * pcam )
             GL_DEBUG(glDisable   )( GL_CULL_FACE ); // GL_POLYGON_BIT | GL_ENABLE_BIT
 
             GL_DEBUG(glDisable)( GL_BLEND );                                       // GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT
-            //GL_DEBUG(glBlendFunc)( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );        // GL_COLOR_BUFFER_BIT
 
             ticks = SDL_GetTicks();
 

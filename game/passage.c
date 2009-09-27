@@ -227,7 +227,7 @@ Uint16 who_is_blocking_passage( Uint16 passage, bool_t targetitems, bool_t targe
     {
         chr_t * pchr;
 
-        if ( !ChrList.lst[character].on ) continue;
+        if ( INACTIVE_CHR(character) ) continue;
         pchr = ChrList.lst + character;
 
         // no carried items
@@ -318,7 +318,7 @@ void check_passage_music()
 
             character = PlaList[cnt].index;
 
-            if ( !ChrList.lst[character].on ) continue;
+            if ( INACTIVE_CHR(character) ) continue;
             pchr = ChrList.lst + character;
 
             if( pchr->pack_ispacked || !pchr->alive || !pchr->isplayer ) continue;
@@ -360,7 +360,7 @@ bool_t close_passage( Uint16 passage )
         {
             chr_t * pchr;
 
-            if ( !ChrList.lst[character].on ) continue;
+            if ( INACTIVE_CHR(character) ) continue;
             pchr = ChrList.lst + character;
 
             bumpsize = pchr->bump.size;
@@ -426,7 +426,7 @@ void add_shop_passage( Uint16 owner, Uint16 passage )
 
     if( !VALID_PASSAGE(passage) ) return;
 
-    if( INVALID_CHR(owner) || !ChrList.lst[owner].alive ) return;
+    if( INACTIVE_CHR(owner) || !ChrList.lst[owner].alive ) return;
 
     ishop = ShopStack_get_free();
     if( !VALID_SHOP(ishop) ) return;

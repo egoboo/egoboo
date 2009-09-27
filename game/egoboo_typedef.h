@@ -150,8 +150,9 @@ void range_to_pair( FRange range, IPair * ppair );
 //--------------------------------------------------------------------------------------------
 // some basic data that all egoboo objects should have
 #define  EGO_OBJECT_STUFF \
-    bool_t         on;      /* Does it exist? */ \
-    bool_t         onold;   /* Network fix    */ \
+    bool_t         allocated; /* Does it exist? */ \
+    bool_t         active;    /* If not active, then it is not valid */ \
+    bool_t         kill_me;   /* Does it need to be deleted? */ \
     STRING         name;
 
 //--------------------------------------------------------------------------------------------

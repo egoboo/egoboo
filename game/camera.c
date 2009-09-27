@@ -101,8 +101,9 @@ void dump_matrix( GLmatrix a )
         printf( "  " );
 
         for ( i = 0; i < 4; i++ )
+        {
             printf( "%f ", a.CNV( i, j ) );
-
+        }
         printf( "\n" );
     }
 }
@@ -220,7 +221,7 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
                 if ( !PlaList[cnt].valid || INPUT_BITS_NONE == PlaList[cnt].device.bits ) continue;
 
                 character = PlaList[cnt].index;
-                if ( INVALID_CHR(character) )
+                if ( INACTIVE_CHR(character) )
                 {
                     pla_reinit( PlaList + cnt );
                     continue;

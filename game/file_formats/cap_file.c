@@ -31,7 +31,7 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void cap_init( cap_t * pcap )
+cap_t * cap_init( cap_t * pcap )
 {
     // BB> initialize the character profile data to safe values
     //     since we use memset(..., 0, ...), all = 0, = false, and = 0.0f
@@ -39,7 +39,7 @@ void cap_init( cap_t * pcap )
 
     int cnt;
 
-    if( NULL == pcap ) return;
+    if( NULL == pcap ) return pcap;
 
     // clear out all the data
     memset( pcap, 0, sizeof(cap_t) );
@@ -57,7 +57,7 @@ void cap_init( cap_t * pcap )
 
     // Clear expansions...
     /* pcap->skindressy = bfalse; */
-    /* pcap->resistbumpspawn_ = bfalse; */
+    /* pcap->resistbumpspawn = bfalse; */
     /* pcap->istoobig = bfalse; */
     pcap->reflect = btrue;
     /* pcap->alwaysdraw = bfalse; */
@@ -91,6 +91,8 @@ void cap_init( cap_t * pcap )
     /* pcap->canread = 0; */
 
     pcap->spelleffect_type = -1;
+
+    return pcap;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -375,7 +377,7 @@ cap_t * load_one_cap_file( const char * tmploadname, cap_t * pcap )
 
              if ( idsz == MAKE_IDSZ( 'D', 'R', 'E', 'S' ) ) pcap->skindressy |= 1 << fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'G', 'O', 'L', 'D' ) ) pcap->money = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'S', 'T', 'U', 'K' ) ) pcap->resistbumpspawn_ = 1 - fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'S', 'T', 'U', 'K' ) ) pcap->resistbumpspawn = 1 - fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'P', 'A', 'C', 'K' ) ) pcap->istoobig = 1 - fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'V', 'A', 'M', 'P' ) ) pcap->reflect = 1 - fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'D', 'R', 'A', 'W' ) ) pcap->alwaysdraw = fget_int( fileread );

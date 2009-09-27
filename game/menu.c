@@ -1055,31 +1055,31 @@ bool_t doChoosePlayer_show_stats( int player, int mode, int x, int y, int width,
                 fnt_drawText( menuFont, x1, y1, "Life: %d/%d", MIN( FP8_TO_INT(pcap->spawnlife), (int)pcap->life_stat.val.from ), (int)pcap->life_stat.val.from ); y1 += 20;
                 y1 = draw_one_bar( pcap->lifecolor, x1, y1, FP8_TO_INT(pcap->spawnlife), (int)pcap->life_stat.val.from );
 
-				if( pcap->mana_stat.val.from > 0)
-				{
-					fnt_drawText( menuFont, x1, y1, "Mana: %d/%d", MIN( FP8_TO_INT(pcap->spawnmana), (int)pcap->mana_stat.val.from ), (int)pcap->mana_stat.val.from ); y1 += 20;
-					y1 = draw_one_bar( pcap->manacolor, x1, y1, FP8_TO_INT(pcap->spawnmana), (int)pcap->mana_stat.val.from );
-				}
-			}
+                if( pcap->mana_stat.val.from > 0)
+                {
+                    fnt_drawText( menuFont, x1, y1, "Mana: %d/%d", MIN( FP8_TO_INT(pcap->spawnmana), (int)pcap->mana_stat.val.from ), (int)pcap->mana_stat.val.from ); y1 += 20;
+                    y1 = draw_one_bar( pcap->manacolor, x1, y1, FP8_TO_INT(pcap->spawnmana), (int)pcap->mana_stat.val.from );
+                }
+            }
             else
             {
                 fnt_drawText( menuFont, x1, y1, "Life: %d", (int)pcap->life_stat.val.from ); y1 += 20;
                 y1 = draw_one_bar( pcap->lifecolor, x1, y1, (int)pcap->life_stat.val.from, (int)pcap->life_stat.val.from );
 
-				if( pcap->mana_stat.val.from > 0)
-				{
-					fnt_drawText( menuFont, x1, y1, "Mana: %d", (int)pcap->mana_stat.val.from ); y1 += 20;
-					y1 = draw_one_bar( pcap->manacolor, x1, y1, (int)pcap->mana_stat.val.from, (int)pcap->mana_stat.val.from );
-            	}
-			}
+                if( pcap->mana_stat.val.from > 0)
+                {
+                    fnt_drawText( menuFont, x1, y1, "Mana: %d", (int)pcap->mana_stat.val.from ); y1 += 20;
+                    y1 = draw_one_bar( pcap->manacolor, x1, y1, (int)pcap->mana_stat.val.from, (int)pcap->mana_stat.val.from );
+                }
+            }
             y1 += 20;
 
             //SWID
             fnt_drawText( menuFont, x1, y1, "Stats" ); y1 += 20;
-            fnt_drawText( menuFont, x1, y1, "  Str: %s (%d)", describe_stat(FLOAT_TO_FP8(pcap->strength_stat.val.from)),     (int)pcap->strength_stat.val.from	    ); y1 += 20;
-            fnt_drawText( menuFont, x1, y1, "  Wis: %s (%d)", describe_stat(FLOAT_TO_FP8(pcap->wisdom_stat.val.from)),       (int)pcap->wisdom_stat.val.from	    ); y1 += 20;
+            fnt_drawText( menuFont, x1, y1, "  Str: %s (%d)", describe_stat(FLOAT_TO_FP8(pcap->strength_stat.val.from)),     (int)pcap->strength_stat.val.from        ); y1 += 20;
+            fnt_drawText( menuFont, x1, y1, "  Wis: %s (%d)", describe_stat(FLOAT_TO_FP8(pcap->wisdom_stat.val.from)),       (int)pcap->wisdom_stat.val.from        ); y1 += 20;
             fnt_drawText( menuFont, x1, y1, "  Int: %s (%d)", describe_stat(FLOAT_TO_FP8(pcap->intelligence_stat.val.from)), (int)pcap->intelligence_stat.val.from  ); y1 += 20;
-            fnt_drawText( menuFont, x1, y1, "  Dex: %s (%d)", describe_stat(FLOAT_TO_FP8(pcap->dexterity_stat.val.from)),    (int)pcap->dexterity_stat.val.from	    ); y1 += 20;
+            fnt_drawText( menuFont, x1, y1, "  Dex: %s (%d)", describe_stat(FLOAT_TO_FP8(pcap->dexterity_stat.val.from)),    (int)pcap->dexterity_stat.val.from        ); y1 += 20;
             y1 += 20;
 
             if ( objects.count > 1 )
@@ -2032,13 +2032,13 @@ int doGameOptions( float deltaTime )
             switch ( cfg.difficulty )
             {
                 case GAME_HARD: snprintf(Cdifficulty, SDL_arraysize(Cdifficulty), "Punishing"); break;
-				case GAME_EASY: snprintf(Cdifficulty, SDL_arraysize(Cdifficulty), "Forgiving"); break;
-				default: case GAME_NORMAL:
-				{
-					snprintf(Cdifficulty, SDL_arraysize(Cdifficulty), "Challenging");
-					cfg.difficulty = GAME_NORMAL;
-					break;
-				}
+                case GAME_EASY: snprintf(Cdifficulty, SDL_arraysize(Cdifficulty), "Forgiving"); break;
+                default: case GAME_NORMAL:
+                {
+                    snprintf(Cdifficulty, SDL_arraysize(Cdifficulty), "Challenging");
+                    cfg.difficulty = GAME_NORMAL;
+                    break;
+                }
             }
             sz_buttons[0] = Cdifficulty;
 
@@ -2077,8 +2077,8 @@ int doGameOptions( float deltaTime )
             }
 
             // Show FPS
-            if ( cfg.fps_allowed )   sz_buttons[4] = "On";
-            else                    sz_buttons[4] = "Off";
+            if ( cfg.fps_allowed ) sz_buttons[4] = "On";
+            else                   sz_buttons[4] = "Off";
 
             // Fall trough
             menuState = MM_Running;
@@ -2097,15 +2097,15 @@ int doGameOptions( float deltaTime )
             ui_drawTextBox( menuFont, "Game Difficulty:", buttonLeft, 50, 0, 0, 20 );
 
             // Buttons
-			if ( !PMod->active && BUTTON_UP == ui_doButton( 1, sz_buttons[0], menuFont, buttonLeft + 150, 50, 150, 30 ) )
+            if ( !PMod->active && BUTTON_UP == ui_doButton( 1, sz_buttons[0], menuFont, buttonLeft + 150, 50, 150, 30 ) )
             {
                 // Increase difficulty
                 cfg.difficulty++;
                 switch ( cfg.difficulty )
                 {
                     case GAME_HARD: snprintf(Cdifficulty, SDL_arraysize(Cdifficulty), "Punishing"); break;
-					case GAME_EASY: snprintf(Cdifficulty, SDL_arraysize(Cdifficulty), "Forgiving"); break;
-                	default: case GAME_NORMAL:
+                    case GAME_EASY: snprintf(Cdifficulty, SDL_arraysize(Cdifficulty), "Forgiving"); break;
+                    default: case GAME_NORMAL:
                         {
                             snprintf(Cdifficulty, SDL_arraysize(Cdifficulty), "Challenging");
                             cfg.difficulty = GAME_NORMAL;
@@ -3042,7 +3042,7 @@ int doVideoOptions( float deltaTime )
                             sz_buttons[12] = "1280x1024";
                             break;
 
-						default: case 1280:
+                        default: case 1280:
                             cfg.scrx_req = 640;
                             cfg.scry_req = 480;
                             sz_buttons[12] = "640x480";
@@ -3055,7 +3055,7 @@ int doVideoOptions( float deltaTime )
                 {
                     switch ( cfg.scrx_req )
                     {
-						default: case 1920:
+                        default: case 1920:
                             cfg.scrx_req = 1280;
                             cfg.scry_req = 800;
                             sz_buttons[12] = "1280x800";

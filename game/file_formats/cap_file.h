@@ -244,8 +244,8 @@ struct s_cap
     Uint16       nframeangle;
 
     // defense
-    Uint8        resistbumpspawn_;               // Don't catch fire
-    Uint8        defense[MAX_SKIN];                    // Defense for each skin
+    Uint8        resistbumpspawn;                        // Don't catch fire
+    Uint8        defense[MAX_SKIN];                      // Defense for each skin
     Uint8        damagemodifier[DAMAGE_COUNT][MAX_SKIN];
 
     // xp
@@ -324,3 +324,5 @@ typedef struct s_cap cap_t;
 //--------------------------------------------------------------------------------------------
 cap_t * load_one_cap_file( const char * tmploadname, cap_t * pcap );
 //bool_t save_one_cap_file( const char * tmploadname, cap_t * pcap );
+
+cap_t * cap_init( cap_t * pcap );

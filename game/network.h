@@ -96,12 +96,15 @@ struct s_player
     // the buffered input from the local input devices
     input_device_t          device;
 
-    // Local latch
+    // Local latch, set by set_one_player_latch(), read by sv_talkToRemotes()
     latch_t                 latch;
 
     // Timed latches
     Uint32                  tlatch_count;
     time_latch_t            tlatch[MAXLAG];
+
+    // Network latch, set by unbuffer_player_latches(), used to set the local character's latch
+    latch_t                 net_latch;
 };
 
 typedef struct s_player player_t;

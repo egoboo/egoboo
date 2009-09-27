@@ -203,6 +203,7 @@ eve_t * load_one_enchant_file( const char* szLoadName, eve_t * peve )
     // All done ( finally )
     vfs_close( fileread );
 
+    strncpy( peve->name, szLoadName, SDL_arraysize(peve->name) );
     peve->loaded = btrue;
 
     return peve;

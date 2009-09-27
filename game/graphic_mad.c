@@ -177,7 +177,7 @@ void render_one_mad_enviro( Uint16 character, Uint8 trans )
     chr_instance_t * pinst;
     oglx_texture   * ptex;
 
-    if ( INVALID_CHR(character) ) return;
+    if ( INACTIVE_CHR(character) ) return;
     pchr  = ChrList.lst + character;
     pinst = &(pchr->inst);
 
@@ -327,7 +327,7 @@ void render_one_mad_tex( Uint16 character, Uint8 trans )
     chr_instance_t * pinst;
     oglx_texture   * ptex;
 
-    if ( INVALID_CHR(character) ) return;
+    if ( INACTIVE_CHR(character) ) return;
     pchr  = ChrList.lst + character;
     pinst = &(pchr->inst);
 
@@ -434,7 +434,7 @@ void render_one_mad( Uint16 character, Uint8 trans )
 
     chr_t * pchr;
 
-    if ( INVALID_CHR(character) ) return;
+    if ( INACTIVE_CHR(character) ) return;
     pchr = ChrList.lst + character;
 
     if ( pchr->is_hidden ) return;
@@ -489,7 +489,7 @@ void render_one_mad_ref( int tnc, Uint8 trans )
     cap_t * pcap;
     chr_instance_t * pinst;
 
-    if ( INVALID_CHR(tnc) ) return;
+    if ( INACTIVE_CHR(tnc) ) return;
     pchr = ChrList.lst + tnc;
     pinst = &(pchr->inst);
 
@@ -499,7 +499,7 @@ void render_one_mad_ref( int tnc, Uint8 trans )
     // object here, or there will be problems later
     //pinst->save_lighting_wldframe = 0;
     chr_instance_update( tnc, trans, !pinst->enviro );
-    
+
     pcap = chr_get_pcap( tnc );
     if ( NULL == pcap || !pcap->reflect ) return;
 
@@ -554,7 +554,7 @@ void chr_instance_update( Uint16 character, Uint8 trans, bool_t do_lighting )
     chr_t * pchr;
     chr_instance_t * pinst;
 
-    if ( INVALID_CHR(character) ) return;
+    if ( INACTIVE_CHR(character) ) return;
     pchr = ChrList.lst + character;
     pinst = &(pchr->inst);
 

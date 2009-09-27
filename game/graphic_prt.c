@@ -80,12 +80,14 @@ size_t render_all_prt_begin( camera_t * pcam, prt_registry_entity_t reg[], size_
     numparticle = 0;
     for ( cnt = 0; cnt < maxparticles && numparticle < reg_count; cnt++ )
     {
-        prt_t * pprt = PrtList.lst + cnt;
-        prt_instance_t * pinst = &(pprt->inst);
+        prt_t * pprt;
+        prt_instance_t * pinst;
 
-        if ( !pprt->on || !pprt->inview ) continue;
+        if( !ACTIVE_PRT(cnt) ) continue;
+        pprt = PrtList.lst + cnt;
+        pinst = &(pprt->inst);
 
-        if ( pprt->is_hidden || !VALID_TILE(PMesh, pprt->onwhichfan) ) continue;
+        if ( !pprt->inview || pprt->is_hidden ) continue;
 
         if ( pinst->size != 0 )
         {
@@ -124,7 +126,7 @@ bool_t render_one_prt_solid( Uint16 iprt )
     prt_t * pprt;
     prt_instance_t * pinst;
 
-    if ( INVALID_PRT(iprt) ) return bfalse;
+    if ( INACTIVE_PRT(iprt) ) return bfalse;
     pprt = PrtList.lst + iprt;
     pinst = &(pprt->inst);
 
@@ -132,7 +134,7 @@ bool_t render_one_prt_solid( Uint16 iprt )
     if ( !pinst->valid ) return bfalse;
 
     // only render solid sprites
-    if ( PRTSOLIDSPRITE != pprt->type ) return bfalse;
+    if ( SPRITE_SOLID != pprt->type ) return bfalse;
 
     // billboard for the particle
     calc_billboard_verts( vtlist, pinst, pinst->size, pprt->floor_level, bfalse );
@@ -204,7 +206,7 @@ bool_t render_one_prt_trans( Uint16 iprt )
     prt_t * pprt;
     prt_instance_t * pinst;
 
-    if ( INVALID_PRT(iprt) ) return bfalse;
+    if ( INACTIVE_PRT(iprt) ) return bfalse;
     pprt = PrtList.lst + iprt;
     pinst = &(pprt->inst);
 
@@ -225,7 +227,7 @@ bool_t render_one_prt_trans( Uint16 iprt )
         GL_DEBUG(glEnable)(GL_DEPTH_TEST );
         GL_DEBUG(glDepthFunc)(GL_LEQUAL );
 
-        if ( PRTSOLIDSPRITE == PrtList.lst[iprt].type )
+        if ( SPRITE_SOLID == PrtList.lst[iprt].type )
         {
             // do the alpha blended edge of the solid particle
 
@@ -239,7 +241,7 @@ bool_t render_one_prt_trans( Uint16 iprt )
 
             oglx_texture_Bind( TxTexture_get_ptr( TX_PARTICLE_TRANS ) );
         }
-        else if ( PRTLIGHTSPRITE == PrtList.lst[iprt].type )
+        else if ( SPRITE_LIGHT == PrtList.lst[iprt].type )
         {
             // do the light sprites
 
@@ -251,7 +253,7 @@ bool_t render_one_prt_trans( Uint16 iprt )
 
             oglx_texture_Bind( TxTexture_get_ptr( TX_PARTICLE_LIGHT ) );
         }
-        else if ( PRTALPHASPRITE == PrtList.lst[iprt].type )
+        else if ( SPRITE_ALPHA == PrtList.lst[iprt].type )
         {
             // do the transparent sprites
 
@@ -337,10 +339,14 @@ size_t render_all_prt_ref_begin( camera_t * pcam, prt_registry_entity_t reg[], s
     numparticle = 0;
     for ( cnt = 0; cnt < maxparticles && numparticle < reg_count; cnt++ )
     {
-        prt_t * pprt = PrtList.lst + cnt;
-        prt_instance_t * pinst = &(pprt->inst);
+        prt_t * pprt;
+        prt_instance_t * pinst;
 
-        if ( !pprt->on || !pprt->inview || !VALID_TILE(PMesh, pprt->onwhichfan) ) continue;
+        if( INACTIVE_PRT(cnt) ) continue;
+        pprt = PrtList.lst + cnt;
+        pinst = &(pprt->inst);
+
+        if ( !pprt->inview || pprt->is_hidden  ) continue;
 
         if ( pinst->size != 0 )
         {
@@ -376,7 +382,7 @@ bool_t render_one_prt_ref( Uint16 iprt )
     prt_t * pprt;
     prt_instance_t * pinst;
 
-    if ( INVALID_PRT(iprt) ) return bfalse;
+    if ( INACTIVE_PRT(iprt) ) return bfalse;
 
     pprt = PrtList.lst + iprt;
     pinst = &(pprt->inst);
@@ -400,7 +406,7 @@ bool_t render_one_prt_ref( Uint16 iprt )
             GL_DEBUG(glDisable)(GL_CULL_FACE );
             GL_DEBUG(glDisable)(GL_DITHER );
 
-            if ( PRTLIGHTSPRITE == PrtList.lst[iprt].type )
+            if ( SPRITE_LIGHT == PrtList.lst[iprt].type )
             {
                 // do the light sprites
                 float alpha = startalpha * INV_FF * pinst->fintens / 2.0f;
@@ -413,7 +419,7 @@ bool_t render_one_prt_ref( Uint16 iprt )
 
                 oglx_texture_Bind( TxTexture_get_ptr( TX_PARTICLE_LIGHT ) );
             }
-            else if ( PRTSOLIDSPRITE == PrtList.lst[iprt].type || PRTALPHASPRITE == PrtList.lst[iprt].type )
+            else if ( SPRITE_SOLID == PrtList.lst[iprt].type || SPRITE_ALPHA == PrtList.lst[iprt].type )
             {
                 // do the transparent sprites
 
@@ -499,10 +505,14 @@ void update_all_prt_instance( camera_t * pcam )
 
     for ( cnt = 0; cnt < maxparticles; cnt++ )
     {
-        prt_t * pprt = PrtList.lst + cnt;
-        prt_instance_t * pinst = &(pprt->inst);
+        prt_t * pprt;
+        prt_instance_t * pinst;
 
-        if ( !pprt->on || !pprt->inview || !VALID_TILE(PMesh, pprt->onwhichfan) || 0 == pprt->size )
+        if( INACTIVE_PRT(cnt) ) continue;
+        pprt = PrtList.lst + cnt;
+        pinst = &(pprt->inst);
+
+        if ( !pprt->inview || pprt->is_hidden || 0 == pprt->size )
         {
             pinst->valid = bfalse;
         }
@@ -521,7 +531,7 @@ void prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_
 
     GLvector3 vfwd, vup, vright;
 
-    if ( NULL == pprt || !pprt->on ) return;
+    if ( NULL == pprt || !pprt->allocated || !pprt->active ) return;
 
     if ( !VALID_PIP( pprt->pip_ref ) ) return;
     ppip = PipStack.lst + pprt->pip_ref;
@@ -539,7 +549,7 @@ void prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_
     vfwd = VNormalize( vfwd );
 
     // set the up and right vectors
-    if ( ppip->rotatetoface && INVALID_CHR( pprt->attachedto_ref ) && (ABS( pprt->vel.x ) + ABS( pprt->vel.y ) + ABS( pprt->vel.z ) > 0) )
+    if ( ppip->rotatetoface && INACTIVE_CHR( pprt->attachedto_ref ) && (ABS( pprt->vel.x ) + ABS( pprt->vel.y ) + ABS( pprt->vel.z ) > 0) )
     {
         // the particle points along its direction of travel
 
@@ -560,7 +570,7 @@ void prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_
         vright = VCrossProduct( vfwd, vup );
         vright = VNormalize( vright );
     }
-    else if ( VALID_CHR( pprt->attachedto_ref ) )
+    else if ( ACTIVE_CHR( pprt->attachedto_ref ) )
     {
         chr_instance_t * cinst = chr_get_pinstance(pprt->attachedto_ref);
 
@@ -667,9 +677,9 @@ void prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_
     pinst->size  = FP8_TO_FLOAT( pprt->size ) * 0.25f;
     switch ( pinst->type )
     {
-        case PRTSOLIDSPRITE: pinst->size *= 0.9384f; break;
-        case PRTALPHASPRITE: pinst->size *= 0.9353f; break;
-        case PRTLIGHTSPRITE: pinst->size *= 1.5912f; break;
+        case SPRITE_SOLID: pinst->size *= 0.9384f; break;
+        case SPRITE_ALPHA: pinst->size *= 0.9353f; break;
+        case SPRITE_LIGHT: pinst->size *= 1.5912f; break;
     }
 
     pinst->valid = btrue;
@@ -756,7 +766,7 @@ void prt_instance_update( camera_t * pcam, Uint16 particle, Uint8 trans, bool_t 
     prt_t * pprt;
     prt_instance_t * pinst;
 
-    if ( INVALID_PRT(particle) ) return;
+    if ( INACTIVE_PRT(particle) ) return;
     pprt = PrtList.lst + particle;
     pinst = &(pprt->inst);
 

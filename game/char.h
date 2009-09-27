@@ -211,7 +211,7 @@ struct s_chr_instance
 typedef struct s_chr_instance chr_instance_t;
 
 //--------------------------------------------------------------------------------------------
-// Data for doing the physics in bump_characters(). should prevent you from being bumped into a wall
+// Data for doing the physics in bump_all_objects(). should prevent you from being bumped into a wall
 struct s_phys_data
 {
     GLvector3      apos_0, apos_1;
@@ -442,7 +442,7 @@ struct s_chr
     float          maxaccel;                      // Maximum acceleration
     Uint8          flyheight;                     // Height to stabilize at
 
-    // data for doing the physics in bump_characters()
+    // data for doing the physics in bump_all_objects()
     float          floor_level;           // Height of tile
     bool_t         inwater;
     phys_data_t    phys;
@@ -465,8 +465,9 @@ extern cap_t CapList[MAX_CAP];
 DEFINE_LIST_EXTERN(chr_t, ChrList, MAX_CHR );
 
 #define VALID_CHR_RANGE( ICHR ) ( ((ICHR) >= 0) && ((ICHR) < MAX_CHR) )
-#define VALID_CHR( ICHR )       ( VALID_CHR_RANGE( ICHR ) && ChrList.lst[ICHR].on )
-#define INVALID_CHR( ICHR )     ( !VALID_CHR_RANGE( ICHR ) || !ChrList.lst[ICHR].on )
+#define ALLOCATED_CHR( ICHR )   ( VALID_CHR_RANGE( ICHR ) && ChrList.lst[ICHR].allocated )
+#define ACTIVE_CHR( ICHR )       ( ALLOCATED_CHR( ICHR ) && ChrList.lst[ICHR].active )
+#define INACTIVE_CHR( ICHR )     ( !ALLOCATED_CHR( ICHR ) || !ChrList.lst[ICHR].active )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -484,7 +485,7 @@ bool_t heal_character( Uint16 character, Uint16 healer, int amount, bool_t ignor
 void spawn_poof( Uint16 character, Uint16 profile );
 void reset_character_alpha( Uint16 character );
 void reset_character_accel( Uint16 character );
-void detach_character_from_mount( Uint16 character, Uint8 ignorekurse, Uint8 doshop );
+bool_t detach_character_from_mount( Uint16 character, Uint8 ignorekurse, Uint8 doshop );
 
 void flash_character_height( Uint16 character, Uint8 valuelow, Sint16 low,
                              Uint8 valuehigh, Sint16 high );
@@ -492,13 +493,16 @@ void flash_character( Uint16 character, Uint8 value );
 
 void free_one_character_in_game( Uint16 character );
 void make_one_weapon_matrix( Uint16 iweap, Uint16 iholder, bool_t do_phys  );
-void make_character_matrices(bool_t do_physics);
-void free_inventory( Uint16 character );
+void make_all_character_matrices(bool_t do_physics);
+void free_inventory_in_game( Uint16 character );
 
 void keep_weapons_with_holders();
 void make_one_character_matrix( Uint16 cnt );
-void resize_characters();
-void move_characters( void );
+
+void update_all_characters( void );
+void move_all_characters( void );
+void cleanup_all_characters( void );
+
 void do_level_up( Uint16 character );
 bool_t setup_xp_table(Uint16 character);
 
@@ -566,7 +570,7 @@ bool_t release_one_cap( Uint16 icap );
 
 bool_t cap_is_type_idsz( Uint16 icap, IDSZ test_idsz );
 
-Uint16 chr_get_iobj(Uint16 ichr);
+Uint16 chr_get_ipro(Uint16 ichr);
 Uint16 chr_get_icap(Uint16 ichr);
 Uint16 chr_get_imad(Uint16 ichr);
 Uint16 chr_get_ieve(Uint16 ichr);
@@ -574,7 +578,7 @@ Uint16 chr_get_ipip(Uint16 ichr, Uint16 ipip);
 Uint16 chr_get_iteam(Uint16 ichr);
 Uint16 chr_get_iteam_base(Uint16 ichr);
 
-struct s_object_profile * chr_get_pobj(Uint16 ichr);
+struct s_object_profile * chr_get_ppro(Uint16 ichr);
 struct s_cap * chr_get_pcap(Uint16 ichr);
 struct s_mad * chr_get_pmad(Uint16 ichr);
 struct s_eve * chr_get_peve(Uint16 ichr);
@@ -611,3 +615,8 @@ Uint32 chr_get_icon_ref( Uint16 item );
 const char * describe_stat(int value_high);
 
 void reset_teams();
+
+bool_t chr_update_matrix( Uint16 ichr );
+bool_t chr_teleport( Uint16 ichr, float x, float y, float z, Uint16 turn_z );
+
+bool_t chr_request_terminate( Uint16 ichr );

@@ -32,19 +32,19 @@
 enum e_global_pips
 {
     PIP_COIN1 = 0,                                 // Coins are the first particles loaded
-    PIP_COIN5,               
-    PIP_COIN25,              
-    PIP_COIN100,             
+    PIP_COIN5,
+    PIP_COIN25,
+    PIP_COIN100,
     PIP_WEATHER4,                                  // Weather particles
     PIP_WEATHER5,                                  // Weather particle finish
     PIP_SPLASH,                                    // Water effects are next
-    PIP_RIPPLE,              
+    PIP_RIPPLE,
     PIP_DEFEND                                     // Defend particle
 };
 
-#define PRTLIGHTSPRITE                  0           // Magic effect particle
-#define PRTSOLIDSPRITE                  1           // Sprite particle
-#define PRTALPHASPRITE                  2           // Smoke particle
+#define SPRITE_LIGHT                  0           // Magic effect particle
+#define SPRITE_SOLID                  1           // Sprite particle
+#define SPRITE_ALPHA                  2           // Smoke particle
 
 // dynalight constants
 #define DYNAOFF   0

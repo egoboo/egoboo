@@ -69,7 +69,7 @@ void let_character_think( Uint16 character )
     chr_t          * pchr;
     ai_state_t     * pself;
 
-    if ( INVALID_CHR( character ) )  return;
+    if ( INACTIVE_CHR( character ) )  return;
     pchr  = ChrList.lst + character;
     pself = &(pchr->ai);
 
@@ -197,7 +197,8 @@ void let_character_think( Uint16 character )
     if ( !pchr->isplayer )
     {
         float latch2;
-        if ( pchr->ismount && MAX_CHR != pchr->holdingwhich[SLOT_LEFT] && ChrList.lst[pchr->holdingwhich[SLOT_LEFT]].on )
+
+        if ( pchr->ismount && MAX_CHR != pchr->holdingwhich[SLOT_LEFT] && ACTIVE_CHR(pchr->holdingwhich[SLOT_LEFT]) )
         {
             // Mount
             pchr->latch.x = ChrList.lst[pchr->holdingwhich[SLOT_LEFT]].latch.x;
@@ -243,12 +244,16 @@ void set_alerts( Uint16 character )
     ai_state_t * pai;
 
     // invalid characters do not think
-    if ( !ChrList.lst[character].on ) return;
+    if ( INACTIVE_CHR(character) ) return;
     pchr = ChrList.lst + character;
     pai  = chr_get_pai(character);
 
+    // let's let mounts get alert updates...
+    // imagine a mount, like a racecar, that needs to make sure that it follows X
+    // waypoints around a track or something
+
     // mounts do not get alerts
-    if ( VALID_CHR(pchr->attachedto) ) return;
+    // if ( ACTIVE_CHR(pchr->attachedto) ) return;
 
     if ( pai->wp_tail != pai->wp_head )
     {
@@ -285,7 +290,7 @@ void issue_order( Uint16 character, Uint32 value )
 
     for ( cnt = 0, counter = 0; cnt < MAX_CHR; cnt++ )
     {
-        if ( !ChrList.lst[cnt].on ) continue;
+        if ( INACTIVE_CHR(cnt) ) continue;
 
         if ( chr_get_iteam(cnt) == chr_get_iteam(character) )
         {
@@ -305,7 +310,7 @@ void issue_special_order( Uint32 value, IDSZ idsz )
     {
         cap_t * pcap;
 
-        if ( !ChrList.lst[cnt].on ) continue;
+        if ( INACTIVE_CHR(cnt) ) continue;
 
         pcap = chr_get_pcap(cnt);
         if ( NULL == pcap ) continue;
@@ -851,7 +856,7 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
         case FSETMONEY:              returncode = scr_set_Money( pstate, pself );           break;
         case FIFTARGETCANSEEKURSES:  returncode = scr_TargetCanSeeKurses( pstate, pself );  break;
         case FSPAWNATTACHEDCHARACTER:returncode = scr_SpawnAttachedCharacter( pstate, pself ); break;
-		case FKURSETARGET:			 returncode = scr_KurseTarget( pstate, pself );			break;
+        case FKURSETARGET:             returncode = scr_KurseTarget( pstate, pself );            break;
         case FSETCHILDCONTENT:       returncode = scr_set_ChildContent( pstate, pself );    break;
 
             // if none of the above, skip the line and log an error

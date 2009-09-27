@@ -81,7 +81,7 @@ bool_t PrtList_free_one( Uint16 iprt )
         // that is an error
         for ( cnt = 0; cnt < PrtList.free_count; cnt++ )
         {
-            if ( iprt == PrtList.free_ref[cnt] ) 
+            if ( iprt == PrtList.free_ref[cnt] )
             {
                 return bfalse;
             }
@@ -108,7 +108,7 @@ void play_particle_sound( Uint16 particle, Sint8 sound )
 
     prt_t * pprt;
 
-    if ( !VALID_PRT(particle) ) return;
+    if ( !ACTIVE_PRT(particle) ) return;
     pprt = PrtList.lst + particle;
 
     if ( sound >= 0 && sound < MAX_WAVE )
@@ -130,26 +130,28 @@ void free_one_particle_in_game( Uint16 particle )
     // ZZ> This function sticks a particle back on the free particle stack and
     //    plays the sound associated with the particle
 
-    if ( VALID_PRT( particle) )
+    Uint16 child;
+    prt_t * pprt;
+    pip_t * ppip;
+
+    if ( !ALLOCATED_PRT( particle) ) return;
+
+    pprt = PrtList.lst + particle;
+
+    if ( pprt->spawncharacterstate != SPAWNNOCHARACTER )
     {
-        Uint16 child;
-        prt_t * pprt = PrtList.lst + particle;
-
-        if ( pprt->spawncharacterstate != SPAWNNOCHARACTER )
+        child = spawn_one_character( pprt->pos, pprt->profile_ref, pprt->team, 0, pprt->facing, NULL, MAX_CHR );
+        if ( ACTIVE_CHR(child) )
         {
-            child = spawn_one_character( pprt->pos, pprt->profile_ref, pprt->team, 0, pprt->facing, NULL, MAX_CHR );
-            if ( VALID_CHR(child) )
-            {
-                chr_get_pai(child)->state = pprt->spawncharacterstate;
-                chr_get_pai(child)->owner = pprt->owner_ref;
-            }
+            chr_get_pai(child)->state = pprt->spawncharacterstate;
+            chr_get_pai(child)->owner = pprt->owner_ref;
         }
+    }
 
-        if ( VALID_PIP(pprt->pip_ref) )
-        {
-            play_particle_sound( particle, PipStack.lst[pprt->pip_ref].soundend );
-        }
-
+    ppip = prt_get_ppip( particle );
+    if ( NULL != ppip )
+    {
+        play_particle_sound( particle, ppip->soundend );
     }
 
     PrtList_free_one( particle );
@@ -250,14 +252,14 @@ Uint16 prt_get_iowner( Uint16 iprt )
 
     prt_t * pprt;
 
-    if( INVALID_PRT(iprt) ) return MAX_CHR;
+    if( INACTIVE_PRT(iprt) ) return MAX_CHR;
     pprt = PrtList.lst + iprt;
 
-    if( VALID_CHR(pprt->owner_ref) )
+    if( ACTIVE_CHR(pprt->owner_ref) )
     {
         iowner = pprt->owner_ref;
     }
-    else 
+    else
     {
         // make a check for a stupid looping structure...
         // cannot be sure you could never get a loop, though
@@ -295,7 +297,7 @@ Uint16 spawn_one_particle( GLvector3 pos, Uint16 facing, Uint16 iprofile, Uint16
     {
         //log_warning( "spawn_one_particle() - cannot spawn particle with invalid pip == %d (owner == %d(\"%s\"), profile == %d(\"%s\"))\n",
         //    ipip,
-        //    chr_origin, VALID_CHR(chr_origin) ? ChrList.lst[chr_origin].name : "INVALID",
+        //    chr_origin, ACTIVE_CHR(chr_origin) ? ChrList.lst[chr_origin].name : "INVALID",
         //    iprofile, VALID_PRO(iprofile) ? ProList.lst[iprofile].name : "INVALID" );
         return TOTAL_MAX_PRT;
     }
@@ -305,7 +307,7 @@ Uint16 spawn_one_particle( GLvector3 pos, Uint16 facing, Uint16 iprofile, Uint16
     if ( !VALID_PRT_RANGE(iprt) )
     {
         //log_warning( "spawn_one_particle() - cannot allocate a particle owner == %d(\"%s\"), pip == %d(\"%s\"), profile == %d(\"%s\")\n",
-        //    chr_origin, VALID_CHR(chr_origin) ? ChrList.lst[chr_origin].name : "INVALID",
+        //    chr_origin, ACTIVE_CHR(chr_origin) ? ChrList.lst[chr_origin].name : "INVALID",
         //    ipip, VALID_PIP(ipip) ? PipStack.lst[ipip].name : "INVALID",
         //    iprofile, VALID_PRO(iprofile) ? ProList.lst[iprofile].name : "INVALID" );
         return TOTAL_MAX_PRT;
@@ -319,11 +321,12 @@ Uint16 spawn_one_particle( GLvector3 pos, Uint16 facing, Uint16 iprofile, Uint16
 
     // Necessary data for any part
     strncpy( pprt->name, ppip->name, SDL_arraysize(pprt->name) );
-    pprt->on = btrue;
+    pprt->allocated = btrue;
+    pprt->active    = btrue;
 
     // try to get an idea of who our owner is even if we are
     // given bogus info
-    if( INVALID_CHR(chr_origin) && VALID_PRT( prt_origin ) )
+    if( INACTIVE_CHR(chr_origin) && ACTIVE_PRT( prt_origin ) )
     {
         chr_origin = prt_get_iowner( prt_origin );
     }
@@ -371,7 +374,7 @@ Uint16 spawn_one_particle( GLvector3 pos, Uint16 facing, Uint16 iprofile, Uint16
         {
             // Find a target
             pprt->target_ref = get_particle_target( pos.x, pos.y, pos.z, facing, ipip, team, chr_origin, oldtarget );
-            if ( VALID_CHR(pprt->target_ref) && !ppip->homing )
+            if ( ACTIVE_CHR(pprt->target_ref) && !ppip->homing )
             {
                 facing -= glouseangle;
             }
@@ -386,7 +389,7 @@ Uint16 spawn_one_particle( GLvector3 pos, Uint16 facing, Uint16 iprofile, Uint16
                 offsetfacing  = ( offsetfacing * ( PERFECTSTAT - ChrList.lst[chr_origin].dexterity ) ) / PERFECTSTAT;  // Divided by PERFECTSTAT
             }
 
-            if ( VALID_CHR(pprt->target_ref) && ppip->zaimspd != 0 )
+            if ( ACTIVE_CHR(pprt->target_ref) && ppip->zaimspd != 0 )
             {
                 // These aren't velocities...  This is to do aiming on the Z axis
                 if ( velocity > 0 )
@@ -405,14 +408,14 @@ Uint16 spawn_one_particle( GLvector3 pos, Uint16 facing, Uint16 iprofile, Uint16
         }
 
         // Does it go away?
-        if ( INVALID_CHR(pprt->target_ref) && ppip->needtarget )
+        if ( INACTIVE_CHR(pprt->target_ref) && ppip->needtarget )
         {
             free_one_particle_in_game( iprt );
             return maxparticles;
         }
 
         // Start on top of target
-        if ( VALID_CHR(pprt->target_ref) && ppip->startontarget )
+        if ( ACTIVE_CHR(pprt->target_ref) && ppip->startontarget )
         {
             tmp_pos.x = ChrList.lst[pprt->target_ref].pos.x;
             tmp_pos.y = ChrList.lst[pprt->target_ref].pos.y;
@@ -498,7 +501,7 @@ Uint16 spawn_one_particle( GLvector3 pos, Uint16 facing, Uint16 iprofile, Uint16
     if ( pprt->spawntime != 0 )
     {
         pprt->spawntime = 1;
-        if ( VALID_CHR(pprt->attachedto_ref) )
+        if ( ACTIVE_CHR(pprt->attachedto_ref) )
         {
             pprt->spawntime++; // Because attachment takes an update before it happens
         }
@@ -511,9 +514,9 @@ Uint16 spawn_one_particle( GLvector3 pos, Uint16 facing, Uint16 iprofile, Uint16
     pprt->inst.alpha = 0xFF;
     switch ( pprt->inst.type )
     {
-        case PRTSOLIDSPRITE: break;
-        case PRTALPHASPRITE: pprt->inst.alpha = particletrans; break;
-        case PRTLIGHTSPRITE: break;
+        case SPRITE_SOLID: break;
+        case SPRITE_ALPHA: pprt->inst.alpha = particletrans; break;
+        case SPRITE_LIGHT: break;
     }
 
     return iprt;
@@ -530,7 +533,7 @@ Uint8 __prthitawall( Uint16 particle )
     pip_t * ppip;
     prt_t * pprt;
 
-    if( INVALID_PRT(particle) ) return retval;
+    if( INACTIVE_PRT(particle) ) return retval;
     pprt = PrtList.lst + particle;
 
     ppip = prt_get_ppip(particle);
@@ -552,28 +555,160 @@ Uint8 __prthitawall( Uint16 particle )
 }
 
 //--------------------------------------------------------------------------------------------
-void move_particles( void )
+void update_all_particles( void )
 {
-    // ZZ> This is the particle physics function
+    int cnt, size_new;
 
-    int tnc, size_new;
-    Uint16 cnt;
-    Uint16 facing, ipip, particle;
-    float level;
+    Uint16 particle;
 
-    // all the functions that would be in am update_all_particles() function
+    // figure out where the particle is on the mesh
+    for ( particle = 0; particle < maxparticles; particle++ )
+    {
+        prt_t * pprt;
+        Uint16 ichr;
+
+        if ( INACTIVE_PRT(particle) ) continue;
+        pprt = PrtList.lst + particle;
+
+        pprt->onwhichfan   = mesh_get_tile ( PMesh, pprt->pos.x, pprt->pos.y );
+        pprt->onwhichblock = mesh_get_block( PMesh, pprt->pos.x, pprt->pos.y );
+        pprt->floor_level  = mesh_get_level( PMesh, pprt->pos.x, pprt->pos.y );
+
+        // reject particles that are hidden
+        pprt->is_hidden = bfalse;
+
+        ichr = pprt->attachedto_ref;
+        if ( ACTIVE_CHR( ichr ) )
+        {
+            pprt->is_hidden = ChrList.lst[ichr].is_hidden;
+        }
+    }
+
+    // do the particle interaction with water
+    for ( particle = 0; particle < maxparticles; particle++ )
+    {
+        bool_t inwater;
+
+        prt_t * pprt;
+        pip_t * ppip;
+
+        if ( INACTIVE_PRT(particle) ) continue;
+        pprt = PrtList.lst + particle;
+
+        // do nothing if the particle is hidden
+        if( pprt->is_hidden ) continue;
+
+        ppip = prt_get_ppip( particle );
+        if( NULL == ppip ) continue;
+
+        inwater = (pprt->pos.z < water.surface_level) && (0 != mesh_test_fx( PMesh, pprt->onwhichfan, MPDFX_WATER ));
+
+        if( inwater && water.is_water && ppip->endwater )
+        {
+            // Check for disaffirming character
+            if ( ACTIVE_CHR( pprt->attachedto_ref ) && pprt->owner_ref == pprt->attachedto_ref )
+            {
+                // Disaffirm the whole character
+                disaffirm_attached_particles( pprt->attachedto_ref );
+            }
+            else
+            {
+                // destroy the particle
+                prt_request_terminate( particle );
+            }
+        }
+        else if ( inwater )
+        {
+            bool_t spawn_valid = bfalse;
+            Uint16 spawn_pip   = MAX_PIP;
+            GLvector3 vtmp = VECT3( pprt->pos.x, pprt->pos.y, water.surface_level );
+
+            if ( !pprt->inwater )
+            {
+                spawn_valid = btrue;
+
+                if( SPRITE_SOLID == pprt->type )
+                {
+                    spawn_pip = PIP_SPLASH;
+                }
+                else
+                {
+                    spawn_pip = PIP_RIPPLE;
+                }
+            }
+            else
+            {
+                if( SPRITE_SOLID == pprt->type && INACTIVE_CHR( pprt->attachedto_ref ) )
+                {
+                    spawn_valid = btrue;
+                    spawn_pip = PIP_RIPPLE;
+                }
+            }
+
+            if( spawn_valid )
+            {
+                // Splash for particles is just a ripple
+                spawn_one_particle( vtmp, 0, MAX_PROFILE, spawn_pip, MAX_CHR, GRIP_LAST,
+                                    TEAM_NULL, MAX_CHR, TOTAL_MAX_PRT, 0, MAX_CHR );
+            }
+
+
+            pprt->inwater  = btrue;
+        }
+        else
+        {
+            pprt->inwater = bfalse;
+        }
+    }
+
+
+    // apply damage from bump particles (about once a second)
+    if ( 0 == ( frame_all & 31 ) )
+    {
+        for ( particle = 0; particle < maxparticles; particle++ )
+        {
+            prt_t * pprt;
+            pip_t * ppip;
+            Uint16 ichr;
+
+            if ( INACTIVE_PRT(particle) ) continue;
+            pprt = PrtList.lst + particle;
+
+            // do nothing if the particle is hidden
+            if( pprt->is_hidden ) continue;
+
+            ppip = prt_get_ppip( particle );
+            if( NULL == ppip ) continue;
+
+            ichr = pprt->attachedto_ref;
+            if( INACTIVE_CHR( ichr ) ) continue;
+
+            // Attached iprt_b damage ( Burning )
+            if ( ppip->xyvel_pair.base == 0 )
+            {
+                // Make character limp
+                ChrList.lst[ichr].vel.x *= 0.5f;
+                ChrList.lst[ichr].vel.y *= 0.5f;
+            }
+
+            damage_character( ichr, ATK_BEHIND, pprt->damage, pprt->damagetype, pprt->team, pprt->owner_ref, ppip->damfx, bfalse );
+        }
+    }
+
+    // the following functions should not be done the first time through the update loop
+    if( clock_wld == 0 ) return;
+
+    // update particle timers and such
     for ( cnt = 0; cnt < maxparticles; cnt++ )
     {
         pip_t * ppip;
         prt_t * pprt;
 
-        if ( !PrtList.lst[cnt].on ) continue;
+        if ( INACTIVE_PRT(cnt) ) continue;
         pprt = PrtList.lst + cnt;
 
-        // To make it easier
-        ipip = pprt->pip_ref;
-        if ( INVALID_PIP( ipip ) ) continue;
-        ppip = PipStack.lst + ipip;
+        ppip = prt_get_ppip( cnt );
+        if ( NULL == ppip ) continue;
 
         pprt->onwhichfan   = mesh_get_tile ( PMesh, pprt->pos.x, pprt->pos.y );
         pprt->onwhichblock = mesh_get_block( PMesh, pprt->pos.x, pprt->pos.y );
@@ -584,15 +719,15 @@ void move_particles( void )
         if ( pprt->image >= pprt->imagemax ) pprt->image = 0;
 
         // rotate the particle
-        pprt->rotate += pprt->rotateadd;        
-        
+        pprt->rotate += pprt->rotateadd;
+
         if( 0 != pprt->size_add )
         {
             // resize the paricle
             size_new = pprt->size + pprt->size_add;
             pprt->size = CLIP(size_new, 0, 0xFFFF);
 
-            if( PRTSOLIDSPRITE != pprt->type && 0.0f != pprt->inst.alpha )
+            if( SPRITE_SOLID != pprt->type && 0.0f != pprt->inst.alpha )
             {
                 // adjust the particle alpha
                 if( size_new > 0 )
@@ -615,6 +750,16 @@ void move_particles( void )
 
         pprt->facing += ppip->facingadd;
     }
+}
+
+//--------------------------------------------------------------------------------------------
+void move_all_particles( void )
+{
+    // ZZ> This is the particle physics function
+
+    int cnt, tnc;
+    Uint16 facing, particle;
+    float level;
 
     // do the iterative physics
     for ( cnt = 0; cnt < maxparticles; cnt++ )
@@ -626,18 +771,17 @@ void move_particles( void )
         bool_t hit_a_wall, hit_a_floor;
         GLvector3 nrm;
 
-        if ( !PrtList.lst[cnt].on ) continue;
+        if ( INACTIVE_PRT(cnt) ) continue;
         pprt = PrtList.lst + cnt;
-
-        if ( pprt->is_hidden ) continue;
 
         pprt->pos_old = pprt->pos;
         pprt->vel_old = pprt->vel;
 
-        // To make it easier
-        ipip = pprt->pip_ref;
-        if ( INVALID_PIP( ipip ) ) continue;
-        ppip = PipStack.lst + ipip;
+        ppip = prt_get_ppip( cnt );
+        if ( NULL == ppip ) continue;
+
+        // if the particle is hidden, do nothing
+        if ( pprt->is_hidden ) continue;
 
         lerp_z = (pprt->pos.z - pprt->floor_level) / PLATTOLERANCE;
         lerp_z = CLIP(lerp_z, 0, 1);
@@ -706,9 +850,7 @@ void move_particles( void )
         // handle the collision
         if( (hit_a_wall && ppip->endwall) || (hit_a_floor && ppip->endground) )
         {
-            pprt->time  = frame_all + 1;
-            pprt->poofme = btrue;
-
+            prt_request_terminate( cnt );
             continue;
         }
 
@@ -724,8 +866,8 @@ void move_particles( void )
             // Play the sound for hitting the floor [FSND]
             play_particle_sound( cnt, ppip->soundfloor );
         }
-        
-        if( INVALID_CHR( pprt->attachedto_ref ) && (hit_a_wall || hit_a_floor) )
+
+        if( INACTIVE_CHR( pprt->attachedto_ref ) && (hit_a_wall || hit_a_floor) )
         {
             float fx, fy;
 
@@ -807,20 +949,19 @@ void move_particles( void )
         }
 
         // Do homing
-        if ( ppip->homing && VALID_CHR( pprt->target_ref ) )
+        if ( ppip->homing && ACTIVE_CHR( pprt->target_ref ) )
         {
             if ( !ChrList.lst[pprt->target_ref].alive )
             {
-                pprt->time  = frame_all + 1;
-                pprt->poofme = btrue;
+                prt_request_terminate( cnt );
             }
             else
             {
-                if ( INVALID_CHR( pprt->attachedto_ref ) )
+                if ( INACTIVE_CHR( pprt->attachedto_ref ) )
                 {
                     int       ival;
                     float     vlen, min_length, uncertainty;
-                    GLvector3 vdiff;
+                    GLvector3 vdiff, vdither;
 
                     vdiff = VSub( ChrList.lst[pprt->target_ref].pos, pprt->pos );
                     vdiff.z += ChrList.lst[pprt->target_ref].bump.height * 0.5f;
@@ -831,13 +972,29 @@ void move_particles( void )
                     uncertainty = 256 - ( 256 * ChrList.lst[pprt->owner_ref].intelligence ) / PERFECTBIG;
 
                     ival = RANDIE;
-                    vdiff.x += ( ((float) ival / 0x8000) - 1.0f )  * uncertainty;
+                    vdither.x = ( ((float) ival / 0x8000) - 1.0f )  * uncertainty;
 
                     ival = RANDIE;
-                    vdiff.y += ( ((float) ival / 0x8000) - 1.0f )  * uncertainty;
+                    vdither.y = ( ((float) ival / 0x8000) - 1.0f )  * uncertainty;
 
                     ival = RANDIE;
-                    vdiff.z += ( ((float) ival / 0x8000) - 1.0f )  * uncertainty;
+                    vdither.z = ( ((float) ival / 0x8000) - 1.0f )  * uncertainty;
+
+                    // take away any dithering along the direction of motion of the particle
+                    vlen = VDotProduct(pprt->vel, pprt->vel);
+                    if( vlen > 0.0f )
+                    {
+                        float vdot = VDotProduct(vdither, pprt->vel) / vlen;
+
+                        vdither.x -= vdot * vdiff.x / vlen;
+                        vdither.y -= vdot * vdiff.y / vlen;
+                        vdither.z -= vdot * vdiff.z / vlen;
+                    }
+
+                    // add in the dithering
+                    vdiff.x += vdither.x;
+                    vdiff.y += vdither.y;
+                    vdiff.z += vdither.z;
 
                     // Make sure that vdiff doesn't ever get too small.
                     // That just makes the particle slooooowww down when it approaches the target.
@@ -845,7 +1002,7 @@ void move_particles( void )
                     vlen = ABS(vdiff.x) + ABS(vdiff.y) + ABS(vdiff.z);
                     if( vlen != 0.0f )
                     {
-                        float factor = min_length / vlen; 
+                        float factor = min_length / vlen;
 
                         vdiff.x *= factor;
                         vdiff.y *= factor;
@@ -866,18 +1023,17 @@ void move_particles( void )
         }
 
         // do gravitational acceleration
-        if( INVALID_CHR( pprt->attachedto_ref ) && !ppip->homing )
+        if( INACTIVE_CHR( pprt->attachedto_ref ) && !ppip->homing )
         {
             pprt->vel.z += gravity * lerp_z;
 
             // Do speed limit on Z
-            if ( pprt->vel.z < -ppip->spdlimit )  
+            if ( pprt->vel.z < -ppip->spdlimit )
             {
                 pprt->vel.z = -ppip->spdlimit;
             }
         }
-        
-        
+
         // Spawn new particles if continually spawning
         if ( ppip->contspawn_amount > 0 )
         {
@@ -893,7 +1049,7 @@ void move_particles( void )
                     particle = spawn_one_particle( pprt->pos, facing, pprt->profile_ref, ppip->contspawn_pip,
                                                    MAX_CHR, GRIP_LAST, pprt->team, pprt->owner_ref, cnt, tnc, pprt->target_ref );
 
-                    if ( PipStack.lst[pprt->pip_ref].facingadd != 0 && VALID_PRT(particle) )
+                    if ( PipStack.lst[pprt->pip_ref].facingadd != 0 && ACTIVE_PRT(particle) )
                     {
                         // Hack to fix velocity
                         PrtList.lst[particle].vel.x += pprt->vel.x;
@@ -906,66 +1062,51 @@ void move_particles( void )
             }
         }
 
-        // Check underwater
-        if ( pprt->pos.z < water.douse_level && ppip->endwater && VALID_TILE(PMesh, pprt->onwhichfan) && (0 != mesh_test_fx( PMesh, pprt->onwhichfan, MPDFX_WATER )) )
-        {
-            // try to limit the ripples so they do not appear over dry land...
-            if( pprt->pos.z <= water.surface_level && pprt->pos.z >= mesh_get_level( PMesh, pprt->pos.x, pprt->pos.y ) )
-            {
-                GLvector3 vtmp = VECT3( pprt->pos.x, pprt->pos.y, water.surface_level );
-
-                // Splash for particles is just a ripple
-                spawn_one_particle( vtmp, 0, MAX_PROFILE, PIP_RIPPLE, MAX_CHR, GRIP_LAST, 
-                                    TEAM_NULL, MAX_CHR, TOTAL_MAX_PRT, 0, MAX_CHR );
-            }
-
-            // Check for disaffirming character
-            if ( VALID_CHR( pprt->attachedto_ref ) && pprt->owner_ref == pprt->attachedto_ref )
-            {
-                // Disaffirm the whole character
-                disaffirm_attached_particles( pprt->attachedto_ref );
-            }
-            else
-            {
-                // destroy the particle
-                pprt->time  = frame_all + 1;
-                pprt->poofme = btrue;
-            }
-        }
     }
+}
+
+//--------------------------------------------------------------------------------------------
+void cleanup_all_particles()
+{
+    int iprt, tnc;
 
     // do end-of-life care for particles
-    for ( cnt = 0; cnt < maxparticles; cnt++ )
+    for ( iprt = 0; iprt < maxparticles; iprt++ )
     {
-        pip_t * ppip;
         prt_t * pprt;
+        Uint16  ipip;
+        bool_t  time_out;
 
-        if ( !PrtList.lst[cnt].on ) continue;
-        pprt = PrtList.lst + cnt;
+        if ( !PrtList.lst[iprt].allocated ) continue;
+        pprt = PrtList.lst + iprt;
 
-        // To make it easier
-        ipip = pprt->pip_ref;
-        if ( INVALID_PIP( ipip ) ) continue;
-        ppip = PipStack.lst + ipip;
+        time_out = !pprt->is_eternal && frame_all >= pprt->time;
+        if ( !pprt->kill_me && !time_out ) continue;
 
         // Spawn new particles if time for old one is up
-        if ( pprt->poofme || ( !pprt->is_eternal && frame_all >= pprt->time ) )
+        ipip = pprt->pip_ref;
+        if ( VALID_PIP( ipip ) )
         {
-            facing = pprt->facing;
+            pip_t * ppip;
+            Uint16 facing;
 
+            ppip = PipStack.lst + ipip;
+
+            facing = pprt->facing;
             for ( tnc = 0; tnc < ppip->endspawn_amount; tnc++ )
             {
                 spawn_one_particle( pprt->pos_old, facing, pprt->profile_ref, ppip->endspawn_pip,
-                                    MAX_CHR, GRIP_LAST, pprt->team, pprt->owner_ref, cnt, tnc, pprt->target_ref );
+                    MAX_CHR, GRIP_LAST, pprt->team, pprt->owner_ref, iprt, tnc, pprt->target_ref );
 
                 facing += ppip->endspawn_facingadd;
-                tnc++;
             }
-
-            free_one_particle_in_game( cnt );
         }
+
+        // free the particle
+        free_one_particle_in_game( iprt );
     }
 }
+
 
 //--------------------------------------------------------------------------------------------
 void PrtList_free_all()
@@ -1019,13 +1160,14 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
     Uint16 vertices;
     Uint16 direction;
     float fsin, fcos;
+
     pip_t * ppip;
     chr_t * pchr;
     mad_t * pmad;
     prt_t * pprt;
     cap_t * pcap;
 
-    if ( INVALID_PRT(particle) ) return;
+    if ( INACTIVE_PRT(particle) ) return;
     pprt = PrtList.lst + particle;
 
     if ( INVALID_PIP(pprt->pip_ref) ) return;
@@ -1035,7 +1177,7 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
     if ( 0 == ppip->bumpspawn_amount && !ppip->spawnenchant ) return;
     amount = ppip->bumpspawn_amount;
 
-    if ( INVALID_CHR(character) ) return;
+    if ( INACTIVE_CHR(character) ) return;
     pchr = ChrList.lst + character;
 
     pmad = chr_get_pmad( character );
@@ -1060,8 +1202,10 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
         }
 
         // Spawn particles
-        if ( amount != 0 && !pcap->resistbumpspawn_ && !pchr->invictus && vertices != 0 && ( pchr->damagemodifier[pprt->damagetype]&DAMAGESHIFT ) < 3 )
+        if ( amount != 0 && !pcap->resistbumpspawn && !pchr->invictus && vertices != 0 && ( pchr->damagemodifier[pprt->damagetype]&DAMAGESHIFT ) < 3 )
         {
+            Uint16 bs_part;
+
             if ( amount == 1 )
             {
                 // A single particle ( arrow? ) has been stuck in the character...
@@ -1070,19 +1214,19 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
                 bestvertex = 0;
                 bestdistance = 1 << 31;         //Really high number
 
-                z = -pchr->pos.z + pprt->pos.z + RAISE;
+                z = pprt->pos.z - pchr->pos.z + RAISE;
                 facing = pprt->facing - pchr->turn_z - FACE_NORTH;
                 facing = facing >> 2;
                 fsin = turntosin[facing & TRIG_TABLE_MASK ];
                 fcos = turntocos[facing & TRIG_TABLE_MASK ];
                 x = -8192 * fsin;
                 y =  8192 * fcos;
-                z = z << 10;/// pchr->scale;
-                frame = pmad->md2_data.framestart;
 
                 for ( cnt = 0; cnt < amount; cnt++ )
                 {
-                    distance = ABS( x - Md2FrameList[frame].vrtx[vertices-cnt-1] ) + ABS( y - Md2FrameList[frame].vrty[vertices-cnt-1] ) + ( ABS( z - Md2FrameList[frame].vrtz[vertices-cnt-1] ) );
+                    distance = ABS( x - pchr->inst.vlst[vertices-cnt-1].pos[XX] ) +
+                               ABS( y - pchr->inst.vlst[vertices-cnt-1].pos[YY] ) +
+                               ABS( z - pchr->inst.vlst[vertices-cnt-1].pos[ZZ] );
                     if ( distance < bestdistance )
                     {
                         bestdistance = distance;
@@ -1090,20 +1234,28 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
                     }
                 }
 
-                spawn_one_particle( pchr->pos, 0, pprt->profile_ref, ppip->bumpspawn_pip,
-                                    character, bestvertex + 1, pprt->team, pprt->owner_ref, particle, cnt, character );
+                bs_part = spawn_one_particle( pchr->pos, 0, pprt->profile_ref, ppip->bumpspawn_pip,
+                                               character, bestvertex + 1, pprt->team, pprt->owner_ref, particle, cnt, character );
+
+                if( ACTIVE_PRT(bs_part) )
+                {
+                    PrtList.lst[bs_part].is_bumpspawn = btrue;
+                }
             }
             else
             {
-                //Multiple particles are attached to character
-
-                amount = ( amount * vertices ) >> 5;  // Correct amount for size of character
-
+                // Multiple particles are attached to character
                 for ( cnt = 0; cnt < amount; cnt++ )
                 {
                     int irand = RANDIE;
-                    spawn_one_particle( pchr->pos, 0, pprt->profile_ref, ppip->bumpspawn_pip,
+
+                    bs_part = spawn_one_particle( pchr->pos, 0, pprt->profile_ref, ppip->bumpspawn_pip,
                                         character, irand % vertices, pprt->team, pprt->owner_ref, particle, cnt, character );
+
+                    if( ACTIVE_PRT(bs_part) )
+                    {
+                        PrtList.lst[bs_part].is_bumpspawn = btrue;
+                    }
                 }
             }
         }
@@ -1116,7 +1268,7 @@ int prt_is_over_water( Uint16 cnt )
     // This function returns btrue if the particle is over a water tile
     Uint32 fan;
 
-    if ( INVALID_PRT(cnt) ) return bfalse;
+    if ( INACTIVE_PRT(cnt) ) return bfalse;
 
     fan = mesh_get_tile( PMesh, PrtList.lst[cnt].pos.x, PrtList.lst[cnt].pos.y );
     if ( VALID_TILE(PMesh, fan) )
@@ -1268,7 +1420,7 @@ Uint16  prt_get_ipip( Uint16 iprt )
 {
     prt_t * pprt;
 
-    if( INVALID_PRT(iprt) ) return MAX_PIP;
+    if( INACTIVE_PRT(iprt) ) return MAX_PIP;
     pprt = PrtList.lst + iprt;
 
     if( INVALID_PIP(pprt->pip_ref) ) return MAX_PIP;
@@ -1281,7 +1433,7 @@ pip_t * prt_get_ppip( Uint16 iprt )
 {
     prt_t * pprt;
 
-    if( INVALID_PRT(iprt) ) return NULL;
+    if( INACTIVE_PRT(iprt) ) return NULL;
     pprt = PrtList.lst + iprt;
 
     if( INVALID_PIP(pprt->pip_ref) ) return NULL;
@@ -1327,6 +1479,17 @@ bool_t release_one_pip( Uint16 ipip )
 
     ppip->loaded  = bfalse;
     ppip->name[0] = '\0';
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t prt_request_terminate( Uint16 iprt )
+{
+    if( INACTIVE_PRT(iprt) ) return bfalse;
+
+    PrtList.lst[iprt].kill_me = btrue;
+    PrtList.lst[iprt].active  = bfalse;
 
     return btrue;
 }

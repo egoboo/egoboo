@@ -54,7 +54,7 @@ struct s_enc
 {
     EGO_OBJECT_STUFF
 
-    Sint16  time;                    // Time before end
+    int     time;                    // Time before end
     Uint16  spawntime;               // Time before spawn
 
     Uint16  profile_ref;             // The object  profile index that spawned this enchant
@@ -82,17 +82,24 @@ typedef struct s_enc enc_t;
 DEFINE_LIST_EXTERN(enc_t, EncList, MAX_ENC );
 
 #define VALID_ENC_RANGE( IENC ) ( ((IENC) >= 0) && ((IENC) < MAX_ENC) )
-#define VALID_ENC( IENC )       ( VALID_ENC_RANGE( IENC ) && EncList.lst[IENC].on )
-#define INVALID_ENC( IENC )     ( !VALID_ENC_RANGE( IENC ) || !EncList.lst[IENC].on )
+#define ALLOCATED_ENC( IENC )   ( VALID_ENC_RANGE( IENC ) && EncList.lst[IENC].allocated )
+#define ACTIVE_ENC( IENC )       ( ALLOCATED_ENC( IENC ) && EncList.lst[IENC].active )
+#define INACTIVE_ENC( IENC )     ( !ALLOCATED_ENC( IENC ) || !EncList.lst[IENC].active )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+// Prototypes
+
 void init_all_eve();
 void release_all_eve();
 bool_t release_one_eve( Uint16 ieve );
 
-// Prototypes
 void EncList_free_all();
+
+void update_all_enchants();
+void cleanup_all_enchants();
+Uint16 cleanup_enchant_list( Uint16 ienc );
+
 void getadd( int min, int value, int max, int* valuetoadd );
 void fgetadd( float min, float value, float max, float* valuetoadd );
 Uint16 EncList_get_free();
@@ -117,3 +124,5 @@ eve_t        * enc_get_peve  ( Uint16 ienc );
 
 IDSZ   enc_get_idszremove( Uint16 ienc );
 bool_t enc_is_removed( Uint16 ienc, Uint16 test_profile );
+
+bool_t enc_request_terminate( Uint16 ienc );

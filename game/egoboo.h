@@ -132,10 +132,11 @@ EXTERN Sint32          clock_all   EQ( 0 );             // The total number of t
 EXTERN Sint32          clock_lst   EQ( 0 );             // The last total of ticks so far
 EXTERN Sint32          clock_wld   EQ( 0 );             // The sync clock
 EXTERN Sint32          clock_fps   EQ( 0 );             // The number of ticks this second
-EXTERN Uint32          update_wld  EQ( 0 );            // The number of times the game has been updated
+EXTERN Uint32          update_wld  EQ( 0 );             // The number of times the game has been updated
 EXTERN Uint32          frame_all   EQ( 0 );             // The total number of frames drawn so far
 EXTERN Uint32          frame_fps   EQ( 0 );             // The number of frames drawn this second
-EXTERN Uint32          clock_stat  EQ( 0 );            // For stat regeneration
+EXTERN Uint32          clock_enc_stat  EQ( 0 );         // For character stat regeneration
+EXTERN Uint32          clock_chr_stat  EQ( 0 );         // For enchant stat regeneration
 EXTERN Uint32          clock_pit   EQ( 0 );             // For pit kills
 EXTERN Uint32          outofsync   EQ( 0 );
 

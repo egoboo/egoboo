@@ -287,10 +287,10 @@ const char * vfs_resolveWriteFilename(const char * src_filename )
 
     write_dir = PHYSFS_getWriteDir();
     if( NULL == write_dir )
-	{
-		log_warning("PhysFS could not get write directory!\n");
-		return NULL;
-	}
+    {
+        log_warning("PhysFS could not get write directory!\n");
+        return NULL;
+    }
 
     // append the write_dir to the src_filename to get the total path
     snprintf( szFname, SDL_arraysize(szFname), "%s" SLASH_STR "%s", write_dir, src_filename );
@@ -1198,9 +1198,9 @@ int vfs_removeDirectoryAndContents( const char * dirname, int recursive )
     write_dir = vfs_resolveWriteFilename( dirname );
     if( !fs_fileIsDirectory(write_dir) ) return VFS_FALSE;
 
-	//ZF> uncommented because it made my egoboo crash
+    //ZF> uncommented because it made my egoboo crash
     fs_removeDirectoryAndContents( write_dir, recursive );
-	//ZF> end
+    //ZF> end
 
     return VFS_TRUE;
 }
