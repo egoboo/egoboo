@@ -33,11 +33,16 @@
 // Different set values for enchants
 typedef enum enchant_set
 {
-    SETDAMAGETYPE = 0,      // Type of damage dealt
+    // this must be first since the 
+    // character must be morphed before adding any of the other enchants
+
+    SETMORPH = 0,           // Morph character?
+
+    SETDAMAGETYPE,          // Type of damage dealt
     SETNUMBEROFJUMPS,       // Max number of jumps
     SETLIFEBARCOLOR,        // Color of life bar
     SETMANABARCOLOR,        // Color of mana bar
-    SETSLASHMODIFIER,      // Damage modifiers
+    SETSLASHMODIFIER,       // Damage modifiers
     SETCRUSHMODIFIER,
     SETPOKEMODIFIER,
     SETHOLYMODIFIER,
@@ -54,9 +59,12 @@ typedef enum enchant_set
     SETCANSEEINVISIBLE,         // Can it see invisible?
     SETMISSILETREATMENT,        // How to treat missiles
     SETCOSTFOREACHMISSILE,      // Cost for each missile treat
-    SETMORPH,                   // Morph character?
     SETCHANNEL,                 // Can channel life as mana?
-    MAX_ENCHANT_SET
+    MAX_ENCHANT_SET,
+
+    ENC_SET_FIRST = SETMORPH,
+    ENC_SET_LAST  = SETCHANNEL
+
 } enum_enchant_set;
 
 //--------------------------------------------------------------------------------------------
@@ -78,7 +86,11 @@ typedef enum enchant_add
     ADDWISDOM,
     ADDINTELLIGENCE,
     ADDDEXTERITY,
-    MAX_ENCHANT_ADD
+    MAX_ENCHANT_ADD,
+
+    ENC_ADD_FIRST = ADDJUMPPOWER,
+    ENC_ADD_LAST  = ADDDEXTERITY
+
 } enum_enchant_add;
 
 //--------------------------------------------------------------------------------------------

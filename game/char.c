@@ -64,17 +64,22 @@ DECLARE_LIST ( ACCESS_TYPE_NONE, chr_t,  ChrList  );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static bool_t chr_instance_init( chr_instance_t * pinst, Uint16 profile, Uint8 skin );
+static chr_instance_t * chr_instance_init( chr_instance_t * pinst );
+static bool_t           chr_instance_spawn( chr_instance_t * pinst, Uint16 profile, Uint8 skin );
+static bool_t           chr_instance_set_mad( chr_instance_t * pinst, Uint16 imad );
+
 static Uint16 pack_has_a_stack( Uint16 item, Uint16 character );
 static bool_t pack_add_item( Uint16 item, Uint16 character );
 static Uint16 pack_get_item( Uint16 character, grip_offset_t grip_off, bool_t ignorekurse );
-static void set_weapongrip( Uint16 iitem, Uint16 iholder, Uint16 vrt_off );
+static void   set_weapongrip( Uint16 iitem, Uint16 iholder, Uint16 vrt_off );
 
 static int chr_add_billboard( Uint16 ichr, Uint32 lifetime_secs );
 
 static void resize_all_characters();
 
-static void chr_init( chr_t * pchr );
+static chr_t * chr_init( chr_t * pchr );
+
+static ai_state_t * ai_state_init( ai_state_t * pself );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -101,7 +106,7 @@ void flash_character_height( Uint16 character, Uint8 valuelow, Sint16 low,
     pmad = chr_get_pmad(character);
     if( NULL == pmad ) return;
 
-    for ( cnt = 0; cnt < pmad->transvertices; cnt++  )
+    for ( cnt = 0; cnt < pmad->md2_data.vertices; cnt++  )
     {
         z = Md2FrameList[pinst->frame_nxt].vrtz[cnt];
 
@@ -136,11 +141,11 @@ void keep_weapons_with_holders()
     {
         chr_t * pchr;
 
-        if ( INACTIVE_CHR(cnt) ) continue;
+        if ( !ACTIVE_CHR(cnt) ) continue;
         pchr = ChrList.lst + cnt;
 
         iattached = pchr->attachedto;
-        if ( INACTIVE_CHR(iattached) )
+        if ( !ACTIVE_CHR(iattached) )
         {
             pchr->attachedto = MAX_CHR;
 
@@ -228,7 +233,7 @@ void make_one_character_matrix( Uint16 cnt )
     chr_t * pchr;
     chr_instance_t * pinst;
 
-    if ( INACTIVE_CHR( cnt ) ) return;
+    if ( !ACTIVE_CHR( cnt ) ) return;
     pchr = ChrList.lst + cnt;
     pinst = &(pchr->inst);
 
@@ -345,7 +350,7 @@ void free_one_character_in_game( Uint16 character )
     {
         ai_state_t * pai;
 
-        if ( INACTIVE_CHR(cnt) || cnt == character ) continue;
+        if ( !ACTIVE_CHR(cnt) || cnt == character ) continue;
         pai = chr_get_pai(cnt);
 
         if ( pai->target == character )
@@ -410,11 +415,11 @@ void attach_particle_to_character( Uint16 particle, Uint16 character, int vertex
     chr_t * pchr;
     prt_t * pprt;
 
-    if( INACTIVE_PRT(particle) ) return;
+    if( !ACTIVE_PRT(particle) ) return;
     pprt = PrtList.lst + particle;
 
     // Check validity of attachment
-    if ( INACTIVE_CHR(character) || ChrList.lst[character].pack_ispacked )
+    if ( !ACTIVE_CHR(character) || ChrList.lst[character].pack_ispacked )
     {
         prt_request_terminate( particle );
         return;
@@ -488,10 +493,10 @@ void make_one_weapon_matrix( Uint16 iweap, Uint16 iholder, bool_t do_physics )
     // turn this off for now
     do_physics = bfalse;
 
-    if ( INACTIVE_CHR(iweap) ) return;
+    if ( !ACTIVE_CHR(iweap) ) return;
     pweap = ChrList.lst + iweap;
 
-    if(  INACTIVE_CHR(iholder) ) return;
+    if(  !ACTIVE_CHR(iholder) ) return;
     pholder = ChrList.lst + iholder;
 
     // make sure that the matrix is invalid incase of an error
@@ -716,9 +721,9 @@ void make_all_character_matrices(bool_t do_physics)
     // Do base characters
     for ( ichr = 0; ichr < MAX_CHR; ichr++ )
     {
-        if ( INACTIVE_CHR(ichr) ) continue;
+        if ( !ACTIVE_CHR(ichr) ) continue;
 
-        if ( INACTIVE_CHR( ChrList.lst[ichr].attachedto ) )
+        if ( !ACTIVE_CHR( ChrList.lst[ichr].attachedto ) )
         {
             make_one_character_matrix( ichr );
         }
@@ -733,13 +738,13 @@ void make_all_character_matrices(bool_t do_physics)
             chr_t * pchr;
             Uint16 imount;
 
-            if ( INACTIVE_CHR(ichr) ) continue;
+            if ( !ACTIVE_CHR(ichr) ) continue;
             pchr = ChrList.lst + ichr;
 
             if ( pchr->inst.matrixvalid ) continue;
 
             imount = pchr->attachedto;
-            if ( INACTIVE_CHR(imount) || imount == ichr )
+            if ( !ACTIVE_CHR(imount) || imount == ichr )
             {
                 pchr->attachedto = MAX_CHR;
                 make_one_character_matrix( ichr );
@@ -769,7 +774,7 @@ void make_all_character_matrices(bool_t do_physics)
     //        float tmpx, tmpy, tmpz;
     //        chr_t * pchr;
 
-    //        if ( INACTIVE_CHR(ichr) ) continue;
+    //        if ( !ACTIVE_CHR(ichr) ) continue;
     //        pchr = ChrList.lst + ichr;
 
     //        // do the "integration" of the accumulated accelerations
@@ -837,7 +842,7 @@ void make_all_character_matrices(bool_t do_physics)
     //    {
     //        chr_t * pchr;
 
-    //        if ( INACTIVE_CHR(ichr) ) continue;
+    //        if ( !ACTIVE_CHR(ichr) ) continue;
     //        pchr = ChrList.lst + ichr;
 
     //        if( !pchr->inst.matrixvalid ) continue;
@@ -914,7 +919,7 @@ Uint32 __chrhitawall( Uint16 character, float nrm[] )
     bool_t invalid;
     chr_t * pchr;
 
-    if ( INACTIVE_CHR(character) ) return 0;
+    if ( !ACTIVE_CHR(character) ) return 0;
     pchr = ChrList.lst + character;
 
     if ( 0 == pchr->bump.size || 0xFFFFFFFF == pchr->weight ) return 0;
@@ -998,7 +1003,7 @@ void reset_character_accel( Uint16 character )
     chr_t * pchr;
     cap_t * pcap;
 
-    if ( INACTIVE_CHR(character) ) return;
+    if ( !ACTIVE_CHR(character) ) return;
     pchr = ChrList.lst + character;
 
     // Okay, remove all acceleration enchants
@@ -1038,12 +1043,12 @@ bool_t detach_character_from_mount( Uint16 character, Uint8 ignorekurse, Uint8 d
     chr_t * pchr, * pmount;
 
     // Make sure the character is valid
-    if ( INACTIVE_CHR(character) ) return bfalse;
+    if ( !ACTIVE_CHR(character) ) return bfalse;
     pchr = ChrList.lst + character;
 
     // Make sure the character is mounted
     mount = ChrList.lst[character].attachedto;
-    if ( INACTIVE_CHR(mount) ) return bfalse;
+    if ( !ACTIVE_CHR(mount) ) return bfalse;
     pmount = ChrList.lst + mount;
 
     // Don't allow living characters to drop kursed weapons
@@ -1201,6 +1206,7 @@ bool_t detach_character_from_mount( Uint16 character, Uint8 ignorekurse, Uint8 d
         {
             unset_enchant_value( enchant, SETALPHABLEND );
             unset_enchant_value( enchant, SETLIGHTBLEND );
+
             enchant = EncList.lst[enchant].nextenchant_ref;
         }
 
@@ -1209,8 +1215,14 @@ bool_t detach_character_from_mount( Uint16 character, Uint8 ignorekurse, Uint8 d
         enchant = pchr->firstenchant;
         while ( enchant != MAX_ENC )
         {
-            set_enchant_value( enchant, SETALPHABLEND, enc_get_ieve(enchant) );
-            set_enchant_value( enchant, SETLIGHTBLEND, enc_get_ieve(enchant) );
+            Uint16 ipro = enc_get_ipro( enchant );
+
+            if( VALID_PRO( ipro ) )
+            {
+                set_enchant_value( enchant, SETALPHABLEND, ipro );
+                set_enchant_value( enchant, SETLIGHTBLEND, ipro );
+            }
+
             enchant = EncList.lst[enchant].nextenchant_ref;
         }
     }
@@ -1232,12 +1244,12 @@ void reset_character_alpha( Uint16 character )
     chr_t * pchr, * pmount;
 
     // Make sure the character is valid
-    if ( INACTIVE_CHR(character) ) return;
+    if ( !ACTIVE_CHR(character) ) return;
     pchr = ChrList.lst + character;
 
     // Make sure the character is mounted
     mount = ChrList.lst[character].attachedto;
-    if ( INACTIVE_CHR(mount) ) return;
+    if ( !ACTIVE_CHR(mount) ) return;
     pmount = ChrList.lst + mount;
 
     if ( pchr->isitem && pmount->transferblend )
@@ -1248,6 +1260,7 @@ void reset_character_alpha( Uint16 character )
         {
             unset_enchant_value( enchant, SETALPHABLEND );
             unset_enchant_value( enchant, SETLIGHTBLEND );
+
             enchant = EncList.lst[enchant].nextenchant_ref;
         }
 
@@ -1257,8 +1270,14 @@ void reset_character_alpha( Uint16 character )
         enchant = pchr->firstenchant;
         while ( enchant != MAX_ENC )
         {
-            set_enchant_value( enchant, SETALPHABLEND, enc_get_ieve(enchant) );
-            set_enchant_value( enchant, SETLIGHTBLEND, enc_get_ieve(enchant) );
+            Uint16 ipro = enc_get_ipro( enchant );
+
+            if( VALID_PRO( ipro ) )
+            {
+                set_enchant_value( enchant, SETALPHABLEND, ipro );
+                set_enchant_value( enchant, SETLIGHTBLEND, ipro );
+            }
+
             enchant = EncList.lst[enchant].nextenchant_ref;
         }
     }
@@ -1275,7 +1294,7 @@ void attach_character_to_mount( Uint16 iitem, Uint16 iholder, grip_offset_t grip
     chr_t * pitem, * pholder;
 
     // Make sure the character/item is valid
-    if ( INACTIVE_CHR(iitem) || ChrList.lst[iitem].pack_ispacked ) return;
+    if ( !ACTIVE_CHR(iitem) || ChrList.lst[iitem].pack_ispacked ) return;
     pitem = ChrList.lst + iitem;
 
     // make a reasonable time for the character to remount something
@@ -1284,7 +1303,7 @@ void attach_character_to_mount( Uint16 iitem, Uint16 iholder, grip_offset_t grip
         return;
 
     // Make sure the holder/mount is valid
-    if ( INACTIVE_CHR(iholder) || ChrList.lst[iholder].pack_ispacked ) return;
+    if ( !ACTIVE_CHR(iholder) || ChrList.lst[iholder].pack_ispacked ) return;
     pholder = ChrList.lst + iholder;
 
 #if !defined(ENABLE_BODY_GRAB)
@@ -1369,7 +1388,7 @@ bool_t inventory_add_item( Uint16 item, Uint16 character )
     int     slot_count;
     int     cnt;
 
-    if ( INACTIVE_CHR(item) ) return bfalse;
+    if ( !ACTIVE_CHR(item) ) return bfalse;
     pitem = ChrList.lst + item;
 
     // don't allow sub-inventories
@@ -1378,7 +1397,7 @@ bool_t inventory_add_item( Uint16 item, Uint16 character )
     pcap_item = pro_get_pcap(pitem->iprofile);
     if ( NULL == pcap_item ) return bfalse;
 
-    if ( INACTIVE_CHR(character) ) return bfalse;
+    if ( !ACTIVE_CHR(character) ) return bfalse;
     pchr = ChrList.lst + character;
 
     // don't allow sub-inventories
@@ -1422,7 +1441,7 @@ Uint16 inventory_get_item( Uint16 ichr, grip_offset_t grip_off, bool_t ignorekur
     Uint16  iitem;
     int     cnt;
 
-    if ( INACTIVE_CHR(ichr) ) return bfalse;
+    if ( !ACTIVE_CHR(ichr) ) return bfalse;
     pchr = ChrList.lst + ichr;
 
     if (  pchr->pack_ispacked || pchr->isitem || MAX_CHR == pchr->pack_next )
@@ -1460,7 +1479,7 @@ Uint16 pack_has_a_stack( Uint16 item, Uint16 character )
     Uint16 pack_ispacked, id;
     bool_t allok;
 
-    if ( INACTIVE_CHR( item ) ) return MAX_CHR;
+    if ( !ACTIVE_CHR( item ) ) return MAX_CHR;
 
     if ( chr_get_pcap(item)->isstackable )
     {
@@ -1510,7 +1529,7 @@ bool_t pack_add_item( Uint16 item, Uint16 character )
     // ZZ> This function puts one character inside the other's pack
     Uint16 oldfirstitem, newammo, stack;
 
-    if ( INACTIVE_CHR( item ) || INACTIVE_CHR( character ) ) return bfalse;
+    if ( !ACTIVE_CHR( item ) || !ACTIVE_CHR( character ) ) return bfalse;
 
     // Make sure everything is hunkydori
     if ( ChrList.lst[item].pack_ispacked || ChrList.lst[character].pack_ispacked || ChrList.lst[character].isitem )
@@ -1596,7 +1615,7 @@ Uint16 pack_get_item( Uint16 character, grip_offset_t grip_off, bool_t ignorekur
     Uint16 item, nexttolastitem;
 
     // does the character exist?
-    if ( INACTIVE_CHR( character ) ) return MAX_CHR;
+    if ( !ACTIVE_CHR( character ) ) return MAX_CHR;
 
     // Can the character have a pack?
     if ( ChrList.lst[character].pack_ispacked || ChrList.lst[character].isitem )
@@ -1660,7 +1679,7 @@ void drop_keys( Uint16 character )
     Uint16 item, lastitem, nextitem, direction;
     IDSZ testa, testz;
 
-    if ( INACTIVE_CHR( character ) ) return;
+    if ( !ACTIVE_CHR( character ) ) return;
     pchr = ChrList.lst + character;
 
     if ( pchr->pos.z > -2 ) // Don't lose keys in pits...
@@ -1723,7 +1742,7 @@ bool_t drop_all_items( Uint16 character )
     Uint16 item, direction, diradd;
     chr_t * pchr;
 
-    if ( INACTIVE_CHR(character) ) return bfalse;
+    if ( !ACTIVE_CHR(character) ) return bfalse;
     pchr = ChrList.lst + character;
 
     detach_character_from_mount( pchr->holdingwhich[SLOT_LEFT], btrue, bfalse );
@@ -1828,7 +1847,7 @@ bool_t character_grab_stuff( Uint16 ichr_a, grip_offset_t grip_off, bool_t grab_
     int         ungrab_count = 0;
     grab_data_t ungrab_list[MAX_CHR];
 
-    if( INACTIVE_CHR(ichr_a) ) return bfalse;
+    if( !ACTIVE_CHR(ichr_a) ) return bfalse;
     pchr_a = ChrList.lst + ichr_a;
 
     ticks = SDL_GetTicks();
@@ -1876,7 +1895,7 @@ bool_t character_grab_stuff( Uint16 ichr_a, grip_offset_t grip_off, bool_t grab_
         chr_t   * pchr_b;
         bool_t    can_grab = btrue;
 
-        if ( INACTIVE_CHR(ichr_b) ) continue;
+        if ( !ACTIVE_CHR(ichr_b) ) continue;
         pchr_b = ChrList.lst + ichr_b;
 
         // do nothing to yourself
@@ -2160,7 +2179,7 @@ void character_swipe( Uint16 cnt, slot_t slot )
     chr_t * pchr, * pweapon;
     cap_t * pweapon_cap;
 
-    if( INACTIVE_CHR(cnt) ) return;
+    if( !ACTIVE_CHR(cnt) ) return;
     pchr = ChrList.lst + cnt;
 
     weapon = pchr->holdingwhich[slot];
@@ -2174,7 +2193,7 @@ void character_swipe( Uint16 cnt, slot_t slot )
         spawngrip = slot_to_grip_offset( slot );  // 0 -> GRIP_LEFT, 1 -> GRIP_RIGHT
     }
 
-    if( INACTIVE_CHR(weapon) ) return;
+    if( !ACTIVE_CHR(weapon) ) return;
     pweapon = ChrList.lst + weapon;
 
     pweapon_cap = chr_get_pcap(weapon);
@@ -2207,7 +2226,7 @@ void character_swipe( Uint16 cnt, slot_t slot )
             {
                 // Poof the item
                 detach_character_from_mount( weapon, btrue, bfalse );
-                chr_request_terminate( pweapon->ai.index );
+                chr_request_terminate( pweapon->index );
             }
             else
             {
@@ -2249,7 +2268,7 @@ void character_swipe( Uint16 cnt, slot_t slot )
                         pprt->attachedto_ref = MAX_CHR;
 
                         // Detach the particle
-                        if ( !prt_get_ppip(particle)->startontarget || INACTIVE_CHR(pprt->target_ref) )
+                        if ( !prt_get_ppip(particle)->startontarget || !ACTIVE_CHR(pprt->target_ref) )
                         {
                             attach_particle_to_character( particle, weapon, spawngrip );
 
@@ -2294,7 +2313,7 @@ void drop_money( Uint16 character, Uint16 money )
     // ZZ> This function drops some of a character's money
     Uint16 huns, tfives, fives, ones, cnt;
 
-    if ( INACTIVE_CHR( character ) ) return;
+    if ( !ACTIVE_CHR( character ) ) return;
 
     if ( money > ChrList.lst[character].money )  money = ChrList.lst[character].money;
     if ( money > 0 && ChrList.lst[character].pos.z > -2 )
@@ -2336,7 +2355,7 @@ void call_for_help( Uint16 character )
     Uint8 team;
     Uint16 cnt;
 
-    if ( INACTIVE_CHR( character ) ) return;
+    if ( !ACTIVE_CHR( character ) ) return;
 
     team = chr_get_iteam(character);
     TeamList[team].sissy = character;
@@ -2381,7 +2400,7 @@ void do_level_up( Uint16 character )
     chr_t * pchr;
     cap_t * pcap;
 
-    if ( INACTIVE_CHR(character) ) return;
+    if ( !ACTIVE_CHR(character) ) return;
     pchr = ChrList.lst + character;
 
     pcap = chr_get_pcap( character );
@@ -2475,7 +2494,7 @@ void give_experience( Uint16 character, int amount, Uint8 xptype, bool_t overrid
     chr_t * pchr;
     cap_t * pcap;
 
-    if ( INACTIVE_CHR( character ) ) return;
+    if ( !ACTIVE_CHR( character ) ) return;
     pchr = ChrList.lst + character;
 
     pcap = chr_get_pcap(character);
@@ -2535,7 +2554,7 @@ void resize_all_characters()
     {
         chr_t * pchr;
 
-        if ( INACTIVE_CHR(ichr) ) continue;
+        if ( !ACTIVE_CHR(ichr) ) continue;
         pchr = ChrList.lst + ichr;
 
         if(  0 != pchr->fat_goto_time ) continue;
@@ -2598,7 +2617,7 @@ bool_t export_one_character_name( const char *szSaveName, Uint16 character )
     char cTmp;
     int cnt, tnc;
 
-    if ( INACTIVE_CHR(character) ) return bfalse;
+    if ( !ACTIVE_CHR(character) ) return bfalse;
 
     // Can it export?
     filewrite = vfs_openWrite( szSaveName );
@@ -2653,7 +2672,7 @@ bool_t export_one_character_profile( const char *szSaveName, Uint16 character )
     chr_t * pchr;
     cap_t * pcap;
 
-    if ( INACTIVE_CHR(character) ) return bfalse;
+    if ( !ACTIVE_CHR(character) ) return bfalse;
     pchr = ChrList.lst + character;
 
     // General stuff
@@ -2985,7 +3004,7 @@ bool_t export_one_character_skin( const char *szSaveName, Uint16 character )
     // ZZ> This function creates a skin.txt file for the given character.
     vfs_FILE* filewrite;
 
-    if ( INACTIVE_CHR(character) ) return bfalse;
+    if ( !ACTIVE_CHR(character) ) return bfalse;
 
     // Open the file
     filewrite = vfs_openWrite( szSaveName );
@@ -3084,7 +3103,7 @@ int load_one_character_profile( const char * tmploadname, int slot_override, boo
 bool_t heal_character( Uint16 character, Uint16 healer, int amount, bool_t ignoreinvincible)
 {
     // ZF> This function gives some pure life points to the target, ignoring any resistances and so forth
-    if ( INACTIVE_CHR(character) || amount == 0 || !ChrList.lst[character].alive || (ChrList.lst[character].invictus && !ignoreinvincible) ) return bfalse;
+    if ( !ACTIVE_CHR(character) || amount == 0 || !ChrList.lst[character].alive || (ChrList.lst[character].invictus && !ignoreinvincible) ) return bfalse;
 
     ChrList.lst[character].life = CLIP(ChrList.lst[character].life, ChrList.lst[character].life + ABS(amount), ChrList.lst[character].lifemax);
 
@@ -3115,7 +3134,7 @@ void damage_character( Uint16 character, Uint16 direction,
     Uint16 experience, left, right;
     chr_t * pchr;
 
-    if ( INACTIVE_CHR(character) ) return;
+    if ( !ACTIVE_CHR(character) ) return;
     pchr = ChrList.lst + character;
 
     if ( pchr->alive && damage.base >= 0 && damage.rand >= 1 )
@@ -3331,7 +3350,7 @@ void damage_character( Uint16 character, Uint16 direction,
                         {
                             chr_t * plistener;
 
-                            if ( INACTIVE_CHR(tnc) ) continue;
+                            if ( !ACTIVE_CHR(tnc) ) continue;
                             plistener = ChrList.lst + tnc;
 
                             if( !plistener->alive ) continue;
@@ -3426,7 +3445,7 @@ void kill_character( Uint16 character, Uint16 killer )
     Uint8 modifier;
     chr_t * pchr;
 
-    if ( INACTIVE_CHR( character ) ) return;
+    if ( !ACTIVE_CHR( character ) ) return;
     pchr = ChrList.lst + character;
 
     if ( pchr->alive )
@@ -3462,7 +3481,7 @@ void spawn_poof( Uint16 character, Uint16 profile )
     chr_t * pchr;
     cap_t * pcap;
 
-    if ( INACTIVE_CHR( character ) ) return;
+    if ( !ACTIVE_CHR( character ) ) return;
     pchr = ChrList.lst + character;
 
     pcap = pro_get_pcap( profile );
@@ -3524,47 +3543,68 @@ char * chop_create( Uint16 profile )
 }
 
 //--------------------------------------------------------------------------------------------
-void init_ai_state( ai_state_t * pself, Uint16 index, Uint16 icap, Uint16 iobj, Uint16 rank )
+ai_state_t * ai_state_init( ai_state_t * pself )
 {
-    int tnc;
-    if ( NULL == pself || index >= MAX_CHR ) return;
+    if( NULL == pself ) return pself;
 
-    // clear out everything
+    // set everything to safe values
     memset( pself, 0, sizeof(ai_state_t) );
 
+    pself->index      = MAX_CHR;
+    pself->target     = MAX_CHR;
+    pself->owner      = MAX_CHR;
+    pself->child      = MAX_CHR;
+    pself->target_old = MAX_CHR;
+    pself->poof_time  = -1;
+
+    pself->bumplast   = MAX_CHR;
+    pself->attacklast = MAX_CHR;
+    pself->hitlast    = MAX_CHR;
+    pself->searchlast = MAX_CHR;
+
+    return pself;
+}
+
+//--------------------------------------------------------------------------------------------
+void ai_state_spawn( ai_state_t * pself, Uint16 index, Uint16 iobj, Uint16 rank )
+{
+    chr_t * pchr;
+    pro_t * ppro;
+    cap_t * pcap;
+
+    pself = ai_state_init( pself );
+
+    if ( NULL == pself || !ALLOCATED_CHR(index) ) return;
+    pchr = ChrList.lst + index;
+
+    // a character cannot be spawned without a valid profile
+    if( INVALID_PRO(iobj) ) return;
+    ppro = ProList.lst + iobj;
+
+    // a character cannot be spawned without a valid cap
+    pcap = pro_get_pcap( iobj );
+    if( NULL == pcap ) return;
+
     pself->index      = index;
-    pself->type       = ProList.lst[iobj].iai;
+    pself->type       = ppro->iai;
     pself->alert      = ALERTIF_SPAWNED;
-    pself->state      = CapList[icap].stateoverride;
-    pself->content    = CapList[icap].contentoverride;
+    pself->state      = pcap->stateoverride;
+    pself->content    = pcap->contentoverride;
     pself->passage    = 0;
     pself->target     = index;
     pself->owner      = index;
     pself->child      = index;
-    pself->target_old = pself->target;
-    pself->poof_time  = -1;
-
-    pself->timer      = 0;
+    pself->target_old = index;
 
     pself->bumplast   = index;
-    pself->attacklast = MAX_CHR;
     pself->hitlast    = index;
-    pself->searchlast = MAX_CHR;
 
     pself->order_counter = rank;
     pself->order_value   = 0;
-
-    pself->wp_tail = 0;
-    pself->wp_head = 0;
-    for ( tnc = 0; tnc < MAXSTOR; tnc++ )
-    {
-        pself->x[tnc] = 0;
-        pself->y[tnc] = 0;
-    }
 }
 
 //--------------------------------------------------------------------------------------------
-void chr_init( chr_t * pchr )
+chr_t * chr_init( chr_t * pchr )
 {
     // BB> initialize the character data to safe values
     //     since we use memset(..., 0, ...), all = 0, = false, and = 0.0f
@@ -3572,7 +3612,7 @@ void chr_init( chr_t * pchr )
 
     int cnt;
 
-    if( NULL == pchr ) return;
+    if( NULL == pchr ) return pchr;
 
     // clear out all data
     memset(pchr, 0, sizeof(chr_t));
@@ -3687,6 +3727,14 @@ void chr_init( chr_t * pchr )
     {
         pchr->weapongrip[cnt] = 0xFFFF;
     }
+
+    // set the ai state values to sefe values
+    ai_state_init( &(pchr->ai) );
+
+    // set the insance values to safe values
+    chr_instance_init( &(pchr->inst) );
+
+    return pchr;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3785,8 +3833,7 @@ Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
     chr_init( pchr );
 
     // turn the character on here. you can't fail to spawn after this point.
-    pchr->allocated = btrue;
-    pchr->active    = btrue;
+    EGO_OBJECT_ACTIVATE( pchr, ichr, "Blah" );
 
     // Make sure the team is valid
     team = MIN( team, TEAM_MAX - 1 );
@@ -3846,7 +3893,7 @@ Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
     if ( pchr->gender == GENDER_RANDOM )  pchr->gender = generate_randmask( GENDER_FEMALE, 1 );
 
     // AI stuff
-    init_ai_state( &(pchr->ai), ichr, icap, pchr->iprofile, TeamList[team].morale );
+    ai_state_spawn( &(pchr->ai), ichr, pchr->iprofile, TeamList[team].morale );
 
     // Team stuff
     pchr->team = team;
@@ -4029,13 +4076,16 @@ Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
     if ( pcap->isvaluable ) pchr->isshopitem = btrue;
 
     // initalize the character instance
-    chr_instance_init( &(pchr->inst), profile, skin );
+    chr_instance_spawn( &(pchr->inst), profile, skin );
     chr_update_matrix( ichr );
 
     if ( 0 == __chrhitawall(ichr, nrm) )
     {
         pchr->safe_valid = btrue;
     };
+
+    // determine whether the object is hidden
+    chr_update_hide( pchr );
 
     return ichr;
 }
@@ -4045,15 +4095,18 @@ void respawn_character( Uint16 character )
 {
     // ZZ> This function respawns a character
     Uint16 item;
+    int old_attached_prt_count, new_attached_prt_count;
 
     chr_t * pchr;
     cap_t * pcap;
 
-    if ( INACTIVE_CHR( character ) || ChrList.lst[character].alive ) return;
+    if ( !ACTIVE_CHR( character ) || ChrList.lst[character].alive ) return;
     pchr = ChrList.lst + character;
 
     pcap = chr_get_pcap( character );
     if ( NULL == pcap ) return;
+
+    old_attached_prt_count = number_of_attached_particles( character ); 
 
     spawn_poof( character, pchr->iprofile );
     disaffirm_attached_particles( character );
@@ -4097,7 +4150,6 @@ void respawn_character( Uint16 character )
 
     pchr->grogtime = 0;
     pchr->dazetime = 0;
-    reaffirm_attached_particles( character );
 
     // Let worn items come back
     for ( item = pchr->pack_next; item < MAX_CHR; item = ChrList.lst[item].pack_next )
@@ -4110,7 +4162,17 @@ void respawn_character( Uint16 character )
     }
 
     // re-initialize the instance
-    chr_instance_init( &(pchr->inst), pchr->iprofile, pchr->skin );
+    chr_instance_spawn( &(pchr->inst), pchr->iprofile, pchr->skin );
+    chr_update_matrix( character );
+
+    // determine whether the object is hidden
+    chr_update_hide( pchr );
+
+    if( !pchr->is_hidden )
+    {
+        reaffirm_attached_particles( character );
+        new_attached_prt_count = number_of_attached_particles( character );
+    }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4121,7 +4183,7 @@ int chr_change_skin( Uint16 character, int skin )
     mad_t * pmad;
     chr_instance_t * pinst;
 
-    if ( INACTIVE_CHR(character) ) return 0;
+    if ( !ACTIVE_CHR(character) ) return 0;
     pchr  = ChrList.lst + character;
     pinst = &(pchr->inst);
 
@@ -4133,7 +4195,7 @@ int chr_change_skin( Uint16 character, int skin )
         // make sure that the instance has a valid imad
         if ( NULL != ppro && INVALID_MAD(pinst->imad) )
         {
-            pinst->imad = ppro->imad;
+            chr_instance_set_mad( pinst, ppro->imad );
             pmad = chr_get_pmad(character);
         }
     }
@@ -4182,7 +4244,7 @@ Uint16 change_armor( Uint16 character, Uint16 skin )
     int     iTmp;
     cap_t * pcap;
 
-    if ( INACTIVE_CHR(character) ) return 0;
+    if ( !ACTIVE_CHR(character) ) return 0;
 
     // Remove armor enchantments
     enchant = ChrList.lst[character].firstenchant;
@@ -4220,21 +4282,21 @@ Uint16 change_armor( Uint16 character, Uint16 skin )
     enchant = ChrList.lst[character].firstenchant;
     while ( enchant < MAX_ENC )
     {
-        Uint16 ieve = enc_get_ieve(enchant);
+        Uint16 ipro = enc_get_ipro(enchant);
 
-        if( VALID_EVE(ieve) )
+        if( VALID_PRO(ipro) )
         {
-            set_enchant_value( enchant, SETSLASHMODIFIER, ieve );
-            set_enchant_value( enchant, SETCRUSHMODIFIER, ieve );
-            set_enchant_value( enchant, SETPOKEMODIFIER,  ieve );
-            set_enchant_value( enchant, SETHOLYMODIFIER,  ieve );
-            set_enchant_value( enchant, SETEVILMODIFIER,  ieve );
-            set_enchant_value( enchant, SETFIREMODIFIER,  ieve );
-            set_enchant_value( enchant, SETICEMODIFIER,   ieve );
-            set_enchant_value( enchant, SETZAPMODIFIER,   ieve );
+            set_enchant_value( enchant, SETSLASHMODIFIER, ipro );
+            set_enchant_value( enchant, SETCRUSHMODIFIER, ipro );
+            set_enchant_value( enchant, SETPOKEMODIFIER,  ipro );
+            set_enchant_value( enchant, SETHOLYMODIFIER,  ipro );
+            set_enchant_value( enchant, SETEVILMODIFIER,  ipro );
+            set_enchant_value( enchant, SETFIREMODIFIER,  ipro );
+            set_enchant_value( enchant, SETICEMODIFIER,   ipro );
+            set_enchant_value( enchant, SETZAPMODIFIER,   ipro );
 
-            add_enchant_value( enchant, ADDACCEL,         ieve );
-            add_enchant_value( enchant, ADDDEFENSE,       ieve );
+            add_enchant_value( enchant, ADDACCEL,         ipro );
+            add_enchant_value( enchant, ADDDEFENSE,       ipro );
         }
 
         enchant = EncList.lst[enchant].nextenchant_ref;
@@ -4276,7 +4338,7 @@ void set_weapongrip( Uint16 iitem, Uint16 iholder, Uint16 vrt_off )
     chr_t * pitem, *pholder;
     mad_t * pholder_mad;
 
-    if ( INACTIVE_CHR(iitem) ) return;
+    if ( !ACTIVE_CHR(iitem) ) return;
     pitem = ChrList.lst + iitem;
 
     // reset the vertices
@@ -4285,7 +4347,7 @@ void set_weapongrip( Uint16 iitem, Uint16 iholder, Uint16 vrt_off )
         pitem->weapongrip[i] = 0xFFFF;
     }
 
-    if ( INACTIVE_CHR(iholder) ) return;
+    if ( !ACTIVE_CHR(iholder) ) return;
     pholder = ChrList.lst + iholder;
 
     pholder_mad = chr_get_pmad(iholder);
@@ -4318,8 +4380,12 @@ void change_character( Uint16 ichr, Uint16 profile_new, Uint8 skin, Uint8 leavew
     cap_t * pcap_new;
     mad_t * pmad_new;
 
-    if ( INVALID_PRO(profile_new) || INACTIVE_CHR(ichr) ) return;
+    int old_attached_prt_count, new_attached_prt_count;
+
+    if ( INVALID_PRO(profile_new) || !ACTIVE_CHR(ichr) ) return;
     pchr = ChrList.lst + ichr;
+
+    old_attached_prt_count = number_of_attached_particles( ichr ); 
 
     if( INVALID_PRO(profile_new) ) return;
     pobj_new = ProList.lst + profile_new;
@@ -4372,8 +4438,7 @@ void change_character( Uint16 ichr, Uint16 profile_new, Uint8 skin, Uint8 leavew
             }
         }
     }
-
-    if ( leavewhich == LEAVENONE )
+    else if ( LEAVENONE == leavewhich )
     {
         // Remove all enchantments
         disenchant_character( ichr );
@@ -4470,24 +4535,6 @@ void change_character( Uint16 ichr, Uint16 profile_new, Uint8 skin, Uint8 leavew
         pchr->weight = MIN( itmp, (Uint32)0xFFFFFFFE );
     }
 
-    // Character scales...  Magic numbers
-    if ( ACTIVE_CHR(pchr->attachedto) )
-    {
-        set_weapongrip( ichr, pchr->attachedto, slot_to_grip_offset(pchr->inwhich_slot) );
-    }
-
-    item = pchr->holdingwhich[SLOT_LEFT];
-    if ( ACTIVE_CHR(item) )
-    {
-        set_weapongrip( item, ichr, GRIP_LEFT );
-    }
-
-    item = pchr->holdingwhich[SLOT_RIGHT];
-    if ( ACTIVE_CHR(item) )
-    {
-        set_weapongrip( item, ichr, GRIP_RIGHT );
-    }
-
     // Image rendering
     pchr->uoffvel = pcap_new->uoffvel;
     pchr->voffvel = pcap_new->voffvel;
@@ -4507,15 +4554,39 @@ void change_character( Uint16 ichr, Uint16 profile_new, Uint8 skin, Uint8 leavew
     pchr->onwhichplatform = MAX_CHR;
 
     // initialize the instance
-    chr_instance_init( &(pchr->inst), profile_new, skin );
+    chr_instance_spawn( &(pchr->inst), profile_new, skin );
     chr_update_matrix( ichr );
 
-    // Set the skin
+    // Set the skin after changing the model in chr_instance_spawn()
     change_armor( ichr, skin );
+
+    // Must set the wepon grip AFTER the model is changed in chr_instance_spawn()
+    if ( ACTIVE_CHR(pchr->attachedto) )
+    {
+        set_weapongrip( ichr, pchr->attachedto, slot_to_grip_offset(pchr->inwhich_slot) );
+    }
+
+    item = pchr->holdingwhich[SLOT_LEFT];
+    if ( ACTIVE_CHR(item) )
+    {
+        set_weapongrip( item, ichr, GRIP_LEFT );
+    }
+
+    item = pchr->holdingwhich[SLOT_RIGHT];
+    if ( ACTIVE_CHR(item) )
+    {
+        set_weapongrip( item, ichr, GRIP_RIGHT );
+    }
+
+    // determine whether the object is hidden
+    chr_update_hide( pchr );
 
     // Reaffirm them particles...
     pchr->reaffirmdamagetype = pcap_new->attachedprt_reaffirmdamagetype;
     reaffirm_attached_particles( ichr );
+    new_attached_prt_count = number_of_attached_particles( ichr );
+
+    ai_state_set_changed( &(pchr->ai) );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4530,7 +4601,7 @@ bool_t cost_mana( Uint16 character, int amount, Uint16 killer )
 
     chr_t * pchr;
 
-    if ( INACTIVE_CHR(character) ) return bfalse;
+    if ( !ACTIVE_CHR(character) ) return bfalse;
     pchr = ChrList.lst + character;
 
     mana_paid  = bfalse;
@@ -4548,7 +4619,7 @@ bool_t cost_mana( Uint16 character, int amount, Uint16 killer )
 
             if ( pchr->life <= 0 && cfg.difficulty >= GAME_HARD )
             {
-                kill_character( character, INACTIVE_CHR(killer) ? character : killer );
+                kill_character( character, !ACTIVE_CHR(killer) ? character : killer );
             }
 
             mana_paid = btrue;
@@ -4570,7 +4641,7 @@ bool_t cost_mana( Uint16 character, int amount, Uint16 killer )
         if ( pchr->canchannel && mana_surplus > 0 )
         {
             // use some factor, divide by 2
-            heal_character( pchr->ai.index, killer, mana_surplus << 1, btrue);
+            heal_character( pchr->index, killer, mana_surplus << 1, btrue);
         }
 
         mana_paid = btrue;
@@ -4585,7 +4656,7 @@ void switch_team( Uint16 character, Uint8 team )
 {
     // ZZ> This function makes a character join another team...
 
-    if ( INACTIVE_CHR(character) || team >= TEAM_MAX ) return;
+    if ( !ACTIVE_CHR(character) || team >= TEAM_MAX ) return;
 
     if ( !ChrList.lst[character].invictus )
     {
@@ -4613,14 +4684,14 @@ void issue_clean( Uint16 character )
     Uint8 team;
     Uint16 cnt;
 
-    if ( INACTIVE_CHR(character) ) return;
+    if ( !ACTIVE_CHR(character) ) return;
 
     team = chr_get_iteam(character);
     for ( cnt = 0; cnt < MAX_CHR; cnt++ )
     {
         chr_t * pchr;
 
-        if ( INACTIVE_CHR(cnt)) continue;
+        if ( !ACTIVE_CHR(cnt)) continue;
         pchr = ChrList.lst + cnt;
 
         if(  team != chr_get_iteam(cnt) ) continue;
@@ -4644,7 +4715,7 @@ int restock_ammo( Uint16 character, IDSZ idsz )
 
     chr_t * pchr;
 
-    if( INACTIVE_CHR(character) ) return 0;
+    if( !ACTIVE_CHR(character) ) return 0;
     pchr = ChrList.lst + character;
 
     amount = 0;
@@ -4699,29 +4770,15 @@ void update_all_characters()
     // First figure out which fan each character is in
     for ( cnt = 0; cnt < MAX_CHR; cnt++ )
     {
-        Uint8 hide;
-        cap_t * pcap;
         chr_t * pchr;
 
-        if ( INACTIVE_CHR(cnt) ) continue;
+        if ( !ACTIVE_CHR(cnt) ) continue;
         pchr = ChrList.lst + cnt;
 
         pchr->onwhichfan   = mesh_get_tile ( PMesh, pchr->pos.x, pchr->pos.y );
         pchr->onwhichblock = mesh_get_block( PMesh, pchr->pos.x, pchr->pos.y );
 
-        // reject characters that are hidden
-        hide = NOHIDE;
-        pcap = chr_get_pcap(cnt);
-        if( NULL != pcap )
-        {
-            hide = pcap->hidestate;
-        }
-
-        pchr->is_hidden = bfalse;
-        if ( hide != NOHIDE && hide == pchr->ai.state )
-        {
-            pchr->is_hidden = btrue;
-        }
+        chr_update_hide( pchr );
     }
 
 
@@ -4731,7 +4788,7 @@ void update_all_characters()
         cap_t * pcap;
         chr_t * pchr;
 
-        if ( INACTIVE_CHR(cnt) ) continue;
+        if ( !ACTIVE_CHR(cnt) ) continue;
         pchr = ChrList.lst + cnt;
 
         pcap = pro_get_pcap( pchr->iprofile );
@@ -4803,7 +4860,7 @@ void update_all_characters()
     {
         chr_t * pchr;
 
-        if ( INACTIVE_CHR(cnt) ) continue;
+        if ( !ACTIVE_CHR(cnt) ) continue;
         pchr = ChrList.lst + cnt;
 
         if ( pchr->reloadtime > 0 )
@@ -4840,7 +4897,7 @@ void update_all_characters()
         // Do all the characters
         for ( cnt = 0; cnt < MAX_CHR; cnt++ )
         {
-            if ( INACTIVE_CHR(cnt) ) continue;
+            if ( !ACTIVE_CHR(cnt) ) continue;
 
             // check for a level up
             do_level_up( cnt );
@@ -5322,7 +5379,7 @@ void move_one_character_do_volontary( chr_t * pchr, chr_environment_t * penviro 
     watchtarget = ( pchr->turnmode == TURNMODE_WATCHTARGET );
     if ( watchtarget )
     {
-        if ( pchr->ai.index != pchr->ai.target )
+        if ( pchr->index != pchr->ai.target )
         {
             pchr->turn_z = terp_dir( pchr->turn_z, vec_to_facing( ChrList.lst[pchr->ai.target].pos.x - pchr->pos.x , ChrList.lst[pchr->ai.target].pos.y - pchr->pos.y ) );
         }
@@ -5377,7 +5434,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
     Uint8 allowedtoattack;
     Uint16 action, weapon, mount, item;
 
-    if ( NULL == pchr || INACTIVE_CHR(pchr->ai.index) ) return bfalse;
+    if ( NULL == pchr || !ACTIVE_CHR(pchr->index) ) return bfalse;
     pai = &(pchr->ai);
     ichr = pai->index;
 
@@ -5828,7 +5885,7 @@ bool_t move_one_character_integrate_motion( chr_t * pchr )
     Uint16 ichr;
     ai_state_t * pai;
 
-    if ( NULL == pchr || INACTIVE_CHR(pchr->ai.index) ) return bfalse;
+    if ( NULL == pchr || !ACTIVE_CHR(pchr->index) ) return bfalse;
     pai = &(pchr->ai);
     ichr = pai->index;
 
@@ -5973,7 +6030,7 @@ void move_one_character_do_animation( chr_t * pchr, chr_environment_t * penviro 
     if( NULL == penviro ) return;
 
     if( NULL == pchr || !pchr->onwhichblock ) return;
-    ichr  = pchr->ai.index;
+    ichr  = pchr->index;
     pinst = &(pchr->inst);
 
     pmad = chr_get_pmad(ichr);
@@ -6133,7 +6190,7 @@ void move_one_character( Uint16 ichr, chr_environment_t * penviro )
 {
     chr_t * pchr;
 
-    if ( INACTIVE_CHR(ichr) ) return;
+    if ( !ACTIVE_CHR(ichr) ) return;
     pchr = ChrList.lst + ichr;
 
     if( pchr->pack_ispacked ) return;
@@ -6259,7 +6316,7 @@ bool_t is_invictus_direction( Uint16 direction, Uint16 character, Uint16 effects
 
     bool_t is_invictus;
 
-    if ( INACTIVE_CHR(character) ) return btrue;
+    if ( !ACTIVE_CHR(character) ) return btrue;
     pchr = ChrList.lst + character;
 
     pmad = chr_get_pmad(character);
@@ -6306,13 +6363,81 @@ bool_t is_invictus_direction( Uint16 direction, Uint16 character, Uint16 effects
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t chr_instance_init( chr_instance_t * pinst, Uint16 profile, Uint8 skin )
+void chr_instance_clear_cache( chr_instance_t * pinst )
+{
+    // BB> force chr_instance_update_vertices() recalculate the vertices the next time
+    //     the function is called
+
+    pinst->save_flip      = 0;
+    pinst->save_frame     = 0;
+    pinst->save_vmin      = 0xFFFF;
+    pinst->save_vmax      = -1;
+    pinst->save_frame_nxt = 0;
+    pinst->save_frame_lst = 0;
+
+    pinst->save_lighting_wldframe = 0;
+}
+
+//--------------------------------------------------------------------------------------------
+chr_instance_t * chr_instance_init( chr_instance_t * pinst )
 {
     int tnc;
+
+    if( NULL == pinst ) return pinst;
+
+    memset( pinst, 0, sizeof(chr_instance_t) );
+
+    // model parameters
+    pinst->imad = MAX_MAD;
+    pinst->vlst_size = 0;
+
+    // set the initial cache parameters
+    chr_instance_clear_cache(pinst);
+
+    // Set up initial fade in lighting
+    pinst->color_amb = 0;
+    for ( tnc = 0; tnc < SDL_arraysize(pinst->vlst); tnc++ )
+    {
+        pinst->vlst[tnc].color_dir = 0;
+    }
+
+    return pinst;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t chr_instance_set_mad( chr_instance_t * pinst, Uint16 imad )
+{
+    // BB> try to set the model used by the character instance.
+    //     If this fails, it leaves the old data. Just to be safe it
+    //     would be best to check whether the old modes is valid, and
+    //     if not, the data chould be set to safe values...
+
+    mad_t * pmad;
+
+    if( INVALID_MAD(imad) ) return bfalse;
+    pmad = MadList + imad;
+
+    pinst->imad = imad;
+
+    // set the vertex size
+    pinst->vlst_size = pmad->md2_data.vertices;
+
+    // set the frames to frame 0 of this object's data
+    pinst->frame_nxt = pinst->frame_lst = pmad->md2_data.framestart;
+
+    // update the vertex and lighting cache
+    chr_instance_clear_cache(pinst);
+    chr_instance_update_vertices( pinst, -1, -1 );
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t chr_instance_spawn( chr_instance_t * pinst, Uint16 profile, Uint8 skin )
+{
     Sint8 greensave = 0, redsave = 0, bluesave = 0;
 
     pro_t * pobj;
-    mad_t * pmad;
     cap_t * pcap;
 
     if ( NULL == pinst ) return bfalse;
@@ -6323,16 +6448,14 @@ bool_t chr_instance_init( chr_instance_t * pinst, Uint16 profile, Uint8 skin )
     bluesave  = pinst->blushift;
 
     // clear the instance
-    memset(pinst, 0, sizeof(chr_instance_t));
-    pinst->imad = MAX_MAD;
+    chr_instance_init( pinst );
 
     if ( INVALID_PRO(profile) ) return bfalse;
     pobj = ProList.lst + profile;
 
     pcap = pro_get_pcap(profile);
-    pmad = pro_get_pmad(profile);
 
-    pinst->imad      = pro_get_imad(profile);
+    // lighting parameters
     pinst->texture   = pobj->tex_ref[skin];
     pinst->enviro    = pcap->enviro;
     pinst->alpha     = pcap->alpha;
@@ -6342,25 +6465,8 @@ bool_t chr_instance_init( chr_instance_t * pinst, Uint16 profile, Uint8 skin )
     pinst->redshift  = redsave;
     pinst->blushift  = bluesave;
 
-    pinst->frame_nxt = pmad->md2_data.framestart;
-    pinst->frame_lst = pinst->frame_nxt;
-
-    // Set up initial fade in lighting
-    pinst->color_amb = 0;
-    for ( tnc = 0; tnc < pmad->transvertices; tnc++ )
-    {
-        pinst->vlst[tnc].color_dir = 0;
-    }
-
-    // initialize the save frame
-    pinst->save_flip      = 0;
-    pinst->save_frame     = 0;
-    pinst->save_vmin      = 0xFFFF;
-    pinst->save_vmax      = -1;
-    pinst->save_frame_nxt = 0;
-    pinst->save_frame_lst = 0;
-
-    chr_instance_update_vertices( pinst, -1, -1 );
+    // model parameters
+    chr_instance_set_mad( pinst, pro_get_imad(profile) );
 
     return btrue;
 }
@@ -6437,7 +6543,7 @@ int chr_add_billboard( Uint16 ichr, Uint32 lifetime_secs )
 
     chr_t * pchr;
 
-    if ( INACTIVE_CHR(ichr) ) return INVALID_BILLBOARD;
+    if ( !ACTIVE_CHR(ichr) ) return INVALID_BILLBOARD;
     pchr = ChrList.lst + ichr;
 
     if ( INVALID_BILLBOARD != pchr->ibillboard )
@@ -6468,7 +6574,7 @@ bool_t chr_make_text_billboard( Uint16 ichr, const char * txt, SDL_Color color, 
     bool_t retval = bfalse;
     int    ibb;
 
-    if ( INACTIVE_CHR(ichr) ) return bfalse;
+    if ( !ACTIVE_CHR(ichr) ) return bfalse;
     pchr = ChrList.lst + ichr;
 
     // create a new billboard or override the old billboard
@@ -6499,7 +6605,7 @@ const char * chr_get_name( Uint16 ichr )
 {
     static STRING szName;
 
-    if ( INACTIVE_CHR(ichr) )
+    if ( !ACTIVE_CHR(ichr) )
     {
         // the default name
         strncpy( szName, "Unknown", SDL_arraysize(szName) );
@@ -6544,7 +6650,7 @@ Uint16 chr_get_ipro(Uint16 ichr)
 {
     chr_t * pchr;
 
-    if( INACTIVE_CHR(ichr) ) return MAX_PROFILE;
+    if( !ACTIVE_CHR(ichr) ) return MAX_PROFILE;
     pchr = ChrList.lst + ichr;
 
     if( INVALID_PRO(pchr->iprofile) ) return MAX_PROFILE;
@@ -6557,7 +6663,7 @@ Uint16 chr_get_icap(Uint16 ichr)
 {
     chr_t * pchr;
 
-    if( INACTIVE_CHR(ichr) ) return MAX_CHR;
+    if( !ACTIVE_CHR(ichr) ) return MAX_CHR;
     pchr = ChrList.lst + ichr;
 
     return pro_get_icap(pchr->iprofile);
@@ -6568,7 +6674,7 @@ Uint16 chr_get_imad(Uint16 ichr)
 {
     chr_t * pchr;
 
-    if( INACTIVE_CHR(ichr) ) return MAX_MAD;
+    if( !ACTIVE_CHR(ichr) ) return MAX_MAD;
     pchr = ChrList.lst + ichr;
 
     // try to repair a bad model if it exists
@@ -6577,7 +6683,7 @@ Uint16 chr_get_imad(Uint16 ichr)
         Uint16 imad_tmp = pro_get_imad(pchr->iprofile);
         if( VALID_MAD( imad_tmp ) )
         {
-            pchr->inst.imad = imad_tmp;
+            chr_instance_set_mad( &(pchr->inst), imad_tmp );
         }
     }
 
@@ -6591,7 +6697,7 @@ Uint16 chr_get_ieve(Uint16 ichr)
 {
     chr_t * pchr;
 
-    if( INACTIVE_CHR(ichr) ) return MAX_EVE;
+    if( !ACTIVE_CHR(ichr) ) return MAX_EVE;
     pchr = ChrList.lst + ichr;
 
     return pro_get_ieve(pchr->iprofile);
@@ -6602,7 +6708,7 @@ Uint16 chr_get_ipip(Uint16 ichr, Uint16 ipip)
 {
     chr_t * pchr;
 
-    if( INACTIVE_CHR(ichr) ) return MAX_PIP;
+    if( !ACTIVE_CHR(ichr) ) return MAX_PIP;
     pchr = ChrList.lst + ichr;
 
     return pro_get_ipip(pchr->iprofile, ipip);
@@ -6613,7 +6719,7 @@ Uint16 chr_get_iteam(Uint16 ichr)
 {
     chr_t * pchr;
 
-    if( INACTIVE_CHR(ichr) ) return TEAM_MAX;
+    if( !ACTIVE_CHR(ichr) ) return TEAM_MAX;
     pchr = ChrList.lst + ichr;
 
     return CLIP(pchr->team, 0, TEAM_MAX);
@@ -6624,7 +6730,7 @@ Uint16 chr_get_iteam_base(Uint16 ichr)
 {
     chr_t * pchr;
 
-    if( INACTIVE_CHR(ichr) ) return TEAM_MAX;
+    if( !ACTIVE_CHR(ichr) ) return TEAM_MAX;
     pchr = ChrList.lst + ichr;
 
     return CLIP(pchr->baseteam, 0, TEAM_MAX);
@@ -6636,7 +6742,7 @@ pro_t * chr_get_ppro(Uint16 ichr)
 {
     chr_t * pchr;
 
-    if( INACTIVE_CHR(ichr) ) return NULL;
+    if( !ACTIVE_CHR(ichr) ) return NULL;
     pchr = ChrList.lst + ichr;
 
     if( INVALID_PRO(pchr->iprofile) ) return NULL;
@@ -6649,7 +6755,7 @@ cap_t * chr_get_pcap(Uint16 ichr)
 {
     chr_t * pchr;
 
-    if( INACTIVE_CHR(ichr) ) return NULL;
+    if( !ACTIVE_CHR(ichr) ) return NULL;
     pchr = ChrList.lst + ichr;
 
     return pro_get_pcap(pchr->iprofile);
@@ -6660,7 +6766,7 @@ mad_t * chr_get_pmad(Uint16 ichr)
 {
     chr_t * pchr;
 
-    if( INACTIVE_CHR(ichr) ) return NULL;
+    if( !ACTIVE_CHR(ichr) ) return NULL;
     pchr = ChrList.lst + ichr;
 
     // try to repair a bad model if it exists
@@ -6669,7 +6775,7 @@ mad_t * chr_get_pmad(Uint16 ichr)
         Uint16 imad_tmp = pro_get_imad(pchr->iprofile);
         if( VALID_MAD( imad_tmp ) )
         {
-            pchr->inst.imad = imad_tmp;
+            chr_instance_set_mad( &(pchr->inst), imad_tmp );
         }
     }
 
@@ -6683,7 +6789,7 @@ eve_t * chr_get_peve(Uint16 ichr)
 {
     chr_t * pchr;
 
-    if( INACTIVE_CHR(ichr) ) return NULL;
+    if( !ACTIVE_CHR(ichr) ) return NULL;
     pchr = ChrList.lst + ichr;
 
     return pro_get_peve(pchr->iprofile);
@@ -6694,7 +6800,7 @@ pip_t * chr_get_ppip(Uint16 ichr, Uint16 ipip)
 {
     chr_t * pchr;
 
-    if( INACTIVE_CHR(ichr) ) return NULL;
+    if( !ACTIVE_CHR(ichr) ) return NULL;
     pchr = ChrList.lst + ichr;
 
     return pro_get_ppip(pchr->iprofile, ipip);
@@ -6706,7 +6812,7 @@ Mix_Chunk * chr_get_chunk( Uint16 ichr, int index )
 {
     chr_t * pchr;
 
-    if( INACTIVE_CHR(ichr) ) return NULL;
+    if( !ACTIVE_CHR(ichr) ) return NULL;
     pchr = ChrList.lst + ichr;
 
     return pro_get_chunk( pchr->iprofile, index );
@@ -6715,7 +6821,7 @@ Mix_Chunk * chr_get_chunk( Uint16 ichr, int index )
 //--------------------------------------------------------------------------------------------
 Mix_Chunk * chr_get_chunk_ptr( chr_t * pchr, int index )
 {
-    if( NULL == pchr || INACTIVE_CHR(pchr->ai.index) ) return NULL;
+    if( NULL == pchr || !ACTIVE_CHR(pchr->index) ) return NULL;
 
     return pro_get_chunk( pchr->iprofile, index );
 }
@@ -6725,7 +6831,7 @@ team_t * chr_get_pteam(Uint16 ichr)
 {
     chr_t * pchr;
 
-    if( INACTIVE_CHR(ichr) ) return NULL;
+    if( !ACTIVE_CHR(ichr) ) return NULL;
     pchr = ChrList.lst + ichr;
 
     if( pchr->team < 0 && pchr->team >= TEAM_MAX ) return NULL;
@@ -6738,7 +6844,7 @@ team_t * chr_get_pteam_base(Uint16 ichr)
 {
     chr_t * pchr;
 
-    if( INACTIVE_CHR(ichr) ) return NULL;
+    if( !ACTIVE_CHR(ichr) ) return NULL;
     pchr = ChrList.lst + ichr;
 
     if( pchr->baseteam < 0 && pchr->baseteam >= TEAM_MAX ) return NULL;
@@ -6751,7 +6857,7 @@ ai_state_t * chr_get_pai(Uint16 ichr)
 {
     chr_t * pchr;
 
-    if( INACTIVE_CHR(ichr) ) return NULL;
+    if( !ACTIVE_CHR(ichr) ) return NULL;
     pchr = ChrList.lst + ichr;
 
     return &(pchr->ai);
@@ -6762,7 +6868,7 @@ chr_instance_t * chr_get_pinstance(Uint16 ichr)
 {
     chr_t * pchr;
 
-    if( INACTIVE_CHR(ichr) ) return NULL;
+    if( !ACTIVE_CHR(ichr) ) return NULL;
     pchr = ChrList.lst + ichr;
 
     return &(pchr->inst);
@@ -6777,7 +6883,7 @@ Uint16 team_get_ileader( Uint16 iteam )
     if( iteam >= TEAM_MAX ) return MAX_CHR;
 
     ichr = TeamList[iteam].leader;
-    if( INACTIVE_CHR(ichr) ) return MAX_CHR;
+    if( !ACTIVE_CHR(ichr) ) return MAX_CHR;
 
     return ichr;
 }
@@ -6790,7 +6896,7 @@ chr_t  * team_get_pleader( Uint16 iteam )
     if( iteam >= TEAM_MAX ) return NULL;
 
     ichr = TeamList[iteam].leader;
-    if( INACTIVE_CHR(ichr) ) return NULL;
+    if( !ACTIVE_CHR(ichr) ) return NULL;
 
     return ChrList.lst + ichr;
 }
@@ -6844,7 +6950,7 @@ void chr_update_collision_size( chr_t * pchr )
 
     if( NULL == pchr || !pchr->onwhichblock ) return;
 
-    pmad = chr_get_pmad( pchr->ai.index );
+    pmad = chr_get_pmad( pchr->index );
     if( NULL == pmad ) return;
 
     // do this for now...
@@ -6927,7 +7033,7 @@ void chr_update_collision_size( chr_t * pchr )
 //--------------------------------------------------------------------------------------------
 void chr_update_size( chr_t * pchr )
 {
-    if( NULL == pchr || INACTIVE_CHR(pchr->ai.index) ) return;
+    if( NULL == pchr || !ACTIVE_CHR(pchr->index) ) return;
 
     pchr->shadowsize   = pchr->shadowsizesave    * pchr->fat;
     pchr->bump.size    = pchr->bump_save.size    * pchr->fat;
@@ -6940,7 +7046,7 @@ void chr_update_size( chr_t * pchr )
 //--------------------------------------------------------------------------------------------
 void chr_init_size( chr_t * pchr, cap_t * pcap )
 {
-    if( NULL == pchr || INACTIVE_CHR(pchr->ai.index)     ) return;
+    if( NULL == pchr || !ACTIVE_CHR(pchr->index)     ) return;
     if( NULL == pcap || !pcap->loaded ) return;
 
     pchr->fat               = pcap->size;
@@ -6958,7 +7064,7 @@ void chr_set_size( chr_t * pchr, float size )
 {
     float ratio;
 
-    if( NULL == pchr || INACTIVE_CHR(pchr->ai.index) ) return;
+    if( NULL == pchr || !ACTIVE_CHR(pchr->index) ) return;
 
     ratio = size / pchr->bump.size;
 
@@ -6975,7 +7081,7 @@ void chr_set_width( chr_t * pchr, float width )
 {
     float ratio;
 
-    if( NULL == pchr || INACTIVE_CHR(pchr->ai.index) ) return;
+    if( NULL == pchr || !ACTIVE_CHR(pchr->index) ) return;
 
     ratio = width / pchr->bump.size;
 
@@ -6989,7 +7095,7 @@ void chr_set_width( chr_t * pchr, float width )
 //--------------------------------------------------------------------------------------------
 void chr_set_height( chr_t * pchr, float height )
 {
-    if( NULL == pchr || INACTIVE_CHR(pchr->ai.index) ) return;
+    if( NULL == pchr || !ACTIVE_CHR(pchr->index) ) return;
 
     pchr->bump_save.height = height;
 
@@ -6999,7 +7105,7 @@ void chr_set_height( chr_t * pchr, float height )
 //--------------------------------------------------------------------------------------------
 void chr_set_shadow( chr_t * pchr, float width )
 {
-    if( NULL == pchr || INACTIVE_CHR(pchr->ai.index) ) return;
+    if( NULL == pchr || !ACTIVE_CHR(pchr->index) ) return;
 
     pchr->shadowsizesave = width;
 
@@ -7009,7 +7115,7 @@ void chr_set_shadow( chr_t * pchr, float width )
 //--------------------------------------------------------------------------------------------
 void chr_set_fat( chr_t * pchr, float fat )
 {
-    if( NULL == pchr || INACTIVE_CHR(pchr->ai.index) ) return;
+    if( NULL == pchr || !ACTIVE_CHR(pchr->index) ) return;
 
     pchr->fat = fat;
 
@@ -7090,7 +7196,7 @@ bool_t chr_has_vulnie( Uint16 item, Uint16 test_profile )
 {
     IDSZ vulnie;
 
-    if( INACTIVE_CHR(item) ) return bfalse;
+    if( !ACTIVE_CHR(item) ) return bfalse;
     vulnie = chr_get_idsz(item, IDSZ_VULNERABILITY);
 
     // not vulnerable if there is no specific weakness
@@ -7114,7 +7220,7 @@ Uint32 chr_get_icon_ref( Uint16 item )
     chr_t * pitem;
     pro_t * pitem_pro;
 
-    if( INACTIVE_CHR(item) ) return icon_ref;
+    if( !ACTIVE_CHR(item) ) return icon_ref;
     pitem = ChrList.lst + item;
 
     if( INVALID_PRO(pitem->iprofile) ) return icon_ref;
@@ -7124,7 +7230,7 @@ Uint32 chr_get_icon_ref( Uint16 item )
     if( NULL == pitem_cap ) return icon_ref;
 
     // what do we need to draw?
-    is_spell_fx = pitem_cap->spelleffect_type > 0;
+    is_spell_fx = pitem_cap->spelleffect_type >= 0;       // the value of spelleffect_type == the skin of the book or -1 for not a spell effect
     is_book     = (SPELLBOOK == pitem->iprofile);
     draw_book = (is_book || (is_spell_fx && !pitem->icon)) && (bookicon_count > 0);
 
@@ -7265,7 +7371,7 @@ bool_t chr_update_mount_matrix( Uint16 ichr )
 
     bool_t    is_rider;
 
-    if( INACTIVE_CHR( ichr ) ) return bfalse;
+    if( !ACTIVE_CHR( ichr ) ) return bfalse;
     pchr = ChrList.lst + ichr;
 
     is_rider = ACTIVE_CHR(pchr->attachedto);
@@ -7299,7 +7405,7 @@ bool_t chr_update_matrix( Uint16 ichr )
     chr_t   * pchr;
     bool_t    is_rider;
 
-    if( INACTIVE_CHR( ichr ) ) return bfalse;
+    if( !ACTIVE_CHR( ichr ) ) return bfalse;
     pchr = ChrList.lst + ichr;
 
     is_rider = ACTIVE_CHR(pchr->attachedto);
@@ -7329,7 +7435,7 @@ bool_t chr_teleport( Uint16 ichr, float x, float y, float z, Uint16 turn_z )
 
     GLvector3 pos_save;
 
-    if( INACTIVE_CHR(ichr) ) return bfalse;
+    if( !ACTIVE_CHR(ichr) ) return bfalse;
     pchr = ChrList.lst + ichr;
 
     if ( x < 0.0f || x > PMesh->info.edge_x ) return bfalse;
@@ -7373,10 +7479,57 @@ bool_t chr_teleport( Uint16 ichr, float x, float y, float z, Uint16 turn_z )
 //--------------------------------------------------------------------------------------------
 bool_t chr_request_terminate( Uint16 ichr )
 {
-    if( INACTIVE_CHR(ichr) ) return bfalse;
+    if( !ACTIVE_CHR(ichr) ) return bfalse;
 
-    ChrList.lst[ichr].kill_me = btrue;
-    ChrList.lst[ichr].active  = bfalse;
+    EGO_OBJECT_TERMINATE( ChrList.lst + ichr );
 
     return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+chr_t * chr_update_hide( chr_t * pchr )
+{
+    Sint8 hide;
+    cap_t * pcap;
+
+    if( NULL == pchr || !pchr->allocated ) return pchr;
+
+    hide = NOHIDE;
+    pcap = chr_get_pcap( pchr->index );
+    if( NULL != pcap )
+    {
+        hide = pcap->hidestate;
+    }
+
+    pchr->is_hidden = bfalse;
+    if ( hide != NOHIDE && hide == pchr->ai.state )
+    {
+        pchr->is_hidden = btrue;
+    }
+
+    return pchr;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t ai_state_set_changed( ai_state_t * pai )
+{
+    // BB> do something tricky here
+
+    bool_t retval = bfalse;
+
+    if( NULL == pai ) return bfalse;
+
+    if( HAS_NO_BITS(pai->alert, ALERTIF_CHANGED) )
+    {
+        pai->alert |= ALERTIF_CHANGED;
+        retval = btrue;
+    }
+
+    if( !pai->changed )
+    {
+        pai->changed = btrue;
+        retval = btrue;
+    }
+
+    return retval;
 }

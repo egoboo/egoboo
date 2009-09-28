@@ -126,7 +126,7 @@ bool_t render_one_prt_solid( Uint16 iprt )
     prt_t * pprt;
     prt_instance_t * pinst;
 
-    if ( INACTIVE_PRT(iprt) ) return bfalse;
+    if ( !ACTIVE_PRT(iprt) ) return bfalse;
     pprt = PrtList.lst + iprt;
     pinst = &(pprt->inst);
 
@@ -206,7 +206,7 @@ bool_t render_one_prt_trans( Uint16 iprt )
     prt_t * pprt;
     prt_instance_t * pinst;
 
-    if ( INACTIVE_PRT(iprt) ) return bfalse;
+    if ( !ACTIVE_PRT(iprt) ) return bfalse;
     pprt = PrtList.lst + iprt;
     pinst = &(pprt->inst);
 
@@ -342,7 +342,7 @@ size_t render_all_prt_ref_begin( camera_t * pcam, prt_registry_entity_t reg[], s
         prt_t * pprt;
         prt_instance_t * pinst;
 
-        if( INACTIVE_PRT(cnt) ) continue;
+        if( !ACTIVE_PRT(cnt) ) continue;
         pprt = PrtList.lst + cnt;
         pinst = &(pprt->inst);
 
@@ -382,7 +382,7 @@ bool_t render_one_prt_ref( Uint16 iprt )
     prt_t * pprt;
     prt_instance_t * pinst;
 
-    if ( INACTIVE_PRT(iprt) ) return bfalse;
+    if ( !ACTIVE_PRT(iprt) ) return bfalse;
 
     pprt = PrtList.lst + iprt;
     pinst = &(pprt->inst);
@@ -508,7 +508,7 @@ void update_all_prt_instance( camera_t * pcam )
         prt_t * pprt;
         prt_instance_t * pinst;
 
-        if( INACTIVE_PRT(cnt) ) continue;
+        if( !ACTIVE_PRT(cnt) ) continue;
         pprt = PrtList.lst + cnt;
         pinst = &(pprt->inst);
 
@@ -549,7 +549,7 @@ void prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_
     vfwd = VNormalize( vfwd );
 
     // set the up and right vectors
-    if ( ppip->rotatetoface && INACTIVE_CHR( pprt->attachedto_ref ) && (ABS( pprt->vel.x ) + ABS( pprt->vel.y ) + ABS( pprt->vel.z ) > 0) )
+    if ( ppip->rotatetoface && !ACTIVE_CHR( pprt->attachedto_ref ) && (ABS( pprt->vel.x ) + ABS( pprt->vel.y ) + ABS( pprt->vel.z ) > 0) )
     {
         // the particle points along its direction of travel
 
@@ -766,7 +766,7 @@ void prt_instance_update( camera_t * pcam, Uint16 particle, Uint8 trans, bool_t 
     prt_t * pprt;
     prt_instance_t * pinst;
 
-    if ( INACTIVE_PRT(particle) ) return;
+    if ( !ACTIVE_PRT(particle) ) return;
     pprt = PrtList.lst + particle;
     pinst = &(pprt->inst);
 

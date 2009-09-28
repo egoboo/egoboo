@@ -434,7 +434,7 @@ void export_all_players( bool_t require_local )
 
         // Is it alive?
         character = PlaList[cnt].index;
-        if ( INACTIVE_CHR(character) || !ChrList.lst[character].alive ) continue;
+        if ( !ACTIVE_CHR(character) || !ChrList.lst[character].alive ) continue;
 
         // Export the character
         export_one_character( character, character, 0, is_local );
@@ -568,7 +568,7 @@ void statlist_add( Uint16 character )
 
     if ( numstat >= MAXSTAT ) return;
 
-    if( INACTIVE_CHR(character) ) return;
+    if( !ACTIVE_CHR(character) ) return;
     pchr = ChrList.lst + character;
 
     if( pchr->staton ) return;
@@ -633,7 +633,7 @@ void chr_play_action( Uint16 character, Uint16 action, Uint8 actionready )
     chr_t * pchr;
     mad_t * pmad;
 
-    if ( INACTIVE_CHR(character) ) return;
+    if ( !ACTIVE_CHR(character) ) return;
     pchr = ChrList.lst + character;
 
     pmad = chr_get_pmad(character);
@@ -660,7 +660,7 @@ void chr_set_frame( Uint16 character, Uint16 action, int frame, Uint16 lip )
     chr_t * pchr;
     mad_t * pmad;
 
-    if ( INACTIVE_CHR(character) ) return;
+    if ( !ACTIVE_CHR(character) ) return;
     pchr = ChrList.lst + character;
 
     pmad = chr_get_pmad(character);
@@ -771,7 +771,7 @@ void update_game()
 
         // fix bad players
         ichr = PlaList[cnt].index;
-        if ( INACTIVE_CHR(ichr) )
+        if ( !ACTIVE_CHR(ichr) )
         {
             PlaList[cnt].index = MAX_CHR;
             PlaList[cnt].valid = bfalse;
@@ -820,7 +820,7 @@ void update_game()
         if ( !PlaList[cnt].valid ) continue;
 
         ichr = PlaList[cnt].index;
-        if ( INACTIVE_CHR(ichr) ) continue;
+        if ( !ACTIVE_CHR(ichr) ) continue;
         pchr = ChrList.lst + ichr;
 
         if ( !pchr->alive )
@@ -1822,9 +1822,9 @@ bool_t check_target( chr_t * psrc, Uint16 ichr_test, TARGET_TYPE target_type, bo
     chr_t * ptst;
 
     // Skip non-existing objects
-    if( NULL == psrc || INACTIVE_CHR(psrc->ai.index) ) return bfalse;
+    if( NULL == psrc || !ACTIVE_CHR(psrc->index) ) return bfalse;
 
-    if( INACTIVE_CHR(ichr_test) ) return bfalse;
+    if( !ACTIVE_CHR(ichr_test) ) return bfalse;
     ptst = ChrList.lst + ichr_test;
 
     // Skip held objects and self
@@ -1890,7 +1890,7 @@ Uint16 chr_get_target( chr_t * psrc, float max_dist2, TARGET_TYPE target_type, b
 
     if( TARGET_NONE == target_type ) return MAX_CHR;
 
-    if( NULL == psrc || INACTIVE_CHR(psrc->ai.index) ) return MAX_CHR;
+    if( NULL == psrc || !ACTIVE_CHR(psrc->index) ) return MAX_CHR;
 
     // set the line-of-sight source
     los_info.x0         = psrc->pos.x;
@@ -1906,7 +1906,7 @@ Uint16 chr_get_target( chr_t * psrc, float max_dist2, TARGET_TYPE target_type, b
         GLvector3 diff;
         chr_t * ptst;
 
-        if( INACTIVE_CHR(ichr_test) ) continue;
+        if( !ACTIVE_CHR(ichr_test) ) continue;
         ptst = ChrList.lst + ichr_test;
 
         if( !check_target( psrc, ichr_test, target_type, target_items, target_dead, target_idsz, exclude_idsz) )
@@ -1933,7 +1933,7 @@ Uint16 chr_get_target( chr_t * psrc, float max_dist2, TARGET_TYPE target_type, b
     }
 
     // make sure the target is valid
-    if ( INACTIVE_CHR(best_target) ) best_target = MAX_CHR;
+    if ( !ACTIVE_CHR(best_target) ) best_target = MAX_CHR;
 
     return best_target;
 }
@@ -1949,7 +1949,7 @@ void do_damage_tiles()
         cap_t * pcap;
         chr_t * pchr;
 
-        if ( INACTIVE_CHR(character) ) continue;
+        if ( !ACTIVE_CHR(character) ) continue;
         pchr = ChrList.lst + character;
 
         pcap = pro_get_pcap( pchr->iprofile );
@@ -1987,10 +1987,13 @@ void do_damage_tiles()
                                             MAX_CHR, GRIP_LAST, TEAM_NULL, MAX_CHR, TOTAL_MAX_PRT, 0, MAX_CHR );
                     }
                 }
+
                 if ( pchr->reaffirmdamagetype == damagetile.type )
                 {
-                    if ( ( update_wld&TILEREAFFIRMAND ) == 0 )
+                    if ( 0 == ( update_wld&TILEREAFFIRMAND ) )
+                    {
                         reaffirm_attached_particles( character );
+                    }
                 }
             }
         }
@@ -2061,7 +2064,7 @@ void update_pits()
             // Kill any particles that fell in a pit, if they die in water...
             for ( cnt = 0; cnt < maxparticles; cnt++ )
             {
-                if ( INACTIVE_PRT( cnt ) || INVALID_PIP( PrtList.lst[cnt].pip_ref ) ) continue;
+                if ( !ACTIVE_PRT( cnt ) || INVALID_PIP( PrtList.lst[cnt].pip_ref ) ) continue;
 
                 if ( PrtList.lst[cnt].pos.z < PITDEPTH && prt_get_ppip(cnt)->endwater )
                 {
@@ -2073,7 +2076,7 @@ void update_pits()
             for ( cnt = 0; cnt < MAX_CHR; cnt++ )
             {
                 // Is it a valid character?
-                if ( INACTIVE_CHR( cnt ) || ChrList.lst[cnt].invictus || !ChrList.lst[cnt].alive  ) continue;
+                if ( !ACTIVE_CHR( cnt ) || ChrList.lst[cnt].invictus || !ChrList.lst[cnt].alive  ) continue;
                 if ( ChrList.lst[cnt].attachedto != MAX_CHR || ChrList.lst[cnt].pack_ispacked ) continue;
 
                 // Do we kill it?
@@ -2210,7 +2213,7 @@ void set_one_player_latch( Uint16 player )
 
     pdevice = &(ppla->device);
 
-    if( INACTIVE_CHR(ppla->index) ) return;
+    if( !ACTIVE_CHR(ppla->index) ) return;
     pchr = ChrList.lst + ppla->index;
 
     // is the device a local device or an internet device?
@@ -2703,7 +2706,7 @@ void show_full_status( Uint16 statindex )
         {
             enc_t * penc;
 
-            if ( INACTIVE_ENC(enchant) ) continue;
+            if ( !ACTIVE_ENC(enchant) ) continue;
             penc = EncList.lst + enchant;
 
             if ( penc->target_ref == character )
@@ -2792,7 +2795,7 @@ void fill_bumplists()
     {
         chr_t * pchr;
 
-        if ( INACTIVE_CHR(character) ) continue;
+        if ( !ACTIVE_CHR(character) ) continue;
         pchr = ChrList.lst + character;
 
         // reset the holding weight each update
@@ -2824,7 +2827,7 @@ void fill_bumplists()
         prt_t * pprt;
 
         // reject invalid particles
-        if ( INACTIVE_PRT(particle) ) continue;
+        if ( !ACTIVE_PRT(particle) ) continue;
         pprt = PrtList.lst + particle;
 
         // reject characters that are hidden
@@ -2880,7 +2883,7 @@ void fill_interaction_list( co_data_t cdata[], int * cdata_count, hash_node_t hn
         chr_t * pchr_a;
 
         // make sure that it is on
-        if ( INACTIVE_CHR(ichr_a) ) continue;
+        if ( !ACTIVE_CHR(ichr_a) ) continue;
         pchr_a = ChrList.lst + ichr_a;
 
         // reject characters that are in packs, or are marked as non-colliding
@@ -2954,24 +2957,24 @@ bool_t can_mount( Uint16 ichr_a, Uint16 ichr_b )
     cap_t * pcap_a, * pcap_b;
 
     // make sure that A is valid
-    if ( INACTIVE_CHR(ichr_a) ) return bfalse;
+    if ( !ACTIVE_CHR(ichr_a) ) return bfalse;
     pchr_a = ChrList.lst + ichr_a;
 
     pcap_a = chr_get_pcap( ichr_a );
     if ( NULL == pcap_a ) return bfalse;
 
     // make sure that B is valid
-    if ( INACTIVE_CHR(ichr_b) ) return bfalse;
+    if ( !ACTIVE_CHR(ichr_b) ) return bfalse;
     pchr_b = ChrList.lst + ichr_b;
 
     pcap_b = chr_get_pcap( ichr_b );
     if ( NULL == pcap_b ) return bfalse;
 
     is_valid_rider_a = !pchr_a->isitem && pchr_a->alive && 0 == pchr_a->flyheight &&
-                       INACTIVE_CHR(pchr_a->attachedto) && chr_get_pmad(ichr_a)->actionvalid[ACTION_MI];
+                       !ACTIVE_CHR(pchr_a->attachedto) && chr_get_pmad(ichr_a)->actionvalid[ACTION_MI];
 
     is_valid_mount_b = pchr_b->ismount && pchr_b->alive &&
-                       pcap_b->slotvalid[SLOT_LEFT] && INACTIVE_CHR(pchr_b->holdingwhich[SLOT_LEFT]);
+                       pcap_b->slotvalid[SLOT_LEFT] && !ACTIVE_CHR(pchr_b->holdingwhich[SLOT_LEFT]);
 
     return is_valid_rider_a && is_valid_mount_b;
 }
@@ -2996,14 +2999,14 @@ bool_t do_platforms( Uint16 ichr_a, Uint16 ichr_b )
     bool_t chara_on_top;
 
     // make sure that A is valid
-    if ( INACTIVE_CHR(ichr_a) ) return bfalse;
+    if ( !ACTIVE_CHR(ichr_a) ) return bfalse;
     pchr_a = ChrList.lst + ichr_a;
 
     pcap_a = chr_get_pcap( ichr_a );
     if ( NULL == pcap_a ) return bfalse;
 
     // make sure that B is valid
-    if ( INACTIVE_CHR(ichr_b) ) return bfalse;
+    if ( !ACTIVE_CHR(ichr_b) ) return bfalse;
     pchr_b = ChrList.lst + ichr_b;
 
     pcap_b = chr_get_pcap( ichr_b );
@@ -3138,14 +3141,14 @@ bool_t do_mounts( Uint16 ichr_a, Uint16 ichr_b )
     bool_t mounted;
 
     // make sure that A is valid
-    if ( INACTIVE_CHR( ichr_a ) ) return bfalse;
+    if ( !ACTIVE_CHR( ichr_a ) ) return bfalse;
     pchr_a = ChrList.lst + ichr_a;
 
     pcap_a = chr_get_pcap( ichr_a );
     if ( NULL == pcap_a ) return bfalse;
 
     // make sure that B is valid
-    if ( INACTIVE_CHR( ichr_b ) ) return bfalse;
+    if ( !ACTIVE_CHR( ichr_b ) ) return bfalse;
     pchr_b = ChrList.lst + ichr_b;
 
     pcap_b = chr_get_pcap( ichr_b );
@@ -3279,8 +3282,8 @@ bool_t do_chr_platform_physics( chr_t * pitem, chr_t * pplat )
     Sint16 rot_a, rot_b;
     float lerp_z;
 
-    if( NULL == pitem || INACTIVE_CHR(pitem->ai.index) ) return bfalse;
-    if( NULL == pplat || INACTIVE_CHR(pplat->ai.index) ) return bfalse;
+    if( NULL == pitem || !ACTIVE_CHR(pitem->index) ) return bfalse;
+    if( NULL == pplat || !ACTIVE_CHR(pplat->index) ) return bfalse;
 
     lerp_z = (pitem->pos.z - pitem->phys.level) / PLATTOLERANCE;
     lerp_z = CLIP( lerp_z, -1, 1 );
@@ -3339,14 +3342,14 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
     float interaction_strength = 1.0f;
 
     // make sure that it is on
-    if ( INACTIVE_CHR( ichr_a ) ) return bfalse;
+    if ( !ACTIVE_CHR( ichr_a ) ) return bfalse;
     pchr_a = ChrList.lst + ichr_a;
 
     pcap_a = chr_get_pcap( ichr_a );
     if ( NULL == pcap_a ) return bfalse;
 
     // make sure that it is on
-    if ( INACTIVE_CHR( ichr_b ) ) return bfalse;
+    if ( !ACTIVE_CHR( ichr_b ) ) return bfalse;
     pchr_b = ChrList.lst + ichr_b;
 
     pcap_b = chr_get_pcap( ichr_b );
@@ -3790,7 +3793,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     float interaction_strength = 1.0f;
 
     // make sure that it is on
-    if ( INACTIVE_CHR(ichr_a) ) return bfalse;
+    if ( !ACTIVE_CHR(ichr_a) ) return bfalse;
     pchr_a = ChrList.lst + ichr_a;
 
     if ( !pchr_a->alive ) return bfalse;
@@ -3843,7 +3846,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
 
     if ( !collide_x || !collide_y || !collide_xy || !collide_z ) return bfalse;
 
-    if ( pchr_a->platform && INACTIVE_CHR(pprt_b->attachedto_ref) &&
+    if ( pchr_a->platform && !ACTIVE_CHR(pprt_b->attachedto_ref) &&
             (zb > za + pchr_a->bump.height + pprt_b->vel.z) && (pprt_b->vel.z - pchr_a->vel.z < 0) )
     {
         // Particle is falling on A
@@ -4205,7 +4208,7 @@ void bump_all_objects( void )
         float bump_str;
         float nrm[2];
 
-        if ( INACTIVE_CHR(cnt) ) continue;
+        if ( !ACTIVE_CHR(cnt) ) continue;
         pchr = ChrList.lst + cnt;
 
         bump_str = 1.0f;
@@ -4294,7 +4297,7 @@ void tilt_characters_to_terrain()
 
     for ( cnt = 0; cnt < MAX_CHR; cnt++ )
     {
-        if ( INACTIVE_CHR(cnt) ) continue;
+        if ( !ACTIVE_CHR(cnt) ) continue;
 
         if ( ChrList.lst[cnt].stickybutt && VALID_TILE(PMesh, ChrList.lst[cnt].onwhichfan) )
         {
@@ -4423,7 +4426,7 @@ bool_t chr_setup_apply( Uint16 ichr, spawn_file_info_t *pinfo )
     // trap bad pointers
     if ( NULL == pinfo ) return bfalse;
 
-    if ( INACTIVE_CHR(ichr) ) return bfalse;
+    if ( !ACTIVE_CHR(ichr) ) return bfalse;
     pchr = ChrList.lst + ichr;
 
     pchr->money += pinfo->money;
@@ -4528,7 +4531,7 @@ bool_t setup_characters_spawn( spawn_file_info_t * psp_info )
 
     // Spawn the character
     new_object = spawn_one_character( psp_info->pos, psp_info->slot, psp_info->team, psp_info->skin, psp_info->facing, psp_info->pname, MAX_CHR );
-    if ( INACTIVE_CHR(new_object) ) return bfalse;
+    if ( !ACTIVE_CHR(new_object) ) return bfalse;
 
     // determine the attachment
     if ( psp_info->attach == ATTACH_NONE )
@@ -4797,7 +4800,7 @@ void disaffirm_attached_particles( Uint16 character )
 
     for ( particle = 0; particle < maxparticles; particle++ )
     {
-        if ( INACTIVE_PRT(particle) ) continue;
+        if ( !ACTIVE_PRT(particle) ) continue;
 
         if( PrtList.lst[particle].attachedto_ref == character )
         {
@@ -4839,7 +4842,7 @@ void reaffirm_attached_particles( Uint16 character )
     chr_t * pchr;
     cap_t * pcap;
 
-    if( INACTIVE_CHR(character) ) return;
+    if( !ACTIVE_CHR(character) ) return;
     pchr = ChrList.lst + character;
 
     pcap = pro_get_pcap(pchr->iprofile);
@@ -4956,7 +4959,7 @@ bool_t game_update_imports()
 
         // Is it alive?
         character = PlaList[cnt].index;
-        if ( INACTIVE_CHR(character) ) continue;
+        if ( !ACTIVE_CHR(character) ) continue;
 
         is_local = ( INPUT_BITS_NONE != PlaList[cnt].device.bits );
 
@@ -5034,7 +5037,7 @@ void attach_particles()
     {
         prt_t * pprt;
 
-        if ( INACTIVE_PRT(cnt) ) continue;
+        if ( !ACTIVE_PRT(cnt) ) continue;
         pprt = PrtList.lst + cnt;
 
         if( ACTIVE_CHR(pprt->attachedto_ref) )
@@ -5108,7 +5111,7 @@ void let_all_characters_think()
 
         bool_t is_crushed, is_cleanedup, can_think;
 
-        if ( INACTIVE_CHR(character) ) continue;
+        if ( !ACTIVE_CHR(character) ) continue;
         pchr = ChrList.lst + character;
 
         pcap = chr_get_pcap(character);
@@ -5328,14 +5331,14 @@ bool_t detect_chr_chr_interaction( Uint16 ichr_a, Uint16 ichr_b )
     if ( ichr_a == ichr_b ) return bfalse;
 
     // Ignore invalid characters
-    if ( INACTIVE_CHR(ichr_a) ) return bfalse;
+    if ( !ACTIVE_CHR(ichr_a) ) return bfalse;
     pchr_a = ChrList.lst + ichr_a;
 
     pcap_a = chr_get_pcap( ichr_a );
     if ( NULL == pcap_a ) return bfalse;
 
     // Ignore invalid characters
-    if ( INACTIVE_CHR(ichr_b) ) return bfalse;
+    if ( !ACTIVE_CHR(ichr_b) ) return bfalse;
     pchr_b = ChrList.lst + ichr_b;
 
     pcap_b = chr_get_pcap( ichr_b );
@@ -5399,11 +5402,11 @@ bool_t detect_chr_prt_interaction( Uint16 ichr_a, Uint16 iprt_b )
     prt_t * pprt_b;
 
     // Ignore invalid characters
-    if ( INACTIVE_CHR(ichr_a) ) return bfalse;
+    if ( !ACTIVE_CHR(ichr_a) ) return bfalse;
     pchr_a = ChrList.lst + ichr_a;
 
     // Ignore invalid characters
-    if ( INACTIVE_PRT(iprt_b) ) return bfalse;
+    if ( !ACTIVE_PRT(iprt_b) ) return bfalse;
     pprt_b = PrtList.lst + iprt_b;
 
     // reject characters that are hidden
@@ -5577,11 +5580,11 @@ void expand_escape_codes( Uint16 ichr, script_state_t * pstate, char * src, char
     chr_t      * pchr, *ptarget, *powner;
     ai_state_t * pai;
 
-    pchr    = INACTIVE_CHR(ichr) ? NULL : ChrList.lst + ichr;
+    pchr    = !ACTIVE_CHR(ichr) ? NULL : ChrList.lst + ichr;
     pai     = (NULL == pchr)    ? NULL : &(pchr->ai);
 
-    ptarget = ((NULL == pai) || INACTIVE_CHR(pai->target)) ? pchr : ChrList.lst + pai->target;
-    powner  = ((NULL == pai) || INACTIVE_CHR(pai->owner )) ? pchr : ChrList.lst + pai->owner;
+    ptarget = ((NULL == pai) || !ACTIVE_CHR(pai->target)) ? pchr : ChrList.lst + pai->target;
+    powner  = ((NULL == pai) || !ACTIVE_CHR(pai->owner )) ? pchr : ChrList.lst + pai->owner;
 
     cnt = 0;
     while ( '\0' != *src && src < src_end && dst < dst_end )
@@ -6256,7 +6259,7 @@ bool_t collide_ray_with_characters( line_of_sight_info_t * plos )
 
     for ( ichr = 0; ichr < MAX_CHR; ichr++)
     {
-        if ( INACTIVE_CHR(ichr) ) continue;
+        if ( !ACTIVE_CHR(ichr) ) continue;
 
         // do line/character intersection
     }

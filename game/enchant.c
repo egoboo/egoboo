@@ -91,7 +91,7 @@ bool_t remove_enchant( Uint16 ienc )
     Uint16 itarget, ispawner;
     Uint16 overlay_ref;
     Uint16 lastenchant, currentenchant;
-    int add;
+    int add_type, set_type;
 
     enc_t * penc;
     eve_t * peve;
@@ -112,36 +112,20 @@ bool_t remove_enchant( Uint16 ienc )
         }
     }
 
-    // Unset enchant values, doing morph last
-    unset_enchant_value( ienc, SETDAMAGETYPE );
-    unset_enchant_value( ienc, SETNUMBEROFJUMPS );
-    unset_enchant_value( ienc, SETLIFEBARCOLOR );
-    unset_enchant_value( ienc, SETMANABARCOLOR );
-    unset_enchant_value( ienc, SETSLASHMODIFIER );
-    unset_enchant_value( ienc, SETCRUSHMODIFIER );
-    unset_enchant_value( ienc, SETPOKEMODIFIER );
-    unset_enchant_value( ienc, SETHOLYMODIFIER );
-    unset_enchant_value( ienc, SETEVILMODIFIER );
-    unset_enchant_value( ienc, SETFIREMODIFIER );
-    unset_enchant_value( ienc, SETICEMODIFIER );
-    unset_enchant_value( ienc, SETZAPMODIFIER );
-    unset_enchant_value( ienc, SETFLASHINGAND );
-    unset_enchant_value( ienc, SETLIGHTBLEND );
-    unset_enchant_value( ienc, SETALPHABLEND );
-    unset_enchant_value( ienc, SETSHEEN );
-    unset_enchant_value( ienc, SETFLYTOHEIGHT );
-    unset_enchant_value( ienc, SETWALKONWATER );
-    unset_enchant_value( ienc, SETCANSEEINVISIBLE );
-    unset_enchant_value( ienc, SETMISSILETREATMENT );
-    unset_enchant_value( ienc, SETCOSTFOREACHMISSILE );
-    unset_enchant_value( ienc, SETCHANNEL );
-    unset_enchant_value( ienc, SETMORPH );
+    // Remove all the enchant stuff in exactly the opposite order to how it was applied
 
-    // Remove all of the cumulative values
-    for ( add = 0; add < MAX_ENCHANT_ADD; add++ )
+    // Remove all of the cumulative values first, since we did it 
+    for ( add_type = ENC_ADD_LAST; add_type >= ENC_ADD_FIRST; add_type-- )
     {
-        remove_enchant_value( ienc, add );
+        remove_enchant_value( ienc, add_type );
     }
+
+    // unset them in the reverse order of setting them, doing morph last
+    for( set_type = ENC_SET_LAST; set_type >= ENC_SET_FIRST; set_type-- )
+    {
+        unset_enchant_value( ienc, set_type );
+    }
+
 
     // Now fix dem weapons
     if ( ACTIVE_CHR( penc->target_ref ) )
@@ -258,7 +242,7 @@ Uint16 enchant_value_filled( Uint16 ienc, Uint8 valueindex )
     //    of the conflicting enchantment
     Uint16 character, currenchant;
 
-    if ( INACTIVE_ENC(ienc) ) return MAX_ENC;
+    if ( !ACTIVE_ENC(ienc) ) return MAX_ENC;
 
     character = EncList.lst[ienc].target_ref;
 
@@ -276,7 +260,7 @@ Uint16 enchant_value_filled( Uint16 ienc, Uint8 valueindex )
 }
 
 //--------------------------------------------------------------------------------------------
-void set_enchant_value( Uint16 ienc, Uint8 valueindex, Uint16 ieve )
+void set_enchant_value( Uint16 ienc, Uint8 valueindex, Uint16 profile )
 {
     // ZZ> This function sets and saves one of the character's stats
     Uint16 conflict, character;
@@ -284,11 +268,11 @@ void set_enchant_value( Uint16 ienc, Uint8 valueindex, Uint16 ieve )
     eve_t * peve;
     chr_t * ptarget;
 
-    if ( INACTIVE_ENC(ienc)) return;
+    if ( !ACTIVE_ENC(ienc)) return;
     penc = EncList.lst + ienc;
 
-    if ( ieve >= MAX_EVE || !EveStack.lst[ieve].loaded ) return;
-    peve = EveStack.lst + ieve;
+    peve = pro_get_peve( profile );
+    if ( NULL == peve ) return;
 
     penc->setyesno[valueindex] = bfalse;
     if ( peve->setyesno[valueindex] )
@@ -435,10 +419,9 @@ void set_enchant_value( Uint16 ienc, Uint8 valueindex, Uint16 ieve )
                         break;
 
                     case SETMORPH:
-                        penc->setsave[valueindex] = ptarget->skin;
                         // Special handler for morph
-                        change_character( character, ieve, 0, LEAVEALL ); // LEAVEFIRST);
-                        ptarget->ai.changed = btrue;
+                        penc->setsave[valueindex] = ptarget->skin;
+                        change_character( character, profile, 0, LEAVEALL ); // LEAVEFIRST);
                         break;
 
                     case SETCHANNEL:
@@ -462,13 +445,13 @@ void add_enchant_value( Uint16 ienc, Uint8 valueindex, Uint16 ieve )
     eve_t * peve;
     chr_t * ptarget;
 
-    if ( INACTIVE_ENC(ienc)) return;
+    if ( !ACTIVE_ENC(ienc)) return;
     penc = EncList.lst + ienc;
 
     if ( ieve >= MAX_EVE || !EveStack.lst[ieve].loaded ) return;
     peve = EveStack.lst + ieve;
 
-    if ( INACTIVE_CHR(penc->target_ref) ) return;
+    if ( !ACTIVE_CHR(penc->target_ref) ) return;
     character = penc->target_ref;
     ptarget = ChrList.lst + character;
 
@@ -631,13 +614,13 @@ Uint16 spawn_one_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 en
     // ZZ> This function enchants a target, returning the enchantment index or MAX_ENC
     //    if failed
     Uint16 ienc, ieve, iprofile, overlay;
-    int add;
+    int add_type, set_type;
     eve_t * peve;
     enc_t * penc;
     chr_t * ptarget;
 
     // Target must both be alive and on and valid
-    if ( INACTIVE_CHR(target) )
+    if ( !ACTIVE_CHR(target) )
     {
         log_warning( "spawn_one_enchant() - failed because target does not exist.\n" );
         return MAX_ENC;
@@ -675,7 +658,7 @@ Uint16 spawn_one_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 en
     peve = EveStack.lst + ieve;
 
     // Owner must both be alive and on and valid if it isn't a stayifnoowner enchant
-    if ( !peve->stayifnoowner && ( INACTIVE_CHR(owner) || !ChrList.lst[owner].alive ) )
+    if ( !peve->stayifnoowner && ( !ACTIVE_CHR(owner) || !ChrList.lst[owner].alive ) )
     {
         log_warning( "spawn_one_enchant() - failed because the required enchant owner cannot be found.\n" );
         return MAX_ENC;
@@ -704,7 +687,7 @@ Uint16 spawn_one_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 en
     }
 
     // make sure the target is valid
-    if ( INACTIVE_CHR(target) || !ptarget->alive )
+    if ( !ACTIVE_CHR(target) || !ptarget->alive )
     {
         log_warning( "spawn_one_enchant() - failed because the target is not alive.\n" );
         return MAX_ENC;
@@ -745,10 +728,8 @@ Uint16 spawn_one_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 en
     // initialize the enchant
     enc_init( penc );
 
-    // Make a new one
-    penc->allocated = btrue;
-    penc->active    = btrue;
-    strncpy( penc->name, peve->name, SDL_arraysize(penc->name));
+    // turn the enchant on here. you can't fail to spawn after this point.
+    EGO_OBJECT_ACTIVATE( penc, ienc, peve->name );
 
     penc->target_ref       = ACTIVE_CHR(target)  ? target  : MAX_CHR;
     penc->owner_ref        = ACTIVE_CHR(owner)   ? owner   : MAX_CHR;
@@ -774,34 +755,15 @@ Uint16 spawn_one_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 en
     ptarget->firstenchant = ienc;
 
     // Now set all of the specific values, morph first
-    set_enchant_value( ienc, SETMORPH, ieve );
-    set_enchant_value( ienc, SETDAMAGETYPE, ieve );
-    set_enchant_value( ienc, SETNUMBEROFJUMPS, ieve );
-    set_enchant_value( ienc, SETLIFEBARCOLOR, ieve );
-    set_enchant_value( ienc, SETMANABARCOLOR, ieve );
-    set_enchant_value( ienc, SETSLASHMODIFIER, ieve );
-    set_enchant_value( ienc, SETCRUSHMODIFIER, ieve );
-    set_enchant_value( ienc, SETPOKEMODIFIER, ieve );
-    set_enchant_value( ienc, SETHOLYMODIFIER, ieve );
-    set_enchant_value( ienc, SETEVILMODIFIER, ieve );
-    set_enchant_value( ienc, SETFIREMODIFIER, ieve );
-    set_enchant_value( ienc, SETICEMODIFIER, ieve );
-    set_enchant_value( ienc, SETZAPMODIFIER, ieve );
-    set_enchant_value( ienc, SETFLASHINGAND, ieve );
-    set_enchant_value( ienc, SETLIGHTBLEND, ieve );
-    set_enchant_value( ienc, SETALPHABLEND, ieve );
-    set_enchant_value( ienc, SETSHEEN, ieve );
-    set_enchant_value( ienc, SETFLYTOHEIGHT, ieve );
-    set_enchant_value( ienc, SETWALKONWATER, ieve );
-    set_enchant_value( ienc, SETCANSEEINVISIBLE, ieve );
-    set_enchant_value( ienc, SETMISSILETREATMENT, ieve );
-    set_enchant_value( ienc, SETCOSTFOREACHMISSILE, ieve );
-    set_enchant_value( ienc, SETCHANNEL, ieve );
+    for( set_type = ENC_SET_FIRST; set_type <= ENC_SET_LAST; set_type++ )
+    {
+        set_enchant_value( ienc, set_type, iprofile );
+    }
 
     // Now do all of the stat adds
-    for ( add = 0; add < MAX_ENCHANT_ADD; add++ )
+    for ( add_type = ENC_ADD_FIRST; add_type <= ENC_ADD_LAST; add_type++ )
     {
-        add_enchant_value( ienc, add, ieve );
+        add_enchant_value( ienc, add_type, ieve );
     }
 
     // Create an overlay character?
@@ -911,12 +873,12 @@ void unset_enchant_value( Uint16 ienc, Uint8 valueindex )
     enc_t * penc;
     chr_t * ptarget;
 
-    if ( INACTIVE_ENC( ienc ) ) return;
+    if ( !ALLOCATED_ENC( ienc ) ) return;
     penc = EncList.lst + ienc;
 
-    if ( INACTIVE_CHR(penc->target_ref) ) return;
+    if ( !ACTIVE_CHR(penc->target_ref) ) return;
     character = penc->target_ref;
-    ptarget = ChrList.lst + penc->target_ref;
+    ptarget   = ChrList.lst + penc->target_ref;
 
     if ( penc->setyesno[valueindex] )
     {
@@ -1031,10 +993,10 @@ void remove_enchant_value( Uint16 ienc, Uint8 valueindex )
     enc_t * penc;
     chr_t * ptarget;
 
-    if ( INACTIVE_ENC(ienc)) return;
+    if ( !ALLOCATED_ENC(ienc)) return;
     penc = EncList.lst + ienc;
 
-    if ( INACTIVE_CHR(penc->target_ref) ) return;
+    if ( !ACTIVE_CHR(penc->target_ref) ) return;
     character = penc->target_ref;
     ptarget = ChrList.lst + penc->target_ref;
 
@@ -1132,10 +1094,10 @@ Uint16  enc_get_iowner( Uint16 ienc )
 {
     enc_t * penc;
 
-    if( INACTIVE_ENC(ienc) ) return MAX_CHR;
+    if( !ACTIVE_ENC(ienc) ) return MAX_CHR;
     penc = EncList.lst + ienc;
 
-    if( INACTIVE_CHR(penc->owner_ref) ) return MAX_CHR;
+    if( !ACTIVE_CHR(penc->owner_ref) ) return MAX_CHR;
 
     return penc->owner_ref;
 }
@@ -1145,10 +1107,10 @@ chr_t * enc_get_powner( Uint16 ienc )
 {
     enc_t * penc;
 
-    if( INACTIVE_ENC(ienc) ) return NULL;
+    if( !ACTIVE_ENC(ienc) ) return NULL;
     penc = EncList.lst + ienc;
 
-    if( INACTIVE_CHR(penc->owner_ref) ) return NULL;
+    if( !ACTIVE_CHR(penc->owner_ref) ) return NULL;
 
     return ChrList.lst + penc->owner_ref;
 }
@@ -1158,7 +1120,7 @@ Uint16  enc_get_ieve( Uint16 ienc )
 {
     enc_t * penc;
 
-    if( INACTIVE_ENC(ienc) ) return MAX_EVE;
+    if( !ACTIVE_ENC(ienc) ) return MAX_EVE;
     penc = EncList.lst + ienc;
 
     if( INVALID_EVE(penc->eve_ref) ) return MAX_EVE;
@@ -1171,12 +1133,38 @@ eve_t * enc_get_peve( Uint16 ienc )
 {
     enc_t * penc;
 
-    if( INACTIVE_ENC(ienc) ) return NULL;
+    if( !ACTIVE_ENC(ienc) ) return NULL;
     penc = EncList.lst + ienc;
 
     if( INVALID_EVE(penc->eve_ref) ) return NULL;
 
     return EveStack.lst + penc->eve_ref;
+}
+
+//--------------------------------------------------------------------------------------------
+Uint16  enc_get_ipro( Uint16 ienc )
+{
+    enc_t * penc;
+
+    if( !ACTIVE_ENC(ienc) ) return MAX_PROFILE;
+    penc = EncList.lst + ienc;
+
+    if( INVALID_PRO(penc->profile_ref) ) return MAX_PROFILE;
+
+    return penc->profile_ref;
+}
+
+//--------------------------------------------------------------------------------------------
+pro_t * enc_get_ppro( Uint16 ienc )
+{
+    enc_t * penc;
+
+    if( !ACTIVE_ENC(ienc) ) return NULL;
+    penc = EncList.lst + ienc;
+
+    if( INVALID_PRO(penc->profile_ref) ) return NULL;
+
+    return ProList.lst + penc->profile_ref;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1193,7 +1181,7 @@ bool_t enc_is_removed( Uint16 ienc, Uint16 test_profile )
 {
     IDSZ idsz_remove;
 
-    if( INACTIVE_ENC(ienc) ) return bfalse;
+    if( !ACTIVE_ENC(ienc) ) return bfalse;
     idsz_remove = enc_get_idszremove( ienc );
 
     // if nothing can remove it, just go on with your business
@@ -1263,7 +1251,7 @@ void update_all_enchants()
         eve_t * peve;
         chr_t * ptarget;
 
-        if ( INACTIVE_ENC(cnt) ) continue;
+        if ( !ACTIVE_ENC(cnt) ) continue;
         penc = EncList.lst + cnt;
 
         if ( penc->spawntime > 0 ) penc->spawntime--;
@@ -1276,7 +1264,7 @@ void update_all_enchants()
 
         if ( peve->contspawn_amount <= 0 ) continue;
 
-        if( INACTIVE_CHR(penc->target_ref) ) continue;
+        if( !ACTIVE_CHR(penc->target_ref) ) continue;
         ptarget = ChrList.lst + penc->target_ref;
 
         facing = ptarget->turn_z;
@@ -1301,7 +1289,7 @@ void update_all_enchants()
         {
             enc_t * penc;
 
-            if ( INACTIVE_ENC(cnt) ) continue;
+            if ( !ACTIVE_ENC(cnt) ) continue;
             penc = EncList.lst + cnt;
 
             if ( 0 == penc->time )
@@ -1397,7 +1385,7 @@ Uint16 cleanup_enchant_list( Uint16 ienc )
     {
         enc_next = EncList.lst[enc_now].nextenchant_ref;
 
-        if ( INACTIVE_ENC( enc_now ) )
+        if ( !ACTIVE_ENC( enc_now ) )
         {
             remove_enchant( enc_now );
         }
@@ -1437,10 +1425,9 @@ void cleanup_all_enchants()
 //--------------------------------------------------------------------------------------------
 bool_t enc_request_terminate( Uint16 ienc )
 {
-    if( INACTIVE_ENC(ienc) ) return bfalse;
+    if( !ACTIVE_ENC(ienc) ) return bfalse;
 
-    EncList.lst[ienc].kill_me = btrue;
-    EncList.lst[ienc].active  = bfalse;
+    EGO_OBJECT_TERMINATE( EncList.lst + ienc );
 
     return btrue;
 }

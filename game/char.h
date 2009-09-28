@@ -191,6 +191,8 @@ struct s_chr_instance
     Uint32         color_amb;
     GLvector4      col_amb;
     Uint8          max_light, min_light;
+
+    size_t         vlst_size;
     GLvertex       vlst[MAXVERTICES];
 
     // graphical optimizations
@@ -466,8 +468,8 @@ DEFINE_LIST_EXTERN(chr_t, ChrList, MAX_CHR );
 
 #define VALID_CHR_RANGE( ICHR ) ( ((ICHR) >= 0) && ((ICHR) < MAX_CHR) )
 #define ALLOCATED_CHR( ICHR )   ( VALID_CHR_RANGE( ICHR ) && ChrList.lst[ICHR].allocated )
-#define ACTIVE_CHR( ICHR )       ( ALLOCATED_CHR( ICHR ) && ChrList.lst[ICHR].active )
-#define INACTIVE_CHR( ICHR )     ( !ALLOCATED_CHR( ICHR ) || !ChrList.lst[ICHR].active )
+#define ACTIVE_CHR( ICHR )      ( ALLOCATED_CHR( ICHR ) && ChrList.lst[ICHR].active )
+#define INACTIVE_CHR( ICHR )    ( ALLOCATED_CHR( ICHR ) && !ChrList.lst[ICHR].active )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -620,3 +622,7 @@ bool_t chr_update_matrix( Uint16 ichr );
 bool_t chr_teleport( Uint16 ichr, float x, float y, float z, Uint16 turn_z );
 
 bool_t chr_request_terminate( Uint16 ichr );
+
+chr_t * chr_update_hide( chr_t * pchr );
+
+bool_t ai_state_set_changed( ai_state_t * pai);

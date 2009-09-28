@@ -69,12 +69,19 @@ void let_character_think( Uint16 character )
     chr_t          * pchr;
     ai_state_t     * pself;
 
-    if ( INACTIVE_CHR( character ) )  return;
+    if ( !ACTIVE_CHR( character ) )  return;
     pchr  = ChrList.lst + character;
     pself = &(pchr->ai);
 
     // has the time for this character to die come and gone?
     if ( pself->poof_time >= 0 && pself->poof_time <= (Sint32)update_wld ) return;
+
+    // grab the "changed" value from the last time the script was run
+    if ( pself->changed )
+    {
+        pself->alert  |= ALERTIF_CHANGED;
+        pself->changed = bfalse;
+    }
 
     // characters that are not "alive" should have greatly limited access to scripting...
     // in the past it was completely turned off
@@ -162,7 +169,6 @@ void let_character_think( Uint16 character )
 
     // reset the ai
     pself->terminate = bfalse;
-    pself->changed   = bfalse;
     pself->indent    = 0;
     pself->exe_stt   = AisStorage.lst[pself->type].iStartPosition;
     pself->exe_end   = AisStorage.lst[pself->type].iEndPosition;
@@ -228,11 +234,6 @@ void let_character_think( Uint16 character )
 
     // Clear alerts for next time around
     pself->alert = 0;
-    if ( pself->changed )
-    {
-        pself->alert  |= ALERTIF_CHANGED;
-        pself->changed = bfalse;
-    }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -244,7 +245,7 @@ void set_alerts( Uint16 character )
     ai_state_t * pai;
 
     // invalid characters do not think
-    if ( INACTIVE_CHR(character) ) return;
+    if ( !ACTIVE_CHR(character) ) return;
     pchr = ChrList.lst + character;
     pai  = chr_get_pai(character);
 
@@ -290,7 +291,7 @@ void issue_order( Uint16 character, Uint32 value )
 
     for ( cnt = 0, counter = 0; cnt < MAX_CHR; cnt++ )
     {
-        if ( INACTIVE_CHR(cnt) ) continue;
+        if ( !ACTIVE_CHR(cnt) ) continue;
 
         if ( chr_get_iteam(cnt) == chr_get_iteam(character) )
         {
@@ -310,7 +311,7 @@ void issue_special_order( Uint32 value, IDSZ idsz )
     {
         cap_t * pcap;
 
-        if ( INACTIVE_CHR(cnt) ) continue;
+        if ( !ACTIVE_CHR(cnt) ) continue;
 
         pcap = chr_get_pcap(cnt);
         if ( NULL == pcap ) continue;

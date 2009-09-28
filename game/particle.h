@@ -111,7 +111,6 @@ struct s_prt
     bool_t  is_hidden;
 
     float   floor_level;                     // Height of tile
-    Uint8   spawncharacterstate;
     Uint16  rotate;                          // Rotation direction
     Sint16  rotateadd;                       // Rotation rate
 
@@ -143,6 +142,8 @@ struct s_prt
 
     bool_t is_bumpspawn;                      // this particle is like a flame, burning something
     bool_t inwater;
+
+    Uint8   spawncharacterstate;              // if != SPAWNNOCHARACTER, then a character is spawned on end
 };
 typedef struct s_prt prt_t;
 
@@ -155,8 +156,8 @@ DEFINE_LIST_EXTERN(prt_t, PrtList, TOTAL_MAX_PRT);
 
 #define VALID_PRT_RANGE( IPRT ) ( ((IPRT) >= 0) && ((IPRT) < maxparticles) && ((IPRT) < TOTAL_MAX_PRT) )
 #define ALLOCATED_PRT( IPRT )   ( VALID_PRT_RANGE( IPRT ) && PrtList.lst[IPRT].allocated )
-#define ACTIVE_PRT( IPRT )       ( ALLOCATED_PRT( IPRT ) && PrtList.lst[IPRT].active )
-#define INACTIVE_PRT( IPRT )     ( !ALLOCATED_PRT( IPRT ) || !PrtList.lst[IPRT].active )
+#define ACTIVE_PRT( IPRT )      ( ALLOCATED_PRT( IPRT ) && PrtList.lst[IPRT].active )
+#define INACTIVE_PRT( IPRT )    ( ALLOCATED_PRT( IPRT ) && !PrtList.lst[IPRT].active )
 
 //--------------------------------------------------------------------------------------------
 // function prototypes

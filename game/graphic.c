@@ -807,7 +807,7 @@ void do_chr_flashing()
     {
         Uint16 ichr = dolist[i].ichr;
 
-        if ( INACTIVE_CHR(ichr) ) continue;
+        if ( !ACTIVE_CHR(ichr) ) continue;
 
         // Do flashing
         if ( HAS_NO_BITS( frame_all, ChrList.lst[ichr].flashand ) && ChrList.lst[ichr].flashand != DONTFLASH )
@@ -1184,7 +1184,7 @@ void render_shadow( Uint16 character )
     float alpha, alpha_umbra, alpha_penumbra;
     chr_t * pchr;
 
-    if ( character >= MAX_CHR || INACTIVE_CHR(character) || ChrList.lst[character].pack_ispacked ) return;
+    if ( character >= MAX_CHR || !ACTIVE_CHR(character) || ChrList.lst[character].pack_ispacked ) return;
     pchr = ChrList.lst + character;
 
     // if the character is hidden, not drawn at all, so no shadow
@@ -1305,7 +1305,7 @@ void render_bad_shadow( Uint16 character )
     float level, height, height_factor, alpha;
     chr_t * pchr;
 
-    if ( character >= MAX_CHR || INACTIVE_CHR(character) || ChrList.lst[character].pack_ispacked ) return;
+    if ( character >= MAX_CHR || !ACTIVE_CHR(character) || ChrList.lst[character].pack_ispacked ) return;
     pchr = ChrList.lst + character;
 
     // if the character is hidden, not drawn at all, so no shadow
@@ -1458,7 +1458,7 @@ void light_particles( ego_mpd_t * pmesh )
         prt_t * pprt;
         prt_instance_t * pinst;
 
-        if ( INACTIVE_PRT(iprt) ) continue;
+        if ( !ACTIVE_PRT(iprt) ) continue;
         pprt = PrtList.lst + iprt;
         pinst = &(pprt->inst);
 
@@ -2738,7 +2738,7 @@ void draw_one_character_icon( Uint16 item, int x, int y, bool_t draw_ammo )
     Uint32 icon_ref;
     bool_t draw_sparkle;
 
-    chr_t * pitem = INACTIVE_CHR( item ) ? NULL : ChrList.lst + item;
+    chr_t * pitem = !ACTIVE_CHR( item ) ? NULL : ChrList.lst + item;
 
     // grab the icon reference
     icon_ref = chr_get_icon_ref( item );
@@ -2769,7 +2769,7 @@ int draw_character_xp_bar( Uint16 character, int x, int y )
     chr_t * pchr;
     cap_t * pcap;
 
-    if( INACTIVE_CHR( character ) ) return y;
+    if( !ACTIVE_CHR( character ) ) return y;
     pchr = ChrList.lst + character;
 
     pcap = pro_get_pcap( pchr->iprofile );
@@ -2807,7 +2807,7 @@ int draw_status( Uint16 character, int x, int y )
     chr_t * pchr;
     cap_t * pcap;
 
-    if( INACTIVE_CHR(character) ) return y;
+    if( !ACTIVE_CHR(character) ) return y;
     pchr = ChrList.lst + character;
 
     pcap = chr_get_pcap( character );
@@ -2923,7 +2923,7 @@ void draw_map()
                 chr_t * pchr;
                 cap_t * pcap;
 
-                if ( INACTIVE_CHR(iTmp) ) continue;
+                if ( !ACTIVE_CHR(iTmp) ) continue;
                 pchr = ChrList.lst + iTmp;
 
                 pcap = chr_get_pcap(iTmp);
@@ -4009,7 +4009,7 @@ void make_dynalist( camera_t * pcam )
     for ( cnt = 0; cnt < maxparticles; cnt++ )
     {
         PrtList.lst[cnt].inview = bfalse;
-        if ( INACTIVE_PRT(cnt) ) continue;
+        if ( !ACTIVE_PRT(cnt) ) continue;
 
         if ( !VALID_TILE(PMesh, PrtList.lst[cnt].onwhichfan) ) continue;
 
@@ -4088,7 +4088,7 @@ bool_t dolist_add_chr( ego_mpd_t * pmesh, Uint16 ichr )
 
     if ( dolist_count >= DOLIST_SIZE ) return bfalse;
 
-    if ( INACTIVE_CHR(ichr) ) return bfalse;
+    if ( !ACTIVE_CHR(ichr) ) return bfalse;
     pchr  = ChrList.lst + ichr;
     pinst = &(pchr->inst);
 
@@ -4139,7 +4139,7 @@ bool_t dolist_add_prt( ego_mpd_t * pmesh, Uint16 iprt )
 
     if ( dolist_count >= DOLIST_SIZE ) return bfalse;
 
-    if ( INACTIVE_PRT(iprt) ) return bfalse;
+    if ( !ACTIVE_PRT(iprt) ) return bfalse;
     pprt = PrtList.lst + iprt;
     pinst = &(pprt->inst);
 
@@ -4709,7 +4709,7 @@ bool_t billboard_data_update( billboard_data_t * pbb )
 
     if ( NULL == pbb || !pbb->valid ) return bfalse;
 
-    if ( INACTIVE_CHR(pbb->ichr) ) return bfalse;
+    if ( !ACTIVE_CHR(pbb->ichr) ) return bfalse;
     pchr = ChrList.lst + pbb->ichr;
 
     // determine where the new position should be
@@ -4817,7 +4817,7 @@ void BillboardList_update_all()
             is_invalid = btrue;
         }
 
-        if( INACTIVE_CHR(pbb->ichr) || ACTIVE_CHR(ChrList.lst[pbb->ichr].attachedto) )
+        if( !ACTIVE_CHR(pbb->ichr) || ACTIVE_CHR(ChrList.lst[pbb->ichr].attachedto) )
         {
             is_invalid = btrue;
         }

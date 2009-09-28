@@ -354,8 +354,8 @@ Uint16 load_one_model_profile( const char* tmploadname, Uint16 imad )
 #endif
 
     md2_load_one( vfs_resolveReadFilename(newloadname), &(MadList[imad].md2_data) );
-    // md2_fix_normals( imad );        // Fix them normals
-    md2_get_transvertices( imad );  // Figure out how many vertices to transform
+    //md2_fix_normals( imad );        // Fix them normals
+    //md2_get_transvertices( imad );  // Figure out how many vertices to transform
 
     pmad->md2_ptr = md2_loadFromFile( newloadname );
 
@@ -565,21 +565,21 @@ void md2_fix_normals( Uint16 modelindex )
 }
 
 //---------------------------------------------------------------------------------------------
-void md2_get_transvertices( Uint16 modelindex )
-{
-    // ZZ> This function gets the number of vertices to transform for a model...
-    //    That means every one except the grip ( unconnected ) vertices
-
-    // if (modelindex == 0)
-    // {
-    //   for ( cnt = 0; cnt < MadList[modelindex].vertices; cnt++ )
-    //   {
-    //       printf("%d-%d\n", cnt, vertexconnected( modelindex, cnt ) );
-    //   }
-    // }
-
-    MadList[modelindex].transvertices = MadList[modelindex].md2_data.vertices;
-}
+//void md2_get_transvertices( Uint16 modelindex )
+//{
+//    // ZZ> This function gets the number of vertices to transform for a model...
+//    //    That means every one except the grip ( unconnected ) vertices
+//
+//    // if (modelindex == 0)
+//    // {
+//    //   for ( cnt = 0; cnt < MadList[modelindex].vertices; cnt++ )
+//    //   {
+//    //       printf("%d-%d\n", cnt, vertexconnected( modelindex, cnt ) );
+//    //   }
+//    // }
+//
+//    MadList[modelindex].transvertices = MadList[modelindex].md2_data.vertices;
+//}
 
 //---------------------------------------------------------------------------------------------
 /*int vertexconnected( md2_ogl_commandlist_t * pclist, int vertex )

@@ -221,7 +221,7 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
                 if ( !PlaList[cnt].valid || INPUT_BITS_NONE == PlaList[cnt].device.bits ) continue;
 
                 character = PlaList[cnt].index;
-                if ( INACTIVE_CHR(character) )
+                if ( !ACTIVE_CHR(character) )
                 {
                     pla_reinit( PlaList + cnt );
                     continue;

@@ -164,7 +164,7 @@ bool_t link_pop_module()
             pchr = NULL;
             for (j = 0; j < MAX_CHR; j++)
             {
-                if ( INACTIVE_CHR(j) ) continue;
+                if ( !ACTIVE_CHR(j) ) continue;
 
                 if ( phero->object_index == ChrList.lst[j].iprofile )
                 {
@@ -216,7 +216,7 @@ bool_t link_push_module()
 
         // Is it alive?
         ichr = PlaList[cnt].index;
-        if ( INACTIVE_CHR( ichr ) ) continue;
+        if ( !ACTIVE_CHR( ichr ) ) continue;
         pchr = ChrList.lst + ichr;
 
         if ( pentry->hero_count < LINK_HEROES_MAX )

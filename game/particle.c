@@ -252,7 +252,7 @@ Uint16 prt_get_iowner( Uint16 iprt )
 
     prt_t * pprt;
 
-    if( INACTIVE_PRT(iprt) ) return MAX_CHR;
+    if( !ACTIVE_PRT(iprt) ) return MAX_CHR;
     pprt = PrtList.lst + iprt;
 
     if( ACTIVE_CHR(pprt->owner_ref) )
@@ -320,13 +320,11 @@ Uint16 spawn_one_particle( GLvector3 pos, Uint16 facing, Uint16 iprofile, Uint16
     tmp_pos = pos;
 
     // Necessary data for any part
-    strncpy( pprt->name, ppip->name, SDL_arraysize(pprt->name) );
-    pprt->allocated = btrue;
-    pprt->active    = btrue;
+    EGO_OBJECT_ACTIVATE( pprt, iprt, ppip->name );
 
     // try to get an idea of who our owner is even if we are
     // given bogus info
-    if( INACTIVE_CHR(chr_origin) && ACTIVE_PRT( prt_origin ) )
+    if( !ACTIVE_CHR(chr_origin) && ACTIVE_PRT( prt_origin ) )
     {
         chr_origin = prt_get_iowner( prt_origin );
     }
@@ -408,7 +406,7 @@ Uint16 spawn_one_particle( GLvector3 pos, Uint16 facing, Uint16 iprofile, Uint16
         }
 
         // Does it go away?
-        if ( INACTIVE_CHR(pprt->target_ref) && ppip->needtarget )
+        if ( !ACTIVE_CHR(pprt->target_ref) && ppip->needtarget )
         {
             free_one_particle_in_game( iprt );
             return maxparticles;
@@ -533,7 +531,7 @@ Uint8 __prthitawall( Uint16 particle )
     pip_t * ppip;
     prt_t * pprt;
 
-    if( INACTIVE_PRT(particle) ) return retval;
+    if( !ACTIVE_PRT(particle) ) return retval;
     pprt = PrtList.lst + particle;
 
     ppip = prt_get_ppip(particle);
@@ -567,7 +565,7 @@ void update_all_particles( void )
         prt_t * pprt;
         Uint16 ichr;
 
-        if ( INACTIVE_PRT(particle) ) continue;
+        if ( !ACTIVE_PRT(particle) ) continue;
         pprt = PrtList.lst + particle;
 
         pprt->onwhichfan   = mesh_get_tile ( PMesh, pprt->pos.x, pprt->pos.y );
@@ -592,7 +590,7 @@ void update_all_particles( void )
         prt_t * pprt;
         pip_t * ppip;
 
-        if ( INACTIVE_PRT(particle) ) continue;
+        if ( !ACTIVE_PRT(particle) ) continue;
         pprt = PrtList.lst + particle;
 
         // do nothing if the particle is hidden
@@ -638,7 +636,7 @@ void update_all_particles( void )
             }
             else
             {
-                if( SPRITE_SOLID == pprt->type && INACTIVE_CHR( pprt->attachedto_ref ) )
+                if( SPRITE_SOLID == pprt->type && !ACTIVE_CHR( pprt->attachedto_ref ) )
                 {
                     spawn_valid = btrue;
                     spawn_pip = PIP_RIPPLE;
@@ -671,7 +669,7 @@ void update_all_particles( void )
             pip_t * ppip;
             Uint16 ichr;
 
-            if ( INACTIVE_PRT(particle) ) continue;
+            if ( !ACTIVE_PRT(particle) ) continue;
             pprt = PrtList.lst + particle;
 
             // do nothing if the particle is hidden
@@ -681,7 +679,7 @@ void update_all_particles( void )
             if( NULL == ppip ) continue;
 
             ichr = pprt->attachedto_ref;
-            if( INACTIVE_CHR( ichr ) ) continue;
+            if( !ACTIVE_CHR( ichr ) ) continue;
 
             // Attached iprt_b damage ( Burning )
             if ( ppip->xyvel_pair.base == 0 )
@@ -704,7 +702,7 @@ void update_all_particles( void )
         pip_t * ppip;
         prt_t * pprt;
 
-        if ( INACTIVE_PRT(cnt) ) continue;
+        if ( !ACTIVE_PRT(cnt) ) continue;
         pprt = PrtList.lst + cnt;
 
         ppip = prt_get_ppip( cnt );
@@ -771,7 +769,7 @@ void move_all_particles( void )
         bool_t hit_a_wall, hit_a_floor;
         GLvector3 nrm;
 
-        if ( INACTIVE_PRT(cnt) ) continue;
+        if ( !ACTIVE_PRT(cnt) ) continue;
         pprt = PrtList.lst + cnt;
 
         pprt->pos_old = pprt->pos;
@@ -867,7 +865,7 @@ void move_all_particles( void )
             play_particle_sound( cnt, ppip->soundfloor );
         }
 
-        if( INACTIVE_CHR( pprt->attachedto_ref ) && (hit_a_wall || hit_a_floor) )
+        if( !ACTIVE_CHR( pprt->attachedto_ref ) && (hit_a_wall || hit_a_floor) )
         {
             float fx, fy;
 
@@ -957,7 +955,7 @@ void move_all_particles( void )
             }
             else
             {
-                if ( INACTIVE_CHR( pprt->attachedto_ref ) )
+                if ( !ACTIVE_CHR( pprt->attachedto_ref ) )
                 {
                     int       ival;
                     float     vlen, min_length, uncertainty;
@@ -1023,7 +1021,7 @@ void move_all_particles( void )
         }
 
         // do gravitational acceleration
-        if( INACTIVE_CHR( pprt->attachedto_ref ) && !ppip->homing )
+        if( !ACTIVE_CHR( pprt->attachedto_ref ) && !ppip->homing )
         {
             pprt->vel.z += gravity * lerp_z;
 
@@ -1166,7 +1164,7 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
     prt_t * pprt;
     cap_t * pcap;
 
-    if ( INACTIVE_PRT(particle) ) return;
+    if ( !ACTIVE_PRT(particle) ) return;
     pprt = PrtList.lst + particle;
 
     if ( INVALID_PIP(pprt->pip_ref) ) return;
@@ -1176,7 +1174,7 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
     if ( 0 == ppip->bumpspawn_amount && !ppip->spawnenchant ) return;
     amount = ppip->bumpspawn_amount;
 
-    if ( INACTIVE_CHR(character) ) return;
+    if ( !ACTIVE_CHR(character) ) return;
     pchr = ChrList.lst + character;
 
     pmad = chr_get_pmad( character );
@@ -1267,7 +1265,7 @@ int prt_is_over_water( Uint16 cnt )
     // This function returns btrue if the particle is over a water tile
     Uint32 fan;
 
-    if ( INACTIVE_PRT(cnt) ) return bfalse;
+    if ( !ACTIVE_PRT(cnt) ) return bfalse;
 
     fan = mesh_get_tile( PMesh, PrtList.lst[cnt].pos.x, PrtList.lst[cnt].pos.y );
     if ( VALID_TILE(PMesh, fan) )
@@ -1419,7 +1417,7 @@ Uint16  prt_get_ipip( Uint16 iprt )
 {
     prt_t * pprt;
 
-    if( INACTIVE_PRT(iprt) ) return MAX_PIP;
+    if( !ACTIVE_PRT(iprt) ) return MAX_PIP;
     pprt = PrtList.lst + iprt;
 
     if( INVALID_PIP(pprt->pip_ref) ) return MAX_PIP;
@@ -1432,7 +1430,7 @@ pip_t * prt_get_ppip( Uint16 iprt )
 {
     prt_t * pprt;
 
-    if( INACTIVE_PRT(iprt) ) return NULL;
+    if( !ACTIVE_PRT(iprt) ) return NULL;
     pprt = PrtList.lst + iprt;
 
     if( INVALID_PIP(pprt->pip_ref) ) return NULL;
@@ -1485,10 +1483,9 @@ bool_t release_one_pip( Uint16 ipip )
 //--------------------------------------------------------------------------------------------
 bool_t prt_request_terminate( Uint16 iprt )
 {
-    if( INACTIVE_PRT(iprt) ) return bfalse;
+    if( !ACTIVE_PRT(iprt) ) return bfalse;
 
-    PrtList.lst[iprt].kill_me = btrue;
-    PrtList.lst[iprt].active  = bfalse;
+    EGO_OBJECT_TERMINATE( PrtList.lst + iprt );
 
     return btrue;
 }

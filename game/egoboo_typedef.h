@@ -150,10 +150,27 @@ void range_to_pair( FRange range, IPair * ppair );
 //--------------------------------------------------------------------------------------------
 // some basic data that all egoboo objects should have
 #define  EGO_OBJECT_STUFF \
+    STRING         name;      /* what is its "name" */ \
+    int            index;     /* what is the index position in the object list? */ \
     bool_t         allocated; /* Does it exist? */ \
     bool_t         active;    /* If not active, then it is not valid */ \
     bool_t         kill_me;   /* Does it need to be deleted? */ \
-    STRING         name;
+
+#define EGO_OBJECT_ACTIVATE( PDATA, INDEX, NAME ) \
+    if( NULL != PDATA ) \
+    { \
+        strncpy( (PDATA)->name, NAME, SDL_arraysize((PDATA)->name) ); \
+        (PDATA)->index     = INDEX; \
+        (PDATA)->allocated = btrue; \
+        (PDATA)->active    = btrue; \
+    }
+
+#define EGO_OBJECT_TERMINATE( PDATA ) \
+    if( NULL != PDATA ) \
+    { \
+        (PDATA)->kill_me = btrue; \
+        (PDATA)->active  = bfalse; \
+    }
 
 //--------------------------------------------------------------------------------------------
 // some basic data that all egoboo profiles should have

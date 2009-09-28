@@ -1606,7 +1606,7 @@ void unbuffer_player_latches()
         ppla = PlaList + cnt;
 
         character = PlaList[cnt].index;
-        if( INACTIVE_CHR(character) ) continue;
+        if( !ACTIVE_CHR(character) ) continue;
         pchr = ChrList.lst + character;
 
         if ( cfg.difficulty < GAME_HARD && ( pchr->latch.b & LATCHBUTTON_RESPAWN ) && PMod->respawnvalid )
@@ -1976,7 +1976,7 @@ Uint16   pla_get_ichr( Uint16 iplayer )
     if( iplayer >= MAXPLAYER || !PlaList[iplayer].valid ) return MAX_CHR;
     pplayer = PlaList + iplayer;
 
-    if( INACTIVE_CHR(pplayer->index) ) return MAX_CHR;
+    if( !ACTIVE_CHR(pplayer->index) ) return MAX_CHR;
 
     return pplayer->index;
 }
@@ -1989,7 +1989,7 @@ chr_t  * pla_get_pchr( Uint16 iplayer )
     if( iplayer >= MAXPLAYER || !PlaList[iplayer].valid ) return NULL;
     pplayer = PlaList + iplayer;
 
-    if( INACTIVE_CHR(pplayer->index) ) return NULL;
+    if( !ACTIVE_CHR(pplayer->index) ) return NULL;
 
     return ChrList.lst + pplayer->index;
 }

@@ -59,8 +59,8 @@
     chr_t * pchr; \
     pro_t * ppro; \
     Uint16 sTmp = 0; \
-    Uint8 returncode = 1; \
-    if( NULL == pstate || NULL == pself || INACTIVE_CHR(pself->index) ) return bfalse; \
+    Uint8 returncode = btrue; \
+    if( NULL == pstate || NULL == pself || !ACTIVE_CHR(pself->index) ) return bfalse; \
     pchr = ChrList.lst + pself->index; \
     if( INVALID_PRO(pchr->iprofile) ) return bfalse; \
     ppro = ProList.lst + pchr->iprofile;
@@ -71,7 +71,7 @@
 #define FUNCTION_BEGIN() \
     Uint16 sTmp = 0; \
     Uint8 returncode = btrue; \
-    if( NULL == pchr || ACTIVE_CHR(pchr->ai.index) ) return bfalse;
+    if( NULL == pchr || !ACTIVE_CHR(pchr->index) ) return bfalse;
 
 #define FUNCTION_END() \
     return returncode;
@@ -1338,7 +1338,11 @@ Uint8 scr_set_State( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
+    // set the state
     pself->state = pstate->argument;
+
+    // determine whether the object is hidden
+    chr_update_hide( pchr );
 
     SCRIPT_FUNCTION_END();
 }
@@ -1752,7 +1756,7 @@ Uint8 scr_SpawnCharacter( script_state_t * pstate, ai_state_t * pself )
     pos.z = 0;
 
     sTmp = spawn_one_character( pos, pchr->iprofile, pchr->team, 0, pstate->turn & 0xFFFF, NULL, MAX_CHR );
-    if( INACTIVE_CHR(sTmp) )
+    if( !ACTIVE_CHR(sTmp) )
     {
         if ( sTmp > PMod->importamount * MAXIMPORTPERPLAYER )
         {
@@ -2008,15 +2012,22 @@ Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // This function spawns a particle
-    tTmp = pself->index;
-    if ( ACTIVE_CHR(pchr->attachedto) )  tTmp = pchr->attachedto;
+    sTmp = pself->index;
+    if ( ACTIVE_CHR(pchr->attachedto) )  
+    {
+        sTmp = pchr->attachedto;
+    }
 
-    tTmp = spawn_one_particle( pchr->pos, pchr->turn_z, pchr->iprofile, pstate->argument, pself->index, pstate->distance, pchr->team, tTmp, TOTAL_MAX_PRT, 0, MAX_CHR );
-    if ( ACTIVE_PRT(tTmp) )
+    tTmp = spawn_one_particle( pchr->pos, pchr->turn_z, pchr->iprofile, pstate->argument, pself->index, pstate->distance, pchr->team, sTmp, TOTAL_MAX_PRT, 0, MAX_CHR );
+
+    returncode = ACTIVE_PRT(tTmp);
+
+    if ( returncode )
     {
         // Detach the particle
         attach_particle_to_character( tTmp, pself->index, pstate->distance );
         PrtList.lst[tTmp].attachedto_ref = MAX_CHR;
+
         // Correct X, Y, Z spacing
         PrtList.lst[tTmp].pos.x += pstate->x;
         PrtList.lst[tTmp].pos.y += pstate->y;
@@ -2032,6 +2043,7 @@ Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
             }
         }
     }
+
 
     SCRIPT_FUNCTION_END();
 }
@@ -2204,19 +2216,32 @@ Uint8 scr_BecomeSpell( script_state_t * pstate, ai_state_t * pself )
     // This function turns a spellbook character into a spell based on its
     // content.
 
+    int iskin;
+    cap_t * pcap;
+
     // TOO COMPLICATED TO EXPLAIN...  SHOULDN'T EVER BE NEEDED BY YOU...
     SCRIPT_FUNCTION_BEGIN();
 
+    // get the spellbook's skin
+    iskin = pchr->skin;
+
     // change the spellbook to a spell effect
-    pchr->money = pchr->skin % MAX_SKIN;
     change_character( pself->index, pself->content, 0, LEAVENONE );
 
     // set the spell effect parameters
-    pself->content = 0;  // Reset so it doesn't mess up
-    pself->state   = 0;  // Reset so it doesn't mess up
+    pchr->money    = iskin;
+    pself->content = 0;
+    pself->state   = 0;
 
-    // let the ai know that it was changed
-    pself->changed = btrue;
+    // have to do this every time pself->state is modified
+    chr_update_hide( pchr );
+
+    // set the book icon of the spell effect if it is not already set
+    pcap = chr_get_pcap( pself->index );
+    if( NULL != pcap )
+    {
+        pcap->spelleffect_type = iskin;
+    }
 
     SCRIPT_FUNCTION_END();
 }
@@ -2225,21 +2250,24 @@ Uint8 scr_BecomeSpell( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_BecomeSpellbook( script_state_t * pstate, ai_state_t * pself )
 {
     // BecomeSpellbook()
+    //
     // This function turns a spell character into a spellbook and sets the content accordingly.
     // TOO COMPLICATED TO EXPLAIN. Just copy the spells that already exist, and don't change
     // them too much
 
+    Uint16  old_profile;
     cap_t * pcap;
     mad_t * pmad;
 
     SCRIPT_FUNCTION_BEGIN();
 
     // convert the spell effect to a spellbook
-    pself->content = pchr->iprofile;
+    old_profile = pchr->iprofile;
     change_character( pself->index, SPELLBOOK, pchr->money % MAX_SKIN, LEAVENONE );
 
     // Reset the spellbook state so it doesn't burn up
     pself->state   = 0;
+    pself->content = old_profile;
 
     // set the spellbook animations
     pcap = pro_get_pcap( pchr->iprofile );
@@ -2257,9 +2285,8 @@ Uint8 scr_BecomeSpellbook( script_state_t * pstate, ai_state_t * pself )
         returncode = btrue;
     }
 
-    // let the ai know that it was changed
-    pself->changed = btrue;
-
+    // have to do this every time pself->state is modified
+    chr_update_hide( pchr );
 
     SCRIPT_FUNCTION_END();
 }
@@ -2952,8 +2979,12 @@ Uint8 scr_KillTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( pchr->attachedto != MAX_CHR && !ChrList.lst[pchr->attachedto].ismount ) sTmp = pchr->attachedto;
-    else sTmp = pself->index;
+    sTmp = pself->index;
+    if ( ACTIVE_CHR(pchr->attachedto) && !ChrList.lst[pchr->attachedto].ismount ) 
+    {
+        sTmp = pchr->attachedto;
+    }
+
     kill_character( pself->target, sTmp );
 
     SCRIPT_FUNCTION_END();
@@ -3763,13 +3794,14 @@ Uint8 scr_SpawnAttachedParticle( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    tTmp = pself->index;
+    sTmp = pself->index;
     if ( ACTIVE_CHR(pchr->attachedto) )  
     {
-        tTmp = pchr->attachedto;
+        sTmp = pchr->attachedto;
     }
 
-    tTmp = spawn_one_particle( pchr->pos, pchr->turn_z, pchr->iprofile, pstate->argument, pself->index, pstate->distance, pchr->team, tTmp, TOTAL_MAX_PRT, 0, MAX_CHR );
+    tTmp = spawn_one_particle( pchr->pos, pchr->turn_z, pchr->iprofile, pstate->argument, pself->index, pstate->distance, pchr->team, sTmp, TOTAL_MAX_PRT, 0, MAX_CHR );
+
     returncode = ACTIVE_PRT(tTmp);
 
     SCRIPT_FUNCTION_END();
@@ -3785,12 +3817,15 @@ Uint8 scr_SpawnExactParticle( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    tTmp = pself->index;
-    if ( ACTIVE_CHR(pchr->attachedto) )  tTmp = pchr->attachedto;
+    sTmp = pself->index;
+    if ( ACTIVE_CHR(pchr->attachedto) )  
+    {
+        sTmp = pchr->attachedto;
+    }
 
     {
         GLvector3 vtmp = VECT3(pstate->x, pstate->y, pstate->distance);
-        tTmp = spawn_one_particle( vtmp, pchr->turn_z, pchr->iprofile, pstate->argument, MAX_CHR, 0, pchr->team, tTmp, TOTAL_MAX_PRT, 0, MAX_CHR );
+        tTmp = spawn_one_particle( vtmp, pchr->turn_z, pchr->iprofile, pstate->argument, MAX_CHR, 0, pchr->team, sTmp, TOTAL_MAX_PRT, 0, MAX_CHR );
     }
 
     returncode = ACTIVE_PRT(tTmp);
@@ -3931,7 +3966,7 @@ Uint8 scr_PlaySoundLooped( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = 0;
+    returncode = bfalse;
 
     new_chunk = chr_get_chunk_ptr( pchr, pstate->argument );
 
@@ -4274,16 +4309,20 @@ Uint8 scr_SpawnAttachedSizedParticle( script_state_t * pstate, ai_state_t * psel
     SCRIPT_FUNCTION_BEGIN();
 
     // This function spawns an attached particle, then sets its size
-    tTmp = pself->index;
-    if ( ACTIVE_CHR(pchr->attachedto) )  tTmp = pchr->attachedto;
+    sTmp = pself->index;
+    if ( ACTIVE_CHR(pchr->attachedto) )  
+    {
+        sTmp = pchr->attachedto;
+    }
 
-    tTmp = spawn_one_particle( pchr->pos, pchr->turn_z, pchr->iprofile, pstate->argument, pself->index, pstate->distance, pchr->team, tTmp, TOTAL_MAX_PRT, 0, MAX_CHR );
-    if ( ACTIVE_PRT(tTmp) )
+    tTmp = spawn_one_particle( pchr->pos, pchr->turn_z, pchr->iprofile, pstate->argument, pself->index, pstate->distance, pchr->team, sTmp, TOTAL_MAX_PRT, 0, MAX_CHR );
+
+    returncode = ACTIVE_PRT(tTmp);
+
+    if ( returncode )
     {
         PrtList.lst[tTmp].size = pstate->turn;
     }
-
-    returncode = ACTIVE_PRT(tTmp);
 
     SCRIPT_FUNCTION_END();
 }
@@ -4382,10 +4421,13 @@ Uint8 scr_SpawnAttachedFacedParticle( script_state_t * pstate, ai_state_t * psel
     SCRIPT_FUNCTION_BEGIN();
 
     // This function spawns an attached particle with facing
-    tTmp = pself->index;
-    if ( ACTIVE_CHR(pchr->attachedto) )  tTmp = pchr->attachedto;
+    sTmp = pself->index;
+    if ( ACTIVE_CHR(pchr->attachedto) )  
+    {
+        sTmp = pchr->attachedto;
+    }
 
-    tTmp = spawn_one_particle( pchr->pos, pstate->turn & 0xFFFF, pchr->iprofile, pstate->argument, pself->index, pstate->distance, pchr->team, tTmp, TOTAL_MAX_PRT, 0, MAX_CHR );
+    tTmp = spawn_one_particle( pchr->pos, pstate->turn & 0xFFFF, pchr->iprofile, pstate->argument, pself->index, pstate->distance, pchr->team, sTmp, TOTAL_MAX_PRT, 0, MAX_CHR );
 
     returncode = ACTIVE_PRT(tTmp);
 
@@ -4758,10 +4800,13 @@ Uint8 scr_SpawnAttachedHolderParticle( script_state_t * pstate, ai_state_t * pse
 
     SCRIPT_FUNCTION_BEGIN();
 
-    tTmp = pself->index;
-    if ( ACTIVE_CHR(pchr->attachedto) )  tTmp = pchr->attachedto;
+    sTmp = pself->index;
+    if ( ACTIVE_CHR(pchr->attachedto) )
+    {
+        sTmp = pchr->attachedto;
+    }
 
-    tTmp = spawn_one_particle( pchr->pos, pchr->turn_z, pchr->iprofile, pstate->argument, tTmp, pstate->distance, pchr->team, tTmp, TOTAL_MAX_PRT, 0, MAX_CHR );
+    tTmp = spawn_one_particle( pchr->pos, pchr->turn_z, pchr->iprofile, pstate->argument, sTmp, pstate->distance, pchr->team, sTmp, TOTAL_MAX_PRT, 0, MAX_CHR );
 
     returncode = ACTIVE_PRT(tTmp);
 
@@ -5016,9 +5061,9 @@ Uint8 scr_OrderTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( INACTIVE_CHR(pself->target) )
+    if ( !ACTIVE_CHR(pself->target) )
     {
-        returncode = 0;
+        returncode = bfalse;
     }
     else
     {
@@ -5113,7 +5158,7 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
 
     sTmp = spawn_one_character( pos, pchr->iprofile, pchr->team, 0, pstate->turn & 0xFFFF, NULL, MAX_CHR );
 
-    if( INACTIVE_CHR(sTmp) )
+    if( !ACTIVE_CHR(sTmp) )
     {
         if ( sTmp > PMod->importamount * MAXIMPORTPERPLAYER )
         {
@@ -5162,7 +5207,7 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
     pos.z = pstate->distance;
 
     sTmp = spawn_one_character( pos, pstate->argument, pchr->team, 0, pstate->turn & 0xFFFF, NULL, MAX_CHR );
-    if( INACTIVE_CHR(sTmp) )
+    if( !ACTIVE_CHR(sTmp) )
     {
         if ( sTmp > PMod->importamount * MAXIMPORTPERPLAYER )
         {
@@ -5239,20 +5284,23 @@ Uint8 scr_SpawnExactChaseParticle( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    tTmp = pself->index;
-    if ( ACTIVE_CHR(pchr->attachedto) )  tTmp = pchr->attachedto;
+    sTmp = pself->index;
+    if ( ACTIVE_CHR(pchr->attachedto) )  
+    {
+        sTmp = pchr->attachedto;
+    }
 
     {
         GLvector3 vtmp = VECT3(pstate->x, pstate->y, pstate->distance);
-        tTmp = spawn_one_particle( vtmp, pchr->turn_z, pchr->iprofile, pstate->argument, MAX_CHR, 0, pchr->team, tTmp, TOTAL_MAX_PRT, 0, MAX_CHR );
-    }
-
-    if ( ACTIVE_PRT(tTmp) )
-    {
-        PrtList.lst[tTmp].target_ref = pself->target;
+        tTmp = spawn_one_particle( vtmp, pchr->turn_z, pchr->iprofile, pstate->argument, MAX_CHR, 0, pchr->team, sTmp, TOTAL_MAX_PRT, 0, MAX_CHR );
     }
 
     returncode = ACTIVE_PRT(tTmp);
+
+    if ( returncode )
+    {
+        PrtList.lst[tTmp].target_ref = pself->target;
+    }
 
     SCRIPT_FUNCTION_END();
 }
@@ -6150,7 +6198,7 @@ Uint8 scr_TargetPayForArmor( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if( INACTIVE_CHR(pself->target) ) return bfalse;
+    if( !ACTIVE_CHR(pself->target) ) return bfalse;
 
     ptarget = ChrList.lst + pself->target;
 
@@ -6279,20 +6327,23 @@ Uint8 scr_SpawnExactParticleEndSpawn( script_state_t * pstate, ai_state_t * psel
 
     SCRIPT_FUNCTION_BEGIN();
 
-    tTmp = pself->index;
-    if ( ACTIVE_CHR(pchr->attachedto) )  tTmp = pchr->attachedto;
+    sTmp = pself->index;
+    if ( ACTIVE_CHR(pchr->attachedto) )  
+    {
+        sTmp = pchr->attachedto;
+    }
 
     {
         GLvector3 vtmp = VECT3(pstate->x, pstate->y, pstate->distance);
-        tTmp = spawn_one_particle( vtmp, pchr->turn_z, pchr->iprofile, pstate->argument, MAX_CHR, 0, pchr->team, tTmp, TOTAL_MAX_PRT, 0, MAX_CHR );
-    }
-
-    if ( ACTIVE_PRT(tTmp) )
-    {
-        PrtList.lst[tTmp].spawncharacterstate = pstate->turn;
+        tTmp = spawn_one_particle( vtmp, pchr->turn_z, pchr->iprofile, pstate->argument, MAX_CHR, 0, pchr->team, sTmp, TOTAL_MAX_PRT, 0, MAX_CHR );
     }
 
     returncode = ACTIVE_PRT(tTmp);
+
+    if ( returncode )
+    {
+        PrtList.lst[sTmp].spawncharacterstate = pstate->turn;
+    }
 
     SCRIPT_FUNCTION_END();
 }
@@ -6401,7 +6452,7 @@ Uint8 scr_DazeTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if( INACTIVE_CHR(pself->target) ) return bfalse;
+    if( !ACTIVE_CHR(pself->target) ) return bfalse;
 
     pcap = chr_get_pcap( pself->target );
 
@@ -6546,7 +6597,7 @@ Uint8 scr_TargetIsAWeapon( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if( INACTIVE_CHR(pself->target) ) return bfalse;
+    if( !ACTIVE_CHR(pself->target) ) return bfalse;
 
     pcap = chr_get_pcap(pself->target);
     if( NULL == pcap ) return bfalse;
@@ -6657,7 +6708,7 @@ Uint8 scr_BeatQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
         if( !PlaList[iTmp].valid ) continue;
 
         ichr = PlaList[iTmp].index;
-        if( INACTIVE_ENC(ichr) ) continue;
+        if( !ACTIVE_ENC(ichr) ) continue;
 
         if ( ChrList.lst[ichr].isplayer )
         {
@@ -6729,7 +6780,7 @@ Uint8 scr_AddQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
         if( !PlaList[iTmp].valid ) continue;
 
         ichr = PlaList[iTmp].index;
-        if( INACTIVE_CHR(ichr) ) continue;
+        if( !ACTIVE_CHR(ichr) ) continue;
 
         if ( ChrList.lst[ichr].isplayer )
         {
@@ -6815,7 +6866,7 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
     pos.z = pstate->distance;
 
     sTmp = spawn_one_character( pos, pstate->argument, pchr->team, 0, FACE_NORTH, NULL, MAX_CHR );
-    if( INACTIVE_CHR(sTmp) )
+    if( !ACTIVE_CHR(sTmp) )
     {
         if ( sTmp > PMod->importamount * MAXIMPORTPERPLAYER )
         {
@@ -6854,7 +6905,7 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
         }
         else if ( grip == ATTACH_LEFT || grip == ATTACH_RIGHT )
         {
-            if ( INACTIVE_CHR(ChrList.lst[pself->target].holdingwhich[grip]) )
+            if ( !ACTIVE_CHR(ChrList.lst[pself->target].holdingwhich[grip]) )
             {
                 // Wielded character
                 grip_offset_t grip_off = ( ATTACH_LEFT == grip ) ? GRIP_LEFT : GRIP_RIGHT;
@@ -7040,11 +7091,9 @@ Uint8 scr_MorphToTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if( INACTIVE_CHR(pself->target) ) return bfalse;
+    if( !ACTIVE_CHR(pself->target) ) return bfalse;
 
     change_character( pself->index, ChrList.lst[pself->target].basemodel, ChrList.lst[pself->target].skin, LEAVEALL );
-
-    pself->changed = btrue;
 
     // let the resizing take some time
     pchr->fat_goto      = ChrList.lst[pself->target].fat;
@@ -7212,7 +7261,7 @@ Uint8 _break_passage( int meshxfor, int become, int frames, int starttile, int p
     {
         chr_t * pchr;
 
-        if ( INACTIVE_CHR(character) ) continue;
+        if ( !ACTIVE_CHR(character) ) continue;
         pchr = ChrList.lst + character;
 
         // nothing in packs
@@ -7269,7 +7318,7 @@ Uint8 _append_end_text( chr_t * pchr, const int message, script_state_t * pstate
     if( !VALID_PRO(pchr->iprofile) ) return bfalse;
 
     message_offset = ProList.lst[pchr->iprofile].message_start + message;
-    ichr           = pchr->ai.index;
+    ichr           = pchr->index;
 
     endtext[0] = '\0';
 
@@ -7370,7 +7419,7 @@ Uint16 _get_chr_target( chr_t * pchr, Uint32 max_dist, TARGET_TYPE target_type, 
 
     ai_state_t * pself;
 
-    if( NULL == pchr || ACTIVE_CHR(pchr->ai.index) ) return MAX_CHR;
+    if( NULL == pchr || !ACTIVE_CHR(pchr->index) ) return MAX_CHR;
     pself = &(pchr->ai);
 
     if( TARGET_NONE == target_type ) return MAX_CHR;

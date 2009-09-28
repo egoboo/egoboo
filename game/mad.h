@@ -155,7 +155,7 @@ struct s_mad
     EGO_PROFILE_STUFF;
 
     // templates
-    Uint16  transvertices;                    // Number to transform
+    //Uint16  transvertices;                    // Number to transform
 
     Uint16  frameliptowalkframe[4][16];       // For walk animations
 

@@ -30,6 +30,11 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+struct s_object_profile;
+struct s_chr;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 
 #define LEAVEALL                0
 #define LEAVEFIRST              1
@@ -83,8 +88,8 @@ DEFINE_LIST_EXTERN(enc_t, EncList, MAX_ENC );
 
 #define VALID_ENC_RANGE( IENC ) ( ((IENC) >= 0) && ((IENC) < MAX_ENC) )
 #define ALLOCATED_ENC( IENC )   ( VALID_ENC_RANGE( IENC ) && EncList.lst[IENC].allocated )
-#define ACTIVE_ENC( IENC )       ( ALLOCATED_ENC( IENC ) && EncList.lst[IENC].active )
-#define INACTIVE_ENC( IENC )     ( !ALLOCATED_ENC( IENC ) || !EncList.lst[IENC].active )
+#define ACTIVE_ENC( IENC )      ( ALLOCATED_ENC( IENC ) && EncList.lst[IENC].active )
+#define INACTIVE_ENC( IENC )    ( ALLOCATED_ENC( IENC ) && !EncList.lst[IENC].active )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -105,8 +110,7 @@ void fgetadd( float min, float value, float max, float* valuetoadd );
 Uint16 EncList_get_free();
 Uint16 enchant_value_filled( Uint16 enchantindex, Uint8 valueindex );
 bool_t remove_enchant( Uint16 enchantindex );
-void set_enchant_value( Uint16 enchantindex, Uint8 valueindex,
-                        Uint16 enchanttype );
+void set_enchant_value( Uint16 enchantindex, Uint8 valueindex, Uint16 profile );
 void add_enchant_value( Uint16 enchantindex, Uint8 valueindex,
                         Uint16 enchanttype );
 Uint16 spawn_one_enchant( Uint16 owner, Uint16 target,
@@ -115,6 +119,9 @@ Uint16 load_one_enchant_profile( const char* szLoadName, Uint16 profile );
 void unset_enchant_value( Uint16 enchantindex, Uint8 valueindex );
 void remove_enchant_value( Uint16 enchantindex, Uint8 valueindex );
 void disenchant_character( Uint16 cnt );
+
+Uint16                    enc_get_ipro( Uint16 ienc );
+struct s_object_profile * enc_get_ppro( Uint16 ienc );
 
 Uint16         enc_get_iowner( Uint16 ienc );
 Uint16         enc_get_ieve  ( Uint16 ienc );
