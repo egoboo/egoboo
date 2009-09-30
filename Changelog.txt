@@ -1,4 +1,5 @@
-Version 2.7.8 (xx.09.2009)
+Version 2.7.8 (xx.10.2009)
+- New Feature: A new XP bar is show below your character portrait to display level up progress.
 - New Feature: Major improvements to how Egoboo handles objects and the GOR.
 - New Feature: Improved AI by adding Line of Sight detection for targeting.
 - New Feature: Improved UI by implementing in-game pop up text.
@@ -15,7 +16,8 @@ Version 2.7.8 (xx.09.2009)
 - Update: Most wands have now increased charge limit making them much more useful.
 - Update: The Book of Enchant can now be used to recharge wands.
 - Update: The Morph spell now allows you to use [TECH] skill but disables spell casting.
-- Update: There is always a minimum 5% chance stealing from shops will be detected.
+  (Don't lose your spellbook after being morphed or you have no way to morph back!)
+- Update: There is now always a minimum 5% chance stealing from shops will be detected.
 - Update: Improved some details for the floor tiles in the Paladin Starter.
 - Update: Deamon Lords have now halved life regeneration making them much easier to defeat.
 - Update: The Haste spell costs less mana to sustain now.
@@ -28,7 +30,7 @@ Version 2.7.8 (xx.09.2009)
 - Update: Improved the texture detail for all the title images.
 - Bugfix: Battleaxes now properly requires Advanced Weapons skills to use.
 - Bugfix: The Magic Carpet is no longer mountable while being held.
-- Bugfix: When cookie stacks are splilt, they should now retain their burned and watered status.
+- Bugfix: When cookie stacks are splilt, they should now retain their burned and wet status.
 - Bugfix: Fixed a bug in the joystick reading function. Analog joysticks should work much better now.
 - Bugfix: Devil Doors should function properly again.
 - Bugfix: Glyph plates in Abyss 2 should now properly display messages again.
@@ -707,8 +709,7 @@ Version 2.2.3 (08.10 2006)
 - Bugfix: Game physics now work in Adventurer Starter again
 - Bugfix: Lots of Minor Bugfixes
 
-
-Version 2.2.1 (29.July 2006)
+Version 2.2.2b (29.July 2006)
 - New Feature: Added about 6 new monsters
 - New Feature: Added few new weapons, potions and other various items
 - New Feature: Starter Modules including Elf, Wizard, Soldier and Paladin Starters!

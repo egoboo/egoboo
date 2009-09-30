@@ -39,7 +39,7 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static _profile_initialized = bfalse;
+static bool_t _profile_initialized = bfalse;
 
 chop_data_t  chop = {0, 0};
 pro_import_t import_data;

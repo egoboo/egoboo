@@ -33,7 +33,7 @@ Butcher Form - Zombi becomes a Butcher. Extra life, damage and size but somewhat
 Cartography: The character always has the minimap of the current dungeon/area.
 Class Mastery: +3 bonus to all stats.
 Crackshot: % chance based on DEX to daze enemies with Gunpowder.
-Critical Strike: 2% chance per level to deal +1 damage per 2 levels. Sound effect is played.
+Critical Strike: 1% chance per level to deal +1 damage per 2 levels. Sound effect is played.
 Crusader: Converts EVIL damage taken into mana.
 Danger Sense: This reveals all enemies on the minimap if the map has been found.
 Defender: Gives a full 100% block rating with all shields.
@@ -82,30 +82,56 @@ Whip Mastery: Gives a nifty +2 extra damage with all whips.
 Wizard's Missile: Shoots rapidly red homing missiles when doing unarmed attacks (costs 1 mana)
 
 
+VALKYRIE
+-------------------------------------------
+Level       Abillity
+1			- Immune vs. Cold, Weapon Profiency, Poison Use, Backstab
+2			- Spear Mastery
+3			- n/a
+4			- Speed
+5			- n/a
+6			- n/a
+7			- Stealth (While standing still)
+8     - n/a
+9			- n/a
+10		- Sneak (Can move 1 step at the time while stealthing)
+11    - n/a
+12		- Hardy
+13    - n/a
+14    - Stalker (Can sneak while stealthing)
+15    - Critical Strike
+16    - n/a
+17    - n/a
+18    - Shade (Can move and jump while stealthing)
+19    - n/a
+20    - Ultimate Sacrifice
+-------------------------------------------
+
+
 
 G'NOME
 -------------------------------------------
 Level       Abillity
-1			Use Technological Items, Read G'nomish, Immune vs. Grog, Poison Resistance, Literate
-2			n/a
-3			n/a
-4			Listen
-5			n/a
-6			n/a
-7			Crackshot
-8			n/a
-9			n/a
-10		Sharpshooter
-11		n/a
-12		n/a
-13    Hardy
-14    n/a
-15    n/a
-16    Ancient Blood
-17    n/a
-18    n/a
-19    n/a
-20    Things that go Boom
+1			- Use Technological Items, Read G'nomish, Immune vs. Grog, Poison Resistance, Literate
+2			- n/a
+3			- n/a
+4			- Listen
+5			- n/a
+6			- n/a
+7			- Crackshot
+8			- n/a
+9			- n/a
+10		- Sharpshooter
+11		- n/a
+12		- n/a
+13    - Hardy
+14    - n/a
+15    - n/a
+16    - Ancient Blood
+17    - n/a
+18    - n/a
+19    - n/a
+20    - Things that go Boom
 -------------------------------------------
 
 
@@ -127,6 +153,11 @@ Level       Abillity
 13    n/a
 14    n/a
 15    Danger Sense
+16    n/a
+17    n/a
+18    n/a
+19    n/a
+20    n/a
 -------------------------------------------
 
 
@@ -150,6 +181,10 @@ Level   Abillity
 14	  - n/a
 15	  - n/a
 16    - Class Mastery
+17    - n/a
+18    - n/a
+19    - n/a
+20    - n/a
 -------------------------------------------
 
 
@@ -172,6 +207,10 @@ Level       Abillity
 14		- n/a
 15		- n/a
 16		- Last Boon
+17		- n/a
+18		- n/a
+19		- n/a
+20		- n/a
 -------------------------------------------
 
 
@@ -196,6 +235,8 @@ Level   Abillity
 16		- Ultimate Sacrifice
 17    - n/a
 18    - n/a
+19    - n/a
+20    - n/a
 -------------------------------------------
 
 
@@ -218,6 +259,10 @@ Level   Abillity
 14    - Wizard's Missile
 15    - n/a
 16    - n/a
+17    - n/a
+18    - n/a
+19    - n/a
+20    - n/a
 -------------------------------------------
 
 
@@ -240,6 +285,10 @@ Level   Abillity
 14    - Danger Sense
 15    - n/a
 16    - n/a
+17    - n/a
+18    - n/a
+19    - n/a
+20    - n/a
 -------------------------------------------
 
 
@@ -262,6 +311,10 @@ Level   Abillity
 14    - Hardy
 15    - n/a
 16    - n/a
+17    - n/a
+18    - n/a
+19    - n/a
+20    - n/a
 -------------------------------------------
 
 
@@ -332,6 +385,12 @@ Level	  Ability
 12    - n/a
 13    - Explosive Death attack		
 14    - n/a
+15    - n/a
+16    - n/a
+17    - n/a
+18    - n/a
+19    - n/a
+20    - n/a
 -------------------------------------------
 
 

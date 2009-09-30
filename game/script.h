@@ -130,7 +130,7 @@ struct s_ai_state
     Uint16         order_counter;         // The rank of the character on the order chain
 
     // timers to limit the the rate of some calls
-    Uint32         los_timer;
+    //Uint32         los_timer;
 
     // waypoints
     Uint8          wp_tail;          // Which waypoint

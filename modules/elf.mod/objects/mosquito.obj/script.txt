@@ -114,6 +114,10 @@ IfKilled
     tmpargument = ACTIONKA
     DoActionOverride
     tmpargument = 0
+    
+  //Fragkill
+  IfTargetIsSelf
+    tmpargument = 3
 
   // Message
   SendMessageNear

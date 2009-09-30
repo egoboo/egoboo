@@ -43,14 +43,14 @@
 
 #define MAX_CAP    MAX_PROFILE
 
-enum e_turn_modes
+typedef enum e_turn_modes
 {
     TURNMODE_VELOCITY = 0,                       // Character gets rotation from velocity (normal)
     TURNMODE_WATCH,                              // For watch towers, look towards waypoint
     TURNMODE_SPIN,                               // For spinning objects
     TURNMODE_WATCHTARGET,                        // For combat intensive AI
     TURNMODE_COUNT
-};
+} TURN_MODE;
 
 #define MANARETURNSHIFT     22                      // ChrList.lst[ichr].manareturn/MANARETURNSHIFT = mana regen per second
 
@@ -454,6 +454,7 @@ struct s_chr
     bool_t          canbackstab;
     bool_t          canusepoison;
     bool_t          canread;
+	bool_t			hascodeofconduct;
 
     // collision info
 
@@ -498,7 +499,7 @@ struct s_chr
 
     // movement properties
     Uint8          waterwalk;                     // Always above watersurfacelevel?
-    Uint8          turnmode;                      // Turning mode
+    TURN_MODE      turnmode;                      // Turning mode
     Uint8          sneakspd;                      // Sneaking if above this speed
     Uint8          walkspd;                       // Walking if above this speed
     Uint8          runspd;                        // Running if above this speed

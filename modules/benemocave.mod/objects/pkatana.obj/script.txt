@@ -72,11 +72,12 @@ IfUsed
       IfTargetIsAPlayer
         MakeNameKnown		//Tell the players its poisoned
 
-//Paladins dont use poisoned weapons
+
+//Guys with a conduct dont use poisoned weapons
 IfGrabbed
   SetTargetToWhoeverIsHolding
-  tmpargument = [PALA]
-  IfTargetHasID
+  tmpargument = [CODE]
+  IfTargetHasSkillID
     tmpargument = 6		//I refuse to hold this!
     SendMessageNear
     MakeNameKnown		//Its poisoned, yes

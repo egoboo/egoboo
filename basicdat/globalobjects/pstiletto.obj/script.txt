@@ -70,11 +70,11 @@ IfUsed
       DetachFromHolder		//Drop the weapon
       MakeNameKnown		//Tell the players its poisoned
 
-//Paladins dont use poisoned weapons
+//Guys with a conduct dont use poisoned weapons
 IfGrabbed
   SetTargetToWhoeverIsHolding
-  tmpargument = [PALA]
-  IfTargetHasID
+  tmpargument = [CODE]
+  IfTargetHasSkillID
     DetachFromHolder
     tmpargument = 6		//I refuse to hold this!
     SendMessageNear

@@ -49,7 +49,6 @@ float  clk_getFrameRate( ClockState_t * cs );       ///< Return the current inst
 
 //-----------------------------------------------------------------
 // macros to use the high resolution timer for profiling
-
 #define PROFILE_KEEP  0.9
 #define PROFILE_NEW  (1.0 - PROFILE_KEEP)
 

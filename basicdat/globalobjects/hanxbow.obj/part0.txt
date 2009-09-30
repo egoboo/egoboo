@@ -80,7 +80,7 @@ Spawn type ( 0 to 3 )					: 0
 // Random stuff
 Daze time on hit ( 0 to 250 )				: 0
 Grog time on hit ( 0 to 250 )				: 0
-Spawn enchant on hit ( TRUE or FALSE )			: TRUE
+Spawn enchant on hit ( TRUE or FALSE )			: FALSE
 Cause roll on hit ( TRUE or FALSE )			: FALSE
 Cause pancake on hit ( TRUE or FALSE )			: FALSE
 Need target to spawn ( TRUE or FALSE )			: FALSE

@@ -19,20 +19,19 @@ IfStateIs0
   // Normal
   IfSpawned
     MakeCrushValid
-    tmpargument = 1
-    PlaySoundLooped
   GetContent
   tmpargument = tmpargument + 2 & 15
   SetContent
 SetFrame
 
-//------------------------------------------------------------------------------
-// Adjust the buzzing volume
-SetTargetToLeader
-IfTargetIsSelf
-  tmpargument = 1
-  tmpdistance = 0
-  SetVolumeNearestTeammate
+//Buzzing sound
+SetTargetToWideEnemy
+  SetTargetToLeader
+  IfTargetIsSelf
+    tmpargument = 1
+    PlaySoundLooped
+Else
+  StopSound
 
 //------------------------------------------------------------------------------
 // ZZ> Do movement AI
@@ -54,8 +53,8 @@ IfTimeOut
       Compass
   Else
     // Swarm around leader
-    tmpx = rand & 1023 - 512 + leaderx
-    tmpy = rand & 1023 - 512 + leadery
+    tmpx = rand & 511 - 256 + leaderx
+    tmpy = rand & 511 - 256 + leadery
   ClearWaypoints
   AddWaypoint
 
@@ -64,7 +63,6 @@ IfTimeOut
 IfCrushed
   // Sound
   tmpargument = 0
-  tmpdistance = rand & 2047 + 10000
   PlaySound
 
   // Die or Pop?
@@ -80,7 +78,7 @@ IfCrushed
     SpawnExactParticle
 
   // Message
-  tmpargument = 2
+  tmpargument = 3
   SendMessageNear
   GoPoof
 
@@ -96,7 +94,6 @@ IfCrushed
 IfKilled
   // Sound
   tmpargument = 0
-  tmpdistance = rand & 2047 + 10000
   PlaySound
 
   // Die or Pop?
@@ -117,6 +114,10 @@ IfKilled
     tmpargument = ACTIONKA
     DoActionOverride
     tmpargument = 0
+    
+  //Fragkill
+  IfTargetIsSelf
+    tmpargument = 3
 
   // Message
   SendMessageNear
@@ -147,7 +148,7 @@ IfBumped
         Else
           tmpx = 0 // Miss
       Else
-        tmpx = 1 // Hit        
+        tmpx = 1 // Hit
 
       tmpy = 1
       IfXIsEqualToY
@@ -180,7 +181,7 @@ IfBumped
         SetTime
 
 //------------------------------------------------------------------------------
-// ZZ> For swarm AI
+//For swarm AI
 IfLeaderKilled
   BecomeLeader
 

@@ -1,4 +1,9 @@
-// ZZ> This function makes an item fall to the floor when spawned
+//This manages attack speed (Adjusted by strenght and\or dexterity)
+IfUsed
+  SetTargetToWhoeverIsHolding
+  tmpargument = targetdex > 8		//Every point of dex increases speed by 1	
+  tmpargument = 45 - tmpargument
+  SetReloadTime
 
 //Show its poisoned if its identified
 IfNameIsKnown
@@ -33,14 +38,12 @@ IfGrabbed				// Tell them what they've won...
     SendMessageNear			  //
 IfHitGround				// Make a sound
   tmpargument = 1			  //
-  tmpdistance = rand & 2047 + 10000	  //
   PlaySound				  //
 IfNotDropped
   tmpargument = 2
   SendMessageNear
 IfTakenOut
   tmpargument = 2
-  tmpdistance = rand & 2047 + 10000
   PlaySound
   SetTargetToWhoeverIsHolding
   IfTargetIsAPlayer
@@ -55,10 +58,10 @@ IfUsed
   SetTargetToWhoeverIsHolding
   tmpargument = [POIS]
   IfTargetHasSkillID		//Does it have poison use skill?
-    DoNothing		//then nothing happens
+    MakeNameKnown		//Tell the players its poisoned
   Else
-    tmpx = rand % 2816 + 1024 	//Wisdom determines the chance, 15 is never and 4 is almost always
-    tmpy = rand % 500 + targetwis	//Randomness to decrease chance
+    tmpx = rand % 3584 + 1280 	//Wisdom determines the chance, 19 is never and 5 is almost always
+    tmpy = rand % 512 + targetwis	//Randomness to decrease chance
     IfXIsMoreThanY
       SetOwnerToTarget
       EnchantTarget		//Give the character some poison damage
@@ -67,11 +70,11 @@ IfUsed
       DetachFromHolder		//Drop the weapon
       MakeNameKnown		//Tell the players its poisoned
 
-//Paladins dont use poisoned weapons
+//Guys with a conduct dont use poisoned weapons
 IfGrabbed
   SetTargetToWhoeverIsHolding
-  tmpargument = [PALA]
-  IfTargetHasID
+  tmpargument = [CODE]
+  IfTargetHasSkillID
     DetachFromHolder
     tmpargument = 6		//I refuse to hold this!
     SendMessageNear

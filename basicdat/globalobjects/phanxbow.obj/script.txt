@@ -58,11 +58,11 @@ Else
   tmpargument = 0
 ChangeArmor
 
-//Paladins dont use poisoned weapons
+//Guys with a code dont use poisoned weapons
 IfGrabbed
   SetTargetToWhoeverIsHolding
-  tmpargument = [PALA]
-  IfTargetHasID
+  tmpargument = [CODE]
+  IfTargetHasSkillID
     DetachFromHolder
     tmpargument = 3
     SendMessageNear

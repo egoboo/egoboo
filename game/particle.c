@@ -660,7 +660,7 @@ void update_all_particles( void )
     }
 
 
-    // apply damage from bump particles (about once a second)
+    // apply damage from  attatched bump particles (about once a second)
     if ( 0 == ( frame_all & 31 ) )
     {
         for ( particle = 0; particle < maxparticles; particle++ )
@@ -682,7 +682,7 @@ void update_all_particles( void )
             if( !ACTIVE_CHR( ichr ) ) continue;
 
             // Attached iprt_b damage ( Burning )
-            if ( ppip->xyvel_pair.base == 0 )
+            if ( ppip->allowpush && ppip->xyvel_pair.base == 0 )
             {
                 // Make character limp
                 ChrList.lst[ichr].vel.x *= 0.5f;

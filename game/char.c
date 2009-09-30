@@ -2237,6 +2237,7 @@ void character_swipe( Uint16 cnt, slot_t slot )
     float velocity;
     chr_t * pchr, * pweapon;
     cap_t * pweapon_cap;
+	bool_t unarmed_attack = bfalse;
 
     if( !ACTIVE_CHR(cnt) ) return;
     pchr = ChrList.lst + cnt;
@@ -2248,6 +2249,7 @@ void character_swipe( Uint16 cnt, slot_t slot )
     // See if it's an unarmed attack...
     if ( weapon == MAX_CHR )
     {
+		unarmed_attack = btrue;
         weapon = cnt;
         spawngrip = slot_to_grip_offset( slot );  // 0 -> GRIP_LEFT, 1 -> GRIP_RIGHT
     }
@@ -2258,7 +2260,8 @@ void character_swipe( Uint16 cnt, slot_t slot )
     pweapon_cap = chr_get_pcap(weapon);
     if( NULL == pweapon_cap ) return;
 
-    if ( weapon != cnt && ( ( pweapon_cap->isstackable && pweapon->ammo > 1 ) || ( action >= ACTION_FA && action <= ACTION_FD ) ) )
+	//It's a item
+    if ( !unarmed_attack && ( ( pweapon_cap->isstackable && pweapon->ammo > 1 ) || ( action >= ACTION_FA && action <= ACTION_FD ) ) )
     {
         // Throw the weapon if it's stacked or a hurl animation
 
@@ -2293,7 +2296,9 @@ void character_swipe( Uint16 cnt, slot_t slot )
             }
         }
     }
-    else
+    
+	//It's a unarmed attack
+	else
     {
         // Spawn an attack particle
         if ( pweapon->ammomax == 0 || pweapon->ammo != 0 )
@@ -3051,6 +3056,9 @@ bool_t export_one_character_profile( const char *szSaveName, Uint16 character )
     if ( pchr->canusetech )
         vfs_printf( filewrite, ":[TECH] %d\n", pchr->canusetech );
 
+    if ( pchr->hascodeofconduct )
+        vfs_printf( filewrite, ":[CODE] %d\n", pchr->hascodeofconduct );
+
     // The end
     vfs_close( filewrite );
 
@@ -3421,7 +3429,7 @@ void damage_character( Uint16 character, Uint16 direction,
                             }
 
                             // All allies get team experience, but only if they also hate the dead guy's team
-							if ( !team_hates_team(ChrList.lst[tnc].team,team) && ( team_hates_team(tnc,pchr->team) ) )
+							if ( !team_hates_team(ChrList.lst[tnc].team,team) && team_hates_team(ChrList.lst[tnc].team,pchr->team) )
                             {
                                 give_experience( tnc, experience, XP_TEAMKILL, bfalse );
                             }
@@ -3927,6 +3935,7 @@ Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
     pchr->canusepoison = pcap->canusepoison;
     pchr->canread = pcap->canread;
     pchr->canseekurse = pcap->canseekurse;
+    pchr->hascodeofconduct = pcap->hascodeofconduct;
 
     // Kurse state
     if ( pcap->isitem )
@@ -4839,8 +4848,9 @@ int check_skills( Uint16 who, IDSZ whichskill )
     else if ( MAKE_IDSZ( 'H', 'M', 'A', 'G' ) == whichskill ) result = ChrList.lst[who].canusedivine;
     else if ( MAKE_IDSZ( 'D', 'I', 'S', 'A' ) == whichskill ) result = ChrList.lst[who].candisarm;
     else if ( MAKE_IDSZ( 'S', 'T', 'A', 'B' ) == whichskill ) result = ChrList.lst[who].canbackstab;
-    else if ( MAKE_IDSZ( 'P', 'O', 'I', 'S' ) == whichskill ) result = ChrList.lst[who].canusepoison;
     else if ( MAKE_IDSZ( 'R', 'E', 'A', 'D' ) == whichskill ) result = ChrList.lst[who].canread || ( ChrList.lst[who].canseeinvisible && ChrList.lst[who].canseekurse ); // Truesight allows reading
+    else if ( MAKE_IDSZ( 'P', 'O', 'I', 'S' ) == whichskill && !ChrList.lst[who].hascodeofconduct ) result = ChrList.lst[who].canusepoison;								//Only if not restriced by code of conduct
+    else if ( MAKE_IDSZ( 'C', 'O', 'D', 'E' ) == whichskill ) result = ChrList.lst[who].hascodeofconduct;
 
     return result;
 }
@@ -5334,7 +5344,6 @@ void move_one_character_do_floor_friction( chr_t * pchr, chr_environment_t * pen
 void move_one_character_do_volontary( chr_t * pchr, chr_environment_t * penviro )
 {
     float  dvx, dvy, dvmax;
-    bool_t watchtarget;
     float maxspeed;
     float dv2;
     float new_ax, new_ay;
@@ -5456,24 +5465,58 @@ void move_one_character_do_volontary( chr_t * pchr, chr_environment_t * penviro 
     new_ax *= penviro->traction;
     new_ay *= penviro->traction;
 
-    // Get direction from the DESIRED change in velocity
-    if ( pchr->turnmode == TURNMODE_WATCH )
-    {
-        if ( ( ABS( dvx ) > WATCHMIN || ABS( dvy ) > WATCHMIN ) )
-        {
-            pchr->turn_z = terp_dir( pchr->turn_z, vec_to_facing( dvx , dvy ) );
-        }
-    }
+	//Figure out how to turn around
+	switch( pchr->turnmode )
+	{
 
-    // Face the target
-    watchtarget = ( pchr->turnmode == TURNMODE_WATCHTARGET );
-    if ( watchtarget )
-    {
-        if ( pchr->index != pchr->ai.target )
-        {
-            pchr->turn_z = terp_dir( pchr->turn_z, vec_to_facing( ChrList.lst[pchr->ai.target].pos.x - pchr->pos.x , ChrList.lst[pchr->ai.target].pos.y - pchr->pos.y ) );
-        }
-    }
+		// Get direction from ACTUAL change in velocity
+	default: case TURNMODE_VELOCITY:
+			{
+				if ( dvx < -TURNSPD || dvx > TURNSPD || dvy < -TURNSPD || dvy > TURNSPD )
+				{
+					if ( pchr->isplayer )
+					{
+						// Players turn quickly
+						pchr->turn_z = terp_dir_fast( pchr->turn_z, vec_to_facing( dvx , dvy ) );
+					}
+					else
+					{
+						// AI turn slowly
+						pchr->turn_z = terp_dir( pchr->turn_z, vec_to_facing( dvx , dvy ) );
+					}
+				}		   
+			}
+		break;
+
+		// Get direction from the DESIRED change in velocity
+		case TURNMODE_WATCH:
+			{
+				if ( ( ABS( dvx ) > WATCHMIN || ABS( dvy ) > WATCHMIN ) )
+				{
+					pchr->turn_z = terp_dir( pchr->turn_z, vec_to_facing( dvx , dvy ) );
+				}	
+			}
+		break;
+
+	    // Face the target
+		case TURNMODE_WATCHTARGET:
+			{
+				if ( pchr->index != pchr->ai.target )
+				{
+					pchr->turn_z = terp_dir( pchr->turn_z, vec_to_facing( ChrList.lst[pchr->ai.target].pos.x - pchr->pos.x , ChrList.lst[pchr->ai.target].pos.y - pchr->pos.y ) );
+				}
+			}
+		break;
+
+	    // Otherwise make it spin
+		case TURNMODE_SPIN:
+			{
+				pchr->turn_z += SPINRATE;
+			}
+		break;
+
+	}
+
 
     if ( Md2FrameList[pchr->inst.frame_nxt].framefx & MADFX_STOP )
     {
@@ -5486,31 +5529,6 @@ void move_one_character_do_volontary( chr_t * pchr, chr_environment_t * penviro 
         pchr->vel.x += new_ax;
         pchr->vel.y += new_ay;
     }
-
-    // Get direction from ACTUAL change in velocity
-    if ( pchr->turnmode == TURNMODE_VELOCITY )
-    {
-        if ( dvx < -TURNSPD || dvx > TURNSPD || dvy < -TURNSPD || dvy > TURNSPD )
-        {
-            if ( pchr->isplayer )
-            {
-                // Players turn quickly
-                pchr->turn_z = terp_dir_fast( pchr->turn_z, vec_to_facing( dvx , dvy ) );
-            }
-            else
-            {
-                // AI turn slowly
-                pchr->turn_z = terp_dir( pchr->turn_z, vec_to_facing( dvx , dvy ) );
-            }
-        }
-    }
-
-    // Otherwise make it spin
-    else if ( pchr->turnmode == TURNMODE_SPIN )
-    {
-        pchr->turn_z += SPINRATE;
-    }
-
 }
 
 //--------------------------------------------------------------------------------------------
@@ -6214,7 +6232,7 @@ void move_one_character_do_animation( chr_t * pchr, chr_environment_t * penviro 
         framelip = Md2FrameList[pinst->frame_nxt].framelip;  // 0 - 15...  Way through animation
         if ( pchr->actionready && pinst->lip == 0 && pchr->phys.grounded && pchr->flyheight == 0 && ( framelip&7 ) < 2 )
         {
-            // Do the motion stuff
+			// Do the motion stuff
             speed = ABS( penviro->new_vx ) + ABS( penviro->new_vy );
             if ( speed < pchr->sneakspd )
             {
@@ -6239,6 +6257,8 @@ void move_one_character_do_animation( chr_t * pchr, chr_environment_t * penviro 
             else
             {
                 pchr->boretime = BORETIME;
+
+				//Sneak
                 if ( speed < pchr->walkspd )
                 {
                     pchr->nextaction = ACTION_WA;
@@ -6250,6 +6270,7 @@ void move_one_character_do_animation( chr_t * pchr, chr_environment_t * penviro 
                 }
                 else
                 {
+					//Walk
                     if ( speed < pchr->runspd )
                     {
                         pchr->nextaction = ACTION_WB;
@@ -6261,6 +6282,8 @@ void move_one_character_do_animation( chr_t * pchr, chr_environment_t * penviro 
                     }
                     else
                     {
+
+						//Run
                         pchr->nextaction = ACTION_WC;
                         if ( pchr->action != ACTION_WC )
                         {
@@ -7739,7 +7762,7 @@ const char* describe_stat(int value)
     else if( value >= 7  )    strcpy(retval, "Pretty Low");
     else if( value >= 4  )    strcpy(retval, "Bad");
     else if( value >= 1  )    strcpy(retval, "Terrible");
-    else                    strcpy(retval, "None");
+    else                      strcpy(retval, "None");
 
     return retval;
 }

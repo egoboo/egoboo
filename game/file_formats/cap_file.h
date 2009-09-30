@@ -316,6 +316,7 @@ struct s_cap
     bool_t       canbackstab;
     bool_t       canusepoison;
     bool_t       canread;
+	bool_t       hascodeofconduct;				   //Bound by a lawful code of conduct?
 };
 
 typedef struct s_cap cap_t;

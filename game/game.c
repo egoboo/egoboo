@@ -951,7 +951,7 @@ void game_update_timers()
             ups_loops = 0;
             ups_clock = 0;
         }
-    };
+    }
 
     if ( stabilized_ups_weight > 0.5f )
     {
@@ -1218,7 +1218,7 @@ int do_ego_proc_running( ego_process_t * eproc )
     // run the sub-processes
     do_game_proc_run( GProc, EProc->frameDuration );
     do_menu_proc_run( MProc, EProc->frameDuration );
-
+            
     // a heads up display that can be used to debug values that are used by both the menu and the game
     // do_game_hud();
 
@@ -1879,7 +1879,7 @@ bool_t check_target( chr_t * psrc, Uint16 ichr_test, TARGET_TYPE target_type, bo
 //--------------------------------------------------------------------------------------------
 Uint16 chr_get_target( chr_t * psrc, float max_dist2, TARGET_TYPE target_type, bool_t target_items, bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz )
 {
-    // BB> this is the raw character targetting code, this is not throttled at all. You should call
+    // BB> this is the raw character targeting code, this is not throttled at all. You should call
     //     scr_get_chr_target() if you are calling this function from the scripting system.
 
     line_of_sight_info_t los_info;
@@ -3865,11 +3865,11 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
         }
     }
 
-    is_not_missile = pchr_a->missiletreatment == MISNORMAL            ||
-                     pprt_b->damage.base + pprt_b->damage.rand == 0   ||
-                     ACTIVE_CHR(pprt_b->attachedto_ref)                ||
+    is_not_missile = pchr_a->missiletreatment == MISNORMAL                    ||
+                     pprt_b->damage.base + pprt_b->damage.rand == 0           ||
+                     ACTIVE_CHR(pprt_b->attachedto_ref)                       ||
                      ( pprt_b->owner_ref == ichr_a && !ppip_b->friendlyfire ) ||
-                     ( ChrList.lst[pchr_a->missilehandler].mana < ( pchr_a->missilecost << 8 ) && !ChrList.lst[pchr_a->missilehandler].canchannel );
+                     ChrList.lst[pchr_a->missilehandler].mana < INT_TO_FP8(pchr_a->missilecost);
 
     // Check for missile treatment
     if ( is_not_missile  )
@@ -4097,7 +4097,8 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
         else
         {
             // what happes if the misslehandler can't pay the mana?
-            PrtList_free_one( iprt_b );
+			// ZF> this should never happen since we check if we have enough mana before running cost_mana()
+			PrtList_free_one( iprt_b );
         }
     }
 
@@ -6271,7 +6272,6 @@ bool_t collide_ray_with_characters( line_of_sight_info_t * plos )
 bool_t do_line_of_sight( line_of_sight_info_t * plos )
 {
     bool_t mesh_hit = bfalse, chr_hit = bfalse;
-
     mesh_hit = collide_ray_with_mesh( plos );
 
     /*if ( mesh_hit )
@@ -6651,6 +6651,7 @@ void ego_init_SDL_base()
 //--------------------------------------------------------------------------------------------
 bool_t game_module_setup( game_module_t * pinst, mod_file_t * pdata, const char * loadname, Uint32 seed )
 {
+	//Prepeares a module to be played
     if ( NULL == pdata ) return bfalse;
 
     if ( !game_module_init(pinst) ) return bfalse;

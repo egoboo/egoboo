@@ -4,5 +4,5 @@ Message 2: %t's_%n_is_%k...
 Message 3: The_%c_won't_cooperate!
 Message 4: %t_drew_%g_%n.
 Message 5: %t_accidentially_poisoned_himself!
-Message 6: Paladins_don't_use_cowardly_tricks_of_poison!
+Message 6: %t_doesn't_use_cowardly_tricks_of_poison!
 

@@ -59,7 +59,7 @@ IfXIsMoreThanY
   IfScoredAHit
     SetTargetToWhoeverWasHit
     tmpx = rand % 100
-    tmpy = selflevel*2          //2% chance * (level-1)
+    tmpy = selflevel          //1% chance * (level-1)
     IfXIsLessThanY
       tmpargument = 128*selflevel + 128     //0.5 extra damage per level
       DamageTarget

@@ -6649,8 +6649,9 @@ Uint8 scr_Backstabbed( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // Proceeds if HitFromBehind, target has [DISA] skill and damage dealt is physical
+	// automatically fails if character has code of conduct
     returncode = bfalse;
-    if ( HAS_SOME_BITS( pself->alert, ALERTIF_ATTACKED ) )
+    if ( !pchr->hascodeofconduct && HAS_SOME_BITS( pself->alert, ALERTIF_ATTACKED ) )
     {
         if ( pself->directionlast >= ATK_BEHIND - 8192 && pself->directionlast < ATK_BEHIND + 8192 )
         {
@@ -7417,10 +7418,10 @@ Uint16 _get_chr_target( chr_t * pchr, Uint32 max_dist, TARGET_TYPE target_type, 
     //     If max_dist is 0 then it searches without a max limit.
     float max_dist2;
 
-    ai_state_t * pself;
+//    ai_state_t * pself;
 
     if( NULL == pchr || !ACTIVE_CHR(pchr->index) ) return MAX_CHR;
-    pself = &(pchr->ai);
+  //  pself = &(pchr->ai);
 
     if( TARGET_NONE == target_type ) return MAX_CHR;
 
