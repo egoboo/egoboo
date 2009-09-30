@@ -45,7 +45,7 @@ typedef struct s_prt_registry_entity prt_registry_entity_t;
 //--------------------------------------------------------------------------------------------
 static void prt_instance_update( camera_t * pcam, Uint16 particle, Uint8 trans, bool_t do_lighting );
 static void calc_billboard_verts( GLvertex vlst[], prt_instance_t * pinst, float size, float level, bool_t do_reflect );
-static int cmp_prt_registry_entity(const void * vlhs, const void * vrhs);
+static int  cmp_prt_registry_entity(const void * vlhs, const void * vrhs);
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -574,7 +574,7 @@ void prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_
     {
         chr_instance_t * cinst = chr_get_pinstance(pprt->attachedto_ref);
 
-        if ( cinst->matrixvalid )
+        if ( chr_matrix_valid(ChrList.lst + pprt->attachedto_ref) )
         {
             // use the character matrix to orient the particle
             // assume that the particle "up" is in the z-direction in the object's
@@ -685,6 +685,7 @@ void prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_
     pinst->valid = btrue;
 }
 
+//--------------------------------------------------------------------------------------------
 GLmatrix prt_inst_make_matrix( prt_instance_t * pinst )
 {
     GLmatrix mat = IdentityMatrix();

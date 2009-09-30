@@ -4713,15 +4713,7 @@ bool_t billboard_data_update( billboard_data_t * pbb )
     pchr = ChrList.lst + pbb->ichr;
 
     // determine where the new position should be
-    if ( pchr->inst.matrixvalid )
-    {
-        vup = mat_getChrUp( pchr->inst.matrix );
-    }
-    else
-    {
-        vup.x = vup.y = 0.0f;
-        vup.z = 1.0f;
-    }
+    chr_getMatUp( pchr, &vup );
 
     height = pchr->bump.height;
     offset = MIN(pchr->bump.height * 0.5f, pchr->bump.size);

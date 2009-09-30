@@ -152,12 +152,60 @@ typedef struct s_team team_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+// the data necessary to cache the last values required to create the character matrix
+
+// bits that tell you which variables to look at
+enum e_matrix_cache_type
+{
+    MAT_UNKNOWN   = 0,
+    MAT_CHARACTER = (1 << 0),
+    MAT_WEAPON    = (1 << 1)
+};
+
+typedef enum e_matrix_cache_type matrix_cache_type_t;
+
+struct s_matrix_cache
+{
+    // is the cache data valid?
+    bool_t valid;
+
+    // is the matrix data valid?
+    bool_t matrix_valid;
+
+    // how was the matrix made?
+    matrix_cache_type_t type;
+
+    //---- MAT_CHARACTER data
+
+    // the "Euler" rotation angles in 16-bit form
+    GLvector3 rotate;
+
+    // the translate vector
+    GLvector3 pos;
+
+    //---- MAT_WEAPON data
+
+    Uint16  grip_chr;                   // !=MAX_CHR if character is a held weapon
+    slot_t  grip_slot;                  // SLOT_LEFT or SLOT_RIGHT
+    Uint16  grip_verts[GRIP_VERTS];     // Vertices which describe the weapon grip
+
+    //---- data used for both
+
+    // the body fixed scaling
+    GLvector3 scale;
+};
+typedef struct s_matrix_cache matrix_cache_t;
+
+matrix_cache_t * matrix_cache_init(matrix_cache_t * mcache);
+
+//--------------------------------------------------------------------------------------------
 // all the model data that the renderer needs to render the character
 struct s_chr_instance
 {
     // position info
     GLmatrix       matrix;          // Character's matrix
-    char           matrixvalid;     // Did we make one yet?
+    matrix_cache_t matrix_cache;    // Did we make one yet?
+
     Uint16         turn_z;
 
     // render mode info
@@ -225,14 +273,26 @@ struct s_phys_data
 typedef struct s_phys_data phys_data_t;
 
 //--------------------------------------------------------------------------------------------
-// definition of the character "bumper"
-struct s_chr_bumper
+// definition of the level 0 character "bumper"
+struct s_chr_bumper_0
 {
     float  size;        // Size of bumpers
     float  sizebig;     // For octagonal bumpers
     float  height;      // Distance from head to toe
 };
-typedef struct s_chr_bumper chr_bumper_t;
+typedef struct s_chr_bumper_0 chr_bumper_0_t;
+
+//--------------------------------------------------------------------------------------------
+// definition of the level 1 character "bumper"
+struct s_chr_bumper_1
+{
+    float min_x,  max_x;
+    float min_y,  max_y;
+    float min_z,  max_z;
+    float min_xy, max_xy;
+    float min_yx, max_yx;
+};
+typedef struct s_chr_bumper_1 chr_bumper_1_t;
 
 //--------------------------------------------------------------------------------------------
 struct s_chr
@@ -299,7 +359,6 @@ struct s_chr
     // attachments
     Uint16         attachedto;                    // !=MAX_CHR if character is a held weapon
     slot_t         inwhich_slot;                  // SLOT_LEFT or SLOT_RIGHT
-    Uint16         weapongrip[GRIP_VERTS];        // Vertices which describe the weapon grip
 
     // platform stuff
     Uint8          platform;                      // Can it be stood on
@@ -404,9 +463,11 @@ struct s_chr
     //        The old bumper data that is read from the data.txt file will be kept in
     //        the struct "bump". A new bumper that actually matches the size of the object will
     //        be kept in the struct "collision"
-    chr_bumper_t   bump;
-    chr_bumper_t   bump_save;
-    chr_bumper_t   collision;
+    chr_bumper_0_t   bump;
+    chr_bumper_0_t   bump_save;
+
+    chr_bumper_0_t   collision_0;
+    chr_bumper_1_t   collision_1;
 
     float          bumpdampen;                    // Character bump mass
     Uint32         weight;                        // Weight ( for pressure plates )
@@ -618,7 +679,7 @@ const char * describe_stat(int value_high);
 
 void reset_teams();
 
-bool_t chr_update_matrix( Uint16 ichr );
+bool_t _chr_update_matrix( chr_t * pchr );
 bool_t chr_teleport( Uint16 ichr, float x, float y, float z, Uint16 turn_z );
 
 bool_t chr_request_terminate( Uint16 ichr );
@@ -626,3 +687,10 @@ bool_t chr_request_terminate( Uint16 ichr );
 chr_t * chr_update_hide( chr_t * pchr );
 
 bool_t ai_state_set_changed( ai_state_t * pai);
+
+bool_t chr_matrix_valid( chr_t * pchr );
+
+bool_t chr_getMatUp(chr_t *pchr, GLvector3 * pvec);
+bool_t chr_getMatRight(chr_t *pchr, GLvector3 * pvec);
+bool_t chr_getMatForward(chr_t *pchr, GLvector3 * pvec);
+bool_t chr_getMatTranslate(chr_t *pchr, GLvector3 * pvec);
