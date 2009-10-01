@@ -1,0 +1,30 @@
+Message 0: "Rest_in_peace." 
+
+Message 1: "Rest_In_Pieces."
+
+Message 2: "R.I.P." 
+
+Message 3: "We_weren't_sure_who_this_was,_but_we_buried_him_here_anyway."
+
+Message 4: "I_made_an_ash_of_myself."
+
+Message 5: "Here_lies_Alice._Ended_up_a_big_'ole_pile_of_them_bones."
+
+Message 6: "Soon_ripe._Soon_rotten._Soon_gone._But_not_forgotten."
+
+Message 7: ..._All_it_says_is:_"Momento_Morti."... 
+Message 8: Something_was_added_under_that:_"You_can_still_repsawn_though."
+
+Message 9: "Do_not_disturb."
+
+Message 10: "</Life>"
+
+Message 11: "Damn_you_idiots!_I_asked_to_be_cremated!"
+
+Message 12: "Hey,_from_this_angle_I_can_see_right_up_your_trouser_leg."
+
+Message 13: "Gone_Fishin'."
+
+Message 14: "Finally,_a_small_plot_of_land_to_call_my_own."
+
+Message 15: "Vacant."

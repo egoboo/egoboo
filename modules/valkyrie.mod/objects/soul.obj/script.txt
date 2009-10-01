@@ -1,0 +1,39 @@
+//Wander around aimlessly
+IfTimeOut
+  tmpx = rand & 1023 + selfspawnx - 512
+  tmpy = rand & 1023 + selfspawny - 512
+  ClearWaypoints
+  AddWaypoint
+  tmpargument = 50
+  SetTime
+  
+//Rescued by the valkyrie!
+IfBumped
+  SetTargetToWhoeverBumped
+  IfTargetIsAPlayer
+    tmpargument = 0
+    SendMessage
+    PlaySound
+    
+    //Award some xp
+    tmpargument = 30
+    tmpdistance = EXPQUEST
+    GiveExperienceToTarget
+    
+    //Heal them as a bonus
+    tmpargument = 256*10
+    HealTarget
+    tmpargument = 256
+    PumpTarget
+    
+    //Keep count
+    tmpargument = [SOUL]
+    IssueOrder
+    
+    //Go away
+    SpawnPoof
+    GoPoof
+    
+//------------------------------------------------------------------------------
+End
+//------------------------------------------------------------------------------

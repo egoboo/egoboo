@@ -23,6 +23,7 @@
 // Olaf Junk Shop
 #dependency Torch             37  
 #dependency OilFlask          64 
+#dependency PPotion           69
 
 // Mylvin The Alchemist 
 #dependency OilFlask          64

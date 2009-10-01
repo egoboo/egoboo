@@ -148,7 +148,7 @@ tmpx = selflevel
 tmpy = 5            //Need Level 7
 IfXIsMoreThanY
   Run
-  tmpargument = 1+selflevel*2+100       //2 percent per level
+  tmpargument = 1+selflevel+100       //1 percent per level
   SetSpeedPercent
 
 //------------------------------------------------------------------------------

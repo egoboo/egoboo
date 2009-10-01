@@ -99,7 +99,7 @@ IDSZ Vulnie    : [NONE]
 Is an item     : TRUE
 Is a mount     : FALSE
 Is stackable   : FALSE
-Name known     : TRUE
+Name known     : FALSE
 Usage known    : TRUE
 Is exportable  : TRUE
 Requires skill : TRUE
