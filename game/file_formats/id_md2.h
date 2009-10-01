@@ -9,11 +9,12 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // gcc does not properly recognize #pragma pack statements
-
-#if defined(__GNUC__)
-#    define SET_PACKED() __attribute__ ((__packed__))
-#else
-#    define SET_PACKED()
+#if !defined(SET_PACKED)
+#    if defined(__GNUC__)
+#        define SET_PACKED() __attribute__ ((__packed__))
+#    else
+#        define SET_PACKED()
+#    endif
 #endif
 
 //--------------------------------------------------------------------------------------------

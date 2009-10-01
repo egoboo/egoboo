@@ -3142,7 +3142,7 @@ int doShowResults( float deltaTime )
 {
     Uint8 i;
 
-    static STRING  text;
+    //static STRING  text;
     static Font   *font;
     static int     menuState = MM_Begin;
     static int     count;

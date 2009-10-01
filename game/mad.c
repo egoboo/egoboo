@@ -40,7 +40,7 @@ char    cFrameName[16];                                     // MD2 Frame Name
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 static void md2_fix_normals( Uint16 modelindex );
-static void md2_get_transvertices( Uint16 modelindex );
+//static void md2_get_transvertices( Uint16 modelindex );
 // static int  vertexconnected( md2_ogl_commandlist_t * pclist, int vertex );
 
 //--------------------------------------------------------------------------------------------

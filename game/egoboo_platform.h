@@ -176,25 +176,19 @@
 #endif
 
 //------------
-// set the packing of a data structure at declaration time
-#if !defined(USE_PACKING)
-
-// do not actually do anything about the packing
-#    define SET_PACKED()
-
-#else
-
-// use compiler-specific macro definitions
-#    if defined(__GNUC__)
-
-#        define SET_PACKED() __attribute__ ((__packed__))
-
-#    elif defined(_MSC_VER)
-
+#if !defined(SET_PACKED)
+    // set the packing of a data structure at declaration time
+#    if !defined(USE_PACKING)
+    // do not actually do anything about the packing
 #        define SET_PACKED()
-
+#    else
+    // use compiler-specific macro definitions
+#        if defined(__GNUC__)
+#            define SET_PACKED() __attribute__ ((__packed__))
+#        elif defined(_MSC_VER)
+#            define SET_PACKED()
+#        endif
 #    endif
-
 #endif
 
 #define EGOBOO_PLATFORM

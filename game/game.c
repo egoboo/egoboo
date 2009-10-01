@@ -196,7 +196,7 @@ static void _quit_game( ego_process_t * pgame );
 static void check_stats();
 static void tilt_characters_to_terrain();
 static void bump_all_objects( void );
-static void stat_return();
+//static void stat_return();
 static void update_pits();
 static void update_game();
 static void game_update_timers();
@@ -261,6 +261,7 @@ static int    ego_init_SDL();
 
 static bool_t _sdl_atexit_registered    = bfalse;
 static bool_t _sdl_initialized_base     = bfalse;
+
 
 //--------------------------------------------------------------------------------------------
 // Random Things-----------------------------------------------------------------
@@ -1218,7 +1219,7 @@ int do_ego_proc_running( ego_process_t * eproc )
     // run the sub-processes
     do_game_proc_run( GProc, EProc->frameDuration );
     do_menu_proc_run( MProc, EProc->frameDuration );
-            
+
     // a heads up display that can be used to debug values that are used by both the menu and the game
     // do_game_hud();
 

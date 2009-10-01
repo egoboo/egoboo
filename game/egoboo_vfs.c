@@ -1501,7 +1501,8 @@ int _vfs_vfscanf( FILE * file, const char * format, va_list args )
         // do the call to fscanf()
         if( NULL == ptr )
         {
-            fscanf( file, sub_format );
+            // this may cause a problem...
+            fscanf( file, sub_format, NULL );
         }
         else
         {
