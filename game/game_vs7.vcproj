@@ -295,11 +295,6 @@
 			<File
 				RelativePath=".\ego_wrap.c">
 				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="TRUE">
 					<Tool
@@ -317,11 +312,6 @@
 			</File>
 			<File
 				RelativePath=".\lua_console.c">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"/>
-				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="TRUE">
@@ -814,6 +804,9 @@
 				RelativePath=".\script_functions.h">
 			</File>
 		</Filter>
+		<File
+			RelativePath="..\doc\Egoboo Development Guide.rtf">
+		</File>
 		<File
 			RelativePath="..\log.txt">
 		</File>

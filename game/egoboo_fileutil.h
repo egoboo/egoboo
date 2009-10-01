@@ -90,6 +90,7 @@ void fput_gender( vfs_FILE* filewrite, const char* text, Uint8 gender );
 void fput_range( vfs_FILE* filewrite, const char* text, FRange val );
 void fput_pair( vfs_FILE* filewrite, const char* text, IPair val );
 void fput_string_under( vfs_FILE* filewrite, const char* text, const char* usename );
+void fput_idsz( vfs_FILE* filewrite, const char* text, IDSZ idsz );
 void fput_expansion( vfs_FILE* filewrite, const char* text, IDSZ idsz, int value );
 
 void    GLSetup_SupportedFormats();

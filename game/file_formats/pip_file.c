@@ -92,8 +92,15 @@ pip_t * load_one_pip_file( const char *szLoadName, pip_t * ppip )
 
     pip_init( ppip );
 
+    // set up the EGO_PROFILE_STUFF
     strncpy( ppip->name, szLoadName, SDL_arraysize(ppip->name) );
     ppip->loaded = btrue;
+
+    // read the 1 line comment at the top of the file
+    vfs_gets( ppip->comment, SDL_arraysize(ppip->comment)-1, fileread );
+
+    // rewind the file
+    vfs_seek ( fileread, 0 );
 
     // General data
     ppip->force = fget_next_bool( fileread );

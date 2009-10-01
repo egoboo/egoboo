@@ -2819,7 +2819,7 @@ int draw_status( Uint16 character, int x, int y )
     manamax  = FP8_TO_INT( pchr->manamax );
 
     // grab the character's display name
-    readtext = chr_get_name( character );
+    readtext = (char *)chr_get_name( character );
 
     // make a short name for the actual display
     for ( cnt = 0; cnt < 6; cnt++ )

@@ -316,3 +316,25 @@ void range_to_pair( FRange range, IPair * ppair )
         ppair->rand = FLOAT_TO_FP8(fTo - fFrom);
     }
 }
+
+//--------------------------------------------------------------------------------------------
+void ints_to_range( int ibase, int irand, FRange * prange )
+{
+    IPair pair_tmp;
+
+    pair_tmp.base = ibase;
+    pair_tmp.rand = irand;
+
+    pair_to_range( pair_tmp, prange );
+}
+
+//--------------------------------------------------------------------------------------------
+void floats_to_pair( float vmin, float vmax, IPair * ppair )
+{
+    FRange range_tmp;
+
+    range_tmp.from = vmin;
+    range_tmp.to   = vmax;
+
+    range_to_pair( range_tmp, ppair );
+}

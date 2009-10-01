@@ -114,7 +114,7 @@ bool_t remove_enchant( Uint16 ienc )
 
     // Remove all the enchant stuff in exactly the opposite order to how it was applied
 
-    // Remove all of the cumulative values first, since we did it 
+    // Remove all of the cumulative values first, since we did it
     for ( add_type = ENC_ADD_LAST; add_type >= ENC_ADD_FIRST; add_type-- )
     {
         remove_enchant_value( ienc, add_type );
@@ -609,6 +609,49 @@ void enc_init( enc_t * penc )
 }
 
 //--------------------------------------------------------------------------------------------
+Uint16 enc_get_free( Uint16 override )
+{
+    int    tnc;
+    Uint16 ienc = MAX_ENC;
+
+    ienc = MAX_ENC;
+    if ( VALID_ENC_RANGE(override) )
+    {
+        ienc = EncList_get_free();
+        if ( ienc != override )
+        {
+            // Picked the wrong one, so put this one back and find the right one
+
+            for ( tnc = 0; tnc < MAX_ENC; tnc++ )
+            {
+                if ( EncList.free_ref[tnc] == override )
+                {
+                    EncList.free_ref[tnc] = ienc;
+                    break;
+                }
+            }
+
+            ienc = override;
+        }
+
+        if ( MAX_ENC == ienc )
+        {
+            log_warning( "enc_get_free() - failed to override an enchant? enchant %d already spawned? \n", override );
+        }
+    }
+    else
+    {
+        ienc = EncList_get_free();
+        if ( MAX_ENC == ienc )
+        {
+            log_warning( "enc_get_free() - failed to allocate a new character\n" );
+        }
+    }
+
+    return ienc;
+}
+
+//--------------------------------------------------------------------------------------------
 Uint16 spawn_one_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 enc_override, Uint16 modeloptional )
 {
     // ZZ> This function enchants a target, returning the enchantment index or MAX_ENC
@@ -716,7 +759,7 @@ Uint16 spawn_one_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 en
     }
 
     // Find an enchant index to use
-    ienc = EncList_get_free(enc_override);
+    ienc = enc_get_free(enc_override);
 
     if ( !VALID_ENC_RANGE(ienc) )
     {

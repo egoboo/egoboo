@@ -198,4 +198,4 @@ int    generate_randmask( int base, int mask );
 
 
 Uint16 vec_to_facing( float dx, float dy );
-void facing_to_vec( Uint16 facing, float * dx, float * dy );
+void   facing_to_vec( Uint16 facing, float * dx, float * dy );

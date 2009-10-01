@@ -147,6 +147,9 @@ typedef struct s_range FRange;
 void pair_to_range( IPair pair, FRange * prange );
 void range_to_pair( FRange range, IPair * ppair );
 
+void ints_to_range( int base, int rand, FRange * prange );
+void floats_to_pair( float vmin, float vmax, IPair * ppair );
+
 //--------------------------------------------------------------------------------------------
 // some basic data that all egoboo objects should have
 #define  EGO_OBJECT_STUFF \

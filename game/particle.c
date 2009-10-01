@@ -286,6 +286,7 @@ Uint16 spawn_one_particle( GLvector3 pos, Uint16 facing, Uint16 iprofile, Uint16
     pip_t * ppip;
     Uint32 prt_lifetime;
     GLvector3 tmp_pos;
+    Uint16 turn;
 
     // Convert from local ipip to global ipip
     if ( ipip < MAX_PIP_PER_PROFILE && VALID_PRO(iprofile) )
@@ -382,9 +383,8 @@ Uint16 spawn_one_particle( GLvector3 pos, Uint16 facing, Uint16 iprofile, Uint16
             if ( ChrList.lst[chr_origin].dexterity < PERFECTSTAT )
             {
                 // Correct facing for randomness
-                offsetfacing  = generate_randmask( -(ppip->facing_pair.rand >> 1), ppip->facing_pair.rand);
-                offsetfacing -= ppip->facing_pair.rand >> 1;
-                offsetfacing  = ( offsetfacing * ( PERFECTSTAT - ChrList.lst[chr_origin].dexterity ) ) / PERFECTSTAT;  // Divided by PERFECTSTAT
+                offsetfacing  = generate_randmask( 0, ppip->facing_pair.rand) - (ppip->facing_pair.rand >> 1);
+                offsetfacing  = ( offsetfacing * ( PERFECTSTAT - ChrList.lst[chr_origin].dexterity ) ) / PERFECTSTAT;
             }
 
             if ( ACTIVE_CHR(pprt->target_ref) && ppip->zaimspd != 0 )
@@ -422,27 +422,27 @@ Uint16 spawn_one_particle( GLvector3 pos, Uint16 facing, Uint16 iprofile, Uint16
     else
     {
         // Correct facing for randomness
-        offsetfacing = generate_randmask( 0,  ppip->facing_pair.rand );
-        offsetfacing -= ppip->facing_pair.rand >> 1;
+        offsetfacing = generate_randmask( 0,  ppip->facing_pair.rand ) - (ppip->facing_pair.rand >> 1);
     }
-
     facing += offsetfacing;
     pprt->facing = facing;
-    facing = facing >> 2;
+
+    // this is actually pointint in the opposite direction?
+    turn = (facing + 32768) >> 2;
 
     // Location data from arguments
     newrand = generate_randmask( ppip->xyspacing_pair.base, ppip->xyspacing_pair.rand );
-    tmp_pos.x += turntocos[( facing+8192 ) & TRIG_TABLE_MASK] * newrand;
-    tmp_pos.y += turntosin[( facing+8192 ) & TRIG_TABLE_MASK] * newrand;
+    tmp_pos.x += turntocos[turn & TRIG_TABLE_MASK] * newrand;
+    tmp_pos.y += turntosin[turn & TRIG_TABLE_MASK] * newrand;
 
     tmp_pos.x = CLIP(tmp_pos.x, 0, PMesh->info.edge_x - 2);
     tmp_pos.y = CLIP(tmp_pos.y, 0, PMesh->info.edge_y - 2);
 
-    pprt->pos = pprt->pos_old = tmp_pos;
+    pprt->pos = pprt->pos_old = pprt->pos_stt = tmp_pos;
 
     // Velocity data
-    vel.x = turntocos[( facing+8192 ) & TRIG_TABLE_MASK] * velocity;
-    vel.y = turntosin[( facing+8192 ) & TRIG_TABLE_MASK] * velocity;
+    vel.x = turntocos[turn & TRIG_TABLE_MASK] * velocity;
+    vel.y = turntosin[turn & TRIG_TABLE_MASK] * velocity;
     vel.z += generate_randmask( ppip->zvel_pair.base, ppip->zvel_pair.rand ) - ( ppip->zvel_pair.rand >> 1 );
     pprt->vel = pprt->vel_old = vel;
 

@@ -103,7 +103,7 @@ struct s_prt
     Uint16  facing;                          // Direction of the part
     Uint8   team;                            // Team
 
-    GLvector3   pos, pos_old;                // Position
+    GLvector3   pos, pos_old, pos_stt;       // Position
     GLvector3   vel, vel_old;                // Velocity
 
     Uint32  onwhichfan;                      // Where the part is
@@ -117,6 +117,7 @@ struct s_prt
     Uint16  size;                            // Size of particle ( >> 8 )
     Uint16  size_stt;                        // the starting size of the particle ( >> 8 )
     Sint16  size_add;                        // Change in size
+
     bool_t  inview;                          // Render this one?
     Uint16  image;                           // Which image ( >> 8 )
     Uint16  imageadd;                        // Animation rate

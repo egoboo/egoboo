@@ -148,9 +148,9 @@ eve_t * load_one_enchant_file( const char* szLoadName, eve_t * peve )
     peve->setyesno[SETMISSILETREATMENT] = fget_next_bool( fileread );
 
     cTmp = fget_first_letter( fileread );
-         if ( 'R' == toupper(cTmp) )  peve->setvalue[SETMISSILETREATMENT] = MISREFLECT;
-    else if ( 'D' == toupper(cTmp) )  peve->setvalue[SETMISSILETREATMENT] = MISDEFLECT;
-    else                              peve->setvalue[SETMISSILETREATMENT] = MISNORMAL;
+         if ( 'R' == toupper(cTmp) )  peve->setvalue[SETMISSILETREATMENT] = MISSILE_REFLECT;
+    else if ( 'D' == toupper(cTmp) )  peve->setvalue[SETMISSILETREATMENT] = MISSILE_DEFLECT;
+    else                              peve->setvalue[SETMISSILETREATMENT] = MISSILE_NORMAL;
 
     peve->setyesno[SETCOSTFOREACHMISSILE] = fget_next_bool( fileread );
     peve->setvalue[SETCOSTFOREACHMISSILE] = (Uint8) fget_float( fileread ) * 16;
@@ -308,9 +308,9 @@ bool_t save_one_enchant_file( const char* szLoadName, eve_t * peve )
 
     switch( peve->setvalue[SETMISSILETREATMENT] )
     {
-        case MISNORMAL : template_put_char( filetemp, filewrite, 'N' ); break;
-        case MISREFLECT: template_put_char( filetemp, filewrite, 'R' ); break;
-        case MISDEFLECT: template_put_char( filetemp, filewrite, 'D' ); break;
+        case MISSILE_NORMAL : template_put_char( filetemp, filewrite, 'N' ); break;
+        case MISSILE_REFLECT: template_put_char( filetemp, filewrite, 'R' ); break;
+        case MISSILE_DEFLECT: template_put_char( filetemp, filewrite, 'D' ); break;
     }
 
     template_put_bool( filetemp, filewrite, peve->setyesno[SETCOSTFOREACHMISSILE] );

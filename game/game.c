@@ -914,6 +914,8 @@ void game_update_timers()
 
     static bool_t update_was_paused = bfalse;
 
+    int ticks_now, clock_diff;
+
     const float fold = 0.77f;
     const float fnew = 1.0f - fold;
 
@@ -924,22 +926,37 @@ void game_update_timers()
         return;
     }
 
-    // if there has been a gap in time (where the game was paused for instance)
-    // make sure we do not count that gap
-    if( update_was_paused )
-    {
-        // just reset the clocks this loop so we can blank out the missing time
-        clock_all = SDL_GetTicks() - clock_stt;
-        clock_lst = clock_all;
-        return;
-    }
+    ticks_now = SDL_GetTicks();
 
     // measure the time since the last call
-    clock_lst = clock_all;
-    clock_all = SDL_GetTicks() - clock_stt;
+    clock_lst  = clock_all;
+
+    // calculate the time since the from the last update
+    // if the game was paused, assume that it has been one frame
+    clock_diff = UPDATE_SKIP;
+    if( !update_was_paused )
+    {
+        clock_diff = ticks_now - clock_lst;
+
+        clock_diff = MIN(clock_diff, 2*UPDATE_SKIP);
+    }
+
+    if( PNet->on )
+    {
+        // if the network game is on, there really is no real "pause"
+        // so we can always measure the game time from the first clock reading
+        clock_all = ticks_now - clock_stt;
+    }
+    else
+    {
+        // if the net is not on, the game clock will pause when the local game is paused.
+        // if we use the other calculation, the game will freeze while it handles the updates
+        // for all the time that the game was paused... not so good
+        clock_all  += clock_diff;
+    }
 
     // figure out the update rate
-    ups_clock += clock_all - clock_lst;
+    ups_clock += clock_diff;
 
     if ( ups_loops > 0 && ups_clock > 0)
     {
@@ -2764,8 +2781,8 @@ void show_magic_status( Uint16 statindex )
             missile_str = "None";
             switch( pchr->missiletreatment )
             {
-                case MISREFLECT: missile_str = "Reflect"; break;
-                case MISDEFLECT: missile_str = "Deflect"; break;
+                case MISSILE_REFLECT: missile_str = "Reflect"; break;
+                case MISSILE_DEFLECT: missile_str = "Deflect"; break;
             }
 
             debug_printf( text, SDL_arraysize( text), " Flying: %s~~Missile Protection: %s",
@@ -3777,7 +3794,10 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     Uint16 enchant, enc_next;
     float ax, ay, nx, ny, scale;  // For deflection
     Uint16 facing;
-    bool_t is_not_missile;
+
+    bool_t prt_wants_deflection;
+    bool_t prt_might_bump_chr;
+    bool_t mana_paid;
 
     float xa, ya, za, xb, yb, zb;
     float was_xa, was_ya, was_za, was_xb, was_yb, was_zb;
@@ -3866,70 +3886,115 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
         }
     }
 
-    is_not_missile = pchr_a->missiletreatment == MISNORMAL                    ||
-                     pprt_b->damage.base + pprt_b->damage.rand == 0           ||
-                     ACTIVE_CHR(pprt_b->attachedto_ref)                       ||
-                     ( pprt_b->owner_ref == ichr_a && !ppip_b->friendlyfire ) ||
-                     ChrList.lst[pchr_a->missilehandler].mana < INT_TO_FP8(pchr_a->missilecost);
+    // determine whether the missile should be deflected
+    prt_wants_deflection  = (MISSILE_NORMAL != pchr_a->missiletreatment) &&
+                        !pchr_a->invictus && ( 0 != pprt_b->damage.base + pprt_b->damage.rand ) && 
+                        !ACTIVE_CHR(pprt_b->attachedto_ref) && (pprt_b->owner_ref != ichr_a);
 
-    // Check for missile treatment
-    if ( is_not_missile  )
+    // try to deflect the particle
+    mana_paid = bfalse;
+    if ( prt_wants_deflection )
     {
+        mana_paid = cost_mana( pchr_a->missilehandler, pchr_a->missilecost << 8, pprt_b->owner_ref );
+        if ( mana_paid )
+        {
+            // Treat the missile
+            if ( pchr_a->missiletreatment == MISSILE_DEFLECT )
+            {
+                // Use old position to find normal
+                ax = pprt_b->pos.x - pprt_b->vel.x;
+                ay = pprt_b->pos.y - pprt_b->vel.y;
+                ax = pchr_a->pos.x - ax;
+                ay = pchr_a->pos.y - ay;
+
+                // Find size of normal
+                scale = ax * ax + ay * ay;
+                if ( scale > 0 )
+                {
+                    // Make the normal a unit normal
+                    scale = SQRT( scale );
+                    nx = ax / scale;
+                    ny = ay / scale;
+
+                    // Deflect the incoming ray off the normal
+                    scale = ( pprt_b->vel.x * nx + pprt_b->vel.y * ny ) * 2;
+                    ax = scale * nx;
+                    ay = scale * ny;
+                    pprt_b->vel.x = pprt_b->vel.x - ax;
+                    pprt_b->vel.y = pprt_b->vel.y - ay;
+                }
+            }
+            else if ( pchr_a->missiletreatment == MISSILE_DEFLECT )
+            {
+                // Reflect it back in the direction it came
+                pprt_b->vel.x = -pprt_b->vel.x;
+                pprt_b->vel.y = -pprt_b->vel.y;
+            }
+
+            // Change the owner of the missile
+            pprt_b->team = pchr_a->team;
+            pprt_b->owner_ref = ichr_a;
+            ppip_b->homing = bfalse;
+
+            // Change the direction of the particle
+            if ( ppip_b->rotatetoface )
+            {
+                // Turn to face new direction
+                facing = vec_to_facing( pprt_b->vel.x , pprt_b->vel.y );
+                pprt_b->facing = facing;
+            }
+        }
+    }
+
+    // if the mana was paid, the particle was definitely deflected
+    prt_might_bump_chr = !pchr_a->invictus && !mana_paid && (pprt_b->attachedto_ref != ichr_a);
+
+    // Refine the simple bump test
+    if ( prt_might_bump_chr  )
+    {
+        //bool_t prt_belongs_to_chr;
+        //bool_t needs_friendlyfire;
+        //bool_t prt_can_hit_chr;
+        //bool_t prt_hates_chr;
+
+        //prt_belongs_to_chr = ichr_a == pprt_b->owner_ref ||
+        //                     ichr_a == ChrList.lst[pprt_b->owner_ref].attachedto;
+
+        //needs_friendlyfire = !prt_belongs_to_chr || ppip_b->onlydamagefriendly;
+
+        //prt_hates_chr = TeamList[pprt_b->team].hatesteam[pchr_a->team];
+
+        //prt_can_hit_chr =  prt_hates_chr || (ppip_b->friendlyfire && needs_friendlyfire);
+
+        // ignore onlydamagefriendly for the moment
         bool_t prt_belongs_to_chr;
-        bool_t needs_friendlyfire;
         bool_t prt_can_hit_chr;
-        bool_t has_hate;
+        bool_t prt_hates_chr;
+        bool_t can_onlydamagefriendly;
+        bool_t can_friendlyfire;
+
+        prt_hates_chr   = TeamList[pprt_b->team].hatesteam[pchr_a->team];
 
         prt_belongs_to_chr = ichr_a == pprt_b->owner_ref ||
                              ichr_a == ChrList.lst[pprt_b->owner_ref].attachedto;
 
-        needs_friendlyfire = !prt_belongs_to_chr || ppip_b->onlydamagefriendly;
+        // this is the onlydamagefriendly condition from the particle search code
+        can_onlydamagefriendly = (ppip_b->onlydamagefriendly && pprt_b->team == pchr_a->team) || 
+                                 (!ppip_b->onlydamagefriendly && prt_hates_chr);
 
-        has_hate = TeamList[pprt_b->team].hatesteam[pchr_a->team];
+        // I guess "friendly fire" does not mean "self fire", which is a bit unfortunate.
+        can_friendlyfire = ppip_b->friendlyfire && !prt_hates_chr && !prt_belongs_to_chr;
 
-        prt_can_hit_chr =  has_hate || (ppip_b->friendlyfire && needs_friendlyfire);
+        prt_can_hit_chr =  can_friendlyfire || can_onlydamagefriendly;
 
-        if ( !pchr_a->invictus && prt_can_hit_chr )
+        if ( prt_can_hit_chr )
         {
-            bool_t can_damage, is_arrow;
-
             spawn_bump_particles( ichr_a, iprt_b ); // Catch on fire
 
-            can_damage = (0 == pchr_a->damagetime) && (pprt_b->damage.base + pprt_b->damage.rand > 0);
-
-            is_arrow = (pprt_b->attachedto_ref == ichr_a) || 0 != ( ppip_b->damfx&DAMFX_ARRO );
-
-            if ( can_damage && !is_arrow  )
+            // we can't even get to this point if the character is completely invulnerable (invictus)
+            // so the only barier left is whether the character can be damaged this update
+            if ( 0 == pchr_a->damagetime )
             {
-                IPair local_damage;
-
-                local_damage = pprt_b->damage;
-
-                // Normal particle collision damage
-                if ( ppip_b->allowpush && pchr_a->weight != 0xFFFFFFFF )
-                {
-                    if ( 0 == pchr_a->weight )
-                    {
-                        pchr_a->phys.avel.x  += pprt_b->vel.x - pchr_a->vel.x;
-                        pchr_a->phys.avel.y  += pprt_b->vel.y - pchr_a->vel.y;
-                        pchr_a->phys.avel.z  += pprt_b->vel.z - pchr_a->vel.z;
-                        LOG_NAN(pchr_a->phys.avel.z);
-                    }
-                    else
-                    {
-                        float factor = MIN( 1.0f, 110 / pchr_a->weight );   // 110 is the "iconic" weight of the adventurer
-                        factor = MIN( 1.0f, factor * pchr_a->bumpdampen );
-
-                        pchr_a->phys.avel.x  += pprt_b->vel.x * factor;
-                        pchr_a->phys.avel.y  += pprt_b->vel.y * factor;
-                        pchr_a->phys.avel.z  += pprt_b->vel.z * factor;
-                        LOG_NAN(pchr_a->phys.avel.z);
-                    }
-                }
-
-                direction = vec_to_facing( pprt_b->vel.x , pprt_b->vel.y );
-                direction = pchr_a->turn_z - direction + 32768;
-
                 // clean up the enchant list before doing anything
                 pchr_a->firstenchant = cleanup_enchant_list( pchr_a->firstenchant );
 
@@ -3948,45 +4013,80 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
                 // Do confuse effects
                 if ( 0 == ( Md2FrameList[pchr_a->inst.frame_nxt].framefx&MADFX_INVICTUS ) || ppip_b->damfx&DAMFX_NBLOC )
                 {
-                    if ( ppip_b->grogtime >= pchr_a->grogtime && pcap_a->canbegrogged )
+                    if ( ppip_b->grogtime > 0 && pcap_a->canbegrogged )
                     {
-                        pchr_a->grogtime = MAX(0, pchr_a->grogtime + ppip_b->grogtime);
                         pchr_a->ai.alert |= ALERTIF_GROGGED;
+                        if( ppip_b->grogtime > pchr_a->grogtime )
+                        {
+                            pchr_a->grogtime = MAX(0, pchr_a->grogtime + ppip_b->grogtime);
+                        }
                     }
-                    if ( ppip_b->dazetime >= pchr_a->dazetime && pcap_a->canbedazed )
+                    if ( ppip_b->dazetime > 0 && pcap_a->canbedazed )
                     {
-                        pchr_a->dazetime = MAX(0, pchr_a->dazetime + ppip_b->dazetime);
                         pchr_a->ai.alert |= ALERTIF_DAZED;
+                        if( ppip_b->dazetime > pchr_a->dazetime )
+                        {
+                            pchr_a->dazetime = MAX(0, pchr_a->dazetime + ppip_b->dazetime);
+                        }
                     }
                 }
 
-                // Apply intelligence/wisdom bonus damage for particles with the [IDAM] and [WDAM] expansions (Low ability gives penality)
-                // +2% bonus for every point of intelligence and/or wisdom above 14. Below 14 gives -2% instead!
-                if ( ppip_b->intdamagebonus )
+                // Normal particle collision damage
+                if ( ppip_b->allowpush && pchr_a->weight != 0xFFFFFFFF )
                 {
-                    float percent;
-                    percent = ( (FP8_TO_INT(ChrList.lst[pprt_b->owner_ref].intelligence)) - 14 ) * 2;
-                    percent /= 100;
-                    local_damage.base *= 1.00f + percent;
+                    if ( 0 == pchr_a->weight )
+                    {
+                        pchr_a->phys.avel.x  += pprt_b->vel.x - pchr_a->vel.x;
+                        pchr_a->phys.avel.y  += pprt_b->vel.y - pchr_a->vel.y;
+                        pchr_a->phys.avel.z  += pprt_b->vel.z - pchr_a->vel.z;
+                    }
+                    else
+                    {
+                        float factor = MIN( 1.0f, 110 / pchr_a->weight );   // 110 is the "iconic" weight of the adventurer
+                        factor = MIN( 1.0f, factor * pchr_a->bumpdampen );
+
+                        pchr_a->phys.avel.x  += pprt_b->vel.x * factor;
+                        pchr_a->phys.avel.y  += pprt_b->vel.y * factor;
+                        pchr_a->phys.avel.z  += pprt_b->vel.z * factor;
+                    }
                 }
 
-                if ( ppip_b->wisdamagebonus )
+                // DAMFX_ARRO means that it only does damage when stuck to something, not when it hits?
+                if( 0 == ( ppip_b->damfx&DAMFX_ARRO ) )
                 {
-                    float percent;
-                    percent = ( FP8_TO_INT(ChrList.lst[pprt_b->owner_ref].wisdom) - 14 ) * 2;
-                    percent /= 100;
-                    local_damage.base *= 1.00f + percent;
-                }
+                    IPair loc_damage = pprt_b->damage;
 
-                // Damage the character
-                if ( chr_has_vulnie( ichr_a, pprt_b->profile_ref ) )
-                {
-                    local_damage.base = (local_damage.base << 1);
-                    local_damage.rand = (local_damage.rand << 1) | 1;
+                    direction = vec_to_facing( pprt_b->vel.x , pprt_b->vel.y );
+                    direction = pchr_a->turn_z - direction + 32768;
 
-                    pchr_a->ai.alert |= ALERTIF_HITVULNERABLE;
+                    // Apply intelligence/wisdom bonus damage for particles with the [IDAM] and [WDAM] expansions (Low ability gives penality)
+                    // +2% bonus for every point of intelligence and/or wisdom above 14. Below 14 gives -2% instead!
+                    if ( ppip_b->intdamagebonus )
+                    {
+                        float percent;
+                        percent = ( (FP8_TO_INT(ChrList.lst[pprt_b->owner_ref].intelligence)) - 14 ) * 2;
+                        percent /= 100;
+                        loc_damage.base *= 1.00f + percent;
+                    }
+
+                    if ( ppip_b->wisdamagebonus )
+                    {
+                        float percent;
+                        percent = ( FP8_TO_INT(ChrList.lst[pprt_b->owner_ref].wisdom) - 14 ) * 2;
+                        percent /= 100;
+                        loc_damage.base *= 1.00f + percent;
+                    }
+
+                    // Damage the character
+                    if ( chr_has_vulnie( ichr_a, pprt_b->profile_ref ) )
+                    {
+                        loc_damage.base = (loc_damage.base << 1);
+                        loc_damage.rand = (loc_damage.rand << 1) | 1;
+
+                        pchr_a->ai.alert |= ALERTIF_HITVULNERABLE;
+                    }
+                    damage_character( ichr_a, direction, loc_damage, pprt_b->damagetype, pprt_b->team, pprt_b->owner_ref, ppip_b->damfx, bfalse );
                 }
-                damage_character( ichr_a, direction, local_damage, pprt_b->damagetype, pprt_b->team, pprt_b->owner_ref, ppip_b->damfx, bfalse );
 
                 // Notify the attacker of a scored hit
                 if ( ACTIVE_CHR(pprt_b->owner_ref) )
@@ -4043,65 +4143,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
             }
         }
     }
-    else if ( pprt_b->owner_ref != ichr_a )
-    {
-        bool_t mana_paid = cost_mana( pchr_a->missilehandler, pchr_a->missilecost << 8, pprt_b->owner_ref );
 
-        if ( mana_paid )
-        {
-            // Treat the missile
-            if ( pchr_a->missiletreatment == MISDEFLECT )
-            {
-                // Use old position to find normal
-                ax = pprt_b->pos.x - pprt_b->vel.x;
-                ay = pprt_b->pos.y - pprt_b->vel.y;
-                ax = pchr_a->pos.x - ax;
-                ay = pchr_a->pos.y - ay;
-
-                // Find size of normal
-                scale = ax * ax + ay * ay;
-                if ( scale > 0 )
-                {
-                    // Make the normal a unit normal
-                    scale = SQRT( scale );
-                    nx = ax / scale;
-                    ny = ay / scale;
-
-                    // Deflect the incoming ray off the normal
-                    scale = ( pprt_b->vel.x * nx + pprt_b->vel.y * ny ) * 2;
-                    ax = scale * nx;
-                    ay = scale * ny;
-                    pprt_b->vel.x = pprt_b->vel.x - ax;
-                    pprt_b->vel.y = pprt_b->vel.y - ay;
-                }
-            }
-            else
-            {
-                // Reflect it back in the direction it came
-                pprt_b->vel.x = -pprt_b->vel.x;
-                pprt_b->vel.y = -pprt_b->vel.y;
-            }
-
-            // Change the owner of the missile
-            pprt_b->team = pchr_a->team;
-            pprt_b->owner_ref = ichr_a;
-            ppip_b->homing = bfalse;
-
-            // Change the direction of the particle
-            if ( ppip_b->rotatetoface )
-            {
-                // Turn to face new direction
-                facing = vec_to_facing( pprt_b->vel.x , pprt_b->vel.y );
-                pprt_b->facing = facing;
-            }
-        }
-        else
-        {
-            // what happes if the misslehandler can't pay the mana?
-			// ZF> this should never happen since we check if we have enough mana before running cost_mana()
-			PrtList_free_one( iprt_b );
-        }
-    }
 
     return btrue;
 }
@@ -6652,7 +6694,7 @@ void ego_init_SDL_base()
 //--------------------------------------------------------------------------------------------
 bool_t game_module_setup( game_module_t * pinst, mod_file_t * pdata, const char * loadname, Uint32 seed )
 {
-	//Prepeares a module to be played
+    //Prepeares a module to be played
     if ( NULL == pdata ) return bfalse;
 
     if ( !game_module_init(pinst) ) return bfalse;

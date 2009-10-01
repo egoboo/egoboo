@@ -26,14 +26,17 @@
 #include "egoboo_typedef.h"
 
 // missile treatments
-#define MISNORMAL               0                  // Treat missiles normally
-#define MISDEFLECT              1                  // Deflect incoming missiles
-#define MISREFLECT              2                  // Reflect them back!
+enum e_missle_treatment
+{
+    MISSILE_NORMAL   = 0,                           // Treat missiles normally
+    MISSILE_DEFLECT,                                // Deflect incoming missiles
+    MISSILE_REFLECT                                 // Reflect them back!
+};
 
 // Different set values for enchants
 typedef enum enchant_set
 {
-    // this must be first since the 
+    // this must be first since the
     // character must be morphed before adding any of the other enchants
 
     SETMORPH = 0,           // Morph character?

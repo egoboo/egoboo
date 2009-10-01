@@ -228,6 +228,7 @@ Uint8 scr_TestBits( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_Spawned( script_state_t * pstate, ai_state_t * pself )
 {
+    // IfSpawned()
     // ZZ> This function proceeds if the character was spawned this update
 
     SCRIPT_FUNCTION_BEGIN();
@@ -241,6 +242,7 @@ Uint8 scr_Spawned( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_TimeOut( script_state_t * pstate, ai_state_t * pself )
 {
+    // IfTimeOut()
     // This function proceeds if the character's aitime is 0...  Use
     // in conjunction with set_Time
 
@@ -255,6 +257,7 @@ Uint8 scr_TimeOut( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_AtWaypoint( script_state_t * pstate, ai_state_t * pself )
 {
+    // IfAtWaypoint()
     // This function proceeds if the character reached its waypoint this
     // update
 
@@ -269,6 +272,7 @@ Uint8 scr_AtWaypoint( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_AtLastWaypoint( script_state_t * pstate, ai_state_t * pself )
 {
+    // IfAtLastWaypoint()
     // This function proceeds if the character reached its last waypoint this
     // update
 
@@ -283,6 +287,7 @@ Uint8 scr_AtLastWaypoint( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_Attacked( script_state_t * pstate, ai_state_t * pself )
 {
+    // IfAttacked()
     // This function proceeds if the character ( an item ) was put in its
     // owner's pocket this update
 
@@ -297,6 +302,7 @@ Uint8 scr_Attacked( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_Bumped( script_state_t * pstate, ai_state_t * pself )
 {
+    // IfBumped()
     // This function proceeds if the character was bumped by another character
     // this update
 
@@ -311,6 +317,7 @@ Uint8 scr_Bumped( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_Ordered( script_state_t * pstate, ai_state_t * pself )
 {
+    // IfOrdered()
     // This function proceeds if the character got an order from another
     // character on its team this update
 
@@ -325,6 +332,7 @@ Uint8 scr_Ordered( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_CalledForHelp( script_state_t * pstate, ai_state_t * pself )
 {
+    // IfCalledForHelp()
     // This function proceeds if one of the character's teammates was nearly
     // killed this update
 
@@ -339,13 +347,13 @@ Uint8 scr_CalledForHelp( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_Content( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_Content( tmpargument )
+    // SetContent( tmpargument )
     // This function sets the content variable...  Used in conjunction with
-    // get_Content...  Content is preserved from update to update
+    // GetContent...  Content is preserved from update to update
 
     SCRIPT_FUNCTION_BEGIN();
 
-    // set_ the content
+    // Set the content
     pself->content = pstate->argument;
 
     SCRIPT_FUNCTION_END();
@@ -354,6 +362,7 @@ Uint8 scr_set_Content( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_Killed( script_state_t * pstate, ai_state_t * pself )
 {
+    // IfKilled()
     // This function proceeds if the character was killed this update
 
     SCRIPT_FUNCTION_BEGIN();
@@ -367,6 +376,7 @@ Uint8 scr_Killed( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_TargetKilled( script_state_t * pstate, ai_state_t * pself )
 {
+    // IfTargetKilled()
     // This function proceeds if the character's target from last update was
     // killed during this update
 
@@ -381,6 +391,7 @@ Uint8 scr_TargetKilled( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_ClearWaypoints( script_state_t * pstate, ai_state_t * pself )
 {
+    // ClearWaypoints()
     // This function is used to move a character around...  Do this before
     // AddWaypoint
 
@@ -396,7 +407,7 @@ Uint8 scr_ClearWaypoints( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_AddWaypoint( script_state_t * pstate, ai_state_t * pself )
 {
-    // AddWaypoint( tmpx, tmpy )
+    // AddWaypoint( tmpx = "x position", tmpy = "y position" )
     // This function tells the character where to move next
 
     SCRIPT_FUNCTION_BEGIN();
@@ -414,6 +425,7 @@ Uint8 scr_AddWaypoint( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_FindPath( script_state_t * pstate, ai_state_t * pself )
 {
+    // FindPath
     // This function doesn't work yet !!!BAD!!!
 
     SCRIPT_FUNCTION_BEGIN();
@@ -465,7 +477,7 @@ Uint8 scr_FindPath( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_Compass( script_state_t * pstate, ai_state_t * pself )
 {
-    // Compass( tmpx, tmpy, tmpturn, tmpdistance )
+    // Compass( tmpturn = "rotation", tmpdistance = "radius" )
     // This function modifies tmpx and tmpy, depending on the setting of
     // tmpdistance and tmpturn.  It acts like one of those Compass thing
     // with the two little needle legs
@@ -481,7 +493,7 @@ Uint8 scr_Compass( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_get_TargetArmorPrice( script_state_t * pstate, ai_state_t * pself )
 {
-    // get_TargetArmorPrice( tmpargument )
+    // tmpx = GetTargetArmorPrice( tmpargument = "skin" )
     // This function returns the cost of the desired skin upgrade, setting
     // tmpx to the price
 
@@ -506,7 +518,7 @@ Uint8 scr_get_TargetArmorPrice( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_Time( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_Time( tmpargument )
+    // SetTime( tmpargument = "time" )
     // This function sets the character's time...  50 clicks per second...
     // Used in conjunction with _TimeOut
 
@@ -524,13 +536,13 @@ Uint8 scr_set_Time( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_get_Content( script_state_t * pstate, ai_state_t * pself )
 {
-    // get_Content()
+    // tmpargument = GetContent()
     // This function sets tmpargument to the character's content variable...
     // Used in conjunction with set_Content, or as a NOP to space out an Else
 
     SCRIPT_FUNCTION_BEGIN();
 
-    // get_ the content
+    // Get the content
     pstate->argument = pself->content;
 
     SCRIPT_FUNCTION_END();
@@ -558,7 +570,7 @@ Uint8 scr_JoinTargetTeam( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_TargetToNearbyEnemy( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_TargetToNearbyEnemy()
+    // SetTargetToNearbyEnemy()
     // This function sets the target to a nearby enemy, failing if there are none
 
     Uint16 ichr;
@@ -580,7 +592,7 @@ Uint8 scr_set_TargetToNearbyEnemy( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_TargetToTargetLeftHand( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_TargetToTargetLeftHand()
+    // SetTargetToTargetLeftHand()
     // This function sets the target to the item in the target's left hand,
     // failing if the target has no left hand item
 
@@ -600,7 +612,7 @@ Uint8 scr_set_TargetToTargetLeftHand( script_state_t * pstate, ai_state_t * psel
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_TargetToTargetRightHand( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_TargetToTargetRightHand()
+    // SetTargetToTargetRightHand()
     // This function sets the target to the item in the target's right hand,
     // failing if the target has no right hand item
 
@@ -620,7 +632,7 @@ Uint8 scr_set_TargetToTargetRightHand( script_state_t * pstate, ai_state_t * pse
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_TargetToWhoeverAttacked( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_TargetToWhoeverAttacked()
+    // SetTargetToWhoeverAttacked()
     // This function sets the target to whoever attacked the character last, failing for damage tiles
 
     SCRIPT_FUNCTION_BEGIN();
@@ -639,7 +651,7 @@ Uint8 scr_set_TargetToWhoeverAttacked( script_state_t * pstate, ai_state_t * pse
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_TargetToWhoeverBumped( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_TargetToWhoeverBumped()
+    // SetTargetToWhoeverBumped()
     // This function sets the target to whoever bumped the character last. It never fails
 
     SCRIPT_FUNCTION_BEGIN();
@@ -652,7 +664,7 @@ Uint8 scr_set_TargetToWhoeverBumped( script_state_t * pstate, ai_state_t * pself
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_TargetToWhoeverCalledForHelp( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_TargetToWhoeverCalledForHelp()
+    // SetTargetToWhoeverCalledForHelp()
     // This function sets the target to whoever called for help last...
 
     SCRIPT_FUNCTION_BEGIN();
@@ -665,7 +677,7 @@ Uint8 scr_set_TargetToWhoeverCalledForHelp( script_state_t * pstate, ai_state_t 
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_TargetToOldTarget( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_TargetToOldTarget( tmpargument )
+    // SetTargetToOldTarget()
     // This function sets the target to the target from last update, used to
     // undo other set_Target functions
 
@@ -679,7 +691,7 @@ Uint8 scr_set_TargetToOldTarget( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_TurnModeToVelocity( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_TurnModeToVelocity()
+    // SetTurnModeToVelocity()
     // This function sets the character's movement mode to the default
 
     SCRIPT_FUNCTION_BEGIN();
@@ -692,7 +704,7 @@ Uint8 scr_set_TurnModeToVelocity( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_TurnModeToWatch( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_TurnModeToWatch()
+    // SetTurnModeToWatch()
     // This function makes the character look at its next waypoint, usually
     // used with close waypoints or the Stop function
 
@@ -706,7 +718,7 @@ Uint8 scr_set_TurnModeToWatch( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_TurnModeToSpin( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_TurnModeToSpin()
+    // SetTurnModeToSpin()
     // This function makes the character spin around in a circle, usually
     // used for magical items and such
 
@@ -721,7 +733,7 @@ Uint8 scr_set_TurnModeToSpin( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_BumpHeight( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_BumpHeight( tmpargument )
+    // SetBumpHeight( tmpargument = "height" )
     // This function makes the character taller or shorter, usually used when
     // the character dies
 
@@ -735,7 +747,7 @@ Uint8 scr_set_BumpHeight( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_TargetHasID( script_state_t * pstate, ai_state_t * pself )
 {
-    // _TargetHasID( tmpargument )
+    // IfTargetHasID( tmpargument = "idsz" )
     // This function proceeds if the target has either a parent or type IDSZ
     // matching tmpargument...
 
@@ -759,7 +771,7 @@ Uint8 scr_TargetHasID( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_TargetHasItemID( script_state_t * pstate, ai_state_t * pself )
 {
-    // _TargetHasItemID( tmpargument )
+    // IfTargetHasItemID( tmpargument = "idsz" )
     // This function proceeds if the target has a matching item in his/her
     // pockets or hands.
 
@@ -823,7 +835,7 @@ Uint8 scr_TargetHasItemID( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_TargetHoldingItemID( script_state_t * pstate, ai_state_t * pself )
 {
-    // _TargetHoldingItemID( tmpargument )
+    // IfTargetHoldingItemID( tmpargument = "idsz" )
     // This function proceeds if the target has a matching item in his/her
     // hands.  It also sets tmpargument to the proper latch button to press
     // to use that item
@@ -871,9 +883,11 @@ Uint8 scr_TargetHoldingItemID( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_TargetHasSkillID( script_state_t * pstate, ai_state_t * pself )
 {
+    // IfTargetHasSkillID( tmpargument = "skill idsz" )
+    // This function proceeds if ID matches tmpargument
+
     SCRIPT_FUNCTION_BEGIN();
 
-    // This function proceeds if ID matches tmpargument
     returncode = bfalse;
 
     returncode = (0 != check_skills( pself->target, ( IDSZ )pstate->argument ));
@@ -884,7 +898,7 @@ Uint8 scr_TargetHasSkillID( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_Else( script_state_t * pstate, ai_state_t * pself )
 {
-    // Else()
+    // Else
     // This function proceeds if the last function failed...  Need padding
     // before it...  See the above function for an example...
 
@@ -943,7 +957,7 @@ Uint8 scr_Sneak( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_DoAction( script_state_t * pstate, ai_state_t * pself )
 {
-    // DoAction( tmpargument )
+    // DoAction( tmpargument = "action" )
     // This function makes the character do a given action if it isn't doing
     // anything better.  Fails if the action is invalid or if the character is doing
     // something else already
@@ -984,7 +998,7 @@ Uint8 scr_KeepAction( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_IssueOrder( script_state_t * pstate, ai_state_t * pself )
 {
-    // IssueOrder( tmpargument  )
+    // IssueOrder( tmpargument = "order"  )
     // This function tells all of the character's teammates to do something,
     // though each teammate needs to interpret the order using _Ordered in
     // its own script...
@@ -1103,7 +1117,7 @@ Uint8 scr_ClosePassage( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_PassageOpen( script_state_t * pstate, ai_state_t * pself )
 {
-    // _PassageOpen( tmpargument = "passage" )
+    // IfPassageOpen( tmpargument = "passage" )
     // This function proceeds if the given passage is valid and open to movement
     // Used mostly by door characters to tell them when to run their open animation.
 
@@ -1275,7 +1289,7 @@ Uint8 scr_DoActionOverride( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_Healed( script_state_t * pstate, ai_state_t * pself )
 {
-    // _Healed()
+    // IfHealed()
     // This function proceeds if the character was healed by a healing particle
 
     SCRIPT_FUNCTION_BEGIN();
@@ -1289,7 +1303,7 @@ Uint8 scr_Healed( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_SendPlayerMessage( script_state_t * pstate, ai_state_t * pself )
 {
-    // SendPlayerMessage()
+    // SendPlayerMessage( tmpargument = "message number" )
     // This function sends a message to the players
 
     SCRIPT_FUNCTION_BEGIN();
@@ -1304,7 +1318,7 @@ Uint8 scr_CallForHelp( script_state_t * pstate, ai_state_t * pself )
 {
     // CallForHelp()
     // This function calls all of the character's teammates for help...  The
-    // teammates must use _CalledForHelp in their scripts
+    // teammates must use IfCalledForHelp in their scripts
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -1332,7 +1346,7 @@ Uint8 scr_AddIDSZ( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_State( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_State( tmpargument = "state" )
+    // SetState( tmpargument = "state" )
     // This function sets the character's state.
     // VERY IMPORTANT... State is preserved from update to update
 
@@ -1350,11 +1364,12 @@ Uint8 scr_set_State( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_get_State( script_state_t * pstate, ai_state_t * pself )
 {
-    // get_State()
+    // tmpargument = GetState()
+    // This function reads the character's state variable
 
     SCRIPT_FUNCTION_BEGIN();
 
-    // This function reads the character's state variable
+    
     pstate->argument = pself->state;
 
     SCRIPT_FUNCTION_END();
@@ -1363,7 +1378,7 @@ Uint8 scr_get_State( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_StateIs( script_state_t * pstate, ai_state_t * pself )
 {
-    // _StateIs( tmpargument = "state" )
+    // IfStateIs( tmpargument = "state" )
     // This function proceeds if the character's state equals tmpargument
 
     SCRIPT_FUNCTION_BEGIN();
@@ -1376,7 +1391,7 @@ Uint8 scr_StateIs( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_TargetCanOpenStuff( script_state_t * pstate, ai_state_t * pself )
 {
-    // _TargetCanOpenStuff()
+    // IfTargetCanOpenStuff()
     // This function proceeds if the target can open stuff ( set in data.txt )
     // Used by chests and buttons and such so only "smart" creatures can operate
     // them
@@ -1393,7 +1408,7 @@ Uint8 scr_TargetCanOpenStuff( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_Grabbed( script_state_t * pstate, ai_state_t * pself )
 {
-    // _Grabbed()
+    // IfGrabbed()
     // This function proceeds if the character was grabbed this update...
     // Used mostly by item characters
 
@@ -1408,7 +1423,7 @@ Uint8 scr_Grabbed( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_Dropped( script_state_t * pstate, ai_state_t * pself )
 {
-    // _Dropped()
+    // IfDropped()
     // This function proceeds if the character was dropped this update...
     // Used mostly by item characters
 
@@ -1423,7 +1438,7 @@ Uint8 scr_Dropped( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_TargetToWhoeverIsHolding( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_TargetToWhoeverIsHolding()
+    // SetTargetToWhoeverIsHolding()
     // This function sets the target to the character's holder or mount,
     // failing if the character is not held
 
@@ -1464,7 +1479,7 @@ Uint8 scr_DamageTarget( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_XIsLessThanY( script_state_t * pstate, ai_state_t * pself )
 {
-    // _XIsLessThanY()
+    // IfXIsLessThanY( tmpx, tmpy )
     // This function proceeds if tmpx is less than tmpy...
 
     SCRIPT_FUNCTION_BEGIN();
@@ -1477,13 +1492,13 @@ Uint8 scr_XIsLessThanY( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_WeatherTime( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_WeatherTime( tmpargument = "time" )
+    // SetWeatherTime( tmpargument = "time" )
     // This function can be used to slow down or speed up or stop rain and
     // other weather effects
 
     SCRIPT_FUNCTION_BEGIN();
 
-    // set_ the weather timer
+    // Set the weather timer
     weather.timer_reset = pstate->argument;
     weather.time = pstate->argument;
 
@@ -1493,7 +1508,7 @@ Uint8 scr_set_WeatherTime( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_get_BumpHeight( script_state_t * pstate, ai_state_t * pself )
 {
-    // tmpargument = get_BumpHeight()
+    // tmpargument = GetBumpHeight()
     // This function sets tmpargument to the character's height
 
     SCRIPT_FUNCTION_BEGIN();
@@ -1506,7 +1521,7 @@ Uint8 scr_get_BumpHeight( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_Reaffirmed( script_state_t * pstate, ai_state_t * pself )
 {
-    // _Reaffirmed()
+    // IfReaffirmed()
     // This function proceeds if the character was damaged by its reaffirm
     // damage type...  Used to relight the torch...
 
@@ -1535,7 +1550,7 @@ Uint8 scr_UnkeepAction( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_TargetIsOnOtherTeam( script_state_t * pstate, ai_state_t * pself )
 {
-    // _TargetIsOnOtherTeam()
+    // IfTargetIsOnOtherTeam()
     // This function proceeds if the target is on another team
 
     SCRIPT_FUNCTION_BEGIN();
@@ -1549,7 +1564,7 @@ Uint8 scr_TargetIsOnOtherTeam( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_TargetIsOnHatedTeam( script_state_t * pstate, ai_state_t * pself )
 {
-    // _TargetIsOnHatedTeam()
+    // IfTargetIsOnHatedTeam()
     // This function proceeds if the target is on an enemy team
 
     SCRIPT_FUNCTION_BEGIN();
@@ -1577,7 +1592,7 @@ Uint8 scr_PressLatchButton( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_TargetToTargetOfLeader( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_TargetToTargetOfLeader()
+    // SetTargetToTargetOfLeader()
     // This function sets the character's target to the target of its leader,
     // or it fails with no change if the leader is dead
 
@@ -1596,7 +1611,7 @@ Uint8 scr_set_TargetToTargetOfLeader( script_state_t * pstate, ai_state_t * psel
 //--------------------------------------------------------------------------------------------
 Uint8 scr_LeaderKilled( script_state_t * pstate, ai_state_t * pself )
 {
-    // _LeaderKilled()
+    // IfLeaderKilled()
     // This function proceeds if the team's leader died this update
 
     SCRIPT_FUNCTION_BEGIN();
@@ -1626,7 +1641,7 @@ Uint8 scr_ChangeTargetArmor( script_state_t * pstate, ai_state_t * pself )
 {
     // ChangeTargetArmor( tmpargument = "armor" )
     // This function sets the armor type of the target...  Used for chests
-    // set_s tmpargument as the old type and tmpx as the new type
+    // Sets tmpargument as the old type and tmpx as the new type
 
     int iTmp;
 
@@ -1687,7 +1702,7 @@ Uint8 scr_DropKeys( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_LeaderIsAlive( script_state_t * pstate, ai_state_t * pself )
 {
-    // _LeaderIsAlive()
+    // IfLeaderIsAlive()
     // This function proceeds if the team has a leader
 
     SCRIPT_FUNCTION_BEGIN();
@@ -1701,7 +1716,7 @@ Uint8 scr_LeaderIsAlive( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_TargetIsOldTarget( script_state_t * pstate, ai_state_t * pself )
 {
-    // _TargetIsOldTarget()
+    // IfTargetIsOldTarget()
     // This function proceeds if the target is the same as it was last update
 
     SCRIPT_FUNCTION_BEGIN();
@@ -1715,7 +1730,7 @@ Uint8 scr_TargetIsOldTarget( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_TargetToLeader( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_TargetToLeader
+    // SetTargetToLeader()
     // This function sets the target to the leader, proceeding if their is
     // a valid leader for the character's team
 
@@ -1737,7 +1752,7 @@ Uint8 scr_set_TargetToLeader( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_SpawnCharacter( script_state_t * pstate, ai_state_t * pself )
 {
-    // SpawnCharacter(tmpx = "x", tmpy = "y", tmpturn = "turn", tmpdistance = "speed" )
+    // SpawnCharacter( tmpx = "x", tmpy = "y", tmpturn = "turn", tmpdistance = "speed" )
 
     // This function spawns a character of the same type as the spawner...
     // This function spawns a character, failing if x,y is invalid
@@ -1823,7 +1838,7 @@ Uint8 scr_ChangeTile( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_Used( script_state_t * pstate, ai_state_t * pself )
 {
-    // _Used()
+    // IfUsed()
     // This function proceeds if the character was used by its holder or rider...
     // Character's cannot be used if their reload time is greater than 0
 
@@ -1853,7 +1868,7 @@ Uint8 scr_DropMoney( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_OldTarget( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_OldTarget()
+    // SetOldTarget()
     // This function sets the old target to the current target...  To allow
     // greater manipulations of the target
 
@@ -1891,7 +1906,7 @@ Uint8 scr_DetachFromHolder( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_TargetHasVulnerabilityID( script_state_t * pstate, ai_state_t * pself )
 {
-    // _TargetHasVulnerabilityID( tmpargument = "vulnerability idsz" )
+    // IfTargetHasVulnerabilityID( tmpargument = "vulnerability idsz" )
     // This function proceeds if the target is vulnerable to the given IDSZ...
 
     cap_t * pcap;
@@ -1929,7 +1944,7 @@ Uint8 scr_CleanUp( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_CleanedUp( script_state_t * pstate, ai_state_t * pself )
 {
-    // _CleanedUp()
+    // IfCleanedUp()
     // This function proceeds if the character is dead and if the boss told it
     // to clean itself up
 
@@ -1944,8 +1959,7 @@ Uint8 scr_CleanedUp( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_Sitting( script_state_t * pstate, ai_state_t * pself )
 {
-    // _Sitting()
-
+    // IfSitting()
     // This function proceeds if the character is riding a mount
 
     SCRIPT_FUNCTION_BEGIN();
@@ -1959,7 +1973,7 @@ Uint8 scr_Sitting( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_TargetIsHurt( script_state_t * pstate, ai_state_t * pself )
 {
-    // _TargetIsHurt()
+    // IfTargetIsHurt()
     // This function passes only if the target is hurt and alive
 
     SCRIPT_FUNCTION_BEGIN();
@@ -1972,7 +1986,7 @@ Uint8 scr_TargetIsHurt( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_TargetIsAPlayer( script_state_t * pstate, ai_state_t * pself )
 {
-    // _TargetIsAPlayer()
+    // IfTargetIsAPlayer()
     // This function proceeds if the target is controlled by a human ( may not be local )
 
     SCRIPT_FUNCTION_BEGIN();
@@ -2004,7 +2018,6 @@ Uint8 scr_PlaySound( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
 {
     // SpawnParticle(tmpargument = "particle", tmpdistance = "character vertex", tmpx = "offset x", tmpy = "offset y" )
-
     // This function spawns a particle, offset from the character's location
 
     int tTmp;
@@ -2013,7 +2026,7 @@ Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
 
     // This function spawns a particle
     sTmp = pself->index;
-    if ( ACTIVE_CHR(pchr->attachedto) )  
+    if ( ACTIVE_CHR(pchr->attachedto) )
     {
         sTmp = pchr->attachedto;
     }
@@ -2051,7 +2064,7 @@ Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_TargetIsAlive( script_state_t * pstate, ai_state_t * pself )
 {
-    // _TargetIsAlive()
+    // IfTargetIsAlive()
     // This function proceeds if the target is alive
 
     SCRIPT_FUNCTION_BEGIN();
@@ -2108,8 +2121,7 @@ Uint8 scr_ReaffirmCharacter( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_TargetIsSelf( script_state_t * pstate, ai_state_t * pself )
 {
-    // _TargetIsSelf()
-
+    // IfTargetIsSelf()
     // This function proceeds if the character is targeting itself
 
     SCRIPT_FUNCTION_BEGIN();
@@ -2122,11 +2134,11 @@ Uint8 scr_TargetIsSelf( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_TargetIsMale( script_state_t * pstate, ai_state_t * pself )
 {
-    // _TargetIsMale()
+    // IfTargetIsMale()
+    // This function proceeds only if the target is male
 
     SCRIPT_FUNCTION_BEGIN();
 
-    // This function proceeds only if the target is male
     returncode = ( ChrList.lst[pself->target].gender == GENDER_MALE );
 
     SCRIPT_FUNCTION_END();
@@ -2135,13 +2147,11 @@ Uint8 scr_TargetIsMale( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_TargetIsFemale( script_state_t * pstate, ai_state_t * pself )
 {
-    // _TargetIsFemale()
-
+    // IfTargetIsFemale()
     // This function proceeds if the target is female
 
     SCRIPT_FUNCTION_BEGIN();
 
-    // This function proceeds only if the target is female
     returncode = ( ChrList.lst[pself->target].gender == GENDER_FEMALE );
 
     SCRIPT_FUNCTION_END();
@@ -2150,7 +2160,7 @@ Uint8 scr_TargetIsFemale( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_TargetToSelf( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_TargetToSelf()
+    // SetTargetToSelf()
     // This function sets the target to the character itself
 
     SCRIPT_FUNCTION_BEGIN();
@@ -2163,7 +2173,7 @@ Uint8 scr_set_TargetToSelf( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_TargetToRider( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_TargetToRider()
+    // SetTargetToRider()
     // This function sets the target to whoever is riding the character (left/only grip),
     // failing if there is no rider
 
@@ -2183,6 +2193,7 @@ Uint8 scr_set_TargetToRider( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_get_AttackTurn( script_state_t * pstate, ai_state_t * pself )
 {
+    // tmpturn = GetAttackTurn()
     // This function sets tmpturn to the direction from which the last attack
     // came.
     // Not particularly useful in most cases, but it could be.
@@ -2197,7 +2208,7 @@ Uint8 scr_get_AttackTurn( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_get_DamageType( script_state_t * pstate, ai_state_t * pself )
 {
-    // get_DamageType()
+    // tmpargument = GetDamageType()
     // This function sets tmpargument to the damage type of the last attack that
     // hit the character
 
@@ -2294,7 +2305,7 @@ Uint8 scr_BecomeSpellbook( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_ScoredAHit( script_state_t * pstate, ai_state_t * pself )
 {
-    // _ScoredAHit()
+    // IfScoredAHit()
     // This function proceeds if the character damaged another character this
     // update... If it's a held character it also sets the target to whoever was hit
 
@@ -2320,7 +2331,7 @@ Uint8 scr_ScoredAHit( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_Disaffirmed( script_state_t * pstate, ai_state_t * pself )
 {
-    // _Disaffirmed()
+    // IfDisaffirmed()
     // This function proceeds if the character was disaffirmed...
     // This doesn't seem useful anymore...
 
@@ -2335,7 +2346,7 @@ Uint8 scr_Disaffirmed( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_TranslateOrder( script_state_t * pstate, ai_state_t * pself )
 {
-    // TranslateOrder()
+    // tmpx,tmpy,tmpargument = TranslateOrder()
     // This function translates a packed order into understandable values...
     // See CreateOrder for more...  This function sets tmpx, tmpy, tmpargument,
     // and possibly sets the target ( which may not be good )
@@ -2361,7 +2372,7 @@ Uint8 scr_TranslateOrder( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_TargetToWhoeverWasHit( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_TargetToWhoeverWasHit()
+    // SetTargetToWhoeverWasHit()
     // This function sets the target to whoever was hit by the character last
 
     SCRIPT_FUNCTION_BEGIN();
@@ -2375,7 +2386,7 @@ Uint8 scr_set_TargetToWhoeverWasHit( script_state_t * pstate, ai_state_t * pself
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_TargetToWideEnemy( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_TargetToWideEnemy()
+    // SetTargetToWideEnemy()
     // This function sets the target to an enemy in the vicinity around the
     // character, failing if there are none
 
@@ -2398,7 +2409,7 @@ Uint8 scr_set_TargetToWideEnemy( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_Changed( script_state_t * pstate, ai_state_t * pself )
 {
-    // _Changed
+    // IfChanged()
     // This function proceeds if the character has changed shape.
     // Needed for morph spells and such
 
@@ -2413,7 +2424,7 @@ Uint8 scr_Changed( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_InWater( script_state_t * pstate, ai_state_t * pself )
 {
-    // _InWater()
+    // IfInWater()
     // This function proceeds if the character has just entered into some water
     // this update ( and the water is really water, not fog or another effect )
 
@@ -2428,7 +2439,7 @@ Uint8 scr_InWater( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_Bored( script_state_t * pstate, ai_state_t * pself )
 {
-    // _Bored()
+    // IfBored()
     // This function proceeds if the character has been standing idle too long
 
     SCRIPT_FUNCTION_BEGIN();
@@ -2442,7 +2453,7 @@ Uint8 scr_Bored( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_TooMuchBaggage( script_state_t * pstate, ai_state_t * pself )
 {
-    // _TooMuchBaggage()
+    // IfTooMuchBaggage()
     // This function proceeds if the character tries to put an item in his/her
     // pockets, but the character already has 6 items in the inventory.
     // Used to tell the players what's going on.
@@ -2457,7 +2468,7 @@ Uint8 scr_TooMuchBaggage( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_Grogged( script_state_t * pstate, ai_state_t * pself )
 {
-    // _Grogged()
+    // IfGrogged()
     // This function proceeds if the character has been grogged ( a type of
     // confusion ) this update
 
@@ -2471,7 +2482,7 @@ Uint8 scr_Grogged( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_Dazed( script_state_t * pstate, ai_state_t * pself )
 {
-    // _Dazed
+    // IfDazed()
     // This function proceeds if the character has been dazed ( a type of
     // confusion ) this update
 
@@ -2486,7 +2497,7 @@ Uint8 scr_Dazed( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_TargetHasSpecialID( script_state_t * pstate, ai_state_t * pself )
 {
-    // _TargetHasSpecialID( tmpargument = "special idsz" )
+    // IfTargetHasSpecialID( tmpargument = "special idsz" )
     // This function proceeds if the character has a special IDSZ ( in data.txt )
 
     cap_t * pcap;
@@ -2521,7 +2532,7 @@ Uint8 scr_PressTargetLatchButton( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_Invisible( script_state_t * pstate, ai_state_t * pself )
 {
-    // _Invisible()
+    // IfInvisible()
     // This function proceeds if the character is invisible
 
     SCRIPT_FUNCTION_BEGIN();
@@ -2535,7 +2546,7 @@ Uint8 scr_Invisible( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_ArmorIs( script_state_t * pstate, ai_state_t * pself )
 {
-    // _ArmorIs( tmpargument = "skin" )
+    // IfArmorIs( tmpargument = "skin" )
     // This function proceeds if the character's skin type equals tmpargument
 
     int tTmp;
@@ -2552,13 +2563,12 @@ Uint8 scr_ArmorIs( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_get_TargetGrogTime( script_state_t * pstate, ai_state_t * pself )
 {
-    // get_TargetGrogTime()
+    // tmpargument = GetTargetGrogTime()
     // This function sets tmpargument to the number of updates before the
     // character is ungrogged, proceeding if the number is greater than 0
 
     SCRIPT_FUNCTION_BEGIN();
 
-    // This function returns tmpargument as the grog time, and passes if it is not 0
     pstate->argument = pchr->grogtime;
     returncode = ( pstate->argument != 0 );
 
@@ -2568,13 +2578,12 @@ Uint8 scr_get_TargetGrogTime( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_get_TargetDazeTime( script_state_t * pstate, ai_state_t * pself )
 {
-    // get_TargetDazeTime()
+    // tmpargument = GetTargetDazeTime()
     // This function sets tmpargument to the number of updates before the
     // character is undazed, proceeding if the number is greater than 0
 
     SCRIPT_FUNCTION_BEGIN();
 
-    // This function returns tmpargument as the daze time, and passes if it is not 0
     pstate->argument = pchr->dazetime;
     returncode = ( pstate->argument != 0 );
 
@@ -2584,7 +2593,7 @@ Uint8 scr_get_TargetDazeTime( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_DamageType( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_DamageType( tmpargument = "damage type" )
+    // SetDamageType( tmpargument = "damage type" )
     // This function lets a weapon change the type of damage it inflicts
 
     SCRIPT_FUNCTION_BEGIN();
@@ -2598,7 +2607,7 @@ Uint8 scr_set_DamageType( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_WaterLevel( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_WaterLevel( tmpargument = "level" )
+    // SetWaterLevel( tmpargument = "level" )
     // This function raises or lowers the water in the module
 
     int iTmp;
@@ -2726,7 +2735,7 @@ Uint8 scr_GiveExperienceToTargetTeam( script_state_t * pstate, ai_state_t * psel
 //--------------------------------------------------------------------------------------------
 Uint8 scr_Unarmed( script_state_t * pstate, ai_state_t * pself )
 {
-    // _Unarmed()
+    // IfUnarmed()
     // This function proceeds if the character is holding no items in hand.
 
     SCRIPT_FUNCTION_BEGIN();
@@ -2821,7 +2830,7 @@ Uint8 scr_FlashTarget( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_RedShift( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_RedShift( tmpargument = "red darkening" )
+    // SetRedShift( tmpargument = "red darkening" )
     // This function sets the character's red shift ( 0 - 3 ), higher values
     // making the character less red and darker
 
@@ -2836,7 +2845,7 @@ Uint8 scr_set_RedShift( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_GreenShift( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_GreenShift( tmpargument = "green darkening" )
+    // SetGreenShift( tmpargument = "green darkening" )
     // This function sets the character's green shift ( 0 - 3 ), higher values
     // making the character less red and darker
 
@@ -2851,7 +2860,7 @@ Uint8 scr_set_GreenShift( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_BlueShift( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_BlueShift( tmpargument = "blue darkening" )
+    // SetBlueShift( tmpargument = "blue darkening" )
     // This function sets the character's blue shift ( 0 - 3 ), higher values
     // making the character less red and darker
 
@@ -2866,7 +2875,7 @@ Uint8 scr_set_BlueShift( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_Light( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_Light( tmpargument = "lighness" )
+    // SetLight( tmpargument = "lighness" )
     // This function alters the character's transparency ( 0 - 254 )
     // 255 = no transparency
 
@@ -2880,7 +2889,7 @@ Uint8 scr_set_Light( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_Alpha( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_Alpha( tmpargument = "alpha" )
+    // SetAlpha( tmpargument = "alpha" )
     // This function alters the character's transparency ( 0 - 255 )
     // 255 = no transparency
 
@@ -2895,7 +2904,7 @@ Uint8 scr_set_Alpha( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_HitFromBehind( script_state_t * pstate, ai_state_t * pself )
 {
-    // _HitFromBehind()
+    // IfHitFromBehind()
     // This function proceeds if the last attack to the character came from behind
 
     SCRIPT_FUNCTION_BEGIN();
@@ -2910,7 +2919,7 @@ Uint8 scr_HitFromBehind( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_HitFromFront( script_state_t * pstate, ai_state_t * pself )
 {
-    // _HitFromFront()
+    // IfHitFromFront()
     // This function proceeds if the last attack to the character came
     // from the front
 
@@ -2926,7 +2935,7 @@ Uint8 scr_HitFromFront( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_HitFromLeft( script_state_t * pstate, ai_state_t * pself )
 {
-    // _HitFromLeft()
+    // IfHitFromLeft()
     // This function proceeds if the last attack to the character came
     // from the left
 
@@ -2943,7 +2952,7 @@ Uint8 scr_HitFromLeft( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_HitFromRight( script_state_t * pstate, ai_state_t * pself )
 {
-    // _HitFromRight()
+    // IfHitFromRight()
     // This function proceeds if the last attack to the character came
     // from the right
 
@@ -2959,7 +2968,7 @@ Uint8 scr_HitFromRight( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_TargetIsOnSameTeam( script_state_t * pstate, ai_state_t * pself )
 {
-    // _TargetIsOnSameTeam()
+    // IfTargetIsOnSameTeam()
     // This function proceeds if the target is on the character's team
 
     SCRIPT_FUNCTION_BEGIN();
@@ -2980,7 +2989,7 @@ Uint8 scr_KillTarget( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     sTmp = pself->index;
-    if ( ACTIVE_CHR(pchr->attachedto) && !ChrList.lst[pchr->attachedto].ismount ) 
+    if ( ACTIVE_CHR(pchr->attachedto) && !ChrList.lst[pchr->attachedto].ismount )
     {
         sTmp = pchr->attachedto;
     }
@@ -3010,7 +3019,7 @@ Uint8 scr_UndoEnchant( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_get_WaterLevel( script_state_t * pstate, ai_state_t * pself )
 {
-    // get_WaterLevel()
+    // tmpargument = GetWaterLevel()
     // This function sets tmpargument to the current douse level for the water * 10.
     // A waterlevel in wawalight of 85 would set tmpargument to 850
 
@@ -3038,7 +3047,7 @@ Uint8 scr_CostTargetMana( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_TargetHasAnyID( script_state_t * pstate, ai_state_t * pself )
 {
-    // _TargetHasAnyID( tmpargument = "idsz" )
+    // IfTargetHasAnyID( tmpargument = "idsz" )
     // This function proceeds if the target has any IDSZ that matches the given one
 
     cap_t * pcap;
@@ -3067,7 +3076,7 @@ Uint8 scr_TargetHasAnyID( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_BumpSize( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_BumpSize( tmpargument = "size" )
+    // SetBumpSize( tmpargument = "size" )
     // This function sets the how wide the character is
 
     SCRIPT_FUNCTION_BEGIN();
@@ -3080,7 +3089,7 @@ Uint8 scr_set_BumpSize( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_NotDropped( script_state_t * pstate, ai_state_t * pself )
 {
-    // _NotDropped()
+    // IfNotDropped()
     // This function proceeds if the character is kursed and another character
     // was holding it and tried to drop it
 
@@ -3094,7 +3103,7 @@ Uint8 scr_NotDropped( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_YIsLessThanX( script_state_t * pstate, ai_state_t * pself )
 {
-    // _YIsLessThanX()
+    // IfYIsLessThanX()
     // This function proceeds if tmpy is less than tmpx
 
     SCRIPT_FUNCTION_BEGIN();
@@ -3108,7 +3117,7 @@ Uint8 scr_YIsLessThanX( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_FlyHeight( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_FlyHeight( tmpargument = "height" )
+    // SetFlyHeight( tmpargument = "height" )
     // This function makes the character fly ( or fall to ground if 0 )
 
     SCRIPT_FUNCTION_BEGIN();
@@ -3122,7 +3131,7 @@ Uint8 scr_set_FlyHeight( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_Blocked( script_state_t * pstate, ai_state_t * pself )
 {
-    // _Blocked()
+    // IfBlocked()
     // This function proceeds if the character blocked the attack of another
     // character this update
 
@@ -3137,7 +3146,7 @@ Uint8 scr_Blocked( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_TargetIsDefending( script_state_t * pstate, ai_state_t * pself )
 {
-    // _TargetIsDefending()
+    // IfTargetIsDefending()
     // This function proceeds if the target is holding up a shield or similar
     // defense
 
@@ -3151,7 +3160,7 @@ Uint8 scr_TargetIsDefending( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_TargetIsAttacking( script_state_t * pstate, ai_state_t * pself )
 {
-    // _TargetIsAttacking()
+    // IfTargetIsAttacking()
     // This function proceeds if the target is doing an attack action
 
     SCRIPT_FUNCTION_BEGIN();
@@ -3244,7 +3253,7 @@ Uint8 scr_StateIs7( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_ContentIs( script_state_t * pstate, ai_state_t * pself )
 {
-    // _ContentIs( tmpargument = "test" )
+    // IfContentIs( tmpargument = "test" )
     // This function proceeds if the content matches tmpargument
 
     SCRIPT_FUNCTION_BEGIN();
@@ -3257,7 +3266,7 @@ Uint8 scr_ContentIs( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_TurnModeToWatchTarget( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_TurnModeToWatchTarget()
+    // SetTurnModeToWatchTarget()
     // This function makes the character face its target, no matter what
     // direction it is moving in...  Undo this with set_TurnModeToVelocity
 
@@ -3272,7 +3281,7 @@ Uint8 scr_set_TurnModeToWatchTarget( script_state_t * pstate, ai_state_t * pself
 //--------------------------------------------------------------------------------------------
 Uint8 scr_StateIsNot( script_state_t * pstate, ai_state_t * pself )
 {
-    // _StateIsNot( tmpargument = "test" )
+    // IfStateIsNot( tmpargument = "test" )
     // This function proceeds if the character's state does not equal tmpargument
 
     SCRIPT_FUNCTION_BEGIN();
@@ -3345,7 +3354,7 @@ Uint8 scr_SendMessageNear( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_HitGround( script_state_t * pstate, ai_state_t * pself )
 {
-    // _HitGround()
+    // IfHitGround()
     // This function proceeds if a character hit the ground this update...
     // Used to determine when to play the sound for a dropped item
 
@@ -3360,7 +3369,7 @@ Uint8 scr_HitGround( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_NameIsKnown( script_state_t * pstate, ai_state_t * pself )
 {
-    // _NameIsKnown()
+    // IfNameIsKnown()
     // This function proceeds if the character's name is known
 
     SCRIPT_FUNCTION_BEGIN();
@@ -3373,7 +3382,7 @@ Uint8 scr_NameIsKnown( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_UsageIsKnown( script_state_t * pstate, ai_state_t * pself )
 {
-    // _UsageIsKnown()
+    // IfUsageIsKnown()
     // This function proceeds if the character's usage is known
 
     cap_t * pcap;
@@ -3394,7 +3403,7 @@ Uint8 scr_UsageIsKnown( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_HoldingItemID( script_state_t * pstate, ai_state_t * pself )
 {
-    // _HoldingItemID( tmpargument = "idsz" )
+    // IfHoldingItemID( tmpargument = "idsz" )
     // This function proceeds if the character is holding a specified item
     // in hand, setting tmpargument to the latch button to press to use it
 
@@ -3442,7 +3451,7 @@ Uint8 scr_HoldingItemID( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_HoldingRangedWeapon( script_state_t * pstate, ai_state_t * pself )
 {
-    // _HoldingRangedWeapon()
+    // IfHoldingRangedWeapon()
     // This function passes if the character is holding a ranged weapon, returning
     // the latch to press to use it.  This also checks ammo/ammoknown.
 
@@ -3496,7 +3505,7 @@ Uint8 scr_HoldingRangedWeapon( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_HoldingMeleeWeapon( script_state_t * pstate, ai_state_t * pself )
 {
-    // _HoldingMeleeWeapon()
+    // IfHoldingMeleeWeapon()
     // This function proceeds if the character is holding a specified item
     // in hand, setting tmpargument to the latch button to press to use it
 
@@ -3546,7 +3555,7 @@ Uint8 scr_HoldingMeleeWeapon( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_HoldingShield( script_state_t * pstate, ai_state_t * pself )
 {
-    // _HoldingShield()
+    // IfHoldingShield()
     // This function proceeds if the character is holding a specified item
     // in hand, setting tmpargument to the latch button to press to use it.
     // The button will need to be held down.
@@ -3594,7 +3603,7 @@ Uint8 scr_HoldingShield( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_Kursed( script_state_t * pstate, ai_state_t * pself )
 {
-    // _Kursed()
+    // IfKursed()
     // This function proceeds if the character is kursed
 
     SCRIPT_FUNCTION_BEGIN();
@@ -3608,7 +3617,7 @@ Uint8 scr_Kursed( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_TargetIsKursed( script_state_t * pstate, ai_state_t * pself )
 {
-    // _TargetIsKursed()
+    // IfTargetIsKursed()
     // This function proceeds if the target is kursed
 
     SCRIPT_FUNCTION_BEGIN();
@@ -3621,7 +3630,7 @@ Uint8 scr_TargetIsKursed( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_TargetIsDressedUp( script_state_t * pstate, ai_state_t * pself )
 {
-    // _TargetIsDressedUp()
+    // IfTargetIsDressedUp()
     // This function proceeds if the target is dressed in fancy clothes
 
     cap_t * pcap;
@@ -3642,7 +3651,7 @@ Uint8 scr_TargetIsDressedUp( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_OverWater( script_state_t * pstate, ai_state_t * pself )
 {
-    // _OverWater()
+    // IfOverWater()
     // This function proceeds if the character is on a water tile
 
     SCRIPT_FUNCTION_BEGIN();
@@ -3659,7 +3668,7 @@ Uint8 scr_OverWater( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_Thrown( script_state_t * pstate, ai_state_t * pself )
 {
-    // _Thrown()
+    // IfThrown()
     // This function proceeds if the character was thrown this update.
 
     SCRIPT_FUNCTION_BEGIN();
@@ -3713,7 +3722,7 @@ Uint8 scr_StopTargetMovement( script_state_t * pstate, ai_state_t * pself )
 {
     // StopTargetMovement()
     // This function makes the target stop moving temporarily
-    // set_s the target's x and y velocities to 0, and
+    // Sets the target's x and y velocities to 0, and
     // sets the z velocity to 0 if the character is moving upwards.
     // This is a special function for the IronBall object
 
@@ -3729,7 +3738,7 @@ Uint8 scr_StopTargetMovement( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_XY( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_XY( tmpargument = "index", tmpx = "x", tmpy = "y" )
+    // SetXY( tmpargument = "index", tmpx = "x", tmpy = "y" )
     // This function sets one of the 8 permanent storage variable slots
     // ( each of which holds an x,y pair )
 
@@ -3744,7 +3753,7 @@ Uint8 scr_set_XY( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_get_XY( script_state_t * pstate, ai_state_t * pself )
 {
-    // get_XY( tmpargument = "index" )
+    // tmpx,tmpy = GetXY( tmpargument = "index" )
     // This function reads one of the 8 permanent storage variable slots,
     // setting tmpx and tmpy accordingly
 
@@ -3795,7 +3804,7 @@ Uint8 scr_SpawnAttachedParticle( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     sTmp = pself->index;
-    if ( ACTIVE_CHR(pchr->attachedto) )  
+    if ( ACTIVE_CHR(pchr->attachedto) )
     {
         sTmp = pchr->attachedto;
     }
@@ -3818,7 +3827,7 @@ Uint8 scr_SpawnExactParticle( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     sTmp = pself->index;
-    if ( ACTIVE_CHR(pchr->attachedto) )  
+    if ( ACTIVE_CHR(pchr->attachedto) )
     {
         sTmp = pchr->attachedto;
     }
@@ -3850,7 +3859,7 @@ Uint8 scr_AccelerateTarget( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_distanceIsMoreThanTurn( script_state_t * pstate, ai_state_t * pself )
 {
-    // _distanceIsMoreThanTurn()
+    // IfdistanceIsMoreThanTurn()
     // This function proceeds tmpdistance is greater than tmpturn
 
     SCRIPT_FUNCTION_BEGIN();
@@ -3863,7 +3872,7 @@ Uint8 scr_distanceIsMoreThanTurn( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_Crushed( script_state_t * pstate, ai_state_t * pself )
 {
-    // _Crushed()
+    // IfCrushed()
     // This function proceeds if the character was crushed in a passage this
     // update...
 
@@ -3892,7 +3901,7 @@ Uint8 scr_MakeCrushValid( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_TargetToLowestTarget( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_TargetToLowestTarget()
+    // SetTargetToLowestTarget()
     // This function sets the target to the absolute bottom character.
     // The holder of the target, or the holder of the holder of the target, or
     // the holder of the holder of ther holder of the target, etc.
@@ -3912,7 +3921,7 @@ Uint8 scr_set_TargetToLowestTarget( script_state_t * pstate, ai_state_t * pself 
 //--------------------------------------------------------------------------------------------
 Uint8 scr_NotPutAway( script_state_t * pstate, ai_state_t * pself )
 {
-    // _NotPutAway()
+    // IfNotPutAway()
     // This function proceeds if the character couldn't be put into another
     // character's pockets for some reason.
     // It might be kursed or too big or something
@@ -3928,7 +3937,7 @@ Uint8 scr_NotPutAway( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_TakenOut( script_state_t * pstate, ai_state_t * pself )
 {
-    // _TakenOut()
+    // IfTakenOut()
     // This function proceeds if the character is equiped in another's inventory,
     // and the holder tried to unequip it ( take it out of pack ), but the
     // item was kursed and didn't cooperate
@@ -3944,7 +3953,7 @@ Uint8 scr_TakenOut( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_AmmoOut( script_state_t * pstate, ai_state_t * pself )
 {
-    // _AmmoOut()
+    // IfAmmoOut()
     // This function proceeds if the character itself has no ammo left.
     // This is for crossbows and such, not archers.
 
@@ -4052,7 +4061,7 @@ Uint8 scr_Equip( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_TargetHasItemIDEquipped( script_state_t * pstate, ai_state_t * pself )
 {
-    // _TargetHasItemIDEquipped( tmpargument = "item idsz" )
+    // IfTargetHasItemIDEquipped( tmpargument = "item idsz" )
     // This function proceeds if the target already wearing a matching item
 
     SCRIPT_FUNCTION_BEGIN();
@@ -4082,7 +4091,7 @@ Uint8 scr_TargetHasItemIDEquipped( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_OwnerToTarget( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_OwnerToTarget()
+    // SetOwnerToTarget()
     // This function must be called before enchanting anything.
     // The owner is the character that pays the sustain costs and such for the enchantment
 
@@ -4096,7 +4105,7 @@ Uint8 scr_set_OwnerToTarget( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_TargetToOwner( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_TargetToOwner()
+    // SetTargetToOwner()
     // This function sets the target to whoever was previously declared as the
     // owner.
 
@@ -4111,7 +4120,7 @@ Uint8 scr_set_TargetToOwner( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_Frame( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_Frame( tmpargument = "frame" )
+    // SetFrame( tmpargument = "frame" )
     // This function sets the current .MD2 frame for the character...  Values are * 4
 
     int iTmp;
@@ -4145,7 +4154,7 @@ Uint8 scr_BreakPassage( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_ReloadTime( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_ReloadTime( tmpargument = "time" )
+    // SetReloadTime( tmpargument = "time" )
     // This function stops a character from being used for a while...  Used
     // by weapons to slow down their attack rate...  50 clicks per second...
 
@@ -4161,7 +4170,7 @@ Uint8 scr_set_ReloadTime( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_TargetToWideBlahID( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_TargetToWideBlahID( tmpargument = "idsz", tmpdistance = "blah bits" )
+    // SetTargetToWideBlahID( tmpargument = "idsz", tmpdistance = "blah bits" )
     // This function sets the target to a character that matches the description,
     // and who is located in the general vicinity of the character
 
@@ -4270,7 +4279,7 @@ Uint8 scr_SpawnPoof( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_SpeedPercent( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_SpeedPercent( tmpargument = "percent" )
+    // SetSpeedPercent( tmpargument = "percent" )
     // This function acts like Run or Walk, except it allows the explicit
     // setting of the speed
 
@@ -4285,7 +4294,7 @@ Uint8 scr_set_SpeedPercent( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_ChildState( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_ChildState( tmpargument = "state" )
+    // SetChildState( tmpargument = "state" )
     // This function lets a character set the state of the last character it
     // spawned
 
@@ -4310,7 +4319,7 @@ Uint8 scr_SpawnAttachedSizedParticle( script_state_t * pstate, ai_state_t * psel
 
     // This function spawns an attached particle, then sets its size
     sTmp = pself->index;
-    if ( ACTIVE_CHR(pchr->attachedto) )  
+    if ( ACTIVE_CHR(pchr->attachedto) )
     {
         sTmp = pchr->attachedto;
     }
@@ -4332,7 +4341,7 @@ Uint8 scr_ChangeArmor( script_state_t * pstate, ai_state_t * pself )
 {
     // ChangeArmor( tmpargument = "time" )
     // This function changes the character's armor.
-    // set_s tmpargument as the old type and tmpx as the new type
+    // Sets tmpargument as the old type and tmpx as the new type
 
     int iTmp;
 
@@ -4367,7 +4376,7 @@ Uint8 scr_ShowTimer( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_FacingTarget( script_state_t * pstate, ai_state_t * pself )
 {
-    // _FacingTarget()
+    // IfFacingTarget()
     // This function proceeds if the character is more or less facing its
     // target
 
@@ -4384,12 +4393,15 @@ Uint8 scr_FacingTarget( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_PlaySoundVolume( script_state_t * pstate, ai_state_t * pself )
 {
+    // PlaySoundVolume( argument = "sound", distance = "volume" )
+    // This function sets the volume of a sound and plays it
+
     int iTmp;
     int volume;
 
     SCRIPT_FUNCTION_BEGIN();
 
-    // This function sets the volume of a sound and plays it
+    
     if ( pstate->distance >= 0 )
     {
         volume = pstate->distance;
@@ -4422,7 +4434,7 @@ Uint8 scr_SpawnAttachedFacedParticle( script_state_t * pstate, ai_state_t * psel
 
     // This function spawns an attached particle with facing
     sTmp = pself->index;
-    if ( ACTIVE_CHR(pchr->attachedto) )  
+    if ( ACTIVE_CHR(pchr->attachedto) )
     {
         sTmp = pchr->attachedto;
     }
@@ -4437,7 +4449,7 @@ Uint8 scr_SpawnAttachedFacedParticle( script_state_t * pstate, ai_state_t * psel
 //--------------------------------------------------------------------------------------------
 Uint8 scr_StateIsOdd( script_state_t * pstate, ai_state_t * pself )
 {
-    // _StateIsOdd()
+    // IfStateIsOdd()
     // This function proceeds if the character's state is 1, 3, 5, 7, etc.
 
     SCRIPT_FUNCTION_BEGIN();
@@ -4450,7 +4462,7 @@ Uint8 scr_StateIsOdd( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_TargetToDistantEnemy( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_TargetToDistantEnemy( tmpdistance = "distance" )
+    // SetTargetToDistantEnemy( tmpdistance = "distance" )
     // This function finds a character within a certain distance of the
     // character, failing if there are none
 
@@ -4816,7 +4828,7 @@ Uint8 scr_SpawnAttachedHolderParticle( script_state_t * pstate, ai_state_t * pse
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_TargetReloadTime( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_TargetReloadTime( tmpargument = "time" )
+    // SetTargetReloadTime( tmpargument = "time" )
 
     // This function sets the target's reload time
     // This function stops the target from attacking for a while.
@@ -4832,7 +4844,7 @@ Uint8 scr_set_TargetReloadTime( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_FogLevel( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_FogLevel( tmpargument = "level" )
+    // SetFogLevel( tmpargument = "level" )
     // This function sets the level of the module's fog.
     // Values are * 10
     // !!BAD!! DOESN'T WORK !!BAD!!
@@ -4853,7 +4865,7 @@ Uint8 scr_set_FogLevel( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_get_FogLevel( script_state_t * pstate, ai_state_t * pself )
 {
-    // tmpargument = get_FogLevel()
+    // tmpargument = GetFogLevel()
     // This function sets tmpargument to the level of the module's fog...
     // Values are * 10
 
@@ -4885,7 +4897,7 @@ Uint8 scr_set_FogTAD( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_FogBottomLevel( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_FogBottomLevel( tmpargument = "level" )
+    // SetFogBottomLevel( tmpargument = "level" )
 
     // This function sets the level of the module's fog.
     // Values are * 10
@@ -4906,7 +4918,7 @@ Uint8 scr_set_FogBottomLevel( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_get_FogBottomLevel( script_state_t * pstate, ai_state_t * pself )
 {
-    // tmpargument = get_FogBottomLevel()
+    // tmpargument = GetFogBottomLevel()
 
     // This function sets tmpargument to the level of the module's fog.
     // Values are * 10
@@ -4947,7 +4959,7 @@ Uint8 scr_CorrectActionForHand( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_TargetIsMounted( script_state_t * pstate, ai_state_t * pself )
 {
-    // _TargetIsMounted()
+    // IfTargetIsMounted()
     // This function proceeds if the target is riding a mount
 
     SCRIPT_FUNCTION_BEGIN();
@@ -5003,7 +5015,7 @@ Uint8 scr_UnsparkleIcon( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_get_TileXY( script_state_t * pstate, ai_state_t * pself )
 {
-    // get_TileXY( tmpx = "x", tmpy = "y" )
+    // tmpargument = GetTileXY( tmpx = "x", tmpy = "y" )
     // This function sets tmpargument to the tile type at the specified
     // coordinates
 
@@ -5041,7 +5053,7 @@ Uint8 scr_set_TileXY( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_ShadowSize( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_ShadowSize( tmpargument = "size" )
+    // SetShadowSize( tmpargument = "size" )
     // This function makes the character's shadow bigger or smaller
 
     SCRIPT_FUNCTION_BEGIN();
@@ -5076,7 +5088,7 @@ Uint8 scr_OrderTarget( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_TargetToWhoeverIsInPassage( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_TargetToWhoeverIsInPassage()
+    // SetTargetToWhoeverIsInPassage()
     // This function sets the target to whoever is blocking the given passage
     // This function lets passage rectangles be used as event triggers
 
@@ -5115,7 +5127,7 @@ Uint8 scr_CharacterWasABook( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_EnchantBoostValues( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_EnchantBoostValues( tmpargument = "owner mana regen", tmpdistance = "owner life regen", tmpx = "target mana regen", tmpy = "target life regen" )
+    // SetEnchantBoostValues( tmpargument = "owner mana regen", tmpdistance = "owner life regen", tmpx = "target mana regen", tmpy = "target life regen" )
     // This function sets the mana and life drains for the last enchantment
     // spawned by this character.
     // Values are * 256
@@ -5285,7 +5297,7 @@ Uint8 scr_SpawnExactChaseParticle( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     sTmp = pself->index;
-    if ( ACTIVE_CHR(pchr->attachedto) )  
+    if ( ACTIVE_CHR(pchr->attachedto) )
     {
         sTmp = pchr->attachedto;
     }
@@ -5367,7 +5379,7 @@ Uint8 scr_UnkurseTargetInventory( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_TargetIsSneaking( script_state_t * pstate, ai_state_t * pself )
 {
-    // _TargetIsSneaking()
+    // IfTargetIsSneaking()
     // This function proceeds if the target is doing ACTION_WA or ACTION_DA
 
     SCRIPT_FUNCTION_BEGIN();
@@ -5440,7 +5452,7 @@ Uint8 scr_TargetDoActionSetFrame( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_TargetCanSeeInvisible( script_state_t * pstate, ai_state_t * pself )
 {
-    // _TargetCanSeeInvisible()
+    // IfTargetCanSeeInvisible()
     // This function proceeds if the target can see invisible
 
     SCRIPT_FUNCTION_BEGIN();
@@ -5454,7 +5466,7 @@ Uint8 scr_TargetCanSeeInvisible( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_TargetToNearestBlahID( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_TargetToNearestBlahID( tmpargument = "idsz", tmpdistance = "blah bits" )
+    // SetTargetToNearestBlahID( tmpargument = "idsz", tmpdistance = "blah bits" )
 
     // This function finds the NEAREST ( exact ) character that fits the given
     // parameters, failing if it finds none
@@ -5489,7 +5501,7 @@ Uint8 scr_set_TargetToNearestBlahID( script_state_t * pstate, ai_state_t * pself
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_TargetToNearestEnemy( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_TargetToNearestEnemy()
+    // SetTargetToNearestEnemy()
     // This function finds the NEAREST ( exact ) enemy, failing if it finds none
 
     Uint16 ichr;
@@ -5510,7 +5522,7 @@ Uint8 scr_set_TargetToNearestEnemy( script_state_t * pstate, ai_state_t * pself 
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_TargetToNearestFriend( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_TargetToNearestFriend()
+    // SetTargetToNearestFriend()
     // This function finds the NEAREST ( exact ) friend, failing if it finds none
 
     Uint16 ichr;
@@ -5531,7 +5543,7 @@ Uint8 scr_set_TargetToNearestFriend( script_state_t * pstate, ai_state_t * pself
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_TargetToNearestLifeform( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_TargetToNearestLifeform()
+    // SetTargetToNearestLifeform()
 
     // This function finds the NEAREST ( exact ) friend or enemy, failing if it
     // finds none
@@ -5589,7 +5601,7 @@ Uint8 scr_FindTileInPassage( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_HeldInLeftHand( script_state_t * pstate, ai_state_t * pself )
 {
-    // _HeldInLeftHand()
+    // IfHeldInLeftHand()
     // This function passes if another character is holding the character in its
     // left hand.
     // Usage: Used mostly by enchants that target the item of the other hand
@@ -5625,7 +5637,7 @@ Uint8 scr_NotAnItem( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_ChildAmmo( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_ChildAmmo( tmpargument = "none" )
+    // SetChildAmmo( tmpargument = "none" )
     // This function sets the ammo of the last character spawned by this character
 
     SCRIPT_FUNCTION_BEGIN();
@@ -5638,7 +5650,7 @@ Uint8 scr_set_ChildAmmo( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_HitVulnerable( script_state_t * pstate, ai_state_t * pself )
 {
-    // _HitVulnerable()
+    // IfHitVulnerable()
     // This function proceeds if the character was hit by a weapon of its
     // vulnerability IDSZ.
     // For example, a werewolf gets hit by a [SILV] bullet.
@@ -5655,7 +5667,7 @@ Uint8 scr_HitVulnerable( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_TargetIsFlying( script_state_t * pstate, ai_state_t * pself )
 {
-    // _TargetIsFlying()
+    // IfTargetIsFlying()
     // This function proceeds if the character target is flying
 
     SCRIPT_FUNCTION_BEGIN();
@@ -5750,7 +5762,7 @@ Uint8 scr_EnableExport( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_get_TargetState( script_state_t * pstate, ai_state_t * pself )
 {
-    // tmpargument = get_TargetState()
+    // tmpargument = GetTargetState()
     // This function sets tmpargument to the state of the target
 
     SCRIPT_FUNCTION_BEGIN();
@@ -5786,9 +5798,11 @@ Uint8 scr_DropTargetMoney( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_get_TargetContent( script_state_t * pstate, ai_state_t * pself )
 {
-    SCRIPT_FUNCTION_BEGIN();
-
+    // tmpargument = GetTargetContent()
     // This sets tmpargument to the current Target's content value
+
+    SCRIPT_FUNCTION_BEGIN();
+    
     pstate->argument = ChrList.lst[pself->target].ai.content;
 
     SCRIPT_FUNCTION_END();
@@ -5882,7 +5896,7 @@ Uint8 scr_PlayMusic( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_MusicPassage( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_MusicPassage( tmpargument = "passage", tmpturn = "type", tmpdistance = "repetitions" )
+    // SetMusicPassage( tmpargument = "passage", tmpturn = "type", tmpdistance = "repetitions" )
 
     // This function makes the given passage play music if a player enters it
     // tmpargument is the passage to set and tmpdistance is the music track to play...
@@ -5963,7 +5977,7 @@ Uint8 scr_FlashVariableHeight( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_DamageTime( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_DamageTime( tmpargument = "time" )
+    // SetDamageTime( tmpargument = "time" )
     // This function makes the character invincible for a little while
 
     SCRIPT_FUNCTION_BEGIN();
@@ -6056,7 +6070,7 @@ Uint8 scr_StateIs15( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_TargetIsAMount( script_state_t * pstate, ai_state_t * pself )
 {
-    // _TargetIsAMount()
+    // IfTargetIsAMount()
     // This function passes if the Target is a mountable character
 
     SCRIPT_FUNCTION_BEGIN();
@@ -6069,7 +6083,7 @@ Uint8 scr_TargetIsAMount( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_TargetIsAPlatform( script_state_t * pstate, ai_state_t * pself )
 {
-    // _TargetIsAPlatform()
+    // IfTargetIsAPlatform()
     // This function passes if the Target is a platform character
 
     SCRIPT_FUNCTION_BEGIN();
@@ -6132,7 +6146,7 @@ Uint8 scr_DisenchantAll( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_VolumeNearestTeammate( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_VolumeNearestTeammate( tmpargument = "sound", tmpdistance = "distance" )
+    // SetVolumeNearestTeammate( tmpargument = "sound", tmpdistance = "distance" )
     // This function lets insects buzz correctly...  The closest Team member
     // is used to determine the overall sound level.
 
@@ -6283,7 +6297,7 @@ Uint8 scr_PitsKill( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_TargetToPassageID( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_TargetToPassageID( tmpargument = "passage", tmpdistance = "idsz" )
+    // SetTargetToPassageID( tmpargument = "passage", tmpdistance = "idsz" )
     // This function finds a character who is both in the passage and who has
     // an item with the given IDSZ
 
@@ -6328,7 +6342,7 @@ Uint8 scr_SpawnExactParticleEndSpawn( script_state_t * pstate, ai_state_t * psel
     SCRIPT_FUNCTION_BEGIN();
 
     sTmp = pself->index;
-    if ( ACTIVE_CHR(pchr->attachedto) )  
+    if ( ACTIVE_CHR(pchr->attachedto) )
     {
         sTmp = pchr->attachedto;
     }
@@ -6469,9 +6483,11 @@ Uint8 scr_DazeTarget( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_EnableRespawn( script_state_t * pstate, ai_state_t * pself )
 {
-    SCRIPT_FUNCTION_BEGIN();
-
+    // EnableRespawn()
     // This function turns respawn with JUMP button on
+
+    SCRIPT_FUNCTION_BEGIN();
+    
     PMod->respawnvalid = btrue;
 
     SCRIPT_FUNCTION_END();
@@ -6480,9 +6496,11 @@ Uint8 scr_EnableRespawn( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_DisableRespawn( script_state_t * pstate, ai_state_t * pself )
 {
+    // DisableRespawn()
+    // This function turns respawn with JUMP button off
+
     SCRIPT_FUNCTION_BEGIN();
 
-    // This function turns respawn with JUMP button off
     PMod->respawnvalid = bfalse;
 
     SCRIPT_FUNCTION_END();
@@ -6491,9 +6509,11 @@ Uint8 scr_DisableRespawn( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_HolderBlocked( script_state_t * pstate, ai_state_t * pself )
 {
+    // IfHolderBlocked()
+    // This function passes if the holder blocked an attack
+
     SCRIPT_FUNCTION_BEGIN();
 
-    // This function passes if the holder blocked an attack
     returncode = bfalse;
     if ( HAS_SOME_BITS( ChrList.lst[pchr->attachedto].ai.alert, ALERTIF_BLOCKED ) )
     {
@@ -6505,22 +6525,13 @@ Uint8 scr_HolderBlocked( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-// Uint8 scr_get_SkillLevel( script_state_t * pstate, ai_state_t * pself )
-// {
-//   SCRIPT_FUNCTION_BEGIN();
-
-//   // This function sets tmpargument to the shield profiency level of the Target
-//   pstate->argument = CapList[pchr->attachedto].shieldprofiency;
-
-//   SCRIPT_FUNCTION_END();
-// }
-
-//--------------------------------------------------------------------------------------------
 Uint8 scr_TargetHasNotFullMana( script_state_t * pstate, ai_state_t * pself )
 {
+    // IfTargetHasNotFullMana()
+    // This function passes only if the Target is not at max mana and alive
+
     SCRIPT_FUNCTION_BEGIN();
 
-    // This function passes only if the Target is not at max mana and alive
     if ( !ChrList.lst[pself->target].alive || ChrList.lst[pself->target].mana > ChrList.lst[pself->target].manamax - HURTDAMAGE )
         returncode = bfalse;
 
@@ -6530,9 +6541,11 @@ Uint8 scr_TargetHasNotFullMana( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_EnableListenSkill( script_state_t * pstate, ai_state_t * pself )
 {
+    // EnableListenSkill()
+    // This function increases sound play range by 25%
+
     SCRIPT_FUNCTION_BEGIN();
 
-    // This function increases sound play range by 25%
     local_listening = btrue;
 
     SCRIPT_FUNCTION_END();
@@ -6541,9 +6554,11 @@ Uint8 scr_EnableListenSkill( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_TargetToLastItemUsed( script_state_t * pstate, ai_state_t * pself )
 {
+    // SetTargetToLastItemUsed()
+    // This sets the Target to the last item the character used
+
     SCRIPT_FUNCTION_BEGIN();
 
-    // This sets the Target to the last item the character used
     if ( pself->lastitemused == pself->index ) returncode = bfalse;
     else pself->target = pself->lastitemused;
 
@@ -6553,6 +6568,9 @@ Uint8 scr_set_TargetToLastItemUsed( script_state_t * pstate, ai_state_t * pself 
 //--------------------------------------------------------------------------------------------
 Uint8 scr_FollowLink( script_state_t * pstate, ai_state_t * pself )
 {
+    // FollowLink( tmpargument = "index of next module name" )
+    // Skips to the next module!
+
     int message_number, message_index;
     char * ptext;
 
@@ -6563,7 +6581,6 @@ Uint8 scr_FollowLink( script_state_t * pstate, ai_state_t * pself )
 
     ptext = message_buffer + message_index;
 
-    // Skips to the next module!
     returncode = link_follow_modname( ptext, btrue );
     if (!returncode)
     {
@@ -6576,9 +6593,11 @@ Uint8 scr_FollowLink( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_OperatorIsLinux( script_state_t * pstate, ai_state_t * pself )
 {
-    SCRIPT_FUNCTION_BEGIN();
-
+    // IfOperatorIsLinux()
     // Proceeds if running on linux
+
+    SCRIPT_FUNCTION_BEGIN();
+    
 #ifdef __unix__
     returncode = btrue;
 #else
@@ -6591,6 +6610,7 @@ Uint8 scr_OperatorIsLinux( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_TargetIsAWeapon( script_state_t * pstate, ai_state_t * pself )
 {
+    // IfTargetIsAWeapon()
     // Proceeds if the AI Target Is a melee or ranged weapon
 
     cap_t * pcap;
@@ -6610,9 +6630,11 @@ Uint8 scr_TargetIsAWeapon( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_SomeoneIsStealing( script_state_t * pstate, ai_state_t * pself )
 {
+    // IfSomeoneIsStealing()
+    // This function passes if someone stealed from it's shop
+
     SCRIPT_FUNCTION_BEGIN();
 
-    // This function passes if someone stealed from it's shop
     returncode = ( pself->order_value == STOLEN && pself->order_counter == SHOP_THEFT );
 
     SCRIPT_FUNCTION_END();
@@ -6621,6 +6643,7 @@ Uint8 scr_SomeoneIsStealing( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_TargetIsASpell( script_state_t * pstate, ai_state_t * pself )
 {
+    // IfTargetIsASpell()
     // Proceeds if the AI Target has any particle with the [IDAM] or [WDAM] expansion
 
     int iTmp;
@@ -6646,10 +6669,12 @@ Uint8 scr_TargetIsASpell( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_Backstabbed( script_state_t * pstate, ai_state_t * pself )
 {
+    // IfBackstabbed()
+    // Proceeds if HitFromBehind, target has [DISA] skill and damage dealt is physical
+    // automatically fails if character has code of conduct
+
     SCRIPT_FUNCTION_BEGIN();
 
-    // Proceeds if HitFromBehind, target has [DISA] skill and damage dealt is physical
-	// automatically fails if character has code of conduct
     returncode = bfalse;
     if ( !pchr->hascodeofconduct && HAS_SOME_BITS( pself->alert, ALERTIF_ATTACKED ) )
     {
@@ -6669,9 +6694,11 @@ Uint8 scr_Backstabbed( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_get_TargetDamageType( script_state_t * pstate, ai_state_t * pself )
 {
+    // tmpargument = GetTargetDamageType()
+    // This function gets the last type of damage for the Target
+
     SCRIPT_FUNCTION_BEGIN();
 
-    // ThIs function gets the last type of damage for the Target
     pstate->argument = ChrList.lst[pself->target].ai.damagetypelast;
 
     SCRIPT_FUNCTION_END();
@@ -6680,9 +6707,11 @@ Uint8 scr_get_TargetDamageType( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_AddQuest( script_state_t * pstate, ai_state_t * pself )
 {
+    // AddQuest( tmpargument = "quest idsz" )
+    // This function adds a quest idsz set in tmpargument into the Targets quest.txt
+
     SCRIPT_FUNCTION_BEGIN();
 
-    // ThIs function adds a quest idsz set in tmpargument into the Targets quest.txt
     if ( ChrList.lst[pself->target].isplayer )
     {
         quest_add_idsz( ChrList.lst[pself->target].name, pstate->argument );
@@ -6696,11 +6725,13 @@ Uint8 scr_AddQuest( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_BeatQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
 {
+    // IfBeatQuestAllPlayers()
+    // This function marks a IDSZ in the targets quest.txt as beaten
+
     int iTmp;
 
     SCRIPT_FUNCTION_BEGIN();
 
-    // ThIs function marks a IDSZ in the targets quest.txt as beaten
     returncode = bfalse;
 
     for (iTmp = 0; iTmp < MAXPLAYER; iTmp++ )
@@ -6726,6 +6757,7 @@ Uint8 scr_BeatQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_TargetHasQuest( script_state_t * pstate, ai_state_t * pself )
 {
+    // tmpdistance = IfTargetHasQuest( tmpargument = "quest idsz )
     // This function proceeds if the Target has the unfinIshed quest specIfied in tmpargument
     // and sets tmpdistance to the Quest Level of the specIfied quest.
 
@@ -6750,10 +6782,12 @@ Uint8 scr_TargetHasQuest( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_QuestLevel( script_state_t * pstate, ai_state_t * pself )
 {
+    // SetQuestLevel( tmpargument = "idsz", distance = "adjustment" )
+    // This function modIfies the quest level for a specIfic quest IDSZ
+    // tmpargument specIfies quest idsz and tmpdistance the adjustment (which may be negative)
+
     SCRIPT_FUNCTION_BEGIN();
 
-    // ThIs function modIfies the quest level for a specIfic quest IDSZ
-    // tmpargument specIfies quest idsz and tmpdistance the adjustment (which may be negative)
     returncode = bfalse;
     if ( ChrList.lst[pself->target].isplayer && pstate->distance != 0 )
     {
@@ -6766,12 +6800,13 @@ Uint8 scr_set_QuestLevel( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_AddQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
 {
+    // AddQuestAllPlayers( tmpargument = "quest idsz" )
+    // This function adds a quest idsz set in tmpargument into all local player's quest logs
+    // The quest level Is set to tmpdistance if the level Is not already higher or QUEST_BEATEN
+
     int iTmp;
 
     SCRIPT_FUNCTION_BEGIN();
-
-    // ThIs function adds a quest idsz set in tmpargument into all local player's quest logs
-    // The quest level Is set to tmpdistance if the level Is not already higher or QUEST_BEATEN
 
     returncode = bfalse;
     for (iTmp = 0; iTmp < MAXPLAYER; iTmp++)
@@ -6800,10 +6835,11 @@ Uint8 scr_AddQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_AddBlipAllEnemies( script_state_t * pstate, ai_state_t * pself )
 {
-    SCRIPT_FUNCTION_BEGIN();
-
+    // AddBlipAllEnemies()
     // show all enemies on the minimap who match the IDSZ given in tmpargument
     // it show only the enemies of the AI Target
+
+    SCRIPT_FUNCTION_BEGIN();
 
     if ( ACTIVE_CHR(pself->target) )
     {
@@ -6822,9 +6858,11 @@ Uint8 scr_AddBlipAllEnemies( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_PitsFall( script_state_t * pstate, ai_state_t * pself )
 {
+    // PitsFall( tmpx = "teleprt x", tmpy = "teleprt y", tmpdistance = "teleprt z" )
+    // This function activates pit teleportation...
+
     SCRIPT_FUNCTION_BEGIN();
 
-    // ThIs function activates pit teleportation...
     if ( pstate->x > EDGE && pstate->y > EDGE && pstate->x < PMesh->info.edge_x - EDGE && pstate->y < PMesh->info.edge_y - EDGE )
     {
         pitsfall = btrue;
@@ -6832,7 +6870,10 @@ Uint8 scr_PitsFall( script_state_t * pstate, ai_state_t * pself )
         pity = pstate->y;
         pitz = pstate->distance;
     }
-    else pitskill = btrue;
+    else 
+    {
+        pitskill = btrue;
+    }
 
     SCRIPT_FUNCTION_END();
 }
@@ -6840,9 +6881,11 @@ Uint8 scr_PitsFall( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_TargetIsOwner( script_state_t * pstate, ai_state_t * pself )
 {
+    // IfTargetIsOwner()
+    // This function proceeds only if the Target is the character's owner
+
     SCRIPT_FUNCTION_BEGIN();
 
-    // ThIs function proceeds only if the Target is the character's owner
     returncode = ( ChrList.lst[pself->target].alive && pself->owner == pself->target );
 
     SCRIPT_FUNCTION_END();
@@ -6851,6 +6894,8 @@ Uint8 scr_TargetIsOwner( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
 {
+    // SpawnAttachedCharacter( tmpargument = "profile", tmpx = "x", tmpy = "y", tmpdistance = "z" )
+
     // This function spawns a character defined in tmpargument to the characters AI target using
     // the slot specified in tmpdistance (ATK_LEFT, ATK_RIGHT or INVENTORY). Fails if the inventory or
     // grip specified is full or already in use.
@@ -6939,7 +6984,7 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_End( script_state_t * pstate, ai_state_t * pself )
 {
     // End()
-    // ThIs Is the last function in a script
+    // This Is the last function in a script
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -6952,7 +6997,7 @@ Uint8 scr_End( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_TakePicture( script_state_t * pstate, ai_state_t * pself )
 {
-    // scr_TakePicture()
+    // TakePicture()
     // This function proceeds only if the screenshot was successful
 
     SCRIPT_FUNCTION_BEGIN();
@@ -6965,7 +7010,7 @@ Uint8 scr_TakePicture( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_Speech( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_Speech( tmpargument = "sound" )
+    // SetSpeech( tmpargument = "sound" )
     // This function sets all of the RTS speech registers to tmpargument
 
     SCRIPT_FUNCTION_BEGIN();
@@ -6981,7 +7026,7 @@ Uint8 scr_set_Speech( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_MoveSpeech( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_MoveSpeech( tmpargument = "sound" )
+    // SetMoveSpeech( tmpargument = "sound" )
     // This function sets the RTS move speech register to tmpargument
 
     SCRIPT_FUNCTION_BEGIN();
@@ -6994,7 +7039,7 @@ Uint8 scr_set_MoveSpeech( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_SecondMoveSpeech( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_SecondMoveSpeech( tmpargument = "sound" )
+    // SetSecondMoveSpeech( tmpargument = "sound" )
     // This function sets the RTS movealt speech register to tmpargument
 
     SCRIPT_FUNCTION_BEGIN();
@@ -7007,7 +7052,7 @@ Uint8 scr_set_SecondMoveSpeech( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_AttackSpeech( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_AttacksSpeech( tmpargument = "sound" )
+    // SetAttacksSpeech( tmpargument = "sound" )
     // This function sets the RTS attack speech register to tmpargument
 
     SCRIPT_FUNCTION_BEGIN();
@@ -7020,7 +7065,7 @@ Uint8 scr_set_AttackSpeech( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_AssistSpeech( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_AssistSpeech( tmpargument = "sound" )
+    // SetAssistSpeech( tmpargument = "sound" )
     // This function sets the RTS assist speech register to tmpargument
 
     SCRIPT_FUNCTION_BEGIN();
@@ -7033,7 +7078,7 @@ Uint8 scr_set_AssistSpeech( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_TerrainSpeech( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_TerrainSpeech( tmpargument = "sound" )
+    // SetTerrainSpeech( tmpargument = "sound" )
     // This function sets the RTS terrain speech register to tmpargument
 
     SCRIPT_FUNCTION_BEGIN();
@@ -7046,7 +7091,7 @@ Uint8 scr_set_TerrainSpeech( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_SelectSpeech( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_SelectSpeech( tmpargument = "sound" )
+    // SetSelectSpeech( tmpargument = "sound" )
     // This function sets the RTS select speech register to tmpargument
 
     SCRIPT_FUNCTION_BEGIN();
@@ -7059,9 +7104,11 @@ Uint8 scr_set_SelectSpeech( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_OperatorIsMacintosh( script_state_t * pstate, ai_state_t * pself )
 {
+    // IfOperatorIsMacintosh()
+    // Proceeds if the current running OS is mac
+
     SCRIPT_FUNCTION_BEGIN();
 
-    // Proceeds if the current running OS is mac
 #ifdef __APPLE__
     returncode = btrue;
 #else
@@ -7074,8 +7121,10 @@ Uint8 scr_OperatorIsMacintosh( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_ModuleHasIDSZ( script_state_t * pstate, ai_state_t * pself )
 {
+    // IfModuleHasIDSZ( tmpargument = "message number with module name", tmpdistance = "idsz" )
     // Proceeds if the specified module has the required IDSZ specified in tmpdistance
     // The module folder name to be checked is a string from message.txt
+
     SCRIPT_FUNCTION_BEGIN();
 
     // BAD: TODO: use message.txt to send the module name
@@ -7087,6 +7136,7 @@ Uint8 scr_ModuleHasIDSZ( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_MorphToTarget( script_state_t * pstate, ai_state_t * pself )
 {
+    // MorphToTarget()
     // This morphs the character into the target
     // Also set size and keeps the previous AI type
 
@@ -7215,9 +7265,11 @@ Uint8 scr_DispelTargetEnchantID( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_KurseTarget( script_state_t * pstate, ai_state_t * pself )
 {
+    // KurseTarget()
+    // This makes the target kursed
+
     SCRIPT_FUNCTION_BEGIN();
 
-    // This makes the target kursed
     returncode = bfalse;
     if( ChrList.lst[pself->target].isitem && !ChrList.lst[pself->target].iskursed )
     {
@@ -7231,7 +7283,7 @@ Uint8 scr_KurseTarget( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_ChildContent( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_ChildContent( tmpargument = "content" )
+    // SetChildContent( tmpargument = "content" )
     // This function lets a character set the content of the last character it
     // spawned last
 
@@ -7505,3 +7557,16 @@ Uint8 _display_message( int ichr, int iprofile, int message, script_state_t * ps
 
     return retval;
 }
+
+
+
+
+//--------------------------------------------------------------------------------------------
+// Uint8 scr_get_SkillLevel( script_state_t * pstate, ai_state_t * pself )
+// {
+//    // tmpargument = GetSkillLevel()
+//    // This function sets tmpargument to the shield profiency level of the Target
+//   SCRIPT_FUNCTION_BEGIN();
+//   pstate->argument = CapList[pchr->attachedto].shieldprofiency;
+//   SCRIPT_FUNCTION_END();
+// }

@@ -90,6 +90,8 @@ struct s_pip
 {
     EGO_PROFILE_STUFF;
 
+    char    comment[1024];                // the first line of the file has a comment line
+
     bool_t  force;                        // Force spawn?
 
     Uint8   type;                         // Transparency mode

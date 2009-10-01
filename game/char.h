@@ -454,7 +454,7 @@ struct s_chr
     bool_t          canbackstab;
     bool_t          canusepoison;
     bool_t          canread;
-	bool_t			hascodeofconduct;
+    bool_t            hascodeofconduct;
 
     // collision info
 
@@ -556,7 +556,7 @@ void flash_character_height( Uint16 character, Uint8 valuelow, Sint16 low,
 void flash_character( Uint16 character, Uint8 value );
 
 void free_one_character_in_game( Uint16 character );
-void make_one_weapon_matrix( Uint16 iweap, Uint16 iholder, bool_t do_phys  );
+//void make_one_weapon_matrix( Uint16 iweap, Uint16 iholder, bool_t do_phys  );
 void make_all_character_matrices(bool_t do_physics);
 void free_inventory_in_game( Uint16 character );
 

@@ -136,7 +136,7 @@ static int selectedPlayer = 0;           // Which player is currently selected t
 Uint32            TxTitleImage_count = 0;
 oglx_texture      TxTitleImage[MAX_MODULE];    // OpenGL title image surfaces
 
-#define INVALID_TITLEIMAGE MAX_MODULE;
+#define INVALID_TITLEIMAGE MAX_MODULE
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -325,6 +325,7 @@ void mnu_ModList_release_images()
         TxTitleImage_release_one( mnu_ModList.lst[cnt].tex_index );
         mnu_ModList.lst[cnt].tex_index = INVALID_TITLEIMAGE;
     }
+    TxTitleImage_count = 0;
 
     // make sure that mnu_ModList.count is the right size, in case some modules were unloaded?
     mnu_ModList.count = tnc + 1;
@@ -3909,7 +3910,6 @@ void load_all_menu_images()
     // load all the title images for modules that we are going to display
     for ( cnt = 0; cnt < mnu_ModList.count; cnt++ )
     {
-
         if ( !mnu_ModList.lst[cnt].loaded )
         {
             vfs_printf( filesave, "**.  %s\n", mnu_ModList.lst[cnt].name );

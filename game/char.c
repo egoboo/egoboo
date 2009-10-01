@@ -94,6 +94,8 @@ int convert_grip_to_global_points( Uint16 iholder, Uint16 grip_verts[], GLvector
 // definition that is consistent with using it as a callback in qsort() or some similar function
 static int  cmp_matrix_cache(const void * vlhs, const void * vrhs);
 
+static bool_t chr_upload_cap( chr_t * pchr, cap_t * pcap );
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 int chr_count_free()
@@ -509,241 +511,6 @@ void attach_particle_to_character( Uint16 particle, Uint16 character, int vertex
         // No matrix, so just wing it...
         pprt->pos = pchr->pos;
     }
-}
-
-//--------------------------------------------------------------------------------------------
-void make_one_weapon_matrix( Uint16 iweap, Uint16 iholder, bool_t do_physics )
-{
-    // ZZ> This function sets one weapon's matrix, based on who it's attached to
-    int       cnt, vertex;
-    GLvector4 point[GRIP_VERTS], nupoint[GRIP_VERTS];
-    GLvector3 ptemp;
-    int       iweap_points;
-    Uint16    grip_verts[GRIP_VERTS];
-
-    chr_t    * pweap, * pholder;
-
-    // turn this off for now
-    do_physics = bfalse;
-
-    if ( !ACTIVE_CHR(iweap) ) return;
-    pweap = ChrList.lst + iweap;
-
-    if(  !ACTIVE_CHR(iholder) ) return;
-    pholder = ChrList.lst + iholder;
-
-    // make sure that the matrix is invalid incase of an error
-    pweap->inst.matrix_cache.matrix_valid = bfalse;
-
-    // grab the weapon connection points
-    get_grip_verts( grip_verts, iholder, slot_to_grip_offset(pweap->inwhich_slot) );
-
-    // count the valid weapon connection points
-    iweap_points = 0;
-    for (cnt = 0; cnt < GRIP_VERTS; cnt++)
-    {
-        if (0xFFFF != grip_verts[cnt])
-        {
-            iweap_points++;
-        }
-    }
-
-    // do the best we can
-    if (0 == iweap_points)
-    {
-        // punt! attach to origin
-        point[0].x = ChrList.lst[0].pos.x;
-        point[0].y = ChrList.lst[0].pos.y;
-        point[0].z = ChrList.lst[0].pos.z;
-        point[0].w = 1;
-
-        iweap_points = 1;
-    }
-    else if (GRIP_VERTS == iweap_points)
-    {
-        vertex = grip_verts[0];
-
-        // do the automatic update
-        chr_instance_update_vertices( &(pholder->inst), vertex, vertex + GRIP_VERTS - 1 );
-
-        for ( cnt = 0; cnt < GRIP_VERTS; cnt++ )
-        {
-            point[cnt].x = pholder->inst.vlst[vertex + cnt].pos[XX];
-            point[cnt].y = pholder->inst.vlst[vertex + cnt].pos[YY];
-            point[cnt].z = pholder->inst.vlst[vertex + cnt].pos[ZZ];
-            point[cnt].w = 1.0f;
-        }
-    }
-    else
-    {
-        // Calculate grip point locations with linear interpolation and other silly things
-        for (iweap_points = 0, cnt = 0; cnt < GRIP_VERTS; cnt++, iweap_points++ )
-        {
-            vertex = grip_verts[cnt];
-            if (0xFFFF == vertex) continue;
-
-            // do the automatic update
-            chr_instance_update_vertices( &(pholder->inst), vertex, vertex );
-
-            point[iweap_points].x = pholder->inst.vlst[vertex].pos[XX];
-            point[iweap_points].y = pholder->inst.vlst[vertex].pos[YY];
-            point[iweap_points].z = pholder->inst.vlst[vertex].pos[ZZ];
-            point[iweap_points].w = 1.0f;
-        }
-    }
-
-    // use the math function instead of rolling out own
-    TransformVertices( &(pholder->inst.matrix), point, nupoint, iweap_points );
-
-    if (1 == iweap_points)
-    {
-        matrix_cache_t * mcache = &(pweap->inst.matrix_cache);
-
-        // attach to single point
-        pweap->inst.matrix = ScaleXYZRotateXYZTranslate(pweap->fat, pweap->fat, pweap->fat,
-                             pweap->turn_z >> 2,
-                             ( ( Uint16 ) ( pweap->map_turn_x + 32768 ) ) >> 2,
-                             ( ( Uint16 ) ( pweap->map_turn_y + 32768 ) ) >> 2,
-                             nupoint[0].x, nupoint[0].y, nupoint[0].z);
-
-        mcache->valid        = btrue;
-        mcache->matrix_valid = btrue;
-        mcache->type         = MAT_CHARACTER | MAT_WEAPON;
-
-        mcache->scale.x = mcache->scale.y = mcache->scale.z = pweap->fat;
-
-        mcache->rotate.x = ( Uint16 ) ( pweap->map_turn_x + 32768 );
-        mcache->rotate.y = ( Uint16 ) ( pweap->map_turn_y + 32768 );
-        mcache->rotate.z = pweap->turn_z;
-
-        mcache->pos.x = nupoint[0].x;
-        mcache->pos.y = nupoint[0].y;
-        mcache->pos.z = nupoint[0].z;
-
-    }
-    else if (4 == iweap_points)
-    {
-         matrix_cache_t * mcache = &(pweap->inst.matrix_cache);
-
-        // Calculate weapon's matrix based on positions of grip points
-        // chrscale is recomputed at time of attachment
-        pweap->inst.matrix = FourPoints(
-                                 nupoint[0].x, nupoint[0].y, nupoint[0].z,
-                                 nupoint[1].x, nupoint[1].y, nupoint[1].z,
-                                 nupoint[2].x, nupoint[2].y, nupoint[2].z,
-                                 nupoint[3].x, nupoint[3].y, nupoint[3].z, pweap->fat );
-
-        mcache->valid        = btrue;
-        mcache->matrix_valid = btrue;
-        mcache->type         = MAT_WEAPON;
-
-        mcache->grip_chr  = pweap->attachedto;
-        mcache->grip_slot = pweap->inwhich_slot;
-        for (cnt = 0; cnt < GRIP_VERTS; cnt++)
-        {
-            mcache->grip_verts[cnt] = grip_verts[cnt];
-        }
-
-        mcache->scale.x = mcache->scale.y = mcache->scale.z = pweap->fat;
-    }
-
-    ptemp = pweap->pos;
-
-    // update the position of the object
-    pweap->pos.x = nupoint[0].x;
-    pweap->pos.y = nupoint[0].y;
-    pweap->pos.z = nupoint[0].z;
-
-    if ( do_physics )
-    {
-        float dx, dy, dz;
-        float wt_weap, wt_holder, damp = 0.5f;
-        // GLvector3 vcom;
-
-        // calculate the "tweety bird swinging a sledgehammer" effect
-
-        dx = ptemp.x - nupoint[0].x;
-        dy = ptemp.y - nupoint[0].y;
-        dz = ptemp.z - nupoint[0].z;
-
-        wt_weap   = 0xFFFFFFFF == pweap->weight ? -(float)0xFFFFFFFF : pweap->weight;
-        wt_holder = 0xFFFFFFFF == pholder->weight ? -(float)0xFFFFFFFF : pholder->weight;
-
-        if ( wt_weap == 0 && wt_holder == 0 )
-        {
-            wt_weap = wt_holder = 1;
-        }
-        else if ( wt_weap == 0 )
-        {
-            wt_weap = 1;
-            wt_holder = -0xFFFF;
-        }
-        else if ( wt_holder == 0 )
-        {
-            wt_holder = 1;
-            wt_weap = -0xFFFF;
-        }
-
-        if ( 0.0f == pweap->bumpdampen && 0.0f == pholder->bumpdampen )
-        {
-            /* do nothing */
-        }
-        else if ( 0.0f == pweap->bumpdampen )
-        {
-            // make the weight infinite
-            wt_weap = -0xFFFF;
-        }
-        else if ( 0.0f == pholder->bumpdampen )
-        {
-            // make the weight infinite
-            wt_holder = -0xFFFF;
-        }
-        else
-        {
-            // adjust the weights to respect bumpdampen
-            wt_weap /= pweap->bumpdampen;
-            wt_holder /= pholder->bumpdampen;
-        }
-
-        // this "velocity matching with damping" makes the mounts really sluggish
-        // figure out a better way!
-
-        // calculate the center-of-mass velocity
-        // vcom.x = (ABS(wt_weap) * dx + ABS(wt_holder) * pholder->vel.x) / ( ABS(wt_weap) + ABS(wt_holder) );
-        // vcom.y = (ABS(wt_weap) * dy + ABS(wt_holder) * pholder->vel.y) / ( ABS(wt_weap) + ABS(wt_holder) );
-        // vcom.z = (ABS(wt_weap) * dz + ABS(wt_holder) * pholder->vel.z) / ( ABS(wt_weap) + ABS(wt_holder) );
-
-        if ( wt_weap >= 0.0f )
-        {
-            // the object has already been moved the full distance
-            // move it back some
-
-            float ratio = 1.0f - (float)ABS(wt_holder) / ((float)ABS(wt_weap) + (float)ABS(wt_holder));
-
-            pweap->phys.apos_1.x -= dx * ratio;
-            pweap->phys.apos_1.y -= dy * ratio;
-            pweap->phys.apos_1.z -= dz * ratio;
-
-            // pweap->phys.avel.x += (dx-vcom.x)*damp + vcom.x - pweap->vel.x;
-            // pweap->phys.avel.y += (dy-vcom.y)*damp + vcom.y - pweap->vel.y;
-            // pweap->phys.avel.z += (dz-vcom.z)*damp + vcom.z - pweap->vel.z;
-        }
-
-        if ( wt_holder >= 0.0f )
-        {
-            float ratio = (float)ABS(wt_weap) / ((float)ABS(wt_weap) + (float)ABS(wt_holder));
-
-            pholder->phys.apos_1.x -= dx * ratio;
-            pholder->phys.apos_1.y -= dy * ratio;
-            pholder->phys.apos_1.z -= dz * ratio;
-
-            // pholder->phys.avel.x += (pholder->vel.x-vcom.x)*damp + vcom.x - pholder->vel.x;
-            // pholder->phys.avel.y += (pholder->vel.y-vcom.y)*damp + vcom.y - pholder->vel.y;
-            // pholder->phys.avel.z += (pholder->vel.z-vcom.z)*damp + vcom.z - pholder->vel.z;
-        }
-
-    }
-
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1385,13 +1152,16 @@ void attach_character_to_mount( Uint16 iitem, Uint16 iholder, grip_offset_t grip
     pitem->attachedto     = iholder;
     pholder->holdingwhich[slot] = iitem;
 
-    // set the grip vertices for the iitem
-    set_weapongrip( iitem, iholder, grip_off );
+    _chr_update_matrix( pitem );
 
-    // actually make position of the object coincide with its actual held position
-    make_one_weapon_matrix( iitem, iholder, bfalse );
+    //// set the grip vertices for the iitem
+    //set_weapongrip( iitem, iholder, grip_off );
 
-    pitem->pos      = mat_getTranslate( pitem->inst.matrix );
+    //// actually make position of the object coincide with its actual held position
+    //make_one_weapon_matrix( iitem, iholder, bfalse );
+
+    //pitem->pos      = mat_getTranslate( pitem->inst.matrix );
+
     pitem->inwater  = bfalse;
     pitem->jumptime = JUMPDELAY * 4;
 
@@ -2230,28 +2000,28 @@ bool_t character_grab_stuff( Uint16 ichr_a, grip_offset_t grip_off, bool_t grab_
 void character_swipe( Uint16 cnt, slot_t slot )
 {
     // ZZ> This function spawns an attack particle
-    int weapon, particle, spawngrip, thrown;
+    int weapon, particle, spawn_vrt_offset, thrown;
     Uint8 action;
     Uint16 tTmp;
     float dampen;
     float velocity;
     chr_t * pchr, * pweapon;
     cap_t * pweapon_cap;
-	bool_t unarmed_attack = bfalse;
+    bool_t unarmed_attack = bfalse;
 
     if( !ACTIVE_CHR(cnt) ) return;
     pchr = ChrList.lst + cnt;
 
     weapon = pchr->holdingwhich[slot];
-    spawngrip = GRIP_LAST;
+    spawn_vrt_offset = GRIP_LAST;
     action = pchr->action;
 
     // See if it's an unarmed attack...
     if ( weapon == MAX_CHR )
     {
-		unarmed_attack = btrue;
+        unarmed_attack = btrue;
         weapon = cnt;
-        spawngrip = slot_to_grip_offset( slot );  // 0 -> GRIP_LEFT, 1 -> GRIP_RIGHT
+        spawn_vrt_offset = slot_to_grip_offset( slot );  // 0 -> GRIP_LEFT, 1 -> GRIP_RIGHT
     }
 
     if( !ACTIVE_CHR(weapon) ) return;
@@ -2260,7 +2030,7 @@ void character_swipe( Uint16 cnt, slot_t slot )
     pweapon_cap = chr_get_pcap(weapon);
     if( NULL == pweapon_cap ) return;
 
-	//It's a item
+    //It's a item
     if ( !unarmed_attack && ( ( pweapon_cap->isstackable && pweapon->ammo > 1 ) || ( action >= ACTION_FA && action <= ACTION_FD ) ) )
     {
         // Throw the weapon if it's stacked or a hurl animation
@@ -2296,9 +2066,9 @@ void character_swipe( Uint16 cnt, slot_t slot )
             }
         }
     }
-    
-	//It's a unarmed attack
-	else
+
+    //It's a unarmed attack
+    else
     {
         // Spawn an attack particle
         if ( pweapon->ammomax == 0 || pweapon->ammo != 0 )
@@ -2311,7 +2081,7 @@ void character_swipe( Uint16 cnt, slot_t slot )
             // Spawn an attack particle
             if ( pweapon_cap->attack_pip != -1 )
             {
-                particle = spawn_one_particle( pweapon->pos, pchr->turn_z, pweapon->iprofile, pweapon_cap->attack_pip, weapon, spawngrip, chr_get_iteam(cnt), cnt, TOTAL_MAX_PRT, 0, MAX_CHR );
+                particle = spawn_one_particle( pweapon->pos, pchr->turn_z, pweapon->iprofile, pweapon_cap->attack_pip, weapon, spawn_vrt_offset, chr_get_iteam(cnt), cnt, TOTAL_MAX_PRT, 0, MAX_CHR );
 
                 if ( ACTIVE_PRT(particle) )
                 {
@@ -2334,7 +2104,7 @@ void character_swipe( Uint16 cnt, slot_t slot )
                         // Detach the particle
                         if ( !prt_get_ppip(particle)->startontarget || !ACTIVE_CHR(pprt->target_ref) )
                         {
-                            attach_particle_to_character( particle, weapon, spawngrip );
+                            attach_particle_to_character( particle, weapon, spawn_vrt_offset );
 
                             // Correct Z spacing base, but nothing else...
                             pprt->pos.z += prt_get_ppip(particle)->zspacing_pair.base;
@@ -2723,346 +2493,252 @@ bool_t export_one_character_name( const char *szSaveName, Uint16 character )
 }
 
 //--------------------------------------------------------------------------------------------
+bool_t chr_upload_cap( chr_t * pchr, cap_t * pcap )
+{
+    // BB> prepare a character profile for exporting, by uploading some special values into the
+    //     cap. Just so that there is no confusion when you export multiple items of the same type,
+    //     DO NOT pass the pointer returned by chr_get_pcap(). Instead, use a custom cap_t declared on the stack,
+    //     or something similar
+
+    if( NULL == pchr || !ALLOCATED_CHR(pchr->index) ) return bfalse;
+
+    if( NULL == pcap || !pcap->loaded ) return bfalse;
+
+    // export the character customization stuff
+    pcap->gender             = pchr->gender;
+    pcap->nameknown          = pchr->nameknown;
+
+    // export some character state values
+    pcap->ammo               = pchr->ammo;
+    pcap->lifecolor          = pchr->lifecolor;
+    pcap->manacolor          = pchr->manacolor;
+    pcap->size               = pchr->fat_goto;
+    pcap->kursechance        = pchr->iskursed*100;
+
+    // export values that override spawn.txt values
+    pcap->contentoverride    = pchr->ai.content;
+    pcap->stateoverride      = pchr->ai.state;
+    pcap->money              = pchr->money;
+    pcap->skinoverride       = pchr->skin;
+    pcap->leveloverride = pchr->experiencelevel;
+
+    // export the current experience
+    ints_to_range(pchr->experience, 0, &(pcap->experience ) );
+
+    // export the current mana and life
+    pcap->spawnlife         = pchr->life << 8;
+    pcap->spawnmana         = pchr->mana << 8;
+
+    // export the current stats
+    ints_to_range(pchr->lifemax     , 0, &(pcap->life_stat.val        ) );
+    ints_to_range(pchr->manamax     , 0, &(pcap->mana_stat.val        ) );
+    ints_to_range(pchr->manareturn  , 0, &(pcap->manareturn_stat.val  ) );
+    ints_to_range(pchr->manaflow    , 0, &(pcap->manaflow_stat.val    ) );
+    ints_to_range(pchr->strength    , 0, &(pcap->strength_stat.val    ) );
+    ints_to_range(pchr->wisdom      , 0, &(pcap->wisdom_stat.val      ) );
+    ints_to_range(pchr->intelligence, 0, &(pcap->intelligence_stat.val) );
+    ints_to_range(pchr->dexterity   , 0, &(pcap->dexterity_stat.val   ) );
+
+    // update any skills that have been learned
+    pcap->shieldproficiency     = pchr->shieldproficiency;
+    pcap->canuseadvancedweapons = pchr->canuseadvancedweapons;
+    pcap->canjoust              = pchr->canjoust;
+    pcap->candisarm             = pchr->candisarm;
+    pcap->canusepoison          = pchr->canusepoison;
+    pcap->canread               = pchr->canread;
+    pcap->canbackstab           = pchr->canbackstab;
+    pcap->canusedivine          = pchr->canusedivine;
+    pcap->canusearcane          = pchr->canusearcane;
+    pcap->canusetech            = pchr->canusetech;
+    pcap->hascodeofconduct      = pchr->hascodeofconduct;
+
+    return btrue;
+}
+
+
+//--------------------------------------------------------------------------------------------
+bool_t chr_download_cap( chr_t * pchr, cap_t * pcap )
+{
+    // BB> grab all of the data from the data.txt file
+
+    int iTmp, tnc;
+
+    if( NULL == pchr || !ALLOCATED_CHR(pchr->index) ) return bfalse;
+
+    if( NULL == pcap || !pcap->loaded ) return bfalse;
+
+
+    // sound stuff...  copy from the cap
+    for ( tnc = 0; tnc < SOUND_COUNT; tnc++ )
+    {
+        pchr->soundindex[tnc] = pcap->soundindex[tnc];
+    }
+
+    // Set up model stuff
+    pchr->stoppedby = pcap->stoppedby;
+    pchr->lifeheal = pcap->lifeheal;
+    pchr->manacost = pcap->manacost;
+    pchr->nameknown = pcap->nameknown;
+    pchr->ammoknown = pcap->nameknown;
+    pchr->icon = pcap->icon;
+
+    // calculate a base kurse state. this may be overridden later
+    if ( pcap->isitem )
+    {
+        IPair loc_rand = {0,100};
+        pchr->iskursed = ( generate_irand_pair(loc_rand) <= pcap->kursechance );
+    }
+
+    // Enchant stuff
+    pchr->canseeinvisible = pcap->canseeinvisible;
+
+    // Skillz
+    pchr->canjoust = pcap->canjoust;
+    pchr->canuseadvancedweapons = pcap->canuseadvancedweapons;
+    pchr->shieldproficiency = pcap->shieldproficiency;
+    pchr->canusedivine = pcap->canusedivine;
+    pchr->canusearcane = pcap->canusearcane;
+    pchr->canusetech = pcap->canusetech;
+    pchr->candisarm = pcap->candisarm;
+    pchr->canbackstab = pcap->canbackstab;
+    pchr->canusepoison = pcap->canusepoison;
+    pchr->canread = pcap->canread;
+    pchr->canseekurse = pcap->canseekurse;
+    pchr->hascodeofconduct = pcap->hascodeofconduct;
+
+    // Ammo
+    pchr->ammomax = pcap->ammomax;
+    pchr->ammo = pcap->ammo;
+
+    // Gender
+    pchr->gender = pcap->gender;
+    if ( pchr->gender == GENDER_RANDOM )  pchr->gender = generate_randmask( GENDER_FEMALE, 1 );
+
+
+    // Life and Mana
+    pchr->lifecolor = pcap->lifecolor;
+    pchr->manacolor = pcap->manacolor;
+    pchr->lifemax = generate_irand_range( pcap->life_stat.val );
+    pchr->lifereturn = pcap->lifereturn;
+    pchr->manamax = generate_irand_range( pcap->mana_stat.val );
+    pchr->manaflow = generate_irand_range( pcap->manaflow_stat.val );
+    pchr->manareturn = generate_irand_range( pcap->manareturn_stat.val );
+
+    // SWID
+    pchr->strength = generate_irand_range( pcap->strength_stat.val );
+    pchr->wisdom = generate_irand_range( pcap->wisdom_stat.val );
+    pchr->intelligence = generate_irand_range( pcap->intelligence_stat.val );
+    pchr->dexterity = generate_irand_range( pcap->dexterity_stat.val );
+
+    // Skin
+    pchr->skin = 0;
+    if ( pcap->skinoverride != NOSKINOVERRIDE )
+    {
+        pchr->skin = pcap->skinoverride % MAX_SKIN;
+    }
+
+    // Damage
+    pchr->defense = pcap->defense[pchr->skin];
+    pchr->reaffirmdamagetype = pcap->attachedprt_reaffirmdamagetype;
+    pchr->damagetargettype = pcap->damagetargettype;
+    for ( tnc = 0; tnc < DAMAGE_COUNT; tnc++ )
+    {
+        pchr->damagemodifier[tnc] = pcap->damagemodifier[tnc][pchr->skin];
+    }
+
+    // Flags
+    pchr->stickybutt = pcap->stickybutt;
+    pchr->openstuff = pcap->canopenstuff;
+    pchr->transferblend = pcap->transferblend;
+    pchr->waterwalk = pcap->waterwalk;
+    pchr->platform = pcap->platform;
+    pchr->isitem = pcap->isitem;
+    pchr->invictus = pcap->invictus;
+    pchr->ismount = pcap->ismount;
+    pchr->cangrabmoney = pcap->cangrabmoney;
+
+    // Jumping
+    pchr->jump_power = pcap->jump;
+    pchr->jumpnumberreset = pcap->jumpnumber;
+
+    // Other junk
+    pchr->flyheight = pcap->flyheight;
+    pchr->maxaccel  = pcap->maxaccel[pchr->skin];
+    pchr->basealpha = pcap->alpha;
+    pchr->baselight = pcap->light;
+    pchr->flashand  = pcap->flashand;
+    pchr->dampen    = pcap->dampen;
+
+
+    // Load current life and mana. this may be overridden later
+    pchr->life = CLIP( pcap->spawnlife, LOWSTAT, pchr->lifemax );
+    pchr->mana = CLIP( pcap->spawnmana, 0, pchr->manamax );
+
+    // Character size and bumping
+    chr_init_size( pchr, pcap );
+
+    pchr->bumpdampen = pcap->bumpdampen;
+    if ( pcap->weight == 0xFF )
+    {
+        pchr->weight = 0xFFFFFFFF;
+    }
+    else
+    {
+        Uint32 itmp = pcap->weight * pchr->fat * pchr->fat * pchr->fat;
+        pchr->weight = MIN( itmp, (Uint32)0xFFFFFFFE );
+    }
+
+    // Image rendering
+    pchr->uoffvel = pcap->uoffvel;
+    pchr->voffvel = pcap->voffvel;
+
+    // Movement
+    pchr->sneakspd = pcap->sneakspd;
+    pchr->walkspd = pcap->walkspd;
+    pchr->runspd = pcap->runspd;
+
+    // Money is added later
+    pchr->money = pcap->money;
+
+    // Experience
+    iTmp = generate_irand_range( pcap->experience );
+    pchr->experience      = MIN(iTmp, MAXXP);
+    pchr->experiencelevel = pcap->leveloverride;
+
+    // Particle attachments
+    pchr->reaffirmdamagetype = pcap->attachedprt_reaffirmdamagetype;
+
+    return btrue;
+}
+
+
+
+
+//--------------------------------------------------------------------------------------------
 bool_t export_one_character_profile( const char *szSaveName, Uint16 character )
 {
     // ZZ> This function creates a data.txt file for the given character.
     //    it is assumed that all enchantments have been done away with
 
-    vfs_FILE* filewrite;
-    int icap;
-    int damagetype, skin;
-    char types[10] = "SCPHEFIZ";
-    char codes[4];
     chr_t * pchr;
     cap_t * pcap;
 
-    if ( !ACTIVE_CHR(character) ) return bfalse;
+    // a local version of the cap, so that the CapList data won't be corrupted
+    cap_t cap_tmp;
+
+    if( INVALID_CSTR(szSaveName) && !ALLOCATED_CHR(character) ) return bfalse;
     pchr = ChrList.lst + character;
 
-    // General stuff
-    icap = chr_get_icap( character );
-    pcap = chr_get_pcap( character );
-    if ( NULL == pcap ) return bfalse;
+    pcap = pro_get_pcap( pchr->iprofile );
+    if( NULL == pcap ) return bfalse;
 
-    // Open the file
-    filewrite = vfs_openWrite( szSaveName );
-    if ( NULL == filewrite ) return bfalse;
+    // load up the temporary cap
+    memcpy( &cap_tmp, pcap, sizeof(cap_t) );
 
-    // Real general data
-    vfs_printf( filewrite, "Slot number    : -1\n" );  // -1 signals a flexible load thing
-    fput_string_under( filewrite, "Class name     : ", pcap->classname );
-    fput_bool( filewrite, "Uniform light  : ", pcap->uniformlit );
-    vfs_printf( filewrite, "Maximum ammo   : %d\n", pcap->ammomax );
-    vfs_printf( filewrite, "Current ammo   : %d\n", pchr->ammo );
-    fput_gender( filewrite, "Gender         : ", pchr->gender );
-    vfs_printf( filewrite, "\n" );
+    // fill in the cap values with the ones we want to export from the character profile
+    chr_upload_cap( pchr, &cap_tmp );
 
-    // Object stats
-    vfs_printf( filewrite, "Life color     : %d\n", pchr->lifecolor );
-    vfs_printf( filewrite, "Mana color     : %d\n", pchr->manacolor );
-    vfs_printf( filewrite, "Life           : %4.2f\n", pchr->lifemax / 256.0f );
-    fput_range( filewrite, "Life up        : ", pcap->life_stat.perlevel );
-    vfs_printf( filewrite, "Mana           : %4.2f\n", pchr->manamax / 256.0f );
-    fput_range( filewrite, "Mana up        : ", pcap->mana_stat.perlevel );
-    vfs_printf( filewrite, "Mana return    : %4.2f\n", pchr->manareturn / 256.0f );
-    fput_range( filewrite, "Mana return up : ", pcap->manareturn_stat.perlevel );
-    vfs_printf( filewrite, "Mana flow      : %4.2f\n", pchr->manaflow / 256.0f );
-    fput_range( filewrite, "Mana flow up   : ", pcap->manaflow_stat.perlevel );
-    vfs_printf( filewrite, "STR            : %4.2f\n", pchr->strength / 256.0f );
-    fput_range( filewrite, "STR up         : ", pcap->strength_stat.perlevel );
-    vfs_printf( filewrite, "WIS            : %4.2f\n", pchr->wisdom / 256.0f );
-    fput_range( filewrite, "WIS up         : ", pcap->wisdom_stat.perlevel );
-    vfs_printf( filewrite, "INT            : %4.2f\n", pchr->intelligence / 256.0f );
-    fput_range( filewrite, "INT up         : ", pcap->intelligence_stat.perlevel );
-    vfs_printf( filewrite, "DEX            : %4.2f\n", pchr->dexterity / 256.0f );
-    fput_range( filewrite, "DEX up         : ", pcap->dexterity_stat.perlevel );
-    vfs_printf( filewrite, "\n" );
-
-    // More physical attributes
-    vfs_printf( filewrite, "Size           : %4.2f\n", pchr->fat_goto );
-    vfs_printf( filewrite, "Size up        : %4.2f\n", pcap->sizeperlevel );
-    vfs_printf( filewrite, "Shadow size    : %d\n", pcap->shadowsize );
-    vfs_printf( filewrite, "Bump size      : %d\n", pcap->bumpsize );
-    vfs_printf( filewrite, "Bump height    : %d\n", pcap->bumpheight );
-    vfs_printf( filewrite, "Bump dampen    : %4.2f\n", pcap->bumpdampen );
-    vfs_printf( filewrite, "Weight         : %d\n", pcap->weight );
-    vfs_printf( filewrite, "Jump power     : %4.2f\n", pcap->jump );
-    vfs_printf( filewrite, "Jump number    : %d\n", pcap->jumpnumber );
-    vfs_printf( filewrite, "Sneak speed    : %d\n", pcap->sneakspd );
-    vfs_printf( filewrite, "Walk speed     : %d\n", pcap->walkspd );
-    vfs_printf( filewrite, "Run speed      : %d\n", pcap->runspd );
-    vfs_printf( filewrite, "Fly to height  : %d\n", pcap->flyheight );
-    vfs_printf( filewrite, "Flashing AND   : %d\n", pcap->flashand );
-    vfs_printf( filewrite, "Alpha blending : %d\n", pcap->alpha );
-    vfs_printf( filewrite, "Light blending : %d\n", pcap->light );
-    fput_bool( filewrite, "Transfer blend : ", pcap->transferblend );
-    vfs_printf( filewrite, "Sheen          : %d\n", pcap->sheen );
-    fput_bool( filewrite, "Phong mapping  : ", pcap->enviro );
-    vfs_printf( filewrite, "Texture X add  : %4.2f\n", pcap->uoffvel / (float)0xFFFF );
-    vfs_printf( filewrite, "Texture Y add  : %4.2f\n", pcap->voffvel / (float)0xFFFF );
-    fput_bool( filewrite, "Sticky butt    : ", pcap->stickybutt );
-    vfs_printf( filewrite, "\n" );
-
-    // Invulnerability data
-    fput_bool( filewrite, "Invictus       : ", pcap->invictus );
-    vfs_printf( filewrite, "NonI facing    : %d\n", pcap->nframefacing );
-    vfs_printf( filewrite, "NonI angle     : %d\n", pcap->nframeangle );
-    vfs_printf( filewrite, "I facing       : %d\n", pcap->iframefacing );
-    vfs_printf( filewrite, "I angle        : %d\n", pcap->iframeangle );
-    vfs_printf( filewrite, "\n" );
-
-    // Skin defenses
-    vfs_printf( filewrite, "Base defense   : %3d %3d %3d %3d\n", 255 - pcap->defense[0], 255 - pcap->defense[1],
-             255 - pcap->defense[2], 255 - pcap->defense[3] );
-
-    for ( damagetype = 0; damagetype < DAMAGE_COUNT; damagetype++ )
-    {
-        vfs_printf( filewrite, "%c damage shift : %3d %3d %3d %3d\n", types[damagetype],
-                 pcap->damagemodifier[damagetype][0]&DAMAGESHIFT,
-                 pcap->damagemodifier[damagetype][1]&DAMAGESHIFT,
-                 pcap->damagemodifier[damagetype][2]&DAMAGESHIFT,
-                 pcap->damagemodifier[damagetype][3]&DAMAGESHIFT );
-    }
-
-    for ( damagetype = 0; damagetype < DAMAGE_COUNT; damagetype++ )
-    {
-
-
-        for ( skin = 0; skin < MAX_SKIN; skin++ )
-        {
-            if ( pcap->damagemodifier[damagetype][skin]&DAMAGEMANA )
-            {
-                codes[skin] = 'M';
-            }
-            else if ( pcap->damagemodifier[damagetype][skin]&DAMAGECHARGE )
-            {
-                codes[skin] = 'C';
-            }
-            else if ( pcap->damagemodifier[damagetype][skin]&DAMAGEINVERT )
-            {
-                codes[skin] = 'T';
-            }
-            else
-            {
-                codes[skin] = 'F';
-            }
-        }
-        vfs_printf( filewrite, "%c damage code  : %3c %3c %3c %3c\n", types[damagetype], codes[0], codes[1], codes[2], codes[3] );
-    }
-
-    vfs_printf( filewrite, "Acceleration   : %3.0f %3.0f %3.0f %3.0f\n", pcap->maxaccel[0]*80,
-             pcap->maxaccel[1]*80,
-             pcap->maxaccel[2]*80,
-             pcap->maxaccel[3]*80 );
-    vfs_printf( filewrite, "\n" );
-
-    // Experience and level data
-    vfs_printf( filewrite, "EXP for 2nd    : %d\n", pcap->experienceforlevel[1] );
-    vfs_printf( filewrite, "EXP for 3rd    : %d\n", pcap->experienceforlevel[2] );
-    vfs_printf( filewrite, "EXP for 4th    : %d\n", pcap->experienceforlevel[3] );
-    vfs_printf( filewrite, "EXP for 5th    : %d\n", pcap->experienceforlevel[4] );
-    vfs_printf( filewrite, "EXP for 6th    : %d\n", pcap->experienceforlevel[5] );
-    vfs_printf( filewrite, "Starting EXP   : %d\n", pchr->experience );
-    vfs_printf( filewrite, "EXP worth      : %d\n", pcap->experienceworth );
-    vfs_printf( filewrite, "EXP exchange   : %5.3f\n", pcap->experienceexchange );
-    vfs_printf( filewrite, "EXPSECRET      : %4.2f\n", pcap->experiencerate[0] );
-    vfs_printf( filewrite, "EXPQUEST       : %4.2f\n", pcap->experiencerate[1] );
-    vfs_printf( filewrite, "EXPDARE        : %4.2f\n", pcap->experiencerate[2] );
-    vfs_printf( filewrite, "EXPKILL        : %4.2f\n", pcap->experiencerate[3] );
-    vfs_printf( filewrite, "EXPMURDER      : %4.2f\n", pcap->experiencerate[4] );
-    vfs_printf( filewrite, "EXPREVENGE     : %4.2f\n", pcap->experiencerate[5] );
-    vfs_printf( filewrite, "EXPTEAMWORK    : %4.2f\n", pcap->experiencerate[6] );
-    vfs_printf( filewrite, "EXPROLEPLAY    : %4.2f\n", pcap->experiencerate[7] );
-    vfs_printf( filewrite, "\n" );
-
-    // IDSZ identification tags
-    vfs_printf( filewrite, "IDSZ Parent    : [%s]\n", undo_idsz( pcap->idsz[IDSZ_PARENT] ) );
-    vfs_printf( filewrite, "IDSZ Type      : [%s]\n", undo_idsz( pcap->idsz[IDSZ_TYPE] ) );
-    vfs_printf( filewrite, "IDSZ Skill     : [%s]\n", undo_idsz( pcap->idsz[IDSZ_SKILL] ) );
-    vfs_printf( filewrite, "IDSZ Special   : [%s]\n", undo_idsz( pcap->idsz[IDSZ_SPECIAL] ) );
-    vfs_printf( filewrite, "IDSZ Hate      : [%s]\n", undo_idsz( pcap->idsz[IDSZ_HATE] ) );
-    vfs_printf( filewrite, "IDSZ Vulnie    : [%s]\n", undo_idsz( pcap->idsz[IDSZ_VULNERABILITY] ) );
-    vfs_printf( filewrite, "\n" );
-
-    // Item and damage flags
-    fput_bool( filewrite, "Is an item     : ", pcap->isitem );
-    fput_bool( filewrite, "Is a mount     : ", pcap->ismount );
-    fput_bool( filewrite, "Is stackable   : ", pcap->isstackable );
-    fput_bool( filewrite, "Name known     : ", pchr->nameknown );
-    fput_bool( filewrite, "Usage known    : ", pcap->usageknown );
-    fput_bool( filewrite, "Is exportable  : ", pcap->cancarrytonextmodule );
-    fput_bool( filewrite, "Requires skill : ", pcap->needskillidtouse );
-    fput_bool( filewrite, "Is platform    : ", pcap->platform );
-    fput_bool( filewrite, "Collects money : ", pcap->cangrabmoney );
-    fput_bool( filewrite, "Can open stuff : ", pcap->canopenstuff );
-    vfs_printf( filewrite, "\n" );
-
-    // Other item and damage stuff
-    fput_damage_type( filewrite, "Damage type    : ", pcap->damagetargettype );
-    fput_action( filewrite, "Attack type    : ", pcap->weaponaction );
-    vfs_printf( filewrite, "\n" );
-
-    // Particle attachments
-    vfs_printf( filewrite, "Attached parts : %d\n", pcap->attachedprt_amount );
-    fput_damage_type( filewrite, "Reaffirm type  : ", pcap->attachedprt_reaffirmdamagetype );
-    vfs_printf( filewrite, "Particle type  : %d\n", pcap->attachedprt_pip );
-    vfs_printf( filewrite, "\n" );
-
-    // Character hands
-    fput_bool( filewrite, "Left valid     : ", pcap->slotvalid[SLOT_LEFT] );
-    fput_bool( filewrite, "Right valid    : ", pcap->slotvalid[SLOT_RIGHT] );
-    vfs_printf( filewrite, "\n" );
-
-    // Particle spawning on attack
-    fput_bool( filewrite, "Part on weapon : ", pcap->attack_attached );
-    vfs_printf( filewrite, "Part type      : %d\n", pcap->attack_pip );
-    vfs_printf( filewrite, "\n" );
-
-    // Particle spawning for GoPoof
-    vfs_printf( filewrite, "Poof amount    : %d\n", pcap->gopoofprt_amount );
-    vfs_printf( filewrite, "Facing add     : %d\n", pcap->gopoofprt_facingadd );
-    vfs_printf( filewrite, "Part type      : %d\n", pcap->gopoofprt_pip );
-    vfs_printf( filewrite, "\n" );
-
-    // Particle spawning for blud
-    fput_bool( filewrite, "Blud valid     : ", pcap->blud_valid );
-    vfs_printf( filewrite, "Part type      : %d\n", pcap->blud_pip );
-    vfs_printf( filewrite, "\n" );
-
-    // Extra stuff
-    fput_bool( filewrite, "Waterwalking   : ", pcap->waterwalk );
-    vfs_printf( filewrite, "Bounce dampen  : %5.3f\n", pcap->dampen );
-    vfs_printf( filewrite, "\n" );
-
-    // More stuff
-    vfs_printf( filewrite, "NOT USED       : %5.3f\n", pcap->lifeheal / 256.0f );       // These two are seriously outdated
-    vfs_printf( filewrite, "NOT USED       : %5.3f\n", pcap->manacost / 256.0f );       // and shouldnt be used. Use scripts instead.
-    vfs_printf( filewrite, "Regeneration   : %d\n", pcap->lifereturn );
-    vfs_printf( filewrite, "Stopped by     : %d\n", pcap->stoppedby );
-    fput_string_under( filewrite, "Skin 0 name    : ", pcap->skinname[0] );
-    fput_string_under( filewrite, "Skin 1 name    : ", pcap->skinname[1] );
-    fput_string_under( filewrite, "Skin 2 name    : ", pcap->skinname[2] );
-    fput_string_under( filewrite, "Skin 3 name    : ", pcap->skinname[3] );
-    vfs_printf( filewrite, "Skin 0 cost    : %d\n", pcap->skincost[0] );
-    vfs_printf( filewrite, "Skin 1 cost    : %d\n", pcap->skincost[1] );
-    vfs_printf( filewrite, "Skin 2 cost    : %d\n", pcap->skincost[2] );
-    vfs_printf( filewrite, "Skin 3 cost    : %d\n", pcap->skincost[3] );
-    vfs_printf( filewrite, "STR dampen     : %5.3f\n", pcap->strengthdampen );
-    vfs_printf( filewrite, "\n" );
-
-    // Another memory lapse
-    fput_bool( filewrite, "No rider attak : ", btrue - pcap->ridercanattack );
-    fput_bool( filewrite, "Can be dazed   : ", pcap->canbedazed );
-    fput_bool( filewrite, "Can be grogged : ", pcap->canbegrogged );
-    vfs_printf( filewrite, "NOT USED       : 0\n" );
-    vfs_printf( filewrite, "NOT USED       : 0\n" );
-    fput_bool( filewrite, "Can see invisi : ", pcap->canseeinvisible );
-    vfs_printf( filewrite, "Kursed chance  : %d\n", pchr->iskursed*100 );
-    vfs_printf( filewrite, "Footfall sound : %d\n", pcap->soundindex[SOUND_FOOTFALL] );
-    vfs_printf( filewrite, "Jump sound     : %d\n", pcap->soundindex[SOUND_JUMP] );
-    vfs_printf( filewrite, "\n" );
-
-    // Expansions
-    if ( pcap->skindressy&1 )
-        vfs_printf( filewrite, ":[DRES] 0\n" );
-
-    if ( pcap->skindressy&2 )
-        vfs_printf( filewrite, ":[DRES] 1\n" );
-
-    if ( pcap->skindressy&4 )
-        vfs_printf( filewrite, ":[DRES] 2\n" );
-
-    if ( pcap->skindressy&8 )
-        vfs_printf( filewrite, ":[DRES] 3\n" );
-
-    if ( pcap->resistbumpspawn )
-        vfs_printf( filewrite, ":[STUK] 0\n" );
-
-    if ( pcap->istoobig )
-        vfs_printf( filewrite, ":[PACK] 0\n" );
-
-    if ( !pcap->reflect )
-        vfs_printf( filewrite, ":[VAMP] 1\n" );
-
-    if ( pcap->alwaysdraw )
-        vfs_printf( filewrite, ":[DRAW] 1\n" );
-
-    if ( pcap->isranged )
-        vfs_printf( filewrite, ":[RANG] 1\n" );
-
-    if ( pcap->hidestate != NOHIDE )
-        vfs_printf( filewrite, ":[HIDE] %d\n", pcap->hidestate );
-
-    if ( pcap->isequipment )
-        vfs_printf( filewrite, ":[EQUI] 1\n" );
-
-    if ( pcap->bumpsizebig >= pcap->bumpsize * 2 )
-        vfs_printf( filewrite, ":[SQUA] 1\n" );
-
-    if ( pcap->icon != pcap->usageknown )
-        vfs_printf( filewrite, ":[ICON] %d\n", pcap->icon );
-
-    if ( pcap->forceshadow )
-        vfs_printf( filewrite, ":[SHAD] 1\n" );
-
-    if ( pcap->ripple == pcap->isitem )
-        vfs_printf( filewrite, ":[RIPP] %d\n", pcap->ripple );
-
-    if ( pcap->isvaluable != -1 )
-        vfs_printf( filewrite, ":[VALU] %d\n", pcap->isvaluable );
-
-    // Basic stuff that is always written
-    vfs_printf( filewrite, ":[GOLD] %d\n", pchr->money );
-    vfs_printf( filewrite, ":[PLAT] %d\n", pcap->canuseplatforms );
-    vfs_printf( filewrite, ":[SKIN] %d\n", pchr->skin );
-    vfs_printf( filewrite, ":[CONT] %d\n", pchr->ai.content );
-    vfs_printf( filewrite, ":[STAT] %d\n", pchr->ai.state );
-    vfs_printf( filewrite, ":[LEVL] %d\n", pchr->experiencelevel );
-    vfs_printf( filewrite, ":[LIFE] %4.2f\n", FP8_TO_FLOAT(pchr->life) );
-    vfs_printf( filewrite, ":[MANA] %4.2f\n", FP8_TO_FLOAT(pchr->mana) );
-
-    // Copy all skill expansions
-
-    if ( pchr->shieldproficiency > 0 )
-        vfs_printf( filewrite, ":[SHPR] %d\n", pchr->shieldproficiency );
-
-    if ( pchr->canuseadvancedweapons > 0 )
-        vfs_printf( filewrite, ":[AWEP] %d\n", pchr->canuseadvancedweapons );
-
-    if ( pchr->canjoust )
-        vfs_printf( filewrite, ":[JOUS] %d\n", pchr->canjoust );
-
-    if ( pchr->candisarm )
-        vfs_printf( filewrite, ":[DISA] %d\n", pchr->candisarm );
-
-    if ( pcap->canseekurse )
-        vfs_printf( filewrite, ":[CKUR] %d\n", pcap->canseekurse );
-
-    if ( pchr->canusepoison )
-        vfs_printf( filewrite, ":[POIS] %d\n", pchr->canusepoison );
-
-    if ( pchr->canread )
-        vfs_printf( filewrite, ":[READ] %d\n", pchr->canread );
-
-    if ( pchr->canbackstab )
-        vfs_printf( filewrite, ":[STAB] %d\n", pchr->canbackstab );
-
-    if ( pchr->canusedivine )
-        vfs_printf( filewrite, ":[HMAG] %d\n", pchr->canusedivine );
-
-    if ( pchr->canusearcane )
-        vfs_printf( filewrite, ":[WMAG] %d\n", pchr->canusearcane );
-
-    if ( pchr->canusetech )
-        vfs_printf( filewrite, ":[TECH] %d\n", pchr->canusetech );
-
-    if ( pchr->hascodeofconduct )
-        vfs_printf( filewrite, ":[CODE] %d\n", pchr->hascodeofconduct );
-
-    // The end
-    vfs_close( filewrite );
-
-    return btrue;
+    return save_one_cap_file( vfs_resolveWriteFilename(szSaveName), &cap_tmp );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3204,7 +2880,7 @@ void damage_character( Uint16 character, Uint16 direction,
     if ( !ACTIVE_CHR(character) ) return;
     pchr = ChrList.lst + character;
 
-    if ( pchr->alive && damage.base >= 0 && damage.rand >= 1 )
+    if ( pchr->alive && damage.base + damage.rand > 0 )
     {
         // Lessen actual_damage for resistance, 0 = Weakness, 1 = Normal, 2 = Resist, 3 = Big Resist
         // This can also be used to lessen effectiveness of healing
@@ -3429,7 +3105,7 @@ void damage_character( Uint16 character, Uint16 direction,
                             }
 
                             // All allies get team experience, but only if they also hate the dead guy's team
-							if ( !team_hates_team(ChrList.lst[tnc].team,team) && team_hates_team(ChrList.lst[tnc].team,pchr->team) )
+                            if ( !team_hates_team(ChrList.lst[tnc].team,team) && team_hates_team(ChrList.lst[tnc].team,pchr->team) )
                             {
                                 give_experience( tnc, experience, XP_TEAMKILL, bfalse );
                             }
@@ -3686,37 +3362,23 @@ chr_t * chr_init( chr_t * pchr )
 
     // IMPORTANT!!!
     pchr->ibillboard = INVALID_BILLBOARD;
-    /* pchr->isequipped = bfalse; */
     pchr->sparkle = NOSPARKLE;
-    /* pchr->overlay = bfalse; */
     pchr->loopedsound_channel = INVALID_SOUND;
 
     // Set up model stuff
-    /* pchr->reloadtime = 0; */
     pchr->inwhich_slot = SLOT_LEFT;
-    /* pchr->waskilled = bfalse; */
-    /* pchr->inwater = bfalse; */
     pchr->hitready = btrue;
     pchr->boretime = BORETIME;
     pchr->carefultime = CAREFULTIME;
-    /* pchr->canbecrushed = bfalse; */
-    /* pchr->damageboost = 0; */
 
     // Enchant stuff
     pchr->firstenchant = MAX_ENC;
     pchr->undoenchant = MAX_ENC;
-    /* pchr->canchannel = bfalse; */
-    pchr->missiletreatment = MISNORMAL;
-    /* pchr->missilecost = 0; */
+    pchr->missiletreatment = MISSILE_NORMAL;
 
     // Player stuff
-    /* pchr->isplayer = bfalse; */
-    /* pchr->islocalplayer = bfalse; */
 
     // latches
-    /* pchr->latchx = 0; */
-    /* pchr->latchy = 0; */
-    /* pchr->latch.b = 0; */
 
     pchr->turnmode = TURNMODE_VELOCITY;
 
@@ -3724,7 +3386,6 @@ chr_t * chr_init( chr_t * pchr )
     pchr->alive = btrue;
 
     // Jumping
-    /* pchr->jumpnumber = 0; */
     pchr->jumptime = JUMPDELAY;
 
     // Grip info
@@ -3735,37 +3396,24 @@ chr_t * chr_init( chr_t * pchr )
     }
 
     // pack/inventory info
-    /* pchr->pack_ispacked = bfalse; */
     pchr->pack_next = MAX_CHR;
-    /* pchr->pack_count = 0; */
     for (cnt = 0; cnt < INVEN_COUNT; cnt++)
     {
         pchr->inventory[cnt] = MAX_CHR;
     }
 
     // Set up position
-    /* pchr->vel.x = 0; */
-    /* pchr->vel.y = 0; */
-    /* pchr->vel.z = 0; */
-
-    /* pchr->vel_old = pchr->vel; */
-
     pchr->map_turn_y = 32768;  // These two mean on level surface
     pchr->map_turn_x = 32768;
 
     // action stuff
     pchr->actionready = btrue;
-    /* pchr->keepaction = bfalse; */
-    /* pchr->loopaction = bfalse; */
     pchr->action = ACTION_DA;
     pchr->nextaction = ACTION_DA;
 
-    /* pchr->holdingweight = 0; */
     pchr->onwhichplatform = MAX_CHR;
 
     // Timers set to 0
-    /* pchr->grogtime = 0; */
-    /* pchr->dazetime = 0; */
 
     // I think we have to set the dismount timer, otherwise objects that
     // are spawned by chests will behave strangely...
@@ -3851,7 +3499,7 @@ Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
     //    if it worked, MAX_CHR otherwise
 
     Uint16 ichr, kursechance;
-    int cnt, tnc, iTmp;
+    int cnt, tnc;
     chr_t * pchr;
     cap_t * pcap;
     float nrm[2];
@@ -3887,7 +3535,6 @@ Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
     // can't use chr_get_pcap() because pchr is not a valid character yet
     icap = pro_get_icap( profile );
     pcap = pro_get_pcap( profile );
-    assert(NULL != pcap);
 
     // make a copy of the data in pos
     pos_tmp = pos;
@@ -3898,44 +3545,18 @@ Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
     // turn the character on here. you can't fail to spawn after this point.
     EGO_OBJECT_ACTIVATE( pchr, ichr, "Blah" );
 
+    // download all the values from the character profile
+    chr_download_cap( pchr, pcap );
+
     // Make sure the team is valid
     team = MIN( team, TEAM_MAX - 1 );
 
     // IMPORTANT!!!
     pchr->missilehandler = ichr;
 
-    // sound stuff...  copy from the cap
-    for ( tnc = 0; tnc < SOUND_COUNT; tnc++ )
-    {
-        pchr->soundindex[tnc] = pcap->soundindex[tnc];
-    }
-
     // Set up model stuff
     pchr->iprofile = profile;
     pchr->basemodel = profile;
-    pchr->stoppedby = pcap->stoppedby;
-    pchr->lifeheal = pcap->lifeheal;
-    pchr->manacost = pcap->manacost;
-    pchr->nameknown = pcap->nameknown;
-    pchr->ammoknown = pcap->nameknown;
-    pchr->icon = pcap->icon;
-
-    // Enchant stuff
-    pchr->canseeinvisible = pcap->canseeinvisible;
-
-    // Skillz
-    pchr->canjoust = pcap->canjoust;
-    pchr->canuseadvancedweapons = pcap->canuseadvancedweapons;
-    pchr->shieldproficiency = pcap->shieldproficiency;
-    pchr->canusedivine = pcap->canusedivine;
-    pchr->canusearcane = pcap->canusearcane;
-    pchr->canusetech = pcap->canusetech;
-    pchr->candisarm = pcap->candisarm;
-    pchr->canbackstab = pcap->canbackstab;
-    pchr->canusepoison = pcap->canusepoison;
-    pchr->canread = pcap->canread;
-    pchr->canseekurse = pcap->canseekurse;
-    pchr->hascodeofconduct = pcap->hascodeofconduct;
 
     // Kurse state
     if ( pcap->isitem )
@@ -3947,14 +3568,6 @@ Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
         if ( cfg.difficulty < GAME_NORMAL && kursechance != 100 ) kursechance *= 0.5f;  // Easy mode halves chance for Kurses
         pchr->iskursed = ( generate_irand_pair(loc_rand) <= kursechance );
     }
-
-    // Ammo
-    pchr->ammomax = pcap->ammomax;
-    pchr->ammo = pcap->ammo;
-
-    // Gender
-    pchr->gender = pcap->gender;
-    if ( pchr->gender == GENDER_RANDOM )  pchr->gender = generate_randmask( GENDER_FEMALE, 1 );
 
     // AI stuff
     ai_state_spawn( &(pchr->ai), ichr, pchr->iprofile, TeamList[team].morale );
@@ -3973,7 +3586,9 @@ Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
     // Skin
     if ( pcap->skinoverride != NOSKINOVERRIDE )
     {
-        skin = pcap->skinoverride % MAX_SKIN;
+        // override the value passed into the function from spawn.txt
+        // with the calue from the expansion in data.txt
+        skin = pchr->skin;
     }
     if ( skin >= ProList.lst[profile].skins )
     {
@@ -3984,86 +3599,31 @@ Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
             skin = irand % ProList.lst[profile].skins;
         }
     }
+    pchr->skin = skin;
 
-    pchr->skin    = skin;
-
-    // Life and Mana
-    pchr->lifecolor = pcap->lifecolor;
-    pchr->manacolor = pcap->manacolor;
-    pchr->lifemax = generate_irand_range( pcap->life_stat.val );
-    pchr->lifereturn = pcap->lifereturn;
-    pchr->manamax = generate_irand_range( pcap->mana_stat.val );
-    pchr->manaflow = generate_irand_range( pcap->manaflow_stat.val );
-    pchr->manareturn = generate_irand_range( pcap->manareturn_stat.val );
-
-    // Load current life and mana or refill them (based on difficulty)
-    if ( cfg.difficulty >= GAME_NORMAL ) pchr->life = CLIP( pcap->spawnlife, LOWSTAT, pchr->lifemax );
-    else pchr->life = pchr->lifemax;
-    if ( cfg.difficulty >= GAME_NORMAL ) pchr->mana = CLIP( pcap->spawnmana, 0, pchr->manamax );
-    else pchr->mana = pchr->manamax;
-
-    // SWID
-    pchr->strength = generate_irand_range( pcap->strength_stat.val );
-    pchr->wisdom = generate_irand_range( pcap->wisdom_stat.val );
-    pchr->intelligence = generate_irand_range( pcap->intelligence_stat.val );
-    pchr->dexterity = generate_irand_range( pcap->dexterity_stat.val );
-
-    // Damage
-    pchr->defense = pcap->defense[skin];
-    pchr->reaffirmdamagetype = pcap->attachedprt_reaffirmdamagetype;
-    pchr->damagetargettype = pcap->damagetargettype;
-    for ( tnc = 0; tnc < DAMAGE_COUNT; tnc++ )
+    // fix the skin-related parameters, in case there was some funy business with overriding
+    // the skin from the data.txt file
+    if( pcap->skinoverride != pchr->skin )
     {
-        pchr->damagemodifier[tnc] = pcap->damagemodifier[tnc][skin];
+        pchr->defense = pcap->defense[pchr->skin];
+        for ( tnc = 0; tnc < DAMAGE_COUNT; tnc++ )
+        {
+            pchr->damagemodifier[tnc] = pcap->damagemodifier[tnc][pchr->skin];
+        }
+
+        pchr->maxaccel  = pcap->maxaccel[pchr->skin];
     }
 
-    // Flags
-    pchr->stickybutt = pcap->stickybutt;
-    pchr->openstuff = pcap->canopenstuff;
-    pchr->transferblend = pcap->transferblend;
-    pchr->waterwalk = pcap->waterwalk;
-    pchr->platform = pcap->platform;
-    pchr->isitem = pcap->isitem;
-    pchr->invictus = pcap->invictus;
-    pchr->ismount = pcap->ismount;
-    pchr->cangrabmoney = pcap->cangrabmoney;
-
-    // Jumping
-    pchr->jump_power = pcap->jump;
-    pchr->jumpnumberreset = pcap->jumpnumber;
-
-    // Other junk
-    pchr->flyheight = pcap->flyheight;
-    pchr->maxaccel  = pcap->maxaccel[skin];
-    pchr->basealpha = pcap->alpha;
-    pchr->baselight = pcap->light;
-    pchr->flashand  = pcap->flashand;
-    pchr->dampen    = pcap->dampen;
+    // override the default behavior for an "easy" game
+    if ( cfg.difficulty < GAME_NORMAL ) 
+    {
+        pchr->life = pchr->lifemax;
+        pchr->mana = pchr->manamax;
+    }
 
     // Character size and bumping
-    chr_init_size( pchr, pcap );
     pchr->fat_goto      = pchr->fat;
     pchr->fat_goto_time = 0;
-
-    pchr->bumpdampen = pcap->bumpdampen;
-    if ( pcap->weight == 0xFF )
-    {
-        pchr->weight = 0xFFFFFFFF;
-    }
-    else
-    {
-        Uint32 itmp = pcap->weight * pchr->fat * pchr->fat * pchr->fat;
-        pchr->weight = MIN( itmp, (Uint32)0xFFFFFFFE );
-    }
-
-    // Image rendering
-    pchr->uoffvel = pcap->uoffvel;
-    pchr->voffvel = pcap->voffvel;
-
-    // Movement
-    pchr->sneakspd = pcap->sneakspd;
-    pchr->walkspd = pcap->walkspd;
-    pchr->runspd = pcap->runspd;
 
     // Set up position
     pchr->floor_level = get_mesh_level( PMesh, pos_tmp.x, pos_tmp.y, pchr->waterwalk ) + RAISE;
@@ -4081,8 +3641,6 @@ Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
     pchr->onwhichfan    = mesh_get_tile( PMesh, pchr->pos.x, pchr->pos.y );
     pchr->onwhichblock  = mesh_get_block( PMesh, pchr->pos.x, pchr->pos.y );
 
-    // Money is added later
-    pchr->money = pcap->money;
 
     // Name the character
     if ( name == NULL )
@@ -4110,12 +3668,7 @@ Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
         spawn_one_particle( pchr->pos, 0, pchr->iprofile, pcap->attachedprt_pip,
                             ichr, GRIP_LAST + tnc, pchr->team, ichr, TOTAL_MAX_PRT, tnc, MAX_CHR );
     }
-    pchr->reaffirmdamagetype = pcap->attachedprt_reaffirmdamagetype;
-
-    // Experience
-    iTmp = generate_irand_range( pcap->experience );
-    pchr->experience      = MIN(iTmp, MAXXP);
-    pchr->experiencelevel = pcap->leveloverride;
+    
 
     // Items that are spawned inside shop passages are more expensive than normal
     pchr->isshopitem = bfalse;
@@ -4136,7 +3689,7 @@ Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
         }
     }
 
-    // Flagged as always valuable?
+    // override the shopitem flag if the item is known to be valuable
     if ( pcap->isvaluable ) pchr->isshopitem = btrue;
 
     // initalize the character instance
@@ -4849,7 +4402,7 @@ int check_skills( Uint16 who, IDSZ whichskill )
     else if ( MAKE_IDSZ( 'D', 'I', 'S', 'A' ) == whichskill ) result = ChrList.lst[who].candisarm;
     else if ( MAKE_IDSZ( 'S', 'T', 'A', 'B' ) == whichskill ) result = ChrList.lst[who].canbackstab;
     else if ( MAKE_IDSZ( 'R', 'E', 'A', 'D' ) == whichskill ) result = ChrList.lst[who].canread || ( ChrList.lst[who].canseeinvisible && ChrList.lst[who].canseekurse ); // Truesight allows reading
-    else if ( MAKE_IDSZ( 'P', 'O', 'I', 'S' ) == whichskill && !ChrList.lst[who].hascodeofconduct ) result = ChrList.lst[who].canusepoison;								//Only if not restriced by code of conduct
+    else if ( MAKE_IDSZ( 'P', 'O', 'I', 'S' ) == whichskill && !ChrList.lst[who].hascodeofconduct ) result = ChrList.lst[who].canusepoison;                                //Only if not restriced by code of conduct
     else if ( MAKE_IDSZ( 'C', 'O', 'D', 'E' ) == whichskill ) result = ChrList.lst[who].hascodeofconduct;
 
     return result;
@@ -5465,57 +5018,57 @@ void move_one_character_do_volontary( chr_t * pchr, chr_environment_t * penviro 
     new_ax *= penviro->traction;
     new_ay *= penviro->traction;
 
-	//Figure out how to turn around
-	switch( pchr->turnmode )
-	{
+    //Figure out how to turn around
+    switch( pchr->turnmode )
+    {
 
-		// Get direction from ACTUAL change in velocity
-	default: case TURNMODE_VELOCITY:
-			{
-				if ( dvx < -TURNSPD || dvx > TURNSPD || dvy < -TURNSPD || dvy > TURNSPD )
-				{
-					if ( pchr->isplayer )
-					{
-						// Players turn quickly
-						pchr->turn_z = terp_dir_fast( pchr->turn_z, vec_to_facing( dvx , dvy ) );
-					}
-					else
-					{
-						// AI turn slowly
-						pchr->turn_z = terp_dir( pchr->turn_z, vec_to_facing( dvx , dvy ) );
-					}
-				}		   
-			}
-		break;
+        // Get direction from ACTUAL change in velocity
+    default: case TURNMODE_VELOCITY:
+            {
+                if ( dvx < -TURNSPD || dvx > TURNSPD || dvy < -TURNSPD || dvy > TURNSPD )
+                {
+                    if ( pchr->isplayer )
+                    {
+                        // Players turn quickly
+                        pchr->turn_z = terp_dir_fast( pchr->turn_z, vec_to_facing( dvx , dvy ) );
+                    }
+                    else
+                    {
+                        // AI turn slowly
+                        pchr->turn_z = terp_dir( pchr->turn_z, vec_to_facing( dvx , dvy ) );
+                    }
+                }
+            }
+        break;
 
-		// Get direction from the DESIRED change in velocity
-		case TURNMODE_WATCH:
-			{
-				if ( ( ABS( dvx ) > WATCHMIN || ABS( dvy ) > WATCHMIN ) )
-				{
-					pchr->turn_z = terp_dir( pchr->turn_z, vec_to_facing( dvx , dvy ) );
-				}	
-			}
-		break;
+        // Get direction from the DESIRED change in velocity
+        case TURNMODE_WATCH:
+            {
+                if ( ( ABS( dvx ) > WATCHMIN || ABS( dvy ) > WATCHMIN ) )
+                {
+                    pchr->turn_z = terp_dir( pchr->turn_z, vec_to_facing( dvx , dvy ) );
+                }
+            }
+        break;
 
-	    // Face the target
-		case TURNMODE_WATCHTARGET:
-			{
-				if ( pchr->index != pchr->ai.target )
-				{
-					pchr->turn_z = terp_dir( pchr->turn_z, vec_to_facing( ChrList.lst[pchr->ai.target].pos.x - pchr->pos.x , ChrList.lst[pchr->ai.target].pos.y - pchr->pos.y ) );
-				}
-			}
-		break;
+        // Face the target
+        case TURNMODE_WATCHTARGET:
+            {
+                if ( pchr->index != pchr->ai.target )
+                {
+                    pchr->turn_z = terp_dir( pchr->turn_z, vec_to_facing( ChrList.lst[pchr->ai.target].pos.x - pchr->pos.x , ChrList.lst[pchr->ai.target].pos.y - pchr->pos.y ) );
+                }
+            }
+        break;
 
-	    // Otherwise make it spin
-		case TURNMODE_SPIN:
-			{
-				pchr->turn_z += SPINRATE;
-			}
-		break;
+        // Otherwise make it spin
+        case TURNMODE_SPIN:
+            {
+                pchr->turn_z += SPINRATE;
+            }
+        break;
 
-	}
+    }
 
 
     if ( Md2FrameList[pchr->inst.frame_nxt].framefx & MADFX_STOP )
@@ -6232,7 +5785,7 @@ void move_one_character_do_animation( chr_t * pchr, chr_environment_t * penviro 
         framelip = Md2FrameList[pinst->frame_nxt].framelip;  // 0 - 15...  Way through animation
         if ( pchr->actionready && pinst->lip == 0 && pchr->phys.grounded && pchr->flyheight == 0 && ( framelip&7 ) < 2 )
         {
-			// Do the motion stuff
+            // Do the motion stuff
             speed = ABS( penviro->new_vx ) + ABS( penviro->new_vy );
             if ( speed < pchr->sneakspd )
             {
@@ -6258,7 +5811,7 @@ void move_one_character_do_animation( chr_t * pchr, chr_environment_t * penviro 
             {
                 pchr->boretime = BORETIME;
 
-				//Sneak
+                //Sneak
                 if ( speed < pchr->walkspd )
                 {
                     pchr->nextaction = ACTION_WA;
@@ -6270,7 +5823,7 @@ void move_one_character_do_animation( chr_t * pchr, chr_environment_t * penviro 
                 }
                 else
                 {
-					//Walk
+                    //Walk
                     if ( speed < pchr->runspd )
                     {
                         pchr->nextaction = ACTION_WB;
@@ -6283,7 +5836,7 @@ void move_one_character_do_animation( chr_t * pchr, chr_environment_t * penviro 
                     else
                     {
 
-						//Run
+                        //Run
                         pchr->nextaction = ACTION_WC;
                         if ( pchr->action != ACTION_WC )
                         {
@@ -7839,6 +7392,262 @@ void reset_teams()
     }
 }
 
+
+
+
+//--------------------------------------------------------------------------------------------
+bool_t chr_teleport( Uint16 ichr, float x, float y, float z, Uint16 turn_z )
+{
+    float nrm[2];
+    chr_t * pchr;
+    Uint16  turn_save;
+    bool_t retval;
+
+    GLvector3 pos_save;
+
+    if( !ACTIVE_CHR(ichr) ) return bfalse;
+    pchr = ChrList.lst + ichr;
+
+    if ( x < 0.0f || x > PMesh->info.edge_x ) return bfalse;
+    if ( y < 0.0f || y > PMesh->info.edge_y ) return bfalse;
+
+    pos_save  = pchr->pos;
+    turn_save = pchr->turn_z;
+
+    pchr->pos.x  = x;
+    pchr->pos.y  = y;
+    pchr->pos.z  = z;
+    pchr->turn_z = turn_z;
+
+    if ( __chrhitawall( ichr, nrm ) )
+    {
+        // No it didn't...
+        pchr->pos    = pos_save;
+        pchr->turn_z = turn_save;
+
+        retval = bfalse;
+    }
+    else
+    {
+        // Yeah!  It worked!
+        pchr->pos_old    = pchr->pos;
+        pchr->pos_safe   = pchr->pos;
+        pchr->turn_old_z = pchr->turn_z;
+
+        if( !detach_character_from_mount( ichr, btrue, bfalse ) )
+        {
+            // detach_character_from_mount() updates the character matrix unless it is not mounted
+            _chr_update_matrix( pchr );
+        }
+
+        retval = btrue;
+    }
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t chr_request_terminate( Uint16 ichr )
+{
+    if( !ACTIVE_CHR(ichr) ) return bfalse;
+
+    EGO_OBJECT_TERMINATE( ChrList.lst + ichr );
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+chr_t * chr_update_hide( chr_t * pchr )
+{
+    Sint8 hide;
+    cap_t * pcap;
+
+    if( NULL == pchr || !pchr->allocated ) return pchr;
+
+    hide = NOHIDE;
+    pcap = chr_get_pcap( pchr->index );
+    if( NULL != pcap )
+    {
+        hide = pcap->hidestate;
+    }
+
+    pchr->is_hidden = bfalse;
+    if ( hide != NOHIDE && hide == pchr->ai.state )
+    {
+        pchr->is_hidden = btrue;
+    }
+
+    return pchr;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t ai_state_set_changed( ai_state_t * pai )
+{
+    // BB> do something tricky here
+
+    bool_t retval = bfalse;
+
+    if( NULL == pai ) return bfalse;
+
+    if( HAS_NO_BITS(pai->alert, ALERTIF_CHANGED) )
+    {
+        pai->alert |= ALERTIF_CHANGED;
+        retval = btrue;
+    }
+
+    if( !pai->changed )
+    {
+        pai->changed = btrue;
+        retval = btrue;
+    }
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+matrix_cache_t * matrix_cache_init(matrix_cache_t * mcache)
+{
+    // BB> clear out the matrix cache data
+
+    int cnt;
+
+    if( NULL == mcache ) return mcache;
+
+    memset( mcache, 0, sizeof(matrix_cache_t) );
+
+    mcache->type     = MAT_UNKNOWN;
+    mcache->grip_chr = MAX_CHR;
+    for (cnt = 0; cnt < GRIP_VERTS; cnt++)
+    {
+        mcache->grip_verts[cnt] = 0xFFFF;
+    }
+
+    mcache->rotate.x = 32768;
+    mcache->rotate.y = 32768;
+    mcache->rotate.z = 0;
+
+    return mcache;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t chr_matrix_valid( chr_t * pchr )
+{
+    if( NULL == pchr || !ALLOCATED_CHR(pchr->index) ) return bfalse;
+
+    // both the cache and the matrix need to be valid
+    return pchr->inst.matrix_cache.valid && pchr->inst.matrix_cache.matrix_valid;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t chr_getMatUp(chr_t *pchr, GLvector3 *pvec )
+{
+    // BB> MAKE SURE the value it calculated relative to a valid matrix
+
+    if( NULL == pchr || !ALLOCATED_CHR(pchr->index) ) return bfalse;
+
+    if( NULL == pvec ) return bfalse;
+
+    if( !chr_matrix_valid( pchr ) )
+    {
+        _chr_update_matrix( pchr );
+    }
+
+    if( chr_matrix_valid( pchr ) )
+    {
+        (*pvec) = mat_getChrUp( pchr->inst.matrix );
+    }
+    else
+    {
+        (*pvec).x = (*pvec).y = 0.0f;
+        (*pvec).z = 1.0f;
+    }
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t chr_getMatRight(chr_t *pchr, GLvector3 *pvec )
+{
+    // BB> MAKE SURE the value it calculated relative to a valid matrix
+
+    if( NULL == pchr || !ALLOCATED_CHR(pchr->index) ) return bfalse;
+
+    if( NULL == pvec ) return bfalse;
+
+    if( !chr_matrix_valid( pchr ) )
+    {
+        _chr_update_matrix( pchr );
+    }
+
+    if( chr_matrix_valid( pchr ) )
+    {
+        (*pvec) = mat_getChrRight( pchr->inst.matrix );
+    }
+    else
+    {
+        // assume default Right is +y
+        (*pvec).y = 1.0f;
+        (*pvec).x = (*pvec).z = 0.0f;
+    }
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t chr_getMatForward(chr_t *pchr, GLvector3 *pvec )
+{
+    // BB> MAKE SURE the value it calculated relative to a valid matrix
+
+    if( NULL == pchr || !ALLOCATED_CHR(pchr->index) ) return bfalse;
+
+    if( NULL == pvec ) return bfalse;
+
+    if( !chr_matrix_valid( pchr ) )
+    {
+        _chr_update_matrix( pchr );
+    }
+
+    if( chr_matrix_valid( pchr ) )
+    {
+        (*pvec) = mat_getChrForward( pchr->inst.matrix );
+    }
+    else
+    {
+        // assume default Forward is +x
+        (*pvec).x = 1.0f;
+        (*pvec).y = (*pvec).z = 0.0f;
+    }
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t chr_getMatTranslate(chr_t *pchr, GLvector3 *pvec )
+{
+    // BB> MAKE SURE the value it calculated relative to a valid matrix
+
+    if( NULL == pchr || !ALLOCATED_CHR(pchr->index) ) return bfalse;
+
+    if( NULL == pvec ) return bfalse;
+
+    if( !chr_matrix_valid( pchr ) )
+    {
+        _chr_update_matrix( pchr );
+    }
+
+    if( chr_matrix_valid( pchr ) )
+    {
+        (*pvec) = mat_getTranslate( pchr->inst.matrix );
+    }
+    else
+    {
+        (*pvec) = pchr->pos;
+    }
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 int get_grip_verts( Uint16 grip_verts[], Uint16 imount, int vrt_offset )
 {
@@ -8092,7 +7901,7 @@ bool_t apply_one_weapon_matrix( chr_t * pweap, matrix_cache_t * mc_tmp )
 
         // update the weapon position
         pweap->pos.x = nupoint[3].x;
-        pweap->pos.y = nupoint[3].y; 
+        pweap->pos.y = nupoint[3].y;
         pweap->pos.z = nupoint[3].z;
 
         memcpy( &(pweap->inst.matrix_cache), mc_tmp, sizeof(matrix_cache_t) );
@@ -8348,58 +8157,58 @@ bool_t _chr_update_matrix( chr_t * pchr )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t chr_update_mount_matrix( Uint16 ichr )
-{
-    // BB> recursively travel down a chain of mounts, updating matrices where needed
-
-    chr_t   * pchr;
-
-    bool_t    is_rider;
-
-    if( !ACTIVE_CHR( ichr ) ) return bfalse;
-    pchr = ChrList.lst + ichr;
-
-    is_rider = ACTIVE_CHR(pchr->attachedto);
-
-    // make a simple check to see if the matrix is already valid
-    if( !is_rider )
-    {
-        if( !chr_matrix_valid(pchr) )
-        {
-            return _chr_update_matrix( pchr );
-        }
-        else
-        {
-            bool_t needs_update;
-
-            matrix_cache_t mc_tmp;
-
-            // make a test version of this character's matrix parameters
-            mc_tmp.valid   = btrue;
-            mc_tmp.type    = MAT_CHARACTER;
-
-            mc_tmp.scale.x = mc_tmp.scale.y =  mc_tmp.scale.z = pchr->fat;
-
-            mc_tmp.rotate.x = ( Uint16 ) ( pchr->map_turn_x + 32768 );
-            mc_tmp.rotate.y = ( Uint16 ) ( pchr->map_turn_y + 32768 );
-            mc_tmp.rotate.z = pchr->turn_z;
-
-            needs_update = ( 0 != cmp_matrix_cache( &mc_tmp, &(pchr->inst.matrix_cache) ) );
-
-            if( !needs_update ) return btrue;
-        }
-    };
-
-    if( is_rider )
-    {
-        // re-attach us to our "mount"
-
-        chr_update_mount_matrix( pchr->attachedto );
-        make_one_weapon_matrix ( ichr, pchr->attachedto, bfalse );
-    }
-
-    return btrue;
-}
+//bool_t chr_update_mount_matrix( Uint16 ichr )
+//{
+//    // BB> recursively travel down a chain of mounts, updating matrices where needed
+//
+//    chr_t   * pchr;
+//
+//    bool_t    is_rider;
+//
+//    if( !ACTIVE_CHR( ichr ) ) return bfalse;
+//    pchr = ChrList.lst + ichr;
+//
+//    is_rider = ACTIVE_CHR(pchr->attachedto);
+//
+//    // make a simple check to see if the matrix is already valid
+//    if( !is_rider )
+//    {
+//        if( !chr_matrix_valid(pchr) )
+//        {
+//            return _chr_update_matrix( pchr );
+//        }
+//        else
+//        {
+//            bool_t needs_update;
+//
+//            matrix_cache_t mc_tmp;
+//
+//            // make a test version of this character's matrix parameters
+//            mc_tmp.valid   = btrue;
+//            mc_tmp.type    = MAT_CHARACTER;
+//
+//            mc_tmp.scale.x = mc_tmp.scale.y =  mc_tmp.scale.z = pchr->fat;
+//
+//            mc_tmp.rotate.x = ( Uint16 ) ( pchr->map_turn_x + 32768 );
+//            mc_tmp.rotate.y = ( Uint16 ) ( pchr->map_turn_y + 32768 );
+//            mc_tmp.rotate.z = pchr->turn_z;
+//
+//            needs_update = ( 0 != cmp_matrix_cache( &mc_tmp, &(pchr->inst.matrix_cache) ) );
+//
+//            if( !needs_update ) return btrue;
+//        }
+//    };
+//
+//    if( is_rider )
+//    {
+//        // re-attach us to our "mount"
+//
+//        chr_update_mount_matrix( pchr->attachedto );
+//        make_one_weapon_matrix ( ichr, pchr->attachedto, bfalse );
+//    }
+//
+//    return btrue;
+//}
 
 
 //--------------------------------------------------------------------------------------------
@@ -8428,254 +8237,406 @@ bool_t chr_update_mount_matrix( Uint16 ichr )
 //    return btrue;
 //}
 
-//--------------------------------------------------------------------------------------------
-bool_t chr_teleport( Uint16 ichr, float x, float y, float z, Uint16 turn_z )
-{
-    float nrm[2];
-    chr_t * pchr;
-    Uint16  turn_save;
-    bool_t retval;
+////--------------------------------------------------------------------------------------------
+//void make_one_weapon_matrix( Uint16 iweap, Uint16 iholder, bool_t do_physics )
+//{
+//    // ZZ> This function sets one weapon's matrix, based on who it's attached to
+//    int       cnt, vertex;
+//    GLvector4 point[GRIP_VERTS], nupoint[GRIP_VERTS];
+//    GLvector3 ptemp;
+//    int       iweap_points;
+//    Uint16    grip_verts[GRIP_VERTS];
+//
+//    chr_t    * pweap, * pholder;
+//
+//    // turn this off for now
+//    do_physics = bfalse;
+//
+//    if ( !ACTIVE_CHR(iweap) ) return;
+//    pweap = ChrList.lst + iweap;
+//
+//    if(  !ACTIVE_CHR(iholder) ) return;
+//    pholder = ChrList.lst + iholder;
+//
+//    // make sure that the matrix is invalid incase of an error
+//    pweap->inst.matrix_cache.matrix_valid = bfalse;
+//
+//    // grab the weapon connection points
+//    get_grip_verts( grip_verts, iholder, slot_to_grip_offset(pweap->inwhich_slot) );
+//
+//    // count the valid weapon connection points
+//    iweap_points = 0;
+//    for (cnt = 0; cnt < GRIP_VERTS; cnt++)
+//    {
+//        if (0xFFFF != grip_verts[cnt])
+//        {
+//            iweap_points++;
+//        }
+//    }
+//
+//    // do the best we can
+//    if (0 == iweap_points)
+//    {
+//        // punt! attach to origin
+//        point[0].x = ChrList.lst[0].pos.x;
+//        point[0].y = ChrList.lst[0].pos.y;
+//        point[0].z = ChrList.lst[0].pos.z;
+//        point[0].w = 1;
+//
+//        iweap_points = 1;
+//    }
+//    else if (GRIP_VERTS == iweap_points)
+//    {
+//        vertex = grip_verts[0];
+//
+//        // do the automatic update
+//        chr_instance_update_vertices( &(pholder->inst), vertex, vertex + GRIP_VERTS - 1 );
+//
+//        for ( cnt = 0; cnt < GRIP_VERTS; cnt++ )
+//        {
+//            point[cnt].x = pholder->inst.vlst[vertex + cnt].pos[XX];
+//            point[cnt].y = pholder->inst.vlst[vertex + cnt].pos[YY];
+//            point[cnt].z = pholder->inst.vlst[vertex + cnt].pos[ZZ];
+//            point[cnt].w = 1.0f;
+//        }
+//    }
+//    else
+//    {
+//        // Calculate grip point locations with linear interpolation and other silly things
+//        for (iweap_points = 0, cnt = 0; cnt < GRIP_VERTS; cnt++, iweap_points++ )
+//        {
+//            vertex = grip_verts[cnt];
+//            if (0xFFFF == vertex) continue;
+//
+//            // do the automatic update
+//            chr_instance_update_vertices( &(pholder->inst), vertex, vertex );
+//
+//            point[iweap_points].x = pholder->inst.vlst[vertex].pos[XX];
+//            point[iweap_points].y = pholder->inst.vlst[vertex].pos[YY];
+//            point[iweap_points].z = pholder->inst.vlst[vertex].pos[ZZ];
+//            point[iweap_points].w = 1.0f;
+//        }
+//    }
+//
+//    // use the math function instead of rolling out own
+//    TransformVertices( &(pholder->inst.matrix), point, nupoint, iweap_points );
+//
+//    if (1 == iweap_points)
+//    {
+//        matrix_cache_t * mcache = &(pweap->inst.matrix_cache);
+//
+//        // attach to single point
+//        pweap->inst.matrix = ScaleXYZRotateXYZTranslate(pweap->fat, pweap->fat, pweap->fat,
+//                             pweap->turn_z >> 2,
+//                             ( ( Uint16 ) ( pweap->map_turn_x + 32768 ) ) >> 2,
+//                             ( ( Uint16 ) ( pweap->map_turn_y + 32768 ) ) >> 2,
+//                             nupoint[0].x, nupoint[0].y, nupoint[0].z);
+//
+//        mcache->valid        = btrue;
+//        mcache->matrix_valid = btrue;
+//        mcache->type         = MAT_CHARACTER | MAT_WEAPON;
+//
+//        mcache->scale.x = mcache->scale.y = mcache->scale.z = pweap->fat;
+//
+//        mcache->rotate.x = ( Uint16 ) ( pweap->map_turn_x + 32768 );
+//        mcache->rotate.y = ( Uint16 ) ( pweap->map_turn_y + 32768 );
+//        mcache->rotate.z = pweap->turn_z;
+//
+//        mcache->pos.x = nupoint[0].x;
+//        mcache->pos.y = nupoint[0].y;
+//        mcache->pos.z = nupoint[0].z;
+//
+//    }
+//    else if (4 == iweap_points)
+//    {
+//         matrix_cache_t * mcache = &(pweap->inst.matrix_cache);
+//
+//        // Calculate weapon's matrix based on positions of grip points
+//        // chrscale is recomputed at time of attachment
+//        pweap->inst.matrix = FourPoints(
+//                                 nupoint[0].x, nupoint[0].y, nupoint[0].z,
+//                                 nupoint[1].x, nupoint[1].y, nupoint[1].z,
+//                                 nupoint[2].x, nupoint[2].y, nupoint[2].z,
+//                                 nupoint[3].x, nupoint[3].y, nupoint[3].z, pweap->fat );
+//
+//        mcache->valid        = btrue;
+//        mcache->matrix_valid = btrue;
+//        mcache->type         = MAT_WEAPON;
+//
+//        mcache->grip_chr  = pweap->attachedto;
+//        mcache->grip_slot = pweap->inwhich_slot;
+//        for (cnt = 0; cnt < GRIP_VERTS; cnt++)
+//        {
+//            mcache->grip_verts[cnt] = grip_verts[cnt];
+//        }
+//
+//        mcache->scale.x = mcache->scale.y = mcache->scale.z = pweap->fat;
+//    }
+//
+//    ptemp = pweap->pos;
+//
+//    // update the position of the object
+//    pweap->pos.x = nupoint[0].x;
+//    pweap->pos.y = nupoint[0].y;
+//    pweap->pos.z = nupoint[0].z;
+//
+//    if ( do_physics )
+//    {
+//        float dx, dy, dz;
+//        float wt_weap, wt_holder, damp = 0.5f;
+//        // GLvector3 vcom;
+//
+//        // calculate the "tweety bird swinging a sledgehammer" effect
+//
+//        dx = ptemp.x - nupoint[0].x;
+//        dy = ptemp.y - nupoint[0].y;
+//        dz = ptemp.z - nupoint[0].z;
+//
+//        wt_weap   = 0xFFFFFFFF == pweap->weight ? -(float)0xFFFFFFFF : pweap->weight;
+//        wt_holder = 0xFFFFFFFF == pholder->weight ? -(float)0xFFFFFFFF : pholder->weight;
+//
+//        if ( wt_weap == 0 && wt_holder == 0 )
+//        {
+//            wt_weap = wt_holder = 1;
+//        }
+//        else if ( wt_weap == 0 )
+//        {
+//            wt_weap = 1;
+//            wt_holder = -0xFFFF;
+//        }
+//        else if ( wt_holder == 0 )
+//        {
+//            wt_holder = 1;
+//            wt_weap = -0xFFFF;
+//        }
+//
+//        if ( 0.0f == pweap->bumpdampen && 0.0f == pholder->bumpdampen )
+//        {
+//            /* do nothing */
+//        }
+//        else if ( 0.0f == pweap->bumpdampen )
+//        {
+//            // make the weight infinite
+//            wt_weap = -0xFFFF;
+//        }
+//        else if ( 0.0f == pholder->bumpdampen )
+//        {
+//            // make the weight infinite
+//            wt_holder = -0xFFFF;
+//        }
+//        else
+//        {
+//            // adjust the weights to respect bumpdampen
+//            wt_weap /= pweap->bumpdampen;
+//            wt_holder /= pholder->bumpdampen;
+//        }
+//
+//        // this "velocity matching with damping" makes the mounts really sluggish
+//        // figure out a better way!
+//
+//        // calculate the center-of-mass velocity
+//        // vcom.x = (ABS(wt_weap) * dx + ABS(wt_holder) * pholder->vel.x) / ( ABS(wt_weap) + ABS(wt_holder) );
+//        // vcom.y = (ABS(wt_weap) * dy + ABS(wt_holder) * pholder->vel.y) / ( ABS(wt_weap) + ABS(wt_holder) );
+//        // vcom.z = (ABS(wt_weap) * dz + ABS(wt_holder) * pholder->vel.z) / ( ABS(wt_weap) + ABS(wt_holder) );
+//
+//        if ( wt_weap >= 0.0f )
+//        {
+//            // the object has already been moved the full distance
+//            // move it back some
+//
+//            float ratio = 1.0f - (float)ABS(wt_holder) / ((float)ABS(wt_weap) + (float)ABS(wt_holder));
+//
+//            pweap->phys.apos_1.x -= dx * ratio;
+//            pweap->phys.apos_1.y -= dy * ratio;
+//            pweap->phys.apos_1.z -= dz * ratio;
+//
+//            // pweap->phys.avel.x += (dx-vcom.x)*damp + vcom.x - pweap->vel.x;
+//            // pweap->phys.avel.y += (dy-vcom.y)*damp + vcom.y - pweap->vel.y;
+//            // pweap->phys.avel.z += (dz-vcom.z)*damp + vcom.z - pweap->vel.z;
+//        }
+//
+//        if ( wt_holder >= 0.0f )
+//        {
+//            float ratio = (float)ABS(wt_weap) / ((float)ABS(wt_weap) + (float)ABS(wt_holder));
+//
+//            pholder->phys.apos_1.x -= dx * ratio;
+//            pholder->phys.apos_1.y -= dy * ratio;
+//            pholder->phys.apos_1.z -= dz * ratio;
+//
+//            // pholder->phys.avel.x += (pholder->vel.x-vcom.x)*damp + vcom.x - pholder->vel.x;
+//            // pholder->phys.avel.y += (pholder->vel.y-vcom.y)*damp + vcom.y - pholder->vel.y;
+//            // pholder->phys.avel.z += (pholder->vel.z-vcom.z)*damp + vcom.z - pholder->vel.z;
+//        }
+//
+//    }
+//
+//}
 
-    GLvector3 pos_save;
+////--------------------------------------------------------------------------------------------
+//void make_all_character_matrices(bool_t do_physics)
+//{
+//    // ZZ> This function makes all of the character's matrices
+//
+//    int ichr;
+//
+//    int cnt;
+//    bool_t done;
+//
+//    // invalidate all matrices
+//    for ( ichr = 0; ichr < MAX_CHR; ichr++ )
+//    {
+//        ChrList.lst[ichr].inst.matrix_cache.matrix_valid = bfalse;
+//    }
+//
+//    // blank the accumulators
+//    for ( ichr = 0; ichr < MAX_CHR; ichr++ )
+//    {
+//        ChrList.lst[ichr].phys.apos_0.x = 0.0f;
+//        ChrList.lst[ichr].phys.apos_0.y = 0.0f;
+//        ChrList.lst[ichr].phys.apos_0.z = 0.0f;
+//
+//        ChrList.lst[ichr].phys.apos_1.x = 0.0f;
+//        ChrList.lst[ichr].phys.apos_1.y = 0.0f;
+//        ChrList.lst[ichr].phys.apos_1.z = 0.0f;
+//
+//        ChrList.lst[ichr].phys.avel.x = 0.0f;
+//        ChrList.lst[ichr].phys.avel.y = 0.0f;
+//        ChrList.lst[ichr].phys.avel.z = 0.0f;
+//    }
+//
+//    // Do base characters
+//    for ( ichr = 0; ichr < MAX_CHR; ichr++ )
+//    {
+//        if ( !ACTIVE_CHR(ichr) ) continue;
+//
+//        if ( !ACTIVE_CHR( ChrList.lst[ichr].attachedto ) )
+//        {
+//            make_one_character_matrix( ichr );
+//        }
+//    }
+//
+//    // do all levels of attachment
+//    done = bfalse;
+//    while ( !done )
+//    {
+//        for ( cnt = 0, ichr = 0; ichr < MAX_CHR; ichr++ )
+//        {
+//            chr_t * pchr;
+//            Uint16 imount;
+//
+//            if ( !ACTIVE_CHR(ichr) ) continue;
+//            pchr = ChrList.lst + ichr;
+//
+//            if ( pchr->inst.matrix_cache.valid ) continue;
+//
+//            imount = pchr->attachedto;
+//            if ( !ACTIVE_CHR(imount) || imount == ichr )
+//            {
+//                pchr->attachedto = MAX_CHR;
+//                make_one_character_matrix( ichr );
+//                continue;
+//            }
+//
+//            // can't evaluate this link yet
+//            if ( !chr_get_pinstance(imount)->matrix_cache.valid )
+//            {
+//                cnt++;
+//            }
+//            else
+//            {
+//                make_one_weapon_matrix( ichr, imount, do_physics );
+//            }
+//        }
+//
+//        done = (0 == cnt);
+//    }
+//
+//    if ( do_physics )
+//    {
+//        // accumulate the accumulators
+//        for ( ichr = 0; ichr < MAX_CHR; ichr++ )
+//        {
+//            float nrm[2];
+//            float tmpx, tmpy, tmpz;
+//            chr_t * pchr;
+//
+//            if ( !ACTIVE_CHR(ichr) ) continue;
+//            pchr = ChrList.lst + ichr;
+//
+//            // do the "integration" of the accumulated accelerations
+//            pchr->vel.x += pchr->phys.avel.x;
+//            pchr->vel.y += pchr->phys.avel.y;
+//            pchr->vel.z += pchr->phys.avel.z;
+//
+//            // do the "integration" on the position
+//            if ( ABS(pchr->phys.apos_1.x) > 0 )
+//            {
+//                tmpx = pchr->pos.x;
+//                pchr->pos.x += pchr->phys.apos_1.x;
+//                if ( __chrhitawall(ichr, nrm) )
+//                {
+//                    // restore the old values
+//                    pchr->pos.x = tmpx;
+//                }
+//                else
+//                {
+//                    // pchr->vel.x += pchr->phys.apos_1.x;
+//                    pchr->pos_safe.x = tmpx;
+//                }
+//            }
+//
+//            if ( ABS(pchr->phys.apos_1.y) > 0 )
+//            {
+//                tmpy = pchr->pos.y;
+//                pchr->pos.y += pchr->phys.apos_1.y;
+//                if ( __chrhitawall(ichr, nrm) )
+//                {
+//                    // restore the old values
+//                    pchr->pos.y = tmpy;
+//                }
+//                else
+//                {
+//                    // pchr->vel.y += pchr->phys.apos_1.y;
+//                    pchr->pos_safe.y = tmpy;
+//                }
+//            }
+//
+//            if ( ABS(pchr->phys.apos_1.z) > 0 )
+//            {
+//                tmpz = pchr->pos.z;
+//                pchr->pos.z += pchr->phys.apos_1.z;
+//                if ( pchr->pos.z < pchr->phys.level )
+//                {
+//                    // restore the old values
+//                    pchr->pos.z = tmpz;
+//                }
+//                else
+//                {
+//                    // pchr->vel.z += pchr->phys.apos_1.z;
+//                    pchr->pos_safe.z = tmpz;
+//                }
+//            }
+//
+//            if ( 0 == __chrhitawall(ichr, nrm) )
+//            {
+//                pchr->safe_valid = btrue;
+//            }
+//        }
+//
+//        // fix the matrix positions
+//        for ( ichr = 0; ichr < MAX_CHR; ichr++ )
+//        {
+//            chr_t * pchr;
+//
+//            if ( !ACTIVE_CHR(ichr) ) continue;
+//            pchr = ChrList.lst + ichr;
+//
+//            if( !pchr->inst.matrix_cache.valid ) continue;
+//
+//            pchr->inst.matrix.CNV( 3, 0 ) = pchr->pos.x;
+//            pchr->inst.matrix.CNV( 3, 1 ) = pchr->pos.y;
+//            pchr->inst.matrix.CNV( 3, 2 ) = pchr->pos.z;
+//        }
+//    }
+//}
 
-    if( !ACTIVE_CHR(ichr) ) return bfalse;
-    pchr = ChrList.lst + ichr;
-
-    if ( x < 0.0f || x > PMesh->info.edge_x ) return bfalse;
-    if ( y < 0.0f || y > PMesh->info.edge_y ) return bfalse;
-
-    pos_save  = pchr->pos;
-    turn_save = pchr->turn_z;
-
-    pchr->pos.x  = x;
-    pchr->pos.y  = y;
-    pchr->pos.z  = z;
-    pchr->turn_z = turn_z;
-
-    if ( __chrhitawall( ichr, nrm ) )
-    {
-        // No it didn't...
-        pchr->pos    = pos_save;
-        pchr->turn_z = turn_save;
-
-        retval = bfalse;
-    }
-    else
-    {
-        // Yeah!  It worked!
-        pchr->pos_old    = pchr->pos;
-        pchr->pos_safe   = pchr->pos;
-        pchr->turn_old_z = pchr->turn_z;
-
-        if( !detach_character_from_mount( ichr, btrue, bfalse ) )
-        {
-            // detach_character_from_mount() updates the character matrix unless it is not mounted
-            _chr_update_matrix( pchr );
-        }
-
-        retval = btrue;
-    }
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t chr_request_terminate( Uint16 ichr )
-{
-    if( !ACTIVE_CHR(ichr) ) return bfalse;
-
-    EGO_OBJECT_TERMINATE( ChrList.lst + ichr );
-
-    return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-chr_t * chr_update_hide( chr_t * pchr )
-{
-    Sint8 hide;
-    cap_t * pcap;
-
-    if( NULL == pchr || !pchr->allocated ) return pchr;
-
-    hide = NOHIDE;
-    pcap = chr_get_pcap( pchr->index );
-    if( NULL != pcap )
-    {
-        hide = pcap->hidestate;
-    }
-
-    pchr->is_hidden = bfalse;
-    if ( hide != NOHIDE && hide == pchr->ai.state )
-    {
-        pchr->is_hidden = btrue;
-    }
-
-    return pchr;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t ai_state_set_changed( ai_state_t * pai )
-{
-    // BB> do something tricky here
-
-    bool_t retval = bfalse;
-
-    if( NULL == pai ) return bfalse;
-
-    if( HAS_NO_BITS(pai->alert, ALERTIF_CHANGED) )
-    {
-        pai->alert |= ALERTIF_CHANGED;
-        retval = btrue;
-    }
-
-    if( !pai->changed )
-    {
-        pai->changed = btrue;
-        retval = btrue;
-    }
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-matrix_cache_t * matrix_cache_init(matrix_cache_t * mcache)
-{
-    // BB> clear out the matrix cache data
-
-    int cnt;
-
-    if( NULL == mcache ) return mcache;
-
-    memset( mcache, 0, sizeof(matrix_cache_t) );
-
-    mcache->type     = MAT_UNKNOWN;
-    mcache->grip_chr = MAX_CHR;
-    for (cnt = 0; cnt < GRIP_VERTS; cnt++)
-    {
-        mcache->grip_verts[cnt] = 0xFFFF;
-    }
-
-    mcache->rotate.x = 32768;
-    mcache->rotate.y = 32768;
-    mcache->rotate.z = 0;
-
-    return mcache;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t chr_matrix_valid( chr_t * pchr )
-{
-    if( NULL == pchr || !ALLOCATED_CHR(pchr->index) ) return bfalse;
-
-    // both the cache and the matrix need to be valid
-    return pchr->inst.matrix_cache.valid && pchr->inst.matrix_cache.matrix_valid;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t chr_getMatUp(chr_t *pchr, GLvector3 *pvec )
-{
-    // BB> MAKE SURE the value it calculated relative to a valid matrix
-
-    if( NULL == pchr || !ALLOCATED_CHR(pchr->index) ) return bfalse;
-
-    if( NULL == pvec ) return bfalse;
-
-    if( !chr_matrix_valid( pchr ) )
-    {
-        _chr_update_matrix( pchr );
-    }
-
-    if( chr_matrix_valid( pchr ) )
-    {
-        (*pvec) = mat_getChrUp( pchr->inst.matrix );
-    }
-    else
-    {
-        (*pvec).x = (*pvec).y = 0.0f;
-        (*pvec).z = 1.0f;
-    }
-
-    return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t chr_getMatRight(chr_t *pchr, GLvector3 *pvec )
-{
-    // BB> MAKE SURE the value it calculated relative to a valid matrix
-
-    if( NULL == pchr || !ALLOCATED_CHR(pchr->index) ) return bfalse;
-
-    if( NULL == pvec ) return bfalse;
-
-    if( !chr_matrix_valid( pchr ) )
-    {
-        _chr_update_matrix( pchr );
-    }
-
-    if( chr_matrix_valid( pchr ) )
-    {
-        (*pvec) = mat_getChrRight( pchr->inst.matrix );
-    }
-    else
-    {
-        // assume default Right is +y
-        (*pvec).y = 1.0f;
-        (*pvec).x = (*pvec).z = 0.0f;
-    }
-
-    return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t chr_getMatForward(chr_t *pchr, GLvector3 *pvec )
-{
-    // BB> MAKE SURE the value it calculated relative to a valid matrix
-
-    if( NULL == pchr || !ALLOCATED_CHR(pchr->index) ) return bfalse;
-
-    if( NULL == pvec ) return bfalse;
-
-    if( !chr_matrix_valid( pchr ) )
-    {
-        _chr_update_matrix( pchr );
-    }
-
-    if( chr_matrix_valid( pchr ) )
-    {
-        (*pvec) = mat_getChrForward( pchr->inst.matrix );
-    }
-    else
-    {
-        // assume default Forward is +x
-        (*pvec).x = 1.0f;
-        (*pvec).y = (*pvec).z = 0.0f;
-    }
-
-    return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t chr_getMatTranslate(chr_t *pchr, GLvector3 *pvec )
-{
-    // BB> MAKE SURE the value it calculated relative to a valid matrix
-
-    if( NULL == pchr || !ALLOCATED_CHR(pchr->index) ) return bfalse;
-
-    if( NULL == pvec ) return bfalse;
-
-    if( !chr_matrix_valid( pchr ) )
-    {
-        _chr_update_matrix( pchr );
-    }
-
-    if( chr_matrix_valid( pchr ) )
-    {
-        (*pvec) = mat_getTranslate( pchr->inst.matrix );
-    }
-    else
-    {
-        (*pvec) = pchr->pos;
-    }
-
-    return btrue;
-}

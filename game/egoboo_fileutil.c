@@ -401,10 +401,32 @@ void fput_gender( vfs_FILE* filewrite, const char* text, Uint8 gender )
 void fput_range( vfs_FILE* filewrite, const char* text, FRange val )
 {
     // ZZ> This function mimics vfs_printf in spitting out
-    //    damage/stat pairs
+    //    damage/stat pairs. Try to print out the least amount of text.
 
     vfs_printf( filewrite, "%s", text );
-    vfs_printf( filewrite, "%4.2f-%4.2f\n", val.from, val.to );
+
+    if( val.from == val.to )
+    {
+        if( val.from == floor(val.from) )
+        {
+            vfs_printf( filewrite, "%d\n", (int)val.from );
+        }
+        else
+        {
+            vfs_printf( filewrite, "%4.2f\n", val.from );
+        }
+    }
+    else
+    {
+        if( val.from != floor(val.from) || val.to != floor(val.to) )
+        {
+            vfs_printf( filewrite, "%4.2f-%4.2f\n", val.from, val.to );
+        }
+        else
+        {
+            vfs_printf( filewrite, "%d-%d\n", (int)val.from, (int)val.to );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -449,6 +471,13 @@ void fput_string_under( vfs_FILE* filewrite, const char* text, const char* usena
     }
 
     vfs_printf( filewrite, "\n" );
+}
+
+//--------------------------------------------------------------------------------------------
+void fput_idsz( vfs_FILE* filewrite, const char* text, IDSZ idsz )
+{
+    vfs_printf( filewrite, "%s", text );
+    vfs_printf( filewrite, "[%s]\n", undo_idsz( idsz ) );
 }
 
 //--------------------------------------------------------------------------------------------

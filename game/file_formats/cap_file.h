@@ -316,7 +316,7 @@ struct s_cap
     bool_t       canbackstab;
     bool_t       canusepoison;
     bool_t       canread;
-	bool_t       hascodeofconduct;				   //Bound by a lawful code of conduct?
+    bool_t       hascodeofconduct;                   //Bound by a lawful code of conduct?
 };
 
 typedef struct s_cap cap_t;
@@ -324,6 +324,6 @@ typedef struct s_cap cap_t;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 cap_t * load_one_cap_file( const char * tmploadname, cap_t * pcap );
-//bool_t save_one_cap_file( const char * tmploadname, cap_t * pcap );
+bool_t  save_one_cap_file( const char * szSaveName, cap_t * pcap );
 
 cap_t * cap_init( cap_t * pcap );

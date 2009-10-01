@@ -983,7 +983,7 @@ const char * _vfs_search( struct s_vfs_search_context * ctxt )
                 snprintf( path_buffer, SDL_arraysize(path_buffer), "%s" NET_SLASH_STR "%s", ctxt->path, *(ctxt->ptr) );
             }
 
-            loc_path = _vfs_convert_fname_physfs(path_buffer);
+            loc_path = (char *)_vfs_convert_fname_physfs(path_buffer);
 
             // have we found the correct type of object?
             found  = VFS_FALSE;
@@ -1032,7 +1032,7 @@ const char * _vfs_search( struct s_vfs_search_context * ctxt )
                 snprintf( path_buffer, SDL_arraysize(path_buffer), "%s" NET_SLASH_STR "%s", ctxt->path, *(ctxt->ptr) );
             }
 
-            loc_path = _vfs_convert_fname_physfs(path_buffer);
+            loc_path = (char *)_vfs_convert_fname_physfs(path_buffer);
 
             found = VFS_FALSE;
             is_dir = vfs_isDirectory( loc_path );
@@ -1402,7 +1402,7 @@ char * vfs_gets( char * buffer, int buffer_size, vfs_FILE * pfile )
 
     if( NULL == pfile ) return NULL;
 
-    if( INVALID_CSTR(buffer) || 0 == buffer_size ) return buffer;
+    if( NULL == buffer || 0 == buffer_size ) return buffer;
 
     if( vfs_cfile == pfile->type )
     {
