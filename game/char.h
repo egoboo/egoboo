@@ -680,7 +680,7 @@ const char * describe_stat(int value_high);
 
 void reset_teams();
 
-bool_t _chr_update_matrix( chr_t * pchr );
+bool_t chr_update_matrix( chr_t * pchr );
 bool_t chr_teleport( Uint16 ichr, float x, float y, float z, Uint16 turn_z );
 
 bool_t chr_request_terminate( Uint16 ichr );

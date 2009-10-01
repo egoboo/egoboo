@@ -706,8 +706,8 @@ bool_t save_one_cap_file( const char * szSaveName, cap_t * pcap )
     fput_expansion(filewrite, "", MAKE_IDSZ('S','T','A','T'), pcap->stateoverride );
     fput_expansion(filewrite, "", MAKE_IDSZ('L','E','V','L'), pcap->leveloverride );
 
-    vfs_printf( filewrite, ":[LIFE] %4.2f\n", FP8_TO_FLOAT(pcap->spawnlife) );
-    vfs_printf( filewrite, ":[MANA] %4.2f\n", FP8_TO_FLOAT(pcap->spawnmana) );
+    vfs_printf( filewrite, ": [LIFE] %4.2f\n", FP8_TO_FLOAT(pcap->spawnlife) );
+    vfs_printf( filewrite, ": [MANA] %4.2f\n", FP8_TO_FLOAT(pcap->spawnmana) );
 
     // Copy all skill expansions
     if ( pcap->shieldproficiency > 0 )

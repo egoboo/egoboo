@@ -587,7 +587,7 @@ void chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 t
     pinst->save_lighting_wldframe = update_wld;
 
     // make sure the matrix is valid
-    _chr_update_matrix( pchr );
+    chr_update_matrix( pchr );
 
     if ( INVALID_MAD(pinst->imad) ) return;
     pmad = MadList + pinst->imad;

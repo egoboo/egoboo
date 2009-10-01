@@ -117,6 +117,8 @@ struct s_ai_state
 
     // ai memory from the last event
     Uint16         bumplast;        // Last character it was bumped by
+    int            bumplast_time;   // The last time that a ALERTIF_BUMPED was sent
+
     Uint16         attacklast;      // Last character it was attacked by
     Uint16         hitlast;         // Last character it hit
     Uint16         directionlast;   // Direction of last attack/healing
@@ -139,6 +141,8 @@ struct s_ai_state
     float          wp_pos_y[MAXWAY]; // Waypoint
 };
 typedef struct s_ai_state ai_state_t;
+
+bool_t ai_state_set_bumplast( ai_state_t * pself, Uint16 ichr );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

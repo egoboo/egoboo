@@ -753,8 +753,8 @@ void update_game()
     //    to keep the game in sync.
     //    This is the main game loop
 
-    int cnt, numdead, numalive;
-    int iupdate;
+    int cnt, tnc, numdead, numalive;
+    int true_update;
 
     // Check for all local players being dead
     local_allpladead   = bfalse;
@@ -844,9 +844,14 @@ void update_game()
 
     // [claforte Jan 6th 2001]
     // TODO: Put that back in place once networking is functional.
-    iupdate = clock_all / UPDATE_SKIP;
-    while ( update_wld < iupdate )
-    //while ( clock_wld < clock_all && numplatimes > 0 )
+
+    // Use the number of updates that should have been performed up to this point (true_update)
+    // to try to regulate the update speed of the game
+    // By limiting this loop to 10, you are essentially saying that the update loop
+    // can go 10 times as fast as normal to help update_wld catch up to true_update,
+    // but it can't completely bog doen the game
+    true_update = clock_all / UPDATE_SKIP;
+    for( tnc = 0; update_wld < true_update && tnc < 10 ; tnc++)
     {
         // do important stuff to keep in sync inside this loop
 
@@ -3777,11 +3782,8 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
 
     if ( collision )
     {
-        pchr_a->ai.bumplast = ichr_b;
-        pchr_b->ai.bumplast = ichr_a;
-
-        pchr_a->ai.alert |= ALERTIF_BUMPED;
-        pchr_b->ai.alert |= ALERTIF_BUMPED;
+        ai_state_set_bumplast( &(pchr_a->ai), ichr_b );
+        ai_state_set_bumplast( &(pchr_b->ai), ichr_a );
     }
 
     return btrue;

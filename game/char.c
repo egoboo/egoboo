@@ -460,7 +460,7 @@ void attach_particle_to_character( Uint16 particle, Uint16 character, int vertex
     // Do we have a matrix???
     if ( !chr_matrix_valid(pchr) )
     {
-        _chr_update_matrix(pchr);
+        chr_update_matrix(pchr);
     }
 
     // Do we have a matrix???
@@ -523,10 +523,10 @@ void make_all_character_matrices(bool_t do_physics)
     //int cnt;
     //bool_t done;
 
-    // just call _chr_update_matrix on every character
+    // just call chr_update_matrix on every character
     for ( ichr = 0; ichr < MAX_CHR; ichr++ )
     {
-        _chr_update_matrix( ChrList.lst + ichr );
+        chr_update_matrix( ChrList.lst + ichr );
     }
 
     //// blank the accumulators
@@ -1058,7 +1058,7 @@ bool_t detach_character_from_mount( Uint16 character, Uint8 ignorekurse, Uint8 d
     pchr->map_turn_y = 32768;
     pchr->map_turn_x = 32768;
 
-    _chr_update_matrix( pchr );
+    chr_update_matrix( pchr );
 
     return btrue;
 }
@@ -1152,7 +1152,7 @@ void attach_character_to_mount( Uint16 iitem, Uint16 iholder, grip_offset_t grip
     pitem->attachedto     = iholder;
     pholder->holdingwhich[slot] = iitem;
 
-    _chr_update_matrix( pitem );
+    chr_update_matrix( pitem );
 
     //// set the grip vertices for the iitem
     //set_weapongrip( iitem, iholder, grip_off );
@@ -1987,8 +1987,7 @@ bool_t character_grab_stuff( Uint16 ichr_a, grip_offset_t grip_off, bool_t grab_
             ftmp = vforward.x * diff.x + vforward.y * diff.y;
             if( ftmp > 0.0f )
             {
-                pchr_b->ai.bumplast  = ichr_a;
-                pchr_b->ai.alert    |= ALERTIF_BUMPED;
+                ai_state_set_bumplast( &(pchr_b->ai), ichr_a ); 
             }
         }
     }
@@ -2738,7 +2737,7 @@ bool_t export_one_character_profile( const char *szSaveName, Uint16 character )
     // fill in the cap values with the ones we want to export from the character profile
     chr_upload_cap( pchr, &cap_tmp );
 
-    return save_one_cap_file( vfs_resolveWriteFilename(szSaveName), &cap_tmp );
+    return save_one_cap_file( szSaveName, &cap_tmp );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3694,7 +3693,7 @@ Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
 
     // initalize the character instance
     chr_instance_spawn( &(pchr->inst), profile, skin );
-    _chr_update_matrix( pchr );
+    chr_update_matrix( pchr );
 
     if ( 0 == __chrhitawall(ichr, nrm) )
     {
@@ -3780,7 +3779,7 @@ void respawn_character( Uint16 character )
 
     // re-initialize the instance
     chr_instance_spawn( &(pchr->inst), pchr->iprofile, pchr->skin );
-    _chr_update_matrix( pchr );
+    chr_update_matrix( pchr );
 
     // determine whether the object is hidden
     chr_update_hide( pchr );
@@ -4203,7 +4202,7 @@ void change_character( Uint16 ichr, Uint16 profile_new, Uint8 skin, Uint8 leavew
 
     // initialize the instance
     chr_instance_spawn( &(pchr->inst), profile_new, skin );
-    _chr_update_matrix( pchr );
+    chr_update_matrix( pchr );
 
     // Set the skin after changing the model in chr_instance_spawn()
     change_armor( ichr, skin );
@@ -7044,7 +7043,7 @@ void chr_update_collision_size( chr_t * pchr )
     chr_instance_update_vertices( &(pchr->inst), -1, -1 );
 
     // make sure the index is updated properly
-    _chr_update_matrix( pchr );
+    chr_update_matrix( pchr );
 
     // convert the point cloud in the GLvertex array (pchr->inst.vlst) to
     // a level 1 bounding box. Subtract off the position of the character
@@ -7437,7 +7436,7 @@ bool_t chr_teleport( Uint16 ichr, float x, float y, float z, Uint16 turn_z )
         if( !detach_character_from_mount( ichr, btrue, bfalse ) )
         {
             // detach_character_from_mount() updates the character matrix unless it is not mounted
-            _chr_update_matrix( pchr );
+            chr_update_matrix( pchr );
         }
 
         retval = btrue;
@@ -7549,7 +7548,7 @@ bool_t chr_getMatUp(chr_t *pchr, GLvector3 *pvec )
 
     if( !chr_matrix_valid( pchr ) )
     {
-        _chr_update_matrix( pchr );
+        chr_update_matrix( pchr );
     }
 
     if( chr_matrix_valid( pchr ) )
@@ -7576,7 +7575,7 @@ bool_t chr_getMatRight(chr_t *pchr, GLvector3 *pvec )
 
     if( !chr_matrix_valid( pchr ) )
     {
-        _chr_update_matrix( pchr );
+        chr_update_matrix( pchr );
     }
 
     if( chr_matrix_valid( pchr ) )
@@ -7604,7 +7603,7 @@ bool_t chr_getMatForward(chr_t *pchr, GLvector3 *pvec )
 
     if( !chr_matrix_valid( pchr ) )
     {
-        _chr_update_matrix( pchr );
+        chr_update_matrix( pchr );
     }
 
     if( chr_matrix_valid( pchr ) )
@@ -7632,7 +7631,7 @@ bool_t chr_getMatTranslate(chr_t *pchr, GLvector3 *pvec )
 
     if( !chr_matrix_valid( pchr ) )
     {
-        _chr_update_matrix( pchr );
+        chr_update_matrix( pchr );
     }
 
     if( chr_matrix_valid( pchr ) )
@@ -7728,7 +7727,7 @@ bool_t chr_get_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
         chr_t * ptarget = ChrList.lst + pchr->ai.target;
 
         // make sure we have the latst info from the target
-        _chr_update_matrix( ptarget );
+        chr_update_matrix( ptarget );
 
         // grab the matrix cache into from the character we are overlaying
         memcpy( mc_tmp, &(ptarget->inst.matrix_cache), sizeof(matrix_cache_t) );
@@ -7750,7 +7749,7 @@ bool_t chr_get_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
             chr_t * pmount = ChrList.lst + pchr->attachedto;
 
             // make sure we have the latst info from the target
-            _chr_update_matrix( pmount );
+            chr_update_matrix( pmount );
 
             // just in case the mounts's matrix cannot be corrected
             // then treat it as if it is not mounted... yuck
@@ -8111,7 +8110,7 @@ cmp_matrix_cache_end:
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t _chr_update_matrix( chr_t * pchr )
+bool_t chr_update_matrix( chr_t * pchr )
 {
     // BB> Do everything necessary to set the current matrix for this character.
     //     This might include recursively going down the list of this character's mounts, etc.
@@ -8129,7 +8128,7 @@ bool_t _chr_update_matrix( chr_t * pchr )
     if( ACTIVE_CHR( pchr->attachedto ) )
     {
         // if this fails, we should probably do something...
-        if( !_chr_update_matrix( ChrList.lst + pchr->attachedto ) )
+        if( !chr_update_matrix( ChrList.lst + pchr->attachedto ) )
         {
             pchr->inst.matrix_cache.matrix_valid = bfalse;
             return bfalse;
@@ -8156,487 +8155,21 @@ bool_t _chr_update_matrix( chr_t * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-//bool_t chr_update_mount_matrix( Uint16 ichr )
-//{
-//    // BB> recursively travel down a chain of mounts, updating matrices where needed
-//
-//    chr_t   * pchr;
-//
-//    bool_t    is_rider;
-//
-//    if( !ACTIVE_CHR( ichr ) ) return bfalse;
-//    pchr = ChrList.lst + ichr;
-//
-//    is_rider = ACTIVE_CHR(pchr->attachedto);
-//
-//    // make a simple check to see if the matrix is already valid
-//    if( !is_rider )
-//    {
-//        if( !chr_matrix_valid(pchr) )
-//        {
-//            return _chr_update_matrix( pchr );
-//        }
-//        else
-//        {
-//            bool_t needs_update;
-//
-//            matrix_cache_t mc_tmp;
-//
-//            // make a test version of this character's matrix parameters
-//            mc_tmp.valid   = btrue;
-//            mc_tmp.type    = MAT_CHARACTER;
-//
-//            mc_tmp.scale.x = mc_tmp.scale.y =  mc_tmp.scale.z = pchr->fat;
-//
-//            mc_tmp.rotate.x = ( Uint16 ) ( pchr->map_turn_x + 32768 );
-//            mc_tmp.rotate.y = ( Uint16 ) ( pchr->map_turn_y + 32768 );
-//            mc_tmp.rotate.z = pchr->turn_z;
-//
-//            needs_update = ( 0 != cmp_matrix_cache( &mc_tmp, &(pchr->inst.matrix_cache) ) );
-//
-//            if( !needs_update ) return btrue;
-//        }
-//    };
-//
-//    if( is_rider )
-//    {
-//        // re-attach us to our "mount"
-//
-//        chr_update_mount_matrix( pchr->attachedto );
-//        make_one_weapon_matrix ( ichr, pchr->attachedto, bfalse );
-//    }
-//
-//    return btrue;
-//}
+bool_t ai_state_set_bumplast( ai_state_t * pself, Uint16 ichr )
+{
+    // BB> bumping into a chest can initiate whole loads of update messages.
+    //     Try to throttle the rate that new "bump" messages can be passed to the ai
 
+    if( NULL == pself ) return bfalse;
 
-//--------------------------------------------------------------------------------------------
-//bool_t chr_update_matrix( Uint16 ichr )
-//{
-//    chr_t   * pchr;
-//    bool_t    is_rider;
-//
-//    if( !ACTIVE_CHR( ichr ) ) return bfalse;
-//    pchr = ChrList.lst + ichr;
-//
-//    is_rider = ACTIVE_CHR(pchr->attachedto);
-//
-//    if( is_rider )
-//    {
-//        // make sure we know the matrix we are attached to (if any)
-//        chr_update_mount_matrix( ichr );
-//
-//        make_one_weapon_matrix( ichr, pchr->attachedto, bfalse );
-//    }
-//    else
-//    {
-//        make_one_character_matrix( ichr );
-//    }
-//
-//    return btrue;
-//}
+    if( !ACTIVE_CHR(ichr) ) return bfalse;
 
-////--------------------------------------------------------------------------------------------
-//void make_one_weapon_matrix( Uint16 iweap, Uint16 iholder, bool_t do_physics )
-//{
-//    // ZZ> This function sets one weapon's matrix, based on who it's attached to
-//    int       cnt, vertex;
-//    GLvector4 point[GRIP_VERTS], nupoint[GRIP_VERTS];
-//    GLvector3 ptemp;
-//    int       iweap_points;
-//    Uint16    grip_verts[GRIP_VERTS];
-//
-//    chr_t    * pweap, * pholder;
-//
-//    // turn this off for now
-//    do_physics = bfalse;
-//
-//    if ( !ACTIVE_CHR(iweap) ) return;
-//    pweap = ChrList.lst + iweap;
-//
-//    if(  !ACTIVE_CHR(iholder) ) return;
-//    pholder = ChrList.lst + iholder;
-//
-//    // make sure that the matrix is invalid incase of an error
-//    pweap->inst.matrix_cache.matrix_valid = bfalse;
-//
-//    // grab the weapon connection points
-//    get_grip_verts( grip_verts, iholder, slot_to_grip_offset(pweap->inwhich_slot) );
-//
-//    // count the valid weapon connection points
-//    iweap_points = 0;
-//    for (cnt = 0; cnt < GRIP_VERTS; cnt++)
-//    {
-//        if (0xFFFF != grip_verts[cnt])
-//        {
-//            iweap_points++;
-//        }
-//    }
-//
-//    // do the best we can
-//    if (0 == iweap_points)
-//    {
-//        // punt! attach to origin
-//        point[0].x = ChrList.lst[0].pos.x;
-//        point[0].y = ChrList.lst[0].pos.y;
-//        point[0].z = ChrList.lst[0].pos.z;
-//        point[0].w = 1;
-//
-//        iweap_points = 1;
-//    }
-//    else if (GRIP_VERTS == iweap_points)
-//    {
-//        vertex = grip_verts[0];
-//
-//        // do the automatic update
-//        chr_instance_update_vertices( &(pholder->inst), vertex, vertex + GRIP_VERTS - 1 );
-//
-//        for ( cnt = 0; cnt < GRIP_VERTS; cnt++ )
-//        {
-//            point[cnt].x = pholder->inst.vlst[vertex + cnt].pos[XX];
-//            point[cnt].y = pholder->inst.vlst[vertex + cnt].pos[YY];
-//            point[cnt].z = pholder->inst.vlst[vertex + cnt].pos[ZZ];
-//            point[cnt].w = 1.0f;
-//        }
-//    }
-//    else
-//    {
-//        // Calculate grip point locations with linear interpolation and other silly things
-//        for (iweap_points = 0, cnt = 0; cnt < GRIP_VERTS; cnt++, iweap_points++ )
-//        {
-//            vertex = grip_verts[cnt];
-//            if (0xFFFF == vertex) continue;
-//
-//            // do the automatic update
-//            chr_instance_update_vertices( &(pholder->inst), vertex, vertex );
-//
-//            point[iweap_points].x = pholder->inst.vlst[vertex].pos[XX];
-//            point[iweap_points].y = pholder->inst.vlst[vertex].pos[YY];
-//            point[iweap_points].z = pholder->inst.vlst[vertex].pos[ZZ];
-//            point[iweap_points].w = 1.0f;
-//        }
-//    }
-//
-//    // use the math function instead of rolling out own
-//    TransformVertices( &(pholder->inst.matrix), point, nupoint, iweap_points );
-//
-//    if (1 == iweap_points)
-//    {
-//        matrix_cache_t * mcache = &(pweap->inst.matrix_cache);
-//
-//        // attach to single point
-//        pweap->inst.matrix = ScaleXYZRotateXYZTranslate(pweap->fat, pweap->fat, pweap->fat,
-//                             pweap->turn_z >> 2,
-//                             ( ( Uint16 ) ( pweap->map_turn_x + 32768 ) ) >> 2,
-//                             ( ( Uint16 ) ( pweap->map_turn_y + 32768 ) ) >> 2,
-//                             nupoint[0].x, nupoint[0].y, nupoint[0].z);
-//
-//        mcache->valid        = btrue;
-//        mcache->matrix_valid = btrue;
-//        mcache->type         = MAT_CHARACTER | MAT_WEAPON;
-//
-//        mcache->scale.x = mcache->scale.y = mcache->scale.z = pweap->fat;
-//
-//        mcache->rotate.x = ( Uint16 ) ( pweap->map_turn_x + 32768 );
-//        mcache->rotate.y = ( Uint16 ) ( pweap->map_turn_y + 32768 );
-//        mcache->rotate.z = pweap->turn_z;
-//
-//        mcache->pos.x = nupoint[0].x;
-//        mcache->pos.y = nupoint[0].y;
-//        mcache->pos.z = nupoint[0].z;
-//
-//    }
-//    else if (4 == iweap_points)
-//    {
-//         matrix_cache_t * mcache = &(pweap->inst.matrix_cache);
-//
-//        // Calculate weapon's matrix based on positions of grip points
-//        // chrscale is recomputed at time of attachment
-//        pweap->inst.matrix = FourPoints(
-//                                 nupoint[0].x, nupoint[0].y, nupoint[0].z,
-//                                 nupoint[1].x, nupoint[1].y, nupoint[1].z,
-//                                 nupoint[2].x, nupoint[2].y, nupoint[2].z,
-//                                 nupoint[3].x, nupoint[3].y, nupoint[3].z, pweap->fat );
-//
-//        mcache->valid        = btrue;
-//        mcache->matrix_valid = btrue;
-//        mcache->type         = MAT_WEAPON;
-//
-//        mcache->grip_chr  = pweap->attachedto;
-//        mcache->grip_slot = pweap->inwhich_slot;
-//        for (cnt = 0; cnt < GRIP_VERTS; cnt++)
-//        {
-//            mcache->grip_verts[cnt] = grip_verts[cnt];
-//        }
-//
-//        mcache->scale.x = mcache->scale.y = mcache->scale.z = pweap->fat;
-//    }
-//
-//    ptemp = pweap->pos;
-//
-//    // update the position of the object
-//    pweap->pos.x = nupoint[0].x;
-//    pweap->pos.y = nupoint[0].y;
-//    pweap->pos.z = nupoint[0].z;
-//
-//    if ( do_physics )
-//    {
-//        float dx, dy, dz;
-//        float wt_weap, wt_holder, damp = 0.5f;
-//        // GLvector3 vcom;
-//
-//        // calculate the "tweety bird swinging a sledgehammer" effect
-//
-//        dx = ptemp.x - nupoint[0].x;
-//        dy = ptemp.y - nupoint[0].y;
-//        dz = ptemp.z - nupoint[0].z;
-//
-//        wt_weap   = 0xFFFFFFFF == pweap->weight ? -(float)0xFFFFFFFF : pweap->weight;
-//        wt_holder = 0xFFFFFFFF == pholder->weight ? -(float)0xFFFFFFFF : pholder->weight;
-//
-//        if ( wt_weap == 0 && wt_holder == 0 )
-//        {
-//            wt_weap = wt_holder = 1;
-//        }
-//        else if ( wt_weap == 0 )
-//        {
-//            wt_weap = 1;
-//            wt_holder = -0xFFFF;
-//        }
-//        else if ( wt_holder == 0 )
-//        {
-//            wt_holder = 1;
-//            wt_weap = -0xFFFF;
-//        }
-//
-//        if ( 0.0f == pweap->bumpdampen && 0.0f == pholder->bumpdampen )
-//        {
-//            /* do nothing */
-//        }
-//        else if ( 0.0f == pweap->bumpdampen )
-//        {
-//            // make the weight infinite
-//            wt_weap = -0xFFFF;
-//        }
-//        else if ( 0.0f == pholder->bumpdampen )
-//        {
-//            // make the weight infinite
-//            wt_holder = -0xFFFF;
-//        }
-//        else
-//        {
-//            // adjust the weights to respect bumpdampen
-//            wt_weap /= pweap->bumpdampen;
-//            wt_holder /= pholder->bumpdampen;
-//        }
-//
-//        // this "velocity matching with damping" makes the mounts really sluggish
-//        // figure out a better way!
-//
-//        // calculate the center-of-mass velocity
-//        // vcom.x = (ABS(wt_weap) * dx + ABS(wt_holder) * pholder->vel.x) / ( ABS(wt_weap) + ABS(wt_holder) );
-//        // vcom.y = (ABS(wt_weap) * dy + ABS(wt_holder) * pholder->vel.y) / ( ABS(wt_weap) + ABS(wt_holder) );
-//        // vcom.z = (ABS(wt_weap) * dz + ABS(wt_holder) * pholder->vel.z) / ( ABS(wt_weap) + ABS(wt_holder) );
-//
-//        if ( wt_weap >= 0.0f )
-//        {
-//            // the object has already been moved the full distance
-//            // move it back some
-//
-//            float ratio = 1.0f - (float)ABS(wt_holder) / ((float)ABS(wt_weap) + (float)ABS(wt_holder));
-//
-//            pweap->phys.apos_1.x -= dx * ratio;
-//            pweap->phys.apos_1.y -= dy * ratio;
-//            pweap->phys.apos_1.z -= dz * ratio;
-//
-//            // pweap->phys.avel.x += (dx-vcom.x)*damp + vcom.x - pweap->vel.x;
-//            // pweap->phys.avel.y += (dy-vcom.y)*damp + vcom.y - pweap->vel.y;
-//            // pweap->phys.avel.z += (dz-vcom.z)*damp + vcom.z - pweap->vel.z;
-//        }
-//
-//        if ( wt_holder >= 0.0f )
-//        {
-//            float ratio = (float)ABS(wt_weap) / ((float)ABS(wt_weap) + (float)ABS(wt_holder));
-//
-//            pholder->phys.apos_1.x -= dx * ratio;
-//            pholder->phys.apos_1.y -= dy * ratio;
-//            pholder->phys.apos_1.z -= dz * ratio;
-//
-//            // pholder->phys.avel.x += (pholder->vel.x-vcom.x)*damp + vcom.x - pholder->vel.x;
-//            // pholder->phys.avel.y += (pholder->vel.y-vcom.y)*damp + vcom.y - pholder->vel.y;
-//            // pholder->phys.avel.z += (pholder->vel.z-vcom.z)*damp + vcom.z - pholder->vel.z;
-//        }
-//
-//    }
-//
-//}
+    if( pself->bumplast != ichr || pself->bumplast_time > clock_wld )
+    {
+        pself->bumplast_time = clock_wld + TARGET_UPS / 2;
+        pself->alert |= ALERTIF_BUMPED;
+    }
+    pself->bumplast = ichr;
 
-////--------------------------------------------------------------------------------------------
-//void make_all_character_matrices(bool_t do_physics)
-//{
-//    // ZZ> This function makes all of the character's matrices
-//
-//    int ichr;
-//
-//    int cnt;
-//    bool_t done;
-//
-//    // invalidate all matrices
-//    for ( ichr = 0; ichr < MAX_CHR; ichr++ )
-//    {
-//        ChrList.lst[ichr].inst.matrix_cache.matrix_valid = bfalse;
-//    }
-//
-//    // blank the accumulators
-//    for ( ichr = 0; ichr < MAX_CHR; ichr++ )
-//    {
-//        ChrList.lst[ichr].phys.apos_0.x = 0.0f;
-//        ChrList.lst[ichr].phys.apos_0.y = 0.0f;
-//        ChrList.lst[ichr].phys.apos_0.z = 0.0f;
-//
-//        ChrList.lst[ichr].phys.apos_1.x = 0.0f;
-//        ChrList.lst[ichr].phys.apos_1.y = 0.0f;
-//        ChrList.lst[ichr].phys.apos_1.z = 0.0f;
-//
-//        ChrList.lst[ichr].phys.avel.x = 0.0f;
-//        ChrList.lst[ichr].phys.avel.y = 0.0f;
-//        ChrList.lst[ichr].phys.avel.z = 0.0f;
-//    }
-//
-//    // Do base characters
-//    for ( ichr = 0; ichr < MAX_CHR; ichr++ )
-//    {
-//        if ( !ACTIVE_CHR(ichr) ) continue;
-//
-//        if ( !ACTIVE_CHR( ChrList.lst[ichr].attachedto ) )
-//        {
-//            make_one_character_matrix( ichr );
-//        }
-//    }
-//
-//    // do all levels of attachment
-//    done = bfalse;
-//    while ( !done )
-//    {
-//        for ( cnt = 0, ichr = 0; ichr < MAX_CHR; ichr++ )
-//        {
-//            chr_t * pchr;
-//            Uint16 imount;
-//
-//            if ( !ACTIVE_CHR(ichr) ) continue;
-//            pchr = ChrList.lst + ichr;
-//
-//            if ( pchr->inst.matrix_cache.valid ) continue;
-//
-//            imount = pchr->attachedto;
-//            if ( !ACTIVE_CHR(imount) || imount == ichr )
-//            {
-//                pchr->attachedto = MAX_CHR;
-//                make_one_character_matrix( ichr );
-//                continue;
-//            }
-//
-//            // can't evaluate this link yet
-//            if ( !chr_get_pinstance(imount)->matrix_cache.valid )
-//            {
-//                cnt++;
-//            }
-//            else
-//            {
-//                make_one_weapon_matrix( ichr, imount, do_physics );
-//            }
-//        }
-//
-//        done = (0 == cnt);
-//    }
-//
-//    if ( do_physics )
-//    {
-//        // accumulate the accumulators
-//        for ( ichr = 0; ichr < MAX_CHR; ichr++ )
-//        {
-//            float nrm[2];
-//            float tmpx, tmpy, tmpz;
-//            chr_t * pchr;
-//
-//            if ( !ACTIVE_CHR(ichr) ) continue;
-//            pchr = ChrList.lst + ichr;
-//
-//            // do the "integration" of the accumulated accelerations
-//            pchr->vel.x += pchr->phys.avel.x;
-//            pchr->vel.y += pchr->phys.avel.y;
-//            pchr->vel.z += pchr->phys.avel.z;
-//
-//            // do the "integration" on the position
-//            if ( ABS(pchr->phys.apos_1.x) > 0 )
-//            {
-//                tmpx = pchr->pos.x;
-//                pchr->pos.x += pchr->phys.apos_1.x;
-//                if ( __chrhitawall(ichr, nrm) )
-//                {
-//                    // restore the old values
-//                    pchr->pos.x = tmpx;
-//                }
-//                else
-//                {
-//                    // pchr->vel.x += pchr->phys.apos_1.x;
-//                    pchr->pos_safe.x = tmpx;
-//                }
-//            }
-//
-//            if ( ABS(pchr->phys.apos_1.y) > 0 )
-//            {
-//                tmpy = pchr->pos.y;
-//                pchr->pos.y += pchr->phys.apos_1.y;
-//                if ( __chrhitawall(ichr, nrm) )
-//                {
-//                    // restore the old values
-//                    pchr->pos.y = tmpy;
-//                }
-//                else
-//                {
-//                    // pchr->vel.y += pchr->phys.apos_1.y;
-//                    pchr->pos_safe.y = tmpy;
-//                }
-//            }
-//
-//            if ( ABS(pchr->phys.apos_1.z) > 0 )
-//            {
-//                tmpz = pchr->pos.z;
-//                pchr->pos.z += pchr->phys.apos_1.z;
-//                if ( pchr->pos.z < pchr->phys.level )
-//                {
-//                    // restore the old values
-//                    pchr->pos.z = tmpz;
-//                }
-//                else
-//                {
-//                    // pchr->vel.z += pchr->phys.apos_1.z;
-//                    pchr->pos_safe.z = tmpz;
-//                }
-//            }
-//
-//            if ( 0 == __chrhitawall(ichr, nrm) )
-//            {
-//                pchr->safe_valid = btrue;
-//            }
-//        }
-//
-//        // fix the matrix positions
-//        for ( ichr = 0; ichr < MAX_CHR; ichr++ )
-//        {
-//            chr_t * pchr;
-//
-//            if ( !ACTIVE_CHR(ichr) ) continue;
-//            pchr = ChrList.lst + ichr;
-//
-//            if( !pchr->inst.matrix_cache.valid ) continue;
-//
-//            pchr->inst.matrix.CNV( 3, 0 ) = pchr->pos.x;
-//            pchr->inst.matrix.CNV( 3, 1 ) = pchr->pos.y;
-//            pchr->inst.matrix.CNV( 3, 2 ) = pchr->pos.z;
-//        }
-//    }
-//}
-
+    return btrue;
+}
