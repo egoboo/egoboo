@@ -3472,7 +3472,7 @@ Uint8 scr_HoldingRangedWeapon( script_state_t * pstate, ai_state_t * pself )
 
             if ( NULL != pcap && pcap->isranged && ( ChrList.lst[tTmp].ammomax == 0 || ( ChrList.lst[tTmp].ammo != 0 && ChrList.lst[tTmp].ammoknown ) ) )
             {
-                if ( pstate->argument == 0 || ( frame_all & 1 ) )
+                if ( pstate->argument == 0 || ( update_wld & 1 ) )
                 {
                     pstate->argument = LATCHBUTTON_RIGHT;
                     returncode = btrue;
@@ -3524,7 +3524,7 @@ Uint8 scr_HoldingMeleeWeapon( script_state_t * pstate, ai_state_t * pself )
 
             if ( NULL != pcap && !pcap->isranged && pcap->weaponaction != ACTION_PA )
             {
-                if ( pstate->argument == 0 || ( frame_all & 1 ) )
+                if ( pstate->argument == 0 || ( update_wld & 1 ) )
                 {
                     pstate->argument = LATCHBUTTON_RIGHT;
                     returncode = btrue;

@@ -3904,10 +3904,8 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
             if ( pchr_a->missiletreatment == MISSILE_DEFLECT )
             {
                 // Use old position to find normal
-                ax = pprt_b->pos.x - pprt_b->vel.x;
-                ay = pprt_b->pos.y - pprt_b->vel.y;
-                ax = pchr_a->pos.x - ax;
-                ay = pchr_a->pos.y - ay;
+                ax = pchr_a->pos.x - pprt_b->pos_old.x;
+                ay = pchr_a->pos.y - pprt_b->pos_old.y;
 
                 // Find size of normal
                 scale = ax * ax + ay * ay;
@@ -3929,8 +3927,8 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
             else if ( pchr_a->missiletreatment == MISSILE_DEFLECT )
             {
                 // Reflect it back in the direction it came
-                pprt_b->vel.x = -pprt_b->vel.x;
-                pprt_b->vel.y = -pprt_b->vel.y;
+                pprt_b->vel.x *= -1.0f;
+                pprt_b->vel.y *= -1.0f;
             }
 
             // Change the owner of the missile

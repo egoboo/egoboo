@@ -1996,7 +1996,7 @@ bool_t character_grab_stuff( Uint16 ichr_a, grip_offset_t grip_off, bool_t grab_
 }
 
 //--------------------------------------------------------------------------------------------
-void character_swipe( Uint16 cnt, slot_t slot )
+void character_swipe( Uint16 ichr, slot_t slot )
 {
     // ZZ> This function spawns an attack particle
     int weapon, particle, spawn_vrt_offset, thrown;
@@ -2006,21 +2006,26 @@ void character_swipe( Uint16 cnt, slot_t slot )
     float velocity;
     chr_t * pchr, * pweapon;
     cap_t * pweapon_cap;
-    bool_t unarmed_attack = bfalse;
 
-    if( !ACTIVE_CHR(cnt) ) return;
-    pchr = ChrList.lst + cnt;
+    bool_t unarmed_attack;
+
+    if( !ACTIVE_CHR(ichr) ) return;
+    pchr = ChrList.lst + ichr;
 
     weapon = pchr->holdingwhich[slot];
-    spawn_vrt_offset = GRIP_LAST;
     action = pchr->action;
 
     // See if it's an unarmed attack...
-    if ( weapon == MAX_CHR )
+    if ( ACTIVE_CHR(weapon) )
     {
-        unarmed_attack = btrue;
-        weapon = cnt;
-        spawn_vrt_offset = slot_to_grip_offset( slot );  // 0 -> GRIP_LEFT, 1 -> GRIP_RIGHT
+        unarmed_attack   = bfalse;
+        spawn_vrt_offset = GRIP_LAST;
+    }
+    else
+    {
+        unarmed_attack   = btrue;
+        weapon           = ichr;
+        spawn_vrt_offset = slot_to_grip_offset( slot );  // SLOT_LEFT -> GRIP_LEFT, SLOT_RIGHT -> GRIP_RIGHT
     }
 
     if( !ACTIVE_CHR(weapon) ) return;
@@ -2029,12 +2034,12 @@ void character_swipe( Uint16 cnt, slot_t slot )
     pweapon_cap = chr_get_pcap(weapon);
     if( NULL == pweapon_cap ) return;
 
-    //It's a item
-    if ( !unarmed_attack && ( ( pweapon_cap->isstackable && pweapon->ammo > 1 ) || ( action >= ACTION_FA && action <= ACTION_FD ) ) )
+    // What kind of attack are we going to do?
+    if ( !unarmed_attack && ( ( pweapon_cap->isstackable && pweapon->ammo > 1 ) || ( action >= ACTION_FA && action <= ACTION_FD )) )
     {
-        // Throw the weapon if it's stacked or a hurl animation
+        // Throw the weapon if it's stacked or a hurl animation     
 
-        thrown = spawn_one_character( pchr->pos, pweapon->iprofile, chr_get_iteam(cnt), 0, pchr->turn_z, pweapon->name, MAX_CHR );
+        thrown = spawn_one_character( pchr->pos, pweapon->iprofile, chr_get_iteam(ichr), 0, pchr->turn_z, pweapon->name, MAX_CHR );
         if ( ACTIVE_CHR(thrown) )
         {
             chr_t * pthrown = ChrList.lst + thrown;
@@ -2049,9 +2054,9 @@ void character_swipe( Uint16 cnt, slot_t slot )
                 velocity = MAXTHROWVELOCITY;
             }
 
-            tTmp = pchr->turn_z >> 2;
-            pthrown->vel.x += turntocos[( tTmp+8192 ) & TRIG_TABLE_MASK] * velocity;
-            pthrown->vel.y += turntosin[( tTmp+8192 ) & TRIG_TABLE_MASK] * velocity;
+            tTmp = ( pchr->turn_z + 32768 ) >> 2;
+            pthrown->vel.x += turntocos[ tTmp & TRIG_TABLE_MASK ] * velocity;
+            pthrown->vel.y += turntosin[ tTmp & TRIG_TABLE_MASK ] * velocity;
             pthrown->vel.z = DROPZVEL;
             if ( pweapon->ammo <= 1 )
             {
@@ -2065,11 +2070,10 @@ void character_swipe( Uint16 cnt, slot_t slot )
             }
         }
     }
-
-    //It's a unarmed attack
     else
     {
-        // Spawn an attack particle
+        // A generic attack. Spawn the damage particle.
+
         if ( pweapon->ammomax == 0 || pweapon->ammo != 0 )
         {
             if ( pweapon->ammo > 0 && !pweapon_cap->isstackable )
@@ -2080,7 +2084,7 @@ void character_swipe( Uint16 cnt, slot_t slot )
             // Spawn an attack particle
             if ( pweapon_cap->attack_pip != -1 )
             {
-                particle = spawn_one_particle( pweapon->pos, pchr->turn_z, pweapon->iprofile, pweapon_cap->attack_pip, weapon, spawn_vrt_offset, chr_get_iteam(cnt), cnt, TOTAL_MAX_PRT, 0, MAX_CHR );
+                particle = spawn_one_particle( pweapon->pos, pchr->turn_z, pweapon->iprofile, pweapon_cap->attack_pip, weapon, spawn_vrt_offset, chr_get_iteam(ichr), ichr, TOTAL_MAX_PRT, 0, MAX_CHR );
 
                 if ( ACTIVE_PRT(particle) )
                 {
@@ -2091,9 +2095,9 @@ void character_swipe( Uint16 cnt, slot_t slot )
                         // attached particles get a strength bonus for reeling...
                         dampen = REELBASE + ( pchr->strength / REEL );
 
-                        pprt->vel.x *= dampen;
-                        pprt->vel.y *= dampen;
-                        pprt->vel.z *= dampen;
+                        pprt->vel_stt.x *= dampen;
+                        pprt->vel_stt.y *= dampen;
+                        pprt->vel_stt.z *= dampen;
                     }
                     else
                     {
@@ -2875,9 +2879,13 @@ void damage_character( Uint16 character, Uint16 direction,
     int    actual_damage, base_damage;
     Uint16 experience, left, right;
     chr_t * pchr;
+    cap_t * pcap;
 
     if ( !ACTIVE_CHR(character) ) return;
     pchr = ChrList.lst + character;
+
+    pcap = pro_get_pcap( pchr->iprofile );
+    if( NULL == pcap ) return;
 
     if ( pchr->alive && damage.base + damage.rand > 0 )
     {
@@ -2939,9 +2947,9 @@ void damage_character( Uint16 character, Uint16 direction,
                     if ( Md2FrameList[pchr->inst.frame_nxt].framefx & MADFX_INVICTUS )
                     {
                         // I Frame...
-                        direction -= chr_get_pcap(character)->iframefacing;
-                        left  = 0xFFFF - chr_get_pcap(character)->iframeangle;
-                        right = chr_get_pcap(character)->iframeangle;
+                        direction -= pcap->iframefacing;
+                        left  = 0xFFFF - pcap->iframeangle;
+                        right = pcap->iframeangle;
 
                         // Check for shield
                         if ( pchr->action >= ACTION_PA && pchr->action <= ACTION_PD )
@@ -2950,19 +2958,21 @@ void damage_character( Uint16 character, Uint16 direction,
                             if ( pchr->action < ACTION_PC )
                             {
                                 // Check left hand
-                                if ( pchr->holdingwhich[SLOT_LEFT] != MAX_CHR )
+                                cap_t * pcap_tmp = chr_get_pcap( pchr->holdingwhich[SLOT_LEFT] );
+                                if ( NULL != pcap )
                                 {
-                                    left  = 0xFFFF - chr_get_pcap(pchr->holdingwhich[SLOT_LEFT])->iframeangle;
-                                    right = chr_get_pcap(pchr->holdingwhich[SLOT_LEFT])->iframeangle;
+                                    left  = 0xFFFF - pcap_tmp->iframeangle;
+                                    right = pcap_tmp->iframeangle;
                                 }
                             }
                             else
                             {
                                 // Check right hand
-                                if ( pchr->holdingwhich[SLOT_RIGHT] != MAX_CHR )
+                                cap_t * pcap_tmp = chr_get_pcap( pchr->holdingwhich[SLOT_RIGHT] );
+                                if ( NULL != pcap )
                                 {
-                                    left  = 0xFFFF - chr_get_pcap(pchr->holdingwhich[SLOT_RIGHT])->iframeangle;
-                                    right = chr_get_pcap(pchr->holdingwhich[SLOT_RIGHT])->iframeangle;
+                                    left  = 0xFFFF - pcap_tmp->iframeangle;
+                                    right = pcap_tmp->iframeangle;
                                 }
                             }
                         }
@@ -2970,9 +2980,9 @@ void damage_character( Uint16 character, Uint16 direction,
                     else
                     {
                         // N Frame
-                        direction -= chr_get_pcap(character)->nframefacing;
-                        left = 0xFFFF - chr_get_pcap(character)->nframeangle;
-                        right = chr_get_pcap(character)->nframeangle;
+                        direction -= pcap->nframefacing;
+                        left = 0xFFFF - pcap->nframeangle;
+                        right = pcap->nframeangle;
                     }
 
                     // Check that direction
@@ -2995,9 +3005,9 @@ void damage_character( Uint16 character, Uint16 direction,
                     if ( base_damage > HURTDAMAGE )
                     {
                         // Spawn blud particles
-                        if ( chr_get_pcap(character)->blud_valid && ( damagetype < DAMAGE_HOLY || chr_get_pcap(character)->blud_valid == ULTRABLUDY ) )
+                        if ( pcap->blud_valid && ( damagetype < DAMAGE_HOLY || pcap->blud_valid == ULTRABLUDY ) )
                         {
-                            spawn_one_particle( pchr->pos, pchr->turn_z + direction, pchr->iprofile, chr_get_pcap(character)->blud_pip,
+                            spawn_one_particle( pchr->pos, pchr->turn_z + direction, pchr->iprofile, pcap->blud_pip,
                                                 MAX_CHR, GRIP_LAST, pchr->team, character, TOTAL_MAX_PRT, 0, MAX_CHR );
                         }
 
@@ -3058,7 +3068,7 @@ void damage_character( Uint16 character, Uint16 direction,
                         action = ACTION_KA;
 
                         // Give kill experience
-                        experience = chr_get_pcap(character)->experienceworth + ( pchr->experience * chr_get_pcap(character)->experienceexchange );
+                        experience = pcap->experienceworth + ( pchr->experience * pcap->experienceexchange );
                         if ( ACTIVE_CHR(attacker) )
                         {
                             // Set target
@@ -4482,7 +4492,7 @@ void update_all_characters()
                     }
                 }
 
-                if ( water.is_water && HAS_NO_BITS( frame_all, 7 ) )
+                if ( water.is_water && HAS_NO_BITS( update_wld, 7 ) )
                 {
                     pchr->jumpready = btrue;
                     pchr->jumpnumber = 1; // pchr->jumpnumberreset;

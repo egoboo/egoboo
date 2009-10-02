@@ -108,7 +108,7 @@ void play_particle_sound( Uint16 particle, Sint8 sound )
 
     prt_t * pprt;
 
-    if ( !ACTIVE_PRT(particle) ) return;
+    if ( !ALLOCATED_PRT(particle) ) return;
     pprt = PrtList.lst + particle;
 
     if ( sound >= 0 && sound < MAX_WAVE )
@@ -359,7 +359,7 @@ Uint16 spawn_one_particle( GLvector3 pos, Uint16 facing, Uint16 iprofile, Uint16
 
     // Targeting...
     vel.z = 0;
-    tmp_pos.z = tmp_pos.z + generate_randmask( ppip->zspacing_pair.base, ppip->zspacing_pair.rand ) - ( ppip->zspacing_pair.rand >> 1 );
+    tmp_pos.z += generate_randmask( ppip->zspacing_pair.base, ppip->zspacing_pair.rand ) - ( ppip->zspacing_pair.rand >> 1 );
     velocity = generate_randmask( ppip->xyvel_pair.base, ppip->xyvel_pair.rand );
     pprt->target_ref = oldtarget;
     if ( ppip->newtargetonspawn )
@@ -444,7 +444,7 @@ Uint16 spawn_one_particle( GLvector3 pos, Uint16 facing, Uint16 iprofile, Uint16
     vel.x = turntocos[turn & TRIG_TABLE_MASK] * velocity;
     vel.y = turntosin[turn & TRIG_TABLE_MASK] * velocity;
     vel.z += generate_randmask( ppip->zvel_pair.base, ppip->zvel_pair.rand ) - ( ppip->zvel_pair.rand >> 1 );
-    pprt->vel = pprt->vel_old = vel;
+    pprt->vel = pprt->vel_old = pprt->vel_stt = vel;
 
     // Template values
     pprt->bumpsize = ppip->bumpsize;
@@ -484,7 +484,7 @@ Uint16 spawn_one_particle( GLvector3 pos, Uint16 facing, Uint16 iprofile, Uint16
     }
     else
     {
-        pprt->time = frame_all + prt_lifetime;
+        pprt->time = update_wld + prt_lifetime;
     }
 
     // Set onwhichfan...
@@ -661,7 +661,7 @@ void update_all_particles( void )
 
 
     // apply damage from  attatched bump particles (about once a second)
-    if ( 0 == ( frame_all & 31 ) )
+    if ( 0 == ( update_wld & 31 ) )
     {
         for ( particle = 0; particle < maxparticles; particle++ )
         {
@@ -674,6 +674,9 @@ void update_all_particles( void )
 
             // do nothing if the particle is hidden
             if( pprt->is_hidden ) continue;
+
+            // is this is not a damage particle for me?
+            if( pprt->attachedto_ref == pprt->owner_ref ) continue;
 
             ppip = prt_get_ppip( particle );
             if( NULL == ppip ) continue;
@@ -1078,7 +1081,7 @@ void cleanup_all_particles()
         if ( !PrtList.lst[iprt].allocated ) continue;
         pprt = PrtList.lst + iprt;
 
-        time_out = !pprt->is_eternal && frame_all >= pprt->time;
+        time_out = !pprt->is_eternal && update_wld >= pprt->time;
         if ( !pprt->kill_me && !time_out ) continue;
 
         // Spawn new particles if time for old one is up

@@ -104,7 +104,7 @@ struct s_prt
     Uint8   team;                            // Team
 
     GLvector3   pos, pos_old, pos_stt;       // Position
-    GLvector3   vel, vel_old;                // Velocity
+    GLvector3   vel, vel_old, vel_stt;       // Velocity
 
     Uint32  onwhichfan;                      // Where the part is
     Uint32  onwhichblock;                    // The particle's collision block

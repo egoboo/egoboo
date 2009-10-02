@@ -804,12 +804,6 @@
 				RelativePath=".\script_functions.h">
 			</File>
 		</Filter>
-		<File
-			RelativePath="..\doc\Egoboo Development Guide.rtf">
-		</File>
-		<File
-			RelativePath="..\log.txt">
-		</File>
 	</Files>
 	<Globals>
 	</Globals>
