@@ -866,6 +866,7 @@ void update_game()
             looped_update_all_sound();
             do_damage_tiles();
             update_pits();
+			do_weather_spawn_particles();
         }
         //---- end the code for updating misc. game stuff
 
@@ -2206,7 +2207,16 @@ void do_weather_spawn_particles()
                         {
                             PrtList_free_one( particle );
                         }
+						else
+						{
+							//Weather particles spawned at the edge of the map look ugly, so don't spawn them there
+							float xpos = PrtList.lst[particle].pos.x;
+							float ypos = PrtList.lst[particle].pos.y;
+							if(      xpos < EDGE || xpos > PMesh->info.edge_x - EDGE) PrtList_free_one( particle );
+							else if( ypos < EDGE || ypos > PMesh->info.edge_y - EDGE) PrtList_free_one( particle );
+						}
                     }
+
                 }
             }
         }

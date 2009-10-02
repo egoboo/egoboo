@@ -13,7 +13,7 @@ IfSpawned
   tmpargument = 9
   SetTargetToWhoeverIsInPassage
     tmpargument = [EVIL]
-    IfTargetHasQuestID
+    IfTargetHasQuest
       tmpargument = TEAME
       TargetJoinTeam
 

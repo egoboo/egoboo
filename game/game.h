@@ -177,11 +177,11 @@ extern damagetile_instance_t damagetile;
 //--------------------------------------------------------------------------------------------
 struct s_weather_instance
 {
-    int     timer_reset;
+    int   timer_reset;
     bool_t  over_water;
 
     Uint16  iplayer;
-    int     time;                // 0 is no weather
+    int   time;                // 0 is no weather
 };
 typedef struct s_weather_instance weather_instance_t;
 extern weather_instance_t weather;

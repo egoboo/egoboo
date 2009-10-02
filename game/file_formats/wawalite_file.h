@@ -105,7 +105,7 @@ typedef struct s_wawalite_damagetile wawalite_damagetile_t;
 struct s_wawalite_weather
 {
     bool_t over_water;
-    int    timer_reset;
+    int  timer_reset;
 };
 typedef struct s_wawalite_weather wawalite_weather_t;
 

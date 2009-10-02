@@ -12,7 +12,7 @@ Level rating ( * to  ***** ) :***
 // Module summary
 :Valkyries_are_hardy_warrior_women.
 :Their_upbringing_in_the_harsh_
-:Northlands_makes_them_strong,_inures
+:Northlands_makes_them_strong,_insures
 :them_to_extremes_of_cold,_and_instills
 :in_them_stealth_and_cunning._Your
 :objective_is_to_save_seven_Viking

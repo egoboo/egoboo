@@ -147,9 +147,9 @@ IfKilled
 
   // Drop goodies
   tmpx = selflevel
-  tmpy = 14           //Level 14 and above is immune to this
+  tmpy = 13           //Level 14 and above is immune to this
   IfXIsLessThanY
-    tmpargument = selflevel*selflevel*100
+    tmpargument = 1+selflevel*selflevel*100
     DropMoney
     DropKeys
 
