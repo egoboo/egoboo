@@ -832,7 +832,8 @@ Uint16 spawn_one_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 en
                 povl->action = ACTION_MJ;
                 povl->actionready = bfalse;
 
-                povl->inst.lip = 0;
+                povl->inst.flip = 0;
+                povl->inst.ilip = 0;
                 povl->inst.frame_nxt = povl_mad->actionstart[ACTION_MJ];
                 povl->inst.frame_lst = povl->inst.frame_nxt;
             }

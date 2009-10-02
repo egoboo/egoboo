@@ -2157,6 +2157,10 @@ void render_scene_zreflection( ego_mpd_t * pmesh, camera_t * pcam )
     }
     PROFILE_END( render_scene_trans );
 
+#if defined(USE_DEBUG)
+    //render_all_prt_attachment();
+#endif
+
     time_draw_scene_init  = PROFILE_QUERY(render_scene_init ) * TARGET_FPS;
     time_draw_scene_mesh  = PROFILE_QUERY(render_scene_mesh ) * TARGET_FPS;
     time_draw_scene_solid = PROFILE_QUERY(render_scene_solid) * TARGET_FPS;

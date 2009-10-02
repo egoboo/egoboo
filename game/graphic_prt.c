@@ -25,9 +25,10 @@
 
 #include "particle.h"
 #include "char.h"
+#include "profile.h"
+
 #include "game.h"
 #include "texture.h"
-
 #include "camera.h"
 
 #include "egoboo.h"
@@ -46,6 +47,10 @@ typedef struct s_prt_registry_entity prt_registry_entity_t;
 static void prt_instance_update( camera_t * pcam, Uint16 particle, Uint8 trans, bool_t do_lighting );
 static void calc_billboard_verts( GLvertex vlst[], prt_instance_t * pinst, float size, float level, bool_t do_reflect );
 static int  cmp_prt_registry_entity(const void * vlhs, const void * vrhs);
+
+
+static void draw_one_attacment_point( chr_instance_t * pinst, mad_t * pmad, int vrt_offset );
+static void prt_draw_attached_point( prt_t * pprt );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -830,4 +835,80 @@ void calc_billboard_verts( GLvertex vlst[], prt_instance_t * pinst, float size, 
 
     vlst[3].tex[SS] = sprite_list_u[pinst->image][1];
     vlst[3].tex[TT] = sprite_list_v[pinst->image][0];
+}
+
+//--------------------------------------------------------------------------------------------
+void render_all_prt_attachment()
+{
+    int cnt;
+
+    GL_DEBUG(glDisable)( GL_BLEND );
+
+    for ( cnt = 0; cnt < maxparticles; cnt++ )
+    {
+        prt_draw_attached_point( PrtList.lst + cnt );
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+void draw_one_attacment_point( chr_instance_t * pinst, mad_t * pmad, int vrt_offset )
+{
+    // BB> a function that will draw some of the vertices of the given character.
+    //     The original idea was to use this to debug the grip for attached items.
+
+    int vrt;
+    GLboolean texture_1d_enabled, texture_2d_enabled;
+
+    if( NULL == pinst || NULL == pmad ) return;
+
+    vrt = pmad->md2_data.vertices - vrt_offset;
+
+    if( vrt < 0 || vrt >= pmad->md2_data.vertices ) return;
+
+    texture_1d_enabled = GL_DEBUG(glIsEnabled)(GL_TEXTURE_1D);
+    texture_2d_enabled = GL_DEBUG(glIsEnabled)(GL_TEXTURE_2D);
+
+    // disable the texturing so all the points will be white, 
+    // not the texture color of the last vertex we drawn
+    if( texture_1d_enabled ) glDisable( GL_TEXTURE_1D );
+    if( texture_2d_enabled ) glDisable( GL_TEXTURE_2D );
+
+    GL_DEBUG(glPointSize)(5);
+
+    GL_DEBUG(glMatrixMode)( GL_MODELVIEW );
+    GL_DEBUG(glPushMatrix)();
+    GL_DEBUG(glMultMatrixf)( pinst->matrix.v );
+
+    GL_DEBUG( glBegin( GL_POINTS ) );
+    {
+        glVertex3fv( pinst->vlst[vrt].pos );
+    }
+    GL_DEBUG_END();
+
+    GL_DEBUG(glMatrixMode)( GL_MODELVIEW );
+    GL_DEBUG(glPopMatrix)();
+
+    if( texture_1d_enabled ) glEnable( GL_TEXTURE_1D );
+    if( texture_2d_enabled ) glEnable( GL_TEXTURE_2D );
+}
+
+//--------------------------------------------------------------------------------------------
+void prt_draw_attached_point( prt_t * pprt )
+{
+    mad_t * pholder_mad;
+    cap_t * pholder_cap;
+    chr_t * pholder;
+
+    if( NULL == pprt || !ACTIVE_PRT(pprt->index) ) return;
+
+    if( !ACTIVE_CHR(pprt->attachedto_ref) ) return;
+    pholder = ChrList.lst + pprt->attachedto_ref;
+
+    pholder_cap = pro_get_pcap( pholder->iprofile );
+    if( NULL == pholder_cap ) return;
+
+    pholder_mad = chr_get_pmad( pholder->index );
+    if( NULL == pholder_mad ) return;
+
+    draw_one_attacment_point( &(pholder->inst), pholder_mad, pprt->vrt_off );
 }

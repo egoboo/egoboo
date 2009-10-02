@@ -395,3 +395,5 @@ extern float time_draw_scene_mesh;
 extern float time_draw_scene_solid;
 extern float time_draw_scene_water;
 extern float time_draw_scene_trans;
+
+void render_all_prt_attachment();

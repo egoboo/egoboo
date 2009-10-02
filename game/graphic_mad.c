@@ -23,11 +23,13 @@
 
 #include "graphic.h"
 
+#include "profile.h"
+#include "char.h"
+#include "mad.h"
+
 #include "md2.h"
 #include "id_md2.h"
 #include "camera.h"
-#include "char.h"
-#include "mad.h"
 #include "game.h"
 #include "input.h"
 #include "texture.h"
@@ -42,6 +44,11 @@
 static void chr_instance_update( Uint16 character, Uint8 trans, bool_t do_lighting );
 static void chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 trans, bool_t do_lighting );
 
+static void draw_points( chr_t * pchr, int vrt_offset, int verts );
+static void _draw_one_grip_raw( chr_instance_t * pinst, mad_t * pmad, int slot );
+static void draw_one_grip( chr_instance_t * pinst, mad_t * pmad, int slot );
+static void chr_draw_grips( chr_t * pchr );
+static void chr_draw_arrached_grip( chr_t * pchr );
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -473,6 +480,15 @@ void render_one_mad( Uint16 character, Uint8 trans )
         }
         GL_DEBUG(glEnable)( GL_TEXTURE_2D );
     }
+
+#if defined(USE_DEBUG)
+    // the grips of all objects
+    //chr_draw_arrached_grip( pchr );
+
+    // draw all the vertices of an object
+    //GL_DEBUG( glPointSize( 5 ) );
+    //draw_points( pchr, 0, pro_get_pmad(pchr->inst.imad)->md2_data.vertices );
+#endif
 }
 
 //--------------------------------------------------------------------------------------------
@@ -497,7 +513,7 @@ void render_one_mad_ref( int tnc, Uint8 trans )
 
     // we need to force the calculation of lighting for the the non-reflected
     // object here, or there will be problems later
-    //pinst->save_lighting_wldframe = 0;
+    //pinst->save_lighting_update_wld = 0;
     chr_instance_update( tnc, trans, !pinst->enviro );
 
     pcap = chr_get_pcap( tnc );
@@ -573,7 +589,6 @@ void chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 t
     Uint16 frame_nxt, frame_lst;
     Uint32 alpha;
     Uint8  rs, gs, bs;
-    float  flip;
     Uint8  self_light;
     lighting_cache_t global_light, loc_light;
     float min_light;
@@ -583,8 +598,8 @@ void chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 t
     if ( NULL == pinst || NULL == pchr ) return;
 
     // has this already been calculated this update?
-    if( pinst->save_lighting_wldframe >= update_wld ) return;
-    pinst->save_lighting_wldframe = update_wld;
+    if( pinst->save_lighting_update_wld >= update_wld ) return;
+    pinst->save_lighting_update_wld = update_wld;
 
     // make sure the matrix is valid
     chr_update_matrix( pchr );
@@ -620,7 +635,6 @@ void chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 t
     rs = pinst->redshift;
     gs = pinst->grnshift;
     bs = pinst->blushift;
-    flip = pinst->lip / 256.0f;
     self_light = ( 255 == pinst->light ) ? 0 : pinst->light;
 
     pinst->color_amb = 0.9f * pinst->color_amb + 0.1f * (self_light + min_light);
@@ -717,12 +731,12 @@ bool_t chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vmax 
     vmin = CLIP(vmin, 0, pmad->md2_data.vertices - 1);
     vmax = CLIP(vmax, 0, pmad->md2_data.vertices - 1);
 
-    flip = pinst->lip / 256.0f;
+    flip = pinst->flip;
 
     // test to see if we have already calculated this data
     vertices_match = (pinst->save_vmin <= vmin) && (pinst->save_vmax >= vmax);
 
-    flips_match = ( pinst->frame_nxt == pinst->frame_lst ) || ( pinst->save_flip == flip );
+    flips_match = ( pinst->frame_nxt == pinst->frame_lst ) || ( ABS(pinst->save_flip - flip) < 0.125f );
 
     frames_match = ( flip == 1.0f && pinst->save_frame_nxt == pinst->frame_nxt ) ||
                    ( flip == 0.0f && pinst->save_frame_lst == pinst->frame_lst ) ||
@@ -792,11 +806,260 @@ bool_t chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vmax 
         }
     }
 
+    // this is getting a bit ugly...
+    // we need to do this calculation as little as possible, so it is important that the
+    // save_* values be tested and stored properly
+    
+    // the save_vmin and save_vmax is the most complex
+    if( vertices_match )
+    {
+        // vmin and vmax are within the old vertex range.
+        // This means that vertices outside the range [vmin, vmax]
+        // were also SUPPOSED TO BE updated, but weren't.
+        // Mark it so we know those vertices are dirty.
+        pinst->save_vmin = vmin;
+        pinst->save_vmax = vmax;
+    }
+    else if( frames_match )
+    {
+        // all of the vertices in the old range [save_vmin, save_vmax]
+        // are still clean.
+
+        if( vmax >= pinst->save_vmin && vmin <= pinst->save_vmax )
+        {
+            // the old list [save_vmin, save_vmax] and the new list [vmin, vmax]
+            // overlap, so we can merge them
+            pinst->save_vmin = MIN(pinst->save_vmin, vmin);
+            pinst->save_vmax = MAX(pinst->save_vmax, vmax);
+        }
+        else
+        {
+            // the old list and the nre list are disjoint sets, so we are out of luck
+            // save the set with the largest number of members
+            if( (pinst->save_vmax - pinst->save_vmin) >= (vmax - vmin) )
+            {
+                pinst->save_vmin = pinst->save_vmin;
+                pinst->save_vmax = pinst->save_vmax;
+            }
+            else
+            {
+                pinst->save_vmin = vmin;
+                pinst->save_vmax = vmax;
+            }
+        }
+    }
+    else
+    {
+        // everything was dirty, so just save the new vertex list
+        pinst->save_vmin = vmin;
+        pinst->save_vmax = vmax;
+    }
+
     pinst->save_frame     = update_wld;
-    pinst->save_vmin      = MIN(pinst->save_vmin, vmin);
-    pinst->save_vmax      = MAX(pinst->save_vmax, vmax);
     pinst->save_frame_nxt = pinst->frame_nxt;
     pinst->save_frame_lst = pinst->frame_lst;
+    pinst->save_flip      = flip;
+
+    // store the time of the last full update
+    if( (vmin == 0) && (vmax == pmad->md2_data.vertices - 1) )
+    {
+        pinst->save_update_wld  = update_wld;
+    }
 
     return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+void draw_points( chr_t * pchr, int vrt_offset, int verts )
+{
+    // BB> a function that will draw some of the vertices of the given character.
+    //     The original idea was to use this to debug the grip for attached items.
+
+    mad_t * pmad;
+    int vmin, vmax, cnt;
+    GLboolean texture_1d_enabled, texture_2d_enabled;
+
+    if( NULL == pchr || !ACTIVE_CHR(pchr->index) ) return;
+
+    pmad = chr_get_pmad( pchr->index );
+    if( NULL == pmad ) return;
+
+    vmin = vrt_offset;
+    vmax = vmin + verts;
+
+    if( vmin < 0 || vmax < 0 ) return;
+    if( vmin > pmad->md2_data.vertices || vmax > pmad->md2_data.vertices ) return;
+
+    texture_1d_enabled = GL_DEBUG(glIsEnabled)(GL_TEXTURE_1D);
+    texture_2d_enabled = GL_DEBUG(glIsEnabled)(GL_TEXTURE_2D);
+
+    // disable the texturing so all the points will be white, 
+    // not the texture color of the last vertex we drawn
+    if( texture_1d_enabled ) glDisable( GL_TEXTURE_1D );
+    if( texture_2d_enabled ) glDisable( GL_TEXTURE_2D );
+
+    GL_DEBUG(glMatrixMode)( GL_MODELVIEW );
+    GL_DEBUG(glPushMatrix)();
+    GL_DEBUG(glMultMatrixf)( pchr->inst.matrix.v );
+
+    GL_DEBUG( glBegin( GL_POINTS ) );
+    {
+        for(cnt=vmin; cnt<vmax; cnt++)
+        {
+            glVertex3fv( pchr->inst.vlst[cnt].pos );
+        }
+    }
+    GL_DEBUG_END();
+
+    GL_DEBUG(glMatrixMode)( GL_MODELVIEW );
+    GL_DEBUG(glPopMatrix)();
+
+    if( texture_1d_enabled ) glEnable( GL_TEXTURE_1D );
+    if( texture_2d_enabled ) glEnable( GL_TEXTURE_2D );
+}
+
+//--------------------------------------------------------------------------------------------
+void draw_one_grip( chr_instance_t * pinst, mad_t * pmad, int slot )
+{
+    GLboolean texture_1d_enabled, texture_2d_enabled;
+
+    texture_1d_enabled = GL_DEBUG(glIsEnabled)(GL_TEXTURE_1D);
+    texture_2d_enabled = GL_DEBUG(glIsEnabled)(GL_TEXTURE_2D);
+
+    // disable the texturing so all the points will be white, 
+    // not the texture color of the last vertex we drawn
+    if( texture_1d_enabled ) glDisable( GL_TEXTURE_1D );
+    if( texture_2d_enabled ) glDisable( GL_TEXTURE_2D );
+
+    GL_DEBUG(glMatrixMode)( GL_MODELVIEW );
+    GL_DEBUG(glPushMatrix)();
+    GL_DEBUG(glMultMatrixf)( pinst->matrix.v );
+
+    _draw_one_grip_raw( pinst, pmad, slot );
+
+    GL_DEBUG(glMatrixMode)( GL_MODELVIEW );
+    GL_DEBUG(glPopMatrix)();
+
+    if( texture_1d_enabled ) glEnable( GL_TEXTURE_1D );
+    if( texture_2d_enabled ) glEnable( GL_TEXTURE_2D );
+}
+
+//--------------------------------------------------------------------------------------------
+void _draw_one_grip_raw( chr_instance_t * pinst, mad_t * pmad, int slot )
+{
+    int vmin, vmax, cnt;
+
+    float red[4] = {1,0,0,1};
+    float grn[4] = {0,1,0,1};
+    float blu[4] = {0,0,1,1};
+    float * col_ary[3];
+
+    col_ary[0] = red;
+    col_ary[1] = grn;
+    col_ary[2] = blu;
+
+    if( NULL == pinst || NULL == pmad ) return;
+
+    vmin = pmad->md2_data.vertices - slot_to_grip_offset( slot );
+    vmax = vmin + GRIP_VERTS;
+
+    if( vmin >= 0 && vmax >= 0 && vmax <= pmad->md2_data.vertices )
+    {
+        GLvector3 src, dst, diff;
+
+        GL_DEBUG(glBegin)( GL_LINES );
+        {
+            for( cnt = 1; cnt < GRIP_VERTS; cnt++ )
+            {
+                src.x = pinst->vlst[vmin].pos[XX];
+                src.y = pinst->vlst[vmin].pos[YY];
+                src.z = pinst->vlst[vmin].pos[ZZ];
+
+                diff.x = pinst->vlst[vmin+cnt].pos[XX] - src.x;
+                diff.y = pinst->vlst[vmin+cnt].pos[YY] - src.y;
+                diff.z = pinst->vlst[vmin+cnt].pos[ZZ] - src.z;
+
+                dst.x = src.x + 3 * diff.x;
+                dst.y = src.y + 3 * diff.y;
+                dst.z = src.z + 3 * diff.z;
+
+                glColor4fv( col_ary[cnt-1] );
+
+                glVertex3fv( src.v );
+                glVertex3fv( dst.v );
+            }
+        }
+        GL_DEBUG_END();
+    }
+
+    glColor4f( 1,1,1,1 );
+}
+
+//--------------------------------------------------------------------------------------------
+void chr_draw_arrached_grip( chr_t * pchr )
+{
+    mad_t * pholder_mad;
+    cap_t * pholder_cap;
+    chr_t * pholder;
+
+    if( NULL == pchr || !ACTIVE_CHR(pchr->index) ) return;
+
+    if( !ACTIVE_CHR(pchr->attachedto) ) return;
+    pholder = ChrList.lst + pchr->attachedto;
+
+    pholder_cap = pro_get_pcap( pholder->iprofile );
+    if( NULL == pholder_cap ) return;
+
+    pholder_mad = chr_get_pmad( pholder->index );
+    if( NULL == pholder_mad ) return;
+
+    draw_one_grip( &(pholder->inst), pholder_mad, pchr->inwhich_slot );
+}
+
+//--------------------------------------------------------------------------------------------
+void chr_draw_grips( chr_t * pchr )
+{
+    mad_t * pmad;
+    cap_t * pcap;
+
+    int slot;
+    GLboolean texture_1d_enabled, texture_2d_enabled;
+
+    if( NULL == pchr || !ACTIVE_CHR(pchr->index) ) return;
+
+    pcap = pro_get_pcap( pchr->iprofile );
+    if( NULL == pcap ) return;
+
+    pmad = chr_get_pmad( pchr->index );
+    if( NULL == pmad ) return;
+
+    texture_1d_enabled = GL_DEBUG(glIsEnabled)(GL_TEXTURE_1D);
+    texture_2d_enabled = GL_DEBUG(glIsEnabled)(GL_TEXTURE_2D);
+
+    // disable the texturing so all the points will be white, 
+    // not the texture color of the last vertex we drawn
+    if( texture_1d_enabled ) glDisable( GL_TEXTURE_1D );
+    if( texture_2d_enabled ) glDisable( GL_TEXTURE_2D );
+
+    GL_DEBUG(glMatrixMode)( GL_MODELVIEW );
+    GL_DEBUG(glPushMatrix)();
+    GL_DEBUG(glMultMatrixf)( pchr->inst.matrix.v );
+
+    slot = SLOT_LEFT;
+    if( pcap->slotvalid[slot] )
+    {
+        _draw_one_grip_raw( &(pchr->inst), pmad, slot );
+    }
+
+    slot = SLOT_RIGHT;
+    if( pcap->slotvalid[slot] )
+    {
+        _draw_one_grip_raw( &(pchr->inst), pmad, slot );
+    }
+
+    GL_DEBUG(glMatrixMode)( GL_MODELVIEW );
+    GL_DEBUG(glPopMatrix)();
+
+    if( texture_1d_enabled ) glEnable( GL_TEXTURE_1D );
+    if( texture_2d_enabled ) glEnable( GL_TEXTURE_2D );
 }

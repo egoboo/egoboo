@@ -645,7 +645,8 @@ void chr_play_action( Uint16 character, Uint16 action, Uint8 actionready )
         pchr->nextaction = ACTION_DA;
         pchr->action = action;
 
-        pchr->inst.lip = 0;
+        pchr->inst.flip = 0;
+        pchr->inst.ilip = 0;
         pchr->inst.frame_lst = pchr->inst.frame_nxt;
         pchr->inst.frame_nxt = pmad->actionstart[pchr->action];
         pchr->actionready    = actionready;
@@ -690,7 +691,8 @@ void chr_set_frame( Uint16 character, Uint16 action, int frame, Uint16 lip )
             frame_end = frame_stt + 1;
         }
 
-        pchr->inst.lip = ( lip << 6 );
+        pchr->inst.ilip  = lip;
+        pchr->inst.flip  = lip / 4.0f;
         pchr->inst.frame_lst = frame_stt;
         pchr->inst.frame_nxt = frame_end;
     }
@@ -3209,14 +3211,8 @@ bool_t do_mounts( Uint16 ichr_a, Uint16 ichr_b )
 
         // determine the actual location of the mount point
         {
-            int frame_nxt, frame_lst, lip, vertex;
-            float flip;
+            int vertex;
             chr_instance_t * pinst = &(pchr_b->inst);
-
-            frame_nxt = pinst->frame_nxt;
-            frame_lst = pinst->frame_lst;
-            lip = pinst->lip >> 6;
-            flip = lip / 4.0f;
 
             vertex = MadList[pinst->imad].md2_data.vertices - GRIP_LEFT;
 
@@ -3267,8 +3263,7 @@ bool_t do_mounts( Uint16 ichr_a, Uint16 ichr_b )
 
             frame_nxt = pinst->frame_nxt;
             frame_lst = pinst->frame_lst;
-            lip = pinst->lip >> 6;
-            flip = lip / 256.0f;
+            flip = pinst->flip;
 
             vertex = MadList[pinst->imad].md2_data.vertices - GRIP_LEFT;
 

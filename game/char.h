@@ -188,6 +188,7 @@ struct s_matrix_cache
     Uint16  grip_chr;                   // !=MAX_CHR if character is a held weapon
     slot_t  grip_slot;                  // SLOT_LEFT or SLOT_RIGHT
     Uint16  grip_verts[GRIP_VERTS];     // Vertices which describe the weapon grip
+    Uint32  vert_update;                // last time the object's vertices were updated
 
     //---- data used for both
 
@@ -231,9 +232,13 @@ struct s_chr_instance
 
     // model info
     Uint16         imad;            // Character's model
+
+    // animation info
     Uint16         frame_nxt;       // Character's frame
     Uint16         frame_lst;       // Character's last frame
-    Uint8          lip;             // Character's frame in betweening
+    Uint8          ilip;            // Character's frame in betweening
+    float          flip;            // Character's frame in betweening
+    float          rate;
 
     // linear interpolated frame vertices
     Uint32         color_amb;
@@ -253,9 +258,10 @@ struct s_chr_instance
     int    save_vmax;
     Uint16 save_frame_nxt;
     Uint16 save_frame_lst;
+    Uint32 save_update_wld;
 
     // the save data to determine whether re-calculation of lighting data is necessary
-    Uint32 save_lighting_wldframe;
+    Uint32 save_lighting_update_wld;
 };
 
 typedef struct s_chr_instance chr_instance_t;

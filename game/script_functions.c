@@ -970,7 +970,8 @@ Uint8 scr_DoAction( script_state_t * pstate, ai_state_t * pself )
         if ( MadList[pchr->inst.imad].actionvalid[pstate->argument] )
         {
             pchr->action = pstate->argument;
-            pchr->inst.lip = 0;
+            pchr->inst.ilip = 0;
+            pchr->inst.flip = 0;
             pchr->inst.frame_lst = pchr->inst.frame_nxt;
             pchr->inst.frame_nxt = MadList[pchr->inst.imad].actionstart[pstate->argument];
             pchr->actionready = bfalse;
@@ -1066,7 +1067,8 @@ Uint8 scr_TargetDoAction( script_state_t * pstate, ai_state_t * pself )
             if ( MadList[ChrList.lst[pself->target].inst.imad].actionvalid[pstate->argument] )
             {
                 ChrList.lst[pself->target].action = pstate->argument;
-                ChrList.lst[pself->target].inst.lip = 0;
+                ChrList.lst[pself->target].inst.ilip = 0;
+                ChrList.lst[pself->target].inst.flip = 0;
                 ChrList.lst[pself->target].inst.frame_lst = ChrList.lst[pself->target].inst.frame_nxt;
                 ChrList.lst[pself->target].inst.frame_nxt = MadList[ChrList.lst[pself->target].inst.imad].actionstart[pstate->argument];
                 ChrList.lst[pself->target].actionready = bfalse;
@@ -1275,7 +1277,8 @@ Uint8 scr_DoActionOverride( script_state_t * pstate, ai_state_t * pself )
         if ( MadList[pchr->inst.imad].actionvalid[pstate->argument] )
         {
             pchr->action = pstate->argument;
-            pchr->inst.lip = 0;
+            pchr->inst.ilip = 0;
+            pchr->inst.flip = 0;
             pchr->inst.frame_lst = pchr->inst.frame_nxt;
             pchr->inst.frame_nxt = MadList[pchr->inst.imad].actionstart[pstate->argument];
             pchr->actionready = bfalse;
@@ -2287,7 +2290,8 @@ Uint8 scr_BecomeSpellbook( script_state_t * pstate, ai_state_t * pself )
     {
         //Do dropped animation
         pchr->action = ACTION_JB;
-        pchr->inst.lip = 0;
+        pchr->inst.ilip = 0;
+        pchr->inst.flip = 0;
         pchr->inst.frame_lst = pchr->inst.frame_nxt;
         pchr->inst.frame_nxt = pmad->actionstart[ACTION_JB];
         pchr->actionready = bfalse;
@@ -4250,7 +4254,8 @@ Uint8 scr_ChildDoActionOverride( script_state_t * pstate, ai_state_t * pself )
         if ( MadList[ChrList.lst[pself->child].inst.imad].actionvalid[pstate->argument] )
         {
             ChrList.lst[pself->child].action = pstate->argument;
-            ChrList.lst[pself->child].inst.lip = 0;
+            ChrList.lst[pself->child].inst.ilip = 0;
+            ChrList.lst[pself->child].inst.flip = 0;
             ChrList.lst[pself->child].inst.frame_nxt = MadList[ChrList.lst[pself->child].inst.imad].actionstart[pstate->argument];
             ChrList.lst[pself->child].inst.frame_lst = ChrList.lst[pself->child].inst.frame_nxt;
             ChrList.lst[pself->child].actionready = bfalse;
@@ -5438,7 +5443,8 @@ Uint8 scr_TargetDoActionSetFrame( script_state_t * pstate, ai_state_t * pself )
         if ( MadList[ChrList.lst[pself->target].inst.imad].actionvalid[pstate->argument] )
         {
             ChrList.lst[pself->target].action = pstate->argument;
-            ChrList.lst[pself->target].inst.lip = 0;
+            ChrList.lst[pself->target].inst.ilip = 0;
+            ChrList.lst[pself->target].inst.flip = 0;
             ChrList.lst[pself->target].inst.frame_nxt = MadList[ChrList.lst[pself->target].inst.imad].actionstart[pstate->argument];
             ChrList.lst[pself->target].inst.frame_lst = ChrList.lst[pself->target].inst.frame_nxt;
             ChrList.lst[pself->target].actionready = bfalse;

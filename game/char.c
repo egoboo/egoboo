@@ -5707,84 +5707,90 @@ void move_one_character_do_animation( chr_t * pchr, chr_environment_t * penviro 
     if( NULL == pmad ) return;
 
     // Animate the character
-    pchr->inst.lip = ( pchr->inst.lip + 64 );
+    pinst->flip += 0.25f * pinst->rate;
 
-    // handle frame FX for the new frame
-    if ( pinst->lip == 192 )
+    while( pinst->flip > 0.25f )
     {
-        // Check frame effects
-        if ( Md2FrameList[pinst->frame_nxt].framefx&MADFX_ACTLEFT )
-            character_swipe( ichr, SLOT_LEFT );
+        pinst->flip -= 0.25f;
+        pinst->ilip  = (pinst->ilip + 1 ) % 4;
 
-        if ( Md2FrameList[pinst->frame_nxt].framefx&MADFX_ACTRIGHT )
-            character_swipe( ichr, SLOT_RIGHT );
-
-        if ( Md2FrameList[pinst->frame_nxt].framefx&MADFX_GRABLEFT )
-            character_grab_stuff( ichr, GRIP_LEFT, bfalse );
-
-        if ( Md2FrameList[pinst->frame_nxt].framefx&MADFX_GRABRIGHT )
-            character_grab_stuff( ichr, GRIP_RIGHT, bfalse );
-
-        if ( Md2FrameList[pinst->frame_nxt].framefx&MADFX_CHARLEFT )
-            character_grab_stuff( ichr, GRIP_LEFT, btrue );
-
-        if ( Md2FrameList[pinst->frame_nxt].framefx&MADFX_CHARRIGHT )
-            character_grab_stuff( ichr, GRIP_RIGHT, btrue );
-
-        if ( Md2FrameList[pinst->frame_nxt].framefx&MADFX_DROPLEFT )
-            detach_character_from_mount( pchr->holdingwhich[SLOT_LEFT], bfalse, btrue );
-
-        if ( Md2FrameList[pinst->frame_nxt].framefx&MADFX_DROPRIGHT )
-            detach_character_from_mount( pchr->holdingwhich[SLOT_RIGHT], bfalse, btrue );
-
-        if ( Md2FrameList[pinst->frame_nxt].framefx&MADFX_POOF && !pchr->isplayer )
-            pchr->ai.poof_time = update_wld;
-
-        if ( Md2FrameList[pinst->frame_nxt].framefx&MADFX_FOOTFALL )
+        // handle frame FX for the new frame
+        if ( pinst->ilip == 3 )
         {
-            int ifoot = pro_get_pcap(pchr->iprofile)->soundindex[SOUND_FOOTFALL];
-            if ( VALID_SND( ifoot ) )
+            // Check frame effects
+            if ( Md2FrameList[pinst->frame_nxt].framefx&MADFX_ACTLEFT )
+                character_swipe( ichr, SLOT_LEFT );
+
+            if ( Md2FrameList[pinst->frame_nxt].framefx&MADFX_ACTRIGHT )
+                character_swipe( ichr, SLOT_RIGHT );
+
+            if ( Md2FrameList[pinst->frame_nxt].framefx&MADFX_GRABLEFT )
+                character_grab_stuff( ichr, GRIP_LEFT, bfalse );
+
+            if ( Md2FrameList[pinst->frame_nxt].framefx&MADFX_GRABRIGHT )
+                character_grab_stuff( ichr, GRIP_RIGHT, bfalse );
+
+            if ( Md2FrameList[pinst->frame_nxt].framefx&MADFX_CHARLEFT )
+                character_grab_stuff( ichr, GRIP_LEFT, btrue );
+
+            if ( Md2FrameList[pinst->frame_nxt].framefx&MADFX_CHARRIGHT )
+                character_grab_stuff( ichr, GRIP_RIGHT, btrue );
+
+            if ( Md2FrameList[pinst->frame_nxt].framefx&MADFX_DROPLEFT )
+                detach_character_from_mount( pchr->holdingwhich[SLOT_LEFT], bfalse, btrue );
+
+            if ( Md2FrameList[pinst->frame_nxt].framefx&MADFX_DROPRIGHT )
+                detach_character_from_mount( pchr->holdingwhich[SLOT_RIGHT], bfalse, btrue );
+
+            if ( Md2FrameList[pinst->frame_nxt].framefx&MADFX_POOF && !pchr->isplayer )
+                pchr->ai.poof_time = update_wld;
+
+            if ( Md2FrameList[pinst->frame_nxt].framefx&MADFX_FOOTFALL )
             {
-                sound_play_chunk( pchr->pos, chr_get_chunk_ptr( pchr,ifoot ) );
+                int ifoot = pro_get_pcap(pchr->iprofile)->soundindex[SOUND_FOOTFALL];
+                if ( VALID_SND( ifoot ) )
+                {
+                    sound_play_chunk( pchr->pos, chr_get_chunk_ptr( pchr,ifoot ) );
+                }
             }
         }
-    }
 
-    if ( pinst->lip == 0 )
-    {
-        // Change frames
-        pinst->frame_lst = pinst->frame_nxt;
-        pinst->frame_nxt++;
-
-        if ( pinst->frame_nxt == chr_get_pmad(ichr)->actionend[pchr->action] )
+        if ( pinst->ilip == 0 )
         {
-            // Action finished
-            if ( pchr->keepaction )
+            // Change frames
+            pinst->frame_lst = pinst->frame_nxt;
+            pinst->frame_nxt++;
+
+            if ( pinst->frame_nxt == chr_get_pmad(ichr)->actionend[pchr->action] )
             {
-                // Keep the last frame going
-                pinst->frame_nxt = pinst->frame_lst;
-            }
-            else
-            {
-                if ( !pchr->loopaction )
+                // Action finished
+                if ( pchr->keepaction )
                 {
-                    // Go on to the next action
-                    pchr->action = pchr->nextaction;
-                    pchr->nextaction = ACTION_DA;
+                    // Keep the last frame going
+                    pinst->frame_nxt = pinst->frame_lst;
                 }
                 else
                 {
-                    // See if the character is mounted...
-                    if ( pchr->attachedto != MAX_CHR )
+                    if ( !pchr->loopaction )
                     {
-                        pchr->action = ACTION_MI;
+                        // Go on to the next action
+                        pchr->action = pchr->nextaction;
+                        pchr->nextaction = ACTION_DA;
                     }
+                    else
+                    {
+                        // See if the character is mounted...
+                        if ( pchr->attachedto != MAX_CHR )
+                        {
+                            pchr->action = ACTION_MI;
+                        }
+                    }
+
+                    pinst->frame_nxt = chr_get_pmad(ichr)->actionstart[pchr->action];
                 }
 
-                pinst->frame_nxt = chr_get_pmad(ichr)->actionstart[pchr->action];
+                pchr->actionready = btrue;
             }
-
-            pchr->actionready = btrue;
         }
     }
 
@@ -5792,7 +5798,7 @@ void move_one_character_do_animation( chr_t * pchr, chr_environment_t * penviro 
     if ( !pchr->keepaction && !pchr->loopaction )
     {
         framelip = Md2FrameList[pinst->frame_nxt].framelip;  // 0 - 15...  Way through animation
-        if ( pchr->actionready && pinst->lip == 0 && pchr->phys.grounded && pchr->flyheight == 0 && ( framelip&7 ) < 2 )
+        if ( pchr->actionready && pinst->ilip == 0 && pchr->phys.grounded && pchr->flyheight == 0 && ( framelip&7 ) < 2 )
         {
             // Do the motion stuff
             speed = ABS( penviro->new_vx ) + ABS( penviro->new_vy );
@@ -6049,8 +6055,9 @@ void chr_instance_clear_cache( chr_instance_t * pinst )
     pinst->save_vmax      = -1;
     pinst->save_frame_nxt = 0;
     pinst->save_frame_lst = 0;
+    pinst->save_update_wld  = 0;
 
-    pinst->save_lighting_wldframe = 0;
+    pinst->save_lighting_update_wld = 0;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -6082,6 +6089,9 @@ chr_instance_t * chr_instance_init( chr_instance_t * pinst )
     // the matrix should never be referenced if the cache is not valid,
     // but it never pays to have a 0 matrix...
     pinst->matrix = IdentityMatrix();
+
+    // set the animation rate
+    pinst->rate = 1.0f;
 
     return pinst;
 }
@@ -7772,6 +7782,8 @@ bool_t chr_get_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
                 mc_tmp->grip_slot = pchr->inwhich_slot;
                 get_grip_verts( mc_tmp->grip_verts, pchr->attachedto, slot_to_grip_offset(pchr->inwhich_slot) );
 
+                mc_tmp->vert_update = pchr->inst.save_update_wld;
+
                 itarget = pchr->attachedto;
             }
         }
@@ -8080,6 +8092,9 @@ int cmp_matrix_cache(const void * vlhs, const void * vrhs)
             itmp = (int)plhs->grip_verts[cnt] - (int)prhs->grip_verts[cnt];
             if( 0 != itmp ) goto cmp_matrix_cache_end;
         }
+
+        itmp = plhs->vert_update - plhs->vert_update;
+        if( 0 != itmp ) goto cmp_matrix_cache_end;
     }
 
     //---- check for differences in the MAT_CHARACTER data
