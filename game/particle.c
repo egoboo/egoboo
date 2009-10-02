@@ -132,10 +132,8 @@ void free_one_particle_in_game( Uint16 particle )
 
     Uint16 child;
     prt_t * pprt;
-    pip_t * ppip;
 
     if ( !ALLOCATED_PRT( particle) ) return;
-
     pprt = PrtList.lst + particle;
 
     if ( pprt->spawncharacterstate != SPAWNNOCHARACTER )
@@ -148,10 +146,9 @@ void free_one_particle_in_game( Uint16 particle )
         }
     }
 
-    ppip = prt_get_ppip( particle );
-    if ( NULL != ppip )
+    if ( VALID_PIP( pprt->pip_ref ) )
     {
-        play_particle_sound( particle, ppip->soundend );
+        play_particle_sound( particle, PipStack.lst[pprt->pip_ref].soundend );
     }
 
     PrtList_free_one( particle );
