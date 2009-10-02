@@ -4387,7 +4387,7 @@ void import_dir_profiles( const char * dirname )
 
             // load it
             import_data.slot_lst[cnt] = load_one_profile( filename, MAX_PROFILE );
-            import_data.max_slot      = cnt;
+            import_data.max_slot      = MAX(import_data.max_slot, cnt);
         }
     }
 
@@ -4403,7 +4403,7 @@ void load_all_profiles_import()
     {
         import_data.slot_lst[cnt] = 10000;
     }
-    import_data.max_slot = 0;
+    import_data.max_slot = -1;
 
     // This overwrites existing loaded slots that are loaded globally
     overrideslots = btrue;
@@ -4613,15 +4613,15 @@ bool_t setup_characters_spawn( spawn_file_info_t * psp_info )
                 add_player( new_object, PlaList_count, bits );
             }
         }
-        else if ( PlaList_count < numimport && PlaList_count < PMod->importamount && PlaList_count < PMod->playeramount )
+        else if ( PlaList_count < local_import_count && PlaList_count < PMod->importamount && PlaList_count < PMod->playeramount )
         {
             // Multiplayer import module
             local_index = -1;
-            for ( tnc = 0; tnc < numimport; tnc++ )
+            for ( tnc = 0; tnc < local_import_count; tnc++ )
             {
-                if ( ChrList.lst[new_object].iprofile < import_data.max_slot && ChrList.lst[new_object].iprofile < MAX_PROFILE )
+                if ( ChrList.lst[new_object].iprofile <= import_data.max_slot && ChrList.lst[new_object].iprofile < MAX_PROFILE )
                 {
-                    if( import_data.slot_lst[ChrList.lst[new_object].iprofile] == local_slot[tnc] )
+                    if( import_data.slot_lst[ChrList.lst[new_object].iprofile] == local_import_slot[tnc] )
                     {
                         local_index = tnc;
                         break;
@@ -4632,7 +4632,7 @@ bool_t setup_characters_spawn( spawn_file_info_t * psp_info )
             if ( -1 != local_index )
             {
                 // It's a local PlaList_count
-                add_player( new_object, PlaList_count, local_control[local_index] );
+                add_player( new_object, PlaList_count, local_import_control[local_index] );
             }
             else
             {
@@ -5026,8 +5026,8 @@ bool_t game_update_imports()
 
         // grab the controls from the currently loaded players
         // calculate the slot from the current player count
-        local_control[player] = PlaList[cnt].device.bits;
-        local_slot[player]    = player * MAXIMPORTPERPLAYER;
+        local_import_control[player] = PlaList[cnt].device.bits;
+        local_import_slot[player]    = player * MAXIMPORTPERPLAYER;
         player++;
 
         // Copy the character to the import directory
@@ -5040,14 +5040,14 @@ bool_t game_update_imports()
             snprintf( srcPlayer, SDL_arraysize( srcPlayer), "remote" SLASH_STR "%s", loadplayer[tnc].dir );
         }
 
-        snprintf( destDir, SDL_arraysize( destDir), "import" SLASH_STR "temp%04d.obj", local_slot[tnc] );
+        snprintf( destDir, SDL_arraysize( destDir), "import" SLASH_STR "temp%04d.obj", local_import_slot[tnc] );
         vfs_copyDirectory( srcPlayer, destDir );
 
         // Copy all of the character's items to the import directory
         for ( j = 0; j < MAXIMPORTOBJECTS; j++ )
         {
             snprintf( srcDir, SDL_arraysize( srcDir), "%s" SLASH_STR "%d.obj", srcPlayer, j );
-            snprintf( destDir, SDL_arraysize( destDir), "import" SLASH_STR "temp%04d.obj", local_slot[tnc] + j + 1 );
+            snprintf( destDir, SDL_arraysize( destDir), "import" SLASH_STR "temp%04d.obj", local_import_slot[tnc] + j + 1 );
 
             vfs_copyDirectory( srcDir, destDir );
         }

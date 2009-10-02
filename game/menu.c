@@ -1147,8 +1147,6 @@ int doChoosePlayer( float deltaTime )
     switch ( menuState )
     {
         case MM_Begin:
-            mnu_selectedPlayerCount = 0;
-
             TxTexture_free_one( TX_BARS );
 
             mnu_selectedPlayerCount = 0;
@@ -1414,17 +1412,17 @@ int doChoosePlayer( float deltaTime )
                 vfs_mkdir( "import" );
 
                 // set up the slots and the import stuff for the selected players
-                numimport = mnu_selectedPlayerCount;
-                for ( i = 0; i < numimport; i++ )
+                local_import_count = mnu_selectedPlayerCount;
+                for ( i = 0; i < local_import_count; i++ )
                 {
                     selectedPlayer = mnu_selectedPlayer[i];
 
-                    local_control[i] = mnu_selectedInput[i];
-                    local_slot[i]    = i * MAXIMPORTPERPLAYER;
+                    local_import_control[i] = mnu_selectedInput[i];
+                    local_import_slot[i]    = i * MAXIMPORTPERPLAYER;
 
                     // Copy the character to the import directory
                     strncpy( srcDir, loadplayer[selectedPlayer].dir, SDL_arraysize(srcDir) );
-                    snprintf( destDir, SDL_arraysize(destDir), "import" SLASH_STR "temp%04d.obj", local_slot[i] );
+                    snprintf( destDir, SDL_arraysize(destDir), "import" SLASH_STR "temp%04d.obj", local_import_slot[i] );
                     vfs_copyDirectory( srcDir, destDir );
 
                     // Copy all of the character's items to the import directory
@@ -1435,7 +1433,7 @@ int doChoosePlayer( float deltaTime )
                         // make sure the source directory exists
                         if( vfs_isDirectory(srcDir) )
                         {
-                            snprintf( destDir, SDL_arraysize( destDir), "import" SLASH_STR "temp%04d.obj", local_slot[i] + j + 1 );
+                            snprintf( destDir, SDL_arraysize( destDir), "import" SLASH_STR "temp%04d.obj", local_import_slot[i] + j + 1 );
                             vfs_copyDirectory( srcDir, destDir );
                         }
                     }

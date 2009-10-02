@@ -151,9 +151,9 @@ EXTERN bool_t                   local_allpladead;            // Has everyone die
 EXTERN Uint16                   revivetimer EQ(0);
 
 // Imports
-EXTERN int                     numimport;                     // Number of imports from this machine
-EXTERN Uint32                  local_control[16];             // Input bits for each imported player
-EXTERN short                   local_slot[16];                // For local imports
+EXTERN int                     local_import_count;                     // Number of imports from this machine
+EXTERN Uint32                  local_import_control[16];             // Input bits for each imported player
+EXTERN int                     local_import_slot[16];                // For local imports
 
 // Setup values
 EXTERN Uint8                   messageon      EQ( btrue );         // Messages?

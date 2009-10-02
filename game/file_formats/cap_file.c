@@ -549,7 +549,7 @@ bool_t save_one_cap_file( const char * szSaveName, cap_t * pcap )
     fput_int  ( filewrite, "EXP for 4th    : ", pcap->experienceforlevel[3] );
     fput_int  ( filewrite, "EXP for 5th    : ", pcap->experienceforlevel[4] );
     fput_int  ( filewrite, "EXP for 6th    : ", pcap->experienceforlevel[5] );
-    fput_range( filewrite, "Starting EXP   : ", pcap->experience );
+    fput_float( filewrite, "Starting EXP   : ", pcap->experience.from * 256.0f );
     fput_int  ( filewrite, "EXP worth      : ", pcap->experienceworth );
     fput_float( filewrite, "EXP exchange   : ", pcap->experienceexchange );
     fput_float( filewrite, "EXPSECRET      : ", pcap->experiencerate[0] );
