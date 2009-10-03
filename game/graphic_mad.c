@@ -519,7 +519,7 @@ void render_one_mad_ref( int tnc, Uint8 trans )
     pcap = chr_get_pcap( tnc );
     if ( NULL == pcap || !pcap->reflect ) return;
 
-    level = pchr->floor_level;
+    level = pchr->enviro.floor_level;
     trans_temp = FF_MUL( pchr->inst.alpha, trans) >> 1;
 
     pos_z = pinst->matrix.CNV( 3, 2 ) - level;

@@ -468,21 +468,21 @@ void add_enchant_value( Uint16 ienc, Uint8 valueindex, Uint16 ieve )
             break;
 
         case ADDBUMPDAMPEN:
-            fnewvalue = ptarget->bumpdampen;
+            fnewvalue = ptarget->phys.bumpdampen;
             fvaluetoadd = peve->addvalue[valueindex] / 128.0f;
             fgetadd( 0, fnewvalue, 1.0f, &fvaluetoadd );
             valuetoadd = fvaluetoadd * 128.0f; // Get save value
             fvaluetoadd = valuetoadd / 128.0f;
-            ptarget->bumpdampen += fvaluetoadd;
+            ptarget->phys.bumpdampen += fvaluetoadd;
             break;
 
         case ADDBOUNCINESS:
-            fnewvalue = ptarget->dampen;
+            fnewvalue = ptarget->phys.dampen;
             fvaluetoadd = peve->addvalue[valueindex] / 128.0f;
             fgetadd( 0, fnewvalue, 0.95f, &fvaluetoadd );
             valuetoadd = fvaluetoadd * 128.0f; // Get save value
             fvaluetoadd = valuetoadd / 128.0f;
-            ptarget->dampen += fvaluetoadd;
+            ptarget->phys.dampen += fvaluetoadd;
             break;
 
         case ADDDAMAGE:
@@ -1053,12 +1053,12 @@ void remove_enchant_value( Uint16 ienc, Uint8 valueindex )
 
         case ADDBUMPDAMPEN:
             fvaluetoadd = penc->addsave[valueindex] / 128.0f;
-            ptarget->bumpdampen -= fvaluetoadd;
+            ptarget->phys.bumpdampen -= fvaluetoadd;
             break;
 
         case ADDBOUNCINESS:
             fvaluetoadd = penc->addsave[valueindex] / 128.0f;
-            ptarget->dampen -= fvaluetoadd;
+            ptarget->phys.dampen -= fvaluetoadd;
             break;
 
         case ADDDAMAGE:

@@ -646,7 +646,7 @@ void make_all_character_matrices(bool_t do_physics)
     ////        {
     ////            tmpz = pchr->pos.z;
     ////            pchr->pos.z += pchr->phys.apos_1.z;
-    ////            if ( pchr->pos.z < pchr->phys.level )
+    ////            if ( pchr->pos.z < pchr->enviro.level )
     ////            {
     ////                // restore the old values
     ////                pchr->pos.z = tmpz;
@@ -749,7 +749,7 @@ Uint32 __chrhitawall( Uint16 character, float nrm[] )
     if ( !ACTIVE_CHR(character) ) return 0;
     pchr = ChrList.lst + character;
 
-    if ( 0 == pchr->bump.size || 0xFFFFFFFF == pchr->weight ) return 0;
+    if ( 0 == pchr->bump.size || 0xFFFFFFFF == pchr->phys.weight ) return 0;
 
     y  = pchr->pos.y;
     x  = pchr->pos.x;
@@ -886,7 +886,7 @@ bool_t detach_character_from_mount( Uint16 character, Uint8 ignorekurse, Uint8 d
     }
 
     // set the dismount timer
-    pchr->phys.dismount_timer = PHYS_DISMOUNT_TIME;
+    pchr->dismount_timer = PHYS_DISMOUNT_TIME;
 
     // Figure out which hand it's in
     hand = pchr->inwhich_slot;
@@ -1126,7 +1126,7 @@ void attach_character_to_mount( Uint16 iitem, Uint16 iholder, grip_offset_t grip
 
     // make a reasonable time for the character to remount something
     // for characters jumping out of pots, etc
-    if( !pitem->isitem && pitem->phys.dismount_timer > 0 )
+    if( !pitem->isitem && pitem->dismount_timer > 0 )
         return;
 
     // Make sure the holder/mount is valid
@@ -1162,7 +1162,7 @@ void attach_character_to_mount( Uint16 iitem, Uint16 iholder, grip_offset_t grip
 
     //pitem->pos      = mat_getTranslate( pitem->inst.matrix );
 
-    pitem->inwater  = bfalse;
+    pitem->enviro.inwater  = bfalse;
     pitem->jumptime = JUMPDELAY * 4;
 
     // Run the held animation
@@ -1543,16 +1543,16 @@ void drop_keys( Uint16 character )
                     pitem->pack_ispacked = bfalse;
                     pitem->isequipped    = bfalse;
 
-                    direction              = RANDIE;
-                    pitem->turn_z          = direction + 32768;
-                    pitem->phys.level      = pchr->phys.level;
-                    pitem->floor_level     = pchr->floor_level;
-                    pitem->onwhichplatform = pchr->onwhichplatform;
-                    pitem->pos             = pchr->pos;
-                    pitem->vel.x           = turntocos[ (direction >> 2) & TRIG_TABLE_MASK ] * DROPXYVEL;
-                    pitem->vel.y           = turntosin[ (direction >> 2) & TRIG_TABLE_MASK ] * DROPXYVEL;
-                    pitem->vel.z           = DROPZVEL;
-                    pitem->team            = pitem->baseteam;
+                    direction                 = RANDIE;
+                    pitem->turn_z             = direction + 32768;
+                    pitem->enviro.level       = pchr->enviro.level;
+                    pitem->enviro.floor_level = pchr->enviro.floor_level;
+                    pitem->onwhichplatform    = pchr->onwhichplatform;
+                    pitem->pos                = pchr->pos;
+                    pitem->vel.x              = turntocos[ (direction >> 2) & TRIG_TABLE_MASK ] * DROPXYVEL;
+                    pitem->vel.y              = turntosin[ (direction >> 2) & TRIG_TABLE_MASK ] * DROPXYVEL;
+                    pitem->vel.z              = DROPZVEL;
+                    pitem->team               = pitem->baseteam;
                 }
                 else
                 {
@@ -1592,17 +1592,17 @@ bool_t drop_all_items( Uint16 character )
 
                 detach_character_from_mount( item, btrue, btrue );
 
-                pitem->hitready        = btrue;
-                pitem->ai.alert       |= ALERTIF_DROPPED;
-                pitem->pos             = pchr->pos;
-                pitem->phys.level      = pchr->phys.level;
-                pitem->floor_level     = pchr->floor_level;
-                pitem->onwhichplatform = pchr->onwhichplatform;
-                pitem->turn_z          = direction + 32768;
-                pitem->vel.x           = turntocos[ (direction>>2) & TRIG_TABLE_MASK ] * DROPXYVEL;
-                pitem->vel.y           = turntosin[ (direction>>2) & TRIG_TABLE_MASK ] * DROPXYVEL;
-                pitem->vel.z           = DROPZVEL;
-                pitem->team            = pitem->baseteam;
+                pitem->hitready           = btrue;
+                pitem->ai.alert          |= ALERTIF_DROPPED;
+                pitem->pos                = pchr->pos;
+                pitem->enviro.level       = pchr->enviro.level;
+                pitem->enviro.floor_level = pchr->enviro.floor_level;
+                pitem->onwhichplatform    = pchr->onwhichplatform;
+                pitem->turn_z             = direction + 32768;
+                pitem->vel.x              = turntocos[ (direction>>2) & TRIG_TABLE_MASK ] * DROPXYVEL;
+                pitem->vel.y              = turntosin[ (direction>>2) & TRIG_TABLE_MASK ] * DROPXYVEL;
+                pitem->vel.z              = DROPZVEL;
+                pitem->team               = pitem->baseteam;
             }
 
             direction += diradd;
@@ -1749,7 +1749,7 @@ bool_t character_grab_stuff( Uint16 ichr_a, grip_offset_t grip_off, bool_t grab_
         if ( dxy > TILE_SIZE * 2 || dz > MAX(pchr_b->bump.height, GRABSIZE) ) continue;
 
         // reasonable carrying capacity
-        if ( pchr_b->weight > pchr_a->weight + pchr_a->strength * INV_FF )
+        if ( pchr_b->phys.weight > pchr_a->phys.weight + pchr_a->strength * INV_FF )
         {
             can_grab = bfalse;
         }
@@ -2047,7 +2047,7 @@ void character_swipe( Uint16 ichr, slot_t slot )
             pthrown->iskursed = bfalse;
             pthrown->ammo = 1;
             pthrown->ai.alert |= ALERTIF_THROWN;
-            velocity = pchr->strength / ( pthrown->weight * THROWFIX );
+            velocity = pchr->strength / ( pthrown->phys.weight * THROWFIX );
             velocity += MINTHROWVELOCITY;
             if ( velocity > MAXTHROWVELOCITY )
             {
@@ -2434,12 +2434,12 @@ void resize_all_characters()
 
                 if ( chr_get_pcap(ichr)->weight == 0xFF )
                 {
-                    pchr->weight = 0xFFFFFFFF;
+                    pchr->phys.weight = 0xFFFFFFFF;
                 }
                 else
                 {
                     Uint32 itmp = chr_get_pcap(ichr)->weight * pchr->fat * pchr->fat * pchr->fat;
-                    pchr->weight = MIN( itmp, (Uint32)0xFFFFFFFE );
+                    pchr->phys.weight = MIN( itmp, (Uint32)0xFFFFFFFE );
                 }
             }
         }
@@ -2665,12 +2665,12 @@ bool_t chr_download_cap( chr_t * pchr, cap_t * pcap )
     pchr->jumpnumberreset = pcap->jumpnumber;
 
     // Other junk
-    pchr->flyheight = pcap->flyheight;
-    pchr->maxaccel  = pcap->maxaccel[pchr->skin];
-    pchr->basealpha = pcap->alpha;
-    pchr->baselight = pcap->light;
-    pchr->flashand  = pcap->flashand;
-    pchr->dampen    = pcap->dampen;
+    pchr->flyheight   = pcap->flyheight;
+    pchr->maxaccel    = pcap->maxaccel[pchr->skin];
+    pchr->basealpha   = pcap->alpha;
+    pchr->baselight   = pcap->light;
+    pchr->flashand    = pcap->flashand;
+    pchr->phys.dampen = pcap->dampen;
 
 
     // Load current life and mana. this may be overridden later
@@ -2680,15 +2680,15 @@ bool_t chr_download_cap( chr_t * pchr, cap_t * pcap )
     // Character size and bumping
     chr_init_size( pchr, pcap );
 
-    pchr->bumpdampen = pcap->bumpdampen;
+    pchr->phys.bumpdampen = pcap->bumpdampen;
     if ( pcap->weight == 0xFF )
     {
-        pchr->weight = 0xFFFFFFFF;
+        pchr->phys.weight = 0xFFFFFFFF;
     }
     else
     {
         Uint32 itmp = pcap->weight * pchr->fat * pchr->fat * pchr->fat;
-        pchr->weight = MIN( itmp, (Uint32)0xFFFFFFFE );
+        pchr->phys.weight = MIN( itmp, (Uint32)0xFFFFFFFE );
     }
 
     // Image rendering
@@ -3064,7 +3064,7 @@ void damage_character( Uint16 character, Uint16 direction,
                         pchr->keepaction = btrue;
                         pchr->life = -1;
                         pchr->platform = btrue;
-                        pchr->bumpdampen = pchr->bumpdampen / 2.0f;
+                        pchr->phys.bumpdampen = pchr->phys.bumpdampen / 2.0f;
                         action = ACTION_KA;
 
                         // Give kill experience
@@ -3427,7 +3427,7 @@ chr_t * chr_init( chr_t * pchr )
     // I think we have to set the dismount timer, otherwise objects that
     // are spawned by chests will behave strangely...
     // nope this did not fix it
-    pchr->phys.dismount_timer = PHYS_DISMOUNT_TIME;
+    pchr->dismount_timer = PHYS_DISMOUNT_TIME;
 
 
     // set all of the integer references to invalid values
@@ -3635,8 +3635,8 @@ Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
     pchr->fat_goto_time = 0;
 
     // Set up position
-    pchr->floor_level = get_mesh_level( PMesh, pos_tmp.x, pos_tmp.y, pchr->waterwalk ) + RAISE;
-    if ( pos_tmp.z < pchr->floor_level ) pos_tmp.z = pchr->floor_level;
+    pchr->enviro.floor_level = get_mesh_level( PMesh, pos_tmp.x, pos_tmp.y, pchr->waterwalk ) + RAISE;
+    if ( pos_tmp.z < pchr->enviro.floor_level ) pos_tmp.z = pchr->enviro.floor_level;
 
     pchr->pos      = pos_tmp;
     pchr->pos_safe = pchr->pos;
@@ -3646,7 +3646,7 @@ Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
     pchr->turn_z     = facing;
     pchr->turn_old_z = pchr->turn_z;
 
-    pchr->phys.level    = pchr->floor_level;
+    pchr->enviro.level  = pchr->enviro.floor_level;
     pchr->onwhichfan    = mesh_get_tile( PMesh, pchr->pos.x, pchr->pos.y );
     pchr->onwhichblock  = mesh_get_block( PMesh, pchr->pos.x, pchr->pos.y );
 
@@ -3768,7 +3768,7 @@ void respawn_character( Uint16 character )
 
     pchr->platform     = pcap->platform;
     pchr->flyheight    = pcap->flyheight;
-    pchr->bumpdampen   = pcap->bumpdampen;
+    pchr->phys.bumpdampen   = pcap->bumpdampen;
 
     pchr->ai.alert = ALERTIF_CLEANEDUP;
     pchr->ai.target = character;
@@ -4180,16 +4180,16 @@ void change_character( Uint16 ichr, Uint16 profile_new, Uint8 skin, Uint8 leavew
         }
     }
 
-    pchr->bumpdampen = pcap_new->bumpdampen;
+    pchr->phys.bumpdampen = pcap_new->bumpdampen;
 
     if ( pcap_new->weight == 0xFF )
     {
-        pchr->weight = 0xFFFFFFFF;
+        pchr->phys.weight = 0xFFFFFFFF;
     }
     else
     {
         Uint32 itmp = pcap_new->weight * pchr->fat * pchr->fat * pchr->fat;
-        pchr->weight = MIN( itmp, (Uint32)0xFFFFFFFE );
+        pchr->phys.weight = MIN( itmp, (Uint32)0xFFFFFFFE );
     }
 
     // Image rendering
@@ -4461,7 +4461,7 @@ void update_all_characters()
         // do splash and ripple
         if ( pchr->pos.z < water.surface_level && (0 != mesh_test_fx( PMesh, pchr->onwhichfan, MPDFX_WATER )) )
         {
-            if ( !pchr->inwater )
+            if ( !pchr->enviro.inwater )
             {
                 // Splash
                 GLvector3 vtmp = VECT3( pchr->pos.x, pchr->pos.y, water.surface_level + RAISE );
@@ -4499,14 +4499,14 @@ void update_all_characters()
                 }
             }
 
-            pchr->inwater  = btrue;
+            pchr->enviro.inwater  = btrue;
         }
         else
         {
-            pchr->inwater = bfalse;
+            pchr->enviro.inwater = bfalse;
         }
 
-        pchr->floor_level = level;
+        pchr->enviro.floor_level = level;
     }
 
 
@@ -4595,25 +4595,6 @@ void update_all_characters()
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-struct s_chr_environment
-{
-    float  air_friction, ice_friction;
-    bool_t is_slippy,    is_watery;
-
-    Uint8 twist;
-    float level, zlerp;
-
-    bool_t is_slipping;
-
-    float fluid_friction_xy, fluid_friction_z;
-    float traction, friction_xy;
-
-    float new_vx, new_vy;
-    GLvector3 acc;
-};
-typedef struct s_chr_environment chr_environment_t;
-
-//--------------------------------------------------------------------------------------------
 void move_one_character_get_environment( chr_t * pchr, chr_environment_t * penviro )
 {
     Uint32 itile;
@@ -4623,17 +4604,17 @@ void move_one_character_get_environment( chr_t * pchr, chr_environment_t * penvi
     //---- character "floor" level
     if ( 0 != pchr->flyheight )
     {
-        penviro->level = pchr->phys.level;
+        penviro->level = pchr->enviro.level;
         if ( penviro->level < 0 ) penviro->level = 0;  // fly above pits...
     }
     else
     {
-        penviro->level = pchr->phys.level;
+        penviro->level = pchr->enviro.level;
     }
     penviro->zlerp = (pchr->pos.z - penviro->level) / PLATTOLERANCE;
     penviro->zlerp = CLIP(penviro->zlerp, 0, 1);
 
-    pchr->phys.grounded = (0 == pchr->flyheight) && (penviro->zlerp < 0.25f);
+    pchr->enviro.grounded = (0 == pchr->flyheight) && (penviro->zlerp < 0.25f);
 
     //---- the "twist" of the floor
     penviro->twist = TWIST_FLAT;
@@ -4654,7 +4635,7 @@ void move_one_character_get_environment( chr_t * pchr, chr_environment_t * penvi
     }
 
     // the "watery-ness" of whatever water might be here
-    penviro->is_watery = water.is_water && pchr->inwater;
+    penviro->is_watery = water.is_water && penviro->inwater;
     penviro->is_slippy = !penviro->is_watery && (0 != mesh_test_fx( PMesh, pchr->onwhichfan, MPDFX_SLIPPY ));
 
     //---- traction
@@ -4667,6 +4648,9 @@ void move_one_character_get_environment( chr_t * pchr, chr_environment_t * penvi
     else if ( ACTIVE_CHR( pchr->onwhichplatform ) )
     {
         // in case the platform is tilted
+        // unfortunately platforms are attached in teh collosion section
+        // which occurs after the movement section.
+
         GLvector3 platform_up;
 
         chr_getMatUp( ChrList.lst + pchr->onwhichplatform, &platform_up );
@@ -4734,13 +4718,13 @@ void move_one_character_get_environment( chr_t * pchr, chr_environment_t * penvi
     else
     {
         // Character is in the air
-        pchr->jumpready = pchr->phys.grounded;
+        pchr->jumpready = pchr->enviro.grounded;
 
         // Down jump timer
         if ( pchr->jumptime > 0 ) pchr->jumptime--;
 
         // Do ground hits
-        if ( pchr->phys.grounded && pchr->vel.z < -STOPBOUNCING && pchr->hitready )
+        if ( pchr->enviro.grounded && pchr->vel.z < -STOPBOUNCING && pchr->hitready )
         {
             pchr->ai.alert |= ALERTIF_HITGROUND;
             pchr->hitready = bfalse;
@@ -4752,13 +4736,13 @@ void move_one_character_get_environment( chr_t * pchr, chr_environment_t * penvi
             if ( map_twist_flat[penviro->twist] )
             {
                 // Reset jumping on flat areas of slippiness
-                if ( pchr->phys.grounded && pchr->jumptime == 0 )
+                if ( pchr->enviro.grounded && pchr->jumptime == 0 )
                 {
                     pchr->jumpnumber = pchr->jumpnumberreset;
                 }
             }
         }
-        else if ( pchr->phys.grounded && pchr->jumptime == 0 )
+        else if ( pchr->enviro.grounded && pchr->jumptime == 0 )
         {
             // Reset jumping
             pchr->jumpnumber = pchr->jumpnumberreset;
@@ -5143,7 +5127,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
             {
                 // Make the character jump
                 pchr->hitready = btrue;
-                if ( pchr->inwater )
+                if ( pchr->enviro.inwater )
                 {
                     pchr->vel.z = WATERJUMP * 1.5;
                 }
@@ -5158,6 +5142,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
 
                 // Set to jump animation if not doing anything better
                 if ( pchr->actionready )    chr_play_action( ichr, ACTION_JA, btrue );
+
 
                 // Play the jump sound (Boing!)
                 {
@@ -5519,7 +5504,7 @@ void move_one_character_do_z_motion( chr_t * pchr, chr_environment_t * penviro )
     }
     else
     {
-        if ( penviro->is_slippy && pchr->weight != 0xFFFFFFFF &&
+        if ( penviro->is_slippy && pchr->phys.weight != 0xFFFFFFFF &&
              penviro->twist != TWIST_FLAT && penviro->zlerp < 1.0f)
         {
             // Slippy hills make characters slide
@@ -5562,19 +5547,19 @@ bool_t move_one_character_integrate_motion( chr_t * pchr )
     // Move the character
     pchr->pos.z += pchr->vel.z;
     LOG_NAN(pchr->pos.z);
-    if ( pchr->pos.z < pchr->floor_level )
+    if ( pchr->pos.z < pchr->enviro.floor_level )
     {
-        pchr->vel.z *= -pchr->bumpdampen;
+        pchr->vel.z *= -pchr->phys.bumpdampen;
 
         if ( ABS(pchr->vel.z) < STOPBOUNCING )
         {
             pchr->vel.z = 0;
-            pchr->pos.z = pchr->phys.level;
+            pchr->pos.z = pchr->enviro.level;
         }
         else
         {
-            float diff = pchr->phys.level - pchr->pos.z;
-            pchr->pos.z = pchr->phys.level + diff;
+            float diff = pchr->enviro.level - pchr->pos.z;
+            pchr->pos.z = pchr->enviro.level + diff;
         }
     }
     else
@@ -5611,13 +5596,13 @@ bool_t move_one_character_integrate_motion( chr_t * pchr )
                     vpara[XX] = pchr->vel.x - vperp[XX];
                     vpara[YY] = pchr->vel.y - vperp[YY];
 
-                    pchr->vel.x = vpara[XX] - /* pchr->bumpdampen * */ vperp[XX];
-                    pchr->vel.y = vpara[YY] - /* pchr->bumpdampen * */ vperp[YY];
+                    pchr->vel.x = vpara[XX] - /* pchr->phys.bumpdampen * */ vperp[XX];
+                    pchr->vel.y = vpara[YY] - /* pchr->phys.bumpdampen * */ vperp[YY];
                 }
             }
             else
             {
-                pchr->vel.x *= -1 /* pchr->bumpdampen * */;
+                pchr->vel.x *= -1 /* pchr->phys.bumpdampen * */;
             }
         }
 
@@ -5656,13 +5641,13 @@ bool_t move_one_character_integrate_motion( chr_t * pchr )
                     vpara[XX] = pchr->vel.x - vperp[XX];
                     vpara[YY] = pchr->vel.y - vperp[YY];
 
-                    pchr->vel.x = vpara[XX] - /* pchr->bumpdampen * */ vperp[XX];
-                    pchr->vel.y = vpara[YY] - /* pchr->bumpdampen * */ vperp[YY];
+                    pchr->vel.x = vpara[XX] - /* pchr->phys.bumpdampen * */ vperp[XX];
+                    pchr->vel.y = vpara[YY] - /* pchr->phys.bumpdampen * */ vperp[YY];
                 }
             }
             else
             {
-                pchr->vel.y *= - 1 /* pchr->bumpdampen * */;
+                pchr->vel.y *= - 1 /* pchr->phys.bumpdampen * */;
             }
         }
 
@@ -5798,7 +5783,7 @@ void move_one_character_do_animation( chr_t * pchr, chr_environment_t * penviro 
     if ( !pchr->keepaction && !pchr->loopaction )
     {
         framelip = Md2FrameList[pinst->frame_nxt].framelip;  // 0 - 15...  Way through animation
-        if ( pchr->actionready && pinst->ilip == 0 && pchr->phys.grounded && pchr->flyheight == 0 && ( framelip&7 ) < 2 )
+        if ( pchr->actionready && pinst->ilip == 0 && pchr->enviro.grounded && pchr->flyheight == 0 && ( framelip&7 ) < 2 )
         {
             // Do the motion stuff
             speed = ABS( penviro->new_vx ) + ABS( penviro->new_vy );
@@ -5867,12 +5852,12 @@ void move_one_character_do_animation( chr_t * pchr, chr_environment_t * penviro 
 
 
 //--------------------------------------------------------------------------------------------
-void move_one_character( Uint16 ichr, chr_environment_t * penviro )
+void move_one_character( chr_t * pchr )
 {
-    chr_t * pchr;
+    chr_environment_t * penviro;
 
-    if ( !ACTIVE_CHR(ichr) ) return;
-    pchr = ChrList.lst + ichr;
+    if ( NULL == pchr || !ACTIVE_CHR(pchr->index) ) return;
+    penviro = &(pchr->enviro);
 
     if( pchr->pack_ispacked ) return;
 
@@ -5926,16 +5911,19 @@ void move_all_characters( void )
 
     Uint16 cnt;
 
-    chr_environment_t enviro;
-
-    // prime the environment
-    enviro.air_friction = air_friction;
-    enviro.ice_friction = ice_friction;
-
     // Move every character
     for ( cnt = 0; cnt < MAX_CHR; cnt++ )
     {
-        move_one_character( cnt, &enviro );
+        chr_t * pchr;
+
+        if( !ACTIVE_CHR(cnt) ) continue;
+        pchr = ChrList.lst + cnt;
+
+        // prime the environment
+        pchr->enviro.air_friction = air_friction;
+        pchr->enviro.ice_friction = ice_friction;
+
+        move_one_character( pchr );
     }
 
     // The following functions need to be called any time you actually change a charcter's position

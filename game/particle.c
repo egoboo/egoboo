@@ -220,7 +220,7 @@ void prt_init( prt_t * pprt )
 
     /* pprt->inview     = bfalse; */
 
-    /* pprt->floor_level = 0; */
+    /* pprt->enviro.floor_level = 0; */
     pprt->spawncharacterstate = SPAWNNOCHARACTER;
 
     // Lighting and sound

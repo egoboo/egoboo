@@ -1988,7 +1988,7 @@ void do_damage_tiles()
         {
             if ( VALID_TILE( PMesh, pchr->onwhichfan ) &&
                     ( 0 != mesh_test_fx( PMesh, pchr->onwhichfan, MPDFX_DAMAGE ) ) &&
-                    ( pchr->pos.z <= pchr->floor_level + DAMAGERAISE ) &&
+                    ( pchr->pos.z <= pchr->enviro.floor_level + DAMAGERAISE ) &&
                     ( MAX_CHR == pchr->attachedto ) )
             {
                 if ( ( pchr->damagemodifier[damagetile.type]&DAMAGESHIFT ) != 3 && !pchr->invictus ) // 3 means they're pretty well immune
@@ -2833,10 +2833,10 @@ void fill_bumplists()
         if ( !ACTIVE_CHR(character) ) continue;
         pchr = ChrList.lst + character;
 
-        // reset the holding weight each update
+        // reset the platform stuff each update
         pchr->holdingweight   = 0;
         pchr->onwhichplatform = MAX_CHR;
-        pchr->phys.level      = pchr->floor_level;
+        pchr->enviro.level    = pchr->enviro.floor_level;
 
         // reset the fan and block position
         pchr->onwhichfan   = mesh_get_tile ( PMesh, pchr->pos.x, pchr->pos.y );
@@ -3015,6 +3015,51 @@ bool_t can_mount( Uint16 ichr_a, Uint16 ichr_b )
 }
 
 //--------------------------------------------------------------------------------------------
+bool_t attach_chr_to_platform( chr_t * pchr, chr_t * pplat )
+{
+    // BB> attach a character to a platform
+
+    cap_t * pchr_cap;
+    GLvector3 platform_up;
+
+    // verify that we do not have two dud pointers
+    if( NULL == pchr  || !ACTIVE_CHR(pchr->index ) ) return bfalse;
+    if( NULL == pplat || !ACTIVE_CHR(pplat->index) ) return bfalse;
+
+    pchr_cap = pro_get_pcap( pchr->iprofile );
+    if( NULL == pchr_cap ) return bfalse;
+
+    // check if they can be connected
+    if( !pchr_cap->canuseplatforms || (0 != pchr->flyheight) ) return bfalse;
+    if( !pplat->platform ) return bfalse;
+
+    // do the attachment
+    pchr->onwhichplatform = pplat->index;
+    pplat->holdingweight += pchr->phys.weight;
+
+    // update the character's relationship to the ground
+    pchr->enviro.level    = MAX( pchr->enviro.floor_level, pplat->pos.z + pplat->bump.height );
+    pchr->enviro.zlerp    = (pchr->pos.z - pchr->enviro.level) / PLATTOLERANCE;
+    pchr->enviro.zlerp    = CLIP(pchr->enviro.zlerp, 0, 1);
+    pchr->enviro.grounded = (0 == pchr->flyheight) && (pchr->enviro.zlerp < 0.25f);
+
+    // update the character jupming
+    pchr->jumpready = pchr->enviro.grounded;
+    if( pchr->jumpready )
+    {
+        pchr->jumpnumber = pchr->jumpnumberreset;
+    }
+
+    // what to do about traction if the platform is tilted... hmmm?
+    chr_getMatUp( pplat, &platform_up );
+    platform_up = VNormalize(platform_up);
+
+    pchr->enviro.traction = ABS(platform_up.z) * (1.0f - pchr->enviro.zlerp) + 0.25 * pchr->enviro.zlerp;
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
 bool_t do_platforms( Uint16 ichr_a, Uint16 ichr_b )
 {
     float xa, ya, za;
@@ -3065,12 +3110,12 @@ bool_t do_platforms( Uint16 ichr_a, Uint16 ichr_b )
 
     // If we can mount this platform, skip it
     mount_a = can_mount(ichr_b, ichr_a);
-    if ( mount_a && pchr_a->phys.level < zb + pchr_b->bump.height + PLATTOLERANCE )
+    if ( mount_a && pchr_a->enviro.level < zb + pchr_b->bump.height + PLATTOLERANCE )
         return bfalse;
 
     // If we can mount this platform, skip it
     mount_b = can_mount(ichr_a, ichr_b);
-    if ( mount_b && pchr_b->phys.level < za + pchr_a->bump.height + PLATTOLERANCE )
+    if ( mount_b && pchr_b->enviro.level < za + pchr_a->bump.height + PLATTOLERANCE )
         return bfalse;
 
     dx = ABS( xa - xb );
@@ -3137,18 +3182,16 @@ bool_t do_platforms( Uint16 ichr_a, Uint16 ichr_b )
         // check for the best possible attachment
         if ( chara_on_top )
         {
-            if ( zb + pchr_b->bump.height > pchr_a->phys.level )
+            if ( zb + pchr_b->bump.height > pchr_a->enviro.level )
             {
-                pchr_a->phys.level      = zb + pchr_b->bump.height;
-                pchr_a->onwhichplatform = ichr_b;
+                attach_chr_to_platform( pchr_a, pchr_b );
             }
         }
         else
         {
-            if ( za + pchr_a->bump.height > pchr_b->phys.level )
+            if ( za + pchr_a->bump.height > pchr_b->enviro.level )
             {
-                pchr_b->phys.level      = za + pchr_a->bump.height;
-                pchr_b->onwhichplatform = ichr_a;
+                attach_chr_to_platform( pchr_b, pchr_a );
             }
         }
     }
@@ -3257,13 +3300,8 @@ bool_t do_mounts( Uint16 ichr_a, Uint16 ichr_b )
 
         // determine the actual location of the mount point
         {
-            int frame_nxt, frame_lst, lip, vertex;
-            float flip;
+            int vertex;
             chr_instance_t * pinst = &(pchr_a->inst);
-
-            frame_nxt = pinst->frame_nxt;
-            frame_lst = pinst->frame_lst;
-            flip = pinst->flip;
 
             vertex = MadList[pinst->imad].md2_data.vertices - GRIP_LEFT;
 
@@ -3313,7 +3351,7 @@ bool_t do_chr_platform_physics( chr_t * pitem, chr_t * pplat )
     if( NULL == pitem || !ACTIVE_CHR(pitem->index) ) return bfalse;
     if( NULL == pplat || !ACTIVE_CHR(pplat->index) ) return bfalse;
 
-    lerp_z = (pitem->pos.z - pitem->phys.level) / PLATTOLERANCE;
+    lerp_z = (pitem->pos.z - pitem->enviro.level) / PLATTOLERANCE;
     lerp_z = CLIP( lerp_z, -1, 1 );
 
     rot_b = pitem->turn_z - pitem->turn_old_z;
@@ -3321,19 +3359,35 @@ bool_t do_chr_platform_physics( chr_t * pitem, chr_t * pplat )
 
     if ( lerp_z < 0 )
     {
-        pitem->phys.apos_0.z += (pitem->phys.level - pitem->pos.z) * 0.25f * (-lerp_z);
+        pitem->phys.apos_0.z += (pitem->enviro.level - pitem->pos.z) * 0.25f * (-lerp_z);
         pitem->jumpnumber = pitem->jumpnumberreset;
     }
     else if ( lerp_z < 1 )
     {
-        pitem->phys.apos_0.z += (pitem->phys.level - pitem->pos.z) * 0.125f * lerp_z;
+        float vlerp_z = (pitem->vel.z - pplat->vel.z) / 5;
+        vlerp_z  = CLIP(vlerp_z, -1, 1);
+
+        // if your velocity is going up much faster then the 
+        // platform, there is no need to suck you to the level of the platform
+        // this was one of the things preventing you from jumping from platforms
+        // properly
+        if( vlerp_z > 0 )
+        {
+            vlerp_z = 1.0f - vlerp_z;
+        }
+        else
+        {
+            vlerp_z = 1.0f;
+        }
+
+        pitem->phys.apos_0.z += (pitem->enviro.level - pitem->pos.z) * 0.125f * lerp_z * vlerp_z;
     }
 
     lerp_z = 1.0f - CLIP( lerp_z, 0, 1 );
 
     if ( lerp_z > 0 )
     {
-        pplat->holdingweight += pitem->weight * lerp_z;
+        pplat->holdingweight += pitem->phys.weight * lerp_z;
 
         pitem->phys.avel.z += ( pplat->vel.z  - pitem->vel.z ) * lerp_z * 0.25f;
         pitem->turn_z      += ( rot_a         - rot_b        ) * platstick * lerp_z;
@@ -3468,8 +3522,8 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
     // do character-character interactions
     if ( !collide_x || !collide_y || !collide_xy || depth_z < -PLATTOLERANCE ) return bfalse;
 
-    wta = (0xFFFFFFFF == pchr_a->weight) ? -(float)0xFFFFFFFF : pchr_a->weight;
-    wtb = (0xFFFFFFFF == pchr_b->weight) ? -(float)0xFFFFFFFF : pchr_b->weight;
+    wta = (0xFFFFFFFF == pchr_a->phys.weight) ? -(float)0xFFFFFFFF : pchr_a->phys.weight;
+    wtb = (0xFFFFFFFF == pchr_b->phys.weight) ? -(float)0xFFFFFFFF : pchr_b->phys.weight;
 
     if ( wta == 0 && wtb == 0 )
     {
@@ -3486,16 +3540,16 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
         wta = -0xFFFF;
     }
 
-    if ( 0.0f == pchr_a->bumpdampen && 0.0f == pchr_b->bumpdampen )
+    if ( 0.0f == pchr_a->phys.bumpdampen && 0.0f == pchr_b->phys.bumpdampen )
     {
         /* do nothing */
     }
-    else if ( 0.0f == pchr_a->bumpdampen )
+    else if ( 0.0f == pchr_a->phys.bumpdampen )
     {
         // make the weight infinite
         wta = -0xFFFF;
     }
-    else if ( 0.0f == pchr_b->bumpdampen )
+    else if ( 0.0f == pchr_b->phys.bumpdampen )
     {
         // make the weight infinite
         wtb = -0xFFFF;
@@ -3503,8 +3557,8 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
     else
     {
         // adjust the weights to respect bumpdampen
-        wta /= pchr_a->bumpdampen;
-        wtb /= pchr_b->bumpdampen;
+        wta /= pchr_a->phys.bumpdampen;
+        wtb /= pchr_b->phys.bumpdampen;
     }
 
     if ( !collision && collide_z )
@@ -3749,7 +3803,7 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
             // assume coeff of friction of 0.5
             if ( ABS(imp_a.x) + ABS(imp_a.y) + ABS(imp_a.z) > 0.0f &&
                  ABS(vpara_a.x) + ABS(vpara_a.y) + ABS(vpara_a.z) > 0.0f &&
-                 pchr_a->phys.dismount_timer <= 0)
+                 pchr_a->dismount_timer <= 0)
             {
                 float imp, vel, factor;
 
@@ -3767,7 +3821,7 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
 
             if ( ABS(imp_b.x) + ABS(imp_b.y) + ABS(imp_b.z) > 0.0f &&
                  ABS(vpara_b.x) + ABS(vpara_b.y) + ABS(vpara_b.z) > 0.0f &&
-                 pchr_b->phys.dismount_timer <= 0)
+                 pchr_b->dismount_timer <= 0)
             {
                 float imp, vel, factor;
 
@@ -4037,9 +4091,9 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
                 }
 
                 // Normal particle collision damage
-                if ( ppip_b->allowpush && pchr_a->weight != 0xFFFFFFFF )
+                if ( ppip_b->allowpush && pchr_a->phys.weight != 0xFFFFFFFF )
                 {
-                    if ( 0 == pchr_a->weight )
+                    if ( 0 == pchr_a->phys.weight )
                     {
                         pchr_a->phys.avel.x  += pprt_b->vel.x - pchr_a->vel.x;
                         pchr_a->phys.avel.y  += pprt_b->vel.y - pchr_a->vel.y;
@@ -4047,8 +4101,8 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
                     }
                     else
                     {
-                        float factor = MIN( 1.0f, 110 / pchr_a->weight );   // 110 is the "iconic" weight of the adventurer
-                        factor = MIN( 1.0f, factor * pchr_a->bumpdampen );
+                        float factor = MIN( 1.0f, 110 / pchr_a->phys.weight );   // 110 is the "iconic" weight of the adventurer
+                        factor = MIN( 1.0f, factor * pchr_a->phys.bumpdampen );
 
                         pchr_a->phys.avel.x  += pprt_b->vel.x * factor;
                         pchr_a->phys.avel.y  += pprt_b->vel.y * factor;
@@ -4265,14 +4319,14 @@ void bump_all_objects( void )
         {
             bump_str = 0;
         }
-        else if ( pchr->phys.dismount_timer > 0 )
+        else if ( pchr->dismount_timer > 0 )
         {
-            bump_str = 1.0f - (float)pchr->phys.dismount_timer / PHYS_DISMOUNT_TIME;
+            bump_str = 1.0f - (float)pchr->dismount_timer / PHYS_DISMOUNT_TIME;
             bump_str = bump_str * bump_str * 0.5f;
         };
 
         // decrement the dismount timer
-        if ( pchr->phys.dismount_timer > 0 ) pchr->phys.dismount_timer--;
+        if ( pchr->dismount_timer > 0 ) pchr->dismount_timer--;
 
         // do the "integration" of the accumulated accelerations
         pchr->vel.x += pchr->phys.avel.x;
@@ -4316,7 +4370,7 @@ void bump_all_objects( void )
         {
             tmpz = pchr->pos.z;
             pchr->pos.z += pchr->phys.apos_0.z + pchr->phys.apos_1.z;
-            if ( pchr->pos.z < pchr->floor_level )
+            if ( pchr->pos.z < pchr->enviro.floor_level )
             {
                 // restore the old values
                 pchr->pos.z = tmpz;

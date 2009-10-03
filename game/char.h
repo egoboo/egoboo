@@ -267,14 +267,39 @@ struct s_chr_instance
 typedef struct s_chr_instance chr_instance_t;
 
 //--------------------------------------------------------------------------------------------
+struct s_chr_environment
+{
+    // floor stuff
+    Uint8  twist;
+    float  floor_level;           // Height of tile
+    float  level;                 // Height of a tile or a platform
+    float  zlerp;
+    bool_t grounded;              // standing on something?
+
+    // friction stuff
+    bool_t is_slipping;
+    bool_t is_slippy,    is_watery;
+    float  air_friction, ice_friction;
+    float fluid_friction_xy, fluid_friction_z;
+    float traction, friction_xy;
+
+    // misc states
+    bool_t   inwater;
+    float    new_vx, new_vy;
+    GLvector3 acc;
+};
+typedef struct s_chr_environment chr_environment_t;
+
+//--------------------------------------------------------------------------------------------
 // Data for doing the physics in bump_all_objects(). should prevent you from being bumped into a wall
 struct s_phys_data
 {
     GLvector3      apos_0, apos_1;
     GLvector3      avel;
-    int            dismount_timer;
-    bool_t         grounded;
-    float          level;
+
+    float          bumpdampen;                    // Character bump mass
+    Uint32         weight;                        // Weight ( for pressure plates )
+    float          dampen;                        // Bounciness
 };
 typedef struct s_phys_data phys_data_t;
 
@@ -476,9 +501,7 @@ struct s_chr
     chr_bumper_0_t   collision_0;
     chr_bumper_1_t   collision_1;
 
-    float          bumpdampen;                    // Character bump mass
-    Uint32         weight;                        // Weight ( for pressure plates )
-    float          dampen;          // Bounciness
+
     Uint8          stoppedby;                     // Collision mask
 
     // character location data
@@ -486,7 +509,7 @@ struct s_chr
     GLvector3      pos;                           // Character's position
     GLvector3      vel;                           // Character's velocity
 
-    Uint16         turn_z;                        // Character's rotation 0 to 0xFFFF
+    Uint16         turn_z;                        // Character's z-rotation 0 to 0xFFFF
     Uint16         map_turn_y;
     Uint16         map_turn_x;
 
@@ -513,9 +536,12 @@ struct s_chr
     Uint8          flyheight;                     // Height to stabilize at
 
     // data for doing the physics in bump_all_objects()
-    float          floor_level;           // Height of tile
-    bool_t         inwater;
-    phys_data_t    phys;
+    phys_data_t       phys;
+    chr_environment_t enviro;
+
+    // a timer BB added in to make mounts and dismounts not so unpredictable
+    int                dismount_timer;
+
 };
 
 typedef struct s_chr chr_t;

@@ -237,7 +237,7 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
                         x += pchr->pos.x;
                         y += pchr->pos.y;
                         z += pchr->pos.z;
-                        level += pchr->phys.level;
+                        level += pchr->enviro.level;
                     }
                     else
                     {
@@ -245,7 +245,7 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
                         x += ChrList.lst[imount].pos.x;
                         y += ChrList.lst[imount].pos.y;
                         z += ChrList.lst[imount].pos.z;
-                        level += ChrList.lst[imount].phys.level;
+                        level += ChrList.lst[imount].enviro.level;
                     }
 
                     locoalive++;

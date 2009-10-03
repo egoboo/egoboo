@@ -7329,7 +7329,7 @@ Uint8 _break_passage( int meshxfor, int become, int frames, int starttile, int p
         // nothing flying
         if( 0 != pchr->flyheight ) continue;
 
-        if ( pchr->weight <= 20 || pchr->pos.z > pchr->floor_level + 20 ) continue;
+        if ( pchr->phys.weight <= 20 || pchr->pos.z > pchr->enviro.floor_level + 20 ) continue;
 
         fan = mesh_get_tile( PMesh, pchr->pos.x, pchr->pos.y );
         if ( VALID_TILE(PMesh, fan) )
