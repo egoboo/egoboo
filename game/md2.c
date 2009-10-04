@@ -294,14 +294,14 @@ void md2_rip_frames( ego_md2_t * pmd2 )
         fTranslatez = ENDIAN_FLOAT( fpFloatPointer[iFrameOffset] ); iFrameOffset++;
 
         iFrameOffset += 4;
-        
+
         // blank the octagonal bounding box
         for( tnc = 0; tnc<OCT_COUNT; tnc++)
         {
             bbox.mins[tnc] = bbox.maxs[tnc] = 0.0f;
         }
 
-        for ( tnc = 0; tnc < iNumVertices; tnc++ ) 
+        for ( tnc = 0; tnc < iNumVertices; tnc++ )
         {
             // This should work because it's reading a single character
             cTmpx = cpCharPointer[( iFrameOffset<<2 )+0];
@@ -325,7 +325,7 @@ void md2_rip_frames( ego_md2_t * pmd2 )
             // update the bounding box
             bbox.mins[OCT_X] = MIN(bbox.mins[OCT_X], fRealx);
             bbox.maxs[OCT_X] = MAX(bbox.maxs[OCT_X], fRealx);
-            
+
             bbox.mins[OCT_Y] = MIN(bbox.mins[OCT_Y], fRealy);
             bbox.maxs[OCT_Y] = MAX(bbox.maxs[OCT_Y], fRealy);
 
@@ -334,7 +334,7 @@ void md2_rip_frames( ego_md2_t * pmd2 )
 
             bbox.mins[OCT_XY] = MIN(bbox.mins[OCT_XY], fRealx + fRealy);
             bbox.maxs[OCT_XY] = MAX(bbox.maxs[OCT_XY], fRealx + fRealy);
-            
+
             bbox.mins[OCT_YX] = MIN(bbox.mins[OCT_YX], -fRealx + fRealy);
             bbox.maxs[OCT_YX] = MAX(bbox.maxs[OCT_YX], -fRealx + fRealy);
 

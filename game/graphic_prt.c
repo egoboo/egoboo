@@ -868,7 +868,7 @@ void draw_one_attacment_point( chr_instance_t * pinst, mad_t * pmad, int vrt_off
     texture_1d_enabled = GL_DEBUG(glIsEnabled)(GL_TEXTURE_1D);
     texture_2d_enabled = GL_DEBUG(glIsEnabled)(GL_TEXTURE_2D);
 
-    // disable the texturing so all the points will be white, 
+    // disable the texturing so all the points will be white,
     // not the texture color of the last vertex we drawn
     if( texture_1d_enabled ) glDisable( GL_TEXTURE_1D );
     if( texture_2d_enabled ) glDisable( GL_TEXTURE_2D );

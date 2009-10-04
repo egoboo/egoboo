@@ -1987,7 +1987,7 @@ bool_t character_grab_stuff( Uint16 ichr_a, grip_offset_t grip_off, bool_t grab_
             ftmp = vforward.x * diff.x + vforward.y * diff.y;
             if( ftmp > 0.0f )
             {
-                ai_state_set_bumplast( &(pchr_b->ai), ichr_a ); 
+                ai_state_set_bumplast( &(pchr_b->ai), ichr_a );
             }
         }
     }
@@ -2037,7 +2037,7 @@ void character_swipe( Uint16 ichr, slot_t slot )
     // What kind of attack are we going to do?
     if ( !unarmed_attack && ( ( pweapon_cap->isstackable && pweapon->ammo > 1 ) || ( action >= ACTION_FA && action <= ACTION_FD )) )
     {
-        // Throw the weapon if it's stacked or a hurl animation     
+        // Throw the weapon if it's stacked or a hurl animation
 
         thrown = spawn_one_character( pchr->pos, pweapon->iprofile, chr_get_iteam(ichr), 0, pchr->turn_z, pweapon->name, MAX_CHR );
         if ( ACTIVE_CHR(thrown) )
@@ -3624,7 +3624,7 @@ Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
     }
 
     // override the default behavior for an "easy" game
-    if ( cfg.difficulty < GAME_NORMAL ) 
+    if ( cfg.difficulty < GAME_NORMAL )
     {
         pchr->life = pchr->lifemax;
         pchr->mana = pchr->manamax;
@@ -3677,7 +3677,7 @@ Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
         spawn_one_particle( pchr->pos, 0, pchr->iprofile, pcap->attachedprt_pip,
                             ichr, GRIP_LAST + tnc, pchr->team, ichr, TOTAL_MAX_PRT, tnc, MAX_CHR );
     }
-    
+
 
     // Items that are spawned inside shop passages are more expensive than normal
     pchr->isshopitem = bfalse;
@@ -6979,7 +6979,7 @@ void chr_bumper_1_downgrade( chr_bumper_1_t * psrc, chr_bumper_0_t bump_base, ch
     if( 0 != bump_base.height )
     {
         // have to use MAX here because the height can be distorted due
-        // to make object-particle interactions easier (i.e. it allows you to 
+        // to make object-particle interactions easier (i.e. it allows you to
         // hit a grub bug with your hands)
         pdst->height = MAX(bump_base.height, psrc->max_z);
     }

@@ -788,7 +788,6 @@ egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vm
     bool_t vertices_match, flips_match, frames_match, verts_updated;
 
     mad_t * pmad;
-    oct_bb_t bbox;
 
     if ( NULL == pinst ) return rv_error;
 
@@ -884,7 +883,7 @@ egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vm
     // this is getting a bit ugly...
     // we need to do this calculation as little as possible, so it is important that the
     // save_* values be tested and stored properly
-    
+
     // the save_vmin and save_vmax is the most complex
     verts_updated = bfalse;
     if( vertices_match )
@@ -974,7 +973,7 @@ void draw_points( chr_t * pchr, int vrt_offset, int verts )
     texture_1d_enabled = GL_DEBUG(glIsEnabled)(GL_TEXTURE_1D);
     texture_2d_enabled = GL_DEBUG(glIsEnabled)(GL_TEXTURE_2D);
 
-    // disable the texturing so all the points will be white, 
+    // disable the texturing so all the points will be white,
     // not the texture color of the last vertex we drawn
     if( texture_1d_enabled ) glDisable( GL_TEXTURE_1D );
     if( texture_2d_enabled ) glDisable( GL_TEXTURE_2D );
@@ -1007,7 +1006,7 @@ void draw_one_grip( chr_instance_t * pinst, mad_t * pmad, int slot )
     texture_1d_enabled = GL_DEBUG(glIsEnabled)(GL_TEXTURE_1D);
     texture_2d_enabled = GL_DEBUG(glIsEnabled)(GL_TEXTURE_2D);
 
-    // disable the texturing so all the points will be white, 
+    // disable the texturing so all the points will be white,
     // not the texture color of the last vertex we drawn
     if( texture_1d_enabled ) glDisable( GL_TEXTURE_1D );
     if( texture_2d_enabled ) glDisable( GL_TEXTURE_2D );
@@ -1117,7 +1116,7 @@ void chr_draw_grips( chr_t * pchr )
     texture_1d_enabled = GL_DEBUG(glIsEnabled)(GL_TEXTURE_1D);
     texture_2d_enabled = GL_DEBUG(glIsEnabled)(GL_TEXTURE_2D);
 
-    // disable the texturing so all the points will be white, 
+    // disable the texturing so all the points will be white,
     // not the texture color of the last vertex we drawn
     if( texture_1d_enabled ) glDisable( GL_TEXTURE_1D );
     if( texture_2d_enabled ) glDisable( GL_TEXTURE_2D );

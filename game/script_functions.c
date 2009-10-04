@@ -1372,7 +1372,7 @@ Uint8 scr_get_State( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    
+
     pstate->argument = pself->state;
 
     SCRIPT_FUNCTION_END();
@@ -4406,7 +4406,7 @@ Uint8 scr_PlaySoundVolume( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    
+
     if ( pstate->distance >= 0 )
     {
         volume = pstate->distance;
@@ -5808,7 +5808,7 @@ Uint8 scr_get_TargetContent( script_state_t * pstate, ai_state_t * pself )
     // This sets tmpargument to the current Target's content value
 
     SCRIPT_FUNCTION_BEGIN();
-    
+
     pstate->argument = ChrList.lst[pself->target].ai.content;
 
     SCRIPT_FUNCTION_END();
@@ -6493,7 +6493,7 @@ Uint8 scr_EnableRespawn( script_state_t * pstate, ai_state_t * pself )
     // This function turns respawn with JUMP button on
 
     SCRIPT_FUNCTION_BEGIN();
-    
+
     PMod->respawnvalid = btrue;
 
     SCRIPT_FUNCTION_END();
@@ -6603,7 +6603,7 @@ Uint8 scr_OperatorIsLinux( script_state_t * pstate, ai_state_t * pself )
     // Proceeds if running on linux
 
     SCRIPT_FUNCTION_BEGIN();
-    
+
 #ifdef __unix__
     returncode = btrue;
 #else
@@ -6876,7 +6876,7 @@ Uint8 scr_PitsFall( script_state_t * pstate, ai_state_t * pself )
         pity = pstate->y;
         pitz = pstate->distance;
     }
-    else 
+    else
     {
         pitskill = btrue;
     }
@@ -7385,18 +7385,18 @@ Uint8 _append_end_text( chr_t * pchr, const int message, script_state_t * pstate
     {
         char * src, * src_end;
         char * dst, * dst_end;
-		int i = 0;
-        
-		// Copy the message_offset
+        int i = 0;
+
+        // Copy the message_offset
         read = MessageOffset.lst[message_offset];
 
         src     = message_buffer + read;
-		src     = strcat(endtext, src);							//Merge the existing message with the next one
+        src     = strcat(endtext, src);                            //Merge the existing message with the next one
         src_end = message_buffer + MESSAGEBUFFERSIZE;
 
-		dst     = endtext;
+        dst     = endtext;
         dst_end = endtext + MAXENDTEXT - 1;
-		
+
         expand_escape_codes( ichr, pstate, src, src_end, dst, dst_end );
 
         //*dst_end = '\0';
