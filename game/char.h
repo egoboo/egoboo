@@ -247,6 +247,7 @@ struct s_chr_instance
 
     size_t         vlst_size;
     GLvertex       vlst[MAXVERTICES];
+    oct_bb_t       bbox;                      // the bounding box for this frame
 
     // graphical optimizations
     bool_t         indolist;        // Has it been added yet?
@@ -712,7 +713,7 @@ const char * describe_stat(int value_high);
 
 void reset_teams();
 
-bool_t chr_update_matrix( chr_t * pchr );
+egoboo_rv chr_update_matrix( chr_t * pchr, bool_t update_size );
 bool_t chr_teleport( Uint16 ichr, float x, float y, float z, Uint16 turn_z );
 
 bool_t chr_request_terminate( Uint16 ichr );
@@ -727,3 +728,5 @@ bool_t chr_getMatUp(chr_t *pchr, GLvector3 * pvec);
 bool_t chr_getMatRight(chr_t *pchr, GLvector3 * pvec);
 bool_t chr_getMatForward(chr_t *pchr, GLvector3 * pvec);
 bool_t chr_getMatTranslate(chr_t *pchr, GLvector3 * pvec);
+
+egoboo_rv chr_update_collision_size( chr_t * pchr, bool_t update_matrix );

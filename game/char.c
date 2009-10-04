@@ -121,7 +121,7 @@ void flash_character_height( Uint16 character, Uint8 valuelow, Sint16 low,
     pmad = chr_get_pmad(character);
     if( NULL == pmad ) return;
 
-    for ( cnt = 0; cnt < pmad->md2_data.vertices; cnt++  )
+    for ( cnt = 0; cnt < ego_md2_data[pmad->md2_ref].vertices; cnt++  )
     {
         z = Md2FrameList[pinst->frame_nxt].vrtz[cnt];
 
@@ -460,7 +460,7 @@ void attach_particle_to_character( Uint16 particle, Uint16 character, int vertex
     // Do we have a matrix???
     if ( !chr_matrix_valid(pchr) )
     {
-        chr_update_matrix(pchr);
+        chr_update_matrix( pchr, btrue );
     }
 
     // Do we have a matrix???
@@ -480,7 +480,7 @@ void attach_particle_to_character( Uint16 particle, Uint16 character, int vertex
         vertex = 0;
         if( NULL != pmad )
         {
-            vertex = pmad->md2_data.vertices - vertex_offset;
+            vertex = ego_md2_data[pmad->md2_ref].vertices - vertex_offset;
 
             // do the automatic update
             chr_instance_update_vertices( &(pchr->inst), vertex, vertex );
@@ -526,7 +526,7 @@ void make_all_character_matrices(bool_t do_physics)
     // just call chr_update_matrix on every character
     for ( ichr = 0; ichr < MAX_CHR; ichr++ )
     {
-        chr_update_matrix( ChrList.lst + ichr );
+        chr_update_matrix( ChrList.lst + ichr, btrue );
     }
 
     //// blank the accumulators
@@ -1058,7 +1058,7 @@ bool_t detach_character_from_mount( Uint16 character, Uint8 ignorekurse, Uint8 d
     pchr->map_turn_y = 32768;
     pchr->map_turn_x = 32768;
 
-    chr_update_matrix( pchr );
+    chr_update_matrix( pchr, btrue );
 
     return btrue;
 }
@@ -1152,7 +1152,7 @@ void attach_character_to_mount( Uint16 iitem, Uint16 iholder, grip_offset_t grip
     pitem->attachedto     = iholder;
     pholder->holdingwhich[slot] = iitem;
 
-    chr_update_matrix( pitem );
+    chr_update_matrix( pitem, btrue );
 
     //// set the grip vertices for the iitem
     //set_weapongrip( iitem, iholder, grip_off );
@@ -1694,7 +1694,7 @@ bool_t character_grab_stuff( Uint16 ichr_a, grip_offset_t grip_off, bool_t grab_
     {
         // Transform the weapon grip_off from pchr_a->iprofile to world space
         frame_nxt = pchr_a->inst.frame_nxt;
-        vertex    = chr_get_pmad(ichr_a)->md2_data.vertices - grip_off;
+        vertex    = ego_md2_data[chr_get_pmad(ichr_a)->md2_ref].vertices - grip_off;
 
         // do the automatic update
         chr_instance_update_vertices( &(pchr_a->inst), vertex, vertex );
@@ -3703,7 +3703,7 @@ Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
 
     // initalize the character instance
     chr_instance_spawn( &(pchr->inst), profile, skin );
-    chr_update_matrix( pchr );
+    chr_update_matrix( pchr, btrue );
 
     if ( 0 == __chrhitawall(ichr, nrm) )
     {
@@ -3789,7 +3789,7 @@ void respawn_character( Uint16 character )
 
     // re-initialize the instance
     chr_instance_spawn( &(pchr->inst), pchr->iprofile, pchr->skin );
-    chr_update_matrix( pchr );
+    chr_update_matrix( pchr, btrue );
 
     // determine whether the object is hidden
     chr_update_hide( pchr );
@@ -3821,7 +3821,10 @@ int chr_change_skin( Uint16 character, int skin )
         // make sure that the instance has a valid imad
         if ( NULL != ppro && INVALID_MAD(pinst->imad) )
         {
-            chr_instance_set_mad( pinst, ppro->imad );
+            if( chr_instance_set_mad( pinst, ppro->imad ) )
+            {
+                chr_update_collision_size( pchr, btrue );
+            }
             pmad = chr_get_pmad(character);
         }
     }
@@ -4212,7 +4215,7 @@ void change_character( Uint16 ichr, Uint16 profile_new, Uint8 skin, Uint8 leavew
 
     // initialize the instance
     chr_instance_spawn( &(pchr->inst), profile_new, skin );
-    chr_update_matrix( pchr );
+    chr_update_matrix( pchr, btrue );
 
     // Set the skin after changing the model in chr_instance_spawn()
     change_armor( ichr, skin );
@@ -5094,19 +5097,24 @@ bool_t chr_do_latch_button( chr_t * pchr )
 
     if ( !pchr->alive || 0 == pchr->latch.b ) return btrue;
 
-    if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_JUMP ) )
+    if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_JUMP ) && 0 == pchr->jumptime )
     {
         pchr->latch.b &= ~LATCHBUTTON_JUMP;
 
-        if ( pchr->attachedto != MAX_CHR && pchr->jumptime == 0 )
+        if ( ACTIVE_CHR(pchr->attachedto) )
         {
             int ijump;
 
             detach_character_from_mount( ichr, btrue, btrue );
             pchr->jumptime = JUMPDELAY;
-            pchr->vel.z = DISMOUNTZVEL;
             if ( pchr->flyheight != 0 )
-                pchr->vel.z = DISMOUNTZVELFLY;
+            {
+                pchr->vel.z += DISMOUNTZVELFLY;
+            }
+            else
+            {
+                pchr->vel.z += DISMOUNTZVEL;
+            }
 
             pchr->pos.z += pchr->vel.z;
             if ( pchr->jumpnumberreset != JUMPINFINITE && pchr->jumpnumber != 0 )
@@ -5121,19 +5129,22 @@ bool_t chr_do_latch_button( chr_t * pchr )
 
         }
 
-        if ( pchr->jumptime == 0 && pchr->jumpnumber != 0 && pchr->flyheight == 0 )
+        else if (  0 != pchr->jumpnumber && 0 == pchr->flyheight )
         {
             if ( pchr->jumpnumberreset != 1 || pchr->jumpready )
             {
+                int ijump;
+                cap_t * pcap;
+
                 // Make the character jump
                 pchr->hitready = btrue;
                 if ( pchr->enviro.inwater )
                 {
-                    pchr->vel.z = WATERJUMP * 1.5;
+                    pchr->vel.z += WATERJUMP * 1.5;
                 }
                 else
                 {
-                    pchr->vel.z = pchr->jump_power * 1.5;
+                    pchr->vel.z += pchr->jump_power * 1.5;
                 }
 
                 pchr->jumptime = JUMPDELAY;
@@ -5141,12 +5152,16 @@ bool_t chr_do_latch_button( chr_t * pchr )
                 if ( pchr->jumpnumberreset != JUMPINFINITE ) pchr->jumpnumber--;
 
                 // Set to jump animation if not doing anything better
-                if ( pchr->actionready )    chr_play_action( ichr, ACTION_JA, btrue );
-
+                if ( pchr->actionready )
+                {
+                    chr_play_action( ichr, ACTION_JA, btrue );
+                }
 
                 // Play the jump sound (Boing!)
+                pcap = pro_get_pcap(pchr->iprofile);
+                if( NULL != pcap )
                 {
-                    int ijump = pro_get_pcap(pchr->iprofile)->soundindex[SOUND_JUMP];
+                    ijump = pcap->soundindex[SOUND_JUMP];
                     if ( VALID_SND( ijump ) )
                     {
                         sound_play_chunk( pchr->pos, chr_get_chunk_ptr( pchr,ijump ) );
@@ -5154,6 +5169,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
                 }
             }
         }
+
     }
     if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_ALTLEFT ) && pchr->actionready && 0 == pchr->reloadtime )
     {
@@ -6093,23 +6109,39 @@ bool_t chr_instance_set_mad( chr_instance_t * pinst, Uint16 imad )
     //     if not, the data chould be set to safe values...
 
     mad_t * pmad;
+    bool_t updated = bfalse;
 
     if( INVALID_MAD(imad) ) return bfalse;
     pmad = MadList + imad;
 
-    pinst->imad = imad;
+    if( pinst->imad != imad )
+    {
+        updated = btrue;
+        pinst->imad = imad;
+    }
 
     // set the vertex size
-    pinst->vlst_size = pmad->md2_data.vertices;
+    if( pinst->vlst_size != ego_md2_data[pmad->md2_ref].vertices )
+    {
+        updated = btrue;
+        pinst->vlst_size = ego_md2_data[pmad->md2_ref].vertices;
+    }
 
     // set the frames to frame 0 of this object's data
-    pinst->frame_nxt = pinst->frame_lst = pmad->md2_data.framestart;
+    if( pinst->frame_nxt != ego_md2_data[pmad->md2_ref].framestart || pinst->frame_lst != ego_md2_data[pmad->md2_ref].framestart )
+    {
+        updated = btrue;
+        pinst->frame_nxt = pinst->frame_lst = ego_md2_data[pmad->md2_ref].framestart;
+    }
 
-    // update the vertex and lighting cache
-    chr_instance_clear_cache(pinst);
-    chr_instance_update_vertices( pinst, -1, -1 );
+    if( updated )
+    {
+        // update the vertex and lighting cache
+        chr_instance_clear_cache(pinst);
+        chr_instance_update_vertices( pinst, -1, -1 );
+    }
 
-    return btrue;
+    return updated;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -6363,7 +6395,10 @@ Uint16 chr_get_imad(Uint16 ichr)
         Uint16 imad_tmp = pro_get_imad(pchr->iprofile);
         if( VALID_MAD( imad_tmp ) )
         {
-            chr_instance_set_mad( &(pchr->inst), imad_tmp );
+            if( chr_instance_set_mad( &(pchr->inst), imad_tmp ) )
+            {
+                 chr_update_collision_size( pchr, btrue );
+            }
         }
     }
 
@@ -6605,49 +6640,25 @@ IDSZ chr_get_idsz(Uint16 ichr, Uint16 type)
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void verts_to_chr_bumper_1( chr_bumper_1_t * pbmp, GLvector3 offset, GLvertex vlst[], size_t vlst_size )
+void oct_bb_to_chr_bumper_1( chr_bumper_1_t * pbmp, oct_bb_t bbox )
 {
-    // BB > determine a level 1 bounding box for a model
-    //
-    // convert the point cloud in the GLvertex array, vlst, to
-    // a level 1 bounding box. Subtract off the offset, the "position" of the mpdel
+    // BB > convert the model's bounding box data (oct_bb_t) to
+    //      a bumper (chr_bumper_1_t)
 
-    int cnt;
+    if( NULL == pbmp ) return;
 
-    if( NULL == pbmp || NULL == vlst || 0 == vlst_size ) return;
+    // copy the model's bounding box
+    pbmp->min_x  = bbox.mins[OCT_X];
+    pbmp->min_y  = bbox.mins[OCT_Y];
+    pbmp->min_z  = bbox.mins[OCT_Z];
+    pbmp->min_xy = bbox.mins[OCT_XY];
+    pbmp->min_yx = bbox.mins[OCT_YX];
 
-    // determine a bounding box for the model
-    pbmp->min_x  = pbmp->max_x  = vlst[0].pos[XX] - offset.x;
-    pbmp->min_y  = pbmp->max_y  = vlst[0].pos[YY] - offset.y;
-    pbmp->min_z  = pbmp->max_z  = vlst[0].pos[ZZ] - offset.z;
-    pbmp->min_xy = pbmp->max_xy = pbmp->min_x + pbmp->min_y;
-    pbmp->min_yx = pbmp->max_yx = pbmp->min_x - pbmp->min_y;
-
-    for( cnt = 1; cnt < vlst_size; cnt++ )
-    {
-        float tmp_x, tmp_y, tmp_z, tmp_xy, tmp_yx;
-
-        tmp_x = vlst[cnt].pos[XX] - offset.x;
-        tmp_y = vlst[cnt].pos[YY] - offset.y;
-        tmp_z = vlst[cnt].pos[ZZ] - offset.z;
-
-        pbmp->min_x  = MIN( pbmp->min_x, tmp_x );
-        pbmp->max_x  = MAX( pbmp->max_x, tmp_x );
-
-        pbmp->min_y  = MIN( pbmp->min_y, tmp_y );
-        pbmp->max_y  = MAX( pbmp->max_y, tmp_y );
-
-        pbmp->min_z  = MIN( pbmp->min_z, tmp_z );
-        pbmp->max_z  = MAX( pbmp->max_z, tmp_z );
-
-        tmp_xy = tmp_x + tmp_y;
-        pbmp->min_xy = MIN( pbmp->min_xy, tmp_xy );
-        pbmp->max_xy = MAX( pbmp->max_xy, tmp_xy );
-
-        tmp_yx = tmp_x - tmp_y;
-        pbmp->min_yx = MIN( pbmp->min_yx, tmp_yx );
-        pbmp->max_yx = MAX( pbmp->max_yx, tmp_yx );
-    }
+    pbmp->max_x  = bbox.maxs[OCT_X];
+    pbmp->max_y  = bbox.maxs[OCT_Y];
+    pbmp->max_z  = bbox.maxs[OCT_Z];
+    pbmp->max_xy = bbox.maxs[OCT_XY];
+    pbmp->max_yx = bbox.maxs[OCT_YX];
 }
 
 //--------------------------------------------------------------------------------------------
@@ -6656,6 +6667,12 @@ int chr_bumper_1_to_points( chr_bumper_1_t * pbmp, GLvector4 pos[], size_t pos_c
     // BB > convert the corners of the level 1 bounding box to a point cloud
     //      set pos[].w to zero for now, that the transform does not
     //      shift the points while transforming them
+    //
+    //      Make sure to set pos[].w to zero so that the bounding box will not be translated
+    //      then the transformation matrix is applied.
+    //
+    //      The math for finding the corners of this bumper is not hard, but it is easy to make a mistake.
+    //      be careful if you modify anything.
 
     float ftmp;
     float val_x, val_y;
@@ -6685,18 +6702,12 @@ int chr_bumper_1_to_points( chr_bumper_1_t * pbmp, GLvector4 pos[], size_t pos_c
     }
     else
     {
-        float vmin, vmax;
+        val_y = pbmp->max_y;
 
-        vmin = pbmp->max_y - pbmp->max_yx;
-        if( vmin < pbmp->min_x )
+        val_x = pbmp->max_y - pbmp->max_yx;
+        if( val_x < pbmp->min_x )
         {
             val_x = pbmp->min_x;
-            val_y = pbmp->max_y;
-        }
-        else
-        {
-            val_x = vmin;
-            val_y = pbmp->max_y;
         }
 
         pos[vcount].x = val_x;
@@ -6711,16 +6722,10 @@ int chr_bumper_1_to_points( chr_bumper_1_t * pbmp, GLvector4 pos[], size_t pos_c
         pos[vcount].w = 0.0f;
         vcount++;
 
-        vmax = pbmp->max_xy - pbmp->max_y;
-        if( vmax > pbmp->min_x )
+        val_x = pbmp->max_xy - pbmp->max_y;
+        if( val_x > pbmp->max_x )
         {
-            val_x = pbmp->min_x;
-            val_y = pbmp->max_y;
-        }
-        else
-        {
-            val_x = vmax;
-            val_y = pbmp->max_y;
+            val_x = pbmp->max_x;
         }
 
         pos[vcount].x = val_x;
@@ -6757,18 +6762,12 @@ int chr_bumper_1_to_points( chr_bumper_1_t * pbmp, GLvector4 pos[], size_t pos_c
     }
     else
     {
-        float vmin, vmax;
+        val_y = pbmp->min_y;
 
-        vmin = pbmp->min_xy - pbmp->min_y;
-        if( vmin < pbmp->min_x )
+        val_x = pbmp->min_xy - pbmp->min_y;
+        if( val_x < pbmp->min_x )
         {
             val_x = pbmp->min_x;
-            val_y = pbmp->min_y;
-        }
-        else
-        {
-            val_x = vmin;
-            val_y = pbmp->min_y;
         }
 
         pos[vcount].x = val_x;
@@ -6783,18 +6782,11 @@ int chr_bumper_1_to_points( chr_bumper_1_t * pbmp, GLvector4 pos[], size_t pos_c
         pos[vcount].w = 0.0f;
         vcount++;
 
-        vmax = pbmp->min_y - pbmp->min_yx;
-        if( vmax > pbmp->min_x )
+        val_x = pbmp->min_y - pbmp->min_yx;
+        if( val_x > pbmp->max_x )
         {
             val_x = pbmp->max_x;
-            val_y = pbmp->min_y;
         }
-        else
-        {
-            val_x = vmax;
-            val_y = pbmp->min_y;
-        }
-
         pos[vcount].x = val_x;
         pos[vcount].y = val_y;
         pos[vcount].z = pbmp->max_z;
@@ -6816,66 +6808,53 @@ int chr_bumper_1_to_points( chr_bumper_1_t * pbmp, GLvector4 pos[], size_t pos_c
         val_y = 0.5f * (pbmp->max_xy + pbmp->min_yx);
         val_x = ftmp;
 
-        pos[vcount].x = val_y;
-        pos[vcount].y = val_x;
+        pos[vcount].x = val_x;
+        pos[vcount].y = val_y;
         pos[vcount].z = pbmp->max_z;
         pos[vcount].w = 0.0f;
         vcount++;
 
-        pos[vcount].x = val_y;
-        pos[vcount].y = val_x;
+        pos[vcount].x = val_x;
+        pos[vcount].y = val_y;
         pos[vcount].z = pbmp->min_z;
         pos[vcount].w = 0.0f;
         vcount++;
     }
     else
     {
-        float vmin, vmax;
+        val_x = pbmp->max_x;
 
-        vmin = pbmp->max_x + pbmp->min_xy;
-        if( vmin < pbmp->min_y )
+        val_y = pbmp->max_x + pbmp->min_yx;
+        if( val_y < pbmp->min_y )
         {
             val_y = pbmp->min_y;
-            val_x = pbmp->max_x;
-        }
-        else
-        {
-            val_y = vmin;
-            val_x = pbmp->max_x;
         }
 
-        pos[vcount].x = val_y;
-        pos[vcount].y = val_x;
+        pos[vcount].x = val_x;
+        pos[vcount].y = val_y;
         pos[vcount].z = pbmp->max_z;
         pos[vcount].w = 0.0f;
         vcount++;
 
-        pos[vcount].x = val_y;
-        pos[vcount].y = val_x;
+        pos[vcount].x = val_x;
+        pos[vcount].y = val_y;
         pos[vcount].z = pbmp->min_z;
         pos[vcount].w = 0.0f;
         vcount++;
 
-        vmax = pbmp->max_xy - pbmp->max_x;
-        if( vmax > pbmp->min_y )
+        val_y = pbmp->max_xy - pbmp->max_x;
+        if( val_y > pbmp->max_y )
         {
             val_y = pbmp->max_y;
-            val_x = pbmp->max_x;
         }
-        else
-        {
-            val_y = vmax;
-            val_x = pbmp->max_x;
-        }
-
-        pos[vcount].x = val_y;
-        pos[vcount].y = val_x;
+        pos[vcount].x = val_x;
+        pos[vcount].y = val_y;
         pos[vcount].z = pbmp->max_z;
         pos[vcount].w = 0.0f;
         vcount++;
 
-        pos[vcount].x = val_y;
-        pos[vcount].y = val_x;
+        pos[vcount].x = val_x;
+        pos[vcount].y = val_y;
         pos[vcount].z = pbmp->min_z;
         pos[vcount].w = 0.0f;
         vcount++;
@@ -6888,72 +6867,58 @@ int chr_bumper_1_to_points( chr_bumper_1_t * pbmp, GLvector4 pos[], size_t pos_c
         val_y = 0.5f * (pbmp->min_xy + pbmp->max_yx);
         val_x = ftmp;
 
-        pos[vcount].x = val_y;
-        pos[vcount].y = val_x;
+        pos[vcount].x = val_x;
+        pos[vcount].y = val_y;
         pos[vcount].z = pbmp->max_z;
         pos[vcount].w = 0.0f;
         vcount++;
 
-        pos[vcount].x = val_y;
-        pos[vcount].y = val_x;
+        pos[vcount].x = val_x;
+        pos[vcount].y = val_y;
         pos[vcount].z = pbmp->min_z;
         pos[vcount].w = 0.0f;
         vcount++;
     }
     else
     {
-        float vmin, vmax;
+        val_x = pbmp->min_x;
 
-        vmin = pbmp->min_xy - pbmp->min_x;
-        if( vmin < pbmp->min_y )
+        val_y = pbmp->min_xy - pbmp->min_x;
+        if( val_y < pbmp->min_y )
         {
             val_y = pbmp->min_y;
-            val_x = pbmp->min_x;
-        }
-        else
-        {
-            val_y = vmin;
-            val_x = pbmp->min_x;
         }
 
-        pos[vcount].x = val_y;
-        pos[vcount].y = val_x;
+        pos[vcount].x = val_x;
+        pos[vcount].y = val_y;
         pos[vcount].z = pbmp->max_z;
         pos[vcount].w = 0.0f;
         vcount++;
 
-        pos[vcount].x = val_y;
-        pos[vcount].y = val_x;
+        pos[vcount].x = val_x;
+        pos[vcount].y = val_y;
         pos[vcount].z = pbmp->min_z;
         pos[vcount].w = 0.0f;
         vcount++;
 
-        vmax = pbmp->max_xy + pbmp->min_x;
-        if( vmax > pbmp->min_y )
+        val_y = pbmp->max_yx + pbmp->min_x;
+        if( val_y > pbmp->max_y )
         {
             val_y = pbmp->max_y;
-            val_x = pbmp->min_x;
-        }
-        else
-        {
-            val_y = vmax;
-            val_x = pbmp->min_x;
         }
 
-        pos[vcount].x = val_y;
-        pos[vcount].y = val_x;
+        pos[vcount].x = val_x;
+        pos[vcount].y = val_y;
         pos[vcount].z = pbmp->max_z;
         pos[vcount].w = 0.0f;
         vcount++;
 
-        pos[vcount].x = val_y;
-        pos[vcount].y = val_x;
+        pos[vcount].x = val_x;
+        pos[vcount].y = val_y;
         pos[vcount].z = pbmp->min_z;
         pos[vcount].w = 0.0f;
         vcount++;
     }
-
-
 
     return vcount;
 }
@@ -6973,22 +6938,21 @@ void points_to_chr_bumper_1( chr_bumper_1_t * pbmp, GLvector4 pos[], size_t pos_
     pbmp->min_y  = pbmp->max_y  = pos[0].y;
     pbmp->min_z  = pbmp->max_z  = pos[0].z;
     pbmp->min_xy = pbmp->max_xy = pbmp->min_x + pbmp->min_y;
-    pbmp->min_yx = pbmp->max_yx = pbmp->min_x - pbmp->min_y;
+    pbmp->min_yx = pbmp->max_yx =-pbmp->min_x + pbmp->min_y;
 
     for( cnt = 1; cnt < pos_count; cnt++ )
     {
         float tmp_x, tmp_y, tmp_z, tmp_xy, tmp_yx;
 
         tmp_x = pos[cnt].x;
-        tmp_y = pos[cnt].y;
-        tmp_z = pos[cnt].z;
-
         pbmp->min_x  = MIN( pbmp->min_x, tmp_x );
         pbmp->max_x  = MAX( pbmp->max_x, tmp_x );
 
+        tmp_y = pos[cnt].y;
         pbmp->min_y  = MIN( pbmp->min_y, tmp_y );
         pbmp->max_y  = MAX( pbmp->max_y, tmp_y );
 
+        tmp_z = pos[cnt].z;
         pbmp->min_z  = MIN( pbmp->min_z, tmp_z );
         pbmp->max_z  = MAX( pbmp->max_z, tmp_z );
 
@@ -6996,14 +6960,14 @@ void points_to_chr_bumper_1( chr_bumper_1_t * pbmp, GLvector4 pos[], size_t pos_
         pbmp->min_xy = MIN( pbmp->min_xy, tmp_xy );
         pbmp->max_xy = MAX( pbmp->max_xy, tmp_xy );
 
-        tmp_yx = tmp_x - tmp_y;
+        tmp_yx =-tmp_x + tmp_y;
         pbmp->min_yx = MIN( pbmp->min_yx, tmp_yx );
         pbmp->max_yx = MAX( pbmp->max_yx, tmp_yx );
     }
 }
 
 //--------------------------------------------------------------------------------------------
-void chr_bumper_1_downgrade( chr_bumper_1_t * psrc, chr_bumper_0_t * pdst )
+void chr_bumper_1_downgrade( chr_bumper_1_t * psrc, chr_bumper_0_t bump_base, chr_bumper_0_t * pdst )
 {
     // BB> convert a level 1 bumper to an "equivalent" level 0 bumper
 
@@ -7011,26 +6975,48 @@ void chr_bumper_1_downgrade( chr_bumper_1_t * psrc, chr_bumper_0_t * pdst )
 
     if( NULL == psrc || NULL == pdst ) return;
 
-    pdst->height = psrc->max_z;
+    pdst->height = 0;
+    if( 0 != bump_base.height )
+    {
+        // have to use MAX here because the height can be distorted due
+        // to make object-particle interactions easier (i.e. it allows you to 
+        // hit a grub bug with your hands)
+        pdst->height = MAX(bump_base.height, psrc->max_z);
+    }
 
-    val1 = ABS(psrc->min_x);
-    val2 = ABS(psrc->max_y);
-    val3 = ABS(psrc->min_y);
-    val4 = ABS(psrc->max_y);
-    pdst->size = MAX( MAX( val1, val2 ), MAX( val3, val4 ) );
+    pdst->size = 0;
+    if( 0 != bump_base.size )
+    {
+        val1 = ABS(psrc->min_x);
+        val2 = ABS(psrc->max_y);
+        val3 = ABS(psrc->min_y);
+        val4 = ABS(psrc->max_y);
+        pdst->size = MAX( MAX( val1, val2 ), MAX( val3, val4 ) );
+    }
 
-    val1 =  psrc->max_yx;
-    val2 = -psrc->min_yx;
-    val3 =  psrc->max_xy;
-    val4 = -psrc->min_xy;
-    pdst->sizebig = MAX( MAX( val1, val2 ), MAX( val3, val4 ) );
+    pdst->sizebig = 0;
+    if( 0 != bump_base.sizebig )
+    {
+        val1 =  psrc->max_yx;
+        val2 = -psrc->min_yx;
+        val3 =  psrc->max_xy;
+        val4 = -psrc->min_xy;
+        pdst->sizebig = MAX( MAX( val1, val2 ), MAX( val3, val4 ) );
+    }
 };
 
 //--------------------------------------------------------------------------------------------
-void chr_update_collision_size( chr_t * pchr )
+egoboo_rv chr_update_collision_size( chr_t * pchr, bool_t update_matrix )
 {
     // TODO: use this function to update the pchr->collision_0 and  pchr->collision_1 with
     //       values that reflect the best possible collision volume
+    //
+    // This function takes quite a bit of time, so it must only be called when the
+    // vertices change because of an animation or because the matrix changes.
+    //
+    // it might be possible to cache the src[] array used in this function.
+    // if the matrix changes, then you would not need to recalculate this data...
+
 
     int       vcount;   // the actual number of vertices, in case the object is square
     GLvector4 src[16];  // for the upper and lower octagon points
@@ -7041,21 +7027,31 @@ void chr_update_collision_size( chr_t * pchr )
     mad_t * pmad;
     chr_bumper_1_t * pbmp;
 
-    if( NULL == pchr || !pchr->onwhichblock ) return;
+    if( NULL == pchr || !ACTIVE_CHR(pchr->index) ) return rv_error;
     pbmp = &(pchr->collision_1);
 
     pmad = chr_get_pmad( pchr->index );
-    if( NULL == pmad ) return;
+    if( NULL == pmad ) return rv_error;
 
-    // make sure the vertices are calculated properly
-    chr_instance_update_vertices( &(pchr->inst), -1, -1 );
+    // make sure the matrix is updated properly
+    if( update_matrix )
+    {
+        // call chr_update_matrix() but pass in a false value to prevent a recursize call
+        if( rv_error == chr_update_matrix( pchr, bfalse ) )
+        {
+            return rv_error;
+        }
+    }
 
-    // make sure the index is updated properly
-    chr_update_matrix( pchr );
+    // make sure the bounding box is calculated properly
+    if( rv_error == chr_instance_update_bbox( &(pchr->inst) ) )
+    {
+        return rv_error;
+    }
 
     // convert the point cloud in the GLvertex array (pchr->inst.vlst) to
     // a level 1 bounding box. Subtract off the position of the character
-    verts_to_chr_bumper_1( &bsrc, pchr->pos, pchr->inst.vlst, pmad->md2_data.vertices );
+    oct_bb_to_chr_bumper_1( &bsrc, pchr->inst.bbox );
 
     // convert the corners of the level 1 bounding box to a point cloud
     vcount = chr_bumper_1_to_points( &bsrc, src, 16 );
@@ -7067,7 +7063,9 @@ void chr_update_collision_size( chr_t * pchr )
     points_to_chr_bumper_1( pbmp, dst, vcount );
 
     // convert the level 1 bounding box to a level 0 bounding box
-    chr_bumper_1_downgrade( pbmp, &(pchr->collision_0) );
+    chr_bumper_1_downgrade( pbmp, pchr->bump, &(pchr->collision_0) );
+
+    return rv_success;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -7080,7 +7078,7 @@ void chr_update_size( chr_t * pchr )
     pchr->bump.sizebig = pchr->bump_save.sizebig * pchr->fat;
     pchr->bump.height  = pchr->bump_save.height  * pchr->fat;
 
-    chr_update_collision_size(pchr);
+    chr_update_collision_size(pchr, btrue );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -7444,7 +7442,7 @@ bool_t chr_teleport( Uint16 ichr, float x, float y, float z, Uint16 turn_z )
         if( !detach_character_from_mount( ichr, btrue, bfalse ) )
         {
             // detach_character_from_mount() updates the character matrix unless it is not mounted
-            chr_update_matrix( pchr );
+            chr_update_matrix( pchr, btrue );
         }
 
         retval = btrue;
@@ -7556,7 +7554,7 @@ bool_t chr_getMatUp(chr_t *pchr, GLvector3 *pvec )
 
     if( !chr_matrix_valid( pchr ) )
     {
-        chr_update_matrix( pchr );
+        chr_update_matrix( pchr, btrue );
     }
 
     if( chr_matrix_valid( pchr ) )
@@ -7583,7 +7581,7 @@ bool_t chr_getMatRight(chr_t *pchr, GLvector3 *pvec )
 
     if( !chr_matrix_valid( pchr ) )
     {
-        chr_update_matrix( pchr );
+        chr_update_matrix( pchr, btrue );
     }
 
     if( chr_matrix_valid( pchr ) )
@@ -7611,7 +7609,7 @@ bool_t chr_getMatForward(chr_t *pchr, GLvector3 *pvec )
 
     if( !chr_matrix_valid( pchr ) )
     {
-        chr_update_matrix( pchr );
+        chr_update_matrix( pchr, btrue );
     }
 
     if( chr_matrix_valid( pchr ) )
@@ -7639,7 +7637,7 @@ bool_t chr_getMatTranslate(chr_t *pchr, GLvector3 *pvec )
 
     if( !chr_matrix_valid( pchr ) )
     {
-        chr_update_matrix( pchr );
+        chr_update_matrix( pchr, btrue );
     }
 
     if( chr_matrix_valid( pchr ) )
@@ -7680,10 +7678,10 @@ int get_grip_verts( Uint16 grip_verts[], Uint16 imount, int vrt_offset )
     pmount_mad = chr_get_pmad(imount);
     if ( NULL == pmount_mad ) return 0;
 
-    if( 0 == pmount_mad->md2_data.vertices ) return 0;
+    if( 0 == ego_md2_data[pmount_mad->md2_ref].vertices ) return 0;
 
     //---- set the proper weapongrip vertices
-    tnc = pmount_mad->md2_data.vertices - vrt_offset;
+    tnc = ego_md2_data[pmount_mad->md2_ref].vertices - vrt_offset;
 
     // if the starting vertex is less than 0, just take the first vertex
     if( tnc < 0 )
@@ -7695,7 +7693,7 @@ int get_grip_verts( Uint16 grip_verts[], Uint16 imount, int vrt_offset )
     vrt_count = 0;
     for (i = 0; i < GRIP_VERTS; i++)
     {
-        if (tnc + i < pmount_mad->md2_data.vertices )
+        if (tnc + i < ego_md2_data[pmount_mad->md2_ref].vertices )
         {
             grip_verts[i] = tnc + i;
             vrt_count++;
@@ -7735,7 +7733,7 @@ bool_t chr_get_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
         chr_t * ptarget = ChrList.lst + pchr->ai.target;
 
         // make sure we have the latst info from the target
-        chr_update_matrix( ptarget );
+        chr_update_matrix( ptarget, btrue );
 
         // grab the matrix cache into from the character we are overlaying
         memcpy( mc_tmp, &(ptarget->inst.matrix_cache), sizeof(matrix_cache_t) );
@@ -7757,7 +7755,7 @@ bool_t chr_get_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
             chr_t * pmount = ChrList.lst + pchr->attachedto;
 
             // make sure we have the latst info from the target
-            chr_update_matrix( pmount );
+            chr_update_matrix( pmount, btrue );
 
             // just in case the mounts's matrix cannot be corrected
             // then treat it as if it is not mounted... yuck
@@ -8123,28 +8121,27 @@ cmp_matrix_cache_end:
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t chr_update_matrix( chr_t * pchr )
+egoboo_rv chr_update_matrix( chr_t * pchr, bool_t update_size )
 {
     // BB> Do everything necessary to set the current matrix for this character.
     //     This might include recursively going down the list of this character's mounts, etc.
     //
-    //     Return bfalse if this process fails (which indicates that the matrix for this object is
-    //     also invalid).
+    //     Return btrue if a new matrix is applied to the character, bfalse otherwise.
 
     bool_t         needs_update = bfalse;
     bool_t         applied      = bfalse;
     matrix_cache_t mc_tmp;
 
-    if( NULL == pchr || !ACTIVE_CHR(pchr->index) ) return bfalse;
+    if( NULL == pchr || !ACTIVE_CHR(pchr->index) ) return rv_error;
 
     // recursively make sure that any mount matrices are updated
     if( ACTIVE_CHR( pchr->attachedto ) )
     {
         // if this fails, we should probably do something...
-        if( !chr_update_matrix( ChrList.lst + pchr->attachedto ) )
+        if( rv_error == chr_update_matrix( ChrList.lst + pchr->attachedto, btrue ) )
         {
             pchr->inst.matrix_cache.matrix_valid = bfalse;
-            return bfalse;
+            return rv_error;
         }
     }
 
@@ -8164,7 +8161,13 @@ bool_t chr_update_matrix( chr_t * pchr )
         applied = apply_matrix_cache( pchr, &mc_tmp );
     }
 
-    return !needs_update || applied;
+    if( applied && update_size )
+    {
+        // call chr_update_collision_size() but pass in a false value to prevent a recursize call
+        chr_update_collision_size( pchr, bfalse );
+    }
+
+    return applied ? rv_success : rv_fail;
 }
 
 //--------------------------------------------------------------------------------------------

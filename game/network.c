@@ -917,7 +917,7 @@ void cl_talkToHost()
 void sv_talkToRemotes()
 {
     // ZZ> This function sends the character data to all the remote machines
-    int player, time, true_update;
+    int player, time;
 
     // make sure there is only one update per frame;
     if ( update_wld == sv_last_frame ) return;
@@ -925,9 +925,6 @@ void sv_talkToRemotes()
 
     if ( gnet.hostactive )
     {
-        // determine what update this is SUPPOSED TO BE, rather than what update it is
-        true_update = clock_all / UPDATE_SKIP;
-
         if ( gnet.on )
         {
             time = true_update + lag;

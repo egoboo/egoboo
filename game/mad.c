@@ -39,7 +39,7 @@ char    cFrameName[16];                                     // MD2 Frame Name
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static void md2_fix_normals( Uint16 modelindex );
+//static void md2_fix_normals( Uint16 modelindex );
 //static void md2_get_transvertices( Uint16 modelindex );
 // static int  vertexconnected( md2_ogl_commandlist_t * pclist, int vertex );
 
@@ -272,9 +272,9 @@ void mad_make_equally_lit( int model )
     int frame, cnt, vert;
     if ( MadList[model].loaded )
     {
-        frame = MadList[model].md2_data.framestart;
+        frame = ego_md2_data[MadList[model].md2_ref].framestart;
 
-        for ( cnt = 0; cnt < MadList[model].md2_data.frames; cnt++ )
+        for ( cnt = 0; cnt < ego_md2_data[MadList[model].md2_ref].frames; cnt++ )
         {
             vert = 0;
 
@@ -330,6 +330,9 @@ Uint16 load_one_model_profile( const char* tmploadname, Uint16 imad )
     // mark it as used
     pmad->loaded = btrue;
 
+    // do this for now. maybe make it dynamic later...
+    pmad->md2_ref = imad;
+
     // Make up a name for the model...  IMPORT\TEMP0000.OBJ
     strncpy( pmad->name, tmploadname, SDL_arraysize(pmad->name) );
     pmad->name[ SDL_arraysize(pmad->name) - 1 ] = '\0';
@@ -353,7 +356,7 @@ Uint16 load_one_model_profile( const char* tmploadname, Uint16 imad )
 
 #endif
 
-    md2_load_one( vfs_resolveReadFilename(newloadname), &(MadList[imad].md2_data) );
+    md2_load_one( vfs_resolveReadFilename(newloadname), &(ego_md2_data[MadList[imad].md2_ref]) );
     //md2_fix_normals( imad );        // Fix them normals
     //md2_get_transvertices( imad );  // Figure out how many vertices to transform
 
@@ -389,15 +392,15 @@ void mad_rip_actions( Uint16 object )
 
     // Set the primary dance action to be the first frame, just as a default
     MadList[object].actionvalid[ACTION_DA] = btrue;
-    MadList[object].actionstart[ACTION_DA] = MadList[object].md2_data.framestart;
-    MadList[object].actionend[ACTION_DA] = MadList[object].md2_data.framestart + 1;
+    MadList[object].actionstart[ACTION_DA] = ego_md2_data[MadList[object].md2_ref].framestart;
+    MadList[object].actionend[ACTION_DA] = ego_md2_data[MadList[object].md2_ref].framestart + 1;
 
     // Now go huntin' to see what each frame is, look for runs of same action
     md2_rip_frame_name( 0 );
     lastaction = action_number();  framesinaction = 0;
     frame = 0;
 
-    while ( frame < MadList[object].md2_data.frames )
+    while ( frame < ego_md2_data[MadList[object].md2_ref].frames )
     {
         md2_rip_frame_name( frame );
         action = action_number();
@@ -411,15 +414,15 @@ void mad_rip_actions( Uint16 object )
             if ( lastaction < ACTION_COUNT )
             {
                 MadList[object].actionvalid[lastaction] = btrue;
-                MadList[object].actionstart[lastaction] = MadList[object].md2_data.framestart + frame - framesinaction;
-                MadList[object].actionend[lastaction] = MadList[object].md2_data.framestart + frame;
+                MadList[object].actionstart[lastaction] = ego_md2_data[MadList[object].md2_ref].framestart + frame - framesinaction;
+                MadList[object].actionend[lastaction] = ego_md2_data[MadList[object].md2_ref].framestart + frame;
             }
 
             framesinaction = 1;
             lastaction = action;
         }
 
-        mad_get_framefx( MadList[object].md2_data.framestart + frame );
+        mad_get_framefx( ego_md2_data[MadList[object].md2_ref].framestart + frame );
         frame++;
     }
 
@@ -427,8 +430,8 @@ void mad_rip_actions( Uint16 object )
     if ( lastaction < ACTION_COUNT )
     {
         MadList[object].actionvalid[lastaction] = btrue;
-        MadList[object].actionstart[lastaction] = MadList[object].md2_data.framestart + frame - framesinaction;
-        MadList[object].actionend[lastaction]   = MadList[object].md2_data.framestart + frame;
+        MadList[object].actionstart[lastaction] = ego_md2_data[MadList[object].md2_ref].framestart + frame - framesinaction;
+        MadList[object].actionend[lastaction]   = ego_md2_data[MadList[object].md2_ref].framestart + frame;
     }
 
     // Make sure actions are made valid if a similar one exists
@@ -486,9 +489,9 @@ void mad_rip_actions( Uint16 object )
 
     // Create table for doing transition from one type of walk to another...
     // Clear 'em all to start
-    for ( frame = 0; frame < MadList[object].md2_data.frames; frame++ )
+    for ( frame = 0; frame < ego_md2_data[MadList[object].md2_ref].frames; frame++ )
     {
-        Md2FrameList[frame+MadList[object].md2_data.framestart].framelip = 0;
+        Md2FrameList[frame+ego_md2_data[MadList[object].md2_ref].framestart].framelip = 0;
     }
 
     // Need to figure out how far into action each frame is
@@ -504,65 +507,65 @@ void mad_rip_actions( Uint16 object )
 }
 
 //---------------------------------------------------------------------------------------------
-void md2_fix_normals( Uint16 modelindex )
-{
-    // ZZ> This function helps light not flicker so much
-    int cnt, tnc;
-    Uint16 indexofcurrent, indexofnext, indexofnextnext, indexofnextnextnext;
-    Uint16 indexofnextnextnextnext;
-    Uint32 frame;
-
-    frame = MadList[modelindex].md2_data.framestart;
-    cnt = 0;
-
-    while ( cnt < MadList[modelindex].md2_data.vertices )
-    {
-        tnc = 0;
-
-        while ( tnc < MadList[modelindex].md2_data.frames )
-        {
-            indexofcurrent = Md2FrameList[frame].vrta[cnt];
-            indexofnext = Md2FrameList[frame+1].vrta[cnt];
-            indexofnextnext = Md2FrameList[frame+2].vrta[cnt];
-            indexofnextnextnext = Md2FrameList[frame+3].vrta[cnt];
-            indexofnextnextnextnext = Md2FrameList[frame+4].vrta[cnt];
-            if ( indexofcurrent == indexofnextnext && indexofnext != indexofcurrent )
-            {
-                Md2FrameList[frame+1].vrta[cnt] = indexofcurrent;
-            }
-            if ( indexofcurrent == indexofnextnextnext )
-            {
-                if ( indexofnext != indexofcurrent )
-                {
-                    Md2FrameList[frame+1].vrta[cnt] = indexofcurrent;
-                }
-                if ( indexofnextnext != indexofcurrent )
-                {
-                    Md2FrameList[frame+2].vrta[cnt] = indexofcurrent;
-                }
-            }
-            if ( indexofcurrent == indexofnextnextnextnext )
-            {
-                if ( indexofnext != indexofcurrent )
-                {
-                    Md2FrameList[frame+1].vrta[cnt] = indexofcurrent;
-                }
-                if ( indexofnextnext != indexofcurrent )
-                {
-                    Md2FrameList[frame+2].vrta[cnt] = indexofcurrent;
-                }
-                if ( indexofnextnextnext != indexofcurrent )
-                {
-                    Md2FrameList[frame+3].vrta[cnt] = indexofcurrent;
-                }
-            }
-
-            tnc++;
-        }
-
-        cnt++;
-    }
-}
+//void md2_fix_normals( Uint16 modelindex )
+//{
+//    // ZZ> This function helps light not flicker so much
+//    int cnt, tnc;
+//    Uint16 indexofcurrent, indexofnext, indexofnextnext, indexofnextnextnext;
+//    Uint16 indexofnextnextnextnext;
+//    Uint32 frame;
+//
+//    frame = ego_md2_data[MadList[modelindex].md2_ref].framestart;
+//    cnt = 0;
+//
+//    while ( cnt < ego_md2_data[MadList[modelindex].md2_ref].vertices )
+//    {
+//        tnc = 0;
+//
+//        while ( tnc < ego_md2_data[MadList[modelindex].md2_ref].frames )
+//        {
+//            indexofcurrent = Md2FrameList[frame].vrta[cnt];
+//            indexofnext = Md2FrameList[frame+1].vrta[cnt];
+//            indexofnextnext = Md2FrameList[frame+2].vrta[cnt];
+//            indexofnextnextnext = Md2FrameList[frame+3].vrta[cnt];
+//            indexofnextnextnextnext = Md2FrameList[frame+4].vrta[cnt];
+//            if ( indexofcurrent == indexofnextnext && indexofnext != indexofcurrent )
+//            {
+//                Md2FrameList[frame+1].vrta[cnt] = indexofcurrent;
+//            }
+//            if ( indexofcurrent == indexofnextnextnext )
+//            {
+//                if ( indexofnext != indexofcurrent )
+//                {
+//                    Md2FrameList[frame+1].vrta[cnt] = indexofcurrent;
+//                }
+//                if ( indexofnextnext != indexofcurrent )
+//                {
+//                    Md2FrameList[frame+2].vrta[cnt] = indexofcurrent;
+//                }
+//            }
+//            if ( indexofcurrent == indexofnextnextnextnext )
+//            {
+//                if ( indexofnext != indexofcurrent )
+//                {
+//                    Md2FrameList[frame+1].vrta[cnt] = indexofcurrent;
+//                }
+//                if ( indexofnextnext != indexofcurrent )
+//                {
+//                    Md2FrameList[frame+2].vrta[cnt] = indexofcurrent;
+//                }
+//                if ( indexofnextnextnext != indexofcurrent )
+//                {
+//                    Md2FrameList[frame+3].vrta[cnt] = indexofcurrent;
+//                }
+//            }
+//
+//            tnc++;
+//        }
+//
+//        cnt++;
+//    }
+//}
 
 //---------------------------------------------------------------------------------------------
 //void md2_get_transvertices( Uint16 modelindex )
@@ -578,7 +581,7 @@ void md2_fix_normals( Uint16 modelindex )
 //    //   }
 //    // }
 //
-//    MadList[modelindex].transvertices = MadList[modelindex].md2_data.vertices;
+//    MadList[modelindex].transvertices = ego_md2_data[MadList[modelindex].md2_ref].vertices;
 //}
 
 //---------------------------------------------------------------------------------------------

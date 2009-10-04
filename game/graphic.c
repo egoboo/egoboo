@@ -1476,7 +1476,7 @@ void light_particles( ego_mpd_t * pmesh )
             }
             else if ( VALID_MAD(imad) )
             {
-                int vertex = MAX(0, MadList[imad].md2_data.vertices - pprt->vrt_off);
+                int vertex = MAX(0, ego_md2_data[MadList[imad].md2_ref].vertices - pprt->vrt_off);
                 int light  = pchr->inst.color_amb + pchr->inst.vlst[vertex].color_dir;
 
                 pprt->inst.light = CLIP(light, 0, 255);
@@ -3007,7 +3007,7 @@ int draw_fps( int y )
 
     if ( fpson )
     {
-        y = _draw_string_raw( 0, y, "%2.3f FPS, %2.3f UPS", stabilized_fps, stabilized_ups );
+        y = _draw_string_raw( 0, y, "%2.3f FPS, %2.3f UPS, Update lag = %d", stabilized_fps, stabilized_ups, update_lag );
 
 #if defined(DEBUG_PROFILE)
         //y = _draw_string_raw( 0, y, "estimated max FPS %2.3f UPS %2.3f", est_max_fps, est_max_ups );
@@ -5163,5 +5163,152 @@ void gfx_update_timers()
     {
         stabilized_fps = stabilized_fps_sum / stabilized_fps_weight;
     }
+}
+
+
+//--------------------------------------------------------------------------------------------
+bool_t render_oct_bb( oct_bb_t * bb, bool_t draw_square, bool_t draw_diamond  )
+{
+  bool_t retval = bfalse;
+
+  if(NULL == bb) return bfalse;
+
+  ATTRIB_PUSH( "render_oct_bb", GL_ENABLE_BIT | GL_TEXTURE_BIT | GL_DEPTH_BUFFER_BIT );
+  {
+    // don't write into the depth buffer
+    glDepthMask( GL_FALSE );
+    glEnable(GL_DEPTH_TEST);
+
+    // fix the poorly chosen normals...
+    glDisable( GL_CULL_FACE );
+
+    // make them transparent
+    glEnable(GL_BLEND);
+    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+
+    // choose a "white" texture
+    oglx_texture_Bind( NULL );
+
+    //------------------------------------------------
+    // DIAGONAL BBOX
+    if( draw_diamond )
+    {
+      float p1_x, p1_y;
+      float p2_x, p2_y;
+
+      glColor4f(0.5, 1, 1, 0.1);
+
+      p1_x = 0.5f * (bb->maxs[OCT_XY] - bb->maxs[OCT_YX]);
+      p1_y = 0.5f * (bb->maxs[OCT_XY] + bb->maxs[OCT_YX]);
+      p2_x = 0.5f * (bb->maxs[OCT_XY] - bb->mins[OCT_YX]);
+      p2_y = 0.5f * (bb->maxs[OCT_XY] + bb->mins[OCT_YX]);
+
+      glBegin(GL_QUADS);
+        glVertex3f(p1_x, p1_y, bb->mins[OCT_Z]);
+        glVertex3f(p2_x, p2_y, bb->mins[OCT_Z]);
+        glVertex3f(p2_x, p2_y, bb->maxs[OCT_Z]);
+        glVertex3f(p1_x, p1_y, bb->maxs[OCT_Z]);
+      glEnd();
+
+      p1_x = 0.5f * (bb->maxs[OCT_XY] - bb->mins[OCT_YX]);
+      p1_y = 0.5f * (bb->maxs[OCT_XY] + bb->mins[OCT_YX]);
+      p2_x = 0.5f * (bb->mins[OCT_XY] - bb->mins[OCT_YX]);
+      p2_y = 0.5f * (bb->mins[OCT_XY] + bb->mins[OCT_YX]);
+
+      glBegin(GL_QUADS);
+        glVertex3f(p1_x, p1_y, bb->mins[OCT_Z]);
+        glVertex3f(p2_x, p2_y, bb->mins[OCT_Z]);
+        glVertex3f(p2_x, p2_y, bb->maxs[OCT_Z]);
+        glVertex3f(p1_x, p1_y, bb->maxs[OCT_Z]);
+      glEnd();
+
+      p1_x = 0.5f * (bb->mins[OCT_XY] - bb->mins[OCT_YX]);
+      p1_y = 0.5f * (bb->mins[OCT_XY] + bb->mins[OCT_YX]);
+      p2_x = 0.5f * (bb->mins[OCT_XY] - bb->maxs[OCT_YX]);
+      p2_y = 0.5f * (bb->mins[OCT_XY] + bb->maxs[OCT_YX]);
+
+      glBegin(GL_QUADS);
+        glVertex3f(p1_x, p1_y, bb->mins[OCT_Z]);
+        glVertex3f(p2_x, p2_y, bb->mins[OCT_Z]);
+        glVertex3f(p2_x, p2_y, bb->maxs[OCT_Z]);
+        glVertex3f(p1_x, p1_y, bb->maxs[OCT_Z]);
+      glEnd();
+
+      p1_x = 0.5f * (bb->mins[OCT_XY] - bb->maxs[OCT_YX]);
+      p1_y = 0.5f * (bb->mins[OCT_XY] + bb->maxs[OCT_YX]);
+      p2_x = 0.5f * (bb->maxs[OCT_XY] - bb->maxs[OCT_YX]);
+      p2_y = 0.5f * (bb->maxs[OCT_XY] + bb->maxs[OCT_YX]);
+
+      glBegin(GL_QUADS);
+        glVertex3f(p1_x, p1_y, bb->mins[OCT_Z]);
+        glVertex3f(p2_x, p2_y, bb->mins[OCT_Z]);
+        glVertex3f(p2_x, p2_y, bb->maxs[OCT_Z]);
+        glVertex3f(p1_x, p1_y, bb->maxs[OCT_Z]);
+      glEnd();
+
+      retval = btrue;
+    }
+
+    //------------------------------------------------
+    // SQUARE BBOX
+    if(draw_square)
+    {
+      glColor4f(1, 0.5, 1, 0.1);
+
+      // XZ FACE, min Y
+      glBegin(GL_QUADS);
+        glVertex3f(bb->mins[OCT_X], bb->mins[OCT_Y], bb->mins[OCT_Z]);
+        glVertex3f(bb->mins[OCT_X], bb->mins[OCT_Y], bb->maxs[OCT_Z]);
+        glVertex3f(bb->maxs[OCT_X], bb->mins[OCT_Y], bb->maxs[OCT_Z]);
+        glVertex3f(bb->maxs[OCT_X], bb->mins[OCT_Y], bb->mins[OCT_Z]);
+      glEnd();
+
+      // YZ FACE, min X
+      glBegin(GL_QUADS);
+        glVertex3f(bb->mins[OCT_X], bb->mins[OCT_Y], bb->mins[OCT_Z]);
+        glVertex3f(bb->mins[OCT_X], bb->mins[OCT_Y], bb->maxs[OCT_Z]);
+        glVertex3f(bb->mins[OCT_X], bb->maxs[OCT_Y], bb->maxs[OCT_Z]);
+        glVertex3f(bb->mins[OCT_X], bb->maxs[OCT_Y], bb->mins[OCT_Z]);
+      glEnd();
+
+      // XZ FACE, max Y
+      glBegin(GL_QUADS);
+        glVertex3f(bb->mins[OCT_X], bb->maxs[OCT_Y], bb->mins[OCT_Z]);
+        glVertex3f(bb->mins[OCT_X], bb->maxs[OCT_Y], bb->maxs[OCT_Z]);
+        glVertex3f(bb->maxs[OCT_X], bb->maxs[OCT_Y], bb->maxs[OCT_Z]);
+        glVertex3f(bb->maxs[OCT_X], bb->maxs[OCT_Y], bb->mins[OCT_Z]);
+      glEnd();
+
+      // YZ FACE, max X
+      glBegin(GL_QUADS);
+        glVertex3f(bb->maxs[OCT_X], bb->mins[OCT_Y], bb->mins[OCT_Z]);
+        glVertex3f(bb->maxs[OCT_X], bb->mins[OCT_Y], bb->maxs[OCT_Z]);
+        glVertex3f(bb->maxs[OCT_X], bb->maxs[OCT_Y], bb->maxs[OCT_Z]);
+        glVertex3f(bb->maxs[OCT_X], bb->maxs[OCT_Y], bb->mins[OCT_Z]);
+      glEnd();
+
+      // XY FACE, min Z
+      glBegin(GL_QUADS);
+        glVertex3f(bb->mins[OCT_X], bb->mins[OCT_Y], bb->mins[OCT_Z]);
+        glVertex3f(bb->mins[OCT_X], bb->maxs[OCT_Y], bb->mins[OCT_Z]);
+        glVertex3f(bb->maxs[OCT_X], bb->maxs[OCT_Y], bb->mins[OCT_Z]);
+        glVertex3f(bb->maxs[OCT_X], bb->mins[OCT_Y], bb->mins[OCT_Z]);
+      glEnd();
+
+      // XY FACE, max Z
+      glBegin(GL_QUADS);
+        glVertex3f(bb->mins[OCT_X], bb->mins[OCT_Y], bb->maxs[OCT_Z]);
+        glVertex3f(bb->mins[OCT_X], bb->maxs[OCT_Y], bb->maxs[OCT_Z]);
+        glVertex3f(bb->maxs[OCT_X], bb->maxs[OCT_Y], bb->maxs[OCT_Z]);
+        glVertex3f(bb->maxs[OCT_X], bb->mins[OCT_Y], bb->maxs[OCT_Z]);
+      glEnd();
+
+      retval = btrue;
+    }
+
+  }
+  ATTRIB_POP( "render_oct_bb" );
+
+  return retval;
 }
 

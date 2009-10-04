@@ -139,7 +139,8 @@ EXTERN Uint32          clock_enc_stat  EQ( 0 );         // For character stat re
 EXTERN Uint32          clock_chr_stat  EQ( 0 );         // For enchant stat regeneration
 EXTERN Uint32          clock_pit   EQ( 0 );             // For pit kills
 EXTERN Uint32          outofsync   EQ( 0 );
-
+EXTERN Uint32          true_update EQ( 0 );
+EXTERN int             update_lag  EQ( 0 );
 EXTERN bool_t          soundon  EQ( btrue );              // Is the sound alive?
 
 EXTERN bool_t          pickedmodule_ready;              // Is there a new picked module?

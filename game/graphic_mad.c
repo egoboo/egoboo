@@ -41,8 +41,8 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static void chr_instance_update( Uint16 character, Uint8 trans, bool_t do_lighting );
-static void chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 trans, bool_t do_lighting );
+static egoboo_rv chr_instance_update( Uint16 character, Uint8 trans, bool_t do_lighting );
+static void      chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 trans, bool_t do_lighting );
 
 static void draw_points( chr_t * pchr, int vrt_offset, int verts );
 static void _draw_one_grip_raw( chr_instance_t * pinst, mad_t * pmad, int slot );
@@ -207,17 +207,17 @@ void render_one_mad_enviro( Uint16 character, Uint8 trans )
     oglx_texture_Bind( ptex );
 
     // Render each command
-    cmd_count   = MIN(pmad->md2_data.cmd.count,   MAXCOMMAND);
-    entry_count = MIN(pmad->md2_data.cmd.entries, MAXCOMMANDENTRIES);
-    vrt_count   = MIN(pmad->md2_data.vertices,    MAXVERTICES);
+    cmd_count   = MIN(ego_md2_data[pmad->md2_ref].cmd.count,   MAXCOMMAND);
+    entry_count = MIN(ego_md2_data[pmad->md2_ref].cmd.entries, MAXCOMMANDENTRIES);
+    vrt_count   = MIN(ego_md2_data[pmad->md2_ref].vertices,    MAXVERTICES);
     entry = 0;
     for ( cnt = 0; cnt < cmd_count; cnt++ )
     {
         if ( entry >= entry_count ) break;
 
-        GL_DEBUG(glBegin)(pmad->md2_data.cmd.type[cnt] );
+        GL_DEBUG(glBegin)(ego_md2_data[pmad->md2_ref].cmd.type[cnt] );
         {
-            for ( tnc = 0; tnc < pmad->md2_data.cmd.size[cnt]; tnc++ )
+            for ( tnc = 0; tnc < ego_md2_data[pmad->md2_ref].cmd.size[cnt]; tnc++ )
             {
                 float     cmax, cmin;
                 GLvector4 col;
@@ -225,7 +225,7 @@ void render_one_mad_enviro( Uint16 character, Uint8 trans )
 
                 if ( entry >= entry_count ) break;
 
-                vertex = pmad->md2_data.cmd.vrt[entry];
+                vertex = ego_md2_data[pmad->md2_ref].cmd.vrt[entry];
 
                 // normalize the color
                 cmax = 1.0f;
@@ -358,29 +358,29 @@ void render_one_mad_tex( Uint16 character, Uint8 trans )
     GL_DEBUG(glMultMatrixf)(pinst->matrix.v );
 
     // Render each command
-    cmd_count   = MIN(pmad->md2_data.cmd.count,   MAXCOMMAND);
-    entry_count = MIN(pmad->md2_data.cmd.entries, MAXCOMMANDENTRIES);
-    vrt_count   = MIN(pmad->md2_data.vertices,    MAXVERTICES);
+    cmd_count   = MIN(ego_md2_data[pmad->md2_ref].cmd.count,   MAXCOMMAND);
+    entry_count = MIN(ego_md2_data[pmad->md2_ref].cmd.entries, MAXCOMMANDENTRIES);
+    vrt_count   = MIN(ego_md2_data[pmad->md2_ref].vertices,    MAXVERTICES);
     entry = 0;
     for (cnt = 0; cnt < cmd_count; cnt++ )
     {
         if ( entry >= entry_count ) break;
 
-        GL_DEBUG(glBegin)(pmad->md2_data.cmd.type[cnt] );
+        GL_DEBUG(glBegin)(ego_md2_data[pmad->md2_ref].cmd.type[cnt] );
         {
-            for ( tnc = 0; tnc < pmad->md2_data.cmd.size[cnt]; tnc++ )
+            for ( tnc = 0; tnc < ego_md2_data[pmad->md2_ref].cmd.size[cnt]; tnc++ )
             {
                 GLfloat tex[2];
 
                 if ( entry >= entry_count ) break;
 
-                vertex = pmad->md2_data.cmd.vrt[entry];
+                vertex = ego_md2_data[pmad->md2_ref].cmd.vrt[entry];
 
                 if ( vertex < vrt_count )
                 {
 
-                    tex[0] = pmad->md2_data.cmd.u[entry] + uoffset;
-                    tex[1] = pmad->md2_data.cmd.v[entry] + voffset;
+                    tex[0] = ego_md2_data[pmad->md2_ref].cmd.u[entry] + uoffset;
+                    tex[1] = ego_md2_data[pmad->md2_ref].cmd.v[entry] + voffset;
 
                     GL_DEBUG(glColor4fv)(pinst->vlst[vertex].col );
                     GL_DEBUG(glNormal3fv)(pinst->vlst[vertex].nrm );
@@ -455,28 +455,53 @@ void render_one_mad( Uint16 character, Uint8 trans )
         render_one_mad_tex( character, trans );
     }
 
+    //// draw the object bounding box as a part of the graphics debug mode F7
+    //if ( cfg.dev_mode && SDLKEYDOWN( SDLK_F7 ) )
+    //{
+    //    GL_DEBUG(glDisable)( GL_TEXTURE_2D );
+    //    {
+    //        int cnt;
+    //        aabb_t bb;
+
+    //        for ( cnt = 0; cnt < 3; cnt++ )
+    //        {
+    //            bb.mins[cnt] = bb.maxs[cnt] = pchr->pos.v[cnt];
+    //        }
+
+    //        bb.mins[XX] -= pchr->collision_0.size;
+    //        bb.mins[YY] -= pchr->collision_0.size;
+
+    //        bb.maxs[XX] += pchr->collision_0.size;
+    //        bb.maxs[YY] += pchr->collision_0.size;
+    //        bb.maxs[ZZ] += pchr->collision_0.height;
+
+    //        GL_DEBUG(glColor4f)(1, 1, 1, 1);
+    //        bbox_gl_draw( &bb );
+    //    }
+    //    GL_DEBUG(glEnable)( GL_TEXTURE_2D );
+    //}
+
     // draw the object bounding box as a part of the graphics debug mode F7
     if ( cfg.dev_mode && SDLKEYDOWN( SDLK_F7 ) )
     {
         GL_DEBUG(glDisable)( GL_TEXTURE_2D );
         {
-            int cnt;
-            aabb_t bb;
+            oct_bb_t bb;
 
-            for ( cnt = 0; cnt < 3; cnt++ )
-            {
-                bb.mins[cnt] = bb.maxs[cnt] = pchr->pos.v[cnt];
-            }
+            bb.mins[OCT_X ] = pchr->collision_1.min_x  + pchr->pos.x;
+            bb.mins[OCT_Y ] = pchr->collision_1.min_y  + pchr->pos.y;
+            bb.mins[OCT_Z ] = pchr->collision_1.min_z  + pchr->pos.z;
+            bb.mins[OCT_XY] = pchr->collision_1.min_xy + ( pchr->pos.x + pchr->pos.y);
+            bb.mins[OCT_YX] = pchr->collision_1.min_yx + (-pchr->pos.x + pchr->pos.y);
 
-            bb.mins[XX] -= pchr->bump.size;
-            bb.mins[YY] -= pchr->bump.size;
-
-            bb.maxs[XX] += pchr->bump.size;
-            bb.maxs[YY] += pchr->bump.size;
-            bb.maxs[ZZ] += pchr->bump.height;
+            bb.maxs[OCT_X ] = pchr->collision_1.max_x  + pchr->pos.x;
+            bb.maxs[OCT_Y ] = pchr->collision_1.max_y  + pchr->pos.y;
+            bb.maxs[OCT_Z ] = pchr->collision_1.max_z  + pchr->pos.z;
+            bb.maxs[OCT_XY] = pchr->collision_1.max_xy + ( pchr->pos.x + pchr->pos.y);
+            bb.maxs[OCT_YX] = pchr->collision_1.max_yx + (-pchr->pos.x + pchr->pos.y);
 
             GL_DEBUG(glColor4f)(1, 1, 1, 1);
-            bbox_gl_draw( &bb );
+            render_oct_bb( &bb, btrue, btrue );
         }
         GL_DEBUG(glEnable)( GL_TEXTURE_2D );
     }
@@ -492,7 +517,7 @@ void render_one_mad( Uint16 character, Uint8 trans )
 }
 
 //--------------------------------------------------------------------------------------------
-void render_one_mad_ref( int tnc, Uint8 trans )
+void render_one_mad_ref( int ichr, Uint8 trans )
 {
     // ZZ> This function draws characters reflected in the floor
 
@@ -505,8 +530,8 @@ void render_one_mad_ref( int tnc, Uint8 trans )
     cap_t * pcap;
     chr_instance_t * pinst;
 
-    if ( !ACTIVE_CHR(tnc) ) return;
-    pchr = ChrList.lst + tnc;
+    if ( !ACTIVE_CHR(ichr) ) return;
+    pchr = ChrList.lst + ichr;
     pinst = &(pchr->inst);
 
     if ( pchr->is_hidden ) return;
@@ -514,9 +539,9 @@ void render_one_mad_ref( int tnc, Uint8 trans )
     // we need to force the calculation of lighting for the the non-reflected
     // object here, or there will be problems later
     //pinst->save_lighting_update_wld = 0;
-    chr_instance_update( tnc, trans, !pinst->enviro );
+    chr_instance_update( ichr, trans, !pinst->enviro );
 
-    pcap = chr_get_pcap( tnc );
+    pcap = chr_get_pcap( ichr );
     if ( NULL == pcap || !pcap->reflect ) return;
 
     level = pchr->enviro.floor_level;
@@ -548,7 +573,7 @@ void render_one_mad_ref( int tnc, Uint8 trans )
     pinst->matrix.CNV( 2, 2 ) = -pinst->matrix.CNV( 2, 2 );
     pinst->matrix.CNV( 3, 2 ) = -pinst->matrix.CNV( 3, 2 ) + level + level;
 
-    render_one_mad( tnc, trans_temp );
+    render_one_mad( ichr, trans_temp );
 
     pinst->matrix.CNV( 0, 2 ) = pos_save.x;
     pinst->matrix.CNV( 1, 2 ) = pos_save.y;
@@ -565,20 +590,35 @@ void render_one_mad_ref( int tnc, Uint8 trans )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void chr_instance_update( Uint16 character, Uint8 trans, bool_t do_lighting )
+egoboo_rv chr_instance_update( Uint16 character, Uint8 trans, bool_t do_lighting )
 {
     chr_t * pchr;
     chr_instance_t * pinst;
+    egoboo_rv retval;
 
-    if ( !ACTIVE_CHR(character) ) return;
+    if ( !ACTIVE_CHR(character) ) return bfalse;
     pchr = ChrList.lst + character;
     pinst = &(pchr->inst);
 
     // make sure that the vertices are interpolated
-    chr_instance_update_vertices( pinst, -1, -1 );
+    retval = chr_instance_update_vertices( pinst, -1, -1 );
+    if( rv_error == retval )
+    {
+        return rv_error;
+    }
+    else if( rv_success == retval )
+    {
+        retval = chr_update_collision_size( pchr, btrue );
+        if( rv_error == retval )
+        {
+            return rv_error;
+        }
+    }
 
     // do the lighting
     chr_instance_update_lighting( pinst, pchr, trans, do_lighting );
+
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -602,7 +642,7 @@ void chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 t
     pinst->save_lighting_update_wld = update_wld;
 
     // make sure the matrix is valid
-    chr_update_matrix( pchr );
+    chr_update_matrix( pchr, btrue );
 
     if ( INVALID_MAD(pinst->imad) ) return;
     pmad = MadList + pinst->imad;
@@ -648,7 +688,7 @@ void chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 t
 
     pinst->max_light = 0;
     pinst->min_light = 255;
-    for ( cnt = 0; cnt < pmad->md2_data.vertices; cnt++ )
+    for ( cnt = 0; cnt < ego_md2_data[pmad->md2_ref].vertices; cnt++ )
     {
         Uint16 lite;
 
@@ -710,41 +750,76 @@ void chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 t
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vmax )
+egoboo_rv chr_instance_update_bbox( chr_instance_t * pinst )
 {
     int    i;
-    float  flip;
-    bool_t vertices_match, flips_match, frames_match;
-
     mad_t * pmad;
 
-    if ( NULL == pinst ) return bfalse;
+    if ( NULL == pinst ) return rv_error;
 
     // get the model. try to heal a bad model.
-    if ( INVALID_MAD(pinst->imad) ) return bfalse;
+    if ( INVALID_MAD(pinst->imad) ) return rv_error;
+    pmad = MadList + pinst->imad;
+
+    if ( pinst->frame_nxt == pinst->frame_lst || pinst->flip == 0.0f )
+    {
+        pinst->bbox = Md2FrameList[pinst->frame_lst].bbox;
+    }
+    else if ( pinst->flip == 1.0f )
+    {
+        pinst->bbox = Md2FrameList[pinst->frame_nxt].bbox;
+    }
+    else
+    {
+        for( i=0; i<OCT_COUNT; i++ )
+        {
+            pinst->bbox.mins[i] = Md2FrameList[pinst->frame_lst].bbox.mins[i] + (Md2FrameList[pinst->frame_nxt].bbox.mins[i] - Md2FrameList[pinst->frame_lst].bbox.mins[i]) * pinst->flip;
+            pinst->bbox.maxs[i] = Md2FrameList[pinst->frame_lst].bbox.maxs[i] + (Md2FrameList[pinst->frame_nxt].bbox.maxs[i] - Md2FrameList[pinst->frame_lst].bbox.maxs[i]) * pinst->flip;
+        }
+    }
+
+    return rv_success;
+}
+
+//--------------------------------------------------------------------------------------------
+egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vmax )
+{
+    int    i;
+    bool_t vertices_match, flips_match, frames_match, verts_updated;
+
+    mad_t * pmad;
+    oct_bb_t bbox;
+
+    if ( NULL == pinst ) return rv_error;
+
+    if( rv_error == chr_instance_update_bbox( pinst ) )
+    {
+         return rv_error;
+    }
+
+    // get the model. try to heal a bad model.
+    if ( INVALID_MAD(pinst->imad) ) return rv_error;
     pmad = MadList + pinst->imad;
 
     // handle the default parameters
     if ( vmin < 0 ) vmin = 0;
-    if ( vmax < 0 ) vmax = pmad->md2_data.vertices - 1;
+    if ( vmax < 0 ) vmax = ego_md2_data[pmad->md2_ref].vertices - 1;
 
-    vmin = CLIP(vmin, 0, pmad->md2_data.vertices - 1);
-    vmax = CLIP(vmax, 0, pmad->md2_data.vertices - 1);
-
-    flip = pinst->flip;
+    vmin = CLIP(vmin, 0, ego_md2_data[pmad->md2_ref].vertices - 1);
+    vmax = CLIP(vmax, 0, ego_md2_data[pmad->md2_ref].vertices - 1);
 
     // test to see if we have already calculated this data
     vertices_match = (pinst->save_vmin <= vmin) && (pinst->save_vmax >= vmax);
 
-    flips_match = ( pinst->frame_nxt == pinst->frame_lst ) || ( ABS(pinst->save_flip - flip) < 0.125f );
+    flips_match = ( pinst->frame_nxt == pinst->frame_lst ) || ( ABS(pinst->save_flip - pinst->flip) < 0.125f );
 
-    frames_match = ( flip == 1.0f && pinst->save_frame_nxt == pinst->frame_nxt ) ||
-                   ( flip == 0.0f && pinst->save_frame_lst == pinst->frame_lst ) ||
+    frames_match = ( pinst->flip == 1.0f && pinst->save_frame_nxt == pinst->frame_nxt ) ||
+                   ( pinst->flip == 0.0f && pinst->save_frame_lst == pinst->frame_lst ) ||
                    ( flips_match  && pinst->save_frame_nxt == pinst->frame_nxt && pinst->save_frame_lst == pinst->frame_lst );
 
     if ( frames_match && vertices_match ) return bfalse;
 
-    if ( pinst->frame_nxt == pinst->frame_lst || flip == 0.0f )
+    if ( pinst->frame_nxt == pinst->frame_lst || pinst->flip == 0.0f )
     {
         for ( i = vmin; i <= vmax; i++)
         {
@@ -764,7 +839,7 @@ bool_t chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vmax 
             pinst->vlst[i].env[XX] = indextoenvirox[vrta_lst];
         }
     }
-    else if ( flip == 1.0f )
+    else if ( pinst->flip == 1.0f )
     {
         for ( i = vmin; i <= vmax; i++)
         {
@@ -790,19 +865,19 @@ bool_t chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vmax 
         {
             Uint16 vrta_lst, vrta_nxt;
 
-            pinst->vlst[i].pos[XX] = Md2FrameList[pinst->frame_lst].vrtx[i] + (Md2FrameList[pinst->frame_nxt].vrtx[i] - Md2FrameList[pinst->frame_lst].vrtx[i]) * flip;
-            pinst->vlst[i].pos[YY] = Md2FrameList[pinst->frame_lst].vrty[i] + (Md2FrameList[pinst->frame_nxt].vrty[i] - Md2FrameList[pinst->frame_lst].vrty[i]) * flip;
-            pinst->vlst[i].pos[ZZ] = Md2FrameList[pinst->frame_lst].vrtz[i] + (Md2FrameList[pinst->frame_nxt].vrtz[i] - Md2FrameList[pinst->frame_lst].vrtz[i]) * flip;
+            pinst->vlst[i].pos[XX] = Md2FrameList[pinst->frame_lst].vrtx[i] + (Md2FrameList[pinst->frame_nxt].vrtx[i] - Md2FrameList[pinst->frame_lst].vrtx[i]) * pinst->flip;
+            pinst->vlst[i].pos[YY] = Md2FrameList[pinst->frame_lst].vrty[i] + (Md2FrameList[pinst->frame_nxt].vrty[i] - Md2FrameList[pinst->frame_lst].vrty[i]) * pinst->flip;
+            pinst->vlst[i].pos[ZZ] = Md2FrameList[pinst->frame_lst].vrtz[i] + (Md2FrameList[pinst->frame_nxt].vrtz[i] - Md2FrameList[pinst->frame_lst].vrtz[i]) * pinst->flip;
             pinst->vlst[i].pos[WW] = 1.0f;
 
             vrta_lst = Md2FrameList[pinst->frame_lst].vrta[i];
             vrta_nxt = Md2FrameList[pinst->frame_nxt].vrta[i];
 
-            pinst->vlst[i].nrm[XX] = kMd2Normals[vrta_lst][XX] + (kMd2Normals[vrta_nxt][XX] - kMd2Normals[vrta_lst][XX]) * flip;
-            pinst->vlst[i].nrm[YY] = kMd2Normals[vrta_lst][YY] + (kMd2Normals[vrta_nxt][YY] - kMd2Normals[vrta_lst][YY]) * flip;
-            pinst->vlst[i].nrm[ZZ] = kMd2Normals[vrta_lst][ZZ] + (kMd2Normals[vrta_nxt][ZZ] - kMd2Normals[vrta_lst][ZZ]) * flip;
+            pinst->vlst[i].nrm[XX] = kMd2Normals[vrta_lst][XX] + (kMd2Normals[vrta_nxt][XX] - kMd2Normals[vrta_lst][XX]) * pinst->flip;
+            pinst->vlst[i].nrm[YY] = kMd2Normals[vrta_lst][YY] + (kMd2Normals[vrta_nxt][YY] - kMd2Normals[vrta_lst][YY]) * pinst->flip;
+            pinst->vlst[i].nrm[ZZ] = kMd2Normals[vrta_lst][ZZ] + (kMd2Normals[vrta_nxt][ZZ] - kMd2Normals[vrta_lst][ZZ]) * pinst->flip;
 
-            pinst->vlst[i].env[XX] = indextoenvirox[vrta_lst] + (indextoenvirox[vrta_nxt] - indextoenvirox[vrta_lst]) * flip;
+            pinst->vlst[i].env[XX] = indextoenvirox[vrta_lst] + (indextoenvirox[vrta_nxt] - indextoenvirox[vrta_lst]) * pinst->flip;
         }
     }
 
@@ -811,6 +886,7 @@ bool_t chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vmax 
     // save_* values be tested and stored properly
     
     // the save_vmin and save_vmax is the most complex
+    verts_updated = bfalse;
     if( vertices_match )
     {
         // vmin and vmax are within the old vertex range.
@@ -819,6 +895,7 @@ bool_t chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vmax 
         // Mark it so we know those vertices are dirty.
         pinst->save_vmin = vmin;
         pinst->save_vmax = vmax;
+        verts_updated = btrue;
     }
     else if( frames_match )
     {
@@ -831,6 +908,7 @@ bool_t chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vmax 
             // overlap, so we can merge them
             pinst->save_vmin = MIN(pinst->save_vmin, vmin);
             pinst->save_vmax = MAX(pinst->save_vmax, vmax);
+            verts_updated = btrue;
         }
         else
         {
@@ -840,11 +918,13 @@ bool_t chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vmax 
             {
                 pinst->save_vmin = pinst->save_vmin;
                 pinst->save_vmax = pinst->save_vmax;
+                verts_updated = btrue;
             }
             else
             {
                 pinst->save_vmin = vmin;
                 pinst->save_vmax = vmax;
+                verts_updated = btrue;
             }
         }
     }
@@ -853,20 +933,21 @@ bool_t chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vmax 
         // everything was dirty, so just save the new vertex list
         pinst->save_vmin = vmin;
         pinst->save_vmax = vmax;
+        verts_updated = btrue;
     }
 
     pinst->save_frame     = update_wld;
     pinst->save_frame_nxt = pinst->frame_nxt;
     pinst->save_frame_lst = pinst->frame_lst;
-    pinst->save_flip      = flip;
+    pinst->save_flip      = pinst->flip;
 
     // store the time of the last full update
-    if( (vmin == 0) && (vmax == pmad->md2_data.vertices - 1) )
+    if( (vmin == 0) && (vmax == ego_md2_data[pmad->md2_ref].vertices - 1) )
     {
         pinst->save_update_wld  = update_wld;
     }
 
-    return btrue;
+    return (verts_updated || !frames_match) ? rv_success : rv_fail;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -888,7 +969,7 @@ void draw_points( chr_t * pchr, int vrt_offset, int verts )
     vmax = vmin + verts;
 
     if( vmin < 0 || vmax < 0 ) return;
-    if( vmin > pmad->md2_data.vertices || vmax > pmad->md2_data.vertices ) return;
+    if( vmin > ego_md2_data[pmad->md2_ref].vertices || vmax > ego_md2_data[pmad->md2_ref].vertices ) return;
 
     texture_1d_enabled = GL_DEBUG(glIsEnabled)(GL_TEXTURE_1D);
     texture_2d_enabled = GL_DEBUG(glIsEnabled)(GL_TEXTURE_2D);
@@ -960,10 +1041,10 @@ void _draw_one_grip_raw( chr_instance_t * pinst, mad_t * pmad, int slot )
 
     if( NULL == pinst || NULL == pmad ) return;
 
-    vmin = pmad->md2_data.vertices - slot_to_grip_offset( slot );
+    vmin = ego_md2_data[pmad->md2_ref].vertices - slot_to_grip_offset( slot );
     vmax = vmin + GRIP_VERTS;
 
-    if( vmin >= 0 && vmax >= 0 && vmax <= pmad->md2_data.vertices )
+    if( vmin >= 0 && vmax >= 0 && vmax <= ego_md2_data[pmad->md2_ref].vertices )
     {
         GLvector3 src, dst, diff;
 

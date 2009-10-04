@@ -1190,7 +1190,7 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
     // Check that direction
     if ( !is_invictus_direction( direction, character, ppip->damfx) )
     {
-        vertices = pmad->md2_data.vertices;
+        vertices = ego_md2_data[pmad->md2_ref].vertices;
 
         // Spawn new enchantments
         if ( ppip->spawnenchant )

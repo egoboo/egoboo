@@ -116,6 +116,8 @@ struct s_md2_frame
     float   vrty[MAXVERTICES];
     float   vrtz[MAXVERTICES];
     Uint8   vrta[MAXVERTICES];             // Light index of vertex
+
+    oct_bb_t bbox;                         // a bounding box for this frame
 };
 typedef struct s_md2_frame md2_frame_t;
 

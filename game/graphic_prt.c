@@ -861,9 +861,9 @@ void draw_one_attacment_point( chr_instance_t * pinst, mad_t * pmad, int vrt_off
 
     if( NULL == pinst || NULL == pmad ) return;
 
-    vrt = pmad->md2_data.vertices - vrt_offset;
+    vrt = ego_md2_data[pmad->md2_ref].vertices - vrt_offset;
 
-    if( vrt < 0 || vrt >= pmad->md2_data.vertices ) return;
+    if( vrt < 0 || vrt >= ego_md2_data[pmad->md2_ref].vertices ) return;
 
     texture_1d_enabled = GL_DEBUG(glIsEnabled)(GL_TEXTURE_1D);
     texture_2d_enabled = GL_DEBUG(glIsEnabled)(GL_TEXTURE_2D);

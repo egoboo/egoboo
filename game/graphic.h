@@ -372,7 +372,7 @@ void End3DMode();
 
 int debug_printf( const char *format, ... );
 
-bool_t chr_instance_update_vertices( struct s_chr_instance * pinst, int vmin, int vmax );
+egoboo_rv chr_instance_update_vertices( struct s_chr_instance * pinst, int vmin, int vmax );
 
 bool_t oglx_texture_parameters_synch( struct s_oglx_texture_parameters * ptex, struct s_egoboo_config * pcfg );
 
@@ -397,3 +397,6 @@ extern float time_draw_scene_water;
 extern float time_draw_scene_trans;
 
 void render_all_prt_attachment();
+
+egoboo_rv chr_instance_update_bbox( struct s_chr_instance * pinst );
+bool_t render_oct_bb( oct_bb_t * bb, bool_t draw_square, bool_t draw_diamond  );

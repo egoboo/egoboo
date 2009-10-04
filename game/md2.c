@@ -284,6 +284,8 @@ void md2_rip_frames( ego_md2_t * pmd2 )
 
     while ( cnt < iNumFrames && md2_loadframe < MAXFRAME )
     {
+        oct_bb_t bbox;
+
         fScalex     = ENDIAN_FLOAT( fpFloatPointer[iFrameOffset] ); iFrameOffset++;
         fScaley     = ENDIAN_FLOAT( fpFloatPointer[iFrameOffset] ); iFrameOffset++;
         fScalez     = ENDIAN_FLOAT( fpFloatPointer[iFrameOffset] ); iFrameOffset++;
@@ -292,9 +294,14 @@ void md2_rip_frames( ego_md2_t * pmd2 )
         fTranslatez = ENDIAN_FLOAT( fpFloatPointer[iFrameOffset] ); iFrameOffset++;
 
         iFrameOffset += 4;
-        tnc = 0;
+        
+        // blank the octagonal bounding box
+        for( tnc = 0; tnc<OCT_COUNT; tnc++)
+        {
+            bbox.mins[tnc] = bbox.maxs[tnc] = 0.0f;
+        }
 
-        while ( tnc < iNumVertices )
+        for ( tnc = 0; tnc < iNumVertices; tnc++ ) 
         {
             // This should work because it's reading a single character
             cTmpx = cpCharPointer[( iFrameOffset<<2 )+0];
@@ -306,14 +313,36 @@ void md2_rip_frames( ego_md2_t * pmd2 )
             fRealy = ( cTmpy * fScaley ) + fTranslatey;
             fRealz = ( cTmpz * fScalez ) + fTranslatez;
 
-            Md2FrameList[md2_loadframe].vrtx[tnc] = -fRealx * 3.5f;
-            Md2FrameList[md2_loadframe].vrty[tnc] =  fRealy * 3.5f;
-            Md2FrameList[md2_loadframe].vrtz[tnc] =  fRealz * 3.5f;
-            Md2FrameList[md2_loadframe].vrta[tnc] =  cTmpa;
+            fRealx *= -3.5f;
+            fRealy *=  3.5f;
+            fRealz *=  3.5f;
+
+            Md2FrameList[md2_loadframe].vrtx[tnc] = fRealx;
+            Md2FrameList[md2_loadframe].vrty[tnc] = fRealy;
+            Md2FrameList[md2_loadframe].vrtz[tnc] = fRealz;
+            Md2FrameList[md2_loadframe].vrta[tnc] = cTmpa;
+
+            // update the bounding box
+            bbox.mins[OCT_X] = MIN(bbox.mins[OCT_X], fRealx);
+            bbox.maxs[OCT_X] = MAX(bbox.maxs[OCT_X], fRealx);
+            
+            bbox.mins[OCT_Y] = MIN(bbox.mins[OCT_Y], fRealy);
+            bbox.maxs[OCT_Y] = MAX(bbox.maxs[OCT_Y], fRealy);
+
+            bbox.mins[OCT_Z] = MIN(bbox.mins[OCT_Z], fRealz);
+            bbox.maxs[OCT_Z] = MAX(bbox.maxs[OCT_Z], fRealz);
+
+            bbox.mins[OCT_XY] = MIN(bbox.mins[OCT_XY], fRealx + fRealy);
+            bbox.maxs[OCT_XY] = MAX(bbox.maxs[OCT_XY], fRealx + fRealy);
+            
+            bbox.mins[OCT_YX] = MIN(bbox.mins[OCT_YX], -fRealx + fRealy);
+            bbox.maxs[OCT_YX] = MAX(bbox.maxs[OCT_YX], -fRealx + fRealy);
 
             iFrameOffset++;
-            tnc++;
         }
+
+        // apply the bounding box
+        Md2FrameList[md2_loadframe].bbox = bbox;
 
         md2_loadframe++;
         cnt++;

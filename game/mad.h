@@ -150,6 +150,9 @@ enum e_action
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+ego_md2_t  ego_md2_data[MAX_PROFILE]; // the old-style md2 data
+
+//--------------------------------------------------------------------------------------------
 struct s_mad
 {
     EGO_PROFILE_STUFF;
@@ -166,8 +169,8 @@ struct s_mad
     //---- per-object data ----
 
     // model data
-    ego_md2_t  md2_data;                            // the old-style md2 data
-    Md2Model * md2_ptr;                            // the pointer that will eventually be used
+    Uint16     md2_ref;                       // a reference to the old-style md2 data
+    Md2Model * md2_ptr;                       // the pointer that will eventually be used
 };
 typedef struct s_mad mad_t;
 

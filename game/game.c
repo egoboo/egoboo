@@ -756,7 +756,6 @@ void update_game()
     //    This is the main game loop
 
     int cnt, tnc, numdead, numalive;
-    int true_update;
 
     // Check for all local players being dead
     local_allpladead   = bfalse;
@@ -846,14 +845,8 @@ void update_game()
 
     // [claforte Jan 6th 2001]
     // TODO: Put that back in place once networking is functional.
-
-    // Use the number of updates that should have been performed up to this point (true_update)
-    // to try to regulate the update speed of the game
-    // By limiting this loop to 10, you are essentially saying that the update loop
-    // can go 10 times as fast as normal to help update_wld catch up to true_update,
-    // but it can't completely bog doen the game
-    true_update = clock_all / UPDATE_SKIP;
-    for( tnc = 0; update_wld < true_update && tnc < 10 ; tnc++)
+    update_lag = true_update - update_wld;
+    for( tnc = 0; update_wld < true_update && tnc < 100 ; tnc++)
     {
         // do important stuff to keep in sync inside this loop
 
@@ -962,6 +955,13 @@ void game_update_timers()
         // for all the time that the game was paused... not so good
         clock_all  += clock_diff;
     }
+
+    // Use the number of updates that should have been performed up to this point (true_update)
+    // to try to regulate the update speed of the game
+    // By limiting this loop to 10, you are essentially saying that the update loop
+    // can go 10 times as fast as normal to help update_wld catch up to true_update,
+    // but it can't completely bog doen the game
+    true_update = clock_all / UPDATE_SKIP;
 
     // figure out the update rate
     ups_clock += clock_diff;
@@ -2921,6 +2921,9 @@ void fill_interaction_list( co_data_t cdata[], int * cdata_count, hash_node_t hn
         if ( !ACTIVE_CHR(ichr_a) ) continue;
         pchr_a = ChrList.lst + ichr_a;
 
+        // make sure we have a good collision size for this object
+        //chr_update_collision_size( pchr_a, btrue );
+
         // reject characters that are in packs, or are marked as non-colliding
         if ( pchr_a->pack_ispacked ) continue;
 
@@ -2957,6 +2960,14 @@ void fill_interaction_list( co_data_t cdata[], int * cdata_count, hash_node_t hn
                           tnc < chrinblock && MAX_CHR != ichr_b;
                           tnc++, ichr_b = ChrList.lst[ichr_b].fanblock_next)
                     {
+                        chr_t * pchr_b;
+                        if( !ACTIVE_CHR( ichr_b ) ) continue;
+
+                        pchr_b = ChrList.lst + ichr_b;
+
+                        // make sure we have a good collision size for this object
+                        //chr_update_collision_size( pchr_b, btrue );
+
                         if ( detect_chr_chr_interaction(ichr_a, ichr_b) )
                         {
                             add_chr_chr_interaction( ichr_a, ichr_b, cdata, cdata_count, hnlst, hn_count );
@@ -3035,13 +3046,15 @@ bool_t attach_chr_to_platform( chr_t * pchr, chr_t * pplat )
 
     // do the attachment
     pchr->onwhichplatform = pplat->index;
-    pplat->holdingweight += pchr->phys.weight;
 
     // update the character's relationship to the ground
     pchr->enviro.level    = MAX( pchr->enviro.floor_level, pplat->pos.z + pplat->bump.height );
     pchr->enviro.zlerp    = (pchr->pos.z - pchr->enviro.level) / PLATTOLERANCE;
     pchr->enviro.zlerp    = CLIP(pchr->enviro.zlerp, 0, 1);
     pchr->enviro.grounded = (0 == pchr->flyheight) && (pchr->enviro.zlerp < 0.25f);
+
+    // add the weight to the platform based on the new zlerp
+    pplat->holdingweight += pchr->phys.weight * (1.0f - pchr->enviro.zlerp);
 
     // update the character jupming
     pchr->jumpready = pchr->enviro.grounded;
@@ -3257,7 +3270,7 @@ bool_t do_mounts( Uint16 ichr_a, Uint16 ichr_b )
             int vertex;
             chr_instance_t * pinst = &(pchr_b->inst);
 
-            vertex = MadList[pinst->imad].md2_data.vertices - GRIP_LEFT;
+            vertex = ego_md2_data[MadList[pinst->imad].md2_ref].vertices - GRIP_LEFT;
 
             // do the automatic update
             chr_instance_update_vertices( pinst, vertex, vertex );
@@ -3303,7 +3316,7 @@ bool_t do_mounts( Uint16 ichr_a, Uint16 ichr_b )
             int vertex;
             chr_instance_t * pinst = &(pchr_a->inst);
 
-            vertex = MadList[pinst->imad].md2_data.vertices - GRIP_LEFT;
+            vertex = ego_md2_data[MadList[pinst->imad].md2_ref].vertices - GRIP_LEFT;
 
             // do the automatic update
             chr_instance_update_vertices( pinst, vertex, vertex );
@@ -3346,80 +3359,65 @@ bool_t do_chr_platform_physics( chr_t * pitem, chr_t * pplat )
 {
     // we know that ichr_a is a platform and ichr_b is on it
     Sint16 rot_a, rot_b;
-    float lerp_z;
+    float lerp_z, vlerp_z;
 
     if( NULL == pitem || !ACTIVE_CHR(pitem->index) ) return bfalse;
     if( NULL == pplat || !ACTIVE_CHR(pplat->index) ) return bfalse;
 
     lerp_z = (pitem->pos.z - pitem->enviro.level) / PLATTOLERANCE;
-    lerp_z = CLIP( lerp_z, -1, 1 );
+    lerp_z = 1.0f - CLIP( lerp_z, 0.0f, 1.0f );
+    
+    // if your velocity is going up much faster then the 
+    // platform, there is no need to suck you to the level of the platform
+    // this was one of the things preventing you from jumping from platforms
+    // properly
+    vlerp_z = ABS(pitem->vel.z - pplat->vel.z) / 5;
+    vlerp_z  = 1.0f - CLIP(vlerp_z, 0.0f, 1.0f);
 
+    // determine the rotation rates
     rot_b = pitem->turn_z - pitem->turn_old_z;
     rot_a = pplat->turn_z - pplat->turn_old_z;
 
-    if ( lerp_z < 0 )
+    if ( lerp_z == 1.0f )
     {
-        pitem->phys.apos_0.z += (pitem->enviro.level - pitem->pos.z) * 0.25f * (-lerp_z);
-        pitem->jumpnumber = pitem->jumpnumberreset;
+        pitem->phys.apos_0.z += (pitem->enviro.level - pitem->pos.z) * 0.125f;
+        pitem->phys.avel.z += ( pplat->vel.z  - pitem->vel.z ) * 0.25f;
+        pitem->turn_z      += ( rot_a         - rot_b        ) * platstick;
     }
-    else if ( lerp_z < 1 )
+    else
     {
-        float vlerp_z = (pitem->vel.z - pplat->vel.z) / 5;
-        vlerp_z  = CLIP(vlerp_z, -1, 1);
-
-        // if your velocity is going up much faster then the 
-        // platform, there is no need to suck you to the level of the platform
-        // this was one of the things preventing you from jumping from platforms
-        // properly
-        if( vlerp_z > 0 )
-        {
-            vlerp_z = 1.0f - vlerp_z;
-        }
-        else
-        {
-            vlerp_z = 1.0f;
-        }
-
         pitem->phys.apos_0.z += (pitem->enviro.level - pitem->pos.z) * 0.125f * lerp_z * vlerp_z;
-    }
-
-    lerp_z = 1.0f - CLIP( lerp_z, 0, 1 );
-
-    if ( lerp_z > 0 )
-    {
-        pplat->holdingweight += pitem->phys.weight * lerp_z;
-
-        pitem->phys.avel.z += ( pplat->vel.z  - pitem->vel.z ) * lerp_z * 0.25f;
-        pitem->turn_z      += ( rot_a         - rot_b        ) * platstick * lerp_z;
-    };
-
-    if ( lerp_z < 0.25f )
-    {
-        pitem->jumpready = btrue;
+        pitem->phys.avel.z += ( pplat->vel.z  - pitem->vel.z ) * 0.25f * lerp_z * vlerp_z;
+        pitem->turn_z      += ( rot_a         - rot_b        ) * platstick * lerp_z * vlerp_z;
     };
 
     return btrue;
 }
-
 //--------------------------------------------------------------------------------------------
 bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
 {
-    float xa, ya, za, xb, yb, zb;
-    float was_xa, was_ya, was_za, was_xb, was_yb, was_zb;
+    float xa,ya,za,xya,yxa;
+    float xb,yb,zb,xyb,yxb;
+    float was_xa,was_ya,was_za,was_xya,was_yxa;
+    float was_xb,was_yb,was_zb,was_xyb,was_yxb;
+
+    float depth_x, depth_y, depth_xy, depth_yx, depth_z;
+    float was_depth_x, was_depth_y, was_depth_xy, was_depth_yx, was_depth_z;
+
     chr_t * pchr_a, * pchr_b;
     cap_t * pcap_a, * pcap_b;
 
-    float dx, dy, dist;
-    float was_dx, was_dy, was_dist;
-    float depth_z, was_depth_z;
-    float lerp_z, radius, radius_xy;
     float wta, wtb;
+
+    GLvector3 nrm;
+    int exponent = 1;
 
     bool_t collide_x  = bfalse, was_collide_x;
     bool_t collide_y  = bfalse, was_collide_y;
     bool_t collide_xy = bfalse, was_collide_xy;
+    bool_t collide_yx = bfalse, was_collide_yx;
     bool_t collide_z  = bfalse, was_collide_z;
-    bool_t collision  = bfalse;
+    bool_t collision  = bfalse, bump = bfalse;
 
     float interaction_strength = 1.0f;
 
@@ -3468,59 +3466,97 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
     // don't do anything if there is no interaction strength
     if ( 0 == pchr_a->bump.size || 0 == pchr_b->bump.size ) return bfalse;
 
+    // make sure we have good collision sizes for the two objects
+    // these functions can be called here, even though they are relatively expensive
+    // because they are called relatively rarely... we hope!
+    //chr_update_collision_size( pchr_a, btrue );
+    //chr_update_collision_size( pchr_b, btrue );
+
     interaction_strength = 1.0f;
     interaction_strength *= pchr_a->inst.alpha * INV_FF;
     interaction_strength *= pchr_b->inst.alpha * INV_FF;
 
-    xa = pchr_a->pos.x;
-    ya = pchr_a->pos.y;
-    za = pchr_a->pos.z;
+    // estimate the collision based on the "collision bounding box", collision_1
+    xa  = pchr_a->pos.x;
+    ya  = pchr_a->pos.y;
+    za  = pchr_a->pos.z;
+    xya = pchr_a->pos.x + pchr_a->pos.y;
+    yxa =-pchr_a->pos.x + pchr_a->pos.y;
 
-    was_xa = xa - pchr_a->vel.x;
-    was_ya = ya - pchr_a->vel.y;
-    was_za = za - pchr_a->vel.z;
 
-    xb = pchr_b->pos.x;
-    yb = pchr_b->pos.y;
-    zb = pchr_b->pos.z;
+    xb  = pchr_b->pos.x;
+    yb  = pchr_b->pos.y;
+    zb  = pchr_b->pos.z;
+    xyb = pchr_b->pos.x + pchr_b->pos.y;
+    yxb =-pchr_b->pos.x + pchr_b->pos.y;
 
-    was_xb = xb - pchr_b->vel.x;
-    was_yb = yb - pchr_b->vel.y;
-    was_zb = zb - pchr_b->vel.z;
+    depth_x  = MIN(pchr_b->collision_1.max_x + xb, pchr_a->collision_1.max_x + xa ) - 
+               MAX(pchr_b->collision_1.min_x + xb, pchr_a->collision_1.min_x + xa );
 
-    dx = ABS( xa - xb );
-    dy = ABS( ya - yb );
-    dist = dx + dy;
+    depth_y  = MIN(pchr_b->collision_1.max_y + yb, pchr_a->collision_1.max_y + ya ) - 
+               MAX(pchr_b->collision_1.min_y + yb, pchr_a->collision_1.min_y + ya );
 
-    was_dx = ABS( was_xa - was_xb );
-    was_dy = ABS( was_ya - was_yb );
-    was_dist = was_dx + was_dy;
+    depth_z  = MIN(pchr_b->collision_1.max_z + zb, pchr_a->collision_1.max_z + za ) - 
+               MAX(pchr_b->collision_1.min_z + zb, pchr_a->collision_1.min_z + za );
 
-    depth_z = MIN( zb + pchr_b->bump.height, za + pchr_a->bump.height ) - MAX(za, zb);
-    was_depth_z = MIN( was_zb + pchr_b->bump.height, was_za + pchr_a->bump.height ) - MAX(was_za, was_zb);
+    depth_xy = MIN(pchr_b->collision_1.max_xy + xyb, pchr_a->collision_1.max_xy + xya ) - 
+               MAX(pchr_b->collision_1.min_xy + xyb, pchr_a->collision_1.min_xy + xya );
+    depth_xy *= INV_SQRT_TWO;
 
-    // estimate the radius of interaction based on the z overlap
-    lerp_z  = depth_z / PLATTOLERANCE;
-    lerp_z  = CLIP( lerp_z, 0, 1 );
-
-    radius    = pchr_a->bump.size    + pchr_b->bump.size;
-    radius_xy = pchr_a->bump.sizebig + pchr_b->bump.sizebig;
+    depth_yx = MIN(pchr_b->collision_1.max_yx + yxb, pchr_a->collision_1.max_yx + yxa ) - 
+                   MAX(pchr_b->collision_1.min_yx + yxb, pchr_a->collision_1.min_yx + yxa );
+    depth_yx *= INV_SQRT_TWO;
 
     // estimate the collisions this frame
-    collide_x  = (dx < radius);
-    collide_y  = (dy < radius);
-    collide_xy = (dist < radius_xy);
-    collide_z  = (depth_z > 0);
+    collide_x  = depth_x  > 0.0f;
+    collide_y  = depth_y  > 0.0f;
+    collide_z  = depth_z  > 0.0f;
+    collide_xy = depth_xy > 0.0f;
+    collide_yx = depth_yx > 0.0f;
 
-    // estimate the collisions last frame
-    was_collide_x  = (was_dx < radius);
-    was_collide_y  = (was_dy < radius);
-    was_collide_xy = (was_dist < radius_xy);
-    was_collide_z  = (was_depth_z > 0);
+    if( !collide_x || !collide_y || !collide_z || !collide_xy || !collide_yx ) return bfalse;
+
+    // determine whether the character was "colliding" with this object the last update
+    was_xa  = pchr_a->pos_old.x;
+    was_ya  = pchr_a->pos_old.y;
+    was_za  = pchr_a->pos_old.z;
+    was_xya = pchr_a->pos_old.x + pchr_a->pos_old.y;
+    was_yxa =-pchr_a->pos_old.x + pchr_a->pos_old.y;
+
+    was_xb  = pchr_b->pos_old.x;
+    was_yb  = pchr_b->pos_old.y;
+    was_zb  = pchr_b->pos_old.z;
+    was_xyb = pchr_b->pos_old.x + pchr_b->pos_old.y;
+    was_yxb =-pchr_b->pos_old.x + pchr_b->pos_old.y;
+
+
+    was_depth_x  = MIN(pchr_b->collision_1.max_x + was_xb, pchr_a->collision_1.max_x + was_xa ) - 
+                   MAX(pchr_b->collision_1.min_x + was_xb, pchr_a->collision_1.min_x + was_xa );
+
+    was_depth_y  = MIN(pchr_b->collision_1.max_y + was_yb, pchr_a->collision_1.max_y + was_ya ) - 
+                   MAX(pchr_b->collision_1.min_y + was_yb, pchr_a->collision_1.min_y + was_ya );
+
+    was_depth_z  = MIN(pchr_b->collision_1.max_z + was_zb, pchr_a->collision_1.max_z + was_za ) - 
+                   MAX(pchr_b->collision_1.min_z + was_zb, pchr_a->collision_1.min_z + was_za );
+
+    was_depth_xy = MIN(pchr_b->collision_1.max_xy + was_xyb, pchr_a->collision_1.max_xy + was_xya ) - 
+                   MAX(pchr_b->collision_1.min_xy + was_xyb, pchr_a->collision_1.min_xy + was_xya );
+    was_depth_xy *= INV_SQRT_TWO;
+
+    was_depth_yx = MIN(pchr_b->collision_1.max_yx + was_yxb, pchr_a->collision_1.max_yx + was_yxa ) - 
+                   MAX(pchr_b->collision_1.min_yx + was_yxb, pchr_a->collision_1.min_yx + was_yxa );
+    was_depth_yx *= INV_SQRT_TWO;
+
+    was_collide_x  = was_depth_x  > 0.0f;
+    was_collide_y  = was_depth_y  > 0.0f;
+    was_collide_z  = was_depth_z  > 0.0f;
+    was_collide_xy = was_depth_xy > 0.0f;
+    was_collide_yx = was_depth_yx > 0.0f;
+
+    collision = !was_collide_x || !was_collide_y || !was_collide_z || !was_collide_xy || !was_collide_yx ;
 
     //------------------
     // do character-character interactions
-    if ( !collide_x || !collide_y || !collide_xy || depth_z < -PLATTOLERANCE ) return bfalse;
 
     wta = (0xFFFFFFFF == pchr_a->phys.weight) ? -(float)0xFFFFFFFF : pchr_a->phys.weight;
     wtb = (0xFFFFFFFF == pchr_b->phys.weight) ? -(float)0xFFFFFFFF : pchr_b->phys.weight;
@@ -3561,285 +3597,279 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
         wtb /= pchr_b->phys.bumpdampen;
     }
 
-    if ( !collision && collide_z )
+    // determine the interaction normal
+    if ( pcap_a->canuseplatforms && pchr_b->platform ) exponent += 2;
+    if ( pcap_b->canuseplatforms && pchr_a->platform ) exponent += 2;
+
+    nrm.x = nrm.y = nrm.z = 0.0f;
+
+    if ( depth_x <= 0.0f )
     {
-        float depth_x, depth_y, depth_xy, depth_yx, depth_z;
-        GLvector3 nrm;
-        int exponent = 1;
+        depth_x = 0.0f;
+    }
+    else
+    {
+        float sgn = xb - xa;
+        sgn = sgn > 0 ? -1 : 1;
 
-        if ( pcap_a->canuseplatforms && pchr_b->platform ) exponent += 2;
-        if ( pcap_b->canuseplatforms && pchr_a->platform ) exponent += 2;
+        nrm.x += sgn / POW(depth_x / PLATTOLERANCE, exponent);
+    }
 
-        nrm.x = nrm.y = nrm.z = 0.0f;
+    if ( depth_y <= 0.0f )
+    {
+        depth_y = 0.0f;
+    }
+    else
+    {
+        float sgn = yb - ya;
+        sgn = sgn > 0 ? -1 : 1;
 
-        depth_x  = MIN(xa + pchr_a->bump.size, xb + pchr_b->bump.size) - MAX(xa - pchr_a->bump.size, xb - pchr_b->bump.size);
-        if ( depth_x <= 0.0f )
+        nrm.y += sgn / POW(depth_y / PLATTOLERANCE, exponent);
+    }
+
+    if ( depth_xy <= 0.0f )
+    {
+        depth_xy = 0.0f;
+    }
+    else
+    {
+        float sgn = (xb + yb) - (xa + ya);
+        sgn = sgn > 0 ? -1 : 1;
+
+        nrm.x += sgn / POW(depth_xy / PLATTOLERANCE, exponent);
+        nrm.y += sgn / POW(depth_xy / PLATTOLERANCE, exponent);
+    }
+
+    if ( depth_yx <= 0.0f )
+    {
+        depth_yx = 0.0f;
+    }
+    else
+    {
+        float sgn = (-xb + yb) - (-xa + ya);
+        sgn = sgn > 0 ? -1 : 1;
+        nrm.x -= sgn / POW(depth_yx / PLATTOLERANCE, exponent);
+        nrm.y += sgn / POW(depth_yx / PLATTOLERANCE, exponent);
+    }
+
+
+    if ( depth_z <= 0.0f )
+    {
+        depth_z = 0.0f;
+    }
+    else
+    {
+        float sgn = (zb + (pchr_b->collision_1.max_z + pchr_b->pos.z) / 2) - (za + (pchr_a->collision_1.max_z + pchr_a->pos.z) / 2);
+        sgn = sgn > 0 ? -1 : 1;
+
+        nrm.z += sgn / POW(exponent * depth_z / PLATTOLERANCE, exponent);
+    }
+
+    if ( ABS(nrm.x) + ABS(nrm.y) + ABS(nrm.z) > 0.0f )
+    {
+        GLvector3 vel_a, vel_b;
+        GLvector3 vpara_a, vperp_a;
+        GLvector3 vpara_b, vperp_b;
+        GLvector3 imp_a, imp_b;
+        float     vdot;
+
+        nrm = VNormalize( nrm );
+
+        vel_a.x = pchr_a->vel.x;
+        vel_a.y = pchr_a->vel.y;
+        vel_a.z = pchr_a->vel.z;
+
+        vel_b.x = pchr_b->vel.x;
+        vel_b.y = pchr_b->vel.y;
+        vel_b.z = pchr_b->vel.z;
+
+        vdot = VDotProduct( nrm, vel_a );
+        vperp_a.x = nrm.x * vdot;
+        vperp_a.y = nrm.y * vdot;
+        vperp_a.z = nrm.z * vdot;
+        vpara_a = VSub( vel_a, vperp_a );
+
+        vdot = VDotProduct( nrm, vel_b );
+        vperp_b.x = nrm.x * vdot;
+        vperp_b.y = nrm.y * vdot;
+        vperp_b.z = nrm.z * vdot;
+        vpara_b = VSub( vel_b, vperp_b );
+
+        // clear the "impulses"
+        imp_a.x = imp_a.y = imp_a.z = 0.0f;
+        imp_b.x = imp_b.y = imp_b.z = 0.0f;
+
+        // what type of "collision" is this? (impulse or pressure)
+        if ( collision )
         {
-            depth_x = 0.0f;
-        }
-        else
-        {
-            float sgn = xb - xa;
-            sgn = sgn > 0 ? -1 : 1;
+            // an actual bump, use impulse to make the objects bounce appart
 
-            nrm.x += sgn / POW(depth_x / PLATTOLERANCE, exponent);
-        }
+            // generic coefficient of restitution
+            float cr = 0.5f;
 
-        depth_y  = MIN(ya + pchr_a->bump.size, yb + pchr_b->bump.size) - MAX(ya - pchr_a->bump.size, yb - pchr_b->bump.size);
-        if ( depth_y <= 0.0f )
-        {
-            depth_y = 0.0f;
-        }
-        else
-        {
-            float sgn = yb - ya;
-            sgn = sgn > 0 ? -1 : 1;
-
-            nrm.y += sgn / POW(depth_y / PLATTOLERANCE, exponent);
-        }
-
-        depth_xy = MIN(xa + ya + pchr_a->bump.sizebig, xb + yb + pchr_b->bump.sizebig) - MAX(xa + ya - pchr_a->bump.sizebig, xb + yb - pchr_b->bump.sizebig);
-        if ( depth_xy <= 0.0f )
-        {
-            depth_xy = 0.0f;
-        }
-        else
-        {
-            float sgn = (xb + yb) - (xa + ya);
-            sgn = sgn > 0 ? -1 : 1;
-
-            nrm.x += sgn / POW(depth_xy / PLATTOLERANCE, exponent);
-            nrm.y += sgn / POW(depth_xy / PLATTOLERANCE, exponent);
-        }
-
-        depth_yx = MIN(-xa + ya + pchr_a->bump.sizebig, -xb + yb + pchr_b->bump.sizebig) - MAX(-xa + ya - pchr_a->bump.sizebig, -xb + yb - pchr_b->bump.sizebig);
-        if ( depth_yx <= 0.0f )
-        {
-            depth_yx = 0.0f;
-        }
-        else
-        {
-            float sgn = (-xb + yb) - (-xa + ya);
-            sgn = sgn > 0 ? -1 : 1;
-            nrm.x -= sgn / POW(depth_yx / PLATTOLERANCE, exponent);
-            nrm.y += sgn / POW(depth_yx / PLATTOLERANCE, exponent);
-        }
-
-        depth_z  = MIN(za + pchr_a->bump.height, zb + pchr_b->bump.height) - MAX( za, zb );
-        if ( depth_z <= 0.0f )
-        {
-            depth_z = 0.0f;
-        }
-        else
-        {
-            float sgn = (zb + pchr_b->bump.height / 2) - (za + pchr_a->bump.height / 2);
-            sgn = sgn > 0 ? -1 : 1;
-
-            nrm.z += sgn / POW(exponent * depth_z / PLATTOLERANCE, exponent);
-        }
-
-        if ( ABS(nrm.x) + ABS(nrm.y) + ABS(nrm.z) > 0.0f )
-        {
-            GLvector3 vel_a, vel_b;
-            GLvector3 vpara_a, vperp_a;
-            GLvector3 vpara_b, vperp_b;
-            GLvector3 imp_a, imp_b;
-            float     vdot;
-
-            nrm = VNormalize( nrm );
-
-            vel_a.x = pchr_a->vel.x;
-            vel_a.y = pchr_a->vel.y;
-            vel_a.z = pchr_a->vel.z;
-
-            vel_b.x = pchr_b->vel.x;
-            vel_b.y = pchr_b->vel.y;
-            vel_b.z = pchr_b->vel.z;
-
-            vdot = VDotProduct( nrm, vel_a );
-            vperp_a.x = nrm.x * vdot;
-            vperp_a.y = nrm.y * vdot;
-            vperp_a.z = nrm.z * vdot;
-            vpara_a = VSub( vel_a, vperp_a );
-
-            vdot = VDotProduct( nrm, vel_b );
-            vperp_b.x = nrm.x * vdot;
-            vperp_b.y = nrm.y * vdot;
-            vperp_b.z = nrm.z * vdot;
-            vpara_b = VSub( vel_b, vperp_b );
-
-            // clear the "impulses"
-            imp_a.x = imp_a.y = imp_a.z = 0.0f;
-            imp_b.x = imp_b.y = imp_b.z = 0.0f;
-
-            if ( collide_xy != was_collide_xy || collide_x != was_collide_x || collide_y != was_collide_y )
+            if ( (wta < 0 && wtb < 0) || (wta == wtb) )
             {
-                // an actual collision
+                float factor = 0.5f * (1.0f - cr);
 
-                // generic coefficient of restitution
-                float cr = 0.5f;
+                imp_a.x = factor * (vperp_b.x - vperp_a.x);
+                imp_a.y = factor * (vperp_b.y - vperp_a.y);
+                imp_a.z = factor * (vperp_b.z - vperp_a.z);
 
-                if ( (wta < 0 && wtb < 0) || (wta == wtb) )
-                {
-                    float factor = 0.5f * (1.0f - cr);
+                imp_b.x = factor * (vperp_a.x - vperp_b.x);
+                imp_b.y = factor * (vperp_a.y - vperp_b.y);
+                imp_b.z = factor * (vperp_a.z - vperp_b.z);
+            }
+            else if ( (wta < 0) || (wtb == 0) )
+            {
+                float factor = (1.0f - cr);
 
-                    imp_a.x = factor * (vperp_b.x - vperp_a.x);
-                    imp_a.y = factor * (vperp_b.y - vperp_a.y);
-                    imp_a.z = factor * (vperp_b.z - vperp_a.z);
+                imp_b.x = factor * (vperp_a.x - vperp_b.x);
+                imp_b.y = factor * (vperp_a.y - vperp_b.y);
+                imp_b.z = factor * (vperp_a.z - vperp_b.z);
+            }
+            else if ( (wtb < 0) || (wta == 0) )
+            {
+                float factor = (1.0f - cr);
 
-                    imp_b.x = factor * (vperp_a.x - vperp_b.x);
-                    imp_b.y = factor * (vperp_a.y - vperp_b.y);
-                    imp_b.z = factor * (vperp_a.z - vperp_b.z);
-                }
-                else if ( (wta < 0) || (wtb == 0) )
-                {
-                    float factor = (1.0f - cr);
-
-                    imp_b.x = factor * (vperp_a.x - vperp_b.x);
-                    imp_b.y = factor * (vperp_a.y - vperp_b.y);
-                    imp_b.z = factor * (vperp_a.z - vperp_b.z);
-                }
-                else if ( (wtb < 0) || (wta == 0) )
-                {
-                    float factor = (1.0f - cr);
-
-                    imp_a.x = factor * (vperp_b.x - vperp_a.x);
-                    imp_a.y = factor * (vperp_b.y - vperp_a.y);
-                    imp_a.z = factor * (vperp_b.z - vperp_a.z);
-                }
-                else
-                {
-                    float factor;
-
-                    factor = (1.0f - cr) * wtb / ( wta + wtb );
-                    imp_a.x = factor * (vperp_b.x - vperp_a.x);
-                    imp_a.y = factor * (vperp_b.y - vperp_a.y);
-                    imp_a.z = factor * (vperp_b.z - vperp_a.z);
-
-                    factor = (1.0f - cr) * wta / ( wta + wtb );
-                    imp_b.x = factor * (vperp_a.x - vperp_b.x);
-                    imp_b.y = factor * (vperp_a.y - vperp_b.y);
-                    imp_b.z = factor * (vperp_a.z - vperp_b.z);
-                }
-
-                // add in the collision impulses
-                pchr_a->phys.avel.x += imp_a.x;
-                pchr_a->phys.avel.y += imp_a.y;
-                pchr_a->phys.avel.z += imp_a.z;
-                LOG_NAN(pchr_a->phys.avel.z);
-
-                pchr_b->phys.avel.x += imp_b.x;
-                pchr_b->phys.avel.y += imp_b.y;
-                pchr_b->phys.avel.z += imp_b.z;
-                LOG_NAN(pchr_b->phys.avel.z);
-
-                collision = btrue;
+                imp_a.x = factor * (vperp_b.x - vperp_a.x);
+                imp_a.y = factor * (vperp_b.y - vperp_a.y);
+                imp_a.z = factor * (vperp_b.z - vperp_a.z);
             }
             else
             {
-                float tmin;
+                float factor;
 
-                tmin = 1e6;
-                if ( nrm.x != 0 )
-                {
-                    tmin = MIN(tmin, depth_x / ABS(nrm.x) );
-                }
-                if ( nrm.y != 0 )
-                {
-                    tmin = MIN(tmin, depth_y / ABS(nrm.y) );
-                }
-                if ( nrm.z != 0 )
-                {
-                    tmin = MIN(tmin, depth_z / ABS(nrm.z) );
-                }
+                factor = (1.0f - cr) * wtb / ( wta + wtb );
+                imp_a.x = factor * (vperp_b.x - vperp_a.x);
+                imp_a.y = factor * (vperp_b.y - vperp_a.y);
+                imp_a.z = factor * (vperp_b.z - vperp_a.z);
 
-                if ( nrm.x + nrm.y != 0 )
-                {
-                    tmin = MIN(tmin, depth_xy / ABS(nrm.x + nrm.y) );
-                }
-
-                if ( -nrm.x + nrm.y != 0 )
-                {
-                    tmin = MIN(tmin, depth_yx / ABS(-nrm.x + nrm.y) );
-                }
-
-                if ( tmin < 1e6 )
-                {
-                    if ( wta >= 0.0f )
-                    {
-                        float ratio = (float)ABS(wtb) / ((float)ABS(wta) + (float)ABS(wtb));
-
-                        imp_a.x = tmin * nrm.x * 0.25f * ratio;
-                        imp_a.y = tmin * nrm.y * 0.25f * ratio;
-                        imp_a.z = tmin * nrm.z * 0.25f * ratio;
-                    }
-
-                    if ( wtb >= 0.0f )
-                    {
-                        float ratio = (float)ABS(wta) / ((float)ABS(wta) + (float)ABS(wtb));
-
-                        imp_b.x = -tmin * nrm.x * 0.25f * ratio;
-                        imp_b.y = -tmin * nrm.y * 0.25f * ratio;
-                        imp_b.z = -tmin * nrm.z * 0.25f * ratio;
-                    }
-                }
-
-                // add in the collision impulses
-                pchr_a->phys.apos_1.x += imp_a.x;
-                pchr_a->phys.apos_1.y += imp_a.y;
-                pchr_a->phys.apos_1.z += imp_a.z;
-
-                pchr_b->phys.apos_1.x += imp_b.x;
-                pchr_b->phys.apos_1.y += imp_b.y;
-                pchr_b->phys.apos_1.z += imp_b.z;
-
-                // you could "bump" something if you changed your velocity, even if you were still touching
-                collision = (VDotProduct( pchr_a->vel, nrm ) * VDotProduct( pchr_a->vel_old, nrm ) < 0 ) ||
-                            (VDotProduct( pchr_b->vel, nrm ) * VDotProduct( pchr_b->vel_old, nrm ) < 0 );
-
+                factor = (1.0f - cr) * wta / ( wta + wtb );
+                imp_b.x = factor * (vperp_a.x - vperp_b.x);
+                imp_b.y = factor * (vperp_a.y - vperp_b.y);
+                imp_b.z = factor * (vperp_a.z - vperp_b.z);
             }
 
-            // add in the friction due to the "collision"
-            // assume coeff of friction of 0.5
-            if ( ABS(imp_a.x) + ABS(imp_a.y) + ABS(imp_a.z) > 0.0f &&
-                 ABS(vpara_a.x) + ABS(vpara_a.y) + ABS(vpara_a.z) > 0.0f &&
-                 pchr_a->dismount_timer <= 0)
+            // add in the bump impulses
+            pchr_a->phys.avel.x += imp_a.x;
+            pchr_a->phys.avel.y += imp_a.y;
+            pchr_a->phys.avel.z += imp_a.z;
+            LOG_NAN(pchr_a->phys.avel.z);
+
+            pchr_b->phys.avel.x += imp_b.x;
+            pchr_b->phys.avel.y += imp_b.y;
+            pchr_b->phys.avel.z += imp_b.z;
+            LOG_NAN(pchr_b->phys.avel.z);
+
+            bump = btrue;
+        }
+        else
+        {
+            // not a bump at all. two objects are rubbing against one another
+            // and continually overlapping. use pressure to push them appart.
+
+            float tmin;
+
+            tmin = 1e6;
+            if ( nrm.x != 0 )
             {
-                float imp, vel, factor;
-
-                imp = 0.5f * SQRT( imp_a.x * imp_a.x + imp_a.y * imp_a.y + imp_a.z * imp_a.z );
-                vel = SQRT( vpara_a.x * vpara_a.x + vpara_a.y * vpara_a.y + vpara_a.z * vpara_a.z );
-
-                factor = imp / vel;
-                factor = CLIP(factor, 0.0f, 1.0f);
-
-                pchr_a->phys.avel.x -= factor * vpara_a.x;
-                pchr_a->phys.avel.y -= factor * vpara_a.y;
-                pchr_a->phys.avel.z -= factor * vpara_a.z;
-                LOG_NAN(pchr_a->phys.avel.z);
+                tmin = MIN(tmin, depth_x / ABS(nrm.x) );
             }
-
-            if ( ABS(imp_b.x) + ABS(imp_b.y) + ABS(imp_b.z) > 0.0f &&
-                 ABS(vpara_b.x) + ABS(vpara_b.y) + ABS(vpara_b.z) > 0.0f &&
-                 pchr_b->dismount_timer <= 0)
+            if ( nrm.y != 0 )
             {
-                float imp, vel, factor;
-
-                imp = 0.5f * SQRT( imp_b.x * imp_b.x + imp_b.y * imp_b.y + imp_b.z * imp_b.z );
-                vel = SQRT( vpara_b.x * vpara_b.x + vpara_b.y * vpara_b.y + vpara_b.z * vpara_b.z );
-
-                factor = imp / vel;
-                factor = CLIP(factor, 0.0f, 1.0f);
-
-                pchr_b->phys.avel.x -= factor * vpara_b.x;
-                pchr_b->phys.avel.y -= factor * vpara_b.y;
-                pchr_b->phys.avel.z -= factor * vpara_b.z;
-                LOG_NAN(pchr_b->phys.avel.z);
+                tmin = MIN(tmin, depth_y / ABS(nrm.y) );
             }
+            if ( nrm.z != 0 )
+            {
+                tmin = MIN(tmin, depth_z / ABS(nrm.z) );
+            }
+
+            if ( nrm.x + nrm.y != 0 )
+            {
+                tmin = MIN(tmin, depth_xy / ABS(nrm.x + nrm.y) );
+            }
+
+            if ( -nrm.x + nrm.y != 0 )
+            {
+                tmin = MIN(tmin, depth_yx / ABS(-nrm.x + nrm.y) );
+            }
+
+            if ( tmin < 1e6 )
+            {
+                const float pressure_strength = 0.125f * 0.5f;
+                if ( wta >= 0.0f )
+                {
+                    float ratio = (float)ABS(wtb) / ((float)ABS(wta) + (float)ABS(wtb));
+
+                    imp_a.x = tmin * nrm.x * ratio * pressure_strength;
+                    imp_a.y = tmin * nrm.y * ratio * pressure_strength;
+                    imp_a.z = tmin * nrm.z * ratio * pressure_strength;
+                }
+
+                if ( wtb >= 0.0f )
+                {
+                    float ratio = (float)ABS(wta) / ((float)ABS(wta) + (float)ABS(wtb));
+
+                    imp_b.x = -tmin * nrm.x * ratio * pressure_strength;
+                    imp_b.y = -tmin * nrm.y * ratio * pressure_strength;
+                    imp_b.z = -tmin * nrm.z * ratio * pressure_strength;
+                }
+            }
+
+            // add in the bump impulses
+            pchr_a->phys.apos_1.x += imp_a.x;
+            pchr_a->phys.apos_1.y += imp_a.y;
+            pchr_a->phys.apos_1.z += imp_a.z;
+
+            pchr_b->phys.apos_1.x += imp_b.x;
+            pchr_b->phys.apos_1.y += imp_b.y;
+            pchr_b->phys.apos_1.z += imp_b.z;
+
+            // you could "bump" something if you changed your velocity, even if you were still touching
+            bump = (VDotProduct( pchr_a->vel, nrm ) * VDotProduct( pchr_a->vel_old, nrm ) < 0 ) ||
+                   (VDotProduct( pchr_b->vel, nrm ) * VDotProduct( pchr_b->vel_old, nrm ) < 0 );
+        }
+
+        // add in the friction due to the "collision"
+        // assume coeff of friction of 0.5
+        if ( ABS(imp_a.x) + ABS(imp_a.y) + ABS(imp_a.z) > 0.0f &&
+            ABS(vpara_a.x) + ABS(vpara_a.y) + ABS(vpara_a.z) > 0.0f &&
+            pchr_a->dismount_timer <= 0)
+        {
+            float imp, vel, factor;
+
+            imp = 0.5f * SQRT( imp_a.x * imp_a.x + imp_a.y * imp_a.y + imp_a.z * imp_a.z );
+            vel = SQRT( vpara_a.x * vpara_a.x + vpara_a.y * vpara_a.y + vpara_a.z * vpara_a.z );
+
+            factor = imp / vel;
+            factor = CLIP(factor, 0.0f, 1.0f);
+
+            pchr_a->phys.avel.x -= factor * vpara_a.x;
+            pchr_a->phys.avel.y -= factor * vpara_a.y;
+            pchr_a->phys.avel.z -= factor * vpara_a.z;
+            LOG_NAN(pchr_a->phys.avel.z);
+        }
+
+        if ( ABS(imp_b.x) + ABS(imp_b.y) + ABS(imp_b.z) > 0.0f &&
+            ABS(vpara_b.x) + ABS(vpara_b.y) + ABS(vpara_b.z) > 0.0f &&
+            pchr_b->dismount_timer <= 0)
+        {
+            float imp, vel, factor;
+
+            imp = 0.5f * SQRT( imp_b.x * imp_b.x + imp_b.y * imp_b.y + imp_b.z * imp_b.z );
+            vel = SQRT( vpara_b.x * vpara_b.x + vpara_b.y * vpara_b.y + vpara_b.z * vpara_b.z );
+
+            factor = imp / vel;
+            factor = CLIP(factor, 0.0f, 1.0f);
+
+            pchr_b->phys.avel.x -= factor * vpara_b.x;
+            pchr_b->phys.avel.y -= factor * vpara_b.y;
+            pchr_b->phys.avel.z -= factor * vpara_b.z;
+            LOG_NAN(pchr_b->phys.avel.z);
         }
     }
 
-    if ( collision )
+    if ( bump )
     {
         ai_state_set_bumplast( &(pchr_a->ai), ichr_b );
         ai_state_set_bumplast( &(pchr_b->ai), ichr_a );
@@ -3848,6 +3878,454 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
     return btrue;
 }
 
+
+////--------------------------------------------------------------------------------------------
+//bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
+//{
+//    float xa, ya, za, xb, yb, zb;
+//    float was_xa, was_ya, was_za, was_xb, was_yb, was_zb;
+//    chr_t * pchr_a, * pchr_b;
+//    cap_t * pcap_a, * pcap_b;
+//
+//    float dx, dy, dist;
+//    float was_dx, was_dy, was_dist;
+//    float depth_z, was_depth_z;
+//    float lerp_z, radius, radius_xy;
+//    float wta, wtb;
+//
+//    bool_t collide_x  = bfalse, was_collide_x;
+//    bool_t collide_y  = bfalse, was_collide_y;
+//    bool_t collide_xy = bfalse, was_collide_xy;
+//    bool_t collide_z  = bfalse, was_collide_z;
+//    bool_t collision  = bfalse;
+//
+//    float interaction_strength = 1.0f;
+//
+//    // make sure that it is on
+//    if ( !ACTIVE_CHR( ichr_a ) ) return bfalse;
+//    pchr_a = ChrList.lst + ichr_a;
+//
+//    pcap_a = chr_get_pcap( ichr_a );
+//    if ( NULL == pcap_a ) return bfalse;
+//
+//    // make sure that it is on
+//    if ( !ACTIVE_CHR( ichr_b ) ) return bfalse;
+//    pchr_b = ChrList.lst + ichr_b;
+//
+//    pcap_b = chr_get_pcap( ichr_b );
+//    if ( NULL == pcap_b ) return bfalse;
+//
+//    // platform interaction. if the onwhichplatform is set, then
+//    // all collision tests have been met
+//    if ( ichr_a == pchr_b->onwhichplatform )
+//    {
+//        if( do_chr_platform_physics( pchr_b, pchr_a ) )
+//        {
+//            // this is handled
+//            return btrue;
+//        }
+//    }
+//
+//    // platform interaction. if the onwhichplatform is set, then
+//    // all collision tests have been met
+//    if ( ichr_b == pchr_a->onwhichplatform )
+//    {
+//        if( do_chr_platform_physics( pchr_a, pchr_b ) )
+//        {
+//            // this is handled
+//            return btrue;
+//        }
+//    }
+//
+//    // items can interact with platforms but not with other characters/objects
+//    if ( pchr_a->isitem || pchr_b->isitem ) return bfalse;
+//
+//    // don't interact with your mount, or your held items
+//    if ( ichr_a == pchr_b->attachedto || ichr_b == pchr_a->attachedto ) return bfalse;
+//
+//    // don't do anything if there is no interaction strength
+//    if ( 0 == pchr_a->bump.size || 0 == pchr_b->bump.size ) return bfalse;
+//
+//    interaction_strength = 1.0f;
+//    interaction_strength *= pchr_a->inst.alpha * INV_FF;
+//    interaction_strength *= pchr_b->inst.alpha * INV_FF;
+//
+//    xa = pchr_a->pos.x;
+//    ya = pchr_a->pos.y;
+//    za = pchr_a->pos.z;
+//
+//    was_xa = xa - pchr_a->vel.x;
+//    was_ya = ya - pchr_a->vel.y;
+//    was_za = za - pchr_a->vel.z;
+//
+//    xb = pchr_b->pos.x;
+//    yb = pchr_b->pos.y;
+//    zb = pchr_b->pos.z;
+//
+//    was_xb = xb - pchr_b->vel.x;
+//    was_yb = yb - pchr_b->vel.y;
+//    was_zb = zb - pchr_b->vel.z;
+//
+//    dx = ABS( xa - xb );
+//    dy = ABS( ya - yb );
+//    dist = dx + dy;
+//
+//    was_dx = ABS( was_xa - was_xb );
+//    was_dy = ABS( was_ya - was_yb );
+//    was_dist = was_dx + was_dy;
+//
+//    depth_z = MIN( zb + pchr_b->bump.height, za + pchr_a->bump.height ) - MAX(za, zb);
+//    was_depth_z = MIN( was_zb + pchr_b->bump.height, was_za + pchr_a->bump.height ) - MAX(was_za, was_zb);
+//
+//    // estimate the radius of interaction based on the z overlap
+//    lerp_z  = depth_z / PLATTOLERANCE;
+//    lerp_z  = CLIP( lerp_z, 0, 1 );
+//
+//    radius    = pchr_a->bump.size    + pchr_b->bump.size;
+//    radius_xy = pchr_a->bump.sizebig + pchr_b->bump.sizebig;
+//
+//    // estimate the collisions this frame
+//    collide_x  = (dx < radius);
+//    collide_y  = (dy < radius);
+//    collide_xy = (dist < radius_xy);
+//    collide_z  = (depth_z > 0);
+//
+//    // estimate the collisions last frame
+//    was_collide_x  = (was_dx < radius);
+//    was_collide_y  = (was_dy < radius);
+//    was_collide_xy = (was_dist < radius_xy);
+//    was_collide_z  = (was_depth_z > 0);
+//
+//    //------------------
+//    // do character-character interactions
+//    if ( !collide_x || !collide_y || !collide_xy || depth_z < -PLATTOLERANCE ) return bfalse;
+//
+//    wta = (0xFFFFFFFF == pchr_a->phys.weight) ? -(float)0xFFFFFFFF : pchr_a->phys.weight;
+//    wtb = (0xFFFFFFFF == pchr_b->phys.weight) ? -(float)0xFFFFFFFF : pchr_b->phys.weight;
+//
+//    if ( wta == 0 && wtb == 0 )
+//    {
+//        wta = wtb = 1;
+//    }
+//    else if ( wta == 0 )
+//    {
+//        wta = 1;
+//        wtb = -0xFFFF;
+//    }
+//    else if ( wtb == 0 )
+//    {
+//        wtb = 1;
+//        wta = -0xFFFF;
+//    }
+//
+//    if ( 0.0f == pchr_a->phys.bumpdampen && 0.0f == pchr_b->phys.bumpdampen )
+//    {
+//        /* do nothing */
+//    }
+//    else if ( 0.0f == pchr_a->phys.bumpdampen )
+//    {
+//        // make the weight infinite
+//        wta = -0xFFFF;
+//    }
+//    else if ( 0.0f == pchr_b->phys.bumpdampen )
+//    {
+//        // make the weight infinite
+//        wtb = -0xFFFF;
+//    }
+//    else
+//    {
+//        // adjust the weights to respect bumpdampen
+//        wta /= pchr_a->phys.bumpdampen;
+//        wtb /= pchr_b->phys.bumpdampen;
+//    }
+//
+//    if ( !collision && collide_z )
+//    {
+//        float depth_x, depth_y, depth_xy, depth_yx, depth_z;
+//        GLvector3 nrm;
+//        int exponent = 1;
+//
+//        if ( pcap_a->canuseplatforms && pchr_b->platform ) exponent += 2;
+//        if ( pcap_b->canuseplatforms && pchr_a->platform ) exponent += 2;
+//
+//        nrm.x = nrm.y = nrm.z = 0.0f;
+//
+//        depth_x  = MIN(xa + pchr_a->bump.size, xb + pchr_b->bump.size) - MAX(xa - pchr_a->bump.size, xb - pchr_b->bump.size);
+//        if ( depth_x <= 0.0f )
+//        {
+//            depth_x = 0.0f;
+//        }
+//        else
+//        {
+//            float sgn = xb - xa;
+//            sgn = sgn > 0 ? -1 : 1;
+//
+//            nrm.x += sgn / POW(depth_x / PLATTOLERANCE, exponent);
+//        }
+//
+//        depth_y  = MIN(ya + pchr_a->bump.size, yb + pchr_b->bump.size) - MAX(ya - pchr_a->bump.size, yb - pchr_b->bump.size);
+//        if ( depth_y <= 0.0f )
+//        {
+//            depth_y = 0.0f;
+//        }
+//        else
+//        {
+//            float sgn = yb - ya;
+//            sgn = sgn > 0 ? -1 : 1;
+//
+//            nrm.y += sgn / POW(depth_y / PLATTOLERANCE, exponent);
+//        }
+//
+//        depth_xy = MIN(xa + ya + pchr_a->bump.sizebig, xb + yb + pchr_b->bump.sizebig) - MAX(xa + ya - pchr_a->bump.sizebig, xb + yb - pchr_b->bump.sizebig);
+//        if ( depth_xy <= 0.0f )
+//        {
+//            depth_xy = 0.0f;
+//        }
+//        else
+//        {
+//            float sgn = (xb + yb) - (xa + ya);
+//            sgn = sgn > 0 ? -1 : 1;
+//
+//            nrm.x += sgn / POW(depth_xy / PLATTOLERANCE, exponent);
+//            nrm.y += sgn / POW(depth_xy / PLATTOLERANCE, exponent);
+//        }
+//
+//        depth_yx = MIN(-xa + ya + pchr_a->bump.sizebig, -xb + yb + pchr_b->bump.sizebig) - MAX(-xa + ya - pchr_a->bump.sizebig, -xb + yb - pchr_b->bump.sizebig);
+//        if ( depth_yx <= 0.0f )
+//        {
+//            depth_yx = 0.0f;
+//        }
+//        else
+//        {
+//            float sgn = (-xb + yb) - (-xa + ya);
+//            sgn = sgn > 0 ? -1 : 1;
+//            nrm.x -= sgn / POW(depth_yx / PLATTOLERANCE, exponent);
+//            nrm.y += sgn / POW(depth_yx / PLATTOLERANCE, exponent);
+//        }
+//
+//        depth_z  = MIN(za + pchr_a->bump.height, zb + pchr_b->bump.height) - MAX( za, zb );
+//        if ( depth_z <= 0.0f )
+//        {
+//            depth_z = 0.0f;
+//        }
+//        else
+//        {
+//            float sgn = (zb + pchr_b->bump.height / 2) - (za + pchr_a->bump.height / 2);
+//            sgn = sgn > 0 ? -1 : 1;
+//
+//            nrm.z += sgn / POW(exponent * depth_z / PLATTOLERANCE, exponent);
+//        }
+//
+//        if ( ABS(nrm.x) + ABS(nrm.y) + ABS(nrm.z) > 0.0f )
+//        {
+//            GLvector3 vel_a, vel_b;
+//            GLvector3 vpara_a, vperp_a;
+//            GLvector3 vpara_b, vperp_b;
+//            GLvector3 imp_a, imp_b;
+//            float     vdot;
+//
+//            nrm = VNormalize( nrm );
+//
+//            vel_a.x = pchr_a->vel.x;
+//            vel_a.y = pchr_a->vel.y;
+//            vel_a.z = pchr_a->vel.z;
+//
+//            vel_b.x = pchr_b->vel.x;
+//            vel_b.y = pchr_b->vel.y;
+//            vel_b.z = pchr_b->vel.z;
+//
+//            vdot = VDotProduct( nrm, vel_a );
+//            vperp_a.x = nrm.x * vdot;
+//            vperp_a.y = nrm.y * vdot;
+//            vperp_a.z = nrm.z * vdot;
+//            vpara_a = VSub( vel_a, vperp_a );
+//
+//            vdot = VDotProduct( nrm, vel_b );
+//            vperp_b.x = nrm.x * vdot;
+//            vperp_b.y = nrm.y * vdot;
+//            vperp_b.z = nrm.z * vdot;
+//            vpara_b = VSub( vel_b, vperp_b );
+//
+//            // clear the "impulses"
+//            imp_a.x = imp_a.y = imp_a.z = 0.0f;
+//            imp_b.x = imp_b.y = imp_b.z = 0.0f;
+//
+//            if ( collide_xy != was_collide_xy || collide_x != was_collide_x || collide_y != was_collide_y )
+//            {
+//                // an actual collision
+//
+//                // generic coefficient of restitution
+//                float cr = 0.5f;
+//
+//                if ( (wta < 0 && wtb < 0) || (wta == wtb) )
+//                {
+//                    float factor = 0.5f * (1.0f - cr);
+//
+//                    imp_a.x = factor * (vperp_b.x - vperp_a.x);
+//                    imp_a.y = factor * (vperp_b.y - vperp_a.y);
+//                    imp_a.z = factor * (vperp_b.z - vperp_a.z);
+//
+//                    imp_b.x = factor * (vperp_a.x - vperp_b.x);
+//                    imp_b.y = factor * (vperp_a.y - vperp_b.y);
+//                    imp_b.z = factor * (vperp_a.z - vperp_b.z);
+//                }
+//                else if ( (wta < 0) || (wtb == 0) )
+//                {
+//                    float factor = (1.0f - cr);
+//
+//                    imp_b.x = factor * (vperp_a.x - vperp_b.x);
+//                    imp_b.y = factor * (vperp_a.y - vperp_b.y);
+//                    imp_b.z = factor * (vperp_a.z - vperp_b.z);
+//                }
+//                else if ( (wtb < 0) || (wta == 0) )
+//                {
+//                    float factor = (1.0f - cr);
+//
+//                    imp_a.x = factor * (vperp_b.x - vperp_a.x);
+//                    imp_a.y = factor * (vperp_b.y - vperp_a.y);
+//                    imp_a.z = factor * (vperp_b.z - vperp_a.z);
+//                }
+//                else
+//                {
+//                    float factor;
+//
+//                    factor = (1.0f - cr) * wtb / ( wta + wtb );
+//                    imp_a.x = factor * (vperp_b.x - vperp_a.x);
+//                    imp_a.y = factor * (vperp_b.y - vperp_a.y);
+//                    imp_a.z = factor * (vperp_b.z - vperp_a.z);
+//
+//                    factor = (1.0f - cr) * wta / ( wta + wtb );
+//                    imp_b.x = factor * (vperp_a.x - vperp_b.x);
+//                    imp_b.y = factor * (vperp_a.y - vperp_b.y);
+//                    imp_b.z = factor * (vperp_a.z - vperp_b.z);
+//                }
+//
+//                // add in the collision impulses
+//                pchr_a->phys.avel.x += imp_a.x;
+//                pchr_a->phys.avel.y += imp_a.y;
+//                pchr_a->phys.avel.z += imp_a.z;
+//                LOG_NAN(pchr_a->phys.avel.z);
+//
+//                pchr_b->phys.avel.x += imp_b.x;
+//                pchr_b->phys.avel.y += imp_b.y;
+//                pchr_b->phys.avel.z += imp_b.z;
+//                LOG_NAN(pchr_b->phys.avel.z);
+//
+//                collision = btrue;
+//            }
+//            else
+//            {
+//                float tmin;
+//
+//                tmin = 1e6;
+//                if ( nrm.x != 0 )
+//                {
+//                    tmin = MIN(tmin, depth_x / ABS(nrm.x) );
+//                }
+//                if ( nrm.y != 0 )
+//                {
+//                    tmin = MIN(tmin, depth_y / ABS(nrm.y) );
+//                }
+//                if ( nrm.z != 0 )
+//                {
+//                    tmin = MIN(tmin, depth_z / ABS(nrm.z) );
+//                }
+//
+//                if ( nrm.x + nrm.y != 0 )
+//                {
+//                    tmin = MIN(tmin, depth_xy / ABS(nrm.x + nrm.y) );
+//                }
+//
+//                if ( -nrm.x + nrm.y != 0 )
+//                {
+//                    tmin = MIN(tmin, depth_yx / ABS(-nrm.x + nrm.y) );
+//                }
+//
+//                if ( tmin < 1e6 )
+//                {
+//                    if ( wta >= 0.0f )
+//                    {
+//                        float ratio = (float)ABS(wtb) / ((float)ABS(wta) + (float)ABS(wtb));
+//
+//                        imp_a.x = tmin * nrm.x * 0.25f * ratio;
+//                        imp_a.y = tmin * nrm.y * 0.25f * ratio;
+//                        imp_a.z = tmin * nrm.z * 0.25f * ratio;
+//                    }
+//
+//                    if ( wtb >= 0.0f )
+//                    {
+//                        float ratio = (float)ABS(wta) / ((float)ABS(wta) + (float)ABS(wtb));
+//
+//                        imp_b.x = -tmin * nrm.x * 0.25f * ratio;
+//                        imp_b.y = -tmin * nrm.y * 0.25f * ratio;
+//                        imp_b.z = -tmin * nrm.z * 0.25f * ratio;
+//                    }
+//                }
+//
+//                // add in the collision impulses
+//                pchr_a->phys.apos_1.x += imp_a.x;
+//                pchr_a->phys.apos_1.y += imp_a.y;
+//                pchr_a->phys.apos_1.z += imp_a.z;
+//
+//                pchr_b->phys.apos_1.x += imp_b.x;
+//                pchr_b->phys.apos_1.y += imp_b.y;
+//                pchr_b->phys.apos_1.z += imp_b.z;
+//
+//                // you could "bump" something if you changed your velocity, even if you were still touching
+//                collision = (VDotProduct( pchr_a->vel, nrm ) * VDotProduct( pchr_a->vel_old, nrm ) < 0 ) ||
+//                            (VDotProduct( pchr_b->vel, nrm ) * VDotProduct( pchr_b->vel_old, nrm ) < 0 );
+//
+//            }
+//
+//            // add in the friction due to the "collision"
+//            // assume coeff of friction of 0.5
+//            if ( ABS(imp_a.x) + ABS(imp_a.y) + ABS(imp_a.z) > 0.0f &&
+//                 ABS(vpara_a.x) + ABS(vpara_a.y) + ABS(vpara_a.z) > 0.0f &&
+//                 pchr_a->dismount_timer <= 0)
+//            {
+//                float imp, vel, factor;
+//
+//                imp = 0.5f * SQRT( imp_a.x * imp_a.x + imp_a.y * imp_a.y + imp_a.z * imp_a.z );
+//                vel = SQRT( vpara_a.x * vpara_a.x + vpara_a.y * vpara_a.y + vpara_a.z * vpara_a.z );
+//
+//                factor = imp / vel;
+//                factor = CLIP(factor, 0.0f, 1.0f);
+//
+//                pchr_a->phys.avel.x -= factor * vpara_a.x;
+//                pchr_a->phys.avel.y -= factor * vpara_a.y;
+//                pchr_a->phys.avel.z -= factor * vpara_a.z;
+//                LOG_NAN(pchr_a->phys.avel.z);
+//            }
+//
+//            if ( ABS(imp_b.x) + ABS(imp_b.y) + ABS(imp_b.z) > 0.0f &&
+//                 ABS(vpara_b.x) + ABS(vpara_b.y) + ABS(vpara_b.z) > 0.0f &&
+//                 pchr_b->dismount_timer <= 0)
+//            {
+//                float imp, vel, factor;
+//
+//                imp = 0.5f * SQRT( imp_b.x * imp_b.x + imp_b.y * imp_b.y + imp_b.z * imp_b.z );
+//                vel = SQRT( vpara_b.x * vpara_b.x + vpara_b.y * vpara_b.y + vpara_b.z * vpara_b.z );
+//
+//                factor = imp / vel;
+//                factor = CLIP(factor, 0.0f, 1.0f);
+//
+//                pchr_b->phys.avel.x -= factor * vpara_b.x;
+//                pchr_b->phys.avel.y -= factor * vpara_b.y;
+//                pchr_b->phys.avel.z -= factor * vpara_b.z;
+//                LOG_NAN(pchr_b->phys.avel.z);
+//            }
+//        }
+//    }
+//
+//    if ( collision )
+//    {
+//        ai_state_set_bumplast( &(pchr_a->ai), ichr_b );
+//        ai_state_set_bumplast( &(pchr_b->ai), ichr_a );
+//    }
+//
+//    return btrue;
+//}
+//
 //--------------------------------------------------------------------------------------------
 bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
 {
@@ -5469,12 +5947,14 @@ bool_t detect_chr_chr_interaction( Uint16 ichr_a, Uint16 ichr_b )
     dy = ABS( ya - yb );
     dxy = dx + dy;
 
-    depth_z = MIN( zb + pchr_b->bump.height, za + pchr_a->bump.height ) - MAX(za, zb);
+    // detect z interactions based on the actual vertical extent of the bounding box
+    depth_z = MIN( zb + pchr_b->collision_1.max_z, za + pchr_a->collision_1.max_z ) - 
+              MAX( zb + pchr_b->collision_1.min_z, za + pchr_a->collision_1.min_z );
 
-    // estimate the interactions this frame
-    interact_x  = (dx  <= pchr_a->bump.size    + pchr_b->bump.size   );
-    interact_y  = (dy  <= pchr_a->bump.size    + pchr_b->bump.size   );
-    interact_xy = (dxy <= pchr_a->bump.sizebig + pchr_b->bump.sizebig);
+    // detect x-y interactions based on a potentially gigantor bounding box
+    interact_x  = (dx  <= pchr_a->collision_0.size    + pchr_b->collision_0.size   );
+    interact_y  = (dy  <= pchr_a->collision_0.size    + pchr_b->collision_0.size   );
+    interact_xy = (dxy <= pchr_a->collision_0.sizebig + pchr_b->collision_0.sizebig);
 
     if ( (pchr_a->platform && pcap_b->canuseplatforms) ||
          (pchr_b->platform && pcap_a->canuseplatforms) )
