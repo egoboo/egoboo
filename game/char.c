@@ -6683,7 +6683,7 @@ int chr_bumper_1_to_points( chr_bumper_1_t * pbmp, GLvector4 pos[], size_t pos_c
 
     //---- the points along the y_max edge
     ftmp = 0.5f * (pbmp->max_xy + pbmp->max_yx);  // the top point of the diamond
-    if( ftmp < pbmp->max_y )
+    if( ftmp <= pbmp->max_y )
     {
         val_x = 0.5f * (pbmp->max_xy - pbmp->max_yx);
         val_y = ftmp;
@@ -6743,7 +6743,7 @@ int chr_bumper_1_to_points( chr_bumper_1_t * pbmp, GLvector4 pos[], size_t pos_c
 
     //---- the points along the y_min edge
     ftmp = 0.5f * (pbmp->min_xy + pbmp->min_yx);  // the top point of the diamond
-    if( ftmp > pbmp->min_y )
+    if( ftmp >= pbmp->min_y )
     {
         val_x = 0.5f * (pbmp->min_xy - pbmp->min_yx);
         val_y = ftmp;
@@ -6803,7 +6803,7 @@ int chr_bumper_1_to_points( chr_bumper_1_t * pbmp, GLvector4 pos[], size_t pos_c
 
     //---- the points along the x_max edge
     ftmp = 0.5f * (pbmp->max_xy - pbmp->min_yx);  // the top point of the diamond
-    if( ftmp < pbmp->max_x )
+    if( ftmp <= pbmp->max_x )
     {
         val_y = 0.5f * (pbmp->max_xy + pbmp->min_yx);
         val_x = ftmp;
@@ -6862,7 +6862,7 @@ int chr_bumper_1_to_points( chr_bumper_1_t * pbmp, GLvector4 pos[], size_t pos_c
 
     //---- the points along the x_min edge
     ftmp = 0.5f * (pbmp->min_xy - pbmp->max_yx);  // the left point of the diamond
-    if( ftmp > pbmp->min_x )
+    if( ftmp >= pbmp->min_x )
     {
         val_y = 0.5f * (pbmp->min_xy + pbmp->max_yx);
         val_x = ftmp;

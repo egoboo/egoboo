@@ -87,6 +87,8 @@
 #define CHR_MAX_COLLISIONS    512*16
 #define COLLISION_HASH_NODES (CHR_MAX_COLLISIONS*2)
 
+#define MAKE_HASH(AA,BB) ((((AA) * 0x0111 + 0x006E) + ((BB) * 0x0111 + 0x006E)) & 0xFF)
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 struct s_line_of_sight_info
@@ -846,7 +848,7 @@ void update_game()
     // [claforte Jan 6th 2001]
     // TODO: Put that back in place once networking is functional.
     update_lag = true_update - update_wld;
-    for( tnc = 0; update_wld < true_update && tnc < 100 ; tnc++)
+    for( tnc = 0; update_wld < true_update && tnc < 1000 ; tnc++)
     {
         // do important stuff to keep in sync inside this loop
 
@@ -879,6 +881,8 @@ void update_game()
         }
         //---- end the code for updating in-game objects
 
+        game_update_timers();
+
         // Timers
         clock_wld += UPDATE_SKIP;
         clock_enc_stat++;
@@ -889,7 +893,10 @@ void update_game()
 
         update_wld++;
         ups_loops++;
+
+       update_lag = MAX( update_lag, true_update - update_wld );
     }
+    update_lag = tnc;
 
     if ( PNet->on )
     {
@@ -915,7 +922,8 @@ void game_update_timers()
 
     static bool_t update_was_paused = bfalse;
 
-    int ticks_now, clock_diff;
+    int ticks_diff;
+    int clock_diff;
 
     const float fold = 0.77f;
     const float fnew = 1.0f - fold;
@@ -927,7 +935,11 @@ void game_update_timers()
         return;
     }
 
-    ticks_now = SDL_GetTicks();
+    // make sure some amount of time has passed
+    ticks_last = ticks_now;
+    ticks_now  = SDL_GetTicks();
+    ticks_diff = ticks_now - ticks_last;
+    if( 0 == ticks_diff ) return;
 
     // measure the time since the last call
     clock_lst  = clock_all;
@@ -937,9 +949,8 @@ void game_update_timers()
     clock_diff = UPDATE_SKIP;
     if( !update_was_paused )
     {
-        clock_diff = ticks_now - clock_lst;
-
-        clock_diff = MIN(clock_diff, 2*UPDATE_SKIP);
+        clock_diff = ticks_diff;
+        clock_diff = MIN(clock_diff, 10*UPDATE_SKIP);
     }
 
     if( PNet->on )
@@ -989,7 +1000,9 @@ void game_update_timers()
 void reset_timers()
 {
     // ZZ> This function resets the timers...
-    clock_stt = SDL_GetTicks();
+
+    clock_stt = ticks_now = ticks_last = SDL_GetTicks();
+
     clock_all = 0;
     clock_lst = 0;
     clock_wld = 0;
@@ -2851,7 +2864,7 @@ void fill_bumplists()
         if ( INVALID_BLOCK != pchr->onwhichblock )
         {
             // Insert before any other characters on the block
-            pchr->fanblock_next = bumplist[pchr->onwhichblock].chr;
+            pchr->bumplist_next = bumplist[pchr->onwhichblock].chr;
             bumplist[pchr->onwhichblock].chr = character;
             bumplist[pchr->onwhichblock].chrnum++;
         }
@@ -2875,7 +2888,7 @@ void fill_bumplists()
         if ( INVALID_BLOCK != pprt->onwhichblock )
         {
             // Insert before any other particles on the block
-            pprt->fanblock_next = bumplist[pprt->onwhichblock].prt;
+            pprt->bumplist_next = bumplist[pprt->onwhichblock].prt;
             bumplist[pprt->onwhichblock].prt = particle;
             bumplist[pprt->onwhichblock].prtnum++;
         }
@@ -2950,42 +2963,41 @@ void fill_interaction_list( co_data_t cdata[], int * cdata_count, hash_node_t hn
             {
                 // Allow raw access here because we were careful :)
                 fanblock = mesh_get_block_int(PMesh, ix_block, iy_block);
-                if ( INVALID_BLOCK != fanblock )
+                if ( INVALID_BLOCK == fanblock ) continue;
+
+                chrinblock = bumplist[fanblock].chrnum;
+                prtinblock = bumplist[fanblock].prtnum;
+
+                // detect all the character-character interactions
+                for ( tnc = 0, ichr_b = bumplist[fanblock].chr;
+                        tnc < chrinblock && MAX_CHR != ichr_b;
+                        tnc++, ichr_b = ChrList.lst[ichr_b].bumplist_next)
                 {
-                    chrinblock = bumplist[fanblock].chrnum;
-                    prtinblock = bumplist[fanblock].prtnum;
+                    chr_t * pchr_b;
+                    if( !ACTIVE_CHR( ichr_b ) ) continue;
 
-                    // detect all the character-character interactions
-                    for ( tnc = 0, ichr_b = bumplist[fanblock].chr;
-                          tnc < chrinblock && MAX_CHR != ichr_b;
-                          tnc++, ichr_b = ChrList.lst[ichr_b].fanblock_next)
+                    pchr_b = ChrList.lst + ichr_b;
+
+                    // make sure we have a good collision size for this object
+                    //chr_update_collision_size( pchr_b, btrue );
+
+                    if ( detect_chr_chr_interaction(ichr_a, ichr_b) )
                     {
-                        chr_t * pchr_b;
-                        if( !ACTIVE_CHR( ichr_b ) ) continue;
-
-                        pchr_b = ChrList.lst + ichr_b;
-
-                        // make sure we have a good collision size for this object
-                        //chr_update_collision_size( pchr_b, btrue );
-
-                        if ( detect_chr_chr_interaction(ichr_a, ichr_b) )
-                        {
-                            add_chr_chr_interaction( ichr_a, ichr_b, cdata, cdata_count, hnlst, hn_count );
-                        }
+                        add_chr_chr_interaction( ichr_a, ichr_b, cdata, cdata_count, hnlst, hn_count );
                     }
+                }
 
-                    // detect all the character-particle interactions
-                    // for living characters
-                    if ( pchr_a->alive )
+                // detect all the character-particle interactions
+                // for living characters
+                if ( pchr_a->alive )
+                {
+                    for ( tnc = 0, iprt_b = bumplist[fanblock].prt;
+                            tnc < prtinblock && TOTAL_MAX_PRT != iprt_b;
+                            tnc++, iprt_b = PrtList.lst[iprt_b].bumplist_next )
                     {
-                        for ( tnc = 0, iprt_b = bumplist[fanblock].prt;
-                              tnc < prtinblock && TOTAL_MAX_PRT != iprt_b;
-                              tnc++, iprt_b = PrtList.lst[iprt_b].fanblock_next )
+                        if ( detect_chr_prt_interaction(ichr_a, iprt_b) )
                         {
-                            if ( detect_chr_prt_interaction(ichr_a, iprt_b) )
-                            {
-                                add_chr_prt_interaction( ichr_a, iprt_b, cdata, cdata_count, hnlst, hn_count );
-                            }
+                            add_chr_prt_interaction( ichr_a, iprt_b, cdata, cdata_count, hnlst, hn_count );
                         }
                     }
                 }
@@ -3192,7 +3204,7 @@ bool_t do_platforms( Uint16 ichr_a, Uint16 ichr_b )
     else if ( platform_a )
     {
         chara_on_top = bfalse;
-        depth_z = (za + pchr_a->collision_1.min_z) - (zb + pchr_b->collision_1.min_z);
+        depth_z = (za + pchr_a->collision_1.max_z) - (zb + pchr_b->collision_1.min_z);
 
         // size of b doesn't matter
 
@@ -3211,7 +3223,7 @@ bool_t do_platforms( Uint16 ichr_a, Uint16 ichr_b )
     else if ( platform_b )
     {
         chara_on_top = btrue;
-        depth_z = (zb + pchr_b->collision_1.min_z) - (za + pchr_a->collision_1.min_z);
+        depth_z = (zb + pchr_b->collision_1.max_z) - (za + pchr_a->collision_1.min_z);
 
         // size of a doesn't matter
         depth_x  = MIN((pchr_b->collision_1.max_x + pchr_b->pos.x) - pchr_a->pos.x,
@@ -4745,9 +4757,6 @@ void bump_all_objects( void )
 
     co_data_t   * d;
 
-    // fill up the bumplists
-    fill_bumplists();
-
     // blank the accumulators
     for ( cnt = 0; cnt < MAX_CHR; cnt++ )
     {
@@ -4763,6 +4772,9 @@ void bump_all_objects( void )
         ChrList.lst[cnt].phys.avel.y = 0.0f;
         ChrList.lst[cnt].phys.avel.z = 0.0f;
     }
+
+    // fill up the bumplists
+    fill_bumplists();
 
     // fill the collision list with all possible binary interactions
     fill_interaction_list( cdata, &cdata_count, hnlst, &hn_count );
@@ -5531,9 +5543,6 @@ bool_t game_begin_module( const char * modname, Uint32 seed )
 
     game_setup_module( modname );
 
-    timeron = bfalse;
-    reset_timers();
-
     // make sure the per-module configuration settings are correct
     setup_synch( &cfg );
 
@@ -5551,6 +5560,10 @@ bool_t game_begin_module( const char * modname, Uint32 seed )
 
     // start the module
     game_module_start( PMod );
+
+    // initislize the timers as tha very last thing
+    timeron = bfalse;
+    reset_timers();
 
     return btrue;
 }
@@ -5827,21 +5840,22 @@ bool_t add_chr_chr_interaction( Uint16 ichr_a, Uint16 ichr_b, co_data_t cdata[],
     co_data_t   * d;
 
     // create a hash that is order-independent
-    hashval = (ichr_a * 0x0111 + 0x006E) + (ichr_b * 0x0111 + 0x006E);
-    hashval &= 0xFF;
+    hashval = MAKE_HASH(ichr_a, ichr_b);
 
     found = bfalse;
     count = chr_co_list->subcount[hashval];
     if ( count > 0)
     {
-        int i ;
+        int i;
 
         // this hash already exists. check to see if the binary collision exists, too
         n = chr_co_list->sublist[hashval];
         for (i = 0; i < count; i++)
         {
             d = (co_data_t *)(n->data);
-            if (d->chra == ichr_a && d->chrb == ichr_b)
+
+            // make sure to test both orders
+            if ( (d->chra == ichr_a && d->chrb == ichr_b) || (d->chra == ichr_b && d->chrb == ichr_a) )
             {
                 found = btrue;
                 break;
@@ -5887,8 +5901,7 @@ bool_t add_chr_prt_interaction( Uint16 ichr_a, Uint16 iprt_b, co_data_t cdata[],
     co_data_t   * d;
 
     // create a hash that is order-independent
-    hashval = (ichr_a * 0x0111 + 0x006E) + (iprt_b * 0x0111 + 0x006E);
-    hashval &= 0xFF;
+    hashval = MAKE_HASH(ichr_a, iprt_b);
 
     found = bfalse;
     count = chr_co_list->subcount[hashval];
@@ -6693,7 +6706,7 @@ globestangle = angle;
 }
 }
 }
-charb = ChrList.lst[charb].fanblock_next;
+charb = ChrList.lst[charb].bumplist_next;
 cnt++;
 }
 }

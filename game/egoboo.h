@@ -127,7 +127,9 @@ EXTERN float           stabilized_ups_sum    EQ( 0 );
 EXTERN float           stabilized_ups_weight EQ( 0 );
 
 // Timers
-EXTERN Sint32          clock_stt;                   // GetTickCount at start
+EXTERN Sint32          ticks_last  EQ( 0 );
+EXTERN Sint32          ticks_now   EQ( 0 );
+EXTERN Sint32          clock_stt   EQ( 0 );             // GetTickCount at start
 EXTERN Sint32          clock_all   EQ( 0 );             // The total number of ticks so far
 EXTERN Sint32          clock_lst   EQ( 0 );             // The last total of ticks so far
 EXTERN Sint32          clock_wld   EQ( 0 );             // The sync clock

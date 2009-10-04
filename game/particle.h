@@ -130,7 +130,7 @@ struct s_prt
     Uint32  bumpsize;                        // Size of bumpers
     Uint32  bumpsizebig;
     Uint8   bumpheight;                      // Bounding box height
-    Uint16  fanblock_next;                   // Next particle on fanblock
+    Uint16  bumplist_next;                   // Next particle on fanblock
     IPair   damage;                          // For strength
     Uint8   damagetype;                      // Damage type
     float   dynalight_falloff;                // Dyna light...

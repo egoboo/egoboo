@@ -525,7 +525,7 @@ struct s_chr
 
     Uint32         onwhichfan;                    // Where the char is
     Uint32         onwhichblock;                  // The character's collision block
-    Uint16         fanblock_next;                 // Next character on fanblock
+    Uint16         bumplist_next;                 // Next character on fanblock
 
     // movement properties
     Uint8          waterwalk;                     // Always above watersurfacelevel?
