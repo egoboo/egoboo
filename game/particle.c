@@ -111,7 +111,7 @@ void play_particle_sound( Uint16 particle, Sint8 sound )
     if ( !ALLOCATED_PRT(particle) ) return;
     pprt = PrtList.lst + particle;
 
-    if ( sound >= 0 && sound < MAX_WAVE )
+    if ( VALID_SND(sound) )
     {
         if ( VALID_PRO( pprt->profile_ref ) )
         {

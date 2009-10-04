@@ -8,6 +8,7 @@ IfSpawned
 //-----------------------------------------------------------------------------------------------
 //Trap effects
 KeepAction
+IfTimeOut
 SetTargetToNearestLifeform
 
   //Check for rogues to find it
@@ -47,7 +48,6 @@ IfXIsLessThanY
       tmpargument = ACTIONMG
       DoAction
       tmpargument = 0
-      tmpdistance = rand & 3600 + 10000
       PlaySound			//Play clinking
       tmpargument = 1
       SetState			//Trap is activated

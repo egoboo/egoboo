@@ -506,14 +506,16 @@ void render_one_mad( Uint16 character, Uint8 trans )
         GL_DEBUG(glEnable)( GL_TEXTURE_2D );
     }
 
-#if defined(USE_DEBUG)
-    // the grips of all objects
-    //chr_draw_arrached_grip( pchr );
+    // draw object grips and vertrices as a part of the graphics debug mode F8
+    if ( cfg.dev_mode && SDLKEYDOWN( SDLK_F8 ) )
+	{
+	    // the grips of all objects
+		chr_draw_arrached_grip( pchr );
 
-    // draw all the vertices of an object
-    //GL_DEBUG( glPointSize( 5 ) );
-    //draw_points( pchr, 0, pro_get_pmad(pchr->inst.imad)->md2_data.vertices );
-#endif
+	    // draw all the vertices of an object
+		GL_DEBUG( glPointSize( 5 ) );
+		draw_points( pchr, 0, ego_md2_data[pro_get_pmad(pchr->inst.imad)->md2_ref].vertices );
+	}
 }
 
 //--------------------------------------------------------------------------------------------

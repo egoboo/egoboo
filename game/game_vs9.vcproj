@@ -128,11 +128,11 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="4"
-				InlineFunctionExpansion="2"
+				Optimization="3"
+				InlineFunctionExpansion="0"
 				EnableIntrinsicFunctions="false"
-				FavorSizeOrSpeed="1"
-				OmitFramePointers="true"
+				FavorSizeOrSpeed="0"
+				OmitFramePointers="false"
 				WholeProgramOptimization="false"
 				AdditionalIncludeDirectories="&quot;$(SolutionDir)game\extensions&quot;;&quot;$(SolutionDir)enet\include&quot;;&quot;$(SolutionDir)game\file_formats&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE"
