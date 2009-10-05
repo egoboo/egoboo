@@ -499,8 +499,9 @@ struct s_chr
     chr_bumper_0_t   bump;
     chr_bumper_0_t   bump_save;
 
-    chr_bumper_0_t   collision_0;
-    chr_bumper_1_t   collision_1;
+    chr_bumper_0_t   bump_1;       // the loosest collision volume that mimics the current bump
+    chr_bumper_1_t   chr_prt_cv;   // a looser collision volume for chr-prt interactions
+    chr_bumper_1_t   chr_chr_cv;   // the tightest collision volume for chr-chr interactions
 
 
     Uint8          stoppedby;                     // Collision mask
@@ -574,7 +575,7 @@ void drop_money( Uint16 character, Uint16 money );
 void call_for_help( Uint16 character );
 void give_experience( Uint16 character, int amount, Uint8 xptype, bool_t override_invictus );
 void give_team_experience( Uint8 team, int amount, Uint8 xptype );
-void damage_character( Uint16 character, Uint16 direction,
+int  damage_character( Uint16 character, Uint16 direction,
                        IPair damage, Uint8 damagetype, Uint8 team,
                        Uint16 attacker, Uint16 effects, bool_t ignoreinvincible );
 void kill_character( Uint16 character, Uint16 killer );

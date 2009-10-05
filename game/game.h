@@ -327,7 +327,7 @@ void reset_end_text();
 
 // Particles
 Uint16 number_of_attached_particles( Uint16 character );
-void   spawn_bump_particles( Uint16 character, Uint16 particle );
+int    spawn_bump_particles( Uint16 character, Uint16 particle );
 void   attach_particle_to_character( Uint16 particle, Uint16 character, int vertex_offset );
 void   disaffirm_attached_particles( Uint16 character );
 void   reaffirm_attached_particles( Uint16 character );

@@ -468,12 +468,12 @@ void render_one_mad( Uint16 character, Uint8 trans )
     //            bb.mins[cnt] = bb.maxs[cnt] = pchr->pos.v[cnt];
     //        }
 
-    //        bb.mins[XX] -= pchr->collision_0.size;
-    //        bb.mins[YY] -= pchr->collision_0.size;
+    //        bb.mins[XX] -= pchr->chr_prt_cv.size;
+    //        bb.mins[YY] -= pchr->chr_prt_cv.size;
 
-    //        bb.maxs[XX] += pchr->collision_0.size;
-    //        bb.maxs[YY] += pchr->collision_0.size;
-    //        bb.maxs[ZZ] += pchr->collision_0.height;
+    //        bb.maxs[XX] += pchr->chr_prt_cv.size;
+    //        bb.maxs[YY] += pchr->chr_prt_cv.size;
+    //        bb.maxs[ZZ] += pchr->chr_prt_cv.height;
 
     //        GL_DEBUG(glColor4f)(1, 1, 1, 1);
     //        bbox_gl_draw( &bb );
@@ -488,17 +488,17 @@ void render_one_mad( Uint16 character, Uint8 trans )
         {
             oct_bb_t bb;
 
-            bb.mins[OCT_X ] = pchr->collision_1.min_x  + pchr->pos.x;
-            bb.mins[OCT_Y ] = pchr->collision_1.min_y  + pchr->pos.y;
-            bb.mins[OCT_Z ] = pchr->collision_1.min_z  + pchr->pos.z;
-            bb.mins[OCT_XY] = pchr->collision_1.min_xy + ( pchr->pos.x + pchr->pos.y);
-            bb.mins[OCT_YX] = pchr->collision_1.min_yx + (-pchr->pos.x + pchr->pos.y);
+            bb.mins[OCT_X ] = pchr->chr_chr_cv.min_x  + pchr->pos.x;
+            bb.mins[OCT_Y ] = pchr->chr_chr_cv.min_y  + pchr->pos.y;
+            bb.mins[OCT_Z ] = pchr->chr_chr_cv.min_z  + pchr->pos.z;
+            bb.mins[OCT_XY] = pchr->chr_chr_cv.min_xy + ( pchr->pos.x + pchr->pos.y);
+            bb.mins[OCT_YX] = pchr->chr_chr_cv.min_yx + (-pchr->pos.x + pchr->pos.y);
 
-            bb.maxs[OCT_X ] = pchr->collision_1.max_x  + pchr->pos.x;
-            bb.maxs[OCT_Y ] = pchr->collision_1.max_y  + pchr->pos.y;
-            bb.maxs[OCT_Z ] = pchr->collision_1.max_z  + pchr->pos.z;
-            bb.maxs[OCT_XY] = pchr->collision_1.max_xy + ( pchr->pos.x + pchr->pos.y);
-            bb.maxs[OCT_YX] = pchr->collision_1.max_yx + (-pchr->pos.x + pchr->pos.y);
+            bb.maxs[OCT_X ] = pchr->chr_chr_cv.max_x  + pchr->pos.x;
+            bb.maxs[OCT_Y ] = pchr->chr_chr_cv.max_y  + pchr->pos.y;
+            bb.maxs[OCT_Z ] = pchr->chr_chr_cv.max_z  + pchr->pos.z;
+            bb.maxs[OCT_XY] = pchr->chr_chr_cv.max_xy + ( pchr->pos.x + pchr->pos.y);
+            bb.maxs[OCT_YX] = pchr->chr_chr_cv.max_yx + (-pchr->pos.x + pchr->pos.y);
 
             GL_DEBUG(glColor4f)(1, 1, 1, 1);
             render_oct_bb( &bb, btrue, btrue );
@@ -506,16 +506,14 @@ void render_one_mad( Uint16 character, Uint8 trans )
         GL_DEBUG(glEnable)( GL_TEXTURE_2D );
     }
 
-    // draw object grips and vertrices as a part of the graphics debug mode F8
-    if ( cfg.dev_mode && SDLKEYDOWN( SDLK_F8 ) )
-	{
-	    // the grips of all objects
-		chr_draw_arrached_grip( pchr );
+#if defined(USE_DEBUG)
+    // the grips of all objects
+    //chr_draw_arrached_grip( pchr );
 
-	    // draw all the vertices of an object
-		GL_DEBUG( glPointSize( 5 ) );
-		draw_points( pchr, 0, ego_md2_data[pro_get_pmad(pchr->inst.imad)->md2_ref].vertices );
-	}
+    // draw all the vertices of an object
+    //GL_DEBUG( glPointSize( 5 ) );
+    //draw_points( pchr, 0, pro_get_pmad(pchr->inst.imad)->md2_data.vertices );
+#endif
 }
 
 //--------------------------------------------------------------------------------------------

@@ -2864,7 +2864,7 @@ bool_t heal_character( Uint16 character, Uint16 healer, int amount, bool_t ignor
 }
 
 //--------------------------------------------------------------------------------------------
-void damage_character( Uint16 character, Uint16 direction,
+int damage_character( Uint16 character, Uint16 direction,
                        IPair  damage, Uint8 damagetype, Uint8 team,
                        Uint16 attacker, Uint16 effects, bool_t ignoreinvincible )
 {
@@ -2881,12 +2881,13 @@ void damage_character( Uint16 character, Uint16 direction,
     chr_t * pchr;
     cap_t * pcap;
 
-    if ( !ACTIVE_CHR(character) ) return;
+    if ( !ACTIVE_CHR(character) ) return 0;
     pchr = ChrList.lst + character;
 
     pcap = pro_get_pcap( pchr->iprofile );
-    if( NULL == pcap ) return;
+    if( NULL == pcap ) return 0;
 
+    actual_damage = 0;
     if ( pchr->alive && damage.base + damage.rand > 0 )
     {
         // Lessen actual_damage for resistance, 0 = Weakness, 1 = Normal, 2 = Resist, 3 = Big Resist
@@ -2914,7 +2915,7 @@ void damage_character( Uint16 character, Uint16 direction,
             {
                 pchr->mana = pchr->manamax;
             }
-            return;
+            return 0;
         }
 
         // Invert actual_damage to heal
@@ -2994,14 +2995,13 @@ void damage_character( Uint16 character, Uint16 direction,
 
                 if ( actual_damage != 0 )
                 {
-                    if ( effects&DAMFX_ARMO )
+                    if ( 0 == (effects & DAMFX_ARMO) )
                     {
-                        pchr->life -= actual_damage;
+                        actual_damage = FF_MUL( actual_damage, pchr->defense );
                     }
-                    else
-                    {
-                        pchr->life -= FF_MUL( actual_damage, pchr->defense );
-                    }
+
+                    pchr->life -= actual_damage;
+
                     if ( base_damage > HURTDAMAGE )
                     {
                         // Spawn blud particles
@@ -3187,6 +3187,8 @@ void damage_character( Uint16 character, Uint16 direction,
             }
         }
     }
+
+    return actual_damage;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5795,6 +5797,11 @@ void move_one_character_do_animation( chr_t * pchr, chr_environment_t * penviro 
         }
     }
 
+
+    // go back to a base animation rate, in case the next frame is not a
+    // "variable speed frame"
+    pinst->rate = 1.0f;
+
     // Get running, walking, sneaking, or dancing, from speed
     if ( !pchr->keepaction && !pchr->loopaction )
     {
@@ -5802,10 +5809,12 @@ void move_one_character_do_animation( chr_t * pchr, chr_environment_t * penviro 
         if ( pchr->actionready && pinst->ilip == 0 && pchr->enviro.grounded && pchr->flyheight == 0 && ( framelip&7 ) < 2 )
         {
             // Do the motion stuff
+
+            // new_vx, new_vy is the speed before any latches are applied
             speed = ABS( penviro->new_vx ) + ABS( penviro->new_vy );
-            if ( speed < pchr->sneakspd )
+
+            if ( speed < 0.5f * pchr->sneakspd )
             {
-                //                       pchr->nextaction = ACTION_DA;
                 // Do boredom
                 pchr->boretime--;
                 if ( pchr->boretime < 0 )
@@ -5813,7 +5822,7 @@ void move_one_character_do_animation( chr_t * pchr, chr_environment_t * penviro 
                     pchr->ai.alert |= ALERTIF_BORED;
                     pchr->boretime = BORETIME;
                 }
-                else
+                else if ( pchr->boretime == 0 || speed == 0 )
                 {
                     // Do standstill
                     if ( pchr->action > ACTION_DD )
@@ -5822,13 +5831,7 @@ void move_one_character_do_animation( chr_t * pchr, chr_environment_t * penviro 
                         pinst->frame_nxt = pmad->actionstart[pchr->action];
                     }
                 }
-            }
-            else
-            {
-                pchr->boretime = BORETIME;
-
-                //Sneak
-                if ( speed < pchr->walkspd )
+                else
                 {
                     pchr->nextaction = ACTION_WA;
                     if ( pchr->action != ACTION_WA )
@@ -5836,30 +5839,49 @@ void move_one_character_do_animation( chr_t * pchr, chr_environment_t * penviro 
                         pinst->frame_nxt = pmad->frameliptowalkframe[LIPWA][framelip];
                         pchr->action = ACTION_WA;
                     }
+
+                    pinst->rate = (float)speed / (float)pchr->sneakspd;
+                }
+            }
+            else
+            {
+                pchr->boretime = BORETIME;
+
+                if ( speed < 0.5f * (pchr->sneakspd + pchr->walkspd) )
+                {
+                    //Sneak
+                    pchr->nextaction = ACTION_WA;
+                    if ( pchr->action != ACTION_WA )
+                    {
+                        pinst->frame_nxt = pmad->frameliptowalkframe[LIPWA][framelip];
+                        pchr->action = ACTION_WA;
+                    }
+
+                    pinst->rate = (float)speed / (float)pchr->sneakspd;
+                }
+                else if ( speed < 0.5f * (pchr->walkspd + pchr->runspd) )
+                {
+                    //Walk
+                    pchr->nextaction = ACTION_WB;
+                    if ( pchr->action != ACTION_WB )
+                    {
+                        pinst->frame_nxt = pmad->frameliptowalkframe[LIPWB][framelip];
+                        pchr->action = ACTION_WB;
+                    }
+
+                    pinst->rate = (float)speed / (float)pchr->walkspd;
                 }
                 else
                 {
-                    //Walk
-                    if ( speed < pchr->runspd )
+                    //Run
+                    pchr->nextaction = ACTION_WC;
+                    if ( pchr->action != ACTION_WC )
                     {
-                        pchr->nextaction = ACTION_WB;
-                        if ( pchr->action != ACTION_WB )
-                        {
-                            pinst->frame_nxt = pmad->frameliptowalkframe[LIPWB][framelip];
-                            pchr->action = ACTION_WB;
-                        }
+                        pinst->frame_nxt = pmad->frameliptowalkframe[LIPWC][framelip];
+                        pchr->action     = ACTION_WC;
                     }
-                    else
-                    {
 
-                        //Run
-                        pchr->nextaction = ACTION_WC;
-                        if ( pchr->action != ACTION_WC )
-                        {
-                            pinst->frame_nxt = pmad->frameliptowalkframe[LIPWC][framelip];
-                            pchr->action     = ACTION_WC;
-                        }
-                    }
+                    pinst->rate = speed / pchr->runspd;
                 }
             }
         }
@@ -6967,48 +6989,98 @@ void points_to_chr_bumper_1( chr_bumper_1_t * pbmp, GLvector4 pos[], size_t pos_
 }
 
 //--------------------------------------------------------------------------------------------
-void chr_bumper_1_downgrade( chr_bumper_1_t * psrc, chr_bumper_0_t bump_base, chr_bumper_0_t * pdst )
+void chr_bumper_1_downgrade( chr_bumper_1_t * psrc, chr_bumper_0_t bump_base, chr_bumper_0_t * p_bump_0, chr_bumper_1_t * p_chr_prt  )
 {
     // BB> convert a level 1 bumper to an "equivalent" level 0 bumper
 
     float val1, val2, val3, val4;
 
-    if( NULL == psrc || NULL == pdst ) return;
+    // return if there is no source
+    if( NULL == psrc ) return;
 
-    pdst->height = 0;
-    if( 0 != bump_base.height )
+    //---- handle all of the p_bump_0 data first
+    if( NULL != p_bump_0 )
     {
-        // have to use MAX here because the height can be distorted due
-        // to make object-particle interactions easier (i.e. it allows you to
-        // hit a grub bug with your hands)
-        pdst->height = MAX(bump_base.height, psrc->max_z);
+        if( 0 == bump_base.height )
+        {
+            p_bump_0->height = 0;
+        }
+        else
+        {
+            // have to use MAX here because the height can be distorted due
+            // to make object-particle interactions easier (i.e. it allows you to
+            // hit a grub bug with your hands)
+
+            p_bump_0->height = MAX(bump_base.height, psrc->max_z);
+        }
+
+
+        if( 0 == bump_base.size )
+        {
+            p_bump_0->size = 0;
+        }
+        else
+        {
+            val1 = ABS(psrc->min_x);
+            val2 = ABS(psrc->max_y);
+            val3 = ABS(psrc->min_y);
+            val4 = ABS(psrc->max_y);
+            p_bump_0->size = MAX( MAX( val1, val2 ), MAX( val3, val4 ) );
+        }
+
+        if( 0 == bump_base.sizebig )
+        {
+            p_bump_0->sizebig = 0;
+        }
+        else
+        {
+            val1 =  psrc->max_yx;
+            val2 = -psrc->min_yx;
+            val3 =  psrc->max_xy;
+            val4 = -psrc->min_xy;
+            p_bump_0->sizebig = MAX( MAX( val1, val2 ), MAX( val3, val4 ) );
+        }
     }
 
-    pdst->size = 0;
-    if( 0 != bump_base.size )
+    //---- handle all of the p_chr_prt data second
+    if( NULL != p_chr_prt )
     {
-        val1 = ABS(psrc->min_x);
-        val2 = ABS(psrc->max_y);
-        val3 = ABS(psrc->min_y);
-        val4 = ABS(psrc->max_y);
-        pdst->size = MAX( MAX( val1, val2 ), MAX( val3, val4 ) );
-    }
+        // memcpy() can fail horribly if the domains overlap
+        // I don't think this should ever happen, though
+        if( p_chr_prt != psrc )
+        {
+            memcpy( p_chr_prt, psrc, sizeof(chr_bumper_1_t) );
+        }
 
-    pdst->sizebig = 0;
-    if( 0 != bump_base.sizebig )
-    {
-        val1 =  psrc->max_yx;
-        val2 = -psrc->min_yx;
-        val3 =  psrc->max_xy;
-        val4 = -psrc->min_xy;
-        pdst->sizebig = MAX( MAX( val1, val2 ), MAX( val3, val4 ) );
+
+        if( 0 == bump_base.height )
+        {
+            p_chr_prt->min_z = p_chr_prt->max_z = 0;
+        }
+        else
+        {
+            // handle the vertical distortion the same as above
+            p_chr_prt->min_z = psrc->min_z;
+            p_chr_prt->max_z = MAX(bump_base.height, psrc->max_z);
+        }
+
+        // 0 == bump_base.size is supposed to be shorthand for "this object doesn't interact
+        // with anything, so we have to set all of the horizontal p_chr_prt data to zero to
+        // make 
+        if( 0 == bump_base.size )
+        {
+            p_chr_prt->min_x  = p_chr_prt->max_x = 0;
+            p_chr_prt->min_y  = p_chr_prt->max_y = 0;
+            p_chr_prt->min_xy = p_chr_prt->max_xy = 0;
+            p_chr_prt->min_yx = p_chr_prt->max_yx = 0;
+        }
     }
 };
 
 //--------------------------------------------------------------------------------------------
 egoboo_rv chr_update_collision_size( chr_t * pchr, bool_t update_matrix )
 {
-    // TODO: use this function to update the pchr->collision_0 and  pchr->collision_1 with
+    // TODO: use this function to update the pchr->chr_prt_cv and  pchr->chr_chr_cv with
     //       values that reflect the best possible collision volume
     //
     // This function takes quite a bit of time, so it must only be called when the
@@ -7028,7 +7100,7 @@ egoboo_rv chr_update_collision_size( chr_t * pchr, bool_t update_matrix )
     chr_bumper_1_t * pbmp;
 
     if( NULL == pchr || !ACTIVE_CHR(pchr->index) ) return rv_error;
-    pbmp = &(pchr->collision_1);
+    pbmp = &(pchr->chr_chr_cv);
 
     pmad = chr_get_pmad( pchr->index );
     if( NULL == pmad ) return rv_error;
@@ -7063,7 +7135,7 @@ egoboo_rv chr_update_collision_size( chr_t * pchr, bool_t update_matrix )
     points_to_chr_bumper_1( pbmp, dst, vcount );
 
     // convert the level 1 bounding box to a level 0 bounding box
-    chr_bumper_1_downgrade( pbmp, pchr->bump, &(pchr->collision_0) );
+    chr_bumper_1_downgrade( pbmp, pchr->bump, &(pchr->bump_1), &(pchr->chr_prt_cv) );
 
     return rv_success;
 }

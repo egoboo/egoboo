@@ -1144,11 +1144,11 @@ void setup_particles()
 }
 
 //--------------------------------------------------------------------------------------------
-void spawn_bump_particles( Uint16 character, Uint16 particle )
+int spawn_bump_particles( Uint16 character, Uint16 particle )
 {
     // ZZ> This function is for catching characters on fire and such
 
-    int cnt;
+    int cnt, bs_count;
     Sint16 x, y, z;
     Uint32 distance, bestdistance;
     Uint16 facing, bestvertex;
@@ -1163,14 +1163,14 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
     prt_t * pprt;
     cap_t * pcap;
 
-    if ( !ACTIVE_PRT(particle) ) return;
+    if ( !ACTIVE_PRT(particle) ) return 0;
     pprt = PrtList.lst + particle;
 
-    if ( INVALID_PIP(pprt->pip_ref) ) return;
+    if ( INVALID_PIP(pprt->pip_ref) ) return 0;
     ppip = PipStack.lst + pprt->pip_ref;
 
     // no point in going on, is there?
-    if ( 0 == ppip->bumpspawn_amount && !ppip->spawnenchant ) return;
+    if ( 0 == ppip->bumpspawn_amount && !ppip->spawnenchant ) return 0;
     amount = ppip->bumpspawn_amount;
 
     if ( !ACTIVE_CHR(character) ) return;
@@ -1181,6 +1181,8 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
 
     pcap = chr_get_pcap( character );
     if ( NULL == pcap ) return;
+
+    bs_count = 0;
 
     // Only damage if hitting from proper direction
     direction = vec_to_facing( pprt->vel.x , pprt->vel.y );
@@ -1236,6 +1238,7 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
                 if( ACTIVE_PRT(bs_part) )
                 {
                     PrtList.lst[bs_part].is_bumpspawn = btrue;
+                    bs_count++;
                 }
             }
             else
@@ -1251,11 +1254,14 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
                     if( ACTIVE_PRT(bs_part) )
                     {
                         PrtList.lst[bs_part].is_bumpspawn = btrue;
+                        bs_count++;
                     }
                 }
             }
         }
     }
+
+    return bs_count;
 }
 
 //--------------------------------------------------------------------------------------------
