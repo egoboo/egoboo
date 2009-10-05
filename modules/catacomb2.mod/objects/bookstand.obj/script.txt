@@ -1,39 +1,42 @@
-//if you want to put a book in the bookstand set the Dir to "I" dont put it in L or anything.
-//This Object was bought to you by ptapasu in association with the Bishopia Literacy Society!
+// if you want to put a book in the bookstand set the Dir to "I" dont put it in L or anything.
+// This Object was bought to you by ptapasu in association with the Bishopia Literacy Society!
 
-IfBumped                                          //PlayerBumpsBookStand
-  SetTargetToWhoeverBumped          //Targets the Bumper
-  IfTargetIsAPlayer                                  //Is the Bumper a player?
-    SetTargetToSelf                                      //If He is then look at yourself
+IfBumped                                            // PlayerBumpsBookStand
+  SetTargetToWhoeverBumped                          // Targets the Bumper
+  IfTargetIsAPlayer                                 // Is the Bumper a player?
+    SetOldTarget                                    // save the Bumper
+  
+    SetTargetToSelf                                 // If He is then look at yourself
     tmpargument = 1
-    IfContentIs                                       //is the content 1?
-      KeepAction                                    //then keep doing the same action
-    Else                                              //otherwise
-      SetTargetToSelf
-      tmpargument = [BOOK]                   //has the bookstand got a book?
-      IfTargetHasItemID                          //if it has then
-        DropItems                                      // drop the book
-        tmpargument = ACTIONJA             //and show the empty bookstand anim
+    IfContentIs                                     // is the content 1?
+      KeepAction                                    // then keep doing the same action
+    Else                                            // otherwise
+      tmpargument = [BOOK]                          // has the bookstand got a book?
+      IfTargetHasItemID                             // if it has then
+        DropItems                                   // drop the book
+        tmpargument = ACTIONJA                      // and show the empty bookstand anim
         DoAction
-        KeepAction                                      //FOREVER MUAHAHA
-        tmpargument = 0                            //tell the player the book was dropped
+        KeepAction                                  // FOREVER MUAHAHA
+        tmpargument = 0                             // tell the player the book was dropped
         SendMessageNear
         
         //Award some xp
+        SetTargetToOldTarget                        // get the Bumper back        
         tmpargument = 10			
         tmpdistance = EXPSECRET
         GiveExperienceToTarget
       Else
-        tmpargument = ACTIONDB         //open the book and play a random message
+        tmpargument = ACTIONDB                      // open the book
         DoAction
         KeepAction
         
-        //Can they read?
+        // Can they read?
+        SetTargetToOldTarget                       // get the Bumper back
         tmpargument = [READ]
         IfTargetHasSkillID
-          tmpargument = rand % 8 + 2   //They can read
+          tmpargument = rand % 8 + 2               // the Bumper can read, choose a random message
         Else
-          tmpargument = 1             //They cannot read!
+          tmpargument = 1                          // the Bumper cannot read, choose the fail message!
         SendMessageNear
         
         //Page turning sound
