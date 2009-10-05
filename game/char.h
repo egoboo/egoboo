@@ -474,19 +474,20 @@ struct s_chr
     chr_instance_t inst;                          // the render data
 
     // Skills
-    Sint8           shieldproficiency;            // Can it use shields?
-    bool_t          canjoust;
-    bool_t          canuseadvancedweapons;
-    bool_t          canseeinvisible;
-    bool_t          canseekurse;
-    bool_t          canusedivine;
-    bool_t          canusearcane;
-    bool_t          canusetech;
-    bool_t          candisarm;
-    bool_t          canbackstab;
-    bool_t          canusepoison;
-    bool_t          canread;
-    bool_t            hascodeofconduct;
+    int           shieldproficiency;            // Can it use shields?
+    int           canjoust;
+    int           canuseadvancedweapons;
+    int           canseeinvisible;
+    int           canseekurse;
+    int           canusedivine;
+    int           canusearcane;
+    int           canusetech;
+    int           candisarm;
+    int           canbackstab;
+    int           canusepoison;
+    int           canread;
+    int           hascodeofconduct;
+    int           hasdarkvision;
 
     // collision info
 

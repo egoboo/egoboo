@@ -133,8 +133,7 @@ pip_t * load_one_pip_file( const char *szLoadName, pip_t * ppip )
     ppip->endbump      = fget_next_bool( fileread );
     ppip->endground    = fget_next_bool( fileread );
     ppip->endlastframe = fget_next_bool( fileread );
-
-    ppip->time = fget_next_int( fileread );
+    ppip->time         = fget_next_int( fileread );
 
     // Collision data
     ppip->dampen     = fget_next_float( fileread );

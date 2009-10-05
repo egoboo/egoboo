@@ -368,7 +368,7 @@ Uint16 spawn_one_particle( GLvector3 pos, Uint16 facing, Uint16 iprofile, Uint16
         else
         {
             // Find a target
-            pprt->target_ref = get_particle_target( pos.x, pos.y, pos.z, facing, ipip, team, chr_origin, oldtarget );
+            pprt->target_ref = prt_find_target( pos.x, pos.y, pos.z, facing, ipip, team, chr_origin, oldtarget );
             if ( ACTIVE_CHR(pprt->target_ref) && !ppip->homing )
             {
                 facing -= glouseangle;
@@ -1149,11 +1149,9 @@ int spawn_bump_particles( Uint16 character, Uint16 particle )
     // ZZ> This function is for catching characters on fire and such
 
     int cnt, bs_count;
-    Sint16 x, y, z;
-    Uint32 distance, bestdistance;
-    Uint16 facing, bestvertex;
+    float x, y, z;
+    Uint16 facing;
     Uint16 amount;
-    Uint16 vertices;
     Uint16 direction;
     float fsin, fcos;
 
@@ -1173,14 +1171,14 @@ int spawn_bump_particles( Uint16 character, Uint16 particle )
     if ( 0 == ppip->bumpspawn_amount && !ppip->spawnenchant ) return 0;
     amount = ppip->bumpspawn_amount;
 
-    if ( !ACTIVE_CHR(character) ) return;
+    if ( !ACTIVE_CHR(character) ) return 0;
     pchr = ChrList.lst + character;
 
     pmad = chr_get_pmad( character );
-    if ( NULL == pmad ) return;
+    if ( NULL == pmad ) return 0;
 
-    pcap = chr_get_pcap( character );
-    if ( NULL == pcap ) return;
+    pcap = pro_get_pcap( pchr->iprofile );
+    if ( NULL == pcap ) return 0;
 
     bs_count = 0;
 
@@ -1191,72 +1189,135 @@ int spawn_bump_particles( Uint16 character, Uint16 particle )
     // Check that direction
     if ( !is_invictus_direction( direction, character, ppip->damfx) )
     {
-        vertices = ego_md2_data[pmad->md2_ref].vertices;
-
         // Spawn new enchantments
         if ( ppip->spawnenchant )
         {
             spawn_one_enchant( pprt->owner_ref, character, MAX_CHR, MAX_ENC, pprt->profile_ref );
         }
 
-        // Spawn particles
-        if ( amount != 0 && !pcap->resistbumpspawn && !pchr->invictus && vertices != 0 && ( pchr->damagemodifier[pprt->damagetype]&DAMAGESHIFT ) < 3 )
-        {
-            Uint16 bs_part;
+        // Spawn particles - this has been modded to maximize the visual effect 
+        // on a given target. It is not the most optimal solution for lots of particles
+        // spawning. Thst would probably be to make the distance calculations and then
+        // to quicksort the list and choose the n closest points.
+        //
+        // however, it seems that the bump particles in game rarely attach more than
+        // one bump particle
+        if ( amount != 0 && !pcap->resistbumpspawn && !pchr->invictus && ( pchr->damagemodifier[pprt->damagetype]&DAMAGESHIFT ) < 3  )
+        {  
+            int grip_verts, vertices;
+            int slot_count;
 
-            if ( amount == 1 )
+            slot_count = 0;
+            if(pcap->slotvalid[SLOT_LEFT]) slot_count++;
+            if(pcap->slotvalid[SLOT_RIGHT]) slot_count++;
+
+            if( slot_count == 0 )
             {
-                // A single particle ( arrow? ) has been stuck in the character...
-                // Find best vertex to attach to
-
-                bestvertex = 0;
-                bestdistance = 1 << 31;         //Really high number
-
-                z = pprt->pos.z - pchr->pos.z + RAISE;
-                facing = pprt->facing - pchr->turn_z - FACE_NORTH;
-                facing = facing >> 2;
-                fsin = turntosin[facing & TRIG_TABLE_MASK ];
-                fcos = turntocos[facing & TRIG_TABLE_MASK ];
-                x = -8192 * fsin;
-                y =  8192 * fcos;
-
-                for ( cnt = 0; cnt < pchr->inst.vlst_size; cnt++ )
-                {
-                    distance = ABS( x - pchr->inst.vlst[vertices-cnt-1].pos[XX] ) +
-                               ABS( y - pchr->inst.vlst[vertices-cnt-1].pos[YY] ) +
-                               ABS( z - pchr->inst.vlst[vertices-cnt-1].pos[ZZ] );
-                    if ( distance < bestdistance )
-                    {
-                        bestdistance = distance;
-                        bestvertex = cnt;
-                    }
-                }
-
-                bs_part = spawn_one_particle( pchr->pos, 0, pprt->profile_ref, ppip->bumpspawn_pip,
-                                               character, bestvertex + 1, pprt->team, pprt->owner_ref, particle, cnt, character );
-
-                if( ACTIVE_PRT(bs_part) )
-                {
-                    PrtList.lst[bs_part].is_bumpspawn = btrue;
-                    bs_count++;
-                }
+                grip_verts = 1;  // always at least 1?
             }
             else
             {
-                // Multiple particles are attached to character
+                grip_verts = GRIP_VERTS * slot_count;
+            }
+
+            vertices = pchr->inst.vlst_size - grip_verts;
+            vertices = MAX(0, vertices);
+
+            if( vertices != 0  )
+            {
+                int    vertex_occupied[MAXVERTICES];
+                float  vertex_distance[MAXVERTICES];
+                float dist;
+
+                // this could be done more easily with a quicksort....
+                // but I guess it doesn't happen all the time
+
+                dist = ABS( pprt->pos.x - pchr->pos.x ) + ABS( pprt->pos.y - pchr->pos.y ) + ABS( pprt->pos.z - pchr->pos.z );
+
+                // clear the occupied list
+                z = pprt->pos.z - pchr->pos.z + RAISE;
+                facing = pprt->facing - pchr->turn_z;
+                fsin = turntosin[ (facing >> 2) & TRIG_TABLE_MASK ];
+                fcos = turntocos[ (facing >> 2) & TRIG_TABLE_MASK ];
+                x = dist * fcos;
+                y = dist * fsin;
+
+                // prepare the array values
+                for( cnt = 0; cnt<vertices; cnt++ )
+                {
+                    dist = ABS( x - pchr->inst.vlst[vertices-cnt-1].pos[XX] ) +
+                           ABS( y - pchr->inst.vlst[vertices-cnt-1].pos[YY] ) +
+                           ABS( z - pchr->inst.vlst[vertices-cnt-1].pos[ZZ] );
+
+                    vertex_distance[cnt] = dist;
+                    vertex_occupied[cnt] = TOTAL_MAX_PRT;
+                }
+
+                // determine if some of the vertex sites are already occupied
+                for( cnt = 0; cnt<maxparticles; cnt++ )
+                {
+                    prt_t * pprt;
+                    if( !ACTIVE_PRT(cnt) ) continue;
+                    pprt = PrtList.lst + cnt;
+                    
+                    if( pchr->index != pprt->attachedto_ref) continue;
+
+                    if( pprt->vrt_off >=0 && pprt->vrt_off < vertices )
+                    {
+                        vertex_occupied[pprt->vrt_off] = cnt;
+                    }
+                }
+
+                // Find best vertices to attach the particles to
                 for ( cnt = 0; cnt < amount; cnt++ )
                 {
-                    int irand = RANDIE;
+                    Uint16 bs_part;
+                    Uint32 bestdistance;
+                    int    bestvertex;
+
+                    bestvertex   = 0;
+                    bestdistance = 1 << 31;         //Really high number
+
+                    for ( cnt = 0; cnt < vertices; cnt++ )
+                    {
+                        if( vertex_occupied[cnt] != TOTAL_MAX_PRT ) 
+                            continue;
+
+                        if ( vertex_distance[cnt] < bestdistance )
+                        {
+                            bestdistance = vertex_distance[cnt];
+                            bestvertex   = cnt;
+                        }
+                    }
 
                     bs_part = spawn_one_particle( pchr->pos, 0, pprt->profile_ref, ppip->bumpspawn_pip,
-                                        character, irand % vertices, pprt->team, pprt->owner_ref, particle, cnt, character );
+                                                character, bestvertex + 1, pprt->team, pprt->owner_ref, particle, cnt, character );
 
                     if( ACTIVE_PRT(bs_part) )
                     {
+                        vertex_occupied[bestvertex] = bs_part;
                         PrtList.lst[bs_part].is_bumpspawn = btrue;
                         bs_count++;
                     }
                 }
+                //}
+                //else
+                //{
+                //    // Multiple particles are attached to character
+                //    for ( cnt = 0; cnt < amount; cnt++ )
+                //    {
+                //        int irand = RANDIE;
+
+                //        bs_part = spawn_one_particle( pchr->pos, 0, pprt->profile_ref, ppip->bumpspawn_pip,
+                //                            character, irand % vertices, pprt->team, pprt->owner_ref, particle, cnt, character );
+
+                //        if( ACTIVE_PRT(bs_part) )
+                //        {
+                //            PrtList.lst[bs_part].is_bumpspawn = btrue;
+                //            bs_count++;
+                //        }
+                //    }
+                //}
             }
         }
     }

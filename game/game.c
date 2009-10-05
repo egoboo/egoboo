@@ -763,6 +763,7 @@ void update_game()
     local_allpladead   = bfalse;
     local_seeinvisible = bfalse;
     local_seekurse     = bfalse;
+    local_seedark      = 0;
 
     numplayer = 0;
     numdead = numalive = 0;
@@ -801,6 +802,11 @@ void update_game()
             if ( pchr->canseekurse )
             {
                 local_seekurse = btrue;
+            }
+
+            if( pchr->hasdarkvision ) 
+            {
+                local_seedark = MAX(local_seedark, pchr->hasdarkvision);
             }
         }
         else
@@ -1819,39 +1825,63 @@ void memory_cleanUp(void)
 }
 
 //--------------------------------------------------------------------------------------------
-Uint16 get_particle_target( float pos_x, float pos_y, float pos_z, Uint16 facing,
+Uint16 prt_find_target( float pos_x, float pos_y, float pos_z, Uint16 facing,
                             Uint16 particletype, Uint8 team, Uint16 donttarget,
                             Uint16 oldtarget )
 {
     // ZF> This is the new improved targeting system for particles. Also includes distance in the Z direction.
+
+    const float max_dist2 = WIDE * WIDE;
+
+    pip_t * ppip;
+
     Uint16 besttarget = MAX_CHR, cnt;
-    Uint16 longdist = WIDE;
+    float  longdist2 = max_dist2;
+
+    if( INVALID_PIP(particletype) ) return MAX_CHR;
+    ppip = PipStack.lst + particletype;
 
     for (cnt = 0; cnt < MAX_CHR; cnt++)
     {
-        if (ACTIVE_CHR(cnt) && ChrList.lst[cnt].alive && !ChrList.lst[cnt].isitem && ChrList.lst[cnt].attachedto == MAX_CHR
-                && !ChrList.lst[cnt].invictus)
-        {
-            if ((PipStack.lst[particletype].onlydamagefriendly && team == chr_get_iteam(cnt)) || (!PipStack.lst[particletype].onlydamagefriendly && TeamList[team].hatesteam[chr_get_iteam(cnt)]) )
-            {
-                // Don't retarget someone we already had or not supposed to target
-                if (cnt != oldtarget && cnt != donttarget)
-                {
-                    Uint16 angle = - facing + vec_to_facing( ChrList.lst[cnt].pos.x - pos_x , ChrList.lst[cnt].pos.y - pos_y );
+        chr_t * pchr;
+        bool_t target_friend, target_enemy;
 
-                    // Only proceed if we are facing the target
-                    if (angle < PipStack.lst[particletype].targetangle || angle > ( 0xFFFF - PipStack.lst[particletype].targetangle ) )
-                    {
-                        Uint32 dist = ( Uint32 ) SQRT(ABS( pow(ChrList.lst[cnt].pos.x - pos_x, 2))
-                                                      + ABS( pow(ChrList.lst[cnt].pos.y - pos_y, 2))
-                                                      + ABS( pow(ChrList.lst[cnt].pos.z - pos_z, 2)) );
-                        if (dist < longdist && dist <= WIDE )
-                        {
-                            glouseangle = angle;
-                            besttarget = cnt;
-                            longdist = dist;
-                        }
-                    }
+        if ( !ACTIVE_CHR(cnt) ) continue;
+        pchr = ChrList.lst + cnt;
+
+        if ( !pchr->alive || pchr->isitem || ACTIVE_CHR(pchr->attachedto) ) continue;
+
+        // ignore invictus
+        if( pchr->invictus ) continue;
+        
+        // we are going to give the player a break and not target things that
+        // can't be damaged, unless the particle is homing. If it homes in,
+        // the he damagetime could drop off en route.
+        if( !ppip->homing && (0 != pchr->damagetime) ) continue;
+
+        // Don't retarget someone we already had or not supposed to target
+        if ( cnt == oldtarget || cnt == donttarget) continue;
+
+        target_friend = ppip->onlydamagefriendly && team == chr_get_iteam(cnt);
+        target_enemy  = !ppip->onlydamagefriendly && TeamList[team].hatesteam[chr_get_iteam(cnt)];
+
+        if ( target_friend || target_enemy )
+        {
+            Uint16 angle = - facing + vec_to_facing( pchr->pos.x - pos_x , pchr->pos.y - pos_y );
+
+            // Only proceed if we are facing the target
+            if (angle < ppip->targetangle || angle > ( 0xFFFF - ppip->targetangle ) )
+            {
+                float dist2 = 
+                    POW(ABS(pchr->pos.x - pos_x), 2) +
+                    POW(ABS(pchr->pos.y - pos_y), 2) +
+                    POW(ABS(pchr->pos.z - pos_z), 2);
+
+                if ( dist2 < longdist2 && dist2 <= max_dist2 )
+                {
+                    glouseangle = angle;
+                    besttarget = cnt;
+                    longdist2 = dist2;
                 }
             }
         }
@@ -1926,7 +1956,7 @@ bool_t check_target( chr_t * psrc, Uint16 ichr_test, TARGET_TYPE target_type, bo
 }
 
 //--------------------------------------------------------------------------------------------
-Uint16 chr_get_target( chr_t * psrc, float max_dist2, TARGET_TYPE target_type, bool_t target_items, bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz )
+Uint16 chr_find_target( chr_t * psrc, float max_dist2, TARGET_TYPE target_type, bool_t target_items, bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz )
 {
     // BB> this is the raw character targeting code, this is not throttled at all. You should call
     //     scr_get_chr_target() if you are calling this function from the scripting system.

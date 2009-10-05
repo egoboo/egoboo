@@ -314,7 +314,7 @@ vfs_FILE * vfs_openRead( const char * filename )
     real_filename = vfs_resolveReadFilename( filename );
     if( NULL == real_filename ) return NULL;
 
-    ftmp = fopen( real_filename, "rt" );
+    ftmp = fopen( real_filename, "r" );
     if( NULL == ftmp ) return NULL;
 
     vfs_file = (vfs_FILE*)calloc(1, sizeof(vfs_FILE));
@@ -340,7 +340,7 @@ vfs_FILE * vfs_openWrite( const char * filename )
     real_filename = vfs_resolveWriteFilename( filename );
     if( NULL == real_filename ) return NULL;
 
-    ftmp = fopen( real_filename, "wt" );
+    ftmp = fopen( real_filename, "w" );
     if( NULL == ftmp ) return NULL;
 
     vfs_file = (vfs_FILE*)calloc(1, sizeof(vfs_FILE));
@@ -364,7 +364,7 @@ vfs_FILE * vfs_openAppend( const char * filename )
     real_filename = vfs_resolveWriteFilename( filename );
     if( INVALID_CSTR(real_filename) ) return NULL;
 
-    ftmp = fopen( real_filename, "wt+" );
+    ftmp = fopen( real_filename, "w+" );
     if( NULL == ftmp ) return NULL;
 
     vfs_file = (vfs_FILE*)calloc(1, sizeof(vfs_FILE));
@@ -493,7 +493,7 @@ long vfs_tell ( vfs_FILE * pfile )
 }
 
 //--------------------------------------------------------------------------------------------
-int vfs_seek ( vfs_FILE * pfile , long offset )
+int vfs_seek ( vfs_FILE * pfile, long offset )
 {
     int retval;
 
@@ -502,6 +502,8 @@ int vfs_seek ( vfs_FILE * pfile , long offset )
     retval = 0;
     if( vfs_cfile == pfile->type )
     {
+        // !!!!since we are opening non-binary files in text mode, fseek might act
+        // strangely!!!!
         retval = fseek( pfile->ptr.c, offset, SEEK_SET );
     }
     else if ( vfs_physfs == pfile->type )

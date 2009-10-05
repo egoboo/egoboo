@@ -4398,14 +4398,14 @@ int restock_ammo( Uint16 character, IDSZ idsz )
 //--------------------------------------------------------------------------------------------
 int check_skills( Uint16 who, IDSZ whichskill )
 {
-    // @details ZF@> This checks if the specified character has the required skill. Returns the level
-    // of the skill. Also checks Skill expansions.
+    // @details ZF@> This checks if the specified character has the required skill.
+    //               Also checks Skill expansions. Returns the level of the skill. 
 
-    bool_t result = bfalse;
+    int result = 0;
 
     // First check the character Skill ID matches
     // Then check for expansion skills too.
-    if ( chr_get_idsz(who,IDSZ_SKILL)  == whichskill ) result = btrue;
+    if ( chr_get_idsz(who,IDSZ_SKILL)  == whichskill ) result = 1;
     else if ( MAKE_IDSZ( 'A', 'W', 'E', 'P' ) == whichskill ) result = ChrList.lst[who].canuseadvancedweapons;
     else if ( MAKE_IDSZ( 'C', 'K', 'U', 'R' ) == whichskill ) result = ChrList.lst[who].canseekurse;
     else if ( MAKE_IDSZ( 'J', 'O', 'U', 'S' ) == whichskill ) result = ChrList.lst[who].canjoust;
@@ -4415,9 +4415,10 @@ int check_skills( Uint16 who, IDSZ whichskill )
     else if ( MAKE_IDSZ( 'H', 'M', 'A', 'G' ) == whichskill ) result = ChrList.lst[who].canusedivine;
     else if ( MAKE_IDSZ( 'D', 'I', 'S', 'A' ) == whichskill ) result = ChrList.lst[who].candisarm;
     else if ( MAKE_IDSZ( 'S', 'T', 'A', 'B' ) == whichskill ) result = ChrList.lst[who].canbackstab;
-    else if ( MAKE_IDSZ( 'R', 'E', 'A', 'D' ) == whichskill ) result = ChrList.lst[who].canread || ( ChrList.lst[who].canseeinvisible && ChrList.lst[who].canseekurse ); // Truesight allows reading
+    else if ( MAKE_IDSZ( 'R', 'E', 'A', 'D' ) == whichskill ) result = ChrList.lst[who].canread + ( ChrList.lst[who].canseeinvisible && ChrList.lst[who].canseekurse ? 1 : 0); // Truesight allows reading
     else if ( MAKE_IDSZ( 'P', 'O', 'I', 'S' ) == whichskill && !ChrList.lst[who].hascodeofconduct ) result = ChrList.lst[who].canusepoison;                                //Only if not restriced by code of conduct
     else if ( MAKE_IDSZ( 'C', 'O', 'D', 'E' ) == whichskill ) result = ChrList.lst[who].hascodeofconduct;
+    else if ( MAKE_IDSZ( 'D', 'A', 'R', 'K' ) == whichskill ) result = ChrList.lst[who].hasdarkvision;
 
     return result;
 }

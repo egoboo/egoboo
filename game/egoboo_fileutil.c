@@ -512,7 +512,7 @@ bool_t fget_range( vfs_FILE* fileread, FRange * prange )
     if ( '-' != cTmp )
     {
         // oops... reset the file position, just in calse
-        vfs_seek( fileread, fpos );
+        //vfs_seek( fileread, fpos );
     }
     else
     {

@@ -181,6 +181,7 @@ EXTERN float           gravity  EQ( -1.0f );                                   /
 #define INVISIBLE           20                      // The character can't be detected
 
 EXTERN bool_t                    local_seeinvisible      EQ( bfalse );
+EXTERN int                       local_seedark           EQ( 0 );
 EXTERN bool_t                    local_seekurse          EQ( bfalse );
 EXTERN bool_t                    local_listening         EQ( bfalse );  // Players with listen skill?
 EXTERN bool_t                    local_noplayers;                    // Are there any local players?

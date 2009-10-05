@@ -415,6 +415,7 @@ cap_t * load_one_cap_file( const char * tmploadname, cap_t * pcap )
         else if ( idsz == MAKE_IDSZ( 'P', 'O', 'I', 'S' ) ) pcap->canusepoison = fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'R', 'E', 'A', 'D' ) ) pcap->canread = fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'C', 'O', 'D', 'E' ) ) pcap->hascodeofconduct = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'D', 'A', 'R', 'K' ) ) pcap->hasdarkvision = fget_int( fileread );
     }
     vfs_close( fileread );
 
@@ -745,6 +746,10 @@ bool_t save_one_cap_file( const char * szSaveName, cap_t * pcap )
 
     if ( pcap->hascodeofconduct > 0  )
         fput_expansion(filewrite, "", MAKE_IDSZ('C','O','D','E'), pcap->hascodeofconduct );
+
+    if ( pcap->hasdarkvision > 0  )
+        fput_expansion(filewrite, "", MAKE_IDSZ('D','A','R','K'), pcap->hasdarkvision );
+
 
     // The end
     vfs_close( filewrite );

@@ -7294,7 +7294,7 @@ Uint16 _get_chr_target( chr_t * pchr, Uint32 max_dist, TARGET_TYPE target_type, 
 
     max_dist2 = max_dist * max_dist;
 
-    return chr_get_target( pchr, max_dist2, target_type, target_items, target_dead, target_idsz, exclude_idsz  );
+    return chr_find_target( pchr, max_dist2, target_type, target_items, target_dead, target_idsz, exclude_idsz  );
 
 
     //current_ticks = SDL_GetTicks();
@@ -7322,7 +7322,7 @@ Uint16 _get_chr_target( chr_t * pchr, Uint32 max_dist, TARGET_TYPE target_type, 
     //    irand = RANDIE;
     //    pself->los_timer = current_ticks + TICKS_PER_SEC * 0.5f * ( 1.0f + irand / (float)RAND_MAX );
 
-    //    best_target = chr_get_target( pchr, max_dist2, target_type, target_items, target_dead, target_idsz, exclude_idsz  );
+    //    best_target = chr_find_target( pchr, max_dist2, target_type, target_items, target_dead, target_idsz, exclude_idsz  );
 
     //    // remember the value of this search
     //    if( ACTIVE_CHR(best_target) )

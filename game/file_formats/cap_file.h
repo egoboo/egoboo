@@ -304,19 +304,20 @@ struct s_cap
     Uint16       spawnmana;                      // Life left from last module
 
     // skill system
-    Sint8        shieldproficiency;               // Can it use shields?
-    bool_t       canjoust;                        // Can it use advanced weapons?
-    bool_t       canuseadvancedweapons;           // Can it use advanced weapons?
-    bool_t       canseeinvisible;                 // Can it see invisible?
-    bool_t       canseekurse;                     // Can it see kurses?
-    bool_t       canusedivine;
-    bool_t       canusearcane;
-    bool_t       canusetech;
-    bool_t       candisarm;
-    bool_t       canbackstab;
-    bool_t       canusepoison;
-    bool_t       canread;
-    bool_t       hascodeofconduct;                   //Bound by a lawful code of conduct?
+    int       shieldproficiency;               // Can it use shields?
+    int       canjoust;                        // Can it use advanced weapons?
+    int       canuseadvancedweapons;           // Can it use advanced weapons?
+    int       canseeinvisible;                 // Can it see invisible?
+    int       canseekurse;                     // Can it see kurses?
+    int       canusedivine;
+    int       canusearcane;
+    int       canusetech;
+    int       candisarm;
+    int       canbackstab;
+    int       canusepoison;
+    int       canread;
+    int       hascodeofconduct;                   //Bound by a lawful code of conduct?
+    int       hasdarkvision;
 };
 
 typedef struct s_cap cap_t;
