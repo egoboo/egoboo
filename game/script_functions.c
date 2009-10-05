@@ -751,19 +751,9 @@ Uint8 scr_TargetHasID( script_state_t * pstate, ai_state_t * pself )
     // This function proceeds if the target has either a parent or type IDSZ
     // matching tmpargument...
 
-    cap_t * pcap;
-
     SCRIPT_FUNCTION_BEGIN();
 
-    // This function proceeds if ID matches tmpargument
-    pcap = chr_get_pcap(pself->target);
-
-    returncode = bfalse;
-    if( NULL != pcap )
-    {
-        returncode = ( pcap->idsz[IDSZ_PARENT] == ( IDSZ ) pstate->argument ) ||
-                     ( pcap->idsz[IDSZ_TYPE  ] == ( IDSZ ) pstate->argument );
-    }
+    returncode = chr_is_type_idsz( pself->target, pstate->argument );
 
     SCRIPT_FUNCTION_END();
 }
@@ -775,59 +765,13 @@ Uint8 scr_TargetHasItemID( script_state_t * pstate, ai_state_t * pself )
     // This function proceeds if the target has a matching item in his/her
     // pockets or hands.
 
+    Uint16 item;
+
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = bfalse;
+    item = chr_has_item_idsz( pself->target, ( IDSZ ) pstate->argument, bfalse, NULL );
 
-    if( !returncode )
-    {
-        // Check right hand
-        sTmp = ChrList.lst[pself->target].holdingwhich[SLOT_RIGHT];
-        if ( ACTIVE_CHR( sTmp ) )
-        {
-            cap_t * pcap = chr_get_pcap(sTmp);
-
-            if ( NULL != pcap && (pcap->idsz[IDSZ_PARENT] == ( Uint32 ) pstate->argument || pcap->idsz[IDSZ_TYPE] == ( Uint32 ) pstate->argument) )
-            {
-                returncode = btrue;
-            }
-        }
-    }
-
-    if( !returncode )
-    {
-        // Check left hand
-        sTmp = ChrList.lst[pself->target].holdingwhich[SLOT_LEFT];
-        if ( ACTIVE_CHR( sTmp ) )
-        {
-            cap_t * pcap = chr_get_pcap(sTmp);
-
-            if ( NULL != pcap && (pcap->idsz[IDSZ_PARENT] == ( Uint32 ) pstate->argument || pcap->idsz[IDSZ_TYPE] == ( Uint32 ) pstate->argument) )
-            {
-                returncode = btrue;
-            }
-        }
-    }
-
-    if( !returncode )
-    {
-        // Check the pack
-        sTmp = ChrList.lst[pself->target].pack_next;
-        while ( sTmp != MAX_CHR )
-        {
-            cap_t * pcap = chr_get_pcap(sTmp);
-
-            if ( NULL != pcap && (pcap->idsz[IDSZ_PARENT] == ( Uint32 ) pstate->argument || pcap->idsz[IDSZ_TYPE] == ( Uint32 ) pstate->argument) )
-            {
-                returncode = btrue;
-                break;
-            }
-            else
-            {
-                sTmp = ChrList.lst[sTmp].pack_next;
-            }
-        }
-    }
+    returncode = ACTIVE_CHR(item);
 
     SCRIPT_FUNCTION_END();
 }
@@ -840,42 +784,13 @@ Uint8 scr_TargetHoldingItemID( script_state_t * pstate, ai_state_t * pself )
     // hands.  It also sets tmpargument to the proper latch button to press
     // to use that item
 
+    Uint16 item;
+
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = bfalse;
+    item = chr_holding_idsz( pself->target, pstate->argument );
 
-    // Check left hand
-    if( !returncode )
-    {
-        sTmp = ChrList.lst[pself->target].holdingwhich[SLOT_LEFT];
-        if ( ACTIVE_CHR( sTmp ) )
-        {
-            cap_t * pcap = chr_get_pcap(sTmp);
-
-            if ( NULL != pcap && (pcap->idsz[IDSZ_PARENT] == ( IDSZ ) pstate->argument || pcap->idsz[IDSZ_TYPE] == ( IDSZ ) pstate->argument) )
-            {
-                pstate->argument = LATCHBUTTON_LEFT;
-                returncode = btrue;
-            }
-        }
-    }
-
-    if( !returncode )
-    {
-        // Check right hand
-        sTmp = ChrList.lst[pself->target].holdingwhich[SLOT_RIGHT];
-        if ( ACTIVE_CHR(sTmp)  )
-        {
-            cap_t * pcap = chr_get_pcap(sTmp);
-
-            if ( NULL != pcap && (pcap->idsz[IDSZ_PARENT] == ( IDSZ ) pstate->argument || pcap->idsz[IDSZ_TYPE] == ( IDSZ ) pstate->argument) )
-            {
-                pstate->argument = LATCHBUTTON_RIGHT;
-                returncode = btrue;
-            }
-        }
-
-    }
+    returncode = ACTIVE_CHR(item);
 
     SCRIPT_FUNCTION_END();
 }
@@ -888,9 +803,7 @@ Uint8 scr_TargetHasSkillID( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = bfalse;
-
-    returncode = (0 != check_skills( pself->target, ( IDSZ )pstate->argument ));
+    returncode = ( 0 != check_skills( pself->target, ( IDSZ )pstate->argument ) );
 
     SCRIPT_FUNCTION_END();
 }
@@ -1163,98 +1076,39 @@ Uint8 scr_CostTargetItemID( script_state_t * pstate, ai_state_t * pself )
     // that item...
     // For one use keys and such
 
-    int tTmp;
-    int iTmp;
+    Uint16 item, pack_last;
 
     SCRIPT_FUNCTION_BEGIN();
 
-    // This function checks if the target has a matching item, and poofs it
+    item = chr_has_item_idsz( pself->target, ( IDSZ ) pstate->argument, bfalse, &pack_last );
+
     returncode = bfalse;
-
-    // Check the pack
-    iTmp = MAX_CHR;
-    tTmp = pself->target;
-
-    if( !returncode )
+    if ( ACTIVE_CHR(item) )
     {
-        // Check right hand
-        sTmp = ChrList.lst[pself->target].holdingwhich[SLOT_RIGHT];
-        if ( ACTIVE_CHR( sTmp ) )
+        returncode = btrue;
+
+        if ( ChrList.lst[item].ammo > 1 )
         {
-            cap_t * pcap = chr_get_pcap(sTmp);
-
-            if ( NULL != pcap && (pcap->idsz[IDSZ_PARENT] == ( IDSZ ) pstate->argument || pcap->idsz[IDSZ_TYPE] == ( IDSZ ) pstate->argument) )
-            {
-                returncode = btrue;
-                iTmp = ChrList.lst[pself->target].holdingwhich[SLOT_RIGHT];
-            }
+            // Cost one ammo
+            ChrList.lst[item].ammo--;
         }
-    }
-
-    if( !returncode )
-    {
-        // Check left hand
-        sTmp = ChrList.lst[pself->target].holdingwhich[SLOT_LEFT];
-        if ( ACTIVE_CHR( sTmp ) )
-        {
-            cap_t * pcap = chr_get_pcap(sTmp);
-
-            if ( NULL != pcap && (pcap->idsz[IDSZ_PARENT] == ( IDSZ ) pstate->argument || pcap->idsz[IDSZ_TYPE] == ( IDSZ ) pstate->argument) )
-            {
-                returncode = btrue;
-                iTmp = ChrList.lst[pself->target].holdingwhich[SLOT_LEFT];
-            }
-        }
-    }
-
-    if( !returncode )
-    {
-        // check the pack
-        sTmp = ChrList.lst[tTmp].pack_next;
-
-        while ( sTmp != MAX_CHR )
-        {
-            cap_t * pcap = chr_get_pcap(sTmp);
-
-            if ( NULL != pcap && (pcap->idsz[IDSZ_PARENT] == ( IDSZ) pstate->argument || pcap->idsz[IDSZ_TYPE] == ( IDSZ ) pstate->argument) )
-            {
-                returncode = btrue;
-                iTmp = sTmp;
-                break;
-            }
-
-            tTmp = sTmp;
-            sTmp = ChrList.lst[sTmp].pack_next;
-        }
-    }
-
-    if ( returncode )
-    {
-        if ( ChrList.lst[iTmp].ammo <= 1 )
+        else
         {
             // Poof the item
-            if ( ChrList.lst[iTmp].pack_ispacked )
+            if ( ACTIVE_CHR(pack_last) && ChrList.lst[item].pack_ispacked )
             {
                 // Remove from the pack
-                ChrList.lst[tTmp].pack_next = ChrList.lst[iTmp].pack_next;
+                ChrList.lst[pack_last].pack_next = ChrList.lst[item].pack_next;
                 ChrList.lst[pself->target].pack_count--;
 
-                chr_request_terminate(iTmp);
-
-                iTmp = MAX_CHR;
+                chr_request_terminate(item);
             }
             else
             {
                 // Drop from hand
-                detach_character_from_mount( iTmp, btrue, bfalse );
-                chr_request_terminate(iTmp);
-                iTmp = MAX_CHR;
+                detach_character_from_mount( item, btrue, bfalse );
+                chr_request_terminate(item);
             }
-        }
-        else
-        {
-            // Cost one ammo
-            ChrList.lst[iTmp].ammo--;
         }
     }
 
@@ -1916,11 +1770,9 @@ Uint8 scr_TargetHasVulnerabilityID( script_state_t * pstate, ai_state_t * pself 
 
     SCRIPT_FUNCTION_BEGIN();
 
-    // This function proceeds if ID matches tmpargument
+    returncode = bfalse;
 
     pcap = chr_get_pcap(pself->target);
-
-    returncode = bfalse;
     if( NULL != pcap )
     {
         returncode = ( pcap->idsz[IDSZ_VULNERABILITY] == ( IDSZ ) pstate->argument );
@@ -2508,9 +2360,9 @@ Uint8 scr_TargetHasSpecialID( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pcap = chr_get_pcap( pself->target );
-
     returncode = bfalse;
+
+    pcap = chr_get_pcap( pself->target );
     if( NULL != pcap )
     {
         returncode = ( pcap->idsz[IDSZ_SPECIAL] == ( IDSZ ) pstate->argument );
@@ -3054,25 +2906,9 @@ Uint8 scr_TargetHasAnyID( script_state_t * pstate, ai_state_t * pself )
     // IfTargetHasAnyID( tmpargument = "idsz" )
     // This function proceeds if the target has any IDSZ that matches the given one
 
-    cap_t * pcap;
-    int tTmp;
-
     SCRIPT_FUNCTION_BEGIN();
 
-    pcap = chr_get_pcap(pself->target);
-
-    returncode = bfalse;
-    if( NULL != pcap )
-    {
-        for ( tTmp = 0; tTmp < IDSZ_COUNT; tTmp++ )
-        {
-            if( pcap->idsz[tTmp] == ( IDSZ ) pstate->argument )
-            {
-                returncode = btrue;
-                break;
-            }
-        }
-    }
+    returncode = chr_has_idsz( pself->target, pstate->argument );
 
     SCRIPT_FUNCTION_END();
 }
@@ -3411,43 +3247,13 @@ Uint8 scr_HoldingItemID( script_state_t * pstate, ai_state_t * pself )
     // This function proceeds if the character is holding a specified item
     // in hand, setting tmpargument to the latch button to press to use it
 
+    Uint16 item;
+
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = bfalse;
+    item = chr_holding_idsz( pself->index, pstate->argument );
 
-    if( !returncode )
-    {
-        // Check right hand
-        sTmp = pchr->holdingwhich[SLOT_RIGHT];
-        if ( ACTIVE_CHR( sTmp ) )
-        {
-            cap_t * pcap = chr_get_pcap(sTmp);
-
-            if ( NULL != pcap && (pcap->idsz[IDSZ_PARENT] == ( IDSZ ) pstate->argument || pcap->idsz[IDSZ_TYPE] == ( Uint32 ) pstate->argument) )
-            {
-                pstate->argument = LATCHBUTTON_RIGHT;
-                if ( returncode )  pstate->argument = generate_randmask( LATCHBUTTON_LEFT, 1 );
-
-                returncode = btrue;
-            }
-        }
-    }
-
-    if( !returncode )
-    {
-        // Check left hand
-        sTmp = pchr->holdingwhich[SLOT_LEFT];
-        if ( ACTIVE_CHR( sTmp ) )
-        {
-            cap_t * pcap = chr_get_pcap(sTmp);
-
-            if ( NULL != pcap && (pcap->idsz[IDSZ_PARENT] == ( IDSZ ) pstate->argument || pcap->idsz[IDSZ_TYPE] == ( Uint32 ) pstate->argument) )
-            {
-                pstate->argument = LATCHBUTTON_LEFT;
-                returncode = btrue;
-            }
-        }
-    }
+    returncode = ACTIVE_CHR(item);
 
     SCRIPT_FUNCTION_END();
 }
@@ -4068,26 +3874,13 @@ Uint8 scr_TargetHasItemIDEquipped( script_state_t * pstate, ai_state_t * pself )
     // IfTargetHasItemIDEquipped( tmpargument = "item idsz" )
     // This function proceeds if the target already wearing a matching item
 
+    Uint16 item;
+
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = bfalse;
+    item = chr_has_inventory_idsz( pself->target, pstate->argument, btrue, NULL );
 
-    sTmp = ChrList.lst[pself->target].pack_next;
-    while ( sTmp != MAX_CHR )
-    {
-        if ( ACTIVE_CHR(sTmp) && ChrList.lst[sTmp].isequipped && sTmp != pself->index  )
-        {
-            cap_t * pcap = chr_get_pcap(sTmp);
-
-            if( NULL != pcap && ( pcap->idsz[IDSZ_PARENT] == ( Uint32 ) pstate->argument || pcap->idsz[IDSZ_TYPE] == ( Uint32 ) pstate->argument ) )
-            {
-                returncode = btrue;
-                break;
-            }
-        }
-
-        sTmp = ChrList.lst[sTmp].pack_next;
-    }
+    returncode = ACTIVE_CHR( item );
 
     SCRIPT_FUNCTION_END();
 }
@@ -5781,11 +5574,11 @@ Uint8 scr_get_TargetState( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_Equipped( script_state_t * pstate, ai_state_t * pself )
 {
+    // This proceeds if the character is equipped
+
     SCRIPT_FUNCTION_BEGIN();
 
-    // This proceeds if the character is equipped
-    returncode = bfalse;
-    if ( pchr->isequipped ) returncode = btrue;
+    returncode = pchr->isequipped;
 
     SCRIPT_FUNCTION_END();
 }

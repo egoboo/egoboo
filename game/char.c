@@ -7161,93 +7161,6 @@ void chr_set_fat( chr_t * pchr, float fat )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t cap_has_idsz( Uint16 icap, IDSZ idsz )
-{
-    int     cnt;
-    cap_t * pcap;
-    bool_t  retval;
-
-    if( INVALID_CAP(icap) ) return bfalse;
-    pcap = CapList + icap;
-
-    retval = bfalse;
-    if( IDSZ_NONE == idsz )
-    {
-        retval = btrue;
-    }
-    else
-    {
-        for ( cnt = 0; cnt < IDSZ_COUNT; cnt++ )
-        {
-            if ( pcap->idsz[cnt] == idsz )
-            {
-                retval = btrue;
-                break;
-            }
-        }
-    }
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t cap_is_type_idsz( Uint16 icap, IDSZ test_idsz )
-{
-    // BB> check IDSZ_PARENT and IDSZ_TYPE to see if the test_idsz matches. If we are not
-    //     picky (i.e. IDSZ_NONE == test_idsz), then it matches any valid item.
-
-    cap_t * pcap;
-
-    if( INVALID_CAP(icap) ) return bfalse;
-    pcap = CapList + icap;
-
-    if( IDSZ_NONE == test_idsz               ) return btrue;
-    if( IDSZ_NONE == pcap->idsz[IDSZ_TYPE  ] ) return btrue;
-    if( IDSZ_NONE == pcap->idsz[IDSZ_PARENT] ) return btrue;
-
-    return bfalse;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t chr_has_idsz( Uint16 ichr, IDSZ idsz )
-{
-    Uint16 icap = chr_get_icap(ichr);
-
-    return cap_has_idsz( icap, idsz );
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t chr_is_type_idsz( Uint16 item, IDSZ test_idsz )
-{
-    // BB> check IDSZ_PARENT and IDSZ_TYPE to see if the test_idsz matches. If we are not
-    //     picky (i.e. IDSZ_NONE == test_idsz), then it matches any valid item.
-
-    Uint16 icap;
-
-    icap = chr_get_icap( item );
-
-    return cap_is_type_idsz( icap, test_idsz );
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t chr_has_vulnie( Uint16 item, Uint16 test_profile )
-{
-    IDSZ vulnie;
-
-    if( !ACTIVE_CHR(item) ) return bfalse;
-    vulnie = chr_get_idsz(item, IDSZ_VULNERABILITY);
-
-    // not vulnerable if there is no specific weakness
-    if( IDSZ_NONE == vulnie ) return bfalse;
-
-    // check vs. every IDSZ that could have something to do with attacking
-    if( vulnie == pro_get_idsz(test_profile, IDSZ_TYPE  ) ) return btrue;
-    if( vulnie == pro_get_idsz(test_profile, IDSZ_PARENT) ) return btrue;
-
-    return bfalse;
-}
-
-//--------------------------------------------------------------------------------------------
 Uint32 chr_get_icon_ref( Uint16 item )
 {
     Uint16 iskin;
@@ -8189,4 +8102,198 @@ bool_t ai_state_set_bumplast( ai_state_t * pself, Uint16 ichr )
     pself->bumplast = ichr;
 
     return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+Uint16 chr_has_inventory_idsz( Uint16 ichr, IDSZ idsz, bool_t equipped, Uint16 * pack_last )
+{
+    // BB> check the pack a matching item
+
+    bool_t matches_equipped;
+    Uint16 item, tmp_item, tmp_var;
+    chr_t * pchr;
+
+    if( !ACTIVE_CHR(ichr) ) return MAX_CHR;
+    pchr = ChrList.lst + ichr;
+
+    // make sure that pack_last points to something
+    if( NULL == pack_last ) pack_last = &tmp_var;
+
+    item = MAX_CHR;
+
+    *pack_last = ichr;
+    tmp_item   = pchr->pack_next;
+    while ( tmp_item != MAX_CHR )
+    {
+        matches_equipped = (!equipped || (ACTIVE_CHR(tmp_item) && ChrList.lst[tmp_item].isequipped));
+
+        if( chr_is_type_idsz( tmp_item, idsz ) && matches_equipped )
+        {
+            item = tmp_item;
+        }
+
+        *pack_last = tmp_item;
+        tmp_item   = ChrList.lst[tmp_item].pack_next;
+    }
+
+    return item;
+}
+
+
+//--------------------------------------------------------------------------------------------
+Uint16 chr_holding_idsz( Uint16 ichr, IDSZ idsz )
+{
+    // BB> check the character's hands for a matching item
+
+    bool_t found;
+    Uint16 item, tmp_item;
+    chr_t * pchr;
+
+    if( !ACTIVE_CHR(ichr) ) return MAX_CHR;
+    pchr = ChrList.lst + ichr;
+
+    item = MAX_CHR;
+    found = bfalse;
+
+    if( !found )
+    {
+        // Check right hand. technically a held item cannot be equipped...
+        tmp_item = pchr->holdingwhich[SLOT_RIGHT];
+
+        if( chr_is_type_idsz( tmp_item, idsz ) )
+        {
+            found = btrue;
+            item = tmp_item;
+        }
+    }
+
+    if( !found )
+    {
+        // Check left hand. technically a held item cannot be equipped...
+        tmp_item = pchr->holdingwhich[SLOT_LEFT];
+
+        if( chr_is_type_idsz( tmp_item, idsz ) )
+        {
+            found = btrue;
+            item = tmp_item;
+        }
+    }
+
+    return item;
+}
+
+//--------------------------------------------------------------------------------------------
+Uint16 chr_has_item_idsz( Uint16 ichr, IDSZ idsz, bool_t equipped, Uint16 * pack_last )
+{
+    bool_t found;
+    Uint16 item, tmp_var;
+    chr_t * pchr;
+
+    if( !ACTIVE_CHR(ichr) ) return MAX_CHR;
+    pchr = ChrList.lst + ichr;
+
+    // make sure that pack_last points to something
+    if( NULL == pack_last ) pack_last = &tmp_var;
+
+    // Check the pack
+    *pack_last = MAX_CHR;
+    item       = MAX_CHR;
+    found      = bfalse;
+
+    if( !found )
+    {
+        item = chr_holding_idsz( ichr, idsz );
+        found = ACTIVE_CHR( item );
+    }
+
+    if( !found )
+    {
+        item = chr_has_inventory_idsz( ichr, idsz, equipped, pack_last );
+        found = ACTIVE_CHR( item );
+    }
+
+    return item;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t cap_has_idsz( Uint16 icap, IDSZ idsz )
+{
+    int     cnt;
+    cap_t * pcap;
+    bool_t  retval;
+
+    if( INVALID_CAP(icap) ) return bfalse;
+    pcap = CapList + icap;
+
+    if( IDSZ_NONE == idsz ) return btrue;
+
+    retval = bfalse;
+    for ( cnt = 0; cnt < IDSZ_COUNT; cnt++ )
+    {
+        if ( pcap->idsz[cnt] == idsz )
+        {
+            retval = btrue;
+            break;
+        }
+    }
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t cap_is_type_idsz( Uint16 icap, IDSZ test_idsz )
+{
+    // BB> check IDSZ_PARENT and IDSZ_TYPE to see if the test_idsz matches. If we are not
+    //     picky (i.e. IDSZ_NONE == test_idsz), then it matches any valid item.
+
+    cap_t * pcap;
+
+    if( INVALID_CAP(icap) ) return bfalse;
+    pcap = CapList + icap;
+
+    if( IDSZ_NONE == test_idsz               ) return btrue;
+    if( test_idsz == pcap->idsz[IDSZ_TYPE  ] ) return btrue;
+    if( test_idsz == pcap->idsz[IDSZ_PARENT] ) return btrue;
+
+    return bfalse;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t chr_has_idsz( Uint16 ichr, IDSZ idsz )
+{
+    Uint16 icap = chr_get_icap(ichr);
+
+    return cap_has_idsz( icap, idsz );
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t chr_is_type_idsz( Uint16 item, IDSZ test_idsz )
+{
+    // BB> check IDSZ_PARENT and IDSZ_TYPE to see if the test_idsz matches. If we are not
+    //     picky (i.e. IDSZ_NONE == test_idsz), then it matches any valid item.
+
+    Uint16 icap;
+
+    icap = chr_get_icap( item );
+
+    return cap_is_type_idsz( icap, test_idsz );
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t chr_has_vulnie( Uint16 item, Uint16 test_profile )
+{
+    IDSZ vulnie;
+
+    if( !ACTIVE_CHR(item) ) return bfalse;
+    vulnie = chr_get_idsz(item, IDSZ_VULNERABILITY);
+
+    // not vulnerable if there is no specific weakness
+    if( IDSZ_NONE == vulnie ) return bfalse;
+
+    // check vs. every IDSZ that could have something to do with attacking
+    if( vulnie == pro_get_idsz(test_profile, IDSZ_TYPE  ) ) return btrue;
+    if( vulnie == pro_get_idsz(test_profile, IDSZ_PARENT) ) return btrue;
+
+    return bfalse;
 }

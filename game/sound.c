@@ -557,6 +557,7 @@ bool_t _update_channel_volume( int channel, int volume, GLvector3 diff )
     return btrue;
 }
 
+//--------------------------------------------------------------------------------------------
 int sound_play_chunk_looped( GLvector3 pos, Mix_Chunk * pchunk, Sint8 loops, Uint16 owner )
 {
     // This function plays a specified sound and returns which channel it's using
@@ -583,7 +584,7 @@ int sound_play_chunk_looped( GLvector3 pos, Mix_Chunk * pchunk, Sint8 loops, Uin
         {
             if (cfg.dev_mode)
             {
-                log_warning( "Unable to play sound. (%s)\n", Mix_GetError() );
+                //log_warning( "Unable to play sound. (%s)\n", Mix_GetError() );
             }
         }
         else

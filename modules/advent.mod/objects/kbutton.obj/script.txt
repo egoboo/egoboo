@@ -30,6 +30,7 @@ IfXIsLessThanY				// Open it
 
       tmpargument = 0			      //
       SendMessageNear			      //
+      
 tmpargument = passage			//
 IfPassageOpen				// Go down
   tmpargument = 0			  //

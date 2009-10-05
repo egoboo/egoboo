@@ -730,3 +730,8 @@ bool_t chr_getMatForward(chr_t *pchr, GLvector3 * pvec);
 bool_t chr_getMatTranslate(chr_t *pchr, GLvector3 * pvec);
 
 egoboo_rv chr_update_collision_size( chr_t * pchr, bool_t update_matrix );
+
+
+Uint16 chr_has_inventory_idsz( Uint16 ichr, IDSZ idsz, bool_t equipped, Uint16 * pack_last );
+Uint16 chr_holding_idsz( Uint16 ichr, IDSZ idsz );
+Uint16 chr_has_item_idsz( Uint16 ichr, IDSZ idsz, bool_t equipped, Uint16 * pack_last );

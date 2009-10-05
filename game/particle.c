@@ -286,7 +286,7 @@ Uint16 spawn_one_particle( GLvector3 pos, Uint16 facing, Uint16 iprofile, Uint16
     Uint16 turn;
 
     // Convert from local ipip to global ipip
-    if ( ipip < MAX_PIP_PER_PROFILE && VALID_PRO(iprofile) )
+    if ( VALID_PRO(iprofile) && ipip < MAX_PIP_PER_PROFILE )
     {
         ipip = pro_get_ipip(iprofile, ipip);
     }
@@ -1408,7 +1408,7 @@ void reset_particles( const char* modname )
         log_error( "Data file was not found! (%s)\n", loadpath );
     }
 
-    PipStack.count = PIP_DEFEND;
+    PipStack.count = GLOBAL_PIP_COUNT;
 }
 
 //--------------------------------------------------------------------------------------------

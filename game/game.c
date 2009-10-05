@@ -2637,29 +2637,29 @@ void show_stat( Uint16 statindex )
                 itmp = level % 10;
                 if ( 1 == itmp )
                 {
-                    debug_printf( " %dst level %s%s", level, gender_str, pcap->classname );
+                    debug_printf( "~%dst level %s%s", level, gender_str, pcap->classname );
                 }
                 else if ( 2 == itmp )
                 {
-                    debug_printf( " %dnd level %s%s", level, gender_str, pcap->classname );
+                    debug_printf( "~%dnd level %s%s", level, gender_str, pcap->classname );
                 }
                 else if ( 3 == itmp )
                 {
-                    debug_printf( " %drd level %s%s", level, gender_str, pcap->classname );
+                    debug_printf( "~%drd level %s%s", level, gender_str, pcap->classname );
                 }
                 else
                 {
-                    debug_printf( " %dth level %s%s", level, gender_str, pcap->classname );
+                    debug_printf( "~%dth level %s%s", level, gender_str, pcap->classname );
                 }
             }
             else
             {
-                debug_printf( " Dead %s", pcap->classname );
+                debug_printf( "~Dead %s", pcap->classname );
             }
 
             // Stats
-            debug_printf( " STR:~%2d~WIS:~%2d~DEF:~%d", FP8_TO_INT( pchr->strength ), FP8_TO_INT( pchr->wisdom ), 255 - pchr->defense );
-            debug_printf( " INT:~%2d~DEX:~%2d~EXP:~%d", FP8_TO_INT( pchr->intelligence ), FP8_TO_INT( pchr->dexterity ), pchr->experience );
+            debug_printf( "~STR:~%2d~WIS:~%2d~DEF:~%d", FP8_TO_INT( pchr->strength ), FP8_TO_INT( pchr->wisdom ), 255 - pchr->defense );
+            debug_printf( "~INT:~%2d~DEX:~%2d~EXP:~%d", FP8_TO_INT( pchr->intelligence ), FP8_TO_INT( pchr->dexterity ), pchr->experience );
         }
     }
 }
@@ -2668,168 +2668,168 @@ void show_stat( Uint16 statindex )
 void show_armor( Uint16 statindex )
 {
     // ZF> This function shows detailed armor information for the character
+
     STRING tmps;
+    Uint16 ichr;
 
-    if ( statindex < numstat )
+    Uint8  skinlevel;
+
+    cap_t * pcap;
+    chr_t * pchr;
+
+
+    if ( statindex >= numstat ) return;
+
+    ichr = statlist[statindex];
+    if ( !ACTIVE_CHR(ichr) ) return;
+
+    pchr = ChrList.lst + ichr;
+    skinlevel = pchr->skin;
+
+    pcap = chr_get_pcap(ichr);
+    if( NULL == pcap ) return;
+
+    // Armor Name
+    debug_printf( "=%s=", pcap->skinname[skinlevel] );
+
+    // Armor Stats
+    debug_printf( "~DEF: %d  SLASH:%3d~CRUSH:%3d POKE:%3d", 255 - pcap->defense[skinlevel],
+        pcap->damagemodifier[0][skinlevel]&DAMAGESHIFT,
+        pcap->damagemodifier[1][skinlevel]&DAMAGESHIFT,
+        pcap->damagemodifier[2][skinlevel]&DAMAGESHIFT );
+
+    debug_printf( "~HOLY:~%i~EVIL:~%i~FIRE:~%i~ICE:~%i~ZAP:~%i",
+        pcap->damagemodifier[3][skinlevel]&DAMAGESHIFT,
+        pcap->damagemodifier[4][skinlevel]&DAMAGESHIFT,
+        pcap->damagemodifier[5][skinlevel]&DAMAGESHIFT,
+        pcap->damagemodifier[6][skinlevel]&DAMAGESHIFT,
+        pcap->damagemodifier[7][skinlevel]&DAMAGESHIFT );
+
+    debug_printf( "~Type: %s", ( pcap->skindressy & (1 << skinlevel) ) ? "Light Armor" : "Heavy Armor" );
+
+    // jumps
+    tmps[0] = '\0';
+    switch ( pcap->jumpnumber )
     {
-        Uint16 ichr = statlist[statindex];
+        case 0:  snprintf( tmps, SDL_arraysize( tmps), "None    (%i)", pchr->jumpnumberreset ); break;
+        case 1:  snprintf( tmps, SDL_arraysize( tmps), "Novice  (%i)", pchr->jumpnumberreset ); break;
+        case 2:  snprintf( tmps, SDL_arraysize( tmps), "Skilled (%i)", pchr->jumpnumberreset ); break;
+        case 3:  snprintf( tmps, SDL_arraysize( tmps), "Adept   (%i)", pchr->jumpnumberreset ); break;
+        default: snprintf( tmps, SDL_arraysize( tmps), "Master  (%i)", pchr->jumpnumberreset ); break;
+    };
 
-        if ( ACTIVE_CHR(ichr) )
-        {
-            Uint8  skinlevel;
-
-            cap_t * pcap;
-            chr_t * pchr;
-
-            pchr = ChrList.lst + ichr;
-            skinlevel = pchr->skin;
-
-            pcap = chr_get_pcap(ichr);
-            if( NULL != pcap )
-            {
-                // Armor Name
-                debug_printf( "=%s=", pcap->skinname[skinlevel] );
-
-                // Armor Stats
-                debug_printf( "~DEF: %d  SLASH:%3d~CRUSH:%3d POKE:%3d", 255 - pcap->defense[skinlevel],
-                        pcap->damagemodifier[0][skinlevel]&DAMAGESHIFT,
-                        pcap->damagemodifier[1][skinlevel]&DAMAGESHIFT,
-                        pcap->damagemodifier[2][skinlevel]&DAMAGESHIFT );
-
-                debug_printf( "~HOLY:~%i~EVIL:~%i~FIRE:~%i~ICE:~%i~ZAP:~%i",
-                        pcap->damagemodifier[3][skinlevel]&DAMAGESHIFT,
-                        pcap->damagemodifier[4][skinlevel]&DAMAGESHIFT,
-                        pcap->damagemodifier[5][skinlevel]&DAMAGESHIFT,
-                        pcap->damagemodifier[6][skinlevel]&DAMAGESHIFT,
-                        pcap->damagemodifier[7][skinlevel]&DAMAGESHIFT );
-
-                debug_printf( "~Type: %s", ( pcap->skindressy & (1 << skinlevel) ) ? "Light Armor" : "Heavy Armor" );
-
-                // jumps
-                tmps[0] = '\0';
-                switch ( pcap->jumpnumber )
-                {
-                    case 0:  snprintf( tmps, SDL_arraysize( tmps), "None    (%i)", pchr->jumpnumberreset ); break;
-                    case 1:  snprintf( tmps, SDL_arraysize( tmps), "Novice  (%i)", pchr->jumpnumberreset ); break;
-                    case 2:  snprintf( tmps, SDL_arraysize( tmps), "Skilled (%i)", pchr->jumpnumberreset ); break;
-                    case 3:  snprintf( tmps, SDL_arraysize( tmps), "Adept   (%i)", pchr->jumpnumberreset ); break;
-                    default: snprintf( tmps, SDL_arraysize( tmps), "Master  (%i)", pchr->jumpnumberreset ); break;
-                };
-
-                debug_printf( "~Speed:~%3.0f~Jump Skill:~%s", pchr->maxaccel*80, tmps );
-            }
-        }
-    }
+    debug_printf( "~Speed:~%3.0f~Jump Skill:~%s", pchr->maxaccel*80, tmps );
 }
 
 //--------------------------------------------------------------------------------------------
 void show_full_status( Uint16 statindex )
 {
     // ZF> This function shows detailed armor information for the character including magic
-    STRING text, tmps;
+
     Uint16 character, enchant;
     float manaregen, liferegen;
-    if ( statindex < numstat )
+    chr_t * pchr;
+
+    if ( statindex >= numstat ) return;
+
+    character = statlist[statindex];
+    if( !ACTIVE_CHR(character) ) return;
+    pchr = ChrList.lst + character;
+
+    // clean up the enchant list
+    pchr->firstenchant = cleanup_enchant_list(pchr->firstenchant);
+
+    // Enchanted?
+    debug_printf( "=%s is %s=", pchr->name, ACTIVE_ENC(pchr->firstenchant) ? "enchanted" : "unenchanted" );
+
+    // Armor Stats
+    debug_printf( "~DEF: %d  SLASH:%3d~CRUSH:%3d POKE:%3d",
+                255 - pchr->defense,
+                pchr->damagemodifier[0]&DAMAGESHIFT,
+                pchr->damagemodifier[1]&DAMAGESHIFT,
+                pchr->damagemodifier[2]&DAMAGESHIFT );
+
+    debug_printf( "~HOLY: %i~~EVIL:~%i~FIRE:~%i~ICE:~%i~ZAP: ~%i",
+                pchr->damagemodifier[3]&DAMAGESHIFT,
+                pchr->damagemodifier[4]&DAMAGESHIFT,
+                pchr->damagemodifier[5]&DAMAGESHIFT,
+                pchr->damagemodifier[6]&DAMAGESHIFT,
+                pchr->damagemodifier[7]&DAMAGESHIFT );
+
+    // Life and mana regeneration
+    // Don't forget to add gains and costs from enchants
+    manaregen = pchr->manareturn / MANARETURNSHIFT;
+    liferegen = pchr->lifereturn;
+    for ( enchant = 0; enchant < MAX_ENC; enchant++ )                                   
     {
-        character = statlist[statindex];
+        enc_t * penc;
 
-        // Enchanted?
-        if ( ChrList.lst[character].firstenchant != MAX_ENC )
+        if ( !ACTIVE_ENC(enchant) ) continue;
+        penc = EncList.lst + enchant;
+
+        if ( penc->target_ref == character )
         {
-            debug_printf( text, SDL_arraysize( text), "=%s is enchanted!=", ChrList.lst[character].name );
+            liferegen += penc->targetlife;
+            manaregen += penc->targetmana;
         }
-        else
+        if ( penc->owner_ref == character )
         {
-            debug_printf( text, SDL_arraysize( text), "=%s is unenchanted=", ChrList.lst[character].name );
+            liferegen += penc->ownerlife;
+            manaregen += penc->ownermana;
         }
-
-        // Armor Stats
-        debug_printf( " DEF: %d  SLASH:%3d~CRUSH:%3d POKE:%3d",
-                 255 - ChrList.lst[character].defense,
-                 ChrList.lst[character].damagemodifier[0]&DAMAGESHIFT,
-                 ChrList.lst[character].damagemodifier[1]&DAMAGESHIFT,
-                 ChrList.lst[character].damagemodifier[2]&DAMAGESHIFT );
-
-        debug_printf( " HOLY: %i~~EVIL:~%i~FIRE:~%i~ICE:~%i~ZAP: ~%i",
-                 ChrList.lst[character].damagemodifier[3]&DAMAGESHIFT,
-                 ChrList.lst[character].damagemodifier[4]&DAMAGESHIFT,
-                 ChrList.lst[character].damagemodifier[5]&DAMAGESHIFT,
-                 ChrList.lst[character].damagemodifier[6]&DAMAGESHIFT,
-                 ChrList.lst[character].damagemodifier[7]&DAMAGESHIFT );
-
-        // Life and mana regeneration
-        manaregen = ChrList.lst[character].manareturn / MANARETURNSHIFT;
-        liferegen = ChrList.lst[character].lifereturn;
-        for ( enchant = 0; enchant < MAX_ENC; enchant++ )                                   //Don't forget to add gains and costs from enchants
-        {
-            enc_t * penc;
-
-            if ( !ACTIVE_ENC(enchant) ) continue;
-            penc = EncList.lst + enchant;
-
-            if ( penc->target_ref == character )
-            {
-                liferegen += penc->targetlife;
-                manaregen += penc->targetmana;
-            }
-            if ( penc->owner_ref == character )
-            {
-                liferegen += penc->ownerlife;
-                manaregen += penc->ownermana;
-            }
-
-        }
-
-        debug_printf( "Mana Regen:~%4.2f Life Regen:~%4.2f~~%s", manaregen / 256.0f, liferegen / 256.0f, tmps );
     }
+
+    debug_printf( "Mana Regen:~%4.2f Life Regen:~%4.2f", FP8_TO_FLOAT(manaregen), FP8_TO_FLOAT(liferegen) );
 }
 
 //--------------------------------------------------------------------------------------------
 void show_magic_status( Uint16 statindex )
 {
     // ZF> Displays special enchantment effects for the character
-    STRING text;
+
     Uint16 character;
+    char * missile_str;
+    chr_t * pchr;
 
-    if ( statindex < numstat )
+    if ( statindex >= numstat ) return;
+
+    character = statlist[statindex];
+
+    if( !ACTIVE_CHR(character) ) return;
+    pchr = ChrList.lst + character;
+
+    // clean up the enchant list
+    pchr->firstenchant = cleanup_enchant_list(pchr->firstenchant);
+
+    // Enchanted?
+    if ( ACTIVE_ENC(pchr->firstenchant) )
     {
-        character = statlist[statindex];
-        if( ACTIVE_CHR(character) )
-        {
-            char * missile_str;
-            chr_t * pchr = ChrList.lst + character;
-
-            // Enchanted?
-            if ( pchr->firstenchant != MAX_ENC )
-            {
-                debug_printf( "=%s is enchanted!=", pchr->name );
-            }
-            else
-            {
-                debug_printf( "=%s is unenchanted=", pchr->name );
-            }
-
-            // Enchantment status
-            debug_printf( " See Invisible: %s~~See Kurses: %s",
-                pchr->canseeinvisible ? "Yes" : "No",
-                pchr->canseekurse ? "Yes" : "No" );
-
-            debug_printf( " Channel Life: %s~~Waterwalking: %s",
-                pchr->canchannel ? "Yes" : "No",
-                pchr->waterwalk ? "Yes" : "No" );
-
-            missile_str = "None";
-            switch( pchr->missiletreatment )
-            {
-                case MISSILE_REFLECT: missile_str = "Reflect"; break;
-                case MISSILE_DEFLECT: missile_str = "Deflect"; break;
-            }
-
-            debug_printf( text, SDL_arraysize( text), " Flying: %s~~Missile Protection: %s",
-                (pchr->flyheight > 0) ? "Yes" : "No", missile_str );
-
-        }
+        debug_printf( "=%s is enchanted!=", pchr->name );
     }
+    else
+    {
+        debug_printf( "=%s is unenchanted=", pchr->name );
+    }
+
+    // Enchantment status
+    debug_printf( "~See Invisible: %s~~See Kurses: %s",
+        pchr->canseeinvisible ? "Yes" : "No",
+        pchr->canseekurse ? "Yes" : "No" );
+
+    debug_printf( "~Channel Life: %s~~Waterwalking: %s",
+        pchr->canchannel ? "Yes" : "No",
+        pchr->waterwalk ? "Yes" : "No" );
+
+    switch( pchr->missiletreatment )
+    {
+    case MISSILE_REFLECT: missile_str = "Reflect"; break;
+    case MISSILE_DEFLECT: missile_str = "Deflect"; break;
+
+    default: 
+    case MISSILE_NORMAL : missile_str = "None";    break;
+    }
+
+    debug_printf( "~Flying: %s~~Missile Protection: %s", (pchr->flyheight > 0) ? "Yes" : "No", missile_str );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3090,6 +3090,11 @@ bool_t attach_chr_to_platform( chr_t * pchr, chr_t * pplat )
     platform_up = VNormalize(platform_up);
 
     pchr->enviro.traction = ABS(platform_up.z) * (1.0f - pchr->enviro.zlerp) + 0.25 * pchr->enviro.zlerp;
+
+
+    // tell the platform that we bumped into it
+    // this is necessary for key buttons to work properly, for instance
+    ai_state_set_bumplast( &(pplat->ai), pchr->index );
 
     return btrue;
 }
@@ -3816,14 +3821,14 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
             }
 
             // add in the bump impulses
-            pchr_a->phys.avel.x += imp_a.x;
-            pchr_a->phys.avel.y += imp_a.y;
-            pchr_a->phys.avel.z += imp_a.z;
+            pchr_a->phys.avel.x += imp_a.x * interaction_strength;
+            pchr_a->phys.avel.y += imp_a.y * interaction_strength;
+            pchr_a->phys.avel.z += imp_a.z * interaction_strength;
             LOG_NAN(pchr_a->phys.avel.z);
 
-            pchr_b->phys.avel.x += imp_b.x;
-            pchr_b->phys.avel.y += imp_b.y;
-            pchr_b->phys.avel.z += imp_b.z;
+            pchr_b->phys.avel.x += imp_b.x * interaction_strength;
+            pchr_b->phys.avel.y += imp_b.y * interaction_strength;
+            pchr_b->phys.avel.z += imp_b.z * interaction_strength;
             LOG_NAN(pchr_b->phys.avel.z);
 
             bump = btrue;
@@ -3882,13 +3887,13 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
             }
 
             // add in the bump impulses
-            pchr_a->phys.apos_1.x += imp_a.x;
-            pchr_a->phys.apos_1.y += imp_a.y;
-            pchr_a->phys.apos_1.z += imp_a.z;
+            pchr_a->phys.apos_1.x += imp_a.x * interaction_strength;
+            pchr_a->phys.apos_1.y += imp_a.y * interaction_strength;
+            pchr_a->phys.apos_1.z += imp_a.z * interaction_strength;
 
-            pchr_b->phys.apos_1.x += imp_b.x;
-            pchr_b->phys.apos_1.y += imp_b.y;
-            pchr_b->phys.apos_1.z += imp_b.z;
+            pchr_b->phys.apos_1.x += imp_b.x * interaction_strength;
+            pchr_b->phys.apos_1.y += imp_b.y * interaction_strength;
+            pchr_b->phys.apos_1.z += imp_b.z * interaction_strength;
 
             // you could "bump" something if you changed your velocity, even if you were still touching
             bump = (VDotProduct( pchr_a->vel, nrm ) * VDotProduct( pchr_a->vel_old, nrm ) < 0 ) ||
@@ -3909,9 +3914,9 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
             factor = imp / vel;
             factor = CLIP(factor, 0.0f, 1.0f);
 
-            pchr_a->phys.avel.x -= factor * vpara_a.x;
-            pchr_a->phys.avel.y -= factor * vpara_a.y;
-            pchr_a->phys.avel.z -= factor * vpara_a.z;
+            pchr_a->phys.avel.x -= factor * vpara_a.x * interaction_strength;
+            pchr_a->phys.avel.y -= factor * vpara_a.y * interaction_strength;
+            pchr_a->phys.avel.z -= factor * vpara_a.z * interaction_strength;
             LOG_NAN(pchr_a->phys.avel.z);
         }
 
@@ -3927,9 +3932,9 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
             factor = imp / vel;
             factor = CLIP(factor, 0.0f, 1.0f);
 
-            pchr_b->phys.avel.x -= factor * vpara_b.x;
-            pchr_b->phys.avel.y -= factor * vpara_b.y;
-            pchr_b->phys.avel.z -= factor * vpara_b.z;
+            pchr_b->phys.avel.x -= factor * vpara_b.x * interaction_strength;
+            pchr_b->phys.avel.y -= factor * vpara_b.y * interaction_strength;
+            pchr_b->phys.avel.z -= factor * vpara_b.z * interaction_strength;
             LOG_NAN(pchr_b->phys.avel.z);
         }
     }
@@ -3967,8 +3972,6 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     float dx, dy, dist;
     bool_t collide_x, collide_y, collide_xy, collide_z;
     float depth_z;
-
-    float interaction_strength = 1.0f;
 
     // make sure that it is on
     if ( !ACTIVE_CHR(ichr_a) ) return bfalse;
@@ -4008,27 +4011,24 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     was_yb = yb - pprt_b->vel.y;
     was_zb = zb - pprt_b->vel.z;
 
-    if ( 0 == pchr_a->bump.size ) interaction_strength = 0;
-    interaction_strength *= pchr_a->inst.alpha * INV_FF;
-
     dx = ABS( xa - xb );
     dy = ABS( ya - yb );
     dist = dx + dy;
 
-    collide_x  = dx < pchr_a->bump.size    || dx < pprt_b->bumpsize;
-    collide_y  = dy < pchr_a->bump.size    || dy < pprt_b->bumpsize;
-    collide_xy = dist < pchr_a->bump.sizebig || dist < pprt_b->bumpsize * 1.41f;
+    collide_x  = dx < pchr_a->collision_0.size    || dx < pprt_b->bumpsize;
+    collide_y  = dy < pchr_a->collision_0.size    || dy < pprt_b->bumpsize;
+    collide_xy = dist < pchr_a->collision_0.sizebig || dist < pprt_b->bumpsize * 1.41f;
 
-    depth_z = MIN( za + pchr_a->bump.height, zb + pprt_b->bumpheight ) - MAX( za, zb - pprt_b->bumpheight );
+    depth_z = MIN( za + pchr_a->collision_0.height, zb + pprt_b->bumpheight ) - MAX( za, zb - pprt_b->bumpheight );
     collide_z = depth_z > 0;
 
     if ( !collide_x || !collide_y || !collide_xy || !collide_z ) return bfalse;
 
     if ( pchr_a->platform && !ACTIVE_CHR(pprt_b->attachedto_ref) &&
-            (zb > za + pchr_a->bump.height + pprt_b->vel.z) && (pprt_b->vel.z - pchr_a->vel.z < 0) )
+            (zb > za + pchr_a->collision_0.height + pprt_b->vel.z) && (pprt_b->vel.z - pchr_a->vel.z < 0) )
     {
         // Particle is falling on A
-        pprt_b->pos.z = za + pchr_a->bump.height;
+        pprt_b->pos.z = za + pchr_a->collision_0.height;
         pprt_b->vel.z = -pprt_b->vel.z * ppip_b->dampen;
         pprt_b->vel.x += ( pchr_a->vel.x - pchr_a->vel_old.x ) * platstick;
         pprt_b->vel.y += ( pchr_a->vel.y - pchr_a->vel_old.y  ) * platstick;
@@ -5629,19 +5629,19 @@ bool_t detect_chr_prt_interaction( Uint16 ichr_a, Uint16 iprt_b )
     zb = pprt_b->pos.z;
 
     // don't interact if there is no interaction
-    if ( 0 == pchr_a->bump.size || 0 == pprt_b->bumpsize ) return bfalse;
+    if ( 0 == pchr_a->collision_0.size || 0 == pprt_b->bumpsize ) return bfalse;
 
     // First check absolute value diamond
     dx = ABS( xa - xb );
     dy = ABS( ya - yb );
     dxy = dx + dy;
 
-    depth_z = MIN( za + pchr_a->bump.height, zb + pprt_b->bumpheight ) - MAX(za, zb - pprt_b->bumpheight);
+    depth_z = MIN( za + pchr_a->collision_0.height, zb + pprt_b->bumpheight ) - MAX(za, zb - pprt_b->bumpheight);
 
     // estimate the interactions this frame
-    interact_x  = (dx  <= pchr_a->bump.size    + pprt_b->bumpsize   );
-    interact_y  = (dy  <= pchr_a->bump.size    + pprt_b->bumpsize   );
-    interact_xy = (dxy <= pchr_a->bump.sizebig + pprt_b->bumpsizebig);
+    interact_x  = (dx  <= pchr_a->collision_0.size    + pprt_b->bumpsize   );
+    interact_y  = (dy  <= pchr_a->collision_0.size    + pprt_b->bumpsize   );
+    interact_xy = (dxy <= pchr_a->collision_0.sizebig + pprt_b->bumpsizebig);
     interact_z  = (depth_z > 0);
 
     if ( !interact_x || !interact_y || !interact_z || !interact_xy ) return bfalse;

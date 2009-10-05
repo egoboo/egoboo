@@ -622,8 +622,8 @@ bool_t save_one_cap_file( const char * szSaveName, cap_t * pcap )
     vfs_printf( filewrite, "\n" );
 
     // More stuff
-    fput_float( filewrite, "NOT USED       : ", pcap->lifeheal / 256.0f );       // These two are seriously outdated
-    fput_float( filewrite, "NOT USED       : ", pcap->manacost / 256.0f );       // and shouldnt be used. Use scripts instead.
+    fput_float( filewrite, "NOT USED       : ", FP8_TO_FLOAT(pcap->lifeheal) );       // These two are seriously outdated
+    fput_float( filewrite, "NOT USED       : ", FP8_TO_FLOAT(pcap->manacost) );       // and shouldnt be used. Use scripts instead.
     fput_int  ( filewrite, "Regeneration   : ", pcap->lifereturn );
     fput_int  ( filewrite, "Stopped by     : ", pcap->stoppedby );
     fput_string_under( filewrite, "Skin 0 name    : ", pcap->skinname[0] );

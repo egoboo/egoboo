@@ -39,7 +39,8 @@ enum e_global_pips
     PIP_WEATHER5,                                  // Weather particle finish
     PIP_SPLASH,                                    // Water effects are next
     PIP_RIPPLE,
-    PIP_DEFEND                                     // Defend particle
+    PIP_DEFEND,                                     // Defend particle
+    GLOBAL_PIP_COUNT
 };
 
 #define SPRITE_LIGHT                  0           // Magic effect particle
