@@ -1080,7 +1080,8 @@ Uint8 scr_CostTargetItemID( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    item = chr_has_item_idsz( pself->target, ( IDSZ ) pstate->argument, bfalse, &pack_last );
+    sTmp = pself->target;
+    item = chr_has_item_idsz( sTmp, ( IDSZ ) pstate->argument, bfalse, &pack_last );
 
     returncode = bfalse;
     if ( ACTIVE_CHR(item) )
@@ -1099,16 +1100,29 @@ Uint8 scr_CostTargetItemID( script_state_t * pstate, ai_state_t * pself )
             {
                 // Remove from the pack
                 ChrList.lst[pack_last].pack_next = ChrList.lst[item].pack_next;
-                ChrList.lst[pself->target].pack_count--;
+                ChrList.lst[sTmp].pack_count--;
 
-                chr_request_terminate(item);
+                ChrList.lst[item].pack_ispacked = bfalse;
+                ChrList.lst[item].pack_next     = MAX_CHR;
+            }
+            else if ( ACTIVE_CHR(pack_last) && !ChrList.lst[item].pack_ispacked )
+            {
+                // this is corrupt data == trouble
+                // treat it as the normal case. if it causes errors, we'll fix them later
+                ChrList.lst[pack_last].pack_next = ChrList.lst[item].pack_next;
+                ChrList.lst[sTmp].pack_count--;
+
+                ChrList.lst[item].pack_ispacked = bfalse;
+                ChrList.lst[item].pack_next     = MAX_CHR;
             }
             else
             {
                 // Drop from hand
                 detach_character_from_mount( item, btrue, bfalse );
-                chr_request_terminate(item);
             }
+
+            // get rid of the character, no matter what
+            chr_request_terminate(item);
         }
     }
 

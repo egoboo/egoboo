@@ -590,7 +590,7 @@ Mix_Chunk * pro_get_chunk(Uint16 iobj, int index)
 {
     pro_t * pobj;
 
-    if( index < 0 || index >= MAX_WAVE ) return NULL;
+    if( !VALID_SND(index) ) return NULL;
 
     if( INVALID_PRO(iobj) ) return NULL;
     pobj = ProList.lst + iobj;

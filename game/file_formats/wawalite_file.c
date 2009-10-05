@@ -297,7 +297,7 @@ wawalite_data_t * read_wawalite( const char *modname )
     vfs_close( fileread );
 
     // limit some values
-    pdata->damagetile.sound = CLIP(pdata->damagetile.sound, -1, MAX_WAVE);
+    pdata->damagetile.sound = CLIP(pdata->damagetile.sound, INVALID_SOUND, MAX_WAVE);
 
     for( cnt = 0; cnt < MAXWATERLAYER; cnt++ )
     {
@@ -492,7 +492,7 @@ bool_t write_wawalite( const char *modname, wawalite_data_t * pdata )
     }
 
     // limit some values
-    pdata->damagetile.sound = CLIP(pdata->damagetile.sound, -1, MAX_WAVE);
+    pdata->damagetile.sound = CLIP(pdata->damagetile.sound, INVALID_SOUND, MAX_WAVE);
 
     for( cnt = 0; cnt < MAXWATERLAYER; cnt++ )
     {

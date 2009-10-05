@@ -6671,7 +6671,7 @@ bool_t upload_damagetile_data( damagetile_instance_t * pinst, wawalite_damagetil
 
         pinst->parttype     = pdata->parttype;
         pinst->partand      = pdata->partand;
-        pinst->sound        = CLIP(pdata->sound, -1, MAX_WAVE);
+        pinst->sound        = CLIP(pdata->sound, INVALID_SOUND, MAX_WAVE);
     }
 
     return btrue;

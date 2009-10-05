@@ -8122,7 +8122,7 @@ Uint16 chr_has_inventory_idsz( Uint16 ichr, IDSZ idsz, bool_t equipped, Uint16 *
 
     item = MAX_CHR;
 
-    *pack_last = ichr;
+    *pack_last = pchr->index;
     tmp_item   = pchr->pack_next;
     while ( tmp_item != MAX_CHR )
     {
@@ -8131,6 +8131,7 @@ Uint16 chr_has_inventory_idsz( Uint16 ichr, IDSZ idsz, bool_t equipped, Uint16 *
         if( chr_is_type_idsz( tmp_item, idsz ) && matches_equipped )
         {
             item = tmp_item;
+            break;
         }
 
         *pack_last = tmp_item;

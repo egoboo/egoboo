@@ -111,16 +111,15 @@ void play_particle_sound( Uint16 particle, Sint8 sound )
     if ( !ALLOCATED_PRT(particle) ) return;
     pprt = PrtList.lst + particle;
 
-    if ( VALID_SND(sound) )
+    if ( !VALID_SND(sound) ) return;
+
+    if ( VALID_PRO( pprt->profile_ref ) )
     {
-        if ( VALID_PRO( pprt->profile_ref ) )
-        {
-            sound_play_chunk( pprt->pos, pro_get_chunk(pprt->profile_ref, sound) );
-        }
-        else
-        {
-            sound_play_chunk( pprt->pos, g_wavelist[sound] );
-        }
+        sound_play_chunk( pprt->pos, pro_get_chunk(pprt->profile_ref, sound) );
+    }
+    else
+    {
+        sound_play_chunk( pprt->pos, g_wavelist[sound] );
     }
 }
 
@@ -1219,7 +1218,7 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
                 x = -8192 * fsin;
                 y =  8192 * fcos;
 
-                for ( cnt = 0; cnt < amount; cnt++ )
+                for ( cnt = 0; cnt < pchr->inst.vlst_size; cnt++ )
                 {
                     distance = ABS( x - pchr->inst.vlst[vertices-cnt-1].pos[XX] ) +
                                ABS( y - pchr->inst.vlst[vertices-cnt-1].pos[YY] ) +
@@ -1321,8 +1320,8 @@ int load_one_particle_profile( const char *szLoadName, Uint16 pip_override )
         return MAX_PIP;
     }
 
-    ppip->soundend = CLIP(ppip->soundend, -1, MAX_WAVE);
-    ppip->soundspawn = CLIP(ppip->soundspawn, -1, MAX_WAVE);
+    ppip->soundend = CLIP(ppip->soundend, INVALID_SOUND, MAX_WAVE);
+    ppip->soundspawn = CLIP(ppip->soundspawn, INVALID_SOUND, MAX_WAVE);
 //   if ( ppip->dynalight_falloff > MAXFALLOFF && PMod->rtscontrol )  ppip->dynalight_falloff = MAXFALLOFF;
 
     return ipip;
