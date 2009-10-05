@@ -4241,7 +4241,7 @@ void dolist_sort( camera_t * pcam )
         {
             dolist[count].ichr = dolist[cnt].ichr;
             dolist[count].iprt = dolist[cnt].iprt;
-            dolist[count].dist = VDotProduct( vtmp, vcam );
+            dolist[count].dist = dist;
             count++;
         }
     }

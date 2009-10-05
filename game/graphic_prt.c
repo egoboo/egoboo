@@ -687,6 +687,10 @@ void prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_
         case SPRITE_LIGHT: pinst->size *= 1.5912f; break;
     }
 
+    // a useful little mod to help with debugging particles
+    // will make things like the bare-handed particles visible
+    //pinst->size = MAX(30, pinst->size);
+
     pinst->valid = btrue;
 }
 

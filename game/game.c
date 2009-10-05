@@ -2760,7 +2760,7 @@ void show_full_status( Uint16 statindex )
     // Don't forget to add gains and costs from enchants
     manaregen = pchr->manareturn / MANARETURNSHIFT;
     liferegen = pchr->lifereturn;
-    for ( enchant = 0; enchant < MAX_ENC; enchant++ )                                   
+    for ( enchant = 0; enchant < MAX_ENC; enchant++ )
     {
         enc_t * penc;
 
@@ -2825,7 +2825,7 @@ void show_magic_status( Uint16 statindex )
     case MISSILE_REFLECT: missile_str = "Reflect"; break;
     case MISSILE_DEFLECT: missile_str = "Deflect"; break;
 
-    default: 
+    default:
     case MISSILE_NORMAL : missile_str = "None";    break;
     }
 
@@ -3196,7 +3196,7 @@ bool_t do_platforms( Uint16 ichr_a, Uint16 ichr_b )
             depth_xy = MIN((pchr_b->collision_1.max_xy + (pchr_b->pos.x + pchr_b->pos.y)) -  (pchr_a->pos.x + pchr_a->pos.y),
                            (pchr_a->pos.x + pchr_a->pos.y) - (pchr_b->collision_1.min_xy + (pchr_b->pos.x + pchr_b->pos.y)) );
 
-            depth_yx = MIN((pchr_b->collision_1.max_yx + (-pchr_b->pos.x + pchr_b->pos.y)) - (-pchr_a->pos.x + pchr_a->pos.y), 
+            depth_yx = MIN((pchr_b->collision_1.max_yx + (-pchr_b->pos.x + pchr_b->pos.y)) - (-pchr_a->pos.x + pchr_a->pos.y),
                            (-pchr_a->pos.x + pchr_a->pos.y) - (pchr_b->collision_1.min_yx + (-pchr_b->pos.x + pchr_b->pos.y)) );
         }
         else
@@ -3212,7 +3212,7 @@ bool_t do_platforms( Uint16 ichr_a, Uint16 ichr_b )
             depth_xy = MIN((pchr_a->collision_1.max_xy + (pchr_a->pos.x + pchr_a->pos.y)) -  (pchr_b->pos.x + pchr_b->pos.y),
                            (pchr_b->pos.x + pchr_b->pos.y) - (pchr_a->collision_1.min_xy + (pchr_a->pos.x + pchr_a->pos.y)) );
 
-            depth_yx = MIN((pchr_a->collision_1.max_yx + (-pchr_a->pos.x + pchr_a->pos.y)) - (-pchr_b->pos.x + pchr_b->pos.y), 
+            depth_yx = MIN((pchr_a->collision_1.max_yx + (-pchr_a->pos.x + pchr_a->pos.y)) - (-pchr_b->pos.x + pchr_b->pos.y),
                            (-pchr_b->pos.x + pchr_b->pos.y) - (pchr_a->collision_1.min_yx + (-pchr_a->pos.x + pchr_a->pos.y)) );
         }
     }
@@ -3232,7 +3232,7 @@ bool_t do_platforms( Uint16 ichr_a, Uint16 ichr_b )
         depth_xy = MIN((pchr_a->collision_1.max_xy + (pchr_a->pos.x + pchr_a->pos.y)) -  (pchr_b->pos.x + pchr_b->pos.y),
                        (pchr_b->pos.x + pchr_b->pos.y) - (pchr_a->collision_1.min_xy + (pchr_a->pos.x + pchr_a->pos.y)) );
 
-        depth_yx = MIN((pchr_a->collision_1.max_yx + (-pchr_a->pos.x + pchr_a->pos.y)) - (-pchr_b->pos.x + pchr_b->pos.y), 
+        depth_yx = MIN((pchr_a->collision_1.max_yx + (-pchr_a->pos.x + pchr_a->pos.y)) - (-pchr_b->pos.x + pchr_b->pos.y),
                       (-pchr_b->pos.x + pchr_b->pos.y) - (pchr_a->collision_1.min_yx + (-pchr_a->pos.x + pchr_a->pos.y)) );
     }
     else if ( platform_b )
@@ -3250,7 +3250,7 @@ bool_t do_platforms( Uint16 ichr_a, Uint16 ichr_b )
         depth_xy = MIN((pchr_b->collision_1.max_xy + (pchr_b->pos.x + pchr_b->pos.y)) -  (pchr_a->pos.x + pchr_a->pos.y),
                        (pchr_a->pos.x + pchr_a->pos.y) - (pchr_b->collision_1.min_xy + (pchr_b->pos.x + pchr_b->pos.y)) );
 
-        depth_yx = MIN((pchr_b->collision_1.max_yx + (-pchr_b->pos.x + pchr_b->pos.y)) - (-pchr_a->pos.x + pchr_a->pos.y), 
+        depth_yx = MIN((pchr_b->collision_1.max_yx + (-pchr_b->pos.x + pchr_b->pos.y)) - (-pchr_a->pos.x + pchr_a->pos.y),
                       (-pchr_a->pos.x + pchr_a->pos.y) - (pchr_b->collision_1.min_yx + (-pchr_b->pos.x + pchr_b->pos.y)) );
 
     }

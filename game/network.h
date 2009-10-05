@@ -139,10 +139,10 @@ extern net_instance_t * PNet;
 //--------------------------------------------------------------------------------------------
 
 // Network orders
-/*extern unsigned char           ordervalid[MAXORDER];
-extern unsigned char           orderwho[MAXORDER][MAXSELECT];  //
-extern unsigned int            orderwhat[MAXORDER];            //
-extern unsigned int            orderwhen[MAXORDER];            //*/
+//extern unsigned char           ordervalid[MAXORDER];
+//extern unsigned char           orderwho[MAXORDER][MAXSELECT]; 
+//extern unsigned int            orderwhat[MAXORDER];
+//extern unsigned int            orderwhen[MAXORDER];
 
 extern Uint32                  nexttimestamp;                // Expected timestamp
 extern FILE                   *globalnetworkerr;             // For debuggin' network

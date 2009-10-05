@@ -126,7 +126,6 @@ bool_t remove_enchant( Uint16 ienc )
         unset_enchant_value( ienc, set_type );
     }
 
-
     // Now fix dem weapons
     if ( ACTIVE_CHR( penc->target_ref ) )
     {
@@ -1420,6 +1419,9 @@ void update_all_enchants()
 //--------------------------------------------------------------------------------------------
 Uint16 cleanup_enchant_list( Uint16 ienc )
 {
+    // BB> remove all the dead enchants from the enchant list
+    //     and report back the first non-dead enchant in the list.
+
     Uint16 first_valid_enchant;
     Uint16 enc_now, enc_next;
 
@@ -1447,7 +1449,8 @@ Uint16 cleanup_enchant_list( Uint16 ienc )
 //--------------------------------------------------------------------------------------------
 void cleanup_all_enchants()
 {
-    // ZZ> This function lets enchantments spawn particles
+    // ZZ> this function scans all the enchants and removes any dead ones.
+    //     this happens only once a loop
 
     int cnt;
 
