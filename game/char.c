@@ -8180,9 +8180,10 @@ bool_t ai_state_set_bumplast( ai_state_t * pself, Uint16 ichr )
 
     if( !ACTIVE_CHR(ichr) ) return bfalse;
 
-    if( pself->bumplast != ichr ||  clock_wld > pself->bumplast_time + TARGET_UPS )
+    // 5 bumps per second?
+    if( pself->bumplast != ichr ||  update_wld > pself->bumplast_time + TARGET_UPS / 5 )
     {
-        pself->bumplast_time = clock_wld;
+        pself->bumplast_time = update_wld;
         pself->alert |= ALERTIF_BUMPED;
     }
     pself->bumplast = ichr;
