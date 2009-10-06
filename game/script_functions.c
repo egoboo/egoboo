@@ -382,8 +382,8 @@ Uint8 scr_TargetKilled( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    // Proceed only if the character's target has just died
-    returncode = HAS_SOME_BITS( pself->alert, ALERTIF_TARGETKILLED );
+    // Proceed only if the character's target has just died or is already dead
+	returncode = (HAS_SOME_BITS( pself->alert, ALERTIF_TARGETKILLED ) || !ChrList.lst[pself->target].alive);
 
     SCRIPT_FUNCTION_END();
 }
@@ -2439,7 +2439,7 @@ Uint8 scr_get_TargetGrogTime( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pstate->argument = pchr->grogtime;
+	pstate->argument = ChrList.lst[pchr->ai.target].grogtime;
     returncode = ( pstate->argument != 0 );
 
     SCRIPT_FUNCTION_END();
@@ -2454,7 +2454,7 @@ Uint8 scr_get_TargetDazeTime( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pstate->argument = pchr->dazetime;
+    pstate->argument = ChrList.lst[pchr->ai.target].dazetime;
     returncode = ( pstate->argument != 0 );
 
     SCRIPT_FUNCTION_END();

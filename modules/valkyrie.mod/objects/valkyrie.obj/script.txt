@@ -22,7 +22,7 @@
 //19    - n/a
 //20    - Ultimate Sacrifice
 //-----------------------------------------------------------------------------
-//Whip mastery skill
+//Spear mastery skill
 tmpx = selflevel
 tmpy = 0            //Need level 1
 IfXIsMoreThanY
@@ -67,12 +67,19 @@ IfXIsMoreThanY
 //-----------------------------------------------------------------------------
 //Speed abillity
 tmpx = selflevel
-tmpy = 13            //Need Level 15
+tmpy = 5            //Need Level 7
 IfXIsMoreThanY
-  Run
-  tmpargument = 1+selflevel+100       //1 percent per level
-  SetSpeedPercent
-  
+  SetTargetToSelf
+  tmpx = targetmaxlife > 2
+  tmpx = targetmaxlife > 1 + tmpx          //0.75 of max life
+  tmpy = targelife
+  IfXIsMoreThanY              //Only if at 75% life or better
+    Run
+  Else
+    Run
+    tmpargument = 1+selflevel+100       //1 percent bonus per level
+    SetSpeedPercent
+    
 //-----------------------------------------------------------------------------
 //Harvest soul skill (gain mana when kill something)
 IfScoredAHit

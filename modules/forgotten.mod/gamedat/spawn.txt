@@ -37,7 +37,7 @@ Player1:   NONE    0  4.5   4.5   0.0   N    0   0  0   0   0   T   F   G
   unknown:   NONE    9  58.0   9.0   1.0   N    0   0  0   0   0   F   F   N
 
 
-unknown:   NONE    10  23.0   13.0   0.0   N    0   0  0   0   0   F   F   N
+KnightSuit: NONE    10  23.0   13.0   0.0   N    0   0  0   0   0   F   F   N
   Torch:   NONE    11  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 unknown:   NONE    12  23.0   5.0   1.0   N    0   0  0   0   0   F   F   I
 unknown:   NONE    12  22.0   2.0   1.0   N    0   0  0   0   0   F   F   I
@@ -55,10 +55,10 @@ MEENA:     NONE    22  7.0   6.0   0.0   N    7   0  0   0   0   T   F   G
   Light:   NONE    39  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
   unknown:   NONE    55  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
-unknown:   NONE    10  27.0   18.0   4.0   N    0   0  0   0   0   F   F   N
+KnightSuit:  NONE    10  27.0   18.0   4.0   N    0   0  0   0   0   F   F   N
   Trident:   NONE    19  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
   Trident:   NONE    19  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-unknown:   NONE    10  19.0   18.0   4.0   N    0   0  0   0   0   F   F   N
+KnightSuit:  NONE    10  19.0   18.0   4.0   N    0   0  0   0   0   F   F   N
   Trident:   NONE    19  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
   Trident:   NONE    19  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 GrubBug:   NONE    37  48.0   29.0   1.0   N    0   0  0   0   0   F   F   I

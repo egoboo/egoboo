@@ -5,6 +5,7 @@ Version 2.7.8 (xx.10.2009)
 - New Feature: Improved AI by adding Line of Sight detection for targeting.
 - New Feature: Improved UI by implementing in-game pop up text.
 - New Feature: Implemented the PhysFS file system.
+- Update: Made some improvements to the Protector monster.
 - Update: Improved the way hitboxes works. Bumping into square things such as tables and bookcases
   is handled much better now.
 - Update: Edward Blakely aka eddyster made some finishing touches on the Sandweg theme song.

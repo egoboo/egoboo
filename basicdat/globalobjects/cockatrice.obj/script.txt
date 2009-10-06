@@ -14,7 +14,7 @@ IfScoredAHit
   tmpy = 25 + tmpy - tmpx
   tmpx = rand % 100
   IfXIsLessThanY
-    tmpargument = selflevel*15 + 125	//2,5 seconds +0.3 per level
+    tmpargument = selflevel*15 + 150	//3 seconds +0.3 per level
     SetTargetReloadTime
     tmpargument = 2
     SendMessageNear
@@ -144,7 +144,19 @@ IfTimeOut
       SetState
       tmpargument = 5
       PlaySound
+      CallForHelp           //Alert the others
 
+//---------------------------------------------------------------------
+//Someone screamed for help
+IfCalledForHelp
+  SetTargetToWhoeverCalledForHelp
+  tmpx = targetdistance
+  tmpy = 128*8
+  IfXIsLessThanY                //close enough to hear it?
+    SetTargetToNearestEnemy
+    tmpargument = STATESURROUND
+    SetState                    //help em!
+    
 //---------------------------------------------------------------------
 //Dont attack dead stuff
 IfTargetKilled

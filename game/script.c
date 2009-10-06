@@ -1167,17 +1167,17 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARTARGETSPEEDX:
                 varname = "TARGETSPEEDX";
-                iTmp = ChrList.lst[pself->target].vel.x;
+                iTmp = ABS(ChrList.lst[pself->target].vel.x);
                 break;
 
             case VARTARGETSPEEDY:
                 varname = "TARGETSPEEDY";
-                iTmp = ChrList.lst[pself->target].vel.y;
+                iTmp = ABS(ChrList.lst[pself->target].vel.y);
                 break;
 
             case VARTARGETSPEEDZ:
                 varname = "TARGETSPEEDZ";
-                iTmp = ChrList.lst[pself->target].vel.z;
+                iTmp = ABS(ChrList.lst[pself->target].vel.z);
                 break;
 
             case VARSELFSPAWNX:
@@ -1281,7 +1281,7 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
                 break;
 
             case VAROWNERDISTANCE:
-                varname = "OWNERdistance";
+                varname = "OWNERDISTANCE";
                 iTmp = ABS( ( int )( ChrList.lst[pself->owner].pos.x - pchr->pos.x ) ) +
                        ABS( ( int )( ChrList.lst[pself->owner].pos.y - pchr->pos.y ) );
                 break;

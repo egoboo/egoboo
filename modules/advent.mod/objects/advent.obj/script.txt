@@ -147,10 +147,17 @@ IfXIsMoreThanY
 tmpx = selflevel
 tmpy = 5            //Need Level 7
 IfXIsMoreThanY
-  Run
-  tmpargument = 1+selflevel+100       //1 percent per level
-  SetSpeedPercent
-
+  SetTargetToSelf
+  tmpx = targetmaxlife > 2
+  tmpx = targetmaxlife > 1 + tmpx          //0.75 of max life
+  tmpy = targelife
+  IfXIsMoreThanY              //Only if at 75% life or better
+    Run
+  Else
+    Run
+    tmpargument = 1+selflevel+100       //1 percent bonus per level
+    SetSpeedPercent
+    
 //------------------------------------------------------------------------------
 //Invoke Class Mastery if enough xp gained
 tmpargument = 0

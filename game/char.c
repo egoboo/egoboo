@@ -3429,7 +3429,7 @@ chr_t * chr_init( chr_t * pchr )
     // I think we have to set the dismount timer, otherwise objects that
     // are spawned by chests will behave strangely...
     // nope this did not fix it
-    pchr->dismount_timer = PHYS_DISMOUNT_TIME;
+    pchr->dismount_timer = 0; //PHYS_DISMOUNT_TIME;		//ZF> If this is != 0 then scorpion claws and riders are dropped at spawn (non-item objects)
 
 
     // set all of the integer references to invalid values
@@ -6974,7 +6974,7 @@ void points_to_chr_bumper_1( chr_bumper_1_t * pbmp, GLvector4 pos[], size_t pos_
     // BB> convert the new point cloud into a level 1 bounding box using a GLvector4
     //     array as the source
 
-    int cnt;
+    Uint32 cnt;
 
     if( NULL == pbmp || NULL == pos || 0 == pos_count ) return;
 

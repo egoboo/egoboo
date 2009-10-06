@@ -1912,17 +1912,17 @@ bool_t check_target( chr_t * psrc, Uint16 ichr_test, TARGET_TYPE target_type, bo
     // Skip held objects and self
     if ( psrc == ptst || ACTIVE_CHR(ptst->attachedto) || ptst->pack_ispacked ) return bfalse;
 
-    // Target items
-    if ( !target_items && ( ptst->isitem || ptst->invictus ) ) return bfalse;
-
     // Either only target dead stuff or alive stuff
     if ( target_dead == ptst->alive ) return bfalse;
 
     // Dont target invisible stuff, unless we can actually see them
     if ( !psrc->canseeinvisible && FF_MUL( ptst->inst.alpha, ptst->inst.max_light ) < INVISIBLE ) return bfalse;
 
-    is_hated = TeamList[psrc->team].hatesteam[ptst->team];
+	is_hated = TeamList[psrc->team].hatesteam[ptst->team];
     hates_me = TeamList[ptst->team].hatesteam[psrc->team];
+
+    // Target neutral items? (still target evil items, could be pets)
+    if ( !target_items && ( (ptst->isitem && is_hated) || ptst->invictus ) ) return bfalse;
 
     // these options are here for ideas of ways to mod this function
     is_friend    = !is_hated && !hates_me;

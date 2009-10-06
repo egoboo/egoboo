@@ -28,8 +28,7 @@ Ancient Blood: Slowly regenerate life naturally.
 Arcane Magic: Can use arcane spellbooks.
 Backstab: Deal extra damage when attacking sleeping creatures or enemies from behind.
 Backpacker: Character doesn't drop any of his/her money and keys when dying.
-Bow Mastery: +2 damage with all longbows.
-Butcher Form - Zombi becomes a Butcher. Extra life, damage and size but somewhat reduced speed.
+Butcher Form: Zombi becomes a Butcher. Extra life, damage and size but somewhat reduced speed.
 Cartography: The character always has the minimap of the current dungeon/area.
 Class Mastery: +3 bonus to all stats.
 Crackshot: % chance based on DEX to daze enemies with Gunpowder.
@@ -66,19 +65,19 @@ Poison Use: Can use poison without failure. Automatically identifies any poiseno
 Sense Undead: All enemy undead shows up on the minimap (if the map has been found).
 Sharpshooter: Deal bonus damage based on DEX with Gunpowder weapons.
 Sneak: Can stealth while moving one step at the time. Tap keyboard movement very slowly.
-Speed: Gives an extra +2% extra movement speed per level.
+Speed: Gives an extra +1% extra movement speed per level as long as the character has not lost more than
+       one-fourth of his or her maximum life.
 Stalker: Can stealth while sneaking around. Tap keyboard movement.
 Stealth: When not moving, fade away into the shadows.
-Sunder Attack: % chance to reduce enemy armor by 10. Sound effect is played.
-Teleport Mastery: Level 5 Wizard can cast teleport with 100% success and 33% less mana cost.
+Sunder Attack: Percent chance based on level to reduce enemy armor by 10. Sound effect is played.
+Teleport Mastery: The spellcaster can cast teleport with 100% accuracy and 33% less mana cost.
 Things that go Boom: The G'nome won't go down without a "little" firework. Very dangerous.
 Too Silly to Die: The Tourist has a % chance equal to his level to instantly respawn when killed with
                   no XP or money loss at all! He is simply too silly to die!
-Ultimate Sacrifice: In his death, the paladin engulfs his opponents in divine fury.
+Ultimate Sacrifice: In his death, the character engulfs his opponents in divine fury.
 Use Technological Items: Use g'nomish items and toys like gunpowder and bombs.
-Weapon Mastery: Gives a permanent full +2 damage bonus on all attacks.
+Weapon Mastery: Gives a permanent full +2 damage bonus with the specified weapon.
 Weapon Profiency: Allows the character to use the more advanced weapons like big swords and axes.
-Whip Mastery: Gives a nifty +2 extra damage with all whips.
 Wizard's Missile: Shoots rapidly red homing missiles when doing unarmed attacks (costs 1 mana)
 
 
@@ -86,7 +85,7 @@ VALKYRIE
 -------------------------------------------
 Level       Abillity
 1			- Immune vs. Cold, Weapon Profiency, Poison Use, Backstab
-2			- Spear Mastery
+2			- Weapon Mastery (Spear)
 3			- n/a
 4			- Speed
 5			- n/a
@@ -140,7 +139,7 @@ ARCHEOLOGIST
 Level       Abillity
 1			Acrobacy, Disarm Trap, Use Technological Items, Mobility, Literate
 2			n/a
-3			Whip Mastery
+3			Weapon Mastery (Whip)
 4			n/a
 5			n/a
 6			Lore Mastery
@@ -276,7 +275,7 @@ Level   Abillity
 5     - Stealth (While standing still)
 6     - n/a
 7     - n/a
-8     - Bow Mastery
+8     - Weapon Mastery (Longbow)
 9     - n/a
 10    - n/a
 11    - Elven Senses
@@ -302,7 +301,7 @@ Level   Abillity
 5     - Sunder Attack
 6     - n/a
 7     - n/a
-8     - Weapon Mastery
+8     - Weapon Mastery (All)
 9     - n/a
 10    - n/a
 11    - Grogging Hit
