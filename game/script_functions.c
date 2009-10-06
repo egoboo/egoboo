@@ -577,7 +577,7 @@ Uint8 scr_set_TargetToNearbyEnemy( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    ichr = _get_chr_target( pchr, NEARBY, TARGET_ENEMY, bfalse, bfalse, IDSZ_NONE, bfalse);
+    ichr = _get_chr_target( pchr, NEARBY, TARGET_ENEMY, bfalse, bfalse, IDSZ_NONE, bfalse, bfalse);
 
     returncode = (ichr != pself->index) && ACTIVE_CHR(ichr);
 
@@ -2264,7 +2264,7 @@ Uint8 scr_set_TargetToWideEnemy( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // This function finds an enemy, and proceeds only if there is one
-    ichr = _get_chr_target( pchr, WIDE, TARGET_ENEMY, bfalse, bfalse, IDSZ_NONE, bfalse);
+    ichr = _get_chr_target( pchr, WIDE, TARGET_ENEMY, bfalse, bfalse, IDSZ_NONE, bfalse, bfalse);
 
     returncode = (ichr != pself->index) && ACTIVE_CHR(ichr);
 
@@ -4000,7 +4000,7 @@ Uint8 scr_set_TargetToWideBlahID( script_state_t * pstate, ai_state_t * pself )
 
     // Try to find one
     ichr = _get_chr_target( pchr, WIDE, blahteam, ( pstate->distance >> 3 ) & 1 , ( pstate->distance ) & 1,
-        pstate->argument, ( pstate->distance >> 4 ) & 1 );
+        pstate->argument, ( pstate->distance >> 4 ) & 1, ( pstate->distance >> 5 ) & 1 );
 
     returncode = (ichr != pself->index) && ACTIVE_CHR(ichr);
 
@@ -4284,7 +4284,7 @@ Uint8 scr_set_TargetToDistantEnemy( script_state_t * pstate, ai_state_t * pself 
     // This function finds an enemy, within a certain distance to the character, and
     // proceeds only if there is one
 
-    ichr = _get_chr_target( pchr, pstate->distance, TARGET_ENEMY, bfalse, bfalse, IDSZ_NONE, bfalse);
+    ichr = _get_chr_target( pchr, pstate->distance, TARGET_ENEMY, bfalse, bfalse, IDSZ_NONE, bfalse, bfalse);
 
     returncode = (ichr != pself->index) && ACTIVE_CHR(ichr);
 
@@ -5299,7 +5299,7 @@ Uint8 scr_set_TargetToNearestBlahID( script_state_t * pstate, ai_state_t * pself
 
     // Try to find one
     ichr = _get_chr_target( pchr, NEAREST, blahteam, ( ( pstate->distance >> 3 ) & 1 ),
-                           ( ( pstate->distance ) & 1 ), pstate->argument, (( pstate->distance >> 4 ) & 1) );
+                           ( ( pstate->distance ) & 1 ), pstate->argument, (( pstate->distance >> 4 ) & 1), ( pstate->distance >> 5 ) & 1 );
 
     returncode = (ichr != pself->index) && ACTIVE_CHR(ichr);
 
@@ -5320,7 +5320,7 @@ Uint8 scr_set_TargetToNearestEnemy( script_state_t * pstate, ai_state_t * pself 
     Uint16 ichr;
     SCRIPT_FUNCTION_BEGIN();
 
-    ichr = _get_chr_target( pchr, 0, TARGET_ENEMY, bfalse, bfalse, IDSZ_NONE, bfalse );
+    ichr = _get_chr_target( pchr, 0, TARGET_ENEMY, bfalse, bfalse, IDSZ_NONE, bfalse, bfalse );
 
     returncode = (ichr != pself->index) && ACTIVE_CHR(ichr);
 
@@ -5341,7 +5341,7 @@ Uint8 scr_set_TargetToNearestFriend( script_state_t * pstate, ai_state_t * pself
     Uint16 ichr;
     SCRIPT_FUNCTION_BEGIN();
 
-    ichr = _get_chr_target( pchr, 0, TARGET_FRIEND, bfalse, bfalse, IDSZ_NONE, bfalse );
+    ichr = _get_chr_target( pchr, 0, TARGET_FRIEND, bfalse, bfalse, IDSZ_NONE, bfalse, bfalse );
 
     returncode = (ichr != pself->index) && ACTIVE_CHR(ichr);
 
@@ -5364,7 +5364,7 @@ Uint8 scr_set_TargetToNearestLifeform( script_state_t * pstate, ai_state_t * pse
     Uint16 ichr;
     SCRIPT_FUNCTION_BEGIN();
 
-    ichr = _get_chr_target( pchr, 0, TARGET_ALL, bfalse, bfalse, IDSZ_NONE, bfalse );
+    ichr = _get_chr_target( pchr, 0, TARGET_ALL, bfalse, bfalse, IDSZ_NONE, bfalse, bfalse );
 
     returncode = (ichr != pself->index) && ACTIVE_CHR(ichr);
 
@@ -7278,7 +7278,7 @@ Uint8 _find_tile_in_passage( const int x0, const int y0, const int tiletype, con
 }
 
 //--------------------------------------------------------------------------------------------
-Uint16 _get_chr_target( chr_t * pchr, Uint32 max_dist, TARGET_TYPE target_type, bool_t target_items, bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz  )
+Uint16 _get_chr_target( chr_t * pchr, Uint32 max_dist, TARGET_TYPE target_type, bool_t target_items, bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz, bool_t target_players )
 {
     // ZF> This is the new improved AI targeting system. Also includes distance in the Z direction.
     //     If max_dist is 0 then it searches without a max limit.
@@ -7293,7 +7293,7 @@ Uint16 _get_chr_target( chr_t * pchr, Uint32 max_dist, TARGET_TYPE target_type, 
 
     max_dist2 = max_dist * max_dist;
 
-    return chr_find_target( pchr, max_dist2, target_type, target_items, target_dead, target_idsz, exclude_idsz  );
+    return chr_find_target( pchr, max_dist2, target_type, target_items, target_dead, target_idsz, exclude_idsz, target_players  );
 
 
     //current_ticks = SDL_GetTicks();

@@ -349,7 +349,8 @@ void set_one_player_latch( Uint16 player );
 int  add_player( Uint16 character, Uint16 player, Uint32 device );
 
 // AI targeting
-Uint16 chr_find_target( struct s_chr * psrc, float max_dist2, TARGET_TYPE team, bool_t targetitems, bool_t targetdead, IDSZ idsz, bool_t excludeidsz);
+Uint16 chr_find_target( struct s_chr * psrc, float max_dist2, TARGET_TYPE target_type, bool_t target_items, 
+					   bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz, bool_t target_players );
 Uint16 prt_find_target( float pos_x, float pos_y, float pos_z, Uint16 facing,
                             Uint16 particletype, Uint8 team, Uint16 donttarget,
                             Uint16 oldtarget );
@@ -398,7 +399,7 @@ bool_t game_module_reset( game_module_t * pinst, Uint32 seed );
 bool_t game_module_start( game_module_t * pinst );
 bool_t game_module_stop ( game_module_t * pinst );
 
-bool_t check_target( struct s_chr * psrc, Uint16 ichr_test, TARGET_TYPE target_type, bool_t target_items, bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz );
+bool_t check_target( struct s_chr * psrc, Uint16 ichr_test, TARGET_TYPE target_type, bool_t target_items, bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz, bool_t target_players );
 
 void do_weather_spawn_particles();
 void attach_particles();

@@ -6,7 +6,6 @@ IfTimeOut
     IfTargetIsOnHatedTeam
       // Little music blurb
       tmpargument = 0
-      tmpdistance = 11025
       PlayFullSound
 
       // Pop the baddies

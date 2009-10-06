@@ -1895,7 +1895,7 @@ Uint16 prt_find_target( float pos_x, float pos_y, float pos_z, Uint16 facing,
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t check_target( chr_t * psrc, Uint16 ichr_test, TARGET_TYPE target_type, bool_t target_items, bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz )
+bool_t check_target( chr_t * psrc, Uint16 ichr_test, TARGET_TYPE target_type, bool_t target_items, bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz, bool_t target_players )
 {
     bool_t retval;
 
@@ -1908,6 +1908,9 @@ bool_t check_target( chr_t * psrc, Uint16 ichr_test, TARGET_TYPE target_type, bo
 
     if( !ACTIVE_CHR(ichr_test) ) return bfalse;
     ptst = ChrList.lst + ichr_test;
+
+	// Players only?
+	if ( target_players && !ptst->isplayer ) return bfalse;
 
     // Skip held objects and self
     if ( psrc == ptst || ACTIVE_CHR(ptst->attachedto) || ptst->pack_ispacked ) return bfalse;
@@ -1959,7 +1962,7 @@ bool_t check_target( chr_t * psrc, Uint16 ichr_test, TARGET_TYPE target_type, bo
 }
 
 //--------------------------------------------------------------------------------------------
-Uint16 chr_find_target( chr_t * psrc, float max_dist2, TARGET_TYPE target_type, bool_t target_items, bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz )
+Uint16 chr_find_target( chr_t * psrc, float max_dist2, TARGET_TYPE target_type, bool_t target_items, bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz, bool_t target_players )
 {
     // BB> this is the raw character targeting code, this is not throttled at all. You should call
     //     scr_get_chr_target() if you are calling this function from the scripting system.
@@ -1991,7 +1994,7 @@ Uint16 chr_find_target( chr_t * psrc, float max_dist2, TARGET_TYPE target_type, 
         if( !ACTIVE_CHR(ichr_test) ) continue;
         ptst = ChrList.lst + ichr_test;
 
-        if( !check_target( psrc, ichr_test, target_type, target_items, target_dead, target_idsz, exclude_idsz) )
+        if( !check_target( psrc, ichr_test, target_type, target_items, target_dead, target_idsz, exclude_idsz, target_players) )
         {
             continue;
         }
