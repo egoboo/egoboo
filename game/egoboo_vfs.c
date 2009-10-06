@@ -68,9 +68,12 @@ static struct s_vfs_search_context vfs_search_context = {NULL,NULL,{'\0'}};
 static void         _vfs_exit(void);
 static const char * _vfs_search( struct s_vfs_search_context * ctxt );
 static int          _vfs_vfscanf( FILE * file, const char * format, va_list args );
+
 static const char * _vfs_convert_fname_physfs( const char * fname );
 static const char * _vfs_convert_fname_sys  ( const char * fname );
+
 static int          _vfs_ensure_write_directory( const char * filename );
+static bool_t       _vfs_ensure_destination_file( const char * filename );
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 void vfs_init( const char * argv0 )
@@ -132,10 +135,8 @@ vfs_FILE * vfs_openWriteB( const char * filename )
     if( INVALID_CSTR(filename) ) return NULL;
 
     // make a local copy of the filename
-    strncpy( local_filename, filename, SDL_arraysize(local_filename) );
-
-    // make sure that PHYSFS gets the local_filename with the slashes it wants
-    _vfs_convert_fname_physfs( local_filename );
+    // and make sure that PHYSFS gets the local_filename with the slashes it wants
+    strncpy( local_filename, _vfs_convert_fname_physfs( filename ), SDL_arraysize(local_filename) );
 
     // make sure that the output directory exists
     if( !_vfs_ensure_write_directory( local_filename ) ) return NULL;
@@ -157,22 +158,16 @@ vfs_FILE * vfs_openAppendB( const char * filename )
 {
     // open a file for appending in binary mode, using PhysFS
 
-    VFS_PATH      local_filename = { '\0' };
     vfs_FILE    * vfs_file;
     PHYSFS_File * ftmp;
 
     if( INVALID_CSTR(filename) ) return NULL;
 
-    // make a local copy of the filename
-    strncpy( local_filename, filename, SDL_arraysize(local_filename) );
+    // make sure that the destination directory exists, and that a data is copied
+    // from the source file in the read path, if necessary
+    if( !_vfs_ensure_destination_file(filename) ) return NULL;
 
-    // make sure that PHYSFS gets the local_filename with the slashes it wants
-    _vfs_convert_fname_physfs( local_filename );
-
-    // make sure that the output directory exists
-    if( !_vfs_ensure_write_directory( local_filename ) ) return NULL;
-
-    ftmp = PHYSFS_openAppend( local_filename );
+    ftmp = PHYSFS_openAppend( filename );
     if( NULL == ftmp ) return NULL;
 
     vfs_file = (vfs_FILE*)calloc(1, sizeof(vfs_FILE));
@@ -253,10 +248,8 @@ const char * vfs_resolveReadFilename(const char * src_filename )
     if( INVALID_CSTR(src_filename) ) return NULL;
 
     // make a copy of the local filename
-    strncpy( loc_fname, src_filename, SDL_arraysize(loc_fname) );
-
-    // make sure that PHYSFS gets the filename with the slashes it wants
-    _vfs_convert_fname_physfs( loc_fname );
+    // and make sure that PHYSFS gets the filename with the slashes it wants
+    strncpy( loc_fname, _vfs_convert_fname_physfs( src_filename ), SDL_arraysize(loc_fname) );
 
     retval = NULL;
     retval_len = 0;
@@ -362,8 +355,8 @@ int _vfs_ensure_write_directory( const char * filename )
     if( INVALID_CSTR(filename) ) return 0;
 
     // make a working copy of the filename
-    strncpy( temp_dirname, filename, SDL_arraysize(temp_dirname) );
-    _vfs_convert_fname_physfs(temp_dirname);
+    // and make sure that PHYSFS gets the filename with the slashes it wants
+    strncpy( temp_dirname, _vfs_convert_fname_physfs(filename), SDL_arraysize(temp_dirname) );
 
     // grab the system-independent path relative to the write directory
     if( !vfs_isDirectory(temp_dirname) )
@@ -397,10 +390,8 @@ vfs_FILE * vfs_openWrite( const char * filename )
     if( INVALID_CSTR(filename) ) return NULL;
 
     // make a local copy of the filename
-    strncpy( local_filename, filename, SDL_arraysize(local_filename) );
-
-    // make sure that PHYSFS gets the local_filename with the slashes it wants
-    _vfs_convert_fname_physfs( local_filename );
+    // and make sure that PHYSFS gets the filename with the slashes it wants
+    strncpy( local_filename, _vfs_convert_fname_physfs( filename ), SDL_arraysize(local_filename) );
 
     // make sure that the output directory exists
     if( !_vfs_ensure_write_directory( local_filename ) ) return NULL;
@@ -422,30 +413,65 @@ vfs_FILE * vfs_openWrite( const char * filename )
 }
 
 //--------------------------------------------------------------------------------------------
+bool_t _vfs_ensure_destination_file( const char * filename )
+{
+    // BB> make sure that a copy of filename from the read path exists in
+    //     the write directory, but do not overwrite any existing file
+
+    VFS_PATH      local_filename = { '\0' };
+    const char  * sys_src_name, * sys_dst_name;
+    bool_t        read_exists, write_exists;
+
+    if( INVALID_CSTR(filename) ) return bfalse;
+
+    // make a local copy of the filename
+    // and make sure that PHYSFS gets the filename with the slashes it wants
+    strncpy( local_filename, _vfs_convert_fname_physfs( filename ), SDL_arraysize(local_filename) );
+
+    // make sure that the output directory exists
+    if( !_vfs_ensure_write_directory( local_filename ) ) return bfalse;
+
+    // be a bit carefil here, in case the file exists in the read path and not in the write
+    // directory
+
+    sys_src_name  = vfs_resolveReadFilename( local_filename );
+    read_exists   = fs_fileExists( sys_src_name  );
+
+    sys_dst_name  = vfs_resolveWriteFilename( local_filename );
+    write_exists  = fs_fileExists( sys_dst_name );
+
+    if( read_exists && !write_exists )
+    {
+        // read exists but write does not exist.
+        // copy the read file to the write file and then append
+        fs_copyFile( sys_src_name, sys_dst_name );
+
+        write_exists  = fs_fileExists( sys_dst_name );
+    }
+
+    return write_exists;
+}
+
+//--------------------------------------------------------------------------------------------
 vfs_FILE * vfs_openAppend( const char * filename )
 {
     // open a file for appending in text mode,  using c stdio
 
-    VFS_PATH      local_filename = { '\0' };
-    const char  * real_filename;
     vfs_FILE    * vfs_file;
-    FILE * ftmp;
+    FILE        * ftmp;
+    const char  * sys_dst_name;
 
     if( INVALID_CSTR(filename) ) return NULL;
 
-    // make a local copy of the filename
-    strncpy( local_filename, filename, SDL_arraysize(local_filename) );
+    // make sure that the destination directory exists, and that a data is copied
+    // from the source file in the read path, if necessary
+    if( !_vfs_ensure_destination_file(filename) ) return NULL;
 
-    // make sure that PHYSFS gets the local_filename with the slashes it wants
-    _vfs_convert_fname_physfs( local_filename );
+    sys_dst_name  = vfs_resolveWriteFilename( filename );
+    if( INVALID_CSTR(sys_dst_name) ) return NULL;
 
-    // make sure that the output directory exists
-    if( !_vfs_ensure_write_directory( local_filename ) ) return NULL;
-
-    real_filename = vfs_resolveWriteFilename( local_filename );
-    if( INVALID_CSTR(real_filename) ) return NULL;
-
-    ftmp = fopen( real_filename, "w+" );
+    // now open the file for append normally
+    ftmp = fopen( sys_dst_name, "a+" );
     if( NULL == ftmp ) return NULL;
 
     vfs_file = (vfs_FILE*)calloc(1, sizeof(vfs_FILE));

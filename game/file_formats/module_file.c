@@ -162,7 +162,8 @@ void module_add_idsz( const char *szLoadName, IDSZ idsz )
     if ( !module_has_idsz( szLoadName, idsz ) )
     {
         // Try to open the file in append mode
-        snprintf( newloadname, SDL_arraysize( newloadname), "modules" SLASH_STR "%s" SLASH_STR "gamedat" SLASH_STR "menu.txt", szLoadName );
+        snprintf( newloadname, SDL_arraysize( newloadname), "%s" SLASH_STR "gamedat" SLASH_STR "menu.txt", szLoadName );
+
         filewrite = vfs_openAppend( newloadname );
         if ( filewrite )
         {
