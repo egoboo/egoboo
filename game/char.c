@@ -1413,7 +1413,7 @@ bool_t pack_add_item( Uint16 item, Uint16 character )
         if ( ChrList.lst[item].attachedto != MAX_CHR )
         {
             detach_character_from_mount( item, btrue, bfalse );
-            chr_get_pai(item)->alert &= ( ~ALERTIF_DROPPED );
+            chr_get_pai(item)->alert &= ~ALERTIF_DROPPED;
         }
 
         // Remove the item from play
@@ -1950,14 +1950,14 @@ bool_t character_grab_stuff( Uint16 ichr_a, grip_offset_t grip_off, bool_t grab_
             for ( cnt = 0; cnt < grab_count; cnt++ )
             {
                 ichr_b = grab_list[cnt].ichr;
-                chr_make_text_billboard( ichr_b, chr_get_name(ichr_b), color_grn, 5 );
+                chr_make_text_billboard( ichr_b, chr_get_name(ichr_b, btrue), color_grn, 5 );
             }
 
             // things that can't be grabbed (5 secs and red)
             for ( cnt = 0; cnt < ungrab_count; cnt++ )
             {
                 ichr_b = ungrab_list[cnt].ichr;
-                chr_make_text_billboard( ichr_b, chr_get_name(ichr_b), color_red, 5 );
+                chr_make_text_billboard( ichr_b, chr_get_name(ichr_b, btrue), color_red, 5 );
             }
         }
 
@@ -5217,13 +5217,20 @@ bool_t chr_do_latch_button( chr_t * pchr )
         {
             chr_t * pitem = ChrList.lst + item;
 
-            if ( ( pitem->iskursed || chr_get_pcap(item)->istoobig ) && !chr_get_pcap(item)->isequipment )
+            if ( ( pitem->iskursed || pro_get_pcap(pitem->iprofile)->istoobig ) && !pro_get_pcap(pitem->iprofile)->isequipment )
             {
                 // The item couldn't be put away
                 pitem->ai.alert |= ALERTIF_NOTPUTAWAY;
-                if ( pchr->isplayer && chr_get_pcap(item)->istoobig )
+                if ( pchr->isplayer )
                 {
-                    debug_printf( "The %s is too big to be put away...", chr_get_pcap(item)->classname );
+                    if( pro_get_pcap(pitem->iprofile)->istoobig )
+                    {
+                        debug_printf( "%s is too big to be put away...", chr_get_name( item, btrue ) );
+                    }
+                    else if ( pitem->iskursed )
+                    {
+                        debug_printf( "%s is sticky...", chr_get_name( item, btrue ) );
+                    }
                 }
             }
             else
@@ -5251,13 +5258,20 @@ bool_t chr_do_latch_button( chr_t * pchr )
         {
             chr_t * pitem = ChrList.lst + item;
 
-            if ( ( pitem->iskursed || chr_get_pcap(item)->istoobig ) && !chr_get_pcap(item)->isequipment )
+            if ( ( pitem->iskursed || pro_get_pcap(pitem->iprofile)->istoobig ) && !pro_get_pcap(pitem->iprofile)->isequipment )
             {
                 // The item couldn't be put away
                 pitem->ai.alert |= ALERTIF_NOTPUTAWAY;
-                if ( pchr->isplayer && chr_get_pcap(item)->istoobig )
+                if ( pchr->isplayer )
                 {
-                    debug_printf( "The %s is too big to be put away...", chr_get_pcap(item)->classname );
+                    if( pro_get_pcap(pitem->iprofile)->istoobig )
+                    {
+                        debug_printf( "%s is too big to be put away...", chr_get_name( item, btrue )  );
+                    }
+                    else if ( pitem->iskursed )
+                    {
+                        debug_printf( "%s is sticky...", chr_get_name( item, btrue ) );
+                    }
                 }
             }
             else
@@ -6336,7 +6350,7 @@ bool_t chr_make_text_billboard( Uint16 ichr, const char * txt, SDL_Color color, 
 }
 
 //--------------------------------------------------------------------------------------------
-const char * chr_get_name( Uint16 ichr )
+const char * chr_get_name( Uint16 ichr, bool_t use_article )
 {
     static STRING szName;
 
@@ -6357,15 +6371,23 @@ const char * chr_get_name( Uint16 ichr )
         else if ( NULL != pcap )
         {
             char lTmp;
-            const char * article = "a";
 
-            lTmp = toupper( pcap->classname[0] );
-            if ( 'A' == lTmp || 'E' == lTmp || 'I' == lTmp || 'O' == lTmp || 'U' == lTmp )
+            if( use_article )
             {
-                article = "an";
-            }
+                const char * article = "a";
 
-            snprintf( szName, SDL_arraysize( szName), "%s %s", article, pcap->classname );
+                lTmp = toupper( pcap->classname[0] );
+                if ( 'A' == lTmp || 'E' == lTmp || 'I' == lTmp || 'O' == lTmp || 'U' == lTmp )
+                {
+                    article = "an";
+                }
+
+                snprintf( szName, SDL_arraysize( szName), "%s %s", article, pcap->classname );
+            }
+            else
+            {
+                snprintf( szName, SDL_arraysize( szName), "%s", pcap->classname );
+            }
         }
         else
         {

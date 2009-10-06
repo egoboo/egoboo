@@ -650,7 +650,7 @@ void   init_slot_idsz();
 bool_t ai_add_order( ai_state_t * pai, Uint32 value, Uint16 counter );
 
 bool_t chr_make_text_billboard( Uint16 ichr, const char * txt, SDL_Color color, int lifetime_secs );
-const char * chr_get_name( Uint16 ichr );
+const char * chr_get_name( Uint16 ichr, bool_t use_article );
 
 Uint16 ChrList_get_free();
 

@@ -3995,7 +3995,8 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
 
     float  depth_x, depth_y, depth_z, depth_xy, depth_yx;
     bool_t collide_x, collide_y, collide_z, collide_xy, collide_yx;
-    bool_t collide = bfalse;
+
+    bool_t do_platform;
 
     chr_t * pchr_a;
     cap_t * pcap_a;
@@ -4022,9 +4023,6 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     // do not collide with the thing that you're attached to
     if ( ichr_a == pprt_b->attachedto_ref ) return bfalse;
 
-    // if there's no friendly fire, particles issued by ichr_a can't hit it
-    if ( !ppip_b->friendlyfire && ichr_a == pprt_b->owner_ref ) return bfalse;
-
     xa = pchr_a->pos.x;
     ya = pchr_a->pos.y;
     za = pchr_a->pos.z;
@@ -4045,94 +4043,93 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     collide_y = depth_y > 0;
     if( !collide_y ) return bfalse;
 
-    ftmp1 = MIN( ((xb + yb) + pprt_b->bumpsize * SQRT_TWO) - (xa + ya), (xa + ya) - ((xb + yb) - pprt_b->bumpsize * SQRT_TWO) );
+    ftmp1 = MIN( ((xb + yb) + pprt_b->bumpsizebig) - (xa + ya), (xa + ya) - ((xb + yb) - pprt_b->bumpsizebig) );
     ftmp2 = MIN( ((xa + ya) + pchr_a->chr_prt_cv.max_xy) - (xb + yb), (xb + yb) - ((xa + ya) + pchr_a->chr_prt_cv.min_xy));
     depth_xy = MAX( ftmp1, ftmp2 );
     collide_xy = depth_xy > 0;
     if( !collide_xy ) return bfalse;
     depth_xy *= INV_SQRT_TWO;
 
-    ftmp1 = MIN( ((-xb + yb) + pprt_b->bumpsize * SQRT_TWO) - (-xa + ya), (-xa + ya) - ((-xb + yb) - pprt_b->bumpsize * SQRT_TWO) );
+    ftmp1 = MIN( ((-xb + yb) + pprt_b->bumpsizebig) - (-xa + ya), (-xa + ya) - ((-xb + yb) - pprt_b->bumpsizebig) );
     ftmp2 = MIN( ((-xa + ya) + pchr_a->chr_prt_cv.max_yx) - (-xb + yb), (-xb + yb) - ((-xa + ya) + pchr_a->chr_prt_cv.min_yx));
     depth_yx = MAX( ftmp1, ftmp2 );
     collide_yx = depth_yx > 0;
     if( !collide_yx ) return bfalse;
     depth_yx *= INV_SQRT_TWO;
 
-    ftmp1 = MIN( (zb + pprt_b->bumpsize) - za, za - (zb - pprt_b->bumpsize) );
-    ftmp2 = MIN( (za + pchr_a->chr_prt_cv.max_z) - zb, zb - (za + pchr_a->chr_prt_cv.min_z));
-    depth_z = MAX( ftmp1, ftmp2 );
-    collide_z = depth_z > 0;
-    if( depth_z <= -PLATTOLERANCE ) return bfalse;
-
-    // because of the return statements in the above code, the following is
-    // exactly equivalent to "collide = collide_z", but it is written
-    // the following way for completeness and readability
-    collide = collide_x && collide_y && collide_z && collide_xy && collide_yx;
-
-    // not colliding? interacting with a platform?
-    if( !collide )
+    // detect the platform tolerance
+    do_platform = bfalse;
+    if( pchr_a->platform && !ACTIVE_CHR(pprt_b->attachedto_ref) )
     {
-        retval = bfalse;
+        depth_z = zb - (za + pchr_a->chr_prt_cv.max_z);
+        do_platform = ( depth_z > -PLATTOLERANCE && depth_z < PLATTOLERANCE);
+    }
 
+    // interacting with a platform?
+    if( do_platform  )
+    {
         // the only way to get to this point is if the two objects don't collide
         // but they are within the PLATTOLERANCE of each other in the z direction
 
         // gravity is not handled here
 
-        // do nothing if this is not a platform
-        if ( pchr_a->platform && !ACTIVE_CHR(pprt_b->attachedto_ref) )
+        bool_t z_collide, was_z_collide;
+
+        // it is a valid platform. now figure out the physics
+
+        // are they colliding for the first time?
+        z_collide     = (zb < za + pchr_a->chr_prt_cv.max_z);
+        was_z_collide = (zb - pprt_b->vel.z < za + pchr_a->chr_prt_cv.max_z - pchr_a->vel.z);
+
+        if( z_collide && !was_z_collide )
         {
-            bool_t z_collide, was_z_collide;
+            // Particle is falling onto the platform
+            pprt_b->pos.z = za + pchr_a->chr_prt_cv.max_z;
+            pprt_b->vel.z = pchr_a->vel.z - pprt_b->vel.z * ppip_b->dampen;
+            retval = btrue;
+        }
+        else if (z_collide)
+        {
+            // colliding this time and last time. particle is *embedded* in the platform
+            pprt_b->pos.z = za + pchr_a->chr_prt_cv.max_z;
 
-            // it is a valid platform. now figure out the physics
-
-            // are they colliding for the first time?
-            z_collide     = (zb < za + pchr_a->chr_prt_cv.max_z);
-            was_z_collide = (zb - pprt_b->vel.z < za + pchr_a->chr_prt_cv.max_z - pchr_a->vel.z);
-
-            if( z_collide && !was_z_collide )
+            if( pprt_b->vel.z - pchr_a->vel.z < 0 )
             {
-                // Particle is falling onto the platform
-                pprt_b->pos.z = za + pchr_a->chr_prt_cv.max_z;
-                pprt_b->vel.z = pchr_a->vel.z - pprt_b->vel.z * ppip_b->dampen;
-                retval = btrue;
-            }
-            else if (z_collide)
-            {
-                // colliding this time and last time. particle is *embedded* in the platform
-                pprt_b->pos.z = za + pchr_a->chr_prt_cv.max_z;
-
-                if( pprt_b->vel.z - pchr_a->vel.z < 0 )
-                {
-                    pprt_b->vel.z = pchr_a->vel.z * ppip_b->dampen + platstick * pchr_a->vel.z;
-                }
-                else
-                {
-                    pprt_b->vel.z = pprt_b->vel.z * (1.0f - platstick) + pchr_a->vel.z * platstick;
-                }
-                pprt_b->vel.x = pprt_b->vel.x * (1.0f - platstick) + pchr_a->vel.x * platstick;
-                pprt_b->vel.y = pprt_b->vel.y * (1.0f - platstick) + pchr_a->vel.y * platstick;
-                retval = btrue;
+                pprt_b->vel.z = pchr_a->vel.z * ppip_b->dampen + platstick * pchr_a->vel.z;
             }
             else
             {
-                // not colliding this time or last time. particle is just near the platform
-                float lerp_z = (zb < za + pchr_a->chr_prt_cv.max_z) / PLATTOLERANCE;
-                lerp_z = CLIP(lerp_z, -1, 1);
+                pprt_b->vel.z = pprt_b->vel.z * (1.0f - platstick) + pchr_a->vel.z * platstick;
+            }
+            pprt_b->vel.x = pprt_b->vel.x * (1.0f - platstick) + pchr_a->vel.x * platstick;
+            pprt_b->vel.y = pprt_b->vel.y * (1.0f - platstick) + pchr_a->vel.y * platstick;
+            retval = btrue;
+        }
+        else
+        {
+            // not colliding this time or last time. particle is just near the platform
+            float lerp_z = (zb < za + pchr_a->chr_prt_cv.max_z) / PLATTOLERANCE;
+            lerp_z = CLIP(lerp_z, -1, 1);
 
-                if( lerp_z > 0 )
-                {
-                    float tmp_platstick = platstick * lerp_z;
-                    pprt_b->vel.z = pprt_b->vel.z * (1.0f - tmp_platstick) + pchr_a->vel.z * tmp_platstick;
-                    pprt_b->vel.x = pprt_b->vel.x * (1.0f - tmp_platstick) + pchr_a->vel.x * tmp_platstick;
-                    pprt_b->vel.y = pprt_b->vel.y * (1.0f - tmp_platstick) + pchr_a->vel.y * tmp_platstick;
-                    retval = btrue;
-                }
+            if( lerp_z > 0 )
+            {
+                float tmp_platstick = platstick * lerp_z;
+                pprt_b->vel.z = pprt_b->vel.z * (1.0f - tmp_platstick) + pchr_a->vel.z * tmp_platstick;
+                pprt_b->vel.x = pprt_b->vel.x * (1.0f - tmp_platstick) + pchr_a->vel.x * tmp_platstick;
+                pprt_b->vel.y = pprt_b->vel.y * (1.0f - tmp_platstick) + pchr_a->vel.y * tmp_platstick;
+                retval = btrue;
             }
         }
+
+        return btrue;
     }
-    else
+
+    // detect normal collision in the z direction
+    depth_z = MIN( zb + pprt_b->bumpsize, za + pchr_a->chr_prt_cv.max_z ) - MAX( zb - pprt_b->bumpsize, za + pchr_a->chr_prt_cv.min_z );
+    collide_z = depth_z > 0;
+    if( !collide_z ) return bfalse;
+
+    retval = bfalse;
     {
         //float was_xa, was_ya, was_za;
         //float was_xb, was_yb, was_zb;
@@ -4399,12 +4396,15 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
 
                         prt_vel2 = VDotProduct( pprt_b->vel, pprt_b->vel );
 
+                        // get the "kinetic energy" from the damage
+                        prt_ke = 80.0f * actual_damage;
+
                         // the faster the particle is going, the smaller the "mass" it
                         // needs to do the damage
-                        prt_mass = 0;
+                        prt_mass = 0.0f;
                         if( prt_vel2 > 0.0f )
                         {
-                            prt_mass = 80.0f * actual_damage / ( 0.5f * prt_vel2 );
+                            prt_mass = prt_ke / ( 0.5f * prt_vel2 );
                         }
                         prt_mass = MAX( 1.0f, prt_mass );
 
@@ -5814,6 +5814,7 @@ bool_t detect_chr_prt_interaction( Uint16 ichr_a, Uint16 iprt_b )
     bool_t interact_y  = bfalse;
     bool_t interact_xy = bfalse;
     bool_t interact_z  = bfalse;
+    bool_t interact_platform = bfalse;
 
     float xa, ya, za;
     float xb, yb, zb;
@@ -5842,22 +5843,27 @@ bool_t detect_chr_prt_interaction( Uint16 ichr_a, Uint16 iprt_b )
     zb = pprt_b->pos.z;
 
     // don't interact if there is no interaction
-    if ( 0 == pchr_a->bump_1.size || 0 == pprt_b->bumpsize ) return bfalse;
+    //if ( 0 == pchr_a->bump_1.size || 0 == pprt_b->bumpsize ) return bfalse;
 
     // First check absolute value diamond
     dx = ABS( xa - xb );
     dy = ABS( ya - yb );
     dxy = dx + dy;
 
+
+    // estimate the horizontal interactions this frame
+    interact_x  = (dx  <= MIN(pchr_a->bump_1.size,    pprt_b->bumpsize   ));
+    interact_y  = (dy  <= MIN(pchr_a->bump_1.size,    pprt_b->bumpsize   ));
+    interact_xy = (dxy <= MIN(pchr_a->bump_1.sizebig, pprt_b->bumpsizebig));
+
+    // estimate the vertical interactions this frame
+    depth_z = zb - (za + pchr_a->bump_1.height);
+    interact_platform = (depth_z > -PLATTOLERANCE && depth_z < PLATTOLERANCE );
+
     depth_z = MIN( za + pchr_a->bump_1.height, zb + pprt_b->bumpheight ) - MAX(za, zb - pprt_b->bumpheight);
+    interact_z  = (depth_z > 0) || interact_platform;
 
-    // estimate the interactions this frame
-    interact_x  = (dx  <= pchr_a->bump_1.size    + pprt_b->bumpsize   );
-    interact_y  = (dy  <= pchr_a->bump_1.size    + pprt_b->bumpsize   );
-    interact_xy = (dxy <= pchr_a->bump_1.sizebig + pprt_b->bumpsizebig);
-    interact_z  = (depth_z > 0);
-
-    if ( !interact_x || !interact_y || !interact_z || !interact_xy ) return bfalse;
+    if ( !interact_x || !interact_y || !interact_xy || !interact_z ) return bfalse;
 
     return btrue;
 }
@@ -6034,7 +6040,7 @@ void expand_escape_codes( Uint16 ichr, script_state_t * pstate, char * src, char
 
                 case 'n' : // Name
                     {
-                        snprintf( szTmp, SDL_arraysize( szTmp), "%s", chr_get_name( ichr ) );
+                        snprintf( szTmp, SDL_arraysize( szTmp), "%s", chr_get_name( ichr, btrue ) );
                     }
                     break;
 
@@ -6052,7 +6058,7 @@ void expand_escape_codes( Uint16 ichr, script_state_t * pstate, char * src, char
                     {
                         if ( NULL != pai )
                         {
-                            snprintf( szTmp, SDL_arraysize( szTmp), "%s", chr_get_name( pai->target ) );
+                            snprintf( szTmp, SDL_arraysize( szTmp), "%s", chr_get_name( pai->target, btrue ) );
                         }
                     }
                     break;
@@ -6061,7 +6067,7 @@ void expand_escape_codes( Uint16 ichr, script_state_t * pstate, char * src, char
                     {
                         if ( NULL != pai )
                         {
-                            snprintf( szTmp, SDL_arraysize( szTmp), "%s", chr_get_name( pai->owner ) );
+                            snprintf( szTmp, SDL_arraysize( szTmp), "%s", chr_get_name( pai->owner, btrue ) );
                         }
                     }
                     break;
