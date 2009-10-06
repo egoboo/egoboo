@@ -7061,12 +7061,11 @@ void chr_bumper_1_downgrade( chr_bumper_1_t * psrc, chr_bumper_0_t bump_base, ch
         else
         {
             // handle the vertical distortion the same as above
-            p_chr_prt->min_z = psrc->min_z;
             p_chr_prt->max_z = MAX(bump_base.height, psrc->max_z);
         }
 
         // 0 == bump_base.size is supposed to be shorthand for "this object doesn't interact
-        // with anything, so we have to set all of the horizontal p_chr_prt data to zero to
+        // with anything", so we have to set all of the horizontal p_chr_prt data to zero to
         // make 
         if( 0 == bump_base.size )
         {

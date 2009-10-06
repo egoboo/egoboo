@@ -571,6 +571,11 @@ ConfigFilePtr_t ConfigFile_open( ConfigFilePtr_t pConfigFile, const char *szFile
     {
         strncpy( local_attribute, "rt", SDL_arraysize(local_attribute)-2 );
     }
+    else
+    {
+        strncpy( local_attribute, szAttribute, SDL_arraysize(local_attribute)-2 );
+    }
+
     if( force )
     {
         strcat( local_attribute, "+" );

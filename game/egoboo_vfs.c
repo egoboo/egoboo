@@ -349,6 +349,7 @@ vfs_FILE * vfs_openRead( const char * filename )
 //--------------------------------------------------------------------------------------------
 int _vfs_ensure_write_directory( const char * filename )
 {
+    int           retval;
     VFS_PATH      temp_dirname = { '\0' };
     char        * tmpstr;
 
@@ -374,7 +375,13 @@ int _vfs_ensure_write_directory( const char * filename )
 
     // call mkdir() on this directory. PHYSFS will automatically generate the
     // directories needed between the write directory and the specified directory
-    return vfs_mkdir( temp_dirname );
+    retval = 0;
+    if( VALID_CSTR(temp_dirname) )
+    {
+        retval = vfs_mkdir( temp_dirname );
+    }
+
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
