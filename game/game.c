@@ -4390,46 +4390,63 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
                         pprt_b->damage = loc_damage;
                     }
 
-
                     // Normal particle collision damage
                     if ( (ABS(actual_damage) > 0) && ppip_b->allowpush && pchr_a->phys.weight != 0xFFFFFFFF )
                     {
                         float factor;
+                        float prt_mass, prt_ke, prt_vel2;
                         GLvector3 impulse;
 
-                        // try to make another visual feedback of the damage.
-                        // massive overkill should shoot something across the screen
-                        // little damage should do almost nothing
+                        prt_vel2 = VDotProduct( pprt_b->vel, pprt_b->vel );
 
-                        impulse.x = impulse.y = impulse.z = 0.0f;
-
-                        factor = ( (0 == pchr_a->lifemax) ? 1.0f : (float)actual_damage / (float)pchr_a->lifemax );
-                        factor = MIN( 10.0f, 3.0f * factor );
-
-                        if ( 0 == pchr_a->phys.weight )
+                        // the faster the particle is going, the smaller the "mass" it
+                        // needs to do the damage
+                        prt_mass = 0;
+                        if( prt_vel2 > 0.0f )
                         {
-                            impulse.x  += (pprt_b->vel.x - pchr_a->vel.x) * factor;
-                            impulse.y  += (pprt_b->vel.y - pchr_a->vel.y) * factor;
-                            impulse.z  += (pprt_b->vel.z - pchr_a->vel.z) * factor;
+                            prt_mass = 80.0f * actual_damage / ( 0.5f * prt_vel2 );
+                        }
+                        prt_mass = MAX( 1.0f, prt_mass );
+
+                        // the faster the particle (the smaller the particle "mass" ), the bigger the
+                        // kickback
+                        factor = 1.0f / (1.0f + pchr_a->phys.weight / prt_mass );
+
+                        // modify it by the damage type
+                        if( DAMAGE_CRUSH == pprt_b->damagetype )
+                        {
+                            // very blunt type of attack, the maximum effect
+                            //factor *= 1.0f;
+                        }
+                        else if ( DAMAGE_POKE == pprt_b->damagetype )
+                        {
+                            // very focussed type of attack, the minimum effect
+                            factor /= 2.0f;
                         }
                         else
                         {
-                            factor *= MIN( 1.0f, 110.0f / pchr_a->phys.weight );   // 110 is the "iconic" weight of the adventurer
-                            factor *= MIN( 1.0f, factor * pchr_a->phys.bumpdampen );
-
-                            impulse.x  += (pprt_b->vel.x - pchr_a->vel.x) * factor;
-                            impulse.y  += (pprt_b->vel.y - pchr_a->vel.y) * factor;
-                            impulse.z  += (pprt_b->vel.z - pchr_a->vel.z) * factor;
+                            // all other damage types are in th emiddle
+                            factor *= INV_SQRT_TWO;
                         }
 
+                        // modify it by the the severity of the damage
+                        // reduces the damage below actual_damage == pchr_a->lifemax
+                        // and it doubles it if actual_damage is really huge
+                        factor *= 2.0f * (float)actual_damage / (float)(actual_damage + pchr_a->lifemax);
+
+                        // calculate the "impulse"
+                        impulse = VSub( pprt_b->vel, pchr_a->vel );
+                        impulse.x *= factor;
+                        impulse.y *= factor;
+                        impulse.z *= factor;
+
+                        // apply the "impulse"
                         pchr_a->phys.avel.x  += impulse.x;
                         pchr_a->phys.avel.y  += impulse.y;
                         pchr_a->phys.avel.z  += impulse.z;
 
-                        // equal and opposite reactions and all of that
-                        pprt_b->vel.x -= impulse.x;
-                        pprt_b->vel.y -= impulse.y;
-                        pprt_b->vel.z -= impulse.z;
+                        // the particle has come to rest in the character
+                        pprt_b->vel = VSub( pchr_a->vel, impulse );
                     }
 
                     // Notify the attacker of a scored hit
