@@ -3002,7 +3002,7 @@ int draw_fps( int y )
 
     if ( parseerror )
     {
-        y = _draw_string_raw( 0, y, "SCRIPT ERROR ( SEE LOG.TXT )" );
+        y = _draw_string_raw( 0, y, "SCRIPT ERROR ( see \"/debug/log.txt\" )" );
     }
 
     if ( fpson )

@@ -804,7 +804,7 @@ void update_game()
                 local_seekurse = btrue;
             }
 
-            if( pchr->hasdarkvision ) 
+            if( pchr->hasdarkvision )
             {
                 local_seedark = MAX(local_seedark, pchr->hasdarkvision);
             }
@@ -1103,11 +1103,13 @@ void console_init()
 //--------------------------------------------------------------------------------------------
 int do_ego_proc_begin( ego_process_t * eproc )
 {
+    const char * tmpname;
+
     // initialize the virtual filesystem first
     vfs_init( eproc->argv0 );
 
     // Initialize logging next, so that we can use it everywhere.
-    log_init( vfs_resolveWriteFilename("log.txt") );
+    log_init( vfs_resolveWriteFilename("/debug/log.txt") );
     log_setLoggingLevel( 2 );
 
     // start initializing the various subsystems
@@ -1118,9 +1120,10 @@ int do_ego_proc_begin( ego_process_t * eproc )
     _gclock = clk_create("global clock", -1);
 
     // read the "setup.txt" file
-    if ( !setup_read( "setup.txt" ) )
+    tmpname = "setup.txt";
+    if ( !setup_read( tmpname ) )
     {
-        log_error( "Could not find Setup.txt\n" );
+        log_error( "Could not find \"%s\".\n", tmpname );
     }
 
     // download the "setup.txt" values into the cfg struct
@@ -1853,7 +1856,7 @@ Uint16 prt_find_target( float pos_x, float pos_y, float pos_z, Uint16 facing,
 
         // ignore invictus
         if( pchr->invictus ) continue;
-        
+
         // we are going to give the player a break and not target things that
         // can't be damaged, unless the particle is homing. If it homes in,
         // the he damagetime could drop off en route.
@@ -1872,7 +1875,7 @@ Uint16 prt_find_target( float pos_x, float pos_y, float pos_z, Uint16 facing,
             // Only proceed if we are facing the target
             if (angle < ppip->targetangle || angle > ( 0xFFFF - ppip->targetangle ) )
             {
-                float dist2 = 
+                float dist2 =
                     POW(ABS(pchr->pos.x - pos_x), 2) +
                     POW(ABS(pchr->pos.y - pos_y), 2) +
                     POW(ABS(pchr->pos.z - pos_z), 2);
@@ -4118,7 +4121,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
                 float lerp_z = (zb < za + pchr_a->chr_prt_cv.max_z) / PLATTOLERANCE;
                 lerp_z = CLIP(lerp_z, -1, 1);
 
-                if( lerp_z > 0 ) 
+                if( lerp_z > 0 )
                 {
                     float tmp_platstick = platstick * lerp_z;
                     pprt_b->vel.z = pprt_b->vel.z * (1.0f - tmp_platstick) + pchr_a->vel.z * tmp_platstick;
@@ -4126,7 +4129,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
                     pprt_b->vel.y = pprt_b->vel.y * (1.0f - tmp_platstick) + pchr_a->vel.y * tmp_platstick;
                     retval = btrue;
                 }
-            }  
+            }
         }
     }
     else
@@ -4137,7 +4140,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
         //bool_t was_collide_x, was_collide_y, was_collide_z, was_collide_xy, was_collide_yx;
         //bool_t was_collide;
 
-        // ??? there is no point in dealing with particles and pressure ??? 
+        // ??? there is no point in dealing with particles and pressure ???
         //was_xa = pchr_a->pos_old.x;
         //was_ya = pchr_a->pos_old.y;
         //was_za = pchr_a->pos_old.z;

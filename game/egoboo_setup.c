@@ -159,7 +159,23 @@ bool_t setup_read( const char* filename )
 
     strncpy( _config_filename, filename, SDL_arraysize(_config_filename) );
 
-    lConfigSetup = LoadConfigFile( vfs_resolveReadFilename( _config_filename ) );
+    // do NOT force the file to open in a read directory if it doesn't exist. this will cause a failure in
+    // linux if the directory is read-only
+    lConfigSetup = LoadConfigFile( vfs_resolveReadFilename( _config_filename ), bfalse );
+
+    // if the file can't be opened, try to create something
+    if( NULL == lConfigSetup )
+    {
+        // this will actually create the file within the write directory
+        // more of a hack than an ideal solution
+        vfs_FILE * ftmp = vfs_openAppend( _config_filename );
+        vfs_close( ftmp );
+
+        // now try to read it from the write directory (which should be ahead of all the
+        // read directories on the search path
+        lConfigSetup = LoadConfigFile( vfs_resolveReadFilename( _config_filename ), bfalse );
+
+    }
 
     return NULL != lConfigSetup;
 }

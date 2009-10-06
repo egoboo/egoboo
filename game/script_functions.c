@@ -7192,7 +7192,6 @@ Uint8 _append_end_text( chr_t * pchr, const int message, script_state_t * pstate
     {
         char * src, * src_end;
         char * dst, * dst_end;
-        int i = 0;
 
         // Copy the message_offset
         read = MessageOffset.lst[message_offset];

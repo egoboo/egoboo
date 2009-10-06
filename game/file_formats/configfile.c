@@ -67,7 +67,7 @@
 // util
 static void ConfigFileString_Encode( char *pStr );
 
-static ConfigFilePtr_t   ConfigFile_open( ConfigFilePtr_t pConfigFile, const char *szFileName, const char * szAttribute );
+static ConfigFilePtr_t   ConfigFile_open( ConfigFilePtr_t pConfigFile, const char *szFileName, const char * szAttribute, bool_t force );
 static ConfigFile_retval ConfigFile_close( ConfigFilePtr_t pConfigFile );
 
 static ConfigFile_retval ConfigFile_read( ConfigFilePtr_t pConfigFile );
@@ -558,11 +558,23 @@ ConfigFile_retval ConfigFile_ReadCommentary( ConfigFilePtr_t pConfigFile, Config
 // ConfigFile_open allocates the memory for the ConfigFile_t. To
 // deallocate the memory, use ConfigFile_close
 
-ConfigFilePtr_t ConfigFile_open( ConfigFilePtr_t pConfigFile, const char *szFileName, const char * szAttribute )
+ConfigFilePtr_t ConfigFile_open( ConfigFilePtr_t pConfigFile, const char *szFileName, const char * szAttribute, bool_t force )
 {
+    char    local_attribute[32];
     FILE   *lTempFile;
+
+
     if (NULL == szFileName || '\0' == szFileName[0]) return pConfigFile;
-    if (NULL == szAttribute) szAttribute = "rt+";
+
+
+    if (NULL == szAttribute || '\0' == szAttribute[0] )
+    {
+        strncpy( local_attribute, "rt", SDL_arraysize(local_attribute)-2 );
+    }
+    if( force )
+    {
+        strcat( local_attribute, "+" );
+    }
 
     // make sure that we have a valid, closed ConfigFile
     if (NULL == pConfigFile)
@@ -575,7 +587,7 @@ ConfigFilePtr_t ConfigFile_open( ConfigFilePtr_t pConfigFile, const char *szFile
     }
 
     // open a file stream for access using the szAttribute attribute
-    lTempFile = fopen( szFileName, szAttribute );
+    lTempFile = fopen( szFileName, local_attribute );
     if ( NULL == lTempFile  )
     {
         return pConfigFile;
@@ -1097,12 +1109,12 @@ ConfigFile_retval ConfigFile_write( ConfigFilePtr_t pConfigFile )
 //--------------------------------------------------------------------------------------------
 // ReadConfigFile creates a new ConfigFile_t fills it with the data in the file szFileName
 
-ConfigFilePtr_t LoadConfigFile( const char *szFileName )
+ConfigFilePtr_t LoadConfigFile( const char *szFileName, bool_t force )
 {
     ConfigFilePtr_t lConfigFile;
 
     // try to open a file
-    lConfigFile = ConfigFile_open( NULL, szFileName, "rt+" );
+    lConfigFile = ConfigFile_open( NULL, szFileName, "", force );
     if (NULL == lConfigFile) return NULL;
 
     // try to read the data
@@ -1123,7 +1135,7 @@ ConfigFile_retval SaveConfigFile( ConfigFilePtr_t pConfigFile )
 
     if ( NULL == pConfigFile ) return ConfigFile_succeed;
 
-    if ( !ConfigFile_open( pConfigFile, pConfigFile->filename, "wt" ) )
+    if ( !ConfigFile_open( pConfigFile, pConfigFile->filename, "wt", btrue ) )
     {
         return ConfigFile_fail;
     }
@@ -1151,7 +1163,7 @@ ConfigFile_retval SaveConfigFileAs( ConfigFilePtr_t pConfigFile, const char *szF
     strncpy( old_filename, pConfigFile->filename, SDL_arraysize(old_filename) );
 
     // try to open the target file
-    if ( !ConfigFile_open( pConfigFile, szFileName, "wt" ) )
+    if ( !ConfigFile_open( pConfigFile, szFileName, "wt", btrue ) )
     {
         return ConfigFile_fail;
     }

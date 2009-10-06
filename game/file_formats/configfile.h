@@ -70,7 +70,7 @@ typedef struct s_ConfigFile
 extern ConfigFilePtr_t   ConfigFile_create();
 extern ConfigFile_retval ConfigFile_destroy( ConfigFilePtr_t * ptmp );
 
-extern ConfigFilePtr_t   LoadConfigFile( const char *szFileName );
+extern ConfigFilePtr_t   LoadConfigFile( const char *szFileName, bool_t force );
 extern ConfigFile_retval SaveConfigFile( ConfigFilePtr_t pConfigFile );
 extern ConfigFile_retval SaveConfigFileAs( ConfigFilePtr_t pConfigFile, const char *szFileName );
 

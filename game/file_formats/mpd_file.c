@@ -55,6 +55,8 @@ tile_definition_t tile_dict[MAXMESHTYPE];
 void tile_dictionary_load(tile_definition_t dict[], size_t dict_size)
 {
     // ZZ> This function loads fan types for the terrain
+
+    const char * tmpname;
     Uint32 cnt, entry, vertices, commandsize;
     int numfantype, fantype, bigfantype;
     int numcommand, command;
@@ -72,10 +74,11 @@ void tile_dictionary_load(tile_definition_t dict[], size_t dict_size)
     }
 
     // Open the file and go to it
-    fileread = vfs_openRead( "basicdat" SLASH_STR "fans.txt" );
+    tmpname = "basicdat" SLASH_STR "fans.txt";
+    fileread = vfs_openRead( tmpname );
     if ( NULL == fileread )
     {
-        log_error( "Cannot load the tile definitions \"basicdat" SLASH_STR "fans.txt\" \n" );
+        log_error( "Cannot load the tile definitions \"%s\".\n", tmpname );
         return;
     }
 
