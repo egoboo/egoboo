@@ -23,7 +23,7 @@
 //         Null is predefined to be the neutral team.
 
 #dependency ManaElixir     83
-#dependency VorporalBlade  84
+#dependency VorpalBlade    84
 #dependency ArcaneNova     45
 #dependency Darkritual     92
 

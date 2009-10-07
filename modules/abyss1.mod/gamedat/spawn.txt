@@ -25,7 +25,7 @@
 #dependency HShield        66
 #dependency Pike           82
 #dependency Sojurn         83
-#dependency VorporalBlade  84
+#dependency VorpalBlade    84
 #dependency ManaElixir     85
 #dependency ArcaneNova     86
 #dependency DarkRitual     87

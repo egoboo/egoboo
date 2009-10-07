@@ -101,7 +101,7 @@ void fs_deleteFile( const char *filename )
 }
 
 //--------------------------------------------------------------------------------------------
-void fs_copyFile( const char *source, const char *dest )
+bool_t fs_copyFile( const char *source, const char *dest )
 {
     // ZZ> This function copies a file on the local machine
 
@@ -112,20 +112,22 @@ void fs_copyFile( const char *source, const char *dest )
 
     sourcef = fopen( source, "rb" );
     if ( !sourcef )
-        return;
+        return bfalse;
 
     destf = fopen( source, "wb" );
     if ( !destf )
     {
         fclose( sourcef );
-        return;
+        return bfalse;
     }
 
     while ( ( bytes_read = fread( buf, 1, sizeof( buf ), sourcef ) ) )
         fwrite( buf, 1, bytes_read, destf );
 
+	//Finish it up
     fclose( sourcef );
     fclose( destf );
+	return btrue;
 }
 
 //--------------------------------------------------------------------------------------------

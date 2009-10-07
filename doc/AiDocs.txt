@@ -1715,6 +1715,14 @@ PitsKill
   // This function activates pit deaths for when characters fall below a
   // certain altitude...
 --------------------------------------------------------------------------------
+PitsFall
+  // Works like PitsKill except instead of killing it will deal damage equal to
+  // DAMAGETILE and teleport the character to the specified X, Y and Z coordinates
+  tmpx = 55 << 7        //X
+  tmpy = 35 << 7        //Y
+  tmpdistance = 700     //Z
+  PitsFall
+--------------------------------------------------------------------------------
 SetTargetToPassageID
   // This function sets the target to the first character in the passage
   // who has an item with the given IDSZ.  Fails if none are found.
@@ -1996,9 +2004,17 @@ DispelTargetEnchantID
     tmpargument = [HEAL]
     DispelTargetEnchantID     //Removes all enchants which are fixed by [HEAL]
 -------------------------------------------------------------------------------- 
-
-
-
+AddBlipAllEnemies
+  // show all enemies on the minimap who match the IDSZ given in tmpargument
+  // it shows the enemies of the current AI target. [NONE] specifies all monsters
+  IfUsed
+    SetTargetToWhoeverIsHolding
+    tmpargument = [COBO]
+    AddBlipAllEnemies           //Displays all the enemy cobols on the minimap
+-------------------------------------------------------------------------------- 
+SetTargetToChild
+  //Sets the AI target to the last character spawned
+-------------------------------------------------------------------------------- 
 
 CONSTANTS
 -------------------------------------------------------------------------------- 

@@ -388,6 +388,7 @@ The symbol itself follows
 :F 372 SpawnAttachedCharacter
 :F 373 KurseTarget
 :F 374 SetChildContent
+:F 375 SetTargetToChild
 :C 001 BLAHDEAD
 :C 002 BLAHENEMIES
 :C 004 BLAHFRIENDS

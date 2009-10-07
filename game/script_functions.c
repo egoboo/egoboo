@@ -6794,6 +6794,24 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
+Uint8 scr_set_TargetToChild( script_state_t * pstate, ai_state_t * pself )
+{
+    // SetTargetToChild()
+    // This function sets the target to the character it spawned last (also called it's "child")
+
+    SCRIPT_FUNCTION_BEGIN();
+   
+	returncode = bfalse;
+    if ( ACTIVE_CHR(pself->child) )
+    {
+        pself->target = pself->child;
+		returncode = btrue;
+	}
+   
+    SCRIPT_FUNCTION_END();
+}
+
+//--------------------------------------------------------------------------------------------
 Uint8 scr_End( script_state_t * pstate, ai_state_t * pself )
 {
     // End()

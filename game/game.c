@@ -216,7 +216,6 @@ static void   setup_alliances( const char *modname );
 static void   load_all_global_objects();
 
 static bool_t chr_setup_apply( Uint16 ichr, spawn_file_info_t *pinfo );
-static void   setup_characters( const char *modname );
 
 static void   game_reset_players();
 
@@ -1109,7 +1108,7 @@ int do_ego_proc_begin( ego_process_t * eproc )
     vfs_init( eproc->argv0 );
 
     // Initialize logging next, so that we can use it everywhere.
-    log_init( vfs_resolveWriteFilename("/debug/log.txt") );
+    log_init( vfs_resolveWriteFilename("debug/log.txt") );
     log_setLoggingLevel( 2 );
 
     // start initializing the various subsystems
@@ -5310,7 +5309,7 @@ bool_t game_begin_module( const char * modname, Uint32 seed )
 
     // make sure the old game has been quit
     game_quit_module();
-
+	
     // load all the in-game module data
     srand( seed );
     if ( !game_load_module_data( modname ) )
@@ -5365,7 +5364,10 @@ bool_t game_update_imports()
 
     // build the import directory using the player info
     vfs_empty_import_directory();
-    vfs_mkdir( "import" );
+    if( !vfs_mkdir( "import" ) )
+	{
+		log_warning( "game_update_imports() - Could not create the import folder. (%s)\n", vfs_getError() );
+	}
 
     // export all of the players directly from memory straight to the "import" dir
     for ( player = 0, cnt = 0; cnt < MAXPLAYER; cnt++ )

@@ -23,7 +23,6 @@
  * The name's pretty self explanatory, doncha think?
  */
 
-//*include "egoboo.h"
 #include <math.h>
 #include "egoboo_typedef.h"
 

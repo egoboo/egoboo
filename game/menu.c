@@ -1209,8 +1209,8 @@ int doChoosePlayer( float deltaTime )
             }*/
 
             // Simply fall through
-            menuState = MM_Running;
-            break;
+           // menuState = MM_Running;
+           // break;
 
         case MM_Running:
             // Figure out how many players we can show without scrolling
@@ -1389,8 +1389,8 @@ int doChoosePlayer( float deltaTime )
             */
 
             // Simply fall through
-            menuState = MM_Finish;
-            break;
+          //  menuState = MM_Finish;
+          //  break;
 
         case MM_Finish:
 
@@ -1409,7 +1409,10 @@ int doChoosePlayer( float deltaTime )
             {
                 // Build the import directory
                 vfs_empty_import_directory();
-                vfs_mkdir( "import" );
+                if( !vfs_mkdir( "import" ) )
+				{
+					log_warning( "game_update_imports() - Could not create the import folder. (%s)\n", vfs_getError() );
+				}
 
                 // set up the slots and the import stuff for the selected players
                 local_import_count = mnu_selectedPlayerCount;
@@ -1421,7 +1424,7 @@ int doChoosePlayer( float deltaTime )
                     local_import_slot[i]    = i * MAXIMPORTPERPLAYER;
 
                     // Copy the character to the import directory
-                    strncpy( srcDir, loadplayer[selectedPlayer].dir, SDL_arraysize(srcDir) );
+                    strncpy( srcDir, str_convert_slash_sys(loadplayer[selectedPlayer].dir, sizeof(srcDir)), SDL_arraysize(srcDir) );
                     snprintf( destDir, SDL_arraysize(destDir), "import" SLASH_STR "temp%04d.obj", local_import_slot[i] );
                     vfs_copyDirectory( srcDir, destDir );
 
@@ -1429,8 +1432,8 @@ int doChoosePlayer( float deltaTime )
                     for ( j = 0; j < MAXIMPORTOBJECTS; j++ )
                     {
                         snprintf( srcDir, SDL_arraysize( srcDir), "%s" SLASH_STR "%d.obj", loadplayer[selectedPlayer].dir, j + 1 );
-
-                        // make sure the source directory exists
+						
+						// make sure the source directory exists
                         if( vfs_isDirectory(srcDir) )
                         {
                             snprintf( destDir, SDL_arraysize( destDir), "import" SLASH_STR "temp%04d.obj", local_import_slot[i] + j + 1 );
@@ -2102,14 +2105,14 @@ int doGameOptions( float deltaTime )
                 cfg.difficulty++;
                 switch ( cfg.difficulty )
                 {
+                    case GAME_NORMAL: snprintf(Cdifficulty, SDL_arraysize(Cdifficulty), "Challenging"); break;
                     case GAME_HARD: snprintf(Cdifficulty, SDL_arraysize(Cdifficulty), "Punishing"); break;
-                    case GAME_EASY: snprintf(Cdifficulty, SDL_arraysize(Cdifficulty), "Forgiving"); break;
-                    default: case GAME_NORMAL:
-                        {
-                            snprintf(Cdifficulty, SDL_arraysize(Cdifficulty), "Challenging");
-                            cfg.difficulty = GAME_NORMAL;
-                            break;
-                        }
+                    default: case GAME_EASY:
+                    {
+						snprintf(Cdifficulty, SDL_arraysize(Cdifficulty), "Forgiving");
+                        cfg.difficulty = GAME_EASY;
+                        break;
+                    }
                 }
                 sz_buttons[0] = Cdifficulty;
             }

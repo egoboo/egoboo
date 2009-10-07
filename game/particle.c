@@ -1446,7 +1446,7 @@ void reset_particles( const char* modname )
     make_newloadname( modname, "gamedat" SLASH_STR "splash.txt", newloadname );
     if ( MAX_PIP == load_one_particle_profile( newloadname, PIP_SPLASH ) )
     {
-        if (cfg.dev_mode) log_message( "DEBUG: Data file was not found! (%s) - Defaulting to global particle.\n", newloadname );
+        log_debug( "Data file was not found! (%s) - Defaulting to global particle.\n", newloadname );
 
         loadpath = "basicdat" SLASH_STR "globalparticles" SLASH_STR "splash.txt";
         if ( MAX_PIP == load_one_particle_profile( loadpath, PIP_SPLASH ) )
@@ -1458,7 +1458,7 @@ void reset_particles( const char* modname )
     make_newloadname( modname, "gamedat" SLASH_STR "ripple.txt", newloadname );
     if ( MAX_PIP == load_one_particle_profile( newloadname, PIP_RIPPLE ) )
     {
-        if (cfg.dev_mode) log_message( "DEBUG: Data file was not found! (%s) - Defaulting to global particle.\n", newloadname );
+        log_debug( "Data file was not found! (%s) - Defaulting to global particle.\n", newloadname );
 
         loadpath = "basicdat" SLASH_STR "globalparticles" SLASH_STR "ripple.txt";
         if ( MAX_PIP == load_one_particle_profile( loadpath, PIP_RIPPLE ) )

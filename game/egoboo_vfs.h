@@ -118,3 +118,5 @@ char * vfs_gets( char *, int, vfs_FILE *);
 
 const char * vfs_resolveReadFilename ( const char * src_filename );
 const char * vfs_resolveWriteFilename( const char * src_filename );
+
+const char* vfs_getError();

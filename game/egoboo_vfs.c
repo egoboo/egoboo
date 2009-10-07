@@ -304,7 +304,7 @@ const char * vfs_resolveReadFilename(const char * src_filename )
         }
         else
         {
-            // found. apprnd the local filename to the directory
+            // found. append the local filename to the directory
             snprintf( read_name_str, SDL_arraysize(read_name_str), "%s" SLASH_STR "%s", tmp_dirnane, loc_fname );
             retval     = read_name_str;
             retval_len = SDL_arraysize(read_name_str);
@@ -701,7 +701,7 @@ int vfs_exists (const char *fname)
 //--------------------------------------------------------------------------------------------
 int vfs_isDirectory (const char *fname)
 {
-    return PHYSFS_isDirectory ( _vfs_convert_fname_physfs(fname) );
+    return PHYSFS_isDirectory ( _vfs_convert_fname_physfs( fname ) );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1338,9 +1338,7 @@ int vfs_removeDirectoryAndContents( const char * dirname, int recursive )
     write_dir = vfs_resolveWriteFilename( dirname );
     if( !fs_fileIsDirectory(write_dir) ) return VFS_FALSE;
 
-    //ZF> uncommented because it made my egoboo crash
     fs_removeDirectoryAndContents( write_dir, recursive );
-    //ZF> end
 
     return VFS_TRUE;
 }
@@ -1406,7 +1404,7 @@ int vfs_copyFile( const char *source, const char *dest )
 
     // !assume! that we are not dealing with archives, and just use the
     // fs_* copy command
-    fs_copyFile( real_src, real_dst );
+    if( !fs_copyFile( real_src, real_dst ) ) return VFS_FALSE;
 
     return VFS_TRUE;
 }
@@ -1443,7 +1441,10 @@ int vfs_copyDirectory( const char *sourceDir, const char *destDir )
         {
             snprintf( srcPath, SDL_arraysize(srcPath), "%s" SLASH_STR "%s", sourceDir, fileName );
             snprintf( destPath, SDL_arraysize(destPath), "%s" SLASH_STR "%s", destDir, fileName );
-            vfs_copyFile( srcPath, destPath );
+            if( !vfs_copyFile( srcPath, destPath ) )
+			{
+				log_warning("vfs_copyDirectory() - Failed to copy from \"%s\" to \"%s\" (%s)\n", sourceDir, destDir, vfs_getError());
+			}
         }
         fileName = vfs_findNext();
     }
@@ -1653,4 +1654,10 @@ int _vfs_vfscanf( FILE * file, const char * format, va_list args )
     }
 
     return argcount;
+}
+
+const char* vfs_getError() 
+{
+	//ZF> Returns the last error the PHYSFS system reported.
+	return PHYSFS_getLastError();
 }

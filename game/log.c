@@ -23,9 +23,9 @@
 
 #include "log.h"
 #include "egoboo_config.h"
+#include "egoboo_setup.h"
 
 #include <stdlib.h>
-#include <stdio.h>
 #include <stdarg.h>
 
 //--------------------------------------------------------------------------------------------
@@ -98,6 +98,22 @@ void log_message( const char *format, ... )
     va_start( args, format );
     writeLogMessage( "", format, args );
     va_end( args );
+}
+
+//--------------------------------------------------------------------------------------------
+void log_debug( const char *format, ... )
+{
+    va_list args;
+	
+	//Only if developer mode is enabled
+	if( !cfg.dev_mode ) return;
+    
+	va_start( args, format );
+    if ( logLevel >= 2 )
+    {
+		writeLogMessage( "DEBUG: ", format, args );
+	}
+	va_end( args );
 }
 
 //--------------------------------------------------------------------------------------------

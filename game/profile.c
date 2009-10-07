@@ -669,10 +669,7 @@ int load_profile_skins( const char * tmploadname, Uint16 object )
         max_skin = 0;
         pobj->tex_ref[cnt] = TX_WATER_TOP;
 
-        if (cfg.dev_mode)
-        {
-            log_message( "NOTE: Object is missing a skin (%s)!\n", tmploadname );
-        }
+        log_debug( "Object is missing a skin (%s)!\n", tmploadname );
     }
 
     max_tex = MAX(max_skin, max_icon);

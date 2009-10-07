@@ -18,6 +18,7 @@
 //*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
+#include "egoboo_typedef.h"
 
 //---------------------------------------------------------------------------------------------
 // Filesystem functions
@@ -36,7 +37,7 @@ int  fs_fileIsDirectory( const char *filename );
 int  fs_createDirectory( const char *dirname );
 int  fs_removeDirectory( const char *dirname );
 void fs_deleteFile( const char *filename );
-void fs_copyFile( const char *source, const char *dest );
+bool_t fs_copyFile( const char *source, const char *dest );
 void fs_removeDirectoryAndContents( const char *dirname, int recursive );
 void fs_copyDirectory( const char *sourceDir, const char *destDir );
 

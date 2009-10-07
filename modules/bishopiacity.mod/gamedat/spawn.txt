@@ -49,6 +49,7 @@
 // Zambini Magic shop
 #dependency MPotion           72
 #dependency TrueSightScroll  140
+#dependency WandIceBall      116
 
 Player1:   NONE    0  56.5   74.5   0.0   N    0   0  0   0   0   T   F   G			//Player 1 stuff
   unknown:   NONE    1  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N

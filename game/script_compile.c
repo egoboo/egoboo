@@ -745,12 +745,8 @@ int load_ai_script( const char *loadname )
     // No such file
     if ( NULL == fileread )
     {
-        if ( cfg.dev_mode )
-        {
-            log_message( "DEBUG: I am missing a AI script (%s)\n", loadname );
-            log_message( "       Using the default AI script instead (basicdat" SLASH_STR "script.txt)\n" );
-        }
-
+        log_debug( "DEBUG: I am missing a AI script (%s)\n", loadname );
+        log_debug( "       Using the default AI script instead (basicdat" SLASH_STR "script.txt)\n" );
         return retval;
     }
     if ( AisStorage.count >= MAX_AI )
