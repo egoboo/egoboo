@@ -26,3 +26,6 @@ Message 24: The_Enchant_spell_can_recharge_wands...__for_a_price.
 Message 25: A_character_with_the_Poison_Skill_can_throw_flasks_of_poison_at_enemies.
 Message 26: Intelligence_and_wisdom_increases_the_amout_of_XP_you_gain.
 Message 27: Rider_of_a_mount_gains_its_resistances.
+Message 28: This_book_is_blank...
+Message 29: Be_careful_of_Kursed_items!
+Message 30: Poison_can_be_deadly_for_the_untrained...

@@ -1,7 +1,7 @@
 //if you want to put a book in the bookstand set the Dir to "I" dont put it in L or anything.
 //This Object was bought to you by ptapasu in association with the Bishopia Literacy Society!
 IfSpawned
-  tmpargument = rand % 4
+  tmpargument = rand % 4      //randomize the book skin
   ChangeArmor
   
 IfBumped                                          //PlayerBumpsBookStand
@@ -44,10 +44,10 @@ IfBumped                                          //PlayerBumpsBookStand
             tmpargument = 5
             tmpdistance = EXPSECRET
             GiveExperienceToTarget
-            tmpargument = rand % 25 + 2   //randomize contents
+            tmpargument = rand % 28 + 2   //randomize contents
             SetContent                    //set content to one so that anims, and messages aren't repeated!
           Else
-            tmpargument = rand % 25 + 2   //randomize contents
+            tmpargument = rand % 28 + 2   //randomize contents
             SetContent                    //set content to one so that anims, and messages aren't repeated!
             tmpargument = 1             //They cannot read!
           SendMessageNear

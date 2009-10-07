@@ -12,6 +12,7 @@
 #dependency Scythe           131
 #dependency Trident          139
 #dependency Quiver           150
+#dependency Cinquedea         67
 
 // Le Secret Shoppe
 
@@ -34,6 +35,7 @@
 #dependency BearTrap          85
 #dependency Bomb             118
 #dependency AmmoBox          123
+#dependency Bomb             118
     
 // Divine shop
 #dependency Ressurection      63
