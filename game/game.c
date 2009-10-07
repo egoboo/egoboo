@@ -1120,7 +1120,7 @@ int do_ego_proc_begin( ego_process_t * eproc )
     _gclock = clk_create("global clock", -1);
 
     // read the "setup.txt" file
-    tmpname = "setup.txt";
+    tmpname = "setup.txt";	
     if ( !setup_read( tmpname ) )
     {
         log_error( "Could not find \"%s\".\n", tmpname );

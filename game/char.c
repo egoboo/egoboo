@@ -1121,7 +1121,8 @@ void attach_character_to_mount( Uint16 iitem, Uint16 iholder, grip_offset_t grip
     chr_t * pitem, * pholder;
 
     // Make sure the character/item is valid
-    if ( !ACTIVE_CHR(iitem) || ChrList.lst[iitem].pack_ispacked ) return;
+    // this could be called before the item is fully instantiated
+    if ( !ALLOCATED_CHR(iitem) || ChrList.lst[iitem].pack_ispacked ) return;
     pitem = ChrList.lst + iitem;
 
     // make a reasonable time for the character to remount something

@@ -84,9 +84,33 @@ void vfs_init( const char * argv0 )
 
     PHYSFS_setWriteDir    ( fs_getUserDirectory() );
 
+    // add them in this order to make sure the the write directory is searched
+    // first
+    PHYSFS_addToSearchPath( fs_getUserDirectory(), 0 );
     PHYSFS_addToSearchPath( fs_getConfigDirectory(), 1 );
     PHYSFS_addToSearchPath( fs_getDataDirectory(), 1 );
-    PHYSFS_addToSearchPath( fs_getUserDirectory(), 1 );
+
+
+    // !!!!make sure the basic directories exist. 
+
+    if( !fs_fileIsDirectory(fs_getUserDirectory()) )
+    {
+        fs_createDirectory( fs_getUserDirectory() );
+    }
+
+    if( !fs_fileIsDirectory(fs_getUserDirectory()) )
+    {
+        printf( "WARNING: Cannot create write directory %s\n", fs_getUserDirectory() );
+    }
+    else
+    {
+        char tmp_path[1024];
+
+        snprintf( tmp_path, SDL_arraysize(tmp_path), "%s" SLASH_STR "debug", fs_getUserDirectory() );
+
+        str_convert_slash_sys( tmp_path, SDL_arraysize(tmp_path) );
+        fs_createDirectory( tmp_path );
+    }
 
     atexit( _vfs_exit );
 }

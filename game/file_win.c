@@ -135,9 +135,9 @@ int fs_fileIsDirectory( const char *filename )
     if( NULL == filename ) return bfalse;
 
     fileAttrs = GetFileAttributes( filename );
-    fileAttrs = fileAttrs & FILE_ATTRIBUTE_DIRECTORY;
+    if( INVALID_FILE_ATTRIBUTES == fileAttrs ) return 0;
 
-    return (0 != fileAttrs);
+    return (0 != (fileAttrs & FILE_ATTRIBUTE_DIRECTORY));
 }
 
 // Had to revert back to prog x code to prevent import/skin bug
