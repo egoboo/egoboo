@@ -2713,7 +2713,6 @@ void show_armor( Uint16 statindex )
     cap_t * pcap;
     chr_t * pchr;
 
-
     if ( statindex >= numstat ) return;
 
     ichr = statlist[statindex];

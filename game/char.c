@@ -1153,15 +1153,12 @@ void attach_character_to_mount( Uint16 iitem, Uint16 iholder, grip_offset_t grip
     pitem->attachedto     = iholder;
     pholder->holdingwhich[slot] = iitem;
 
+    // set the grip vertices for the iitem
+    set_weapongrip( iitem, iholder, grip_off );
+
     chr_update_matrix( pitem, btrue );
 
-    //// set the grip vertices for the iitem
-    //set_weapongrip( iitem, iholder, grip_off );
-
-    //// actually make position of the object coincide with its actual held position
-    //make_one_weapon_matrix( iitem, iholder, bfalse );
-
-    //pitem->pos      = mat_getTranslate( pitem->inst.matrix );
+    pitem->pos      = mat_getTranslate( pitem->inst.matrix );
 
     pitem->enviro.inwater  = bfalse;
     pitem->jumptime = JUMPDELAY * 4;
