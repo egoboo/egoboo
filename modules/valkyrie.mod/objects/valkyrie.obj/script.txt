@@ -72,7 +72,7 @@ IfXIsMoreThanY
   SetTargetToSelf
   tmpx = targetmaxlife > 2
   tmpx = targetmaxlife > 1 + tmpx          //0.75 of max life
-  tmpy = targelife
+  tmpy = targetlife
   IfXIsMoreThanY              //Only if at 75% life or better
     Run
   Else
