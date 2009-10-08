@@ -56,14 +56,14 @@ struct s_prt_instance
     Uint8    light;              // base self lighting
 
     // position info
-    GLvector3 pos;
+    fvec3_t   pos;
     float     size;
 
     // billboard info
     prt_ori_t orientation;
-    GLvector3 up;
-    GLvector3 right;
-    GLvector3 nrm;
+    fvec3_t   up;
+    fvec3_t   right;
+    fvec3_t   nrm;
 
     // lighting info
     float    famb;               // cached ambient light
@@ -103,8 +103,8 @@ struct s_prt
     Uint16  facing;                          // Direction of the part
     Uint8   team;                            // Team
 
-    GLvector3   pos, pos_old, pos_stt;       // Position
-    GLvector3   vel, vel_old, vel_stt;       // Velocity
+    fvec3_t     pos, pos_old, pos_stt;       // Position
+    fvec3_t     vel, vel_old, vel_stt;       // Velocity
 
     Uint32  onwhichfan;                      // Where the part is
     Uint32  onwhichblock;                    // The particle's collision block
@@ -185,7 +185,7 @@ void cleanup_all_particles( void );
 
 void play_particle_sound( Uint16 particle, Sint8 sound );
 int prt_get_free( int force );
-Uint16 spawn_one_particle( GLvector3 pos, Uint16 facing, Uint16 iprofile, Uint16 ipip,
+Uint16 spawn_one_particle( fvec3_t   pos, Uint16 facing, Uint16 iprofile, Uint16 ipip,
                            Uint16 chr_attach, Uint16 vrt_offset, Uint8 team,
                            Uint16 chr_origin, Uint16 prt_origin, Uint16 multispawn, Uint16 oldtarget );
 

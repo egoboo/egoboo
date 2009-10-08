@@ -37,7 +37,7 @@ Uint16  randie[RANDIE_COUNT];
 //--------------------------------------------------------------------------------------------
 void make_turntosin( void )
 {
-    // ZZ> This function makes the lookup table for chrturn...
+    // kZ> This function makes the lookup table for chrturn...
     int cnt;
     float ftmp = TWO_PI / (float)TRIG_TABLE_SIZE;
 
@@ -51,76 +51,80 @@ void make_turntosin( void )
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // FAKE D3D FUNCTIONS
-GLvector3 VSub( GLvector3 A, GLvector3 B )
+fvec3_t fvec3_sub( fvec3_base_t A, fvec3_base_t B )
 {
-    GLvector3 tmp;
+    fvec3_t tmp;
 
-    tmp.x = A.x - B.x;
-    tmp.y = A.y - B.y;
-    tmp.z = A.z - B.z;
+    tmp.x = A[kX] - B[kX];
+    tmp.y = A[kY] - B[kY];
+    tmp.z = A[kZ] - B[kZ];
 
-    return( tmp );
+    return tmp;
 }
 
-GLvector3 VNormalize( GLvector3 vec )
+//--------------------------------------------------------------------------------------------
+fvec3_t fvec3_normalize( fvec3_base_t vec )
 {
-    GLvector3 tmp = VECT3(0.0f, 0.0f, 0.0f);
+    fvec3_t tmp = ZERO_VECT3;
 
-    if ( ABS(vec.x) + ABS(vec.y) + ABS(vec.z) > 0 )
+    if ( ABS(vec[kX]) + ABS(vec[kY]) + ABS(vec[kZ]) > 0 )
     {
-        float len2 = vec.x * vec.x + vec.y * vec.y + vec.z * vec.z;
+        float len2 = vec[kX] * vec[kX] + vec[kY] * vec[kY] + vec[kZ] * vec[kZ];
         float inv_len = 1.0f / SQRT( len2 );
         LOG_NAN( inv_len );
 
-        tmp.x = vec.x * inv_len;
+        tmp.x = vec[kX] * inv_len;
         LOG_NAN(tmp.x);
 
-        tmp.y = vec.y * inv_len;
+        tmp.y = vec[kY] * inv_len;
         LOG_NAN(tmp.y);
 
-        tmp.z = vec.z * inv_len;
+        tmp.z = vec[kZ] * inv_len;
         LOG_NAN(tmp.z);
     }
 
-    return tmp ;
+    return tmp;
 }
 
-GLvector3 VCrossProduct( GLvector3 A, GLvector3 B )
+//--------------------------------------------------------------------------------------------
+fvec3_t   fvec3_cross_product( fvec3_base_t A, fvec3_base_t B )
 {
-    GLvector3 tmp;
+    fvec3_t   tmp;
 
-    tmp.x = A.y * B.z - A.z * B.y;
-    tmp.y = A.z * B.x - A.x * B.z;
-    tmp.z = A.x * B.y - A.y * B.x;
+    tmp.x = A[kY] * B[kZ] - A[kZ] * B[kY];
+    tmp.y = A[kZ] * B[kX] - A[kX] * B[kZ];
+    tmp.z = A[kX] * B[kY] - A[kY] * B[kX];
 
-    return( tmp );
+    return tmp;
 }
 
-float VDotProduct( GLvector3 A, GLvector3 B )
+//--------------------------------------------------------------------------------------------
+float fvec3_dot_product( fvec3_base_t A, fvec3_base_t B )
 {
-    return A.x*B.x + A.y*B.y + A.z*B.z;
+    return A[kX]*B[kX] + A[kY]*B[kY] + A[kZ]*B[kZ];
 }
 
 //---------------------------------------------------------------------------------------------
 // Math Stuff-----------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------------------
 // inline D3DMATRIX IdentityMatrix()
-GLmatrix IdentityMatrix()
+fmat_4x4_t IdentityMatrix()
 {
-    GLmatrix tmp;
+    fmat_4x4_t tmp;
 
     tmp.CNV( 0, 0 ) = 1; tmp.CNV( 1, 0 ) = 0; tmp.CNV( 2, 0 ) = 0; tmp.CNV( 3, 0 ) = 0;
     tmp.CNV( 0, 1 ) = 0; tmp.CNV( 1, 1 ) = 1; tmp.CNV( 2, 1 ) = 0; tmp.CNV( 3, 1 ) = 0;
     tmp.CNV( 0, 2 ) = 0; tmp.CNV( 1, 2 ) = 0; tmp.CNV( 2, 2 ) = 1; tmp.CNV( 3, 2 ) = 0;
     tmp.CNV( 0, 3 ) = 0; tmp.CNV( 1, 3 ) = 0; tmp.CNV( 2, 3 ) = 0; tmp.CNV( 3, 3 ) = 1;
+
     return( tmp );
 }
 
 //--------------------------------------------------------------------------------------------
 // inline D3DMATRIX ZeroMatrix(void)  // initializes matrix to zero
-GLmatrix ZeroMatrix( void )
+fmat_4x4_t ZeroMatrix( void )
 {
-    GLmatrix ret;
+    fmat_4x4_t ret;
     int i, j;
 
     for ( i = 0; i < 4; i++ )
@@ -136,9 +140,9 @@ GLmatrix ZeroMatrix( void )
 
 //--------------------------------------------------------------------------------------------
 // inline D3DMATRIX MatrixMult(const D3DMATRIX a, const D3DMATRIX b)
-GLmatrix MatrixMult( const GLmatrix a, const GLmatrix b )
+fmat_4x4_t MatrixMult( const fmat_4x4_t a, const fmat_4x4_t b )
 {
-    GLmatrix ret = ZeroMatrix();
+    fmat_4x4_t ret = ZeroMatrix();
     int i, j, k;
 
     for ( i = 0; i < 4; i++ )
@@ -157,9 +161,9 @@ GLmatrix MatrixMult( const GLmatrix a, const GLmatrix b )
 
 //--------------------------------------------------------------------------------------------
 // D3DMATRIX Translate(const float dx, const float dy, const float dz)
-GLmatrix Translate( const float dx, const float dy, const float dz )
+fmat_4x4_t Translate( const float dx, const float dy, const float dz )
 {
-    GLmatrix ret = IdentityMatrix();
+    fmat_4x4_t ret = IdentityMatrix();
 
     ret.CNV( 3, 0 ) = dx;
     ret.CNV( 3, 1 ) = dy;
@@ -170,12 +174,12 @@ GLmatrix Translate( const float dx, const float dy, const float dz )
 
 //--------------------------------------------------------------------------------------------
 // D3DMATRIX RotateX(const float rads)
-GLmatrix RotateX( const float rads )
+fmat_4x4_t RotateX( const float rads )
 {
     float cosine = COS( rads );
     float sine = SIN( rads );
 
-    GLmatrix ret = IdentityMatrix();
+    fmat_4x4_t ret = IdentityMatrix();
 
     ret.CNV( 1, 1 ) = cosine;
     ret.CNV( 2, 2 ) = cosine;
@@ -187,12 +191,12 @@ GLmatrix RotateX( const float rads )
 
 //--------------------------------------------------------------------------------------------
 // D3DMATRIX RotateY(const float rads)
-GLmatrix RotateY( const float rads )
+fmat_4x4_t RotateY( const float rads )
 {
     float cosine = COS( rads );
     float sine = SIN( rads );
 
-    GLmatrix ret = IdentityMatrix();
+    fmat_4x4_t ret = IdentityMatrix();
 
     ret.CNV( 0, 0 ) = cosine; // 0,0
     ret.CNV( 2, 2 ) = cosine; // 2,2
@@ -204,12 +208,12 @@ GLmatrix RotateY( const float rads )
 
 //--------------------------------------------------------------------------------------------
 // D3DMATRIX RotateZ(const float rads)
-GLmatrix RotateZ( const float rads )
+fmat_4x4_t RotateZ( const float rads )
 {
     float cosine = COS( rads );
     float sine = SIN( rads );
 
-    GLmatrix ret = IdentityMatrix();
+    fmat_4x4_t ret = IdentityMatrix();
 
     ret.CNV( 0, 0 ) = cosine; // 0,0
     ret.CNV( 1, 1 ) = cosine; // 1,1
@@ -221,9 +225,9 @@ GLmatrix RotateZ( const float rads )
 
 //--------------------------------------------------------------------------------------------
 // D3DMATRIX ScaleXYZ(const float sizex, const float sizey, const float sizez)
-GLmatrix ScaleXYZ( const float sizex, const float sizey, const float sizez )
+fmat_4x4_t ScaleXYZ( const float sizex, const float sizey, const float sizez )
 {
-    GLmatrix ret = IdentityMatrix();
+    fmat_4x4_t ret = IdentityMatrix();
 
     ret.CNV( 0, 0 ) = sizex; // 0,0
     ret.CNV( 1, 1 ) = sizey; // 1,1
@@ -236,7 +240,7 @@ GLmatrix ScaleXYZ( const float sizex, const float sizey, const float sizez )
 /*D3DMATRIX ScaleXYZRotateXYZTranslate(const float sizex, const float sizey, const float sizez,
    Uint16 turnz, Uint16 turnx, Uint16 turny,
    float tx, float ty, float tz)*/
-GLmatrix ScaleXYZRotateXYZTranslate( const float sizex, const float sizey, const float sizez, const Uint16 turn_z, const Uint16 turn_x, const Uint16 turn_y, const float tx, const float ty, const float tz )
+fmat_4x4_t ScaleXYZRotateXYZTranslate( const float sizex, const float sizey, const float sizez, const Uint16 turn_z, const Uint16 turn_x, const Uint16 turn_y, const float tx, const float ty, const float tz )
 {
     float cx = turntocos[ turn_x & TRIG_TABLE_MASK ];
     float sx = turntosin[ turn_x & TRIG_TABLE_MASK ];
@@ -250,7 +254,7 @@ GLmatrix ScaleXYZRotateXYZTranslate( const float sizex, const float sizey, const
     float sxcy = sx * cy;
     float cxcy = cx * cy;
 
-    GLmatrix ret;
+    fmat_4x4_t ret;
 
     ret.CNV( 0, 0 ) = sizex * ( cy * cz ); // 0,0
     ret.CNV( 0, 1 ) = sizex * ( sxsy * cz + cx * sz );  // 0,1
@@ -277,15 +281,15 @@ GLmatrix ScaleXYZRotateXYZTranslate( const float sizex, const float sizey, const
 
 //--------------------------------------------------------------------------------------------
 // D3DMATRIX FourPoints(float orix, float oriy, float oriz,
-GLmatrix FourPoints( float orix, float oriy, float oriz,
+fmat_4x4_t FourPoints( float orix, float oriy, float oriz,
                      float widx, float widy, float widz,
                      float forx, float fory, float forz,
                      float upx,  float upy,  float upz,
                      float scale )
 {
-    GLmatrix tmp;
+    fmat_4x4_t tmp;
 
-    GLvector3 vWid, vFor, vUp;
+    fvec3_t   vWid, vFor, vUp;
 
     vWid.x = widx - orix;
     vWid.y = widy - oriy;
@@ -301,9 +305,9 @@ GLmatrix FourPoints( float orix, float oriy, float oriz,
 
     // assume that the length of the grip edges if 16
     // scale *= 0.0f;
-    vWid = VNormalize(vWid);
-    vUp  = VNormalize(vUp );
-    vFor = VNormalize(vFor);
+    vWid = fvec3_normalize(vWid.v);
+    vUp  = fvec3_normalize(vUp.v );
+    vFor = fvec3_normalize(vFor.v);
 
     tmp.CNV( 0, 0 ) = -scale * vWid.x;  // HUK
     tmp.CNV( 0, 1 ) = -scale * vWid.y;  // HUK
@@ -332,34 +336,34 @@ GLmatrix FourPoints( float orix, float oriy, float oriz,
 // MN This probably should be replaced by a call to gluLookAt, don't see why we need to make our own...
 
 // inline D3DMATRIX ViewMatrix(const D3DVECTOR from,      // camera location
-GLmatrix ViewMatrix( const GLvector3 from,     // camera location
-                     const GLvector3 at,        // camera look-at target
-                     const GLvector3 world_up,  // world’s up, usually 0, 0, 1
-                     const float roll )         // clockwise roll around
+fmat_4x4_t ViewMatrix( const fvec3_base_t   from,     // camera location
+                       const fvec3_base_t   at,        // camera look-at target
+                       const fvec3_base_t   world_up,  // world’s up, usually 0, 0, 1
+                       const float roll )         // clockwise roll around
 //   viewing direction,
 //   in radians
 {
-    GLmatrix view = IdentityMatrix();
-    GLvector3 up, right, view_dir;
+    fmat_4x4_t view = IdentityMatrix();
+    fvec3_t   up, right, view_dir;
 
-    view_dir = VNormalize( VSub( at, from ) );
-    right    = VCrossProduct( world_up, view_dir );
-    up       = VCrossProduct( view_dir, right );
-    right    = VNormalize( right );
-    up       = VNormalize( up );
+    view_dir = fvec3_normalize( fvec3_sub( at, from ).v );
+    right    = fvec3_cross_product( world_up, view_dir.v );
+    up       = fvec3_cross_product( view_dir.v, right.v );
+    right    = fvec3_normalize( right.v );
+    up       = fvec3_normalize( up.v );
 
-    view.CNV( 0, 0 ) = right.x;       // 0,0
-    view.CNV( 1, 0 ) = right.y;       // 1,0
-    view.CNV( 2, 0 ) = right.z;       // 2,0
-    view.CNV( 0, 1 ) = up.x;         // 0,1
-    view.CNV( 1, 1 ) = up.y;         // 1,1
-    view.CNV( 2, 1 ) = up.z;         // 2,1
-    view.CNV( 0, 2 ) = view_dir.x;       // 0,2
-    view.CNV( 1, 2 ) = view_dir.y;       // 1,2
-    view.CNV( 2, 2 ) = view_dir.z;     // 2,2
-    view.CNV( 3, 0 ) = -VDotProduct( right, from );   // 3,0
-    view.CNV( 3, 1 ) = -VDotProduct( up, from );     // 3,1
-    view.CNV( 3, 2 ) = -VDotProduct( view_dir, from ); // 3,2
+    view.CNV( 0, 0 ) = right.x;
+    view.CNV( 1, 0 ) = right.y;
+    view.CNV( 2, 0 ) = right.z;
+    view.CNV( 0, 1 ) = up.x;
+    view.CNV( 1, 1 ) = up.y;
+    view.CNV( 2, 1 ) = up.z;
+    view.CNV( 0, 2 ) = view_dir.x;
+    view.CNV( 1, 2 ) = view_dir.y;
+    view.CNV( 2, 2 ) = view_dir.z;
+    view.CNV( 3, 0 ) = -fvec3_dot_product( right.v,    from );
+    view.CNV( 3, 1 ) = -fvec3_dot_product( up.v,       from );
+    view.CNV( 3, 2 ) = -fvec3_dot_product( view_dir.v, from );
 
     if ( roll != 0.0f )
     {
@@ -374,7 +378,7 @@ GLmatrix ViewMatrix( const GLvector3 from,     // camera location
 // MN Again, there is a gl function for this, glFrustum or gluPerspective... does this account for viewport ratio?
 
 // inline D3DMATRIX ProjectionMatrix(const float near_plane,     // distance to near clipping plane
-GLmatrix ProjectionMatrix( const float near_plane,    // distance to near clipping plane
+fmat_4x4_t ProjectionMatrix( const float near_plane,    // distance to near clipping plane
                            const float far_plane,      // distance to far clipping plane
                            const float fov )           // field of view angle, in radians
 {
@@ -382,7 +386,7 @@ GLmatrix ProjectionMatrix( const float near_plane,    // distance to near clippi
     float s = SIN( fov * 0.5f );
     float Q = s / ( 1.0f - near_plane / far_plane );
 
-    GLmatrix ret = ZeroMatrix();
+    fmat_4x4_t ret = ZeroMatrix();
 
     ret.CNV( 0, 0 ) = c;         // 0,0
     ret.CNV( 1, 1 ) = c;         // 1,1
@@ -399,7 +403,7 @@ GLmatrix ProjectionMatrix( const float near_plane,    // distance to near clippi
 // This is just a MulVectorMatrix for now. The W division and screen size multiplication
 // must be done afterward.
 // Isn't tested!!!!
-void  TransformVertices( GLmatrix *pMatrix, GLvector4 *pSourceV, GLvector4 *pDestV, Uint32  NumVertor )
+void  TransformVertices( fmat_4x4_t *pMatrix, fvec4_t   *pSourceV, fvec4_t   *pDestV, Uint32  NumVertor )
 {
     // BB > the matrix transformation for OpenGL vertices. some minor optimizations.
 
@@ -445,9 +449,9 @@ void  TransformVertices( GLmatrix *pMatrix, GLvector4 *pSourceV, GLvector4 *pDes
 }
 
 //----------------------------------------------------
-GLvector3 mat_getTranslate(GLmatrix mat)
+fvec3_t   mat_getTranslate(fmat_4x4_t mat)
 {
-    GLvector3 pos;
+    fvec3_t   pos;
 
     pos.x = mat.CNV( 3, 0 );
     pos.y = mat.CNV( 3, 1 );
@@ -457,9 +461,9 @@ GLvector3 mat_getTranslate(GLmatrix mat)
 }
 
 //----------------------------------------------------
-GLvector3 mat_getChrUp(GLmatrix mat)
+fvec3_t   mat_getChrUp(fmat_4x4_t mat)
 {
-    GLvector3 up;
+    fvec3_t   up;
 
     // for a character
     up.x = mat.CNV( 2, 0 );
@@ -470,9 +474,9 @@ GLvector3 mat_getChrUp(GLmatrix mat)
 }
 
 //----------------------------------------------------
-GLvector3 mat_getChrRight(GLmatrix mat)
+fvec3_t   mat_getChrRight(fmat_4x4_t mat)
 {
-    GLvector3 right;
+    fvec3_t   right;
 
     // for a character
     right.x = -mat.CNV( 0, 0 );
@@ -483,9 +487,9 @@ GLvector3 mat_getChrRight(GLmatrix mat)
 }
 
 //----------------------------------------------------
-GLvector3 mat_getChrForward(GLmatrix mat)
+fvec3_t   mat_getChrForward(fmat_4x4_t mat)
 {
-    GLvector3 frw;
+    fvec3_t   frw;
 
     // for a character's matrix
     frw.x = mat.CNV( 1, 0 );
@@ -496,9 +500,9 @@ GLvector3 mat_getChrForward(GLmatrix mat)
 }
 
 //----------------------------------------------------
-GLvector3 mat_getCamUp(GLmatrix mat)
+fvec3_t   mat_getCamUp(fmat_4x4_t mat)
 {
-    GLvector3 up;
+    fvec3_t   up;
 
     // for the camera
     up.x = -mat.CNV( 0, 1 );
@@ -509,9 +513,9 @@ GLvector3 mat_getCamUp(GLmatrix mat)
 }
 
 //----------------------------------------------------
-GLvector3 mat_getCamRight(GLmatrix mat)
+fvec3_t   mat_getCamRight(fmat_4x4_t mat)
 {
-    GLvector3 right;
+    fvec3_t   right;
 
     // for the camera
     right.x = mat.CNV( 0, 0 );
@@ -522,9 +526,9 @@ GLvector3 mat_getCamRight(GLmatrix mat)
 }
 
 //----------------------------------------------------
-GLvector3 mat_getCamForward(GLmatrix mat)
+fvec3_t   mat_getCamForward(fmat_4x4_t mat)
 {
-    GLvector3 frw;
+    fvec3_t   frw;
 
     // for the camera
     frw.x = mat.CNV( 0, 2 );
@@ -538,7 +542,7 @@ GLvector3 mat_getCamForward(GLmatrix mat)
 //--------------------------------------------------------------------------------------------
 int generate_irand_pair( IPair num )
 {
-    // ZZ> This function generates a random number
+    // kZ> This function generates a random number
 
     int tmp = 0;
     int irand = RANDIE;
@@ -555,7 +559,7 @@ int generate_irand_pair( IPair num )
 //--------------------------------------------------------------------------------------------
 int generate_irand_range( FRange num )
 {
-    // ZZ> This function generates a random number
+    // kZ> This function generates a random number
 
     IPair loc_pair;
 
@@ -567,7 +571,7 @@ int generate_irand_range( FRange num )
 //--------------------------------------------------------------------------------------------
 int generate_randmask( int base, int mask )
 {
-    // ZZ> This function generates a random number
+    // kZ> This function generates a random number
     int tmp;
     int irand = RANDIE;
 
@@ -584,7 +588,7 @@ int generate_randmask( int base, int mask )
 //--------------------------------------------------------------------------------------------
 void make_randie()
 {
-    // ZZ> This function makes the random number table
+    // kZ> This function makes the random number table
     int tnc, cnt;
 
     // Fill in the basic values

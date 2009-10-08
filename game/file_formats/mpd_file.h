@@ -108,7 +108,7 @@ typedef struct s_tile_info tile_info_t;
 //--------------------------------------------------------------------------------------------
 struct s_mpd_vertex
 {
-    GLvector3  pos;                               // Vertex position
+    fvec3_t    pos;                               // Vertex position
     Uint8      a;                                 // Vertex base light
 };
 typedef struct s_mpd_vertex mpd_vertex_t;

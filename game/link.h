@@ -40,5 +40,5 @@ bool_t link_follow_modname( const char * modname, bool_t push_current_module );
 bool_t link_build( const char * fname, Link_t list[] );
 
 bool_t link_pop_module();
-bool_t link_load_parent( const char * modname, GLvector3 pos );
+bool_t link_load_parent( const char * modname, fvec3_t   pos );
 

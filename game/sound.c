@@ -99,9 +99,9 @@ static bool_t sdl_audio_initialize();
 static bool_t sdl_mixer_initialize();
 static void   sdl_mixer_quit(void);
 
-int    _calculate_volume( GLvector3 diff );
-bool_t _update_channel_volume( int channel, int volume, GLvector3 diff );
-bool_t _update_stereo_channel( int channel, GLvector3 diff );
+int    _calculate_volume( fvec3_t   diff );
+bool_t _update_channel_volume( int channel, int volume, fvec3_t   diff );
+bool_t _update_stereo_channel( int channel, fvec3_t   diff );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -426,7 +426,7 @@ bool_t sound_load( mix_ptr_t * pptr, const char * szFileName, mix_type_t type )
 }
 
 //--------------------------------------------------------------------------------------------
-int sound_play_mix( GLvector3 pos, mix_ptr_t * pptr )
+int sound_play_mix( fvec3_t   pos, mix_ptr_t * pptr )
 {
     int retval = -1;
     if ( !snd.soundvalid || !mixeron )
@@ -506,7 +506,7 @@ void sound_restart()
 // Mix_Chunk stuff -------------------
 //------------------------------------
 
-int _calculate_volume( GLvector3 diff )
+int _calculate_volume( fvec3_t   diff )
 {
     // BB> make this code its own function
 
@@ -528,7 +528,7 @@ int _calculate_volume( GLvector3 diff )
     return volume;
 }
 
-bool_t _update_channel_volume( int channel, int volume, GLvector3 diff )
+bool_t _update_channel_volume( int channel, int volume, fvec3_t   diff )
 {
     float pan;
     float cosval;
@@ -558,11 +558,11 @@ bool_t _update_channel_volume( int channel, int volume, GLvector3 diff )
 }
 
 //--------------------------------------------------------------------------------------------
-int sound_play_chunk_looped( GLvector3 pos, Mix_Chunk * pchunk, Sint8 loops, Uint16 owner )
+int sound_play_chunk_looped( fvec3_t   pos, Mix_Chunk * pchunk, Sint8 loops, Uint16 owner )
 {
     // This function plays a specified sound and returns which channel it's using
     int channel = INVALID_SOUND;
-    GLvector3 diff;
+    fvec3_t   diff;
     int volume;
 
     if ( !snd.soundvalid || !mixeron || NULL == pchunk ) return INVALID_SOUND;
@@ -571,7 +571,7 @@ int sound_play_chunk_looped( GLvector3 pos, Mix_Chunk * pchunk, Sint8 loops, Uin
     if ( !process_running( PROC_PBASE(GProc) ) )  return INVALID_SOUND;
 
     // measure the distance in tiles
-    diff = VSub( pos, PCamera->track_pos );
+    diff = fvec3_sub( pos.v, PCamera->track_pos.v );
     volume = _calculate_volume( diff );
 
     // play the sound
@@ -1015,7 +1015,7 @@ bool_t LoopedList_remove( int channel )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t _update_stereo_channel( int channel, GLvector3 diff )
+bool_t _update_stereo_channel( int channel, fvec3_t   diff )
 {
     // BB> This updates the stereo image of a looped sound
 
@@ -1034,7 +1034,7 @@ void looped_update_all_sound()
 
     for (cnt = 0; cnt < LoopedList.used_count; cnt++)
     {
-        GLvector3 diff;
+        fvec3_t   diff;
         int       index;
         looped_sound_data_t * plooped;
 
@@ -1047,14 +1047,14 @@ void looped_update_all_sound()
         if ( !ACTIVE_CHR( plooped->object ) )
         {
             // not a valid object
-            GLvector3 diff = VECT3(0, 0, 0);
+            fvec3_t   diff = VECT3(0, 0, 0);
 
             _update_stereo_channel( plooped->channel, diff );
         }
         else
         {
             // make the sound stick to the object
-            diff = VSub( ChrList.lst[plooped->object].pos, PCamera->track_pos );
+            diff = fvec3_sub( ChrList.lst[plooped->object].pos.v, PCamera->track_pos.v );
 
             _update_stereo_channel( plooped->channel, diff );
         }

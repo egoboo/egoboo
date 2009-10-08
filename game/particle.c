@@ -279,19 +279,19 @@ Uint16 prt_get_iowner( Uint16 iprt )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint16 spawn_one_particle( GLvector3 pos, Uint16 facing, Uint16 iprofile, Uint16 ipip,
+Uint16 spawn_one_particle( fvec3_t   pos, Uint16 facing, Uint16 iprofile, Uint16 ipip,
                            Uint16 chr_attach, Uint16 vrt_offset, Uint8 team,
                            Uint16 chr_origin, Uint16 prt_origin, Uint16 multispawn, Uint16 oldtarget )
 {
     // ZZ> This function spawns a new particle, and returns the number of that particle
     int iprt, velocity;
-    GLvector3 vel;
+    fvec3_t   vel;
     float tvel;
     int offsetfacing = 0, newrand;
     prt_t * pprt;
     pip_t * ppip;
     Uint32 prt_lifetime;
-    GLvector3 tmp_pos;
+    fvec3_t   tmp_pos;
     Uint16 turn;
 
     // Convert from local ipip to global ipip
@@ -633,7 +633,7 @@ void update_all_particles( void )
         {
             bool_t spawn_valid = bfalse;
             Uint16 spawn_pip   = MAX_PIP;
-            GLvector3 vtmp = VECT3( pprt->pos.x, pprt->pos.y, water.surface_level );
+            fvec3_t   vtmp = VECT3( pprt->pos.x, pprt->pos.y, water.surface_level );
 
             if ( !pprt->inwater )
             {
@@ -785,7 +785,7 @@ void move_all_particles( void )
         prt_t * pprt;
 
         bool_t hit_a_wall, hit_a_floor;
-        GLvector3 nrm;
+        fvec3_t   nrm;
 
         if ( !ACTIVE_PRT(cnt) ) continue;
         pprt = PrtList.lst + cnt;
@@ -793,7 +793,7 @@ void move_all_particles( void )
         // determine the actual velocity for attached particles
         if( ACTIVE_CHR(pprt->attachedto_ref) )
         {
-            pprt->vel = VSub(pprt->pos, pprt->pos_old);
+            pprt->vel = fvec3_sub(pprt->pos.v, pprt->pos_old.v);
         }
 
         pprt->pos_old = pprt->pos;
@@ -898,11 +898,11 @@ void move_all_particles( void )
                 (hit_a_floor && pprt->vel.z < 0.0f) )
             {
                 float vdot;
-                GLvector3 vpara, vperp;
+                fvec3_t   vpara, vperp;
 
-                nrm = VNormalize( nrm );
+                nrm = fvec3_normalize( nrm.v );
 
-                vdot  = VDotProduct( nrm, pprt->vel );
+                vdot  = fvec3_dot_product( nrm.v, pprt->vel.v );
 
                 vperp.x = nrm.x * vdot;
                 vperp.y = nrm.y * vdot;
@@ -985,9 +985,9 @@ void move_all_particles( void )
                     {
                         int       ival;
                         float     vlen, min_length, uncertainty;
-                        GLvector3 vdiff, vdither;
+                        fvec3_t   vdiff, vdither;
 
-                        vdiff = VSub( ChrList.lst[pprt->target_ref].pos, pprt->pos );
+                        vdiff = fvec3_sub( ChrList.lst[pprt->target_ref].pos.v, pprt->pos.v );
                         vdiff.z += ChrList.lst[pprt->target_ref].bump.height * 0.5f;
 
                         min_length = ( 2 * 5 * 256 * ChrList.lst[pprt->owner_ref].wisdom ) / PERFECTBIG;
@@ -1005,10 +1005,10 @@ void move_all_particles( void )
                         vdither.z = ( ((float) ival / 0x8000) - 1.0f )  * uncertainty;
 
                         // take away any dithering along the direction of motion of the particle
-                        vlen = VDotProduct(pprt->vel, pprt->vel);
+                        vlen = fvec3_dot_product( pprt->vel.v, pprt->vel.v );
                         if( vlen > 0.0f )
                         {
-                            float vdot = VDotProduct(vdither, pprt->vel) / vlen;
+                            float vdot = fvec3_dot_product( vdither.v, pprt->vel.v ) / vlen;
 
                             vdither.x -= vdot * vdiff.x / vlen;
                             vdither.y -= vdot * vdiff.y / vlen;

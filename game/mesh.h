@@ -134,13 +134,13 @@ struct s_ego_mpd
     mesh_mem_t      mmem;
     grid_mem_t      gmem;
 
-    GLvector2       tileoff[MAXTILETYPE];     // Tile texture offset
+    fvec2_t         tileoff[MAXTILETYPE];     // Tile texture offset
 };
 typedef struct s_ego_mpd ego_mpd_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-extern GLvector3 map_twist_nrm[256];
+extern fvec3_t   map_twist_nrm[256];
 extern Uint32    map_twist_y[256];            // For surface normal of mesh
 extern Uint32    map_twist_x[256];
 extern float     map_twistvel_x[256];            // For sliding down steep hills

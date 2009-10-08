@@ -42,7 +42,7 @@ struct s_egoboo_config
     int                     scry_req;                  // Screen Y size
     int                     message_count_req;
     Uint16                  message_duration;               // Time to keep the message alive
-    bool_t                  staton;                    // Draw the status bars?
+    bool_t                  StatusList_on;                    // Draw the status bars?
     bool_t                  use_perspective;               // Perspective correct textures?
     bool_t                  use_dither;                    // Dithering?
     bool_t                  reflect_allowed;           // Reflections?

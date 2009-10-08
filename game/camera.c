@@ -45,9 +45,9 @@ camera_t gCamera;
 
 camera_t * camera_new( camera_t * pcam )
 {
-    GLvector3 t1 = {{0, 0, 0}};
-    GLvector3 t2 = {{0, 0, -1}};
-    GLvector3 t3 = {{0, 1, 0}};
+    fvec3_t   t1 = {{0, 0, 0}};
+    fvec3_t   t2 = {{0, 0, -1}};
+    fvec3_t   t3 = {{0, 1, 0}};
 
     memset( pcam, 0, sizeof(camera_t) );
 
@@ -72,7 +72,7 @@ camera_t * camera_new( camera_t * pcam )
     pcam->turnupdown =  (float)( PI / 4 );
     pcam->roll       =  0;
 
-    pcam->mView       = pcam->mViewSave = ViewMatrix( t1, t2, t3, 0 );
+    pcam->mView       = pcam->mViewSave = ViewMatrix( t1.v, t2.v, t3.v, 0 );
     pcam->mProjection = ProjectionMatrix( .001f, 2000.0f, (float)( FOV * PI / 180 ) ); // 60 degree FOV
     pcam->mProjection = MatrixMult( Translate( 0, 0, -0.999996f ), pcam->mProjection ); // Fix Z value...
     pcam->mProjection = MatrixMult( ScaleXYZ( -1, -1, 100000 ), pcam->mProjection );  // HUK // ...'cause it needs it
@@ -92,7 +92,7 @@ camera_t * camera_new( camera_t * pcam )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void dump_matrix( GLmatrix a )
+void dump_matrix( fmat_4x4_t a )
 {
     int i; int j;
 

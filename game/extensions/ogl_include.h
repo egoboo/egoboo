@@ -54,10 +54,10 @@ extern "C"
     {
         GLXvector4f pos;
         GLXvector3f rt, up;
-        GLfloat    dist;
+        GLfloat     dist;
         GLXvector4f col;
-        GLuint     color; // should replace r,g,b,a and be called by glColor4ubv
-        GLXvector2f tx; // u and v in D3D I guess
+        GLuint      color; // should replace r,g,b,a and be called by glColor4ubv
+        GLXvector2f tx;    // u and v in D3D I guess
     };
 
 //--------------------------------------------------------------------------------------------

@@ -235,7 +235,7 @@ struct s_billboard_data
 
     Uint32    time;         // the time when the billboard will expire
     int       tex_ref;      // our texture index
-    GLvector3 pos;          // the position of the bottom-missle of the box
+    fvec3_t   pos;          // the position of the bottom-missle of the box
 
     Uint16    ichr;         // the character we are attached to
 };
@@ -264,8 +264,8 @@ billboard_data_t * BillboardList_get_ptr( int ibb );
 #define LINE_COUNT 100
 struct s_line_data
 {
-    GLvector3 dst;
-    GLvector4 src, color;
+    fvec3_t   dst;
+    fvec4_t   src, color;
     int time;
 };
 typedef struct s_line_data line_data_t;
@@ -378,10 +378,10 @@ bool_t oglx_texture_parameters_synch( struct s_oglx_texture_parameters * ptex, s
 
 void reset_renderlist();
 
-bool_t interpolate_grid_lighting( ego_mpd_t * pmesh, lighting_cache_t * dst, GLvector3 pos );
-bool_t project_lighting( lighting_cache_t * dst, lighting_cache_t * src, GLmatrix mat );
+bool_t interpolate_grid_lighting( ego_mpd_t * pmesh, lighting_cache_t * dst, fvec3_t   pos );
+bool_t project_lighting( lighting_cache_t * dst, lighting_cache_t * src, fmat_4x4_t mat );
 bool_t interpolate_lighting( lighting_cache_t * dst, lighting_cache_t * src[], float u, float v );
-bool_t project_sum_lighting( lighting_cache_t * dst, lighting_cache_t * src, GLvector3 vec, int dir );
+bool_t project_sum_lighting( lighting_cache_t * dst, lighting_cache_t * src, fvec3_t   vec, int dir );
 
 bool_t bbox_gl_draw(aabb_t * pbbox);
 

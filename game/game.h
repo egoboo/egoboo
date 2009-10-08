@@ -195,15 +195,15 @@ struct s_water_layer_instance
     float     z;            // Base height of water
     float     amp;            // Amplitude of waves
 
-    GLvector2 dist;
+    fvec2_t   dist;
 
-    GLvector2 tx;           // Coordinates of texture
+    fvec2_t   tx;           // Coordinates of texture
 
     float     light_dir;    // direct  reflectivity 0 - 1
     float     light_add;    // ambient reflectivity 0 - 1
     Uint8     alpha;        // Transparency
 
-    GLvector2 tx_add;            // Texture movement
+    fvec2_t   tx_add;            // Texture movement
 };
 typedef struct s_water_layer_instance water_instance_layer_t;
 
@@ -266,17 +266,16 @@ typedef struct s_game_module game_module_t;
 
 #define MAXSTAT             16                      // Maximum status displays
 
-extern bool_t staton;
-// extern int    statdelay;
-extern int    numstat;
-extern Uint16 statlist[MAXSTAT];
+extern bool_t StatusList_on;
+extern int    StatusList_count;
+extern Uint16 StatusList[MAXSTAT];
 
 //--------------------------------------------------------------------------------------------
 // End text
 #define MAXENDTEXT 1024
 
 extern char   endtext[MAXENDTEXT];     // The end-module text
-extern int    endtextwrite;
+extern size_t endtext_carat;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -289,11 +288,15 @@ extern struct s_camera          * PCamera;
 extern struct s_game_module * PMod;
 
 // Pitty stuff
-extern bool_t  pitskill;          // Do they kill?
-extern bool_t  pitsfall;          // Do they teleport?
-extern Uint32  pitx;
-extern Uint32  pity;
-extern Uint32  pitz;
+struct s_pit_info
+{
+    bool_t     kill;          // Do they kill?
+    bool_t     teleport;      // Do they teleport?
+    fvec3_t    teleport_pos;
+};
+typedef struct s_pit_info pit_info_t;
+
+extern pit_info_t pits;
 
 extern Uint16  glouseangle;                                        // actually still used
 

@@ -47,8 +47,8 @@ static bool_t link_push_module();
 struct s_hero_spawn_data
 {
     Uint32 object_index;
-    GLvector3 pos;
-    GLvector3 pos_stt;
+    fvec3_t   pos;
+    fvec3_t   pos_stt;
 
     // are there any other hero things to add here?
 };
@@ -249,11 +249,11 @@ bool_t link_push_module()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t link_load_parent( const char * modname, GLvector3 pos )
+bool_t link_load_parent( const char * modname, fvec3_t   pos )
 {
     int i;
     link_stack_entry_t * pentry;
-    GLvector3 pos_diff;
+    fvec3_t   pos_diff;
 
     if ( !VALID_CSTR(modname) ) return bfalse;
 

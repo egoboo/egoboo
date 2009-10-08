@@ -152,12 +152,12 @@ bool_t    screenshotkeyready = btrue;
 
 // End text
 char   endtext[MAXENDTEXT] = EMPTY_CSTR;
-int    endtextwrite = 0;
+int    endtext_carat = 0;
 
 // Status displays
-bool_t staton     = btrue;
-int    numstat    = 0;
-Uint16 statlist[MAXSTAT];
+bool_t StatusList_on     = btrue;
+int    StatusList_count    = 0;
+Uint16 StatusList[MAXSTAT];
 
 ego_mpd_t         * PMesh   = _mesh + 0;
 camera_t          * PCamera = _camera + 0;
@@ -166,11 +166,7 @@ ego_process_t     * EProc   = &_eproc;
 menu_process_t    * MProc   = &_mproc;
 game_process_t    * GProc   = &_gproc;
 
-bool_t  pitskill  = bfalse;
-bool_t  pitsfall  = bfalse;
-Uint32  pitx;
-Uint32  pity;
-Uint32  pitz;
+pit_info_t pits = { bfalse, bfalse, ZERO_VECT3 };
 
 Uint16  glouseangle = 0;                                        // actually still used
 
@@ -568,55 +564,55 @@ void statlist_add( Uint16 character )
 
     chr_t * pchr;
 
-    if ( numstat >= MAXSTAT ) return;
+    if ( StatusList_count >= MAXSTAT ) return;
 
     if( !ACTIVE_CHR(character) ) return;
     pchr = ChrList.lst + character;
 
-    if( pchr->staton ) return;
+    if( pchr->StatusList_on ) return;
 
-    statlist[numstat] = character;
-    pchr->staton = btrue;
-    numstat++;
+    StatusList[StatusList_count] = character;
+    pchr->StatusList_on = btrue;
+    StatusList_count++;
 }
 
 //--------------------------------------------------------------------------------------------
 void statlist_move_to_top( Uint16 character )
 {
-    // ZZ> This function puts the character on top of the statlist
+    // ZZ> This function puts the character on top of the StatusList
     int cnt, oldloc;
 
     // Find where it is
-    oldloc = numstat;
+    oldloc = StatusList_count;
 
-    for ( cnt = 0; cnt < numstat; cnt++ )
+    for ( cnt = 0; cnt < StatusList_count; cnt++ )
     {
-        if ( statlist[cnt] == character )
+        if ( StatusList[cnt] == character )
         {
             oldloc = cnt;
-            cnt = numstat;
+            cnt = StatusList_count;
         }
     }
 
     // Change position
-    if ( oldloc < numstat )
+    if ( oldloc < StatusList_count )
     {
         // Move all the lower ones up
         while ( oldloc > 0 )
         {
             oldloc--;
-            statlist[oldloc+1] = statlist[oldloc];
+            StatusList[oldloc+1] = StatusList[oldloc];
         }
 
         // Put the character in the top slot
-        statlist[0] = character;
+        StatusList[0] = character;
     }
 }
 
 //--------------------------------------------------------------------------------------------
 void statlist_sort()
 {
-    // ZZ> This function puts all of the local players on top of the statlist
+    // ZZ> This function puts all of the local players on top of the StatusList
     int cnt;
 
     for ( cnt = 0; cnt < PlaList_count; cnt++ )
@@ -1030,7 +1026,7 @@ void reset_timers()
     frame_fps = 0;
     outofsync = bfalse;
 
-    pitskill = pitsfall = bfalse;
+    pits.kill = pits.teleport = bfalse;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1997,7 +1993,7 @@ Uint16 chr_find_target( chr_t * psrc, float max_dist2, TARGET_TYPE target_type, 
     for ( cnt = 0; cnt < search_list; cnt++ )
     {
         float  dist2;
-        GLvector3 diff;
+        fvec3_t   diff;
         chr_t * ptst;
 		Uint16 ichr_test = target_players ? PlaList[cnt].index : cnt;
 		
@@ -2009,8 +2005,8 @@ Uint16 chr_find_target( chr_t * psrc, float max_dist2, TARGET_TYPE target_type, 
             continue;
         }
 
-        diff  = VSub( psrc->pos, ptst->pos );
-        dist2 = VDotProduct( diff, diff );
+        diff  = fvec3_sub( psrc->pos.v, ptst->pos.v );
+        dist2 = fvec3_dot_product( diff.v, diff.v );
 
         if ( (0 == max_dist2 || dist2 <= max_dist2) && (MAX_CHR == best_target || dist2 < best_dist2) )
         {
@@ -2154,7 +2150,7 @@ void update_pits()
     // ZZ> This function kills any character in a deep pit...
     int cnt;
 
-    if ( pitskill || pitsfall )
+    if ( pits.kill || pits.teleport )
     {
         if ( clock_pit > 19 )
         {
@@ -2179,7 +2175,7 @@ void update_pits()
                 if ( ChrList.lst[cnt].attachedto != MAX_CHR || ChrList.lst[cnt].pack_ispacked ) continue;
 
                 // Do we kill it?
-                if ( pitskill && ChrList.lst[cnt].pos.z < PITDEPTH )
+                if ( pits.kill && ChrList.lst[cnt].pos.z < PITDEPTH )
                 {
                     // Got one!
                     kill_character( cnt, MAX_CHR );
@@ -2191,12 +2187,12 @@ void update_pits()
                 }
 
                 // Do we teleport it?
-                if ( pitsfall && ChrList.lst[cnt].pos.z < PITDEPTH << 3 )
+                if ( pits.teleport && ChrList.lst[cnt].pos.z < PITDEPTH << 3 )
                 {
                     bool_t teleported;
 
                     // Teleport them back to a "safe" spot
-                    teleported = chr_teleport(cnt, pitx, pity, pitz, ChrList.lst[cnt].turn_z );
+                    teleported = chr_teleport(cnt, pits.teleport_pos.x, pits.teleport_pos.y, pits.teleport_pos.z, ChrList.lst[cnt].turn_z );
 
                     if ( !teleported )
                     {
@@ -2663,9 +2659,9 @@ void show_stat( Uint16 statindex )
     int character, level;
     char gender[8] = EMPTY_CSTR;
 
-    if ( statindex < numstat )
+    if ( statindex < StatusList_count )
     {
-        character = statlist[statindex];
+        character = StatusList[statindex];
 
         if( ACTIVE_CHR(character) )
         {
@@ -2735,9 +2731,9 @@ void show_armor( Uint16 statindex )
     cap_t * pcap;
     chr_t * pchr;
 
-    if ( statindex >= numstat ) return;
+    if ( statindex >= StatusList_count ) return;
 
-    ichr = statlist[statindex];
+    ichr = StatusList[statindex];
     if ( !ACTIVE_CHR(ichr) ) return;
 
     pchr = ChrList.lst + ichr;
@@ -2787,9 +2783,9 @@ void show_full_status( Uint16 statindex )
     float manaregen, liferegen;
     chr_t * pchr;
 
-    if ( statindex >= numstat ) return;
+    if ( statindex >= StatusList_count ) return;
 
-    character = statlist[statindex];
+    character = StatusList[statindex];
     if( !ACTIVE_CHR(character) ) return;
     pchr = ChrList.lst + character;
 
@@ -2848,9 +2844,9 @@ void show_magic_status( Uint16 statindex )
     char * missile_str;
     chr_t * pchr;
 
-    if ( statindex >= numstat ) return;
+    if ( statindex >= StatusList_count ) return;
 
-    character = statlist[statindex];
+    character = StatusList[statindex];
 
     if( !ACTIVE_CHR(character) ) return;
     pchr = ChrList.lst + character;
@@ -3110,7 +3106,7 @@ bool_t attach_chr_to_platform( chr_t * pchr, chr_t * pplat )
     // BB> attach a character to a platform
 
     cap_t * pchr_cap;
-    GLvector3 platform_up;
+    fvec3_t   platform_up;
 
     // verify that we do not have two dud pointers
     if( !ACTIVE_PCHR( pchr ) ) return bfalse;
@@ -3144,7 +3140,7 @@ bool_t attach_chr_to_platform( chr_t * pchr, chr_t * pplat )
 
     // what to do about traction if the platform is tilted... hmmm?
     chr_getMatUp( pplat, &platform_up );
-    platform_up = VNormalize(platform_up);
+    platform_up = fvec3_normalize( platform_up.v );
 
     pchr->enviro.traction = ABS(platform_up.z) * (1.0f - pchr->enviro.zlerp) + 0.25 * pchr->enviro.zlerp;
 
@@ -3390,7 +3386,7 @@ bool_t do_mounts( Uint16 ichr_a, Uint16 ichr_b )
     if ( !mounted && mount_b && (pchr_a->vel.z - pchr_b->vel.z) < 0 )
     {
         // A falling on B?
-        GLvector4 point[1], nupoint[1];
+        fvec4_t   point[1], nupoint[1];
 
         // determine the actual location of the mount point
         {
@@ -3436,7 +3432,7 @@ bool_t do_mounts( Uint16 ichr_a, Uint16 ichr_b )
     {
         // B falling on A?
 
-        GLvector4 point[1], nupoint[1];
+        fvec4_t   point[1], nupoint[1];
 
         // determine the actual location of the mount point
         {
@@ -3536,7 +3532,7 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
 
     float wta, wtb;
 
-    GLvector3 nrm;
+    fvec3_t   nrm;
     int exponent = 1;
 
     bool_t collide_x  = bfalse, was_collide_x;
@@ -3794,13 +3790,13 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
 
     if ( ABS(nrm.x) + ABS(nrm.y) + ABS(nrm.z) > 0.0f )
     {
-        GLvector3 vel_a, vel_b;
-        GLvector3 vpara_a, vperp_a;
-        GLvector3 vpara_b, vperp_b;
-        GLvector3 imp_a, imp_b;
+        fvec3_t   vel_a, vel_b;
+        fvec3_t   vpara_a, vperp_a;
+        fvec3_t   vpara_b, vperp_b;
+        fvec3_t   imp_a, imp_b;
         float     vdot;
 
-        nrm = VNormalize( nrm );
+        nrm = fvec3_normalize( nrm.v );
 
         vel_a.x = pchr_a->vel.x;
         vel_a.y = pchr_a->vel.y;
@@ -3810,17 +3806,17 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
         vel_b.y = pchr_b->vel.y;
         vel_b.z = pchr_b->vel.z;
 
-        vdot = VDotProduct( nrm, vel_a );
+        vdot = fvec3_dot_product( nrm.v, vel_a.v );
         vperp_a.x = nrm.x * vdot;
         vperp_a.y = nrm.y * vdot;
         vperp_a.z = nrm.z * vdot;
-        vpara_a = VSub( vel_a, vperp_a );
+        vpara_a = fvec3_sub( vel_a.v, vperp_a.v );
 
-        vdot = VDotProduct( nrm, vel_b );
+        vdot = fvec3_dot_product( nrm.v, vel_b.v );
         vperp_b.x = nrm.x * vdot;
         vperp_b.y = nrm.y * vdot;
         vperp_b.z = nrm.z * vdot;
-        vpara_b = VSub( vel_b, vperp_b );
+        vpara_b = fvec3_sub( vel_b.v, vperp_b.v );
 
         // clear the "impulses"
         imp_a.x = imp_a.y = imp_a.z = 0.0f;
@@ -3953,8 +3949,8 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
             pchr_b->phys.apos_1.z += imp_b.z * interaction_strength;
 
             // you could "bump" something if you changed your velocity, even if you were still touching
-            bump = (VDotProduct( pchr_a->vel, nrm ) * VDotProduct( pchr_a->vel_old, nrm ) < 0 ) ||
-                   (VDotProduct( pchr_b->vel, nrm ) * VDotProduct( pchr_b->vel_old, nrm ) < 0 );
+            bump = (fvec3_dot_product( pchr_a->vel.v, nrm.v ) * fvec3_dot_product( pchr_a->vel_old.v, nrm.v ) < 0 ) ||
+                   (fvec3_dot_product( pchr_b->vel.v, nrm.v ) * fvec3_dot_product( pchr_b->vel_old.v, nrm.v ) < 0 );
         }
 
         // add in the friction due to the "collision"
@@ -4333,7 +4329,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
                 // so the only barier left is whether the character can be damaged this update
                 if ( 0 == pchr_a->damagetime )
                 {
-                    GLvector3 vdiff;
+                    fvec3_t   vdiff;
                     float prt_mass, prt_ke;
 
                     // clean up the enchant list before doing anything
@@ -4420,24 +4416,24 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
 
                     // determine an "effective mass" for the particle
                     {
-                        GLvector3 vtmp;
+                        fvec3_t   vtmp;
                         float prt_vel2, vel_nrm;
 
                         //if( ACTIVE_CHR(pprt_b->attachedto_ref) )
                         //{
                         //    // just in case there is a problem with the pprt_b->pos calculation
                         //    // for attached particles
-                        //    vtmp = VSub( pprt_b->pos, pprt_b->pos_old );
+                        //    vtmp = fvec3_sub( pprt_b->pos.v, pprt_b->pos_old.v );
                         //}
                         //else
                         //{
                             vtmp = pprt_b->vel;
                         //}
-                        vdiff = VSub( vtmp, pchr_a->vel );
+                        vdiff = fvec3_sub( vtmp.v, pchr_a->vel.v );
 
-                        prt_vel2 = VDotProduct( vdiff, vdiff );
+                        prt_vel2 = fvec3_dot_product( vdiff.v, vdiff.v );
 
-                        vdiff = VNormalize( vdiff );
+                        vdiff = fvec3_normalize( vdiff.v );
                         vel_nrm = SQRT( MIN( 100.0f, prt_vel2 ) );
                         vdiff.x *= vel_nrm;
                         vdiff.y *= vel_nrm;
@@ -4465,7 +4461,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
                         (ABS(vdiff.x) + ABS(vdiff.y) + ABS(vdiff.z) > 0.0f)  )
                     {
                         float factor;
-                        GLvector3 impulse;
+                        fvec3_t   impulse;
 
                         // the faster the particle (the smaller the particle "mass" ), the bigger the
                         // kickback
@@ -4510,7 +4506,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
                     {
                         float recoil;
                         float factor;
-                        GLvector3 impulse;
+                        fvec3_t   impulse;
 
                         recoil = (float)(ABS(max_damage) - ABS(actual_damage)) / (float)ABS(max_damage);
 
@@ -6068,29 +6064,29 @@ bool_t make_water( water_instance_t * pinst, wawalite_water_t * pdata )
 void reset_end_text()
 {
     // ZZ> This function resets the end-module text
-    endtextwrite = snprintf( endtext, SDL_arraysize( endtext), "The game has ended..." );
+    endtext_carat = snprintf( endtext, SDL_arraysize( endtext), "The game has ended..." );
 
     /*
     if ( PlaList_count > 1 )
     {
-        endtextwrite = snprintf( endtext, SDL_arraysize( endtext), "Sadly, they were never heard from again..." );
+        endtext_carat = snprintf( endtext, SDL_arraysize( endtext), "Sadly, they were never heard from again..." );
     }
     else
     {
         if ( PlaList_count == 0 )
         {
             // No players???
-            endtextwrite = snprintf( endtext, SDL_arraysize( endtext), "The game has ended..." );
+            endtext_carat = snprintf( endtext, SDL_arraysize( endtext), "The game has ended..." );
         }
         else
         {
             // One player
-            endtextwrite = snprintf( endtext, SDL_arraysize( endtext), "Sadly, no trace was ever found..." );
+            endtext_carat = snprintf( endtext, SDL_arraysize( endtext), "Sadly, no trace was ever found..." );
         }
     }
     */
 
-    str_add_linebreaks( endtext, endtextwrite, 20 );
+    str_add_linebreaks( endtext, endtext_carat, 20 );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -7414,7 +7410,7 @@ bool_t game_module_stop( game_module_t * pinst )
 //    if ( !collision && collide_z )
 //    {
 //        float depth_x, depth_y, depth_xy, depth_yx, depth_z;
-//        GLvector3 nrm;
+//        fvec3_t   nrm;
 //        int exponent = 1;
 //
 //        if ( pcap_a->canuseplatforms && pchr_b->platform ) exponent += 2;
@@ -7490,13 +7486,13 @@ bool_t game_module_stop( game_module_t * pinst )
 //
 //        if ( ABS(nrm.x) + ABS(nrm.y) + ABS(nrm.z) > 0.0f )
 //        {
-//            GLvector3 vel_a, vel_b;
-//            GLvector3 vpara_a, vperp_a;
-//            GLvector3 vpara_b, vperp_b;
-//            GLvector3 imp_a, imp_b;
+//            fvec3_t   vel_a, vel_b;
+//            fvec3_t   vpara_a, vperp_a;
+//            fvec3_t   vpara_b, vperp_b;
+//            fvec3_t   imp_a, imp_b;
 //            float     vdot;
 //
-//            nrm = VNormalize( nrm );
+//            nrm = fvec3_normalize( nrm.v );
 //
 //            vel_a.x = pchr_a->vel.x;
 //            vel_a.y = pchr_a->vel.y;
@@ -7506,17 +7502,17 @@ bool_t game_module_stop( game_module_t * pinst )
 //            vel_b.y = pchr_b->vel.y;
 //            vel_b.z = pchr_b->vel.z;
 //
-//            vdot = VDotProduct( nrm, vel_a );
+//            vdot = fvec3_dot_product( nrm.v, vel_a.v );
 //            vperp_a.x = nrm.x * vdot;
 //            vperp_a.y = nrm.y * vdot;
 //            vperp_a.z = nrm.z * vdot;
-//            vpara_a = VSub( vel_a, vperp_a );
+//            vpara_a = fvec3_sub( vel_a.v, vperp_a.v );
 //
-//            vdot = VDotProduct( nrm, vel_b );
+//            vdot = fvec3_dot_product( nrm.v, vel_b.v );
 //            vperp_b.x = nrm.x * vdot;
 //            vperp_b.y = nrm.y * vdot;
 //            vperp_b.z = nrm.z * vdot;
-//            vpara_b = VSub( vel_b, vperp_b );
+//            vpara_b = fvec3_sub( vel_b.v, vperp_b.v );
 //
 //            // clear the "impulses"
 //            imp_a.x = imp_a.y = imp_a.z = 0.0f;
@@ -7644,8 +7640,8 @@ bool_t game_module_stop( game_module_t * pinst )
 //                pchr_b->phys.apos_1.z += imp_b.z;
 //
 //                // you could "bump" something if you changed your velocity, even if you were still touching
-//                collision = (VDotProduct( pchr_a->vel, nrm ) * VDotProduct( pchr_a->vel_old, nrm ) < 0 ) ||
-//                            (VDotProduct( pchr_b->vel, nrm ) * VDotProduct( pchr_b->vel_old, nrm ) < 0 );
+//                collision = (fvec3_dot_product( pchr_a->vel.v, nrm.v ) * fvec3_dot_product( pchr_a->vel_old.v, nrm.v ) < 0 ) ||
+//                            (fvec3_dot_product( pchr_b->vel.v, nrm.v ) * fvec3_dot_product( pchr_b->vel_old.v, nrm.v ) < 0 );
 //
 //            }
 //

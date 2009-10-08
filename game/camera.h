@@ -77,8 +77,8 @@ enum e_camera_turn_mode
 
 struct s_camera
 {
-    GLmatrix mView, mViewSave;      // View Matrix
-    GLmatrix mProjection;           // Projection Matrix
+    fmat_4x4_t mView, mViewSave;      // View Matrix
+    fmat_4x4_t mProjection;           // Projection Matrix
 
     Uint8  move_mode;               // what is the camera mode
     Uint8  turn_mode;               // what is the camera mode
@@ -87,11 +87,11 @@ struct s_camera
     int       swing;                   // Camera swingin'
     int       swingrate;
     float     swingamp;
-    GLvector3 pos;                       // Camera position (z = 500-1000)
+    fvec3_t   pos;                       // Camera position (z = 500-1000)
     float     zoom;                    // Distance from the trackee
-    GLvector3 track_pos;                  // Trackee position
+    fvec3_t   track_pos;                  // Trackee position
     float     track_level;
-    GLvector3 center;                 // Move character to side before tracking
+    fvec3_t   center;                 // Move character to side before tracking
     float     zadd;                    // Camera height above terrain
     float     zaddgoto;                // Desired z position
     float     zgoto;

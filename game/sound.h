@@ -119,8 +119,8 @@ Mix_Chunk * sound_load_chunk( const char * szFileName );
 Mix_Music * sound_load_music( const char * szFileName );
 bool_t      sound_load( mix_ptr_t * pptr, const char * szFileName, mix_type_t type );
 
-int     sound_play_mix( GLvector3 pos, struct s_mix_ptr * pptr );
-int     sound_play_chunk_looped( GLvector3 pos, Mix_Chunk * pchunk, Sint8 loops, Uint16 object );
+int     sound_play_mix( fvec3_t   pos, struct s_mix_ptr * pptr );
+int     sound_play_chunk_looped( fvec3_t   pos, Mix_Chunk * pchunk, Sint8 loops, Uint16 object );
 #define sound_play_chunk( pos, pchunk ) sound_play_chunk_looped( pos, pchunk, 0, MAX_CHR )
 void    sound_play_song( Sint8 songnumber, Uint16 fadetime, Sint8 loops );
 void    sound_finish_song( Uint16 fadetime );

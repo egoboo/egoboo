@@ -1003,7 +1003,7 @@ bool_t mesh_make_normals( ego_mpd_t * pmesh )
     int dx, dy;
     Uint32 fan0, fan1;
     int wt_cnt;
-    GLvector3 vec0, vec1, vec_sum;
+    fvec3_t   vec0, vec1, vec_sum;
     mesh_mem_t * pmem;
 
     // test for mesh
@@ -1078,7 +1078,7 @@ bool_t mesh_make_normals( ego_mpd_t * pmesh )
                                 vec1.z *= -1.0f;
                             }
 
-                            wt = VDotProduct( vec0, vec1 );
+                            wt = fvec3_dot_product( vec0.v, vec1.v );
                             if ( wt > 0 )
                             {
                                 vec_sum.x += wt * vec1.x;
@@ -1093,7 +1093,7 @@ bool_t mesh_make_normals( ego_mpd_t * pmesh )
 
                 if ( wt_cnt > 1 )
                 {
-                    vec_sum = VNormalize(vec_sum);
+                    vec_sum = fvec3_normalize( vec_sum.v );
 
                     pmem->ncache[fan0][i][XX] = vec_sum.x;
                     pmem->ncache[fan0][i][YY] = vec_sum.y;

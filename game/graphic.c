@@ -1057,7 +1057,7 @@ void render_foreground_overlay( Uint16 texture )
     // ZZ> This function draws the large foreground
 
     float alpha, ftmp;
-    GLvector3 vforw_wind, vforw_cam;
+    fvec3_t   vforw_wind, vforw_cam;
 
     oglx_texture           * ptex;
 
@@ -1066,12 +1066,12 @@ void render_foreground_overlay( Uint16 texture )
     vforw_wind.x = ilayer->tx_add.x;
     vforw_wind.y = ilayer->tx_add.y;
     vforw_wind.z = 0;
-    vforw_wind = VNormalize( vforw_wind );
+    vforw_wind = fvec3_normalize( vforw_wind.v );
 
     vforw_cam  = mat_getCamForward( PCamera->mView );
 
     // make the texture begin to disappear if you are not looking straight down
-    ftmp = VDotProduct( vforw_wind, vforw_cam );
+    ftmp = fvec3_dot_product( vforw_wind.v, vforw_cam.v );
 
     alpha = (1.0f - ftmp * ftmp) * (ilayer->alpha * INV_FF);
 
@@ -2887,11 +2887,11 @@ int draw_all_status( int y )
 {
     int cnt;
 
-    if ( staton )
+    if ( StatusList_on )
     {
-        for ( cnt = 0; cnt < numstat && y < sdl_scr.y; cnt++ )
+        for ( cnt = 0; cnt < StatusList_count && y < sdl_scr.y; cnt++ )
         {
-            y = draw_status( statlist[cnt], sdl_scr.x - BARX, y );
+            y = draw_status( StatusList[cnt], sdl_scr.x - BARX, y );
         }
     }
 
@@ -3766,7 +3766,7 @@ void load_graphics()
 float calc_light_rotation( int rotation, int normal )
 {
     // ZZ> This function helps make_lighttable
-    GLvector3 nrm, nrm2;
+    fvec3_t   nrm, nrm2;
     float sinrot, cosrot;
 
     nrm.x = kMd2Normals[normal][0];
@@ -3788,7 +3788,7 @@ float calc_light_global( int rotation, int normal, float lx, float ly, float lz 
 {
     // ZZ> This function helps make_lighttable
     float fTmp;
-    GLvector3 nrm, nrm2;
+    fvec3_t   nrm, nrm2;
     float sinrot, cosrot;
 
     nrm.x = kMd2Normals[normal][0];
@@ -3872,7 +3872,7 @@ void project_view( camera_t * pcam )
     float numstep;
     float zproject;
     float xfin, yfin, zfin;
-    GLmatrix mTemp;
+    fmat_4x4_t mTemp;
 
     // Range
     ztemp = ( pcam->pos.z );
@@ -4209,7 +4209,7 @@ void dolist_sort( camera_t * pcam )
     //    Order from closest to farthest
 
     Uint32    cnt, tnc;
-    GLvector3 vcam;
+    fvec3_t   vcam;
     size_t    count;
 
     vcam = mat_getCamForward(pcam->mView);
@@ -4218,25 +4218,25 @@ void dolist_sort( camera_t * pcam )
     count = 0;
     for ( cnt = 0; cnt < dolist_count; cnt++ )
     {
-        GLvector3 vtmp;
+        fvec3_t   vtmp;
         float dist;
 
         if ( TOTAL_MAX_PRT == dolist[cnt].iprt && ACTIVE_CHR(dolist[cnt].ichr) )
         {
             tnc = dolist[cnt].ichr;
-            vtmp = VSub( ChrList.lst[tnc].pos, pcam->pos );
+            vtmp = fvec3_sub( ChrList.lst[tnc].pos.v, pcam->pos.v );
         }
         else if ( MAX_CHR == dolist[cnt].ichr && DISPLAY_PRT(dolist[cnt].iprt) )
         {
             tnc = dolist[cnt].iprt;
-            vtmp = VSub( PrtList.lst[tnc].pos, pcam->pos );
+            vtmp = fvec3_sub( PrtList.lst[tnc].pos.v, pcam->pos.v );
         }
         else
         {
             continue;
         }
 
-        dist = VDotProduct( vtmp, vcam );
+        dist = fvec3_dot_product( vtmp.v, vcam.v );
         if ( dist > 0 )
         {
             dolist[count].ichr = dolist[cnt].ichr;
@@ -4388,7 +4388,7 @@ bool_t oglx_texture_parameters_synch( oglx_texture_parameters_t * ptex, egoboo_c
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t interpolate_grid_lighting( ego_mpd_t * pmesh, lighting_cache_t * dst, GLvector3 pos )
+bool_t interpolate_grid_lighting( ego_mpd_t * pmesh, lighting_cache_t * dst, fvec3_t   pos )
 {
     int ix, iy, cnt;
     Uint32 fan[4];
@@ -4430,10 +4430,10 @@ bool_t interpolate_grid_lighting( ego_mpd_t * pmesh, lighting_cache_t * dst, GLv
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t project_lighting( lighting_cache_t * dst, lighting_cache_t * src, GLmatrix mat )
+bool_t project_lighting( lighting_cache_t * dst, lighting_cache_t * src, fmat_4x4_t mat )
 {
     int cnt;
-    GLvector3 fwd, right, up;
+    fvec3_t   fwd, right, up;
 
     // blank the destination lighting
     if ( NULL == dst ) return bfalse;
@@ -4449,9 +4449,9 @@ bool_t project_lighting( lighting_cache_t * dst, lighting_cache_t * src, GLmatri
     if ( src->max_light <= 0.0f ) return btrue;
 
     // grab the character directions
-    fwd   = VNormalize( mat_getChrForward( mat ) );         // along body-fixed +y-axis
-    right = VNormalize( mat_getChrRight( mat ) );        // along body-fixed +x-axis
-    up    = VNormalize( mat_getChrUp( mat ) );            // along body-fixed +z axis
+    fwd   = fvec3_normalize( mat_getChrForward( mat ).v );         // along body-fixed +y-axis
+    right = fvec3_normalize( mat_getChrRight( mat ).v );        // along body-fixed +x-axis
+    up    = fvec3_normalize( mat_getChrUp( mat ).v );            // along body-fixed +z axis
 
     // split the lighting cache up
     project_sum_lighting( dst, src, right, 0 );
@@ -4557,7 +4557,7 @@ bool_t interpolate_lighting( lighting_cache_t * dst, lighting_cache_t * src[], f
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t project_sum_lighting( lighting_cache_t * dst, lighting_cache_t * src, GLvector3 vec, int dir )
+bool_t project_sum_lighting( lighting_cache_t * dst, lighting_cache_t * src, fvec3_t   vec, int dir )
 {
     if ( NULL == src || NULL == dst ) return bfalse;
 
@@ -4707,7 +4707,7 @@ bool_t billboard_data_free(billboard_data_t * pbb)
 //--------------------------------------------------------------------------------------------
 bool_t billboard_data_update( billboard_data_t * pbb )
 {
-    GLvector3   vup, pos_new;
+    fvec3_t     vup, pos_new;
     chr_t     * pchr;
     float       height, offset;
 
@@ -4938,7 +4938,7 @@ bool_t render_billboard( camera_t * pcam, billboard_data_t * pbb, float scale )
     GLvertex vtlist[4];
     float x1, y1;
     float w, h;
-    GLvector4 vector_up, vector_right;
+    fvec4_t   vector_up, vector_right;
 
     oglx_texture     * ptex;
 

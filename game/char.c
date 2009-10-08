@@ -88,8 +88,8 @@ static int get_grip_verts( Uint16 grip_verts[], Uint16 imount, int vrt_offset );
 bool_t apply_one_character_matrix( chr_t * pchr, matrix_cache_t * mcache );
 bool_t apply_one_weapon_matrix( chr_t * pweap, matrix_cache_t * mcache );
 
-int convert_grip_to_local_points( chr_t * pholder, Uint16 grip_verts[], GLvector4 dst_point[] );
-int convert_grip_to_global_points( Uint16 iholder, Uint16 grip_verts[], GLvector4 dst_point[] );
+int convert_grip_to_local_points( chr_t * pholder, Uint16 grip_verts[], fvec4_t   dst_point[] );
+int convert_grip_to_global_points( Uint16 iholder, Uint16 grip_verts[], fvec4_t   dst_point[] );
 
 // definition that is consistent with using it as a callback in qsort() or some similar function
 static int  cmp_matrix_cache(const void * vlhs, const void * vrhs);
@@ -350,16 +350,16 @@ void free_one_character_in_game( Uint16 character )
     if( NULL == pcap ) return;
 
     // Remove from stat list
-    if ( pchr->staton )
+    if ( pchr->StatusList_on )
     {
         bool_t stat_found;
 
-        pchr->staton = bfalse;
+        pchr->StatusList_on = bfalse;
 
         stat_found = bfalse;
-        for ( cnt = 0; cnt < numstat; cnt++ )
+        for ( cnt = 0; cnt < StatusList_count; cnt++ )
         {
-            if ( statlist[cnt] == character )
+            if ( StatusList[cnt] == character )
             {
                 stat_found = btrue;
                 break;
@@ -368,11 +368,11 @@ void free_one_character_in_game( Uint16 character )
 
         if ( stat_found )
         {
-            for ( cnt++; cnt < numstat; cnt++ )
+            for ( cnt++; cnt < StatusList_count; cnt++ )
             {
-                SWAP(Uint16, statlist[cnt-1], statlist[cnt]);
+                SWAP(Uint16, StatusList[cnt-1], StatusList[cnt]);
             }
-            numstat--;
+            StatusList_count--;
         }
     }
 
@@ -443,7 +443,7 @@ void attach_particle_to_character( Uint16 particle, Uint16 character, int vertex
     //    It will kill the particle if the character is no longer around
 
     Uint16 vertex;
-    GLvector4 point[1], nupoint[1];
+    fvec4_t   point[1], nupoint[1];
 
     chr_t * pchr;
     prt_t * pprt;
@@ -732,7 +732,7 @@ void free_all_chraracters()
     local_noplayers = btrue;
 
     // free_all_stats
-    numstat = 0;
+    StatusList_count = 0;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1659,7 +1659,7 @@ bool_t character_grab_stuff( Uint16 ichr_a, grip_offset_t grip_off, bool_t grab_
     Uint16 ichr_b;
     Uint16 vertex, frame_nxt;
     slot_t slot;
-    GLvector4 point[1], nupoint[1];
+    fvec4_t   point[1], nupoint[1];
     SDL_Color color_red = {0xFF, 0x7F, 0x7F, 0xFF};
     SDL_Color color_grn = {0x7F, 0xFF, 0x7F, 0xFF};
  //   SDL_Color color_blu = {0x7F, 0x7F, 0xFF, 0xFF};
@@ -1721,7 +1721,7 @@ bool_t character_grab_stuff( Uint16 ichr_a, grip_offset_t grip_off, bool_t grab_
     // Go through all characters to find the best match
     for ( ichr_b = 0; ichr_b < MAX_CHR; ichr_b++ )
     {
-        GLvector3 pos_b;
+        fvec3_t   pos_b;
         float     dx, dy, dz, dxy;
         chr_t   * pchr_b;
         bool_t    can_grab = btrue;
@@ -1942,7 +1942,7 @@ bool_t character_grab_stuff( Uint16 ichr_a, grip_offset_t grip_off, bool_t grab_
 
     if( !retval )
     {
-        GLvector3 vforward;
+        fvec3_t   vforward;
 
         //---- generate billboards for things that players can interact with
         if( pchr_a->isplayer )
@@ -1974,7 +1974,7 @@ bool_t character_grab_stuff( Uint16 ichr_a, grip_offset_t grip_off, bool_t grab_
         for ( cnt = 0; cnt < ungrab_count; cnt++ )
         {
             float       ftmp;
-            GLvector3   diff;
+            fvec3_t     diff;
             chr_t     * pchr_b;
 
             if( grab_list[cnt].dist > GRABSIZE ) continue;
@@ -1982,7 +1982,7 @@ bool_t character_grab_stuff( Uint16 ichr_a, grip_offset_t grip_off, bool_t grab_
             ichr_b = grab_list[cnt].ichr;
             pchr_b = ChrList.lst + ichr_b;
 
-            diff = VSub(pchr_a->pos, pchr_b->pos);
+            diff = fvec3_sub(pchr_a->pos.v, pchr_b->pos.v);
 
             // ignore vertical displacement in the dot product
             ftmp = vforward.x * diff.x + vforward.y * diff.y;
@@ -3516,7 +3516,7 @@ Uint16 chr_get_free( Uint16 override )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
+Uint16 spawn_one_character( fvec3_t   pos, Uint16 profile, Uint8 team,
                             Uint8 skin, Uint16 facing, const char *name, Uint16 override )
 {
     // ZZ> This function spawns a character and returns the character's index number
@@ -3527,7 +3527,7 @@ Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
     chr_t * pchr;
     cap_t * pcap;
     float nrm[2];
-    GLvector3 pos_tmp;
+    fvec3_t   pos_tmp;
 
     Uint16 icap;
 
@@ -4482,7 +4482,7 @@ void update_all_characters()
             if ( !pchr->enviro.inwater )
             {
                 // Splash
-                GLvector3 vtmp = VECT3( pchr->pos.x, pchr->pos.y, water.surface_level + RAISE );
+                fvec3_t   vtmp = VECT3( pchr->pos.x, pchr->pos.y, water.surface_level + RAISE );
 
                 spawn_one_particle( vtmp, 0, MAX_PROFILE, PIP_SPLASH, MAX_CHR, GRIP_LAST,
                                     TEAM_NULL, MAX_CHR, TOTAL_MAX_PRT, 0, MAX_CHR );
@@ -4503,7 +4503,7 @@ void update_all_characters()
                     ripand = RIPPLEAND >> ripand;
                     if ( ( update_wld&ripand ) == 0 && pchr->pos.z < water.surface_level && pchr->alive )
                     {
-                        GLvector3 vtmp = VECT3( pchr->pos.x, pchr->pos.y, water.surface_level );
+                        fvec3_t   vtmp = VECT3( pchr->pos.x, pchr->pos.y, water.surface_level );
 
                         spawn_one_particle( vtmp, 0, MAX_PROFILE, PIP_RIPPLE, MAX_CHR, GRIP_LAST,
                                             TEAM_NULL, MAX_CHR, TOTAL_MAX_PRT, 0, MAX_CHR );
@@ -4669,10 +4669,10 @@ void move_one_character_get_environment( chr_t * pchr, chr_environment_t * penvi
         // unfortunately platforms are attached in teh collosion section
         // which occurs after the movement section.
 
-        GLvector3 platform_up;
+        fvec3_t   platform_up;
 
         chr_getMatUp( ChrList.lst + pchr->onwhichplatform, &platform_up );
-        platform_up = VNormalize(platform_up);
+        platform_up = fvec3_normalize( platform_up.v );
 
         penviro->traction = ABS(platform_up.z) * (1.0f - penviro->zlerp) + 0.25 * penviro->zlerp;
 
@@ -4774,7 +4774,7 @@ void move_one_character_do_floor_friction( chr_t * pchr, chr_environment_t * pen
     // BB> Friction is complicated when you want to have sliding characters :P
 
     float temp_friction_xy;
-    GLvector3 vup, floor_acc, fric, fric_floor;
+    fvec3_t   vup, floor_acc, fric, fric_floor;
 
     if( NULL == pchr || NULL == penviro ) return;
 
@@ -4830,15 +4830,15 @@ void move_one_character_do_floor_friction( chr_t * pchr, chr_environment_t * pen
         if( ABS(pchr->vel.x) + ABS(pchr->vel.y) + ABS(pchr->vel.z) > 0.0f )
         {
             float ftmp;
-            GLvector3 vfront = mat_getChrForward( pchr->inst.matrix );
+            fvec3_t   vfront = mat_getChrForward( pchr->inst.matrix );
 
             floor_acc.x = -pchr->vel.x;
             floor_acc.y = -pchr->vel.y;
             floor_acc.z = -pchr->vel.z;
 
             //---- get the "bad" velocity (perpendicular to the direction of motion)
-            vfront = VNormalize(vfront);
-            ftmp = VDotProduct( floor_acc, vfront );
+            vfront = fvec3_normalize( vfront.v );
+            ftmp = fvec3_dot_product( floor_acc.v, vfront.v );
 
             floor_acc.x -= ftmp * vfront.x;
             floor_acc.y -= ftmp * vfront.y;
@@ -4865,15 +4865,15 @@ void move_one_character_do_floor_friction( chr_t * pchr, chr_environment_t * pen
     else
     {
         float ftmp;
-        GLvector3 vup = map_twist_nrm[penviro->twist];
+        fvec3_t   vup = map_twist_nrm[penviro->twist];
 
-        ftmp = VDotProduct( floor_acc, vup );
+        ftmp = fvec3_dot_product( floor_acc.v, vup.v );
 
         floor_acc.x -= ftmp * vup.x;
         floor_acc.y -= ftmp * vup.y;
         floor_acc.z -= ftmp * vup.z;
 
-        ftmp = VDotProduct( fric, vup );
+        ftmp = fvec3_dot_product( fric.v, vup.v );
 
         fric.x -= ftmp * vup.x;
         fric.y -= ftmp * vup.y;
@@ -5343,7 +5343,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
             {
                 // This character can't use this weapon
                 pweapon->reloadtime = 50;
-                if ( pchr->staton )
+                if ( pchr->StatusList_on )
                 {
                     // Tell the player that they can't use this weapon
                     debug_printf( "%s can't use this item...", pchr->name );
@@ -5461,7 +5461,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
             {
                 // This character can't use this weapon
                 pweapon->reloadtime = 50;
-                if ( pchr->staton )
+                if ( pchr->StatusList_on )
                 {
                     // Tell the player that they can't use this weapon
                     debug_printf( "%s can't use this item...", pchr->name );
@@ -5557,7 +5557,7 @@ void move_one_character_do_z_motion( chr_t * pchr, chr_environment_t * penviro )
         {
             // Slippy hills make characters slide
 
-            GLvector3 gpara, gperp;
+            fvec3_t   gpara, gperp;
 
             gperp.x = map_twistvel_x[penviro->twist];
             gperp.y = map_twistvel_y[penviro->twist];
@@ -5930,7 +5930,7 @@ void move_one_character( chr_t * pchr )
     if( pchr->pack_ispacked ) return;
 
     // save the acceleration from the last time-step
-    penviro->acc = VSub(pchr->vel, pchr->vel_old);
+    penviro->acc = fvec3_sub(pchr->vel.v, pchr->vel_old.v);
 
     // Character's old location
     pchr->pos_old    = pchr->pos;
@@ -6722,7 +6722,7 @@ void oct_bb_to_chr_bumper_1( chr_bumper_1_t * pbmp, oct_bb_t bbox )
 }
 
 //--------------------------------------------------------------------------------------------
-int chr_bumper_1_to_points( chr_bumper_1_t * pbmp, GLvector4 pos[], size_t pos_count )
+int chr_bumper_1_to_points( chr_bumper_1_t * pbmp, fvec4_t   pos[], size_t pos_count )
 {
     // BB > convert the corners of the level 1 bounding box to a point cloud
     //      set pos[].w to zero for now, that the transform does not
@@ -6984,9 +6984,9 @@ int chr_bumper_1_to_points( chr_bumper_1_t * pbmp, GLvector4 pos[], size_t pos_c
 }
 
 //--------------------------------------------------------------------------------------------
-void points_to_chr_bumper_1( chr_bumper_1_t * pbmp, GLvector4 pos[], size_t pos_count )
+void points_to_chr_bumper_1( chr_bumper_1_t * pbmp, fvec4_t   pos[], size_t pos_count )
 {
-    // BB> convert the new point cloud into a level 1 bounding box using a GLvector4
+    // BB> convert the new point cloud into a level 1 bounding box using a fvec4_t  
     //     array as the source
 
     Uint32 cnt;
@@ -7128,8 +7128,8 @@ egoboo_rv chr_update_collision_size( chr_t * pchr, bool_t update_matrix )
 
 
     int       vcount;   // the actual number of vertices, in case the object is square
-    GLvector4 src[16];  // for the upper and lower octagon points
-    GLvector4 dst[16];  // for the upper and lower octagon points
+    fvec4_t   src[16];  // for the upper and lower octagon points
+    fvec4_t   dst[16];  // for the upper and lower octagon points
 
     chr_bumper_1_t bsrc;
 
@@ -7430,7 +7430,7 @@ bool_t chr_teleport( Uint16 ichr, float x, float y, float z, Uint16 turn_z )
     Uint16  turn_save;
     bool_t retval;
 
-    GLvector3 pos_save;
+    fvec3_t   pos_save;
 
     if( !ACTIVE_CHR(ichr) ) return bfalse;
     pchr = ChrList.lst + ichr;
@@ -7566,7 +7566,7 @@ bool_t chr_matrix_valid( chr_t * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t chr_getMatUp(chr_t *pchr, GLvector3 *pvec )
+bool_t chr_getMatUp(chr_t *pchr, fvec3_t   *pvec )
 {
     // BB> MAKE SURE the value it calculated relative to a valid matrix
 
@@ -7593,7 +7593,7 @@ bool_t chr_getMatUp(chr_t *pchr, GLvector3 *pvec )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t chr_getMatRight(chr_t *pchr, GLvector3 *pvec )
+bool_t chr_getMatRight(chr_t *pchr, fvec3_t   *pvec )
 {
     // BB> MAKE SURE the value it calculated relative to a valid matrix
 
@@ -7621,7 +7621,7 @@ bool_t chr_getMatRight(chr_t *pchr, GLvector3 *pvec )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t chr_getMatForward(chr_t *pchr, GLvector3 *pvec )
+bool_t chr_getMatForward(chr_t *pchr, fvec3_t   *pvec )
 {
     // BB> MAKE SURE the value it calculated relative to a valid matrix
 
@@ -7649,7 +7649,7 @@ bool_t chr_getMatForward(chr_t *pchr, GLvector3 *pvec )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t chr_getMatTranslate(chr_t *pchr, GLvector3 *pvec )
+bool_t chr_getMatTranslate(chr_t *pchr, fvec3_t   *pvec )
 {
     // BB> MAKE SURE the value it calculated relative to a valid matrix
 
@@ -7824,7 +7824,7 @@ bool_t chr_get_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
 }
 
 //--------------------------------------------------------------------------------------------
-int convert_grip_to_local_points( chr_t * pholder, Uint16 grip_verts[], GLvector4 dst_point[] )
+int convert_grip_to_local_points( chr_t * pholder, Uint16 grip_verts[], fvec4_t   dst_point[] )
 {
     int cnt, point_count;
 
@@ -7875,11 +7875,11 @@ int convert_grip_to_local_points( chr_t * pholder, Uint16 grip_verts[], GLvector
 }
 
 //--------------------------------------------------------------------------------------------
-int convert_grip_to_global_points( Uint16 iholder, Uint16 grip_verts[], GLvector4 dst_point[] )
+int convert_grip_to_global_points( Uint16 iholder, Uint16 grip_verts[], fvec4_t   dst_point[] )
 {
     chr_t *   pholder;
     int       point_count;
-    GLvector4 src_point[GRIP_VERTS];
+    fvec4_t   src_point[GRIP_VERTS];
 
     if(  !ACTIVE_CHR(iholder) ) return 0;
     pholder = ChrList.lst + iholder;
@@ -7900,7 +7900,7 @@ bool_t apply_one_weapon_matrix( chr_t * pweap, matrix_cache_t * mc_tmp )
 {
     // ZZ> This function sets one weapon's matrix, based on who it's attached to
 
-    GLvector4 nupoint[GRIP_VERTS];
+    fvec4_t   nupoint[GRIP_VERTS];
     int       iweap_points;
 
     chr_t * pholder;

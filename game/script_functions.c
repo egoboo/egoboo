@@ -1633,7 +1633,7 @@ Uint8 scr_SpawnCharacter( script_state_t * pstate, ai_state_t * pself )
     // direction, and tmpdistance gives the new character's initial velocity
 
     int tTmp;
-    GLvector3 pos;
+    fvec3_t   pos;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -3657,7 +3657,7 @@ Uint8 scr_SpawnExactParticle( script_state_t * pstate, ai_state_t * pself )
     }
 
     {
-        GLvector3 vtmp = VECT3(pstate->x, pstate->y, pstate->distance);
+        fvec3_t   vtmp = VECT3(pstate->x, pstate->y, pstate->distance);
         tTmp = spawn_one_particle( vtmp, pchr->turn_z, pchr->iprofile, pstate->argument, MAX_CHR, 0, pchr->team, sTmp, TOTAL_MAX_PRT, 0, MAX_CHR );
     }
 
@@ -4972,7 +4972,7 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
     // This function spawns a character of the same type at a specific location, failing if x,y,z is invalid
 
     float nrm[2];
-    GLvector3 pos;
+    fvec3_t   pos;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -5022,7 +5022,7 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
     // AS THE MODEL SLOTS MAY VARY FROM MODULE TO MODULE...
 
     float nrm[2];
-    GLvector3 pos;
+    fvec3_t   pos;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -5115,7 +5115,7 @@ Uint8 scr_SpawnExactChaseParticle( script_state_t * pstate, ai_state_t * pself )
     }
 
     {
-        GLvector3 vtmp = VECT3(pstate->x, pstate->y, pstate->distance);
+        fvec3_t   vtmp = VECT3(pstate->x, pstate->y, pstate->distance);
         tTmp = spawn_one_particle( vtmp, pchr->turn_z, pchr->iprofile, pstate->argument, MAX_CHR, 0, pchr->team, sTmp, TOTAL_MAX_PRT, 0, MAX_CHR );
     }
 
@@ -5674,7 +5674,7 @@ Uint8 scr_ClearEndMessage( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     endtext[0] = CSTR_END;
-    endtextwrite = 0;
+    endtext_carat = 0;
 
     SCRIPT_FUNCTION_END();
 }
@@ -5914,7 +5914,7 @@ Uint8 scr_AddStat( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( !pchr->staton )
+    if ( !pchr->StatusList_on )
     {
         statlist_add( pself->index );
     }
@@ -6102,7 +6102,7 @@ Uint8 scr_PitsKill( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pitskill = btrue;
+    pits.kill = btrue;
 
     SCRIPT_FUNCTION_END();
 }
@@ -6161,7 +6161,7 @@ Uint8 scr_SpawnExactParticleEndSpawn( script_state_t * pstate, ai_state_t * psel
     }
 
     {
-        GLvector3 vtmp = VECT3(pstate->x, pstate->y, pstate->distance);
+        fvec3_t   vtmp = VECT3(pstate->x, pstate->y, pstate->distance);
         tTmp = spawn_one_particle( vtmp, pchr->turn_z, pchr->iprofile, pstate->argument, MAX_CHR, 0, pchr->team, sTmp, TOTAL_MAX_PRT, 0, MAX_CHR );
     }
 
@@ -6678,14 +6678,14 @@ Uint8 scr_PitsFall( script_state_t * pstate, ai_state_t * pself )
 
     if ( pstate->x > EDGE && pstate->y > EDGE && pstate->x < PMesh->info.edge_x - EDGE && pstate->y < PMesh->info.edge_y - EDGE )
     {
-        pitsfall = btrue;
-        pitx = pstate->x;
-        pity = pstate->y;
-        pitz = pstate->distance;
+        pits.teleport = btrue;
+        pits.teleport_pos.x = pstate->x;
+        pits.teleport_pos.y = pstate->y;
+        pits.teleport_pos.z = pstate->distance;
     }
     else
     {
-        pitskill = btrue;
+        pits.kill = btrue;
     }
 
     SCRIPT_FUNCTION_END();
@@ -6716,7 +6716,7 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
     // DON'T USE THIS FOR EXPORTABLE ITEMS OR CHARACTERS,
     // AS THE MODEL SLOTS MAY VARY FROM MODULE TO MODULE...
 
-    GLvector3 pos;
+    fvec3_t   pos;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -7227,12 +7227,12 @@ Uint8 _append_end_text( chr_t * pchr, const int message, script_state_t * pstate
         src     = message_buffer + read;
         src_end = message_buffer + MESSAGEBUFFERSIZE;
 
-        dst     = endtext + endtextwrite;
+        dst     = endtext + endtext_carat;
         dst_end = endtext + MAXENDTEXT - 1;
 
         expand_escape_codes( ichr, pstate, src, src_end, dst, dst_end );
 
-        endtextwrite = strlen(endtext);
+        endtext_carat = strlen(endtext);
     }
 
     str_add_linebreaks( endtext, strlen(endtext), 30 );

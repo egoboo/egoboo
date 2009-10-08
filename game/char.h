@@ -180,10 +180,10 @@ struct s_matrix_cache
     //---- MAT_CHARACTER data
 
     // the "Euler" rotation angles in 16-bit form
-    GLvector3 rotate;
+    fvec3_t   rotate;
 
     // the translate vector
-    GLvector3 pos;
+    fvec3_t   pos;
 
     //---- MAT_WEAPON data
 
@@ -195,7 +195,7 @@ struct s_matrix_cache
     //---- data used for both
 
     // the body fixed scaling
-    GLvector3 scale;
+    fvec3_t   scale;
 };
 typedef struct s_matrix_cache matrix_cache_t;
 
@@ -206,7 +206,7 @@ matrix_cache_t * matrix_cache_init(matrix_cache_t * mcache);
 struct s_chr_instance
 {
     // position info
-    GLmatrix       matrix;          // Character's matrix
+    fmat_4x4_t       matrix;          // Character's matrix
     matrix_cache_t matrix_cache;    // Did we make one yet?
 
     Uint16         turn_z;
@@ -244,7 +244,7 @@ struct s_chr_instance
 
     // linear interpolated frame vertices
     Uint32         color_amb;
-    GLvector4      col_amb;
+    fvec4_t        col_amb;
     Uint8          max_light, min_light;
 
     size_t         vlst_size;
@@ -289,7 +289,7 @@ struct s_chr_environment
     // misc states
     bool_t   inwater;
     float    new_vx, new_vy;
-    GLvector3 acc;
+    fvec3_t   acc;
 };
 typedef struct s_chr_environment chr_environment_t;
 
@@ -297,8 +297,8 @@ typedef struct s_chr_environment chr_environment_t;
 // Data for doing the physics in bump_all_objects(). should prevent you from being bumped into a wall
 struct s_phys_data
 {
-    GLvector3      apos_0, apos_1;
-    GLvector3      avel;
+    fvec3_t        apos_0, apos_1;
+    fvec3_t        avel;
 
     float          bumpdampen;                    // Character bump mass
     Uint32         weight;                        // Weight ( for pressure plates )
@@ -454,7 +454,7 @@ struct s_chr
     Uint8          transferblend;   // Give transparency to weapons?
     bool_t         icon;            // Show the icon?
     Uint8          sparkle;         // Sparkle color or 0 for off
-    Uint8          staton;          // Display stats?
+    Uint8          StatusList_on;          // Display stats?
     Uint16         uoffvel;         // Moving texture speed
     Uint16         voffvel;
     Uint32         shadowsize;      // Size of shadow
@@ -512,20 +512,20 @@ struct s_chr
     Uint8          stoppedby;                     // Collision mask
 
     // character location data
-    GLvector3      pos_stt;                       // Starting position
-    GLvector3      pos;                           // Character's position
-    GLvector3      vel;                           // Character's velocity
+    fvec3_t        pos_stt;                       // Starting position
+    fvec3_t        pos;                           // Character's position
+    fvec3_t        vel;                           // Character's velocity
 
     Uint16         turn_z;                        // Character's z-rotation 0 to 0xFFFF
     Uint16         map_turn_y;
     Uint16         map_turn_x;
 
-    GLvector3      pos_old;                       // Character's last position
+    fvec3_t        pos_old;                       // Character's last position
 
     bool_t         safe_valid;
-    GLvector3      pos_safe;                      // Character's last safe position
+    fvec3_t        pos_safe;                      // Character's last safe position
 
-    GLvector3      vel_old;                       // Character's last velocity
+    fvec3_t        vel_old;                       // Character's last velocity
 
     Uint16         turn_old_z;
 
@@ -621,7 +621,7 @@ int chr_count_free();
 
 char * chop_create( Uint16 profile );
 
-Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team, Uint8 skin, Uint16 facing, const char *name, Uint16 override );
+Uint16 spawn_one_character( fvec3_t   pos, Uint16 profile, Uint8 team, Uint8 skin, Uint16 facing, const char *name, Uint16 override );
 void respawn_character( Uint16 character );
 Uint16 change_armor( Uint16 character, Uint16 skin );
 void change_character( Uint16 cnt, Uint16 profile, Uint8 skin, Uint8 leavewhich );
@@ -734,10 +734,10 @@ bool_t ai_state_set_changed( ai_state_t * pai);
 
 bool_t chr_matrix_valid( chr_t * pchr );
 
-bool_t chr_getMatUp(chr_t *pchr, GLvector3 * pvec);
-bool_t chr_getMatRight(chr_t *pchr, GLvector3 * pvec);
-bool_t chr_getMatForward(chr_t *pchr, GLvector3 * pvec);
-bool_t chr_getMatTranslate(chr_t *pchr, GLvector3 * pvec);
+bool_t chr_getMatUp(chr_t *pchr, fvec3_t   * pvec);
+bool_t chr_getMatRight(chr_t *pchr, fvec3_t   * pvec);
+bool_t chr_getMatForward(chr_t *pchr, fvec3_t   * pvec);
+bool_t chr_getMatTranslate(chr_t *pchr, fvec3_t   * pvec);
 
 egoboo_rv chr_update_collision_size( chr_t * pchr, bool_t update_matrix );
 

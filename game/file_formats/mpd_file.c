@@ -40,7 +40,7 @@ static bool_t       mpd_mem_allocate( mpd_mem_t * pmem, mpd_info_t * pinfo );
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-GLvector3 map_twist_nrm[256];
+fvec3_t   map_twist_nrm[256];
 Uint32    map_twist_y[256];            // For surface normal of mesh
 Uint32    map_twist_x[256];
 float     map_twistvel_x[256];            // For sliding down steep hills

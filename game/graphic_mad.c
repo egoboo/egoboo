@@ -220,7 +220,7 @@ void render_one_mad_enviro( Uint16 character, Uint8 trans )
             for ( tnc = 0; tnc < ego_md2_data[pmad->md2_ref].cmd.size[cnt]; tnc++ )
             {
                 float     cmax, cmin;
-                GLvector4 col;
+                fvec4_t   col;
                 GLfloat tex[2];
 
                 if ( entry >= entry_count ) break;
@@ -535,7 +535,7 @@ void render_one_mad_ref( int ichr, Uint8 trans )
     int trans_temp;
     int pos_z;
     Uint8 sheen_save;
-    GLvector4 pos_save;
+    fvec4_t   pos_save;
     chr_t * pchr;
     cap_t * pcap;
     chr_instance_t * pinst;
@@ -1055,7 +1055,7 @@ void _draw_one_grip_raw( chr_instance_t * pinst, mad_t * pmad, int slot )
 
     if( vmin >= 0 && vmax >= 0 && vmax <= ego_md2_data[pmad->md2_ref].vertices )
     {
-        GLvector3 src, dst, diff;
+        fvec3_t   src, dst, diff;
 
         GL_DEBUG(glBegin)( GL_LINES );
         {

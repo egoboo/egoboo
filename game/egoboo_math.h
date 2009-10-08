@@ -107,7 +107,7 @@ extern float turntocos[TRIG_TABLE_SIZE];           // Convert chrturn>>2...  to 
 #endif
 
 #define CNV(i,j) v[4*i+j]
-#define CopyMatrix( pMatrixDest, pMatrixSource ) memcpy( (pMatrixDest), (pMatrixSource), sizeof( GLmatrix ) )
+#define CopyMatrix( pMatrixDest, pMatrixSource ) memcpy( (pMatrixDest), (pMatrixSource), sizeof( fmat_4x4_t ) )
 
 #if defined(TEST_NAN_RESULT)
 #    define LOG_NAN(XX)      if( isnan(XX) ) log_error( "**** A math operation resulted in an invalid result (NAN) ****\n\t(\"%s\" - %d)\n", __FILE__, __LINE__ );
@@ -117,15 +117,18 @@ extern float turntocos[TRIG_TABLE_SIZE];           // Convert chrturn>>2...  to 
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-typedef float glmatrix_base_t[16];
-typedef float glvector2_base_t[2];
-typedef float glvector3_base_t[3];
-typedef float glvector4_base_t[4];
 
-typedef struct s_glmatrix  { glmatrix_base_t  v; } GLmatrix;
-typedef union  u_glvector2 { glvector2_base_t v; struct { float x, y; }; } GLvector2;
-typedef union  u_glvector3 { glvector3_base_t v; struct { float x, y, z; }; struct { float r, g, b; }; } GLvector3;
-typedef union  u_glvector4 { glvector4_base_t v; struct { float x, y, z, w; }; struct { float r, g, b, a; }; } GLvector4;
+enum { kX = 0, kY, kZ, kW };
+
+typedef float fmat_4x4_base_t[16];
+typedef float fvec2_base_t[2];
+typedef float fvec3_base_t[3];
+typedef float fvec4_base_t[4];
+
+typedef struct s_fmat_4x4  { fmat_4x4_base_t  v; } fmat_4x4_t;
+typedef union  u_fvec2     { fvec2_base_t v; struct { float x, y; }; } fvec2_t;
+typedef union  u_fvec3     { fvec3_base_t v; struct { float x, y, z; }; struct { float r, g, b; }; } fvec3_t;
+typedef union  u_fvec4     { fvec4_base_t v; struct { float x, y, z, w; }; struct { float r, g, b, a; }; } fvec4_t;
 
 #define ZERO_VECT2 { {0,0} }
 #define ZERO_VECT3 { {0,0,0} }
@@ -161,33 +164,35 @@ extern Uint16  randie[RANDIE_COUNT];
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 /**> FUNCTION PROTOTYPES <**/
-GLvector3 VSub( GLvector3 A, GLvector3 B );
-GLvector3 VNormalize( GLvector3 vec );
-GLvector3 VCrossProduct( GLvector3 A, GLvector3 B );
-float     VDotProduct( GLvector3 A, GLvector3 B );
-GLmatrix  IdentityMatrix( void );
-GLmatrix  ZeroMatrix( void );
-GLmatrix  MatrixMult( const GLmatrix a, const GLmatrix b );
-GLmatrix  Translate( const float dx, const float dy, const float dz );
-GLmatrix  RotateX( const float rads );
-GLmatrix  RotateY( const float rads );
-GLmatrix  RotateZ( const float rads );
-GLmatrix  ScaleXYZ( const float sizex, const float sizey, const float sizez );
-GLmatrix  ScaleXYZRotateXYZTranslate(  const float sizex, const float sizey, const float sizez, const Uint16 turn_z, const Uint16 turn_x, const Uint16 turn_y, const float tx, const float ty, const float tz  );
-GLmatrix  FourPoints( float orix, float oriy, float oriz, float widx, float widy, float widz, float forx, float fory, float forz, float upx,  float upy,  float upz, float scale );
-GLmatrix  ViewMatrix( const GLvector3 from, const GLvector3 at, const GLvector3 world_up, const float roll );
-GLmatrix  ProjectionMatrix( const float near_plane, const float far_plane, const float fov );
-void      TransformVertices( GLmatrix *pMatrix, GLvector4 *pSourceV, GLvector4 *pDestV, Uint32  NumVertor );
 
-GLvector3 mat_getChrUp(GLmatrix mat);
-GLvector3 mat_getChrRight(GLmatrix mat);
-GLvector3 mat_getChrForward(GLmatrix mat);
+float      fvec3_dot_product  ( fvec3_base_t A, fvec3_base_t   B );
+fvec3_t    fvec3_normalize    ( fvec3_base_t A );
+fvec3_t    fvec3_sub          ( fvec3_base_t A, fvec3_base_t   B );
+fvec3_t    fvec3_cross_product( fvec3_base_t A, fvec3_base_t   B );
 
-GLvector3 mat_getCamUp(GLmatrix mat);
-GLvector3 mat_getCamRight(GLmatrix mat);
-GLvector3 mat_getCamForward(GLmatrix mat);
+fmat_4x4_t IdentityMatrix( void );
+fmat_4x4_t ZeroMatrix( void );
+fmat_4x4_t MatrixMult( const fmat_4x4_t a, const fmat_4x4_t b );
+fmat_4x4_t Translate( const float dx, const float dy, const float dz );
+fmat_4x4_t RotateX( const float rads );
+fmat_4x4_t RotateY( const float rads );
+fmat_4x4_t RotateZ( const float rads );
+fmat_4x4_t ScaleXYZ( const float sizex, const float sizey, const float sizez );
+fmat_4x4_t ScaleXYZRotateXYZTranslate(  const float sizex, const float sizey, const float sizez, const Uint16 turn_z, const Uint16 turn_x, const Uint16 turn_y, const float tx, const float ty, const float tz  );
+fmat_4x4_t FourPoints( float orix, float oriy, float oriz, float widx, float widy, float widz, float forx, float fory, float forz, float upx,  float upy,  float upz, float scale );
+fmat_4x4_t ViewMatrix( const fvec3_base_t   from, const fvec3_base_t   at, const fvec3_base_t   world_up, const float roll );
+fmat_4x4_t ProjectionMatrix( const float near_plane, const float far_plane, const float fov );
+void       TransformVertices( fmat_4x4_t *pMatrix, fvec4_t   *pSourceV, fvec4_t   *pDestV, Uint32  NumVertor );
 
-GLvector3 mat_getTranslate(GLmatrix mat);
+fvec3_t   mat_getChrUp(fmat_4x4_t mat);
+fvec3_t   mat_getChrRight(fmat_4x4_t mat);
+fvec3_t   mat_getChrForward(fmat_4x4_t mat);
+
+fvec3_t   mat_getCamUp(fmat_4x4_t mat);
+fvec3_t   mat_getCamRight(fmat_4x4_t mat);
+fvec3_t   mat_getCamForward(fmat_4x4_t mat);
+
+fvec3_t   mat_getTranslate(fmat_4x4_t mat);
 
 void make_turntosin( void );
 
@@ -195,7 +200,6 @@ void   make_randie();
 int    generate_irand_pair( IPair num );
 int    generate_irand_range( FRange num );
 int    generate_randmask( int base, int mask );
-
 
 Uint16 vec_to_facing( float dx, float dy );
 void   facing_to_vec( Uint16 facing, float * dx, float * dy );

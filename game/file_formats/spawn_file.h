@@ -50,7 +50,7 @@ struct s_spawn_file_info
     STRING     spawn_name;
     char      *pname;
     Sint32     slot;
-    GLvector3  pos;
+    fvec3_t    pos;
     int        passage, content, money, level, skin;
     bool_t     stat;
     Uint8      team;

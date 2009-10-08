@@ -97,7 +97,7 @@ void egoboo_config_init()
     cfg_default.scry_req              = 480;               // Screen Y size
     cfg_default.message_count_req     = 6;
     cfg_default.message_duration      = 50;                     // Time to keep the message alive
-    cfg_default.staton                = btrue;               // Draw the status bars?
+    cfg_default.StatusList_on                = btrue;               // Draw the status bars?
     cfg_default.use_perspective       = bfalse;      // Perspective correct textures?
     cfg_default.use_dither            = bfalse;           // Dithering?
     cfg_default.reflect_fade          = btrue;            // 255 = Don't fade reflections
@@ -234,7 +234,7 @@ bool_t setup_download(egoboo_config_t * pcfg)
     GetKey_int( "MESSAGE_DURATION", pcfg->message_duration, cfg_default.message_duration );
 
     // Show status bars? (Life, mana, character icons, etc.)
-    GetKey_bool( "STATUS_BAR", pcfg->staton, cfg_default.staton );
+    GetKey_bool( "STATUS_BAR", pcfg->StatusList_on, cfg_default.StatusList_on );
 
     // Perspective correction
     GetKey_bool( "PERSPECTIVE_CORRECT", pcfg->use_perspective, cfg_default.use_perspective );
@@ -394,7 +394,7 @@ bool_t setup_synch( egoboo_config_t * pcfg )
     messageon  = (pcfg->message_count_req > 0);
     maxmessage = CLIP(pcfg->message_count_req, 1, MAX_MESSAGE);
 
-    wraptolerance = pcfg->staton ? 90 : 32;
+    wraptolerance = pcfg->StatusList_on ? 90 : 32;
 
     // Get the particle limit
     maxparticles = CLIP(pcfg->particle_count_req, 0, TOTAL_MAX_PRT);
@@ -445,7 +445,7 @@ bool_t setup_upload( egoboo_config_t * pcfg )
     SetKey_int( "MESSAGE_DURATION", pcfg->message_duration );
 
     // Show status bars? (Life, mana, character icons, etc.)
-    SetKey_bool( "STATUS_BAR", pcfg->staton );
+    SetKey_bool( "STATUS_BAR", pcfg->StatusList_on );
 
     // Perspective correction
     SetKey_bool( "PERSPECTIVE_CORRECT", pcfg->use_perspective );

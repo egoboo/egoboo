@@ -74,7 +74,7 @@ int cmp_prt_registry_entity(const void * vlhs, const void * vrhs)
 //--------------------------------------------------------------------------------------------
 size_t render_all_prt_begin( camera_t * pcam, prt_registry_entity_t reg[], size_t reg_count )
 {
-    GLvector3 vfwd, vcam;
+    fvec3_t   vfwd, vcam;
     int cnt;
     size_t numparticle;
 
@@ -98,14 +98,14 @@ size_t render_all_prt_begin( camera_t * pcam, prt_registry_entity_t reg[], size_
 
         if ( pinst->size != 0 )
         {
-            GLvector3 vpos;
+            fvec3_t   vpos;
             float dist;
 
             vpos.x = pinst->pos.x - vcam.x;
             vpos.y = pinst->pos.y - vcam.y;
             vpos.z = pinst->pos.z - vcam.z;
 
-            dist = VDotProduct( vfwd, vpos );
+            dist = fvec3_dot_product( vfwd.v, vpos.v );
 
             if ( dist > 0 )
             {
@@ -333,7 +333,7 @@ void render_prt( camera_t * pcam )
 //--------------------------------------------------------------------------------------------
 size_t render_all_prt_ref_begin( camera_t * pcam, prt_registry_entity_t reg[], size_t reg_count )
 {
-    GLvector3 vfwd, vcam;
+    fvec3_t   vfwd, vcam;
     Uint16 cnt;
     size_t numparticle;
 
@@ -357,11 +357,11 @@ size_t render_all_prt_ref_begin( camera_t * pcam, prt_registry_entity_t reg[], s
 
         if ( pinst->size != 0 )
         {
-            GLvector3 vpos;
+            fvec3_t   vpos;
             float dist;
 
-            vpos = VSub( pinst->pos, vcam );
-            dist = VDotProduct( vfwd, vpos );
+            vpos = fvec3_sub( pinst->pos.v, vcam.v );
+            dist = fvec3_dot_product( vfwd.v, vpos.v );
 
             if ( dist > 0 )
             {
@@ -536,7 +536,7 @@ void prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_
 {
     pip_t * ppip;
 
-    GLvector3 vfwd, vup, vright;
+    fvec3_t   vfwd, vup, vright;
 
     if ( !DISPLAY_PPRT( pprt ) ) return;
 
@@ -552,8 +552,8 @@ void prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_
     pinst->orientation = ppip->orientation;
 
     // get the vector from the camera to the particle
-    vfwd = VSub( pinst->pos, pcam->pos );
-    vfwd = VNormalize( vfwd );
+    vfwd = fvec3_sub( pinst->pos.v, pcam->pos.v );
+    vfwd = fvec3_normalize( vfwd.v );
 
     // set the up and right vectors
     if ( ppip->rotatetoface && !ACTIVE_CHR( pprt->attachedto_ref ) && (ABS( pprt->vel.x ) + ABS( pprt->vel.y ) + ABS( pprt->vel.z ) > 0) )
@@ -561,21 +561,21 @@ void prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_
         // the particle points along its direction of travel
 
         vup = pprt->vel;
-        vup   = VNormalize( vup );
+        vup   = fvec3_normalize( vup.v );
 
         // get the correct "right" vector
-        vright = VCrossProduct( vfwd, vup );
-        vright = VNormalize( vright );
+        vright = fvec3_cross_product( vfwd.v, vup.v );
+        vright = fvec3_normalize( vright.v );
     }
     else if ( ORIENTATION_B == pinst->orientation )
     {
         // use the camera up vector
         vup = mat_getCamUp( pcam->mView );
-        vup = VNormalize( vup );
+        vup = fvec3_normalize( vup.v );
 
         // get the correct "right" vector
-        vright = VCrossProduct( vfwd, vup );
-        vright = VNormalize( vright );
+        vright = fvec3_cross_product( vfwd.v, vup.v );
+        vright = fvec3_normalize( vright.v );
     }
     else if ( ACTIVE_CHR( pprt->attachedto_ref ) )
     {
@@ -596,7 +596,7 @@ void prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_
                 case ORIENTATION_Z: vup = mat_getChrUp( cinst->matrix ); break;
             }
 
-            vup = VNormalize( vup );
+            vup = fvec3_normalize( vup.v );
         }
         else
         {
@@ -611,11 +611,11 @@ void prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_
             }
         }
 
-        vup = VNormalize( vup );
+        vup = fvec3_normalize( vup.v );
 
         // get the correct "right" vector
-        vright = VCrossProduct( vfwd, vup );
-        vright = VNormalize( vright );
+        vright = fvec3_cross_product( vfwd.v, vup.v );
+        vright = fvec3_normalize( vright.v );
     }
     else if ( ORIENTATION_V == pinst->orientation )
     {
@@ -624,8 +624,8 @@ void prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_
         vup.z = 1;
 
         // get the correct "right" vector
-        vright = VCrossProduct( vfwd, vup );
-        vright = VNormalize( vright );
+        vright = fvec3_cross_product( vfwd.v, vup.v );
+        vright = fvec3_normalize( vright.v );
     }
     else if ( ORIENTATION_H == pinst->orientation )
     {
@@ -633,24 +633,24 @@ void prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_
         vup.z = 1;
 
         // force right to be horizontal
-        vright = VCrossProduct( vfwd, vup );
+        vright = fvec3_cross_product( vfwd.v, vup.v );
 
         // force "up" to be close to the camera forward, but horizontal
-        vup = VCrossProduct( vup, vright );
+        vup = fvec3_cross_product( vup.v, vright.v );
 
         // notmalize them
-        vright = VNormalize( vright );
-        vright = VNormalize( vup );
+        vright = fvec3_normalize( vright.v );
+        vright = fvec3_normalize( vup.v );
     }
     else
     {
         // use the camera up vector
         vup = mat_getCamUp( pcam->mView );
-        vup = VNormalize( vup );
+        vup = fvec3_normalize( vup.v );
 
         // get the correct "right" vector
-        vright = VCrossProduct( vfwd, vup );
-        vright = VNormalize( vright );
+        vright = fvec3_cross_product( vfwd.v, vup.v );
+        vright = fvec3_normalize( vright.v );
     }
 
     // calculate the actual vectors using the particle rotation
@@ -672,8 +672,8 @@ void prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_
     }
 
     // calculate the billboard normal
-    pinst->nrm = VCrossProduct( pinst->right, pinst->up );
-    if ( VDotProduct(vfwd, pinst->nrm) < 0 )
+    pinst->nrm = fvec3_cross_product( pinst->right.v, pinst->up.v );
+    if ( fvec3_dot_product( vfwd.v, pinst->nrm.v ) < 0 )
     {
         pinst->nrm.x *= -1;
         pinst->nrm.y *= -1;
@@ -700,9 +700,9 @@ void prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_
 }
 
 //--------------------------------------------------------------------------------------------
-GLmatrix prt_inst_make_matrix( prt_instance_t * pinst )
+fmat_4x4_t prt_inst_make_matrix( prt_instance_t * pinst )
 {
-    GLmatrix mat = IdentityMatrix();
+    fmat_4x4_t mat = IdentityMatrix();
 
     mat.CNV( 0, 1 ) = -pinst->up.x;
     mat.CNV( 1, 1 ) = -pinst->up.y;
@@ -727,7 +727,7 @@ void prt_instance_update_lighting( prt_instance_t * pinst, prt_t * pprt, Uint8 t
     Uint8  self_light;
     lighting_cache_t global_light, loc_light;
     float min_light, lite;
-    GLmatrix mat;
+    fmat_4x4_t mat;
 
     if ( NULL == pinst || NULL == pprt ) return;
 
