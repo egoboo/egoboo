@@ -1,10 +1,17 @@
 // ZZ> This function makes an item fall to the floor when spawned
-IfSpawned				//
-  tmpargument = ACTIONJB		  //
-  // DoAction
-  KeepAction				  //
+IfSpawned				
+  KeepAction
   MakeCrushValid
-  
+
+  //Spread out on the floor
+  tmpargument = 2
+  IfContentIs
+    tmpargument = ACTIONJB
+    DoAction
+    KeepAction
+    tmpargument = 0
+    SetContent
+    
   //Randomize carpet type
   tmpargument = 0
   IfContentIs

@@ -1134,7 +1134,7 @@ int do_ego_proc_begin( ego_process_t * eproc )
     console_init();
     net_initialize();
 
-    log_info( "Initializing SDL_Image version %d.%d.%d... ", SDL_IMAGE_MAJOR_VERSION, SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_PATCHLEVEL ); \
+    log_info( "Initializing SDL_Image version %d.%d.%d... ", SDL_IMAGE_MAJOR_VERSION, SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_PATCHLEVEL );
     GLSetup_SupportedFormats();
 
     // read all the scantags
@@ -1968,9 +1968,10 @@ Uint16 chr_find_target( chr_t * psrc, float max_dist2, TARGET_TYPE target_type, 
 
     line_of_sight_info_t los_info;
 
-    Uint16 ichr_test;
+    Uint16 cnt;
     Uint16 best_target = MAX_CHR;
     float  best_dist2;
+	Uint16 search_list = target_players ? MAXPLAYER : MAX_CHR;
 
     if( TARGET_NONE == target_type ) return MAX_CHR;
 
@@ -1984,12 +1985,13 @@ Uint16 chr_find_target( chr_t * psrc, float max_dist2, TARGET_TYPE target_type, 
 
     best_target = MAX_CHR;
     best_dist2  = max_dist2;
-    for ( ichr_test = 0; ichr_test < MAX_CHR; ichr_test++ )
+    for ( cnt = 0; cnt < search_list; cnt++ )
     {
         float  dist2;
         GLvector3 diff;
         chr_t * ptst;
-
+		Uint16 ichr_test = target_players ? PlaList[cnt].index : cnt;
+		
         if( !ACTIVE_CHR(ichr_test) ) continue;
         ptst = ChrList.lst + ichr_test;
 
@@ -2013,7 +2015,7 @@ Uint16 chr_find_target( chr_t * psrc, float max_dist2, TARGET_TYPE target_type, 
                 best_target = ichr_test;
                 best_dist2  = dist2;
             }
-        }
+        }		
     }
 
     // make sure the target is valid
@@ -5454,10 +5456,7 @@ bool_t game_update_imports()
 
     // build the import directory using the player info
     vfs_empty_import_directory();
-    if( !vfs_mkdir( "import" ) )
-	{
-		log_warning( "game_update_imports() - Could not create the import folder. (%s)\n", vfs_getError() );
-	}
+    vfs_mkdir( "import" );
 
     // export all of the players directly from memory straight to the "import" dir
     for ( player = 0, cnt = 0; cnt < MAXPLAYER; cnt++ )

@@ -454,7 +454,9 @@ enum e_script_functions
     FSPAWNATTACHEDCHARACTER,     // == 372
     FKURSETARGET,                // == 373
     FSETCHILDCONTENT,            // == 374
-    FSETTARGETTOCHILD            // == 375
+    FSETTARGETTOCHILD,           // == 375
+	FSETDAMAGETRESHOLD			 // == 376
+
 };
 
 //--------------------------------------------------------------------------------------------

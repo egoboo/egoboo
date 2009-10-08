@@ -1,5 +1,5 @@
 // Real general data
-Object slot number ( 0 to 63, don't use twice ) : #%
+Object slot number ( 0 to 255, don't use twice ): #%
 Object class name ( use underscore for spaces ) : #%
 Object is lit uniformly ( TRUE or FALSE )       : #%
 Maximum ammo ( 0 for doesn't matter )           : #%
@@ -135,7 +135,7 @@ Attack type if it's a weapon ( UNARMED, THRUST,
 Number of particles to attach ( 0 )              : #%
 Reaffirm attachments when damaged ( NONE, SLASH,
   CRUSH, POKE, HOLY, EVIL, FIRE, ICE, ZAP,)      : #%
-Particle type ( 0 to 3 )                         : #%
+Particle type ( 0 to 12 )                        : #%
 
 
 // Character hands
@@ -145,18 +145,18 @@ Right grip valid ( TRUE or FALSE )            : #%
 
 // Particle spawning on attack order ( for weapon characters )
 Particle attached to weapon ( TRUE or FALSE ) : #%
-Particle type ( 0 to 3 )                      : #%
+Particle type ( 0 to 12 )                     : #%
 
 
 // Particle spawning for GoPoof
 Amount to spawn ( 0 to 10, 0 is NoPoof ) : #%
 Facing add for each one ( 0 to 65535 )   : #%
-Particle type ( 0 to 3 )                 : #%
+Particle type ( 0 to 12 )                : #%
 
 
 // Particle spawning for Blood ( If you want it, you put it in... )
 Blood valid ( TRUE or FALSE ) : #%
-Particle type ( 0 to 3 )       : #%
+Particle type ( 0 to 12 )     : #%
 
 
 // Extra stuff I forgot 

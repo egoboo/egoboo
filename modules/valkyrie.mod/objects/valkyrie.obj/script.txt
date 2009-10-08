@@ -35,6 +35,14 @@ IfXIsMoreThanY
         DamageTarget
 
 //-----------------------------------------------------------------------------
+//Damage resist skill
+tmpx = selflevel
+tmpy = 10                   //need level 12
+IfXIsMoreThanY
+  tmpargument = selflevel * 24       //Reduce all damage by 1/10 per level
+  SetDamageThreshold
+
+//-----------------------------------------------------------------------------
 //Ultimate sacrifice skill
 IfKilled
   tmpx = selflevel

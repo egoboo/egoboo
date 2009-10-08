@@ -142,7 +142,7 @@ Skin 0 cost    : 300
 Skin 1 cost    : 0
 Skin 2 cost    : 0
 Skin 3 cost    : 0
-STR dampen     : 0.27
+STR dampen     : 0.23
 
 No rider attak : FALSE
 Can be dazed   : FALSE

@@ -8,7 +8,7 @@ Commenting actually works in script files ( Use //)
 Script errors are logged into log.txt (Located under main folder).
 An AI script cannot have more than 2560 lines (Which should be more than enough).
 
-Last updated: 07-10-2009
+Last updated: 09-10-2009
 SOME SCRIPTS MAY ONLY WORK IN LATER VERISONS
 
 SCRIPT FUNCTIONS
@@ -2015,6 +2015,14 @@ AddBlipAllEnemies
 SetTargetToChild
   //Sets the AI target to the last character spawned
 -------------------------------------------------------------------------------- 
+SetDamageThreshold
+  //Sets the damage threshold for this character. All damage taken below this number
+  //will simply be ignored
+  tmpargument = 256
+  SetDamageThreshold      //All damage below 256 will be ignored
+-------------------------------------------------------------------------------- 
+
+
 
 CONSTANTS
 -------------------------------------------------------------------------------- 

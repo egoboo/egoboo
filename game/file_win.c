@@ -161,8 +161,10 @@ void fs_deleteFile( const char *filename )
 
 bool_t fs_copyFile( const char *source, const char *dest )
 {
-	//log_warning("failed to copy %s to %s (%d)\n", source, dest, GetLastError());
-    return CopyFile( source, dest, bfalse );
+	/*bool_t retval =	CopyFile( source, dest, bfalse );
+	if(!retval) log_debug("fs_copyFile() - Failed to copy \"%s\" to \"%s\" (%d)\n", source, dest, GetLastError());
+    return retval;*/
+	return CopyFile( source, dest, bfalse );
 }
 
 //---------------------------------------------------------------------------------------------

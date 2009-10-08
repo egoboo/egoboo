@@ -31,9 +31,8 @@ IfSpawned
 tmpx = selflevel
 tmpy = 12            //At least level 14
 IfXIsMoreThanY
-  IfAttacked
-    tmpargument = selflevel * 24       //Reduce all damage by 1/10 per level
-    HealSelf
+  tmpargument = selflevel * 24       //Reduce all damage by 1/10 per level
+  SetDamageThreshold
 
 //-----------------------------------------------------------------------------
 IfHitGround

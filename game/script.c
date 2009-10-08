@@ -861,6 +861,7 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
         case FKURSETARGET:           returncode = scr_KurseTarget( pstate, pself );            break;
         case FSETCHILDCONTENT:       returncode = scr_set_ChildContent( pstate, pself );    break;
 		case FSETTARGETTOCHILD:      returncode = scr_set_TargetToChild( pstate, pself );   break;
+		case FSETDAMAGETRESHOLD:     returncode = scr_set_DamageThreshold( pstate, pself );   break;
 
             // if none of the above, skip the line and log an error
         default:

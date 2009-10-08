@@ -2930,7 +2930,7 @@ int damage_character( Uint16 character, Uint16 direction,
         if ( actual_damage > 0 )
         {
             // Only actual_damage if not invincible
-            if ( (0 == pchr->damagetime || ignoreinvincible) && !pchr->invictus )
+			if ( (0 == pchr->damagetime || ignoreinvincible) && !pchr->invictus && pchr->damagethreshold < actual_damage )
             {
                 // Hard mode deals 25% extra actual damage to players!
                 if ( cfg.difficulty >= GAME_HARD && pchr->isplayer && !ChrList.lst[attacker].isplayer ) actual_damage *= 1.25f;

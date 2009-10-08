@@ -125,10 +125,10 @@ Object can open chests/doors ( TRUE or FALSE )	: FALSE
 
 // Other item and damage stuff
 DamageTarget type ( SLASH, CRUSH, POKE, HOLY,
-                    EVIL, FIRE, ICE, or ZAP )	: FIRE
+                    EVIL, FIRE, ICE, or ZAP )	: ICE
 Attack type if it's a weapon ( UNARMED, THRUST,
                      SLICE, CHOP, BASH, LONGBOW,
-                     XBOW, FLINGED, PARRY, ZAP)	: SLICE
+                     XBOW, FLINGED, PARRY, ZAP)	: WALK
 
 
 // Particle attachments

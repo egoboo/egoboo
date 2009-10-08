@@ -167,7 +167,6 @@ void flash_passage( Uint16 passage, Uint8 color )
 bool_t point_is_in_passage( Uint16 passage, float xpos, float ypos )
 {
     // ZF> This return btrue if the specified X and Y coordinates are within the passage
-    //     radius is how much offset we allow outside the passage
 
     passage_t * ppass;
     frect_t tmp_rect;
@@ -328,6 +327,7 @@ void check_passage_music()
             {
                 // Found a player, start music track
                 sound_play_song( ppass->music, 0, -1 );
+				return;
             }
         }
     }

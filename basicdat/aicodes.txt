@@ -389,6 +389,7 @@ The symbol itself follows
 :F 373 KurseTarget
 :F 374 SetChildContent
 :F 375 SetTargetToChild
+:F 376 SetDamageThreshold
 :C 001 BLAHDEAD
 :C 002 BLAHENEMIES
 :C 004 BLAHFRIENDS
@@ -562,9 +563,9 @@ The symbol itself follows
 :C 022 TEAMX
 :C 023 TEAMY
 :C 024 TEAMZ
-:C 000 INVENTORY
-:C 001 LEFT
-:C 002 RIGHT
+:C 001 INVENTORY
+:C 002 LEFT
+:C 003 RIGHT
 :V 000 tmpx
 :V 001 tmpy
 :V 002 tmpdist

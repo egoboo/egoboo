@@ -406,6 +406,7 @@ struct s_chr
     Uint8          damagemodifier[DAMAGE_COUNT];  // Resistances and inversion
     Uint8          defense;                       // Base defense rating
     Uint16         damageboost;                   // Add to swipe damage
+	Uint16         damagethreshold;				  // Damage below this number is ignored
 
     // sound stuff
     Sint8          soundindex[SOUND_COUNT];       // a map for soundX.wav to sound types

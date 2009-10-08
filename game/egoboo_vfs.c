@@ -717,7 +717,9 @@ long vfs_fileLength( vfs_FILE * pfile )
 //--------------------------------------------------------------------------------------------
 int vfs_mkdir(const char *dirName)
 {
-    return PHYSFS_mkdir ( _vfs_convert_fname_physfs(dirName) );
+	int retval = PHYSFS_mkdir ( _vfs_convert_fname_physfs(dirName) ); 
+	if(!retval) log_debug( "vfs_copyDirectory() - Could not create new folder folder \"%s\". (%s)\n"), dirName, vfs_getError();
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1555,12 +1557,12 @@ int vfs_copyDirectory( const char *sourceDir, const char *destDir )
         // Ignore files that begin with a .
         if ( '.' != fileName[0] )
         {
-            snprintf( srcPath, SDL_arraysize(srcPath), "%s" SLASH_STR "%s", sourceDir, fileName );
+			snprintf( srcPath, SDL_arraysize(srcPath), "%s" SLASH_STR "%s", sourceDir, fileName );
             snprintf( destPath, SDL_arraysize(destPath), "%s" SLASH_STR "%s", destDir, fileName );
 
             if( !vfs_copyFile( srcPath, destPath ) )
 			{
-				log_warning("vfs_copyDirectory() - Failed to copy from \"%s\" to \"%s\" (%s)\n", sourceDir, destDir, vfs_getError());
+				log_debug("vfs_copyDirectory() - Failed to copy from \"%s\" to \"%s\" (%s)\n", srcPath, destPath, vfs_getError());
 			}
         }
         fileName = vfs_findNext();

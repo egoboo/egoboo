@@ -87,9 +87,8 @@ IfXIsMoreThanY
 tmpx = selflevel
 tmpy = 11            //At least level 13
 IfXIsMoreThanY
-  IfAttacked
-    tmpargument = selflevel * 24       //Reduce all damage by 1/10 per level
-    HealSelf
+  tmpargument = selflevel * 24       //Reduce all damage by 1/10 per level
+  SetDamageThreshold
 
 //-----------------------------------------------------------------------------
 // ZZ> Yell at the player

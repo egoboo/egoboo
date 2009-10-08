@@ -41,11 +41,15 @@ IfCrushed
 IfTimeOut
   SetTurnModeToVelocity
   IfTargetIsSelf
+    tmpargument = 5
+    SetFlyHeight
     tmpdistance = 128*8  // Square of range
     SetTargetToDistantEnemy
     tmpx = rand & 511 - 256 + selfspawnx
     tmpy = rand & 511 - 256 + selfspawny
   Else
+    tmpargument = targetaltitude
+    SetFlyHeight                            //We can fly!
     tmpx = targetdistance
     tmpy = 128*10
     IfXIsMoreThanY

@@ -1,4 +1,5 @@
 Version 2.7.8 (xx.10.2009)
+- New Feature: New spells, magical items, monsters and other fun stuff!
 - New Feature: Another new Starter Module based on a classic nethack character - The Valkyrie class!
 - New Feature: A new XP bar is show below your character portrait to display level up progress.
 - New Feature: Major improvements to how Egoboo handles objects and the GOR.

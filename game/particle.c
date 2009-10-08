@@ -1415,7 +1415,6 @@ int load_one_particle_profile( const char *szLoadName, Uint16 pip_override )
 
     ppip->soundend = CLIP(ppip->soundend, INVALID_SOUND, MAX_WAVE);
     ppip->soundspawn = CLIP(ppip->soundspawn, INVALID_SOUND, MAX_WAVE);
-//   if ( ppip->dynalight_falloff > MAXFALLOFF && PMod->rtscontrol )  ppip->dynalight_falloff = MAXFALLOFF;
 
     return ipip;
 }

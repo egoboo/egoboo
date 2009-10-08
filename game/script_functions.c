@@ -6710,7 +6710,7 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
     // SpawnAttachedCharacter( tmpargument = "profile", tmpx = "x", tmpy = "y", tmpdistance = "z" )
 
     // This function spawns a character defined in tmpargument to the characters AI target using
-    // the slot specified in tmpdistance (ATK_LEFT, ATK_RIGHT or INVENTORY). Fails if the inventory or
+    // the slot specified in tmpdistance (LEFT, RIGHT or INVENTORY). Fails if the inventory or
     // grip specified is full or already in use.
 
     // DON'T USE THIS FOR EXPORTABLE ITEMS OR CHARACTERS,
@@ -6811,6 +6811,18 @@ Uint8 scr_set_TargetToChild( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
+//--------------------------------------------------------------------------------------------
+Uint8 scr_set_DamageThreshold( script_state_t * pstate, ai_state_t * pself )
+{
+    // SetDamageThreshold()
+    // This sets the damage treshold for this character. Damage below the treshold is ignored
+
+    SCRIPT_FUNCTION_BEGIN();
+   
+	if(pstate->argument > 0) pchr->damagethreshold = pstate->argument;
+   
+    SCRIPT_FUNCTION_END();
+}
 //--------------------------------------------------------------------------------------------
 Uint8 scr_End( script_state_t * pstate, ai_state_t * pself )
 {

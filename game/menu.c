@@ -1424,7 +1424,7 @@ int doChoosePlayer( float deltaTime )
                     local_import_slot[i]    = i * MAXIMPORTPERPLAYER;
 
                     // Copy the character to the import directory
-                    strncpy( srcDir, str_convert_slash_sys(loadplayer[selectedPlayer].dir, sizeof(srcDir)), SDL_arraysize(srcDir) );
+                    strncpy( srcDir, loadplayer[selectedPlayer].dir, SDL_arraysize(srcDir) );
                     snprintf( destDir, SDL_arraysize(destDir), "import" SLASH_STR "temp%04d.obj", local_import_slot[i] );
                     vfs_copyDirectory( srcDir, destDir );
 
@@ -3863,7 +3863,7 @@ void check_player_import( const char *dirname, bool_t initialize )
     while ( VALID_CSTR(foundfile) && loadplayer_count < MAXLOADPLAYER )
     {
         prime_names();
-        snprintf( loadplayer[loadplayer_count].dir, SDL_arraysize( loadplayer[loadplayer_count].dir), "%s", foundfile );
+		snprintf( loadplayer[loadplayer_count].dir, SDL_arraysize( loadplayer[loadplayer_count].dir), "%s", str_convert_slash_sys(foundfile, strlen(foundfile)) );
 
         snprintf( filename, SDL_arraysize( filename), "%s" SLASH_STR "skin.txt", foundfile );
         skin = get_skin( filename );
