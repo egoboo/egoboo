@@ -1256,6 +1256,15 @@ int do_ego_proc_running( ego_process_t * eproc )
         }
     }
 
+    if( cfg.dev_mode && SDLKEYDOWN( SDLK_F9 ) && NULL != PMod && PMod->active )
+    {
+        // super secret "I win" button
+        //PMod->beat        = btrue;
+        //PMod->exportvalid = btrue;
+
+        kill_character( 504, 511 );
+    }
+
     // handle an escape by passing it on to all active sub-processes
     if ( eproc->escape_requested )
     {

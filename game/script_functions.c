@@ -7216,8 +7216,6 @@ Uint8 _append_end_text( chr_t * pchr, const int message, script_state_t * pstate
     message_offset = ProList.lst[pchr->iprofile].message_start + message;
     ichr           = GET_INDEX( pchr, MAX_CHR );
 
-    //endtext[0] = CSTR_END;
-
     if ( message_offset < MessageOffset.count )
     {
         char * src, * src_end;
@@ -7227,15 +7225,14 @@ Uint8 _append_end_text( chr_t * pchr, const int message, script_state_t * pstate
         read = MessageOffset.lst[message_offset];
 
         src     = message_buffer + read;
-        src     = strcat(endtext, src);                            //Merge the existing message with the next one
         src_end = message_buffer + MESSAGEBUFFERSIZE;
 
-        dst     = endtext;
+        dst     = endtext + endtextwrite;
         dst_end = endtext + MAXENDTEXT - 1;
 
         expand_escape_codes( ichr, pstate, src, src_end, dst, dst_end );
 
-        //*dst_end = CSTR_END;
+        endtextwrite = strlen(endtext);
     }
 
     str_add_linebreaks( endtext, strlen(endtext), 30 );
