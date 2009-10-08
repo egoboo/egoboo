@@ -22,6 +22,8 @@
  */
 
 #include "log.h"
+
+#include "egoboo_strutil.h"
 #include "egoboo_config.h"
 #include "egoboo_setup.h"
 
@@ -33,7 +35,7 @@
 #define MAX_LOG_MESSAGE 1024
 
 static FILE *logFile = NULL;
-static char  logBuffer[MAX_LOG_MESSAGE];
+static char  logBuffer[MAX_LOG_MESSAGE] = EMPTY_CSTR;
 static int   logLevel = 1;
 
 static int _atexit_registered = 0;

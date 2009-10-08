@@ -24,7 +24,6 @@
 
 #include "ui.h"
 #include "graphic.h"
-#include "egoboo.h"
 
 #include "ogl_debug.h"
 #include "SDL_extensions.h"

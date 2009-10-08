@@ -30,7 +30,9 @@
 #include "game.h"
 #include "texture.h"
 #include "camera.h"
+#include "input.h"
 
+#include "egoboo_setup.h"
 #include "egoboo.h"
 
 //--------------------------------------------------------------------------------------------
@@ -88,7 +90,7 @@ size_t render_all_prt_begin( camera_t * pcam, prt_registry_entity_t reg[], size_
         prt_t * pprt;
         prt_instance_t * pinst;
 
-        if( !ACTIVE_PRT(cnt) ) continue;
+        if( !DISPLAY_PRT(cnt) ) continue;
         pprt = PrtList.lst + cnt;
         pinst = &(pprt->inst);
 
@@ -131,7 +133,7 @@ bool_t render_one_prt_solid( Uint16 iprt )
     prt_t * pprt;
     prt_instance_t * pinst;
 
-    if ( !ACTIVE_PRT(iprt) ) return bfalse;
+    if ( !DISPLAY_PRT(iprt) ) return bfalse;
     pprt = PrtList.lst + iprt;
     pinst = &(pprt->inst);
 
@@ -211,7 +213,7 @@ bool_t render_one_prt_trans( Uint16 iprt )
     prt_t * pprt;
     prt_instance_t * pinst;
 
-    if ( !ACTIVE_PRT(iprt) ) return bfalse;
+    if ( !DISPLAY_PRT(iprt) ) return bfalse;
     pprt = PrtList.lst + iprt;
     pinst = &(pprt->inst);
 
@@ -347,7 +349,7 @@ size_t render_all_prt_ref_begin( camera_t * pcam, prt_registry_entity_t reg[], s
         prt_t * pprt;
         prt_instance_t * pinst;
 
-        if( !ACTIVE_PRT(cnt) ) continue;
+        if( !DISPLAY_PRT(cnt) ) continue;
         pprt = PrtList.lst + cnt;
         pinst = &(pprt->inst);
 
@@ -387,7 +389,7 @@ bool_t render_one_prt_ref( Uint16 iprt )
     prt_t * pprt;
     prt_instance_t * pinst;
 
-    if ( !ACTIVE_PRT(iprt) ) return bfalse;
+    if ( !DISPLAY_PRT(iprt) ) return bfalse;
 
     pprt = PrtList.lst + iprt;
     pinst = &(pprt->inst);
@@ -513,7 +515,7 @@ void update_all_prt_instance( camera_t * pcam )
         prt_t * pprt;
         prt_instance_t * pinst;
 
-        if( !ACTIVE_PRT(cnt) ) continue;
+        if( !DISPLAY_PRT(cnt) ) continue;
         pprt = PrtList.lst + cnt;
         pinst = &(pprt->inst);
 
@@ -536,7 +538,7 @@ void prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_
 
     GLvector3 vfwd, vup, vright;
 
-    if ( NULL == pprt || !pprt->allocated || !pprt->active ) return;
+    if ( !DISPLAY_PPRT( pprt ) ) return;
 
     if ( !VALID_PIP( pprt->pip_ref ) ) return;
     ppip = PipStack.lst + pprt->pip_ref;
@@ -687,9 +689,12 @@ void prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_
         case SPRITE_LIGHT: pinst->size *= 1.5912f; break;
     }
 
-    // a useful little mod to help with debugging particles
-    // will make things like the bare-handed particles visible
-    //pinst->size = MAX(30, pinst->size);
+    if ( cfg.dev_mode && SDLKEYDOWN( SDLK_F8 ) )
+    {
+        // a useful little mod to help with debugging particles
+        // will make things like the bare-handed particles visible
+        pinst->size = MAX(90, pinst->size);
+    }
 
     pinst->valid = btrue;
 }
@@ -776,7 +781,7 @@ void prt_instance_update( camera_t * pcam, Uint16 particle, Uint8 trans, bool_t 
     prt_t * pprt;
     prt_instance_t * pinst;
 
-    if ( !ACTIVE_PRT(particle) ) return;
+    if ( !DISPLAY_PRT(particle) ) return;
     pprt = PrtList.lst + particle;
     pinst = &(pprt->inst);
 
@@ -903,7 +908,7 @@ void prt_draw_attached_point( prt_t * pprt )
     cap_t * pholder_cap;
     chr_t * pholder;
 
-    if( NULL == pprt || !ACTIVE_PRT(pprt->index) ) return;
+    if( !DISPLAY_PPRT( pprt ) ) return;
 
     if( !ACTIVE_CHR(pprt->attachedto_ref) ) return;
     pholder = ChrList.lst + pprt->attachedto_ref;
@@ -911,7 +916,7 @@ void prt_draw_attached_point( prt_t * pprt )
     pholder_cap = pro_get_pcap( pholder->iprofile );
     if( NULL == pholder_cap ) return;
 
-    pholder_mad = chr_get_pmad( pholder->index );
+    pholder_mad = chr_get_pmad( GET_INDEX( pholder, MAX_CHR ) );
     if( NULL == pholder_mad ) return;
 
     draw_one_attacment_point( &(pholder->inst), pholder_mad, pprt->vrt_off );

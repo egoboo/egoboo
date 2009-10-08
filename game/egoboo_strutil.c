@@ -38,7 +38,7 @@ void str_trim( char *pStr )
 
     // look for the first character in string
     DebPos = 0;
-    while ( isspace( pStr[DebPos] ) && '\0' != pStr[DebPos] )
+    while ( isspace( pStr[DebPos] ) && CSTR_END != pStr[DebPos] )
     {
         DebPos++;
     }
@@ -61,11 +61,11 @@ void str_trim( char *pStr )
         {
             pStr[CurPos] = pStr[CurPos + DebPos];
         }
-        pStr[CurPos] = '\0';
+        pStr[CurPos] = CSTR_END;
     }
     else
     {
-        pStr[EndPos + 1] = '\0';
+        pStr[EndPos + 1] = CSTR_END;
     }
 }
 
@@ -77,7 +77,7 @@ char * str_decode( char *strout, size_t insize, const char * strin )
     char *pin = (char *)strin, *pout = strout, *plast = pout + insize;
 
     if ( NULL == strin || NULL == strout || 0 == insize ) return NULL;
-    while ( pout < plast && EOS != *pin )
+    while ( pout < plast && CSTR_END != *pin )
     {
         *pout = *pin;
         if      ( '_' == *pout ) *pout = ' ';
@@ -86,7 +86,7 @@ char * str_decode( char *strout, size_t insize, const char * strin )
         pin++;
     };
 
-    if ( pout < plast ) *pout = EOS;
+    if ( pout < plast ) *pout = CSTR_END;
 
     return strout;
 }
@@ -100,7 +100,7 @@ char * str_encode( char *strout, size_t insize, const char * strin )
     char *pin = (char *)strin, *pout = strout, *plast = pout + insize;
 
     if ( NULL == strin || NULL == strout || 0 == insize ) return NULL;
-    while ( pout < plast && EOS != *pin )
+    while ( pout < plast && CSTR_END != *pin )
     {
         if ( !isspace( *pin ) && isprint( *pin ) )
         {
@@ -138,7 +138,7 @@ char * str_encode( char *strout, size_t insize, const char * strin )
         }
     };
 
-    if ( pout < plast ) *pout = EOS;
+    if ( pout < plast ) *pout = CSTR_END;
 
     return strout;
 }
@@ -177,7 +177,7 @@ char * str_clean_path(char * str, size_t size)
 
     if( pdst < pdst_end )
     {
-        *pdst = '\0';
+        *pdst = CSTR_END;
     }
 
     return str;
@@ -193,7 +193,7 @@ char * str_convert_slash_net(char * str, size_t size)
     if ( INVALID_CSTR(str) ) return str;
 
     for ( psrc = str, pdst = str, psrc_end = str + size, pdst_end = str + size;
-          '\0' != *psrc && psrc < psrc_end && pdst < pdst_end;
+          CSTR_END != *psrc && psrc < psrc_end && pdst < pdst_end;
           psrc++, pdst++ )
     {
         char cTmp = *psrc;
@@ -205,7 +205,7 @@ char * str_convert_slash_net(char * str, size_t size)
 
     if(pdst < pdst_end)
     {
-        *pdst = '\0';
+        *pdst = CSTR_END;
     }
 
     return str_clean_path( str, size );
@@ -221,7 +221,7 @@ char * str_convert_slash_sys(char * str, size_t size)
     if ( INVALID_CSTR(str) ) return str;
 
     for ( psrc = str, pdst = str, psrc_end = str + size, pdst_end = str + size;
-          '\0' != *psrc && psrc < psrc_end && pdst < pdst_end;
+          CSTR_END != *psrc && psrc < psrc_end && pdst < pdst_end;
           psrc++, pdst++ )
     {
         char cTmp = *psrc;
@@ -233,7 +233,7 @@ char * str_convert_slash_sys(char * str, size_t size)
 
     if(pdst < pdst_end)
     {
-        *pdst = '\0';
+        *pdst = CSTR_END;
     }
 
     return str_clean_path( str, size );
@@ -292,7 +292,7 @@ char * str_encode_path( const char *szName )
 
     ppath     = szPathname;
     ppath_end = szPathname + SDL_arraysize(szPathname) - 5;
-    while ( '\0' != *pname && pname < pname_end && ppath < ppath_end )
+    while ( CSTR_END != *pname && pname < pname_end && ppath < ppath_end )
     {
         letter = tolower( *pname );
 
@@ -303,7 +303,7 @@ char * str_encode_path( const char *szName )
         pname++;
         ppath++;
     }
-    *ppath = '\0';
+    *ppath = CSTR_END;
 
     strncat(szPathname, ".obj", SDL_arraysize(szPathname) - strlen(szPathname) );
 
@@ -319,7 +319,7 @@ void str_add_linebreaks( char * text, size_t text_len, size_t line_len )
 
     text_end = text + text_len;
     text_break = text_stt = text;
-    while (text < text_end && '\0' != *text)
+    while (text < text_end && CSTR_END != *text)
     {
         // scan for the next whitespace
         text = strpbrk(text, " \n");
@@ -328,7 +328,7 @@ void str_add_linebreaks( char * text, size_t text_len, size_t line_len )
         {
             break;
         }
-        else if ( '\0' == text )
+        else if ( CSTR_END == text )
         {
             // reached the end of the string
             break;

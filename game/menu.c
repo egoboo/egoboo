@@ -855,7 +855,7 @@ int doChooseModule( float deltaTime )
             // Draw the text description of the selected module
             if ( selectedModule > -1 && selectedModule < MAX_MODULE && validModules[selectedModule] >= 0)
             {
-                char buffer[1024];
+                char buffer[1024]  = EMPTY_CSTR;
                 char * carat = buffer, * carat_end = buffer + SDL_arraysize(buffer);
                 int imodule = validModules[selectedModule];
 
@@ -1638,7 +1638,7 @@ int doInputOptions( float deltaTime )
 
             for ( i = 0; i < CONTROL_COMMAND_COUNT; i++)
             {
-                inputOptionsButtons[i][0] = '\0';
+                inputOptionsButtons[i][0] = CSTR_END;
             }
             strncpy( inputOptionsButtons[i++], "Player 1", sizeof(STRING) );
             strncpy( inputOptionsButtons[i++], "Save Settings", sizeof(STRING) );
@@ -1771,12 +1771,12 @@ int doInputOptions( float deltaTime )
                 }
                 for ( /* nothing */; i <= CONTROL_END ; i++)
                 {
-                    inputOptionsButtons[i][0] = '\0';
+                    inputOptionsButtons[i][0] = CSTR_END;
                 }
             }
 
             // Left hand
-            if ( '\0' != inputOptionsButtons[CONTROL_LEFT_USE][0] )
+            if ( CSTR_END != inputOptionsButtons[CONTROL_LEFT_USE][0] )
             {
                 ui_drawTextBox( menuFont, "Use:", buttonLeft, GFX_HEIGHT - 440, 0, 0, 20 );
                 if ( BUTTON_UP == ui_doButton( 1, inputOptionsButtons[CONTROL_LEFT_USE], menuFont, buttonLeft + 100, GFX_HEIGHT - 440, 140, 30 ) )
@@ -1785,7 +1785,7 @@ int doInputOptions( float deltaTime )
                     strncpy( inputOptionsButtons[CONTROL_LEFT_USE], "...", sizeof(STRING) );
                 }
             }
-            if ( '\0' != inputOptionsButtons[CONTROL_LEFT_GET][0] )
+            if ( CSTR_END != inputOptionsButtons[CONTROL_LEFT_GET][0] )
             {
                 ui_drawTextBox( menuFont, "Get/Drop:", buttonLeft, GFX_HEIGHT - 410, 0, 0, 20 );
                 if ( BUTTON_UP == ui_doButton( 2, inputOptionsButtons[CONTROL_LEFT_GET], menuFont, buttonLeft + 100, GFX_HEIGHT - 410, 140, 30 ) )
@@ -1794,7 +1794,7 @@ int doInputOptions( float deltaTime )
                     strncpy( inputOptionsButtons[CONTROL_LEFT_GET], "...", sizeof(STRING) );
                 }
             }
-            if ( '\0' != inputOptionsButtons[CONTROL_LEFT_PACK][0] )
+            if ( CSTR_END != inputOptionsButtons[CONTROL_LEFT_PACK][0] )
             {
                 ui_drawTextBox( menuFont, "Inventory:", buttonLeft, GFX_HEIGHT - 380, 0, 0, 20 );
                 if ( BUTTON_UP == ui_doButton( 3, inputOptionsButtons[CONTROL_LEFT_PACK], menuFont, buttonLeft + 100, GFX_HEIGHT - 380, 140, 30 ) )
@@ -1806,7 +1806,7 @@ int doInputOptions( float deltaTime )
 
             // Right hand
             ui_drawTextBox( menuFont, "ATK_RIGHT HAND", buttonLeft + 300, GFX_HEIGHT - 470, 0, 0, 20 );
-            if ( '\0' != inputOptionsButtons[CONTROL_RIGHT_USE][0] )
+            if ( CSTR_END != inputOptionsButtons[CONTROL_RIGHT_USE][0] )
             {
                 ui_drawTextBox( menuFont, "Use:", buttonLeft + 300, GFX_HEIGHT - 440, 0, 0, 20 );
                 if ( BUTTON_UP == ui_doButton( 4, inputOptionsButtons[CONTROL_RIGHT_USE], menuFont, buttonLeft + 400, GFX_HEIGHT - 440, 140, 30 ) )
@@ -1815,7 +1815,7 @@ int doInputOptions( float deltaTime )
                     strncpy( inputOptionsButtons[CONTROL_RIGHT_USE], "...", sizeof(STRING) );
                 }
             }
-            if ( '\0' != inputOptionsButtons[CONTROL_RIGHT_GET][0] )
+            if ( CSTR_END != inputOptionsButtons[CONTROL_RIGHT_GET][0] )
             {
                 ui_drawTextBox( menuFont, "Get/Drop:", buttonLeft + 300, GFX_HEIGHT - 410, 0, 0, 20 );
                 if ( BUTTON_UP == ui_doButton( 5, inputOptionsButtons[CONTROL_RIGHT_GET], menuFont, buttonLeft + 400, GFX_HEIGHT - 410, 140, 30 ) )
@@ -1824,7 +1824,7 @@ int doInputOptions( float deltaTime )
                     strncpy( inputOptionsButtons[CONTROL_RIGHT_GET], "...", sizeof(STRING) );
                 }
             }
-            if ( '\0' != inputOptionsButtons[CONTROL_RIGHT_PACK][0] )
+            if ( CSTR_END != inputOptionsButtons[CONTROL_RIGHT_PACK][0] )
             {
                 ui_drawTextBox( menuFont, "Inventory:", buttonLeft + 300, GFX_HEIGHT - 380, 0, 0, 20 );
                 if ( BUTTON_UP == ui_doButton( 6, inputOptionsButtons[CONTROL_RIGHT_PACK], menuFont, buttonLeft + 400, GFX_HEIGHT - 380, 140, 30 ) )
@@ -1836,7 +1836,7 @@ int doInputOptions( float deltaTime )
 
             // Controls
             ui_drawTextBox( menuFont, "CONTROLS", buttonLeft, GFX_HEIGHT - 320, 0, 0, 20 );
-            if ( '\0' != inputOptionsButtons[CONTROL_JUMP][0] )
+            if ( CSTR_END != inputOptionsButtons[CONTROL_JUMP][0] )
             {
                 ui_drawTextBox( menuFont, "Jump:", buttonLeft, GFX_HEIGHT - 290, 0, 0, 20 );
                 if ( BUTTON_UP == ui_doButton( 7, inputOptionsButtons[CONTROL_JUMP], menuFont, buttonLeft + 100, GFX_HEIGHT - 290, 140, 30 ) )
@@ -1845,7 +1845,7 @@ int doInputOptions( float deltaTime )
                     strncpy( inputOptionsButtons[CONTROL_JUMP], "...", sizeof(STRING) );
                 }
             }
-            if ( '\0' != inputOptionsButtons[CONTROL_UP][0] )
+            if ( CSTR_END != inputOptionsButtons[CONTROL_UP][0] )
             {
                 ui_drawTextBox( menuFont, "Up:", buttonLeft, GFX_HEIGHT - 260, 0, 0, 20 );
                 if ( BUTTON_UP == ui_doButton( 8, inputOptionsButtons[CONTROL_UP], menuFont, buttonLeft + 100, GFX_HEIGHT - 260, 140, 30 ) )
@@ -1854,7 +1854,7 @@ int doInputOptions( float deltaTime )
                     strncpy( inputOptionsButtons[CONTROL_UP], "...", sizeof(STRING) );
                 }
             }
-            if ( '\0' != inputOptionsButtons[CONTROL_DOWN][0] )
+            if ( CSTR_END != inputOptionsButtons[CONTROL_DOWN][0] )
             {
                 ui_drawTextBox( menuFont, "Down:", buttonLeft, GFX_HEIGHT - 230, 0, 0, 20 );
                 if ( BUTTON_UP == ui_doButton( 9, inputOptionsButtons[CONTROL_DOWN], menuFont, buttonLeft + 100, GFX_HEIGHT - 230, 140, 30 ) )
@@ -1863,7 +1863,7 @@ int doInputOptions( float deltaTime )
                     strncpy( inputOptionsButtons[CONTROL_DOWN], "...", sizeof(STRING) );
                 }
             }
-            if ( '\0' != inputOptionsButtons[CONTROL_LEFT][0] )
+            if ( CSTR_END != inputOptionsButtons[CONTROL_LEFT][0] )
             {
                 ui_drawTextBox( menuFont, "Left:", buttonLeft, GFX_HEIGHT - 200, 0, 0, 20 );
                 if ( BUTTON_UP == ui_doButton( 10, inputOptionsButtons[CONTROL_LEFT], menuFont, buttonLeft + 100, GFX_HEIGHT - 200, 140, 30 ) )
@@ -1872,7 +1872,7 @@ int doInputOptions( float deltaTime )
                     strncpy( inputOptionsButtons[CONTROL_LEFT], "...", sizeof(STRING) );
                 }
             }
-            if ( '\0' != inputOptionsButtons[CONTROL_RIGHT][0] )
+            if ( CSTR_END != inputOptionsButtons[CONTROL_RIGHT][0] )
             {
                 ui_drawTextBox( menuFont, "Right:", buttonLeft, GFX_HEIGHT - 170, 0, 0, 20 );
                 if ( BUTTON_UP == ui_doButton( 11, inputOptionsButtons[CONTROL_RIGHT], menuFont, buttonLeft + 100, GFX_HEIGHT - 170, 140, 30 ) )
@@ -1884,7 +1884,7 @@ int doInputOptions( float deltaTime )
 
             // Controls
             ui_drawTextBox( menuFont, "CAMERA CONTROL", buttonLeft + 300, GFX_HEIGHT - 320, 0, 0, 20 );
-            if ( '\0' != inputOptionsButtons[CONTROL_CAMERA_IN][0] )
+            if ( CSTR_END != inputOptionsButtons[CONTROL_CAMERA_IN][0] )
             {
                 ui_drawTextBox( menuFont, "Zoom In:", buttonLeft + 300, GFX_HEIGHT - 290, 0, 0, 20 );
                 if ( BUTTON_UP == ui_doButton( 12, inputOptionsButtons[CONTROL_CAMERA_IN], menuFont, buttonLeft + 450, GFX_HEIGHT - 290, 140, 30 ) )
@@ -1903,7 +1903,7 @@ int doInputOptions( float deltaTime )
                     strncpy( inputOptionsButtons[CONTROL_CAMERA], "...", sizeof(STRING) );
                 }
             }
-            if ( '\0' != inputOptionsButtons[CONTROL_CAMERA_OUT][0] )
+            if ( CSTR_END != inputOptionsButtons[CONTROL_CAMERA_OUT][0] )
             {
                 ui_drawTextBox( menuFont, "Zoom Out:", buttonLeft + 300, GFX_HEIGHT - 260, 0, 0, 20 );
                 if ( BUTTON_UP == ui_doButton( 13, inputOptionsButtons[CONTROL_CAMERA_OUT], menuFont, buttonLeft + 450, GFX_HEIGHT - 260, 140, 30 ) )
@@ -1912,7 +1912,7 @@ int doInputOptions( float deltaTime )
                     strncpy( inputOptionsButtons[CONTROL_CAMERA_OUT], "...", sizeof(STRING) );
                 }
             }
-            if ( '\0' != inputOptionsButtons[CONTROL_CAMERA_LEFT][0] )
+            if ( CSTR_END != inputOptionsButtons[CONTROL_CAMERA_LEFT][0] )
             {
                 ui_drawTextBox( menuFont, "Rotate Left:", buttonLeft + 300, GFX_HEIGHT - 230, 0, 0, 20 );
                 if ( BUTTON_UP == ui_doButton( 14, inputOptionsButtons[CONTROL_CAMERA_LEFT], menuFont, buttonLeft + 450, GFX_HEIGHT - 230, 140, 30 ) )
@@ -1921,7 +1921,7 @@ int doInputOptions( float deltaTime )
                     strncpy( inputOptionsButtons[CONTROL_CAMERA_LEFT], "...", sizeof(STRING) );
                 }
             }
-            if ( '\0' != inputOptionsButtons[CONTROL_CAMERA_RIGHT][0] )
+            if ( CSTR_END != inputOptionsButtons[CONTROL_CAMERA_RIGHT][0] )
             {
                 ui_drawTextBox( menuFont, "Rotate Right:", buttonLeft + 300, GFX_HEIGHT - 200, 0, 0, 20 );
                 if ( BUTTON_UP == ui_doButton( 15, inputOptionsButtons[CONTROL_CAMERA_RIGHT], menuFont, buttonLeft + 450, GFX_HEIGHT - 200, 140, 30 ) )
@@ -2004,7 +2004,7 @@ int doGameOptions( float deltaTime )
         ""
     };
 
-    char szDifficulty[4096];
+    char szDifficulty[4096] = EMPTY_CSTR;
     int  result = 0;
 
     switch ( menuState )
@@ -3166,7 +3166,7 @@ int doShowResults( float deltaTime )
 
         case MM_Running:
             {
-                char buffer[1024];
+                char buffer[1024] = EMPTY_CSTR;
                 char * carat = buffer, * carat_end = buffer + SDL_arraysize(buffer);
 
                 ui_drawButton( UI_Nothing, 30, 30, GFX_WIDTH  - 60, GFX_HEIGHT - 65, NULL );

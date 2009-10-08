@@ -389,7 +389,7 @@ size_t ConfigFile_ReadKeyName( ConfigFilePtr_t pConfigFile, ConfigFileValuePtr_t
 
 ConfigFile_retval ConfigFile_ReadValue( ConfigFilePtr_t pConfigFile, ConfigFileValuePtr_t pValue )
 {
-    static char lTempStr[MAX_CONFIG_VALUE_LENGTH];
+    static char lTempStr[MAX_CONFIG_VALUE_LENGTH] = { '\0' };
     char lc;
     Sint32  lEndScan = 0;
     Sint32  lState = 0;
@@ -476,7 +476,7 @@ ConfigFile_retval ConfigFile_ReadValue( ConfigFilePtr_t pConfigFile, ConfigFileV
 
 ConfigFile_retval ConfigFile_ReadCommentary( ConfigFilePtr_t pConfigFile, ConfigFileValuePtr_t pValue )
 {
-    static char lTempStr[MAX_CONFIG_COMMENTARY_LENGTH];
+    static char lTempStr[MAX_CONFIG_COMMENTARY_LENGTH] = { '\0' };
     char lc;
     Sint32  lEndScan = 0;
     Sint32  lState = 0;
@@ -560,12 +560,10 @@ ConfigFile_retval ConfigFile_ReadCommentary( ConfigFilePtr_t pConfigFile, Config
 
 ConfigFilePtr_t ConfigFile_open( ConfigFilePtr_t pConfigFile, const char *szFileName, const char * szAttribute, bool_t force )
 {
-    char    local_attribute[32];
+    char    local_attribute[32] = { '\0' };
     FILE   *lTempFile;
 
-
     if (NULL == szFileName || '\0' == szFileName[0]) return pConfigFile;
-
 
     if (NULL == szAttribute || '\0' == szAttribute[0] )
     {
@@ -861,7 +859,7 @@ ConfigFile_retval ConfigFile_GetValue_String( ConfigFilePtr_t pConfigFile, const
 
 ConfigFile_retval ConfigFile_GetValue_Boolean( ConfigFilePtr_t pConfigFile, const char *pSection, const char *pKey, bool_t   *pBool )
 {
-    char lBoolStr[16];
+    char lBoolStr[16] = { '\0' };
     Sint32 lRet;
 
     memset( lBoolStr, 0, 16 );
@@ -889,7 +887,7 @@ ConfigFile_retval ConfigFile_GetValue_Boolean( ConfigFilePtr_t pConfigFile, cons
 
 ConfigFile_retval ConfigFile_GetValue_Int( ConfigFilePtr_t pConfigFile, const char *pSection, const char *pKey, Sint32 *pInt )
 {
-    char lIntStr[24];
+    char lIntStr[24] = { '\0' };
     Sint32 lRet;
 
     memset( lIntStr, 0, 16 );
@@ -914,8 +912,8 @@ ConfigFile_retval ConfigFile_SetValue_String( ConfigFilePtr_t pConfigFile, const
     ConfigFileValuePtr_t  lTempValue = NULL;
     Sint32 lOK = 0;
     size_t lLengthNewValue;
-    char   lNewSectionName[MAX_CONFIG_SECTION_LENGTH];
-    char   lNewKeyName[MAX_CONFIG_KEY_LENGTH];
+    char   lNewSectionName[MAX_CONFIG_SECTION_LENGTH] = { '\0' };
+    char   lNewKeyName[MAX_CONFIG_KEY_LENGTH] = { '\0' };
     if ( NULL == pConfigFile  )
     {
         return ConfigFile_fail;
@@ -1003,7 +1001,7 @@ ConfigFile_retval ConfigFile_SetValue_Boolean( ConfigFilePtr_t pConfigFile, cons
 
 ConfigFile_retval ConfigFile_SetValue_Int( ConfigFilePtr_t pConfigFile, const char *pSection, const char *pKey, int pInt )
 {
-    static char lIntStr[16];
+    static char lIntStr[16] = { '\0' };
 
     snprintf( lIntStr, SDL_arraysize( lIntStr ), "%i", pInt );
     return ConfigFile_SetValue_String( pConfigFile, pSection, pKey, lIntStr );
@@ -1014,7 +1012,7 @@ ConfigFile_retval ConfigFile_SetValue_Int( ConfigFilePtr_t pConfigFile, const ch
 
 ConfigFile_retval ConfigFile_SetValue_Float( ConfigFilePtr_t pConfigFile, const char *pSection, const char *pKey, float pFloat )
 {
-    static char lFloatStr[16];
+    static char lFloatStr[16] = { '\0' };
 
     snprintf( lFloatStr, SDL_arraysize( lFloatStr ), "%f", pFloat );
     return ConfigFile_SetValue_String( pConfigFile, pSection, pKey, lFloatStr );
@@ -1159,7 +1157,7 @@ ConfigFile_retval SaveConfigFile( ConfigFilePtr_t pConfigFile )
 ConfigFile_retval SaveConfigFileAs( ConfigFilePtr_t pConfigFile, const char *szFileName )
 {
     ConfigFile_retval retval;
-    char old_filename[256];
+    char old_filename[256] = { '\0' };
 
     if (NULL == pConfigFile) return ConfigFile_fail;
     if (NULL == szFileName || '\0' == szFileName) return ConfigFile_fail;

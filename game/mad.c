@@ -28,6 +28,7 @@
 
 #include "egoboo_setup.h"
 #include "egoboo_fileutil.h"
+#include "egoboo_strutil.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -35,13 +36,15 @@ static char cActionName[ACTION_COUNT][2]; // Two letter name code
 
 mad_t   MadList[MAX_PROFILE];
 
-char    cFrameName[16];                                     // MD2 Frame Name
+char    cFrameName[16]  = EMPTY_CSTR;                                     // MD2 Frame Name
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 //static void md2_fix_normals( Uint16 modelindex );
 //static void md2_get_transvertices( Uint16 modelindex );
 // static int  vertexconnected( md2_ogl_commandlist_t * pclist, int vertex );
+
+static mad_t * mad_init( mad_t * pmad );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -133,7 +136,7 @@ void action_check_copy( const char* loadname, Uint16 object )
     // ZZ> This function copies a model's actions
     vfs_FILE *fileread;
     int actiona, actionb;
-    char szOne[16], szTwo[16];
+    char szOne[16] = EMPTY_CSTR, szTwo[16] = EMPTY_CSTR;
 
     if ( object > MAX_PROFILE || !MadList[object].loaded ) return;
 
@@ -325,7 +328,7 @@ Uint16 load_one_model_profile( const char* tmploadname, Uint16 imad )
     pmad = MadList + imad;
 
     // clear out the mad
-    memset( pmad, 0, sizeof(mad_t) );
+    mad_init( pmad );
 
     // mark it as used
     pmad->loaded = btrue;
@@ -335,7 +338,7 @@ Uint16 load_one_model_profile( const char* tmploadname, Uint16 imad )
 
     // Make up a name for the model...  IMPORT\TEMP0000.OBJ
     strncpy( pmad->name, tmploadname, SDL_arraysize(pmad->name) );
-    pmad->name[ SDL_arraysize(pmad->name) - 1 ] = '\0';
+    pmad->name[ SDL_arraysize(pmad->name) - 1 ] = CSTR_END;
 
     // Load the imad model
     make_newloadname( tmploadname, SLASH_STR "tris.md2", newloadname );
@@ -612,15 +615,25 @@ void mad_rip_actions( Uint16 object )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+mad_t * mad_init( mad_t * pmad )
+{
+    if( NULL == pmad ) return pmad;
+
+    memset( pmad, 0, sizeof(mad_t) );
+
+    strncpy( pmad->name, "*NONE*", SDL_arraysize(pmad->name) );
+
+    return pmad;
+}
+
+//--------------------------------------------------------------------------------------------
 void init_all_mad()
 {
     Uint16 cnt;
 
     for ( cnt = 0; cnt < MAX_PROFILE; cnt++ )
     {
-        memset( MadList + cnt, 0, sizeof(mad_t) );
-
-        strncpy( MadList[cnt].name, "*NONE*", SDL_arraysize(MadList[cnt].name) );
+        mad_init( MadList + cnt );
     }
 
     md2_loadframe = 0;
@@ -652,10 +665,9 @@ bool_t release_one_mad( Uint16 imad )
     // free any md2 data
     md2_freeModel( pmad->md2_ptr );
 
-    memset( pmad, 0, sizeof(mad_t) );
+    mad_init( pmad );
 
     pmad->loaded   = bfalse;
-    strncpy( pmad->name, "*NONE*", SDL_arraysize(pmad->name) );
 
     return btrue;
 }

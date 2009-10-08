@@ -38,6 +38,7 @@
 
 #include "egoboo_setup.h"
 #include "egoboo_fileutil.h"
+#include "egoboo_strutil.h"
 #include "egoboo.h"
 
 #include "SDL_extensions.h"
@@ -285,7 +286,7 @@ void input_read()
                         {
                             if ( SDLK_RETURN == evt.key.keysym.sym || SDLK_KP_ENTER == evt.key.keysym.sym )
                             {
-                                keyb.buffer[keyb.buffer_count] = '\0';
+                                keyb.buffer[keyb.buffer_count] = CSTR_END;
                                 console_mode = bfalse;
                                 console_done = btrue;
                                 SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_DELAY);
@@ -296,7 +297,7 @@ void input_read()
                                 console_mode = bfalse;
                                 console_done = bfalse;
                                 keyb.buffer_count = 0;
-                                keyb.buffer[0] = '\0';
+                                keyb.buffer[0] = CSTR_END;
                                 SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_DELAY);
                             }
                             else if ( SDLK_BACKSPACE == evt.key.keysym.sym )
@@ -305,7 +306,7 @@ void input_read()
                                 {
                                     keyb.buffer_count--;
                                 }
-                                keyb.buffer[keyb.buffer_count] = '\0';
+                                keyb.buffer[keyb.buffer_count] = CSTR_END;
                             }
                             else if ( keyb.buffer_count < KEYB_BUFFER_SIZE )
                             {
@@ -317,7 +318,7 @@ void input_read()
                                 {
                                     keyb.buffer[keyb.buffer_count++] = scancode_to_ascii[evt.key.keysym.sym];
                                 }
-                                keyb.buffer[keyb.buffer_count] = '\0';
+                                keyb.buffer[keyb.buffer_count] = CSTR_END;
                             }
                         }
                     }

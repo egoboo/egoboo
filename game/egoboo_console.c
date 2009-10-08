@@ -21,6 +21,7 @@
 
 #include "egoboo_config.h"
 #include "egoboo_math.h"
+#include "egoboo_strutil.h"
 
 #include "ogl_debug.h"
 #include "SDL_extensions.h"
@@ -96,7 +97,7 @@ static SDL_bool egoboo_console_stack_push_front( egoboo_console_t * pcon )
 //--------------------------------------------------------------------------------------------
 void egoboo_console_write( egoboo_console_t * pcon, const char *format, va_list args )
 {
-    char buffer[EGOBOO_CONSOLE_WRITE_LEN];
+    char buffer[EGOBOO_CONSOLE_WRITE_LEN] = EMPTY_CSTR;
 
     if ( NULL != pcon )
     {
@@ -160,7 +161,7 @@ void egoboo_console_add_output( egoboo_console_t * pcon, char * szNew )
     }
 
     pcon->output_carat += snprintf( dst, EGOBOO_CONSOLE_OUTPUT - pcon->output_carat, "%s", src );
-    pcon->output_buffer[EGOBOO_CONSOLE_OUTPUT-1] = '\0';
+    pcon->output_buffer[EGOBOO_CONSOLE_OUTPUT-1] = CSTR_END;
 
 }
 
@@ -271,7 +272,7 @@ void egoboo_console_draw_end()
 //--------------------------------------------------------------------------------------------
 SDL_bool egoboo_console_draw( egoboo_console_t * pcon )
 {
-    char   buffer[EGOBOO_CONSOLE_WRITE_LEN];
+    char   buffer[EGOBOO_CONSOLE_WRITE_LEN] = EMPTY_CSTR;
     size_t console_line_count;
     size_t console_line_offsets[1024];
     size_t console_line_lengths[1024];
@@ -327,16 +328,16 @@ SDL_bool egoboo_console_draw( egoboo_console_t * pcon )
         // draw the current command line
         buffer[0] = EGOBOO_CONSOLE_PROMPT;
         buffer[1] = ' ';
-        buffer[2] = '\0';
+        buffer[2] = CSTR_END;
 
         strncat( buffer, pcon->buffer, 1022 );
-        buffer[1022] = '\0';
+        buffer[1022] = CSTR_END;
 
         fnt_getTextSize( pcon->pfont, buffer, &text_w, &text_h );
         height -= text_h;
         fnt_drawText( pcon->pfont, pwin->x, height - text_h, buffer );
 
-        if ( '\0' != pcon->output_buffer[0] )
+        if ( CSTR_END != pcon->output_buffer[0] )
         {
             int i;
 
@@ -364,7 +365,7 @@ SDL_bool egoboo_console_draw( egoboo_console_t * pcon )
                 size_t len = MIN(1023, console_line_lengths[i]);
 
                 strncpy( buffer, pcon->output_buffer + console_line_offsets[i], len );
-                buffer[len] = '\0';
+                buffer[len] = CSTR_END;
 
                 fnt_getTextSize( pcon->pfont, buffer, &text_w, &text_h );
                 height -= text_h;
@@ -501,7 +502,7 @@ SDL_Event * egoboo_console_handle_events( SDL_Event * pevt )
         {
             pcon->on = SDL_TRUE;
             pcon->buffer_carat = 0;
-            pcon->buffer[0]    = '\0';
+            pcon->buffer[0]    = CSTR_END;
 
             SDL_EnableKeyRepeat( SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_DELAY );
             return NULL;
@@ -515,7 +516,7 @@ SDL_Event * egoboo_console_handle_events( SDL_Event * pevt )
         {
             pcon->on           = SDL_FALSE;
             pcon->buffer_carat = 0;
-            pcon->buffer[0]    = '\0';
+            pcon->buffer[0]    = CSTR_END;
 
             SDL_EnableKeyRepeat( 0, SDL_DEFAULT_REPEAT_DELAY );
             return NULL;
@@ -534,7 +535,7 @@ SDL_Event * egoboo_console_handle_events( SDL_Event * pevt )
             {
                 pcon->buffer_carat--;
             }
-            pcon->buffer[pcon->buffer_carat] = '\0';
+            pcon->buffer[pcon->buffer_carat] = CSTR_END;
 
             pevt = NULL;
         }
@@ -546,7 +547,7 @@ SDL_Event * egoboo_console_handle_events( SDL_Event * pevt )
             {
                 // after the last command line. blank the line
                 pcon->save_index   = 0;
-                pcon->buffer[0]    = '\0';
+                pcon->buffer[0]    = CSTR_END;
                 pcon->buffer_carat = 0;
             }
             else
@@ -570,7 +571,7 @@ SDL_Event * egoboo_console_handle_events( SDL_Event * pevt )
             {
                 // before the first command line. blank the line
                 pcon->save_index   = pcon->save_count;
-                pcon->buffer[0]    = '\0';
+                pcon->buffer[0]    = CSTR_END;
                 pcon->buffer_carat = 0;
             }
             else
@@ -604,7 +605,7 @@ SDL_Event * egoboo_console_handle_events( SDL_Event * pevt )
 
         else if ( SDLK_RETURN == vkey || SDLK_KP_ENTER == vkey )
         {
-            pcon->buffer[pcon->buffer_carat] = '\0';
+            pcon->buffer[pcon->buffer_carat] = CSTR_END;
 
             // add this command to the "saved command list"
             egoboo_console_add_saved(pcon, pcon->buffer);
@@ -617,7 +618,7 @@ SDL_Event * egoboo_console_handle_events( SDL_Event * pevt )
 
             // blank the command line
             pcon->buffer_carat = 0;
-            pcon->buffer[0] = '\0';
+            pcon->buffer[0] = CSTR_END;
 
             pevt = NULL;
         }
@@ -636,7 +637,7 @@ SDL_Event * egoboo_console_handle_events( SDL_Event * pevt )
             {
                 pcon->buffer[pcon->buffer_carat++] = scancode_to_ascii[vkey];
             }
-            pcon->buffer[pcon->buffer_carat] = '\0';
+            pcon->buffer[pcon->buffer_carat] = CSTR_END;
 
             pevt = NULL;
         }

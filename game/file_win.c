@@ -24,6 +24,7 @@
 #include "file_common.h"
 #include "log.h"
 
+#include "egoboo_strutil.h"
 #include "egoboo.h"
 
 #include <windows.h>
@@ -34,10 +35,10 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // Paths that the game will deal with
-static char win32_binaryPath[MAX_PATH] = {0};
-static char win32_dataPath[MAX_PATH] = {0};
-static char win32_userDataPath[MAX_PATH] = {0};
-static char win32_configPath[MAX_PATH] = {0};
+static char win32_binaryPath[MAX_PATH]   = EMPTY_CSTR;
+static char win32_dataPath[MAX_PATH]     = EMPTY_CSTR;
+static char win32_userDataPath[MAX_PATH] = EMPTY_CSTR;
+static char win32_configPath[MAX_PATH]   = EMPTY_CSTR;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -49,8 +50,8 @@ void fs_init()
     // game data and save paths
 
     HANDLE hFile;
-    char currentPath[MAX_PATH];
-    char basicdatPath[MAX_PATH];
+    char currentPath[MAX_PATH] = EMPTY_CSTR;
+    char basicdatPath[MAX_PATH] = EMPTY_CSTR;
 
     printf( "Initializing filesystem services...\n" );
 
@@ -174,7 +175,7 @@ HANDLE win32_hFind;
 // Read the first directory entry
 const char *fs_findFirstFile( const char *searchDir, const char *searchExtension )
 {
-    char searchSpec[MAX_PATH];
+    char searchSpec[MAX_PATH] = EMPTY_CSTR;
     size_t len;
 
     len = strlen( searchDir ) + 1;

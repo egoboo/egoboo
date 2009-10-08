@@ -25,7 +25,10 @@
 
 #include "char.h"
 
+#include "template.h"
+
 #include "egoboo_fileutil.h"
+#include "egoboo_strutil.h"
 #include "egoboo_vfs.h"
 #include "egoboo.h"
 
@@ -56,22 +59,9 @@ cap_t * cap_init( cap_t * pcap )
     }
 
     // Clear expansions...
-    /* pcap->skindressy = bfalse; */
-    /* pcap->resistbumpspawn = bfalse; */
-    /* pcap->istoobig = bfalse; */
     pcap->reflect = btrue;
-    /* pcap->alwaysdraw = bfalse; */
-    /* pcap->isranged = bfalse; */
     pcap->hidestate = NOHIDE;
-    /* pcap->isequipment = bfalse; */
-    /* pcap->canseekurse = bfalse; */
-    /* pcap->money = 0; */
-    /* pcap->forceshadow = bfalse; */
     pcap->skinoverride = NOSKINOVERRIDE;
-    /* pcap->contentoverride = 0; */
-    /* pcap->stateoverride = 0; */
-    /* pcap->leveloverride = 0; */
-    /* pcap->isvaluable = 0; */
 
 
     // either these will be overridden by data in the data.txt, or
@@ -83,16 +73,6 @@ cap_t * cap_init( cap_t * pcap )
     pcap->stoppedby  = MPDFX_IMPASS;
 
     // Skills
-    /* pcap->canuseadvancedweapons = 0; */
-    /* pcap->canjoust = 0; */
-    /* pcap->canusetech = 0; */
-    /* pcap->canusedivine = 0; */
-    /* pcap->canusearcane = 0; */
-    /* pcap->shieldproficiency = 0; */
-    /* pcap->candisarm = 0; */
-    /* pcap->canbackstab = 0; */
-    /* pcap->canusepoison = 0; */
-    /* pcap->canread = 0; */
 
     pcap->spelleffect_type = -1;
 
@@ -107,8 +87,11 @@ cap_t * load_one_cap_file( const char * tmploadname, cap_t * pcap )
     //     to abort if bad things happen.
 
     vfs_FILE* fileread;
-    int iTmp;
-    char cTmp;
+
+    int   iTmp;
+    char  cTmp;
+    float fTmp;
+
     Uint8 damagetype, level, xptype;
     int idsz_cnt;
     IDSZ idsz;
@@ -204,8 +187,10 @@ cap_t * load_one_cap_file( const char * tmploadname, cap_t * pcap )
     pcap->sheen = fget_next_int( fileread );
     pcap->enviro = fget_next_bool( fileread );
 
-    pcap->uoffvel    = fget_next_float( fileread ) * 0xFFFF;
-    pcap->voffvel    = fget_next_float( fileread ) * 0xFFFF;
+    fTmp = fget_next_float( fileread );
+    pcap->uoffvel    = FLOAT_TO_FFFF(fTmp);
+    fTmp = fget_next_float( fileread );
+    pcap->voffvel    = FLOAT_TO_FFFF(fTmp);
     pcap->stickybutt = fget_next_bool( fileread );
 
     // Invulnerability data
@@ -428,227 +413,230 @@ cap_t * load_one_cap_file( const char * tmploadname, cap_t * pcap )
 //--------------------------------------------------------------------------------------------
 bool_t save_one_cap_file( const char * szSaveName, cap_t * pcap )
 {
-    vfs_FILE* filewrite;
+    // BB> export one cap_t struct to a "data.txt" file
+    //     converted to using the template file
+
+    vfs_FILE* filewrite, * filetemp;
 
     int damagetype, skin;
-    char types[10] = "SCPHEFIZ";
-    char codes[4];
+
+    if( NULL == pcap ) return bfalse;
 
     // Open the file
     filewrite = vfs_openWrite( szSaveName );
     if ( NULL == filewrite ) return bfalse;
 
+    // open the template file
+    filetemp = template_open( "/basicdat/templates/data.txt" );
+    if ( NULL == filetemp ) 
+    {
+        vfs_close( filewrite );
+        return bfalse;
+    }
+
     // Real general data
-    fput_int   ( filewrite, "Slot number    : ", -1 );  // -1 signals a flexible load thing
-    fput_string_under( filewrite, "Class name     : ", pcap->classname );
-    fput_bool  ( filewrite, "Uniform light  : ", pcap->uniformlit );
-    fput_int   ( filewrite, "Maximum ammo   : ", pcap->ammomax );
-    fput_int   ( filewrite, "Current ammo   : ", pcap->ammo );
-    fput_gender( filewrite, "Gender         : ", pcap->gender );
-    vfs_printf( filewrite, "\n" );
+    template_put_int   ( filetemp, filewrite, -1 );  // -1 signals a flexible load thing
+    template_put_string_under( filetemp, filewrite, pcap->classname );
+    template_put_bool  ( filetemp, filewrite, pcap->uniformlit );
+    template_put_int   ( filetemp, filewrite, pcap->ammomax );
+    template_put_int   ( filetemp, filewrite, pcap->ammo );
+    template_put_gender( filetemp, filewrite, pcap->gender );
 
     // Object stats
-    fput_int  ( filewrite, "Life color     : ", pcap->lifecolor );
-    fput_int  ( filewrite, "Mana color     : ", pcap->manacolor );
-    fput_range( filewrite, "Life           : ", pcap->life_stat.val );
-    fput_range( filewrite, "Life up        : ", pcap->life_stat.perlevel );
-    fput_range( filewrite, "Mana           : ", pcap->mana_stat.val );
-    fput_range( filewrite, "Mana up        : ", pcap->mana_stat.perlevel );
-    fput_range( filewrite, "Mana return    : ", pcap->manareturn_stat.val );
-    fput_range( filewrite, "Mana return up : ", pcap->manareturn_stat.perlevel );
-    fput_range( filewrite, "Mana flow      : ", pcap->manaflow_stat.val );
-    fput_range( filewrite, "Mana flow up   : ", pcap->manaflow_stat.perlevel );
-    fput_range( filewrite, "STR            : ", pcap->strength_stat.val );
-    fput_range( filewrite, "STR up         : ", pcap->strength_stat.perlevel );
-    fput_range( filewrite, "WIS            : ", pcap->wisdom_stat.val );
-    fput_range( filewrite, "WIS up         : ", pcap->wisdom_stat.perlevel );
-    fput_range( filewrite, "INT            : ", pcap->intelligence_stat.val );
-    fput_range( filewrite, "INT up         : ", pcap->intelligence_stat.perlevel );
-    fput_range( filewrite, "DEX            : ", pcap->dexterity_stat.val );
-    fput_range( filewrite, "DEX up         : ", pcap->dexterity_stat.perlevel );
-    vfs_printf( filewrite, "\n" );
+    template_put_int  ( filetemp, filewrite, pcap->lifecolor );
+    template_put_int  ( filetemp, filewrite, pcap->manacolor );
+    template_put_range( filetemp, filewrite, pcap->life_stat.val );
+    template_put_range( filetemp, filewrite, pcap->life_stat.perlevel );
+    template_put_range( filetemp, filewrite, pcap->mana_stat.val );
+    template_put_range( filetemp, filewrite, pcap->mana_stat.perlevel );
+    template_put_range( filetemp, filewrite, pcap->manareturn_stat.val );
+    template_put_range( filetemp, filewrite, pcap->manareturn_stat.perlevel );
+    template_put_range( filetemp, filewrite, pcap->manaflow_stat.val );
+    template_put_range( filetemp, filewrite, pcap->manaflow_stat.perlevel );
+    template_put_range( filetemp, filewrite, pcap->strength_stat.val );
+    template_put_range( filetemp, filewrite, pcap->strength_stat.perlevel );
+    template_put_range( filetemp, filewrite, pcap->wisdom_stat.val );
+    template_put_range( filetemp, filewrite, pcap->wisdom_stat.perlevel );
+    template_put_range( filetemp, filewrite, pcap->intelligence_stat.val );
+    template_put_range( filetemp, filewrite, pcap->intelligence_stat.perlevel );
+    template_put_range( filetemp, filewrite, pcap->dexterity_stat.val );
+    template_put_range( filetemp, filewrite, pcap->dexterity_stat.perlevel );
 
     // More physical attributes
-    fput_float( filewrite, "Size           : ", pcap->size );
-    fput_float( filewrite, "Size up        : ", pcap->sizeperlevel );
-    fput_int  ( filewrite, "Shadow size    : ", pcap->shadowsize );
-    fput_int  ( filewrite, "Bump size      : ", pcap->bumpsize );
-    fput_int  ( filewrite, "Bump height    : ", pcap->bumpheight );
-    fput_float( filewrite, "Bump dampen    : ", pcap->bumpdampen );
-    fput_int  ( filewrite, "Weight         : ", pcap->weight );
-    fput_float( filewrite, "Jump power     : ", pcap->jump );
-    fput_int  ( filewrite, "Jump number    : ", pcap->jumpnumber );
-    fput_int  ( filewrite, "Sneak speed    : ", pcap->sneakspd );
-    fput_int  ( filewrite, "Walk speed     : ", pcap->walkspd );
-    fput_int  ( filewrite, "Run speed      : ", pcap->runspd );
-    fput_int  ( filewrite, "Fly to height  : ", pcap->flyheight );
-    fput_int  ( filewrite, "Flashing AND   : ", pcap->flashand );
-    fput_int  ( filewrite, "Alpha blending : ", pcap->alpha );
-    fput_int  ( filewrite, "Light blending : ", pcap->light );
-    fput_bool ( filewrite, "Transfer blend : ", pcap->transferblend );
-    fput_int  ( filewrite, "Sheen          : ", pcap->sheen );
-    fput_bool ( filewrite, "Phong mapping  : ", pcap->enviro );
-    fput_float( filewrite, "Texture X add  : ", pcap->uoffvel / (float)0xFFFF );
-    fput_float( filewrite, "Texture Y add  : ", pcap->voffvel / (float)0xFFFF );
-    fput_bool ( filewrite, "Sticky butt    : ", pcap->stickybutt );
-    vfs_printf( filewrite, "\n" );
+    template_put_float( filetemp, filewrite, pcap->size );
+    template_put_float( filetemp, filewrite, pcap->sizeperlevel );
+    template_put_int  ( filetemp, filewrite, pcap->shadowsize );
+    template_put_int  ( filetemp, filewrite, pcap->bumpsize );
+    template_put_int  ( filetemp, filewrite, pcap->bumpheight );
+    template_put_float( filetemp, filewrite, pcap->bumpdampen );
+    template_put_int  ( filetemp, filewrite, pcap->weight );
+    template_put_float( filetemp, filewrite, pcap->jump );
+    template_put_int  ( filetemp, filewrite, pcap->jumpnumber );
+    template_put_int  ( filetemp, filewrite, pcap->sneakspd );
+    template_put_int  ( filetemp, filewrite, pcap->walkspd );
+    template_put_int  ( filetemp, filewrite, pcap->runspd );
+    template_put_int  ( filetemp, filewrite, pcap->flyheight );
+    template_put_int  ( filetemp, filewrite, pcap->flashand );
+    template_put_int  ( filetemp, filewrite, pcap->alpha );
+    template_put_int  ( filetemp, filewrite, pcap->light );
+    template_put_bool ( filetemp, filewrite, pcap->transferblend );
+    template_put_int  ( filetemp, filewrite, pcap->sheen );
+    template_put_bool ( filetemp, filewrite, pcap->enviro );
+    template_put_float( filetemp, filewrite, FFFF_TO_FLOAT(pcap->uoffvel) );
+    template_put_float( filetemp, filewrite, FFFF_TO_FLOAT(pcap->voffvel) );
+    template_put_bool ( filetemp, filewrite, pcap->stickybutt );
 
     // Invulnerability data
-    fput_bool( filewrite, "Invictus       : ", pcap->invictus );
-    fput_int ( filewrite, "NonI facing    : ", pcap->nframefacing );
-    fput_int ( filewrite, "NonI angle     : ", pcap->nframeangle );
-    fput_int ( filewrite, "I facing       : ", pcap->iframefacing );
-    fput_int ( filewrite, "I angle        : ", pcap->iframeangle );
-    vfs_printf( filewrite, "\n" );
+    template_put_bool( filetemp, filewrite, pcap->invictus );
+    template_put_int ( filetemp, filewrite, pcap->nframefacing );
+    template_put_int ( filetemp, filewrite, pcap->nframeangle );
+    template_put_int ( filetemp, filewrite, pcap->iframefacing );
+    template_put_int ( filetemp, filewrite, pcap->iframeangle );
 
     // Skin defenses
-    vfs_printf( filewrite, "Base defense   : %3d %3d %3d %3d\n", 255 - pcap->defense[0], 255 - pcap->defense[1],
-        255 - pcap->defense[2], 255 - pcap->defense[3] );
+    template_put_int ( filetemp, filewrite, 255 - pcap->defense[0] );
+    template_put_int ( filetemp, filewrite, 255 - pcap->defense[1] );
+    template_put_int ( filetemp, filewrite, 255 - pcap->defense[2] );
+    template_put_int ( filetemp, filewrite, 255 - pcap->defense[3] );
 
     for ( damagetype = 0; damagetype < DAMAGE_COUNT; damagetype++ )
     {
-        vfs_printf( filewrite, "%c damage shift : %3d %3d %3d %3d\n", types[damagetype],
-            pcap->damagemodifier[damagetype][0]&DAMAGESHIFT,
-            pcap->damagemodifier[damagetype][1]&DAMAGESHIFT,
-            pcap->damagemodifier[damagetype][2]&DAMAGESHIFT,
-            pcap->damagemodifier[damagetype][3]&DAMAGESHIFT );
+        template_put_int ( filetemp, filewrite, pcap->damagemodifier[damagetype][0] & DAMAGESHIFT );
+        template_put_int ( filetemp, filewrite, pcap->damagemodifier[damagetype][1] & DAMAGESHIFT );
+        template_put_int ( filetemp, filewrite, pcap->damagemodifier[damagetype][2] & DAMAGESHIFT );
+        template_put_int ( filetemp, filewrite, pcap->damagemodifier[damagetype][3] & DAMAGESHIFT );
     }
 
     for ( damagetype = 0; damagetype < DAMAGE_COUNT; damagetype++ )
     {
+        char code;
+
         for ( skin = 0; skin < MAX_SKIN; skin++ )
         {
             if ( pcap->damagemodifier[damagetype][skin]&DAMAGEMANA )
             {
-                codes[skin] = 'M';
+                code = 'M';
             }
             else if ( pcap->damagemodifier[damagetype][skin]&DAMAGECHARGE )
             {
-                codes[skin] = 'C';
+                code = 'C';
             }
             else if ( pcap->damagemodifier[damagetype][skin]&DAMAGEINVERT )
             {
-                codes[skin] = 'T';
+                code = 'T';
             }
             else
             {
-                codes[skin] = 'F';
+                code = 'F';
             }
+
+            template_put_char( filetemp, filewrite, code );
         }
-        vfs_printf( filewrite, "%c damage code  : %3c %3c %3c %3c\n", types[damagetype], codes[0], codes[1], codes[2], codes[3] );
     }
 
-    vfs_printf( filewrite, "Acceleration   : %3.0f %3.0f %3.0f %3.0f\n", pcap->maxaccel[0]*80,
-        pcap->maxaccel[1]*80,
-        pcap->maxaccel[2]*80,
-        pcap->maxaccel[3]*80 );
-    vfs_printf( filewrite, "\n" );
+    template_put_float( filetemp, filewrite, pcap->maxaccel[0]*80 );
+    template_put_float( filetemp, filewrite, pcap->maxaccel[1]*80 );
+    template_put_float( filetemp, filewrite, pcap->maxaccel[2]*80 );
+    template_put_float( filetemp, filewrite, pcap->maxaccel[3]*80 );
 
     // Experience and level data
-    fput_int  ( filewrite, "EXP for 2nd    : ", pcap->experienceforlevel[1] );
-    fput_int  ( filewrite, "EXP for 3rd    : ", pcap->experienceforlevel[2] );
-    fput_int  ( filewrite, "EXP for 4th    : ", pcap->experienceforlevel[3] );
-    fput_int  ( filewrite, "EXP for 5th    : ", pcap->experienceforlevel[4] );
-    fput_int  ( filewrite, "EXP for 6th    : ", pcap->experienceforlevel[5] );
-    fput_float( filewrite, "Starting EXP   : ", pcap->experience.from * 256.0f );
-    fput_int  ( filewrite, "EXP worth      : ", pcap->experienceworth );
-    fput_float( filewrite, "EXP exchange   : ", pcap->experienceexchange );
-    fput_float( filewrite, "EXPSECRET      : ", pcap->experiencerate[0] );
-    fput_float( filewrite, "EXPQUEST       : ", pcap->experiencerate[1] );
-    fput_float( filewrite, "EXPDARE        : ", pcap->experiencerate[2] );
-    fput_float( filewrite, "EXPKILL        : ", pcap->experiencerate[3] );
-    fput_float( filewrite, "EXPMURDER      : ", pcap->experiencerate[4] );
-    fput_float( filewrite, "EXPREVENGE     : ", pcap->experiencerate[5] );
-    fput_float( filewrite, "EXPTEAMWORK    : ", pcap->experiencerate[6] );
-    fput_float( filewrite, "EXPROLEPLAY    : ", pcap->experiencerate[7] );
-    vfs_printf( filewrite, "\n" );
+    template_put_int  ( filetemp, filewrite, pcap->experienceforlevel[1] );
+    template_put_int  ( filetemp, filewrite, pcap->experienceforlevel[2] );
+    template_put_int  ( filetemp, filewrite, pcap->experienceforlevel[3] );
+    template_put_int  ( filetemp, filewrite, pcap->experienceforlevel[4] );
+    template_put_int  ( filetemp, filewrite, pcap->experienceforlevel[5] );
+    template_put_float( filetemp, filewrite, pcap->experience.from * 256.0f );
+    template_put_int  ( filetemp, filewrite, pcap->experienceworth );
+    template_put_float( filetemp, filewrite, pcap->experienceexchange );
+    template_put_float( filetemp, filewrite, pcap->experiencerate[0] );
+    template_put_float( filetemp, filewrite, pcap->experiencerate[1] );
+    template_put_float( filetemp, filewrite, pcap->experiencerate[2] );
+    template_put_float( filetemp, filewrite, pcap->experiencerate[3] );
+    template_put_float( filetemp, filewrite, pcap->experiencerate[4] );
+    template_put_float( filetemp, filewrite, pcap->experiencerate[5] );
+    template_put_float( filetemp, filewrite, pcap->experiencerate[6] );
+    template_put_float( filetemp, filewrite, pcap->experiencerate[7] );
 
     // IDSZ identification tags
-    fput_idsz( filewrite, "IDSZ Parent    : ", pcap->idsz[IDSZ_PARENT] );
-    fput_idsz( filewrite, "IDSZ Type      : ", pcap->idsz[IDSZ_TYPE] );
-    fput_idsz( filewrite, "IDSZ Skill     : ", pcap->idsz[IDSZ_SKILL] );
-    fput_idsz( filewrite, "IDSZ Special   : ", pcap->idsz[IDSZ_SPECIAL] );
-    fput_idsz( filewrite, "IDSZ Hate      : ", pcap->idsz[IDSZ_HATE] );
-    fput_idsz( filewrite, "IDSZ Vulnie    : ", pcap->idsz[IDSZ_VULNERABILITY] );
-    vfs_printf( filewrite, "\n" );
+    template_put_idsz( filetemp, filewrite, pcap->idsz[IDSZ_PARENT] );
+    template_put_idsz( filetemp, filewrite, pcap->idsz[IDSZ_TYPE] );
+    template_put_idsz( filetemp, filewrite, pcap->idsz[IDSZ_SKILL] );
+    template_put_idsz( filetemp, filewrite, pcap->idsz[IDSZ_SPECIAL] );
+    template_put_idsz( filetemp, filewrite, pcap->idsz[IDSZ_HATE] );
+    template_put_idsz( filetemp, filewrite, pcap->idsz[IDSZ_VULNERABILITY] );
 
     // Item and damage flags
-    fput_bool( filewrite, "Is an item     : ", pcap->isitem );
-    fput_bool( filewrite, "Is a mount     : ", pcap->ismount );
-    fput_bool( filewrite, "Is stackable   : ", pcap->isstackable );
-    fput_bool( filewrite, "Name known     : ", pcap->nameknown );
-    fput_bool( filewrite, "Usage known    : ", pcap->usageknown );
-    fput_bool( filewrite, "Is exportable  : ", pcap->cancarrytonextmodule );
-    fput_bool( filewrite, "Requires skill : ", pcap->needskillidtouse );
-    fput_bool( filewrite, "Is platform    : ", pcap->platform );
-    fput_bool( filewrite, "Collects money : ", pcap->cangrabmoney );
-    fput_bool( filewrite, "Can open stuff : ", pcap->canopenstuff );
-    vfs_printf( filewrite, "\n" );
+    template_put_bool( filetemp, filewrite, pcap->isitem );
+    template_put_bool( filetemp, filewrite, pcap->ismount );
+    template_put_bool( filetemp, filewrite, pcap->isstackable );
+    template_put_bool( filetemp, filewrite, pcap->nameknown );
+    template_put_bool( filetemp, filewrite, pcap->usageknown );
+    template_put_bool( filetemp, filewrite, pcap->cancarrytonextmodule );
+    template_put_bool( filetemp, filewrite, pcap->needskillidtouse );
+    template_put_bool( filetemp, filewrite, pcap->platform );
+    template_put_bool( filetemp, filewrite, pcap->cangrabmoney );
+    template_put_bool( filetemp, filewrite, pcap->canopenstuff );
 
     // Other item and damage stuff
-    fput_damage_type( filewrite, "Damage type    : ", pcap->damagetargettype );
-    fput_action     ( filewrite, "Attack type    : ", pcap->weaponaction );
-    vfs_printf( filewrite, "\n" );
+    template_put_damage_type( filetemp, filewrite, pcap->damagetargettype );
+    template_put_action     ( filetemp, filewrite, pcap->weaponaction );
 
     // Particle attachments
-    fput_int        ( filewrite, "Attached parts : ", pcap->attachedprt_amount );
-    fput_damage_type( filewrite, "Reaffirm type  : ", pcap->attachedprt_reaffirmdamagetype );
-    fput_int        ( filewrite, "Particle type  : ", pcap->attachedprt_pip );
-    vfs_printf( filewrite, "\n" );
+    template_put_int        ( filetemp, filewrite, pcap->attachedprt_amount );
+    template_put_damage_type( filetemp, filewrite, pcap->attachedprt_reaffirmdamagetype );
+    template_put_int        ( filetemp, filewrite, pcap->attachedprt_pip );
 
     // Character hands
-    fput_bool( filewrite, "Left valid     : ", pcap->slotvalid[SLOT_LEFT] );
-    fput_bool( filewrite, "Right valid    : ", pcap->slotvalid[SLOT_RIGHT] );
-    vfs_printf( filewrite, "\n" );
+    template_put_bool( filetemp, filewrite, pcap->slotvalid[SLOT_LEFT] );
+    template_put_bool( filetemp, filewrite, pcap->slotvalid[SLOT_RIGHT] );
 
     // Particle spawning on attack
-    fput_bool( filewrite, "Part on weapon : ", pcap->attack_attached );
-    fput_int ( filewrite, "Part type      : ", pcap->attack_pip );
-    vfs_printf( filewrite, "\n" );
+    template_put_bool( filetemp, filewrite, pcap->attack_attached );
+    template_put_int ( filetemp, filewrite, pcap->attack_pip );
 
     // Particle spawning for GoPoof
-    fput_int( filewrite, "Poof amount    : ", pcap->gopoofprt_amount );
-    fput_int( filewrite, "Facing add     : ", pcap->gopoofprt_facingadd );
-    fput_int( filewrite, "Part type      : ", pcap->gopoofprt_pip );
-    vfs_printf( filewrite, "\n" );
+    template_put_int( filetemp, filewrite, pcap->gopoofprt_amount );
+    template_put_int( filetemp, filewrite, pcap->gopoofprt_facingadd );
+    template_put_int( filetemp, filewrite, pcap->gopoofprt_pip );
 
     // Particle spawning for blud
-    fput_bool( filewrite, "Blud valid     : ", pcap->blud_valid );
-    fput_int ( filewrite, "Part type      : ", pcap->blud_pip );
-    vfs_printf( filewrite, "\n" );
+    template_put_bool( filetemp, filewrite, pcap->blud_valid );
+    template_put_int ( filetemp, filewrite, pcap->blud_pip );
 
     // Extra stuff
-    fput_bool ( filewrite, "Waterwalking   : ", pcap->waterwalk );
-    fput_float( filewrite, "Bounce dampen  : ", pcap->dampen );
-    vfs_printf( filewrite, "\n" );
+    template_put_bool ( filetemp, filewrite, pcap->waterwalk );
+    template_put_float( filetemp, filewrite, pcap->dampen );
 
     // More stuff
-    fput_float( filewrite, "NOT USED       : ", FP8_TO_FLOAT(pcap->lifeheal) );       // These two are seriously outdated
-    fput_float( filewrite, "NOT USED       : ", FP8_TO_FLOAT(pcap->manacost) );       // and shouldnt be used. Use scripts instead.
-    fput_int  ( filewrite, "Regeneration   : ", pcap->lifereturn );
-    fput_int  ( filewrite, "Stopped by     : ", pcap->stoppedby );
-    fput_string_under( filewrite, "Skin 0 name    : ", pcap->skinname[0] );
-    fput_string_under( filewrite, "Skin 1 name    : ", pcap->skinname[1] );
-    fput_string_under( filewrite, "Skin 2 name    : ", pcap->skinname[2] );
-    fput_string_under( filewrite, "Skin 3 name    : ", pcap->skinname[3] );
-    fput_int  ( filewrite, "Skin 0 cost    : ", pcap->skincost[0] );
-    fput_int  ( filewrite, "Skin 1 cost    : ", pcap->skincost[1] );
-    fput_int  ( filewrite, "Skin 2 cost    : ", pcap->skincost[2] );
-    fput_int  ( filewrite, "Skin 3 cost    : ", pcap->skincost[3] );
-    fput_float( filewrite, "STR dampen     : ", pcap->strengthdampen );
-    vfs_printf( filewrite, "\n" );
+    template_put_float( filetemp, filewrite, FP8_TO_FLOAT(pcap->lifeheal) );       // These two are seriously outdated
+    template_put_float( filetemp, filewrite, FP8_TO_FLOAT(pcap->manacost) );       // and shouldnt be used. Use scripts instead.
+    template_put_int  ( filetemp, filewrite, pcap->lifereturn );
+    template_put_int  ( filetemp, filewrite, pcap->stoppedby );
+    template_put_string_under( filetemp, filewrite, pcap->skinname[0] );
+    template_put_string_under( filetemp, filewrite, pcap->skinname[1] );
+    template_put_string_under( filetemp, filewrite, pcap->skinname[2] );
+    template_put_string_under( filetemp, filewrite, pcap->skinname[3] );
+    template_put_int  ( filetemp, filewrite, pcap->skincost[0] );
+    template_put_int  ( filetemp, filewrite, pcap->skincost[1] );
+    template_put_int  ( filetemp, filewrite, pcap->skincost[2] );
+    template_put_int  ( filetemp, filewrite, pcap->skincost[3] );
+    template_put_float( filetemp, filewrite, pcap->strengthdampen );
 
     // Another memory lapse
-    fput_bool( filewrite, "No rider attak : ", btrue - pcap->ridercanattack );
-    fput_bool( filewrite, "Can be dazed   : ", pcap->canbedazed );
-    fput_bool( filewrite, "Can be grogged : ", pcap->canbegrogged );
-    fput_int ( filewrite, "NOT USED       : ", 0 );
-    fput_int ( filewrite, "NOT USED       : ", 0 );
-    fput_bool( filewrite, "Can see invisi : ", pcap->canseeinvisible );
-    fput_int ( filewrite, "Kursed chance  : ", pcap->kursechance );
-    fput_int ( filewrite, "Footfall sound : ", pcap->soundindex[SOUND_FOOTFALL] );
-    fput_int ( filewrite, "Jump sound     : ", pcap->soundindex[SOUND_JUMP] );
-    vfs_printf( filewrite, "\n" );
+    template_put_bool( filetemp, filewrite, btrue - pcap->ridercanattack );
+    template_put_bool( filetemp, filewrite, pcap->canbedazed );
+    template_put_bool( filetemp, filewrite, pcap->canbegrogged );
+    template_put_int ( filetemp, filewrite, 0 );
+    template_put_int ( filetemp, filewrite, 0 );
+    template_put_bool( filetemp, filewrite, pcap->canseeinvisible );
+    template_put_int ( filetemp, filewrite, pcap->kursechance );
+    template_put_int ( filetemp, filewrite, pcap->soundindex[SOUND_FOOTFALL] );
+    template_put_int ( filetemp, filewrite, pcap->soundindex[SOUND_JUMP] );
+
+    vfs_flush( filewrite );
+
+    // copy the template file to the next free output section
+    template_seek_free( filetemp, filewrite );
 
     // Expansions
     if ( pcap->skindressy&1 )
@@ -750,9 +738,12 @@ bool_t save_one_cap_file( const char * szSaveName, cap_t * pcap )
     if ( pcap->hasdarkvision > 0  )
         fput_expansion(filewrite, "", MAKE_IDSZ('D','A','R','K'), pcap->hasdarkvision );
 
+    // dump the rest of the template file
+    template_flush( filetemp, filewrite );
 
     // The end
     vfs_close( filewrite );
+    template_close( filetemp );
 
     return btrue;
 }

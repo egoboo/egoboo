@@ -276,8 +276,8 @@ void make_one_character_matrix( Uint16 cnt )
     {
         pinst->matrix = ScaleXYZRotateXYZTranslate( pchr->fat, pchr->fat, pchr->fat,
                                        pchr->turn_z >> 2,
-                                       ( ( Uint16 ) ( pchr->map_turn_x + 32768 ) ) >> 2,
-                                       ( ( Uint16 ) ( pchr->map_turn_y + 32768 ) ) >> 2,
+                                       ( CLIP_TO_16BITS( pchr->map_turn_x - MAP_TURN_OFFSET ) ) >> 2,
+                                       ( CLIP_TO_16BITS( pchr->map_turn_y - MAP_TURN_OFFSET ) ) >> 2,
                                        pchr->pos.x, pchr->pos.y, pchr->pos.z );
 
         pinst->matrix_cache.valid        = btrue;
@@ -288,8 +288,8 @@ void make_one_character_matrix( Uint16 cnt )
         pinst->matrix_cache.scale.y = pchr->fat;
         pinst->matrix_cache.scale.z = pchr->fat;
 
-        pinst->matrix_cache.rotate.x = ( Uint16 ) ( pchr->map_turn_x + 32768 );
-        pinst->matrix_cache.rotate.y = ( Uint16 ) ( pchr->map_turn_y + 32768 );
+        pinst->matrix_cache.rotate.x = CLIP_TO_16BITS( pchr->map_turn_x - MAP_TURN_OFFSET );
+        pinst->matrix_cache.rotate.y = CLIP_TO_16BITS( pchr->map_turn_y - MAP_TURN_OFFSET );
         pinst->matrix_cache.rotate.z = pchr->turn_z;
 
         pinst->matrix_cache.pos = pchr->pos;
@@ -409,6 +409,8 @@ void free_one_character_in_game( Uint16 character )
 
     // remove any attached particles
     disaffirm_attached_particles( character );
+
+    EGO_OBJECT_TERMINATE( pchr );
 
     // actually get rid of the character
     ChrList_free_one( character );
@@ -720,6 +722,7 @@ void free_all_chraracters()
     ChrList.free_count = 0;
     for ( cnt = 0; cnt < MAX_CHR; cnt++ )
     {
+        EGO_OBJECT_TERMINATE( ChrList.lst + cnt );
         ChrList_free_one( cnt );
     }
 
@@ -1055,8 +1058,8 @@ bool_t detach_character_from_mount( Uint16 character, Uint8 ignorekurse, Uint8 d
     }
 
     // Set twist
-    pchr->map_turn_y = 32768;
-    pchr->map_turn_x = 32768;
+    pchr->map_turn_y = MAP_TURN_OFFSET;
+    pchr->map_turn_x = MAP_TURN_OFFSET;
 
     chr_update_matrix( pchr, btrue );
 
@@ -1542,7 +1545,7 @@ void drop_keys( Uint16 character )
                     pitem->isequipped    = bfalse;
 
                     direction                 = RANDIE;
-                    pitem->turn_z             = direction + 32768;
+                    pitem->turn_z             = direction + ATK_BEHIND;
                     pitem->enviro.level       = pchr->enviro.level;
                     pitem->enviro.floor_level = pchr->enviro.floor_level;
                     pitem->onwhichplatform    = pchr->onwhichplatform;
@@ -1577,8 +1580,8 @@ bool_t drop_all_items( Uint16 character )
     detach_character_from_mount( pchr->holdingwhich[SLOT_RIGHT], btrue, bfalse );
     if ( pchr->pack_count > 0 )
     {
-        direction = pchr->turn_z + 32768;
-        diradd    = 0xFFFF / pchr->pack_count;
+        direction = pchr->turn_z + ATK_BEHIND;
+        diradd    = 0x00010000 / pchr->pack_count;
 
         while ( pchr->pack_count > 0 )
         {
@@ -1596,7 +1599,7 @@ bool_t drop_all_items( Uint16 character )
                 pitem->enviro.level       = pchr->enviro.level;
                 pitem->enviro.floor_level = pchr->enviro.floor_level;
                 pitem->onwhichplatform    = pchr->onwhichplatform;
-                pitem->turn_z             = direction + 32768;
+                pitem->turn_z             = direction + ATK_BEHIND;
                 pitem->vel.x              = turntocos[ (direction>>2) & TRIG_TABLE_MASK ] * DROPXYVEL;
                 pitem->vel.y              = turntosin[ (direction>>2) & TRIG_TABLE_MASK ] * DROPXYVEL;
                 pitem->vel.z              = DROPZVEL;
@@ -2052,7 +2055,7 @@ void character_swipe( Uint16 ichr, slot_t slot )
                 velocity = MAXTHROWVELOCITY;
             }
 
-            tTmp = ( pchr->turn_z + 32768 ) >> 2;
+            tTmp = ( pchr->turn_z + ATK_BEHIND ) >> 2;
             pthrown->vel.x += turntocos[ tTmp & TRIG_TABLE_MASK ] * velocity;
             pthrown->vel.y += turntosin[ tTmp & TRIG_TABLE_MASK ] * velocity;
             pthrown->vel.z = DROPZVEL;
@@ -2060,7 +2063,7 @@ void character_swipe( Uint16 ichr, slot_t slot )
             {
                 // Poof the item
                 detach_character_from_mount( weapon, btrue, bfalse );
-                chr_request_terminate( pweapon->index );
+                chr_request_terminate( GET_INDEX( pweapon, MAX_CHR) );
             }
             else
             {
@@ -2501,7 +2504,7 @@ bool_t chr_upload_cap( chr_t * pchr, cap_t * pcap )
     //     DO NOT pass the pointer returned by chr_get_pcap(). Instead, use a custom cap_t declared on the stack,
     //     or something similar
 
-    if( NULL == pchr || !ALLOCATED_CHR(pchr->index) ) return bfalse;
+    if( !ALLOCATED_PCHR( pchr ) ) return bfalse;
 
     if( NULL == pcap || !pcap->loaded ) return bfalse;
 
@@ -2527,8 +2530,8 @@ bool_t chr_upload_cap( chr_t * pchr, cap_t * pcap )
     ints_to_range(pchr->experience, 0, &(pcap->experience ) );
 
     // export the current mana and life
-    pcap->spawnlife         = pchr->life << 8;
-    pcap->spawnmana         = pchr->mana << 8;
+    pcap->spawnlife         = CLIP( pchr->life, 0, pchr->lifemax );
+    pcap->spawnmana         = CLIP( pchr->mana, 0, pchr->manamax );
 
     // export the current stats
     ints_to_range(pchr->lifemax     , 0, &(pcap->life_stat.val        ) );
@@ -2564,7 +2567,7 @@ bool_t chr_download_cap( chr_t * pchr, cap_t * pcap )
 
     int iTmp, tnc;
 
-    if( NULL == pchr || !ALLOCATED_CHR(pchr->index) ) return bfalse;
+    if( !ALLOCATED_PCHR( pchr ) ) return bfalse;
 
     if( NULL == pcap || !pcap->loaded ) return bfalse;
 
@@ -2670,10 +2673,9 @@ bool_t chr_download_cap( chr_t * pchr, cap_t * pcap )
     pchr->flashand    = pcap->flashand;
     pchr->phys.dampen = pcap->dampen;
 
-
     // Load current life and mana. this may be overridden later
     pchr->life = CLIP( pcap->spawnlife, LOWSTAT, pchr->lifemax );
-    pchr->mana = CLIP( pcap->spawnmana, 0, pchr->manamax );
+    pchr->mana = CLIP( pcap->spawnmana,       0, pchr->manamax );
 
     // Character size and bumping
     chr_init_size( pchr, pcap );
@@ -2868,8 +2870,8 @@ int damage_character( Uint16 character, Uint16 direction,
 {
     // ZZ> This function calculates and applies actual_damage to a character.  It also
     //    sets alerts and begins actions.  Blocking and frame invincibility
-    //    are done here too.  Direction is 0 if the attack is coming head on,
-    //    16384 if from the right, 32768 if from the back, 49152 if from the
+    //    are done here too.  Direction is ATK_FRONT if the attack is coming head on,
+    //    ATK_RIGHT if from the right, ATK_BEHIND if from the back, ATK_LEFT if from the
     //    left.
 
     int tnc;
@@ -2980,7 +2982,7 @@ int damage_character( Uint16 character, Uint16 direction,
                     {
                         // N Frame
                         direction -= pcap->nframefacing;
-                        left = 0xFFFF - pcap->nframeangle;
+                        left  = 0xFFFF - pcap->nframeangle;
                         right = pcap->nframeangle;
                     }
 
@@ -3257,7 +3259,8 @@ char * chop_create( Uint16 profile )
     int read, write, section, mychop;
     char cTmp;
 
-    static char buffer[MAXCAPNAMESIZE];// The name returned by the function
+    // The name returned by the function
+    static char buffer[MAXCAPNAMESIZE] = EMPTY_CSTR;   
 
     if ( 0 == ProList.lst[profile].chop_sectionsize[0] )
     {
@@ -3288,7 +3291,7 @@ char * chop_create( Uint16 profile )
         }
         if ( write >= MAXCAPNAMESIZE ) write = MAXCAPNAMESIZE - 1;
 
-        buffer[write] = '\0';
+        buffer[write] = CSTR_END;
     }
 
     return buffer;
@@ -3363,11 +3366,18 @@ chr_t * chr_init( chr_t * pchr )
     //     statements are redundant
 
     int cnt;
+    ego_object_base_t save_base;
 
-    if( NULL == pchr ) return pchr;
+    if( !ALLOCATED_PCHR(pchr) ) return pchr;
+
+    // save the base object data
+    memcpy( &save_base, OBJ_GET_PBASE( pchr ), sizeof(ego_object_base_t) );
 
     // clear out all data
     memset(pchr, 0, sizeof(chr_t));
+
+    // restore the base object data
+    memcpy( OBJ_GET_PBASE( pchr ), &save_base, sizeof(ego_object_base_t) );
 
     // IMPORTANT!!!
     pchr->ibillboard = INVALID_BILLBOARD;
@@ -3412,8 +3422,8 @@ chr_t * chr_init( chr_t * pchr )
     }
 
     // Set up position
-    pchr->map_turn_y = 32768;  // These two mean on level surface
-    pchr->map_turn_x = 32768;
+    pchr->map_turn_y = MAP_TURN_OFFSET;  // These two mean on level surface
+    pchr->map_turn_x = MAP_TURN_OFFSET;
 
     // action stuff
     pchr->actionready = btrue;
@@ -3497,6 +3507,11 @@ Uint16 chr_get_free( Uint16 override )
         }
     }
 
+    if( MAX_CHR != ichr )
+    {
+        EGO_OBJECT_ALLOCATE( ChrList.lst + ichr, ichr );
+    }
+
     return ichr;
 }
 
@@ -3533,7 +3548,7 @@ Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
 
     // allocate a new character
     ichr = chr_get_free( override );
-    if ( !VALID_CHR_RANGE(ichr) )
+    if ( !ALLOCATED_CHR(ichr) )
     {
         log_warning( "spawn_one_character() - failed to spawn character (invalid index number %d?)\n", ichr );
         return MAX_CHR;
@@ -3552,7 +3567,7 @@ Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
     chr_init( pchr );
 
     // turn the character on here. you can't fail to spawn after this point.
-    EGO_OBJECT_ACTIVATE( pchr, ichr, "Blah" );
+    EGO_OBJECT_ACTIVATE( pchr, pcap->name );
 
     // download all the values from the character profile
     chr_download_cap( pchr, pcap );
@@ -3678,7 +3693,6 @@ Uint16 spawn_one_character( GLvector3 pos, Uint16 profile, Uint8 team,
                             ichr, GRIP_LAST + tnc, pchr->team, ichr, TOTAL_MAX_PRT, tnc, MAX_CHR );
     }
 
-
     // Items that are spawned inside shop passages are more expensive than normal
     pchr->isshopitem = bfalse;
     if ( pchr->isitem && ShopStack.count > 0 && !pchr->pack_ispacked && pchr->attachedto == MAX_CHR )
@@ -3748,8 +3762,8 @@ void respawn_character( Uint16 character )
     pchr->vel.z = 0;
     pchr->team = pchr->baseteam;
     pchr->canbecrushed = bfalse;
-    pchr->map_turn_y = 32768;  // These two mean on level surface
-    pchr->map_turn_x = 32768;
+    pchr->map_turn_y = MAP_TURN_OFFSET;  // These two mean on level surface
+    pchr->map_turn_x = MAP_TURN_OFFSET;
     if ( NOLEADER == TeamList[pchr->team].leader )  TeamList[pchr->team].leader = character;
     if ( !pchr->invictus )  TeamList[pchr->baseteam].morale++;
 
@@ -4303,7 +4317,7 @@ bool_t cost_mana( Uint16 character, int amount, Uint16 killer )
         if ( pchr->canchannel && mana_surplus > 0 )
         {
             // use some factor, divide by 2
-            heal_character( pchr->index, killer, mana_surplus << 1, btrue);
+            heal_character( GET_INDEX( pchr, MAX_CHR ), killer, mana_surplus << 1, btrue);
         }
 
         mana_paid = btrue;
@@ -4897,8 +4911,11 @@ void move_one_character_do_volontary( chr_t * pchr, chr_environment_t * penviro 
     float maxspeed;
     float dv2;
     float new_ax, new_ay;
+    Uint16 ichr;
 
     if( NULL == pchr || NULL == penviro ) return;
+
+    ichr = GET_INDEX( pchr, MAX_CHR );
 
     if( !pchr->alive ) return;
 
@@ -5051,7 +5068,7 @@ void move_one_character_do_volontary( chr_t * pchr, chr_environment_t * penviro 
         // Face the target
         case TURNMODE_WATCHTARGET:
             {
-                if ( pchr->index != pchr->ai.target )
+                if ( ichr != pchr->ai.target )
                 {
                     pchr->turn_z = terp_dir( pchr->turn_z, vec_to_facing( ChrList.lst[pchr->ai.target].pos.x - pchr->pos.x , ChrList.lst[pchr->ai.target].pos.y - pchr->pos.y ) );
                 }
@@ -5092,7 +5109,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
     Uint8 allowedtoattack;
     Uint16 action, weapon, mount, item;
 
-    if ( NULL == pchr || !ACTIVE_CHR(pchr->index) ) return bfalse;
+    if ( !ACTIVE_PCHR( pchr ) ) return bfalse;
     pai = &(pchr->ai);
     ichr = pai->index;
 
@@ -5571,7 +5588,7 @@ bool_t move_one_character_integrate_motion( chr_t * pchr )
     Uint16 ichr;
     ai_state_t * pai;
 
-    if ( NULL == pchr || !ACTIVE_CHR(pchr->index) ) return bfalse;
+    if ( !ACTIVE_PCHR( pchr ) ) return bfalse;
     pai = &(pchr->ai);
     ichr = pai->index;
 
@@ -5716,7 +5733,7 @@ void move_one_character_do_animation( chr_t * pchr, chr_environment_t * penviro 
     if( NULL == penviro ) return;
 
     if( NULL == pchr || !pchr->onwhichblock ) return;
-    ichr  = pchr->index;
+    ichr  = GET_INDEX( pchr, MAX_CHR );
     pinst = &(pchr->inst);
 
     pmad = chr_get_pmad(ichr);
@@ -5907,7 +5924,7 @@ void move_one_character( chr_t * pchr )
 {
     chr_environment_t * penviro;
 
-    if ( NULL == pchr || !ACTIVE_CHR(pchr->index) ) return;
+    if ( !ACTIVE_PCHR( pchr ) ) return;
     penviro = &(pchr->enviro);
 
     if( pchr->pack_ispacked ) return;
@@ -5995,11 +6012,11 @@ void cleanup_all_characters()
         bool_t time_out;
         Uint16 itmp;
 
-        if ( !ChrList.lst[cnt].allocated ) continue;
+        if ( !ALLOCATED_CHR(cnt) ) continue;
         pchr = ChrList.lst + cnt;
 
         time_out = (pchr->ai.poof_time >= 0) && (pchr->ai.poof_time <= (Sint32)update_wld);
-        if( !pchr->kill_me && !time_out ) continue;
+        if( (ego_object_waiting != pchr->obj_base.state) && !time_out ) continue;
 
         if ( ACTIVE_CHR(pchr->attachedto) )
         {
@@ -6068,8 +6085,8 @@ bool_t is_invictus_direction( Uint16 direction, Uint16 character, Uint16 effects
     {
         // N Frame
         direction -= pcap->nframefacing;
-        left       = 0xFFFF - pcap->nframeangle;
-        right      = pcap->nframeangle;
+        left       = - pcap->nframeangle;
+        right      =   pcap->nframeangle;
     }
 
     // Check that direction
@@ -6579,7 +6596,7 @@ Mix_Chunk * chr_get_chunk( Uint16 ichr, int index )
 //--------------------------------------------------------------------------------------------
 Mix_Chunk * chr_get_chunk_ptr( chr_t * pchr, int index )
 {
-    if( NULL == pchr || !ACTIVE_CHR(pchr->index) ) return NULL;
+    if( !ACTIVE_PCHR( pchr ) ) return NULL;
 
     return pro_get_chunk( pchr->iprofile, index );
 }
@@ -7119,10 +7136,10 @@ egoboo_rv chr_update_collision_size( chr_t * pchr, bool_t update_matrix )
     mad_t * pmad;
     chr_bumper_1_t * pbmp;
 
-    if( NULL == pchr || !ACTIVE_CHR(pchr->index) ) return rv_error;
+    if( !ACTIVE_PCHR( pchr ) ) return rv_error;
     pbmp = &(pchr->chr_chr_cv);
 
-    pmad = chr_get_pmad( pchr->index );
+    pmad = chr_get_pmad( GET_INDEX( pchr, MAX_CHR ) );
     if( NULL == pmad ) return rv_error;
 
     // make sure the matrix is updated properly
@@ -7163,7 +7180,7 @@ egoboo_rv chr_update_collision_size( chr_t * pchr, bool_t update_matrix )
 //--------------------------------------------------------------------------------------------
 void chr_update_size( chr_t * pchr )
 {
-    if( NULL == pchr || !ACTIVE_CHR(pchr->index) ) return;
+    if( !ACTIVE_PCHR( pchr ) ) return;
 
     pchr->shadowsize   = pchr->shadowsizesave    * pchr->fat;
     pchr->bump.size    = pchr->bump_save.size    * pchr->fat;
@@ -7176,7 +7193,7 @@ void chr_update_size( chr_t * pchr )
 //--------------------------------------------------------------------------------------------
 void chr_init_size( chr_t * pchr, cap_t * pcap )
 {
-    if( NULL == pchr || !ACTIVE_CHR(pchr->index)     ) return;
+    if( !ACTIVE_PCHR( pchr )     ) return;
     if( NULL == pcap || !pcap->loaded ) return;
 
     pchr->fat               = pcap->size;
@@ -7194,7 +7211,7 @@ void chr_set_size( chr_t * pchr, float size )
 {
     float ratio;
 
-    if( NULL == pchr || !ACTIVE_CHR(pchr->index) ) return;
+    if( !ACTIVE_PCHR( pchr ) ) return;
 
     ratio = size / pchr->bump.size;
 
@@ -7211,7 +7228,7 @@ void chr_set_width( chr_t * pchr, float width )
 {
     float ratio;
 
-    if( NULL == pchr || !ACTIVE_CHR(pchr->index) ) return;
+    if( !ACTIVE_PCHR( pchr ) ) return;
 
     ratio = width / pchr->bump.size;
 
@@ -7225,7 +7242,7 @@ void chr_set_width( chr_t * pchr, float width )
 //--------------------------------------------------------------------------------------------
 void chr_set_height( chr_t * pchr, float height )
 {
-    if( NULL == pchr || !ACTIVE_CHR(pchr->index) ) return;
+    if( !ACTIVE_PCHR( pchr ) ) return;
 
     pchr->bump_save.height = height;
 
@@ -7235,7 +7252,7 @@ void chr_set_height( chr_t * pchr, float height )
 //--------------------------------------------------------------------------------------------
 void chr_set_shadow( chr_t * pchr, float width )
 {
-    if( NULL == pchr || !ACTIVE_CHR(pchr->index) ) return;
+    if( !ACTIVE_PCHR( pchr ) ) return;
 
     pchr->shadowsizesave = width;
 
@@ -7245,7 +7262,7 @@ void chr_set_shadow( chr_t * pchr, float width )
 //--------------------------------------------------------------------------------------------
 void chr_set_fat( chr_t * pchr, float fat )
 {
-    if( NULL == pchr || !ACTIVE_CHR(pchr->index) ) return;
+    if( !ACTIVE_PCHR( pchr ) ) return;
 
     pchr->fat = fat;
 
@@ -7363,10 +7380,10 @@ bool_t release_one_cap( Uint16 icap )
 
     if( !pcap->loaded ) return btrue;
 
-    memset( pcap, 0, sizeof(cap_t) );
+    cap_init( pcap );
 
     pcap->loaded  = bfalse;
-    pcap->name[0] = '\0';
+    pcap->name[0] = CSTR_END;
 
     return btrue;
 }
@@ -7461,7 +7478,7 @@ bool_t chr_request_terminate( Uint16 ichr )
 {
     if( !ACTIVE_CHR(ichr) ) return bfalse;
 
-    EGO_OBJECT_TERMINATE( ChrList.lst + ichr );
+    EGO_OBJECT_REQUST_TERMINATE( ChrList.lst + ichr );
 
     return btrue;
 }
@@ -7472,10 +7489,10 @@ chr_t * chr_update_hide( chr_t * pchr )
     Sint8 hide;
     cap_t * pcap;
 
-    if( NULL == pchr || !pchr->allocated ) return pchr;
+    if( !ALLOCATED_PCHR( pchr ) ) return pchr;
 
     hide = NOHIDE;
-    pcap = chr_get_pcap( pchr->index );
+    pcap = chr_get_pcap( GET_INDEX( pchr, MAX_CHR ) );
     if( NULL != pcap )
     {
         hide = pcap->hidestate;
@@ -7532,8 +7549,8 @@ matrix_cache_t * matrix_cache_init(matrix_cache_t * mcache)
         mcache->grip_verts[cnt] = 0xFFFF;
     }
 
-    mcache->rotate.x = 32768;
-    mcache->rotate.y = 32768;
+    mcache->rotate.x = 0;
+    mcache->rotate.y = 0;
     mcache->rotate.z = 0;
 
     return mcache;
@@ -7542,7 +7559,7 @@ matrix_cache_t * matrix_cache_init(matrix_cache_t * mcache)
 //--------------------------------------------------------------------------------------------
 bool_t chr_matrix_valid( chr_t * pchr )
 {
-    if( NULL == pchr || !ALLOCATED_CHR(pchr->index) ) return bfalse;
+    if( !ALLOCATED_PCHR( pchr ) ) return bfalse;
 
     // both the cache and the matrix need to be valid
     return pchr->inst.matrix_cache.valid && pchr->inst.matrix_cache.matrix_valid;
@@ -7553,7 +7570,7 @@ bool_t chr_getMatUp(chr_t *pchr, GLvector3 *pvec )
 {
     // BB> MAKE SURE the value it calculated relative to a valid matrix
 
-    if( NULL == pchr || !ALLOCATED_CHR(pchr->index) ) return bfalse;
+    if( !ALLOCATED_PCHR( pchr ) ) return bfalse;
 
     if( NULL == pvec ) return bfalse;
 
@@ -7580,7 +7597,7 @@ bool_t chr_getMatRight(chr_t *pchr, GLvector3 *pvec )
 {
     // BB> MAKE SURE the value it calculated relative to a valid matrix
 
-    if( NULL == pchr || !ALLOCATED_CHR(pchr->index) ) return bfalse;
+    if( !ALLOCATED_PCHR( pchr ) ) return bfalse;
 
     if( NULL == pvec ) return bfalse;
 
@@ -7608,7 +7625,7 @@ bool_t chr_getMatForward(chr_t *pchr, GLvector3 *pvec )
 {
     // BB> MAKE SURE the value it calculated relative to a valid matrix
 
-    if( NULL == pchr || !ALLOCATED_CHR(pchr->index) ) return bfalse;
+    if( !ALLOCATED_PCHR( pchr ) ) return bfalse;
 
     if( NULL == pvec ) return bfalse;
 
@@ -7636,7 +7653,7 @@ bool_t chr_getMatTranslate(chr_t *pchr, GLvector3 *pvec )
 {
     // BB> MAKE SURE the value it calculated relative to a valid matrix
 
-    if( NULL == pchr || !ALLOCATED_CHR(pchr->index) ) return bfalse;
+    if( !ALLOCATED_PCHR( pchr ) ) return bfalse;
 
     if( NULL == pvec ) return bfalse;
 
@@ -7719,9 +7736,11 @@ bool_t chr_get_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
 
     bool_t handled;
     Uint16 itarget;
+    Uint16 ichr;
 
     if( NULL == mc_tmp ) return bfalse;
-    if( NULL == pchr || !pchr->allocated ) return bfalse;
+    if( !ALLOCATED_PCHR( pchr ) ) return bfalse;
+    ichr = GET_INDEX( pchr, MAX_CHR );
 
     handled = bfalse;
     itarget = MAX_CHR;
@@ -7731,7 +7750,7 @@ bool_t chr_get_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
     mc_tmp->type  = MAT_UNKNOWN;
 
     // handle the overlay first of all
-    if( !handled && pchr->is_overlay && pchr->index != pchr->ai.target && ACTIVE_CHR(pchr->ai.target) )
+    if( !handled && pchr->is_overlay && ichr != pchr->ai.target && ACTIVE_CHR(pchr->ai.target) )
     {
         // this will pretty much fail the cmp_matrix_cache() every time...
 
@@ -7752,7 +7771,7 @@ bool_t chr_get_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
     if( !handled )
     {
         // assume that the "target" of the MAT_CHARACTER data will be the character itself
-        itarget = pchr->index;
+        itarget = GET_INDEX( pchr, MAX_CHR );
 
         //---- update the MAT_WEAPON data
         if( ACTIVE_CHR(pchr->attachedto) )
@@ -7789,8 +7808,8 @@ bool_t chr_get_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
 
             mc_tmp->scale.x = mc_tmp->scale.y = mc_tmp->scale.z = ptarget->fat;
 
-            mc_tmp->rotate.x = ( Uint16 ) ( ptarget->map_turn_x + 32768 );
-            mc_tmp->rotate.y = ( Uint16 ) ( ptarget->map_turn_y + 32768 );
+            mc_tmp->rotate.x = CLIP_TO_16BITS( ptarget->map_turn_x - MAP_TURN_OFFSET );
+            mc_tmp->rotate.y = CLIP_TO_16BITS( ptarget->map_turn_y - MAP_TURN_OFFSET );
             mc_tmp->rotate.z = ptarget->turn_z;
 
             mc_tmp->pos = ptarget->pos;
@@ -7811,7 +7830,7 @@ int convert_grip_to_local_points( chr_t * pholder, Uint16 grip_verts[], GLvector
 
     if( NULL == grip_verts || NULL == dst_point ) return 0;
 
-    if( NULL == pholder || !ACTIVE_CHR(pholder->index) ) return 0;
+    if( !ACTIVE_PCHR( pholder ) ) return 0;
 
     // count the valid weapon connection dst_points
     point_count = 0;
@@ -7889,7 +7908,7 @@ bool_t apply_one_weapon_matrix( chr_t * pweap, matrix_cache_t * mc_tmp )
 
     if( NULL == mc_tmp || !mc_tmp->valid || 0 == (MAT_WEAPON & mc_tmp->type) ) return bfalse;
 
-    if ( NULL == pweap || !ALLOCATED_CHR(pweap->index) ) return bfalse;
+    if ( !ALLOCATED_PCHR( pweap ) ) return bfalse;
     pweap_mcache = &(pweap->inst.matrix_cache);
 
     if(  !ACTIVE_CHR(mc_tmp->grip_chr) ) return bfalse;
@@ -7956,7 +7975,7 @@ bool_t apply_one_character_matrix( chr_t * pchr, matrix_cache_t * mc_tmp )
 
     pchr->inst.matrix_cache.matrix_valid = bfalse;
 
-    if( NULL == pchr || !ALLOCATED_CHR(pchr->index) ) return bfalse;
+    if( !ALLOCATED_PCHR( pchr ) ) return bfalse;
 
     pchr->inst.matrix = ScaleXYZRotateXYZTranslate( mc_tmp->scale.x, mc_tmp->scale.y, mc_tmp->scale.z,
                                     ((int)mc_tmp->rotate.z) >> 2, ((int)mc_tmp->rotate.x) >> 2, ((int)mc_tmp->rotate.y) >> 2,
@@ -7974,7 +7993,7 @@ bool_t apply_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
 {
     bool_t applied = bfalse;
 
-    if( NULL == pchr || !ALLOCATED_CHR(pchr->index) ) return bfalse;
+    if( !ALLOCATED_PCHR( pchr ) ) return bfalse;
     if( NULL == mc_tmp || !mc_tmp->valid ) return bfalse;
 
     if( 0 != (MAT_WEAPON & mc_tmp->type) )
@@ -7988,7 +8007,7 @@ bool_t apply_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
             matrix_cache_t * mcache = &(pchr->inst.matrix_cache);
 
             // !!!the mc_tmp was mis-labeled as a MAT_WEAPON!!!
-            make_one_character_matrix( pchr->index );
+            make_one_character_matrix( GET_INDEX( pchr, MAX_CHR ) );
 
             // recover the matrix_cache values from the character
             mcache->type |= MAT_CHARACTER;
@@ -8001,8 +8020,8 @@ bool_t apply_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
                 mcache->scale.y =
                 mcache->scale.z = pchr->fat;
 
-                mcache->rotate.x = ( Uint16 ) ( pchr->map_turn_x + 32768 );
-                mcache->rotate.y = ( Uint16 ) ( pchr->map_turn_y + 32768 );
+                mcache->rotate.x = CLIP_TO_16BITS( pchr->map_turn_x - MAP_TURN_OFFSET );
+                mcache->rotate.y = CLIP_TO_16BITS( pchr->map_turn_y - MAP_TURN_OFFSET );
                 mcache->rotate.z = pchr->turn_z;
 
                 mcache->pos = pchr->pos;
@@ -8137,7 +8156,7 @@ egoboo_rv chr_update_matrix( chr_t * pchr, bool_t update_size )
     bool_t         applied      = bfalse;
     matrix_cache_t mc_tmp;
 
-    if( NULL == pchr || !ACTIVE_CHR(pchr->index) ) return rv_error;
+    if( !ACTIVE_PCHR( pchr ) ) return rv_error;
 
     // recursively make sure that any mount matrices are updated
     if( ACTIVE_CHR( pchr->attachedto ) )
@@ -8214,7 +8233,7 @@ Uint16 chr_has_inventory_idsz( Uint16 ichr, IDSZ idsz, bool_t equipped, Uint16 *
 
     item = MAX_CHR;
 
-    *pack_last = pchr->index;
+    *pack_last = GET_INDEX( pchr, MAX_CHR );
     tmp_item   = pchr->pack_next;
     while ( tmp_item != MAX_CHR )
     {

@@ -35,6 +35,7 @@
 
 #include "egoboo_vfs.h"
 #include "egoboo_setup.h"
+#include "egoboo_strutil.h"
 
 #include "SDL_extensions.h"
 
@@ -909,7 +910,7 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
 
     char * varname, * op;
 
-    STRING buffer = { '\0' };
+    STRING buffer = EMPTY_CSTR;
     Uint8  variable;
     Uint8  operation;
 
@@ -1094,7 +1095,7 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
             case VARTARGETTURNTO:
                 varname = "TARGETTURNTO";
                 iTmp = vec_to_facing( ChrList.lst[pself->target].pos.x - pchr->pos.x , ChrList.lst[pself->target].pos.y - pchr->pos.y );
-                iTmp &= 0xFFFF;
+                iTmp = CLIP_TO_16BITS( iTmp );
                 break;
 
             case VARPASSAGE:
@@ -1290,13 +1291,13 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
             case VAROWNERTURNTO:
                 varname = "OWNERTURNTO";
                 iTmp = vec_to_facing( ChrList.lst[pself->owner].pos.x - pchr->pos.x , ChrList.lst[pself->owner].pos.y - pchr->pos.y );
-                iTmp &= 0xFFFF;
+                iTmp = CLIP_TO_16BITS( iTmp );
                 break;
 
             case VARXYTURNTO:
                 varname = "XYTURNTO";
                 iTmp = vec_to_facing( pstate->x - pchr->pos.x , pstate->y - pchr->pos.y );
-                iTmp &= 0xFFFF;
+                iTmp = CLIP_TO_16BITS( iTmp );
                 break;
 
             case VARSELFMONEY:
@@ -1332,7 +1333,7 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
             case VARTARGETTURNAWAY:
                 varname = "TARGETTURNAWAY";
                 iTmp = vec_to_facing( ChrList.lst[pself->target].pos.x - pchr->pos.x , ChrList.lst[pself->target].pos.y - pchr->pos.y );
-                iTmp &= 0xFFFF;
+                iTmp = CLIP_TO_16BITS( iTmp );
                 break;
 
             case VARSELFLEVEL:

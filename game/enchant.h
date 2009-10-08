@@ -57,7 +57,7 @@ DEFINE_STACK_EXTERN(eve_t, EveStack, MAX_EVE );
 
 struct s_enc
 {
-    EGO_OBJECT_STUFF
+    ego_object_base_t obj_base;
 
     int     time;                    // Time before end
     Uint16  spawntime;               // Time before spawn
@@ -87,9 +87,10 @@ typedef struct s_enc enc_t;
 DEFINE_LIST_EXTERN(enc_t, EncList, MAX_ENC );
 
 #define VALID_ENC_RANGE( IENC ) ( ((IENC) >= 0) && ((IENC) < MAX_ENC) )
-#define ALLOCATED_ENC( IENC )   ( VALID_ENC_RANGE( IENC ) && EncList.lst[IENC].allocated )
-#define ACTIVE_ENC( IENC )      ( ALLOCATED_ENC( IENC ) && EncList.lst[IENC].active )
-#define INACTIVE_ENC( IENC )    ( ALLOCATED_ENC( IENC ) && !EncList.lst[IENC].active )
+#define ALLOCATED_ENC( IENC )   ( VALID_ENC_RANGE( IENC ) && ALLOCATED_OBJ ( &(EncList.lst[IENC].obj_base) ) )
+#define ACTIVE_ENC( IENC )      ( VALID_ENC_RANGE( IENC ) && ACTIVE_OBJ    ( &(EncList.lst[IENC].obj_base) ) )
+#define WAITING_ENC( IENC )     ( VALID_ENC_RANGE( IENC ) && WAITING_OBJ   ( &(EncList.lst[IENC].obj_base) ) )
+#define TERMINATED_ENC( IENC )  ( VALID_ENC_RANGE( IENC ) && TERMINATED_OBJ( &(EncList.lst[IENC].obj_base) ) )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

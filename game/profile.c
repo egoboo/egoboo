@@ -52,7 +52,7 @@ DECLARE_LIST ( ACCESS_TYPE_NONE, pro_t,  ProList  );
 DECLARE_STACK( ACCESS_TYPE_NONE, int, MessageOffset );
 
 Uint32  message_buffer_carat = 0;                           // Where to put letter
-char    message_buffer[MESSAGEBUFFERSIZE];                  // The text buffer
+char    message_buffer[MESSAGEBUFFERSIZE] = EMPTY_CSTR;     // The text buffer
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -708,7 +708,7 @@ void get_message( vfs_FILE* fileread )
     if ( message_buffer_carat >= MESSAGEBUFFERSIZE )
     {
         message_buffer_carat = MESSAGEBUFFERSIZE - 1;
-        message_buffer[message_buffer_carat] = '\0';
+        message_buffer[message_buffer_carat] = CSTR_END;
         return;
     }
 
@@ -719,11 +719,11 @@ void get_message( vfs_FILE* fileread )
 
     MessageOffset.lst[MessageOffset.count] = message_buffer_carat;
     fget_string( fileread, szTmp, SDL_arraysize(szTmp) );
-    szTmp[255] = '\0';
+    szTmp[255] = CSTR_END;
 
     cTmp = szTmp[0];
     cnt = 1;
-    while ( '\0' != cTmp && message_buffer_carat < MESSAGEBUFFERSIZE - 1 )
+    while ( CSTR_END != cTmp && message_buffer_carat < MESSAGEBUFFERSIZE - 1 )
     {
         if ( '_' == cTmp )  cTmp = ' ';
 
@@ -733,7 +733,7 @@ void get_message( vfs_FILE* fileread )
         cnt++;
     }
 
-    message_buffer[message_buffer_carat] = '\0';
+    message_buffer[message_buffer_carat] = CSTR_END;
     message_buffer_carat++;
     MessageOffset.count++;
 }
@@ -998,7 +998,7 @@ void chop_load( Uint16 profile, const char *szLoadname )
     // ZZ> This function reads a naming file
     vfs_FILE *fileread;
     int   section, chopinsection;
-    char  tmp_chop[32];
+    char  tmp_chop[32] = EMPTY_CSTR;
 
     fileread = vfs_openRead( szLoadname );
     if ( NULL == fileread ) return;
@@ -1022,7 +1022,7 @@ void chop_load( Uint16 profile, const char *szLoadname )
 
             section++;
             chopinsection = 0;
-            tmp_chop[0] = '\0';
+            tmp_chop[0] = CSTR_END;
         }
         else
         {
@@ -1035,13 +1035,13 @@ void chop_load( Uint16 profile, const char *szLoadname )
             chop.carat += chop_len + 1;
             chop.count++;
             chopinsection++;
-            tmp_chop[0] = '\0';
+            tmp_chop[0] = CSTR_END;
         }
     }
 
     // handle the case where the chop buffer has overflowed
     // pretend the last command was "STOP"
-    if ( '\0' != tmp_chop[0] && section < MAXSECTION )
+    if ( CSTR_END != tmp_chop[0] && section < MAXSECTION )
     {
         ProList.lst[profile].chop_sectionsize[section]  = chopinsection;
         ProList.lst[profile].chop_sectionstart[section] = chop.count - chopinsection;
@@ -1071,5 +1071,5 @@ void reset_messages()
         MessageOffset.lst[cnt] = 0;
     }
 
-    message_buffer[0] = '\0';
+    message_buffer[0] = CSTR_END;
 }

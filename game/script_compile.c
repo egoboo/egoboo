@@ -23,6 +23,7 @@
 
 #include "egoboo_vfs.h"
 #include "egoboo_setup.h"
+#include "egoboo_strutil.h"
 #include "egoboo.h"
 
 #include "SDL_extensions.h"
@@ -45,10 +46,10 @@ typedef struct s_token token_t;
 static int     iNumLine;
 
 static int     iLineSize;
-static char    cLineBuffer[MAXLINESIZE];
+static char    cLineBuffer[MAXLINESIZE] = EMPTY_CSTR;
 
 static int     iLoadSize;
-static Uint8   cLoadBuffer[AISMAXLOADSIZE];
+static Uint8   cLoadBuffer[AISMAXLOADSIZE] = EMPTY_CSTR;
 
 static token_t Token;
 
@@ -110,7 +111,7 @@ void insert_space( int position )
             position++;
         }
 
-        cLineBuffer[position] = '\0'; // or cTmp as cTmp == 0
+        cLineBuffer[position] = CSTR_END; // or cTmp as cTmp == 0
     }
 }
 
@@ -123,7 +124,7 @@ int load_one_line( int read )
     bool_t tabs_warning_needed;
 
     // Parse to start to maintain indentation
-    cLineBuffer[0] = '\0';
+    cLineBuffer[0] = CSTR_END;
     iLineSize = 0;
     stillgoing = btrue;
 
@@ -136,21 +137,21 @@ int load_one_line( int read )
         if ( cTmp == 0x0a && cLoadBuffer[read+1] == 0x0d )
         {
             iLineSize = 0;
-            cLineBuffer[0] = '\0';
+            cLineBuffer[0] = CSTR_END;
             return read + 2;
         }
 
         if ( cTmp == 0x0d && cLoadBuffer[read+1] == 0x0a )
         {
             iLineSize = 0;
-            cLineBuffer[0] = '\0';
+            cLineBuffer[0] = CSTR_END;
             return read + 2;
         }
 
         if ( cTmp == 0x0a || cTmp == 0x0d )
         {
             iLineSize = 0;
-            cLineBuffer[0] = '\0';
+            cLineBuffer[0] = CSTR_END;
             return read + 1;
         }
 
@@ -166,7 +167,7 @@ int load_one_line( int read )
         }
 
         cLineBuffer[iLineSize] = ' ';
-        cLineBuffer[iLineSize+1] = '\0';
+        cLineBuffer[iLineSize+1] = CSTR_END;
 
         read++;
         iLineSize++;
@@ -199,7 +200,7 @@ int load_one_line( int read )
             foundtext = btrue;
 
             cLineBuffer[iLineSize]   = cTmp;
-            cLineBuffer[iLineSize+1] = '\0';
+            cLineBuffer[iLineSize+1] = CSTR_END;
             iLineSize++;
         }
     }
@@ -209,7 +210,7 @@ int load_one_line( int read )
     }
 
     // terminate the line buffer properly
-    cLineBuffer[iLineSize] = '\0';
+    cLineBuffer[iLineSize] = CSTR_END;
 
     if ( iLineSize > 0  && tabs_warning_needed )
     {
@@ -229,7 +230,7 @@ int load_one_line( int read )
             read += 2;
             break;
         }
-        else if ( '\0' == cLoadBuffer[read] || 0x0a == cLoadBuffer[read] || 0x0d == cLoadBuffer[read] )
+        else if ( CSTR_END == cLoadBuffer[read] || 0x0a == cLoadBuffer[read] || 0x0d == cLoadBuffer[read] )
         {
             read += 1;
             break;
@@ -324,7 +325,7 @@ int parse_token( int read )
     Token.iIndex   = MAX_OPCODE;
     Token.iValue   = 0;
     Token.cType    = '?';
-    Token.cWord[0] = '\0';
+    Token.cWord[0] = CSTR_END;
 
     // Check bounds
     if ( read >= iLineSize )
@@ -341,13 +342,13 @@ int parse_token( int read )
 
     // Load the word into the other buffer
     wordsize = 0;
-    while ( !isspace(cTmp) && '\0' != cTmp )
+    while ( !isspace(cTmp) && CSTR_END != cTmp )
     {
         Token.cWord[wordsize] = cTmp;  wordsize++;
         read++;
         cTmp = cLineBuffer[read];
     }
-    Token.cWord[wordsize] = '\0';
+    Token.cWord[wordsize] = CSTR_END;
 
     // Check for numeric constant
     if ( Token.cWord[0] >= '0' && Token.cWord[0] <= '9' )
@@ -383,7 +384,7 @@ int parse_token( int read )
     //   maxlen = MAXCODENAMESIZE;
 
     //   found = btrue;
-    //   for( i = 0; i < maxlen && '\0' != *ptok && '\0' != pcode; i++ )
+    //   for( i = 0; i < maxlen && CSTR_END != *ptok && CSTR_END != pcode; i++ )
     //   {
     //       if( toupper( *ptok ) != toupper( *pcode ) )
     //       {
@@ -395,7 +396,7 @@ int parse_token( int read )
     //       pcode++;
     //   }
 
-    //   if ( '\0' == *ptok && '\0' == *pcode && found ) break;
+    //   if ( CSTR_END == *ptok && CSTR_END == *pcode && found ) break;
     // }
 
     for ( cnt = 0; cnt < OpList.count; cnt++ )
@@ -667,7 +668,7 @@ void parse_jumps( int ainumber )
             index++;
             iTmp = AisCompiled_buffer[index];
             index++;
-            index += ( iTmp & 0xFF );
+            index += CLIP_TO_08BITS( iTmp );
         }
     }
 }
@@ -820,13 +821,13 @@ void init_all_ai_scripts()
 //   iLineSize = 0;
 //   cTmp = cLoadBuffer[read];
 
-//   while ( '\0' != cTmp )
+//   while ( CSTR_END != cTmp )
 //   {
 //       cLineBuffer[iLineSize] = cTmp;  iLineSize++;
 //       read++;  cTmp = cLoadBuffer[read];
 //   }
 
-//   cLineBuffer[iLineSize] = '\0';
+//   cLineBuffer[iLineSize] = CSTR_END;
 //   read++; // skip terminating zero for next call of load_parsed_line()
 //   return read;
 // }

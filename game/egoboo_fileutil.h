@@ -81,6 +81,8 @@ bool_t fget_string( vfs_FILE * fileread, char * str, size_t str_len );
 bool_t fget_range( vfs_FILE* fileread, FRange * prange );
 bool_t fget_pair( vfs_FILE* fileread, IPair * ppair );
 
+void fput_range_raw( vfs_FILE* filewrite, FRange val );
+
 void fput_int( vfs_FILE* filewrite, const char* text, int ival );
 void fput_float( vfs_FILE* filewrite, const char* text, float fval );
 void fput_bool( vfs_FILE* filewrite, const char* text, bool_t truth );

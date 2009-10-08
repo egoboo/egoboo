@@ -31,12 +31,11 @@
 //---------------------------------------------------------------------------------------------
 
 // end-of-string character. assume standard null terminated string
-#define EOS '\0'
-#define NULL_STRING { EOS }
+#define CSTR_END '\0'
+#define EMPTY_CSTR { CSTR_END }
 
-#define EMPTY_CSTR(PSTR) ((NULL!=PSTR) && (EOS == PSTR[0]))
-#define VALID_CSTR(PSTR) ((NULL!=PSTR) && (EOS != PSTR[0]))
-#define INVALID_CSTR(PSTR) ((NULL==PSTR) || (EOS == PSTR[0]))
+#define VALID_CSTR(PSTR)   ((NULL!=PSTR) && (CSTR_END != PSTR[0]))
+#define INVALID_CSTR(PSTR) ((NULL==PSTR) || (CSTR_END == PSTR[0]))
 
 //---------------------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------------------

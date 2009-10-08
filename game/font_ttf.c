@@ -26,6 +26,8 @@
 #include "log.h"
 
 #include "egoboo_typedef.h"
+#include "egoboo_strutil.h"
+
 #include "ogl_include.h"
 #include "ogl_debug.h"
 
@@ -240,7 +242,7 @@ int fnt_print_raw( Font *font, SDL_Color color, SDL_Surface ** psurf, GLuint ite
 int fnt_vprintf( Font *font, SDL_Color color, SDL_Surface ** psurf, GLuint itex, float texCoords[], const char *format, va_list args )
 {
     int rv;
-    STRING szText = {'\0'};
+    STRING szText = EMPTY_CSTR;
 
     // evaluate the variable args
     rv = vsnprintf( szText, SDL_arraysize(szText) - 1, format, args );
@@ -354,7 +356,7 @@ void fnt_drawTextBox( Font *font, int x, int y, int width, int height, int spaci
     int rv;
     int len;
     char *buffer, *line;
-    char text[4096];
+    char text[4096] = EMPTY_CSTR;
 
     va_start( args, format );
     rv = vsnprintf( text, SDL_arraysize(text), format, args );

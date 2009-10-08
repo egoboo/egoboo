@@ -36,10 +36,10 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // Paths that the game will deal with
-static char linux_binaryPath[PATH_MAX] = {0};
-static char linux_dataPath[PATH_MAX] = {0};
-static char linux_userdataPath[PATH_MAX] = {0};
-static char linux_configPath[PATH_MAX] = {0};
+static char linux_binaryPath[PATH_MAX]   = EMPTY_CSTR;
+static char linux_dataPath[PATH_MAX]     = EMPTY_CSTR;
+static char linux_userdataPath[PATH_MAX] = EMPTY_CSTR;
+static char linux_configPath[PATH_MAX]   = EMPTY_CSTR;
 
 static glob_t last_find_glob;
 static size_t glob_find_index;
@@ -107,7 +107,7 @@ bool_t fs_copyFile( const char *source, const char *dest )
 
     FILE *sourcef;
     FILE *destf;
-    char buf[4096];
+    char buf[4096] = EMPTY_CSTR;
     int bytes_read;
 
     sourcef = fopen( source, "rb" );
@@ -134,8 +134,9 @@ bool_t fs_copyFile( const char *source, const char *dest )
 // Read the first directory entry
 const char *fs_findFirstFile( const char *searchDir, const char *searchExtension )
 {
-    char pattern[PATH_MAX];
+    char pattern[PATH_MAX] = EMPTY_CSTR;
     char *last_slash;
+
     if ( searchExtension )
         snprintf( pattern, PATH_MAX, "%s" SLASH_STR "*.%s", searchDir, searchExtension );
     else

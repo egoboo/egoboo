@@ -23,6 +23,8 @@
 
 #include "pip_file.h"
 
+#include "sound.h"
+
 #include "egoboo_vfs.h"
 #include "egoboo_fileutil.h"
 
@@ -50,28 +52,23 @@ particle_direction_t prt_direction[256] =
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void pip_init( pip_t * ppip )
+pip_t * pip_init( pip_t * ppip )
 {
-    if( NULL == ppip ) return;
+    if( NULL == ppip ) return ppip;
 
     // clear the pip
     memset( ppip, 0, sizeof(pip_t) );
 
-    /* ppip->zaimspd = 0; */
-    ppip->soundfloor = -1;
-    ppip->soundwall  = -1;
-    ppip->endwall    = ppip->endground;
+    ppip->soundfloor = INVALID_SOUND;
+    ppip->soundwall  = INVALID_SOUND;
     ppip->damfx      = DAMFX_TURN;
 
     ppip->allowpush = btrue;
-    /* ppip->dynalight_falloffadd = 0; */
-    /* ppip->dynalight_leveladd = 0; */
-    /* ppip->intdamagebonus = bfalse; */
-    /* ppip->wisdamagebonus = bfalse; */
 
     ppip->orientation = ORIENTATION_B;  // make the orientation the normal billboarded orientation
     ppip->type        = SPRITE_SOLID;
 
+    return ppip;
 }
 
 //--------------------------------------------------------------------------------------------

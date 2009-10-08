@@ -35,6 +35,7 @@
 
 #include "egoboo_setup.h"
 #include "egoboo_fileutil.h"
+#include "egoboo_strutil.h"
 #include "egoboo.h"
 
 //--------------------------------------------------------------------------------------------
@@ -150,6 +151,8 @@ void free_one_particle_in_game( Uint16 particle )
         play_particle_sound( particle, PipStack.lst[pprt->pip_ref].soundend );
     }
 
+    EGO_OBJECT_TERMINATE( pprt );
+
     PrtList_free_one( particle );
 }
 
@@ -170,31 +173,32 @@ Uint16 PrtList_get_free()
 }
 
 //--------------------------------------------------------------------------------------------
-int get_free_particle( int force )
+int prt_get_free( int force )
 {
     // ZZ> This function gets an unused particle.  If all particles are in use
-    //    and force is set, it grabs the first unimportant one.  The particle
+    //    and force is set, it grabs the first unimportant one.  The iprt
     //    index is the return value
-    int particle;
+
+    int iprt;
 
     // Return maxparticles if we can't find one
-    particle = TOTAL_MAX_PRT;
+    iprt = TOTAL_MAX_PRT;
     if ( 0 == PrtList.free_count )
     {
         if ( force )
         {
             // Gotta find one, so go through the list and replace a unimportant one
-            particle = 0;
+            iprt = 0;
 
-            while ( particle < maxparticles )
+            while ( iprt < maxparticles )
             {
-                if ( PrtList.lst[particle].bumpsize == 0 )
+                if ( PrtList.lst[iprt].bumpsize == 0 )
                 {
                     // Found one
-                    return particle;
+                    return iprt;
                 }
 
-                particle++;
+                iprt++;
             }
         }
     }
@@ -203,34 +207,40 @@ int get_free_particle( int force )
         if ( force || PrtList.free_count > ( maxparticles / 4 ) )
         {
             // Just grab the next one
-            particle = PrtList_get_free();
+            iprt = PrtList_get_free();
         }
     }
 
-    return (particle >= maxparticles) ? TOTAL_MAX_PRT : particle;
+    iprt = (iprt >= maxparticles) ? TOTAL_MAX_PRT : iprt;
+
+    if( TOTAL_MAX_PRT != iprt )
+    {
+        EGO_OBJECT_ALLOCATE( PrtList.lst + iprt, iprt );
+    }
+
+    return iprt;
 }
 
 //--------------------------------------------------------------------------------------------
 void prt_init( prt_t * pprt )
 {
+    ego_object_base_t save_base;
+
     if( NULL == pprt ) return;
+
+    // save the base object data
+    memcpy( &save_base, OBJ_GET_PBASE( pprt ), sizeof(ego_object_base_t) );
 
     memset( pprt, 0, sizeof(prt_t) );
 
-    /* pprt->inview     = bfalse; */
+    // restore the base object data
+    memcpy( OBJ_GET_PBASE( pprt ), &save_base, sizeof(ego_object_base_t) );
 
-    /* pprt->enviro.floor_level = 0; */
     pprt->spawncharacterstate = SPAWNNOCHARACTER;
 
-    // Lighting and sound
-    /* pprt->dynalight_on = bfalse; */
-
-    // Image data
-    /* pprt->image = 0; */
-
     // "no lifetime" = "eternal"
-    /* pprt->is_eternal = bfalse; */
-    pprt->time      = (Uint32)~0;
+    pprt->time_update  = (Uint32)~0;
+    pprt->time_frame   = (Uint32)~0;
 
     pprt->pip_ref      = MAX_PIP;
     pprt->profile_ref  = MAX_PROFILE;
@@ -300,8 +310,8 @@ Uint16 spawn_one_particle( GLvector3 pos, Uint16 facing, Uint16 iprofile, Uint16
     }
     ppip = PipStack.lst + ipip;
 
-    iprt = get_free_particle( ppip->force );
-    if ( !VALID_PRT_RANGE(iprt) )
+    iprt = prt_get_free( ppip->force );
+    if ( !ALLOCATED_PRT(iprt) )
     {
         //log_warning( "spawn_one_particle() - cannot allocate a particle owner == %d(\"%s\"), pip == %d(\"%s\"), profile == %d(\"%s\")\n",
         //    chr_origin, ACTIVE_CHR(chr_origin) ? ChrList.lst[chr_origin].name : "INVALID",
@@ -317,7 +327,7 @@ Uint16 spawn_one_particle( GLvector3 pos, Uint16 facing, Uint16 iprofile, Uint16
     tmp_pos = pos;
 
     // Necessary data for any part
-    EGO_OBJECT_ACTIVATE( pprt, iprt, ppip->name );
+    EGO_OBJECT_ACTIVATE( pprt, ppip->name );
 
     // try to get an idea of who our owner is even if we are
     // given bogus info
@@ -424,7 +434,7 @@ Uint16 spawn_one_particle( GLvector3 pos, Uint16 facing, Uint16 iprofile, Uint16
     pprt->facing = facing;
 
     // this is actually pointint in the opposite direction?
-    turn = (facing + 32768) >> 2;
+    turn = (facing + ATK_BEHIND) >> 2;
 
     // Location data from arguments
     newrand = generate_randmask( ppip->xyspacing_pair.base, ppip->xyspacing_pair.rand );
@@ -451,7 +461,7 @@ Uint16 spawn_one_particle( GLvector3 pos, Uint16 facing, Uint16 iprofile, Uint16
     // Image data
     pprt->rotate = generate_irand_pair( ppip->rotate_pair );
     pprt->rotateadd = ppip->rotateadd;
-    pprt->size_stt = pprt->size = ppip->sizebase;
+    pprt->size_stt = pprt->size = MAX(ppip->sizebase, 1);
     pprt->size_add = ppip->sizeadd;
     pprt->imageadd = generate_irand_pair( ppip->imageadd );
     pprt->imagestt = INT_TO_FP8( ppip->imagebase );
@@ -480,8 +490,16 @@ Uint16 spawn_one_particle( GLvector3 pos, Uint16 facing, Uint16 iprofile, Uint16
     }
     else
     {
-        pprt->time = update_wld + prt_lifetime;
+        // the lifetime is really supposed tp be in terms of frames, but
+        // to keep the number of updates stable, the frames could lag.
+        // sooo... we just rescale the prt_lifetime so that it will work with the
+        // updates and cross our fingers
+        pprt->time_update = ceil( update_wld + (float) prt_lifetime * (float)TARGET_UPS / (float)TARGET_FPS );
     }
+
+    // make the particle display AT LEAST one frame, regardless of how many updates
+    // it has or when someone requests for it to terminate
+    pprt->time_frame  = frame_all  + 1;
 
     // Set onwhichfan...
     pprt->onwhichfan   = mesh_get_tile( PMesh, pprt->pos.x, pprt->pos.y );
@@ -707,17 +725,17 @@ void update_all_particles( void )
         ppip = prt_get_ppip( cnt );
         if ( NULL == ppip ) continue;
 
-        pprt->onwhichfan   = mesh_get_tile ( PMesh, pprt->pos.x, pprt->pos.y );
-        pprt->onwhichblock = mesh_get_block( PMesh, pprt->pos.x, pprt->pos.y );
-        pprt->floor_level  = mesh_get_level( PMesh, pprt->pos.x, pprt->pos.y );
-
         // Animate particle
         pprt->image = pprt->image + pprt->imageadd;
         if ( pprt->image >= pprt->imagemax ) pprt->image = 0;
 
         // rotate the particle
         pprt->rotate += pprt->rotateadd;
+ 
+        // down the spawn timer
+        if ( pprt->spawntime > 0 ) pprt->spawntime--;
 
+        // update the particle size
         if( 0 != pprt->size_add )
         {
             // resize the paricle
@@ -745,6 +763,7 @@ void update_all_particles( void )
 
         pprt->dynalight_falloff += ppip->dynalight_falloffadd;
 
+        // spin the particle
         pprt->facing += ppip->facingadd;
     }
 }
@@ -770,6 +789,12 @@ void move_all_particles( void )
 
         if ( !ACTIVE_PRT(cnt) ) continue;
         pprt = PrtList.lst + cnt;
+
+        // determine the actual velocity for attached particles
+        if( ACTIVE_CHR(pprt->attachedto_ref) )
+        {
+            pprt->vel = VSub(pprt->pos, pprt->pos_old);
+        }
 
         pprt->pos_old = pprt->pos;
         pprt->vel_old = pprt->vel;
@@ -864,11 +889,11 @@ void move_all_particles( void )
             play_particle_sound( cnt, ppip->soundfloor );
         }
 
+        // do the reflections off the walls and floors
         if( !ACTIVE_CHR( pprt->attachedto_ref ) && (hit_a_wall || hit_a_floor) )
         {
             float fx, fy;
 
-            // do the reflections off the walls
             if( (hit_a_wall && ABS(pprt->vel.x) + ABS(pprt->vel.y) > 0.0f) ||
                 (hit_a_floor && pprt->vel.z < 0.0f) )
             {
@@ -946,119 +971,117 @@ void move_all_particles( void )
         }
 
         // Do homing
-        if ( ppip->homing && ACTIVE_CHR( pprt->target_ref ) )
+        if( !ACTIVE_CHR( pprt->attachedto_ref ) )
         {
-            if ( !ChrList.lst[pprt->target_ref].alive )
+            if ( ppip->homing && ACTIVE_CHR( pprt->target_ref ) )
             {
-                prt_request_terminate( cnt );
-            }
-            else
-            {
-                if ( !ACTIVE_CHR( pprt->attachedto_ref ) )
+                if ( !ChrList.lst[pprt->target_ref].alive )
                 {
-                    int       ival;
-                    float     vlen, min_length, uncertainty;
-                    GLvector3 vdiff, vdither;
-
-                    vdiff = VSub( ChrList.lst[pprt->target_ref].pos, pprt->pos );
-                    vdiff.z += ChrList.lst[pprt->target_ref].bump.height * 0.5f;
-
-                    min_length = ( 2 * 5 * 256 * ChrList.lst[pprt->owner_ref].wisdom ) / PERFECTBIG;
-
-                    // make a little incertainty about the target
-                    uncertainty = 256 - ( 256 * ChrList.lst[pprt->owner_ref].intelligence ) / PERFECTBIG;
-
-                    ival = RANDIE;
-                    vdither.x = ( ((float) ival / 0x8000) - 1.0f )  * uncertainty;
-
-                    ival = RANDIE;
-                    vdither.y = ( ((float) ival / 0x8000) - 1.0f )  * uncertainty;
-
-                    ival = RANDIE;
-                    vdither.z = ( ((float) ival / 0x8000) - 1.0f )  * uncertainty;
-
-                    // take away any dithering along the direction of motion of the particle
-                    vlen = VDotProduct(pprt->vel, pprt->vel);
-                    if( vlen > 0.0f )
+                    prt_request_terminate( cnt );
+                }
+                else
+                {
+                    if ( !ACTIVE_CHR( pprt->attachedto_ref ) )
                     {
-                        float vdot = VDotProduct(vdither, pprt->vel) / vlen;
+                        int       ival;
+                        float     vlen, min_length, uncertainty;
+                        GLvector3 vdiff, vdither;
 
-                        vdither.x -= vdot * vdiff.x / vlen;
-                        vdither.y -= vdot * vdiff.y / vlen;
-                        vdither.z -= vdot * vdiff.z / vlen;
+                        vdiff = VSub( ChrList.lst[pprt->target_ref].pos, pprt->pos );
+                        vdiff.z += ChrList.lst[pprt->target_ref].bump.height * 0.5f;
+
+                        min_length = ( 2 * 5 * 256 * ChrList.lst[pprt->owner_ref].wisdom ) / PERFECTBIG;
+
+                        // make a little incertainty about the target
+                        uncertainty = 256 - ( 256 * ChrList.lst[pprt->owner_ref].intelligence ) / PERFECTBIG;
+
+                        ival = RANDIE;
+                        vdither.x = ( ((float) ival / 0x8000) - 1.0f )  * uncertainty;
+
+                        ival = RANDIE;
+                        vdither.y = ( ((float) ival / 0x8000) - 1.0f )  * uncertainty;
+
+                        ival = RANDIE;
+                        vdither.z = ( ((float) ival / 0x8000) - 1.0f )  * uncertainty;
+
+                        // take away any dithering along the direction of motion of the particle
+                        vlen = VDotProduct(pprt->vel, pprt->vel);
+                        if( vlen > 0.0f )
+                        {
+                            float vdot = VDotProduct(vdither, pprt->vel) / vlen;
+
+                            vdither.x -= vdot * vdiff.x / vlen;
+                            vdither.y -= vdot * vdiff.y / vlen;
+                            vdither.z -= vdot * vdiff.z / vlen;
+                        }
+
+                        // add in the dithering
+                        vdiff.x += vdither.x;
+                        vdiff.y += vdither.y;
+                        vdiff.z += vdither.z;
+
+                        // Make sure that vdiff doesn't ever get too small.
+                        // That just makes the particle slooooowww down when it approaches the target.
+                        // Do a real kludge here. this should be a lot faster than a square root, but ...
+                        vlen = ABS(vdiff.x) + ABS(vdiff.y) + ABS(vdiff.z);
+                        if( vlen != 0.0f )
+                        {
+                            float factor = min_length / vlen;
+
+                            vdiff.x *= factor;
+                            vdiff.y *= factor;
+                            vdiff.z *= factor;
+                        }
+
+                        pprt->vel.x = ( pprt->vel.x + vdiff.x * ppip->homingaccel ) * ppip->homingfriction;
+                        pprt->vel.y = ( pprt->vel.y + vdiff.y * ppip->homingaccel ) * ppip->homingfriction;
+                        pprt->vel.z = ( pprt->vel.z + vdiff.z * ppip->homingaccel ) * ppip->homingfriction;
                     }
 
-                    // add in the dithering
-                    vdiff.x += vdither.x;
-                    vdiff.y += vdither.y;
-                    vdiff.z += vdither.z;
-
-                    // Make sure that vdiff doesn't ever get too small.
-                    // That just makes the particle slooooowww down when it approaches the target.
-                    // Do a real kludge here. this should be a lot faster than a square root, but ...
-                    vlen = ABS(vdiff.x) + ABS(vdiff.y) + ABS(vdiff.z);
-                    if( vlen != 0.0f )
+                    if ( ppip->rotatetoface )
                     {
-                        float factor = min_length / vlen;
-
-                        vdiff.x *= factor;
-                        vdiff.y *= factor;
-                        vdiff.z *= factor;
+                        // Turn to face target
+                        pprt->facing =vec_to_facing( ChrList.lst[pprt->target_ref].pos.x - pprt->pos.x , ChrList.lst[pprt->target_ref].pos.y - pprt->pos.y );
                     }
-
-                    pprt->vel.x = ( pprt->vel.x + vdiff.x * ppip->homingaccel ) * ppip->homingfriction;
-                    pprt->vel.y = ( pprt->vel.y + vdiff.y * ppip->homingaccel ) * ppip->homingfriction;
-                    pprt->vel.z = ( pprt->vel.z + vdiff.z * ppip->homingaccel ) * ppip->homingfriction;
-                }
-
-                if ( ppip->rotatetoface )
-                {
-                    // Turn to face target
-                    pprt->facing =vec_to_facing( ChrList.lst[pprt->target_ref].pos.x - pprt->pos.x , ChrList.lst[pprt->target_ref].pos.y - pprt->pos.y );
                 }
             }
-        }
 
-        // do gravitational acceleration
-        if( !ACTIVE_CHR( pprt->attachedto_ref ) && !ppip->homing )
-        {
-            pprt->vel.z += gravity * lerp_z;
-
-            // Do speed limit on Z
-            if ( pprt->vel.z < -ppip->spdlimit )
+            // do gravitational acceleration
+            if( !ppip->homing )
             {
-                pprt->vel.z = -ppip->spdlimit;
+                pprt->vel.z += gravity * lerp_z;
+
+                // Do speed limit on Z
+                if ( pprt->vel.z < -ppip->spdlimit )
+                {
+                    pprt->vel.z = -ppip->spdlimit;
+                }
             }
+
         }
 
         // Spawn new particles if continually spawning
-        if ( ppip->contspawn_amount > 0 )
+        if ( 0 == pprt->spawntime && ppip->contspawn_amount > 0 )
         {
-            pprt->spawntime--;
-            if ( pprt->spawntime == 0 )
+            // reset the spawn timer
+            pprt->spawntime = ppip->contspawn_time;
+
+            facing = pprt->facing;
+            for ( tnc = 0; tnc < ppip->contspawn_amount; tnc++ )
             {
-                pprt->spawntime = ppip->contspawn_time;
-                facing = pprt->facing;
-                tnc = 0;
+                particle = spawn_one_particle( pprt->pos, facing, pprt->profile_ref, ppip->contspawn_pip,
+                    MAX_CHR, GRIP_LAST, pprt->team, pprt->owner_ref, cnt, tnc, pprt->target_ref );
 
-                while ( tnc < ppip->contspawn_amount )
+                if ( PipStack.lst[pprt->pip_ref].facingadd != 0 && ACTIVE_PRT(particle) )
                 {
-                    particle = spawn_one_particle( pprt->pos, facing, pprt->profile_ref, ppip->contspawn_pip,
-                                                   MAX_CHR, GRIP_LAST, pprt->team, pprt->owner_ref, cnt, tnc, pprt->target_ref );
-
-                    if ( PipStack.lst[pprt->pip_ref].facingadd != 0 && ACTIVE_PRT(particle) )
-                    {
-                        // Hack to fix velocity
-                        PrtList.lst[particle].vel.x += pprt->vel.x;
-                        PrtList.lst[particle].vel.y += pprt->vel.y;
-                    }
-
-                    facing += ppip->contspawn_facingadd;
-                    tnc++;
+                    // Hack to fix velocity
+                    PrtList.lst[particle].vel.x += pprt->vel.x;
+                    PrtList.lst[particle].vel.y += pprt->vel.y;
                 }
+
+                facing += ppip->contspawn_facingadd;
             }
         }
-
     }
 }
 
@@ -1074,11 +1097,15 @@ void cleanup_all_particles()
         Uint16  ipip;
         bool_t  time_out;
 
-        if ( !PrtList.lst[iprt].allocated ) continue;
+        if ( !ALLOCATED_PRT( iprt ) ) continue;
         pprt = PrtList.lst + iprt;
 
-        time_out = !pprt->is_eternal && update_wld >= pprt->time;
-        if ( !pprt->kill_me && !time_out ) continue;
+        time_out = !pprt->is_eternal && (update_wld >= pprt->time_update);
+        if ( (ego_object_waiting != pprt->obj_base.state) && !time_out ) continue;
+
+        // make sure the particle has been DISPLAYED at least once, or you can get
+        // some wierd particle flickering
+        if( frame_all <= pprt->time_frame ) continue;
 
         // Spawn new particles if time for old one is up
         ipip = pprt->pip_ref;
@@ -1116,7 +1143,6 @@ void PrtList_free_all()
     PrtList.free_count = 0;
     for ( cnt = 0; cnt < maxparticles; cnt++ )
     {
-        // reuse this code
         PrtList_free_one( cnt );
     }
 }
@@ -1184,7 +1210,7 @@ int spawn_bump_particles( Uint16 character, Uint16 particle )
 
     // Only damage if hitting from proper direction
     direction = vec_to_facing( pprt->vel.x , pprt->vel.y );
-    direction = pchr->turn_z - direction + 32768;
+    direction = ATK_BEHIND + (pchr->turn_z - direction);
 
     // Check that direction
     if ( !is_invictus_direction( direction, character, ppip->damfx) )
@@ -1260,7 +1286,7 @@ int spawn_bump_particles( Uint16 character, Uint16 particle )
                     if( !ACTIVE_PRT(cnt) ) continue;
                     pprt = PrtList.lst + cnt;
                     
-                    if( pchr->index != pprt->attachedto_ref) continue;
+                    if( character != pprt->attachedto_ref) continue;
 
                     if( pprt->vrt_off >=0 && pprt->vrt_off < vertices )
                     {
@@ -1512,7 +1538,7 @@ void init_all_pip()
 
     for ( cnt = 0; cnt < MAX_PIP; cnt++ )
     {
-        memset( PipStack.lst + cnt, 0, sizeof(pip_t) );
+        pip_init( PipStack.lst + cnt );
     }
 }
 
@@ -1538,10 +1564,10 @@ bool_t release_one_pip( Uint16 ipip )
 
     if( !ppip->loaded ) return btrue;
 
-    memset( ppip, 0, sizeof(pip_t) );
+    pip_init( ppip );
 
     ppip->loaded  = bfalse;
-    ppip->name[0] = '\0';
+    ppip->name[0] = CSTR_END;
 
     return btrue;
 }
@@ -1551,7 +1577,7 @@ bool_t prt_request_terminate( Uint16 iprt )
 {
     if( !ACTIVE_PRT(iprt) ) return bfalse;
 
-    EGO_OBJECT_TERMINATE( PrtList.lst + iprt );
+    EGO_OBJECT_REQUST_TERMINATE( PrtList.lst + iprt );
 
     return btrue;
 }

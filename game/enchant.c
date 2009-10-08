@@ -42,7 +42,7 @@ DECLARE_LIST ( ACCESS_TYPE_NONE, enc_t, EncList );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static void enc_init( enc_t * penc );
+static enc_t * enc_init( enc_t * penc );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -227,6 +227,8 @@ bool_t remove_enchant( Uint16 ienc )
             }
         }
     }
+
+    EGO_OBJECT_TERMINATE( penc );
 
     EncList_free_one( ienc );
 
@@ -589,11 +591,19 @@ void add_enchant_value( Uint16 ienc, Uint8 valueindex, Uint16 ieve )
 }
 
 //--------------------------------------------------------------------------------------------
-void enc_init( enc_t * penc )
+enc_t * enc_init( enc_t * penc )
 {
-    if( NULL == penc ) return;
+    ego_object_base_t save_base;
+
+    if( NULL == penc ) return penc;
+
+    // save the base object data
+    memcpy( &save_base, OBJ_GET_PBASE( penc ), sizeof(ego_object_base_t) );
 
     memset( penc, 0, sizeof(enc_t) );
+
+    // restore the base object data
+    memcpy( OBJ_GET_PBASE( penc ), &save_base, sizeof(ego_object_base_t) );
 
     penc->profile_ref      = MAX_PROFILE;
     penc->eve_ref          = MAX_EVE;
@@ -605,6 +615,8 @@ void enc_init( enc_t * penc )
     penc->overlay_ref      = MAX_CHR;
 
     penc->nextenchant_ref      = MAX_ENC;
+
+    return penc;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -645,6 +657,11 @@ Uint16 enc_get_free( Uint16 override )
         {
             log_warning( "enc_get_free() - failed to allocate a new character\n" );
         }
+    }
+
+    if( MAX_ENC != ienc )
+    {
+        EGO_OBJECT_ALLOCATE( EncList.lst + ienc, ienc );
     }
 
     return ienc;
@@ -760,7 +777,7 @@ Uint16 spawn_one_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 en
     // Find an enchant index to use
     ienc = enc_get_free(enc_override);
 
-    if ( !VALID_ENC_RANGE(ienc) )
+    if ( !ALLOCATED_ENC(ienc) )
     {
         log_warning( "spawn_one_enchant() - could not allocate an enchant.\n" );
         return MAX_ENC;
@@ -771,7 +788,7 @@ Uint16 spawn_one_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 en
     enc_init( penc );
 
     // turn the enchant on here. you can't fail to spawn after this point.
-    EGO_OBJECT_ACTIVATE( penc, ienc, peve->name );
+    EGO_OBJECT_ACTIVATE( penc, peve->name );
 
     penc->target_ref       = ACTIVE_CHR(target)  ? target  : MAX_CHR;
     penc->owner_ref        = ACTIVE_CHR(owner)   ? owner   : MAX_CHR;
@@ -1270,7 +1287,7 @@ bool_t release_one_eve( Uint16 ieve )
 
     if(!peve->loaded) return btrue;
 
-    memset( peve, 0, sizeof(eve_t) );
+    eve_init( peve );
 
     return btrue;
 }
@@ -1459,11 +1476,12 @@ void cleanup_all_enchants()
         enc_t * penc;
         bool_t time_out;
 
-        if( EncList.lst[cnt].allocated ) continue;
+        // allow inactive (but not terminated) enchants to be cleaned up
+        if( !ALLOCATED_ENC(cnt) ) continue;
         penc = EncList.lst + cnt;
 
         time_out = (0 == penc->time);
-        if ( !penc->kill_me && !time_out ) continue;
+        if ( (ego_object_waiting != penc->obj_base.state) && !time_out ) continue;
 
         remove_enchant( cnt );
     }
@@ -1474,7 +1492,7 @@ bool_t enc_request_terminate( Uint16 ienc )
 {
     if( !ACTIVE_ENC(ienc) ) return bfalse;
 
-    EGO_OBJECT_TERMINATE( EncList.lst + ienc );
+    EGO_OBJECT_REQUST_TERMINATE( EncList.lst + ienc );
 
     return btrue;
 }

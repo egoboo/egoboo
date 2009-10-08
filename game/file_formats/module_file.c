@@ -77,7 +77,7 @@ mod_file_t * module_load_info( const char * szLoadName, mod_file_t * pmod )
     pmod->rtscontrol = fget_next_char( fileread );
 
     fget_next_string( fileread, pmod->rank, SDL_arraysize(pmod->rank) );
-    pmod->rank[RANKSIZE-1] = '\0';
+    pmod->rank[RANKSIZE-1] = CSTR_END;
     str_trim( pmod->rank );
 
     // Read the summary
@@ -85,7 +85,7 @@ mod_file_t * module_load_info( const char * szLoadName, mod_file_t * pmod )
     {
         // load hte string
         fget_next_string( fileread,  pmod->summary[cnt], SDL_arraysize(pmod->summary[cnt]) );
-        pmod->summary[cnt][SUMMARYSIZE-1] = '\0';
+        pmod->summary[cnt][SUMMARYSIZE-1] = CSTR_END;
 
         // remove the '_' characters
         str_decode( pmod->summary[cnt], SDL_arraysize(pmod->summary[cnt]), pmod->summary[cnt] );

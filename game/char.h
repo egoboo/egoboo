@@ -38,6 +38,8 @@
 #define ATK_BEHIND 0x8000
 #define ATK_LEFT   0xC000
 
+#define MAP_TURN_OFFSET 0x8000
+
 #define MAXXP      200000                        // Maximum experience
 #define MAXMONEY     9999                        // Maximum money
 
@@ -329,13 +331,14 @@ typedef struct s_chr_bumper_1 chr_bumper_1_t;
 //--------------------------------------------------------------------------------------------
 struct s_chr
 {
-    EGO_OBJECT_STUFF
+    ego_object_base_t obj_base;
 
     // character state
     ai_state_t     ai;              // ai data
     latch_t        latch;
 
     // character stats
+    STRING         name;
     Uint8          gender;          // Gender
 
     Uint8          lifecolor;       // Bar color
@@ -564,9 +567,13 @@ extern cap_t CapList[MAX_CAP];
 DEFINE_LIST_EXTERN(chr_t, ChrList, MAX_CHR );
 
 #define VALID_CHR_RANGE( ICHR ) ( ((ICHR) >= 0) && ((ICHR) < MAX_CHR) )
-#define ALLOCATED_CHR( ICHR )   ( VALID_CHR_RANGE( ICHR ) && ChrList.lst[ICHR].allocated )
-#define ACTIVE_CHR( ICHR )      ( ALLOCATED_CHR( ICHR ) && ChrList.lst[ICHR].active )
-#define INACTIVE_CHR( ICHR )    ( ALLOCATED_CHR( ICHR ) && !ChrList.lst[ICHR].active )
+#define ALLOCATED_CHR( ICHR )   ( VALID_CHR_RANGE( ICHR ) && ALLOCATED_OBJ ( &(ChrList.lst[ICHR].obj_base) ) )
+#define ACTIVE_CHR( ICHR )      ( VALID_CHR_RANGE( ICHR ) && ACTIVE_OBJ    ( &(ChrList.lst[ICHR].obj_base) ) )
+#define WAITING_CHR( ICHR )     ( VALID_CHR_RANGE( ICHR ) && WAITING_OBJ   ( &(ChrList.lst[ICHR].obj_base) ) )
+#define TERMINATED_CHR( ICHR )  ( VALID_CHR_RANGE( ICHR ) && TERMINATED_OBJ( &(ChrList.lst[ICHR].obj_base) ) )
+
+#define ACTIVE_PCHR( PCHR )     ( (NULL != (PCHR)) && VALID_CHR_RANGE( GET_INDEX( PCHR, MAX_CHR) ) && ACTIVE_OBJ( OBJ_GET_PBASE( (PCHR) ) ) )
+#define ALLOCATED_PCHR( PCHR )  ( (NULL != (PCHR)) && VALID_CHR_RANGE( GET_INDEX( PCHR, MAX_CHR) ) && ALLOCATED_OBJ( OBJ_GET_PBASE( (PCHR) ) ) )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

@@ -450,7 +450,7 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
     camera_make_matrix( pcam );
 
     pcam->turn_z_one = ( pcam->turn_z_rad ) / ( TWO_PI );
-    pcam->turn_z = ((Uint32)(pcam->turn_z_one * 0x10000)) & 0xFFFF;
+    pcam->turn_z     = CLIP_TO_16BITS( FLOAT_TO_FP16(pcam->turn_z_one) );
 }
 
 //--------------------------------------------------------------------------------------------

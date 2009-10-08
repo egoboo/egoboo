@@ -86,7 +86,7 @@ typedef struct s_prt_instance prt_instance_t;
 
 struct s_prt
 {
-    EGO_OBJECT_STUFF
+    ego_object_base_t obj_base;
 
     // profiles
     Uint16  pip_ref;                         // The part template
@@ -124,7 +124,8 @@ struct s_prt
     Uint16  imagemax;                        // End of image loop
     Uint16  imagestt;                        // Start of image loop
 
-    int     time;                            // Duration of particle
+    int     time_update;                     // Duration of particle
+    int     time_frame;                      // Duration of particle
     Uint16  spawntime;                       // Time until spawn
 
     Uint32  bumpsize;                        // Size of bumpers
@@ -156,9 +157,14 @@ extern Uint16           maxparticles;                              // max number
 DEFINE_LIST_EXTERN(prt_t, PrtList, TOTAL_MAX_PRT);
 
 #define VALID_PRT_RANGE( IPRT ) ( ((IPRT) >= 0) && ((IPRT) < maxparticles) && ((IPRT) < TOTAL_MAX_PRT) )
-#define ALLOCATED_PRT( IPRT )   ( VALID_PRT_RANGE( IPRT ) && PrtList.lst[IPRT].allocated )
-#define ACTIVE_PRT( IPRT )      ( ALLOCATED_PRT( IPRT ) && PrtList.lst[IPRT].active )
-#define INACTIVE_PRT( IPRT )    ( ALLOCATED_PRT( IPRT ) && !PrtList.lst[IPRT].active )
+#define ALLOCATED_PRT( IPRT )   ( VALID_PRT_RANGE( IPRT ) && ALLOCATED_OBJ ( &(PrtList.lst[IPRT].obj_base) ) )
+#define ACTIVE_PRT( IPRT )      ( VALID_PRT_RANGE( IPRT ) && ACTIVE_OBJ    ( &(PrtList.lst[IPRT].obj_base) ) )
+#define WAITING_PRT( IPRT )     ( VALID_PRT_RANGE( IPRT ) && WAITING_OBJ   ( &(PrtList.lst[IPRT].obj_base) ) )
+#define TERMINATED_PRT( IPRT )  ( VALID_PRT_RANGE( IPRT ) && TERMINATED_OBJ( &(PrtList.lst[IPRT].obj_base) ) )
+
+#define DISPLAY_PRT( IPRT )     ( ACTIVE_PRT(IPRT) || WAITING_PRT( IPRT ) )
+
+#define DISPLAY_PPRT( PPRT )     ( (NULL != (PPRT)) && VALID_PRT_RANGE(GET_INDEX(PPRT, TOTAL_MAX_PRT)) && (ACTIVE_OBJ(OBJ_GET_PBASE( (PPRT) )) || WAITING_OBJ( OBJ_GET_PBASE( (PPRT) ) )) )
 
 //--------------------------------------------------------------------------------------------
 // function prototypes
@@ -178,7 +184,7 @@ void move_all_particles( void );
 void cleanup_all_particles( void );
 
 void play_particle_sound( Uint16 particle, Sint8 sound );
-int get_free_particle( int force );
+int prt_get_free( int force );
 Uint16 spawn_one_particle( GLvector3 pos, Uint16 facing, Uint16 iprofile, Uint16 ipip,
                            Uint16 chr_attach, Uint16 vrt_offset, Uint8 team,
                            Uint16 chr_origin, Uint16 prt_origin, Uint16 multispawn, Uint16 oldtarget );

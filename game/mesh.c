@@ -792,7 +792,7 @@ void mesh_make_twist()
         map_twist_nrm[cnt].y = nrm[YY];
         map_twist_nrm[cnt].z = nrm[ZZ];
 
-        map_twist_x[cnt] = 0x10000 - vec_to_facing( nrm[2], nrm[1] );
+        map_twist_x[cnt] = (Uint16) (- vec_to_facing( nrm[2], nrm[1] ));
         map_twist_y[cnt] = vec_to_facing( nrm[2], nrm[0] );
 
         // this is about 5 degrees off of vertical

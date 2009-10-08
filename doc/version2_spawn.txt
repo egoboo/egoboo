@@ -1,0 +1,50 @@
+Egoboo has been upgraded to support a "version 2" of the spawn.txt files. The program will automatically upgrade existing version 1 files to version 2.
+
+Version 2 looks essentially the same as Version 1, but several fields are interpreted differently. Here is an example of a line from spawn.txt file (either version)
+
+	//         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
+	trog.obj : NONE      36   7.0  31.0 4.0  N   3   0   0   0   0   F   F   Trog 
+
+The first line is a comment, which are delimited by a "//" just as in c++. The second line lists a "name" for the object, a colon, and then various spawn data.
+
+The basic differences between version 1 and version 2 are these:
+
+1) in version 1, "trog.obj" has no meaning at all and is just there for the convenience of the level designer. In version 2, "trog.obj" tells the module loader to load an instance of the model "trog.obj". Being able to load an object by name is perfect for the global object database.
+
+There are several special names that are reserved. For instance, a typical spawn list 
+
+	//                 Name  Slot Xpos  Ypos  Zpos  Dir  Mon Skn Pas Con Lvl Stt Gho Team
+	import 0.obj   :   NONE    0  53.5  45.0  6.0   N    0   0   0   0   0   T   F   Good
+	  import 1.obj :   NONE    1  0.0   0.0   0.0   L    0   0   0   0   0   F   F   Null
+	  import 2.obj :   NONE    2  0.0   0.0   0.0   R    0   0   0   0   0   F   F   Null
+	  import 3.obj :   NONE    3  0.0   0.0   0.0   I    0   0   0   0   0   F   F   Null
+	  import 4.obj :   NONE    4  0.0   0.0   0.0   I    0   0   0   0   0   F   F   Null
+	  import 5.obj :   NONE    5  0.0   0.0   0.0   I    0   0   0   0   0   F   F   Null
+	  import 6.obj :   NONE    6  0.0   0.0   0.0   I    0   0   0   0   0   F   F   Null
+	  import 7.obj :   NONE    7  0.0   0.0   0.0   I    0   0   0   0   0   F   F   Null
+	  import 8.obj :   NONE    8  0.0   0.0   0.0   I    0   0   0   0   0   F   F   Null
+
+	
+
+2) in version 1, it is the slot that tells you which object to spawn. This required a lot of coordination between the spawn.txt file and the various data.txt files. It also creates some major headaches with the global object database, since it is basically necessary to assign each global object a unique slot number that can never be used by a different object. Yuck!
+
+In version 2, the "trog.obj" is *assigned* the slot number "36", no matter what slot number is listed in it's data.txt file.
+
+3) version 2 adds in the expansion :[DEFN] to define objects that have to be known to the module's data, but are not spawned at startup.  For instance
+
+	:[DEFN] mushroom.obj -1
+	:[DEFN] hooka_pipe.obj 66
+	:[DEFN] caterpillar.obj 67
+
+would define the object slots for various objects. By putting a -1 in the slot, you are specifying that the object definition should definitely be loaded, but you don't care about the slot number.  Using -1 for the slot would really be more useful for something like this
+
+	tree.obj:   NONE    -1  75.0   45.0   0.0   N    0   0  0   0   0   F   F   N
+	tree.obj:   NONE    -1  73.0   44.0   0.0   N    0   0  0   0   0   F   F   N
+	tree.obj:   NONE    -1  76.5   48.5   1.0   N    0   0  0   0   0   F   F   N
+	tree.obj:   NONE    -1  75.0   42.0   0.0   N    0   0  0   0   0   F   F   N
+	tree.obj:   NONE    -1  66.5   46.5   1.0   N    0   0  0   0   0   F   F   N
+	tree.obj:   NONE    -1  70.0   42.5   0.0   N    0   0  0   0   0   F   F   N
+	tree.obj:   NONE    -1  68.5   49.5   1.0   N    0   0  0   0   0   F   F   N
+	etc.
+
+where you honestly couldn't care which slot tree.obj is assigned to.  The slot number is basically assigned after all the specific slots are all loaded, then they are put into the spaces between the pre-defined slot numbers.  In the previous case, tree.obj will only be assigned to one slot and all other instances tree.obj will just use that slot number. In fact, whatever number you specify for the first instance of an object, that number will be used for all objects of that type.

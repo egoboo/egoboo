@@ -66,7 +66,7 @@ enum
 #define MAX_PIP_PER_PROFILE               13                                      // Max part*.txt per object
 
 // This stuff is for actions
-#define NOACTION            0xffff                     // Action not valid for this character
+#define NOACTION            0xFFFF                     // Action not valid for this character
 enum e_action
 {
     ACTION_DA = 0,         // DA - Dance ( Typical standing )

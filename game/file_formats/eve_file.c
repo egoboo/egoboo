@@ -36,14 +36,7 @@ eve_t * eve_init( eve_t * peve )
 
     memset( peve, 0, sizeof(eve_t) );
 
-    /* peve->contspawn_time = 0; */
-    /* peve->contspawn_amount = 0; */
-    /* peve->contspawn_facingadd = 0; */
-    /* peve->contspawn_pip = 0; */
     peve->endsoundindex = INVALID_SOUND;
-    /* peve->stayifnoowner = 0; */
-    /* peve->spawn_overlay = bfalse; */
-    /* peve->seekurse = bfalse; */
 
     return peve;
 }
@@ -337,7 +330,7 @@ bool_t save_one_enchant_file( const char* szLoadName, eve_t * peve )
     template_put_float( filetemp, filewrite, peve->addvalue[ADDDEXTERITY]    / 4.0f );
 
     // copy the template file to the next free output section
-    template_seek_free( filewrite, filetemp );
+    template_seek_free( filetemp, filewrite );
 
     if( peve->contspawn_amount > 0 )
     {
@@ -385,7 +378,7 @@ bool_t save_one_enchant_file( const char* szLoadName, eve_t * peve )
     }
 
     // dump the rest of the template file
-    template_flush( filewrite, filetemp );
+    template_flush( filetemp, filewrite );
 
     // All done ( finally )
     vfs_close( filewrite );

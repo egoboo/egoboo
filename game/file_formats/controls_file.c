@@ -27,6 +27,7 @@
 #include "log.h"
 
 #include "egoboo_fileutil.h"
+#include "egoboo_strutil.h"
 #include "egoboo_vfs.h"
 
 //--------------------------------------------------------------------------------------------
@@ -50,7 +51,7 @@ bool_t input_settings_load( const char *szFilename )
 {
     // ZZ> This function reads the controls.txt file
     vfs_FILE* fileread;
-    char currenttag[TAGSIZE];
+    char currenttag[TAGSIZE] = EMPTY_CSTR;
     int i, cnt;
 
     fileread = vfs_openRead( szFilename );

@@ -87,7 +87,7 @@
 #define CHR_MAX_COLLISIONS    512*16
 #define COLLISION_HASH_NODES (CHR_MAX_COLLISIONS*2)
 
-#define MAKE_HASH(AA,BB) ((((AA) * 0x0111 + 0x006E) + ((BB) * 0x0111 + 0x006E)) & 0xFF)
+#define MAKE_HASH(AA,BB) CLIP_TO_08BITS( ((AA) * 0x0111 + 0x006E) + ((BB) * 0x0111 + 0x006E) )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -151,7 +151,7 @@ bool_t  overrideslots      = bfalse;
 bool_t    screenshotkeyready = btrue;
 
 // End text
-char   endtext[MAXENDTEXT] = { '\0' };
+char   endtext[MAXENDTEXT] = EMPTY_CSTR;
 int    endtextwrite = 0;
 
 // Status displays
@@ -1576,7 +1576,7 @@ int do_game_proc_running( game_process_t * gproc )
                 console_mode = btrue;
                 console_done = bfalse;
                 keyb.buffer_count = 0;
-                keyb.buffer[0] = '\0';
+                keyb.buffer[0] = CSTR_END;
             }
 
             // NETWORK PORT
@@ -1903,7 +1903,7 @@ bool_t check_target( chr_t * psrc, Uint16 ichr_test, TARGET_TYPE target_type, bo
     chr_t * ptst;
 
     // Skip non-existing objects
-    if( NULL == psrc || !ACTIVE_CHR(psrc->index) ) return bfalse;
+    if( !ACTIVE_PCHR( psrc ) ) return bfalse;
 
     if( !ACTIVE_CHR(ichr_test) ) return bfalse;
     ptst = ChrList.lst + ichr_test;
@@ -1974,7 +1974,7 @@ Uint16 chr_find_target( chr_t * psrc, float max_dist2, TARGET_TYPE target_type, 
 
     if( TARGET_NONE == target_type ) return MAX_CHR;
 
-    if( NULL == psrc || !ACTIVE_CHR(psrc->index) ) return MAX_CHR;
+    if( !ACTIVE_PCHR( psrc ) ) return MAX_CHR;
 
     // set the line-of-sight source
     los_info.x0         = psrc->pos.x;
@@ -2096,17 +2096,19 @@ Uint16 terp_dir( Uint16 majordir, Uint16 minordir )
 
     // Align major direction with 0
     minordir -= majordir;
-    if ( minordir > 32768 )
+
+    if ( minordir > 0x8000 )
     {
         temp = 0xFFFF;
-        minordir = ( minordir + ( temp << 3 ) - temp ) >> 3;
-        minordir += majordir;
-        return minordir;
+    }
+    else
+    {
+        temp = 0;
     }
 
-    temp = 0;
-    minordir = ( minordir + ( temp << 3 ) - temp ) >> 3;
+    minordir  = ( minordir + ( temp << 3 ) - temp ) >> 3;
     minordir += majordir;
+
     return minordir;
 }
 
@@ -2119,17 +2121,19 @@ Uint16 terp_dir_fast( Uint16 majordir, Uint16 minordir )
 
     // Align major direction with 0
     minordir -= majordir;
-    if ( minordir > 32768 )
+
+    if ( minordir > 0x8000 )
     {
         temp = 0xFFFF;
-        minordir = ( minordir + ( temp << 1 ) - temp ) >> 1;
-        minordir += majordir;
-        return minordir;
+    }
+    else
+    {
+        temp = 0;
     }
 
-    temp = 0;
     minordir = ( minordir + ( temp << 1 ) - temp ) >> 1;
     minordir += majordir;
+
     return minordir;
 }
 
@@ -2259,24 +2263,32 @@ void do_weather_spawn_particles()
 
                     if ( ACTIVE_PRT(particle) )
                     {
+                        bool_t destroy_particle = bfalse;
+
                         if ( __prthitawall( particle ) )
                         {
-                            PrtList_free_one( particle );
+                            destroy_particle = btrue;
                         }
                         else if ( weather.over_water && !prt_is_over_water( particle ) )
                         {
-                            PrtList_free_one( particle );
+                            destroy_particle = btrue;
                         }
                         else
                         {
                             //Weather particles spawned at the edge of the map look ugly, so don't spawn them there
                             float xpos = PrtList.lst[particle].pos.x;
                             float ypos = PrtList.lst[particle].pos.y;
-                            if(      xpos < EDGE || xpos > PMesh->info.edge_x - EDGE) PrtList_free_one( particle );
-                            else if( ypos < EDGE || ypos > PMesh->info.edge_y - EDGE) PrtList_free_one( particle );
-                        }
-                    }
 
+                            if(      xpos < EDGE || xpos > PMesh->info.edge_x - EDGE) destroy_particle = btrue;
+                            else if( ypos < EDGE || ypos > PMesh->info.edge_y - EDGE) destroy_particle = btrue;
+                        }
+
+                        if( destroy_particle )
+                        {
+                            EGO_OBJECT_TERMINATE( PrtList.lst + particle );
+                            PrtList_free_one( particle );
+                        };
+                    }
                 }
             }
         }
@@ -2638,7 +2650,7 @@ void show_stat( Uint16 statindex )
 {
     // ZZ> This function shows the more specific stats for a character
     int character, level;
-    char gender[8];
+    char gender[8] = EMPTY_CSTR;
 
     if ( statindex < numstat )
     {
@@ -2742,7 +2754,7 @@ void show_armor( Uint16 statindex )
     debug_printf( "~Type: %s", ( pcap->skindressy & (1 << skinlevel) ) ? "Light Armor" : "Heavy Armor" );
 
     // jumps
-    tmps[0] = '\0';
+    tmps[0] = CSTR_END;
     switch ( pcap->jumpnumber )
     {
         case 0:  snprintf( tmps, SDL_arraysize( tmps), "None    (%i)", pchr->jumpnumberreset ); break;
@@ -3090,8 +3102,8 @@ bool_t attach_chr_to_platform( chr_t * pchr, chr_t * pplat )
     GLvector3 platform_up;
 
     // verify that we do not have two dud pointers
-    if( NULL == pchr  || !ACTIVE_CHR(pchr->index ) ) return bfalse;
-    if( NULL == pplat || !ACTIVE_CHR(pplat->index) ) return bfalse;
+    if( !ACTIVE_PCHR( pchr ) ) return bfalse;
+    if( !ACTIVE_PCHR( pplat ) ) return bfalse;
 
     pchr_cap = pro_get_pcap( pchr->iprofile );
     if( NULL == pchr_cap ) return bfalse;
@@ -3101,7 +3113,7 @@ bool_t attach_chr_to_platform( chr_t * pchr, chr_t * pplat )
     if( !pplat->platform ) return bfalse;
 
     // do the attachment
-    pchr->onwhichplatform = pplat->index;
+    pchr->onwhichplatform = GET_INDEX( pplat, MAX_CHR );
 
     // update the character's relationship to the ground
     pchr->enviro.level    = MAX( pchr->enviro.floor_level, pplat->pos.z + pplat->bump.height );
@@ -3128,7 +3140,7 @@ bool_t attach_chr_to_platform( chr_t * pchr, chr_t * pplat )
 
     // tell the platform that we bumped into it
     // this is necessary for key buttons to work properly, for instance
-    ai_state_set_bumplast( &(pplat->ai), pchr->index );
+    ai_state_set_bumplast( &(pplat->ai), GET_INDEX( pchr, MAX_CHR ) );
 
     return btrue;
 }
@@ -3465,8 +3477,8 @@ bool_t do_chr_platform_physics( chr_t * pitem, chr_t * pplat )
     Sint16 rot_a, rot_b;
     float lerp_z, vlerp_z;
 
-    if( NULL == pitem || !ACTIVE_CHR(pitem->index) ) return bfalse;
-    if( NULL == pplat || !ACTIVE_CHR(pplat->index) ) return bfalse;
+    if( !ACTIVE_PCHR( pitem ) ) return bfalse;
+    if( !ACTIVE_PCHR( pplat ) ) return bfalse;
 
     lerp_z = (pitem->pos.z - pitem->enviro.level) / PLATTOLERANCE;
     lerp_z = 1.0f - CLIP( lerp_z, 0.0f, 1.0f );
@@ -4022,7 +4034,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     ppip_b = PipStack.lst + ipip_b;
 
     // do not collide with the thing that you're attached to
-    if ( ichr_a == pprt_b->attachedto_ref ) return bfalse;
+    //if ( ichr_a == pprt_b->attachedto_ref ) return bfalse;
 
     xa = pchr_a->pos.x;
     ya = pchr_a->pos.y;
@@ -4299,7 +4311,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
             terminate_particle = bfalse;
             if ( prt_can_hit_chr )
             {
-                int actual_damage;
+                int actual_damage, max_damage;
 
                 retval = btrue;
 
@@ -4310,6 +4322,9 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
                 // so the only barier left is whether the character can be damaged this update
                 if ( 0 == pchr_a->damagetime )
                 {
+                    GLvector3 vdiff;
+                    float prt_mass, prt_ke;
+
                     // clean up the enchant list before doing anything
                     pchr_a->firstenchant = cleanup_enchant_list( pchr_a->firstenchant );
 
@@ -4347,13 +4362,14 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
                     }
 
                     // DAMFX_ARRO means that it only does damage when stuck to something, not when it hits?
+                    max_damage    = 0;
                     actual_damage = 0;
                     if( 0 == ( ppip_b->damfx&DAMFX_ARRO ) )
                     {
                         IPair loc_damage = pprt_b->damage;
 
                         direction = vec_to_facing( pprt_b->vel.x , pprt_b->vel.y );
-                        direction = pchr_a->turn_z - direction + 32768;
+                        direction = pchr_a->turn_z - direction + ATK_BEHIND;
 
                         // Apply intelligence/wisdom bonus damage for particles with the [IDAM] and [WDAM] expansions (Low ability gives penality)
                         // +2% bonus for every point of intelligence and/or wisdom above 14. Below 14 gives -2% instead!
@@ -4373,7 +4389,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
                             loc_damage.base *= 1.00f + percent;
                         }
 
-                        // Damage the character
+                        // handle vulnerabilities
                         if ( chr_has_vulnie( ichr_a, pprt_b->profile_ref ) )
                         {
                             loc_damage.base = (loc_damage.base << 1);
@@ -4381,6 +4397,9 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
 
                             pchr_a->ai.alert |= ALERTIF_HITVULNERABLE;
                         }
+                        max_damage = loc_damage.base + loc_damage.rand;
+
+                        // Damage the character
                         actual_damage = damage_character( ichr_a, direction, loc_damage, pprt_b->damagetype, pprt_b->team, pprt_b->owner_ref, ppip_b->damfx, bfalse );
 
                         // we're supposed to blank out the damage here so that swords and such don't
@@ -4388,17 +4407,36 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
                         pprt_b->damage = loc_damage;
                     }
 
-                    // Normal particle collision damage
-                    if ( (ABS(actual_damage) > 0) && ppip_b->allowpush && pchr_a->phys.weight != 0xFFFFFFFF )
+                    // determine an "effective mass" for the particle
                     {
-                        float factor;
-                        float prt_mass, prt_ke, prt_vel2;
-                        GLvector3 impulse;
+                        GLvector3 vtmp;
+                        float prt_vel2, vel_nrm;
 
-                        prt_vel2 = VDotProduct( pprt_b->vel, pprt_b->vel );
+                        //if( ACTIVE_CHR(pprt_b->attachedto_ref) )
+                        //{
+                        //    // just in case there is a problem with the pprt_b->pos calculation
+                        //    // for attached particles
+                        //    vtmp = VSub( pprt_b->pos, pprt_b->pos_old );
+                        //}
+                        //else
+                        //{
+                            vtmp = pprt_b->vel;
+                        //}
+                        vdiff = VSub( vtmp, pchr_a->vel );
+
+                        prt_vel2 = VDotProduct( vdiff, vdiff );
+
+                        vdiff = VNormalize( vdiff );
+                        vel_nrm = SQRT( MIN( 100.0f, prt_vel2 ) );
+                        vdiff.x *= vel_nrm;
+                        vdiff.y *= vel_nrm;
+                        vdiff.z *= vel_nrm;
+
+                        // make a minimum velocity (a maximum mass)
+                        prt_vel2 = MAX( 100.0f, prt_vel2 );
 
                         // get the "kinetic energy" from the damage
-                        prt_ke = 80.0f * actual_damage;
+                        prt_ke = 40.0f * ABS(max_damage);
 
                         // the faster the particle is going, the smaller the "mass" it
                         // needs to do the damage
@@ -4408,10 +4446,19 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
                             prt_mass = prt_ke / ( 0.5f * prt_vel2 );
                         }
                         prt_mass = MAX( 1.0f, prt_mass );
+                    }
+
+                    // Do the impulse to the object that was hit
+                    if ( ppip_b->allowpush  && pchr_a->phys.weight != 0xFFFFFFFF && 
+                        (ABS(actual_damage) > 0) && (ABS(max_damage) > 0) && 
+                        (ABS(vdiff.x) + ABS(vdiff.y) + ABS(vdiff.z) > 0.0f)  )
+                    {
+                        float factor;
+                        GLvector3 impulse;
 
                         // the faster the particle (the smaller the particle "mass" ), the bigger the
                         // kickback
-                        factor = 1.0f / (1.0f + pchr_a->phys.weight / prt_mass );
+                        factor = 1.0f / (1.0f + pchr_a->phys.weight / ABS(prt_mass) );
 
                         // modify it by the damage type
                         if( DAMAGE_CRUSH == pprt_b->damagetype )
@@ -4426,17 +4473,17 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
                         }
                         else
                         {
-                            // all other damage types are in th emiddle
+                            // all other damage types are in the middle
                             factor *= INV_SQRT_TWO;
                         }
 
                         // modify it by the the severity of the damage
                         // reduces the damage below actual_damage == pchr_a->lifemax
                         // and it doubles it if actual_damage is really huge
-                        factor *= 2.0f * (float)actual_damage / (float)(actual_damage + pchr_a->lifemax);
+                        factor *= 2.0f * (float)actual_damage / (float)(ABS(actual_damage) + pchr_a->lifemax);
 
                         // calculate the "impulse"
-                        impulse = VSub( pprt_b->vel, pchr_a->vel );
+                        impulse = vdiff;
                         impulse.x *= factor;
                         impulse.y *= factor;
                         impulse.z *= factor;
@@ -4445,9 +4492,50 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
                         pchr_a->phys.avel.x  += impulse.x;
                         pchr_a->phys.avel.y  += impulse.y;
                         pchr_a->phys.avel.z  += impulse.z;
+                    }
 
-                        // the particle has come to rest in the character
-                        pprt_b->vel = VSub( pchr_a->vel, impulse );
+                    // do the rebound impulse on the particle
+                    if( (ABS(max_damage) - ABS(actual_damage)) > 0 && ppip_b->allowpush )
+                    {
+                        float recoil;
+                        float factor;
+                        GLvector3 impulse;
+
+                        recoil = (float)(ABS(max_damage) - ABS(actual_damage)) / (float)ABS(max_damage);
+
+                        // calculate the "impulse"
+                        impulse = vdiff;
+                        impulse.x *= -recoil;
+                        impulse.y *= -recoil;
+                        impulse.z *= -recoil;
+
+                        if( ACTIVE_CHR(pprt_b->attachedto_ref) )
+                        {
+                            // transmit the force of the blow back to the character that is
+                            // holding the weapon
+                            if( ACTIVE_CHR( pprt_b->owner_ref ) )
+                            {
+                                chr_t * powner = ChrList.lst + pprt_b->owner_ref;
+
+                                factor = 1.0f;
+                                if( powner->phys.weight > 0 )
+                                {
+                                    factor = (float) MIN(prt_mass, 120.0f) / (float)powner->phys.weight;
+                                }
+                                factor = MIN(factor, 1.0f);
+
+                                powner->phys.avel.x += impulse.x * factor;
+                                powner->phys.avel.y += impulse.y * factor;
+                                powner->phys.avel.z += impulse.z * factor;
+                            }
+                        }
+                        else
+                        {
+                            // if 100% damage, then the particle comes to rest in the character
+                            pprt_b->vel.x += impulse.x;
+                            pprt_b->vel.y += impulse.y;
+                            pprt_b->vel.z += impulse.z;
+                        }
                     }
 
                     // Notify the attacker of a scored hit
@@ -4720,8 +4808,8 @@ void tilt_characters_to_terrain()
         }
         else
         {
-            ChrList.lst[cnt].map_turn_y = 32768;
-            ChrList.lst[cnt].map_turn_x = 32768;
+            ChrList.lst[cnt].map_turn_y = MAP_TURN_OFFSET;
+            ChrList.lst[cnt].map_turn_x = MAP_TURN_OFFSET;
         }
     }
 
@@ -4894,7 +4982,7 @@ int strlwr( char * str )
 {
     if( NULL == str ) return -1;
 
-    while( '\0' != *str )
+    while( CSTR_END != *str )
     {
         *str = tolower(*str);
         str++;
@@ -4924,7 +5012,7 @@ bool_t setup_characters_load_object( spawn_file_info_t * psp_info )
     strlwr( psp_info->spawn_coment );
 
     // do the loading
-    if( '\0' != psp_info->spawn_coment[0] )
+    if( CSTR_END != psp_info->spawn_coment[0] )
     {
         snprintf( filename, SDL_arraysize(filename), "basicdat" SLASH_STR "globalobjects" SLASH_STR "%s", psp_info->spawn_coment );
 
@@ -5309,6 +5397,9 @@ bool_t game_begin_module( const char * modname, Uint32 seed )
 
     // make sure the old game has been quit
     game_quit_module();
+
+
+    reset_timers();
 	
     // load all the in-game module data
     srand( seed );
@@ -5340,7 +5431,6 @@ bool_t game_begin_module( const char * modname, Uint32 seed )
 
     // initislize the timers as tha very last thing
     timeron = bfalse;
-    reset_timers();
 
     return btrue;
 }
@@ -5625,9 +5715,6 @@ bool_t add_chr_chr_interaction( Uint16 ichr_a, Uint16 ichr_b, co_data_t cdata[],
     // create a hash that is order-independent
     hashval = MAKE_HASH(ichr_a, ichr_b);
 
-    // just to make sure something stupid is not happening
-    assert( hashval == MAKE_HASH(ichr_b, ichr_a) );
-
     found = bfalse;
     count = chr_co_list->subcount[hashval];
     if ( count > 0)
@@ -5820,8 +5907,6 @@ bool_t detect_chr_prt_interaction( Uint16 ichr_a, Uint16 iprt_b )
     bool_t interact_z  = bfalse;
     bool_t interact_platform = bfalse;
 
-    float xa, ya, za;
-    float xb, yb, zb;
     float dxy, dx, dy, depth_z;
 
     chr_t * pchr_a;
@@ -5838,33 +5923,31 @@ bool_t detect_chr_prt_interaction( Uint16 ichr_a, Uint16 iprt_b )
     // reject characters that are hidden
     if ( pchr_a->is_hidden || pprt_b->is_hidden ) return bfalse;
 
-    xa = pchr_a->pos.x;
-    ya = pchr_a->pos.y;
-    za = pchr_a->pos.z;
-
-    xb = pprt_b->pos.x;
-    yb = pprt_b->pos.y;
-    zb = pprt_b->pos.z;
+    // particles don't "collide" with anything they are attached to.
+    // that only happes through doing bump particle damamge
+    if( ichr_a == pprt_b->attachedto_ref ) return bfalse;
 
     // don't interact if there is no interaction
     //if ( 0 == pchr_a->bump_1.size || 0 == pprt_b->bumpsize ) return bfalse;
 
     // First check absolute value diamond
-    dx = ABS( xa - xb );
-    dy = ABS( ya - yb );
+    dx = ABS( pchr_a->pos.x - pprt_b->pos.x );
+    dy = ABS( pchr_a->pos.y - pprt_b->pos.y );
     dxy = dx + dy;
 
-
     // estimate the horizontal interactions this frame
-    interact_x  = (dx  <= MIN(pchr_a->bump_1.size,    pprt_b->bumpsize   ));
-    interact_y  = (dy  <= MIN(pchr_a->bump_1.size,    pprt_b->bumpsize   ));
-    interact_xy = (dxy <= MIN(pchr_a->bump_1.sizebig, pprt_b->bumpsizebig));
+    interact_x  = (dx  <= (pchr_a->bump_1.size    + pprt_b->bumpsize   ));
+    interact_y  = (dy  <= (pchr_a->bump_1.size    + pprt_b->bumpsize   ));
+    interact_xy = (dxy <= (pchr_a->bump_1.sizebig + pprt_b->bumpsizebig));
 
     // estimate the vertical interactions this frame
-    depth_z = zb - (za + pchr_a->bump_1.height);
-    interact_platform = (depth_z > -PLATTOLERANCE && depth_z < PLATTOLERANCE );
+    depth_z = pprt_b->pos.z - (pchr_a->pos.z + pchr_a->bump_1.height);
+    if( depth_z > -PLATTOLERANCE && depth_z < PLATTOLERANCE )
+    {
+        interact_platform = ( pchr_a->platform && !ACTIVE_CHR(pprt_b->attachedto_ref) );
+    }
 
-    depth_z = MIN( za + pchr_a->bump_1.height, zb + pprt_b->bumpheight ) - MAX(za, zb - pprt_b->bumpheight);
+    depth_z = MIN( pchr_a->pos.z + pchr_a->chr_prt_cv.max_z, pprt_b->pos.z + pprt_b->bumpheight ) - MAX(pchr_a->pos.z + pchr_a->chr_prt_cv.min_z, pprt_b->pos.z - pprt_b->bumpheight);
     interact_z  = (depth_z > 0) || interact_platform;
 
     if ( !interact_x || !interact_y || !interact_xy || !interact_z ) return bfalse;
@@ -6018,7 +6101,7 @@ void expand_escape_codes( Uint16 ichr, script_state_t * pstate, char * src, char
     powner  = ((NULL == pai) || !ACTIVE_CHR(pai->owner )) ? pchr : ChrList.lst + pai->owner;
 
     cnt = 0;
-    while ( '\0' != *src && src < src_end && dst < dst_end )
+    while ( CSTR_END != *src && src < src_end && dst < dst_end )
     {
         if ( '%' == *src )
         {
@@ -6032,7 +6115,7 @@ void expand_escape_codes( Uint16 ichr, script_state_t * pstate, char * src, char
             ebuffer_end = szTmp + SDL_arraysize(szTmp) - 1;
 
             // make the excape buffer an empty string
-            *ebuffer = '\0';
+            *ebuffer = CSTR_END;
 
             switch ( *src )
             {
@@ -6256,7 +6339,7 @@ void expand_escape_codes( Uint16 ichr, script_state_t * pstate, char * src, char
                     break;
             }
 
-            if ( '\0' == *ebuffer )
+            if ( CSTR_END == *ebuffer )
             {
                 ebuffer     = szTmp;
                 ebuffer_end = szTmp + SDL_arraysize(szTmp);
@@ -6267,11 +6350,11 @@ void expand_escape_codes( Uint16 ichr, script_state_t * pstate, char * src, char
             if ( 0 == cnt && NULL != ebuffer )  *ebuffer = toupper( *ebuffer );
 
             // Copy the generated text
-            while ( '\0' != *ebuffer && ebuffer < ebuffer_end && dst < dst_end )
+            while ( CSTR_END != *ebuffer && ebuffer < ebuffer_end && dst < dst_end )
             {
                 *dst++ = *ebuffer++;
             }
-            *dst = '\0';
+            *dst = CSTR_END;
         }
         else
         {
@@ -6287,9 +6370,9 @@ void expand_escape_codes( Uint16 ichr, script_state_t * pstate, char * src, char
     // make sure the destination string is terminated
     if ( dst < dst_end )
     {
-        *dst = '\0';
+        *dst = CSTR_END;
     }
-    *dst_end = '\0';
+    *dst_end = CSTR_END;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -6484,7 +6567,7 @@ if ( distance < globestdistance )
 {
 angle = vec_to_facing( ChrList.lst[charb].pos.x - chrx , ChrList.lst[charb].pos.y - chry );
 angle = facing - angle;
-if ( angle < globestangle || angle > ( 0xFFFF - globestangle ) )
+if ( angle < globestangle || angle > ( 0x00010000 - globestangle ) )
 {
 returncode = btrue;
 globesttarget = charb;

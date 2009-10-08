@@ -48,7 +48,7 @@ static void draw_points( chr_t * pchr, int vrt_offset, int verts );
 static void _draw_one_grip_raw( chr_instance_t * pinst, mad_t * pmad, int slot );
 static void draw_one_grip( chr_instance_t * pinst, mad_t * pmad, int slot );
 static void chr_draw_grips( chr_t * pchr );
-static void chr_draw_arrached_grip( chr_t * pchr );
+static void chr_draw_attached_grip( chr_t * pchr );
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -509,7 +509,7 @@ void render_one_mad( Uint16 character, Uint8 trans )
     // the grips and vertrices of all objects
     if ( cfg.dev_mode && SDLKEYDOWN( SDLK_F6 ) )
     {
-		chr_draw_arrached_grip( pchr );
+		chr_draw_attached_grip( pchr );
 
 		// draw all the vertices of an object
 		GL_DEBUG( glPointSize( 5 ) );
@@ -518,7 +518,7 @@ void render_one_mad( Uint16 character, Uint8 trans )
 
 #if defined(USE_DEBUG)
     // the grips of all objects
-    //chr_draw_arrached_grip( pchr );
+    //chr_draw_attached_grip( pchr );
 
     // draw all the vertices of an object
     //GL_DEBUG( glPointSize( 5 ) );
@@ -969,9 +969,9 @@ void draw_points( chr_t * pchr, int vrt_offset, int verts )
     int vmin, vmax, cnt;
     GLboolean texture_1d_enabled, texture_2d_enabled;
 
-    if( NULL == pchr || !ACTIVE_CHR(pchr->index) ) return;
+    if( !ACTIVE_PCHR( pchr ) ) return;
 
-    pmad = chr_get_pmad( pchr->index );
+    pmad = chr_get_pmad( GET_INDEX( pchr, MAX_CHR ) );
     if( NULL == pmad ) return;
 
     vmin = vrt_offset;
@@ -1086,13 +1086,13 @@ void _draw_one_grip_raw( chr_instance_t * pinst, mad_t * pmad, int slot )
 }
 
 //--------------------------------------------------------------------------------------------
-void chr_draw_arrached_grip( chr_t * pchr )
+void chr_draw_attached_grip( chr_t * pchr )
 {
     mad_t * pholder_mad;
     cap_t * pholder_cap;
     chr_t * pholder;
 
-    if( NULL == pchr || !ACTIVE_CHR(pchr->index) ) return;
+    if( !ACTIVE_PCHR( pchr ) ) return;
 
     if( !ACTIVE_CHR(pchr->attachedto) ) return;
     pholder = ChrList.lst + pchr->attachedto;
@@ -1100,7 +1100,7 @@ void chr_draw_arrached_grip( chr_t * pchr )
     pholder_cap = pro_get_pcap( pholder->iprofile );
     if( NULL == pholder_cap ) return;
 
-    pholder_mad = chr_get_pmad( pholder->index );
+    pholder_mad = chr_get_pmad( GET_INDEX( pholder, MAX_CHR ) );
     if( NULL == pholder_mad ) return;
 
     draw_one_grip( &(pholder->inst), pholder_mad, pchr->inwhich_slot );
@@ -1115,12 +1115,12 @@ void chr_draw_grips( chr_t * pchr )
     int slot;
     GLboolean texture_1d_enabled, texture_2d_enabled;
 
-    if( NULL == pchr || !ACTIVE_CHR(pchr->index) ) return;
+    if( !ACTIVE_PCHR( pchr ) ) return;
 
     pcap = pro_get_pcap( pchr->iprofile );
     if( NULL == pcap ) return;
 
-    pmad = chr_get_pmad( pchr->index );
+    pmad = chr_get_pmad( GET_INDEX( pchr, MAX_CHR ) );
     if( NULL == pmad ) return;
 
     texture_1d_enabled = GL_DEBUG(glIsEnabled)(GL_TEXTURE_1D);

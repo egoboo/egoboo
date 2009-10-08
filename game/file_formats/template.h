@@ -30,8 +30,8 @@
 vfs_FILE* template_open( const char * filename );
 int       template_close( vfs_FILE* filetemp );
 
-bool_t    template_seek_free( vfs_FILE* filewrite, vfs_FILE* filetemp );
-void      template_flush( vfs_FILE* filewrite, vfs_FILE* filetemp );
+bool_t    template_seek_free( vfs_FILE* filetemp, vfs_FILE* filewrite );
+void      template_flush( vfs_FILE* filetemp, vfs_FILE* filewrite );
 
 void template_put_char           ( vfs_FILE* filetemp, vfs_FILE* filewrite, char cval );
 void template_put_int            ( vfs_FILE* filetemp, vfs_FILE* filewrite, int ival );
@@ -41,6 +41,7 @@ void template_put_damage_type    ( vfs_FILE* filetemp, vfs_FILE* filewrite, Uint
 void template_put_action         ( vfs_FILE* filetemp, vfs_FILE* filewrite, Uint8 action );
 void template_put_gender         ( vfs_FILE* filetemp, vfs_FILE* filewrite, Uint8 gender );
 void template_put_pair           ( vfs_FILE* filetemp, vfs_FILE* filewrite, IPair val );
+void template_put_range          ( vfs_FILE* filetemp, vfs_FILE* filewrite, FRange val );
 void template_put_string_under   ( vfs_FILE* filetemp, vfs_FILE* filewrite, const char* usename );
 void template_put_idsz           ( vfs_FILE* filetemp, vfs_FILE* filewrite, IDSZ idsz );
 void template_put_damage_modifier( vfs_FILE* filetemp, vfs_FILE* filewrite, Uint8 mod );

@@ -162,31 +162,6 @@ void ints_to_range( int base, int rand, FRange * prange );
 void floats_to_pair( float vmin, float vmax, IPair * ppair );
 
 //--------------------------------------------------------------------------------------------
-// some basic data that all egoboo objects should have
-#define  EGO_OBJECT_STUFF \
-    STRING         name;      /* what is its "name" */ \
-    int            index;     /* what is the index position in the object list? */ \
-    bool_t         allocated; /* Does it exist? */ \
-    bool_t         active;    /* If not active, then it is not valid */ \
-    bool_t         kill_me;   /* Does it need to be deleted? */ \
-
-#define EGO_OBJECT_ACTIVATE( PDATA, INDEX, NAME ) \
-    if( NULL != PDATA ) \
-    { \
-        strncpy( (PDATA)->name, NAME, SDL_arraysize((PDATA)->name) ); \
-        (PDATA)->index     = INDEX; \
-        (PDATA)->allocated = btrue; \
-        (PDATA)->active    = btrue; \
-    }
-
-#define EGO_OBJECT_TERMINATE( PDATA ) \
-    if( NULL != PDATA ) \
-    { \
-        (PDATA)->kill_me = btrue; \
-        (PDATA)->active  = bfalse; \
-    }
-
-//--------------------------------------------------------------------------------------------
 // some basic data that all egoboo profiles should have
 #define  EGO_PROFILE_STUFF \
     bool_t         loaded;      /* Does it exist? */ \
@@ -227,6 +202,16 @@ typedef char STRING[256];
 // "fast" multiplication for the case where 0xFF == 1.00
 #define FF_MUL(XX, YY)     ( ( 0 == (XX) || 0 == (YY) ) ? 0 : ( ( ((XX)+1) * ((YY)+1) ) >> 8 ) )
 #define FF_TO_FLOAT( XX )  ( (float)(XX) * INV_FF )
+
+#define FFFF_TO_FLOAT( XX )  ( (float)(XX) * INV_FFFF )
+#define FLOAT_TO_FFFF( XX )  ( ((XX) * 0xFFFF) )
+
+#define FLOAT_TO_FP16( XX )  ( (Uint32)((XX) * 0x00010000) )
+
+#define CLIP_TO_08BITS( XX )  ( (XX) & 0xFF       )
+#define CLIP_TO_16BITS( XX )  ( (XX) & 0xFFFF     )
+#define CLIP_TO_24BITS( XX )  ( (XX) & 0xFFFFFF   )
+#define CLIP_TO_32BITS( XX )  ( (XX) & 0xFFFFFFFF )
 
 //--------------------------------------------------------------------------------------------
 // AI targeting
@@ -310,6 +295,64 @@ typedef struct s_latch latch_t;
 
 void latch_init( latch_t * platch );
 
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+// some basic data that all egoboo objects should have
+
+enum e_ego_object_state
+{
+    ego_object_invalid = 0,
+    ego_object_pre_active,               // in the process of being activated
+    ego_object_active,                   // fully activated
+    ego_object_waiting,                  // waiting to be terminated
+    ego_object_terminated                // fully terminated
+};
+
+struct s_ego_object_base
+{
+    STRING         _name;      // what is its "_name"
+    int            index;     // what is the index position in the object list?
+    bool_t         allocated; // Does it exist?
+    int            state;     // what state is it in?
+};
+
+typedef struct s_ego_object_base ego_object_base_t;
+
+#define EGO_OBJECT_ALLOCATE( PDATA, INDEX ) \
+    if( NULL != PDATA ) \
+    { \
+        (PDATA)->obj_base.allocated = btrue; \
+        (PDATA)->obj_base.index     = INDEX; \
+        (PDATA)->obj_base.state     = ego_object_pre_active; \
+    }
+
+#define EGO_OBJECT_ACTIVATE( PDATA, NAME ) \
+    if( NULL != PDATA && (PDATA)->obj_base.allocated ) \
+    { \
+        strncpy( (PDATA)->obj_base._name, NAME, SDL_arraysize((PDATA)->obj_base._name) ); \
+        (PDATA)->obj_base.state  = ego_object_active; \
+    }
+
+#define EGO_OBJECT_REQUST_TERMINATE( PDATA ) \
+    if( NULL != PDATA && (PDATA)->obj_base.allocated ) \
+    { \
+        (PDATA)->obj_base.state = ego_object_waiting; \
+    }
+
+#define EGO_OBJECT_TERMINATE( PDATA ) \
+    if( NULL != PDATA && (PDATA)->obj_base.allocated ) \
+    { \
+        (PDATA)->obj_base.allocated = bfalse; \
+        (PDATA)->obj_base.state     = ego_object_terminated; \
+    }
+
+#define ALLOCATED_OBJ( POBJ )   ( (NULL != (POBJ)) && ( (POBJ)->allocated ) && (ego_object_invalid != (POBJ)->state) )
+#define ACTIVE_OBJ( POBJ )      ( ALLOCATED_OBJ( POBJ ) && (ego_object_active == (POBJ)->state) )
+#define WAITING_OBJ( POBJ )     ( ALLOCATED_OBJ( POBJ ) && (ego_object_waiting == (POBJ)->state) )
+#define TERMINATED_OBJ( POBJ )  ( (NULL != (POBJ)) && (ego_object_terminated == (POBJ)->state) )
+
+#define OBJ_GET_PBASE( PBLAH )          ( (NULL == (PBLAH)) ? NULL : &((PBLAH)->obj_base) )
+#define GET_INDEX( PBLAH, FAIL_VALUE )  ( (NULL == (PBLAH) || !ALLOCATED_OBJ( OBJ_GET_PBASE( (PBLAH) ) ) ) ? FAIL_VALUE : (PBLAH)->obj_base.index )
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 #define Egoboo_egobootypedef_h

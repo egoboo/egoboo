@@ -33,7 +33,7 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static STRING _config_filename = { '\0' };
+static STRING _config_filename = EMPTY_CSTR;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -68,7 +68,7 @@ static STRING _config_filename = { '\0' };
             strncpy( lTempStr, (default), SDL_arraysize( lTempStr ) ); \
         } \
         strncpy( (var), lTempStr, (len) ); \
-        (var)[(len) - 1] = '\0'; \
+        (var)[(len) - 1] = CSTR_END; \
     }
 
 #define SetKey_bool(label, var)     ConfigFile_SetValue_Boolean( lConfigSetup, lCurSectionName, (label), (var) )

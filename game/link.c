@@ -105,7 +105,7 @@ bool_t link_follow_modname( const char * modname, bool_t push_current_module )
     }
     else
     {
-        pickedmodule_name[0] = '\0';
+        pickedmodule_name[0] = CSTR_END;
         pickedmodule_index = mnu_get_mod_number(modname);
         if ( -1 != pickedmodule_index )
         {

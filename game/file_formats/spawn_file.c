@@ -53,7 +53,7 @@ bool_t spawn_file_scan( vfs_FILE * fileread, spawn_file_info_t *pinfo )
 
     // check for another entry, either the "#" or ":" delimiters
     delim = goto_delimiter_list( pinfo->spawn_coment, fileread, "#:", btrue );
-    if ( '\0' == delim ) return bfalse;
+    if ( CSTR_END == delim ) return bfalse;
 
     retval = bfalse;
     if( ':' == delim )

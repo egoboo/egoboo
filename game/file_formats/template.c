@@ -44,11 +44,17 @@ char * template_dump_buffer( vfs_FILE * outfile, char * buffer_beg, char * buffe
 
     char * ptmp;
 
+    if( NULL == outfile          ) return buffer_beg;
+    if( INVALID_CSTR(buffer_beg) ) return buffer_beg;
+    if( buffer_beg == pcarat     ) return buffer_beg;
+
     ptmp = buffer_beg;
     while( ptmp < pcarat && ptmp < buffer_end )
     {
         vfs_putc( *ptmp++, outfile );
     }
+
+    vfs_flush( outfile );
 
     return buffer_beg;
 }
@@ -69,7 +75,7 @@ bool_t template_seek_marker( vfs_FILE * tempfile, const char * marker_str )
         if( cTmp == *pmark )
         {
             pmark++;
-            if( '\0' == *pmark )
+            if( CSTR_END == *pmark )
             {
                 found = btrue;
                 break;
@@ -93,7 +99,13 @@ bool_t template_copy_to_marker( vfs_FILE * tempfile, vfs_FILE * outfile, const c
 
     // the buffer only has to be longer than marker_str, which should
     // never be any longer than 2 characters
-    char buffer[256], * pcarat, * buffer_end = buffer + 255;
+    char   buffer[256] = EMPTY_CSTR;
+    char * pcarat, * buffer_end = buffer + 255;
+
+    if( vfs_eof( tempfile ) )
+    {
+        return bfalse;
+    }
 
     found  = bfalse;
     pmark  = marker_str;
@@ -105,9 +117,17 @@ bool_t template_copy_to_marker( vfs_FILE * tempfile, vfs_FILE * outfile, const c
         {
             *pcarat++ = cTmp;
             pmark++;
-            if( '\0' == *pmark )
+            if( CSTR_END == *pmark )
             {
                 found = btrue;
+
+                // reset the buffer
+                pcarat  = buffer;
+                *pcarat = CSTR_END;
+
+                // reset the marker string
+                pmark = marker_str;
+
                 break;
             }
         }
@@ -118,11 +138,15 @@ bool_t template_copy_to_marker( vfs_FILE * tempfile, vfs_FILE * outfile, const c
 
             // copy any stored values to the output file
             pcarat = template_dump_buffer( outfile, buffer, buffer_end, pcarat );
+
+            vfs_putc( cTmp, outfile );
         }
     }
 
     // dump any buffer that remains
     template_dump_buffer( outfile, buffer, buffer_end, pcarat );
+
+    vfs_flush( outfile );
 
     return found;
 }
@@ -130,9 +154,15 @@ bool_t template_copy_to_marker( vfs_FILE * tempfile, vfs_FILE * outfile, const c
 //--------------------------------------------------------------------------------------------
 void template_copy_to_eof( vfs_FILE * tempfile, vfs_FILE * outfile )
 {
+    int ctmp;
+
+    if( vfs_eof( tempfile ) ) return;
+
+    ctmp = vfs_getc( tempfile );
     while( !vfs_eof( tempfile )  )
     {
-        vfs_putc( vfs_getc( tempfile ), outfile );
+        vfs_putc( ctmp, outfile );
+        ctmp = vfs_getc( tempfile );
     }
 }
 
@@ -152,20 +182,20 @@ int template_close( vfs_FILE* filetemp )
 //--------------------------------------------------------------------------------------------
 bool_t template_seek_free( vfs_FILE* filetemp, vfs_FILE* filewrite )
 {
-    return template_copy_to_marker( filewrite, filetemp, "##" );
+    return template_copy_to_marker( filetemp, filewrite, "##" );
 }
 
 //--------------------------------------------------------------------------------------------
 void template_flush( vfs_FILE* filetemp, vfs_FILE* filewrite )
 {
-    template_copy_to_eof( filewrite, filetemp );
+    template_copy_to_eof( filetemp, filewrite );
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 void template_put_char ( vfs_FILE* filetemp, vfs_FILE* filewrite, char cval )
 {
-    if( template_copy_to_marker( filewrite, filetemp, "#" ) )
+    if( template_copy_to_marker( filetemp, filewrite, "#%" ) )
     {
         vfs_putc( cval, filewrite );
     }
@@ -174,7 +204,7 @@ void template_put_char ( vfs_FILE* filetemp, vfs_FILE* filewrite, char cval )
 //--------------------------------------------------------------------------------------------
 void template_put_int( vfs_FILE* filetemp, vfs_FILE* filewrite, int ival )
 {
-    if( template_copy_to_marker( filewrite, filetemp, "#" ) )
+    if( template_copy_to_marker( filetemp, filewrite, "#%" ) )
     {
         vfs_printf( filewrite, "%d", ival );
     }
@@ -183,7 +213,7 @@ void template_put_int( vfs_FILE* filetemp, vfs_FILE* filewrite, int ival )
 //--------------------------------------------------------------------------------------------
 void template_put_float( vfs_FILE* filetemp, vfs_FILE* filewrite, float fval )
 {
-    if( template_copy_to_marker( filewrite, filetemp, "#" ) )
+    if( template_copy_to_marker( filetemp, filewrite, "#%" ) )
     {
         vfs_printf( filewrite, "%f", fval );
     }
@@ -192,7 +222,7 @@ void template_put_float( vfs_FILE* filetemp, vfs_FILE* filewrite, float fval )
 //--------------------------------------------------------------------------------------------
 void template_put_bool( vfs_FILE* filetemp, vfs_FILE* filewrite, bool_t truth )
 {
-    if( template_copy_to_marker( filewrite, filetemp, "#" ) )
+    if( template_copy_to_marker( filetemp, filewrite, "#%" ) )
     {
         vfs_printf( filewrite, truth ? "TRUE" : "FALSE" );
     }
@@ -201,7 +231,7 @@ void template_put_bool( vfs_FILE* filetemp, vfs_FILE* filewrite, bool_t truth )
 //--------------------------------------------------------------------------------------------
 void template_put_damage_type ( vfs_FILE* filetemp, vfs_FILE* filewrite, Uint8 damagetype )
 {
-    if( template_copy_to_marker( filewrite, filetemp, "#" ) )
+    if( template_copy_to_marker( filetemp, filewrite, "#%" ) )
     {
         switch( damagetype )
         {
@@ -223,7 +253,7 @@ void template_put_damage_type ( vfs_FILE* filetemp, vfs_FILE* filewrite, Uint8 d
 //--------------------------------------------------------------------------------------------
 void template_put_action( vfs_FILE* filetemp, vfs_FILE* filewrite, Uint8 action )
 {
-    if( template_copy_to_marker( filewrite, filetemp, "#" ) )
+    if( template_copy_to_marker( filetemp, filewrite, "#%" ) )
     {
         switch ( action )
         {
@@ -249,7 +279,7 @@ void template_put_action( vfs_FILE* filetemp, vfs_FILE* filewrite, Uint8 action 
 //--------------------------------------------------------------------------------------------
 void template_put_gender( vfs_FILE* filetemp, vfs_FILE* filewrite, Uint8 gender )
 {
-    if( template_copy_to_marker( filewrite, filetemp, "#" ) )
+    if( template_copy_to_marker( filetemp, filewrite, "#%" ) )
     {
         switch( gender )
         {
@@ -264,7 +294,7 @@ void template_put_gender( vfs_FILE* filetemp, vfs_FILE* filewrite, Uint8 gender 
 //--------------------------------------------------------------------------------------------
 void template_put_pair( vfs_FILE* filetemp, vfs_FILE* filewrite, IPair val )
 {
-    if( template_copy_to_marker( filewrite, filetemp, "#" ) )
+    if( template_copy_to_marker( filetemp, filewrite, "#%" ) )
     {
         FRange loc_range;
         pair_to_range( val, &loc_range);
@@ -274,9 +304,18 @@ void template_put_pair( vfs_FILE* filetemp, vfs_FILE* filewrite, IPair val )
 }
 
 //--------------------------------------------------------------------------------------------
+void template_put_range ( vfs_FILE* filetemp, vfs_FILE* filewrite, FRange val )
+{
+    if( template_copy_to_marker( filetemp, filewrite, "#%" ) )
+    {
+        fput_range_raw( filewrite, val );
+    }
+}
+
+//--------------------------------------------------------------------------------------------
 void template_put_string_under( vfs_FILE* filetemp, vfs_FILE* filewrite, const char* usename )
 {
-    if( template_copy_to_marker( filewrite, filetemp, "#" ) )
+    if( template_copy_to_marker( filetemp, filewrite, "#%" ) )
     {
         STRING tmp_str;
 
@@ -289,7 +328,7 @@ void template_put_string_under( vfs_FILE* filetemp, vfs_FILE* filewrite, const c
 //--------------------------------------------------------------------------------------------
 void template_put_idsz( vfs_FILE* filetemp, vfs_FILE* filewrite, IDSZ idsz )
 {
-    if( template_copy_to_marker( filewrite, filetemp, "#" ) )
+    if( template_copy_to_marker( filetemp, filewrite, "#%" ) )
     {
         vfs_printf( filewrite, "[%s]", undo_idsz(idsz) );
     }
@@ -301,7 +340,7 @@ void template_put_damage_modifier( vfs_FILE* filetemp, vfs_FILE* filewrite, Uint
     // this eats two '#'s in the template file
 
     // put the mod bits
-    if( template_copy_to_marker( filewrite, filetemp, "#" ) )
+    if( template_copy_to_marker( filetemp, filewrite, "#%" ) )
     {
         if ( 0 != (mod & DAMAGEINVERT) )
         {

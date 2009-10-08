@@ -71,7 +71,7 @@
 #define FUNCTION_BEGIN() \
     Uint16 sTmp = 0; \
     Uint8 returncode = btrue; \
-    if( NULL == pchr || !ACTIVE_CHR(pchr->index) ) return bfalse;
+    if( !ACTIVE_PCHR( pchr ) ) return bfalse;
 
 #define FUNCTION_END() \
     return returncode;
@@ -451,9 +451,9 @@ Uint8 scr_FindPath( script_state_t * pstate, ai_state_t * pself )
         if ( pstate->distance == MOVE_RETREAT )
         {
             // flip around to the other direction and add in some randomness
-            pstate->turn += 32768 + generate_randmask( -8192, 16383 );
+            pstate->turn += ATK_BEHIND + generate_randmask( -8192, 16383 );
         }
-        pstate->turn &= 0xFFFF;
+        pstate->turn = CLIP_TO_16BITS( pstate->turn );
 
         if ( pstate->distance == MOVE_CHARGE || pstate->distance == MOVE_RETREAT )
         {
@@ -1641,12 +1641,12 @@ Uint8 scr_SpawnCharacter( script_state_t * pstate, ai_state_t * pself )
     pos.y = pstate->y;
     pos.z = 0;
 
-    sTmp = spawn_one_character( pos, pchr->iprofile, pchr->team, 0, pstate->turn & 0xFFFF, NULL, MAX_CHR );
+    sTmp = spawn_one_character( pos, pchr->iprofile, pchr->team, 0, CLIP_TO_16BITS( pstate->turn ), NULL, MAX_CHR );
     if( !ACTIVE_CHR(sTmp) )
     {
         if ( sTmp > PMod->importamount * MAXIMPORTPERPLAYER )
         {
-            log_warning( "Object %s failed to spawn ac copy of itself\n", pchr->name );
+            log_warning( "Object %s failed to spawn a copy of itself\n", pchr->name );
         }
     }
     else
@@ -2226,7 +2226,7 @@ Uint8 scr_TranslateOrder( script_state_t * pstate, ai_state_t * pself )
     // This function gets the order and sets tmpx, tmpy, tmpargument and the
     // target ( if valid )
 
-    sTmp = ( pself->order_value >> 24 ) & 0xFFFF;
+    sTmp = CLIP_TO_16BITS( pself->order_value >> 24 );
     if ( ACTIVE_CHR(sTmp) )
     {
         pself->target = sTmp;
@@ -3957,7 +3957,7 @@ Uint8 scr_BreakPassage( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = _break_passage( pstate->x, pstate->y, pstate->distance, pstate->turn & 0xFFFF, pstate->argument, &(pstate->x), &(pstate->y) );
+    returncode = _break_passage( pstate->x, pstate->y, pstate->distance, CLIP_TO_16BITS( pstate->turn ), pstate->argument, &(pstate->x), &(pstate->y) );
 
     SCRIPT_FUNCTION_END();
 }
@@ -4251,7 +4251,7 @@ Uint8 scr_SpawnAttachedFacedParticle( script_state_t * pstate, ai_state_t * psel
         sTmp = pchr->attachedto;
     }
 
-    tTmp = spawn_one_particle( pchr->pos, pstate->turn & 0xFFFF, pchr->iprofile, pstate->argument, pself->index, pstate->distance, pchr->team, sTmp, TOTAL_MAX_PRT, 0, MAX_CHR );
+    tTmp = spawn_one_particle( pchr->pos, CLIP_TO_16BITS( pstate->turn ), pchr->iprofile, pstate->argument, pself->index, pstate->distance, pchr->team, sTmp, TOTAL_MAX_PRT, 0, MAX_CHR );
 
     returncode = ACTIVE_PRT(tTmp);
 
@@ -4840,7 +4840,7 @@ Uint8 scr_get_TileXY( script_state_t * pstate, ai_state_t * pself )
     if ( VALID_TILE(PMesh, iTmp) )
     {
         returncode = btrue;
-        pstate->argument = PMesh->mmem.tile_list[iTmp].img & 0xFF;
+        pstate->argument = CLIP_TO_08BITS( PMesh->mmem.tile_list[iTmp].img );
     }
 
     SCRIPT_FUNCTION_END();
@@ -4980,13 +4980,13 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
     pos.y = pstate->y;
     pos.z = pstate->distance;
 
-    sTmp = spawn_one_character( pos, pchr->iprofile, pchr->team, 0, pstate->turn & 0xFFFF, NULL, MAX_CHR );
+    sTmp = spawn_one_character( pos, pchr->iprofile, pchr->team, 0, CLIP_TO_16BITS( pstate->turn ), NULL, MAX_CHR );
 
     if( !ACTIVE_CHR(sTmp) )
     {
         if ( sTmp > PMod->importamount * MAXIMPORTPERPLAYER )
         {
-            log_warning( "Object %s failed to spawn a copy of itself\n", pchr->name );
+            log_warning( "Object %s failed to spawn a copy of itself\n", pchr->obj_base._name );
         }
     }
     else
@@ -5030,14 +5030,14 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
     pos.y = pstate->y;
     pos.z = pstate->distance;
 
-    sTmp = spawn_one_character( pos, pstate->argument, pchr->team, 0, pstate->turn & 0xFFFF, NULL, MAX_CHR );
+    sTmp = spawn_one_character( pos, pstate->argument, pchr->team, 0, CLIP_TO_16BITS( pstate->turn ), NULL, MAX_CHR );
     if( !ACTIVE_CHR(sTmp) )
     {
         if ( sTmp > PMod->importamount * MAXIMPORTPERPLAYER )
         {
             cap_t * pcap = pro_get_pcap( pchr->iprofile );
 
-            log_warning( "Object \"%s\"(\"%s\") failed to spawn profile index %d\n", pchr->name, NULL == pcap ? "INVALID" : pcap->classname, pstate->argument );
+            log_warning( "Object \"%s\"(\"%s\") failed to spawn profile index %d\n", pchr->obj_base._name, NULL == pcap ? "INVALID" : pcap->classname, pstate->argument );
         }
     }
     else
@@ -5673,7 +5673,7 @@ Uint8 scr_ClearEndMessage( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    endtext[0] = '\0';
+    endtext[0] = CSTR_END;
     endtextwrite = 0;
 
     SCRIPT_FUNCTION_END();
@@ -5782,7 +5782,7 @@ Uint8 scr_FlashVariableHeight( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    flash_character_height( pself->index, pstate->turn & 0xFFFF, pstate->x, pstate->distance, pstate->y );
+    flash_character_height( pself->index, CLIP_TO_16BITS( pstate->turn ), pstate->x, pstate->distance, pstate->y );
 
     SCRIPT_FUNCTION_END();
 }
@@ -6731,7 +6731,7 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
         {
             cap_t * pcap = pro_get_pcap( pchr->iprofile );
 
-            log_warning( "Object \"%s\"(\"%s\") failed to spawn profile index %d\n", pchr->name, NULL == pcap ? "IVALID" : pcap->classname, pstate->argument );
+            log_warning( "Object \"%s\"(\"%s\") failed to spawn profile index %d\n", pchr->obj_base._name, NULL == pcap ? "IVALID" : pcap->classname, pstate->argument );
         }
     }
     else
@@ -7139,7 +7139,7 @@ Uint8 _break_passage( int meshxfor, int become, int frames, int starttile, int p
 
     if ( INVALID_PASSAGE( passage ) ) return bfalse;
 
-    endtile = (starttile & 0xFFFF) + frames - 1;
+    endtile = CLIP_TO_16BITS( starttile ) + frames - 1;
     useful = bfalse;
     for ( character = 0; character < MAX_CHR; character++ )
     {
@@ -7160,7 +7160,7 @@ Uint8 _break_passage( int meshxfor, int become, int frames, int starttile, int p
         if ( VALID_TILE(PMesh, fan) )
         {
             tile = PMesh->mmem.tile_list[fan].img;
-            if ( tile >= (starttile & 0xFFFF) && tile < endtile )
+            if ( tile >= CLIP_TO_16BITS(starttile) && tile < endtile )
             {
                 if ( object_is_in_passage( passage, pchr->pos.x, pchr->pos.y, pchr->bump.size ) )
                 {
@@ -7202,9 +7202,9 @@ Uint8 _append_end_text( chr_t * pchr, const int message, script_state_t * pstate
     if( !VALID_PRO(pchr->iprofile) ) return bfalse;
 
     message_offset = ProList.lst[pchr->iprofile].message_start + message;
-    ichr           = pchr->index;
+    ichr           = GET_INDEX( pchr, MAX_CHR );
 
-    //endtext[0] = '\0';
+    //endtext[0] = CSTR_END;
 
     if ( message_offset < MessageOffset.count )
     {
@@ -7223,7 +7223,7 @@ Uint8 _append_end_text( chr_t * pchr, const int message, script_state_t * pstate
 
         expand_escape_codes( ichr, pstate, src, src_end, dst, dst_end );
 
-        //*dst_end = '\0';
+        //*dst_end = CSTR_END;
     }
 
     str_add_linebreaks( endtext, strlen(endtext), 30 );
@@ -7260,7 +7260,7 @@ Uint8 _find_tile_in_passage( const int x0, const int y0, const int tiletype, con
 
             if ( VALID_TILE(PMesh, fan) )
             {
-                if ( (PMesh->mmem.tile_list[fan].img & 0xFF) == tiletype )
+                if ( CLIP_TO_08BITS( PMesh->mmem.tile_list[fan].img ) == tiletype )
                 {
                     *px1 = ( x << TILE_BITS ) + 64;
                     *py1 = ( y << TILE_BITS ) + 64;
@@ -7282,7 +7282,7 @@ Uint8 _find_tile_in_passage( const int x0, const int y0, const int tiletype, con
             if ( VALID_TILE(PMesh, fan) )
             {
 
-                if ( (PMesh->mmem.tile_list[fan].img & 0xFF) == tiletype )
+                if ( CLIP_TO_08BITS( PMesh->mmem.tile_list[fan].img ) == tiletype )
                 {
                     *px1 = ( x << TILE_BITS ) + 64;
                     *py1 = ( y << TILE_BITS ) + 64;
@@ -7304,7 +7304,7 @@ Uint16 _get_chr_target( chr_t * pchr, Uint32 max_dist, TARGET_TYPE target_type, 
 
 //    ai_state_t * pself;
 
-    if( NULL == pchr || !ACTIVE_CHR(pchr->index) ) return MAX_CHR;
+    if( !ACTIVE_PCHR( pchr ) ) return MAX_CHR;
   //  pself = &(pchr->ai);
 
     if( TARGET_NONE == target_type ) return MAX_CHR;
@@ -7382,7 +7382,7 @@ Uint8 _display_message( int ichr, int iprofile, int message, script_state_t * ps
 
         expand_escape_codes( ichr, pstate, src, src_end, dst, dst_end );
 
-        *dst_end = '\0';
+        *dst_end = CSTR_END;
 
         retval = 1;
     }

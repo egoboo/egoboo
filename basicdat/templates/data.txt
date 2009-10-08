@@ -62,24 +62,24 @@ IFrame Invulnerability angle ( 0 to 32768 )     : #%
 
 
 // Skin defenses
-Base defense rating of skin ( eg. 2 5 10 17 ) : #%
-SLASH defense shift ( eg. 1 1 1 1 )           : #%
-CRUSH defense shift ( eg. 1 1 1 1 )           : #%
-POKE defense shift ( eg. 1 1 1 1 )            : #%
-HOLY defense shift ( eg. 1 1 1 1 )            : #%
-EVIL defense shift ( eg. 1 1 1 1 )            : #%
-FIRE defense shift ( eg. 1 1 1 1 )            : #%
-ICE defense shift ( eg. 1 1 1 1 )             : #%
-ZAP defense shift ( eg. 1 1 1 1 )             : #%
-SLASH inversion ( eg. F F F T )               : #%
-CRUSH inversion ( eg. F F F T )               : #%
-POKE inversion ( eg. F F F T )                : #%
-HOLY inversion ( eg. T T T T )                : #%
-EVIL inversion ( eg. F F F T )                : #%
-FIRE inversion ( eg. F F F T )                : #%
-ICE inversion ( eg. F F F T )                 : #%
-ZAP inversion ( eg. F F F T )                 : #%
-Acceleration rate ( eg. 40 38 30 20 )         : #%
+Base defense rating of skin ( eg. 2 5 10 17 ) : #% #% #% #%
+SLASH defense shift ( eg. 1 1 1 1 )           : #% #% #% #%
+CRUSH defense shift ( eg. 1 1 1 1 )           : #% #% #% #%
+POKE defense shift ( eg. 1 1 1 1 )            : #% #% #% #%
+HOLY defense shift ( eg. 1 1 1 1 )            : #% #% #% #%
+EVIL defense shift ( eg. 1 1 1 1 )            : #% #% #% #%
+FIRE defense shift ( eg. 1 1 1 1 )            : #% #% #% #%
+ICE defense shift ( eg. 1 1 1 1 )             : #% #% #% #%
+ZAP defense shift ( eg. 1 1 1 1 )             : #% #% #% #%
+SLASH inversion ( eg. F F F T )               : #% #% #% #%
+CRUSH inversion ( eg. F F F T )               : #% #% #% #%
+POKE inversion ( eg. F F F T )                : #% #% #% #%
+HOLY inversion ( eg. T T T T )                : #% #% #% #%
+EVIL inversion ( eg. F F F T )                : #% #% #% #%
+FIRE inversion ( eg. F F F T )                : #% #% #% #%
+ICE inversion ( eg. F F F T )                 : #% #% #% #%
+ZAP inversion ( eg. F F F T )                 : #% #% #% #%
+Acceleration rate ( eg. 40 38 30 20 )         : #% #% #% #%
 
 
 // Experience and level data

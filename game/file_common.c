@@ -24,6 +24,7 @@
 
 #include "file_common.h"
 
+#include "egoboo_strutil.h"
 #include "egoboo_vfs.h"
 #include "egoboo_config.h"
 
@@ -39,7 +40,7 @@ void fs_removeDirectoryAndContents( const char *dirname, int recursive )
     // ZZ> This function deletes all files in a directory,
     //    and the directory itself
 
-    char filePath[MAX_PATH];
+    char filePath[MAX_PATH] = EMPTY_CSTR;
     const char *fileName;
 
     // List all the files in the directory
@@ -72,7 +73,7 @@ void fs_removeDirectoryAndContents( const char *dirname, int recursive )
 void fs_copyDirectory( const char *sourceDir, const char *destDir )
 {
     // ZZ> This function copies all files in a directory
-    char srcPath[MAX_PATH], destPath[MAX_PATH];
+    char srcPath[MAX_PATH] = EMPTY_CSTR, destPath[MAX_PATH] = EMPTY_CSTR;
     const char *fileName;
 
     // List all the files in the directory

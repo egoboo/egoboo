@@ -532,12 +532,12 @@ void _debug_print( const char *text )
 
     // Copy the message
     for ( src = text, dst = pmsg->textdisplay, dst_end = dst + MESSAGESIZE;
-          '\0' != *src && dst < dst_end;
+          CSTR_END != *src && dst < dst_end;
           src++, dst++)
     {
         *dst = *src;
     }
-    if( dst < dst_end ) *dst = '\0';
+    if( dst < dst_end ) *dst = CSTR_END;
 
     // Set the time
     pmsg->time = cfg.message_duration;
@@ -1458,7 +1458,7 @@ void light_particles( ego_mpd_t * pmesh )
         prt_t * pprt;
         prt_instance_t * pinst;
 
-        if ( !ACTIVE_PRT(iprt) ) continue;
+        if ( !DISPLAY_PRT(iprt) ) continue;
         pprt = PrtList.lst + iprt;
         pinst = &(pprt->inst);
 
@@ -1875,7 +1875,7 @@ void render_scene_mesh( renderlist_t * prlist )
                     render_one_mad_ref( tnc, 255 );
                 }
             }
-            else if ( MAX_CHR == dolist[cnt].ichr && ACTIVE_PRT( dolist[cnt].iprt ) )
+            else if ( MAX_CHR == dolist[cnt].ichr && DISPLAY_PRT( dolist[cnt].iprt ) )
             {
                 Uint32 itile;
                 tnc = dolist[cnt].iprt;
@@ -1994,7 +1994,7 @@ void render_scene_solid()
                 render_one_mad( dolist[cnt].ichr, 255 );
             }
         }
-        else if ( MAX_CHR == dolist[cnt].ichr && ACTIVE_PRT( dolist[cnt].iprt ) )
+        else if ( MAX_CHR == dolist[cnt].ichr && DISPLAY_PRT( dolist[cnt].iprt ) )
         {
             GL_DEBUG(glDisable)( GL_CULL_FACE );
 
@@ -2108,7 +2108,7 @@ void render_scene_trans()
                 pinst->enviro  = save_enviro;
             }
         }
-        else if ( MAX_CHR == dolist[cnt].ichr && ACTIVE_PRT( dolist[cnt].iprt ) )
+        else if ( MAX_CHR == dolist[cnt].ichr && DISPLAY_PRT( dolist[cnt].iprt ) )
         {
             render_one_prt_trans( dolist[cnt].iprt );
         }
@@ -2592,7 +2592,7 @@ int _va_draw_string( int x, int y, const char *format, va_list args  )
         x_stt = x;
         cnt = 0;
         cTmp = szText[cnt];
-        while ( '\0' != cTmp )
+        while ( CSTR_END != cTmp )
         {
             // Convert ASCII to our own little font
             if ( '~' == cTmp )
@@ -2830,9 +2830,9 @@ int draw_status( Uint16 character, int x, int y )
     {
         cTmp = readtext[cnt];
 
-        if ( ' ' == cTmp || '\0' == cTmp )
+        if ( ' ' == cTmp || CSTR_END == cTmp )
         {
-            generictext[cnt] = '\0';
+            generictext[cnt] = CSTR_END;
             break;
         }
         else
@@ -2840,7 +2840,7 @@ int draw_status( Uint16 character, int x, int y )
             generictext[cnt] = cTmp;
         }
     }
-    generictext[6] = '\0';
+    generictext[6] = CSTR_END;
 
     // draw the name
     y = _draw_string_raw( x + 8, y, generictext );
@@ -3223,7 +3223,7 @@ void draw_text()
         // Network message input
         if ( console_mode )
         {
-            char buffer[KEYB_BUFFER_SIZE + 128];
+            char buffer[KEYB_BUFFER_SIZE + 128] = EMPTY_CSTR;
 
             snprintf( buffer, SDL_arraysize(buffer), "%s > %s%s", cfg.network_messagename, keyb.buffer, HAS_NO_BITS( update_wld, 8 ) ? "x" : "+" );
 
@@ -4013,7 +4013,7 @@ void make_dynalist( camera_t * pcam )
     for ( cnt = 0; cnt < maxparticles; cnt++ )
     {
         PrtList.lst[cnt].inview = bfalse;
-        if ( !ACTIVE_PRT(cnt) ) continue;
+        if ( !DISPLAY_PRT(cnt) ) continue;
 
         if ( !VALID_TILE(PMesh, PrtList.lst[cnt].onwhichfan) ) continue;
 
@@ -4143,7 +4143,7 @@ bool_t dolist_add_prt( ego_mpd_t * pmesh, Uint16 iprt )
 
     if ( dolist_count >= DOLIST_SIZE ) return bfalse;
 
-    if ( !ACTIVE_PRT(iprt) ) return bfalse;
+    if ( !DISPLAY_PRT(iprt) ) return bfalse;
     pprt = PrtList.lst + iprt;
     pinst = &(pprt->inst);
 
@@ -4193,7 +4193,7 @@ void dolist_make( ego_mpd_t * pmesh )
 
     for ( cnt = 0; cnt < maxparticles; cnt++ )
     {
-        if ( ACTIVE_PRT(cnt) && VALID_TILE(pmesh, PrtList.lst[cnt].onwhichfan) )
+        if ( DISPLAY_PRT(cnt) && VALID_TILE(pmesh, PrtList.lst[cnt].onwhichfan) )
         {
             // Add the character
             dolist_add_prt( pmesh, cnt );
@@ -4226,7 +4226,7 @@ void dolist_sort( camera_t * pcam )
             tnc = dolist[cnt].ichr;
             vtmp = VSub( ChrList.lst[tnc].pos, pcam->pos );
         }
-        else if ( MAX_CHR == dolist[cnt].ichr && ACTIVE_PRT(dolist[cnt].iprt) )
+        else if ( MAX_CHR == dolist[cnt].ichr && DISPLAY_PRT(dolist[cnt].iprt) )
         {
             tnc = dolist[cnt].iprt;
             vtmp = VSub( PrtList.lst[tnc].pos, pcam->pos );

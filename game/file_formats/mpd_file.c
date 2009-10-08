@@ -258,9 +258,9 @@ mpd_t * mpd_load( const char *loadname, mpd_t * pmesh )
     for ( fan = 0; fan < tiles_count; fan++ )
     {
         fread( &itmp, 4, 1, fileread );
-        pmem->tile_list[fan].type = (ENDIAN_INT32( itmp ) >> 24) & 0xFF;
-        pmem->tile_list[fan].fx   = (ENDIAN_INT32( itmp ) >> 16) & 0xFF;
-        pmem->tile_list[fan].img  = (ENDIAN_INT32( itmp ) >>  0) & 0xFFFF;
+        pmem->tile_list[fan].type = CLIP_TO_08BITS(ENDIAN_INT32( itmp ) >> 24);
+        pmem->tile_list[fan].fx   = CLIP_TO_08BITS(ENDIAN_INT32( itmp ) >> 16);
+        pmem->tile_list[fan].img  = CLIP_TO_16BITS(ENDIAN_INT32( itmp ) >>  0);
     }
 
     // Load twist data

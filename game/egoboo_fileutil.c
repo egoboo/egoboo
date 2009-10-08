@@ -53,7 +53,7 @@ IDSZ fget_idsz( vfs_FILE* fileread )
     {
         long fpos;
         int  i;
-        char idsz_str[5];
+        char idsz_str[5] = EMPTY_CSTR;
 
         fpos = vfs_tell( fileread);
 
@@ -116,13 +116,13 @@ bool_t goto_delimiter( char * buffer, vfs_FILE* fileread, char delim, bool_t opt
     if ( vfs_eof(fileread)  || vfs_error(fileread) ) return bfalse;
 
     write = 0;
-    if (NULL != buffer) buffer[0] = '\0';
+    if (NULL != buffer) buffer[0] = CSTR_END;
     cTmp = vfs_getc( fileread );
     while ( !vfs_eof(fileread) && !vfs_error(fileread) )
     {
         if ( delim == cTmp ) break;
 
-        if ( 0x0A == cTmp || 0x0D == cTmp || '\0' == cTmp )
+        if ( 0x0A == cTmp || 0x0D == cTmp || CSTR_END == cTmp )
         {
             write = 0;
         }
@@ -133,12 +133,12 @@ bool_t goto_delimiter( char * buffer, vfs_FILE* fileread, char delim, bool_t opt
 
         cTmp = vfs_getc( fileread );
     }
-    if (NULL != buffer) buffer[write] = '\0';
+    if (NULL != buffer) buffer[write] = CSTR_END;
 
     if ( !optional && delim != cTmp )
     {
         // not enough colons in file!
-        log_error( "There are not enough %s's in file! (%s)\n", delim, parse_filename );
+        log_error( "There are not enough %c's in file! (%s)\n", delim, parse_filename );
     }
 
     return (delim == cTmp);
@@ -150,9 +150,9 @@ char goto_delimiter_list( char * buffer, vfs_FILE* fileread, const char * delim_
     // ZZ> This function moves a file read pointer to the next colon char cTmp;
     // BB> buffer points to a 256 character buffer that will get the data between the newline and the ':'
     //
-    //    returns the delimiter that was found, or '\0' if no delimiter found
+    //    returns the delimiter that was found, or CSTR_END if no delimiter found
 
-    char   retval = '\0';
+    char   retval = CSTR_END;
     int    cTmp, write;
     bool_t is_delim;
 
@@ -167,7 +167,7 @@ char goto_delimiter_list( char * buffer, vfs_FILE* fileread, const char * delim_
         retval = rv ? delim_list[0] : retval;
     }
 
-    if (NULL != buffer) buffer[0] = '\0';
+    if (NULL != buffer) buffer[0] = CSTR_END;
 
     is_delim = bfalse;
     write    = 0;
@@ -182,7 +182,7 @@ char goto_delimiter_list( char * buffer, vfs_FILE* fileread, const char * delim_
             break;
         }
 
-        if ( 0x0A == cTmp || 0x0D == cTmp || '\0' == cTmp )
+        if ( 0x0A == cTmp || 0x0D == cTmp || CSTR_END == cTmp )
         {
             write = 0;
         }
@@ -193,7 +193,7 @@ char goto_delimiter_list( char * buffer, vfs_FILE* fileread, const char * delim_
 
         cTmp = vfs_getc( fileread );
     }
-    if (NULL != buffer) buffer[write] = '\0';
+    if (NULL != buffer) buffer[write] = CSTR_END;
 
     if ( !optional && !is_delim )
     {
@@ -225,7 +225,7 @@ char * goto_colon_mem( char * buffer, char * pmem, char * pmem_end, bool_t optio
     if ( NULL == pmem || pmem >= pmem_end ) return pmem;
 
     write = 0;
-    if (NULL != buffer) buffer[0] = '\0';
+    if (NULL != buffer) buffer[0] = CSTR_END;
     cTmp = *(pmem++);
     while ( pmem < pmem_end )
     {
@@ -242,7 +242,7 @@ char * goto_colon_mem( char * buffer, char * pmem, char * pmem_end, bool_t optio
 
         cTmp = *(pmem++);
     }
-    if (NULL != buffer) buffer[write] = '\0';
+    if (NULL != buffer) buffer[write] = CSTR_END;
 
     if ( !optional && ':' != cTmp )
     {
@@ -279,7 +279,7 @@ bool_t fget_name( vfs_FILE* fileread,  char *szName, size_t max_len )
     STRING format;
 
     if (NULL == szName) return bfalse;
-    szName[0] = '\0';
+    szName[0] = CSTR_END;
 
     if ( NULL == fileread || (0 != vfs_error(fileread)) || vfs_eof(fileread) ) return bfalse;
 
@@ -287,12 +287,12 @@ bool_t fget_name( vfs_FILE* fileread,  char *szName, size_t max_len )
     // return value if the number of fields fields, not amount fields from file
     snprintf( format, SDL_arraysize( format), "%%%ds", max_len - 1 );
 
-    szName[0] = '\0';
+    szName[0] = CSTR_END;
     fields = vfs_scanf( fileread, format, szName );
 
     if ( fields > 0 )
     {
-        szName[max_len-1] = '\0';
+        szName[max_len-1] = CSTR_END;
         str_decode( szName, max_len, szName );
     };
 
@@ -398,6 +398,34 @@ void fput_gender( vfs_FILE* filewrite, const char* text, Uint8 gender )
 }
 
 //--------------------------------------------------------------------------------------------
+void fput_range_raw( vfs_FILE* filewrite, FRange val )
+{
+    if( val.from == val.to )
+    {
+        if( val.from == floor(val.from) )
+        {
+            vfs_printf( filewrite, "%d", (int)val.from );
+        }
+        else
+        {
+            vfs_printf( filewrite, "%4.2f", val.from );
+        }
+    }
+    else
+    {
+        if( val.from != floor(val.from) || val.to != floor(val.to) )
+        {
+            vfs_printf( filewrite, "%4.2f-%4.2f", val.from, val.to );
+        }
+        else
+        {
+            vfs_printf( filewrite, "%d-%d", (int)val.from, (int)val.to );
+        }
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------
 void fput_range( vfs_FILE* filewrite, const char* text, FRange val )
 {
     // ZZ> This function mimics vfs_printf in spitting out
@@ -405,28 +433,9 @@ void fput_range( vfs_FILE* filewrite, const char* text, FRange val )
 
     vfs_printf( filewrite, "%s", text );
 
-    if( val.from == val.to )
-    {
-        if( val.from == floor(val.from) )
-        {
-            vfs_printf( filewrite, "%d\n", (int)val.from );
-        }
-        else
-        {
-            vfs_printf( filewrite, "%4.2f\n", val.from );
-        }
-    }
-    else
-    {
-        if( val.from != floor(val.from) || val.to != floor(val.to) )
-        {
-            vfs_printf( filewrite, "%4.2f-%4.2f\n", val.from, val.to );
-        }
-        else
-        {
-            vfs_printf( filewrite, "%d-%d\n", (int)val.from, (int)val.to );
-        }
-    }
+    fput_range_raw( filewrite, val );
+
+    vfs_printf( filewrite, "\n", text );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -683,14 +692,14 @@ char * copy_mem_to_delimiter( char * pmem, char * pmem_end, vfs_FILE * filewrite
     //    could be used to merge a template file with data
 
     int write;
-    char cTmp, temp_buffer[1024];
+    char cTmp, temp_buffer[1024] = EMPTY_CSTR;
 
     if ( NULL == pmem || NULL == filewrite ) return pmem;
 
     if ( vfs_error(filewrite) ) return pmem;
 
     write = 0;
-    temp_buffer[0] = '\0';
+    temp_buffer[0] = CSTR_END;
     cTmp = *(pmem++);
     while ( pmem < pmem_end )
     {
@@ -699,13 +708,13 @@ char * copy_mem_to_delimiter( char * pmem, char * pmem_end, vfs_FILE * filewrite
         if ( 0x0A == cTmp || 0x0D == cTmp )
         {
             // output the temp_buffer
-            temp_buffer[write] = '\0';
+            temp_buffer[write] = CSTR_END;
             vfs_puts( temp_buffer, filewrite );
             vfs_putc( cTmp, filewrite );
 
             // reset the temp_buffer pointer
             write = 0;
-            temp_buffer[0] = '\0';
+            temp_buffer[0] = CSTR_END;
         }
         else
         {
@@ -720,12 +729,12 @@ char * copy_mem_to_delimiter( char * pmem, char * pmem_end, vfs_FILE * filewrite
         // only copy if it is not the
         cTmp = *(pmem++);
     }
-    temp_buffer[write] = '\0';
+    temp_buffer[write] = CSTR_END;
 
     if ( NULL != user_buffer )
     {
         strncpy( user_buffer, temp_buffer, user_buffer_len - 1 );
-        user_buffer[user_buffer_len - 1] = '\0';
+        user_buffer[user_buffer_len - 1] = CSTR_END;
     }
 
     if (delim == cTmp)
@@ -772,9 +781,9 @@ bool_t fget_string( vfs_FILE * fileread, char * str, size_t str_len )
 
     snprintf( format_str, SDL_arraysize( format_str), "%%%ds", str_len - 1 );
 
-    str[0] = '\0';
+    str[0] = CSTR_END;
     fields = vfs_scanf( fileread, format_str, str );
-    str[str_len-1] = '\0';
+    str[str_len-1] = CSTR_END;
 
     return 1 == fields;
 }
