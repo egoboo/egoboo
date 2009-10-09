@@ -1,4 +1,30 @@
 #pragma once
+//********************************************************************************************
+//*
+//*    This file is part of the opengl extensions library. This library is
+//*    distributed with Egoboo.
+//*
+//*    Egoboo is free software: you can redistribute it and/or modify it
+//*    under the terms of the GNU General Public License as published by
+//*    the Free Software Foundation, either version 3 of the License, or
+//*    (at your option) any later version.
+//*
+//*    Egoboo is distributed in the hope that it will be useful, but
+//*    WITHOUT ANY WARRANTY; without even the implied warranty of
+//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//*    General Public License for more details.
+//*
+//*    You should have received a copy of the GNU General Public License
+//*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
+//*
+//********************************************************************************************
+
+/// @defgroup _ogl_extensions_ Extensions to OpenGL
+
+/// @file extensions/ogl_extensions.h
+/// @ingroup _ogl_extensions_
+/// @brief Definitions for extended functions and variables for OpenGL
+/// @details 
 
 #include <SDL_opengl.h>
 #include <stdio.h>

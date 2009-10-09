@@ -38,6 +38,7 @@ typedef int ConfigFile_retval;
 #define MAX_CONFIG_VALUE_LENGTH      256
 #define MAX_CONFIG_COMMENTARY_LENGTH  256
 
+/// A single value in the congiguration file, specified by ["TAG"] = "VALUE"
 typedef struct s_ConfigFileValue ConfigFileValue_t;
 typedef struct s_ConfigFileValue
 {
@@ -47,6 +48,7 @@ typedef struct s_ConfigFileValue
     ConfigFileValue_t *NextValue;
 } *ConfigFileValuePtr_t;
 
+/// One section of the congiguration file, delimited by {"BLAH"}
 typedef struct s_ConfigFileSection ConfigFileSection_t;
 typedef struct s_ConfigFileSection
 {
@@ -55,6 +57,7 @@ typedef struct s_ConfigFileSection
     ConfigFileValuePtr_t  FirstValue;
 } *ConfigFileSectionPtr_t;
 
+/// The congiguration file
 typedef struct s_ConfigFile ConfigFile_t;
 typedef struct s_ConfigFile
 {

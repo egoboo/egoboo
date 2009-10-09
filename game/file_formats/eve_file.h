@@ -97,6 +97,8 @@ typedef enum enchant_add
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+/// An enchantment profile, or "eve"
+/// An internal representation of the "enchant.txt" file
 struct s_eve
 {
     EGO_PROFILE_STUFF;

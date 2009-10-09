@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file Ui.c
+/// @file ui.c
 /// @brief The egoboo GUI
 /// @details A basic library for implementing user interfaces, based off of Casey Muratori's
 /// IMGUI.  (https://mollyrocket.com/forums/viewtopic.php?t=134)

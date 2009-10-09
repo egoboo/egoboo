@@ -89,9 +89,10 @@ extern keyboard_t keyb;
 #define SDLKEYDOWN(k) ( !console_mode &&  (NULL != keyb.state_ptr) &&  ((k) < keyb.count) && ( 0 != keyb.state_ptr[k] ) )
 
 //--------------------------------------------------------------------------------------------
-/// JOYSTICK
+// JOYSTICK
 #define JOYBUTTON           32                      ///< Maximum number of joystick buttons
 
+/// The internal representation of the joystick data
 struct s_device_joystick
 {
     bool_t  on;                ///< Is the holy joystick alive?

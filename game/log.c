@@ -19,6 +19,7 @@
 
 /// @file Log.c
 /// @brief Basic logging functionality.
+/// @details 
 
 #include "log.h"
 

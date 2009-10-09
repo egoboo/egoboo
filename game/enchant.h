@@ -54,6 +54,8 @@ DEFINE_STACK_EXTERN(eve_t, EveStack, MAX_EVE );
 
 #define MAX_ENC                      200         ///< Number of enchantments
 
+/// A single egoboo enchantment
+/// This "inherits" for ego_object_base_t
 struct s_enc
 {
     ego_object_base_t obj_base;

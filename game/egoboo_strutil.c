@@ -19,6 +19,7 @@
 
 /// @file egoboo_strutil.c
 /// @brief String manipulation functions.
+/// @details 
 
 #include "egoboo_strutil.h"
 

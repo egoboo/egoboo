@@ -56,8 +56,11 @@ typedef enum e_process_states process_state_t;
 
 //--------------------------------------------------------------------------------------------
 
+/// grab a pointer to the process_t of any object that "inherits" this type
 #define PROC_PBASE(PTR) (&( (PTR)->base ))
 
+/// A rudimantary implementation of "non-preemptive multitasking" in egoboo.
+/// All other process types "inherit" from this one
 struct s_process_instance
 {
     bool_t          valid;
@@ -70,6 +73,7 @@ struct s_process_instance
 typedef struct s_process_instance process_t;
 
 //--------------------------------------------------------------------------------------------
+/// a process that controls the master loop of the program
 struct s_ego_process
 {
     process_t base;
@@ -89,6 +93,7 @@ typedef struct s_ego_process ego_process_t;
 extern ego_process_t * EProc;
 
 //--------------------------------------------------------------------------------------------
+/// a process that controls a single game
 struct s_game_process
 {
     process_t base;
@@ -109,6 +114,7 @@ typedef struct s_game_process game_process_t;
 extern game_process_t * GProc;
 
 //--------------------------------------------------------------------------------------------
+/// a process that controls the menu system
 struct s_menu_process
 {
     process_t base;
@@ -146,6 +152,7 @@ enum e_latchbutton
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+/// The actual state of the animated tiles in-game
 struct s_animtile_instance
 {
     int    update_and;             ///< New tile every 7 frames
@@ -159,6 +166,7 @@ extern Uint32              animtile_update_and;
 extern animtile_instance_t animtile[2];
 
 //--------------------------------------------------------------------------------------------
+/// The actual in-game state of the damage tiles
 struct s_damagetile_instance
 {
     IPair   amount;                    ///< Amount of damage
@@ -231,6 +239,8 @@ typedef struct s_water_instance water_instance_t;
 extern water_instance_t water;
 
 //--------------------------------------------------------------------------------------------
+/// The in-game fog state
+/// @warn Fog is currently not used
 struct s_fog_instance
 {
     bool_t  on;            ///< Do ground fog?

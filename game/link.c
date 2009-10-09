@@ -17,6 +17,10 @@
 //*
 //********************************************************************************************
 
+/// @file link.c
+/// @brief Manages in-game links connecting modules
+/// @details 
+
 #include "link.h"
 
 #include "char.h"

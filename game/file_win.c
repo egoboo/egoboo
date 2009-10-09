@@ -19,6 +19,7 @@
 
 /// @file win-file.c
 /// @brief Windows-specific filesystem functions.
+/// @details 
 
 #include "file_common.h"
 #include "log.h"

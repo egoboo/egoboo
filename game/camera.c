@@ -19,6 +19,7 @@
 
 /// @file camera.c
 /// @brief Various functions related to how the game camera works.
+/// @details 
 
 #include "camera.h"
 

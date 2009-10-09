@@ -17,6 +17,10 @@
 //*
 //********************************************************************************************
 
+/// @file mesh.c
+/// @brief Functions for creating, reading, and writing egoboo's .mpd mesh file
+/// @details 
+
 #include "mesh.h"
 #include "log.h"
 

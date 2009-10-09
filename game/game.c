@@ -18,6 +18,8 @@
 //********************************************************************************************
 
 /// @file game.c
+/// @brief 
+/// @details 
 
 #define DECLARE_GLOBALS
 
@@ -110,7 +112,7 @@ static bool_t do_line_of_sight( line_of_sight_info_t * plos );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-// Bump List
+/// one element of the data for partitioning character and particle positions
 struct s_bumplist
 {
     Uint16  chr;                     // For character collisions
@@ -121,8 +123,7 @@ struct s_bumplist
 typedef struct s_bumplist bumplist_t;
 
 //--------------------------------------------------------------------------------------------
-// pair-wise collision data
-
+/// element for storing pair-wise "collision" data
 struct s_collision_data
 {
     Uint16 chra, chrb;

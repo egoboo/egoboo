@@ -19,6 +19,7 @@
 
 /// @file graphic_prt.c
 /// @brief Particle system drawing and management code.
+/// @details 
 
 #include "graphic.h"
 

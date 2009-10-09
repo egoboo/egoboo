@@ -19,6 +19,7 @@
 
 /// @file graphic_fan.c
 /// @brief World mesh drawing.
+/// @details 
 
 #include "graphic.h"
 #include "game.h"

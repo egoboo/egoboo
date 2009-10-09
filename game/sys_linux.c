@@ -17,7 +17,6 @@
 //*
 //********************************************************************************************
 
-///
 /// @file sys_linux.c
 /// @brief System Dependent Functions
 /// @details Unix/GNU/Linux/*nix - specific code

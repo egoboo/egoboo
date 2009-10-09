@@ -17,6 +17,10 @@
 //*
 //********************************************************************************************
 
+/// @file lua_console.c
+/// @brief Quale-like console running running Lua behing egoboo
+/// @details 
+
 #include "lua_console.h"
 
 #include "egoboo_console.inl"

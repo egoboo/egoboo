@@ -38,6 +38,7 @@
 #define MADLIGHTINDICES                 (MD2_MAX_NORMALS + 1) ///< MD2's store vertices as x,y,z,normal
 #define EQUALLIGHTINDEX                 162                ///< I added an extra index to do the spikey mace...
 
+/// egoboo's OpenGL commandlist for md2 data
 struct s_md2_ogl_commandlist
 {
     Uint16  count;                  ///< Number of commands
@@ -52,6 +53,7 @@ struct s_md2_ogl_commandlist
 };
 typedef struct s_md2_ogl_commandlist md2_ogl_commandlist_t;
 
+/// egoboo's md2 model info definition
 struct s_ego_md2
 {
     md2_ogl_commandlist_t cmd;
@@ -62,23 +64,27 @@ struct s_ego_md2
 };
 typedef struct s_ego_md2 ego_md2_t;
 
+/// egoboo's md2 vertex definition
 typedef struct Md2Vertex
 {
     float x, y, z;
     unsigned normal;  ///< index to id-normal array
 } Md2Vertex;
 
+/// egoboo's md2 texture coordinate definition
 typedef struct Md2TexCoord
 {
     float s, t;
 } Md2TexCoord;
 
+/// egoboo's md2 triangle definition
 typedef struct Md2Triangle
 {
     short vertexIndices[3];
     short texCoordIndices[3];
 } Md2Triangle;
 
+/// egoboo's md2 frame definition
 typedef struct Md2Frame
 {
     char name[16];
@@ -86,11 +92,13 @@ typedef struct Md2Frame
     Md2Vertex *vertices;
 } Md2Frame;
 
+/// egoboo's md2 skin name definition
 typedef struct Md2SkinName
 {
     char name[64];
 } Md2SkinName;
 
+/// egoboo's md2 model definition
 typedef struct Md2Model
 {
     int numVertices;
@@ -119,13 +127,15 @@ struct s_md2_frame
 };
 typedef struct s_md2_frame md2_frame_t;
 
+/// globally accessible md2 data
 extern md2_frame_t Md2FrameList[MAXFRAME];
 
-extern Uint16 md2_loadframe;                               ///< Where to load next
+extern Uint16 md2_loadframe;                               ///< Where to load next frame
 
+/// globally accessible md2 normal data
 extern float kMd2Normals[MADLIGHTINDICES][3];
 
-/// Function prototypes
+// Function prototypes
 int    md2_rip_frame_name( int frame );
 void   md2_rip_frames( ego_md2_t * pflist );
 bool_t md2_load_one( const char* szLoadname, ego_md2_t * pmd2 );

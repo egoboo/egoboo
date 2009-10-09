@@ -17,6 +17,10 @@
 //*
 //********************************************************************************************
 
+/// @file egoboo_setup.c
+/// @brief Functions for handling the setup.txt file
+/// @details
+
 #include "egoboo_setup.h"
 
 #include "log.h"

@@ -110,6 +110,7 @@ struct s_mesh_mem
 typedef struct s_mesh_mem mesh_mem_t;
 
 //--------------------------------------------------------------------------------------------
+/// The generic parameters describing an ego_mpd
 struct s_ego_mpd_info
 {
     size_t          vertcount;                         ///< For malloc
@@ -128,6 +129,7 @@ struct s_ego_mpd_info
 typedef struct s_ego_mpd_info ego_mpd_info_t;
 
 //--------------------------------------------------------------------------------------------
+/// egoboo's representation of the .mpd mesh file
 struct s_ego_mpd
 {
     ego_mpd_info_t  info;

@@ -119,14 +119,22 @@ extern float turntocos[TRIG_TABLE_SIZE];           ///< Convert chrturn>>2...  t
 
 enum { kX = 0, kY, kZ, kW };
 
-typedef float fmat_4x4_base_t[16];
-typedef float fvec2_base_t[2];
-typedef float fvec3_base_t[3];
-typedef float fvec4_base_t[4];
+typedef float fmat_4x4_base_t[16];       ///< the basic 4x4 floating point matrix type
+typedef float fvec2_base_t[2];           ///< the basic floating point 2-vector type
+typedef float fvec3_base_t[3];           ///< the basic floating point 3-vector type
+typedef float fvec4_base_t[4];           ///< the basic floating point 4-vector type
 
+/// A wrapper for fmat_4x4_base_t
+/// Necessary in c so that the function return can be assigned to another matrix more simply.
 typedef struct s_fmat_4x4  { fmat_4x4_base_t  v; } fmat_4x4_t;
+
+/// A 2-vector type that allows more than one form of access
 typedef union  u_fvec2     { fvec2_base_t v; struct { float x, y; }; } fvec2_t;
+
+/// A 3-vector type that allows more than one form of access
 typedef union  u_fvec3     { fvec3_base_t v; struct { float x, y, z; }; struct { float r, g, b; }; } fvec3_t;
+
+/// A 4-vector type that allows more than one form of access
 typedef union  u_fvec4     { fvec4_base_t v; struct { float x, y, z, w; }; struct { float r, g, b, a; }; } fvec4_t;
 
 #define ZERO_VECT2 { {0,0} }
@@ -139,7 +147,7 @@ typedef union  u_fvec4     { fvec4_base_t v; struct { float x, y, z, w; }; struc
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-/**> GLOBAL VARIABLES <**/
+/// A lookup table for trug values
 extern float                   turntosin[TRIG_TABLE_SIZE];           ///< Convert chrturn>>2...  to sine
 
 //--------------------------------------------------------------------------------------------
@@ -162,8 +170,6 @@ extern Uint16  randie[RANDIE_COUNT];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-/**> FUNCTION PROTOTYPES <**/
-
 float      fvec3_dot_product  ( fvec3_base_t A, fvec3_base_t   B );
 fvec3_t    fvec3_normalize    ( fvec3_base_t A );
 fvec3_t    fvec3_sub          ( fvec3_base_t A, fvec3_base_t   B );

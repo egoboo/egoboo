@@ -82,7 +82,7 @@ net_instance_t * PNet = &gnet;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-// Networking constants
+/// Networking constants
 enum NetworkConstant
 {
     NET_UNRELIABLE_CHANNEL    = 0,
@@ -93,7 +93,7 @@ enum NetworkConstant
     NET_MAX_FILE_TRANSFERS    = 1024  // Maximum files queued up at once
 };
 
-// Network messages
+/// Network messages
 enum NetworkMessage
 {
     NET_TRANSFER_FILE       = 10001,  // Packet contains a file.
@@ -103,7 +103,7 @@ enum NetworkMessage
     NET_NUM_FILES_TO_SEND   = 10010  // Let the other person know how many files you're sending
 };
 
-// Network players information
+/// Network information on connected players
 typedef struct NetPlayerInfo
 {
     int playerSlot;
@@ -131,7 +131,7 @@ static Uint32  packethead;                             // The write head
 static Uint32  packetsize;                             // The size of the packet
 static Uint8   packetbuffer[MAXSENDSIZE];              // The data packet
 
-// File transfer variables & structures
+/// Data for network file transfers
 typedef struct NetFileTransfer
 {
     char sourceName[NET_MAX_FILE_NAME];
@@ -139,12 +139,12 @@ typedef struct NetFileTransfer
     ENetPeer *target;
 } NetFileTransfer;
 
-// File transfer queue
+/// Network file transfer queue
 static NetFileTransfer net_transferStates[NET_MAX_FILE_TRANSFERS];
-static int net_numFileTransfers = 0;
-static int net_fileTransferHead = 0;  // Queue indices
-static int net_fileTransferTail = 0;
-static int net_waitingForXferAck = 0;
+static int net_numFileTransfers = 0;  ///< Queue count
+static int net_fileTransferHead = 0;  ///< Queue start indicx
+static int net_fileTransferTail = 0;  ///< Queue end index
+static int net_waitingForXferAck = 0; ///< Queue state
 
 static Uint8  * transferBuffer = NULL;
 static size_t   transferSize = 0;

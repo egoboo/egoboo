@@ -82,6 +82,7 @@
 #define MAXSTOR             16                      ///< Storage data (Used in SetXY)
 #define STORAND             15
 
+/// the state variables for a script / AI
 struct s_ai_state
 {
     // which script to run

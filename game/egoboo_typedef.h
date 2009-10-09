@@ -298,6 +298,7 @@ void latch_init( latch_t * platch );
 //--------------------------------------------------------------------------------------------
 /// some basic data that all egoboo objects should have
 
+/// The possible states of an ego_object_base_t object
 enum e_ego_object_state
 {
     ego_object_invalid = 0,
@@ -307,6 +308,7 @@ enum e_ego_object_state
     ego_object_terminated                ///< fully terminated
 };
 
+/// The data that is "inherited" by every egoboo object.
 struct s_ego_object_base
 {
     STRING         _name;      ///< what is its "_name"
@@ -317,6 +319,7 @@ struct s_ego_object_base
 
 typedef struct s_ego_object_base ego_object_base_t;
 
+/// Mark a ego_object_base_t object as being allocated
 #define EGO_OBJECT_ALLOCATE( PDATA, INDEX ) \
     if( NULL != PDATA ) \
     { \
@@ -325,6 +328,7 @@ typedef struct s_ego_object_base ego_object_base_t;
         (PDATA)->obj_base.state     = ego_object_pre_active; \
     }
 
+/// Turn on an ego_object_base_t object
 #define EGO_OBJECT_ACTIVATE( PDATA, NAME ) \
     if( NULL != PDATA && (PDATA)->obj_base.allocated ) \
     { \
@@ -332,12 +336,14 @@ typedef struct s_ego_object_base ego_object_base_t;
         (PDATA)->obj_base.state  = ego_object_active; \
     }
 
+/// Begin turning off an ego_object_base_t object
 #define EGO_OBJECT_REQUST_TERMINATE( PDATA ) \
     if( NULL != PDATA && (PDATA)->obj_base.allocated ) \
     { \
         (PDATA)->obj_base.state = ego_object_waiting; \
     }
 
+/// Completely turn off an ego_object_base_t object and mark it as no longer allocated
 #define EGO_OBJECT_TERMINATE( PDATA ) \
     if( NULL != PDATA && (PDATA)->obj_base.allocated ) \
     { \
@@ -345,13 +351,24 @@ typedef struct s_ego_object_base ego_object_base_t;
         (PDATA)->obj_base.state     = ego_object_terminated; \
     }
 
+/// Is the object allocated?
 #define ALLOCATED_OBJ( POBJ )   ( (NULL != (POBJ)) && ( (POBJ)->allocated ) && (ego_object_invalid != (POBJ)->state) )
+
+/// Is the object "on"
 #define ACTIVE_OBJ( POBJ )      ( ALLOCATED_OBJ( POBJ ) && (ego_object_active == (POBJ)->state) )
+
+/// Is the object waiting to "die" 
 #define WAITING_OBJ( POBJ )     ( ALLOCATED_OBJ( POBJ ) && (ego_object_waiting == (POBJ)->state) )
+
+/// Has the object been marked as terminated
 #define TERMINATED_OBJ( POBJ )  ( (NULL != (POBJ)) && (ego_object_terminated == (POBJ)->state) )
 
+/// Grab a pointer to the ego_object_base_t of an object that "inherits" this data 
 #define OBJ_GET_PBASE( PBLAH )          ( (NULL == (PBLAH)) ? NULL : &((PBLAH)->obj_base) )
+
+/// Grab the index value of object that "inherits" from ego_object_base_t
 #define GET_INDEX( PBLAH, FAIL_VALUE )  ( (NULL == (PBLAH) || !ALLOCATED_OBJ( OBJ_GET_PBASE( (PBLAH) ) ) ) ? FAIL_VALUE : (PBLAH)->obj_base.index )
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 #define Egoboo_egobootypedef_h

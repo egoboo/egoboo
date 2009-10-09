@@ -18,7 +18,7 @@
 //********************************************************************************************
 
 ///
-/// @file file_formats\configfile.c
+/// @file file_formats/configfile.c
 /// @brief Configuration file loading implementation
 /// @details All functions to manage a ConfigFile
 ///

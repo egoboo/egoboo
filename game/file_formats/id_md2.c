@@ -1,6 +1,6 @@
 //********************************************************************************************
 //*
-//*    This file is part of Egoboo.
+//*    This file is part of id_md2 reader library.
 //*
 //*    Egoboo is free software: you can redistribute it and/or modify it
 //*    under the terms of the GNU General Public License as published by
@@ -17,7 +17,9 @@
 //*
 //********************************************************************************************
 
-/// @file id_md2.c
+/// @file file_formats/id_md2.c
+/// @brief A raw reader and writer for ID software's .md2 model type 
+/// @details 
 
 #include "id_md2.h"
 #include "egoboo_vfs.h"

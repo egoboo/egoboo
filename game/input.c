@@ -19,6 +19,7 @@
 
 /// @file input.c
 /// @brief Keyboard, mouse, and joystick handling code.
+/// @details 
 
 #include "input.h"
 

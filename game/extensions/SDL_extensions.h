@@ -1,4 +1,29 @@
 #pragma once
+//********************************************************************************************
+//*
+//*    This file is part of the SDL extensions library.
+//*
+//*    Egoboo is free software: you can redistribute it and/or modify it
+//*    under the terms of the GNU General Public License as published by
+//*    the Free Software Foundation, either version 3 of the License, or
+//*    (at your option) any later version.
+//*
+//*    Egoboo is distributed in the hope that it will be useful, but
+//*    WITHOUT ANY WARRANTY; without even the implied warranty of
+//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//*    General Public License for more details.
+//*
+//*    You should have received a copy of the GNU General Public License
+//*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
+//*
+//********************************************************************************************
+
+/// @defgroup _sdl_extensions_ Extensions to SDL
+
+/// @file extensions/SDL_extensions.h
+/// @ingroup _sdl_extensions_
+/// @brief Definitions for generic extensions to SDL
+/// @details
 
 #include <SDL.h>
 
@@ -28,6 +53,7 @@ extern "C"
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
+    /// A structure holding some of SDL's video data
     struct s_SDLX_sdl_video_flags
     {
         unsigned hw_surface: 1;       ///< SDL_HWSURFACE   - Surface is in video memory
@@ -54,6 +80,7 @@ extern "C"
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
+    /// A structure holding all of the OpenGL data that can be queried through SDL
     struct s_SDLX_sdl_gl_attrib
     {
         // SDL_GL_* attribute data
@@ -73,8 +100,8 @@ extern "C"
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-/// SDL graphics info
 
+    /// A representation of a SDL Screen state
     struct s_SDLX_screen_info
     {
         // JF - Added so that the video mode might be determined outside of the graphics code
@@ -109,6 +136,7 @@ extern "C"
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
+    /// Parameters for setting an SDL video state
     struct s_SDLX_video_parameters
     {
         int    width;
@@ -138,14 +166,26 @@ extern "C"
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
+    /// Grab the current SDL screen information
     SDL_bool      SDLX_Get_Screen_Info( SDLX_screen_info_t * psi, SDL_bool display );
+
+    /// Use a SDLX_video_parameters_t structure to request a SDL video mode
     SDL_Surface * SDLX_RequestVideoMode ( SDLX_video_parameters_t * v, SDL_bool make_report );
 
+    /// Use a SDLX_video_parameters_t structure to try to set a SDL video mode directly
+    /// on success, it returns a pointer to the actual data used to set the mode. On failure,
+    /// it resets the mode to v_old (if possible), and returns a pointer to the restored parameters 
     SDLX_video_parameters_t * SDLX_set_mode(SDLX_video_parameters_t * v_old, SDLX_video_parameters_t * v_new, SDL_bool make_report );
 
+    /// Determine the minimum changes to the current pixel format to accomodate the requested format
+    // Mostly used to add an alpha channel to a SDL_Surface
     SDL_bool SDLX_ExpandFormat(SDL_PixelFormat * pformat);
 
+    /// Set the FILE that SDL_extensions will use to dump debugging information.
+    /// If not set, it will default to stdout.
     FILE * SDLX_set_stdout(FILE * pfile);
+
+    /// Dump the info on the given surface to whatever FILE SDL_extensions is using for stdout
     void   SDLX_report_mode( SDL_Surface * surface, SDLX_video_parameters_t * v );
 
 #ifdef __cplusplus

@@ -17,6 +17,10 @@
 //*
 //********************************************************************************************
 
+/// @file md2.c
+/// @brief The egoboo .md2 loader
+/// @details 
+
 #include "md2.h"
 #include "log.h"                // For error logging
 #include "mad.h"

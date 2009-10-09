@@ -79,6 +79,7 @@ enum e_color
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+/// An element of the do-list, an all encompassing list of all objects to be drawn by the renderer
 struct s_do_list_data
 {
     float  dist;
@@ -229,6 +230,8 @@ extern Uint16          meshlasttexture;             ///< Last texture used
 #define BILLBOARD_COUNT     (2 * MAX_CHR)
 #define INVALID_BILLBOARD   BILLBOARD_COUNT
 
+/// Description of a generic bilboarded object. 
+/// Any graphics that can be composited onto a SDL_surface can be used 
 struct s_billboard_data
 {
     bool_t    valid;        ///< has the billboard data been initialized?

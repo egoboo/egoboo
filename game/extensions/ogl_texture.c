@@ -1,6 +1,7 @@
 //********************************************************************************************
 //*
-//*    This file is part of Egoboo.
+//*    This file is part of the opengl extensions library. This library is
+//*    distributed with Egoboo.
 //*
 //*    Egoboo is free software: you can redistribute it and/or modify it
 //*    under the terms of the GNU General Public License as published by
@@ -17,10 +18,11 @@
 //*
 //********************************************************************************************
 
-///
-/// @file ogl_texture.c
-/// @brief Egoboo OpenGL texture interface
-/// @details Implements OpenGL texture loading using SDL_image
+/// @file extensions/ogl_texture.c
+/// @ingroup _ogl_extensions_
+/// @brief Implements OpenGL texture loading using SDL_image
+/// @details Basic loading and managing OpenGL textures.
+///   Uses SDL_image to load .tif, .png, .bmp, .dib, .xpm, and other formats into OpenGL texures
 
 #include "ogl_texture.h"
 #include "ogl_debug.h"

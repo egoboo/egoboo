@@ -17,11 +17,9 @@
 //*
 //********************************************************************************************
 
-///
 /// @file clock.c
 /// @brief Clock & timer implementation
-/// @details This implementation was adapted from Noel Lopis' article in
-///  Game Programming Gems 4.
+/// @details This implementation was adapted from Noel Lopis' article in Game Programming Gems 4.
 
 #include "clock.h"
 
@@ -63,7 +61,7 @@ void clk_shutdown()
   _clock_timeSource = NULL;
 }
 
-// Clock data
+/// The description of a single clock
 struct s_ClockState
 {
   // Clock data

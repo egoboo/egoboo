@@ -17,6 +17,10 @@
 //*
 //********************************************************************************************
 
+/// @file egoboo_console.c
+/// @brief 
+/// @details 
+
 #include "egoboo_console.inl"
 
 #include "egoboo_config.h"

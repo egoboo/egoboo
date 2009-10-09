@@ -112,6 +112,7 @@ enum e_joystick_controls
 };
 
 //--------------------------------------------------------------------------------------------
+/// the basic definition of a single control
 struct s_control
 {
     Uint32 tag;
@@ -120,6 +121,7 @@ struct s_control
 typedef struct s_control control_t;
 
 //---------------------------------------------------------------------------------------------
+/// The mapping between the inputs detected by SDL and the device's in-game function
 struct s_device_controls
 {
     size_t    count;

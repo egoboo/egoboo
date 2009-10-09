@@ -19,6 +19,7 @@
 
 /// @file graphic_mad.c
 /// @brief Character model drawing code.
+/// @details 
 
 #include "graphic.h"
 

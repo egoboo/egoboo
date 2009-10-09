@@ -17,6 +17,10 @@
 //*
 //********************************************************************************************
 
+/// @file script_compile.c
+/// @brief 
+/// @details 
+
 #include "script_compile.h"
 
 #include "log.h"

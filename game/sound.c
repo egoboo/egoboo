@@ -19,6 +19,7 @@
 
 /// @file sound.c
 /// @brief Sound code in Egoboo is implemented using SDL_mixer.
+/// @details 
 
 #include "sound.h"
 #include "camera.h"

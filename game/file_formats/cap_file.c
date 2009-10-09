@@ -19,6 +19,7 @@
 
 /// @file cap_file.c
 /// @brief routines for reading and writing the character profile file data.txt
+/// @details 
 
 #include "cap_file.h"
 

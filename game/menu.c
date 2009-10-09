@@ -19,6 +19,7 @@
 
 /// @file menu.c
 /// @brief Implements the main menu tree, using the code in Ui.*
+/// @details 
 
 #include "menu.h"
 
@@ -82,6 +83,7 @@ struct
 } SlidyButtonState;
 
 //--------------------------------------------------------------------------------------------
+/// The data that menu.c uses to store the users' choice of players
 struct s_ChoosePlayer_profiles
 {
     int count;

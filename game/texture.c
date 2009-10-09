@@ -17,6 +17,10 @@
 //*
 //********************************************************************************************
 
+/// @file texture.c
+/// @brief 
+/// @details 
+
 #include "texture.h"
 
 #include "egoboo_fileutil.h"

@@ -37,7 +37,7 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
+/// The encapsulation of the data necessary to run a generic Quake-like console in egoboo
 struct s_egoboo_console
 {
     egoboo_console_t           * pnext;

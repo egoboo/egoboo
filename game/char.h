@@ -204,7 +204,7 @@ typedef struct s_matrix_cache matrix_cache_t;
 matrix_cache_t * matrix_cache_init(matrix_cache_t * mcache);
 
 //--------------------------------------------------------------------------------------------
-/// all the model data that the renderer needs to render the character
+/// All the data that the renderer needs to draw the character
 struct s_chr_instance
 {
     // position info
@@ -272,6 +272,7 @@ struct s_chr_instance
 typedef struct s_chr_instance chr_instance_t;
 
 //--------------------------------------------------------------------------------------------
+/// Everything that is necessary to compute the character's interaction with the environment
 struct s_chr_environment
 {
     // floor stuff
@@ -309,7 +310,9 @@ struct s_phys_data
 typedef struct s_phys_data phys_data_t;
 
 //--------------------------------------------------------------------------------------------
-/// definition of the level 0 character "bumper"
+/// Level 0 character "bumper"
+/// The simplest collision volume, exuivalent to the old-style collision data
+/// stored in data.txt
 struct s_chr_bumper_0
 {
     float  size;        ///< Size of bumpers
@@ -319,7 +322,9 @@ struct s_chr_bumper_0
 typedef struct s_chr_bumper_0 chr_bumper_0_t;
 
 //--------------------------------------------------------------------------------------------
-/// definition of the level 1 character "bumper"
+/// Level 1 character "bumper"
+/// The best possible octagonal bounding volume. A generalization of the old octagonal bounding box
+/// values in data.txt. Computed on the fly.
 struct s_chr_bumper_1
 {
     float min_x,  max_x;
@@ -331,6 +336,7 @@ struct s_chr_bumper_1
 typedef struct s_chr_bumper_1 chr_bumper_1_t;
 
 //--------------------------------------------------------------------------------------------
+/// The definition of the character object
 struct s_chr
 {
     ego_object_base_t obj_base;

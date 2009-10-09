@@ -80,6 +80,7 @@
 #define MAXDYNADIST                     2700        // Leeway for offscreen lights
 #define TOTAL_MAX_DYNA                    64          // Absolute max number of dynamic lights
 
+/// A definition of a single in-game dynamic light
 struct s_dynalight
 {
     float distance;      // The distances

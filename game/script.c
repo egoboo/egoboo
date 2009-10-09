@@ -19,6 +19,7 @@
 
 /// @file script.c
 /// @brief Implements the game's scripting language.
+/// @details 
 
 #include "script.h"
 #include "script_compile.h"

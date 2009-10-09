@@ -19,6 +19,7 @@
 
 /// @file mathstuff.c
 /// @brief The name's pretty self explanatory, doncha think?
+/// @details 
 
 #include "egoboo_math.h"
 

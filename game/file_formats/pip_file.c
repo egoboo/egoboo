@@ -17,8 +17,9 @@
 //*
 //********************************************************************************************
 
-/// @file pip_file.c
-/// @brief routines for reading and writing the particle profile file "part*.txt"
+/// @file file_formats/pip_file.c
+/// @brief Routines for reading and writing the particle profile file "part*.txt"
+/// @details 
 
 #include "pip_file.h"
 

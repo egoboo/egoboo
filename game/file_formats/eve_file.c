@@ -17,7 +17,9 @@
 //*
 //********************************************************************************************
 
-/// @file eve_file.c
+/// @file file_formats/eve_file.c
+/// @brief Functions to read and write egoboo's enchant definition files ( /modules/*.mod/objects/*.obj/enchant.txt )
+/// @details 
 
 #include "eve_file.h"
 

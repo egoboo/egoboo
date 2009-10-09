@@ -17,6 +17,10 @@
 //*
 //********************************************************************************************
 
+/// @file egoboo_fileutil.c
+/// @brief 
+/// @details 
+
 #include "egoboo_fileutil.h"
 
 #include "ogl_texture.h"

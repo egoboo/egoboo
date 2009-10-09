@@ -146,6 +146,7 @@ enum e_chr_gender
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+/// The character statistic data in the form used in data.txt
 struct s_cap_stat
 {
     FRange val;
@@ -154,6 +155,8 @@ struct s_cap_stat
 typedef struct s_cap_stat cap_stat_t;
 
 //--------------------------------------------------------------------------------------------
+/// The character profile data, or cap
+/// The internal representation of the information in data.txt
 struct s_cap
 {
     EGO_PROFILE_STUFF;

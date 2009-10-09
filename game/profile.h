@@ -63,6 +63,7 @@ typedef struct s_pro_import pro_import_t;
 #define CHOPDATACHUNK                   (MAXCHOP*CHOPSIZE)
 #define MAXSECTION                      4              ///< T-wi-n-k...  Most of 4 sections
 
+/// The buffer for the random naming data
 struct s_chop_data
 {
     Uint16  count;                  ///< The number of name parts
