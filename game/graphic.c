@@ -3152,21 +3152,26 @@ int draw_game_status( int y )
         y = _draw_string_raw( 0, y, "Waiting for players... " );
     }
 
-    if ( local_allpladead || PMod->respawnanytime )
-    {
-        if ( PMod->respawnvalid && cfg.difficulty < GAME_HARD )
-        {
-            y = _draw_string_raw( 0, y, "PRESS SPACE TO RESPAWN" );
-        }
-        else
-        {
-            y = _draw_string_raw( 0, y, "PRESS ESCAPE TO QUIT" );
-        }
-    }
-    else if ( PMod->beat )
-    {
-        y = _draw_string_raw( 0, y, "VICTORY!  PRESS ESCAPE" );
-    }
+	if( numplayer > 0 )
+	{
+		if ( local_allpladead || PMod->respawnanytime )
+		{
+			if ( PMod->respawnvalid && cfg.difficulty < GAME_HARD )
+			{
+				y = _draw_string_raw( 0, y, "PRESS SPACE TO RESPAWN" );
+			}
+			else
+			{
+				y = _draw_string_raw( 0, y, "PRESS ESCAPE TO QUIT" );
+			}
+		}
+		else if ( PMod->beat )
+		{
+			y = _draw_string_raw( 0, y, "VICTORY!  PRESS ESCAPE" );
+		}
+	}
+	else y = _draw_string_raw( 0, y, "ERROR: MISSING PLAYERS" );
+		 
 
     return y;
 }

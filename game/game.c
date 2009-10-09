@@ -1262,11 +1262,15 @@ int do_ego_proc_running( ego_process_t * eproc )
 
     if( cfg.dev_mode && SDLKEYDOWN( SDLK_F9 ) && NULL != PMod && PMod->active )
     {
+		int cnt;
         // super secret "I win" button
         //PMod->beat        = btrue;
         //PMod->exportvalid = btrue;
-
-        kill_character( 504, 511 );
+		for(cnt = 0; cnt < MAX_CHR; cnt++)
+		{
+			if( ChrList.lst[cnt].isplayer || ChrList.lst[cnt].invictus ) continue;
+	        kill_character( cnt, 511 );
+		}
     }
 
     // handle an escape by passing it on to all active sub-processes
@@ -5071,7 +5075,7 @@ bool_t setup_characters_spawn( spawn_file_info_t * psp_info )
     // Turn on PlaList_count input devices
     if ( psp_info->stat )
     {
-        if ( 0 == PMod->importamount && PlaList_count < PMod->playeramount )
+        if ( 0 != PMod->importamount && PlaList_count < PMod->playeramount )
         {
             if ( 0 == local_numlpla )
             {
