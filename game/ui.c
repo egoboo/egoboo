@@ -485,7 +485,7 @@ void ui_drawWidgetImage( ui_Widget_t * pw )
 //--------------------------------------------------------------------------------------------
 /** ui_drawTextBox
  * Draws a text string into a box, splitting it into lines according to newlines in the string.
- * NOTE: Doesn't pay attention to the width/height arguments yet.
+ * @warning Doesn't pay attention to the width/height arguments yet.
  *
  * text    - The text to draw
  * x       - The x position to start drawing at

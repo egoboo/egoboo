@@ -59,7 +59,7 @@ static GLfloat md2_blendedNormals[MD2_MAX_VERTICES][3];
 /* blend_md2_vertices
  * Blends the vertices and normals between 2 frames of a md2 model for animation.
  *
- * NOTE: Only meant to be called from draw_textured_md2, which does the necessary
+ * @note Only meant to be called from draw_textured_md2, which does the necessary
  * checks to make sure that the inputs are valid.  So this function itself assumes
  * that they are valid.  User beware!
  */

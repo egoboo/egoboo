@@ -5086,7 +5086,6 @@ Uint8 scr_OrderSpecialID( script_state_t * pstate, ai_state_t * pself )
 {
     // OrderSpecialID( tmpargument = "compressed order", tmpdistance = "idsz" )
     /// @details ZZ@> This function orders all characters with the given special IDSZ.
-    /// Note that the IDSZ is set in tmpdistance.
 
     SCRIPT_FUNCTION_BEGIN();
 

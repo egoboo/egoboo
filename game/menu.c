@@ -3918,7 +3918,7 @@ void load_all_menu_images()
         }
         else if ( mnu_test_by_index( cnt ) )
         {
-            // NOTE: just because we can't load the title image DOES NOT mean that we ignore the module
+            // @note just because we can't load the title image DOES NOT mean that we ignore the module
             snprintf( loadname, SDL_arraysize( loadname), "%s" SLASH_STR "gamedat" SLASH_STR "title", mnu_ModList.lst[cnt].name );
 
             mnu_ModList.lst[cnt].tex_index = TxTitleImage_load_one( loadname );

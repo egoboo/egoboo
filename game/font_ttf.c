@@ -86,9 +86,10 @@ int fnt_init()
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-// The next two functions are borrowed from the gl_font.c test program from SDL_ttf
 static int powerOfTwo( int input )
 {
+    /// @note borrowed from the gl_font.c test program from SDL_ttf
+
     int value = 1;
 
     while ( value < input )
@@ -102,6 +103,8 @@ static int powerOfTwo( int input )
 //--------------------------------------------------------------------------------------------
 int copySurfaceToTexture( SDL_Surface *surface, GLuint texture, GLfloat *texCoords )
 {
+    /// @note borrowed from the gl_font.c test program from SDL_ttf
+
     int w, h;
     SDL_Surface *image;
     SDL_Rect area;
@@ -342,15 +345,15 @@ void fnt_getTextSize( Font *font, const char *text, int *width, int *height )
 //--------------------------------------------------------------------------------------------
 /** font_drawTextBox
  * Draws a text string into a box, splitting it into lines according to newlines in the string.
- * NOTE: Doesn't pay attention to the width/height arguments yet.
+ * @warning Doesn't pay attention to the width/height arguments yet.
  *
- * font    - The font to draw with
- * text    - The text to draw
- * x       - The x position to start drawing at
- * y       - The y position to start drawing at
+ * @var font    - The font to draw with
+ * @var text    - The text to draw
+ * @var x       - The x position to start drawing at
+ * @var y       - The y position to start drawing at
  * width   - Maximum width of the box (not implemented)
- * height  - Maximum height of the box (not implemented)
- * spacing - Amount of space to move down between lines. (usually close to your font size)
+ * @var height  - Maximum height of the box (not implemented)
+ * @var spacing - Amount of space to move down between lines. (usually close to your font size)
  */
 void fnt_drawTextBox( Font *font, int x, int y, int width, int height, int spacing, const char *format, ...   )
 {

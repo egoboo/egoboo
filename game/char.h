@@ -501,14 +501,14 @@ struct s_chr
     int           hascodeofconduct;
     int           hasdarkvision;
 
-    // collision info
+    /// collision info
 
-    // note - to make it easier for things to "hit" one another (like a damage particle from
-    //        a torch hitting a grub bug), Aaron sometimes made the bumper size much different
-    //        than the shape of the actual object.
-    //        The old bumper data that is read from the data.txt file will be kept in
-    //        the struct "bump". A new bumper that actually matches the size of the object will
-    //        be kept in the struct "collision"
+    /// @note - to make it easier for things to "hit" one another (like a damage particle from
+    ///        a torch hitting a grub bug), Aaron sometimes made the bumper size much different
+    ///        than the shape of the actual object.
+    ///        The old bumper data that is read from the data.txt file will be kept in
+    ///        the struct "bump". A new bumper that actually matches the size of the object will
+    ///        be kept in the struct "collision"
     chr_bumper_0_t   bump;
     chr_bumper_0_t   bump_save;
 
