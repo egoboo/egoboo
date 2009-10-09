@@ -17,9 +17,8 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - sound.c
- * Sound code in Egoboo is implemented using SDL_mixer.
- */
+/// @file sound.c
+/// @brief Sound code in Egoboo is implemented using SDL_mixer.
 
 #include "sound.h"
 #include "camera.h"
@@ -236,7 +235,8 @@ bool_t sdl_audio_initialize()
 //--------------------------------------------------------------------------------------------
 bool_t sdl_mixer_initialize()
 {
-    // ZF> This intitializes the SDL_mixer services
+    /// @details ZF@> This intitializes the SDL_mixer services
+
     if ( !mixeron && ( snd.musicvalid || snd.soundvalid ) )
     {
         log_info( "Initializing SDL_mixer audio services version %d.%d.%d... ", SDL_MIXER_MAJOR_VERSION, SDL_MIXER_MINOR_VERSION, SDL_MIXER_PATCHLEVEL );
@@ -508,7 +508,7 @@ void sound_restart()
 
 int _calculate_volume( fvec3_t   diff )
 {
-    // BB> make this code its own function
+    /// @details BB@> make this code its own function
 
     float dist2;
     int volume;
@@ -694,7 +694,7 @@ void sound_stop_song()
 //--------------------------------------------------------------------------------------------
 void load_global_waves( const char * modname )
 {
-    // ZZ> This function loads the global waves
+    /// @details ZZ@> This function loads the global waves
     STRING tmploadname;
     STRING wavename;
     int cnt;
@@ -851,7 +851,7 @@ void fade_in_music( Mix_Music * music )
 //--------------------------------------------------------------------------------------------
 void   LoopedList_init()
 {
-    // BB> setup the looped sound list
+    /// @details BB@> setup the looped sound list
     int cnt;
 
     for (cnt = 0; cnt < LOOPED_COUNT; cnt++)
@@ -874,7 +874,7 @@ void   LoopedList_init()
 //--------------------------------------------------------------------------------------------
 bool_t LoopedList_validate()
 {
-    // BB> do the free and used indices have valid values?
+    /// @details BB@> do the free and used indices have valid values?
 
     bool_t retval;
 
@@ -892,7 +892,7 @@ bool_t LoopedList_validate()
 //--------------------------------------------------------------------------------------------
 bool_t LoopedList_free_one( int index )
 {
-    // BB> free a looped sound only if it is actually being used
+    /// @details BB@> free a looped sound only if it is actually being used
     Uint32 cnt;
 
     if ( !LoopedList_validate() ) return bfalse;
@@ -942,7 +942,7 @@ int LoopedList_get_free()
 //--------------------------------------------------------------------------------------------
 void LoopedList_clear()
 {
-    // BB> shut off all the looped sounds
+    /// @details BB@> shut off all the looped sounds
 
     int cnt;
 
@@ -965,7 +965,7 @@ void LoopedList_clear()
 //--------------------------------------------------------------------------------------------
 int LoopedList_add( Mix_Chunk * sound, int channel, Uint16 ichr )
 {
-    // BB> add a looped sound to the list
+    /// @details BB@> add a looped sound to the list
 
     int index;
 
@@ -990,7 +990,7 @@ int LoopedList_add( Mix_Chunk * sound, int channel, Uint16 ichr )
 //--------------------------------------------------------------------------------------------
 bool_t LoopedList_remove( int channel )
 {
-    // BB> remove a looped sound from the used list
+    /// @details BB@> remove a looped sound from the used list
 
     Uint32 cnt;
     bool_t retval;
@@ -1017,7 +1017,7 @@ bool_t LoopedList_remove( int channel )
 //--------------------------------------------------------------------------------------------
 bool_t _update_stereo_channel( int channel, fvec3_t   diff )
 {
-    // BB> This updates the stereo image of a looped sound
+    /// @details BB@> This updates the stereo image of a looped sound
 
     int       volume;
 
@@ -1065,7 +1065,7 @@ void looped_update_all_sound()
 //--------------------------------------------------------------------------------------------
 bool_t looped_stop_object_sounds( Uint16 ichr )
 {
-    // BB> free any looped sound(s) being made by a certain character
+    /// @details BB@> free any looped sound(s) being made by a certain character
     int freed;
     Uint32 cnt;
     bool_t found;

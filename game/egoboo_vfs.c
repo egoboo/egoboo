@@ -383,7 +383,7 @@ vfs_FILE * vfs_openRead( const char * filename )
 //--------------------------------------------------------------------------------------------
 int _vfs_ensure_write_directory( const char * filename, bool_t is_directory )
 {
-    // BB> 
+    /// @details BB@> 
 
     int           retval;
     VFS_PATH      temp_dirname = EMPTY_CSTR;
@@ -458,8 +458,8 @@ vfs_FILE * vfs_openWrite( const char * filename )
 //--------------------------------------------------------------------------------------------
 bool_t _vfs_ensure_destination_file( const char * filename )
 {
-    // BB> make sure that a copy of filename from the read path exists in
-    //     the write directory, but do not overwrite any existing file
+    /// @details BB@> make sure that a copy of filename from the read path exists in
+    ///     the write directory, but do not overwrite any existing file
 
     VFS_PATH      local_filename = EMPTY_CSTR;
     const char  * sys_src_name, * sys_dst_name;
@@ -1446,7 +1446,7 @@ int vfs_removeDirectoryAndContents( const char * dirname, int recursive )
 //--------------------------------------------------------------------------------------------
 static bool_t _vfs_copyFile( const char *source, const char *dest )
 {
-    // ZZ> This function copies a file on the local machine
+    /// @details ZZ@> This function copies a file on the local machine
     PHYSFS_File *sourcef = NULL, *destf = NULL;
     char         buf[4096] = EMPTY_CSTR;
     int          bytes_read;
@@ -1528,7 +1528,7 @@ int vfs_copyFile( const char *source, const char *dest )
 //--------------------------------------------------------------------------------------------
 int vfs_copyDirectory( const char *sourceDir, const char *destDir )
 {
-    // ZZ> This function copies all files in a directory
+    /// @details ZZ@> This function copies all files in a directory
     VFS_PATH srcPath = EMPTY_CSTR, destPath = EMPTY_CSTR;
     const char *fileName;
 
@@ -1822,7 +1822,7 @@ void _vfs_translate_error( vfs_FILE * pfile )
 //--------------------------------------------------------------------------------------------
 const char * vfs_getError() 
 {
-	// ZF> Returns the last error the PHYSFS system reported.
+	/// @details ZF@> Returns the last error the PHYSFS system reported.
 
     static char errors[1024];
     const char * physfs_error, * file_error;

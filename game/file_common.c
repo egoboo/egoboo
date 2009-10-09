@@ -17,10 +17,10 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - common-file.c
- * File operations that are shared between various operating systems.
- * OS-specific code goes in *-file.c (such as win-file.c)
- */
+/// @file common-file.c
+/// @brief Base implementation of the egoboo filesystem
+/// @details File operations that are shared between various operating systems.
+/// OS-specific code goes in *-file.c (such as win-file.c)
 
 #include "file_common.h"
 
@@ -37,8 +37,8 @@
 // FIXME: Doesn't handle deleting directories recursively yet.
 void fs_removeDirectoryAndContents( const char *dirname, int recursive )
 {
-    // ZZ> This function deletes all files in a directory,
-    //    and the directory itself
+    /// @details ZZ@> This function deletes all files in a directory,
+    ///    and the directory itself
 
     char filePath[MAX_PATH] = EMPTY_CSTR;
     const char *fileName;
@@ -72,7 +72,7 @@ void fs_removeDirectoryAndContents( const char *dirname, int recursive )
 
 void fs_copyDirectory( const char *sourceDir, const char *destDir )
 {
-    // ZZ> This function copies all files in a directory
+    /// @details ZZ@> This function copies all files in a directory
     char srcPath[MAX_PATH] = EMPTY_CSTR, destPath[MAX_PATH] = EMPTY_CSTR;
     const char *fileName;
 

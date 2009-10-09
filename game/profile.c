@@ -17,8 +17,7 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - profile.c
- */
+/// @file profile.c
 
 #include "profile.h"
 
@@ -62,7 +61,7 @@ static void get_message( vfs_FILE* fileread );
 //--------------------------------------------------------------------------------------------
 void init_all_profiles()
 {
-    // ZZ> This function initializes all of the model profiles
+    /// @details ZZ@> This function initializes all of the model profiles
 
     int tnc;
 
@@ -87,7 +86,7 @@ void init_all_profiles()
 //---------------------------------------------------------------------------------------------
 void release_all_profiles()
 {
-    // ZZ> This function clears out all of the model data
+    /// @details ZZ@> This function clears out all of the model data
 
     // release the allocated data in all profiles (sounds, textures, etc.)
     release_all_pro_data();
@@ -106,8 +105,8 @@ void release_all_profiles()
 //---------------------------------------------------------------------------------------------
 void profile_init()
 {
-    // BB> initialize the profile list and load up some intialization files
-    //     necessary for the the profile loading code to work
+    /// @details BB@> initialize the profile list and load up some intialization files
+    ///     necessary for the the profile loading code to work
 
     if( _profile_initialized )
     {
@@ -191,8 +190,8 @@ bool_t pro_init( pro_t * pobj )
 //--------------------------------------------------------------------------------------------
 int ProList_search_free( Uint16 iobj )
 {
-    // BB> if an object of index iobj exists on the free list, return the free list index
-    //     otherwise return -1
+    /// @details BB@> if an object of index iobj exists on the free list, return the free list index
+    ///     otherwise return -1
 
     int cnt, retval;
 
@@ -214,7 +213,7 @@ int ProList_search_free( Uint16 iobj )
 //--------------------------------------------------------------------------------------------
 int ProList_pop_free( int idx )
 {
-    // BB> pop off whatever object exists at the free list index idx
+    /// @details BB@> pop off whatever object exists at the free list index idx
 
     int retval;
 
@@ -247,7 +246,7 @@ int ProList_pop_free( int idx )
 //--------------------------------------------------------------------------------------------
 bool_t ProList_push_free( Uint16 iobj )
 {
-    // BB> push an object onto the free stack
+    /// @details BB@> push an object onto the free stack
 
     int retval;
 
@@ -275,8 +274,8 @@ bool_t ProList_push_free( Uint16 iobj )
 //--------------------------------------------------------------------------------------------
 void ProList_init()
 {
-    // BB> initialize all the objects and the object free list.
-    //     call before ever using the object list.
+    /// @details BB@> initialize all the objects and the object free list.
+    ///     call before ever using the object list.
 
     int cnt;
 
@@ -294,7 +293,7 @@ void ProList_init()
 //--------------------------------------------------------------------------------------------
 Uint16 ProList_get_free( Uint16 override )
 {
-    // ZZ> This function returns the next free character or MAX_PROFILE if there are none
+    /// @details ZZ@> This function returns the next free character or MAX_PROFILE if there are none
 
     Uint16 retval = MAX_PROFILE;
 
@@ -325,7 +324,7 @@ Uint16 ProList_get_free( Uint16 override )
 //--------------------------------------------------------------------------------------------
 bool_t ProList_free_one( Uint16 iobj )
 {
-    // ZZ> This function sticks an object back on the free object stack
+    /// @details ZZ@> This function sticks an object back on the free object stack
 
     if ( !VALID_PRO_RANGE(iobj) ) return bfalse;
 
@@ -440,7 +439,7 @@ bool_t release_one_pro( Uint16 iobj )
 //--------------------------------------------------------------------------------------------
 void release_all_pro()
 {
-    // BB> release the allocated data for all objects
+    /// @details BB@> release the allocated data for all objects
     int cnt;
 
     for ( cnt = 0; cnt < MAX_PROFILE; cnt++ )
@@ -452,7 +451,7 @@ void release_all_pro()
 //--------------------------------------------------------------------------------------------
 void release_all_pro_data()
 {
-    // BB> release the allocated data for all objects
+    /// @details BB@> release the allocated data for all objects
     int cnt;
 
     for ( cnt = 0; cnt < MAX_PROFILE; cnt++ )
@@ -602,7 +601,7 @@ Mix_Chunk * pro_get_chunk(Uint16 iobj, int index)
 //--------------------------------------------------------------------------------------------
 void prime_names()
 {
-    // ZZ> This function prepares the name chopper for use
+    /// @details ZZ@> This function prepares the name chopper for use
 
     chop.count = 0;
     chop.carat = 0;
@@ -699,8 +698,9 @@ int load_profile_skins( const char * tmploadname, Uint16 object )
 //--------------------------------------------------------------------------------------------
 void get_message( vfs_FILE* fileread )
 {
-    // ZZ> This function loads a string into the message buffer, making sure it
-    //    is null terminated.
+    /// @details ZZ@> This function loads a string into the message buffer, making sure it
+    ///    is null terminated.
+
     int cnt;
     char cTmp;
     STRING szTmp;
@@ -741,7 +741,7 @@ void get_message( vfs_FILE* fileread )
 //--------------------------------------------------------------------------------------------
 void load_all_messages( const char *loadname, Uint16 object )
 {
-    // ZZ> This function loads all of an objects messages
+    /// @details ZZ@> This function loads all of an objects messages
     vfs_FILE *fileread;
 
     ProList.lst[object].message_start = 0;
@@ -872,7 +872,7 @@ int pro_get_slot( const char * tmploadname, int slot_override )
 //--------------------------------------------------------------------------------------------
 int load_one_profile( const char* tmploadname, int slot_override )
 {
-    // ZZ> This function loads one object and returns the object slot
+    /// @details ZZ@> This function loads one object and returns the object slot
 
     int cnt;
     STRING newloadname;
@@ -995,7 +995,7 @@ int load_one_profile( const char* tmploadname, int slot_override )
 //--------------------------------------------------------------------------------------------
 void chop_load( Uint16 profile, const char *szLoadname )
 {
-    // ZZ> This function reads a naming file
+    /// @details ZZ@> This function reads a naming file
     vfs_FILE *fileread;
     int   section, chopinsection;
     char  tmp_chop[32] = EMPTY_CSTR;
@@ -1053,7 +1053,7 @@ void chop_load( Uint16 profile, const char *szLoadname )
 //--------------------------------------------------------------------------------------------
 void reset_messages()
 {
-    // ZZ> This makes messages safe to use
+    /// @details ZZ@> This makes messages safe to use
     int cnt;
 
     MessageOffset.count = 0;

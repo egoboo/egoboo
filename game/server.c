@@ -17,9 +17,8 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - Server.c
- * This code is not currently in use.
- */
+/// @file Server.c
+/// @brief This code is not currently in use.
 
 #include "server.h"
 

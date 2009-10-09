@@ -17,10 +17,10 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - Ui.c
- * A basic library for implementing user interfaces, based off of Casey Muratori's
- * IMGUI.  (https://mollyrocket.com/forums/viewtopic.php?t=134)
- */
+/// @file Ui.c
+/// @brief The egoboo GUI
+/// @details A basic library for implementing user interfaces, based off of Casey Muratori's
+/// IMGUI.  (https://mollyrocket.com/forums/viewtopic.php?t=134)
 
 #include "ui.h"
 #include "graphic.h"
@@ -757,7 +757,7 @@ bool_t ui_widgetSetMask( ui_Widget_t * pw, Uint32 mbits )
 //--------------------------------------------------------------------------------------------
 void ui_virtual_to_screen( float vx, float vy, float * rx, float * ry)
 {
-    // BB> convert "virtual" screen positions into "real" space
+    /// @details BB@> convert "virtual" screen positions into "real" space
 
     *rx = ui_context.aw * vx + ui_context.bw;
     *ry = ui_context.ah * vy + ui_context.bh;
@@ -766,7 +766,7 @@ void ui_virtual_to_screen( float vx, float vy, float * rx, float * ry)
 //--------------------------------------------------------------------------------------------
 void ui_screen_to_virtual( float rx, float ry, float *vx, float *vy )
 {
-    // BB> convert "real" mouse positions into "virtual" space
+    /// @details BB@> convert "real" mouse positions into "virtual" space
 
     *vx = ui_context.iaw * rx + ui_context.ibw;
     *vy = ui_context.iah * ry + ui_context.ibh;
@@ -775,7 +775,7 @@ void ui_screen_to_virtual( float rx, float ry, float *vx, float *vy )
 //--------------------------------------------------------------------------------------------
 void ui_set_virtual_screen( float vw, float vh, float ww, float wh)
 {
-    // BB> set up the ui's virtual screen
+    /// @details BB@> set up the ui's virtual screen
 
     float k;
     Font * ftmp;

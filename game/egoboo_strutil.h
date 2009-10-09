@@ -19,9 +19,8 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - egoboo_strutil.h
- * String manipulation functions.  Not currently in use.
- */
+/// @file egoboo_strutil.h
+/// @String manipulation functions.
 
 #include "egoboo_typedef.h"
 #include <string.h>
@@ -30,7 +29,7 @@
 //---------------------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------------------
 
-// end-of-string character. assume standard null terminated string
+/// end-of-string character. assume standard null terminated string
 #define CSTR_END '\0'
 #define EMPTY_CSTR { CSTR_END }
 

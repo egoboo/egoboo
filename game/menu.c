@@ -17,9 +17,8 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - menu.c
-* Implements the main menu tree, using the code in Ui.*
-*/
+/// @file menu.c
+/// @brief Implements the main menu tree, using the code in Ui.*
 
 #include "menu.h"
 
@@ -195,7 +194,7 @@ void TxTitleImage_clear_data()
 //---------------------------------------------------------------------------------------------
 void TxTitleImage_init_all()
 {
-    // ZZ> This function clears out all of the textures
+    /// @details ZZ@> This function clears out all of the textures
 
     int cnt;
 
@@ -218,7 +217,7 @@ void TxTitleImage_release_one( int index )
 //---------------------------------------------------------------------------------------------
 void TxTitleImage_release_all()
 {
-    // ZZ> This function releases all of the textures
+    /// @details ZZ@> This function releases all of the textures
 
     int cnt;
 
@@ -233,7 +232,7 @@ void TxTitleImage_release_all()
 //---------------------------------------------------------------------------------------------
 void TxTitleImage_delete_all()
 {
-    // ZZ> This function clears out all of the textures
+    /// @details ZZ@> This function clears out all of the textures
 
     int cnt;
 
@@ -248,8 +247,8 @@ void TxTitleImage_delete_all()
 //--------------------------------------------------------------------------------------------
 int TxTitleImage_load_one( const char *szLoadName )
 {
-    // ZZ> This function loads a title in the specified image slot, forcing it into
-    //    system memory.  Returns btrue if it worked
+    /// @details ZZ@> This function loads a title in the specified image slot, forcing it into
+    ///    system memory.  Returns btrue if it worked
 
     int    index;
 
@@ -3844,8 +3843,8 @@ bool_t mnu_removeSelectedPlayerInput( Uint16 player, Uint32 input )
 //--------------------------------------------------------------------------------------------
 void check_player_import( const char *dirname, bool_t initialize )
 {
-    // ZZ> This function figures out which players may be imported, and loads basic
-    //     data for each
+    /// @details ZZ@> This function figures out which players may be imported, and loads basic
+    ///     data for each
 
     STRING filename;
     int skin;
@@ -3889,8 +3888,8 @@ void check_player_import( const char *dirname, bool_t initialize )
 //--------------------------------------------------------------------------------------------
 void load_all_menu_images()
 {
-    // ZZ> This function loads the title image for each module.  Modules without a
-    //     title are marked as invalid
+    /// @details ZZ@> This function loads the title image for each module.  Modules without a
+    ///     title are marked as invalid
 
     STRING loadname;
     int cnt;
@@ -4027,8 +4026,8 @@ void mnu_release_one_module( int imod )
 //--------------------------------------------------------------------------------------------
 int mnu_get_mod_number( const char *szModName )
 {
-    // ZZ> This function returns -1 if the module does not exist locally, the module
-    //    index otherwise
+    /// @details ZZ@> This function returns -1 if the module does not exist locally, the module
+    ///    index otherwise
 
     int modnum, retval = -1;
 
@@ -4079,8 +4078,8 @@ bool_t mnu_test_by_index( int modnumber )
 //--------------------------------------------------------------------------------------------
 bool_t mnu_test_by_name( const char *szModName )
 {
-    // ZZ> This function tests to see if a module can be entered by
-    //    the players
+    /// @details ZZ@> This function tests to see if a module can be entered by
+    ///    the players
 
     // find the module by name
     int modnumber = mnu_get_mod_number( szModName );
@@ -4135,7 +4134,7 @@ void mnu_load_all_module_info()
 //--------------------------------------------------------------------------------------------
 Uint32 mnu_get_icon_ref( Uint16 icap, Uint32 default_ref )
 {
-    // BB> This function gets the proper icon for a an object profile.
+    /// @details BB@> This function gets the proper icon for a an object profile.
     //
     //     In the character preview section of the menu system, we do not load
     //     entire profiles, just the character definition file ("data.txt")

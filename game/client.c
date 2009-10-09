@@ -17,9 +17,8 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - Client.c
- * This code is not currently in use.
- */
+/// @file Client.c
+/// @brief This code is not currently in use.
 
 #include "client.h"
 

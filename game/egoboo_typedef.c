@@ -213,7 +213,7 @@ bool_t hash_list_destroy(hash_list_t ** plst)
 //--------------------------------------------------------------------------------------------
 const char * undo_idsz( IDSZ idsz )
 {
-    // ZZ> This function takes an integer and makes a text IDSZ out of it.
+    /// @details ZZ@> This function takes an integer and makes a text IDSZ out of it.
 
     static char value_string[5] = {"NONE"};
 
@@ -271,7 +271,7 @@ void latch_init( latch_t * platch )
 //--------------------------------------------------------------------------------------------
 void pair_to_range( IPair pair, FRange * prange )
 {
-    // ZZ> convert from a pair to a range
+    /// @details ZZ@> convert from a pair to a range
 
     if ( pair.base < 0 )
     {
@@ -298,7 +298,7 @@ void pair_to_range( IPair pair, FRange * prange )
 //--------------------------------------------------------------------------------------------
 void range_to_pair( FRange range, IPair * ppair )
 {
-    // ZZ> convert from a range to a pair
+    /// @details ZZ@> convert from a range to a pair
 
     if ( range.from > range.to )
     {

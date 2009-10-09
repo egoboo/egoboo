@@ -9,7 +9,7 @@
 //--------------------------------------------------------------------------------------------
 spawn_file_info_t * spawn_file_info_init( spawn_file_info_t *pinfo )
 {
-    // BB> safe values for all parameters
+    /// @details BB@> safe values for all parameters
 
     if( NULL == pinfo ) return pinfo;
 
@@ -103,7 +103,7 @@ bool_t spawn_file_scan( vfs_FILE * fileread, spawn_file_info_t *pinfo )
 
         pinfo->stat = fget_bool( fileread );
 
-        fget_first_letter( fileread );   // BAD! Unused ghost value
+        fget_first_letter( fileread );   ///< BAD! Unused ghost value
 
         cTmp = fget_first_letter( fileread );
         pinfo->team = ( cTmp - 'A' ) % TEAM_MAX;

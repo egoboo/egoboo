@@ -17,8 +17,7 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - template.c
- */
+/// @file template.c
 
 #include "template.h"
 
@@ -40,7 +39,7 @@ static void   template_copy_to_eof( vfs_FILE * tempfile, vfs_FILE * outfile );
 //--------------------------------------------------------------------------------------------
 char * template_dump_buffer( vfs_FILE * outfile, char * buffer_beg, char * buffer_end, char * pcarat )
 {
-    // BB> copy any buffer characters to the output file
+    /// @details BB@> copy any buffer characters to the output file
 
     char * ptmp;
 

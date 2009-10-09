@@ -19,14 +19,14 @@ static bool_t scantag_read_one( vfs_FILE *fileread );
 //--------------------------------------------------------------------------------------------
 void scantag_reset()
 {
-    // ZZ> This function resets the tags
+    /// @details ZZ@> This function resets the tags
     scantag_count = 0;
 }
 
 //--------------------------------------------------------------------------------------------
 bool_t scantag_read_one( vfs_FILE *fileread )
 {
-    // ZZ> This function finds the next tag, returning btrue if it found one
+    /// @details ZZ@> This function finds the next tag, returning btrue if it found one
 
     bool_t retval;
 
@@ -44,7 +44,7 @@ bool_t scantag_read_one( vfs_FILE *fileread )
 //--------------------------------------------------------------------------------------------
 void scantag_read_all( const char *szFilename )
 {
-    // ZZ> This function reads the scancode.txt file
+    /// @details ZZ@> This function reads the scancode.txt file
     vfs_FILE* fileread;
 
     scantag_reset();
@@ -63,8 +63,9 @@ void scantag_read_all( const char *szFilename )
 //--------------------------------------------------------------------------------------------
 int scantag_get_value( const char *string )
 {
-    // ZZ> This function matches the string with its tag, and returns the value...
-    //    It will return 255 if there are no matches.
+    /// @details ZZ@> This function matches the string with its tag, and returns the value...
+    ///    It will return 255 if there are no matches.
+
     int cnt;
 
     cnt = 0;
@@ -87,7 +88,8 @@ int scantag_get_value( const char *string )
 //--------------------------------------------------------------------------------------------
 char* scantag_get_string( Sint32 device, Sint32 tag, bool_t is_key )
 {
-    // ZF> This translates a input tag value to a string
+    /// @details ZF@> This translates a input tag value to a string
+
     int cnt;
 
     if ( device >= INPUT_DEVICE_JOY ) device = INPUT_DEVICE_JOY;

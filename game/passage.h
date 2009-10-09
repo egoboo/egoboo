@@ -19,9 +19,8 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - passage.h
- * Passages and doors and whatnot.  Things that impede your progress!
- */
+/// @file passage.h
+/// @Passages and doors and whatnot.  Things that impede your progress!
 
 #include "egoboo_typedef.h"
 
@@ -34,14 +33,14 @@ struct s_script_state;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-#define MAX_PASS             256                     // Maximum number of passages ( mul 32 )
+#define MAX_PASS             256                     ///< Maximum number of passages ( mul 32 )
 #define MAX_SHOP             MAX_PASS
-#define CLOSETOLERANCE       2                       // For closing doors
+#define CLOSETOLERANCE       2                       ///< For closing doors
 
-#define NOOWNER 0xFFFF        // Shop has no owner
-#define STOLEN  0xFFFF        // Someone stole a item
+#define NOOWNER 0xFFFF        ///< Shop has no owner
+#define STOLEN  0xFFFF        ///< Someone stole a item
 
-// These are shop orders
+/// These are shop orders
 enum e_shop_orders
 {
     SHOP_BUY       = 0,
@@ -52,7 +51,7 @@ enum e_shop_orders
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-// Passages
+/// Passages
 
 DEFINE_STACK_EXTERN(passage_t, PassageStack, MAX_PASS );
 
@@ -60,11 +59,11 @@ DEFINE_STACK_EXTERN(passage_t, PassageStack, MAX_PASS );
 #define VALID_PASSAGE( IPASS )       ( VALID_PASSAGE_RANGE( IPASS ) && ((IPASS) <  PassageStack.count) )
 #define INVALID_PASSAGE( IPASS )     ( !VALID_PASSAGE( IPASS ) )
 
-// For shops
+/// For shops
 struct s_shop
 {
-    Uint16  passage;  // The passage number
-    Uint16  owner;    // Who gets the gold?
+    Uint16  passage;  ///< The passage number
+    Uint16  owner;    ///< Who gets the gold?
 };
 typedef struct s_shop shop_t;
 
@@ -76,7 +75,7 @@ DEFINE_STACK_EXTERN(shop_t, ShopStack, MAX_SHOP );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-// prototypes
+/// prototypes
 
 bool_t open_passage( Uint16 passage );
 bool_t close_passage( Uint16 passage );

@@ -19,26 +19,25 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - scancode_file.h
- * routines for reading and writing the file "scancode.txt"
- */
+/// @file scancode_file.h
+/// @details routines for reading and writing the file "scancode.txt"
 
 #include "egoboo_typedef.h"
 
 //---------------------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------------------
 
-// Key/Control input definitions
-#define MAXTAG              128                     // Number of tags in scancode.txt
-#define TAGSIZE             32                      // Size of each tag
+/// Key/Control input definitions
+#define MAXTAG              128                     ///< Number of tags in scancode.txt
+#define TAGSIZE             32                      ///< Size of each tag
 
 //---------------------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------------------
 
 struct s_scantag
 {
-    char   name[TAGSIZE];                      // Scancode names
-    Sint32 value;                     // Scancode values
+    char   name[TAGSIZE];                      ///< Scancode names
+    Sint32 value;                     ///< Scancode values
 };
 typedef struct s_scantag scantag_t;
 

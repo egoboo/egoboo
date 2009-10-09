@@ -17,9 +17,8 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - particle.c
-* Manages particle systems.
-*/
+/// @file particle.c
+/// @brief Manages particle systems.
 
 #include "particle.h"
 #include "enchant.h"
@@ -65,7 +64,7 @@ int prt_count_free()
 //--------------------------------------------------------------------------------------------
 bool_t PrtList_free_one( Uint16 iprt )
 {
-    // ZZ> This function sticks a particle back on the free particle stack
+    /// @details ZZ@> This function sticks a particle back on the free particle stack
 
     bool_t retval;
 
@@ -127,8 +126,8 @@ void play_particle_sound( Uint16 particle, Sint8 sound )
 //--------------------------------------------------------------------------------------------
 void free_one_particle_in_game( Uint16 particle )
 {
-    // ZZ> This function sticks a particle back on the free particle stack and
-    //    plays the sound associated with the particle
+    /// @details ZZ@> This function sticks a particle back on the free particle stack and
+    ///    plays the sound associated with the particle
 
     Uint16 child;
     prt_t * pprt;
@@ -159,7 +158,7 @@ void free_one_particle_in_game( Uint16 particle )
 //--------------------------------------------------------------------------------------------
 Uint16 PrtList_get_free()
 {
-    // ZZ> This function returns the next free particle or TOTAL_MAX_PRT if there are none
+    /// @details ZZ@> This function returns the next free particle or TOTAL_MAX_PRT if there are none
 
     Uint16 retval = TOTAL_MAX_PRT;
 
@@ -175,9 +174,9 @@ Uint16 PrtList_get_free()
 //--------------------------------------------------------------------------------------------
 int prt_get_free( int force )
 {
-    // ZZ> This function gets an unused particle.  If all particles are in use
-    //    and force is set, it grabs the first unimportant one.  The iprt
-    //    index is the return value
+    /// @details ZZ@> This function gets an unused particle.  If all particles are in use
+    ///    and force is set, it grabs the first unimportant one.  The iprt
+    ///    index is the return value
 
     int iprt;
 
@@ -283,7 +282,7 @@ Uint16 spawn_one_particle( fvec3_t   pos, Uint16 facing, Uint16 iprofile, Uint16
                            Uint16 chr_attach, Uint16 vrt_offset, Uint8 team,
                            Uint16 chr_origin, Uint16 prt_origin, Uint16 multispawn, Uint16 oldtarget )
 {
-    // ZZ> This function spawns a new particle, and returns the number of that particle
+    /// @details ZZ@> This function spawns a new particle, and returns the number of that particle
     int iprt, velocity;
     fvec3_t   vel;
     float tvel;
@@ -537,7 +536,7 @@ Uint16 spawn_one_particle( fvec3_t   pos, Uint16 facing, Uint16 iprofile, Uint16
 //--------------------------------------------------------------------------------------------
 Uint8 __prthitawall( Uint16 particle )
 {
-    // ZZ> This function returns nonzero if the particle hit a wall
+    /// @details ZZ@> This function returns nonzero if the particle hit a wall
 
     Uint8  retval = MPDFX_IMPASS | MPDFX_WALL;
     Uint32 fan;
@@ -771,7 +770,7 @@ void update_all_particles( void )
 //--------------------------------------------------------------------------------------------
 void move_all_particles( void )
 {
-    // ZZ> This is the particle physics function
+    /// @details ZZ@> This is the particle physics function
 
     int cnt, tnc;
     Uint16 facing, particle;
@@ -1135,7 +1134,7 @@ void cleanup_all_particles()
 //--------------------------------------------------------------------------------------------
 void PrtList_free_all()
 {
-    // ZZ> This function resets the particle allocation lists
+    /// @details ZZ@> This function resets the particle allocation lists
 
     int cnt;
 
@@ -1150,7 +1149,7 @@ void PrtList_free_all()
 //--------------------------------------------------------------------------------------------
 void setup_particles()
 {
-    // ZZ> This function sets up particle data
+    /// @details ZZ@> This function sets up particle data
     int cnt;
     double x, y;
 
@@ -1172,7 +1171,7 @@ void setup_particles()
 //--------------------------------------------------------------------------------------------
 int spawn_bump_particles( Uint16 character, Uint16 particle )
 {
-    // ZZ> This function is for catching characters on fire and such
+    /// @details ZZ@> This function is for catching characters on fire and such
 
     int cnt, bs_count;
     float x, y, z;
@@ -1385,8 +1384,8 @@ Uint16 PipStack_get_free()
 //--------------------------------------------------------------------------------------------
 int load_one_particle_profile( const char *szLoadName, Uint16 pip_override )
 {
-    // ZZ> This function loads a particle template, returning bfalse if the file wasn't
-    //    found
+    /// @details ZZ@> This function loads a particle template, returning bfalse if the file wasn't
+    ///    found
 
     Uint16  ipip;
     pip_t * ppip;
@@ -1422,7 +1421,7 @@ int load_one_particle_profile( const char *szLoadName, Uint16 pip_override )
 //--------------------------------------------------------------------------------------------
 void reset_particles( const char* modname )
 {
-    // ZZ> This resets all particle data and reads in the coin and water particles
+    /// @details ZZ@> This resets all particle data and reads in the coin and water particles
 
     STRING newloadname;
     char *loadpath;

@@ -19,7 +19,8 @@
 //*
 //********************************************************************************************
 
-// Write formatted output using a pre-formatted template file
+/// @file template.h
+/// @brief Write formatted output using a pre-formatted template file
 
 #include "egoboo_typedef.h"
 #include "egoboo_vfs.h"

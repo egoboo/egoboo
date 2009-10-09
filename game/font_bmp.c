@@ -17,9 +17,8 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - font_bmp.c
- * bitmapped font stuff
- */
+/// @file font_bmp.c
+/// @brief bitmapped font stuff
 
 #include "font_bmp.h"
 
@@ -42,7 +41,7 @@ Uint8     asciitofont[256];           // Conversion table
 //--------------------------------------------------------------------------------------------
 void font_bmp_init()
 {
-    // BB > fill in default values
+    /// @details BB@> fill in default values
 
     Uint16 i, ix, iy, cnt;
     float dx, dy;
@@ -72,8 +71,9 @@ void font_bmp_init()
 //--------------------------------------------------------------------------------------------
 void font_bmp_load( const char* szBitmap, const char* szSpacing )
 {
-    // ZZ> This function loads the font bitmap and sets up the coordinates
-    //    of each font on that bitmap...  Bitmap must have 16x6 fonts
+    /// @details ZZ@> This function loads the font bitmap and sets up the coordinates
+    ///    of each font on that bitmap...  Bitmap must have 16x6 fonts
+
     int cnt, y, xsize, ysize, xdiv, ydiv;
     int stt_x, stt_y;
     int xspacing, yspacing;
@@ -140,8 +140,8 @@ void font_bmp_load( const char* szBitmap, const char* szSpacing )
 //--------------------------------------------------------------------------------------------
 int font_bmp_length_of_word( const char *szText )
 {
-    // ZZ> This function returns the number of pixels the
-    //    next word will take on screen in the x direction
+    /// @details ZZ@> This function returns the number of pixels the
+    ///    next word will take on screen in the x direction
 
     // Count all preceeding spaces
     int x = 0;

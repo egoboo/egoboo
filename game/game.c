@@ -17,8 +17,7 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - game.c
-*/
+/// @file game.c
 
 #define DECLARE_GLOBALS
 
@@ -265,7 +264,8 @@ static bool_t _sdl_initialized_base     = bfalse;
 //--------------------------------------------------------------------------------------------
 void export_one_character( Uint16 character, Uint16 owner, int number, bool_t is_local )
 {
-    // ZZ> This function exports a character
+    /// @details ZZ@> This function exports a character
+
     int tnc = 0;
     cap_t * pcap;
     pro_t * pobj;
@@ -366,8 +366,8 @@ void export_one_character( Uint16 character, Uint16 owner, int number, bool_t is
         snprintf( tofile, SDL_arraysize( tofile),   "%s" SLASH_STR "credits.txt", todir );
         vfs_copyFile( fromfile, tofile );
 
-        //snprintf( fromfile, SDL_arraysize( fromfile), "%s" SLASH_STR "quest.txt", fromdir );     Zefz> We can't do this yet, quests are written directly into players/x.obj
-        //snprintf( tofile, SDL_arraysize( tofile),   "%s" SLASH_STR "quest.txt", todir );       instead of import/x.obj which should be changed or all changes are lost.
+        //snprintf( fromfile, SDL_arraysize( fromfile), "%s" SLASH_STR "quest.txt", fromdir );      /// ZF@> We can't do this yet, quests are written directly into players/x.obj
+        //snprintf( tofile, SDL_arraysize( tofile),   "%s" SLASH_STR "quest.txt", todir );          /// instead of import/x.obj which should be changed or all changes are lost.
         //vfs_copyFile( fromfile, tofile );
 
         // Copy all of the particle files
@@ -412,8 +412,9 @@ void export_one_character( Uint16 character, Uint16 owner, int number, bool_t is
 //---------------------------------------------------------------------------------------------
 void export_all_players( bool_t require_local )
 {
-    // ZZ> This function saves all the local players in the
-    //    PLAYERS directory
+    /// @details ZZ@> This function saves all the local players in the
+    ///    PLAYERS directory
+
     bool_t is_local;
     int cnt, character, item, number;
 
@@ -470,7 +471,7 @@ void export_all_players( bool_t require_local )
 //--------------------------------------------------------------------------------------------
 void _quit_game( ego_process_t * pgame )
 {
-    // ZZ> This function exits the game entirely
+    /// @details ZZ@> This function exits the game entirely
 
     if ( process_running( PROC_PBASE(pgame) ) )
     {
@@ -486,8 +487,9 @@ void _quit_game( ego_process_t * pgame )
 //--------------------------------------------------------------------------------------------
 void getadd( int min, int value, int max, int* valuetoadd )
 {
-    // ZZ> This function figures out what value to add should be in order
-    //    to not overflow the min and max bounds
+    /// @details ZZ@> This function figures out what value to add should be in order
+    ///    to not overflow the min and max bounds
+
     int newvalue;
 
     newvalue = value + ( *valuetoadd );
@@ -510,8 +512,9 @@ void getadd( int min, int value, int max, int* valuetoadd )
 //--------------------------------------------------------------------------------------------
 void fgetadd( float min, float value, float max, float* valuetoadd )
 {
-    // ZZ> This function figures out what value to add should be in order
-    //    to not overflow the min and max bounds
+    /// @details ZZ@> This function figures out what value to add should be in order
+    ///    to not overflow the min and max bounds
+
     float newvalue;
 
     newvalue = value + ( *valuetoadd );
@@ -536,7 +539,8 @@ void fgetadd( float min, float value, float max, float* valuetoadd )
 //--------------------------------------------------------------------------------------------
 void log_madused( const char *savename )
 {
-    // ZZ> This is a debug function for checking model loads
+    /// @details ZZ@> This is a debug function for checking model loads
+
     vfs_FILE* hFileWrite;
     int cnt;
 
@@ -560,7 +564,7 @@ void log_madused( const char *savename )
 //--------------------------------------------------------------------------------------------
 void statlist_add( Uint16 character )
 {
-    // ZZ> This function adds a status display to the do list
+    /// @details ZZ@> This function adds a status display to the do list
 
     chr_t * pchr;
 
@@ -579,7 +583,8 @@ void statlist_add( Uint16 character )
 //--------------------------------------------------------------------------------------------
 void statlist_move_to_top( Uint16 character )
 {
-    // ZZ> This function puts the character on top of the StatusList
+    /// @details ZZ@> This function puts the character on top of the StatusList
+
     int cnt, oldloc;
 
     // Find where it is
@@ -612,7 +617,8 @@ void statlist_move_to_top( Uint16 character )
 //--------------------------------------------------------------------------------------------
 void statlist_sort()
 {
-    // ZZ> This function puts all of the local players on top of the StatusList
+    /// @details ZZ@> This function puts all of the local players on top of the StatusList
+
     int cnt;
 
     for ( cnt = 0; cnt < PlaList_count; cnt++ )
@@ -626,7 +632,7 @@ void statlist_sort()
 //--------------------------------------------------------------------------------------------
 void chr_play_action( Uint16 character, Uint16 action, Uint8 actionready )
 {
-    // ZZ> This function starts a generic action for a character
+    /// @details ZZ@> This function starts a generic action for a character
 
     chr_t * pchr;
     mad_t * pmad;
@@ -653,8 +659,8 @@ void chr_play_action( Uint16 character, Uint16 action, Uint8 actionready )
 //--------------------------------------------------------------------------------------------
 void chr_set_frame( Uint16 character, Uint16 action, int frame, Uint16 lip )
 {
-    // ZZ> This function sets the frame for a character explicitly...  This is used to
-    //    rotate Tank turrets
+    /// @details ZZ@> This function sets the frame for a character explicitly...  This is used to
+    ///    rotate Tank turrets
 
     chr_t * pchr;
     mad_t * pmad;
@@ -698,7 +704,8 @@ void chr_set_frame( Uint16 character, Uint16 action, int frame, Uint16 lip )
 //--------------------------------------------------------------------------------------------
 void setup_alliances( const char *modname )
 {
-    // ZZ> This function reads the alliance file
+    /// @details ZZ@> This function reads the alliance file
+
     STRING newloadname;
     STRING szTemp;
     Uint8 teama, teamb;
@@ -748,9 +755,9 @@ void move_all_objects()
 //--------------------------------------------------------------------------------------------
 void update_game()
 {
-    // ZZ> This function does several iterations of character movements and such
-    //    to keep the game in sync.
-    //    This is the main game loop
+    /// @details ZZ@> This function does several iterations of character movements and such
+    ///    to keep the game in sync.
+    ///    This is the main game loop
 
     int cnt, tnc, numdead, numalive;
 
@@ -847,7 +854,7 @@ void update_game()
     sv_talkToRemotes();
 
     // [claforte Jan 6th 2001]
-    // TODO: Put that back in place once networking is functional.
+    /// @todo Put that back in place once networking is functional.
     update_lag = true_update - update_wld;
     for( tnc = 0; update_wld < true_update && tnc < 1000 ; tnc++)
     {
@@ -919,7 +926,7 @@ void update_game()
 //--------------------------------------------------------------------------------------------
 void game_update_timers()
 {
-    // ZZ> This function updates the game timers
+    /// @details ZZ@> This function updates the game timers
 
     static bool_t update_was_paused = bfalse;
 
@@ -1010,7 +1017,7 @@ void game_update_timers()
 //--------------------------------------------------------------------------------------------
 void reset_timers()
 {
-    // ZZ> This function resets the timers...
+    /// @details ZZ@> This function resets the timers...
 
     clock_stt = ticks_now = ticks_last = SDL_GetTicks();
 
@@ -1032,7 +1039,7 @@ void reset_timers()
 //--------------------------------------------------------------------------------------------
 int game_do_menu( menu_process_t * mproc )
 {
-    // BB> do menus
+    /// @details BB@> do menus
 
     int menuResult;
     bool_t need_menu = bfalse;
@@ -1080,9 +1087,9 @@ int game_do_menu( menu_process_t * mproc )
 //--------------------------------------------------------------------------------------------
 void console_init()
 {
-    // BB> initialize the console. This must happen after the screen has been defines,
-    //     otherwise sdl_scr.x == sdl_scr.y == 0 and the screen will be defined to
-    //     have no area...
+    /// @details BB@> initialize the console. This must happen after the screen has been defines,
+    ///     otherwise sdl_scr.x == sdl_scr.y == 0 and the screen will be defined to
+    ///     have no area...
 
     SDL_Rect blah = {0, 0, sdl_scr.x, sdl_scr.y / 4};
 
@@ -1629,8 +1636,9 @@ int do_game_proc_running( game_process_t * gproc )
         msgtimechange++;
     }
 
+    /// @todo local_noplayers is not set correctly
+
     // Check for quitters
-    // :TODO: local_noplayers is not set correctly
     // if( local_noplayers  )
     // {
     //  gproc->escape_requested  = btrue;
@@ -1743,7 +1751,7 @@ int do_game_proc_run( game_process_t * gproc, double frameDuration )
 //--------------------------------------------------------------------------------------------
 int SDL_main( int argc, char **argv )
 {
-    // ZZ> This is where the program starts and all the high level stuff happens
+    /// @details ZZ@> This is where the program starts and all the high level stuff happens
 
     int result = 0;
 
@@ -1790,7 +1798,7 @@ int SDL_main( int argc, char **argv )
 //--------------------------------------------------------------------------------------------
 void memory_cleanUp(void)
 {
-    // ZF> This function releases all loaded things in memory and cleans up everything properly
+    /// @details ZF@> This function releases all loaded things in memory and cleans up everything properly
 
     log_info("memory_cleanUp() - Attempting to clean up loaded things in memory... ");
 
@@ -1836,7 +1844,7 @@ Uint16 prt_find_target( float pos_x, float pos_y, float pos_z, Uint16 facing,
                             Uint16 particletype, Uint8 team, Uint16 donttarget,
                             Uint16 oldtarget )
 {
-    // ZF> This is the new improved targeting system for particles. Also includes distance in the Z direction.
+    /// @details ZF@> This is the new improved targeting system for particles. Also includes distance in the Z direction.
 
     const float max_dist2 = WIDE * WIDE;
 
@@ -1968,8 +1976,8 @@ bool_t check_target( chr_t * psrc, Uint16 ichr_test, TARGET_TYPE target_type, bo
 //--------------------------------------------------------------------------------------------
 Uint16 chr_find_target( chr_t * psrc, float max_dist2, TARGET_TYPE target_type, bool_t target_items, bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz, bool_t target_players )
 {
-    // BB> this is the raw character targeting code, this is not throttled at all. You should call
-    //     scr_get_chr_target() if you are calling this function from the scripting system.
+    /// @details BB@> this is the raw character targeting code, this is not throttled at all. You should call
+    ///     scr_get_chr_target() if you are calling this function from the scripting system.
 
     line_of_sight_info_t los_info;
 
@@ -2097,8 +2105,9 @@ void do_damage_tiles()
 //--------------------------------------------------------------------------------------------
 Uint16 terp_dir( Uint16 majordir, Uint16 minordir )
 {
-    // ZZ> This function returns a direction between the major and minor ones, closer
-    //    to the major.
+    /// @details ZZ@> This function returns a direction between the major and minor ones, closer
+    ///    to the major.
+
     Uint16 temp;
 
     // Align major direction with 0
@@ -2122,8 +2131,9 @@ Uint16 terp_dir( Uint16 majordir, Uint16 minordir )
 //--------------------------------------------------------------------------------------------
 Uint16 terp_dir_fast( Uint16 majordir, Uint16 minordir )
 {
-    // ZZ> This function returns a direction between the major and minor ones, closer
-    //    to the major, but not by much.  Makes turning faster.
+    /// @details ZZ@> This function returns a direction between the major and minor ones, closer
+    ///    to the major, but not by much.  Makes turning faster.
+
     Uint16 temp;
 
     // Align major direction with 0
@@ -2147,7 +2157,8 @@ Uint16 terp_dir_fast( Uint16 majordir, Uint16 minordir )
 //--------------------------------------------------------------------------------------------
 void update_pits()
 {
-    // ZZ> This function kills any character in a deep pit...
+    /// @details ZZ@> This function kills any character in a deep pit...
+
     int cnt;
 
     if ( pits.kill || pits.teleport )
@@ -2232,7 +2243,8 @@ void update_pits()
 //--------------------------------------------------------------------------------------------
 void do_weather_spawn_particles()
 {
-    // ZZ> This function drops snowflakes or rain or whatever, also swings the camera
+    /// @details ZZ@> This function drops snowflakes or rain or whatever, also swings the camera
+
     int particle, cnt;
     bool_t foundone;
 
@@ -2307,8 +2319,9 @@ void do_weather_spawn_particles()
 //--------------------------------------------------------------------------------------------
 void set_one_player_latch( Uint16 player )
 {
-    // ZZ> This function converts input readings to latch settings, so players can
-    //    move around
+    /// @details ZZ@> This function converts input readings to latch settings, so players can
+    ///    move around
+
     float newx, newy;
     Uint16 turnsin;
     float dist, scale;
@@ -2541,7 +2554,8 @@ void set_one_player_latch( Uint16 player )
 //--------------------------------------------------------------------------------------------
 void set_local_latches( void )
 {
-    // ZZ> This function emulates AI thinkin' by setting latches from input devices
+    /// @details ZZ@> This function emulates AI thinkin' by setting latches from input devices
+
     int cnt;
 
     for ( cnt = 0; cnt < MAXPLAYER; cnt++ )
@@ -2553,7 +2567,7 @@ void set_local_latches( void )
 //--------------------------------------------------------------------------------------------
 void check_stats()
 {
-    // ZZ> This function lets the players check character stats
+    /// @details ZZ@> This function lets the players check character stats
 
     static int stat_check_timer = 0;
     static int stat_check_delay = 0;
@@ -2579,7 +2593,7 @@ void check_stats()
         stat_check_delay = 150;
     }
 
-    // !!!BAD!!!  XP CHEAT
+    // XP CHEAT
     if ( cfg.dev_mode && SDLKEYDOWN( SDLK_x ) )
     {
         if ( SDLKEYDOWN( SDLK_1 ) && ACTIVE_CHR(PlaList[0].index) )  { pla_get_pchr(0)->experience = ((float)pla_get_pchr(0)->experience+10)*1.10f; stat_check_delay = 1; }
@@ -2589,7 +2603,7 @@ void check_stats()
 
     }
 
-    // !!!BAD!!!  LIFE CHEAT
+    // LIFE CHEAT
     if ( cfg.dev_mode && SDLKEYDOWN( SDLK_z ) )
     {
         if ( SDLKEYDOWN( SDLK_1 ) && ACTIVE_CHR(PlaList[0].index) )  { pla_get_pchr(0)->life += 32; pla_get_pchr(0)->life = MIN(pla_get_pchr(0)->life, pla_get_pchr(0)->lifemax); stat_check_delay = 12; }
@@ -2655,7 +2669,8 @@ void check_stats()
 //--------------------------------------------------------------------------------------------
 void show_stat( Uint16 statindex )
 {
-    // ZZ> This function shows the more specific stats for a character
+    /// @details ZZ@> This function shows the more specific stats for a character
+
     int character, level;
     char gender[8] = EMPTY_CSTR;
 
@@ -2721,7 +2736,7 @@ void show_stat( Uint16 statindex )
 //--------------------------------------------------------------------------------------------
 void show_armor( Uint16 statindex )
 {
-    // ZF> This function shows detailed armor information for the character
+    /// @details ZF@> This function shows detailed armor information for the character
 
     STRING tmps;
     Uint16 ichr;
@@ -2777,7 +2792,7 @@ void show_armor( Uint16 statindex )
 //--------------------------------------------------------------------------------------------
 void show_full_status( Uint16 statindex )
 {
-    // ZF> This function shows detailed armor information for the character including magic
+    /// @details ZF@> This function shows detailed armor information for the character including magic
 
     Uint16 character, enchant;
     float manaregen, liferegen;
@@ -2838,7 +2853,7 @@ void show_full_status( Uint16 statindex )
 //--------------------------------------------------------------------------------------------
 void show_magic_status( Uint16 statindex )
 {
-    // ZF> Displays special enchantment effects for the character
+    /// @details ZF@> Displays special enchantment effects for the character
 
     Uint16 character;
     char * missile_str;
@@ -3103,7 +3118,7 @@ bool_t can_mount( Uint16 ichr_a, Uint16 ichr_b )
 //--------------------------------------------------------------------------------------------
 bool_t attach_chr_to_platform( chr_t * pchr, chr_t * pplat )
 {
-    // BB> attach a character to a platform
+    /// @details BB@> attach a character to a platform
 
     cap_t * pchr_cap;
     fvec3_t   platform_up;
@@ -4623,7 +4638,7 @@ static hash_node_t hnlst[COLLISION_HASH_NODES];
 
 void bump_all_objects( void )
 {
-    // ZZ> This function sets handles characters hitting other characters or particles
+    /// @details ZZ@> This function sets handles characters hitting other characters or particles
 
     int tnc, cnt;
 
@@ -4799,7 +4814,8 @@ void bump_all_objects( void )
 //--------------------------------------------------------------------------------------------
 void tilt_characters_to_terrain()
 {
-    // ZZ> This function sets all of the character's starting tilt values
+    /// @details ZZ@> This function sets all of the character's starting tilt values
+
     int cnt;
     Uint8 twist;
 
@@ -4879,7 +4895,7 @@ void load_all_profiles_import()
 //--------------------------------------------------------------------------------------------
 void game_load_module_profiles( const char *modname )
 {
-    // BB> Search for .obj directories int the module directory and load them
+    /// @details BB@> Search for .obj directories int the module directory and load them
 
     const char *filehandle;
     STRING newloadname;
@@ -4909,7 +4925,7 @@ void game_load_global_profiles()
 //--------------------------------------------------------------------------------------------
 void game_load_all_profiles( const char *modname )
 {
-    // ZZ> This function loads a module's local objects and overrides the global ones already loaded
+    /// @details ZZ@> This function loads a module's local objects and overrides the global ones already loaded
 
     // Log all of the script errors
     parseerror = bfalse;
@@ -5002,7 +5018,7 @@ int strlwr( char * str )
 //--------------------------------------------------------------------------------------------
 bool_t setup_characters_load_object( spawn_file_info_t * psp_info )
 {
-    // BB> Try to load a global object named psp_info->spawn_coment into slot psp_info->slot
+    /// @details BB@> Try to load a global object named psp_info->spawn_coment into slot psp_info->slot
 
     STRING filename;
 
@@ -5113,7 +5129,7 @@ bool_t setup_characters_spawn( spawn_file_info_t * psp_info )
 //--------------------------------------------------------------------------------------------
 void setup_characters( const char *modname )
 {
-    // ZZ> This function sets up character data, loaded from "SPAWN.TXT"
+    /// @details ZZ@> This function sets up character data, loaded from "SPAWN.TXT"
 
     STRING            newloadname;
     vfs_FILE         *fileread;
@@ -5178,7 +5194,8 @@ void setup_characters( const char *modname )
 //--------------------------------------------------------------------------------------------
 void load_all_global_objects()
 {
-    // ZF> This function loads all global objects found in the basicdat folder
+    /// @details ZF@> This function loads all global objects found in the basicdat folder
+
     const char *filehandle;
 
     // Warn the user for any duplicate slots
@@ -5252,7 +5269,7 @@ void game_load_all_assets( const char *modname )
 //--------------------------------------------------------------------------------------------
 void game_setup_module( const char *smallname )
 {
-    // ZZ> This runst the setup functions for a module
+    /// @details ZZ@> This runst the setup functions for a module
 
     STRING modname;
 
@@ -5272,7 +5289,8 @@ void game_setup_module( const char *smallname )
 //--------------------------------------------------------------------------------------------
 bool_t game_load_module_data( const char *smallname )
 {
-    // ZZ> This function loads a module
+    /// @details ZZ@> This function loads a module
+
     STRING modname;
 
     log_info( "Loading module \"%s\"\n", smallname );
@@ -5303,7 +5321,8 @@ bool_t game_load_module_data( const char *smallname )
 //--------------------------------------------------------------------------------------------
 void disaffirm_attached_particles( Uint16 character )
 {
-    // ZZ> This function makes sure a character has no attached particles
+    /// @details ZZ@> This function makes sure a character has no attached particles
+
     Uint16 particle;
 
     for ( particle = 0; particle < maxparticles; particle++ )
@@ -5326,7 +5345,8 @@ void disaffirm_attached_particles( Uint16 character )
 //--------------------------------------------------------------------------------------------
 Uint16 number_of_attached_particles( Uint16 character )
 {
-    // ZZ> This function returns the number of particles attached to the given character
+    /// @details ZZ@> This function returns the number of particles attached to the given character
+
     Uint16 cnt = 0;
     Uint16 particle;
 
@@ -5344,7 +5364,8 @@ Uint16 number_of_attached_particles( Uint16 character )
 //--------------------------------------------------------------------------------------------
 void reaffirm_attached_particles( Uint16 character )
 {
-    // ZZ> This function makes sure a character has all of it's particles
+    /// @details ZZ@> This function makes sure a character has all of it's particles
+
     Uint16 numberattached;
     Uint16 particle;
     chr_t * pchr;
@@ -5374,7 +5395,7 @@ void reaffirm_attached_particles( Uint16 character )
 //--------------------------------------------------------------------------------------------
 void game_quit_module()
 {
-    // BB > all of the de-initialization code after the module actually ends
+    /// @details BB@> all of the de-initialization code after the module actually ends
 
     // stop the module
     game_module_stop( PMod );
@@ -5398,7 +5419,7 @@ void game_quit_module()
 //-----------------------------------------------------------------
 bool_t game_begin_module( const char * modname, Uint32 seed )
 {
-    // BB> all of the initialization code before the module actually starts
+    /// @details BB@> all of the initialization code before the module actually starts
 
     if ( ~0 == seed ) seed = time(NULL);
 
@@ -5445,8 +5466,8 @@ bool_t game_begin_module( const char * modname, Uint32 seed )
 //-----------------------------------------------------------------
 bool_t game_update_imports()
 {
-    // BB> This function saves all the players to the players dir
-    //    and also copies them into the imports dir to prepare for the next module
+    /// @details BB@> This function saves all the players to the players dir
+    ///    and also copies them into the imports dir to prepare for the next module
 
     bool_t is_local;
     int cnt, tnc, j, character, player;
@@ -5524,7 +5545,7 @@ bool_t game_update_imports()
 //--------------------------------------------------------------------------------------------
 void game_release_module_data()
 {
-    // ZZ> This function frees up memory used by the module
+    /// @details ZZ@> This function frees up memory used by the module
 
     // Disable EMP
     local_senseenemiesID = IDSZ_NONE;
@@ -5540,8 +5561,9 @@ void game_release_module_data()
 //--------------------------------------------------------------------------------------------
 void attach_particles()
 {
-    // ZZ> This function attaches particles to their characters so everything gets
-    //    drawn right
+    /// @details ZZ@> This function attaches particles to their characters so everything gets
+    ///    drawn right
+
     int cnt;
 
     for ( cnt = 0; cnt < maxparticles; cnt++ )
@@ -5573,7 +5595,7 @@ void attach_particles()
 //--------------------------------------------------------------------------------------------
 int add_player( Uint16 character, Uint16 player, Uint32 device_bits )
 {
-    // ZZ> This function adds a player, returning bfalse if it fails, btrue otherwise
+    /// @details ZZ@> This function adds a player, returning bfalse if it fails, btrue otherwise
 
     bool_t retval = bfalse;
 
@@ -5606,7 +5628,8 @@ int add_player( Uint16 character, Uint16 player, Uint32 device_bits )
 //--------------------------------------------------------------------------------------------
 void let_all_characters_think()
 {
-    // ZZ> This function lets every computer controlled character do AI stuff
+    /// @details ZZ@> This function lets every computer controlled character do AI stuff
+
     int character;
     static Uint32 last_update = (Uint32)(~0);
 
@@ -5695,7 +5718,7 @@ void game_finish_module()
 //--------------------------------------------------------------------------------------------
 void free_all_objects( void )
 {
-    // BB > free every instance of the three object types used in the game.
+    /// @details BB@> free every instance of the three object types used in the game.
 
     PrtList_free_all();
     EncList_free_all();
@@ -5989,9 +6012,9 @@ camera_t * set_PCamera( camera_t * pcam )
 //---------------------------------------------------------------------------------------------
 float get_mesh_level( ego_mpd_t * pmesh, float x, float y, bool_t waterwalk )
 {
-    // ZZ> This function returns the height of a point within a mesh fan, precise
-    //    If waterwalk is nonzero and the fan is watery, then the level returned is the
-    //    level of the water.
+    /// @details ZZ@> This function returns the height of a point within a mesh fan, precise
+    ///    If waterwalk is nonzero and the fan is watery, then the level returned is the
+    ///    level of the water.
 
     float zdone;
 
@@ -6013,7 +6036,8 @@ float get_mesh_level( ego_mpd_t * pmesh, float x, float y, bool_t waterwalk )
 //--------------------------------------------------------------------------------------------
 bool_t make_water( water_instance_t * pinst, wawalite_water_t * pdata )
 {
-    // ZZ> This function sets up water movements
+    /// @details ZZ@> This function sets up water movements
+
     int layer, frame, point, cnt;
     float temp;
     Uint8 spek;
@@ -6063,7 +6087,8 @@ bool_t make_water( water_instance_t * pinst, wawalite_water_t * pdata )
 //--------------------------------------------------------------------------------------------
 void reset_end_text()
 {
-    // ZZ> This function resets the end-module text
+    /// @details ZZ@> This function resets the end-module text
+
     endtext_carat = snprintf( endtext, SDL_arraysize( endtext), "The game has ended..." );
 
     /*
@@ -6540,7 +6565,8 @@ game_process_t * game_process_init( game_process_t * gproc )
 Uint8 onlyfriends, Uint8 anyone, Uint8 team,
 Uint16 donttarget, Uint16 oldtarget )
 {
-// ZZ> This function helps find a target, returning btrue if it found a decent target
+/// @details ZZ@> This function helps find a target, returning btrue if it found a decent target
+
 int cnt;
 Uint16 angle;
 Uint16 charb;
@@ -6806,7 +6832,7 @@ bool_t do_line_of_sight( line_of_sight_info_t * plos )
 //--------------------------------------------------------------------------------------------
 void game_reset_players()
 {
-    // ZZ> This function clears the player list data
+    /// @details ZZ@> This function clears the player list data
 
     // Reset the local data stuff
     local_seekurse         = bfalse;
@@ -7094,7 +7120,7 @@ bool_t upload_camera_data( wawalite_camera_t * pdata )
 //--------------------------------------------------------------------------------------------
 void upload_wawalite()
 {
-    // ZZ> This function sets up water and lighting for the module
+    /// @details ZZ@> This function sets up water and lighting for the module
 
     wawalite_data_t * pdata = &wawalite_data;
 
@@ -7207,7 +7233,7 @@ bool_t game_module_reset( game_module_t * pinst, Uint32 seed )
     if (NULL == pinst) return bfalse;
 
     pinst->beat        = bfalse;
-    //pinst->exportvalid = bfalse;  //Zefz> we can't disable export here, some modules are supposed to allow export (towns)
+    //pinst->exportvalid = bfalse;  /// ZF@> we can't disable export here, some modules are supposed to allow export (towns)
     pinst->seed        = seed;
 
     return btrue;
@@ -7216,7 +7242,7 @@ bool_t game_module_reset( game_module_t * pinst, Uint32 seed )
 //--------------------------------------------------------------------------------------------
 bool_t game_module_start( game_module_t * pinst )
 {
-    // BB> Let the module go
+    /// @details BB@> Let the module go
 
     if (NULL == pinst) return bfalse;
 
@@ -7234,7 +7260,7 @@ bool_t game_module_start( game_module_t * pinst )
 //--------------------------------------------------------------------------------------------
 bool_t game_module_stop( game_module_t * pinst )
 {
-    // BB> stop the module
+    /// @details BB@> stop the module
 
     if (NULL == pinst) return bfalse;
 

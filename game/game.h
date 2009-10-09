@@ -40,7 +40,7 @@ struct s_chr;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-#define EXPKEEP 0.85f                                // Experience to keep when respawning
+#define EXPKEEP 0.85f                                ///< Experience to keep when respawning
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -127,19 +127,19 @@ extern menu_process_t * MProc;
 #define TILESOUNDTIME 16
 #define TILEREAFFIRMAND  3
 
-#define MAXWATERLAYER 2                             // Maximum water layers
-#define MAXWATERFRAME 512                           // Maximum number of wave frames
+#define MAXWATERLAYER 2                             ///< Maximum water layers
+#define MAXWATERFRAME 512                           ///< Maximum number of wave frames
 #define WATERFRAMEAND (MAXWATERFRAME-1)
-#define WATERPOINTS 4                               // Points in a water fan
+#define WATERPOINTS 4                               ///< Points in a water fan
 
 enum e_latchbutton
 {
-    LATCHBUTTON_LEFT      = ( 1 << 0 ),                      // Character button presses
+    LATCHBUTTON_LEFT      = ( 1 << 0 ),                      ///< Character button presses
     LATCHBUTTON_RIGHT     = ( 1 << 1 ),
     LATCHBUTTON_JUMP      = ( 1 << 2 ),
-    LATCHBUTTON_ALTLEFT   = ( 1 << 3 ),                      // ( Alts are for grab/drop )
+    LATCHBUTTON_ALTLEFT   = ( 1 << 3 ),                      ///< ( Alts are for grab/drop )
     LATCHBUTTON_ALTRIGHT  = ( 1 << 4 ),
-    LATCHBUTTON_PACKLEFT  = ( 1 << 5 ),                     // ( Packs are for inventory cycle )
+    LATCHBUTTON_PACKLEFT  = ( 1 << 5 ),                     ///< ( Packs are for inventory cycle )
     LATCHBUTTON_PACKRIGHT = ( 1 << 6 ),
     LATCHBUTTON_RESPAWN   = ( 1 << 7 )
 };
@@ -148,7 +148,7 @@ enum e_latchbutton
 //--------------------------------------------------------------------------------------------
 struct s_animtile_instance
 {
-    int    update_and;             // New tile every 7 frames
+    int    update_and;             ///< New tile every 7 frames
     Uint16 frame_and;
     Uint16 base_and;
     Uint16 frame_add;
@@ -161,7 +161,7 @@ extern animtile_instance_t animtile[2];
 //--------------------------------------------------------------------------------------------
 struct s_damagetile_instance
 {
-    IPair   amount;                    // Amount of damage
+    IPair   amount;                    ///< Amount of damage
     int    type;
 
     int    parttype;
@@ -181,7 +181,7 @@ struct s_weather_instance
     bool_t  over_water;
 
     Uint16  iplayer;
-    int   time;                // 0 is no weather
+    int   time;                ///< 0 is no weather
 };
 typedef struct s_weather_instance weather_instance_t;
 extern weather_instance_t weather;
@@ -189,37 +189,37 @@ extern weather_instance_t weather;
 //--------------------------------------------------------------------------------------------
 struct s_water_layer_instance
 {
-    Uint16    frame;        // Frame
-    Uint32    frame_add;      // Speed
+    Uint16    frame;        ///< Frame
+    Uint32    frame_add;      ///< Speed
 
-    float     z;            // Base height of water
-    float     amp;            // Amplitude of waves
+    float     z;            ///< Base height of water
+    float     amp;            ///< Amplitude of waves
 
     fvec2_t   dist;
 
-    fvec2_t   tx;           // Coordinates of texture
+    fvec2_t   tx;           ///< Coordinates of texture
 
-    float     light_dir;    // direct  reflectivity 0 - 1
-    float     light_add;    // ambient reflectivity 0 - 1
-    Uint8     alpha;        // Transparency
+    float     light_dir;    ///< direct  reflectivity 0 - 1
+    float     light_add;    ///< ambient reflectivity 0 - 1
+    Uint8     alpha;        ///< Transparency
 
-    fvec2_t   tx_add;            // Texture movement
+    fvec2_t   tx_add;            ///< Texture movement
 };
 typedef struct s_water_layer_instance water_instance_layer_t;
 
 struct s_water_instance
 {
-    float  surface_level;          // Surface level for water striders
-    float  douse_level;            // Surface level for torches
-    bool_t is_water;         // Is it water?  ( Or lava... )
+    float  surface_level;          ///< Surface level for water striders
+    float  douse_level;            ///< Surface level for torches
+    bool_t is_water;         ///< Is it water?  ( Or lava... )
     bool_t overlay_req;
     bool_t background_req;
-    bool_t light;            // Is it light ( default is alpha )
+    bool_t light;            ///< Is it light ( default is alpha )
 
     float  foregroundrepeat;
     float  backgroundrepeat;
 
-    Uint32 spek[256];              // Specular highlights
+    Uint32 spek[256];              ///< Specular highlights
 
     int                    layer_count;
     water_instance_layer_t layer[MAXWATERLAYER];
@@ -233,7 +233,7 @@ extern water_instance_t water;
 //--------------------------------------------------------------------------------------------
 struct s_fog_instance
 {
-    bool_t  on;            // Do ground fog?
+    bool_t  on;            ///< Do ground fog?
     float   top, bottom;
     Uint8   red, grn, blu;
     float   distance;
@@ -243,92 +243,92 @@ extern fog_instance_t fog;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-// the module data that the game needs
+/// the module data that the game needs
 struct s_game_module
 {
-    Uint8   importamount;               // Number of imports for this module
-    bool_t  exportvalid;                // Can it export?
-    Uint8   playeramount;               // How many players?
-    bool_t  importvalid;                // Can it import?
-    bool_t  respawnvalid;               // Can players respawn with Spacebar?
-    bool_t  respawnanytime;             // True if it's a small level...
-    STRING  loadname;                     // Module load names
+    Uint8   importamount;               ///< Number of imports for this module
+    bool_t  exportvalid;                ///< Can it export?
+    Uint8   playeramount;               ///< How many players?
+    bool_t  importvalid;                ///< Can it import?
+    bool_t  respawnvalid;               ///< Can players respawn with Spacebar?
+    bool_t  respawnanytime;             ///< True if it's a small level...
+    STRING  loadname;                     ///< Module load names
 
-    bool_t  active;                     // Is the control loop still going?
-    bool_t  beat;                       // Show Module Ended text?
-    Uint32  seed;                       // The module seed
+    bool_t  active;                     ///< Is the control loop still going?
+    bool_t  beat;                       ///< Show Module Ended text?
+    Uint32  seed;                       ///< The module seed
     Uint32  randsave;
 };
 typedef struct s_game_module game_module_t;
 
 //--------------------------------------------------------------------------------------------
-// Status displays
+/// Status displays
 
-#define MAXSTAT             16                      // Maximum status displays
+#define MAXSTAT             16                      ///< Maximum status displays
 
 extern bool_t StatusList_on;
 extern int    StatusList_count;
 extern Uint16 StatusList[MAXSTAT];
 
 //--------------------------------------------------------------------------------------------
-// End text
+/// End text
 #define MAXENDTEXT 1024
 
-extern char   endtext[MAXENDTEXT];     // The end-module text
+extern char   endtext[MAXENDTEXT];     ///< The end-module text
 extern size_t endtext_carat;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-extern bool_t    overrideslots;         // Override existing slots?
-extern bool_t    screenshotkeyready;    // Ready to take screenshot?
+extern bool_t    overrideslots;         ///< Override existing slots?
+extern bool_t    screenshotkeyready;    ///< Ready to take screenshot?
 
 extern struct s_ego_mpd         * PMesh;
 extern struct s_camera          * PCamera;
 extern struct s_game_module * PMod;
 
-// Pitty stuff
+/// Pitty stuff
 struct s_pit_info
 {
-    bool_t     kill;          // Do they kill?
-    bool_t     teleport;      // Do they teleport?
+    bool_t     kill;          ///< Do they kill?
+    bool_t     teleport;      ///< Do they teleport?
     fvec3_t    teleport_pos;
 };
 typedef struct s_pit_info pit_info_t;
 
 extern pit_info_t pits;
 
-extern Uint16  glouseangle;                                        // actually still used
+extern Uint16  glouseangle;                                        ///< actually still used
 
-// Sense enemies
+/// Sense enemies
 extern Uint8  local_senseenemiesTeam;
 extern IDSZ   local_senseenemiesID;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-// the hook for deinitializing an old module
+/// the hook for deinitializing an old module
 void   game_quit_module();
 
-// the hook for exporting all the current players and reloading them
+/// the hook for exporting all the current players and reloading them
 bool_t game_update_imports();
 void   game_finish_module();
 bool_t game_begin_module( const char * modname, Uint32 seed );
 
-// Exporting stuff
+/// Exporting stuff
 void export_one_character( Uint16 character, Uint16 owner, int number, bool_t is_local );
 void export_all_players( bool_t require_local );
 
-// Messages
+/// Messages
 void show_stat( Uint16 statindex );
 void show_armor( Uint16 statindex );
 void show_full_status( Uint16 statindex );
 void show_magic_status( Uint16 statindex );
 
-// End Text
+/// End Text
 void reset_end_text();
 
-// Particles
+/// Particles
 Uint16 number_of_attached_particles( Uint16 character );
 int    spawn_bump_particles( Uint16 character, Uint16 particle );
 void   attach_particle_to_character( Uint16 particle, Uint16 character, int vertex_offset );
@@ -336,32 +336,32 @@ void   disaffirm_attached_particles( Uint16 character );
 void   reaffirm_attached_particles( Uint16 character );
 Uint16 number_of_attached_particles( Uint16 character );
 
-// Statlist
+/// Statlist
 void statlist_add( Uint16 character );
 void statlist_move_to_top( Uint16 character );
 void statlist_sort();
 
-// Math
+/// Math
 Uint16 terp_dir( Uint16 majordir, Uint16 minordir );
 Uint16 terp_dir_fast( Uint16 majordir, Uint16 minordir );
 void   getadd( int min, int value, int max, int* valuetoadd );
 void   fgetadd( float min, float value, float max, float* valuetoadd );
 
-// Player
+/// Player
 void set_one_player_latch( Uint16 player );
 int  add_player( Uint16 character, Uint16 player, Uint32 device );
 
-// AI targeting
+/// AI targeting
 Uint16 chr_find_target( struct s_chr * psrc, float max_dist2, TARGET_TYPE target_type, bool_t target_items, 
 					   bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz, bool_t target_players );
 Uint16 prt_find_target( float pos_x, float pos_y, float pos_z, Uint16 facing,
                             Uint16 particletype, Uint8 team, Uint16 donttarget,
                             Uint16 oldtarget );
 
-// object initialization
+/// object initialization
 void  free_all_objects( void );
 
-// Data
+/// Data
 struct s_ego_mpd   * set_PMesh( struct s_ego_mpd * pmpd );
 struct s_camera * set_PCamera( struct s_camera * pcam );
 

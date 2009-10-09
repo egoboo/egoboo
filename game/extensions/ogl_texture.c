@@ -18,7 +18,7 @@
 //********************************************************************************************
 
 ///
-/// @file
+/// @file ogl_texture.c
 /// @brief Egoboo OpenGL texture interface
 /// @details Implements OpenGL texture loading using SDL_image
 
@@ -62,7 +62,7 @@ static void ErrorImage_bind(GLenum target, GLuint id);
 //--------------------------------------------------------------------------------------------
 void ErrorImage_create(void)
 {
-    // BB > define a default "error texture"
+    /// @details BB@> define a default "error texture"
 
     int i, j;
 

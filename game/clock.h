@@ -20,7 +20,7 @@
 //********************************************************************************************
 
 ///
-/// @file
+/// @file clock.h
 /// @brief Clock & timer functionality.
 /// @details This implementation was adapted from Noel Lopis' article in
 ///   Game Programming Gems 4.
@@ -35,7 +35,7 @@ typedef struct s_ClockState ClockState_t;
 
 void clk_init( void );                                 ///< Init the clock module
 void clk_shutdown( void );                             ///< Shut down the clock module
-//void clk_setTimeSource( clock_source_ptr_t tsrc );     ///< Specify where the clock gets its time values from
+//void clk_setTimeSource( clock_source_ptr_t tsrc );   ///< Specify where the clock gets its time values from
 
 ClockState_t * clk_create( const char * name, int size );
 bool_t         clk_destroy( ClockState_t ** cs );
@@ -48,7 +48,7 @@ Uint32 clk_getFrameNumber( ClockState_t * cs );     ///< Return which frame we'r
 float  clk_getFrameRate( ClockState_t * cs );       ///< Return the current instantaneous FPS
 
 //-----------------------------------------------------------------
-// macros to use the high resolution timer for profiling
+/// macros to use the high resolution timer for profiling
 #define PROFILE_KEEP  0.9
 #define PROFILE_NEW  (1.0 - PROFILE_KEEP)
 

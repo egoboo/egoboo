@@ -19,9 +19,8 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - sound.h
- * Sound handling using SDL_mixer
- */
+/// @file sound.h
+/// @Sound handling using SDL_mixer
 
 #include "egoboo_typedef.h"
 #include "egoboo_math.h"
@@ -35,14 +34,14 @@ struct s_egoboo_config;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-#define MAX_WAVE           30           // Up to 30 wave/ogg per model
-#define MAXPLAYLISTLENGTH  35           // Max number of different tracks loaded into memory
-#define INVALID_SOUND      -1           // Don't play this sound
-#define MENU_SONG          0            // default music theme played when in the menu
+#define MAX_WAVE           30           ///< Up to 30 wave/ogg per model
+#define MAXPLAYLISTLENGTH  35           ///< Max number of different tracks loaded into memory
+#define INVALID_SOUND      -1           ///< Don't play this sound
+#define MENU_SONG          0            ///< default music theme played when in the menu
 
-#define MIX_HIGH_QUALITY   44100        // frequency 44100 for 44.1KHz, which is CD audio rate.
-// Most games use 22050, because 44100 requires too much
-// CPU power on older computers.
+#define MIX_HIGH_QUALITY   44100        ///< frequency 44100 for 44.1KHz, which is CD audio rate.
+/// Most games use 22050, because 44100 requires too much
+/// CPU power on older computers.
 
 #define VALID_SND( ISND )       ( ISND >= 0 && ISND < MAX_WAVE )
 
@@ -60,8 +59,8 @@ typedef enum e_global_sounds
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-// an anonymized "pointer" type in case we want to store data that is either a
-// chunk or a music
+/// an anonymized "pointer" type in case we want to store data that is either a
+/// chunk or a music
 
 enum e_mix_type { MIX_UNKNOWN = 0, MIX_MUS, MIX_SND };
 typedef enum e_mix_type mix_type_t;
@@ -81,19 +80,19 @@ typedef struct s_mix_ptr mix_ptr_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-// The global variables for the sound module
+/// The global variables for the sound module
 
 struct s_snd_config
 {
-    bool_t       soundvalid;           // Allow playing of sound?
-    Uint8        soundvolume;          // Volume of sounds played
+    bool_t       soundvalid;           ///< Allow playing of sound?
+    Uint8        soundvolume;          ///< Volume of sounds played
 
-    bool_t       musicvalid;           // Allow music and loops?
-    Uint8        musicvolume;          // The sound volume of music
+    bool_t       musicvalid;           ///< Allow music and loops?
+    Uint8        musicvolume;          ///< The sound volume of music
 
-    Uint16       maxsoundchannel;      // Max number of sounds playing at the same time
-    Uint16       buffersize;           // Buffer size set in setup.txt
-    bool_t       highquality;          // Allow CD quality frequency sounds?
+    Uint16       maxsoundchannel;      ///< Max number of sounds playing at the same time
+    Uint16       buffersize;           ///< Buffer size set in setup.txt
+    bool_t       highquality;          ///< Allow CD quality frequency sounds?
 };
 typedef struct s_snd_config snd_config_t;
 
@@ -102,15 +101,15 @@ typedef struct s_snd_config snd_config_t;
 
 extern snd_config_t snd;
 
-extern Mix_Chunk * g_wavelist[GSND_COUNT];      // All sounds loaded into memory
+extern Mix_Chunk * g_wavelist[GSND_COUNT];      ///< All sounds loaded into memory
 
-extern bool_t      musicinmemory;                          // Is the music loaded in memory?
-extern Sint8       songplaying;                            // Current song that is playing
-extern Mix_Music * musictracksloaded[MAXPLAYLISTLENGTH];   // This is a specific music file loaded into memory
+extern bool_t      musicinmemory;                          ///< Is the music loaded in memory?
+extern Sint8       songplaying;                            ///< Current song that is playing
+extern Mix_Music * musictracksloaded[MAXPLAYLISTLENGTH];   ///< This is a specific music file loaded into memory
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-// The global functions for the sound module
+/// The global functions for the sound module
 
 bool_t sound_initialize();
 void   sound_restart();

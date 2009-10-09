@@ -27,11 +27,11 @@
 #define BLOCK_BITS    9
 #define BLOCK_SIZE    ((float)(1<<(BLOCK_BITS)))
 
-#define MAXMESHBLOCKY             (( MAXMESHTILEY >> (BLOCK_BITS-TILE_BITS) )+1)  // max blocks in the y direction
+#define MAXMESHBLOCKY             (( MAXMESHTILEY >> (BLOCK_BITS-TILE_BITS) )+1)  ///< max blocks in the y direction
 
-// mesh physics
-#define SLIDE                           0.04f         // Acceleration for steep hills
-#define SLIDEFIX                        0.08f         // To make almost flat surfaces flat
+/// mesh physics
+#define SLIDE                           0.04f         ///< Acceleration for steep hills
+#define SLIDEFIX                        0.08f         ///< To make almost flat surfaces flat
 #define TWIST_FLAT                      119
 
 #define TILE_UPPER_SHIFT                8
@@ -56,8 +56,8 @@ struct s_lighting_cache
 {
     float max_light;
 
-    lighting_vector_t lighting_low;   // light from +x,-x, +y,-y, +z,-z
-    lighting_vector_t lighting_hgh;   // light from +x,-x, +y,-y, +z,-z
+    lighting_vector_t lighting_low;   ///< light from +x,-x, +y,-y, +z,-z
+    lighting_vector_t lighting_hgh;   ///< light from +x,-x, +y,-y, +z,-z
 };
 typedef struct s_lighting_cache lighting_cache_t;
 
@@ -77,52 +77,52 @@ typedef struct s_grid_lighting grid_lighting_t;
 //--------------------------------------------------------------------------------------------
 struct s_grid_mem
 {
-    size_t            grid_count;                       // how many grids
+    size_t            grid_count;                       ///< how many grids
 
-    grid_lighting_t * light;                            // the lighting info for this grid
+    grid_lighting_t * light;                            ///< the lighting info for this grid
 
-    Uint32          * blockstart;                       // list of blocks that start each row
-    Uint32          * tilestart;                        // list of tiles  that start each row
+    Uint32          * blockstart;                       ///< list of blocks that start each row
+    Uint32          * tilestart;                        ///< list of tiles  that start each row
 };
 typedef struct s_grid_mem grid_mem_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-// mesh memory
+/// mesh memory
 struct s_mesh_mem
 {
     aabb_t           bbox;
 
     // the per-tile info
-    size_t           tile_count;                       // number of tiles
-    tile_info_t    * tile_list;                        // tile command info
-    aabb_t         * bb_list;                          // the bounding box for the tile
-    normal_cache_t * ncache;                           // the normals at the corners of a tile
-    light_cache_t  * lcache;                           // the light at the corners of a tile
+    size_t           tile_count;                       ///< number of tiles
+    tile_info_t    * tile_list;                        ///< tile command info
+    aabb_t         * bb_list;                          ///< the bounding box for the tile
+    normal_cache_t * ncache;                           ///< the normals at the corners of a tile
+    light_cache_t  * lcache;                           ///< the light at the corners of a tile
 
     // the per-vertex info to be presented to OpenGL
-    size_t          vert_count;                        // number of vertices
-    GLXvector3f   * plst;                              // the position list
-    GLXvector2f   * tlst;                              // the texture coordinate list
-    GLXvector3f   * clst;                              // the color list
-    GLXvector3f   * nlst;                              // the normal list
+    size_t          vert_count;                        ///< number of vertices
+    GLXvector3f   * plst;                              ///< the position list
+    GLXvector2f   * tlst;                              ///< the texture coordinate list
+    GLXvector3f   * clst;                              ///< the color list
+    GLXvector3f   * nlst;                              ///< the normal list
 };
 typedef struct s_mesh_mem mesh_mem_t;
 
 //--------------------------------------------------------------------------------------------
 struct s_ego_mpd_info
 {
-    size_t          vertcount;                         // For malloc
+    size_t          vertcount;                         ///< For malloc
 
-    int             tiles_x;                          // Size in tiles
+    int             tiles_x;                          ///< Size in tiles
     int             tiles_y;
-    Uint32          tiles_count;                      // Number of tiles
+    Uint32          tiles_count;                      ///< Number of tiles
 
-    int             blocks_x;                         // Size in blocks
+    int             blocks_x;                         ///< Size in blocks
     int             blocks_y;
-    Uint32          blocks_count;                     // Number of blocks (collision areas)
+    Uint32          blocks_count;                     ///< Number of blocks (collision areas)
 
-    float           edge_x;                           // Limits
+    float           edge_x;                           ///< Limits
     float           edge_y;
 };
 typedef struct s_ego_mpd_info ego_mpd_info_t;
@@ -134,16 +134,16 @@ struct s_ego_mpd
     mesh_mem_t      mmem;
     grid_mem_t      gmem;
 
-    fvec2_t         tileoff[MAXTILETYPE];     // Tile texture offset
+    fvec2_t         tileoff[MAXTILETYPE];     ///< Tile texture offset
 };
 typedef struct s_ego_mpd ego_mpd_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 extern fvec3_t   map_twist_nrm[256];
-extern Uint32    map_twist_y[256];            // For surface normal of mesh
+extern Uint32    map_twist_y[256];            ///< For surface normal of mesh
 extern Uint32    map_twist_x[256];
-extern float     map_twistvel_x[256];            // For sliding down steep hills
+extern float     map_twistvel_x[256];            ///< For sliding down steep hills
 extern float     map_twistvel_y[256];
 extern float     map_twistvel_z[256];
 extern Uint8     map_twist_flat[256];
@@ -156,7 +156,7 @@ ego_mpd_t * mesh_renew( ego_mpd_t * pmesh );
 ego_mpd_t * mesh_delete( ego_mpd_t * pmesh );
 ego_mpd_t * mesh_create( ego_mpd_t * pmesh, int tiles_x, int tiles_y );
 
-// loading/saving
+/// loading/saving
 ego_mpd_t * mesh_load( const char *modname, ego_mpd_t * pmesh );
 
 float  mesh_get_level( ego_mpd_t * pmesh, float x, float y );

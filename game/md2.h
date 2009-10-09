@@ -19,37 +19,35 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - Md2.h
- *
- */
+/// @file Md2.h
 
 #include "id_md2.h"
 #include "egoboo_typedef.h"
 #include "egoboo.h"
 
-#define MAXVERTICES                     2048        // Max number of points in a model
-#define MAXFRAME                        (128*32)    // Max number of frames in all models
+#define MAXVERTICES                     2048        ///< Max number of points in a model
+#define MAXFRAME                        (128*32)    ///< Max number of frames in all models
 
-#define MAXCOMMAND                      512         // Max number of commands
-#define MAXCOMMANDSIZE                  128          // Max number of points in a command
-#define MAXCOMMANDENTRIES               512         // Max entries in a command list ( trigs )
+#define MAXCOMMAND                      512         ///< Max number of commands
+#define MAXCOMMANDSIZE                  128          ///< Max number of points in a command
+#define MAXCOMMANDENTRIES               512         ///< Max entries in a command list ( trigs )
 
-#define MD2_MAGIC_NUMBER                        0x32504449      // MD2 files start with these four bytes
-#define MD2MAXLOADSIZE                  (512*1024)      // Don't load any models bigger than 512k
+#define MD2_MAGIC_NUMBER                        0x32504449      ///< MD2 files start with these four bytes
+#define MD2MAXLOADSIZE                  (512*1024)      ///< Don't load any models bigger than 512k
 
-#define MADLIGHTINDICES                 (MD2_MAX_NORMALS + 1) // MD2's store vertices as x,y,z,normal
-#define EQUALLIGHTINDEX                 162                // I added an extra index to do the spikey mace...
+#define MADLIGHTINDICES                 (MD2_MAX_NORMALS + 1) ///< MD2's store vertices as x,y,z,normal
+#define EQUALLIGHTINDEX                 162                ///< I added an extra index to do the spikey mace...
 
 struct s_md2_ogl_commandlist
 {
-    Uint16  count;                  // Number of commands
-    Uint16  entries;                // Number of command entries
+    Uint16  count;                  ///< Number of commands
+    Uint16  entries;                ///< Number of command entries
 
-    GLenum  type[MAXCOMMAND];       // Fan or strip
-    Uint16  size[MAXCOMMAND];       // Entries used by command
+    GLenum  type[MAXCOMMAND];       ///< Fan or strip
+    Uint16  size[MAXCOMMAND];       ///< Entries used by command
 
-    Uint16  vrt[MAXCOMMANDENTRIES]; // Which vertex
-    float   u[MAXCOMMANDENTRIES];   // Texture position
+    Uint16  vrt[MAXCOMMANDENTRIES]; ///< Which vertex
+    float   u[MAXCOMMANDENTRIES];   ///< Texture position
     float   v[MAXCOMMANDENTRIES];
 };
 typedef struct s_md2_ogl_commandlist md2_ogl_commandlist_t;
@@ -58,16 +56,16 @@ struct s_ego_md2
 {
     md2_ogl_commandlist_t cmd;
 
-    Uint16  frames;                        // Number of frames
-    Uint16  framestart;                    // Starting frame of model
-    Uint16  vertices;                      // Number of vertices
+    Uint16  frames;                        ///< Number of frames
+    Uint16  framestart;                    ///< Starting frame of model
+    Uint16  vertices;                      ///< Number of vertices
 };
 typedef struct s_ego_md2 ego_md2_t;
 
 typedef struct Md2Vertex
 {
     float x, y, z;
-    unsigned normal;  // index to id-normal array
+    unsigned normal;  ///< index to id-normal array
 } Md2Vertex;
 
 typedef struct Md2TexCoord
@@ -84,7 +82,7 @@ typedef struct Md2Triangle
 typedef struct Md2Frame
 {
     char name[16];
-    float min[3], max[3];    // axis-aligned bounding box limits
+    float min[3], max[3];    ///< axis-aligned bounding box limits
     Md2Vertex *vertices;
 } Md2Frame;
 
@@ -109,25 +107,25 @@ typedef struct Md2Model
 
 struct s_md2_frame
 {
-    Uint8   framelip;                      // 0-15, How far into action is each frame
-    Uint16  framefx;                       // Invincibility, Spawning
+    Uint8   framelip;                      ///< 0-15, How far into action is each frame
+    Uint16  framefx;                       ///< Invincibility, Spawning
 
-    float   vrtx[MAXVERTICES];             // Vertex position
+    float   vrtx[MAXVERTICES];             ///< Vertex position
     float   vrty[MAXVERTICES];
     float   vrtz[MAXVERTICES];
-    Uint8   vrta[MAXVERTICES];             // Light index of vertex
+    Uint8   vrta[MAXVERTICES];             ///< Light index of vertex
 
-    oct_bb_t bbox;                         // a bounding box for this frame
+    oct_bb_t bbox;                         ///< a bounding box for this frame
 };
 typedef struct s_md2_frame md2_frame_t;
 
 extern md2_frame_t Md2FrameList[MAXFRAME];
 
-extern Uint16 md2_loadframe;                               // Where to load next
+extern Uint16 md2_loadframe;                               ///< Where to load next
 
 extern float kMd2Normals[MADLIGHTINDICES][3];
 
-// Function prototypes
+/// Function prototypes
 int    md2_rip_frame_name( int frame );
 void   md2_rip_frames( ego_md2_t * pflist );
 bool_t md2_load_one( const char* szLoadname, ego_md2_t * pmd2 );

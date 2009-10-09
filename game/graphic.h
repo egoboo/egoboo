@@ -41,30 +41,30 @@ struct Font;
 //--------------------------------------------------------------------------------------------
 #define DOLIST_SIZE (MAX_CHR + TOTAL_MAX_PRT)
 
-#define MAXMESHRENDER             1024                       // Max number of tiles to draw
+#define MAXMESHRENDER             1024                       ///< Max number of tiles to draw
 
 #define MAPSIZE 96
 
-#define TABX                            32// 16      // Size of little name tag on the bar
-#define BARX                            112// 216         // Size of bar
+#define TABX                            32// 16      ///< Size of little name tag on the bar
+#define BARX                            112// 216         ///< Size of bar
 #define BARY                            16// 8
-#define NUMTICK                         10// 50          // Number of ticks per row
-#define TICKX                           8// 4           // X size of each tick
-#define MAXTICK                         (NUMTICK*10) // Max number of ticks to draw
+#define NUMTICK                         10// 50          ///< Number of ticks per row
+#define TICKX                           8// 4           ///< X size of each tick
+#define MAXTICK                         (NUMTICK*10) ///< Max number of ticks to draw
 #define XPTICK                          6.00f
 
-#define NUMBAR                          6               // Number of status bars
-#define NUMXPBAR                        2               // Number of xp bars
+#define NUMBAR                          6               ///< Number of status bars
+#define NUMXPBAR                        2               ///< Number of xp bars
 
-#define MAXLIGHTLEVEL                   16          // Number of premade light intensities
-#define MAXSPEKLEVEL                    16          // Number of premade specularities
-#define MAXLIGHTROTATION                256         // Number of premade light maps
+#define MAXLIGHTLEVEL                   16          ///< Number of premade light intensities
+#define MAXSPEKLEVEL                    16          ///< Number of premade specularities
+#define MAXLIGHTROTATION                256         ///< Number of premade light maps
 
 #define DONTFLASH                       255
-#define SEEKURSEAND                     31          // Blacking flash
+#define SEEKURSEAND                     31          ///< Blacking flash
 
-#define GFX_WIDTH                       800         // 640
-#define GFX_HEIGHT                      600         // 480
+#define GFX_WIDTH                       800         ///< 640
+#define GFX_HEIGHT                      600         ///< 480
 
 enum e_color
 {
@@ -98,7 +98,7 @@ int obj_registry_entity_cmp( const void * pleft, const void * pright );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-// OPENGL VERTEX
+/// OPENGL VERTEX
 
 typedef struct
 {
@@ -108,9 +108,9 @@ typedef struct
 
     GLfloat tex[2];
     GLfloat col_dir[4];
-    GLuint  color_dir;   // the vertex-dependent, directional lighting
+    GLuint  color_dir;   ///< the vertex-dependent, directional lighting
 
-    GLfloat col[4];      // the total vertex-dependent lighting (ambient + directional)
+    GLfloat col[4];      ///< the total vertex-dependent lighting (ambient + directional)
 } GLvertex;
 
 //--------------------------------------------------------------------------------------------
@@ -119,19 +119,19 @@ struct s_renderlist
 {
     ego_mpd_t * pmesh;
 
-    int     all_count;                               // Number to render, total
-    int     ref_count;                               // ..., is reflected in the floor
-    int     sha_count;                               // ..., is not reflected in the floor
-    int     drf_count;                               // ..., draws character reflections
-    int     ndr_count;                               // ..., draws no character reflections
+    int     all_count;                               ///< Number to render, total
+    int     ref_count;                               ///< ..., is reflected in the floor
+    int     sha_count;                               ///< ..., is not reflected in the floor
+    int     drf_count;                               ///< ..., draws character reflections
+    int     ndr_count;                               ///< ..., draws no character reflections
 
-    Uint32  all[MAXMESHRENDER];                      // List of which to render, total
+    Uint32  all[MAXMESHRENDER];                      ///< List of which to render, total
 
-    Uint32  ref[MAXMESHRENDER];                      // ..., is reflected in the floor
-    Uint32  sha[MAXMESHRENDER];                      // ..., is not reflected in the floor
+    Uint32  ref[MAXMESHRENDER];                      ///< ..., is reflected in the floor
+    Uint32  sha[MAXMESHRENDER];                      ///< ..., is not reflected in the floor
 
-    Uint32  drf[MAXMESHRENDER];                      // ..., draws character reflections
-    Uint32  ndr[MAXMESHRENDER];                      // ..., draws no character reflections
+    Uint32  drf[MAXMESHRENDER];                      ///< ..., draws character reflections
+    Uint32  ndr[MAXMESHRENDER];                      ///< ..., draws no character reflections
 
 };
 typedef struct s_renderlist renderlist_t;
@@ -139,41 +139,41 @@ typedef struct s_renderlist renderlist_t;
 extern renderlist_t renderlist;
 
 //--------------------------------------------------------------------------------------------
-extern Uint8           lightdirectionlookup[65536];                        // For lighting characters
+extern Uint8           lightdirectionlookup[65536];                        ///< For lighting characters
 extern float           lighttable_local[MAXLIGHTROTATION][MADLIGHTINDICES];
 extern float           lighttable_global[MAXLIGHTROTATION][MADLIGHTINDICES];
-extern float           indextoenvirox[MADLIGHTINDICES];                    // Environment map
-extern float           lighttoenviroy[256];                                // Environment map
+extern float           indextoenvirox[MADLIGHTINDICES];                    ///< Environment map
+extern float           lighttoenviroy[256];                                ///< Environment map
 extern Uint32          lighttospek[MAXSPEKLEVEL][256];
 
 //--------------------------------------------------------------------------------------------
-// Display messages
+/// Display messages
 extern Uint16          msgtimechange;
 
 struct s_msg
 {
-    Sint16          time;                            // The time for this message
-    char            textdisplay[MESSAGESIZE];        // The displayed text
+    Sint16          time;                            ///< The time for this message
+    char            textdisplay[MESSAGESIZE];        ///< The displayed text
 };
 typedef struct s_msg msg_t;
 
 DEFINE_STACK_EXTERN(msg_t, DisplayMsg, MAX_MESSAGE );
 
 //--------------------------------------------------------------------------------------------
-// camera optimization
+/// camera optimization
 
-#define ROTMESHTOPSIDE                  55          // For figuring out what to draw
+#define ROTMESHTOPSIDE                  55          ///< For figuring out what to draw
 #define ROTMESHBOTTOMSIDE               65
 #define ROTMESHUP                       40
 #define ROTMESHDOWN                     60
 
-extern int rotmeshtopside;                                 // The ones that get used
+extern int rotmeshtopside;                                 ///< The ones that get used
 extern int rotmeshbottomside;
 extern int rotmeshup;
 extern int rotmeshdown;
 
 //--------------------------------------------------------------------------------------------
-// encapsulation of all graphics options
+/// encapsulation of all graphics options
 struct s_gfx_config
 {
     GLuint shading;
@@ -186,15 +186,15 @@ struct s_gfx_config
     bool_t shaon;
     bool_t shasprite;
 
-    bool_t clearson;          // Do we clear every time?
-    bool_t draw_background;   // Do we draw the background image?
-    bool_t draw_overlay;      // Draw overlay?
-    bool_t draw_water_0;      // Do we draw water layer 1 (TX_WATER_LOW)
-    bool_t draw_water_1;      // Do we draw water layer 2 (TX_WATER_TOP)
+    bool_t clearson;          ///< Do we clear every time?
+    bool_t draw_background;   ///< Do we draw the background image?
+    bool_t draw_overlay;      ///< Draw overlay?
+    bool_t draw_water_0;      ///< Do we draw water layer 1 (TX_WATER_LOW)
+    bool_t draw_water_1;      ///< Do we draw water layer 2 (TX_WATER_TOP)
 
-    int    dyna_list_max;     // Max number of dynamic lights to draw
-    bool_t exploremode;       // fog of war mode for mesh display
-    bool_t usefaredge;        // Far edge maps? (Outdoor)
+    int    dyna_list_max;     ///< Max number of dynamic lights to draw
+    bool_t exploremode;       ///< fog of war mode for mesh display
+    bool_t usefaredge;        ///< Far edge maps? (Outdoor)
 
     // virtual window parameters
     float vw, vh;
@@ -209,11 +209,11 @@ bool_t gfx_config_synch( gfx_config_t * pgfx, struct s_egoboo_config * pcfg );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-extern obj_registry_entity_t dolist[DOLIST_SIZE];             // List of which characters to draw
-extern size_t                dolist_count;                  // How many in the list
+extern obj_registry_entity_t dolist[DOLIST_SIZE];             ///< List of which characters to draw
+extern size_t                dolist_count;                  ///< How many in the list
 
-// Minimap stuff
-#define MAXBLIP        128                          //Max blips on the screen
+/// Minimap stuff
+#define MAXBLIP        128                          ///<Max blips on the screen
 extern Uint8           mapon;
 extern Uint8           mapvalid;
 extern Uint8           youarehereon;
@@ -222,22 +222,22 @@ extern Uint16          blipx[MAXBLIP];
 extern Uint16          blipy[MAXBLIP];
 extern Uint8           blipc[MAXBLIP];
 
-// JF - Added so that the video mode might be determined outside of the graphics code
+/// JF - Added so that the video mode might be determined outside of the graphics code
 extern bool_t          meshnotexture;
-extern Uint16          meshlasttexture;             // Last texture used
+extern Uint16          meshlasttexture;             ///< Last texture used
 
 #define BILLBOARD_COUNT     (2 * MAX_CHR)
 #define INVALID_BILLBOARD   BILLBOARD_COUNT
 
 struct s_billboard_data
 {
-    bool_t    valid;        // has the billboard data been initialized?
+    bool_t    valid;        ///< has the billboard data been initialized?
 
-    Uint32    time;         // the time when the billboard will expire
-    int       tex_ref;      // our texture index
-    fvec3_t   pos;          // the position of the bottom-missle of the box
+    Uint32    time;         ///< the time when the billboard will expire
+    int       tex_ref;      ///< our texture index
+    fvec3_t   pos;          ///< the position of the bottom-missle of the box
 
-    Uint16    ichr;         // the character we are attached to
+    Uint16    ichr;         ///< the character we are attached to
 };
 typedef struct s_billboard_data billboard_data_t;
 
@@ -260,7 +260,7 @@ billboard_data_t * BillboardList_get_ptr( int ibb );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-// some lines to be drawn in the display
+/// some lines to be drawn in the display
 #define LINE_COUNT 100
 struct s_line_data
 {
@@ -274,7 +274,7 @@ extern line_data_t line_list[LINE_COUNT];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-// Function prototypes
+/// Function prototypes
 void draw_blip( float sizeFactor, Uint8 color, int x, int y );
 int  DisplayMsg_get_free();
 

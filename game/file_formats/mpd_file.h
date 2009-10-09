@@ -29,20 +29,20 @@
 #define TILE_SIZE     ((float)TILE_ISIZE)
 #define TILE_MASK     (TILE_ISIZE - 1)
 
-#define MAPID                     0x4470614d                   // The string... MapD
+#define MAPID                     0x4470614d                   ///< The string... MapD
 #define MESH_MAXTOTALVERTRICES    1024*100
-#define MAXMESHFAN                (512*512)                  // Terrain mesh size
-#define MAXMESHTILEY              1024                       // Max tiles in y direction
-#define MAXMESHVERTICES           16                         // Fansquare vertices
-#define MAXMESHTYPE               64                         // Number of fansquare command types
-#define MAXMESHCOMMAND            4                          // Draw up to 4 fans
-#define MAXMESHCOMMANDENTRIES     32                         // Fansquare command list size
-#define MAXMESHCOMMANDSIZE        32                         // Max trigs in each command
-#define MAXTILETYPE               256                        // Max number of tile images
-#define FANOFF                    0xFFFF                     // Don't draw the fansquare if tile = this
+#define MAXMESHFAN                (512*512)                  ///< Terrain mesh size
+#define MAXMESHTILEY              1024                       ///< Max tiles in y direction
+#define MAXMESHVERTICES           16                         ///< Fansquare vertices
+#define MAXMESHTYPE               64                         ///< Number of fansquare command types
+#define MAXMESHCOMMAND            4                          ///< Draw up to 4 fans
+#define MAXMESHCOMMANDENTRIES     32                         ///< Fansquare command list size
+#define MAXMESHCOMMANDSIZE        32                         ///< Max trigs in each command
+#define MAXTILETYPE               256                        ///< Max number of tile images
+#define FANOFF                    0xFFFF                     ///< Don't draw the fansquare if tile = this
 
-#define CARTMAN_FIXNUM            4.125 // 4.150             // Magic number
-#define CARTMAN_SLOPE             50                        // increments for terrain slope
+#define CARTMAN_FIXNUM            4.125 ///< 4.150             ///< Magic number
+#define CARTMAN_SLOPE             50                        ///< increments for terrain slope
 
 #define INVALID_BLOCK ((Uint32)(~0))
 #define INVALID_TILE  ((Uint32)(~0))
@@ -51,33 +51,33 @@
 
 enum e_mpd_fx
 {
-    MPDFX_REF             =       0,     // NOT USED
+    MPDFX_REF             =       0,     ///< NOT USED
                                          // Egoboo v1.0 : "0 This tile is drawn 1st"
 
-    MPDFX_SHA             = (1 << 0),    // 0 == (val & MPDFX_SHA) means that the tile is reflected in the floors
+    MPDFX_SHA             = (1 << 0),    ///< 0 == (val & MPDFX_SHA) means that the tile is reflected in the floors
                                          // Egoboo v1.0: "0 This tile is drawn 2nd"
                                          // aicodes.txt : FXNOREFLECT
 
-    MPDFX_DRAWREF         = (1 << 1),    // the tile reflects characters
+    MPDFX_DRAWREF         = (1 << 1),    ///< the tile reflects characters
                                          // Egoboo v1.0: "1 Draw reflection of characters"
                                          // aicodes.txt : FXDRAWREFLECT
 
-    MPDFX_ANIM            = (1 << 2),    // Egoboo v1.0: "2 Animated tile ( 4 frame )"
+    MPDFX_ANIM            = (1 << 2),    ///< Egoboo v1.0: "2 Animated tile ( 4 frame )"
                                          // aicodes.txt : FXANIM
 
-    MPDFX_WATER           = (1 << 3),    // Egoboo v1.0: "3 Render water above surface ( Water details are set per module )"
+    MPDFX_WATER           = (1 << 3),    ///< Egoboo v1.0: "3 Render water above surface ( Water details are set per module )"
                                          // aicodes.txt : FXWATER
 
-    MPDFX_WALL            = (1 << 4),    // Egoboo v1.0: "4 Wall ( Passable by ghosts, particles )"
+    MPDFX_WALL            = (1 << 4),    ///< Egoboo v1.0: "4 Wall ( Passable by ghosts, particles )"
                                          // aicodes.txt : FXBARRIER
 
-    MPDFX_IMPASS          = (1 << 5),    // Egoboo v1.0: "5 Impassable"
+    MPDFX_IMPASS          = (1 << 5),    ///< Egoboo v1.0: "5 Impassable"
                                          // aicodes.txt : FXIMPASS
 
-    MPDFX_DAMAGE          = (1 << 6),    // Egoboo v1.0: "6 Damage"
+    MPDFX_DAMAGE          = (1 << 6),    ///< Egoboo v1.0: "6 Damage"
                                          // aicodes.txt : FXDAMAGE
 
-    MPDFX_SLIPPY          = (1 << 7)     // Egoboo v1.0: "7 Ice or normal"
+    MPDFX_SLIPPY          = (1 << 7)     ///< Egoboo v1.0: "7 Ice or normal"
                                          // aicodes.txt : FXSLIPPY
 };
 
@@ -85,9 +85,9 @@ enum e_mpd_fx
 //--------------------------------------------------------------------------------------------
 struct s_mpd_info
 {
-    size_t          vertcount;                         // For malloc
+    size_t          vertcount;                         ///< For malloc
 
-    int             tiles_x;                          // Size in tiles
+    int             tiles_x;                          ///< Size in tiles
     int             tiles_y;
 };
 typedef struct s_mpd_info mpd_info_t;
@@ -95,11 +95,11 @@ typedef struct s_mpd_info mpd_info_t;
 //--------------------------------------------------------------------------------------------
 struct s_tile_info
 {
-    Uint8   type;                              // Tile type
-    Uint16  img;                               // Get texture from this
-    Uint8   fx;                                 // Special effects flags
+    Uint8   type;                              ///< Tile type
+    Uint16  img;                               ///< Get texture from this
+    Uint8   fx;                                 ///< Special effects flags
     Uint8   twist;
-    Uint32  vrtstart;                           // Which vertex to start at
+    Uint32  vrtstart;                           ///< Which vertex to start at
 
     bool_t  inrenderlist;
 };
@@ -108,19 +108,19 @@ typedef struct s_tile_info tile_info_t;
 //--------------------------------------------------------------------------------------------
 struct s_mpd_vertex
 {
-    fvec3_t    pos;                               // Vertex position
-    Uint8      a;                                 // Vertex base light
+    fvec3_t    pos;                               ///< Vertex position
+    Uint8      a;                                 ///< Vertex base light
 };
 typedef struct s_mpd_vertex mpd_vertex_t;
 
 //--------------------------------------------------------------------------------------------
 struct s_mpd_mem
 {
-    size_t          tile_count;                       // Number of tiles
-    tile_info_t *   tile_list;                        // Tile info
+    size_t          tile_count;                       ///< Number of tiles
+    tile_info_t *   tile_list;                        ///< Tile info
 
-    size_t          vcount;                           // number of vertices
-    mpd_vertex_t *  vlst;                             // list of vertices
+    size_t          vcount;                           ///< number of vertices
+    mpd_vertex_t *  vlst;                             ///< list of vertices
 };
 typedef struct s_mpd_mem mpd_mem_t;
 
@@ -135,13 +135,13 @@ typedef struct s_mpd mpd_t;
 //--------------------------------------------------------------------------------------------
 struct s_tile_definition
 {
-    Uint8           numvertices;                // Number of vertices
-    float           u[MAXMESHVERTICES];         // Vertex texture posi
+    Uint8           numvertices;                ///< Number of vertices
+    float           u[MAXMESHVERTICES];         ///< Vertex texture posi
     float           v[MAXMESHVERTICES];
 
-    Uint8           command_count;                        // Number of commands
-    Uint8           command_entries[MAXMESHCOMMAND];      // Entries in each command
-    Uint16          command_verts[MAXMESHCOMMANDENTRIES]; // Fansquare vertex list
+    Uint8           command_count;                        ///< Number of commands
+    Uint8           command_entries[MAXMESHCOMMAND];      ///< Entries in each command
+    Uint16          command_verts[MAXMESHCOMMANDENTRIES]; ///< Fansquare vertex list
 };
 typedef struct s_tile_definition tile_definition_t;
 
@@ -151,7 +151,7 @@ extern tile_definition_t tile_dict[MAXMESHTYPE];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-// the raw mpd loader
+/// the raw mpd loader
 mpd_t *      mpd_load( const char *modname, mpd_t * pmesh );
 
 mpd_t *      mpd_new( mpd_t * pmesh );

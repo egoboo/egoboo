@@ -17,10 +17,10 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - network.c
- * Shuttles bits across the network, using Enet.  Networked play doesn't
- * really work at the moment.
- */
+/// @file network.c
+/// @brief Egoboo networking implementation
+/// @details Shuttles bits across the network, using Enet.  Networked play doesn't
+/// really work at the moment.
 
 #include "network.h"
 
@@ -159,7 +159,8 @@ void close_session()
     size_t i, numPeers;
     ENetEvent event;
 
-    // ZZ> This function gets the computer out of a network game
+    /// @details ZZ@> This function gets the computer out of a network game
+
     if ( gnet.on )
     {
         if ( net_amHost )
@@ -212,7 +213,8 @@ void close_session()
 //--------------------------------------------------------------------------------------------
 void net_startNewPacket()
 {
-    // ZZ> This function starts building a network packet
+    /// @details ZZ@> This function starts building a network packet
+
     packethead = 0;
     packetsize = 0;
 }
@@ -220,7 +222,8 @@ void net_startNewPacket()
 //--------------------------------------------------------------------------------------------
 void packet_addUnsignedByte( Uint8 uc )
 {
-    // ZZ> This function appends an Uint8 to the packet
+    /// @details ZZ@> This function appends an Uint8 to the packet
+
     Uint8* ucp;
     ucp = ( Uint8* )( &packetbuffer[packethead] );
     *ucp = uc;
@@ -231,7 +234,8 @@ void packet_addUnsignedByte( Uint8 uc )
 //--------------------------------------------------------------------------------------------
 void packet_addSignedByte( Sint8 sc )
 {
-    // ZZ> This function appends a Sint8 to the packet
+    /// @details ZZ@> This function appends a Sint8 to the packet
+
     signed char* scp;
     scp = ( signed char* )( &packetbuffer[packethead] );
     *scp = sc;
@@ -242,7 +246,8 @@ void packet_addSignedByte( Sint8 sc )
 //--------------------------------------------------------------------------------------------
 void packet_addUnsignedShort( Uint16 us )
 {
-    // ZZ> This function appends an Uint16 to the packet
+    /// @details ZZ@> This function appends an Uint16 to the packet
+
     Uint16* usp;
     usp = ( Uint16* )( &packetbuffer[packethead] );
 
@@ -254,7 +259,8 @@ void packet_addUnsignedShort( Uint16 us )
 //--------------------------------------------------------------------------------------------
 void packet_addSignedShort( Sint16 ss )
 {
-    // ZZ> This function appends a Sint16 to the packet
+    /// @details ZZ@> This function appends a Sint16 to the packet
+
     signed short* ssp;
     ssp = ( signed short* )( &packetbuffer[packethead] );
 
@@ -267,7 +273,8 @@ void packet_addSignedShort( Sint16 ss )
 //--------------------------------------------------------------------------------------------
 void packet_addUnsignedInt( Uint32 ui )
 {
-    // ZZ> This function appends an Uint32 to the packet
+    /// @details ZZ@> This function appends an Uint32 to the packet
+
     Uint32* uip;
     uip = ( Uint32* )( &packetbuffer[packethead] );
 
@@ -280,7 +287,8 @@ void packet_addUnsignedInt( Uint32 ui )
 //--------------------------------------------------------------------------------------------
 void packet_addSignedInt( Sint32 si )
 {
-    // ZZ> This function appends a Sint32 to the packet
+    /// @details ZZ@> This function appends a Sint32 to the packet
+
     signed int* sip;
     sip = ( signed int* )( &packetbuffer[packethead] );
 
@@ -293,7 +301,8 @@ void packet_addSignedInt( Sint32 si )
 //--------------------------------------------------------------------------------------------
 void packet_addString( const char *string )
 {
-    // ZZ> This function appends a null terminated string to the packet
+    /// @details ZZ@> This function appends a null terminated string to the packet
+
     char* cp;
     char cTmp;
     int cnt;
@@ -330,7 +339,7 @@ void packet_doneReading()
 //--------------------------------------------------------------------------------------------
 void packet_readString( char *buffer, int maxLen )
 {
-    // ZZ> This function reads a null terminated string from the packet
+    /// @details ZZ@> This function reads a null terminated string from the packet
 
     Uint8 uc;
     Uint16 outindex;
@@ -353,7 +362,7 @@ void packet_readString( char *buffer, int maxLen )
 //--------------------------------------------------------------------------------------------
 Uint8 packet_readUnsignedByte()
 {
-    // ZZ> This function reads an Uint8 from the packet
+    /// @details ZZ@> This function reads an Uint8 from the packet
 
     Uint8 uc;
     uc = ( Uint8 )net_readPacket->data[net_readLocation];
@@ -364,7 +373,7 @@ Uint8 packet_readUnsignedByte()
 //--------------------------------------------------------------------------------------------
 Sint8 packet_readSignedByte()
 {
-    // ZZ> This function reads a Sint8 from the packet
+    /// @details ZZ@> This function reads a Sint8 from the packet
 
     Sint8 sc;
     sc = ( signed char )net_readPacket->data[net_readLocation];
@@ -375,7 +384,7 @@ Sint8 packet_readSignedByte()
 //--------------------------------------------------------------------------------------------
 Uint16 packet_readUnsignedShort()
 {
-    // ZZ> This function reads an Uint16 from the packet
+    /// @details ZZ@> This function reads an Uint16 from the packet
 
     Uint16 us;
     Uint16* usp;
@@ -390,7 +399,7 @@ Uint16 packet_readUnsignedShort()
 //--------------------------------------------------------------------------------------------
 Sint16 packet_readSignedShort()
 {
-    // ZZ> This function reads a Sint16 from the packet
+    /// @details ZZ@> This function reads a Sint16 from the packet
 
     Sint16 ss;
     signed short* ssp;
@@ -405,7 +414,7 @@ Sint16 packet_readSignedShort()
 //--------------------------------------------------------------------------------------------
 Uint32 packet_readUnsignedInt()
 {
-    // ZZ> This function reads an Uint32 from the packet
+    /// @details ZZ@> This function reads an Uint32 from the packet
 
     Uint32 ui;
     Uint32* uip;
@@ -420,7 +429,7 @@ Uint32 packet_readUnsignedInt()
 //--------------------------------------------------------------------------------------------
 Sint32 packet_readSignedInt()
 {
-    // ZZ> This function reads a Sint32 from the packet
+    /// @details ZZ@> This function reads a Sint32 from the packet
 
     Sint32 si;
     signed int* sip;
@@ -435,7 +444,7 @@ Sint32 packet_readSignedInt()
 //--------------------------------------------------------------------------------------------
 size_t packet_remainingSize()
 {
-    // ZZ> This function tells if there's still data left in the packet
+    /// @details ZZ@> This function tells if there's still data left in the packet
 
     return net_readPacket->dataLength - net_readLocation;
 }
@@ -443,7 +452,7 @@ size_t packet_remainingSize()
 //--------------------------------------------------------------------------------------------
 void net_sendPacketToHost()
 {
-    // ZZ> This function sends a packet to the host
+    /// @details ZZ@> This function sends a packet to the host
 
     ENetPacket *packet = enet_packet_create( packetbuffer, packetsize, 0 );
     enet_peer_send( net_gameHost, NET_UNRELIABLE_CHANNEL, packet );
@@ -452,7 +461,7 @@ void net_sendPacketToHost()
 //--------------------------------------------------------------------------------------------
 void net_sendPacketToAllPlayers()
 {
-    // ZZ> This function sends a packet to all the players
+    /// @details ZZ@> This function sends a packet to all the players
 
     ENetPacket *packet = enet_packet_create( packetbuffer, packetsize, 0 );
     enet_host_broadcast( net_myHost, NET_UNRELIABLE_CHANNEL, packet );
@@ -461,7 +470,7 @@ void net_sendPacketToAllPlayers()
 //--------------------------------------------------------------------------------------------
 void net_sendPacketToHostGuaranteed()
 {
-    // ZZ> This function sends a packet to the host
+    /// @details ZZ@> This function sends a packet to the host
 
     ENetPacket *packet = enet_packet_create( packetbuffer, packetsize, ENET_PACKET_FLAG_RELIABLE );
     enet_peer_send( net_gameHost, NET_UNRELIABLE_CHANNEL, packet );
@@ -470,7 +479,7 @@ void net_sendPacketToHostGuaranteed()
 //--------------------------------------------------------------------------------------------
 void net_sendPacketToAllPlayersGuaranteed()
 {
-    // ZZ> This function sends a packet to all the players
+    /// @details ZZ@> This function sends a packet to all the players
 
     ENetPacket *packet = enet_packet_create( packetbuffer, packetsize, ENET_PACKET_FLAG_RELIABLE );
     enet_host_broadcast( net_myHost, NET_GUARANTEED_CHANNEL, packet );
@@ -479,7 +488,7 @@ void net_sendPacketToAllPlayersGuaranteed()
 //--------------------------------------------------------------------------------------------
 void net_sendPacketToOnePlayerGuaranteed( int player )
 {
-    // ZZ> This function sends a packet to one of the players
+    /// @details ZZ@> This function sends a packet to one of the players
 
     ENetPacket *packet = enet_packet_create( packetbuffer, packetsize, ENET_PACKET_FLAG_RELIABLE );
     if ( player < numplayer )
@@ -491,7 +500,7 @@ void net_sendPacketToOnePlayerGuaranteed( int player )
 //--------------------------------------------------------------------------------------------
 void net_sendPacketToPeer( ENetPeer *peer )
 {
-    // JF> This function sends a packet to a given peer
+    /// @details JF@> This function sends a packet to a given peer
 
     ENetPacket *packet = enet_packet_create( packetbuffer, packetsize, ENET_PACKET_FLAG_RELIABLE );
     enet_peer_send( peer, NET_UNRELIABLE_CHANNEL, packet );
@@ -500,7 +509,7 @@ void net_sendPacketToPeer( ENetPeer *peer )
 //--------------------------------------------------------------------------------------------
 void net_sendPacketToPeerGuaranteed( ENetPeer *peer )
 {
-    // JF> This funciton sends a packet to a given peer, with guaranteed delivery
+    /// @details JF@> This funciton sends a packet to a given peer, with guaranteed delivery
 
     ENetPacket *packet = enet_packet_create( packetbuffer, packetsize, 0 );
     enet_peer_send( peer, NET_GUARANTEED_CHANNEL, packet );
@@ -509,8 +518,8 @@ void net_sendPacketToPeerGuaranteed( ENetPeer *peer )
 //--------------------------------------------------------------------------------------------
 void net_copyFileToAllPlayers( const char *source, const char *dest )
 {
-    // JF> This function queues up files to send to all the hosts.
-    //    TODO: Deal with having to send to up to MAXPLAYER players...
+    /// @details JF@> This function queues up files to send to all the hosts.
+    ///    @todo Deal with having to send to up to MAXPLAYER players...
 
     NetFileTransfer *state;
     if ( net_numFileTransfers < NET_MAX_FILE_TRANSFERS )
@@ -542,9 +551,10 @@ void net_copyFileToAllPlayers( const char *source, const char *dest )
 //--------------------------------------------------------------------------------------------
 void net_copyFileToAllPlayersOld( const char *source, const char *dest )
 {
-    // ZZ> This function copies a file on the host to every remote computer.
-    //    Packets are sent in chunks of COPYSIZE bytes.  The max file size
-    //    that can be sent is 2 Megs ( TOTALSIZE ).
+    /// @details ZZ@> This function copies a file on the host to every remote computer.
+    ///    Packets are sent in chunks of COPYSIZE bytes.  The max file size
+    ///    that can be sent is 2 Megs ( TOTALSIZE ).
+
     vfs_FILE* fileread;
     int packetsize, packetstart;
     int filesize;
@@ -623,7 +633,7 @@ void net_copyFileToHost( const char *source, const char *dest )
 {
     NetFileTransfer *state;
 
-    // JF> New function merely queues up a new file to be sent
+    /// @details JF@> New function merely queues up a new file to be sent
 
     // If this is the host, just copy the file locally
     if ( gnet.hostactive )
@@ -668,9 +678,10 @@ void net_copyFileToHost( const char *source, const char *dest )
 //--------------------------------------------------------------------------------------------
 void net_copyFileToHostOld( const char *source, const char *dest )
 {
-    // ZZ> This function copies a file on the remote to the host computer.
-    //    Packets are sent in chunks of COPYSIZE bytes.  The max file size
-    //    that can be sent is 2 Megs ( TOTALSIZE ).
+    /// @details ZZ@> This function copies a file on the remote to the host computer.
+    ///    Packets are sent in chunks of COPYSIZE bytes.  The max file size
+    ///    that can be sent is 2 Megs ( TOTALSIZE ).
+
     vfs_FILE* fileread;
     int packetsize, packetstart;
     int filesize;
@@ -758,7 +769,8 @@ void net_copyFileToHostOld( const char *source, const char *dest )
 //--------------------------------------------------------------------------------------------
 void net_copyDirectoryToHost( const char *dirname, const char *todirname )
 {
-    // ZZ> This function copies all files in a directory
+    /// @details ZZ@> This function copies all files in a directory
+
     STRING fromname;
     STRING toname;
     const char *searchResult;
@@ -800,7 +812,8 @@ void net_copyDirectoryToHost( const char *dirname, const char *todirname )
 //--------------------------------------------------------------------------------------------
 void net_copyDirectoryToAllPlayers( const char *dirname, const char *todirname )
 {
-    // ZZ> This function copies all files in a directory
+    /// @details ZZ@> This function copies all files in a directory
+
     STRING fromname;
     STRING toname;
     const char *searchResult;
@@ -840,7 +853,7 @@ void net_copyDirectoryToAllPlayers( const char *dirname, const char *todirname )
 //--------------------------------------------------------------------------------------------
 void net_sayHello()
 {
-    // ZZ> This function lets everyone know we're here
+    /// @details ZZ@> This function lets everyone know we're here
 
     if ( !gnet.on )
     {
@@ -867,7 +880,8 @@ void net_sayHello()
 //--------------------------------------------------------------------------------------------
 void cl_talkToHost()
 {
-    // ZZ> This function sends the latch packets to the host machine
+    /// @details ZZ@> This function sends the latch packets to the host machine
+
     Uint16 player;
 
     // Let the players respawn
@@ -916,7 +930,8 @@ void cl_talkToHost()
 //--------------------------------------------------------------------------------------------
 void sv_talkToRemotes()
 {
-    // ZZ> This function sends the character data to all the remote machines
+    /// @details ZZ@> This function sends the character data to all the remote machines
+
     int player, time;
 
     // make sure there is only one update per frame;
@@ -1432,8 +1447,9 @@ void net_handlePacket( ENetEvent *event )
 //--------------------------------------------------------------------------------------------
 void listen_for_packets()
 {
-    // ZZ> This function reads any new messages and sets the player latch and matrix needed
-    //    lists...
+    /// @details ZZ@> This function reads any new messages and sets the player latch and matrix needed
+    ///    lists...
+
     ENetEvent event;
     if ( gnet.on )
     {
@@ -1482,7 +1498,8 @@ void listen_for_packets()
 //--------------------------------------------------------------------------------------------
 void unbuffer_player_latches()
 {
-    // ZZ> This function sets character latches based on player input to the host
+    /// @details ZZ@> This function sets character latches based on player input to the host
+
     int cnt, character;
 
     // if ( PMod->rtscontrol ) { numplatimes--; return; }
@@ -1628,7 +1645,8 @@ void unbuffer_player_latches()
 //--------------------------------------------------------------------------------------------
 void net_initialize()
 {
-    // ZZ> This starts up the network and logs whatever goes on
+    /// @details ZZ@> This starts up the network and logs whatever goes on
+
     gnet.serviceon = bfalse;
     numsession = 0;
     numservice = 0;
@@ -1679,7 +1697,8 @@ void net_shutDown()
 void find_open_sessions()
 {
     /*PORT
-    // ZZ> This function finds some open games to join
+    /// @details ZZ@> This function finds some open games to join
+
     DPSESSIONDESC2      sessionDesc;
     HRESULT             hr;
     if(gnet.on)
@@ -1698,7 +1717,8 @@ void find_open_sessions()
 //--------------------------------------------------------------------------------------------
 void sv_letPlayersJoin()
 {
-    // ZZ> This function finds all the players in the game
+    /// @details ZZ@> This function finds all the players in the game
+
     ENetEvent event;
     STRING hostName;
 
@@ -1748,14 +1768,15 @@ void sv_letPlayersJoin()
 //--------------------------------------------------------------------------------------------
 int cl_joinGame( const char* hostname )
 {
-    // ZZ> This function tries to join one of the sessions we found
+    /// @details ZZ@> This function tries to join one of the sessions we found
+
     ENetAddress address;
     ENetEvent event;
     if ( gnet.on )
     {
         log_info( "cl_joinGame: Creating client network connection... " );
         // Create my host thingamabober
-        // TODO: Should I limit client bandwidth here?
+        /// @todo Should I limit client bandwidth here?
         net_myHost = enet_host_create( NULL, 1, 0, 0 );
         if ( net_myHost == NULL )
         {
@@ -1799,13 +1820,14 @@ int cl_joinGame( const char* hostname )
 //--------------------------------------------------------------------------------------------
 void stop_players_from_joining()
 {
-    // ZZ> This function stops players from joining a game
+    /// @details ZZ@> This function stops players from joining a game
+
 }
 
 //--------------------------------------------------------------------------------------------
 int sv_hostGame()
 {
-    // ZZ> This function tries to host a new session
+    /// @details ZZ@> This function tries to host a new session
 
     ENetAddress address;
     if ( gnet.on )
@@ -1942,7 +1964,8 @@ void net_updateFileTransfers()
 //--------------------------------------------------------------------------------------------
 void net_send_message()
 {
-    // ZZ> sends the message in the keyboard buffer to all other players
+    /// @details ZZ@> sends the message in the keyboard buffer to all other players
+
     if ( console_mode || !console_done ) return;
 
     // if(gnet.on)

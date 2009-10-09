@@ -31,8 +31,8 @@ DECLARE_LIST ( ACCESS_TYPE_NONE, oglx_texture, TxTexture );
 //---------------------------------------------------------------------------------------------
 void TxTexture_clear_data()
 {
-    // BB> reset the free texture list. Start at TX_LAST so that the global textures/icons are
-    //     can't be allocated by mistake
+    /// @details BB@> reset the free texture list. Start at TX_LAST so that the global textures/icons are
+    ///     can't be allocated by mistake
 
     int cnt, tnc;
 
@@ -46,7 +46,7 @@ void TxTexture_clear_data()
 //---------------------------------------------------------------------------------------------
 void TxTexture_init_all()
 {
-    // ZZ> This function clears out all of the textures
+    /// @details ZZ@> This function clears out all of the textures
 
     int cnt;
 
@@ -61,7 +61,7 @@ void TxTexture_init_all()
 //---------------------------------------------------------------------------------------------
 void TxTexture_release_all()
 {
-    // ZZ> This function releases all of the textures
+    /// @details ZZ@> This function releases all of the textures
 
     int cnt;
 
@@ -76,7 +76,7 @@ void TxTexture_release_all()
 //---------------------------------------------------------------------------------------------
 void TxTexture_delete_all()
 {
-    // ZZ> This function clears out all of the textures
+    /// @details ZZ@> This function clears out all of the textures
 
     int cnt;
 
@@ -169,8 +169,8 @@ bool_t TxTexture_free_one( int itex )
 //---------------------------------------------------------------------------------------------
 int TxTexture_load_one( const char *filename, int itex_src, Uint32 key )
 {
-    // BB> load a texture into TxTexture.
-    //     If INVALID_TEXTURE == itex, then we just get the next free index
+    /// @details BB@> load a texture into TxTexture.
+    ///     If INVALID_TEXTURE == itex, then we just get the next free index
 
     int    itex;
 

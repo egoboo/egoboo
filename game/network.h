@@ -22,17 +22,17 @@
 #include "egoboo_typedef.h"
 
 //---------------------------------------------------------------------------------------------
-// Network stuff
+/// Network stuff
 //--------------------------------------------------------------------------------------------
 
-#define NETREFRESH          1000                    // Every second
+#define NETREFRESH          1000                    ///< Every second
 #define NONETWORK           numservice
 #define MAXSERVICE          16
 #define NETNAMESIZE         16
 #define MAXSESSION          16
 #define MAXNETPLAYER         8
 
-#define TO_ANY_TEXT         25935                               // Message headers
+#define TO_ANY_TEXT         25935                               ///< Message headers
 #define TO_HOST_MODULEOK    14951
 #define TO_HOST_MODULEBAD   14952
 #define TO_HOST_LATCH       33911
@@ -54,7 +54,7 @@
 #define MAXSENDSIZE 8192
 #define COPYSIZE    4096
 #define TOTALSIZE   2097152
-#define MAXPLAYER   8                               // 2 to a power...  2^3
+#define MAXPLAYER   8                               ///< 2 to a power...  2^3
 #define MAXLAG      64
 #define LAGAND      63
 #define STARTTALK   10
@@ -73,14 +73,14 @@ typedef struct s_time_latch time_latch_t;
 //--------------------------------------------------------------------------------------------
 struct s_input_device
 {
-    bool_t                  on;              // Is it alive?
+    bool_t                  on;              ///< Is it alive?
     Uint32                  bits;
 
-    float                   sustain;         // Falloff rate for old movement
-    float                   cover;           // For falloff
+    float                   sustain;         ///< Falloff rate for old movement
+    float                   cover;           ///< For falloff
 
     latch_t                 latch;
-    latch_t                 latch_old;       // For sustain
+    latch_t                 latch_old;       ///< For sustain
 };
 typedef struct s_input_device input_device_t;
 
@@ -90,8 +90,8 @@ void input_device_add_latch( input_device_t * pdevice, float newx, float newy );
 //--------------------------------------------------------------------------------------------
 struct s_player
 {
-    bool_t                  valid;                    // Player used?
-    Uint16                  index;                    // Which character?
+    bool_t                  valid;                    ///< Player used?
+    Uint16                  index;                    ///< Which character?
 
     // the buffered input from the local input devices
     input_device_t          device;
@@ -109,8 +109,8 @@ struct s_player
 
 typedef struct s_player player_t;
 
-extern int                     local_numlpla;                                   // Number of local players
-extern int                     PlaList_count;                                   // Number of players
+extern int                     local_numlpla;                                   ///< Number of local players
+extern int                     PlaList_count;                                   ///< Number of players
 extern player_t                PlaList[MAXPLAYER];
 
 #define VALID_PLA_RANGE(IPLA) ( ((IPLA) >= 0) && ((IPLA) < MAXPLAYER) )
@@ -125,11 +125,11 @@ struct s_chr * pla_get_pchr( Uint16 iplayer );
 //--------------------------------------------------------------------------------------------
 struct s_net_instance
 {
-    bool_t  on;                      // Try to connect?
-    bool_t  serviceon;               // Do I need to free the interface?
-    bool_t  hostactive;              // Hosting?
-    bool_t  readytostart;            // Ready to hit the Start Game button?
-    bool_t  waitingforplayers;       // Has everyone talked to the host?
+    bool_t  on;                      ///< Try to connect?
+    bool_t  serviceon;               ///< Do I need to free the interface?
+    bool_t  hostactive;              ///< Hosting?
+    bool_t  readytostart;            ///< Ready to hit the Start Game button?
+    bool_t  waitingforplayers;       ///< Has everyone talked to the host?
 };
 typedef struct s_net_instance net_instance_t;
 
@@ -144,27 +144,27 @@ extern net_instance_t * PNet;
 //extern unsigned int            orderwhat[MAXORDER];
 //extern unsigned int            orderwhen[MAXORDER];
 
-extern Uint32                  nexttimestamp;                // Expected timestamp
-extern FILE                   *globalnetworkerr;             // For debuggin' network
+extern Uint32                  nexttimestamp;                ///< Expected timestamp
+extern FILE                   *globalnetworkerr;             ///< For debuggin' network
 
-extern Uint32                  randsave;                  // Used in network timer
+extern Uint32                  randsave;                  ///< Used in network timer
 extern int                     networkservice;
-extern int                     numservice;                                 // How many we found
-extern char                    netservicename[MAXSERVICE][NETNAMESIZE];    // Names of services
-extern int                     numsession;                                 // How many we found
-extern char                    netsessionname[MAXSESSION][NETNAMESIZE];    // Names of sessions
-extern int                     numplayer;                                  // How many we found
-extern char                    netplayername[MAXNETPLAYER][NETNAMESIZE];   // Names of machines
+extern int                     numservice;                                 ///< How many we found
+extern char                    netservicename[MAXSERVICE][NETNAMESIZE];    ///< Names of services
+extern int                     numsession;                                 ///< How many we found
+extern char                    netsessionname[MAXSESSION][NETNAMESIZE];    ///< Names of sessions
+extern int                     numplayer;                                  ///< How many we found
+extern char                    netplayername[MAXNETPLAYER][NETNAMESIZE];   ///< Names of machines
 
-extern int                     local_machine;        // 0 is host, 1 is 1st remote, 2 is 2nd...
+extern int                     local_machine;        ///< 0 is host, 1 is 1st remote, 2 is 2nd...
 
-extern int                     playersready;               // Number of players ready to start
+extern int                     playersready;               ///< Number of players ready to start
 extern int                     playersloaded;
 
 extern Uint32                  numplatimes;
 
 //---------------------------------------------------------------------------------------------
-// Networking functions
+/// Networking functions
 //--------------------------------------------------------------------------------------------
 
 void listen_for_packets();

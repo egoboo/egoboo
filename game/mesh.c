@@ -141,7 +141,7 @@ mesh_mem_t * mesh_mem_delete( mesh_mem_t * pmem )
 //--------------------------------------------------------------------------------------------
 ego_mpd_t * mesh_new( ego_mpd_t * pmesh )
 {
-    // BB> initialize the ego_mpd_t structure
+    /// @details BB@> initialize the ego_mpd_t structure
 
     if ( NULL != pmesh )
     {
@@ -231,7 +231,7 @@ void mesh_init_tile_offset(ego_mpd_t * pmesh)
 //--------------------------------------------------------------------------------------------
 bool_t mesh_remove_ambient( ego_mpd_t * pmesh )
 {
-    // BB> remove extra ambient light in the lightmap
+    /// @details BB@> remove extra ambient light in the lightmap
 
     Uint32 cnt;
     Uint16 min_vrt_a = 255;
@@ -709,8 +709,9 @@ bool_t mesh_mem_free( mesh_mem_t * pmem )
 //--------------------------------------------------------------------------------------------
 void grid_make_fanstart( grid_mem_t * pgmem, ego_mpd_info_t * pinfo )
 {
-    // ZZ> This function builds a look up table to ease calculating the
-    //    fan number given an x,y pair
+    /// @details ZZ@> This function builds a look up table to ease calculating the
+    ///    fan number given an x,y pair
+
     int cnt;
 
     if ( NULL == pgmem || NULL == pinfo ) return;
@@ -778,8 +779,9 @@ void mesh_make_vrtstart( ego_mpd_t * pmesh )
 //--------------------------------------------------------------------------------------------
 void mesh_make_twist()
 {
-    // ZZ> This function precomputes surface normals and steep hill acceleration for
-    //    the mesh
+    /// @details ZZ@> This function precomputes surface normals and steep hill acceleration for
+    ///    the mesh
+
     Uint16 cnt;
 
     for ( cnt = 0; cnt < 256; cnt++ )
@@ -812,7 +814,7 @@ void mesh_make_twist()
 //---------------------------------------------------------------------------------------------
 float mesh_get_level( ego_mpd_t * pmesh, float x, float y )
 {
-    // ZZ> This function returns the height of a point within a mesh fan, precisely
+    /// @details ZZ@> This function returns the height of a point within a mesh fan, precisely
 
     Uint32 tile;
     int ix, iy;
@@ -934,7 +936,7 @@ Uint32 mesh_test_fx( ego_mpd_t * pmesh, Uint32 itile, Uint32 flags )
 //------------------------------------------------------------------------------
 bool_t mesh_make_bbox( ego_mpd_t * pmesh )
 {
-    // BB> set the bounding box for each tile, and for the entire mesh
+    /// @details BB@> set the bounding box for each tile, and for the entire mesh
 
     int mesh_vrt, tile_vrt;
     Uint32 cnt;

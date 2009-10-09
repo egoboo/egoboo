@@ -19,9 +19,8 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - spawn_file.h
- * loading the environment definitions for a module
- */
+/// @file spawn_file.h
+/// @details loading the environment definitions for a module
 
 #include "egoboo_typedef.h"
 #include "egoboo_vfs.h"

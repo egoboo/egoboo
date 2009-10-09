@@ -19,9 +19,7 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - mad.h
- *
- */
+/// @file mad.h
 
 #include "egoboo_typedef.h"
 
@@ -40,117 +38,117 @@ struct Mix_Chunk;
 
 #define MAX_MAD MAX_PROFILE
 
-// Model tags
+/// Model tags
 enum
 {
-    MADFX_INVICTUS       = ( 1 <<  0 ),                    // I  Make the character invincible
-    MADFX_ACTLEFT        = ( 1 <<  1 ),                    // AL Activate left item
-    MADFX_ACTRIGHT       = ( 1 <<  2 ),                    // AR Activate right item
-    MADFX_GRABLEFT       = ( 1 <<  3 ),                    // GL GO Grab left/Grab only item
-    MADFX_GRABRIGHT      = ( 1 <<  4 ),                    // GR Grab right item
-    MADFX_DROPLEFT       = ( 1 <<  5 ),                    // DL Drop the item in the left/only grip
-    MADFX_DROPRIGHT      = ( 1 <<  6 ),                    // DR Drop the item in the right grip
-    MADFX_STOP           = ( 1 <<  7 ),                    // S  Stop movement
-    MADFX_FOOTFALL       = ( 1 <<  8 ),                    // F  Play a footfall sound
-    MADFX_CHARLEFT       = ( 1 <<  9 ),                    // CL Grab a character with the left/only grip
-    MADFX_CHARRIGHT      = ( 1 << 10 ),                    // CR Grab a character with the right grip
-    MADFX_POOF           = ( 1 << 11 )                     // P  Poof the character
+    MADFX_INVICTUS       = ( 1 <<  0 ),                    ///< I  Make the character invincible
+    MADFX_ACTLEFT        = ( 1 <<  1 ),                    ///< AL Activate left item
+    MADFX_ACTRIGHT       = ( 1 <<  2 ),                    ///< AR Activate right item
+    MADFX_GRABLEFT       = ( 1 <<  3 ),                    ///< GL GO Grab left/Grab only item
+    MADFX_GRABRIGHT      = ( 1 <<  4 ),                    ///< GR Grab right item
+    MADFX_DROPLEFT       = ( 1 <<  5 ),                    ///< DL Drop the item in the left/only grip
+    MADFX_DROPRIGHT      = ( 1 <<  6 ),                    ///< DR Drop the item in the right grip
+    MADFX_STOP           = ( 1 <<  7 ),                    ///< S  Stop movement
+    MADFX_FOOTFALL       = ( 1 <<  8 ),                    ///< F  Play a footfall sound
+    MADFX_CHARLEFT       = ( 1 <<  9 ),                    ///< CL Grab a character with the left/only grip
+    MADFX_CHARRIGHT      = ( 1 << 10 ),                    ///< CR Grab a character with the right grip
+    MADFX_POOF           = ( 1 << 11 )                     ///< P  Poof the character
 };
 
-// Animation walking
-#define LIPDA               0                       // For smooth transitions 'tween
-#define LIPWA               1                       //  walking rates
+/// Animation walking
+#define LIPDA               0                       ///< For smooth transitions 'tween
+#define LIPWA               1                       ///<  walking rates
 #define LIPWB               2
 #define LIPWC               3
 
-#define MAX_PIP_PER_PROFILE               13                                      // Max part*.txt per object
+#define MAX_PIP_PER_PROFILE               13                                      ///< Max part*.txt per object
 
-// This stuff is for actions
-#define NOACTION            0xFFFF                     // Action not valid for this character
+/// This stuff is for actions
+#define NOACTION            0xFFFF                     ///< Action not valid for this character
 enum e_action
 {
-    ACTION_DA = 0,         // DA - Dance ( Typical standing )
-    ACTION_DB,             // DB - Dance ( Bored )
-    ACTION_DC,             // DC - Dance ( Bored )
-    ACTION_DD,             // DD - Dance ( Bored )
-    ACTION_UA,             // UA - Unarmed Attack ( Left )
-    ACTION_UB,             // UB - Unarmed Attack ( Left )
-    ACTION_UC,             // UC - Unarmed Attack ( Right )
-    ACTION_UD,             // UD - Unarmed Attack ( Right )
-    ACTION_TA,             // TA - Thrust Attack ( Left )
-    ACTION_TB,             // TB - Thrust Attack ( Left )
-    ACTION_TC,             // TC - Thrust Attack ( Right )
-    ACTION_TD,             // TD - Thrust Attack ( Right )
-    ACTION_CA,             // CA - Chop Attack ( Left )
-    ACTION_CB,             // CB - Chop Attack ( Left )
-    ACTION_CC,             // CC - Chop Attack ( Right )
-    ACTION_CD,             // CD - Chop Attack ( Right )
-    ACTION_SA,             // SA - Slice Attack ( Left )
-    ACTION_SB,             // SB - Slice Attack ( Left )
-    ACTION_SC,             // SC - Slice Attack ( Right )
-    ACTION_SD,             // SD - Slice Attack ( Right )
-    ACTION_BA,             // BA - Bash Attack ( Left )
-    ACTION_BB,             // BB - Bash Attack ( Left )
-    ACTION_BC,             // BC - Bash Attack ( Right )
-    ACTION_BD,             // BD - Bash Attack ( Right )
-    ACTION_LA,             // LA - Longbow Attack ( Left )
-    ACTION_LB,             // LB - Longbow Attack ( Left )
-    ACTION_LC,             // LC - Longbow Attack ( Right )
-    ACTION_LD,             // LD - Longbow Attack ( Right )
-    ACTION_XA,             // XA - Crossbow Attack ( Left )
-    ACTION_XB,             // XB - Crossbow Attack ( Left )
-    ACTION_XC,             // XC - Crossbow Attack ( Right )
-    ACTION_XD,             // XD - Crossbow Attack ( Right )
-    ACTION_FA,             // FA - Flinged Attack ( Left )
-    ACTION_FB,             // FB - Flinged Attack ( Left )
-    ACTION_FC,             // FC - Flinged Attack ( Right )
-    ACTION_FD,             // FD - Flinged Attack ( Right )
-    ACTION_PA,             // PA - Parry or Block ( Left )
-    ACTION_PB,             // PB - Parry or Block ( Left )
-    ACTION_PC,             // PC - Parry or Block ( Right )
-    ACTION_PD,             // PD - Parry or Block ( Right )
-    ACTION_EA,             // EA - Evade
-    ACTION_EB,             // EB - Evade
-    ACTION_RA,             // RA - Roll
-    ACTION_ZA,             // ZA - Zap Magic ( Left )
-    ACTION_ZB,             // ZB - Zap Magic ( Left )
-    ACTION_ZC,             // ZC - Zap Magic ( Right )
-    ACTION_ZD,             // ZD - Zap Magic ( Right )
-    ACTION_WA,             // WA - Sneak
-    ACTION_WB,             // WB - Walk
-    ACTION_WC,             // WC - Run
-    ACTION_WD,             // WD - Push
-    ACTION_JA,             // JA - Jump
-    ACTION_JB,             // JB - Falling ( End of Jump ) ( Dropped Item left )
-    ACTION_JC,             // JC - Falling [ Dropped item right ]
-    ACTION_HA,             // HA - Hit
-    ACTION_HB,             // HB - Hit
-    ACTION_HC,             // HC - Hit
-    ACTION_HD,             // HD - Hit
-    ACTION_KA,             // KA - Killed
-    ACTION_KB,             // KB - Killed
-    ACTION_KC,             // KC - Killed
-    ACTION_KD,             // KD - Killed
-    ACTION_MA,             // MA - Misc ( Drop Left Item )
-    ACTION_MB,             // MB - Misc ( Drop Right Item )
-    ACTION_MC,             // MC - Misc ( Cheer/Slam Left )
-    ACTION_MD,             // MD - Misc ( Show Off/Slam Right/Rise from ground )
-    ACTION_ME,             // ME - Misc ( Grab Item Left )
-    ACTION_MF,             // MF - Misc ( Grab Item Right )
-    ACTION_MG,             // MG - Misc ( Open Chest )
-    ACTION_MH,             // MH - Misc ( Sit )
-    ACTION_MI,             // MI - Misc ( Ride )
-    ACTION_MJ,             // MJ - Misc ( Object Activated )
-    ACTION_MK,             // MK - Misc ( Snoozing )
-    ACTION_ML,             // ML - Misc ( Unlock )
-    ACTION_MM,             // MM - Misc ( Held Left )
-    ACTION_MN,             // MN - Misc ( Held Right )
+    ACTION_DA = 0,         ///< DA - Dance ( Typical standing )
+    ACTION_DB,             ///< DB - Dance ( Bored )
+    ACTION_DC,             ///< DC - Dance ( Bored )
+    ACTION_DD,             ///< DD - Dance ( Bored )
+    ACTION_UA,             ///< UA - Unarmed Attack ( Left )
+    ACTION_UB,             ///< UB - Unarmed Attack ( Left )
+    ACTION_UC,             ///< UC - Unarmed Attack ( Right )
+    ACTION_UD,             ///< UD - Unarmed Attack ( Right )
+    ACTION_TA,             ///< TA - Thrust Attack ( Left )
+    ACTION_TB,             ///< TB - Thrust Attack ( Left )
+    ACTION_TC,             ///< TC - Thrust Attack ( Right )
+    ACTION_TD,             ///< TD - Thrust Attack ( Right )
+    ACTION_CA,             ///< CA - Chop Attack ( Left )
+    ACTION_CB,             ///< CB - Chop Attack ( Left )
+    ACTION_CC,             ///< CC - Chop Attack ( Right )
+    ACTION_CD,             ///< CD - Chop Attack ( Right )
+    ACTION_SA,             ///< SA - Slice Attack ( Left )
+    ACTION_SB,             ///< SB - Slice Attack ( Left )
+    ACTION_SC,             ///< SC - Slice Attack ( Right )
+    ACTION_SD,             ///< SD - Slice Attack ( Right )
+    ACTION_BA,             ///< BA - Bash Attack ( Left )
+    ACTION_BB,             ///< BB - Bash Attack ( Left )
+    ACTION_BC,             ///< BC - Bash Attack ( Right )
+    ACTION_BD,             ///< BD - Bash Attack ( Right )
+    ACTION_LA,             ///< LA - Longbow Attack ( Left )
+    ACTION_LB,             ///< LB - Longbow Attack ( Left )
+    ACTION_LC,             ///< LC - Longbow Attack ( Right )
+    ACTION_LD,             ///< LD - Longbow Attack ( Right )
+    ACTION_XA,             ///< XA - Crossbow Attack ( Left )
+    ACTION_XB,             ///< XB - Crossbow Attack ( Left )
+    ACTION_XC,             ///< XC - Crossbow Attack ( Right )
+    ACTION_XD,             ///< XD - Crossbow Attack ( Right )
+    ACTION_FA,             ///< FA - Flinged Attack ( Left )
+    ACTION_FB,             ///< FB - Flinged Attack ( Left )
+    ACTION_FC,             ///< FC - Flinged Attack ( Right )
+    ACTION_FD,             ///< FD - Flinged Attack ( Right )
+    ACTION_PA,             ///< PA - Parry or Block ( Left )
+    ACTION_PB,             ///< PB - Parry or Block ( Left )
+    ACTION_PC,             ///< PC - Parry or Block ( Right )
+    ACTION_PD,             ///< PD - Parry or Block ( Right )
+    ACTION_EA,             ///< EA - Evade
+    ACTION_EB,             ///< EB - Evade
+    ACTION_RA,             ///< RA - Roll
+    ACTION_ZA,             ///< ZA - Zap Magic ( Left )
+    ACTION_ZB,             ///< ZB - Zap Magic ( Left )
+    ACTION_ZC,             ///< ZC - Zap Magic ( Right )
+    ACTION_ZD,             ///< ZD - Zap Magic ( Right )
+    ACTION_WA,             ///< WA - Sneak
+    ACTION_WB,             ///< WB - Walk
+    ACTION_WC,             ///< WC - Run
+    ACTION_WD,             ///< WD - Push
+    ACTION_JA,             ///< JA - Jump
+    ACTION_JB,             ///< JB - Falling ( End of Jump ) ( Dropped Item left )
+    ACTION_JC,             ///< JC - Falling [ Dropped item right ]
+    ACTION_HA,             ///< HA - Hit
+    ACTION_HB,             ///< HB - Hit
+    ACTION_HC,             ///< HC - Hit
+    ACTION_HD,             ///< HD - Hit
+    ACTION_KA,             ///< KA - Killed
+    ACTION_KB,             ///< KB - Killed
+    ACTION_KC,             ///< KC - Killed
+    ACTION_KD,             ///< KD - Killed
+    ACTION_MA,             ///< MA - Misc ( Drop Left Item )
+    ACTION_MB,             ///< MB - Misc ( Drop Right Item )
+    ACTION_MC,             ///< MC - Misc ( Cheer/Slam Left )
+    ACTION_MD,             ///< MD - Misc ( Show Off/Slam Right/Rise from ground )
+    ACTION_ME,             ///< ME - Misc ( Grab Item Left )
+    ACTION_MF,             ///< MF - Misc ( Grab Item Right )
+    ACTION_MG,             ///< MG - Misc ( Open Chest )
+    ACTION_MH,             ///< MH - Misc ( Sit )
+    ACTION_MI,             ///< MI - Misc ( Ride )
+    ACTION_MJ,             ///< MJ - Misc ( Object Activated )
+    ACTION_MK,             ///< MK - Misc ( Snoozing )
+    ACTION_ML,             ///< ML - Misc ( Unlock )
+    ACTION_MM,             ///< MM - Misc ( Held Left )
+    ACTION_MN,             ///< MN - Misc ( Held Right )
     ACTION_COUNT
 };
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-ego_md2_t  ego_md2_data[MAX_PROFILE]; // the old-style md2 data
+ego_md2_t  ego_md2_data[MAX_PROFILE]; ///< the old-style md2 data
 
 //--------------------------------------------------------------------------------------------
 struct s_mad
@@ -158,19 +156,19 @@ struct s_mad
     EGO_PROFILE_STUFF;
 
     // templates
-    //Uint16  transvertices;                    // Number to transform
+    //Uint16  transvertices;                    ///< Number to transform
 
-    Uint16  frameliptowalkframe[4][16];       // For walk animations
+    Uint16  frameliptowalkframe[4][16];       ///< For walk animations
 
-    Uint8   actionvalid[ACTION_COUNT];        // bfalse if not valid
-    Uint16  actionstart[ACTION_COUNT];        // First frame of anim
-    Uint16  actionend[ACTION_COUNT];          // One past last frame
+    Uint8   actionvalid[ACTION_COUNT];        ///< bfalse if not valid
+    Uint16  actionstart[ACTION_COUNT];        ///< First frame of anim
+    Uint16  actionend[ACTION_COUNT];          ///< One past last frame
 
     //---- per-object data ----
 
     // model data
-    Uint16     md2_ref;                       // a reference to the old-style md2 data
-    Md2Model * md2_ptr;                       // the pointer that will eventually be used
+    Uint16     md2_ref;                       ///< a reference to the old-style md2 data
+    Md2Model * md2_ptr;                       ///< the pointer that will eventually be used
 };
 typedef struct s_mad mad_t;
 
@@ -181,7 +179,7 @@ extern mad_t   MadList[MAX_PROFILE];
 #define INVALID_MAD( IMAD )     ( !VALID_MAD_RANGE( IMAD ) || !MadList[IMAD].loaded )
 
 //--------------------------------------------------------------------------------------------
-extern char            cFrameName[16];                                     // MD2 Frame Name
+extern char            cFrameName[16];                                     ///< MD2 Frame Name
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

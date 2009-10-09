@@ -19,10 +19,8 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - menu.h
- * Implements the main menu tree, using the code in Ui.*.  This could probably
- * just go in proto.h.
- */
+/// @file menu.h
+/// @details Implements the main menu tree, using the code in Ui.*.
 
 #include "network.h"
 #include "egoboo.h"
@@ -34,7 +32,7 @@ struct s_mod_file;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-// All the different menus.  yay!
+/// All the different menus.  yay!
 enum e_which_menu
 {
     emnu_Main,
@@ -65,7 +63,7 @@ typedef enum e_which_menu which_menu_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-// Input player control
+/// Input player control
 #define MAXLOADPLAYER     100
 struct s_load_player_info
 {

@@ -19,7 +19,7 @@
 //*
 //********************************************************************************************
 
-// Read/write values from/to files
+/// Read/write values from/to files
 
 #include "egoboo_typedef.h"
 #include "egoboo_vfs.h"
@@ -33,14 +33,14 @@ struct s_oglx_texture;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-extern const char *parse_filename;          // For debuggin' goto_colon
+extern const char *parse_filename;          ///< For debuggin' goto_colon
 
-extern  STRING     TxFormatSupported[20]; // OpenGL icon surfaces
+extern  STRING     TxFormatSupported[20]; ///< OpenGL icon surfaces
 extern  Uint8      maxformattypes;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-// function prototypes
+/// function prototypes
 
 void   make_newloadname( const char *modname, const char *appendname, char *newloadname );
 

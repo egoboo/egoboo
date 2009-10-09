@@ -19,6 +19,8 @@
 //*
 //********************************************************************************************
 
+/// @file char.h
+
 #include "egoboo_typedef.h"
 #include "cap_file.h"
 
@@ -32,7 +34,7 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-// Attack directions
+/// Attack directions
 #define ATK_FRONT  0x0000
 #define ATK_RIGHT  0x4000
 #define ATK_BEHIND 0x8000
@@ -40,33 +42,33 @@
 
 #define MAP_TURN_OFFSET 0x8000
 
-#define MAXXP      200000                        // Maximum experience
-#define MAXMONEY     9999                        // Maximum money
+#define MAXXP      200000                        ///< Maximum experience
+#define MAXMONEY     9999                        ///< Maximum money
 
 #define MAX_CAP    MAX_PROFILE
 
 typedef enum e_turn_modes
 {
-    TURNMODE_VELOCITY = 0,                       // Character gets rotation from velocity (normal)
-    TURNMODE_WATCH,                              // For watch towers, look towards waypoint
-    TURNMODE_SPIN,                               // For spinning objects
-    TURNMODE_WATCHTARGET,                        // For combat intensive AI
+    TURNMODE_VELOCITY = 0,                       ///< Character gets rotation from velocity (normal)
+    TURNMODE_WATCH,                              ///< For watch towers, look towards waypoint
+    TURNMODE_SPIN,                               ///< For spinning objects
+    TURNMODE_WATCHTARGET,                        ///< For combat intensive AI
     TURNMODE_COUNT
 } TURN_MODE;
 
-#define MANARETURNSHIFT     22                      // ChrList.lst[ichr].manareturn/MANARETURNSHIFT = mana regen per second
+#define MANARETURNSHIFT     22                      ///< ChrList.lst[ichr].manareturn/MANARETURNSHIFT = mana regen per second
 
-#define TURNSPD             0.01f                 // Cutoff for turning or same direction
-#define SPINRATE            200                   // How fast spinners spin
-#define WATCHMIN            0.01f                 // Tolerance for TURNMODE_WATCH
+#define TURNSPD             0.01f                 ///< Cutoff for turning or same direction
+#define SPINRATE            200                   ///< How fast spinners spin
+#define WATCHMIN            0.01f                 ///< Tolerance for TURNMODE_WATCH
 
 #define GRIP_VERTS                       4
 enum e_grip_offset
 {
-    GRIP_ORIGIN    =               0,                // Spawn attachments at the center
-    GRIP_LAST      =               1,                // Spawn particles at the last vertex
-    GRIP_LEFT      =              (1 * GRIP_VERTS),  // Left weapon grip starts  4 from last
-    GRIP_RIGHT     =              (2 * GRIP_VERTS),  // Right weapon grip starts 8 from last
+    GRIP_ORIGIN    =               0,                ///< Spawn attachments at the center
+    GRIP_LAST      =               1,                ///< Spawn particles at the last vertex
+    GRIP_LEFT      =              (1 * GRIP_VERTS),  ///< Left weapon grip starts  4 from last
+    GRIP_RIGHT     =              (2 * GRIP_VERTS),  ///< Right weapon grip starts 8 from last
 
     // aliases
     GRIP_INVENTORY =               GRIP_ORIGIN,
@@ -77,86 +79,86 @@ typedef enum e_grip_offset grip_offset_t;
 grip_offset_t slot_to_grip_offset( slot_t slot );
 slot_t        grip_offset_to_slot( grip_offset_t grip );
 
-#define PITDEPTH            -30                     // Depth to kill character
+#define PITDEPTH            -30                     ///< Depth to kill character
 
-#define NOSKINOVERRIDE      -1          // For import
+#define NOSKINOVERRIDE      -1          ///< For import
 
-#define HURTDAMAGE           256                     // Minimum damage for hurt animation
+#define HURTDAMAGE           256                     ///< Minimum damage for hurt animation
 
 //Knockbacks
-#define REEL                7600.0f     // Dampen for melee knock back
+#define REEL                7600.0f     ///< Dampen for melee knock back
 #define REELBASE            0.35f
 
 //Water
 #define WATERJUMP           12
-#define RIPPLETOLERANCE     60          // For deep water
+#define RIPPLETOLERANCE     60          ///< For deep water
 #define SPLASHTOLERANCE     10
-#define RIPPLEAND           15          // How often ripples spawn
+#define RIPPLEAND           15          ///< How often ripples spawn
 
-// Stats
-#define LOWSTAT             256                     // Worst...
-#define PERFECTSTAT         (60*256)                // Maximum stat without magic effects
-#define PERFECTBIG          (100*256)               // Perfect life or mana...
-#define HIGHSTAT            (100*256)                // Absolute max adding enchantments as well
+/// Stats
+#define LOWSTAT             256                     ///< Worst...
+#define PERFECTSTAT         (60*256)                ///< Maximum stat without magic effects
+#define PERFECTBIG          (100*256)               ///< Perfect life or mana...
+#define HIGHSTAT            (100*256)                ///< Absolute max adding enchantments as well
 
-// Throwing
-#define THROWFIX            30.0f                    // To correct thrown velocities
+/// Throwing
+#define THROWFIX            30.0f                    ///< To correct thrown velocities
 #define MINTHROWVELOCITY    15.0f
 #define MAXTHROWVELOCITY    75.0f
 
-// Inventory
-#define MAXNUMINPACK        6                       // Max number of items to carry in pack
-#define PACKDELAY           25                      // Time before inventory rotate again
-#define GRABDELAY           25                      // Time before grab again
+/// Inventory
+#define MAXNUMINPACK        6                       ///< Max number of items to carry in pack
+#define PACKDELAY           25                      ///< Time before inventory rotate again
+#define GRABDELAY           25                      ///< Time before grab again
 
-// Z velocity
-#define FLYDAMPEN           0.001f                    // Levelling rate for flyers
-#define JUMPDELAY           20                      // Time between jumps
-#define JUMPINFINITE        255                     // Flying character
-#define SLIDETOLERANCE      10                      // Stick to ground better
-#define PLATTOLERANCE       50                     // Platform tolerance...
-#define PLATADD             -10                     // Height add...
-#define PLATASCEND          0.10f                     // Ascension rate
-#define PLATKEEP            0.90f                     // Retention rate
+/// Z velocity
+#define FLYDAMPEN           0.001f                    ///< Levelling rate for flyers
+#define JUMPDELAY           20                      ///< Time between jumps
+#define JUMPINFINITE        255                     ///< Flying character
+#define SLIDETOLERANCE      10                      ///< Stick to ground better
+#define PLATTOLERANCE       50                     ///< Platform tolerance...
+#define PLATADD             -10                     ///< Height add...
+#define PLATASCEND          0.10f                     ///< Ascension rate
+#define PLATKEEP            0.90f                     ///< Retention rate
 #define MOUNTTOLERANCE      (2 * PLATTOLERANCE)
-#define STOPBOUNCING        0.1f // 1.0f                // To make objects stop bouncing
+#define STOPBOUNCING        0.1f // 1.0f                ///< To make objects stop bouncing
 #define DROPZVEL            7
 #define DROPXYVEL           8
 
 //Timer resets
-#define DAMAGETILETIME      32                            // Invincibility time
-#define DAMAGETIME          16                            // Invincibility time
-#define DEFENDTIME          16                            // Invincibility time
-#define BORETIME            generate_randmask( 120, 255 ) // IfBored timer
-#define CAREFULTIME         50                            // Friendly fire timer
-#define SIZETIME            50                            // Time it takes to resize a character
+#define DAMAGETILETIME      32                            ///< Invincibility time
+#define DAMAGETIME          16                            ///< Invincibility time
+#define DEFENDTIME          16                            ///< Invincibility time
+#define BORETIME            generate_randmask( 120, 255 ) ///< IfBored timer
+#define CAREFULTIME         50                            ///< Friendly fire timer
+#define SIZETIME            50                            ///< Time it takes to resize a character
 
 //------------------------------------
-// Team variables
+/// Team variables
 //------------------------------------
-#define TEAM_EVIL            4                       // E
-#define TEAM_GOOD            6                       // G
-#define TEAM_NULL            13                      // N
-#define TEAM_DAMAGE          26                      // For damage tiles
-#define TEAM_MAX             27                      // Teams A-Z, +1 more for damage tiles
-#define NOLEADER            0xFFFF                   // If the team has no leader...
+#define TEAM_EVIL            4                       ///< E
+#define TEAM_GOOD            6                       ///< G
+#define TEAM_NULL            13                      ///< N
+#define TEAM_DAMAGE          26                      ///< For damage tiles
+#define TEAM_MAX             27                      ///< Teams A-Z, +1 more for damage tiles
+#define NOLEADER            0xFFFF                   ///< If the team has no leader...
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 struct s_team
 {
-    bool_t  hatesteam[TEAM_MAX];     // Don't damage allies...
-    Uint16  morale;                 // Number of characters on team
-    Uint16  leader;                 // The leader of the team
-    Uint16  sissy;                  // Whoever called for help last
+    bool_t  hatesteam[TEAM_MAX];     ///< Don't damage allies...
+    Uint16  morale;                 ///< Number of characters on team
+    Uint16  leader;                 ///< The leader of the team
+    Uint16  sissy;                  ///< Whoever called for help last
 };
 typedef struct s_team team_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-// the data necessary to cache the last values required to create the character matrix
+/// the data necessary to cache the last values required to create the character matrix
 
-// bits that tell you which variables to look at
+/// bits that tell you which variables to look at
 enum e_matrix_cache_type
 {
     MAT_UNKNOWN   = 0,
@@ -187,10 +189,10 @@ struct s_matrix_cache
 
     //---- MAT_WEAPON data
 
-    Uint16  grip_chr;                   // !=MAX_CHR if character is a held weapon
-    slot_t  grip_slot;                  // SLOT_LEFT or SLOT_RIGHT
-    Uint16  grip_verts[GRIP_VERTS];     // Vertices which describe the weapon grip
-    Uint32  vert_update;                // last time the object's vertices were updated
+    Uint16  grip_chr;                   ///< !=MAX_CHR if character is a held weapon
+    slot_t  grip_slot;                  ///< SLOT_LEFT or SLOT_RIGHT
+    Uint16  grip_verts[GRIP_VERTS];     ///< Vertices which describe the weapon grip
+    Uint32  vert_update;                ///< last time the object's vertices were updated
 
     //---- data used for both
 
@@ -202,44 +204,44 @@ typedef struct s_matrix_cache matrix_cache_t;
 matrix_cache_t * matrix_cache_init(matrix_cache_t * mcache);
 
 //--------------------------------------------------------------------------------------------
-// all the model data that the renderer needs to render the character
+/// all the model data that the renderer needs to render the character
 struct s_chr_instance
 {
     // position info
-    fmat_4x4_t       matrix;          // Character's matrix
-    matrix_cache_t matrix_cache;    // Did we make one yet?
+    fmat_4x4_t       matrix;          ///< Character's matrix
+    matrix_cache_t matrix_cache;    ///< Did we make one yet?
 
     Uint16         turn_z;
 
     // render mode info
-    Uint8          alpha;           // 255 = Solid, 0 = Invisible
-    Uint8          light;           // 1 = Light, 0 = Normal
-    Uint8          sheen;           // 0-15, how shiny it is
-    bool_t         enviro;          // Environment map?
+    Uint8          alpha;           ///< 255 = Solid, 0 = Invisible
+    Uint8          light;           ///< 1 = Light, 0 = Normal
+    Uint8          sheen;           ///< 0-15, how shiny it is
+    bool_t         enviro;          ///< Environment map?
 
     // color info
-    Uint8          redshift;        // Color channel shifting
+    Uint8          redshift;        ///< Color channel shifting
     Uint8          grnshift;
     Uint8          blushift;
 
     // texture info
-    Uint16         texture;         // The texture id of the character's skin
-    Uint16         uoffset;         // For moving textures
+    Uint16         texture;         ///< The texture id of the character's skin
+    Uint16         uoffset;         ///< For moving textures
     Uint16         voffset;
 
     // lighting
-    // Uint16         light_turn_z;    // Character's light rotation 0 to 0xFFFF
-    // Uint8          lightlevel_amb;  // 0-255, terrain light
-    // Uint8          lightlevel_dir;  // 0-255, terrain light
+    // Uint16         light_turn_z;    ///< Character's light rotation 0 to 0xFFFF
+    // Uint8          lightlevel_amb;  ///< 0-255, terrain light
+    // Uint8          lightlevel_dir;  ///< 0-255, terrain light
 
     // model info
-    Uint16         imad;            // Character's model
+    Uint16         imad;            ///< Character's model
 
     // animation info
-    Uint16         frame_nxt;       // Character's frame
-    Uint16         frame_lst;       // Character's last frame
-    Uint8          ilip;            // Character's frame in betweening
-    float          flip;            // Character's frame in betweening
+    Uint16         frame_nxt;       ///< Character's frame
+    Uint16         frame_lst;       ///< Character's last frame
+    Uint8          ilip;            ///< Character's frame in betweening
+    float          flip;            ///< Character's frame in betweening
     float          rate;
 
     // linear interpolated frame vertices
@@ -249,10 +251,10 @@ struct s_chr_instance
 
     size_t         vlst_size;
     GLvertex       vlst[MAXVERTICES];
-    oct_bb_t       bbox;                      // the bounding box for this frame
+    oct_bb_t       bbox;                      ///< the bounding box for this frame
 
     // graphical optimizations
-    bool_t         indolist;        // Has it been added yet?
+    bool_t         indolist;        ///< Has it been added yet?
 
     // the save data to determine whether re-calculation of vlst is necessary
     float  save_flip;
@@ -274,10 +276,10 @@ struct s_chr_environment
 {
     // floor stuff
     Uint8  twist;
-    float  floor_level;           // Height of tile
-    float  level;                 // Height of a tile or a platform
+    float  floor_level;           ///< Height of tile
+    float  level;                 ///< Height of a tile or a platform
     float  zlerp;
-    bool_t grounded;              // standing on something?
+    bool_t grounded;              ///< standing on something?
 
     // friction stuff
     bool_t is_slipping;
@@ -294,30 +296,30 @@ struct s_chr_environment
 typedef struct s_chr_environment chr_environment_t;
 
 //--------------------------------------------------------------------------------------------
-// Data for doing the physics in bump_all_objects(). should prevent you from being bumped into a wall
+/// Data for doing the physics in bump_all_objects(). should prevent you from being bumped into a wall
 struct s_phys_data
 {
     fvec3_t        apos_0, apos_1;
     fvec3_t        avel;
 
-    float          bumpdampen;                    // Character bump mass
-    Uint32         weight;                        // Weight ( for pressure plates )
-    float          dampen;                        // Bounciness
+    float          bumpdampen;                    ///< Character bump mass
+    Uint32         weight;                        ///< Weight ( for pressure plates )
+    float          dampen;                        ///< Bounciness
 };
 typedef struct s_phys_data phys_data_t;
 
 //--------------------------------------------------------------------------------------------
-// definition of the level 0 character "bumper"
+/// definition of the level 0 character "bumper"
 struct s_chr_bumper_0
 {
-    float  size;        // Size of bumpers
-    float  sizebig;     // For octagonal bumpers
-    float  height;      // Distance from head to toe
+    float  size;        ///< Size of bumpers
+    float  sizebig;     ///< For octagonal bumpers
+    float  height;      ///< Distance from head to toe
 };
 typedef struct s_chr_bumper_0 chr_bumper_0_t;
 
 //--------------------------------------------------------------------------------------------
-// definition of the level 1 character "bumper"
+/// definition of the level 1 character "bumper"
 struct s_chr_bumper_1
 {
     float min_x,  max_x;
@@ -334,151 +336,151 @@ struct s_chr
     ego_object_base_t obj_base;
 
     // character state
-    ai_state_t     ai;              // ai data
+    ai_state_t     ai;              ///< ai data
     latch_t        latch;
 
     // character stats
     STRING         name;
-    Uint8          gender;          // Gender
+    Uint8          gender;          ///< Gender
 
-    Uint8          lifecolor;       // Bar color
-    Sint16         life;            // Basic character stats
-    Sint16         lifemax;         //  All 8.8 fixed point
+    Uint8          lifecolor;       ///< Bar color
+    Sint16         life;            ///< Basic character stats
+    Sint16         lifemax;         ///<  All 8.8 fixed point
     Uint16         lifeheal;
-    Sint16         lifereturn;      // Regeneration/poison
+    Sint16         lifereturn;      ///< Regeneration/poison
 
-    Uint8          manacolor;       // Bar color
-    Sint16         mana;            // Mana stuff
+    Uint8          manacolor;       ///< Bar color
+    Sint16         mana;            ///< Mana stuff
     Sint16         manamax;
     Sint16         manaflow;
     Sint16         manareturn;
 
-    Sint16         strength;        // Strength
-    Sint16         wisdom;          // Wisdom
-    Sint16         intelligence;    // Intelligence
-    Sint16         dexterity;       // Dexterity
+    Sint16         strength;        ///< Strength
+    Sint16         wisdom;          ///< Wisdom
+    Sint16         intelligence;    ///< Intelligence
+    Sint16         dexterity;       ///< Dexterity
 
-    Uint32         experience;                    // Experience
-    Uint8          experiencelevel;               // Experience Level
+    Uint32         experience;                    ///< Experience
+    Uint8          experiencelevel;               ///< Experience Level
 
     // what the character is holding
-    Uint8          pack_ispacked;    // Is it in the inventory?
-    Uint8          pack_waspacked;   // Temporary thing...
-    Uint16         pack_next;        // Link to the next item
-    Uint8          pack_count;       // How many
-    Sint16         money;            // Money
-    Uint8          ammomax;          // Ammo stuff
+    Uint8          pack_ispacked;    ///< Is it in the inventory?
+    Uint8          pack_waspacked;   ///< Temporary thing...
+    Uint16         pack_next;        ///< Link to the next item
+    Uint8          pack_count;       ///< How many
+    Sint16         money;            ///< Money
+    Uint8          ammomax;          ///< Ammo stuff
     Uint16         ammo;
-    Uint16         holdingwhich[SLOT_COUNT]; // !=MAX_CHR if character is holding something
-    Uint16         inventory[INVEN_COUNT];   // !=MAX_CHR if character is storing something
+    Uint16         holdingwhich[SLOT_COUNT]; ///< !=MAX_CHR if character is holding something
+    Uint16         inventory[INVEN_COUNT];   ///< !=MAX_CHR if character is storing something
 
     // team stuff
-    Uint8          team;            // Character's team
-    Uint8          baseteam;        // Character's starting team
+    Uint8          team;            ///< Character's team
+    Uint8          baseteam;        ///< Character's starting team
 
     // enchant data
-    Uint16         firstenchant;                  // Linked list for enchants
-    Uint16         undoenchant;                   // Last enchantment spawned
+    Uint16         firstenchant;                  ///< Linked list for enchants
+    Uint16         undoenchant;                   ///< Last enchantment spawned
 
-    float          fat;                           // Character's size
-    float          fat_goto;                      // Character's size goto
-    Uint8          fat_goto_time;                  // Time left in size change
+    float          fat;                           ///< Character's size
+    float          fat_goto;                      ///< Character's size goto
+    Uint8          fat_goto_time;                  ///< Time left in size change
 
     // jump stuff
-    float          jump_power;                    // Jump power
-    Uint8          jumptime;                      // Delay until next jump
-    Uint8          jumpnumber;                    // Number of jumps remaining
-    Uint8          jumpnumberreset;               // Number of jumps total, 255=Flying
-    Uint8          jumpready;                     // For standing on a platform character
+    float          jump_power;                    ///< Jump power
+    Uint8          jumptime;                      ///< Delay until next jump
+    Uint8          jumpnumber;                    ///< Number of jumps remaining
+    Uint8          jumpnumberreset;               ///< Number of jumps total, 255=Flying
+    Uint8          jumpready;                     ///< For standing on a platform character
 
     // attachments
-    Uint16         attachedto;                    // !=MAX_CHR if character is a held weapon
-    slot_t         inwhich_slot;                  // SLOT_LEFT or SLOT_RIGHT
+    Uint16         attachedto;                    ///< !=MAX_CHR if character is a held weapon
+    slot_t         inwhich_slot;                  ///< SLOT_LEFT or SLOT_RIGHT
 
     // platform stuff
-    Uint8          platform;                      // Can it be stood on
-    Uint16         holdingweight;                 // For weighted buttons
-    Uint16         onwhichplatform;               // Am I on a platform?
+    Uint8          platform;                      ///< Can it be stood on
+    Uint16         holdingweight;                 ///< For weighted buttons
+    Uint16         onwhichplatform;               ///< Am I on a platform?
 
     // combat stuff
-    Uint8          damagetargettype;              // Type of damage for AI DamageTarget
-    Uint8          reaffirmdamagetype;            // For relighting torches
-    Uint8          damagemodifier[DAMAGE_COUNT];  // Resistances and inversion
-    Uint8          defense;                       // Base defense rating
-    Uint16         damageboost;                   // Add to swipe damage
-	Uint16         damagethreshold;				  // Damage below this number is ignored
+    Uint8          damagetargettype;              ///< Type of damage for AI DamageTarget
+    Uint8          reaffirmdamagetype;            ///< For relighting torches
+    Uint8          damagemodifier[DAMAGE_COUNT];  ///< Resistances and inversion
+    Uint8          defense;                       ///< Base defense rating
+    Uint16         damageboost;                   ///< Add to swipe damage
+	Uint16         damagethreshold;				  ///< Damage below this number is ignored
 
     // sound stuff
-    Sint8          soundindex[SOUND_COUNT];       // a map for soundX.wav to sound types
-    int            loopedsound_channel;           // Which sound channel it is looping on, -1 is none.
+    Sint8          soundindex[SOUND_COUNT];       ///< a map for soundX.wav to sound types
+    int            loopedsound_channel;           ///< Which sound channel it is looping on, -1 is none.
 
     // missle handling
-    Uint8          missiletreatment;              // For deflection, etc.
-    Uint8          missilecost;                   // Mana cost for each one
-    Uint16         missilehandler;                // Who pays the bill for each one...
+    Uint8          missiletreatment;              ///< For deflection, etc.
+    Uint8          missilecost;                   ///< Mana cost for each one
+    Uint16         missilehandler;                ///< Who pays the bill for each one...
 
     // "variable" properties
     bool_t         is_hidden;
-    Uint8          alive;                         // Is it alive?
-    Uint8          waskilled;                     // Fix for network
-    bool_t         isplayer;                      // btrue = player
-    bool_t         islocalplayer;                 // btrue = local player
-    Uint8          invictus;                      // Totally invincible?
-    Uint8          iskursed;                      // Can't be dropped?
-    Uint8          nameknown;                     // Is the name known?
-    Uint8          ammoknown;                     // Is the ammo known?
-    Uint8          hitready;                      // Was it just dropped?
-    Uint8          isequipped;                    // For boots and rings and stuff
+    Uint8          alive;                         ///< Is it alive?
+    Uint8          waskilled;                     ///< Fix for network
+    bool_t         isplayer;                      ///< btrue = player
+    bool_t         islocalplayer;                 ///< btrue = local player
+    Uint8          invictus;                      ///< Totally invincible?
+    Uint8          iskursed;                      ///< Can't be dropped?
+    Uint8          nameknown;                     ///< Is the name known?
+    Uint8          ammoknown;                     ///< Is the ammo known?
+    Uint8          hitready;                      ///< Was it just dropped?
+    Uint8          isequipped;                    ///< For boots and rings and stuff
 
     // "constant" properties
-    Uint8          isitem;                        // Is it grabbable?
-    bool_t         cangrabmoney;                  // Picks up coins?
-    Uint8          openstuff;                     // Can it open chests/doors?
-    Uint8          stickybutt;                    // Rests on floor
-    bool_t         isshopitem;                    // Spawned in a shop?
-    Uint8          ismount;                       // Can you ride it?
-    bool_t         canbecrushed;                  // Crush in a door?
-    bool_t         canchannel;                    // Can it convert life to mana?
-    Sint16         manacost;                      // Mana cost to use
+    Uint8          isitem;                        ///< Is it grabbable?
+    bool_t         cangrabmoney;                  ///< Picks up coins?
+    Uint8          openstuff;                     ///< Can it open chests/doors?
+    Uint8          stickybutt;                    ///< Rests on floor
+    bool_t         isshopitem;                    ///< Spawned in a shop?
+    Uint8          ismount;                       ///< Can you ride it?
+    bool_t         canbecrushed;                  ///< Crush in a door?
+    bool_t         canchannel;                    ///< Can it convert life to mana?
+    Sint16         manacost;                      ///< Mana cost to use
 
     // misc timers
-    Sint16         grogtime;                      // Grog timer
-    Sint16         dazetime;                      // Daze timer
-    Sint16         boretime;                      // Boredom timer
-    Uint8          carefultime;                   // "You hurt me!" timer
-    Uint16         reloadtime;                    // Time before another shot
-    Uint8          damagetime;                    // Invincibility timer
+    Sint16         grogtime;                      ///< Grog timer
+    Sint16         dazetime;                      ///< Daze timer
+    Sint16         boretime;                      ///< Boredom timer
+    Uint8          carefultime;                   ///< "You hurt me!" timer
+    Uint16         reloadtime;                    ///< Time before another shot
+    Uint8          damagetime;                    ///< Invincibility timer
 
     // graphica info
-    Uint8          flashand;        // 1,3,7,15,31 = Flash, 255 = Don't
-    Uint8          transferblend;   // Give transparency to weapons?
-    bool_t         icon;            // Show the icon?
-    Uint8          sparkle;         // Sparkle color or 0 for off
-    Uint8          StatusList_on;          // Display stats?
-    Uint16         uoffvel;         // Moving texture speed
+    Uint8          flashand;        ///< 1,3,7,15,31 = Flash, 255 = Don't
+    Uint8          transferblend;   ///< Give transparency to weapons?
+    bool_t         icon;            ///< Show the icon?
+    Uint8          sparkle;         ///< Sparkle color or 0 for off
+    Uint8          StatusList_on;          ///< Display stats?
+    Uint16         uoffvel;         ///< Moving texture speed
     Uint16         voffvel;
-    Uint32         shadowsize;      // Size of shadow
-    Uint32         shadowsizesave;  // Without size modifiers
-    Uint16         ibillboard;      // The attached billboard
+    Uint32         shadowsize;      ///< Size of shadow
+    Uint32         shadowsizesave;  ///< Without size modifiers
+    Uint16         ibillboard;      ///< The attached billboard
 
     // action info
-    Uint8          actionready;                   // Ready to play a new one
-    Uint8          action;                        // Character's action
-    bool_t         keepaction;                    // Keep the action playing
-    bool_t         loopaction;                    // Loop it too
-    Uint8          nextaction;                    // Character's action to play next
+    Uint8          actionready;                   ///< Ready to play a new one
+    Uint8          action;                        ///< Character's action
+    bool_t         keepaction;                    ///< Keep the action playing
+    bool_t         loopaction;                    ///< Loop it too
+    Uint8          nextaction;                    ///< Character's action to play next
 
     // model info
-    bool_t         is_overlay;                    // Is this an overlay? Track aitarget...
-    Uint16         skin;                          // Character's skin
-    Uint8          iprofile;                      // Character's profile
-    Uint8          basemodel;                     // The true form
+    bool_t         is_overlay;                    ///< Is this an overlay? Track aitarget...
+    Uint16         skin;                          ///< Character's skin
+    Uint8          iprofile;                      ///< Character's profile
+    Uint8          basemodel;                     ///< The true form
     Uint8          basealpha;
     Uint8          baselight;
-    chr_instance_t inst;                          // the render data
+    chr_instance_t inst;                          ///< the render data
 
     // Skills
-    int           shieldproficiency;            // Can it use shields?
+    int           shieldproficiency;            ///< Can it use shields?
     int           canjoust;
     int           canuseadvancedweapons;
     int           canseeinvisible;
@@ -504,43 +506,43 @@ struct s_chr
     chr_bumper_0_t   bump;
     chr_bumper_0_t   bump_save;
 
-    chr_bumper_0_t   bump_1;       // the loosest collision volume that mimics the current bump
-    chr_bumper_1_t   chr_prt_cv;   // a looser collision volume for chr-prt interactions
-    chr_bumper_1_t   chr_chr_cv;   // the tightest collision volume for chr-chr interactions
+    chr_bumper_0_t   bump_1;       ///< the loosest collision volume that mimics the current bump
+    chr_bumper_1_t   chr_prt_cv;   ///< a looser collision volume for chr-prt interactions
+    chr_bumper_1_t   chr_chr_cv;   ///< the tightest collision volume for chr-chr interactions
 
 
-    Uint8          stoppedby;                     // Collision mask
+    Uint8          stoppedby;                     ///< Collision mask
 
     // character location data
-    fvec3_t        pos_stt;                       // Starting position
-    fvec3_t        pos;                           // Character's position
-    fvec3_t        vel;                           // Character's velocity
+    fvec3_t        pos_stt;                       ///< Starting position
+    fvec3_t        pos;                           ///< Character's position
+    fvec3_t        vel;                           ///< Character's velocity
 
-    Uint16         turn_z;                        // Character's z-rotation 0 to 0xFFFF
+    Uint16         turn_z;                        ///< Character's z-rotation 0 to 0xFFFF
     Uint16         map_turn_y;
     Uint16         map_turn_x;
 
-    fvec3_t        pos_old;                       // Character's last position
+    fvec3_t        pos_old;                       ///< Character's last position
 
     bool_t         safe_valid;
-    fvec3_t        pos_safe;                      // Character's last safe position
+    fvec3_t        pos_safe;                      ///< Character's last safe position
 
-    fvec3_t        vel_old;                       // Character's last velocity
+    fvec3_t        vel_old;                       ///< Character's last velocity
 
     Uint16         turn_old_z;
 
-    Uint32         onwhichfan;                    // Where the char is
-    Uint32         onwhichblock;                  // The character's collision block
-    Uint16         bumplist_next;                 // Next character on fanblock
+    Uint32         onwhichfan;                    ///< Where the char is
+    Uint32         onwhichblock;                  ///< The character's collision block
+    Uint16         bumplist_next;                 ///< Next character on fanblock
 
     // movement properties
-    Uint8          waterwalk;                     // Always above watersurfacelevel?
-    TURN_MODE      turnmode;                      // Turning mode
-    Uint8          sneakspd;                      // Sneaking if above this speed
-    Uint8          walkspd;                       // Walking if above this speed
-    Uint8          runspd;                        // Running if above this speed
-    float          maxaccel;                      // Maximum acceleration
-    Uint8          flyheight;                     // Height to stabilize at
+    Uint8          waterwalk;                     ///< Always above watersurfacelevel?
+    TURN_MODE      turnmode;                      ///< Turning mode
+    Uint8          sneakspd;                      ///< Sneaking if above this speed
+    Uint8          walkspd;                       ///< Walking if above this speed
+    Uint8          runspd;                        ///< Running if above this speed
+    float          maxaccel;                      ///< Maximum acceleration
+    Uint8          flyheight;                     ///< Height to stabilize at
 
     // data for doing the physics in bump_all_objects()
     phys_data_t       phys;
@@ -554,7 +556,7 @@ struct s_chr
 typedef struct s_chr chr_t;
 
 //--------------------------------------------------------------------------------------------
-// list definitions
+/// list definitions
 //--------------------------------------------------------------------------------------------
 
 extern team_t TeamList[TEAM_MAX];
@@ -578,7 +580,7 @@ DEFINE_LIST_EXTERN(chr_t, ChrList, MAX_CHR );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-// Function prototypes
+/// Function prototypes
 
 void drop_money( Uint16 character, Uint16 money );
 void call_for_help( Uint16 character );
@@ -663,13 +665,13 @@ const char * chr_get_name( Uint16 ichr, bool_t use_article );
 Uint16 ChrList_get_free();
 
 //---------------------------------------------------------------------------------------------
-// Quest system
+/// Quest system
 bool_t quest_add_idsz( const char *whichplayer, IDSZ idsz );
 Sint16 quest_modify_idsz( const char *whichplayer, IDSZ idsz, Sint16 adjustment );
 Sint16 quest_check( const char *whichplayer, IDSZ idsz );
 
 //---------------------------------------------------------------------------------------------
-// helper functions
+/// helper functions
 
 void init_all_cap();
 void release_all_cap();

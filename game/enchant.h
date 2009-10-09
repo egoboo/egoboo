@@ -19,9 +19,8 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - enchant.h
- * Decleares some stuff used for handling enchants
- */
+/// @file enchant.h
+/// @details Decleares some stuff used for handling enchants
 
 #include "egoboo_typedef.h"
 #include "egoboo.h"
@@ -40,8 +39,8 @@ struct s_chr;
 #define LEAVEFIRST              1
 #define LEAVENONE               2
 
-// Enchantment template
-#define MAX_EVE                          MAX_PROFILE    // One enchant type per model
+/// Enchantment template
+#define MAX_EVE                          MAX_PROFILE    ///< One enchant type per model
 
 DEFINE_STACK_EXTERN(eve_t, EveStack, MAX_EVE );
 
@@ -51,36 +50,36 @@ DEFINE_STACK_EXTERN(eve_t, EveStack, MAX_EVE );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-// Enchantment variables
+/// Enchantment variables
 
-#define MAX_ENC                      200         // Number of enchantments
+#define MAX_ENC                      200         ///< Number of enchantments
 
 struct s_enc
 {
     ego_object_base_t obj_base;
 
-    int     time;                    // Time before end
-    Uint16  spawntime;               // Time before spawn
+    int     time;                    ///< Time before end
+    Uint16  spawntime;               ///< Time before spawn
 
-    Uint16  profile_ref;             // The object  profile index that spawned this enchant
-    Uint16  eve_ref;                 // The enchant profile index
+    Uint16  profile_ref;             ///< The object  profile index that spawned this enchant
+    Uint16  eve_ref;                 ///< The enchant profile index
 
-    Uint16  target_ref;              // Who it enchants
-    Uint16  owner_ref;               // Who cast the enchant
-    Uint16  spawner_ref;             // The spellbook character
-    Uint16  spawnermodel_ref;        // The spellbook character's CapList index
-    Uint16  overlay_ref;             // The overlay character
+    Uint16  target_ref;              ///< Who it enchants
+    Uint16  owner_ref;               ///< Who cast the enchant
+    Uint16  spawner_ref;             ///< The spellbook character
+    Uint16  spawnermodel_ref;        ///< The spellbook character's CapList index
+    Uint16  overlay_ref;             ///< The overlay character
 
-    Sint16  ownermana;               // Boost values
+    Sint16  ownermana;               ///< Boost values
     Sint16  ownerlife;
     Sint16  targetmana;
     Sint16  targetlife;
 
-    Uint16  nextenchant_ref;             // Next in the list
+    Uint16  nextenchant_ref;             ///< Next in the list
 
     bool_t  setyesno[MAX_ENCHANT_SET];// Was it set?
-    bool_t  setsave[MAX_ENCHANT_SET]; // The value to restore
-    Sint16  addsave[MAX_ENCHANT_ADD]; // The value to take away
+    bool_t  setsave[MAX_ENCHANT_SET]; ///< The value to restore
+    Sint16  addsave[MAX_ENCHANT_ADD]; ///< The value to take away
 };
 typedef struct s_enc enc_t;
 
@@ -94,7 +93,7 @@ DEFINE_LIST_EXTERN(enc_t, EncList, MAX_ENC );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-// Prototypes
+/// Prototypes
 
 void init_all_eve();
 void release_all_eve();

@@ -17,9 +17,8 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - id_normals.c
- * Md2 model lighting normal lookup table
- */
+/// @file id_normals.c
+/// @brief Md2 model lighting normal lookup table
 
 { -0.525731f, 0.000000f, 0.850651f},
 { -0.442863f, 0.238856f, 0.864188f},

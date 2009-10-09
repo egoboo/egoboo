@@ -17,10 +17,10 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - font_ttf.c
- * True-type font drawing functionality.  Uses Freetype 2 & OpenGL
- * to do it's business.
- */
+/// @file font_ttf.c
+/// @brief TTF management
+/// @details True-type font drawing functionality.  Uses Freetype 2 & OpenGL
+/// to do it's business.
 
 #include "font_ttf.h"
 #include "log.h"
@@ -53,7 +53,7 @@ static int fnt_atexit_registered = 0;
 
 int fnt_init()
 {
-    // BB> Make sure the TTF library was initialized
+    /// @details BB@> Make sure the TTF library was initialized
 
     int initialized;
 

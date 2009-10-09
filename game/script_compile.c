@@ -93,8 +93,9 @@ static void   get_code( int read );
 //--------------------------------------------------------------------------------------------
 void insert_space( int position )
 {
-    // ZZ> This function adds a space into the load line if there isn't one
-    //    there already
+    /// @details ZZ@> This function adds a space into the load line if there isn't one
+    ///    there already
+
     char cTmp, cSwap;
     if ( !isspace(cLineBuffer[position]) )
     {
@@ -118,7 +119,8 @@ void insert_space( int position )
 //--------------------------------------------------------------------------------------------
 int load_one_line( int read )
 {
-    // ZZ> This function loads a line into the line buffer
+    /// @details ZZ@> This function loads a line into the line buffer
+
     int stillgoing, foundtext;
     char cTmp;
     bool_t tabs_warning_needed;
@@ -258,7 +260,8 @@ void surround_space( int position )
 //--------------------------------------------------------------------------------------------
 int get_indentation()
 {
-    // ZZ> This function returns the number of starting spaces in a line
+    /// @details ZZ@> This function returns the number of starting spaces in a line
+
     int cnt;
     char cTmp;
 
@@ -289,8 +292,9 @@ int get_indentation()
 //--------------------------------------------------------------------------------------------
 void fix_operators()
 {
-    // ZZ> This function puts spaces around operators to seperate words
-    //    better
+    /// @details ZZ@> This function puts spaces around operators to seperate words
+    ///    better
+
     int cnt;
     char cTmp;
 
@@ -314,9 +318,10 @@ void fix_operators()
 //--------------------------------------------------------------------------------------------
 int parse_token( int read )
 {
-    // ZZ> This function tells what code is being indexed by read, it
-    //    will return the next spot to read from and stick the code number
-    //    in Token.iIndex
+    /// @details ZZ@> This function tells what code is being indexed by read, it
+    ///    will return the next spot to read from and stick the code number
+    ///    in Token.iIndex
+
     int cnt, wordsize;
     char cTmp;
     IDSZ idsz;
@@ -455,8 +460,9 @@ void emit_opcode( Uint32 highbits )
 //--------------------------------------------------------------------------------------------
 void parse_line_by_line()
 {
-    // ZZ> This function removes comments and endline codes, replacing
-    //    them with a 0
+    /// @details ZZ@> This function removes comments and endline codes, replacing
+    ///    them with a 0
+
     int read;
     Uint32 highbits;
     int parseposition;
@@ -601,9 +607,10 @@ void parse_line_by_line()
 //--------------------------------------------------------------------------------------------
 Uint32 jump_goto( int index, int index_end )
 {
-    // ZZ> This function figures out where to jump to on a fail based on the
-    //    starting location and the following code.  The starting location
-    //    should always be a function code with indentation
+    /// @details ZZ@> This function figures out where to jump to on a fail based on the
+    ///    starting location and the following code.  The starting location
+    ///    should always be a function code with indentation
+
     Uint32 value;
     int targetindent, indent;
 
@@ -641,7 +648,8 @@ Uint32 jump_goto( int index, int index_end )
 //--------------------------------------------------------------------------------------------
 void parse_jumps( int ainumber )
 {
-    // ZZ> This function sets up the fail jumps for the down and dirty code
+    /// @details ZZ@> This function sets up the fail jumps for the down and dirty code
+
     int index, index_end;
     Uint32 value, iTmp;
 
@@ -675,7 +683,8 @@ void parse_jumps( int ainumber )
 //--------------------------------------------------------------------------------------------
 int ai_goto_colon( int read )
 {
-    // ZZ> This function goes to spot after the next colon
+    /// @details ZZ@> This function goes to spot after the next colon
+
     char cTmp;
 
     cTmp = cLoadBuffer[read];
@@ -692,7 +701,8 @@ int ai_goto_colon( int read )
 //--------------------------------------------------------------------------------------------
 void get_code( int read )
 {
-    // ZZ> This function gets code names and other goodies
+    /// @details ZZ@> This function gets code names and other goodies
+
     char cTmp;
     int iTmp;
     STRING sTmp;
@@ -707,7 +717,8 @@ void get_code( int read )
 //--------------------------------------------------------------------------------------------
 void load_ai_codes( const char* loadname )
 {
-    // ZZ> This function loads all of the function and variable names
+    /// @details ZZ@> This function loads all of the function and variable names
+
     vfs_FILE* fileread;
     int read;
 
@@ -735,8 +746,9 @@ void load_ai_codes( const char* loadname )
 //--------------------------------------------------------------------------------------------
 int load_ai_script( const char *loadname )
 {
-    // ZZ> This function loads a script to memory and
-    //    returns bfalse if it fails to do so
+    /// @details ZZ@> This function loads a script to memory and
+    ///    returns bfalse if it fails to do so
+
     vfs_FILE* fileread;
     int retval = 0;
 
@@ -797,7 +809,7 @@ int load_ai_script( const char *loadname )
 //--------------------------------------------------------------------------------------------
 void release_all_ai_scripts()
 {
-    // ZZ> This function resets the ai script "pointers"
+    /// @details ZZ@> This function resets the ai script "pointers"
 
     AisCompiled_offset = 0;
     AisStorage.count = 0;
@@ -805,7 +817,7 @@ void release_all_ai_scripts()
 
 void init_all_ai_scripts()
 {
-    // ZZ> This function initializes the ai script "pointers"
+    /// @details ZZ@> This function initializes the ai script "pointers"
 
     AisCompiled_offset = 0;
     AisStorage.count = 0;
@@ -814,7 +826,8 @@ void init_all_ai_scripts()
 //--------------------------------------------------------------------------------------------
 // int load_parsed_line( int read )
 // {
-//   // ZZ> This function loads a line into the line buffer
+//   /// @details ZZ@> This function loads a line into the line buffer
+//
 //   char cTmp;
 
 //   // Parse to start to maintain indentation
@@ -835,8 +848,9 @@ void init_all_ai_scripts()
 //--------------------------------------------------------------------------------------------
 // void parse_null_terminate_comments()
 // {
-//   // ZZ> This function removes comments and endline codes, replacing
-//   //    them with a 0
+//   /// @details ZZ@> This function removes comments and endline codes, replacing
+//   ///    them with a 0
+//
 //   int read, write;
 
 //   read = 0;

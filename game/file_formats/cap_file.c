@@ -17,9 +17,8 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - cap_file.c
- * routines for reading and writing the character profile file data.txt
- */
+/// @file cap_file.c
+/// @brief routines for reading and writing the character profile file data.txt
 
 #include "cap_file.h"
 
@@ -36,9 +35,9 @@
 //--------------------------------------------------------------------------------------------
 cap_t * cap_init( cap_t * pcap )
 {
-    // BB> initialize the character profile data to safe values
-    //     since we use memset(..., 0, ...), all = 0, = false, and = 0.0f
-    //     statements are redundant
+    /// @details BB@> initialize the character profile data to safe values
+    ///     since we use memset(..., 0, ...), all = 0, = false, and = 0.0f
+    ///     statements are redundant
 
     int cnt;
 
@@ -82,9 +81,9 @@ cap_t * cap_init( cap_t * pcap )
 //--------------------------------------------------------------------------------------------
 cap_t * load_one_cap_file( const char * tmploadname, cap_t * pcap )
 {
-    // ZZ> This function fills a character profile with data from data.txt, returning
-    //     the icap slot that the profile was stuck into.  It may cause the program
-    //     to abort if bad things happen.
+    /// @details ZZ@> This function fills a character profile with data from data.txt, returning
+    ///     the icap slot that the profile was stuck into.  It may cause the program
+    ///     to abort if bad things happen.
 
     vfs_FILE* fileread;
 
@@ -413,8 +412,8 @@ cap_t * load_one_cap_file( const char * tmploadname, cap_t * pcap )
 //--------------------------------------------------------------------------------------------
 bool_t save_one_cap_file( const char * szSaveName, cap_t * pcap )
 {
-    // BB> export one cap_t struct to a "data.txt" file
-    //     converted to using the template file
+    /// @details BB@> export one cap_t struct to a "data.txt" file
+    ///     converted to using the template file
 
     vfs_FILE* filewrite, * filetemp;
 

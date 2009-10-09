@@ -17,9 +17,8 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - passage.c
- * Passages and doors and whatnot.  Things that impede your progress!
- */
+/// @file passage.c
+/// @brief Passages and doors and whatnot.  Things that impede your progress!
 
 #include "passage.h"
 
@@ -94,7 +93,7 @@ int ShopStack_get_free()
 //--------------------------------------------------------------------------------------------
 bool_t open_passage( Uint16 passage )
 {
-    // ZZ> This function makes a passage passable
+    /// @details ZZ@> This function makes a passage passable
     int x, y;
     Uint32 fan;
     bool_t useful = bfalse;
@@ -131,7 +130,7 @@ bool_t open_passage( Uint16 passage )
 //--------------------------------------------------------------------------------------------
 void flash_passage( Uint16 passage, Uint8 color )
 {
-    // ZZ> This function makes a passage flash white
+    /// @details ZZ@> This function makes a passage flash white
     int x, y, cnt, numvert;
     Uint32 fan, vert;
     passage_t * ppass;
@@ -166,7 +165,7 @@ void flash_passage( Uint16 passage, Uint8 color )
 //--------------------------------------------------------------------------------------------
 bool_t point_is_in_passage( Uint16 passage, float xpos, float ypos )
 {
-    // ZF> This return btrue if the specified X and Y coordinates are within the passage
+    /// @details ZF@> This return btrue if the specified X and Y coordinates are within the passage
 
     passage_t * ppass;
     frect_t tmp_rect;
@@ -186,8 +185,8 @@ bool_t point_is_in_passage( Uint16 passage, float xpos, float ypos )
 //--------------------------------------------------------------------------------------------
 bool_t object_is_in_passage( Uint16 passage, float xpos, float ypos, float radius )
 {
-    // ZF> This return btrue if the specified X and Y coordinates are within the passage
-    //     radius is how much offset we allow outside the passage
+    /// @details ZF@> This return btrue if the specified X and Y coordinates are within the passage
+    ///     radius is how much offset we allow outside the passage
 
     passage_t * ppass;
     frect_t tmp_rect;
@@ -209,10 +208,10 @@ bool_t object_is_in_passage( Uint16 passage, float xpos, float ypos, float radiu
 Uint16 who_is_blocking_passage( Uint16 passage, bool_t targetitems, bool_t targetdead, bool_t targetquest,
                                bool_t requireitem, IDSZ findidsz )
 {
-    // ZZ> This function returns MAX_CHR if there is no character in the passage,
-    //    otherwise the index of the first character found is returned...
-    //    Can also look for characters with a specific quest or item in his or her inventory
-    //    Finds living ones, then items and corpses
+    /// @details ZZ@> This function returns MAX_CHR if there is no character in the passage,
+    ///    otherwise the index of the first character found is returned...
+    ///    Can also look for characters with a specific quest or item in his or her inventory
+    ///    Finds living ones, then items and corpses
 
     Uint16 character, foundother;
     passage_t * ppass;
@@ -299,8 +298,9 @@ Uint16 who_is_blocking_passage( Uint16 passage, bool_t targetitems, bool_t targe
 //--------------------------------------------------------------------------------------------
 void check_passage_music()
 {
-    // ZF> This function checks all passages if there is a player in it, if it is, it plays a specified
-    // song set in by the AI script functions
+    /// @details ZF@> This function checks all passages if there is a player in it, if it is, it plays a specified
+    /// song set in by the AI script functions
+
     Uint16 character = 0, passage, cnt;
 
     // Check every music passage
@@ -336,7 +336,7 @@ void check_passage_music()
 //--------------------------------------------------------------------------------------------
 bool_t close_passage( Uint16 passage )
 {
-    // ZZ> This function makes a passage impassable, and returns btrue if it isn't blocked
+    /// @details ZZ@> This function makes a passage impassable, and returns btrue if it isn't blocked
     int x, y, cnt;
     Uint32 fan;
     Uint16 character;
@@ -411,7 +411,7 @@ bool_t close_passage( Uint16 passage )
 //--------------------------------------------------------------------------------------------
 void clear_all_passages()
 {
-    // ZZ> This function clears the passage list ( for doors )
+    /// @details ZZ@> This function clears the passage list ( for doors )
 
     PassageStack_free_all();
     ShopStack_free_all();
@@ -420,7 +420,7 @@ void clear_all_passages()
 //--------------------------------------------------------------------------------------------
 void add_shop_passage( Uint16 owner, Uint16 passage )
 {
-    // ZZ> This function creates a shop passage
+    /// @details ZZ@> This function creates a shop passage
 
     int ishop;
 
@@ -439,7 +439,7 @@ void add_shop_passage( Uint16 owner, Uint16 passage )
 //--------------------------------------------------------------------------------------------
 void add_passage( passage_t * pdata )
 {
-    // ZZ> This function creates a passage area
+    /// @details ZZ@> This function creates a passage area
 
     int         ipass;
     passage_t * ppass;
@@ -474,7 +474,7 @@ void add_passage( passage_t * pdata )
 //--------------------------------------------------------------------------------------------
 void setup_all_passages( const char *modname )
 {
-    // ZZ> This function reads the passage file
+    /// @details ZZ@> This function reads the passage file
 
     STRING     newloadname;
     passage_t  tmp_passage;

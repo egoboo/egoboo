@@ -19,9 +19,8 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - script_functions.h
- * functions called by run_function()
- */
+/// @file script_functions.h
+/// @details functions called by run_function()
 
 #include "egoboo_typedef.h"
 
@@ -33,7 +32,7 @@ struct s_ai_state;
 struct s_chr;
 
 //--------------------------------------------------------------------------------------------
-// helper functions
+/// helper functions
 //--------------------------------------------------------------------------------------------
 Uint8  _display_message( int ichr, int iprofile, int message, struct s_script_state * pstate  );
 Uint8  _break_passage( int meshxfor, int become, int frames, int starttile, int passage, int *ptilex, int *ptiley );

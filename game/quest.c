@@ -17,9 +17,8 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - quest.c
-  Handles functions that modify quest.txt files
- */
+/// @file quest.c
+/// @brief Handles functions that modify quest.txt files
 
 #include "quest.h"
 

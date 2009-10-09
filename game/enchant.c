@@ -17,8 +17,8 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - enchant.c handles enchantments attached to objects
- */
+/// @file enchant.c handles enchantments attached to objects
+
 #include "enchant.h"
 
 #include "char.h"
@@ -48,7 +48,7 @@ static enc_t * enc_init( enc_t * penc );
 //--------------------------------------------------------------------------------------------
 bool_t EncList_free_one( Uint16 ienc )
 {
-    // ZZ> This function sticks an enchant back on the free enchant stack
+    /// @details ZZ@> This function sticks an enchant back on the free enchant stack
 
     bool_t retval;
 
@@ -85,7 +85,7 @@ bool_t EncList_free_one( Uint16 ienc )
 //--------------------------------------------------------------------------------------------
 bool_t remove_enchant( Uint16 ienc )
 {
-    // ZZ> This function removes a specific enchantment and adds it to the unused list
+    /// @details ZZ@> This function removes a specific enchantment and adds it to the unused list
 
     Sint16 iwave;
     Uint16 itarget, ispawner;
@@ -238,9 +238,10 @@ bool_t remove_enchant( Uint16 ienc )
 //--------------------------------------------------------------------------------------------
 Uint16 enchant_value_filled( Uint16 ienc, Uint8 valueindex )
 {
-    // ZZ> This function returns MAX_ENC if the enchantment's target has no conflicting
-    //    set values in its other enchantments.  Otherwise it returns the ienc
-    //    of the conflicting enchantment
+    /// @details ZZ@> This function returns MAX_ENC if the enchantment's target has no conflicting
+    ///    set values in its other enchantments.  Otherwise it returns the ienc
+    ///    of the conflicting enchantment
+
     Uint16 character, currenchant;
 
     if ( !ACTIVE_ENC(ienc) ) return MAX_ENC;
@@ -263,7 +264,7 @@ Uint16 enchant_value_filled( Uint16 ienc, Uint8 valueindex )
 //--------------------------------------------------------------------------------------------
 void set_enchant_value( Uint16 ienc, Uint8 valueindex, Uint16 profile )
 {
-    // ZZ> This function sets and saves one of the character's stats
+    /// @details ZZ@> This function sets and saves one of the character's stats
     Uint16 conflict, character;
     enc_t * penc;
     eve_t * peve;
@@ -438,7 +439,7 @@ void set_enchant_value( Uint16 ienc, Uint8 valueindex, Uint16 profile )
 //--------------------------------------------------------------------------------------------
 void add_enchant_value( Uint16 ienc, Uint8 valueindex, Uint16 ieve )
 {
-    // ZZ> This function does cumulative modification to character stats
+    /// @details ZZ@> This function does cumulative modification to character stats
     int valuetoadd, newvalue;
     float fvaluetoadd, fnewvalue;
     Uint16 character;
@@ -670,8 +671,9 @@ Uint16 enc_get_free( Uint16 override )
 //--------------------------------------------------------------------------------------------
 Uint16 spawn_one_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 enc_override, Uint16 modeloptional )
 {
-    // ZZ> This function enchants a target, returning the enchantment index or MAX_ENC
-    //    if failed
+    /// @details ZZ@> This function enchants a target, returning the enchantment index or MAX_ENC
+    ///    if failed
+
     Uint16 ienc, ieve, iprofile, overlay;
     int add_type, set_type;
     eve_t * peve;
@@ -870,7 +872,7 @@ Uint16 spawn_one_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 en
 //--------------------------------------------------------------------------------------------
 void disenchant_character( Uint16 cnt )
 {
-    // ZZ> This function removes all enchantments from a character
+    /// @details ZZ@> This function removes all enchantments from a character
     while ( ChrList.lst[cnt].firstenchant != MAX_ENC )
     {
         remove_enchant( ChrList.lst[cnt].firstenchant );
@@ -880,7 +882,7 @@ void disenchant_character( Uint16 cnt )
 //--------------------------------------------------------------------------------------------
 void EncList_free_all()
 {
-    // ZZ> This functions frees all of the enchantments
+    /// @details ZZ@> This functions frees all of the enchantments
 
     int cnt;
 
@@ -894,7 +896,7 @@ void EncList_free_all()
 //--------------------------------------------------------------------------------------------
 Uint16 load_one_enchant_profile( const char* szLoadName, Uint16 ieve )
 {
-    // ZZ> This function loads an enchantment profile into the EveList
+    /// @details ZZ@> This function loads an enchantment profile into the EveList
 
     eve_t * peve;
 
@@ -912,7 +914,7 @@ Uint16 load_one_enchant_profile( const char* szLoadName, Uint16 ieve )
 //--------------------------------------------------------------------------------------------
 Uint16 EncList_get_free()
 {
-    // ZZ> This function returns the next free enchantment or MAX_ENC if there are none
+    /// @details ZZ@> This function returns the next free enchantment or MAX_ENC if there are none
 
     Uint16 retval = MAX_ENC;
 
@@ -928,7 +930,7 @@ Uint16 EncList_get_free()
 //--------------------------------------------------------------------------------------------
 void unset_enchant_value( Uint16 ienc, Uint8 valueindex )
 {
-    // ZZ> This function unsets a set value
+    /// @details ZZ@> This function unsets a set value
     Uint16 character;
     enc_t * penc;
     chr_t * ptarget;
@@ -1046,7 +1048,7 @@ void unset_enchant_value( Uint16 ienc, Uint8 valueindex )
 //--------------------------------------------------------------------------------------------
 void remove_enchant_value( Uint16 ienc, Uint8 valueindex )
 {
-    // ZZ> This function undoes cumulative modification to character stats
+    /// @details ZZ@> This function undoes cumulative modification to character stats
     float fvaluetoadd;
     int valuetoadd;
     Uint16 character;
@@ -1295,7 +1297,7 @@ bool_t release_one_eve( Uint16 ieve )
 //--------------------------------------------------------------------------------------------
 void update_all_enchants()
 {
-    // ZZ> This function lets enchantments spawn particles
+    /// @details ZZ@> This function lets enchantments spawn particles
 
     int cnt, tnc;
     Uint16 facing;
@@ -1436,8 +1438,8 @@ void update_all_enchants()
 //--------------------------------------------------------------------------------------------
 Uint16 cleanup_enchant_list( Uint16 ienc )
 {
-    // BB> remove all the dead enchants from the enchant list
-    //     and report back the first non-dead enchant in the list.
+    /// @details BB@> remove all the dead enchants from the enchant list
+    ///     and report back the first non-dead enchant in the list.
 
     Uint16 first_valid_enchant;
     Uint16 enc_now, enc_next;
@@ -1466,8 +1468,8 @@ Uint16 cleanup_enchant_list( Uint16 ienc )
 //--------------------------------------------------------------------------------------------
 void cleanup_all_enchants()
 {
-    // ZZ> this function scans all the enchants and removes any dead ones.
-    //     this happens only once a loop
+    /// @details ZZ@> this function scans all the enchants and removes any dead ones.
+    ///     this happens only once a loop
 
     int cnt;
 

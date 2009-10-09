@@ -1,14 +1,13 @@
 #pragma once
 
-/* Egoboo - id_md2.h
- * Md2 model file loading structures & constants.
- */
+/// @file id_md2.h
+/// @details Md2 model file loading structures & constants.
 
 #include "ogl_include.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-// gcc does not properly recognize #pragma pack statements
+/// gcc does not properly recognize #pragma pack statements
 #if !defined(SET_PACKED)
 #    if defined(__GNUC__)
 #        define SET_PACKED() __attribute__ ((__packed__))
@@ -34,8 +33,8 @@ enum e_id_md2_constant
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-// try to make sure that the raw data structs are packed,
-// so that structures can be read/written directly using fread()/fwrite()
+/// try to make sure that the raw data structs are packed,
+/// so that structures can be read/written directly using fread()/fwrite()
 
 #pragma pack(push, 1)
 
@@ -141,8 +140,8 @@ extern float kid_md2_normals[MD2_MAX_NORMALS][3];
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-// functions to load the packed data structures directly from a file
-// only works with little endian machines
+/// functions to load the packed data structures directly from a file
+/// only works with little endian machines
 id_md2_model_t * id_md2_load (const char *filename, id_md2_model_t * mdl);
 void                    id_md2_free ( id_md2_model_t * mdl );
 

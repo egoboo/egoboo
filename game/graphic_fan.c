@@ -17,9 +17,8 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - graphic_fan.c
- * World mesh drawing.
- */
+/// @file graphic_fan.c
+/// @brief World mesh drawing.
 
 #include "graphic.h"
 #include "game.h"
@@ -33,7 +32,7 @@
 //--------------------------------------------------------------------------------------------
 void render_fan( ego_mpd_t * pmesh, Uint32 fan )
 {
-    // ZZ> This function draws a mesh fan
+    /// @details ZZ@> This function draws a mesh fan
 
     // optimized to use gl*Pointer() and glArrayElement() for vertex presentation
 
@@ -156,7 +155,7 @@ void render_fan( ego_mpd_t * pmesh, Uint32 fan )
 //--------------------------------------------------------------------------------------------
 void render_hmap_fan( ego_mpd_t * pmesh, Uint32 fan )
 {
-    // ZZ> This function draws a mesh fan
+    /// @details ZZ@> This function draws a mesh fan
     GLvertex v[4];
 
     int cnt, vertex, badvertex;
@@ -175,8 +174,8 @@ void render_hmap_fan( ego_mpd_t * pmesh, Uint32 fan )
     if ( !VALID_TILE(pmesh, fan) ) return;
     ptile = pmem->tile_list + fan;
 
-    // BB > the water info is for TILES, not for vertices, so ignore all vertex info and just draw the water
-    //     tile where it's supposed to go
+    /// @details BB@> the water info is for TILES, not for vertices, so ignore all vertex info and just draw the water
+    ///     tile where it's supposed to go
 
     ix = fan % pmesh->info.tiles_x;
     iy = fan / pmesh->info.tiles_x;
@@ -228,7 +227,7 @@ void render_hmap_fan( ego_mpd_t * pmesh, Uint32 fan )
 //--------------------------------------------------------------------------------------------
 void render_water_fan( ego_mpd_t * pmesh, Uint32 fan, Uint8 layer )
 {
-    // ZZ> This function draws a water fan
+    /// @details ZZ@> This function draws a water fan
 
     GLvertex v[4];
 
@@ -256,8 +255,8 @@ void render_water_fan( ego_mpd_t * pmesh, Uint32 fan, Uint8 layer )
     if ( !VALID_TILE(pmesh, fan) ) return;
     ptile = pmmem->tile_list + fan;
 
-    // BB > the water info is for TILES, not for vertices, so ignore all vertex info and just draw the water
-    //     tile where it's supposed to go
+    /// @details BB@> the water info is for TILES, not for vertices, so ignore all vertex info and just draw the water
+    ///     tile where it's supposed to go
 
     ix = fan % pinfo->tiles_x;
     iy = fan / pinfo->tiles_x;

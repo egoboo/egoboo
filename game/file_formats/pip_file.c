@@ -17,9 +17,8 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - pip_file.c
- * routines for reading and writing the particle profile file "part*.txt"
- */
+/// @file pip_file.c
+/// @brief routines for reading and writing the particle profile file "part*.txt"
 
 #include "pip_file.h"
 
@@ -74,8 +73,8 @@ pip_t * pip_init( pip_t * ppip )
 //--------------------------------------------------------------------------------------------
 pip_t * load_one_pip_file( const char *szLoadName, pip_t * ppip )
 {
-    // ZZ> This function loads a particle template, returning bfalse if the file wasn't
-    //    found
+    /// @details ZZ@> This function loads a particle template, returning bfalse if the file wasn't
+    ///    found
 
     vfs_FILE* fileread;
     IDSZ idsz;
@@ -197,7 +196,7 @@ pip_t * load_one_pip_file( const char *szLoadName, pip_t * ppip )
 
     ppip->friendlyfire = fget_next_bool( fileread );
 
-    ppip->hateonly = fget_next_bool( fileread );           //TODO: not implemented yet
+    ppip->hateonly = fget_next_bool( fileread );           /// @todo not implemented yet
 
     ppip->newtargetonspawn = fget_next_bool( fileread );
 

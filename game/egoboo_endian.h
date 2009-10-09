@@ -26,7 +26,7 @@
 #    include <Endian.h>
 #endif
 
-// define a ENDIAN_FLOAT() "function" to work on both big and little endian systems
+/// define a ENDIAN_FLOAT() "function" to work on both big and little endian systems
 #if SDL_BYTEORDER != SDL_LIL_ENDIAN
 extern float ENDIAN_FLOAT(float X);
 #else

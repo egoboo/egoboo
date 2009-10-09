@@ -19,12 +19,14 @@
 //*
 //********************************************************************************************
 
+/// @file texture.h
+
 #include "egoboo_typedef.h"
 #include "ogl_texture.h"
 
 //---------------------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------------------
-// Special Textures
+/// Special Textures
 enum e_global_tx_type
 {
     TX_PARTICLE_TRANS = 0,
@@ -51,12 +53,12 @@ enum e_global_tx_type
 
 //---------------------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------------------
-#define TRANSCOLOR                      0           // Color index of the transparent color in an 8-bit image, or the rgb components of the transparent color in a 24-bit image
+#define TRANSCOLOR                      0           ///< Color index of the transparent color in an 8-bit image, or the rgb components of the transparent color in a 24-bit image
 
 #define TEXTURE_COUNT   (2*(MAX_TEXTURE + MAX_ICON))
 #define INVALID_TEXTURE TEXTURE_COUNT
 
-// declare special arrays of textures
+/// declare special arrays of textures
 DEFINE_LIST_EXTERN( oglx_texture, TxTexture, TEXTURE_COUNT );
 
 //---------------------------------------------------------------------------------------------

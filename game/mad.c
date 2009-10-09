@@ -50,8 +50,9 @@ static mad_t * mad_init( mad_t * pmad );
 //--------------------------------------------------------------------------------------------
 Uint16 action_number()
 {
-    // ZZ> This function returns the number of the action in cFrameName, or
-    //    it returns NOACTION if it could not find a match
+    /// @details ZZ@> This function returns the number of the action in cFrameName, or
+    ///    it returns NOACTION if it could not find a match
+
     int cnt;
     char first, second;
 
@@ -72,8 +73,9 @@ Uint16 action_number()
 //--------------------------------------------------------------------------------------------
 Uint16 action_frame()
 {
-    // ZZ> This function returns the frame number in the third and fourth characters
-    //    of cFrameName
+    /// @details ZZ@> This function returns the frame number in the third and fourth characters
+    ///    of cFrameName
+
     int number;
 
     sscanf( &cFrameName[2], "%d", &number );
@@ -84,8 +86,9 @@ Uint16 action_frame()
 //--------------------------------------------------------------------------------------------
 Uint16 test_frame_name( char letter )
 {
-    // ZZ> This function returns btrue if the 4th, 5th, 6th, or 7th letters
-    //    of the frame name matches the input argument
+    /// @details ZZ@> This function returns btrue if the 4th, 5th, 6th, or 7th letters
+    ///    of the frame name matches the input argument
+
     if ( cFrameName[4] == letter ) return btrue;
     if ( cFrameName[4] == 0 ) return bfalse;
     if ( cFrameName[5] == letter ) return btrue;
@@ -100,8 +103,8 @@ Uint16 test_frame_name( char letter )
 //--------------------------------------------------------------------------------------------
 void action_copy_correct( Uint16 object, Uint16 actiona, Uint16 actionb )
 {
-    // ZZ> This function makes sure both actions are valid if either of them
-    //    are valid.  It will copy start and ends to mirror the valid action.
+    /// @details ZZ@> This function makes sure both actions are valid if either of them
+    ///    are valid.  It will copy start and ends to mirror the valid action.
 
     if ( object > MAX_PROFILE || !MadList[object].loaded ) return;
 
@@ -133,7 +136,7 @@ void action_copy_correct( Uint16 object, Uint16 actiona, Uint16 actionb )
 //--------------------------------------------------------------------------------------------
 void action_check_copy( const char* loadname, Uint16 object )
 {
-    // ZZ> This function copies a model's actions
+    /// @details ZZ@> This function copies a model's actions
     vfs_FILE *fileread;
     int actiona, actionb;
     char szOne[16] = EMPTY_CSTR, szTwo[16] = EMPTY_CSTR;
@@ -164,7 +167,7 @@ void action_check_copy( const char* loadname, Uint16 object )
 //--------------------------------------------------------------------------------------------
 int action_which( char cTmp )
 {
-    // ZZ> This function changes a letter into an action code
+    /// @details ZZ@> This function changes a letter into an action code
     int action;
 
     switch ( toupper(cTmp) )
@@ -192,7 +195,7 @@ int action_which( char cTmp )
 //--------------------------------------------------------------------------------------------
 void mad_get_walk_frame( Uint16 object, int lip, int action )
 {
-    // ZZ> This helps make walking look right
+    /// @details ZZ@> This helps make walking look right
     int frame = 0;
     int framesinaction = MadList[object].actionend[action] - MadList[object].actionstart[action];
 
@@ -212,8 +215,9 @@ void mad_get_walk_frame( Uint16 object, int lip, int action )
 //--------------------------------------------------------------------------------------------
 void mad_get_framefx( int frame )
 {
-    // ZZ> This function figures out the IFrame invulnerability, and Attack, Grab, and
-    //    Drop timings
+    /// @details ZZ@> This function figures out the IFrame invulnerability, and Attack, Grab, and
+    ///    Drop timings
+
     Uint16 fx = 0;
     if ( test_frame_name( 'I' ) )
         fx = fx | MADFX_INVICTUS;
@@ -252,7 +256,7 @@ void mad_get_framefx( int frame )
 //--------------------------------------------------------------------------------------------
 void mad_make_framelip( Uint16 object, int action )
 {
-    // ZZ> This helps make walking look right
+    /// @details ZZ@> This helps make walking look right
     int frame, framesinaction;
     if ( MadList[object].actionvalid[action] )
     {
@@ -271,7 +275,7 @@ void mad_make_framelip( Uint16 object, int action )
 //--------------------------------------------------------------------------------------------
 void mad_make_equally_lit( int model )
 {
-    // ZZ> This function makes ultra low poly models look better
+    /// @details ZZ@> This function makes ultra low poly models look better
     int frame, cnt, vert;
     if ( MadList[model].loaded )
     {
@@ -295,7 +299,7 @@ void mad_make_equally_lit( int model )
 //--------------------------------------------------------------------------------------------
 void load_action_names( const char* loadname )
 {
-    // ZZ> This function loads all of the 2 letter action names
+    /// @details ZZ@> This function loads all of the 2 letter action names
     vfs_FILE* fileread;
     int cnt;
     char first, second;
@@ -378,8 +382,8 @@ Uint16 load_one_model_profile( const char* tmploadname, Uint16 imad )
 //--------------------------------------------------------------------------------------------
 void mad_rip_actions( Uint16 object )
 {
-    // ZZ> This function creates the frame lists for each action based on the
-    //    name of each md2 frame in the model
+    /// @details ZZ@> This function creates the frame lists for each action based on the
+    ///    name of each md2 frame in the model
 
     int frame, framesinaction;
     int action, lastaction;
@@ -512,7 +516,7 @@ void mad_rip_actions( Uint16 object )
 //---------------------------------------------------------------------------------------------
 //void md2_fix_normals( Uint16 modelindex )
 //{
-//    // ZZ> This function helps light not flicker so much
+//    /// @details ZZ@> This function helps light not flicker so much
 //    int cnt, tnc;
 //    Uint16 indexofcurrent, indexofnext, indexofnextnext, indexofnextnextnext;
 //    Uint16 indexofnextnextnextnext;
@@ -573,7 +577,7 @@ void mad_rip_actions( Uint16 object )
 //---------------------------------------------------------------------------------------------
 //void md2_get_transvertices( Uint16 modelindex )
 //{
-//    // ZZ> This function gets the number of vertices to transform for a model...
+//    /// @details ZZ@> This function gets the number of vertices to transform for a model...
 //    //    That means every one except the grip ( unconnected ) vertices
 //
 //    // if (modelindex == 0)
@@ -590,7 +594,7 @@ void mad_rip_actions( Uint16 object )
 //---------------------------------------------------------------------------------------------
 /*int vertexconnected( md2_ogl_commandlist_t * pclist, int vertex )
 {
-    // ZZ> This function returns 1 if the model vertex is connected, 0 otherwise
+    /// @details ZZ@> This function returns 1 if the model vertex is connected, 0 otherwise
     int cnt, tnc, entry;
 
     entry = 0;

@@ -17,9 +17,8 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - camera.c
- * Various functions related to how the game camera works.
- */
+/// @file camera.c
+/// @brief Various functions related to how the game camera works.
 
 #include "camera.h"
 
@@ -112,7 +111,8 @@ void dump_matrix( fmat_4x4_t a )
 //--------------------------------------------------------------------------------------------
 void camera_look_at( camera_t * pcam, float x, float y )
 {
-    // ZZ> This function makes the camera turn to face the character
+    /// @details ZZ@> This function makes the camera turn to face the character
+
     pcam->zgoto = pcam->zadd;
     if ( pcam->turn_time != 0 )
     {
@@ -123,7 +123,7 @@ void camera_look_at( camera_t * pcam, float x, float y )
 //--------------------------------------------------------------------------------------------
 void camera_make_matrix( camera_t * pcam )
 {
-    // ZZ> This function sets pcam->mView to the camera's location and rotation
+    /// @details ZZ@> This function sets pcam->mView to the camera's location and rotation
 
     pcam->mView = MatrixMult( Translate( pcam->pos.x, -pcam->pos.y, pcam->pos.z ), pcam->mViewSave );  // xgg
     if ( pcam->swingamp > 0.001f )
@@ -140,7 +140,8 @@ void camera_make_matrix( camera_t * pcam )
 //--------------------------------------------------------------------------------------------
 void camera_adjust_angle( camera_t * pcam, float height )
 {
-    // ZZ> This function makes the camera look downwards as it is raised up
+    /// @details ZZ@> This function makes the camera look downwards as it is raised up
+
     float percentmin, percentmax;
     if ( height < MINZADD )  height = MINZADD;
 
@@ -154,7 +155,8 @@ void camera_adjust_angle( camera_t * pcam, float height )
 //--------------------------------------------------------------------------------------------
 void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
 {
-    // ZZ> This function moves the camera
+    /// @details ZZ@> This function moves the camera
+
     Uint16 cnt;
     Sint16 locoalive;
     float x, y, z, level, newx, newy, movex, movey;
@@ -456,7 +458,8 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
 //--------------------------------------------------------------------------------------------
 void camera_reset( camera_t * pcam, ego_mpd_t * pmesh )
 {
-    // ZZ> This function makes sure the camera starts in a suitable position
+    /// @details ZZ@> This function makes sure the camera starts in a suitable position
+
     int cnt;
 
     pcam->swing = 0;

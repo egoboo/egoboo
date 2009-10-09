@@ -302,8 +302,8 @@ extern "C"
 //------------------------------------------------------------------------------
     struct s_gl_buffer
     {
-        gl_depth_t   depth;      // depth buffer
-        gl_stencil_t stencil;    // stencil buffer
+        gl_depth_t   depth;      ///< depth buffer
+        gl_stencil_t stencil;    ///< stencil buffer
 
         GLint      draw_buffer[1];
 

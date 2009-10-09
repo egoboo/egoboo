@@ -19,10 +19,9 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - Ui.h
- * A basic library for implementing user interfaces, based off of Casey Muratori's
- * IMGUI.  (https://mollyrocket.com/forums/viewtopic.php?t=134)
- */
+/// @file Ui.h
+/// @A basic library for implementing user interfaces, based off of Casey Muratori's
+/// IMGUI.  (https://mollyrocket.com/forums/viewtopic.php?t=134)
 
 #include "font_ttf.h"
 #include "ogl_texture.h"
@@ -72,26 +71,26 @@ bool_t ui_widgetAddMask( ui_Widget_t * pw, Uint32 mbits );
 bool_t ui_widgetRemoveMask( ui_Widget_t * pw, Uint32 mbits );
 bool_t ui_widgetSetMask( ui_Widget_t * pw, Uint32 mbits );
 
-// Initialize or shut down the ui system
+/// Initialize or shut down the ui system
 int  ui_initialize( const char *default_font, int default_font_size );
 void ui_shutdown();
 void ui_Reset();
 
-// Pass input data from SDL to the ui
+/// Pass input data from SDL to the ui
 void ui_handleSDLEvent( SDL_Event *evt );
 
-// Allow the ui to do work that needs to be done before and after each frame
+/// Allow the ui to do work that needs to be done before and after each frame
 void ui_beginFrame( float deltaTime );
 void ui_endFrame();
 
-// UI controls
+/// UI controls
 ui_buttonValues ui_doWidget( ui_Widget_t * pWidget );
 ui_buttonValues ui_doButton( ui_id_t id, const char *text, Font * font, float x, float y, float width, float height );
 ui_buttonValues ui_doImageButton( ui_id_t id, oglx_texture *img, float x, float y, float width, float height );
 ui_buttonValues ui_doImageButtonWithText( ui_id_t id, oglx_texture *img, const char *text, Font * font, float x, float y, float width, float height );
-// int  ui_doTextBox(ui_id_t id, const char *text, float x, float y, float width, float height);
+/// int  ui_doTextBox(ui_id_t id, const char *text, float x, float y, float width, float height);
 
-// Utility functions
+/// Utility functions
 int  ui_mouseInside( float x, float y, float width, float height );
 // void ui_setActive( ui_id_t id );
 // void ui_setHot( ui_id_t id );
@@ -99,20 +98,20 @@ Font* ui_getFont();
 Font* ui_setFont( Font * font );
 
 /*****************************************************************************/
-// Most users won't need to worry about stuff below here; it's mostly for
-// implementing new controls.
+/// Most users won't need to worry about stuff below here; it's mostly for
+/// implementing new controls.
 /*****************************************************************************/
 
-// Behaviors
+/// Behaviors
 ui_buttonValues  ui_buttonBehavior( ui_id_t id, float x, float y, float width, float height );
 ui_buttonValues  ui_WidgetBehavior( ui_Widget_t * pw );
 
-// Drawing
+/// Drawing
 void ui_drawButton( ui_id_t id, float x, float y, float width, float height, GLfloat * pcolor );
 void ui_drawImage( ui_id_t id, oglx_texture *img, float x, float y, float width, float height );
 void ui_drawTextBox( Font * font, const char *text, float x, float y, float width, float height, float spacing );
 
-// virtual screen
+/// virtual screen
 void ui_set_virtual_screen( float vw, float vh, float ww, float wh);
 Font * ui_loadFont( const char * font_name, float vpointSize );
 

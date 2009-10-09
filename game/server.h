@@ -19,10 +19,9 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - Server.h
- * Basic skeleton for the server portion of a client-server architecture,
- * this is totally not in use yet.
- */
+/// @file server.h
+/// @Basic skeleton for the server portion of a client-server architecture,
+/// this is totally not in use yet.
 
 typedef struct GameState GameState;
 
@@ -32,14 +31,14 @@ typedef struct ServerState_t
 // GameState gameState;
 } ServerState_t;
 
-// Globally accessible server state
+/// Globally accessible server state
 extern ServerState_t ServerState;
 
 int  sv_init();
 void sv_shutDown();
 void sv_frameStep();
 
-// More to come...
+/// More to come...
 // int  sv_beginSinglePlayer(...)
 // int  sv_beginMultiPlayer(...)
 // int  sv_loadModule(...)

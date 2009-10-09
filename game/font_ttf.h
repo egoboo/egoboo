@@ -19,10 +19,9 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - font.h
- * True-type font drawing functionality.  Uses Freetype 2 & OpenGL
- * to do it's business.
- */
+/// @file font.h
+/// @details True-type font drawing functionality.  Uses the SDL_ttf module
+/// to do it's business. This depends on Freetype 2 & OpenGL.
 
 #include <SDL.h>
 #include <SDL_opengl.h>
@@ -43,12 +42,12 @@ extern void    fnt_freeFont( Font *font );
 extern void    fnt_drawTextBox( Font *font, int x, int y, int width, int height, int spacing, const char *format, ...   );
 extern void    fnt_drawText( Font *font, int x, int y, const char *format, ...   );
 
-// Only works properly on a single line of text
+/// Only works properly on a single line of text
 extern void    fnt_getTextSize( Font *font, const char *text, int *width, int *height );
-// Works for multiple-line strings, using the user-supplied spacing
+/// Works for multiple-line strings, using the user-supplied spacing
 extern void    fnt_getTextBoxSize( Font *font, const char *text, int spacing, int *width, int *height );
 
-// handle variable arguments to print text to a GL texture
+/// handle variable arguments to print text to a GL texture
 extern int fnt_vprintf( Font *font, SDL_Color color, SDL_Surface ** psurf, GLuint itex, float texCoords[], const char *format, va_list args );
 
 #define egoboo_Font_h

@@ -117,7 +117,7 @@ SDL_bool SDL_GL_uploadSurface( SDL_Surface *surface, GLuint tx_id, GLfloat *texC
 //------------------------------------------------------------------------------
 SDL_bool SDL_GL_set_gl_mode(struct s_oglx_video_parameters * v)
 {
-    /// @details BB> this function applies OpenGL settings. Must have a valid SDL_Surface to do any good.
+    /// @details BB@> this function applies OpenGL settings. Must have a valid SDL_Surface to do any good.
 
     if (NULL == v || !SDL_WasInit(SDL_INIT_VIDEO)) return SDL_FALSE;
 
@@ -221,7 +221,7 @@ void SDL_GL_report_mode( SDLX_video_parameters_t * retval )
 //------------------------------------------------------------------------------
 SDLX_video_parameters_t * SDL_GL_set_mode(SDLX_video_parameters_t * v_old, SDLX_video_parameters_t * v_new, oglx_video_parameters_t * gl_new)
 {
-    /// @details BB> let SDL_GL try to set a new video mode.
+    /// @details BB@> let SDL_GL try to set a new video mode.
 
     SDLX_video_parameters_t param_old;
     SDLX_video_parameters_t * retval = NULL;

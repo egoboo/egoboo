@@ -19,9 +19,8 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - egoboo_typedef.h
- * Defines some basic types that are used throughout the game code.
- */
+/// @file egoboo_typedef.h
+/// @details some basic types that are used throughout the game code.
 
 #include "egoboo_config.h"
 #include <SDL_types.h>
@@ -42,7 +41,7 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-// a template-like declaration of a list that tracks free elements
+/// a template-like declaration of a list that tracks free elements
 
 #define ACCESS_TYPE_NONE
 
@@ -67,7 +66,7 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-// a template-like declaration of a list that tracks free elements
+/// a template-like declaration of a list that tracks free elements
 
 #define DEFINE_STACK_TYPE(TYPE, NAME, COUNT) \
     struct s_stack__##TYPE__##NAME           \
@@ -86,7 +85,7 @@
 #define DECLARE_STACK(ACCESS,TYPE,NAME) ACCESS struct s_stack__##TYPE__##NAME NAME = {0}
 
 //--------------------------------------------------------------------------------------------
-// BOOLEAN
+/// BOOLEAN
 typedef char bool_t;
 enum
 {
@@ -95,7 +94,7 @@ enum
 };
 
 //--------------------------------------------------------------------------------------------
-// special return values
+/// special return values
 enum e_egoboo_rv
 {
     rv_error   = -1,
@@ -107,7 +106,7 @@ typedef enum e_egoboo_rv egoboo_rv;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-// basic vector types
+/// basic vector types
 
 typedef float vec2f_t[2];
 typedef float vec3f_t[3];
@@ -119,7 +118,7 @@ typedef double vec4d_t[4];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-// RECTANGLE
+/// RECTANGLE
 typedef struct s_irect
 {
     int left;
@@ -141,7 +140,7 @@ typedef struct s_frect
 bool_t frect_point_inside( frect_t * prect, float fx, float fy );
 
 //--------------------------------------------------------------------------------------------
-// PAIR AND RANGE
+/// PAIR AND RANGE
 
 struct s_pair
 {
@@ -162,13 +161,13 @@ void ints_to_range( int base, int rand, FRange * prange );
 void floats_to_pair( float vmin, float vmax, IPair * ppair );
 
 //--------------------------------------------------------------------------------------------
-// some basic data that all egoboo profiles should have
+/// some basic data that all egoboo profiles should have
 #define  EGO_PROFILE_STUFF \
     bool_t         loaded;      /* Does it exist? */ \
     STRING         name
 
 //--------------------------------------------------------------------------------------------
-// IDSZ
+/// IDSZ
 typedef Uint32 IDSZ;
 
 #ifndef MAKE_IDSZ
@@ -181,25 +180,25 @@ typedef Uint32 IDSZ;
      ))
 #endif
 
-#define IDSZ_NONE            MAKE_IDSZ('N','O','N','E')       // [NONE]
-#define IDSZ_BOOK            MAKE_IDSZ('B','O','O','K')       // [BOOK]
+#define IDSZ_NONE            MAKE_IDSZ('N','O','N','E')       ///< [NONE]
+#define IDSZ_BOOK            MAKE_IDSZ('B','O','O','K')       ///< [BOOK]
 
 const char * undo_idsz( IDSZ idsz );
 
 //--------------------------------------------------------------------------------------------
-// STRING
+/// STRING
 typedef char STRING[256];
 
 //--------------------------------------------------------------------------------------------
-// FAST CONVERSIONS
+/// FAST CONVERSIONS
 #define FP8_TO_FLOAT(XX)   ( (float)(XX) * INV_0100 )
 #define FLOAT_TO_FP8(XX)   ( (Uint32)((XX) * (float)(0x0100) ) )
-#define FP8_TO_INT(XX)     ( (XX) >> 8 )                      // fast version of XX / 256
-#define INT_TO_FP8(XX)     ( (XX) << 8 )                      // fast version of XX * 256
+#define FP8_TO_INT(XX)     ( (XX) >> 8 )                      ///< fast version of XX / 256
+#define INT_TO_FP8(XX)     ( (XX) << 8 )                      ///< fast version of XX * 256
 #define FP8_MUL(XX, YY)    ( ((XX)*(YY)) >> 8 )
 #define FP8_DIV(XX, YY)    ( ((XX)<<8) / (YY) )
 
-// "fast" multiplication for the case where 0xFF == 1.00
+/// "fast" multiplication for the case where 0xFF == 1.00
 #define FF_MUL(XX, YY)     ( ( 0 == (XX) || 0 == (YY) ) ? 0 : ( ( ((XX)+1) * ((YY)+1) ) >> 8 ) )
 #define FF_TO_FLOAT( XX )  ( (float)(XX) * INV_FF )
 
@@ -214,7 +213,7 @@ typedef char STRING[256];
 #define CLIP_TO_32BITS( XX )  ( (XX) & 0xFFFFFFFF )
 
 //--------------------------------------------------------------------------------------------
-// AI targeting
+/// AI targeting
 typedef enum target_type
 {
     TARGET_ENEMY = 0,
@@ -224,7 +223,7 @@ typedef enum target_type
 } TARGET_TYPE;
 
 //--------------------------------------------------------------------------------------------
-// a hash type for "efficiently" storing data
+/// a hash type for "efficiently" storing data
 struct s_hash_node
 {
     struct s_hash_node * next;
@@ -258,7 +257,7 @@ hash_list_t * hash_list_ctor(hash_list_t * lst, int size);
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-// axis aligned bounding box
+/// axis aligned bounding box
 struct s_aabb
 {
     float mins[3];
@@ -268,7 +267,7 @@ typedef struct s_aabb aabb_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-// octagonal bounding box
+/// octagonal bounding box
 
 enum e_octagonal_axes
 {
@@ -286,9 +285,9 @@ typedef struct s_oct_bb oct_bb_t;
 //--------------------------------------------------------------------------------------------
 struct s_latch
 {
-    float          x;         // the x input
-    float          y;         // the y input
-    Uint32         b;         // the button bits
+    float          x;         ///< the x input
+    float          y;         ///< the y input
+    Uint32         b;         ///< the button bits
 };
 
 typedef struct s_latch latch_t;
@@ -297,23 +296,23 @@ void latch_init( latch_t * platch );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-// some basic data that all egoboo objects should have
+/// some basic data that all egoboo objects should have
 
 enum e_ego_object_state
 {
     ego_object_invalid = 0,
-    ego_object_pre_active,               // in the process of being activated
-    ego_object_active,                   // fully activated
-    ego_object_waiting,                  // waiting to be terminated
-    ego_object_terminated                // fully terminated
+    ego_object_pre_active,               ///< in the process of being activated
+    ego_object_active,                   ///< fully activated
+    ego_object_waiting,                  ///< waiting to be terminated
+    ego_object_terminated                ///< fully terminated
 };
 
 struct s_ego_object_base
 {
-    STRING         _name;      // what is its "_name"
-    int            index;     // what is the index position in the object list?
-    bool_t         allocated; // Does it exist?
-    int            state;     // what state is it in?
+    STRING         _name;      ///< what is its "_name"
+    int            index;     ///< what is the index position in the object list?
+    bool_t         allocated; ///< Does it exist?
+    int            state;     ///< what state is it in?
 };
 
 typedef struct s_ego_object_base ego_object_base_t;

@@ -17,8 +17,7 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - module.c
- */
+/// @file module.c
 
 #include "module_file.h"
 
@@ -43,7 +42,7 @@
 //--------------------------------------------------------------------------------------------
 mod_file_t * module_load_info( const char * szLoadName, mod_file_t * pmod )
 {
-    // BB > this function actually reads in the module data
+    /// @details BB@> this function actually reads in the module data
 
     vfs_FILE * fileread;
     int cnt;
@@ -99,7 +98,7 @@ mod_file_t * module_load_info( const char * szLoadName, mod_file_t * pmod )
 //--------------------------------------------------------------------------------------------
 int module_has_idsz( const char *szLoadName, IDSZ idsz )
 {
-    // ZZ> This function returns btrue if the named module has the required IDSZ
+    /// @details ZZ@> This function returns btrue if the named module has the required IDSZ
 
     vfs_FILE *fileread;
     STRING newloadname;
@@ -154,7 +153,7 @@ int module_has_idsz( const char *szLoadName, IDSZ idsz )
 //--------------------------------------------------------------------------------------------
 void module_add_idsz( const char *szLoadName, IDSZ idsz )
 {
-    // ZZ> This function appends an IDSZ to the module's menu.txt file
+    /// @details ZZ@> This function appends an IDSZ to the module's menu.txt file
     vfs_FILE *filewrite;
     STRING newloadname;
 

@@ -17,8 +17,7 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - eve_file.c
- */
+/// @file eve_file.c
 
 #include "eve_file.h"
 
@@ -44,7 +43,7 @@ eve_t * eve_init( eve_t * peve )
 //--------------------------------------------------------------------------------------------
 eve_t * load_one_enchant_file( const char* szLoadName, eve_t * peve )
 {
-    // ZZ> This function loads the enchantment associated with an object
+    /// @details ZZ@> This function loads the enchantment associated with an object
     vfs_FILE* fileread;
     char cTmp;
     IDSZ idsz;
@@ -205,7 +204,7 @@ eve_t * load_one_enchant_file( const char* szLoadName, eve_t * peve )
 //--------------------------------------------------------------------------------------------
 bool_t save_one_enchant_file( const char* szLoadName, eve_t * peve )
 {
-    // ZZ> This function loads the enchantment associated with an object
+    /// @details ZZ@> This function loads the enchantment associated with an object
     vfs_FILE* filewrite, * filetemp;
 
     if( NULL == peve ) return bfalse;

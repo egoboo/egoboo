@@ -19,9 +19,8 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - egoboo_console.h
- * A quake-console that can be used for anything.
- */
+/// @file egoboo_console.h
+/// @A quake-console that can be used for anything.
 
 #include <SDL.h>
 

@@ -229,7 +229,7 @@ Uint8 scr_TestBits( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_Spawned( script_state_t * pstate, ai_state_t * pself )
 {
     // IfSpawned()
-    // ZZ> This function proceeds if the character was spawned this update
+    /// @details ZZ@> This function proceeds if the character was spawned this update
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -426,7 +426,7 @@ Uint8 scr_AddWaypoint( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_FindPath( script_state_t * pstate, ai_state_t * pself )
 {
     // FindPath
-    // This function doesn't work yet !!!BAD!!!
+    /// @todo scr_FindPath doesn't really work yet
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -6970,7 +6970,7 @@ Uint8 scr_ModuleHasIDSZ( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    // BAD: TODO: use message.txt to send the module name
+    /// @todo use message.txt to send the module name
     returncode = module_has_idsz("module.mod", pstate->distance);
 
     SCRIPT_FUNCTION_END();
@@ -7142,8 +7142,8 @@ Uint8 scr_set_ChildContent( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 _break_passage( int meshxfor, int become, int frames, int starttile, int passage, int *ptilex, int *ptiley )
 {
-    // ZZ> This function breaks the tiles of a passage if there is a character standing
-    //    on 'em...  Turns the tiles into damage terrain if it reaches last frame.
+    /// @details ZZ@> This function breaks the tiles of a passage if there is a character standing
+    ///    on 'em...  Turns the tiles into damage terrain if it reaches last frame.
 
     Uint16 tile, endtile;
     Uint32 fan;
@@ -7205,7 +7205,7 @@ Uint8 _break_passage( int meshxfor, int become, int frames, int starttile, int p
 //--------------------------------------------------------------------------------------------
 Uint8 _append_end_text( chr_t * pchr, const int message, script_state_t * pstate )
 {
-    // ZZ> This function appends a message to the end-module text
+    /// @details ZZ@> This function appends a message to the end-module text
 
     int read, message_offset, ichr;
 
@@ -7243,9 +7243,9 @@ Uint8 _append_end_text( chr_t * pchr, const int message, script_state_t * pstate
 //--------------------------------------------------------------------------------------------
 Uint8 _find_tile_in_passage( const int x0, const int y0, const int tiletype, const int passage, int *px1, int *py1 )
 {
-    // ZZ> This function finds the next tile in the passage, x0 and y0
-    //    must be set first, and are set on a find...  Returns btrue or bfalse
-    //    depending on if it finds one or not
+    /// @details ZZ@> This function finds the next tile in the passage, x0 and y0
+    ///    must be set first, and are set on a find...  Returns btrue or bfalse
+    ///    depending on if it finds one or not
 
     int x, y;
     Uint32 fan;
@@ -7307,8 +7307,9 @@ Uint8 _find_tile_in_passage( const int x0, const int y0, const int tiletype, con
 //--------------------------------------------------------------------------------------------
 Uint16 _get_chr_target( chr_t * pchr, Uint32 max_dist, TARGET_TYPE target_type, bool_t target_items, bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz, bool_t target_players )
 {
-    // ZF> This is the new improved AI targeting system. Also includes distance in the Z direction.
-    //     If max_dist is 0 then it searches without a max limit.
+    /// @details ZF@> This is the new improved AI targeting system. Also includes distance in the Z direction.
+    ///     If max_dist is 0 then it searches without a max limit.
+
     float max_dist2;
 
 //    ai_state_t * pself;
@@ -7328,8 +7329,8 @@ Uint16 _get_chr_target( chr_t * pchr, Uint32 max_dist, TARGET_TYPE target_type, 
     //// do not run another search if it is too soon
     //if ( pself->los_timer > current_ticks )
     //{
-    //    // Zefz> we can't return the old AI target here, it makes the scripts think it has found a target
-    //    // BB>   I took the distance test out of here. The target should not lose it's target only because it is too far away
+    //    /// @details ZF@> we can't return the old AI target here, it makes the scripts think it has found a target
+    //    /// BB@>   I took the distance test out of here. The target should not lose it's target only because it is too far away
 
     //    best_target = MAX_CHR;
     //    if( ACTIVE_CHR(pself->target) )
@@ -7363,7 +7364,7 @@ Uint16 _get_chr_target( chr_t * pchr, Uint32 max_dist, TARGET_TYPE target_type, 
 //--------------------------------------------------------------------------------------------
 Uint8 _display_message( int ichr, int iprofile, int message, script_state_t * pstate  )
 {
-    // ZZ> This function sticks a message_offset in the display queue and sets its timer
+    /// @details ZZ@> This function sticks a message_offset in the display queue and sets its timer
 
     int slot, read;
     int message_offset;

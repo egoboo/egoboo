@@ -83,7 +83,8 @@ Md2Model* md2_loadFromFile( const char *filename )
 //---------------------------------------------------------------------------------------------
 int md2_rip_header()
 {
-    // ZZ> This function makes sure an md2 is really an md2
+    /// @details ZZ@> This function makes sure an md2 is really an md2
+
     int iTmp;
     int* ipIntPointer;
 
@@ -99,7 +100,8 @@ int md2_rip_header()
 //---------------------------------------------------------------------------------------------
 void md2_rip_commands( md2_ogl_commandlist_t * pclist )
 {
-    // ZZ> This function converts an md2's GL commands into our little command list thing
+    /// @details ZZ@> This function converts an md2's GL commands into our little command list thing
+
     int iTmp;
     float fTmpu, fTmpv;
     int iNumVertices;
@@ -203,8 +205,9 @@ void md2_rip_commands( md2_ogl_commandlist_t * pclist )
 //---------------------------------------------------------------------------------------------
 int md2_rip_frame_name( int frame )
 {
-    // ZZ> This function gets frame names from the load buffer, it returns
-    //    btrue if the name in cFrameName[] is valid
+    /// @details ZZ@> This function gets frame names from the load buffer, it returns
+    ///    btrue if the name in cFrameName[] is valid
+
     int iFrameOffset;
     int iNumVertices;
     int iNumFrames;
@@ -252,8 +255,9 @@ int md2_rip_frame_name( int frame )
 //---------------------------------------------------------------------------------------------
 void md2_rip_frames( ego_md2_t * pmd2 )
 {
-    // ZZ> This function gets frames from the load buffer and adds them to
-    //    the indexed model
+    /// @details ZZ@> This function gets frames from the load buffer and adds them to
+    ///    the indexed model
+
     Uint8 cTmpx, cTmpy, cTmpz;
     Uint8 cTmpa;
     float fRealx, fRealy, fRealz;
@@ -352,8 +356,9 @@ void md2_rip_frames( ego_md2_t * pmd2 )
 //---------------------------------------------------------------------------------------------
 bool_t md2_load_one( const char* szLoadname, ego_md2_t * pmd2 )
 {
-    // ZZ> This function loads an id md2 file, storing the converted data in the indexed model
-    //   int iFileHandleRead;
+    /// @details ZZ@> This function loads an id md2 file, storing the converted data in the indexed model
+    ///   int iFileHandleRead;
+
     size_t iBytesRead = 0;
     int iReturnValue;
     FILE *file;
@@ -380,7 +385,7 @@ bool_t md2_load_one( const char* szLoadname, ego_md2_t * pmd2 )
     globalparsename = szLoadname;
 
     // Check the header
-    // TODO: Verify that the header's filesize correspond to iBytesRead.
+    /// @todo Verify that the header's filesize correspond to iBytesRead.
     iReturnValue = md2_rip_header();
     if ( !iReturnValue )
         return bfalse;

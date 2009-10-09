@@ -649,7 +649,7 @@ SDL_Event * egoboo_console_handle_events( SDL_Event * pevt )
 //--------------------------------------------------------------------------------------------
 void init_scancodes()
 {
-    // BB > initialize the scancode translation
+    /// @details BB@> initialize the scancode translation
 
     int i;
 

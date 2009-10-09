@@ -17,8 +17,7 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - char.c
- */
+/// @file char.c
 
 #include "char.h"
 #include "particle.h"
@@ -107,8 +106,9 @@ int chr_count_free()
 void flash_character_height( Uint16 character, Uint8 valuelow, Sint16 low,
                              Uint8 valuehigh, Sint16 high )
 {
-    // ZZ> This function sets a character's lighting depending on vertex height...
-    //    Can make feet dark and head light...
+    /// @details ZZ@> This function sets a character's lighting depending on vertex height...
+    ///    Can make feet dark and head light...
+
     int cnt;
     Sint16 z;
 
@@ -147,10 +147,11 @@ void flash_character_height( Uint16 character, Uint8 valuelow, Sint16 low,
 //--------------------------------------------------------------------------------------------
 void keep_weapons_with_holders()
 {
-    // ZZ> This function keeps weapons near their holders
+    /// @details ZZ@> This function keeps weapons near their holders
+
     int cnt, iattached;
 
-    // !!!BAD!!!  May need to do 3 levels of attachment...
+    /// @todo !!!BAD!!!  May need to do 3 levels of attachment...
 
     for ( cnt = 0; cnt < MAX_CHR; cnt++ )
     {
@@ -243,7 +244,7 @@ void keep_weapons_with_holders()
 //--------------------------------------------------------------------------------------------
 void make_one_character_matrix( Uint16 cnt )
 {
-    // ZZ> This function sets one character's matrix
+    /// @details ZZ@> This function sets one character's matrix
 
     chr_t * pchr;
     chr_instance_t * pinst;
@@ -299,7 +300,7 @@ void make_one_character_matrix( Uint16 cnt )
 //--------------------------------------------------------------------------------------------
 bool_t ChrList_free_one( Uint16 ichr )
 {
-    // ZZ> This function sticks a character back on the free enchant stack
+    /// @details ZZ@> This function sticks a character back on the free enchant stack
 
     bool_t retval;
 
@@ -337,7 +338,7 @@ bool_t ChrList_free_one( Uint16 ichr )
 //--------------------------------------------------------------------------------------------
 void free_one_character_in_game( Uint16 character )
 {
-    // ZZ> This function sticks a character back on the free character stack
+    /// @details ZZ@> This function sticks a character back on the free character stack
 
     int     cnt;
     cap_t * pcap;
@@ -419,7 +420,8 @@ void free_one_character_in_game( Uint16 character )
 //--------------------------------------------------------------------------------------------
 void free_inventory_in_game( Uint16 character )
 {
-    // ZZ> This function frees every item in the character's inventory
+    /// @details ZZ@> This function frees every item in the character's inventory
+
     int cnt, next;
 
     if ( !ALLOCATED_CHR( character ) ) return;
@@ -439,8 +441,8 @@ void free_inventory_in_game( Uint16 character )
 //--------------------------------------------------------------------------------------------
 void attach_particle_to_character( Uint16 particle, Uint16 character, int vertex_offset )
 {
-    // ZZ> This function sets one particle's position to be attached to a character.
-    //    It will kill the particle if the character is no longer around
+    /// @details ZZ@> This function sets one particle's position to be attached to a character.
+    ///    It will kill the particle if the character is no longer around
 
     Uint16 vertex;
     fvec4_t   point[1], nupoint[1];
@@ -518,7 +520,7 @@ void attach_particle_to_character( Uint16 particle, Uint16 character, int vertex
 //--------------------------------------------------------------------------------------------
 void make_all_character_matrices(bool_t do_physics)
 {
-    // ZZ> This function makes all of the character's matrices
+    /// @details ZZ@> This function makes all of the character's matrices
 
     int ichr;
 
@@ -686,7 +688,7 @@ void make_all_character_matrices(bool_t do_physics)
 //--------------------------------------------------------------------------------------------
 Uint16 ChrList_get_free()
 {
-    // ZZ> This function returns the next free character or MAX_CHR if there are none
+    /// @details ZZ@> This function returns the next free character or MAX_CHR if there are none
 
     Uint16 retval = MAX_CHR;
 
@@ -715,7 +717,7 @@ void ChrList_free_all()
 //--------------------------------------------------------------------------------------------
 void free_all_chraracters()
 {
-    // ZZ> This function resets the character allocation list
+    /// @details ZZ@> This function resets the character allocation list
 
     int cnt;
 
@@ -738,8 +740,8 @@ void free_all_chraracters()
 //--------------------------------------------------------------------------------------------
 Uint32 __chrhitawall( Uint16 character, float nrm[] )
 {
-    // ZZ> This function returns nonzero if the character hit a wall that the
-    //    character is not allowed to cross
+    /// @details ZZ@> This function returns nonzero if the character hit a wall that the
+    ///    character is not allowed to cross
 
     Uint32 pass;
     float x, y, bs;
@@ -828,7 +830,8 @@ Uint32 __chrhitawall( Uint16 character, float nrm[] )
 //--------------------------------------------------------------------------------------------
 void reset_character_accel( Uint16 character )
 {
-    // ZZ> This function fixes a character's max acceleration
+    /// @details ZZ@> This function fixes a character's max acceleration
+
     Uint16 enchant;
     chr_t * pchr;
     cap_t * pcap;
@@ -865,7 +868,8 @@ void reset_character_accel( Uint16 character )
 //--------------------------------------------------------------------------------------------
 bool_t detach_character_from_mount( Uint16 character, Uint8 ignorekurse, Uint8 doshop )
 {
-    // ZZ> This function drops an item
+    /// @details ZZ@> This function drops an item
+
     Uint16 mount, hand, enchant, owner = NOOWNER;
     bool_t inshop;
     float price;
@@ -1069,7 +1073,8 @@ bool_t detach_character_from_mount( Uint16 character, Uint8 ignorekurse, Uint8 d
 //--------------------------------------------------------------------------------------------
 void reset_character_alpha( Uint16 character )
 {
-    // ZZ> This function fixes an item's transparency
+    /// @details ZZ@> This function fixes an item's transparency
+
     Uint16 enchant, mount;
     chr_t * pchr, * pmount;
 
@@ -1116,8 +1121,8 @@ void reset_character_alpha( Uint16 character )
 //--------------------------------------------------------------------------------------------
 void attach_character_to_mount( Uint16 iitem, Uint16 iholder, grip_offset_t grip_off )
 {
-    // ZZ> This function attaches one character/item to another ( the holder/mount )
-    //    at a certain vertex offset ( grip_off )
+    /// @details ZZ@> This function attaches one character/item to another ( the holder/mount )
+    ///    at a certain vertex offset ( grip_off )
 
     slot_t slot;
 
@@ -1303,9 +1308,9 @@ Uint16 inventory_get_item( Uint16 ichr, grip_offset_t grip_off, bool_t ignorekur
 //--------------------------------------------------------------------------------------------
 Uint16 pack_has_a_stack( Uint16 item, Uint16 character )
 {
-    // ZZ> This function looks in the character's pack for an item similar
-    //    to the one given.  If it finds one, it returns the similar item's
-    //    index number, otherwise it returns MAX_CHR.
+    /// @details ZZ@> This function looks in the character's pack for an item similar
+    ///    to the one given.  If it finds one, it returns the similar item's
+    ///    index number, otherwise it returns MAX_CHR.
 
     Uint16 pack_ispacked, id;
     bool_t allok;
@@ -1357,7 +1362,8 @@ Uint16 pack_has_a_stack( Uint16 item, Uint16 character )
 //--------------------------------------------------------------------------------------------
 bool_t pack_add_item( Uint16 item, Uint16 character )
 {
-    // ZZ> This function puts one character inside the other's pack
+    /// @details ZZ@> This function puts one character inside the other's pack
+
     Uint16 oldfirstitem, newammo, stack;
 
     if ( !ACTIVE_CHR( item ) || !ACTIVE_CHR( character ) ) return bfalse;
@@ -1440,8 +1446,8 @@ bool_t pack_add_item( Uint16 item, Uint16 character )
 //--------------------------------------------------------------------------------------------
 Uint16 pack_get_item( Uint16 character, grip_offset_t grip_off, bool_t ignorekurse )
 {
-    // ZZ> This function takes the last item in the character's pack and puts
-    //    it into the designated hand.  It returns the item number or MAX_CHR.
+    /// @details ZZ@> This function takes the last item in the character's pack and puts
+    ///    it into the designated hand.  It returns the item number or MAX_CHR.
 
     Uint16 item, nexttolastitem;
 
@@ -1503,8 +1509,8 @@ Uint16 pack_get_item( Uint16 character, grip_offset_t grip_off, bool_t ignorekur
 //--------------------------------------------------------------------------------------------
 void drop_keys( Uint16 character )
 {
-    // ZZ> This function drops all keys ( [KEYA] to [KEYZ] ) that are in a character's
-    //    inventory ( Not hands ).
+    /// @details ZZ@> This function drops all keys ( [KEYA] to [KEYZ] ) that are in a character's
+    ///    inventory ( Not hands ).
 
     chr_t * pchr;
     Uint16 item, lastitem, nextitem, direction;
@@ -1569,7 +1575,8 @@ void drop_keys( Uint16 character )
 //--------------------------------------------------------------------------------------------
 bool_t drop_all_items( Uint16 character )
 {
-    // ZZ> This function drops all of a character's items
+    /// @details ZZ@> This function drops all of a character's items
+
     Uint16 item, direction, diradd;
     chr_t * pchr;
 
@@ -1653,7 +1660,7 @@ int grab_data_cmp( const void * pleft, const void * pright )
 //--------------------------------------------------------------------------------------------
 bool_t character_grab_stuff( Uint16 ichr_a, grip_offset_t grip_off, bool_t grab_people )
 {
-    // ZZ> This function makes the character pick up an item if there's one around
+    /// @details ZZ@> This function makes the character pick up an item if there's one around
 
     int    cnt;
     Uint16 ichr_b;
@@ -1999,7 +2006,8 @@ bool_t character_grab_stuff( Uint16 ichr_a, grip_offset_t grip_off, bool_t grab_
 //--------------------------------------------------------------------------------------------
 void character_swipe( Uint16 ichr, slot_t slot )
 {
-    // ZZ> This function spawns an attack particle
+    /// @details ZZ@> This function spawns an attack particle
+
     int weapon, particle, spawn_vrt_offset, thrown;
     Uint8 action;
     Uint16 tTmp;
@@ -2148,7 +2156,8 @@ void character_swipe( Uint16 ichr, slot_t slot )
 //--------------------------------------------------------------------------------------------
 void drop_money( Uint16 character, Uint16 money )
 {
-    // ZZ> This function drops some of a character's money
+    /// @details ZZ@> This function drops some of a character's money
+
     Uint16 huns, tfives, fives, ones, cnt;
 
     if ( !ACTIVE_CHR( character ) ) return;
@@ -2189,7 +2198,8 @@ void drop_money( Uint16 character, Uint16 money )
 //--------------------------------------------------------------------------------------------
 void call_for_help( Uint16 character )
 {
-    // ZZ> This function issues a call for help to all allies
+    /// @details ZZ@> This function issues a call for help to all allies
+
     Uint8 team;
     Uint16 cnt;
 
@@ -2231,7 +2241,7 @@ bool_t setup_xp_table( Uint16 icap )
 //--------------------------------------------------------------------------------------------
 void do_level_up( Uint16 character )
 {
-    // BB > level gains are done here, but only once a second
+    /// @details BB@> level gains are done here, but only once a second
 
     Uint8 curlevel;
     int number;
@@ -2325,7 +2335,7 @@ void do_level_up( Uint16 character )
 //--------------------------------------------------------------------------------------------
 void give_experience( Uint16 character, int amount, Uint8 xptype, bool_t override_invictus )
 {
-    // ZZ> This function gives a character experience
+    /// @details ZZ@> This function gives a character experience
 
     float newamount;
 
@@ -2366,7 +2376,8 @@ void give_experience( Uint16 character, int amount, Uint8 xptype, bool_t overrid
 //--------------------------------------------------------------------------------------------
 void give_team_experience( Uint8 team, int amount, Uint8 xptype )
 {
-    // ZZ> This function gives every character on a team experience
+    /// @details ZZ@> This function gives every character on a team experience
+
     Uint16 cnt;
 
     for ( cnt = 0; cnt < MAX_CHR; cnt++ )
@@ -2381,8 +2392,8 @@ void give_team_experience( Uint8 team, int amount, Uint8 xptype )
 //--------------------------------------------------------------------------------------------
 void resize_all_characters()
 {
-    // ZZ> This function makes the characters get bigger or smaller, depending
-    //    on their fat_goto and fat_goto_time
+    /// @details ZZ@> This function makes the characters get bigger or smaller, depending
+    ///    on their fat_goto and fat_goto_time
 
     bool_t willgetcaught;
     int ichr;
@@ -2450,7 +2461,8 @@ void resize_all_characters()
 //--------------------------------------------------------------------------------------------
 bool_t export_one_character_name( const char *szSaveName, Uint16 character )
 {
-    // ZZ> This function makes the naming.txt file for the character
+    /// @details ZZ@> This function makes the naming.txt file for the character
+
     vfs_FILE* filewrite;
     char cTmp;
     int cnt, tnc;
@@ -2499,10 +2511,10 @@ bool_t export_one_character_name( const char *szSaveName, Uint16 character )
 //--------------------------------------------------------------------------------------------
 bool_t chr_upload_cap( chr_t * pchr, cap_t * pcap )
 {
-    // BB> prepare a character profile for exporting, by uploading some special values into the
-    //     cap. Just so that there is no confusion when you export multiple items of the same type,
-    //     DO NOT pass the pointer returned by chr_get_pcap(). Instead, use a custom cap_t declared on the stack,
-    //     or something similar
+    /// @details BB@> prepare a character profile for exporting, by uploading some special values into the
+    ///     cap. Just so that there is no confusion when you export multiple items of the same type,
+    ///     DO NOT pass the pointer returned by chr_get_pcap(). Instead, use a custom cap_t declared on the stack,
+    ///     or something similar
 
     if( !ALLOCATED_PCHR( pchr ) ) return bfalse;
 
@@ -2563,7 +2575,7 @@ bool_t chr_upload_cap( chr_t * pchr, cap_t * pcap )
 //--------------------------------------------------------------------------------------------
 bool_t chr_download_cap( chr_t * pchr, cap_t * pcap )
 {
-    // BB> grab all of the data from the data.txt file
+    /// @details BB@> grab all of the data from the data.txt file
 
     int iTmp, tnc;
 
@@ -2720,8 +2732,8 @@ bool_t chr_download_cap( chr_t * pchr, cap_t * pcap )
 //--------------------------------------------------------------------------------------------
 bool_t export_one_character_profile( const char *szSaveName, Uint16 character )
 {
-    // ZZ> This function creates a data.txt file for the given character.
-    //    it is assumed that all enchantments have been done away with
+    /// @details ZZ@> This function creates a data.txt file for the given character.
+    ///    it is assumed that all enchantments have been done away with
 
     chr_t * pchr;
     cap_t * pcap;
@@ -2747,7 +2759,8 @@ bool_t export_one_character_profile( const char *szSaveName, Uint16 character )
 //--------------------------------------------------------------------------------------------
 bool_t export_one_character_skin( const char *szSaveName, Uint16 character )
 {
-    // ZZ> This function creates a skin.txt file for the given character.
+    /// @details ZZ@> This function creates a skin.txt file for the given character.
+
     vfs_FILE* filewrite;
 
     if ( !ACTIVE_CHR(character) ) return bfalse;
@@ -2766,9 +2779,9 @@ bool_t export_one_character_skin( const char *szSaveName, Uint16 character )
 //--------------------------------------------------------------------------------------------
 int load_one_character_profile( const char * tmploadname, int slot_override, bool_t required )
 {
-    // ZZ> This function fills a character profile with data from data.txt, returning
-    // the icap slot that the profile was stuck into.  It may cause the program
-    // to abort if bad things happen.
+    /// @details ZZ@> This function fills a character profile with data from data.txt, returning
+    /// the icap slot that the profile was stuck into.  It may cause the program
+    /// to abort if bad things happen.
 
     Sint16  icap = -1;
     cap_t * pcap;
@@ -2848,7 +2861,8 @@ int load_one_character_profile( const char * tmploadname, int slot_override, boo
 //--------------------------------------------------------------------------------------------
 bool_t heal_character( Uint16 character, Uint16 healer, int amount, bool_t ignoreinvincible)
 {
-    // ZF> This function gives some pure life points to the target, ignoring any resistances and so forth
+    /// @details ZF@> This function gives some pure life points to the target, ignoring any resistances and so forth
+
     if ( !ACTIVE_CHR(character) || amount == 0 || !ChrList.lst[character].alive || (ChrList.lst[character].invictus && !ignoreinvincible) ) return bfalse;
 
     ChrList.lst[character].life = CLIP(ChrList.lst[character].life, ChrList.lst[character].life + ABS(amount), ChrList.lst[character].lifemax);
@@ -2868,11 +2882,11 @@ int damage_character( Uint16 character, Uint16 direction,
                        IPair  damage, Uint8 damagetype, Uint8 team,
                        Uint16 attacker, Uint16 effects, bool_t ignoreinvincible )
 {
-    // ZZ> This function calculates and applies actual_damage to a character.  It also
-    //    sets alerts and begins actions.  Blocking and frame invincibility
-    //    are done here too.  Direction is ATK_FRONT if the attack is coming head on,
-    //    ATK_RIGHT if from the right, ATK_BEHIND if from the back, ATK_LEFT if from the
-    //    left.
+    /// @details ZZ@> This function calculates and applies actual_damage to a character.  It also
+    ///    sets alerts and begins actions.  Blocking and frame invincibility
+    ///    are done here too.  Direction is ATK_FRONT if the attack is coming head on,
+    ///    ATK_RIGHT if from the right, ATK_BEHIND if from the back, ATK_LEFT if from the
+    ///    left.
 
     int tnc;
     Uint16 action;
@@ -3194,7 +3208,7 @@ int damage_character( Uint16 character, Uint16 direction,
 //--------------------------------------------------------------------------------------------
 void kill_character( Uint16 character, Uint16 killer )
 {
-    // ZZ> This function kills a character...  MAX_CHR killer for accidental death
+    /// @details ZZ@> This function kills a character...  MAX_CHR killer for accidental death
 
     Uint8 modifier;
     chr_t * pchr;
@@ -3227,7 +3241,8 @@ void kill_character( Uint16 character, Uint16 killer )
 //--------------------------------------------------------------------------------------------
 void spawn_poof( Uint16 character, Uint16 profile )
 {
-    // ZZ> This function spawns a character poof
+    /// @details ZZ@> This function spawns a character poof
+
     Uint16 sTmp;
     Uint16 origin;
     int iTmp;
@@ -3255,7 +3270,8 @@ void spawn_poof( Uint16 character, Uint16 profile )
 //--------------------------------------------------------------------------------------------
 char * chop_create( Uint16 profile )
 {
-    // ZZ> This function generates a random name
+    /// @details ZZ@> This function generates a random name
+
     int read, write, section, mychop;
     char cTmp;
 
@@ -3361,9 +3377,9 @@ void ai_state_spawn( ai_state_t * pself, Uint16 index, Uint16 iobj, Uint16 rank 
 //--------------------------------------------------------------------------------------------
 chr_t * chr_init( chr_t * pchr )
 {
-    // BB> initialize the character data to safe values
-    //     since we use memset(..., 0, ...), all = 0, = false, and = 0.0f
-    //     statements are redundant
+    /// @details BB@> initialize the character data to safe values
+    ///     since we use memset(..., 0, ...), all = 0, = false, and = 0.0f
+    ///     statements are redundant
 
     int cnt;
     ego_object_base_t save_base;
@@ -3437,7 +3453,7 @@ chr_t * chr_init( chr_t * pchr )
     // I think we have to set the dismount timer, otherwise objects that
     // are spawned by chests will behave strangely...
     // nope this did not fix it
-    pchr->dismount_timer = 0; //PHYS_DISMOUNT_TIME;		//ZF> If this is != 0 then scorpion claws and riders are dropped at spawn (non-item objects)
+    pchr->dismount_timer = 0; //PHYS_DISMOUNT_TIME;		/// ZF@> If this is != 0 then scorpion claws and riders are dropped at spawn (non-item objects)
 
 
     // set all of the integer references to invalid values
@@ -3519,8 +3535,8 @@ Uint16 chr_get_free( Uint16 override )
 Uint16 spawn_one_character( fvec3_t   pos, Uint16 profile, Uint8 team,
                             Uint8 skin, Uint16 facing, const char *name, Uint16 override )
 {
-    // ZZ> This function spawns a character and returns the character's index number
-    //    if it worked, MAX_CHR otherwise
+    /// @details ZZ@> This function spawns a character and returns the character's index number
+    ///    if it worked, MAX_CHR otherwise
 
     Uint16 ichr, kursechance;
     int cnt, tnc;
@@ -3733,7 +3749,8 @@ Uint16 spawn_one_character( fvec3_t   pos, Uint16 profile, Uint8 team,
 //--------------------------------------------------------------------------------------------
 void respawn_character( Uint16 character )
 {
-    // ZZ> This function respawns a character
+    /// @details ZZ@> This function respawns a character
+
     Uint16 item;
     int old_attached_prt_count, new_attached_prt_count;
 
@@ -3881,7 +3898,7 @@ int chr_change_skin( Uint16 character, int skin )
 //--------------------------------------------------------------------------------------------
 Uint16 change_armor( Uint16 character, Uint16 skin )
 {
-    // ZZ> This function changes the armor of the character
+    /// @details ZZ@> This function changes the armor of the character
 
     Uint16  enchant;
     int     iTmp;
@@ -3920,8 +3937,8 @@ Uint16 change_armor( Uint16 character, Uint16 skin )
     ChrList.lst[character].maxaccel = pcap->maxaccel[skin];
 
     // Reset armor enchantments
-    // These should really be done in reverse order ( Start with last enchant ), but
-    // I don't care at this point !!!BAD!!!
+    /// @todo These should really be done in reverse order ( Start with last enchant ), but
+    /// I don't care at this point !!!BAD!!!
     enchant = ChrList.lst[character].firstenchant;
     while ( enchant < MAX_ENC )
     {
@@ -3951,8 +3968,8 @@ Uint16 change_armor( Uint16 character, Uint16 skin )
 //--------------------------------------------------------------------------------------------
 void change_character_full( Uint16 ichr, Uint16 profile, Uint8 skin, Uint8 leavewhich )
 {
-    // ZF> This function polymorphs a character permanently so that it can be exported properly
-    // A character turned into a frog with this function will also export as a frog!
+    /// @details ZF@> This function polymorphs a character permanently so that it can be exported properly
+    /// A character turned into a frog with this function will also export as a frog!
 
     Uint16 imad_old, imad_new;
 
@@ -4044,7 +4061,7 @@ bool_t set_weapongrip( Uint16 iitem, Uint16 iholder, Uint16 vrt_off )
 //--------------------------------------------------------------------------------------------
 void change_character( Uint16 ichr, Uint16 profile_new, Uint8 skin, Uint8 leavewhich )
 {
-    // ZZ> This function polymorphs a character, changing stats, dropping weapons
+    /// @details ZZ@> This function polymorphs a character, changing stats, dropping weapons
 
     int tnc, enchant;
     Uint16 item_ref, item;
@@ -4268,9 +4285,9 @@ void change_character( Uint16 ichr, Uint16 profile_new, Uint8 skin, Uint8 leavew
 //--------------------------------------------------------------------------------------------
 bool_t cost_mana( Uint16 character, int amount, Uint16 killer )
 {
-    // ZZ> This function takes mana from a character ( or gives mana ),
-    //    and returns btrue if the character had enough to pay, or bfalse
-    //    otherwise. This can kill a character in hard mode.
+    /// @details ZZ@> This function takes mana from a character ( or gives mana ),
+    ///    and returns btrue if the character had enough to pay, or bfalse
+    ///    otherwise. This can kill a character in hard mode.
 
     int mana_final;
     bool_t mana_paid;
@@ -4330,7 +4347,7 @@ bool_t cost_mana( Uint16 character, int amount, Uint16 killer )
 //--------------------------------------------------------------------------------------------
 void switch_team( Uint16 character, Uint8 team )
 {
-    // ZZ> This function makes a character join another team...
+    /// @details ZZ@> This function makes a character join another team...
 
     if ( !ACTIVE_CHR(character) || team >= TEAM_MAX ) return;
 
@@ -4356,7 +4373,8 @@ void switch_team( Uint16 character, Uint8 team )
 //--------------------------------------------------------------------------------------------
 void issue_clean( Uint16 character )
 {
-    // ZZ> This function issues a clean up order to all teammates
+    /// @details ZZ@> This function issues a clean up order to all teammates
+
     Uint8 team;
     Uint16 cnt;
 
@@ -4384,9 +4402,10 @@ void issue_clean( Uint16 character )
 //--------------------------------------------------------------------------------------------
 int restock_ammo( Uint16 character, IDSZ idsz )
 {
-    // ZZ> This function restocks the characters ammo, if it needs ammo and if
-    //    either its parent or type idsz match the given idsz.  This
-    //    function returns the amount of ammo given.
+    /// @details ZZ@> This function restocks the characters ammo, if it needs ammo and if
+    ///    either its parent or type idsz match the given idsz.  This
+    ///    function returns the amount of ammo given.
+
     int amount;
 
     chr_t * pchr;
@@ -4439,7 +4458,7 @@ int check_skills( Uint16 who, IDSZ whichskill )
 //--------------------------------------------------------------------------------------------
 void update_all_characters()
 {
-    // ZZ> This function brings mana and life back
+    /// @details ZZ@> This function brings mana and life back
 
     int ripand;
     float level;
@@ -4771,7 +4790,7 @@ void move_one_character_get_environment( chr_t * pchr, chr_environment_t * penvi
 //--------------------------------------------------------------------------------------------
 void move_one_character_do_floor_friction( chr_t * pchr, chr_environment_t * penviro )
 {
-    // BB> Friction is complicated when you want to have sliding characters :P
+    /// @details BB@> Friction is complicated when you want to have sliding characters :P
 
     float temp_friction_xy;
     fvec3_t   vup, floor_acc, fric, fric_floor;
@@ -5101,7 +5120,7 @@ void move_one_character_do_volontary( chr_t * pchr, chr_environment_t * penviro 
 //--------------------------------------------------------------------------------------------
 bool_t chr_do_latch_button( chr_t * pchr )
 {
-    // BB> Character latches for generalized buttons
+    /// @details BB@> Character latches for generalized buttons
 
     Uint16 ichr;
     ai_state_t * pai;
@@ -5581,8 +5600,8 @@ void move_one_character_do_z_motion( chr_t * pchr, chr_environment_t * penviro )
 //--------------------------------------------------------------------------------------------
 bool_t move_one_character_integrate_motion( chr_t * pchr )
 {
-    // BB> Figure out the next position of the character.
-    //    Include collisions with the mesh in this step.
+    /// @details BB@> Figure out the next position of the character.
+    ///    Include collisions with the mesh in this step.
 
     float nrm[2], ftmp;
     Uint16 ichr;
@@ -5972,7 +5991,7 @@ void move_one_character( chr_t * pchr )
 //--------------------------------------------------------------------------------------------
 void move_all_characters( void )
 {
-    // ZZ> This function handles character physics
+    /// @details ZZ@> This function handles character physics
 
     const float air_friction = 0.9868f;  // gives the same terminal velocity in terms of the size of the game characters
     const float ice_friction = 0.9738f;  // the square of air_friction
@@ -6102,8 +6121,8 @@ bool_t is_invictus_direction( Uint16 direction, Uint16 character, Uint16 effects
 //--------------------------------------------------------------------------------------------
 void chr_instance_clear_cache( chr_instance_t * pinst )
 {
-    // BB> force chr_instance_update_vertices() recalculate the vertices the next time
-    //     the function is called
+    /// @details BB@> force chr_instance_update_vertices() recalculate the vertices the next time
+    ///     the function is called
 
     pinst->save_flip      = 0;
     pinst->save_frame     = 0;
@@ -6155,10 +6174,10 @@ chr_instance_t * chr_instance_init( chr_instance_t * pinst )
 //--------------------------------------------------------------------------------------------
 bool_t chr_instance_set_mad( chr_instance_t * pinst, Uint16 imad )
 {
-    // BB> try to set the model used by the character instance.
-    //     If this fails, it leaves the old data. Just to be safe it
-    //     would be best to check whether the old modes is valid, and
-    //     if not, the data chould be set to safe values...
+    /// @details BB@> try to set the model used by the character instance.
+    ///     If this fails, it leaves the old data. Just to be safe it
+    ///     would be best to check whether the old modes is valid, and
+    ///     if not, the data chould be set to safe values...
 
     mad_t * pmad;
     bool_t updated = bfalse;
@@ -6298,12 +6317,12 @@ bool_t ai_add_order( ai_state_t * pai, Uint32 value, Uint16 counter )
 //--------------------------------------------------------------------------------------------
 int chr_add_billboard( Uint16 ichr, Uint32 lifetime_secs )
 {
-    // BB> Attach a basic billboard to a character. You set the billboard texture
-    //     at any time after this. Returns the index of the billboard or INVALID_BILLBOARD
-    //     if the allocation fails.
-    //
-    //    must be called with a valid character, so be careful if you call this function from within
-    //    spawn_one_character()
+    /// @details BB@> Attach a basic billboard to a character. You set the billboard texture
+    ///     at any time after this. Returns the index of the billboard or INVALID_BILLBOARD
+    ///     if the allocation fails.
+    ///
+    ///    must be called with a valid character, so be careful if you call this function from within
+    ///    spawn_one_character()
 
     chr_t * pchr;
 
@@ -6702,8 +6721,8 @@ IDSZ chr_get_idsz(Uint16 ichr, Uint16 type)
 //--------------------------------------------------------------------------------------------
 void oct_bb_to_chr_bumper_1( chr_bumper_1_t * pbmp, oct_bb_t bbox )
 {
-    // BB > convert the model's bounding box data (oct_bb_t) to
-    //      a bumper (chr_bumper_1_t)
+    /// @details BB@> convert the model's bounding box data (oct_bb_t) to
+    ///      a bumper (chr_bumper_1_t)
 
     if( NULL == pbmp ) return;
 
@@ -6724,15 +6743,15 @@ void oct_bb_to_chr_bumper_1( chr_bumper_1_t * pbmp, oct_bb_t bbox )
 //--------------------------------------------------------------------------------------------
 int chr_bumper_1_to_points( chr_bumper_1_t * pbmp, fvec4_t   pos[], size_t pos_count )
 {
-    // BB > convert the corners of the level 1 bounding box to a point cloud
-    //      set pos[].w to zero for now, that the transform does not
-    //      shift the points while transforming them
-    //
-    //      Make sure to set pos[].w to zero so that the bounding box will not be translated
-    //      then the transformation matrix is applied.
-    //
-    //      The math for finding the corners of this bumper is not hard, but it is easy to make a mistake.
-    //      be careful if you modify anything.
+    /// @details BB@> convert the corners of the level 1 bounding box to a point cloud
+    ///      set pos[].w to zero for now, that the transform does not
+    ///      shift the points while transforming them
+    ///
+    ///      Make sure to set pos[].w to zero so that the bounding box will not be translated
+    ///      then the transformation matrix is applied.
+    ///
+    ///      The math for finding the corners of this bumper is not hard, but it is easy to make a mistake.
+    ///      be careful if you modify anything.
 
     float ftmp;
     float val_x, val_y;
@@ -6986,8 +7005,8 @@ int chr_bumper_1_to_points( chr_bumper_1_t * pbmp, fvec4_t   pos[], size_t pos_c
 //--------------------------------------------------------------------------------------------
 void points_to_chr_bumper_1( chr_bumper_1_t * pbmp, fvec4_t   pos[], size_t pos_count )
 {
-    // BB> convert the new point cloud into a level 1 bounding box using a fvec4_t  
-    //     array as the source
+    /// @details BB@> convert the new point cloud into a level 1 bounding box using a fvec4_t  
+    ///     array as the source
 
     Uint32 cnt;
 
@@ -7029,7 +7048,7 @@ void points_to_chr_bumper_1( chr_bumper_1_t * pbmp, fvec4_t   pos[], size_t pos_
 //--------------------------------------------------------------------------------------------
 void chr_bumper_1_downgrade( chr_bumper_1_t * psrc, chr_bumper_0_t bump_base, chr_bumper_0_t * p_bump_0, chr_bumper_1_t * p_chr_prt  )
 {
-    // BB> convert a level 1 bumper to an "equivalent" level 0 bumper
+    /// @details BB@> convert a level 1 bumper to an "equivalent" level 0 bumper
 
     float val1, val2, val3, val4;
 
@@ -7117,14 +7136,14 @@ void chr_bumper_1_downgrade( chr_bumper_1_t * psrc, chr_bumper_0_t bump_base, ch
 //--------------------------------------------------------------------------------------------
 egoboo_rv chr_update_collision_size( chr_t * pchr, bool_t update_matrix )
 {
-    // TODO: use this function to update the pchr->chr_prt_cv and  pchr->chr_chr_cv with
-    //       values that reflect the best possible collision volume
-    //
-    // This function takes quite a bit of time, so it must only be called when the
-    // vertices change because of an animation or because the matrix changes.
-    //
-    // it might be possible to cache the src[] array used in this function.
-    // if the matrix changes, then you would not need to recalculate this data...
+    /// @todo use this function to update the pchr->chr_prt_cv and  pchr->chr_chr_cv with
+    ///       values that reflect the best possible collision volume
+    ///
+    ///< This function takes quite a bit of time, so it must only be called when the
+    ///< vertices change because of an animation or because the matrix changes.
+    ///<
+    ///< it might be possible to cache the src[] array used in this function.
+    ///< if the matrix changes, then you would not need to recalculate this data...
 
 
     int       vcount;   // the actual number of vertices, in case the object is square
@@ -7324,7 +7343,7 @@ Uint32 chr_get_icon_ref( Uint16 item )
 //--------------------------------------------------------------------------------------------
 const char* describe_stat(int value)
 {
-    //ZF> This converts a stat number into a more descriptive word
+    /// @details ZF@> This converts a stat number into a more descriptive word
 
     static STRING retval;
 
@@ -7391,7 +7410,8 @@ bool_t release_one_cap( Uint16 icap )
 //--------------------------------------------------------------------------------------------
 void reset_teams()
 {
-    // ZZ> This function makes everyone hate everyone else
+    /// @details ZZ@> This function makes everyone hate everyone else
+
     int teama, teamb;
 
     for ( teama = 0; teama < TEAM_MAX; teama++ )
@@ -7510,7 +7530,7 @@ chr_t * chr_update_hide( chr_t * pchr )
 //--------------------------------------------------------------------------------------------
 bool_t ai_state_set_changed( ai_state_t * pai )
 {
-    // BB> do something tricky here
+    /// @details BB@> do something tricky here
 
     bool_t retval = bfalse;
 
@@ -7534,7 +7554,7 @@ bool_t ai_state_set_changed( ai_state_t * pai )
 //--------------------------------------------------------------------------------------------
 matrix_cache_t * matrix_cache_init(matrix_cache_t * mcache)
 {
-    // BB> clear out the matrix cache data
+    /// @details BB@> clear out the matrix cache data
 
     int cnt;
 
@@ -7568,7 +7588,7 @@ bool_t chr_matrix_valid( chr_t * pchr )
 //--------------------------------------------------------------------------------------------
 bool_t chr_getMatUp(chr_t *pchr, fvec3_t   *pvec )
 {
-    // BB> MAKE SURE the value it calculated relative to a valid matrix
+    /// @details BB@> MAKE SURE the value it calculated relative to a valid matrix
 
     if( !ALLOCATED_PCHR( pchr ) ) return bfalse;
 
@@ -7595,7 +7615,7 @@ bool_t chr_getMatUp(chr_t *pchr, fvec3_t   *pvec )
 //--------------------------------------------------------------------------------------------
 bool_t chr_getMatRight(chr_t *pchr, fvec3_t   *pvec )
 {
-    // BB> MAKE SURE the value it calculated relative to a valid matrix
+    /// @details BB@> MAKE SURE the value it calculated relative to a valid matrix
 
     if( !ALLOCATED_PCHR( pchr ) ) return bfalse;
 
@@ -7623,7 +7643,7 @@ bool_t chr_getMatRight(chr_t *pchr, fvec3_t   *pvec )
 //--------------------------------------------------------------------------------------------
 bool_t chr_getMatForward(chr_t *pchr, fvec3_t   *pvec )
 {
-    // BB> MAKE SURE the value it calculated relative to a valid matrix
+    /// @details BB@> MAKE SURE the value it calculated relative to a valid matrix
 
     if( !ALLOCATED_PCHR( pchr ) ) return bfalse;
 
@@ -7651,7 +7671,7 @@ bool_t chr_getMatForward(chr_t *pchr, fvec3_t   *pvec )
 //--------------------------------------------------------------------------------------------
 bool_t chr_getMatTranslate(chr_t *pchr, fvec3_t   *pvec )
 {
-    // BB> MAKE SURE the value it calculated relative to a valid matrix
+    /// @details BB@> MAKE SURE the value it calculated relative to a valid matrix
 
     if( !ALLOCATED_PCHR( pchr ) ) return bfalse;
 
@@ -7678,8 +7698,8 @@ bool_t chr_getMatTranslate(chr_t *pchr, fvec3_t   *pvec )
 //--------------------------------------------------------------------------------------------
 int get_grip_verts( Uint16 grip_verts[], Uint16 imount, int vrt_offset )
 {
-    // BB> Fill the grip_verts[] array from the mount's data.
-    //     Return the number of vertices found.
+    /// @details BB@> Fill the grip_verts[] array from the mount's data.
+    ///     Return the number of vertices found.
 
     int i, tnc, vrt_count;
 
@@ -7732,7 +7752,7 @@ int get_grip_verts( Uint16 grip_verts[], Uint16 imount, int vrt_offset )
 //--------------------------------------------------------------------------------------------
 bool_t chr_get_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
 {
-    // BB> grab the matrix cache data for a given character and put it into mc_tmp.
+    /// @details BB@> grab the matrix cache data for a given character and put it into mc_tmp.
 
     bool_t handled;
     Uint16 itarget;
@@ -7898,7 +7918,7 @@ int convert_grip_to_global_points( Uint16 iholder, Uint16 grip_verts[], fvec4_t 
 //--------------------------------------------------------------------------------------------
 bool_t apply_one_weapon_matrix( chr_t * pweap, matrix_cache_t * mc_tmp )
 {
-    // ZZ> This function sets one weapon's matrix, based on who it's attached to
+    /// @details ZZ@> This function sets one weapon's matrix, based on who it's attached to
 
     fvec4_t   nupoint[GRIP_VERTS];
     int       iweap_points;
@@ -7966,7 +7986,7 @@ bool_t apply_one_weapon_matrix( chr_t * pweap, matrix_cache_t * mc_tmp )
 //--------------------------------------------------------------------------------------------
 bool_t apply_one_character_matrix( chr_t * pchr, matrix_cache_t * mc_tmp )
 {
-    // ZZ> This function sets one character's matrix
+    /// @details ZZ@> This function sets one character's matrix
 
     if( NULL == mc_tmp ) return bfalse;
 
@@ -8041,14 +8061,14 @@ bool_t apply_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
 //--------------------------------------------------------------------------------------------
 int cmp_matrix_cache(const void * vlhs, const void * vrhs)
 {
-    // BB> check for differences between the data pointed to
-    //     by vlhs and vrhs, assuming that they point to matrix_cache_t data.
-    //
-    //    The function is implemented this way so that in pronciple
-    //    if could be used in a function like qsort().
-    //
-    //    We could almost certainly make something easier and quicker by
-    //    using the function memcmp()
+    /// @details BB@> check for differences between the data pointed to
+    ///     by vlhs and vrhs, assuming that they point to matrix_cache_t data.
+    ///
+    ///    The function is implemented this way so that in pronciple
+    ///    if could be used in a function like qsort().
+    ///
+    ///    We could almost certainly make something easier and quicker by
+    ///    using the function memcmp()
 
     int   itmp, cnt;
     float ftmp;
@@ -8147,10 +8167,10 @@ cmp_matrix_cache_end:
 //--------------------------------------------------------------------------------------------
 egoboo_rv chr_update_matrix( chr_t * pchr, bool_t update_size )
 {
-    // BB> Do everything necessary to set the current matrix for this character.
-    //     This might include recursively going down the list of this character's mounts, etc.
-    //
-    //     Return btrue if a new matrix is applied to the character, bfalse otherwise.
+    /// @details BB@> Do everything necessary to set the current matrix for this character.
+    ///     This might include recursively going down the list of this character's mounts, etc.
+    ///
+    ///     Return btrue if a new matrix is applied to the character, bfalse otherwise.
 
     bool_t         needs_update = bfalse;
     bool_t         applied      = bfalse;
@@ -8197,8 +8217,8 @@ egoboo_rv chr_update_matrix( chr_t * pchr, bool_t update_size )
 //--------------------------------------------------------------------------------------------
 bool_t ai_state_set_bumplast( ai_state_t * pself, Uint16 ichr )
 {
-    // BB> bumping into a chest can initiate whole loads of update messages.
-    //     Try to throttle the rate that new "bump" messages can be passed to the ai
+    /// @details BB@> bumping into a chest can initiate whole loads of update messages.
+    ///     Try to throttle the rate that new "bump" messages can be passed to the ai
 
     if( NULL == pself ) return bfalse;
 
@@ -8219,7 +8239,7 @@ bool_t ai_state_set_bumplast( ai_state_t * pself, Uint16 ichr )
 //--------------------------------------------------------------------------------------------
 Uint16 chr_has_inventory_idsz( Uint16 ichr, IDSZ idsz, bool_t equipped, Uint16 * pack_last )
 {
-    // BB> check the pack a matching item
+    /// @details BB@> check the pack a matching item
 
     bool_t matches_equipped;
     Uint16 item, tmp_item, tmp_var;
@@ -8256,7 +8276,7 @@ Uint16 chr_has_inventory_idsz( Uint16 ichr, IDSZ idsz, bool_t equipped, Uint16 *
 //--------------------------------------------------------------------------------------------
 Uint16 chr_holding_idsz( Uint16 ichr, IDSZ idsz )
 {
-    // BB> check the character's hands for a matching item
+    /// @details BB@> check the character's hands for a matching item
 
     bool_t found;
     Uint16 item, tmp_item;
@@ -8356,8 +8376,8 @@ bool_t cap_has_idsz( Uint16 icap, IDSZ idsz )
 //--------------------------------------------------------------------------------------------
 bool_t cap_is_type_idsz( Uint16 icap, IDSZ test_idsz )
 {
-    // BB> check IDSZ_PARENT and IDSZ_TYPE to see if the test_idsz matches. If we are not
-    //     picky (i.e. IDSZ_NONE == test_idsz), then it matches any valid item.
+    /// @details BB@> check IDSZ_PARENT and IDSZ_TYPE to see if the test_idsz matches. If we are not
+    ///     picky (i.e. IDSZ_NONE == test_idsz), then it matches any valid item.
 
     cap_t * pcap;
 
@@ -8382,8 +8402,8 @@ bool_t chr_has_idsz( Uint16 ichr, IDSZ idsz )
 //--------------------------------------------------------------------------------------------
 bool_t chr_is_type_idsz( Uint16 item, IDSZ test_idsz )
 {
-    // BB> check IDSZ_PARENT and IDSZ_TYPE to see if the test_idsz matches. If we are not
-    //     picky (i.e. IDSZ_NONE == test_idsz), then it matches any valid item.
+    /// @details BB@> check IDSZ_PARENT and IDSZ_TYPE to see if the test_idsz matches. If we are not
+    ///     picky (i.e. IDSZ_NONE == test_idsz), then it matches any valid item.
 
     Uint16 icap;
 

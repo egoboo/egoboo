@@ -20,7 +20,7 @@
 //********************************************************************************************
 
 ///
-/// @file
+/// @file ogl_texture.h
 /// @brief Basic OpenGL Wrapper
 /// @details Basic definitions for loading and managing OpenGL textures in Egoboo.
 ///   Uses SDL_image to load .tif, .png, .bmp, .dib, .xpm, and other formats into
@@ -39,7 +39,7 @@
 
 #define INVALID_KEY    ( (Uint32) (~0) )
 
-// OpenGL Texture filtering
+/// OpenGL Texture filtering
 typedef enum e_tx_filters
 {
     TX_UNFILTERED,
@@ -60,11 +60,11 @@ struct s_oglx_texture
     GLboolean    base_valid;
     gl_texture_t base;
 
-    GLuint        valid;           // whether or not the texture has been initialized
-    char          name[256];       // the name of the original file
-    SDL_Surface * surface;         // the original texture data
-    int           imgW, imgH;      // the height & width of the texture data
-    GLfloat       alpha;           // the alpha for the texture
+    GLuint        valid;           ///< whether or not the texture has been initialized
+    char          name[256];       ///< the name of the original file
+    SDL_Surface * surface;         ///< the original texture data
+    int           imgW, imgH;      ///< the height & width of the texture data
+    GLfloat       alpha;           ///< the alpha for the texture
 };
 typedef struct s_oglx_texture oglx_texture;
 

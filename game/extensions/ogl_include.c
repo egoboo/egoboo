@@ -1,5 +1,5 @@
 
-/// @file
+/// @file ogl_include.c
 /// @brief Egoboo OpenGL interface
 /// @details Implements the most basic code that Egoboo uses to interface with OpenGL
 

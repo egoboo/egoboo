@@ -19,30 +19,30 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - font_bmp.h
- * bitmapped font stuff
- */
+/// @file font_bmp.h
+/// @details bitmapped font stuff
+
 
 #include "egoboo_typedef.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-#define NUMFONTX            16          // Number of fonts in the bitmap
+#define NUMFONTX            16          ///< Number of fonts in the bitmap
 #define NUMFONTY            6
 #define NUMFONT             (NUMFONTX*NUMFONTY)
-#define FONTADD             4               // Gap between letters
+#define FONTADD             4               ///< Gap between letters
 
 #define TABADD              (1<<5)
-#define TABAND              (~(TABADD-1))                      // Tab size
+#define TABAND              (~(TABADD-1))                      ///< Tab size
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-extern int      fontoffset;                 // Line up fonts from top of screen
-extern SDL_Rect fontrect[NUMFONT];          // The font rectangles
-extern Uint8    fontxspacing[NUMFONT];      // The spacing stuff
+extern int      fontoffset;                 ///< Line up fonts from top of screen
+extern SDL_Rect fontrect[NUMFONT];          ///< The font rectangles
+extern Uint8    fontxspacing[NUMFONT];      ///< The spacing stuff
 extern Uint8    fontyspacing;
 
-extern Uint8    asciitofont[256];           // Conversion table
+extern Uint8    asciitofont[256];           ///< Conversion table
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

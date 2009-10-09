@@ -19,24 +19,23 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - Client.h
- * Basic skeleton for the client portion of a client-server architecture,
- * this is totally not in use yet.
- */
+/// @file client.h
+/// @details Basic skeleton for the client portion of a client-server architecture,
+/// this is totally not in use yet.
 
 typedef struct ClientState_t
 {
     int dummy;
 } ClientState_t;
 
-// Globally accesible client state
+/// Globally accesible client state
 extern ClientState_t ClientState;
 
 int  cl_init();
 void cl_shutDown();
 void cl_frameStep();
 
-// Much more to come...
+/// Much more to come...
 
 // int  cl_connectToServer(...);
 // int  cl_loadModule(...);

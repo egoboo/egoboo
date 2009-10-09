@@ -17,9 +17,8 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - mathstuff.c
- * The name's pretty self explanatory, doncha think?
- */
+/// @file mathstuff.c
+/// @brief The name's pretty self explanatory, doncha think?
 
 #include "egoboo_math.h"
 
@@ -37,7 +36,7 @@ Uint16  randie[RANDIE_COUNT];
 //--------------------------------------------------------------------------------------------
 void make_turntosin( void )
 {
-    // kZ> This function makes the lookup table for chrturn...
+    /// @details ZZ@> This function makes the lookup table for chrturn...
     int cnt;
     float ftmp = TWO_PI / (float)TRIG_TABLE_SIZE;
 
@@ -405,7 +404,7 @@ fmat_4x4_t ProjectionMatrix( const float near_plane,    // distance to near clip
 // Isn't tested!!!!
 void  TransformVertices( fmat_4x4_t *pMatrix, fvec4_t   *pSourceV, fvec4_t   *pDestV, Uint32  NumVertor )
 {
-    // BB > the matrix transformation for OpenGL vertices. some minor optimizations.
+    /// @details BB@> the matrix transformation for OpenGL vertices. some minor optimizations.
 
     if ( 1.0f == pSourceV->w )
     {
@@ -542,7 +541,7 @@ fvec3_t   mat_getCamForward(fmat_4x4_t mat)
 //--------------------------------------------------------------------------------------------
 int generate_irand_pair( IPair num )
 {
-    // kZ> This function generates a random number
+    /// @details ZZ@> This function generates a random number
 
     int tmp = 0;
     int irand = RANDIE;
@@ -559,7 +558,7 @@ int generate_irand_pair( IPair num )
 //--------------------------------------------------------------------------------------------
 int generate_irand_range( FRange num )
 {
-    // kZ> This function generates a random number
+    /// @details ZZ@> This function generates a random number
 
     IPair loc_pair;
 
@@ -571,7 +570,7 @@ int generate_irand_range( FRange num )
 //--------------------------------------------------------------------------------------------
 int generate_randmask( int base, int mask )
 {
-    // kZ> This function generates a random number
+    /// @details ZZ@> This function generates a random number
     int tmp;
     int irand = RANDIE;
 
@@ -588,7 +587,7 @@ int generate_randmask( int base, int mask )
 //--------------------------------------------------------------------------------------------
 void make_randie()
 {
-    // kZ> This function makes the random number table
+    /// @details ZZ@> This function makes the random number table
     int tnc, cnt;
 
     // Fill in the basic values

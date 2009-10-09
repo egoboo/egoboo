@@ -153,7 +153,7 @@ bool_t setup_quit()
 //--------------------------------------------------------------------------------------------
 bool_t setup_read( const char* filename )
 {
-    // BB> read the setup file
+    /// @details BB@> read the setup file
 
     if( INVALID_CSTR(filename) ) return bfalse;
 
@@ -183,7 +183,7 @@ bool_t setup_read( const char* filename )
 //--------------------------------------------------------------------------------------------
 bool_t setup_write()
 {
-    // BB> save the current setup file
+    /// @details BB@> save the current setup file
 
     if( INVALID_CSTR(_config_filename) ) return bfalse;
 
@@ -193,8 +193,8 @@ bool_t setup_write()
 //--------------------------------------------------------------------------------------------
 bool_t setup_download(egoboo_config_t * pcfg)
 {
-    // BB > download the ConfigFile_t keys into game variables
-    //     use default values to fill in any missing keys
+    /// @details BB@> download the ConfigFile_t keys into game variables
+    ///     use default values to fill in any missing keys
 
     char  *lCurSectionName;
     bool_t lTempBool;
@@ -414,7 +414,7 @@ bool_t setup_synch( egoboo_config_t * pcfg )
 //--------------------------------------------------------------------------------------------
 bool_t setup_upload( egoboo_config_t * pcfg )
 {
-    // BB > upload game variables into the ConfigFile_t keys
+    /// @details BB@> upload game variables into the ConfigFile_t keys
 
     char  *lCurSectionName;
     if (NULL == lConfigSetup || NULL == pcfg) return bfalse;

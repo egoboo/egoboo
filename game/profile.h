@@ -33,16 +33,16 @@ struct Mix_Chunk;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-// Message files
+/// Message files
 
 DEFINE_STACK_EXTERN(int, MessageOffset, MAXTOTALMESSAGE);
 
-extern Uint32          message_buffer_carat;                                  // Where to put letter
-extern char            message_buffer[MESSAGEBUFFERSIZE];                     // The text buffer
+extern Uint32          message_buffer_carat;                                  ///< Where to put letter
+extern char            message_buffer[MESSAGEBUFFERSIZE];                     ///< The text buffer
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-// for loading objects
+/// for loading objects
 struct s_pro_import
 {
     int   slot;
@@ -55,54 +55,54 @@ typedef struct s_pro_import pro_import_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-// This is for random naming
+/// This is for random naming
 
 #define CHOPPERMODEL                    32
 #define MAXCHOP                         (MAX_PROFILE*CHOPPERMODEL)
 #define CHOPSIZE                        8
 #define CHOPDATACHUNK                   (MAXCHOP*CHOPSIZE)
-#define MAXSECTION                      4              // T-wi-n-k...  Most of 4 sections
+#define MAXSECTION                      4              ///< T-wi-n-k...  Most of 4 sections
 
 struct s_chop_data
 {
-    Uint16  count;                  // The number of name parts
+    Uint16  count;                  ///< The number of name parts
 
-    Uint32  carat;                  // The data pointer
-    char    buffer[CHOPDATACHUNK];  // The name parts
-    Uint16  start[MAXCHOP];         // The first character of each part
+    Uint32  carat;                  ///< The data pointer
+    char    buffer[CHOPDATACHUNK];  ///< The name parts
+    Uint16  start[MAXCHOP];         ///< The first character of each part
 };
 typedef struct s_chop_data chop_data_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-// a wrapper for all the datafiles in the *.obj dir
+/// a wrapper for all the datafiles in the *.obj dir
 
 struct s_object_profile
 {
     EGO_PROFILE_STUFF;
 
     // the sub-profiles
-    Uint16  iai;                              // the AI  for this profile
-    Uint16  icap;                             // the cap for this profile
-    Uint16  imad;                             // the mad for this profile
-    Uint16  ieve;                             // the eve for this profile
+    Uint16  iai;                              ///< the AI  for this profile
+    Uint16  icap;                             ///< the cap for this profile
+    Uint16  imad;                             ///< the mad for this profile
+    Uint16  ieve;                             ///< the eve for this profile
 
-    Uint16  prtpip[MAX_PIP_PER_PROFILE];      // Local particles
+    Uint16  prtpip[MAX_PIP_PER_PROFILE];      ///< Local particles
 
     // the profile skins
-    Uint16  skins;                            // Number of skins
-    int     tex_ref[MAX_SKIN];                 // references to the icon textures
-    int     ico_ref[MAX_SKIN];                 // references to the skin textures
+    Uint16  skins;                            ///< Number of skins
+    int     tex_ref[MAX_SKIN];                 ///< references to the icon textures
+    int     ico_ref[MAX_SKIN];                 ///< references to the skin textures
 
     // the profile message info
-    Uint16  message_start;                    // The first message
+    Uint16  message_start;                    ///< The first message
 
     // the random naming info
-    Uint16       chop_sectionsize[MAXSECTION];   // Number of choices, 0
+    Uint16       chop_sectionsize[MAXSECTION];   ///< Number of choices, 0
     Uint16       chop_sectionstart[MAXSECTION];
 
     // sounds
-    struct Mix_Chunk *  wavelist[MAX_WAVE];             // sounds in a object
+    struct Mix_Chunk *  wavelist[MAX_WAVE];             ///< sounds in a object
 };
 
 typedef struct s_object_profile object_profile_t;
@@ -115,7 +115,7 @@ typedef struct s_object_profile pro_t;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 extern Uint16  bookicon_count;
-extern Uint16  bookicon_ref[MAX_SKIN];                      // The first book icon
+extern Uint16  bookicon_ref[MAX_SKIN];                      ///< The first book icon
 
 extern pro_import_t import_data;
 

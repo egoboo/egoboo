@@ -22,34 +22,34 @@
 #include "egoboo_typedef.h"
 
 //------------------------------------
-// Module variables
+/// Module variables
 //------------------------------------
 #define RANKSIZE 12
 #define SUMMARYLINES 8
 #define SUMMARYSIZE  80
-#define MAX_MODULE           100                     // Number of modules
+#define MAX_MODULE           100                     ///< Number of modules
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-// the representation of the *.mod file
+/// the representation of the *.mod file
 struct s_mod_file
 {
     // data from menu.txt
-    char    rank[RANKSIZE];               // Number of stars
-    STRING  longname;                     // Module names
-    STRING  reference;                    // the module reference string
-    Uint8   importamount;                 // # of import characters
-    bool_t  allowexport;                  // Export characters?
-    Uint8   minplayers;                   // Number of players
+    char    rank[RANKSIZE];               ///< Number of stars
+    STRING  longname;                     ///< Module names
+    STRING  reference;                    ///< the module reference string
+    Uint8   importamount;                 ///< # of import characters
+    bool_t  allowexport;                  ///< Export characters?
+    Uint8   minplayers;                   ///< Number of players
     Uint8   maxplayers;
-    bool_t  monstersonly;                           // Only allow monsters
-    Uint8   respawnvalid;                           // Allow respawn
-    Uint8   rtscontrol;                             // !! keep this in the file, even though it is not used in the game !!
-    int     numlines;                               // Lines in summary
-    char    summary[SUMMARYLINES][SUMMARYSIZE];     // Quest description
+    bool_t  monstersonly;                           ///< Only allow monsters
+    Uint8   respawnvalid;                           ///< Allow respawn
+    Uint8   rtscontrol;                             ///< !! keep this in the file, even though it is not used in the game !!
+    int     numlines;                               ///< Lines in summary
+    char    summary[SUMMARYLINES][SUMMARYSIZE];     ///< Quest description
 
-    IDSZ    quest_idsz;                             // the quest required to unlock this module
-    int     quest_level;                            // the quest level required to unlock this module
+    IDSZ    quest_idsz;                             ///< the quest required to unlock this module
+    int     quest_level;                            ///< the quest level required to unlock this module
 };
 typedef struct s_mod_file mod_file_t;
 

@@ -19,11 +19,12 @@
 //*
 //********************************************************************************************
 
-// read/write/modify the quest.txt file
+/// @file quest.h
+/// @brief read/write/modify the quest.txt file
 
 #include "egoboo_typedef.h"
 
-// Quest system
+/// Quest system
 #define QUEST_BEATEN         -1
 #define QUEST_NONE           -2
 

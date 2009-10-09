@@ -17,10 +17,9 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - graphic.c
- * All sorts of stuff related to drawing the game, and all sorts of other stuff
- * (such as data loading) that really should not be in here.
- */
+/// @file graphic.c
+/// @brief Simple egoboo renderer
+/// @details All sorts of stuff related to drawing the game
 
 #include "graphic.h"
 
@@ -262,7 +261,7 @@ void DisableTexturing()
 //--------------------------------------------------------------------------------------------
 void move_water( void )
 {
-    // ZZ> This function animates the water overlays
+    /// @details ZZ@> This function animates the water overlays
     int layer;
 
     for ( layer = 0; layer < MAXWATERLAYER; layer++ )
@@ -282,7 +281,7 @@ void move_water( void )
 //---------------------------------------------------------------------------------------------
 void make_lighttospek( void )
 {
-    // ZZ> This function makes a light table to fake directional lighting
+    /// @details ZZ@> This function makes a light table to fake directional lighting
     int cnt, tnc;
     Uint8 spek;
     float fTmp, fPow;
@@ -309,9 +308,10 @@ void make_lighttospek( void )
 //---------------------------------------------------------------------------------------------
 void make_lightdirectionlookup()
 {
-    // ZZ> This function builds the lighting direction table
-    //    The table is used to find which direction the light is coming
-    //    from, based on the four corner vertices of a mesh tile.
+    /// @details ZZ@> This function builds the lighting direction table
+    ///    The table is used to find which direction the light is coming
+    ///    from, based on the four corner vertices of a mesh tile.
+
     Uint32 cnt;
     Uint16 tl, tr, br, bl;
     int x, y;
@@ -386,9 +386,10 @@ void End2DMode( void )
 }
 
 //--------------------------------------------------------------------------------------------
-// ZF> Load all the global icons used in all modules
 bool_t load_all_global_icons()
 {
+    /// @details ZF@> Load all the global icons used in all modules
+
     // Setup
     bool_t result = bfalse;
 
@@ -406,7 +407,7 @@ bool_t load_all_global_icons()
 //---------------------------------------------------------------------------------------------
 void init_icon_data()
 {
-    // ZZ> This function sets the icon pointers to NULL
+    /// @details ZZ@> This function sets the icon pointers to NULL
 
     iconrect.left = 0;
     iconrect.right = 32;
@@ -456,7 +457,7 @@ void init_blip_data()
 //---------------------------------------------------------------------------------------------
 void init_map_data()
 {
-    // ZZ> This function releases all the map images
+    /// @details ZZ@> This function releases all the map images
 
     // Set up the rectangles
     maprect.left   = 0;
@@ -517,7 +518,7 @@ void delete_all_graphics()
 //--------------------------------------------------------------------------------------------
 void _debug_print( const char *text )
 {
-    // ZZ> This function sticks a message in the display queue and sets its timer
+    /// @details ZZ@> This function sticks a message in the display queue and sets its timer
 
     int          slot;
     const char * src;
@@ -575,7 +576,7 @@ int debug_printf( const char *format, ... )
 //--------------------------------------------------------------------------------------------
 void reset_renderlist()
 {
-    // BB> Clear old render lists
+    /// @details BB@> Clear old render lists
 
     if ( NULL != renderlist.pmesh )
     {
@@ -606,7 +607,7 @@ void reset_renderlist()
 //--------------------------------------------------------------------------------------------
 void make_renderlist( ego_mpd_t * pmesh, camera_t * pcam )
 {
-    // ZZ> This function figures out which mesh fans to draw
+    /// @details ZZ@> This function figures out which mesh fans to draw
     int cnt, fanx, fany;
     int row, run, numrow;
     int xlist[4], ylist[4];
@@ -621,7 +622,7 @@ void make_renderlist( ego_mpd_t * pmesh, camera_t * pcam )
     // reset the current renderlist
     reset_renderlist();
 
-    // Make sure it doesn't die ugly !!!BAD!!!
+    // Make sure it doesn't die ugly
     if ( NULL == pcam ) return;
 
     // Find the render area corners
@@ -826,7 +827,7 @@ void do_chr_flashing()
 //--------------------------------------------------------------------------------------------
 void flash_character( Uint16 character, Uint8 value )
 {
-    // ZZ> This function sets a character's lighting
+    /// @details ZZ@> This function sets a character's lighting
 
     chr_instance_t * pinst = chr_get_pinstance(character);
 
@@ -850,7 +851,7 @@ void animate_tiles()
 //--------------------------------------------------------------------------------------------
 void load_basic_textures( const char *modname )
 {
-    // ZZ> This function loads the standard textures for a module
+    /// @details ZZ@> This function loads the standard textures for a module
     STRING newloadname;
 
     // Particle sprites
@@ -884,7 +885,7 @@ void load_basic_textures( const char *modname )
 //--------------------------------------------------------------------------------------------
 void load_bars()
 {
-    // ZZ> This function loads the status bar bitmap
+    /// @details ZZ@> This function loads the status bar bitmap
 
     const char * pname;
 
@@ -904,7 +905,7 @@ void load_bars()
 //--------------------------------------------------------------------------------------------
 void load_map( const char* szModule )
 {
-    // ZZ> This function loads the map bitmap
+    /// @details ZZ@> This function loads the map bitmap
     STRING szMap;
 
     // Turn it all off
@@ -930,7 +931,7 @@ void load_map( const char* szModule )
 //--------------------------------------------------------------------------------------------
 void render_background( Uint16 texture )
 {
-    // ZZ> This function draws the large background
+    /// @details ZZ@> This function draws the large background
     GLvertex vtlist[4];
     int i;
     float z0, d, mag0, mag1, Qx, Qy;
@@ -1054,7 +1055,7 @@ void render_background( Uint16 texture )
 //--------------------------------------------------------------------------------------------
 void render_foreground_overlay( Uint16 texture )
 {
-    // ZZ> This function draws the large foreground
+    /// @details ZZ@> This function draws the large foreground
 
     float alpha, ftmp;
     fvec3_t   vforw_wind, vforw_cam;
@@ -1175,7 +1176,7 @@ void render_shadow_sprite( float intensity, GLvertex v[] )
 //--------------------------------------------------------------------------------------------
 void render_shadow( Uint16 character )
 {
-    // ZZ> This function draws a NIFTY shadow
+    /// @details ZZ@> This function draws a NIFTY shadow
     GLvertex v[4];
 
     float x, y;
@@ -1299,7 +1300,7 @@ void render_shadow( Uint16 character )
 //--------------------------------------------------------------------------------------------
 void render_bad_shadow( Uint16 character )
 {
-    // ZZ> This function draws a sprite shadow
+    /// @details ZZ@> This function draws a sprite shadow
     GLvertex v[4];
     float size, x, y;
     float level, height, height_factor, alpha;
@@ -1450,7 +1451,7 @@ void light_fans( renderlist_t * prlist )
 //--------------------------------------------------------------------------------------------
 void light_particles( ego_mpd_t * pmesh )
 {
-    // ZZ> This function figures out particle lighting
+    /// @details ZZ@> This function figures out particle lighting
     int iprt;
 
     for ( iprt = 0; iprt < maxparticles; iprt++ )
@@ -1641,7 +1642,7 @@ bool_t sum_global_lighting( float lighting[] )
 //--------------------------------------------------------------------------------------------
 void do_grid_dynalight( ego_mpd_t * pmesh, camera_t * pcam )
 {
-    // ZZ> This function does dynamic lighting of visible fans
+    /// @details ZZ@> This function does dynamic lighting of visible fans
 
     int   cnt, tnc, fan, entry;
     lighting_vector_t global_lighting;
@@ -1720,7 +1721,7 @@ void do_grid_dynalight( ego_mpd_t * pmesh, camera_t * pcam )
 //--------------------------------------------------------------------------------------------
 void render_water( renderlist_t * prlist )
 {
-    // ZZ> This function draws all of the water fans
+    /// @details ZZ@> This function draws all of the water fans
 
     int cnt;
 
@@ -1808,7 +1809,7 @@ bool_t render_fans_by_list( ego_mpd_t * pmesh, Uint32 list[], size_t list_size )
 //--------------------------------------------------------------------------------------------
 void render_scene_mesh( renderlist_t * prlist )
 {
-    // BB> draw the mesh and any reflected objects
+    /// @details BB@> draw the mesh and any reflected objects
 
     int cnt, tnc;
     ego_mpd_t * pmesh;
@@ -2039,7 +2040,7 @@ void render_scene_water( renderlist_t * prlist )
 //--------------------------------------------------------------------------------------------
 void render_scene_trans()
 {
-    // BB > draw transparent objects
+    /// @details BB@> draw transparent objects
 
     int cnt;
     Uint8 trans;
@@ -2118,7 +2119,7 @@ void render_scene_trans()
 //--------------------------------------------------------------------------------------------
 void render_scene_zreflection( ego_mpd_t * pmesh, camera_t * pcam )
 {
-    // ZZ> This function draws 3D objects
+    /// @details ZZ@> This function draws 3D objects
 
     if ( NULL == pcam  ) pcam = PCamera;
     if ( NULL == pmesh ) pmesh = PMesh;
@@ -2177,7 +2178,7 @@ void draw_blip( float sizeFactor, Uint8 color, int x, int y )
     frect_t txrect;
     float   width, height;
 
-    // ZZ> This function draws a blip
+    /// @details ZZ@> This function draws a blip
     if ( x > 0 && y > 0 )
     {
         oglx_texture * ptex = TxTexture_get_ptr( TX_BLIP );
@@ -2213,7 +2214,7 @@ void draw_blip( float sizeFactor, Uint8 color, int x, int y )
 //--------------------------------------------------------------------------------------------
 void draw_one_icon( int icontype, int x, int y, Uint8 sparkle )
 {
-    // ZZ> This function draws an icon
+    /// @details ZZ@> This function draws an icon
     int     position, blipx, blipy;
     int     width, height;
     frect_t txrect;
@@ -2268,8 +2269,9 @@ void draw_one_icon( int icontype, int x, int y, Uint8 sparkle )
 //--------------------------------------------------------------------------------------------
 void draw_one_font( int fonttype, int x, int y )
 {
-    // ZZ> This function draws a letter or number
-    // GAC> Very nasty version for starters.  Lots of room for improvement.
+    /// @details ZZ@> This function draws a letter or number
+    /// GAC@> Very nasty version for starters.  Lots of room for improvement.
+
     GLfloat dx, dy, fx1, fx2, fy1, fy2, border;
     GLuint x2, y2;
 
@@ -2299,7 +2301,7 @@ void draw_one_font( int fonttype, int x, int y )
 //--------------------------------------------------------------------------------------------
 void draw_map_texture( int x, int y )
 {
-    // ZZ> This function draws the map
+    /// @details ZZ@> This function draws the map
     EnableTexturing();
 
     oglx_texture_Bind( TxTexture_get_ptr( TX_MAP ) );
@@ -2317,7 +2319,7 @@ void draw_map_texture( int x, int y )
 //--------------------------------------------------------------------------------------------
 int draw_one_xp_bar( int x, int y, Uint8 ticks )
 {
-    // ZF> This function draws a xp bar and returns the y position for the next one
+    /// @details ZF@> This function draws a xp bar and returns the y position for the next one
 
     int width, height;
     Uint8 cnt;
@@ -2399,7 +2401,7 @@ int draw_one_xp_bar( int x, int y, Uint8 ticks )
 //--------------------------------------------------------------------------------------------
 int draw_one_bar( Uint8 bartype, int x, int y, int ticks, int maxticks )
 {
-    // ZZ> This function draws a bar and returns the y position for the next one
+    /// @details ZZ@> This function draws a bar and returns the y position for the next one
 
     int     noticks;
     int     width, height;
@@ -2627,8 +2629,8 @@ int _va_draw_string( int x, int y, const char *format, va_list args  )
 //--------------------------------------------------------------------------------------------
 int _draw_string_raw( int x, int y, const char *format, ...  )
 {
-    // BB> the same as draw string, but it does not use the Begin2DMode() ... End2DMode()
-    //    bookends.
+    /// @details BB@> the same as draw string, but it does not use the Begin2DMode() ... End2DMode()
+    ///    bookends.
 
     va_list args;
 
@@ -2642,11 +2644,11 @@ int _draw_string_raw( int x, int y, const char *format, ...  )
 //--------------------------------------------------------------------------------------------
 int draw_string( int x, int y, const char *format, ...  )
 {
-    // ZZ> This function spits a line of null terminated text onto the backbuffer
-    //
-    // BB> Uses Begin2DMode() ... End2DMode() so that the function can basically be called from anywhere
-    //    The way they are currently implemented, this breaks the icon drawing in draw_status() if
-    //    you use draw_string() and then draw_icon(). Use _draw_string_raw(), instead.
+    /// @details ZZ@> This function spits a line of null terminated text onto the backbuffer
+    ///
+    /// details BB@> Uses Begin2DMode() ... End2DMode() so that the function can basically be called from anywhere
+    ///    The way they are currently implemented, this breaks the icon drawing in draw_status() if
+    ///    you use draw_string() and then draw_icon(). Use _draw_string_raw(), instead.
 
     va_list args;
 
@@ -2664,8 +2666,9 @@ int draw_string( int x, int y, const char *format, ...  )
 //--------------------------------------------------------------------------------------------
 int draw_wrap_string( const char *szText, int x, int y, int maxx )
 {
-    // ZZ> This function spits a line of null terminated text onto the backbuffer,
-    //    wrapping over the right side and returning the new y value
+    /// @details ZZ@> This function spits a line of null terminated text onto the backbuffer,
+    ///    wrapping over the right side and returning the new y value
+
     int stt_x = x;
     Uint8 cTmp = szText[0];
     int newy = y + fontyspacing;
@@ -2736,8 +2739,8 @@ int draw_wrap_string( const char *szText, int x, int y, int maxx )
 //--------------------------------------------------------------------------------------------
 void draw_one_character_icon( Uint16 item, int x, int y, bool_t draw_ammo )
 {
-    // BB> Draw an icon for the given item at the position <x,y>.
-    //     If the object is invalid, draw the null icon instead of failing
+    /// @details BB@> Draw an icon for the given item at the position <x,y>.
+    ///     If the object is invalid, draw the null icon instead of failing
 
     Uint32 icon_ref;
     bool_t draw_sparkle;
@@ -2798,8 +2801,8 @@ int draw_character_xp_bar( Uint16 character, int x, int y )
 //--------------------------------------------------------------------------------------------
 int draw_status( Uint16 character, int x, int y )
 {
-    // ZZ> This function shows a character's icon, status and inventory
-    //    The x,y coordinates are the top left point of the image to draw
+    /// @details ZZ@> This function shows a character's icon, status and inventory
+    ///    The x,y coordinates are the top left point of the image to draw
 
     int cnt;
     char cTmp;
@@ -3204,7 +3207,7 @@ int draw_messages( int y )
 //--------------------------------------------------------------------------------------------
 void draw_text()
 {
-    // ZZ> draw in-game heads up display
+    /// @details ZZ@> draw in-game heads up display
 
     int y;
 
@@ -3365,7 +3368,7 @@ void draw_scene( camera_t * pcam )
 //--------------------------------------------------------------------------------------------
 void draw_main()
 {
-    // ZZ> This function does all the drawing stuff
+    /// @details ZZ@> This function does all the drawing stuff
 
     draw_scene( PCamera );
     draw_text();
@@ -3438,7 +3441,7 @@ int ogl_init()
 
     // backface culling
     // GL_DEBUG(glEnable)(GL_CULL_FACE);
-    // GL_DEBUG(glFrontFace)(GL_CW); // TODO: This prevents the mesh from getting rendered
+    // GL_DEBUG(glFrontFace)(GL_CW);            /// @todo This prevents the mesh from getting rendered
     // GL_DEBUG(glCullFace)(GL_BACK);
 
     // disable OpenGL lighting
@@ -3578,8 +3581,8 @@ void gfx_init_SDL_graphics()
 //---------------------------------------------------------------------------------------------
 bool_t dump_screenshot()
 {
-    // BB> dumps the current screen (GL context) to a new bitmap file
-    // right now it dumps it to whatever the current directory is
+    /// @details BB@> dumps the current screen (GL context) to a new bitmap file
+    /// right now it dumps it to whatever the current directory is
 
     // returns btrue if successful, bfalse otherwise
 
@@ -3696,7 +3699,8 @@ bool_t dump_screenshot()
 //---------------------------------------------------------------------------------------------------
 void load_graphics()
 {
-    // ZF> This function loads all the graphics based on the game settings
+    /// @details ZF@> This function loads all the graphics based on the game settings
+
     GLenum quality;
 
     // Check if the computer graphic driver supports anisotropic filtering
@@ -3765,7 +3769,7 @@ void load_graphics()
 //---------------------------------------------------------------------------------------------
 float calc_light_rotation( int rotation, int normal )
 {
-    // ZZ> This function helps make_lighttable
+    /// @details ZZ@> This function helps make_lighttable
     fvec3_t   nrm, nrm2;
     float sinrot, cosrot;
 
@@ -3786,7 +3790,7 @@ float calc_light_rotation( int rotation, int normal )
 //---------------------------------------------------------------------------------------------
 float calc_light_global( int rotation, int normal, float lx, float ly, float lz )
 {
-    // ZZ> This function helps make_lighttable
+    /// @details ZZ@> This function helps make_lighttable
     float fTmp;
     fvec3_t   nrm, nrm2;
     float sinrot, cosrot;
@@ -3811,7 +3815,7 @@ float calc_light_global( int rotation, int normal, float lx, float ly, float lz 
 //---------------------------------------------------------------------------------------------
 void make_lighttable( float lx, float ly, float lz, float ambi )
 {
-    // ZZ> This function makes a light table to fake directional lighting
+    /// @details ZZ@> This function makes a light table to fake directional lighting
     Uint32 cnt, tnc;
 
     // Build a lookup table for sin/cos
@@ -3841,7 +3845,7 @@ void make_lighttable( float lx, float ly, float lz, float ambi )
 //--------------------------------------------------------------------------------------------
 void make_enviro( void )
 {
-    // ZZ> This function sets up the environment mapping table
+    /// @details ZZ@> This function sets up the environment mapping table
     int cnt;
     float x, y, z;
 
@@ -3863,9 +3867,9 @@ void make_enviro( void )
 //--------------------------------------------------------------------------------------------
 void project_view( camera_t * pcam )
 {
-    // ZZ> This function figures out where the corners of the view area
-    //    go when projected onto the plane of the PMesh->  Used later for
-    //    determining which mesh fans need to be rendered
+    /// @details ZZ@> This function figures out where the corners of the view area
+    ///    go when projected onto the plane of the PMesh->  Used later for
+    ///    determining which mesh fans need to be rendered
 
     int cnt, tnc, extra[4];
     float ztemp;
@@ -3987,7 +3991,7 @@ void project_view( camera_t * pcam )
 //--------------------------------------------------------------------------------------------
 void clear_messages()
 {
-    // ZZ> This function empties the message buffer
+    /// @details ZZ@> This function empties the message buffer
     int cnt;
 
     cnt = 0;
@@ -4002,8 +4006,9 @@ void clear_messages()
 //--------------------------------------------------------------------------------------------
 void make_dynalist( camera_t * pcam )
 {
-    // ZZ> This function figures out which particles are visible, and it sets up dynamic
-    //    lighting
+    /// @details ZZ@> This function figures out which particles are visible, and it sets up dynamic
+    ///    lighting
+
     int cnt, tnc, slot;
     float disx, disy, disz, distance;
 
@@ -4163,7 +4168,7 @@ bool_t dolist_add_prt( ego_mpd_t * pmesh, Uint16 iprt )
 //--------------------------------------------------------------------------------------------
 void dolist_make( ego_mpd_t * pmesh )
 {
-    // ZZ> This function finds the characters that need to be drawn and puts them in the list
+    /// @details ZZ@> This function finds the characters that need to be drawn and puts them in the list
 
     Uint32 cnt;
 
@@ -4204,9 +4209,9 @@ void dolist_make( ego_mpd_t * pmesh )
 //--------------------------------------------------------------------------------------------
 void dolist_sort( camera_t * pcam )
 {
-    // ZZ> This function orders the dolist based on distance from camera,
-    //    which is needed for reflections to properly clip themselves.
-    //    Order from closest to farthest
+    /// @details ZZ@> This function orders the dolist based on distance from camera,
+    ///    which is needed for reflections to properly clip themselves.
+    ///    Order from closest to farthest
 
     Uint32    cnt, tnc;
     fvec3_t   vcam;
@@ -4369,7 +4374,7 @@ bool_t gfx_config_init ( gfx_config_t * pgfx )
 //--------------------------------------------------------------------------------------------
 bool_t oglx_texture_parameters_synch( oglx_texture_parameters_t * ptex, egoboo_config_t * pcfg )
 {
-    /// BB > synch the texture parameters with the video mode
+    //// @details BB@> synch the texture parameters with the video mode
 
     if ( NULL == ptex || NULL == pcfg ) return GL_FALSE;
 
@@ -4767,7 +4772,7 @@ bool_t billboard_data_printf_ttf( billboard_data_t * pbb, Font *font, SDL_Color 
 //--------------------------------------------------------------------------------------------
 void BillboardList_clear_data()
 {
-    // BB> reset the free billboard list.
+    /// @details BB@> reset the free billboard list.
 
     int cnt;
 
@@ -5066,7 +5071,7 @@ int get_free_line()
 //--------------------------------------------------------------------------------------------
 void draw_all_lines( camera_t * pcam )
 {
-    // BB> draw some lines for debugging purposes
+    /// @details BB@> draw some lines for debugging purposes
 
     int cnt, ticks;
 
@@ -5116,7 +5121,7 @@ void draw_all_lines( camera_t * pcam )
 //--------------------------------------------------------------------------------------------
 void gfx_update_timers()
 {
-    // ZZ> This function updates the graphics timers
+    /// @details ZZ@> This function updates the graphics timers
 
     const float fold = 0.77f;
     const float fnew = 1.0f - fold;

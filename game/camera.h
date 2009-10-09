@@ -19,6 +19,8 @@
 //*
 //********************************************************************************************
 
+/// @file camera.h
+
 #include "egoboo_typedef.h"
 #include "egoboo_math.h"
 
@@ -36,8 +38,8 @@ enum e_camera_mode
 
 enum e_camera_turn_mode
 {
-    CAMTURN_NONE = (1 == 0),  // false
-    CAMTURN_AUTO = (1 == 1),  // true
+    CAMTURN_NONE = (1 == 0),  ///< false
+    CAMTURN_AUTO = (1 == 1),  ///< true
     CAMTURN_GOOD = 255
 };
 
@@ -48,28 +50,28 @@ enum e_camera_turn_mode
 #define TRACKYAREAMINHIGH 460
 #define TRACKYAREAMAXHIGH 600
 
-#define FOV                             60           // Field of view
-#define CAMJOYTURN                      (0.01f*3)    // Joystick camera rotation
-#define CAMKEYTURN                      (10*3)       // Keyboard camera rotation
-#define FARTRACK                        1200         // For outside modules...
-#define EDGETRACK                       800          // Camtrack bounds
-#define TURNTIME                        16           // Smooth turn
+#define FOV                             60           ///< Field of view
+#define CAMJOYTURN                      (0.01f*3)    ///< Joystick camera rotation
+#define CAMKEYTURN                      (10*3)       ///< Keyboard camera rotation
+#define FARTRACK                        1200         ///< For outside modules...
+#define EDGETRACK                       800          ///< Camtrack bounds
+#define TURNTIME                        16           ///< Smooth turn
 
-// Multi cam (uses macro to switch between old and new camera
+/// Multi cam (uses macro to switch between old and new camera
 #ifndef OLD_CAMERA_MODE
-#    define MINZOOM                         800         // Camera distance
+#    define MINZOOM                         800         ///< Camera distance
 #    define MAXZOOM                         700
-#    define MINZADD                         800         // Camera height
+#    define MINZADD                         800         ///< Camera height
 #    define MAXZADD                         2500
-#    define MINUPDOWN                       (0.24f*PI)    // Camera updown angle
+#    define MINUPDOWN                       (0.24f*PI)    ///< Camera updown angle
 #    define MAXUPDOWN                       (0.10f*PI)
 #else
-#    define MINZOOM                         500         // Camera distance
+#    define MINZOOM                         500         ///< Camera distance
 #    define MAXZOOM                         600
-#    define MINZADD                         800         // Camera height
-#    define MAXZADD                         1500  // 1000
-#    define MINUPDOWN                       (0.24f*PI)    // Camera updown angle
-#    define MAXUPDOWN                       (0.18f*PI)// (0.15f*PI) // (0.18f*PI)
+#    define MINZADD                         800         ///< Camera height
+#    define MAXZADD                         1500  ///< 1000
+#    define MINUPDOWN                       (0.24f*PI)    ///< Camera updown angle
+#    define MAXUPDOWN                       (0.18f*PI)// (0.15f*PI) ///< (0.18f*PI)
 #endif
 
 //--------------------------------------------------------------------------------------------
@@ -77,29 +79,29 @@ enum e_camera_turn_mode
 
 struct s_camera
 {
-    fmat_4x4_t mView, mViewSave;      // View Matrix
-    fmat_4x4_t mProjection;           // Projection Matrix
+    fmat_4x4_t mView, mViewSave;      ///< View Matrix
+    fmat_4x4_t mProjection;           ///< Projection Matrix
 
-    Uint8  move_mode;               // what is the camera mode
-    Uint8  turn_mode;               // what is the camera mode
-    Uint8  turn_time;               // time for the smooth turn
+    Uint8  move_mode;               ///< what is the camera mode
+    Uint8  turn_mode;               ///< what is the camera mode
+    Uint8  turn_time;               ///< time for the smooth turn
 
-    int       swing;                   // Camera swingin'
+    int       swing;                   ///< Camera swingin'
     int       swingrate;
     float     swingamp;
-    fvec3_t   pos;                       // Camera position (z = 500-1000)
-    float     zoom;                    // Distance from the trackee
-    fvec3_t   track_pos;                  // Trackee position
+    fvec3_t   pos;                       ///< Camera position (z = 500-1000)
+    float     zoom;                    ///< Distance from the trackee
+    fvec3_t   track_pos;                  ///< Trackee position
     float     track_level;
-    fvec3_t   center;                 // Move character to side before tracking
-    float     zadd;                    // Camera height above terrain
-    float     zaddgoto;                // Desired z position
+    fvec3_t   center;                 ///< Move character to side before tracking
+    float     zadd;                    ///< Camera height above terrain
+    float     zaddgoto;                ///< Desired z position
     float     zgoto;
-    float     turn_z_rad;           // Camera rotations
+    float     turn_z_rad;           ///< Camera rotations
     float     turn_z_one;
     Uint16    turn_z;
-    float     turnadd;                 // Turning rate
-    float     sustain;                 // Turning rate falloff
+    float     turnadd;                 ///< Turning rate
+    float     sustain;                 ///< Turning rate falloff
     float     turnupdown;
     float     roll;
 };
@@ -112,7 +114,7 @@ extern camera_t gCamera;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-// Function prototypes
+/// Function prototypes
 camera_t * camera_new( camera_t * pcam );
 
 void camera_reset( camera_t * pcam, struct s_ego_mpd * pmesh );

@@ -17,9 +17,8 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - graphic_mad.c
- * Character model drawing code.
- */
+/// @file graphic_mad.c
+/// @brief Character model drawing code.
 
 #include "graphic.h"
 
@@ -172,7 +171,7 @@ void draw_textured_md2( const Md2Model *model, int from_, int to_, float lerp )
 //--------------------------------------------------------------------------------------------
 void render_one_mad_enviro( Uint16 character, Uint8 trans )
 {
-    // ZZ> This function draws an environment mapped model
+    /// @details ZZ@> This function draws an environment mapped model
 
     int    cmd_count, vrt_count, entry_count;
     Uint16 cnt, tnc, entry;
@@ -322,7 +321,7 @@ else
 //--------------------------------------------------------------------------------------------
 void render_one_mad_tex( Uint16 character, Uint8 trans )
 {
-    // ZZ> This function draws a model
+    /// @details ZZ@> This function draws a model
 
     int    cmd_count, vrt_count, entry_count;
     Uint16 cnt, tnc, entry;
@@ -437,7 +436,7 @@ void render_one_mad_tex( Uint16 character, Uint8 trans )
 //--------------------------------------------------------------------------------------------
 void render_one_mad( Uint16 character, Uint8 trans )
 {
-    // ZZ> This function picks the actual function to use
+    /// @details ZZ@> This function picks the actual function to use
 
     chr_t * pchr;
 
@@ -529,7 +528,7 @@ void render_one_mad( Uint16 character, Uint8 trans )
 //--------------------------------------------------------------------------------------------
 void render_one_mad_ref( int ichr, Uint8 trans )
 {
-    // ZZ> This function draws characters reflected in the floor
+    /// @details ZZ@> This function draws characters reflected in the floor
 
     float level;
     int trans_temp;
@@ -962,8 +961,8 @@ egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vm
 //--------------------------------------------------------------------------------------------
 void draw_points( chr_t * pchr, int vrt_offset, int verts )
 {
-    // BB> a function that will draw some of the vertices of the given character.
-    //     The original idea was to use this to debug the grip for attached items.
+    /// @details BB@> a function that will draw some of the vertices of the given character.
+    ///     The original idea was to use this to debug the grip for attached items.
 
     mad_t * pmad;
     int vmin, vmax, cnt;

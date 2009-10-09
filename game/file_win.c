@@ -17,9 +17,8 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - win-file.c
- * Windows specific filesystem functions.
- */
+/// @file win-file.c
+/// @brief Windows-specific filesystem functions.
 
 #include "file_common.h"
 #include "log.h"
@@ -46,8 +45,8 @@ static char win32_configPath[MAX_PATH]   = EMPTY_CSTR;
 //--------------------------------------------------------------------------------------------
 void fs_init()
 {
-    // JF> This function determines the temporary, import,
-    // game data and save paths
+    /// @details JF@> This function determines the temporary, import,
+    /// game data and save paths
 
     HANDLE hFile;
     char currentPath[MAX_PATH] = EMPTY_CSTR;
@@ -155,7 +154,7 @@ int fs_removeDirectory( const char *dirname )
 //---------------------------------------------------------------------------------------------
 void fs_deleteFile( const char *filename )
 {
-    // ZZ> This function deletes a file
+    /// @details ZZ@> This function deletes a file
     DeleteFile( filename );
 }
 

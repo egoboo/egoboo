@@ -17,9 +17,8 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - graphic_prt.c
-* Particle system drawing and management code.
-*/
+/// @file graphic_prt.c
+/// @brief Particle system drawing and management code.
 
 #include "graphic.h"
 
@@ -125,7 +124,7 @@ size_t render_all_prt_begin( camera_t * pcam, prt_registry_entity_t reg[], size_
 //--------------------------------------------------------------------------------------------
 bool_t render_one_prt_solid( Uint16 iprt )
 {
-    // BB > Render the solid version of the particle
+    /// @details BB@> Render the solid version of the particle
 
     GLvertex vtlist[4];
     int i;
@@ -183,7 +182,7 @@ bool_t render_one_prt_solid( Uint16 iprt )
 //--------------------------------------------------------------------------------------------
 void render_all_prt_solid( camera_t * pcam, prt_registry_entity_t reg[], size_t numparticle )
 {
-    // BB > do solid sprites first
+    /// @details BB@> do solid sprites first
 
     Uint32 cnt;
     Uint16 prt;
@@ -206,7 +205,7 @@ void render_all_prt_solid( camera_t * pcam, prt_registry_entity_t reg[], size_t 
 //--------------------------------------------------------------------------------------------
 bool_t render_one_prt_trans( Uint16 iprt )
 {
-    // BB> do all kinds of transparent sprites next
+    /// @details BB@> do all kinds of transparent sprites next
 
     GLvertex vtlist[4];
     int i;
@@ -299,7 +298,7 @@ bool_t render_one_prt_trans( Uint16 iprt )
 //--------------------------------------------------------------------------------------------
 void render_all_prt_trans( camera_t * pcam, prt_registry_entity_t reg[], size_t numparticle )
 {
-    // BB> do all kinds of transparent sprites next
+    /// @details BB@> do all kinds of transparent sprites next
 
     int cnt;
 
@@ -318,7 +317,7 @@ void render_all_prt_trans( camera_t * pcam, prt_registry_entity_t reg[], size_t 
 //--------------------------------------------------------------------------------------------
 void render_prt( camera_t * pcam )
 {
-    // ZZ> This function draws the sprites for particle systems
+    /// @details ZZ@> This function draws the sprites for particle systems
 
     prt_registry_entity_t reg[TOTAL_MAX_PRT];
     size_t numparticle;
@@ -381,7 +380,7 @@ size_t render_all_prt_ref_begin( camera_t * pcam, prt_registry_entity_t reg[], s
 //--------------------------------------------------------------------------------------------
 bool_t render_one_prt_ref( Uint16 iprt )
 {
-    // BB > render one particle
+    /// @details BB@> render one particle
 
     GLvertex vtlist[4];
     int startalpha;
@@ -488,7 +487,7 @@ void render_all_prt_ref( camera_t * pcam, prt_registry_entity_t reg[], size_t nu
 //--------------------------------------------------------------------------------------------
 void render_prt_ref( camera_t * pcam )
 {
-    // ZZ> This function draws sprites reflected in the floor
+    /// @details ZZ@> This function draws sprites reflected in the floor
 
     prt_registry_entity_t reg[TOTAL_MAX_PRT];
     size_t numparticle;
@@ -862,8 +861,8 @@ void render_all_prt_attachment()
 //--------------------------------------------------------------------------------------------
 void draw_one_attacment_point( chr_instance_t * pinst, mad_t * pmad, int vrt_offset )
 {
-    // BB> a function that will draw some of the vertices of the given character.
-    //     The original idea was to use this to debug the grip for attached items.
+    /// @details BB@> a function that will draw some of the vertices of the given character.
+    ///     The original idea was to use this to debug the grip for attached items.
 
     int vrt;
     GLboolean texture_1d_enabled, texture_2d_enabled;

@@ -17,9 +17,8 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - Log.c
- * Basic logging functionality.
- */
+/// @file Log.c
+/// @brief Basic logging functionality.
 
 #include "log.h"
 

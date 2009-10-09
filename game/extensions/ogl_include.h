@@ -1,7 +1,7 @@
 #pragma once
 
 ///
-/// @file
+/// @file ogl_include.h
 /// @brief Basic OpenGL Wrapper
 /// @details Basic definitions for using OpenGL in Egoboo
 
@@ -56,12 +56,12 @@ extern "C"
         GLXvector3f rt, up;
         GLfloat     dist;
         GLXvector4f col;
-        GLuint      color; // should replace r,g,b,a and be called by glColor4ubv
-        GLXvector2f tx;    // u and v in D3D I guess
+        GLuint      color; ///< should replace r,g,b,a and be called by glColor4ubv
+        GLXvector2f tx;    ///< u and v in D3D I guess
     };
 
 //--------------------------------------------------------------------------------------------
-// generic OpenGL lighting struct
+/// generic OpenGL lighting struct
     struct s_oglx_light
     {
         GLXvector4f emission, diffuse, specular;
@@ -73,15 +73,15 @@ extern "C"
     GLboolean handle_opengl_error( void );
 
     void oglx_ViewMatrix( GLXmatrix view,
-                          const GLXvector3f from,      // camera location
-                          const GLXvector3f at,        // camera look-at target
-                          const GLXvector3f world_up,  // world’s up, usually 0, 0, 1
-                          const GLfloat roll );      // clockwise roll around viewing direction, in radians
+                          const GLXvector3f from,      ///< camera location
+                          const GLXvector3f at,        ///< camera look-at target
+                          const GLXvector3f world_up,  ///< world’s up, usually 0, 0, 1
+                          const GLfloat roll );      ///< clockwise roll around viewing direction, in radians
 
     void oglx_ProjectionMatrix( GLXmatrix proj,
-                                const GLfloat near_plane,    // distance to near clipping plane
-                                const GLfloat far_plane,     // distance to far clipping plane
-                                const GLfloat fov );         // field of view angle, in radians
+                                const GLfloat near_plane,    ///< distance to near clipping plane
+                                const GLfloat far_plane,     ///< distance to far clipping plane
+                                const GLfloat fov );         ///< field of view angle, in radians
 
     FILE * set_ogl_include_stderr(FILE * pfile);
 

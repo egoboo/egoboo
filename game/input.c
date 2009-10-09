@@ -17,9 +17,8 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - input.c
- * Keyboard, mouse, and joystick handling code.
- */
+/// @file input.c
+/// @brief Keyboard, mouse, and joystick handling code.
 
 #include "input.h"
 
@@ -91,7 +90,7 @@ void input_init_keyboard()
 //--------------------------------------------------------------------------------------------
 void input_init_mouse()
 {
-    // BB> set up the mouse
+    /// @details BB@> set up the mouse
     memset( &mous, 0, sizeof(mouse_t) );
     mous.on      = btrue;
     mous.sense   = 24;
@@ -100,7 +99,7 @@ void input_init_mouse()
 //--------------------------------------------------------------------------------------------
 void input_init_joysticks()
 {
-    // BB> init the joysticks
+    /// @details BB@> init the joysticks
 
     int i;
 
@@ -119,7 +118,7 @@ void input_init_joysticks()
 //--------------------------------------------------------------------------------------------
 void input_init()
 {
-    // BB > initialize the inputs
+    /// @details BB@> initialize the inputs
 
     log_info( "Intializing SDL Joystick... " );
     if ( SDL_InitSubSystem( SDL_INIT_JOYSTICK ) < 0 )
@@ -227,7 +226,7 @@ void input_read_joysticks()
 //--------------------------------------------------------------------------------------------
 void input_read()
 {
-    // ZZ> This function gets all the current player input states
+    /// @details ZZ@> This function gets all the current player input states
 
     SDL_Event evt;
 
@@ -370,7 +369,7 @@ Uint32 input_get_buttonmask( Uint32 idevice )
 //--------------------------------------------------------------------------------------------
 bool_t control_is_pressed( Uint32 idevice, Uint8 icontrol )
 {
-    // ZZ> This function returns btrue if the given icontrol is cursor_pressed...
+    /// @details ZZ@> This function returns btrue if the given icontrol is cursor_pressed...
 
     bool_t retval = bfalse;
 

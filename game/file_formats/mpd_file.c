@@ -54,7 +54,7 @@ tile_definition_t tile_dict[MAXMESHTYPE];
 //--------------------------------------------------------------------------------------------
 void tile_dictionary_load(tile_definition_t dict[], size_t dict_size)
 {
-    // ZZ> This function loads fan types for the terrain
+    /// @details ZZ@> This function loads fan types for the terrain
 
     const char * tmpname;
     Uint32 cnt, entry, vertices, commandsize;
@@ -190,7 +190,7 @@ bool_t mpd_free( mpd_t * pmesh )
 //--------------------------------------------------------------------------------------------
 mpd_t * mpd_load( const char *loadname, mpd_t * pmesh )
 {
-    //// ZZ> This function loads the level.mpd file
+    ///// @details ZZ@> This function loads the level.mpd file
     FILE* fileread;
     int itmp;
     float ftmp;

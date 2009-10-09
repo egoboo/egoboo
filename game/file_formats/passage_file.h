@@ -19,9 +19,8 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - passage_file.h
- * help read/write the passage file
- */
+/// @file passage_file.h
+/// @details help read/write the passage file
 
 #include "egoboo_typedef.h"
 
@@ -29,7 +28,7 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-#define NO_MUSIC -1            // For passages that play no music
+#define NO_MUSIC -1            ///< For passages that play no music
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -37,9 +36,9 @@ struct s_passage
 {
     // Passage positions
     irect_t area;
-    Sint8   music;                // Music track appointed to the specific passage
-    Uint8   mask;                 // Is it IMPASSABLE, SLIPPERY or whatever
-    bool_t  open;                 // Is the passage open?
+    Sint8   music;                ///< Music track appointed to the specific passage
+    Uint8   mask;                 ///< Is it IMPASSABLE, SLIPPERY or whatever
+    bool_t  open;                 ///< Is the passage open?
 };
 
 typedef struct s_passage passage_t;

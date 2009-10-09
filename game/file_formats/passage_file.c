@@ -17,8 +17,7 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - passage_file.c
- */
+/// @file passage_file.c
 
 #include "passage_file.h"
 
@@ -41,7 +40,7 @@ passage_t * passage_init( passage_t * ppass )
 //--------------------------------------------------------------------------------------------
 bool_t scan_passage_file( vfs_FILE * fileread, passage_t * ppass  )
 {
-    // ZZ> This function reads the passage file
+    /// @details ZZ@> This function reads the passage file
 
     bool_t found;
 

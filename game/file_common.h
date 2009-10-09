@@ -21,7 +21,7 @@
 #include "egoboo_typedef.h"
 
 //---------------------------------------------------------------------------------------------
-// Filesystem functions
+/// Filesystem functions
 
 int DirGetAttrib( const char *fromdir );
 
@@ -41,7 +41,7 @@ bool_t fs_copyFile( const char *source, const char *dest );
 void fs_removeDirectoryAndContents( const char *dirname, int recursive );
 void fs_copyDirectory( const char *sourceDir, const char *destDir );
 
-// Enumerate directory contents
+/// Enumerate directory contents
 const char *fs_findFirstFile( const char *path, const char *extension );
 const char *fs_findNextFile( void );
 void        fs_findClose();
