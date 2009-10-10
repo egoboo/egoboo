@@ -1859,14 +1859,14 @@ bool_t character_grab_stuff( Uint16 ichr_a, grip_offset_t grip_off, bool_t grab_
                     // Check if it was detected. 50% chance +2% per pet DEX and -2% per shopkeeper wisdom. There is always a 5% chance it will fail.
                     if ( ChrList.lst[owner].canseeinvisible || detection <= 5 || detection - ( pchr_a->dexterity >> 7 ) + ( ChrList.lst[owner].wisdom >> 7 ) > 50 )
                     {
-                        debug_printf( "%s was detected!!", chr_get_name( GET_INDEX_PCHR( pchr_a ), btrue) );
+                        debug_printf( "%s was detected!!", chr_get_name( GET_INDEX_PCHR( pchr_a ), CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL ) );
 
                         ai_add_order( chr_get_pai(owner), STOLEN, SHOP_THEFT );
                         chr_get_pai(owner)->target = ichr_a;
                     }
                     else
                     {
-                        debug_printf( "%s stole something! (%s)", chr_get_name( GET_INDEX_PCHR(pchr_a), btrue), chr_get_name( GET_INDEX_PCHR(pchr_b), btrue) );
+                        debug_printf( "%s stole something! (%s)", chr_get_name( GET_INDEX_PCHR(pchr_a), CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL), chr_get_name( GET_INDEX_PCHR(pchr_b), CHRNAME_ARTICLE ) );
                     }
                 }
                 else
@@ -1960,14 +1960,14 @@ bool_t character_grab_stuff( Uint16 ichr_a, grip_offset_t grip_off, bool_t grab_
             for ( cnt = 0; cnt < grab_count; cnt++ )
             {
                 ichr_b = grab_list[cnt].ichr;
-                chr_make_text_billboard( ichr_b, chr_get_name(ichr_b, btrue), color_grn, 5 );
+                chr_make_text_billboard( ichr_b, chr_get_name(ichr_b, CHRNAME_ARTICLE | CHRNAME_CAPITAL ), color_grn, 5 );
             }
 
             // things that can't be grabbed (5 secs and red)
             for ( cnt = 0; cnt < ungrab_count; cnt++ )
             {
                 ichr_b = ungrab_list[cnt].ichr;
-                chr_make_text_billboard( ichr_b, chr_get_name(ichr_b, btrue), color_red, 5 );
+                chr_make_text_billboard( ichr_b, chr_get_name(ichr_b, CHRNAME_ARTICLE | CHRNAME_CAPITAL ), color_red, 5 );
             }
         }
 
@@ -2273,7 +2273,7 @@ void do_level_up( Uint16 character )
             // The character is ready to advance...
             if ( pchr->isplayer )
             {
-                debug_printf( "%s gained a level!!!", chr_get_name( GET_INDEX(pchr,MAX_CHR), btrue ) );
+                debug_printf( "%s gained a level!!!", chr_get_name( GET_INDEX(pchr,MAX_CHR), CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL ) );
                 sound_play_chunk( PCamera->track_pos, g_wavelist[GSND_LEVELUP] );
             }
 
@@ -5178,11 +5178,11 @@ bool_t chr_do_latch_button( chr_t * pchr )
                 {
                     if( pro_get_pcap(pitem->iprofile)->istoobig )
                     {
-                        debug_printf( "%s is too big to be put away...", chr_get_name( item, btrue ) );
+                        debug_printf( "%s is too big to be put away...", chr_get_name( item, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL ) );
                     }
                     else if ( pitem->iskursed )
                     {
-                        debug_printf( "%s is sticky...", chr_get_name( item, btrue ) );
+                        debug_printf( "%s is sticky...", chr_get_name( item, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL ) );
                     }
                 }
             }
@@ -5219,11 +5219,11 @@ bool_t chr_do_latch_button( chr_t * pchr )
                 {
                     if( pro_get_pcap(pitem->iprofile)->istoobig )
                     {
-                        debug_printf( "%s is too big to be put away...", chr_get_name( item, btrue )  );
+                        debug_printf( "%s is too big to be put away...", chr_get_name( item, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL )  );
                     }
                     else if ( pitem->iskursed )
                     {
-                        debug_printf( "%s is sticky...", chr_get_name( item, btrue ) );
+                        debug_printf( "%s is sticky...", chr_get_name( item, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL ) );
                     }
                 }
             }
@@ -5284,7 +5284,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
                 if ( pchr->StatusList_on )
                 {
                     // Tell the player that they can't use this weapon
-                    debug_printf( "%s can't use this item...", chr_get_name( GET_INDEX_PCHR( pchr ), btrue)  );
+                    debug_printf( "%s can't use this item...", chr_get_name( GET_INDEX_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_CAPITAL)  );
                 }
             }
         }
@@ -5402,7 +5402,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
                 if ( pchr->StatusList_on )
                 {
                     // Tell the player that they can't use this weapon
-                    debug_printf( "%s can't use this item...", chr_get_name( GET_INDEX_PCHR( pchr ), btrue) );
+                    debug_printf( "%s can't use this item...", chr_get_name( GET_INDEX_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_CAPITAL ) );
                 }
             }
         }
@@ -6303,11 +6303,11 @@ bool_t chr_make_text_billboard( Uint16 ichr, const char * txt, SDL_Color color, 
 }
 
 //--------------------------------------------------------------------------------------------
-const char * chr_get_name( Uint16 ichr, bool_t use_article )
+const char * chr_get_name( Uint16 ichr, Uint32 bits )
 {
     static STRING szName;
 
-    if ( !ACTIVE_CHR(ichr) )
+    if ( !ALLOCATED_CHR(ichr) )
     {
         // the default name
         strncpy( szName, "Unknown", SDL_arraysize(szName) );
@@ -6325,14 +6325,26 @@ const char * chr_get_name( Uint16 ichr, bool_t use_article )
         {
             char lTmp;
 
-            if( use_article )
+            if( 0 != (bits & CHRNAME_ARTICLE) )
             {
-                const char * article = "a";
+                const char * article;
 
-                lTmp = toupper( pcap->classname[0] );
-                if ( 'A' == lTmp || 'E' == lTmp || 'I' == lTmp || 'O' == lTmp || 'U' == lTmp )
+                if( 0 != (bits & CHRNAME_DEFINITE) )
                 {
-                    article = "an";
+                    article = "the";
+                }
+                else
+                {
+                    lTmp = toupper( pcap->classname[0] );
+
+                    if ( 'A' == lTmp || 'E' == lTmp || 'I' == lTmp || 'O' == lTmp || 'U' == lTmp )
+                    {
+                        article = "an";
+                    }
+                    else
+                    {
+                        article = "a";
+                    }
                 }
 
                 snprintf( szName, SDL_arraysize( szName), "%s %s", article, pcap->classname );
@@ -6348,8 +6360,11 @@ const char * chr_get_name( Uint16 ichr, bool_t use_article )
         }
     }
 
-    // ? capitalize the name ?
-    szName[0] = toupper( szName[0] );
+    if( 0 != ( bits & CHRNAME_CAPITAL ) )
+    {
+        // ? capitalize the name ?
+        szName[0] = toupper( szName[0] );
+    }
 
     return szName;
 }

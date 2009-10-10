@@ -1046,12 +1046,12 @@ const char * pro_create_chop( Uint16 iprofile )
 
 
 //--------------------------------------------------------------------------------------------
-bool_t       pro_load_chop( Uint16 iprofile, const char *szLoadname )
+bool_t pro_load_chop( Uint16 iprofile, const char *szLoadname )
 {
     /// BB@> load the chop for the given profile
     pro_t * ppro;
 
-    if( !VALID_PRO(iprofile) ) return bfalse;
+    if( !VALID_PRO_RANGE(iprofile) ) return bfalse;
     ppro = ProList.lst + iprofile;
 
     // clear out any current definition

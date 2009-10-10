@@ -2692,7 +2692,7 @@ void show_stat( Uint16 statindex )
             pcap = pro_get_pcap( pchr->iprofile );
 
             // Name
-            debug_printf( "=%s=", chr_get_name( GET_INDEX(pchr,MAX_CHR), btrue ) );
+            debug_printf( "=%s=", chr_get_name( GET_INDEX(pchr,MAX_CHR), CHRNAME_ARTICLE | CHRNAME_CAPITAL ) );
 
             // Level and gender and class
             gender[0] = 0;
@@ -2814,7 +2814,7 @@ void show_full_status( Uint16 statindex )
     pchr->firstenchant = cleanup_enchant_list(pchr->firstenchant);
 
     // Enchanted?
-    debug_printf( "=%s is %s=", chr_get_name( GET_INDEX(pchr,MAX_CHR), btrue ), ACTIVE_ENC(pchr->firstenchant) ? "enchanted" : "unenchanted" );
+    debug_printf( "=%s is %s=", chr_get_name( GET_INDEX(pchr,MAX_CHR), CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL ), ACTIVE_ENC(pchr->firstenchant) ? "enchanted" : "unenchanted" );
 
     // Armor Stats
     debug_printf( "~DEF: %d  SLASH:%3d~CRUSH:%3d POKE:%3d",
@@ -2876,7 +2876,7 @@ void show_magic_status( Uint16 statindex )
     pchr->firstenchant = cleanup_enchant_list(pchr->firstenchant);
 
     // Enchanted?
-    debug_printf( "=%s is %s=", chr_get_name( GET_INDEX(pchr,MAX_CHR), btrue ), ACTIVE_ENC(pchr->firstenchant) ? "enchanted" : "unenchanted" );
+    debug_printf( "=%s is %s=", chr_get_name( GET_INDEX(pchr,MAX_CHR), CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL ), ACTIVE_ENC(pchr->firstenchant) ? "enchanted" : "unenchanted" );
 
     // Enchantment status
     debug_printf( "~See Invisible: %s~~See Kurses: %s",
@@ -4944,13 +4944,16 @@ void game_load_all_profiles( const char *modname )
 //--------------------------------------------------------------------------------------------
 bool_t chr_setup_apply( Uint16 ichr, spawn_file_info_t *pinfo )
 {
-    chr_t * pchr;
+    chr_t * pchr, *pparent;
 
     // trap bad pointers
     if ( NULL == pinfo ) return bfalse;
 
     if ( !ACTIVE_CHR(ichr) ) return bfalse;
     pchr = ChrList.lst + ichr;
+
+    pparent = NULL;
+    if ( ACTIVE_CHR(pinfo->parent) ) pparent = ChrList.lst + pinfo->parent;
 
     pchr->money += pinfo->money;
     if ( pchr->money > MAXMONEY )  pchr->money = MAXMONEY;
@@ -4989,6 +4992,12 @@ bool_t chr_setup_apply( Uint16 ichr, spawn_file_info_t *pinfo )
             give_experience( ichr, 25, XP_DIRECT, btrue );
             do_level_up( ichr );
         }
+    }
+
+    // automatically identify all player starting equipment? I think yes.
+    if( startNewPlayer && NULL != pparent && pparent->isplayer )
+    {
+        pchr->nameknown = btrue;
     }
 
     return btrue;
@@ -5049,12 +5058,15 @@ bool_t setup_characters_spawn( spawn_file_info_t * psp_info )
 {
     int tnc;
     int new_object, local_index = 0;
+    chr_t * pobject;
 
     if( NULL == psp_info || !psp_info->do_spawn ) return bfalse;
 
     // Spawn the character
     new_object = spawn_one_character( psp_info->pos, psp_info->slot, psp_info->team, psp_info->skin, psp_info->facing, psp_info->pname, MAX_CHR );
     if ( !ACTIVE_CHR(new_object) ) return bfalse;
+
+    pobject = ChrList.lst + new_object;
 
     // determine the attachment
     if ( psp_info->attach == ATTACH_NONE )
@@ -5069,12 +5081,18 @@ bool_t setup_characters_spawn( spawn_file_info_t * psp_info )
     // Turn on PlaList_count input devices
     if ( psp_info->stat )
     {
-        if ( /*0 != PMod->importamount &&*/ PlaList_count < PMod->playeramount )
+        // what we do depends on what kind of module we're loading
+        if ( 0 == PMod->importamount && PlaList_count < PMod->playeramount )
         {
+            // a single player module
+
+            bool_t player_added;
+
+            player_added = bfalse;
             if ( 0 == local_numlpla )
             {
                 // the first player gets everything
-                add_player( new_object, PlaList_count, (Uint32)(~0) );
+                player_added = add_player( new_object, PlaList_count, (Uint32)(~0) );
             }
             else
             {
@@ -5087,18 +5105,27 @@ bool_t setup_characters_spawn( spawn_file_info_t * psp_info )
                     PlaList[tnc].device.bits &= ~bits;
                 }
 
-                add_player( new_object, PlaList_count, bits );
+                player_added = add_player( new_object, PlaList_count, bits );
+            }
+
+            if( startNewPlayer && player_added )
+            {
+                // !!!! make sure the player is identified !!!!
+                pobject->nameknown = btrue;
             }
         }
-        else if ( PlaList_count < local_import_count && PlaList_count < PMod->importamount && PlaList_count < PMod->playeramount )
+        else if ( PlaList_count < PMod->importamount && PlaList_count < PMod->playeramount && PlaList_count < local_import_count )
         {
-            // Multiplayer import module
+            // A multiplayer module
+
+            bool_t player_added;
+
             local_index = -1;
             for ( tnc = 0; tnc < local_import_count; tnc++ )
             {
-                if ( ChrList.lst[new_object].iprofile <= import_data.max_slot && ChrList.lst[new_object].iprofile < MAX_PROFILE )
+                if ( pobject->iprofile <= import_data.max_slot && pobject->iprofile < MAX_PROFILE )
                 {
-                    if( import_data.slot_lst[ChrList.lst[new_object].iprofile] == local_import_slot[tnc] )
+                    if( import_data.slot_lst[pobject->iprofile] == local_import_slot[tnc] )
                     {
                         local_index = tnc;
                         break;
@@ -5106,15 +5133,28 @@ bool_t setup_characters_spawn( spawn_file_info_t * psp_info )
                 }
             }
 
+            player_added = bfalse;
             if ( -1 != local_index )
             {
                 // It's a local PlaList_count
-                add_player( new_object, PlaList_count, local_import_control[local_index] );
+                player_added =add_player( new_object, PlaList_count, local_import_control[local_index] );
             }
             else
             {
                 // It's a remote PlaList_count
-                add_player( new_object, PlaList_count, INPUT_BITS_NONE );
+                player_added =add_player( new_object, PlaList_count, INPUT_BITS_NONE );
+            }
+
+            // if for SOME REASON your player is not identified, give him
+            // about a 50% chance to get identified every time you enter a module
+            if( player_added && !pobject->nameknown )
+            {
+                float frand = rand() / (float)RAND_MAX;
+
+                if( frand > 0.5f )
+                {
+                    pobject->nameknown = btrue;
+                }
             }
         }
 
@@ -5595,7 +5635,7 @@ void attach_particles()
 }
 
 //--------------------------------------------------------------------------------------------
-int add_player( Uint16 character, Uint16 player, Uint32 device_bits )
+bool_t add_player( Uint16 character, Uint16 player, Uint32 device_bits )
 {
     /// @details ZZ@> This function adds a player, returning bfalse if it fails, btrue otherwise
 
@@ -6158,7 +6198,7 @@ void expand_escape_codes( Uint16 ichr, script_state_t * pstate, char * src, char
 
                 case 'n' : // Name
                     {
-                        snprintf( szTmp, SDL_arraysize( szTmp), "%s", chr_get_name( ichr, btrue ) );
+                        snprintf( szTmp, SDL_arraysize( szTmp), "%s", chr_get_name( ichr, CHRNAME_ARTICLE ) );
                     }
                     break;
 
@@ -6176,7 +6216,7 @@ void expand_escape_codes( Uint16 ichr, script_state_t * pstate, char * src, char
                     {
                         if ( NULL != pai )
                         {
-                            snprintf( szTmp, SDL_arraysize( szTmp), "%s", chr_get_name( pai->target, btrue ) );
+                            snprintf( szTmp, SDL_arraysize( szTmp), "%s", chr_get_name( pai->target, CHRNAME_ARTICLE ) );
                         }
                     }
                     break;
@@ -6185,7 +6225,7 @@ void expand_escape_codes( Uint16 ichr, script_state_t * pstate, char * src, char
                     {
                         if ( NULL != pai )
                         {
-                            snprintf( szTmp, SDL_arraysize( szTmp), "%s", chr_get_name( pai->owner, btrue ) );
+                            snprintf( szTmp, SDL_arraysize( szTmp), "%s", chr_get_name( pai->owner, CHRNAME_ARTICLE ) );
                         }
                     }
                     break;
@@ -7022,7 +7062,7 @@ bool_t upload_animtile_data( animtile_instance_t inst[], wawalite_animtile_t * p
 
     if ( NULL == inst || 0 == animtile_count ) return bfalse;
 
-    memset( inst, 0, sizeof(damagetile_instance_t) );
+    memset( inst, 0, sizeof(animtile_instance_t) );
 
     for( size = 0; size < animtile_count; size++ )
     {

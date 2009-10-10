@@ -363,8 +363,8 @@ void   getadd( int min, int value, int max, int* valuetoadd );
 void   fgetadd( float min, float value, float max, float* valuetoadd );
 
 /// Player
-void set_one_player_latch( Uint16 player );
-int  add_player( Uint16 character, Uint16 player, Uint32 device );
+void   set_one_player_latch( Uint16 player );
+bool_t add_player( Uint16 character, Uint16 player, Uint32 device );
 
 /// AI targeting
 Uint16 chr_find_target( struct s_chr * psrc, float max_dist2, TARGET_TYPE target_type, bool_t target_items, 

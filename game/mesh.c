@@ -124,7 +124,7 @@ mesh_mem_t * mesh_mem_new( mesh_mem_t * pmem )
 {
     if (NULL == pmem) return pmem;
 
-    memset( pmem, 0, sizeof(mpd_mem_t) );
+    memset( pmem, 0, sizeof(mesh_mem_t) );
 
     return pmem;
 }
@@ -508,7 +508,7 @@ grid_mem_t * grid_mem_new( grid_mem_t * pmem )
 {
     if (NULL == pmem) return pmem;
 
-    memset( pmem, 0, sizeof(mpd_mem_t) );
+    memset( pmem, 0, sizeof(grid_mem_t) );
 
     return pmem;
 }

@@ -81,7 +81,7 @@ void input_device_init( input_device_t * pdevice )
 void input_init_keyboard()
 {
     // set up the keyboard
-    memset( &keyb, 0, sizeof(mouse_t) );
+    memset( &keyb, 0, sizeof(keyboard_t) );
     init_scancodes();
     keyb.on        = btrue;
     keyb.count     = 0;

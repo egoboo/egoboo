@@ -1656,7 +1656,7 @@ void net_initialize()
     // Clear all the state variables to 0 to start.
     memset( net_playerPeers, 0, sizeof( ENetPeer* ) * MAXPLAYER );
     memset( net_playerInfo, 0, sizeof( NetPlayerInfo ) * MAXPLAYER );
-    memset( packetbuffer, 0, MAXSENDSIZE );
+    memset( packetbuffer, 0, MAXSENDSIZE * sizeof(Uint8) );
     memset( net_transferStates, 0, sizeof( NetFileTransfer ) * NET_MAX_FILE_TRANSFERS );
     memset( &net_receiveState, 0, sizeof( NetFileTransfer ) );
 

@@ -226,7 +226,7 @@ char * ConfigFileString_resize(char * str, size_t new_len )
         str = (char *)realloc(str, new_len);
     }
 
-    memset( str, 0, new_len );
+    memset( str, 0, new_len * sizeof(char) );
 
     return str;
 }
@@ -327,7 +327,7 @@ size_t ConfigFile_ReadSectionName( ConfigFilePtr_t pConfigFile, ConfigFileSectio
     char lc;
 
     lc = fgetc( pConfigFile->f );
-    memset( pSection->SectionName, 0, MAX_CONFIG_SECTION_LENGTH );
+    memset( pSection->SectionName, 0, sizeof(pSection->SectionName) );
 
     while ( '}' != lc && 0 == feof( pConfigFile->f ) )
     {
@@ -360,7 +360,7 @@ size_t ConfigFile_ReadKeyName( ConfigFilePtr_t pConfigFile, ConfigFileValuePtr_t
     char lc;
 
     lc = fgetc( pConfigFile->f );
-    memset( pValue->KeyName, 0, MAX_CONFIG_KEY_LENGTH );
+    memset( pValue->KeyName, 0, sizeof(pValue->KeyName) );
 
     while ( ']' != lc && 0 == feof( pConfigFile->f ) )
     {
@@ -395,7 +395,7 @@ ConfigFile_retval ConfigFile_ReadValue( ConfigFilePtr_t pConfigFile, ConfigFileV
     Sint32  lState = 0;
     Sint32 lLengthName = 0;
 
-    memset( lTempStr, 0, MAX_CONFIG_VALUE_LENGTH );
+    memset( lTempStr, 0, sizeof(lTempStr) );
 
     while ( 0 == lEndScan )
     {
@@ -483,7 +483,7 @@ ConfigFile_retval ConfigFile_ReadCommentary( ConfigFilePtr_t pConfigFile, Config
     Sint32 lLengthName = 0;
     if (NULL == pValue) return ConfigFile_PassOverCommentary( pConfigFile );
 
-    memset( lTempStr, 0, MAX_CONFIG_COMMENTARY_LENGTH );
+    memset( lTempStr, 0, sizeof(lTempStr) );
 
     while ( 0 == lEndScan )
     {
@@ -862,7 +862,7 @@ ConfigFile_retval ConfigFile_GetValue_Boolean( ConfigFilePtr_t pConfigFile, cons
     char lBoolStr[16] = { '\0' };
     Sint32 lRet;
 
-    memset( lBoolStr, 0, 16 );
+    memset( lBoolStr, 0, sizeof(lBoolStr) );
 
     lRet = ConfigFile_GetValue_String( pConfigFile, pSection, pKey, lBoolStr, 16 );
     if ( lRet != 0 )
@@ -890,7 +890,7 @@ ConfigFile_retval ConfigFile_GetValue_Int( ConfigFilePtr_t pConfigFile, const ch
     char lIntStr[24] = { '\0' };
     Sint32 lRet;
 
-    memset( lIntStr, 0, 16 );
+    memset( lIntStr, 0, sizeof(lIntStr) );
 
     lRet = ConfigFile_GetValue_String( pConfigFile, pSection, pKey, lIntStr, 24 );
     if ( lRet != 0 )

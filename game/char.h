@@ -136,6 +136,15 @@ slot_t        grip_offset_to_slot( grip_offset_t grip );
 #define CAREFULTIME         50                            ///< Friendly fire timer
 #define SIZETIME            50                            ///< Time it takes to resize a character
 
+/// Bits used to control options for the chr_get_name() function
+enum e_chr_name_bits
+{
+    CHRNAME_NONE     = 0,               ///< no options
+    CHRNAME_ARTICLE  = (1 << 0),        ///< use an article (a, an, the)
+    CHRNAME_DEFINITE = (1 << 1),        ///< if set, choose "the" else "a" or "an"
+    CHRNAME_CAPITAL  = (1 << 2)         ///< capitalize the name
+};
+
 //------------------------------------
 /// Team variables
 //------------------------------------
@@ -678,7 +687,7 @@ void   init_slot_idsz();
 bool_t ai_add_order( ai_state_t * pai, Uint32 value, Uint16 counter );
 
 bool_t chr_make_text_billboard( Uint16 ichr, const char * txt, SDL_Color color, int lifetime_secs );
-const char * chr_get_name( Uint16 ichr, bool_t use_article );
+const char * chr_get_name( Uint16 ichr, Uint32 bits );
 
 Uint16 ChrList_get_free();
 
