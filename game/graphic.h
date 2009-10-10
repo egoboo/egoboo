@@ -111,7 +111,7 @@ typedef struct
 
     GLfloat tex[2];
     GLfloat col_dir[4];
-    GLuint  color_dir;   ///< the vertex-dependent, directional lighting
+    GLint   color_dir;   ///< the vertex-dependent, directional lighting
 
     GLfloat col[4];      ///< the total vertex-dependent lighting (ambient + directional)
 } GLvertex;

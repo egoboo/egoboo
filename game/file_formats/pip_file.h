@@ -42,14 +42,22 @@ enum e_global_pips
     GLOBAL_PIP_COUNT
 };
 
-#define SPRITE_LIGHT                  0           ///< Magic effect particle
-#define SPRITE_SOLID                  1           ///< Sprite particle
-#define SPRITE_ALPHA                  2           ///< Smoke particle
+/// particle types / sprite dosplay modes
+enum e_sprite_mode
+{
+    SPRITE_LIGHT = 0,                         ///< Magic effect particle
+    SPRITE_SOLID,                             ///< Sprite particle
+    SPRITE_ALPHA                              ///< Smoke particle
+};
 
-/// dynalight constants
-#define DYNAOFF   0
-#define DYNAON    1
-#define DYNALOCAL 2
+/// dynamic lighting modes
+enum e_dyna_mode
+{
+    DYNA_MODE_OFF   = 0,
+    DYNA_MODE_ON,
+    DYNA_MODE_LOCAL
+};
+
 // #define MAXFALLOFF 1400
 
 /// Possible methods for computing the position and orientation of the quad used to display particle sprites
@@ -89,6 +97,19 @@ typedef enum e_particle_direction particle_direction_t;
 //--------------------------------------------------------------------------------------------
 // Particle template
 //--------------------------------------------------------------------------------------------
+
+struct s_dynalight_info
+{
+    Uint8   mode;                ///< when is it?
+    Uint8   on;                  ///< is it on now?
+
+    float   level;               ///< intensity
+    float   level_add;           ///< intensity changes
+
+    float   falloff;             ///< range
+    float   falloff_add;         ///< range changes
+};
+typedef struct s_dynalight_info dynalight_info_t;
 
 /// The definition of a particle profile
 struct s_pip
@@ -135,9 +156,6 @@ struct s_pip
     Uint8   endspawn_pip;                  ///< Spawn type ( local )
     Uint8   bumpspawn_amount;              ///< Spawn amount
     Uint8   bumpspawn_pip;                 ///< Spawn type ( global )
-    Uint8   dynalight_mode;                ///< Dynamic light on?
-    float   dynalight_level;                    ///< Intensity
-    Uint16  dynalight_falloff;                  ///< Falloff
     Uint16  dazetime;                     ///< Daze
     Uint16  grogtime;                     ///< Drunkeness
     Sint8   soundspawn;                   ///< Beginning sound
@@ -152,8 +170,6 @@ struct s_pip
     Uint16  targetangle;                  ///< To find target
     float   homingaccel;                  ///< Acceleration rate
     float   homingfriction;               ///< Deceleration rate
-    float   dynalight_leveladd;            ///< Dyna light changes
-    float   dynalight_falloffadd;
     bool_t  targetcaster;                 ///< Target caster?
     bool_t  spawnenchant;                 ///< Spawn enchant?
     bool_t  causepancake;                 ///< @todo Not implemented!!
@@ -166,7 +182,9 @@ struct s_pip
     bool_t  intdamagebonus;               ///< Add intelligence as damage bonus
     bool_t  wisdamagebonus;               ///< Add wisdom as damage bonus
 
-    prt_ori_t orientation;
+    dynalight_info_t dynalight;           ///< Dynamic lighting info
+
+    prt_ori_t orientation;                ///< the way the particle orientation is calculated for display
 };
 
 typedef struct s_pip pip_t;

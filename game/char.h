@@ -264,7 +264,7 @@ struct s_chr_instance
     float          rate;
 
     // linear interpolated frame vertices
-    Uint32         color_amb;
+    Sint32         color_amb;
     fvec4_t        col_amb;
     Uint8          max_light, min_light;
 

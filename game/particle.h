@@ -138,18 +138,16 @@ struct s_prt
     Uint16  bumplist_next;                   ///< Next particle on fanblock
     IPair   damage;                          ///< For strength
     Uint8   damagetype;                      ///< Damage type
-    float   dynalight_falloff;                ///< Dyna light...
-    float   dynalight_level;
-    bool_t  dynalight_on;                     ///< Dynamic light?
 
     bool_t  is_eternal;
-
-    prt_instance_t inst;
 
     bool_t is_bumpspawn;                      ///< this particle is like a flame, burning something
     bool_t inwater;
 
     Uint8   spawncharacterstate;              ///< if != SPAWNNOCHARACTER, then a character is spawned on end
+
+    dynalight_info_t dynalight;              ///< Dynamic lighting...
+    prt_instance_t   inst;                   ///< Everything needed for rendering
 };
 typedef struct s_prt prt_t;
 

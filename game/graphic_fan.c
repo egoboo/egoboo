@@ -206,6 +206,11 @@ void render_hmap_fan( ego_mpd_t * pmesh, Uint32 fan )
         v[cnt].col[RR] = tmp * ( tmp + (1.0f - tmp) * map_twist_nrm[twist].x * map_twist_nrm[twist].x);
         v[cnt].col[GG] = tmp * ( tmp + (1.0f - tmp) * map_twist_nrm[twist].y * map_twist_nrm[twist].y);
         v[cnt].col[BB] = tmp;
+        v[cnt].col[AA] = 1.0f;
+
+        v[cnt].col[RR] = CLIP(v[cnt].col[RR], 0.0f, 1.0f);
+        v[cnt].col[GG] = CLIP(v[cnt].col[GG], 0.0f, 1.0f);
+        v[cnt].col[BB] = CLIP(v[cnt].col[BB], 0.0f, 1.0f);
 
         badvertex++;
     }
@@ -335,12 +340,17 @@ void render_water_fan( ego_mpd_t * pmesh, Uint32 fan, Uint8 layer )
                 v[cnt].col[RR] = dlight * INV_FF + alight;
                 v[cnt].col[GG] = dlight * INV_FF + alight;
                 v[cnt].col[BB] = dlight * INV_FF + alight;
+                v[cnt].col[AA] = 1.0f;
+
+                v[cnt].col[RR] = CLIP(v[cnt].col[RR], 0.0f, 1.0f);
+                v[cnt].col[GG] = CLIP(v[cnt].col[GG], 0.0f, 1.0f);
+                v[cnt].col[BB] = CLIP(v[cnt].col[BB], 0.0f, 1.0f);
             }
             else
             {
                 v[cnt].col[RR] =
-                    v[cnt].col[GG] =
-                        v[cnt].col[BB] = 0.0f;
+                v[cnt].col[GG] =
+                v[cnt].col[BB] = 0.0f;
             }
 
             v[cnt].col[AA] = FF_TO_FLOAT( water.layer[layer].alpha );

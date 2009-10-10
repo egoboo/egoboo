@@ -725,7 +725,7 @@ void prt_instance_update_lighting( prt_instance_t * pinst, prt_t * pprt, Uint8 t
 {
     int    cnt;
     Uint32 alpha;
-    Uint8  self_light;
+    Sint16  self_light;
     lighting_cache_t global_light, loc_light;
     float min_light, lite;
     fmat_4x4_t mat;
@@ -750,10 +750,13 @@ void prt_instance_update_lighting( prt_instance_t * pinst, prt_t * pprt, Uint8 t
         min_light = MIN(min_light, loc_light.lighting_hgh[cnt]);
     }
 
-    for (cnt = 0; cnt < 6; cnt++)
+    if( min_light > 0 )
     {
-        loc_light.lighting_low[cnt] -= min_light;
-        loc_light.lighting_hgh[cnt] -= min_light;
+        for (cnt = 0; cnt < 6; cnt++)
+        {
+            loc_light.lighting_low[cnt] -= min_light;
+            loc_light.lighting_hgh[cnt] -= min_light;
+        }
     }
 
     // determine the ambient lighting
@@ -770,6 +773,7 @@ void prt_instance_update_lighting( prt_instance_t * pinst, prt_t * pprt, Uint8 t
     {
         pinst->fintens += pinst->famb * INV_FF;
     }
+    pinst->fintens = CLIP( pinst->fintens, 0.0f, 1.0f ); 
 
     // determine the alpha component
     pinst->falpha = (alpha * INV_FF) * (pinst->alpha * INV_FF);

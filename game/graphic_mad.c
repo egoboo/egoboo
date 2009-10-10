@@ -675,12 +675,15 @@ void chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 t
         min_light = MIN(min_light, loc_light.lighting_hgh[cnt]);
     }
 
-    for (cnt = 0; cnt < 6; cnt++)
+    if( min_light > 0 )
     {
-        loc_light.lighting_low[cnt] -= min_light;
-        loc_light.lighting_hgh[cnt] -= min_light;
+        for (cnt = 0; cnt < 6; cnt++)
+        {
+            loc_light.lighting_low[cnt] -= min_light;
+            loc_light.lighting_hgh[cnt] -= min_light;
+        }
+        loc_light.max_light -= min_light;
     }
-    loc_light.max_light -= min_light;
 
     rs = pinst->redshift;
     gs = pinst->grnshift;
@@ -690,9 +693,18 @@ void chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 t
     pinst->color_amb = 0.9f * pinst->color_amb + 0.1f * (self_light + min_light);
 
     pinst->col_amb.a = (alpha * INV_FF) * (pinst->alpha * INV_FF);
-    pinst->col_amb.r = (float)( pinst->color_amb >> rs ) * INV_FF;
-    pinst->col_amb.g = (float)( pinst->color_amb >> gs ) * INV_FF;
-    pinst->col_amb.b = (float)( pinst->color_amb >> bs ) * INV_FF;
+    if( pinst->color_amb > 0 )
+    {
+        pinst->col_amb.r = (float)( pinst->color_amb >> rs ) * INV_FF;
+        pinst->col_amb.g = (float)( pinst->color_amb >> gs ) * INV_FF;
+        pinst->col_amb.b = (float)( pinst->color_amb >> bs ) * INV_FF;
+    }
+    else
+    {
+        pinst->col_amb.r = -(float)( (-pinst->color_amb) >> rs ) * INV_FF;
+        pinst->col_amb.g = -(float)( (-pinst->color_amb) >> gs ) * INV_FF;
+        pinst->col_amb.b = -(float)( (-pinst->color_amb) >> bs ) * INV_FF;
+    }
 
     pinst->col_amb.a = CLIP(pinst->col_amb.a, 0, 1);
 
@@ -700,7 +712,7 @@ void chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 t
     pinst->min_light = 255;
     for ( cnt = 0; cnt < ego_md2_data[pmad->md2_ref].vertices; cnt++ )
     {
-        Uint16 lite;
+        Sint16 lite;
 
         // a simple "height" measurement
         float hgt = pinst->vlst[cnt].pos[ZZ] * pinst->matrix.CNV(3, 3) + pinst->matrix.CNV(3, 3);
@@ -725,14 +737,23 @@ void chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 t
 
         pinst->vlst[cnt].color_dir = 0.9f * pinst->vlst[cnt].color_dir + 0.1f * lite;
 
-        pinst->vlst[cnt].col_dir[RR] = (float)( pinst->vlst[cnt].color_dir >> rs ) * INV_FF;
-        pinst->vlst[cnt].col_dir[GG] = (float)( pinst->vlst[cnt].color_dir >> gs ) * INV_FF;
-        pinst->vlst[cnt].col_dir[BB] = (float)( pinst->vlst[cnt].color_dir >> bs ) * INV_FF;
+        if( pinst->vlst[cnt].color_dir > 0 )
+        {
+            pinst->vlst[cnt].col_dir[RR] = (float)( pinst->vlst[cnt].color_dir >> rs ) * INV_FF;
+            pinst->vlst[cnt].col_dir[GG] = (float)( pinst->vlst[cnt].color_dir >> gs ) * INV_FF;
+            pinst->vlst[cnt].col_dir[BB] = (float)( pinst->vlst[cnt].color_dir >> bs ) * INV_FF;
+        }
+        else
+        {
+            pinst->vlst[cnt].col_dir[RR] = -(float)( (-pinst->vlst[cnt].color_dir) >> rs ) * INV_FF;
+            pinst->vlst[cnt].col_dir[GG] = -(float)( (-pinst->vlst[cnt].color_dir) >> gs ) * INV_FF;
+            pinst->vlst[cnt].col_dir[BB] = -(float)( (-pinst->vlst[cnt].color_dir) >> bs ) * INV_FF;
+        }
 
         if ( do_lighting )
         {
-            Uint16 light = pinst->color_amb + pinst->vlst[cnt].color_dir;
-            light = CLIP(light, 0, 255);
+            Sint16 light = pinst->color_amb + pinst->vlst[cnt].color_dir;
+            light = CLIP(light, -255, 255);
             pinst->max_light = MAX(pinst->max_light, light);
             pinst->min_light = MIN(pinst->min_light, light);
 
@@ -746,7 +767,7 @@ void chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 t
             Uint16 light;
 
             light = 255 * MAX(MAX(pinst->vlst[cnt].col_dir[RR], pinst->vlst[cnt].col_dir[GG]), pinst->vlst[cnt].col_dir[BB]);
-            light = CLIP(light, 0, 255);
+            light = CLIP(light, -255, 255);
 
             pinst->max_light = MAX(pinst->max_light, light);
             pinst->min_light = MIN(pinst->min_light, light);
@@ -756,7 +777,17 @@ void chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 t
             pinst->vlst[cnt].col[BB] = pinst->vlst[cnt].col_dir[BB];
             pinst->vlst[cnt].col[AA] = pinst->col_amb.a;
         }
+
+         // coerce these to valid values
+         pinst->vlst[cnt].col[RR] = CLIP( pinst->vlst[cnt].col[RR], 0.0f, 1.0f);
+         pinst->vlst[cnt].col[GG] = CLIP( pinst->vlst[cnt].col[GG], 0.0f, 1.0f);
+         pinst->vlst[cnt].col[BB] = CLIP( pinst->vlst[cnt].col[BB], 0.0f, 1.0f);
+         pinst->vlst[cnt].col[AA] = CLIP( pinst->vlst[cnt].col[AA], 0.0f, 1.0f);
     }
+
+    // ??coerce this to reasonable values in the presence of negative light??
+    if( pinst->max_light < 0 ) pinst->max_light = 0;
+    if( pinst->min_light < 0 ) pinst->min_light = 0;
 }
 
 //--------------------------------------------------------------------------------------------

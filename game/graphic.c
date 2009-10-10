@@ -1432,9 +1432,14 @@ void light_fans( renderlist_t * prlist )
         {
             light = pmem->lcache[fan][ivrt];
 
+            pmem->dlst[vertex][RR] =
+            pmem->dlst[vertex][GG] =
+            pmem->dlst[vertex][BB] = light * INV_FF;
+
+            light = CLIP(light, 0.0f, 255.0f);
             pmem->clst[vertex][RR] =
-                pmem->clst[vertex][GG] =
-                    pmem->clst[vertex][BB] = light * INV_FF;
+            pmem->clst[vertex][GG] =
+            pmem->clst[vertex][BB] = light * INV_FF;
         };
 
         for ( /* nothing */ ; ivrt < numvertices; ivrt++, vertex++ )
@@ -1442,9 +1447,14 @@ void light_fans( renderlist_t * prlist )
             light = 0;
             mesh_interpolate_vertex( pmem, fan, pmem->plst[vertex], &light );
 
+            pmem->dlst[vertex][RR] =
+            pmem->dlst[vertex][GG] =
+            pmem->dlst[vertex][BB] = light * INV_FF;
+
+            light = CLIP(light, 0.0f, 255.0f);
             pmem->clst[vertex][RR] =
-                pmem->clst[vertex][GG] =
-                    pmem->clst[vertex][BB] = light * INV_FF;
+            pmem->clst[vertex][GG] =
+            pmem->clst[vertex][BB] = light * INV_FF;
         };
     }
 }
@@ -1548,7 +1558,8 @@ bool_t sum_dyna_lighting( dynalight_t * pdyna, float lighting[], float dx, float
     level = maxval / ( 1.0f + rho_sqr / rho0_sqr );
     level *= pdyna->level;
 
-    if ( (int)level > 0 )
+    // allow negative lighting, or blind spots will not work properly
+    if ( level != 0.0f )
     {
         float rad_sqr = rho_sqr + dz * dz;
         float rad = SQRT( rad_sqr );
@@ -1707,14 +1718,14 @@ void do_grid_dynalight( ego_mpd_t * pmesh, camera_t * pcam )
         }
 
         // average this in with the existing lighting
-        cache->max_light = 0;
+        cache->max_light = 0.0f;
         for ( tnc = 0; tnc < 6; tnc++ )
         {
             cache->lighting_low[tnc] = cache->lighting_low[tnc] * 0.9f + local_lighting_low[tnc] * 0.1f;
-            cache->max_light = MAX(cache->max_light, cache->lighting_low[tnc]);
+            cache->max_light = MAX(cache->max_light, ABS(cache->lighting_low[tnc]));
 
             cache->lighting_hgh[tnc] = cache->lighting_hgh[tnc] * 0.9f + local_lighting_hgh[tnc] * 0.1f;
-            cache->max_light = MAX(cache->max_light, cache->lighting_hgh[tnc]);
+            cache->max_light = MAX(cache->max_light, ABS(cache->lighting_hgh[tnc]));
         }
     }
 }
@@ -4031,7 +4042,7 @@ void make_dynalist( camera_t * pcam )
         PrtList.lst[cnt].inview = PMesh->mmem.tile_list[PrtList.lst[cnt].onwhichfan].inrenderlist;
 
         // Set up the lights we need
-        if ( !PrtList.lst[cnt].dynalight_on ) continue;
+        if ( !PrtList.lst[cnt].dynalight.on ) continue;
 
         disx = PrtList.lst[cnt].pos.x - pcam->track_pos.x;
         disy = PrtList.lst[cnt].pos.y - pcam->track_pos.y;
@@ -4084,8 +4095,8 @@ void make_dynalist( camera_t * pcam )
                 dyna_list[slot].x       = PrtList.lst[cnt].pos.x;
                 dyna_list[slot].y       = PrtList.lst[cnt].pos.y;
                 dyna_list[slot].z       = PrtList.lst[cnt].pos.z;
-                dyna_list[slot].level   = PrtList.lst[cnt].dynalight_level;
-                dyna_list[slot].falloff = PrtList.lst[cnt].dynalight_falloff;
+                dyna_list[slot].level   = PrtList.lst[cnt].dynalight.level;
+                dyna_list[slot].falloff = PrtList.lst[cnt].dynalight.falloff;
             }
         }
     }
@@ -4473,8 +4484,8 @@ bool_t project_lighting( lighting_cache_t * dst, lighting_cache_t * src, fmat_4x
     dst->max_light = 0.0f;
     for ( cnt = 0; cnt < 6; cnt++ )
     {
-        dst->max_light = MAX(dst->max_light, dst->lighting_low[cnt]);
-        dst->max_light = MAX(dst->max_light, dst->lighting_hgh[cnt]);
+        dst->max_light = MAX(dst->max_light, ABS(dst->lighting_low[cnt]));
+        dst->max_light = MAX(dst->max_light, ABS(dst->lighting_hgh[cnt]));
     }
 
     return btrue;
@@ -4559,8 +4570,8 @@ bool_t interpolate_lighting( lighting_cache_t * dst, lighting_cache_t * src[], f
 
         for (tnc = 0; tnc < 6; tnc++)
         {
-            dst->max_light = MAX(dst->max_light, dst->lighting_low[tnc]);
-            dst->max_light = MAX(dst->max_light, dst->lighting_hgh[tnc]);
+            dst->max_light = MAX(dst->max_light, ABS(dst->lighting_low[tnc]));
+            dst->max_light = MAX(dst->max_light, ABS(dst->lighting_hgh[tnc]));
         }
     }
 

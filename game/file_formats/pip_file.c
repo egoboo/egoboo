@@ -143,12 +143,12 @@ pip_t * load_one_pip_file( const char *szLoadName, pip_t * ppip )
 
     // Lighting data
     cTmp = fget_next_char( fileread );
-         if ( 'T' == toupper(cTmp) ) ppip->dynalight_mode = DYNAON;
-    else if ( 'L' == toupper(cTmp) ) ppip->dynalight_mode = DYNALOCAL;
-    else                             ppip->dynalight_mode = DYNAOFF;
+         if ( 'T' == toupper(cTmp) ) ppip->dynalight.mode = DYNA_MODE_ON;
+    else if ( 'L' == toupper(cTmp) ) ppip->dynalight.mode = DYNA_MODE_LOCAL;
+    else                             ppip->dynalight.mode = DYNA_MODE_OFF;
 
-    ppip->dynalight_level   = fget_next_float( fileread );
-    ppip->dynalight_falloff = fget_next_int( fileread );
+    ppip->dynalight.level   = fget_next_float( fileread );
+    ppip->dynalight.falloff = fget_next_int( fileread );
 
     // Initial spawning of this particle
     ppip->facing_pair.base    = fget_next_int( fileread );
@@ -229,8 +229,8 @@ pip_t * load_one_pip_file( const char *szLoadName, pip_t * ppip )
         else if ( idsz == MAKE_IDSZ( 'W', 'S', 'N', 'D' ) )  ppip->soundwall = fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'W', 'E', 'N', 'D' ) )  ppip->endwall = fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'P', 'U', 'S', 'H' ) )  ppip->allowpush = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'D', 'L', 'E', 'V' ) )  ppip->dynalight_leveladd = fget_int( fileread ) / 1000.0f;
-        else if ( idsz == MAKE_IDSZ( 'D', 'R', 'A', 'D' ) )  ppip->dynalight_falloffadd = fget_int( fileread ) / 1000.0f;
+        else if ( idsz == MAKE_IDSZ( 'D', 'L', 'E', 'V' ) )  ppip->dynalight.level_add = fget_int( fileread ) / 1000.0f;
+        else if ( idsz == MAKE_IDSZ( 'D', 'R', 'A', 'D' ) )  ppip->dynalight.falloff_add = fget_int( fileread ) / 1000.0f;
         else if ( idsz == MAKE_IDSZ( 'I', 'D', 'A', 'M' ) )  ppip->intdamagebonus = fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'W', 'D', 'A', 'M' ) )  ppip->wisdamagebonus = fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'O', 'R', 'N', 'T' ) )

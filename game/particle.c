@@ -388,17 +388,16 @@ Uint16 spawn_one_particle( fvec3_t   pos, Uint16 facing, Uint16 iprofile, Uint16
     pprt->damagetype  = ppip->damagetype;
 
     // Lighting and sound
-    if ( multispawn == 0 )
+    pprt->dynalight    = ppip->dynalight;
+    pprt->dynalight.on = bfalse;
+    if ( 0 == multispawn )
     {
-        pprt->dynalight_on = ppip->dynalight_mode;
-        if ( ppip->dynalight_mode == DYNALOCAL )
+        pprt->dynalight.on = ppip->dynalight.mode;
+        if ( DYNA_MODE_LOCAL == ppip->dynalight.mode )
         {
-            pprt->dynalight_on = bfalse;
+            pprt->dynalight.on = DYNA_MODE_OFF;
         }
     }
-
-    pprt->dynalight_level = ppip->dynalight_level;
-    pprt->dynalight_falloff = ppip->dynalight_falloff;
 
     // Set character attachments ( chr_attach==MAX_CHR means none )
     pprt->attachedto_ref = chr_attach;
@@ -811,10 +810,23 @@ void update_all_particles( void )
         }
 
         // Change dyna light values
-        pprt->dynalight_level   += ppip->dynalight_leveladd;
-        if( pprt->dynalight_level < 0 ) pprt->dynalight_level = 0;
+        if( pprt->dynalight.level > 0 )
+        {
+            pprt->dynalight.level   += ppip->dynalight.level_add;
+            if( pprt->dynalight.level < 0 ) pprt->dynalight.level = 0;
+        }
+        else if( pprt->dynalight.level < 0 )
+        {
+            // try to guess what should happen for negative lighting
+            pprt->dynalight.level   += ppip->dynalight.level_add;
+            if( pprt->dynalight.level > 0 ) pprt->dynalight.level = 0;
+        }
+        else
+        {
+            pprt->dynalight.level   += ppip->dynalight.level_add;
+        }
 
-        pprt->dynalight_falloff += ppip->dynalight_falloffadd;
+        pprt->dynalight.falloff += ppip->dynalight.falloff_add;
 
         // spin the particle
         pprt->facing += ppip->facingadd;
