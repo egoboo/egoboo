@@ -24,7 +24,8 @@
 
 #include "egoboo_typedef.h"
 
-/// missile treatments
+//--------------------------------------------------------------------------------------------
+/// Special modes for particle reflections from characters
 enum e_missle_treatment
 {
     MISSILE_NORMAL   = 0,                           ///< Treat missiles normally
@@ -32,13 +33,13 @@ enum e_missle_treatment
     MISSILE_REFLECT                                 ///< Reflect them back!
 };
 
-/// Different set values for enchants
-typedef enum enchant_set
+//--------------------------------------------------------------------------------------------
+/// All the values that an enchant can override
+enum e_enchant_set
 {
-    // this must be first since the
-    // character must be morphed before adding any of the other enchants
-
     SETMORPH = 0,           ///< Morph character?
+                            ///< @details this must be first since the
+                            ///< character must be morphed before adding any of the other enchants
 
     SETDAMAGETYPE,          ///< Type of damage dealt
     SETNUMBEROFJUMPS,       ///< Max number of jumps
@@ -67,10 +68,12 @@ typedef enum enchant_set
     ENC_SET_FIRST = SETMORPH,
     ENC_SET_LAST  = SETCHANNEL
 
-} enum_enchant_set;
+};
+typedef enum e_enchant_set enum_enchant_set;
 
 //--------------------------------------------------------------------------------------------
-typedef enum enchant_add
+/// A list of all the variables that can be affested by rnchant add
+enum e_enchant_add
 {
     ADDJUMPPOWER = 0,
     ADDBUMPDAMPEN,
@@ -93,12 +96,13 @@ typedef enum enchant_add
     ENC_ADD_FIRST = ADDJUMPPOWER,
     ENC_ADD_LAST  = ADDDEXTERITY
 
-} enum_enchant_add;
+};
+typedef enum e_enchant_add enum_enchant_add;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 /// An enchantment profile, or "eve"
-/// An internal representation of the "enchant.txt" file
+/// @details An internal representation of the "enchant.txt" file
 struct s_eve
 {
     EGO_PROFILE_STUFF;
@@ -123,18 +127,18 @@ struct s_eve
     bool_t  spawn_overlay;               ///< Spawn an overlay?
     bool_t  stayifdead;                  ///< Stay if target has died?
 
-    // Boost values
+    /// Boost values
     Sint16  ownermana;
     Sint16  ownerlife;
     Sint16  targetmana;
     Sint16  targetlife;
 
-    // the enchant values
+    /// the enchant values
     bool_t  setyesno[MAX_ENCHANT_SET];    ///< Set this value?
     Uint8   setvalue[MAX_ENCHANT_SET];    ///< Value to use
     Sint32  addvalue[MAX_ENCHANT_ADD];    ///< The values to add
 
-    // other values that are enchanted
+    /// other values that are enchanted
     Uint16  seekurse;                    ///< Allow target to see kurses
 };
 typedef struct s_eve eve_t;

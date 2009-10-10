@@ -92,6 +92,7 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+/// Data needed to specify a line-of-sight test
 struct s_line_of_sight_info
 {
     float x0, y0, z0;
@@ -5221,7 +5222,7 @@ void game_reset_module_data()
     release_all_profiles();
     free_all_objects();
     reset_messages();
-    prime_names();
+    chop_data_init( &chop_mem );
     game_reset_players();
 
     reset_end_text();

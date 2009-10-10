@@ -27,7 +27,7 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-/// pre-defined global particles
+/// Pre-defined global particle types
 enum e_global_pips
 {
     PIP_COIN1 = 0,                                 ///< Coins are the first particles loaded
@@ -52,6 +52,7 @@ enum e_global_pips
 #define DYNALOCAL 2
 // #define MAXFALLOFF 1400
 
+/// Possible methods for computing the position and orientation of the quad used to display particle sprites
 enum e_prt_orientations
 {
     ORIENTATION_B = 0,   ///< billboard
@@ -63,6 +64,7 @@ enum e_prt_orientations
 };
 typedef enum e_prt_orientations prt_ori_t;
 
+// The special damage effects for particles
 enum e_damage_fx
 {
     DAMFX_NONE           = 0,                       ///< Damage effects
@@ -73,6 +75,7 @@ enum e_damage_fx
     DAMFX_TIME           = (1 << 5)
 };
 
+/// Turn values specifying corrections to the rotation of particles
 enum e_particle_direction
 {
     prt_v = 0x0000,    ///< particle is vertical on the bitmap
@@ -84,8 +87,10 @@ enum e_particle_direction
 typedef enum e_particle_direction particle_direction_t;
 
 //--------------------------------------------------------------------------------------------
-/// Particle template
+// Particle template
 //--------------------------------------------------------------------------------------------
+
+/// The definition of a particle profile
 struct s_pip
 {
     EGO_PROFILE_STUFF;

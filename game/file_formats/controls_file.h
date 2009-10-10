@@ -28,7 +28,7 @@
 
 //---------------------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------------------
-
+/// All the possible game actions that can be triggered from an input device
 enum e_input_controls
 {
     CONTROL_JUMP = 0,
@@ -55,6 +55,7 @@ enum e_input_controls
     CONTROL_END    = CONTROL_RIGHT
 };
 
+/// All the possible game actions that be assiciated with the keyboard
 enum e_keyboard_controls
 {
     KEY_JUMP = 0,
@@ -79,6 +80,7 @@ enum e_keyboard_controls
     KEY_CONTROL_END   = KEY_RIGHT
 };
 
+/// All the possible game actions that be assiciated with the mouse
 enum e_mouse_controls
 {
     MOS_JUMP = 0,
@@ -95,6 +97,7 @@ enum e_mouse_controls
     MOS_CONTROL_END   = MOS_CAMERA
 };
 
+/// All the possible game actions that be assiciated a joystick
 enum e_joystick_controls
 {
     JOY_JUMP = 0,

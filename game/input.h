@@ -31,6 +31,8 @@
 
 #define MAXJOYSTICK          2     ///<the maximum number of supported joysticks
 
+/// Which input control
+/// @details Used by the controls[] structure and the control_is_pressed() function to query the state of various controls.
 enum e_input_device
 {
     INPUT_DEVICE_KEYBOARD = 0,
@@ -52,7 +54,9 @@ extern bool_t           cursor_pending_click;
 extern bool_t           cursor_wheel_event;
 
 //--------------------------------------------------------------------------------------------
-/// MOUSE
+// MOUSE
+
+/// The internal representation of the mouse data
 struct s_mouse
 {
     bool_t                  on;              ///< Is it alive?
@@ -71,8 +75,11 @@ typedef struct s_mouse mouse_t;
 extern mouse_t mous;
 
 //--------------------------------------------------------------------------------------------
-/// KEYBOARD
+// KEYBOARD
+
 #define KEYB_BUFFER_SIZE 2048
+
+/// The internal representation of the keyboard data
 struct s_keyboard
 {
     bool_t  on;                ///< Is the keyboard alive?
@@ -107,7 +114,7 @@ typedef struct s_device_joystick device_joystick_t;
 extern device_joystick_t joy[MAXJOYSTICK];
 
 //--------------------------------------------------------------------------------------------
-
+/// The bits representing the possible input devices
 enum e_input_bits
 {
     INPUT_BITS_NONE      = 0,

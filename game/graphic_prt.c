@@ -37,6 +37,7 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+/// The data values necessary to sort particles by their position to the camera
 struct s_prt_registry_entity
 {
     int   index;

@@ -25,6 +25,7 @@
 
 typedef struct GameState GameState;
 
+/// A mockup of the struct that could be used to store the server state
 typedef struct ServerState_t
 {
     int dummy;

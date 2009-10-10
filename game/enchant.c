@@ -910,6 +910,9 @@ Uint16 load_one_enchant_profile( const char* szLoadName, Uint16 ieve )
         ieve = MAX_EVE;
     }
 
+    // limit the endsoundindex
+    peve->endsoundindex = CLIP(peve->endsoundindex, INVALID_SOUND, MAX_WAVE);
+
     return ieve;
 }
 

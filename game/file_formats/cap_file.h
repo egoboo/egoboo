@@ -32,6 +32,7 @@
 #define MAXBASELEVEL            6                 ///< Basic Levels 0-5
 #define MAXLEVEL               20                 ///< Absolute max level
 
+/// The various ID strings that every character has
 enum e_idsz_type
 {
     IDSZ_PARENT = 0,                             ///< Parent index
@@ -43,6 +44,7 @@ enum e_idsz_type
     IDSZ_COUNT                                   ///< ID strings per character
 };
 
+/// The possible damage types
 enum e_damage_type
 {
     DAMAGE_SLASH = 0,
@@ -58,7 +60,7 @@ enum e_damage_type
     DAMAGE_NONE      = 255
 };
 
-/// XP stuff
+/// A list of the possible special experience types
 enum e_xp_type
 {
     XP_FINDSECRET = 0,                          ///< Finding a secret
@@ -74,11 +76,12 @@ enum e_xp_type
     XP_DIRECT     = 255                         ///< No modification
 };
 
-//// @details BB@> enumerated "speech" sounds, so that we COULD ge the scripts to classify which
+/// BB@> enumerated "speech" soun
+/// @details We COULD ge the scripts to classify which
 /// sound to use for the "ouch", the "too much baggage", etc.
 /// also some left-over sounds from the RTS days, but they might be useful if an NPC
 /// uses messages to control his minions.
-
+///
 /// for example:
 /// necromancer sends message to all minions "attack blah"
 /// zombie minion responds with "moooooaaaaannn" automatically because that is the sound
@@ -93,7 +96,7 @@ enum e_sound_types
     SOUND_SPAWN,
     SOUND_DEATH,
 
-    // old "RTS" stuff
+    /// old "RTS" stuff
     SPEECH_MOVE,
     SPEECH_MOVEALT,
     SPEECH_ATTACK,
@@ -107,7 +110,7 @@ enum e_sound_types
     SPEECH_END   = SPEECH_SELECT
 };
 
-/// Object positions
+/// Where an item is being held
 enum e_slots
 {
     SLOT_LEFT  = 0,
@@ -116,6 +119,8 @@ enum e_slots
 };
 typedef enum e_slots slot_t;
 
+/// The possible extended slots that an object might be equipped in
+/// @details This system is not fully implemented yet
 enum e_inventory
 {
     INVEN_PACK = 0,
@@ -126,7 +131,7 @@ enum e_inventory
 };
 typedef enum e_inventory inventory_t;
 
-/// Geneder stuff
+/// What gender a character can be spawned with
 enum e_chr_gender
 {
     GENDER_FEMALE = 0,

@@ -24,14 +24,14 @@
 
 #define LINK_COUNT 16
 
-struct sLink
+// The data needed to describe a single link between modules
+struct s_link
 {
     bool_t  valid;
     STRING  modname;
     Uint16  passage;
 };
-
-typedef struct sLink Link_t;
+typedef struct s_link Link_t;
 
 extern Link_t LinkList[LINK_COUNT];
 

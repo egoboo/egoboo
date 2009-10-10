@@ -147,6 +147,8 @@ bool_t ai_state_set_bumplast( ai_state_t * pself, Uint16 ichr );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+/// The state of the scripting system
+/// @delails It is not persistent between one evaluation of a script and another
 struct s_script_state
 {
     int     x;

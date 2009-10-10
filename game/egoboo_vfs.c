@@ -48,13 +48,14 @@
 
 typedef char VFS_PATH[VFS_MAX_PATH];
 
+/// The bits specifying the possible errors
 enum e_vfs_error_bits
 {
     VFS_EOF   = (1 << 0),
     VFS_ERROR = (1 << 1)
 };
 
-
+/// What type of file is actually being referenced in u_vfs_fileptr
 enum e_vfs_mode
 {
     vfs_unknown = 0,
@@ -63,15 +64,16 @@ enum e_vfs_mode
 };
 typedef enum e_vfs_mode vfs_mode_t;
 
+/// An anonymized pointer type
 union u_vfs_fileptr
 {
     void        * u;
     FILE        * c;
     PHYSFS_File * p;
 };
-
 typedef union u_vfs_fileptr vfs_fileptr_t;
 
+/// A container holding either a FILE * or a PHYSFS_File *, and translated error states
 struct vfs_FILE
 {
     Uint32        flags;    // flags for stuff like ferror() that doesn't clear every time a filesystem call is made
@@ -79,6 +81,7 @@ struct vfs_FILE
     vfs_fileptr_t ptr;
 };
 
+/// A container for holding all the data for a search
 struct s_vfs_search_context
 {
     char ** file_list;

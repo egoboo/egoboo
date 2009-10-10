@@ -33,7 +33,7 @@
 
 //---------------------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------------------
-
+/// A mapping between the state of an input device and an internal game latch
 struct s_scantag
 {
     char   name[TAGSIZE];                      ///< Scancode names

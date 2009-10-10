@@ -140,14 +140,16 @@ typedef struct s_frect
 bool_t frect_point_inside( frect_t * prect, float fx, float fy );
 
 //--------------------------------------------------------------------------------------------
-/// PAIR AND RANGE
+// PAIR AND RANGE
 
+// Specifies a value between "base" and "base + rand"
 struct s_pair
 {
     int base, rand;
 };
 typedef struct s_pair IPair;
 
+// Specifies a value from "from" to "to"
 struct s_range
 {
     float from, to;
@@ -213,7 +215,7 @@ typedef char STRING[256];
 #define CLIP_TO_32BITS( XX )  ( (XX) & 0xFFFFFFFF )
 
 //--------------------------------------------------------------------------------------------
-/// AI targeting
+/// List of the methods an AI can use to obtain a target
 typedef enum target_type
 {
     TARGET_ENEMY = 0,
@@ -267,13 +269,14 @@ typedef struct s_aabb aabb_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-/// octagonal bounding box
 
+/// The various axes for the octagonal bounding box
 enum e_octagonal_axes
 {
     OCT_X, OCT_Y, OCT_Z, OCT_XY, OCT_YX, OCT_COUNT
 };
 
+/// octagonal bounding box
 struct s_oct_bb
 {
     float mins[OCT_COUNT];

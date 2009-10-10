@@ -45,6 +45,7 @@ DEFINE_STACK_EXTERN(pip_t, PipStack, MAX_PIP );
 //------------------------------------
 /// Particle graphic data
 //------------------------------------
+/// All the data necessary to diaplay a partile
 struct s_prt_instance
 {
     bool_t valid;
@@ -84,6 +85,8 @@ typedef struct s_prt_instance prt_instance_t;
 #define SPAWNNOCHARACTER        255                                      ///< For particles that spawn characters...
 #define TOTAL_MAX_PRT            2048                                      ///< True max number of particles
 
+/// The definition of the particle object
+/// This "inherits" for ego_object_base_t
 struct s_prt
 {
     ego_object_base_t obj_base;

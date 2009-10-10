@@ -88,7 +88,7 @@ typedef struct s_grid_mem grid_mem_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-/// mesh memory
+/// A wrapper for the dynamically allocated mesh memory
 struct s_mesh_mem
 {
     aabb_t           bbox;

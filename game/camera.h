@@ -30,12 +30,14 @@ struct s_ego_mpd;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+/// The camera mode
 enum e_camera_mode
 {
     CAM_PLAYER = 0,
     CAM_FREE
 };
 
+/// The mode that the camera uses to determine where is is looking
 enum e_camera_turn_mode
 {
     CAMTURN_NONE = (1 == 0),  ///< false

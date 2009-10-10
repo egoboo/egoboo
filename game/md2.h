@@ -113,6 +113,7 @@ typedef struct Md2Model
     Md2Frame    *frames;
 } Md2Model;
 
+/// egoboo's md2 frame definition
 struct s_md2_frame
 {
     Uint8   framelip;                      ///< 0-15, How far into action is each frame

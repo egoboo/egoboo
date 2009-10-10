@@ -65,6 +65,8 @@ enum
 
 /// This stuff is for actions
 #define NOACTION            0xFFFF                     ///< Action not valid for this character
+
+/// The various model actions
 enum e_action
 {
     ACTION_DA = 0,         ///< DA - Dance ( Typical standing )
@@ -151,6 +153,7 @@ enum e_action
 ego_md2_t  ego_md2_data[MAX_PROFILE]; ///< the old-style md2 data
 
 //--------------------------------------------------------------------------------------------
+/// The definition of the egoboo model type
 struct s_mad
 {
     EGO_PROFILE_STUFF;

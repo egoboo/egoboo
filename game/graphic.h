@@ -66,6 +66,7 @@ struct Font;
 #define GFX_WIDTH                       800         ///< 640
 #define GFX_HEIGHT                      600         ///< 480
 
+/// The supported colors of bars and blips
 enum e_color
 {
     COLOR_WHITE = 0,
@@ -88,6 +89,7 @@ struct s_do_list_data
 typedef struct s_do_list_data do_list_data_t;
 
 //--------------------------------------------------------------------------------------------
+/// Structure for sorting both particles and characters based on their position from the camera
 struct s_obj_registry_entity
 {
     Uint16 ichr, iprt;
@@ -116,6 +118,7 @@ typedef struct
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+/// Which tiles are to be drawn, arranged by MPDFX_* bits
 struct s_renderlist
 {
     ego_mpd_t * pmesh;
@@ -148,9 +151,10 @@ extern float           lighttoenviroy[256];                                ///< 
 extern Uint32          lighttospek[MAXSPEKLEVEL][256];
 
 //--------------------------------------------------------------------------------------------
-/// Display messages
+// Display messages
 extern Uint16          msgtimechange;
 
+/// A display messages
 struct s_msg
 {
     Sint16          time;                            ///< The time for this message

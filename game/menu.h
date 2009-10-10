@@ -23,6 +23,8 @@
 /// @details Implements the main menu tree, using the code in Ui.*.
 
 #include "network.h"
+#include "profile.h"
+
 #include "egoboo.h"
 
 //--------------------------------------------------------------------------------------------
@@ -32,7 +34,7 @@ struct s_mod_file;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-/// All the different menus.  yay!
+/// All the possible egoboo menus.  yay!
 enum e_which_menu
 {
     emnu_Main,
@@ -63,13 +65,17 @@ typedef enum e_which_menu which_menu_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-/// Input player control
+// Input player control
 #define MAXLOADPLAYER     100
+
+/// data for caching the which players may be loaded
 struct s_load_player_info
 {
-    STRING name;
-    STRING dir;
-    int    tx_ref;
+    STRING name;              ///< the object's name
+    STRING dir;               ///< the object's full path
+    int    tx_ref;            ///< the index of the texture
+
+    chop_definition_t chop;   ///< put this here so we can generate a name without loading an entire profile
 };
 typedef struct s_load_player_info LOAD_PLAYER_INFO;
 

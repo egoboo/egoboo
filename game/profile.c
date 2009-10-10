@@ -42,7 +42,7 @@
 //--------------------------------------------------------------------------------------------
 static bool_t _profile_initialized = bfalse;
 
-chop_data_t  chop = {0, 0};
+chop_data_t  chop_mem = {0, 0};
 pro_import_t import_data;
 
 Uint16  bookicon_count   = 0;
@@ -132,7 +132,7 @@ void profile_init()
     reset_messages();
 
     // necessary for reading "naming.txt" properly
-    prime_names();
+    chop_data_init( &chop_mem );
 
     // something that is used in the game that is somewhat related to the profile stuff
     init_slot_idsz();
@@ -167,11 +167,7 @@ bool_t pro_init( pro_t * pobj )
         pobj->prtpip[cnt] = MAX_PIP;
     }
 
-    for ( cnt = 0; cnt < MAXSECTION; cnt++ )
-    {
-        pobj->chop_sectionstart[cnt] = MAXCHOP;
-        pobj->chop_sectionsize[cnt]  = 0;
-    }
+    chop_definition_init( &(pobj->chop) );
 
     // do the final invalidation
     pobj->loaded   = bfalse;
@@ -601,15 +597,6 @@ Mix_Chunk * pro_get_chunk(Uint16 iobj, int index)
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void prime_names()
-{
-    /// @details ZZ@> This function prepares the name chopper for use
-
-    chop.count = 0;
-    chop.carat = 0;
-}
-
-//--------------------------------------------------------------------------------------------
 int load_profile_skins( const char * tmploadname, Uint16 object )
 {
     int min_skin_tx, min_icon_tx;
@@ -979,7 +966,7 @@ int load_one_profile( const char* tmploadname, int slot_override )
 
     // Load the random naming table for this icap
     make_newloadname( tmploadname, SLASH_STR "naming.txt", newloadname );
-    chop_load( iobj, newloadname );
+    pro_load_chop( iobj, newloadname );
 
     // Fix lighting if need be
     if ( CapList[pobj->icap].uniformlit )
@@ -992,70 +979,6 @@ int load_one_profile( const char* tmploadname, int slot_override )
     pobj->loaded = btrue;
 
     return iobj;
-}
-
-//--------------------------------------------------------------------------------------------
-void chop_load( Uint16 profile, const char *szLoadname )
-{
-    /// @details ZZ@> This function reads a naming file
-    vfs_FILE *fileread;
-    int   section, chopinsection;
-    char  tmp_chop[32] = EMPTY_CSTR;
-
-    fileread = vfs_openRead( szLoadname );
-    if ( NULL == fileread ) return;
-
-    for( section=0; section< MAXSECTION; section++ )
-    {
-        ProList.lst[profile].chop_sectionsize[section] = 0;
-        ProList.lst[profile].chop_sectionstart[section] = 0;
-    }
-        
-    section = 0;
-    chopinsection = 0;
-    while ( section < MAXSECTION && chop.carat < CHOPDATACHUNK && goto_colon( NULL, fileread, btrue ) )
-    {
-        fget_string( fileread, tmp_chop, SDL_arraysize(tmp_chop) );
-
-        // convert all the '_' and junk in the string
-        str_decode( tmp_chop, SDL_arraysize(tmp_chop), tmp_chop);
-
-        if ( 0 == strcmp(tmp_chop, "STOP") )
-        {
-            if ( section < MAXSECTION )
-            {
-                ProList.lst[profile].chop_sectionsize[section]  = chopinsection;
-                ProList.lst[profile].chop_sectionstart[section] = chop.count - chopinsection;
-            }
-
-            section++;
-            chopinsection = 0;
-            tmp_chop[0] = CSTR_END;
-        }
-        else
-        {
-            int chop_len;
-
-            // fill in the chop data
-            chop.start[chop.count] = chop.carat;
-            chop_len = snprintf( chop.buffer + chop.carat, CHOPDATACHUNK - chop.carat - 1, "%s", tmp_chop );
-
-            chop.carat += chop_len + 1;
-            chop.count++;
-            chopinsection++;
-            tmp_chop[0] = CSTR_END;
-        }
-    }
-
-    // handle the case where the chop buffer has overflowed
-    // pretend the last command was "STOP"
-    if ( CSTR_END != tmp_chop[0] && section < MAXSECTION )
-    {
-        ProList.lst[profile].chop_sectionsize[section]  = chopinsection;
-        ProList.lst[profile].chop_sectionstart[section] = chop.count - chopinsection;
-    }
-
-    vfs_close( fileread );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1080,4 +1003,256 @@ void reset_messages()
     }
 
     message_buffer[0] = CSTR_END;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+const char * pro_create_chop( Uint16 iprofile )
+{
+    /// BB@> use the profile's chop to generate a name. Return "*NONE*" on a falure.
+
+    pro_t * ppro;
+    cap_t * pcap;
+    char * szTmp;
+
+    // The name returned by the function
+    static char buffer[MAXCAPNAMESIZE] = EMPTY_CSTR;
+
+    // the default "bad" name
+    strncpy( buffer, "*NONE*", SDL_arraysize(buffer) );
+
+    if( !VALID_PRO(iprofile) ) return buffer;
+    ppro = ProList.lst + iprofile;
+
+    if( !VALID_CAP(ppro->icap) ) return buffer;
+    pcap = CapList + ppro->icap;
+
+    if ( 0 == ppro->chop.section[0].size )
+    {
+        strncpy(buffer, pcap->classname, SDL_arraysize(buffer) );
+    }
+    else
+    {
+        szTmp = chop_create( &chop_mem, &(ppro->chop) );
+
+        if( VALID_CSTR(szTmp) )
+        {
+            strncpy( buffer, szTmp, SDL_arraysize(buffer) );
+        }
+    }
+
+    return buffer;
+}
+
+
+//--------------------------------------------------------------------------------------------
+bool_t       pro_load_chop( Uint16 iprofile, const char *szLoadname )
+{
+    /// BB@> load the chop for the given profile
+    pro_t * ppro;
+
+    if( !VALID_PRO(iprofile) ) return bfalse;
+    ppro = ProList.lst + iprofile;
+
+    // clear out any current definition
+    chop_definition_init( &(ppro->chop) );
+
+    return chop_load( &chop_mem, szLoadname, &(ppro->chop) );
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+chop_definition_t * chop_definition_init( chop_definition_t * pdefinition )
+{
+    int cnt;
+
+    if( NULL == pdefinition ) return pdefinition;
+
+    for ( cnt = 0; cnt < MAXSECTION; cnt++ )
+    {
+        pdefinition->section[cnt].start = MAXCHOP;
+        pdefinition->section[cnt].size  = 0;
+    }
+
+    return pdefinition;
+}
+
+//--------------------------------------------------------------------------------------------
+chop_data_t * chop_data_init(chop_data_t * pdata)
+{
+    /// @details ZZ@> This function prepares the name chopper for use
+    ///          BB@> It may actually be useful to blank the chop buffer
+
+    if( NULL == pdata ) return pdata;
+
+    pdata->chop_count = 0;
+    pdata->carat      = 0;
+
+    return pdata;
+}
+
+//--------------------------------------------------------------------------------------------
+const char * chop_create( chop_data_t * pdata, chop_definition_t * pdefinition )
+{
+    /// @details ZZ@> This function generates a random name.  Return "Blah" on a falure.
+
+    int read, write, section, mychop;
+    char cTmp;
+
+    // The name returned by the function
+    static char buffer[MAXCAPNAMESIZE] = EMPTY_CSTR;   
+
+    strncpy( buffer, "Blah", SDL_arraysize(buffer) );
+
+    if( NULL == pdata || NULL == pdefinition ) return buffer;
+
+    write = 0;
+    for ( section = 0; section < MAXSECTION; section++ )
+    {
+        if ( 0 != pdefinition->section[section].size )
+        {
+            int irand = RANDIE;
+
+            mychop = pdefinition->section[section].start + ( irand % pdefinition->section[section].size );
+
+            if( mychop < MAXCHOP )
+            {
+                read = pdata->start[mychop];
+                cTmp = pdata->buffer[read];
+                while ( '\0' != cTmp && write < MAXCAPNAMESIZE - 1 )
+                {
+                    buffer[write] = cTmp;
+                    write++;
+                    read++;
+                    cTmp = pdata->buffer[read];
+                }
+                buffer[write] = CSTR_END;
+            }
+        }
+    }
+    if ( write >= MAXCAPNAMESIZE ) write = MAXCAPNAMESIZE - 1;
+
+    buffer[write] = CSTR_END;
+
+    return buffer;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t chop_load( chop_data_t * pdata, const char *szLoadname, chop_definition_t * pdefinition )
+{
+    /// @details ZZ@> This function reads a naming.txt file into the chop data buffer and sets the
+    ///               values of a chop definition
+
+    int       which_section, section_count;
+    STRING    tmp_buffer = EMPTY_CSTR;
+    vfs_FILE *fileread;
+
+    chop_definition_t local_definition;
+
+    if( NULL == pdata || pdata->carat >= CHOPDATACHUNK ) return bfalse;
+
+    fileread = vfs_openRead( szLoadname );
+    if ( NULL == fileread ) return bfalse;
+
+    // in case we get a stupid value.
+    // we could create a dynamically allocated struct in this case...
+    if( NULL == pdefinition ) pdefinition = &local_definition;
+
+    // clear out any old definition
+    chop_definition_init( pdefinition );
+        
+    which_section = 0;
+    section_count = 0;
+    while ( which_section < MAXSECTION && pdata->carat < CHOPDATACHUNK && goto_colon( NULL, fileread, btrue ) )
+    {
+        fget_string( fileread, tmp_buffer, SDL_arraysize(tmp_buffer) );
+
+        // convert all the '_' and junk in the string
+        str_decode( tmp_buffer, SDL_arraysize(tmp_buffer), tmp_buffer);
+
+        if ( 0 == strcmp(tmp_buffer, "STOP") )
+        {
+            if ( which_section < MAXSECTION )
+            {
+                pdefinition->section[which_section].size  = section_count;
+                pdefinition->section[which_section].start = pdata->chop_count - section_count;
+            }
+
+            which_section++;
+            section_count = 0;
+            tmp_buffer[0] = CSTR_END;
+        }
+        else
+        {
+            int chop_len;
+
+            // fill in the chop data
+            pdata->start[pdata->chop_count] = pdata->carat;
+            chop_len = snprintf( pdata->buffer + pdata->carat, CHOPDATACHUNK - pdata->carat - 1, "%s", tmp_buffer );
+
+            pdata->carat += chop_len + 1;
+            pdata->chop_count++;
+            section_count++;
+            tmp_buffer[0] = CSTR_END;
+        }
+    }
+
+    // handle the case where the chop buffer has overflowed
+    // pretend the last command was "STOP"
+    if ( CSTR_END != tmp_buffer[0] && which_section < MAXSECTION )
+    {
+        pdefinition->section[which_section].size  = section_count;
+        pdefinition->section[which_section].start = pdata->chop_count - section_count;
+    }
+
+    vfs_close( fileread );
+
+    return section_count > 0;
+}
+
+
+//--------------------------------------------------------------------------------------------
+bool_t chop_export( const char *szSaveName, const char * szChop )
+{
+    /// @details ZZ@> This function exports a simple string to the naming.txt file
+
+    vfs_FILE* filewrite;
+    char cTmp;
+    int cnt, tnc;
+
+    if( !VALID_CSTR(szChop) ) return bfalse;
+
+    // Can it export?
+    filewrite = vfs_openWrite( szSaveName );
+    if ( NULL == filewrite ) return bfalse;
+
+    cnt = 0;
+    cTmp = szChop[0];
+    cnt++;
+    while ( cnt < MAXCAPNAMESIZE && cTmp != 0 )
+    {
+        vfs_printf( filewrite, ":" );
+
+        for ( tnc = 0; tnc < 8 && cTmp != 0; tnc++ )
+        {
+            if ( ' ' == cTmp )
+            {
+                vfs_printf( filewrite, "_" );
+            }
+            else
+            {
+                vfs_printf( filewrite, "%c", cTmp );
+            }
+
+            cTmp = szChop[cnt];
+            cnt++;
+        }
+
+        vfs_printf( filewrite, "\n" );
+        vfs_printf( filewrite, ":STOP\n\n" );
+    }
+
+    vfs_close( filewrite );
+
+    return btrue;
 }

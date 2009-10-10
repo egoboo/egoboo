@@ -29,6 +29,7 @@
 #include <stdio.h>
 #include <SDL_types.h>
 
+/// What type of things are we searching for?
 enum e_vfs_serach_bits
 {
     // file types

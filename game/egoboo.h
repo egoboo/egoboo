@@ -192,9 +192,9 @@ EXTERN bool_t                    local_noplayers;                    ///< Are th
 
 EXTERN const char *globalparsename  EQ( NULL ); ///< The SCRIPT.TXT filename
 
-/// phisics info
-EXTERN float           platstick  EQ( 0.1f );
+EXTERN float           platstick  EQ( 0.1f );   ///< phisics info
 
+/// The possible pre-defined orders
 enum e_order
 {
     ORDER_NONE  = 0,

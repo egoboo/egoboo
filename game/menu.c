@@ -59,7 +59,8 @@
 
 #define MNU_INVALID_PLA MAXPLAYER
 
-enum MenuStates
+/// The possible states of the menu state machine
+enum e_menu_states
 {
     MM_Begin,
     MM_Entering,
@@ -83,12 +84,20 @@ struct
 } SlidyButtonState;
 
 //--------------------------------------------------------------------------------------------
+/// the data to display a chosen player in the load player menu
+struct s_ChoosePlayer_element
+{
+    int cap_ref;              ///< the index of the cap_t 
+    int tx_ref;               ///< the index of the icon texture
+    chop_definition_t chop;   ///< put this here so we can generate a name without loading an entire profile
+};
+typedef struct s_ChoosePlayer_element ChoosePlayer_element_t;
+
 /// The data that menu.c uses to store the users' choice of players
 struct s_ChoosePlayer_profiles
 {
-    int count;
-    int cap_ref[MAXIMPORTPERPLAYER + 1];
-    int tx_ref[MAXIMPORTPERPLAYER + 1];
+    int count;                                                 ///< the profiles that have been loaded
+    ChoosePlayer_element_t pro_data[MAXIMPORTPERPLAYER + 1];   ///< the profile data
 };
 typedef struct s_ChoosePlayer_profiles ChoosePlayer_profiles_t;
 
@@ -166,7 +175,7 @@ static void mnu_release_one_module( int imod );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-// the module data that the menu system needs
+/// the module data that the menu system needs
 struct s_mnu_module
 {
     EGO_PROFILE_STUFF;
@@ -943,10 +952,11 @@ int doChooseModule( float deltaTime )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t doChoosePlayer_load_profiles( int player, ChoosePlayer_profiles_t * prof )
+bool_t doChoosePlayer_load_profiles( int player, ChoosePlayer_profiles_t * pro_list )
 {
     int    i, ref_temp;
     STRING szFilename;
+    ChoosePlayer_element_t * pdata;
 
     // release all of the temporary profiles
     release_all_profiles();
@@ -958,13 +968,18 @@ bool_t doChoosePlayer_load_profiles( int player, ChoosePlayer_profiles_t * prof 
     }
 
     // release any data that we have accumulated
-    for( i=0; i<prof->count; i++)
+    for( i=0; i<pro_list->count; i++)
     {
-        TxTexture_free_one( prof->tx_ref[i] );
-        prof->cap_ref[i] = MAX_CAP;
-        prof->tx_ref[i]  = INVALID_TEXTURE;
+        pdata = pro_list->pro_data + i;
+
+        TxTexture_free_one( pdata->tx_ref );
+
+        // initialize the data
+        pdata->cap_ref = MAX_CAP;
+        pdata->tx_ref  = INVALID_TEXTURE;
+        chop_definition_init( &(pdata->chop) );
     }
-    prof->count = 0;
+    pro_list->count = 0;
 
     if ( player < 0 || player >= MAXLOADPLAYER || player >= loadplayer_count ) return bfalse;
 
@@ -974,7 +989,13 @@ bool_t doChoosePlayer_load_profiles( int player, ChoosePlayer_profiles_t * prof 
     {
         return bfalse;
     }
-    prof->cap_ref[prof->count++] = ref_temp;
+
+    // go to the next element in the list
+    pdata = pro_list->pro_data + pro_list->count;
+    pro_list->count++;
+
+    // set the index of this object
+    pdata->cap_ref = ref_temp;
 
     // grab the inventory data
     for ( i = 0; i < MAXIMPORTOBJECTS; i++ )
@@ -989,13 +1010,19 @@ bool_t doChoosePlayer_load_profiles( int player, ChoosePlayer_profiles_t * prof 
         {
             cap_t * pcap = CapList + ref_temp;
 
-            prof->cap_ref[prof->count] = ref_temp;
+            // go to the next element in the list
+            pdata = pro_list->pro_data + pro_list->count;
+            pro_list->count++;
+
+            pdata->cap_ref = ref_temp;
 
             // load the icon
 			snprintf( szFilename, SDL_arraysize(szFilename), "%s" SLASH_STR "%d.obj" SLASH_STR "icon%d", loadplayer[player].dir, i, MAX(0, pcap->skinoverride) );
-            prof->tx_ref[prof->count] = TxTexture_load_one( szFilename, INVALID_TEXTURE, INVALID_KEY );
+            pdata->tx_ref = TxTexture_load_one( szFilename, INVALID_TEXTURE, INVALID_KEY );
 
-            prof->count++;
+            // load the naming
+			snprintf( szFilename, SDL_arraysize(szFilename), "%s" SLASH_STR "%d.obj" SLASH_STR "naming.txt", loadplayer[player].dir, i );
+            chop_load( &chop_mem, szFilename, &(pdata->chop) );
         }
     }
 
@@ -1038,7 +1065,7 @@ bool_t doChoosePlayer_show_stats( int player, int mode, int x, int y, int width,
     y1 = y + 10;
     if ( player >= 0 && objects.count > 0 )
     {
-        Uint16 icap = objects.cap_ref[0];
+        Uint16 icap = objects.pro_data[0].cap_ref;
 
         if ( VALID_CAP(icap) )
         {
@@ -1092,22 +1119,25 @@ bool_t doChoosePlayer_show_stats( int player, int mode, int x, int y, int width,
 
             if ( objects.count > 1 )
             {
+                ChoosePlayer_element_t * pdata;
+
                 fnt_drawText( menuFont, x1, y1, "Inventory" ); y1 += 20;
 
                 for ( i = 1; i < objects.count; i++ )
                 {
-                    icap = objects.cap_ref[i];
+                    pdata = objects.pro_data + i;
 
+                    icap = pdata->cap_ref;
                     if ( VALID_CAP(icap) )
                     {
                         Uint32  icon_ref;
                         cap_t * pcap = CapList + icap;
 
                         STRING itemname;
-                        if ( pcap->nameknown ) strncpy(itemname, chop_create(icap), SDL_arraysize(itemname));
+                        if ( pcap->nameknown ) strncpy(itemname, chop_create(&chop_mem, &(pdata->chop) ), SDL_arraysize(itemname));
                         else                   strncpy(itemname, pcap->classname,   SDL_arraysize(itemname));
 
-                        icon_ref = mnu_get_icon_ref( icap, objects.tx_ref[i] );
+                        icon_ref = mnu_get_icon_ref( icap, pdata->tx_ref );
 
                         draw_one_icon( icon_ref, x1, y1, NOSPARKLE );
 
@@ -3858,19 +3888,24 @@ void check_player_import( const char *dirname, bool_t initialize )
     const char *foundfile;
 	int skin = 0;
 
+    LOAD_PLAYER_INFO * pinfo;
+
     if ( initialize )
     {
         // restart from nothing
         loadplayer_count = 0;
         release_all_profile_textures();
+
+        chop_data_init(&chop_mem);
     };
 
     // Search for all objects
     foundfile = vfs_findFirst( dirname, "obj", VFS_SEARCH_DIR );
     while ( VALID_CSTR(foundfile) && loadplayer_count < MAXLOADPLAYER )
     {
-        prime_names();
-		snprintf( loadplayer[loadplayer_count].dir, SDL_arraysize( loadplayer[loadplayer_count].dir), "%s", str_convert_slash_sys(foundfile, strlen(foundfile)) );
+        pinfo = loadplayer + loadplayer_count;
+
+		snprintf( pinfo->dir, SDL_arraysize( pinfo->dir), "%s", str_convert_slash_sys(foundfile, strlen(foundfile)) );
 
         snprintf( filename, SDL_arraysize( filename), "%s" SLASH_STR "skin.txt", foundfile );
         skin = read_skin( filename );
@@ -3879,12 +3914,14 @@ void check_player_import( const char *dirname, bool_t initialize )
         //md2_load_one( vfs_resolveReadFilename(filename), &(MadList[loadplayer_count].md2_data) );
 
 		snprintf( filename, SDL_arraysize( filename), "%s" SLASH_STR "icon%d", foundfile, skin );
-        loadplayer[loadplayer_count].tx_ref = TxTexture_load_one( filename, INVALID_TEXTURE, INVALID_KEY );
+        pinfo->tx_ref = TxTexture_load_one( filename, INVALID_TEXTURE, INVALID_KEY );
 
+        // load the chop data
         snprintf( filename, SDL_arraysize( filename), "%s" SLASH_STR "naming.txt", foundfile );
-        chop_load( loadplayer_count, filename );
+        chop_load( &chop_mem, filename, &(pinfo->chop) );
 
-        snprintf( loadplayer[loadplayer_count].name, SDL_arraysize(loadplayer[loadplayer_count].name), "%s", chop_create( loadplayer_count ) );
+        // generate the name from the chop
+        snprintf( pinfo->name, SDL_arraysize(pinfo->name), "%s", chop_create( &chop_mem, &(pinfo->chop) ) );
 
         loadplayer_count++;
 

@@ -40,7 +40,7 @@ struct s_script_state;
 #define NOOWNER 0xFFFF        ///< Shop has no owner
 #define STOLEN  0xFFFF        ///< Someone stole a item
 
-/// These are shop orders
+/// The pre-defined orders for communicating with shopkeepers
 enum e_shop_orders
 {
     SHOP_BUY       = 0,
@@ -59,7 +59,7 @@ DEFINE_STACK_EXTERN(passage_t, PassageStack, MAX_PASS );
 #define VALID_PASSAGE( IPASS )       ( VALID_PASSAGE_RANGE( IPASS ) && ((IPASS) <  PassageStack.count) )
 #define INVALID_PASSAGE( IPASS )     ( !VALID_PASSAGE( IPASS ) )
 
-/// For shops
+/// The data defining a shop
 struct s_shop
 {
     Uint16  passage;  ///< The passage number

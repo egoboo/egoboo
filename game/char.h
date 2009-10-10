@@ -47,6 +47,7 @@
 
 #define MAX_CAP    MAX_PROFILE
 
+/// The possible methods for characters to determine what direction they are facing
 typedef enum e_turn_modes
 {
     TURNMODE_VELOCITY = 0,                       ///< Character gets rotation from velocity (normal)
@@ -63,6 +64,8 @@ typedef enum e_turn_modes
 #define WATCHMIN            0.01f                 ///< Tolerance for TURNMODE_WATCH
 
 #define GRIP_VERTS                       4
+
+/// The vertex offsets for the various grips
 enum e_grip_offset
 {
     GRIP_ORIGIN    =               0,                ///< Spawn attachments at the center
@@ -136,15 +139,21 @@ slot_t        grip_offset_to_slot( grip_offset_t grip );
 //------------------------------------
 /// Team variables
 //------------------------------------
-#define TEAM_EVIL            4                       ///< E
-#define TEAM_GOOD            6                       ///< G
-#define TEAM_NULL            13                      ///< N
-#define TEAM_DAMAGE          26                      ///< For damage tiles
-#define TEAM_MAX             27                      ///< Teams A-Z, +1 more for damage tiles
+enum e_team_types
+{
+    TEAM_EVIL            = ('E' - 'A'),          ///< Evil team
+    TEAM_GOOD            = ('G' - 'A'),          ///< Good team
+    TEAM_NULL            = ('N' - 'A'),          ///< Null or Neutral team
+    TEAM_ZIPPY           = ('Z' - 'A'),          ///< Zippy Team?
+    TEAM_DAMAGE,                                 ///< For damage tiles
+    TEAM_MAX
+};
+
 #define NOLEADER            0xFFFF                   ///< If the team has no leader...
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+/// The description of a single team
 struct s_team
 {
     bool_t  hatesteam[TEAM_MAX];     ///< Don't damage allies...
@@ -156,9 +165,9 @@ typedef struct s_team team_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-/// the data necessary to cache the last values required to create the character matrix
 
-/// bits that tell you which variables to look at
+
+/// Bits that tell you which variables to look at
 enum e_matrix_cache_type
 {
     MAT_UNKNOWN   = 0,
@@ -168,6 +177,7 @@ enum e_matrix_cache_type
 
 typedef enum e_matrix_cache_type matrix_cache_type_t;
 
+/// the data necessary to cache the last values required to create the character matrix
 struct s_matrix_cache
 {
     // is the cache data valid?
@@ -297,7 +307,8 @@ struct s_chr_environment
 typedef struct s_chr_environment chr_environment_t;
 
 //--------------------------------------------------------------------------------------------
-/// Data for doing the physics in bump_all_objects(). should prevent you from being bumped into a wall
+/// Data for doing the physics in bump_all_objects()
+/// @details should prevent you from being bumped into a wall
 struct s_phys_data
 {
     fvec3_t        apos_0, apos_1;
@@ -337,6 +348,7 @@ typedef struct s_chr_bumper_1 chr_bumper_1_t;
 
 //--------------------------------------------------------------------------------------------
 /// The definition of the character object
+/// This "inherits" for ego_object_base_t
 struct s_chr
 {
     ego_object_base_t obj_base;
@@ -628,8 +640,6 @@ void free_all_chraracters();
 Uint32 __chrhitawall( Uint16 character, float nrm[] );
 
 int chr_count_free();
-
-char * chop_create( Uint16 profile );
 
 Uint16 spawn_one_character( fvec3_t   pos, Uint16 profile, Uint8 team, Uint8 skin, Uint16 facing, const char *name, Uint16 override );
 void respawn_character( Uint16 character );

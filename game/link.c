@@ -58,6 +58,7 @@ struct s_hero_spawn_data
 };
 typedef struct s_hero_spawn_data hero_spawn_data_t;
 
+/// A list of all the active links
 struct s_link_stack_entry
 {
     STRING            modname;

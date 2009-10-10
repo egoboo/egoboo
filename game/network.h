@@ -61,6 +61,9 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+/// A latch with a time attached
+/// @details This is recieved over the network, or inserted into the list by the local system to simulate
+///  network traffic
 struct s_time_latch
 {
     float   x;
@@ -88,22 +91,23 @@ void input_device_init( input_device_t * pdevice );
 void input_device_add_latch( input_device_t * pdevice, float newx, float newy );
 
 //--------------------------------------------------------------------------------------------
+/// The state of a player
 struct s_player
 {
     bool_t                  valid;                    ///< Player used?
     Uint16                  index;                    ///< Which character?
 
-    // the buffered input from the local input devices
+    /// the buffered input from the local input devices
     input_device_t          device;
 
-    // Local latch, set by set_one_player_latch(), read by sv_talkToRemotes()
+    /// Local latch, set by set_one_player_latch(), read by sv_talkToRemotes()
     latch_t                 latch;
 
     // Timed latches
     Uint32                  tlatch_count;
     time_latch_t            tlatch[MAXLAG];
 
-    // Network latch, set by unbuffer_player_latches(), used to set the local character's latch
+    /// Network latch, set by unbuffer_player_latches(), used to set the local character's latch
     latch_t                 net_latch;
 };
 
@@ -123,6 +127,7 @@ Uint16         pla_get_ichr( Uint16 iplayer );
 struct s_chr * pla_get_pchr( Uint16 iplayer );
 
 //--------------------------------------------------------------------------------------------
+/// The state of the network code used in old-egoboo 
 struct s_net_instance
 {
     bool_t  on;                      ///< Try to connect?

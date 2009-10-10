@@ -2465,46 +2465,9 @@ bool_t export_one_character_name( const char *szSaveName, Uint16 character )
 {
     /// @details ZZ@> This function makes the naming.txt file for the character
 
-    vfs_FILE* filewrite;
-    char cTmp;
-    int cnt, tnc;
-
     if ( !ACTIVE_CHR(character) ) return bfalse;
 
-    // Can it export?
-    filewrite = vfs_openWrite( szSaveName );
-    if ( NULL == filewrite ) return bfalse;
-
-    cnt = 0;
-    cTmp = ChrList.lst[character].Name[0];
-    cnt++;
-    while ( cnt < MAXCAPNAMESIZE && cTmp != 0 )
-    {
-        vfs_printf( filewrite, ":" );
-
-        for ( tnc = 0; tnc < 8 && cTmp != 0; tnc++ )
-        {
-            if ( ' ' == cTmp )
-            {
-                vfs_printf( filewrite, "_" );
-            }
-            else
-            {
-                vfs_printf( filewrite, "%c", cTmp );
-            }
-
-            cTmp = ChrList.lst[character].Name[cnt];
-            cnt++;
-        }
-
-        vfs_printf( filewrite, "\n" );
-        vfs_printf( filewrite, ":STOP\n\n" );
-    }
-
-    vfs_close( filewrite );
-
-    return btrue;
-
+    return chop_export( szSaveName, ChrList.lst[character].Name );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2566,6 +2529,10 @@ bool_t chr_upload_cap( chr_t * pchr, cap_t * pcap )
     pcap->canusearcane          = pchr->canusearcane;
     pcap->canusetech            = pchr->canusetech;
     pcap->hascodeofconduct      = pchr->hascodeofconduct;
+
+
+    // make sure that identified items are saveed as identified
+    pcap->nameknown = pchr->nameknown;
 
     return btrue;
 }
@@ -3266,53 +3233,6 @@ void spawn_poof( Uint16 character, Uint16 profile )
 }
 
 //--------------------------------------------------------------------------------------------
-char * chop_create( Uint16 profile )
-{
-    /// @details ZZ@> This function generates a random name
-
-    int read, write, section, mychop;
-    char cTmp;
-
-    // The name returned by the function
-    static char buffer[MAXCAPNAMESIZE] = EMPTY_CSTR;   
-
-    if ( 0 == ProList.lst[profile].chop_sectionsize[0] )
-    {
-        strncpy(buffer, CapList[profile].classname, SDL_arraysize(buffer) );
-    }
-    else
-    {
-        write = 0;
-
-        for ( section = 0; section < MAXSECTION; section++ )
-        {
-            if ( 0 != ProList.lst[profile].chop_sectionsize[section] )
-            {
-                int irand = RANDIE;
-
-                mychop = ProList.lst[profile].chop_sectionstart[section] + ( irand % ProList.lst[profile].chop_sectionsize[section] );
-
-                read = chop.start[mychop];
-                cTmp = chop.buffer[read];
-                while ( cTmp != 0 && write < MAXCAPNAMESIZE - 1 )
-                {
-                    buffer[write] = cTmp;
-                    write++;
-                    read++;
-                    cTmp = chop.buffer[read];
-                }
-                buffer[write] = CSTR_END;
-            }
-        }
-        if ( write >= MAXCAPNAMESIZE ) write = MAXCAPNAMESIZE - 1;
-
-        buffer[write] = CSTR_END;
-    }
-
-    return buffer;
-}
-
-//--------------------------------------------------------------------------------------------
 ai_state_t * ai_state_init( ai_state_t * pself )
 {
     if( NULL == pself ) return pself;
@@ -3685,7 +3605,7 @@ Uint16 spawn_one_character( fvec3_t   pos, Uint16 profile, Uint8 team,
     if ( name == NULL )
     {
         // Generate a random name
-        snprintf( pchr->Name, SDL_arraysize(pchr->Name), "%s", chop_create( profile ) );
+        snprintf( pchr->Name, SDL_arraysize(pchr->Name), "%s", pro_create_chop( profile ) );
     }
     else
     {

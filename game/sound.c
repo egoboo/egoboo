@@ -43,6 +43,7 @@
 //--------------------------------------------------------------------------------------------
 #define LOOPED_COUNT 256
 
+/// Data needed to store and manipulate a looped sound
 struct s_looped_sound_data
 {
     int         channel;
@@ -110,6 +111,7 @@ bool_t _update_stereo_channel( int channel, fvec3_t   diff );
 #define MUSIC_STACK_COUNT 20
 static int music_stack_depth = 0;
 
+/// The data needed to store a dsingle music track on the music_stack[]
 struct s_music_stack_element
 {
     Mix_Music * mus;

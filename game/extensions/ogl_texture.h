@@ -39,7 +39,7 @@
 
 #define INVALID_KEY    ( (Uint32) (~0) )
 
-/// OpenGL Texture filtering
+/// OpenGL Texture filtering methods
 typedef enum e_tx_filters
 {
     TX_UNFILTERED,

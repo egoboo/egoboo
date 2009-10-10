@@ -40,11 +40,12 @@ struct s_egoboo_config;
 #define MENU_SONG          0            ///< default music theme played when in the menu
 
 #define MIX_HIGH_QUALITY   44100        ///< frequency 44100 for 44.1KHz, which is CD audio rate.
-/// Most games use 22050, because 44100 requires too much
-/// CPU power on older computers.
+// Most games use 22050, because 44100 requires too much
+// CPU power on older computers.
 
 #define VALID_SND( ISND )       ( ISND >= 0 && ISND < MAX_WAVE )
 
+/// Pre defined global particle sounds
 typedef enum e_global_sounds
 {
     GSND_GETCOIN = 0,
@@ -59,12 +60,12 @@ typedef enum e_global_sounds
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-/// an anonymized "pointer" type in case we want to store data that is either a
-/// chunk or a music
 
+/// what type of music data is used by mix_ptr_t
 enum e_mix_type { MIX_UNKNOWN = 0, MIX_MUS, MIX_SND };
 typedef enum e_mix_type mix_type_t;
 
+/// an anonymized "pointer" type in case we want to store data that is either a chunk or a music
 struct s_mix_ptr
 {
     mix_type_t type;
@@ -80,8 +81,8 @@ typedef struct s_mix_ptr mix_ptr_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-/// The global variables for the sound module
 
+/// The global variables for the sound module
 struct s_snd_config
 {
     bool_t       soundvalid;           ///< Allow playing of sound?

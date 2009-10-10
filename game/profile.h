@@ -42,7 +42,7 @@ extern char            message_buffer[MESSAGEBUFFERSIZE];                     //
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-/// for loading objects
+/// Placeholders used while importing profiles
 struct s_pro_import
 {
     int   slot;
@@ -50,7 +50,6 @@ struct s_pro_import
     int   slot_lst[MAX_PROFILE];
     int   max_slot;
 };
-
 typedef struct s_pro_import pro_import_t;
 
 //--------------------------------------------------------------------------------------------
@@ -66,7 +65,7 @@ typedef struct s_pro_import pro_import_t;
 /// The buffer for the random naming data
 struct s_chop_data
 {
-    Uint16  count;                  ///< The number of name parts
+    Uint16  chop_count;             ///< The global number of name parts
 
     Uint32  carat;                  ///< The data pointer
     char    buffer[CHOPDATACHUNK];  ///< The name parts
@@ -74,10 +73,31 @@ struct s_chop_data
 };
 typedef struct s_chop_data chop_data_t;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-/// a wrapper for all the datafiles in the *.obj dir
 
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+/// Defintion of a single chop secttion
+struct s_chop_section
+{
+    Uint16       size;     ///< Number of choices, 0
+    Uint16       start;    ///< A reference to a specific offset in the chop_data_t buffer
+};
+typedef struct s_chop_section chop_section_t;
+
+/// Defintion of the chop info needed to create a name
+struct s_chop_definition
+{
+    chop_section_t  section[MAXSECTION];
+};
+typedef struct s_chop_definition chop_definition_t;
+
+chop_definition_t * chop_definition_init( chop_definition_t * );
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+/// a wrapper for all the datafiles in the *.obj dir
 struct s_object_profile
 {
     EGO_PROFILE_STUFF;
@@ -98,9 +118,8 @@ struct s_object_profile
     // the profile message info
     Uint16  message_start;                    ///< The first message
 
-    // the random naming info
-    Uint16       chop_sectionsize[MAXSECTION];   ///< Number of choices, 0
-    Uint16       chop_sectionstart[MAXSECTION];
+    /// the random naming info
+    chop_definition_t chop;
 
     // sounds
     struct Mix_Chunk *  wavelist[MAX_WAVE];             ///< sounds in a object
@@ -120,7 +139,7 @@ extern Uint16  bookicon_ref[MAX_SKIN];                      ///< The first book 
 
 extern pro_import_t import_data;
 
-extern chop_data_t chop;
+chop_data_t chop_mem;
 
 DEFINE_LIST_EXTERN(pro_t, ProList, MAX_PROFILE );
 
@@ -157,12 +176,19 @@ void   load_all_messages( const char *loadname, Uint16 object );
 bool_t release_one_local_pips( Uint16 iobj );
 void   release_all_local_pips();
 
-void   prime_names( void );
-void   chop_load( Uint16 profile, const char *szLoadname );
-
 void   release_all_pro_data();
 
 void init_all_profiles();
 void release_all_profiles();
 
 void reset_messages();
+
+const char * pro_create_chop( Uint16 iprofile );
+bool_t       pro_load_chop( Uint16 profile, const char *szLoadname );
+
+chop_data_t * chop_data_init(chop_data_t * pdata);
+chop_definition_t * chop_definition_init( chop_definition_t * pdefinition );
+
+const char *  chop_create( chop_data_t * pdata, chop_definition_t * pdef );
+bool_t        chop_load( chop_data_t * pchop_data, const char *szLoadname, chop_definition_t * pchop_definition );
+bool_t        chop_export( const char *szSaveName, const char * szChop );

@@ -44,6 +44,7 @@ struct s_chr;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+/// The various states that a process can occupy
 enum e_process_states
 {
     proc_begin,
@@ -60,7 +61,7 @@ typedef enum e_process_states process_state_t;
 #define PROC_PBASE(PTR) (&( (PTR)->base ))
 
 /// A rudimantary implementation of "non-preemptive multitasking" in egoboo.
-/// All other process types "inherit" from this one
+/// @details All other process types "inherit" from this one
 struct s_process_instance
 {
     bool_t          valid;
@@ -138,7 +139,8 @@ extern menu_process_t * MProc;
 #define WATERFRAMEAND (MAXWATERFRAME-1)
 #define WATERPOINTS 4                               ///< Points in a water fan
 
-enum e_latchbutton
+/// The bitmasks for various in-game actions
+enum e_latchbutton_bits
 {
     LATCHBUTTON_LEFT      = ( 1 << 0 ),                      ///< Character button presses
     LATCHBUTTON_RIGHT     = ( 1 << 1 ),
@@ -183,6 +185,7 @@ typedef struct s_damagetile_instance damagetile_instance_t;
 extern damagetile_instance_t damagetile;
 
 //--------------------------------------------------------------------------------------------
+/// The data descibing the weather state
 struct s_weather_instance
 {
     int   timer_reset;
@@ -195,6 +198,7 @@ typedef struct s_weather_instance weather_instance_t;
 extern weather_instance_t weather;
 
 //--------------------------------------------------------------------------------------------
+/// The data descibing the state of a water layer
 struct s_water_layer_instance
 {
     Uint16    frame;        ///< Frame
@@ -215,6 +219,7 @@ struct s_water_layer_instance
 };
 typedef struct s_water_layer_instance water_instance_layer_t;
 
+/// The data descibing the water state
 struct s_water_instance
 {
     float  surface_level;          ///< Surface level for water striders

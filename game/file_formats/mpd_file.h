@@ -49,40 +49,42 @@
 
 #define VALID_TILE(PMPD, ID) ( (INVALID_TILE!=(ID)) && (NULL != (PMPD)) && (ID < (PMPD)->info.tiles_count) )
 
+/// The bit flags for mesh tiles
 enum e_mpd_fx
 {
     MPDFX_REF             =       0,     ///< NOT USED
-                                         // Egoboo v1.0 : "0 This tile is drawn 1st"
+                                         //< Egoboo v1.0 : "0 This tile is drawn 1st"
 
     MPDFX_SHA             = (1 << 0),    ///< 0 == (val & MPDFX_SHA) means that the tile is reflected in the floors
-                                         // Egoboo v1.0: "0 This tile is drawn 2nd"
-                                         // aicodes.txt : FXNOREFLECT
+                                         ///< Egoboo v1.0: "0 This tile is drawn 2nd"
+                                         ///< aicodes.txt : FXNOREFLECT
 
     MPDFX_DRAWREF         = (1 << 1),    ///< the tile reflects characters
-                                         // Egoboo v1.0: "1 Draw reflection of characters"
-                                         // aicodes.txt : FXDRAWREFLECT
+                                         ///< Egoboo v1.0: "1 Draw reflection of characters"
+                                         ///< aicodes.txt : FXDRAWREFLECT
 
     MPDFX_ANIM            = (1 << 2),    ///< Egoboo v1.0: "2 Animated tile ( 4 frame )"
-                                         // aicodes.txt : FXANIM
+                                         ///< aicodes.txt : FXANIM
 
     MPDFX_WATER           = (1 << 3),    ///< Egoboo v1.0: "3 Render water above surface ( Water details are set per module )"
-                                         // aicodes.txt : FXWATER
+                                         ///< aicodes.txt : FXWATER
 
     MPDFX_WALL            = (1 << 4),    ///< Egoboo v1.0: "4 Wall ( Passable by ghosts, particles )"
-                                         // aicodes.txt : FXBARRIER
+                                         ///< aicodes.txt : FXBARRIER
 
     MPDFX_IMPASS          = (1 << 5),    ///< Egoboo v1.0: "5 Impassable"
                                          // aicodes.txt : FXIMPASS
 
     MPDFX_DAMAGE          = (1 << 6),    ///< Egoboo v1.0: "6 Damage"
-                                         // aicodes.txt : FXDAMAGE
+                                         ///< aicodes.txt : FXDAMAGE
 
     MPDFX_SLIPPY          = (1 << 7)     ///< Egoboo v1.0: "7 Ice or normal"
-                                         // aicodes.txt : FXSLIPPY
+                                         ///< aicodes.txt : FXSLIPPY
 };
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+/// The basic parameters needed to create an mpd
 struct s_mpd_info
 {
     size_t          vertcount;                         ///< For malloc
@@ -93,6 +95,7 @@ struct s_mpd_info
 typedef struct s_mpd_info mpd_info_t;
 
 //--------------------------------------------------------------------------------------------
+/// The data describing a mpd tile
 struct s_tile_info
 {
     Uint8   type;                              ///< Tile type
@@ -106,6 +109,7 @@ struct s_tile_info
 typedef struct s_tile_info tile_info_t;
 
 //--------------------------------------------------------------------------------------------
+/// The information for a single mpd vertex
 struct s_mpd_vertex
 {
     fvec3_t    pos;                               ///< Vertex position
@@ -114,6 +118,7 @@ struct s_mpd_vertex
 typedef struct s_mpd_vertex mpd_vertex_t;
 
 //--------------------------------------------------------------------------------------------
+/// A wrapper for the dynamically allocated memory in an mpd
 struct s_mpd_mem
 {
     size_t          tile_count;                       ///< Number of tiles
@@ -125,6 +130,7 @@ struct s_mpd_mem
 typedef struct s_mpd_mem mpd_mem_t;
 
 //--------------------------------------------------------------------------------------------
+/// The data describing a single mpd
 struct s_mpd
 {
     mpd_info_t info;
@@ -133,6 +139,7 @@ struct s_mpd
 typedef struct s_mpd mpd_t;
 
 //--------------------------------------------------------------------------------------------
+/// A description of a tile type that allows some compression in the way vertices are stored in the mpd file
 struct s_tile_definition
 {
     Uint8           numvertices;                ///< Number of vertices

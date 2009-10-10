@@ -35,6 +35,7 @@
 typedef struct s_ui_Context ui_Context_t;
 typedef Uint32 ui_id_t;
 
+/// Possible UI button states
 enum e_ui_button_values
 {
     BUTTON_NOCHANGE = 0,
@@ -43,6 +44,7 @@ enum e_ui_button_values
 };
 typedef enum e_ui_button_values ui_buttonValues;
 
+/// Possible UI button properties
 enum e_ui_button_bits
 {
     UI_BITS_NONE      = 0,
@@ -50,6 +52,7 @@ enum e_ui_button_bits
     UI_BITS_CLICKED   = 1 << 1
 };
 
+/// The data descibing the state of a UI widget
 struct s_ui_Widget
 {
     ui_id_t       id;

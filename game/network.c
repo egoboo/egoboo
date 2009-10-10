@@ -93,7 +93,7 @@ enum NetworkConstant
     NET_MAX_FILE_TRANSFERS    = 1024  // Maximum files queued up at once
 };
 
-/// Network messages
+/// All the supported network messages
 enum NetworkMessage
 {
     NET_TRANSFER_FILE       = 10001,  // Packet contains a file.
