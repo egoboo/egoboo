@@ -992,7 +992,7 @@ bool_t doChoosePlayer_load_profiles( int player, ChoosePlayer_profiles_t * prof 
             prof->cap_ref[prof->count] = ref_temp;
 
             // load the icon
-            snprintf( szFilename, SDL_arraysize(szFilename), "%s" SLASH_STR "%d.obj" SLASH_STR "icon%d", loadplayer[player].dir, i, MAX(0, pcap->skinoverride) );
+			snprintf( szFilename, SDL_arraysize(szFilename), "%s" SLASH_STR "%d.obj" SLASH_STR "icon%d", loadplayer[player].dir, i, MAX(0, pcap->skinoverride) );
             prof->tx_ref[prof->count] = TxTexture_load_one( szFilename, INVALID_TEXTURE, INVALID_KEY );
 
             prof->count++;
@@ -1043,12 +1043,18 @@ bool_t doChoosePlayer_show_stats( int player, int mode, int x, int y, int width,
         if ( VALID_CAP(icap) )
         {
             cap_t * pcap = CapList + icap;
+			Uint8 skin = MAX(0, pcap->skinoverride);
 
             ui_drawButton( UI_Nothing, x, y, width, height, NULL );
 
             //Character level and class
             GL_DEBUG(glColor4f)(1, 1, 1, 1);
             fnt_drawText( menuFont, x1, y1, "Level %d %s", pcap->leveloverride + 1, pcap->classname );
+            y1 += 20;
+			
+			//Armor
+            GL_DEBUG(glColor4f)(1, 1, 1, 1);
+			fnt_drawText( menuFont, x1, y1, "Wearing %s %s", pcap->skinname[skin], HAS_SOME_BITS( pcap->skindressy, 1 << skin ) ? "(Light)" : "(Heavy)" );
             y1 += 40;
 
             //Life and mana (can be less than maximum if not in easy mode)
@@ -3849,8 +3855,8 @@ void check_player_import( const char *dirname, bool_t initialize )
     ///     data for each
 
     STRING filename;
-    int skin;
     const char *foundfile;
+	int skin = 0;
 
     if ( initialize )
     {
@@ -3867,12 +3873,12 @@ void check_player_import( const char *dirname, bool_t initialize )
 		snprintf( loadplayer[loadplayer_count].dir, SDL_arraysize( loadplayer[loadplayer_count].dir), "%s", str_convert_slash_sys(foundfile, strlen(foundfile)) );
 
         snprintf( filename, SDL_arraysize( filename), "%s" SLASH_STR "skin.txt", foundfile );
-        skin = get_skin( filename );
+        skin = read_skin( filename );
 
         //snprintf( filename, SDL_arraysize(filename), "%s" SLASH_STR "tris.md2", foundfile );
         //md2_load_one( vfs_resolveReadFilename(filename), &(MadList[loadplayer_count].md2_data) );
 
-        snprintf( filename, SDL_arraysize( filename), "%s" SLASH_STR "icon%d", foundfile, skin );
+		snprintf( filename, SDL_arraysize( filename), "%s" SLASH_STR "icon%d", foundfile, skin );
         loadplayer[loadplayer_count].tx_ref = TxTexture_load_one( filename, INVALID_TEXTURE, INVALID_KEY );
 
         snprintf( filename, SDL_arraysize( filename), "%s" SLASH_STR "naming.txt", foundfile );
@@ -4152,7 +4158,7 @@ Uint32 mnu_get_icon_ref( Uint16 icap, Uint32 default_ref )
     pitem_cap = CapList + icap;
 
     // what do we need to draw?
-    is_spell_fx = pitem_cap->spelleffect_type > 0;
+    is_spell_fx = pitem_cap->spelleffect_type != NOSKINOVERRIDE;
     is_book     = (SPELLBOOK == icap);
     draw_book   = (is_book || is_spell_fx) && (bookicon_count > 0);
 
@@ -4164,11 +4170,11 @@ Uint32 mnu_get_icon_ref( Uint16 icap, Uint32 default_ref )
     {
         int iskin = 0;
 
-        if ( pitem_cap->spelleffect_type > 0 )
+        if ( pitem_cap->spelleffect_type != 0 )
         {
             iskin = pitem_cap->spelleffect_type;
         }
-        else if ( pitem_cap->skinoverride > 0 )
+        else if ( pitem_cap->skinoverride != 0 )
         {
             iskin = pitem_cap->skinoverride;
         }

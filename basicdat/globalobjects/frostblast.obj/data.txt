@@ -197,7 +197,8 @@ Sound of Jump ( -1 for none )			: -1
 :[VALU] 1       //Always sold at 100% price
 :[HIDE] 0	      // Hidden when in hand
 :[ICON] 0
-:[BOOK] 1
+:[BOOK] 2
+:[GOLD] 2
 
 //-Notes------------------------------------------------------------------------
 // Money, items, skin, name, team, and position are all set at spawn time

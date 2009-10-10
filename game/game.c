@@ -367,8 +367,6 @@ void export_one_character( Uint16 character, Uint16 owner, int number, bool_t is
         snprintf( tofile, SDL_arraysize( tofile),   "%s" SLASH_STR "credits.txt", todir );
         vfs_copyFile( fromfile, tofile );
 
-        /// ZF@> We can't do this yet, quests are written directly into players/x.obj
-        /// instead of import/x.obj which should be changed or all changes are lost.
         snprintf( fromfile, SDL_arraysize( fromfile), "%s" SLASH_STR "quest.txt", fromdir );
         snprintf( tofile, SDL_arraysize( tofile),   "%s" SLASH_STR "quest.txt", todir );
         vfs_copyFile( fromfile, tofile );
@@ -5070,7 +5068,7 @@ bool_t setup_characters_spawn( spawn_file_info_t * psp_info )
     // Turn on PlaList_count input devices
     if ( psp_info->stat )
     {
-        if ( 0 != PMod->importamount && PlaList_count < PMod->playeramount )
+        if ( /*0 != PMod->importamount &&*/ PlaList_count < PMod->playeramount )
         {
             if ( 0 == local_numlpla )
             {

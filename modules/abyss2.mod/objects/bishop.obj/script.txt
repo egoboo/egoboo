@@ -138,4 +138,7 @@ IfKilled
   tmpdistance = 8
   AddQuestAllPlayers
 
+  tmpargument = [BEAT]
+  AddIDSZ
+
 End

@@ -2770,8 +2770,7 @@ bool_t export_one_character_skin( const char *szSaveName, Uint16 character )
 
     vfs_printf( filewrite, "// This file is used only by the import menu\n" );
     vfs_printf( filewrite, ": %d\n", ChrList.lst[character].skin );
-    vfs_close( filewrite );
-
+	vfs_close( filewrite );
     return btrue;
 }
 
@@ -7309,7 +7308,7 @@ Uint32 chr_get_icon_ref( Uint16 item )
     if( NULL == pitem_cap ) return icon_ref;
 
     // what do we need to draw?
-    is_spell_fx = pitem_cap->spelleffect_type >= 0;       // the value of spelleffect_type == the skin of the book or -1 for not a spell effect
+    is_spell_fx = pitem_cap->spelleffect_type != NOSKINOVERRIDE;       // the value of spelleffect_type == the skin of the book or -1 for not a spell effect
     is_book     = (SPELLBOOK == pitem->iprofile);
     draw_book = (is_book || (is_spell_fx && !pitem->icon)) && (bookicon_count > 0);
 

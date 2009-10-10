@@ -1009,23 +1009,20 @@ Uint8 fget_damage_modifier( vfs_FILE * fileread )
 
     return iTmp | tTmp;
 }
-
 //--------------------------------------------------------------------------------------------
-int get_skin( const char *filename )
+int read_skin( const char *filename  )
 {
     /// @details ZZ@> This function reads the skin.txt file...
     vfs_FILE*   fileread;
-    int skin;
+	int skin = 0;
 
-    skin = 0;
     fileread = vfs_openRead( filename );
-    if ( fileread )
-    {
-        skin = fget_next_int( fileread );
-        skin %= MAX_SKIN;
+    if ( !fileread ) return skin;
 
-        vfs_close( fileread );
-    }
-
+	//Read the contents
+	skin = fget_next_int( fileread );
+	skin %= MAX_SKIN;
+	
+    vfs_close( fileread );
     return skin;
 }

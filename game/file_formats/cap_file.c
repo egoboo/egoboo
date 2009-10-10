@@ -74,7 +74,7 @@ cap_t * cap_init( cap_t * pcap )
 
     // Skills
 
-    pcap->spelleffect_type = -1;
+    pcap->spelleffect_type = NOSKINOVERRIDE;
 
     return pcap;
 }
