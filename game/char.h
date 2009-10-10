@@ -346,7 +346,7 @@ struct s_chr
     latch_t        latch;
 
     // character stats
-    STRING         name;
+    STRING         Name;
     Uint8          gender;          ///< Gender
 
     Uint8          lifecolor;       ///< Bar color
@@ -584,6 +584,8 @@ DEFINE_LIST_EXTERN(chr_t, ChrList, MAX_CHR );
 #define ACTIVE_PCHR( PCHR )     ( (NULL != (PCHR)) && VALID_CHR_RANGE( GET_INDEX( PCHR, MAX_CHR) ) && ACTIVE_OBJ( OBJ_GET_PBASE( (PCHR) ) ) )
 #define ALLOCATED_PCHR( PCHR )  ( (NULL != (PCHR)) && VALID_CHR_RANGE( GET_INDEX( PCHR, MAX_CHR) ) && ALLOCATED_OBJ( OBJ_GET_PBASE( (PCHR) ) ) )
 
+#define GET_INDEX_PCHR( PCHR )  GET_INDEX( PCHR, MAX_CHR )
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 /// Function prototypes
@@ -669,12 +671,6 @@ bool_t chr_make_text_billboard( Uint16 ichr, const char * txt, SDL_Color color, 
 const char * chr_get_name( Uint16 ichr, bool_t use_article );
 
 Uint16 ChrList_get_free();
-
-//---------------------------------------------------------------------------------------------
-/// Quest system
-bool_t quest_add_idsz( const char *whichplayer, IDSZ idsz );
-Sint16 quest_modify_idsz( const char *whichplayer, IDSZ idsz, Sint16 adjustment );
-Sint16 quest_check( const char *whichplayer, IDSZ idsz );
 
 //---------------------------------------------------------------------------------------------
 /// helper functions

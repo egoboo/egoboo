@@ -251,11 +251,15 @@ void prt_init( prt_t * pprt )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint16 prt_get_iowner( Uint16 iprt )
+Uint16 prt_get_iowner( Uint16 iprt, int depth )
 {
     Uint16 iowner = MAX_CHR;
 
     prt_t * pprt;
+
+    // be careful because this can be recursive
+    if( depth > maxparticles - PrtList.free_count ) 
+        return MAX_CHR;
 
     if( !ACTIVE_PRT(iprt) ) return MAX_CHR;
     pprt = PrtList.lst + iprt;
@@ -268,9 +272,9 @@ Uint16 prt_get_iowner( Uint16 iprt )
     {
         // make a check for a stupid looping structure...
         // cannot be sure you could never get a loop, though
-        if( iprt != pprt->parent_ref )
+        if( iprt != pprt->parent_ref && DISPLAY_PRT(pprt->parent_ref) )
         {
-            iowner = prt_get_iowner( pprt->parent_ref );
+            iowner = prt_get_iowner( pprt->parent_ref, depth + 1 );
         }
     }
 
@@ -332,7 +336,7 @@ Uint16 spawn_one_particle( fvec3_t   pos, Uint16 facing, Uint16 iprofile, Uint16
     // given bogus info
     if( !ACTIVE_CHR(chr_origin) && ACTIVE_PRT( prt_origin ) )
     {
-        chr_origin = prt_get_iowner( prt_origin );
+        chr_origin = prt_get_iowner( prt_origin, 0 );
     }
 
     pprt->pip_ref     = ipip;

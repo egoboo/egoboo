@@ -290,7 +290,7 @@ void export_one_character( Uint16 character, Uint16 owner, int number, bool_t is
     if ( ( pcap->cancarrytonextmodule || !pcap->isitem ) && PMod->exportvalid )
     {
         // TWINK_BO.OBJ
-        snprintf( todirname, SDL_arraysize( todirname), "%s", str_encode_path(ChrList.lst[owner].name) );
+        snprintf( todirname, SDL_arraysize(todirname), "%s", str_encode_path(ChrList.lst[owner].Name) );
 
         // Is it a character or an item?
         if ( owner != character )
@@ -367,9 +367,11 @@ void export_one_character( Uint16 character, Uint16 owner, int number, bool_t is
         snprintf( tofile, SDL_arraysize( tofile),   "%s" SLASH_STR "credits.txt", todir );
         vfs_copyFile( fromfile, tofile );
 
-        //snprintf( fromfile, SDL_arraysize( fromfile), "%s" SLASH_STR "quest.txt", fromdir );      /// ZF@> We can't do this yet, quests are written directly into players/x.obj
-        //snprintf( tofile, SDL_arraysize( tofile),   "%s" SLASH_STR "quest.txt", todir );          /// instead of import/x.obj which should be changed or all changes are lost.
-        //vfs_copyFile( fromfile, tofile );
+        /// ZF@> We can't do this yet, quests are written directly into players/x.obj
+        /// instead of import/x.obj which should be changed or all changes are lost.
+        snprintf( fromfile, SDL_arraysize( fromfile), "%s" SLASH_STR "quest.txt", fromdir );
+        snprintf( tofile, SDL_arraysize( tofile),   "%s" SLASH_STR "quest.txt", todir );
+        vfs_copyFile( fromfile, tofile );
 
         // Copy all of the particle files
         for ( tnc = 0; tnc < MAX_PIP_PER_PROFILE; tnc++ )
@@ -443,14 +445,14 @@ void export_all_players( bool_t require_local )
         item = ChrList.lst[character].holdingwhich[SLOT_LEFT];
         if ( item != MAX_CHR && ChrList.lst[item].isitem )
         {
-            export_one_character( item, character, SLOT_LEFT + 1, is_local );
+            export_one_character( item, character, SLOT_LEFT, is_local );
         }
 
         // Export the right hand item
         item = ChrList.lst[character].holdingwhich[SLOT_RIGHT];
         if ( item != MAX_CHR && ChrList.lst[item].isitem )
         {
-            export_one_character( item, character, SLOT_RIGHT + 1, is_local );
+            export_one_character( item, character, SLOT_RIGHT, is_local );
         }
 
         // Export the inventory
@@ -461,7 +463,7 @@ void export_all_players( bool_t require_local )
         {
             if ( ChrList.lst[item].isitem )
             {
-                export_one_character( item, character, number + 3, is_local );
+                export_one_character( item, character, number + 2, is_local );
                 number++;
             }
         }
@@ -2691,7 +2693,7 @@ void show_stat( Uint16 statindex )
             pcap = pro_get_pcap( pchr->iprofile );
 
             // Name
-            debug_printf( "=%s=", pchr->name );
+            debug_printf( "=%s=", chr_get_name( GET_INDEX(pchr,MAX_CHR), btrue ) );
 
             // Level and gender and class
             gender[0] = 0;
@@ -2813,7 +2815,7 @@ void show_full_status( Uint16 statindex )
     pchr->firstenchant = cleanup_enchant_list(pchr->firstenchant);
 
     // Enchanted?
-    debug_printf( "=%s is %s=", pchr->name, ACTIVE_ENC(pchr->firstenchant) ? "enchanted" : "unenchanted" );
+    debug_printf( "=%s is %s=", chr_get_name( GET_INDEX(pchr,MAX_CHR), btrue ), ACTIVE_ENC(pchr->firstenchant) ? "enchanted" : "unenchanted" );
 
     // Armor Stats
     debug_printf( "~DEF: %d  SLASH:%3d~CRUSH:%3d POKE:%3d",
@@ -2875,14 +2877,7 @@ void show_magic_status( Uint16 statindex )
     pchr->firstenchant = cleanup_enchant_list(pchr->firstenchant);
 
     // Enchanted?
-    if ( ACTIVE_ENC(pchr->firstenchant) )
-    {
-        debug_printf( "=%s is enchanted!=", pchr->name );
-    }
-    else
-    {
-        debug_printf( "=%s is unenchanted=", pchr->name );
-    }
+    debug_printf( "=%s is %s=", chr_get_name( GET_INDEX(pchr,MAX_CHR), btrue ), ACTIVE_ENC(pchr->firstenchant) ? "enchanted" : "unenchanted" );
 
     // Enchantment status
     debug_printf( "~See Invisible: %s~~See Kurses: %s",
@@ -5479,7 +5474,10 @@ bool_t game_update_imports()
     STRING srcPlayer, srcDir, destDir;
 
     // do the normal export to save all the player settings
-    export_all_players( btrue );
+    if( PMod->exportvalid )
+    {
+        export_all_players( btrue );
+    }
 
     // reload all of the available players
     check_player_import( "players", btrue  );
@@ -5503,7 +5501,7 @@ bool_t game_update_imports()
         // find the saved copy of the players that are in memory right now
         for ( tnc = 0; tnc < loadplayer_count; tnc++ )
         {
-            if ( 0 == strcmp( loadplayer[tnc].dir, str_encode_path(ChrList.lst[character].name) ) )
+            if ( 0 == strcmp( loadplayer[tnc].name, ChrList.lst[character].Name ) )
             {
                 break;
             }
@@ -5511,7 +5509,7 @@ bool_t game_update_imports()
 
         if ( tnc == loadplayer_count )
         {
-            log_warning( "game_update_imports() - cannot find exported file for \"%s\" (\"%s\") \n", ChrList.lst[character].name, str_encode_path(ChrList.lst[character].name) ) ;
+            log_warning( "game_update_imports() - cannot find exported file for \"%s\" (\"%s\") \n", ChrList.lst[character].obj_base._name, str_encode_path(ChrList.lst[character].Name) ) ;
             continue;
         }
 
@@ -5524,11 +5522,11 @@ bool_t game_update_imports()
         // Copy the character to the import directory
         if ( is_local )
         {
-            snprintf( srcPlayer, SDL_arraysize( srcPlayer), "players" SLASH_STR "%s", loadplayer[tnc].dir );
+            snprintf( srcPlayer, SDL_arraysize( srcPlayer), "%s", loadplayer[tnc].dir );
         }
         else
         {
-            snprintf( srcPlayer, SDL_arraysize( srcPlayer), "remote" SLASH_STR "%s", loadplayer[tnc].dir );
+            snprintf( srcPlayer, SDL_arraysize( srcPlayer), "remote" SLASH_STR "%s", str_encode_path(loadplayer[tnc].name) );
         }
 
         snprintf( destDir, SDL_arraysize( destDir), "import" SLASH_STR "temp%04d.obj", local_import_slot[tnc] );

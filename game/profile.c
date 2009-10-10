@@ -1005,6 +1005,12 @@ void chop_load( Uint16 profile, const char *szLoadname )
     fileread = vfs_openRead( szLoadname );
     if ( NULL == fileread ) return;
 
+    for( section=0; section< MAXSECTION; section++ )
+    {
+        ProList.lst[profile].chop_sectionsize[section] = 0;
+        ProList.lst[profile].chop_sectionstart[section] = 0;
+    }
+        
     section = 0;
     chopinsection = 0;
     while ( section < MAXSECTION && chop.carat < CHOPDATACHUNK && goto_colon( NULL, fileread, btrue ) )

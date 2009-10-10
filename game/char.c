@@ -1859,14 +1859,14 @@ bool_t character_grab_stuff( Uint16 ichr_a, grip_offset_t grip_off, bool_t grab_
                     // Check if it was detected. 50% chance +2% per pet DEX and -2% per shopkeeper wisdom. There is always a 5% chance it will fail.
                     if ( ChrList.lst[owner].canseeinvisible || detection <= 5 || detection - ( pchr_a->dexterity >> 7 ) + ( ChrList.lst[owner].wisdom >> 7 ) > 50 )
                     {
-                        debug_printf( "%s was detected!!", pchr_a->name );
+                        debug_printf( "%s was detected!!", chr_get_name( GET_INDEX_PCHR( pchr_a ), btrue) );
 
                         ai_add_order( chr_get_pai(owner), STOLEN, SHOP_THEFT );
                         chr_get_pai(owner)->target = ichr_a;
                     }
                     else
                     {
-                        debug_printf( "%s stole something! (%s)", pchr_a->name, chr_get_pcap(ichr_b)->classname );
+                        debug_printf( "%s stole something! (%s)", chr_get_name( GET_INDEX_PCHR(pchr_a), btrue), chr_get_name( GET_INDEX_PCHR(pchr_b), btrue) );
                     }
                 }
                 else
@@ -2050,7 +2050,7 @@ void character_swipe( Uint16 ichr, slot_t slot )
     {
         // Throw the weapon if it's stacked or a hurl animation
 
-        thrown = spawn_one_character( pchr->pos, pweapon->iprofile, chr_get_iteam(ichr), 0, pchr->turn_z, pweapon->name, MAX_CHR );
+        thrown = spawn_one_character( pchr->pos, pweapon->iprofile, chr_get_iteam(ichr), 0, pchr->turn_z, pweapon->Name, MAX_CHR );
         if ( ACTIVE_CHR(thrown) )
         {
             chr_t * pthrown = ChrList.lst + thrown;
@@ -2073,7 +2073,7 @@ void character_swipe( Uint16 ichr, slot_t slot )
             {
                 // Poof the item
                 detach_character_from_mount( weapon, btrue, bfalse );
-                chr_request_terminate( GET_INDEX( pweapon, MAX_CHR) );
+                chr_request_terminate( GET_INDEX_PCHR( pweapon ) );
             }
             else
             {
@@ -2273,7 +2273,7 @@ void do_level_up( Uint16 character )
             // The character is ready to advance...
             if ( pchr->isplayer )
             {
-                debug_printf( "%s gained a level!!!", pchr->name );
+                debug_printf( "%s gained a level!!!", chr_get_name( GET_INDEX(pchr,MAX_CHR), btrue ) );
                 sound_play_chunk( PCamera->track_pos, g_wavelist[GSND_LEVELUP] );
             }
 
@@ -2476,15 +2476,13 @@ bool_t export_one_character_name( const char *szSaveName, Uint16 character )
     if ( NULL == filewrite ) return bfalse;
 
     cnt = 0;
-    cTmp = ChrList.lst[character].name[0];
+    cTmp = ChrList.lst[character].Name[0];
     cnt++;
-
     while ( cnt < MAXCAPNAMESIZE && cTmp != 0 )
     {
         vfs_printf( filewrite, ":" );
-        tnc = 0;
 
-        while ( tnc < 8 && cTmp != 0 )
+        for ( tnc = 0; tnc < 8 && cTmp != 0; tnc++ )
         {
             if ( ' ' == cTmp )
             {
@@ -2495,8 +2493,7 @@ bool_t export_one_character_name( const char *szSaveName, Uint16 character )
                 vfs_printf( filewrite, "%c", cTmp );
             }
 
-            cTmp = ChrList.lst[character].name[cnt];
-            tnc++;
+            cTmp = ChrList.lst[character].Name[cnt];
             cnt++;
         }
 
@@ -3305,6 +3302,7 @@ char * chop_create( Uint16 profile )
                     read++;
                     cTmp = chop.buffer[read];
                 }
+                buffer[write] = CSTR_END;
             }
         }
         if ( write >= MAXCAPNAMESIZE ) write = MAXCAPNAMESIZE - 1;
@@ -3688,7 +3686,7 @@ Uint16 spawn_one_character( fvec3_t   pos, Uint16 profile, Uint8 team,
     if ( name == NULL )
     {
         // Generate a random name
-        snprintf( pchr->name, SDL_arraysize( pchr->name), "%s", chop_create( profile ) );
+        snprintf( pchr->Name, SDL_arraysize(pchr->Name), "%s", chop_create( profile ) );
     }
     else
     {
@@ -3697,11 +3695,11 @@ Uint16 spawn_one_character( fvec3_t   pos, Uint16 profile, Uint8 team,
 
         while ( tnc < MAXCAPNAMESIZE - 1 )
         {
-            pchr->name[tnc] = name[tnc];
+            pchr->Name[tnc] = name[tnc];
             tnc++;
         }
 
-        pchr->name[tnc] = 0;
+        pchr->Name[tnc] = '\0';
     }
 
     // Particle attachments
@@ -4336,7 +4334,7 @@ bool_t cost_mana( Uint16 character, int amount, Uint16 killer )
         if ( pchr->canchannel && mana_surplus > 0 )
         {
             // use some factor, divide by 2
-            heal_character( GET_INDEX( pchr, MAX_CHR ), killer, mana_surplus << 1, btrue);
+            heal_character( GET_INDEX_PCHR( pchr ), killer, mana_surplus << 1, btrue);
         }
 
         mana_paid = btrue;
@@ -4936,7 +4934,7 @@ void move_one_character_do_volontary( chr_t * pchr, chr_environment_t * penviro 
 
     if( NULL == pchr || NULL == penviro ) return;
 
-    ichr = GET_INDEX( pchr, MAX_CHR );
+    ichr = GET_INDEX_PCHR( pchr );
 
     if( !pchr->alive ) return;
 
@@ -5367,7 +5365,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
                 if ( pchr->StatusList_on )
                 {
                     // Tell the player that they can't use this weapon
-                    debug_printf( "%s can't use this item...", pchr->name );
+                    debug_printf( "%s can't use this item...", chr_get_name( GET_INDEX_PCHR( pchr ), btrue)  );
                 }
             }
         }
@@ -5485,7 +5483,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
                 if ( pchr->StatusList_on )
                 {
                     // Tell the player that they can't use this weapon
-                    debug_printf( "%s can't use this item...", pchr->name );
+                    debug_printf( "%s can't use this item...", chr_get_name( GET_INDEX_PCHR( pchr ), btrue) );
                 }
             }
         }
@@ -5754,7 +5752,7 @@ void move_one_character_do_animation( chr_t * pchr, chr_environment_t * penviro 
     if( NULL == penviro ) return;
 
     if( NULL == pchr || !pchr->onwhichblock ) return;
-    ichr  = GET_INDEX( pchr, MAX_CHR );
+    ichr  = GET_INDEX_PCHR( pchr );
     pinst = &(pchr->inst);
 
     pmad = chr_get_pmad(ichr);
@@ -6402,7 +6400,7 @@ const char * chr_get_name( Uint16 ichr, bool_t use_article )
 
         if ( pchr->nameknown )
         {
-            snprintf( szName, SDL_arraysize( szName), "%s", pchr->name );
+            snprintf( szName, SDL_arraysize( szName), "%s", pchr->Name );
         }
         else if ( NULL != pcap )
         {
@@ -7160,7 +7158,7 @@ egoboo_rv chr_update_collision_size( chr_t * pchr, bool_t update_matrix )
     if( !ACTIVE_PCHR( pchr ) ) return rv_error;
     pbmp = &(pchr->chr_chr_cv);
 
-    pmad = chr_get_pmad( GET_INDEX( pchr, MAX_CHR ) );
+    pmad = chr_get_pmad( GET_INDEX_PCHR( pchr ) );
     if( NULL == pmad ) return rv_error;
 
     // make sure the matrix is updated properly
@@ -7514,7 +7512,7 @@ chr_t * chr_update_hide( chr_t * pchr )
     if( !ALLOCATED_PCHR( pchr ) ) return pchr;
 
     hide = NOHIDE;
-    pcap = chr_get_pcap( GET_INDEX( pchr, MAX_CHR ) );
+    pcap = chr_get_pcap( GET_INDEX_PCHR( pchr ) );
     if( NULL != pcap )
     {
         hide = pcap->hidestate;
@@ -7762,7 +7760,7 @@ bool_t chr_get_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
 
     if( NULL == mc_tmp ) return bfalse;
     if( !ALLOCATED_PCHR( pchr ) ) return bfalse;
-    ichr = GET_INDEX( pchr, MAX_CHR );
+    ichr = GET_INDEX_PCHR( pchr );
 
     handled = bfalse;
     itarget = MAX_CHR;
@@ -7793,7 +7791,7 @@ bool_t chr_get_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
     if( !handled )
     {
         // assume that the "target" of the MAT_CHARACTER data will be the character itself
-        itarget = GET_INDEX( pchr, MAX_CHR );
+        itarget = GET_INDEX_PCHR( pchr );
 
         //---- update the MAT_WEAPON data
         if( ACTIVE_CHR(pchr->attachedto) )
@@ -8029,7 +8027,7 @@ bool_t apply_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
             matrix_cache_t * mcache = &(pchr->inst.matrix_cache);
 
             // !!!the mc_tmp was mis-labeled as a MAT_WEAPON!!!
-            make_one_character_matrix( GET_INDEX( pchr, MAX_CHR ) );
+            make_one_character_matrix( GET_INDEX_PCHR( pchr ) );
 
             // recover the matrix_cache values from the character
             mcache->type |= MAT_CHARACTER;
@@ -8255,7 +8253,7 @@ Uint16 chr_has_inventory_idsz( Uint16 ichr, IDSZ idsz, bool_t equipped, Uint16 *
 
     item = MAX_CHR;
 
-    *pack_last = GET_INDEX( pchr, MAX_CHR );
+    *pack_last = GET_INDEX_PCHR( pchr );
     tmp_item   = pchr->pack_next;
     while ( tmp_item != MAX_CHR )
     {

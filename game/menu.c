@@ -981,7 +981,7 @@ bool_t doChoosePlayer_load_profiles( int player, ChoosePlayer_profiles_t * prof 
     {
         int slot = i + 1;
 
-        snprintf( szFilename, SDL_arraysize(szFilename), "%s" SLASH_STR "%d.obj", loadplayer[player].dir, slot );
+        snprintf( szFilename, SDL_arraysize(szFilename), "%s" SLASH_STR "%d.obj", loadplayer[player].dir, i );
 
         // load the profile
         ref_temp = load_one_character_profile( szFilename, slot, bfalse );
@@ -992,7 +992,7 @@ bool_t doChoosePlayer_load_profiles( int player, ChoosePlayer_profiles_t * prof 
             prof->cap_ref[prof->count] = ref_temp;
 
             // load the icon
-            snprintf( szFilename, SDL_arraysize(szFilename), "%s" SLASH_STR "%d.obj" SLASH_STR "icon%d", loadplayer[player].dir, slot, MAX(0, pcap->skinoverride) );
+            snprintf( szFilename, SDL_arraysize(szFilename), "%s" SLASH_STR "%d.obj" SLASH_STR "icon%d", loadplayer[player].dir, i, MAX(0, pcap->skinoverride) );
             prof->tx_ref[prof->count] = TxTexture_load_one( szFilename, INVALID_TEXTURE, INVALID_KEY );
 
             prof->count++;
@@ -1105,11 +1105,11 @@ bool_t doChoosePlayer_show_stats( int player, int mode, int x, int y, int width,
 
                         draw_one_icon( icon_ref, x1, y1, NOSPARKLE );
 
-                        if     ( i == SLOT_LEFT + 1  )
+                        if     ( icap == SLOT_LEFT + 1  )
                         {
                             fnt_drawText( menuFont, x1+32, y1 + 6, "  Left: %s", itemname ); y1 += 32;
                         }
-                        else if ( i == SLOT_RIGHT + 1 )
+                        else if ( icap == SLOT_RIGHT + 1 )
                         {
                             fnt_drawText( menuFont, x1+32, y1 + 6, "  Right: %s", itemname ); y1 += 32;
                         }
@@ -1432,7 +1432,7 @@ int doChoosePlayer( float deltaTime )
                     // Copy all of the character's items to the import directory
                     for ( j = 0; j < MAXIMPORTOBJECTS; j++ )
                     {
-                        snprintf( srcDir, SDL_arraysize( srcDir), "%s" SLASH_STR "%d.obj", loadplayer[selectedPlayer].dir, j + 1 );
+                        snprintf( srcDir, SDL_arraysize( srcDir), "%s" SLASH_STR "%d.obj", loadplayer[selectedPlayer].dir, j );
 						
 						// make sure the source directory exists
                         if( vfs_isDirectory(srcDir) )
@@ -3878,7 +3878,7 @@ void check_player_import( const char *dirname, bool_t initialize )
         snprintf( filename, SDL_arraysize( filename), "%s" SLASH_STR "naming.txt", foundfile );
         chop_load( loadplayer_count, filename );
 
-        snprintf( loadplayer[loadplayer_count].name, SDL_arraysize( loadplayer[loadplayer_count].name), "%s", chop_create( loadplayer_count ) );
+        snprintf( loadplayer[loadplayer_count].name, SDL_arraysize(loadplayer[loadplayer_count].name), "%s", chop_create( loadplayer_count ) );
 
         loadplayer_count++;
 
@@ -4060,7 +4060,7 @@ bool_t mnu_test_by_index( int modnumber )
     playerhasquest = bfalse;
     for ( cnt = 0; cnt < mnu_selectedPlayerCount; cnt++ )
     {
-        if ( pmod->base.quest_level <= quest_check( loadplayer[mnu_selectedPlayer[cnt]].name, pmod->base.quest_idsz ))
+        if ( pmod->base.quest_level <= quest_check( loadplayer[mnu_selectedPlayer[cnt]].dir, pmod->base.quest_idsz ))
         {
             playerhasquest = btrue;
             break;

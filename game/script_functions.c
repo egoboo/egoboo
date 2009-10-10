@@ -1658,7 +1658,7 @@ Uint8 scr_SpawnCharacter( script_state_t * pstate, ai_state_t * pself )
     {
         if ( sTmp > PMod->importamount * MAXIMPORTPERPLAYER )
         {
-            log_warning( "Object %s failed to spawn a copy of itself\n", pchr->name );
+            log_warning( "Object %s failed to spawn a copy of itself\n", pchr->obj_base._name );
         }
     }
     else
@@ -5424,7 +5424,7 @@ Uint8 scr_IdentifyTarget( script_state_t * pstate, ai_state_t * pself )
     returncode = bfalse;
     sTmp = pself->target;
     if ( ChrList.lst[sTmp].ammomax != 0 )  ChrList.lst[sTmp].ammoknown = btrue;
-    if ( 0 == strcmp( "Blah", ChrList.lst[sTmp].name) )
+    if ( 0 == strcmp( "Blah", ChrList.lst[sTmp].Name) )
     {
         returncode = !ChrList.lst[sTmp].nameknown;
         ChrList.lst[sTmp].nameknown = btrue;
@@ -6329,7 +6329,7 @@ Uint8 scr_FollowLink( script_state_t * pstate, ai_state_t * pself )
     returncode = link_follow_modname( ptext, btrue );
     if (!returncode)
     {
-        debug_printf( "That's too scary for %s", pchr->name );
+        debug_printf( "That's too scary for %s", pchr->Name );
     }
 
     SCRIPT_FUNCTION_END();
@@ -6459,7 +6459,7 @@ Uint8 scr_AddQuest( script_state_t * pstate, ai_state_t * pself )
 
     if ( ChrList.lst[pself->target].isplayer )
     {
-        quest_add_idsz( ChrList.lst[pself->target].name, pstate->argument );
+        quest_add_idsz( ChrList.lst[pself->target].obj_base._name, pstate->argument );
         returncode = btrue;
     }
     else returncode = bfalse;
@@ -6489,7 +6489,7 @@ Uint8 scr_BeatQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
 
         if ( ChrList.lst[ichr].isplayer )
         {
-            if (QUEST_BEATEN == quest_modify_idsz( ChrList.lst[ichr].name, (IDSZ)pstate->argument, 0 ) )
+            if (QUEST_BEATEN == quest_modify_idsz( ChrList.lst[ichr].obj_base._name, (IDSZ)pstate->argument, 0 ) )
             {
                 returncode = btrue;
             }
@@ -6513,7 +6513,7 @@ Uint8 scr_TargetHasQuest( script_state_t * pstate, ai_state_t * pself )
     returncode = bfalse;
     if ( ChrList.lst[pself->target].isplayer )
     {
-        iTmp = quest_check( ChrList.lst[pself->target].name, pstate->argument );
+        iTmp = quest_check( ChrList.lst[pself->target].obj_base._name, pstate->argument );
         if ( iTmp > QUEST_BEATEN )
         {
             returncode       = btrue;
@@ -6536,7 +6536,7 @@ Uint8 scr_set_QuestLevel( script_state_t * pstate, ai_state_t * pself )
     returncode = bfalse;
     if ( ChrList.lst[pself->target].isplayer && pstate->distance != 0 )
     {
-        if (quest_modify_idsz( ChrList.lst[pself->target].name, pstate->argument, pstate->distance ) > QUEST_NONE) returncode = btrue;
+        if (quest_modify_idsz( ChrList.lst[pself->target].obj_base._name, pstate->argument, pstate->distance ) > QUEST_NONE) returncode = btrue;
     }
 
     SCRIPT_FUNCTION_END();
@@ -6566,10 +6566,10 @@ Uint8 scr_AddQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
         if ( ChrList.lst[ichr].isplayer )
         {
             // Try to add it if not already there or beaten
-            quest_add_idsz(ChrList.lst[ichr].name , pstate->argument );
+            quest_add_idsz(ChrList.lst[ichr].obj_base._name , pstate->argument );
 
             // Not beaten yet, set level to tmpdistance
-            returncode = QUEST_NONE != quest_modify_idsz( ChrList.lst[ichr].name, pstate->argument, pstate->distance );
+            returncode = QUEST_NONE != quest_modify_idsz( ChrList.lst[ichr].obj_base._name, pstate->argument, pstate->distance );
         }
 
     }

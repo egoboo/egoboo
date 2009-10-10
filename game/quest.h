@@ -28,6 +28,6 @@
 #define QUEST_BEATEN         -1
 #define QUEST_NONE           -2
 
-bool_t quest_add_idsz( const char *whichplayer, IDSZ idsz );
-Sint16 quest_modify_idsz( const char *whichplayer, IDSZ idsz, Sint16 adjustment );
-Sint16 quest_check( const char *whichplayer, IDSZ idsz );
+bool_t quest_add_idsz( const char *player_directory, IDSZ idsz );
+Sint16 quest_modify_idsz( const char *player_directory, IDSZ idsz, Sint16 adjustment );
+Sint16 quest_check( const char *player_directory, IDSZ idsz );
