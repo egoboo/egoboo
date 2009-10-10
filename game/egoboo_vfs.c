@@ -744,7 +744,12 @@ long vfs_fileLength( vfs_FILE * pfile )
 int vfs_mkdir(const char *dirName)
 {
 	int retval = PHYSFS_mkdir ( _vfs_convert_fname_physfs(dirName) ); 
-	if(!retval) log_debug( "vfs_copyDirectory() - Could not create new folder folder \"%s\". (%s)\n"), dirName, vfs_getError();
+
+	if(!retval) 
+    {
+        log_debug( "vfs_copyDirectory() - Could not create new folder folder \"%s\". (%s)\n"), dirName, vfs_getError();
+    }
+
     return retval;
 }
 

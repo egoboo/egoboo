@@ -6459,7 +6459,7 @@ Uint8 scr_AddQuest( script_state_t * pstate, ai_state_t * pself )
 
     if ( ChrList.lst[pself->target].isplayer )
     {
-        quest_add_idsz( ChrList.lst[pself->target].obj_base._name, pstate->argument );
+        quest_add_idsz( chr_get_dir_name(pself->target), pstate->argument );
         returncode = btrue;
     }
     else returncode = bfalse;
@@ -6489,7 +6489,7 @@ Uint8 scr_BeatQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
 
         if ( ChrList.lst[ichr].isplayer )
         {
-            if (QUEST_BEATEN == quest_modify_idsz( ChrList.lst[ichr].obj_base._name, (IDSZ)pstate->argument, 0 ) )
+            if (QUEST_BEATEN == quest_modify_idsz( chr_get_dir_name(ichr), (IDSZ)pstate->argument, 0 ) )
             {
                 returncode = btrue;
             }
@@ -6513,7 +6513,7 @@ Uint8 scr_TargetHasQuest( script_state_t * pstate, ai_state_t * pself )
     returncode = bfalse;
     if ( ChrList.lst[pself->target].isplayer )
     {
-        iTmp = quest_check( ChrList.lst[pself->target].obj_base._name, pstate->argument );
+        iTmp = quest_check( chr_get_dir_name(pself->target), pstate->argument );
         if ( iTmp > QUEST_BEATEN )
         {
             returncode       = btrue;
@@ -6536,7 +6536,7 @@ Uint8 scr_set_QuestLevel( script_state_t * pstate, ai_state_t * pself )
     returncode = bfalse;
     if ( ChrList.lst[pself->target].isplayer && pstate->distance != 0 )
     {
-        if (quest_modify_idsz( ChrList.lst[pself->target].obj_base._name, pstate->argument, pstate->distance ) > QUEST_NONE) returncode = btrue;
+        if (quest_modify_idsz( chr_get_dir_name(pself->target), pstate->argument, pstate->distance ) > QUEST_NONE) returncode = btrue;
     }
 
     SCRIPT_FUNCTION_END();
@@ -6566,10 +6566,10 @@ Uint8 scr_AddQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
         if ( ChrList.lst[ichr].isplayer )
         {
             // Try to add it if not already there or beaten
-            quest_add_idsz(ChrList.lst[ichr].obj_base._name , pstate->argument );
+            quest_add_idsz( chr_get_dir_name(ichr) , pstate->argument );
 
             // Not beaten yet, set level to tmpdistance
-            returncode = QUEST_NONE != quest_modify_idsz( ChrList.lst[ichr].obj_base._name, pstate->argument, pstate->distance );
+            returncode = QUEST_NONE != quest_modify_idsz( chr_get_dir_name(ichr), pstate->argument, pstate->distance );
         }
 
     }

@@ -175,5 +175,5 @@ extern wawalite_data_t wawalite_data;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t            write_wawalite( const char *modname, wawalite_data_t * pdata );
-wawalite_data_t * read_wawalite( const char *modname );
+bool_t            write_wawalite_file( const char *modname, wawalite_data_t * pdata );
+wawalite_data_t * read_wawalite_file( const char *modname, wawalite_data_t * pdata );

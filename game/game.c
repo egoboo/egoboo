@@ -7314,6 +7314,52 @@ bool_t game_module_stop( game_module_t * pinst )
     return btrue;
 }
 
+//--------------------------------------------------------------------------------------------
+wawalite_data_t * read_wawalite( const char *modname )
+{
+    int cnt;
+    wawalite_data_t * pdata;
+
+    if( INVALID_CSTR(modname) ) return NULL;
+
+    pdata = read_wawalite_file( modname, NULL );
+    if( NULL == pdata ) return NULL;
+
+    memcpy( &wawalite_data, pdata, sizeof(wawalite_data_t) );
+
+    // limit some values
+    wawalite_data.damagetile.sound = CLIP(wawalite_data.damagetile.sound, INVALID_SOUND, MAX_WAVE);
+
+    for( cnt = 0; cnt < MAXWATERLAYER; cnt++ )
+    {
+        wawalite_data.water.layer[cnt].light_dir = CLIP(wawalite_data.water.layer[cnt].light_dir, 0, 63);
+        wawalite_data.water.layer[cnt].light_add = CLIP(wawalite_data.water.layer[cnt].light_add, 0, 63);
+    }
+
+    return &wawalite_data;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t write_wawalite( const char *modname, wawalite_data_t * pdata )
+{
+    /// @details BB@> Prepare and write the wawalite file
+
+    int cnt;
+
+    if( !VALID_CSTR(modname) || NULL == pdata ) return bfalse;
+
+    // limit some values
+    pdata->damagetile.sound = CLIP(pdata->damagetile.sound, INVALID_SOUND, MAX_WAVE);
+
+    for( cnt = 0; cnt < MAXWATERLAYER; cnt++ )
+    {
+        pdata->water.layer[cnt].light_dir = CLIP(pdata->water.layer[cnt].light_dir, 0, 63);
+        pdata->water.layer[cnt].light_add = CLIP(pdata->water.layer[cnt].light_add, 0, 63);
+    }
+
+    return write_wawalite_file( modname, pdata );
+}
+
 
 ////--------------------------------------------------------------------------------------------
 //bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )

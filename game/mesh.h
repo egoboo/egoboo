@@ -105,7 +105,6 @@ struct s_mesh_mem
     GLXvector3f   * plst;                              ///< the position list
     GLXvector2f   * tlst;                              ///< the texture coordinate list
     GLXvector3f   * clst;                              ///< the color list (for lighting the mesh)
-    GLXvector3f   * dlst;                              ///< the color list (for lighting things on the mesh? intensity can be <0)
     GLXvector3f   * nlst;                              ///< the normal list
 };
 typedef struct s_mesh_mem mesh_mem_t;

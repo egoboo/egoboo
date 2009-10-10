@@ -241,7 +241,7 @@ Uint16 who_is_blocking_passage( Uint16 passage, bool_t targetitems, bool_t targe
         if( !targetdead && !pchr->alive ) continue;
 
         //Require target to have specific quest?
-        if( targetquest && (!pchr->isplayer || QUEST_NONE  >= quest_check( pchr->obj_base._name, findidsz )) ) continue;
+        if( targetquest && (!pchr->isplayer || QUEST_NONE  >= quest_check( chr_get_dir_name(character), findidsz )) ) continue;
 
         //Now check if it actually is inside the passage area
         if ( object_is_in_passage( passage, pchr->pos.x, pchr->pos.y, pchr->bump.size ) )

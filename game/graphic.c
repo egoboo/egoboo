@@ -1432,10 +1432,6 @@ void light_fans( renderlist_t * prlist )
         {
             light = pmem->lcache[fan][ivrt];
 
-            pmem->dlst[vertex][RR] =
-            pmem->dlst[vertex][GG] =
-            pmem->dlst[vertex][BB] = light * INV_FF;
-
             light = CLIP(light, 0.0f, 255.0f);
             pmem->clst[vertex][RR] =
             pmem->clst[vertex][GG] =
@@ -1446,10 +1442,6 @@ void light_fans( renderlist_t * prlist )
         {
             light = 0;
             mesh_interpolate_vertex( pmem, fan, pmem->plst[vertex], &light );
-
-            pmem->dlst[vertex][RR] =
-            pmem->dlst[vertex][GG] =
-            pmem->dlst[vertex][BB] = light * INV_FF;
 
             light = CLIP(light, 0.0f, 255.0f);
             pmem->clst[vertex][RR] =

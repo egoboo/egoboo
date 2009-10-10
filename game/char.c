@@ -6388,6 +6388,41 @@ const char * chr_get_name( Uint16 ichr, Uint32 bits )
 }
 
 //--------------------------------------------------------------------------------------------
+const char * chr_get_dir_name( Uint16 ichr )
+{
+    static STRING buffer = EMPTY_CSTR;
+    chr_t * pchr;
+
+    strncpy( buffer, "/debug", SDL_arraysize(buffer) );
+
+    if( !ALLOCATED_CHR(ichr) ) return buffer;
+    pchr = ChrList.lst + ichr;
+
+    if( !VALID_PRO( pchr->iprofile ) )
+    {
+        char * sztmp;
+
+        // copy the character's data.txt path
+        strncpy( buffer, pchr->obj_base._name, SDL_arraysize(buffer) );
+
+        // the name should be "...some path.../data.txt"
+        // grab the path
+
+        sztmp = strstr( buffer, "/\\" );
+        if( NULL != sztmp ) *sztmp = '\0';
+    }
+    else
+    {
+        pro_t * ppro = ProList.lst + pchr->iprofile;
+
+        // copy the character's data.txt path
+        strncpy( buffer, ppro->name, SDL_arraysize(buffer) );
+    }
+
+    return buffer;
+}
+
+//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 Uint16 chr_get_ipro(Uint16 ichr)
 {

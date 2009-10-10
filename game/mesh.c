@@ -620,9 +620,6 @@ bool_t mesh_mem_allocate( mesh_mem_t * pmem, ego_mpd_info_t * pinfo  )
     pmem->clst = ( GLXvector3f * ) calloc( pinfo->vertcount, sizeof(GLXvector3f) );
     if ( NULL == pmem->clst ) goto mesh_mem_allocate_fail;
 
-    pmem->dlst = ( GLXvector3f * ) calloc( pinfo->vertcount, sizeof(GLXvector3f) );
-    if ( NULL == pmem->dlst ) goto mesh_mem_allocate_fail;
-
     pmem->nlst = ( GLXvector3f * ) calloc( pinfo->vertcount, sizeof(GLXvector3f) );
     if ( NULL == pmem->nlst ) goto mesh_mem_allocate_fail;
 
@@ -673,12 +670,6 @@ bool_t mesh_mem_free( mesh_mem_t * pmem )
     {
         free( pmem->clst );
         pmem->clst = NULL;
-    }
-
-    if ( pmem->dlst != NULL )
-    {
-        free( pmem->dlst );
-        pmem->dlst = NULL;
     }
 
     if ( pmem->tlst != NULL )

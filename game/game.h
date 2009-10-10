@@ -421,3 +421,6 @@ bool_t check_target( struct s_chr * psrc, Uint16 ichr_test, TARGET_TYPE target_t
 
 void do_weather_spawn_particles();
 void attach_particles();
+
+struct s_wawalite_data * read_wawalite( const char *modname );
+bool_t write_wawalite( const char *modname, struct s_wawalite_data * pdata );

@@ -279,14 +279,14 @@ wawalite_data_t * read_wawalite_fog( vfs_FILE * fileread, wawalite_data_t * pdat
 }
 
 //--------------------------------------------------------------------------------------------
-wawalite_data_t * read_wawalite( const char *modname )
+wawalite_data_t * read_wawalite_file( const char *modname, wawalite_data_t * pdata )
 {
     /// @details ZZ@> This function sets up water and lighting for the module
 
-    int    cnt;
     vfs_FILE*  fileread;
     STRING newloadname;
-    wawalite_data_t * pdata = &_wawalite_file;
+    
+    if( NULL == pdata ) pdata = &_wawalite_file;
 
     if( NULL == wawalite_data_init( pdata ) ) return pdata;
 
@@ -319,18 +319,7 @@ wawalite_data_t * read_wawalite( const char *modname )
 
     vfs_close( fileread );
 
-    // limit some values
-    pdata->damagetile.sound = CLIP(pdata->damagetile.sound, INVALID_SOUND, MAX_WAVE);
-
-    for( cnt = 0; cnt < MAXWATERLAYER; cnt++ )
-    {
-        pdata->water.layer[cnt].light_dir = CLIP(pdata->water.layer[cnt].light_dir, 0, 63);
-        pdata->water.layer[cnt].light_add = CLIP(pdata->water.layer[cnt].light_add, 0, 63);
-    }
-
-    memcpy( &wawalite_data, &_wawalite_file, sizeof(wawalite_data_t) );
-
-    return &wawalite_data;
+    return pdata;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -496,11 +485,10 @@ bool_t write_wawalite_fog( vfs_FILE * filewrite, wawalite_data_t * pdata )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t write_wawalite( const char *modname, wawalite_data_t * pdata )
+bool_t write_wawalite_file( const char *modname, wawalite_data_t * pdata )
 {
     /// @details ZZ@> This function sets up water and lighting for the module
 
-    int    cnt;
     vfs_FILE*  filewrite;
     STRING newloadname;
 
@@ -512,15 +500,6 @@ bool_t write_wawalite( const char *modname, wawalite_data_t * pdata )
     {
         log_warning( "Could not write file! (\"%s\")\n", newloadname );
         return bfalse;
-    }
-
-    // limit some values
-    pdata->damagetile.sound = CLIP(pdata->damagetile.sound, INVALID_SOUND, MAX_WAVE);
-
-    for( cnt = 0; cnt < MAXWATERLAYER; cnt++ )
-    {
-        pdata->water.layer[cnt].light_dir = CLIP(pdata->water.layer[cnt].light_dir, 0, 63);
-        pdata->water.layer[cnt].light_add = CLIP(pdata->water.layer[cnt].light_add, 0, 63);
     }
 
     // file header
