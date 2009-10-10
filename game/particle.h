@@ -100,6 +100,7 @@ struct s_prt
     Uint16  owner_ref;                       ///< The character that is attacking
     Uint16  target_ref;                      ///< Who it's chasing
     Uint16  parent_ref;                      ///< Did a another particle spawn this one?
+    Uint32  parent_guid;                     ///< Just in case, the parent particle was despawned and a differnt particle now has the parent_ref
 
     Uint16  vrt_off;                         ///< It's vertex offset
     Uint8   type;                            ///< Transparency mode, 0-2

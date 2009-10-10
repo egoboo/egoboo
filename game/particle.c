@@ -248,11 +248,26 @@ void prt_init( prt_t * pprt )
     pprt->owner_ref      = MAX_CHR;
     pprt->target_ref     = MAX_CHR;
     pprt->parent_ref     = TOTAL_MAX_PRT;
+    pprt->parent_guid    = ~0;
 }
 
 //--------------------------------------------------------------------------------------------
 Uint16 prt_get_iowner( Uint16 iprt, int depth )
 {
+    /// BB@> A helper function for determining the owner of a paricle
+    ///
+    ///      @details There could be a possibility that a particle exists that was spawned by
+    ///      another particle, but has lost contact with its original spawner. For instance
+    ///      If an explosion particle bounces off of something with MISSILE_DEFLECT or
+    ///      MISSILE_REFLECT, which subsequently dies before the particle...
+    ///
+    ///      That is actually pretty far fetched, but at some point it might make sense to 
+    ///      spawn particles just keeping track of the spawner (whether particle or character)
+    ///      and working backward to any potential owner using this function. ;)
+    ///
+    ///      @note this function should be completely trivial for anything other than
+    ///       namage particles created by an explosion
+
     Uint16 iowner = MAX_CHR;
 
     prt_t * pprt;
@@ -272,9 +287,34 @@ Uint16 prt_get_iowner( Uint16 iprt, int depth )
     {
         // make a check for a stupid looping structure...
         // cannot be sure you could never get a loop, though
-        if( iprt != pprt->parent_ref && DISPLAY_PRT(pprt->parent_ref) )
+
+        if( !ALLOCATED_PRT(pprt->parent_ref) )
         {
-            iowner = prt_get_iowner( pprt->parent_ref, depth + 1 );
+            // make sure that a non valid parent_ref is marked as non-valid
+            pprt->parent_ref = TOTAL_MAX_PRT;
+            pprt->parent_guid = ~0;
+        }
+        else
+        {
+            // if a particle has been poofed, and another particle lives at that address,
+            // it is possible that the pprt->parent_ref points to a valid particle that is
+            // not the parent. Depending on how scrambled the list gets, there could actually
+            // be looping structures
+
+            if( PrtList.lst[pprt->parent_ref].obj_base.guid == pprt->parent_guid )
+            {
+                if( iprt != pprt->parent_ref )
+                {
+                    iowner = prt_get_iowner( pprt->parent_ref, depth + 1 );
+                }
+            }
+            else
+            {
+                // the parent particle doesn't exist anymore
+                // fix the reference
+                pprt->parent_ref = TOTAL_MAX_PRT;
+                pprt->parent_guid = ~0;
+            }
         }
     }
 
@@ -344,6 +384,7 @@ Uint16 spawn_one_particle( fvec3_t   pos, Uint16 facing, Uint16 iprofile, Uint16
     pprt->team        = team;
     pprt->owner_ref   = chr_origin;
     pprt->parent_ref  = prt_origin;
+    pprt->parent_guid = ALLOCATED_PRT(prt_origin) ? PrtList.lst[prt_origin].obj_base.guid : (~0);
     pprt->damagetype  = ppip->damagetype;
 
     // Lighting and sound
@@ -655,8 +696,17 @@ void update_all_particles( void )
             {
                 if( SPRITE_SOLID == pprt->type && !ACTIVE_CHR( pprt->attachedto_ref ) )
                 {
-                    spawn_valid = btrue;
-                    spawn_pip = PIP_RIPPLE;
+                    // only spawn ripples if you are touching the water surface!
+                    if( pprt->pos.z + pprt->bumpheight > water.surface_level && pprt->pos.z - pprt->bumpheight < water.surface_level )
+                    {
+                        int ripand = ~((~RIPPLEAND) << 1);
+                        if ( 0 == ((update_wld + pprt->obj_base.guid) & ripand) )
+                        {
+
+                            spawn_valid = btrue;
+                            spawn_pip = PIP_RIPPLE;
+                        }
+                    }
                 }
             }
 

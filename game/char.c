@@ -4434,12 +4434,30 @@ void update_all_characters()
             else
             {
                 // Ripple
-                if ( pchr->pos.z > water.surface_level - RIPPLETOLERANCE && pcap->ripple )
+                if ( pcap->ripple && pchr->pos.z + pchr->chr_chr_cv.max_z + RIPPLETOLERANCE > water.surface_level && pchr->pos.z + pchr->chr_chr_cv.min_z < water.surface_level )
                 {
                     // Ripples
-                    ripand = ( ( int )pchr->vel.x != 0 ) | ( ( int )pchr->vel.y != 0 );
-                    ripand = RIPPLEAND >> ripand;
-                    if ( ( update_wld&ripand ) == 0 && pchr->pos.z < water.surface_level && pchr->alive )
+
+                    int ripple_suppression;
+
+                    // suppress ripples if we are far below the surface
+                    ripple_suppression = water.surface_level - (pchr->pos.z + pchr->chr_chr_cv.max_z);
+                    ripple_suppression = (4 * ripple_suppression) / RIPPLETOLERANCE;
+                    ripple_suppression = CLIP(ripple_suppression, 0, 4);
+
+                    // make more ripples if we are moving
+                    ripple_suppression -= ( ( int )pchr->vel.x != 0 ) | ( ( int )pchr->vel.y != 0 );
+
+                    if( ripple_suppression > 0 )
+                    {
+                        ripand = ~((~RIPPLEAND) << ripple_suppression);
+                    }
+                    else
+                    {
+                        ripand = RIPPLEAND >> (-ripple_suppression);
+                    }
+
+                    if ( 0 == ( (update_wld + pchr->obj_base.guid) & ripand ) && pchr->pos.z < water.surface_level && pchr->alive )
                     {
                         fvec3_t   vtmp = VECT3( pchr->pos.x, pchr->pos.y, water.surface_level );
 

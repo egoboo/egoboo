@@ -1076,15 +1076,18 @@ bool_t doChoosePlayer_show_stats( int player, int mode, int x, int y, int width,
 
             //Character level and class
             GL_DEBUG(glColor4f)(1, 1, 1, 1);
-            fnt_drawText( menuFont, x1, y1, "Level %d %s", pcap->leveloverride + 1, pcap->classname );
+
+            // fix class name capitalization
+            pcap->classname[0] = toupper( pcap->classname[0] );
+            fnt_drawText( menuFont, x1, y1, "A level %d %s", pcap->leveloverride + 1, pcap->classname );
             y1 += 20;
 			
-			//Armor
+			// Armor
             GL_DEBUG(glColor4f)(1, 1, 1, 1);
 			fnt_drawText( menuFont, x1, y1, "Wearing %s %s", pcap->skinname[skin], HAS_SOME_BITS( pcap->skindressy, 1 << skin ) ? "(Light)" : "(Heavy)" );
             y1 += 40;
 
-            //Life and mana (can be less than maximum if not in easy mode)
+            // Life and mana (can be less than maximum if not in easy mode)
             if ( cfg.difficulty >= GAME_NORMAL )
             {
                 fnt_drawText( menuFont, x1, y1, "Life: %d/%d", MIN( FP8_TO_INT(pcap->spawnlife), (int)pcap->life_stat.val.from ), (int)pcap->life_stat.val.from ); y1 += 20;
@@ -1178,6 +1181,7 @@ int doChoosePlayer( float deltaTime )
 
     static int numVertical, numHorizontal;
     static Uint32 BitsInput[4];
+    static bool_t device_on[4];
 
     static const char * button_text[] = { "Select Player", "Back", ""};
 
@@ -1189,17 +1193,23 @@ int doChoosePlayer( float deltaTime )
             mnu_selectedPlayerCount = 0;
             mnu_selectedPlayer[0] = 0;
 
+            TxTexture_load_one( "basicdat" SLASH_STR "nullicon", ICON_NULL, INVALID_KEY );
+
             TxTexture_load_one( "basicdat" SLASH_STR "keybicon", ICON_KEYB, INVALID_KEY );
             BitsInput[0] = INPUT_BITS_KEYBOARD;
+            device_on[0] = keyb.on;
 
             TxTexture_load_one( "basicdat" SLASH_STR "mousicon", ICON_MOUS, INVALID_KEY );
             BitsInput[1] = INPUT_BITS_MOUSE;
+            device_on[1] = mous.on;
 
             TxTexture_load_one( "basicdat" SLASH_STR "joyaicon", ICON_JOYA, INVALID_KEY );
             BitsInput[2] = INPUT_BITS_JOYA;
+            device_on[2] = joy[0].on;
 
             TxTexture_load_one( "basicdat" SLASH_STR "joybicon", ICON_JOYB, INVALID_KEY );
             BitsInput[3] = INPUT_BITS_JOYB;
+            device_on[3] = joy[1].on;
 
             ego_texture_load( &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_sleepy", TRANSCOLOR );
 
@@ -1224,7 +1234,7 @@ int doChoosePlayer( float deltaTime )
 
                 for ( j = 0, m++; j < 4; j++, m++ )
                 {
-                    ui_initWidget( mnu_widgetList + m, m, menuFont, NULL, TxTexture_get_ptr( ICON_KEYB + j), x + text_width + j*icon_size, y, icon_size, icon_size );
+                    ui_initWidget( mnu_widgetList + m, m, menuFont, NULL, TxTexture_get_ptr( ICON_KEYB + j ), x + text_width + j*icon_size, y, icon_size, icon_size );
                     ui_widgetAddMask( mnu_widgetList + m, UI_BITS_CLICKED );
                 };
 
@@ -1331,6 +1341,29 @@ int doChoosePlayer( float deltaTime )
                 // do each of the input buttons
                 for ( j = 0, m++; j < 4; j++, m++ )
                 {
+                    /// @note check for devices being turned on and off each time
+                    /// technically we COULD recognize joysticks being inserted and removed while the
+                    /// game is running but we don't. I will set this up to handle such future behavior
+                    /// anyway :)
+                    switch( j )
+                    {
+                        case INPUT_DEVICE_KEYBOARD: device_on[j] = keyb.on; break;
+                        case INPUT_DEVICE_MOUSE:    device_on[j] = mous.on; break;
+                        case INPUT_DEVICE_JOY + 0:  device_on[j] = joy[0].on; break;
+                        case INPUT_DEVICE_JOY + 1:  device_on[j] = joy[1].on; break;
+                        default: device_on[j] = bfalse;
+                    }
+
+                    // replace any not on device with a null icon
+                    if( !device_on[j] )
+                    {
+                        mnu_widgetList[m].img = TxTexture_get_ptr( ICON_NULL );
+
+                        // draw the widget, even though it will not do anything
+                        // the menu would looks funny if odd columns missing
+                        ui_doWidget( mnu_widgetList + m );
+                    }
+
                     // make the button states reflect the chosen input devices
                     if ( MNU_INVALID_PLA == splayer || HAS_NO_BITS( mnu_selectedInput[ splayer ], BitsInput[j] ) )
                     {

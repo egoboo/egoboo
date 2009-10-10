@@ -299,7 +299,10 @@ void latch_init( latch_t * platch );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-/// some basic data that all egoboo objects should have
+// some basic data that all egoboo objects should have
+
+/// A variable to hold the object guid counter
+extern Uint32 ego_object_guid;
 
 /// The possible states of an ego_object_base_t object
 enum e_ego_object_state
@@ -314,10 +317,11 @@ enum e_ego_object_state
 /// The data that is "inherited" by every egoboo object.
 struct s_ego_object_base
 {
-    STRING         _name;      ///< what is its "_name"
+    STRING         _name;     ///< what is its "_name"
     int            index;     ///< what is the index position in the object list?
     bool_t         allocated; ///< Does it exist?
     int            state;     ///< what state is it in?
+    Uint32         guid;      ///< a globally unique identifier            
 };
 
 typedef struct s_ego_object_base ego_object_base_t;
@@ -329,6 +333,7 @@ typedef struct s_ego_object_base ego_object_base_t;
         (PDATA)->obj_base.allocated = btrue; \
         (PDATA)->obj_base.index     = INDEX; \
         (PDATA)->obj_base.state     = ego_object_pre_active; \
+        (PDATA)->obj_base.guid      = ego_object_guid++; \
     }
 
 /// Turn on an ego_object_base_t object
