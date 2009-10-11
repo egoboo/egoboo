@@ -1,0 +1,87 @@
+// General item stuff
+IfSpawned
+  SetTargetToSelf
+  SetOwnerToTarget
+  tmpargument = ACTIONJB
+  DoAction
+  KeepAction
+  MakeCrushValid
+IfDropped
+  KeepAction
+IfHitGround
+  tmpargument = 0
+  tmpdistance = rand & 511 + 21000
+  PlaySound
+IfGrabbed
+  SetTargetToWhoeverIsHolding
+  IfTargetIsAPlayer
+    tmpargument = 0
+    SendMessageNear
+
+// Make it poof
+IfCrushed
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  tmpargument = 1
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  GoPoof
+  tmpargument = 7
+  SendMessageNear
+
+// Equip the item
+IfPutAway
+  tmpargument = [FOOT]
+  IfTargetHasItemIDEquipped
+    IfTargetIsAPlayer
+      tmpargument = 1
+      SendMessageNear
+  Else
+    tmpargument = [XARM]
+    IfTargetHasAnyID
+      IfTargetIsAPlayer
+        tmpargument = 2
+        SendMessageNear
+    Else
+      Equip
+      tmpargument = 1
+      SetState
+      EnchantTarget
+      IfTargetIsAPlayer
+        IfUsageIsKnown
+          GetState // NOP
+        Else
+          MakeUsageKnown
+          tmpargument = 30
+          tmpdistance = EXPSECRET
+          GiveExperienceToTarget
+      IfKursed
+        IfTargetIsAPlayer
+          tmpargument = 3
+          SendMessageNear
+      Else
+        IfTargetIsAPlayer
+          tmpargument = 4
+          SendMessageNear
+
+// Take away any bonus for wearing
+IfTakenOut
+  UndoEnchant
+  IfTargetIsAPlayer
+    tmpargument = 8
+    IfStateIs1
+      tmpargument = 5
+    SendMessageNear
+  tmpargument = 0
+  SetState
+
+// Say it's kursed
+IfNotTakenOut
+  IfTargetIsAPlayer
+    tmpargument = 6
+    SendMessageNear
+
+End

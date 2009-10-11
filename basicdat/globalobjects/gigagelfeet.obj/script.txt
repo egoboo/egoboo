@@ -1,0 +1,86 @@
+//------------------------------------------------------------------------------
+IfHealed
+  GetDamageType
+  tmpx = tmpargument
+  tmpy = DAMAGEFIRE
+  IfXIsEqualToY		//Only if not fire damage
+    DoNothing
+  Else
+    // Damage is inverted to make the Gelfeet invincible...
+    tmpargument = 0
+    PlaySound
+
+    // Drop the item it's carrying
+    tmpargument = ACTIONHA
+    DoAction
+
+IfTimeOut
+  tmpargument = 100
+  SetTime
+  SetTargetToRider
+    IfTargetIsAlive
+      // Hurt the character
+      tmpargument = 1024
+      DamageTarget
+
+      // Corrode items
+      tmpx = rand & 1
+      tmpy = 0
+      IfXIsEqualToY
+        SetTargetToTargetLeftHand
+          tmpargument = [RUST]
+          IfTargetHasVulnerabilityID
+            tmpargument = 0
+            SendMessageNear
+            PoofTarget
+      Else
+        SetTargetToTargetRightHand
+          tmpargument = [RUST]
+          IfTargetHasVulnerabilityID
+            tmpargument = 0
+            SendMessageNear
+            PoofTarget
+    Else
+      // Corrode items
+      tmpargument = [RUST]
+      IfTargetHasVulnerabilityID
+        tmpargument = 0
+        SendMessageNear
+        PoofTarget
+
+IfBumped				// Eat the enemy
+  SetTargetToWhoeverBumped
+  tmpx = targetz
+  tmpy = selfz + 30
+  IfXIsLessThanY
+    IfFacingTarget
+      tmpargument = ACTIONME
+      DoAction
+      tmpargument = 0
+      PlaySound
+
+//Content 1 = Y direction while content 0 = X direction
+IfSpawned				// This is done once in a lifetime
+  tmpargument = 0
+  IfContentIs
+    ClearWaypoints			  // Now go there
+    tmpy = 128*8 + selfspawny				  // Waypoint 0
+    tmpx = selfspawnx				  //
+    AddWaypoint				  //
+    tmpy = 128*8				  // Waypoint 1
+    tmpy = selfspawny - tmpy
+    tmpx = selfspawnx				  //
+    AddWaypoint				  //
+
+  tmpargument = 1
+  IfContentIs
+    ClearWaypoints			  // Now go there
+    tmpx = 128*5 + selfspawnx				  // Waypoint 0
+    tmpy = selfspawny				  //
+    AddWaypoint				  //
+    tmpx = 128*5				  // Waypoint 1
+    tmpx = selfspawnx - tmpx
+    tmpy = selfspawny				  //
+    AddWaypoint				  //
+
+End					// Finished with this character

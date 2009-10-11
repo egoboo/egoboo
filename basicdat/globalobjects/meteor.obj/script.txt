@@ -1,0 +1,72 @@
+// Create the character
+IfSpawned
+  SetTargetToSelf
+  tmpargument = 1
+  tmpdistance = 1
+  SpawnAttachedParticle
+  SetTurnModeToSpin
+  JoinEvilTeam
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz - selfaltitude + 10
+  tmpturn = selfturn
+  tmpargument = 40
+  SpawnExactCharacterXYZ
+
+IfStateIs0
+  GetWaterLevel
+  tmpy = tmpargument + 51440
+  tmpx = selfz < 2 + selfz < 1 //Long-way multiply by 10
+  IfXIsLessThanY
+    tmpargument = 2
+    tmpdistance = 22050
+    PlaySound
+    tmpx = selfx
+    tmpy = selfy
+    tmpdistance = selfz
+    tmpargument = 3
+    SpawnExactParticle
+    tmpargument = ACTIONKA
+    ChildDoActionOverride
+    tmpargument = ACTIONKB
+    DoActionOverride
+    tmpargument = 1000
+    AccelerateUp
+    tmpargument = 1
+    SetState
+  Else
+    IfHitGround
+      DisaffirmCharacter
+      tmpx = selfx
+      tmpy = selfy
+      tmpdistance = selfz
+      tmpargument = 4
+      SpawnExactParticle
+      tmpargument = 1
+      ChangeArmor
+      tmpargument = 128
+      SetLight
+      tmpargument = ACTIONKA
+      DoActionOverride
+      ChildDoActionOverride
+
+      tmpx = selfx
+      tmpy = selfy
+      GetTileXY
+      tmpx = tmpargument
+      tmpy = 32
+      IfXIsLessThanY
+        tmpargument = tmpargument + 32
+        tmpx = selfx
+        tmpy = selfy
+        SetTileXY
+
+tmpx = targetspeedz
+tmpy = 0 - 10
+IfStateIs1
+  tmpy = 10
+IfXIsLessThanY
+  tmpargument = 100
+  AccelerateUp
+
+End

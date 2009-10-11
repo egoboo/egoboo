@@ -1,0 +1,250 @@
+// Create the character
+IfSpawned
+  IfStateIs0
+    // It's an imported spell in hand
+    KeepAction
+  Else			//Setup monster!
+    MakeNameUnknown
+    SetTargetToSelf
+    
+    //This is a monster
+    NotAnItem		
+    MakeCrushValid 		//Make monster crush valid
+    AddStat
+    
+    //Spell effect
+    SpawnPoof		
+    
+    //Use summoner stats to determine power
+    SetTargetToOwner
+    tmpargument = targetint > 2	//Every 4 points of int adds 1 extra point
+    SetTargetToSelf		//Modify own stats, not the owner
+    GiveLifeToTarget		    //Modify the hp
+    GiveStrengthToTarget		//Modify the strength
+    GiveDexterityToTarget		//Modify the dexterity
+    
+    //Slow reaction time when summoned
+    tmpargument = 75
+    SetTime			
+    
+    //Summon sound
+    tmpargument = 0
+    PlaySound
+IfChanged
+  // It's a spell in hand
+  tmpargument = 0
+  SetState
+  KeepAction
+
+//Make monster crushable (Only monster is valid)
+IfCrushed
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  tmpargument = 3		//Crush blud
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  GoPoof			//Destroy body
+  tmpargument = 3		//Tell them
+  SendMessageNear
+
+// It's a spell in hand
+IfChanged
+  tmpargument = 0
+  SetState
+  KeepAction
+
+//--------------------------------------------------------------------------------------------
+// MONSTER AI
+tmpargument = 0
+IfStateIsNot		//State 0 is spellbook
+
+  // Character screams
+  IfAttacked
+    tmpargument = 0
+    PlaySound
+
+  // Character death
+  IfKilled
+    tmpargument = 1
+    PlaySound		
+    
+    // Tell everyone it died
+    tmpargument = 0
+    IfTargetIsOnSameTeam
+      tmpargument = 1
+      IfTargetIsSelf
+        tmpargument = 2
+    SendMessageNear
+    
+    //Unsummon body
+    GoPoof
+
+  //How to react if bumped
+  IfBumped				// Attack whoever it bumped
+    SetTargetToWhoeverBumped
+    IfTargetIsOnHatedTeam			  // Make sure it's an enemy
+      tmpargument = ACTIONUA		    // Bite 'em
+      DoAction			    //
+    Else					  //Try to move out of way
+      tmpx = rand & 1023 + targetx - 512
+      tmpy = rand & 1023 + targety - 512
+      ClearWaypoints			    //
+      AddWaypoint				    //
+      SetTargetToOldTarget		    //
+
+  //New round
+  IfTimeOut				// This is done every so often
+    SetTargetToWideEnemy			  // Look for enemies
+      tmpargument = rand & 1 + 2
+      PlaySound			//Growl
+
+      tmpx = targetx
+      tmpy = targety
+      tmpdistance = 300
+      tmpturn = selfturn
+      Compass
+      tmpturn = targetturnto
+      tmpdistance = 300
+      Compass
+    Else					  // Follow master
+      tmpx = rand & 1023 - 512 + ownerx
+      tmpy = rand & 1023 - 512 + ownery
+    ClearWaypoints
+    AddWaypoint
+    tmpturn = selfdex > 7     //High dex allows for faster reactions
+    tmpargument = rand & 63 + 32 - tmpturn		  // Wait a while and try again
+    SetTime
+
+
+//--------------------------------------------------------------------------------------------
+//SPELL AI
+IfStateIs0
+
+  // Remove the charge
+  IfTakenOut
+    tmpargument = 0
+    SetContent
+    SetTargetToWhoeverIsHolding
+      IfTargetIsAPlayer
+        tmpargument = 5
+        IfNameIsKnown
+          tmpargument = 6
+        SendMessageNear
+
+  // Allow it to be used
+  IfUsed
+    UndoEnchant
+      tmpargument = 25
+      SetReloadTime
+    Else
+      SetTargetToWhoeverIsHolding
+      tmpargument = [WMAG]
+      IfTargetHasSkillID
+        tmpx = selfcontent			//Current spellpower
+        tmpy = 1536				//6 spellpower is max
+        IfXIsLessThanY				//Not already max power?
+          tmpy = targetmanaflow			//High enough level to continue casting?
+          IfXIsLessThanY
+            tmpargument = 6				//Casting speed
+            CostTargetMana
+              tmpargument = selfcontent + tmpargument
+              SetContent
+
+        //Spell effect around caster
+        SetTargetToWhoeverIsHolding
+          tmpx = targetx
+          tmpy = targety
+          tmpdistance = targetz
+          tmpargument = 4
+          SpawnExactParticle
+
+  Else				//Spell released
+    tmpx = selfcontent
+    tmpy = 511			//Needed casting
+    IfXIsMoreThanY
+      // Make the holder cast it
+      SetTargetToWhoeverIsHolding
+        tmpargument = ACTIONMC // MC because ZA/ZC spawns an attack... ZA03AL
+        TargetDoAction
+
+        //Identify as spellbook
+        MakeNameKnown
+        MakeUsageKnown
+
+        //Where to summon it
+        
+        //Summon!
+        SetOwnerToTarget
+        tmpargument = selfcontent > 8
+        SetState
+        tmpdistance = targetz
+        
+        IfStateIs1
+          tmpx = rand & 255 + targetx - 128	
+          tmpy = rand & 255 + targety - 128
+          tmpturn = rand
+          SpawnCharacterXYZ		
+          tmpx = rand & 255 + targetx - 128	
+          tmpy = rand & 255 + targety - 128
+          tmpturn = rand
+          SpawnCharacterXYZ		
+          tmpargument = 1	        //Monster mode
+          SetChildState
+
+        IfStateIs2
+          tmpx = rand & 255 + targetx - 128	
+          tmpy = rand & 255 + targety - 128
+          tmpturn = rand
+          SpawnCharacterXYZ		
+          tmpx = rand & 255 + targetx - 128	
+          tmpy = rand & 255 + targety - 128
+          tmpturn = rand
+          SpawnCharacterXYZ		
+          tmpargument = 1	        //Monster mode
+          SetChildState
+          
+        IfStateIs3
+          tmpx = rand & 255 + targetx - 128	
+          tmpy = rand & 255 + targety - 128
+          tmpturn = rand
+          SpawnCharacterXYZ		
+          tmpx = rand & 255 + targetx - 128	
+          tmpy = rand & 255 + targety - 128
+          tmpturn = rand
+          SpawnCharacterXYZ		
+          tmpargument = 1	        //Monster mode
+          SetChildState
+
+
+          //Play sound effect
+          tmpargument = 5
+          PlaySound
+          
+          tmpargument = 50
+          SetReloadTime		//Delay before next use
+    Else
+      tmpy = 0
+      IfXIsMoreThanY
+        // Didn't pump it enough
+        tmpargument = 4
+        SendMessageNear
+    // Reset the charge counter
+    tmpargument = 0
+    SetContent
+    
+  // Return to spellbook, Do last!
+  IfDropped
+    tmpargument = 0
+    SetContent
+    BecomeSpellbook
+    DisaffirmCharacter
+    tmpargument = ACTIONJB
+    DoAction
+    KeepAction
+
+//--------------------------------------------------------------------------------------------
+End
+//--------------------------------------------------------------------------------------------

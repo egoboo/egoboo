@@ -1,0 +1,217 @@
+// Remove the charge
+IfTakenOut
+  tmpargument = 0
+  SetContent
+  SetTargetToWhoeverIsHolding
+    IfTargetIsAPlayer
+      tmpargument = 2
+      SendMessageNear
+
+//Crushed in passages
+IfSpawned
+  MakeCrushValid
+IfCrushed
+  GoPoof
+  tmpargument = 1
+  SendMessageNear
+
+// Spell AI
+IfUsed
+  GetContent
+  tmpx = tmpargument
+  tmpy = 1024                   //Max charge
+  IfXIsLessThanY
+    SetTargetToWhoeverIsHolding
+    tmpargument = [WMAG]
+    IfTargetHasSkillID			//Arcane casters only
+      tmpx = tmpx*3
+      tmpy = targetmanaflow*2
+      IfXIsLessThanY			//Enough manaflow?
+        tmpx = targetint
+        GetContent
+        tmpy = tmpargument * 7		//Enough intelligence to reach next spell power level?
+        IfXIsMoreThanY
+          tmpargument = 13
+          CostTargetMana		//Mana cost
+            GetContent
+            tmpargument = tmpargument + 7
+            SetContent			//Casting Time
+            tmpargument = tmpargument > 8
+            SetState			//Set spell power
+Else
+  GetContent
+  tmpx = tmpargument
+  tmpy = 256
+  IfXIsMoreThanY
+    // Make the target shoot
+    SetTargetToWhoeverIsHolding
+      tmpargument = ACTIONZA
+      CorrectActionForHand
+      TargetDoAction
+
+    // Figured out what it was
+    IfNameIsKnown
+      DoNothing
+    Else
+      IfTargetIsAPlayer
+        MakeNameKnown
+        MakeUsageKnown
+        tmpargument = 20
+        tmpdistance = EXPDARE
+        GiveExperienceToTarget
+
+    // Shoot off some missiles
+    tmpdistance = selfz
+    tmpx = selfx
+    tmpy = selfy
+    IfStateIs1		//Spell power level 1 (4 orbs)
+      tmpargument = 3
+      tmpturn = rand & 1250
+      SpawnExactParticle
+      tmpargument = 4
+      tmpturn = rand & 1250
+      SpawnExactParticle
+      tmpargument = 5
+      tmpturn = rand & 1250
+      SpawnExactParticle
+      tmpargument = 6
+      tmpturn = rand & 1250
+      SpawnExactParticle
+    IfStateIs2		//Spell power level 2 (8 orbs)
+      tmpargument = 3
+      tmpturn = rand & 1250
+      SpawnExactParticle
+      tmpargument = 4
+      tmpturn = rand & 1250
+      SpawnExactParticle
+      tmpargument = 5
+      tmpturn = rand & 1250
+      SpawnExactParticle
+      tmpargument = 6
+      tmpturn = rand & 1250
+      SpawnExactParticle
+      tmpargument = 3
+      tmpturn = rand & 1250
+      SpawnExactParticle
+      tmpargument = 4
+      tmpturn = rand & 1250
+      SpawnExactParticle
+      tmpargument = 5
+      tmpturn = rand & 1250
+      SpawnExactParticle
+      tmpargument = 6
+      tmpturn = rand & 1250
+      SpawnExactParticle
+    IfStateIs3	//Spell power level 3 (12 orbs)
+      tmpargument = 3
+      tmpturn = rand & 1250
+      SpawnExactParticle
+      tmpargument = 4
+      tmpturn = rand & 1250
+      SpawnExactParticle
+      tmpargument = 5
+      tmpturn = rand & 1250
+      SpawnExactParticle
+      tmpargument = 6
+      tmpturn = rand & 1250
+      SpawnExactParticle
+      tmpargument = 3
+      tmpturn = rand & 1250
+      SpawnExactParticle
+      tmpargument = 4
+      tmpturn = rand & 1250
+      SpawnExactParticle
+      tmpargument = 5
+      tmpturn = rand & 1250
+      SpawnExactParticle
+      tmpargument = 6
+      tmpturn = rand & 1250
+      SpawnExactParticle
+      tmpargument = 3
+      tmpturn = rand & 1250
+      SpawnExactParticle
+      tmpargument = 4
+      tmpturn = rand & 1250
+      SpawnExactParticle
+      tmpargument = 5
+      tmpturn = rand & 1250
+      SpawnExactParticle
+      tmpargument = 6
+      tmpturn = rand & 1250
+      SpawnExactParticle
+    IfStateIs4		//Spell power level 4 (16 orbs! :P)
+      tmpargument = 3
+      tmpturn = rand & 1250
+      SpawnExactParticle
+      tmpargument = 4
+      tmpturn = rand & 1250
+      SpawnExactParticle
+      tmpargument = 5
+      tmpturn = rand & 1250
+      SpawnExactParticle
+      tmpargument = 6
+      tmpturn = rand & 1250
+      SpawnExactParticle
+      tmpargument = 3
+      tmpturn = rand & 1250
+      SpawnExactParticle
+      tmpargument = 4
+      tmpturn = rand & 1250
+      SpawnExactParticle
+      tmpargument = 5
+      tmpturn = rand & 1250
+      SpawnExactParticle
+      tmpargument = 6
+      tmpturn = rand & 1250
+      SpawnExactParticle
+      tmpargument = 3
+      tmpturn = rand & 1250
+      SpawnExactParticle
+      tmpargument = 4
+      tmpturn = rand & 1250
+      SpawnExactParticle
+      tmpargument = 5
+      tmpturn = rand & 1250
+      SpawnExactParticle
+      tmpargument = 6
+      tmpturn = rand & 1250
+      SpawnExactParticle
+      tmpargument = 3
+      tmpturn = rand & 1250
+      SpawnExactParticle
+      tmpargument = 4
+      tmpturn = rand & 1250
+      SpawnExactParticle
+      tmpargument = 5
+      tmpturn = rand & 1250
+      SpawnExactParticle
+      tmpargument = 6
+      tmpturn = rand & 1250
+      SpawnExactParticle
+    tmpargument = 0
+    PlaySound
+  // Reset the charge counter
+  tmpargument = 0
+  SetContent
+
+// Put the little mana ball on the
+// character's hand
+GetContent
+tmpx = tmpargument
+tmpy = 0
+IfXIsMoreThanY
+  tmpturn = tmpargument < 4 + 5000
+  tmpdistance = SPAWNORIGIN
+  tmpargument = 0
+  SpawnAttachedSizedParticle
+
+// Return to spellbook, Do last!
+IfDropped
+  tmpargument = 0
+  SetContent
+  BecomeSpellbook
+  DisaffirmCharacter
+  tmpargument = ACTIONJB
+  DoAction
+  KeepAction
+End

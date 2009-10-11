@@ -1,0 +1,241 @@
+// Create the character
+IfSpawned
+  IfStateIs0
+    // It's an imported spell in hand
+    KeepAction
+  Else			//Setup monster!
+    MakeNameUnknown
+    SetTargetToSelf
+    NotAnItem		//This is a monster
+    tmpx = selfstate
+    SpawnPoof		//Spell effect
+    SetTargetToOwner		//Use summoner stats to determine power
+    tmpargument = targetint > 2	//Every 4 points of int adds 1 hp
+    SetTargetToSelf		//Modify own hp, not the owner
+    GiveLifeToTarget		//Modify the hp
+    tmpargument = 50
+    SetTime			//Slow reaction time when summoned
+    MakeCrushValid 		//Make monster crush valid
+    tmpargument = 5		//Summon sound
+    PlaySound
+
+//Make monster crushable (Only monster is valid)
+IfCrushed
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  tmpargument = 6
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  GoPoof			//Destroy body
+  tmpargument = 3		//Tell them
+  SendMessageNear
+
+// It's a spell in hand
+IfChanged
+  tmpargument = 0
+  SetState
+  KeepAction
+
+//--------------------------------------------------------------------------------------------
+// MONSTER AI
+tmpargument = 0
+IfStateIsNot		//State 0 is spellbook
+
+  // Character screams
+  IfAttacked
+    tmpargument = 0
+    PlaySound
+
+  // Character death
+  IfKilled
+    tmpargument = 30
+    SetBumpHeight		// Make the character body
+    tmpargument = 1
+    tmpdistance = rand % 2047 + 10000
+    PlaySound		// Tell everyone it died
+    tmpargument = 0
+    IfTargetIsOnSameTeam
+      tmpargument = 1
+      IfTargetIsSelf
+        tmpargument = 2
+    SendMessageNear
+    GoPoof			//Unsummon body
+
+  //How to react if bumped
+  IfBumped				// Attack whoever it bumped
+    SetTargetToWhoeverBumped
+    IfTargetIsOnHatedTeam			  // Make sure it's an enemy
+      tmpargument = 0
+      tmpx = targetx
+      tmpy = targety
+      tmpdistance = targetz
+      IfStateIs1
+        SpawnExactParticle
+          tmpargument = 2			//Need time to recharge
+          SetState
+    Else					  //Try to move out of way
+      tmpx = rand & 1023 + targetx - 512
+      tmpy = rand & 1023 + targety - 512
+      ClearWaypoints
+      AddWaypoint
+      SetTargetToOldTarget
+
+  //New round
+  IfTimeOut				// This is done every so often
+    tmpargument = 1
+    SetState				//Recharge attack
+    SetTargetToWideEnemy			  // Look for enemies
+      tmpargument = rand & 1 + 2
+      tmpdistance = rand & 4095 + 11000
+      PlaySound			//Growl
+
+      tmpx = targetx
+      tmpy = targety
+      tmpdistance = 300
+      tmpturn = selfturn
+      Compass
+      tmpturn = targetturnto
+      tmpdistance = 300
+      Compass
+    Else					  // Follow master
+      tmpx = rand & 1023 - 512 + ownerx
+      tmpy = rand & 1023 - 512 + ownery
+    ClearWaypoints
+    AddWaypoint
+    tmpargument = rand & 63 + 20		  // Wait a while and try again
+    SetTime
+    IfInWater			//Water damages creature
+      tmpargument = 256
+      tmpdistance = DAMAGEZAP
+      SetTargetToSelf
+      DamageTarget
+
+
+//--------------------------------------------------------------------------------------------
+//SPELL AI
+IfStateIs0
+
+  // Remove the charge
+  IfTakenOut
+    tmpargument = 0
+    SetContent
+    SetTargetToWhoeverIsHolding
+      IfTargetIsAPlayer
+        tmpargument = 5
+        IfNameIsKnown
+          tmpargument = 6
+        SendMessageNear
+
+  // Allow it to be used
+  IfUsed
+    SetTargetToWhoeverIsHolding
+    tmpargument = [WMAG]
+    IfTargetHasSkillID
+      GetContent
+      tmpx = tmpargument			//Current spellpower
+      tmpy = 768				//3 spellpower is max
+      IfXIsLessThanY				//Not already max power?
+        tmpy = targetmanaflow			//High enough level to continue casting?
+        IfXIsLessThanY
+          tmpargument = 8				//Casting cost
+          CostTargetMana
+            GetContent
+            tmpargument = tmpargument + 4		//Casting speed
+            SetContent
+
+      //Spell effect around caster
+      SetTargetToWhoeverIsHolding
+        tmpx = targetx
+        tmpy = targety
+        tmpdistance = targetz
+        tmpargument = 4
+        SpawnExactParticle
+
+  Else				//Spell released
+    GetContent
+    tmpx = tmpargument
+    tmpy = 255			//Needed casting
+    IfXIsMoreThanY
+      // Make the holder cast it
+      SetTargetToWhoeverIsHolding
+        tmpargument = ACTIONMC // MC because ZA/ZC spawns an attack... ZA03AL
+        TargetDoAction
+      SetTargetToSelf		//Identify as spellbook
+        MakeNameKnown
+        MakeUsageKnown
+        tmpx = rand & 255 + targetx - 128	//Where to summon it
+        tmpy = rand & 255 + targety - 128
+        tmpturn = rand
+        tmpdistance = targetz
+        SetTargetToWhoeverIsHolding
+        SetOwnerToTarget
+        SpawnCharacterXYZ		//Summon!
+          EnchantChild			//Set the drain
+            GetContent
+            tmpargument = 0 - tmpargument > 3	//How much mana to drain
+            tmpdistance = 0
+            tmpx = 0
+            tmpy = 0
+            SetEnchantBoostValues		//Drain is determined by amount of monsters
+            tmpargument = 1	//Monster mode
+            SetChildState
+
+          GetContent
+          tmpx = tmpargument
+          tmpy = 511			//Spell power is 2
+          IfXIsMoreThanY		//Summon a extra monster
+            tmpx = rand & 255 + targetx - 128	//Where to summon it
+            tmpy = rand & 255 + targety - 128
+            tmpturn = rand
+            tmpdistance = targetz
+            SetTargetToWhoeverIsHolding
+            SetOwnerToTarget
+            SpawnCharacterXYZ
+              EnchantChild
+              tmpargument = 1	//Monster mode
+              SetChildState
+            GetContent
+            tmpx = tmpargument
+            tmpy = 767			//Spell power is 3
+            IfXIsMoreThanY		//Summon another extra
+              tmpx = rand & 255 + targetx - 128	//Where to summon it
+              tmpy = rand & 255 + targety - 128
+              tmpturn = rand
+              tmpdistance = targetz
+              SetTargetToWhoeverIsHolding
+              SetOwnerToTarget
+                SpawnCharacterXYZ
+                EnchantChild
+                tmpargument = 1
+                SetChildState
+
+          tmpargument = 0
+          tmpdistance = 22050
+          PlaySound
+          tmpargument = 20
+          SetReloadTime		//Delay before next use
+    Else
+      tmpy = 0
+      IfXIsMoreThanY
+        // Didn't pump it enough
+        tmpargument = 4
+        SendMessageNear
+    // Reset the charge counter
+    tmpargument = 0
+    SetContent
+  // Return to spellbook, Do last!
+  IfDropped
+    tmpargument = 0
+    SetContent
+    BecomeSpellbook
+    DisaffirmCharacter
+    tmpargument = ACTIONJB
+    DoAction
+    KeepAction
+
+//--------------------------------------------------------------------------------------------
+End
+//--------------------------------------------------------------------------------------------

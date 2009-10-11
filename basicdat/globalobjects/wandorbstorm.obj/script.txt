@@ -1,0 +1,83 @@
+// ZZ> This function makes an item fall to the floor when spawned
+IfSpawned
+  tmpargument = ACTIONJB
+  DoAction
+  KeepAction
+  MakeCrushValid
+  ReaffirmCharacter
+IfTakenOut
+  ReaffirmCharacter
+IfCrushed
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  tmpargument = 4
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  GoPoof
+  tmpargument = 1
+  SendMessageNear
+
+// Make it lie on floor
+IfDropped
+  KeepAction
+
+//Remove if out of charges
+IfAmmoOut
+  GoPoof
+  tmpargument = 2
+  SendMessageNear
+
+// Make a sound if dropped
+IfHitGround
+  tmpargument = 3
+  PlaySound
+
+//The wand was used
+IfUsed
+  tmpargument = 74		//Wait a while before used again
+  SetReloadTime
+
+  IfNameIsKnown		// Found out what it was
+    DoNothing
+  Else
+    MakeNameKnown
+    SetTargetToWhoeverIsHolding
+    tmpargument = 10
+    tmpdistance = EXPDARE
+    GiveExperienceToTarget
+
+  //Spawn some random magical globes
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  tmpargument = 3
+  tmpturn = rand & 1250
+  SpawnExactParticle
+  tmpturn = rand & 1250
+  SpawnExactParticle
+  tmpargument = 4
+  tmpturn = rand & 1250
+  SpawnExactParticle
+  tmpargument = 5
+  tmpturn = rand & 1250
+  SpawnExactParticle
+  tmpturn = rand & 1250
+  SpawnExactParticle
+  tmpargument = 6
+  tmpturn = rand & 1250
+  SpawnExactParticle
+
+  //Sound effect
+  tmpargument = 0
+  PlaySound
+
+// Tell them what they've won...
+IfGrabbed
+  SetTargetToWhoeverIsHolding
+  IfTargetIsAPlayer
+    tmpargument = 0
+    SendMessageNear
+End					// All done

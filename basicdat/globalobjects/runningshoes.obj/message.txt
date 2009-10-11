@@ -1,0 +1,9 @@
+Message 0: %t_grabbed_%n.
+Message 1: %t_already_has_something_on_%g_feet.
+Message 2: The_Shoes_won't_fit_%t's_feet.
+Message 3: %t's_Shoes_weld_themselves_to_%g_feet.
+Message 4: %t_squeezed_into_%n.
+Message 5: %t_took_off_%n.
+Message 6: %t's_shoes_won't_come_off...
+Message 7: Some_shoes_were_worn_out...
+Message 8: %t_took_out_%n.

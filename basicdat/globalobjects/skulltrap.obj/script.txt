@@ -1,0 +1,101 @@
+// Remove the charge
+IfTakenOut
+  tmpargument = 0
+  SetContent
+  SetTargetToWhoeverIsHolding
+    IfTargetIsAPlayer
+      tmpargument = 1
+      SendMessageNear
+
+// Spell AI
+IfUsed
+  tmpargument = [WMAG]
+  IfTargetHasSkillID
+    //Aiming Cursor
+    SetTargetToOwner
+    GetContent
+    tmpdistance = tmpargument > 8 + 2 < 6
+    tmpturn = targetturn
+    tmpx = targetx
+    tmpy = targety
+    Compass
+    tmpdistance = targetz
+    tmpargument = 6
+    SpawnExactParticle
+
+IfUsed
+  GetContent
+  tmpx = tmpargument
+  tmpy = 1025
+  IfXIsLessThanY			//Max charge
+    SetTargetToWhoeverIsHolding
+    tmpargument = [WMAG]
+    IfTargetHasSkillID
+      tmpy = targetmanaflow
+      IfXIsLessThanY			//Enough mana flow?
+        tmpx = 5			//Casting time and cost
+        tmpargument = tmpx
+        CostTargetMana
+          GetContent
+          tmpargument = tmpargument + tmpx
+          SetContent
+
+Else
+  GetContent
+  tmpx = tmpargument
+  tmpy = 1023
+  IfXIsMoreThanY			//Minimum charge
+    // Make the target shoot
+    SetTargetToWhoeverIsHolding
+      tmpargument = ACTIONZA
+      CorrectActionForHand
+      TargetDoAction
+
+    //Tell the players the spell is cast successfully
+    tmpargument = 3
+    SendMessageNear
+
+    // Figured out what it was
+    MakeNameKnown
+    MakeUsageKnown
+    // spawn the trap
+    SetTargetToOwner
+    GetContent
+    tmpdistance = tmpargument > 2 + 128 //tmpargument > 8 + 2 < 6
+    tmpturn = targetturn
+    tmpx = targetx
+    tmpy = targety
+    Compass
+    tmpdistance = targetz
+    tmpargument = 1
+    SpawnExactParticle
+  
+
+    tmpargument = 0
+    tmpdistance = rand & 2047 + 10000
+    PlaySound
+  // Reset the charge counter
+  tmpargument = 0
+  SetContent
+
+// Put the little mana ball on the
+// character's hand
+GetContent
+tmpx = tmpargument
+tmpy = 0
+IfXIsMoreThanY
+  tmpturn = tmpargument < 4 + 3000
+  tmpdistance = SPAWNORIGIN
+  tmpargument = 0
+  SpawnAttachedSizedParticle
+
+// Return to spellbook, Do last!
+IfDropped
+  tmpargument = 0
+  SetContent
+  BecomeSpellbook
+  DisaffirmCharacter
+  tmpargument = ACTIONJB
+  DoAction
+  KeepAction
+End

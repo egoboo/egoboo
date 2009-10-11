@@ -1,0 +1,7 @@
+Message 0: %t_grabbed_%n.
+Message 1: The_%c_shattered!
+Message 2: %t_whipped_out_%n.
+Message 3: %t_quaffed_%n.
+Message 4: %t_vanished!
+Message 5: %t_became_invisible!
+Message 6: The_invisibility_faded_away...

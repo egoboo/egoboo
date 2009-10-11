@@ -1,0 +1,123 @@
+// Create the character
+IfSpawned
+  // It's an imported spell in hand
+  tmpargument = 0
+  SetState
+  KeepAction
+IfChanged
+  IfCharacterWasABook  // Did it start out as a book or the spell object?
+    // It's a spell in hand
+    tmpargument = 0
+    SetState
+    KeepAction
+  Else
+    // It's a morphed character
+    SpawnPoof
+    tmpargument = 1
+    SetState
+    NotAnItem
+
+// Monster AI...  State 1
+IfStateIs1
+  // Boredom
+  IfBored
+    tmpargument = ACTIONMC
+    DoAction
+    tmpargument = rand & 1 + 3
+    PlaySound
+
+  // Character screams
+  IfAttacked
+    tmpargument = rand & 1 + 5
+    PlaySound
+
+// Spell AI...  State 0
+Else
+  // Remove the charge
+  IfTakenOut
+    tmpargument = 0
+    SetContent
+    SetTargetToWhoeverIsHolding
+      IfTargetIsAPlayer
+        tmpargument = 3
+        IfNameIsKnown
+          tmpargument = 4
+        SendMessageNear
+  // Allow it to be charged up
+  IfUsed
+    // Does it have one going?
+    UndoEnchant
+      tmpargument = 60
+      SetReloadTime
+    // Nope, so charge
+    Else
+      tmpx = selfcontent
+      tmpy = 380
+      IfXIsLessThanY
+        SetTargetToWhoeverIsHolding
+        tmpargument = [WMAG]
+        IfTargetHasSkillID
+          tmpy = targetmanaflow
+          IfXIsLessThanY
+            tmpx = 8
+            tmpargument = tmpx
+            CostTargetMana
+              GetContent
+              tmpargument = tmpargument + 4
+              SetContent
+              tmpx = selfx
+              tmpy = selfy
+              tmpdistance = selfz
+              tmpargument = 5
+              SpawnExactParticle
+        Else
+          tmpargument = 5
+          SendMessageNear
+  // Let it be cast
+  Else
+    tmpx = selfcontent
+    tmpy = 0
+    IfXIsMoreThanY
+      tmpy = 379
+      IfXIsMoreThanY
+        // Cast the spell...
+        UndoEnchant  // There can be only one
+        SetTargetToWhoeverIsHolding
+        SetOwnerToTarget
+        EnchantTarget
+          MakeUsageKnown
+          MakeNameKnown
+          tmpargument = GREEN
+          SparkleIcon
+          tmpargument = 2
+          SendMessageNear
+        Else
+          tmpargument = 1
+          SendMessageNear
+
+        // Do flashy things
+        tmpargument = 2
+        PlaySound
+        tmpargument = 60
+        SetReloadTime
+
+      // Nothing happens...
+      Else
+        tmpargument = 0
+        SendMessageNear
+
+      // Reset the charge counter
+      tmpargument = 0
+      SetContent
+
+  // Return to spellbook, Do last!
+  IfDropped
+    tmpargument = 0
+    SetContent
+    BecomeSpellbook
+    DisaffirmCharacter
+    tmpargument = ACTIONJB
+    DoAction
+    KeepAction
+
+End

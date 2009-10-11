@@ -1,0 +1,89 @@
+// Set up general stuff
+IfSpawned
+  tmpargument = ACTIONJB
+  DoAction
+  KeepAction
+  MakeCrushValid
+  MakeAmmoKnown
+
+// Make it poof
+IfCrushed
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  tmpargument = 0
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  GoPoof
+  tmpargument = 1
+  SendMessageNear
+
+// Make it lie on the floor
+IfDropped
+  KeepAction
+
+// Play a clink or clang
+IfHitGround
+  tmpargument = 0
+  PlaySound
+
+// Alert others to draw
+IfTakenOut
+  SetTargetToWhoeverIsHolding
+  IfTargetIsAPlayer
+    tmpargument = 2
+    SendMessageNear
+
+// Tell them what they've won...
+IfGrabbed
+  SetTargetToWhoeverIsHolding
+  IfTargetIsAPlayer
+    tmpargument = 0
+    SendMessageNear
+
+//Magic sparks
+IfTimeOut
+  tmpargument = 3
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  SpawnExactParticle
+  tmpargument = 10
+  SetTime
+
+// Give the user a bonus, but it's addictive...
+IfUsed
+  tmpargument = 100
+  SetReloadTime
+  SetTargetToWhoeverIsHolding
+    tmpargument = ACTIONMC
+    TargetDoAction
+    tmpdistance = SPAWNORIGIN
+    tmpargument = 1
+    SpawnAttachedHolderParticle
+    CostAmmo
+    tmpargument = 1
+    PlaySound
+    
+    //Give 50 extra XP per level of the target
+    tmpturn = targetlevel+1
+    tmpargument = tmpturn*50               //A nifty xp bonus
+    tmpdistance = EXPROLEPLAY
+    GiveExperienceToTarget
+    tmpx = tmpargument            //Remember the amount of XP gained for message
+    
+    //The drawback
+    tmpargument = 0 - 16
+    GiveIntelligenceToTarget
+    
+    //Tell them what they got
+    tmpargument = 3
+    SendMessageNear
+      
+  IfAmmoOut
+    GoPoof
+
+// Finish up
+End

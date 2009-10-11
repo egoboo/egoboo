@@ -1,0 +1,136 @@
+// Remove the charge
+IfTakenOut
+  tmpargument = 0
+  SetContent
+  SetTargetToWhoeverIsHolding
+    IfTargetIsAPlayer
+      tmpargument = 5
+      SendMessageNear
+
+// Tell them what they've won...
+IfGrabbed
+  SetTargetToWhoeverIsHolding
+  IfTargetIsAPlayer
+    tmpargument = 0
+    SendMessageNear
+
+// What happens if it is used by a arcane spellcaster?
+IfUsed
+  SetTargetToWhoeverIsHolding
+  tmpargument = [WMAG]
+  IfTargetHasSkillID		//Can cast spell?
+
+    //Aiming Cursor
+    SetTargetToOwner
+    GetContent
+    tmpdistance = tmpargument > 8 + 4 < 6
+    tmpturn = targetturn
+    tmpx = targetx
+    tmpy = targety
+    Compass
+    tmpdistance = targetz
+    tmpargument = 4
+    SpawnExactParticle
+
+    //Charge it up!
+    SetTargetToWhoeverIsHolding
+    GetContent
+    tmpx = tmpargument
+    tmpy = 906
+    IfXIsLessThanY
+      tmpy = targetmanaflow
+      IfXIsLessThanY		//Enough power?
+        tmpy = 10
+        tmpx = targetmana
+        IfXIsMoreThanY
+          tmpargument = 9
+          CostTargetMana
+          GetContent
+          tmpargument = tmpargument + 7
+          SetContent
+
+Else			//Player released the charge
+  GetContent
+  tmpx = tmpargument
+  tmpy = 900
+  IfXIsMoreThanY	//Finished Charging
+    // Make the target shoot
+    SetTargetToWhoeverIsHolding
+      tmpargument = ACTIONZA
+      CorrectActionForHand
+      TargetDoAction
+
+    //Figured out what it was
+    IfNameIsKnown
+      DoNothing
+    Else
+      MakeNameKnown
+      MakeUsageKnown
+      SetTargetToWhoeverIsHolding
+      tmpargument = 30
+      tmpdistance = EXPSECRET
+      GiveExperienceToTarget
+
+    tmpx = targetmanaflow
+    tmpy = 767				//Need at least 3 mana flow to use
+    IfXIsMoreThanY
+
+      //Spawn the magic effects
+      SetTargetToOwner
+      GetContent
+      tmpdistance = tmpargument > 8 + 4 < 6
+      tmpturn = targetturn
+      tmpx = targetx
+      tmpy = targety
+      Compass
+      tmpdistance = targetz
+      tmpargument = 0
+      SpawnExactParticle
+
+
+      //Play the spell effect sound
+      tmpargument = 1
+      tmpdistance = rand & 3000 + 8000
+      PlaySound
+
+    Else	//Not high enough level
+      tmpargument = 4
+      SendMessageNear
+
+    //Cannot be used again for a while
+    tmpargument = 150
+    SetReloadTime
+
+  Else			//Not enough charged
+    tmpy = 0
+    GetContent
+    tmpx = tmpargument
+    IfXIsMoreThanY	//Only display message if charged
+      tmpargument = 3
+      SendMessageNear
+  tmpargument = 0
+  SetContent
+
+// Put the little mana ball on the
+// character's hand
+GetContent
+tmpx = tmpargument
+tmpy = 0
+IfXIsMoreThanY
+  tmpturn = tmpargument * 25 + 5000
+  tmpdistance = SPAWNORIGIN
+  tmpargument = 3
+  SpawnAttachedSizedParticle
+
+// Return to spellbook, Do last!
+IfDropped
+  tmpargument = 0
+  SetContent
+  BecomeSpellbook
+  DisaffirmCharacter
+  tmpargument = ACTIONJB
+  DoAction
+  KeepAction
+
+// Finish up
+End

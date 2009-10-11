@@ -1,0 +1,119 @@
+// ZZ> This function makes an item fall to the floor when spawned
+IfSpawned				//
+  tmpargument = ACTIONJB		  //
+  DoAction				  //
+  KeepAction				  //
+  MakeCrushValid
+  MakeAmmoKnown
+  
+  IfNameIsKnown
+    tmpargument = 1
+    ChangeArmor
+
+IfCrushed
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  tmpargument = 3
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  GoPoof
+  tmpargument = 6
+  SendMessageNear
+IfDropped				// Make it lie on floor
+  KeepAction				  //
+IfHitGround				// Make a sound
+  tmpargument = 0
+  PlaySound		  
+IfInWater
+  IfHeld
+    DoNothing
+  Else
+    // Go blank
+    GetContent
+    tmpx = tmpargument
+    tmpy = 0
+    IfXIsEqualToY
+      tmpargument = 1
+      SetContent
+      tmpargument = 5
+      SendMessageNear
+      MakeNameKnown      // To keep messages okay
+IfGrabbed				// Tell them what they've won...
+  SetTargetToWhoeverIsHolding		  //
+  SetOwnerToTarget
+  IfTargetIsAPlayer			  //
+    GetContent
+    SendMessageNear			  //
+IfUsed
+  GetContent
+  tmpx = tmpargument
+  tmpy = 0
+  IfXIsEqualToY
+    // The scroll has writing on it
+    tmpargument = 1
+    PlaySound
+
+    tmpx = selfx
+    tmpy = selfy
+    tmpdistance = selfz
+    tmpargument = 0
+    SpawnExactParticle
+
+    SetTargetToWhoeverIsHolding
+    tmpargument = 20
+    SetTargetReloadTime
+    IfNameIsKnown
+      DoNothing
+    Else
+      tmpargument = 1
+      ChangeArmor
+      tmpargument = 5
+      tmpdistance = EXPDARE
+      GiveExperienceToTarget
+    MakeSimilarNamesKnown
+
+    SetTargetToWhoeverIsHolding
+    tmpargument = [UNDE]
+    IfTargetHasID           //Undead actually gain bonuses!
+      tmpargument = 256*4
+      HealTarget            //Heal 4 hp
+      tmpargument = 8
+      SendMessage
+      tmpargument = 128
+      GiveLifeToTarget      //Give 1/2 permanent hp
+    Else
+      SetOwnerToTarget
+      EnchantTarget         //Reduce max hp by 4
+      tmpargument = 2
+      SendMessage
+    
+    CostAmmo
+    IfAmmoOut
+      GoPoof
+  Else
+    // Can't use a blank scroll...
+    tmpargument = 0
+    SetState
+    tmpargument = 7
+    SendMessageNear
+    tmpargument = 50
+    SetReloadTime
+IfReaffirmed
+  IfHeld
+    DoNothing
+  Else
+    tmpx = selfx
+    tmpy = selfy
+    tmpdistance = selfz
+    tmpargument = 3
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+    GoPoof
+    tmpargument = 4
+    SendMessageNear
+End					// All done

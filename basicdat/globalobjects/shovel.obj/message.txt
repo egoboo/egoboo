@@ -1,0 +1,5 @@
+Message 0: %t_grabbed_a_%c.
+Message 1: The_%c_was_destroyed!
+Message 2: %t's_%c_is_%k...
+Message 3: The_%c_won't_go_in!
+Message 4: %t_hefted_%g_%c.
