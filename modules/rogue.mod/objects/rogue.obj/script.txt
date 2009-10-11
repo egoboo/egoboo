@@ -57,7 +57,7 @@ IfScoredAHit
         IfTargetHasID
           DoNothing             //Undead are immune to this
         Else
-          tmpargument = selfdex >> 6    //+1 damage for every 4 DEX
+          tmpargument = selfdex > 6    //+1 damage for every 4 DEX
           DamageTarget
           
           //Sound and message

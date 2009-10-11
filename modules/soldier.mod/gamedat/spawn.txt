@@ -49,7 +49,7 @@ guard:   NONE    36  13.5   22.5   0.0   ?    5   4  0   0   0   F   F   E
 ulnathrower:   NONE    45  47.5   37.5   1.0   N    0   0  0   1   0   F   F   E
 ulna:   NONE    45  45.5   40.5   0.0   ?    2   0  0   0   0   F   F   E
   KShield:   NONE    56  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
-  unknown:   NONE    22  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  Broadsword:   NONE    22  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 ulna:   NONE    45  43.5   37.5   0.0   ?    0   0  0   0   0   F   F   E
   claw:   NONE    38  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
   claw:   NONE    38  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N

@@ -31,6 +31,8 @@
 #dependency Disintergrate 119	
 #dependency Wonder        120
 	
+#dependency AnimatedXBow   44	
+	
 //         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
 HERO:       NONE    0  16.0   54.5   0.0   N    0   0  0   0   0   T   F   G
   unknown:   NONE    1    0.0   0.0   0.0   R    0   0  0   0   0   F   F   N

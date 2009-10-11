@@ -16,28 +16,41 @@ IfOrdered
     tmpargument = 3
     SendMessageNear
 
-
 //------------------------------------------------------------------------------
 // ZZ> This function makes the character wait for the enemy to open it
+IfBumped				// Attack whoever it bumped
+  SetTargetToWhoeverBumped		  //
+  IfTargetIsOnHatedTeam			  // Make sure it's an enemy
+    tmpargument = 0			    //
+    IfStateIs				    // Enter combat mode
+      IfTargetIsAPlayer			      // Advice
+        tmpargument = 1			        //
+        SendMessageNear			        //
+      SetState				      // Combat
+    tmpargument = 1			    // Attack Left = 1
+    PressLatchButton			    //
+
+
 IfKilled				// This reduces the height of the char
   tmpargument = 0
   tmpdistance = rand & 1023 + 10500
   PlaySound
 
-
   tmpargument = 0			    //
   SendMessageNear			    // Kill message
   GetBumpHeight				  //
-  tmpargument = tmpargument * 50 / 100	  //
+  tmpargument = tmpargument / 2	  //
   SetBumpHeight				  //
   tmpargument = 65535			  // Drop money
   DropMoney				  //
   DropItems
+
 IfTargetKilled				// Check for more food
   tmpargument = 0			  //
   SetTargetToNearbyEnemy		  // Get the other enemy
     tmpargument = 1			    //
   SetState				  //
+
 IfAttacked				// Retaliation
   tmpargument = 0
   tmpdistance = rand & 1023 + 10500
@@ -50,17 +63,7 @@ IfAttacked				// Retaliation
       IfTargetIsAPlayer			      //
         tmpargument = 2			        //
         SendMessageNear			        // Advice
-IfBumped				// Attack whoever it bumped
-  SetTargetToWhoeverBumped		  //
-  IfTargetIsOnHatedTeam			  // Make sure it's an enemy
-    tmpargument = 0			    //
-    IfStateIs				    // Enter combat mode
-      IfTargetIsAPlayer			      // Advice
-        tmpargument = 1			        //
-        SendMessageNear			        //
-      SetState				      // Combat
-    tmpargument = 1			    // Attack Left = 1
-    PressLatchButton			    //
+
 IfTimeOut				// This is done every so often
   tmpargument = 0			  //
   IfStateIs				  // State 0 ( Lurk )
@@ -96,4 +99,7 @@ IfTimeOut				// This is done every so often
   AddWaypoint				  //
   tmpargument = rand & 31 + 20		  // Wait a while and try again
   SetTime				  //
-End					// Finished with this character
+
+//------------------------------------------------------------------------------
+// Finished with this character
+End

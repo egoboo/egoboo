@@ -62,7 +62,7 @@ secretchest:   NONE    37  41.0   34.0   1.0   N    119   0  0   1   0   F   F  
   MPotion:   NONE    63  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   LPotion:   NONE    43  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   KeyC:   NONE    39  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-  kscroll:   NONE    71  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  KurScroll:   NONE    71  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
 deadfall:   NONE    36  27.5   41.0   1.0   N    0   0  2   0   0   F   F   N
 eyeball:   NONE    45  34.0   41.0   1.0   N    0   0  0   0   0   F   F   E
@@ -97,7 +97,7 @@ firemephit:   NONE    49  39.5   32.5   1.0   N    14   3  0   0   0   F   F   E
 
 //Trapped firebomb chest
 firetrapchest:   NONE    41  8.0   41.0   1.0   E    0   0  0   1   0   F   F   N
-  shockcinq:   NONE    54  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  ShockCinq:   NONE    54  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   LPotion:   NONE    43  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   LPotion:   NONE    43  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
@@ -117,7 +117,7 @@ secretchest:   NONE    37  34.5   13.5   1.0   S    199   0  0   2   0   F   F  
   MPotion:   NONE    63  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   Mallet:   NONE    50  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   Spear:   NONE    53  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-  summonspell:   NONE    70  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  SummonCrab:   NONE    70  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 waterwierd:   NONE    40  34.5   9.5   1.0   N    0   0  0   0   0   F   F   E
 eyeball:   NONE    45  33.5   13.5   1.0   N    0   0  0   0   0   F   F   E
 eyeball:   NONE    45  35.5   13.5   1.0   N    0   0  0   0   0   F   F   E

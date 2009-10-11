@@ -115,7 +115,7 @@ shopkeep:   Dunlar    49  51.5   27.5   0.0   N    199   0  1   1   0   F   F   
   warhammer:   NONE    95  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
 magicshop:   Zambini    80  72.0   96.0   0.0   N    999   0  6   0   0   F   F   G		//Spell shop
-  qstaff:   NONE    47  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  QStaff:   NONE    47  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
   randommagic:   NONE    99  68.5   96.5   1.0   N    0   0  0   3   0   F   F   N
   randommagic:   NONE    99  75.5   96.5   1.0   N    0   0  0   3   0   F   F   N
   randommagic:   NONE    99  75.5   94.5   1.0   N    0   0  0   3   0   F   F   N
@@ -125,37 +125,37 @@ magicshop:   Zambini    80  72.0   96.0   0.0   N    999   0  6   0   0   F   F 
 
 //Spell books
 moduletool:   NONE    99  70.5   97.5   1.0   N    0   0  0   0   0   F   F   N
-  teleport:   NONE    104  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Teleport:   NONE    104  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 moduletool:   NONE    99  74.5   96.5   1.0   N    0   0  0   0   0   F   F   N
-  bridge:   NONE    106  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Bridge:   NONE    106  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 moduletool:   NONE    99  69.5   96.5   1.0   N    0   0  0   0   0   F   F   N
-  deathcloud:   NONE    53  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  DeathCloud:   NONE    53  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 moduletool:   NONE    99  71.5   98.5   1.0   N    0   0  0   0   0   F   F   N
-  size:   NONE    112  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Size:   NONE    112  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 moduletool:   NONE    99  69.5   98.5   1.0   N    0   0  0   0   0   F   F   N
-  meteor:   NONE    79  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Meteor:   NONE    79  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 moduletool:   NONE    99  74.5   98.5   1.0   N    0   0  0   0   0   F   F   N
-  whirlwind:   NONE    113  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Whirlwind:   NONE    113  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 moduletool:   NONE    99  72.5   96.5   1.0   N    0   0  0   0   0   F   F   N
   firering:   NONE    108  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 moduletool:   NONE    99  73.5   95.5   1.0   N    0   0  0   0   0   F   F   N
-  icicles:   NONE    109  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  Icicles:   NONE    109  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 moduletool:   NONE    99  73.5   97.5   1.0   N    0   0  0   0   0   F   F   N
-  orbstorm:   NONE    110  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Orbstorm:   NONE    110  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 moduletool:   NONE    99  70.5   95.5   1.0   N    0   0  0   0   0   F   F   N
   protect2:   NONE    111  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   
 shopkeep2:   Mylvin    52  50.5   75.5   0.0   N    125   1  7   0   0   F   F   G		//Potion shop
-  pistol:   NONE    98  0.0   0.0   1.0   I    0   0  0   0   0   F   F   N
+  Pistol:   NONE    98  0.0   0.0   1.0   I    0   0  0   0   0   F   F   N
 
 shopkeep:   Shady    49  63.5   28.0   0.0   N    59   2  8   1   0   F   F   G		//Rogue shop
   PStiletto:   NONE    107  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
 shopkeep:   Secret    49  79.0   36.0   0.0   N    0   1  9   0   0   F   F   G		//Secret shop
-  wsword:   NONE    122  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  WSword:   NONE    122  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
 shopkeep2:   Alkor    52  78.0   81.5   0.0   W    99   2  10   0   0   F   F   G		//G'nome shop
-  pistol:   NONE    98  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Pistol:   NONE    98  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
 shopkeep:   Gerard    49  49.0   42.0   1.0   N    399   3  10   0   0   F   F   G		//Armor shop
   SpkMace:   NONE    66  0.0   0.0   1.0   I    0   0  0   0   0   F   F   N
@@ -176,19 +176,19 @@ Healer:   NONE    141  28.5   32.5   0.0   S    19   1  0   0   0   F   F   G			
 //GUARDS
 //-----------------------------------------------------------------------------------
 captain:   NONE   133  52.0   101.5   4.0   S    50   0  0   0   0   F   F   G		//Captain
-  wsword:   NONE    122  65.5   32.5   3.0   R    0   0  0   0   0   F   F   N
-  gshield:   NONE    76  65.5   32.5   3.0   L    0   0  0   0   0   F   F   N
+  WSword:   NONE    122  65.5   32.5   3.0   R    0   0  0   0   0   F   F   N
+  GShield:   NONE    76  65.5   32.5   3.0   L    0   0  0   0   0   F   F   N
 
 
 guard:   NONE    51  10.0   8.0   3.0   N    0   0  1   0   0   F   F   G
   Sword:   NONE    57  65.5   32.5   3.0   R    0   0  0   0   0   F   F   N
-  gshield:   NONE    76  65.5   32.5   3.0   L    0   0  0   0   0   F   F   N
+  GShield:   NONE    76  65.5   32.5   3.0   L    0   0  0   0   0   F   F   N
 guard:   NONE    51  21.5   45.5   2.0   S    0   0  0   0   0   F   F   G
   Sword:   NONE    57  65.5   32.5   3.0   R    0   0  0   0   0   F   F   N
-  gshield:   NONE    76  65.5   32.5   3.0   L    0   0  0   0   0   F   F   N
+  GShield:   NONE    76  65.5   32.5   3.0   L    0   0  0   0   0   F   F   N
 guard:   NONE    51  47.0   72.0   1.0   E    0   1  0   0   0   F   F   G
   Sword:   NONE    57  65.5   32.5   3.0   R    0   0  0   0   0   F   F   N
-  gshield:   NONE    76  65.5   32.5   3.0   L    0   0  0   0   0   F   F   N
+  GShield:   NONE    76  65.5   32.5   3.0   L    0   0  0   0   0   F   F   N
 guard:   NONE    51  17.5   96.5   1.0   W    0   0  0   0   0   F   F   G
   LBow:   NONE    61  65.5   32.5   3.0   R    0   0  0   0   0   F   F   N
 guard:   NONE    51  85.0   13.0   1.0   S    0   1  0   0   0   F   F   G
@@ -197,29 +197,29 @@ guard:   NONE    51  45.5   7.5   3.0   N    0   0  0   0   0   F   F   G
   LBow:   NONE    61  65.5   32.5   3.0   R    0   0  0   0   0   F   F   N
 guard:   NONE    51  31.5   7.5   3.0   W    0   1  0   0   0   F   F   G
   Sword:   NONE    57  65.5   32.5   3.0   R    0   0  0   0   0   F   F   N
-  gshield:   NONE    76  65.5   32.5   3.0   L    0   0  0   0   0   F   F   N
+  GShield:   NONE    76  65.5   32.5   3.0   L    0   0  0   0   0   F   F   N
 guard:   NONE    51  70.5   70.5   1.0   S    0   0  0   0   0   F   F   G
   LBow:   NONE    61  65.5   32.5   3.0   R    0   0  0   0   0   F   F   N
 guard:   NONE    51  56.5   90.5   1.0   E    0   1  0   0   0   F   F   G
   Sword:   NONE    57  65.5   32.5   3.0   R    0   0  0   0   0   F   F   N
-  gshield:   NONE    76  65.5   32.5   3.0   L    0   0  0   0   0   F   F   N
+  GShield:   NONE    76  65.5   32.5   3.0   L    0   0  0   0   0   F   F   N
 guard:   NONE    51  20.5   58.5   1.0   W    0   1  0   0   0   F   F   G
   Sword:   NONE    57  65.5   32.5   3.0   R    0   0  0   0   0   F   F   N
-  gshield:   NONE    76  65.5   32.5   3.0   L    0   0  0   0   0   F   F   N
+  GShield:   NONE    76  65.5   32.5   3.0   L    0   0  0   0   0   F   F   N
 guard:   NONE    51  14.0   26.0   1.0   N    0   0  0   0   0   F   F   G
   LBow:   NONE    61  65.5   32.5   3.0   R    0   0  0   0   0   F   F   N
 guard:   NONE    51  13.0   23.0   1.0   S    0   1  0   0   0   F   F   G
   Sword:   NONE    57  65.5   32.5   3.0   R    0   0  0   0   0   F   F   N
-  gshield:   NONE    76  65.5   32.5   3.0   L    0   0  0   0   0   F   F   N
+  GShield:   NONE    76  65.5   32.5   3.0   L    0   0  0   0   0   F   F   N
 guard:   NONE    51  11.0   25.0   1.0   E    0   0  0   0   0   F   F   G
   Sword:   NONE    57  65.5   32.5   3.0   R    0   0  0   0   0   F   F   N
-  gshield:   NONE    76  65.5   32.5   3.0   L    0   0  0   0   0   F   F   N
+  GShield:   NONE    76  65.5   32.5   3.0   L    0   0  0   0   0   F   F   N
 guard:   NONE    51  52.0   103.0   4.0   N    0   1  0   0   0   F   F   G
   Sword:   NONE    57  65.5   32.5   3.0   R    0   0  0   0   0   F   F   N
-  gshield:   NONE    76  65.5   32.5   3.0   L    0   0  0   0   0   F   F   N
+  GShield:   NONE    76  65.5   32.5   3.0   L    0   0  0   0   0   F   F   N
 guard:   NONE    51  49.5   100.5   3.0   N    0   0  0   0   0   F   F   G
   Sword:   NONE    57  65.5   32.5   3.0   R    0   0  0   0   0   F   F   N
-  gshield:   NONE    76  65.5   32.5   3.0   L    0   0  0   0   0   F   F   N
+  GShield:   NONE    76  65.5   32.5   3.0   L    0   0  0   0   0   F   F   N
 
 
 //Ninja guards
@@ -258,7 +258,7 @@ peasant:   NONE    93  19.0   84.0   1.0   N    0   0  0   0   0   F   F   N
 peasant:   NONE    93  27.0   97.0   1.0   N    0   0  0   0   0   F   F   N
 peasant:   NONE    93  62.0   85.0   1.0   N    0   0  0   0   0   F   F   N
 pirate:   NONE    58  78.3   44.8   2.0   W    3   0  0   1   0   F   F   G
-  knife:   NONE    89  0.0   0.0   1.0   I    0   0  0   0   0   F   F   N
+  Knife:   NONE    89  0.0   0.0   1.0   I    0   0  0   0   0   F   F   N
 pirate:   NONE    58  76.8   44.5   2.0   E    2   1  0   1   0   F   F   G
   Scimitar:   NONE    92  65.5   32.5   3.0   I    1   0  0   0   0   F   F   N
 pirate:   NONE    58  89.5   43.5   2.0   S    1   3  0   2   0   F   F   G
@@ -270,7 +270,7 @@ pirate:   NONE    58  101.0   51.0   1.0   N    10   2  0   0   0   F   F   G
 pirate:   NONE    58  87.0   63.0   1.0   N    4   1  0   0   0   F   F   G
   Cinquedea:   NONE    67  0.0   0.0   1.0   I    0   0  0   0   0   F   F   N
 pirate:   NONE    58  98.0   59.0   1.0   N    3   0  0   0   0   F   F   G
-  knife:   NONE    89  0.0   0.0   1.0   I    0   0  0   0   0   F   F   N
+  Knife:   NONE    89  0.0   0.0   1.0   I    0   0  0   0   0   F   F   N
 
 
 //-----------------------------------------------------------------------------------
@@ -288,8 +288,8 @@ haypile:   NONE    39  26.0   95.0   1.0   N    0   0  0   0   0   F   F   N
 haypile:   NONE    39  32.0   97.0   1.0   N    0   0  0   0   0   F   F   N
 haypile:   NONE    39  30.0   92.0   1.0   N    0   0  0   0   0   F   F   N
 haypile:   NONE    39  12.5   95.5   2.0   N    0   0  0   0   0   F   F   N
-stool:   NONE    46  9.5   105.5   1.0   N    0   0  0   0   0   F   F   N
-stool:   NONE    46  28.0   75.5   1.0   N    0   0  0   0   0   F   F   N
+Stool:   NONE    46  9.5   105.5   1.0   N    0   0  0   0   0   F   F   N
+Stool:   NONE    46  28.0   75.5   1.0   N    0   0  0   0   0   F   F   N
 well:   NONE    40  43.0   102.0   1.0   N    0   0  0   0   0   F   F   N
 well:   NONE    40  22.5   48.5   1.0   N    0   0  0   0   0   F   F   N
 flagpost:   NONE    54  16.5   19.5   1.0   N    0   0  0   0   0   F   F   N
@@ -301,13 +301,13 @@ Tree:   NONE    36  67.5   40.5   1.0   N    0   0  0   0   0   F   F   N
 Tree:   NONE    36  74.0   26.0   1.0   E    0   0  0   0   0   F   F   N
 Tree:   NONE    36  63.0   24.0   1.0   S    0   0  0   0   0   F   F   N
 Tree:   NONE    36  66.0   29.0   1.0   N    0   0  0   0   0   F   F   N
-table2:   NONE    60  77.5   44.5   1.0   N    0   0  0   0   0   F   F   N
-table2:   NONE    60  76.5   46.5   1.0   E    0   0  0   0   0   F   F   N
-stool:   NONE    46  76.0   46.5   1.0   N    0   0  0   0   0   F   F   N
-stool:   NONE    46  78.3   44.8   1.0   N    0   0  0   0   0   F   F   N
-stool:   NONE    46  76.8   44.5   1.0   N    0   0  0   0   0   F   F   N
-stool:   NONE    46  77.0   46.5   1.0   N    0   0  0   0   0   F   F   N
-stool:   NONE    46  89.5   43.5   1.0   N    0   0  0   0   0   F   F   N
+Table2:   NONE    60  77.5   44.5   1.0   N    0   0  0   0   0   F   F   N
+Table2:   NONE    60  76.5   46.5   1.0   E    0   0  0   0   0   F   F   N
+Stool:   NONE    46  76.0   46.5   1.0   N    0   0  0   0   0   F   F   N
+Stool:   NONE    46  78.3   44.8   1.0   N    0   0  0   0   0   F   F   N
+Stool:   NONE    46  76.8   44.5   1.0   N    0   0  0   0   0   F   F   N
+Stool:   NONE    46  77.0   46.5   1.0   N    0   0  0   0   0   F   F   N
+Stool:   NONE    46  89.5   43.5   1.0   N    0   0  0   0   0   F   F   N
 crate:   NONE    43  93.8   52.5   1.0   W    0   3  0   0   0   F   F   N
 crate:   NONE    43  94.5   52.5   1.0   S    0   0  0   0   0   F   F   N
 crate:   NONE    43  84.5   48.5   1.0   S    0   2  0   0   0   F   F   N

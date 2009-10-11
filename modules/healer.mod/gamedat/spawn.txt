@@ -31,7 +31,7 @@ Faerie:    NONE      74   36.0 54.0 0.0  S   0   0   0   0   0   F   F   Null
 Music:     NONE      90   36.0 55.5 3    N   0   0   0   0   0   F   F   Null
 
 RockHead:  NONE      38   47.5  8.5 0.0  S   0   0   0   0   0   F   F   Evil
-  WardRune:NONE      57   0    0    0    I   0   0   0   0   0   F   F   Null
+  DivineShield:NONE  57   0    0    0    I   0   0   0   0   0   F   F   Null
 RockHead:  NONE      38   37.5 29.5 0.0  S   0   0   0   0   0   F   F   Evil
 RockHead:  NONE      38   37.5 26.5 0.0  S   0   0   0   0   0   F   F   Evil
   LPotion: NONE      44   0    0    0    I   0   0   0   0   0   F   F   Null

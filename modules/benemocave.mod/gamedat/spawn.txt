@@ -111,17 +111,17 @@ ItemChest: NONE     40    11.5 7.5  0    W   0   0   0   1   0   F   F   Null
 Mimic: NONE     47    25   5    0    S  49   0   0   0   0   F   F   Evil
 FireChest: NONE     46    23.5 26.5 0    N 199   0   0   0   0   F   F   Null
 GasChest:  NONE     75    35.5 10.5 0    N   0   0   0   1   0   F   F   Null
-  LWand:   NONE     60    0    0    0    I   0   0   0   0   0   F   F   Null
-  OWand:   NONE     61    0    0    0    I   0   0   0   0   0   F   F   Null
-  FWand:   NONE     63    0    0    0    I   0   0   0   0   0   F   F   Null
-  MWand:   NONE     62    0    0    0    I   0   0   0   0   0   F   F   Null
+  WandLightning:   NONE     60    0    0    0    I   0   0   0   0   0   F   F   Null
+  WandOrbstorm:   NONE     61    0    0    0    I   0   0   0   0   0   F   F   Null
+  WandFireball:   NONE     63    0    0    0    I   0   0   0   0   0   F   F   Null
+  WandMissile:   NONE     62    0    0    0    I   0   0   0   0   0   F   F   Null
 MapChest:  NONE     74    41.5 15   0    W   0   0   0   0   0   F   F   Null
 ItemChest: NONE     40    39   26.5 0    N  49   0   0   3   0   F   F   Null
   XBow:    NONE     55    0    0    0    I   0   0   0   0   0   F   F   Null
   LBow:    NONE     56    0    0    0    I   0   0   0   0   0   F   F   Null
   Gonne:   NONE     57    0    0    0    I   0   0   0   0   0   F   F   Null
   Quiver:  NONE     59    0    0    0    I   0   0   0   0   0   F   F   Null
-  Musketo: NONE     79    0    0    0    I   0   0   0   0   0   F   F   Null
+  Musketoon: NONE     79    0    0    0    I   0   0   0   0   0   F   F   Null
 ItemChest: NONE     40    8.5  21.5 0    E  49   0   0   3   0   F   F   Null
   Tranch:  NONE     78    0    0    0    I   0   0   0   0   0   F   F   Evil
   Tranch:  NONE     78    0    0    0    I   0   0   0   0   1   F   F   Evil
@@ -173,7 +173,7 @@ Mercenary: NONE     51    10   22   0    N  11   0   0   0   4   F   F   Evil
 Bandit:    NONE     50    10   23   0    N   8   0   0   0   1   F   F   Evil
   PStiletto: NONE     67    0    0    0    L   0   0   0   0   0   F   F   Null
 Bandit:    NONE     50    10.5 24   0    N   7   0   0   0   0   F   F   Evil
-  NStars:  NONE     58    0    0    0    R   0   0   0   0   0   F   F   Null
+  NinjaStars:  NONE     58    0    0    0    R   0   0   0   0   0   F   F   Null
   Knife:   NONE     65    0    0    0    I   0   0   0   0   0   F   F   Null
 
 Bandit:    NONE     50    9.5  30   0    N   6   0   0   0   1   F   F   Evil
@@ -295,5 +295,5 @@ Bandit:    NONE     50    29   42   0    W   9   0   0   0   3   F   F   Evil
   XBow:    NONE     55    0    0    0    L   0   0   0   0   0   F   F   Null
 BossBndit: NONE     87    30   42   0    W  99   0   0   0   0   F   F   Evil
   PKatana: NONE     66    0    0    0    R   0   0   0   0   0   F   F   Null
-  Musketo: NONE     79    0    0    0    L   0   0   0   0   0   F   F   Null
+  Musketoon: NONE     79    0    0    0    L   0   0   0   0   0   F   F   Null
   PKatana: NONE     66    0    0    0    I   0   0   0   0   0   F   F   Null  

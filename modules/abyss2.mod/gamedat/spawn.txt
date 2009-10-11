@@ -25,7 +25,12 @@
 #dependency ManaElixir     83
 #dependency VorpalBlade    84
 #dependency ArcaneNova     45
-#dependency Darkritual     92
+#dependency DarkRitual     92
+
+#dependency AmuletOfYore   85
+#dependency AnimatedSword 109
+#dependency AnimatedMace  111
+#dependency AnimatedXBow  110
 
 //         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
 PlayerAtOblivion:    NONE    0  67.5   108.5   6.0   N    0   0  0   0   0   T   F   G
@@ -136,17 +141,17 @@ normalchest:   NONE    46  52.5   30.5   1.0   S    0   0  0   1   0   F   F   N
 
 invisiblechest:   NONE    48  55.5   35.5   1.0   N    0   0  0   1   0   F   F   N
   MPotion:   NONE    43  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-  magpotion:   NONE    62  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  MagPotion:   NONE    62  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   wandiceball:   NONE    59  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
-deadfall:   NONE    52  13.5   19.0   2.0   N    0   0  2   0   0   F   F   E
-deadfall:   NONE    52  9.5   14.0   3.0   N    0   0  4   0   0   F   F   E
-arrowtrap:   NONE    53  15.0   14.0   2.0   N    0   0  5   0   0   F   F   E
-arrowtrap:   NONE    53  11.5   9.0   4.0   N    0   0  3   0   0   F   F   E
+deadfall:  NONE    52  13.5   19.0   2.0   N    0   0  2   0   0   F   F   E
+deadfall:  NONE    52  9.5   14.0   3.0   N    0   0  4   0   0   F   F   E
+arrowtrap: NONE    53  15.0   14.0   2.0   N    0   0  5   0   0   F   F   E
+arrowtrap: NONE    53  11.5   9.0   4.0   N    0   0  3   0   0   F   F   E
 gate:   NONE    58  45.5   32.0   1.0   E    0   0  7   0   0   F   F   N
 gate:   NONE    58  24.0   17.0   1.0   E    0   0  9   0   0   F   F   N
 seal:   NONE    57  5.0   23.0   4.0   N    0   0  0   0   0   F   F   E
-  Crown:    NONE    112  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Crown: NONE  112  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 gate:   NONE    58  43.0   17.0   1.0   E    0   0  24   1   0   F   F   N
 
 //Hell ball room
@@ -159,15 +164,15 @@ toast:   NONE    49  48.5   89.5   1.0   N    0   0  0   0   0   F   F   E
 toast:   NONE    49  54.5   92.5   1.0   N    0   0  0   0   0   F   F   E
 toast:   NONE    49  50.0   98.0   1.0   N    0   0  0   0   0   F   F   E
 toast:   NONE    49  50.5   73.5   1.0   N    0   0  0   0   0   F   F   E
-toast:   NONE    49  57.5   105.0   1.0   N    0   0  0   0   0   F   F   E
+toast:   NONE    49  57.5  105.0   1.0   N    0   0  0   0   0   F   F   E
 toast:   NONE    49  56.0   99.0   1.0   N    0   0  0   0   0   F   F   E
-GigaGel:   NONE    93  47.5   72.5   1.0   N    0   0  0   0   0   F   F   E
-GigaGel:   NONE    93  47.5   83.5   1.0   N    0   0  0   0   0   F   F   E
-GigaGel:   NONE    93  47.5   95.5   1.0   N    0   0  0   0   0   F   F   E
+GigaGelfeet: NONE 93 47.5   72.5   1.0   N    0   0  0   0   0   F   F   E
+GigaGelfeet: NONE 93 47.5   83.5   1.0   N    0   0  0   0   0   F   F   E
+GigaGelfeet: NONE 93 47.5   95.5   1.0   N    0   0  0   0   0   F   F   E
 
-GigaGel:   NONE    93  59.5   80.5   1.0   N    0   0  0   0   0   F   F   E
-GigaGel:   NONE    93  59.5   86.5   1.0   N    0   0  0   0   0   F   F   E
-GigaGel:   NONE    93  59.5   95.5   1.0   N    0   0  0   0   0   F   F   E
+GigaGelfeet: NONE 93 59.5   80.5   1.0   N    0   0  0   0   0   F   F   E
+GigaGelfeet: NONE 93 59.5   86.5   1.0   N    0   0  0   0   0   F   F   E
+GigaGelfeet: NONE 93 59.5   95.5   1.0   N    0   0  0   0   0   F   F   E
 
 normalchest:   NONE    46  48.5   106.5   1.0   N    199   0  0   0   0   F   F   N
 
@@ -216,7 +221,7 @@ invisiblechest:   NONE    48  25.5   83.0   1.0   W    0   0  0   1   0   F   F 
   rgpotion:   NONE    71  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   clencher:   NONE    72  0.0   0.0   0.0   I    0   0  0   0   0   F   F   E
 normalchest:   NONE    46  23.5   99.5   1.0   S    0   0  0   1   0   F   F   N
-  bludmace:   NONE    70  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  BloodMace:   NONE    70  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
 //Area between hell room and amazing maze
 pchest:   NONE    63  36.0   93.0   1.0   S    59   0  0   2   0   F   F   N
@@ -273,7 +278,7 @@ EyeBall:          NONE    37  86.0   93.0   1.0   N    0   0  0   0   0   F   F 
 
 Lich:          NONE    80  66.5   105.5   1.0   N    486   0  0   0   0   F   F   E
   Disenchant:  NONE    81  0.0    0.0   0.0   L    0   0  0   0   0   F   F   N
-  lightning:   NONE    82  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  WandLightning:   NONE    82  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 
 gate:   NONE    58  95.0   100.0   1.0   E    0   0  14   1   0   F   F   N
 GoldenChest:   NONE    86  102.0   100.0   1.0   W    0   0  0   1   0   F   F   N
@@ -318,14 +323,14 @@ saboteur.obj:   NONE    92  64.5   13.5   1.0   N    0   0  0   0   0   F   F   
 saboteur.obj:   NONE    92  64.0   12.0   1.0   N    0   0  0   0   0   F   F   E
 
 DarkSpirit:   NONE    117  54.5   17.5   1.0   N    0   0  0   0   0   F   F   E
-  WithLance:   NONE    119  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-OnAHellrover:   NONE    118  54.5   17.5  1.0   N    0   0  0   0   0   F   F   E
+  DLance:   NONE    119  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+Hellrover:   NONE    118  54.5   17.5  1.0   N    0   0  0   0   0   F   F   E
 DarkSpirit:   NONE    117  54.5   13.5   1.0   N    0   0  0   0   0   F   F   E
-  WithLance:   NONE    119  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-OnAHellrover:   NONE    118  54.5   13.5   1.0   N    0   0  0   0   0   F   F   E
+  DLance:   NONE    119  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+Hellrover:   NONE    118  54.5   13.5   1.0   N    0   0  0   0   0   F   F   E
 
 normalchest:   NONE    46  62.0   23.0   1.0   N    17   0  0   4   0   F   F   N
-  rgpotion:   NONE    71  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  RGPotion:   NONE    71  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   mushroom:  NONE    98  0.0    0.0   0.0   I    0   0  0   0   0   F   F   N
 cursetrap:   NONE    91  62.0   23.0   1.0   N    0   0  33   0   0   F   F   E
 
@@ -333,7 +338,7 @@ cursetrap:   NONE    91  62.0   23.0   1.0   N    0   0  33   0   0   F   F   E
 devildoor:   NONE    74  69.0   12.0   1.0   E    0   0  26   10   0   F   F   N
 Angel:   NONE   	 94  79.0   12.0   1.0   W    16   0  0   0   0   F   F   Angel
   MagicCage:   NONE    73  0.0   0.0   0.0   R   0   0  0   1   0   F   F   Angel
-  retribution:   NONE    130  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Retribution:   NONE    130  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
 //Saving the slayer
 demon:   NONE    42  35.0   70.0   1.0   N    0   0  0   0   0   F   F   E
@@ -361,7 +366,7 @@ fiendbug:   NONE    55  36.0   74.0   1.0   N    0   0  0   0   0   F   F   E
 invisiblechest:   NONE    48  39.5   78.5   1.0   W    29   0  0   1   0   F   F   N
   Size:  NONE    96  0.0    0.0   0.0   I    0   0  0   0   0   F   F   N
   AmmoBox:   NONE    60  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-  magpotion:   NONE    62  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  MagPotion:   NONE    62  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
 gelfeet:   NONE    93  23.5   70.5   1.0   N    0   0  0   1   0   F   F   E
 gelfeet:   NONE    93  23.5   72.0   1.0   N    0   0  0   1   0   F   F   E
@@ -373,8 +378,8 @@ gelfeet:   NONE    93  23.5   75.0   1.0   N    0   0  0   1   0   F   F   E
 devildoor:   NONE    74  16.0   73.0   1.0   W    0   0  30   9   0   F   F   N
 loknar:   NONE    75  6.5   73.0   1.0   E    32   0  0   0   0   F   F   Hatred
   MagicCage:   NONE    73  0.0   0.0   0.0   R   0   0  0   1   0   F   F   Hatred
-  axe:   NONE    69  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-  bigshield:   NONE    68  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Cleaver:   NONE    69  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  RTowerShield:   NONE    68  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
 //The boss chamber!
 bossdoor:   NONE    99  66.0   50.0   1.0   W    0   0  34   0   0   F   F   N
