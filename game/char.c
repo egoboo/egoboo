@@ -7305,6 +7305,8 @@ void chr_set_height( chr_t * pchr, float height )
 {
     if( !ACTIVE_PCHR( pchr ) ) return;
 
+    if( height < 0 ) height = 0;
+
     pchr->bump_save.height = height;
 
     chr_update_size( pchr );
