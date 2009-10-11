@@ -407,8 +407,8 @@ void set_enchant_value( Uint16 ienc, Uint8 valueindex, Uint16 profile )
                         break;
 
                     case SETCANSEEINVISIBLE:
-                        penc->setsave[valueindex] = ptarget->canseeinvisible;
-                        ptarget->canseeinvisible = peve->setvalue[valueindex];
+                        penc->setsave[valueindex] = ptarget->see_invisible_level;
+                        ptarget->see_invisible_level = peve->setvalue[valueindex];
                         break;
 
                     case SETMISSILETREATMENT:
@@ -1024,7 +1024,7 @@ void unset_enchant_value( Uint16 ienc, Uint8 valueindex )
                 break;
 
             case SETCANSEEINVISIBLE:
-                ptarget->canseeinvisible = penc->setsave[valueindex];
+                ptarget->see_invisible_level = penc->setsave[valueindex];
                 break;
 
             case SETMISSILETREATMENT:

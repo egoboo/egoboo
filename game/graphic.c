@@ -1595,14 +1595,35 @@ bool_t sum_dyna_lighting( dynalight_t * pdyna, float lighting[], float dx, float
 bool_t sum_global_lighting( float lighting[] )
 {
     int cnt;
-    float glob_amb;
+    float glob_amb, min_amb;
 
     if ( NULL == lighting ) return bfalse;
 
     // do ambient lighting. if the module is inside, the ambient lighting
     // is reduced by up to a facror of 8. It is still kept just high enough
     // so that ordnary objects will not be made invisible. This was breaking some of the AIs
-    glob_amb = gfx.usefaredge ? (light_a * 255.0f) : MAX( 32.0f * light_a, INVISIBLE );
+
+    glob_amb = 0.0f;
+    min_amb  = 0.0f;
+    if( gfx.usefaredge )
+    {
+        glob_amb = light_a * 255.0f;
+    }
+    else
+    {
+        glob_amb = light_a * 32.0f;
+    }
+
+    // determine the minimum ambient, based on darkvision
+    min_amb = INVISIBLE;
+    if( local_seedark_level > 0 )
+    {
+        min_amb = 32.0f * light_a * (1 + local_seedark_level);
+    }
+
+    glob_amb = MAX(glob_amb, min_amb);
+
+
     for ( cnt = 0; cnt < 6; cnt++ )
     {
         // the 0.362 is so that an object being lit by half ambient light
@@ -2073,7 +2094,7 @@ void render_scene_trans()
                 GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
                 trans = pinst->alpha;
-                if ( trans < SEEINVISIBLE && ( local_seeinvisible || pchr->islocalplayer ) ) trans = SEEINVISIBLE;
+                if ( trans < SEEINVISIBLE && ( local_seeinvis_level || pchr->islocalplayer ) ) trans = SEEINVISIBLE;
 
                 render_one_mad( ichr, trans );
             }
@@ -2085,7 +2106,7 @@ void render_scene_trans()
 
                 trans = pinst->light == 255 ? 0 : pinst->light;
 
-                if ( trans < SEEINVISIBLE && ( local_seeinvisible || pchr->islocalplayer ) )  trans = SEEINVISIBLE;
+                if ( trans < SEEINVISIBLE && ( local_seeinvis_level || pchr->islocalplayer ) )  trans = SEEINVISIBLE;
 
                 render_one_mad( ichr, trans );
             }

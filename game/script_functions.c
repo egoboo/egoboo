@@ -5197,7 +5197,7 @@ Uint8 scr_TargetCanSeeInvisible( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ChrList.lst[pself->target].canseeinvisible;
+    returncode = ChrList.lst[pself->target].see_invisible_level;
 
     SCRIPT_FUNCTION_END();
 }

@@ -155,7 +155,7 @@ void let_character_think( Uint16 character )
     }
 
     // Reset the target if it can't be seen
-    if ( !pchr->canseeinvisible && pchr->alive )
+    if ( !pchr->see_invisible_level && pchr->alive )
     {
         chr_instance_t * pinst = chr_get_pinstance(pself->target);
 

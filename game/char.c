@@ -1857,7 +1857,7 @@ bool_t character_grab_stuff( Uint16 ichr_a, grip_offset_t grip_off, bool_t grab_
                     Uint8  detection = generate_irand_pair( tmp_rand );
 
                     // Check if it was detected. 50% chance +2% per pet DEX and -2% per shopkeeper wisdom. There is always a 5% chance it will fail.
-                    if ( ChrList.lst[owner].canseeinvisible || detection <= 5 || detection - ( pchr_a->dexterity >> 7 ) + ( ChrList.lst[owner].wisdom >> 7 ) > 50 )
+                    if ( ChrList.lst[owner].see_invisible_level || detection <= 5 || detection - ( pchr_a->dexterity >> 7 ) + ( ChrList.lst[owner].wisdom >> 7 ) > 50 )
                     {
                         debug_printf( "%s was detected!!", chr_get_name( GET_INDEX_PCHR( pchr_a ), CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL ) );
 
@@ -2572,7 +2572,7 @@ bool_t chr_download_cap( chr_t * pchr, cap_t * pcap )
     }
 
     // Enchant stuff
-    pchr->canseeinvisible = pcap->canseeinvisible;
+    pchr->see_invisible_level = pcap->see_invisible_level;
 
     // Skillz
     pchr->canjoust = pcap->canjoust;
@@ -2587,6 +2587,7 @@ bool_t chr_download_cap( chr_t * pchr, cap_t * pcap )
     pchr->canread = pcap->canread;
     pchr->canseekurse = pcap->canseekurse;
     pchr->hascodeofconduct = pcap->hascodeofconduct;
+    pchr->darkvision_level = pcap->darkvision_level;
 
     // Ammo
     pchr->ammomax = pcap->ammomax;
@@ -4156,6 +4157,23 @@ void change_character( Uint16 ichr, Uint16 profile_new, Uint8 skin, Uint8 leavew
     pchr->basealpha     = pcap_new->alpha;
     pchr->baselight     = pcap_new->light;
 
+    // change the skillz, too, jack!
+    pchr->canjoust              = pcap_new->canjoust;
+    pchr->canuseadvancedweapons = pcap_new->canuseadvancedweapons;
+    pchr->shieldproficiency     = pcap_new->shieldproficiency;
+    pchr->canusedivine          = pcap_new->canusedivine;
+    pchr->canusearcane          = pcap_new->canusearcane;
+    pchr->canusetech            = pcap_new->canusetech;
+    pchr->candisarm             = pcap_new->candisarm;
+    pchr->canbackstab           = pcap_new->canbackstab;
+    pchr->canusepoison          = pcap_new->canusepoison;
+    pchr->canread               = pcap_new->canread;
+    pchr->canseekurse           = pcap_new->canseekurse;
+    pchr->hascodeofconduct      = pcap_new->hascodeofconduct;
+    pchr->darkvision_level      = pcap_new->darkvision_level;
+
+    // changing this could be disasterous, in case you can't un-morph youself???
+    pchr->canusearcane          = pcap_new->canusearcane;
 
     // Character size and bumping
 
@@ -4424,10 +4442,10 @@ int check_skills( Uint16 who, IDSZ whichskill )
     else if ( MAKE_IDSZ( 'H', 'M', 'A', 'G' ) == whichskill ) result = ChrList.lst[who].canusedivine;
     else if ( MAKE_IDSZ( 'D', 'I', 'S', 'A' ) == whichskill ) result = ChrList.lst[who].candisarm;
     else if ( MAKE_IDSZ( 'S', 'T', 'A', 'B' ) == whichskill ) result = ChrList.lst[who].canbackstab;
-    else if ( MAKE_IDSZ( 'R', 'E', 'A', 'D' ) == whichskill ) result = ChrList.lst[who].canread + ( ChrList.lst[who].canseeinvisible && ChrList.lst[who].canseekurse ? 1 : 0); // Truesight allows reading
+    else if ( MAKE_IDSZ( 'R', 'E', 'A', 'D' ) == whichskill ) result = ChrList.lst[who].canread + ( ChrList.lst[who].see_invisible_level && ChrList.lst[who].canseekurse ? 1 : 0); // Truesight allows reading
     else if ( MAKE_IDSZ( 'P', 'O', 'I', 'S' ) == whichskill && !ChrList.lst[who].hascodeofconduct ) result = ChrList.lst[who].canusepoison;                                //Only if not restriced by code of conduct
     else if ( MAKE_IDSZ( 'C', 'O', 'D', 'E' ) == whichskill ) result = ChrList.lst[who].hascodeofconduct;
-    else if ( MAKE_IDSZ( 'D', 'A', 'R', 'K' ) == whichskill ) result = ChrList.lst[who].hasdarkvision;
+    else if ( MAKE_IDSZ( 'D', 'A', 'R', 'K' ) == whichskill ) result = ChrList.lst[who].darkvision_level;
 
     return result;
 }
@@ -5931,6 +5949,8 @@ void move_one_character_do_animation( chr_t * pchr, chr_environment_t * penviro 
             }
         }
     }
+
+    pinst->rate = CLIP( pinst->rate, 0.1f, 10.0f );
 }
 
 

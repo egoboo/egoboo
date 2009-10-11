@@ -518,7 +518,7 @@ struct s_chr
     int           shieldproficiency;            ///< Can it use shields?
     int           canjoust;
     int           canuseadvancedweapons;
-    int           canseeinvisible;
+    int           see_invisible_level;
     int           canseekurse;
     int           canusedivine;
     int           canusearcane;
@@ -528,7 +528,7 @@ struct s_chr
     int           canusepoison;
     int           canread;
     int           hascodeofconduct;
-    int           hasdarkvision;
+    int           darkvision_level;
 
     /// collision info
 

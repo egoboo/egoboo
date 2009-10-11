@@ -764,10 +764,10 @@ void update_game()
     int cnt, tnc, numdead, numalive;
 
     // Check for all local players being dead
-    local_allpladead   = bfalse;
-    local_seeinvisible = bfalse;
-    local_seekurse     = bfalse;
-    local_seedark      = 0;
+    local_allpladead     = bfalse;
+    local_seeinvis_level = 0;
+    local_seekurse       = bfalse;
+    local_seedark_level  = 0;
 
     numplayer = 0;
     numdead = numalive = 0;
@@ -798,9 +798,9 @@ void update_game()
         {
             numalive++;
 
-            if ( pchr->canseeinvisible )
+            if ( pchr->see_invisible_level )
             {
-                local_seeinvisible = btrue;
+                local_seeinvis_level = MAX(local_seeinvis_level, pchr->see_invisible_level);
             }
 
             if ( pchr->canseekurse )
@@ -808,9 +808,9 @@ void update_game()
                 local_seekurse = btrue;
             }
 
-            if( pchr->hasdarkvision )
+            if( pchr->darkvision_level )
             {
-                local_seedark = MAX(local_seedark, pchr->hasdarkvision);
+                local_seedark_level = MAX(local_seedark_level, pchr->darkvision_level);
             }
         }
         else
@@ -1937,7 +1937,7 @@ bool_t check_target( chr_t * psrc, Uint16 ichr_test, TARGET_TYPE target_type, bo
     if ( target_dead == ptst->alive ) return bfalse;
 
     // Dont target invisible stuff, unless we can actually see them
-    if ( !psrc->canseeinvisible && FF_MUL( ptst->inst.alpha, ptst->inst.max_light ) < INVISIBLE ) return bfalse;
+    if ( !psrc->see_invisible_level && FF_MUL( ptst->inst.alpha, ptst->inst.max_light ) < INVISIBLE ) return bfalse;
 
 	is_hated = TeamList[psrc->team].hatesteam[ptst->team];
     hates_me = TeamList[ptst->team].hatesteam[psrc->team];
@@ -2880,7 +2880,7 @@ void show_magic_status( Uint16 statindex )
 
     // Enchantment status
     debug_printf( "~See Invisible: %s~~See Kurses: %s",
-        pchr->canseeinvisible ? "Yes" : "No",
+        pchr->see_invisible_level ? "Yes" : "No",
         pchr->canseekurse ? "Yes" : "No" );
 
     debug_printf( "~Channel Life: %s~~Waterwalking: %s",
@@ -6879,7 +6879,7 @@ void game_reset_players()
     // Reset the local data stuff
     local_seekurse         = bfalse;
     local_senseenemiesTeam = TEAM_MAX;
-    local_seeinvisible     = bfalse;
+    local_seeinvis_level     = bfalse;
     local_allpladead       = bfalse;
 
     net_reset_players();
@@ -7113,7 +7113,7 @@ bool_t upload_light_data( wawalite_data_t * pdata )
         light_z /= fTmp;
     }
 
-    make_lighttable( pdata->light_x, pdata->light_y, pdata->light_z, pdata->light_a * 10.0f );
+    make_lighttable( pdata->light_x, pdata->light_y, pdata->light_z, pdata->light_a );
     make_lighttospek();
 
     return btrue;

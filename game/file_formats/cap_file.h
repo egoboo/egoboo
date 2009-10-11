@@ -314,7 +314,7 @@ struct s_cap
     int       shieldproficiency;               ///< Can it use shields?
     int       canjoust;                        ///< Can it use advanced weapons?
     int       canuseadvancedweapons;           ///< Can it use advanced weapons?
-    int       canseeinvisible;                 ///< Can it see invisible?
+    int       see_invisible_level;                 ///< Can it see invisible?
     int       canseekurse;                     ///< Can it see kurses?
     int       canusedivine;
     int       canusearcane;
@@ -324,7 +324,7 @@ struct s_cap
     int       canusepoison;
     int       canread;
     int       hascodeofconduct;                   ///<Bound by a lawful code of conduct?
-    int       hasdarkvision;
+    int       darkvision_level;
 };
 
 typedef struct s_cap cap_t;

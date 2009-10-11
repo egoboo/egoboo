@@ -341,7 +341,7 @@ cap_t * load_one_cap_file( const char * tmploadname, cap_t * pcap )
 
     goto_colon( NULL, fileread, bfalse );  // !!!BAD!!! Life add
     goto_colon( NULL, fileread, bfalse );  // !!!BAD!!! Mana add
-    pcap->canseeinvisible = fget_next_bool( fileread );
+    pcap->see_invisible_level = fget_next_bool( fileread );
 
     pcap->kursechance                = fget_next_int( fileread );
     pcap->soundindex[SOUND_FOOTFALL] = fget_next_int( fileread );  // Footfall sound
@@ -364,43 +364,43 @@ cap_t * load_one_cap_file( const char * tmploadname, cap_t * pcap )
     {
         idsz = fget_idsz( fileread );
 
-             if ( idsz == MAKE_IDSZ( 'D', 'R', 'E', 'S' ) ) pcap->skindressy |= 1 << fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'G', 'O', 'L', 'D' ) ) pcap->money = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'S', 'T', 'U', 'K' ) ) pcap->resistbumpspawn = 1 - fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'P', 'A', 'C', 'K' ) ) pcap->istoobig = 1 - fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'V', 'A', 'M', 'P' ) ) pcap->reflect = 1 - fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'D', 'R', 'A', 'W' ) ) pcap->alwaysdraw = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'R', 'A', 'N', 'G' ) ) pcap->isranged = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'H', 'I', 'D', 'E' ) ) pcap->hidestate = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'E', 'Q', 'U', 'I' ) ) pcap->isequipment = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'S', 'Q', 'U', 'A' ) ) pcap->bumpsizebig = pcap->bumpsize * 2;
-        else if ( idsz == MAKE_IDSZ( 'I', 'C', 'O', 'N' ) ) pcap->icon = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'S', 'H', 'A', 'D' ) ) pcap->forceshadow = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'C', 'K', 'U', 'R' ) ) pcap->canseekurse = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'S', 'K', 'I', 'N' ) ) pcap->skinoverride = fget_int( fileread ) & 3;
-        else if ( idsz == MAKE_IDSZ( 'C', 'O', 'N', 'T' ) ) pcap->contentoverride = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'S', 'T', 'A', 'T' ) ) pcap->stateoverride = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'L', 'E', 'V', 'L' ) ) pcap->leveloverride = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'P', 'L', 'A', 'T' ) ) pcap->canuseplatforms = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'R', 'I', 'P', 'P' ) ) pcap->ripple = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'V', 'A', 'L', 'U' ) ) pcap->isvaluable = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'L', 'I', 'F', 'E' ) ) pcap->spawnlife = 256 * fget_float( fileread );
-        else if ( idsz == MAKE_IDSZ( 'M', 'A', 'N', 'A' ) ) pcap->spawnmana = 256 * fget_float( fileread );
-        else if ( idsz == MAKE_IDSZ( 'B', 'O', 'O', 'K' ) ) pcap->spelleffect_type = fget_int( fileread );
+             if ( idsz == MAKE_IDSZ( 'D','R','E','S' ) ) pcap->skindressy |= 1 << fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'G','O','L','D' ) ) pcap->money = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'S','T','U','K' ) ) pcap->resistbumpspawn = 1 - fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'P','A','C','K' ) ) pcap->istoobig = 1 - fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'V','A','M','P' ) ) pcap->reflect = 1 - fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'D','R','A','W' ) ) pcap->alwaysdraw = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'R','A','N','G' ) ) pcap->isranged = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'H','I','D','E' ) ) pcap->hidestate = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'E','Q','U','I' ) ) pcap->isequipment = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'S','Q','U','A' ) ) pcap->bumpsizebig = pcap->bumpsize * 2;
+        else if ( idsz == MAKE_IDSZ( 'I','C','O','N' ) ) pcap->icon = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'S','H','A','D' ) ) pcap->forceshadow = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'C','K','U','R' ) ) pcap->canseekurse = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'S','K','I','N' ) ) pcap->skinoverride = fget_int( fileread ) & 3;
+        else if ( idsz == MAKE_IDSZ( 'C','O','N','T' ) ) pcap->contentoverride = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'S','T','A','T' ) ) pcap->stateoverride = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'L','E','V','L' ) ) pcap->leveloverride = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'P','L','A','T' ) ) pcap->canuseplatforms = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'R','I','P','P' ) ) pcap->ripple = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'V','A','L','U' ) ) pcap->isvaluable = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'L','I','F','E' ) ) pcap->spawnlife = 256 * fget_float( fileread );
+        else if ( idsz == MAKE_IDSZ( 'M','A','N','A' ) ) pcap->spawnmana = 256 * fget_float( fileread );
+        else if ( idsz == MAKE_IDSZ( 'B','O','O','K' ) ) pcap->spelleffect_type = fget_int( fileread );
 
         // Read Skills
-        else if ( idsz == MAKE_IDSZ( 'A', 'W', 'E', 'P' ) ) pcap->canuseadvancedweapons = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'S', 'H', 'P', 'R' ) ) pcap->shieldproficiency = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'J', 'O', 'U', 'S' ) ) pcap->canjoust = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'W', 'M', 'A', 'G' ) ) pcap->canusearcane = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'H', 'M', 'A', 'G' ) ) pcap->canusedivine = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'T', 'E', 'C', 'H' ) ) pcap->canusetech = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'D', 'I', 'S', 'A' ) ) pcap->candisarm = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'S', 'T', 'A', 'B' ) ) pcap->canbackstab = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'P', 'O', 'I', 'S' ) ) pcap->canusepoison = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'R', 'E', 'A', 'D' ) ) pcap->canread = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'C', 'O', 'D', 'E' ) ) pcap->hascodeofconduct = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'D', 'A', 'R', 'K' ) ) pcap->hasdarkvision = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'A','W','E','P' ) ) pcap->canuseadvancedweapons = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'S','H','P','R' ) ) pcap->shieldproficiency = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'J','O','U','S' ) ) pcap->canjoust = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'W','M','A','G' ) ) pcap->canusearcane = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'H','M','A','G' ) ) pcap->canusedivine = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'T','E','C','H' ) ) pcap->canusetech = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'D','I','S','A' ) ) pcap->candisarm = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'S','T','A','B' ) ) pcap->canbackstab = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'P','O','I','S' ) ) pcap->canusepoison = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'R','E','A','D' ) ) pcap->canread = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'C','O','D','E' ) ) pcap->hascodeofconduct = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'D','A','R','K' ) ) pcap->darkvision_level = fget_int( fileread );
     }
     vfs_close( fileread );
 
@@ -628,7 +628,7 @@ bool_t save_one_cap_file( const char * szSaveName, cap_t * pcap )
     template_put_bool( filetemp, filewrite, pcap->canbegrogged );
     template_put_int ( filetemp, filewrite, 0 );
     template_put_int ( filetemp, filewrite, 0 );
-    template_put_bool( filetemp, filewrite, pcap->canseeinvisible );
+    template_put_bool( filetemp, filewrite, pcap->see_invisible_level );
     template_put_int ( filetemp, filewrite, pcap->kursechance );
     template_put_int ( filetemp, filewrite, pcap->soundindex[SOUND_FOOTFALL] );
     template_put_int ( filetemp, filewrite, pcap->soundindex[SOUND_JUMP] );
@@ -735,8 +735,8 @@ bool_t save_one_cap_file( const char * szSaveName, cap_t * pcap )
     if ( pcap->hascodeofconduct > 0  )
         fput_expansion(filewrite, "", MAKE_IDSZ('C','O','D','E'), pcap->hascodeofconduct );
 
-    if ( pcap->hasdarkvision > 0  )
-        fput_expansion(filewrite, "", MAKE_IDSZ('D','A','R','K'), pcap->hasdarkvision );
+    if ( pcap->darkvision_level > 0  )
+        fput_expansion(filewrite, "", MAKE_IDSZ('D','A','R','K'), pcap->darkvision_level );
 
     // dump the rest of the template file
     template_flush( filetemp, filewrite );
