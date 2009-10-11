@@ -1,6 +1,0 @@
-// This file contains information for copying actions to save memory...
-// The format is colon followed by the action names
-: SLASH CHOP
-: XBOW ZAP
-: XBOW THRUST
-: XBOW BASH
