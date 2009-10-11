@@ -78,9 +78,18 @@
 //--------------------------------------------------------------------------------------------
 /// AI variables
 #define MAXWAY              8                       ///< Waypoints
-#define WAYTHRESH           64                      ///< Threshold for reaching waypoint (TILE_SIZE/2)
-#define MAXSTOR             16                      ///< Storage data (Used in SetXY)
-#define STORAND             15
+#define WAYTHRESH           (TILE_ISIZE >> 1)       ///< Threshold for reaching waypoint (TILE_SIZE/2)
+
+// swig chokes on the definition below
+#ifdef SWIG
+#   define STOR_BITS            4                      
+#   define STOR_COUNT          16                      ///< Storage data (Used in SetXY)
+#   define STOR_AND            15                      ///< Storage data bitmask
+#else
+#   define STOR_BITS            4                      
+#   define STOR_COUNT          (1 << STOR_BITS)        ///< Storage data (Used in SetXY)
+#   define STOR_AND            (STOR_COUNT - 1)        ///< Storage data bitmask
+#endif
 
 /// the state variables for a script / AI
 struct s_ai_state
@@ -113,8 +122,8 @@ struct s_ai_state
     int            content;       ///< More short term memory
     int            passage;       ///< The passage associated with this character
     Uint32         timer;         ///< AI Timer
-    int            x[MAXSTOR];    ///< Temporary values...  SetXY
-    int            y[MAXSTOR];
+    int            x[STOR_COUNT];    ///< Temporary values...  SetXY
+    int            y[STOR_COUNT];
 
     // ai memory from the last event
     Uint16         bumplast;        ///< Last character it was bumped by

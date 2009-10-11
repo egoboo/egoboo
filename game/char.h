@@ -34,6 +34,14 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+struct s_mad;
+struct s_eve;
+struct s_pip;
+struct s_object_profile;
+struct s_billboard_data_t;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 /// Attack directions
 #define ATK_FRONT  0x0000
 #define ATK_RIGHT  0x4000
@@ -102,7 +110,7 @@ slot_t        grip_offset_to_slot( grip_offset_t grip );
 #define LOWSTAT             256                     ///< Worst...
 #define PERFECTSTAT         (60*256)                ///< Maximum stat without magic effects
 #define PERFECTBIG          (100*256)               ///< Perfect life or mana...
-#define HIGHSTAT            (100*256)                ///< Absolute max adding enchantments as well
+#define HIGHSTAT            (100*256)               ///< Absolute max adding enchantments as well
 
 /// Throwing
 #define THROWFIX            30.0f                    ///< To correct thrown velocities
@@ -686,7 +694,7 @@ void   init_slot_idsz();
 
 bool_t ai_add_order( ai_state_t * pai, Uint32 value, Uint16 counter );
 
-bool_t chr_make_text_billboard( Uint16 ichr, const char * txt, SDL_Color color, int lifetime_secs );
+struct s_billboard_data * chr_make_text_billboard( Uint16 ichr, const char * txt, SDL_Color color, int lifetime_secs );
 const char * chr_get_name( Uint16 ichr, Uint32 bits );
 const char * chr_get_dir_name( Uint16 ichr );
 
@@ -743,7 +751,7 @@ bool_t chr_has_vulnie( Uint16 item, Uint16 weapon_profile );
 
 Uint32 chr_get_icon_ref( Uint16 item );
 
-const char * describe_stat(int value_high);
+const char * describe_value( float value, float maxval );
 
 void reset_teams();
 

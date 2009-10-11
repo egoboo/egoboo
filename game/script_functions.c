@@ -3532,8 +3532,8 @@ Uint8 scr_set_XY( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pself->x[pstate->argument&STORAND] = pstate->x;
-    pself->y[pstate->argument&STORAND] = pstate->y;
+    pself->x[pstate->argument&STOR_AND] = pstate->x;
+    pself->y[pstate->argument&STOR_AND] = pstate->y;
 
     SCRIPT_FUNCTION_END();
 }
@@ -3547,8 +3547,8 @@ Uint8 scr_get_XY( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pstate->x = pself->x[pstate->argument&STORAND];
-    pstate->y = pself->y[pstate->argument&STORAND];
+    pstate->x = pself->x[pstate->argument&STOR_AND];
+    pstate->y = pself->y[pstate->argument&STOR_AND];
 
     SCRIPT_FUNCTION_END();
 }
@@ -3562,8 +3562,8 @@ Uint8 scr_AddXY( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pself->x[pstate->argument&STORAND] += pstate->x;
-    pself->y[pstate->argument&STORAND] += pstate->y;
+    pself->x[pstate->argument&STOR_AND] += pstate->x;
+    pself->y[pstate->argument&STOR_AND] += pstate->y;
 
     SCRIPT_FUNCTION_END();
 }

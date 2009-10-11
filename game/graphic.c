@@ -4702,6 +4702,14 @@ billboard_data_t * billboard_data_init(billboard_data_t * pbb)
     pbb->tex_ref = INVALID_TEXTURE;
     pbb->ichr    = MAX_CHR;
 
+    pbb->tint[RR] = pbb->tint[GG] = pbb->tint[BB] = pbb->tint[AA] = 1.0f;
+    pbb->tint_add[AA] -= 1.0f/100.0f;
+
+    pbb->size = 1.0f;
+    pbb->size_add -= 1.0f/200.0f;
+
+    pbb->offset_add[ZZ] += 127 / 50.0f * 2.0f;
+
     return pbb;
 }
 
@@ -4744,6 +4752,23 @@ bool_t billboard_data_update( billboard_data_t * pbb )
     pbb->pos.x = pbb->pos.x * 0.5f + pos_new.x * 0.5f;
     pbb->pos.y = pbb->pos.y * 0.5f + pos_new.y * 0.5f;
     pbb->pos.z = pbb->pos.z * 0.5f + pos_new.z * 0.5f;
+
+    pbb->size += pbb->size_add;
+
+    pbb->tint[RR] += pbb->tint_add[RR];
+    pbb->tint[GG] += pbb->tint_add[GG];
+    pbb->tint[BB] += pbb->tint_add[BB];
+    pbb->tint[AA] += pbb->tint_add[AA];
+
+    pbb->offset[XX] += pbb->offset_add[XX];
+    pbb->offset[YY] += pbb->offset_add[YY];
+    pbb->offset[ZZ] += pbb->offset_add[ZZ];
+
+    // automatically kill a billboard that is no longer useful
+    if( pbb->tint[AA] == 0.0f || pbb->size == 0.0f )
+    {
+        billboard_data_free( pbb );
+    }
 
     return btrue;
 }
@@ -4971,13 +4996,16 @@ bool_t render_billboard( camera_t * pcam, billboard_data_t * pbb, float scale )
     x1 = w  / (float) oglx_texture_GetTextureWidth ( ptex );
     y1 = h  / (float) oglx_texture_GetTextureHeight( ptex );
 
-    vector_right.x =  pcam->mView.CNV(0, 0) * w * scale;
-    vector_right.y =  pcam->mView.CNV(1, 0) * w * scale;
-    vector_right.z =  pcam->mView.CNV(2, 0) * w * scale;
+    vector_right.x =  pcam->mView.CNV(0, 0) * w * scale * pbb->size;
+    vector_right.y =  pcam->mView.CNV(1, 0) * w * scale * pbb->size;
+    vector_right.z =  pcam->mView.CNV(2, 0) * w * scale * pbb->size;
 
-    vector_up.x    = -pcam->mView.CNV(0, 1) * h * scale;
-    vector_up.y    = -pcam->mView.CNV(1, 1) * h * scale;
-    vector_up.z    = -pcam->mView.CNV(2, 1) * h * scale;
+    vector_up.x    = -pcam->mView.CNV(0, 1) * h * scale * pbb->size;
+    vector_up.y    = -pcam->mView.CNV(1, 1) * h * scale * pbb->size;
+    vector_up.z    = -pcam->mView.CNV(2, 1) * h * scale * pbb->size;
+
+
+    // @todo this billboard stuff needs to be implemented as a OpenGL transform
 
     // bottom left
     vtlist[0].pos[XX] = pbb->pos.x + ( -vector_right.x - 0 * vector_up.x );
@@ -5007,16 +5035,41 @@ bool_t render_billboard( camera_t * pcam, billboard_data_t * pbb, float scale )
     vtlist[3].tex[SS] = 0;
     vtlist[3].tex[TT] = y1;
 
-    // Go on and draw it
-    GL_DEBUG(glBegin)( GL_QUADS );
+    ATTRIB_PUSH( "render_billboard", GL_LIGHTING_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT );
     {
-        for ( i = 0; i < 4; i++ )
+        GL_DEBUG(glMatrixMode)(GL_MODELVIEW );
+        GL_DEBUG(glPushMatrix)();
+        GL_DEBUG(glTranslatef)( pbb->offset[XX], pbb->offset[YY], pbb->offset[ZZ] );
+
+        GL_DEBUG(glShadeModel)( GL_FLAT );      // GL_LIGHTING_BIT - Flat shade this
+
+        if( pbb->tint[AA] < 1.0f )
         {
-            GL_DEBUG(glTexCoord2fv)( vtlist[i].tex );
-            GL_DEBUG(glVertex3fv)  ( vtlist[i].pos );
+            GL_DEBUG( glEnable ) ( GL_BLEND );                            // GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT
+            GL_DEBUG( glBlendFunc ) ( GL_ALPHA, GL_ONE_MINUS_SRC_COLOR ); // GL_COLOR_BUFFER_BIT
+
+
+            GL_DEBUG(glEnable)( GL_ALPHA_TEST );    // GL_COLOR_BUFFER_BIT GL_ENABLE_BIT
+            GL_DEBUG(glAlphaFunc)( GL_GREATER, 0 ); // GL_COLOR_BUFFER_BIT
         }
+
+        // Go on and draw it
+        GL_DEBUG(glBegin)( GL_QUADS );
+        {
+            glColor4fv( pbb->tint );
+
+            for ( i = 0; i < 4; i++ )
+            {
+                GL_DEBUG(glTexCoord2fv)( vtlist[i].tex );
+                GL_DEBUG(glVertex3fv)  ( vtlist[i].pos );
+            }
+        }
+        GL_DEBUG_END();
+
+        GL_DEBUG(glMatrixMode)(GL_MODELVIEW );
+        GL_DEBUG(glPopMatrix)();
     }
-    GL_DEBUG_END();
+    ATTRIB_POP( "render_billboard" );
 
     return btrue;
 }

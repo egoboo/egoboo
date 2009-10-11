@@ -152,9 +152,10 @@ extern float                   turntosin[TRIG_TABLE_SIZE];           ///< Conver
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-/// My lil' random number table
+// My lil' random number table
+
+// swig chokes on the definition below
 #ifdef SWIG
-/// swig chokes on the definition below
 #    define RANDIE_BITS    12
 #    define RANDIE_COUNT 4096
 #else
@@ -166,7 +167,7 @@ extern float                   turntosin[TRIG_TABLE_SIZE];           ///< Conver
 #define RANDIE       randie[randindex & RANDIE_MASK ];  randindex++; randindex &= RANDIE_MASK
 
 extern Uint32  randindex;
-extern Uint16  randie[RANDIE_COUNT];
+extern Uint16  randie[RANDIE_COUNT];   ///< My lil' random number table
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

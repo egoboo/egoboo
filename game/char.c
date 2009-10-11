@@ -3153,6 +3153,35 @@ int damage_character( Uint16 character, Uint16 direction,
                     pchr->ai.attacklast = attacker;     // For the ones attacking a shield
                 }
             }
+
+            /// @test spawn a fly-away damage indicator?
+            if( attacker != character && ACTIVE_CHR(attacker) )
+            {
+                const float lifetime = 3;
+                billboard_data_t * pbb;
+                STRING text_buffer = EMPTY_CSTR;
+                SDL_Color color = {0xFF, 0xFF, 0xFF, 0xFF};
+
+                //snprintf( text_buffer, SDL_arraysize(text_buffer), "%2.1f", FP8_TO_FLOAT(actual_damage) );
+                snprintf( text_buffer, SDL_arraysize(text_buffer), "%s", describe_value(actual_damage, pchr->lifemax) );
+
+                pbb = chr_make_text_billboard( character, text_buffer, color, lifetime );
+                if( NULL != pbb )
+                {
+                    // damage == red
+                    pbb->tint[GG] = pbb->tint[BB] = 0.75f;
+                    pbb->tint_add[GG] = pbb->tint_add[BB] = -0.75f / lifetime / TARGET_UPS;
+                    pbb->tint_add[AA] = -1.0f / lifetime / TARGET_UPS;
+
+                    pbb->offset[XX] = (((rand() << 1) - RAND_MAX) / (float)RAND_MAX) * TILE_SIZE / 5.0f;
+                    pbb->offset[YY] = (((rand() << 1) - RAND_MAX) / (float)RAND_MAX) * TILE_SIZE / 5.0f;
+                    pbb->offset[ZZ] = (((rand() << 1) - RAND_MAX) / (float)RAND_MAX) * TILE_SIZE / 5.0f;
+
+                    pbb->offset_add[XX] += (((rand() << 1) - RAND_MAX) / (float)RAND_MAX) * 2.0f * TILE_SIZE / lifetime / TARGET_UPS;
+                    pbb->offset_add[YY] += (((rand() << 1) - RAND_MAX) / (float)RAND_MAX) * 2.0f * TILE_SIZE / lifetime / TARGET_UPS;
+                    pbb->offset_add[ZZ] += (((rand() << 1) - RAND_MAX) / (float)RAND_MAX) * 2.0f * TILE_SIZE / lifetime / TARGET_UPS;
+                }
+            }
         }
         else if ( actual_damage < 0 )
         {
@@ -3163,6 +3192,36 @@ int damage_character( Uint16 character, Uint16 direction,
             if ( team != TEAM_DAMAGE )
             {
                 pchr->ai.attacklast = MAX_CHR;
+            }
+
+            /// @test spawn a fly-away heal indicator?
+            if( attacker != character && ACTIVE_CHR(attacker) )
+            {
+                const float lifetime = 3;
+                billboard_data_t * pbb;
+                STRING text_buffer = EMPTY_CSTR;
+                SDL_Color color = {0xFF, 0xFF, 0xFF, 0xFF};
+
+                //snprintf( text_buffer, SDL_arraysize(text_buffer), "%2.1f", FP8_TO_FLOAT(-actual_damage) );
+                snprintf( text_buffer, SDL_arraysize(text_buffer), "%s", describe_value(-actual_damage, damage.base + damage.rand) );
+
+                pbb = chr_make_text_billboard( character, text_buffer, color, 3 );
+                if( NULL != pbb )
+                {
+                    // heal == yellow, right ;)
+                    pbb->tint[BB] = 0.75f;
+                    pbb->tint_add[BB] = -0.75f / lifetime / TARGET_UPS;
+                    pbb->tint_add[AA] = -1.0f / lifetime / TARGET_UPS;
+
+                    pbb->offset[XX] = (((rand() << 1) - RAND_MAX) / (float)RAND_MAX) * TILE_SIZE / 5.0f;
+                    pbb->offset[YY] = (((rand() << 1) - RAND_MAX) / (float)RAND_MAX) * TILE_SIZE / 5.0f;
+                    pbb->offset[ZZ] = (((rand() << 1) - RAND_MAX) / (float)RAND_MAX) * TILE_SIZE / 5.0f;
+
+                    pbb->offset_add[XX] += (((rand() << 1) - RAND_MAX) / (float)RAND_MAX) * 2.0f * TILE_SIZE / lifetime / TARGET_UPS;
+                    pbb->offset_add[YY] += (((rand() << 1) - RAND_MAX) / (float)RAND_MAX) * 2.0f * TILE_SIZE / lifetime / TARGET_UPS;
+                    pbb->offset_add[ZZ] += (((rand() << 1) - RAND_MAX) / (float)RAND_MAX) * 2.0f * TILE_SIZE / lifetime / TARGET_UPS;
+
+                }
             }
         }
     }
@@ -6286,20 +6345,19 @@ int chr_add_billboard( Uint16 ichr, Uint32 lifetime_secs )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t chr_make_text_billboard( Uint16 ichr, const char * txt, SDL_Color color, int lifetime_secs )
+billboard_data_t * chr_make_text_billboard( Uint16 ichr, const char * txt, SDL_Color color, int lifetime_secs )
 {
     chr_t            * pchr;
     billboard_data_t * pbb;
 
-    bool_t retval = bfalse;
-    int    ibb;
+    int ibb = INVALID_BILLBOARD;
 
-    if ( !ACTIVE_CHR(ichr) ) return bfalse;
+    if ( !ACTIVE_CHR(ichr) ) return NULL;
     pchr = ChrList.lst + ichr;
 
     // create a new billboard or override the old billboard
     ibb = chr_add_billboard( ichr, lifetime_secs );
-    if ( INVALID_BILLBOARD == ibb ) return bfalse;
+    if ( INVALID_BILLBOARD == ibb ) return NULL;
 
     pbb = BillboardList_get_ptr( pchr->ibillboard );
     if ( NULL != pbb)
@@ -6310,14 +6368,11 @@ bool_t chr_make_text_billboard( Uint16 ichr, const char * txt, SDL_Color color, 
         {
             pchr->ibillboard = INVALID_BILLBOARD;
             BillboardList_free_one(ibb);
-        }
-        else
-        {
-            retval = btrue;
+            pbb = NULL;
         }
     }
 
-    return retval;
+    return pbb;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -7328,27 +7383,29 @@ Uint32 chr_get_icon_ref( Uint16 item )
 }
 
 //--------------------------------------------------------------------------------------------
-const char* describe_stat(int value)
+const char* describe_value( float value, float maxval )
 {
     /// @details ZF@> This converts a stat number into a more descriptive word
 
     static STRING retval;
 
-    value = FP8_TO_INT(value);
+    float fval;
 
-    if     ( value >= 50 )    strcpy(retval, "Godlike!");
-    else if( value >= 40 )    strcpy(retval, "Ultimate");
-    else if( value >= 34 )    strcpy(retval, "Epic");
-    else if( value >= 30 )    strcpy(retval, "Powerful");
-    else if( value >= 26 )    strcpy(retval, "Heroic");
-    else if( value >= 22 )    strcpy(retval, "Very High");
-    else if( value >= 18 )    strcpy(retval, "High");
-    else if( value >= 14 )    strcpy(retval, "Good");
-    else if( value >= 10 )    strcpy(retval, "Average");
-    else if( value >= 7  )    strcpy(retval, "Pretty Low");
-    else if( value >= 4  )    strcpy(retval, "Bad");
-    else if( value >= 1  )    strcpy(retval, "Terrible");
-    else                      strcpy(retval, "None");
+    fval = (0 == maxval) ? 1.0f : value / maxval;
+
+    if     ( fval >= .83 )    strcpy(retval, "Godlike!");
+    else if( fval >= .66 )    strcpy(retval, "Ultimate");
+    else if( fval >= .56 )    strcpy(retval, "Epic");
+    else if( fval >= .50 )    strcpy(retval, "Powerful");
+    else if( fval >= .43 )    strcpy(retval, "Heroic");
+    else if( fval >= .36 )    strcpy(retval, "Very High");
+    else if( fval >= .30 )    strcpy(retval, "High");
+    else if( fval >= .23 )    strcpy(retval, "Good");
+    else if( fval >= .17 )    strcpy(retval, "Average");
+    else if( fval >= .11 )    strcpy(retval, "Pretty Low");
+    else if( fval >= .07 )    strcpy(retval, "Bad");
+    else if( fval >  .00 )    strcpy(retval, "Terrible");
+    else                       strcpy(retval, "None");
 
     return retval;
 }

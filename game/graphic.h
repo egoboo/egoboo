@@ -245,6 +245,15 @@ struct s_billboard_data
     fvec3_t   pos;          ///< the position of the bottom-missle of the box
 
     Uint16    ichr;         ///< the character we are attached to
+
+    GLXvector4f tint;       ///< a color to modulate the billboard's r,g,b, and a channels
+    GLXvector4f tint_add;   ///< the change in tint per update
+
+    GLXvector4f offset;     ///< an offset to the billboard's position in world coordinates
+    GLXvector4f offset_add; ///< 
+
+    float       size;
+    float       size_add;
 };
 typedef struct s_billboard_data billboard_data_t;
 
