@@ -1114,10 +1114,10 @@ bool_t doChoosePlayer_show_stats( int player, int mode, int x, int y, int width,
 
             //SWID
             fnt_drawText( menuFont, x1, y1, "Stats" ); y1 += 20;
-            fnt_drawText( menuFont, x1, y1, "  Str: %s (%d)", describe_value( pcap->strength_stat.val.from,     60 ), (int)pcap->strength_stat.val.from      ); y1 += 20;
-            fnt_drawText( menuFont, x1, y1, "  Wis: %s (%d)", describe_value( pcap->wisdom_stat.val.from,       60 ), (int)pcap->wisdom_stat.val.from        ); y1 += 20;
-            fnt_drawText( menuFont, x1, y1, "  Int: %s (%d)", describe_value( pcap->intelligence_stat.val.from, 60 ), (int)pcap->intelligence_stat.val.from  ); y1 += 20;
-            fnt_drawText( menuFont, x1, y1, "  Dex: %s (%d)", describe_value( pcap->dexterity_stat.val.from,    60 ), (int)pcap->dexterity_stat.val.from     ); y1 += 20;
+            fnt_drawText( menuFont, x1, y1, "  Str: %s (%d)", describe_value( pcap->strength_stat.val.from,     PERFECTSTAT ), (int)pcap->strength_stat.val.from      ); y1 += 20;
+            fnt_drawText( menuFont, x1, y1, "  Wis: %s (%d)", describe_value( pcap->wisdom_stat.val.from,       PERFECTSTAT ), (int)pcap->wisdom_stat.val.from        ); y1 += 20;
+            fnt_drawText( menuFont, x1, y1, "  Int: %s (%d)", describe_value( pcap->intelligence_stat.val.from, PERFECTSTAT ), (int)pcap->intelligence_stat.val.from  ); y1 += 20;
+            fnt_drawText( menuFont, x1, y1, "  Dex: %s (%d)", describe_value( pcap->dexterity_stat.val.from,    PERFECTSTAT ), (int)pcap->dexterity_stat.val.from     ); y1 += 20;
             y1 += 20;
 
             if ( objects.count > 1 )

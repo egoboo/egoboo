@@ -20,7 +20,7 @@ Water ends particle ( TRUE or FALSE )			: TRUE
 Bump ends particle ( TRUE or FALSE )			: TRUE
 End if hits ground ( TRUE or FALSE )			: TRUE
 End after last frame ( TRUE or FALSE )			: FALSE
-Time before end ( 1 to 1000, 0 )			: 320
+Time before end ( 1 to 1000, 0 )			: 100
 
 
 
@@ -105,3 +105,4 @@ Life drain on hit ( 0 to 50 )				: 0
 // Expansions
 :[TIME] 1	  //Doesn't set invulnerability time on collision
 :[IDAM] 1   //Int adds damage
+:[WEND] 1   //Wall hit ends particle

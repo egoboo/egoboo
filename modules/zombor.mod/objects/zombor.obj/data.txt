@@ -156,3 +156,4 @@ Jump sound     : 7
 
 //Expansions
 :[AWEP] 1              //Advanced weapon profiency
+:[DARK] 1               //Level 1 darkvision

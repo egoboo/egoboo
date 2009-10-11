@@ -3163,8 +3163,8 @@ int damage_character( Uint16 character, Uint16 direction,
                 STRING text_buffer = EMPTY_CSTR;
                 SDL_Color color = {0xFF, 0xFF, 0xFF, 0xFF};
 
-                //snprintf( text_buffer, SDL_arraysize(text_buffer), "%2.1f", FP8_TO_FLOAT(actual_damage) );
-                snprintf( text_buffer, SDL_arraysize(text_buffer), "%s", describe_value(actual_damage, pchr->lifemax) );
+                snprintf( text_buffer, SDL_arraysize(text_buffer), "%2.1f", FP8_TO_FLOAT(actual_damage) );
+                //snprintf( text_buffer, SDL_arraysize(text_buffer), "%s", describe_value(actual_damage, pchr->lifemax) );
 
                 pbb = chr_make_text_billboard( character, text_buffer, color, lifetime );
                 if( NULL != pbb )

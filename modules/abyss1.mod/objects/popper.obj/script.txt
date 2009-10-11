@@ -111,6 +111,8 @@ IfTimeOut
           SpawnExactParticle
           tmpargument = ACTIONJB
           ChildDoActionOverride
+          tmpargument = 0
+          SetTileXY
 
       // Popper is no longer needed...
       GoPoof

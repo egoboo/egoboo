@@ -1,4 +1,4 @@
-Version 2.7.8 (xx.10.2009)
+Version 2.8.0 (xx.10.2009)
 - New Feature: New spells, magical items, monsters and other fun stuff!
 - New Feature: Another new Starter Module based on a classic nethack character - The Valkyrie class!
 - New Feature: A new XP bar is show below your character portrait to display level up progress.
@@ -34,6 +34,7 @@ Version 2.7.8 (xx.10.2009)
 - Update: Increased the amount of treasure loot found in the Ice Palace.
 - Update: Improved the Frost Lizard AI.
 - Update: Improved the texture detail for all the title images.
+- Bugfix: The Vorpal Blade can no longer deal damage from distance.
 - Bugfix: Battleaxes now properly requires Advanced Weapons skills to use.
 - Bugfix: The Magic Carpet is no longer mountable while being held.
 - Bugfix: When cookie stacks are splilt, they should now retain their burned and wet status.
@@ -63,7 +64,7 @@ Version 2.7.8 (xx.10.2009)
 - Bugfix: Incorrect boss music in Water Palace fixed.
 - Bugfix: Removed music resetting when loading a module.
 - Bugfix: Enchantments end messages display escapes properly.
-- Bugfix: Corrected some character hitboxes.
+- Bugfix: Corrected all character hitboxes.
 - Bugfix: Fixed some acceleration issues that made the Tourist Starter almost impossible.
 - Bugfix: Fixed Lord Hagen AI movement bug in the Soldier Starter.
 - Bugfix: Many, many other bugs fixed!

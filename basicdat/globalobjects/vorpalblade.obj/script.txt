@@ -5,11 +5,11 @@ IfUsed
   IfXIsLessThanY
     tmpargument = 4
     SendMessageNear
-    tmpargument = 3
+    tmpargument = 3           //50 damage!
   Else
-    tmpargument = 2
+    tmpargument = 2           //4-8 damage
   tmpdistance = SPAWNLAST
-  SpawnParticle
+  SpawnAttachedParticle
 
 // ZZ> This function makes an item fall to the floor when spawned
 IfSpawned				//

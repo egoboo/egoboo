@@ -34,6 +34,8 @@ Class Mastery: +3 bonus to all stats.
 Crackshot: % chance based on DEX to daze enemies with Gunpowder.
 Critical Strike: 1% chance per level to deal +1 damage per 2 levels. Sound effect is played.
 Crusader: Converts EVIL damage taken into mana.
+Darkvision: The character has enhanced vision in darkness and doesn't always need a light source to see
+            in deep darkness.
 Danger Sense: This reveals all enemies on the minimap if the map has been found.
 Defender: Gives a full 100% block rating with all shields.
 Deadly Strike: When being hidden and attacking a non-undead opponent, this skill gives +1 bonus damage 
@@ -111,7 +113,8 @@ Level       Abillity
 G'NOME
 -------------------------------------------
 Level       Abillity
-1			- Use Technological Items, Read G'nomish, Immune vs. Grog, Poison Resistance, Literate
+1			- Use Technological Items, Read G'nomish, Immune vs. Grog, 
+        Poison Resistance, Literate, Darkvision
 2			- n/a
 3			- n/a
 4			- Listen
@@ -268,7 +271,7 @@ Level   Abillity
 WOOD ELF
 -------------------------------------------
 Level   Abillity
-1     - Weapon Profiency, Arcane Magic, Literate
+1     - Weapon Profiency, Arcane Magic, Literate, Darkvision
 2     - Listen
 3     - n/a
 4     - n/a
@@ -370,7 +373,7 @@ Level	Ability
 ZOMBI
 -------------------------------------------
 Level	  Ability
-1     - Immune vs Grog and Daze
+1     - Immune vs Grog and Daze, Darkvision
 2     - n/a
 3     - Immune vs. Banishment
 4     - n/a

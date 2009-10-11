@@ -566,6 +566,9 @@ The symbol itself follows
 :C 001 INVENTORY
 :C 002 LEFT
 :C 003 RIGHT
+:C 000 EASY
+:C 001 NORMAL
+:C 002 HARD
 :V 000 tmpx
 :V 001 tmpy
 :V 002 tmpdist
