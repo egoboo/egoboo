@@ -117,7 +117,7 @@ Brazier:   NONE      77   40.5 26.5 0.0  E   0   0   3   0   0   F   F   Null
 FChest:    NONE      53   34.5 10.5 0.0  W   59  0   0   3   0   F   F   Null
   MagPot:  NONE      38   0    0    0    I   0   0   0   0   0   F   F   Null
   Torch:   NONE      56   0    0    0    I   0   0   0   0   0   F   F   Null
-  AnMimic: NONE      58   0    0    0    I   0   0   0   0   0   F   F   Null
+  AnimateMimic: NONE 58   0    0    0    I   0   0   0   0   0   F   F   Null
 MChest:    NONE      52   14.5 9.5  0.0  E   0   0   0   0   0   F   F   Null
 
 RockHead:  NONE      47   23.5 52.5 0.0  N   0   0   0   0   0   F   F   Evil
