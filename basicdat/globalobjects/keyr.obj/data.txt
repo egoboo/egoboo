@@ -1,5 +1,5 @@
-Object slot number ( 0 to 63, don't use twice )	: -1
-Class name     : Broad_Sword
+Slot number    : -1
+Class name     : Rune_Key
 Uniform light  : FALSE
 Maximum ammo   : 0
 Current ammo   : 0
@@ -24,7 +24,7 @@ INT up         : 0.00-0.00
 DEX            : 1.00
 DEX up         : 0.00-0.00
 
-Size           : 1.00
+Size           : 0.75
 Size up        : 0.05
 Shadow size    : 15
 Bump size      : 1
@@ -37,11 +37,11 @@ Sneak speed    : 1
 Walk speed     : 3
 Run speed      : 5
 Fly to height  : 0
-Flashing AND   : 255
+Flashing AND   : 250
 Alpha blending : 255
 Light blending : 255
 Transfer blend : FALSE
-Sheen          : 8
+Sheen          : 0
 Phong mapping  : FALSE
 Texture X add  : 0.00
 Texture Y add  : 0.00
@@ -89,10 +89,10 @@ EXPREVENGE     : 2.00
 EXPTEAMWORK    : 0.10
 EXPROLEPLAY    : 1.00
 
-IDSZ Parent    : [SWOR]
-IDSZ Type      : [LONG]
-IDSZ Skill     : [AWEP]
-IDSZ Special   : [XWEP]
+IDSZ Parent    : [KEYR]
+IDSZ Type      : [RUNE]
+IDSZ Skill     : [NONE]
+IDSZ Special   : [NONE]
 IDSZ Hate      : [NONE]
 IDSZ Vulnie    : [NONE]
 
@@ -102,13 +102,13 @@ Is stackable   : FALSE
 Name known     : FALSE
 Usage known    : TRUE
 Is exportable  : TRUE
-Requires skill : TRUE
+Requires skill : FALSE
 Is platform    : FALSE
 Collects money : FALSE
 Can open stuff : FALSE
 
-Damage type    : SLASH
-Attack type    : SLASH
+Damage type    : CRUSH
+Attack type    : WALK
 
 Attached parts : 0
 Reaffirm type  : NONE
@@ -118,17 +118,17 @@ Left valid     : TRUE
 Right valid    : TRUE
 
 Part on weapon : TRUE
-Part type      : 0
+Part type      : -1
 
 Poof amount    : 0
 Facing add     : 0
 Part type      : 0
 
-Blud valid    : FALSE
+Blood valid    : FALSE
 Part type      : 0
 
 Waterwalking   : FALSE
-Bounce dampen  : 1.00
+Bounce dampen  : 0.300
 
 Life healing   : 0.000
 Mana cost      : 0.000
@@ -138,11 +138,11 @@ Skin 0 name    : Skin_0
 Skin 1 name    : Skin_1
 Skin 2 name    : Skin_2
 Skin 3 name    : Skin_3
-Skin 0 cost    : 2500
+Skin 0 cost    : 350
 Skin 1 cost    : 0
 Skin 2 cost    : 0
 Skin 3 cost    : 0
-STR dampen     : 0.20
+STR dampen     : 0.000
 
 No rider attak : FALSE
 Can be dazed   : FALSE

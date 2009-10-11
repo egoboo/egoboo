@@ -238,8 +238,11 @@ IfBumped
             tmpdistance = EXPSECRET
             GiveExperienceToTarget
           Else
-            tmpargument = 23    //Tell them it's warded
-            SendMessageNear
+            IfTimeOut
+              tmpargument = 50
+              SetTime
+              tmpargument = 23    //Tell them it's warded
+              SendMessageNear
         Else    
           //Locked?
           tmpx = selfcontent & 1

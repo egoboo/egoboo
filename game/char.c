@@ -5152,7 +5152,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
     {
         pchr->latch.b &= ~LATCHBUTTON_JUMP;
 
-        if ( ACTIVE_CHR(pchr->attachedto) )
+		if ( ACTIVE_CHR(pchr->attachedto) && ChrList.lst[pchr->attachedto].ismount )
         {
             int ijump;
 

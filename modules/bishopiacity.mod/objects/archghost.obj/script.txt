@@ -46,7 +46,7 @@ Else
             tmpargument = 10
             IfContentIs
               tmpx = targetlevel
-              tmpy = 8
+              tmpy = 5
               IfXIsMoreThanY
                 tmpargument = 8
                 SendMessage
