@@ -19,7 +19,7 @@
 
 /// @file mathstuff.c
 /// @brief The name's pretty self explanatory, doncha think?
-/// @details 
+/// @details
 
 #include "egoboo_math.h"
 
@@ -344,9 +344,10 @@ fmat_4x4_t ViewMatrix( const fvec3_base_t   from,     // camera location
 //   in radians
 {
     fmat_4x4_t view = IdentityMatrix();
-    fvec3_t   up, right, view_dir;
+    fvec3_t   up, right, view_dir, temp;
 
-    view_dir = fvec3_normalize( fvec3_sub( at, from ).v );
+    temp     = fvec3_sub( at, from );
+    view_dir = fvec3_normalize( temp.v );
     right    = fvec3_cross_product( world_up, view_dir.v );
     up       = fvec3_cross_product( view_dir.v, right.v );
     right    = fvec3_normalize( right.v );

@@ -18,8 +18,8 @@
 //********************************************************************************************
 
 /// @file game.c
-/// @brief 
-/// @details 
+/// @brief
+/// @details
 
 #define DECLARE_GLOBALS
 
@@ -153,7 +153,7 @@ bool_t    screenshotkeyready = btrue;
 
 // End text
 char   endtext[MAXENDTEXT] = EMPTY_CSTR;
-size_t    endtext_carat = 0;
+size_t endtext_carat = 0;
 
 // Status displays
 bool_t StatusList_on     = btrue;
@@ -1113,7 +1113,8 @@ int do_ego_proc_begin( ego_process_t * eproc )
     vfs_init( eproc->argv0 );
 
     // Initialize logging next, so that we can use it everywhere.
-    log_init( vfs_resolveWriteFilename("log.txt") );
+    vfs_mkdir( "/debug" );
+    log_init( vfs_resolveWriteFilename("/debug/log.txt") );
     log_setLoggingLevel( 2 );
 
     // start initializing the various subsystems
@@ -1124,7 +1125,7 @@ int do_ego_proc_begin( ego_process_t * eproc )
     _gclock = clk_create("global clock", -1);
 
     // read the "setup.txt" file
-    tmpname = "setup.txt";	
+    tmpname = "setup.txt";
     if ( !setup_read( tmpname ) )
     {
         log_error( "Could not find \"%s\".\n", tmpname );
@@ -2010,7 +2011,7 @@ Uint16 chr_find_target( chr_t * psrc, float max_dist2, TARGET_TYPE target_type, 
         fvec3_t   diff;
         chr_t * ptst;
 		Uint16 ichr_test = target_players ? PlaList[cnt].index : cnt;
-		
+
         if( !ACTIVE_CHR(ichr_test) ) continue;
         ptst = ChrList.lst + ichr_test;
 
@@ -2034,7 +2035,7 @@ Uint16 chr_find_target( chr_t * psrc, float max_dist2, TARGET_TYPE target_type, 
                 best_target = ichr_test;
                 best_dist2  = dist2;
             }
-        }		
+        }
     }
 
     // make sure the target is valid
@@ -4470,8 +4471,8 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
                     }
 
                     // Do the impulse to the object that was hit
-                    if ( ppip_b->allowpush  && pchr_a->phys.weight != 0xFFFFFFFF && 
-                        (ABS(actual_damage) > 0) && (ABS(max_damage) > 0) && 
+                    if ( ppip_b->allowpush  && pchr_a->phys.weight != 0xFFFFFFFF &&
+                        (ABS(actual_damage) > 0) && (ABS(max_damage) > 0) &&
                         (ABS(vdiff.x) + ABS(vdiff.y) + ABS(vdiff.z) > 0.0f)  )
                     {
                         float factor;
@@ -5469,7 +5470,7 @@ bool_t game_begin_module( const char * modname, Uint32 seed )
 
 
     reset_timers();
-	
+
     // load all the in-game module data
     srand( seed );
     if ( !game_load_module_data( modname ) )

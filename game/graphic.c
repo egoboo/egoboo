@@ -3195,7 +3195,7 @@ int draw_game_status( int y )
 		}
 	}
 	else y = _draw_string_raw( 0, y, "ERROR: MISSING PLAYERS" );
-		 
+
 
     return y;
 }
@@ -4484,9 +4484,14 @@ bool_t project_lighting( lighting_cache_t * dst, lighting_cache_t * src, fmat_4x
     if ( src->max_light <= 0.0f ) return btrue;
 
     // grab the character directions
-    fwd   = fvec3_normalize( mat_getChrForward( mat ).v );         // along body-fixed +y-axis
-    right = fvec3_normalize( mat_getChrRight( mat ).v );        // along body-fixed +x-axis
-    up    = fvec3_normalize( mat_getChrUp( mat ).v );            // along body-fixed +z axis
+    fwd   = mat_getChrForward( mat );         // along body-fixed +y-axis
+    right = mat_getChrRight( mat );        // along body-fixed +x-axis
+    up    = mat_getChrUp( mat );            // along body-fixed +z axis
+
+    fwd   = fvec3_normalize( fwd.v   );
+    right = fvec3_normalize( right.v );
+    up    = fvec3_normalize( up.v    );
+
 
     // split the lighting cache up
     project_sum_lighting( dst, src, right, 0 );
