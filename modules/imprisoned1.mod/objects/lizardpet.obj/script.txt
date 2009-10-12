@@ -1,0 +1,189 @@
+// ZZ> This function makes the character wanders around its enemy
+IfSpawned
+  MakeCrushValid
+  SetTargetToWhoeverIsHolding
+    IfTargetIsAPlayer
+      SetOwnerToTarget
+      JoinTargetTeam
+      MakeNameKnown
+  IfNameIsKnown
+    DoNothing
+  Else
+    tmpargument = rand & 1
+    ChangeArmor                   //Change skin
+  
+IfTakenOut
+  SetTargetToWhoeverIsHolding
+  IfTargetIsAPlayer
+    tmpargument = 4
+    PlaySound
+      
+IfGrabbed
+  MakeCrushInvalid
+  IfNameIsKnown
+    SetTargetToWhoeverIsHolding
+    IfTargetIsAPlayer
+      tmpargument = 4
+      PlaySound
+      SetOldTarget
+      SetTargetToOwner
+      IfTargetIsOldTarget
+        tmpargument = 5
+      Else
+        tmpargument = 6
+      SendMessageNear
+  Else
+    SetTargetToWhoeverIsHolding
+    IfTargetIsAPlayer
+      SetOwnerToTarget
+      JoinTargetTeam
+      MakeNameKnown
+      tmpargument = 3
+      SendMessageNear
+      tmpargument = 4
+      SendMessageNear
+  SetTargetToSelf
+  SetTargetToTargetLeftHand
+    DropItems
+    tmpargument = 16
+    SendMessageNear
+IfDropped
+  SetTargetToSelf
+  StopTargetMovement
+  UnkeepAction
+  
+IfUsed
+  SetTargetToWhoeverIsHolding
+  tmpargument = 25
+  SetTargetReloadTime
+  IfTargetIsAPlayer
+
+    // =Cuddles=
+    SetTargetToSelf
+    tmpargument = 7
+    SendMessageNear
+
+    // Level
+    tmpx = targetlevel
+    tmpy = 2
+    IfXIsMoreThanY
+      tmpx = 16
+    tmpargument = 8 + tmpx
+    SendMessageNear
+
+    // Stats
+    tmpx = targetlife > 9
+    tmpy = 2
+    IfXIsMoreThanY
+      tmpx = 3
+    tmpargument = 11 + tmpx
+    tmpx = selfstr > 8
+    tmpy = selfwis > 8
+    SendMessageNear
+
+    // Stats
+    tmpx = selfint > 8
+    tmpy = selfdex > 8
+    tmpdistance = targetexp
+    tmpargument = 15
+    SendMessageNear
+
+//aww :(
+IfCrushed
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  tmpargument = 4
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  GoPoof
+  tmpargument = 2
+  SendMessageNear
+
+IfCleanedUp				// Respawn
+  IfTargetIsAlive			  // Make sure killer is away
+    tmpx = 1100				    //
+    tmpy = targetdistance		    //
+    IfXIsLessThanY			    //
+      RespawnCharacter			      //
+  Else					  // Killer is far away
+    RespawnCharacter			    //
+IfKilled				// This reduces the height of the char
+  IfNameIsKnown
+    SetOldTarget
+    SetTargetToOwner
+    IfTargetIsAlive
+      tmpargument = 0
+      SendMessageNear
+    SetTargetToOldTarget
+  Else
+    tmpargument = 1
+    SendMessageNear
+  tmpargument = 30			  // Dead height
+  SetBumpHeight				  //
+  tmpargument = 0			  // Sound
+  PlaySound				  //
+
+IfAttacked				// Don't take kindly to attackers
+  SetTargetToWhoeverAttacked		  //
+  tmpargument = rand & 1 + 1			    // Sound
+  PlaySound				    //
+
+IfBumped				// Scooch around
+  tmpx = rand & 1023 + targetx - 512
+  tmpy = rand & 1023 + targety - 512
+  ClearWaypoints
+  AddWaypoint
+
+IfTimeOut				// This is done every so often
+  tmpargument = rand & 15 + 30
+  SetTime
+
+  IfHeld
+    // Don't bother moving around if held
+    DoNothing
+  Else
+    SetTargetToOwner
+    IfTargetIsSelf
+      //No owner, move around spawn
+      tmpx = rand & 1023 - 512 + selfspawnx
+      tmpy = rand & 1023 - 512 + selfspawny
+    Else
+      SetTargetToNearbyEnemy
+        SetTurnModeToWatchTarget
+      
+        // Attack the enemy...
+        tmpx = targetdistance
+        tmpy = 256
+        IfXIsLessThanY
+          IfFacingTarget
+            tmpargument = ACTIONUA
+            DoAction
+
+        //move towards enemy
+        tmpx = targetx
+        tmpy = targety
+        tmpturn = targetturnto
+        tmpdistance = 200
+        Compass
+      Else        
+        SetTurnModeToVelocity
+        SetTargetToOwner
+        tmpy = 128
+        tmpx = targetdistance
+        IfXIsLessThanY
+          tmpx = rand & 1023 - 512 + selfx
+          tmpy = rand & 1023 - 512 + selfy
+        Else
+          tmpx = ownerx             //Move fast
+          tmpy = ownery
+          tmpdistance = 1500
+          tmpturn = targetturnto
+          Compass
+
+    ClearWaypoints			  //
+    AddWaypoint				  //
+
+End					// Finished with this character

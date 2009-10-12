@@ -1,0 +1,151 @@
+IfSpawned
+  tmpargument = 0
+  tmpdistance = SPAWNORIGIN
+  SpawnAttachedParticle
+
+IfTimeOut
+  tmpargument = 50
+  SetTime
+
+  tmpturn = 0
+  tmpargument = passage
+  SetTargetToWhoeverIsInPassage
+    tmpargument = 380
+    SetTime
+    IfTargetIsAPlayer
+      DoNothing
+    Else
+      IfTargetIsOnSameTeam
+        DoNothing
+      Else
+        tmpturn = 10          //assume its the wrong item
+            
+        //1: The skull
+        tmpx = selfstate
+        tmpy = 4
+        IfXIsLessThanY
+          tmpargument = [SKUL]
+          IfTargetHasID
+            tmpturn = 4
+              
+        //2: The backpack
+        tmpy = 6
+        IfXIsLessThanY
+          tmpargument = [PACK]
+          IfTargetHasID
+            tmpturn = 6
+              
+        //3: The gem
+        tmpy = 8
+        IfXIsLessThanY
+          tmpargument = [GEMM]
+          IfTargetHasID
+            tmpturn = 8
+              
+    //They placed a token in the hand... do something
+    tmpx = tmpturn
+    tmpy = 0
+    IfXIsMoreThanY
+
+      //Only proceed if we can poof it
+      PoofTarget
+        
+        //Message
+        tmpargument = tmpturn
+        PlayFullSound
+        SendMessage
+        
+        //Punish or reward?
+        tmpx = selfturn
+        tmpy = 10
+        IfXIsEqualToY
+          DoNothing
+        Else
+          tmpargument = 30
+          tmpdistance = EXPQUEST
+          GiveExperienceToGoodTeam
+          tmpargument = tmpturn + 1       //advance
+          SetState
+      Else
+        tmpturn = 0               //Nothing happened, cant poof it!      
+
+  //Spawn punishment?
+  tmpx = tmpturn
+  tmpy = 10
+  IfXIsEqualToY
+    tmpx = 49*128             //Hand coordinates
+    tmpy = 38*128
+    tmpdistance = 0
+    tmpargument = 2
+    SpawnExactParticle
+  
+    //Damage the player
+    tmpdistance = BLAHENEMIES + BLAHPLAYERS
+    tmpargument = [NONE]
+    SetTargetToNearestBlahID
+      tmpargument = 256*10
+      DamageTarget
+      tmpargument = 10
+      DazeTarget
+  Else                          //Nope, good poof!
+    tmpy = 0
+    IfXIsMoreThanY
+      tmpargument = 5
+      tmpx = 49*128             //Hand coordinates
+      tmpy = 38*128
+      tmpdistance = 0
+      SpawnExactParticle
+      
+  tmpdistance = 1
+  IfDistanceIsMoreThanTurn
+    tmpdistance = BLAHENEMIES + BLAHFRIENDS + BLAHPLAYERS
+    tmpargument = [NONE]
+    SetTargetToWideBlahID                 //aka SetTargetToWidePlayer
+      IfTargetIsAPlayer
+        tmpargument = 350
+        SetTime
+  
+        GetState
+        SendMessage
+        PlayFullSound
+        
+        IfStateIs0
+          tmpargument = 1
+          SetContent
+        
+        IfStateIs1
+          tmpargument = 3
+          SetContent
+          
+        //Bring the skull
+        IfStateIs3
+          tmpargument = 2
+          SetContent
+          
+        //Bring the backpack
+        IfStateIs5
+          tmpargument = 2
+          SetContent
+        
+        //Bring the gem
+        IfStateIs7
+          tmpargument = 2
+          SetContent
+          
+        //All done!
+        IfStateIs9
+          tmpargument = 112       //Become portal
+          tmpx = selfx
+          tmpy = selfy
+          tmpdistance = selfz
+          tmpturn = selfturn + 16000
+          SpawnExactCharacterXYZ
+          GoPoof
+          
+        tmpturn = selfstate
+        tmpargument = selfcontent         //Prepeare next say
+        SetState
+        tmpargument = tmpturn             //Remember last said
+        SetContent
+    
+End

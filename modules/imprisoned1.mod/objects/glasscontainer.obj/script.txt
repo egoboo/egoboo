@@ -1,0 +1,63 @@
+IfKilled
+  tmpargument = 1
+  PlaySound
+  GoPoof
+  
+  //Award some xp
+  SetTargetToWhoeverAttacked
+  tmpargument = 20
+  tmpdistance = EXPDARE
+  GiveExperienceToTarget
+  
+IfAttacked
+
+  //Figure out if to spawn a defend particle or not
+  tmpdistance = 0
+  GetDamageType
+  tmpx = tmpargument
+  tmpy = DAMAGEZAP
+  IfXIsEqualToY
+    tmpdistance = 1
+  tmpy = DAMAGEHOLY
+  IfXIsEqualToY
+    tmpdistance = 1
+  tmpy = DAMAGEICE
+  IfXIsEqualToY
+    tmpdistance = 1
+  tmpy = DAMAGEEVIL
+  IfXIsEqualToY
+    tmpdistance = 1
+  tmpturn = 0
+  IfDistanceIsMoreThanTurn
+    tmpargument = 0
+    tmpdistance = 0
+    tmpx = targetx
+    tmpy = targety
+    SpawnExactParticle
+    
+  Else
+    //Crunchy sounds
+    tmpargument = 3
+    PlaySound
+  
+    //First cracks
+    tmpargument = 0
+    IfArmorIs
+      tmpargument = 1
+      ChangeArmor
+    
+    //Become really cracked when at 50% hp
+    tmpargument = 1
+    IfArmorIs
+      SetTargetToSelf
+      tmpx = selflife
+      tmpy = targetmaxlife > 1
+      IfXIsLessThanY
+        tmpargument = 2
+        ChangeArmor
+        tmpargument = 2
+        PlaySound
+        tmpargument = 0
+        SendMessageNear
+    
+End					// Finished with this character

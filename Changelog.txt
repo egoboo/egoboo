@@ -34,6 +34,7 @@ Version 2.8.0 (xx.10.2009)
 - Update: Increased the amount of treasure loot found in the Ice Palace.
 - Update: Improved the Frost Lizard AI.
 - Update: Improved the texture detail for all the title images.
+- Bugfix: Fixed missing Player spawn points in the Cobol Palace.
 - Bugfix: The Vorpal Blade can no longer deal damage from distance.
 - Bugfix: Battleaxes now properly requires Advanced Weapons skills to use.
 - Bugfix: The Magic Carpet is no longer mountable while being held.

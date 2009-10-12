@@ -99,15 +99,13 @@
 #define DISMOUNTZVELFLY     4
 #define PHYS_DISMOUNT_TIME  (TICKS_PER_SEC*0.5f)          ///< time delay for full object-object interaction (approximately 0.5 second)
 
+
 //------------------------------------
 /// Timers
 //------------------------------------
-
 /// Display
 EXTERN Uint8           timeron     EQ( bfalse );          ///< Game timer displayed?
 EXTERN Uint32          timervalue  EQ( 0 );           ///< Timer time ( 50ths of a second )
-
-EXTERN bool_t          fpson        EQ(btrue);
 
 /// fps stuff
 EXTERN float           est_max_fps           EQ( TARGET_FPS );
@@ -163,6 +161,7 @@ EXTERN Uint8                   messageon      EQ( btrue );         ///< Messages
 EXTERN int                     maxmessage     EQ( MAX_MESSAGE );
 EXTERN int                     wraptolerance  EQ( 80 );            ///< Status bar
 EXTERN bool_t                  wateron        EQ( btrue );         ///< Water overlays?
+EXTERN bool_t				   fpson		  EQ( btrue );		   ///< Show FPS?
 
 /// EWWWW. GLOBALS ARE EVIL.
 

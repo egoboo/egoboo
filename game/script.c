@@ -1417,7 +1417,7 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
             op = "DIV";
             if ( iTmp != 0 )
             {
-                pstate->operationsum /= iTmp;
+                pstate->operationsum = ((float)pstate->operationsum) / iTmp;
             }
             else
             {

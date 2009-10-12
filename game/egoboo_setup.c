@@ -99,9 +99,6 @@ void egoboo_config_init()
     cfg_default.scrz_req              = 8;                // Screen z-buffer depth ( 8 unsupported )
     cfg_default.scrx_req              = 640;               // Screen X size
     cfg_default.scry_req              = 480;               // Screen Y size
-    cfg_default.message_count_req     = 6;
-    cfg_default.message_duration      = 50;                     // Time to keep the message alive
-    cfg_default.StatusList_on                = btrue;               // Draw the status bars?
     cfg_default.use_perspective       = bfalse;      // Perspective correct textures?
     cfg_default.use_dither            = bfalse;           // Dithering?
     cfg_default.reflect_fade          = btrue;            // 255 = Don't fade reflections
@@ -129,8 +126,13 @@ void egoboo_config_init()
     cfg_default.sound_channel_count   = 16;      // Max number of sounds playing at the same time
     cfg_default.sound_buffer_size     = 2048;
 
-    // {CONTROL}
-    cfg_default.autoturncamera        = 255;             // Type of camera control...
+	// {GAME}
+    cfg_default.message_count_req     = 6;
+    cfg_default.message_duration      = 50;                     // Time to keep the message alive
+    cfg_default.StatusList_on         = btrue;               // Draw the status bars?
+    cfg_default.feedback			  = FEEDBACK_TEXT;    // What feedback does the player want
+	cfg_default.difficulty			  = GAME_NORMAL;      // What is the current game difficulty
+    cfg_default.autoturncamera        = 255;              // Type of camera control...
 
     // {NETWORK}
     cfg_default.network_allowed       = bfalse;            // Try to connect?
@@ -144,7 +146,7 @@ void egoboo_config_init()
     cfg_default.hide_mouse        = btrue;
     cfg_default.dev_mode          = bfalse;
     cfg_default.sdl_image_allowed = btrue;    // Allow advanced SDL_Image functions?
-    cfg_default.difficulty        = GAME_NORMAL;    // What is the current game difficulty
+    
 }
 
 //--------------------------------------------------------------------------------------------
@@ -383,6 +385,8 @@ bool_t setup_download(egoboo_config_t * pcfg)
     if ( 'N' == toupper(lTempStr[0]) )  pcfg->difficulty = GAME_NORMAL;
     if ( 'H' == toupper(lTempStr[0]) )  pcfg->difficulty = GAME_HARD;
 
+	GetKey_int( "FEEDBACK", pcfg->feedback, cfg_default.feedback );
+    
     return btrue;
 }
 
@@ -599,6 +603,9 @@ bool_t setup_upload( egoboo_config_t * pcfg )
         default:
         case GAME_NORMAL:       SetKey_string( "DIFFICULTY_MODE", "NORMAL" ); break;
     }
+
+    // Feedback type
+    SetKey_int( "FEEDBACK", pcfg->feedback );
 
     return btrue;
 }

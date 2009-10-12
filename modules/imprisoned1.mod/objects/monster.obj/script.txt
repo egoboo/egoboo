@@ -1,0 +1,186 @@
+//Life drain
+IfScoredAHit
+  tmpargument = 256
+  HealSelf
+  
+IfHitGround
+  tmpargument = 4
+  tmpdistance = SPAWNORIGIN
+  tmpx = 0
+  tmpy = 0
+  SpawnParticle
+  
+//Run the AI
+IfTimeOut
+  tmpargument = 10
+  SetTime
+
+  //Inside the class container?
+  IfHeld
+    KeepAction
+    tmpargument = 50
+    SetDamageTime
+    tmpargument = 0
+    SetState
+  Else
+    IfStateIs0
+      UnkeepAction
+      tmpargument = 1
+      SendMessageNear
+      SetState
+      tmpargument = 2
+      PlaySound
+      tmpargument = TEAMM
+      JoinTeam                //We are on no-one's side!
+     
+  IfStateIs1
+    //Taunt
+    tmpx = rand & 255
+    tmpy = 250
+    IfXIsMoreThanY
+      tmpargument = 5
+      PlaySound
+      
+    //Magic glow      
+    tmpargument = 6
+    tmpdistance = SPAWNORIGIN
+    tmpx = 0
+    tmpy = 0
+    SpawnParticle
+
+    SetTurnModeToVelocity
+    SetTargetToWideEnemy
+      
+      //Attack
+      tmpx = targetdistance
+      tmpy = 200
+      IfXIsLessThanY
+        IfFacingTarget
+          tmpargument = rand & 1 + LATCHLEFT
+          PressLatchButton
+      
+      tmpx = targetdistance
+      tmpy = 128*3
+      IfXIsMoreThanY				//ranged attack
+        tmpargument = ACTIONUA
+        DoAction
+        tmpargument = 7
+        tmpdistance = GRIPLEFT
+        tmpx = 0
+        tmpy = 0
+        SpawnParticle
+      
+      tmpx = targetdistance
+      tmpy = 128*5
+      IfXIsMoreThanY				//Charge
+        tmpargument = 100
+        SetTime
+        SetTurnModeToWatchTarget
+        tmpargument = LATCHJUMP
+        PressLatchButton
+        tmpx = targetx
+        tmpy = targety
+        tmpdistance = 1500
+        tmpturn = targetturnto
+        Compass
+        
+      //Attack
+      Else					
+        tmpargument = 10
+        SetTime
+        SetTurnModeToWatchTarget
+        tmpx = rand & 256 - 128 + targetx
+        tmpy = rand & 256 - 128 + targety
+        tmpdistance = 200
+        tmpturn = targetturnto
+        Compass
+        
+    //Wander
+    Else
+      tmpargument = 45
+      SetTime
+      tmpx = rand & 1023 - 512 + selfspawnx
+      tmpy = rand & 1023 - 512 + selfspawny
+    ClearWaypoints
+    AddWaypoint
+    
+//------------------------------------------------------------------------------
+// ZZ> Handle death by sending a message and other stuff
+IfKilled
+  tmpargument = 1
+  ChangeArmor
+
+  tmpargument = 0
+  SendMessageNear
+
+  // Drop goodies
+  tmpargument = selfmoney
+  DropMoney
+
+  // Play the sound
+  tmpargument = 1
+  PlaySound
+
+  // Make the character body
+  tmpargument = 25
+  SetBumpHeight
+
+//------------------------------------------------------------------------------
+//Retreat... cowardly tactics
+IfAttacked
+  SetTargetToWhoeverAttacked
+  tmpx = rand & 1
+  tmpy = 0
+  IfXIsEqualToY
+    IfTargetIsOnHatedTeam
+      tmpx = targetdistance
+      tmpy = 300
+      IfXIsLessThanY
+        SetTargetToWhoeverAttacked
+        tmpx = targetx
+        tmpy = targety
+        tmpdistance = 1500
+        tmpturn = rand
+        Compass
+        ClearWaypoints
+        AddWaypoint
+        tmpargument = 120
+        SetTime
+        tmpargument = LATCHJUMP
+        PressLatchButton
+      
+  // Image changes with damage
+  tmpx = selflife
+  tmpy = 2048
+  IfXIsLessThanY
+    tmpargument = 1
+    ChangeArmor
+
+  // Scream
+  tmpargument = rand & 1 + 3
+  PlaySound
+
+
+//------------------------------------------------------------------------------
+IfBumped
+  SetTargetToWhoeverBumped
+  IfTargetIsOnHatedTeam
+    IfFacingTarget
+      tmpargument = rand & 1 + LATCHLEFT
+      PressLatchButton
+    Else
+      tmpx = targetx
+      tmpy = targety
+      tmpdistance = 200
+      tmpturn = targetturnto
+      Compass
+      ClearWaypoints
+      AddWaypoint
+      tmpargument = 10
+      SetTime
+  Else
+    SetTargetToOldTarget
+
+//------------------------------------------------------------------------------
+End
+//------------------------------------------------------------------------------

@@ -1,0 +1,30 @@
+// This file contains passage rectangles, which are areas that behave like
+// an invisible wall when closed or a floor when open.  Passages are used
+// primarily in doors, but could have other uses.
+//                   TopleftXY  BottomrightXY  Open    ShootThrough  SlippyClose
+
+00 CentralDoor:         13 37      14 38          F       F             F
+01 CentralDoorOpen:     12 37      15 38          T       T             F
+02 RightDoor:           7  47      8  48          F       F             F
+03 RightDoorOpen:       7  46      8  49          T       T             F
+04 LeftDoor:            7  27      8  28          F       F             F
+05 LeftDoorOpen:        7  26      8  29          T       T             F
+06 LeftDoorTwo:         14 12      15 13          F       F             F
+07 LeftDoorTwoOpen:     13 12      16 13          T       T             F
+08 LeftDoorMiddle:      24 27      25 28          F       F             F
+09 LeftDoorMiddleOpen:  24 26      25 29          T       T             F
+10 PsychDoor:           38 27      39 28          F       F             F
+11 PsychOpen:           38 26      39 29          T       T             F
+12 LeftToPsychDoor:     33 13      34 14          F       F             F
+13 LeftToPsychOpen:     32 13      35 14          T       T             F
+14 LichDoor:            48 47      49 50          F       F             F
+15 LichDoorOpen:        48 46      49 47          T       T             F
+16 WizardDoor:          34 47      35 48          F       F             F
+17 WizardDoorOpen:      34 46      35 49          T       T             F
+18 GemToMiddleDoor:     20 47      21 48          F       F             F
+19 GemToMiddleOpen:     20 46      21 49          T       T             F
+20 GemToWizardDoor:     26 58      27 59          F       F             F
+21 GemToWizardOpen:     25 58      28 59          T       T             F
+22 RightToGemDoor:      14 55      15 56          F       F             F
+23 RightToGemOpen:      13 55      16 56          T       T             F
+24 TokenHand:           48 37      49 38          T       T             F

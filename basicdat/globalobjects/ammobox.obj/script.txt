@@ -69,6 +69,7 @@ IfUsed
       tmpargument = 5
       SendMessageNear			//Its all wet!
   Else
+    SetTargetToWhoeverIsHolding
     tmpargument = 3
     SendMessageNear			//Nothing to reload
 

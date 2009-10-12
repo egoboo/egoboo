@@ -1,0 +1,4 @@
+Message 0: %t_killed_a_%c!
+Message 1: The_%c_was_smashed!
+Message 2: Watch_out_%t!_That's_a_%c!
+Message 0: The_%c_destroyed_itself...

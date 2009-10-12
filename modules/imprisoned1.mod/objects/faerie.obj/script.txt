@@ -1,0 +1,17 @@
+//Circle around the statue... thats it
+IfTimeOut
+  tmpargument = [PILL]
+  tmpdistance = 14 // Items, friends and enemies
+  SetTargetToNearestBlahID
+  tmpx = targetx
+  tmpy = targety
+  tmpturn = xyturnto + 16384
+  tmpdistance = 400
+  Compass
+  ClearWaypoints
+  AddWaypoint
+  tmpargument = rand & 31 + 20
+  SetTime
+
+// All done
+End

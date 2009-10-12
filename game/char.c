@@ -1954,7 +1954,7 @@ bool_t character_grab_stuff( Uint16 ichr_a, grip_offset_t grip_off, bool_t grab_
         fvec3_t   vforward;
 
         //---- generate billboards for things that players can interact with
-        if( pchr_a->isplayer )
+        if( cfg.feedback && pchr_a->isplayer )
         {
             // things that can be grabbed (5 secs and green)
             for ( cnt = 0; cnt < grab_count; cnt++ )
@@ -3156,7 +3156,7 @@ int damage_character( Uint16 character, Uint16 direction,
             }
 
             /// @test spawn a fly-away damage indicator?
-            if( attacker != character && ACTIVE_CHR(attacker) )
+            if( cfg.feedback && attacker != character && ACTIVE_CHR(attacker) )
             {
                 char * tmpstr;
                 int rank;
@@ -3168,8 +3168,10 @@ int damage_character( Uint16 character, Uint16 direction,
                 tmpstr = describe_value(actual_damage, 10 * 256, &rank);
                 if( rank < 4 )
                 {
-                    tmpstr = describe_damage(actual_damage, pchr->lifemax, &rank);
-                    if( rank >= -1 && rank <= 0 )
+                    if( cfg.feedback == FEEDBACK_TEXT ) tmpstr = describe_damage(actual_damage, pchr->lifemax, &rank);
+                    else snprintf( tmpstr, SDL_arraysize(tmpstr), "%2.1f", FP8_TO_FLOAT(actual_damage) );
+					
+					if( rank >= -1 && rank <= 0 )
                     {
                         tmpstr = NULL;
                     }
@@ -3210,16 +3212,17 @@ int damage_character( Uint16 character, Uint16 direction,
             }
 
             /// @test spawn a fly-away heal indicator?
-            if( attacker != character && ACTIVE_CHR(attacker) )
+			if( cfg.feedback && attacker != character && ACTIVE_CHR(attacker) )
             {
                 const float lifetime = 3;
                 billboard_data_t * pbb;
                 STRING text_buffer = EMPTY_CSTR;
                 SDL_Color color = {0xFF, 0xFF, 0xFF, 0xFF};
 
-                //snprintf( text_buffer, SDL_arraysize(text_buffer), "%2.1f", FP8_TO_FLOAT(-actual_damage) );
-                snprintf( text_buffer, SDL_arraysize(text_buffer), "%s", describe_value(-actual_damage, damage.base + damage.rand, NULL) );
 
+				if( cfg.feedback == FEEDBACK_TEXT ) snprintf( text_buffer, SDL_arraysize(text_buffer), "%s", describe_value(-actual_damage, damage.base + damage.rand, NULL));
+                else snprintf( text_buffer, SDL_arraysize(text_buffer), "%2.1f", FP8_TO_FLOAT(-actual_damage) );
+					
                 pbb = chr_make_text_billboard( character, text_buffer, color, 3 );
                 if( NULL != pbb )
                 {
@@ -7455,7 +7458,7 @@ const char* describe_value( float value, float maxval, int * rank_ptr )
 //---------------------------------------------------------------------------------------------
 const char* describe_damage( float value, float maxval, int * rank_ptr )
 {
-    /// @details ZF@> This converts a stat number into a more descriptive word
+    /// @details ZF@> This converts a damage value into a more descriptive word
 
     static STRING retval;
 
@@ -7473,6 +7476,7 @@ const char* describe_damage( float value, float maxval, int * rank_ptr )
     else if( fval >= 1.00 ) { strcpy(retval, "Overkill!");     *rank_ptr =  3; }
     else if( fval >= 0.80 ) { strcpy(retval, "Crippling");     *rank_ptr =  2; }
     else if( fval >= 0.50 ) { strcpy(retval, "Devastating");   *rank_ptr =  1; }
+    else if( fval >= 0.40 ) { strcpy(retval, "It's ");   *rank_ptr =  1; }
     else if( fval >= 0.25 ) { strcpy(retval, "Hurtful");       *rank_ptr =  0; }
     else if( fval >= 0.10 ) { strcpy(retval, "A Scratch");     *rank_ptr = -1; }
     else if( fval >= 0.05 ) { strcpy(retval, "Ticklish");      *rank_ptr = -2; }

@@ -1,0 +1,158 @@
+//----------------------------------------------------------------------------
+//Setup character
+IfSpawned
+  SetTargetToSelf
+  EnchantTarget
+  MakeCrushValid
+  tmpargument = STATEGUARD
+  SetState
+    
+  //Randomize carpet type
+  tmpargument = 0
+  IfContentIs
+    tmpargument = rand % 4
+    ChangeArmor
+    tmpargument = 1
+    SetContent
+
+//----------------------------------------------------------------------------
+//Engulf enemies
+IfStateIsGuard
+  tmpdistance = 100
+  SetTargetToDistantEnemy           //Try to grab them!
+    tmpargument = ACTIONUA
+    DoAction
+    KeepAction
+    tmpargument = STATECHARGE
+    SetState
+    tmpargument = 30
+    SetTime
+    tmpargument = 0
+    PlaySound
+  Else
+    tmpargument = ACTIONDA        //Just lie there
+    DoAction
+IfStateIsWander
+  UnkeepAction
+  tmpdistance = 100
+  SetTargetToDistantEnemy           //Try to grab them!
+    tmpargument = ACTIONUA
+    DoAction
+    KeepAction
+    tmpargument = STATECHARGE
+    SetState
+    tmpargument = 30
+    SetTime
+    tmpargument = 0
+    PlaySound
+    
+//----------------------------------------------------------------------------
+//Main AI loop
+IfTimeOut
+
+  IfStateIsGuard
+    tmpargument = 30
+    tmpx = selfspawnx
+    tmpy = selfspawny
+    ClearWaypoints
+    AddWaypoint
+
+  IfStateIsWander
+    tmpargument = 30
+    SetTime
+    SetTargetToWideEnemy
+      tmpx = rand & 511 + targetx - 256
+      tmpy = rand & 511 + targety - 256
+      tmpdistance = 600
+      tmpturn = targetturnto
+      Compass
+      ClearWaypoints
+      AddWaypoint
+    Else
+      tmpargument = STATEGUARD
+      SetState
+
+  //Did we catch them?
+  IfStateIsCharge
+    tmpargument = STATEWANDER
+    SetTargetToRider
+      IfTargetIsOnHatedTeam
+        tmpargument = 2
+        SendMessageNear
+        tmpargument = STATECOMBAT
+      Else
+        DropWeapons           //oops... Drop friendlies
+    SetState
+      
+  //Engulfing a enemy
+  IfStateIsCombat
+    UnkeepAction
+    SetTargetToRider      
+      tmpargument = rand & 1
+      PlaySound
+
+      //Deal 1 damage every second
+      tmpargument = 50
+      SetTime
+      tmpargument = 512
+      DamageTarget
+    Else                                //They somehow escaped... teleport?
+      tmpargument = STATEWANDER
+      SetState
+      
+//----------------------------------------------------------------------------
+//Make it look like their struggeling
+IfStateIsCombat
+  tmpargument = ACTIONMJ
+  DoAction
+IfTargetKilled
+  SetTargetToNearbyEnemy
+    tmpargument = STATEWANDER
+    SetState
+  Else
+    tmpargument = STATEGUARD
+    SetState
+//----------------------------------------------------------------------------
+//Ouch!
+IfAttacked
+  IfStateIsGuard
+    tmpargument = STATEWANDER
+    SetState
+  tmpargument = 1
+  PlaySound
+
+//----------------------------------------------------------------------------
+IfKilled
+  IfTargetIsSelf
+    tmpargument = 3
+  Else
+    tmpargument = 0
+  SendMessageNear
+  tmpargument = 2
+  PlaySound
+  GoPoof
+  
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  tmpargument = 0
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+
+//----------------------------------------------------------------------------
+IfCrushed
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  tmpargument = 1
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  GoPoof
+  tmpargument = 1
+  SendMessageNear
+    
+End					// All done

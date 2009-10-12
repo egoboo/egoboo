@@ -1114,10 +1114,10 @@ bool_t doChoosePlayer_show_stats( int player, int mode, int x, int y, int width,
 
             //SWID
             fnt_drawText( menuFont, x1, y1, "Stats" ); y1 += 20;
-            fnt_drawText( menuFont, x1, y1, "  Str: %s (%d)", describe_value( pcap->strength_stat.val.from,     PERFECTSTAT, NULL ), (int)pcap->strength_stat.val.from      ); y1 += 20;
-            fnt_drawText( menuFont, x1, y1, "  Wis: %s (%d)", describe_value( pcap->wisdom_stat.val.from,       PERFECTSTAT, NULL ), (int)pcap->wisdom_stat.val.from        ); y1 += 20;
-            fnt_drawText( menuFont, x1, y1, "  Int: %s (%d)", describe_value( pcap->intelligence_stat.val.from, PERFECTSTAT, NULL ), (int)pcap->intelligence_stat.val.from  ); y1 += 20;
-            fnt_drawText( menuFont, x1, y1, "  Dex: %s (%d)", describe_value( pcap->dexterity_stat.val.from,    PERFECTSTAT, NULL ), (int)pcap->dexterity_stat.val.from     ); y1 += 20;
+            fnt_drawText( menuFont, x1, y1, "  Str: %s (%d)", describe_value( pcap->strength_stat.val.from,     60, NULL ), (int)pcap->strength_stat.val.from      ); y1 += 20;
+            fnt_drawText( menuFont, x1, y1, "  Wis: %s (%d)", describe_value( pcap->wisdom_stat.val.from,       60, NULL ), (int)pcap->wisdom_stat.val.from        ); y1 += 20;
+            fnt_drawText( menuFont, x1, y1, "  Int: %s (%d)", describe_value( pcap->intelligence_stat.val.from, 60, NULL ), (int)pcap->intelligence_stat.val.from  ); y1 += 20;
+            fnt_drawText( menuFont, x1, y1, "  Dex: %s (%d)", describe_value( pcap->dexterity_stat.val.from,    60, NULL ), (int)pcap->dexterity_stat.val.from     ); y1 += 20;
             y1 += 20;
 
             if ( objects.count > 1 )
@@ -2070,6 +2070,7 @@ int doGameOptions( float deltaTime )
         "N/A",        // Message duration
         "N/A",        // Autoturn camera
         "N/A",        // Show FPS
+        "N/A",        // Feedback
         "Save Settings",
         ""
     };
@@ -2152,6 +2153,14 @@ int doGameOptions( float deltaTime )
             if ( cfg.fps_allowed ) sz_buttons[4] = "On";
             else                   sz_buttons[4] = "Off";
 
+			//Billboard feedback
+			if( !cfg.feedback ) sz_buttons[5] = "Disabled";
+			else
+			{
+				if( cfg.feedback == FEEDBACK_TEXT ) sz_buttons[5] = "Enabled";
+				else							  sz_buttons[5] = "Debug";
+			}
+
             // Fall trough
             menuState = MM_Running;
             break;
@@ -2203,9 +2212,10 @@ int doGameOptions( float deltaTime )
             str_add_linebreaks( szDifficulty, SDL_arraysize(szDifficulty), 30 );
             ui_drawTextBox( menuFont, szDifficulty, buttonLeft, 100, 0, 0, 20 );
 
-            // Text messages
+
+			// Text messages
             ui_drawTextBox( menuFont, "Max  Messages:", buttonLeft + 350, 50, 0, 0, 20 );
-            if ( BUTTON_UP == ui_doButton( 12, sz_buttons[1], menuFont, buttonLeft + 515, 50, 75, 30 ) )
+            if ( BUTTON_UP == ui_doButton( 2, sz_buttons[1], menuFont, buttonLeft + 515, 50, 75, 30 ) )
             {
                 cfg.message_count_req++;
                 if ( cfg.message_count_req > MAX_MESSAGE) cfg.message_count_req = 0;
@@ -2285,8 +2295,28 @@ int doGameOptions( float deltaTime )
                 else                     sz_buttons[4] = "Off";
             }
 
+			// Feedback
+            ui_drawTextBox( menuFont, "Floating Text:", buttonLeft + 350, 250, 0, 0, 20 );
+            if ( BUTTON_UP == ui_doButton( 6, sz_buttons[5], menuFont, buttonLeft + 515, 250, 75, 30 ) )
+            {
+				if( cfg.dev_mode )
+				{
+					cfg.feedback += 1;
+					if( cfg.feedback > FEEDBACK_NUMBER ) cfg.feedback = FEEDBACK_OFF;
+				}
+				else cfg.feedback = !cfg.feedback;
+				
+				switch( cfg.feedback )
+				{
+					case FEEDBACK_OFF:	  sz_buttons[5] = "Disabled"; break;
+					case FEEDBACK_TEXT:	  sz_buttons[5] = "Enabled";  break;
+					case FEEDBACK_NUMBER: sz_buttons[5] = "Debug";	  break;
+				}
+            }
+
+
             // Save settings
-            if ( BUTTON_UP == ui_doButton( 6, sz_buttons[5], menuFont, buttonLeft, GFX_HEIGHT - 60, 200, 30 ) )
+            if ( BUTTON_UP == ui_doButton( 7, sz_buttons[6], menuFont, buttonLeft, GFX_HEIGHT - 60, 200, 30 ) )
             {
                 // synchronoze the config values with the various game subsystems
                 setup_synch( &cfg );

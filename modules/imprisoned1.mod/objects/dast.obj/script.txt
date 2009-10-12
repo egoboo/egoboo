@@ -1,0 +1,43 @@
+// ZZ> This function makes an item fall to the floor when spawned
+IfSpawned				//
+  tmpargument = ACTIONJB		  //
+  DoAction				  //
+  KeepAction				  //
+
+IfGrabbed
+  SetTargetToWhoeverIsHolding		  //
+  IfTargetIsAPlayer			  //
+    tmpargument = 0			  //
+    SendMessageNear			  //
+
+IfUsed
+  IfStateIs0
+    SetTargetToWhoeverIsHolding
+    tmpargument = [READ]
+    IfTargetHasSkillID
+      IfNameIsKnown
+        DoNothing
+      Else
+        MakeNameKnown
+        tmpargument = 15
+        tmpdistance = EXPSECRET   //give some xp
+        GiveExperienceToTarget
+      tmpargument = 2
+    Else
+      tmpargument = 1           //cant read!
+    SetState
+    SendMessageNear
+    tmpargument = 100
+    SetTime
+
+IfTimeOut
+  tmpargument = 100
+  SetTime
+  tmpargument = 0
+  SetState
+
+IfHitGround				// Make a sound
+  tmpargument = 0			  //
+  PlaySound				  //
+
+End					// All done

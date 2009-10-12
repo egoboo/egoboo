@@ -1,0 +1,55 @@
+//This is a generic valuable gem object
+
+//This function makes an item fall to the floor when spawned
+IfSpawned
+  tmpargument = ACTIONJB
+  DoAction
+  KeepAction
+
+IfDropped				// Make it lie on floor
+  KeepAction
+
+IfGrabbed				// Tell them what they've won, Johnny!
+  SetTargetToWhoeverIsHolding
+  IfTargetIsAPlayer
+    tmpargument = 0
+    SendMessageNear
+    
+IfHitGround
+  tmpargument = 0
+  PlaySound
+  tmpargument = ACTIONDB
+  DoAction
+
+//Maybe the character identifies the gem?
+IfUsed
+  SetTargetToWhoeverIsHolding
+  tmpargument = 50
+  SetReloadTime
+  
+  IfNameIsKnown
+    SetTargetToSelf
+    tmpargument = 4 + targetarmor
+    SendMessageNear
+  
+  Else
+    //Intelligence checks show if others find it out
+    tmpx = targetint
+    tmpy = rand % 256 * 10 + 2750
+    IfXIsMoreThanY
+      // Character identifies the gem
+      tmpargument = 2
+      SendMessageNear
+      SetTargetToSelf
+      tmpargument = 4 + targetarmor
+      SetTargetToWhoeverIsHolding
+      SendMessageNear
+      MakeNameKnown
+      tmpargument = 10
+      tmpdistance = EXPSECRET
+      GiveExperienceToTarget
+    Else
+      tmpargument = 8
+      SendMessageNear      
+
+End					// All done

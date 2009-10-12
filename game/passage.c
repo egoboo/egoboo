@@ -232,7 +232,7 @@ Uint16 who_is_blocking_passage( Uint16 passage, bool_t targetitems, bool_t targe
         if( pchr->pack_ispacked || pchr->attachedto != MAX_CHR ) continue;
 
         // do not do invulnerable or scenery items
-        if ( pchr->invictus || pchr->phys.weight == 0xFFFFFFFF ) continue;
+		if ( (pchr->invictus && !pchr->isitem) || pchr->phys.weight == 0xFFFFFFFF ) continue;
 
         //Do items?
         if( !targetitems && pchr->isitem ) continue;

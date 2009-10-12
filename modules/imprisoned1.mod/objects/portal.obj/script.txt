@@ -1,0 +1,37 @@
+//  Offhand peculiarities noticed while scripting:
+//   Crushing will have no effect on an object that has bump
+//   dimensions of zero.
+
+IfSpawned
+  tmpargument = 50
+  SetTime  
+  
+  tmpargument = 0
+  PlaySoundLooped
+  
+  //Win!
+  tmpargument = 100
+  tmpdistance = EXPQUEST
+  GiveExperienceToGoodTeam
+  tmpargument = 14
+  tmpdistance = 500
+  PlayMusic
+  
+  tmpargument = ACTIONMJ
+  DoAction
+  KeepAction
+
+//Sucking effect
+tmpargument = 0
+tmpdistance = SPAWNORIGIN
+tmpx = 0
+tmpy = 0
+SpawnParticle
+
+//End the module if entered
+IfBumped
+  tmpargument = [BEAT]
+  tmpdistance = [BEAT]
+  OrderSpecialID
+
+End

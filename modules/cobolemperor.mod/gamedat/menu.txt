@@ -1,7 +1,7 @@
 Module Name :The_Cobol_Emperor's_Palace
 Reference Directory :NONE
 Required reference IDSZ :[COBO] 0
-Number of imports ( 0 to 4 ) :3
+Number of imports ( 0 to 4 ) :4
 Exporting ( TRUE or FALSE ) :FALSE
 Minimum players ( 1 to 4 ) :1
 Maximum players ( 1 to 4 ) :4

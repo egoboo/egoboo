@@ -1,0 +1,154 @@
+IfSpawned
+  tmpargument = STATEWANDER
+  SetState
+
+//------------------------------------------------------------------------------
+//Hit by silver
+IfHitVulnerable
+  SetTargetToSelf
+  tmpargument = rand & 1280 + 1024	//4-9 damage
+  tmpargument = DAMAGEHOLY
+  DamageTarget
+  SetTargetToOldTarget
+  
+//------------------------------------------------------------------------------
+IfTimeOut
+  SetTurnModeToVelocity
+  tmpargument = 0
+  SetContent              //reset talk timeout
+  
+  //moanin' ghost
+  tmpx = rand & 255
+  tmpy = 250
+  IfXIsMoreThanY
+    tmpargument = 7
+    PlaySound
+  
+  //Wander around aimlessly...
+  IfStateIsWander
+    tmpargument = rand % 100 + 60
+    SetTime
+    Sneak
+    tmpx = rand & 1023 + selfspawnx - 512
+    tmpy = rand & 1023 + selfspawny - 512
+    ClearWaypoints
+    AddWaypoint
+    
+  //Mean ghostie
+  IfStateIsCombat
+    tmpargument = 40
+    SetTime
+    Run
+    SetTargetToWideEnemy
+      tmpx = targetdistance		//Close enough?
+      tmpy = 150
+      IfXIsLessThanY
+        tmpargument = rand & 1 + LATCHLEFT    //attack!
+        PressLatchButton
+
+      //Move towards enemy
+      tmpx = targetx
+      tmpy = targety			
+      ClearWaypoints
+      AddWaypoint
+      
+      tmpx = rand % 100			//Sometimes charge instead
+      tmpy = 10				//10%
+      IfXIsLessThanY
+        tmpx = targetx
+        tmpy = targety
+        tmpturn = targetturnto
+        tmpdistance = 700
+        ClearWaypoints
+        AddWaypoint
+    Else
+      tmpx = rand & 1023 + selfspawnx - 512
+      tmpy = rand & 1023 + selfspawny - 512
+      ClearWaypoints
+      AddWaypoint
+      
+  //Go away, no longer needed
+  IfStateIsParry
+    SpawnPoof
+    DropItems         //drop the quest item
+    GoPoof
+      
+//------------------------------------------------------------------------------
+//This makes ghosts fly up and down
+IfStateIsCombat
+  tmpx = targetz
+  tmpy = selfz
+  IfXIsMoreThanY
+    IfTargetIsOnHatedTeam
+      tmpargument = rand & 30 - 15 + targetz
+      SetFlyHeight
+  Else
+    tmpargument = 38
+    SetFlyHeight		//Reset to normal
+
+//------------------------------------------------------------------------------
+IfKilled
+  SetTargetToWhoeverAttacked
+  tmpargument = 0
+  SendMessageNear
+  PlaySound
+  DropItems           //drop the quest item
+  SpawnPoof
+  GoPoof
+  
+//------------------------------------------------------------------------------
+IfAttacked
+
+  //Become mean ghost
+  IfStateIsWander
+    tmpargument = TEAME
+    JoinTeam
+    tmpargument = STATECOMBAT
+    SetState
+    
+  //Ouch
+  tmpargument = rand & 1 + 5
+  PlaySound
+  
+//------------------------------------------------------------------------------
+//Talk to friendlies
+IfBumped
+  SetTargetToWhoeverBumped
+  tmpargument = 0
+  IfContentIs                 //dont loop
+    IfTargetIsAPlayer
+      IfStateIsWander
+        tmpargument = 1
+        SetContent
+        
+        //Dont move around
+        ClearWaypoints
+        tmpx = selfx
+        tmpy = selfy
+        AddWaypoint
+        SetTurnModeToWatchTarget
+        tmpargument = 120
+        SetTime
+        
+        //Do they have our book?
+        tmpargument = [DAST]          //Dusty Ancient Spell Tome
+        CostTargetItemID
+          tmpargument = 90
+          tmpdistance = EXPQUEST
+          GiveExperienceToGoodTeam
+          
+          tmpargument = 4
+          SendMessageNear
+          PlayFullSound
+          
+          //Poof away state
+          tmpargument = STATEPARRY
+          SetState
+        Else
+          //Talk about a spell book
+          tmpargument = rand % 3 + 1
+          PlaySound
+          SendMessageNear
+//------------------------------------------------------------------------------
+End
+//------------------------------------------------------------------------------

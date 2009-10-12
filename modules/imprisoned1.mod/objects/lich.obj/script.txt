@@ -1,0 +1,227 @@
+//-----------------------------------------------------------------------
+//Haha! Player was killed
+IfTargetIsAPlayer
+  tmpargument = 0
+  GetXY
+  IfXIsEqualToY
+    tmpx = tmpx + 1
+    SetXY
+    tmpargument = 4
+    PlayFullSound
+    SendMessage
+  IfTargetKilled
+    tmpargument = 6
+    PlayFullSound
+    tmpargument = 3
+    SendMessage
+    SetTargetToSelf
+    tmpargument = STATEWANDER
+    SetState
+
+//------------------------------------------------------------------------------
+//Put on some eyes
+IfSpawned
+  tmpargument = 6
+  tmpdistance = 9
+  SpawnAttachedParticle
+  tmpdistance = 10
+  SpawnAttachedParticle
+  
+  tmpargument = STATEWANDER
+  SetState
+
+//------------------------------------------------------------------------------
+// Handle death by sending a message and other stuff
+IfKilled
+  tmpargument = 3
+  PlayFullSound
+
+  // Send messages
+  IfTargetIsOnHatedTeam
+    tmpargument = 0
+  Else
+    tmpargument = 1
+  SendMessageNear
+
+  // Drop goodies
+  tmpargument = selfmoney
+  DropMoney
+  DropItems
+  DropKeys
+
+  // Put out the eyes
+  DisaffirmCharacter
+  SpawnPoof
+  SpawnPoof
+  SpawnPoof
+  SpawnPoof
+
+  // Make the character body
+  tmpargument = 45
+  SetBumpHeight
+  
+  //Spawn the treasure reward
+  tmpargument = 84
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  tmpturn = rand
+  SpawnExactCharacterXYZ
+
+//------------------------------------------------------------------------------
+// ZZ> Keep 'em guessin'
+IfAttacked
+  tmpargument = rand & 2
+  PlaySound
+
+//------------------------------------------------------------------------------
+//Main AI loop
+IfTimeOut
+  CleanUp     //Make ghouls ressurect
+  SetTurnModeToVelocity
+  tmpargument = 20
+  SetTime
+  
+  //Be a coward
+  tmpx = rand & 255
+  tmpy = 225
+  IfXIsMoreThanY
+    tmpargument = STATERETREAT
+    SetState
+  
+  IfStateIsCombat
+    IfFacingTarget
+      tmpx = targetdistance
+      tmpy = 128*8
+      IfXIsLessThanY
+        tmpy = 128*3
+        IfXIsMoreThanY            //Use far range spells from distance
+          tmpargument = 0
+          SetContent
+          tmpargument = STATECHARGE
+          SetState
+    tmpx = targetx
+    tmpy = targety
+    ClearWaypoints
+    AddWaypoint
+    
+  IfStateIsCharge
+    SetTurnModeToWatchTarget
+    tmpx = targetx
+    tmpy = targety
+    tmpturn = targetturnto
+    tmpdistance = -600
+    ClearWaypoints
+    AddWaypoint
+    
+  IfStateIsWander
+    // Go after enemies
+    SetTargetToWideEnemy
+      tmpargument = STATECOMBAT
+      SetState
+      tmpx = targetx
+      tmpy = targety
+    Else
+      // Wander around
+      tmpargument = rand & 15 + 25
+      SetTime
+      tmpx = rand & 511 - 256 + selfspawnx
+      tmpy = rand & 511 - 256 + selfspawny
+    ClearWaypoints
+    AddWaypoint
+    
+  IfStateIsParry
+    //Halfway through a teleport
+    tmpargument = rand & 15 + 35
+    SetTime
+    tmpargument = 7
+    tmpdistance = selfz
+    tmpx = selfx
+    tmpy = selfy
+    SpawnExactParticle
+    tmpx = rand & 511 - 256 + selfx
+    tmpy = rand & 511 - 256 + selfy
+    Teleport
+    tmpx = rand & 511 - 256 + selfx
+    tmpy = rand & 511 - 256 + selfy
+    Teleport
+    SpawnExactParticle
+    tmpargument = STATEWANDER
+    SetState
+
+    // Face the target
+    tmpx = targetx
+    tmpy = targety
+    ClearWaypoints
+    AddWaypoint
+
+    //Cost some mana
+    SetOldTarget
+    SetTargetToSelf
+    tmpargument = 256
+    CostTargetMana
+    SetTargetToOldTarget
+    
+  IfStateIsRetreat
+    tmpargument = 100
+    SetTime
+    tmpx = targetx
+    tmpy = targety
+    tmpdistance = -3200
+    tmpturn = rand
+    Compass
+    ClearWaypoints
+    AddWaypoint
+    
+    tmpx = selfmana
+    tmpy = 256*3
+    IfXIsMoreThanY
+      tmpargument = STATEWANDER
+      SetState      
+      
+      //Want to start a teleport
+      tmpy = 256*5
+      IfXIsMoreThanY
+        tmpargument = ACTIONMJ
+        DoAction
+          tmpargument = STATEPARRY
+          SetState
+          tmpargument = 40  // Don't let 'em get hit out of it...
+          SetDamageTime
+          tmpargument = 16
+          SetTime
+        Else
+          // Try again in a bit...
+          tmpargument = 5
+          SetTime
+      
+  //Run away if at low mana
+  tmpx = selfmana
+  tmpy = 300
+  IfXIsLessThanY
+    tmpargument = STATERETREAT
+    SetState
+    
+//Charging a spell
+IfStateIsCharge
+  tmpx = selfcontent
+  tmpy = 128*10
+  IfXIsLessThanY
+    tmpargument = LATCHLEFT
+    PressLatchButton
+    tmpargument = selfcontent + 1
+    SetContent
+  Else
+    tmpargument = STATECOMBAT
+    SetState
+    
+IfStateIsCombat
+  tmpx = targetdistance
+  tmpy = 128*3
+  IfXIsLessThanY
+    tmpargument = LATCHRIGHT      //Frost blast if close
+    PressLatchButton
+    
+//------------------------------------------------------------------------------
+End
+//------------------------------------------------------------------------------

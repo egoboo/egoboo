@@ -1,0 +1,145 @@
+// ZZ> This function makes an item fall to the floor when spawned
+IfSpawned				// General stuff
+  MakeAmmoKnown
+  MakeCrushValid
+IfDropped
+  KeepAction
+IfGrabbed
+  UnkeepAction
+
+IfCrushed
+  tmpargument = 3
+  SendMessageNear
+  GoPoof
+
+//Effects
+IfUsed					// Set number of shells to drop
+  UnkeepAction
+  tmpargument = 7
+  SetContent
+  tmpargument = 75
+  SetReloadTime
+
+  // Play the machine gun sound
+  IfAmmoOut
+    tmpargument = 1
+    SendMessageNear
+    tmpargument = 2
+    SetState
+    tmpargument = 3
+    PlayFullSound
+    tmpargument = ACTIONUA
+    IfHeldInLeftHand
+      tmpargument = ACTIONUB
+    DoAction
+  Else
+    tmpargument = 1
+    IfStateIsNot
+      tmpargument = 1
+      SetState
+      tmpargument = 2
+      PlayFullSound
+    //Wake up sleepers
+    tmpargument = [WAKE]
+    tmpdistance = [WAKE]
+    OrderSpecialID  
+
+//Stop whirring
+Else
+  IfStateIs0
+    IfTimeOut
+      tmpargument = ACTIONMM
+      IfHeldInLeftHand
+        tmpargument = ACTIONMN
+      DoAction
+      KeepAction
+      tmpargument = 5
+      SetTime
+
+ 
+// Firing state
+IfStateIs1
+  SetTargetToWhoeverIsHolding
+  StopTargetMovement
+  tmpargument = ACTIONUA
+  IfHeldInLeftHand
+    tmpargument = ACTIONUB
+  DoAction
+
+  IfTimeOut
+    // Down the count
+    GetContent
+    tmpargument = tmpargument - 1
+    SetContent
+
+    // Check ammo
+    IfAmmoOut
+      tmpargument = 0
+      SetState
+
+    //Fire a bullet and drop a shell
+    Else
+      tmpx = selfx
+      tmpy = selfy
+      tmpdistance = selfz
+      tmpargument = 3			//shell
+      SpawnExactParticle
+      tmpargument = 0
+      tmpx = 0
+      tmpy = 0
+      tmpdistance = SPAWNLAST
+      SpawnAttachedParticle
+      CostAmmo
+
+    // Do again in 9 frames
+    tmpargument = 11
+    SetTime
+    
+    //Make some smoke
+    tmpargument = 5
+    tmpx = 0
+    tmpy = 0
+    tmpdistance = SPAWNLAST-1
+    SpawnParticle
+
+    // Stop sound
+    tmpargument = 0
+    IfContentIs
+      SetState
+      tmpargument = 4
+      PlayFullSound
+    
+IfHitGround
+  tmpargument = 6
+  PlaySound
+IfDropped
+  UndoEnchant
+  tmpargument = 0
+  SetState
+
+//Need 17 strength to carry
+IfGrabbed
+  SetTargetToWhoeverIsHolding
+  tmpx = 256*19
+  tmpy = targetstr
+  IfXIsMoreThanY
+    IfTargetIsAPlayer
+      tmpx = tmpx - tmpy > 8
+      tmpargument = 2
+      SendMessageNear
+    DetachFromHolder
+  Else
+    tmpargument = 4
+    SendMessageNear
+    EnchantTarget
+    IfAmmoOut
+      DoNothing
+    Else
+      tmpargument = [GNOM]
+      IfTargetHasID
+        tmpargument = 5
+        PlaySound
+        tmpargument = 0
+        SendMessageNear
+
+End					// All done
