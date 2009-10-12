@@ -1,28 +1,46 @@
 # note if you change the prefix also update egoboo.sh
-EGO_BIN	:= egoboo
-EGO_SRC	:= camera.c char.c client.c clock.c configfile.c egoboo_endian.c \
+PREFIX	:= ${HOME}/.local
+
+EGO_SRC  := \
+	camera.c char.c client.c clock.c egoboo_console.c egoboo_endian.c \
 	egoboo_fileutil.c egoboo_math.c egoboo_setup.c egoboo_strutil.c \
-	ego_wrap.c enchant.c file_common.c file_linux.c font.c \
-	game.c gltexture.c graphic.c graphic_fan.c graphic_mad.c graphic_prt.c \
-	input.c link.c log.c lua_console.c Md2.c menu.c module.c network.c particle.c \
-	passage.c script.c script_compile.c server.c sound.c sys_linux.c ui.c egoboo_console.c mad.c mpd.c
-	
-EGO_OBJ	:= ${EGO_SRC:.c=.o}
+	egoboo_typedef.c egoboo_vfs.c enchant.c file_common.c \
+	file_linux.c font_bmp.c font_ttf.c game.c \
+	graphic.c graphic_fan.c graphic_mad.c graphic_prt.c input.c \
+	link.c log.c mad.c md2.c menu.c mesh.c network.c particle.c \
+	passage.c profile.c quest.c script.c script_compile.c \
+	script_functions.c server.c sound.c sys_linux.c texture.c ui.c
+
+EGO_FILE_FORMAT := $(wildcard ./file_formats/*.c)
+
+EGO_EXTENSIONS := $(wildcard ./extensions/*.c)
+
+EGO_OBJ  := ${EGO_SRC:.c=.o} ${EGO_FILE_FORMAT:.c=.o} ${EGO_EXTENSIONS:.c=.o}
+
+ENET_SRC := \
+	../enet/host.c ../enet/list.c ../enet/memory.c \
+	../enet/packet.c ../enet/peer.c ../enet/protocol.c \
+	../enet/unix.c
+ENET_OBJ := ${ENET_SRC:.c=.o}
 
 SDL_CONF  := sdl-config
 SDLCONF_I := $(shell ${SDL_CONF} --cflags)
 SDLCONF_L := $(shell ${SDL_CONF} --libs)
 
 CC      := gcc
-OPT     := -Os
-INC     := -I. -I../enet/include -I.. ${SDLCONF_I}
+OPT     := -Os -Wall -DPREFIX=\"${PREFIX}\"
+INC     := -I. -I.. -I../enet/include ${SDLCONF_I} -I./file_formats -I./extensions
 CFLAGS  := ${OPT} ${INC}
-LDFLAGS := ${SDLCONF_L} -lSDL_ttf -lSDL_mixer -lGL -lGLU -l../enet/libenet.a
+LDFLAGS := ${SDLCONF_L} -lSDL_ttf -lSDL_mixer -lGL -lGLU -lSDL_image -lphysfs
 
-${EGO_BIN}: ${EGO_OBJ} ${CC} -o $@ $^ ${LDFLAGS}
 
-all:
-	${EGO_BIN}
+EGO_BIN := egoboo-2.x
+
+all: ${EGO_BIN}
+
+${EGO_BIN}: ${EGO_OBJ} ${ENET_OBJ}
+	${CC} -o $@ $^ ${LDFLAGS}
 
 clean:
-	rm -f ${EGO_OBJ} ${EGO_BIN} test_sdl.o test_sdl
+	rm -f ${ENET_OBJ} ${EGO_OBJ} ${EGO_BIN}
+
