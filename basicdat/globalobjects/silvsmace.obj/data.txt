@@ -1,4 +1,4 @@
-Object slot number ( 0 to 63, don't use twice )	: 46
+Object slot number ( 0 to 63, don't use twice )	: -1
 Class name     : Spiked_Mace
 Uniform light  : FALSE
 Maximum ammo   : 0

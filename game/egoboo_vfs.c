@@ -1353,7 +1353,7 @@ const char * _vfs_search( struct s_vfs_search_context * ctxt )
     // test for the end condition again
     if( NULL == ctxt->ptr || NULL == *(ctxt->ptr) )
     {
-        fs_findClose();
+        vfs_findClose();
         retval = NULL;
     }
     else

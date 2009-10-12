@@ -1053,7 +1053,7 @@ bool_t detach_character_from_mount( Uint16 character, Uint8 ignorekurse, Uint8 d
         {
             Uint16 ipro = enc_get_ipro( enchant );
 
-            if( VALID_PRO( ipro ) )
+            if( LOADED_PRO( ipro ) )
             {
                 set_enchant_value( enchant, SETALPHABLEND, ipro );
                 set_enchant_value( enchant, SETLIGHTBLEND, ipro );
@@ -1109,7 +1109,7 @@ void reset_character_alpha( Uint16 character )
         {
             Uint16 ipro = enc_get_ipro( enchant );
 
-            if( VALID_PRO( ipro ) )
+            if( LOADED_PRO( ipro ) )
             {
                 set_enchant_value( enchant, SETALPHABLEND, ipro );
                 set_enchant_value( enchant, SETLIGHTBLEND, ipro );
@@ -2226,7 +2226,7 @@ bool_t setup_xp_table( Uint16 icap )
     Uint8 level;
     cap_t * pcap;
 
-    if ( INVALID_CAP(icap) ) return bfalse;
+    if ( !LOADED_CAP(icap) ) return bfalse;
     pcap = CapList + icap;
 
     // Calculate xp needed
@@ -3158,29 +3158,43 @@ int damage_character( Uint16 character, Uint16 direction,
             /// @test spawn a fly-away damage indicator?
             if( attacker != character && ACTIVE_CHR(attacker) )
             {
+                char * tmpstr;
+                int rank;
                 const float lifetime = 3;
                 billboard_data_t * pbb;
                 STRING text_buffer = EMPTY_CSTR;
                 SDL_Color color = {0xFF, 0xFF, 0xFF, 0xFF};
 
-                snprintf( text_buffer, SDL_arraysize(text_buffer), "%2.1f", FP8_TO_FLOAT(actual_damage) );
-                //snprintf( text_buffer, SDL_arraysize(text_buffer), "%s", describe_value(actual_damage, pchr->lifemax) );
-
-                pbb = chr_make_text_billboard( character, text_buffer, color, lifetime );
-                if( NULL != pbb )
+                tmpstr = describe_value(actual_damage, 10 * 256, &rank);
+                if( rank < 4 )
                 {
-                    // damage == red
-                    pbb->tint[GG] = pbb->tint[BB] = 0.75f;
-                    pbb->tint_add[GG] = pbb->tint_add[BB] = -0.75f / lifetime / TARGET_UPS;
-                    pbb->tint_add[AA] = -1.0f / lifetime / TARGET_UPS;
+                    tmpstr = describe_damage(actual_damage, pchr->lifemax, &rank);
+                    if( rank >= -1 && rank <= 0 )
+                    {
+                        tmpstr = NULL;
+                    }
+                }
 
-                    pbb->offset[XX] = (((rand() << 1) - RAND_MAX) / (float)RAND_MAX) * TILE_SIZE / 5.0f;
-                    pbb->offset[YY] = (((rand() << 1) - RAND_MAX) / (float)RAND_MAX) * TILE_SIZE / 5.0f;
-                    pbb->offset[ZZ] = (((rand() << 1) - RAND_MAX) / (float)RAND_MAX) * TILE_SIZE / 5.0f;
+                if( NULL != tmpstr )
+                {
+                    snprintf( text_buffer, SDL_arraysize(text_buffer), "%s", tmpstr );
 
-                    pbb->offset_add[XX] += (((rand() << 1) - RAND_MAX) / (float)RAND_MAX) * 2.0f * TILE_SIZE / lifetime / TARGET_UPS;
-                    pbb->offset_add[YY] += (((rand() << 1) - RAND_MAX) / (float)RAND_MAX) * 2.0f * TILE_SIZE / lifetime / TARGET_UPS;
-                    pbb->offset_add[ZZ] += (((rand() << 1) - RAND_MAX) / (float)RAND_MAX) * 2.0f * TILE_SIZE / lifetime / TARGET_UPS;
+                    pbb = chr_make_text_billboard( character, text_buffer, color, lifetime );
+                    if( NULL != pbb )
+                    {
+                        // damage == red
+                        pbb->tint[GG] = pbb->tint[BB] = 0.75f;
+                        pbb->tint_add[GG] = pbb->tint_add[BB] = -0.75f / lifetime / TARGET_UPS;
+                        pbb->tint_add[AA] = -1.0f / lifetime / TARGET_UPS;
+
+                        pbb->offset[XX] = (((rand() << 1) - RAND_MAX) / (float)RAND_MAX) * TILE_SIZE / 5.0f;
+                        pbb->offset[YY] = (((rand() << 1) - RAND_MAX) / (float)RAND_MAX) * TILE_SIZE / 5.0f;
+                        pbb->offset[ZZ] = (((rand() << 1) - RAND_MAX) / (float)RAND_MAX) * TILE_SIZE / 5.0f;
+
+                        pbb->offset_add[XX] += (((rand() << 1) - RAND_MAX) / (float)RAND_MAX) * 2.0f * TILE_SIZE / lifetime / TARGET_UPS;
+                        pbb->offset_add[YY] += (((rand() << 1) - RAND_MAX) / (float)RAND_MAX) * 2.0f * TILE_SIZE / lifetime / TARGET_UPS;
+                        pbb->offset_add[ZZ] += (((rand() << 1) - RAND_MAX) / (float)RAND_MAX) * 2.0f * TILE_SIZE / lifetime / TARGET_UPS;
+                    }
                 }
             }
         }
@@ -3204,7 +3218,7 @@ int damage_character( Uint16 character, Uint16 direction,
                 SDL_Color color = {0xFF, 0xFF, 0xFF, 0xFF};
 
                 //snprintf( text_buffer, SDL_arraysize(text_buffer), "%2.1f", FP8_TO_FLOAT(-actual_damage) );
-                snprintf( text_buffer, SDL_arraysize(text_buffer), "%s", describe_value(-actual_damage, damage.base + damage.rand) );
+                snprintf( text_buffer, SDL_arraysize(text_buffer), "%s", describe_value(-actual_damage, damage.base + damage.rand, NULL) );
 
                 pbb = chr_make_text_billboard( character, text_buffer, color, 3 );
                 if( NULL != pbb )
@@ -3328,7 +3342,7 @@ void ai_state_spawn( ai_state_t * pself, Uint16 index, Uint16 iobj, Uint16 rank 
     pchr = ChrList.lst + index;
 
     // a character cannot be spawned without a valid profile
-    if( INVALID_PRO(iobj) ) return;
+    if( !LOADED_PRO(iobj) ) return;
     ppro = ProList.lst + iobj;
 
     // a character cannot be spawned without a valid cap
@@ -3532,7 +3546,7 @@ Uint16 spawn_one_character( fvec3_t   pos, Uint16 profile, Uint8 team,
         return MAX_CHR;
     }
 
-    if ( INVALID_PRO(profile) )
+    if ( !LOADED_PRO(profile) )
     {
         if ( profile > PMod->importamount * MAXIMPORTPERPLAYER )
         {
@@ -3829,7 +3843,7 @@ int chr_change_skin( Uint16 character, int skin )
     if( NULL == pmad )
     {
         // make sure that the instance has a valid imad
-        if ( NULL != ppro && INVALID_MAD(pinst->imad) )
+        if ( NULL != ppro && !LOADED_MAD(pinst->imad) )
         {
             if( chr_instance_set_mad( pinst, ppro->imad ) )
             {
@@ -3923,7 +3937,7 @@ Uint16 change_armor( Uint16 character, Uint16 skin )
     {
         Uint16 ipro = enc_get_ipro(enchant);
 
-        if( VALID_PRO(ipro) )
+        if( LOADED_PRO(ipro) )
         {
             set_enchant_value( enchant, SETSLASHMODIFIER, ipro );
             set_enchant_value( enchant, SETCRUSHMODIFIER, ipro );
@@ -3952,13 +3966,13 @@ void change_character_full( Uint16 ichr, Uint16 profile, Uint8 skin, Uint8 leave
 
     Uint16 imad_old, imad_new;
 
-    if ( INVALID_PRO(profile) ) return;
+    if ( !LOADED_PRO(profile) ) return;
 
     imad_new = pro_get_imad( profile );
-    if( INVALID_MAD(imad_new) ) return;
+    if( !LOADED_MAD(imad_new) ) return;
 
     imad_old = chr_get_imad( ichr );
-    if( INVALID_MAD(imad_old) ) return;
+    if( !LOADED_MAD(imad_old) ) return;
 
     // copy the new name
     strncpy(MadList[imad_old].name, MadList[imad_new].name, SDL_arraysize(MadList[imad_old].name));
@@ -4052,12 +4066,12 @@ void change_character( Uint16 ichr, Uint16 profile_new, Uint8 skin, Uint8 leavew
 
     int old_attached_prt_count, new_attached_prt_count;
 
-    if ( INVALID_PRO(profile_new) || !ACTIVE_CHR(ichr) ) return;
+    if ( !LOADED_PRO(profile_new) || !ACTIVE_CHR(ichr) ) return;
     pchr = ChrList.lst + ichr;
 
     old_attached_prt_count = number_of_attached_particles( ichr );
 
-    if( INVALID_PRO(profile_new) ) return;
+    if( !LOADED_PRO(profile_new) ) return;
     pobj_new = ProList.lst + profile_new;
 
     pcap_new = pro_get_pcap( profile_new );
@@ -6198,7 +6212,7 @@ bool_t chr_instance_set_mad( chr_instance_t * pinst, Uint16 imad )
     mad_t * pmad;
     bool_t updated = bfalse;
 
-    if( INVALID_MAD(imad) ) return bfalse;
+    if( !LOADED_MAD(imad) ) return bfalse;
     pmad = MadList + imad;
 
     if( pinst->imad != imad )
@@ -6249,7 +6263,7 @@ bool_t chr_instance_spawn( chr_instance_t * pinst, Uint16 profile, Uint8 skin )
     // clear the instance
     chr_instance_init( pinst );
 
-    if ( INVALID_PRO(profile) ) return bfalse;
+    if ( !LOADED_PRO(profile) ) return bfalse;
     pobj = ProList.lst + profile;
 
     pcap = pro_get_pcap(profile);
@@ -6473,7 +6487,7 @@ const char * chr_get_dir_name( Uint16 ichr )
     if( !ALLOCATED_CHR(ichr) ) return buffer;
     pchr = ChrList.lst + ichr;
 
-    if( !VALID_PRO( pchr->iprofile ) )
+    if( !LOADED_PRO( pchr->iprofile ) )
     {
         char * sztmp;
 
@@ -6506,7 +6520,7 @@ Uint16 chr_get_ipro(Uint16 ichr)
     if( !ACTIVE_CHR(ichr) ) return MAX_PROFILE;
     pchr = ChrList.lst + ichr;
 
-    if( INVALID_PRO(pchr->iprofile) ) return MAX_PROFILE;
+    if( !LOADED_PRO(pchr->iprofile) ) return MAX_PROFILE;
 
     return pchr->iprofile;
 }
@@ -6531,10 +6545,10 @@ Uint16 chr_get_imad(Uint16 ichr)
     pchr = ChrList.lst + ichr;
 
     // try to repair a bad model if it exists
-    if( INVALID_MAD(pchr->inst.imad) )
+    if( !LOADED_MAD(pchr->inst.imad) )
     {
         Uint16 imad_tmp = pro_get_imad(pchr->iprofile);
-        if( VALID_MAD( imad_tmp ) )
+        if( LOADED_MAD( imad_tmp ) )
         {
             if( chr_instance_set_mad( &(pchr->inst), imad_tmp ) )
             {
@@ -6543,7 +6557,7 @@ Uint16 chr_get_imad(Uint16 ichr)
         }
     }
 
-    if( INVALID_MAD(pchr->inst.imad) ) return MAX_MAD;
+    if( !LOADED_MAD(pchr->inst.imad) ) return MAX_MAD;
 
     return pchr->inst.imad;
 }
@@ -6601,7 +6615,7 @@ pro_t * chr_get_ppro(Uint16 ichr)
     if( !ACTIVE_CHR(ichr) ) return NULL;
     pchr = ChrList.lst + ichr;
 
-    if( INVALID_PRO(pchr->iprofile) ) return NULL;
+    if( !LOADED_PRO(pchr->iprofile) ) return NULL;
 
     return ProList.lst + pchr->iprofile;
 }
@@ -6626,16 +6640,16 @@ mad_t * chr_get_pmad(Uint16 ichr)
     pchr = ChrList.lst + ichr;
 
     // try to repair a bad model if it exists
-    if( INVALID_MAD(pchr->inst.imad) )
+    if( !LOADED_MAD(pchr->inst.imad) )
     {
         Uint16 imad_tmp = pro_get_imad(pchr->iprofile);
-        if( VALID_MAD( imad_tmp ) )
+        if( LOADED_MAD( imad_tmp ) )
         {
             chr_instance_set_mad( &(pchr->inst), imad_tmp );
         }
     }
 
-    if( INVALID_MAD(pchr->inst.imad) ) return NULL;
+    if( !LOADED_MAD(pchr->inst.imad) ) return NULL;
 
     return MadList + pchr->inst.imad;
 }
@@ -7366,7 +7380,7 @@ Uint32 chr_get_icon_ref( Uint16 item )
     if( !ACTIVE_CHR(item) ) return icon_ref;
     pitem = ChrList.lst + item;
 
-    if( INVALID_PRO(pitem->iprofile) ) return icon_ref;
+    if( !LOADED_PRO(pitem->iprofile) ) return icon_ref;
     pitem_pro = ProList.lst + pitem->iprofile;
 
     pitem_cap = pro_get_pcap( pitem->iprofile );
@@ -7405,29 +7419,64 @@ Uint32 chr_get_icon_ref( Uint16 item )
 }
 
 //--------------------------------------------------------------------------------------------
-const char* describe_value( float value, float maxval )
+const char* describe_value( float value, float maxval, int * rank_ptr )
 {
     /// @details ZF@> This converts a stat number into a more descriptive word
 
     static STRING retval;
 
     float fval;
+    int local_rank;
+
+    if( NULL == rank_ptr ) rank_ptr = &local_rank;
 
     fval = (0 == maxval) ? 1.0f : value / maxval;
 
-    if     ( fval >= .83 )    strcpy(retval, "Godlike!");
-    else if( fval >= .66 )    strcpy(retval, "Ultimate");
-    else if( fval >= .56 )    strcpy(retval, "Epic");
-    else if( fval >= .50 )    strcpy(retval, "Powerful");
-    else if( fval >= .43 )    strcpy(retval, "Heroic");
-    else if( fval >= .36 )    strcpy(retval, "Very High");
-    else if( fval >= .30 )    strcpy(retval, "High");
-    else if( fval >= .23 )    strcpy(retval, "Good");
-    else if( fval >= .17 )    strcpy(retval, "Average");
-    else if( fval >= .11 )    strcpy(retval, "Pretty Low");
-    else if( fval >= .07 )    strcpy(retval, "Bad");
-    else if( fval >  .00 )    strcpy(retval, "Terrible");
-    else                       strcpy(retval, "None");
+    *rank_ptr = -5;
+    strcpy(retval, "Unknown");
+
+    if     ( fval >= .83 ) { strcpy(retval, "Godlike!");   *rank_ptr =  8; }
+    else if( fval >= .66 ) { strcpy(retval, "Ultimate");   *rank_ptr =  7; }
+    else if( fval >= .56 ) { strcpy(retval, "Epic");       *rank_ptr =  6; }
+    else if( fval >= .50 ) { strcpy(retval, "Powerful");   *rank_ptr =  5; }
+    else if( fval >= .43 ) { strcpy(retval, "Heroic");     *rank_ptr =  4; }
+    else if( fval >= .36 ) { strcpy(retval, "Very High");  *rank_ptr =  3; }
+    else if( fval >= .30 ) { strcpy(retval, "High");       *rank_ptr =  2; }
+    else if( fval >= .23 ) { strcpy(retval, "Good");       *rank_ptr =  1; }
+    else if( fval >= .17 ) { strcpy(retval, "Average");    *rank_ptr =  0; }
+    else if( fval >= .11 ) { strcpy(retval, "Pretty Low"); *rank_ptr = -1; }
+    else if( fval >= .07 ) { strcpy(retval, "Bad");        *rank_ptr = -2; }
+    else if( fval >  .00 ) { strcpy(retval, "Terrible");   *rank_ptr = -3; }
+    else                   { strcpy(retval, "None");       *rank_ptr = -4; }
+
+    return retval;
+}
+
+//---------------------------------------------------------------------------------------------
+const char* describe_damage( float value, float maxval, int * rank_ptr )
+{
+    /// @details ZF@> This converts a stat number into a more descriptive word
+
+    static STRING retval;
+
+    float fval;
+    int local_rank;
+
+    if( NULL == rank_ptr ) rank_ptr = &local_rank;
+
+    fval = (0 == maxval) ? 1.0f : value / maxval;
+
+    *rank_ptr = -5;
+    strcpy(retval, "Unknown");
+
+    if     ( fval >= 1.50 ) { strcpy(retval, "Max Overkill!"); *rank_ptr =  4; }
+    else if( fval >= 1.00 ) { strcpy(retval, "Overkill!");     *rank_ptr =  3; }
+    else if( fval >= 0.80 ) { strcpy(retval, "Crippling");     *rank_ptr =  2; }
+    else if( fval >= 0.50 ) { strcpy(retval, "Devastating");   *rank_ptr =  1; }
+    else if( fval >= 0.25 ) { strcpy(retval, "Hurtful");       *rank_ptr =  0; }
+    else if( fval >= 0.10 ) { strcpy(retval, "A Scratch");     *rank_ptr = -1; }
+    else if( fval >= 0.05 ) { strcpy(retval, "Ticklish");      *rank_ptr = -2; }
+    else if( fval >= 0.00 ) { strcpy(retval, "Fumble!");       *rank_ptr = -3; }
 
     return retval;
 }
@@ -8421,7 +8470,7 @@ bool_t cap_has_idsz( Uint16 icap, IDSZ idsz )
     cap_t * pcap;
     bool_t  retval;
 
-    if( INVALID_CAP(icap) ) return bfalse;
+    if( !LOADED_CAP(icap) ) return bfalse;
     pcap = CapList + icap;
 
     if( IDSZ_NONE == idsz ) return btrue;
@@ -8447,7 +8496,7 @@ bool_t cap_is_type_idsz( Uint16 icap, IDSZ test_idsz )
 
     cap_t * pcap;
 
-    if( INVALID_CAP(icap) ) return bfalse;
+    if( !LOADED_CAP(icap) ) return bfalse;
     pcap = CapList + icap;
 
     if( IDSZ_NONE == test_idsz               ) return btrue;

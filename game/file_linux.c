@@ -43,8 +43,12 @@ static char linux_dataPath[PATH_MAX]     = EMPTY_CSTR;
 static char linux_userdataPath[PATH_MAX] = EMPTY_CSTR;
 static char linux_configPath[PATH_MAX]   = EMPTY_CSTR;
 
-static glob_t last_find_glob;
-static size_t glob_find_index;
+struct s_linux_find_context
+{
+    static glob_t last_find;
+    static size_t find_index;
+};
+typedef struct s_linux_find_context linux_find_context_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -134,23 +138,30 @@ bool_t fs_copyFile( const char *source, const char *dest )
 
 //--------------------------------------------------------------------------------------------
 // Read the first directory entry
-const char *fs_findFirstFile( const char *searchDir, const char *searchExtension )
+const char *fs_findFirstFile( const char *searchDir, const char *searchExtension, fs_find_context_t * fs_search )
 {
     char pattern[PATH_MAX] = EMPTY_CSTR;
     char *last_slash;
+    linux_find_context_t * pcnt;
+
+    if( INVALID_CSTR(searchDir) || NULL == fs_search ) return NULL;
+
+    pcnt = calloc( 1, sizeof(linux_find_context_t) );
+    fs_search->type = linux_find;
+    fs_search->ptr.l = pcnt;
 
     if ( searchExtension )
         snprintf( pattern, PATH_MAX, "%s" SLASH_STR "*.%s", searchDir, searchExtension );
     else
         snprintf( pattern, PATH_MAX, "%s" SLASH_STR "*", searchDir );
 
-    last_find_glob.gl_offs = 0;
-    glob( pattern, GLOB_NOSORT, NULL, &last_find_glob );
-    if ( !last_find_glob.gl_pathc )
+    pcnt->last_find.gl_offs = 0;
+    glob( pattern, GLOB_NOSORT, NULL, &pcnt->last_find );
+    if ( !pcnt->last_find.gl_pathc )
         return NULL;
 
-    glob_find_index = 0;
-    last_slash = strrchr( last_find_glob.gl_pathv[glob_find_index], '/' );
+    pcnt->find_index = 0;
+    last_slash = strrchr( pcnt->last_find.gl_pathv[pcnt->find_index], '/' );
     if ( last_slash )
         return last_slash + 1;
 
@@ -159,15 +170,21 @@ const char *fs_findFirstFile( const char *searchDir, const char *searchExtension
 
 //--------------------------------------------------------------------------------------------
 // Read the next directory entry (NULL if done)
-const char *fs_findNextFile( void )
+const char *fs_findNextFile( fs_find_context_t * fs_search )
 {
     char *last_slash;
+    linux_find_context_t * pcnt;
 
-    ++glob_find_index;
-    if ( glob_find_index >= last_find_glob.gl_pathc )
+    if( NULL == fs_search || fs_search->type != linux_find ) return NULL;
+
+    pcnt = fs_search->ptr.l;
+    if( NULL == pcnt )  return NULL;
+
+    ++pcnt->find_index;
+    if ( pcnt->find_index >= pcnt->last_find.gl_pathc )
         return NULL;
 
-    last_slash = strrchr( last_find_glob.gl_pathv[glob_find_index], '/' );
+    last_slash = strrchr( pcnt->last_find.gl_pathv[pcnt->find_index], '/' );
     if ( last_slash )
         return last_slash + 1;
 
@@ -176,9 +193,20 @@ const char *fs_findNextFile( void )
 
 //--------------------------------------------------------------------------------------------
 // Close anything left open
-void fs_findClose()
+void fs_findClose( fs_find_context_t * fs_search )
 {
-    globfree( &last_find_glob );
+    linux_find_context_t * pcnt;
+
+    if( NULL == fs_search || fs_search->type != linux_find ) return;
+
+    pcnt = fs_search->ptr.l;
+    if( NULL == pcnt )  return;
+
+    globfree( &(pcnt->last_find) );
+
+    free( pcnt );
+
+    memset( fs_search, 0, sizeof(fs_find_context_t) );
 }
 
 //--------------------------------------------------------------------------------------------

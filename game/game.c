@@ -1771,14 +1771,11 @@ int SDL_main( int argc, char **argv )
     request_clear_screen();
     while ( !EProc->base.killme && !EProc->base.terminated )
     {
-        // let the OS breathe. It may delay as long as 10ms
-        //SDL_Delay(1);
-
         // put a throttle on the ego process
         EProc->ticks_now = SDL_GetTicks();
         if (EProc->ticks_now < EProc->ticks_next) continue;
 
-        // update the timer
+        // update the timer: 10ms delay between loops
         EProc->ticks_next = EProc->ticks_now + 10;
 
         // clear the screen if needed
@@ -1788,6 +1785,9 @@ int SDL_main( int argc, char **argv )
 
         // flip the graphics page if need be
         do_flip_pages();
+
+        // let the OS breathe. It may delay as long as 10ms
+        SDL_Delay(1);
     }
 
     // terminate the game and menu processes
@@ -1859,7 +1859,7 @@ Uint16 prt_find_target( float pos_x, float pos_y, float pos_z, Uint16 facing,
     Uint16 besttarget = MAX_CHR, cnt;
     float  longdist2 = max_dist2;
 
-    if( INVALID_PIP(particletype) ) return MAX_CHR;
+    if( !LOADED_PIP(particletype) ) return MAX_CHR;
     ppip = PipStack.lst + particletype;
 
     for (cnt = 0; cnt < MAX_CHR; cnt++)
@@ -2176,7 +2176,7 @@ void update_pits()
             // Kill any particles that fell in a pit, if they die in water...
             for ( cnt = 0; cnt < maxparticles; cnt++ )
             {
-                if ( !ACTIVE_PRT( cnt ) || INVALID_PIP( PrtList.lst[cnt].pip_ref ) ) continue;
+                if ( !ACTIVE_PRT( cnt ) || !LOADED_PIP( PrtList.lst[cnt].pip_ref ) ) continue;
 
                 if ( PrtList.lst[cnt].pos.z < PITDEPTH && prt_get_ppip(cnt)->endwater )
                 {
@@ -4051,7 +4051,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     pprt_b = PrtList.lst + iprt_b;
 
     ipip_b = pprt_b->pip_ref;
-    if ( INVALID_PIP( ipip_b ) ) return bfalse;
+    if ( !LOADED_PIP( ipip_b ) ) return bfalse;
     ppip_b = PipStack.lst + ipip_b;
 
     // do not collide with the thing that you're attached to
@@ -5030,7 +5030,7 @@ bool_t setup_characters_load_object( spawn_file_info_t * psp_info )
 
     STRING filename;
 
-    if( NULL == psp_info || VALID_PRO(psp_info->slot) ) return bfalse;
+    if( NULL == psp_info || LOADED_PRO(psp_info->slot) ) return bfalse;
 
     // trim any excess spaces off the psp_info->spawn_coment
     str_trim(psp_info->spawn_coment);
@@ -5186,8 +5186,7 @@ void setup_characters( const char *modname )
     }
     else
     {
-        sp_info.parent = 0;
-
+        sp_info.parent = MAX_CHR;
         while ( spawn_file_scan( fileread, &sp_info ) )
         {
             int save_slot = sp_info.slot;
@@ -5199,23 +5198,26 @@ void setup_characters( const char *modname )
                 continue;
             }
 
-            // check to see if something is in that slot
-            if( INVALID_PRO(sp_info.slot) )
+            // If nothing is in that slot, try to load it
+            if( !LOADED_PRO(sp_info.slot) )
             {
                 setup_characters_load_object( &sp_info );
             }
 
-            if( INVALID_PRO(sp_info.slot) )
+            // do we have a valid profile, yet?
+            if( !LOADED_PRO(sp_info.slot) )
             {
+                // no, give a warning if it is useful
                 if ( save_slot > PMod->importamount * MAXIMPORTPERPLAYER )
                 {
                     log_warning( "The object \"%s\"(slot %d) in file \"%s\" does not exist on this machine\n", sp_info.spawn_coment, save_slot, newloadname );
                 }
-                continue;
             }
-
-            // do the spawning if need be
-            setup_characters_spawn( &sp_info );
+            else
+            {
+                // yes, do the spawning if need be
+                setup_characters_spawn( &sp_info );
+            }
         }
 
         vfs_close( fileread );

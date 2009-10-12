@@ -129,8 +129,7 @@ typedef struct s_object_profile object_profile_t;
 typedef struct s_object_profile pro_t;
 
 #define VALID_PRO_RANGE( IOBJ ) ( ((IOBJ) >= 0) && ((IOBJ) < MAX_PROFILE) )
-#define VALID_PRO( IOBJ )       ( VALID_PRO_RANGE( IOBJ ) && ProList.lst[IOBJ].loaded )
-#define INVALID_PRO( IOBJ )     ( !VALID_PRO_RANGE( IOBJ ) || !ProList.lst[IOBJ].loaded )
+#define LOADED_PRO( IOBJ )       ( VALID_PRO_RANGE( IOBJ ) && ProList.lst[IOBJ].loaded )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

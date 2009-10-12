@@ -44,8 +44,8 @@
 #define MAX_SKIN             4
 
 /// profile pre-allocations
-#define MAX_PROFILE        256        ///< Maximum number of object profiles
-#define MAX_AI             129        ///< Maximum number of scripts
+#define MAX_PROFILE        256          ///< Maximum number of object profiles
+#define MAX_AI             MAX_PROFILE  ///< Maximum number of scripts
 
 /// per-object pre-allocations
 #define MAX_WAVE             30        ///< Maximum number of *.wav/*.ogg per object

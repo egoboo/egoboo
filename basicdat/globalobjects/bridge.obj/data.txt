@@ -1,4 +1,4 @@
-Object slot number ( 0 to 63, don't use twice )	: 106
+Object slot number ( 0 to 63, don't use twice )	: -1
 Class name     : Bridge_of_Light
 Uniform light  : TRUE
 Maximum ammo   : 0

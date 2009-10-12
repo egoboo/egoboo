@@ -178,8 +178,7 @@ typedef struct s_mad mad_t;
 extern mad_t   MadList[MAX_PROFILE];
 
 #define VALID_MAD_RANGE( IMAD ) ( ((IMAD) >= 0) && ((IMAD) < MAX_MAD) )
-#define VALID_MAD( IMAD )       ( VALID_MAD_RANGE( IMAD ) && MadList[IMAD].loaded )
-#define INVALID_MAD( IMAD )     ( !VALID_MAD_RANGE( IMAD ) || !MadList[IMAD].loaded )
+#define LOADED_MAD( IMAD )       ( VALID_MAD_RANGE( IMAD ) && MadList[IMAD].loaded )
 
 //--------------------------------------------------------------------------------------------
 extern char            cFrameName[16];                                     ///< MD2 Frame Name

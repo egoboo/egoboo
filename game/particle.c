@@ -113,7 +113,7 @@ void play_particle_sound( Uint16 particle, Sint8 sound )
 
     if ( !VALID_SND(sound) ) return;
 
-    if ( VALID_PRO( pprt->profile_ref ) )
+    if ( LOADED_PRO( pprt->profile_ref ) )
     {
         sound_play_chunk( pprt->pos, pro_get_chunk(pprt->profile_ref, sound) );
     }
@@ -145,7 +145,7 @@ void free_one_particle_in_game( Uint16 particle )
         }
     }
 
-    if ( VALID_PIP( pprt->pip_ref ) )
+    if ( LOADED_PIP( pprt->pip_ref ) )
     {
         play_particle_sound( particle, PipStack.lst[pprt->pip_ref].soundend );
     }
@@ -338,17 +338,17 @@ Uint16 spawn_one_particle( fvec3_t   pos, Uint16 facing, Uint16 iprofile, Uint16
     Uint16 turn;
 
     // Convert from local ipip to global ipip
-    if ( VALID_PRO(iprofile) && ipip < MAX_PIP_PER_PROFILE )
+    if ( LOADED_PRO(iprofile) && ipip < MAX_PIP_PER_PROFILE )
     {
         ipip = pro_get_ipip(iprofile, ipip);
     }
 
-    if ( INVALID_PIP(ipip) )
+    if ( !LOADED_PIP(ipip) )
     {
         //log_warning( "spawn_one_particle() - cannot spawn particle with invalid pip == %d (owner == %d(\"%s\"), profile == %d(\"%s\"))\n",
         //    ipip,
         //    chr_origin, ACTIVE_CHR(chr_origin) ? ChrList.lst[chr_origin].name : "INVALID",
-        //    iprofile, VALID_PRO(iprofile) ? ProList.lst[iprofile].name : "INVALID" );
+        //    iprofile, LOADED_PRO(iprofile) ? ProList.lst[iprofile].name : "INVALID" );
         return TOTAL_MAX_PRT;
     }
     ppip = PipStack.lst + ipip;
@@ -358,8 +358,8 @@ Uint16 spawn_one_particle( fvec3_t   pos, Uint16 facing, Uint16 iprofile, Uint16
     {
         //log_warning( "spawn_one_particle() - cannot allocate a particle owner == %d(\"%s\"), pip == %d(\"%s\"), profile == %d(\"%s\")\n",
         //    chr_origin, ACTIVE_CHR(chr_origin) ? ChrList.lst[chr_origin].name : "INVALID",
-        //    ipip, VALID_PIP(ipip) ? PipStack.lst[ipip].name : "INVALID",
-        //    iprofile, VALID_PRO(iprofile) ? ProList.lst[iprofile].name : "INVALID" );
+        //    ipip, LOADED_PIP(ipip) ? PipStack.lst[ipip].name : "INVALID",
+        //    iprofile, LOADED_PRO(iprofile) ? ProList.lst[iprofile].name : "INVALID" );
         return TOTAL_MAX_PRT;
     }
     pprt = PrtList.lst + iprt;
@@ -1174,7 +1174,7 @@ void cleanup_all_particles()
 
         // Spawn new particles if time for old one is up
         ipip = pprt->pip_ref;
-        if ( VALID_PIP( ipip ) )
+        if ( LOADED_PIP( ipip ) )
         {
             pip_t * ppip;
             Uint16 facing;
@@ -1255,7 +1255,7 @@ int spawn_bump_particles( Uint16 character, Uint16 particle )
     if ( !ACTIVE_PRT(particle) ) return 0;
     pprt = PrtList.lst + particle;
 
-    if ( INVALID_PIP(pprt->pip_ref) ) return 0;
+    if ( !LOADED_PIP(pprt->pip_ref) ) return 0;
     ppip = PipStack.lst + pprt->pip_ref;
 
     // no point in going on, is there?
@@ -1576,7 +1576,7 @@ Uint16  prt_get_ipip( Uint16 iprt )
     if( !ACTIVE_PRT(iprt) ) return MAX_PIP;
     pprt = PrtList.lst + iprt;
 
-    if( INVALID_PIP(pprt->pip_ref) ) return MAX_PIP;
+    if( !LOADED_PIP(pprt->pip_ref) ) return MAX_PIP;
 
     return pprt->pip_ref;
 }
@@ -1589,7 +1589,7 @@ pip_t * prt_get_ppip( Uint16 iprt )
     if( !ACTIVE_PRT(iprt) ) return NULL;
     pprt = PrtList.lst + iprt;
 
-    if( INVALID_PIP(pprt->pip_ref) ) return NULL;
+    if( !LOADED_PIP(pprt->pip_ref) ) return NULL;
 
     return PipStack.lst + pprt->pip_ref;
 }

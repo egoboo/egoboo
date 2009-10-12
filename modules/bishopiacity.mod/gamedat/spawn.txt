@@ -5,30 +5,61 @@
 
 // Dunlar Blacksmith Shop
 #dependency Sword             57
+#dependency Cinquedea         67
+#dependency Lance             68
 #dependency KShield           74
 #dependency Spear             75
 #dependency Hatchet           77
+#dependency Mace              78
+#dependency Broadsword        82
+#dependency DShield           84
 #dependency Scimitar          92
+#dependency MLance           102
+#dependency MagXBow          103
+#dependency TMaul            120
+#dependency WSword           122
 #dependency Scythe           131
 #dependency Trident          139
+#dependency FrostSabre       148
 #dependency Quiver           150
-#dependency Cinquedea         67
 
 // Le Secret Shoppe
+#dependency WandFireball      73
+#dependency DShield           84
+#dependency MagXBow          103
+#dependency WandOrbstorm     117
+#dependency TMaul            120
+#dependency LifeElixir       130
+#dependency LevitationShoes  147
 
 // Shady Rogue Goods
+#dependency  Claw             65
 #dependency  Cinquandea       67
 #dependency  BearTrap         85
+#dependency  NinjaStars      101
 #dependency  PStiletto       107
+#dependency  PKatana         128
 
 // Olaf Junk Shop
-#dependency Torch             37  
+#dependency Torch             37
+#dependency RSword            44
+#dependency RShield           45
+#dependency QStaff            47
 #dependency OilFlask          64 
 #dependency PPotion           69
+#dependency Shovel           149
+#dependency Mushroom         152
+#dependency Crowbar          157
 
 // Mylvin The Alchemist 
+#dependency LevPotion         50
 #dependency OilFlask          64
+#dependency LevPotion         50
+#dependency SPotion           70
 #dependency LPotion           71
+#dependency MagPotion         81
+#dependency PPotion           86
+#dependency RgPotion          97
 
 // Alkor G'Nome Shop
 #dependency XBow              62
@@ -36,61 +67,73 @@
 #dependency Bomb             118
 #dependency AmmoBox          123
 #dependency Bomb             118
+#dependency Gonne            100
     
 // Divine shop
 #dependency Ressurection      63
+#dependency WarHam            95
 #dependency CombatBless      115
 #dependency Confusion        119
 #dependency Sanctify         126
 #dependency HolyBolt         129
 #dependency Rebirth          105
+#dependency DShield          124
+#dependency ResistElements   125
+#dependency CrusaderShield   134
 #dependency TrueSightScroll  140
 
 // Zambini Magic shop
 #dependency MPotion           72
+#dependency Identify          88
 #dependency TrueSightScroll  140
 #dependency WandIceBall      116
-#dependency Identify          88
 
-Player1:   NONE    0  56.5   74.5   0.0   N    0   0  0   0   0   T   F   G			//Player 1 stuff
-  unknown:   NONE    1  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
-  unknown:   NONE    2  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-  unknown:   NONE    3  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-  unknown:   NONE    4  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-  unknown:   NONE    5  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-  unknown:   NONE    6  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-  unknown:   NONE    7  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-  unknown:   NONE    8  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+// Module Tool
+#dependency WandLightning    114
+#dependency WandOrbstorm     117
+#dependency WandMissile      121
+#dependency LevitationShoes  147
+#dependency Moonbeam         155
+
+Player1:   NONE    0  37.6  117.5   0.0   N    0   0  0   0   0   T   F   G			// Player 1 stuff
+  unknown: NONE    1   0.0    0.0   0.0   L    0   0  0   0   0   F   F   N
+  unknown: NONE    2   0.0    0.0   0.0   R    0   0  0   0   0   F   F   N
+  unknown: NONE    3   0.0    0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown: NONE    4   0.0    0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown: NONE    5   0.0    0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown: NONE    6   0.0    0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown: NONE    7   0.0    0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown: NONE    8   0.0    0.0   0.0   I    0   0  0   0   0   F   F   N
   
-Player2:   NONE    9  58.5   74.5   0.0   N    0   0  0   0   0   T   F   G			//Player 2 stuff
-  unknown:   NONE    10  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
-  unknown:   NONE    11  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-  unknown:   NONE    12  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-  unknown:   NONE    13  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-  unknown:   NONE    14  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-  unknown:   NONE    15  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-  unknown:   NONE    16  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-  unknown:   NONE    17  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+Player2:   NONE    9   39.6 117.5   0.0   N    0   0  0   0   0   T   F   G			// Player 2 stuff
+  unknown: NONE    10   0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  unknown: NONE    11   0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  unknown: NONE    12   0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown: NONE    13   0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown: NONE    14   0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown: NONE    15   0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown: NONE    16   0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown: NONE    17   0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   
-Player3:   NONE    18  58.5   72.5   0.0   N    0   0  0   0   0   T   F   G			//Player 3 stuff
-  unknown:   NONE    19  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
-  unknown:   NONE    20  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-  unknown:   NONE    21  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-  unknown:   NONE    22  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-  unknown:   NONE    23  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-  unknown:   NONE    24  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-  unknown:   NONE    25  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-  unknown:   NONE    26  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+Player3:   NONE    18  39.6 115.5   0.0   N    0   0  0   0   0   T   F   G			// Player 3 stuff
+  unknown: NONE    19   0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  unknown: NONE    20   0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  unknown: NONE    21   0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown: NONE    22   0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown: NONE    23   0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown: NONE    24   0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown: NONE    25   0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown: NONE    26   0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   
-Player4:   NONE    27  56.5   72.5   0.0   N    0   0  0   0   0   T   F   G			//Player 4 stuff
-  unknown:   NONE    28  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
-  unknown:   NONE    29  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-  unknown:   NONE    30  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-  unknown:   NONE    31  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-  unknown:   NONE    32  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-  unknown:   NONE    33  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-  unknown:   NONE    34  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-  unknown:   NONE    35  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+Player4:   NONE    27  37.6 115.5   0.0   N    0   0  0   0   0   T   F   G			// Player 4 stuff
+  unknown: NONE    28   0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  unknown: NONE    29   0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  unknown: NONE    30   0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown: NONE    31   0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown: NONE    32   0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown: NONE    33   0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown: NONE    34   0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown: NONE    35   0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   
 moduletool:   NONE    99  56.0   74.0   0.0   N    0   0  12   2   0   F   F   N
 
@@ -112,7 +155,7 @@ shopkeep2:   Olaf    52  9.5   98.5   0.0   N    3   0  0   1   0   F   F   G		/
   pistol:   NONE    98  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
 shopkeep:   Dunlar    49  51.5   27.5   0.0   N    199   0  1   1   0   F   F   G		//Weapon shop
-  warhammer:   NONE    95  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  WarHam:   NONE    95  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
 magicshop:   Zambini    80  72.0   96.0   0.0   N    999   0  6   0   0   F   F   G		//Spell shop
   QStaff:   NONE    47  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
@@ -143,7 +186,7 @@ moduletool:   NONE    99  73.5   95.5   1.0   N    0   0  0   0   0   F   F   N
 moduletool:   NONE    99  73.5   97.5   1.0   N    0   0  0   0   0   F   F   N
   Orbstorm:   NONE    110  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 moduletool:   NONE    99  70.5   95.5   1.0   N    0   0  0   0   0   F   F   N
-  protect2:   NONE    111  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  BattleWard:   NONE    111  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   
 shopkeep2:   Mylvin    52  50.5   75.5   0.0   N    125   1  7   0   0   F   F   G		//Potion shop
   Pistol:   NONE    98  0.0   0.0   1.0   I    0   0  0   0   0   F   F   N

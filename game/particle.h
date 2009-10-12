@@ -39,8 +39,7 @@
 DEFINE_STACK_EXTERN(pip_t, PipStack, MAX_PIP );
 
 #define VALID_PIP_RANGE( IPIP ) ( ((IPIP) >= 0) && ((IPIP) < MAX_PIP) )
-#define VALID_PIP( IPIP )       ( VALID_PIP_RANGE( IPIP ) && PipStack.lst[IPIP].loaded )
-#define INVALID_PIP( IPIP )     ( !VALID_PIP_RANGE( IPIP ) || !PipStack.lst[IPIP].loaded )
+#define LOADED_PIP( IPIP )       ( VALID_PIP_RANGE( IPIP ) && PipStack.lst[IPIP].loaded )
 
 //------------------------------------
 /// Particle graphic data

@@ -45,8 +45,7 @@ struct s_chr;
 DEFINE_STACK_EXTERN(eve_t, EveStack, MAX_EVE );
 
 #define VALID_EVE_RANGE( IEVE ) ( ((IEVE) >= 0) && ((IEVE) < MAX_EVE) )
-#define VALID_EVE( IEVE )       ( VALID_EVE_RANGE( IEVE ) && EveStack.lst[IEVE].loaded )
-#define INVALID_EVE( IEVE )     ( !VALID_EVE_RANGE( IEVE ) || !EveStack.lst[IEVE].loaded )
+#define LOADED_EVE( IEVE )      ( VALID_EVE_RANGE( IEVE ) && EveStack.lst[IEVE].loaded )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

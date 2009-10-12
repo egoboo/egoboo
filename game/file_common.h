@@ -20,6 +20,42 @@
 //********************************************************************************************
 #include "egoboo_typedef.h"
 
+
+//---------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------
+struct s_win32_find_context;
+struct s_linux_find_context;
+struct s_mac_find_context;
+
+enum e_fs_find_type
+{
+    unknown_find = 0,
+    win32_find,
+    linux_find,
+    mac_find
+};
+typedef enum e_fs_find_type fs_find_type_t;
+
+
+//---------------------------------------------------------------------------------------------
+union u_fs_find_ptr
+{
+    void                        * v;
+    struct s_win32_find_context * w;
+    struct s_linux_find_context * l;
+    struct s_mac_find_context   * m;
+};
+typedef union u_fs_find_ptr fs_find_ptr_t;
+
+//---------------------------------------------------------------------------------------------
+struct s_fs_find_context
+{
+    fs_find_type_t type;
+    fs_find_ptr_t  ptr;
+};
+
+typedef struct s_fs_find_context fs_find_context_t;
+
 //---------------------------------------------------------------------------------------------
 /// Filesystem functions
 
@@ -42,6 +78,6 @@ void fs_removeDirectoryAndContents( const char *dirname, int recursive );
 void fs_copyDirectory( const char *sourceDir, const char *destDir );
 
 /// Enumerate directory contents
-const char *fs_findFirstFile( const char *path, const char *extension );
-const char *fs_findNextFile( void );
-void        fs_findClose();
+const char *fs_findFirstFile( const char *path, const char *extension, fs_find_context_t * fs_search );
+const char *fs_findNextFile( fs_find_context_t * fs_search );
+void        fs_findClose( fs_find_context_t * fs_search );

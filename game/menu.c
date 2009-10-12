@@ -985,7 +985,7 @@ bool_t doChoosePlayer_load_profiles( int player, ChoosePlayer_profiles_t * pro_l
 
     // grab the player data
     ref_temp = load_one_character_profile( loadplayer[player].dir, 0, bfalse );
-    if ( INVALID_CAP(ref_temp) )
+    if ( !LOADED_CAP(ref_temp) )
     {
         return bfalse;
     }
@@ -1006,7 +1006,7 @@ bool_t doChoosePlayer_load_profiles( int player, ChoosePlayer_profiles_t * pro_l
 
         // load the profile
         ref_temp = load_one_character_profile( szFilename, slot, bfalse );
-        if ( VALID_CAP(ref_temp) )
+        if ( LOADED_CAP(ref_temp) )
         {
             cap_t * pcap = CapList + ref_temp;
 
@@ -1067,7 +1067,7 @@ bool_t doChoosePlayer_show_stats( int player, int mode, int x, int y, int width,
     {
         Uint16 icap = objects.pro_data[0].cap_ref;
 
-        if ( VALID_CAP(icap) )
+        if ( LOADED_CAP(icap) )
         {
             cap_t * pcap = CapList + icap;
 			Uint8 skin = MAX(0, pcap->skinoverride);
@@ -1114,10 +1114,10 @@ bool_t doChoosePlayer_show_stats( int player, int mode, int x, int y, int width,
 
             //SWID
             fnt_drawText( menuFont, x1, y1, "Stats" ); y1 += 20;
-            fnt_drawText( menuFont, x1, y1, "  Str: %s (%d)", describe_value( pcap->strength_stat.val.from,     PERFECTSTAT ), (int)pcap->strength_stat.val.from      ); y1 += 20;
-            fnt_drawText( menuFont, x1, y1, "  Wis: %s (%d)", describe_value( pcap->wisdom_stat.val.from,       PERFECTSTAT ), (int)pcap->wisdom_stat.val.from        ); y1 += 20;
-            fnt_drawText( menuFont, x1, y1, "  Int: %s (%d)", describe_value( pcap->intelligence_stat.val.from, PERFECTSTAT ), (int)pcap->intelligence_stat.val.from  ); y1 += 20;
-            fnt_drawText( menuFont, x1, y1, "  Dex: %s (%d)", describe_value( pcap->dexterity_stat.val.from,    PERFECTSTAT ), (int)pcap->dexterity_stat.val.from     ); y1 += 20;
+            fnt_drawText( menuFont, x1, y1, "  Str: %s (%d)", describe_value( pcap->strength_stat.val.from,     PERFECTSTAT, NULL ), (int)pcap->strength_stat.val.from      ); y1 += 20;
+            fnt_drawText( menuFont, x1, y1, "  Wis: %s (%d)", describe_value( pcap->wisdom_stat.val.from,       PERFECTSTAT, NULL ), (int)pcap->wisdom_stat.val.from        ); y1 += 20;
+            fnt_drawText( menuFont, x1, y1, "  Int: %s (%d)", describe_value( pcap->intelligence_stat.val.from, PERFECTSTAT, NULL ), (int)pcap->intelligence_stat.val.from  ); y1 += 20;
+            fnt_drawText( menuFont, x1, y1, "  Dex: %s (%d)", describe_value( pcap->dexterity_stat.val.from,    PERFECTSTAT, NULL ), (int)pcap->dexterity_stat.val.from     ); y1 += 20;
             y1 += 20;
 
             if ( objects.count > 1 )
@@ -1131,7 +1131,7 @@ bool_t doChoosePlayer_show_stats( int player, int mode, int x, int y, int width,
                     pdata = objects.pro_data + i;
 
                     icap = pdata->cap_ref;
-                    if ( VALID_CAP(icap) )
+                    if ( LOADED_CAP(icap) )
                     {
                         Uint32  icon_ref;
                         cap_t * pcap = CapList + icap;
@@ -4224,7 +4224,7 @@ Uint32 mnu_get_icon_ref( Uint16 icap, Uint32 default_ref )
 
     cap_t * pitem_cap;
 
-    if( INVALID_CAP(icap) ) return icon_ref;
+    if( !LOADED_CAP(icap) ) return icon_ref;
     pitem_cap = CapList + icap;
 
     // what do we need to draw?

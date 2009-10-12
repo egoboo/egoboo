@@ -183,7 +183,7 @@ bool_t remove_enchant( Uint16 ienc )
         if ( VALID_SND( iwave ) )
         {
             Uint16 imodel = penc->spawnermodel_ref;
-            if ( VALID_PRO( imodel ) )
+            if ( LOADED_PRO( imodel ) )
             {
                 if ( ACTIVE_CHR(itarget) )
                 {
@@ -693,7 +693,7 @@ Uint16 spawn_one_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 en
     // you should be able to enchant dead stuff to raise the dead...
     // if( !ptarget->alive ) return MAX_ENC;
 
-    if ( VALID_PRO(modeloptional) )
+    if ( LOADED_PRO(modeloptional) )
     {
         // The enchantment type is given explicitly
         iprofile = modeloptional;
@@ -704,7 +704,7 @@ Uint16 spawn_one_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 en
         // The enchantment type is given by the spawner
         iprofile = chr_get_ipro(spawner);
 
-        if ( INVALID_PRO(iprofile) )
+        if ( !LOADED_PRO(iprofile) )
         {
             log_warning( "spawn_one_enchant() - no valid profile for the spawning character \"%s\"(%d).\n", ChrList.lst[spawner].obj_base._name, spawner );
             return MAX_ENC;
@@ -712,7 +712,7 @@ Uint16 spawn_one_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 en
     }
 
     ieve = pro_get_ieve(iprofile);
-    if ( INVALID_EVE(ieve) )
+    if ( !LOADED_EVE(ieve) )
     {
         log_warning( "spawn_one_enchant() - the object \"%s\"(%d) does not have an enchant profile.\n", ProList.lst[iprofile].name, iprofile );
 
@@ -1190,7 +1190,7 @@ Uint16  enc_get_ieve( Uint16 ienc )
     if( !ACTIVE_ENC(ienc) ) return MAX_EVE;
     penc = EncList.lst + ienc;
 
-    if( INVALID_EVE(penc->eve_ref) ) return MAX_EVE;
+    if( !LOADED_EVE(penc->eve_ref) ) return MAX_EVE;
 
     return penc->eve_ref;
 }
@@ -1203,7 +1203,7 @@ eve_t * enc_get_peve( Uint16 ienc )
     if( !ACTIVE_ENC(ienc) ) return NULL;
     penc = EncList.lst + ienc;
 
-    if( INVALID_EVE(penc->eve_ref) ) return NULL;
+    if( !LOADED_EVE(penc->eve_ref) ) return NULL;
 
     return EveStack.lst + penc->eve_ref;
 }
@@ -1216,7 +1216,7 @@ Uint16  enc_get_ipro( Uint16 ienc )
     if( !ACTIVE_ENC(ienc) ) return MAX_PROFILE;
     penc = EncList.lst + ienc;
 
-    if( INVALID_PRO(penc->profile_ref) ) return MAX_PROFILE;
+    if( !LOADED_PRO(penc->profile_ref) ) return MAX_PROFILE;
 
     return penc->profile_ref;
 }
@@ -1229,7 +1229,7 @@ pro_t * enc_get_ppro( Uint16 ienc )
     if( !ACTIVE_ENC(ienc) ) return NULL;
     penc = EncList.lst + ienc;
 
-    if( INVALID_PRO(penc->profile_ref) ) return NULL;
+    if( !LOADED_PRO(penc->profile_ref) ) return NULL;
 
     return ProList.lst + penc->profile_ref;
 }

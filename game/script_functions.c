@@ -65,7 +65,7 @@
     Uint8 returncode = btrue; \
     if( NULL == pstate || NULL == pself || !ACTIVE_CHR(pself->index) ) return bfalse; \
     pchr = ChrList.lst + pself->index; \
-    if( INVALID_PRO(pchr->iprofile) ) return bfalse; \
+    if( !LOADED_PRO(pchr->iprofile) ) return bfalse; \
     ppro = ProList.lst + pchr->iprofile;
 
 #define SCRIPT_FUNCTION_END() \
@@ -7142,7 +7142,7 @@ Uint8 _append_end_text( chr_t * pchr, const int message, script_state_t * pstate
 
     FUNCTION_BEGIN();
 
-    if( !VALID_PRO(pchr->iprofile) ) return bfalse;
+    if( !LOADED_PRO(pchr->iprofile) ) return bfalse;
 
     message_offset = ProList.lst[pchr->iprofile].message_start + message;
     ichr           = GET_INDEX( pchr, MAX_CHR );

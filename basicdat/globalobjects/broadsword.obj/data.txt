@@ -1,4 +1,4 @@
-Object slot number ( 0 to 63, don't use twice )	: 82
+Object slot number ( 0 to 63, don't use twice )	: -1
 Class name     : Broad_Sword
 Uniform light  : FALSE
 Maximum ammo   : 0

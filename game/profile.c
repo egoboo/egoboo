@@ -301,7 +301,7 @@ Uint16 ProList_get_free( Uint16 override )
         int free_idx;
 
         // if the object is in use, make sure to free everything associated with it
-        if( VALID_PRO(override) )
+        if( LOADED_PRO(override) )
         {
             release_one_pro( override );
         }
@@ -342,7 +342,7 @@ bool_t release_one_profile_textures( Uint16 iobj )
     int tnc;
     pro_t  * pobj;
 
-    if ( !VALID_PRO(iobj) ) return bfalse;
+    if ( !LOADED_PRO(iobj) ) return bfalse;
     pobj = ProList.lst + iobj;
 
     for ( tnc = 0; tnc < MAX_SKIN; tnc++ )
@@ -392,7 +392,7 @@ bool_t release_one_pro_data( Uint16 iobj )
     int cnt;
     pro_t * pobj;
 
-    if( !VALID_PRO(iobj) ) return bfalse;
+    if( !LOADED_PRO(iobj) ) return bfalse;
     pobj = ProList.lst + iobj;
 
     // free all sounds
@@ -415,7 +415,7 @@ bool_t release_one_pro( Uint16 iobj )
 
     if( !VALID_PRO_RANGE(iobj) ) return bfalse;
 
-    if( !VALID_PRO(iobj) ) return btrue;
+    if( !LOADED_PRO(iobj) ) return btrue;
     pobj = ProList.lst + iobj;
 
     // release all of the sub-profiles
@@ -464,10 +464,10 @@ Uint16 pro_get_icap(Uint16 iobj)
 {
     pro_t * pobj;
 
-    if( INVALID_PRO(iobj) ) return MAX_CAP;
+    if( !LOADED_PRO(iobj) ) return MAX_CAP;
     pobj = ProList.lst + iobj;
 
-    return VALID_CAP(pobj->icap) ? pobj->icap : MAX_CAP;
+    return LOADED_CAP(pobj->icap) ? pobj->icap : MAX_CAP;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -475,10 +475,10 @@ Uint16 pro_get_imad(Uint16 iobj)
 {
     pro_t * pobj;
 
-    if( INVALID_PRO(iobj) ) return MAX_MAD;
+    if( !LOADED_PRO(iobj) ) return MAX_MAD;
     pobj = ProList.lst + iobj;
 
-    return VALID_MAD(pobj->imad) ? pobj->imad : MAX_MAD;
+    return LOADED_MAD(pobj->imad) ? pobj->imad : MAX_MAD;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -486,10 +486,10 @@ Uint16 pro_get_ieve(Uint16 iobj)
 {
     pro_t * pobj;
 
-    if( INVALID_PRO(iobj) ) return MAX_EVE;
+    if( !LOADED_PRO(iobj) ) return MAX_EVE;
     pobj = ProList.lst + iobj;
 
-    return VALID_EVE(pobj->ieve) ? pobj->ieve : MAX_EVE;
+    return LOADED_EVE(pobj->ieve) ? pobj->ieve : MAX_EVE;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -497,7 +497,7 @@ Uint16 pro_get_ipip(Uint16 iobj, Uint16 ipip)
 {
     pro_t * pobj;
 
-    if( INVALID_PRO(iobj) ) return MAX_PIP;
+    if( !LOADED_PRO(iobj) ) return MAX_PIP;
     pobj = ProList.lst + iobj;
 
     // find the local pip if it exists
@@ -506,7 +506,7 @@ Uint16 pro_get_ipip(Uint16 iobj, Uint16 ipip)
         ipip = pobj->prtpip[ipip];
     }
 
-    return VALID_PIP(ipip) ? ipip : MAX_PIP;
+    return LOADED_PIP(ipip) ? ipip : MAX_PIP;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -515,10 +515,10 @@ cap_t * pro_get_pcap(Uint16 iobj)
 {
     pro_t * pobj;
 
-    if( INVALID_PRO(iobj) ) return NULL;
+    if( !LOADED_PRO(iobj) ) return NULL;
     pobj = ProList.lst + iobj;
 
-    if( INVALID_CAP(pobj->icap) ) return NULL;
+    if( !LOADED_CAP(pobj->icap) ) return NULL;
 
     return CapList + pobj->icap;
 }
@@ -528,10 +528,10 @@ mad_t * pro_get_pmad(Uint16 iobj)
 {
     pro_t * pobj;
 
-    if( INVALID_PRO(iobj) ) return NULL;
+    if( !LOADED_PRO(iobj) ) return NULL;
     pobj = ProList.lst + iobj;
 
-    if( INVALID_MAD(pobj->imad) ) return NULL;
+    if( !LOADED_MAD(pobj->imad) ) return NULL;
 
     return MadList + pobj->imad;
 }
@@ -541,10 +541,10 @@ eve_t * pro_get_peve(Uint16 iobj)
 {
     pro_t * pobj;
 
-    if( INVALID_PRO(iobj) ) return NULL;
+    if( !LOADED_PRO(iobj) ) return NULL;
     pobj = ProList.lst + iobj;
 
-    if( INVALID_EVE(pobj->ieve) ) return NULL;
+    if( !LOADED_EVE(pobj->ieve) ) return NULL;
 
     return EveStack.lst + pobj->ieve;
 }
@@ -554,7 +554,7 @@ pip_t * pro_get_ppip(Uint16 iobj, Uint16 ipip)
 {
     pro_t * pobj;
 
-    if( INVALID_PRO(iobj) ) return NULL;
+    if( !LOADED_PRO(iobj) ) return NULL;
     pobj = ProList.lst + iobj;
 
     // find the local pip if it exists
@@ -563,7 +563,7 @@ pip_t * pro_get_ppip(Uint16 iobj, Uint16 ipip)
         ipip = pobj->prtpip[ipip];
     }
 
-    if( INVALID_PIP(ipip) ) return NULL;
+    if( !LOADED_PIP(ipip) ) return NULL;
 
     return PipStack.lst + ipip;
 }
@@ -589,7 +589,7 @@ Mix_Chunk * pro_get_chunk(Uint16 iobj, int index)
 
     if( !VALID_SND(index) ) return NULL;
 
-    if( INVALID_PRO(iobj) ) return NULL;
+    if( !LOADED_PRO(iobj) ) return NULL;
     pobj = ProList.lst + iobj;
 
     return pobj->wavelist[index];
@@ -756,7 +756,7 @@ bool_t release_one_local_pips( Uint16 iobj )
 
     if( !VALID_PRO_RANGE(iobj) ) return bfalse;
 
-    if( INVALID_PRO(iobj) ) return btrue;
+    if( !LOADED_PRO(iobj) ) return btrue;
     pobj = ProList.lst + iobj;
 
     for ( cnt = 0; cnt < MAX_PIP_PER_PROFILE; cnt++ )
@@ -894,7 +894,7 @@ int load_one_profile( const char* tmploadname, int slot_override )
 
     // throw an error code if we are trying to load over an existing profile
     // without permission
-    if( VALID_PRO(iobj) )
+    if( LOADED_PRO(iobj) )
     {
         pro_t * pobj = ProList.lst + iobj;
 
@@ -1021,10 +1021,10 @@ const char * pro_create_chop( Uint16 iprofile )
     // the default "bad" name
     strncpy( buffer, "*NONE*", SDL_arraysize(buffer) );
 
-    if( !VALID_PRO(iprofile) ) return buffer;
+    if( !LOADED_PRO(iprofile) ) return buffer;
     ppro = ProList.lst + iprofile;
 
-    if( !VALID_CAP(ppro->icap) ) return buffer;
+    if( !LOADED_CAP(ppro->icap) ) return buffer;
     pcap = CapList + ppro->icap;
 
     if ( 0 == ppro->chop.section[0].size )

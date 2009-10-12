@@ -687,6 +687,9 @@ bool_t save_one_cap_file( const char * szSaveName, cap_t * pcap )
     if ( pcap->isvaluable != -1 )
         fput_expansion(filewrite, "", MAKE_IDSZ('V','A','L','U'), pcap->isvaluable );
 
+    if( pcap->spelleffect_type != NOSKINOVERRIDE )
+        fput_expansion(filewrite, "", MAKE_IDSZ('B','O','O','K'), pcap->spelleffect_type );
+
     // Basic stuff that is always written
     fput_expansion(filewrite, "", MAKE_IDSZ('G','O','L','D'), pcap->money );
     fput_expansion(filewrite, "", MAKE_IDSZ('P','L','A','T'), pcap->canuseplatforms );

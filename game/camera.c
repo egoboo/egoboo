@@ -160,7 +160,7 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
 
     Uint16 cnt;
     Sint16 locoalive;
-    float x, y, z, level, newx, newy, movex, movey;
+    float x, y, z, level, newx, newy, movex, movey, weight_sum;
     Uint16 character, turnsin;
 
     if ( CAMTURN_NONE != pcam->turn_mode )
@@ -210,10 +210,8 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
     else
     {
         // find the average position
-        x = 0;
-        y = 0;
-        z = 0;
-        level = 0;
+        x = y = z = level = 0;
+        weight_sum = 0;
 
         if ( CAM_PLAYER == pcam->move_mode )
         {
@@ -233,34 +231,43 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
                 pchr = ChrList.lst + character;
                 if ( pchr->alive )
                 {
-                    Uint16 imount = pchr->attachedto;
-                    if ( imount == MAX_CHR )
+                    Uint16 imount;
+                    float weight;
+
+                    // weight it by the character's velocity^2, so that
+                    // inactive characters don't control the camera
+                    weight = fvec3_dot_product( pchr->vel.v, pchr->vel.v );
+
+                    weight_sum += weight;
+
+                    imount = pchr->attachedto;
+                    if ( !ACTIVE_CHR(imount) )
                     {
                         // The character is on foot
-                        x += pchr->pos.x;
-                        y += pchr->pos.y;
-                        z += pchr->pos.z;
-                        level += pchr->enviro.level;
+                        x += pchr->pos.x * weight;
+                        y += pchr->pos.y * weight;
+                        z += pchr->pos.z * weight;
+                        level += pchr->enviro.level * weight;
                     }
                     else
                     {
                         // The character is mounted
-                        x += ChrList.lst[imount].pos.x;
-                        y += ChrList.lst[imount].pos.y;
-                        z += ChrList.lst[imount].pos.z;
-                        level += ChrList.lst[imount].enviro.level;
+                        x += ChrList.lst[imount].pos.x * weight;
+                        y += ChrList.lst[imount].pos.y * weight;
+                        z += ChrList.lst[imount].pos.z * weight;
+                        level += ChrList.lst[imount].enviro.level * weight;
                     }
 
                     locoalive++;
                 }
             }
 
-            if ( locoalive > 0 )
+            if ( weight_sum > 0 )
             {
-                x = x / locoalive;
-                y = y / locoalive;
-                z = z / locoalive;
-                level = level / locoalive;
+                x = x / weight_sum;
+                y = y / weight_sum;
+                z = z / weight_sum;
+                level = level / weight_sum;
             }
             else
             {
@@ -268,7 +275,6 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
                 y = pcam->track_pos.y;
                 z = pcam->track_pos.z;
             }
-
         }
         else
         {

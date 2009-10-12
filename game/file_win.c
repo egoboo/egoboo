@@ -170,15 +170,26 @@ bool_t fs_copyFile( const char *source, const char *dest )
 //---------------------------------------------------------------------------------------------
 // Directory Functions--------------------------------------------------------------------------
 //---------------------------------------------------------------------------------------------
-WIN32_FIND_DATA win32_wfdData;
-HANDLE win32_hFind;
+struct s_win32_find_context
+{
+    WIN32_FIND_DATA wfdData;
+    HANDLE          hFind;
+};
+typedef struct s_win32_find_context win32_find_context_t;
 
 //---------------------------------------------------------------------------------------------
 // Read the first directory entry
-const char *fs_findFirstFile( const char *searchDir, const char *searchExtension )
+const char *fs_findFirstFile( const char *searchDir, const char *searchExtension, fs_find_context_t * fs_search )
 {
     char searchSpec[MAX_PATH] = EMPTY_CSTR;
     size_t len;
+    win32_find_context_t * pcnt;
+
+    if( INVALID_CSTR(searchDir) || NULL == fs_search ) return NULL;
+
+    pcnt = calloc( 1, sizeof(win32_find_context_t) );
+    fs_search->type = win32_find;
+    fs_search->ptr.w = pcnt;
 
     len = strlen( searchDir ) + 1;
     if ( '/' != searchDir[len] || '\\' != searchDir[len] )
@@ -198,40 +209,58 @@ const char *fs_findFirstFile( const char *searchDir, const char *searchExtension
         strncat( searchSpec, "*", MAX_PATH );
     }
 
-    win32_hFind = FindFirstFile( searchSpec, &win32_wfdData );
-    if ( win32_hFind == INVALID_HANDLE_VALUE )
+    pcnt->hFind = FindFirstFile( searchSpec, &pcnt->wfdData );
+    if ( pcnt->hFind == INVALID_HANDLE_VALUE )
     {
         return NULL;
     }
 
-    return win32_wfdData.cFileName;
+    return pcnt->wfdData.cFileName;
 }
 
 //---------------------------------------------------------------------------------------------
 // Read the next directory entry (NULL if done)
-const char *fs_findNextFile( void )
+const char *fs_findNextFile( fs_find_context_t * fs_search )
 {
-    if ( win32_hFind == NULL || win32_hFind == INVALID_HANDLE_VALUE )
+    win32_find_context_t * pcnt;
+
+    if( NULL == fs_search || win32_find != fs_search->type ) return NULL;
+
+    pcnt = fs_search->ptr.w;
+    if( NULL == pcnt ) return NULL;
+
+    if ( pcnt->hFind == NULL || pcnt->hFind == INVALID_HANDLE_VALUE )
     {
         return NULL;
     }
-    if ( !FindNextFile( win32_hFind, &win32_wfdData ) )
+    if ( !FindNextFile( pcnt->hFind, &pcnt->wfdData ) )
     {
         return NULL;
     }
 
-    return win32_wfdData.cFileName;
+    return pcnt->wfdData.cFileName;
 }
 
 //---------------------------------------------------------------------------------------------
 // Close anything left open
-void fs_findClose()
+void fs_findClose( fs_find_context_t * fs_search )
 {
-    if( NULL != win32_hFind )
+    win32_find_context_t * pcnt;
+
+    if( NULL == fs_search || win32_find != fs_search->type ) return;
+
+    pcnt = fs_search->ptr.w;
+    if( NULL == pcnt ) return;
+
+    if( NULL != pcnt->hFind )
     {
-        FindClose( win32_hFind );
-        win32_hFind = NULL;
+        FindClose( pcnt->hFind );
+        pcnt->hFind = NULL;
     }
+    
+    free( pcnt );
+
+    memset( fs_search, 0, sizeof(fs_find_context_t) );
 }
 
 int DirGetAttrib( const char *fromdir )

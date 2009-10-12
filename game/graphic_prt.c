@@ -541,7 +541,7 @@ void prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_
 
     if ( !DISPLAY_PPRT( pprt ) ) return;
 
-    if ( !VALID_PIP( pprt->pip_ref ) ) return;
+    if ( !LOADED_PIP( pprt->pip_ref ) ) return;
     ppip = PipStack.lst + pprt->pip_ref;
 
     pinst->type = pprt->type;

@@ -599,8 +599,7 @@ extern team_t TeamList[TEAM_MAX];
 extern cap_t CapList[MAX_CAP];
 
 #define VALID_CAP_RANGE( ICAP ) ( ((ICAP) >= 0) && ((ICAP) < MAX_CAP) )
-#define VALID_CAP( ICAP )       ( VALID_CAP_RANGE( ICAP ) && CapList[ICAP].loaded )
-#define INVALID_CAP( ICAP )     ( !VALID_CAP_RANGE( ICAP ) || !CapList[ICAP].loaded )
+#define LOADED_CAP( ICAP )       ( VALID_CAP_RANGE( ICAP ) && CapList[ICAP].loaded )
 
 DEFINE_LIST_EXTERN(chr_t, ChrList, MAX_CHR );
 
@@ -751,7 +750,8 @@ bool_t chr_has_vulnie( Uint16 item, Uint16 weapon_profile );
 
 Uint32 chr_get_icon_ref( Uint16 item );
 
-const char * describe_value( float value, float maxval );
+const char * describe_value( float value, float maxval, int * rank_ptr );
+const char* describe_damage( float value, float maxval, int * rank_ptr );
 
 void reset_teams();
 

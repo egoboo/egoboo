@@ -1,5 +1,5 @@
 // Real general data
-Object slot number ( 0 to 63, don't use twice )	: 49
+Object slot number ( 0 to 63, don't use twice )	: -1
 Object class name ( use underscore for spaces ) : Bracelet
 Object is lit uniformly ( TRUE or FALSE )	: FALSE
 Maximum ammo ( 0 for doesn't matter )		: 0

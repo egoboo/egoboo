@@ -188,7 +188,7 @@ void render_one_mad_enviro( Uint16 character, Uint8 trans )
     pchr  = ChrList.lst + character;
     pinst = &(pchr->inst);
 
-    if ( INVALID_MAD(pinst->imad) ) return;
+    if ( !LOADED_MAD(pinst->imad) ) return;
     pmad = MadList + pinst->imad;
 
     ptex = TxTexture_get_ptr( pinst->texture );
@@ -338,7 +338,7 @@ void render_one_mad_tex( Uint16 character, Uint8 trans )
     pchr  = ChrList.lst + character;
     pinst = &(pchr->inst);
 
-    if ( INVALID_MAD(pinst->imad) ) return;
+    if ( !LOADED_MAD(pinst->imad) ) return;
     pmad = MadList + pinst->imad;
 
     // To make life easier
@@ -654,7 +654,7 @@ void chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 t
     // make sure the matrix is valid
     chr_update_matrix( pchr, btrue );
 
-    if ( INVALID_MAD(pinst->imad) ) return;
+    if ( !LOADED_MAD(pinst->imad) ) return;
     pmad = MadList + pinst->imad;
 
     // To make life easier
@@ -799,7 +799,7 @@ egoboo_rv chr_instance_update_bbox( chr_instance_t * pinst )
     if ( NULL == pinst ) return rv_error;
 
     // get the model. try to heal a bad model.
-    if ( INVALID_MAD(pinst->imad) ) return rv_error;
+    if ( !LOADED_MAD(pinst->imad) ) return rv_error;
     pmad = MadList + pinst->imad;
 
     if ( pinst->frame_nxt == pinst->frame_lst || pinst->flip == 0.0f )
@@ -838,7 +838,7 @@ egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vm
     }
 
     // get the model. try to heal a bad model.
-    if ( INVALID_MAD(pinst->imad) ) return rv_error;
+    if ( !LOADED_MAD(pinst->imad) ) return rv_error;
     pmad = MadList + pinst->imad;
 
     // handle the default parameters

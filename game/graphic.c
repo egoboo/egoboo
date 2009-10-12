@@ -1478,7 +1478,7 @@ void light_particles( ego_mpd_t * pmesh )
                 // not sure what to do here, since it is attached to the object's origin
                 pprt->inst.light = 0.5f * (pchr->inst.max_light + pchr->inst.min_light);
             }
-            else if ( VALID_MAD(imad) )
+            else if ( LOADED_MAD(imad) )
             {
                 int vertex = MAX(0, ego_md2_data[MadList[imad].md2_ref].vertices - pprt->vrt_off);
                 int light  = pchr->inst.color_amb + pchr->inst.vlst[vertex].color_dir;
