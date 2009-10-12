@@ -153,7 +153,7 @@ bool_t    screenshotkeyready = btrue;
 
 // End text
 char   endtext[MAXENDTEXT] = EMPTY_CSTR;
-int    endtext_carat = 0;
+size_t    endtext_carat = 0;
 
 // Status displays
 bool_t StatusList_on     = btrue;
@@ -1113,7 +1113,7 @@ int do_ego_proc_begin( ego_process_t * eproc )
     vfs_init( eproc->argv0 );
 
     // Initialize logging next, so that we can use it everywhere.
-    log_init( vfs_resolveWriteFilename("debug/log.txt") );
+    log_init( vfs_resolveWriteFilename("log.txt") );
     log_setLoggingLevel( 2 );
 
     // start initializing the various subsystems

@@ -23,6 +23,7 @@
 
 #include "file_common.h"
 #include "log.h"
+#include "egoboo_strutil.h"
 
 #include "egoboo.h"
 
@@ -45,8 +46,8 @@ static char linux_configPath[PATH_MAX]   = EMPTY_CSTR;
 
 struct s_linux_find_context
 {
-    static glob_t last_find;
-    static size_t find_index;
+    glob_t last_find;
+    size_t find_index;
 };
 typedef struct s_linux_find_context linux_find_context_t;
 
@@ -55,24 +56,26 @@ typedef struct s_linux_find_context linux_find_context_t;
 // File Routines
 void fs_init()
 {
-    char * username;
+    char * userhome;
 
     printf( "Initializing filesystem services...\n" );
 
-    username = getenv( "USER" );
+    userhome = getenv( "HOME" ); // use other envvars if needed
 
     // this is just a skeleton. the USER needs to be replaced by an environment variable
-    snprintf( linux_userdataPath, SDL_arraysize(linux_userdataPath), "/home/%s/.egoboo-2.x/", username );
+    snprintf( linux_userdataPath, SDL_arraysize(linux_userdataPath), "%s/.egoboo-2.x/", userhome );
 
     // this is a read-only directory
-    strncpy( linux_configPath, "/etc/egoboo-2.x/",             SDL_arraysize(linux_configPath) );
-    strncpy( linux_binaryPath, "/usr/games/egoboo-2.x/",       SDL_arraysize(linux_binaryPath) );
-    strncpy( linux_dataPath,   "/usr/share/games/egoboo-2.x/", SDL_arraysize(linux_dataPath)   );
+    strncpy( linux_configPath, PREFIX "/etc/egoboo-2.x/",             SDL_arraysize(linux_configPath) );
+    strncpy( linux_binaryPath, PREFIX "/games/egoboo-2.x/",       SDL_arraysize(linux_binaryPath) );
+    strncpy( linux_dataPath,   PREFIX "/share/games/egoboo-2.x/", SDL_arraysize(linux_dataPath)   );
 
     // the log file cannot be started until there is a user data path to dump the file into
     // so dump this debug info to stdout
     printf( "Game directories are:\n\tBinaries: %s\n\tData: %s\n\tUser Data: %s\n\tConfig Files: %s\n",
               linux_binaryPath, linux_dataPath, linux_userdataPath, linux_configPath );
+    if ( !fs_fileIsDirectory( linux_userdataPath ) )
+        fs_createDirectory( linux_userdataPath );
 }
 
 //--------------------------------------------------------------------------------------------

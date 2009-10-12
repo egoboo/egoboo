@@ -7,6 +7,7 @@ Step 1: Make sure you have these packages, and if you don't install them:
 * libsdl1.2-dev
 * libsdl-ttf2.0-dev
 * build-essential
+* PhysFS 2.0.0 (Ubuntu Karmic has this as libphysfs-dev, earlier versions need to compile)
 
 Step 2: Extract the source code.
 * Either use a graphical interface or type: tar -xzf egoboo-<version>.tar.gz
@@ -14,17 +15,19 @@ Step 2: Extract the source code.
 Step 3: Open a console (or terminal) and cd to the game directory in the main egoboo folder.
 * cd ~/egoboo-<version>/game (Assuming that the directory is in your home folder)
 
+Step 3.5: (Optional) Change the default directory to be installed in.
+* Open Makefile.unix and change the line with PREFIX := ${HOME}/.local to something suitable
+
 Step 4: Compile the source.
 * make -f Makefile.unix
 
 Step 5: Install Egoboo. Type:
-* cp egoboo ..
+* make -f Makefile.unix install
 
 Step 6: Start Egoboo!
-* Type 'cd ~/egoboo-<version> && ./egoboo'.
+* Type 'PREFIX/games/egoboo-2.x'. (replace PREFIX to whatever you changed PREFIX to, or ~/.local by
+    default. This does not need to happen if it is in /usr/games)
 * Enjoy!
-
-Note: You will have to do step 6 every time you want to run Egoboo
 
 If you experience problems, please ask in the Egoboo Forums at
 http://egoboo.sourceforge.com/forum/. Thank you. 

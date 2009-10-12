@@ -2,7 +2,7 @@
 PREFIX	:= ${HOME}/.local
 
 EGO_SRC  := \
-	camera.c char.c client.c clock.c egoboo_endian.c \
+	camera.c char.c client.c clock.c egoboo_console.c egoboo_endian.c \
 	egoboo_fileutil.c egoboo_math.c egoboo_setup.c egoboo_strutil.c \
 	egoboo_typedef.c egoboo_vfs.c enchant.c file_common.c \
 	file_linux.c font_bmp.c font_ttf.c game.c \
@@ -28,7 +28,7 @@ SDLCONF_I := $(shell ${SDL_CONF} --cflags)
 SDLCONF_L := $(shell ${SDL_CONF} --libs)
 
 CC      := gcc
-OPT     := -Os -Wall
+OPT     := -Os -Wall -DPREFIX=\"${PREFIX}\"
 INC     := -I. -I.. -I../enet/include ${SDLCONF_I} -I./file_formats -I./extensions
 CFLAGS  := ${OPT} ${INC}
 LDFLAGS := ${SDLCONF_L} -lSDL_ttf -lSDL_mixer -lGL -lGLU -lSDL_image -lphysfs
@@ -42,11 +42,12 @@ ${EGO_BIN}: ${EGO_OBJ} ${ENET_OBJ}
 	${CC} -o $@ $^ ${LDFLAGS}
 
 install: ${EGO_BIN}
-	sudo mkdir -p /usr/games/egoboo-2.x
-	sudo install -m 555 ${EGO_BIN} /usr/games/egoboo-2.x
+	mkdir -p ${PREFIX}/games/
+	install -m 755 ${EGO_BIN} ${PREFIX}/games/
+	
+	mkdir -p ${PREFIX}/share/games/${EGO_BIN}
+	cp -r ../basicdat ../modules ../players ${PREFIX}/share/games/${EGO_BIN}
 
-	mkdir -p ${PREFIX}/libexec
-	install -p -m 755 ${EGO_BIN}.sh ${PREFIX}/bin/${EGO_BIN}
 
 clean:
 	rm -f ${ENET_OBJ} ${EGO_OBJ} ${EGO_BIN}
