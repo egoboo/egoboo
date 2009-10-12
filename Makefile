@@ -27,15 +27,15 @@ install: ${EGO_BIN}
 	echo it is a local installation for this username, only.
 	echo
 
-	#copy the binary to the games folder
+#	copy the binary to the games folder
 	mkdir -p ${PREFIX}/games/
-	install -m 755 ${PROJ_NAME} ${PREFIX}/games/${PROJ_NAME}
+	install -m 755 ./game/${PROJ_NAME} ${PREFIX}/games/${PROJ_NAME}
 	
-	#copy the data to the games folder
+#	copy the data to the games folder
 	mkdir -p ${PREFIX}/share/games/${PROJ_NAME}
-	cp -r ./basicdat ./modules ${HOME}/games/${PROJ_NAME}
+	cp -r ./basicdat ./modules ${PREFIX}/share/games/${PROJ_NAME}
 
-	#copy the players to the user's data folder
+#	copy the players to the user's data folder
 	mkdir -p ${HOME}/.${PROJ_NAME}
 	cp -r ./players ${HOME}/.${PROJ_NAME}
 
