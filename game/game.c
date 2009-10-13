@@ -1937,7 +1937,7 @@ bool_t check_target( chr_t * psrc, Uint16 ichr_test, TARGET_TYPE target_type, bo
     if ( target_dead == ptst->alive ) return bfalse;
 
     // Dont target invisible stuff, unless we can actually see them
-    if ( !psrc->see_invisible_level && ( ptst->inst.alpha * ptst->inst.max_light  * INV_FF ) < INVISIBLE ) return bfalse;
+    if ( !chr_can_see_object( GET_INDEX_PCHR(psrc), ichr_test) ) return bfalse;
 
 	is_hated = TeamList[psrc->team].hatesteam[ptst->team];
     hates_me = TeamList[ptst->team].hatesteam[psrc->team];
@@ -7351,6 +7351,227 @@ bool_t write_wawalite( const char *modname, wawalite_data_t * pdata )
     }
 
     return write_wawalite_file( modname, pdata );
+}
+
+//--------------------------------------------------------------------------------------------
+Uint8 gel_local_alpha( Uint16 iobj )
+{
+    chr_t * pobj;
+    int     alpha;
+
+    if( !ACTIVE_CHR(iobj) ) return bfalse;
+    pobj = ChrList.lst + iobj;
+
+    alpha = pobj->inst.alpha;
+
+    if( local_seeinvis_level > 0 )
+    {
+        alpha = MAX( alpha, INVISIBLE );
+        alpha *= local_seeinvis_level + 1;
+    }
+
+    return CLIP_TO_08BITS(alpha);
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t do_shop_drop( Uint16 idropper, Uint16 iitem )
+{
+    chr_t * pdropper, * pitem;
+    bool_t inshop;
+
+    if( !ACTIVE_CHR(iitem) ) return bfalse;
+    pitem = ChrList.lst + iitem;
+
+    if( !ACTIVE_CHR(idropper) ) return bfalse;
+    pdropper = ChrList.lst + idropper;
+
+    inshop = bfalse;
+    if ( pitem->isitem && ShopStack.count > 0 )
+    {
+        Uint16 iowner;
+
+        int ix = pitem->pos.x / TILE_SIZE;
+        int iy = pitem->pos.y / TILE_SIZE;
+
+        // This is a hack that makes spellbooks in shops cost correctly
+        if ( pdropper->isshopitem ) pitem->isshopitem = btrue;
+
+        iowner = shop_get_owner( ix, iy );
+        if ( ACTIVE_CHR(iowner) )
+        {
+            int price;
+            chr_t * powner = ChrList.lst + iowner;
+
+            inshop = btrue;
+
+            price = chr_get_price( iitem );
+
+            // Are they are trying to sell junk or quest items?
+            if ( 0 == price ) 
+            {
+                ai_add_order( &(powner->ai), (Uint32) price, SHOP_BUY );
+            }
+            else
+            {
+                pdropper->money += price;
+                pdropper->money  = CLIP(pdropper->money, 0, MAXMONEY);
+
+                powner->money -= price;
+                powner->money  = CLIP(powner->money, 0, MAXMONEY);
+
+                ai_add_order( &(powner->ai), (Uint32) price, SHOP_BUY );
+            }
+        }
+    }
+
+    return inshop;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t do_shop_buy( Uint16 ipicker, Uint16 iitem )
+{
+    bool_t can_grab;
+    int price;
+
+    chr_t * ppicker, * pitem;
+
+    if( !ACTIVE_CHR(iitem) ) return bfalse;
+    pitem = ChrList.lst + iitem;
+
+    if( !ACTIVE_CHR(ipicker) ) return bfalse;
+    ppicker = ChrList.lst + ipicker;
+
+    can_grab = btrue;
+
+    if ( pitem->isitem && ShopStack.count > 0 )
+    {
+        Uint16 iowner;
+
+        int ix = pitem->pos.x / TILE_SIZE;
+        int iy = pitem->pos.y / TILE_SIZE;
+
+        iowner = shop_get_owner( ix, iy );
+        if ( ACTIVE_CHR(iowner) )
+        {
+            chr_t * powner = ChrList.lst + iowner;
+
+            price = chr_get_price( iitem );
+
+            if ( ppicker->money >= price )
+            {
+                // Okay to sell
+                ai_add_order( &(powner->ai), (Uint32) price, SHOP_SELL );
+
+                ppicker->money -= price;
+                ppicker->money  = CLIP(ppicker->money, 0, MAXMONEY);
+
+                powner->money  += price;
+                powner->money   = CLIP(powner->money, 0, MAXMONEY);
+
+                can_grab = btrue;
+            }
+            else
+            {
+                // Don't allow purchase
+                ai_add_order( &(powner->ai), price, SHOP_NOAFFORD );
+                can_grab = bfalse;
+            }
+        }
+    }
+
+    return can_grab;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t do_shop_steal( Uint16 ithief, Uint16 iitem )
+{
+    // Pets can try to steal in addition to invisible characters
+
+    bool_t can_steal;
+    int price;
+
+    chr_t * pthief, * pitem;
+
+    if( !ACTIVE_CHR(iitem) ) return bfalse;
+    pitem = ChrList.lst + iitem;
+
+    if( !ACTIVE_CHR(ithief) ) return bfalse;
+    pthief = ChrList.lst + ithief;
+
+    can_steal = btrue;
+    if ( pitem->isitem && ShopStack.count > 0 )
+    {
+        Uint16 iowner;
+
+        int ix = pitem->pos.x / TILE_SIZE;
+        int iy = pitem->pos.y / TILE_SIZE;
+
+        iowner = shop_get_owner( ix, iy );
+        if ( ACTIVE_CHR(iowner) )
+        {
+            IPair  tmp_rand = {1,100};
+            Uint8  detection;
+            chr_t * powner = ChrList.lst + iowner;
+
+            detection = generate_irand_pair( tmp_rand );
+            
+            can_steal = btrue;
+            if ( chr_can_see_object( iowner, ithief ) || detection <= 5 || (detection - ( pthief->dexterity >> 7 ) + ( powner->wisdom >> 7 )) > 50 )
+            {
+                ai_add_order( &(powner->ai), SHOP_STOLEN, SHOP_THEFT );
+                powner->ai.target = ithief;
+                can_steal = bfalse;
+            }
+        }
+    }
+
+    return can_steal;
+}
+
+
+//--------------------------------------------------------------------------------------------
+bool_t do_item_pickup( Uint16 ichr, Uint16 iitem )
+{
+    bool_t can_grab;
+    bool_t is_invis, can_steal;
+    chr_t * pchr;
+
+    if( !ACTIVE_CHR(ichr) ) return bfalse;
+    pchr = ChrList.lst + ichr;
+
+    // assume that there is no shop so that the character can grab anything
+    can_grab = btrue;
+
+    // check for a stealthy pickup
+    is_invis  = !chr_can_see_object( ichr, iitem );
+
+    // pets are automatically stealthy
+    can_steal = is_invis || pchr->isitem;
+
+    if ( can_steal )
+    {
+        can_grab = do_shop_steal( ichr, iitem );
+
+        if( !can_grab )
+        {
+            debug_printf( "%s was detected!!", chr_get_name( ichr, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL ) );
+        }
+        else
+        {
+            debug_printf( "%s stole %s", chr_get_name( ichr, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL), chr_get_name( iitem, CHRNAME_ARTICLE ) );
+        }
+    }
+    else
+    {
+        can_grab = do_shop_buy( ichr, iitem );
+
+        if( can_grab )
+        {
+            debug_printf( "%s bought %s", chr_get_name( ichr, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL), chr_get_name( iitem, CHRNAME_ARTICLE ) );
+        }
+    }
+
+    return can_grab;
 }
 
 ////--------------------------------------------------------------------------------------------

@@ -424,3 +424,11 @@ void attach_particles();
 
 struct s_wawalite_data * read_wawalite( const char *modname );
 bool_t write_wawalite( const char *modname, struct s_wawalite_data * pdata );
+
+Uint8 gel_local_alpha( Uint16 iobj );
+
+bool_t do_shop_drop( Uint16 idropper, Uint16 iitem );
+
+bool_t do_shop_buy( Uint16 ipicker, Uint16 ichr );
+bool_t do_shop_steal( Uint16 ithief, Uint16 iitem );
+bool_t do_item_pickup( Uint16 ichr, Uint16 iitem );

@@ -69,7 +69,7 @@ void ShopStack_free_all()
 
     for ( cnt = 0; cnt < MAX_PASS; cnt++ )
     {
-        ShopStack.lst[cnt].owner   = NOOWNER;
+        ShopStack.lst[cnt].owner   = SHOP_NOOWNER;
         ShopStack.lst[cnt].passage = 0;
     }
     ShopStack.count = 0;
@@ -501,7 +501,7 @@ Uint16 shop_get_owner( int ix, int iy )
 {
     /// ZZ@> This function returns the owner of a item in a shop
     int cnt;
-    Uint16 owner = NOOWNER;
+    Uint16 owner = SHOP_NOOWNER;
 
     for ( cnt = 0; cnt < ShopStack.count; cnt++ )
     {
@@ -518,7 +518,7 @@ Uint16 shop_get_owner( int ix, int iy )
 
         if ( irect_point_inside( &(ppass->area), ix, iy ) )
         {
-            // if there is NOOWNER, someone has been murdered!
+            // if there is SHOP_NOOWNER, someone has been murdered!
             owner = pshop->owner;
             break;
         }

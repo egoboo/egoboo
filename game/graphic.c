@@ -2549,8 +2549,7 @@ void render_scene_trans()
                 GL_DEBUG(glEnable)(GL_BLEND );
                 GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
-                trans = pinst->alpha;
-                if ( trans < SEEINVISIBLE && ( local_seeinvis_level || pchr->islocalplayer ) ) trans = SEEINVISIBLE;
+                trans = gel_local_alpha( ichr );
 
                 render_one_mad( ichr, trans, bfalse );
             }
@@ -2560,9 +2559,7 @@ void render_scene_trans()
                 GL_DEBUG(glEnable)(GL_BLEND );
                 GL_DEBUG(glBlendFunc)(GL_ONE, GL_ONE );
 
-                trans = pinst->light == 255 ? 0 : pinst->light;
-
-                if ( trans < SEEINVISIBLE && ( local_seeinvis_level || pchr->islocalplayer ) )  trans = SEEINVISIBLE;
+                trans = gel_local_alpha( ichr );
 
                 render_one_mad( ichr, trans, bfalse );
             }

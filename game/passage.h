@@ -37,8 +37,8 @@ struct s_script_state;
 #define MAX_SHOP             MAX_PASS
 #define CLOSETOLERANCE       2                       ///< For closing doors
 
-#define NOOWNER 0xFFFF        ///< Shop has no owner
-#define STOLEN  0xFFFF        ///< Someone stole a item
+#define SHOP_NOOWNER 0xFFFF        ///< Shop has no owner
+#define SHOP_STOLEN  0xFFFF        ///< Someone stole a item
 
 /// The pre-defined orders for communicating with shopkeepers
 enum e_shop_orders

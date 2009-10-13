@@ -871,9 +871,8 @@ bool_t detach_character_from_mount( Uint16 character, Uint8 ignorekurse, Uint8 d
 {
     /// @details ZZ@> This function drops an item
 
-    Uint16 mount, hand, enchant, owner = NOOWNER;
+    Uint16 mount, hand, enchant, owner = SHOP_NOOWNER;
     bool_t inshop;
-    float price;
     float nrm[2];
     chr_t * pchr, * pmount;
 
@@ -943,64 +942,9 @@ bool_t detach_character_from_mount( Uint16 character, Uint8 ignorekurse, Uint8 d
 
     // Check for shop passages
     inshop = bfalse;
-    if ( pchr->isitem && ShopStack.count > 0 && doshop )
+    if( doshop )
     {
-        int ix = pchr->pos.x / TILE_SIZE;
-        int iy = pchr->pos.y / TILE_SIZE;
-
-        // This is a hack that makes spellbooks in shops cost correctly
-        if ( pmount->isshopitem ) pchr->isshopitem = btrue;
-
-        owner = shop_get_owner( ix, iy );
-        if ( ACTIVE_CHR(owner) ) inshop = btrue;
-
-        if ( inshop )
-        {
-            // Give the mount its money back, alert the shop owner
-            Uint16 skin, icap;
-
-            // Make sure spell books are priced according to their spell and not the book itself
-            if ( pchr->iprofile == SPELLBOOK )
-            {
-                icap = pro_get_icap(pchr->basemodel);
-                skin = 0;
-            }
-            else
-            {
-                icap  = pro_get_icap(pchr->iprofile);
-                skin = pchr->skin;
-            }
-            price = CapList[icap].skincost[skin];
-
-            // Are they are trying to sell junk or quest items?
-            if ( price == 0 ) ai_add_order( chr_get_pai(owner), (Uint32) price, SHOP_BUY );
-            else
-            {
-                // Items spawned within shops are more valuable
-                if (!pchr->isshopitem) price *= 0.5;
-
-                // cost it based on the number/charges of the item
-                if ( CapList[icap].isstackable )
-                {
-                    price *= pchr->ammo;
-                }
-                else if (CapList[icap].isranged && pchr->ammo < pchr->ammomax)
-                {
-                    if ( 0 != pchr->ammo )
-                    {
-                        price *= (float)pchr->ammo / pchr->ammomax;
-                    }
-                }
-
-                pmount->money += (Sint16) price;
-                pmount->money  = CLIP(pmount->money, 0, MAXMONEY);
-
-                ChrList.lst[owner].money -= (Sint16) price;
-                ChrList.lst[owner].money  = CLIP(ChrList.lst[owner].money, 0, MAXMONEY);
-
-                ai_add_order( chr_get_pai(owner), (Uint32) price, SHOP_BUY );
-            }
-        }
+        inshop = do_shop_drop(mount, character);
     }
 
     // Make sure it works right
@@ -1819,7 +1763,7 @@ bool_t character_grab_stuff( Uint16 ichr_a, grip_offset_t grip_off, bool_t grab_
     for ( cnt = 0; cnt < grab_count; cnt++ )
     {
         bool_t can_grab;
-        float price;
+
         chr_t * pchr_b;
 
         ichr_b = grab_list[cnt].ichr;
@@ -1827,103 +1771,7 @@ bool_t character_grab_stuff( Uint16 ichr_a, grip_offset_t grip_off, bool_t grab_
 
         if ( grab_list[cnt].dist > GRABSIZE ) continue;
 
-        // Check for shop
-        can_grab = btrue;
-        if ( pchr_b->isitem && ShopStack.count > 0 )
-        {
-            int    ix, iy;
-            bool_t inshop;
-            Uint16 owner;
-
-            ix = pchr_b->pos.x / TILE_SIZE;
-            iy = pchr_b->pos.y / TILE_SIZE;
-
-            owner  = shop_get_owner( ix, iy );
-            inshop = ACTIVE_CHR(owner);
-
-            if ( inshop )
-            {
-                // Pay the shop owner, or don't allow grab...
-                bool_t is_invis, can_steal;
-
-                is_invis  = (pchr_a->inst.alpha * pchr_a->inst.max_light * INV_FF) < INVISIBLE;
-                can_steal = is_invis || pchr_a->isitem;
-
-                if ( can_steal )
-                {
-                    // Pets can try to steal in addition to invisible characters
-                    IPair  tmp_rand = {1,100};
-                    Uint8  detection = generate_irand_pair( tmp_rand );
-
-                    // Check if it was detected. 50% chance +2% per pet DEX and -2% per shopkeeper wisdom. There is always a 5% chance it will fail.
-                    if ( ChrList.lst[owner].see_invisible_level || detection <= 5 || detection - ( pchr_a->dexterity >> 7 ) + ( ChrList.lst[owner].wisdom >> 7 ) > 50 )
-                    {
-                        debug_printf( "%s was detected!!", chr_get_name( GET_INDEX_PCHR( pchr_a ), CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL ) );
-
-                        ai_add_order( chr_get_pai(owner), STOLEN, SHOP_THEFT );
-                        chr_get_pai(owner)->target = ichr_a;
-                    }
-                    else
-                    {
-                        debug_printf( "%s stole something! (%s)", chr_get_name( GET_INDEX_PCHR(pchr_a), CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL), chr_get_name( GET_INDEX_PCHR(pchr_b), CHRNAME_ARTICLE ) );
-                    }
-                }
-                else
-                {
-                    Uint16 icap, iskin;
-
-                    // Make sure spell books are priced according to their spell and not the book itself
-                    if ( pchr_b->iprofile == SPELLBOOK )
-                    {
-                        icap = pro_get_icap(pchr_b->basemodel);
-                        iskin = 0;
-                    }
-                    else
-                    {
-                        icap  = pro_get_icap(pchr_b->iprofile);
-                        iskin = pchr_b->skin;
-                    }
-                    price = (float) CapList[icap].skincost[iskin];
-
-                    // Items spawned in shops are more valuable
-                    if (!pchr_b->isshopitem) price *= 0.5f;
-
-                    // base the cost on the number of items/charges
-                    if ( CapList[icap].isstackable )
-                    {
-                        price *= pchr_b->ammo;
-                    }
-                    else if (CapList[icap].isranged && pchr_b->ammo < pchr_b->ammomax)
-                    {
-                        if ( 0 != pchr_b->ammo )
-                        {
-                            price *= (float) pchr_b->ammo / (float) pchr_b->ammomax;
-                        }
-                    }
-
-                    // round to int value
-                    price = (Sint32) price;
-
-                    if ( pchr_a->money >= price )
-                    {
-                        // Okay to sell
-                        ai_add_order( chr_get_pai(owner), (Uint32) price, SHOP_SELL );
-
-                        pchr_a->money -= (Sint16) price;
-                        pchr_a->money  = CLIP(pchr_a->money, 0, MAXMONEY);
-
-                        ChrList.lst[owner].money += (Sint16) price;
-                        ChrList.lst[owner].money  = CLIP(ChrList.lst[owner].money, 0, MAXMONEY);
-                    }
-                    else
-                    {
-                        // Don't allow purchase
-                        ai_add_order( chr_get_pai(owner), (Uint32) price, SHOP_NOAFFORD );
-                        can_grab = bfalse;
-                    }
-                }
-            }
-        }
+        can_grab = do_item_pickup( ichr_a, ichr_b );
 
         if ( can_grab )
         {
@@ -2490,7 +2338,7 @@ bool_t chr_upload_cap( chr_t * pchr, cap_t * pcap )
     pcap->lifecolor          = pchr->lifecolor;
     pcap->manacolor          = pchr->manacolor;
     pcap->size               = pchr->fat_goto;
-    pcap->kursechance        = pchr->iskursed*100;
+    pcap->kursechance        = pchr->iskursed ? 100 : 0;
 
     // export values that override spawn.txt values
     pcap->contentoverride    = pchr->ai.content;
@@ -3066,7 +2914,7 @@ int damage_character( Uint16 character, Uint16 direction,
                         for (tnc = 0; tnc < ShopStack.count; tnc++ )
                         {
                             if ( ShopStack.lst[tnc].owner != character ) continue;
-                            ShopStack.lst[tnc].owner = NOOWNER;
+                            ShopStack.lst[tnc].owner = SHOP_NOOWNER;
                         }
 
                         //Set various alerts to let others know it has died
@@ -3694,27 +3542,38 @@ Uint16 spawn_one_character( fvec3_t   pos, Uint16 profile, Uint8 team,
                             ichr, GRIP_LAST + tnc, pchr->team, ichr, TOTAL_MAX_PRT, tnc, MAX_CHR );
     }
 
-    // Items that are spawned inside shop passages are more expensive than normal
-    pchr->isshopitem = bfalse;
-    if ( pchr->isitem && ShopStack.count > 0 && !pchr->pack_ispacked && pchr->attachedto == MAX_CHR )
+    // is the object part of a shop's inventory?
+    if( !ACTIVE_CHR( pchr->attachedto ) && pchr->isitem && !pchr->pack_ispacked )
     {
+        // Items that are spawned inside shop passages are more expensive than normal
         for ( cnt = 0; cnt < ShopStack.count; cnt++ )
         {
             // Make sure the owner is not dead
-            if ( ShopStack.lst[cnt].owner == NOOWNER ) continue;
+            if ( SHOP_NOOWNER == ShopStack.lst[cnt].owner ) continue;
+
+            pchr->isshopitem = bfalse;
 
             if ( object_is_in_passage( ShopStack.lst[cnt].passage, pchr->pos.x, pchr->pos.y, pchr->bump.size) )
             {
                 pchr->isshopitem = btrue;               // Full value
                 pchr->iskursed   = bfalse;              // Shop items are never kursed
-                pchr->nameknown  = btrue;               // Identify items in shop
+
+                // Identify cheap items in a shop
+                if( chr_get_price(ichr) < 10 )
+                {
+                    pchr->nameknown  = btrue;
+                }
+
                 break;
             }
         }
     }
 
     // override the shopitem flag if the item is known to be valuable
-    if ( pcap->isvaluable ) pchr->isshopitem = btrue;
+    if ( pcap->isvaluable )
+    {
+        pchr->isshopitem = btrue;
+    }
 
     // initalize the character instance
     chr_instance_spawn( &(pchr->inst), profile, skin );
@@ -8581,3 +8440,79 @@ bool_t chr_has_vulnie( Uint16 item, Uint16 test_profile )
 
     return bfalse;
 }
+
+//--------------------------------------------------------------------------------------------
+bool_t chr_can_see_object( Uint16 ichr, Uint16 iobj )
+{
+    chr_t * pchr, * pobj;
+    int     light;
+
+    if( !ACTIVE_CHR(ichr) ) return bfalse;
+    pchr = ChrList.lst + ichr;
+
+    if( !ACTIVE_CHR(iobj) ) return bfalse;
+    pobj = ChrList.lst + iobj;
+
+    light = pobj->inst.alpha * pobj->inst.max_light;
+
+    if( pchr->see_invisible_level > 0 )
+    {
+        light *= pchr->see_invisible_level + 1;
+    }
+
+    if( pchr->darkvision_level > 0 )
+    {
+        light *= pchr->darkvision_level + 1;
+    }
+
+    return (light * INV_FF) >= INVISIBLE;
+}
+
+//--------------------------------------------------------------------------------------------
+int chr_get_price( Uint16 ichr )
+{
+    Uint16 icap, iskin;
+    float  price;
+
+    chr_t * pchr;
+    cap_t * pcap;
+
+    if( !ACTIVE_CHR(ichr) ) return 0;
+    pchr = ChrList.lst + ichr;
+
+    // Make sure spell books are priced according to their spell and not the book itself
+    if ( pchr->iprofile == SPELLBOOK )
+    {
+        icap = pro_get_icap(pchr->basemodel);
+        iskin = 0;
+    }
+    else
+    {
+        icap  = pro_get_icap(pchr->iprofile);
+        iskin = pchr->skin;
+    }
+
+    pcap = pro_get_pcap( icap );
+    if( NULL == pcap ) return 0;
+
+    price = (float) pcap->skincost[iskin];
+
+    // Items spawned in shops are more valuable
+    if ( !pchr->isshopitem ) price *= 0.5f;
+
+    // base the cost on the number of items/charges
+    if ( pcap->isstackable )
+    {
+        price *= pchr->ammo;
+    }
+    else if ( pcap->isranged && pchr->ammo < pchr->ammomax )
+    {
+        if ( 0 != pchr->ammo )
+        {
+            price *= (float) pchr->ammo / (float) pchr->ammomax;
+        }
+    }
+
+    return (int)price;
+}
+

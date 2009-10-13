@@ -155,14 +155,9 @@ void let_character_think( Uint16 character )
     }
 
     // Reset the target if it can't be seen
-    if ( !pchr->see_invisible_level && pchr->alive )
+    if ( !chr_can_see_object( character, pself->target ) )
     {
-        chr_instance_t * pinst = chr_get_pinstance(pself->target);
-
-        if ( NULL == pinst || ( pinst->alpha * pinst->max_light * INV_FF ) <= INVISIBLE )
-        {
-            pself->target = pself->index;
-        }
+        pself->target = pself->index;
     }
 
     // reset the script state

@@ -786,3 +786,6 @@ Uint16 chr_holding_idsz( Uint16 ichr, IDSZ idsz );
 Uint16 chr_has_item_idsz( Uint16 ichr, IDSZ idsz, bool_t equipped, Uint16 * pack_last );
 
 bool_t apply_one_reflection( chr_t * pchr );
+
+bool_t chr_can_see_object( Uint16 ichr, Uint16 iobj );
+int    chr_get_price( Uint16 ichr );

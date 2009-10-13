@@ -2391,19 +2391,7 @@ Uint8 scr_Invisible( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    sTmp = pchr->inst.alpha * pchr->inst.max_light;
-
-    if( pchr->see_invisible_level > 0 )
-    {
-        sTmp *= pchr->see_invisible_level + 1;
-    }
-
-    if( pchr->darkvision_level > 0 )
-    {
-        sTmp *= pchr->darkvision_level + 1;
-    }
-
-    returncode = (sTmp * INV_FF) <= INVISIBLE;
+    returncode = pchr->inst.alpha <= INVISIBLE;
 
     SCRIPT_FUNCTION_END();
 }
@@ -6387,7 +6375,7 @@ Uint8 scr_SomeoneIsStealing( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ( pself->order_value == STOLEN && pself->order_counter == SHOP_THEFT );
+    returncode = ( pself->order_value == SHOP_STOLEN && pself->order_counter == SHOP_THEFT );
 
     SCRIPT_FUNCTION_END();
 }
