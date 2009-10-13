@@ -1,10 +1,7 @@
 //Circle around the statue... thats it
 IfTimeOut
-  tmpargument = [PILL]
-  tmpdistance = 14 // Items, friends and enemies
-  SetTargetToNearestBlahID
-  tmpx = targetx
-  tmpy = targety
+  tmpx = selfspawnx
+  tmpy = selfspawny
   tmpturn = xyturnto + 16384
   tmpdistance = 400
   Compass

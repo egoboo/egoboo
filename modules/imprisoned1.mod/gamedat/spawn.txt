@@ -120,6 +120,10 @@ chair:   NONE    41  5.5   7.3   1.0   N    0   0  0   0   0   F   F   N
 table:   NONE    40  11.5   52.5   1.0   E    0   0  0   0   0   F   F   N
 chair:   NONE    41  4.5   51.5   1.0   E    0   0  0   0   0   F   F   N
 bookshelf:   NONE    38  11.5   9.0   0.0   W    0   0  0   0   0   F   F   N
+chest:   NONE    45  8.0   6.5   0.0   S    9   0  0   0   0   F   F   N
+  KeyR:   NONE    101  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  identify:   NONE    94  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  rebirth:   NONE    117  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
 //Wizards chamber
 bookshelf:   NONE    38  38.5   56.0   0.0   W    0   0  0   0   0   F   F   N
@@ -160,7 +164,6 @@ chest:   NONE    45  7.0   59.25   0.0   N    0   0  0   0   0   F   F   N
   identify:   NONE    94  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 carpet:   NONE    106  8.0   55.5   0.0   ?    0   0  0   2   0   F   F   E
 chair:   NONE    41  11.5   59.5   0.0   N    0   0  0   0   0   F   F   N
-backpack:   NONE    110  4.0   53.0   0.0   ?    0   0  0   0   0   F   F   N
 
 stalker:   NONE    99  5.5   57.5   0.0   ?    0   0  0   0   0   F   F   E
   trident:   NONE    100  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
@@ -175,7 +178,7 @@ cockatrice:   NONE    51  29.0   17.0   1.0   N    0   0  0   0   0   F   F   E
 cockatrice:   NONE    51  24.0   20.0   1.0   N    0   0  0   0   0   F   F   E
 cockatrice:   NONE    51  29.0   20.0   1.0   N    0   0  0   0   0   F   F   E
 museumstatue:   NONE    47  25.5   16.5   0.0   S    0   0  0   0   0   F   F   N
-faerie:   NONE    53  27.0   16.5   1.0   ?   0   0  0   0   0   F   F   N
+faerie:   NONE    53  25.0   16.5   2.0   ?   0   0  0   0   0   F   F   N
 shufflingheap:   NONE    52  29.5   7.5   0.0   ?    0   0  0   0   0   F   F   E
 KnightSuit:   NONE    102  17.5   8.5   0.0   E    0   1  0   0   0   F   F   N
   SpkMace:   NONE    103  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
@@ -184,7 +187,7 @@ KnightSuit:   NONE    102  17.5   8.5   0.0   E    0   1  0   0   0   F   F   N
 glasscontainer:   NONE    54  25.5   7.0   0.0   S    0   0  0   0   0   F   F   E
   experimentmonster:   NONE    55  25.5   7.0   0.0   L    0   0  0   0   0   F   F   E
 glasscontainer:   NONE    54  18.0   20.5   0.0   E    0   0  0   0   0   F   F   E
-  KeyR:   NONE    101  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  backpack:   NONE    110  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
   
 //Techno room
 table:   NONE    40  43.0   14.0   0.0   N    0   0  0   0   0   F   F   N

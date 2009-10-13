@@ -7488,7 +7488,6 @@ bool_t do_shop_steal( Uint16 ithief, Uint16 iitem )
     // Pets can try to steal in addition to invisible characters
 
     bool_t can_steal;
-    int price;
 
     chr_t * pthief, * pitem;
 
