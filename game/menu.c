@@ -123,14 +123,14 @@ Uint16 mnu_selectedPlayer[MAXPLAYER] = {0};
 static int selectedModule = -1;
 
 /* Copyright text variables.  Change these to change how the copyright text appears */
-static char copyrightText[] = "Welcome to Egoboo!\nhttp://egoboo.sourceforge.net\nVersion " VERSION "\n";
+static char * copyrightText = "Welcome to Egoboo!\nhttp://egoboo.sourceforge.net\nVersion " VERSION "\n";
 static int  copyrightLeft = 0;
 static int  copyrightTop  = 0;
 
 /* Options info text variables.  Change these to change how the options text appears */
-const char optionsText[] = "Change your audio, input and video\nsettings here.";
-static int optionsTextLeft = 0;
-static int optionsTextTop  = 0;
+const char * tipText = "Put a tip in this box";
+static int tipTextLeft = 0;
+static int tipTextTop  = 0;
 
 /* Button position for the "easy" menus, like the main one */
 static int buttonLeft = 0;
@@ -382,6 +382,54 @@ void drawSlidyButtons()
 }
 
 //--------------------------------------------------------------------------------------------
+void set_tip_position( Font * font, const char * text, int spacing )
+{
+    int w,h;
+
+    if( NULL == text ) return;
+
+    tipTextLeft = 0;
+    tipTextTop  = 0;
+
+    fnt_getTextBoxSize( font, text, spacing, &w, &h );
+
+    // set the text
+    tipText = text;
+
+    // Draw the options text to the right of the buttons
+    tipTextLeft = 280;
+
+    // And relative to the bottom of the screen
+    tipTextTop = GFX_HEIGHT - h - spacing;
+
+}
+
+//--------------------------------------------------------------------------------------------
+void set_copyright_position( Font * font, const char * text, int spacing )
+{
+    int w,h;
+
+    if( NULL == text ) return;
+
+    copyrightLeft = 0;
+    copyrightLeft = 0;
+
+    // Figure out where to draw the copyright text
+    fnt_getTextBoxSize( font, text, 20, &w, &h );
+
+    // set the text
+    copyrightText = text;
+
+    // Draw the copyright text to the right of the buttons
+    copyrightLeft = 280;
+
+    // And relative to the bottom of the screen
+    copyrightTop = GFX_HEIGHT - h - spacing;
+}
+
+
+
+//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 int mnu_init()
 {
@@ -401,24 +449,10 @@ int mnu_init()
     }
 
     // Figure out where to draw the copyright text
-    copyrightLeft = 0;
-    copyrightLeft = 0;
-    fnt_getTextBoxSize( menuFont, copyrightText, 20, &copyrightLeft, &copyrightTop );
-
-    // Draw the copyright text to the right of the buttons
-    copyrightLeft = 280;
-    // And relative to the bottom of the screen
-    copyrightTop = GFX_HEIGHT - copyrightTop - 20;
+    set_copyright_position( menuFont, copyrightText, 20 );
 
     // Figure out where to draw the options text
-    optionsTextLeft = 0;
-    optionsTextLeft = 0;
-    fnt_getTextBoxSize( menuFont, optionsText, 20, &optionsTextLeft, &optionsTextTop );
-
-    // Draw the options text to the right of the buttons
-    optionsTextLeft = 280;
-    // And relative to the bottom of the screen
-    optionsTextTop = GFX_HEIGHT - optionsTextTop - 20;
+    set_tip_position( menuFont, tipText, 20 );
 
     // initialize the title images
     TxTitleImage_init_all();
@@ -770,6 +804,19 @@ int doChooseModule( float deltaTime )
             moduleMenuOffsetX = ( GFX_WIDTH  - 640 ) / 2;
             moduleMenuOffsetY = ( GFX_HEIGHT - 480 ) / 2;
 
+            if( 0 == numValidModules )
+            {
+                set_tip_position( menuFont, "Sorry, there are no valid games!\n Please press the \"Back\" button.", 20 );
+            }
+            else if( numValidModules <= 3 )
+            {
+                set_tip_position( menuFont, "Press an icon to select a game.", 20 );
+            }
+            else
+            {
+                set_tip_position( menuFont, "Press an icon to select a game.\nUse the mouse wheel or the \"<-\" and \"->\" buttons to scroll.", 20 );
+            }
+                 
             menuState = MM_Entering;
 
             // fall through...
@@ -909,6 +956,11 @@ int doChooseModule( float deltaTime )
                 // Draw a text box
                 ui_drawTextBox( menuFont, buffer, moduleMenuOffsetX + 21, moduleMenuOffsetY + 173, 291, 230, 20 );
             }
+
+            // the tool-tip text
+            glColor4f( 1,1,1,1 );
+            ui_drawTextBox( menuFont, tipText, tipTextLeft, tipTextTop, 0, 0, 20 );
+
             break;
 
         case MM_Leaving:
@@ -1182,7 +1234,7 @@ int doChoosePlayer( float deltaTime )
     static Uint32 BitsInput[4];
     static bool_t device_on[4];
 
-    static const char * button_text[] = { "Select Player", "Back", ""};
+    static const char * button_text[] = { "N/A", "Back", ""};
 
     switch ( menuState )
     {
@@ -1240,6 +1292,18 @@ int doChoosePlayer( float deltaTime )
                 y += button_repeat;
             };
 
+            button_text[0] = "N/A";
+
+            if( loadplayer_count < 10 )
+            {
+                set_tip_position( menuFont, "Choose an input device to select your player(s)", 20 );
+            }
+            else
+            {
+                set_tip_position( menuFont, "Choose an input device to select your player(s)\nUse the mouse wheel to scroll.", 20 );
+            }
+
+
             menuState = MM_Entering;
             // fall through
 
@@ -1260,6 +1324,19 @@ int doChoosePlayer( float deltaTime )
 
         case MM_Running:
             // Figure out how many players we can show without scrolling
+
+            if ( 0 == mnu_selectedPlayerCount )
+            {
+                button_text[0] = "";
+            }
+            else if ( 1 == mnu_selectedPlayerCount )
+            {
+                button_text[0] = "Select Player";
+            }
+            else
+            {
+                button_text[0] = "Select Players";
+            }
 
             // Draw the background
             x = ( GFX_WIDTH  / 2 ) - ( background.imgW / 2 );
@@ -1440,6 +1517,10 @@ int doChoosePlayer( float deltaTime )
             {
                 doChoosePlayer_show_stats( last_player, 1, GFX_WIDTH - 100, 50, 100, GFX_HEIGHT - 100 );
             }
+
+            // tool-tip text
+            ui_drawTextBox( menuFont, tipText, tipTextLeft, tipTextTop, 0, 0, 20 );
+
             break;
 
         case MM_Leaving:
@@ -1549,6 +1630,8 @@ int doOptions( float deltaTime )
             menuChoice = 0;
             menuState = MM_Entering;
 
+            set_tip_position( menuFont, "Change your audio, input and video\nsettings here.", 20 );
+            
             initSlidyButtons( 1.0f, sz_buttons );
             // let this fall through into MM_Entering
 
@@ -1562,9 +1645,6 @@ int doOptions( float deltaTime )
             {
                 ui_drawImage( 0, &background, ( GFX_WIDTH  - background.imgW ), 0, 0, 0 );
             }
-
-            // "Copyright" text
-            ui_drawTextBox( menuFont, optionsText, optionsTextLeft, optionsTextTop, 0, 0, 20 );
 
             drawSlidyButtons();
             updateSlidyButtons( -deltaTime );
@@ -1587,7 +1667,7 @@ int doOptions( float deltaTime )
             }
 
             // "Options" text
-            ui_drawTextBox( menuFont, optionsText, optionsTextLeft, optionsTextTop, 0, 0, 20 );
+            ui_drawTextBox( menuFont, tipText, tipTextLeft, tipTextTop, 0, 0, 20 );
 
             // Buttons
             if ( BUTTON_UP == ui_doButton( 1, sz_buttons[0], NULL, buttonLeft, buttonTop, 200, 30 ) )
@@ -1631,9 +1711,6 @@ int doOptions( float deltaTime )
             {
                 ui_drawImage( 0, &background, ( GFX_WIDTH  - background.imgW ), 0, 0, 0 );
             }
-
-            // "Options" text
-            ui_drawTextBox( menuFont, optionsText, optionsTextLeft, optionsTextTop, 0, 0, 20 );
 
             // Buttons
             drawSlidyButtons();
@@ -1710,6 +1787,8 @@ int doInputOptions( float deltaTime )
             }
             strncpy( inputOptionsButtons[i++], "Player 1", sizeof(STRING) );
             strncpy( inputOptionsButtons[i++], "Save Settings", sizeof(STRING) );
+
+            set_tip_position( menuFont, "Change input settings here.", 20 );
 
             // Load the global icons (keyboard, mouse, etc.)
             if ( !load_all_global_icons() ) log_warning( "Could not load all global icons!\n" );
@@ -2026,6 +2105,10 @@ int doInputOptions( float deltaTime )
                 input_settings_save("controls.txt");
                 menuState = MM_Leaving;
             }
+
+            // tool-tip text
+            ui_drawTextBox( menuFont, tipText, tipTextLeft, tipTextTop, 0, 0, 20 );
+
             break;
 
         case MM_Leaving:
@@ -2084,6 +2167,8 @@ int doGameOptions( float deltaTime )
 
             menuChoice = 0;
             menuState = MM_Entering;
+
+            set_tip_position( menuFont, "Change game settings here.", 20 );
 
             initSlidyButtons( 1.0f, sz_buttons );
             // let this fall through into MM_Entering
@@ -2323,6 +2408,9 @@ int doGameOptions( float deltaTime )
 
                 menuState = MM_Leaving;
             }
+
+            // tool-tip text
+            ui_drawTextBox( menuFont, tipText, tipTextLeft, tipTextTop, 0, 0, 20 );
             break;
 
         case MM_Leaving:
@@ -2390,6 +2478,8 @@ int doAudioOptions( float deltaTime )
 
             menuChoice = 0;
             menuState = MM_Entering;
+
+            set_tip_position( menuFont, "Change audio settings here.", 20 );
 
             initSlidyButtons( 1.0f, sz_buttons );
             // let this fall through into MM_Entering
@@ -2553,6 +2643,10 @@ int doAudioOptions( float deltaTime )
 
                 menuState = MM_Leaving;
             }
+
+            // tool-tip text
+            ui_drawTextBox( menuFont, tipText, tipTextLeft, tipTextTop, 0, 0, 20 );
+
             break;
 
         case MM_Leaving:
@@ -2627,6 +2721,8 @@ int doVideoOptions( float deltaTime )
 
             menuChoice = 0;
             menuState = MM_Entering;
+
+            set_tip_position( menuFont, "Change video settings here.", 20 );
 
             initSlidyButtons( 1.0f, sz_buttons );
             // let this fall through into MM_Entering
@@ -3200,6 +3296,10 @@ int doVideoOptions( float deltaTime )
                 menuState = MM_Leaving;
                 initSlidyButtons( 0.0f, sz_buttons );
             }
+
+            // tool-tip text
+            ui_drawTextBox( menuFont, tipText, tipTextLeft, tipTextTop, 0, 0, 20 );
+
             break;
 
         case MM_Leaving:
@@ -3211,9 +3311,6 @@ int doVideoOptions( float deltaTime )
             {
                 ui_drawImage( 0, &background, ( GFX_WIDTH  - background.imgW ), 0, 0, 0 );
             }
-
-            // "Options" text
-            ui_drawTextBox( menuFont, optionsText, optionsTextLeft, optionsTextTop, 0, 0, 20 );
 
             // Fall trough
             menuState = MM_Finish;
@@ -3235,6 +3332,7 @@ int doVideoOptions( float deltaTime )
     return result;
 }
 
+//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 int doShowResults( float deltaTime )
 {
