@@ -19,7 +19,7 @@
 
 /// @file lua_console.c
 /// @brief Quale-like console running running Lua behing egoboo
-/// @details 
+/// @details
 
 #include "lua_console.h"
 

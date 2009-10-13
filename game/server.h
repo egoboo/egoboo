@@ -39,7 +39,7 @@ int  sv_init();
 void sv_shutDown();
 void sv_frameStep();
 
-/// More to come...
+// More to come...
 // int  sv_beginSinglePlayer(...)
 // int  sv_beginMultiPlayer(...)
 // int  sv_loadModule(...)

@@ -82,11 +82,11 @@
 
 // swig chokes on the definition below
 #ifdef SWIG
-#   define STOR_BITS            4                      
+#   define STOR_BITS            4
 #   define STOR_COUNT          16                      ///< Storage data (Used in SetXY)
 #   define STOR_AND            15                      ///< Storage data bitmask
 #else
-#   define STOR_BITS            4                      
+#   define STOR_BITS            4
 #   define STOR_COUNT          (1 << STOR_BITS)        ///< Storage data (Used in SetXY)
 #   define STOR_AND            (STOR_COUNT - 1)        ///< Storage data bitmask
 #endif

@@ -19,7 +19,7 @@
 
 /// @file mad.c
 /// @brief The files for handling egoboo's internal model definitions
-/// @details 
+/// @details
 
 #include "mad.h"
 

@@ -19,7 +19,7 @@
 
 /// @file camera.c
 /// @brief Various functions related to how the game camera works.
-/// @details 
+/// @details
 
 #include "camera.h"
 
@@ -135,6 +135,16 @@ void camera_make_matrix( camera_t * pcam )
 
     pcam->mView = MatrixMult( RotateZ( pcam->turn_z_rad ), pcam->mView );
     pcam->mView = MatrixMult( RotateX( pcam->turnupdown ), pcam->mView );
+
+    //--- pre-compute some camera vectors
+    pcam->vfw = mat_getCamForward( pcam->mView );
+    pcam->vfw = fvec3_normalize( pcam->vfw.v );
+
+    pcam->vup = mat_getCamUp( pcam->mView );
+    pcam->vup = fvec3_normalize( pcam->vup.v );
+
+    pcam->vrt = mat_getCamRight( pcam->mView );
+    pcam->vrt = fvec3_normalize( pcam->vrt.v );
 
 }
 

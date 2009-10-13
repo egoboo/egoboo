@@ -42,8 +42,9 @@ DEFINE_STACK_EXTERN(pip_t, PipStack, MAX_PIP );
 #define LOADED_PIP( IPIP )       ( VALID_PIP_RANGE( IPIP ) && PipStack.lst[IPIP].loaded )
 
 //------------------------------------
-/// Particle graphic data
+// Particle graphic data
 //------------------------------------
+
 /// All the data necessary to diaplay a partile
 struct s_prt_instance
 {
@@ -75,11 +76,15 @@ struct s_prt_instance
     // graphical optimizations
     bool_t         indolist;        ///< Has it been added yet?
 
+    // pre-compute some values for the reflected particle posisions
+    fvec3_t ref_up;
+    fvec3_t ref_right;
+    fvec3_t ref_pos;
 };
 typedef struct s_prt_instance prt_instance_t;
 
 //------------------------------------
-/// Particle variables
+// Particle variables
 //------------------------------------
 #define SPAWNNOCHARACTER        255                                      ///< For particles that spawn characters...
 #define TOTAL_MAX_PRT            2048                                      ///< True max number of particles
@@ -203,6 +208,5 @@ bool_t release_one_pip( Uint16 ipip );
 
 Uint16  prt_get_ipip( Uint16 cnt );
 pip_t * prt_get_ppip( Uint16 cnt );
-
 
 bool_t prt_request_terminate( Uint16 iprt );

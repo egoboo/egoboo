@@ -19,7 +19,7 @@
 
 /// @file script.c
 /// @brief Implements the game's scripting language.
-/// @details 
+/// @details
 
 #include "script.h"
 #include "script_compile.h"
@@ -159,7 +159,7 @@ void let_character_think( Uint16 character )
     {
         chr_instance_t * pinst = chr_get_pinstance(pself->target);
 
-        if ( NULL == pinst || FF_MUL( pinst->alpha, pinst->max_light ) <= INVISIBLE )
+        if ( NULL == pinst || ( pinst->alpha * pinst->max_light * INV_FF ) <= INVISIBLE )
         {
             pself->target = pself->index;
         }

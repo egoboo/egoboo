@@ -32,8 +32,9 @@ struct s_ai_state;
 struct s_chr;
 
 //--------------------------------------------------------------------------------------------
-/// helper functions
+// helper functions
 //--------------------------------------------------------------------------------------------
+
 Uint8  _display_message( int ichr, int iprofile, int message, struct s_script_state * pstate  );
 Uint8  _break_passage( int meshxfor, int become, int frames, int starttile, int passage, int *ptilex, int *ptiley );
 Uint8  _find_tile_in_passage( const int x0, const int y0, const int tiletype, const int passage, int *px1, int *py1 );

@@ -19,7 +19,7 @@
 
 /// @file file_formats/module_file.c
 /// @brief Functions for reading and writing egoboo's menu.txt file ( /modules/*.mod/gamedat/menu.txt )
-/// @details 
+/// @details
 
 #include "module_file.h"
 

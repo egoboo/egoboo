@@ -19,7 +19,7 @@
 
 /// @file menu.c
 /// @brief Implements the main menu tree, using the code in Ui.*
-/// @details 
+/// @details
 
 #include "menu.h"
 
@@ -87,7 +87,7 @@ struct
 /// the data to display a chosen player in the load player menu
 struct s_ChoosePlayer_element
 {
-    int cap_ref;              ///< the index of the cap_t 
+    int cap_ref;              ///< the index of the cap_t
     int tx_ref;               ///< the index of the icon texture
     chop_definition_t chop;   ///< put this here so we can generate a name without loading an entire profile
 };
@@ -791,19 +791,18 @@ int doChooseModule( float deltaTime )
             }
 
             // use the mouse wheel to scan the modules
-            if ( cursor_wheel_event )
+            if ( cursor_wheel_event_pending() )
             {
-                if (mous.z > 0)
+                if (cursor.z > 0)
                 {
                     startIndex++;
                 }
-                else if (mous.z < 0)
+                else if (cursor.z < 0)
                 {
                     startIndex--;
                 }
 
-                cursor_wheel_event = bfalse;
-                mous.z = 0;
+                cursor_finish_wheel_event();
             }
 
             // Draw the arrows to pick modules
@@ -1081,7 +1080,7 @@ bool_t doChoosePlayer_show_stats( int player, int mode, int x, int y, int width,
             pcap->classname[0] = toupper( pcap->classname[0] );
             fnt_drawText( menuFont, x1, y1, "A level %d %s", pcap->leveloverride + 1, pcap->classname );
             y1 += 20;
-			
+
 			// Armor
             GL_DEBUG(glColor4f)(1, 1, 1, 1);
 			fnt_drawText( menuFont, x1, y1, "Wearing %s %s", pcap->skinname[skin], HAS_SOME_BITS( pcap->skindressy, 1 << skin ) ? "(Light)" : "(Heavy)" );
@@ -1272,16 +1271,16 @@ int doChoosePlayer( float deltaTime )
             }
 
             // use the mouse wheel to scan the characters
-            if ( cursor_wheel_event )
+            if ( cursor_wheel_event_pending() )
             {
-                if (mous.z > 0)
+                if (cursor.z > 0)
                 {
                     if ( startIndex + numVertical < loadplayer_count )
                     {
                         startIndex++;
                     }
                 }
-                else if (mous.z < 0)
+                else if (cursor.z < 0)
                 {
                     if ( startIndex > 0 )
                     {
@@ -1289,8 +1288,7 @@ int doChoosePlayer( float deltaTime )
                     }
                 }
 
-                cursor_wheel_event = bfalse;
-                mous.z = 0;
+                cursor_finish_wheel_event();
             }
 
             // Draw the player selection buttons
@@ -1502,7 +1500,7 @@ int doChoosePlayer( float deltaTime )
                     for ( j = 0; j < MAXIMPORTOBJECTS; j++ )
                     {
                         snprintf( srcDir, SDL_arraysize( srcDir), "%s" SLASH_STR "%d.obj", loadplayer[selectedPlayer].dir, j );
-						
+
 						// make sure the source directory exists
                         if( vfs_isDirectory(srcDir) )
                         {
@@ -2212,7 +2210,6 @@ int doGameOptions( float deltaTime )
             str_add_linebreaks( szDifficulty, SDL_arraysize(szDifficulty), 30 );
             ui_drawTextBox( menuFont, szDifficulty, buttonLeft, 100, 0, 0, 20 );
 
-
 			// Text messages
             ui_drawTextBox( menuFont, "Max  Messages:", buttonLeft + 350, 50, 0, 0, 20 );
             if ( BUTTON_UP == ui_doButton( 2, sz_buttons[1], menuFont, buttonLeft + 515, 50, 75, 30 ) )
@@ -2305,7 +2302,7 @@ int doGameOptions( float deltaTime )
 					if( cfg.feedback > FEEDBACK_NUMBER ) cfg.feedback = FEEDBACK_OFF;
 				}
 				else cfg.feedback = !cfg.feedback;
-				
+
 				switch( cfg.feedback )
 				{
 					case FEEDBACK_OFF:	  sz_buttons[5] = "Disabled"; break;
@@ -2313,7 +2310,6 @@ int doGameOptions( float deltaTime )
 					case FEEDBACK_NUMBER: sz_buttons[5] = "Debug";	  break;
 				}
             }
-
 
             // Save settings
             if ( BUTTON_UP == ui_doButton( 7, sz_buttons[6], menuFont, buttonLeft, GFX_HEIGHT - 60, 200, 30 ) )

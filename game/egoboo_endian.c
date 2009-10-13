@@ -18,8 +18,8 @@
 //********************************************************************************************
 
 /// @file egoboo_endian.c
-/// @brief 
-/// @details 
+/// @brief
+/// @details
 
 #include "egoboo_endian.h"
 

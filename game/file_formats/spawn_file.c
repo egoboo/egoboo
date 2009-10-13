@@ -19,7 +19,7 @@
 
 /// @file file_formats/spawn_file.c
 /// @brief Implementation of a scanner for egoboo's spawn.txt file
-/// @details 
+/// @details
 
 #include "spawn_file.h"
 #include "char.h"

@@ -367,7 +367,7 @@ void   set_one_player_latch( Uint16 player );
 bool_t add_player( Uint16 character, Uint16 player, Uint32 device );
 
 /// AI targeting
-Uint16 chr_find_target( struct s_chr * psrc, float max_dist2, TARGET_TYPE target_type, bool_t target_items, 
+Uint16 chr_find_target( struct s_chr * psrc, float max_dist2, TARGET_TYPE target_type, bool_t target_items,
 					   bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz, bool_t target_players );
 Uint16 prt_find_target( float pos_x, float pos_y, float pos_z, Uint16 facing,
                             Uint16 particletype, Uint8 team, Uint16 donttarget,

@@ -19,7 +19,7 @@
 
 /// @file server.c
 /// @brief This code is not currently in use.
-/// @details 
+/// @details
 
 #include "server.h"
 

@@ -18,8 +18,8 @@
 //********************************************************************************************
 
 /// @file egoboo_console.c
-/// @brief 
-/// @details 
+/// @brief
+/// @details
 
 #include "egoboo_console.inl"
 

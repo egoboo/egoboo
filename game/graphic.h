@@ -143,12 +143,12 @@ typedef struct s_renderlist renderlist_t;
 extern renderlist_t renderlist;
 
 //--------------------------------------------------------------------------------------------
-extern Uint8           lightdirectionlookup[65536];                        ///< For lighting characters
-extern float           lighttable_local[MAXLIGHTROTATION][MADLIGHTINDICES];
-extern float           lighttable_global[MAXLIGHTROTATION][MADLIGHTINDICES];
+//extern Uint8           lightdirectionlookup[65536];                        ///< For lighting characters
+//extern float           lighttable_local[MAXLIGHTROTATION][MADLIGHTINDICES];
+//extern float           lighttable_global[MAXLIGHTROTATION][MADLIGHTINDICES];
 extern float           indextoenvirox[MADLIGHTINDICES];                    ///< Environment map
 extern float           lighttoenviroy[256];                                ///< Environment map
-extern Uint32          lighttospek[MAXSPEKLEVEL][256];
+//extern Uint32          lighttospek[MAXSPEKLEVEL][256];
 
 //--------------------------------------------------------------------------------------------
 // Display messages
@@ -210,7 +210,7 @@ typedef struct s_gfx_config gfx_config_t;
 extern gfx_config_t gfx;
 
 bool_t gfx_config_init ( gfx_config_t * pgfx );
-bool_t gfx_config_synch( gfx_config_t * pgfx, struct s_egoboo_config * pcfg );
+bool_t gfx_synch_config( gfx_config_t * pgfx, struct s_egoboo_config * pcfg );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -234,8 +234,8 @@ extern Uint16          meshlasttexture;             ///< Last texture used
 #define BILLBOARD_COUNT     (2 * MAX_CHR)
 #define INVALID_BILLBOARD   BILLBOARD_COUNT
 
-/// Description of a generic bilboarded object. 
-/// Any graphics that can be composited onto a SDL_surface can be used 
+/// Description of a generic bilboarded object.
+/// Any graphics that can be composited onto a SDL_surface can be used
 struct s_billboard_data
 {
     bool_t    valid;        ///< has the billboard data been initialized?
@@ -250,7 +250,7 @@ struct s_billboard_data
     GLXvector4f tint_add;   ///< the change in tint per update
 
     GLXvector4f offset;     ///< an offset to the billboard's position in world coordinates
-    GLXvector4f offset_add; ///< 
+    GLXvector4f offset_add; ///<
 
     float       size;
     float       size_add;
@@ -294,12 +294,12 @@ extern line_data_t line_list[LINE_COUNT];
 void draw_blip( float sizeFactor, Uint8 color, int x, int y );
 int  DisplayMsg_get_free();
 
-void make_lighttospek();
-void make_lighttable( float lx, float ly, float lz, float ambi );
+//void make_lighttospek();
+//void make_lighttable( float lx, float ly, float lz, float ambi );
 void make_lightdirectionlookup();
-void make_renderlist( ego_mpd_t * pmesh, struct s_camera * pcam );
+void renderlist_make( ego_mpd_t * pmesh, struct s_camera * pcam );
 
-void   dolist_sort( struct s_camera * pcam );
+void   dolist_sort( struct s_camera * pcam, bool_t do_reflect );
 void   dolist_make( ego_mpd_t * pmesh );
 bool_t dolist_add_chr( ego_mpd_t * pmesh, Uint16 cnt );
 bool_t dolist_add_prt( ego_mpd_t * pmesh, Uint16 cnt );
@@ -311,12 +311,10 @@ void delete_all_graphics();
 void release_all_profile_textures();
 
 void   load_graphics();
-bool_t load_blip_bitmap();
+bool_t load_blips();
 void   load_bars();
 void   load_map( const char* szModule );
 bool_t load_all_global_icons();
-
-void  make_lighttable( float lx, float ly, float lz, float ambi );
 
 void render_water();
 void render_scene_zreflection( ego_mpd_t * pmesh, struct s_camera * pcam );
@@ -341,8 +339,8 @@ bool_t flip_pages_requested();
 void   request_flip_pages();
 void   do_flip_pages();
 
-void draw_scene( struct s_camera * pcam );
-void draw_main();
+void render_scene( struct s_camera * pcam );
+void gfx_main();
 
 void render_prt( struct s_camera * pcam );
 void render_shadow( Uint16 character );
@@ -351,17 +349,17 @@ void render_prt_ref( struct s_camera * pcam );
 void render_fan( ego_mpd_t * pmesh, Uint32 fan );
 void render_hmap_fan( ego_mpd_t * pmesh, Uint32 fan );
 void render_water_fan( ego_mpd_t * pmesh, Uint32 fan, Uint8 layer );
-void render_one_mad_enviro( Uint16 character, Uint8 trans );
-void render_one_mad_tex( Uint16 character, Uint8 trans );
-void render_one_mad( Uint16 character, Uint8 trans );
-void render_one_mad_ref( int tnc, Uint8 trans );
+bool_t render_one_mad_enviro( Uint16 character, Uint8 trans, bool_t use_reflection );
+bool_t render_one_mad_tex( Uint16 character, Uint8 trans, bool_t use_reflection );
+bool_t render_one_mad( Uint16 character, Uint8 trans, bool_t use_reflection );
+bool_t render_one_mad_ref( int tnc );
 
 // void light_characters();
-void light_particles( ego_mpd_t * pmesh );
-// void set_fan_light( int fanx, int fany, Uint16 particle );
+//void light_particles( ego_mpd_t * pmesh );
+//void set_fan_light( int fanx, int fany, Uint16 particle );
 void do_grid_dynalight();
 
-void do_cursor();
+void draw_cursor();
 
 void gfx_init();
 int  ogl_init();
@@ -383,23 +381,23 @@ bool_t render_one_prt_solid( Uint16 iprt );
 bool_t render_one_prt_trans( Uint16 iprt );
 bool_t render_one_prt_ref( Uint16 iprt );
 
-void Begin3DMode( struct s_camera * pcam );
-void End3DMode();
+void gfx_begin_3d( struct s_camera * pcam );
+void gfx_end_3d();
 
 int debug_printf( const char *format, ... );
 
 egoboo_rv chr_instance_update_vertices( struct s_chr_instance * pinst, int vmin, int vmax );
 
-bool_t oglx_texture_parameters_synch( struct s_oglx_texture_parameters * ptex, struct s_egoboo_config * pcfg );
+bool_t gfx_synch_oglx_texture_parameters( struct s_oglx_texture_parameters * ptex, struct s_egoboo_config * pcfg );
 
-void reset_renderlist();
+void renderlist_reset();
 
 bool_t interpolate_grid_lighting( ego_mpd_t * pmesh, lighting_cache_t * dst, fvec3_t   pos );
 bool_t project_lighting( lighting_cache_t * dst, lighting_cache_t * src, fmat_4x4_t mat );
 bool_t interpolate_lighting( lighting_cache_t * dst, lighting_cache_t * src[], float u, float v );
 bool_t project_sum_lighting( lighting_cache_t * dst, lighting_cache_t * src, fvec3_t   vec, int dir );
 
-bool_t bbox_gl_draw(aabb_t * pbbox);
+bool_t render_aabb(aabb_t * pbbox);
 
 void render_all_billboards( struct s_camera * pcam );
 

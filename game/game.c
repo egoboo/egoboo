@@ -260,7 +260,6 @@ static int    ego_init_SDL();
 static bool_t _sdl_atexit_registered    = bfalse;
 static bool_t _sdl_initialized_base     = bfalse;
 
-
 //--------------------------------------------------------------------------------------------
 // Random Things-----------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -1542,7 +1541,7 @@ int do_game_proc_begin( game_process_t * gproc )
     profile_init();
 
     // do some graphics initialization
-    make_lightdirectionlookup();
+    //make_lightdirectionlookup();
     make_enviro();
     camera_new( PCamera );
 
@@ -1638,7 +1637,7 @@ int do_game_proc_running( game_process_t * gproc )
         gproc->fps_ticks_next = gproc->fps_ticks_now + frameskip;
 
         camera_move(PCamera, PMesh);
-        draw_main();
+        gfx_main();
 
         msgtimechange++;
     }
@@ -1938,7 +1937,7 @@ bool_t check_target( chr_t * psrc, Uint16 ichr_test, TARGET_TYPE target_type, bo
     if ( target_dead == ptst->alive ) return bfalse;
 
     // Dont target invisible stuff, unless we can actually see them
-    if ( !psrc->see_invisible_level && FF_MUL( ptst->inst.alpha, ptst->inst.max_light ) < INVISIBLE ) return bfalse;
+    if ( !psrc->see_invisible_level && ( ptst->inst.alpha * ptst->inst.max_light  * INV_FF ) < INVISIBLE ) return bfalse;
 
 	is_hated = TeamList[psrc->team].hatesteam[ptst->team];
     hates_me = TeamList[ptst->team].hatesteam[psrc->team];
@@ -2104,8 +2103,6 @@ void do_damage_tiles()
             }
         }
     }
-
-
 
 };
 
@@ -3159,7 +3156,6 @@ bool_t attach_chr_to_platform( chr_t * pchr, chr_t * pplat )
 
     pchr->enviro.traction = ABS(platform_up.z) * (1.0f - pchr->enviro.zlerp) + 0.25 * pchr->enviro.zlerp;
 
-
     // tell the platform that we bumped into it
     // this is necessary for key buttons to work properly, for instance
     ai_state_set_bumplast( &(pplat->ai), GET_INDEX( pchr, MAX_CHR ) );
@@ -3621,7 +3617,6 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
     xya = pchr_a->pos.x + pchr_a->pos.y;
     yxa =-pchr_a->pos.x + pchr_a->pos.y;
 
-
     xb  = pchr_b->pos.x;
     yb  = pchr_b->pos.y;
     zb  = pchr_b->pos.z;
@@ -3666,7 +3661,6 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
     was_zb  = pchr_b->pos_old.z;
     was_xyb = pchr_b->pos_old.x + pchr_b->pos_old.y;
     was_yxb =-pchr_b->pos_old.x + pchr_b->pos_old.y;
-
 
     was_depth_x  = MIN(pchr_b->chr_chr_cv.max_x + was_xb, pchr_a->chr_chr_cv.max_x + was_xa ) -
                    MAX(pchr_b->chr_chr_cv.min_x + was_xb, pchr_a->chr_chr_cv.min_x + was_xa );
@@ -3789,7 +3783,6 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
         nrm.x -= sgn / POW(depth_yx / PLATTOLERANCE, exponent);
         nrm.y += sgn / POW(depth_yx / PLATTOLERANCE, exponent);
     }
-
 
     if ( depth_z <= 0.0f )
     {
@@ -4015,7 +4008,6 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
 
     return btrue;
 }
-
 
 //--------------------------------------------------------------------------------------------
 bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
@@ -4622,7 +4614,6 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
 
         }
     }
-
 
     return retval;
 }
@@ -5269,7 +5260,7 @@ void game_reset_module_data()
     game_reset_players();
 
     reset_end_text();
-    reset_renderlist();
+    renderlist_reset();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5282,7 +5273,7 @@ void game_load_global_assets()
     {
         log_warning( "Could not load all global icons!\n" );
     }
-    load_blip_bitmap();
+    load_blips();
     load_bars();
     font_bmp_load( "basicdat" SLASH_STR "font", "basicdat" SLASH_STR "font.txt" );
 }
@@ -5467,7 +5458,6 @@ bool_t game_begin_module( const char * modname, Uint32 seed )
 
     // make sure the old game has been quit
     game_quit_module();
-
 
     reset_timers();
 
@@ -6973,7 +6963,7 @@ bool_t upload_water_data( water_instance_t * pinst, wawalite_water_t * pdata )
     if ( !cfg.twolayerwater_allowed && pinst->layer_count > 1 )
     {
         int iTmp = pdata->layer[0].alpha;
-        iTmp = FF_MUL( pdata->layer[1].alpha, iTmp ) + iTmp;
+        iTmp = ( pdata->layer[1].alpha * iTmp  * INV_FF ) + iTmp;
         if ( iTmp > 255 ) iTmp = 255;
 
         pinst->layer_count = 1;
@@ -7116,8 +7106,8 @@ bool_t upload_light_data( wawalite_data_t * pdata )
         light_z /= fTmp;
     }
 
-    make_lighttable( pdata->light_x, pdata->light_y, pdata->light_z, pdata->light_a );
-    make_lighttospek();
+    //make_lighttable( pdata->light_x, pdata->light_y, pdata->light_z, pdata->light_a );
+    //make_lighttospek();
 
     return btrue;
 }
@@ -7362,7 +7352,6 @@ bool_t write_wawalite( const char *modname, wawalite_data_t * pdata )
 
     return write_wawalite_file( modname, pdata );
 }
-
 
 ////--------------------------------------------------------------------------------------------
 //bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )

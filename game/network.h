@@ -19,10 +19,13 @@
 //*
 //********************************************************************************************
 
+/// @file network.h
+/// @brief Skeleton for egoboo networking
+
 #include "egoboo_typedef.h"
 
 //---------------------------------------------------------------------------------------------
-/// Network stuff
+// Network stuff
 //--------------------------------------------------------------------------------------------
 
 #define NETREFRESH          1000                    ///< Every second
@@ -127,7 +130,7 @@ Uint16         pla_get_ichr( Uint16 iplayer );
 struct s_chr * pla_get_pchr( Uint16 iplayer );
 
 //--------------------------------------------------------------------------------------------
-/// The state of the network code used in old-egoboo 
+/// The state of the network code used in old-egoboo
 struct s_net_instance
 {
     bool_t  on;                      ///< Try to connect?
@@ -145,7 +148,7 @@ extern net_instance_t * PNet;
 
 // Network orders
 //extern unsigned char           ordervalid[MAXORDER];
-//extern unsigned char           orderwho[MAXORDER][MAXSELECT]; 
+//extern unsigned char           orderwho[MAXORDER][MAXSELECT];
 //extern unsigned int            orderwhat[MAXORDER];
 //extern unsigned int            orderwhen[MAXORDER];
 

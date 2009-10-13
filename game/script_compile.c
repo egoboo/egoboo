@@ -18,8 +18,8 @@
 //********************************************************************************************
 
 /// @file script_compile.c
-/// @brief 
-/// @details 
+/// @brief
+/// @details
 
 #include "script_compile.h"
 

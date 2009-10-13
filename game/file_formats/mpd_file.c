@@ -19,7 +19,7 @@
 
 /// @file mfile_formats/pd_file.c
 /// @brief Functions for raw read and write access to the .mpd file type
-/// @details 
+/// @details
 
 #include "mpd_file.h"
 #include "log.h"

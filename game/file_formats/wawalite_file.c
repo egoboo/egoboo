@@ -19,7 +19,7 @@
 
 /// @file file_formats/wawalite_file.c
 /// @brief Functions to read and write the egoboo's wawalite.txt file
-/// @details 
+/// @details
 
 #include "wawalite_file.h"
 #include "char.h"
@@ -285,7 +285,7 @@ wawalite_data_t * read_wawalite_file( const char *modname, wawalite_data_t * pda
 
     vfs_FILE*  fileread;
     STRING newloadname;
-    
+
     if( NULL == pdata ) pdata = &_wawalite_file;
 
     if( NULL == wawalite_data_init( pdata ) ) return pdata;

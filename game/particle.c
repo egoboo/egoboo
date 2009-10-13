@@ -47,7 +47,6 @@ Uint16           maxparticles = 512;                            // max number of
 DECLARE_STACK( ACCESS_TYPE_NONE, pip_t, PipStack );
 DECLARE_LIST ( ACCESS_TYPE_NONE, prt_t, PrtList );
 
-
 static const Uint32  particletrans = 0x80;
 
 //--------------------------------------------------------------------------------------------
@@ -104,7 +103,7 @@ bool_t PrtList_free_one( Uint16 iprt )
 //--------------------------------------------------------------------------------------------
 void play_particle_sound( Uint16 particle, Sint8 sound )
 {
-    // This function plays a sound effect for a particle
+    /// ZZ@> This function plays a sound effect for a particle
 
     prt_t * pprt;
 
@@ -261,7 +260,7 @@ Uint16 prt_get_iowner( Uint16 iprt, int depth )
     ///      If an explosion particle bounces off of something with MISSILE_DEFLECT or
     ///      MISSILE_REFLECT, which subsequently dies before the particle...
     ///
-    ///      That is actually pretty far fetched, but at some point it might make sense to 
+    ///      That is actually pretty far fetched, but at some point it might make sense to
     ///      spawn particles just keeping track of the spawner (whether particle or character)
     ///      and working backward to any potential owner using this function. ;)
     ///
@@ -273,7 +272,7 @@ Uint16 prt_get_iowner( Uint16 iprt, int depth )
     prt_t * pprt;
 
     // be careful because this can be recursive
-    if( depth > maxparticles - PrtList.free_count ) 
+    if( depth > maxparticles - PrtList.free_count )
         return MAX_CHR;
 
     if( !ACTIVE_PRT(iprt) ) return MAX_CHR;
@@ -299,7 +298,7 @@ Uint16 prt_get_iowner( Uint16 iprt, int depth )
             // if a particle has been poofed, and another particle lives at that address,
             // it is possible that the pprt->parent_ref points to a valid particle that is
             // not the parent. Depending on how scrambled the list gets, there could actually
-            // be looping structures
+            // be looping structures. I have actually seen this, so don't laugh :)
 
             if( PrtList.lst[pprt->parent_ref].obj_base.guid == pprt->parent_guid )
             {
@@ -716,7 +715,6 @@ void update_all_particles( void )
                                     TEAM_NULL, MAX_CHR, TOTAL_MAX_PRT, 0, MAX_CHR );
             }
 
-
             pprt->inwater  = btrue;
         }
         else
@@ -724,7 +722,6 @@ void update_all_particles( void )
             pprt->inwater = bfalse;
         }
     }
-
 
     // apply damage from  attatched bump particles (about once a second)
     if ( 0 == ( update_wld & 31 ) )
@@ -783,7 +780,7 @@ void update_all_particles( void )
 
         // rotate the particle
         pprt->rotate += pprt->rotateadd;
- 
+
         // down the spawn timer
         if ( pprt->spawntime > 0 ) pprt->spawntime--;
 
@@ -1196,7 +1193,6 @@ void cleanup_all_particles()
     }
 }
 
-
 //--------------------------------------------------------------------------------------------
 void PrtList_free_all()
 {
@@ -1286,7 +1282,7 @@ int spawn_bump_particles( Uint16 character, Uint16 particle )
             spawn_one_enchant( pprt->owner_ref, character, MAX_CHR, MAX_ENC, pprt->profile_ref );
         }
 
-        // Spawn particles - this has been modded to maximize the visual effect 
+        // Spawn particles - this has been modded to maximize the visual effect
         // on a given target. It is not the most optimal solution for lots of particles
         // spawning. Thst would probably be to make the distance calculations and then
         // to quicksort the list and choose the n closest points.
@@ -1294,7 +1290,7 @@ int spawn_bump_particles( Uint16 character, Uint16 particle )
         // however, it seems that the bump particles in game rarely attach more than
         // one bump particle
         if ( amount != 0 && !pcap->resistbumpspawn && !pchr->invictus && ( pchr->damagemodifier[pprt->damagetype]&DAMAGESHIFT ) < 3  )
-        {  
+        {
             int grip_verts, vertices;
             int slot_count;
 
@@ -1350,7 +1346,7 @@ int spawn_bump_particles( Uint16 character, Uint16 particle )
                     prt_t * pprt;
                     if( !ACTIVE_PRT(cnt) ) continue;
                     pprt = PrtList.lst + cnt;
-                    
+
                     if( character != pprt->attachedto_ref) continue;
 
                     if( pprt->vrt_off >=0 && pprt->vrt_off < vertices )
@@ -1371,7 +1367,7 @@ int spawn_bump_particles( Uint16 character, Uint16 particle )
 
                     for ( cnt = 0; cnt < vertices; cnt++ )
                     {
-                        if( vertex_occupied[cnt] != TOTAL_MAX_PRT ) 
+                        if( vertex_occupied[cnt] != TOTAL_MAX_PRT )
                             continue;
 
                         if ( vertex_distance[cnt] < bestdistance )
@@ -1419,7 +1415,7 @@ int spawn_bump_particles( Uint16 character, Uint16 particle )
 //--------------------------------------------------------------------------------------------
 int prt_is_over_water( Uint16 cnt )
 {
-    // This function returns btrue if the particle is over a water tile
+    /// ZZ@> This function returns btrue if the particle is over a water tile
     Uint32 fan;
 
     if ( !ACTIVE_PRT(cnt) ) return bfalse;
@@ -1624,7 +1620,6 @@ bool_t release_one_pip( Uint16 ipip )
 
     if( !VALID_PIP_RANGE(ipip) ) return bfalse;
     ppip = PipStack.lst + ipip;
-
 
     if( !ppip->loaded ) return btrue;
 

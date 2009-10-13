@@ -19,7 +19,7 @@
 
 /// @file file_formats/controls.c
 /// @brief Routines for reading and writing the file "controls.txt" and "scancode.txt"
-/// @details 
+/// @details
 
 #include "controls_file.h"
 

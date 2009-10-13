@@ -19,7 +19,7 @@
 
 /// @file sound.c
 /// @brief Sound code in Egoboo is implemented using SDL_mixer.
-/// @details 
+/// @details
 
 #include "sound.h"
 #include "camera.h"
@@ -563,7 +563,7 @@ bool_t _update_channel_volume( int channel, int volume, fvec3_t   diff )
 //--------------------------------------------------------------------------------------------
 int sound_play_chunk_looped( fvec3_t   pos, Mix_Chunk * pchunk, Sint8 loops, Uint16 owner )
 {
-    // This function plays a specified sound and returns which channel it's using
+    /// ZZ@> This function plays a specified sound and returns which channel it's using
     int channel = INVALID_SOUND;
     fvec3_t   diff;
     int volume;
@@ -686,7 +686,7 @@ void sound_finish_song( Uint16 fadetime )
 //--------------------------------------------------------------------------------------------
 void sound_stop_song()
 {
-    // This function sets music track to pause
+    /// ZZ@> This function sets music track to pause
     if ( mixeron && snd.musicvalid )
     {
         Mix_HaltMusic();
@@ -753,7 +753,7 @@ void load_global_waves( const char * modname )
 //--------------------------------------------------------------------------------------------
 void load_all_music_sounds()
 {
-    // This function loads all of the music sounds
+    /// ZZ@> This function loads all of the music sounds
     STRING loadpath;
     STRING songname;
     vfs_FILE *playlist;

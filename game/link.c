@@ -19,7 +19,7 @@
 
 /// @file link.c
 /// @brief Manages in-game links connecting modules
-/// @details 
+/// @details
 
 #include "link.h"
 

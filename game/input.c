@@ -19,7 +19,7 @@
 
 /// @file input.c
 /// @brief Keyboard, mouse, and joystick handling code.
-/// @details 
+/// @details
 
 #include "input.h"
 
@@ -50,12 +50,7 @@ mouse_t           mous;
 keyboard_t        keyb;
 device_joystick_t joy[MAXJOYSTICK];
 
-int               cursor_x             = 0;
-int               cursor_y             = 0;
-bool_t            cursor_pressed       = bfalse;
-bool_t            cursor_clicked       = bfalse;
-bool_t            cursor_pending_click = bfalse;
-bool_t            cursor_wheel_event   = bfalse;
+cursor_t cursor = {0, 0, bfalse, bfalse, bfalse, bfalse};
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -252,22 +247,27 @@ void input_read()
             case SDL_MOUSEBUTTONDOWN:
                 if (evt.button.button == SDL_BUTTON_WHEELUP)
                 {
-                    mous.z++;
-                    cursor_wheel_event = btrue;
+                    cursor.z++;
+                    cursor.wheel_event = btrue;
                 }
                 else if (evt.button.button == SDL_BUTTON_WHEELDOWN)
                 {
-                    mous.z--;
-                    cursor_wheel_event = btrue;
+                    cursor.z--;
+                    cursor.wheel_event = btrue;
                 }
                 else
                 {
-                    cursor_pending_click = btrue;
+                    cursor.pending_click = btrue;
                 }
                 break;
 
             case SDL_MOUSEBUTTONUP:
-                cursor_pending_click = bfalse;
+                cursor.pending_click = bfalse;
+                break;
+
+            case SDL_MOUSEMOTION:
+                cursor.x = evt.motion.x;
+                cursor.y = evt.motion.y;
                 break;
 
                 // use this loop to grab any console-mode entry from the keyboard
@@ -397,10 +397,30 @@ bool_t control_is_pressed( Uint32 idevice, Uint8 icontrol )
 }
 
 //--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void cursor_reset()
 {
-    cursor_pressed       = bfalse;
-    cursor_clicked       = bfalse;
-    cursor_pending_click = bfalse;
-    cursor_wheel_event   = bfalse;
+    cursor.pressed       = bfalse;
+    cursor.clicked       = bfalse;
+    cursor.pending_click = bfalse;
+    cursor.wheel_event   = bfalse;
+    cursor.z             = 0;
+}
+
+//--------------------------------------------------------------------------------------------
+void cursor_finish_wheel_event()
+{
+    cursor.wheel_event   = bfalse;
+    cursor.z             = 0;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t cursor_wheel_event_pending()
+{
+    if( cursor.wheel_event && 0 == cursor.z )
+    {
+        cursor.wheel_event = bfalse;
+    }
+
+    return cursor.wheel_event;
 }

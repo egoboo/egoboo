@@ -31,7 +31,6 @@ enum e_game_difficulty
     GAME_HARD
 };
 
-
 //--------------------------------------------------------------------------------------------
 // What feedback does the user want
 typedef enum e_feedback
@@ -85,7 +84,7 @@ struct s_egoboo_config
     int                     network_lag;                ///< Lag tolerance
     char                    network_hostname[64];                            ///< Name for hosting session
     char                    network_messagename[64];                         ///< Name for messages
-	
+
 	// {GAME}
     int                     message_count_req;
     Uint16                  message_duration;               ///< Time to keep the message alive

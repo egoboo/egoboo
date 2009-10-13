@@ -19,7 +19,7 @@
 
 /// @file quest.c
 /// @brief Handles functions that modify quest.txt files
-/// @details 
+/// @details
 
 #include "quest.h"
 

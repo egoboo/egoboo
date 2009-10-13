@@ -22,8 +22,9 @@
 #include "egoboo_typedef.h"
 
 //------------------------------------
-/// Module variables
+// Module constants
 //------------------------------------
+
 #define RANKSIZE 12
 #define SUMMARYLINES 8
 #define SUMMARYSIZE  80

@@ -18,8 +18,8 @@
 //********************************************************************************************
 
 /// @file char.c
-/// @brief 
-/// @details 
+/// @brief
+/// @details
 
 #include "char.h"
 #include "particle.h"
@@ -84,7 +84,6 @@ static chr_t * chr_init( chr_t * pchr );
 static ai_state_t * ai_state_init( ai_state_t * pself );
 
 static int get_grip_verts( Uint16 grip_verts[], Uint16 imount, int vrt_offset );
-
 
 bool_t apply_one_character_matrix( chr_t * pchr, matrix_cache_t * mcache );
 bool_t apply_one_weapon_matrix( chr_t * pweap, matrix_cache_t * mcache );
@@ -1847,7 +1846,7 @@ bool_t character_grab_stuff( Uint16 ichr_a, grip_offset_t grip_off, bool_t grab_
                 // Pay the shop owner, or don't allow grab...
                 bool_t is_invis, can_steal;
 
-                is_invis  = FF_MUL(pchr_a->inst.alpha, pchr_a->inst.max_light) < INVISIBLE;
+                is_invis  = (pchr_a->inst.alpha * pchr_a->inst.max_light * INV_FF) < INVISIBLE;
                 can_steal = is_invis || pchr_a->isitem;
 
                 if ( can_steal )
@@ -2530,13 +2529,11 @@ bool_t chr_upload_cap( chr_t * pchr, cap_t * pcap )
     pcap->canusetech            = pchr->canusetech;
     pcap->hascodeofconduct      = pchr->hascodeofconduct;
 
-
     // make sure that identified items are saveed as identified
     pcap->nameknown = pchr->nameknown;
 
     return btrue;
 }
-
 
 //--------------------------------------------------------------------------------------------
 bool_t chr_download_cap( chr_t * pchr, cap_t * pcap )
@@ -2548,7 +2545,6 @@ bool_t chr_download_cap( chr_t * pchr, cap_t * pcap )
     if( !ALLOCATED_PCHR( pchr ) ) return bfalse;
 
     if( NULL == pcap || !pcap->loaded ) return bfalse;
-
 
     // sound stuff...  copy from the cap
     for ( tnc = 0; tnc < SOUND_COUNT; tnc++ )
@@ -2596,7 +2592,6 @@ bool_t chr_download_cap( chr_t * pchr, cap_t * pcap )
     // Gender
     pchr->gender = pcap->gender;
     if ( pchr->gender == GENDER_RANDOM )  pchr->gender = generate_randmask( GENDER_FEMALE, 1 );
-
 
     // Life and Mana
     pchr->lifecolor = pcap->lifecolor;
@@ -2692,9 +2687,6 @@ bool_t chr_download_cap( chr_t * pchr, cap_t * pcap )
 
     return btrue;
 }
-
-
-
 
 //--------------------------------------------------------------------------------------------
 bool_t export_one_character_profile( const char *szSaveName, Uint16 character )
@@ -2977,7 +2969,7 @@ int damage_character( Uint16 character, Uint16 direction,
                 {
                     if ( 0 == (effects & DAMFX_ARMO) )
                     {
-                        actual_damage = FF_MUL( actual_damage, pchr->defense );
+                        actual_damage = ( actual_damage * pchr->defense  * INV_FF);
                     }
 
                     pchr->life -= actual_damage;
@@ -3170,7 +3162,7 @@ int damage_character( Uint16 character, Uint16 direction,
                 {
                     if( cfg.feedback == FEEDBACK_TEXT ) tmpstr = describe_damage(actual_damage, pchr->lifemax, &rank);
                     else snprintf( tmpstr, SDL_arraysize(tmpstr), "%2.1f", FP8_TO_FLOAT(actual_damage) );
-					
+
 					if( rank >= -1 && rank <= 0 )
                     {
                         tmpstr = NULL;
@@ -3219,10 +3211,9 @@ int damage_character( Uint16 character, Uint16 direction,
                 STRING text_buffer = EMPTY_CSTR;
                 SDL_Color color = {0xFF, 0xFF, 0xFF, 0xFF};
 
-
 				if( cfg.feedback == FEEDBACK_TEXT ) snprintf( text_buffer, SDL_arraysize(text_buffer), "%s", describe_value(-actual_damage, damage.base + damage.rand, NULL));
                 else snprintf( text_buffer, SDL_arraysize(text_buffer), "%2.1f", FP8_TO_FLOAT(-actual_damage) );
-					
+
                 pbb = chr_make_text_billboard( character, text_buffer, color, 3 );
                 if( NULL != pbb )
                 {
@@ -3451,7 +3442,6 @@ chr_t * chr_init( chr_t * pchr )
     // nope this did not fix it
     pchr->dismount_timer = 0; //PHYS_DISMOUNT_TIME;		/// ZF@> If this is != 0 then scorpion claws and riders are dropped at spawn (non-item objects)
 
-
     // set all of the integer references to invalid values
     pchr->firstenchant = MAX_ENC;
     pchr->undoenchant  = MAX_ENC;
@@ -3676,7 +3666,6 @@ Uint16 spawn_one_character( fvec3_t   pos, Uint16 profile, Uint8 team,
     pchr->enviro.level  = pchr->enviro.floor_level;
     pchr->onwhichfan    = mesh_get_tile( PMesh, pchr->pos.x, pchr->pos.y );
     pchr->onwhichblock  = mesh_get_block( PMesh, pchr->pos.x, pchr->pos.y );
-
 
     // Name the character
     if ( name == NULL )
@@ -3997,7 +3986,6 @@ bool_t set_weapongrip( Uint16 iitem, Uint16 iholder, Uint16 vrt_off )
 
     matrix_cache_t * mcache;
     chr_t * pitem;
-
 
     needs_update = bfalse;
 
@@ -4443,7 +4431,7 @@ int restock_ammo( Uint16 character, IDSZ idsz )
 int check_skills( Uint16 who, IDSZ whichskill )
 {
     // @details ZF@> This checks if the specified character has the required skill.
-    //               Also checks Skill expansions. Returns the level of the skill. 
+    //               Also checks Skill expansions. Returns the level of the skill.
 
     int result = 0;
 
@@ -4491,7 +4479,6 @@ void update_all_characters()
         chr_update_hide( pchr );
     }
 
-
     // do the character interaction with water
     for ( cnt = 0; cnt < MAX_CHR; cnt++ )
     {
@@ -4518,7 +4505,6 @@ void update_all_characters()
 
                 spawn_one_particle( vtmp, 0, MAX_PROFILE, PIP_SPLASH, MAX_CHR, GRIP_LAST,
                                     TEAM_NULL, MAX_CHR, TOTAL_MAX_PRT, 0, MAX_CHR );
-
 
                 if ( water.is_water )
                 {
@@ -4576,9 +4562,6 @@ void update_all_characters()
 
         pchr->enviro.floor_level = level;
     }
-
-
-
 
     // the following functions should not be done the first time through the update loop
     if( update_wld == 0 ) return;
@@ -4654,12 +4637,8 @@ void update_all_characters()
 
     }
 
-
-
     resize_all_characters();
 }
-
-
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -5133,7 +5112,6 @@ void move_one_character_do_volontary( chr_t * pchr, chr_environment_t * penviro 
         break;
 
     }
-
 
     if ( Md2FrameList[pchr->inst.frame_nxt].framefx & MADFX_STOP )
     {
@@ -5877,7 +5855,6 @@ void move_one_character_do_animation( chr_t * pchr, chr_environment_t * penviro 
         }
     }
 
-
     // go back to a base animation rate, in case the next frame is not a
     // "variable speed frame"
     pinst->rate = 1.0f;
@@ -5969,7 +5946,6 @@ void move_one_character_do_animation( chr_t * pchr, chr_environment_t * penviro 
 
     pinst->rate = CLIP( pinst->rate, 0.1f, 10.0f );
 }
-
 
 //--------------------------------------------------------------------------------------------
 void move_one_character( chr_t * pchr )
@@ -6093,7 +6069,6 @@ void cleanup_all_characters()
     }
 }
 
-
 //--------------------------------------------------------------------------------------------
 bool_t is_invictus_direction( Uint16 direction, Uint16 character, Uint16 effects )
 {
@@ -6165,7 +6140,8 @@ void chr_instance_clear_cache( chr_instance_t * pinst )
     pinst->save_frame_lst = 0;
     pinst->save_update_wld  = 0;
 
-    pinst->save_lighting_update_wld = 0;
+    pinst->save_lighting_update_wld     = 0;
+    pinst->ref_save_lighting_update_wld = 0;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -6958,7 +6934,6 @@ int chr_bumper_1_to_points( chr_bumper_1_t * pbmp, fvec4_t   pos[], size_t pos_c
         vcount++;
     }
 
-
     //---- the points along the x_max edge
     ftmp = 0.5f * (pbmp->max_xy - pbmp->min_yx);  // the top point of the diamond
     if( ftmp <= pbmp->max_x )
@@ -7084,7 +7059,7 @@ int chr_bumper_1_to_points( chr_bumper_1_t * pbmp, fvec4_t   pos[], size_t pos_c
 //--------------------------------------------------------------------------------------------
 void points_to_chr_bumper_1( chr_bumper_1_t * pbmp, fvec4_t   pos[], size_t pos_count )
 {
-    /// @details BB@> convert the new point cloud into a level 1 bounding box using a fvec4_t  
+    /// @details BB@> convert the new point cloud into a level 1 bounding box using a fvec4_t
     ///     array as the source
 
     Uint32 cnt;
@@ -7150,7 +7125,6 @@ void chr_bumper_1_downgrade( chr_bumper_1_t * psrc, chr_bumper_0_t bump_base, ch
             p_bump_0->height = MAX(bump_base.height, psrc->max_z);
         }
 
-
         if( 0 == bump_base.size )
         {
             p_bump_0->size = 0;
@@ -7188,7 +7162,6 @@ void chr_bumper_1_downgrade( chr_bumper_1_t * psrc, chr_bumper_0_t bump_base, ch
             memcpy( p_chr_prt, psrc, sizeof(chr_bumper_1_t) );
         }
 
-
         if( 0 == bump_base.height )
         {
             p_chr_prt->min_z = p_chr_prt->max_z = 0;
@@ -7201,7 +7174,7 @@ void chr_bumper_1_downgrade( chr_bumper_1_t * psrc, chr_bumper_0_t bump_base, ch
 
         // 0 == bump_base.size is supposed to be shorthand for "this object doesn't interact
         // with anything", so we have to set all of the horizontal p_chr_prt data to zero to
-        // make 
+        // make
         if( 0 == bump_base.size )
         {
             p_chr_prt->min_x  = p_chr_prt->max_x = 0;
@@ -7223,7 +7196,6 @@ egoboo_rv chr_update_collision_size( chr_t * pchr, bool_t update_matrix )
     ///<
     ///< it might be possible to cache the src[] array used in this function.
     ///< if the matrix changes, then you would not need to recalculate this data...
-
 
     int       vcount;   // the actual number of vertices, in case the object is square
     fvec4_t   src[16];  // for the upper and lower octagon points
@@ -7557,9 +7529,6 @@ void reset_teams()
         TeamList[TEAM_NULL].hatesteam[teama] = bfalse;
     }
 }
-
-
-
 
 //--------------------------------------------------------------------------------------------
 bool_t chr_teleport( Uint16 ichr, float x, float y, float z, Uint16 turn_z )
@@ -8128,6 +8097,66 @@ bool_t apply_one_character_matrix( chr_t * pchr, matrix_cache_t * mc_tmp )
 }
 
 //--------------------------------------------------------------------------------------------
+bool_t apply_one_reflection( chr_t * pchr )
+{
+    cap_t * pcap;
+    chr_instance_t * pinst;
+    int trans_temp;
+
+    bool_t applied;
+
+    if( !ALLOCATED_PCHR( pchr ) ) return bfalse;
+    pinst = &(pchr->inst);
+
+    pinst->ref_matrix_valid = bfalse;
+
+    pcap = pro_get_pcap( pchr->iprofile );
+    if ( NULL == pcap || !pcap->reflect ) return bfalse;
+
+    // actually flip the matrix
+    applied = bfalse;
+    pinst->ref_matrix_valid = pinst->matrix_cache.valid;
+
+    if( pinst->ref_matrix_valid )
+    {
+        applied = btrue;
+
+        pinst->ref_matrix = pinst->matrix;
+
+        pinst->ref_matrix.CNV( 0, 2 ) = -pinst->ref_matrix.CNV( 0, 2 );
+        pinst->ref_matrix.CNV( 1, 2 ) = -pinst->ref_matrix.CNV( 1, 2 );
+        pinst->ref_matrix.CNV( 2, 2 ) = -pinst->ref_matrix.CNV( 2, 2 );
+        pinst->ref_matrix.CNV( 3, 2 ) = 2 * pchr->enviro.floor_level - pinst->ref_matrix.CNV( 3, 2 );
+    }
+
+    trans_temp = 255;
+    if( applied )
+    {
+        float pos_z;
+
+        // determine the reflection alpha
+        pos_z = pchr->enviro.floor_level - pinst->ref_matrix.CNV( 3, 2 );
+        if (pos_z < 0) pos_z = 0;
+
+        trans_temp -= ((int)pos_z) >> 1;
+        if ( trans_temp < 0 ) trans_temp = 0;
+
+        trans_temp |= gfx.reffadeor;  // Fix for Riva owners
+        trans_temp = CLIP(trans_temp, 0, 255);
+    }
+
+    pinst->ref_alpha = ( pinst->alpha * trans_temp * INV_FF ) * 0.5f;
+
+    pinst->ref_redshift = pinst->redshift + 1;
+    pinst->ref_grnshift = pinst->grnshift + 1;
+    pinst->ref_blushift = pinst->blushift + 1;
+
+    pinst->ref_sheen    = pinst->sheen >> 1;
+
+    return applied;
+}
+
+//--------------------------------------------------------------------------------------------
 bool_t apply_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
 {
     bool_t applied = bfalse;
@@ -8172,6 +8201,11 @@ bool_t apply_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
     else if( 0 != (MAT_CHARACTER & mc_tmp->type) )
     {
         applied = apply_one_character_matrix( pchr, mc_tmp );
+    }
+
+    if( applied )
+    {
+        apply_one_reflection( pchr );
     }
 
     return applied;
@@ -8390,7 +8424,6 @@ Uint16 chr_has_inventory_idsz( Uint16 ichr, IDSZ idsz, bool_t equipped, Uint16 *
 
     return item;
 }
-
 
 //--------------------------------------------------------------------------------------------
 Uint16 chr_holding_idsz( Uint16 ichr, IDSZ idsz )

@@ -18,8 +18,8 @@
 //********************************************************************************************
 
 /// @file egoboo_fileutil.c
-/// @brief 
-/// @details 
+/// @brief
+/// @details
 
 #include "egoboo_fileutil.h"
 
@@ -428,7 +428,6 @@ void fput_range_raw( vfs_FILE* filewrite, FRange val )
         }
     }
 }
-
 
 //--------------------------------------------------------------------------------------------
 void fput_range( vfs_FILE* filewrite, const char* text, FRange val )
@@ -1022,7 +1021,7 @@ int read_skin( const char *filename  )
 	//Read the contents
 	skin = fget_next_int( fileread );
 	skin %= MAX_SKIN;
-	
+
     vfs_close( fileread );
     return skin;
 }

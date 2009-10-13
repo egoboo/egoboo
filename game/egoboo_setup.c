@@ -146,7 +146,7 @@ void egoboo_config_init()
     cfg_default.hide_mouse        = btrue;
     cfg_default.dev_mode          = bfalse;
     cfg_default.sdl_image_allowed = btrue;    // Allow advanced SDL_Image functions?
-    
+
 }
 
 //--------------------------------------------------------------------------------------------
@@ -386,7 +386,7 @@ bool_t setup_download(egoboo_config_t * pcfg)
     if ( 'H' == toupper(lTempStr[0]) )  pcfg->difficulty = GAME_HARD;
 
 	GetKey_int( "FEEDBACK", pcfg->feedback, cfg_default.feedback );
-    
+
     return btrue;
 }
 
@@ -411,10 +411,10 @@ bool_t setup_synch( egoboo_config_t * pcfg )
     snd_config_synch( &snd, pcfg );
 
     // renderer options
-    gfx_config_synch( &gfx, pcfg );
+    gfx_synch_config( &gfx, pcfg );
 
     // texture options
-    oglx_texture_parameters_synch( &tex_params, pcfg );
+    gfx_synch_oglx_texture_parameters( &tex_params, pcfg );
 
     return btrue;
 }

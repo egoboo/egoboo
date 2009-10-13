@@ -91,7 +91,7 @@
 #define ONESECOND                       (TICKS_PER_SEC/UPDATE_SKIP)    ///< 1000 tics per sec / 20 ticks per frame = 50 fps
 
 //------------------------------------
-/// Character defines
+// Character defines
 //------------------------------------
 
 //Dismounting
@@ -99,15 +99,14 @@
 #define DISMOUNTZVELFLY     4
 #define PHYS_DISMOUNT_TIME  (TICKS_PER_SEC*0.5f)          ///< time delay for full object-object interaction (approximately 0.5 second)
 
-
 //------------------------------------
-/// Timers
+// Timers
 //------------------------------------
-/// Display
+// Display
 EXTERN Uint8           timeron     EQ( bfalse );          ///< Game timer displayed?
 EXTERN Uint32          timervalue  EQ( 0 );           ///< Timer time ( 50ths of a second )
 
-/// fps stuff
+// fps stuff
 EXTERN float           est_max_fps           EQ( TARGET_FPS );
 EXTERN float           est_gfx_time          EQ( 1.0f );
 EXTERN Sint32          fps_clock             EQ(0);               ///< The number of ticks this second
@@ -186,7 +185,7 @@ EXTERN bool_t                    local_listening         EQ( bfalse );  ///< Pla
 EXTERN bool_t                    local_noplayers;                    ///< Are there any local players?
 
 //------------------------------------
-/// Model stuff
+// Model stuff
 //------------------------------------
 
 EXTERN const char *globalparsename  EQ( NULL ); ///< The SCRIPT.TXT filename

@@ -19,7 +19,7 @@
 
 /// @file egoboo_typedef.c
 /// @brief Implementation of the support functions for egoboo's special datatypes
-/// @details 
+/// @details
 
 #include "egoboo_typedef.h"
 #include "egoboo_math.h"

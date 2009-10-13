@@ -19,7 +19,7 @@
 
 /// @file font_bmp.c
 /// @brief bitmapped font stuff
-/// @details 
+/// @details
 
 #include "font_bmp.h"
 

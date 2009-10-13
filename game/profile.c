@@ -18,8 +18,8 @@
 //********************************************************************************************
 
 /// @file profile.c
-/// @brief 
-/// @details 
+/// @brief
+/// @details
 
 #include "profile.h"
 
@@ -1044,7 +1044,6 @@ const char * pro_create_chop( Uint16 iprofile )
     return buffer;
 }
 
-
 //--------------------------------------------------------------------------------------------
 bool_t pro_load_chop( Uint16 iprofile, const char *szLoadname )
 {
@@ -1100,7 +1099,7 @@ const char * chop_create( chop_data_t * pdata, chop_definition_t * pdefinition )
     char cTmp;
 
     // The name returned by the function
-    static char buffer[MAXCAPNAMESIZE] = EMPTY_CSTR;   
+    static char buffer[MAXCAPNAMESIZE] = EMPTY_CSTR;
 
     strncpy( buffer, "Blah", SDL_arraysize(buffer) );
 
@@ -1160,7 +1159,7 @@ bool_t chop_load( chop_data_t * pdata, const char *szLoadname, chop_definition_t
 
     // clear out any old definition
     chop_definition_init( pdefinition );
-        
+
     which_section = 0;
     section_count = 0;
     while ( which_section < MAXSECTION && pdata->carat < CHOPDATACHUNK && goto_colon( NULL, fileread, btrue ) )
@@ -1209,7 +1208,6 @@ bool_t chop_load( chop_data_t * pdata, const char *szLoadname, chop_definition_t
 
     return section_count > 0;
 }
-
 
 //--------------------------------------------------------------------------------------------
 bool_t chop_export( const char *szSaveName, const char * szChop )

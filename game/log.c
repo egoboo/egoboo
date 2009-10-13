@@ -19,7 +19,7 @@
 
 /// @file Log.c
 /// @brief Basic logging functionality.
-/// @details 
+/// @details
 
 #include "log.h"
 
@@ -106,10 +106,10 @@ void log_message( const char *format, ... )
 void log_debug( const char *format, ... )
 {
     va_list args;
-	
+
 	//Only if developer mode is enabled
 	if( !cfg.dev_mode ) return;
-    
+
 	va_start( args, format );
     if ( logLevel >= 2 )
     {

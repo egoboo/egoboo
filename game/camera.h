@@ -106,6 +106,10 @@ struct s_camera
     float     sustain;                 ///< Turning rate falloff
     float     turnupdown;
     float     roll;
+
+    fvec3_t   vfw;                 ///< the camera forward vector
+    fvec3_t   vup;                 ///< the camera up vector
+    fvec3_t   vrt;                 ///< the camera right vector
 };
 
 typedef struct s_camera camera_t;

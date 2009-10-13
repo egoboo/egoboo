@@ -19,7 +19,7 @@
 
 /// @file graphic_mad.c
 /// @brief Character model drawing code.
-/// @details 
+/// @details
 
 #include "graphic.h"
 
@@ -41,8 +41,9 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static egoboo_rv chr_instance_update( Uint16 character, Uint8 trans, bool_t do_lighting );
-static void      chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 trans, bool_t do_lighting );
+static egoboo_rv chr_instance_update( Uint16 character, Uint8 trans, bool_t do_ambient );
+static void      chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 trans, bool_t do_ambient, bool_t force );
+static void      chr_instance_update_lighting_ref( chr_instance_t * pinst, chr_t * pchr, Uint8 trans );
 
 static void draw_points( chr_t * pchr, int vrt_offset, int verts );
 static void _draw_one_grip_raw( chr_instance_t * pinst, mad_t * pmad, int slot );
@@ -170,7 +171,7 @@ void draw_textured_md2( const Md2Model *model, int from_, int to_, float lerp )
 }
 
 //--------------------------------------------------------------------------------------------
-void render_one_mad_enviro( Uint16 character, Uint8 trans )
+bool_t render_one_mad_enviro( Uint16 character, Uint8 trans, bool_t use_reflection )
 {
     /// @details ZZ@> This function draws an environment mapped model
 
@@ -184,11 +185,11 @@ void render_one_mad_enviro( Uint16 character, Uint8 trans )
     chr_instance_t * pinst;
     oglx_texture   * ptex;
 
-    if ( !ACTIVE_CHR(character) ) return;
+    if ( !ACTIVE_CHR(character) ) return bfalse;
     pchr  = ChrList.lst + character;
     pinst = &(pchr->inst);
 
-    if ( !LOADED_MAD(pinst->imad) ) return;
+    if ( !LOADED_MAD(pinst->imad) ) return bfalse;
     pmad = MadList + pinst->imad;
 
     ptex = TxTexture_get_ptr( pinst->texture );
@@ -199,9 +200,23 @@ void render_one_mad_enviro( Uint16 character, Uint8 trans )
     // prepare the object
     chr_instance_update( character, 255, bfalse );
 
+    if( use_reflection )
+    {
+        // tint the vertices correctly
+        chr_instance_update_lighting_ref( pinst, pchr, trans );
+    }
+
     GL_DEBUG(glMatrixMode)( GL_MODELVIEW );
     GL_DEBUG(glPushMatrix)();
-    GL_DEBUG(glMultMatrixf)(pinst->matrix.v );
+
+    if( use_reflection )
+    {
+        GL_DEBUG(glMultMatrixf)(pinst->ref_matrix.v );
+    }
+    else
+    {
+        GL_DEBUG(glMultMatrixf)(pinst->matrix.v );
+    }
 
     // Choose texture and matrix
     oglx_texture_Bind( ptex );
@@ -210,6 +225,7 @@ void render_one_mad_enviro( Uint16 character, Uint8 trans )
     cmd_count   = MIN(ego_md2_data[pmad->md2_ref].cmd.count,   MAXCOMMAND);
     entry_count = MIN(ego_md2_data[pmad->md2_ref].cmd.entries, MAXCOMMANDENTRIES);
     vrt_count   = MIN(ego_md2_data[pmad->md2_ref].vertices,    MAXVERTICES);
+
     entry = 0;
     for ( cnt = 0; cnt < cmd_count; cnt++ )
     {
@@ -222,17 +238,21 @@ void render_one_mad_enviro( Uint16 character, Uint8 trans )
                 float     cmax, cmin;
                 fvec4_t   col;
                 GLfloat tex[2];
+                Uint8 tmp_alpha;
+
+                GLvertex * pvrt;
 
                 if ( entry >= entry_count ) break;
 
                 vertex = ego_md2_data[pmad->md2_ref].cmd.vrt[entry];
+                pvrt = pinst->vlst + vertex;
 
                 // normalize the color
                 cmax = 1.0f;
-                cmin = MIN(MIN(pinst->vlst[vertex].col_dir[RR], pinst->vlst[vertex].col_dir[GG]), pinst->vlst[vertex].col_dir[BB]);
+                cmin = MIN(MIN(pvrt->col_dir[RR], pvrt->col_dir[GG]), pvrt->col_dir[BB]);
                 if ( 1.0f != cmin )
                 {
-                    cmax = MAX(MAX(pinst->vlst[vertex].col_dir[RR], pinst->vlst[vertex].col_dir[GG]), pinst->vlst[vertex].col_dir[BB]);
+                    cmax = MAX(MAX(pvrt->col_dir[RR], pvrt->col_dir[GG]), pvrt->col_dir[BB]);
 
                     if ( 0.0f == cmax || cmax == cmin )
                     {
@@ -241,9 +261,9 @@ void render_one_mad_enviro( Uint16 character, Uint8 trans )
                     }
                     else
                     {
-                        col.r = pinst->vlst[vertex].col_dir[RR] / cmax;
-                        col.g = pinst->vlst[vertex].col_dir[GG] / cmax;
-                        col.b = pinst->vlst[vertex].col_dir[BB] / cmax;
+                        col.r = pvrt->col_dir[RR] / cmax;
+                        col.g = pvrt->col_dir[GG] / cmax;
+                        col.b = pvrt->col_dir[BB] / cmax;
                         col.a = 1.0f;
                     }
                 }
@@ -253,18 +273,19 @@ void render_one_mad_enviro( Uint16 character, Uint8 trans )
                     col.a = 1.0f;
                 }
 
-                col.a = (pinst->alpha * INV_FF) * (trans * INV_FF);
+                tmp_alpha = use_reflection ? pinst->ref_alpha : pinst->alpha;
+                col.a = (tmp_alpha * trans * INV_FF);
                 col.a = CLIP( col.a, 0.0f, 1.0f );
 
-                tex[0] = pinst->vlst[vertex].env[XX] + uoffset;
+                tex[0] = pvrt->env[XX] + uoffset;
                 tex[1] = CLIP(cmax * 0.5f + 0.5f, 0.0f, 1.0f);    // the default phong is bright in both the forward and back directions...
 
                 if ( vertex < vrt_count )
                 {
                     GL_DEBUG(glColor4fv)(col.v );
-                    GL_DEBUG(glNormal3fv)(pinst->vlst[vertex].nrm );
+                    GL_DEBUG(glNormal3fv)(pvrt->nrm );
                     GL_DEBUG(glTexCoord2fv)(tex );
-                    GL_DEBUG(glVertex3fv)(pinst->vlst[vertex].pos );
+                    GL_DEBUG(glVertex3fv)(pvrt->pos );
                 }
 
                 entry++;
@@ -275,6 +296,13 @@ void render_one_mad_enviro( Uint16 character, Uint8 trans )
 
     GL_DEBUG(glMatrixMode)( GL_MODELVIEW );
     GL_DEBUG(glPopMatrix)();
+
+    if( use_reflection )
+    {
+        chr_instance_update_lighting( pinst, pchr, trans, bfalse, btrue );
+    }
+
+    return btrue;
 }
 
 // Do fog...
@@ -320,7 +348,7 @@ else
 */
 
 //--------------------------------------------------------------------------------------------
-void render_one_mad_tex( Uint16 character, Uint8 trans )
+bool_t render_one_mad_tex( Uint16 character, Uint8 trans, bool_t use_reflection )
 {
     /// @details ZZ@> This function draws a model
 
@@ -334,11 +362,11 @@ void render_one_mad_tex( Uint16 character, Uint8 trans )
     chr_instance_t * pinst;
     oglx_texture   * ptex;
 
-    if ( !ACTIVE_CHR(character) ) return;
+    if ( !ACTIVE_CHR(character) ) return bfalse;
     pchr  = ChrList.lst + character;
     pinst = &(pchr->inst);
 
-    if ( !LOADED_MAD(pinst->imad) ) return;
+    if ( !LOADED_MAD(pinst->imad) ) return bfalse;
     pmad = MadList + pinst->imad;
 
     // To make life easier
@@ -350,12 +378,26 @@ void render_one_mad_tex( Uint16 character, Uint8 trans )
     // prepare the object
     chr_instance_update( character, trans, btrue );
 
+    if( use_reflection )
+    {
+        // tint the vertices correctly
+        chr_instance_update_lighting_ref( pinst, pchr, trans );
+    }
+
     // Choose texture and matrix
     oglx_texture_Bind( ptex );
 
     GL_DEBUG(glMatrixMode)( GL_MODELVIEW );
     GL_DEBUG(glPushMatrix)();
-    GL_DEBUG(glMultMatrixf)(pinst->matrix.v );
+
+    if( use_reflection )
+    {
+        GL_DEBUG(glMultMatrixf)(pinst->ref_matrix.v );
+    }
+    else
+    {
+        GL_DEBUG(glMultMatrixf)(pinst->matrix.v );
+    }
 
     // Render each command
     cmd_count   = MIN(ego_md2_data[pmad->md2_ref].cmd.count,   MAXCOMMAND);
@@ -378,14 +420,13 @@ void render_one_mad_tex( Uint16 character, Uint8 trans )
 
                 if ( vertex < vrt_count )
                 {
-
                     tex[0] = ego_md2_data[pmad->md2_ref].cmd.u[entry] + uoffset;
                     tex[1] = ego_md2_data[pmad->md2_ref].cmd.v[entry] + voffset;
 
-                    GL_DEBUG(glColor4fv)(pinst->vlst[vertex].col );
-                    GL_DEBUG(glNormal3fv)(pinst->vlst[vertex].nrm );
-                    GL_DEBUG(glTexCoord2fv)(tex );
-                    GL_DEBUG(glVertex3fv)(pinst->vlst[vertex].pos );
+                    GL_DEBUG(glColor4fv)   ( pinst->vlst[vertex].col );
+                    GL_DEBUG(glNormal3fv)  ( pinst->vlst[vertex].nrm );
+                    GL_DEBUG(glTexCoord2fv)( tex );
+                    GL_DEBUG(glVertex3fv)  ( pinst->vlst[vertex].pos );
                 }
 
                 entry++;
@@ -396,6 +437,13 @@ void render_one_mad_tex( Uint16 character, Uint8 trans )
 
     GL_DEBUG(glMatrixMode)( GL_MODELVIEW );
     GL_DEBUG(glPopMatrix)();
+
+    if( use_reflection )
+    {
+        chr_instance_update_lighting( pinst, pchr, trans, btrue, btrue );
+    }
+
+    return btrue;
 }
 
 /*
@@ -435,86 +483,91 @@ void render_one_mad_tex( Uint16 character, Uint8 trans )
 */
 
 //--------------------------------------------------------------------------------------------
-void render_one_mad( Uint16 character, Uint8 trans )
+bool_t render_one_mad( Uint16 character, Uint8 trans, bool_t use_reflection )
 {
     /// @details ZZ@> This function picks the actual function to use
 
     chr_t * pchr;
+    bool_t retval;
 
-    if ( !ACTIVE_CHR(character) ) return;
+    if ( !ACTIVE_CHR(character) ) return bfalse;
     pchr = ChrList.lst + character;
 
-    if ( pchr->is_hidden ) return;
+    if ( pchr->is_hidden ) return bfalse;
 
     if ( pchr->inst.enviro )
     {
-        render_one_mad_enviro( character, trans );
+        retval = render_one_mad_enviro( character, trans, use_reflection );
     }
     else
     {
-        render_one_mad_tex( character, trans );
+        retval = render_one_mad_tex( character, trans, use_reflection );
     }
 
-    //// draw the object bounding box as a part of the graphics debug mode F7
-    //if ( cfg.dev_mode && SDLKEYDOWN( SDLK_F7 ) )
-    //{
-    //    GL_DEBUG(glDisable)( GL_TEXTURE_2D );
-    //    {
-    //        int cnt;
-    //        aabb_t bb;
-
-    //        for ( cnt = 0; cnt < 3; cnt++ )
-    //        {
-    //            bb.mins[cnt] = bb.maxs[cnt] = pchr->pos.v[cnt];
-    //        }
-
-    //        bb.mins[XX] -= pchr->chr_prt_cv.size;
-    //        bb.mins[YY] -= pchr->chr_prt_cv.size;
-
-    //        bb.maxs[XX] += pchr->chr_prt_cv.size;
-    //        bb.maxs[YY] += pchr->chr_prt_cv.size;
-    //        bb.maxs[ZZ] += pchr->chr_prt_cv.height;
-
-    //        GL_DEBUG(glColor4f)(1, 1, 1, 1);
-    //        bbox_gl_draw( &bb );
-    //    }
-    //    GL_DEBUG(glEnable)( GL_TEXTURE_2D );
-    //}
-
-    // draw the object bounding box as a part of the graphics debug mode F7
-    if ( cfg.dev_mode && SDLKEYDOWN( SDLK_F7 ) )
+    // don't draw the debug stuff for reflections
+    if( !use_reflection )
     {
-        GL_DEBUG(glDisable)( GL_TEXTURE_2D );
+        //// draw the object bounding box as a part of the graphics debug mode F7
+        //if ( cfg.dev_mode && SDLKEYDOWN( SDLK_F7 ) )
+        //{
+        //    GL_DEBUG(glDisable)( GL_TEXTURE_2D );
+        //    {
+        //        int cnt;
+        //        aabb_t bb;
+
+        //        for ( cnt = 0; cnt < 3; cnt++ )
+        //        {
+        //            bb.mins[cnt] = bb.maxs[cnt] = pchr->pos.v[cnt];
+        //        }
+
+        //        bb.mins[XX] -= pchr->chr_prt_cv.size;
+        //        bb.mins[YY] -= pchr->chr_prt_cv.size;
+
+        //        bb.maxs[XX] += pchr->chr_prt_cv.size;
+        //        bb.maxs[YY] += pchr->chr_prt_cv.size;
+        //        bb.maxs[ZZ] += pchr->chr_prt_cv.height;
+
+        //        GL_DEBUG(glColor4f)(1, 1, 1, 1);
+        //        render_aabb( &bb );
+        //    }
+        //    GL_DEBUG(glEnable)( GL_TEXTURE_2D );
+        //}
+
+        // draw the object bounding box as a part of the graphics debug mode F7
+        if ( cfg.dev_mode && SDLKEYDOWN( SDLK_F7 ) )
         {
-            oct_bb_t bb;
+            GL_DEBUG(glDisable)( GL_TEXTURE_2D );
+            {
+                oct_bb_t bb;
 
-            bb.mins[OCT_X ] = pchr->chr_prt_cv.min_x  + pchr->pos.x;
-            bb.mins[OCT_Y ] = pchr->chr_prt_cv.min_y  + pchr->pos.y;
-            bb.mins[OCT_Z ] = pchr->chr_prt_cv.min_z  + pchr->pos.z;
-            bb.mins[OCT_XY] = pchr->chr_prt_cv.min_xy + ( pchr->pos.x + pchr->pos.y);
-            bb.mins[OCT_YX] = pchr->chr_prt_cv.min_yx + (-pchr->pos.x + pchr->pos.y);
+                bb.mins[OCT_X ] = pchr->chr_prt_cv.min_x  + pchr->pos.x;
+                bb.mins[OCT_Y ] = pchr->chr_prt_cv.min_y  + pchr->pos.y;
+                bb.mins[OCT_Z ] = pchr->chr_prt_cv.min_z  + pchr->pos.z;
+                bb.mins[OCT_XY] = pchr->chr_prt_cv.min_xy + ( pchr->pos.x + pchr->pos.y);
+                bb.mins[OCT_YX] = pchr->chr_prt_cv.min_yx + (-pchr->pos.x + pchr->pos.y);
 
-            bb.maxs[OCT_X ] = pchr->chr_prt_cv.max_x  + pchr->pos.x;
-            bb.maxs[OCT_Y ] = pchr->chr_prt_cv.max_y  + pchr->pos.y;
-            bb.maxs[OCT_Z ] = pchr->chr_prt_cv.max_z  + pchr->pos.z;
-            bb.maxs[OCT_XY] = pchr->chr_prt_cv.max_xy + ( pchr->pos.x + pchr->pos.y);
-            bb.maxs[OCT_YX] = pchr->chr_prt_cv.max_yx + (-pchr->pos.x + pchr->pos.y);
+                bb.maxs[OCT_X ] = pchr->chr_prt_cv.max_x  + pchr->pos.x;
+                bb.maxs[OCT_Y ] = pchr->chr_prt_cv.max_y  + pchr->pos.y;
+                bb.maxs[OCT_Z ] = pchr->chr_prt_cv.max_z  + pchr->pos.z;
+                bb.maxs[OCT_XY] = pchr->chr_prt_cv.max_xy + ( pchr->pos.x + pchr->pos.y);
+                bb.maxs[OCT_YX] = pchr->chr_prt_cv.max_yx + (-pchr->pos.x + pchr->pos.y);
 
-            GL_DEBUG(glColor4f)(1, 1, 1, 1);
-            render_oct_bb( &bb, btrue, btrue );
+                GL_DEBUG(glColor4f)(1, 1, 1, 1);
+                render_oct_bb( &bb, btrue, btrue );
+            }
+            GL_DEBUG(glEnable)( GL_TEXTURE_2D );
         }
-        GL_DEBUG(glEnable)( GL_TEXTURE_2D );
+
+        // the grips and vertrices of all objects
+        if ( cfg.dev_mode && SDLKEYDOWN( SDLK_F6 ) )
+        {
+		    chr_draw_attached_grip( pchr );
+
+		    // draw all the vertices of an object
+		    GL_DEBUG( glPointSize( 5 ) );
+		    draw_points( pchr, 0, ego_md2_data[pro_get_pmad(pchr->inst.imad)->md2_ref].vertices );
+	    }
     }
-
-    // the grips and vertrices of all objects
-    if ( cfg.dev_mode && SDLKEYDOWN( SDLK_F6 ) )
-    {
-		chr_draw_attached_grip( pchr );
-
-		// draw all the vertices of an object
-		GL_DEBUG( glPointSize( 5 ) );
-		draw_points( pchr, 0, ego_md2_data[pro_get_pmad(pchr->inst.imad)->md2_ref].vertices );
-	}
 
 #if defined(USE_DEBUG)
     // the grips of all objects
@@ -524,83 +577,43 @@ void render_one_mad( Uint16 character, Uint8 trans )
     //GL_DEBUG( glPointSize( 5 ) );
     //draw_points( pchr, 0, pro_get_pmad(pchr->inst.imad)->md2_data.vertices );
 #endif
+
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
-void render_one_mad_ref( int ichr, Uint8 trans )
+bool_t render_one_mad_ref( int ichr )
 {
     /// @details ZZ@> This function draws characters reflected in the floor
 
-    float level;
-    int trans_temp;
-    int pos_z;
-    Uint8 sheen_save;
-    fvec4_t   pos_save;
     chr_t * pchr;
-    cap_t * pcap;
     chr_instance_t * pinst;
 
-    if ( !ACTIVE_CHR(ichr) ) return;
+    if ( !ACTIVE_CHR(ichr) ) return bfalse;
     pchr = ChrList.lst + ichr;
     pinst = &(pchr->inst);
 
-    if ( pchr->is_hidden ) return;
+    if ( pchr->is_hidden ) return bfalse;
 
     // we need to force the calculation of lighting for the the non-reflected
     // object here, or there will be problems later
-    //pinst->save_lighting_update_wld = 0;
-    chr_instance_update( ichr, trans, !pinst->enviro );
+    // pinst->save_lighting_update_wld = 0;
+    chr_instance_update( ichr, 255, !pinst->enviro );
 
-    pcap = chr_get_pcap( ichr );
-    if ( NULL == pcap || !pcap->reflect ) return;
+    if( !pinst->ref_matrix_valid )
+    {
+        if( !apply_one_reflection( pchr ) )
+        {
+            return bfalse;
+        }
+    }
 
-    level = pchr->enviro.floor_level;
-    trans_temp = FF_MUL( pchr->inst.alpha, trans) >> 1;
-
-    pos_z = pinst->matrix.CNV( 3, 2 ) - level;
-    if (pos_z < 0) pos_z = 0;
-
-    trans_temp -= pos_z >> 1;
-    if ( trans_temp < 0 ) trans_temp = 0;
-
-    trans_temp |= gfx.reffadeor;  // Fix for Riva owners
-    trans_temp = CLIP(trans_temp, 0, 255);
-
-    pinst->redshift += 1;
-    pinst->grnshift += 1;
-    pinst->blushift += 1;
-
-    sheen_save = pinst->sheen;
-    pinst->sheen >>= 1;
-
-    pos_save.x = pinst->matrix.CNV( 0, 2 );
-    pos_save.y = pinst->matrix.CNV( 1, 2 );
-    pos_save.z = pinst->matrix.CNV( 2, 2 );
-    pos_save.w = pinst->matrix.CNV( 3, 2 );
-
-    pinst->matrix.CNV( 0, 2 ) = -pinst->matrix.CNV( 0, 2 );
-    pinst->matrix.CNV( 1, 2 ) = -pinst->matrix.CNV( 1, 2 );
-    pinst->matrix.CNV( 2, 2 ) = -pinst->matrix.CNV( 2, 2 );
-    pinst->matrix.CNV( 3, 2 ) = -pinst->matrix.CNV( 3, 2 ) + level + level;
-
-    render_one_mad( ichr, trans_temp );
-
-    pinst->matrix.CNV( 0, 2 ) = pos_save.x;
-    pinst->matrix.CNV( 1, 2 ) = pos_save.y;
-    pinst->matrix.CNV( 2, 2 ) = pos_save.z;
-    pinst->matrix.CNV( 3, 2 ) = pos_save.w;
-
-    pinst->sheen = sheen_save;
-
-    pinst->redshift -= 1;
-    pinst->grnshift -= 1;
-    pinst->blushift -= 1;
-
+    return render_one_mad( ichr, 255, btrue );
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-egoboo_rv chr_instance_update( Uint16 character, Uint8 trans, bool_t do_lighting )
+egoboo_rv chr_instance_update( Uint16 character, Uint8 trans, bool_t do_ambient )
 {
     chr_t * pchr;
     chr_instance_t * pinst;
@@ -626,13 +639,13 @@ egoboo_rv chr_instance_update( Uint16 character, Uint8 trans, bool_t do_lighting
     }
 
     // do the lighting
-    chr_instance_update_lighting( pinst, pchr, trans, do_lighting );
+    chr_instance_update_lighting( pinst, pchr, trans, do_ambient, bfalse );
 
     return retval;
 }
 
 //--------------------------------------------------------------------------------------------
-void chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 trans, bool_t do_lighting )
+void chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 trans, bool_t do_ambient, bool_t force )
 {
     Uint16 cnt;
 
@@ -648,7 +661,7 @@ void chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 t
     if ( NULL == pinst || NULL == pchr ) return;
 
     // has this already been calculated this update?
-    if( pinst->save_lighting_update_wld >= update_wld ) return;
+    if( !force && pinst->save_lighting_update_wld >= update_wld ) return;
     pinst->save_lighting_update_wld = update_wld;
 
     // make sure the matrix is valid
@@ -750,7 +763,7 @@ void chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 t
             pinst->vlst[cnt].col_dir[BB] = -(float)( (-pinst->vlst[cnt].color_dir) >> bs ) * INV_FF;
         }
 
-        if ( do_lighting )
+        if ( do_ambient )
         {
             Sint16 light = pinst->color_amb + pinst->vlst[cnt].color_dir;
             light = CLIP(light, -255, 255);
@@ -788,6 +801,56 @@ void chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 t
     // ??coerce this to reasonable values in the presence of negative light??
     if( pinst->max_light < 0 ) pinst->max_light = 0;
     if( pinst->min_light < 0 ) pinst->min_light = 0;
+}
+
+//--------------------------------------------------------------------------------------------
+void chr_instance_update_lighting_ref( chr_instance_t * pinst, chr_t * pchr, Uint8 trans )
+{
+    Uint16 cnt;
+
+    Uint8 tmp_alpha;
+    GLfloat tint[4];
+
+    mad_t * pmad;
+
+    if ( NULL == pchr ) return;
+
+    if( NULL == pinst ||  !pinst->ref_matrix_valid ) return;
+
+    // has this already been calculated this update?
+    if( pinst->ref_save_lighting_update_wld >= update_wld ) return;
+    pinst->ref_save_lighting_update_wld = update_wld;
+
+    // since we are overwriting the vertex lighting, and the
+    // non-reflected characters are actually drawn after the
+    // reflected characters, we need to force the re-evaluation
+    // of the lighting
+    pinst->save_lighting_update_wld     = update_wld-1;
+
+    tint[0] = (1 << pinst->redshift) / (float) (1 << pinst->ref_redshift);
+    tint[1] = (1 << pinst->grnshift) / (float) (1 << pinst->ref_grnshift);
+    tint[2] = (1 << pinst->blushift) / (float) (1 << pinst->ref_blushift);
+
+    tint[3] = 1.0f;
+    tmp_alpha = trans *  pinst->alpha * INV_FF;
+    if( tmp_alpha != 0 )
+    {
+        tint[3] = trans * pinst->ref_alpha * INV_FF / (float)tmp_alpha;
+    }
+
+    if( tint[0] == 1.0f && tint[1] == 1.0f && tint[2] == 1.0f && tint[3] == 1.0f ) return;
+
+    if ( !LOADED_MAD(pinst->imad) ) return;
+    pmad = MadList + pinst->imad;
+
+    // we only really need to tint the color of the vertices
+    for ( cnt = 0; cnt < ego_md2_data[pmad->md2_ref].vertices; cnt++ )
+    {
+        pinst->vlst[cnt].col[RR] *= tint[0];
+        pinst->vlst[cnt].col[GG] *= tint[1];
+        pinst->vlst[cnt].col[BB] *= tint[2];
+        pinst->vlst[cnt].col[AA] *= tint[3];
+    }
 }
 
 //--------------------------------------------------------------------------------------------

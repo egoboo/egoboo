@@ -183,7 +183,6 @@ typedef struct s_team team_t;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-
 /// Bits that tell you which variables to look at
 enum e_matrix_cache_type
 {
@@ -235,8 +234,8 @@ matrix_cache_t * matrix_cache_init(matrix_cache_t * mcache);
 struct s_chr_instance
 {
     // position info
-    fmat_4x4_t       matrix;          ///< Character's matrix
-    matrix_cache_t matrix_cache;    ///< Did we make one yet?
+    fmat_4x4_t     matrix;           ///< Character's matrix
+    matrix_cache_t matrix_cache;     ///< Did we make one yet?
 
     Uint16         turn_z;
 
@@ -294,6 +293,16 @@ struct s_chr_instance
 
     // the save data to determine whether re-calculation of lighting data is necessary
     Uint32 save_lighting_update_wld;
+
+    //---- some pre-computed parameters for reflection
+    fmat_4x4_t ref_matrix;
+    bool_t     ref_matrix_valid;
+    Uint8      ref_alpha;
+    Uint8      ref_sheen;
+    Uint8      ref_redshift;
+    Uint8      ref_grnshift;
+    Uint8      ref_blushift;
+    Uint32     ref_save_lighting_update_wld;
 };
 
 typedef struct s_chr_instance chr_instance_t;
@@ -545,7 +554,6 @@ struct s_chr
     chr_bumper_1_t   chr_prt_cv;   ///< a looser collision volume for chr-prt interactions
     chr_bumper_1_t   chr_chr_cv;   ///< the tightest collision volume for chr-chr interactions
 
-
     Uint8          stoppedby;                     ///< Collision mask
 
     // character location data
@@ -591,7 +599,7 @@ struct s_chr
 typedef struct s_chr chr_t;
 
 //--------------------------------------------------------------------------------------------
-/// list definitions
+// list definitions
 //--------------------------------------------------------------------------------------------
 
 extern team_t TeamList[TEAM_MAX];
@@ -773,7 +781,8 @@ bool_t chr_getMatTranslate(chr_t *pchr, fvec3_t   * pvec);
 
 egoboo_rv chr_update_collision_size( chr_t * pchr, bool_t update_matrix );
 
-
 Uint16 chr_has_inventory_idsz( Uint16 ichr, IDSZ idsz, bool_t equipped, Uint16 * pack_last );
 Uint16 chr_holding_idsz( Uint16 ichr, IDSZ idsz );
 Uint16 chr_has_item_idsz( Uint16 ichr, IDSZ idsz, bool_t equipped, Uint16 * pack_last );
+
+bool_t apply_one_reflection( chr_t * pchr );

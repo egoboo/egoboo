@@ -21,7 +21,7 @@
 /// @file extensions/ogl_extensions.c
 /// @ingroup _ogl_extensions_
 /// @brief Implementation of extended functions and variables for OpenGL
-/// @details 
+/// @details
 
 #include "ogl_extensions.h"
 #include "ogl_debug.h"

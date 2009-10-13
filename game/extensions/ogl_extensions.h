@@ -24,7 +24,7 @@
 /// @file extensions/ogl_extensions.h
 /// @ingroup _ogl_extensions_
 /// @brief Definitions for extended functions and variables for OpenGL
-/// @details 
+/// @details
 
 #include <SDL_opengl.h>
 #include <stdio.h>

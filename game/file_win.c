@@ -19,7 +19,7 @@
 
 /// @file win-file.c
 /// @brief Windows-specific filesystem functions.
-/// @details 
+/// @details
 
 #include "file_common.h"
 #include "log.h"
@@ -257,7 +257,7 @@ void fs_findClose( fs_find_context_t * fs_search )
         FindClose( pcnt->hFind );
         pcnt->hFind = NULL;
     }
-    
+
     free( pcnt );
 
     memset( fs_search, 0, sizeof(fs_find_context_t) );

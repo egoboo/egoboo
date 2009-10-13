@@ -19,7 +19,7 @@
 
 /// @file egoboo_vfs.c
 /// @brief Implementation of the egoboo virtual file system
-/// @details 
+/// @details
 
 #include "egoboo_vfs.h"
 
@@ -127,8 +127,7 @@ void vfs_init( const char * argv0 )
     PHYSFS_addToSearchPath( fs_getConfigDirectory(), 1 );
     PHYSFS_addToSearchPath( fs_getDataDirectory(), 1 );
 
-
-    // !!!!make sure the basic directories exist. 
+    // !!!!make sure the basic directories exist.
 
     if( !fs_fileIsDirectory(fs_getUserDirectory()) )
     {
@@ -410,7 +409,7 @@ vfs_FILE * vfs_openRead( const char * filename )
 //--------------------------------------------------------------------------------------------
 int _vfs_ensure_write_directory( const char * filename, bool_t is_directory )
 {
-    /// @details BB@> 
+    /// @details BB@>
 
     int           retval;
     VFS_PATH      temp_dirname = EMPTY_CSTR;
@@ -744,9 +743,9 @@ long vfs_fileLength( vfs_FILE * pfile )
 //--------------------------------------------------------------------------------------------
 int vfs_mkdir(const char *dirName)
 {
-	int retval = PHYSFS_mkdir ( _vfs_convert_fname_physfs(dirName) ); 
+	int retval = PHYSFS_mkdir ( _vfs_convert_fname_physfs(dirName) );
 
-	if(!retval) 
+	if(!retval)
     {
         log_debug( "vfs_copyDirectory() - Could not create new folder folder \"%s\". (%s)\n"), dirName, vfs_getError();
     }
@@ -1567,7 +1566,7 @@ int vfs_copyDirectory( const char *sourceDir, const char *destDir )
     VFS_PATH     szDst = EMPTY_CSTR;
     const char * real_dst;
 
-    if( INVALID_CSTR(sourceDir) || INVALID_CSTR(destDir) ) 
+    if( INVALID_CSTR(sourceDir) || INVALID_CSTR(destDir) )
     {
         return VFS_FALSE;
     }
@@ -1642,8 +1641,8 @@ int vfs_getc ( vfs_FILE * pfile )
         char cTmp;
         retval = PHYSFS_read( pfile->ptr.p, &cTmp, 1, sizeof(cTmp) );
 
-        if( -1 == retval ) pfile->flags |= VFS_ERROR; 
-        if(  0 == retval ) pfile->flags |= VFS_EOF; 
+        if( -1 == retval ) pfile->flags |= VFS_ERROR;
+        if(  0 == retval ) pfile->flags |= VFS_EOF;
     }
 
     return retval;
@@ -1852,7 +1851,7 @@ void _vfs_translate_error( vfs_FILE * pfile )
 }
 
 //--------------------------------------------------------------------------------------------
-const char * vfs_getError() 
+const char * vfs_getError()
 {
 	/// @details ZF@> Returns the last error the PHYSFS system reported.
 

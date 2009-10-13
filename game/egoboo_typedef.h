@@ -193,26 +193,24 @@ typedef char STRING[256];
 
 //--------------------------------------------------------------------------------------------
 /// FAST CONVERSIONS
-#define FP8_TO_FLOAT(XX)   ( (float)(XX) * INV_0100 )
-#define FLOAT_TO_FP8(XX)   ( (Uint32)((XX) * (float)(0x0100) ) )
-#define FP8_TO_INT(XX)     ( (XX) >> 8 )                      ///< fast version of XX / 256
-#define INT_TO_FP8(XX)     ( (XX) << 8 )                      ///< fast version of XX * 256
-#define FP8_MUL(XX, YY)    ( ((XX)*(YY)) >> 8 )
-#define FP8_DIV(XX, YY)    ( ((XX)<<8) / (YY) )
+#define FP8_TO_FLOAT(V1)   ( (float)(V1) * INV_0100 )
+#define FLOAT_TO_FP8(V1)   ( (Uint32)((V1) * (float)(0x0100) ) )
+#define FP8_TO_INT(V1)     ( (V1) >> 8 )                      ///< fast version of V1 / 256
+#define INT_TO_FP8(V1)     ( (V1) << 8 )                      ///< fast version of V1 * 256
+#define FP8_MUL(V1, V2)    ( ((V1)*(V2)) >> 8 )
+#define FP8_DIV(V1, V2)    ( ((V1)<<8) / (V2) )
 
-/// "fast" multiplication for the case where 0xFF == 1.00
-#define FF_MUL(XX, YY)     ( ( 0 == (XX) || 0 == (YY) ) ? 0 : ( ( ((XX)+1) * ((YY)+1) ) >> 8 ) )
-#define FF_TO_FLOAT( XX )  ( (float)(XX) * INV_FF )
+#define FF_TO_FLOAT( V1 )  ( (float)(V1) * INV_FF )
 
-#define FFFF_TO_FLOAT( XX )  ( (float)(XX) * INV_FFFF )
-#define FLOAT_TO_FFFF( XX )  ( ((XX) * 0xFFFF) )
+#define FFFF_TO_FLOAT( V1 )  ( (float)(V1) * INV_FFFF )
+#define FLOAT_TO_FFFF( V1 )  ( ((V1) * 0xFFFF) )
 
-#define FLOAT_TO_FP16( XX )  ( (Uint32)((XX) * 0x00010000) )
+#define FLOAT_TO_FP16( V1 )  ( (Uint32)((V1) * 0x00010000) )
 
-#define CLIP_TO_08BITS( XX )  ( (XX) & 0xFF       )
-#define CLIP_TO_16BITS( XX )  ( (XX) & 0xFFFF     )
-#define CLIP_TO_24BITS( XX )  ( (XX) & 0xFFFFFF   )
-#define CLIP_TO_32BITS( XX )  ( (XX) & 0xFFFFFFFF )
+#define CLIP_TO_08BITS( V1 )  ( (V1) & 0xFF       )
+#define CLIP_TO_16BITS( V1 )  ( (V1) & 0xFFFF     )
+#define CLIP_TO_24BITS( V1 )  ( (V1) & 0xFFFFFF   )
+#define CLIP_TO_32BITS( V1 )  ( (V1) & 0xFFFFFFFF )
 
 //--------------------------------------------------------------------------------------------
 /// List of the methods an AI can use to obtain a target
@@ -321,7 +319,7 @@ struct s_ego_object_base
     int            index;     ///< what is the index position in the object list?
     bool_t         allocated; ///< Does it exist?
     int            state;     ///< what state is it in?
-    Uint32         guid;      ///< a globally unique identifier            
+    Uint32         guid;      ///< a globally unique identifier
 };
 
 typedef struct s_ego_object_base ego_object_base_t;
@@ -365,13 +363,13 @@ typedef struct s_ego_object_base ego_object_base_t;
 /// Is the object "on"
 #define ACTIVE_OBJ( POBJ )      ( ALLOCATED_OBJ( POBJ ) && (ego_object_active == (POBJ)->state) )
 
-/// Is the object waiting to "die" 
+/// Is the object waiting to "die"
 #define WAITING_OBJ( POBJ )     ( ALLOCATED_OBJ( POBJ ) && (ego_object_waiting == (POBJ)->state) )
 
 /// Has the object been marked as terminated
 #define TERMINATED_OBJ( POBJ )  ( (NULL != (POBJ)) && (ego_object_terminated == (POBJ)->state) )
 
-/// Grab a pointer to the ego_object_base_t of an object that "inherits" this data 
+/// Grab a pointer to the ego_object_base_t of an object that "inherits" this data
 #define OBJ_GET_PBASE( PBLAH )          ( (NULL == (PBLAH)) ? NULL : &((PBLAH)->obj_base) )
 
 /// Grab the index value of object that "inherits" from ego_object_base_t

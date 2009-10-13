@@ -24,7 +24,7 @@
 /// @file extensions/ogl_texture.h
 /// @ingroup _ogl_extensions_
 /// @brief Definitions for OpenGL texture loading using SDL_image
-/// @details 
+/// @details
 
 #include "ogl_include.h"
 #include "ogl_debug.h"

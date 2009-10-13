@@ -19,7 +19,7 @@
 
 /// @file graphic_prt.c
 /// @brief Particle system drawing and management code.
-/// @details 
+/// @details
 
 #include "graphic.h"
 
@@ -48,9 +48,8 @@ typedef struct s_prt_registry_entity prt_registry_entity_t;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 static void prt_instance_update( camera_t * pcam, Uint16 particle, Uint8 trans, bool_t do_lighting );
-static void calc_billboard_verts( GLvertex vlst[], prt_instance_t * pinst, float size, float level, bool_t do_reflect );
+static void calc_billboard_verts( GLvertex vlst[], prt_instance_t * pinst, float size, bool_t do_reflect );
 static int  cmp_prt_registry_entity(const void * vlhs, const void * vrhs);
-
 
 static void draw_one_attacment_point( chr_instance_t * pinst, mad_t * pmad, int vrt_offset );
 static void prt_draw_attached_point( prt_t * pprt );
@@ -145,7 +144,7 @@ bool_t render_one_prt_solid( Uint16 iprt )
     if ( SPRITE_SOLID != pprt->type ) return bfalse;
 
     // billboard for the particle
-    calc_billboard_verts( vtlist, pinst, pinst->size, pprt->floor_level, bfalse );
+    calc_billboard_verts( vtlist, pinst, pinst->size, bfalse );
 
     ATTRIB_PUSH( "render_one_prt_solid", GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_LIGHTING_BIT | GL_CURRENT_BIT );
     {
@@ -189,7 +188,7 @@ void render_all_prt_solid( camera_t * pcam, prt_registry_entity_t reg[], size_t 
     Uint32 cnt;
     Uint16 prt;
 
-    Begin3DMode( pcam );
+    gfx_begin_3d( pcam );
     {
         // apply solid particles from near to far
         for ( cnt = 0; cnt < numparticle; cnt++ )
@@ -200,7 +199,7 @@ void render_all_prt_solid( camera_t * pcam, prt_registry_entity_t reg[], size_t 
             render_one_prt_solid( reg[cnt].index );
         }
     }
-    End3DMode();
+    gfx_end_3d();
 
 }
 
@@ -223,7 +222,7 @@ bool_t render_one_prt_trans( Uint16 iprt )
 
     // Calculate the position of the four corners of the billboard
     // used to display the particle.
-    calc_billboard_verts( vtlist, pinst, pinst->size, pprt->floor_level, bfalse );
+    calc_billboard_verts( vtlist, pinst, pinst->size, bfalse );
 
     ATTRIB_PUSH( "render_one_prt_trans", GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_LIGHTING_BIT | GL_CURRENT_BIT );
     {
@@ -304,7 +303,7 @@ void render_all_prt_trans( camera_t * pcam, prt_registry_entity_t reg[], size_t 
 
     int cnt;
 
-    Begin3DMode( pcam );
+    gfx_begin_3d( pcam );
     {
         // apply transparent particles from far to near
         for ( cnt = numparticle - 1; cnt >= 0; cnt-- )
@@ -313,7 +312,7 @@ void render_all_prt_trans( camera_t * pcam, prt_registry_entity_t reg[], size_t 
             render_one_prt_trans( reg[cnt].index );
         }
     }
-    End3DMode();
+    gfx_end_3d();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -361,7 +360,7 @@ size_t render_all_prt_ref_begin( camera_t * pcam, prt_registry_entity_t reg[], s
             fvec3_t   vpos;
             float dist;
 
-            vpos = fvec3_sub( pinst->pos.v, vcam.v );
+            vpos = fvec3_sub( pinst->ref_pos.v, vcam.v );
             dist = fvec3_dot_product( vfwd.v, vpos.v );
 
             if ( dist > 0 )
@@ -398,14 +397,15 @@ bool_t render_one_prt_ref( Uint16 iprt )
 
     // Calculate the position of the four corners of the billboard
     // used to display the particle.
-    calc_billboard_verts( vtlist, pinst, pinst->size, pprt->floor_level, btrue );
+    calc_billboard_verts( vtlist, pinst, pinst->size, btrue );
 
     // Fill in the rest of the data
-    startalpha = 255 - (pprt->pos.z - pprt->floor_level) / 2.0f;
+    startalpha = 255 - (pprt->floor_level - pinst->ref_pos.z) / 2.0f;
     startalpha = CLIP(startalpha, 0, 255);
+    startalpha /= 2;
 
-    startalpha = ( startalpha | gfx.reffadeor ) >> 1;  // Fix for Riva owners
-    startalpha = CLIP(startalpha, 0, 255);
+    //startalpha = ( startalpha | gfx.reffadeor ) >> 1;  // Fix for Riva owners
+    //startalpha = CLIP(startalpha, 0, 255);
 
     if ( startalpha > 0 )
     {
@@ -417,7 +417,7 @@ bool_t render_one_prt_ref( Uint16 iprt )
             if ( SPRITE_LIGHT == PrtList.lst[iprt].type )
             {
                 // do the light sprites
-                float alpha = startalpha * INV_FF * pinst->fintens / 2.0f;
+                float alpha = startalpha * INV_FF * pinst->fintens;
 
                 GL_DEBUG(glDisable)(GL_ALPHA_TEST );
 
@@ -431,7 +431,7 @@ bool_t render_one_prt_ref( Uint16 iprt )
             {
                 // do the transparent sprites
 
-                float alpha = pinst->falpha * pinst->fintens / 2.0f;
+                float alpha = startalpha * INV_FF * pinst->falpha;
 
                 GL_DEBUG(glEnable)(GL_ALPHA_TEST );
                 GL_DEBUG(glAlphaFunc)(GL_GREATER, 0 );
@@ -472,7 +472,7 @@ void render_all_prt_ref( camera_t * pcam, prt_registry_entity_t reg[], size_t nu
     Uint16 prt;
     Uint32 cnt;
 
-    Begin3DMode( pcam );
+    gfx_begin_3d( pcam );
     {
         // Render each particle that was on
         for ( cnt = 0; cnt < numparticle; cnt++ )
@@ -483,7 +483,7 @@ void render_all_prt_ref( camera_t * pcam, prt_registry_entity_t reg[], size_t nu
             render_one_prt_ref( reg[cnt].index );
         }
     }
-    End3DMode();
+    gfx_end_3d();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -538,8 +538,9 @@ void prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_
     pip_t * ppip;
 
     fvec3_t   vfwd, vup, vright;
+    fvec3_t   vfwd_ref, vup_ref, vright_ref;
 
-    if ( !DISPLAY_PPRT( pprt ) ) return;
+    if ( NULL == pcam || !DISPLAY_PPRT( pprt ) ) return;
 
     if ( !LOADED_PIP( pprt->pip_ref ) ) return;
     ppip = PipStack.lst + pprt->pip_ref;
@@ -552,9 +553,16 @@ void prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_
     pinst->pos         = pprt->pos;
     pinst->orientation = ppip->orientation;
 
+    // calculate the billboard vectors for the reflecions
+    pinst->ref_pos      = pprt->pos;
+    pinst->ref_pos.z    = 2 * pprt->floor_level - pinst->ref_pos.z;
+
     // get the vector from the camera to the particle
     vfwd = fvec3_sub( pinst->pos.v, pcam->pos.v );
     vfwd = fvec3_normalize( vfwd.v );
+
+    vfwd_ref = fvec3_sub( pinst->ref_pos.v, pcam->pos.v );
+    vfwd_ref = fvec3_normalize( vfwd_ref.v );
 
     // set the up and right vectors
     if ( ppip->rotatetoface && !ACTIVE_CHR( pprt->attachedto_ref ) && (ABS( pprt->vel.x ) + ABS( pprt->vel.y ) + ABS( pprt->vel.z ) > 0) )
@@ -567,16 +575,81 @@ void prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_
         // get the correct "right" vector
         vright = fvec3_cross_product( vfwd.v, vup.v );
         vright = fvec3_normalize( vright.v );
+
+        vup_ref    = vup;
+        vright_ref = fvec3_cross_product( vfwd_ref.v, vup.v );
+        vright_ref = fvec3_normalize( vright_ref.v );
     }
     else if ( ORIENTATION_B == pinst->orientation )
     {
         // use the camera up vector
-        vup = mat_getCamUp( pcam->mView );
+        vup = pcam->vup;
         vup = fvec3_normalize( vup.v );
 
         // get the correct "right" vector
         vright = fvec3_cross_product( vfwd.v, vup.v );
         vright = fvec3_normalize( vright.v );
+
+        vup_ref    = vup;
+        vright_ref = fvec3_cross_product( vfwd_ref.v, vup.v );
+        vright_ref = fvec3_normalize( vright_ref.v );
+    }
+    else if ( ORIENTATION_V == pinst->orientation )
+    {
+        // Using just the global up vector here is too harsh.
+        // Smoothly interpolate the global up vector with the camera up vector
+        // so that when the camera is looking straight down, the billboard's plane
+        // is turned by 45 degrees to the camera (instead of 90 degrees which is invisible)
+
+        float weight;
+        fvec3_t vup_cam;
+
+        // use the camera up vector
+        vup_cam = pcam->vup;
+
+        // use the global up vector
+        vup.x = vup.y = 0;
+        vup.z = 1;
+
+        // adjust the vector so that the particle doesn't disappear if
+        // you are viewing it from from the top or the bottom
+        weight = 1.0f - ABS(vup_cam.z);
+        if( vup_cam.z < 0 ) weight *= -1;
+
+        vup.x = vup.x + weight * vup_cam.x;
+        vup.y = vup.y + weight * vup_cam.y;
+        vup.z = vup.z + weight * vup_cam.z;
+        vup = fvec3_normalize( vup.v );
+
+        // get the correct "right" vector
+        vright = fvec3_cross_product( vfwd.v, vup.v );
+        vright = fvec3_normalize( vright.v );
+
+        vright_ref = fvec3_cross_product( vfwd.v, vup_ref.v );
+        vright_ref = fvec3_normalize( vright_ref.v );
+
+        vup_ref    = vup;
+        vright_ref = fvec3_cross_product( vfwd_ref.v, vup.v );
+        vright_ref = fvec3_normalize( vright_ref.v );
+    }
+    else if ( ORIENTATION_H == pinst->orientation )
+    {
+        vup.x = vup.y = 0;
+        vup.z = 1;
+
+        // force right to be horizontal
+        vright = fvec3_cross_product( vfwd.v, vup.v );
+
+        // force "up" to be close to the camera forward, but horizontal
+        vup = fvec3_cross_product( vup.v, vright.v );
+        vup_ref = fvec3_cross_product( vup.v, vright_ref.v );
+
+        // normalize them
+        vright = fvec3_normalize( vright.v );
+        vup    = fvec3_normalize( vup.v );
+
+        vright_ref = vright;
+        vup_ref    = vup;
     }
     else if ( ACTIVE_CHR( pprt->attachedto_ref ) )
     {
@@ -604,11 +677,11 @@ void prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_
             // use the camera directions?
             switch ( pinst->orientation )
             {
-                case ORIENTATION_X: vup = mat_getCamForward( pcam->mView ); break;
-                case ORIENTATION_Y: vup = mat_getCamRight( pcam->mView ); break;
+                case ORIENTATION_X: vup = pcam->vfw; break;
+                case ORIENTATION_Y: vup = pcam->vrt; break;
 
                 default:
-                case ORIENTATION_Z: vup = mat_getCamUp( pcam->mView ); break;
+                case ORIENTATION_Z: vup = pcam->vup; break;
             }
         }
 
@@ -617,41 +690,24 @@ void prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_
         // get the correct "right" vector
         vright = fvec3_cross_product( vfwd.v, vup.v );
         vright = fvec3_normalize( vright.v );
-    }
-    else if ( ORIENTATION_V == pinst->orientation )
-    {
-        // use the camera up vector
-        vup.x = vup.y = 0;
-        vup.z = 1;
 
-        // get the correct "right" vector
-        vright = fvec3_cross_product( vfwd.v, vup.v );
-        vright = fvec3_normalize( vright.v );
-    }
-    else if ( ORIENTATION_H == pinst->orientation )
-    {
-        vup.x = vup.y = 0;
-        vup.z = 1;
-
-        // force right to be horizontal
-        vright = fvec3_cross_product( vfwd.v, vup.v );
-
-        // force "up" to be close to the camera forward, but horizontal
-        vup = fvec3_cross_product( vup.v, vright.v );
-
-        // notmalize them
-        vright = fvec3_normalize( vright.v );
-        vright = fvec3_normalize( vup.v );
+        vup_ref    = vup;
+        vright_ref = fvec3_cross_product( vfwd_ref.v, vup.v );
+        vright_ref = fvec3_normalize( vright_ref.v );
     }
     else
     {
         // use the camera up vector
-        vup = mat_getCamUp( pcam->mView );
+        vup = pcam->vup;
         vup = fvec3_normalize( vup.v );
 
         // get the correct "right" vector
         vright = fvec3_cross_product( vfwd.v, vup.v );
         vright = fvec3_normalize( vright.v );
+
+        vup_ref    = vup;
+        vright_ref = fvec3_cross_product( vfwd_ref.v, vup.v );
+        vright_ref = fvec3_normalize( vright_ref.v );
     }
 
     // calculate the actual vectors using the particle rotation
@@ -659,26 +715,111 @@ void prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_
     {
         pinst->up    = vup;
         pinst->right = vright;
+
+        pinst->ref_up    = vup_ref;
+        pinst->ref_right = vright_ref;
     }
     else
     {
+        float sinval, cosval;
         Uint16 turn    = pprt->rotate >> 2;
-        pinst->up.x    = vup.x * turntocos[turn & TRIG_TABLE_MASK ] - vright.x * turntosin[turn & TRIG_TABLE_MASK ];
-        pinst->up.y    = vup.y * turntocos[turn & TRIG_TABLE_MASK ] - vright.y * turntosin[turn & TRIG_TABLE_MASK ];
-        pinst->up.z    = vup.z * turntocos[turn & TRIG_TABLE_MASK ] - vright.z * turntosin[turn & TRIG_TABLE_MASK ];
 
-        pinst->right.x = vup.x * turntosin[turn & TRIG_TABLE_MASK ] + vright.x * turntocos[turn & TRIG_TABLE_MASK ];
-        pinst->right.y = vup.y * turntosin[turn & TRIG_TABLE_MASK ] + vright.y * turntocos[turn & TRIG_TABLE_MASK ];
-        pinst->right.z = vup.z * turntosin[turn & TRIG_TABLE_MASK ] + vright.z * turntocos[turn & TRIG_TABLE_MASK ];
+        cosval = turntocos[turn & TRIG_TABLE_MASK ];
+        sinval = turntosin[turn & TRIG_TABLE_MASK ];
+
+        pinst->up.x    = vup.x * cosval - vright.x * sinval;
+        pinst->up.y    = vup.y * cosval - vright.y * sinval;
+        pinst->up.z    = vup.z * cosval - vright.z * sinval;
+
+        pinst->right.x = vup.x * sinval + vright.x * cosval;
+        pinst->right.y = vup.y * sinval + vright.y * cosval;
+        pinst->right.z = vup.z * sinval + vright.z * cosval;
+
+        pinst->ref_up.x    = vup_ref.x * cosval - vright_ref.x * sinval;
+        pinst->ref_up.y    = vup_ref.y * cosval - vright_ref.y * sinval;
+        pinst->ref_up.z    = vup_ref.z * cosval - vright_ref.z * sinval;
+
+        pinst->ref_right.x = vup_ref.x * sinval + vright_ref.x * cosval;
+        pinst->ref_right.y = vup_ref.y * sinval + vright_ref.y * cosval;
+        pinst->ref_right.z = vup_ref.z * sinval + vright_ref.z * cosval;
     }
 
     // calculate the billboard normal
     pinst->nrm = fvec3_cross_product( pinst->right.v, pinst->up.v );
+
+    // flip the normal so that the front front of the quad is toward the camera
     if ( fvec3_dot_product( vfwd.v, pinst->nrm.v ) < 0 )
     {
         pinst->nrm.x *= -1;
         pinst->nrm.y *= -1;
         pinst->nrm.z *= -1;
+    }
+
+    // Now we have to calculate the mirror-like reflection of the particles
+    // this was a bit hard to figure. What happens is that the components of the
+    // up and right vectors that are in the plane of the quad and closest to the world up are reversed.
+    //
+    // This is easy to think about in a couple of examples:
+    // 1) If the quad is like a picture frame then whatever component (up or right)
+    //    that actually points in the wodld up direction is reversed.
+    //    This corresponds to the case where zdot == +/- 1 in the code below
+    //
+    // 2) If the particle is like a rug, then basically nothing happens since
+    //    neither the up or right vectors point in the wodld up direction.
+    //    This corresponds to ndot == 0 in the code below.
+    //
+    // This process does not affect the normal the length of the vector, or the
+    // direction of the normal to the quad.
+
+    {
+        float zdot;  // the dot product between the up or the right vector and the world up
+        float ndot;  // the dot product between either the up or the right vector
+        float factor;
+        fvec3_t world_up;
+
+        // the normal sense of "up"
+        world_up.x = world_up.y = 0;
+        world_up.z = 1.0f;
+
+        // the following statement could be optimized
+        // since we know the only non-zero component of world_up is z
+        ndot = fvec3_dot_product( pinst->nrm.v, world_up.v );
+
+        // do nothing if the quad is basically horizontal
+        if( ndot < 1.0f - 1e-6 )
+        {
+            //---- do the right vector first
+            {
+                // the following statement could be optimized
+                // since we know the only non-zero component of world_up is z
+                zdot = fvec3_dot_product( pinst->ref_right.v, world_up.v );
+
+                if( ABS(zdot) > 1e-6 )
+                {
+                    factor = zdot / (1.0f - ndot*ndot);
+
+                    pinst->ref_right.x += 2.0f * factor * ( ndot * pinst->nrm.x - world_up.x );
+                    pinst->ref_right.y += 2.0f * factor * ( ndot * pinst->nrm.y - world_up.y );
+                    pinst->ref_right.z += 2.0f * factor * ( ndot * pinst->nrm.z - world_up.z );
+                }
+            }
+
+            //---- do the up vector second
+            {
+                // the following statement could be optimized
+                // since we know the only non-zero component of world_up is z
+                zdot = fvec3_dot_product( pinst->ref_up.v, world_up.v );
+
+                if( ABS(zdot) > 1e-6 )
+                {
+                    factor = zdot / (1.0f - ndot*ndot);
+
+                    pinst->ref_up.x += 2.0f * factor * ( ndot * pinst->nrm.x - world_up.x );
+                    pinst->ref_up.y += 2.0f * factor * ( ndot * pinst->nrm.y - world_up.y );
+                    pinst->ref_up.z += 2.0f * factor * ( ndot * pinst->nrm.z - world_up.z );
+                }
+            }
+        }
     }
 
     // set some particle dependent properties
@@ -693,10 +834,11 @@ void prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_
     if ( cfg.dev_mode && SDLKEYDOWN( SDLK_F8 ) )
     {
         // a useful little mod to help with debugging particles
-        // will make things like the bare-handed particles visible
+        // will make things like the bare-handed-attack particles visible
         pinst->size = MAX(90, pinst->size);
     }
 
+    // this instance is now completely valid
     pinst->valid = btrue;
 }
 
@@ -773,7 +915,7 @@ void prt_instance_update_lighting( prt_instance_t * pinst, prt_t * pprt, Uint8 t
     {
         pinst->fintens += pinst->famb * INV_FF;
     }
-    pinst->fintens = CLIP( pinst->fintens, 0.0f, 1.0f ); 
+    pinst->fintens = CLIP( pinst->fintens, 0.0f, 1.0f );
 
     // determine the alpha component
     pinst->falpha = (alpha * INV_FF) * (pinst->alpha * INV_FF);
@@ -798,45 +940,52 @@ void prt_instance_update( camera_t * pcam, Uint16 particle, Uint8 trans, bool_t 
 }
 
 //--------------------------------------------------------------------------------------------
-void calc_billboard_verts( GLvertex vlst[], prt_instance_t * pinst, float size, float level, bool_t do_reflect )
+void calc_billboard_verts( GLvertex vlst[], prt_instance_t * pinst, float size, bool_t do_reflect )
 {
     // Calculate the position of the four corners of the billboard
     // used to display the particle.
 
     int i;
+    fvec3_t prt_pos, prt_up, prt_right;
 
     if ( NULL == vlst || NULL == pinst ) return;
 
+    // use the pre-computed reflection parameters
+    if( do_reflect )
+    {
+        prt_pos   = pinst->ref_pos;
+        prt_up    = pinst->ref_up;
+        prt_right = pinst->ref_right;
+    }
+    else
+    {
+        prt_pos   = pinst->pos;
+        prt_up    = pinst->up;
+        prt_right = pinst->right;
+    }
+
     for ( i = 0; i < 4; i++ )
     {
-        vlst[i].pos[XX] = pinst->pos.x;
-        vlst[i].pos[YY] = pinst->pos.y;
-        vlst[i].pos[ZZ] = pinst->pos.z;
+        vlst[i].pos[XX] = prt_pos.x;
+        vlst[i].pos[YY] = prt_pos.y;
+        vlst[i].pos[ZZ] = prt_pos.z;
     }
 
-    vlst[0].pos[XX] += ( -pinst->right.x - pinst->up.x ) * size;
-    vlst[0].pos[YY] += ( -pinst->right.y - pinst->up.y ) * size;
-    vlst[0].pos[ZZ] += ( -pinst->right.z - pinst->up.z ) * size;
+    vlst[0].pos[XX] += ( -prt_right.x - prt_up.x ) * size;
+    vlst[0].pos[YY] += ( -prt_right.y - prt_up.y ) * size;
+    vlst[0].pos[ZZ] += ( -prt_right.z - prt_up.z ) * size;
 
-    vlst[1].pos[XX] += (  pinst->right.x - pinst->up.x ) * size;
-    vlst[1].pos[YY] += (  pinst->right.y - pinst->up.y ) * size;
-    vlst[1].pos[ZZ] += (  pinst->right.z - pinst->up.z ) * size;
+    vlst[1].pos[XX] += (  prt_right.x - prt_up.x ) * size;
+    vlst[1].pos[YY] += (  prt_right.y - prt_up.y ) * size;
+    vlst[1].pos[ZZ] += (  prt_right.z - prt_up.z ) * size;
 
-    vlst[2].pos[XX] += (  pinst->right.x + pinst->up.x ) * size;
-    vlst[2].pos[YY] += (  pinst->right.y + pinst->up.y ) * size;
-    vlst[2].pos[ZZ] += (  pinst->right.z + pinst->up.z ) * size;
+    vlst[2].pos[XX] += (  prt_right.x + prt_up.x ) * size;
+    vlst[2].pos[YY] += (  prt_right.y + prt_up.y ) * size;
+    vlst[2].pos[ZZ] += (  prt_right.z + prt_up.z ) * size;
 
-    vlst[3].pos[XX] += ( -pinst->right.x + pinst->up.x ) * size;
-    vlst[3].pos[YY] += ( -pinst->right.y + pinst->up.y ) * size;
-    vlst[3].pos[ZZ] += ( -pinst->right.z + pinst->up.z ) * size;
-
-    if ( do_reflect )
-    {
-        for ( i = 0; i < 4; i++ )
-        {
-            vlst[i].pos[ZZ] = 2 * level - vlst[i].pos[ZZ];
-        }
-    }
+    vlst[3].pos[XX] += ( -prt_right.x + prt_up.x ) * size;
+    vlst[3].pos[YY] += ( -prt_right.y + prt_up.y ) * size;
+    vlst[3].pos[ZZ] += ( -prt_right.z + prt_up.z ) * size;
 
     vlst[0].tex[SS] = sprite_list_u[pinst->image][1];
     vlst[0].tex[TT] = sprite_list_v[pinst->image][1];

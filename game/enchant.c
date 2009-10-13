@@ -17,9 +17,9 @@
 //*
 //********************************************************************************************
 
-/// @file enchant.c 
-/// @brief handles enchantments attached to objects 
-/// @details 
+/// @file enchant.c
+/// @brief handles enchantments attached to objects
+/// @details
 
 #include "enchant.h"
 

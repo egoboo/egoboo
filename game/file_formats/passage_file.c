@@ -19,7 +19,7 @@
 
 /// @file file_formats/passage_file.c
 /// @brief A scanner for the passage file for a given module ( /modules/*.mod/basicdat/passages.txt )
-/// @details 
+/// @details
 
 #include "passage_file.h"
 

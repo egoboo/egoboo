@@ -249,7 +249,6 @@ Uint8 scr_ClearBits( script_state_t * pstate, ai_state_t * pself )
 {
     /// @details BB@> Clears the bits in the 32-bit tmpx based on the bitmask in tmpy
 
-
     SCRIPT_FUNCTION_BEGIN();
 
     pstate->x &= ~pstate->y;
@@ -861,7 +860,6 @@ Uint8 scr_Else( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-
     returncode = ( pself->indent >= pself->indent_last );
 
     SCRIPT_FUNCTION_END();
@@ -1042,7 +1040,7 @@ Uint8 scr_OpenPassage( script_state_t * pstate, ai_state_t * pself )
     // OpenPassage( tmpargument = "passage" )
 
     /// @details ZZ@> This function opens the passage specified by tmpargument, failing if the
-    /// passage was already open. 
+    /// passage was already open.
     /// Passage areas are defined in passage.txt and set in spawn.txt for the given character
 
     SCRIPT_FUNCTION_BEGIN();
@@ -1272,7 +1270,6 @@ Uint8 scr_get_State( script_state_t * pstate, ai_state_t * pself )
     /// @details ZZ@> This function reads the character's state variable
 
     SCRIPT_FUNCTION_BEGIN();
-
 
     pstate->argument = pself->state;
 
@@ -1928,7 +1925,6 @@ Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
         }
     }
 
-
     SCRIPT_FUNCTION_END();
 }
 
@@ -2395,7 +2391,19 @@ Uint8 scr_Invisible( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = FF_MUL(pchr->inst.alpha, pchr->inst.max_light) <= INVISIBLE;
+    sTmp = pchr->inst.alpha * pchr->inst.max_light;
+
+    if( pchr->see_invisible_level > 0 )
+    {
+        sTmp *= pchr->see_invisible_level + 1;
+    }
+
+    if( pchr->darkvision_level > 0 )
+    {
+        sTmp *= pchr->darkvision_level + 1;
+    }
+
+    returncode = (sTmp * INV_FF) <= INVISIBLE;
 
     SCRIPT_FUNCTION_END();
 }
@@ -4158,7 +4166,6 @@ Uint8 scr_PlaySoundVolume( script_state_t * pstate, ai_state_t * pself )
     int volume;
 
     SCRIPT_FUNCTION_BEGIN();
-
 
     if ( pstate->distance >= 0 )
     {
@@ -6731,14 +6738,14 @@ Uint8 scr_set_TargetToChild( script_state_t * pstate, ai_state_t * pself )
     /// @details ZZ@> This function sets the target to the character it spawned last (also called it's "child")
 
     SCRIPT_FUNCTION_BEGIN();
-   
+
 	returncode = bfalse;
     if ( ACTIVE_CHR(pself->child) )
     {
         pself->target = pself->child;
 		returncode = btrue;
 	}
-   
+
     SCRIPT_FUNCTION_END();
 }
 
@@ -6749,9 +6756,9 @@ Uint8 scr_set_DamageThreshold( script_state_t * pstate, ai_state_t * pself )
     /// @details ZF@> This sets the damage treshold for this character. Damage below the treshold is ignored
 
     SCRIPT_FUNCTION_BEGIN();
-   
+
 	if(pstate->argument > 0) pchr->damagethreshold = pstate->argument;
-   
+
     SCRIPT_FUNCTION_END();
 }
 //--------------------------------------------------------------------------------------------
@@ -7290,9 +7297,6 @@ Uint8 _display_message( int ichr, int iprofile, int message, script_state_t * ps
 
     return retval;
 }
-
-
-
 
 //--------------------------------------------------------------------------------------------
 // Uint8 scr_get_SkillLevel( script_state_t * pstate, ai_state_t * pself )

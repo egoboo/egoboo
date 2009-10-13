@@ -499,7 +499,7 @@ void setup_all_passages( const char *modname )
 //--------------------------------------------------------------------------------------------
 Uint16 shop_get_owner( int ix, int iy )
 {
-    // This function returns the owner of a item in a shop
+    /// ZZ@> This function returns the owner of a item in a shop
     int cnt;
     Uint16 owner = NOOWNER;
 

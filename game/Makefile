@@ -17,12 +17,6 @@ EGO_EXTENSIONS := $(wildcard ./extensions/*.c)
 
 EGO_OBJ  := ${EGO_SRC:.c=.o} ${EGO_FILE_FORMAT:.c=.o} ${EGO_EXTENSIONS:.c=.o}
 
-ENET_SRC := \
-	../enet/host.c ../enet/list.c ../enet/memory.c \
-	../enet/packet.c ../enet/peer.c ../enet/protocol.c \
-	../enet/unix.c
-ENET_OBJ := ${ENET_SRC:.c=.o}
-
 SDL_CONF  := sdl-config
 SDLCONF_I := $(shell ${SDL_CONF} --cflags)
 SDLCONF_L := $(shell ${SDL_CONF} --libs)

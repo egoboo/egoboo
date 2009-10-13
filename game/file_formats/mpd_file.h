@@ -53,7 +53,7 @@
 enum e_mpd_fx
 {
     MPDFX_REF             =       0,     ///< NOT USED
-                                         //< Egoboo v1.0 : "0 This tile is drawn 1st"
+                                         ///< Egoboo v1.0 : "0 This tile is drawn 1st"
 
     MPDFX_SHA             = (1 << 0),    ///< 0 == (val & MPDFX_SHA) means that the tile is reflected in the floors
                                          ///< Egoboo v1.0: "0 This tile is drawn 2nd"
@@ -73,7 +73,7 @@ enum e_mpd_fx
                                          ///< aicodes.txt : FXBARRIER
 
     MPDFX_IMPASS          = (1 << 5),    ///< Egoboo v1.0: "5 Impassable"
-                                         // aicodes.txt : FXIMPASS
+                                         ///< aicodes.txt : FXIMPASS
 
     MPDFX_DAMAGE          = (1 << 6),    ///< Egoboo v1.0: "6 Damage"
                                          ///< aicodes.txt : FXDAMAGE

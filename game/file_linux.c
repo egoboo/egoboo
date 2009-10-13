@@ -18,8 +18,8 @@
 //********************************************************************************************
 
 /// @file file_linux.c
-/// @brief 
-/// @details 
+/// @brief
+/// @details
 
 #include "file_common.h"
 #include "log.h"
@@ -66,7 +66,7 @@ void fs_init()
     snprintf( linux_userdataPath, SDL_arraysize(linux_userdataPath), "%s/.egoboo-2.x/", userhome );
 
     // this is a read-only directory
-    strncpy( linux_configPath, PREFIX "/etc/egoboo-2.x/",             SDL_arraysize(linux_configPath) );
+    strncpy( linux_configPath, PREFIX "/etc/egoboo-2.x/",         SDL_arraysize(linux_configPath) );
     strncpy( linux_binaryPath, PREFIX "/games/egoboo-2.x/",       SDL_arraysize(linux_binaryPath) );
     strncpy( linux_dataPath,   PREFIX "/share/games/egoboo-2.x/", SDL_arraysize(linux_dataPath)   );
 

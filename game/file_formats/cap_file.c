@@ -19,7 +19,7 @@
 
 /// @file cap_file.c
 /// @brief routines for reading and writing the character profile file data.txt
-/// @details 
+/// @details
 
 #include "cap_file.h"
 
@@ -62,7 +62,6 @@ cap_t * cap_init( cap_t * pcap )
     pcap->reflect = btrue;
     pcap->hidestate = NOHIDE;
     pcap->skinoverride = NOSKINOVERRIDE;
-
 
     // either these will be overridden by data in the data.txt, or
     // they will be limited by the spawning character's max stats
@@ -409,7 +408,6 @@ cap_t * load_one_cap_file( const char * tmploadname, cap_t * pcap )
     return pcap;
 }
 
-
 //--------------------------------------------------------------------------------------------
 bool_t save_one_cap_file( const char * szSaveName, cap_t * pcap )
 {
@@ -428,7 +426,7 @@ bool_t save_one_cap_file( const char * szSaveName, cap_t * pcap )
 
     // open the template file
     filetemp = template_open( "/basicdat/templates/data.txt" );
-    if ( NULL == filetemp ) 
+    if ( NULL == filetemp )
     {
         vfs_close( filewrite );
         return bfalse;

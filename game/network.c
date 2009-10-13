@@ -1860,7 +1860,7 @@ int sv_hostGame()
 //--------------------------------------------------------------------------------------------
 void turn_on_service( int service )
 {
-    // This function turns on a network service ( IPX, TCP, serial, modem )
+    /// ZZ@> This function turns on a network service ( IPX, TCP, serial, modem )
 }
 
 //--------------------------------------------------------------------------------------------

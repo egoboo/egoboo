@@ -46,12 +46,19 @@ typedef enum  e_input_device INPUT_DEVICE;
 //--------------------------------------------------------------------------------------------
 /// old user interface variables
 
-extern int              cursor_x;              ///< Cursor position
-extern int              cursor_y;
-extern bool_t           cursor_pressed;
-extern bool_t           cursor_clicked;
-extern bool_t           cursor_pending_click;
-extern bool_t           cursor_wheel_event;
+struct s_cursor
+{
+    int     x;
+    int     y;
+    int     z;
+    bool_t  pressed;
+    bool_t  clicked;
+    bool_t  pending_click;
+    bool_t  wheel_event;
+};
+typedef struct s_cursor cursor_t;
+
+extern cursor_t cursor;
 
 //--------------------------------------------------------------------------------------------
 // MOUSE
@@ -64,7 +71,6 @@ struct s_mouse
 
     Sint32                  x;               ///< Mouse X movement counter
     Sint32                  y;               ///< Mouse Y movement counter
-    Sint32                  z;               ///< Mouse wheel movement counter
 
     Uint8                   button[4];       ///< Mouse button states
     Uint32                  b;               ///< Button masks
@@ -134,4 +140,6 @@ Uint32 input_get_buttonmask( Uint32 idevice );
 
 bool_t control_is_pressed( Uint32 idevice, Uint8 icontrol );
 
-void cursor_reset();
+void   cursor_reset();
+void   cursor_finish_wheel_event();
+bool_t cursor_wheel_event_pending();

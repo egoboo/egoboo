@@ -19,7 +19,7 @@
 
 /// @file mesh.c
 /// @brief Functions for creating, reading, and writing egoboo's .mpd mesh file
-/// @details 
+/// @details
 
 #include "mesh.h"
 #include "log.h"
@@ -1221,8 +1221,6 @@ bool_t mesh_light_one_corner( ego_mpd_t * pmesh, GLXvector3f pos, GLXvector3f nr
         }
     }
 
-
-
     // normalize the lighting value, if needed
     if ( (*plight) > 0.0f && wt_sum > 0.0f )
     {
@@ -1360,7 +1358,6 @@ float evaluate_lighting_cache( lighting_cache_t * src, GLfloat nrm[], float z, a
     hgh_wt = CLIP( hgh_wt, 0.0f, 1.0f);
 
     low_wt = 1.0f - hgh_wt;
-
 
     lighting = 0.0f;
     if( low_wt > 0.0f )
