@@ -1,5 +1,6 @@
 //--------------------------------------------------------------------------------------------
 //         Name    Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
+PlayerAtBoss   NONE    0  	69.5   58.5   0.0   N    0   0  0   0   0   T   F   G
 PLAYER1:   NONE    0  	4.5   38.5   0.0   N    0   0  0   0   0   T   F   G
   unknown:   NONE    1  	0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
   unknown:   NONE    2  	0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
@@ -233,7 +234,7 @@ ghost:   NONE    47  71.0   50.0   1.0   S    0   0  0   0   0   F   F   E
 
 //Last boss room
 bossdoor:   NONE    76  69.0   58.0   1.0   N    0   0  51   0   0   F   F   N
-skulton:   NONE    74  68.0   69.0   1.0   N    99   0  0   0   0   F   F   L
+skulton:   NONE    74  69.0   69.0   1.0   N    99   0  0   0   0   F   F   L
   Hatchet:   NONE    69  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 ulna:   NONE    59  70.0   66.0   1.0   N    13   0  0   0   0   F   F   L
   claw:   NONE    68  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N

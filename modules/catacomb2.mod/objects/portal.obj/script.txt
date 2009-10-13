@@ -1,0 +1,47 @@
+IfSpawned
+  tmpargument = 200       //Give the players some time to breathe
+  SetTime  
+  
+  tmpargument = 0
+  PlaySoundLooped
+  
+  //Win!
+  tmpargument = 14
+  tmpdistance = 500
+  PlayMusic
+  
+  tmpargument = ACTIONMJ
+  DoAction
+  KeepAction
+
+//Sucking effect
+tmpargument = 0
+tmpdistance = SPAWNORIGIN
+tmpx = 0
+tmpy = 0
+SpawnParticle
+
+//End the module if entered
+IfBumped
+  SetTargetToWhoeverBumped
+  IfTargetIsAPlayer
+    IfTimeOut
+      BeatModule
+      EndModule
+      EnableExport
+      
+      // Mark this module as beaten, hidden modules may open up
+      tmpargument = [MAIN]
+      tmpdistance = 6           //The quest level
+      AddQuestAllPlayers        //Add it
+      
+      //Make the end dialog
+      ClearEndMessage
+      tmpargument = 0
+      AddEndMessage
+      tmpargument = 1
+      AddEndMessage
+      tmpargument = 2
+      AddEndMessage
+
+End

@@ -65,27 +65,17 @@ IfBored
 //Handle death by sending a message and other stuff
 IfKilled
 
-  //Boss monster, win the module
-  BeatModule
-  EnableExport
+  //Boss monster, award xp
   tmpargument = 400
   tmpdistance = EXPQUEST
   GiveExperienceToGoodTeam
-
-   // Mark this module as beaten, hidden modules may open up
-  tmpx = difficulty
-  tmpy = 0
-  IfXIsMoreThanY              //Don't do this on Easy mode
-    tmpargument = [MAIN]
-    tmpdistance = 7           //The quest level
-    AddQuestAllPlayers        //Add it
 
   // Spit out text
   tmpargument = 0
   IfTargetIsOnSameTeam
     tmpargument = 1
     IfTargetIsSelf
-      tmpargument =3
+      tmpargument = 3
   SendMessage
 
   // Drop goodies
@@ -134,13 +124,17 @@ IfKilled
   tmpx = difficulty
   tmpy = 0
   IfXIsEqualToY
-    tmpargument = 7
-    AddEndMessage
-  Else
+    EnableExport
+    BeatModule
     tmpargument = 5
     AddEndMessage
-    tmpargument = 6
-    AddEndMessage
+  Else
+    //Spawn the portal to the lower levels of the abyss!
+    tmpargument = 101
+    tmpx = selfspawnx
+    tmpy = selfspawny
+    tmpdistance = selfz
+    SpawnExactCharacterXYZ
   
 //------------------------------------------------------------------------------
 //What to do if enemies are defeated

@@ -3,6 +3,4 @@ Message 1: The_gruesome_%c_was_betrayed!
 Message 2: %t_was_slaughtered_by_the_gruesome_%c!
 Message 3: %t_engaged_a_fearsome_%c!
 Message 4: A_%c_made_a_fool_of_itself...
-Message 5: As_the_gruesome_roar_of_the_Deamon_Lord_fades_away,_a_portal_opens_up_before_you._
-Message 6: Who_knows_what_terrors_lies_before_you_further_down_the_abyss?_
-Message 7: CONGRATULATIONS!_Beat_the_Deamon_Lord_in_NORMAL_mode_or_harder_to_unlock_the_final_level!
+Message 5: CONGRATULATIONS!_Beat_the_Deamon_Lord_in_NORMAL_mode_or_harder_to_unlock_the_final_level!

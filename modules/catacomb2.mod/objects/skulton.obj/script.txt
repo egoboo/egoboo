@@ -1,8 +1,6 @@
 //------------------------------------------------------------------------------
 // Setup character
 IfSpawned
-  SetTargetToSelf
-  EnchantTarget 	// target is self...
   Walk
   BecomeLeader		//Bossy guy eh?
 
@@ -13,32 +11,31 @@ IfSpawned
 //------------------------------------------------------------------------------
 //New round
 IfTimeOut
-  SetTargetToWideEnemy
-    tmpx = targetdistance
-    tmpy = 500
-    IfXIsMoreThanY
-      tmpargument = 1
-    Else
-      tmpargument = 2
-    SetState
-  tmpargument = rand % 25 + 20
+  tmpargument = 25
   SetTime
 
-//Charge
-  IfStateIs1
+  SetTargetToWideEnemy
+    tmpx = targetdistance
+    tmpy = 128*3
+    IfXIsMoreThanY
+      tmpargument = STATECHARGE
+    Else
+      tmpargument = STATECOMBAT
+    SetState
+  
+  IfStateIsCharge
     Run							//Random approach
-    tmpx = rand % 500 + targetx - 250
-    tmpy = rand % 500 + targety - 250
+    tmpx = rand % 512 + targetx - 256
+    tmpy = rand % 512 + targety - 256
     tmpdistance = rand % 550 - 100
-    tmpturn = rand & 10000 + targetturnto - 5000
+    tmpturn = rand % 12000 + targetturnto - 6000
     Compass
     ClearWaypoints
     AddWaypoint
     tmpargument = 75
     SetTime
 
-//Close Combat
-  IfStateIs2
+  IfStateIsCombat
     Walk
     tmpx = targetx				//Cling to enemy and try to hit
     tmpy = targety
@@ -47,9 +44,7 @@ IfTimeOut
     Compass
     ClearWaypoints
     AddWaypoint
-    tmpargument = 25
-    SetTime
-
+  
     tmpx = targetdistance			//Attack stuff
     tmpy = 200
     IfXIsLessThanY
@@ -58,10 +53,10 @@ IfTimeOut
           tmpargument = LATCHRIGHT
           PressLatchButton
 
-//Return to spawn when enemy is killed
-  IfStateIs3
+  //Return to spawn when enemy is killed
+  IfStateIsRetreat
     SetTargetToNearbyEnemy
-      tmpargument = 1
+      tmpargument = STATECHARGE
       SetState
     Else
       tmpx = selfspawnx
@@ -71,6 +66,7 @@ IfTimeOut
       tmpargument = 250
       SetTime
 
+//------------------------------------------------------------------------------
 //Run away if hit enemy and then prepare to reapproach
 IfScoredAHit
   Run
@@ -84,15 +80,22 @@ IfScoredAHit
   tmpargument = 90
   SetTime
 
+//------------------------------------------------------------------------------
 //Return to start
 IfTargetKilled
-  tmpargument = 3
+  tmpargument = STATERETREAT
   SetState
 
 //------------------------------------------------------------------------------
+//Someone is mean!
+IfAttacked
+  SetTargetToWhoeverAttacked
+  tmpargument = STATECOMBAT
+  SetState
+  
+//------------------------------------------------------------------------------
 //Spawn burning footsteps
-GetContent
-tmpx = tmpargument
+tmpx = selfcontent
 tmpy = 6			//Step timer/space between steps
 IfXIsMoreThanY
   tmpx = selfaccel
@@ -114,40 +117,32 @@ Else
 //------------------------------------------------------------------------------
 //Do victory stuff and drop loot
 IfKilled
+  tmpargument = selfmoney
   DropMoney
   DropItems
   DropKeys
   tmpargument = 0		//Tell them what happened
   SendMessageNear
-  BeatModule			//finish it up
-  EnableExport
-
-  // Mark this module as beaten, hidden modules may open up
-  tmpargument = [MAIN]
-  tmpdistance = 6           //The quest level
-  AddQuestAllPlayers        //Add it
 
   tmpargument = 50		//award some quest xp
   tmpdistance = EXPQUEST
   GiveExperienceToGoodTeam
 
   //Death cry
-  tmpargument = 4
+  tmpargument = 3
   PlaySound
 
   //Make the body
   tmpargument = 15
   SetBumpHeight
   
-  //Make the end dialog
-  ClearEndMessage
-  tmpargument = 1
-  AddEndMessage
-  tmpargument = 2
-  AddEndMessage
-  tmpargument = 3
-  AddEndMessage
-
+  //Spawn the portal to the first level of the abyss!
+  tmpargument = 101
+  tmpx = selfspawnx
+  tmpy = selfspawny
+  tmpdistance = selfz
+  SpawnExactCharacterXYZ
+  
 //------------------------------------------------------------------------------
 End
 //------------------------------------------------------------------------------
