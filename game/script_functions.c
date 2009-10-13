@@ -681,7 +681,7 @@ Uint8 scr_set_TargetToWhoeverAttacked( script_state_t * pstate, ai_state_t * pse
     /// @details ZZ@> This function sets the target to whoever attacked the character last, failing for damage tiles
 
     SCRIPT_FUNCTION_BEGIN();
-    if ( pself->attacklast != MAX_CHR )
+    if ( ACTIVE_CHR(pself->attacklast) )
     {
         pself->target = pself->attacklast;
     }
@@ -1836,7 +1836,7 @@ Uint8 scr_Sitting( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ( pchr->attachedto != MAX_CHR );
+    returncode = ACTIVE_CHR( pchr->attachedto );
 
     SCRIPT_FUNCTION_END();
 }
@@ -2044,7 +2044,7 @@ Uint8 scr_set_TargetToRider( script_state_t * pstate, ai_state_t * pself )
     /// failing if there is no rider
 
     SCRIPT_FUNCTION_BEGIN();
-    if ( pchr->holdingwhich[SLOT_LEFT] == MAX_CHR )
+    if ( !ACTIVE_CHR(pchr->holdingwhich[SLOT_LEFT]) )
     {
         returncode = bfalse;
     }
@@ -2178,7 +2178,7 @@ Uint8 scr_ScoredAHit( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // Proceed only if the character scored a hit
-    if ( pchr->attachedto == MAX_CHR || ChrList.lst[pchr->attachedto].ismount )
+    if ( !ACTIVE_CHR(pchr->attachedto) || ChrList.lst[pchr->attachedto].ismount )
     {
         returncode = HAS_SOME_BITS( pself->alert, ALERTIF_SCOREDAHIT );
     }
@@ -2588,7 +2588,7 @@ Uint8 scr_Unarmed( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ( pchr->holdingwhich[SLOT_LEFT] == MAX_CHR && pchr->holdingwhich[SLOT_RIGHT] == MAX_CHR );
+    returncode = ( !ACTIVE_CHR(pchr->holdingwhich[SLOT_LEFT]) && !ACTIVE_CHR(pchr->holdingwhich[SLOT_RIGHT]) );
 
     SCRIPT_FUNCTION_END();
 }
@@ -6368,7 +6368,7 @@ Uint8 scr_TargetIsAWeapon( script_state_t * pstate, ai_state_t * pself )
     pcap = chr_get_pcap(pself->target);
     if( NULL == pcap ) return bfalse;
 
-    returncode = pcap->isranged || (pcap->weaponaction != ACTION_PA);
+    returncode = pcap->isranged || pcap->weaponaction != ACTION_PA;
 
     SCRIPT_FUNCTION_END();
 }
@@ -7093,7 +7093,7 @@ Uint8 _break_passage( int meshxfor, int become, int frames, int starttile, int p
         pchr = ChrList.lst + character;
 
         // nothing in packs
-        if(  pchr->pack_ispacked || MAX_CHR != pchr->attachedto ) continue;
+        if(  pchr->pack_ispacked || ACTIVE_CHR(pchr->attachedto) ) continue;
 
         // nothing flying
         if( 0 != pchr->flyheight ) continue;

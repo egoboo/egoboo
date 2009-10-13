@@ -441,14 +441,14 @@ void export_all_players( bool_t require_local )
 
         // Export the left hand item
         item = ChrList.lst[character].holdingwhich[SLOT_LEFT];
-        if ( item != MAX_CHR && ChrList.lst[item].isitem )
+        if ( ACTIVE_CHR(item) && ChrList.lst[item].isitem )
         {
             export_one_character( item, character, SLOT_LEFT, is_local );
         }
 
         // Export the right hand item
         item = ChrList.lst[character].holdingwhich[SLOT_RIGHT];
-        if ( item != MAX_CHR && ChrList.lst[item].isitem )
+        if ( ACTIVE_CHR(item) && ChrList.lst[item].isitem )
         {
             export_one_character( item, character, SLOT_RIGHT, is_local );
         }
@@ -880,10 +880,10 @@ void update_game()
         {
             update_all_objects();
 
-            let_all_characters_think();
-            unbuffer_player_latches();
+            let_all_characters_think();           // sets the non-player latches
+            unbuffer_player_latches();            // sets the player latches
 
-            move_all_objects();
+            move_all_objects();                   // clears some latches
             bump_all_objects();
 
             cleanup_all_objects();
@@ -2068,7 +2068,7 @@ void do_damage_tiles()
             if ( VALID_TILE( PMesh, pchr->onwhichfan ) &&
                     ( 0 != mesh_test_fx( PMesh, pchr->onwhichfan, MPDFX_DAMAGE ) ) &&
                     ( pchr->pos.z <= pchr->enviro.floor_level + DAMAGERAISE ) &&
-                    ( MAX_CHR == pchr->attachedto ) )
+                    !ACTIVE_CHR(pchr->attachedto) )
             {
                 if ( ( pchr->damagemodifier[damagetile.type]&DAMAGESHIFT ) != 3 && !pchr->invictus ) // 3 means they're pretty well immune
                 {
@@ -2187,7 +2187,7 @@ void update_pits()
             {
                 // Is it a valid character?
                 if ( !ACTIVE_CHR( cnt ) || ChrList.lst[cnt].invictus || !ChrList.lst[cnt].alive  ) continue;
-                if ( ChrList.lst[cnt].attachedto != MAX_CHR || ChrList.lst[cnt].pack_ispacked ) continue;
+                if ( ACTIVE_CHR(ChrList.lst[cnt].attachedto) || ChrList.lst[cnt].pack_ispacked ) continue;
 
                 // Do we kill it?
                 if ( pits.kill && ChrList.lst[cnt].pos.z < PITDEPTH )
@@ -2550,9 +2550,9 @@ void set_one_player_latch( Uint16 player )
 
     input_device_add_latch( pdevice, sum.x, sum.y );
 
-    ppla->latch.x = pdevice->latch.x;
-    ppla->latch.y = pdevice->latch.y;
-    ppla->latch.b = sum.b;
+    ppla->local_latch.x = pdevice->latch.x;
+    ppla->local_latch.y = pdevice->latch.y;
+    ppla->local_latch.b = sum.b;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3407,7 +3407,7 @@ bool_t do_mounts( Uint16 ichr_a, Uint16 ichr_b )
             vertex = ego_md2_data[MadList[pinst->imad].md2_ref].vertices - GRIP_LEFT;
 
             // do the automatic update
-            chr_instance_update_vertices( pinst, vertex, vertex );
+            chr_instance_update_vertices( pinst, vertex, vertex, bfalse );
 
             // Calculate grip point locations with linear interpolation and other silly things
             point[0].x = pinst->vlst[vertex].pos[XX];
@@ -3453,7 +3453,7 @@ bool_t do_mounts( Uint16 ichr_a, Uint16 ichr_b )
             vertex = ego_md2_data[MadList[pinst->imad].md2_ref].vertices - GRIP_LEFT;
 
             // do the automatic update
-            chr_instance_update_vertices( pinst, vertex, vertex );
+            chr_instance_update_vertices( pinst, vertex, vertex, bfalse );
 
             // Calculate grip point locations with linear interpolation and other silly things
             point[0].x = pinst->vlst[vertex].pos[XX];

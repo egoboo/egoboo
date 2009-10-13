@@ -104,7 +104,7 @@ struct s_player
     input_device_t          device;
 
     /// Local latch, set by set_one_player_latch(), read by sv_talkToRemotes()
-    latch_t                 latch;
+    latch_t                 local_latch;
 
     // Timed latches
     Uint32                  tlatch_count;

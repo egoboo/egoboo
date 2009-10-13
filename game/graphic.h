@@ -290,19 +290,103 @@ extern line_data_t line_list[LINE_COUNT];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-/// Function prototypes
-void draw_blip( float sizeFactor, Uint8 color, int x, int y );
-int  DisplayMsg_get_free();
+extern float time_draw_scene_init;
+extern float time_draw_scene_mesh;
+extern float time_draw_scene_solid;
+extern float time_draw_scene_water;
+extern float time_draw_scene_trans;
 
-//void make_lighttospek();
-//void make_lighttable( float lx, float ly, float lz, float ambi );
-void make_lightdirectionlookup();
-void renderlist_make( ego_mpd_t * pmesh, struct s_camera * pcam );
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+// Function prototypes
+
+void gfx_init();
+int  ogl_init();
+void gfx_main();
+void gfx_begin_3d( struct s_camera * pcam );
+void gfx_end_3d();
+bool_t gfx_synch_oglx_texture_parameters( struct s_oglx_texture_parameters * ptex, struct s_egoboo_config * pcfg );
+
+void   request_clear_screen();
+void   do_clear_screen();
+bool_t flip_pages_requested();
+void   request_flip_pages();
+void   do_flip_pages();
+
 
 void   dolist_sort( struct s_camera * pcam, bool_t do_reflect );
 void   dolist_make( ego_mpd_t * pmesh );
 bool_t dolist_add_chr( ego_mpd_t * pmesh, Uint16 cnt );
 bool_t dolist_add_prt( ego_mpd_t * pmesh, Uint16 cnt );
+
+
+void draw_one_icon( int icontype, int x, int y, Uint8 sparkle );
+void draw_one_font( int fonttype, int x, int y );
+void draw_map_texture( int x, int y );
+int  draw_one_bar( Uint8 bartype, int x, int y, int ticks, int maxticks );
+int  draw_string( int x, int y, const char *format, ... );
+int  draw_wrap_string( const char *szText, int x, int y, int maxx );
+int  draw_status( Uint16 character, int x, int y );
+void draw_text();
+void draw_one_character_icon( Uint16 item, int x, int y, bool_t draw_ammo );
+void draw_cursor();
+void draw_blip( float sizeFactor, Uint8 color, int x, int y );
+void draw_all_lines( struct s_camera * pcam );
+
+void   render_scene( struct s_camera * pcam );
+void   render_prt( struct s_camera * pcam );
+void   render_shadow( Uint16 character );
+void   render_bad_shadow( Uint16 character );
+void   render_prt_ref( struct s_camera * pcam );
+void   render_fan( ego_mpd_t * pmesh, Uint32 fan );
+void   render_hmap_fan( ego_mpd_t * pmesh, Uint32 fan );
+void   render_water_fan( ego_mpd_t * pmesh, Uint32 fan, Uint8 layer );
+bool_t render_one_mad_enviro( Uint16 character, Uint8 trans, bool_t use_reflection );
+bool_t render_one_mad_tex( Uint16 character, Uint8 trans, bool_t use_reflection );
+bool_t render_one_mad( Uint16 character, Uint8 trans, bool_t use_reflection );
+bool_t render_one_mad_ref( int tnc );
+void   render_water();
+void   render_scene_zreflection( ego_mpd_t * pmesh, struct s_camera * pcam );
+bool_t render_oct_bb( oct_bb_t * bb, bool_t draw_square, bool_t draw_diamond  );
+void   render_all_prt_attachment();
+bool_t render_one_prt_solid( Uint16 iprt );
+bool_t render_one_prt_trans( Uint16 iprt );
+bool_t render_one_prt_ref( Uint16 iprt );
+bool_t render_aabb(aabb_t * pbbox);
+void   render_all_billboards( struct s_camera * pcam );
+
+void do_grid_dynalight();
+void make_enviro();
+void animate_tiles();
+void move_water();
+void clear_messages();
+bool_t dump_screenshot();
+void make_lightdirectionlookup();
+void update_all_prt_instance( struct s_camera * pcam );
+
+int  DisplayMsg_get_free();
+
+int debug_printf( const char *format, ... );
+
+egoboo_rv chr_instance_needs_update( struct s_chr_instance * pinst, int vmin, int vmax, bool_t *verts_match, bool_t *frames_match );
+egoboo_rv chr_instance_update_vertices( struct s_chr_instance * pinst, int vmin, int vmax, bool_t force );
+egoboo_rv chr_instance_update_grip_verts( struct s_chr_instance * pinst, Uint16 vrt_lst[], size_t vrt_count );
+
+
+void renderlist_reset();
+void renderlist_make( ego_mpd_t * pmesh, struct s_camera * pcam );
+
+bool_t interpolate_grid_lighting( ego_mpd_t * pmesh, lighting_cache_t * dst, fvec3_t   pos );
+bool_t project_lighting( lighting_cache_t * dst, lighting_cache_t * src, fmat_4x4_t mat );
+bool_t interpolate_lighting( lighting_cache_t * dst, lighting_cache_t * src[], float u, float v );
+bool_t project_sum_lighting( lighting_cache_t * dst, lighting_cache_t * src, fvec3_t   vec, int dir );
+
+
+
+int  get_free_line();
+
+
+egoboo_rv chr_instance_update_bbox( struct s_chr_instance * pinst );
 
 void init_all_graphics();
 void release_all_graphics();
@@ -315,102 +399,10 @@ bool_t load_blips();
 void   load_bars();
 void   load_map( const char* szModule );
 bool_t load_all_global_icons();
-
-void render_water();
-void render_scene_zreflection( ego_mpd_t * pmesh, struct s_camera * pcam );
-void animate_tiles();
-void move_water();
-
-void draw_one_icon( int icontype, int x, int y, Uint8 sparkle );
-void draw_one_font( int fonttype, int x, int y );
-void draw_map_texture( int x, int y );
-int  draw_one_bar( Uint8 bartype, int x, int y, int ticks, int maxticks );
-int  draw_string( int x, int y, const char *format, ... );
-int  font_bmp_length_of_word( const char *szText );
-int  draw_wrap_string( const char *szText, int x, int y, int maxx );
-int  draw_status( Uint16 character, int x, int y );
-void draw_text();
-void draw_one_character_icon( Uint16 item, int x, int y, bool_t draw_ammo );
-
-void request_clear_screen();
-void do_clear_screen();
-
-bool_t flip_pages_requested();
-void   request_flip_pages();
-void   do_flip_pages();
-
-void render_scene( struct s_camera * pcam );
-void gfx_main();
-
-void render_prt( struct s_camera * pcam );
-void render_shadow( Uint16 character );
-void render_bad_shadow( Uint16 character );
-void render_prt_ref( struct s_camera * pcam );
-void render_fan( ego_mpd_t * pmesh, Uint32 fan );
-void render_hmap_fan( ego_mpd_t * pmesh, Uint32 fan );
-void render_water_fan( ego_mpd_t * pmesh, Uint32 fan, Uint8 layer );
-bool_t render_one_mad_enviro( Uint16 character, Uint8 trans, bool_t use_reflection );
-bool_t render_one_mad_tex( Uint16 character, Uint8 trans, bool_t use_reflection );
-bool_t render_one_mad( Uint16 character, Uint8 trans, bool_t use_reflection );
-bool_t render_one_mad_ref( int tnc );
+void load_basic_textures( const char *modname );
 
 // void light_characters();
 //void light_particles( ego_mpd_t * pmesh );
 //void set_fan_light( int fanx, int fany, Uint16 particle );
-void do_grid_dynalight();
-
-void draw_cursor();
-
-void gfx_init();
-int  ogl_init();
-
-bool_t dump_screenshot();
-
-void make_enviro();
-
-void load_basic_textures( const char *modname );
-
-void clear_messages();
-
-void font_bmp_load( const char* szBitmap, const char* szSpacing );
-
-void font_bmp_init();
-
-void update_all_prt_instance( struct s_camera * pcam );
-bool_t render_one_prt_solid( Uint16 iprt );
-bool_t render_one_prt_trans( Uint16 iprt );
-bool_t render_one_prt_ref( Uint16 iprt );
-
-void gfx_begin_3d( struct s_camera * pcam );
-void gfx_end_3d();
-
-int debug_printf( const char *format, ... );
-
-egoboo_rv chr_instance_update_vertices( struct s_chr_instance * pinst, int vmin, int vmax );
-
-bool_t gfx_synch_oglx_texture_parameters( struct s_oglx_texture_parameters * ptex, struct s_egoboo_config * pcfg );
-
-void renderlist_reset();
-
-bool_t interpolate_grid_lighting( ego_mpd_t * pmesh, lighting_cache_t * dst, fvec3_t   pos );
-bool_t project_lighting( lighting_cache_t * dst, lighting_cache_t * src, fmat_4x4_t mat );
-bool_t interpolate_lighting( lighting_cache_t * dst, lighting_cache_t * src[], float u, float v );
-bool_t project_sum_lighting( lighting_cache_t * dst, lighting_cache_t * src, fvec3_t   vec, int dir );
-
-bool_t render_aabb(aabb_t * pbbox);
-
-void render_all_billboards( struct s_camera * pcam );
-
-void draw_all_lines( struct s_camera * pcam );
-int  get_free_line();
-
-extern float time_draw_scene_init;
-extern float time_draw_scene_mesh;
-extern float time_draw_scene_solid;
-extern float time_draw_scene_water;
-extern float time_draw_scene_trans;
-
-void render_all_prt_attachment();
-
-egoboo_rv chr_instance_update_bbox( struct s_chr_instance * pinst );
-bool_t render_oct_bb( oct_bb_t * bb, bool_t draw_square, bool_t draw_diamond  );
+//void make_lighttospek();
+//void make_lighttable( float lx, float ly, float lz, float ambi );

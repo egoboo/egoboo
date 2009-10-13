@@ -488,7 +488,7 @@ void attach_particle_to_character( Uint16 particle, Uint16 character, int vertex
             vertex = ego_md2_data[pmad->md2_ref].vertices - vertex_offset;
 
             // do the automatic update
-            chr_instance_update_vertices( &(pchr->inst), vertex, vertex );
+            chr_instance_update_vertices( &(pchr->inst), vertex, vertex, bfalse );
 
             // Calculate vertex_offset point locations with linear interpolation and other silly things
             point[0].x = pchr->inst.vlst[vertex].pos[XX];
@@ -1099,7 +1099,7 @@ void attach_character_to_mount( Uint16 iitem, Uint16 iholder, grip_offset_t grip
 
     // This is a small fix that allows special grabbable mounts not to be mountable while
     // held by another character (such as the magic carpet for example)
-    if( !pitem->isitem && pholder->ismount && pholder->attachedto != MAX_CHR ) return;
+    if( !pitem->isitem && pholder->ismount && ACTIVE_CHR(pholder->attachedto) ) return;
 
     // Put 'em together
     pitem->inwhich_slot   = slot;
@@ -1337,7 +1337,7 @@ bool_t pack_add_item( Uint16 item, Uint16 character )
         {
             // All transfered, so kill the in hand item
             ChrList.lst[stack].ammo = newammo;
-            if ( ChrList.lst[item].attachedto != MAX_CHR )
+            if ( ACTIVE_CHR(ChrList.lst[item].attachedto) )
             {
                 detach_character_from_mount( item, btrue, bfalse );
             }
@@ -1362,7 +1362,7 @@ bool_t pack_add_item( Uint16 item, Uint16 character )
         }
 
         // Take the item out of hand
-        if ( ChrList.lst[item].attachedto != MAX_CHR )
+        if ( ACTIVE_CHR(ChrList.lst[item].attachedto) )
         {
             detach_character_from_mount( item, btrue, bfalse );
             chr_get_pai(item)->alert &= ~ALERTIF_DROPPED;
@@ -1650,7 +1650,7 @@ bool_t character_grab_stuff( Uint16 ichr_a, grip_offset_t grip_off, bool_t grab_
         vertex    = ego_md2_data[chr_get_pmad(ichr_a)->md2_ref].vertices - grip_off;
 
         // do the automatic update
-        chr_instance_update_vertices( &(pchr_a->inst), vertex, vertex );
+        chr_instance_update_vertices( &(pchr_a->inst), vertex, vertex, bfalse );
 
         // Calculate grip_off point locations with linear interpolation and other silly things
         point[0].x = pchr_a->inst.vlst[vertex].pos[XX];
@@ -1685,7 +1685,7 @@ bool_t character_grab_stuff( Uint16 ichr_a, grip_offset_t grip_off, bool_t grab_
         if( ichr_a == ichr_b ) continue;
 
         if ( pchr_b->pack_ispacked ) continue;        // pickpocket not allowed yet
-        if ( MAX_CHR != pchr_b->attachedto) continue; // disarm not allowed yet
+        if ( ACTIVE_CHR(pchr_b->attachedto) ) continue; // disarm not allowed yet
 
         // do not pick up your mount
         if ( pchr_b->holdingwhich[SLOT_LEFT] == ichr_a ||
@@ -4216,8 +4216,8 @@ void switch_team( Uint16 character, Uint8 team )
         chr_get_pteam_base(character)->morale--;
         TeamList[team].morale++;
     }
-    if ( ( !ChrList.lst[character].ismount || ChrList.lst[character].holdingwhich[SLOT_LEFT] == MAX_CHR ) &&
-            ( !ChrList.lst[character].isitem || ChrList.lst[character].attachedto == MAX_CHR ) )
+    if ( ( !ChrList.lst[character].ismount || !ACTIVE_CHR(ChrList.lst[character].holdingwhich[SLOT_LEFT]) ) &&
+         ( !ChrList.lst[character].isitem  || !ACTIVE_CHR(ChrList.lst[character].attachedto) ) )
     {
         ChrList.lst[character].team = team;
     }
@@ -4998,13 +4998,19 @@ bool_t chr_do_latch_button( chr_t * pchr )
 
     if ( !ACTIVE_PCHR( pchr ) ) return bfalse;
     pai = &(pchr->ai);
-    ichr = pai->index;
+
+    ichr = GET_INDEX_PCHR(pchr);
+
+    //if( pchr->islocalplayer )
+    //{
+    //    log_info( "<<%1.4f, %1.4f>, 0x%x> \n", pchr->latch.x, pchr->latch.y, pchr->latch.b  );
+    //}
 
     if ( !pchr->alive || 0 == pchr->latch.b ) return btrue;
 
     if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_JUMP ) && 0 == pchr->jumptime )
     {
-        pchr->latch.b &= ~LATCHBUTTON_JUMP;
+        //pchr->latch.b &= ~LATCHBUTTON_JUMP;
 
 		if ( ACTIVE_CHR(pchr->attachedto) && ChrList.lst[pchr->attachedto].ismount )
         {
@@ -5078,10 +5084,10 @@ bool_t chr_do_latch_button( chr_t * pchr )
     }
     if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_ALTLEFT ) && pchr->inst.action_ready && 0 == pchr->reloadtime )
     {
-        pchr->latch.b &= ~LATCHBUTTON_ALTLEFT;
+        //pchr->latch.b &= ~LATCHBUTTON_ALTLEFT;
 
         pchr->reloadtime = GRABDELAY;
-        if ( pchr->holdingwhich[SLOT_LEFT] == MAX_CHR )
+        if ( !ACTIVE_CHR(pchr->holdingwhich[SLOT_LEFT]) )
         {
             // Grab left
             chr_play_action( ichr, ACTION_ME, bfalse );
@@ -5094,10 +5100,10 @@ bool_t chr_do_latch_button( chr_t * pchr )
     }
     if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_ALTRIGHT ) && pchr->inst.action_ready && 0 == pchr->reloadtime )
     {
-        pchr->latch.b &= ~LATCHBUTTON_ALTRIGHT;
+        //pchr->latch.b &= ~LATCHBUTTON_ALTRIGHT;
 
         pchr->reloadtime = GRABDELAY;
-        if ( pchr->holdingwhich[SLOT_RIGHT] == MAX_CHR )
+        if ( !ACTIVE_CHR(pchr->holdingwhich[SLOT_RIGHT]) )
         {
             // Grab right
             chr_play_action( ichr, ACTION_MF, bfalse );
@@ -5110,7 +5116,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
     }
     if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_PACKLEFT ) && pchr->inst.action_ready && 0 == pchr->reloadtime )
     {
-        pchr->latch.b &= ~LATCHBUTTON_PACKLEFT;
+        //pchr->latch.b &= ~LATCHBUTTON_PACKLEFT;
 
         pchr->reloadtime = PACKDELAY;
         item = pchr->holdingwhich[SLOT_LEFT];
@@ -5152,11 +5158,11 @@ bool_t chr_do_latch_button( chr_t * pchr )
     }
     if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_PACKRIGHT ) && pchr->inst.action_ready && 0 == pchr->reloadtime )
     {
-        pchr->latch.b &= ~LATCHBUTTON_PACKRIGHT;
+        //pchr->latch.b &= ~LATCHBUTTON_PACKRIGHT;
 
         pchr->reloadtime = PACKDELAY;
         item = pchr->holdingwhich[SLOT_RIGHT];
-        if ( item != MAX_CHR )
+        if ( ACTIVE_CHR(item) )
         {
             chr_t * pitem = ChrList.lst + item;
 
@@ -5197,11 +5203,11 @@ bool_t chr_do_latch_button( chr_t * pchr )
     {
         chr_t * pweapon;
 
-        pchr->latch.b &= ~LATCHBUTTON_LEFT;
+        //pchr->latch.b &= ~LATCHBUTTON_LEFT;
 
         // Which weapon?
         weapon = pchr->holdingwhich[SLOT_LEFT];
-        if ( weapon == MAX_CHR )
+        if ( !ACTIVE_CHR(weapon) )
         {
             // Unarmed means character itself is the weapon
             weapon = ichr;
@@ -5250,14 +5256,14 @@ bool_t chr_do_latch_button( chr_t * pchr )
         {
             // Rearing mount
             mount = pchr->attachedto;
-            if ( mount != MAX_CHR )
+            if ( ACTIVE_CHR(mount) )
             {
                 allowedtoattack = chr_get_pcap(mount)->ridercanattack;
                 if ( ChrList.lst[mount].ismount && ChrList.lst[mount].alive && !ChrList.lst[mount].isplayer && ChrList.lst[mount].inst.action_ready )
                 {
                     if ( ( action != ACTION_PA || !allowedtoattack ) && pchr->inst.action_ready )
                     {
-                        chr_play_action( pchr->attachedto,  generate_randmask( ACTION_UA, 1 ), bfalse );
+                        chr_play_action( pchr->attachedto, generate_randmask( ACTION_UA, 1 ), bfalse );
                         chr_get_pai(pchr->attachedto)->alert |= ALERTIF_USED;
                         pchr->ai.lastitemused = mount;
                     }
@@ -5310,11 +5316,11 @@ bool_t chr_do_latch_button( chr_t * pchr )
     {
         chr_t * pweapon;
 
-        pchr->latch.b &= ~LATCHBUTTON_RIGHT;
+        //pchr->latch.b &= ~LATCHBUTTON_RIGHT;
 
         // Which weapon?
         weapon = pchr->holdingwhich[SLOT_RIGHT];
-        if ( weapon == MAX_CHR )
+        if ( !ACTIVE_CHR(weapon) )
         {
             // Unarmed means character itself is the weapon
             weapon = ichr;
@@ -5356,6 +5362,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
                 }
             }
         }
+
         if ( action == ACTION_DC )
         {
             allowedtoattack = bfalse;
@@ -5365,11 +5372,12 @@ bool_t chr_do_latch_button( chr_t * pchr )
                 pchr->ai.lastitemused = weapon;
             }
         }
+
         if ( allowedtoattack )
         {
             // Rearing mount
             mount = pchr->attachedto;
-            if ( mount != MAX_CHR )
+            if ( ACTIVE_CHR(mount) )
             {
                 allowedtoattack = chr_get_pcap(mount)->ridercanattack;
                 if ( ChrList.lst[mount].ismount && ChrList.lst[mount].alive && !ChrList.lst[mount].isplayer && ChrList.lst[mount].inst.action_ready )
@@ -5701,7 +5709,7 @@ void move_one_character_do_animation( chr_t * pchr, chr_environment_t * penviro 
                     else
                     {
                         // See if the character is mounted...
-                        if ( pchr->attachedto != MAX_CHR )
+                        if ( ACTIVE_CHR(pchr->attachedto) )
                         {
                             pchr->inst.action_which = ACTION_MI;
                         }
@@ -5987,21 +5995,43 @@ bool_t is_invictus_direction( Uint16 direction, Uint16 character, Uint16 effects
 }
 
 //--------------------------------------------------------------------------------------------
+vlst_cache_t * vlst_cache_init( vlst_cache_t * pcache )
+{
+    if( NULL == pcache ) return pcache;
+
+    memset(pcache, 0, sizeof(pcache) );
+
+    pcache->vmin = -1;
+    pcache->vmax = -1;
+
+    return pcache;
+}
+
+//--------------------------------------------------------------------------------------------
+chr_reflection_cache_t * chr_reflection_cache_init(chr_reflection_cache_t * pcache)
+{
+    if( NULL == pcache ) return pcache;
+
+    memset( pcache, 0, sizeof(chr_reflection_cache_t) );
+
+    pcache->alpha = 255;
+
+    return pcache;
+}
+
+//--------------------------------------------------------------------------------------------
 void chr_instance_clear_cache( chr_instance_t * pinst )
 {
     /// @details BB@> force chr_instance_update_vertices() recalculate the vertices the next time
     ///     the function is called
 
-    pinst->save_flip      = 0;
-    pinst->save_frame_wld = 0;
-    pinst->save_vmin      = 0xFFFF;
-    pinst->save_vmax      = -1;
-    pinst->save_frame_nxt = 0;
-    pinst->save_frame_lst = 0;
-    pinst->save_update_wld  = 0;
+    vlst_cache_init( &(pinst->save) );
 
-    pinst->save_lighting_update_wld     = 0;
-    pinst->ref_save_lighting_update_wld = 0;
+    matrix_cache_init( &(pinst->matrix_cache) );
+
+    chr_reflection_cache_init( &(pinst->ref) );
+
+    pinst->lighting_update_wld = 0;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -6078,7 +6108,7 @@ bool_t chr_instance_set_mad( chr_instance_t * pinst, Uint16 imad )
     {
         // update the vertex and lighting cache
         chr_instance_clear_cache(pinst);
-        chr_instance_update_vertices( pinst, -1, -1 );
+        chr_instance_update_vertices( pinst, -1, -1, btrue );
     }
 
     return updated;
@@ -7795,9 +7825,6 @@ bool_t chr_get_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
                 mc_tmp->grip_slot = pchr->inwhich_slot;
                 get_grip_verts( mc_tmp->grip_verts, pchr->attachedto, slot_to_grip_offset(pchr->inwhich_slot) );
 
-                mc_tmp->vert_update  = pchr->inst.save_update_wld;
-                mc_tmp->frame_update = pchr->inst.save_frame_wld;
-
                 itarget = pchr->attachedto;
             }
         }
@@ -7810,18 +7837,14 @@ bool_t chr_get_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
             mc_tmp->valid   = btrue;
             mc_tmp->type   |= MAT_CHARACTER;  // add in the MAT_CHARACTER-type data for the object we are "connected to"
 
-            mc_tmp->scale.x = mc_tmp->scale.y = mc_tmp->scale.z = ptarget->fat;
-
             mc_tmp->rotate.x = CLIP_TO_16BITS( ptarget->map_turn_x - MAP_TURN_OFFSET );
             mc_tmp->rotate.y = CLIP_TO_16BITS( ptarget->map_turn_y - MAP_TURN_OFFSET );
             mc_tmp->rotate.z = ptarget->turn_z;
 
             mc_tmp->pos = ptarget->pos;
+
+            mc_tmp->scale.x = mc_tmp->scale.y = mc_tmp->scale.z = ptarget->fat;
         }
-
-        //---- update the shared data
-        mc_tmp->scale.x = mc_tmp->scale.y = mc_tmp->scale.z = pchr->fat;
-
     }
 
     return mc_tmp->valid;
@@ -7861,14 +7884,15 @@ int convert_grip_to_local_points( chr_t * pholder, Uint16 grip_verts[], fvec4_t 
     }
     else
     {
+        // update the grip vertices
+        chr_instance_update_grip_verts( &(pholder->inst), grip_verts, GRIP_VERTS );
+
+        // copy the vertices into dst_point[]
         for (point_count = 0, cnt = 0; cnt < GRIP_VERTS; cnt++, point_count++ )
         {
             Uint16 vertex = grip_verts[cnt];
 
             if (0xFFFF == vertex) continue;
-
-            // do the automatic update
-            chr_instance_update_vertices( &(pholder->inst), vertex, vertex );
 
             dst_point[point_count].x = pholder->inst.vlst[vertex].pos[XX];
             dst_point[point_count].y = pholder->inst.vlst[vertex].pos[YY];
@@ -8012,25 +8036,25 @@ bool_t apply_one_reflection( chr_t * pchr )
     if( !ALLOCATED_PCHR( pchr ) ) return bfalse;
     pinst = &(pchr->inst);
 
-    pinst->ref_matrix_valid = bfalse;
+    pinst->ref.matrix_valid = bfalse;
 
     pcap = pro_get_pcap( pchr->iprofile );
     if ( NULL == pcap || !pcap->reflect ) return bfalse;
 
     // actually flip the matrix
     applied = bfalse;
-    pinst->ref_matrix_valid = pinst->matrix_cache.valid;
+    pinst->ref.matrix_valid = pinst->matrix_cache.valid;
 
-    if( pinst->ref_matrix_valid )
+    if( pinst->ref.matrix_valid )
     {
         applied = btrue;
 
-        pinst->ref_matrix = pinst->matrix;
+        pinst->ref.matrix = pinst->matrix;
 
-        pinst->ref_matrix.CNV( 0, 2 ) = -pinst->ref_matrix.CNV( 0, 2 );
-        pinst->ref_matrix.CNV( 1, 2 ) = -pinst->ref_matrix.CNV( 1, 2 );
-        pinst->ref_matrix.CNV( 2, 2 ) = -pinst->ref_matrix.CNV( 2, 2 );
-        pinst->ref_matrix.CNV( 3, 2 ) = 2 * pchr->enviro.floor_level - pinst->ref_matrix.CNV( 3, 2 );
+        pinst->ref.matrix.CNV( 0, 2 ) = -pinst->ref.matrix.CNV( 0, 2 );
+        pinst->ref.matrix.CNV( 1, 2 ) = -pinst->ref.matrix.CNV( 1, 2 );
+        pinst->ref.matrix.CNV( 2, 2 ) = -pinst->ref.matrix.CNV( 2, 2 );
+        pinst->ref.matrix.CNV( 3, 2 ) = 2 * pchr->enviro.floor_level - pinst->ref.matrix.CNV( 3, 2 );
     }
 
     trans_temp = 255;
@@ -8039,7 +8063,7 @@ bool_t apply_one_reflection( chr_t * pchr )
         float pos_z;
 
         // determine the reflection alpha
-        pos_z = pchr->enviro.floor_level - pinst->ref_matrix.CNV( 3, 2 );
+        pos_z = pchr->enviro.floor_level - pinst->ref.matrix.CNV( 3, 2 );
         if (pos_z < 0) pos_z = 0;
 
         trans_temp -= ((int)pos_z) >> 1;
@@ -8049,13 +8073,13 @@ bool_t apply_one_reflection( chr_t * pchr )
         trans_temp = CLIP(trans_temp, 0, 255);
     }
 
-    pinst->ref_alpha = ( pinst->alpha * trans_temp * INV_FF ) * 0.5f;
+    pinst->ref.alpha = ( pinst->alpha * trans_temp * INV_FF ) * 0.5f;
 
-    pinst->ref_redshift = pinst->redshift + 1;
-    pinst->ref_grnshift = pinst->grnshift + 1;
-    pinst->ref_blushift = pinst->blushift + 1;
+    pinst->ref.redshift = pinst->redshift + 1;
+    pinst->ref.grnshift = pinst->grnshift + 1;
+    pinst->ref.blushift = pinst->blushift + 1;
 
-    pinst->ref_sheen    = pinst->sheen >> 1;
+    pinst->ref.sheen    = pinst->sheen >> 1;
 
     return applied;
 }
@@ -8182,13 +8206,6 @@ int cmp_matrix_cache(const void * vlhs, const void * vrhs)
             itmp = (int)plhs->grip_verts[cnt] - (int)prhs->grip_verts[cnt];
             if( 0 != itmp ) goto cmp_matrix_cache_end;
         }
-
-        itmp = plhs->vert_update - plhs->vert_update;
-        if( 0 != itmp ) goto cmp_matrix_cache_end;
-
-        itmp = plhs->frame_update - plhs->frame_update;
-        if( 0 != itmp ) goto cmp_matrix_cache_end;
-
     }
 
     //---- check for differences in the MAT_CHARACTER data
@@ -8227,6 +8244,26 @@ cmp_matrix_cache_end:
 
     return SGN(itmp);
 }
+//--------------------------------------------------------------------------------------------
+egoboo_rv matrix_cache_needs_update( chr_t * pchr, matrix_cache_t * pmc )
+{
+    /// @details BB@> determine whether a matrix cache has become invalid and needs to be updated
+
+    matrix_cache_t local_mc;
+    bool_t needs_cache_update;
+
+    if( !ACTIVE_PCHR( pchr ) ) return rv_error;
+
+    if( NULL == pmc ) pmc = &local_mc;
+
+    // get the matrix data that is supposed to be used to make the matrix
+    chr_get_matrix_cache( pchr, pmc );
+
+    // compare that data to the actual data used to make the matrix
+    needs_cache_update = ( 0 != cmp_matrix_cache( pmc, &(pchr->inst.matrix_cache) ) );
+
+    return needs_cache_update ? rv_success : rv_fail;
+}
 
 //--------------------------------------------------------------------------------------------
 egoboo_rv chr_update_matrix( chr_t * pchr, bool_t update_size )
@@ -8239,6 +8276,7 @@ egoboo_rv chr_update_matrix( chr_t * pchr, bool_t update_size )
     bool_t         needs_update = bfalse;
     bool_t         applied      = bfalse;
     matrix_cache_t mc_tmp;
+    egoboo_rv      retval;
 
     if( !ACTIVE_PCHR( pchr ) ) return rv_error;
 
@@ -8253,11 +8291,23 @@ egoboo_rv chr_update_matrix( chr_t * pchr, bool_t update_size )
         }
     }
 
-    // get the matrix data that is supposed to be used to make the matrix
-    chr_get_matrix_cache( pchr, &mc_tmp );
+    // does the matrix cache need an update at all?
+    retval = matrix_cache_needs_update( pchr, &mc_tmp );
+    if( rv_error == retval ) return rv_error;
+    needs_update = (rv_success == retval);
 
-    // compare that data to the actual data used to make the matrix
-    needs_update = ( 0 != cmp_matrix_cache( &mc_tmp, &(pchr->inst.matrix_cache) ) );
+    // Update the grip vertices no matter what (if they are used)
+    if( 0 != (MAT_WEAPON & mc_tmp.type) && ACTIVE_CHR(mc_tmp.grip_chr) )
+    {
+        egoboo_rv retval;
+        chr_t   * ptarget = ChrList.lst + mc_tmp.grip_chr;
+
+        // has that character changes its animation?
+        retval = chr_instance_update_grip_verts( &(ptarget->inst), mc_tmp.grip_verts, GRIP_VERTS );
+
+        if( rv_error   == retval ) return rv_error;
+        if( rv_success == retval ) needs_update = btrue;
+    }
 
     // if it is not the same, make a new matrix with the new data
     applied = bfalse;

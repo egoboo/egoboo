@@ -2363,7 +2363,7 @@ void render_scene_mesh( renderlist_t * prlist )
                 tnc = dolist[cnt].iprt;
                 itile = PrtList.lst[tnc].onwhichfan;
 
-                GL_DEBUG(glDisable)(GL_CULL_FACE );
+                GL_DEBUG(glDisable)( GL_CULL_FACE );
 
                 // render_one_prt_ref() actually sets its own blend function, but just to be safe
                 GL_DEBUG(glEnable)(GL_BLEND );
@@ -4036,7 +4036,7 @@ void dolist_sort( camera_t * pcam, bool_t do_reflect )
 
             if( do_reflect )
             {
-                pos_tmp = mat_getTranslate( ChrList.lst[tnc].inst.ref_matrix );
+                pos_tmp = mat_getTranslate( ChrList.lst[tnc].inst.ref.matrix );
             }
             else
             {

@@ -211,7 +211,7 @@ bool_t render_one_mad_enviro( Uint16 character, Uint8 trans, bool_t use_reflecti
 
     if( use_reflection )
     {
-        GL_DEBUG(glMultMatrixf)(pinst->ref_matrix.v );
+        GL_DEBUG(glMultMatrixf)(pinst->ref.matrix.v );
     }
     else
     {
@@ -273,7 +273,7 @@ bool_t render_one_mad_enviro( Uint16 character, Uint8 trans, bool_t use_reflecti
                     col.a = 1.0f;
                 }
 
-                tmp_alpha = use_reflection ? pinst->ref_alpha : pinst->alpha;
+                tmp_alpha = use_reflection ? pinst->ref.alpha : pinst->alpha;
                 col.a = (tmp_alpha * trans * INV_FF);
                 col.a = CLIP( col.a, 0.0f, 1.0f );
 
@@ -392,7 +392,7 @@ bool_t render_one_mad_tex( Uint16 character, Uint8 trans, bool_t use_reflection 
 
     if( use_reflection )
     {
-        GL_DEBUG(glMultMatrixf)(pinst->ref_matrix.v );
+        GL_DEBUG(glMultMatrixf)(pinst->ref.matrix.v );
     }
     else
     {
@@ -597,10 +597,10 @@ bool_t render_one_mad_ref( int ichr )
 
     // we need to force the calculation of lighting for the the non-reflected
     // object here, or there will be problems later
-    // pinst->save_lighting_update_wld = 0;
+    // pinst->lighting_update_wld = 0;
     chr_instance_update( ichr, 255, !pinst->enviro );
 
-    if( !pinst->ref_matrix_valid )
+    if( !pinst->ref.matrix_valid )
     {
         if( !apply_one_reflection( pchr ) )
         {
@@ -624,7 +624,7 @@ egoboo_rv chr_instance_update( Uint16 character, Uint8 trans, bool_t do_ambient 
     pinst = &(pchr->inst);
 
     // make sure that the vertices are interpolated
-    retval = chr_instance_update_vertices( pinst, -1, -1 );
+    retval = chr_instance_update_vertices( pinst, -1, -1, btrue );
     if( rv_error == retval )
     {
         return rv_error;
@@ -661,8 +661,8 @@ void chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 t
     if ( NULL == pinst || NULL == pchr ) return;
 
     // has this already been calculated this update?
-    if( !force && pinst->save_lighting_update_wld >= update_wld ) return;
-    pinst->save_lighting_update_wld = update_wld;
+    if( !force && pinst->lighting_update_wld >= update_wld ) return;
+    pinst->lighting_update_wld = update_wld;
 
     // make sure the matrix is valid
     chr_update_matrix( pchr, btrue );
@@ -815,27 +815,27 @@ void chr_instance_update_lighting_ref( chr_instance_t * pinst, chr_t * pchr, Uin
 
     if ( NULL == pchr ) return;
 
-    if( NULL == pinst ||  !pinst->ref_matrix_valid ) return;
+    if( NULL == pinst ||  !pinst->ref.matrix_valid ) return;
 
     // has this already been calculated this update?
-    if( pinst->ref_save_lighting_update_wld >= update_wld ) return;
-    pinst->ref_save_lighting_update_wld = update_wld;
+    if( pinst->lighting_update_wld >= update_wld ) return;
+    pinst->lighting_update_wld = update_wld;
 
     // since we are overwriting the vertex lighting, and the
     // non-reflected characters are actually drawn after the
     // reflected characters, we need to force the re-evaluation
     // of the lighting
-    pinst->save_lighting_update_wld     = update_wld-1;
+    pinst->lighting_update_wld     = update_wld-1;
 
-    tint[0] = (1 << pinst->redshift) / (float) (1 << pinst->ref_redshift);
-    tint[1] = (1 << pinst->grnshift) / (float) (1 << pinst->ref_grnshift);
-    tint[2] = (1 << pinst->blushift) / (float) (1 << pinst->ref_blushift);
+    tint[0] = (1 << pinst->redshift) / (float) (1 << pinst->ref.redshift);
+    tint[1] = (1 << pinst->grnshift) / (float) (1 << pinst->ref.grnshift);
+    tint[2] = (1 << pinst->blushift) / (float) (1 << pinst->ref.blushift);
 
     tint[3] = 1.0f;
     tmp_alpha = trans *  pinst->alpha * INV_FF;
     if( tmp_alpha != 0 )
     {
-        tint[3] = trans * pinst->ref_alpha * INV_FF / (float)tmp_alpha;
+        tint[3] = trans * pinst->ref.alpha * INV_FF / (float)tmp_alpha;
     }
 
     if( tint[0] == 1.0f && tint[1] == 1.0f && tint[2] == 1.0f && tint[3] == 1.0f ) return;
@@ -886,15 +886,76 @@ egoboo_rv chr_instance_update_bbox( chr_instance_t * pinst )
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vmax )
+egoboo_rv chr_instance_needs_update( chr_instance_t * pinst, int vmin, int vmax, bool_t *verts_match, bool_t *frames_match )
+{
+    /// @details BB@> determine whether some specific vertices of an instance need to be updated
+    //                rv_error   means that the function was passed invalid values
+    //                rv_fail    means that the instance does not need to be updated
+    //                rv_success means that the instance should be updated
+
+    bool_t local_verts_match, flips_match, local_frames_match;
+
+    vlst_cache_t * psave;
+
+    mad_t * pmad;
+    int maxvert;
+
+    // ensure that the pointers point to something
+    if( NULL == verts_match  ) verts_match  = &local_verts_match;
+    if( NULL == frames_match ) frames_match = &local_frames_match;
+
+    // initialize the boolean pointers
+    *verts_match  = bfalse;
+    *frames_match = bfalse;
+
+    if ( NULL == pinst ) return rv_error;
+    psave = &(pinst->save);
+
+    // get the model.
+    if ( !LOADED_MAD(pinst->imad) ) return rv_error;
+    pmad = MadList + pinst->imad;
+
+    maxvert = ego_md2_data[pmad->md2_ref].vertices - 1;
+
+    // check to make sure the lower bound of the saved data is valid.
+    // it is initialized to an invalid value (psave->vmin = psave->vmax = -1) 
+    if( psave->vmin < 0 || psave->vmax < 0 ) return rv_success;
+
+    // check to make sure the upper bound of the saved data is valid.
+    if( psave->vmin > maxvert || psave->vmax > maxvert ) return rv_success;
+
+     // make sure that the min and max vertices lie in the valid range
+    if( vmax < vmin ) SWAP(int, vmax, vmin);
+    vmin = CLIP(vmin, 0, maxvert);
+    vmax = CLIP(vmax, 0, maxvert);
+
+    // test to see if we have already calculated this data
+    (*verts_match) = (vmin >= psave->vmin) && (vmax <= psave->vmax);
+
+    flips_match = ( ABS(psave->flip - pinst->flip) < 0.125f );
+
+    (*frames_match) = ( pinst->frame_nxt == pinst->frame_lst && psave->frame_nxt == pinst->frame_nxt && psave->frame_lst == pinst->frame_lst ) ||
+                      ( flips_match && psave->frame_nxt == pinst->frame_nxt && psave->frame_lst == pinst->frame_lst );
+
+    return (!(*verts_match) || !(*frames_match)) ? rv_success : rv_fail;
+}
+
+
+//--------------------------------------------------------------------------------------------
+egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vmax, bool_t force )
 {
     int    i, maxvert;
-    bool_t vertices_match, flips_match, frames_match;
+    bool_t vertices_match, frames_match;
     bool_t verts_updated, frames_updated;
+
+    egoboo_rv retval;
+
+    vlst_cache_t * psave;
 
     mad_t * pmad;
 
     if ( NULL == pinst ) return rv_error;
+    psave = &(pinst->save);
 
     if( rv_error == chr_instance_update_bbox( pinst ) )
     {
@@ -911,19 +972,24 @@ egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vm
     if ( vmin < 0 ) vmin = 0;
     if ( vmax < 0 ) vmax = maxvert;
 
+    // are they in the right order?
+    if( vmax < vmin ) SWAP(int, vmax, vmin);
+
+    if( force )
+    {
+        // do the absolute maximum extent
+        vmin = MIN(vmin, psave->vmin);
+        vmax = MAX(vmax, psave->vmax);
+    }
+
+    // make sure that the vertices are within the max range
     vmin = CLIP(vmin, 0, maxvert);
     vmax = CLIP(vmax, 0, maxvert);
 
-    // test to see if we have already calculated this data
-    vertices_match = (pinst->save_vmin <= vmin) && (pinst->save_vmax >= vmax);
-
-    flips_match = ( pinst->frame_nxt == pinst->frame_lst ) || ( ABS(pinst->save_flip - pinst->flip) < 0.125f );
-
-    frames_match = ( pinst->flip == 1.0f && pinst->save_frame_nxt == pinst->frame_nxt ) ||
-                   ( pinst->flip == 0.0f && pinst->save_frame_lst == pinst->frame_lst ) ||
-                   ( flips_match  && pinst->save_frame_nxt == pinst->frame_nxt && pinst->save_frame_lst == pinst->frame_lst );
-
-    if ( frames_match && vertices_match ) return bfalse;
+    // do we need to update?
+    retval = chr_instance_needs_update( pinst, vmin, vmax, &vertices_match, &frames_match);
+    if( rv_error == retval ) return rv_error;
+    if( rv_fail  == retval ) return rv_success;
 
     if ( pinst->frame_nxt == pinst->frame_lst || pinst->flip == 0.0f )
     {
@@ -993,14 +1059,24 @@ egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vm
 
     // the save_vmin and save_vmax is the most complex
     verts_updated = bfalse;
-    if( vertices_match )
+    if( force )
+    {
+        // to get here, either the specified range was outside the clean range or
+        // the animation was updated. In any case, the only vertices that are 
+        // clean are in the range [vmin, vmax]
+
+        psave->vmin = vmin;
+        psave->vmax = vmax;
+        verts_updated = btrue;
+    }
+    else if( vertices_match )
     {
         // The only way to get here is to fail the frames_match test, and pass vertices_match
 
         // This means that all of the vertices were SUPPOSED TO BE updated,
         // but only the ones in the range [vmin, vmax] actually were.
-        pinst->save_vmin = vmin;
-        pinst->save_vmax = vmax;
+        psave->vmin = vmin;
+        psave->vmax = vmax;
         verts_updated = btrue;
     }
     else if( frames_match )
@@ -1013,28 +1089,29 @@ egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vm
         //
         //If these ranges are disjoint, then only one of them can be saved. Choose the larger set
 
-        if( vmax >= pinst->save_vmin && vmin <= pinst->save_vmax )
+        if( vmax >= psave->vmin && vmin <= psave->vmax )
         {
             // the old list [save_vmin, save_vmax] and the new list [vmin, vmax]
             // overlap, so we can merge them
-            pinst->save_vmin = MIN(pinst->save_vmin, vmin);
-            pinst->save_vmax = MAX(pinst->save_vmax, vmax);
+            psave->vmin = MIN(psave->vmin, vmin);
+            psave->vmax = MAX(psave->vmax, vmax);
             verts_updated = btrue;
         }
         else
         {
-            // the old list and the nrw list are disjoint sets, so we are out of luck
+            // the old list and the new list are disjoint sets, so we are out of luck
             // save the set with the largest number of members
-            if( (pinst->save_vmax - pinst->save_vmin) >= (vmax - vmin) )
+            if( (psave->vmax - psave->vmin) >= (vmax - vmin) )
             {
-                pinst->save_vmin = pinst->save_vmin;
-                pinst->save_vmax = pinst->save_vmax;
+                // obviously no change...
+                psave->vmin = psave->vmin;
+                psave->vmax = psave->vmax;
                 verts_updated = btrue;
             }
             else
             {
-                pinst->save_vmin = vmin;
-                pinst->save_vmax = vmax;
+                psave->vmin = vmin;
+                psave->vmax = vmax;
                 verts_updated = btrue;
             }
         }
@@ -1044,27 +1121,27 @@ egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vm
         // The only way to get here is to fail the vertices_match test, and fail the frames_match test
 
         // everything was dirty, so just save the new vertex list
-        pinst->save_vmin = vmin;
-        pinst->save_vmax = vmax;
+        psave->vmin = vmin;
+        psave->vmax = vmax;
         verts_updated = btrue;
     }
 
-    pinst->save_frame_nxt = pinst->frame_nxt;
-    pinst->save_frame_lst = pinst->frame_lst;
-    pinst->save_flip      = pinst->flip;
+    psave->frame_nxt = pinst->frame_nxt;
+    psave->frame_lst = pinst->frame_lst;
+    psave->flip      = pinst->flip;
 
     // store the last time there was an update to the animation
     frames_updated = bfalse;
     if( !frames_match )
     {
-        pinst->save_frame_wld = update_wld;
+        psave->frame_wld = update_wld;
         frames_updated        = btrue;
     }
 
     // store the time of the last full update
     if( 0 == vmin && maxvert == vmax )
     {
-        pinst->save_update_wld  = update_wld;
+        psave->vert_wld  = update_wld;
     }
 
     return (verts_updated || frames_updated) ? rv_success : rv_fail;
@@ -1264,3 +1341,36 @@ void chr_draw_grips( chr_t * pchr )
     if( texture_1d_enabled ) glEnable( GL_TEXTURE_1D );
     if( texture_2d_enabled ) glEnable( GL_TEXTURE_2D );
 }
+
+//--------------------------------------------------------------------------------------------
+egoboo_rv chr_instance_update_grip_verts( chr_instance_t * pinst, Uint16 vrt_lst[], size_t vrt_count )
+{
+    int cnt, count, vmin, vmax;
+    egoboo_rv retval;
+
+    if( NULL == pinst ) return rv_error;
+
+    if( NULL == vrt_lst || 0 == vrt_count ) return rv_fail;
+
+    // count the valid attachment points
+    vmin = 0xFFFF;
+    vmax = 0;
+    count = 0;
+    for( cnt = 0; cnt<vrt_count; cnt++ )
+    {
+        if( 0xFFFF == vrt_lst[cnt] ) continue;
+
+        vmin = MIN(vmin, vrt_lst[cnt]);
+        vmax = MAX(vmax, vrt_lst[cnt]);
+        count++;
+    }
+
+    // if there are no valid points, there is nothing to do
+    if( 0 == count ) return rv_fail;
+
+    // force the vertices to update
+    retval = chr_instance_update_vertices( pinst, vmin, vmax, btrue );
+
+    return retval;
+}
+

@@ -229,7 +229,7 @@ Uint16 who_is_blocking_passage( Uint16 passage, bool_t targetitems, bool_t targe
         pchr = ChrList.lst + character;
 
         // no carried items
-        if( pchr->pack_ispacked || pchr->attachedto != MAX_CHR ) continue;
+        if( pchr->pack_ispacked || ACTIVE_CHR(pchr->attachedto) ) continue;
 
         // do not do invulnerable or scenery items
 		if ( (pchr->invictus && !pchr->isitem) || pchr->phys.weight == 0xFFFFFFFF ) continue;
@@ -364,7 +364,7 @@ bool_t close_passage( Uint16 passage )
             pchr = ChrList.lst + character;
 
             bumpsize = pchr->bump.size;
-            if ( (!pchr->pack_ispacked ) && pchr->attachedto == MAX_CHR && pchr->bump.size != 0 )
+            if ( !pchr->pack_ispacked && !ACTIVE_CHR(pchr->attachedto) && pchr->bump.size != 0 )
             {
                 if ( object_is_in_passage( passage, pchr->pos.x, pchr->pos.y, pchr->bump.size ))
                 {

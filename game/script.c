@@ -200,7 +200,7 @@ void let_character_think( Uint16 character )
     {
         float latch2;
 
-        if ( pchr->ismount && MAX_CHR != pchr->holdingwhich[SLOT_LEFT] && ACTIVE_CHR(pchr->holdingwhich[SLOT_LEFT]) )
+        if ( pchr->ismount && ACTIVE_CHR(pchr->holdingwhich[SLOT_LEFT]) )
         {
             // Mount
             pchr->latch.x = ChrList.lst[pchr->holdingwhich[SLOT_LEFT]].latch.x;
@@ -222,7 +222,7 @@ void let_character_think( Uint16 character )
         latch2 = pchr->latch.x * pchr->latch.x + pchr->latch.y * pchr->latch.y;
         if (latch2 > 1.0f)
         {
-            float scale = 1.0f / sqrt(latch2);
+            float scale = 1.0f / SQRT(latch2);
             pchr->latch.x *= scale;
             pchr->latch.y *= scale;
         }

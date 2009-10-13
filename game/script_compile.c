@@ -190,7 +190,7 @@ int load_one_line( int read )
             break;
         }
 
-        if ( '/' == cTmp && '/' == cLoadBuffer[read] )
+        if ( '/' == cTmp && '/' == cLoadBuffer[read + 1] )
         {
             break;
         }

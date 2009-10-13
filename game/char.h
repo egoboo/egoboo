@@ -180,6 +180,23 @@ struct s_team
 };
 typedef struct s_team team_t;
 
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+/// the data to determine whether re-calculation of vlst is necessary
+struct s_vlst_cache
+{
+    float  flip;              ///< the in-betweening  the last time the animation was updated
+    Uint16 frame_nxt;         ///< the initial frame  the last time the animation was updated
+    Uint16 frame_lst;         ///< the final frame  the last time the animation was updated
+    Uint32 frame_wld;         ///< the update_wld the last time the animation was updated
+
+    int    vmin;              ///< the minimum clean vertex the last time the vertices were updated
+    int    vmax;              ///< the maximum clean vertex the last time the vertices were updated
+    Uint32 vert_wld;          ///< the update_wld the last time the vertices were updated
+};
+typedef struct s_vlst_cache vlst_cache_t;
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -218,8 +235,6 @@ struct s_matrix_cache
     Uint16  grip_chr;                   ///< !=MAX_CHR if character is a held weapon
     slot_t  grip_slot;                  ///< SLOT_LEFT or SLOT_RIGHT
     Uint16  grip_verts[GRIP_VERTS];     ///< Vertices which describe the weapon grip
-    Uint32  vert_update;                ///< last time the object's vertices were updated
-    Uint32  frame_update;               ///< last time the object's animation were updated
 
     //---- data used for both
 
@@ -229,6 +244,20 @@ struct s_matrix_cache
 typedef struct s_matrix_cache matrix_cache_t;
 
 matrix_cache_t * matrix_cache_init(matrix_cache_t * mcache);
+
+//--------------------------------------------------------------------------------------------
+/// some pre-computed parameters for reflection
+struct s_chr_reflection_cache
+{
+    fmat_4x4_t matrix;
+    bool_t     matrix_valid;
+    Uint8      alpha;
+    Uint8      sheen;
+    Uint8      redshift;
+    Uint8      grnshift;
+    Uint8      blushift;
+};
+typedef struct s_chr_reflection_cache chr_reflection_cache_t;
 
 //--------------------------------------------------------------------------------------------
 /// All the data that the renderer needs to draw the character
@@ -256,11 +285,6 @@ struct s_chr_instance
     Uint16         uoffset;         ///< For moving textures
     Uint16         voffset;
 
-    // lighting
-    // Uint16         light_turn_z;    ///< Character's light rotation 0 to 0xFFFF
-    // Uint8          lightlevel_amb;  ///< 0-255, terrain light
-    // Uint8          lightlevel_dir;  ///< 0-255, terrain light
-
     // model info
     Uint16         imad;            ///< Character's model
 
@@ -278,40 +302,27 @@ struct s_chr_instance
     bool_t         action_loop;                    ///< Loop it too
     Uint8          action_next;                    ///< Character's action to play next
 
-    // linear interpolated frame vertices
+    // lighting info
     Sint32         color_amb;
     fvec4_t        col_amb;
     int            max_light, min_light;
+    Uint32       lighting_update_wld; // the save data to determine whether re-calculation of lighting data is necessary
 
+    // linear interpolated frame vertices
     size_t         vlst_size;
     GLvertex       vlst[MAXVERTICES];
     oct_bb_t       bbox;                      ///< the bounding box for this frame
 
     // graphical optimizations
-    bool_t         indolist;        ///< Has it been added yet?
+    bool_t                 indolist;  ///< Has it been added yet?
+    vlst_cache_t           save;      ///< Do we need to re-calculate all or part of the vertex list
+    chr_reflection_cache_t ref;       ///< pre-computing some reflection parameters
 
-    // the save data to determine whether re-calculation of vlst is necessary
-    float  save_flip;              ///< the in-betweening  the last time the animation was updated
-    Uint16 save_frame_nxt;         ///< the initial frame  the last time the animation was updated
-    Uint16 save_frame_lst;         ///< the final frame  the last time the animation was updated
-    Uint32 save_frame_wld;         ///< the update_wld the last time the animation was updated
-
-    int    save_vmin;              ///< the minimum clean vertex the last time the vertices were updated
-    int    save_vmax;              ///< the maximum clean vertex the last time the vertices were updated
-    Uint32 save_update_wld;        ///< the update_wld the last time the vertices were updated
-
-    // the save data to determine whether re-calculation of lighting data is necessary
-    Uint32 save_lighting_update_wld;
-
-    //---- some pre-computed parameters for reflection
-    fmat_4x4_t ref_matrix;
-    bool_t     ref_matrix_valid;
-    Uint8      ref_alpha;
-    Uint8      ref_sheen;
-    Uint8      ref_redshift;
-    Uint8      ref_grnshift;
-    Uint8      ref_blushift;
-    Uint32     ref_save_lighting_update_wld;
+    // OBSOLETE
+    // lighting
+    // Uint16         light_turn_z;    ///< Character's light rotation 0 to 0xFFFF
+    // Uint8          lightlevel_amb;  ///< 0-255, terrain light
+    // Uint8          lightlevel_dir;  ///< 0-255, terrain light
 };
 
 typedef struct s_chr_instance chr_instance_t;
