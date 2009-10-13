@@ -888,8 +888,9 @@ egoboo_rv chr_instance_update_bbox( chr_instance_t * pinst )
 //--------------------------------------------------------------------------------------------
 egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vmax )
 {
-    int    i;
-    bool_t vertices_match, flips_match, frames_match, verts_updated;
+    int    i, maxvert;
+    bool_t vertices_match, flips_match, frames_match;
+    bool_t verts_updated, frames_updated;
 
     mad_t * pmad;
 
@@ -904,12 +905,14 @@ egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vm
     if ( !LOADED_MAD(pinst->imad) ) return rv_error;
     pmad = MadList + pinst->imad;
 
+    maxvert = ego_md2_data[pmad->md2_ref].vertices - 1;
+
     // handle the default parameters
     if ( vmin < 0 ) vmin = 0;
-    if ( vmax < 0 ) vmax = ego_md2_data[pmad->md2_ref].vertices - 1;
+    if ( vmax < 0 ) vmax = maxvert;
 
-    vmin = CLIP(vmin, 0, ego_md2_data[pmad->md2_ref].vertices - 1);
-    vmax = CLIP(vmax, 0, ego_md2_data[pmad->md2_ref].vertices - 1);
+    vmin = CLIP(vmin, 0, maxvert);
+    vmax = CLIP(vmax, 0, maxvert);
 
     // test to see if we have already calculated this data
     vertices_match = (pinst->save_vmin <= vmin) && (pinst->save_vmax >= vmax);
@@ -992,18 +995,23 @@ egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vm
     verts_updated = bfalse;
     if( vertices_match )
     {
-        // vmin and vmax are within the old vertex range.
-        // This means that vertices outside the range [vmin, vmax]
-        // were also SUPPOSED TO BE updated, but weren't.
-        // Mark it so we know those vertices are dirty.
+        // The only way to get here is to fail the frames_match test, and pass vertices_match
+
+        // This means that all of the vertices were SUPPOSED TO BE updated,
+        // but only the ones in the range [vmin, vmax] actually were.
         pinst->save_vmin = vmin;
         pinst->save_vmax = vmax;
         verts_updated = btrue;
     }
     else if( frames_match )
     {
-        // all of the vertices in the old range [save_vmin, save_vmax]
-        // are still clean.
+        // The only way to get here is to fail the vertices_match test, and pass frames_match test
+
+        // There was no update to the animation,  but there was an update to some of the vertices
+        // The clean verrices should be the union of the sets of the vertices updated this time
+        // and the oned updated last time. 
+        //
+        //If these ranges are disjoint, then only one of them can be saved. Choose the larger set
 
         if( vmax >= pinst->save_vmin && vmin <= pinst->save_vmax )
         {
@@ -1015,7 +1023,7 @@ egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vm
         }
         else
         {
-            // the old list and the nre list are disjoint sets, so we are out of luck
+            // the old list and the nrw list are disjoint sets, so we are out of luck
             // save the set with the largest number of members
             if( (pinst->save_vmax - pinst->save_vmin) >= (vmax - vmin) )
             {
@@ -1033,24 +1041,33 @@ egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vm
     }
     else
     {
+        // The only way to get here is to fail the vertices_match test, and fail the frames_match test
+
         // everything was dirty, so just save the new vertex list
         pinst->save_vmin = vmin;
         pinst->save_vmax = vmax;
         verts_updated = btrue;
     }
 
-    pinst->save_frame     = update_wld;
     pinst->save_frame_nxt = pinst->frame_nxt;
     pinst->save_frame_lst = pinst->frame_lst;
     pinst->save_flip      = pinst->flip;
 
+    // store the last time there was an update to the animation
+    frames_updated = bfalse;
+    if( !frames_match )
+    {
+        pinst->save_frame_wld = update_wld;
+        frames_updated        = btrue;
+    }
+
     // store the time of the last full update
-    if( (vmin == 0) && (vmax == ego_md2_data[pmad->md2_ref].vertices - 1) )
+    if( 0 == vmin && maxvert == vmax )
     {
         pinst->save_update_wld  = update_wld;
     }
 
-    return (verts_updated || !frames_match) ? rv_success : rv_fail;
+    return (verts_updated || frames_updated) ? rv_success : rv_fail;
 }
 
 //--------------------------------------------------------------------------------------------

@@ -849,8 +849,8 @@ Uint16 spawn_one_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 en
             // Start out with ActionMJ...  Object activated
             if ( povl_mad->actionvalid[ACTION_MJ] )
             {
-                povl->action = ACTION_MJ;
-                povl->actionready = bfalse;
+                povl->inst.action_which = ACTION_MJ;
+                povl->inst.action_ready = bfalse;
 
                 povl->inst.flip = 0;
                 povl->inst.ilip = 0;

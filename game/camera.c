@@ -45,6 +45,8 @@ camera_t gCamera;
 
 camera_t * camera_new( camera_t * pcam )
 {
+    /// @detalis BB@> initialize the camera structure
+
     fvec3_t   t1 = {{0, 0, 0}};
     fvec3_t   t2 = {{0, 0, -1}};
     fvec3_t   t3 = {{0, 1, 0}};
@@ -94,6 +96,8 @@ camera_t * camera_new( camera_t * pcam )
 //--------------------------------------------------------------------------------------------
 void dump_matrix( fmat_4x4_t a )
 {
+    /// @detalis ZZ@> dump a text representation of a 4x4 matrix to stdout
+
     int i; int j;
 
     for ( j = 0; j < 4; j++ )

@@ -871,7 +871,7 @@ bool_t detach_character_from_mount( Uint16 character, Uint8 ignorekurse, Uint8 d
 {
     /// @details ZZ@> This function drops an item
 
-    Uint16 mount, hand, enchant, owner = SHOP_NOOWNER;
+    Uint16 mount, hand, enchant;
     bool_t inshop;
     float nrm[2];
     chr_t * pchr, * pmount;
@@ -911,11 +911,11 @@ bool_t detach_character_from_mount( Uint16 character, Uint8 ignorekurse, Uint8 d
         // play the falling animation...
         chr_play_action( character, ACTION_JB + hand, bfalse );
     }
-    else if ( pchr->action < ACTION_KA || pchr->action > ACTION_KD )
+    else if ( pchr->inst.action_which < ACTION_KA || pchr->inst.action_which > ACTION_KD )
     {
         // play the "killed" animation...
         chr_play_action( character, ACTION_KA + hand, bfalse );
-        pchr->keepaction = btrue;
+        pchr->inst.action_keep = btrue;
     }
 
     // Set the positions
@@ -964,7 +964,7 @@ bool_t detach_character_from_mount( Uint16 character, Uint8 ignorekurse, Uint8 d
     pchr->vel.z = DROPZVEL;
 
     // Turn looping off
-    pchr->loopaction = bfalse;
+    pchr->inst.action_loop = bfalse;
 
     // Reset the team if it is a mount
     if ( pmount->ismount )
@@ -1121,7 +1121,7 @@ void attach_character_to_mount( Uint16 iitem, Uint16 iholder, grip_offset_t grip
     {
         // Riding iholder
         chr_play_action( iitem, ACTION_MI, btrue );
-        pitem->loopaction = btrue;
+        pitem->inst.action_loop = btrue;
     }
     else if ( pitem->alive )
     {
@@ -1129,7 +1129,7 @@ void attach_character_to_mount( Uint16 iitem, Uint16 iholder, grip_offset_t grip
         if ( pitem->isitem )
         {
             // Item grab
-            pitem->keepaction = btrue;
+            pitem->inst.action_keep = btrue;
         }
     }
 
@@ -1871,7 +1871,7 @@ void character_swipe( Uint16 ichr, slot_t slot )
     pchr = ChrList.lst + ichr;
 
     weapon = pchr->holdingwhich[slot];
-    action = pchr->action;
+    action = pchr->inst.action_which;
 
     // See if it's an unarmed attack...
     if ( ACTIVE_CHR(weapon) )
@@ -2773,10 +2773,10 @@ int damage_character( Uint16 character, Uint16 direction,
                         right = pcap->iframeangle;
 
                         // Check for shield
-                        if ( pchr->action >= ACTION_PA && pchr->action <= ACTION_PD )
+                        if ( pchr->inst.action_which >= ACTION_PA && pchr->inst.action_which <= ACTION_PD )
                         {
                             // Using a shield?
-                            if ( pchr->action < ACTION_PC )
+                            if ( pchr->inst.action_which < ACTION_PC )
                             {
                                 // Check left hand
                                 cap_t * pcap_tmp = chr_get_pcap( pchr->holdingwhich[SLOT_LEFT] );
@@ -2881,7 +2881,7 @@ int damage_character( Uint16 character, Uint16 direction,
                         }
 
                         pchr->waskilled = btrue;
-                        pchr->keepaction = btrue;
+                        pchr->inst.action_keep = btrue;
                         pchr->life = -1;
                         pchr->platform = btrue;
                         pchr->phys.bumpdampen = pchr->phys.bumpdampen / 2.0f;
@@ -3277,9 +3277,9 @@ chr_t * chr_init( chr_t * pchr )
     pchr->map_turn_x = MAP_TURN_OFFSET;
 
     // action stuff
-    pchr->actionready = btrue;
-    pchr->action = ACTION_DA;
-    pchr->nextaction = ACTION_DA;
+    pchr->inst.action_ready = btrue;
+    pchr->inst.action_which = ACTION_DA;
+    pchr->inst.action_next  = ACTION_DA;
 
     pchr->onwhichplatform = MAX_CHR;
 
@@ -3628,11 +3628,11 @@ void respawn_character( Uint16 character )
     if ( NOLEADER == TeamList[pchr->team].leader )  TeamList[pchr->team].leader = character;
     if ( !pchr->invictus )  TeamList[pchr->baseteam].morale++;
 
-    pchr->actionready = btrue;
-    pchr->keepaction = bfalse;
-    pchr->loopaction = bfalse;
-    pchr->action = ACTION_DA;
-    pchr->nextaction = ACTION_DA;
+    pchr->inst.action_ready = btrue;
+    pchr->inst.action_keep  = bfalse;
+    pchr->inst.action_loop  = bfalse;
+    pchr->inst.action_which = ACTION_DA;
+    pchr->inst.action_next  = ACTION_DA;
 
     // reset all of the bump size information
     {
@@ -4096,13 +4096,13 @@ void change_character( Uint16 ichr, Uint16 profile_new, Uint8 skin, Uint8 leavew
     pchr->runspd   = pcap_new->runspd;
 
     // AI and action stuff
-    pchr->actionready     = bfalse;
-    pchr->keepaction      = bfalse;
-    pchr->action          = ACTION_DA;
-    pchr->nextaction      = ACTION_DA;
-    pchr->loopaction      = bfalse;
-    pchr->holdingweight   = 0;
-    pchr->onwhichplatform = MAX_CHR;
+    pchr->inst.action_ready = bfalse;
+    pchr->inst.action_keep  = bfalse;
+    pchr->inst.action_which = ACTION_DA;
+    pchr->inst.action_next  = ACTION_DA;
+    pchr->inst.action_loop  = bfalse;
+    pchr->holdingweight     = 0;
+    pchr->onwhichplatform   = MAX_CHR;
 
     // initialize the instance
     chr_instance_spawn( &(pchr->inst), profile_new, skin );
@@ -5057,7 +5057,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
                 if ( pchr->jumpnumberreset != JUMPINFINITE ) pchr->jumpnumber--;
 
                 // Set to jump animation if not doing anything better
-                if ( pchr->actionready )
+                if ( pchr->inst.action_ready )
                 {
                     chr_play_action( ichr, ACTION_JA, btrue );
                 }
@@ -5076,7 +5076,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
         }
 
     }
-    if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_ALTLEFT ) && pchr->actionready && 0 == pchr->reloadtime )
+    if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_ALTLEFT ) && pchr->inst.action_ready && 0 == pchr->reloadtime )
     {
         pchr->latch.b &= ~LATCHBUTTON_ALTLEFT;
 
@@ -5092,7 +5092,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
             chr_play_action( ichr, ACTION_MA, bfalse );
         }
     }
-    if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_ALTRIGHT ) && pchr->actionready && 0 == pchr->reloadtime )
+    if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_ALTRIGHT ) && pchr->inst.action_ready && 0 == pchr->reloadtime )
     {
         pchr->latch.b &= ~LATCHBUTTON_ALTRIGHT;
 
@@ -5108,7 +5108,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
             chr_play_action( ichr, ACTION_MB, bfalse );
         }
     }
-    if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_PACKLEFT ) && pchr->actionready && 0 == pchr->reloadtime )
+    if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_PACKLEFT ) && pchr->inst.action_ready && 0 == pchr->reloadtime )
     {
         pchr->latch.b &= ~LATCHBUTTON_PACKLEFT;
 
@@ -5150,7 +5150,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
         // Make it take a little time
         chr_play_action( ichr, ACTION_MG, bfalse );
     }
-    if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_PACKRIGHT ) && pchr->actionready && 0 == pchr->reloadtime )
+    if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_PACKRIGHT ) && pchr->inst.action_ready && 0 == pchr->reloadtime )
     {
         pchr->latch.b &= ~LATCHBUTTON_PACKRIGHT;
 
@@ -5245,6 +5245,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
                 pweapon->ai.alert |= ALERTIF_USED;
             }
         }
+
         if ( allowedtoattack )
         {
             // Rearing mount
@@ -5252,9 +5253,9 @@ bool_t chr_do_latch_button( chr_t * pchr )
             if ( mount != MAX_CHR )
             {
                 allowedtoattack = chr_get_pcap(mount)->ridercanattack;
-                if ( ChrList.lst[mount].ismount && ChrList.lst[mount].alive && !ChrList.lst[mount].isplayer && ChrList.lst[mount].actionready )
+                if ( ChrList.lst[mount].ismount && ChrList.lst[mount].alive && !ChrList.lst[mount].isplayer && ChrList.lst[mount].inst.action_ready )
                 {
-                    if ( ( action != ACTION_PA || !allowedtoattack ) && pchr->actionready )
+                    if ( ( action != ACTION_PA || !allowedtoattack ) && pchr->inst.action_ready )
                     {
                         chr_play_action( pchr->attachedto,  generate_randmask( ACTION_UA, 1 ), bfalse );
                         chr_get_pai(pchr->attachedto)->alert |= ALERTIF_USED;
@@ -5270,7 +5271,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
             // Attack button
             if ( allowedtoattack )
             {
-                if ( pchr->actionready && chr_get_pmad(ichr)->actionvalid[action] )
+                if ( pchr->inst.action_ready && chr_get_pmad(ichr)->actionvalid[action] )
                 {
                     // Check mana cost
                     bool_t mana_paid = cost_mana( ichr, pweapon->manacost, weapon );
@@ -5282,8 +5283,8 @@ bool_t chr_do_latch_button( chr_t * pchr )
                         if ( pchr->life > pchr->lifemax )  pchr->life = pchr->lifemax;
 
                         actionready = bfalse;
-                        if ( action == ACTION_PA )
-                            actionready = btrue;
+                        //if ( ACTION_PA == action || ACTION_PB == action )
+                        //    actionready = btrue;
 
                         action += generate_randmask( 0, 1 );
                         chr_play_action( ichr, action, actionready );
@@ -5371,9 +5372,9 @@ bool_t chr_do_latch_button( chr_t * pchr )
             if ( mount != MAX_CHR )
             {
                 allowedtoattack = chr_get_pcap(mount)->ridercanattack;
-                if ( ChrList.lst[mount].ismount && ChrList.lst[mount].alive && !ChrList.lst[mount].isplayer && ChrList.lst[mount].actionready )
+                if ( ChrList.lst[mount].ismount && ChrList.lst[mount].alive && !ChrList.lst[mount].isplayer && ChrList.lst[mount].inst.action_ready )
                 {
-                    if ( ( action != ACTION_PC || !allowedtoattack ) && pchr->actionready )
+                    if ( ( action != ACTION_PC || !allowedtoattack ) && pchr->inst.action_ready )
                     {
                         chr_play_action( pchr->attachedto,  generate_randmask( ACTION_UC, 1 ), bfalse );
                         chr_get_pai(pchr->attachedto)->alert |= ALERTIF_USED;
@@ -5389,7 +5390,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
             // Attack button
             if ( allowedtoattack )
             {
-                if ( pchr->actionready && chr_get_pmad(ichr)->actionvalid[action] )
+                if ( pchr->inst.action_ready && chr_get_pmad(ichr)->actionvalid[action] )
                 {
                     bool_t mana_paid = cost_mana( ichr, pweapon->manacost, weapon );
                     // Check mana cost
@@ -5400,8 +5401,8 @@ bool_t chr_do_latch_button( chr_t * pchr )
                         if ( pchr->life > pchr->lifemax )  pchr->life = pchr->lifemax;
 
                         actionready = bfalse;
-                        if ( action == ACTION_PC )
-                            actionready = btrue;
+                        //if ( ACTION_PC == action || ACTION_PD == action)
+                        //    actionready = btrue;
 
                         action += generate_randmask( 0, 1 );
                         chr_play_action( ichr, action, actionready );
@@ -5681,35 +5682,35 @@ void move_one_character_do_animation( chr_t * pchr, chr_environment_t * penviro 
             pinst->frame_lst = pinst->frame_nxt;
             pinst->frame_nxt++;
 
-            if ( pinst->frame_nxt == chr_get_pmad(ichr)->actionend[pchr->action] )
+            if ( pinst->frame_nxt == chr_get_pmad(ichr)->actionend[pchr->inst.action_which] )
             {
                 // Action finished
-                if ( pchr->keepaction )
+                if ( pchr->inst.action_keep )
                 {
                     // Keep the last frame going
                     pinst->frame_nxt = pinst->frame_lst;
                 }
                 else
                 {
-                    if ( !pchr->loopaction )
+                    if ( !pchr->inst.action_loop )
                     {
                         // Go on to the next action
-                        pchr->action = pchr->nextaction;
-                        pchr->nextaction = ACTION_DA;
+                        pchr->inst.action_which = pchr->inst.action_next;
+                        pchr->inst.action_next = ACTION_DA;
                     }
                     else
                     {
                         // See if the character is mounted...
                         if ( pchr->attachedto != MAX_CHR )
                         {
-                            pchr->action = ACTION_MI;
+                            pchr->inst.action_which = ACTION_MI;
                         }
                     }
 
-                    pinst->frame_nxt = chr_get_pmad(ichr)->actionstart[pchr->action];
+                    pinst->frame_nxt = chr_get_pmad(ichr)->actionstart[pchr->inst.action_which];
                 }
 
-                pchr->actionready = btrue;
+                pchr->inst.action_ready = btrue;
             }
         }
     }
@@ -5719,10 +5720,10 @@ void move_one_character_do_animation( chr_t * pchr, chr_environment_t * penviro 
     pinst->rate = 1.0f;
 
     // Get running, walking, sneaking, or dancing, from speed
-    if ( !pchr->keepaction && !pchr->loopaction )
+    if ( !pchr->inst.action_keep && !pchr->inst.action_loop )
     {
         framelip = Md2FrameList[pinst->frame_nxt].framelip;  // 0 - 15...  Way through animation
-        if ( pchr->actionready && pinst->ilip == 0 && pchr->enviro.grounded && pchr->flyheight == 0 && ( framelip&7 ) < 2 )
+        if ( pchr->inst.action_ready && pinst->ilip == 0 && pchr->enviro.grounded && pchr->flyheight == 0 && ( framelip&7 ) < 2 )
         {
             // Do the motion stuff
 
@@ -5741,19 +5742,19 @@ void move_one_character_do_animation( chr_t * pchr, chr_environment_t * penviro 
                 else if ( pchr->boretime == 0 || speed == 0 )
                 {
                     // Do standstill
-                    if ( pchr->action > ACTION_DD )
+                    if ( pchr->inst.action_which > ACTION_DD )
                     {
-                        pchr->action = ACTION_DA;
-                        pinst->frame_nxt = pmad->actionstart[pchr->action];
+                        pchr->inst.action_which = ACTION_DA;
+                        pinst->frame_nxt = pmad->actionstart[pchr->inst.action_which];
                     }
                 }
                 else
                 {
-                    pchr->nextaction = ACTION_WA;
-                    if ( pchr->action != ACTION_WA )
+                    pchr->inst.action_next = ACTION_WA;
+                    if ( pchr->inst.action_which != ACTION_WA )
                     {
                         pinst->frame_nxt = pmad->frameliptowalkframe[LIPWA][framelip];
-                        pchr->action = ACTION_WA;
+                        pchr->inst.action_which = ACTION_WA;
                     }
 
                     pinst->rate = (float)speed / (float)pchr->sneakspd;
@@ -5766,11 +5767,11 @@ void move_one_character_do_animation( chr_t * pchr, chr_environment_t * penviro 
                 if ( speed < 0.5f * (pchr->sneakspd + pchr->walkspd) )
                 {
                     //Sneak
-                    pchr->nextaction = ACTION_WA;
-                    if ( pchr->action != ACTION_WA )
+                    pchr->inst.action_next = ACTION_WA;
+                    if ( pchr->inst.action_which != ACTION_WA )
                     {
                         pinst->frame_nxt = pmad->frameliptowalkframe[LIPWA][framelip];
-                        pchr->action = ACTION_WA;
+                        pchr->inst.action_which = ACTION_WA;
                     }
 
                     pinst->rate = (float)speed / (float)pchr->sneakspd;
@@ -5778,11 +5779,11 @@ void move_one_character_do_animation( chr_t * pchr, chr_environment_t * penviro 
                 else if ( speed < 0.5f * (pchr->walkspd + pchr->runspd) )
                 {
                     //Walk
-                    pchr->nextaction = ACTION_WB;
-                    if ( pchr->action != ACTION_WB )
+                    pchr->inst.action_next = ACTION_WB;
+                    if ( pchr->inst.action_which != ACTION_WB )
                     {
                         pinst->frame_nxt = pmad->frameliptowalkframe[LIPWB][framelip];
-                        pchr->action = ACTION_WB;
+                        pchr->inst.action_which = ACTION_WB;
                     }
 
                     pinst->rate = (float)speed / (float)pchr->walkspd;
@@ -5790,11 +5791,11 @@ void move_one_character_do_animation( chr_t * pchr, chr_environment_t * penviro 
                 else
                 {
                     //Run
-                    pchr->nextaction = ACTION_WC;
-                    if ( pchr->action != ACTION_WC )
+                    pchr->inst.action_next = ACTION_WC;
+                    if ( pchr->inst.action_which != ACTION_WC )
                     {
                         pinst->frame_nxt = pmad->frameliptowalkframe[LIPWC][framelip];
-                        pchr->action     = ACTION_WC;
+                        pchr->inst.action_which     = ACTION_WC;
                     }
 
                     pinst->rate = speed / pchr->runspd;
@@ -5992,7 +5993,7 @@ void chr_instance_clear_cache( chr_instance_t * pinst )
     ///     the function is called
 
     pinst->save_flip      = 0;
-    pinst->save_frame     = 0;
+    pinst->save_frame_wld = 0;
     pinst->save_vmin      = 0xFFFF;
     pinst->save_vmax      = -1;
     pinst->save_frame_nxt = 0;
@@ -6612,6 +6613,8 @@ chr_t  * team_get_pleader( Uint16 iteam )
 //--------------------------------------------------------------------------------------------
 bool_t team_hates_team(Uint16 ipredator, Uint16 iprey)
 {
+    /// @details BB@> a wrapper function for access to the hatesteam data
+
     if( ipredator >= TEAM_MAX || iprey >= TEAM_MAX ) return bfalse;
 
     return TeamList[ipredator].hatesteam[iprey];
@@ -6661,10 +6664,10 @@ int chr_bumper_1_to_points( chr_bumper_1_t * pbmp, fvec4_t   pos[], size_t pos_c
     ///      set pos[].w to zero for now, that the transform does not
     ///      shift the points while transforming them
     ///
-    ///      Make sure to set pos[].w to zero so that the bounding box will not be translated
+    /// @note Make sure to set pos[].w to zero so that the bounding box will not be translated
     ///      then the transformation matrix is applied.
     ///
-    ///      The math for finding the corners of this bumper is not hard, but it is easy to make a mistake.
+    /// @note The math for finding the corners of this bumper is not hard, but it is easy to make a mistake.
     ///      be careful if you modify anything.
 
     float ftmp;
@@ -7047,13 +7050,13 @@ void chr_bumper_1_downgrade( chr_bumper_1_t * psrc, chr_bumper_0_t bump_base, ch
 //--------------------------------------------------------------------------------------------
 egoboo_rv chr_update_collision_size( chr_t * pchr, bool_t update_matrix )
 {
-    /// @todo use this function to update the pchr->chr_prt_cv and  pchr->chr_chr_cv with
-    ///       values that reflect the best possible collision volume
-    ///
-    ///< This function takes quite a bit of time, so it must only be called when the
+    ///< @detalis BB@> use this function to update the pchr->chr_prt_cv and  pchr->chr_chr_cv with
+    ///<       values that reflect the best possible collision volume
+    ///<
+    ///< @note This function takes quite a bit of time, so it must only be called when the
     ///< vertices change because of an animation or because the matrix changes.
     ///<
-    ///< it might be possible to cache the src[] array used in this function.
+    ///< @todo it might be possible to cache the src[] array used in this function.
     ///< if the matrix changes, then you would not need to recalculate this data...
 
     int       vcount;   // the actual number of vertices, in case the object is square
@@ -7109,6 +7112,8 @@ egoboo_rv chr_update_collision_size( chr_t * pchr, bool_t update_matrix )
 //--------------------------------------------------------------------------------------------
 void chr_update_size( chr_t * pchr )
 {
+    /// @details BB@> Convert the base size values to the size values that are used in the game
+
     if( !ACTIVE_PCHR( pchr ) ) return;
 
     pchr->shadowsize   = pchr->shadowsizesave    * pchr->fat;
@@ -7122,6 +7127,8 @@ void chr_update_size( chr_t * pchr )
 //--------------------------------------------------------------------------------------------
 void chr_init_size( chr_t * pchr, cap_t * pcap )
 {
+    /// @details BB@> initalize the character size info
+
     if( !ACTIVE_PCHR( pchr )     ) return;
     if( NULL == pcap || !pcap->loaded ) return;
 
@@ -7138,6 +7145,8 @@ void chr_init_size( chr_t * pchr, cap_t * pcap )
 //--------------------------------------------------------------------------------------------
 void chr_set_size( chr_t * pchr, float size )
 {
+    /// @details BB@> scale the entire character so that the size matches the given value
+
     float ratio;
 
     if( !ACTIVE_PCHR( pchr ) ) return;
@@ -7155,6 +7164,8 @@ void chr_set_size( chr_t * pchr, float size )
 //--------------------------------------------------------------------------------------------
 void chr_set_width( chr_t * pchr, float width )
 {
+    /// @details BB@> update the base character "width". This also modifies the shadow size
+
     float ratio;
 
     if( !ACTIVE_PCHR( pchr ) ) return;
@@ -7171,6 +7182,8 @@ void chr_set_width( chr_t * pchr, float width )
 //--------------------------------------------------------------------------------------------
 void chr_set_height( chr_t * pchr, float height )
 {
+    /// @details BB@> update the base character height
+
     if( !ACTIVE_PCHR( pchr ) ) return;
 
     if( height < 0 ) height = 0;
@@ -7183,6 +7196,8 @@ void chr_set_height( chr_t * pchr, float height )
 //--------------------------------------------------------------------------------------------
 void chr_set_shadow( chr_t * pchr, float width )
 {
+    /// @details BB@> update the base shadow size
+
     if( !ACTIVE_PCHR( pchr ) ) return;
 
     pchr->shadowsizesave = width;
@@ -7193,6 +7208,8 @@ void chr_set_shadow( chr_t * pchr, float width )
 //--------------------------------------------------------------------------------------------
 void chr_set_fat( chr_t * pchr, float fat )
 {
+    /// @details BB@> update all the character size info by specifying the fat value
+
     if( !ACTIVE_PCHR( pchr ) ) return;
 
     pchr->fat = fat;
@@ -7203,6 +7220,9 @@ void chr_set_fat( chr_t * pchr, float fat )
 //--------------------------------------------------------------------------------------------
 Uint32 chr_get_icon_ref( Uint16 item )
 {
+    /// @details BB@> Get the index to the icon texture (in TxTexture) that is supposed to be used with this object.
+    ///               If none can be found, return the index to the texture of the null icon.
+
     Uint16 iskin;
     Uint32 icon_ref = ICON_NULL;
     bool_t is_spell_fx, is_book, draw_book;
@@ -7320,6 +7340,8 @@ const char* describe_damage( float value, float maxval, int * rank_ptr )
 //---------------------------------------------------------------------------------------------
 void init_all_cap()
 {
+    /// @details BB@> initialize every character profile in the game
+
     Uint16 cnt;
 
     for ( cnt = 0; cnt < MAX_PROFILE; cnt++ )
@@ -7331,6 +7353,8 @@ void init_all_cap()
 //---------------------------------------------------------------------------------------------
 void release_all_cap()
 {
+    /// @details BB@> release every character profile in the game
+
     int cnt;
 
     for ( cnt = 0; cnt < MAX_PROFILE; cnt++ )
@@ -7342,6 +7366,8 @@ void release_all_cap()
 //--------------------------------------------------------------------------------------------
 bool_t release_one_cap( Uint16 icap )
 {
+    /// @details BB@> release any allocated data and return all values to safe values
+
     cap_t * pcap;
 
     if( !VALID_CAP_RANGE(icap) ) return bfalse;
@@ -7392,6 +7418,9 @@ void reset_teams()
 //--------------------------------------------------------------------------------------------
 bool_t chr_teleport( Uint16 ichr, float x, float y, float z, Uint16 turn_z )
 {
+    /// @details BB@> Determine whether the character can be teleported to the specified location
+    ///               and do it, if possible. Success returns btrue, failure returns bfalse;
+
     float nrm[2];
     chr_t * pchr;
     Uint16  turn_save;
@@ -7443,6 +7472,8 @@ bool_t chr_teleport( Uint16 ichr, float x, float y, float z, Uint16 turn_z )
 //--------------------------------------------------------------------------------------------
 bool_t chr_request_terminate( Uint16 ichr )
 {
+    /// @details BB@> Mark this character for deletion
+
     if( !ACTIVE_CHR(ichr) ) return bfalse;
 
     EGO_OBJECT_REQUST_TERMINATE( ChrList.lst + ichr );
@@ -7453,6 +7484,9 @@ bool_t chr_request_terminate( Uint16 ichr )
 //--------------------------------------------------------------------------------------------
 chr_t * chr_update_hide( chr_t * pchr )
 {
+    /// @details BB@> Update the hide state of the character. Should be called every time that
+    ///               the state variable in an ai_state_t structure is updated
+
     Sint8 hide;
     cap_t * pcap;
 
@@ -7526,6 +7560,8 @@ matrix_cache_t * matrix_cache_init(matrix_cache_t * mcache)
 //--------------------------------------------------------------------------------------------
 bool_t chr_matrix_valid( chr_t * pchr )
 {
+    /// @details BB@> Determine whether the character has a valid matrix
+
     if( !ALLOCATED_PCHR( pchr ) ) return bfalse;
 
     // both the cache and the matrix need to be valid
@@ -7759,7 +7795,8 @@ bool_t chr_get_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
                 mc_tmp->grip_slot = pchr->inwhich_slot;
                 get_grip_verts( mc_tmp->grip_verts, pchr->attachedto, slot_to_grip_offset(pchr->inwhich_slot) );
 
-                mc_tmp->vert_update = pchr->inst.save_update_wld;
+                mc_tmp->vert_update  = pchr->inst.save_update_wld;
+                mc_tmp->frame_update = pchr->inst.save_frame_wld;
 
                 itarget = pchr->attachedto;
             }
@@ -7793,6 +7830,8 @@ bool_t chr_get_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
 //--------------------------------------------------------------------------------------------
 int convert_grip_to_local_points( chr_t * pholder, Uint16 grip_verts[], fvec4_t   dst_point[] )
 {
+    /// @details ZZ@> a helper function for apply_one_weapon_matrix()
+
     int cnt, point_count;
 
     if( NULL == grip_verts || NULL == dst_point ) return 0;
@@ -7844,6 +7883,8 @@ int convert_grip_to_local_points( chr_t * pholder, Uint16 grip_verts[], fvec4_t 
 //--------------------------------------------------------------------------------------------
 int convert_grip_to_global_points( Uint16 iholder, Uint16 grip_verts[], fvec4_t   dst_point[] )
 {
+    /// @details ZZ@> a helper function for apply_one_weapon_matrix()
+
     chr_t *   pholder;
     int       point_count;
     fvec4_t   src_point[GRIP_VERTS];
@@ -7865,7 +7906,8 @@ int convert_grip_to_global_points( Uint16 iholder, Uint16 grip_verts[], fvec4_t 
 //--------------------------------------------------------------------------------------------
 bool_t apply_one_weapon_matrix( chr_t * pweap, matrix_cache_t * mc_tmp )
 {
-    /// @details ZZ@> This function sets one weapon's matrix, based on who it's attached to
+    /// @details ZZ@> Request that the data in the matrix cache be used to create a "character matrix".
+    ///               i.e. a matrix that is not being held by anything.
 
     fvec4_t   nupoint[GRIP_VERTS];
     int       iweap_points;
@@ -7933,7 +7975,8 @@ bool_t apply_one_weapon_matrix( chr_t * pweap, matrix_cache_t * mc_tmp )
 //--------------------------------------------------------------------------------------------
 bool_t apply_one_character_matrix( chr_t * pchr, matrix_cache_t * mc_tmp )
 {
-    /// @details ZZ@> This function sets one character's matrix
+    /// @details ZZ@> Request that the matrix cache data be used to create a "weapon matrix".
+    ///               i.e. a matrix that is attached to a specific grip.
 
     if( NULL == mc_tmp ) return bfalse;
 
@@ -7958,6 +8001,8 @@ bool_t apply_one_character_matrix( chr_t * pchr, matrix_cache_t * mc_tmp )
 //--------------------------------------------------------------------------------------------
 bool_t apply_one_reflection( chr_t * pchr )
 {
+    /// @detalis BB@> Generate the extra data needed to display a reflection for this character
+
     cap_t * pcap;
     chr_instance_t * pinst;
     int trans_temp;
@@ -8018,6 +8063,9 @@ bool_t apply_one_reflection( chr_t * pchr )
 //--------------------------------------------------------------------------------------------
 bool_t apply_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
 {
+    /// @detalis BB@> request that the info in the matrix cache mc_tmp, be used to
+    ///               make a matrix for the character pchr.
+
     bool_t applied = bfalse;
 
     if( !ALLOCATED_PCHR( pchr ) ) return bfalse;
@@ -8137,6 +8185,10 @@ int cmp_matrix_cache(const void * vlhs, const void * vrhs)
 
         itmp = plhs->vert_update - plhs->vert_update;
         if( 0 != itmp ) goto cmp_matrix_cache_end;
+
+        itmp = plhs->frame_update - plhs->frame_update;
+        if( 0 != itmp ) goto cmp_matrix_cache_end;
+
     }
 
     //---- check for differences in the MAT_CHARACTER data
@@ -8329,6 +8381,10 @@ Uint16 chr_holding_idsz( Uint16 ichr, IDSZ idsz )
 //--------------------------------------------------------------------------------------------
 Uint16 chr_has_item_idsz( Uint16 ichr, IDSZ idsz, bool_t equipped, Uint16 * pack_last )
 {
+    /// @detalis BB@> is ichr holding an item matching idsz, or is such an item in his pack?
+    ///               return the index of the found item, or MAX_CHR if not found. Also return
+    ///               the previous pack item in *pack_last, or MAX_CHR if it was not in a pack.
+
     bool_t found;
     Uint16 item, tmp_var;
     chr_t * pchr;
@@ -8362,6 +8418,9 @@ Uint16 chr_has_item_idsz( Uint16 ichr, IDSZ idsz, bool_t equipped, Uint16 * pack
 //--------------------------------------------------------------------------------------------
 bool_t cap_has_idsz( Uint16 icap, IDSZ idsz )
 {
+    /// @detalis BB@> does idsz match any of the stored values in pcap->idsz[]?
+    ///               Matches anything if not picky (idsz == IDSZ_NONE)
+
     int     cnt;
     cap_t * pcap;
     bool_t  retval;
@@ -8405,6 +8464,8 @@ bool_t cap_is_type_idsz( Uint16 icap, IDSZ test_idsz )
 //--------------------------------------------------------------------------------------------
 bool_t chr_has_idsz( Uint16 ichr, IDSZ idsz )
 {
+    /// @detalis BB@> a wrapper for cap_has_idsz
+
     Uint16 icap = chr_get_icap(ichr);
 
     return cap_has_idsz( icap, idsz );
@@ -8426,6 +8487,8 @@ bool_t chr_is_type_idsz( Uint16 item, IDSZ test_idsz )
 //--------------------------------------------------------------------------------------------
 bool_t chr_has_vulnie( Uint16 item, Uint16 test_profile )
 {
+    /// @detalis BB@> is item vulnerable to the type in profile test_profile?
+
     IDSZ vulnie;
 
     if( !ACTIVE_CHR(item) ) return bfalse;
@@ -8444,6 +8507,8 @@ bool_t chr_has_vulnie( Uint16 item, Uint16 test_profile )
 //--------------------------------------------------------------------------------------------
 bool_t chr_can_see_object( Uint16 ichr, Uint16 iobj )
 {
+    /// @detalis BB@> can ichr see iobj?
+
     chr_t * pchr, * pobj;
     int     light;
 
@@ -8471,6 +8536,8 @@ bool_t chr_can_see_object( Uint16 ichr, Uint16 iobj )
 //--------------------------------------------------------------------------------------------
 int chr_get_price( Uint16 ichr )
 {
+    /// @detalis BB@> determine the correct price for an item
+
     Uint16 icap, iskin;
     float  price;
 
@@ -8515,4 +8582,3 @@ int chr_get_price( Uint16 ichr )
 
     return (int)price;
 }
-

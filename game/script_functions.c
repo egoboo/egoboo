@@ -920,16 +920,16 @@ Uint8 scr_DoAction( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = bfalse;
-    if ( pstate->argument < ACTION_COUNT && pchr->actionready )
+    if ( pstate->argument < ACTION_COUNT && pchr->inst.action_ready )
     {
         if ( MadList[pchr->inst.imad].actionvalid[pstate->argument] )
         {
-            pchr->action = pstate->argument;
+            pchr->inst.action_which = pstate->argument;
             pchr->inst.ilip = 0;
             pchr->inst.flip = 0;
             pchr->inst.frame_lst = pchr->inst.frame_nxt;
             pchr->inst.frame_nxt = MadList[pchr->inst.imad].actionstart[pstate->argument];
-            pchr->actionready = bfalse;
+            pchr->inst.action_ready = bfalse;
             returncode = btrue;
         }
     }
@@ -946,7 +946,7 @@ Uint8 scr_KeepAction( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->keepaction = btrue;
+    pchr->inst.action_keep = btrue;
 
     SCRIPT_FUNCTION_END();
 }
@@ -1016,16 +1016,17 @@ Uint8 scr_TargetDoAction( script_state_t * pstate, ai_state_t * pself )
     returncode = bfalse;
     if ( ChrList.lst[pself->target].alive )
     {
-        if ( pstate->argument < ACTION_COUNT && ChrList.lst[pself->target].actionready )
+        if ( pstate->argument < ACTION_COUNT && ChrList.lst[pself->target].inst.action_ready )
         {
             if ( MadList[ChrList.lst[pself->target].inst.imad].actionvalid[pstate->argument] )
             {
-                ChrList.lst[pself->target].action = pstate->argument;
+                ChrList.lst[pself->target].inst.action_which = pstate->argument;
+                ChrList.lst[pself->target].inst.action_ready = bfalse;
+
                 ChrList.lst[pself->target].inst.ilip = 0;
                 ChrList.lst[pself->target].inst.flip = 0;
                 ChrList.lst[pself->target].inst.frame_lst = ChrList.lst[pself->target].inst.frame_nxt;
                 ChrList.lst[pself->target].inst.frame_nxt = MadList[ChrList.lst[pself->target].inst.imad].actionstart[pstate->argument];
-                ChrList.lst[pself->target].actionready = bfalse;
                 returncode = btrue;
             }
         }
@@ -1177,12 +1178,12 @@ Uint8 scr_DoActionOverride( script_state_t * pstate, ai_state_t * pself )
     {
         if ( MadList[pchr->inst.imad].actionvalid[pstate->argument] )
         {
-            pchr->action = pstate->argument;
+            pchr->inst.action_which = pstate->argument;
             pchr->inst.ilip = 0;
             pchr->inst.flip = 0;
             pchr->inst.frame_lst = pchr->inst.frame_nxt;
             pchr->inst.frame_nxt = MadList[pchr->inst.imad].actionstart[pstate->argument];
-            pchr->actionready = bfalse;
+            pchr->inst.action_ready = bfalse;
             returncode = btrue;
         }
     }
@@ -1435,7 +1436,7 @@ Uint8 scr_UnkeepAction( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->keepaction = bfalse;
+    pchr->inst.action_keep = bfalse;
 
     SCRIPT_FUNCTION_END();
 }
@@ -2149,13 +2150,14 @@ Uint8 scr_BecomeSpellbook( script_state_t * pstate, ai_state_t * pself )
     if( NULL != pcap && NULL != pmad )
     {
         //Do dropped animation
-        pchr->action = ACTION_JB;
+        pchr->inst.action_which = ACTION_JB;
+        pchr->inst.action_ready = bfalse;
+        //pchr->inst.action_keep = btrue;
+
         pchr->inst.ilip = 0;
         pchr->inst.flip = 0;
         pchr->inst.frame_lst = pchr->inst.frame_nxt;
         pchr->inst.frame_nxt = pmad->actionstart[ACTION_JB];
-        pchr->actionready = bfalse;
-        //pchr->keepaction = btrue;
 
         returncode = btrue;
     }
@@ -2971,7 +2973,7 @@ Uint8 scr_TargetIsDefending( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ( ChrList.lst[pself->target].action >= ACTION_PA && ChrList.lst[pself->target].action <= ACTION_PD );
+    returncode = ( ChrList.lst[pself->target].inst.action_which >= ACTION_PA && ChrList.lst[pself->target].inst.action_which <= ACTION_PD );
 
     SCRIPT_FUNCTION_END();
 }
@@ -2984,7 +2986,7 @@ Uint8 scr_TargetIsAttacking( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ( ChrList.lst[pself->target].action >= ACTION_UA && ChrList.lst[pself->target].action <= ACTION_FD );
+    returncode = ( ChrList.lst[pself->target].inst.action_which >= ACTION_UA && ChrList.lst[pself->target].inst.action_which <= ACTION_FD );
 
     SCRIPT_FUNCTION_END();
 }
@@ -4009,12 +4011,14 @@ Uint8 scr_ChildDoActionOverride( script_state_t * pstate, ai_state_t * pself )
     {
         if ( MadList[ChrList.lst[pself->child].inst.imad].actionvalid[pstate->argument] )
         {
-            ChrList.lst[pself->child].action = pstate->argument;
+            ChrList.lst[pself->child].inst.action_which = pstate->argument;
+            ChrList.lst[pself->child].inst.action_ready = bfalse;
+
             ChrList.lst[pself->child].inst.ilip = 0;
             ChrList.lst[pself->child].inst.flip = 0;
             ChrList.lst[pself->child].inst.frame_nxt = MadList[ChrList.lst[pself->child].inst.imad].actionstart[pstate->argument];
             ChrList.lst[pself->child].inst.frame_lst = ChrList.lst[pself->child].inst.frame_nxt;
-            ChrList.lst[pself->child].actionready = bfalse;
+ 
             returncode = btrue;
         }
     }
@@ -5120,7 +5124,7 @@ Uint8 scr_TargetIsSneaking( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ( ChrList.lst[pself->target].action == ACTION_DA || ChrList.lst[pself->target].action == ACTION_WA );
+    returncode = ( ChrList.lst[pself->target].inst.action_which == ACTION_DA || ChrList.lst[pself->target].inst.action_which == ACTION_WA );
 
     SCRIPT_FUNCTION_END();
 }
@@ -5171,12 +5175,14 @@ Uint8 scr_TargetDoActionSetFrame( script_state_t * pstate, ai_state_t * pself )
     {
         if ( MadList[ChrList.lst[pself->target].inst.imad].actionvalid[pstate->argument] )
         {
-            ChrList.lst[pself->target].action = pstate->argument;
+            ChrList.lst[pself->target].inst.action_which = pstate->argument;
+            ChrList.lst[pself->target].inst.action_ready = bfalse;
+
             ChrList.lst[pself->target].inst.ilip = 0;
             ChrList.lst[pself->target].inst.flip = 0;
             ChrList.lst[pself->target].inst.frame_nxt = MadList[ChrList.lst[pself->target].inst.imad].actionstart[pstate->argument];
             ChrList.lst[pself->target].inst.frame_lst = ChrList.lst[pself->target].inst.frame_nxt;
-            ChrList.lst[pself->target].actionready = bfalse;
+
             returncode = btrue;
         }
     }

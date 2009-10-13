@@ -219,6 +219,7 @@ struct s_matrix_cache
     slot_t  grip_slot;                  ///< SLOT_LEFT or SLOT_RIGHT
     Uint16  grip_verts[GRIP_VERTS];     ///< Vertices which describe the weapon grip
     Uint32  vert_update;                ///< last time the object's vertices were updated
+    Uint32  frame_update;               ///< last time the object's animation were updated
 
     //---- data used for both
 
@@ -270,10 +271,17 @@ struct s_chr_instance
     float          flip;            ///< Character's frame in betweening
     float          rate;
 
+    // action info
+    Uint8          action_ready;                   ///< Ready to play a new one
+    Uint8          action_which;                   ///< Character's action
+    bool_t         action_keep;                    ///< Keep the action playing
+    bool_t         action_loop;                    ///< Loop it too
+    Uint8          action_next;                    ///< Character's action to play next
+
     // linear interpolated frame vertices
     Sint32         color_amb;
     fvec4_t        col_amb;
-    Uint8          max_light, min_light;
+    int            max_light, min_light;
 
     size_t         vlst_size;
     GLvertex       vlst[MAXVERTICES];
@@ -283,13 +291,14 @@ struct s_chr_instance
     bool_t         indolist;        ///< Has it been added yet?
 
     // the save data to determine whether re-calculation of vlst is necessary
-    float  save_flip;
-    Uint32 save_frame;
-    int    save_vmin;
-    int    save_vmax;
-    Uint16 save_frame_nxt;
-    Uint16 save_frame_lst;
-    Uint32 save_update_wld;
+    float  save_flip;              ///< the in-betweening  the last time the animation was updated
+    Uint16 save_frame_nxt;         ///< the initial frame  the last time the animation was updated
+    Uint16 save_frame_lst;         ///< the final frame  the last time the animation was updated
+    Uint32 save_frame_wld;         ///< the update_wld the last time the animation was updated
+
+    int    save_vmin;              ///< the minimum clean vertex the last time the vertices were updated
+    int    save_vmax;              ///< the maximum clean vertex the last time the vertices were updated
+    Uint32 save_update_wld;        ///< the update_wld the last time the vertices were updated
 
     // the save data to determine whether re-calculation of lighting data is necessary
     Uint32 save_lighting_update_wld;
@@ -506,13 +515,6 @@ struct s_chr
     Uint32         shadowsize;      ///< Size of shadow
     Uint32         shadowsizesave;  ///< Without size modifiers
     Uint16         ibillboard;      ///< The attached billboard
-
-    // action info
-    Uint8          actionready;                   ///< Ready to play a new one
-    Uint8          action;                        ///< Character's action
-    bool_t         keepaction;                    ///< Keep the action playing
-    bool_t         loopaction;                    ///< Loop it too
-    Uint8          nextaction;                    ///< Character's action to play next
 
     // model info
     bool_t         is_overlay;                    ///< Is this an overlay? Track aitarget...

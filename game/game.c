@@ -646,14 +646,14 @@ void chr_play_action( Uint16 character, Uint16 action, Uint8 actionready )
 
     if ( pmad->actionvalid[action] )
     {
-        pchr->nextaction = ACTION_DA;
-        pchr->action = action;
+        pchr->inst.action_which = action;
+        pchr->inst.action_next  = ACTION_DA;
+        pchr->inst.action_ready = actionready;
 
         pchr->inst.flip = 0;
         pchr->inst.ilip = 0;
         pchr->inst.frame_lst = pchr->inst.frame_nxt;
-        pchr->inst.frame_nxt = pmad->actionstart[pchr->action];
-        pchr->actionready    = actionready;
+        pchr->inst.frame_nxt = pmad->actionstart[pchr->inst.action_which];
     }
 }
 
@@ -676,9 +676,9 @@ void chr_set_frame( Uint16 character, Uint16 action, int frame, Uint16 lip )
     {
         int framesinaction, frame_stt, frame_end;
 
-        pchr->nextaction = ACTION_DA;
-        pchr->action = ACTION_DA;
-        pchr->actionready = btrue;
+        pchr->inst.action_next = ACTION_DA;
+        pchr->inst.action_which = ACTION_DA;
+        pchr->inst.action_ready = btrue;
 
         framesinaction = (pmad->actionend[action] - pmad->actionstart[action]) + 1;
         if ( framesinaction <= 1 )
