@@ -5,7 +5,16 @@
 #make PREFIX=$HOME/.local
 #PREFIX	:= ${HOME}/.local
 
+
+ifndef ($(PREFIX),"")
+	# define a value for prefix assuming that the program will be installed in the root directory
+	PREFIX := /usr
+endif
+
+
 PROJ_NAME	:= egoboo-2.x
+
+.PHONY: all clean
 
 all:
 	make -C enet all
@@ -15,17 +24,23 @@ clean:
 	make -C enet clean
 	make -C game clean
 
-install: ${EGO_BIN}
+enet:
+	make -C enet all
 
-	echo Thank you for installing egoboo! 
-	echo The default install of egoboo will require the commandline "sudo make install", and
-	echo the required password
-	echo
-	echo If you do not have root access on this machine, you can specify a prefix
-	echo on the command line: "make install PREFIX=$HOME/.local", where the environment
-	echo variable PREFIX specifies a virtual root for your installation. In this example,
-	echo it is a local installation for this username, only.
-	echo
+egoboo:
+	make -C game all
+
+install:
+
+	# Thank you for installing egoboo! 
+	# The default install of egoboo will require the commandline "sudo make install", and
+	# the required password
+	#
+	# If you do not have root access on this machine, you can specify a prefix
+	# on the command line: "make install PREFIX=$HOME/.local", where the environment
+	# variable PREFIX specifies a virtual root for your installation. In this example,
+	# it is a local installation for this username, only.
+	#
 
 #	copy the binary to the games folder
 	mkdir -p ${PREFIX}/games/
@@ -39,7 +54,7 @@ install: ${EGO_BIN}
 	mkdir -p ${HOME}/.${PROJ_NAME}
 	cp -r ./players ${HOME}/.${PROJ_NAME}
 
-	#copy the basic configuration files to the config directory
+#	copy the basic configuration files to the config directory
 	mkdir -p ${PREFIX}/etc/${PROJ_NAME}
 	cp -r setup.txt ${PREFIX}/etc/${PROJ_NAME}/setup.txt
 	cp -r controls.txt ${PREFIX}/etc/${PROJ_NAME}/controls.txt

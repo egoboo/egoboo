@@ -33,6 +33,7 @@ INC     := -I. -I.. -I../enet/include ${SDLCONF_I} -I./file_formats -I./extensio
 CFLAGS  := ${OPT} ${INC}
 LDFLAGS := ${SDLCONF_L} -lSDL_ttf -lSDL_mixer -lGL -lGLU -lSDL_image -lphysfs
 
+.PHONY: all clean
 
 EGO_BIN := egoboo-2.x
 
