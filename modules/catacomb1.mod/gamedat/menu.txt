@@ -13,12 +13,12 @@ Level rating ( * to  ***** ) 		:******
 // Module summary ( Must be 8 lines...  Each line mush have at least an _ )
 :After_descending_into_the_ancient
 :royal_catacombs,_you_find
-:yourselves_within_a_large
-:chamber._Ancient_magic_locks
-:wards_the_entrance_to_the_dens_of
-:hatred._It_is_time_to_find_out
-:whether_the_search_for_the_Sporks
-:was_worth_it...
+:yourselves_within_a_large_chamber
+:Ancient_magic_wards_the_entrance
+:to_the_dens_of_of_hatred._It_is
+:time_to_find_out_wether_the_search
+:for_the_Sporks_was_worth_it...
+:_
 
 
 // Module expansion IDSZs ( with a colon in front )

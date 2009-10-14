@@ -600,4 +600,4 @@ int  load_ai_script( const char *loadname );
 void init_all_ai_scripts();
 void release_all_ai_scripts();
 
-void script_compiter_init();
+void script_compiler_init();

@@ -13,7 +13,7 @@ Level rating ( * to  ***** ) 		:******
 // Module summary ( Must be 8 lines...  Each line mush have at least an _ )
 :You_decend_deeper_into_the_ancient
 :G'nomish_buildt_catacombs_beneath
-:Bishopia_castle._You_can_feel
+:Bishopia_city._You_can_feel
 :the_stinking_evil_of_undead_and
 :devilish_creatures_below,_prepeare
 :yourself!

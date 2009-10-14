@@ -424,16 +424,14 @@ void gfx_init_SDL_graphics()
 
 #ifndef __APPLE__
     {
+        //Setup the cute windows manager icon, don't do this on Mac
         SDL_Surface *theSurface;
+		STRING fileload;
 
-        /* Setup the cute windows manager icon */
-        theSurface = IMG_Load( "basicdat" SLASH_STR "icon.bmp" );
-        if ( theSurface == NULL )
-        {
-            log_error( "Unable to load icon (basicdat" SLASH_STR "icon.bmp)\n" );
-        }
-
-        SDL_WM_SetIcon( theSurface, NULL );
+        strcpy( fileload, "basicdat" SLASH_STR "icon.bmp" );
+		theSurface = IMG_Load( fileload );
+        if ( theSurface == NULL ) log_warning( "Unable to load icon (%s)\n", fileload );
+		else SDL_WM_SetIcon( theSurface, NULL );
     }
 #endif
 
@@ -479,8 +477,7 @@ void gfx_init_SDL_graphics()
     if ( NULL == SDL_GL_set_mode(NULL, &sdl_vparam, &ogl_vparam) )
     {
         log_message( "Failed!\n" );
-        log_info( "I can't get SDL to set any video mode: %s\n", SDL_GetError() );
-        exit(-1);
+        log_error( "I can't get SDL to set any video mode: %s\n", SDL_GetError() );
     }
     else
     {

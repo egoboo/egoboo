@@ -1,4 +1,5 @@
-//SPECIAL Abyss Module stuff
+//-------------------------------------------------------------------------------------
+//Unsummon order
 IfOrdered
   tmpx = selforder
   tmpy = [UNDO]
@@ -49,9 +50,6 @@ IfKilled
   tmpy = selfy
   tmpdistance = selfz
   tmpturn = rand
-  SpawnExactParticle
-  SpawnExactParticle
-  SpawnExactParticle
   SpawnExactParticle
 
 //-------------------------------------------------------------------------------------

@@ -7437,7 +7437,6 @@ const char* describe_damage( float value, float maxval, int * rank_ptr )
     else if( fval >= 1.00 ) { strcpy(retval, "Overkill!");     *rank_ptr =  3; }
     else if( fval >= 0.80 ) { strcpy(retval, "Crippling");     *rank_ptr =  2; }
     else if( fval >= 0.50 ) { strcpy(retval, "Devastating");   *rank_ptr =  1; }
-    else if( fval >= 0.40 ) { strcpy(retval, "It's ");   *rank_ptr =  1; }
     else if( fval >= 0.25 ) { strcpy(retval, "Hurtful");       *rank_ptr =  0; }
     else if( fval >= 0.10 ) { strcpy(retval, "A Scratch");     *rank_ptr = -1; }
     else if( fval >= 0.05 ) { strcpy(retval, "Ticklish");      *rank_ptr = -2; }

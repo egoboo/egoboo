@@ -1,5 +1,5 @@
-// Explosion
-Force spawn ( TRUE or FALSE )				: TRUE
+// Explosion effect
+Force spawn ( TRUE or FALSE )				: FALSE
 Image type ( SOLID, LIGHT, or TRANS )			: LIGHT
 Starting frame ( 0 to 255 )				: 32
 Number of frames ( 1 to 16 )				: 4
@@ -8,7 +8,7 @@ Frame rate randomness ( 0, 1, 3, 7, 15, 31, 63... )	: 31
 Rotation base ( 0 to 65535 )				: 0
 Random rotation add ( 0, 1, 3, 7, 15, 31, 63... )	: 65535
 Rotation rate ( 0 to 1000 )				: 1500
-Starting size ( 0 to 65535 )				: 40000
+Starting size ( 0 to 65535 )				: 45000
 Size increase rate ( 0 to 1000 )			: -500
 Speed limit ( 0.0 to 10.0 )				: 0.0
 Facing rate ( 0 to 1000 )				: 0
@@ -17,7 +17,7 @@ Facing rate ( 0 to 1000 )				: 0
 
 // Ending conditions
 Water ends particle ( TRUE or FALSE )			: FALSE
-Bump ends particle ( TRUE or FALSE )			: FALSE
+Bump ends particle ( TRUE or FALSE )			: TRUE
 End if hits ground ( TRUE or FALSE )			: FALSE
 End after last frame ( TRUE or FALSE )			: TRUE
 Time before end ( 1 to 1000, 0 )			: 0
@@ -25,11 +25,11 @@ Time before end ( 1 to 1000, 0 )			: 0
 
 
 // Collision data
-Bounce dampen ( 0.0 to 0.9 )				: 0.4
+Bounce dampen ( 0.0 to 0.9 )				: 0.0
 Bump money ( 0 to 100 )				: 0
-Bump size ( 0 to 60 )					: 40
-Bump height ( 0 to 60 )					: 45
-Bump damage amount ( 0-0 to 0-16 to 16-16 )			: 0-0.75
+Bump size ( 0 to 60 )					: 0
+Bump height ( 0 to 60 )					: 0
+Bump damage amount ( 0-0 to 0-16 to 16-16 )			: 0
 Bump damage type ( SLASH, CRUSH, POKE, HOLY,
               EVIL, FIRE, ICE, ZAP )				: FIRE
 
@@ -45,12 +45,12 @@ Dynalight falloff ( around 1000 )			: 500
 
 // Initial spawning of this particle
 Facing base ( 0 to 65535 )				: 0
-Facing randomness ( 0, 1, 3, 7, 15, 31, 63... )		: 65535
+Facing randomness ( 0, 1, 3, 7, 15, 31, 63... )		: 0
 XY Spacing ( 0 to 100 )					: 40
 XY Spacing randomness ( 0, 1, 3, 7, 15, 31, 63... )	: 31
 Z Spacing ( -100 to 100 )				: 0
 Z Spacing randomness ( 0, 1, 3, 7, 15, 31, 63... )	: 3
-XY Velocity ( 0 to 100 )				: 0
+XY Velocity ( 0 to 100 )				: 1
 XY Velocity randomness ( 0, 1, 3, 7, 15, 31, 63... )	: 0
 Z Velocity ( -100 to 100 )				: 0
 Z Velocity randomness ( 0, 1, 3, 7, 15, 31, 63... )	: 0

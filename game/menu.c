@@ -2849,7 +2849,7 @@ int doVideoOptions( float deltaTime )
 
             switch ( cfg.scrx_req )
             {
-                    // Normal resolutions
+                // Normal resolutions
                 case 1024: sz_buttons[12] = "1024X768";
                     widescreen = bfalse;
                     break;
@@ -2860,7 +2860,7 @@ int doVideoOptions( float deltaTime )
                     widescreen = bfalse;
                     break;
 
-                    // 1280 can be both widescreen and normal
+                // 1280 can be both widescreen and normal
                 case 1280:
                     if ( cfg.scry_req == 1280 )
                     {

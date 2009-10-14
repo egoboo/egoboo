@@ -99,6 +99,15 @@ IfKilled
   tmpx = selfspawnx
   tmpy = selfspawny
   SpawnExactCharacterXYZ
+  
+  //Do the end text
+  ClearEndMessage
+  tmpargument = 3
+  AddEndMessage
+  tmpargument = 4
+  AddEndMessage
+  tmpargument = 5
+  AddEndMessage
 
 //------------------------------------------------------------------------------
 IfAttacked

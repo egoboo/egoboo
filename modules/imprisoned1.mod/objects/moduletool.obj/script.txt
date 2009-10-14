@@ -66,14 +66,14 @@ IfOrdered
   tmpx = selforder
   tmpy = [BEAT]
   IfXIsEqualToY
-    tmpargument = [IMP1]          //Imprisoned one level 1
+    tmpargument = [IMPA]          //Imprisoned one level 1
     tmpdistance = selfcontent     //Store time left on this level
     AddQuestAllPlayers
     BeatModule
     EnableExport
     EndModule
     ClearEndMessage
-    tmpy = selfcontent / 3000      //BAD! Division doesnt work?
+    tmpy = selfcontent / 60 / 50      //Calculate amount of time left from the ticks
     tmpx = selfcontent / 50
     tmpx = tmpx % 60
     tmpargument = 0

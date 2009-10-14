@@ -29,7 +29,7 @@ Bounce dampen ( 0.0 to 0.9 )				: 0.9
 Bump money ( 0 to 100 )					: 0
 Bump size ( 0 to 60 )					: 20
 Bump height ( 0 to 60 )					: 20
-Bump damage amount ( 0-0 to 0-16 to 16-16 )		: 0.2-0.5
+Bump damage amount ( 0-0 to 0-16 to 16-16 )		: 1
 Bump damage type ( SLASH, CRUSH, POKE, HOLY,
               EVIL, FIRE, ICE, ZAP )			: FIRE
 
