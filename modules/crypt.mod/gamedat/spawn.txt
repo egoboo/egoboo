@@ -115,7 +115,7 @@ Brazier:   NONE      77   38.5 39.5 0.0  S   20  0   4   0   0   F   F   Null
 Brazier:   NONE      77   40.5 26.5 0.0  E   0   0   3   0   0   F   F   Null
 
 FChest:    NONE      53   34.5 10.5 0.0  W   59  0   0   3   0   F   F   Null
-  MagPot:  NONE      38   0    0    0    I   0   0   0   0   0   F   F   Null
+  MagPotion: NONE    38   0    0    0    I   0   0   0   0   0   F   F   Null
   Torch:   NONE      56   0    0    0    I   0   0   0   0   0   F   F   Null
   AnimateMimic: NONE 58   0    0    0    I   0   0   0   0   0   F   F   Null
 MChest:    NONE      52   14.5 9.5  0.0  E   0   0   0   0   0   F   F   Null
@@ -140,11 +140,11 @@ Tranch:    NONE      72   25.5 51.5 0.0  N   0   0   0   0   0   F   F   Evil
 Tranch:    NONE      72   24.5 53.5 0.0  E   0   0   0   0   0   F   F   Evil
 
 //Final room props
-Candles:   NONE      99   48   10   0    N   0   0   0   0   0   F   F   Null
+Candle:    NONE      99   48   10   0    N   0   0   0   0   0   F   F   Null
 FChest:    NONE      53   50.5 8.5  0.0  S   99  0   0   3   0   F   F   Null
   Rot:     NONE      101  0    0    0    I   0   0   0   0   0   F   F   Null
-  Moonbeam: NONE      37   0    0    0    I   0   0   0   0   0   F   F   Null
-  Staff:   NONE      57   0    0    0    R   0   0   0   0   0   F   F   Null
+  Moonbeam:NONE      37   0    0    0    I   0   0   0   0   0   F   F   Null
+  MStaff:  NONE      57   0    0    0    R   0   0   0   0   0   F   F   Null
 RockHead:  NONE      47   48   10   0.0  S   0   0   0   1   0   F   F   Evil
 
 

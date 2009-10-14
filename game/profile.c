@@ -121,9 +121,8 @@ void profile_init()
     // initialize all the profile lists
     init_all_profiles();
 
-    // necessary for loading up the ai script
-    init_all_ai_scripts();
-    load_ai_codes( "basicdat" SLASH_STR "aicodes.txt" );
+    // initialize the script compiler
+    script_compiler_init();
 
     // necessary for loading up the copy.txt file
     load_action_names( "basicdat" SLASH_STR "actions.txt" );

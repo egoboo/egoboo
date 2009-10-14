@@ -747,7 +747,7 @@ int vfs_mkdir(const char *dirName)
 
 	if(!retval)
     {
-        log_debug( "vfs_copyDirectory() - Could not create new folder folder \"%s\". (%s)\n"), dirName, vfs_getError();
+        log_debug( "vfs_copyDirectory() - Could not create new folder folder \"%s\". (%s)\n", dirName, vfs_getError());
     }
 
     return retval;

@@ -1073,7 +1073,7 @@ bool_t looped_stop_object_sounds( Uint16 ichr )
     Uint32 cnt;
     bool_t found;
 
-    if ( MAX_CHR == ichr ) return bfalse;
+    if ( !ALLOCATED_CHR(ichr) ) return bfalse;
 
     // we have to do this a funny way, because it is hard to guarantee how the
     // "delete"/"free" function LoopedList_free_one() will free an entry, and because
@@ -1088,12 +1088,15 @@ bool_t looped_stop_object_sounds( Uint16 ichr )
         {
             int index = LoopedList.used_ref[cnt];
 
-            if ( LoopedList.lst[cnt].object == ichr )
+            if ( LoopedList.lst[index].object == ichr )
             {
+                int channel = LoopedList.lst[index].channel;
+
                 if ( LoopedList_free_one( index ) )
                 {
                     freed++;
                     found = btrue;
+                    sound_stop_channel( channel );
                     break;
                 }
             }

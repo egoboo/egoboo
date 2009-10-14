@@ -5517,7 +5517,7 @@ bool_t game_update_imports()
 
     // build the import directory using the player info
     vfs_empty_import_directory();
-    vfs_mkdir( "import" );
+    vfs_mkdir( "/import" );
 
     // export all of the players directly from memory straight to the "import" dir
     for ( player = 0, cnt = 0; cnt < MAXPLAYER; cnt++ )

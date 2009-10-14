@@ -96,6 +96,8 @@ static int  cmp_matrix_cache(const void * vlhs, const void * vrhs);
 
 static bool_t chr_upload_cap( chr_t * pchr, cap_t * pcap );
 
+void cleanup_one_character( chr_t * pchr );
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 int chr_count_free()
@@ -2684,6 +2686,152 @@ bool_t heal_character( Uint16 character, Uint16 healer, int amount, bool_t ignor
 }
 
 //--------------------------------------------------------------------------------------------
+void cleanup_one_character( chr_t * pchr )
+{
+    /// @details BB@> Everything necessary to disconnecct one character from the game
+
+    int tnc;
+    Uint16 ichr, itmp;
+
+    if( !ALLOCATED_PCHR( pchr ) ) return;
+    ichr = GET_INDEX_PCHR( pchr );
+
+    pchr->sparkle = NOSPARKLE;
+
+     // Remove it from the team
+    pchr->team = pchr->baseteam;
+    TeamList[pchr->team].morale--;
+
+    if ( TeamList[pchr->team].leader == ichr )
+    {
+        // The team now has no leader if the character is the leader
+        TeamList[pchr->team].leader = NOLEADER;
+    }
+
+    // Clear all shop passages that it owned...
+    for (tnc = 0; tnc < ShopStack.count; tnc++ )
+    {
+        if ( ShopStack.lst[tnc].owner != ichr ) continue;
+        ShopStack.lst[tnc].owner = SHOP_NOOWNER;
+    }
+
+    // detach from any mount
+    if ( ACTIVE_CHR(pchr->attachedto) )
+    {
+        detach_character_from_mount( ichr, btrue, bfalse );
+    }
+
+    // drop your left item
+    itmp = pchr->holdingwhich[SLOT_LEFT];
+    if ( ACTIVE_CHR(itmp) )
+    {
+        detach_character_from_mount( itmp, btrue, bfalse );
+    }
+
+    // drop your right item
+    itmp = pchr->holdingwhich[SLOT_RIGHT];
+    if ( ACTIVE_CHR(itmp) )
+    {
+        detach_character_from_mount( itmp, btrue, bfalse );
+    }
+
+    // start with a clean list
+    pchr->firstenchant = cleanup_enchant_list( pchr->firstenchant );
+
+    // remove enchants from the character
+    if( pchr->life >= 0 )
+    {
+        disenchant_character( ichr );
+    }
+    else
+    {
+        eve_t * peve;
+        Uint16 enc_now, enc_next;
+
+        // remove all invalid enchants
+        enc_now = pchr->firstenchant;
+        while ( enc_now != MAX_ENC )
+        {
+            enc_next = EncList.lst[enc_now].nextenchant_ref;
+
+            peve = enc_get_peve(enc_now);
+            if( NULL != peve && !peve->stayifdead )
+            {
+                remove_enchant( enc_now );
+            }
+
+            enc_now = enc_next;
+        }
+    }
+
+
+    // Stop all sound loops for this object
+    looped_stop_object_sounds( ichr );          
+}
+
+//--------------------------------------------------------------------------------------------
+void chr_make_dead( Uint16 ichr )
+{
+    /// @details BB@> Handle a character death. Set various states, disconnect it from the world, etc.
+
+    chr_t * pchr;
+    int tnc, action;
+
+    if( !ALLOCATED_CHR(ichr) ) return;
+    pchr = ChrList.lst + ichr;
+
+    pchr->alive = bfalse;
+    pchr->waskilled = btrue;
+
+    pchr->life = -1;
+    pchr->platform = btrue;
+    pchr->phys.bumpdampen = pchr->phys.bumpdampen / 2.0f;
+
+
+    // Play the death animation
+    action = ACTION_KA + generate_randmask( 0, 3 );
+    chr_play_action( ichr, action, bfalse );
+    pchr->inst.action_keep = btrue;
+
+    //Set various alerts to let others know it has died
+    pchr->ai.alert |= ALERTIF_KILLED;
+    for ( tnc = 0; tnc < MAX_CHR; tnc++ )
+    {
+        chr_t * plistener;
+
+        if ( !ACTIVE_CHR(tnc) ) continue;
+        plistener = ChrList.lst + tnc;
+
+        if( !plistener->alive ) continue;
+
+        // Let the other characters know it died
+        if ( plistener->ai.target == ichr )
+        {
+            plistener->ai.alert |= ALERTIF_TARGETKILLED;
+        }
+    }
+
+    for ( tnc = 0; tnc < MAX_CHR; tnc++ )
+    {
+        chr_t * plistener;
+
+        if ( !ACTIVE_CHR(tnc) ) continue;
+        plistener = ChrList.lst + tnc;
+
+        if( !plistener->alive ) continue;
+
+        // Let the other characters know it died
+        if ( plistener->ai.target == ichr )
+        {
+            plistener->ai.alert |= ALERTIF_TARGETKILLED;
+        }
+    }
+
+    // Detach the character from the game
+    cleanup_one_character( pchr );
+}
+
+//--------------------------------------------------------------------------------------------
 int damage_character( Uint16 character, Uint16 direction,
                        IPair  damage, Uint8 damagetype, Uint8 team,
                        Uint16 attacker, Uint16 effects, bool_t ignoreinvincible )
@@ -2856,45 +3004,15 @@ int damage_character( Uint16 character, Uint16 direction,
                     action = ACTION_HA;
                     if ( pchr->life < 0 )
                     {
-                        eve_t * peve;
-                        Uint16 enc_next, enc_now;
-
-                        // Character has died
-                        pchr->alive = bfalse;
-
-                        // start with a clean list
-                        pchr->firstenchant = cleanup_enchant_list( pchr->firstenchant );
-
-                        // remove all invalid enchants
-                        enc_now = pchr->firstenchant;
-                        while ( enc_now != MAX_ENC )
-                        {
-                            enc_next = EncList.lst[enc_now].nextenchant_ref;
-
-                            peve = enc_get_peve(enc_now);
-                            if( NULL != peve && !peve->stayifdead )
-                            {
-                                remove_enchant( enc_now );
-                            }
-
-                            enc_now = enc_next;
-                        }
-
-                        pchr->waskilled = btrue;
-                        pchr->inst.action_keep = btrue;
-                        pchr->life = -1;
-                        pchr->platform = btrue;
-                        pchr->phys.bumpdampen = pchr->phys.bumpdampen / 2.0f;
-                        action = ACTION_KA;
-
                         // Give kill experience
                         experience = pcap->experienceworth + ( pchr->experience * pcap->experienceexchange );
+
+                        // distribute experience to the attacker
                         if ( ACTIVE_CHR(attacker) )
                         {
                             // Set target
                             pchr->ai.target = attacker;
-                            if ( team == TEAM_DAMAGE )  pchr->ai.target = character;
-                            if ( team == TEAM_NULL )  pchr->ai.target = character;
+                            if ( team == TEAM_DAMAGE || team == TEAM_NULL )  pchr->ai.target = character;
 
                             // Award direct kill experience
                             if ( team_hates_team( ChrList.lst[attacker].team, pchr->team ) )
@@ -2902,7 +3020,7 @@ int damage_character( Uint16 character, Uint16 direction,
                                 give_experience( attacker, experience, XP_KILLENEMY, bfalse );
                             }
 
-                            // Check for hated
+                            // Check for special hatred
                             if ( chr_get_idsz(attacker,IDSZ_HATE) == chr_get_idsz(character,IDSZ_PARENT) ||
                                  chr_get_idsz(attacker,IDSZ_HATE) == chr_get_idsz(character,IDSZ_TYPE) )
                             {
@@ -2910,14 +3028,7 @@ int damage_character( Uint16 character, Uint16 direction,
                             }
                         }
 
-                        // Clear all shop passages that it owned...
-                        for (tnc = 0; tnc < ShopStack.count; tnc++ )
-                        {
-                            if ( ShopStack.lst[tnc].owner != character ) continue;
-                            ShopStack.lst[tnc].owner = SHOP_NOOWNER;
-                        }
-
-                        //Set various alerts to let others know it has died
+                        // distribute experience to whoever needs it
                         for ( tnc = 0; tnc < MAX_CHR; tnc++ )
                         {
                             chr_t * plistener;
@@ -2927,14 +3038,8 @@ int damage_character( Uint16 character, Uint16 direction,
 
                             if( !plistener->alive ) continue;
 
-                            // Let the other characters know it died
-                            if ( plistener->ai.target == character )
-                            {
-                                plistener->ai.alert |= ALERTIF_TARGETKILLED;
-                            }
-
                             // All allies get team experience, but only if they also hate the dead guy's team
-                            if ( !team_hates_team(ChrList.lst[tnc].team,team) && team_hates_team(ChrList.lst[tnc].team,pchr->team) )
+                            if ( !team_hates_team(plistener->team,team) && team_hates_team(plistener->team,pchr->team) )
                             {
                                 give_experience( tnc, experience, XP_TEAMKILL, bfalse );
                             }
@@ -2947,29 +3052,18 @@ int damage_character( Uint16 character, Uint16 direction,
                             }
                         }
 
-                        // The team now has no leader if the character is the leader
-                        if ( TeamList[pchr->team].leader == character )
-                        {
-                            TeamList[pchr->team].leader = NOLEADER;
-                        }
 
-                        detach_character_from_mount( character, btrue, bfalse );
+                        // this needs to be after the experience calculation because
+                        // chr_make_dead() will remove character as the leader of his team.
+                        // That would make it impossible to give ALERTIF_LEADERKILLED experience
+                        chr_make_dead( character );
 
-                        // Play the death animation
-                        action += generate_randmask( 0, 3 );
-                        chr_play_action( character, action, bfalse );
 
                         // If it's a player, let it die properly before enabling respawn
-                        if (pchr->isplayer) revivetimer = ONESECOND; // 1 second
+                        if (pchr->isplayer) revivetimer = ONESECOND; // 1 second                        
 
                         // Afford it one last thought if it's an AI
-                        TeamList[pchr->baseteam].morale--;
-                        pchr->team = pchr->baseteam;
-                        pchr->ai.alert |= ALERTIF_KILLED;
-                        pchr->sparkle = NOSPARKLE;
                         pchr->ai.timer = update_wld + 1;  // No timeout...
-                        looped_stop_object_sounds( character );          // Stop sound loops
-
                         let_character_think( character );
                     }
                     else
@@ -2980,8 +3074,7 @@ int damage_character( Uint16 character, Uint16 direction,
                             chr_play_action( character, action, bfalse );
 
                             // Make the character invincible for a limited time only
-                            if ( !( effects & DAMFX_TIME ) )
-                                pchr->damagetime = DAMAGETIME;
+                            if ( !( effects & DAMFX_TIME ) ) pchr->damagetime = DAMAGETIME;
                         }
                     }
                 }
@@ -5906,7 +5999,6 @@ void cleanup_all_characters()
     {
         chr_t * pchr;
         bool_t time_out;
-        Uint16 itmp;
 
         if ( !ALLOCATED_CHR(cnt) ) continue;
         pchr = ChrList.lst + cnt;
@@ -5914,25 +6006,13 @@ void cleanup_all_characters()
         time_out = (pchr->ai.poof_time >= 0) && (pchr->ai.poof_time <= (Sint32)update_wld);
         if( (ego_object_waiting != pchr->obj_base.state) && !time_out ) continue;
 
-        if ( ACTIVE_CHR(pchr->attachedto) )
-        {
-            detach_character_from_mount( cnt, btrue, bfalse );
-        }
+        // detach the character from the game
+        cleanup_one_character( pchr );
 
-        itmp = pchr->holdingwhich[SLOT_LEFT];
-        if ( ACTIVE_CHR(itmp) )
-        {
-            detach_character_from_mount( itmp, btrue, bfalse );
-        }
-
-        itmp = pchr->holdingwhich[SLOT_RIGHT];
-        if ( ACTIVE_CHR(itmp) )
-        {
-            detach_character_from_mount( itmp, btrue, bfalse );
-        }
-
-        looped_stop_object_sounds( cnt );
+        // free the character's inventory
         free_inventory_in_game( cnt );
+
+        // free the character
         free_one_character_in_game( cnt );
     }
 }

@@ -51,16 +51,16 @@ brazier:   NONE    51  31.5   58.5   1.0   N    0   0  0   0   0   F   F   N
 brazier:   NONE    51  24.5   58.5   1.0   N    0   0  0   0   0   F   F   N
 brazier:   NONE    51  24.5   68.5   1.0   N    0   0  0   0   0   F   F   N
 warlock:   NONE    54  29.5   61.5   1.0   N    58   0  0   55183   3   F   F   E
-  protect2:   NONE    56  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  BattleWard:   NONE    56  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
   fireball:   NONE    57  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 warlock:   NONE    54  28.5   65.5   1.0   N    32   0  0   32976   4   F   F   E
   bstaff:   NONE    58  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-  protect2:   NONE    56  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  BattleWard:   NONE    56  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 warlock:   NONE    54  26.5   63.5   1.0   N    39   0  0   55183   3   F   F   E
-  protect2:   NONE    56  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-  orbstorm:   NONE    60  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  BattleWard:   NONE    56  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  Orbstorm:   NONE    60  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 bookstand:   NONE    53  26.5   65.5   1.0   N    0   0  0   0   0   F   F   N
-  meteor:   NONE    61  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Meteor:   NONE    61  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 bookstand:   NONE    53  29.5   65.5   1.0   N    0   0  0   0   0   F   F   N
 bookshelf:   NONE    50  25.3   60.0   1.0   E    0   0  0   0   0   F   F   N
   skulltrap:   NONE    70  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
