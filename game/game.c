@@ -2070,7 +2070,7 @@ void do_damage_tiles()
                     ( pchr->pos.z <= pchr->enviro.floor_level + DAMAGERAISE ) &&
                     !ACTIVE_CHR(pchr->attachedto) )
             {
-                if ( ( pchr->damagemodifier[damagetile.type]&DAMAGESHIFT ) != 3 && !pchr->invictus ) // 3 means they're pretty well immune
+                if ( !pchr->invictus ) // 3 means they're pretty well immune
                 {
                     distance = ABS( PCamera->track_pos.x - pchr->pos.x ) + ABS( PCamera->track_pos.y - pchr->pos.y );
                     if ( distance < damagetile.min_distance )
@@ -7370,7 +7370,7 @@ Uint8 gel_local_alpha( Uint16 iobj )
         alpha *= local_seeinvis_level + 1;
     }
 
-    return CLIP_TO_08BITS(alpha);
+    return CLIP(alpha, 0, 255);
 }
 
 //--------------------------------------------------------------------------------------------

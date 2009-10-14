@@ -175,7 +175,7 @@ ItemChest: NONE      43   51.5 54.5 0    N   0   0   0   1   0   F   F   Null
 ExpChest:  NONE      46   41.5 19.5 0    W   0   0   0   1   0   F   F   Null
   SBrace:  NONE      49    0    0   0    I   0   0   0   0   0   F   F   Null
 InviChest: NONE      47   41.5 14.5 0    S   0   0   0   1   0   F   F   Null
-  SordWal: NONE      91    0    0   0    I   0   0   0   0   0   F   F   Null
+  SordWall: NONE      91    0    0   0    I   0   0   0   0   0   F   F   Null
   MPotion: NONE      87    0    0   0    I   0   0   0   0   0   F   F   Null
   MPotion: NONE      87    0    0   0    I   0   0   0   0   0   F   F   Null
   MPotion: NONE      87    0    0   0    I   0   0   0   0   0   F   F   Null
@@ -197,7 +197,7 @@ HotDog:    NONE      40   6.5  27.5 0.0  E   0   0   0   0   0   F   F   Null
 
 Plate:     NONE      121  5.5  55.5 0.0  N   0   0   0   0   0   F   F   Null
 
-Toaster:   NONE      66   7.5  55.5 0.0  N   0   0   0   0   0   F   F   Null
+Toast:     NONE      66   7.5  55.5 0.0  N   0   0   0   0   0   F   F   Null
 
 BossMuse:  NONE      126  5.5  56.5 0.0  N   0   0   0   0   0   F   F   Null
 

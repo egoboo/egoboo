@@ -3902,7 +3902,7 @@ Uint8 scr_set_Frame( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_BreakPassage( script_state_t * pstate, ai_state_t * pself )
 {
-    // BreakPassage( tmpargument = "passage", tmpturn = "tile type", tmpdistance = "number of frames", tmpx = "animate ?", tmpy = "tile fx bits" )
+    // BreakPassage( tmpargument = "passage", tmpturn = "tile type", tmpdistance = "number of frames", tmpx = "borken tile", tmpy = "tile fx bits" )
 
     /// @details ZZ@> This function makes the tiles fall away ( turns into damage terrain )
     /// This function causes the tiles of a passage to increment if stepped on.
@@ -3911,7 +3911,7 @@ Uint8 scr_BreakPassage( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = _break_passage( pstate->x, pstate->y, pstate->distance, CLIP_TO_16BITS( pstate->turn ), pstate->argument, &(pstate->x), &(pstate->y) );
+    returncode = _break_passage( pstate->y, pstate->x, pstate->distance, pstate->turn, pstate->argument, &(pstate->x), &(pstate->y) );
 
     SCRIPT_FUNCTION_END();
 }
@@ -7072,10 +7072,10 @@ Uint8 scr_set_ChildContent( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-Uint8 _break_passage( int meshxfor, int become, int frames, int starttile, int passage, int *ptilex, int *ptiley )
+Uint8 _break_passage( int mesh_fx_or, int become, int frames, int starttile, int passage, int *ptilex, int *ptiley )
 {
     /// @details ZZ@> This function breaks the tiles of a passage if there is a character standing
-    ///    on 'em.  Turns the tiles into damage terrain if it reaches last frame.
+    ///               on 'em.  Turns the tiles into damage terrain if it reaches last frame.
 
     Uint16 tile, endtile;
     Uint32 fan;
@@ -7083,11 +7083,18 @@ Uint8 _break_passage( int meshxfor, int become, int frames, int starttile, int p
 
     if ( INVALID_PASSAGE( passage ) ) return bfalse;
 
-    endtile = CLIP_TO_16BITS( starttile ) + frames - 1;
+    // limit the start tile the the 256 tile images that we have
+    starttile = CLIP_TO_08BITS(starttile);
+
+    // same with the end tile
+    endtile   =  starttile + frames - 1;
+    endtile = CLIP(endtile, 0, 255);
+
     useful = bfalse;
     for ( character = 0; character < MAX_CHR; character++ )
     {
         chr_t * pchr;
+        float lerp_z;
 
         if ( !ACTIVE_CHR(character) ) continue;
         pchr = ChrList.lst + character;
@@ -7098,13 +7105,18 @@ Uint8 _break_passage( int meshxfor, int become, int frames, int starttile, int p
         // nothing flying
         if( 0 != pchr->flyheight ) continue;
 
-        if ( pchr->phys.weight <= 20 || pchr->pos.z > pchr->enviro.floor_level + 20 ) continue;
+        lerp_z = (pchr->pos.z - pchr->enviro.floor_level) / DAMAGERAISE;
+        lerp_z = 1.0f - CLIP(lerp_z, 0.0f, 1.0f);
+
+        if ( pchr->phys.weight * lerp_z <= 20 ) continue;
 
         fan = mesh_get_tile( PMesh, pchr->pos.x, pchr->pos.y );
         if ( VALID_TILE(PMesh, fan) )
         {
-            tile = PMesh->mmem.tile_list[fan].img;
-            if ( tile >= CLIP_TO_16BITS(starttile) && tile < endtile )
+            int img      = PMesh->mmem.tile_list[fan].img & 0x00FF;
+            int highbits = PMesh->mmem.tile_list[fan].img & 0xFF00;
+
+            if ( img >= starttile && img < endtile )
             {
                 if ( object_is_in_passage( passage, pchr->pos.x, pchr->pos.y, pchr->bump.size ) )
                 {
@@ -7114,19 +7126,24 @@ Uint8 _break_passage( int meshxfor, int become, int frames, int starttile, int p
 
                     useful = btrue;
 
-                    // Change the tile
-                    tile++;
-                    if ( tile == endtile )
-                    {
-                        PMesh->mmem.tile_list[fan].fx |= meshxfor;
-                        if ( become != 0 )
-                        {
-                            tile = become;
-                        }
-                    }
-
-                    mesh_set_texture(PMesh, fan, tile);
+                    // Change the tile image
+                    img++;
                 }
+            }
+
+            if ( img == endtile )
+            {
+                useful = btrue;
+                PMesh->mmem.tile_list[fan].fx |= mesh_fx_or;
+                if ( become != 0 )
+                {
+                    img = become;
+                }
+            }
+
+            if( PMesh->mmem.tile_list[fan].img != (img | highbits) )
+            {
+                mesh_set_texture(PMesh, fan, img | highbits);
             }
         }
     }
