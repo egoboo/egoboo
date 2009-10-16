@@ -1005,12 +1005,21 @@ bool_t mesh_make_bbox( ego_mpd_t * pmesh )
 //------------------------------------------------------------------------------
 bool_t mesh_make_normals( ego_mpd_t * pmesh )
 {
-    int i, ix, iy, jx, jy;
+    /// @details BB@> this function calculates a set of normals for the 4 corners
+    ///               of a given tile. It is supposed to generate smooth normals for
+    ///               most tiles, but where there is a creas (i.e. between the floor and
+    ///               a wall) the normals should not be smoothed.
+
+    int i, ix, iy;
     int dx, dy;
     Uint32 fan0, fan1;
     int wt_cnt;
-    fvec3_t   vec0, vec1, vec_sum;
+    fvec3_t   vec0, vec1;
     mesh_mem_t * pmem;
+
+    int     edge_is_crease[4];
+    fvec3_t nrm_lst[4], vec_sum;
+    float   weight_lst[4];
 
     // test for mesh
     if ( NULL == pmesh ) return bfalse;
@@ -1031,89 +1040,184 @@ bool_t mesh_make_normals( ego_mpd_t * pmesh )
     {
         for (ix = 0; ix < pmesh->info.tiles_x; ix++)
         {
-            int ivrt;
+            Uint8 twist;
+            int ix_off[4] = {0,1, 1, 0};
+            int iy_off[4] = {0,0, 1, 1};
+            int i,j,k;
 
             fan0 = mesh_get_tile_int(pmesh, ix, iy);
-            if ( !VALID_TILE(pmesh, fan0) ) continue;
+            if( !VALID_TILE(pmesh, fan0) ) continue;
 
-            // the start of the 4 corner vertices for this tile
-            ivrt = pmem->tile_list[fan0].vrtstart;
+            nrm_lst[0].x = pmem->nlst[fan0][XX];
+            nrm_lst[0].y = pmem->nlst[fan0][YY];
+            nrm_lst[0].z = pmem->nlst[fan0][ZZ];
 
-            vec0.x = pmem->nlst[fan0][XX];
-            vec0.y = pmem->nlst[fan0][YY];
-            vec0.z = pmem->nlst[fan0][ZZ];
-            if ( vec0.z < 0 )
+            // for each corner of this tile
+            for( i=0; i<4; i++ )
             {
-                vec0.x *= -1.0f;
-                vec0.y *= -1.0f;
-                vec0.z *= -1.0f;
-            }
+                int dx, dy;
+                int loc_ix_off[4];
+                int loc_iy_off[4];
 
-            for ( i = 0; i < 4; i++)
-            {
-                int dx_min, dx_max, dy_min, dy_max;
-                int ix_off[4] = {0, 1, 1, 0}, iy_off[4] = {0, 0, 1, 1};
+                // the offset list needs to be shifted depending on what i is
+                j = (6 - i) % 4;
 
-                dx_min = ix_off[i] - 1;
-                dx_max = ix_off[i];
+                if( 1 == ix_off[4-j] ) dx = -1; else dx = 0;
+                if( 1 == iy_off[4-j] ) dy = -1; else dy = 0;
 
-                dy_min = iy_off[i] - 1;
-                dy_max = iy_off[i];
-
-                wt_cnt = 0;
-                vec_sum.x = vec_sum.y = vec_sum.z = 0.0f;
-                for (dy = dy_min; dy <= dy_max; dy++)
+                for(k=0; k<4; k++)
                 {
-                    jy = iy + dy;
-                    for (dx = dx_min; dx <= dx_max; dx++)
+                    loc_ix_off[k] = ix_off[ (4-j + k) % 4 ] + dx;
+                    loc_iy_off[k] = iy_off[ (4-j + k) % 4 ] + dy;
+                }
+
+                // cache the normals
+                // nrm_lst[0] is already known.
+                for ( j = 1; j < 4; j++)
+                {
+                    int jx, jy;
+
+                    jx = ix + loc_ix_off[j];
+                    jy = iy + loc_iy_off[j];
+
+                    fan1 = mesh_get_tile_int(pmesh, jx, jy);
+
+                    if( VALID_TILE(pmesh, fan1) )
                     {
-                        jx = ix + dx;
+                        nrm_lst[j].x = pmem->nlst[fan1][XX];
+                        nrm_lst[j].y = pmem->nlst[fan1][YY];
+                        nrm_lst[j].z = pmem->nlst[fan1][ZZ];
 
-                        fan1 = mesh_get_tile_int(pmesh, jx, jy);
-                        if ( VALID_TILE(pmesh, fan1) )
+                        if ( nrm_lst[j].z < 0 )
                         {
-                            float wt;
-
-                            vec1.x = pmem->nlst[fan1][XX];
-                            vec1.y = pmem->nlst[fan1][YY];
-                            vec1.z = pmem->nlst[fan1][ZZ];
-                            if ( vec1.z < 0 )
-                            {
-                                vec1.x *= -1.0f;
-                                vec1.y *= -1.0f;
-                                vec1.z *= -1.0f;
-                            }
-
-                            wt = fvec3_dot_product( vec0.v, vec1.v );
-                            if ( wt > 0 )
-                            {
-                                vec_sum.x += wt * vec1.x;
-                                vec_sum.y += wt * vec1.y;
-                                vec_sum.z += wt * vec1.z;
-
-                                wt_cnt += 1;
-                            }
+                            nrm_lst[j].x *= -1.0f;
+                            nrm_lst[j].y *= -1.0f;
+                            nrm_lst[j].z *= -1.0f;
                         }
+                    }
+                    else
+                    {
+                        nrm_lst[j].x = 0;
+                        nrm_lst[j].y = 0;
+                        nrm_lst[j].z = 1;
                     }
                 }
 
-                if ( wt_cnt > 1 )
+                // find the creases
+                for ( j = 0; j < 4; j++)
                 {
-                    vec_sum = fvec3_normalize( vec_sum.v );
+                    float vdot;
+                    int k = (j + 1) % 4;
 
-                    pmem->ncache[fan0][i][XX] = vec_sum.x;
-                    pmem->ncache[fan0][i][YY] = vec_sum.y;
-                    pmem->ncache[fan0][i][ZZ] = vec_sum.z;
+                    vdot = fvec3_dot_product( nrm_lst[j].v, nrm_lst[k].v );
+
+                    edge_is_crease[j] = (vdot < INV_SQRT_TWO);
+
+                    weight_lst[j] = fvec3_dot_product( nrm_lst[j].v, nrm_lst[0].v );
                 }
-                else
+
+                weight_lst[0] = 1.0f;
+                if( edge_is_crease[0] )
                 {
-                    pmem->ncache[fan0][i][XX] = vec0.x;
-                    pmem->ncache[fan0][i][YY] = vec0.y;
-                    pmem->ncache[fan0][i][ZZ] = vec0.z;
+                    // this means that there is a crease between tile 0 and 1
+                    weight_lst[1] = 0.0f;
                 }
+
+                if( edge_is_crease[3] )
+                {
+                    // this means that there is a crease between tile 0 and 3
+                    weight_lst[3] = 0.0f;
+                }
+
+                if( edge_is_crease[0] && edge_is_crease[3] )
+                {
+                    // this means that there is a crease between tile 0 and 1
+                    // and a crease between tile 0 and 3, isolating tile 2
+                    weight_lst[2] = 0.0f;
+                }
+
+                vec_sum = nrm_lst[0];
+                for ( j = 1; j < 4; j++)
+                {
+                    if( weight_lst[j] > 0.0f )
+                    {
+                        vec_sum.x += nrm_lst[j].x * weight_lst[j];
+                        vec_sum.y += nrm_lst[j].y * weight_lst[j];
+                        vec_sum.z += nrm_lst[j].z * weight_lst[j];
+                    }
+                }
+
+                vec_sum = fvec3_normalize( vec_sum.v );
+
+                pmem->ncache[fan0][i][XX] = vec_sum.x;
+                pmem->ncache[fan0][i][YY] = vec_sum.y;
+                pmem->ncache[fan0][i][ZZ] = vec_sum.z;
             }
         }
     }
+
+
+
+
+
+
+    //            dy_min = iy_off[i] - 1;
+    //            dy_max = iy_off[i];
+
+    //            wt_cnt = 0;
+    //            vec_sum.x = vec_sum.y = vec_sum.z = 0.0f;
+    //            for (dy = dy_min; dy <= dy_max; dy++)
+    //            {
+    //                jy = iy + dy;
+    //                for (dx = dx_min; dx <= dx_max; dx++)
+    //                {
+    //                    jx = ix + dx;
+
+    //                    fan1 = mesh_get_tile_int(pmesh, jx, jy);
+    //                    if ( VALID_TILE(pmesh, fan1) )
+    //                    {
+    //                        float wt;
+
+    //                        vec1.x = pmem->nlst[fan1][XX];
+    //                        vec1.y = pmem->nlst[fan1][YY];
+    //                        vec1.z = pmem->nlst[fan1][ZZ];
+    //                        if ( vec1.z < 0 )
+    //                        {
+    //                            vec1.x *= -1.0f;
+    //                            vec1.y *= -1.0f;
+    //                            vec1.z *= -1.0f;
+    //                        }
+
+    //                        wt = fvec3_dot_product( vec0.v, vec1.v );
+    //                        if ( wt > 0 )
+    //                        {
+    //                            vec_sum.x += wt * vec1.x;
+    //                            vec_sum.y += wt * vec1.y;
+    //                            vec_sum.z += wt * vec1.z;
+
+    //                            wt_cnt += 1;
+    //                        }
+    //                    }
+    //                }
+    //            }
+
+    //            if ( wt_cnt > 1 )
+    //            {
+    //                vec_sum = fvec3_normalize( vec_sum.v );
+
+    //                pmem->ncache[fan0][i][XX] = vec_sum.x;
+    //                pmem->ncache[fan0][i][YY] = vec_sum.y;
+    //                pmem->ncache[fan0][i][ZZ] = vec_sum.z;
+    //            }
+    //            else
+    //            {
+    //                pmem->ncache[fan0][i][XX] = vec0.x;
+    //                pmem->ncache[fan0][i][YY] = vec0.y;
+    //                pmem->ncache[fan0][i][ZZ] = vec0.z;
+    //            }
+    //        }
+    //    }
+    //}
 
     return btrue;
 }
