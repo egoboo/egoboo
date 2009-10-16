@@ -2965,15 +2965,17 @@ bool_t project_lighting( lighting_cache_t * dst, lighting_cache_t * src, fmat_4x
     // blank the destination lighting
     if ( NULL == dst ) return bfalse;
 
-    dst->max_light = 0.0f;
+    dst->low.min_light = dst->low.max_light = 0.0f;
+    dst->hgh.min_light = dst->hgh.max_light = 0.0f;
     for ( cnt = 0; cnt < 6; cnt++)
     {
-        dst->lighting_low[cnt] = 0.0f;
-        dst->lighting_hgh[cnt] = 0.0f;
+        dst->low.lighting[cnt] = 0.0f;
+        dst->hgh.lighting[cnt] = 0.0f;
     }
 
     if ( NULL == src ) return bfalse;
-    if ( src->max_light <= 0.0f ) return btrue;
+    if ( src->low.min_light == 0.0f && src->low.max_light == 0.0f && 
+         src->hgh.min_light == 0.0f && src->hgh.max_light == 0.0f ) return btrue;
 
     // grab the character directions
     fwd   = mat_getChrForward( mat );         // along body-fixed +y-axis
@@ -2989,12 +2991,16 @@ bool_t project_lighting( lighting_cache_t * dst, lighting_cache_t * src, fmat_4x
     project_sum_lighting( dst, src, fwd,   2 );
     project_sum_lighting( dst, src, up,    4 );
 
-    // determine the maximum lighting amount
-    dst->max_light = 0.0f;
-    for ( cnt = 0; cnt < 6; cnt++ )
+    // determine the lighting extents
+    dst->low.max_light = dst->low.min_light = dst->low.lighting[0];
+    dst->hgh.max_light = dst->hgh.min_light = dst->hgh.lighting[0];
+    for ( cnt = 1; cnt < 6; cnt++ )
     {
-        dst->max_light = MAX(dst->max_light, ABS(dst->lighting_low[cnt]));
-        dst->max_light = MAX(dst->max_light, ABS(dst->lighting_hgh[cnt]));
+        dst->low.min_light = MIN(dst->low.min_light, dst->low.lighting[cnt]);
+        dst->low.max_light = MAX(dst->low.max_light, dst->low.lighting[cnt]);
+
+        dst->hgh.min_light = MIN(dst->hgh.min_light, dst->hgh.lighting[cnt]);
+        dst->hgh.max_light = MAX(dst->hgh.max_light, dst->hgh.lighting[cnt]);
     }
 
     return btrue;
@@ -3008,11 +3014,12 @@ bool_t interpolate_lighting( lighting_cache_t * dst, lighting_cache_t * src[], f
 
     if ( NULL == dst ) return bfalse;
 
-    dst->max_light = 0.0f;
-    for ( cnt = 0; cnt < 6; cnt++ )
+    dst->low.min_light = dst->low.max_light = 0.0f;
+    dst->hgh.min_light = dst->hgh.max_light = 0.0f;
+    for ( cnt = 0; cnt < 6; cnt++)
     {
-        dst->lighting_low[cnt] = 0.0f;
-        dst->lighting_hgh[cnt] = 0.0f;
+        dst->low.lighting[cnt] = 0.0f;
+        dst->hgh.lighting[cnt] = 0.0f;
     }
 
     if ( NULL == src ) return bfalse;
@@ -3027,8 +3034,8 @@ bool_t interpolate_lighting( lighting_cache_t * dst, lighting_cache_t * src[], f
         float wt = (1 - u) * (1 - v);
         for (tnc = 0; tnc < 6; tnc++)
         {
-            dst->lighting_low[tnc] += src[0]->lighting_low[tnc] * wt;
-            dst->lighting_hgh[tnc] += src[0]->lighting_hgh[tnc] * wt;
+            dst->low.lighting[tnc] += src[0]->low.lighting[tnc] * wt;
+            dst->hgh.lighting[tnc] += src[0]->hgh.lighting[tnc] * wt;
         }
         wt_sum += wt;
     }
@@ -3038,8 +3045,8 @@ bool_t interpolate_lighting( lighting_cache_t * dst, lighting_cache_t * src[], f
         float wt = u * (1 - v);
         for (tnc = 0; tnc < 6; tnc++)
         {
-            dst->lighting_low[tnc] += src[1]->lighting_low[tnc] * wt;
-            dst->lighting_hgh[tnc] += src[1]->lighting_hgh[tnc] * wt;
+            dst->low.lighting[tnc] += src[1]->low.lighting[tnc] * wt;
+            dst->hgh.lighting[tnc] += src[1]->hgh.lighting[tnc] * wt;
         }
         wt_sum += wt;
     }
@@ -3049,8 +3056,8 @@ bool_t interpolate_lighting( lighting_cache_t * dst, lighting_cache_t * src[], f
         float wt = (1 - u) * v;
         for (tnc = 0; tnc < 6; tnc++)
         {
-            dst->lighting_low[tnc] += src[2]->lighting_low[tnc] * wt;
-            dst->lighting_hgh[tnc] += src[2]->lighting_hgh[tnc] * wt;
+            dst->low.lighting[tnc] += src[2]->low.lighting[tnc] * wt;
+            dst->hgh.lighting[tnc] += src[2]->hgh.lighting[tnc] * wt;
         }
         wt_sum += wt;
     }
@@ -3060,8 +3067,8 @@ bool_t interpolate_lighting( lighting_cache_t * dst, lighting_cache_t * src[], f
         float wt = u * v;
         for (tnc = 0; tnc < 6; tnc++)
         {
-            dst->lighting_low[tnc] += src[3]->lighting_low[tnc] * wt;
-            dst->lighting_hgh[tnc] += src[3]->lighting_hgh[tnc] * wt;
+            dst->low.lighting[tnc] += src[3]->low.lighting[tnc] * wt;
+            dst->hgh.lighting[tnc] += src[3]->hgh.lighting[tnc] * wt;
         }
         wt_sum += wt;
     }
@@ -3072,15 +3079,21 @@ bool_t interpolate_lighting( lighting_cache_t * dst, lighting_cache_t * src[], f
         {
             for (tnc = 0; tnc < 6; tnc++)
             {
-                dst->lighting_low[tnc] /= wt_sum;
-                dst->lighting_hgh[tnc] /= wt_sum;
+                dst->low.lighting[tnc] /= wt_sum;
+                dst->hgh.lighting[tnc] /= wt_sum;
             }
         }
 
-        for (tnc = 0; tnc < 6; tnc++)
+        // determine the lighting extents
+        dst->low.max_light = dst->low.min_light = dst->low.lighting[0];
+        dst->hgh.max_light = dst->hgh.min_light = dst->hgh.lighting[0];
+        for ( cnt = 1; cnt < 6; cnt++ )
         {
-            dst->max_light = MAX(dst->max_light, ABS(dst->lighting_low[tnc]));
-            dst->max_light = MAX(dst->max_light, ABS(dst->lighting_hgh[tnc]));
+            dst->low.min_light = MIN(dst->low.min_light, dst->low.lighting[cnt]);
+            dst->low.max_light = MAX(dst->low.max_light, dst->low.lighting[cnt]);
+
+            dst->hgh.min_light = MIN(dst->hgh.min_light, dst->hgh.lighting[cnt]);
+            dst->hgh.max_light = MAX(dst->hgh.max_light, dst->hgh.lighting[cnt]);
         }
     }
 
@@ -3097,53 +3110,53 @@ bool_t project_sum_lighting( lighting_cache_t * dst, lighting_cache_t * src, fve
 
     if ( vec.x > 0 )
     {
-        dst->lighting_low[dir+0] += ABS(vec.x) * src->lighting_low[0];
-        dst->lighting_low[dir+1] += ABS(vec.x) * src->lighting_low[1];
+        dst->low.lighting[dir+0] += ABS(vec.x) * src->low.lighting[0];
+        dst->low.lighting[dir+1] += ABS(vec.x) * src->low.lighting[1];
 
-        dst->lighting_hgh[dir+0] += ABS(vec.x) * src->lighting_hgh[0];
-        dst->lighting_hgh[dir+1] += ABS(vec.x) * src->lighting_hgh[1];
+        dst->hgh.lighting[dir+0] += ABS(vec.x) * src->hgh.lighting[0];
+        dst->hgh.lighting[dir+1] += ABS(vec.x) * src->hgh.lighting[1];
     }
     else if (vec.x < 0)
     {
-        dst->lighting_low[dir+0] += ABS(vec.x) * src->lighting_low[1];
-        dst->lighting_low[dir+1] += ABS(vec.x) * src->lighting_low[0];
+        dst->low.lighting[dir+0] += ABS(vec.x) * src->low.lighting[1];
+        dst->low.lighting[dir+1] += ABS(vec.x) * src->low.lighting[0];
 
-        dst->lighting_hgh[dir+0] += ABS(vec.x) * src->lighting_hgh[1];
-        dst->lighting_hgh[dir+1] += ABS(vec.x) * src->lighting_hgh[0];
+        dst->hgh.lighting[dir+0] += ABS(vec.x) * src->hgh.lighting[1];
+        dst->hgh.lighting[dir+1] += ABS(vec.x) * src->hgh.lighting[0];
     }
 
     if ( vec.y > 0 )
     {
-        dst->lighting_low[dir+0] += ABS(vec.y) * src->lighting_low[2];
-        dst->lighting_low[dir+1] += ABS(vec.y) * src->lighting_low[3];
+        dst->low.lighting[dir+0] += ABS(vec.y) * src->low.lighting[2];
+        dst->low.lighting[dir+1] += ABS(vec.y) * src->low.lighting[3];
 
-        dst->lighting_hgh[dir+0] += ABS(vec.y) * src->lighting_hgh[2];
-        dst->lighting_hgh[dir+1] += ABS(vec.y) * src->lighting_hgh[3];
+        dst->hgh.lighting[dir+0] += ABS(vec.y) * src->hgh.lighting[2];
+        dst->hgh.lighting[dir+1] += ABS(vec.y) * src->hgh.lighting[3];
     }
     else if (vec.y < 0)
     {
-        dst->lighting_low[dir+0] += ABS(vec.y) * src->lighting_low[3];
-        dst->lighting_low[dir+1] += ABS(vec.y) * src->lighting_low[2];
+        dst->low.lighting[dir+0] += ABS(vec.y) * src->low.lighting[3];
+        dst->low.lighting[dir+1] += ABS(vec.y) * src->low.lighting[2];
 
-        dst->lighting_hgh[dir+0] += ABS(vec.y) * src->lighting_hgh[3];
-        dst->lighting_hgh[dir+1] += ABS(vec.y) * src->lighting_hgh[2];
+        dst->hgh.lighting[dir+0] += ABS(vec.y) * src->hgh.lighting[3];
+        dst->hgh.lighting[dir+1] += ABS(vec.y) * src->hgh.lighting[2];
     }
 
     if ( vec.z > 0 )
     {
-        dst->lighting_low[dir+0] += ABS(vec.z) * src->lighting_low[4];
-        dst->lighting_low[dir+1] += ABS(vec.z) * src->lighting_low[5];
+        dst->low.lighting[dir+0] += ABS(vec.z) * src->low.lighting[4];
+        dst->low.lighting[dir+1] += ABS(vec.z) * src->low.lighting[5];
 
-        dst->lighting_hgh[dir+0] += ABS(vec.z) * src->lighting_hgh[4];
-        dst->lighting_hgh[dir+1] += ABS(vec.z) * src->lighting_hgh[5];
+        dst->hgh.lighting[dir+0] += ABS(vec.z) * src->hgh.lighting[4];
+        dst->hgh.lighting[dir+1] += ABS(vec.z) * src->hgh.lighting[5];
     }
     else if (vec.z < 0)
     {
-        dst->lighting_low[dir+0] += ABS(vec.z) * src->lighting_low[5];
-        dst->lighting_low[dir+1] += ABS(vec.z) * src->lighting_low[4];
+        dst->low.lighting[dir+0] += ABS(vec.z) * src->low.lighting[5];
+        dst->low.lighting[dir+1] += ABS(vec.z) * src->low.lighting[4];
 
-        dst->lighting_hgh[dir+0] += ABS(vec.z) * src->lighting_hgh[5];
-        dst->lighting_hgh[dir+1] += ABS(vec.z) * src->lighting_hgh[4];
+        dst->hgh.lighting[dir+0] += ABS(vec.z) * src->hgh.lighting[5];
+        dst->hgh.lighting[dir+1] += ABS(vec.z) * src->hgh.lighting[4];
     }
 
     return btrue;
@@ -5210,14 +5223,22 @@ void do_grid_dynalight( ego_mpd_t * pmesh, camera_t * pcam )
         }
 
         // average this in with the existing lighting
-        cache->max_light = 0.0f;
-        for ( tnc = 0; tnc < 6; tnc++ )
+        cache->low.lighting[0] = cache->low.lighting[0] * 0.9f + local_lighting_low[0] * 0.1f;
+        cache->low.min_light = cache->low.max_light = cache->low.lighting[0];
+        for ( tnc = 1; tnc < 6; tnc++ )
         {
-            cache->lighting_low[tnc] = cache->lighting_low[tnc] * 0.9f + local_lighting_low[tnc] * 0.1f;
-            cache->max_light = MAX(cache->max_light, ABS(cache->lighting_low[tnc]));
+            cache->low.lighting[tnc] = cache->low.lighting[tnc] * 0.9f + local_lighting_low[tnc] * 0.1f;
+            cache->low.min_light = MIN(cache->low.min_light, cache->low.lighting[tnc]);
+            cache->low.max_light = MAX(cache->low.max_light, cache->low.lighting[tnc]);
+        }
 
-            cache->lighting_hgh[tnc] = cache->lighting_hgh[tnc] * 0.9f + local_lighting_hgh[tnc] * 0.1f;
-            cache->max_light = MAX(cache->max_light, ABS(cache->lighting_hgh[tnc]));
+        cache->hgh.lighting[0] = cache->hgh.lighting[0] * 0.9f + local_lighting_hgh[0] * 0.1f;
+        cache->hgh.min_light = cache->hgh.max_light = cache->hgh.lighting[0];
+        for ( tnc = 1; tnc < 6; tnc++ )
+        {
+            cache->hgh.lighting[tnc] = cache->hgh.lighting[tnc] * 0.9f + local_lighting_hgh[tnc] * 0.1f;
+            cache->hgh.min_light = MIN(cache->hgh.min_light, cache->hgh.lighting[tnc]);
+            cache->hgh.max_light = MAX(cache->hgh.max_light, cache->hgh.lighting[tnc]);
         }
     }
 }

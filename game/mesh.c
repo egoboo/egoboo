@@ -1010,11 +1010,8 @@ bool_t mesh_make_normals( ego_mpd_t * pmesh )
     ///               most tiles, but where there is a creas (i.e. between the floor and
     ///               a wall) the normals should not be smoothed.
 
-    int i, ix, iy;
-    int dx, dy;
+    int ix, iy;
     Uint32 fan0, fan1;
-    int wt_cnt;
-    fvec3_t   vec0, vec1;
     mesh_mem_t * pmem;
 
     int     edge_is_crease[4];
@@ -1040,7 +1037,6 @@ bool_t mesh_make_normals( ego_mpd_t * pmesh )
     {
         for (ix = 0; ix < pmesh->info.tiles_x; ix++)
         {
-            Uint8 twist;
             int ix_off[4] = {0,1, 1, 0};
             int iy_off[4] = {0,0, 1, 1};
             int i,j,k;
@@ -1366,7 +1362,7 @@ bool_t mesh_light_corners( ego_mpd_t * pmesh, int fan1 )
         float light;
 
         GLXvector3f    * pnrm;
-        Uint8          * plight;
+        float          * plight;
         GLXvector3f    * ppos;
 
         pnrm   = (*ncache) + corner;
@@ -1452,11 +1448,9 @@ float grid_get_mix(float u0, float u, float v0, float v)
 float evaluate_lighting_cache( lighting_cache_t * src, GLfloat nrm[], float z, aabb_t bbox, float * light_amb, float * light_dir )
 {
     float lighting;
-    float hgh_wt, low_wt;
+    float hgh_wt, low_wt, amb, lighting_amb;
 
     if ( NULL == src || NULL == nrm ) return 0.0f;
-
-    if ( src->max_light <= 0.0f ) return 0.0f;
 
     hgh_wt = (z - bbox.mins[ZZ]) / (bbox.maxs[ZZ] - bbox.mins[ZZ]);
     hgh_wt = CLIP( hgh_wt, 0.0f, 1.0f);
@@ -1464,93 +1458,138 @@ float evaluate_lighting_cache( lighting_cache_t * src, GLfloat nrm[], float z, a
     low_wt = 1.0f - hgh_wt;
 
     lighting = 0.0f;
+    lighting_amb = 0.0f;
     if( low_wt > 0.0f )
     {
-        lighting += low_wt * evaluate_lighting_vector( src->lighting_low, nrm );
+        lighting += low_wt * evaluate_lighting_cache_base( &(src->low), nrm, &amb );
+        lighting_amb += low_wt * amb;
     }
     if( hgh_wt > 0.0f )
     {
-        lighting += hgh_wt * evaluate_lighting_vector( src->lighting_hgh, nrm );
+        lighting += hgh_wt * evaluate_lighting_cache_base( &(src->hgh), nrm, &amb );
+        lighting_amb += hgh_wt * amb;
     }
 
-    if( NULL != light_amb || NULL != light_dir )
+    if( NULL != light_amb )
     {
-        if( lighting <= 0.0f )
-        {
-            if( NULL != light_amb )
-            {
-                *light_amb = 0.0f;
-            }
+        *light_amb = lighting_amb;
+    }
 
-            if( NULL != light_dir )
-            {
-                *light_dir = 0.0f;
-            }
-        }
-        else
-        {
-            // we are interested in splitting the light up into ambient and
-            // directional components... do a bit more calculation
-
-            int cnt;
-            float ftmp, lighting_amb;
-
-            lighting_amb = low_wt * src->lighting_low[0] + hgh_wt *src->lighting_hgh[0];
-            for( cnt = 1; cnt < 6; cnt++ )
-            {
-                ftmp = low_wt * src->lighting_low[cnt] + hgh_wt *src->lighting_hgh[cnt];
-                lighting_amb = MIN(lighting_amb, ftmp);
-            }
-
-            if( NULL != light_amb )
-            {
-                *light_amb = lighting_amb;
-            }
-
-            if( NULL != light_dir )
-            {
-                *light_dir = lighting - lighting_amb;
-            }
-        }
+    if( NULL != light_dir )
+    {
+        *light_dir = lighting - lighting_amb;
     }
 
     return lighting;
 }
 
 //--------------------------------------------------------------------------------------------
-float evaluate_lighting_vector( lighting_vector_t lvec, GLfloat nrm[] )
+float evaluate_lighting_cache_base( lighting_cache_base_t * lvec, GLfloat nrm[], float * amb )
 {
-    float lighting;
+    int i;
+    float lighting, lvec_min, local_amb;
 
-    if ( NULL == nrm ) return 0.0f;
+    if( NULL == amb ) amb = &local_amb;
 
+    if ( NULL == lvec )
+    {
+        *amb = 0.0f;
+        return *amb;
+    }
+
+    if( lvec->min_light == lvec->max_light )
+    {
+        // only ambient light, or black
+        *amb = lvec->min_light / 0.362f;
+        return *amb;
+    };
+
+    // check for ambient light
+    lvec_min = 0;
+    if( (lvec->min_light >=0 && lvec->max_light >=0) || (lvec->min_light <=0 && lvec->max_light <=0) )
+    {
+        lvec_min = ABS(lvec->lighting[0]);
+        for(i=1;i<6;i++)
+        {
+            if( ABS(lvec->lighting[i]) < lvec_min ) 
+            {
+                lvec_min = lvec->lighting[i];
+            }
+        }
+    }
+
+    // initialize the lighting sum
     lighting = 0.0f;
 
-    if ( nrm[XX] > 0.0f )
+    // optimize the summing
+    if( lvec_min == 0.0f )
     {
-        lighting += ABS(nrm[XX]) * lvec[0];
-    }
-    else if ( nrm[XX] < 0.0f )
-    {
-        lighting += ABS(nrm[XX]) * lvec[1];
-    }
+        // no ambient light
 
-    if ( nrm[YY] > 0.0f )
-    {
-        lighting += ABS(nrm[YY]) * lvec[2];
-    }
-    else if ( nrm[YY] < 0.0f )
-    {
-        lighting += ABS(nrm[YY]) * lvec[3];
-    }
+        *amb = 0.0f;
 
-    if ( nrm[ZZ] > 0.0f )
-    {
-        lighting += ABS(nrm[ZZ]) * lvec[4];
+        if ( nrm[XX] >= 0.0f )
+        {
+            lighting += nrm[XX] * lvec->lighting[0];
+        }
+        else if ( nrm[XX] < 0.0f )
+        {
+            lighting -= nrm[XX] * lvec->lighting[1];
+        }
+
+        if ( nrm[YY] >= 0.0f )
+        {
+            lighting += nrm[YY] * lvec->lighting[2];
+        }
+        else if ( nrm[YY] < 0.0f )
+        {
+            lighting -= nrm[YY] * lvec->lighting[3];
+        }
+
+        if ( nrm[ZZ] >= 0.0f )
+        {
+            lighting += nrm[ZZ] * lvec->lighting[4];
+        }
+        else if ( nrm[ZZ] < 0.0f )
+        {
+            lighting -= nrm[ZZ] * lvec->lighting[5];
+        }
     }
-    else if ( nrm[ZZ] < 0.0f )
+    else
     {
-        lighting += ABS(nrm[ZZ]) * lvec[5];
+        // separate the ambient and the direct light
+
+        if ( nrm[XX] > 0.0f )
+        {
+            lighting += nrm[XX] * (lvec->lighting[0]-lvec_min);
+        }
+        else if ( nrm[XX] < 0.0f )
+        {
+            lighting -= nrm[XX] * (lvec->lighting[1]-lvec_min);
+        }
+
+        if ( nrm[YY] > 0.0f )
+        {
+            lighting += nrm[YY] * (lvec->lighting[2]-lvec_min);
+        }
+        else if ( nrm[YY] < 0.0f )
+        {
+            lighting -= nrm[YY] * (lvec->lighting[3]-lvec_min);
+        }
+
+        if ( nrm[ZZ] > 0.0f )
+        {
+            lighting += nrm[ZZ] * (lvec->lighting[4]-lvec_min);
+        }
+        else if ( nrm[ZZ] < 0.0f )
+        {
+            lighting -= nrm[ZZ] * (lvec->lighting[5]-lvec_min);
+        }
+
+        *amb = lvec_min / 0.362f;
+
+        lighting += *amb;
+
     }
 
     return lighting;

@@ -869,7 +869,7 @@ void prt_instance_update_lighting( prt_instance_t * pinst, prt_t * pprt, Uint8 t
     Uint32 alpha;
     Sint16  self_light;
     lighting_cache_t global_light, loc_light;
-    float min_light, lite;
+    float min_light, max_light, lite;
     fmat_4x4_t mat;
 
     if ( NULL == pinst || NULL == pprt ) return;
@@ -885,20 +885,34 @@ void prt_instance_update_lighting( prt_instance_t * pinst, prt_t * pprt, Uint8 t
     project_lighting( &loc_light, &global_light, mat );
 
     // remove any "ambient" component from the lighting
-    min_light = loc_light.max_light;
+    max_light = MIN(loc_light.low.min_light, loc_light.hgh.min_light);
+    min_light = MAX(loc_light.low.max_light, loc_light.hgh.max_light);
     for (cnt = 0; cnt < 6; cnt++)
     {
-        min_light = MIN(min_light, loc_light.lighting_low[cnt]);
-        min_light = MIN(min_light, loc_light.lighting_hgh[cnt]);
+        min_light = MIN(min_light, loc_light.low.lighting[cnt]);
+        min_light = MIN(min_light, loc_light.hgh.lighting[cnt]);
+
+        max_light = MAX(max_light, loc_light.low.lighting[cnt]);
+        max_light = MAX(max_light, loc_light.hgh.lighting[cnt]);
     }
 
-    if( min_light > 0 )
+    if( (min_light >= 0 && max_light >= 0) )
     {
         for (cnt = 0; cnt < 6; cnt++)
         {
-            loc_light.lighting_low[cnt] -= min_light;
-            loc_light.lighting_hgh[cnt] -= min_light;
+            loc_light.low.lighting[cnt] -= min_light;
+            loc_light.hgh.lighting[cnt] -= min_light;
         }
+    }
+    else if( min_light <= 0 && max_light <= 0 ) 
+    {
+        for (cnt = 0; cnt < 6; cnt++)
+        {
+            loc_light.low.lighting[cnt] -= max_light;
+            loc_light.hgh.lighting[cnt] -= max_light;
+        }
+
+        min_light = max_light;
     }
 
     // determine the ambient lighting

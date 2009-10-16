@@ -718,7 +718,7 @@ void chr_instance_update_lighting_base( chr_instance_t * pinst, chr_t * pchr, bo
 
     Uint8  self_light;
     lighting_cache_t global_light, loc_light;
-    float min_light;
+    float min_light, max_light;
 
     GLvertex * vlst;
 
@@ -744,21 +744,35 @@ void chr_instance_update_lighting_base( chr_instance_t * pinst, chr_t * pchr, bo
     // rotate the lighting data to body_centered coordinates
     project_lighting( &loc_light, &global_light, pinst->matrix );
 
-    min_light = loc_light.max_light;
+    // remove any "ambient" component from the lighting
+    max_light = MIN(loc_light.low.min_light, loc_light.hgh.min_light);
+    min_light = MAX(loc_light.low.max_light, loc_light.hgh.max_light);
     for (cnt = 0; cnt < 6; cnt++)
     {
-        min_light = MIN(min_light, loc_light.lighting_low[cnt]);
-        min_light = MIN(min_light, loc_light.lighting_hgh[cnt]);
+        min_light = MIN(min_light, loc_light.low.lighting[cnt]);
+        min_light = MIN(min_light, loc_light.hgh.lighting[cnt]);
+
+        max_light = MAX(max_light, loc_light.low.lighting[cnt]);
+        max_light = MAX(max_light, loc_light.hgh.lighting[cnt]);
     }
 
-    if( min_light > 0 )
+    if( (min_light >= 0 && max_light >= 0) )
     {
         for (cnt = 0; cnt < 6; cnt++)
         {
-            loc_light.lighting_low[cnt] -= min_light;
-            loc_light.lighting_hgh[cnt] -= min_light;
+            loc_light.low.lighting[cnt] -= min_light;
+            loc_light.hgh.lighting[cnt] -= min_light;
         }
-        loc_light.max_light -= min_light;
+    }
+    else if( min_light <= 0 && max_light <= 0 ) 
+    {
+        for (cnt = 0; cnt < 6; cnt++)
+        {
+            loc_light.low.lighting[cnt] -= max_light;
+            loc_light.hgh.lighting[cnt] -= max_light;
+        }
+
+        min_light = max_light;
     }
 
     self_light = ( 255 == pinst->light ) ? 0 : pinst->light;
