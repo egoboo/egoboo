@@ -63,7 +63,7 @@
     pro_t * ppro; \
     Uint16 sTmp = 0; \
     Uint8 returncode = btrue; \
-    if( NULL == pstate || NULL == pself || !ACTIVE_CHR(pself->index) ) return bfalse; \
+    if( NULL == pstate || NULL == pself || !ALLOCATED_CHR(pself->index) ) return bfalse; \
     pchr = ChrList.lst + pself->index; \
     if( !LOADED_PRO(pchr->iprofile) ) return bfalse; \
     ppro = ProList.lst + pchr->iprofile;
@@ -74,7 +74,7 @@
 #define FUNCTION_BEGIN() \
     Uint16 sTmp = 0; \
     Uint8 returncode = btrue; \
-    if( !ACTIVE_PCHR( pchr ) ) return bfalse;
+    if( !ALLOCATED_PCHR( pchr ) ) return bfalse;
 
 #define FUNCTION_END() \
     return returncode;
@@ -3693,10 +3693,7 @@ Uint8 scr_set_TargetToLowestTarget( script_state_t * pstate, ai_state_t * pself 
 
     SCRIPT_FUNCTION_BEGIN();
 
-    while ( pself->target != MAX_CHR && ChrList.lst[pself->target].attachedto != MAX_CHR )
-    {
-        pself->target = ChrList.lst[pself->target].attachedto;
-    }
+    pself->target = chr_get_lowest_attachment( pself->target, bfalse );
 
     SCRIPT_FUNCTION_END();
 }

@@ -155,7 +155,7 @@ void let_character_think( Uint16 character )
     }
 
     // Reset the target if it can't be seen
-    if ( !chr_can_see_object( character, pself->target ) )
+    if ( (pself->target != pself->index) && !chr_can_see_object( character, pself->target ) )
     {
         pself->target = pself->index;
     }

@@ -712,6 +712,7 @@ bool_t drop_all_items( Uint16 character );
 bool_t character_grab_stuff( Uint16 chara, grip_offset_t grip, bool_t people );
 
 void chr_play_action( Uint16 character, Uint16 action, Uint8 actionready );
+void chr_instance_play_action( chr_instance_t * pinst, Uint16 action, Uint8 actionready );
 void chr_set_frame( Uint16 character, Uint16 action, int frame, Uint16 lip );
 
 bool_t export_one_character_name( const char *szSaveName, Uint16 character );
@@ -829,3 +830,5 @@ void chr_set_alpha   ( chr_t * pchr, int alpha );
 void chr_set_light   ( chr_t * pchr, int light );
 
 void chr_instance_get_tint( chr_instance_t * pinst, GLfloat * tint, Uint32 bits );
+
+Uint16 chr_get_lowest_attachment( Uint16 ichr, bool_t non_item );

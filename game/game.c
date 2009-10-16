@@ -630,30 +630,40 @@ void statlist_sort()
         }
     }
 }
+
 //--------------------------------------------------------------------------------------------
-void chr_play_action( Uint16 character, Uint16 action, Uint8 actionready )
+void chr_play_action( Uint16 ichr, Uint16 action, Uint8 actionready )
+{
+    chr_t * pchr;
+
+    if( !ACTIVE_CHR(ichr) ) return;
+    pchr = ChrList.lst + ichr;
+
+    chr_instance_play_action( &(pchr->inst), action, actionready );
+}
+
+//--------------------------------------------------------------------------------------------
+void chr_instance_play_action( chr_instance_t * pinst, Uint16 action, Uint8 actionready )
 {
     /// @details ZZ@> This function starts a generic action for a character
 
-    chr_t * pchr;
     mad_t * pmad;
 
-    if ( !ACTIVE_CHR(character) ) return;
-    pchr = ChrList.lst + character;
+    if( NULL == pinst ) return;
 
-    pmad = chr_get_pmad(character);
-    if ( NULL == pmad ) return;
+    if( !LOADED_MAD(pinst->imad) ) return;
+    pmad = MadList + pinst->imad;
 
     if ( pmad->actionvalid[action] )
     {
-        pchr->inst.action_which = action;
-        pchr->inst.action_next  = ACTION_DA;
-        pchr->inst.action_ready = actionready;
+        pinst->action_which = action;
+        pinst->action_next  = ACTION_DA;
+        pinst->action_ready = actionready;
 
-        pchr->inst.flip = 0;
-        pchr->inst.ilip = 0;
-        pchr->inst.frame_lst = pchr->inst.frame_nxt;
-        pchr->inst.frame_nxt = pmad->actionstart[pchr->inst.action_which];
+        pinst->flip = 0;
+        pinst->ilip = 0;
+        pinst->frame_lst = pinst->frame_nxt;
+        pinst->frame_nxt = pmad->actionstart[pinst->action_which];
     }
 }
 
@@ -1164,7 +1174,7 @@ int do_ego_proc_begin( ego_process_t * eproc )
 
     // setup the menu system's gui
     ui_initialize( "basicdat" SLASH_STR "Negatori.ttf", 24 );
-    font_bmp_load( "basicdat" SLASH_STR "font", "basicdat" SLASH_STR "font.txt" );  // must be done after init_all_graphics()
+    font_bmp_load( "basicdat" SLASH_STR "font_new_shadow", "basicdat" SLASH_STR "font.txt" );  // must be done after init_all_graphics()
 
     // clear out the import directory
     vfs_empty_import_directory();
@@ -4072,7 +4082,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     float  depth_x, depth_y, depth_z, depth_xy, depth_yx;
     bool_t collide_x, collide_y, collide_z, collide_xy, collide_yx;
 
-    fvec3_t prt_impulse, chr_impulse;
+    fvec3_t prt_impulse;
 
     bool_t do_platform;
 
@@ -4089,9 +4099,10 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     bool_t prt_deflected;
     bool_t mana_paid;
     Uint16 direction;
+
     Uint16 enchant, enc_next;
     int actual_damage, max_damage;
-    fvec3_t nrm, vdiff, vtmp;
+    fvec3_t nrm, vdiff;
     float dot;
 
     // make sure that it is on
@@ -4109,6 +4120,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     ipip_b = pprt_b->pip_ref;
     if ( !LOADED_PIP( ipip_b ) ) return bfalse;
     ppip_b = PipStack.lst + ipip_b;
+
 
     xa = pchr_a->pos.x;
     ya = pchr_a->pos.y;
@@ -4174,6 +4186,13 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
             pprt_b->pos.z = za + pchr_a->chr_prt_cv.max_z;
             pprt_b->vel.z = pchr_a->vel.z - pprt_b->vel.z * ppip_b->dampen;
             retval = btrue;
+
+            // This should prevent raindrops from stacking up on the top of trees and other
+            // objects
+            if( ppip_b->endground && pchr_a->platform )
+            {
+                prt_request_terminate( iprt_b );
+            }            
         }
         else if (z_collide)
         {
@@ -4217,7 +4236,6 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     if( !collide_z ) return bfalse;
 
     prt_impulse.x = prt_impulse.y = prt_impulse.z = 0.0f;
-    chr_impulse.x = chr_impulse.y = chr_impulse.z = 0.0f;
 
     // estimate the maximum possible "damage" from this particle
     // other effects can magnify this number, like vulnerabilities
@@ -4379,10 +4397,26 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
         bool_t can_friendlyfire;
         bool_t terminate_particle;
 
-        prt_hates_chr   = TeamList[pprt_b->team].hatesteam[pchr_a->team];
+        prt_belongs_to_chr = (ichr_a == pprt_b->owner_ref);
+        if( !prt_belongs_to_chr )
+        {
+            // is it attached to this character?
+            prt_belongs_to_chr = (ichr_a == pprt_b->attachedto_ref);
+        }
+        if( !prt_belongs_to_chr )
+        {
+            // who is holding the "weapon" that generated this particle?
 
-        prt_belongs_to_chr = ichr_a == pprt_b->owner_ref ||
-                                ichr_a == ChrList.lst[pprt_b->owner_ref].attachedto;
+            Uint16 iwielder = chr_get_lowest_attachment(pprt_b->attachedto_ref, btrue);
+
+            if( iwielder != pprt_b->attachedto_ref )
+            {
+                prt_belongs_to_chr = (iwielder == ichr_a);
+            }
+        }
+
+        // does the particle team hate the character's team
+        prt_hates_chr   = TeamList[pprt_b->team].hatesteam[pchr_a->team];
 
         // this is the onlydamagefriendly condition from the particle search code
         can_onlydamagefriendly = (ppip_b->onlydamagefriendly && pprt_b->team == pchr_a->team) ||
@@ -4589,13 +4623,6 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
             }
         }
 
-        // This should prevent raindrops from stacking up on the top of trees and other
-        // objects
-        if( !prt_deflected && ppip_b->endground && pchr_a->platform )
-        {
-            terminate_particle = btrue;
-        }
-
         if( terminate_particle )
         {
             prt_request_terminate( iprt_b );
@@ -4659,10 +4686,6 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
             // the faster the particle is going, the smaller the "mass" it
             // needs to do the damage
             prt_mass = prt_ke / ( 0.5f * prt_vel2 );
-
-            // limit the prt_mass to a reasonable range, 120 being the "standard" weight
-            // of the adventurer
-            prt_mass = CLIP( prt_mass, 1.0f, 10.0f * 120.0f );
         }
 
         // now, we have the particle's impulse and mass
@@ -4672,14 +4695,20 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
         {
             float factor = attack_factor;
 
-            // the faster the particle (the smaller the particle "mass" ), the bigger the
-            // kickback
-            factor = 1.0f / (1.0f + pchr_a->phys.weight / ABS(prt_mass) );
+            if( pchr_a->phys.weight > 0 )
+            {
+                // limit the prt_mass to be something relatice to this object
+                float loc_prt_mass = CLIP( prt_mass, 1.0f, 2.0f * pchr_a->phys.weight );
+
+                factor *= loc_prt_mass / pchr_a->phys.weight;
+            }
 
             // modify it by the the severity of the damage
             // reduces the damage below actual_damage == pchr_a->lifemax
             // and it doubles it if actual_damage is really huge
             factor *= 2.0f * (float)actual_damage / (float)(ABS(actual_damage) + pchr_a->lifemax);
+
+            factor = CLIP(factor, 0.0f, 3.0f);
 
             // calculate the "impulse"
             pchr_a->phys.avel.x -= prt_impulse.x * factor;
@@ -4691,26 +4720,46 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
         // weapon (actually, the weapon's holder) to rebound.
         if( ACTIVE_CHR(pprt_b->attachedto_ref) )
         {
+            chr_t * ptarget;
+            Uint16 iholder;
+
+            ptarget = NULL;
+
             // transmit the force of the blow back to the character that is
             // holding the weapon
-            if( ACTIVE_CHR( pprt_b->owner_ref ) )
+
+            iholder = chr_get_lowest_attachment(pprt_b->attachedto_ref, bfalse);
+            if( ACTIVE_CHR( iholder ) )
             {
-                chr_t * powner = ChrList.lst + pprt_b->owner_ref;
-
-                if( powner->phys.weight != 0xFFFFFFFF )
+                ptarget = ChrList.lst + iholder;
+            }
+            else
+            {
+                iholder = chr_get_lowest_attachment(pprt_b->owner_ref, bfalse);
+                if( ACTIVE_CHR( iholder ) )
                 {
-                    float factor = attack_factor;
-
-                    if( powner->phys.weight > 0 )
-                    {
-                        factor *= (float) prt_mass / (float)powner->phys.weight;
-                    }
-
-                    // in the SAME direction as the particle
-                    powner->phys.avel.x += prt_impulse.x * factor;
-                    powner->phys.avel.y += prt_impulse.y * factor;
-                    powner->phys.avel.z += prt_impulse.z * factor;
+                    ptarget = ChrList.lst + iholder;
                 }
+            }
+
+            if( ptarget->phys.weight != 0xFFFFFFFF )
+            {
+                float factor = attack_factor;
+
+                if( ptarget->phys.weight > 0 )
+                {
+                    // limit the prt_mass to be something relatice to this object
+                    float loc_prt_mass = CLIP( prt_mass, 1.0f, 2.0f * ptarget->phys.weight );
+
+                    factor *= (float) loc_prt_mass / (float)ptarget->phys.weight;
+                }
+
+                factor = CLIP(factor, 0.0f, 3.0f);
+
+                // in the SAME direction as the particle
+                ptarget->phys.avel.x += prt_impulse.x * factor;
+                ptarget->phys.avel.y += prt_impulse.y * factor;
+                ptarget->phys.avel.z += prt_impulse.z * factor;
             }
         }
     }
@@ -5385,7 +5434,7 @@ void game_load_global_assets()
     }
     load_blips();
     load_bars();
-    font_bmp_load( "basicdat" SLASH_STR "font", "basicdat" SLASH_STR "font.txt" );
+    font_bmp_load( "basicdat" SLASH_STR "font_new_shadow", "basicdat" SLASH_STR "font.txt" );
 }
 
 //--------------------------------------------------------------------------------------------

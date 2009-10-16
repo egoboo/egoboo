@@ -5781,7 +5781,8 @@ void move_one_character_do_animation( chr_t * pchr, chr_environment_t * penviro 
     pmad = chr_get_pmad(ichr);
     if( NULL == pmad ) return;
 
-    // Animate the character
+    // Animate the character.
+    // Right now there are 50/4 = 12.5 animation frames per second
     pinst->flip += 0.25f * pinst->rate;
 
     while( pinst->flip > 0.25f )
@@ -6198,8 +6199,11 @@ chr_instance_t * chr_instance_init( chr_instance_t * pinst )
     // but it never pays to have a 0 matrix...
     pinst->matrix = IdentityMatrix();
 
-    // set the animation rate
+    // set the animation state
     pinst->rate = 1.0f;
+    pinst->action_next  = ACTION_DA;
+    pinst->action_ready = btrue;             // argh! this must be set at the beginning, script's spawn animations do not work!
+    pinst->frame_nxt = pinst->frame_lst = -1;
 
     return pinst;
 }
@@ -6324,6 +6328,9 @@ bool_t chr_instance_spawn( chr_instance_t * pinst, Uint16 profile, Uint8 skin )
 
     // model parameters
     chr_instance_set_mad( pinst, pro_get_imad(profile) );
+
+    // set the initial action, all actions override it
+    chr_instance_play_action( pinst, ACTION_DA, btrue );
 
     // upload these parameters to the reflection cache, but don't compute the matrix
     chr_instance_update_ref( pinst, 0, bfalse );
@@ -8970,3 +8977,39 @@ void chr_instance_get_tint( chr_instance_t * pinst, GLfloat * tint, Uint32 bits 
     }
 }
 
+Uint16 chr_get_lowest_attachment( Uint16 ichr, bool_t non_item )
+{
+    /// @details BB@> Find the lowest attachment for a given object.
+    ///               This was basically taken from the script function cr_set_TargetToLowestTarget()
+    ///
+    ///               You should be able to find the holder of a weapon by specifying non_item == btrue
+    ///
+    ///               To prevent possible loops in the data structures, use a counter to limit
+    ///               the depth of the search, and make sure that ichr != ChrList.lst[object].attachedto
+
+    int cnt;
+    Uint16 original_object, object, object_next;
+
+    if( !ACTIVE_CHR(ichr) ) return MAX_CHR;
+
+    original_object = object = ichr;
+    for ( cnt=0, object = ichr; cnt < MAX_CHR && ACTIVE_CHR(object); cnt++ )
+    {
+        object_next = ChrList.lst[object].attachedto;
+
+        if( non_item && !ChrList.lst[object].isitem )
+        {
+            break;
+        }
+
+        // check for a list with a loop. shouldn't happen, but...
+        if( !ACTIVE_CHR(object_next) || object_next != original_object )
+        {
+            break;
+        }
+
+        object = object_next;
+    }
+
+    return object;
+}
