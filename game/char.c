@@ -2728,14 +2728,14 @@ void cleanup_one_character( chr_t * pchr )
 
     // drop your left item
     itmp = pchr->holdingwhich[SLOT_LEFT];
-    if ( ACTIVE_CHR(itmp) )
+    if ( ACTIVE_CHR(itmp) && ChrList.lst[itmp].isitem )
     {
         detach_character_from_mount( itmp, btrue, bfalse );
     }
 
     // drop your right item
     itmp = pchr->holdingwhich[SLOT_RIGHT];
-    if ( ACTIVE_CHR(itmp) )
+    if ( ACTIVE_CHR(itmp) && ChrList.lst[itmp].isitem )
     {
         detach_character_from_mount( itmp, btrue, bfalse );
     }
@@ -5138,7 +5138,6 @@ bool_t chr_do_latch_button( chr_t * pchr )
 
     Uint16 ichr;
     ai_state_t * pai;
-    Uint8 actionready;
     Uint8 allowedtoattack;
     Uint16 action, weapon, mount, item;
 
@@ -5146,11 +5145,6 @@ bool_t chr_do_latch_button( chr_t * pchr )
     pai = &(pchr->ai);
 
     ichr = GET_INDEX_PCHR(pchr);
-
-    //if( pchr->islocalplayer )
-    //{
-    //    log_info( "<<%1.4f, %1.4f>, 0x%x> \n", pchr->latch.x, pchr->latch.y, pchr->latch.b  );
-    //}
 
     if ( !pchr->alive || 0 == pchr->latch.b ) return btrue;
 
@@ -5434,12 +5428,17 @@ bool_t chr_do_latch_button( chr_t * pchr )
                         pchr->life += pweapon->lifeheal;
                         if ( pchr->life > pchr->lifemax )  pchr->life = pchr->lifemax;
 
-                        actionready = bfalse;
-                        //if ( ACTION_PA == action || ACTION_PB == action )
-                        //    actionready = btrue;
-
                         action += generate_randmask( 0, 1 );
-                        chr_play_action( ichr, action, actionready );
+                        if ( ACTION_PA == action || ACTION_PB == action )
+                        {
+                            chr_play_action( ichr, action, btrue );
+                            //pchr->inst.action_keep = btrue;
+                        }
+                        else
+                        {
+                            chr_play_action( ichr, action, bfalse );
+                        }
+                        
                         if ( weapon != ichr )
                         {
                             // Make the weapon attack too
@@ -5554,12 +5553,18 @@ bool_t chr_do_latch_button( chr_t * pchr )
                         pchr->life += pweapon->lifeheal;
                         if ( pchr->life > pchr->lifemax )  pchr->life = pchr->lifemax;
 
-                        actionready = bfalse;
-                        //if ( ACTION_PC == action || ACTION_PD == action)
-                        //    actionready = btrue;
-
                         action += generate_randmask( 0, 1 );
-                        chr_play_action( ichr, action, actionready );
+                        if ( ACTION_PC == action || ACTION_PD == action)
+                        {
+                            chr_play_action( ichr, action, btrue );
+                            //pchr->inst.action_keep = btrue;
+                        }
+                        else
+                        {
+                            chr_play_action( ichr, action, bfalse );
+                        }
+
+
                         if ( weapon != ichr )
                         {
                             // Make the weapon attack too

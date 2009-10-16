@@ -85,7 +85,7 @@
 				WholeProgramOptimization="FALSE"
 				OptimizeForProcessor="3"
 				OptimizeForWindowsApplication="TRUE"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)enet\include&quot;"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)enet\include&quot;;&quot;$(SolutionDir)game&quot;;file_formats;extensions"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CONSOLE;_CRT_SECURE_NO_DEPRECATE"
 				RuntimeLibrary="3"
 				BufferSecurityCheck="TRUE"

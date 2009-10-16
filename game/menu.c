@@ -1269,6 +1269,10 @@ int doChoosePlayer( float deltaTime )
             // load information for all the players that could be imported
             check_player_import( "players", btrue );
 
+            // reset button 0, or it will mess up the menu. 
+            // must do it before initSlidyButtons()
+            button_text[0] = "N/A";
+
             initSlidyButtons( 1.0f, button_text );
 
             numVertical   = (buttonTop - y0) / button_repeat - 1;
@@ -1291,8 +1295,6 @@ int doChoosePlayer( float deltaTime )
 
                 y += button_repeat;
             };
-
-            button_text[0] = "N/A";
 
             if( loadplayer_count < 10 )
             {

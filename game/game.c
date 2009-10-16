@@ -4081,6 +4081,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
 
     float  depth_x, depth_y, depth_z, depth_xy, depth_yx;
     bool_t collide_x, collide_y, collide_z, collide_xy, collide_yx;
+    bool_t terminate_particle;
 
     fvec3_t prt_impulse;
 
@@ -4095,7 +4096,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     bool_t prt_wants_deflection;
     bool_t prt_can_impact, prt_needs_impact;
     bool_t prt_might_bump_chr;
-    bool_t chr_is_invictus;
+    bool_t chr_is_invictus, chr_can_deflect;
     bool_t prt_deflected;
     bool_t mana_paid;
     Uint16 direction;
@@ -4156,6 +4157,23 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     if( !collide_yx ) return bfalse;
     depth_yx *= INV_SQRT_TWO;
 
+    // do not terminate the particle by default
+    terminate_particle = bfalse;
+
+    //intialize the particle impulse
+    prt_impulse.x = prt_impulse.y = prt_impulse.z = 0.0f;
+
+    // Check reaffirmation of particles. Only allow this to happen every so often.
+    // Put this before the platform check in case a platform can catch fire.
+    if ( 0 == pchr_a->damagetime )
+    {
+        if ( ichr_a != pprt_b->attachedto_ref && pchr_a->reaffirmdamagetype == pprt_b->damagetype )
+        {
+            reaffirm_attached_particles( ichr_a );
+            retval = btrue;
+        }
+    }
+
     // detect the platform tolerance
     do_platform = bfalse;
     if( pchr_a->platform && !ACTIVE_CHR(pprt_b->attachedto_ref) )
@@ -4173,28 +4191,30 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
         // gravity is not handled here
 
         bool_t z_collide, was_z_collide;
+        bool_t plat_retval = bfalse;
 
         // it is a valid platform. now figure out the physics
 
         // are they colliding for the first time?
-        z_collide     = (zb < za + pchr_a->chr_prt_cv.max_z);
-        was_z_collide = (zb - pprt_b->vel.z < za + pchr_a->chr_prt_cv.max_z - pchr_a->vel.z);
+        z_collide     = (zb < za + pchr_a->chr_prt_cv.max_z) && (zb > za + pchr_a->chr_prt_cv.min_z);
+        was_z_collide = (zb - pprt_b->vel.z < za + pchr_a->chr_prt_cv.max_z - pchr_a->vel.z) && (zb - pprt_b->vel.z  > za + pchr_a->chr_prt_cv.min_z);
 
         if( z_collide && !was_z_collide )
         {
             // Particle is falling onto the platform
             pprt_b->pos.z = za + pchr_a->chr_prt_cv.max_z;
             pprt_b->vel.z = pchr_a->vel.z - pprt_b->vel.z * ppip_b->dampen;
-            retval = btrue;
 
             // This should prevent raindrops from stacking up on the top of trees and other
             // objects
             if( ppip_b->endground && pchr_a->platform )
             {
-                prt_request_terminate( iprt_b );
-            }            
+                terminate_particle = btrue;
+            }
+
+            plat_retval = btrue;
         }
-        else if (z_collide)
+        else if (z_collide && was_z_collide)
         {
             // colliding this time and last time. particle is *embedded* in the platform
             pprt_b->pos.z = za + pchr_a->chr_prt_cv.max_z;
@@ -4209,7 +4229,8 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
             }
             pprt_b->vel.x = pprt_b->vel.x * (1.0f - platstick) + pchr_a->vel.x * platstick;
             pprt_b->vel.y = pprt_b->vel.y * (1.0f - platstick) + pchr_a->vel.y * platstick;
-            retval = btrue;
+
+            plat_retval = btrue;
         }
         else
         {
@@ -4223,11 +4244,18 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
                 pprt_b->vel.z = pprt_b->vel.z * (1.0f - tmp_platstick) + pchr_a->vel.z * tmp_platstick;
                 pprt_b->vel.x = pprt_b->vel.x * (1.0f - tmp_platstick) + pchr_a->vel.x * tmp_platstick;
                 pprt_b->vel.y = pprt_b->vel.y * (1.0f - tmp_platstick) + pchr_a->vel.y * tmp_platstick;
-                retval = btrue;
+
+                plat_retval = btrue;
             }
         }
 
-        return btrue;
+        // if the particle is interacting with the object AS a platform (i.e. bouncing off the top),
+        // then we are done.
+        if( plat_retval ) 
+        {
+            if( terminate_particle )  prt_request_terminate( iprt_b );
+            return btrue;
+        }
     }
 
     // detect normal collision in the z direction
@@ -4235,15 +4263,11 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     collide_z = depth_z > 0;
     if( !collide_z ) return bfalse;
 
-    prt_impulse.x = prt_impulse.y = prt_impulse.z = 0.0f;
-
     // estimate the maximum possible "damage" from this particle
     // other effects can magnify this number, like vulnerabilities
     // or DAMFX_* bits
     max_damage = ABS(pprt_b->damage.base) + ABS(pprt_b->damage.rand);
     actual_damage = 0;
-
-    retval = bfalse;
 
     // estimate the "normal" for teh collision, using the center-of_mass difference
     nrm = fvec3_sub( pprt_b->pos.v, pchr_a->pos.v );
@@ -4271,18 +4295,8 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     // shield block can be counteracted by an unblockable particle
     chr_is_invictus = chr_is_invictus && ( 0 == (ppip_b->damfx & DAMFX_NBLOC) );
 
-    // but none of that matters if the object is truely invictus
-    chr_is_invictus = chr_is_invictus || pchr_a->invictus;
-
-    // Check reaffirmation of particles. Only allow this to happen every so often.
-    if ( 0 == pchr_a->damagetime )
-    {
-        if ( ichr_a != pprt_b->attachedto_ref && pchr_a->reaffirmdamagetype == pprt_b->damagetype )
-        {
-            reaffirm_attached_particles( ichr_a );
-            retval = btrue;
-        }
-    }
+    //// but none of that matters if the object is truely invictus
+    //chr_is_invictus = chr_is_invictus || pchr_a->invictus;
 
     // determine whether the character is magically protected from missile attacks
     prt_wants_deflection  = (MISSILE_NORMAL != pchr_a->missiletreatment) && (pprt_b->owner_ref != ichr_a) && !ppip_b->bumpmoney;
@@ -4331,10 +4345,12 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
 
     prt_can_impact = ( dot < 0 );
 
+    chr_can_deflect = chr_is_invictus || ((0 != pchr_a->damagetime) && (max_damage>0));
+
     // try to deflect the particle
     prt_deflected = bfalse;
     mana_paid     = bfalse;
-    if ( prt_can_impact && (prt_wants_deflection || chr_is_invictus || ((0 != pchr_a->damagetime) && max_damage>0)) )
+    if ( prt_can_impact && (prt_wants_deflection || chr_can_deflect) )
     {
         // magically deflect the particle or make a ricochet if the character is invictus
 
@@ -4385,7 +4401,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     }
 
     // if the particle was deflected, then it can't bump the character
-    prt_might_bump_chr = !prt_deflected && (pprt_b->attachedto_ref != ichr_a);
+    prt_might_bump_chr = !prt_deflected && !pchr_a->invictus  && (pprt_b->attachedto_ref != ichr_a);
 
     // Refine the simple bump test
     if ( prt_might_bump_chr  )
@@ -4395,7 +4411,6 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
         bool_t prt_hates_chr;
         bool_t can_onlydamagefriendly;
         bool_t can_friendlyfire;
-        bool_t terminate_particle;
 
         prt_belongs_to_chr = (ichr_a == pprt_b->owner_ref);
         if( !prt_belongs_to_chr )
@@ -4427,7 +4442,6 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
 
         prt_can_hit_chr =  can_friendlyfire || can_onlydamagefriendly;
 
-        terminate_particle = bfalse;
         if ( prt_can_hit_chr )
         {
             retval = btrue;
@@ -4622,11 +4636,6 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
                 }
             }
         }
-
-        if( terminate_particle )
-        {
-            prt_request_terminate( iprt_b );
-        }
     }
 
 
@@ -4770,6 +4779,11 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
         pprt_b->vel.x += prt_impulse.x;
         pprt_b->vel.y += prt_impulse.y;
         pprt_b->vel.z += prt_impulse.z;
+    }
+
+    if( terminate_particle )
+    {
+        prt_request_terminate( iprt_b );
     }
 
     return retval;
@@ -7253,7 +7267,6 @@ bool_t upload_light_data( wawalite_data_t * pdata )
     light_z = pdata->light_z;
     light_a = pdata->light_a;
 
-    light_d = 0.0f;
     if ( ABS(light_x) + ABS(light_y) + ABS(light_z) > 0 )
     {
         float fTmp = SQRT( light_x * light_x + light_y * light_y + light_z * light_z );
@@ -7261,7 +7274,7 @@ bool_t upload_light_data( wawalite_data_t * pdata )
         // get the extra magnitude of the direct light
         if( gfx.usefaredge )
         {
-            // we are outside, do the direct listh is sunlight
+            // we are outside, do the direct light as sunlight
             light_d = 1.0f;
             light_a = light_a / fTmp;
             light_a = CLIP(light_a, 0.0f, 1.0f);
