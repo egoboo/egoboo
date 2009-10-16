@@ -4072,6 +4072,8 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     float  depth_x, depth_y, depth_z, depth_xy, depth_yx;
     bool_t collide_x, collide_y, collide_z, collide_xy, collide_yx;
 
+    fvec3_t prt_impulse, chr_impulse;
+
     bool_t do_platform;
 
     chr_t * pchr_a;
@@ -4079,6 +4081,18 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
 
     prt_t * pprt_b;
     pip_t * ppip_b;
+
+    bool_t prt_wants_deflection;
+    bool_t prt_can_impact, prt_needs_impact;
+    bool_t prt_might_bump_chr;
+    bool_t chr_is_invictus;
+    bool_t prt_deflected;
+    bool_t mana_paid;
+    Uint16 direction;
+    Uint16 enchant, enc_next;
+    int actual_damage, max_damage;
+    fvec3_t nrm, vdiff, vtmp;
+    float dot;
 
     // make sure that it is on
     if ( !ACTIVE_CHR(ichr_a) ) return bfalse;
@@ -4095,9 +4109,6 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     ipip_b = pprt_b->pip_ref;
     if ( !LOADED_PIP( ipip_b ) ) return bfalse;
     ppip_b = PipStack.lst + ipip_b;
-
-    // do not collide with the thing that you're attached to
-    //if ( ichr_a == pprt_b->attachedto_ref ) return bfalse;
 
     xa = pchr_a->pos.x;
     ya = pchr_a->pos.y;
@@ -4205,463 +4216,511 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     collide_z = depth_z > 0;
     if( !collide_z ) return bfalse;
 
+    prt_impulse.x = prt_impulse.y = prt_impulse.z = 0.0f;
+    chr_impulse.x = chr_impulse.y = chr_impulse.z = 0.0f;
+
+    // estimate the maximum possible "damage" from this particle
+    // other effects can magnify this number, like vulnerabilities
+    // or DAMFX_* bits
+    max_damage = ABS(pprt_b->damage.base) + ABS(pprt_b->damage.rand);
+    actual_damage = 0;
+
     retval = bfalse;
+
+    // estimate the "normal" for teh collision, using the center-of_mass difference
+    nrm = fvec3_sub( pprt_b->pos.v, pchr_a->pos.v );
+    nrm.z -= (pchr_a->chr_chr_cv.max_z + pchr_a->chr_chr_cv.min_z) * 0.5f;
+
+    // scale the collision box
+    nrm.x /= (pchr_a->chr_chr_cv.max_x - pchr_a->chr_chr_cv.min_x);
+    nrm.y /= (pchr_a->chr_chr_cv.max_y - pchr_a->chr_chr_cv.min_y);
+    nrm.z /= (pchr_a->chr_chr_cv.max_z - pchr_a->chr_chr_cv.min_z);
+
+    // scale the z-normals so that the collision volume will act somewhat like a cylinder
+    nrm.z *= nrm.z*nrm.z;
+
+    // Make the normal a unit normal
+    if ( ABS(nrm.x) + ABS(nrm.y) + ABS(nrm.z) > 0.0f )
     {
-        //float was_xa, was_ya, was_za;
-        //float was_xb, was_yb, was_zb;
-        //float was_depth_x, was_depth_y, was_depth_z, was_depth_xy, was_depth_yx;
-        //bool_t was_collide_x, was_collide_y, was_collide_z, was_collide_xy, was_collide_yx;
-        //bool_t was_collide;
+        nrm = fvec3_normalize( nrm.v );
+    }
 
-        // ??? there is no point in dealing with particles and pressure ???
-        //was_xa = pchr_a->pos_old.x;
-        //was_ya = pchr_a->pos_old.y;
-        //was_za = pchr_a->pos_old.z;
+    //---- determine whether the character can take any damage at this time
 
-        //was_xb = xb - pprt_b->vel.x;
-        //was_yb = yb - pprt_b->vel.y;
-        //was_zb = zb - pprt_b->vel.z;
+    // shield block?
+    chr_is_invictus = (0 != ( Md2FrameList[pchr_a->inst.frame_nxt].framefx & MADFX_INVICTUS ));
 
-        //ftmp1 = MIN( (was_xb + pprt_b->bumpsize) - was_xa, was_xa - (was_xb - pprt_b->bumpsize) );
-        //ftmp2 = MIN( (was_xa + pchr_a->chr_prt_cv.max_x) - was_xb, was_xb - (was_xa + pchr_a->chr_prt_cv.min_x));
-        //was_depth_x = MAX( ftmp1, ftmp2 );
-        //was_collide_x = was_depth_x > 0;
+    // shield block can be counteracted by an unblockable particle
+    chr_is_invictus = chr_is_invictus && ( 0 == (ppip_b->damfx & DAMFX_NBLOC) );
 
-        //ftmp1 = MIN( (was_yb + pprt_b->bumpsize) - was_ya, was_ya - (was_yb - pprt_b->bumpsize) );
-        //ftmp2 = MIN( (was_ya + pchr_a->chr_prt_cv.max_y) - was_yb, was_yb - (was_ya + pchr_a->chr_prt_cv.min_y));
-        //was_depth_y = MAX( ftmp1, ftmp2 );
-        //was_collide_y = was_depth_y > 0;
+    // but none of that matters if the object is truely invictus
+    chr_is_invictus = chr_is_invictus || pchr_a->invictus;
 
-        //ftmp1 = MIN( (was_zb + pprt_b->bumpsize) - was_za, was_za - (was_zb - pprt_b->bumpsize) );
-        //ftmp2 = MIN( (was_za + pchr_a->chr_prt_cv.max_z) - was_zb, was_zb - (was_za + pchr_a->chr_prt_cv.min_z));
-        //was_depth_z = MAX( ftmp1, ftmp2 );
-        //was_collide_z = was_depth_z > 0;
-
-        //ftmp1 = MIN( ((was_xb + was_yb) + pprt_b->bumpsize) - (was_xa + was_ya), (was_xa + was_ya) - ((was_xb + was_yb) - pprt_b->bumpsize) );
-        //ftmp2 = MIN( ((was_xa + was_ya) + pchr_a->chr_prt_cv.max_xy) - (was_xb + was_yb), (was_xb + was_yb) - ((was_xa + was_ya) + pchr_a->chr_prt_cv.min_xy));
-        //was_depth_xy = MAX( ftmp1, ftmp2 );
-        //was_depth_xy *= INV_SQRT_TWO;
-        //was_collide_xy = was_depth_xy > 0;
-
-        //ftmp1 = MIN( ((-was_xb + was_yb) + pprt_b->bumpsize) - (-was_xa + was_ya), (-was_xa + was_ya) - ((-was_xb + was_yb) - pprt_b->bumpsize) );
-        //ftmp2 = MIN( ((-was_xa + was_ya) + pchr_a->chr_prt_cv.max_yx) - (-was_xb + was_yb), (-was_xb + was_yb) - ((-was_xa + was_ya) + pchr_a->chr_prt_cv.min_yx));
-        //was_depth_yx = MAX( ftmp1, ftmp2 );
-        //was_depth_yx *= INV_SQRT_TWO;
-        //was_collide_yx = was_depth_yx > 0;
-
-        //was_collide = was_collide_x && was_collide_y && was_collide_z && was_collide_xy && was_collide_yx;
-
-        bool_t prt_wants_deflection;
-        bool_t prt_might_bump_chr;
-        bool_t mana_paid;
-        Uint16 direction;
-        Uint16 enchant, enc_next;
-        float ax, ay, nx, ny, scale;  // For deflection
-        Uint16 facing = 0;
-
-        // Check reaffirmation of particles
-        if ( pchr_a->reloadtime == 0 && pchr_a->damagetime == 0 )
+    // Check reaffirmation of particles. Only allow this to happen every so often.
+    if ( 0 == pchr_a->damagetime )
+    {
+        if ( ichr_a != pprt_b->attachedto_ref && pchr_a->reaffirmdamagetype == pprt_b->damagetype )
         {
-            if ( ichr_a != pprt_b->attachedto_ref && pchr_a->reaffirmdamagetype == pprt_b->damagetype )
-            {
-                reaffirm_attached_particles( ichr_a );
-                retval = btrue;
-            }
+            reaffirm_attached_particles( ichr_a );
+            retval = btrue;
         }
+    }
 
-        // determine whether the missile should be deflected
-        prt_wants_deflection  = (MISSILE_NORMAL != pchr_a->missiletreatment) &&
-            !pchr_a->invictus && ( 0 != pprt_b->damage.base + pprt_b->damage.rand ) &&
-            !ACTIVE_CHR(pprt_b->attachedto_ref) && (pprt_b->owner_ref != ichr_a);
+    // determine whether the character is magically protected from missile attacks
+    prt_wants_deflection  = (MISSILE_NORMAL != pchr_a->missiletreatment) && (pprt_b->owner_ref != ichr_a) && !ppip_b->bumpmoney;
 
-        // try to deflect the particle
-        mana_paid = bfalse;
-        if ( prt_wants_deflection )
+    // reject the reflection request if the particle is moving in the wrong direction
+    vdiff = fvec3_sub(pprt_b->vel.v, pchr_a->vel.v);
+    dot   = fvec3_dot_product(vdiff.v, nrm.v);
+
+    // we really never should have the condition that dot > 0, unless the particle is "fast"
+    if( dot > 0 )
+    {
+        fvec3_t vtmp;
+
+        // If the particle is "fast" relative to the object size, it can happen that the particle 
+        // can be more than halfway through the character before it is detected. 
+
+        vtmp.x = vdiff.x / (pchr_a->chr_chr_cv.max_x - pchr_a->chr_chr_cv.min_x);
+        vtmp.y = vdiff.y / (pchr_a->chr_chr_cv.max_y - pchr_a->chr_chr_cv.min_y);
+        vtmp.z = vdiff.z / (pchr_a->chr_chr_cv.max_z - pchr_a->chr_chr_cv.min_z);
+
+        // If it is fast, re-evaluate the normal in a different way
+        if( vtmp.x*vtmp.x + vtmp.y*vtmp.y + vtmp.z*vtmp.z > 0.5f*0.5f )
         {
+            // use the old position, which SHOULD be before the collision
+            // to determine the normal
+            nrm = fvec3_sub( pprt_b->pos_old.v, pchr_a->pos_old.v );
+            nrm.z -= (pchr_a->chr_chr_cv.max_z + pchr_a->chr_chr_cv.min_z) * 0.5f;
+
+            // scale the collision box
+            nrm.x /= (pchr_a->chr_chr_cv.max_x - pchr_a->chr_chr_cv.min_x);
+            nrm.y /= (pchr_a->chr_chr_cv.max_y - pchr_a->chr_chr_cv.min_y);
+            nrm.z /= (pchr_a->chr_chr_cv.max_z - pchr_a->chr_chr_cv.min_z);
+
+            // scale the z-normals so that the collision volume will act somewhat like a cylinder
+            nrm.z *= nrm.z*nrm.z;
+
+            // Make the normal a unit normal
+            if ( ABS(nrm.x) + ABS(nrm.y) + ABS(nrm.z) > 0.0f )
+            {
+                nrm = fvec3_normalize( nrm.v );
+            }
+
+            dot = fvec3_dot_product(vdiff.v, nrm.v);
+        }
+    }
+
+    prt_can_impact = ( dot < 0 );
+
+    // try to deflect the particle
+    prt_deflected = bfalse;
+    mana_paid     = bfalse;
+    if ( prt_can_impact && (prt_wants_deflection || chr_is_invictus || ((0 != pchr_a->damagetime) && max_damage>0)) )
+    {
+        // magically deflect the particle or make a ricochet if the character is invictus
+
+        int treatment;
+
+        treatment = MISSILE_DEFLECT;
+        prt_deflected = btrue;
+        if( prt_wants_deflection )
+        {
+            treatment = pchr_a->missiletreatment;
             mana_paid = cost_mana( pchr_a->missilehandler, pchr_a->missilecost << 8, pprt_b->owner_ref );
-            if ( mana_paid )
-            {
-                retval = btrue;
-
-                // Treat the missile
-                if ( pchr_a->missiletreatment == MISSILE_DEFLECT )
-                {
-                    // Use old position to find normal
-                    ax = pchr_a->pos.x - pprt_b->pos_old.x;
-                    ay = pchr_a->pos.y - pprt_b->pos_old.y;
-
-                    // Find size of normal
-                    scale = ax * ax + ay * ay;
-                    if ( scale > 0 )
-                    {
-                        // Make the normal a unit normal
-                        scale = SQRT( scale );
-                        nx = ax / scale;
-                        ny = ay / scale;
-
-                        // Deflect the incoming ray off the normal
-                        scale = ( pprt_b->vel.x * nx + pprt_b->vel.y * ny ) * 2;
-                        ax = scale * nx;
-                        ay = scale * ny;
-                        pprt_b->vel.x = pprt_b->vel.x - ax;
-                        pprt_b->vel.y = pprt_b->vel.y - ay;
-                    }
-                }
-                else if ( pchr_a->missiletreatment == MISSILE_DEFLECT )
-                {
-                    // Reflect it back in the direction it came
-                    pprt_b->vel.x *= -1.0f;
-                    pprt_b->vel.y *= -1.0f;
-                }
-
-                // Change the owner of the missile
-                pprt_b->team = pchr_a->team;
-                pprt_b->owner_ref = ichr_a;
-                ppip_b->homing = bfalse;
-
-                // Change the direction of the particle
-                if ( ppip_b->rotatetoface )
-                {
-                    // Turn to face new direction
-                    facing = vec_to_facing( pprt_b->vel.x , pprt_b->vel.y );
-                    pprt_b->facing = facing;
-                }
-            }
+            prt_deflected = mana_paid;
         }
 
-        // if the mana was paid, the particle was definitely deflected
-        prt_might_bump_chr = !pchr_a->invictus && !mana_paid && (pprt_b->attachedto_ref != ichr_a);
-
-        // Refine the simple bump test
-        if ( prt_might_bump_chr  )
+        if ( prt_deflected )
         {
-            //bool_t prt_belongs_to_chr;
-            //bool_t needs_friendlyfire;
-            //bool_t prt_can_hit_chr;
-            //bool_t prt_hates_chr;
+            
+            retval = btrue;
 
-            //prt_belongs_to_chr = ichr_a == pprt_b->owner_ref ||
-            //                     ichr_a == ChrList.lst[pprt_b->owner_ref].attachedto;
-
-            //needs_friendlyfire = !prt_belongs_to_chr || ppip_b->onlydamagefriendly;
-
-            //prt_hates_chr = TeamList[pprt_b->team].hatesteam[pchr_a->team];
-
-            //prt_can_hit_chr =  prt_hates_chr || (ppip_b->friendlyfire && needs_friendlyfire);
-
-            // ignore onlydamagefriendly for the moment
-            bool_t prt_belongs_to_chr;
-            bool_t prt_can_hit_chr;
-            bool_t prt_hates_chr;
-            bool_t can_onlydamagefriendly;
-            bool_t can_friendlyfire;
-            bool_t terminate_particle;
-
-            prt_hates_chr   = TeamList[pprt_b->team].hatesteam[pchr_a->team];
-
-            prt_belongs_to_chr = ichr_a == pprt_b->owner_ref ||
-                                 ichr_a == ChrList.lst[pprt_b->owner_ref].attachedto;
-
-            // this is the onlydamagefriendly condition from the particle search code
-            can_onlydamagefriendly = (ppip_b->onlydamagefriendly && pprt_b->team == pchr_a->team) ||
-                                     (!ppip_b->onlydamagefriendly && prt_hates_chr);
-
-            // I guess "friendly fire" does not mean "self fire", which is a bit unfortunate.
-            can_friendlyfire = ppip_b->friendlyfire && !prt_hates_chr && !prt_belongs_to_chr;
-
-            prt_can_hit_chr =  can_friendlyfire || can_onlydamagefriendly;
-
-            terminate_particle = bfalse;
-            if ( prt_can_hit_chr )
+            // Treat the missile
+            if ( treatment == MISSILE_DEFLECT )
             {
-                int actual_damage, max_damage;
+                // Deflect the incoming ray off the normal
+                prt_impulse.x -= 2.0f*dot*nrm.x;
+                prt_impulse.y -= 2.0f*dot*nrm.y;
+                prt_impulse.z -= 2.0f*dot*nrm.z;
+            }
+            else if ( treatment == MISSILE_DEFLECT )
+            {
+                // Reflect it back in the direction it came
+                prt_impulse.x -= 2.0f*pprt_b->vel.x;
+                prt_impulse.y -= 2.0f*pprt_b->vel.y;
+                prt_impulse.z -= 2.0f*pprt_b->vel.z;
+            }
 
-                retval = btrue;
+            // Change the owner of the missile
+            pprt_b->team      = pchr_a->team;
+            pprt_b->owner_ref = ichr_a;
+            ppip_b->homing    = bfalse;
 
-                // Catch on fire
-                spawn_bump_particles( ichr_a, iprt_b );
+            // Change the direction of the particle
+            if ( ppip_b->rotatetoface )
+            {
+                // Turn to face new direction
+                pprt_b->facing = vec_to_facing( pprt_b->vel.x , pprt_b->vel.y );
+            }
+        }
+    }
 
-                // we can't even get to this point if the character is completely invulnerable (invictus)
-                // so the only barier left is whether the character can be damaged this update
-                if ( 0 == pchr_a->damagetime )
+    // if the particle was deflected, then it can't bump the character
+    prt_might_bump_chr = !prt_deflected && (pprt_b->attachedto_ref != ichr_a);
+
+    // Refine the simple bump test
+    if ( prt_might_bump_chr  )
+    {
+        bool_t prt_belongs_to_chr;
+        bool_t prt_can_hit_chr;
+        bool_t prt_hates_chr;
+        bool_t can_onlydamagefriendly;
+        bool_t can_friendlyfire;
+        bool_t terminate_particle;
+
+        prt_hates_chr   = TeamList[pprt_b->team].hatesteam[pchr_a->team];
+
+        prt_belongs_to_chr = ichr_a == pprt_b->owner_ref ||
+                                ichr_a == ChrList.lst[pprt_b->owner_ref].attachedto;
+
+        // this is the onlydamagefriendly condition from the particle search code
+        can_onlydamagefriendly = (ppip_b->onlydamagefriendly && pprt_b->team == pchr_a->team) ||
+                                    (!ppip_b->onlydamagefriendly && prt_hates_chr);
+
+        // I guess "friendly fire" does not mean "self fire", which is a bit unfortunate.
+        can_friendlyfire = ppip_b->friendlyfire && !prt_hates_chr && !prt_belongs_to_chr;
+
+        prt_can_hit_chr =  can_friendlyfire || can_onlydamagefriendly;
+
+        terminate_particle = bfalse;
+        if ( prt_can_hit_chr )
+        {
+            retval = btrue;
+
+            // Catch on fire
+            spawn_bump_particles( ichr_a, iprt_b );
+
+            // we can't even get to this point if the character is completely invulnerable (invictus)
+            // or can't be damaged this round
+            if ( 0 == pchr_a->damagetime )
+            {
+                // clean up the enchant list before doing anything
+                pchr_a->firstenchant = cleanup_enchant_list( pchr_a->firstenchant );
+
+                // Check all enchants to see if they are removed
+                enchant = pchr_a->firstenchant;
+                while ( enchant != MAX_ENC )
                 {
-                    fvec3_t   vdiff;
-                    float prt_mass, prt_ke;
-
-                    // clean up the enchant list before doing anything
-                    pchr_a->firstenchant = cleanup_enchant_list( pchr_a->firstenchant );
-
-                    // Check all enchants to see if they are removed
-                    enchant = pchr_a->firstenchant;
-                    while ( enchant != MAX_ENC )
+                    enc_next = EncList.lst[enchant].nextenchant_ref;
+                    if ( enc_is_removed( enchant, pprt_b->profile_ref ) )
                     {
-                        enc_next = EncList.lst[enchant].nextenchant_ref;
-                        if ( enc_is_removed( enchant, pprt_b->profile_ref ) )
-                        {
-                            remove_enchant( enchant );
-                        }
-                        enchant = enc_next;
+                        remove_enchant( enchant );
                     }
+                    enchant = enc_next;
+                }
 
-                    // Do confuse effects
-                    if ( 0 == ( Md2FrameList[pchr_a->inst.frame_nxt].framefx&MADFX_INVICTUS ) || ppip_b->damfx&DAMFX_NBLOC )
+                // Do confuse effects
+                // the particle would have already been deflected if this frame was a 
+                // invictus frame
+                if ( 0 != (ppip_b->damfx & DAMFX_NBLOC) /* || 0 == ( Md2FrameList[pchr_a->inst.frame_nxt].framefx & MADFX_INVICTUS ) */ )
+                {
+                    if ( ppip_b->grogtime > 0 && pcap_a->canbegrogged )
                     {
-                        if ( ppip_b->grogtime > 0 && pcap_a->canbegrogged )
+                        pchr_a->ai.alert |= ALERTIF_GROGGED;
+                        if( ppip_b->grogtime > pchr_a->grogtime )
                         {
-                            pchr_a->ai.alert |= ALERTIF_GROGGED;
-                            if( ppip_b->grogtime > pchr_a->grogtime )
-                            {
-                                pchr_a->grogtime = MAX(0, pchr_a->grogtime + ppip_b->grogtime);
-                            }
-                        }
-                        if ( ppip_b->dazetime > 0 && pcap_a->canbedazed )
-                        {
-                            pchr_a->ai.alert |= ALERTIF_DAZED;
-                            if( ppip_b->dazetime > pchr_a->dazetime )
-                            {
-                                pchr_a->dazetime = MAX(0, pchr_a->dazetime + ppip_b->dazetime);
-                            }
+                            pchr_a->grogtime = MAX(0, pchr_a->grogtime + ppip_b->grogtime);
                         }
                     }
-
-                    // DAMFX_ARRO means that it only does damage when stuck to something, not when it hits?
-                    max_damage    = 0;
-                    actual_damage = 0;
-                    if( 0 == ( ppip_b->damfx&DAMFX_ARRO ) )
+                    if ( ppip_b->dazetime > 0 && pcap_a->canbedazed )
                     {
-                        IPair loc_damage = pprt_b->damage;
-
-                        direction = vec_to_facing( pprt_b->vel.x , pprt_b->vel.y );
-                        direction = pchr_a->turn_z - direction + ATK_BEHIND;
-
-                        // Apply intelligence/wisdom bonus damage for particles with the [IDAM] and [WDAM] expansions (Low ability gives penality)
-                        // +2% bonus for every point of intelligence and/or wisdom above 14. Below 14 gives -2% instead!
-                        if ( ppip_b->intdamagebonus )
+                        pchr_a->ai.alert |= ALERTIF_DAZED;
+                        if( ppip_b->dazetime > pchr_a->dazetime )
                         {
-                            float percent;
-                            percent = ( (FP8_TO_INT(ChrList.lst[pprt_b->owner_ref].intelligence)) - 14 ) * 2;
-                            percent /= 100;
-                            loc_damage.base *= 1.00f + percent;
-                        }
-
-                        if ( ppip_b->wisdamagebonus )
-                        {
-                            float percent;
-                            percent = ( FP8_TO_INT(ChrList.lst[pprt_b->owner_ref].wisdom) - 14 ) * 2;
-                            percent /= 100;
-                            loc_damage.base *= 1.00f + percent;
-                        }
-
-                        // handle vulnerabilities
-                        if ( chr_has_vulnie( ichr_a, pprt_b->profile_ref ) )
-                        {
-                            loc_damage.base = (loc_damage.base << 1);
-                            loc_damage.rand = (loc_damage.rand << 1) | 1;
-
-                            pchr_a->ai.alert |= ALERTIF_HITVULNERABLE;
-                        }
-                        max_damage = loc_damage.base + loc_damage.rand;
-
-                        // Damage the character
-                        actual_damage = damage_character( ichr_a, direction, loc_damage, pprt_b->damagetype, pprt_b->team, pprt_b->owner_ref, ppip_b->damfx, bfalse );
-
-                        // we're supposed to blank out the damage here so that swords and such don't
-                        // kill everything in one swipe?
-                        pprt_b->damage = loc_damage;
-                    }
-
-                    // determine an "effective mass" for the particle
-                    {
-                        fvec3_t   vtmp;
-                        float prt_vel2, vel_nrm;
-
-                        //if( ACTIVE_CHR(pprt_b->attachedto_ref) )
-                        //{
-                        //    // just in case there is a problem with the pprt_b->pos calculation
-                        //    // for attached particles
-                        //    vtmp = fvec3_sub( pprt_b->pos.v, pprt_b->pos_old.v );
-                        //}
-                        //else
-                        //{
-                            vtmp = pprt_b->vel;
-                        //}
-                        vdiff = fvec3_sub( vtmp.v, pchr_a->vel.v );
-
-                        prt_vel2 = fvec3_dot_product( vdiff.v, vdiff.v );
-
-                        vdiff = fvec3_normalize( vdiff.v );
-                        vel_nrm = SQRT( MIN( 100.0f, prt_vel2 ) );
-                        vdiff.x *= vel_nrm;
-                        vdiff.y *= vel_nrm;
-                        vdiff.z *= vel_nrm;
-
-                        // make a minimum velocity (a maximum mass)
-                        prt_vel2 = MAX( 100.0f, prt_vel2 );
-
-                        // get the "kinetic energy" from the damage
-                        prt_ke = 40.0f * ABS(max_damage);
-
-                        // the faster the particle is going, the smaller the "mass" it
-                        // needs to do the damage
-                        prt_mass = 0.0f;
-                        if( prt_vel2 > 0.0f )
-                        {
-                            prt_mass = prt_ke / ( 0.5f * prt_vel2 );
-                        }
-                        prt_mass = MAX( 1.0f, prt_mass );
-                    }
-
-                    // Do the impulse to the object that was hit
-                    if ( ppip_b->allowpush  && pchr_a->phys.weight != 0xFFFFFFFF &&
-                        (ABS(actual_damage) > 0) && (ABS(max_damage) > 0) &&
-                        (ABS(vdiff.x) + ABS(vdiff.y) + ABS(vdiff.z) > 0.0f)  )
-                    {
-                        float factor;
-                        fvec3_t   impulse;
-
-                        // the faster the particle (the smaller the particle "mass" ), the bigger the
-                        // kickback
-                        factor = 1.0f / (1.0f + pchr_a->phys.weight / ABS(prt_mass) );
-
-                        // modify it by the damage type
-                        if( DAMAGE_CRUSH == pprt_b->damagetype )
-                        {
-                            // very blunt type of attack, the maximum effect
-                            //factor *= 1.0f;
-                        }
-                        else if ( DAMAGE_POKE == pprt_b->damagetype )
-                        {
-                            // very focussed type of attack, the minimum effect
-                            factor /= 2.0f;
-                        }
-                        else
-                        {
-                            // all other damage types are in the middle
-                            factor *= INV_SQRT_TWO;
-                        }
-
-                        // modify it by the the severity of the damage
-                        // reduces the damage below actual_damage == pchr_a->lifemax
-                        // and it doubles it if actual_damage is really huge
-                        factor *= 2.0f * (float)actual_damage / (float)(ABS(actual_damage) + pchr_a->lifemax);
-
-                        // calculate the "impulse"
-                        impulse = vdiff;
-                        impulse.x *= factor;
-                        impulse.y *= factor;
-                        impulse.z *= factor;
-
-                        // apply the "impulse"
-                        pchr_a->phys.avel.x  += impulse.x;
-                        pchr_a->phys.avel.y  += impulse.y;
-                        pchr_a->phys.avel.z  += impulse.z;
-                    }
-
-                    // do the rebound impulse on the particle
-                    if( (ABS(max_damage) - ABS(actual_damage)) > 0 && ppip_b->allowpush )
-                    {
-                        float recoil;
-                        float factor;
-                        fvec3_t   impulse;
-
-                        recoil = (float)(ABS(max_damage) - ABS(actual_damage)) / (float)ABS(max_damage);
-
-                        // calculate the "impulse"
-                        impulse = vdiff;
-                        impulse.x *= -recoil;
-                        impulse.y *= -recoil;
-                        impulse.z *= -recoil;
-
-                        if( ACTIVE_CHR(pprt_b->attachedto_ref) )
-                        {
-                            // transmit the force of the blow back to the character that is
-                            // holding the weapon
-                            if( ACTIVE_CHR( pprt_b->owner_ref ) )
-                            {
-                                chr_t * powner = ChrList.lst + pprt_b->owner_ref;
-
-                                factor = 1.0f;
-                                if( powner->phys.weight > 0 )
-                                {
-                                    factor = (float) MIN(prt_mass, 120.0f) / (float)powner->phys.weight;
-                                }
-                                factor = MIN(factor, 1.0f);
-
-                                powner->phys.avel.x += impulse.x * factor;
-                                powner->phys.avel.y += impulse.y * factor;
-                                powner->phys.avel.z += impulse.z * factor;
-                            }
-                        }
-                        else
-                        {
-                            // if 100% damage, then the particle comes to rest in the character
-                            pprt_b->vel.x += impulse.x;
-                            pprt_b->vel.y += impulse.y;
-                            pprt_b->vel.z += impulse.z;
-                        }
-                    }
-
-                    // Notify the attacker of a scored hit
-                    if ( ACTIVE_CHR(pprt_b->owner_ref) )
-                    {
-                        Uint16 item;
-
-                        chr_get_pai(pprt_b->owner_ref)->alert |= ALERTIF_SCOREDAHIT;
-                        chr_get_pai(pprt_b->owner_ref)->hitlast = ichr_a;
-
-                        //Tell the weapons who the attacker hit last
-                        item = ChrList.lst[pprt_b->owner_ref].holdingwhich[SLOT_LEFT];
-                        if ( ACTIVE_CHR(item) )
-                        {
-                            ChrList.lst[item].ai.hitlast = ichr_a;
-                        }
-
-                        item = ChrList.lst[pprt_b->owner_ref].holdingwhich[SLOT_RIGHT];
-                        if ( ACTIVE_CHR(item) )
-                        {
-                            ChrList.lst[item].ai.hitlast = ichr_a;
+                            pchr_a->dazetime = MAX(0, pchr_a->dazetime + ppip_b->dazetime);
                         }
                     }
                 }
 
-                if ( ppip_b->endbump )
+                //---- Damage the character, if necessary
+
+                prt_needs_impact = ppip_b->rotatetoface || ACTIVE_CHR(pprt_b->attachedto_ref);
+                if( ACTIVE_CHR(pprt_b->owner_ref) )
                 {
-                    if ( ppip_b->bumpmoney )
+                    chr_t * powner = ChrList.lst + pprt_b->owner_ref;
+                    cap_t * powner_cap = pro_get_pcap( powner->iprofile );
+
+                    if( powner_cap->isranged ) prt_needs_impact = btrue;
+                }
+
+                // DAMFX_ARRO means that it only does damage when stuck to something, not when it hits?
+                if( 0 == ( ppip_b->damfx&DAMFX_ARRO ) && !(prt_needs_impact && !prt_can_impact) )
+                {
+                    IPair loc_damage = pprt_b->damage;
+
+                    direction = vec_to_facing( pprt_b->vel.x , pprt_b->vel.y );
+                    direction = pchr_a->turn_z - direction + ATK_BEHIND;
+
+                    // Apply intelligence/wisdom bonus damage for particles with the [IDAM] and [WDAM] expansions (Low ability gives penality)
+                    // +2% bonus for every point of intelligence and/or wisdom above 14. Below 14 gives -2% instead!
+                    if ( ppip_b->intdamagebonus )
                     {
-                        if ( pchr_a->cangrabmoney && pchr_a->alive && 0 == pchr_a->damagetime && pchr_a->money < MAXMONEY )
-                        {
-                            Uint16 igrabber;
+                        float percent;
+                        percent = ( (FP8_TO_INT(ChrList.lst[pprt_b->owner_ref].intelligence)) - 14 ) * 2;
+                        percent /= 100;
+                        loc_damage.base *= 1.00f + percent;
+                    }
 
-                            igrabber = ichr_a;
+                    if ( ppip_b->wisdamagebonus )
+                    {
+                        float percent;
+                        percent = ( FP8_TO_INT(ChrList.lst[pprt_b->owner_ref].wisdom) - 14 ) * 2;
+                        percent /= 100;
+                        loc_damage.base *= 1.00f + percent;
+                    }
 
-                            // Let mounts collect money for their riders
-                            if ( pchr_a->ismount && ACTIVE_CHR(pchr_a->holdingwhich[SLOT_LEFT]) )
-                            {
-                                igrabber = pchr_a->holdingwhich[SLOT_LEFT];
-                            }
+                    // handle vulnerabilities
+                    if ( chr_has_vulnie( ichr_a, pprt_b->profile_ref ) )
+                    {
+                        loc_damage.base = (loc_damage.base << 1);
+                        loc_damage.rand = (loc_damage.rand << 1) | 1;
 
-                            ChrList.lst[igrabber].money += ppip_b->bumpmoney;
-                            ChrList.lst[igrabber].money = CLIP( ChrList.lst[igrabber].money, 0, MAXMONEY );
+                        pchr_a->ai.alert |= ALERTIF_HITVULNERABLE;
+                    }
+                    max_damage = ABS(loc_damage.base) + ABS(loc_damage.rand);
 
-                            // the coin disappears when you pick it up
-                            terminate_particle = btrue;
-                        }
+                    // Damage the character
+                    actual_damage = damage_character( ichr_a, direction, loc_damage, pprt_b->damagetype, pprt_b->team, pprt_b->owner_ref, ppip_b->damfx, bfalse );
 
+                    // we're supposed to blank out the damage here so that swords and such don't
+                    // kill everything in one swipe?
+                    pprt_b->damage = loc_damage;
+                }
+
+                //---- estimate the impulse on the particle
+                if( prt_can_impact )
+                {
+                    if( 0 == ABS(max_damage) || (ABS(max_damage) - ABS(actual_damage)) == 0 )
+                    {
+                        // the simple case
+                        prt_impulse.x -= pprt_b->vel.x;
+                        prt_impulse.y -= pprt_b->vel.y;
+                        prt_impulse.z -= pprt_b->vel.z;
                     }
                     else
                     {
-                        // Only hit one character, not several
-                        terminate_particle = btrue;
+                        float recoil;
+                        fvec3_t vfinal, impulse_tmp;
+
+                        vfinal.x = pprt_b->vel.x - 2*dot*nrm.x;
+                        vfinal.y = pprt_b->vel.x - 2*dot*nrm.y;
+                        vfinal.z = pprt_b->vel.x - 2*dot*nrm.z;
+
+                        // assume that the particle damage is like the kinetic energy,
+                        // then vfinal must be scaled by recoil^2
+                        recoil = (float)ABS(ABS(max_damage) - ABS(actual_damage)) / (float)ABS(max_damage);
+
+                        vfinal.x *= recoil*recoil;
+                        vfinal.y *= recoil*recoil;
+                        vfinal.y *= recoil*recoil;
+
+                        impulse_tmp = fvec3_sub( vfinal.v, pprt_b->vel.v );
+
+                        prt_impulse.x += impulse_tmp.x;
+                        prt_impulse.y += impulse_tmp.y;
+                        prt_impulse.z += impulse_tmp.z;
+                    }
+
+                }
+
+                //---- Notify the attacker of a scored hit
+                if ( ACTIVE_CHR(pprt_b->owner_ref) )
+                {
+                    Uint16 item;
+
+                    chr_get_pai(pprt_b->owner_ref)->alert |= ALERTIF_SCOREDAHIT;
+                    chr_get_pai(pprt_b->owner_ref)->hitlast = ichr_a;
+
+                    //Tell the weapons who the attacker hit last
+                    item = ChrList.lst[pprt_b->owner_ref].holdingwhich[SLOT_LEFT];
+                    if ( ACTIVE_CHR(item) )
+                    {
+                        ChrList.lst[item].ai.hitlast = ichr_a;
+                    }
+
+                    item = ChrList.lst[pprt_b->owner_ref].holdingwhich[SLOT_RIGHT];
+                    if ( ACTIVE_CHR(item) )
+                    {
+                        ChrList.lst[item].ai.hitlast = ichr_a;
                     }
                 }
             }
 
-            if( terminate_particle )
+            if ( ppip_b->endbump )
             {
-                prt_request_terminate( iprt_b );
-            }
+                if ( ppip_b->bumpmoney )
+                {
+                    if ( pchr_a->cangrabmoney && pchr_a->alive && 0 == pchr_a->damagetime && pchr_a->money < MAXMONEY )
+                    {
+                        Uint16 igrabber;
 
+                        igrabber = ichr_a;
+
+                        // Let mounts collect money for their riders
+                        if ( pchr_a->ismount && ACTIVE_CHR(pchr_a->holdingwhich[SLOT_LEFT]) )
+                        {
+                            igrabber = pchr_a->holdingwhich[SLOT_LEFT];
+                        }
+
+                        ChrList.lst[igrabber].money += ppip_b->bumpmoney;
+                        ChrList.lst[igrabber].money = CLIP( ChrList.lst[igrabber].money, 0, MAXMONEY );
+
+                        // the coin disappears when you pick it up
+                        terminate_particle = btrue;
+                    }
+
+                }
+                else
+                {
+                    // Only hit one character, not several
+                    terminate_particle = btrue;
+                }
+            }
         }
+
+        // This should prevent raindrops from stacking up on the top of trees and other
+        // objects
+        if( !prt_deflected && ppip_b->endground && pchr_a->platform )
+        {
+            terminate_particle = btrue;
+        }
+
+        if( terminate_particle )
+        {
+            prt_request_terminate( iprt_b );
+        }
+    }
+
+
+    // do the reaction force of the particle on the character
+    if( ppip_b->allowpush && (ABS(prt_impulse.x) + ABS(prt_impulse.y) + ABS(prt_impulse.z) > 0) )
+    {
+        float prt_mass;
+        float attack_factor;
+
+        // determine how much the attack is "felt"
+        attack_factor = 1.0f;
+        if( DAMAGE_CRUSH == pprt_b->damagetype )
+        {
+            // very blunt type of attack, the maximum effect
+            attack_factor = 1.0f;
+        }
+        else if ( DAMAGE_POKE == pprt_b->damagetype )
+        {
+            // very focussed type of attack, the minimum effect
+            attack_factor = 0.5f;
+        }
+        else
+        {
+            // all other damage types are in the middle
+            attack_factor = INV_SQRT_TWO;
+        }
+
+
+        prt_mass = 1.0f;
+        if( 0 == max_damage )
+        {
+            // this is a particle like the wind particles in the whirlwind
+            // make the particle have some kind of predictable constant effect
+            // relative to any character;
+            prt_mass = pchr_a->phys.weight / 10.0f;
+        }
+        else
+        {
+            // determine an "effective mass" for the particle, based on it's max damage
+            // and velocity
+
+            float prt_vel2;
+            float prt_ke;
+
+            // the damage is basically like the kinetic energy of the particle
+            prt_vel2 = fvec3_dot_product( vdiff.v, vdiff.v );
+
+            // It can happen that a damage particle can hit something
+            // at almost zero velocity, which would make for a huge "effective mass".
+            // by making a reasonable "minimum velocity", we limit the maximum mass to
+            // something reasonable
+            prt_vel2 = MAX( 100.0f, prt_vel2 );
+
+            // get the "kinetic energy" from the damage
+            prt_ke = 3.0f * max_damage;
+
+            // the faster the particle is going, the smaller the "mass" it
+            // needs to do the damage
+            prt_mass = prt_ke / ( 0.5f * prt_vel2 );
+
+            // limit the prt_mass to a reasonable range, 120 being the "standard" weight
+            // of the adventurer
+            prt_mass = CLIP( prt_mass, 1.0f, 10.0f * 120.0f );
+        }
+
+        // now, we have the particle's impulse and mass
+        // Do the impulse to the object that was hit
+        // If the particle was magically deflected, there is no rebound on the target
+        if ( pchr_a->phys.weight != 0xFFFFFFFF && !mana_paid )
+        {
+            float factor = attack_factor;
+
+            // the faster the particle (the smaller the particle "mass" ), the bigger the
+            // kickback
+            factor = 1.0f / (1.0f + pchr_a->phys.weight / ABS(prt_mass) );
+
+            // modify it by the the severity of the damage
+            // reduces the damage below actual_damage == pchr_a->lifemax
+            // and it doubles it if actual_damage is really huge
+            factor *= 2.0f * (float)actual_damage / (float)(ABS(actual_damage) + pchr_a->lifemax);
+
+            // calculate the "impulse"
+            pchr_a->phys.avel.x -= prt_impulse.x * factor;
+            pchr_a->phys.avel.y -= prt_impulse.y * factor;
+            pchr_a->phys.avel.z -= prt_impulse.z * factor;
+        }
+
+        // if the particle is attached to a weapon, the particle can force the
+        // weapon (actually, the weapon's holder) to rebound.
+        if( ACTIVE_CHR(pprt_b->attachedto_ref) )
+        {
+            // transmit the force of the blow back to the character that is
+            // holding the weapon
+            if( ACTIVE_CHR( pprt_b->owner_ref ) )
+            {
+                chr_t * powner = ChrList.lst + pprt_b->owner_ref;
+
+                if( powner->phys.weight != 0xFFFFFFFF )
+                {
+                    float factor = attack_factor;
+
+                    if( powner->phys.weight > 0 )
+                    {
+                        factor *= (float) prt_mass / (float)powner->phys.weight;
+                    }
+
+                    // in the SAME direction as the particle
+                    powner->phys.avel.x += prt_impulse.x * factor;
+                    powner->phys.avel.y += prt_impulse.y * factor;
+                    powner->phys.avel.z += prt_impulse.z * factor;
+                }
+            }
+        }
+    }
+
+    // apply the impulse to the particle velocity
+    if( (ABS(prt_impulse.x) + ABS(prt_impulse.y) + ABS(prt_impulse.z) > 0) )
+    {
+        pprt_b->vel.x += prt_impulse.x;
+        pprt_b->vel.y += prt_impulse.y;
+        pprt_b->vel.z += prt_impulse.z;
     }
 
     return retval;

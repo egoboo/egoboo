@@ -29,8 +29,8 @@
 #dependency Clairvoyance     85
 #dependency Confusion        88
 #dependency SyphonMana      112
-#dependency CombatBless		  122	
-#dependency Regeneration	  124	
+#dependency CombatBless	    122	
+#dependency Regeneration    124	
 #dependency Exorcism        125
 #dependency Restoration     128
 #dependency HolyBolt        129
@@ -65,6 +65,8 @@
 #dependency JRing           135
 #dependency LifeRing  	    136
 #dependency LuckRing        137
+
+#dependency Tranch           41
 
 
 //         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team

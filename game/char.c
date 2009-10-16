@@ -2841,7 +2841,7 @@ int damage_character( Uint16 character, Uint16 direction,
                        IPair  damage, Uint8 damagetype, Uint8 team,
                        Uint16 attacker, Uint16 effects, bool_t ignoreinvincible )
 {
-    /// @details ZZ@> This function calculates and applies actual_damage to a character.  It also
+    /// @details ZZ@> This function calculates and applies damage to a character.  It also
     ///    sets alerts and begins actions.  Blocking and frame invincibility
     ///    are done here too.  Direction is ATK_FRONT if the attack is coming head on,
     ///    ATK_RIGHT if from the right, ATK_BEHIND if from the back, ATK_LEFT if from the
@@ -3079,7 +3079,10 @@ int damage_character( Uint16 character, Uint16 direction,
                             chr_play_action( character, action, bfalse );
 
                             // Make the character invincible for a limited time only
-                            if ( !( effects & DAMFX_TIME ) ) pchr->damagetime = DAMAGETIME;
+                            if ( 0 == ( effects & DAMFX_TIME ) )
+                            {
+                                pchr->damagetime = DAMAGETIME;
+                            }
                         }
                     }
                 }

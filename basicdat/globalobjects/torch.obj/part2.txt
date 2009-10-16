@@ -39,7 +39,7 @@ Bump damage type ( SLASH, CRUSH, POKE, HOLY,
 // Lighting data
 Does it act as a dynamic light? ( TRUE or FALSE )	: TRUE
 Dynalight level ( around 0.7 )				: 0.65
-Dynalight falloff ( around 1000 )			: 1400
+Dynalight falloff ( around 1000 )			: 450
 
 
 

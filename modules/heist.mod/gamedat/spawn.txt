@@ -71,8 +71,8 @@ mosquito:   NONE    48  24.5   17.5   1.0   N    0   0  0   0   0   F   F   Inse
 mosquito:   NONE    48  25.5   16.5   1.0   N    0   0  0   0   0   F   F   Insects
 mosquito:   NONE    48  23.5   17.5   1.0   N    0   0  0   0   0   F   F   Insects
 mosquito:   NONE    48  24.5   16.5   1.0   N    0   0  0   0   0   F   F   Insects
-tranch:   NONE    52  32.0   20.0   0.0   N    0   0  0   0   0   F   F   Evil
-tranch:   NONE    52  33.0   23.0   0.0   N    0   0  0   0   0   F   F   Evil
+Tranch:   NONE    52  32.0   20.0   0.0   N    0   0  0   0   0   F   F   Evil
+Tranch:   NONE    52  33.0   23.0   0.0   N    0   0  0   0   0   F   F   Evil
 
 //The deadly corner
 deadfall:   NONE    53  30.0   15.5   1.0   N    0   0  1   0   0   F   F   N

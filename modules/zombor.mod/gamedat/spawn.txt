@@ -20,8 +20,8 @@ nercomancer:   NONE    45  13.0   33.0   1.0   N    128   0  0   0   0   T   F  
   WandMissile:   NONE    31  14.0   48.0   2.0   I    0   0  0   0   0   F   F   N
 
 zombi:   NONE    44  16.0   32.0   1.0   N    0   0  0   0   0   F   F   Z
-tranch:   NONE    37  15.5   12.5   1.0   N    0   0  0   0   0   F   F   V
-tranch:   NONE    37  11.5   9.5   1.0   N    0   0  0   0   0   F   F   V
+Tranch:   NONE    37  15.5   12.5   1.0   N    0   0  0   0   0   F   F   V
+Tranch:   NONE    37  11.5   9.5   1.0   N    0   0  0   0   0   F   F   V
 deadbody:   NONE    43  11.0   31.0   1.0   N    0   0  0   0   0   F   F   N
 deadbody:   NONE    43  15.0   34.0   1.0   N    0   0  0   0   0   F   F   N
 rsword:   NONE    38  23.0   35.0   1.0   N    0   0  0   0   0   F   F   N
@@ -52,7 +52,7 @@ grubbug:   NONE    48  29.0   51.0   1.0   N    0   0  0   0   0   F   F   V
 chest:   NONE    49  48.5   46.5   1.0   W    49   0  0   0   0   F   F   N
 chest:   NONE    49  48.5   50.5   1.0   W    0   0  0   0   0   F   F   N
   LBow:   NONE    51  14.0   48.0   2.0   I    0   0  0   0   0   F   F   N
-  tranch:   NONE    37  48.5   46.5   1.0   I    0   0  0   0   0   F   F   G
+  Tranch:   NONE    37  48.5   46.5   1.0   I    0   0  0   0   0   F   F   G
   claw:   NONE    41  14.0   48.0   2.0   I    0   0  0   0   0   F   F   N
 unknown:   NONE    35  34.5   42.5   1.0   N    3   0  0   0   0   F   F   G
   Torch:   NONE    30  14.0   48.0   2.0   R    0   0  0   0   0   F   F   N
