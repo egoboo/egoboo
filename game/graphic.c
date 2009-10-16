@@ -5006,7 +5006,7 @@ bool_t sum_dyna_lighting( dynalight_t * pdyna, float lighting[], float dx, float
 
     float level;
     float rho_sqr  = dx * dx + dy * dy;
-    float local_falloff = 9 * pdyna->falloff;
+    float local_falloff = pdyna->falloff;
 
     ftmp = INV_FF * rho_sqr / local_falloff;
 
