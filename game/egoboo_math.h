@@ -185,7 +185,7 @@ fmat_4x4_t RotateY( const float rads );
 fmat_4x4_t RotateZ( const float rads );
 fmat_4x4_t ScaleXYZ( const float sizex, const float sizey, const float sizez );
 fmat_4x4_t ScaleXYZRotateXYZTranslate(  const float sizex, const float sizey, const float sizez, const Uint16 turn_z, const Uint16 turn_x, const Uint16 turn_y, const float tx, const float ty, const float tz  );
-fmat_4x4_t FourPoints( float orix, float oriy, float oriz, float widx, float widy, float widz, float forx, float fory, float forz, float upx,  float upy,  float upz, float scale );
+fmat_4x4_t FourPoints( fvec4_base_t ori, fvec4_base_t wid, fvec4_base_t frw, fvec4_base_t upx, float scale );
 fmat_4x4_t ViewMatrix( const fvec3_base_t   from, const fvec3_base_t   at, const fvec3_base_t   world_up, const float roll );
 fmat_4x4_t ProjectionMatrix( const float near_plane, const float far_plane, const float fov );
 void       TransformVertices( fmat_4x4_t *pMatrix, fvec4_t   *pSourceV, fvec4_t   *pDestV, Uint32  NumVertor );

@@ -197,3 +197,4 @@ Sound of Jump ( -1 for none )			: 1
 :[DRES] 1
 :[DRES] 2
 :[DRES] 3
+:[DARK] 3

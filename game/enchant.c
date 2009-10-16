@@ -377,17 +377,17 @@ void set_enchant_value( Uint16 ienc, Uint8 valueindex, Uint16 profile )
 
                     case SETLIGHTBLEND:
                         penc->setsave[valueindex] = ptarget->inst.light;
-                        ptarget->inst.light = peve->setvalue[valueindex];
+                        chr_set_light( ptarget, peve->setvalue[valueindex] );
                         break;
 
                     case SETALPHABLEND:
                         penc->setsave[valueindex] = ptarget->inst.alpha;
-                        ptarget->inst.alpha = peve->setvalue[valueindex];
+                        chr_set_alpha( ptarget, peve->setvalue[valueindex] );
                         break;
 
                     case SETSHEEN:
                         penc->setsave[valueindex] = ptarget->inst.sheen;
-                        ptarget->inst.sheen = peve->setvalue[valueindex];
+                        chr_set_sheen( ptarget, peve->setvalue[valueindex] );
                         break;
 
                     case SETFLYTOHEIGHT:
@@ -519,21 +519,21 @@ void add_enchant_value( Uint16 ienc, Uint8 valueindex, Uint16 ieve )
             newvalue = ptarget->inst.redshift;
             valuetoadd = peve->addvalue[valueindex];
             getadd( 0, newvalue, 6, &valuetoadd );
-            ptarget->inst.redshift += valuetoadd;
+            chr_set_redshift( ptarget, ptarget->inst.redshift + valuetoadd );
             break;
 
         case ADDGRN:
             newvalue = ptarget->inst.grnshift;
             valuetoadd = peve->addvalue[valueindex];
             getadd( 0, newvalue, 6, &valuetoadd );
-            ptarget->inst.grnshift += valuetoadd;
+            chr_set_grnshift( ptarget, ptarget->inst.grnshift + valuetoadd );
             break;
 
         case ADDBLU:
             newvalue = ptarget->inst.blushift;
             valuetoadd = peve->addvalue[valueindex];
             getadd( 0, newvalue, 6, &valuetoadd );
-            ptarget->inst.blushift += valuetoadd;
+            chr_set_blushift( ptarget, ptarget->inst.blushift + valuetoadd );
             break;
 
         case ADDDEFENSE:
@@ -858,7 +858,9 @@ Uint16 spawn_one_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 en
                 povl->inst.frame_lst = povl->inst.frame_nxt;
             }
 
-            povl->inst.light = 254;  // Assume it's transparent...
+            // Assume it's transparent...
+            chr_set_light( povl, 254 );  
+            chr_set_alpha( povl,   0 );
         }
     }
 
@@ -1004,15 +1006,15 @@ void unset_enchant_value( Uint16 ienc, Uint8 valueindex )
                 break;
 
             case SETLIGHTBLEND:
-                ptarget->inst.light = penc->setsave[valueindex];
+                chr_set_light( ptarget, penc->setsave[valueindex] );
                 break;
 
             case SETALPHABLEND:
-                ptarget->inst.alpha = penc->setsave[valueindex];
+                chr_set_alpha( ptarget, penc->setsave[valueindex] );
                 break;
 
             case SETSHEEN:
-                ptarget->inst.sheen = penc->setsave[valueindex];
+                chr_set_sheen( ptarget, penc->setsave[valueindex] );
                 break;
 
             case SETFLYTOHEIGHT:
@@ -1102,17 +1104,17 @@ void remove_enchant_value( Uint16 ienc, Uint8 valueindex )
 
         case ADDRED:
             valuetoadd = penc->addsave[valueindex];
-            ptarget->inst.redshift -= valuetoadd;
+            chr_set_redshift( ptarget, ptarget->inst.redshift - valuetoadd );
             break;
 
         case ADDGRN:
             valuetoadd = penc->addsave[valueindex];
-            ptarget->inst.grnshift -= valuetoadd;
+            chr_set_grnshift( ptarget, ptarget->inst.grnshift - valuetoadd );
             break;
 
         case ADDBLU:
             valuetoadd = penc->addsave[valueindex];
-            ptarget->inst.blushift -= valuetoadd;
+            chr_set_blushift( ptarget, ptarget->inst.blushift - valuetoadd );
             break;
 
         case ADDDEFENSE:

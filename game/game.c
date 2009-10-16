@@ -2794,12 +2794,54 @@ void show_armor( Uint16 statindex )
 }
 
 //--------------------------------------------------------------------------------------------
+bool_t get_chr_regeneration( chr_t * pchr, int * pliferegen, int * pmanaregen )
+{
+    /// @details ZF@> Get a character's life and mana regeneration, considering all sources
+
+    int local_liferegen, local_manaregen;
+    Uint16 ichr, enchant;
+
+    if( !ACTIVE_PCHR(pchr) ) return bfalse;
+    ichr = GET_INDEX_PCHR( pchr );
+
+    if(NULL == pliferegen) pliferegen = &local_liferegen;
+    if(NULL == pmanaregen) pmanaregen = &local_manaregen;
+
+    // set the base values
+    (*pmanaregen) = pchr->manareturn / MANARETURNSHIFT;
+    (*pliferegen) = pchr->lifereturn;
+
+    // Don't forget to add gains and costs from enchants
+    for ( enchant = 0; enchant < MAX_ENC; enchant++ )
+    {
+        enc_t * penc;
+
+        if ( !ACTIVE_ENC(enchant) ) continue;
+        penc = EncList.lst + enchant;
+
+        if ( penc->target_ref == ichr )
+        {
+            (*pliferegen) += penc->targetlife;
+            (*pmanaregen) += penc->targetmana;
+        }
+
+        if ( penc->owner_ref == ichr )
+        {
+            (*pliferegen) += penc->ownerlife;
+            (*pmanaregen) += penc->ownermana;
+        }
+    }
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
 void show_full_status( Uint16 statindex )
 {
     /// @details ZF@> This function shows detailed armor information for the character including magic
 
-    Uint16 character, enchant;
-    float manaregen, liferegen;
+    Uint16 character;
+    int manaregen, liferegen;
     chr_t * pchr;
 
     if ( statindex >= StatusList_count ) return;
@@ -2828,28 +2870,7 @@ void show_full_status( Uint16 statindex )
                 pchr->damagemodifier[6]&DAMAGESHIFT,
                 pchr->damagemodifier[7]&DAMAGESHIFT );
 
-    // Life and mana regeneration
-    // Don't forget to add gains and costs from enchants
-    manaregen = pchr->manareturn / MANARETURNSHIFT;
-    liferegen = pchr->lifereturn;
-    for ( enchant = 0; enchant < MAX_ENC; enchant++ )
-    {
-        enc_t * penc;
-
-        if ( !ACTIVE_ENC(enchant) ) continue;
-        penc = EncList.lst + enchant;
-
-        if ( penc->target_ref == character )
-        {
-            liferegen += penc->targetlife;
-            manaregen += penc->targetmana;
-        }
-        if ( penc->owner_ref == character )
-        {
-            liferegen += penc->ownerlife;
-            manaregen += penc->ownermana;
-        }
-    }
+    get_chr_regeneration( pchr, &liferegen, &manaregen );
 
     debug_printf( "Mana Regen:~%4.2f Life Regen:~%4.2f", FP8_TO_FLOAT(manaregen), FP8_TO_FLOAT(liferegen) );
 }
@@ -2887,11 +2908,11 @@ void show_magic_status( Uint16 statindex )
 
     switch( pchr->missiletreatment )
     {
-    case MISSILE_REFLECT: missile_str = "Reflect"; break;
-    case MISSILE_DEFLECT: missile_str = "Deflect"; break;
+        case MISSILE_REFLECT: missile_str = "Reflect"; break;
+        case MISSILE_DEFLECT: missile_str = "Deflect"; break;
 
-    default:
-    case MISSILE_NORMAL : missile_str = "None";    break;
+        default:
+        case MISSILE_NORMAL : missile_str = "None";    break;
     }
 
     debug_printf( "~Flying: %s~~Missile Protection: %s", (pchr->flyheight > 0) ? "Yes" : "No", missile_str );
@@ -3135,7 +3156,7 @@ bool_t attach_chr_to_platform( chr_t * pchr, chr_t * pplat )
     pchr->onwhichplatform = GET_INDEX( pplat, MAX_CHR );
 
     // update the character's relationship to the ground
-    pchr->enviro.level    = MAX( pchr->enviro.floor_level, pplat->pos.z + pplat->bump.height );
+    pchr->enviro.level    = MAX( pchr->enviro.floor_level, pplat->pos.z + pplat->chr_chr_cv.max_z );
     pchr->enviro.zlerp    = (pchr->pos.z - pchr->enviro.level) / PLATTOLERANCE;
     pchr->enviro.zlerp    = CLIP(pchr->enviro.zlerp, 0, 1);
     pchr->enviro.grounded = (0 == pchr->flyheight) && (pchr->enviro.zlerp < 0.25f);
@@ -3498,8 +3519,10 @@ bool_t do_chr_platform_physics( chr_t * pitem, chr_t * pplat )
     if( !ACTIVE_PCHR( pitem ) ) return bfalse;
     if( !ACTIVE_PCHR( pplat ) ) return bfalse;
 
-    lerp_z = (pitem->pos.z - pitem->enviro.level) / PLATTOLERANCE;
-    lerp_z = 1.0f - CLIP( lerp_z, 0.0f, 1.0f );
+    if( pitem->onwhichplatform != GET_INDEX_PCHR(pplat) ) return bfalse;
+
+    // grab the pre-computed zlerp value, and map it to our needs
+    lerp_z = 1.0f - pitem->enviro.zlerp;
 
     // if your velocity is going up much faster then the
     // platform, there is no need to suck you to the level of the platform
@@ -3600,15 +3623,41 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
     // don't do anything if there is no interaction strength
     if ( 0 == pchr_a->bump.size || 0 == pchr_b->bump.size ) return bfalse;
 
-    // make sure we have good collision sizes for the two objects
-    // these functions can be called here, even though they are relatively expensive
-    // because they are called relatively rarely... we hope!
-    //chr_update_collision_size( pchr_a, btrue );
-    //chr_update_collision_size( pchr_b, btrue );
-
     interaction_strength = 1.0f;
     interaction_strength *= pchr_a->inst.alpha * INV_FF;
     interaction_strength *= pchr_b->inst.alpha * INV_FF;
+
+    // reduce the interaction strength with platforms
+    // that are overlapping with the platform you are actually on
+    if( pcap_b->canuseplatforms && pchr_a->platform )
+    {
+        float lerp_z = (pchr_b->pos.z - (pchr_a->pos.z + pchr_a->chr_chr_cv.max_z)) / PLATTOLERANCE;
+        lerp_z = CLIP(lerp_z, -1, 1);
+
+        if( lerp_z >= 0 ) 
+        {
+            interaction_strength = 0;
+        }
+        else
+        {
+            interaction_strength *= -lerp_z; 
+        }
+    }
+
+    if( pcap_a->canuseplatforms && pchr_b->platform )
+    {
+        float lerp_z = (pchr_a->pos.z - (pchr_b->pos.z + pchr_b->chr_chr_cv.max_z)) / PLATTOLERANCE;
+        lerp_z = CLIP(lerp_z, -1, 1);
+
+        if( lerp_z >= 0 ) 
+        {
+            interaction_strength = 0;
+        }
+        else
+        {
+            interaction_strength *= -lerp_z; 
+        }
+    }
 
     // estimate the collision based on the "collision bounding box", chr_chr_cv
     xa  = pchr_a->pos.x;
@@ -6912,6 +6961,8 @@ bool_t upload_water_layer_data( water_instance_layer_t inst[], wawalite_water_la
             inst[layer].tx_add.y    = data[layer].tx_add[YY];
 
             inst[layer].alpha       = data[layer].alpha;
+
+            inst[layer].frame_add = data[layer].frame_add;
         }
     }
 
@@ -6921,7 +6972,7 @@ bool_t upload_water_layer_data( water_instance_layer_t inst[], wawalite_water_la
 //--------------------------------------------------------------------------------------------
 bool_t upload_water_data( water_instance_t * pinst, wawalite_water_t * pdata )
 {
-    int layer;
+    //int layer;
 
     if (NULL == pinst) return bfalse;
 
@@ -6931,8 +6982,8 @@ bool_t upload_water_data( water_instance_t * pinst, wawalite_water_t * pdata )
     {
         // upload the data
 
-        pinst->surface_level = pdata->surface_level;
-        pinst->douse_level   = pdata->douse_level;
+        pinst->surface_level    = pdata->surface_level;
+        pinst->douse_level      = pdata->douse_level;
 
         pinst->is_water         = pdata->is_water;
         pinst->overlay_req      = pdata->overlay_req;
@@ -6948,26 +6999,26 @@ bool_t upload_water_data( water_instance_t * pinst, wawalite_water_t * pdata )
         upload_water_layer_data( pinst->layer, pdata->layer, pdata->layer_count );
     }
 
-    // fix the alpha in case of self-lit textures
-    if ( pdata->light )
-    {
-        for ( layer = 0; layer < pinst->layer_count; layer++ )
-        {
-            pinst->layer[layer].alpha = 255;  // Some cards don't support alpha lights...
-        }
-    }
+    // fix the light in case of self-lit textures
+    //if ( pdata->light )
+    //{
+    //    for ( layer = 0; layer < pinst->layer_count; layer++ )
+    //    {
+    //        pinst->layer[layer].light_add = 1.0f;  // Some cards don't support light lights...
+    //    }
+    //}
 
     make_water( pinst, pdata );
 
     // Allow slow machines to ignore the fancy stuff
     if ( !cfg.twolayerwater_allowed && pinst->layer_count > 1 )
     {
-        int iTmp = pdata->layer[0].alpha;
-        iTmp = ( pdata->layer[1].alpha * iTmp  * INV_FF ) + iTmp;
+        int iTmp = pdata->layer[0].light_add;
+        iTmp = ( pdata->layer[1].light_add * iTmp * INV_FF ) + iTmp;
         if ( iTmp > 255 ) iTmp = 255;
 
-        pinst->layer_count = 1;
-        pinst->layer[0].alpha = iTmp;
+        pinst->layer_count        = 1;
+        pinst->layer[0].light_add = iTmp * INV_FF;
     }
 
     return btrue;
@@ -7090,7 +7141,7 @@ bool_t upload_light_data( wawalite_data_t * pdata )
     light_x = pdata->light_x;
     light_y = pdata->light_y;
     light_z = pdata->light_z;
-    light_a = pdata->light_a * 10.0f;
+    light_a = pdata->light_a;
 
     light_d = 0.0f;
     if ( ABS(light_x) + ABS(light_y) + ABS(light_z) > 0 )
@@ -7098,8 +7149,20 @@ bool_t upload_light_data( wawalite_data_t * pdata )
         float fTmp = SQRT( light_x * light_x + light_y * light_y + light_z * light_z );
 
         // get the extra magnitude of the direct light
-        light_d = (1.0f - light_a) * fTmp;
-        light_d = CLIP(light_d, 0.0f, 1.0f);
+        if( gfx.usefaredge )
+        {
+            // we are outside, do the direct listh is sunlight
+            light_d = 1.0f;
+            light_a = light_a / fTmp;
+            light_a = CLIP(light_a, 0.0f, 1.0f);
+        }
+        else
+        {
+            // we are inside. take the lighting values at face value.
+            //light_d = (1.0f - light_a) * fTmp;
+            //light_d = CLIP(light_d, 0.0f, 1.0f);
+            light_d = CLIP(fTmp, 0.0f, 1.0f);
+        }
 
         light_x /= fTmp;
         light_y /= fTmp;
@@ -7159,9 +7222,9 @@ void upload_wawalite()
 
     wawalite_data_t * pdata = &wawalite_data;
 
-    upload_light_data( pdata );
     upload_phys_data( &(pdata->phys) );
     upload_graphics_data( &(pdata->graphics) );
+    upload_light_data( pdata );                         // this statement depends on data from upload_graphics_data()
     upload_camera_data( &(pdata->camera) );
     upload_fog_data( &fog, &(pdata->fog) );
     upload_water_data( &water, &(pdata->water) );
@@ -7354,23 +7417,29 @@ bool_t write_wawalite( const char *modname, wawalite_data_t * pdata )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 gel_local_alpha( Uint16 iobj )
+Uint8 get_local_alpha( int light  )
 {
-    chr_t * pobj;
-    int     alpha;
-
-    if( !ACTIVE_CHR(iobj) ) return bfalse;
-    pobj = ChrList.lst + iobj;
-
-    alpha = pobj->inst.alpha;
-
     if( local_seeinvis_level > 0 )
     {
-        alpha = MAX( alpha, INVISIBLE );
-        alpha *= local_seeinvis_level + 1;
+        light = MAX( light, INVISIBLE );
+        light *= local_seeinvis_level + 1;
     }
 
-    return CLIP(alpha, 0, 255);
+    return CLIP(light, 0, 255);
+}
+
+//--------------------------------------------------------------------------------------------
+Uint8 get_local_light( int light  )
+{
+    if( 0xFF == light ) return light;
+
+    if( local_seedark_level > 0 )
+    {
+        light = MAX( light, INVISIBLE );
+        light *= local_seedark_level + 1;
+    }
+
+    return CLIP(light, 0, 254);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -7641,8 +7710,8 @@ bool_t do_item_pickup( Uint16 ichr, Uint16 iitem )
 //    if ( 0 == pchr_a->bump.size || 0 == pchr_b->bump.size ) return bfalse;
 //
 //    interaction_strength = 1.0f;
-//    interaction_strength *= pchr_a->inst.alpha * INV_FF;
-//    interaction_strength *= pchr_b->inst.alpha * INV_FF;
+//    interaction_strength *= pchr_a->inst.light * INV_FF;
+//    interaction_strength *= pchr_b->inst.light * INV_FF;
 //
 //    xa = pchr_a->pos.x;
 //    ya = pchr_a->pos.y;

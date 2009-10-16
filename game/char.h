@@ -153,6 +153,17 @@ enum e_chr_name_bits
     CHRNAME_CAPITAL  = (1 << 2)         ///< capitalize the name
 };
 
+/// Bits used to request a character tint
+enum e_chr_render_bits
+{
+    CHR_UNKNOWN  = 0,
+    CHR_SOLID    = (1 << 0),
+    CHR_ALPHA    = (1 << 1), 
+    CHR_LIGHT    = (1 << 2),
+    CHR_PHONG    = (1 << 3),
+    CHR_REFLECT  = (1 << 4)
+};
+
 //------------------------------------
 /// Team variables
 //------------------------------------
@@ -235,15 +246,17 @@ struct s_matrix_cache
     Uint16  grip_chr;                   ///< !=MAX_CHR if character is a held weapon
     slot_t  grip_slot;                  ///< SLOT_LEFT or SLOT_RIGHT
     Uint16  grip_verts[GRIP_VERTS];     ///< Vertices which describe the weapon grip
+    fvec3_t grip_scale;
 
     //---- data used for both
 
     // the body fixed scaling
-    fvec3_t   scale;
+    fvec3_t  self_scale;
 };
 typedef struct s_matrix_cache matrix_cache_t;
 
 matrix_cache_t * matrix_cache_init(matrix_cache_t * mcache);
+
 
 //--------------------------------------------------------------------------------------------
 /// some pre-computed parameters for reflection
@@ -252,10 +265,13 @@ struct s_chr_reflection_cache
     fmat_4x4_t matrix;
     bool_t     matrix_valid;
     Uint8      alpha;
+    Uint8      light;
     Uint8      sheen;
     Uint8      redshift;
     Uint8      grnshift;
     Uint8      blushift;
+
+    Uint32     update_wld;
 };
 typedef struct s_chr_reflection_cache chr_reflection_cache_t;
 
@@ -306,17 +322,17 @@ struct s_chr_instance
     Sint32         color_amb;
     fvec4_t        col_amb;
     int            max_light, min_light;
-    Uint32       lighting_update_wld; // the save data to determine whether re-calculation of lighting data is necessary
+    Uint32         lighting_update_wld;            ///< the save data to determine whether re-calculation of lighting data is necessary
 
     // linear interpolated frame vertices
     size_t         vlst_size;
     GLvertex       vlst[MAXVERTICES];
-    oct_bb_t       bbox;                      ///< the bounding box for this frame
+    oct_bb_t       bbox;                           ///< the bounding box for this frame
 
     // graphical optimizations
-    bool_t                 indolist;  ///< Has it been added yet?
-    vlst_cache_t           save;      ///< Do we need to re-calculate all or part of the vertex list
-    chr_reflection_cache_t ref;       ///< pre-computing some reflection parameters
+    bool_t                 indolist;               ///< Has it been added yet?
+    vlst_cache_t           save;                   ///< Do we need to re-calculate all or part of the vertex list
+    chr_reflection_cache_t ref;                    ///< pre-computing some reflection parameters
 
     // OBSOLETE
     // lighting
@@ -551,6 +567,7 @@ struct s_chr
     int           canread;
     int           hascodeofconduct;
     int           darkvision_level;
+    int           darkvision_level_base;
 
     /// collision info
 
@@ -798,7 +815,17 @@ Uint16 chr_has_inventory_idsz( Uint16 ichr, IDSZ idsz, bool_t equipped, Uint16 *
 Uint16 chr_holding_idsz( Uint16 ichr, IDSZ idsz );
 Uint16 chr_has_item_idsz( Uint16 ichr, IDSZ idsz, bool_t equipped, Uint16 * pack_last );
 
-bool_t apply_one_reflection( chr_t * pchr );
+bool_t apply_reflection_matrix( chr_instance_t * pinst, float floor_level );
 
 bool_t chr_can_see_object( Uint16 ichr, Uint16 iobj );
 int    chr_get_price( Uint16 ichr );
+
+void chr_set_floor_level( chr_t * pchr, float level );
+void chr_set_redshift( chr_t * pchr, int rs );
+void chr_set_grnshift( chr_t * pchr, int gs );
+void chr_set_blushift( chr_t * pchr, int bs );
+void chr_set_sheen   ( chr_t * pchr, int sheen );
+void chr_set_alpha   ( chr_t * pchr, int alpha );
+void chr_set_light   ( chr_t * pchr, int light );
+
+void chr_instance_get_tint( chr_instance_t * pinst, GLfloat * tint, Uint32 bits );

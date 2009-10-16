@@ -256,55 +256,50 @@ fmat_4x4_t ScaleXYZRotateXYZTranslate( const float sizex, const float sizey, con
 
     fmat_4x4_t ret;
 
-    ret.CNV( 0, 0 ) = sizex * ( cy * cz ); // 0,0
-    ret.CNV( 0, 1 ) = sizex * ( sxsy * cz + cx * sz );  // 0,1
-    ret.CNV( 0, 2 ) = sizex * ( -cxsy * cz + sx * sz );  // 0,2
-    ret.CNV( 0, 3 ) = 0;       // 0,3
+    ret.CNV( 0, 0 ) = sizex * ( cy * cz );
+    ret.CNV( 0, 1 ) = sizex * ( sxsy * cz + cx * sz );
+    ret.CNV( 0, 2 ) = sizex * ( -cxsy * cz + sx * sz );
+    ret.CNV( 0, 3 ) = 0;
 
-    ret.CNV( 1, 0 ) = sizey * ( -cy * sz ); // 1,0
-    ret.CNV( 1, 1 ) = sizey * ( -sxsy * sz + cx * cz );  // 1,1
-    ret.CNV( 1, 2 ) = sizey * ( cxsy * sz + sx * cz );  // 1,2
-    ret.CNV( 1, 3 ) = 0;       // 1,3
+    ret.CNV( 1, 0 ) = sizey * ( -cy * sz );
+    ret.CNV( 1, 1 ) = sizey * ( -sxsy * sz + cx * cz );
+    ret.CNV( 1, 2 ) = sizey * ( cxsy * sz + sx * cz );
+    ret.CNV( 1, 3 ) = 0;
 
-    ret.CNV( 2, 0 ) = sizez * ( sy );  // 2,0
-    ret.CNV( 2, 1 ) = sizez * ( -sxcy );   // 2,1
-    ret.CNV( 2, 2 ) = sizez * ( cxcy );   // 2,2
-    ret.CNV( 2, 3 ) = 0;       // 2,3
+    ret.CNV( 2, 0 ) = sizez * ( sy );
+    ret.CNV( 2, 1 ) = sizez * ( -sxcy );
+    ret.CNV( 2, 2 ) = sizez * ( cxcy );
+    ret.CNV( 2, 3 ) = 0;
 
-    ret.CNV( 3, 0 ) = tx;       // 3,0
-    ret.CNV( 3, 1 ) = ty;       // 3,1
-    ret.CNV( 3, 2 ) = tz;       // 3,2
-    ret.CNV( 3, 3 ) = 1;       // 3,3
+    ret.CNV( 3, 0 ) = tx;
+    ret.CNV( 3, 1 ) = ty;
+    ret.CNV( 3, 2 ) = tz;
+    ret.CNV( 3, 3 ) = 1;
 
     return ret;
 }
 
 //--------------------------------------------------------------------------------------------
 // D3DMATRIX FourPoints(float orix, float oriy, float oriz,
-fmat_4x4_t FourPoints( float orix, float oriy, float oriz,
-                     float widx, float widy, float widz,
-                     float forx, float fory, float forz,
-                     float upx,  float upy,  float upz,
-                     float scale )
+fmat_4x4_t FourPoints( fvec4_base_t ori, fvec4_base_t wid,
+                       fvec4_base_t frw, fvec4_base_t up, float scale )
 {
     fmat_4x4_t tmp;
 
-    fvec3_t   vWid, vFor, vUp;
+    fvec3_t vWid, vFor, vUp;
 
-    vWid.x = widx - orix;
-    vWid.y = widy - oriy;
-    vWid.z = widz - oriz;
+    vWid.x = wid[kX] - ori[kX];
+    vWid.y = wid[kY] - ori[kY];
+    vWid.z = wid[kZ] - ori[kZ];
 
-    vUp.x = upx - orix;
-    vUp.y = upy - oriy;
-    vUp.z = upz - oriz;
+    vUp.x = up[kX] - ori[kX];
+    vUp.y = up[kY] - ori[kY];
+    vUp.z = up[kZ] - ori[kZ];
 
-    vFor.x = forx - orix;
-    vFor.y = fory - oriy;
-    vFor.z = forz - oriz;
+    vFor.x = frw[kX] - ori[kX];
+    vFor.y = frw[kY] - ori[kY];
+    vFor.z = frw[kZ] - ori[kZ];
 
-    // assume that the length of the grip edges if 16
-    // scale *= 0.0f;
     vWid = fvec3_normalize(vWid.v);
     vUp  = fvec3_normalize(vUp.v );
     vFor = fvec3_normalize(vFor.v);
@@ -324,12 +319,12 @@ fmat_4x4_t FourPoints( float orix, float oriy, float oriz,
     tmp.CNV( 2, 2 ) = scale * vUp.z;
     tmp.CNV( 2, 3 ) = 0.0f;
 
-    tmp.CNV( 3, 0 ) = orix;
-    tmp.CNV( 3, 1 ) = oriy;
-    tmp.CNV( 3, 2 ) = oriz;
+    tmp.CNV( 3, 0 ) = ori[kX];
+    tmp.CNV( 3, 1 ) = ori[kY];
+    tmp.CNV( 3, 2 ) = ori[kZ];
     tmp.CNV( 3, 3 ) = 1.0f;
 
-    return( tmp );
+    return tmp;
 }
 
 //--------------------------------------------------------------------------------------------

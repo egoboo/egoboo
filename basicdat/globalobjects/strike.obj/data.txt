@@ -149,7 +149,10 @@ Can be dazed   : FALSE
 Can be grogged : FALSE
 NOT USED       : 0
 NOT USED       : 0
-Can see invisi : FALSE
+Can see invisi : TRUE
 Kursed chance  : 0
 Footfall sound : -1
 Jump sound     : -1
+
+//Expansions
+:[DARK] 1

@@ -98,6 +98,8 @@ static bool_t chr_upload_cap( chr_t * pchr, cap_t * pcap );
 
 void cleanup_one_character( chr_t * pchr );
 
+bool_t chr_instance_update_ref( chr_instance_t * pinst, float floor_level, bool_t need_matrix  );
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 int chr_count_free()
@@ -207,36 +209,36 @@ void keep_weapons_with_holders()
                 // Items become partially invisible in hands of players
                 if ( pattached->isplayer && pattached->inst.alpha != 255 )
                 {
-                    pchr->inst.alpha = SEEINVISIBLE;
+                    chr_set_alpha( pchr, SEEINVISIBLE );
                 }
                 else
                 {
                     // Only if not naturally transparent
-                    if ( chr_get_pcap(cnt)->alpha == 255 )
+                    if ( pchr->basealpha == 255 )
                     {
-                        pchr->inst.alpha = pattached->inst.alpha;
+                        chr_set_alpha( pchr, pattached->inst.alpha );
                     }
                     else
                     {
-                        pchr->inst.alpha = chr_get_pcap(cnt)->alpha;
+                        chr_set_alpha( pchr, pchr->basealpha );
                     }
                 }
 
                 // Do light too
                 if ( pattached->isplayer && pattached->inst.light != 255 )
                 {
-                    pchr->inst.light = SEEINVISIBLE;
+                    chr_set_light( pchr, SEEINVISIBLE );
                 }
                 else
                 {
                     // Only if not naturally transparent
                     if ( chr_get_pcap(cnt)->light == 255 )
                     {
-                        pchr->inst.light = pattached->inst.light;
+                        chr_set_light( pchr, pattached->inst.light );
                     }
                     else
                     {
-                        pchr->inst.light = chr_get_pcap(cnt)->light;
+                        chr_set_light( pchr, pchr->baselight );
                     }
                 }
             }
@@ -288,9 +290,9 @@ void make_one_character_matrix( Uint16 cnt )
         pinst->matrix_cache.matrix_valid = btrue;
         pinst->matrix_cache.type         = MAT_CHARACTER;
 
-        pinst->matrix_cache.scale.x = pchr->fat;
-        pinst->matrix_cache.scale.y = pchr->fat;
-        pinst->matrix_cache.scale.z = pchr->fat;
+        pinst->matrix_cache.self_scale.x = pchr->fat;
+        pinst->matrix_cache.self_scale.y = pchr->fat;
+        pinst->matrix_cache.self_scale.z = pchr->fat;
 
         pinst->matrix_cache.rotate.x = CLIP_TO_16BITS( pchr->map_turn_x - MAP_TURN_OFFSET );
         pinst->matrix_cache.rotate.y = CLIP_TO_16BITS( pchr->map_turn_y - MAP_TURN_OFFSET );
@@ -991,8 +993,8 @@ bool_t detach_character_from_mount( Uint16 character, Uint8 ignorekurse, Uint8 d
             enchant = EncList.lst[enchant].nextenchant_ref;
         }
 
-        pchr->inst.alpha = pchr->basealpha;
-        pchr->inst.light = pchr->baselight;
+        chr_set_alpha( pchr, pchr->basealpha );
+        chr_set_light( pchr, pchr->baselight );
         enchant = pchr->firstenchant;
         while ( enchant != MAX_ENC )
         {
@@ -1046,8 +1048,8 @@ void reset_character_alpha( Uint16 character )
             enchant = EncList.lst[enchant].nextenchant_ref;
         }
 
-        pchr->inst.alpha = pchr->basealpha;
-        pchr->inst.light = pchr->baselight;
+        chr_set_alpha( pchr, pchr->basealpha );
+        chr_set_light( pchr, pchr->baselight );
 
         enchant = pchr->firstenchant;
         while ( enchant != MAX_ENC )
@@ -1500,13 +1502,14 @@ void drop_keys( Uint16 character )
                     direction                 = RANDIE;
                     pitem->turn_z             = direction + ATK_BEHIND;
                     pitem->enviro.level       = pchr->enviro.level;
-                    pitem->enviro.floor_level = pchr->enviro.floor_level;
                     pitem->onwhichplatform    = pchr->onwhichplatform;
                     pitem->pos                = pchr->pos;
                     pitem->vel.x              = turntocos[ (direction >> 2) & TRIG_TABLE_MASK ] * DROPXYVEL;
                     pitem->vel.y              = turntosin[ (direction >> 2) & TRIG_TABLE_MASK ] * DROPXYVEL;
                     pitem->vel.z              = DROPZVEL;
                     pitem->team               = pitem->baseteam;
+
+                    chr_set_floor_level( pitem, pchr->enviro.floor_level );
                 }
                 else
                 {
@@ -1551,13 +1554,14 @@ bool_t drop_all_items( Uint16 character )
                 pitem->ai.alert          |= ALERTIF_DROPPED;
                 pitem->pos                = pchr->pos;
                 pitem->enviro.level       = pchr->enviro.level;
-                pitem->enviro.floor_level = pchr->enviro.floor_level;
                 pitem->onwhichplatform    = pchr->onwhichplatform;
                 pitem->turn_z             = direction + ATK_BEHIND;
                 pitem->vel.x              = turntocos[ (direction>>2) & TRIG_TABLE_MASK ] * DROPXYVEL;
                 pitem->vel.y              = turntosin[ (direction>>2) & TRIG_TABLE_MASK ] * DROPXYVEL;
                 pitem->vel.z              = DROPZVEL;
                 pitem->team               = pitem->baseteam;
+
+                chr_set_floor_level( pitem, pchr->enviro.floor_level );
             }
 
             direction += diradd;
@@ -2404,11 +2408,11 @@ bool_t chr_download_cap( chr_t * pchr, cap_t * pcap )
 
     // Set up model stuff
     pchr->stoppedby = pcap->stoppedby;
-    pchr->lifeheal = pcap->lifeheal;
-    pchr->manacost = pcap->manacost;
+    pchr->lifeheal  = pcap->lifeheal;
+    pchr->manacost  = pcap->manacost;
     pchr->nameknown = pcap->nameknown;
     pchr->ammoknown = pcap->nameknown;
-    pchr->icon = pcap->icon;
+    pchr->icon      = pcap->icon;
 
     // calculate a base kurse state. this may be overridden later
     if ( pcap->isitem )
@@ -2434,6 +2438,7 @@ bool_t chr_download_cap( chr_t * pchr, cap_t * pcap )
     pchr->canseekurse = pcap->canseekurse;
     pchr->hascodeofconduct = pcap->hascodeofconduct;
     pchr->darkvision_level = pcap->darkvision_level;
+    pchr->darkvision_level_base = pcap->darkvision_level;
 
     // Ammo
     pchr->ammomax = pcap->ammomax;
@@ -2501,9 +2506,6 @@ bool_t chr_download_cap( chr_t * pchr, cap_t * pcap )
     pchr->life = CLIP( pcap->spawnlife, LOWSTAT, pchr->lifemax );
     pchr->mana = CLIP( pcap->spawnmana,       0, pchr->manamax );
 
-    // Character size and bumping
-    chr_init_size( pchr, pcap );
-
     pchr->phys.bumpdampen = pcap->bumpdampen;
     if ( pcap->weight == 0xFF )
     {
@@ -2511,7 +2513,7 @@ bool_t chr_download_cap( chr_t * pchr, cap_t * pcap )
     }
     else
     {
-        Uint32 itmp = pcap->weight * pchr->fat * pchr->fat * pchr->fat;
+        Uint32 itmp = pcap->weight * pcap->size * pcap->size * pcap->size;
         pchr->phys.weight = MIN( itmp, (Uint32)0xFFFFFFFE );
     }
 
@@ -2534,6 +2536,9 @@ bool_t chr_download_cap( chr_t * pchr, cap_t * pcap )
 
     // Particle attachments
     pchr->reaffirmdamagetype = pcap->attachedprt_reaffirmdamagetype;
+
+    // Character size and bumping
+    chr_init_size( pchr, pcap );
 
     return btrue;
 }
@@ -3680,6 +3685,8 @@ Uint16 spawn_one_character( fvec3_t   pos, Uint16 profile, Uint8 team,
     // determine whether the object is hidden
     chr_update_hide( pchr );
 
+    chr_instance_update_ref( &(pchr->inst), pchr->enviro.floor_level, btrue );
+
     return ichr;
 }
 
@@ -3767,6 +3774,8 @@ void respawn_character( Uint16 character )
         reaffirm_attached_particles( character );
         new_attached_prt_count = number_of_attached_particles( character );
     }
+
+    chr_instance_update_ref( &(pchr->inst), pchr->enviro.floor_level, btrue );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4233,6 +4242,8 @@ void change_character( Uint16 ichr, Uint16 profile_new, Uint8 skin, Uint8 leavew
     new_attached_prt_count = number_of_attached_particles( ichr );
 
     ai_state_set_changed( &(pchr->ai) );
+
+    chr_instance_update_ref( &(pchr->inst), pchr->enviro.floor_level, btrue );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4409,6 +4420,31 @@ int check_skills( Uint16 who, IDSZ whichskill )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+bool_t update_chr_darkvision( chr_t * pchr )
+{
+    /// @detalis BB@> as an offset to negative status effects like things like poisoning, a 
+    ///               character gains darkvision ability the more they are "poisoned". 
+    ///               At the present time, the function measures the broad category of "life drain".
+    ///               True poisoning can be removed by [HEAL] and tints the character green, so
+    ///               we could limit our search to those effects.
+
+    int life_regen;
+
+    if( !ACTIVE_PCHR(pchr) ) return bfalse;
+
+    // grab the life regeneration to determine how much darkvision a character has earned, he he he!
+    get_chr_regeneration( pchr, &life_regen, NULL );
+
+    if( life_regen < 0 )
+    {
+        int tmp_level = ( 10 * -life_regen ) / pchr->lifemax;
+        pchr->darkvision_level = MAX( pchr->darkvision_level_base, tmp_level );
+    }
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
 void update_all_characters()
 {
     /// @details ZZ@> This function brings mana and life back
@@ -4427,6 +4463,18 @@ void update_all_characters()
 
         pchr->onwhichfan   = mesh_get_tile ( PMesh, pchr->pos.x, pchr->pos.y );
         pchr->onwhichblock = mesh_get_block( PMesh, pchr->pos.x, pchr->pos.y );
+    }
+
+
+    // do status updates
+    for ( cnt = 0; cnt < MAX_CHR; cnt++ )
+    {
+        chr_t * pchr;
+
+        if ( !ACTIVE_CHR(cnt) ) continue;
+        pchr = ChrList.lst + cnt;
+
+        update_chr_darkvision( pchr );
 
         chr_update_hide( pchr );
     }
@@ -4512,7 +4560,7 @@ void update_all_characters()
             pchr->enviro.inwater = bfalse;
         }
 
-        pchr->enviro.floor_level = level;
+        chr_set_floor_level( pchr, level );
     }
 
     // the following functions should not be done the first time through the update loop
@@ -6094,7 +6142,8 @@ chr_reflection_cache_t * chr_reflection_cache_init(chr_reflection_cache_t * pcac
 
     memset( pcache, 0, sizeof(chr_reflection_cache_t) );
 
-    pcache->alpha = 255;
+    pcache->alpha = 127;
+    pcache->light = 255;
 
     return pcache;
 }
@@ -6195,6 +6244,47 @@ bool_t chr_instance_set_mad( chr_instance_t * pinst, Uint16 imad )
 }
 
 //--------------------------------------------------------------------------------------------
+bool_t chr_instance_update_ref( chr_instance_t * pinst, float floor_level, bool_t need_matrix )
+{
+    int trans_temp;
+
+    if( NULL == pinst ) return bfalse;
+
+    if( need_matrix )
+    {
+        // reflect the ordinary matrix
+        apply_reflection_matrix( pinst, floor_level );
+    }
+
+    trans_temp = 255;
+    if( pinst->ref.matrix_valid )
+    {
+        float pos_z;
+
+        // determine the reflection alpha
+        pos_z = floor_level - pinst->ref.matrix.CNV( 3, 2 );
+        if (pos_z < 0) pos_z = 0;
+
+        trans_temp -= ((int)pos_z) >> 1;
+        if ( trans_temp < 0 ) trans_temp = 0;
+
+        trans_temp |= gfx.reffadeor;  // Fix for Riva owners
+        trans_temp = CLIP(trans_temp, 0, 255);
+    }
+
+    pinst->ref.alpha = (pinst->alpha * trans_temp * INV_FF ) * 0.5f;
+    pinst->ref.light = (255 == pinst->light) ? 255 : ( pinst->light * trans_temp * INV_FF ) * 0.5f;
+
+    pinst->ref.redshift = pinst->redshift + 1;
+    pinst->ref.grnshift = pinst->grnshift + 1;
+    pinst->ref.blushift = pinst->blushift + 1;
+
+    pinst->ref.sheen    = pinst->sheen >> 1;
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
 bool_t chr_instance_spawn( chr_instance_t * pinst, Uint16 profile, Uint8 skin )
 {
     Sint8 greensave = 0, redsave = 0, bluesave = 0;
@@ -6229,6 +6319,9 @@ bool_t chr_instance_spawn( chr_instance_t * pinst, Uint16 profile, Uint8 skin )
 
     // model parameters
     chr_instance_set_mad( pinst, pro_get_imad(profile) );
+
+    // upload these parameters to the reflection cache, but don't compute the matrix
+    chr_instance_update_ref( pinst, 0, bfalse );
 
     return btrue;
 }
@@ -7861,6 +7954,8 @@ bool_t chr_get_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
     mc_tmp->valid = bfalse;
     mc_tmp->type  = MAT_UNKNOWN;
 
+    mc_tmp->self_scale.x = mc_tmp->self_scale.y = mc_tmp->self_scale.z = pchr->fat;
+
     // handle the overlay first of all
     if( !handled && pchr->is_overlay && ichr != pchr->ai.target && ACTIVE_CHR(pchr->ai.target) )
     {
@@ -7922,7 +8017,7 @@ bool_t chr_get_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
 
             mc_tmp->pos = ptarget->pos;
 
-            mc_tmp->scale.x = mc_tmp->scale.y = mc_tmp->scale.z = ptarget->fat;
+            mc_tmp->grip_scale.x = mc_tmp->grip_scale.y = mc_tmp->grip_scale.z = ptarget->fat;
         }
     }
 
@@ -8036,11 +8131,7 @@ bool_t apply_one_weapon_matrix( chr_t * pweap, matrix_cache_t * mc_tmp )
     {
         // Calculate weapon's matrix based on positions of grip points
         // chrscale is recomputed at time of attachment
-        pweap->inst.matrix = FourPoints(
-                                 nupoint[0].x, nupoint[0].y, nupoint[0].z,
-                                 nupoint[1].x, nupoint[1].y, nupoint[1].z,
-                                 nupoint[2].x, nupoint[2].y, nupoint[2].z,
-                                 nupoint[3].x, nupoint[3].y, nupoint[3].z, mc_tmp->scale.z );
+        pweap->inst.matrix = FourPoints( nupoint[0].v, nupoint[1].v, nupoint[2].v, nupoint[3].v, mc_tmp->self_scale.z );
 
         // update the weapon position
         pweap->pos.x = nupoint[3].x;
@@ -8090,7 +8181,7 @@ bool_t apply_one_character_matrix( chr_t * pchr, matrix_cache_t * mc_tmp )
 
     if( !ALLOCATED_PCHR( pchr ) ) return bfalse;
 
-    pchr->inst.matrix = ScaleXYZRotateXYZTranslate( mc_tmp->scale.x, mc_tmp->scale.y, mc_tmp->scale.z,
+    pchr->inst.matrix = ScaleXYZRotateXYZTranslate( mc_tmp->self_scale.x, mc_tmp->self_scale.y, mc_tmp->self_scale.z,
                                     ((int)mc_tmp->rotate.z) >> 2, ((int)mc_tmp->rotate.x) >> 2, ((int)mc_tmp->rotate.y) >> 2,
                                     mc_tmp->pos.x, mc_tmp->pos.y, mc_tmp->pos.z );
 
@@ -8102,65 +8193,28 @@ bool_t apply_one_character_matrix( chr_t * pchr, matrix_cache_t * mc_tmp )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t apply_one_reflection( chr_t * pchr )
+bool_t apply_reflection_matrix( chr_instance_t * pinst, float floor_level )
 {
     /// @detalis BB@> Generate the extra data needed to display a reflection for this character
 
-    cap_t * pcap;
-    chr_instance_t * pinst;
-    int trans_temp;
-
-    bool_t applied;
-
-    if( !ALLOCATED_PCHR( pchr ) ) return bfalse;
-    pinst = &(pchr->inst);
+    if( NULL == pinst ) return bfalse;
 
     pinst->ref.matrix_valid = bfalse;
 
-    pcap = pro_get_pcap( pchr->iprofile );
-    if ( NULL == pcap || !pcap->reflect ) return bfalse;
-
     // actually flip the matrix
-    applied = bfalse;
     pinst->ref.matrix_valid = pinst->matrix_cache.valid;
 
     if( pinst->ref.matrix_valid )
     {
-        applied = btrue;
-
         pinst->ref.matrix = pinst->matrix;
 
         pinst->ref.matrix.CNV( 0, 2 ) = -pinst->ref.matrix.CNV( 0, 2 );
         pinst->ref.matrix.CNV( 1, 2 ) = -pinst->ref.matrix.CNV( 1, 2 );
         pinst->ref.matrix.CNV( 2, 2 ) = -pinst->ref.matrix.CNV( 2, 2 );
-        pinst->ref.matrix.CNV( 3, 2 ) = 2 * pchr->enviro.floor_level - pinst->ref.matrix.CNV( 3, 2 );
+        pinst->ref.matrix.CNV( 3, 2 ) = 2 * floor_level - pinst->ref.matrix.CNV( 3, 2 );
     }
 
-    trans_temp = 255;
-    if( applied )
-    {
-        float pos_z;
-
-        // determine the reflection alpha
-        pos_z = pchr->enviro.floor_level - pinst->ref.matrix.CNV( 3, 2 );
-        if (pos_z < 0) pos_z = 0;
-
-        trans_temp -= ((int)pos_z) >> 1;
-        if ( trans_temp < 0 ) trans_temp = 0;
-
-        trans_temp |= gfx.reffadeor;  // Fix for Riva owners
-        trans_temp = CLIP(trans_temp, 0, 255);
-    }
-
-    pinst->ref.alpha = ( pinst->alpha * trans_temp * INV_FF ) * 0.5f;
-
-    pinst->ref.redshift = pinst->redshift + 1;
-    pinst->ref.grnshift = pinst->grnshift + 1;
-    pinst->ref.blushift = pinst->blushift + 1;
-
-    pinst->ref.sheen    = pinst->sheen >> 1;
-
-    return applied;
+    return pinst->ref.matrix_valid;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -8194,9 +8248,11 @@ bool_t apply_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
                 mcache->valid   = btrue;
                 mcache->type    = MAT_CHARACTER;
 
-                mcache->scale.x =
-                mcache->scale.y =
-                mcache->scale.z = pchr->fat;
+                mcache->self_scale.x =
+                mcache->self_scale.y =
+                mcache->self_scale.z = pchr->fat;
+
+                mcache->grip_scale = mcache->self_scale;
 
                 mcache->rotate.x = CLIP_TO_16BITS( pchr->map_turn_x - MAP_TURN_OFFSET );
                 mcache->rotate.y = CLIP_TO_16BITS( pchr->map_turn_y - MAP_TURN_OFFSET );
@@ -8215,7 +8271,7 @@ bool_t apply_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
 
     if( applied )
     {
-        apply_one_reflection( pchr );
+        apply_reflection_matrix( &(pchr->inst), pchr->enviro.floor_level );
     }
 
     return applied;
@@ -8285,6 +8341,13 @@ int cmp_matrix_cache(const void * vlhs, const void * vrhs)
             itmp = (int)plhs->grip_verts[cnt] - (int)prhs->grip_verts[cnt];
             if( 0 != itmp ) goto cmp_matrix_cache_end;
         }
+
+        // handle differences in the scale of our mount
+        for(cnt = 0; cnt < 3; cnt ++ )
+        {
+            ftmp = plhs->grip_scale.v[cnt] - prhs->grip_scale.v[cnt];
+            if( 0.0f != ftmp ) { itmp = SGN(ftmp); goto cmp_matrix_cache_end; }
+        }
     }
 
     //---- check for differences in the MAT_CHARACTER data
@@ -8308,10 +8371,10 @@ int cmp_matrix_cache(const void * vlhs, const void * vrhs)
     //---- check for differences in the shared data
     if( 0 != (plhs->type & MAT_WEAPON) || 0 != (plhs->type & MAT_CHARACTER) )
     {
-        // handle differences in the scale
+        // handle differences in our own scale
         for(cnt = 0; cnt < 3; cnt ++ )
         {
-            ftmp = plhs->scale.v[cnt] - prhs->scale.v[cnt];
+            ftmp = plhs->self_scale.v[cnt] - prhs->self_scale.v[cnt];
             if( 0.0f != ftmp ) { itmp = SGN(ftmp); goto cmp_matrix_cache_end; }
         }
     }
@@ -8639,7 +8702,8 @@ bool_t chr_can_see_object( Uint16 ichr, Uint16 iobj )
     /// @detalis BB@> can ichr see iobj?
 
     chr_t * pchr, * pobj;
-    int     light;
+    int     light, self_light, enviro_light;
+    int     alpha;
 
     if( !ACTIVE_CHR(ichr) ) return bfalse;
     pchr = ChrList.lst + ichr;
@@ -8647,19 +8711,23 @@ bool_t chr_can_see_object( Uint16 ichr, Uint16 iobj )
     if( !ACTIVE_CHR(iobj) ) return bfalse;
     pobj = ChrList.lst + iobj;
 
-    light = pobj->inst.alpha * pobj->inst.max_light;
-
+    alpha = pobj->inst.alpha;
     if( pchr->see_invisible_level > 0 )
     {
-        light *= pchr->see_invisible_level + 1;
+        alpha *= pchr->see_invisible_level + 1;
     }
+    alpha = CLIP(alpha, 0, 255);
+
+    enviro_light = (alpha * pobj->inst.max_light) * INV_FF;
+    self_light   = (pobj->inst.light == 255) ? 0 : pobj->inst.light;
+    light        = MAX(enviro_light, self_light);
 
     if( pchr->darkvision_level > 0 )
     {
         light *= pchr->darkvision_level + 1;
     }
 
-    return (light * INV_FF) >= INVISIBLE;
+    return light >= INVISIBLE;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -8711,3 +8779,189 @@ int chr_get_price( Uint16 ichr )
 
     return (int)price;
 }
+
+//--------------------------------------------------------------------------------------------
+void chr_set_floor_level( chr_t * pchr, float level )
+{
+    if( !ALLOCATED_PCHR( pchr ) ) return;
+
+    if( level != pchr->enviro.level )
+    {
+        pchr->enviro.floor_level = level;
+        apply_reflection_matrix( &(pchr->inst), level );
+    }
+}
+//--------------------------------------------------------------------------------------------
+void chr_set_redshift( chr_t * pchr, int rs )
+{
+    if( !ALLOCATED_PCHR( pchr ) ) return;
+
+    pchr->inst.redshift = rs;
+
+    chr_instance_update_ref( &(pchr->inst), pchr->enviro.floor_level, bfalse ); 
+}
+
+//--------------------------------------------------------------------------------------------
+void chr_set_grnshift( chr_t * pchr, int gs )
+{
+    if( !ALLOCATED_PCHR( pchr ) ) return;
+
+    pchr->inst.grnshift = gs;
+
+    chr_instance_update_ref( &(pchr->inst), pchr->enviro.floor_level, bfalse ); 
+}
+
+//--------------------------------------------------------------------------------------------
+void chr_set_blushift( chr_t * pchr, int bs )
+{
+    if( !ALLOCATED_PCHR( pchr ) ) return;
+
+    pchr->inst.blushift = bs;
+
+    chr_instance_update_ref( &(pchr->inst), pchr->enviro.floor_level, bfalse ); 
+}
+
+//--------------------------------------------------------------------------------------------
+void chr_set_sheen   ( chr_t * pchr, int sheen )
+{
+    if( !ALLOCATED_PCHR( pchr ) ) return;
+
+    pchr->inst.sheen = sheen;
+
+    chr_instance_update_ref( &(pchr->inst), pchr->enviro.floor_level, bfalse ); 
+}
+
+//--------------------------------------------------------------------------------------------
+void chr_set_alpha( chr_t * pchr, int alpha )
+{
+    if( !ALLOCATED_PCHR( pchr ) ) return;
+
+    pchr->inst.ref.alpha = alpha;
+
+    chr_instance_update_ref( &(pchr->inst), pchr->enviro.floor_level, bfalse ); 
+}
+
+//--------------------------------------------------------------------------------------------
+void chr_set_light( chr_t * pchr, int light )
+{
+    if( !ALLOCATED_PCHR( pchr ) ) return;
+
+    pchr->inst.light = light;
+
+    chr_instance_update_ref( &(pchr->inst), pchr->enviro.floor_level, bfalse ); 
+}
+
+//--------------------------------------------------------------------------------------------
+void chr_instance_get_tint( chr_instance_t * pinst, GLfloat * tint, Uint32 bits )
+{
+    int i;
+    float weight_sum;
+    GLXvector4f local_tint;
+
+    int local_alpha;
+    int local_light;
+    int local_sheen;
+    int local_redshift;
+    int local_grnshift;
+    int local_blushift;
+
+    if( NULL == tint ) tint = local_tint;
+
+    if( 0 != ( bits & CHR_REFLECT ) )
+    {
+        // this is a reflection, use the reflected parameters
+        local_alpha    = pinst->ref.alpha;
+        local_light    = pinst->ref.light;
+        local_sheen    = pinst->ref.sheen;
+        local_redshift = pinst->ref.redshift;
+        local_grnshift = pinst->ref.grnshift;
+        local_blushift = pinst->ref.blushift;
+    }
+    else
+    {
+        // this is NOT a reflection, use the normal parameters
+        local_alpha    = pinst->alpha;
+        local_light    = pinst->light;
+        local_sheen    = pinst->sheen;
+        local_redshift = pinst->redshift;
+        local_grnshift = pinst->grnshift;
+        local_blushift = pinst->blushift;
+    }
+
+    // modify these values based on local characte abilities
+    local_alpha = get_local_alpha( local_alpha );
+    local_light = get_local_light( local_light );
+
+    // clear out the tint
+    weight_sum = 0;
+    for( i = 0; i<4; i++ ) tint[i] = 0;
+
+    if( 0 != ( bits & CHR_SOLID ) )
+    {
+        // solid characters are not blended onto the canvas
+        // the alpha channel is not important
+        weight_sum += 1.0;
+
+        tint[0] += 1.0f / (1 << local_redshift);
+        tint[1] += 1.0f / (1 << local_grnshift);
+        tint[2] += 1.0f / (1 << local_blushift);
+        tint[3] += 1.0f;
+    }
+
+    if( 0 != ( bits & CHR_ALPHA ) )
+    {
+        // alpha characters are blended onto the canvas using the alpha channel
+        // the alpha channel is not important
+        weight_sum += 1.0;
+
+        tint[0] += 1.0f / (1 << local_redshift);
+        tint[1] += 1.0f / (1 << local_grnshift);
+        tint[2] += 1.0f / (1 << local_blushift);
+        tint[3] += local_alpha * INV_FF;
+    }
+
+    if( 0 != ( bits & CHR_LIGHT ) )
+    {
+        // alpha characters are blended onto the canvas by adding their color
+        // the more black the colors, the less visible the character
+        // the alpha channel is not important
+
+        weight_sum += 1.0;
+
+        if( local_light < 255 )
+        {
+            tint[0] += local_light * INV_FF / (1 << local_redshift);
+            tint[1] += local_light * INV_FF / (1 << local_grnshift);
+            tint[2] += local_light * INV_FF / (1 << local_blushift);
+        }
+
+        tint[3] += 1.0f;
+    }
+
+    if( 0 != ( bits & CHR_PHONG ) )
+    {
+        // phong is essentially the same as light, but it is the 
+        // sheen that sets the effect
+
+        float amount;
+
+        weight_sum += 1.0;
+
+        amount = ( CLIP(local_sheen, 0, 15) << 4 ) / 240.0f;
+
+        tint[0] += amount; 
+        tint[1] += amount; 
+        tint[2] += amount;
+        tint[3] += 1.0f;
+    }
+
+    // average the tint
+    if( weight_sum != 0.0f && weight_sum != 1.0f )
+    {
+        for( i=0; i<4; i++ )
+        {
+            tint[i] /= weight_sum;
+        }
+    }
+}
+

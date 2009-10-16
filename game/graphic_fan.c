@@ -309,10 +309,8 @@ void render_water_fan( ego_mpd_t * pmesh, Uint32 fan, Uint8 layer )
     {
         GLXvector3f nrm = {0, 0, 1};
         float alight;
-        float glob_amb = gfx.usefaredge ? light_a : 0;
 
-        ambi = water.layer->light_add * 255.0f;
-        alight = FF_TO_FLOAT( ambi ) + glob_amb;
+        alight = get_ambient_level() + water.layer->light_add;
         alight = CLIP(alight, 0.0f, 1.0f);
 
         for ( cnt = 0; cnt < 4; cnt++ )

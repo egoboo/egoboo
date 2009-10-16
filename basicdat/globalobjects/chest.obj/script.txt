@@ -1,54 +1,53 @@
 //The States and Contents
-//State 0: Closed chest
-//State 1: Opened Chest
-//State 2: Looted Chest
-//selfmoney = armor level (0-3, 4 is random)
-//selflevel = armor type based on class (0 = random... see list below)
-//+1 content = locked
-//+2 content = map
-//+4 content = fire trapped
-//+8 content = secret bottom
-//+16 content = invisible
-//+32 content = contains armor (!invalidates map and secret bottom!)
-//+64 content = armor costs money (only works with +32 content!)
-//+128 content = rune warded chest
-//------------------------------------------------------------------------------------
-//ARMOR TYPES DEPEND ON SELFLEVEL
-//0 = randomize armor type
-//1 = Archaeologist.
-//2 = G'nome.
-//3 = Soldier.
-//4 = Elf.
-//5 = Adventurer.
-//6 = Wizard.
-//7 = Healer.
-//8 = Rogue.
-//9 = Paladin.
-//10= Tourist.
-//11= Valkyrie.
-//12= All above excluding 9, 10 and 11
+//	State 0: Closed chest
+//	State 1: Opened Chest
+//	State 2: Looted Chest
+//	selfmoney = armor level (0-3, 4 is random)
+//	selflevel = armor type based on class (0 = random... see list below)
+//	+1 content = locked
+//	+2 content = map
+//	+4 content = fire trapped
+//	+8 content = secret bottom
+//	+16 content = invisible
+//	+32 content = contains armor (!invalidates map and secret bottom!)
+//	+64 content = armor costs money (only works with +32 content!)
+//	+128 content = rune warded chest
 
 //------------------------------------------------------------------------------------
-//Rune chest
+//ARMOR TYPES DEPEND ON SELFLEVEL
+//	0 = randomize armor type
+//	1 = Archaeologist.
+//	2 = G'nome.
+//	3 = Soldier.
+//	4 = Elf.
+//	5 = Adventurer.
+//	6 = Wizard.
+//	7 = Healer.
+//	8 = Rogue.
+//	9 = Paladin.
+//	10= Tourist.
+//	11= Valkyrie.
+//	12= All above excluding 9, 10 and 11
+
+//------------------------------------------------------------------------------------
+// Do special setup for certain chests
 IfSpawned
+
+  //Rune chest
   tmpx = selfcontent & 128
   tmpy = 128
   IfXIsEqualToY
     tmpargument = 1
     ChangeArmor
 
-//------------------------------------------------------------------------------------
-//Invisible chest
-IfSpawned
+  //Invisible chest
   tmpx = selfcontent & 16
   tmpy = 16
   IfXIsEqualToY
     tmpargument = 0
-    SetLight
+    SetAlpha
 
-//------------------------------------------------------------------------------------
-//Armor chest (remember armor type)
-IfSpawned
+  //Armor chest (remember armor type)
   tmpx = selfcontent & 32
   tmpy = 32
   IfXIsEqualToY

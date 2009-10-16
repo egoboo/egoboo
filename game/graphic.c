@@ -377,9 +377,10 @@ int ogl_init()
     GL_DEBUG(glEnable)(GL_ALPHA_TEST);
     GL_DEBUG(glAlphaFunc)(GL_GREATER, 0);
 
+    /// @todo Including backface culling here prevents the mesh from getting rendered
     // backface culling
     // GL_DEBUG(glEnable)(GL_CULL_FACE);
-    // GL_DEBUG(glFrontFace)(GL_CW);            /// @todo This prevents the mesh from getting rendered
+    // GL_DEBUG(glFrontFace)(GL_CW);            // GL_POLYGON_BIT
     // GL_DEBUG(glCullFace)(GL_BACK);
 
     // disable OpenGL lighting
@@ -1742,230 +1743,6 @@ void project_view( camera_t * pcam )
 }
 
 //--------------------------------------------------------------------------------------------
-void render_background( Uint16 texture )
-{
-    /// @details ZZ@> This function draws the large background
-    GLvertex vtlist[4];
-    int i;
-    float z0, d, mag0, mag1, Qx, Qy;
-    float light = 1.0f, intens = 1.0f, alpha = 1.0f;
-
-    ego_mpd_info_t * pinfo;
-    oglx_texture   * ptex;
-
-    water_instance_layer_t * ilayer = water.layer      + 0;
-
-    z0 = 1500; // the original height of the camera
-    d = MIN(ilayer->dist.x, ilayer->dist.y) / 10.0f;
-    mag0 = 1.0f / (1.0f + z0 * d);
-    // mag1 = backgroundrepeat/128.0f/10;
-    mag1 = 1.0f / 128.0f / 5.0f;
-
-    // clip the waterlayer uv offset
-    ilayer->tx.x = ilayer->tx.x - (float)floor(ilayer->tx.x);
-    ilayer->tx.y = ilayer->tx.y - (float)floor(ilayer->tx.y);
-
-    pinfo = &(PMesh->info);
-
-    // Figure out the coordinates of its corners
-    Qx = -pinfo->edge_x;
-    Qy = -pinfo->edge_y;
-    vtlist[0].pos[XX] = mag0 * PCamera->pos.x + Qx * ( 1.0f - mag0 );
-    vtlist[0].pos[YY] = mag0 * PCamera->pos.y + Qy * ( 1.0f - mag0 );
-    vtlist[0].pos[ZZ] = 0;
-    vtlist[0].tex[SS] = Qx * mag1 + ilayer->tx.x;
-    vtlist[0].tex[TT] = Qy * mag1 + ilayer->tx.y;
-
-    Qx = 2 * pinfo->edge_x;
-    Qy = -pinfo->edge_y;
-    vtlist[1].pos[XX] = mag0 * PCamera->pos.x + Qx * ( 1.0f - mag0 );
-    vtlist[1].pos[YY] = mag0 * PCamera->pos.y + Qy * ( 1.0f - mag0 );
-    vtlist[1].pos[ZZ] = 0;
-    vtlist[1].tex[SS] = Qx * mag1 + ilayer->tx.x;
-    vtlist[1].tex[TT] = Qy * mag1 + ilayer->tx.y;
-
-    Qx = 2 * pinfo->edge_x;
-    Qy = 2 * pinfo->edge_y;
-    vtlist[2].pos[XX] = mag0 * PCamera->pos.x + Qx * ( 1.0f - mag0 );
-    vtlist[2].pos[YY] = mag0 * PCamera->pos.y + Qy * ( 1.0f - mag0 );
-    vtlist[2].pos[ZZ] = 0;
-    vtlist[2].tex[SS] = Qx * mag1 + ilayer->tx.x;
-    vtlist[2].tex[TT] = Qy * mag1 + ilayer->tx.y;
-
-    Qx = -pinfo->edge_x;
-    Qy = 2 * pinfo->edge_y;
-    vtlist[3].pos[XX] = mag0 * PCamera->pos.x + Qx * ( 1.0f - mag0 );
-    vtlist[3].pos[YY] = mag0 * PCamera->pos.y + Qy * ( 1.0f - mag0 );
-    vtlist[3].pos[ZZ] = 0;
-    vtlist[3].tex[SS] = Qx * mag1 + ilayer->tx.x;
-    vtlist[3].tex[TT] = Qy * mag1 + ilayer->tx.y;
-
-    light = water.light ? 1.0f : 0.0f;
-    alpha = ilayer->alpha * INV_FF;
-
-    if ( gfx.usefaredge )
-    {
-        float fcos;
-
-        intens = light_a * ilayer->light_add;
-
-        fcos = light_z;
-        if (fcos > 0.0f)
-        {
-            intens += fcos * fcos * light_d * ilayer->light_dir;
-        }
-
-        intens = CLIP(intens, 0.0f, 1.0f);
-    }
-
-    ptex = TxTexture_get_ptr( texture );
-
-    ATTRIB_PUSH( "render_background()", GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_POLYGON_BIT | GL_ENABLE_BIT );
-    {
-        oglx_texture_Bind ( ptex );
-
-        GL_DEBUG(glShadeModel)( GL_FLAT );   // GL_LIGHTING_BIT - Flat shade this
-        GL_DEBUG(glDepthMask)( GL_FALSE );   // GL_DEPTH_BUFFER_BIT
-        GL_DEBUG(glDepthFunc)( GL_ALWAYS );  // GL_DEPTH_BUFFER_BIT
-        GL_DEBUG(glDisable)( GL_CULL_FACE ); // GL_POLYGON_BIT GL_ENABLE_BIT
-
-        GL_DEBUG(glColor4f)( intens, intens, intens, alpha );
-        GL_DEBUG(glBegin)( GL_TRIANGLE_FAN );
-        {
-            for ( i = 0; i < 4; i++ )
-            {
-                GL_DEBUG(glTexCoord2fv)(vtlist[i].tex );
-                GL_DEBUG(glVertex3fv)(vtlist[i].pos );
-            }
-        }
-        GL_DEBUG_END();
-
-        if ( light > 0.0f )
-        {
-            ATTRIB_PUSH( "render_background() - glow", GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT );
-            {
-                GL_DEBUG(glEnable)( GL_BLEND );                             // GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT
-                GL_DEBUG(glBlendFunc)( GL_ONE_MINUS_SRC_ALPHA, GL_ONE );    // GL_COLOR_BUFFER_BIT
-
-                GL_DEBUG(glColor4f)( light, light, light, 1.0f );
-
-                GL_DEBUG(glBegin)( GL_TRIANGLE_FAN );
-                {
-                    for ( i = 0; i < 4; i++ )
-                    {
-                        GL_DEBUG(glTexCoord2fv)(vtlist[i].tex );
-                        GL_DEBUG(glVertex3fv)(vtlist[i].pos );
-                    }
-                }
-                GL_DEBUG_END();
-            }
-            ATTRIB_POP( "render_background() - glow" );
-        }
-    }
-    ATTRIB_POP("render_background()");
-}
-
-//--------------------------------------------------------------------------------------------
-void render_foreground_overlay( Uint16 texture )
-{
-    /// @details ZZ@> This function draws the large foreground
-
-    float alpha, ftmp;
-    fvec3_t   vforw_wind, vforw_cam;
-
-    oglx_texture           * ptex;
-
-    water_instance_layer_t * ilayer = water.layer      + 1;
-
-    vforw_wind.x = ilayer->tx_add.x;
-    vforw_wind.y = ilayer->tx_add.y;
-    vforw_wind.z = 0;
-    vforw_wind = fvec3_normalize( vforw_wind.v );
-
-    vforw_cam  = mat_getCamForward( PCamera->mView );
-
-    // make the texture begin to disappear if you are not looking straight down
-    ftmp = fvec3_dot_product( vforw_wind.v, vforw_cam.v );
-
-    alpha = (1.0f - ftmp * ftmp) * (ilayer->alpha * INV_FF);
-
-    if ( alpha != 0.0f )
-    {
-        GLvertex vtlist[4];
-        int i;
-        float size;
-        float sinsize, cossize;
-        float x, y, z;
-        float loc_foregroundrepeat;
-
-        // Figure out the screen coordinates of its corners
-        x = sdl_scr.x << 6;
-        y = sdl_scr.y << 6;
-        z = 0;
-        size = x + y + 1;
-        sinsize = turntosin[( 3*2047 ) & TRIG_TABLE_MASK] * size;
-        cossize = turntocos[( 3*2047 ) & TRIG_TABLE_MASK] * size;
-        loc_foregroundrepeat = water.foregroundrepeat * MIN( x / sdl_scr.x, y / sdl_scr.x );
-
-        vtlist[0].pos[XX] = x + cossize;
-        vtlist[0].pos[YY] = y - sinsize;
-        vtlist[0].pos[ZZ] = z;
-        vtlist[0].tex[SS] = ilayer->tx.x;
-        vtlist[0].tex[TT] = ilayer->tx.y;
-
-        vtlist[1].pos[XX] = x + sinsize;
-        vtlist[1].pos[YY] = y + cossize;
-        vtlist[1].pos[ZZ] = z;
-        vtlist[1].tex[SS] = ilayer->tx.x + loc_foregroundrepeat;
-        vtlist[1].tex[TT] = ilayer->tx.y;
-
-        vtlist[2].pos[XX] = x - cossize;
-        vtlist[2].pos[YY] = y + sinsize;
-        vtlist[2].pos[ZZ] = z;
-        vtlist[2].tex[SS] = ilayer->tx.x + loc_foregroundrepeat;
-        vtlist[2].tex[TT] = ilayer->tx.y + loc_foregroundrepeat;
-
-        vtlist[3].pos[XX] = x - sinsize;
-        vtlist[3].pos[YY] = y - cossize;
-        vtlist[3].pos[ZZ] = z;
-        vtlist[3].tex[SS] = ilayer->tx.x;
-        vtlist[3].tex[TT] = ilayer->tx.y + loc_foregroundrepeat;
-
-        ptex = TxTexture_get_ptr( texture );
-
-        ATTRIB_PUSH( "render_foreground_overlay()", GL_ENABLE_BIT | GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_POLYGON_BIT | GL_COLOR_BUFFER_BIT );
-        {
-            GL_DEBUG(glHint)(GL_POLYGON_SMOOTH_HINT, GL_NICEST );             // GL_HINT_BIT make sure that the texture is as smooth as possible
-
-            GL_DEBUG(glShadeModel)( GL_FLAT );      // GL_LIGHTING_BIT - Flat shade this
-
-            GL_DEBUG(glDepthMask)( GL_FALSE );     // GL_DEPTH_BUFFER_BIT
-            GL_DEBUG(glDepthFunc)( GL_ALWAYS );     // GL_DEPTH_BUFFER_BIT
-
-            GL_DEBUG(glDisable)( GL_CULL_FACE );   // GL_POLYGON_BIT GL_ENABLE_BIT
-
-            GL_DEBUG(glEnable)( GL_ALPHA_TEST );   // GL_COLOR_BUFFER_BIT GL_ENABLE_BIT
-            GL_DEBUG(glAlphaFunc)( GL_GREATER, 0 ); // GL_COLOR_BUFFER_BIT
-
-            GL_DEBUG(glEnable)( GL_BLEND );                                 // GL_COLOR_BUFFER_BIT GL_ENABLE_BIT
-            GL_DEBUG(glBlendFunc)( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_COLOR );  // GL_COLOR_BUFFER_BIT - make the texture a filter
-
-            oglx_texture_Bind ( ptex );
-
-            GL_DEBUG(glColor4f)( 1.0f, 1.0f, 1.0f, 1.0f - ABS(alpha) );
-            GL_DEBUG(glBegin)( GL_TRIANGLE_FAN );
-            for ( i = 0; i < 4; i++ )
-            {
-                GL_DEBUG(glTexCoord2fv)( vtlist[i].tex );
-                GL_DEBUG(glVertex3fv)( vtlist[i].pos );
-            }
-            GL_DEBUG_END();
-        }
-        ATTRIB_POP( "render_foreground_overlay()" );
-    }
-}
-
-//--------------------------------------------------------------------------------------------
 void render_shadow_sprite( float intensity, GLvertex v[] )
 {
     int i;
@@ -2010,7 +1787,7 @@ void render_shadow( Uint16 character )
     if ( TILE_IS_FANOFF(PMesh->mmem.tile_list[pchr->onwhichfan]) ) return;
 
     // no shadow if completely transparent
-    alpha = (pchr->inst.alpha * INV_FF) * (pchr->inst.light * INV_FF);
+    alpha = (255 == pchr->inst.light) ? pchr->inst.alpha  * INV_FF : (pchr->inst.alpha - pchr->inst.light) * INV_FF;
     if ( alpha * 255 < 1.0f ) return;
 
     // much resuced shadow if on a reflective tile
@@ -2131,8 +1908,8 @@ void render_bad_shadow( Uint16 character )
     if ( TILE_IS_FANOFF(PMesh->mmem.tile_list[pchr->onwhichfan]) ) return;
 
     // no shadow if completely transparent or completely glowing
-    alpha = (pchr->inst.alpha * INV_FF) * (pchr->inst.light * INV_FF);
-    if ( alpha < INV_FF ) return;
+    alpha = (255 == pchr->inst.light) ? pchr->inst.alpha  * INV_FF : (pchr->inst.alpha - pchr->inst.light) * INV_FF;
+    if ( alpha * 255 < 1 ) return;
 
     // much reduced shadow if on a reflective tile
     if ( 0 != mesh_test_fx(PMesh, pchr->onwhichfan, MPDFX_DRAWREF) )
@@ -2224,30 +2001,25 @@ void render_water( renderlist_t * prlist )
 }
 
 //--------------------------------------------------------------------------------------------
-void render_scene_init( ego_mpd_t * pmesh, camera_t * pcam )
+void update_all_chr_instance()
 {
-    // Which tiles can be displayed
-    renderlist_make( pmesh, pcam );
+    int cnt;
 
-    // determine which objects are visible
-    dolist_make( renderlist.pmesh );
+    for( cnt = 0; cnt < MAX_CHR; cnt++ )
+    {
+        chr_t * pchr;
 
-    // put off sorting the dolist until later
-    // because it has to be sorted differently for reflected and non-reflected
-    // objects
-    // dolist_sort( pcam, bfalse );
+        if( !ACTIVE_CHR(cnt) ) continue;
+        pchr = ChrList.lst + cnt;
 
-    // figure out the terrain lighting
-    do_grid_dynalight( renderlist.pmesh, pcam );
+        if( !VALID_TILE(PMesh, pchr->onwhichfan) ) continue;
 
-    // apply the lighting to the characters and particles
-    light_fans( &renderlist );
-
-    // this function has been taken over by prt_instance_update_lighting()
-    //light_particles( renderlist.pmesh );
-
-    // update the particle instances
-    update_all_prt_instance( pcam );
+        if( rv_success == chr_update_instance( pchr ) )
+        {
+            // the instance has changed, refresh the collision bound
+            chr_update_collision_size( pchr, btrue );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2282,6 +2054,32 @@ bool_t render_fans_by_list( ego_mpd_t * pmesh, Uint32 list[], size_t list_size )
     }
 
     return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+void render_scene_init( ego_mpd_t * pmesh, camera_t * pcam )
+{
+    // Which tiles can be displayed
+    renderlist_make( pmesh, pcam );
+
+    // determine which objects are visible
+    dolist_make( renderlist.pmesh );
+
+    // put off sorting the dolist until later
+    // because it has to be sorted differently for reflected and non-reflected objects
+    // dolist_sort( pcam, bfalse );
+
+    // figure out the terrain lighting
+    do_grid_dynalight( renderlist.pmesh, pcam );
+
+    // apply the lighting to the characters and particles
+    light_fans( &renderlist );
+
+    // make sure the characters are ready to draw
+    update_all_chr_instance();
+
+    // make sure the particles are ready to draw
+    update_all_prt_instance( pcam );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2340,17 +2138,18 @@ void render_scene_mesh( renderlist_t * prlist )
             {
                 Uint32 itile;
 
-                GL_DEBUG(glEnable)(GL_CULL_FACE );
-                GL_DEBUG(glFrontFace)(GL_CCW );
+                GL_DEBUG(glEnable)( GL_CULL_FACE );     // GL_ENABLE_BIT
+                GL_DEBUG(glFrontFace)( GL_CCW );        // GL_POLYGON_BIT
 
-                GL_DEBUG(glEnable)(GL_BLEND );
-                GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE );
+                GL_DEBUG(glEnable)( GL_BLEND );
+                GL_DEBUG(glBlendFunc)( GL_SRC_ALPHA, GL_ONE );
 
                 tnc = dolist[cnt].ichr;
                 itile = ChrList.lst[tnc].onwhichfan;
 
                 if ( VALID_TILE(pmesh, itile) && (0 != mesh_test_fx( pmesh, itile, MPDFX_DRAWREF )) )
                 {
+                    GL_DEBUG(glColor4f)(1,1,1,1);
                     render_one_mad_ref( tnc );
                 }
             }
@@ -2466,11 +2265,14 @@ void render_scene_solid()
 
         if ( TOTAL_MAX_PRT == dolist[cnt].iprt )
         {
+            GLXvector4f tint;
             chr_instance_t * pinst = chr_get_pinstance(dolist[cnt].ichr);
 
             if ( NULL != pinst && pinst->alpha == 255 && pinst->light == 255 )
             {
-                render_one_mad( dolist[cnt].ichr, 255, bfalse );
+                chr_instance_get_tint( pinst, tint, CHR_SOLID );
+
+                render_one_mad( dolist[cnt].ichr, tint, CHR_SOLID );
             }
         }
         else if ( MAX_CHR == dolist[cnt].ichr && DISPLAY_PRT( dolist[cnt].iprt ) )
@@ -2493,12 +2295,12 @@ void render_scene_solid()
 void render_scene_water( renderlist_t * prlist )
 {
     // set the the transparency parameters
-    GL_DEBUG(glDepthMask)(GL_FALSE );
-    GL_DEBUG(glEnable)(GL_DEPTH_TEST );
-    GL_DEBUG(glDepthFunc)(GL_LEQUAL );
+    GL_DEBUG(glDepthMask)( GL_FALSE );
+    GL_DEBUG(glEnable)( GL_DEPTH_TEST );
+    GL_DEBUG(glDepthFunc)( GL_LEQUAL );
 
-    GL_DEBUG(glEnable)(GL_CULL_FACE );
-    GL_DEBUG(glFrontFace)(GL_CW );
+    GL_DEBUG(glEnable)( GL_CULL_FACE );              // GL_ENABLE_BIT 
+    GL_DEBUG(glFrontFace)( GL_CW );                  // GL_POLYGON_BIT
 
     // And transparent water floors
     if ( !water.light )
@@ -2521,13 +2323,13 @@ void render_scene_trans()
     /// @details BB@> draw transparent objects
 
     int cnt;
-    Uint8 trans;
+    GLXvector4f tint;
 
     // set the the transparency parameters
-    GL_DEBUG(glDepthMask)(GL_FALSE );
+    GL_DEBUG(glDepthMask)(GL_FALSE );                     // GL_DEPTH_BUFFER_BIT
 
-    GL_DEBUG(glEnable)(GL_DEPTH_TEST );
-    GL_DEBUG(glDepthFunc)(GL_LEQUAL );
+    GL_DEBUG(glEnable)(GL_DEPTH_TEST );                   // GL_ENABLE_BIT
+    GL_DEBUG(glDepthFunc)(GL_LEQUAL );                    // GL_DEPTH_BUFFER_BIT
 
     // Now render all transparent and light objects
     for ( cnt = dolist_count - 1; cnt >= 0; cnt-- )
@@ -2538,50 +2340,37 @@ void render_scene_trans()
             chr_t * pchr = ChrList.lst + ichr;
             chr_instance_t * pinst = &(pchr->inst);
 
-            GL_DEBUG(glEnable)(GL_CULL_FACE );
-            GL_DEBUG(glFrontFace)(GL_CW );
+            GL_DEBUG(glEnable)(GL_CULL_FACE );            // GL_ENABLE_BIT
+            GL_DEBUG(glFrontFace)( GL_CW );               // GL_POLYGON_BIT
 
             if (pinst->alpha != 255 && pinst->light == 255)
             {
-                GL_DEBUG(glEnable)(GL_BLEND );
-                GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+                GL_DEBUG(glEnable)(GL_BLEND );                                        // GL_ENABLE_BIT
+                GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );         // GL_COLOR_BUFFER_BIT
 
-                trans = gel_local_alpha( ichr );
+                chr_instance_get_tint( pinst, tint, CHR_ALPHA );
 
-                render_one_mad( ichr, trans, bfalse );
+                render_one_mad( ichr, tint, CHR_ALPHA );
             }
 
             if ( pinst->light != 255 )
             {
-                GL_DEBUG(glEnable)(GL_BLEND );
-                GL_DEBUG(glBlendFunc)(GL_ONE, GL_ONE );
+                GL_DEBUG(glEnable)(GL_BLEND );              // GL_ENABLE_BIT
+                GL_DEBUG(glBlendFunc)(GL_ONE, GL_ONE );     // GL_COLOR_BUFFER_BIT
 
-                trans = gel_local_alpha( ichr );
+                chr_instance_get_tint( pinst, tint, CHR_LIGHT );
 
-                render_one_mad( ichr, trans, bfalse );
+                render_one_mad( ichr, tint, CHR_LIGHT );
             }
 
             if ( gfx.phongon && pinst->sheen > 0 )
             {
-                Uint16 trans;
-                Uint16 save_texture, save_enviro;
+                GL_DEBUG(glEnable)(GL_BLEND );                      // GL_ENABLE_BIT
+                GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE );       // GL_COLOR_BUFFER_BIT
 
-                GL_DEBUG(glEnable)(GL_BLEND );
-                GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE );
+                chr_instance_get_tint( pinst, tint, CHR_PHONG );
 
-                trans = pinst->sheen << 4;
-                trans = CLIP(trans, 0, 255);
-
-                save_texture = pinst->texture;
-                save_enviro  = pinst->enviro;
-
-                pinst->enviro  = btrue;
-                pinst->texture = TX_PHONG;  // The phong map texture...
-
-                render_one_mad( ichr, trans, bfalse );
-
-                pinst->texture = save_texture;
-                pinst->enviro  = save_enviro;
+                render_one_mad( ichr, tint, CHR_PHONG );
             }
         }
         else if ( MAX_CHR == dolist[cnt].ichr && DISPLAY_PRT( dolist[cnt].iprt ) )
@@ -2592,7 +2381,7 @@ void render_scene_trans()
 }
 
 //--------------------------------------------------------------------------------------------
-void render_scene_zreflection( ego_mpd_t * pmesh, camera_t * pcam )
+void render_scene( ego_mpd_t * pmesh, camera_t * pcam )
 {
     /// @details ZZ@> This function draws 3D objects
 
@@ -2654,8 +2443,234 @@ void render_scene_zreflection( ego_mpd_t * pmesh, camera_t * pcam )
                             time_draw_scene_solid + time_draw_scene_water + time_draw_scene_trans;
 }
 
+
 //--------------------------------------------------------------------------------------------
-void render_scene( camera_t * pcam )
+void render_world_background( Uint16 texture )
+{
+    /// @details ZZ@> This function draws the large background
+    GLvertex vtlist[4];
+    int i;
+    float z0, d, mag0, mag1, Qx, Qy;
+    float light = 1.0f, intens = 1.0f, alpha = 1.0f;
+
+    ego_mpd_info_t * pinfo;
+    oglx_texture   * ptex;
+
+    water_instance_layer_t * ilayer = water.layer      + 0;
+
+    z0 = 1500; // the original height of the camera
+    d = MIN(ilayer->dist.x, ilayer->dist.y) / 10.0f;
+    mag0 = 1.0f / (1.0f + z0 * d);
+    // mag1 = backgroundrepeat/128.0f/10;
+    mag1 = 1.0f / 128.0f / 5.0f;
+
+    // clip the waterlayer uv offset
+    ilayer->tx.x = ilayer->tx.x - (float)floor(ilayer->tx.x);
+    ilayer->tx.y = ilayer->tx.y - (float)floor(ilayer->tx.y);
+
+    pinfo = &(PMesh->info);
+
+    // Figure out the coordinates of its corners
+    Qx = -pinfo->edge_x;
+    Qy = -pinfo->edge_y;
+    vtlist[0].pos[XX] = mag0 * PCamera->pos.x + Qx * ( 1.0f - mag0 );
+    vtlist[0].pos[YY] = mag0 * PCamera->pos.y + Qy * ( 1.0f - mag0 );
+    vtlist[0].pos[ZZ] = 0;
+    vtlist[0].tex[SS] = Qx * mag1 + ilayer->tx.x;
+    vtlist[0].tex[TT] = Qy * mag1 + ilayer->tx.y;
+
+    Qx = 2 * pinfo->edge_x;
+    Qy = -pinfo->edge_y;
+    vtlist[1].pos[XX] = mag0 * PCamera->pos.x + Qx * ( 1.0f - mag0 );
+    vtlist[1].pos[YY] = mag0 * PCamera->pos.y + Qy * ( 1.0f - mag0 );
+    vtlist[1].pos[ZZ] = 0;
+    vtlist[1].tex[SS] = Qx * mag1 + ilayer->tx.x;
+    vtlist[1].tex[TT] = Qy * mag1 + ilayer->tx.y;
+
+    Qx = 2 * pinfo->edge_x;
+    Qy = 2 * pinfo->edge_y;
+    vtlist[2].pos[XX] = mag0 * PCamera->pos.x + Qx * ( 1.0f - mag0 );
+    vtlist[2].pos[YY] = mag0 * PCamera->pos.y + Qy * ( 1.0f - mag0 );
+    vtlist[2].pos[ZZ] = 0;
+    vtlist[2].tex[SS] = Qx * mag1 + ilayer->tx.x;
+    vtlist[2].tex[TT] = Qy * mag1 + ilayer->tx.y;
+
+    Qx = -pinfo->edge_x;
+    Qy = 2 * pinfo->edge_y;
+    vtlist[3].pos[XX] = mag0 * PCamera->pos.x + Qx * ( 1.0f - mag0 );
+    vtlist[3].pos[YY] = mag0 * PCamera->pos.y + Qy * ( 1.0f - mag0 );
+    vtlist[3].pos[ZZ] = 0;
+    vtlist[3].tex[SS] = Qx * mag1 + ilayer->tx.x;
+    vtlist[3].tex[TT] = Qy * mag1 + ilayer->tx.y;
+
+    light = water.light ? 1.0f : 0.0f;
+    alpha = ilayer->alpha * INV_FF;
+
+    if ( gfx.usefaredge )
+    {
+        float fcos;
+
+        intens = light_a * ilayer->light_add;
+
+        fcos = light_z;
+        if (fcos > 0.0f)
+        {
+            intens += fcos * fcos * light_d * ilayer->light_dir;
+        }
+
+        intens = CLIP(intens, 0.0f, 1.0f);
+    }
+
+    ptex = TxTexture_get_ptr( texture );
+
+    ATTRIB_PUSH( "render_world_background()", GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_POLYGON_BIT | GL_ENABLE_BIT );
+    {
+        oglx_texture_Bind ( ptex );
+
+        GL_DEBUG(glShadeModel)( GL_FLAT );   // GL_LIGHTING_BIT - Flat shade this
+        GL_DEBUG(glDepthMask)( GL_FALSE );   // GL_DEPTH_BUFFER_BIT
+        GL_DEBUG(glDepthFunc)( GL_ALWAYS );  // GL_DEPTH_BUFFER_BIT
+        GL_DEBUG(glDisable)( GL_CULL_FACE ); // GL_ENABLE_BIT
+
+        GL_DEBUG(glColor4f)( intens, intens, intens, alpha );
+        GL_DEBUG(glBegin)( GL_TRIANGLE_FAN );
+        {
+            for ( i = 0; i < 4; i++ )
+            {
+                GL_DEBUG(glTexCoord2fv)(vtlist[i].tex );
+                GL_DEBUG(glVertex3fv)(vtlist[i].pos );
+            }
+        }
+        GL_DEBUG_END();
+
+        if ( light > 0.0f )
+        {
+            ATTRIB_PUSH( "render_world_background() - glow", GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT );
+            {
+                GL_DEBUG(glEnable)( GL_BLEND );                             // GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT
+                GL_DEBUG(glBlendFunc)( GL_ONE_MINUS_SRC_ALPHA, GL_ONE );    // GL_COLOR_BUFFER_BIT
+
+                GL_DEBUG(glColor4f)( light, light, light, 1.0f );
+
+                GL_DEBUG(glBegin)( GL_TRIANGLE_FAN );
+                {
+                    for ( i = 0; i < 4; i++ )
+                    {
+                        GL_DEBUG(glTexCoord2fv)(vtlist[i].tex );
+                        GL_DEBUG(glVertex3fv)(vtlist[i].pos );
+                    }
+                }
+                GL_DEBUG_END();
+            }
+            ATTRIB_POP( "render_world_background() - glow" );
+        }
+    }
+    ATTRIB_POP("render_world_background()");
+}
+
+//--------------------------------------------------------------------------------------------
+void render_world_overlay( Uint16 texture )
+{
+    /// @details ZZ@> This function draws the large foreground
+
+    float alpha, ftmp;
+    fvec3_t   vforw_wind, vforw_cam;
+
+    oglx_texture           * ptex;
+
+    water_instance_layer_t * ilayer = water.layer      + 1;
+
+    vforw_wind.x = ilayer->tx_add.x;
+    vforw_wind.y = ilayer->tx_add.y;
+    vforw_wind.z = 0;
+    vforw_wind = fvec3_normalize( vforw_wind.v );
+
+    vforw_cam  = mat_getCamForward( PCamera->mView );
+
+    // make the texture begin to disappear if you are not looking straight down
+    ftmp = fvec3_dot_product( vforw_wind.v, vforw_cam.v );
+
+    alpha = (1.0f - ftmp * ftmp) * (ilayer->alpha * INV_FF);
+
+    if ( alpha != 0.0f )
+    {
+        GLvertex vtlist[4];
+        int i;
+        float size;
+        float sinsize, cossize;
+        float x, y, z;
+        float loc_foregroundrepeat;
+
+        // Figure out the screen coordinates of its corners
+        x = sdl_scr.x << 6;
+        y = sdl_scr.y << 6;
+        z = 0;
+        size = x + y + 1;
+        sinsize = turntosin[( 3*2047 ) & TRIG_TABLE_MASK] * size;
+        cossize = turntocos[( 3*2047 ) & TRIG_TABLE_MASK] * size;
+        loc_foregroundrepeat = water.foregroundrepeat * MIN( x / sdl_scr.x, y / sdl_scr.x );
+
+        vtlist[0].pos[XX] = x + cossize;
+        vtlist[0].pos[YY] = y - sinsize;
+        vtlist[0].pos[ZZ] = z;
+        vtlist[0].tex[SS] = ilayer->tx.x;
+        vtlist[0].tex[TT] = ilayer->tx.y;
+
+        vtlist[1].pos[XX] = x + sinsize;
+        vtlist[1].pos[YY] = y + cossize;
+        vtlist[1].pos[ZZ] = z;
+        vtlist[1].tex[SS] = ilayer->tx.x + loc_foregroundrepeat;
+        vtlist[1].tex[TT] = ilayer->tx.y;
+
+        vtlist[2].pos[XX] = x - cossize;
+        vtlist[2].pos[YY] = y + sinsize;
+        vtlist[2].pos[ZZ] = z;
+        vtlist[2].tex[SS] = ilayer->tx.x + loc_foregroundrepeat;
+        vtlist[2].tex[TT] = ilayer->tx.y + loc_foregroundrepeat;
+
+        vtlist[3].pos[XX] = x - sinsize;
+        vtlist[3].pos[YY] = y - cossize;
+        vtlist[3].pos[ZZ] = z;
+        vtlist[3].tex[SS] = ilayer->tx.x;
+        vtlist[3].tex[TT] = ilayer->tx.y + loc_foregroundrepeat;
+
+        ptex = TxTexture_get_ptr( texture );
+
+        ATTRIB_PUSH( "render_world_overlay()", GL_ENABLE_BIT | GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_POLYGON_BIT | GL_COLOR_BUFFER_BIT );
+        {
+            GL_DEBUG(glHint)(GL_POLYGON_SMOOTH_HINT, GL_NICEST );             // GL_HINT_BIT - make sure that the texture is as smooth as possible
+
+            GL_DEBUG(glShadeModel)( GL_FLAT );      // GL_LIGHTING_BIT - Flat shade this
+
+            GL_DEBUG(glDepthMask)( GL_FALSE );      // GL_DEPTH_BUFFER_BIT
+            GL_DEBUG(glDepthFunc)( GL_ALWAYS );     // GL_DEPTH_BUFFER_BIT
+
+            GL_DEBUG(glDisable)( GL_CULL_FACE );    // GL_ENABLE_BIT
+
+            GL_DEBUG(glEnable)( GL_ALPHA_TEST );    // GL_COLOR_BUFFER_BIT | GL_ENABLE_BIT
+            GL_DEBUG(glAlphaFunc)( GL_GREATER, 0 ); // GL_COLOR_BUFFER_BIT
+
+            GL_DEBUG(glEnable)( GL_BLEND );                                 // GL_COLOR_BUFFER_BIT | GL_ENABLE_BIT
+            GL_DEBUG(glBlendFunc)( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_COLOR );  // GL_COLOR_BUFFER_BIT - make the texture a filter
+
+            oglx_texture_Bind ( ptex );
+
+            GL_DEBUG(glColor4f)( 1.0f, 1.0f, 1.0f, 1.0f - ABS(alpha) );
+            GL_DEBUG(glBegin)( GL_TRIANGLE_FAN );
+            for ( i = 0; i < 4; i++ )
+            {
+                GL_DEBUG(glTexCoord2fv)( vtlist[i].tex );
+                GL_DEBUG(glVertex3fv)( vtlist[i].pos );
+            }
+            GL_DEBUG_END();
+        }
+        ATTRIB_POP( "render_world_overlay()" );
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------
+void render_world( camera_t * pcam )
 {
     PROFILE_BEGIN( gfx_loop );
     {
@@ -2664,15 +2679,15 @@ void render_scene( camera_t * pcam )
             if ( gfx.draw_background )
             {
                 // Render the background
-                render_background( TX_WATER_LOW );  // TX_WATER_LOW for waterlow.bmp
+                render_world_background( TX_WATER_LOW );  // TX_WATER_LOW for waterlow.bmp
             }
 
-            render_scene_zreflection( PMesh, pcam );
+            render_scene( PMesh, pcam );
 
             // Foreground overlay
             if ( gfx.draw_overlay )
             {
-                render_foreground_overlay( TX_WATER_TOP );  // TX_WATER_TOP is watertop.bmp
+                render_world_overlay( TX_WATER_TOP );  // TX_WATER_TOP is watertop.bmp
             }
         }
         gfx_end_3d();
@@ -2690,7 +2705,7 @@ void gfx_main()
 {
     /// @details ZZ@> This function does all the drawing stuff
 
-    render_scene( PCamera );
+    render_world( PCamera );
     draw_text();
 
     request_flip_pages();
@@ -3585,9 +3600,7 @@ void render_all_billboards( camera_t * pcam )
             GL_DEBUG(glShadeModel)( GL_FLAT );      // GL_LIGHTING_BIT - Flat shade this
             GL_DEBUG(glDepthMask )( GL_FALSE );     // GL_DEPTH_BUFFER_BIT
             GL_DEBUG(glDepthFunc )( GL_LEQUAL );    // GL_DEPTH_BUFFER_BIT
-            GL_DEBUG(glDisable   )( GL_CULL_FACE ); // GL_POLYGON_BIT | GL_ENABLE_BIT
-
-            GL_DEBUG(glDisable   )( GL_CULL_FACE ); // GL_POLYGON_BIT | GL_ENABLE_BIT
+            GL_DEBUG(glDisable   )( GL_CULL_FACE ); // GL_ENABLE_BIT
 
             GL_DEBUG(glEnable)( GL_BLEND );                                       // GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT
             GL_DEBUG(glBlendFunc)( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );        // GL_COLOR_BUFFER_BIT
@@ -3634,18 +3647,18 @@ void draw_all_lines( camera_t * pcam )
 
     int cnt, ticks;
 
-    GL_DEBUG(glDisable)( GL_TEXTURE_2D );
-
     gfx_begin_3d( pcam );
     {
-        ATTRIB_PUSH( "render_all_billboards()", GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_POLYGON_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT );
+        ATTRIB_PUSH( "render_all_billboards()", GL_ENABLE_BIT | GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_CURRENT_BIT );
         {
-            GL_DEBUG(glShadeModel)( GL_FLAT );      // GL_LIGHTING_BIT - Flat shade this
-            GL_DEBUG(glDepthMask )( GL_FALSE );     // GL_DEPTH_BUFFER_BIT
-            GL_DEBUG(glDepthFunc )( GL_LEQUAL );    // GL_DEPTH_BUFFER_BIT
-            GL_DEBUG(glDisable   )( GL_CULL_FACE ); // GL_POLYGON_BIT | GL_ENABLE_BIT
+            GL_DEBUG(glShadeModel)( GL_FLAT );       // GL_LIGHTING_BIT - Flat shade this
+            GL_DEBUG(glDepthMask )( GL_FALSE );      // GL_DEPTH_BUFFER_BIT
+            GL_DEBUG(glDepthFunc )( GL_LEQUAL );     // GL_DEPTH_BUFFER_BIT
+            GL_DEBUG(glDisable   )( GL_CULL_FACE );  // GL_ENABLE_BIT
 
-            GL_DEBUG(glDisable)( GL_BLEND );                                       // GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT
+            GL_DEBUG(glDisable   )( GL_BLEND );      // GL_ENABLE_BIT
+
+            GL_DEBUG(glDisable   )( GL_TEXTURE_2D ); // GL_ENABLE_BIT - we do not want texture mapped lines
 
             ticks = SDL_GetTicks();
 
@@ -3659,7 +3672,7 @@ void draw_all_lines( camera_t * pcam )
                     continue;
                 }
 
-                GL_DEBUG(glColor4fv)( line_list[cnt].color.v );
+                GL_DEBUG(glColor4fv)( line_list[cnt].color.v );         // GL_CURRENT_BIT
                 GL_DEBUG(glBegin)( GL_LINES );
                 {
                     glVertex3fv( line_list[cnt].src.v );
@@ -3671,9 +3684,6 @@ void draw_all_lines( camera_t * pcam )
         ATTRIB_POP( "render_all_billboards()" );
     }
     gfx_end_3d();
-
-    GL_DEBUG(glEnable)( GL_TEXTURE_2D );
-
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4971,47 +4981,78 @@ void light_fans( renderlist_t * prlist )
 //--------------------------------------------------------------------------------------------
 bool_t sum_dyna_lighting( dynalight_t * pdyna, float lighting[], float dx, float dy, float dz )
 {
-    float level;
-    float maxval   = 255;
-    float rho_sqr  = dx * dx + dy * dy;
-    float rho0_sqr = 0.1f * maxval * pdyna->falloff;
+    /// @details BB> In the Aaron's lighting, the falloff function was
+    ///                  light = (255 - r^2 / falloff) / 255.0f
+    ///              this has a definite max radius for the light, rmax = sqrt(falloff*255),
+    ///              which was good because we could have a definite range for a given light
+    ///
+    ///              The problem was that the light does not have the right kind of fade out at
+    ///              the edge of the viewing range. To fix this, I originally adopted a function of the form
+    ///                  light = falloff / (falloff + k^2 * r^2)
+    ///              which does have the proper falloff at large r, and gives an approximate "size" of the lightsource
+    ///              of sqrt(falloff)/k. When you try to match the range of this function with the range of Aaron's function
+    ///              you get a k = sqrt(255*falloff*(1-threshold)) (threshold is the value of light where the two functions
+    ///              are supposed to match, you might choose something like threshold = 0.1 if they are supposed to
+    ///              match when 90% of the light is gone.)
+    ///
+    ///              The problem with this function is that the light falls off too fast near the source.
+    ///              So, I moved to a function of the form
+    ///                  light = falloff / (falloff + k2 * r^2 + k4 * r^4)
+    ///              You can make this function have the right threshold value, behave very much like Aaron's near
+    ///              the source, and have the right behavior at large values of r.
 
-    level = maxval / ( 1.0f + rho_sqr / rho0_sqr );
-    level *= pdyna->level;
+    float threshold = 0.1f;            // value at which the new lighting radius is supposed to equal the old radius
+    float ftmp;                           // an intermediate value
+
+    float level;
+    float rho_sqr  = dx * dx + dy * dy;
+    float local_falloff = 9 * pdyna->falloff;
+
+    ftmp = INV_FF * rho_sqr / local_falloff;
+
+    level = 1.0f / (1.0f + ftmp * ( 1.0f + ftmp * (1-threshold)/threshold) );
+    level *= 255 * pdyna->level;
 
     // allow negative lighting, or blind spots will not work properly
-    if ( level != 0.0f )
+    if ( (ABS(level)) > 0.5 )
     {
         float rad_sqr = rho_sqr + dz * dz;
-        float rad = SQRT( rad_sqr );
+        
+        if( rad_sqr > 0.0f )
+        {
+            float rad = SQRT( rad_sqr );
+            dx /= rad;
+            dy /= rad;
+            dz /= rad;
+        }
+        else
+        {
+            level *= 0.5f;
+        }
 
-        dx /= rad;
-        dy /= rad;
-        dz /= rad;
-
-        if ( dx > 0 )
+        if ( dx >= 0 )
         {
             lighting[0] += ABS(dx) * level;
         }
-        else if (dx < 0)
+        if (dx <= 0)
         {
             lighting[1] += ABS(dx) * level;
         }
 
-        if ( dy > 0 )
+        if ( dy >= 0 )
         {
             lighting[2] += ABS(dy) * level;
         }
-        else if (dy < 0)
+        if (dy <= 0)
         {
             lighting[3] += ABS(dy) * level;
         }
 
-        if ( dz > 0 )
+        if ( dz >= 0 )
         {
             lighting[4] += ABS(dz) * level;
         }
-        else if (dz < 0)
+        if (dz <= 0)
         {
             lighting[5] += ABS(dz) * level;
         }
@@ -5021,16 +5062,11 @@ bool_t sum_dyna_lighting( dynalight_t * pdyna, float lighting[], float dx, float
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t sum_global_lighting( float lighting[] )
+float get_ambient_level()
 {
-    int cnt;
+    /// @details BB@> get the actual global ambient level
+
     float glob_amb, min_amb;
-
-    if ( NULL == lighting ) return bfalse;
-
-    // do ambient lighting. if the module is inside, the ambient lighting
-    // is reduced by up to a facror of 8. It is still kept just high enough
-    // so that ordnary objects will not be made invisible. This was breaking some of the AIs
 
     glob_amb = 0.0f;
     min_amb  = 0.0f;
@@ -5050,7 +5086,22 @@ bool_t sum_global_lighting( float lighting[] )
         min_amb = 32.0f * light_a * (1 + local_seedark_level);
     }
 
-    glob_amb = MAX(glob_amb, min_amb);
+    return MAX(glob_amb, min_amb);
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t sum_global_lighting( float lighting[] )
+{
+    /// @details BB@> do ambient lighting. if the module is inside, the ambient lighting
+    /// is reduced by up to a facror of 8. It is still kept just high enough
+    /// so that ordnary objects will not be made invisible. This was breaking some of the AIs
+
+    int cnt;
+    float glob_amb;
+
+    if ( NULL == lighting ) return bfalse;
+
+    glob_amb = get_ambient_level();
 
     for ( cnt = 0; cnt < 6; cnt++ )
     {

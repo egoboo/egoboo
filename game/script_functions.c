@@ -2681,7 +2681,7 @@ Uint8 scr_set_RedShift( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->inst.redshift = pstate->argument;
+    chr_set_redshift( pchr, pstate->argument );
 
     SCRIPT_FUNCTION_END();
 }
@@ -2695,7 +2695,7 @@ Uint8 scr_set_GreenShift( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->inst.grnshift = pstate->argument;
+    chr_set_grnshift( pchr, pstate->argument );
 
     SCRIPT_FUNCTION_END();
 }
@@ -2709,7 +2709,7 @@ Uint8 scr_set_BlueShift( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->inst.blushift = pstate->argument;
+    chr_set_grnshift( pchr, pstate->argument );
 
     SCRIPT_FUNCTION_END();
 }
@@ -2723,7 +2723,7 @@ Uint8 scr_set_Light( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->inst.light = pstate->argument;
+    chr_set_light( pchr, pstate->argument );
 
     SCRIPT_FUNCTION_END();
 }
@@ -2737,7 +2737,7 @@ Uint8 scr_set_Alpha( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->inst.alpha = pstate->argument;
+    chr_set_alpha( pchr, pstate->argument );
 
     SCRIPT_FUNCTION_END();
 }
@@ -7077,7 +7077,7 @@ Uint8 _break_passage( int mesh_fx_or, int become, int frames, int starttile, int
     /// @details ZZ@> This function breaks the tiles of a passage if there is a character standing
     ///               on 'em.  Turns the tiles into damage terrain if it reaches last frame.
 
-    Uint16 tile, endtile;
+    Uint16 endtile;
     Uint32 fan;
     int useful, character;
 

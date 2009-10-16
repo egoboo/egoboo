@@ -186,7 +186,7 @@ Can be dazed ( TRUE or FALSE )			: FALSE
 Can be grogged ( TRUE or FALSE )		: FALSE
 Permanent life add when used ( -256 to 256 )	: 0
 Permanent mana add when used ( -256 to 256 )	: 0
-Can see invisible ( TRUE or FALSE )		: FALSE
+Can see invisible ( TRUE or FALSE )		: TRUE
 Chance of being cursed ( 0 to 100 )		: 0
 Sound of Footfall ( -1 for none )		: -1
 Sound of Jump ( -1 for none )			: -1
@@ -194,6 +194,7 @@ Sound of Jump ( -1 for none )			: -1
 
 // Expansions
 :[STUK] 0       //Dont let particles get stuck
+:[DARK] 1
 
 //-Notes------------------------------------------------------------------------
 // Money, items, skin, name, team, and position are all set at spawn time

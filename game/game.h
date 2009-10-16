@@ -207,13 +207,14 @@ struct s_water_layer_instance
     float     z;            ///< Base height of water
     float     amp;            ///< Amplitude of waves
 
-    fvec2_t   dist;
+    fvec2_t   dist;         ///< some indication of "how far away" the layer is if it is an overlay
 
     fvec2_t   tx;           ///< Coordinates of texture
 
     float     light_dir;    ///< direct  reflectivity 0 - 1
     float     light_add;    ///< ambient reflectivity 0 - 1
-    Uint8     alpha;        ///< Transparency
+
+    Uint8     alpha;        ///< layer transparency
 
     fvec2_t   tx_add;            ///< Texture movement
 };
@@ -425,10 +426,13 @@ void attach_particles();
 struct s_wawalite_data * read_wawalite( const char *modname );
 bool_t write_wawalite( const char *modname, struct s_wawalite_data * pdata );
 
-Uint8 gel_local_alpha( Uint16 iobj );
+Uint8 get_local_alpha( int alpha  );
+Uint8 get_local_light( int light  );
 
 bool_t do_shop_drop( Uint16 idropper, Uint16 iitem );
 
 bool_t do_shop_buy( Uint16 ipicker, Uint16 ichr );
 bool_t do_shop_steal( Uint16 ithief, Uint16 iitem );
 bool_t do_item_pickup( Uint16 ichr, Uint16 iitem );
+
+bool_t get_chr_regeneration( struct s_chr * pchr, int *pliferegen, int * pmanaregen );
