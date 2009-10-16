@@ -28,11 +28,11 @@ IfCrushed
   tmpargument = 2
   SendMessageNear
   UndoEnchant
-IfNotDropped				// Say oops, that's cursed
+IfNotDropped				// Say oops, that's kursed
   SetTargetToWhoeverIsHolding		  //
   tmpargument = 1			  //
   SendMessageNear			  //
-IfNotPutAway				// Say oops, that's cursed
+IfNotPutAway				// Say oops, that's kursed
   SetTargetToWhoeverIsHolding		  //
   tmpargument = 3			  //
   SendMessageNear			  //

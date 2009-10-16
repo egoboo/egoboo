@@ -1,4 +1,4 @@
-Message 0: I_curse_you!
+Message 0: I_kurse_you!
 Message 1: The_priest_looks_better...
 Message 2: Here_you_go..._(%x_Zenny)
 Message 3: May_it_aid_you_on_your_travels..._(%x_Zenny)

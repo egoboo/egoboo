@@ -6,7 +6,7 @@
 //Creates illusions of himself
 //Drops his wand and draw a spellbook instead
 //Lot's of irritating traps and stuff around the room
-//Fake potions... cursed items... toyboxes... mimics... mines...
+//Fake potions... kursed items... toyboxes... mimics... mines...
 
 //------------------------------------------------------------------------------
 //This fills the room with sparklies

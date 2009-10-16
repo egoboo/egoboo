@@ -221,7 +221,7 @@ invisiblechest:   NONE    48  25.5   83.0   1.0   W    0   0  0   1   0   F   F 
   rgpotion:   NONE    71  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   clencher:   NONE    72  0.0   0.0   0.0   I    0   0  0   0   0   F   F   E
 normalchest:   NONE    46  23.5   99.5   1.0   S    0   0  0   1   0   F   F   N
-  BloodMace:   NONE    70  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  BludMace:   NONE    70  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
 //Area between hell room and amazing maze
 pchest:   NONE    63  36.0   93.0   1.0   S    59   0  0   2   0   F   F   N
@@ -306,7 +306,7 @@ deadfall:   NONE    52  88.0   75.0   1.0   N    0   0  19   0   0   F   F   N
 deadfall:   NONE    52  84.0   75.0   1.0   N    0   0  20   0   0   F   F   N
 toast:   NONE    49  86.0   75.0   1.0   N    0   0  0   0   0   F   F   E
 deadfall:   NONE    52  81.0   75.0   1.0   N    0   0  21   0   0   F   F   N
-CurseTrap:   NONE    91  78.0   75.0   1.0   N    0   0  22   0   0   F   F   E
+KurseTrap:   NONE    91  78.0   75.0   1.0   N    0   0  22   0   0   F   F   E
 arrowtrap2:   NONE    53  75.0   75.0   1.0   N    0   0  23   0   0   F   F   N
 mushroom:  NONE    98  67.0    78.25   0.5   W    0   0  0   0   0   F   F   N
 eyeball:   NONE    37  80.0   73.0   1.0   N    0   0  0   0   0   F   F   E
@@ -332,7 +332,7 @@ Hellrover:   NONE    118  54.5   13.5   1.0   N    0   0  0   0   0   F   F   E
 normalchest:   NONE    46  62.0   23.0   1.0   N    17   0  0   4   0   F   F   N
   RGPotion:   NONE    71  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   mushroom:  NONE    98  0.0    0.0   0.0   I    0   0  0   0   0   F   F   N
-cursetrap:   NONE    91  62.0   23.0   1.0   N    0   0  33   0   0   F   F   E
+kursetrap:   NONE    91  62.0   23.0   1.0   N    0   0  33   0   0   F   F   E
 
 //Prison cell of elayne
 devildoor:   NONE    74  69.0   12.0   1.0   E    0   0  26   10   0   F   F   N

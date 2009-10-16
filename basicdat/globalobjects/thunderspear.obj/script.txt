@@ -68,11 +68,11 @@ IfThrown				// Make it attack
   SpawnAttachedParticle
   tmpargument = 1			//Mark spear as thrown (Fake)
   SetState
-IfNotDropped				// Say oops, that's cursed
+IfNotDropped				// Say oops, that's kursed
   SetTargetToWhoeverIsHolding		  //
   tmpargument = 1			  //
   SendMessageNear			  //
-IfNotPutAway				// Say oops, that's cursed
+IfNotPutAway				// Say oops, that's kursed
   SetTargetToWhoeverIsHolding		  //
   tmpargument = 3			  //
   SendMessageNear			  //

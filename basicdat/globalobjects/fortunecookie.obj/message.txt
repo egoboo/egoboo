@@ -159,7 +159,7 @@ Message 108: "Potions_might_help_you,_but_many_are_also_slightly
 Message 109: unhealthy,_so_drink_sparingly."
 
 Message 110: "Magic_weapons_are_obviously_very_powerful,_but_many_of_them_are
-Message 111: also_cursed._You_have_to_decide_whether_the_pros_outweigh_the_cons!"
+Message 111: also_kursed._You_have_to_decide_whether_the_pros_outweigh_the_cons!"
 
 Message 112: "Some_classes_are_better_at_using_certain_types_of_weapons_than_others.
 Message 113: There_may_be_some_weapons_you_can't_use_at_all."

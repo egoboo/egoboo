@@ -5041,6 +5041,8 @@ bool_t chr_setup_apply( Uint16 ichr, spawn_file_info_t *pinfo )
         pchr->nameknown = btrue;
     }
 
+    // adjust the price of items that are spawned in a shop
+
     return btrue;
 }
 
@@ -7448,6 +7450,9 @@ bool_t do_shop_drop( Uint16 idropper, Uint16 iitem )
     chr_t * pdropper, * pitem;
     bool_t inshop;
 
+    // ?? lol what ??
+    if( idropper == iitem ) return bfalse;
+
     if( !ACTIVE_CHR(iitem) ) return bfalse;
     pitem = ChrList.lst + iitem;
 
@@ -7499,10 +7504,13 @@ bool_t do_shop_drop( Uint16 idropper, Uint16 iitem )
 //--------------------------------------------------------------------------------------------
 bool_t do_shop_buy( Uint16 ipicker, Uint16 iitem )
 {
-    bool_t can_grab;
+    bool_t can_grab, can_pay, in_shop;
     int price;
 
     chr_t * ppicker, * pitem;
+
+    // ?? lol what ??
+    if( ipicker == iitem ) return bfalse;
 
     if( !ACTIVE_CHR(iitem) ) return bfalse;
     pitem = ChrList.lst + iitem;
@@ -7511,6 +7519,8 @@ bool_t do_shop_buy( Uint16 ipicker, Uint16 iitem )
     ppicker = ChrList.lst + ipicker;
 
     can_grab = btrue;
+    can_pay  = btrue;
+    in_shop  = bfalse;
 
     if ( pitem->isitem && ShopStack.count > 0 )
     {
@@ -7524,7 +7534,8 @@ bool_t do_shop_buy( Uint16 ipicker, Uint16 iitem )
         {
             chr_t * powner = ChrList.lst + iowner;
 
-            price = chr_get_price( iitem );
+            in_shop = btrue;
+            price   = chr_get_price( iitem );
 
             if ( ppicker->money >= price )
             {
@@ -7538,13 +7549,36 @@ bool_t do_shop_buy( Uint16 ipicker, Uint16 iitem )
                 powner->money   = CLIP(powner->money, 0, MAXMONEY);
 
                 can_grab = btrue;
+                can_pay  = btrue;
             }
             else
             {
                 // Don't allow purchase
                 ai_add_order( &(powner->ai), price, SHOP_NOAFFORD );
                 can_grab = bfalse;
+                can_pay  = bfalse;
             }
+        }
+    }
+
+    /// print some feedback messages
+    /// @todo: some of these are handled in scripts, so they could be disabled
+    if( can_grab )
+    {
+        if( in_shop )
+        {
+            if( can_pay )
+            {
+                debug_printf( "%s bought %s", chr_get_name( ipicker, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL), chr_get_name( iitem, CHRNAME_ARTICLE ) );
+            }
+            else
+            {
+                debug_printf( "%s can't afford %s", chr_get_name( ipicker, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL), chr_get_name( iitem, CHRNAME_ARTICLE ) );
+            }
+        }
+        else
+        {
+            debug_printf( "%s picked up %s", chr_get_name( ipicker, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL), chr_get_name( iitem, CHRNAME_ARTICLE ) );
         }
     }
 
@@ -7559,6 +7593,9 @@ bool_t do_shop_steal( Uint16 ithief, Uint16 iitem )
     bool_t can_steal;
 
     chr_t * pthief, * pitem;
+
+    // ?? lol what ??
+    if( ithief == iitem ) return bfalse;
 
     if( !ACTIVE_CHR(iitem) ) return bfalse;
     pitem = ChrList.lst + iitem;
@@ -7604,6 +7641,9 @@ bool_t do_item_pickup( Uint16 ichr, Uint16 iitem )
     bool_t is_invis, can_steal;
     chr_t * pchr;
 
+    // ?? lol what ??
+    if( ichr == iitem ) return bfalse;
+
     if( !ACTIVE_CHR(ichr) ) return bfalse;
     pchr = ChrList.lst + ichr;
 
@@ -7632,11 +7672,6 @@ bool_t do_item_pickup( Uint16 ichr, Uint16 iitem )
     else
     {
         can_grab = do_shop_buy( ichr, iitem );
-
-        if( can_grab )
-        {
-            debug_printf( "%s bought %s", chr_get_name( ichr, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL), chr_get_name( iitem, CHRNAME_ARTICLE ) );
-        }
     }
 
     return can_grab;

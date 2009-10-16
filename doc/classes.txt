@@ -24,7 +24,7 @@ SKILL DESCRIPTION
 Acrobatic Mastery: Can preform the incredible feat of jumping three times in a row.
 Acrobatics: Can preform double jumps.
 Alchemy: Automatically identify all potions and flasks.
-Ancient Blood: Slowly regenerate life naturally.
+Ancient Blud: Slowly regenerate life naturally.
 Arcane Magic: Can use arcane spellbooks.
 Backstab: Deal extra damage when attacking sleeping creatures or enemies from behind.
 Backpacker: Character doesn't drop any of his/her money and keys when dying.
@@ -129,7 +129,7 @@ Level       Abillity
 13    - Hardy
 14    - n/a
 15    - n/a
-16    - Ancient Blood
+16    - Ancient Blud
 17    - n/a
 18    - n/a
 19    - n/a

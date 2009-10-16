@@ -3464,7 +3464,7 @@ Uint16 chr_get_free( Uint16 override )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint16 spawn_one_character( fvec3_t   pos, Uint16 profile, Uint8 team,
+Uint16 spawn_one_character( fvec3_t pos, Uint16 profile, Uint8 team,
                             Uint8 skin, Uint16 facing, const char *name, Uint16 override )
 {
     /// @details ZZ@> This function spawns a character and returns the character's index number
@@ -3547,7 +3547,7 @@ Uint16 spawn_one_character( fvec3_t   pos, Uint16 profile, Uint8 team,
     // Team stuff
     pchr->team = team;
     pchr->baseteam = team;
-    if ( !pcap->invictus )  TeamList[team].morale++;
+    if ( !pchr->invictus )  TeamList[team].morale++;
 
     // Firstborn becomes the leader
     if ( TeamList[team].leader == NOLEADER )
@@ -3575,8 +3575,10 @@ Uint16 spawn_one_character( fvec3_t   pos, Uint16 profile, Uint8 team,
 
     // fix the skin-related parameters, in case there was some funy business with overriding
     // the skin from the data.txt file
-    if( pcap->skinoverride != pchr->skin )
+    if( skin != pchr->skin )
     {
+        pchr->skin = skin;
+
         pchr->defense = pcap->defense[pchr->skin];
         for ( tnc = 0; tnc < DAMAGE_COUNT; tnc++ )
         {

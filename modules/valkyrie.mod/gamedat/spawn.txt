@@ -15,7 +15,7 @@ viking.obj:   NONE    41  25.5   17.5   0.0   ?    3   1  0   0   1   F   F   E
   hatchet.obj:   NONE    98  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
   towershield.obj:   NONE    47  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 
-//Bloody Battlefield
+//Bludy Battlefield
 trorc.obj:   NONE    39  34.5   28.5   1.0   ?    1   1  0   0   0   F   F   E
   battleaxe.obj:   NONE    45  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
   spikeshield.obj:   NONE    44  33.0   32.0   1.0   L    0   0  0   0   0   F   F   N

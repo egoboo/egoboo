@@ -297,7 +297,7 @@ IfKilled
   tmpargument = TEAME
   TargetJoinTeam
   
-  //curse them!
+  //kurse them!
   tmpargument = 0
   SendMessageNear
   EnchantTarget

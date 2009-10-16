@@ -34,7 +34,7 @@ IfSpawned
   MakeCrushValid
 
 //--------------------------------------------------------------------------------
-//Say oops, that's cursed
+//Say oops, that's kursed
 IfNotDropped
   SetTargetToWhoeverIsHolding
   tmpargument = 2

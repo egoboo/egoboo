@@ -25,7 +25,7 @@
 19 DeadFall: 	87 74      88 75          T       T             F
 20 DeadFall2: 	83 74      84 75          T       T             F
 21 DeadFall3: 	80 74      81 75          T       T             F
-22 CurseTrap1: 	77 74      78 75          T       T             F
+22 KurseTrap1: 	77 74      78 75          T       T             F
 23 ArrowTrap: 	74 74      75 75          T       T             F
 24 DeamonExit2: 43 15      46 19          F       T             F
 25 PlateRead5: 66 11      67 12          T       T             F
@@ -36,7 +36,7 @@
 30 DevilGate3: 	15 72      16 73          F       T             F
 31 DevilGate3Detect: 	14 72      17 73          T       T             F
 32 DevilGateBlock: 	12 72      14 73          F       T             F
-33 CurseTrap2: 	61 22      62 23          T       T             F
+33 KurseTrap2: 	61 22      62 23          T       T             F
 34 BossDoor: 	65 49      70 50          F       F             F
 35 PlateRead7: 	63 49      64 50          T       T             F
 36 BossMusic: 	67 49      70 50          T       T             F

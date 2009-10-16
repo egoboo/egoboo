@@ -90,13 +90,13 @@ IfKilled
     tmpy = 0
     IfXIsEqualToY
       tmpargument = 3
-      ChangeArmor         //Become bloodied
+      ChangeArmor         //Become bludied
   Else
     tmpx = rand & 1
     tmpy = 0
     IfXIsEqualToY
       tmpargument = 2
-      ChangeArmor         //Become bloodied
+      ChangeArmor         //Become bludied
 
 //------------------------------------------------------------------------------
 IfAttacked

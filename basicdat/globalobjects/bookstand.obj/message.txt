@@ -7,7 +7,7 @@ Message 5: Scrolls_and_books_are_ruined_if_soaked_in_water...
 Message 6: Wizards_First_Rule:_Don't_die.
 Message 7: Mana_potions_reduce_your_max_mana!
 Message 8: Mephits_have_different_strenghts_and_weaknesses...
-Message 9: Bloodthirsty_Squirrels_can_eat_'Almost_dead'_Ghouls.
+Message 9: Bludthirsty_Squirrels_can_eat_'Almost_dead'_Ghouls.
 Message 10: A_healer_can_burn_spellbooks_to_gain_free_xp!
 Message 11: Rust_Eater_can_eat_bag_of_ninja_stars_when_you_throw_a_ninja_star.
 Message 12: Players_can_try_to_steal_from_shops_when_invisible_or_hidden.

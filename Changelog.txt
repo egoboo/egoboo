@@ -124,7 +124,7 @@ Version 2.7.4 (19.07.2009)
 - Bugfix: Fixed bug that made the Global Object Repository to fail on Windows.
 - Bugfix: Minor graphics fixes.
 - Bugfix: Fixed the Unlock spell having unlimited range.
-- Bugfix: Mosquitoes should now properly increase size when filled with blood.
+- Bugfix: Mosquitoes should now properly increase size when filled with blud.
 - Bugfix: Intelligence and wisdom bonus effect to spells should now work properly again.
 - Bugfix: The Giant Scorpion boss music should now play properly.
 - Bugfix: Mephits stop flying when killed now.
@@ -604,7 +604,7 @@ Version 2.3.9 (06.08.2007)
   information and help about spell-casting can be found there too. Lastly an new section
   about status condition is described.
 - Bugfix: Picking up more than 9999$ does no longer drop your money back to 0$. (Credits to Florian Natterer)
-- Bugfix: Items and equipment in Bishopia shops are now never cursed.
+- Bugfix: Items and equipment in Bishopia shops are now never kursed.
 - Bugfix: You could sell the Bridge of Light spell for 200 zorkmids and re-buy it for 100!
 - Bugfix: Fixed the Ice Ball wand icon.
 - Bugfix: The Holy Rune in the Catacomb module now correctly works for divine casters.
