@@ -224,9 +224,9 @@ struct s_cap
     // movement
     float        jump;                          ///< Jump power
     Uint8        jumpnumber;                    ///< Number of jumps ( Ninja )
-    Uint8        sneakspd;                      ///< Sneak threshold
-    Uint8        walkspd;                       ///< Walk threshold
-    Uint8        runspd;                        ///< Run threshold
+    float        sneakspd;                      ///< Sneak threshold
+    float        walkspd;                       ///< Walk threshold
+    float        runspd;                        ///< Run threshold
     Uint8        flyheight;                     ///< Fly height
 
     // graphics

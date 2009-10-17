@@ -174,9 +174,9 @@ cap_t * load_one_cap_file( const char * tmploadname, cap_t * pcap )
     pcap->weight = fget_next_int( fileread );
     pcap->jump = fget_next_float( fileread );
     pcap->jumpnumber = fget_next_int( fileread );
-    pcap->sneakspd = fget_next_int( fileread );
-    pcap->walkspd = fget_next_int( fileread );
-    pcap->runspd = fget_next_int( fileread );
+    pcap->sneakspd = fget_next_float( fileread );
+    pcap->walkspd = fget_next_float( fileread );
+    pcap->runspd = fget_next_float( fileread );
     pcap->flyheight = fget_next_int( fileread );
     pcap->flashand = fget_next_int( fileread );
     pcap->alpha = fget_next_int( fileread );
@@ -470,9 +470,9 @@ bool_t save_one_cap_file( const char * szSaveName, cap_t * pcap )
     template_put_int  ( filetemp, filewrite, pcap->weight );
     template_put_float( filetemp, filewrite, pcap->jump );
     template_put_int  ( filetemp, filewrite, pcap->jumpnumber );
-    template_put_int  ( filetemp, filewrite, pcap->sneakspd );
-    template_put_int  ( filetemp, filewrite, pcap->walkspd );
-    template_put_int  ( filetemp, filewrite, pcap->runspd );
+    template_put_float( filetemp, filewrite, pcap->sneakspd );
+    template_put_float( filetemp, filewrite, pcap->walkspd );
+    template_put_float( filetemp, filewrite, pcap->runspd );
     template_put_int  ( filetemp, filewrite, pcap->flyheight );
     template_put_int  ( filetemp, filewrite, pcap->flashand );
     template_put_int  ( filetemp, filewrite, pcap->alpha );
