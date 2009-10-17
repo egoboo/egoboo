@@ -233,15 +233,6 @@ bool_t setup_download(egoboo_config_t * pcfg)
     // The z depth
     GetKey_int( "Z_DEPTH", pcfg->scrz_req, cfg_default.scrz_req );
 
-    // Max number of messages displayed
-    GetKey_int( "MAX_TEXT_MESSAGE", pcfg->message_count_req, cfg_default.message_count_req );
-
-    // Max number of messages displayed
-    GetKey_int( "MESSAGE_DURATION", pcfg->message_duration, cfg_default.message_duration );
-
-    // Show status bars? (Life, mana, character icons, etc.)
-    GetKey_bool( "STATUS_BAR", pcfg->StatusList_on, cfg_default.StatusList_on );
-
     // Perspective correction
     GetKey_bool( "PERSPECTIVE_CORRECT", pcfg->use_perspective, cfg_default.use_perspective );
 
@@ -338,7 +329,17 @@ bool_t setup_download(egoboo_config_t * pcfg)
     //* CONTROL Section
     //*********************************************
 
-    lCurSectionName = "CONTROL";
+    lCurSectionName = "GAME";
+
+	// Which difficulty mode do we use?
+    GetKey_string( "DIFFICULTY_MODE", lTempStr, 24, "NORMAL" );
+    pcfg->difficulty = cfg_default.difficulty;
+    if ( 'E' == toupper(lTempStr[0]) )  pcfg->difficulty = GAME_EASY;
+    if ( 'N' == toupper(lTempStr[0]) )  pcfg->difficulty = GAME_NORMAL;
+    if ( 'H' == toupper(lTempStr[0]) )  pcfg->difficulty = GAME_HARD;
+
+	//Feedback
+	GetKey_int( "FEEDBACK", pcfg->feedback, cfg_default.feedback );
 
     // Camera control mode
     GetKey_string( "AUTOTURN_CAMERA", lTempStr, 24, "GOOD" );
@@ -347,6 +348,12 @@ bool_t setup_download(egoboo_config_t * pcfg)
     else if ( 'T' == toupper(lTempStr[0]) )  pcfg->autoturncamera = CAMTURN_AUTO;
     else if ( 'F' == toupper(lTempStr[0]) )  pcfg->autoturncamera = CAMTURN_NONE;
 
+	 // Max number of messages displayed
+    GetKey_int( "MAX_TEXT_MESSAGE", pcfg->message_count_req, cfg_default.message_count_req );
+
+    // Max number of messages displayed
+    GetKey_int( "MESSAGE_DURATION", pcfg->message_duration, cfg_default.message_duration );
+  
     //*********************************************
     //* NETWORK Section
     //*********************************************
@@ -378,14 +385,8 @@ bool_t setup_download(egoboo_config_t * pcfg)
     GetKey_bool( "DEV_MODE",    pcfg->dev_mode,          cfg_default.dev_mode );
     GetKey_bool( "SDL_IMAGE",   pcfg->sdl_image_allowed, cfg_default.sdl_image_allowed );
 
-    // Which difficulty mode do we use?
-    GetKey_string( "DIFFICULTY_MODE", lTempStr, 24, "NORMAL" );
-    pcfg->difficulty = cfg_default.difficulty;
-    if ( 'E' == toupper(lTempStr[0]) )  pcfg->difficulty = GAME_EASY;
-    if ( 'N' == toupper(lTempStr[0]) )  pcfg->difficulty = GAME_NORMAL;
-    if ( 'H' == toupper(lTempStr[0]) )  pcfg->difficulty = GAME_HARD;
-
-	GetKey_int( "FEEDBACK", pcfg->feedback, cfg_default.feedback );
+    // Show status bars? (Life, mana, character icons, etc.)
+    GetKey_bool( "STATUS_BAR", pcfg->StatusList_on, cfg_default.StatusList_on );
 
     return btrue;
 }
@@ -445,15 +446,6 @@ bool_t setup_upload( egoboo_config_t * pcfg )
 
     // The z depth
     SetKey_int( "Z_DEPTH", pcfg->scrz_req );
-
-    // Max number of messages displayed
-    SetKey_int( "MAX_TEXT_MESSAGE", messageon ? pcfg->message_count_req : 0 );
-
-    // Max number of messages displayed
-    SetKey_int( "MESSAGE_DURATION", pcfg->message_duration );
-
-    // Show status bars? (Life, mana, character icons, etc.)
-    SetKey_bool( "STATUS_BAR", pcfg->StatusList_on );
 
     // Perspective correction
     SetKey_bool( "PERSPECTIVE_CORRECT", pcfg->use_perspective );
@@ -548,20 +540,39 @@ bool_t setup_upload( egoboo_config_t * pcfg )
     SetKey_bool( "HIGH_SOUND_QUALITY", pcfg->sound_highquality );
 
     //*********************************************
-    //* CONTROL Section
+    //* GAME Section
     //*********************************************
 
-    lCurSectionName = "CONTROL";
+    lCurSectionName = "GAME";
+
+	// Save diffculty mode
+    switch (pcfg->difficulty)
+    {
+        case GAME_EASY:         SetKey_string( "DIFFICULTY_MODE", "EASY" ); break;
+        case GAME_HARD:         SetKey_string( "DIFFICULTY_MODE", "HARD" ); break;
+
+        default:
+        case GAME_NORMAL:       SetKey_string( "DIFFICULTY_MODE", "NORMAL" ); break;
+    }
+
+    // Feedback type
+    SetKey_int( "FEEDBACK", pcfg->feedback );
 
     // Camera control mode
     switch ( pcfg->autoturncamera )
     {
-        case CAMTURN_NONE: SetKey_bool( "AUTOTURN_CAMERA", bfalse ); break;
-        case CAMTURN_GOOD:    SetKey_string( "AUTOTURN_CAMERA", "GOOD" ); break;
+        case CAMTURN_NONE:	SetKey_bool( "AUTOTURN_CAMERA", bfalse ); break;
+        case CAMTURN_GOOD:  SetKey_string( "AUTOTURN_CAMERA", "GOOD" ); break;
 
         default:
         case CAMTURN_AUTO : SetKey_bool( "AUTOTURN_CAMERA", btrue );  break;
     }
+
+	// Max number of messages displayed
+    SetKey_int( "MAX_TEXT_MESSAGE", messageon ? pcfg->message_count_req : 0 );
+
+    // Max number of messages displayed
+    SetKey_int( "MESSAGE_DURATION", pcfg->message_duration );
 
     //*********************************************
     //* NETWORK Section
@@ -594,18 +605,8 @@ bool_t setup_upload( egoboo_config_t * pcfg )
     SetKey_bool( "DEV_MODE",    pcfg->dev_mode );
     SetKey_bool( "SDL_IMAGE",   pcfg->sdl_image_allowed );
 
-    // Save diffculty mode
-    switch (pcfg->difficulty)
-    {
-        case GAME_EASY:         SetKey_string( "DIFFICULTY_MODE", "EASY" ); break;
-        case GAME_HARD:         SetKey_string( "DIFFICULTY_MODE", "HARD" ); break;
-
-        default:
-        case GAME_NORMAL:       SetKey_string( "DIFFICULTY_MODE", "NORMAL" ); break;
-    }
-
-    // Feedback type
-    SetKey_int( "FEEDBACK", pcfg->feedback );
+	// Show status bars? (Life, mana, character icons, etc.)
+    SetKey_bool( "STATUS_BAR", pcfg->StatusList_on );
 
     return btrue;
 }

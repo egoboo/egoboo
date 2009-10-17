@@ -10,7 +10,7 @@ Gender ( MALE or FEMALE or OTHER )		: MALE
 // Object stats
 Life point bar color ( 0 to 5, 1 is red )		: 1
 Mana point bar color ( 0 to 5, 5 is purple )		: 5
-Life points ( eg. 3-5 )					: 33-38
+Life points ( eg. 3-5 )					: 25-28
 Life points increase per level ( eg. 1-3 )		: 2-3
 Mana points ( eg. 0-0 )					: 0
 Mana points increase per level ( eg. 1-1 )		: 0
@@ -194,3 +194,4 @@ Sound of Jump ( -1 for none )			: -1
 //Expansions
 :[VAMP] 1
 :[RIPP] 0
+:[DARK] 10

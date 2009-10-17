@@ -1128,6 +1128,7 @@ int do_ego_proc_begin( ego_process_t * eproc )
 
     // start initializing the various subsystems
     log_message( "Starting Egoboo " VERSION " ...\n" );
+	log_info( "PhysFS file system version %s has been initialized...\n", vfs_getVersion() ); 
 
     sys_initialize();
     clk_init();

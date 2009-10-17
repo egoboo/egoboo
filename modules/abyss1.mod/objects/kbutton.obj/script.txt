@@ -37,4 +37,9 @@ IfXIsLessThanY				// Open it
         tmpargument = 0			      //
         SendMessageNear			      //
         PlaySound
+        
+        //This button is all used up!
+        tmpargument = 1
+        SetState
+        
 End					// Finished with this character

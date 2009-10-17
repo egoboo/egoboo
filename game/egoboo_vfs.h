@@ -123,3 +123,4 @@ const char * vfs_resolveReadFilename ( const char * src_filename );
 const char * vfs_resolveWriteFilename( const char * src_filename );
 
 const char* vfs_getError();
+const char* vfs_getVersion();

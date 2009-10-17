@@ -1952,7 +1952,7 @@ IfBackstabbed
     KillTarget
 --------------------------------------------------------------------------------
 GetTargetDamageType
-  // This function sets tmpargument to the damage type of the last attack that
+  // This function gets tmpargument to the damage type of the last attack that
   // hit the target
   IfScoredAHit
     SetTargetToWhoeverWasHit
@@ -1970,6 +1970,7 @@ TakePicture
   //Takes a screenshot, used for the tourist camera and for debugging
 --------------------------------------------------------------------------------
 IfModuleHasIDSZ
+  //!!BAD!! Doesnt work yet !!BAD!!
   //Proceeds if the specified module in message.txt (use tmpargument)
   //has the IDSZ specified in tmpdistance.
 -------------------------------------------------------------------------------- 

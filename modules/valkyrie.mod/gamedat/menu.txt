@@ -1,6 +1,6 @@
 Module Name :Valkyrie_Starter
-Reference Directory          :NONE
-Required reference IDSZ      :[NONE]
+Reference Directory          :abyss2.mod
+Required reference IDSZ      :[BEAT]
 Number of imports ( 0 to 4 ) :0
 Exporting ( TRUE or FALSE )  :FALSE
 Minimum players ( 1 to 4 )   :1

@@ -3251,24 +3251,20 @@ Uint8 scr_HoldingRangedWeapon( script_state_t * pstate, ai_state_t * pself )
     returncode = bfalse;
     pstate->argument = 0;
 
-    if( !returncode )
+    // Check right hand
+    tTmp = pchr->holdingwhich[SLOT_RIGHT];
+    if ( ACTIVE_CHR(tTmp) )
     {
-        // Check right hand
-        tTmp = pchr->holdingwhich[SLOT_RIGHT];
-        if ( ACTIVE_CHR(tTmp) )
-        {
-            cap_t * pcap = chr_get_pcap(tTmp);
+        cap_t * pcap = chr_get_pcap(tTmp);
 
-            if ( NULL != pcap && pcap->isranged && ( ChrList.lst[tTmp].ammomax == 0 || ( ChrList.lst[tTmp].ammo != 0 && ChrList.lst[tTmp].ammoknown ) ) )
+        if ( NULL != pcap && pcap->isranged && ( ChrList.lst[tTmp].ammomax == 0 || ( ChrList.lst[tTmp].ammo != 0 && ChrList.lst[tTmp].ammoknown ) ) )
+        {
+            if ( pstate->argument == 0 || ( update_wld & 1 ) )
             {
-                if ( pstate->argument == 0 || ( update_wld & 1 ) )
-                {
-                    pstate->argument = LATCHBUTTON_RIGHT;
-                    returncode = btrue;
-                }
+                pstate->argument = LATCHBUTTON_RIGHT;
+                returncode = btrue;
             }
         }
-
     }
 
     if( !returncode )
@@ -6181,7 +6177,7 @@ Uint8 scr_DoNothing( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_GrogTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // GrogTarget( tmpargument = "amount" )
-    /// @details ZZ@> This function grogs the Target for a duration equal to tmpargument
+    /// @details ZF@> This function grogs the Target for a duration equal to tmpargument
 
     cap_t * pcap;
 
@@ -6203,7 +6199,7 @@ Uint8 scr_GrogTarget( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_DazeTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // DazeTarget( tmpargument = "amount" )
-    /// @details ZZ@> This function dazes the Target for a duration equal to tmpargument
+    /// @details ZF@> This function dazes the Target for a duration equal to tmpargument
 
     cap_t * pcap;
 
@@ -6227,7 +6223,7 @@ Uint8 scr_DazeTarget( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_EnableRespawn( script_state_t * pstate, ai_state_t * pself )
 {
     // EnableRespawn()
-    /// @details ZZ@> This function turns respawn with JUMP button on
+    /// @details ZF@> This function turns respawn with JUMP button on
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -6240,7 +6236,7 @@ Uint8 scr_EnableRespawn( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_DisableRespawn( script_state_t * pstate, ai_state_t * pself )
 {
     // DisableRespawn()
-    /// @details ZZ@> This function turns respawn with JUMP button off
+    /// @details ZF@> This function turns respawn with JUMP button off
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -6285,7 +6281,7 @@ Uint8 scr_TargetHasNotFullMana( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_EnableListenSkill( script_state_t * pstate, ai_state_t * pself )
 {
     // EnableListenSkill()
-    /// @details ZZ@> This function increases sound play range by 25%
+    /// @details ZF@> This function increases range from which sound can be heard by 33%
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -6298,7 +6294,7 @@ Uint8 scr_EnableListenSkill( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_TargetToLastItemUsed( script_state_t * pstate, ai_state_t * pself )
 {
     // SetTargetToLastItemUsed()
-    /// @details ZZ@> This sets the Target to the last item the character used
+    /// @details ZF@> This sets the Target to the last item the character used
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -6354,7 +6350,7 @@ Uint8 scr_OperatorIsLinux( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_TargetIsAWeapon( script_state_t * pstate, ai_state_t * pself )
 {
     // IfTargetIsAWeapon()
-    /// @details ZZ@> Proceeds if the AI Target Is a melee or ranged weapon
+    /// @details ZF@> Proceeds if the AI Target Is a melee or ranged weapon
 
     cap_t * pcap;
 
@@ -6365,7 +6361,7 @@ Uint8 scr_TargetIsAWeapon( script_state_t * pstate, ai_state_t * pself )
     pcap = chr_get_pcap(pself->target);
     if( NULL == pcap ) return bfalse;
 
-    returncode = pcap->isranged || pcap->weaponaction != ACTION_PA;
+    returncode = pcap->isranged || chr_has_idsz( pself->target, MAKE_IDSZ('X','W','E','P') );
 
     SCRIPT_FUNCTION_END();
 }
@@ -6374,7 +6370,7 @@ Uint8 scr_TargetIsAWeapon( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_SomeoneIsStealing( script_state_t * pstate, ai_state_t * pself )
 {
     // IfSomeoneIsStealing()
-    /// @details ZZ@> This function passes if someone stealed from it's shop
+    /// @details ZF@> This function passes if someone stealed from it's shop
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -6387,7 +6383,7 @@ Uint8 scr_SomeoneIsStealing( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_TargetIsASpell( script_state_t * pstate, ai_state_t * pself )
 {
     // IfTargetIsASpell()
-    /// @details ZZ@> roceeds if the AI Target has any particle with the [IDAM] or [WDAM] expansion
+    /// @details ZF@> roceeds if the AI Target has any particle with the [IDAM] or [WDAM] expansion
 
     int iTmp;
 
@@ -6399,7 +6395,7 @@ Uint8 scr_TargetIsASpell( script_state_t * pstate, ai_state_t * pself )
         pip_t * ppip = pro_get_ppip( pchr->iprofile, iTmp );
         if( NULL == ppip ) continue;
 
-        if (ppip->intdamagebonus || ppip->wisdamagebonus)
+        if ( ppip->intdamagebonus || ppip->wisdamagebonus )
         {
             returncode = btrue;
             break;
@@ -6438,7 +6434,7 @@ Uint8 scr_Backstabbed( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_get_TargetDamageType( script_state_t * pstate, ai_state_t * pself )
 {
     // tmpargument = GetTargetDamageType()
-    /// @details ZZ@> This function gets the last type of damage for the Target
+    /// @details ZF@> This function gets the last type of damage for the Target
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -6602,7 +6598,7 @@ Uint8 scr_AddBlipAllEnemies( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_PitsFall( script_state_t * pstate, ai_state_t * pself )
 {
     // PitsFall( tmpx = "teleprt x", tmpy = "teleprt y", tmpdistance = "teleprt z" )
-    /// @details ZZ@> This function activates pit teleportation.
+    /// @details ZF@> This function activates pit teleportation.
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -6625,7 +6621,7 @@ Uint8 scr_PitsFall( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_TargetIsOwner( script_state_t * pstate, ai_state_t * pself )
 {
     // IfTargetIsOwner()
-    /// @details ZZ@> This function proceeds only if the Target is the character's owner
+    /// @details ZF@> This function proceeds only if the Target is the character's owner
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -6639,7 +6635,7 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
 {
     // SpawnAttachedCharacter( tmpargument = "profile", tmpx = "x", tmpy = "y", tmpdistance = "z" )
 
-    /// @details ZZ@> This function spawns a character defined in tmpargument to the characters AI target using
+    /// @details ZF@> This function spawns a character defined in tmpargument to the characters AI target using
     /// the slot specified in tmpdistance (LEFT, RIGHT or INVENTORY). Fails if the inventory or
     /// grip specified is full or already in use.
     /// DON'T USE THIS FOR EXPORTABLE ITEMS OR CHARACTERS,
@@ -6726,7 +6722,7 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_TargetToChild( script_state_t * pstate, ai_state_t * pself )
 {
     // SetTargetToChild()
-    /// @details ZZ@> This function sets the target to the character it spawned last (also called it's "child")
+    /// @details ZF@> This function sets the target to the character it spawned last (also called it's "child")
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -6756,7 +6752,7 @@ Uint8 scr_set_DamageThreshold( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_End( script_state_t * pstate, ai_state_t * pself )
 {
     // End()
-    // This Is the last function in a script
+    // @details ZZ> This Is the last function in a script
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -6894,7 +6890,7 @@ Uint8 scr_OperatorIsMacintosh( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_ModuleHasIDSZ( script_state_t * pstate, ai_state_t * pself )
 {
     // IfModuleHasIDSZ( tmpargument = "message number with module name", tmpdistance = "idsz" )
-    /// @details ZZ@> Proceeds if the specified module has the required IDSZ specified in tmpdistance
+    /// @details ZF@> Proceeds if the specified module has the required IDSZ specified in tmpdistance
     /// The module folder name to be checked is a string from message.txt
 
     SCRIPT_FUNCTION_BEGIN();
@@ -6932,7 +6928,7 @@ Uint8 scr_MorphToTarget( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_GiveManaFlowToTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // GiveManaFlowToTarget()
-    /// @details ZZ@> Permanently boost the target's mana flow
+    /// @details ZF@> Permanently boost the target's mana flow
 
     int iTmp;
 
@@ -6951,7 +6947,7 @@ Uint8 scr_GiveManaFlowToTarget( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_GiveManaReturnToTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // GiveManaReturnToTarget()
-    /// @details ZZ@> Permanently boost the target's mana return
+    /// @details ZF@> Permanently boost the target's mana return
 
     int iTmp;
 
@@ -6970,7 +6966,7 @@ Uint8 scr_GiveManaReturnToTarget( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_Money( script_state_t * pstate, ai_state_t * pself )
 {
     // SetMoney()
-    /// @details ZZ@> Permanently sets the money for the character to tmpargument
+    /// @details ZF@> Permanently sets the money for the character to tmpargument
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -6987,7 +6983,7 @@ Uint8 scr_set_Money( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_TargetCanSeeKurses( script_state_t * pstate, ai_state_t * pself )
 {
     // IfTargetCanSeeKurses()
-    /// @details ZZ@> Proceeds if the target can see kursed stuff.
+    /// @details ZF@> Proceeds if the target can see kursed stuff.
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -7000,7 +6996,7 @@ Uint8 scr_TargetCanSeeKurses( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_DispelTargetEnchantID( script_state_t * pstate, ai_state_t * pself )
 {
     // DispelEnchantID( tmpargument = "idsz" )
-    /// @details ZZ@> This function removes all enchants from the target who match the specified RemovedByIDSZ
+    /// @details ZF@> This function removes all enchants from the target who match the specified RemovedByIDSZ
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -7038,7 +7034,7 @@ Uint8 scr_DispelTargetEnchantID( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_KurseTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // KurseTarget()
-    /// @details ZZ@> This makes the target kursed
+    /// @details ZF@> This makes the target kursed
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -7056,7 +7052,7 @@ Uint8 scr_KurseTarget( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_ChildContent( script_state_t * pstate, ai_state_t * pself )
 {
     // SetChildContent( tmpargument = "content" )
-    /// @details ZZ@> This function lets a character set the content of the last character it
+    /// @details ZF@> This function lets a character set the content of the last character it
     /// spawned last
 
     SCRIPT_FUNCTION_BEGIN();

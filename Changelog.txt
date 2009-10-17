@@ -1,4 +1,8 @@
 Version 2.8.0 (xx.10.2009)
+- New Feature: Impemented a new Darkvision skill that allows creatures or players to see in darkness
+  without a normal lightsource. Current classes that have this skill are Elf, G'nome and Zombor.
+- New Feature: New side quest - The Imprisoned One Part 1. A great ancient evil is breaking free from
+  it's imprisoment and you have to delve down into his tower of prison and seal him for good!
 - New Feature: New spells, magical items, monsters and other fun stuff!
 - New Feature: Another new Starter Module based on a classic nethack character - The Valkyrie class!
 - New Feature: A new XP bar is show below your character portrait to display level up progress.
@@ -6,6 +10,8 @@ Version 2.8.0 (xx.10.2009)
 - New Feature: Improved AI by adding Line of Sight detection for targeting.
 - New Feature: Improved UI by implementing in-game pop up text.
 - New Feature: Implemented the PhysFS file system.
+- Update: Vampires are significantly weaker than before.
+- Update: Further improvments on the Lightning engine.
 - Update: Made some improvements to the Protector monster.
 - Update: Improved the way hitboxes works. Bumping into square things such as tables and bookcases
   is handled much better now.
@@ -124,7 +130,7 @@ Version 2.7.4 (19.07.2009)
 - Bugfix: Fixed bug that made the Global Object Repository to fail on Windows.
 - Bugfix: Minor graphics fixes.
 - Bugfix: Fixed the Unlock spell having unlimited range.
-- Bugfix: Mosquitoes should now properly increase size when filled with blud.
+- Bugfix: Mosquitoes should now properly increase size when filled with blood.
 - Bugfix: Intelligence and wisdom bonus effect to spells should now work properly again.
 - Bugfix: The Giant Scorpion boss music should now play properly.
 - Bugfix: Mephits stop flying when killed now.
@@ -604,7 +610,7 @@ Version 2.3.9 (06.08.2007)
   information and help about spell-casting can be found there too. Lastly an new section
   about status condition is described.
 - Bugfix: Picking up more than 9999$ does no longer drop your money back to 0$. (Credits to Florian Natterer)
-- Bugfix: Items and equipment in Bishopia shops are now never kursed.
+- Bugfix: Items and equipment in Bishopia shops are now never cursed.
 - Bugfix: You could sell the Bridge of Light spell for 200 zorkmids and re-buy it for 100!
 - Bugfix: Fixed the Ice Ball wand icon.
 - Bugfix: The Holy Rune in the Catacomb module now correctly works for divine casters.

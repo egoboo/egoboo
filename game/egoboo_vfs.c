@@ -158,6 +158,20 @@ void _vfs_exit()
 }
 
 //--------------------------------------------------------------------------------------------
+const char* vfs_getVersion()
+{
+	/// @details ZF@>  returns the current version of the PhysFS library which was used for compiling the binary
+	PHYSFS_Version version;
+	static STRING buffer = EMPTY_CSTR;
+
+	//PHYSFS_getLinkedVersion(&version);		//Linked version number
+	PHYSFS_VERSION(&version);			//Compiled version number
+	snprintf(buffer, SDL_arraysize(buffer), "%d.%d.%d", version.major, version.minor, version.patch);
+	
+	return buffer;
+}
+
+//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 vfs_FILE * vfs_openReadB( const char * filename )
 {
@@ -1505,7 +1519,7 @@ static bool_t _vfs_copyFile( const char *source, const char *dest )
         PHYSFS_write( destf, buf, sizeof(char), bytes_read );
     }
 
-_vfs_copyFile_end:
+    _vfs_copyFile_end:
 
     if( NULL != sourcef ) PHYSFS_close( sourcef );
     if( NULL != destf   ) PHYSFS_close( destf   );

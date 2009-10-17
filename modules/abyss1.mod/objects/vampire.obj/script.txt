@@ -4,7 +4,7 @@
 //2: Feared
 //3: Gass form
 
-//SPECIAL ABYSS SCRIPT
+//SPECIAL ABYSS SCRIPT !!BAD!! SHOULD BE MOVED ELSEWHERE !!BAD!!
 tmpx = 0
 tmpy = selfmorale
 IfXIsEqualToY
@@ -21,6 +21,8 @@ IfUsed
 //Always have 1 vampire leader
 IfSpawned
   BecomeLeader
+  tmpargument = STATEWANDER
+  SetState
 IfLeaderKilled
   BecomeLeader
 
@@ -50,29 +52,29 @@ IfTimeOut
 
   //Turn to gass to escape?
   tmpx = selflife
-  tmpy = 2048
-  IfXIsLessThanY	//Turn to gass if less than 8 life left
-    tmpargument = 3
-    IfStateIsNot	//Dont become gass if already gas
+  tmpy = 2048                   //8 or less life
+  IfXIsLessThanY	              //Turn to gass if less than 8 life left
+    tmpargument = STATEPARRY
+    IfStateIsNot	              //Dont become gass if already gas
       tmpargument = 1
       ChangeArmor
-      tmpargument = 3	//Gass mode
+      tmpargument = STATEPARRY	//Gass mode
       SetState
-      tmpargument = 4	//Sound effect and message
+      tmpargument = 4	          //Sound effect and message
       SendMessageNear
       tmpargument = 5
       PlaySound
       SetTargetToRider
         tmpargument = [HIDE]
-        OrderTarget	//Hide the wings
+        OrderTarget	            //Hide the wings
 
   //Wandering around following lead vampire
-  IfStateIs0
+  IfStateIsWander
     Walk
     SetTargetToWideEnemy		//Found a enemy, enter combat mode
       tmpargument = rand % 20 + 10
       SetTime
-      tmpargument = 1
+      tmpargument = STATECOMBAT
       SetState
       tmpx = targetx
       tmpy = targety
@@ -82,7 +84,7 @@ IfTimeOut
       ClearWaypoints
       AddWaypoint
     Else  				//No enemies, wander around
-      tmpargument = rand % 65 + 60
+      tmpargument = rand % 75 + 50
       SetTime
       tmpx = rand & 1023 + selfspawnx - 511
       tmpy = rand & 1023 + selfspawny - 511
@@ -91,16 +93,20 @@ IfTimeOut
       AddWaypoint
 
   //Combat mode
-  IfStateIs1
+  IfStateIsCombat
     IfTargetIsOnHatedTeam
       DoNothing
     Else
-      SetTargetToNearestEnemy
+      SetTargetToWideEnemy
+        DoNothing
+      Else
+        tmpargument = STATEWANDER
+        SetState
     Run
     tmpargument = 20
     SetTime
-    tmpargument = 1
-    SetState
+    
+    //Move it!
     tmpx = targetx
     tmpy = targety
     tmpdistance = 200
@@ -113,11 +119,12 @@ IfTimeOut
     IfXIsLessThanY			//Close enough?
       IfFacingTarget			//Are we looking at the enemy?
 
-    	//If the target defends, either wait or find new target
+      	//If the target defends, either wait or find new target
         IfTargetIsDefending
-          SetTargetToNearestEnemy
           IfAttacked
             SetTargetToWhoeverAttacked
+          Else
+            SetTargetToNearestEnemy
           tmpx = selfx
           tmpy = selfy
           tmpdistance = 250
@@ -129,12 +136,11 @@ IfTimeOut
           SetTime                   //Readied attack time
 
         Else				//Attack the enemy
-          IfTargetIsOnHatedTeam		//Only if he is a enemy
-            tmpargument = LATCHRIGHT
-            PressLatchButton
+          tmpargument = LATCHRIGHT
+          PressLatchButton
 
   //Feared
-  IfStateIs2
+  IfStateIsRetreat
     Run
     tmpx = rand % 2047 - 1023 + targetx
     tmpy = rand % 2047 - 1023 + targety
@@ -145,11 +151,11 @@ IfTimeOut
     AddWaypoint
     tmpargument = 450
     SetTime
-    tmpargument = 0
+    tmpargument = STATEWANDER
     SetState
 
   //Gass cloud
-  IfStateIs3
+  IfStateIsParry
     tmpargument = 450
     SetTime
     tmpx = selflife
@@ -157,6 +163,7 @@ IfTimeOut
     IfXIsMoreThanY			//Do we have enough life to return to combat?
       tmpargument = 0			//If so, become normal again
       ChangeArmor			//Become visible
+      tmpargument = STATEWANDER
       SetState  			//Return to leader or wandering mode
       SetTime
       SetTargetToRider
@@ -180,12 +187,12 @@ IfTimeOut
 //------------------------------------------------------------------------------
 //What to do if enemy is dead
 IfTargetKilled
-  tmpargument = 3
+  tmpargument = STATEPARRY
   IfStateIsNot			//Only do if not gass form
     SetTargetToNearbyEnemy
-      tmpargument = 1		//Engage nearby enemy
+      tmpargument = STATECOMBAT		//Engage nearby enemy
     Else
-      tmpargument = 0		//Return to leader
+      tmpargument = STATEWANDER		//Return to leader
     SetState
 
 //------------------------------------------------------------------------------
@@ -195,11 +202,17 @@ IfAttacked
   //Engage the attacker
   SetTargetToWhoeverAttacked
   IfTargetIsOnHatedTeam
-    GetState
-    tmpx = 2			//Only if idle of in combat mode
-    tmpy = tmpargument
+    tmpx = 1
+    tmpargument = STATECOMBAT			//Only if idle of in combat mode
+    IfStateIs
+      tmpx = 0
+    Else
+      tmpargument = STATEWANDER			//Only if idle of in combat mode
+      IfStateIs
+        tmpx = 0
+    tmpy = 1
     IfXIsLessThanY
-      tmpx = targetx		//Else - counter attack
+      tmpx = targetx		        //Else - counter attack
       tmpy = targety
       tmpdistance = 200
       tmpturn = targetturnto
@@ -209,7 +222,7 @@ IfAttacked
       tmpargument = 30
       SetTime
   Else				//Whoops, friendly fire
-    SetTargetToNearestEnemy
+    SetTargetToOldTarget
 
   //Cover in fear if damaged by holy
   GetDamageType
@@ -218,9 +231,9 @@ IfAttacked
   IfXIsEqualToY
     tmpargument = 1
     SendMessageNear
-    tmpargument = 3
+    tmpargument = STATEPARRY
     IfStateIsNot	//Dont do this if in gass form
-      tmpargument = 2	//Become Feared
+      tmpargument = STATERETREAT	//Become Feared
       SetState
     tmpargument = 4     //Play feared ouch sound
   Else
@@ -229,20 +242,20 @@ IfAttacked
   //Silver weapons are super effective
   IfHitVulnerable
     SetTargetToSelf
-    tmpargument = rand % 1500 + 1000
+    tmpargument = rand % 1280 + 1024  //5-9 damage
     tmpdistance = DAMAGEFIRE
     DamageTarget
     SetTargetToOldTarget
     tmpargument = 4    //Play feared ouch sound
 
   //In gass form the vampire has weakness to fire and holy damage is instant kill
-  IfStateIs3
+  IfStateIsParry
     GetDamageType
     tmpx = tmpargument
     tmpy = DAMAGEFIRE
     IfXIsEqualToY
       SetTargetToSelf
-      tmpargument = rand % 1500 + 2000
+      tmpargument = rand % 1280 + 1792      //5-12 damage
       tmpdistance = DAMAGEFIRE
       DamageTarget
       SetTargetToOldTarget
@@ -276,6 +289,7 @@ IfBumped
 //------------------------------------------------------------------------------
 //Handle death by sending a message and other stuff
 IfKilled
+  SetTargetToWhoeverAttacked
   tmpargument = 0
   IfTargetIsOnSameTeam
     tmpargument = 2
@@ -295,9 +309,8 @@ IfKilled
     tmpargument = [HIDE]	//Show the wings
     OrderTarget
 
-
   // Drop goodies
-  tmpargument = 65535
+  tmpargument = selfmoney
   DropMoney
   DropKeys
 
