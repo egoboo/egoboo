@@ -30,10 +30,12 @@ IfSpawned
     IfXIsLessThanY
       tmpargument = 2
       SetState		//Become normal zombi (55% chance)
+      ChangeArmor
     Else
       tmpargument = 3
       SetState		//Become badass zombi (15% chance)
-
+      ChangeArmor
+      
   //Speed and HP is also determined by zombi type
   tmpx = selfstate
   IfStateIs1

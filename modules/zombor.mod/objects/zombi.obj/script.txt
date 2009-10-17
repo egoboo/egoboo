@@ -29,6 +29,9 @@ IfSpawned
   EnchantTarget
   tmpargument = 50
   SetTime
+  
+  tmpargument = rand % 4
+  ChangeArmor
 
 //--------------------------------------------------------------------------------------------
 //This makes zombi mount mountable creatures

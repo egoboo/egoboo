@@ -7,7 +7,6 @@
 //Squeak if damaged
 IfAttacked
   tmpargument = rand & 1 + 2		//Random ouch sound (sound 2 or 3)
-  tmpdistance = rand & 3400 + 9000
   PlaySound
   GetDamageType
   tmpx = tmpargument
@@ -20,7 +19,6 @@ IfAttacked
     tmpdistance = EXPREVENGE
     GiveExperienceToTarget
     tmpargument = 1		//Banishment sound
-    tmpdistance = rand % 4600 + 11000
     PlaySound
 
 //------------------------------------------------------------------------------
@@ -65,7 +63,7 @@ IfKilled
 
   //Death sound
   tmpargument = 0
-  tmpdistance = rand & 3800 + 11000
+  tmpdistance = rand % 3800 + 11000
   PlaySound
 
 //------------------------------------------------------------------------------
@@ -73,24 +71,27 @@ IfKilled
 IfBumped
   SetTargetToWhoeverBumped
   IfTargetIsOnHatedTeam
-    tmpargument = rand & 75 + 74
+    tmpargument = rand % 75 + 74
     SetTime
     tmpx = rand % 1500 + targetx - 750
     tmpy = rand % 1500 + targety - 750
     ClearWaypoints
     AddWaypoint
 
-    //Bite the enemy				//Must look at him
-    IfTargetIsAlive				//Cant attack dead ones
-      tmpargument = rand & 255 + 348		//1.50-2.50 damage
-      tmpdistance = DAMAGEPOKE
-      DamageTarget
-      tmpargument = 1
-      IfArmorIs
-        tmpargument = rand & 128 + 64		//Heal 0.25 - 0.60 life
-        SetTargetToSelf
-        HealTarget
-        SetTargetToOldTarget
+    //Bite the enemy
+    IfStateIs0
+      IfTargetIsAlive				//Cant attack dead ones
+        tmpargument = rand & 255 + 348		//1.50-2.50 damage
+        tmpdistance = DAMAGEPOKE
+        DamageTarget
+        tmpargument = 1
+        IfArmorIs
+          tmpargument = rand & 127 + 64		//Heal 0.25 - 0.60 life
+          SetTargetToSelf
+          HealTarget
+          SetTargetToOldTarget
+        tmpargument = 1
+        SetState                  //Don't loop biting
 
   //Move out of way of friends
   IfTargetIsOnSameTeam
@@ -123,9 +124,6 @@ IfTimeOut
   Else						//No enemies, flock around leader
     tmpx = rand % 1500 + selfspawnx - 750
     tmpy = rand % 1500 + selfspawny - 750
-
-//    tmpx = rand % 1500 + leaderx - 750
-//    tmpy = rand % 1500 + leadery - 750
   tmpargument = 100				//Bats are fast
   SetSpeedPercent
   ClearWaypoints
@@ -136,8 +134,11 @@ IfTimeOut
   tmpy = 3
   IfXIsLessThanY
     tmpargument = 4
-    tmpdistance = rand & 3000 + 14000
     PlaySound
+    
+  //Ready biting
+  tmpargument = 0
+  SetState
 
 //------------------------------------------------------------------------------
 End					// Finished with this character
