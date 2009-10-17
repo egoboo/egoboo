@@ -70,7 +70,7 @@ Tranch:    NONE     72    22.5 10.5 0    E   0   0   0   0   0   F   F   Evil
 MapChest:  NONE     44    23   9    0    S   0   0   0   0   0   F   F   Null
 ItemChest: NONE     43    45   19   0    S   0   0   0   1   0   F   F   Null
   Tranch:  NONE     72    0    0    0    I   0   0   0   0   0   F   F   Evil
-  WandL:   NONE     37    0    0    0    I   0   0   0   0   0   F   F   Null
+  WandLightning:   NONE     37    0    0    0    I   0   0   0   0   0   F   F   Null
   Tranch:  NONE     72    0    0    0    I   0   0   0   0   0   F   F   Evil
   LPotion: NONE     86    0    0    0    I   0   0   0   0   0   F   F   Null
   KeyA:    NONE     93    0    0    0    I   0   0   0   0   0   F   F   Null
@@ -139,7 +139,7 @@ LandMine:  NONE    120    34.5 37.5 0    N   0   0   0   198 0   F   F   Null
 
 
 ItemChest: NONE     43    47.5 27.5 0    W   0   0   0   1   0   F   F   Null
-  SShoes:  NONE     52    0    0    0    I   0   0   0   0   0   F   F   Null
+  StriderShoes:  NONE     52    0    0    0    I   0   0   0   0   0   F   F   Null
   SyphonMana:  NONE     112    0    0    0    I   0   0   0   0   0   F   F   Null
 ItemChest: NONE     43    47.5 34.5 0    N   24  0   0   2   0   F   F   Null
   FBrace:  NONE     50    0    0    0    I   0   0   0   0   0   F   F   Null
