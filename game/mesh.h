@@ -49,21 +49,24 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-typedef float lighting_vector_t[6];
+#define LIGHTING_VEC_SIZE       7
+typedef float lighting_vector_t[LIGHTING_VEC_SIZE];     ///< light from +x,-x, +y,-y, +z,-z, ambient
 
 //--------------------------------------------------------------------------------------------
 struct s_lighting_cache_base
 {
-    float max_light, min_light;   ///< bounds for the light
-    lighting_vector_t lighting;   ///< light from +x,-x, +y,-y, +z,-z
+    float max_light;              ///< max amplitude of direct light
+    lighting_vector_t lighting;   ///< light from +x,-x, +y,-y, +z,-z, ambient
 };
 typedef struct s_lighting_cache_base lighting_cache_base_t;
 
 //--------------------------------------------------------------------------------------------
 struct s_lighting_cache
 {
+    float max_light;              ///< max amplitude of direct light
+
     lighting_cache_base_t low;   
-    lighting_cache_base_t hgh;   ///< light from +x,-x, +y,-y, +z,-z
+    lighting_cache_base_t hgh;
 };
 typedef struct s_lighting_cache lighting_cache_t;
 

@@ -913,7 +913,6 @@ Uint8 cartman_get_fan_twist( ego_mpd_t * pmesh, Uint32 tile )
     zy = CARTMAN_FIXNUM * (z2 + z3 - z0 - z1) / CARTMAN_SLOPE;
 
     return cartman_get_twist( zx, zy );
-
 }
 
 //------------------------------------------------------------------------------
@@ -1487,7 +1486,7 @@ float evaluate_lighting_cache( lighting_cache_t * src, GLfloat nrm[], float z, a
 float evaluate_lighting_cache_base( lighting_cache_base_t * lvec, GLfloat nrm[], float * amb )
 {
     int i;
-    float lighting, lvec_min, local_amb;
+    float lighting, local_amb;
 
     if( NULL == amb ) amb = &local_amb;
 
@@ -1497,100 +1496,46 @@ float evaluate_lighting_cache_base( lighting_cache_base_t * lvec, GLfloat nrm[],
         return *amb;
     }
 
-    if( lvec->min_light == lvec->max_light )
+    if( lvec->max_light == 0.0f )
     {
         // only ambient light, or black
-        *amb = lvec->min_light / 0.362f;
+        *amb = lvec->lighting[6];
         return *amb;
     };
-
-    // check for ambient light
-    lvec_min = 0;
-    if( (lvec->min_light >=0 && lvec->max_light >=0) || (lvec->min_light <=0 && lvec->max_light <=0) )
-    {
-        lvec_min = ABS(lvec->lighting[0]);
-        for(i=1;i<6;i++)
-        {
-            if( ABS(lvec->lighting[i]) < lvec_min ) 
-            {
-                lvec_min = lvec->lighting[i];
-            }
-        }
-    }
 
     // initialize the lighting sum
     lighting = 0.0f;
 
-    // optimize the summing
-    if( lvec_min == 0.0f )
+    if ( nrm[XX] >= 0.0f )
     {
-        // no ambient light
-
-        *amb = 0.0f;
-
-        if ( nrm[XX] >= 0.0f )
-        {
-            lighting += nrm[XX] * lvec->lighting[0];
-        }
-        else if ( nrm[XX] < 0.0f )
-        {
-            lighting -= nrm[XX] * lvec->lighting[1];
-        }
-
-        if ( nrm[YY] >= 0.0f )
-        {
-            lighting += nrm[YY] * lvec->lighting[2];
-        }
-        else if ( nrm[YY] < 0.0f )
-        {
-            lighting -= nrm[YY] * lvec->lighting[3];
-        }
-
-        if ( nrm[ZZ] >= 0.0f )
-        {
-            lighting += nrm[ZZ] * lvec->lighting[4];
-        }
-        else if ( nrm[ZZ] < 0.0f )
-        {
-            lighting -= nrm[ZZ] * lvec->lighting[5];
-        }
+        lighting += nrm[XX] * lvec->lighting[0];
     }
-    else
+    else if ( nrm[XX] < 0.0f )
     {
-        // separate the ambient and the direct light
-
-        if ( nrm[XX] > 0.0f )
-        {
-            lighting += nrm[XX] * (lvec->lighting[0]-lvec_min);
-        }
-        else if ( nrm[XX] < 0.0f )
-        {
-            lighting -= nrm[XX] * (lvec->lighting[1]-lvec_min);
-        }
-
-        if ( nrm[YY] > 0.0f )
-        {
-            lighting += nrm[YY] * (lvec->lighting[2]-lvec_min);
-        }
-        else if ( nrm[YY] < 0.0f )
-        {
-            lighting -= nrm[YY] * (lvec->lighting[3]-lvec_min);
-        }
-
-        if ( nrm[ZZ] > 0.0f )
-        {
-            lighting += nrm[ZZ] * (lvec->lighting[4]-lvec_min);
-        }
-        else if ( nrm[ZZ] < 0.0f )
-        {
-            lighting -= nrm[ZZ] * (lvec->lighting[5]-lvec_min);
-        }
-
-        *amb = lvec_min / 0.362f;
-
-        lighting += *amb;
-
+        lighting -= nrm[XX] * lvec->lighting[1];
     }
+
+    if ( nrm[YY] >= 0.0f )
+    {
+        lighting += nrm[YY] * lvec->lighting[2];
+    }
+    else if ( nrm[YY] < 0.0f )
+    {
+        lighting -= nrm[YY] * lvec->lighting[3];
+    }
+
+    if ( nrm[ZZ] >= 0.0f )
+    {
+        lighting += nrm[ZZ] * lvec->lighting[4];
+    }
+    else if ( nrm[ZZ] < 0.0f )
+    {
+        lighting -= nrm[ZZ] * lvec->lighting[5];
+    }
+
+    *amb = lvec->lighting[6];
+
+    lighting += *amb;
 
     return lighting;
 }

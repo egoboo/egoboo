@@ -2965,17 +2965,22 @@ bool_t project_lighting( lighting_cache_t * dst, lighting_cache_t * src, fmat_4x
     // blank the destination lighting
     if ( NULL == dst ) return bfalse;
 
-    dst->low.min_light = dst->low.max_light = 0.0f;
-    dst->hgh.min_light = dst->hgh.max_light = 0.0f;
-    for ( cnt = 0; cnt < 6; cnt++)
+    dst->max_light     = 0.0f;
+    dst->low.max_light = 0.0f;
+    dst->hgh.max_light = 0.0f;
+    for ( cnt = 0; cnt < LIGHTING_VEC_SIZE; cnt++)
     {
         dst->low.lighting[cnt] = 0.0f;
         dst->hgh.lighting[cnt] = 0.0f;
     }
 
     if ( NULL == src ) return bfalse;
-    if ( src->low.min_light == 0.0f && src->low.max_light == 0.0f && 
-         src->hgh.min_light == 0.0f && src->hgh.max_light == 0.0f ) return btrue;
+
+    // do the ambient
+    dst->low.lighting[6] = src->low.lighting[6];
+    dst->hgh.lighting[6] = src->hgh.lighting[6];
+
+    if ( src->max_light == 0.0f ) return btrue;
 
     // grab the character directions
     fwd   = mat_getChrForward( mat );         // along body-fixed +y-axis
@@ -2992,16 +2997,14 @@ bool_t project_lighting( lighting_cache_t * dst, lighting_cache_t * src, fmat_4x
     project_sum_lighting( dst, src, up,    4 );
 
     // determine the lighting extents
-    dst->low.max_light = dst->low.min_light = dst->low.lighting[0];
-    dst->hgh.max_light = dst->hgh.min_light = dst->hgh.lighting[0];
-    for ( cnt = 1; cnt < 6; cnt++ )
+    dst->low.max_light = ABS(dst->low.lighting[0]);
+    dst->hgh.max_light = ABS(dst->hgh.lighting[0]);
+    for ( cnt = 1; cnt < LIGHTING_VEC_SIZE-1; cnt++ )
     {
-        dst->low.min_light = MIN(dst->low.min_light, dst->low.lighting[cnt]);
-        dst->low.max_light = MAX(dst->low.max_light, dst->low.lighting[cnt]);
-
-        dst->hgh.min_light = MIN(dst->hgh.min_light, dst->hgh.lighting[cnt]);
-        dst->hgh.max_light = MAX(dst->hgh.max_light, dst->hgh.lighting[cnt]);
+        dst->low.max_light = MAX(dst->low.max_light, ABS(dst->low.lighting[cnt]));
+        dst->hgh.max_light = MAX(dst->hgh.max_light, ABS(dst->hgh.lighting[cnt]));
     }
+    dst->max_light = MAX(dst->low.max_light,dst->hgh.max_light);
 
     return btrue;
 }
@@ -3014,9 +3017,10 @@ bool_t interpolate_lighting( lighting_cache_t * dst, lighting_cache_t * src[], f
 
     if ( NULL == dst ) return bfalse;
 
-    dst->low.min_light = dst->low.max_light = 0.0f;
-    dst->hgh.min_light = dst->hgh.max_light = 0.0f;
-    for ( cnt = 0; cnt < 6; cnt++)
+    dst->max_light     = 0.0f;
+    dst->low.max_light = 0.0f;
+    dst->hgh.max_light = 0.0f;
+    for ( cnt = 0; cnt < LIGHTING_VEC_SIZE; cnt++)
     {
         dst->low.lighting[cnt] = 0.0f;
         dst->hgh.lighting[cnt] = 0.0f;
@@ -3032,7 +3036,7 @@ bool_t interpolate_lighting( lighting_cache_t * dst, lighting_cache_t * src[], f
     if ( NULL != src[0] )
     {
         float wt = (1 - u) * (1 - v);
-        for (tnc = 0; tnc < 6; tnc++)
+        for (tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++)
         {
             dst->low.lighting[tnc] += src[0]->low.lighting[tnc] * wt;
             dst->hgh.lighting[tnc] += src[0]->hgh.lighting[tnc] * wt;
@@ -3043,7 +3047,7 @@ bool_t interpolate_lighting( lighting_cache_t * dst, lighting_cache_t * src[], f
     if ( NULL != src[1] )
     {
         float wt = u * (1 - v);
-        for (tnc = 0; tnc < 6; tnc++)
+        for (tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++)
         {
             dst->low.lighting[tnc] += src[1]->low.lighting[tnc] * wt;
             dst->hgh.lighting[tnc] += src[1]->hgh.lighting[tnc] * wt;
@@ -3054,7 +3058,7 @@ bool_t interpolate_lighting( lighting_cache_t * dst, lighting_cache_t * src[], f
     if ( NULL != src[2] )
     {
         float wt = (1 - u) * v;
-        for (tnc = 0; tnc < 6; tnc++)
+        for (tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++)
         {
             dst->low.lighting[tnc] += src[2]->low.lighting[tnc] * wt;
             dst->hgh.lighting[tnc] += src[2]->hgh.lighting[tnc] * wt;
@@ -3065,7 +3069,7 @@ bool_t interpolate_lighting( lighting_cache_t * dst, lighting_cache_t * src[], f
     if ( NULL != src[3] )
     {
         float wt = u * v;
-        for (tnc = 0; tnc < 6; tnc++)
+        for (tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++)
         {
             dst->low.lighting[tnc] += src[3]->low.lighting[tnc] * wt;
             dst->hgh.lighting[tnc] += src[3]->hgh.lighting[tnc] * wt;
@@ -3077,7 +3081,7 @@ bool_t interpolate_lighting( lighting_cache_t * dst, lighting_cache_t * src[], f
     {
         if( wt_sum != 1.0f )
         {
-            for (tnc = 0; tnc < 6; tnc++)
+            for (tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++)
             {
                 dst->low.lighting[tnc] /= wt_sum;
                 dst->hgh.lighting[tnc] /= wt_sum;
@@ -3085,23 +3089,21 @@ bool_t interpolate_lighting( lighting_cache_t * dst, lighting_cache_t * src[], f
         }
 
         // determine the lighting extents
-        dst->low.max_light = dst->low.min_light = dst->low.lighting[0];
-        dst->hgh.max_light = dst->hgh.min_light = dst->hgh.lighting[0];
-        for ( cnt = 1; cnt < 6; cnt++ )
+        dst->low.max_light = dst->low.lighting[0];
+        dst->hgh.max_light = dst->hgh.lighting[0];
+        for ( cnt = 1; cnt < LIGHTING_VEC_SIZE-1; cnt++ )
         {
-            dst->low.min_light = MIN(dst->low.min_light, dst->low.lighting[cnt]);
-            dst->low.max_light = MAX(dst->low.max_light, dst->low.lighting[cnt]);
-
-            dst->hgh.min_light = MIN(dst->hgh.min_light, dst->hgh.lighting[cnt]);
-            dst->hgh.max_light = MAX(dst->hgh.max_light, dst->hgh.lighting[cnt]);
+            dst->low.max_light = MAX(dst->low.max_light, ABS(dst->low.lighting[cnt]));
+            dst->hgh.max_light = MAX(dst->hgh.max_light, ABS(dst->hgh.lighting[cnt]));
         }
+        dst->max_light = MAX(dst->low.max_light, dst->hgh.max_light);
     }
 
     return wt_sum > 0.0f;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t project_sum_lighting( lighting_cache_t * dst, lighting_cache_t * src, fvec3_t   vec, int dir )
+bool_t project_sum_lighting( lighting_cache_t * dst, lighting_cache_t * src, fvec3_t vec, int dir )
 {
     if ( NULL == src || NULL == dst ) return bfalse;
 
@@ -5116,12 +5118,11 @@ bool_t sum_global_lighting( float lighting[] )
 
     glob_amb = get_ambient_level();
 
-    for ( cnt = 0; cnt < 6; cnt++ )
+    for ( cnt = 0; cnt < LIGHTING_VEC_SIZE-1; cnt++ )
     {
-        // the 0.362 is so that an object being lit by half ambient light
-        // will have half brightness, not 1.38 * full brightness
-        lighting[cnt] = glob_amb * 0.362f;
+        lighting[cnt] = 0.0f;
     }
+    lighting[6] = glob_amb;
 
     if ( !gfx.usefaredge ) return btrue;
 
@@ -5197,7 +5198,7 @@ void do_grid_dynalight( ego_mpd_t * pmesh, camera_t * pcam )
         cache = &(pgmem->light[fan].cache);
 
         // blank the lighting
-        for (tnc = 0; tnc < 6; tnc++)
+        for (tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++)
         {
             local_lighting_low[tnc] = 0.0f;
             local_lighting_hgh[tnc] = 0.0f;
@@ -5215,7 +5216,7 @@ void do_grid_dynalight( ego_mpd_t * pmesh, camera_t * pcam )
                 sum_dyna_lighting( dyna_list + cnt, local_lighting_hgh, dx, dy, dyna_list[cnt].z - pmesh->mmem.bbox.maxs[ZZ] );
             }
 
-            for ( cnt = 0; cnt < 6; cnt++ )
+            for ( cnt = 0; cnt < LIGHTING_VEC_SIZE; cnt++ )
             {
                 local_lighting_low[cnt] += global_lighting[cnt];
                 local_lighting_hgh[cnt] += global_lighting[cnt];
@@ -5223,23 +5224,21 @@ void do_grid_dynalight( ego_mpd_t * pmesh, camera_t * pcam )
         }
 
         // average this in with the existing lighting
-        cache->low.lighting[0] = cache->low.lighting[0] * 0.9f + local_lighting_low[0] * 0.1f;
-        cache->low.min_light = cache->low.max_light = cache->low.lighting[0];
-        for ( tnc = 1; tnc < 6; tnc++ )
+        for ( tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++ )
         {
             cache->low.lighting[tnc] = cache->low.lighting[tnc] * 0.9f + local_lighting_low[tnc] * 0.1f;
-            cache->low.min_light = MIN(cache->low.min_light, cache->low.lighting[tnc]);
-            cache->low.max_light = MAX(cache->low.max_light, cache->low.lighting[tnc]);
+            cache->hgh.lighting[tnc] = cache->hgh.lighting[tnc] * 0.9f + local_lighting_hgh[tnc] * 0.1f;
         }
 
-        cache->hgh.lighting[0] = cache->hgh.lighting[0] * 0.9f + local_lighting_hgh[0] * 0.1f;
-        cache->hgh.min_light = cache->hgh.max_light = cache->hgh.lighting[0];
-        for ( tnc = 1; tnc < 6; tnc++ )
+        // find the max intensity
+        cache->low.max_light = cache->low.lighting[0];
+        cache->hgh.max_light = cache->hgh.lighting[0];
+        for ( tnc = 1; tnc < LIGHTING_VEC_SIZE-1; tnc++ )
         {
-            cache->hgh.lighting[tnc] = cache->hgh.lighting[tnc] * 0.9f + local_lighting_hgh[tnc] * 0.1f;
-            cache->hgh.min_light = MIN(cache->hgh.min_light, cache->hgh.lighting[tnc]);
-            cache->hgh.max_light = MAX(cache->hgh.max_light, cache->hgh.lighting[tnc]);
+            cache->low.max_light = MAX(cache->low.max_light, ABS(cache->low.lighting[tnc]));
+            cache->hgh.max_light = MAX(cache->hgh.max_light, ABS(cache->hgh.lighting[tnc]));
         }
+        cache->max_light = MAX(cache->low.max_light, cache->hgh.max_light);
     }
 }
 

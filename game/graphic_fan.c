@@ -240,7 +240,6 @@ void render_water_fan( ego_mpd_t * pmesh, Uint32 fan, Uint8 layer )
     int    cnt, tnc, badvertex;
     Uint16 type, commands, vertices, texture;
     Uint16 frame;
-    Uint32  ambi;
     float offu, offv;
     int ix, iy;
     int ix_off[4] = {1, 1, 0, 0}, iy_off[4] = {0, 1, 1, 0};
@@ -261,8 +260,8 @@ void render_water_fan( ego_mpd_t * pmesh, Uint32 fan, Uint8 layer )
     if ( !VALID_TILE(pmesh, fan) ) return;
     ptile = pmmem->tile_list + fan;
 
-    /// @details BB@> the water info is for TILES, not for vertices, so ignore all vertex info and just draw the water
-    ///     tile where it's supposed to go
+    /// @note BB@> the water info is for TILES, not for vertices, so ignore all vertex info and just draw the water
+    ///            tile where it's supposed to go
 
     ix = fan % pinfo->tiles_x;
     iy = fan / pinfo->tiles_x;

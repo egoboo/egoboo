@@ -865,11 +865,10 @@ fmat_4x4_t prt_inst_make_matrix( prt_instance_t * pinst )
 //--------------------------------------------------------------------------------------------
 void prt_instance_update_lighting( prt_instance_t * pinst, prt_t * pprt, Uint8 trans, bool_t do_lighting )
 {
-    int    cnt;
     Uint32 alpha;
     Sint16  self_light;
     lighting_cache_t global_light, loc_light;
-    float min_light, max_light, lite;
+    float amb, dir;
     fmat_4x4_t mat;
 
     if ( NULL == pinst || NULL == pprt ) return;
@@ -884,44 +883,14 @@ void prt_instance_update_lighting( prt_instance_t * pinst, prt_t * pprt, Uint8 t
     mat = prt_inst_make_matrix( pinst );
     project_lighting( &loc_light, &global_light, mat );
 
-    // remove any "ambient" component from the lighting
-    max_light = MIN(loc_light.low.min_light, loc_light.hgh.min_light);
-    min_light = MAX(loc_light.low.max_light, loc_light.hgh.max_light);
-    for (cnt = 0; cnt < 6; cnt++)
-    {
-        min_light = MIN(min_light, loc_light.low.lighting[cnt]);
-        min_light = MIN(min_light, loc_light.hgh.lighting[cnt]);
+    // determine the normal dependent amount of light
+    evaluate_lighting_cache( &loc_light, pinst->nrm.v, pinst->pos.z, PMesh->mmem.bbox, &amb, &dir );
 
-        max_light = MAX(max_light, loc_light.low.lighting[cnt]);
-        max_light = MAX(max_light, loc_light.hgh.lighting[cnt]);
-    }
-
-    if( (min_light >= 0 && max_light >= 0) )
-    {
-        for (cnt = 0; cnt < 6; cnt++)
-        {
-            loc_light.low.lighting[cnt] -= min_light;
-            loc_light.hgh.lighting[cnt] -= min_light;
-        }
-    }
-    else if( min_light <= 0 && max_light <= 0 ) 
-    {
-        for (cnt = 0; cnt < 6; cnt++)
-        {
-            loc_light.low.lighting[cnt] -= max_light;
-            loc_light.hgh.lighting[cnt] -= max_light;
-        }
-
-        min_light = max_light;
-    }
 
     // determine the ambient lighting
     self_light  = ( 255 == pinst->light ) ? 0 : pinst->light;
-    pinst->famb = 0.9f * pinst->famb + 0.1f * (self_light + min_light);
-
-    // determine the normal dependent amount of light
-    lite = evaluate_lighting_cache( &loc_light, pinst->nrm.v, pinst->pos.z, PMesh->mmem.bbox, NULL, NULL );
-    pinst->fdir = 0.9f * pinst->fdir + 0.1f * lite;
+    pinst->famb = 0.9f * pinst->famb + 0.1f * (self_light + amb);
+    pinst->fdir = 0.9f * pinst->fdir + 0.1f * dir;
 
     // determine the overall lighting
     pinst->fintens = pinst->fdir * INV_FF;
