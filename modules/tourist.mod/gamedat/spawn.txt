@@ -1,3 +1,5 @@
+#dependency Tourist 0
+
 //         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
 HERO:   NONE    0  57.5   58.5   7.0   N    1000   0  0   0   0   T   F   G
   camera:   NONE    48  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N

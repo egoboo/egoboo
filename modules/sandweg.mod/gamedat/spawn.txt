@@ -67,6 +67,9 @@
 #dependency LuckRing        137
 
 #dependency Tranch           41
+#dependency Fright           65
+#dependency Ghoul            98
+
 
 
 //         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team

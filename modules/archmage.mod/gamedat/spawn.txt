@@ -31,7 +31,12 @@
 #dependency Disintergrate 119	
 #dependency Wonder        120
 	
-#dependency AnimatedXBow   44	
+#dependency AnimatedXBow   44
+
+#dependency Viking         102
+#dependency ArchAdventurer 122
+#dependency ArchWizard     121
+	
 	
 //         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
 HERO:       NONE    0  16.0   54.5   0.0   N    0   0  0   0   0   T   F   G
@@ -47,9 +52,9 @@ HERO:       NONE    0  16.0   54.5   0.0   N    0   0  0   0   0   T   F   G
 unknown:   NONE    39  16.0   56.0   0.0   N    0   0  32   0   0   F   F   N
 unknown:   NONE    42  16.0   54.5   0.0   N    0   0  0   0   0   F   F   N
 
-ARCHWIZARD:   NONE    43  20.0   45.0   0.0   W    0   0  0   0   0   F   F   A
-ARCHWIZARD:   NONE    43  20.0   46.0   0.0   W    0   1  0   0   0   F   F   A
-ARCHWIZARD:   NONE    43  20.0   47.0   0.0   W    0   2  0   0   0   F   F   A
+ArchWizard:   NONE    43  20.0   45.0   0.0   W    0   0  0   0   0   F   F   A
+ArchWizard:   NONE    43  20.0   46.0   0.0   W    0   1  0   0   0   F   F   A
+ArchWizard:   NONE    43  20.0   47.0   0.0   W    0   2  0   0   0   F   F   A
 
 //Crossbow room
 unknown:   NONE    44  20.0   35.5   0.0   ?    0   0  0   0   0   F   F   E
@@ -183,7 +188,7 @@ toast:   NONE    101  50.0   34.0   0.0   ?    0   0  0   0   0   F   F   N
 toast:   NONE    101  51.0   32.0   0.0   ?    0   0  0   0   0   F   F   N
 
 //combat challenge
-viking:   NONE    102  47.0   48.0   0.0   N    0   0  16   0   0   F   F   E
+Viking:   NONE    102  47.0   48.0   0.0   N    0   0  16   0   0   F   F   E
   Sword:   NONE    50  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
   knife:   NONE    103  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 body:   NONE    104  51.5   51.5   0.0   ?    0   0  0   0   0   F   F   N
