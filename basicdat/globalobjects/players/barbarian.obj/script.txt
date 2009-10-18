@@ -1,0 +1,101 @@
+//-----------------------------------------------------------------------------
+IfHitGround
+  tmpargument = 0
+  tmpdistance = 17000
+  PlaySound
+
+
+//-----------------------------------------------------------------------------
+// ZZ> Gong sound
+IfCleanedUp
+  tmpargument = 2
+  tmpdistance = 8000
+  PlayFullSound
+
+
+//------------------------------------------------------------------------------
+// ZZ> Scream and shout
+IfUsed
+  tmpdistance = rand & 2047 + 12000
+  tmpargument = 8
+  PlaySound
+
+
+//------------------------------------------------------------------------------
+// ZZ> Handle being bored by cheering or sneezing
+IfBored
+  tmpargument = 6
+  SendMessageNear
+  tmpargument = 9
+  tmpdistance = rand & 2047 + 12000
+  PlaySound
+  tmpargument = ACTIONMC
+  DoAction
+
+
+//------------------------------------------------------------------------------
+// ZZ> Handle death by sending a message and other stuff
+IfKilled
+  tmpargument = 7
+  tmpdistance = rand & 2047 + 12000
+  PlaySound
+  tmpargument = 3
+  IfArmorIs
+    tmpargument = MESSAGECOSTUME
+  Else
+    tmpargument = MESSAGEDEATH
+  IfTargetIsOnSameTeam
+    tmpargument = MESSAGEFRAG
+    IfTargetIsSelf
+      tmpargument = MESSAGEACCIDENT
+  SendMessage
+
+  // Drop goodies
+  tmpargument = 65535
+  DropMoney
+  DropKeys
+
+  // Make the character body
+  tmpargument = 45
+  SetBumpHeight
+
+
+//------------------------------------------------------------------------------
+// ZZ> For helper AIs
+IfLeaderKilled
+  BecomeLeader
+
+
+//------------------------------------------------------------------------------
+// ZZ> Handle being attacked by blocking or countering or running away
+IfAttacked
+  // Pick either 0 or 7, Parry or Combat
+  SetTargetToWhoeverAttacked
+  IfTargetIsOnSameTeam
+    tmpargument = 3
+    tmpdistance = rand & 2047 + 12000
+    PlaySound
+    tmpargument = MESSAGEOUCH
+    SendMessageNear
+  Else
+    tmpargument = rand & 1 + 5
+    tmpdistance = rand & 2047 + 12000
+    PlaySound
+
+
+
+//------------------------------------------------------------------------------
+// ZZ> Handle having too much in inventory
+IfTooMuchBaggage
+  tmpargument = 1
+  SendMessageNear
+  tmpargument = 4
+  tmpdistance = rand & 2047 + 12000
+  PlaySound
+  tmpargument = 50
+  SetReloadTime
+
+
+//------------------------------------------------------------------------------
+End
+//------------------------------------------------------------------------------

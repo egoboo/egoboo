@@ -1,0 +1,99 @@
+//-----------------------------------------------------------------------------
+// ZZ> Gong sound
+IfCleanedUp
+  tmpargument = 2
+  tmpdistance = 8000
+  PlayFullSound
+
+
+
+//------------------------------------------------------------------------------
+// ZZ> Handle being bored by cheering or sneezing
+IfBored
+  tmpargument = 7
+  SendMessageNear
+  tmpargument = 11
+  tmpdistance = rand & 2047 + 15000
+  PlaySound
+  tmpargument = ACTIONMC
+  DoAction
+
+
+//------------------------------------------------------------------------------
+// ZZ> Handle death by sending a message and other stuff
+IfKilled
+  // Sound
+  IfTargetIsOnHatedTeam
+    tmpargument = 4
+  Else
+    tmpargument = 3
+  tmpdistance = rand & 2047 + 15000
+  PlaySound
+
+
+  // Message
+  tmpargument = 3
+  IfArmorIs
+    tmpargument = MESSAGECOSTUME
+  Else
+    tmpargument = MESSAGEDEATH
+  IfTargetIsOnSameTeam
+    tmpargument = MESSAGEFRAG
+    IfTargetIsSelf
+      tmpargument = MESSAGEACCIDENT
+  SendMessage
+
+
+  // Drop goodies
+  tmpargument = 65535
+  DropMoney
+  DropKeys
+
+
+  // Make the character body
+  tmpargument = 45
+  SetBumpHeight
+
+
+//------------------------------------------------------------------------------
+// ZZ> For helper AIs
+IfLeaderKilled
+  BecomeLeader
+
+
+//------------------------------------------------------------------------------
+// ZZ> Handle being attacked by blocking or countering or running away
+IfAttacked
+  SetTargetToWhoeverAttacked
+  IfTargetIsOnSameTeam
+    tmpargument = 8
+    tmpdistance = rand & 2047 + 15000
+    PlaySound
+    tmpargument = MESSAGEOUCH
+    SendMessageNear
+  Else
+    tmpargument = rand & 1 + 5
+    tmpdistance = rand & 2047 + 15000
+    PlaySound
+
+
+//------------------------------------------------------------------------------
+// ZZ> Handle not being able to carry something
+IfTooMuchBaggage
+  tmpargument = 8
+  SendMessageNear
+  tmpargument = 7
+  tmpdistance = rand & 2047 + 15000
+  PlaySound
+
+
+//------------------------------------------------------------------------------
+// Necr sound
+IfUsed
+  tmpargument = 10
+  tmpdistance = 11025
+  PlayFullSound
+  tmpargument = 25
+  SetReloadTime
+End
+//------------------------------------------------------------------------------

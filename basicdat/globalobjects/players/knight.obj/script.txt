@@ -1,0 +1,125 @@
+//Randomize skin
+IfSpawned
+  tmpargument = rand % 4
+  ChangeArmor
+
+IfKilled				// This reduces the height of the char
+  tmpargument = 6
+  PlaySound				//Death sound
+
+  // Last words...
+  tmpargument = 0
+  IfTargetIsAPlayer			  // Fragged!
+    tmpargument = 3
+  IfTargetIsSelf			    // No, just a damage tile
+    tmpargument = 4
+  SendMessageNear				  
+  tmpargument = selfmoney			  // Drop money
+  DropMoney				  //
+  tmpargument = 45			  //
+  SetBumpHeight				  //
+
+IfAttacked				// Attacked
+  SetTargetToWhoeverAttacked		  //
+    IfTargetIsAlive			    //
+      IfTargetIsOnHatedTeam		      // Go after 'em
+        tmpargument = 1			        //
+        SetState			        //  
+        tmpargument = tmpdistance & 1 + 4
+        PlaySound			        //
+      Else				      // Complain
+        tmpargument = 2			        //
+        SendMessageNear			        //
+        tmpargument = 1			        //
+        PlaySound			        //
+        SetTargetToOldTarget		        //
+    Else				    //Attacker died already
+      SetTargetToOldTarget		      //
+
+IfTargetKilled				// Return to wander mode
+  tmpargument = 0			
+  SetState				 
+
+IfTimeOut				// This is done every so often
+
+  SetTargetToNearbyEnemy		  // Look out for enemies
+    tmpargument = selfhateid		      //
+    IfTargetHasID			      // Battle cry versus hate group
+      IfTargetIsOldTarget		        //
+        DoNothing
+      Else				        //
+        IfStateIs0
+          tmpargument = 1			          //
+          SendMessageNear			          //
+          tmpargument = 3			          //
+          PlaySound			          //
+    tmpargument = 1			      //
+    SetState				      // Change to combat mode
+ 
+
+  //Wander
+  IfStateIs0
+    tmpx = rand & 511 + selfspawnx - 256
+    tmpy = rand & 511 + selfspawny - 256 
+    tmpargument = rand & 31 + 30
+    SetTime
+  Else					  // State 1 ( Combat )
+    SetTargetToWideEnemy
+      DoNothing
+    Else
+      tmpargument = 0
+      SetState
+      
+    tmpx = targetdistance		    // Close enough to attack?
+    tmpy = 200				    //
+    IfXIsLessThanY			    //
+      tmpargument = LATCHRIGHT		      // Right Attack == 2
+      PressLatchButton			      //
+    tmpy = 700
+    IfXIsMoreThanY
+      tmpargument = 0
+      SetState
+    tmpx = targetx			    // Move towards enemy
+    tmpy = targety			    //
+    tmpturn = targetturnto		    //
+    tmpdistance = 200			    //
+    Compass				    //
+    tmpargument = rand & 15 + 25
+    SetTime
+  ClearWaypoints			  //
+  AddWaypoint				  //
+
+// Use shield?
+IfTargetIsAttacking
+  IfTargetIsOnHatedTeam
+    IfFacingTarget
+      IfHoldingShield
+        PressLatchButton
+
+IfBumped				// Bumped
+  SetTargetToWhoeverBumped		  //
+  IfTargetIsAMount			//Bumper is a mount?
+    tmpargument = LATCHJUMP
+    PressLatchButton			//Try to mount
+  IfTargetIsOnHatedTeam			  // Try to counter
+    tmpargument = LATCHRIGHT		    //
+    PressLatchButton			    //
+  Else					  // Get around other character
+    tmpargument = 0			    // Return to follow state
+    SetTargetToWideEnemy		    // Look out for enemies
+      tmpargument = 1			      // Stay in combat state
+    Else				    // Revert
+      SetTargetToOldTarget		      //
+    SetState				    //
+    tmpx = rand&511+selfx-256		    //
+    tmpy = rand&511+selfy-256		    //
+    ClearWaypoints			    //
+    AddWaypoint				    //
+    tmpargument = 40			    // Try again soon
+    SetTime				    //
+
+// Ya!  Unarmed attack sound
+IfUsed
+  tmpargument = 7
+  PlaySound
+End					// Finished with this character

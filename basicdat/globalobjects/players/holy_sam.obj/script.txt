@@ -1,0 +1,88 @@
+// Gong sound
+IfCleanedUp
+  tmpargument = 1
+  tmpdistance = 8000
+  PlayFullSound
+
+
+// Talk to player
+IfBored
+  tmpx = rand & 1
+  tmpargument = tmpx + 7
+  SendMessageNear
+  tmpargument = tmpx + 5
+  tmpdistance = rand & 1023 + 11000
+  PlaySound
+  tmpargument = ACTIONMC
+  DoAction
+IfTooMuchBaggage
+  tmpargument = 6
+  SendMessageNear
+  tmpargument = 8
+  tmpdistance = rand & 1023 + 11000
+  PlaySound
+
+
+// Heal sound
+IfUsed
+  tmpargument = 0
+  tmpdistance = 11025
+  PlayFullSound
+  SetTargetToSelf
+  tmpargument = targetlevel < 2
+  tmpargument = 50 - tmpargument
+  SetReloadTime
+
+
+
+// Handle death
+IfKilled
+  // Sound
+  tmpargument = 7
+  tmpdistance = rand & 1023 + 11000
+  PlaySound
+
+
+  // Message
+  tmpargument = 3
+  IfArmorIs
+    tmpargument = MESSAGECOSTUME
+  Else
+    tmpargument = MESSAGEDEATH
+  IfTargetIsOnSameTeam
+    tmpargument = MESSAGEFRAG
+    IfTargetIsSelf
+      tmpargument = MESSAGEACCIDENT
+  SendMessage
+
+
+  // Misc.
+  tmpargument = 65535
+  DropMoney
+  DropKeys
+  tmpargument = 45
+  SetBumpHeight
+
+
+// Just because...
+IfLeaderKilled
+  BecomeLeader
+
+
+// Yell at friends
+IfAttacked
+  SetTargetToWhoeverAttacked
+  IfTargetIsOnSameTeam
+    tmpargument = MESSAGEOUCH
+    SendMessage
+    tmpargument = 4
+    tmpdistance = rand & 1023 + 11000
+    PlaySound
+  Else
+    tmpargument = rand & 1 + 2
+    tmpdistance = rand & 1023 + 11000
+    PlaySound
+
+
+// All done
+End

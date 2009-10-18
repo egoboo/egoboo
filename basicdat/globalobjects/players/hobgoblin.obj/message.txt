@@ -1,0 +1,9 @@
+Message 0: %n_fell_to_%t...
+Message 1: ERROR_MESSAGE_(Message_1_not_used)
+Message 2: ERROR_MESSAGE_(Message_2_not_used)
+Message 3: %t_put_%n_out_of_%p_misery...
+Message 4: %t_was_a_bit_too_careless.
+Message 5: %n_was_K.I.A
+Message 6: La-dee-da-dee-doo-dee-da-
+Message 7: dee-dee-dee-da-dee-doo..._Well...This_is_exciting...
+Message 8: That's_not_gonna_fit!

@@ -1,0 +1,240 @@
+//-----------------------------------------------------------------------------
+IfSpawned
+  tmpargument = STATEWANDER
+  SetState
+
+  //holding 10 throwing knives at spawn
+  tmpargument = 10
+  SetContent
+
+//-----------------------------------------------------------------------------
+IfHitGround
+  tmpargument = 0
+  PlaySound
+  
+//-----------------------------------------------------------------------------
+//Go in watch mode
+IfScoredAHit
+  UnkeepAction
+  tmpargument = STATECOMBAT
+  SetState
+
+  SetTurnModeToWatchTarget
+  tmpx = targetx
+  tmpy = targety
+  tmpdistance = -400
+  tmpturn = targetturnto
+  Compass
+  ClearWaypoints
+  AddWaypoint
+  tmpargument = 25
+  SetTime
+  
+//-----------------------------------------------------------------------------
+//Critical hit abillity
+IfScoredAHit
+  SetTargetToWhoeverWasHit
+  tmpx = rand % 100
+  tmpy = 6
+  IfXIsLessThanY
+    tmpargument = 768   //+3 damage
+    DamageTarget
+    tmpargument = 10
+    PlaySound
+    tmpargument = 2
+    SendMessage
+
+//------------------------------------------------------------------------------
+// ZZ> Handle death by sending a message and other stuff
+IfKilled
+  tmpargument = 7
+  PlaySound
+  tmpargument = 0
+  SendMessage
+
+  // Make the character body
+  tmpargument = 45
+  SetBumpHeight
+  
+//------------------------------------------------------------------------------
+//Parry and sparring
+IfTargetIsAttacking
+  tmpx = rand % 100
+  tmpy = 7               //Reduce blocking skill or else he will be insane
+  IfXIsLessThanY
+    IfFacingTarget
+      tmpx = targetdistance
+      tmpy = 400
+      IfXIsLessThanY
+        tmpargument = STATEPARRY
+        SetState
+        tmpargument = 25
+        SetTime
+Else
+  IfStateIsParry
+    UnkeepAction
+    tmpargument = STATECOMBAT
+    SetState
+    tmpargument = 5
+    SetTime
+IfStateIsParry
+  tmpargument = ACTIONPC
+  DoAction
+  KeepAction
+IfBlocked
+  UnkeepAction
+  tmpargument = STATECHARGE
+  SetState
+  tmpargument = 5
+  SetTime
+  
+//------------------------------------------------------------------------------
+//Main AI loop
+IfTimeOut
+  tmpargument = rand & 15 + 20
+  SetTime
+  
+  IfStateIsParry
+    tmpargument = STATECOMBAT
+    SetState
+    UnkeepAction
+  
+  SetTargetToWideEnemy
+    tmpargument = [DISP]
+    DispelTargetEnchantID            //Magic free zone
+    IfStateIsGuard
+      tmpargument = STATECOMBAT
+      SetState
+    IfStateIsWander             //Wander state means 1st time encounter
+      tmpargument = STATECOMBAT
+      SetState
+      tmpargument = [AWEP]
+      IfTargetHasSkillID        //Characters who are good in melee combat
+        SetOldTarget            //get it a little harder
+        tmpargument = 896       //+3.5 life
+        SetTargetToSelf
+        GiveLifeToTarget
+        SetTargetToOldTarget
+  Else
+    tmpargument = STATEGUARD
+    SetState
+    
+  IfStateIsCombat
+    SetTurnModeToWatchTarget
+    tmpx = targetx
+    tmpy = targety
+    tmpdistance = -400
+    tmpturn = targetturnto
+    Compass
+    ClearWaypoints
+    AddWaypoint
+     
+  IfStateIsCharge
+    tmpx = targetx
+    tmpy = targety
+    tmpdistance = 600
+    tmpturn = targetturnto
+    Compass
+    ClearWaypoints
+    AddWaypoint
+  
+  IfStateIsGuard
+    SetTurnModeToVelocity
+    tmpx = selfspawnx
+    tmpy = selfspawny
+    ClearWaypoints
+    AddWaypoint
+    
+  IfStateIsWander
+    SetTurnModeToVelocity
+    tmpx = selfspawnx
+    tmpy = selfspawny
+    ClearWaypoints
+    AddWaypoint
+    
+  IfTargetIsOnHatedTeam
+    IfFacingTarget
+      tmpx = targetdistance
+      tmpy = 500
+      IfXIsLessThanY
+        tmpy = 200
+        IfXIsLessThanY                      //Attack melee
+          tmpargument = LATCHRIGHT
+          PressLatchButton
+        Else
+          tmpx = selfcontent
+          tmpy = 1
+          IfXIsMoreThanY                    //Throw knives
+            tmpx = rand % 100
+            tmpy = 16
+            IfXIsLessThanY
+              tmpargument = LATCHLEFT
+              PressLatchButton
+              tmpargument = selfcontent - 1
+              SetContent
+        
+//------------------------------------------------------------------------------
+//Become ANGRY!!
+IfBumped
+  SetTargetToWhoeverBumped
+  IfTargetIsAlive
+    tmpargument = STATECHARGE
+    SetState
+  Else
+    tmpargument = LATCHJUMP
+    PressLatchButton
+    
+//------------------------------------------------------------------------------
+//Say ouch or tell it didnt work
+IfAttacked
+  SetTargetToWhoeverAttacked
+  
+  IfTargetIsAPlayer
+    tmpdistance = 0
+    GetDamageType
+    tmpx = tmpargument
+    tmpy = DAMAGEZAP
+    IfXIsEqualToY
+      tmpdistance = 1
+    tmpy = DAMAGEFIRE
+    IfXIsEqualToY
+      tmpdistance = 1
+    tmpy = DAMAGEICE
+    IfXIsEqualToY
+      tmpdistance = 1
+    tmpy = DAMAGEEVIL
+    IfXIsEqualToY
+      tmpdistance = 1
+
+    //Tell them magic damage simply doesn't work    
+    tmpturn = 0
+    IfDistanceIsMoreThanTurn
+      tmpargument = 1
+      SendMessage
+    
+    //They actually hurt us!
+    Else
+      tmpargument = rand & 1 + 5
+      PlaySound
+      
+  //They actually hurt us!
+  Else
+    tmpargument = rand & 1 + 5
+    PlaySound
+    
+  //Now they've done it!
+  tmpargument = STATECHARGE
+  SetState
+  UnkeepAction
+  tmpx = targetx
+  tmpy = targety
+  tmpdistance = 600
+  tmpturn = targetturnto
+  Compass
+  ClearWaypoints
+  AddWaypoint
+  tmpargument = 10
+  SetTime
+//------------------------------------------------------------------------------
+End
+//------------------------------------------------------------------------------

@@ -1,0 +1,275 @@
+//VALKYRIE
+//-------------------------------------------
+//Level       Abillity
+//1			- Immune vs. Cold, Weapon Profiency, Poison Use, Backstab
+//2			- Spear Mastery
+//3			- n/a
+//4			- Speed
+//5			- n/a
+//6			- n/a
+//7			- Stealth (While standing still)
+//8     - n/a
+//9			- n/a
+//10		- Sneak (Can move 1 step at the time while stealthing)
+//11    - n/a
+//12		- Hardy
+//13    - n/a
+//14    - Stalker (Can sneak while stealthing)
+//15    - Critical Strike
+//16    - n/a
+//17    - n/a
+//18    - Shade (Can move and jump while stealthing)
+//19    - n/a
+//20    - Ultimate Sacrifice
+//-----------------------------------------------------------------------------
+//Spear mastery skill
+tmpx = selflevel
+tmpy = 0            //Need level 1
+IfXIsMoreThanY
+  IfScoredAHit
+    SetTargetToLastItemUsed
+      tmpargument = [SPEA]
+      IfTargetHasID
+        SetTargetToWhoeverWasHit
+        tmpargument = 512
+        DamageTarget
+
+//-----------------------------------------------------------------------------
+//Damage resist skill
+tmpx = selflevel
+tmpy = 10                   //need level 12
+IfXIsMoreThanY
+  tmpargument = selflevel * 24       //Reduce all damage by 1/10 per level
+  SetDamageThreshold
+
+//-----------------------------------------------------------------------------
+//Ultimate sacrifice skill
+IfKilled
+  tmpx = selflevel
+  tmpy = 18            //need level 20
+  IfXIsMoreThanY
+    tmpx = selfx
+    tmpy = selfy
+    tmpdistance = selfz
+    tmpargument = 6
+    SpawnExactParticle
+    SendMessage
+
+//-----------------------------------------------------------------------------
+//Critical hit abillity
+tmpx = selflevel
+tmpy = 0             //Need level 2
+IfXIsMoreThanY
+  IfScoredAHit
+    SetTargetToWhoeverWasHit
+    tmpx = rand % 100
+    tmpy = selflevel          //1% chance * (level-1)
+    IfXIsLessThanY
+      tmpargument = 128*selflevel + 128     //0.5 extra damage per level
+      DamageTarget
+      tmpargument = 10
+      PlaySound
+      tmpargument = 7
+      SendMessage
+
+//-----------------------------------------------------------------------------
+//Speed abillity
+tmpx = selflevel
+tmpy = 5            //Need Level 7
+IfXIsMoreThanY
+  SetTargetToSelf
+  tmpx = targetmaxlife > 2
+  tmpx = targetmaxlife > 1 + tmpx          //0.75 of max life
+  tmpy = targetlife
+  IfXIsMoreThanY              //Only if at 75% life or better
+    Run
+  Else
+    Run
+    tmpargument = 1+selflevel+100       //1 percent bonus per level
+    SetSpeedPercent
+    
+//-----------------------------------------------------------------------------
+//Harvest soul skill (gain mana when kill something)
+IfScoredAHit
+  SetTargetToWhoeverWasHit
+  IfTargetKilled
+    SetTargetToSelf
+    tmpx = selflevel*52             //Gain 1 extra mana per 5 levels
+    tmpargument = 384 + tmpx       //gain 1.5 mana
+    PumpTarget
+
+
+//-----------------------------------------------------------------------------
+//Go stealth mode when standing still
+//State 0 = Ready
+//State 1 = Cooldown
+//State 2 = Going stealth stealth
+//State 3 = In stealth mode
+
+tmpx = selflevel
+tmpy = 5           //Need to be level 7 at least
+IfXIsMoreThanY
+  //If tmpdistance > 0 then reset cloak timer
+  tmpdistance = 0
+  
+  //Stuff that makes us visible
+  SetTargetToSelf
+  IfBumped
+    tmpdistance = 300     //6 seconds
+  IfAttacked
+    tmpdistance = 300     //6 seconds
+  IfTargetIsAttacking
+    tmpdistance = 150     //3 seconds
+  IfTargetIsDefending
+    tmpdistance = 100     //2 seconds
+    
+  //Is the player not moving to fast?
+  SetTargetToSelf
+  
+  IfStateIs3                //Allow movement if already stealthed
+    tmpy = selflevel-6      //Max speed determined by level
+  Else
+    tmpy = 1                //When not stealthed, stand still to go stealth
+  tmpx = targetspeedx + targetspeedy + targetspeedz
+  IfXIsLessThanY
+    SetTargetToNearbyEnemy  //Can't hide in plain sight
+      tmpx = selflevel*50 + targetdistance        //Level increases
+    Else
+      tmpx = 551
+    tmpy = 550
+    IfXIsMoreThanY
+      IfInvisible
+        DoNothing           //No need to hide if already invisisble
+      Else
+        IfStateIs0
+          tmpargument = 2
+          SetState
+          tmpargument = 50
+          SetTime
+  Else                    //Character is moving, reset timer
+    tmpdistance = 75     //1,5 seconds
+    
+  //Handle and reset cooldown counter for stealth
+  IfTimeOut
+    IfStateIs1
+      tmpargument = 0
+      SetState
+    IfStateIs2
+      tmpargument = 0
+      SetAlpha
+      tmpargument = 14
+      PlaySound
+      tmpargument = 3
+      SetState
+      
+    //Check sneak abillity to see if we are detected
+    IfStateIs3
+      tmpargument = 25            //Check every 1 second
+      SetTime
+      SetTargetToNearestEnemy
+        tmpturn = selflevel*50
+        tmpx = targetdistance
+        tmpy = 1000 - tmpturn
+        IfXIsLessThanY
+          tmpturn = targetdistance > 7          //Distance increases chance
+          tmpx = targetwis > 9
+          tmpx = tmpx - tmpturn
+          tmpx = rand % 40 + tmpx
+          tmpy = selfdex > 10
+          tmpy = rand % 40 + tmpy
+          IfXIsMoreThanY                        //We were detected!
+            tmpdistance = 300               //6 seconds
+          
+  //Disable stealth and reset timer if tmpdistance is bigger than 0
+  tmpturn = 0
+  IfDistanceIsMoreThanTurn
+    tmpargument = tmpdistance
+    SetTime
+    IfStateIs3
+      tmpargument = 255
+      SetAlpha
+      tmpargument = 15
+      PlaySound
+    tmpargument = 1
+    SetState    
+    
+//-----------------------------------------------------------------------------
+IfHitGround
+  tmpargument = 0
+  PlaySound
+
+//-----------------------------------------------------------------------------
+// ZZ> Gong sound
+IfCleanedUp
+  tmpargument = 2
+  PlayFullSound
+
+//------------------------------------------------------------------------------
+// ZZ> Handle being bored by cheering or sneezing
+IfBored
+  tmpx = rand & 1
+  tmpargument = 5 + tmpx
+  SendMessageNear
+  tmpargument = 9 + tmpx
+  PlaySound  
+  tmpargument = ACTIONMC
+  DoAction
+
+//------------------------------------------------------------------------------
+// ZZ> Handle death by sending a message and other stuff
+IfKilled
+  tmpargument = 7
+  PlaySound
+  tmpargument = MESSAGEDEATH
+  IfTargetIsOnSameTeam
+    tmpargument = MESSAGEFRAG
+    IfTargetIsSelf
+      tmpargument = MESSAGEACCIDENT
+  SendMessage
+
+  // Drop goodies
+  tmpargument = 1+selflevel*selflevel*100
+  DropMoney
+  DropKeys
+
+  // Make the character body
+  tmpargument = 45
+  SetBumpHeight
+
+//------------------------------------------------------------------------------
+// ZZ> For helper AIs
+IfLeaderKilled
+  BecomeLeader
+
+//------------------------------------------------------------------------------
+// ZZ> Handle being attacked by blocking or countering or running away
+IfAttacked
+  // Pick either 0 or 7, Parry or Combat
+  SetTargetToWhoeverAttacked
+  IfTargetIsOnSameTeam
+    tmpargument = 3
+    PlaySound
+    tmpargument = MESSAGEOUCH
+    SendMessageNear
+  Else
+    tmpargument = rand & 1 + 5
+    PlaySound
+
+//------------------------------------------------------------------------------
+// ZZ> Handle having too much in inventory
+IfTooMuchBaggage
+  tmpargument = 1
+  SendMessageNear
+  tmpargument = 4
+  PlaySound
+  tmpargument = 50
+  SetReloadTime
+  
+//------------------------------------------------------------------------------
+IfUsed
+  tmpargument = rand & 1 + 11
+  PlaySound
+
+//------------------------------------------------------------------------------
+End
+//------------------------------------------------------------------------------

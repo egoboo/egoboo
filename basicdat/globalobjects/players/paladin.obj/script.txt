@@ -1,0 +1,179 @@
+//PALADIN
+//-------------------------------------------
+//Level       Abillity
+//1			Weapon Profiency, Jousting
+//2			Divine Magic
+//3			n/a
+//4			Holy Smite
+//5			n/a
+//6			n/a
+//7			Crusader
+//8			n/a
+//9			n/a
+//10		Halo
+//11		n/a
+//12		n/a
+//13		Sense Undead
+//14		n/a
+//15		n/a
+//16		Ultimate Sacrifice
+//-----------------------------------------------------------------------------
+//Reset
+IfSpawned
+  tmpargument = 0
+  SetState
+  SetContent
+  
+//-----------------------------------------------------------------------------
+//Ultimate sacrifice skill
+IfKilled
+  tmpx = selflevel
+  tmpy = 14            //need level 16
+  IfXIsMoreThanY
+    tmpx = selfx
+    tmpy = selfy
+    tmpdistance = selfz
+    tmpargument = 6
+    SpawnExactParticle
+    SendMessage
+  
+//-----------------------------------------------------------------------------
+//Undead Sense skill
+tmpx = selflevel
+tmpy = 11            //need level 13
+IfXIsMoreThanY
+  SetTargetToSelf           //Make sure it's the enemies of self
+  tmpargument = [UNDE]      //Only undead
+  AddBlipAllEnemies        //Show em'
+
+//-----------------------------------------------------------------------------
+//Halo abillity
+tmpx = selflevel
+tmpy = 8            //need level 10
+IfXIsMoreThanY
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = 27      //top of head
+  tmpargument = 5
+  SpawnParticle
+  SpawnParticle
+  
+//------------------------------------------------------------------------------
+//Invoke Crusader if enough xp gained
+IfStateIs0
+  SetTargetToSelf
+  tmpx = selflevel
+  tmpy = 5          //Need level 7
+  IfXIsMoreThanY
+    SetOwnerToTarget
+    EnchantTarget 	//Give the special bonus
+    tmpargument = 1
+    SetState
+
+//-----------------------------------------------------------------------------
+//Holy Smite abillity
+tmpx = selflevel
+tmpy = 2            //need level 4
+IfXIsMoreThanY
+  IfScoredAHit
+    SetTargetToWhoeverWasHit
+    tmpargument = [EVIL]
+    IfTargetHasSpecialID
+      tmpargument = 128*selflevel
+      tmpargument = rand % tmpargument + 256     //1 to (selflevel / 2) bonus damage
+      DamageTarget
+      tmpx = targetx
+      tmpy = targety
+      tmpdistance = targetz
+      tmpargument = 3
+      SpawnExactParticle                        //Spelly effect
+      tmpargument = 10
+      PlaySound
+      
+//-----------------------------------------------------------------------------
+IfHitGround
+  tmpargument = 0
+  PlaySound
+
+//-----------------------------------------------------------------------------
+// ZZ> Gong sound
+IfCleanedUp
+  tmpargument = 2
+  PlayFullSound
+
+//------------------------------------------------------------------------------
+// ZZ> Healing sound
+IfUsed
+  tmpargument = 8
+  PlaySound
+  tmpargument = 25
+  SetReloadTime
+
+//------------------------------------------------------------------------------
+// ZZ> Handle being bored by cheering or sneezing
+IfBored
+  tmpargument = 5
+  SendMessageNear
+  tmpargument = 9
+  PlaySound
+  tmpargument = ACTIONMC
+  DoAction
+
+//------------------------------------------------------------------------------
+// ZZ> Handle death by sending a message and other stuff
+IfKilled
+  tmpargument = 7
+  PlaySound
+  tmpargument = MESSAGEDEATH
+  IfTargetIsOnSameTeam
+    tmpargument = MESSAGEFRAG
+    IfTargetIsSelf
+      tmpargument = MESSAGEACCIDENT
+  SendMessage
+
+  // Drop goodies
+  tmpargument = 1+selflevel*selflevel*100
+  DropMoney
+  DropKeys
+
+  // Make the character body
+  tmpargument = 45
+  SetBumpHeight
+
+  //Redo Crusader skill
+  UndoEnchant
+  tmpargument = 0
+  SetState
+
+//------------------------------------------------------------------------------
+// ZZ> For helper AIs
+IfLeaderKilled
+  BecomeLeader
+
+//------------------------------------------------------------------------------
+// ZZ> Handle being attacked by blocking or countering or running away
+IfAttacked
+  // Pick either 0 or 7, Parry or Combat
+  SetTargetToWhoeverAttacked
+  IfTargetIsOnSameTeam
+    tmpargument = 3
+    PlaySound
+    tmpargument = MESSAGEOUCH
+    SendMessageNear
+  Else
+    tmpargument = rand & 1 + 5
+    PlaySound
+
+//------------------------------------------------------------------------------
+// ZZ> Handle having too much in inventory
+IfTooMuchBaggage
+  tmpargument = 1
+  SendMessageNear
+  tmpargument = 4
+  PlaySound
+  tmpargument = 50
+  SetReloadTime
+
+//------------------------------------------------------------------------------
+End
+//------------------------------------------------------------------------------

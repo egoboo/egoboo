@@ -1,0 +1,162 @@
+Slot number    : -1
+Class name     : Samurai
+Uniform light  : FALSE
+Maximum ammo   : 0
+Current ammo   : 0
+Gender         : MALE
+
+Life color     : 1
+Mana color     : 5
+Life           : 13.16
+Life up        : 2.00-4.00
+Mana           : 2.00
+Mana up        : 0.00-0.00
+Mana return    : 2.00
+Mana return up : 0.00-0.00
+Mana flow      : 2.00
+Mana flow up   : 0.00-0.00
+STR            : 23.45
+STR up         : 1.00-3.00
+WIS            : 13.63
+WIS up         : 0.00-1.00
+INT            : 5.81
+INT up         : 0.00-0.00
+DEX            : 19.38
+DEX up         : 0.00-2.00
+
+Size           : 1.20
+Size up        : 0.05
+Shadow size    : 25
+Bump size      : 30
+Bump height    : 90
+Bump dampen    : 0.20
+Weight         : 110
+Jump power     : 13.00
+Jump number    : 1
+Sneak speed    : 1
+Walk speed     : 2
+Run speed      : 4
+Fly to height  : 0
+Flashing AND   : 255
+Alpha blending : 255
+Light blending : 255
+Transfer blend : TRUE
+Sheen          : 0
+Phong mapping  : FALSE
+Texture X add  : 0.00
+Texture Y add  : 0.00
+Sticky butt    : FALSE
+
+Invictus       : FALSE
+NonI facing    : 0
+NonI angle     : 0
+I facing       : 0
+I angle        : 16000
+
+Base defense   :  40  70 100   0
+S damage shift :   1   2   2   1
+C damage shift :   1   1   1   1
+P damage shift :   1   1   2   1
+H damage shift :   1   1   1   1
+E damage shift :   1   1   1   2
+F damage shift :   1   1   1   3
+I damage shift :   1   1   1   3
+Z damage shift :   1   1   1   2
+S damage code  :   F   F   F   F
+C damage code  :   F   F   F   F
+P damage code  :   F   F   F   F
+H damage code  :   T   T   T   T
+E damage code  :   F   F   F   F
+F damage code  :   F   F   F   F
+I damage code  :   F   F   F   F
+Z damage code  :   F   F   F   F
+Acceleration   :  60  50  40  66
+
+EXP for 2nd    : 400
+EXP for 3rd    : 800
+EXP for 4th    : 1600
+EXP for 5th    : 3200
+EXP for 6th    : 6400
+Starting EXP   : 3121
+EXP worth      : 30
+EXP exchange   : 0.010
+EXPSECRET      : 0.00
+EXPQUEST       : 1.00
+EXPDARE        : 0.00
+EXPKILL        : 1.00
+EXPMURDER      : 0.00
+EXPREVENGE     : 0.00
+EXPTEAMWORK    : 0.20
+EXPROLEPLAY    : 1.00
+
+IDSZ Parent    : [HUMA]
+IDSZ Type      : [SAMU]
+IDSZ Skill     : [WMAG]
+IDSZ Special   : [NONE]
+IDSZ Hate      : [NONE]
+IDSZ Vulnie    : [NONE]
+
+Is an item     : FALSE
+Is a mount     : FALSE
+Is stackable   : FALSE
+Name known     : TRUE
+Usage known    : TRUE
+Is exportable  : FALSE
+Requires skill : FALSE
+Is platform    : FALSE
+Collects money : TRUE
+Can open stuff : TRUE
+
+Damage type    : CRUSH
+Attack type    : SLASH
+
+Attached parts : 0
+Reaffirm type  : NONE
+Particle type  : 0
+
+Left valid     : TRUE
+Right valid    : TRUE
+
+Part on weapon : TRUE
+Part type      : 0
+
+Poof amount    : 8
+Facing add     : 8192
+Part type      : 1
+
+Blood valid    : FALSE
+Part type      : 0
+
+Waterwalking   : FALSE
+Bounce dampen  : 0.600
+
+Life healing   : 0.000
+Mana cost      : 0.000
+Life return    : 0
+Stopped by     : 48
+Skin 0 name    : Samurai's_Armor
+Skin 1 name    : 100
+Skin 2 name    : 0.050
+Skin 3 name    : FALSE
+Skin 0 cost    : 48
+Skin 1 cost    : 48
+Skin 2 cost    : 0
+Skin 3 cost    : 0
+STR dampen     : 0.000
+
+No rider attak : FALSE
+Can be dazed   : FALSE
+Can be grogged : FALSE
+NOT USED       : 0
+NOT USED       : 0
+Can see invisi : FALSE
+Kursed chance  : 0
+Footfall sound : 0
+Jump sound     : 0
+
+:[GOLD] 0
+:[PLAT] 1
+:[SKIN] 0
+:[CONT] 0
+:[STAT] 0
+:[LEVL] 4

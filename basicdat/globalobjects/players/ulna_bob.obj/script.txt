@@ -1,0 +1,23 @@
+IfKilled				// This reduces the height of the char
+  tmpargument = 3
+  IfArmorIs
+    tmpargument = MESSAGECOSTUME
+  Else
+    tmpargument = MESSAGEDEATH		  // Last words...
+  IfTargetIsOnSameTeam			  // Fragged!
+    tmpargument = MESSAGEFRAG		    //
+    IfTargetIsSelf			    // No, just a damage tile
+      tmpargument = MESSAGEACCIDENT           //
+  SendMessage				  //
+  tmpargument = 65535			  // Drop money
+  DropMoney				  //
+  DropKeys
+  tmpargument = 45			  //
+  SetBumpHeight				  //
+IfLeaderKilled				// Take control
+  BecomeLeader				  //
+
+//------------------------------------------------------------------------------
+End
+//------------------------------------------------------------------------------
+

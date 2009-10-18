@@ -1,0 +1,194 @@
+//HEALER
+//-------------------------------------------
+//Level       Abillity
+//1			Divine Magic, See Kurses
+//2			n/a
+//3			n/a
+//4			Holy Aura
+//5			n/a
+//6			n/a
+//7			Divine Power
+//8			n/a
+//9			n/a
+//10		Guardian Angel
+//11	  n/a
+//12		n/a
+//13		Immune vs. Kurses
+//14	  n/a
+//15		n/a
+//16		Last Boon
+//-----------------------------------------------------------------------------
+//Reset
+IfSpawned
+  tmpargument = 0
+  SetState
+  SetContent
+
+//-----------------------------------------------------------------------------
+//Immune vs. kurses abillity
+tmpx = selflevel
+tmpy = 11
+IfXIsMoreThanY					//Gain abillity at 13th level
+  SetTargetToSelf
+  UnkurseTargetInventory
+  
+//-----------------------------------------------------------------------------
+//Invoke Divine Power if enough xp gained
+IfStateIs0
+  SetTargetToSelf
+  tmpx = selflevel
+  tmpy = 5          //Need level 7
+  IfXIsMoreThanY
+    SetOwnerToTarget
+    EnchantTarget 	//Give the special bonus
+    tmpargument = 1
+    SetState
+
+//------------------------------------------------------------------------------
+//Holy Aura special skill
+tmpx = selflevel
+tmpy = 2            //Need level 4
+IfXIsMoreThanY
+  tmpargument = 0
+  IfContentIs
+    IfBumped
+      SetTargetToWhoeverBumped
+      IfTargetIsAlive
+        tmpargument = [UNDE]
+        IfTargetHasID
+          tmpx = selfmana
+          tmpy = 127
+          IfXIsMoreThanY
+            tmpargument = selflevel * 128
+            tmpargument = rand % tmpargument + 256  //1 to (level/2) damage
+            DamageTarget
+            tmpargument = 75 - selflevel        //How often?
+            SetTime
+            tmpargument = 1
+            SetContent
+                    
+            //Spelly effects
+            tmpargument = 3
+            tmpx = targetx
+            tmpy = targety
+            tmpdistance = targetz
+            SpawnExactParticle
+            tmpargument = 11
+            PlaySound
+            
+            //Cost some mana
+            SetTargetToSelf
+            tmpargument = 128
+            CostTargetMana
+
+IfTimeOut
+  tmpargument = 0
+  SetContent
+  
+//-------------------------------------------
+//Guardian angel special skill
+//and Last boon skill
+IfKilled
+  tmpx = selflevel
+  tmpy = 8            //Need level 10
+  IfXIsMoreThanY
+    tmpx = rand % 100
+    tmpy = selfwis > 9          //% chance equal to wis/2
+    IfXIsLessThanY
+      SetTargetToSelf
+      RespawnTarget
+      tmpargument = 10
+      SendMessage
+      tmpargument = 12
+      PlayFullSound
+    Else
+      tmpx = selflevel
+      tmpy = 14            //Need level 16
+      IfXIsMoreThanY
+        tmpargument = 5
+        tmpx = selfx
+        tmpy = selfy
+        tmpdistance = selfz
+        SpawnExactParticle
+        tmpargument = 11
+        SendMessage
+
+//-------------------------------------------
+// Gong sound
+IfCleanedUp
+  tmpargument = 1
+  PlayFullSound
+
+// Talk to player
+IfBored
+  tmpx = rand & 1
+  tmpargument = tmpx + 7
+  SendMessageNear
+  tmpargument = tmpx + 6
+  PlaySound
+  tmpargument = ACTIONMC
+  DoAction
+
+IfTooMuchBaggage
+  tmpargument = 6
+  SendMessageNear
+  tmpargument = 9
+  PlaySound
+
+// Heal sound
+IfUsed
+  tmpargument = 0
+  PlayFullSound
+  tmpargument = 25
+  SetReloadTime
+
+// Handle death
+IfKilled
+  // Sound
+  tmpargument = 8
+  PlaySound
+
+  // Message
+  tmpargument = 3
+  IfArmorIs
+    tmpargument = MESSAGECOSTUME
+  Else
+    tmpargument = MESSAGEDEATH
+  IfTargetIsOnSameTeam
+    tmpargument = MESSAGEFRAG
+    IfTargetIsSelf
+      tmpargument = MESSAGEACCIDENT
+  SendMessage
+
+  // Misc.
+  tmpargument = 1+selflevel*selflevel*100		//The money loss formula
+  DropMoney
+  DropKeys
+  tmpargument = 45
+  SetBumpHeight
+
+  //Just in case...
+  tmpargument = ACTIONKA
+  DoActionOverride
+  UndoEnchant
+  tmpargument = 0
+  SetState
+
+// Just because...
+IfLeaderKilled
+  BecomeLeader
+
+// Yell at friends
+IfAttacked
+  SetTargetToWhoeverAttacked
+  IfTargetIsOnSameTeam
+    tmpargument = MESSAGEOUCH
+    SendMessage
+    tmpargument = 4
+    PlaySound
+  Else
+    tmpargument = rand & 1 + 2
+    PlaySound
+
+// All done
+End

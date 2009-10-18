@@ -1,0 +1,226 @@
+//ADVENTURER
+//-------------------------------------------
+//Level       Abillity
+//1			Weapon Profiency, Arcane Magic, Arch Magery, Teleport Mastery
+//2			n/a
+//3			n/a
+//4			Alchemy
+//5			n/a
+//6			n/a
+//7         Speed
+//8			n/a
+//9         n/a
+//10	    Stealth
+//11	    n/a
+//12	    n/a
+//13	    Listen
+//14	    n/a
+//15	    n/a
+//16	    Class Mastery
+//-----------------------------------------------------------------------------
+//Reset
+IfSpawned
+  tmpargument = 0
+  SetState
+  SetContent
+
+//-----------------------------------------------------------------------------
+// Alchemy skill
+tmpx = selflevel
+tmpy = 2
+IfXIsMoreThanY          //Need level 4
+  SetTargetToTargetLeftHand	//Check left hand first
+    tmpargument = [POTI]
+    IfTargetHasID
+      IdentifyTarget		//Identify potions
+      SetTargetToSelf
+    tmpargument = [FLAS]
+    IfTargetHasID
+      IdentifyTarget		//And flasks
+  SetTargetToTargetRightHand	//Repeat with other hand
+    tmpargument = [POTI]
+    IfTargetHasID
+      IdentifyTarget		//Identify potions
+    tmpargument = [FLAS]
+    IfTargetHasID
+      IdentifyTarget		//And flasks
+
+//-----------------------------------------------------------------------------
+//Go stealth mode when standing still
+//State 0 = Ready
+//State 1 = Cooldown
+//State 2 = Going stealth stealth
+//State 3 = In stealth mode
+
+tmpx = selflevel
+tmpy = 6           //Need to be level 8 at least
+IfXIsMoreThanY
+  //If tmpdistance > 0 then reset cloak timer
+  tmpdistance = 0
+
+  //Stuff that makes us visible
+  SetTargetToSelf
+  IfBumped
+    tmpdistance = 300     //6 seconds
+  IfAttacked
+    tmpdistance = 300     //6 seconds
+  IfTargetIsAttacking
+    tmpdistance = 150     //3 seconds
+  IfTargetIsDefending
+    tmpdistance = 100     //2 seconds
+
+  //Is the player standing still?
+  SetTargetToSelf
+  tmpx = targetspeedx + targetspeedy + targetspeedz
+  tmpy = 0
+  IfXIsEqualToY
+    SetTargetToNearbyEnemy  //Can't hide in plain sight
+      tmpx = selflevel*50 + targetdistance        //Level increases
+    Else
+      tmpx = 551
+    tmpy = 550
+    IfXIsMoreThanY
+      IfInvisible
+        DoNothing           //No need to hide if already invisisble
+      Else
+        IfStateIs0
+          tmpargument = 2
+          SetState
+          tmpargument = 50
+          SetTime
+  Else                    //Character is moving, reset timer
+    tmpdistance = 75     //1,5 seconds
+
+  //Handle and reset cooldown counter for stealth
+  IfTimeOut
+    IfStateIs1
+      tmpargument = 0
+      SetState
+    IfStateIs2
+      tmpargument = 0
+      SetAlpha
+      tmpargument = 10
+      PlaySound
+      tmpargument = 3
+      SetState
+
+    //Check sneak abillity to see if we are detected
+    IfStateIs3
+      tmpargument = 75            //Check every 1,5 seconds
+      SetTime
+      SetTargetToNearestEnemy
+        tmpturn = selflevel*50
+        tmpx = targetdistance
+        tmpy = 1000 - tmpturn
+        IfXIsLessThanY
+          tmpturn = targetdistance > 7          //Distance increases chance
+          tmpx = targetwis > 8
+          tmpx = tmpx - tmpturn
+          tmpx = rand % 40 + tmpx
+          tmpy = selfdex > 8
+          tmpy = rand % 40 + tmpy
+          IfXIsMoreThanY                        //We were detected!
+            tmpdistance = 300               //6 seconds
+
+  //Disable stealth and reset timer if tmpdistance is bigger than 0
+  tmpturn = 0
+  IfDistanceIsMoreThanTurn
+    tmpargument = tmpdistance
+    SetTime
+    IfStateIs3
+      tmpargument = 255
+      SetAlpha
+      tmpargument = 11
+      PlaySound
+    tmpargument = 1
+    SetState
+
+//-----------------------------------------------------------------------------
+//Listen skill
+tmpx = selflevel
+tmpy = 11            //At least level 13
+IfXIsMoreThanY
+  EnableListenSkill
+
+//-----------------------------------------------------------------------------
+//Speed abillity
+tmpx = selflevel
+tmpy = 5            //Need Level 7
+IfXIsMoreThanY
+  Run
+  tmpargument = 1+selflevel*2+100       //2 percent per level
+  SetSpeedPercent
+
+//------------------------------------------------------------------------------
+//Invoke Class Mastery if enough xp gained
+tmpargument = 0
+IfContentIs
+  SetTargetToSelf
+  tmpx = selflevel
+  tmpy = 14              //Need level 16
+  IfXIsMoreThanY
+    SetOwnerToTarget
+    EnchantTarget 	//Give the special bonus
+    tmpargument = 1
+    SetContent      //Dont repeat
+
+//-----------------------------------------------------------------------------
+// ZZ> Gong sound
+IfCleanedUp
+  tmpargument = 6
+  PlayFullSound
+
+IfTooMuchBaggage
+  tmpargument = 8
+  PlaySound
+  tmpargument = 6
+  SendMessageNear
+
+//Scream and shout
+IfUsed
+  tmpargument = 7
+  PlaySound
+
+IfKilled				// This reduces the height of the char
+  tmpargument = 2			  // Death sound
+  PlaySound				  //
+
+  //Message
+  tmpargument = 3
+  IfArmorIs
+    tmpargument = MESSAGECOSTUME
+  Else
+    tmpargument = MESSAGEDEATH		  // Last words...
+  IfTargetIsOnSameTeam			  // Fragged!
+    tmpargument = MESSAGEFRAG		    //
+    IfTargetIsSelf			    // No, just a damage tile
+      tmpargument = MESSAGEACCIDENT           //
+  SendMessage				  //
+
+  //Drop goods
+  tmpargument = 1+selflevel*selflevel*100		//The money loss formula
+  DropMoney				  //
+  DropKeys
+
+  //Body
+  tmpargument = 45			  //
+  SetBumpHeight				  //
+
+  //Redo the Class Mastery skill when respawned
+  UndoEnchant
+  tmpargument = 0
+  SetContent
+
+IfLeaderKilled				// Take control
+  BecomeLeader				  //
+IfAttacked				// Yell at friends
+  SetTargetToWhoeverAttacked		  //
+  IfTargetIsOnSameTeam			  //
+    tmpargument = MESSAGEOUCH		    //
+    SendMessageNear			    //
+    tmpargument = 5			    // Stop That sound
+    PlaySound				    //
+  Else					  //
+    tmpargument = rand & 1 + 3		    // Damage sounds
+    PlaySound				    //
+End

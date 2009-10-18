@@ -1,0 +1,163 @@
+Slot number    : -1
+Class name     : Ulna_Captain
+Uniform light  : FALSE
+Maximum ammo   : 0
+Current ammo   : 0
+Gender         : OTHER
+
+Life color     : 1
+Mana color     : 5
+Life           : 27.18
+Life up        : 2.00-3.00
+Mana           : 0.00
+Mana up        : 0.00-0.00
+Mana return    : 0.00
+Mana return up : 0.00-0.00
+Mana flow      : 0.00
+Mana flow up   : 0.00-0.00
+STR            : 26.06
+STR up         : 1.00-3.00
+WIS            : 6.40
+WIS up         : 0.00-1.00
+INT            : 8.33
+INT up         : 0.00-1.00
+DEX            : 26.91
+DEX up         : 1.00-2.00
+
+Size           : 1.30
+Size up        : 0.05
+Shadow size    : 25
+Bump size      : 25
+Bump height    : 80
+Bump dampen    : 0.35
+Weight         : 90
+Jump power     : 17.00
+Jump number    : 1
+Sneak speed    : 2
+Walk speed     : 4
+Run speed      : 7
+Fly to height  : 0
+Flashing AND   : 255
+Alpha blending : 255
+Light blending : 255
+Transfer blend : TRUE
+Sheen          : 0
+Phong mapping  : FALSE
+Texture X add  : 0.00
+Texture Y add  : 0.00
+Sticky butt    : FALSE
+
+Invictus       : FALSE
+NonI facing    : 0
+NonI angle     : 0
+I facing       : 0
+I angle        : 14000
+
+Base defense   :  10  10  10  10
+S damage shift :   1   1   1   1
+C damage shift :   0   0   0   0
+P damage shift :   3   3   3   3
+H damage shift :   0   0   0   0
+E damage shift :   3   3   3   3
+F damage shift :   1   1   1   1
+I damage shift :   1   1   1   1
+Z damage shift :   3   3   3   3
+S damage code  :   F   F   F   F
+C damage code  :   F   F   F   F
+P damage code  :   F   F   F   F
+H damage code  :   F   F   F   F
+E damage code  :   F   F   F   F
+F damage code  :   F   F   F   F
+I damage code  :   F   F   F   F
+Z damage code  :   F   F   F   F
+Acceleration   :  30  30  30  30
+
+EXP for 2nd    : 200
+EXP for 3rd    : 400
+EXP for 4th    : 800
+EXP for 5th    : 1600
+EXP for 6th    : 3200
+Starting EXP   : 1600
+EXP worth      : 20
+EXP exchange   : 0.010
+EXPSECRET      : 0.00
+EXPQUEST       : 1.00
+EXPDARE        : 0.00
+EXPKILL        : 0.90
+EXPMURDER      : 0.00
+EXPREVENGE     : 2.00
+EXPTEAMWORK    : 0.10
+EXPROLEPLAY    : 1.00
+
+IDSZ Parent    : [UNDE]
+IDSZ Type      : [SKEC]
+IDSZ Skill     : [XNOS]
+IDSZ Special   : [EVIL]
+IDSZ Hate      : [NONE]
+IDSZ Vulnie    : [HOLY]
+
+Is an item     : FALSE
+Is a mount     : FALSE
+Is stackable   : FALSE
+Name known     : FALSE
+Usage known    : TRUE
+Is exportable  : FALSE
+Requires skill : FALSE
+Is platform    : FALSE
+Collects money : TRUE
+Can open stuff : TRUE
+
+Damage type    : CRUSH
+Attack type    : SLASH
+
+Attached parts : 0
+Reaffirm type  : NONE
+Particle type  : 0
+
+Left valid     : TRUE
+Right valid    : TRUE
+
+Part on weapon : FALSE
+Part type      : 0
+
+Poof amount    : 0
+Facing add     : 0
+Part type      : 0
+
+Blood valid    : TRUE
+Part type      : 1
+
+Waterwalking   : FALSE
+Bounce dampen  : 0.600
+
+Life healing   : 0.000
+Mana cost      : 0.000
+Life return    : 0
+Stopped by     : 48
+Skin 0 name    : SKIN
+Skin 1 name    : SKIN
+Skin 2 name    : SKIN
+Skin 3 name    : SKIN
+Skin 0 cost    : 0
+Skin 1 cost    : 20
+Skin 2 cost    : 80
+Skin 3 cost    : 200
+STR dampen     : 0.075
+
+No rider attak : FALSE
+Can be dazed   : FALSE
+Can be grogged : FALSE
+NOT USED       : 0
+NOT USED       : 0
+Can see invisi : FALSE
+Kursed chance  : 0
+Footfall sound : 1
+Jump sound     : 2
+
+:[GOLD] 365
+:[STUK] 0
+:[PLAT] 1
+:[SKIN] 1
+:[CONT] 0
+:[STAT] 0
+:[LEVL] 4

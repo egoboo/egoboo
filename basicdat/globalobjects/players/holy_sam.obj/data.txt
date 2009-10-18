@@ -1,0 +1,162 @@
+Slot number    : -1
+Class name     : Priest
+Uniform light  : FALSE
+Maximum ammo   : 0
+Current ammo   : 0
+Gender         : MALE
+
+Life color     : 1
+Mana color     : 2
+Life           : 7.73
+Life up        : 1.00-1.00
+Mana           : 8.88
+Mana up        : 1.00-2.00
+Mana return    : 20.25
+Mana return up : 0.00-3.00
+Mana flow      : 2.00
+Mana flow up   : 0.00-0.40
+STR            : 8.20
+STR up         : 0.00-1.00
+WIS            : 22.14
+WIS up         : 0.00-1.00
+INT            : 25.63
+INT up         : 2.00-3.00
+DEX            : 10.67
+DEX up         : 0.00-1.00
+
+Size           : 1.06
+Size up        : 0.02
+Shadow size    : 25
+Bump size      : 35
+Bump height    : 90
+Bump dampen    : 0.35
+Weight         : 100
+Jump power     : 10.00
+Jump number    : 1
+Sneak speed    : 1
+Walk speed     : 3
+Run speed      : 3
+Fly to height  : 0
+Flashing AND   : 255
+Alpha blending : 255
+Light blending : 255
+Transfer blend : TRUE
+Sheen          : 0
+Phong mapping  : FALSE
+Texture X add  : 0.00
+Texture Y add  : 0.00
+Sticky butt    : FALSE
+
+Invictus       : FALSE
+NonI facing    : 0
+NonI angle     : 0
+I facing       : 0
+I angle        : 10000
+
+Base defense   :  10  30  60 100
+S damage shift :   1   1   1   1
+C damage shift :   1   1   1   1
+P damage shift :   1   1   1   1
+H damage shift :   1   1   1   1
+E damage shift :   1   1   1   1
+F damage shift :   1   1   1   1
+I damage shift :   1   1   1   3
+Z damage shift :   1   1   1   1
+S damage code  :   F   F   F   F
+C damage code  :   F   F   F   F
+P damage code  :   F   F   F   F
+H damage code  :   T   T   T   T
+E damage code  :   F   F   F   F
+F damage code  :   F   F   F   F
+I damage code  :   F   F   F   F
+Z damage code  :   F   F   F   F
+Acceleration   :  50  50  50  50
+
+EXP for 2nd    : 400
+EXP for 3rd    : 800
+EXP for 4th    : 1600
+EXP for 5th    : 3200
+EXP for 6th    : 6400
+Starting EXP   : 206
+EXP worth      : 30
+EXP exchange   : 0.010
+EXPSECRET      : 0.50
+EXPQUEST       : 0.50
+EXPDARE        : 0.50
+EXPKILL        : 0.30
+EXPMURDER      : 0.00
+EXPREVENGE     : 0.00
+EXPTEAMWORK    : 0.20
+EXPROLEPLAY    : 1.00
+
+IDSZ Parent    : [HUMA]
+IDSZ Type      : [PRIE]
+IDSZ Skill     : [WMAG]
+IDSZ Special   : [HOLY]
+IDSZ Hate      : [NONE]
+IDSZ Vulnie    : [NONE]
+
+Is an item     : FALSE
+Is a mount     : FALSE
+Is stackable   : FALSE
+Name known     : TRUE
+Usage known    : TRUE
+Is exportable  : FALSE
+Requires skill : FALSE
+Is platform    : FALSE
+Collects money : TRUE
+Can open stuff : TRUE
+
+Damage type    : CRUSH
+Attack type    : SLASH
+
+Attached parts : 0
+Reaffirm type  : NONE
+Particle type  : 0
+
+Left valid     : TRUE
+Right valid    : TRUE
+
+Part on weapon : TRUE
+Part type      : 0
+
+Poof amount    : 8
+Facing add     : 8192
+Part type      : 1
+
+Blood valid    : FALSE
+Part type      : 0
+
+Waterwalking   : FALSE
+Bounce dampen  : 0.600
+
+Life healing   : 0.000
+Mana cost      : 0.000
+Life return    : 0
+Stopped by     : 48
+Skin 0 name    : a_Wizard's_Robe
+Skin 1 name    : 0.000
+Skin 2 name    : FALSE
+Skin 3 name    : TRUE
+Skin 0 cost    : 48
+Skin 1 cost    : 0
+Skin 2 cost    : 0
+Skin 3 cost    : 0
+STR dampen     : 0.000
+
+No rider attak : FALSE
+Can be dazed   : FALSE
+Can be grogged : FALSE
+NOT USED       : 0
+NOT USED       : 0
+Can see invisi : FALSE
+Kursed chance  : 0
+Footfall sound : 0
+Jump sound     : 0
+
+:[GOLD] 9
+:[PLAT] 1
+:[SKIN] 0
+:[CONT] 0
+:[STAT] 0
+:[LEVL] 3
