@@ -39,7 +39,7 @@ GASCHEST:  NONE      51   55   33   0.0  W   0   0   0   1   0   F   F   Null
   Cinquedea:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   Null
 MCHEST:    NONE      52   27.5 7.5  0.0  S   0   0   0   0   0   F   F   Null
 FChest:    NONE      53   14.5 31.5 0.0  W   0   0   0   1   0   F   F   Null
-  XBOW50:  NONE      49   0    0    0    I   0   0   0   0   0   F   F   Null
+  XBow:  NONE      49   0    0    0    I   0   0   0   0   0   F   F   Null
   LPotion: NONE      86   0    0    0    I   0   0   0   0   0   F   F   Null
 FChest:    NONE      53   7.5  48.5 0.0  S   0   0   0   1   0   F   F   Null
   KEYA:    NONE      46   0    0    0    I   0   0   0   0   0   F   F   Null
@@ -157,13 +157,13 @@ BULLWOLF:  NONE      37   40.5 31.5 0.0  E   0   0   0   0   0   F   F   Null
 
 // Mine gate guards...  Longbows must be in right hand for Cobol to use
 COBOL:     NONE      36   53.5 10.5 0.0  S   2   1   0   400 0   F   F   Evil
-  XBow50:  NONE      49   0    0    0    R   0   0   0   0   0   F   F   Null
+  XBow:  NONE      49   0    0    0    R   0   0   0   0   0   F   F   Null
   Cinquedea:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   Null
 COBOL:     NONE      36   53.5 16.5 0.0  S   3   1   0   400 0   F   F   Evil
-  XBow50:  NONE      49   0    0    0    R   0   0   0   0   0   F   F   Null
+  XBow:  NONE      49   0    0    0    R   0   0   0   0   0   F   F   Null
   Cinquedea:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   Null
 COBOL:     NONE      36   53.5 22.5 0.0  S   3   1   0   400 0   F   F   Evil
-  XBow50:  NONE      49   0    0    0    R   0   0   0   0   0   F   F   Null
+  XBow:  NONE      49   0    0    0    R   0   0   0   0   0   F   F   Null
   Cinquedea:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   Null
 
 

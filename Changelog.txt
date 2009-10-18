@@ -10,6 +10,7 @@ Version 2.8.0 (xx.10.2009)
 - New Feature: Improved AI by adding Line of Sight detection for targeting.
 - New Feature: Improved UI by implementing in-game pop up text.
 - New Feature: Implemented the PhysFS file system.
+- Update: Improved the texture detail for all the title images and replaced some with better ones.
 - Update: Vampires are significantly weaker than before.
 - Update: Further improvments on the Lightning engine.
 - Update: Made some improvements to the Protector monster.
@@ -39,7 +40,6 @@ Version 2.8.0 (xx.10.2009)
 - Update: Improved the gameplay when using the mouse as input controller.
 - Update: Increased the amount of treasure loot found in the Ice Palace.
 - Update: Improved the Frost Lizard AI.
-- Update: Improved the texture detail for all the title images.
 - Bugfix: Fixed missing Player spawn points in the Cobol Palace.
 - Bugfix: The Vorpal Blade can no longer deal damage from distance.
 - Bugfix: Battleaxes now properly requires Advanced Weapons skills to use.

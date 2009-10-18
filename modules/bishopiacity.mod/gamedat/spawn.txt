@@ -344,8 +344,8 @@ Tree:   NONE    36  67.5   40.5   1.0   N    0   0  0   0   0   F   F   N
 Tree:   NONE    36  74.0   26.0   1.0   E    0   0  0   0   0   F   F   N
 Tree:   NONE    36  63.0   24.0   1.0   S    0   0  0   0   0   F   F   N
 Tree:   NONE    36  66.0   29.0   1.0   N    0   0  0   0   0   F   F   N
-Table2:   NONE    60  77.5   44.5   1.0   N    0   0  0   0   0   F   F   N
-Table2:   NONE    60  76.5   46.5   1.0   E    0   0  0   0   0   F   F   N
+Table:   NONE    60  77.5   44.5   1.0   N    0   0  0   0   0   F   F   N
+Table:   NONE    60  76.5   46.5   1.0   E    0   0  0   0   0   F   F   N
 Stool:   NONE    46  76.0   46.5   1.0   N    0   0  0   0   0   F   F   N
 Stool:   NONE    46  78.3   44.8   1.0   N    0   0  0   0   0   F   F   N
 Stool:   NONE    46  76.8   44.5   1.0   N    0   0  0   0   0   F   F   N

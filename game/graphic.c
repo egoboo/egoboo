@@ -1669,7 +1669,8 @@ void project_view( camera_t * pcam )
     mTemp = MatrixMult( RotateY( rotmeshbottomside * PI / 360 ), PCamera->mView );
     mTemp = MatrixMult( RotateX( -rotmeshdown * PI / 360 ), mTemp );
     zproject = mTemp.CNV( 2, 2 );             // 2,2
-    // Camera must look down
+    
+	// Camera must look down
     if ( zproject < 0 )
     {
         numstep = -ztemp / zproject;
@@ -1778,7 +1779,7 @@ void render_shadow( Uint16 character )
     pchr = ChrList.lst + character;
 
     // if the character is hidden, not drawn at all, so no shadow
-    if ( pchr->is_hidden ) return;
+	if ( pchr->is_hidden ) return;
 
     // no shadow if off the mesh
     if ( !VALID_TILE(PMesh, pchr->onwhichfan) ) return;
@@ -1788,9 +1789,10 @@ void render_shadow( Uint16 character )
 
     // no shadow if completely transparent
     alpha = (255 == pchr->inst.light) ? pchr->inst.alpha  * INV_FF : (pchr->inst.alpha - pchr->inst.light) * INV_FF;
-    if ( alpha * 255 < 1.0f ) return;
+    //if ( alpha * 255 < 1 ) return;
+	if ( pchr->inst.light <= INVISIBLE || pchr->inst.alpha <= INVISIBLE ) return;
 
-    // much resuced shadow if on a reflective tile
+    // much reduced shadow if on a reflective tile
     if ( 0 != mesh_test_fx(PMesh, pchr->onwhichfan, MPDFX_DRAWREF) )
     {
         alpha *= 0.1f;
@@ -1899,7 +1901,7 @@ void render_bad_shadow( Uint16 character )
     pchr = ChrList.lst + character;
 
     // if the character is hidden, not drawn at all, so no shadow
-    if ( pchr->is_hidden ) return;
+	if ( pchr->is_hidden ) return;
 
     // no shadow if off the mesh
     if ( !VALID_TILE(PMesh, pchr->onwhichfan) ) return;
@@ -1909,7 +1911,8 @@ void render_bad_shadow( Uint16 character )
 
     // no shadow if completely transparent or completely glowing
     alpha = (255 == pchr->inst.light) ? pchr->inst.alpha  * INV_FF : (pchr->inst.alpha - pchr->inst.light) * INV_FF;
-    if ( alpha * 255 < 1 ) return;
+    //if ( alpha * 255 < 1 ) return;
+	if ( pchr->inst.light <= INVISIBLE || pchr->inst.alpha <= INVISIBLE ) return;
 
     // much reduced shadow if on a reflective tile
     if ( 0 != mesh_test_fx(PMesh, pchr->onwhichfan, MPDFX_DRAWREF) )

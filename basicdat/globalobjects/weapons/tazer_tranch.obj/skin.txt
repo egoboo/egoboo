@@ -1,2 +1,0 @@
-This file is used only by the import menu
-: 0

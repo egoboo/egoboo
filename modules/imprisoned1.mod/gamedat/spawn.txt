@@ -196,7 +196,7 @@ chest:   NONE    45  48.0   15.0   1.0   W    0   0  0   1   0   F   F   N
   medkit:   NONE    60  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   quiver:   NONE    61  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   mpotion:   NONE    105  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-mindflayer:   NONE   63  42.0   17.0   0.0   N    0   0  0   0   0   F   F   E
+scatterbrain:   NONE   63  42.0   17.0   0.0   N    0   0  0   0   0   F   F   E
 powbox:   NONE    43  37.0   7.0   1.0   N    0   0  0   0   0   F   F   N
 powbox:   NONE    43  37.0   6.0   1.0   N    0   0  0   0   0   F   F   N
 powbox:   NONE    43  38.0   6.0   1.0   N    0   0  0   0   0   F   F   N
