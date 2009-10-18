@@ -1,0 +1,209 @@
+// Box o' Gonnepowder
+//  by Pteromys of Melon Island... http://melonisland.net
+//  based mostly on the bear trap and the bomb
+// Guide to object states:
+//  0 slowly burning          3 drying up
+//  1 held                    4 soaked
+//  2 just sitting there      5 shortly after explosion
+// Other notes: I was going to make it show a "POW" sign, but
+//  I couldn't figure out how to orient it to the camera. I
+//  left the code there, however, just in case you wanted to
+//  see the "POW" sign for yourself.
+
+IfSpawned
+  JoinNullTeam
+  tmpargument = 2
+  IfHeld
+    tmpargument = 1
+  SetState
+  KeepAction
+  MakeCrushValid
+
+IfInWater				// Upon entering water...
+  IfHeld				// Do nothing if it enters water when it's held
+    GetContent
+  Else
+    tmpx = 0
+    tmpy = 1
+    IfStateIs0
+      tmpx = 1
+    IfStateIs2
+      tmpx = 1
+    IfStateIs3
+      tmpx = 1
+    IfXIsEqualToY			// If lit, dry, or drying
+      tmpargument = 4			//  Get soaked
+      SetState
+      tmpargument = 4			// Number of times it must be hit with fire before drying
+      SetContent
+      tmpargument = 6
+      SendMessageNear
+
+IfReaffirmed				// If touched by fire...
+  IfStateIs2				// If I'm just sitting around
+    IfTimeOut
+      tmpargument = 6			//  burn slowly
+      tmpdistance = 0
+      SpawnAttachedParticle
+      tmpargument = 0
+      SetState
+      tmpargument = 400
+      SetTime
+  IfStateIs3				// If I'm drying up
+    IfHeld				// Don't do anything if I hit a flame while I'm held...
+      GetContent //nop			//  at this point, I'm considered invulnerable
+    Else
+      IfTimeOut
+        GetContent
+        tmpx = tmpargument		// Save this for later
+        tmpargument = tmpargument - 1
+        SetContent
+        tmpargument = 50		// A little delay before I can be ignited
+        SetTime
+        tmpy = 0
+        IfXIsEqualToY			// Now test to see if I've been through enough fire to dry up
+          tmpargument = 2
+          SetState
+          tmpargument = 7
+          SendMessageNear
+
+// Don't attack explosives... it's not safe
+tmpx = selflife
+tmpy = 25500
+IfXIsLessThanY
+  tmpx = 1
+  tmpy = 1
+  IfStateIs0
+    tmpx = 0
+  IfStateIs2
+    tmpx = 0
+  IfXIsEqualToY
+    tmpargument = 25600 - selflife
+    HealSelf
+  Else					// If it's dry (may be lit)
+    tmpx = selfx
+    tmpy = selfy
+    tmpdistance = selfz
+    tmpargument = 0
+    SpawnExactParticle			// Start off the explosion by spawning a particle
+    tmpargument = 5			// Set state to post-explosion
+    SetState
+    tmpargument = ACTIONKA		// Display a "POW" sign
+    DoActionOverride
+    KeepAction
+    NotAnItem				// Don't let people pick up the "POW" sign!
+    tmpargument = 0			// How long to display the "POW"
+    SetTime				//  set that to something like 50 if you want to see it
+
+IfUsed
+  tmpargument = 50
+  SetReloadTime
+  tmpargument = 0			// Use only if it's dry
+  IfContentIs
+    SetTargetToWhoeverIsHolding
+    IfTargetIsMounted
+      tmpargument = 4
+      SendMessageNear
+    Else
+      tmpargument = ACTIONMG
+      TargetDoAction
+        tmpx = targetx
+        tmpy = targety
+        tmpturn = targetturn
+        tmpdistance = 30
+        Compass
+        tmpdistance = targetz + 15
+        tmpturn = rand
+        SpawnCharacterXYZ
+          GoPoof
+        Else
+          tmpargument = 4
+          SendMessageNear
+  Else
+    tmpargument = 9
+    SendMessageNear
+  tmpargument = [TECH]
+  IfTargetHasSkillID
+    GetContent //nop
+  Else
+    tmpargument = 8
+    SendMessageNear
+
+IfCrushed				// Not a good idea to leave one of these in a doorway
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  tmpargument = 0
+  SpawnExactParticle
+  GoPoof
+  tmpargument = 2
+  SendMessageNear
+
+IfTakenOut
+  tmpargument = 3
+  SendMessageNear
+IfDropped				// Make it lie on floor
+  KeepAction
+  IfStateIs1
+    tmpargument = 0
+    IfContentIs
+      tmpargument = 2
+      SetState
+    Else
+      tmpargument = 3
+      SetState
+
+IfGrabbed
+  tmpargument = 25600 - selflife	// Cool down
+  HealSelf
+  DisaffirmCharacter
+  SetTargetToWhoeverIsHolding
+  IfStateIs0				// Is it on fire?
+    tmpx = 0
+    tmpy = 1
+    tmpargument = [TECH]
+    IfTargetHasSkillID
+      tmpx = 1
+    tmpargument = [DISA]
+    IfTargetHasSkillID
+      tmpx = 1
+    IfXIsEqualToY			// If expert in either technology or disarming traps...
+      tmpargument = 1
+      SendMessageNear
+      tmpargument = 1			  // ...put out the flame.
+      SetState
+    Else				// If not, inadvertently detonate:
+      IfTargetIsAPlayer
+        tmpargument = 5
+        SendMessageNear
+      DetachFromHolder
+      SetTargetToSelf			// Call explosion by dropping life below threshold
+      tmpargument = 512
+      DamageTarget
+  Else
+    IfTargetIsAPlayer
+      tmpargument = 0
+      SendMessageNear
+    tmpargument = 1
+    SetState
+    IfStateIs2
+      // Change to hidden, dry, held...
+      tmpargument = 0
+      SetContent
+    IfStateIs4
+      // Change to drying-up...
+      tmpargument = 4
+      SetContent
+
+IfTimeOut
+  IfStateIs0				// If I've been burning for a while
+    SetTargetToSelf
+    tmpargument = 512
+    DamageTarget			// Call explosion by dropping life below threshold
+  IfStateIs5				// If I've been showing "POW" for long enough...
+    GoPoof
+
+IfHitGround				// Become neutral so that I don't get attacked
+  JoinNullTeam
+
+End					// Finished
