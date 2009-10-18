@@ -1,0 +1,135 @@
+// Put the little mana ball on the
+// character's hand
+tmpx = selfcontent
+tmpy = 0
+IfXIsMoreThanY
+  tmpturn = selfcontent < 4 + 3000
+  tmpdistance = SPAWNORIGIN
+  tmpargument = 0
+  SpawnAttachedSizedParticle
+
+// Create the character
+IfSpawned
+  KeepAction
+  MakeCrushValid
+  
+//Crushed in a passage
+IfCrushed
+  tmpargument = 2
+  tmpdistance = selfz
+  tmpx = selfx
+  tmpy = selfy
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  GoPoof
+  tmpargument = 0
+  SendMessageNear
+  
+//Hide in hand
+IfHeld			
+  tmpargument = 1
+  SetState
+Else
+  tmpargument = 0
+  SetState
+
+// Remove the charge
+IfTakenOut
+  tmpargument = 0
+  SetContent
+  SetTargetToWhoeverIsHolding
+    IfTargetIsAPlayer
+      tmpargument = 3
+      SendMessageNear
+
+// Allow it to be used
+IfUsed
+  SetTargetToWhoeverIsHolding
+    tmpargument = [HMAG]
+    IfTargetHasSkillID
+      tmpx = selfcontent
+      tmpy = 768                //3 mana
+      IfXIsLessThanY
+        tmpy = targetmanaflow
+        IfXIsLessThanY
+          tmpargument = 7
+          CostTargetMana
+            tmpargument = tmpargument + selfcontent
+            SetContent
+      
+      // Put particles around the target (If we find one)
+      SetTargetToWideEnemy
+        tmpx = targetx
+        tmpy = targety
+        tmpdistance = targetz
+        tmpargument = 0
+        SpawnExactParticle
+
+// Allow it to be cast or fizzle
+Else
+  tmpx = selfcontent
+  tmpy = 767
+  IfXIsMoreThanY
+    // Make the holder cast it
+    SetTargetToWhoeverIsHolding
+      SetOwnerToTarget
+      tmpargument = ACTIONZA
+      CorrectActionForHand
+      TargetDoAction
+      
+    // Find a target
+    SetTargetToWideEnemy
+      // Can it be affected?
+      tmpargument = [UNDE]       //Only works vs. undead
+      IfTargetHasAnyID
+        //If not killed by disenchanting, at least do some damage
+        SetOldTarget
+        SetTargetToWhoeverIsHolding
+        tmpargument = 4
+        SendMessageNear
+        tmpargument = targetwis > 1
+        tmpargument = rand % tmpargument + 512       // 2 + 0-1 damage per 2 points of wisdom
+        tmpdistance = DAMAGEHOLY
+        SetTargetToOldTarget
+        DamageTarget
+        
+        //Now try to destroy it
+        tmpargument = [DISP]
+        DispelTargetEnchantID
+        
+        // Play a sound
+        tmpargument = 0
+        PlaySound
+        tmpargument = 50
+        SetReloadTime
+      
+      Else
+        tmpargument = 2                         //Doesn't work on living things
+        SendMessageNear        
+        tmpargument = 25
+        SetReloadTime
+  
+  
+  Else
+    tmpy = 0
+    IfXIsMoreThanY
+      // Didn't pump it enough
+      tmpargument = 1
+      SendMessageNear
+      
+  // Reset the charge counter
+  tmpargument = 0
+  SetContent
+
+//Dropping the rune
+IfHitGround
+  tmpargument = 1
+  PlaySound  
+  tmpargument = ACTIONDB
+  DoAction
+  tmpargument = 0
+  SetContent
+  
+End

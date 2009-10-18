@@ -1,0 +1,98 @@
+//This function makes an item fall to the floor when spawned
+IfSpawned
+  tmpargument = ACTIONJB
+  DoAction
+  KeepAction
+  MakeCrushValid
+IfDropped				// Make it lie on floor
+  KeepAction
+IfGrabbed				// Tell them what they've won, Johnny!
+  SetTargetToWhoeverIsHolding
+  IfTargetIsAPlayer
+    tmpargument = 0
+    SendMessageNear
+IfHitGround
+  tmpargument = 0
+  PlaySound
+  tmpargument = ACTIONDB
+  DoAction
+IfHeld			//Hide in hand
+  tmpargument = 1
+  SetState
+Else
+  tmpargument = 0
+  SetState
+
+//Spell stuff
+IfUsed
+  UndoEnchant
+  UnsparkleIcon
+  
+  SetTargetToWhoeverIsHolding
+  tmpargument = [HMAG]
+  IfTargetHasSkillID				//Need divine spell skill
+    tmpx = selfcontent
+    tmpy = 768					//Don't overcharge
+    IfXIsLessThanY
+      tmpy = targetmanaflow			//Enough spell power?
+      IfYIsMoreThanX
+        tmpargument = 6				//Mana cost
+        CostTargetMana      //Increase the charge
+          tmpargument = selfcontent + 6		//Casting Time
+          SetContent
+
+          // Spawn particles around target
+          SetTargetToNearestFriend
+          tmpx = targetdistance
+          tmpy = 375
+          IfXIsMoreThanY			//No target in range, select caster
+            SetTargetToWhoeverIsHolding
+          tmpx = targetx
+          tmpy = targety
+          tmpdistance = targetz
+          tmpargument = 1
+          SpawnExactParticle
+
+Else
+  tmpx = selfcontent
+  tmpy = 750
+  IfXIsMoreThanY		//Enough power to activate?
+
+    SetOldTarget			//Remember the spell target
+    SetTargetToWhoeverIsHolding
+    SetOwnerToTarget			//Make the caster sustain the spell
+    SetTargetToOldTarget		//Retarget the spell target
+    EnchantTarget		//Do the enchant
+
+    tmpargument = 100		//Set cooldown time
+    SetReloadTime
+
+    tmpargument = 3
+    SendMessageNear		//Tell what happened
+    tmpargument = 1
+    PlaySound
+      
+    tmpargument = BLUE			//Icon sparkles
+    SparkleIcon
+      
+    //Award xp and stuff for daring to do it
+    IfNameIsKnown
+      DoNothing
+    Else
+      tmpargument = 20
+      tmpdistance = EXPDARE
+      GiveExperienceToTarget
+      MakeNameKnown
+      MakeUsageKnown
+  Else
+    tmpx = selfcontent
+    tmpy = 0
+    IfXIsMoreThanY		//Only if there was a charge
+      tmpargument = 1
+      SendMessageNear		//Tell it didn't work
+      tmpargument = 2
+      PlaySound
+  tmpargument = 0
+  SetContent			//Reset counter
+
+End					// All done

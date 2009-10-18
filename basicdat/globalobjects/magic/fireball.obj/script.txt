@@ -1,0 +1,144 @@
+// Create the character
+IfSpawned
+  IfStateIs0
+    // It's an imported spell in hand
+    KeepAction
+  Else
+    // It's an explosion ring
+
+    // Set the size of the explosion...
+    GetState
+    tmpargument = tmpargument + ACTIONKA - 1  // KA, KB, or KC based on size
+    DoActionOverride
+    NotAnItem
+    tmpargument = 254
+    SetContent
+    SetLight
+    tmpx = selfz
+    tmpy = 255
+    IfXIsMoreThanY
+      tmpx = tmpy
+    tmpargument = tmpx
+    SetFlyHeight
+    tmpargument = 18
+    SetTime
+
+    // Spawn some shrapnel
+    GetState
+    tmpx = tmpargument * 20 + 10   // Speed
+    tmpy = 0                       // Spacing
+    tmpargument = tmpargument < 10 + 1024 // Damage...  5-10, 9-14, or 13-18
+    SpawnPoofSpeedSpacingDamage
+
+IfChanged
+  // It's a spell in hand
+  tmpargument = 0
+  SetState
+  KeepAction
+
+// Spell AI...
+IfStateIs0
+  // Remove the charge
+  IfTakenOut
+    tmpargument = 0
+    SetContent
+    SetTargetToWhoeverIsHolding
+      IfTargetIsAPlayer
+        tmpargument = 0
+        SendMessageNear
+  // Allow it to be used
+  IfUsed
+    SetTargetToWhoeverIsHolding
+      tmpx = selfx
+      tmpy = selfy
+      tmpdistance = selfz
+      tmpargument = 0
+      SpawnExactParticle
+      GetContent
+      tmpx = tmpargument
+      tmpy = targetmanaflow
+      IfXIsLessThanY
+        tmpy = 2000			// Maximum charge
+        IfXIsLessThanY
+          tmpy = tmpargument
+          tmpx = 8
+          tmpargument = tmpx
+          CostTargetMana
+            tmpargument = tmpy + tmpx + tmpx
+            SetContent
+          Else
+            // Make the spell fizzle or autocast...
+            tmpargument = 1
+            SendMessageNear
+            tmpargument = 50
+            SetReloadTime
+      Else
+        // Exceeded mana flow rate...
+        tmpx = targetmanaflow
+        tmpy = 1000              //Lose control if less than 3.5 flow
+        IfXIsLessThanY
+          tmpargument = 1
+          SendMessageNear
+          tmpargument = 50
+          SetReloadTime
+  // Cast the spell
+  Else
+    GetContent
+    tmpx = tmpargument
+    tmpargument = 0
+    SetContent
+    tmpy = 0
+    IfXIsMoreThanY
+      tmpx = tmpx - 512
+      IfXIsMoreThanY
+      
+        // Figure out the charge state, and spawn accordingly
+        tmpturn = tmpx > 9 + 1		// State 1, 2, or 3 for child
+        tmpargument = tmpturn + 1	// Particle 2, 3, or 4 for fireball
+        tmpargument = 2 // !!!BAD!!!
+        tmpx = selfx
+        tmpy = selfy
+        tmpdistance = selfz
+        SpawnExactParticleEndSpawn
+        
+        //Make it cast
+        tmpargument = ACTIONZA
+        CorrectActionForHand
+        TargetDoAction
+        
+        //Learn what it was
+        IfUsageIsKnown
+          DoNothing
+        Else
+          tmpargument = 30
+          tmpdistance = EXPSECRET
+          GiveExperienceToTarget
+          MakeUsageKnown
+          MakeNameKnown
+  // Return to spellbook, Do last!
+  IfDropped
+    tmpargument = 0
+    SetContent
+    BecomeSpellbook
+    DisaffirmCharacter
+    tmpargument = ACTIONJB
+    DoAction
+    KeepAction
+Else
+  // Make the explosion ring fade out...
+  IfTimeOut
+    GetContent
+    tmpargument = tmpargument - 14
+    SetContent
+    SetLight
+    tmpx = tmpargument
+    tmpy = 240
+    IfXIsEqualToY
+      // Wake those sleepy heads...
+      tmpargument = [WAKE]
+      tmpdistance = [WAKE]
+      OrderSpecialID
+  tmpargument = 255
+  FlashVariable
+
+End

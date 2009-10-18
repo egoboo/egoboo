@@ -1,0 +1,103 @@
+// Remove the charge
+IfTakenOut
+  tmpargument = 0
+  SetContent
+  SetTargetToWhoeverIsHolding
+    IfTargetIsAPlayer
+      tmpargument = 0
+      SendMessageNear
+
+
+// Spell AI
+IfUsed
+  GetContent
+  tmpx = tmpargument
+  tmpy = 1536
+  IfXIsLessThanY
+    SetTargetToWhoeverIsHolding
+    tmpargument = [WMAG]
+    IfTargetHasSkillID
+      tmpy = targetmanaflow
+      IfXIsLessThanY
+        tmpx = 10			//Mana cost
+        tmpargument = tmpx
+        CostTargetMana
+          GetContent
+          tmpargument = tmpargument + 16	//Casting time
+          SetContent
+          tmpargument = tmpargument > 8
+          SetState
+Else
+  GetContent
+  tmpx = tmpargument
+  tmpy = 256
+  IfXIsMoreThanY
+    // Make the target shoot
+    SetTargetToWhoeverIsHolding
+      tmpargument = ACTIONZA
+      CorrectActionForHand
+      TargetDoAction
+
+    // Figured out what it was
+    MakeNameKnown
+    MakeUsageKnown
+    // Shoot off some missiles
+    tmpx = selfx
+    tmpy = selfy
+    tmpdistance = selfz
+    tmpargument = 1
+    IfStateIs1
+      SpawnExactParticle
+    IfStateIs2
+      SpawnExactParticle
+      SpawnExactParticle
+    IfStateIs3
+      SpawnExactParticle
+      SpawnExactParticle
+      SpawnExactParticle
+    IfStateIs4
+      SpawnExactParticle
+      SpawnExactParticle
+      SpawnExactParticle
+      SpawnExactParticle
+    IfStateIs5
+      SpawnExactParticle
+      SpawnExactParticle
+      SpawnExactParticle
+      SpawnExactParticle
+      SpawnExactParticle
+    IfStateIs6
+      SpawnExactParticle
+      SpawnExactParticle
+      SpawnExactParticle
+      SpawnExactParticle
+      SpawnExactParticle
+    tmpargument = 0
+    PlaySound
+  // Reset the charge counter
+  tmpargument = 0
+  SetContent
+
+
+// Put the little mana ball on the
+// character's hand
+GetContent
+tmpx = tmpargument
+tmpy = 0
+IfXIsMoreThanY
+  tmpturn = tmpargument < 4 + 5000
+  tmpdistance = SPAWNORIGIN
+  tmpargument = 0
+  SpawnAttachedSizedParticle
+
+
+// Return to spellbook, Do last!
+IfDropped
+  tmpargument = 0
+  SetContent
+  BecomeSpellbook
+  DisaffirmCharacter
+  tmpargument = ACTIONJB
+  DoAction
+  KeepAction
+End

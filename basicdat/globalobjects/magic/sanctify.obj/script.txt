@@ -1,0 +1,143 @@
+//This function makes an item fall to the floor when spawned
+IfSpawned
+  tmpargument = ACTIONJB
+  DoAction
+  KeepAction
+  MakeCrushValid
+  
+//Crushed in a passage
+IfCrushed
+  tmpargument = 2
+  tmpdistance = selfz
+  tmpx = selfx
+  tmpy = selfy
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  GoPoof
+  tmpargument = 5
+  SendMessageNear
+  
+IfDropped				// Make it lie on floor
+  KeepAction
+IfGrabbed				// Tell them what they've won, Johnny!
+  SetTargetToWhoeverIsHolding
+  IfTargetIsAPlayer
+    tmpargument = 0
+    SendMessageNear
+IfHitGround
+  tmpargument = 0
+  PlaySound
+  tmpargument = ACTIONDB
+  DoAction
+  
+IfHeld			//Hide in hand
+  tmpargument = 1
+  SetState
+Else
+  tmpargument = 0
+  SetState
+
+//Spell stuff
+IfUsed
+  SetTargetToWhoeverIsHolding
+      
+  //Dismiss existing magic
+  UnsparkleIcon
+  UndoEnchant
+    tmpargument = 60
+    SetReloadTime
+  Else    
+    tmpargument = [HMAG]
+    IfTargetHasSkillID				//Need divine spell skill
+      tmpx = selfcontent
+      tmpy = 768					//Don't overcharge
+      IfXIsLessThanY
+        tmpy = targetmanaflow			//Enough spell power?
+        IfYIsMoreThanX
+          tmpargument = 8				//Mana cost
+          CostTargetMana		
+            tmpargument = selfcontent + 8		//Casting Time
+            SetContent                //Increase the charge
+
+            // Spawn particles around weapon
+            SetTargetToNearestFriend
+            tmpx = targetdistance
+            tmpy = 450
+            IfXIsMoreThanY
+              SetTargetToWhoeverIsHolding
+            IfHeldInLeftHand
+              SetTargetToTargetRightHand
+            Else
+              SetTargetToTargetLeftHand
+            tmpx = targetx
+            tmpy = targety
+            tmpdistance = targetz
+            tmpargument = 1
+            SpawnExactParticle
+
+Else
+  tmpx = selfcontent
+  tmpy = 750
+  IfXIsMoreThanY		//Enough power to activate?
+    
+    //Do the enchant
+    SetTargetToWhoeverIsHolding
+    SetOwnerToTarget			//Make the caster sustain the spell
+    
+    SetTargetToNearestFriend
+    tmpx = targetdistance
+    tmpy = 450
+    IfXIsMoreThanY
+      SetTargetToWhoeverIsHolding
+    IfHeldInLeftHand
+      SetTargetToTargetRightHand
+    Else
+      SetTargetToTargetLeftHand
+    
+    tmpargument = [XWEP]
+    IfTargetHasAnyID
+      EnchantTarget
+      
+      //Set cooldown time
+      tmpargument = 100		
+      SetReloadTime
+      
+      //Icon sparkles
+      tmpargument = BLUE		
+      SparkleIcon
+      
+      //Tell what happened
+      tmpargument = 3
+      SendMessageNear		
+      tmpargument = 1
+      PlaySound
+      
+      //Award xp and stuff for daring to do it
+      IfNameIsKnown
+        DoNothing
+      Else
+        tmpargument = 20
+        tmpdistance = EXPDARE
+        GiveExperienceToTarget
+        MakeNameKnown
+        MakeUsageKnown
+    Else
+      tmpargument = 4
+      SendMessageNear		//Tell it didn't work
+      tmpargument = 2
+      PlaySound        
+  Else
+    tmpx = selfcontent
+    tmpy = 0
+    IfXIsMoreThanY		//Only if there was a charge
+      tmpargument = 1
+      SendMessageNear		//Tell it didn't work
+      tmpargument = 2
+      PlaySound
+      
+  tmpargument = 0
+  SetContent			//Reset counter
+
+End					// All done

@@ -1,0 +1,110 @@
+// Create the character
+IfSpawned
+  KeepAction
+
+// Remove the charge
+IfTakenOut
+  tmpargument = 0
+  SetContent
+  SetTargetToWhoeverIsHolding
+    IfTargetIsAPlayer
+      tmpargument = 2
+      SendMessageNear
+
+// Allow it to be used
+IfUsed
+  SetTargetToWhoeverIsHolding
+  tmpargument = [WMAG]
+  IfTargetHasSkillID
+    tmpx = selfcontent
+    tmpy = 767
+    IfXIsLessThanY
+      tmpy = targetmanaflow
+      IfXIsLessThanY
+        tmpx = 3
+        tmpargument = tmpx
+        CostTargetMana
+          tmpargument = selfcontent + tmpx
+          SetContent
+          tmpx = tmpargument & 1
+          tmpy = 0
+          IfXIsEqualToY
+            tmpx = targetx
+            tmpy = targety
+            tmpdistance = targetz
+            tmpargument = 0
+            SpawnExactParticle
+    // Put particles around the target
+    tmpargument = [LOCK]
+    tmpdistance = 14 // Items, Friends, and Enemies
+    SetTargetToWideBlahID
+      GetContent
+      tmpx = tmpargument & 1
+      tmpy = 0
+      IfXIsEqualToY
+        tmpx = targetx
+        tmpy = targety
+        tmpdistance = targetz
+        tmpargument = 0
+        SpawnExactParticle
+
+// Allow it to be cast or fizzle
+Else
+  tmpx = selfcontent
+  tmpy = 765
+  IfXIsMoreThanY
+    // Make the holder cast it
+    SetTargetToWhoeverIsHolding
+      SetOwnerToTarget
+      tmpargument = ACTIONZA
+      CorrectActionForHand
+      TargetDoAction
+    // Find a target
+    tmpargument = [LOCK]
+    tmpdistance = 14 // Items, Friends, and Enemies
+    SetTargetToWideBlahID
+      // Play a sound
+      tmpargument = 0
+      PlaySound
+      tmpargument = 20
+      SetReloadTime
+
+      // Tell it to open
+      tmpargument = 491 // The special unlock order
+      OrderTarget
+      
+      //Identify it
+      IfNameIsKnown
+        DoNothing
+      Else
+        SetTargetToWhoeverIsHolding
+        tmpargument = 20
+        tmpdistance = EXPSECRET
+        GiveExperienceToTarget
+        MakeNameKnown
+        MakeUsageKnown
+    Else
+      // Couldn't find a target
+      tmpargument = 1
+      SendMessageNear
+  Else
+    tmpy = 0
+    IfXIsMoreThanY
+      // Didn't pump it enough
+      tmpargument = 1
+      SendMessageNear
+  // Reset the charge counter
+  tmpargument = 0
+  SetContent
+
+// Return to spellbook, Do last!
+IfDropped
+  tmpargument = 0
+  SetContent
+  BecomeSpellbook
+  DisaffirmCharacter
+  tmpargument = ACTIONJB
+  DoAction
+  KeepAction
+
+End

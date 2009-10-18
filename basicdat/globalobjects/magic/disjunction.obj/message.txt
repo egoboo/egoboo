@@ -1,0 +1,4 @@
+Message 0: %t_found_%n.
+Message 1: %t_destroys_all_enchantments_in_a_mile_radius!
+Message 2: The_spell_was_not_charged_enough...
+Message 3: %t_prepeares_%n.

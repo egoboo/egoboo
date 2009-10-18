@@ -1,0 +1,106 @@
+// Create the character
+IfSpawned
+  KeepAction
+  tmpargument = 0
+  SetContent
+
+// Say they pour over a book...
+IfTakenOut
+  tmpargument = 0
+  SetContent
+  SetTargetToWhoeverIsHolding
+    IfTargetIsAPlayer
+      tmpargument = 0
+      SendMessageNear
+
+IfTimeOut
+  tmpargument = 500
+  SetTime
+  tmpargument = 0
+  SetContent
+
+// Allow it to be used
+IfUsed
+  SetTargetToWhoeverIsHolding
+    tmpx = targetmana
+    tmpy = 255
+    IfXIsMoreThanY                  //Need 1 mana to cast
+
+      // Give experience...
+      IfTargetIsAPlayer
+        IfNameIsKnown
+          DoNothing
+        Else
+          MakeUsageKnown
+          MakeNameKnown
+          tmpargument = 30
+          tmpdistance = EXPSECRET
+          GiveExperienceToTarget
+          
+      //Slow them
+      StopTargetMovement
+
+      // Do the effect
+      tmpargument = 310   //1.2 mana
+      CostTargetMana
+        tmpargument = [UNDE]
+        tmpdistance = BLAHENEMIES + BLAHINVERTID
+        SetTargetToWideBlahID                       //Found living enemy that is not undead
+          tmpdistance = 1
+        Else
+          tmpdistance = 0
+          SetTargetToNearestFriend
+            tmpx = targetdistance
+            tmpy = 250
+            IfXIsLessThanY
+              tmpdistance = 1         //Allow friends to be hit too!
+              
+        //Did we hit?
+        tmpturn = 0
+        IfDistanceIsMoreThanTurn       //If proceeds then found a target  
+          IfFacingTarget
+            tmpx = targetdistance
+            tmpy = 325
+            IfXIsLessThanY
+              SetTargetToWhoeverIsHolding
+              tmpargument = 256 //Heal 1 hp
+              HealTarget                    //heal caster
+        
+        //Spawn the spell effect              
+        tmpx = selfx
+        tmpy = selfy
+        tmpdistance = selfz
+        tmpargument = 2
+        SpawnExactParticle   
+        
+        //Sound effect
+        tmpargument = 0
+        PlaySound
+        
+        //Intelligence increases attack speed
+        SetTargetToWhoeverIsHolding
+        tmpturn = targetint > 8
+        tmpargument = 65 - tmpturn
+        SetReloadTime
+      Else
+        tmpargument = 1 
+        PlaySound
+        tmpargument = 50
+        SetReloadTime   
+        
+// Return to spellbook, Do last!
+IfDropped
+  GetContent
+  tmpx = tmpargument
+  tmpy = 1
+  IfXIsEqualToY
+    PlaySound
+  tmpargument = 0
+  SetContent
+  BecomeSpellbook
+  DisaffirmCharacter
+  tmpargument = ACTIONJB
+  DoAction
+  KeepAction
+
+End

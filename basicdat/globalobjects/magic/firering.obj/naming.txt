@@ -1,0 +1,9 @@
+:a_Book_o
+:STOP
+
+:f_Ring_o
+:STOP
+
+:f_Flame
+:STOP
+

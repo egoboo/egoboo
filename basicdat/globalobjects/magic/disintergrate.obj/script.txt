@@ -1,0 +1,147 @@
+//Instantly turns enemies to dust
+//Does not work on undead
+//Works only if intelligence of caster is at least
+//the double of target current life
+
+//tell them what they found
+IfGrabbed
+  SetTargetToWhoeverIsHolding
+  IfTargetIsAPlayer
+    tmpargument = 0
+    SendMessageNear
+    
+//Clank!
+IfHitGround
+  tmpargument = 0
+  PlaySound
+  
+// Remove the charge
+IfTakenOut
+  tmpargument = 0
+  SetContent
+  SetTargetToWhoeverIsHolding
+    IfTargetIsAPlayer
+      tmpargument = 6
+      SendMessageNear
+
+//Turn things to dust
+IfStateIs1
+  IfTimeOut
+    IfTargetIsOnHatedTeam
+      PoofTarget
+    tmpargument = 0
+    SetState
+    
+// Allow it to be used
+IfUsed
+  SetTargetToWhoeverIsHolding
+  tmpx = selfcontent
+  tmpy = 1280			//Max charge
+  IfXIsLessThanY
+    tmpy = targetmanaflow
+    IfXIsLessThanY
+      tmpargument = 8			//Cast speed
+      CostTargetMana
+        tmpargument = selfcontent + tmpargument
+        SetContent
+
+// Allow it to be cast or fizzle
+Else
+  tmpx = selfcontent
+  tmpy = 1279						//Needed charge
+  IfXIsMoreThanY
+    // Make the holder cast it
+    SetTargetToWhoeverIsHolding
+      SetOwnerToTarget
+      tmpargument = ACTIONZA
+      CorrectActionForHand
+      TargetDoAction
+    // Find an enemy
+    SetTargetToWideEnemy
+      // Can't be disintergrated...
+      tmpargument = [UNDE]
+      IfTargetHasAnyID
+        tmpargument = 4
+        SendMessageNear
+        tmpargument = 2
+        PlaySound
+      Else
+        SetOldTarget			//Remember the target
+        tmpx = targetmaxlife*2
+        SetTargetToWhoeverIsHolding	//Check caster, not target
+        tmpy = targetint	//Check for intelligence
+        SetTargetToOldTarget		//Now revert back to the target again
+        IfXIsLessThanY			//Check if it resisted or not
+          IfTargetIsAPlayer					//Target is unpoofable (player)
+            tmpargument = 5
+            SendMessageNear
+            tmpargument = 2
+            PlaySound
+          Else                 
+            //Spelly effect
+            tmpx = targetx
+            tmpy = targety
+            tmpdistance = targetz
+            tmpargument = 2
+            SpawnExactParticle		//Spawn some Dust
+            
+            //Tell what happened
+            tmpargument = 1
+            SendMessageNear
+            tmpargument = 1
+            PlaySound
+            
+            //Now kill it and ready it to be turned to dust
+            //We cant do this instantly or the death AI won't take effect
+            tmpargument = 5
+            SetTime
+            KillTarget
+            tmpargument = 1
+            SetState
+        Else
+          tmpargument = 5		//The target resisted
+          SendMessageNear
+          tmpargument = 2
+          PlaySound
+
+      tmpargument = 70
+      SetReloadTime
+    Else
+      // Couldn't find a target
+      tmpargument = 3
+      SendMessageNear
+      tmpargument = 2
+      PlaySound
+  Else
+    tmpy = 0
+    IfXIsMoreThanY
+      // Didn't pump it enough
+      tmpargument = 2
+      SendMessageNear
+      PlaySound
+	  
+  // Reset the charge counter
+  tmpargument = 0
+  SetContent
+  
+// Put the little mana ball on the
+// character's hand
+GetContent
+tmpx = tmpargument
+tmpy = 0
+IfXIsMoreThanY
+  tmpturn = tmpargument * 10 + 5800
+  tmpdistance = SPAWNLAST
+  tmpargument = 1
+  SpawnAttachedSizedParticle
+  
+  //And spawn particles around the target
+  SetTargetToWideEnemy
+    tmpx = targetx
+    tmpy = targety
+    tmpdistance = targetz
+    tmpargument = 0
+    SpawnExactParticle
+
+
+End

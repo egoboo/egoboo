@@ -1,0 +1,69 @@
+IfHitGround				// Make a sound
+  tmpargument = 0			  //
+  PlaySound				  
+
+//Display a message
+IfTakenOut
+  SetTargetToWhoeverIsHolding
+    IfTargetIsAPlayer
+      tmpargument = 3
+      SendMessageNear
+  
+//Tell them what they found!
+IfGrabbed
+  SetTargetToWhoeverIsHolding		  //
+  IfTargetIsAPlayer			  //
+    tmpargument = 0			  //
+    SendMessageNear			  //
+
+IfUsed
+  SetTargetToWhoeverIsHolding
+  tmpx = targetmanaflow
+  tmpy = selfcontent			//Current charge
+  IfXIsMoreThanY
+    tmpx = 2650				//Max charge
+    IfYIsLessThanX
+      tmpargument = 7
+      CostTargetMana
+        tmpargument = selfcontent + 7		//Cast speed
+        SetContent
+        
+        //spelly effect
+        tmpargument = 0
+        tmpx = targetx
+        tmpy = targety
+        tmpdistance = targetz			
+        SpawnExactParticle
+Else
+  tmpx = selfcontent
+  tmpy = 0
+  IfXIsMoreThanY
+  
+    // Make the target shoot
+    SetTargetToWhoeverIsHolding
+      tmpargument = ACTIONZA
+      CorrectActionForHand
+      TargetDoAction
+		
+    tmpargument = 150
+    SetReloadTime
+    
+    tmpx = selfcontent
+    tmpy = 2650
+    IfXIsMoreThanY
+      tmpargument = 1
+      PlayFullSound
+      tmpx = targetx
+      tmpy = targety
+      tmpdistance = targetz
+      SpawnExactParticle
+      SendMessageNear
+      DisenchantAll
+    Else
+      tmpargument = 2
+      SendMessageNear
+      
+  tmpargument = 0
+  SetContent
+
+End					// All done

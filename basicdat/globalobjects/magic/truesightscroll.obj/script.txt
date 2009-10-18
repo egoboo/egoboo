@@ -1,0 +1,106 @@
+// ZZ> This function makes an item fall to the floor when spawned
+IfSpawned				//
+  tmpargument = ACTIONJB		  //
+  DoAction				  //
+  KeepAction				  //
+  MakeCrushValid
+  MakeAmmoKnown
+IfCrushed
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  tmpargument = 3
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  GoPoof
+  tmpargument = 6
+  SendMessageNear
+IfDropped				// Make it lie on floor
+  KeepAction				  //
+IfHitGround				// Make a sound
+  tmpargument = 0
+  PlaySound
+
+//Go blank
+IfInWater
+  IfHeld
+    DoNothing
+  Else
+    // Go blank
+    tmpargument = 0
+    IfContentIs
+      tmpargument = 1
+      SetContent
+      tmpargument = 5
+      SendMessageNear
+      MakeNameKnown      // To keep messages okay
+
+IfGrabbed				// Tell them what they've won...
+  SetTargetToWhoeverIsHolding		  //
+  SetOwnerToTarget
+  IfTargetIsAPlayer			  //
+    GetContent
+    SendMessageNear			  //
+
+//Scroll effects
+IfUsed
+  tmpargument = 0
+  IfContentIs
+    // The scroll has writing on it
+    tmpargument = 1
+    PlaySound
+
+    //Spelly effects
+    tmpx = selfx
+    tmpy = selfy
+    tmpdistance = selfz
+    tmpargument = 1
+    SpawnExactParticle
+
+    SetTargetToWhoeverIsHolding
+    tmpargument = 50
+    SetTargetReloadTime
+    IfNameIsKnown
+      DoNothing
+    Else
+      tmpargument = 10
+      tmpdistance = EXPDARE
+      GiveExperienceToTarget
+    MakeSimilarNamesKnown
+
+    //Enchant the target
+    SetOwnerToTarget
+    EnchantTarget
+
+
+    CostAmmo
+    IfAmmoOut
+      GoPoof
+  Else
+    // Can't use a blank scroll...
+    tmpargument = 0
+    SetState
+    tmpargument = 7
+    SendMessageNear
+    tmpargument = 50
+    SetReloadTime
+
+//On fire!
+IfReaffirmed
+  IfHeld
+    DoNothing
+  Else
+    tmpx = selfx
+    tmpy = selfy
+    tmpdistance = selfz
+    tmpargument = 3
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+    GoPoof
+    tmpargument = 4
+    SendMessageNear
+End					// All done

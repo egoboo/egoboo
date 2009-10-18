@@ -1,0 +1,173 @@
+// Create the character
+IfSpawned
+  KeepAction
+
+// Remove the charge
+IfTakenOut
+  tmpargument = 0
+  SetContent
+  SetTargetToWhoeverIsHolding
+    IfTargetIsAPlayer
+      tmpargument = 3
+      SendMessageNear
+// Allow it to be charged up
+IfUsed
+  // Does it have one going?
+  UndoEnchant
+    tmpargument = 60
+    SetReloadTime
+  // Nope, so charge
+  Else
+    SetTargetToWhoeverIsHolding
+    tmpargument = [WMAG]
+    IfTargetHasSkillID
+      tmpx = selfcontent
+      tmpy = 511
+      IfXIsLessThanY
+        tmpy = targetmanaflow
+        IfXIsLessThanY
+          tmpargument = 4
+          CostTargetMana
+            tmpargument = selfcontent + 4
+            SetContent
+            tmpx = targetx
+            tmpy = targety
+            tmpdistance = targetz
+            tmpargument = 0
+            SpawnExactParticle
+
+// Let it be cast
+Else
+  tmpx = selfcontent
+  tmpy = 0
+  IfXIsMoreThanY
+    tmpy = 511
+    IfXIsMoreThanY
+      // Cast the spell...
+      UndoEnchant  // There can be only one
+      SetTargetToWhoeverIsHolding
+      SetOwnerToTarget
+
+      // Find the target
+      // Spawn particles around target
+      IfHeldInLeftHand
+        SetTargetToTargetRightHand
+      Else
+        SetTargetToTargetLeftHand
+      tmpargument = [XWEP]
+      IfTargetHasAnyID
+        
+        // Do the spell
+        EnchantTarget
+          MakeUsageKnown
+          MakeNameKnown
+          tmpargument = BLUE
+          SparkleIcon
+          tmpargument = 2
+          SendMessageNear
+        Else
+          tmpargument = 1
+          SendMessageNear
+
+        // Do flashy things
+        tmpargument = 0
+        PlaySound
+        tmpargument = 60
+        SetReloadTime
+     
+      
+      //It isn't a weapon!
+      Else
+      
+        //Allow potions to be enchanted
+        tmpargument = [POTI]
+        IfTargetHasAnyID
+          tmpargument = [ENCH]
+          OrderTarget
+          tmpargument = 0
+          PlaySound
+          tmpargument = 60
+          SetReloadTime
+          tmpargument = 4
+          SendMessageNear
+        
+        //Neither a potion!
+        Else
+          
+          //Allow wands to be recharged
+          tmpargument = [WAND]
+          IfTargetHasAnyID
+            
+            //Get the holder's INT without losing our current target
+            SetOldTarget
+            SetTargetToWhoeverIsHolding
+            tmpturn = targetint > 9
+            SetTargetToOldTarget
+            
+            //1 in INT/2 to blow it up
+            tmpx = rand % tmpturn
+            tmpy = 0
+            IfXIsEqualToY
+              tmpargument = 6
+              SendMessageNear
+              tmpargument = 1
+              PlaySound
+              
+              //Now make it explode
+              PoofTarget
+                tmpargument = 2
+                tmpdistance = targetz
+                tmpx = targetx
+                tmpy = targety
+                SpawnExactParticle
+                SpawnExactParticle
+                SetTargetToWhoeverIsHolding
+                tmpargument = rand % 1024 + 2048      //8-12 base damage
+                DamageTarget
+                tmpargument = 3             //Apply some confusion as well
+                DazeTarget
+              Else
+                tmpargument = 0
+                SendMessageNear
+              tmpargument = 120
+              SetReloadTime
+            Else    
+              tmpargument = 5
+              SendMessageNear
+              
+              SetTargetToWhoeverIsHolding
+              tmpargument = [WAND]
+              RestockTargetAmmoIDFirst
+              tmpargument = 0
+              PlaySound
+              tmpargument = 60
+              SetReloadTime
+              
+              //And pay the price!
+              tmpargument = -50         //5 recharges = 1 mana point
+              GiveManaToTarget
+            
+          // No valid target...
+          Else
+            tmpargument = 0
+            SendMessageNear
+          
+    // Nothing happens...
+    Else
+      tmpargument = 0
+      SendMessageNear
+
+    // Reset the charge counter
+    tmpargument = 0
+    SetContent
+
+// Return to spellbook, Do last!
+IfDropped
+  tmpargument = 0
+  SetContent
+  BecomeSpellbook
+  DisaffirmCharacter
+  tmpargument = ACTIONJB
+  DoAction
+  KeepAction
+End

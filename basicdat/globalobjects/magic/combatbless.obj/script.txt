@@ -1,0 +1,107 @@
+//This function makes an item fall to the floor when spawned
+IfSpawned
+  tmpargument = ACTIONJB
+  DoAction
+  KeepAction
+  MakeCrushValid
+  
+//Crushed in a passage
+IfCrushed
+  tmpargument = 4
+  tmpdistance = selfz
+  tmpx = selfx
+  tmpy = selfy
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  GoPoof
+  tmpargument = 5
+  SendMessageNear
+  
+IfDropped				// Make it lie on floor
+  KeepAction
+IfGrabbed				// Tell them what they've won, Johnny!
+  SetTargetToWhoeverIsHolding
+  IfTargetIsAPlayer
+    tmpargument = 0
+    SendMessageNear
+IfHitGround
+  tmpargument = 0
+  PlaySound
+  tmpargument = ACTIONDB
+  DoAction
+IfHeld			//Hide in hand
+  tmpargument = 1
+  SetState
+Else
+  tmpargument = 0
+  SetState
+
+//Spell stuff
+IfUsed
+  SetTargetToWhoeverIsHolding
+  SetOwnerToTarget
+  tmpargument = [HMAG]
+  IfTargetHasSkillID				//Need divine spell skill
+    tmpx = selfcontent
+    tmpy = 512					//Don't overcharge
+    IfXIsLessThanY
+      tmpy = targetmanaflow			//Enough spell power?
+      IfYIsMoreThanX
+        tmpargument = 6				//Mana cost
+        CostTargetMana
+          GetContent				//Increase the charge
+          tmpargument = tmpargument + 6		//Casting Time
+          SetContent
+    tmpargument = YELLOW			//Icon sparkles
+    SparkleIcon
+
+Else
+  tmpx = selfcontent
+  tmpy = 511
+  IfXIsMoreThanY		//Enough power to activate?
+    tmpx = selfx
+    tmpy = selfy
+    tmpdistance = selfz
+    tmpargument = 2
+    SpawnExactParticle
+    tmpargument = 100		//Set cooldown time
+    SetReloadTime
+    tmpargument = 3
+    SendMessageNear		//Tell what happened
+    tmpargument = 1
+    PlaySound
+  Else
+    tmpx = selfcontent
+    tmpy = 0
+    IfXIsMoreThanY		//Only if there was a charge
+      tmpargument = 1
+      SendMessageNear		//Tell it didn't work
+      tmpargument = 2
+      PlaySound
+      tmpargument = 0
+      SetContent			//Reset counter
+      UnsparkleIcon
+
+  //Award xp and stuff for daring to do it
+  IfNameIsKnown
+    DoNothing
+  Else
+    tmpargument = 20
+    tmpdistance = EXPDARE
+    GiveExperienceToTarget
+    MakeNameKnown
+    MakeUsageKnown
+
+// Put the little mana ball on the
+// character's hand
+tmpx = selfcontent
+tmpy = 0
+IfXIsMoreThanY
+  tmpturn = selfcontent < 4 + 3000
+  tmpdistance = SPAWNORIGIN
+  tmpargument = 0
+  SpawnAttachedSizedParticle
+
+End					// All done
