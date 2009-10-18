@@ -1,0 +1,173 @@
+// Check for a kill order
+IfOrdered
+  tmpx = selforder
+  tmpy = [UNDO]
+  IfXIsEqualToY
+    SetTargetToSelf
+    KillTarget
+
+//Spawn clones when delivering a killing blow
+IfScoredAHit
+  SetTargetToWhoeverWasHit
+  IfTargetKilled
+    tmpx = targetx
+    tmpy = targety
+    tmpdistance = targetz
+    tmpturn = targetturn
+    SpawnCharacter
+    tmpargument = ACTIONJB
+    ChildDoActionOverride
+    tmpargument = 1
+    SendMessageNear
+
+//------------------------------------------------------------------------------
+// ZZ> Handle death by sending a message and other stuff
+IfKilled
+  tmpargument = 1
+  ChangeArmor
+
+  IfTargetIsOnSameTeam
+    tmpargument = MESSAGEFRAG
+    IfTargetIsSelf
+      tmpargument = 0 - 500
+      SetContent // Won't come back...
+      tmpargument = MESSAGEACCIDENT
+  Else
+    GetDamageType
+    tmpx = tmpargument
+    tmpy = DAMAGEHOLY
+    IfXIsEqualToY
+      tmpargument = 0 - 500
+      SetContent // Won't come back...
+      SetTargetToWhoeverAttacked		//Give exp
+      tmpargument = 50
+      tmpdistance = EXPREVENGE
+      GiveExperienceToTarget
+      tmpargument = 2
+    Else
+      tmpargument = MESSAGEDEATH
+  SendMessageNear
+
+  // Drop goodies
+  tmpargument = 65535
+  DropMoney
+
+  // Play the sound
+  tmpargument = 1
+  PlaySound
+
+  // Make the character body
+  tmpargument = 25
+  SetBumpHeight
+
+//------------------------------------------------------------------------------
+// ZZ> Let the character walk around
+IfTimeOut
+
+  tmpx = rand & 255
+  tmpy = 235
+  IfXIsMoreThanY
+    tmpargument = tmpx & 1 + 2
+    PlaySound
+    // Randomize the frames...
+    tmpargument = tmpx & 1 + LATCHLEFT
+    PressLatchButton
+
+  SetTurnModeToVelocity
+  SetTargetToWideEnemy
+    tmpx = targetdistance
+    tmpy = 140
+    IfXIsLessThanY
+      IfFacingTarget
+        tmpargument = rand & 1 + LATCHLEFT
+        PressLatchButton
+    tmpy = 500
+    IfXIsMoreThanY				//Charge
+      tmpargument = 100
+      SetTime
+      tmpx = rand & 1023 - 512 + targetx
+      tmpy = rand & 1023 - 512 + targety
+      tmpdistance = 1500
+      tmpturn = rand % 31000 + targetturnto - 15000
+      Compass
+    Else					//Attack
+      tmpargument = 10
+      SetTime
+      tmpx = rand & 511 - 256 + targetx
+      tmpy = rand & 511 - 256 + targety
+      tmpdistance = 200
+      tmpturn = rand % 31000 + targetturnto - 15000
+      Compass
+  Else
+    tmpargument = rand & 31 + 30
+    SetTime
+    tmpx = rand & 1023 - 512 + selfspawnx
+    tmpy = rand & 1023 - 512 + selfspawny
+
+  ClearWaypoints
+  AddWaypoint
+IfAtLastWaypoint
+  tmpargument = 0
+  SetTime
+
+IfAttacked
+  SetTargetToWhoeverAttacked
+  IfTargetIsOnHatedTeam
+    tmpx = targetdistance
+    tmpy = 300
+    IfXIsLessThanY
+      SetTargetToNearestFriend
+      tmpx = targetdistance
+      tmpy = 2500
+      IfXIsLessThanY
+        SetTargetToWhoeverAttacked
+        tmpx = rand & 1023 - 512 + targetx
+        tmpy = rand & 1023 - 512 + targety
+        tmpdistance = 0 - 1500
+        tmpturn = rand
+        Compass
+        ClearWaypoints
+        AddWaypoint
+        SetTurnModeToWatchTarget
+        tmpargument = rand & 31 + 60
+        SetTime
+
+//------------------------------------------------------------------------------
+// ZZ> Handle being attacked by blocking or countering or running away
+IfAttacked
+  // Image changes with damage
+  tmpx = selflife
+  tmpy = 2048
+  IfXIsLessThanY
+    tmpargument = 1
+    ChangeArmor
+
+  // Scream
+  tmpargument = 0
+  PlaySound
+
+//------------------------------------------------------------------------------
+IfBumped
+  SetTargetToWhoeverBumped
+  IfTargetIsOnHatedTeam
+    IfFacingTarget
+      tmpargument = rand & 1 + LATCHLEFT
+      PressLatchButton
+    Else
+      tmpx = targetx
+      tmpy = targety
+      tmpdistance = 200
+      tmpturn = targetturnto
+      Compass
+      ClearWaypoints
+      AddWaypoint
+      tmpargument = 10
+      SetTime
+  Else
+    tmpargument = 0
+    SetTime
+    SetTargetToOldTarget
+
+//------------------------------------------------------------------------------
+End
+//------------------------------------------------------------------------------

@@ -1,0 +1,45 @@
+//Become animated and get a target and stick to it
+IfSpawned
+  SetTargetToSelf
+  EnchantTarget
+
+//Main AI loop
+IfTimeOut
+  tmpargument = rand & 15 + 30
+  SetTime
+
+  //Attack AI
+  SetTargetToWideEnemy
+    SetTurnModeToWatchTarget
+    IfFacingTarget
+      tmpx = targetdistance
+      tmpy = 128*7      //Max range
+      IfXIsLessThanY
+        tmpargument = ACTIONUA
+        DoAction
+  
+  //Stay at spawn
+  tmpx =  selfspawnx
+  tmpy = selfspawny
+  ClearWaypoints
+  AddWaypoint
+
+//Someone attacked it
+IfHealed
+  SetTargetToWhoeverHealed
+  IfTargetIsOnSameTeam
+    SetTargetToOldTarget
+
+  //Spawn defense ping
+  tmpargument = 5
+  tmpdistance = SPAWNORIGIN
+  tmpy = 0
+  tmpx = 0
+  SpawnParticle
+
+//Fade away sound
+IfKilled
+  tmpargument = 2
+  PlaySound
+
+End					// All done

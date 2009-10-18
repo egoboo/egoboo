@@ -1,0 +1,149 @@
+//-------------------------------------------------------------------------------------
+//Unsummon order
+IfOrdered
+  tmpx = selforder
+  tmpy = [UNDO]
+  IfXIsEqualToY
+    SetTargetToSelf
+    KillTarget
+
+//-------------------------------------------------------------------------------------
+//Drain Mana Power (and convert 1/2 damage to healing)
+IfScoredAHit
+  SetTargetToWhoeverWasHit
+  tmpx = targetmana
+  tmpy = 255
+  IfXIsMoreThanY
+    tmpargument = 6
+    PlaySound
+    tmpargument = 128*selflevel + 768	//Increases by level = 3 + 1/2 per level
+    CostTargetMana
+    tmpargument = tmpargument > 1  //Heal self half of it
+    HealSelf
+
+//-------------------------------------------------------------------------------------
+//Death stuff
+IfKilled
+
+  //Messaging
+  tmpargument = 0
+  SendMessageNear
+
+  //Make the body
+  tmpargument = 40
+  SetBumpSize
+  tmpargument = 45
+  SetBumpHeight
+
+  // Drop money
+  tmpargument = selfmoney
+  DropMoney
+
+  //Death sound
+  tmpargument = 2
+  PlaySound
+
+  //Death effect
+  GoPoof
+  tmpargument = 7
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  tmpturn = rand
+  SpawnExactParticle
+
+//-------------------------------------------------------------------------------------
+//Ouch and panic
+IfAttacked
+  SetTargetToWhoeverAttacked
+    IfTargetIsOnHatedTeam
+      tmpargument = 1			      // Enter combat mode
+      SetState
+    Else
+      SetTargetToOldTarget
+  tmpargument = rand & 1		  //Ouch sound
+  PlaySound
+
+  tmpx = targetx
+  tmpy = targety
+  tmpdistance = 0-600
+  tmpturn = targetturnto
+  Compass
+  ClearWaypoints
+  AddWaypoint
+  tmpargument = 75
+  SetTime
+
+//-------------------------------------------------------------------------------------
+//Target eliminated
+IfTargetKilled				// Return to follow mode
+  tmpargument = 0			  //
+  SetState
+
+//-------------------------------------------------------------------------------------
+// This is done every so often
+IfTimeOut
+  SetTargetToWideEnemy		  // Look for enemies
+    tmpargument = 1			  // Enter combat mode
+    SetState
+
+  // Play a random grunt?
+  tmpx = rand & 255
+  tmpy = 15
+  IfXIsLessThanY
+    tmpargument = rand & 1 + 3
+    PlaySound
+
+  //GUARD
+  IfStateIs0
+    tmpx = rand & 1023 - 512 + selfspawnx
+    tmpy = rand & 1023 - 512 + selfspawny
+    ClearWaypoints
+    AddWaypoint
+
+  //COMBAT
+  IfStateIs1
+    tmpx = targetdistance
+    tmpy = 150
+    IfXIsLessThanY			//Close enough to attack?
+      IfFacingTarget			//Facing the enemy?
+        IfTargetIsOnHatedTeam		//Make sure its a enemy
+          tmpargument = ACTIONUA
+          DoAction			//Attack unarmed
+    Else
+      tmpx = targetx
+      tmpy = targety
+      tmpturn = targetturnto
+      tmpdistance = 650
+      Compass
+      ClearWaypoints
+      AddWaypoint
+
+    //Enemy too far away?
+    tmpx = targetdistance
+    tmpy = 2000
+    IfXIsMoreThanY
+      tmpargument = 0			    //Yes, return to follow leader mode
+      SetState
+      tmpx = leaderx
+      tmpy = leadery
+      ClearWaypoints
+      AddWaypoint
+  tmpargument = rand & 15 + 30		  //Set timer
+  SetTime
+
+//-------------------------------------------------------------------------------------
+//Move out of friendlies and target enemy bumpers
+IfBumped
+  SetTargetToWhoeverBumped
+  IfTargetIsOnSameTeam
+    tmpx = rand & 511 + targetx - 256
+    tmpy = rand & 511 + targety - 256
+    ClearWaypoints
+    AddWaypoint
+    SetTargetToOldTarget
+  Else
+    tmpargument = 1
+    SetState
+
+End					// Finished with this character

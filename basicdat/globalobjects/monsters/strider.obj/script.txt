@@ -1,0 +1,83 @@
+//------------------------------------------------------------------------------
+IfTimeOut
+  SetTargetToRider
+    Run
+    SetOwnerToTarget
+  Else
+    Sneak
+  tmpx = targetdistance
+  tmpy = 128*5
+  IfXIsLessThanY
+    tmpx = ownerx
+    tmpy = ownery
+  Else
+    tmpx = rand & 511 + selfx - 256
+    tmpy = rand & 511 + selfy - 256
+  ClearWaypoints
+  AddWaypoint
+  tmpargument = 75
+  SetTime
+  
+  //Bite enemies
+  SetTargetToRider      
+    SetTargetToNearbyEnemy
+      tmpx = targetdistance
+      tmpy = 128
+      IfXIsLessThanY
+        IfFacingTarget
+          tmpargument = ACTIONTC
+          DoAction  
+//------------------------------------------------------------------------------
+// Bite characters that it bumps
+IfBumped
+  SetTargetToWhoeverBumped
+  IfTargetIsOnHatedTeam
+    IfFacingTarget
+      tmpargument = ACTIONTC
+      DoAction
+  Else
+    SetTargetToOldTarget
+
+//------------------------------------------------------------------------------
+// ZZ> Handle death by sending a message and other stuff
+IfSpawned
+  JoinNullTeam  // For rebirth...
+  tmpargument = 0
+  ChangeArmor
+  
+IfKilled
+  JoinGoodTeam  // For rebirth...
+
+  tmpargument = 1
+  PlaySound
+  tmpargument = 0
+  SendMessageNear
+
+  // Drop goodies
+  tmpargument = selfmoney
+  DropMoney
+
+  // Make the character body
+  tmpargument = 50
+  SetBumpHeight
+  tmpargument = 43
+  SetBumpSize
+  
+  //Dead
+  tmpargument = 1
+  ChangeArmor
+
+//------------------------------------------------------------------------------
+IfAttacked
+  // Drop rider
+  tmpx = rand % 100
+  tmpy = 75           //25% chance
+  IfXIsMoreThanY
+    DropWeapons
+
+  tmpargument = rand & 1 + 2
+  PlaySound
+
+//------------------------------------------------------------------------------
+End
+//------------------------------------------------------------------------------

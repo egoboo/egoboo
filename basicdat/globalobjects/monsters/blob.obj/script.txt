@@ -1,0 +1,65 @@
+//------------------------------------------------------------------------------
+// ZZ> Set up basic things
+IfSpawned
+  SetTurnModeToSpin
+  tmpx = selfx
+  tmpy = selfy
+  tmpargument = 0
+  SetXY
+
+//------------------------------------------------------------------------------
+// ZZ> Handle being bumped by absorbing self into bumper ( if on other team )
+IfStateIs0
+  IfBumped
+    SetTargetToWhoeverBumped
+    IfTargetIsOnHatedTeam
+      // Send a death message
+      tmpargument = MESSAGEDEATH
+      SendMessageNear
+
+      // Do some damage
+      tmpargument = rand & 1023 + 2560 // 10 - 15
+      DamageTarget
+
+      // Play the absorb sound
+      tmpargument = 0
+      PlaySound
+
+      // Play the death animation ( blob poofs at end of action... )
+      tmpargument = ACTIONKA
+      DoActionOverride
+
+      // Make sure it doesn't absorb twice
+      tmpargument = 1
+      SetState
+
+      // Give some experience as a consolation prize...
+      tmpargument = 10
+      tmpdistance = EXPSECRET
+      GiveExperienceToTarget
+
+//------------------------------------------------------------------------------
+IfTimeOut
+  tmpargument = rand & 15 + 20
+  SetTime
+
+  // Move around
+  tmpargument = 0
+  GetXY
+  tmpx = rand & 511 + selfspawnx - 256 + tmpx > 1
+  tmpy = rand & 511 + selfspawny - 256 + tmpy > 1
+  ClearWaypoints
+  AddWaypoint
+  tmpargument = 0
+  SetXY
+
+  // Play the random sound
+  tmpx = rand & 255
+  tmpy = 100
+  IfXIsLessThanY
+    tmpargument = 1
+    PlaySound
+
+//------------------------------------------------------------------------------
+End
+//------------------------------------------------------------------------------

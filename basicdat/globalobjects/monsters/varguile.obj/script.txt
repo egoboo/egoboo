@@ -1,0 +1,121 @@
+// Check for a kill order
+IfOrdered
+  tmpx = selforder
+  tmpy = [UNDO]
+  IfXIsEqualToY
+    UndoEnchant
+
+// Undead are sustained by magic
+IfSpawned
+  MakeCrushValid
+  EnchantTarget // target is self...
+
+
+// Die and poof
+IfKilled
+  tmpargument = MESSAGEDEATH
+  SendMessageNear
+  SpawnPoof
+  tmpargument = 1
+  PlaySound
+  tmpargument = [WAKE]
+  tmpdistance = [WAKE]
+  OrderSpecialID
+  tmpargument = 4
+  PlaySound
+IfCrushed
+  tmpargument = MESSAGEDEATH
+  SendMessageNear
+  SpawnPoof
+  tmpargument = 1
+  PlaySound
+  tmpargument = [WAKE]
+  tmpdistance = [WAKE]
+  OrderSpecialID
+  GoPoof
+  tmpargument = 4
+  PlaySound
+
+
+// Chase good guys
+IfTimeOut
+  SetTurnModeToVelocity
+  IfTargetIsSelf
+    tmpargument = 5
+    SetFlyHeight
+    tmpdistance = 128*8  // Square of range
+    SetTargetToDistantEnemy
+    tmpx = rand & 511 - 256 + selfspawnx
+    tmpy = rand & 511 - 256 + selfspawny
+  Else
+    tmpargument = targetaltitude
+    SetFlyHeight                            //We can fly!
+    tmpx = targetdistance
+    tmpy = 128*10
+    IfXIsMoreThanY
+      SetTargetToSelf
+      tmpx = rand & 511 - 256 + selfx
+      tmpy = rand & 511 - 256 + selfy
+    Else
+      tmpx = targetx
+      tmpy = targety
+  ClearWaypoints
+  AddWaypoint
+  tmpargument = 20
+  SetTime
+  tmpargument = 0
+  SetState
+
+// Find a new target
+IfTargetKilled
+  SetTargetToSelf
+  tmpargument = 0
+  SetTime
+
+IfAttacked
+  SetTargetToWhoeverAttacked
+    tmpargument = rand & 1 + 5
+    PlaySound
+
+// Bite good guys
+IfBumped
+  IfStateIs0
+    SetTargetToWhoeverBumped
+    IfTargetIsOnHatedTeam
+      tmpargument = LATCHLEFT		    // Bite 'em
+      PressLatchButton			    //
+      tmpargument = [HUMA]                  // Paralyzation
+      IfTargetHasID
+        tmpargument = 1
+        SendMessageNear
+        tmpargument = 1
+        SetState
+        
+        tmpargument = 75
+        SetTargetReloadTime
+
+        tmpargument = rand & 511 + 256
+        DamageTarget                //Nasty buggers damage as well!
+
+        tmpargument = 50
+        SetTime
+        tmpargument = 2
+        PlaySound
+    
+        SetTurnModeToWatchTarget
+        tmpturn = rand
+        tmpx = selfx
+        tmpy = selfy
+        tmpdistance = 800
+        Compass
+        ClearWaypoints
+        AddWaypoint
+    Else
+      tmpx = rand & 511 + targetx - 256
+      tmpy = rand & 511 + targety - 256
+      ClearWaypoints
+      AddWaypoint
+      SetTargetToSelf
+
+// All Done
+End
