@@ -14,3 +14,10 @@ unique      = things that there are only 1 of in the whole world (or just a few)
 
 works_in_progess = not ready for use yet, but may need to be tried in-game
 
+----------------------------
+
+other ideas for directories
+
+reagents    = items that are used up to make something else. texhnically, things like an ammo box might belong here, but it is really for the idea of alchemy
+
+

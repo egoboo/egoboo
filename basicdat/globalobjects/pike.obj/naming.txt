@@ -1,2 +1,0 @@
-:'The_Pike'
-:STOP
