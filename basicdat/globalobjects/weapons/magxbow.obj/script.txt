@@ -1,0 +1,51 @@
+//Magical sparklies
+tmpx = rand & 100
+tmpy = 50
+IfXIsMoreThanY		//Dont spawn too many
+  tmpargument = 5
+  tmpx = selfx
+  tmpy = selfy
+  SpawnExactParticle
+
+IfHeld
+  tmpargument = YELLOW
+  SparkleIcon
+
+// ZZ> This function makes an item fall to the floor when spawned
+IfSpawned				//
+  MakeAmmoKnown				  //
+  tmpargument = ACTIONJB		  //
+  DoAction				  //
+  KeepAction				  //
+  MakeCrushValid
+IfCrushed
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  tmpargument = 4
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  GoPoof
+  tmpargument = 1
+  SendMessageNear
+IfDropped				// Make it lie on floor
+  KeepAction				  //
+IfHitGround				// Play the drop sound
+  tmpargument = 2			  //
+  PlaySound				  //
+IfGrabbed				// Tell them what they've won...
+  SetTargetToWhoeverIsHolding		  //
+  IfTargetIsAPlayer			  //
+    tmpargument = 0			  //
+    SendMessageNear			  //
+IfUsed
+  tmpargument = 50
+  SetReloadTime
+IfTimeOut
+  tmpargument = 250     //Every 5 seconds
+  SetTime
+  IfHeld
+    IncreaseAmmo
+End					// All done

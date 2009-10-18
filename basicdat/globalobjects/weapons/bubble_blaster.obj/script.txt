@@ -1,0 +1,206 @@
+//NOTE- This is based on and is very similar to the bomb object by Pteromys. I just changed some things,
+// making it shoot out shuriken instead of fire...
+// Bomb object script
+//  by Pteromys of Melon Island... http://melonisland.net
+//  second object I've edited
+//  based on a cross between the bear trap and the fireball wand
+// Usage: Tap attack button once quickly to set a bomb
+//        Or, hold down key for a while, then release to throw
+// Guide to object states:
+//  0 Lit and just set down
+//  1 Lit and to be thrown
+//  2 Idle or held
+//  3 Held and waiting to be thrown
+// Content variable usage:
+//  Records how long the button has been held down to see if the
+//  attack should be considered a throw.
+
+IfSpawned
+  JoinNullTeam
+  ReaffirmCharacter
+  IfStateIs2				// If not lit, I shouldn't have a little sparkie
+    DisaffirmCharacter
+  Else
+    IfStateIs1
+      // Thrown
+      tmpx = 0
+      tmpy = 0
+      tmpturn = ownerturn
+      tmpdistance = rand & 7 + 20
+      Compass
+      SetTargetToSelf
+      AccelerateTarget
+      tmpargument = rand & 512 + 1200
+      AccelerateUp
+      tmpargument = 1
+      tmpdistance = rand & 2047 + 10000
+      PlaySound
+  tmpargument = ACTIONJB
+  DoAction
+  KeepAction
+  MakeCrushValid
+  MakeAmmoKnown
+  // Set the fuse time
+  tmpargument = 210
+  SetTime
+
+
+IfReaffirmed				// If we lit this item...
+  IfHeld
+    DisaffirmCharacter
+  Else
+    IfStateIs2
+      tmpargument = 210			// fuse time
+      SetTime
+      tmpargument = 0
+      SetState
+IfDisaffirmed				// Go out if hits water when it's lit
+  GetState
+  tmpx = tmpargument
+  tmpy = 2
+  IfXIsLessThanY
+    tmpargument = 2
+    SetState
+
+IfHitGround
+  IfStateIs1
+    SetTargetToSelf
+    tmpargument = 1024
+    DamageTarget
+
+IfTimeOut				// When the fuse goes, the bomb blows
+  GetState
+  tmpx = tmpargument
+  tmpy = 2
+  IfXIsLessThanY
+    SetTargetToSelf			// Call explosion by dropping life below threshold
+    tmpargument = 1024
+    DamageTarget
+IfCrushed				// Surprise when you leave bombs in doorways!
+  tmpargument = 2
+  SendMessageNear
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  tmpargument = 0
+  SpawnExactParticle
+  GoPoof
+
+// Don't attack bombs... it's not safe!
+tmpx = selflife
+tmpy = 25560
+IfXIsLessThanY
+  IfHeld				// Don't die
+    tmpargument = 25600 - selflife
+    HealSelf
+  Else
+    tmpx = selfx
+    tmpy = selfy
+    tmpdistance = selfz
+    tmpargument = 0
+    SpawnExactParticle
+    GoPoof
+
+IfUsed
+  SetTargetToWhoeverIsHolding
+  tmpargument = [GBMG]
+  IfTargetHasSkillID
+    GetContent
+    tmpargument = tmpargument + 9
+    tmpx = 200				// max charge
+    tmpy = tmpargument
+    IfXIsLessThanY
+      tmpargument = 200			// Charge cannot go above max
+    SetContent
+    IfStateIs2
+      tmpargument = 3
+      SetState
+  Else
+    tmpargument = 4
+    SendMessageNear
+
+Else
+  IfStateIs3
+    SetTargetToWhoeverIsHolding
+    SetOwnerToTarget
+    tmpargument = ACTIONMG
+    TargetDoAction
+      tmpx = targetx
+      tmpy = targety
+      tmpturn = targetturn
+      tmpdistance = 30
+      Compass
+      tmpdistance = targetz + 15
+      tmpturn = rand
+      SpawnCharacterXYZ
+        tmpargument = 1			// Make the new one have 1 ammo
+        SetChildAmmo 
+        CostAmmo			// Down the ammo
+        IfAmmoOut			// If I'm out of ammo, I shouldn't have a bomb in my hand
+          GoPoof
+
+        tmpargument = 200
+        IfContentIs			// If you've charged up a throw
+          tmpargument = 1
+          SetChildState
+        Else
+          tmpargument = 0
+          SetChildState
+      Else
+        tmpargument = 6
+        SendMessageNear
+      tmpargument = 50
+      SetReloadTime
+      tmpargument = 2			// Become just held again
+      SetState
+      tmpargument = 0			// Reset charge
+      SetContent
+
+IfTakenOut
+  SetTargetToWhoeverIsHolding
+  tmpargument = 3
+  SendMessageNear
+IfDropped				// Make it lie on floor
+  tmpargument = 2
+  SetState
+  KeepAction
+IfGrabbed
+  SetTargetToWhoeverIsHolding
+  GetState
+  tmpx = tmpargument
+  tmpy = 2
+  IfXIsLessThanY
+    // Grabbing a lit bomb
+    tmpx = 0
+    tmpy = 1
+    tmpargument = [GBMG]
+    IfTargetHasSkillID
+      tmpx = 1
+    tmpargument = [DISA]
+    IfTargetHasSkillID
+      tmpx = 1
+    IfXIsEqualToY			// If expert in either goblin alchemy or disarming traps...
+      tmpargument = 1
+      SendMessageNear
+      tmpargument = 2			// ...defuse the bomb.
+      SetState
+      DisaffirmCharacter
+    Else				// If not, inadvertently detonate
+      IfTargetIsAPlayer
+        tmpargument = 5
+        SendMessageNear
+      tmpx = selfx
+      tmpy = selfy
+      tmpdistance = selfz
+      tmpargument = 0
+      SpawnExactParticle
+      GoPoof
+  Else
+    IfTargetIsAPlayer
+      tmpargument = 0
+      SendMessageNear
+    // Idle state
+    tmpargument = 2
+    SetState
+
+End					// Finished

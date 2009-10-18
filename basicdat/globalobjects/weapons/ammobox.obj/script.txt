@@ -1,0 +1,90 @@
+//----------------------------------------------------------------------------------
+//This function makes an item fall to the floor when spawned
+IfSpawned				//
+  tmpargument = ACTIONJB		  //
+  DoAction				  //
+  KeepAction				  //
+  MakeCrushValid
+  MakeAmmoKnown
+
+//----------------------------------------------------------------------------------
+IfCrushed
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  tmpargument = 0
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  GoPoof
+  tmpargument = 1
+  SendMessageNear
+
+//----------------------------------------------------------------------------------
+//Become useless in water
+IfInWater
+  tmpargument = 1
+  SetState
+
+//----------------------------------------------------------------------------------
+IfDropped				// Make it lie on floor
+  KeepAction				  //
+
+//----------------------------------------------------------------------------------
+IfHitGround				// Make a sound
+  tmpargument = 1			  //
+  PlaySound				  //
+
+//----------------------------------------------------------------------------------
+IfGrabbed				// Tell them what they've won...
+  SetTargetToWhoeverIsHolding		  //
+  IfTargetIsAPlayer
+    tmpargument = 0			  //
+    SendMessageNear			  //
+
+//----------------------------------------------------------------------------------
+IfUsed
+  SetTargetToWhoeverIsHolding
+  IfHeldInLeftHand
+    SetTargetToTargetRightHand
+  Else
+    SetTargetToTargetLeftHand
+  tmpargument = [SHOT]
+  IfTargetHasID
+    IfStateIs0				//Dry?
+      SetTargetToWhoeverIsHolding
+      tmpargument = [SHOT]
+      RestockTargetAmmoIDFirst
+      tmpargument = 0			  //
+      PlaySound				  //
+      PlaySound				  //
+      PlaySound				  //
+      tmpargument = 2
+      SendMessageNear
+      CostAmmo				//Use 1 box
+      IfAmmoOut
+        GoPoof				//Dissapear
+    Else
+      tmpargument = 5
+      SendMessageNear			//Its all wet!
+  Else
+    SetTargetToWhoeverIsHolding
+    tmpargument = 3
+    SendMessageNear			//Nothing to reload
+
+//----------------------------------------------------------------------------------
+// Need to be damaged by fire and explode!!
+IfKilled
+  GoPoof				//Dissapear
+  tmpargument = 1
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  SpawnExactParticle			//Spawn explosion
+  tmpargument = 4			//Say kaboom
+  SendMessageNear
+
+//----------------------------------------------------------------------------------
+End					// All done
+//----------------------------------------------------------------------------------

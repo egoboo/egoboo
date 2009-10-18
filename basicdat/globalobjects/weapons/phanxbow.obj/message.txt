@@ -1,0 +1,5 @@
+Message 0: %t_picked_up_%n.
+Message 1: The_%c_has_been_broken!
+Message 2: %t_accidentially_poisoned_himself!
+Message 3: %t_doesn't_use_cowardly_tricks_of_poison!
+

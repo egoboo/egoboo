@@ -1,0 +1,90 @@
+//Made by Clonkinator
+//I'm so evil: The quiver is just a scratch off of the ammo box
+//Modified by zefz: Ive improved the skin and model (No longer an ammo box)
+//Also improved the script and sound later on
+//----------------------------------------------------------------------------------
+//This function makes an item fall to the floor when spawned
+IfSpawned				//
+  tmpargument = ACTIONJB		  //
+  DoAction				  //
+  KeepAction				  //
+  MakeCrushValid
+  MakeAmmoKnown                           // Makes the number of quivers show up
+
+//----------------------------------------------------------------------------------
+IfCrushed
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  tmpargument = 0
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  GoPoof
+  tmpargument = 1
+  SendMessageNear
+
+//----------------------------------------------------------------------------------
+IfDropped				// Make it lie on floor
+  KeepAction				  //
+
+//----------------------------------------------------------------------------------
+IfHitGround				// Make a sound
+  tmpargument = 1			  //
+  tmpdistance = rand % 2047 + 10000	  //
+  PlaySound				  //
+
+//----------------------------------------------------------------------------------
+IfGrabbed				// Tell them what they've won...
+  SetTargetToWhoeverIsHolding		  //
+  IfTargetIsAPlayer
+    tmpargument = 0			  //
+    SendMessageNear			  //
+
+//----------------------------------------------------------------------------------
+IfUsed
+  tmpargument = 50
+  SetReloadTime
+  SetTargetToWhoeverIsHolding
+  IfHeldInLeftHand
+    SetTargetToTargetRightHand
+  Else
+    SetTargetToTargetLeftHand
+  tmpargument = [LBOW]
+  IfTargetHasID
+    SetTargetToWhoeverIsHolding
+    tmpargument = [LBOW]
+    RestockTargetAmmoIDFirst
+    tmpargument = 0			  //
+    PlaySound				  //
+    PlaySound				  //  //
+    PlaySound				  //
+    tmpargument = 2
+    SendMessageNear
+    CostAmmo				//Use 1 quiver
+    IfAmmoOut
+      GoPoof				//Dissapear
+  Else
+    tmpargument = [XBOW]
+    IfTargetHasID
+      SetTargetToWhoeverIsHolding
+      tmpargument = [XBOW]
+      RestockTargetAmmoIDFirst
+      tmpargument = 0			  //
+      PlaySound				  //
+      PlaySound				  //
+      PlaySound				  //
+      tmpargument = 2
+      SendMessageNear
+      CostAmmo				//Use 1 quiver
+      IfAmmoOut
+        GoPoof				//Dissapear
+    Else
+      SetTargetToWhoeverIsHolding
+      tmpargument = 3
+      SendMessageNear			//Nothing to reload
+
+//----------------------------------------------------------------------------------
+End					// All done
+//----------------------------------------------------------------------------------

@@ -1,0 +1,5 @@
+Template skin is tris3
+Red = Surface
+Blue = Frame / Grips
+Grey = Center
+Green = Top

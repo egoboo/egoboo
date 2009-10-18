@@ -1,0 +1,2 @@
+Message 0: %t_picked_up_the_%n.
+Message 1: The_%n_was_shattered!
