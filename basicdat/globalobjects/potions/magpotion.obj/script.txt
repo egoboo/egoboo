@@ -1,0 +1,91 @@
+// Set up general stuff
+IfSpawned
+  tmpargument = ACTIONJB
+  DoAction
+  KeepAction
+  MakeCrushValid
+  MakeAmmoKnown
+
+// Make it poof
+IfCrushed
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  tmpargument = 0
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  GoPoof
+  tmpargument = 1
+  SendMessageNear
+
+// Make it lie on the floor
+IfDropped
+  KeepAction
+
+// Play a clink or clang
+IfHitGround
+  tmpargument = 0
+  PlaySound
+
+// Alert others to draw
+IfTakenOut
+  SetTargetToWhoeverIsHolding
+  IfTargetIsAPlayer
+    tmpargument = 2
+    SendMessageNear
+
+// Tell them what they've won...
+IfGrabbed
+  SetTargetToWhoeverIsHolding
+  IfTargetIsAPlayer
+    tmpargument = 0
+    SendMessageNear
+
+// Give the user a bonus, but it's addictive...
+IfUsed
+  tmpargument = 1
+  PlaySound
+
+  tmpargument = 40
+  SetReloadTime
+  MakeSimilarNamesKnown
+  IfUsageIsKnown
+    tmpargument = 3
+    SendMessageNear
+  Else
+    MakeUsageKnown
+    tmpargument = 4
+    SendMessageNear
+    tmpargument = 30
+    tmpdistance = EXPDARE
+    GiveExperienceToTarget
+  SetTargetToWhoeverIsHolding
+
+    // Decrease int and wis a little
+    tmpargument = 0 - 20
+    GiveIntelligenceToTarget
+    GiveWisdomToTarget
+
+    //Remove any existing magic on the target
+    tmpargument = [DISP]
+    DispelTargetEnchantID
+    
+    // Enchant the target
+    SetOwnerToTarget
+    EnchantTarget
+    tmpargument = 8000    //Drain away the mana
+    CostTargetMana
+
+    tmpargument = ACTIONMC
+    TargetDoAction
+    tmpdistance = SPAWNORIGIN
+    tmpargument = 1
+    SpawnAttachedHolderParticle
+  CostAmmo
+  IfAmmoOut
+    GoPoof
+
+// Finish up
+End

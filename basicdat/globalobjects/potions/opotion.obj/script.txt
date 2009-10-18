@@ -1,0 +1,81 @@
+//When drunk
+IfUsed
+  
+  //Effect 1 - show map and location
+  ShowMap
+  ShowYouAreHere
+  
+  //Effect 2 - see invisible and kurses (permanent until death)
+  SetTargetToWhoeverIsHolding
+  SetOwnerToTarget
+  EnchantTarget
+  
+  //Effect 3 - Reveal all enemies on the map
+  tmpargument = [NONE]              //All types
+  AddBlipAllEnemies
+  
+  //Always give some xp for insight
+  tmpargument = 30
+  tmpdistance = EXPSECRET
+  GiveExperienceToTarget
+  
+  //The usual potion stuff
+  MakeSimilarNamesKnown
+  tmpargument = ACTIONMC
+  TargetDoAction
+  tmpdistance = SPAWNORIGIN
+  tmpargument = 1
+  SpawnAttachedHolderParticle
+  tmpargument = 1
+  PlaySound
+  tmpargument = 3
+  SendMessageNear
+        
+  //Ammo stuff
+  CostAmmo
+  IfAmmoOut
+    GoPoof
+    
+  //Permanently lower some stats
+  tmpargument = 0 - 32
+  GiveWisdomToTarget
+  GiveIntelligenceToTarget
+
+// Set up general stuff
+IfSpawned
+  tmpargument = ACTIONJB
+  DoAction
+  KeepAction
+  MakeCrushValid
+  
+//Mooshed in a door
+IfCrushed
+  SpawnPoof
+  tmpargument = 1
+  SendMessageNear
+
+// Make it lie on the floor
+IfDropped
+  KeepAction
+
+// Play a clink or clang
+IfHitGround
+  tmpargument = 0
+  PlaySound
+
+// Alert others to draw
+IfTakenOut
+  SetTargetToWhoeverIsHolding
+  IfTargetIsAPlayer
+    tmpargument = 2
+    SendMessageNear
+
+// Tell them what they've won...
+IfGrabbed
+  SetTargetToWhoeverIsHolding
+  IfTargetIsAPlayer
+    tmpargument = 0
+    SendMessageNear
+
+// Finish up
+End

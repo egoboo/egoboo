@@ -1,0 +1,9 @@
+Message 0: %t_grabbed_%n.
+Message 1: The_%c_shattered!
+Message 2: %t_whipped_out_%n.
+Message 3: It's_just_a_%n...
+Message 4: Real_sand_from_the_desert!
+Message 5: This_is_a_souvenir_from_Sandweg.
+Message 6: %t_wonders_what_to_use_the_sand_for...
+Message 7: There_is_a_sticker_under_the_bottle!
+Message 8: "100_percent_sand_guaranteed!"

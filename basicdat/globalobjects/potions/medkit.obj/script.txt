@@ -1,0 +1,199 @@
+//MEDKIT
+//Every 4 WIS heals 1 HP
+//18 or more WIS adds 4 second regeneration (0.25 HP per 4 WIS)
+//25 WIS allows to try to revive the dead (INT+WIS increases chance)
+//INT reduces cooldown
+//18 INT allows remove Grog
+//22 INT allows remove Daze
+//24 INT allows remove Kurses
+//30 WIS allows remove Life Drain
+
+IfUsed
+  SetTargetToWhoeverIsHolding
+  SetOwnerToTarget
+  
+  //Remember the holder's stats
+  tmpargument = targetint
+  SetState
+  tmpargument = targetwis
+  SetContent
+  
+  //Revive dead friends (Need at least 25 wisdom)
+  tmpturn = 0
+  tmpx = selfcontent
+  tmpy = 256*25
+  IfXIsMoreThanY
+    tmpdistance = BLAHDEAD + BLAHFRIENDS
+    tmpargument = [HUMA]
+    SetTargetToWideBlahID
+      IfTargetIsAlive
+        DoNothing
+      Else
+        IfTargetIsOnSameTeam
+          tmpx = targetdistance
+          tmpy = 200
+          IfXIsLessThanY
+            tmpx = selfcontent > 8        //Chance of success is +1% per wisdom
+            tmpx = selfstate > 9 + tmpx   //and +0.5% per intelligence
+            tmpy = rand % 100
+            IfXIsMoreThanY
+              RespawnTarget
+              tmpargument = 3
+              SendMessageNear
+              
+              //Target lose 0.25 life if the user has less than 30 wisdom
+              tmpx = selfcontent
+              tmpy = 256*30
+              IfXIsLessThanY
+                tmpargument = 0 - 64
+                GiveLifeToTarget
+              
+              //Intelligence decreases cooldown
+              tmpturn = selfstate > 8
+              tmpargument = 200 - tmpturn
+              SetReloadTime
+              
+              //dont do the rest now
+              tmpturn = 1
+              
+            //Failed to revive this time
+            Else
+              tmpargument = 4
+              SendMessageNear
+              tmpargument = 80
+              SetReloadTime
+              tmpargument = 2
+              PlaySound
+              
+              //dont do the rest
+              tmpturn = 1
+  
+  //If tmpturn = 1, then we used this turn to revivify
+  tmpdistance = 1
+  IfDistanceIsMoreThanTurn
+    
+    //Heal holder or nearby friends
+    SetTargetToNearestFriend
+      tmpx = targetdistance
+      tmpy = 200
+      IfXIsMoreThanY
+        SetTargetToWhoeverIsHolding
+    
+    //Heal 1 life per 4 wisdom
+    tmpargument = selfcontent > 2
+    HealTarget
+    
+    //If 18 or more wisdom, allow 3 seconds of extra regeneration
+    tmpx = selfcontent
+    tmpy = 256*18
+    IfXIsMoreThanY
+      EnchantTarget
+      tmpargument = 0          // Cost owner 0 mana per second
+      tmpdistance = 0          // Give owner 0 life per second
+      tmpx = 0                 // Give target 0 mana per second
+      tmpy = selfcontent > 10  // Give target 0.25 life per second per 4 wisdom
+      tmpy = tmpy * 64
+      SetEnchantBoostValues
+    
+    //If 18 or more intelligence, allow to heal Groggyness
+    tmpx = selfstate
+    tmpy = 256*18
+    IfXIsMoreThanY
+      tmpargument = selfstate > 10     //Heal 1 second per 4 intelligence
+      tmpargument = -tmpargument
+      GrogTarget
+      
+    //If 22 or more intelligence, allow to heal Daze
+    tmpx = selfstate
+    tmpy = 256*22
+    IfXIsMoreThanY
+      tmpargument = selfstate > 10     //Heal 1 second per 4 intelligence
+      tmpargument = -tmpargument
+      DazeTarget
+      
+    //If 26 or more intelligence, allow to remove Kurses
+    tmpx = selfstate
+    tmpy = 256*26
+    IfXIsMoreThanY
+      UnkurseTargetInventory
+
+      
+    //If 30 or more wisdom, allow to remove life drain and horrible stuff like that
+    tmpx = selfcontent
+    tmpy = 256*30
+    IfXIsMoreThanY
+      tmpargument = [REST]
+      DispelTargetEnchantID
+      
+    //Play sound
+    tmpargument = 0
+    PlaySound
+    
+    //Intelligence decreases cooldown
+    tmpturn = selfstate > 8
+    tmpargument = 150 - tmpturn
+    SetReloadTime
+    
+    //Do message
+    IfTargetIsOwner
+      tmpargument = 2
+      SendMessageNear
+    Else
+      tmpargument = 1
+      SendMessageNear
+  MakeAmmoKnown
+
+  //Particle effects
+  tmpargument = 1
+  tmpx = targetx
+  tmpy = targety
+  SpawnExactParticle
+  SpawnExactParticle
+    
+  //Animate the target
+  tmpargument = ACTIONMG
+  TargetDoAction      
+  
+  //Go away if out of ammo
+  IfAmmoOut
+    GoPoof
+  
+//Make it known
+IfSpawned				//
+  SetTargetToWhoeverIsHolding
+  tmpargument = [TECH]
+  IfTargetHasSkillID
+    MakeNameKnown
+  IfNameIsKnown
+    MakeAmmoKnown
+
+IfCrushed
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  tmpargument = 0
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  GoPoof
+  tmpargument = 5
+  SendMessageNear
+
+IfHitGround				// Make a sound			
+  tmpargument = 1
+  PlaySound
+
+IfGrabbed				// Tell them what they've won...
+  SetTargetToWhoeverIsHolding		  //
+  IfTargetIsAPlayer			  //
+    tmpargument = 0			  //
+    SendMessageNear			  //
+
+    //Identify it
+    tmpargument = [TECH]
+    IfTargetHasSkillID
+      MakeNameKnown
+      MakeAmmoKnown
+      
+End					// All done

@@ -1,0 +1,7 @@
+Message 0: %t_grabbed_%n.
+Message 1: The_%c_shattered!
+Message 2: %t_whipped_out_%n.
+Message 3: %t_refilled_a_lamp
+Message 4: %t_needs_a_lamp_to_fill....
+Message 5: It_tasted_oily...
+Message 6: The_oil_flask_exploded!
