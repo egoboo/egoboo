@@ -1,0 +1,51 @@
+// General item stuff
+IfSpawned
+  SetTargetToSelf
+  SetOwnerToTarget
+  tmpargument = ACTIONJB
+  DoAction
+  KeepAction
+  MakeCrushValid
+
+IfDropped
+  KeepAction
+
+IfHitGround
+  tmpargument = 0
+  PlaySound
+
+IfGrabbed
+  SetTargetToWhoeverIsHolding
+  IfTargetIsAPlayer
+    tmpargument = 0
+    SendMessageNear
+
+// Make it poof
+IfCrushed
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  tmpargument = 1
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  GoPoof
+  tmpargument = 1
+  SendMessageNear
+
+// spawn some dust if it is attacked
+IfAttacked
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  tmpargument = 1
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+
+IfBumped
+  DropItems  // this drops all items. we really need a function that drops n items
+
+End

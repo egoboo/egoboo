@@ -1,0 +1,102 @@
+// ZZ> This function makes an item fall to the floor when spawned
+IfSpawned				//
+  tmpargument = ACTIONJB		  //
+  DoAction				  //
+  KeepAction				  //
+  MakeCrushValid
+IfCrushed
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  tmpargument = 1
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  GoPoof
+  tmpargument = 1
+  SendMessageNear
+IfDropped				// Make it lie on floor
+  KeepAction				  //
+IfGrabbed				// Tell them what they've won...
+  SetTargetToWhoeverIsHolding		  //
+  IfTargetIsAPlayer			  //
+    tmpargument = 0			  //
+    SendMessageNear			  //
+IfTakenOut				// Do the unsheathe sound
+  tmpargument = 11
+  PlaySound
+  SetTargetToWhoeverIsHolding
+  IfTargetIsAPlayer
+    tmpargument = 2
+    SendMessageNear
+IfHitGround				// Make a sound
+  tmpargument = 10
+  PlaySound
+
+// Whisper when held
+IfHeld
+  IfTimeOut
+    tmpargument = rand % 10
+    PlaySound
+    tmpargument = rand % 90
+    SetTime
+
+// White embers and smoke
+tmpx = rand & 3
+tmpy = 0
+IfXIsEqualToY
+  tmpargument = 4
+  tmpdistance = rand % 9
+  SpawnParticle
+  tmpargument = 2
+  tmpdistance = rand % 9
+  SpawnParticle
+
+//Damage bonuses vs. demons
+IfScoredAHit		                  //Sets target to who the holder last hit
+  tmpargument = [DEMO]
+  IfTargetHasID
+    tmpargument = rand % 3 + 12
+    PlaySound
+    tmpargument = rand & 511 + 512  //2-4 extra
+    tmpargument = -tmpargument
+    GiveLifeToTarget
+    tmpargument = [LORD]		//Even more vs. the Daemon Lord
+    IfTargetHasID
+      tmpargument = -1325		//5 true damage
+      GiveLifeToTarget
+    
+    //Randomize message
+    tmpx = rand % 4
+    tmpy = 0
+    IfXIsEqualToY
+      tmpargument = 3
+    tmpy = 1
+    IfXIsEqualToY
+      tmpargument = 4
+    tmpy = 2
+    IfXIsEqualToY
+      tmpargument = 5
+    tmpy = 3
+    IfXIsEqualToY
+      tmpargument = 6
+    SendMessageNear
+
+    //Randomize sound
+    tmpargument = rand & 1 + 13
+    PlaySound
+    
+    //Spelly effects
+    tmpargument = 6
+    tmpx = targetx
+    tmpy = targety
+    tmpdistance = targetdistance
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+    
+    // Now that you know what it does, you learn its name.
+    MakeNameKnown
+
+End					// All done

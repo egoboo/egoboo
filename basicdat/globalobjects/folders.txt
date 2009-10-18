@@ -1,0 +1,16 @@
+The globalobjects directory is broken up into subdirectories by the in-game purpose of the objects
+
+magic       = spell books, spell orbs, runes, scrolls, etc.
+potions     = anything that comes in a bottle
+weapons     = anything hat does direct damage, throws a missile, or blocks damage
+magic_items = any remaining objects that can be picked up and are essentially magical in nature (rings, bracelets, shoes ...)
+items       = anything that can be picked up that does not go in the above categories
+
+monsters    = enough said
+players     = all models that could be potentially played by a player
+
+
+unique      = things that there are only 1 of in the whole world (or just a few)
+
+works_in_progess = not ready for use yet, but may need to be tried in-game
+
