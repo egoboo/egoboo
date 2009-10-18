@@ -50,7 +50,7 @@ Sheen ( 0 - 15, 0 is dull, 15 is shiny )		: 0
 Phong mapping ( TRUE or FALSE )		: FALSE
 Texture X movement rate ( eg. 0.0 )		: 0.0
 Texture Y movement rate ( eg. 0.0 )		: 0.0
-Conform to hills like a chair ( TRUE or FALSE )	: TRUE
+Conform to hills like a chair ( TRUE or FALSE )	: FALSE
 
 
 // Invulnerability data

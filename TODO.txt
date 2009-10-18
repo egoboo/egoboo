@@ -1,4 +1,5 @@
 MASTER TODO LIST:
+- Lifedrain drains caster.
 - Spellbooks not being spellbooks when spawning instead of dropped.
 - The Bishopia walls should be flagged as a Wall, not as Impassable.
 - Sand Troll in Sand Palace seems to get stuck on the pyramid in new physics system. (We might need a FindPath algorithm here) 
@@ -7,7 +8,6 @@ MASTER TODO LIST:
   work 1 on 4 tries, weird (tires of throwing away and grabbing back)
 - Halve mana/life loss caused by potions
 - Runes need to be repriced much like Arcane Spellbooks were
-- Platforms in Abyss don't work properly, for some time they lift normally, then give a pretty massive boost thus throwing into the void. 
 - Troll in Griffin tower doesnt die properly
 - Rare crash bug with Tile Mimics in Sand Palace
 
