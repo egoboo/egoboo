@@ -804,6 +804,13 @@
 				RelativePath=".\script_functions.h">
 			</File>
 		</Filter>
+		<Filter
+			Name="doxygen"
+			Filter="">
+			<File
+				RelativePath=".\egoboo_doxygen.h">
+			</File>
+		</Filter>
 	</Files>
 	<Globals>
 	</Globals>

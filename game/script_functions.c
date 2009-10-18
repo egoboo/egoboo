@@ -6890,13 +6890,14 @@ Uint8 scr_OperatorIsMacintosh( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_ModuleHasIDSZ( script_state_t * pstate, ai_state_t * pself )
 {
     // IfModuleHasIDSZ( tmpargument = "message number with module name", tmpdistance = "idsz" )
+
     /// @details ZF@> Proceeds if the specified module has the required IDSZ specified in tmpdistance
     /// The module folder name to be checked is a string from message.txt
 
     SCRIPT_FUNCTION_BEGIN();
 
     /// @todo use message.txt to send the module name
-    returncode = module_has_idsz("module.mod", pstate->distance);
+    returncode = module_has_idsz(PMod->loadname, pstate->distance);
 
     SCRIPT_FUNCTION_END();
 }

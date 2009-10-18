@@ -1209,7 +1209,7 @@ void PrtList_free_all()
 }
 
 //--------------------------------------------------------------------------------------------
-void setup_particles()
+void particle_system_init()
 {
     /// @details ZZ@> This function sets up particle data
     int cnt;
@@ -1492,61 +1492,61 @@ void reset_particles( const char* modname )
     release_all_pip();
 
     // Load in the standard global particles ( the coins for example )
-    loadpath = "basicdat" SLASH_STR "globalparticles" SLASH_STR "1money.txt";
+    loadpath = "data/1money.txt";
     if ( MAX_PIP == load_one_particle_profile( loadpath, PIP_COIN1 ) )
     {
         log_error( "Data file was not found! (%s)\n", loadpath );
     }
 
-    loadpath = "basicdat" SLASH_STR "globalparticles" SLASH_STR "5money.txt";
+    loadpath = "data/5money.txt";
     if ( MAX_PIP == load_one_particle_profile( loadpath, PIP_COIN5 ) )
     {
         log_error( "Data file was not found! (%s)\n", loadpath );
     }
 
-    loadpath = "basicdat" SLASH_STR "globalparticles" SLASH_STR "25money.txt";
+    loadpath = "data/25money.txt";
     if ( MAX_PIP == load_one_particle_profile( loadpath, PIP_COIN25 ) )
     {
         log_error( "Data file was not found! (%s)\n", loadpath );
     }
 
-    loadpath = "basicdat" SLASH_STR "globalparticles" SLASH_STR "100money.txt";
+    loadpath = "data/100money.txt";
     if ( MAX_PIP == load_one_particle_profile( loadpath, PIP_COIN100 ) )
     {
         log_error( "Data file was not found! (%s)\n", loadpath );
     }
 
     // Load module specific information
-    make_newloadname( modname, "gamedat" SLASH_STR "weather4.txt", newloadname );
+    make_newloadname( modname, "data/weather4.txt", newloadname );
     if ( MAX_PIP == load_one_particle_profile( newloadname, PIP_WEATHER4 ) )
     {
         log_error( "Data file was not found! (%s)\n", newloadname );
     }
 
-    make_newloadname( modname, "gamedat" SLASH_STR "weather5.txt", newloadname );
+    make_newloadname( modname, "data/weather5.txt", newloadname );
     if ( MAX_PIP == load_one_particle_profile( newloadname, PIP_WEATHER5 ) )
     {
         log_error( "Data file was not found! (%s)\n", newloadname );
     }
 
-    make_newloadname( modname, "gamedat" SLASH_STR "splash.txt", newloadname );
+    make_newloadname( modname, "data/splash.txt", newloadname );
     if ( MAX_PIP == load_one_particle_profile( newloadname, PIP_SPLASH ) )
     {
         log_debug( "Data file was not found! (%s) - Defaulting to global particle.\n", newloadname );
 
-        loadpath = "basicdat" SLASH_STR "globalparticles" SLASH_STR "splash.txt";
+        loadpath = "data/splash.txt";
         if ( MAX_PIP == load_one_particle_profile( loadpath, PIP_SPLASH ) )
         {
             log_error( "Data file was not found! (%s)\n", loadpath );
         }
     }
 
-    make_newloadname( modname, "gamedat" SLASH_STR "ripple.txt", newloadname );
+    make_newloadname( modname, "data/ripple.txt", newloadname );
     if ( MAX_PIP == load_one_particle_profile( newloadname, PIP_RIPPLE ) )
     {
         log_debug( "Data file was not found! (%s) - Defaulting to global particle.\n", newloadname );
 
-        loadpath = "basicdat" SLASH_STR "globalparticles" SLASH_STR "ripple.txt";
+        loadpath = "data/ripple.txt";
         if ( MAX_PIP == load_one_particle_profile( loadpath, PIP_RIPPLE ) )
         {
             log_error( "Data file was not found! (%s)\n", loadpath );
@@ -1554,7 +1554,7 @@ void reset_particles( const char* modname )
     }
 
     // This is also global...
-    loadpath = "basicdat" SLASH_STR "globalparticles" SLASH_STR "defend.txt";
+    loadpath = "data/defend.txt";
     if ( MAX_PIP == load_one_particle_profile( loadpath, PIP_DEFEND ) )
     {
         log_error( "Data file was not found! (%s)\n", loadpath );

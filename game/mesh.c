@@ -458,12 +458,10 @@ ego_mpd_t * mesh_load( const char *modname, ego_mpd_t * pmesh )
         STRING loadname;
         mpd_t  local_mpd, * pmpd;
 
-        // try to load a mpd file
-        make_newloadname( modname, "gamedat" SLASH_STR "level.mpd", loadname );
-
         // load a raw mpd
         mpd_new( &local_mpd );
-        pmpd = mpd_load( vfs_resolveReadFilename(loadname), &local_mpd);
+        tile_dictionary_load( "data/fans.txt", tile_dict, MAXMESHTYPE );
+        pmpd = mpd_load( vfs_resolveReadFilename("data/level.mpd"), &local_mpd);
 
         // convert it into a convenient version for egoboo
         if ( !mesh_convert( pmesh, pmpd ) )

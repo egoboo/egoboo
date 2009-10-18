@@ -208,8 +208,8 @@ static bool_t game_load_module_data( const char *smallname );
 static void   game_release_module_data();
 static void   game_load_all_profiles( const char *modname );
 
-static void   setup_characters( const char *modname );
-static void   setup_alliances( const char *modname );
+static void   activate_spawn_file( const char *modname );
+static void   activate_alliance_file( const char *modname );
 static void   load_all_global_objects();
 
 static bool_t chr_setup_apply( Uint16 ichr, spawn_file_info_t *pinfo );
@@ -713,7 +713,7 @@ void chr_set_frame( Uint16 character, Uint16 action, int frame, Uint16 lip )
 }
 
 //--------------------------------------------------------------------------------------------
-void setup_alliances( const char *modname )
+void activate_alliance_file( const char *modname )
 {
     /// @details ZZ@> This function reads the alliance file
 
@@ -723,7 +723,7 @@ void setup_alliances( const char *modname )
     vfs_FILE *fileread;
 
     // Load the file
-    make_newloadname( modname, "gamedat" SLASH_STR "alliance.txt", newloadname );
+    make_newloadname( modname, "data/alliance.txt", newloadname );
     fileread = vfs_openRead( newloadname );
     if ( fileread )
     {
@@ -5079,7 +5079,7 @@ void game_load_module_profiles( const char *modname )
 void game_load_global_profiles()
 {
     // load all special objects
-    load_one_profile( "basicdat" SLASH_STR "book.obj", SPELLBOOK );
+    load_one_profile( "basicdat" SLASH_STR "globalobjects" SLASH_STR "book.obj", SPELLBOOK );
 
     // load the objects from various import directories
     load_all_profiles_import();
@@ -5190,9 +5190,10 @@ int strlwr( char * str )
 #endif
 
 //--------------------------------------------------------------------------------------------
-bool_t setup_characters_load_object( spawn_file_info_t * psp_info )
+bool_t activate_spawn_file_load_object( spawn_file_info_t * psp_info )
 {
-    /// @details BB@> Try to load a global object named psp_info->spawn_coment into slot psp_info->slot
+    /// @details BB@> Try to load a global object named int psp_info->spawn_coment into 
+    ///               slot psp_info->slot
 
     STRING filename;
 
@@ -5211,7 +5212,9 @@ bool_t setup_characters_load_object( spawn_file_info_t * psp_info )
     // do the loading
     if( CSTR_END != psp_info->spawn_coment[0] )
     {
-        snprintf( filename, SDL_arraysize(filename), "basicdat" SLASH_STR "globalobjects" SLASH_STR "%s", psp_info->spawn_coment );
+        // we are relying on the firtual mount point "/objects", so use
+        // the vfs/PHYSFS file naming conventions
+        snprintf( filename, SDL_arraysize(filename), "objects/%s", psp_info->spawn_coment );
 
         psp_info->slot = load_one_profile( filename, psp_info->slot );
     }
@@ -5220,7 +5223,7 @@ bool_t setup_characters_load_object( spawn_file_info_t * psp_info )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t setup_characters_spawn( spawn_file_info_t * psp_info )
+bool_t activate_spawn_file_spawn( spawn_file_info_t * psp_info )
 {
     int tnc;
     int new_object, local_index = 0;
@@ -5332,16 +5335,16 @@ bool_t setup_characters_spawn( spawn_file_info_t * psp_info )
 }
 
 //--------------------------------------------------------------------------------------------
-void setup_characters( const char *modname )
+void activate_spawn_file( const char *modname )
 {
     /// @details ZZ@> This function sets up character data, loaded from "SPAWN.TXT"
 
-    STRING            newloadname;
+    char             *newloadname;
     vfs_FILE         *fileread;
     spawn_file_info_t sp_info;
 
     // Turn some back on
-    make_newloadname( modname, "gamedat" SLASH_STR "spawn.txt", newloadname );
+    newloadname = "data/spawn.txt";
     fileread = vfs_openRead( newloadname );
 
     PlaList_count = 0;
@@ -5367,7 +5370,7 @@ void setup_characters( const char *modname )
             // If nothing is in that slot, try to load it
             if( !LOADED_PRO(sp_info.slot) )
             {
-                setup_characters_load_object( &sp_info );
+                activate_spawn_file_load_object( &sp_info );
             }
 
             // do we have a valid profile, yet?
@@ -5382,7 +5385,7 @@ void setup_characters( const char *modname )
             else
             {
                 // yes, do the spawning if need be
-                setup_characters_spawn( &sp_info );
+                activate_spawn_file_spawn( &sp_info );
             }
         }
 
@@ -5449,7 +5452,7 @@ void game_load_global_assets()
     }
     load_blips();
     load_bars();
-    font_bmp_load( "basicdat" SLASH_STR "font_new_shadow", "basicdat" SLASH_STR "font.txt" );
+    font_bmp_load( "data/font_new_shadow", "data/font.txt" );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5482,15 +5485,16 @@ void game_setup_module( const char *smallname )
 
     // make sure the object lists are empty
     free_all_objects();
+    particle_system_init();
 
     // generate the module directory
     strncpy(modname, smallname, SDL_arraysize(modname));
     str_append_slash(modname, SDL_arraysize(modname));
 
-    setup_particles();
-    setup_all_passages( modname );
-    setup_characters( modname );
-    setup_alliances( modname );
+    // ust the information in these files to load the module
+    activate_passages_file( modname );        // read and implement the "passage script" passages.txt
+    activate_spawn_file( modname );           // read and implement the "spawn script" spawn.txt
+    activate_alliance_file( modname );        // set up the non-default team interactions
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5502,19 +5506,19 @@ bool_t game_load_module_data( const char *smallname )
 
     log_info( "Loading module \"%s\"\n", smallname );
 
-    load_ai_script( "basicdat" SLASH_STR "script.txt" );
+    load_ai_script( "data/script.txt" );
 
     // generate the module directory
     strncpy(modname, smallname, SDL_arraysize(modname));
     str_append_slash(modname, SDL_arraysize(modname));
 
     // load all module assets
-    game_load_all_assets( modname );
+    game_load_all_assets( "" );
 
     // load all module objects
-    game_load_all_profiles(modname);
+    game_load_all_profiles( modname );
 
-    if ( NULL == mesh_load( modname, PMesh ) )
+    if ( NULL == mesh_load( "", PMesh ) )
     {
         // do not cause the program to fail, in case we are using a script function to load a module
         // just return a failure value and log a warning message for debugging purposes
@@ -5621,6 +5625,47 @@ void game_quit_module()
 
     // finish whatever in-game song is playing
     sound_finish_sound();
+
+    // remove "/objects" as a virtual mounting point
+    vfs_remove_mount_point( "objects" );
+}
+
+//-----------------------------------------------------------------
+bool_t game_setup_vfs( const char * modname )
+{
+    /// @details BB@> set up the virtual mount points for the module's data
+    ///               and objects
+
+    STRING tmpDir;
+
+    if( INVALID_CSTR(modname) ) return bfalse;
+
+    // set the mount point for the module's objects
+    vfs_remove_mount_point( "objects" );
+    snprintf( tmpDir, sizeof(tmpDir), "%s" SLASH_STR "objects", modname );
+    vfs_add_mount_point( tmpDir, "objects", 0 );
+
+    // mount all of the default global objects directories
+    vfs_add_mount_point( "basicdat/globalobjects/items",             "objects", 1 );
+    vfs_add_mount_point( "basicdat/globalobjects/magic",             "objects", 1 );
+    vfs_add_mount_point( "basicdat/globalobjects/magic_items",       "objects", 1 );
+    vfs_add_mount_point( "basicdat/globalobjects/misc",              "objects", 1 );
+    vfs_add_mount_point( "basicdat/globalobjects/players",           "objects", 1 );
+    vfs_add_mount_point( "basicdat/globalobjects/potions",           "objects", 1 );
+    vfs_add_mount_point( "basicdat/globalobjects/unique",            "objects", 1 );
+    vfs_add_mount_point( "basicdat/globalobjects/weapons",           "objects", 1 );
+    vfs_add_mount_point( "basicdat/globalobjects/works_in_progress", "objects", 1 );
+
+    // set the mount point for the module's data
+    vfs_remove_mount_point( "data" );
+    snprintf( tmpDir, sizeof(tmpDir), "%s" SLASH_STR "gamedat", modname );
+    vfs_add_mount_point( tmpDir, "data", 0 );
+
+    // mount all of the default global data directories
+    vfs_add_mount_point( "basicdat",                 "data", 1 );
+    vfs_add_mount_point( "basicdat/globalparticles", "data", 1 );
+
+    return btrue;
 }
 
 //-----------------------------------------------------------------
@@ -5634,6 +5679,9 @@ bool_t game_begin_module( const char * modname, Uint32 seed )
     game_quit_module();
 
     reset_timers();
+
+    // set up the birtual file system for the module
+    if( !game_setup_vfs(modname) ) return bfalse;
 
     // load all the in-game module data
     srand( seed );
@@ -7502,7 +7550,7 @@ wawalite_data_t * read_wawalite( const char *modname )
 
     if( INVALID_CSTR(modname) ) return NULL;
 
-    pdata = read_wawalite_file( modname, NULL );
+    pdata = read_wawalite_file( "data/wawalite.txt", NULL );
     if( NULL == pdata ) return NULL;
 
     memcpy( &wawalite_data, pdata, sizeof(wawalite_data_t) );
@@ -7525,6 +7573,7 @@ bool_t write_wawalite( const char *modname, wawalite_data_t * pdata )
     /// @details BB@> Prepare and write the wawalite file
 
     int cnt;
+    STRING filename;
 
     if( !VALID_CSTR(modname) || NULL == pdata ) return bfalse;
 
@@ -7537,7 +7586,9 @@ bool_t write_wawalite( const char *modname, wawalite_data_t * pdata )
         pdata->water.layer[cnt].light_add = CLIP(pdata->water.layer[cnt].light_add, 0, 63);
     }
 
-    return write_wawalite_file( modname, pdata );
+    snprintf( filename, SDL_arraysize(filename), "modules" SLASH_STR "%s" SLASH_STR "gamedat" SLASH_STR "menu.txt", modname );
+
+    return write_wawalite_file( filename, pdata );
 }
 
 //--------------------------------------------------------------------------------------------

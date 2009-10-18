@@ -56,7 +56,7 @@ tile_definition_t tile_dict[MAXMESHTYPE];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void tile_dictionary_load(tile_definition_t dict[], size_t dict_size)
+void tile_dictionary_load(const char * filename, tile_definition_t dict[], size_t dict_size)
 {
     /// @details ZZ@> This function loads fan types for the terrain
 
@@ -68,7 +68,7 @@ void tile_dictionary_load(tile_definition_t dict[], size_t dict_size)
     float ftmp;
     vfs_FILE* fileread;
 
-    if ( NULL == dict || dict_size < 2 ) return;
+    if ( !VALID_CSTR(filename) || NULL == dict || dict_size < 2 ) return;
 
     // Initialize all mesh types to 0
     for ( entry = 0; entry < dict_size; entry++ )
@@ -78,11 +78,10 @@ void tile_dictionary_load(tile_definition_t dict[], size_t dict_size)
     }
 
     // Open the file and go to it
-    tmpname = "basicdat" SLASH_STR "fans.txt";
-    fileread = vfs_openRead( tmpname );
+    fileread = vfs_openRead( filename );
     if ( NULL == fileread )
     {
-        log_error( "Cannot load the tile definitions \"%s\".\n", tmpname );
+        log_error( "Cannot load the tile definitions \"%s\".\n", filename );
         return;
     }
 
@@ -158,13 +157,12 @@ void tile_dictionary_load(tile_definition_t dict[], size_t dict_size)
 //--------------------------------------------------------------------------------------------
 mpd_t * mpd_new( mpd_t * pmesh )
 {
+
     if ( NULL != pmesh )
     {
         mpd_mem_new( &(pmesh->mem) );
         mpd_info_new( &(pmesh->info)  );
     }
-
-    tile_dictionary_load( tile_dict, MAXMESHTYPE );
 
     return pmesh;
 }

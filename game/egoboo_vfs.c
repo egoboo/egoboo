@@ -49,6 +49,11 @@
 
 typedef char VFS_PATH[VFS_MAX_PATH];
 
+#define MAX_MOUNTPOINTS 5
+
+static VFS_PATH vfs_mount_point_name[MAX_MOUNTPOINTS];
+static int      vfs_mount_point_count = 0;
+
 /// The bits specifying the possible errors
 enum e_vfs_error_bits
 {
@@ -104,8 +109,6 @@ static void         _vfs_exit(void);
 static const char * _vfs_search( struct s_vfs_search_context * ctxt );
 static int          _vfs_vfscanf( FILE * file, const char * format, va_list args );
 
-static const char * _vfs_convert_fname_physfs( const char * fname );
-static const char * _vfs_convert_fname_sys  ( const char * fname );
 
 static int          _vfs_ensure_write_directory( const char * filename, bool_t is_directory );
 static bool_t       _vfs_ensure_destination_file( const char * filename );
@@ -210,7 +213,7 @@ vfs_FILE * vfs_openWriteB( const char * filename )
 
     // make a local copy of the filename
     // and make sure that PHYSFS gets the local_filename with the slashes it wants
-    strncpy( local_filename, _vfs_convert_fname_physfs( filename ), SDL_arraysize(local_filename) );
+    strncpy( local_filename, vfs_convert_fname( filename ), SDL_arraysize(local_filename) );
 
     // make sure that the output directory exists
     if( !_vfs_ensure_write_directory( local_filename, bfalse ) ) return NULL;
@@ -254,8 +257,13 @@ vfs_FILE * vfs_openAppendB( const char * filename )
 }
 
 //--------------------------------------------------------------------------------------------
-const char * _vfs_convert_fname_sys( const char * fname )
+const char * vfs_convert_fname_sys( const char * fname )
 {
+    // PHYSFS and this vfs use a "/" at the front of relative filenames. if this is not removed
+    // when converting to system dependent filenames, it will reference the filename relative to the
+    // root point, rather than relative to the current directory.
+
+    size_t          offset;
     VFS_PATH        copy_fname  = EMPTY_CSTR;
     static VFS_PATH local_fname = EMPTY_CSTR;
 
@@ -270,20 +278,25 @@ const char * _vfs_convert_fname_sys( const char * fname )
     // actualy a pointer to local_fname
     strncpy( copy_fname, fname, SDL_arraysize(copy_fname) );
 
-    if( '/' == copy_fname[0] || '\\' == copy_fname[0] )
+    offset = 0;
+    if( '.' == copy_fname[0] && '.' == copy_fname[1] )
     {
-        snprintf( local_fname, SDL_arraysize(local_fname), "%s", copy_fname );
+        offset++;
     }
-    else
+
+    while( '/' == copy_fname[offset] || '\\' == copy_fname[offset] && offset < SDL_arraysize(copy_fname) )
     {
-        snprintf( local_fname, SDL_arraysize(local_fname), SLASH_STR "%s", copy_fname );
+        offset++;
     }
+
+    // copy the proper relative filename
+    strncpy( local_fname, copy_fname + offset, SDL_arraysize(local_fname) );
 
     return str_convert_slash_sys( local_fname, strlen(local_fname) );
 }
 
 //--------------------------------------------------------------------------------------------
-const char * _vfs_convert_fname_physfs( const char * fname )
+const char * vfs_convert_fname( const char * fname )
 {
     VFS_PATH        copy_fname  = EMPTY_CSTR;
     static VFS_PATH local_fname = EMPTY_CSTR;
@@ -312,6 +325,104 @@ const char * _vfs_convert_fname_physfs( const char * fname )
 }
 
 //--------------------------------------------------------------------------------------------
+char * _vfs_strip_mount_point( const char * some_path )
+{
+    int cnt;
+    size_t offset;
+    char * ptmp, * stripped_pos;
+
+    stripped_pos = some_path;
+
+    // strip any starting slashes
+    for( ptmp = some_path; ('\0' != *ptmp) && ptmp < some_path + VFS_MAX_PATH; ptmp++ ) 
+    {
+        if( '/' != *ptmp && '\\' != *ptmp )
+        {
+            break;
+        }
+    }
+    some_path = ptmp;
+
+    ptmp   = NULL;
+    offset = 0;
+    for( cnt = 0; cnt < vfs_mount_point_count; cnt++ )
+    {
+        offset = strlen( vfs_mount_point_name[cnt] );
+        if( offset <= 0 ) continue;
+
+        if( 0 == strncmp( some_path, vfs_mount_point_name[cnt], offset ) )
+        {
+            stripped_pos = some_path + offset;
+            break;
+        }   
+    }
+
+    return stripped_pos;
+
+}
+
+//--------------------------------------------------------------------------------------------
+char * _vfs_potential_mount_point( const char * some_path, const char ** pstripped_pos )
+{
+    // This helper sinction was devised to read the first potential directory name
+    // from the given path. Because:
+    //
+    // 1) To use the PHYSFS_getMountPoint() function, the mount point you are testing
+    //    must be a system-dependent pathname, ending with a system-dependent path
+    //    separator.
+    //
+    // 2) if you use PHYSFS_getRealDir() to give you a path to a file, what it really does is
+    //    resolve the mount point, rather than the whole path name (path name without the
+    //    file, that is). To do the job we want in vfs_resolveReadFilename(), we need to be able
+    //    to strip the mount point off of the path that we were given before prepending the
+    //    path returned by PHYSFS_getRealDir()
+
+    char * ptmp, *path_begin, *path_end;
+    static VFS_PATH found_path;
+
+    found_path[0] = '\0';
+
+    if( !VALID_CSTR(some_path) ) return found_path;
+
+    ptmp = some_path;
+
+    path_begin = some_path;
+    path_end   = some_path + VFS_MAX_PATH - 1;
+
+
+    // strip any starting slashes
+    for( ptmp = path_begin; ptmp < path_end; ptmp++ ) 
+    {
+        if( '/' != *ptmp && '\\' != *ptmp )
+        {
+            path_begin = ptmp;
+            break;
+        }
+    }
+
+    // identify the slash after the mount point
+    ptmp = strpbrk(path_begin, "/\\");
+    if( NULL != ptmp ) path_end = ptmp + 1;
+
+    // make sre we do not have an empty string
+    if( path_end > path_begin )
+    {
+        size_t count = path_end - path_begin;
+        strncpy( found_path, path_begin, count );
+        found_path[count] = '\0';
+    }
+
+    // export the beginning of the string after the mount point, is poddible
+    if( NULL != pstripped_pos )
+    {
+        *pstripped_pos = path_end;
+    }
+
+    // return the potential mount point in system-dependent format
+    return vfs_convert_fname_sys( found_path );
+}
+
+//--------------------------------------------------------------------------------------------
 const char * vfs_resolveReadFilename(const char * src_filename )
 {
     static STRING read_name_str = EMPTY_CSTR;
@@ -323,7 +434,7 @@ const char * vfs_resolveReadFilename(const char * src_filename )
 
     // make a copy of the local filename
     // and make sure that PHYSFS gets the filename with the slashes it wants
-    strncpy( loc_fname, _vfs_convert_fname_physfs( src_filename ), SDL_arraysize(loc_fname) );
+    strncpy( loc_fname, vfs_convert_fname( src_filename ), SDL_arraysize(loc_fname) );
 
     retval = NULL;
     retval_len = 0;
@@ -338,9 +449,10 @@ const char * vfs_resolveReadFilename(const char * src_filename )
             retval_len = SDL_arraysize(read_name_str);
         }
     }
-    else
+    else 
     {
-        const char * tmp_dirnane;
+        char * tmp_dirnane;
+        char * ptmp = loc_fname;
 
         // make PHYSFS grab the actual directory
         tmp_dirnane = PHYSFS_getRealDir( loc_fname );
@@ -354,8 +466,9 @@ const char * vfs_resolveReadFilename(const char * src_filename )
         }
         else
         {
-            // found. append the local filename to the directory
-            snprintf( read_name_str, SDL_arraysize(read_name_str), "%s" SLASH_STR "%s", tmp_dirnane, loc_fname );
+            ptmp = _vfs_strip_mount_point( loc_fname );
+
+            snprintf( read_name_str, SDL_arraysize(read_name_str), "%s" SLASH_STR "%s", tmp_dirnane, ptmp );
             retval     = read_name_str;
             retval_len = SDL_arraysize(read_name_str);
         }
@@ -433,7 +546,7 @@ int _vfs_ensure_write_directory( const char * filename, bool_t is_directory )
 
     // make a working copy of the filename
     // and make sure that PHYSFS gets the filename with the slashes it wants
-    strncpy( temp_dirname, _vfs_convert_fname_physfs(filename), SDL_arraysize(temp_dirname) );
+    strncpy( temp_dirname, vfs_convert_fname(filename), SDL_arraysize(temp_dirname) );
 
     // grab the system-independent path relative to the write directory
     if( !is_directory && !vfs_isDirectory(temp_dirname) )
@@ -451,7 +564,7 @@ int _vfs_ensure_write_directory( const char * filename, bool_t is_directory )
 
     // call mkdir() on this directory. PHYSFS will automatically generate the
     // directories needed between the write directory and the specified directory
-    retval = 0;
+    retval = 1;
     if( VALID_CSTR(temp_dirname) )
     {
         retval = vfs_mkdir( temp_dirname );
@@ -474,7 +587,7 @@ vfs_FILE * vfs_openWrite( const char * filename )
 
     // make a local copy of the filename
     // and make sure that PHYSFS gets the filename with the slashes it wants
-    strncpy( local_filename, _vfs_convert_fname_physfs( filename ), SDL_arraysize(local_filename) );
+    strncpy( local_filename, vfs_convert_fname( filename ), SDL_arraysize(local_filename) );
 
     // make sure that the output directory exists
     if( !_vfs_ensure_write_directory( local_filename, bfalse ) ) return NULL;
@@ -509,7 +622,7 @@ bool_t _vfs_ensure_destination_file( const char * filename )
 
     // make a local copy of the filename
     // and make sure that PHYSFS gets the filename with the slashes it wants
-    strncpy( local_filename, _vfs_convert_fname_physfs( filename ), SDL_arraysize(local_filename) );
+    strncpy( local_filename, vfs_convert_fname( filename ), SDL_arraysize(local_filename) );
 
     // make sure that the output directory exists
     if( !_vfs_ensure_write_directory( local_filename, bfalse ) ) return bfalse;
@@ -757,7 +870,7 @@ long vfs_fileLength( vfs_FILE * pfile )
 //--------------------------------------------------------------------------------------------
 int vfs_mkdir(const char *dirName)
 {
-	int retval = PHYSFS_mkdir ( _vfs_convert_fname_physfs(dirName) );
+	int retval = PHYSFS_mkdir ( vfs_convert_fname(dirName) );
 
 	if(!retval)
     {
@@ -770,19 +883,19 @@ int vfs_mkdir(const char *dirName)
 //--------------------------------------------------------------------------------------------
 int vfs_delete_file (const char *filename)
 {
-    return PHYSFS_delete( _vfs_convert_fname_physfs(filename) );
+    return PHYSFS_delete( vfs_convert_fname(filename) );
 }
 
 //--------------------------------------------------------------------------------------------
 int vfs_exists (const char *fname)
 {
-    return PHYSFS_exists ( _vfs_convert_fname_physfs(fname) );
+    return PHYSFS_exists ( vfs_convert_fname(fname) );
 }
 
 //--------------------------------------------------------------------------------------------
 int vfs_isDirectory (const char *fname)
 {
-    return PHYSFS_isDirectory ( _vfs_convert_fname_physfs( fname ) );
+    return PHYSFS_isDirectory ( vfs_convert_fname( fname ) );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1192,7 +1305,7 @@ int vfs_scanf( vfs_FILE * pfile, const char *format, ... )
 //--------------------------------------------------------------------------------------------
 char ** vfs_enumerateFiles( const char * dir_name )
 {
-    return PHYSFS_enumerateFiles( _vfs_convert_fname_physfs(dir_name) );
+    return PHYSFS_enumerateFiles( vfs_convert_fname(dir_name) );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1268,7 +1381,7 @@ const char * _vfs_search( struct s_vfs_search_context * ctxt )
                 snprintf( path_buffer, SDL_arraysize(path_buffer), "%s" NET_SLASH_STR "%s", ctxt->path, *(ctxt->ptr) );
             }
 
-            loc_path = (char *)_vfs_convert_fname_physfs(path_buffer);
+            loc_path = (char *)vfs_convert_fname(path_buffer);
 
             // have we found the correct type of object?
             found  = VFS_FALSE;
@@ -1317,7 +1430,7 @@ const char * _vfs_search( struct s_vfs_search_context * ctxt )
                 snprintf( path_buffer, SDL_arraysize(path_buffer), "%s" NET_SLASH_STR "%s", ctxt->path, *(ctxt->ptr) );
             }
 
-            loc_path = (char *)_vfs_convert_fname_physfs(path_buffer);
+            loc_path = (char *)vfs_convert_fname(path_buffer);
 
             found = VFS_FALSE;
             is_dir = vfs_isDirectory( loc_path );
@@ -1411,7 +1524,7 @@ const char * vfs_findFirst( const char * search_path, const char * search_extens
     vfs_findClose();
 
     // grab all the files
-    vfs_search_context.file_list = vfs_enumerateFiles( _vfs_convert_fname_physfs( search_path ) );
+    vfs_search_context.file_list = vfs_enumerateFiles( vfs_convert_fname( search_path ) );
     vfs_search_context.ptr       = NULL;
 
     // no search list generated
@@ -1596,7 +1709,7 @@ int vfs_copyDirectory( const char *sourceDir, const char *destDir )
     real_dst = szDst;
 
     // List all the files in the directory
-    fileName = vfs_findFirst( _vfs_convert_fname_physfs( sourceDir ), NULL, VFS_SEARCH_FILE | VFS_SEARCH_BARE );
+    fileName = vfs_findFirst( vfs_convert_fname( sourceDir ), NULL, VFS_SEARCH_FILE | VFS_SEARCH_BARE );
     while ( VALID_CSTR(fileName) )
     {
         // Ignore files that begin with a .
@@ -1889,4 +2002,129 @@ const char * vfs_getError()
     snprintf( errors, SDL_arraysize(errors), "c stdio says:\"%s\" -- physfs says:\"%s\"", file_error, physfs_error );
 
     return errors;
+}
+
+//--------------------------------------------------------------------------------------------
+int _vfs_mount_point_name_exists( const char * mount_point )
+{
+    int cnt, retval;
+    char * ptmp;
+
+    // set to an invalid value;
+    retval = -1;
+
+    if( !VALID_CSTR(mount_point) ) return retval;
+
+    // are there any in the list?
+    if( 0 == vfs_mount_point_count ) return retval;
+
+    // strip any starting slashes
+    for( ptmp = mount_point; ptmp < mount_point + VFS_MAX_PATH; ptmp++ ) 
+    {
+        if( '/' != *ptmp && '\\' != *ptmp || '\0' == *ptmp)
+        {
+            break;
+        }
+    }
+
+    if( INVALID_CSTR(ptmp) ) return retval;
+
+    // search for the name
+    for( cnt = 0; cnt < vfs_mount_point_count; cnt++ )
+    {
+        if( 0 == strncmp(vfs_mount_point_name[cnt], ptmp, VFS_MAX_PATH) )
+        {
+            retval = cnt;
+            break;
+        }
+    }
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t _vfs_add_mount_point_name( const char * mount_point )
+{
+    char * ptmp;
+
+    // can we add it?
+    if( vfs_mount_point_count >= MAX_MOUNTPOINTS ) return bfalse;
+
+    // do we want to add it?
+    if( !VALID_CSTR(mount_point) ) return bfalse;
+
+    if( _vfs_mount_point_name_exists(mount_point) >= 0 ) return bfalse;
+
+    // strip any starting slashes
+    for( ptmp = mount_point; ptmp < mount_point + VFS_MAX_PATH; ptmp++ ) 
+    {
+        if( '/' != *ptmp && '\\' != *ptmp || '\0' == *ptmp)
+        {
+            break;
+        }
+    }
+
+    if( '\0' == *ptmp ) return bfalse;
+
+    // save the mount point in a list for later detection
+    strncpy( vfs_mount_point_name[vfs_mount_point_count], ptmp, VFS_MAX_PATH);
+    vfs_mount_point_count++;
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t _vfs_remove_mount_point_name( const char * mount_point )
+{
+    int cnt;
+
+    // see if we have the mount point
+    cnt = _vfs_mount_point_name_exists(mount_point);
+
+    // does it exist in the list?
+    if( cnt < 0 ) return bfalse;
+
+    // fill in the hole in the list
+    if( vfs_mount_point_count > 1 )
+    {
+        strncpy( vfs_mount_point_name[cnt], vfs_mount_point_name[vfs_mount_point_count-1], VFS_MAX_PATH);
+    }
+
+    // shorten the list
+    vfs_mount_point_count--;
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+int vfs_add_mount_point( const char * dirname, const char * mount_point, int append )
+{
+    /// @details BB@> a wrapper for PHYSFS_mount
+
+    if( !VALID_CSTR(dirname) ) return 0;
+    if( 0 == strcmp(mount_point, "/") ) return 0;
+
+     _vfs_add_mount_point_name(mount_point);
+
+    return PHYSFS_mount( vfs_convert_fname_sys(dirname), mount_point, append );
+}
+
+//--------------------------------------------------------------------------------------------
+int vfs_remove_mount_point( const char * mount_point )
+{
+    /// @details BB@> a wrapper for PHYSFS_mount
+
+    int retval;
+
+    // don't allow it to remove the default directory
+    if( !VALID_CSTR(mount_point) ) return 0;
+    if( 0 == strcmp(mount_point, "/") ) return 0;
+
+    retval = 0;
+    if( _vfs_remove_mount_point_name( mount_point ) )
+    {
+        retval = PHYSFS_removeFromSearchPath( mount_point );
+    };
+
+    return retval;
 }

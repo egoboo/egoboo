@@ -86,7 +86,7 @@ Uint16 who_is_blocking_passage( Uint16 passage, bool_t targetitems, bool_t targe
 void   clear_all_passages();
 void   add_shop_passage( Uint16 owner, Uint16 passage );
 void   add_passage( passage_t * pdata );
-void   setup_all_passages( const char *modname );
+void   activate_passages_file( const char *modname );
 Uint16 shop_get_owner( int ix, int iy );
 bool_t point_is_in_passage( Uint16 passage, float xpos, float ypos );
 bool_t object_is_in_passage( Uint16 passage, float xpos, float ypos, float radius );

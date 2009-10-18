@@ -279,7 +279,7 @@ wawalite_data_t * read_wawalite_fog( vfs_FILE * fileread, wawalite_data_t * pdat
 }
 
 //--------------------------------------------------------------------------------------------
-wawalite_data_t * read_wawalite_file( const char *modname, wawalite_data_t * pdata )
+wawalite_data_t * read_wawalite_file( const char *filename, wawalite_data_t * pdata )
 {
     /// @details ZZ@> This function sets up water and lighting for the module
 
@@ -290,8 +290,7 @@ wawalite_data_t * read_wawalite_file( const char *modname, wawalite_data_t * pda
 
     if( NULL == wawalite_data_init( pdata ) ) return pdata;
 
-    make_newloadname( modname, "gamedat" SLASH_STR "wawalite.txt", newloadname );
-    fileread = vfs_openRead( newloadname );
+    fileread = vfs_openRead( filename );
     if ( NULL == fileread )
     {
         log_warning( "Could not read file! (\"%s\")\n", newloadname );
@@ -494,7 +493,7 @@ bool_t write_wawalite_file( const char *modname, wawalite_data_t * pdata )
 
     if( NULL == pdata ) return bfalse;
 
-    make_newloadname( modname, "gamedat" SLASH_STR "wawalite.txt", newloadname );
+    make_newloadname( modname, "data/wawalite.txt", newloadname );
     filewrite = vfs_openWrite( newloadname );
     if ( NULL == filewrite )
     {

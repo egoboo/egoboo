@@ -472,7 +472,7 @@ void add_passage( passage_t * pdata )
 }
 
 //--------------------------------------------------------------------------------------------
-void setup_all_passages( const char *modname )
+void activate_passages_file( const char *modname )
 {
     /// @details ZZ@> This function reads the passage file
 
@@ -484,7 +484,7 @@ void setup_all_passages( const char *modname )
     clear_all_passages();
 
     // Load the file
-    make_newloadname( modname, "gamedat" SLASH_STR "passage.txt", newloadname );
+    make_newloadname( modname, "data/passage.txt", newloadname );
     fileread = vfs_openRead( newloadname );
     if ( NULL == fileread ) return;
 

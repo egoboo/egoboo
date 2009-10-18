@@ -183,7 +183,7 @@ bool_t PrtList_free_one( Uint16 particle );
 void   PrtList_free_all();
 void   free_one_particle_in_game( Uint16 particle );
 
-void setup_particles();
+void particle_system_init();
 
 void update_all_particles( void );
 void move_all_particles( void );

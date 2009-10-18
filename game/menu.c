@@ -945,9 +945,6 @@ int doChooseModule( float deltaTime )
                 }
                 carat += snprintf( carat, carat_end - carat - 1, " \n" );
 
-                // And finally, the summary
-                // carat += snprintf( carat, carat_end-carat-1, "modules" SLASH_STR "%s" SLASH_STR "gamedat" SLASH_STR "menu.txt", mnu_ModList.lst[imodule].base.loadname );
-
                 for ( i = 0; i < SUMMARYLINES; i++ )
                 {
                     carat += snprintf( carat, carat_end - carat - 1, "%s\n", mnu_ModList.lst[imodule].base.summary[i] );
@@ -1015,7 +1012,7 @@ bool_t doChoosePlayer_load_profiles( int player, ChoosePlayer_profiles_t * pro_l
 
     if( 0 == bookicon_count )
     {
-        load_one_profile( "basicdat" SLASH_STR "book.obj", SPELLBOOK );
+        load_one_profile( "basicdat" SLASH_STR "globalobjects" SLASH_STR "book.obj", SPELLBOOK );
     }
 
     // release any data that we have accumulated
@@ -4326,7 +4323,7 @@ void mnu_load_all_module_info()
         if ( NULL != module_load_info( loadname, &(pmod->base) ) )
         {
             pmod->loaded = btrue;
-            strncpy( pmod->name, FileName, SDL_arraysize(pmod->name) );
+            strncpy( pmod->name, vfs_convert_fname_sys(FileName), SDL_arraysize(pmod->name) );
             mnu_ModList.count++;
         };
 

@@ -4507,27 +4507,27 @@ void load_basic_textures( const char *modname )
     STRING newloadname;
 
     // Particle sprites
-    TxTexture_load_one( "basicdat" SLASH_STR "globalparticles" SLASH_STR "particle_trans", TX_PARTICLE_TRANS, TRANSCOLOR );
-    TxTexture_load_one( "basicdat" SLASH_STR "globalparticles" SLASH_STR "particle_light", TX_PARTICLE_LIGHT, INVALID_KEY );
+    TxTexture_load_one( "data/particle_trans", TX_PARTICLE_TRANS, TRANSCOLOR );
+    TxTexture_load_one( "data/particle_light", TX_PARTICLE_LIGHT, INVALID_KEY );
 
     // Module background tiles
-    make_newloadname( modname, "gamedat" SLASH_STR "tile0", newloadname );
+    make_newloadname( modname, "data/tile0", newloadname );
     TxTexture_load_one( newloadname, TX_TILE_0, TRANSCOLOR );
 
-    make_newloadname( modname, "gamedat" SLASH_STR "tile1", newloadname );
+    make_newloadname( modname, "data/tile1", newloadname );
     TxTexture_load_one( newloadname, TX_TILE_1, TRANSCOLOR );
 
-    make_newloadname( modname, "gamedat" SLASH_STR "tile2", newloadname );
+    make_newloadname( modname, "data/tile2", newloadname );
     TxTexture_load_one( newloadname, TX_TILE_2, TRANSCOLOR);
 
-    make_newloadname( modname, "gamedat" SLASH_STR "tile3", newloadname );
+    make_newloadname( modname, "data/tile3", newloadname );
     TxTexture_load_one( newloadname, TX_TILE_3, TRANSCOLOR );
 
     // Water textures
-    make_newloadname( modname, "gamedat" SLASH_STR "watertop", newloadname );
+    make_newloadname( modname, "data/watertop", newloadname );
     TxTexture_load_one( newloadname, TX_WATER_TOP, TRANSCOLOR );
 
-    make_newloadname( modname, "gamedat" SLASH_STR "waterlow", newloadname );
+    make_newloadname( modname, "data/waterlow", newloadname );
     TxTexture_load_one( newloadname, TX_WATER_LOW, TRANSCOLOR);
 
     // Texture 7 is the phong map
@@ -4541,13 +4541,13 @@ void load_bars()
 
     const char * pname;
 
-    pname = "basicdat" SLASH_STR "bars";
+    pname = "data/bars";
     if ( INVALID_TEXTURE == TxTexture_load_one( pname, TX_BARS, TRANSCOLOR ) )
     {
         log_warning( "load_bars() - Cannot load file! (\"%s\")\n", pname );
     }
 
-    pname = "basicdat" SLASH_STR "xpbar";
+    pname = "data/xpbar";
     if ( INVALID_TEXTURE == TxTexture_load_one( pname, TX_XP_BAR, TRANSCOLOR ) )
     {
         log_warning( "load_bars() - Cannot load file! (\"%s\")\n", pname );
@@ -4567,7 +4567,7 @@ void load_map( const char* szModule )
     numblip = 0;
 
     // Load the images
-    snprintf( szMap, SDL_arraysize( szMap), "%sgamedat" SLASH_STR "plan", szModule );
+    snprintf( szMap, SDL_arraysize(szMap), "/data" SLASH_STR "plan" );
 
     if ( INVALID_TEXTURE == TxTexture_load_one( szMap, TX_MAP, INVALID_KEY ) )
     {
@@ -4584,7 +4584,7 @@ void load_map( const char* szModule )
 bool_t load_blips()
 {
     /// ZZ@> This function loads the blip bitmaps
-    if ( INVALID_TEXTURE == TxTexture_load_one( "basicdat" SLASH_STR "blip", TX_BLIP, INVALID_KEY ) )
+    if ( INVALID_TEXTURE == TxTexture_load_one( "data/blip", TX_BLIP, INVALID_KEY ) )
     {
         log_warning( "Blip bitmap not loaded! (\"%s\")\n", "basicdat" SLASH_STR "blip" );
         return bfalse;
