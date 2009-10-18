@@ -396,9 +396,9 @@ void release_all_profile_textures();
 void   load_graphics();
 bool_t load_blips();
 void   load_bars();
-void   load_map( const char* szModule );
+void   load_map( /* const char* szModule */ );
 bool_t load_all_global_icons();
-void   load_basic_textures( const char *modname );
+void   load_basic_textures( /* const char *modname */ );
 
 float  get_ambient_level();
 

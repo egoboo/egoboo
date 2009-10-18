@@ -1481,7 +1481,7 @@ int load_one_particle_profile( const char *szLoadName, Uint16 pip_override )
 }
 
 //--------------------------------------------------------------------------------------------
-void reset_particles( const char* modname )
+void reset_particles( /* const char* modname */ )
 {
     /// @details ZZ@> This resets all particle data and reads in the coin and water particles
 
@@ -1495,69 +1495,57 @@ void reset_particles( const char* modname )
     loadpath = "data/1money.txt";
     if ( MAX_PIP == load_one_particle_profile( loadpath, PIP_COIN1 ) )
     {
-        log_error( "Data file was not found! (%s)\n", loadpath );
+        log_error( "Data file was not found! (\"%s\")\n", loadpath );
     }
 
     loadpath = "data/5money.txt";
     if ( MAX_PIP == load_one_particle_profile( loadpath, PIP_COIN5 ) )
     {
-        log_error( "Data file was not found! (%s)\n", loadpath );
+        log_error( "Data file was not found! (\"%s\")\n", loadpath );
     }
 
     loadpath = "data/25money.txt";
     if ( MAX_PIP == load_one_particle_profile( loadpath, PIP_COIN25 ) )
     {
-        log_error( "Data file was not found! (%s)\n", loadpath );
+        log_error( "Data file was not found! (\"%s\")\n", loadpath );
     }
 
     loadpath = "data/100money.txt";
     if ( MAX_PIP == load_one_particle_profile( loadpath, PIP_COIN100 ) )
     {
-        log_error( "Data file was not found! (%s)\n", loadpath );
+        log_error( "Data file was not found! (\"%s\")\n", loadpath );
     }
 
     // Load module specific information
-    make_newloadname( modname, "data/weather4.txt", newloadname );
-    if ( MAX_PIP == load_one_particle_profile( newloadname, PIP_WEATHER4 ) )
+    loadpath = "data/weather4.txt";
+    if ( MAX_PIP == load_one_particle_profile( loadpath, PIP_WEATHER4 ) )
     {
-        log_error( "Data file was not found! (%s)\n", newloadname );
+        log_error( "Data file was not found! (\"%s\")\n", loadpath );
     }
 
-    make_newloadname( modname, "data/weather5.txt", newloadname );
-    if ( MAX_PIP == load_one_particle_profile( newloadname, PIP_WEATHER5 ) )
+    loadpath = "data/weather5.txt";
+    if ( MAX_PIP == load_one_particle_profile( loadpath, PIP_WEATHER5 ) )
     {
-        log_error( "Data file was not found! (%s)\n", newloadname );
+        log_error( "Data file was not found! (\"%s\")\n", loadpath );
     }
 
-    make_newloadname( modname, "data/splash.txt", newloadname );
-    if ( MAX_PIP == load_one_particle_profile( newloadname, PIP_SPLASH ) )
+    loadpath = "data/splash.txt";
+    if ( MAX_PIP == load_one_particle_profile( loadpath, PIP_SPLASH ) )
     {
-        log_debug( "Data file was not found! (%s) - Defaulting to global particle.\n", newloadname );
-
-        loadpath = "data/splash.txt";
-        if ( MAX_PIP == load_one_particle_profile( loadpath, PIP_SPLASH ) )
-        {
-            log_error( "Data file was not found! (%s)\n", loadpath );
-        }
+        log_error( "Data file was not found! (\"%s\")\n", loadpath );
     }
 
-    make_newloadname( modname, "data/ripple.txt", newloadname );
-    if ( MAX_PIP == load_one_particle_profile( newloadname, PIP_RIPPLE ) )
+    loadpath = "data/ripple.txt";
+    if ( MAX_PIP == load_one_particle_profile( loadpath, PIP_RIPPLE ) )
     {
-        log_debug( "Data file was not found! (%s) - Defaulting to global particle.\n", newloadname );
-
-        loadpath = "data/ripple.txt";
-        if ( MAX_PIP == load_one_particle_profile( loadpath, PIP_RIPPLE ) )
-        {
-            log_error( "Data file was not found! (%s)\n", loadpath );
-        }
+        log_error( "Data file was not found! (\"%s\")\n", loadpath );
     }
 
     // This is also global...
     loadpath = "data/defend.txt";
     if ( MAX_PIP == load_one_particle_profile( loadpath, PIP_DEFEND ) )
     {
-        log_error( "Data file was not found! (%s)\n", loadpath );
+        log_error( "Data file was not found! (\"%s\")\n", loadpath );
     }
 
     PipStack.count = GLOBAL_PIP_COUNT;

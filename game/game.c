@@ -5459,11 +5459,14 @@ void game_load_global_assets()
 void game_load_module_assets( const char *modname )
 {
     // load a bunch of assets that are used in the module
-    load_global_waves( modname );
-    reset_particles( modname );
-    read_wawalite( modname );
-    load_basic_textures( modname );
-    load_map( modname );
+    load_global_waves( /* modname */ );
+    reset_particles( /* modname */ );
+    if( NULL == read_wawalite( /* modname */ ) ) 
+    {
+        log_warning( "wawalite.txt not loaded for %s.\n", modname );
+    }
+    load_basic_textures( /* modname */ );
+    load_map( /* modname */ );
 
     upload_wawalite();
 }
@@ -5513,12 +5516,12 @@ bool_t game_load_module_data( const char *smallname )
     str_append_slash(modname, SDL_arraysize(modname));
 
     // load all module assets
-    game_load_all_assets( "" );
+    game_load_all_assets( modname );
 
     // load all module objects
     game_load_all_profiles( modname );
 
-    if ( NULL == mesh_load( "", PMesh ) )
+    if ( NULL == mesh_load( modname, PMesh ) )
     {
         // do not cause the program to fail, in case we are using a script function to load a module
         // just return a failure value and log a warning message for debugging purposes
@@ -5646,15 +5649,16 @@ bool_t game_setup_vfs( const char * modname )
     vfs_add_mount_point( tmpDir, "objects", 0 );
 
     // mount all of the default global objects directories
-    vfs_add_mount_point( "basicdat/globalobjects/items",             "objects", 1 );
-    vfs_add_mount_point( "basicdat/globalobjects/magic",             "objects", 1 );
-    vfs_add_mount_point( "basicdat/globalobjects/magic_items",       "objects", 1 );
-    vfs_add_mount_point( "basicdat/globalobjects/misc",              "objects", 1 );
-    vfs_add_mount_point( "basicdat/globalobjects/players",           "objects", 1 );
-    vfs_add_mount_point( "basicdat/globalobjects/potions",           "objects", 1 );
-    vfs_add_mount_point( "basicdat/globalobjects/unique",            "objects", 1 );
-    vfs_add_mount_point( "basicdat/globalobjects/weapons",           "objects", 1 );
-    vfs_add_mount_point( "basicdat/globalobjects/works_in_progress", "objects", 1 );
+    vfs_add_mount_point( "basicdat/globalobjects/items",            "objects", 1 );
+    vfs_add_mount_point( "basicdat/globalobjects/magic",            "objects", 1 );
+    vfs_add_mount_point( "basicdat/globalobjects/magic_item" ,      "objects", 1 );
+    vfs_add_mount_point( "basicdat/globalobjects/misc",             "objects", 1 );
+    vfs_add_mount_point( "basicdat/globalobjects/monsters",         "objects", 1 );
+    vfs_add_mount_point( "basicdat/globalobjects/players",          "objects", 1 );
+    vfs_add_mount_point( "basicdat/globalobjects/potions",          "objects", 1 );
+    vfs_add_mount_point( "basicdat/globalobjects/unique",           "objects", 1 );
+    vfs_add_mount_point( "basicdat/globalobjects/weapons",          "objects", 1 );
+    vfs_add_mount_point( "basicdat/globalobjects/work_in_progress", "objects", 1 );
 
     // set the mount point for the module's data
     vfs_remove_mount_point( "data" );
@@ -7543,12 +7547,12 @@ bool_t game_module_stop( game_module_t * pinst )
 }
 
 //--------------------------------------------------------------------------------------------
-wawalite_data_t * read_wawalite( const char *modname )
+wawalite_data_t * read_wawalite( /* const char *modname */ )
 {
     int cnt;
     wawalite_data_t * pdata;
 
-    if( INVALID_CSTR(modname) ) return NULL;
+    // if( INVALID_CSTR(modname) ) return NULL;
 
     pdata = read_wawalite_file( "data/wawalite.txt", NULL );
     if( NULL == pdata ) return NULL;

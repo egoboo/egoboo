@@ -4501,7 +4501,7 @@ bool_t load_all_global_icons()
 }
 
 //--------------------------------------------------------------------------------------------
-void load_basic_textures( const char *modname )
+void load_basic_textures( /* const char *modname */ )
 {
     /// @details ZZ@> This function loads the standard textures for a module
     STRING newloadname;
@@ -4511,27 +4511,17 @@ void load_basic_textures( const char *modname )
     TxTexture_load_one( "data/particle_light", TX_PARTICLE_LIGHT, INVALID_KEY );
 
     // Module background tiles
-    make_newloadname( modname, "data/tile0", newloadname );
-    TxTexture_load_one( newloadname, TX_TILE_0, TRANSCOLOR );
-
-    make_newloadname( modname, "data/tile1", newloadname );
-    TxTexture_load_one( newloadname, TX_TILE_1, TRANSCOLOR );
-
-    make_newloadname( modname, "data/tile2", newloadname );
-    TxTexture_load_one( newloadname, TX_TILE_2, TRANSCOLOR);
-
-    make_newloadname( modname, "data/tile3", newloadname );
-    TxTexture_load_one( newloadname, TX_TILE_3, TRANSCOLOR );
+    TxTexture_load_one( "data/tile0", TX_TILE_0, TRANSCOLOR );
+    TxTexture_load_one( "data/tile1", TX_TILE_1, TRANSCOLOR );
+    TxTexture_load_one( "data/tile2", TX_TILE_2, TRANSCOLOR);
+    TxTexture_load_one( "data/tile3", TX_TILE_3, TRANSCOLOR );
 
     // Water textures
-    make_newloadname( modname, "data/watertop", newloadname );
-    TxTexture_load_one( newloadname, TX_WATER_TOP, TRANSCOLOR );
-
-    make_newloadname( modname, "data/waterlow", newloadname );
-    TxTexture_load_one( newloadname, TX_WATER_LOW, TRANSCOLOR);
+    TxTexture_load_one( "data/watertop", TX_WATER_TOP, TRANSCOLOR );
+    TxTexture_load_one( "data/waterlow", TX_WATER_LOW, TRANSCOLOR);
 
     // Texture 7 is the phong map
-    TxTexture_load_one( "basicdat" SLASH_STR "phong", TX_PHONG, TRANSCOLOR );
+    TxTexture_load_one( "data/phong", TX_PHONG, TRANSCOLOR );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4555,10 +4545,11 @@ void load_bars()
 }
 
 //--------------------------------------------------------------------------------------------
-void load_map( const char* szModule )
+void load_map( /* const char* szModule */ )
 {
     /// @details ZZ@> This function loads the map bitmap
-    STRING szMap;
+
+    const char* szMap;
 
     // Turn it all off
     mapvalid = bfalse;
@@ -4567,8 +4558,7 @@ void load_map( const char* szModule )
     numblip = 0;
 
     // Load the images
-    snprintf( szMap, SDL_arraysize(szMap), "/data" SLASH_STR "plan" );
-
+    szMap = "data/plan";
     if ( INVALID_TEXTURE == TxTexture_load_one( szMap, TX_MAP, INVALID_KEY ) )
     {
         log_warning( "load_map() - Cannot load file! (\"%s\")\n", szMap );
