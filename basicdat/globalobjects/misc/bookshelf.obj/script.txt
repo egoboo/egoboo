@@ -1,0 +1,24 @@
+//Set random message
+IfSpawned
+  tmpargument = rand % 18 + 1
+  SetContent
+
+//Read message and drop any items
+IfBumped
+  SetTargetToWhoeverBumped
+  IfTargetIsAPlayer
+    IfTargetIsAlive			//Don't if player is dead
+      DropItems
+      
+      IfTimeOut
+        tmpargument = [READ]
+        IfTargetHasSkillID		//Only people who can read
+          GetContent
+        Else
+          tmpargument = 0		//Cant read this
+        SendMessageNear
+        
+        tmpargument = 50
+        SetTime				//Wait a while again...
+
+End    

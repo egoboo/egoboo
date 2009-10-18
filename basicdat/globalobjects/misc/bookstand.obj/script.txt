@@ -1,0 +1,84 @@
+//if you want to put a book in the bookstand set the Dir to "I" dont put it in L or anything.
+//This Object was bought to you by ptapasu in association with the Bishopia Literacy Society!
+IfSpawned
+  tmpargument = rand % 4      //randomize the book skin
+  ChangeArmor
+  
+IfBumped                                          //PlayerBumpsBookStand
+  IfStateIs0
+    SetTargetToWhoeverBumped          //Targets the Bumper
+    IfTargetIsAPlayer                                  //Is the Bumper a player?      
+      tmpargument = 1
+      SetState                                          //wait before trying again
+      
+      //is the content 0?  == first time bumpers
+      tmpargument = 0                               
+      IfContentIs                                       
+        SetTargetToSelf                       //If He is then look at yourself
+        tmpargument = [BOOK]                   //has the bookstand got a book?
+        IfTargetHasItemID                          //if it has then
+          DropItems                                      // drop the book
+          tmpargument = ACTIONJA             //and show the empty bookstand anim
+          DoAction
+          KeepAction                                      //FOREVER MUAHAHA
+          tmpargument = 0                            //tell the player the book was dropped
+          SendMessageNear
+          
+          //Award some xp
+          tmpargument = 15			
+          tmpdistance = EXPSECRET
+          GiveExperienceToTarget
+          
+          //We are just scenery from now on
+          tmpargument = 2
+          SetState
+        Else
+          tmpargument = ACTIONDB         //open the book and play a random message
+          DoAction
+          KeepAction
+          
+          //Can they read?
+          SetTargetToWhoeverBumped          //Targets the Bumper
+          tmpargument = [READ]
+          IfTargetHasSkillID                //They can read
+            tmpargument = 5
+            tmpdistance = EXPSECRET
+            GiveExperienceToTarget
+            tmpargument = rand % 28 + 2   //randomize contents
+            SetContent                    //set content to one so that anims, and messages aren't repeated!
+          Else
+            tmpargument = rand % 28 + 2   //randomize contents
+            SetContent                    //set content to one so that anims, and messages aren't repeated!
+            tmpargument = 1             //They cannot read!
+          SendMessageNear
+          tmpargument = 100
+          SetTime
+          
+          //Page turning sound
+          tmpargument = 0
+          PlaySound		    
+        
+      //they have bumped us before
+      Else                                              
+        KeepAction                                    //then keep doing the same action
+        
+        SetTargetToWhoeverBumped          //Targets the Bumper
+        tmpargument = [READ]
+        IfTargetHasSkillID                //They can read
+          //Page turning sound
+          tmpargument = 0
+          PlaySound		
+          GetContent          //get the contents of the book
+        Else
+          tmpargument = 1             //They cannot read!
+        SendMessageNear
+        tmpargument = 100
+        SetTime
+
+//Reset so they can read again
+IfTimeOut
+  IfStateIs1
+    tmpargument = 0
+    SetState
+  
+End
