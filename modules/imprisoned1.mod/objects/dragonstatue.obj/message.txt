@@ -1,0 +1,3 @@
+Message 0: This_statue_has_a_label...
+Message 1: __'Dicit_deum_Demogorgona_summum'
+Message 2: But_%t_can't_read!

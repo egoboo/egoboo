@@ -60,7 +60,6 @@ void tile_dictionary_load(const char * filename, tile_definition_t dict[], size_
 {
     /// @details ZZ@> This function loads fan types for the terrain
 
-    const char * tmpname;
     Uint32 cnt, entry, vertices, commandsize;
     int numfantype, fantype, bigfantype;
     int numcommand, command;

@@ -455,7 +455,6 @@ ego_mpd_t * mesh_load( const char *modname, ego_mpd_t * pmesh )
 
     // actually do the loading
     {
-        STRING loadname;
         mpd_t  local_mpd, * pmpd;
 
         // load a raw mpd
@@ -1483,7 +1482,6 @@ float evaluate_lighting_cache( lighting_cache_t * src, GLfloat nrm[], float z, a
 //--------------------------------------------------------------------------------------------
 float evaluate_lighting_cache_base( lighting_cache_base_t * lvec, GLfloat nrm[], float * amb )
 {
-    int i;
     float lighting, local_amb;
 
     if( NULL == amb ) amb = &local_amb;

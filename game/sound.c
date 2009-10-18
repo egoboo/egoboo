@@ -699,7 +699,6 @@ void load_global_waves( /* const char * modname */ )
 {
     /// @details ZZ@> This function loads the global waves
 
-    STRING tmploadname;
     STRING wavename;
     int cnt;
 

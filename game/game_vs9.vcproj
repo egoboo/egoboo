@@ -649,6 +649,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\egoboo_doxygen.h"
+				>
+			</File>
+			<File
 				RelativePath=".\egoboo_endian.h"
 				>
 			</File>

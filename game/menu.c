@@ -753,6 +753,7 @@ int doChooseModule( float deltaTime )
     static int startIndex;
     static int validModules[MAX_MODULE];
     static int numValidModules;
+	static Uint8 keycooldown;
 
     static int moduleMenuOffsetX;
     static int moduleMenuOffsetY;
@@ -850,7 +851,28 @@ int doChooseModule( float deltaTime )
                 }
 
                 cursor_finish_wheel_event();
+
             }
+
+			//Allow arrow keys to scroll as well
+			if ( SDLKEYDOWN( SDLK_RIGHT ) )
+			{
+				if( keycooldown == 0 )
+				{
+					startIndex++;
+					keycooldown = 5;
+				}
+			}
+			else if ( SDLKEYDOWN( SDLK_LEFT ) )
+			{
+				if( keycooldown == 0 )
+				{
+					startIndex--;
+					keycooldown = 5;
+				}
+			}
+			else keycooldown = 0;
+			if(keycooldown > 0) keycooldown--;
 
             // Draw the arrows to pick modules
             if ( BUTTON_UP == ui_doButton( 1051, "<-", NULL, moduleMenuOffsetX + 20, moduleMenuOffsetY + 74, 30, 30 ) )

@@ -5,7 +5,13 @@ IfSpawned
     tmpargument = 3
     SetContent
     
-//Maybe the character identifies the gem?
+  //Set up general stuff
+  tmpargument = ACTIONJB
+  DoAction
+  KeepAction
+  MakeCrushValid
+    
+//Let them wonder...
 IfUsed
   SetTargetToWhoeverIsHolding
   tmpargument = 75
@@ -13,6 +19,7 @@ IfUsed
   tmpargument = selfcontent
   SendMessageNear
   
+  //Ready next message
   tmpx = selfcontent
   tmpy = 8
   IfXIsLessThanY
@@ -28,13 +35,6 @@ IfCrushed
   SpawnPoof
   tmpargument = 1
   SendMessageNear
-  
-// Set up general stuff
-IfSpawned
-  tmpargument = ACTIONJB
-  DoAction
-  KeepAction
-  MakeCrushValid
 
 // Make it lie on the floor
 IfDropped

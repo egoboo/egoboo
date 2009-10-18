@@ -1485,7 +1485,6 @@ void reset_particles( /* const char* modname */ )
 {
     /// @details ZZ@> This resets all particle data and reads in the coin and water particles
 
-    STRING newloadname;
     char *loadpath;
 
     release_all_local_pips();

@@ -1790,7 +1790,7 @@ void render_shadow( Uint16 character )
     // no shadow if completely transparent
     alpha = (255 == pchr->inst.light) ? pchr->inst.alpha  * INV_FF : (pchr->inst.alpha - pchr->inst.light) * INV_FF;
     //if ( alpha * 255 < 1 ) return;
-	if ( pchr->inst.light <= INVISIBLE || pchr->inst.alpha <= INVISIBLE ) return;
+	if ( pchr->inst.light <= INVISIBLE || pchr->inst.alpha <= INVISIBLE ) return; //ZF> The line above didn't work, but this does
 
     // much reduced shadow if on a reflective tile
     if ( 0 != mesh_test_fx(PMesh, pchr->onwhichfan, MPDFX_DRAWREF) )
@@ -1912,7 +1912,7 @@ void render_bad_shadow( Uint16 character )
     // no shadow if completely transparent or completely glowing
     alpha = (255 == pchr->inst.light) ? pchr->inst.alpha  * INV_FF : (pchr->inst.alpha - pchr->inst.light) * INV_FF;
     //if ( alpha * 255 < 1 ) return;
-	if ( pchr->inst.light <= INVISIBLE || pchr->inst.alpha <= INVISIBLE ) return;
+	if ( pchr->inst.light <= INVISIBLE || pchr->inst.alpha <= INVISIBLE ) return;	//ZF> The line above didn't work, but this does
 
     // much reduced shadow if on a reflective tile
     if ( 0 != mesh_test_fx(PMesh, pchr->onwhichfan, MPDFX_DRAWREF) )
@@ -4504,8 +4504,7 @@ bool_t load_all_global_icons()
 void load_basic_textures( /* const char *modname */ )
 {
     /// @details ZZ@> This function loads the standard textures for a module
-    STRING newloadname;
-
+   
     // Particle sprites
     TxTexture_load_one( "data/particle_trans", TX_PARTICLE_TRANS, TRANSCOLOR );
     TxTexture_load_one( "data/particle_light", TX_PARTICLE_LIGHT, INVALID_KEY );
