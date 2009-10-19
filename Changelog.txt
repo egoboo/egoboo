@@ -9,7 +9,8 @@ Version 2.8.0 (xx.10.2009)
 - New Feature: Major improvements to how Egoboo handles objects and the GOR.
 - New Feature: Improved AI by adding Line of Sight detection for targeting.
 - New Feature: Improved UI by implementing in-game pop up text.
-- New Feature: Implemented the PhysFS file system.
+- New Feature: Implemented a new file system based on PhysFS to improve file handling.
+- Update: Various GUI improvements to make it easier to navigate and use.
 - Update: Improved the texture detail for all the title images and replaced some with better ones.
 - Update: Vampires are significantly weaker than before.
 - Update: Further improvments on the Lightning engine.
@@ -27,7 +28,7 @@ Version 2.8.0 (xx.10.2009)
   (Should fix a startup error complaining about configuration settings being incorrect).
 - Update: The Angel Elayne in the lower Abyss now attacks undead players on sight.
 - Update: Most wands have now increased charge limit making them much more useful.
-- Update: The Book of Enchant can now be used to recharge wands.
+- Update: The Book of Enchant can now be used to recharge wands (for a price).
 - Update: The Morph spell now allows you to use [TECH] skill but disables spell casting.
   (Don't lose your spellbook after being morphed or you have no way to morph back!)
 - Update: There is now always a minimum 5% chance stealing from shops will be detected.

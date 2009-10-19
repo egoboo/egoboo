@@ -1,4 +1,4 @@
-// This plops down some particles and activates the summoning
+// This plops down some candle particles
 
 IfSpawned
 

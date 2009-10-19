@@ -3193,7 +3193,8 @@ void kill_character( Uint16 character, Uint16 killer )
     /// @details ZZ@> This function kills a character...  MAX_CHR killer for accidental death
 
     Uint8 modifier;
-    chr_t * pchr;
+    Uint16 threshold;
+	chr_t * pchr;
 
     if ( !ACTIVE_CHR( character ) ) return;
     pchr = ChrList.lst + character;
@@ -3204,10 +3205,16 @@ void kill_character( Uint16 character, Uint16 killer )
 
         pchr->damagetime = 0;
         pchr->life = 1;
-        modifier = pchr->damagemodifier[DAMAGE_CRUSH];
-        pchr->damagemodifier[DAMAGE_CRUSH] = 1;
 
-        if ( ACTIVE_CHR( killer ) )
+		//Remember some values
+        modifier = pchr->damagemodifier[DAMAGE_CRUSH];
+        threshold = pchr->damagethreshold;
+
+		//Set those values so we are sure it will die
+		pchr->damagemodifier[DAMAGE_CRUSH] = 1;
+		pchr->damagethreshold = 0;
+        
+		if ( ACTIVE_CHR( killer ) )
         {
             damage_character( character, ATK_FRONT, tmp_damage, DAMAGE_CRUSH, chr_get_iteam(killer), killer, DAMFX_ARMO | DAMFX_NBLOC, btrue );
         }
@@ -3216,7 +3223,9 @@ void kill_character( Uint16 character, Uint16 killer )
             damage_character( character, ATK_FRONT, tmp_damage, DAMAGE_CRUSH, TEAM_DAMAGE, pchr->ai.bumplast, DAMFX_ARMO | DAMFX_NBLOC, btrue );
         }
 
+		//Revert back to original again
         pchr->damagemodifier[DAMAGE_CRUSH] = modifier;
+		pchr->damagethreshold = threshold;
     }
 }
 
