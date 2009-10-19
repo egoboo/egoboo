@@ -2676,7 +2676,7 @@ bool_t heal_character( Uint16 character, Uint16 healer, int amount, bool_t ignor
 {
     /// @details ZF@> This function gives some pure life points to the target, ignoring any resistances and so forth
 
-    if ( !ACTIVE_CHR(character) || amount == 0 || !ChrList.lst[character].alive || (ChrList.lst[character].invictus && !ignoreinvincible) ) return bfalse;
+    if ( !ACTIVE_CHR(character) || amount <= 0 || !ChrList.lst[character].alive || (ChrList.lst[character].invictus && !ignoreinvincible) ) return bfalse;
 
     ChrList.lst[character].life = CLIP(ChrList.lst[character].life, ChrList.lst[character].life + ABS(amount), ChrList.lst[character].lifemax);
 
@@ -2693,7 +2693,7 @@ bool_t heal_character( Uint16 character, Uint16 healer, int amount, bool_t ignor
 //--------------------------------------------------------------------------------------------
 void cleanup_one_character( chr_t * pchr )
 {
-    /// @details BB@> Everything necessary to disconnecct one character from the game
+    /// @details BB@> Everything necessary to disconnect one character from the game
 
     int tnc;
     Uint16 ichr, itmp;
@@ -4527,11 +4527,9 @@ void update_all_characters()
             }
             else
             {
-                // Ripple
+                // Ripples
                 if ( pcap->ripple && pchr->pos.z + pchr->chr_chr_cv.max_z + RIPPLETOLERANCE > water.surface_level && pchr->pos.z + pchr->chr_chr_cv.min_z < water.surface_level )
                 {
-                    // Ripples
-
                     int ripple_suppression;
 
                     // suppress ripples if we are far below the surface
@@ -4563,7 +4561,7 @@ void update_all_characters()
                 if ( water.is_water && HAS_NO_BITS( update_wld, 7 ) )
                 {
                     pchr->jumpready = btrue;
-                    pchr->jumpnumber = 1; // pchr->jumpnumberreset;
+                    pchr->jumpnumber = 1;
                 }
             }
 
@@ -5201,13 +5199,14 @@ bool_t chr_do_latch_button( chr_t * pchr )
                 if ( pchr->enviro.inwater )
                 {
                     pchr->vel.z += WATERJUMP * 1.5;
+	                pchr->jumptime = JUMPDELAY * 4;
                 }
                 else
                 {
+	                pchr->jumptime = JUMPDELAY;
                     pchr->vel.z += pchr->jump_power * 1.5;
                 }
 
-                pchr->jumptime = JUMPDELAY;
                 pchr->jumpready = bfalse;
                 if ( pchr->jumpnumberreset != JUMPINFINITE ) pchr->jumpnumber--;
 
@@ -8736,6 +8735,8 @@ bool_t chr_can_see_object( Uint16 ichr, Uint16 iobj )
 
     if( !ACTIVE_CHR(iobj) ) return bfalse;
     pobj = ChrList.lst + iobj;
+
+	if( pchr->invictus ) return btrue;		//ZF> Invictus characters can always see (spells, items, quest handlers, etc.)
 
     alpha = pobj->inst.alpha;
     if( pchr->see_invisible_level > 0 )

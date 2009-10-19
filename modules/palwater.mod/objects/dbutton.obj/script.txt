@@ -50,7 +50,7 @@ IfStateIs1
 
 // Detect button press
 tmpx = weight
-tmpy = 20
+tmpy = 30
 IfXIsMoreThanY
   IfStateIs0
     tmpargument = ACTIONMG

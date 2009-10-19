@@ -2611,20 +2611,47 @@ void check_stats()
     // XP CHEAT
     if ( cfg.dev_mode && SDLKEYDOWN( SDLK_x ) )
     {
-        if ( SDLKEYDOWN( SDLK_1 ) && ACTIVE_CHR(PlaList[0].index) )  { pla_get_pchr(0)->experience = ((float)pla_get_pchr(0)->experience+10)*1.10f; stat_check_delay = 1; }
-        if ( SDLKEYDOWN( SDLK_2 ) && ACTIVE_CHR(PlaList[1].index) )  { pla_get_pchr(1)->experience = ((float)pla_get_pchr(1)->experience+10)*1.10f; stat_check_delay = 1; }
-        if ( SDLKEYDOWN( SDLK_3 ) && ACTIVE_CHR(PlaList[2].index) )  { pla_get_pchr(2)->experience = ((float)pla_get_pchr(2)->experience+10)*1.10f; stat_check_delay = 1; }
-        if ( SDLKEYDOWN( SDLK_4 ) && ACTIVE_CHR(PlaList[3].index) )  { pla_get_pchr(3)->experience = ((float)pla_get_pchr(3)->experience+10)*1.10f; stat_check_delay = 1; }
+		Uint16 docheat = MAX_CHR;
+		if		( SDLKEYDOWN(SDLK_1) )  docheat = 0;
+        else if ( SDLKEYDOWN(SDLK_2) )  docheat = 1;
+        else if ( SDLKEYDOWN(SDLK_3) )  docheat = 2;
+        else if ( SDLKEYDOWN(SDLK_4) )  docheat = 3;
+		
+		//Apply the cheat if valid
+		if ( ACTIVE_CHR(PlaList[docheat].index) )
+		{
+			Uint32 xpgain;
+            cap_t * pcap;
+			chr_t * pchr = ChrList.lst + PlaList[docheat].index;
+            pcap = pro_get_pcap( pchr->iprofile );
 
+			//Give 10% of XP needed for next level
+			xpgain = 0.1f*(pcap->experienceforlevel[MIN(pchr->experiencelevel+1, MAXLEVEL)] - pcap->experienceforlevel[pchr->experiencelevel]);
+			give_experience( pchr->ai.index, xpgain, XP_DIRECT, btrue);
+			stat_check_delay = 1;
+		}
     }
 
     // LIFE CHEAT
     if ( cfg.dev_mode && SDLKEYDOWN( SDLK_z ) )
     {
-        if ( SDLKEYDOWN( SDLK_1 ) && ACTIVE_CHR(PlaList[0].index) )  { pla_get_pchr(0)->life += 32; pla_get_pchr(0)->life = MIN(pla_get_pchr(0)->life, pla_get_pchr(0)->lifemax); stat_check_delay = 12; }
-        if ( SDLKEYDOWN( SDLK_2 ) && ACTIVE_CHR(PlaList[1].index) )  { pla_get_pchr(1)->life += 32; pla_get_pchr(0)->life = MIN(pla_get_pchr(1)->life, pla_get_pchr(1)->lifemax); stat_check_delay = 12; }
-        if ( SDLKEYDOWN( SDLK_3 ) && ACTIVE_CHR(PlaList[2].index) )  { pla_get_pchr(2)->life += 32; pla_get_pchr(0)->life = MIN(pla_get_pchr(2)->life, pla_get_pchr(2)->lifemax); stat_check_delay = 12; }
-        if ( SDLKEYDOWN( SDLK_4 ) && ACTIVE_CHR(PlaList[3].index) )  { pla_get_pchr(3)->life += 32; pla_get_pchr(0)->life = MIN(pla_get_pchr(3)->life, pla_get_pchr(3)->lifemax); stat_check_delay = 12; }
+		Uint16 docheat = MAX_CHR;
+		if		( SDLKEYDOWN(SDLK_1) )  docheat = 0;
+        else if ( SDLKEYDOWN(SDLK_2) )  docheat = 1;
+        else if ( SDLKEYDOWN(SDLK_3) )  docheat = 2;
+        else if ( SDLKEYDOWN(SDLK_4) )  docheat = 3;
+		
+		//Apply the cheat if valid
+		if ( ACTIVE_CHR(PlaList[docheat].index) )
+		{
+            cap_t * pcap;
+			chr_t * pchr = ChrList.lst + PlaList[docheat].index;
+            pcap = pro_get_pcap( pchr->iprofile );
+
+			//Heal 1 life
+			heal_character( pchr->ai.index, pchr->ai.index, 256, btrue);
+			stat_check_delay = 1;
+		}
     }
 
     // Display armor stats?

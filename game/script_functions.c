@@ -3804,14 +3804,7 @@ Uint8 scr_HealSelf( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( pchr->alive )
-    {
-        iTmp = pchr->life + pstate->argument;
-        if ( iTmp > pchr->lifemax ) iTmp = pchr->lifemax;
-        if ( iTmp < 1 ) iTmp = 1;
-
-        pchr->life = iTmp;
-    }
+	heal_character( pself->index, pself->index, pstate->argument, btrue );
 
     SCRIPT_FUNCTION_END();
 }
@@ -7059,6 +7052,20 @@ Uint8 scr_set_ChildContent( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     ChrList.lst[pself->child].ai.content = pstate->argument;
+
+    SCRIPT_FUNCTION_END();
+}
+
+
+//--------------------------------------------------------------------------------------------
+Uint8 scr_AccelerateTargetUp( script_state_t * pstate, ai_state_t * pself )
+{
+    // AccelerateTargetUp( tmpargument = "acc z" )
+    /// @details ZF@> This function makes the target accelerate up and down
+
+    SCRIPT_FUNCTION_BEGIN();
+
+    ChrList.lst[pself->target].vel.z += pstate->argument / 100.0f;
 
     SCRIPT_FUNCTION_END();
 }

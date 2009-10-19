@@ -390,6 +390,7 @@ The symbol itself follows
 :F 374 SetChildContent
 :F 375 SetTargetToChild
 :F 376 SetDamageThreshold
+:F 377 AccelerateTargetUp
 :C 001 BLAHDEAD
 :C 002 BLAHENEMIES
 :C 004 BLAHFRIENDS

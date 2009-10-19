@@ -433,3 +433,4 @@ Uint8 scr_KurseTarget( struct s_script_state * pstate, struct s_ai_state * pself
 Uint8 scr_set_ChildContent( struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_set_TargetToChild(  struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_set_DamageThreshold(  struct s_script_state * pstate, struct s_ai_state * pself );
+Uint8 scr_AccelerateTargetUp( struct s_script_state * pstate, struct s_ai_state * pself );

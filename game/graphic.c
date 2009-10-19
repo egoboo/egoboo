@@ -1779,7 +1779,7 @@ void render_shadow( Uint16 character )
     pchr = ChrList.lst + character;
 
     // if the character is hidden, not drawn at all, so no shadow
-	if ( pchr->is_hidden ) return;
+	if ( pchr->is_hidden || pchr->shadowsize == 0 ) return;
 
     // no shadow if off the mesh
     if ( !VALID_TILE(PMesh, pchr->onwhichfan) ) return;
@@ -1901,7 +1901,7 @@ void render_bad_shadow( Uint16 character )
     pchr = ChrList.lst + character;
 
     // if the character is hidden, not drawn at all, so no shadow
-	if ( pchr->is_hidden ) return;
+	if ( pchr->is_hidden || pchr->shadowsize == 0 ) return;
 
     // no shadow if off the mesh
     if ( !VALID_TILE(PMesh, pchr->onwhichfan) ) return;

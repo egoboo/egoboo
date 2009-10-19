@@ -330,7 +330,7 @@ Mix_Chunk * sound_load_chunk( const char * szFileName )
         }
     }
 
-    if ( cfg.dev_mode && file_exists && NULL == tmp_chunk )
+    if ( file_exists && NULL == tmp_chunk )
     {
         // there is an error only if the file exists and can't be loaded
         log_warning( "Sound file not found/loaded %s.\n", szFileName );
@@ -372,7 +372,7 @@ Mix_Music * sound_load_music( const char * szFileName )
         }
     }
 
-    if ( cfg.dev_mode && file_exists && NULL == tmp_music )
+    if ( file_exists && NULL == tmp_music )
     {
         // there is an error only if the file exists and can't be loaded
         log_warning( "Music file not found/loaded %s.\n", szFileName );
@@ -417,11 +417,8 @@ bool_t sound_load( mix_ptr_t * pptr, const char * szFileName, mix_type_t type )
             break;
 
         default:
-            if ( cfg.dev_mode )
-            {
-                // there is an error only if the file exists and can't be loaded
-                log_warning( "sound_load() - Mix type recognized %d.\n", type );
-            }
+            // there is an error only if the file exists and can't be loaded
+            log_debug( "sound_load() - Mix type recognized %d.\n", type );
             break;
     };
 
@@ -438,10 +435,7 @@ int sound_play_mix( fvec3_t   pos, mix_ptr_t * pptr )
     }
     if ( NULL == pptr || MIX_UNKNOWN == pptr->type || NULL == pptr->ptr.unk )
     {
-        if ( cfg.dev_mode )
-        {
-            if (cfg.dev_mode) log_warning( "Unable to load sound. (%s)\n", Mix_GetError() );
-        }
+        log_debug( "Unable to load sound. (%s)\n", Mix_GetError() );
         return -1;
     }
 
@@ -511,7 +505,8 @@ void sound_restart()
 
 int _calculate_volume( fvec3_t   diff )
 {
-    /// @details BB@> make this code its own function
+    /// @details BB@> This calculates the volume a sound should have depending on
+	//  the distance from the camera
 
     float dist2;
     int volume;
@@ -563,7 +558,7 @@ bool_t _update_channel_volume( int channel, int volume, fvec3_t   diff )
 //--------------------------------------------------------------------------------------------
 int sound_play_chunk_looped( fvec3_t   pos, Mix_Chunk * pchunk, Sint8 loops, Uint16 owner )
 {
-    /// ZZ@> This function plays a specified sound and returns which channel it's using
+    /// ZF@> This function plays a specified sound and returns which channel it's using
     int channel = INVALID_SOUND;
     fvec3_t   diff;
     int volume;
@@ -585,10 +580,7 @@ int sound_play_chunk_looped( fvec3_t   pos, Mix_Chunk * pchunk, Sint8 loops, Uin
 
         if ( INVALID_SOUND == channel )
         {
-            if (cfg.dev_mode)
-            {
-                //log_warning( "Unable to play sound. (%s)\n", Mix_GetError() );
-            }
+            //log_debug( "Unable to play sound. (%s)\n", Mix_GetError() );		//ZF> uncommmented because this happens really often
         }
         else
         {
@@ -608,6 +600,7 @@ int sound_play_chunk_looped( fvec3_t   pos, Mix_Chunk * pchunk, Sint8 loops, Uin
 //--------------------------------------------------------------------------------------------
 void sound_stop_channel( int whichchannel )
 {
+	//ZF> Stops a sound effect playing in the specified channel
     if ( mixeron && snd.soundvalid )
     {
         Mix_HaltChannel( whichchannel );
@@ -619,9 +612,9 @@ void sound_stop_channel( int whichchannel )
 //------------------------------------
 void sound_play_song( Sint8 songnumber, Uint16 fadetime, Sint8 loops )
 {
+    //ZF> This functions plays a specified track loaded into memory
     if ( !snd.musicvalid || !mixeron ) return;
 
-    // This functions plays a specified track loaded into memory
     if ( songplaying != songnumber )
     {
         // Mix_FadeOutMusic(fadetime);      // Stops the game too
@@ -686,7 +679,7 @@ void sound_finish_song( Uint16 fadetime )
 //--------------------------------------------------------------------------------------------
 void sound_stop_song()
 {
-    /// ZZ@> This function sets music track to pause
+    /// ZF@> This function sets music track to pause
     if ( mixeron && snd.musicvalid )
     {
         Mix_HaltMusic();
@@ -743,7 +736,7 @@ void load_global_waves( /* const char * modname */ )
 //--------------------------------------------------------------------------------------------
 void load_all_music_sounds()
 {
-    /// ZZ@> This function loads all of the music sounds
+    /// ZF@> This function loads all of the music sounds
     STRING loadpath;
     STRING songname;
     vfs_FILE *playlist;
@@ -806,7 +799,7 @@ bool_t snd_config_synch( snd_config_t * psnd, egoboo_config_t * pcfg )
 
     // coerce pcfg to have valid values
     pcfg->sound_channel_count = CLIP(pcfg->sound_channel_count, 8, 128);
-    pcfg->sound_buffer_size      = CLIP(pcfg->sound_buffer_size, 512, 8196);
+    pcfg->sound_buffer_size   = CLIP(pcfg->sound_buffer_size, 512, 8196);
 
     if ( NULL != psnd )
     {
