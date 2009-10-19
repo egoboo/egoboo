@@ -1,5 +1,7 @@
 //         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
 
+#dependency Archaelogist 0
+
 //Encampment
 HERO:   NONE    0  9.5   87.0   0.0   N    0   0  0   0   0   T   F   G
   pistol:   NONE    58  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N

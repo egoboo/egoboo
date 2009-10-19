@@ -36,7 +36,7 @@
 #dependency Viking         102
 #dependency ArchAdventurer 122
 #dependency ArchWizard     121
-	
+#dependency ArchElf        123
 	
 //         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
 HERO:       NONE    0  16.0   54.5   0.0   N    0   0  0   0   0   T   F   G
