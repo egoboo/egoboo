@@ -34,8 +34,9 @@
 #dependency AnimatedXBow   44
 
 #dependency Viking         102
-#dependency ArchAdventurer 122
 #dependency ArchWizard     121
+#dependency ArchAdventurer 122
+#dependency ArchElf        123
 #dependency ArchElf        123
 	
 //         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team

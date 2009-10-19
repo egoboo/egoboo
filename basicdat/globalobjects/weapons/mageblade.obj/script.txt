@@ -1,9 +1,10 @@
 //This manages attack speed (Adjusted by strenght and\or dexterity)
 IfUsed
-  SetTargetToWhoeverIsHolding
+  SetTargetToWhoeverIsHolding  
   tmpargument = targetdex > 8		//Every point of dex increases speed by 1
   tmpargument = 50 - tmpargument
   SetReloadTime
+    
 
 //Finders keepers...
 IfGrabbed
