@@ -1,0 +1,64 @@
+// ZZ> This function makes the character wanders around its enemy
+IfSpawned				// Make it able to be crushed
+  MakeCrushValid			  //
+IfCrushed
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  tmpargument = 4
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  GoPoof
+  tmpargument = 1
+  SendMessageNear
+IfKilled				// This reduces the height of the char
+  IfTargetIsOnHatedTeam			  // Final words
+    tmpargument = 0			    //
+    SendMessageNear			    //
+  tmpargument = 30			  // Dead height
+  SetBumpHeight				  //
+  tmpargument = 1			  // Sound
+  tmpdistance = rand & 4095 + 11000	  //
+  PlaySound				  //
+IfAttacked				// Don't take kindly to attackers
+  SetTargetToWhoeverAttacked		  //
+    tmpargument = 0			    // Sound
+    tmpdistance = rand & 4095 + 11000	    //
+    PlaySound				    //
+IfBumped				// Attack whoever it bumped
+  SetTargetToWhoeverBumped		  //
+  IfTargetIsOnHatedTeam			  // Make sure it's an enemy
+    tmpargument = LATCHLEFT		    // Bite 'em
+    PressLatchButton	
+    tmpargument = 3
+    PlaySound		    
+//Else					  // Scooch around friendly
+    tmpx = rand & 1023 + targetx - 512      //
+    tmpy = rand & 1023 + targety - 512      //
+    ClearWaypoints			    //
+    AddWaypoint				    //
+    SetTargetToOldTarget		    //
+IfTimeOut				// This is done every so often
+  SetTargetToWideEnemy			  // Look for enemies
+    tmpargument = rand & 1 + 2
+    tmpdistance = rand & 4095 + 11000
+    PlaySound
+
+    tmpx = targetx
+    tmpy = targety
+    tmpdistance = 300
+    tmpturn = selfturn
+    Compass
+    tmpturn = targetturnto
+    tmpdistance = 300
+    Compass
+  Else					  // Wander around home position
+    tmpx = rand & 1023 - 512 + selfspawnx   //
+    tmpy = rand & 1023 - 512 + selfspawny   //
+  ClearWaypoints			  //
+  AddWaypoint				  //
+  tmpargument = rand & 63 + 20		  // Wait a while and try again
+  SetTime				  //
+End					// Finished with this character

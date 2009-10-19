@@ -1,0 +1,6 @@
+Message 0: The_%c_was_slain_by_%t!
+Message 1: %c_was_no_braniac...
+Message 2: %t_got_%g_brains_sucked_out!
+Message 3: The_%c_is_sucking_%t's_brains_out!
+Message 4: %t_backstabbed_the_%c!
+Message 5: %t_was_hit_by_a_confusion_ray!
