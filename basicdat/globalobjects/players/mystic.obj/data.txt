@@ -1,0 +1,164 @@
+Slot number    : -1
+Class name     : Mystic
+Uniform light  : FALSE
+Maximum ammo   : 0
+Current ammo   : 0
+Gender         : FEMALE
+
+Life color     : 1
+Mana color     : 2
+Life           : 13.10
+Life up        : 1.00-2.00
+Mana           : 9.98
+Mana up        : 1.00-2.00
+Mana return    : 4.86
+Mana return up : 1.00-1.00
+Mana flow      : 3.00
+Mana flow up   : 1.00-1.00
+STR            : 8.89
+STR up         : 0.00-1.00
+WIS            : 20.84
+WIS up         : 1.00-4.00
+INT            : 12.18
+INT up         : 0.00-1.00
+DEX            : 9.45
+DEX up         : 1.00-2.00
+
+Size           : 1.00
+Size up        : 0.00
+Shadow size    : 25
+Bump size      : 30
+Bump height    : 70
+Bump dampen    : 0.35
+Weight         : 90
+Jump power     : 10.00
+Jump number    : 1
+Sneak speed    : 1
+Walk speed     : 1
+Run speed      : 1
+Fly to height  : 0
+Flashing AND   : 255
+Alpha blending : 255
+Light blending : 255
+Transfer blend : TRUE
+Sheen          : 0
+Phong mapping  : FALSE
+Texture X add  : 0.00
+Texture Y add  : 0.00
+Sticky butt    : FALSE
+
+Invictus       : FALSE
+NonI facing    : 0
+NonI angle     : 0
+I facing       : 0
+I angle        : 14000
+
+Base defense   :  10  40  60   5
+S damage shift :   1   1   2   1
+C damage shift :   1   1   2   1
+P damage shift :   2   1   2   1
+H damage shift :   1   2   2   1
+E damage shift :   1   2   2   1
+F damage shift :   1   2   2   1
+I damage shift :   1   2   2   1
+Z damage shift :   1   2   2   1
+S damage code  :   F   F   F   F
+C damage code  :   F   F   F   F
+P damage code  :   F   F   F   F
+H damage code  :   T   T   T   T
+E damage code  :   F   F   F   F
+F damage code  :   F   F   F   F
+I damage code  :   F   F   F   F
+Z damage code  :   F   F   F   F
+Acceleration   :  60  50  40  90
+
+EXP for 2nd    : 250
+EXP for 3rd    : 800
+EXP for 4th    : 2000
+EXP for 5th    : 4000
+EXP for 6th    : 7000
+Starting EXP   : 704
+EXP worth      : 30
+EXP exchange   : 0.010
+EXPSECRET      : 0.00
+EXPQUEST       : 0.80
+EXPDARE        : 0.00
+EXPKILL        : 0.40
+EXPMURDER      : 0.00
+EXPREVENGE     : 1.50
+EXPTEAMWORK    : 0.60
+EXPROLEPLAY    : 1.00
+
+IDSZ Parent    : [HUMA]
+IDSZ Type      : [MYST]
+IDSZ Skill     : [WMAG]
+IDSZ Special   : [NONE]
+IDSZ Hate      : [NONE]
+IDSZ Vulnie    : [NONE]
+
+Is an item     : FALSE
+Is a mount     : FALSE
+Is stackable   : FALSE
+Name known     : TRUE
+Usage known    : TRUE
+Is exportable  : FALSE
+Requires skill : FALSE
+Is platform    : FALSE
+Collects money : TRUE
+Can open stuff : TRUE
+
+Damage type    : HOLY
+Attack type    : ZAP
+
+Attached parts : 0
+Reaffirm type  : NONE
+Particle type  : 0
+
+Left valid     : TRUE
+Right valid    : TRUE
+
+Part on weapon : TRUE
+Part type      : 0
+
+Poof amount    : 8
+Facing add     : 8192
+Part type      : 3
+
+Blood valid    : FALSE
+Part type      : 0
+
+Waterwalking   : FALSE
+Bounce dampen  : 0.600
+
+Life healing   : 0.000
+Mana cost      : 1.000
+Life return    : 0
+Stopped by     : 48
+Skin 0 name    : an_Mystic's_dress
+Skin 1 name    : some_Enchanted_Robes
+Skin 2 name    : a_Oracle_Suit
+Skin 3 name    : an_Bikini
+Skin 0 cost    : 50
+Skin 1 cost    : 550
+Skin 2 cost    : 700
+Skin 3 cost    : 90
+STR dampen     : 0.000
+
+No rider attak : FALSE
+Can be dazed   : TRUE
+Can be grogged : TRUE
+NOT USED       : 0
+NOT USED       : 0
+Can see invisi : FALSE
+Kursed chance  : 0
+Footfall sound : -1
+Jump sound     : 10
+
+:[GOLD] 150
+:[DRES] 0
+:[DRES] 2
+:[DRES] 3
+:[CKUR] 1
+:[PLAT] 1
+:[LEVL] 1
+:[HMAG] 1

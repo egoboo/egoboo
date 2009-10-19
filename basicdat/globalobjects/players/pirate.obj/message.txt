@@ -1,0 +1,7 @@
+Message 0: %n_was_taken_down_by_%t.
+Message 1: There's_such_a_thing_as_too_much_loot.
+Message 2: You_scurvy_dog!
+Message 3: %t_scuttled_%n.
+Message 4: %n's_acting_like_a_clumsy_landlubber.
+Message 5: %n_laughs_upon_the_other_side...
+Message 6: Fifteen_men_on_a_dead_man's_chest,_yo-ho-ho,_and_a_bottle_of_grog...

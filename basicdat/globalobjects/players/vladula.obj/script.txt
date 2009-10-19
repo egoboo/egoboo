@@ -1,0 +1,196 @@
+//Permanent life drain at level 6
+IfScoredAHit
+  SetTargetToWhoeverWasHit
+  tmpx = selflevel
+  tmpy = 5
+  IfXIsEqualToY
+    tmpargument = 0 - 256       //-1 max hp each hit
+    GiveLifeToTarget
+
+//Regeneration Abillity at level 3
+IfTimeOut
+  tmpargument = 50
+  SetTime
+  tmpx = selflevel
+  tmpy = 1
+  IfXIsMoreThanY
+    tmpargument = 128        //0.5 hp each second
+    HealSelf
+
+//Life steal abillity at level 4
+IfScoredAHit
+  SetTargetToWhoeverWasHit
+  tmpx = selflevel
+  tmpy = 2
+  IfXIsMoreThanY
+    tmpargument = 256     //1 hp each hit
+    HealSelf
+
+//Weak vs silver (Set vulnerable IDSZ to [SILV])
+IfHitVulnerable
+  SetTargetToSelf
+  tmpargument = rand & 511 + 512
+  tmpdistance = DAMAGEHOLY
+  DamageTarget    //2-4 extra damage
+
+
+//-----------------------------------------------------------------------------
+IfHitGround
+  tmpargument = 0
+  PlaySound
+
+
+//-----------------------------------------------------------------------------
+// ZZ> Gong sound
+IfCleanedUp
+  tmpargument = 2
+  tmpdistance = 8000
+  PlayFullSound
+
+
+//------------------------------------------------------------------------------
+// ZZ> Scream and shout
+IfUsed
+  tmpdistance = rand & 2047 + 12000
+  tmpargument = 8
+  PlaySound
+
+
+//------------------------------------------------------------------------------
+// ZZ> Handle being bored by cheering or sneezing
+IfBored
+  tmpargument = 6
+  SendMessageNear
+  tmpargument = 9
+  tmpdistance = rand & 2047 + 12000
+  PlaySound
+  tmpargument = ACTIONMC
+  DoAction
+
+
+//------------------------------------------------------------------------------
+// ZZ> Handle death by sending a message and other stuff
+IfKilled
+  tmpargument = 7
+  tmpdistance = rand & 2047 + 12000
+  PlaySound
+  tmpargument = 3
+  IfArmorIs
+    tmpargument = MESSAGECOSTUME
+  Else
+    tmpargument = MESSAGEDEATH
+  IfTargetIsOnSameTeam
+    tmpargument = MESSAGEFRAG
+    IfTargetIsSelf
+      tmpargument = MESSAGEACCIDENT
+  SendMessage
+
+  // Drop goodies
+  tmpargument = selflevel*selflevel*100		//The money loss formula
+  DropMoney
+  DropKeys
+
+  // Make the character body
+  tmpargument = 45
+  SetBumpHeight
+
+
+//------------------------------------------------------------------------------
+//Invoke special power if enough xp gained
+SetTargetToSelf
+tmpx = targetexp
+tmpy = 9998
+IfXIsMoreThanY
+  UndoEnchant		//Hinder looping of same enchant
+  SetOwnerToTarget
+  EnchantTarget		//Give the special bonus
+  tmpargument = 2	//Spawn some fancy sparklies
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  SpawnExactParticle
+Else
+  UndoEnchant		//Remove if needed xp is lost
+
+//------------------------------------------------------------------------------
+// ZZ> For helper AIs
+IfLeaderKilled
+  BecomeLeader
+
+
+//------------------------------------------------------------------------------
+// ZZ> Handle being attacked by blocking or countering or running away
+IfAttacked
+  SetTargetToWhoeverAttacked
+  IfTargetIsOnSameTeam
+    tmpargument = 3
+    PlaySound
+    tmpargument = MESSAGEOUCH
+    SendMessageNear
+  Else
+    tmpargument = rand & 1 + 5
+    PlaySound
+
+
+
+//------------------------------------------------------------------------------
+// ZZ> Handle having too much in inventory
+IfTooMuchBaggage
+  tmpargument = 1
+  SendMessageNear
+  tmpargument = 4
+  PlaySound
+  tmpargument = 50
+  SetReloadTime
+
+
+//Eating script
+tmpdistance = 3     //dead enemies
+tmpargument = [HUMA]		//Humanoids
+SetTargetToWideBlahID
+  tmpargument = 1
+  SetState
+  tmpturn = 3 //Blood type
+tmpargument = [INSE]			//Bugs and insects
+SetTargetToWideBlahID
+  tmpargument = 1
+  SetState
+  tmpturn = 4 //Blood type
+tmpargument = [DEMO]		//Demons
+SetTargetToWideBlahID
+  tmpargument = 1
+  SetState
+  tmpturn = 5 //Blood type
+tmpargument = [MAGI]		//Magical Monster
+SetTargetToWideBlahID
+  tmpargument = 1
+  SetState
+  tmpturn = 6 //Blood type
+
+IfStateIs1
+  tmpargument = 0
+  SetState                        //Reset abillity again
+  tmpx = targetdistance
+  tmpy = 50
+  IfXIsLessThanY                 //Close enough to feed?
+    tmpargument = [UNDE]
+    IfTargetHasID        //Can't eat undead
+      DoNothing
+    Else
+      PoofTarget          //Destroy the body
+      tmpx = targetx
+      tmpy = targety
+      tmpdistance = targetz
+      tmpargument = tmpturn      //Which particle to spawn (partX.txt), X is tmpturn
+      SpawnExactParticle     //Spawn some blood
+      SpawnExactParticle
+      SpawnExactParticle     //A lot of blood! *grin*
+      tmpargument = rand & 511 + 256        //1-3 points   
+      HealSelf                     //Now gain some life
+      tmpargument = ACTIONMI       //The frame name
+      DoAction  
+
+
+//------------------------------------------------------------------------------
+End
+//------------------------------------------------------------------------------

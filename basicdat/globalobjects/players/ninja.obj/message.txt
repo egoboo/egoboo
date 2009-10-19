@@ -1,0 +1,8 @@
+Message 0: Oh_Snap!
+Message 1: 1_HATE
+Message 2: I'll_get_you!
+Message 3: %n_didn't_watch_%p_back...
+Message 4: Oh_Crud!
+Message 5: %n_needs_a_magic_lamp...
+Message 6: Baseball_Kirby!
+Message 7: I_gotta_pawn_this_stuff.
