@@ -128,13 +128,12 @@ struct s_md2_frame
 };
 typedef struct s_md2_frame md2_frame_t;
 
-/// globally accessible md2 data
-extern md2_frame_t Md2FrameList[MAXFRAME];
+extern int Md2FrameList_index;                               ///< Where to load next frame
+extern md2_frame_t Md2FrameList[MAXFRAME];                   ///< globally accessible md2 data
 
-extern Uint16 md2_loadframe;                               ///< Where to load next frame
+extern float kMd2Normals[MADLIGHTINDICES][3];                ///< globally accessible md2 normal data
 
-/// globally accessible md2 normal data
-extern float kMd2Normals[MADLIGHTINDICES][3];
+extern char cFrameName[16];                                  ///< name of the current md2 frame being ripped
 
 // Function prototypes
 int    md2_rip_frame_name( int frame );

@@ -353,7 +353,7 @@ bool_t setup_download(egoboo_config_t * pcfg)
 
     // Max number of messages displayed
     GetKey_int( "MESSAGE_DURATION", pcfg->message_duration, cfg_default.message_duration );
-  
+
     //*********************************************
     //* NETWORK Section
     //*********************************************

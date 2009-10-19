@@ -272,8 +272,8 @@ bool_t render_one_mad_enviro( Uint16 character, GLXvector4f tint, Uint32 bits )
 
                         // apply the tint
                         col[RR] *= tint[RR];
-                        col[GG] *= tint[GG]; 
-                        col[BB] *= tint[BB]; 
+                        col[GG] *= tint[GG];
+                        col[BB] *= tint[BB];
                         col[AA] *= tint[AA];
 
                         tex[0] = pvrt->env[XX] + uoffset;
@@ -655,7 +655,7 @@ bool_t render_one_mad_ref( int ichr )
             chr_instance_get_tint( pinst, tint, CHR_ALPHA | CHR_REFLECT );
 
             // the previous call to chr_instance_update_lighting_ref() has actually set the
-            // alpha and light for all vertices 
+            // alpha and light for all vertices
             render_one_mad( ichr, tint, CHR_ALPHA | CHR_REFLECT );
         }
 
@@ -667,7 +667,7 @@ bool_t render_one_mad_ref( int ichr )
             chr_instance_get_tint( pinst, tint, CHR_LIGHT | CHR_REFLECT );
 
             // the previous call to chr_instance_update_lighting_ref() has actually set the
-            // alpha and light for all vertices 
+            // alpha and light for all vertices
             render_one_mad( ichr, tint, CHR_LIGHT | CHR_REFLECT );
         }
 
@@ -702,7 +702,7 @@ egoboo_rv chr_update_instance( chr_t * pchr )
     {
         return rv_error;
     }
-    
+
     // do the basic lighting
     chr_instance_update_lighting_base( pinst, pchr, bfalse );
 
@@ -854,7 +854,7 @@ egoboo_rv chr_instance_needs_update( chr_instance_t * pinst, int vmin, int vmax,
     maxvert = ego_md2_data[pmad->md2_ref].vertices - 1;
 
     // check to make sure the lower bound of the saved data is valid.
-    // it is initialized to an invalid value (psave->vmin = psave->vmax = -1) 
+    // it is initialized to an invalid value (psave->vmin = psave->vmax = -1)
     if( psave->vmin < 0 || psave->vmax < 0 ) return rv_success;
 
     // check to make sure the upper bound of the saved data is valid.
@@ -1001,7 +1001,7 @@ egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vm
     if( force )
     {
         // to get here, either the specified range was outside the clean range or
-        // the animation was updated. In any case, the only vertices that are 
+        // the animation was updated. In any case, the only vertices that are
         // clean are in the range [vmin, vmax]
 
         psave->vmin = vmin;
@@ -1024,7 +1024,7 @@ egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vm
 
         // There was no update to the animation,  but there was an update to some of the vertices
         // The clean verrices should be the union of the sets of the vertices updated this time
-        // and the oned updated last time. 
+        // and the oned updated last time.
         //
         //If these ranges are disjoint, then only one of them can be saved. Choose the larger set
 

@@ -549,7 +549,7 @@ void log_madused( const char *savename )
     if ( hFileWrite )
     {
         vfs_printf( hFileWrite, "Slot usage for objects in last module loaded...\n" );
-        vfs_printf( hFileWrite, "%d of %d frames used...\n", md2_loadframe, MAXFRAME );
+        vfs_printf( hFileWrite, "%d of %d frames used...\n", Md2FrameList_index, MAXFRAME );
         cnt = 0;
 
         while ( cnt < MAX_PROFILE )
@@ -1128,7 +1128,7 @@ int do_ego_proc_begin( ego_process_t * eproc )
 
     // start initializing the various subsystems
     log_message( "Starting Egoboo " VERSION " ...\n" );
-	log_info( "PhysFS file system version %s has been initialized...\n", vfs_getVersion() ); 
+	log_info( "PhysFS file system version %s has been initialized...\n", vfs_getVersion() );
 
     sys_initialize();
     clk_init();
@@ -3645,13 +3645,13 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
         float lerp_z = (pchr_b->pos.z - (pchr_a->pos.z + pchr_a->chr_chr_cv.max_z)) / PLATTOLERANCE;
         lerp_z = CLIP(lerp_z, -1, 1);
 
-        if( lerp_z >= 0 ) 
+        if( lerp_z >= 0 )
         {
             interaction_strength = 0;
         }
         else
         {
-            interaction_strength *= -lerp_z; 
+            interaction_strength *= -lerp_z;
         }
     }
 
@@ -3660,13 +3660,13 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
         float lerp_z = (pchr_a->pos.z - (pchr_b->pos.z + pchr_b->chr_chr_cv.max_z)) / PLATTOLERANCE;
         lerp_z = CLIP(lerp_z, -1, 1);
 
-        if( lerp_z >= 0 ) 
+        if( lerp_z >= 0 )
         {
             interaction_strength = 0;
         }
         else
         {
-            interaction_strength *= -lerp_z; 
+            interaction_strength *= -lerp_z;
         }
     }
 
@@ -4252,7 +4252,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
 
         // if the particle is interacting with the object AS a platform (i.e. bouncing off the top),
         // then we are done.
-        if( plat_retval ) 
+        if( plat_retval )
         {
             if( terminate_particle )  prt_request_terminate( iprt_b );
             return btrue;
@@ -4311,8 +4311,8 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     {
         fvec3_t vtmp;
 
-        // If the particle is "fast" relative to the object size, it can happen that the particle 
-        // can be more than halfway through the character before it is detected. 
+        // If the particle is "fast" relative to the object size, it can happen that the particle
+        // can be more than halfway through the character before it is detected.
 
         vtmp.x = vdiff.x / (pchr_a->chr_chr_cv.max_x - pchr_a->chr_chr_cv.min_x);
         vtmp.y = vdiff.y / (pchr_a->chr_chr_cv.max_y - pchr_a->chr_chr_cv.min_y);
@@ -4368,7 +4368,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
 
         if ( prt_deflected )
         {
-            
+
             retval = btrue;
 
             // Treat the missile
@@ -4470,7 +4470,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
                 }
 
                 // Do confuse effects
-                // the particle would have already been deflected if this frame was a 
+                // the particle would have already been deflected if this frame was a
                 // invictus frame
                 if ( 0 != (ppip_b->damfx & DAMFX_NBLOC) /* || 0 == ( Md2FrameList[pchr_a->inst.frame_nxt].framefx & MADFX_INVICTUS ) */ )
                 {
@@ -5192,7 +5192,7 @@ int strlwr( char * str )
 //--------------------------------------------------------------------------------------------
 bool_t activate_spawn_file_load_object( spawn_file_info_t * psp_info )
 {
-    /// @details BB@> Try to load a global object named int psp_info->spawn_coment into 
+    /// @details BB@> Try to load a global object named int psp_info->spawn_coment into
     ///               slot psp_info->slot
 
     STRING filename;
@@ -5461,7 +5461,7 @@ void game_load_module_assets( const char *modname )
     // load a bunch of assets that are used in the module
     load_global_waves( /* modname */ );
     reset_particles( /* modname */ );
-    if( NULL == read_wawalite( /* modname */ ) ) 
+    if( NULL == read_wawalite( /* modname */ ) )
     {
         log_warning( "wawalite.txt not loaded for %s.\n", modname );
     }
@@ -7658,7 +7658,7 @@ bool_t do_shop_drop( Uint16 idropper, Uint16 iitem )
             price = chr_get_price( iitem );
 
             // Are they are trying to sell junk or quest items?
-            if ( 0 == price ) 
+            if ( 0 == price )
             {
                 ai_add_order( &(powner->ai), (Uint32) price, SHOP_BUY );
             }
@@ -7796,7 +7796,7 @@ bool_t do_shop_steal( Uint16 ithief, Uint16 iitem )
             chr_t * powner = ChrList.lst + iowner;
 
             detection = generate_irand_pair( tmp_rand );
-            
+
             can_steal = btrue;
             if ( chr_can_see_object( iowner, ithief ) || detection <= 5 || (detection - ( pthief->dexterity >> 7 ) + ( powner->wisdom >> 7 )) > 50 )
             {

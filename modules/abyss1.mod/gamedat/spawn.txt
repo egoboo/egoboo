@@ -78,14 +78,14 @@ stalker:   NONE    38  17.5   39.5   1.0   N    0   0  0   0   0   F   F   E
 
 daemonlord:   NONE    47  54.0   45.0   1.0   N    799   0  0   0   2   F   F   E
   deamonlordwing:   NONE    48  0.0   0.0   0.0   L    0   0  0   0   0   F   F   S
-bat:   NONE    46  54.0   11.0   1.0   N    0   2  0   0   0   F   F   B
-bat:   NONE    46  52.0   13.0   1.0   N    0   2  0   0   0   F   F   B
-bat:   NONE    46  51.0   9.0   1.0   N    0   2  0   0   0   F   F   B
-bat:   NONE    46  50.0   12.0   1.0   N    0   2  0   0   0   F   F   B
-bat:   NONE    46  52.0   10.0   1.0   N    0   2  0   0   0   F   F   B
-bat:   NONE    46  54.0   13.0   1.0   N    0   2  0   0   0   F   F   B
-bat:   NONE    46  51.0   14.0   1.0   N    0   2  0   0   0   F   F   B
-bat:   NONE    46  53.0   15.0   1.0   N    0   2  0   0   0   F   F   B
+Bat:   NONE    46  54.0   11.0   1.0   N    0   2  0   0   0   F   F   B
+Bat:   NONE    46  52.0   13.0   1.0   N    0   2  0   0   0   F   F   B
+Bat:   NONE    46  51.0   9.0   1.0   N    0   2  0   0   0   F   F   B
+Bat:   NONE    46  50.0   12.0   1.0   N    0   2  0   0   0   F   F   B
+Bat:   NONE    46  52.0   10.0   1.0   N    0   2  0   0   0   F   F   B
+Bat:   NONE    46  54.0   13.0   1.0   N    0   2  0   0   0   F   F   B
+Bat:   NONE    46  51.0   14.0   1.0   N    0   2  0   0   0   F   F   B
+Bat:   NONE    46  53.0   15.0   1.0   N    0   2  0   0   0   F   F   B
 firemephit:   NONE    49  42.5   34.5   1.0   N    3   0  0   0   0   F   F   E
   firewing:   NONE    52  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 firemephit:   NONE    49  39.5   30.5   1.0   N    4   0  0   0   0   F   F   E
@@ -133,9 +133,9 @@ mephit:   NONE    49  55.0   29.0   1.0   N    19   0  0   0   0   F   F   E
   firewing:   NONE    52  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 
 secretchest:   NONE    37  8.0   30.0   1.0   N    0   0  0   1   0   F   F   N
-  keyb:   NONE    59  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  KeyB:   NONE    59  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 secretchest:   NONE    37  22.0   53.0   1.0   W    0   0  0   1   0   F   F   N
-  keyb:   NONE    59  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  KeyB:   NONE    59  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 shaft:   NONE    44  21.5   53.0   1.0   W    0   0  0   0   0   F   F   N
 shaft:   NONE    44  8.0   30.0   1.0   N    0   0  0   0   0   F   F   N
 specialgate:   NONE    61  13.5   53.0   1.0   E    0   0  4   0   0   F   F   N 	//vampire gate
@@ -153,10 +153,10 @@ demon:   NONE    62  56.0   42.0   1.0   N    4   0  0   0   0   F   F   E
 demon:   NONE    62  50.0   42.0   1.0   N    4   0  0   0   0   F   F   E
 hellrover:   NONE    64  40.0   36.0   1.0   N    0   0  0   0   0   F   F   N
 DarkSpirit:  NONE    100  40.0   36.0   1.5   N    0   0  0   0   0   F   F   E
-BlackLance:  NONE    99  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  BlackLance:  NONE    99  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 hellrover:   NONE    64  21.5   15.5   1.0   S    0   0  0   0   0   F   F   N
 DarkSpirit:  NONE    100  21.5   15.5   1.5   N    0   0  0   0   0   F   F   E
-BlackLance:  NONE    99  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  BlackLance:  NONE    99  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 hellrover:   NONE    64  57.5   12.5   1.0   W    0   0  0   0   0   F   F   N
 DarkSpirit:  NONE    100  57.5   12.5   1.5   N    0   0  0   0   0   F   F   E
-BlackLance:  NONE    99  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  BlackLance:  NONE    99  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N

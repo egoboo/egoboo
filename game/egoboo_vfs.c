@@ -170,7 +170,7 @@ const char* vfs_getVersion()
 	//PHYSFS_getLinkedVersion(&version);		//Linked version number
 	PHYSFS_VERSION(&version);			//Compiled version number
 	snprintf(buffer, SDL_arraysize(buffer), "%d.%d.%d", version.major, version.minor, version.patch);
-	
+
 	return buffer;
 }
 
@@ -334,7 +334,7 @@ char * _vfs_strip_mount_point( const char * some_path )
     stripped_pos = some_path;
 
     // strip any starting slashes
-    for( ptmp = some_path; ('\0' != *ptmp) && ptmp < some_path + VFS_MAX_PATH; ptmp++ ) 
+    for( ptmp = some_path; ('\0' != *ptmp) && ptmp < some_path + VFS_MAX_PATH; ptmp++ )
     {
         if( '/' != *ptmp && '\\' != *ptmp )
         {
@@ -354,7 +354,7 @@ char * _vfs_strip_mount_point( const char * some_path )
         {
             stripped_pos = some_path + offset;
             break;
-        }   
+        }
     }
 
     return stripped_pos;
@@ -391,7 +391,7 @@ char * _vfs_potential_mount_point( const char * some_path, const char ** pstripp
 
 
     // strip any starting slashes
-    for( ptmp = path_begin; ptmp < path_end; ptmp++ ) 
+    for( ptmp = path_begin; ptmp < path_end; ptmp++ )
     {
         if( '/' != *ptmp && '\\' != *ptmp )
         {
@@ -449,7 +449,7 @@ const char * vfs_resolveReadFilename(const char * src_filename )
             retval_len = SDL_arraysize(read_name_str);
         }
     }
-    else 
+    else
     {
         char * tmp_dirnane;
         char * ptmp = loc_fname;
@@ -2019,7 +2019,7 @@ int _vfs_mount_point_name_exists( const char * mount_point )
     if( 0 == vfs_mount_point_count ) return retval;
 
     // strip any starting slashes
-    for( ptmp = mount_point; ptmp < mount_point + VFS_MAX_PATH; ptmp++ ) 
+    for( ptmp = mount_point; ptmp < mount_point + VFS_MAX_PATH; ptmp++ )
     {
         if( '/' != *ptmp && '\\' != *ptmp || '\0' == *ptmp)
         {
@@ -2056,7 +2056,7 @@ bool_t _vfs_add_mount_point_name( const char * mount_point )
     if( _vfs_mount_point_name_exists(mount_point) >= 0 ) return bfalse;
 
     // strip any starting slashes
-    for( ptmp = mount_point; ptmp < mount_point + VFS_MAX_PATH; ptmp++ ) 
+    for( ptmp = mount_point; ptmp < mount_point + VFS_MAX_PATH; ptmp++ )
     {
         if( '/' != *ptmp && '\\' != *ptmp || '\0' == *ptmp)
         {

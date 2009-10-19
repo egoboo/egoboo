@@ -65,7 +65,7 @@ struct s_lighting_cache
 {
     float max_light;              ///< max amplitude of direct light
 
-    lighting_cache_base_t low;   
+    lighting_cache_base_t low;
     lighting_cache_base_t hgh;
 };
 typedef struct s_lighting_cache lighting_cache_t;

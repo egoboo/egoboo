@@ -1669,7 +1669,7 @@ void project_view( camera_t * pcam )
     mTemp = MatrixMult( RotateY( rotmeshbottomside * PI / 360 ), PCamera->mView );
     mTemp = MatrixMult( RotateX( -rotmeshdown * PI / 360 ), mTemp );
     zproject = mTemp.CNV( 2, 2 );             // 2,2
-    
+
 	// Camera must look down
     if ( zproject < 0 )
     {
@@ -2302,7 +2302,7 @@ void render_scene_water( renderlist_t * prlist )
     GL_DEBUG(glEnable)( GL_DEPTH_TEST );
     GL_DEBUG(glDepthFunc)( GL_LEQUAL );
 
-    GL_DEBUG(glEnable)( GL_CULL_FACE );              // GL_ENABLE_BIT 
+    GL_DEBUG(glEnable)( GL_CULL_FACE );              // GL_ENABLE_BIT
     GL_DEBUG(glFrontFace)( GL_CW );                  // GL_POLYGON_BIT
 
     // And transparent water floors
@@ -5024,7 +5024,7 @@ bool_t sum_dyna_lighting( dynalight_t * pdyna, float lighting[], float dx, float
     if ( (ABS(level)) > 0.5 )
     {
         float rad_sqr = rho_sqr + dz * dz;
-        
+
         if( rad_sqr > 0.0f )
         {
             float rad = SQRT( rad_sqr );

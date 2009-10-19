@@ -1149,10 +1149,6 @@ bool_t mesh_make_normals( ego_mpd_t * pmesh )
     }
 
 
-
-
-
-
     //            dy_min = iy_off[i] - 1;
     //            dy_max = iy_off[i];
 

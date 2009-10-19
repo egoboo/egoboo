@@ -859,7 +859,7 @@ Uint16 spawn_one_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 en
             }
 
             // Assume it's transparent...
-            chr_set_light( povl, 254 );  
+            chr_set_light( povl, 254 );
             chr_set_alpha( povl,   0 );
         }
     }

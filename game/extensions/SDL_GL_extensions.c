@@ -220,7 +220,7 @@ SDL_bool SDL_GL_set_gl_mode(struct s_oglx_video_parameters * v)
 
     /* Backface culling */
     // The glEnable() seems implied - DDOI
-    GL_DEBUG(glEnable)( GL_CULL_FACE );  // GL_ENABLE_BIT 
+    GL_DEBUG(glEnable)( GL_CULL_FACE );  // GL_ENABLE_BIT
     GL_DEBUG(glCullFace)( GL_BACK );     // GL_ENABLE_BIT | GL_POLYGON_BIT
 
     return SDL_TRUE;

@@ -36,11 +36,26 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static char cActionName[ACTION_COUNT][2]; // Two letter name code
+
+ego_md2_t  ego_md2_data[MAX_PROFILE]; ///< the old-style md2 data
+
 
 mad_t   MadList[MAX_PROFILE];
 
-char    cFrameName[16]  = EMPTY_CSTR;                                     // MD2 Frame Name
+static STRING  szModelName     = EMPTY_CSTR;      ///< MD2 Model name
+static char    cActionName[ACTION_COUNT][2];      ///< Two letter name code
+static STRING  cActionComent[ACTION_COUNT];       ///< Strings explaining the action codes
+
+static Uint16 action_number();
+//static Uint16 action_frame();
+static void   action_check_copy( const char* loadname, Uint16 object );
+static void   action_copy_correct( Uint16 object, Uint16 actiona, Uint16 actionb );
+
+static void   mad_get_framefx( int frame );
+static void   mad_get_walk_frame( Uint16 object, int lip, int action );
+static void   mad_make_framelip( Uint16 object, int action );
+static void   mad_rip_actions( Uint16 object );
+
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -58,10 +73,13 @@ Uint16 action_number()
     ///    it returns NOACTION if it could not find a match
 
     int cnt;
+    char tmp_str[16];
     char first, second;
 
-    first = cFrameName[0];
-    second = cFrameName[1];
+    sscanf( cFrameName, " %15s", tmp_str );
+
+    first  = tmp_str[0];
+    second = tmp_str[1];
 
     for ( cnt = 0; cnt < ACTION_COUNT; cnt++ )
     {
@@ -74,35 +92,19 @@ Uint16 action_number()
     return NOACTION;
 }
 
-//--------------------------------------------------------------------------------------------
-Uint16 action_frame()
-{
-    /// @details ZZ@> This function returns the frame number in the third and fourth characters
-    ///    of cFrameName
-
-    int number;
-
-    sscanf( &cFrameName[2], "%d", &number );
-
-    return number;
-}
-
-//--------------------------------------------------------------------------------------------
-Uint16 test_frame_name( char letter )
-{
-    /// @details ZZ@> This function returns btrue if the 4th, 5th, 6th, or 7th letters
-    ///    of the frame name matches the input argument
-
-    if ( cFrameName[4] == letter ) return btrue;
-    if ( cFrameName[4] == 0 ) return bfalse;
-    if ( cFrameName[5] == letter ) return btrue;
-    if ( cFrameName[5] == 0 ) return bfalse;
-    if ( cFrameName[6] == letter ) return btrue;
-    if ( cFrameName[6] == 0 ) return bfalse;
-    if ( cFrameName[7] == letter ) return btrue;
-
-    return bfalse;
-}
+////--------------------------------------------------------------------------------------------
+//Uint16 action_frame()
+//{
+//    /// @details ZZ@> This function returns the frame number in the third and fourth characters
+//    ///    of cFrameName
+//
+//    int number;
+//    char tmp_str[16];
+//
+//    sscanf( cFrameName, " %15s%d", tmp_str, &number );
+//
+//    return number;
+//}
 
 //--------------------------------------------------------------------------------------------
 void action_copy_correct( Uint16 object, Uint16 actiona, Uint16 actionb )
@@ -143,7 +145,8 @@ void action_check_copy( const char* loadname, Uint16 object )
     /// @details ZZ@> This function copies a model's actions
     vfs_FILE *fileread;
     int actiona, actionb;
-    char szOne[16] = EMPTY_CSTR, szTwo[16] = EMPTY_CSTR;
+    char szOne[16] = EMPTY_CSTR;
+    char szTwo[16] = EMPTY_CSTR;
 
     if ( object > MAX_PROFILE || !MadList[object].loaded ) return;
 
@@ -220,39 +223,197 @@ void mad_get_walk_frame( Uint16 object, int lip, int action )
 void mad_get_framefx( int frame )
 {
     /// @details ZZ@> This function figures out the IFrame invulnerability, and Attack, Grab, and
-    ///    Drop timings
+    ///               Drop timings
+    ///
+    ///          BB@> made a bit more sturdy parser that is not going to confuse strings like LCRA
+    ///               which would not crop up if the convention of L or R going first was applied universally.
+    ///               However, there are existing (and common) models which use the opposite convention, leading
+    ///               to the possibility that an fx string LARC could be interpreted as act left, char right AND
+    ///               act right.
 
-    Uint16 fx = 0;
-    if ( test_frame_name( 'I' ) )
-        fx = fx | MADFX_INVICTUS;
-    if ( test_frame_name( 'L' ) )
+    Uint32 fx = 0;
+    char name_action[16], name_fx[16];
+    int name_count;
+    int fields;
+    int cnt;
+
+    static int token_count = -1;
+    static const char * tokens[] = { "I","S","F","P","A","G","D","C",                 /* the normal command tokens */
+                                     "LA","LG","LD","LC","RA","RG","RD","RC", NULL }; /* the "bad" token aliases */
+
+    char * ptmp, * ptmp_end, *paction, *paction_end;
+
+    // this should only be initializwd the first time through
+    if( token_count < 0 )
     {
-        if ( test_frame_name( 'A' ) )
-            fx = fx | MADFX_ACTLEFT;
-        if ( test_frame_name( 'G' ) )
-            fx = fx | MADFX_GRABLEFT;
-        if ( test_frame_name( 'D' ) )
-            fx = fx | MADFX_DROPLEFT;
-        if ( test_frame_name( 'C' ) )
-            fx = fx | MADFX_CHARLEFT;
+        token_count = 0;
+        for( cnt = 0; NULL != tokens[token_count] && cnt<256; cnt++ ) token_count++;
     }
-    if ( test_frame_name( 'R' ) )
+
+    // check for a valid frame number
+    if( frame >= MAXFRAME ) return;
+
+    // set the default values
+    fx = 0;
+    Md2FrameList[frame].framefx = fx;
+
+    // check for a non-trivial frame name
+    if( !VALID_CSTR(cFrameName) ) return;
+
+    // skip over whitespace
+    ptmp     = cFrameName;
+    ptmp_end = cFrameName + 16;
+    for( /* nothing */; ptmp < ptmp_end && isspace(*ptmp); ptmp++ ) {};
+
+    // copy non-numerical text
+    paction     = name_action;
+    paction_end = name_action + 16;
+    for( /* nothing */; ptmp < ptmp_end && paction < paction_end && !isspace(*ptmp); ptmp++, paction++ )
     {
-        if ( test_frame_name( 'A' ) )
-            fx = fx | MADFX_ACTRIGHT;
-        if ( test_frame_name( 'G' ) )
-            fx = fx | MADFX_GRABRIGHT;
-        if ( test_frame_name( 'D' ) )
-            fx = fx | MADFX_DROPRIGHT;
-        if ( test_frame_name( 'C' ) )
-            fx = fx | MADFX_CHARRIGHT;
+        if( isdigit( *ptmp ) ) break;
+        *paction = *ptmp;
     }
-    if ( test_frame_name( 'S' ) )
-        fx = fx | MADFX_STOP;
-    if ( test_frame_name( 'F' ) )
-        fx = fx | MADFX_FOOTFALL;
-    if ( test_frame_name( 'P' ) )
-        fx = fx | MADFX_POOF;
+    if( paction < paction_end ) *paction = '\0';
+
+    name_fx[0] = '\0';
+    fields = sscanf( ptmp, "%d %15s", &name_count, name_fx );
+    name_action[15] = '\0';
+    name_fx[15] = '\0';
+
+    // check for a non-trivial fx command
+    if( !VALID_CSTR(name_fx) ) return;
+
+    // scan the fx string for valid commands
+    ptmp     = name_fx;
+    ptmp_end = name_fx + 15;
+    while( '\0' != *ptmp && ptmp < ptmp_end )
+    {
+        int len;
+        int token_index = -1;
+        for( cnt = 0; cnt<token_count; cnt++ )
+        {
+            len = strlen( tokens[cnt] );
+            if( 0 == strncmp( tokens[cnt], ptmp, len ) )
+            {
+                ptmp += len;
+                token_index = cnt;
+                break;
+            }
+        }
+
+        if( -1 == token_index )
+        {
+            log_warning( "Model %s, frame %d, frame name \"%s\" has unknown frame effects command \"%s\"\n", szModelName, frame, cFrameName, ptmp );
+            ptmp++;
+        }
+        else
+        {
+            bool_t bad_form = bfalse;
+            switch( token_index )
+            {
+                case  0: // "I" == invulnerable
+                    fx |= MADFX_INVICTUS;
+                    break;
+
+                case  1: // "S" == stop
+                    fx |= MADFX_STOP;
+                    break;
+
+                case  2: // "F" == footfall
+                    fx |= MADFX_FOOTFALL;
+                    break;
+
+                case  3: // "P" == poof
+                    fx |= MADFX_POOF;
+                    break;
+
+                case  4: // "A" == action
+
+                    // get any modifiers
+                    while( ('\0' != *ptmp && ptmp < ptmp_end) && ('R' == *ptmp || 'L' == *ptmp ) )
+                    {
+                        fx |= ( 'L' == *ptmp ) ? MADFX_ACTLEFT : MADFX_ACTRIGHT;
+                        ptmp++;
+                    }
+                    break;
+
+                case  5: // "G" == grab
+
+                    // get any modifiers
+                    while( ('\0' != *ptmp && ptmp < ptmp_end) && ('R' == *ptmp || 'L' == *ptmp ) )
+                    {
+                        fx |= ( 'L' == *ptmp ) ? MADFX_GRABLEFT : MADFX_GRABRIGHT;
+                        ptmp++;
+                    }
+                    break;
+
+                case  6: // "D" == drop
+
+                    // get any modifiers
+                    while( ('\0' != *ptmp && ptmp < ptmp_end) && ('R' == *ptmp || 'L' == *ptmp ) )
+                    {
+                        fx |= ( 'L' == *ptmp ) ? MADFX_DROPLEFT : MADFX_DROPRIGHT;
+                        ptmp++;
+                    }
+                    break;
+
+                case  7: // "C" == grab a character
+
+                    // get any modifiers
+                    while( ('\0' != *ptmp && ptmp < ptmp_end) && ('R' == *ptmp || 'L' == *ptmp ) )
+                    {
+                        fx |= ( 'L' == *ptmp ) ? MADFX_CHARLEFT : MADFX_CHARRIGHT;
+                        ptmp++;
+                    }
+                    break;
+
+                case  8: // "LA"
+                    bad_form = btrue;
+                    fx |= MADFX_ACTLEFT;
+                    break;
+
+                case  9: // "LG"
+                    bad_form = btrue;
+                    fx |= MADFX_GRABLEFT;
+                    break;
+
+                case 10: // "LD"
+                    bad_form = btrue;
+                    fx |= MADFX_DROPLEFT;
+                    break;
+
+                case 11: // "LC"
+                    bad_form = btrue;
+                    fx |= MADFX_CHARLEFT;
+                    break;
+
+                case 12: // "RA"
+                    bad_form = btrue;
+                    fx |= MADFX_ACTRIGHT;
+                    break;
+
+                case 13: // "RG"
+                    bad_form = btrue;
+                    fx |= MADFX_GRABRIGHT;
+                    break;
+
+                case 14: // "RD"
+                    bad_form = btrue;
+                    fx |= MADFX_DROPRIGHT;
+                    break;
+
+                case 15: // "RC"
+                    bad_form = btrue;
+                    fx |= MADFX_CHARRIGHT;
+                    break;
+            }
+
+            if( bad_form )
+            {
+                log_warning( "Model %s, frame %d, frame name \"%s\" has a frame effects command in an improper configuration \"%s\"\n", szModelName, frame, cFrameName, ptmp );
+            }
+        }
+    }
 
     Md2FrameList[frame].framefx = fx;
 }
@@ -304,26 +465,52 @@ void mad_make_equally_lit( int model )
 void load_action_names( const char* loadname )
 {
     /// @details ZZ@> This function loads all of the 2 letter action names
+
     vfs_FILE* fileread;
     int cnt;
+
     char first, second;
+    STRING comment;
+    bool_t found;
 
     fileread = vfs_openRead( loadname );
-    if ( fileread )
-    {
-        cnt = 0;
+    if ( !fileread ) return;
 
-        while ( cnt < ACTION_COUNT )
+
+    for ( cnt = 0; cnt < ACTION_COUNT; cnt++ )
+    {
+        comment[0] = '\0';
+
+        found = bfalse;
+        if( goto_colon( NULL, fileread, bfalse ) )
         {
-            goto_colon( NULL, fileread, bfalse );
-            vfs_scanf( fileread, "%c%c", &first, &second );
-            cActionName[cnt][0] = first;
-            cActionName[cnt][1] = second;
-            cnt++;
+            if( vfs_scanf( fileread, " %c%c %s", &first, &second, &comment ) >= 2 )
+            {
+                found = btrue;
+            }
         }
 
-        vfs_close( fileread );
+        if( found )
+        {
+            cActionName[cnt][0] = first;
+            cActionName[cnt][1] = second;
+            cActionComent[cnt][0] = '\0';
+
+            if( VALID_CSTR(comment) )
+            {
+                strncpy( cActionComent[cnt], comment, SDL_arraysize(cActionComent[cnt]) );
+                cActionComent[cnt][255] = '\0';
+            }
+        }
+        else
+        {
+            cActionName[cnt][0] ='\0';
+            cActionComent[cnt][0] = '\0';
+        }
     }
+
+    vfs_close( fileread );
+
 }
 
 //--------------------------------------------------------------------------------------------
@@ -367,7 +554,12 @@ Uint16 load_one_model_profile( const char* tmploadname, Uint16 imad )
 
 #endif
 
-    md2_load_one( vfs_resolveReadFilename(newloadname), &(ego_md2_data[MadList[imad].md2_ref]) );
+    szModelName[0] = '\0';
+    if( md2_load_one( vfs_resolveReadFilename(newloadname), &(ego_md2_data[MadList[imad].md2_ref]) ) )
+    {
+        strncpy( szModelName, vfs_resolveReadFilename(newloadname), SDL_arraysize(szModelName) );
+    }
+
     //md2_fix_normals( imad );        // Fix them normals
     //md2_get_transvertices( imad );  // Figure out how many vertices to transform
 
@@ -644,7 +836,7 @@ void init_all_mad()
         mad_init( MadList + cnt );
     }
 
-    md2_loadframe = 0;
+    Md2FrameList_index = 0;
 }
 
 //---------------------------------------------------------------------------------------------
@@ -657,7 +849,7 @@ void release_all_mad()
         release_one_mad( cnt );
     }
 
-    md2_loadframe = 0;
+    Md2FrameList_index = 0;
 }
 
 //---------------------------------------------------------------------------------------------
@@ -679,3 +871,21 @@ bool_t release_one_mad( Uint16 imad )
 
     return btrue;
 }
+
+
+////--------------------------------------------------------------------------------------------
+//Uint16 test_frame_name( char letter )
+//{
+//    /// @details ZZ@> This function returns btrue if the 4th, 5th, 6th, or 7th letters
+//    ///    of the frame name matches the input argument
+//
+//    if ( cFrameName[4] == letter ) return btrue;
+//    if ( cFrameName[4] == 0 ) return bfalse;
+//    if ( cFrameName[5] == letter ) return btrue;
+//    if ( cFrameName[5] == 0 ) return bfalse;
+//    if ( cFrameName[6] == letter ) return btrue;
+//    if ( cFrameName[6] == 0 ) return bfalse;
+//    if ( cFrameName[7] == letter ) return btrue;
+//
+//    return bfalse;
+//}

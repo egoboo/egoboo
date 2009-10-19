@@ -2771,7 +2771,7 @@ void cleanup_one_character( chr_t * pchr )
 
 
     // Stop all sound loops for this object
-    looped_stop_object_sounds( ichr );          
+    looped_stop_object_sounds( ichr );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3065,7 +3065,7 @@ int damage_character( Uint16 character, Uint16 direction,
 
 
                         // If it's a player, let it die properly before enabling respawn
-                        if (pchr->isplayer) revivetimer = ONESECOND; // 1 second                        
+                        if (pchr->isplayer) revivetimer = ONESECOND; // 1 second
 
                         // Afford it one last thought if it's an AI
                         pchr->ai.timer = update_wld + 1;  // No timeout...
@@ -4427,8 +4427,8 @@ int check_skills( Uint16 who, IDSZ whichskill )
 //--------------------------------------------------------------------------------------------
 bool_t update_chr_darkvision( chr_t * pchr )
 {
-    /// @detalis BB@> as an offset to negative status effects like things like poisoning, a 
-    ///               character gains darkvision ability the more they are "poisoned". 
+    /// @detalis BB@> as an offset to negative status effects like things like poisoning, a
+    ///               character gains darkvision ability the more they are "poisoned".
     ///               At the present time, the function measures the broad category of "life drain".
     ///               True poisoning can be removed by [HEAL] and tints the character green, so
     ///               we could limit our search to those effects.
@@ -5438,7 +5438,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
                         {
                             chr_play_action( ichr, action, bfalse );
                         }
-                        
+
                         if ( weapon != ichr )
                         {
                             // Make the weapon attack too
@@ -8815,7 +8815,7 @@ void chr_set_redshift( chr_t * pchr, int rs )
 
     pchr->inst.redshift = rs;
 
-    chr_instance_update_ref( &(pchr->inst), pchr->enviro.floor_level, bfalse ); 
+    chr_instance_update_ref( &(pchr->inst), pchr->enviro.floor_level, bfalse );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -8825,7 +8825,7 @@ void chr_set_grnshift( chr_t * pchr, int gs )
 
     pchr->inst.grnshift = gs;
 
-    chr_instance_update_ref( &(pchr->inst), pchr->enviro.floor_level, bfalse ); 
+    chr_instance_update_ref( &(pchr->inst), pchr->enviro.floor_level, bfalse );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -8835,7 +8835,7 @@ void chr_set_blushift( chr_t * pchr, int bs )
 
     pchr->inst.blushift = bs;
 
-    chr_instance_update_ref( &(pchr->inst), pchr->enviro.floor_level, bfalse ); 
+    chr_instance_update_ref( &(pchr->inst), pchr->enviro.floor_level, bfalse );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -8845,7 +8845,7 @@ void chr_set_sheen   ( chr_t * pchr, int sheen )
 
     pchr->inst.sheen = sheen;
 
-    chr_instance_update_ref( &(pchr->inst), pchr->enviro.floor_level, bfalse ); 
+    chr_instance_update_ref( &(pchr->inst), pchr->enviro.floor_level, bfalse );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -8855,7 +8855,7 @@ void chr_set_alpha( chr_t * pchr, int alpha )
 
     pchr->inst.ref.alpha = alpha;
 
-    chr_instance_update_ref( &(pchr->inst), pchr->enviro.floor_level, bfalse ); 
+    chr_instance_update_ref( &(pchr->inst), pchr->enviro.floor_level, bfalse );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -8865,7 +8865,7 @@ void chr_set_light( chr_t * pchr, int light )
 
     pchr->inst.light = light;
 
-    chr_instance_update_ref( &(pchr->inst), pchr->enviro.floor_level, bfalse ); 
+    chr_instance_update_ref( &(pchr->inst), pchr->enviro.floor_level, bfalse );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -8957,7 +8957,7 @@ void chr_instance_get_tint( chr_instance_t * pinst, GLfloat * tint, Uint32 bits 
 
     if( 0 != ( bits & CHR_PHONG ) )
     {
-        // phong is essentially the same as light, but it is the 
+        // phong is essentially the same as light, but it is the
         // sheen that sets the effect
 
         float amount;
@@ -8966,8 +8966,8 @@ void chr_instance_get_tint( chr_instance_t * pinst, GLfloat * tint, Uint32 bits 
 
         amount = ( CLIP(local_sheen, 0, 15) << 4 ) / 240.0f;
 
-        tint[0] += amount; 
-        tint[1] += amount; 
+        tint[0] += amount;
+        tint[1] += amount;
         tint[2] += amount;
         tint[3] += 1.0f;
     }

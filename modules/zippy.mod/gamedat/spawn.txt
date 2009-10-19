@@ -38,6 +38,7 @@
 #dependency BullWolf           76
 #dependency Rebirth            77
 #dependency Identify           82
+#dependency AlbinoBat          83
 
 //         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
 HERO 0:    NONE      0    31.5 31.5 0.0  N   0   0   0   0   0   T   F   Good

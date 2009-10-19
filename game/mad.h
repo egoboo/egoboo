@@ -31,7 +31,6 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 struct Mix_Chunk;
-//typedef struct Mix_Chunk Mix_Chunk;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -150,7 +149,7 @@ enum e_action
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-ego_md2_t  ego_md2_data[MAX_PROFILE]; ///< the old-style md2 data
+extern ego_md2_t  ego_md2_data[MAX_PROFILE]; ///< the old-style md2 data
 
 //--------------------------------------------------------------------------------------------
 /// The definition of the egoboo model type
@@ -181,9 +180,6 @@ extern mad_t   MadList[MAX_PROFILE];
 #define LOADED_MAD( IMAD )       ( VALID_MAD_RANGE( IMAD ) && MadList[IMAD].loaded )
 
 //--------------------------------------------------------------------------------------------
-extern char            cFrameName[16];                                     ///< MD2 Frame Name
-
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 void   init_all_mad();
@@ -191,17 +187,7 @@ void   release_all_mad();
 bool_t release_one_mad( Uint16 imad );
 Uint16 load_one_model_profile( const char* tmploadname, Uint16 object );
 
-Uint16 test_frame_name( char letter );
-
-Uint16 action_number();
-Uint16 action_frame();
-void   action_check_copy( const char* loadname, Uint16 object );
-void   action_copy_correct( Uint16 object, Uint16 actiona, Uint16 actionb );
 int    action_which( char cTmp );
 void   load_action_names( const char* loadname );
 
-void   mad_get_framefx( int frame );
-void   mad_get_walk_frame( Uint16 object, int lip, int action );
 void   mad_make_equally_lit( int model );
-void   mad_make_framelip( Uint16 object, int action );
-void   mad_rip_actions( Uint16 object );

@@ -32,13 +32,16 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+
+int         Md2FrameList_index = 0;
+md2_frame_t Md2FrameList[MAXFRAME];
+
+char        cFrameName[16]  = EMPTY_CSTR;      ///< MD2 Current frame name
+
 static int  md2_rip_header();
 static void md2_rip_commands( md2_ogl_commandlist_t * pclist );
 
-Uint16      md2_loadframe = 0;
-md2_frame_t Md2FrameList[MAXFRAME];
-
-static Uint8 cLoadBuffer[MD2MAXLOADSIZE];// Where to put an MD2
+static Uint8 cLoadBuffer[MD2MAXLOADSIZE];       ///< Where to put an MD2
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -285,12 +288,12 @@ void md2_rip_frames( ego_md2_t * pmd2 )
     iFrameOffset = ENDIAN_INT32( ipIntPointer[14] ) >> 2;
 
     // Read in each frame
-    pmd2->framestart = md2_loadframe;
+    pmd2->framestart = Md2FrameList_index;
     pmd2->frames     = iNumFrames;
     pmd2->vertices   = iNumVertices;
     cnt = 0;
 
-    while ( cnt < iNumFrames && md2_loadframe < MAXFRAME )
+    while ( cnt < iNumFrames && Md2FrameList_index < MAXFRAME )
     {
         oct_bb_t bbox;
 
@@ -325,10 +328,10 @@ void md2_rip_frames( ego_md2_t * pmd2 )
             fRealy *=  3.5f;
             fRealz *=  3.5f;
 
-            Md2FrameList[md2_loadframe].vrtx[tnc] = fRealx;
-            Md2FrameList[md2_loadframe].vrty[tnc] = fRealy;
-            Md2FrameList[md2_loadframe].vrtz[tnc] = fRealz;
-            Md2FrameList[md2_loadframe].vrta[tnc] = cTmpa;
+            Md2FrameList[Md2FrameList_index].vrtx[tnc] = fRealx;
+            Md2FrameList[Md2FrameList_index].vrty[tnc] = fRealy;
+            Md2FrameList[Md2FrameList_index].vrtz[tnc] = fRealz;
+            Md2FrameList[Md2FrameList_index].vrta[tnc] = cTmpa;
 
             // update the bounding box
             bbox.mins[OCT_X] = MIN(bbox.mins[OCT_X], fRealx);
@@ -350,9 +353,9 @@ void md2_rip_frames( ego_md2_t * pmd2 )
         }
 
         // apply the bounding box
-        Md2FrameList[md2_loadframe].bbox = bbox;
+        Md2FrameList[Md2FrameList_index].bbox = bbox;
 
-        md2_loadframe++;
+        Md2FrameList_index++;
         cnt++;
     }
 }

@@ -158,7 +158,7 @@ enum e_chr_render_bits
 {
     CHR_UNKNOWN  = 0,
     CHR_SOLID    = (1 << 0),
-    CHR_ALPHA    = (1 << 1), 
+    CHR_ALPHA    = (1 << 1),
     CHR_LIGHT    = (1 << 2),
     CHR_PHONG    = (1 << 3),
     CHR_REFLECT  = (1 << 4)

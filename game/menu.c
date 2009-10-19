@@ -428,7 +428,6 @@ void set_copyright_position( Font * font, const char * text, int spacing )
 }
 
 
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 int mnu_init()
@@ -817,7 +816,7 @@ int doChooseModule( float deltaTime )
             {
                 set_tip_position( menuFont, "Press an icon to select a game.\nUse the mouse wheel or the \"<-\" and \"->\" buttons to scroll.", 20 );
             }
-                 
+
             menuState = MM_Entering;
 
             // fall through...
@@ -1288,7 +1287,7 @@ int doChoosePlayer( float deltaTime )
             // load information for all the players that could be imported
             check_player_import( "players", btrue );
 
-            // reset button 0, or it will mess up the menu. 
+            // reset button 0, or it will mess up the menu.
             // must do it before initSlidyButtons()
             button_text[0] = "N/A";
 
@@ -1652,7 +1651,7 @@ int doOptions( float deltaTime )
             menuState = MM_Entering;
 
             set_tip_position( menuFont, "Change your audio, input and video\nsettings here.", 20 );
-            
+
             initSlidyButtons( 1.0f, sz_buttons );
             // let this fall through into MM_Entering
 
