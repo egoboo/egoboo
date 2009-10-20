@@ -1,0 +1,165 @@
+Slot number    : -1
+Class name     : Inventor
+Uniform light  : FALSE
+Maximum ammo   : 0
+Current ammo   : 0
+Gender         : MALE
+
+Life color     : 1
+Mana color     : 5
+Life           : 8.00
+Life up        : 0.01-0.05
+Mana           : 1.50
+Mana up        : 0.75-1.00
+Mana return    : 0.50
+Mana return up : 0.50-1.00
+Mana flow      : 1.10
+Mana flow up   : 0.50-1.00
+STR            : 5.00
+STR up         : 0.00-1.00
+WIS            : 15.00
+WIS up         : 1.00-3.00
+INT            : 20.00
+INT up         : 1.00-2.00
+DEX            : 15.00
+DEX up         : 0.50-5.00
+
+Size           : 1.00
+Size up        : 0.05
+Shadow size    : 25
+Bump size      : 30
+Bump height    : 90
+Bump dampen    : 0.35
+Weight         : 110
+Jump power     : 10.00
+Jump number    : 1
+Sneak speed    : 1
+Walk speed     : 1
+Run speed      : 5
+Fly to height  : 0
+Flashing AND   : 255
+Alpha blending : 255
+Light blending : 255
+Transfer blend : TRUE
+Sheen          : 0
+Phong mapping  : FALSE
+Texture X add  : 0.00
+Texture Y add  : 0.00
+Sticky butt    : FALSE
+
+Invictus       : FALSE
+NonI facing    : 0
+NonI angle     : 0
+I facing       : 0
+I angle        : 14000
+
+Base defense   :   5  10   4  40
+S damage shift :   0   2   0   1
+C damage shift :   0   1   0   1
+P damage shift :   0   1   0   1
+H damage shift :   0   0   0   0
+E damage shift :   0   0   0   2
+F damage shift :   0   1   0   1
+I damage shift :   0   1   0   1
+Z damage shift :   0   0   0   1
+S damage code  :   F   F   F   F
+C damage code  :   F   F   F   F
+P damage code  :   F   F   F   F
+H damage code  :   T   T   T   T
+E damage code  :   F   F   F   F
+F damage code  :   F   F   F   F
+I damage code  :   F   F   F   F
+Z damage code  :   F   F   F   F
+Acceleration   :  60  55  65  40
+
+EXP for 2nd    : 300
+EXP for 3rd    : 900
+EXP for 4th    : 2700
+EXP for 5th    : 5400
+EXP for 6th    : 7500
+Starting EXP   : 100
+EXP worth      : 40
+EXP exchange   : 0.010
+EXPSECRET      : 1.25
+EXPQUEST       : 1.50
+EXPDARE        : 0.10
+EXPKILL        : 0.00
+EXPMURDER      : 0.01
+EXPREVENGE     : 0.02
+EXPTEAMWORK    : 2.40
+EXPROLEPLAY    : 2.50
+
+IDSZ Parent    : [HUMA]
+IDSZ Type      : [INVE]
+IDSZ Skill     : [TECH]
+IDSZ Special   : [NONE]
+IDSZ Hate      : [NONE]
+IDSZ Vulnie    : [NONE]
+
+Is an item     : FALSE
+Is a mount     : FALSE
+Is stackable   : FALSE
+Name known     : TRUE
+Usage known    : TRUE
+Is exportable  : FALSE
+Requires skill : FALSE
+Is platform    : FALSE
+Collects money : TRUE
+Can open stuff : TRUE
+
+Damage type    : CRUSH
+Attack type    : SLASH
+
+Attached parts : 0
+Reaffirm type  : NONE
+Particle type  : 0
+
+Left valid     : TRUE
+Right valid    : TRUE
+
+Part on weapon : TRUE
+Part type      : 0
+
+Poof amount    : 8
+Facing add     : 8192
+Part type      : 1
+
+Blood valid    : FALSE
+Part type      : 0
+
+Waterwalking   : FALSE
+Bounce dampen  : 0.600
+
+Life healing   : 0.000
+Mana cost      : 0.000
+Life return    : 0
+Stopped by     : 48
+Skin 0 name    : a_T-shirt_and_Jeans
+Skin 1 name    : a_Suit_of_Denim
+Skin 2 name    : some_Tights
+Skin 3 name    : a_Theoretical_Physist_Costume
+Skin 0 cost    : 20
+Skin 1 cost    : 100
+Skin 2 cost    : 300
+Skin 3 cost    : 2000
+STR dampen     : 0.050
+
+No rider attak : FALSE
+Can be dazed   : TRUE
+Can be grogged : TRUE
+NOT USED       : 0
+NOT USED       : 0
+Can see invisi : FALSE
+Kursed chance  : 0
+Footfall sound : 0
+Jump sound     : 1
+
+:[GOLD] 114
+:[DRES] 3
+:[PLAT] 1
+:[SKIN] 0
+:[CONT] 0
+:[STAT] 0
+:[LEVL] 0
+:[WMAG] 1
+:[READ] 1
