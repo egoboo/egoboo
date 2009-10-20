@@ -78,6 +78,7 @@ struct s_egoboo_config
     Uint16                  sound_channel_count;        ///< Max number of sounds playing at the same time
     Uint16                  sound_buffer_size;
     bool_t                  sound_highquality;
+	bool_t					sound_highquality_base;
 
     // {NETWORK}
     bool_t                  network_allowed;            ///< Try to connect?

@@ -117,7 +117,7 @@ IfSpawned
   tmpy = 0          //5%
   IfXIsEqualToY
     tmpargument = [ELFF]
-    tmpdistance = 15          //Everything
+    tmpdistance = BLAHPLAYERS + BLAHENEMIES + BLAHFRIENDS  //SetTargetToNearestPlayer
     SetTargetToNearestBlahID
       tmpargument = 33        //jiiveelf.obj
       ChangeTargetClass

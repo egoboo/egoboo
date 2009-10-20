@@ -7069,6 +7069,19 @@ Uint8 scr_AccelerateTargetUp( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
+Uint8 scr_set_TargetAmmo( script_state_t * pstate, ai_state_t * pself )
+{
+    // SetTargetAmmo( tmpargument = "none" )
+    /// @details ZF@> This function sets the ammo of the character's current AI target
+
+    SCRIPT_FUNCTION_BEGIN();
+
+    ChrList.lst[pself->target].ammo = pstate->argument;
+
+    SCRIPT_FUNCTION_END();
+}
+
+//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 Uint8 _break_passage( int mesh_fx_or, int become, int frames, int starttile, int passage, int *ptilex, int *ptiley )

@@ -324,7 +324,7 @@ bool_t setup_download(egoboo_config_t * pcfg)
 
     // Extra high sound quality?
     GetKey_bool( "HIGH_SOUND_QUALITY", pcfg->sound_highquality, cfg_default.sound_highquality );
-
+	pcfg->sound_highquality_base = pcfg->sound_highquality;
     //*********************************************
     //* CONTROL Section
     //*********************************************

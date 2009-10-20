@@ -5,7 +5,7 @@ SetTargetToRider
   IfStateIs0
     tmpargument = 1
     SetState
-    tmpargument = rand & 15
+    tmpargument = rand % 15
     SendMessageNear
 Else
   tmpargument = 0

@@ -13,6 +13,12 @@ IfSpawned				//
   KeepAction				  //
   MakeCrushValid
   MakeAmmoKnown
+  
+  //Allow module makers to specify stacks of spears here
+  SetTargetToSelf
+  tmpargument = selfcontent
+  SetTargetAmmo
+  
 IfCrushed
   tmpx = selfx
   tmpy = selfy

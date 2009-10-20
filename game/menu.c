@@ -2473,7 +2473,6 @@ int doAudioOptions( float deltaTime )
     static STRING Cbuffersize;
     static STRING Csoundvolume;
     static STRING Cmusicvolume;
-    //static STRING Chighquality;
     static const char *sz_buttons[] =
     {
         "N/A",        // Enable sound
@@ -2531,7 +2530,7 @@ int doAudioOptions( float deltaTime )
             snprintf( Cbuffersize, SDL_arraysize( Cbuffersize), "%i", cfg.sound_buffer_size );
             sz_buttons[5] = Cbuffersize;
 
-            sz_buttons[6] = cfg.sound_highquality ? "Normal" : "High";
+            sz_buttons[6] = cfg.sound_highquality ?  "Normal" : "High";
 
             // Fall trough
             menuState = MM_Running;

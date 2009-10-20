@@ -1,4 +1,6 @@
-// Burn down
-IfKilled
-  GoPoof
+// Empty
+IfBumped
+  SetTargetToWhoeverBumped
+  IfTargetCanOpenStuff
+    DropItems
 End

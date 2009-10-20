@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //NOTES
-//Armor 2 is a shaman with special abillities
-//Armor 1 is captain/elite soldier
+//Armor 2 is a shaman with special magic abillities
+//Armor 1 is captain/elite soldier with super dodging
 //The object's content is how many spears it has left (or recharge if shaman)
 //------------------------------------------------------------------------------
 //Spawn stuff
@@ -19,9 +19,20 @@ IfSpawned
     tmpargument = rand & 1023 + 1024 	//4-8 bonus
     GiveWisdomToTarget
     GiveIntelligenceToTarget
-  tmpargument = 4
-  SetContent				//BAD: hard coded 4 spears (i am to lazy to set content for all)
 
+  //Figure out how many spears we have to spare
+  SetTargetToSelf
+  SetTargetToTargetLeftHand
+    tmpargument = [SPEA]
+    IfTargetHasID
+      tmpargument = targetammo
+      SetContent
+  SetTargetToTargetRightHand
+    tmpargument = [SPEA]
+    IfTargetHasID
+      tmpargument = targetammo
+      SetContent
+      
 //------------------------------------------------------------------------------
 //Growl
 IfUsed
@@ -110,72 +121,77 @@ IfArmorIs
 
   // Put the little mana ball on the
   // character's hand
-  GetContent
-  tmpx = tmpargument
+  tmpx = selfcontent
   tmpy = 10
   IfXIsLessThanY
-    tmpturn = tmpargument*2500
+    tmpturn = selfcontent*2500
     tmpturn = 25000 - tmpturn
     tmpdistance = GRIPLEFT
     tmpargument = 3
     SpawnAttachedSizedParticle
-
+    SetTurnModeToWatchTarget
+    
   IfTimeOut
     //Recharge spells
-    GetContent
-    tmpx = tmpargument
+    tmpx = selfcontent
     tmpy = 0
     IfXIsMoreThanY
-      tmpargument = tmpargument -1		//Recharge some...
+      tmpargument = selfcontent - 1		//Recharge some...
       SetContent
 
     //Grasping grass spell
-    IfTargetIsOnHatedTeam
-      IfFacingTarget
-        GetContent
-        tmpx = tmpargument
-        tmpy = 0
-        IfXIsEqualToY
-          tmpargument = LATCHLEFT
-          PressLatchButton
-            tmpargument = 4
-            tmpx = selfx
-            tmpy = selfy
-            tmpdistance = selfz
-            SpawnExactParticle
-            tmpargument = 10		//Recharge time
-            SetContent
-            tmpargument = 1
-            SetState
+    tmpx = selfmana
+    tmpy = 512
+    IfXIsMoreThanY				              // Enough mana to cast?
+      IfTargetIsOnHatedTeam
+        IfFacingTarget
+          tmpx = selfcontent
+          tmpy = 0
+          IfXIsEqualToY                 //No cooldown?
+            tmpargument = LATCHLEFT
+            PressLatchButton
+              tmpargument = 4
+              tmpx = 0
+              tmpy = 0
+              tmpdistance = GRIPLEFT
+              SpawnParticle
+              tmpargument = 10		      //Set recharge time
+              SetContent
+              tmpargument = 1
+              SetState
+              SetTargetToSelf
+              tmpargument = 512
+              CostTargetMana
 
     //Heal spell
-    SetTargetToNearestFriend
+    tmpx = selfmana
+    tmpy = 256
+    IfXIsMoreThanY				// Enough mana to cast?
+      SetTargetToNearestFriend
       IfTargetIsHurt
+        tmpx = targetdistance
+        tmpy = 300
+        IfXIsLessThanY			      //In Range?
+          IfFacingTarget
+            tmpargument = LATCHLEFT
+            PressLatchButton
+              tmpx = targetx
+              tmpy = targety
+              tmpdistance = targetz
+              tmpargument = 6
+              SpawnExactParticle
+              tmpargument = rand & 511 + 1024   //Heal 4-6 life
+              HealTarget
+              
+              SetTargetToSelf
+              tmpargument = 256
+              CostTargetMana
+
+        //move towards the target
         tmpx = targetx
         tmpy = targety
         ClearWaypoints
         AddWaypoint
-        tmpx = targetdistance
-        tmpy = 300
-        IfXIsLessThanY			      //In Range?
-          tmpx = 260			        //
-          tmpy = selfmana			        //
-          IfXIsLessThanY				// Enough to cast?
-            IfFacingTarget
-              tmpargument = LATCHLEFT
-              PressLatchButton
-                tmpx = targetx
-                tmpy = targety
-                tmpdistance = targetz
-                tmpargument = 6
-                SpawnExactParticle
-                tmpargument = rand & 511 + 1024
-                HealTarget
-                SetTargetToSelf
-                tmpargument = 256
-                CostTargetMana
-        Else
-          SetTargetToOldTarget
       Else
         SetTargetToOldTarget
 
@@ -202,8 +218,7 @@ IfTimeOut
     ClearWaypoints
     AddWaypoint					//Wander around and guarding
     SetTargetToWideEnemy
-      GetContent
-      tmpx = tmpargument			//Number of spears left
+      tmpx = selfcontent			//Number of spears left
       tmpy = 1
       IfXIsMoreThanY
         tmpargument = 3				//Throw spear
@@ -260,8 +275,7 @@ IfTimeOut
   IfStateIs3
 
     //Are we in wrong mode?
-    GetContent
-    tmpx = tmpargument
+    tmpx = selfcontent
     tmpy = 1
     IfXIsLessThanY
       tmpargument = 1
@@ -316,7 +330,7 @@ IfAttacked
   Else
     SetTargetToOldTarget
 
-  //Say ouch
+  //Say ouch (meow!)
   tmpargument = rand & 2 + 5
   PlaySound
 
@@ -384,7 +398,7 @@ IfStateIsNot
       AddWaypoint
 
 //------------------------------------------------------------------------------
-//Claw attacks for last resort
+//Claw attacks for last resort... meow!
 tmpargument = 0
 IfStateIsNot
   IfUnarmed

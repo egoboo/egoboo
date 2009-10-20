@@ -1733,7 +1733,7 @@ bool_t character_grab_stuff( Uint16 ichr_a, grip_offset_t grip_off, bool_t grab_
         fvec3_t   vforward;
 
         //---- generate billboards for things that players can interact with
-        if( cfg.feedback && pchr_a->isplayer )
+        if( cfg.feedback != FEEDBACK_OFF && pchr_a->isplayer )
         {
             // things that can be grabbed (5 secs and green)
             for ( cnt = 0; cnt < grab_count; cnt++ )
@@ -3026,7 +3026,7 @@ int damage_character( Uint16 character, Uint16 direction,
             }
 
             /// @test spawn a fly-away damage indicator?
-            if( cfg.feedback && attacker != character && ACTIVE_CHR(attacker) )
+            if( cfg.feedback != FEEDBACK_OFF && attacker != character && ACTIVE_CHR(attacker) )
             {
                 char * tmpstr;
                 int rank;
@@ -3082,7 +3082,7 @@ int damage_character( Uint16 character, Uint16 direction,
             }
 
             /// @test spawn a fly-away heal indicator?
-			if( cfg.feedback && attacker != character && ACTIVE_CHR(attacker) )
+			if( cfg.feedback != FEEDBACK_OFF && attacker != character && ACTIVE_CHR(attacker) )
             {
                 const float lifetime = 3;
                 billboard_data_t * pbb;
@@ -6064,10 +6064,10 @@ bool_t is_invictus_direction( Uint16 direction, Uint16 character, Uint16 effects
     }
 
     // Check that direction
-    is_invictus = btrue;
-    if ( direction <= left && direction >= right )
+    is_invictus = bfalse;
+    if ( direction >= left && direction <= right )
     {
-        is_invictus = bfalse;
+        is_invictus = btrue;
     }
 
     return is_invictus;

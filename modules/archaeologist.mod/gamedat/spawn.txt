@@ -2,12 +2,14 @@
 
 #dependency Archaelogist 0
 
+junglewarrior:   NONE    64  9.5   87.0   1.0   N    9   2  0   0   0   F   F   E 	//shaman
+
 //Encampment
 HERO:   NONE    0  9.5   87.0   0.0   N    0   0  0   0   0   T   F   G
   pistol:   NONE    58  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
   whip:   NONE    59  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 
-marcus:   NONE    62  8.5   85.5   0.0   S    4   0  0   0   0   F   F   G
+marcus:   NONE    62  8.5   85.5   0.0   S    4   0  0   0   0   F   F   N
   shovel:   NONE    63  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 chest:   NONE    55  11.0   89.5   0.0   N    0   0  0   0   0   F   F   N
   AmmoBox:   NONE    56  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
@@ -49,9 +51,9 @@ PitCobra:   NONE    43  11.0   59.0   1.0   N    0   0  0   0   0   F   F   E
 PitCobra:   NONE    43  9.0   60.0   1.0   N    0   0  0   0   0   F   F   E
 PitCobra:   NONE    43  12.0   60.0   1.0   N    0   0  0   0   0   F   F   E
 junglewarrior:   NONE    64  13.5   36.5   1.0   N    0   0  0   0   0   F   F   E
-  Spear:   NONE    65  9.5   87.0   1.0   R    0   0  0   0   0   F   F   E
+  Spear:   NONE    65  9.5   87.0   1.0   R    0   0  4   0   0   F   F   E
 junglewarrior:   NONE    64  9.5   34.5   1.0   N    0   0  0   0   0   F   F   E
-  Spear:   NONE    65  9.5   87.0   1.0   R    0   0  0   0   0   F   F   E
+  Spear:   NONE    65  9.5   87.0   1.0   R    0   0  4   0   0   F   F   E
 
 //Pyramid stone blocks
 rock:   NONE    48  33.5   31.5   2.0   N    0   0  0   0   0   F   F   N
@@ -121,13 +123,13 @@ button:   NONE    54  64.5   48.5   4.0   N    0   0  2   0   0   F   F   N
 button:   NONE    54  45.5   44.5   5.0   N    0   0  3   0   0   F   F   N
 button:   NONE    54  71.5   71.5   2.0   N    0   0  1   0   0   F   F   N
 junglewarrior:   NONE    64  49.0   24.0   1.0   N    4   1  0   0   0   F   F   E		//Elite
-  Spear:   NONE    65  9.5   87.0   1.0   R    0   0  0   0   0   F   F   E
+  Spear:   NONE    65  9.5   87.0   1.0   R    0   0  4   0   0   F   F   E
 junglewarrior:   NONE    64  67.5   69.5   3.0   N    0   0  0   0   0   F   F   E
-  Spear:   NONE    65  9.5   87.0   1.0   R    0   0  0   0   0   F   F   E
+  Spear:   NONE    65  9.5   87.0   1.0   R    0   0  4   0   0   F   F   E
 junglewarrior:   NONE    64  39.5   51.5   4.0   N    0   0  0   0   0   F   F   E
-  Spear:   NONE    65  9.5   87.0   1.0   R    0   0  0   0   0   F   F   E
+  Spear:   NONE    65  9.5   87.0   1.0   R    0   0  4   0   0   F   F   E
 junglewarrior:   NONE    64  59.5   35.5   3.0   N    0   0  0   0   0   F   F   E
-  Spear:   NONE    65  9.5   87.0   1.0   R    0   0  0   0   0   F   F   E
+  Spear:   NONE    65  9.5   87.0   1.0   R    0   0  4   0   0   F   F   E
 PitCobra:   NONE    43  41.5   39.5   4.0   N    0   0  0   0   0   F   F   E
 PitCobra:   NONE    43  58.0   46.0   5.0   N    0   0  0   0   0   F   F   E
 PitCobra:   NONE    43  66.5   57.5   4.0   N    0   0  0   0   0   F   F   E
@@ -136,14 +138,14 @@ PitCobra:   NONE    43  43.5   67.5   3.0   N    0   0  0   0   0   F   F   E
 //Village
 meatspit:   NONE    60  77.0   39.0   1.0   N    0   0  0   0   0   F   F   N
 junglewarrior:   NONE    64  83.0   34.0   1.0   N    3   0  0   0   0   F   F   E
-  Spear:   NONE    65  9.5   87.0   1.0   R    0   0  0   0   0   F   F   E
+  Spear:   NONE    65  9.5   87.0   1.0   R    0   0  4   0   0   F   F   E
 junglewarrior:   NONE    64  78.0   37.0   1.0   N    4   0  0   0   0   F   F   E
-  Spear:   NONE    65  9.5   87.0   1.0   R    0   0  0   0   0   F   F   E
+  Spear:   NONE    65  9.5   87.0   1.0   R    0   0  4   0   0   F   F   E
 junglewarrior:   NONE    64  82.0   44.0   1.0   N    9   2  0   0   0   F   F   E 	//shaman
 junglewarrior:   NONE    64  78.0   51.0   1.0   N    0   0  0   0   0   F   F   E
-  Spear:   NONE    65  9.5   87.0   1.0   R    0   0  0   0   0   F   F   E
+  Spear:   NONE    65  9.5   87.0   1.0   R    0   0  4   0   0   F   F   E
 junglewarrior:   NONE    64  83.0   51.0   1.0   N    2   0  0   0   0   F   F   E		
-  Spear:   NONE    65  9.5   87.0   1.0   R    0   0  0   0   0   F   F   E
+  Spear:   NONE    65  9.5   87.0   1.0   R    0   0  4   0   0   F   F   E
 
 //Secret island
 chest:   NONE    55  83.5   9.5   1.0   S    59   0  0   0   0   F   F   N
@@ -166,107 +168,107 @@ chest:   NONE    55  38.5   35.5   3.0   E    0   0  0   0   0   F   F   N
   OilFlask:   NONE    71  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
 //Jungle
-Tree:   NONE    38  61.5   17.5   1.0   N    0   0  0   0   0   F   F   N
-Tree:   NONE    38  5.0   12.0   1.0   N    0   0  0   0   0   F   F   N
-Tree:   NONE    38  14.0   5.0   1.0   N    0   0  0   0   0   F   F   N
-Tree:   NONE    38  24.0   5.0   1.0   N    0   0  0   0   0   F   F   N
-Tree:   NONE    38  32.0   10.0   1.0   N    0   0  0   0   0   F   F   N
-Tree:   NONE    38  38.0   23.0   1.0   N    0   0  0   0   0   F   F   N
-Tree:   NONE    38  41.0   8.0   1.0   N    0   0  0   0   0   F   F   N
-Tree:   NONE    38  47.0   18.0   1.0   N    0   0  0   0   0   F   F   N
-Tree:   NONE    38  50.0   9.0   1.0   N    0   0  0   0   0   F   F   N
-Tree:   NONE    38  57.0   7.0   1.0   N    0   0  0   0   0   F   F   N
-Tree:   NONE    38  66.0   10.0   1.0   N    0   0  0   0   0   F   F   N
-Tree:   NONE    38  68.0   1.0   1.0   N    0   0  0   0   0   F   F   N
-Tree:   NONE    38  75.0   9.0   1.0   N    0   0  0   0   0   F   F   N
-Tree:   NONE    38  84.0   14.0   1.0   N    0   0  0   0   0   F   F   N
-Tree:   NONE    38  76.0   19.0   1.0   N    0   0  0   0   0   F   F   N
-Tree:   NONE    38  88.0   39.0   1.0   N    0   0  0   0   0   F   F   N
-Tree:   NONE    38  80.0   58.0   1.0   N    0   0  0   0   0   F   F   N
-Tree:   NONE    38  90.0   62.0   1.0   N    0   0  0   0   0   F   F   N
-Tree:   NONE    38  76.0   69.0   1.0   N    0   0  0   0   0   F   F   N
-Tree:   NONE    38  89.0   79.0   1.0   N    0   0  0   0   0   F   F   N
-Tree:   NONE    38  73.0   79.0   1.0   N    0   0  0   0   0   F   F   N
-Tree:   NONE    38  80.0   87.0   1.0   N    0   0  0   0   0   F   F   N
-Tree:   NONE    38  85.0   93.0   1.0   N    0   0  0   0   0   F   F   N
-Tree:   NONE    38  72.0   92.0   1.0   N    0   0  0   0   0   F   F   N
-Tree:   NONE    38  65.0   83.0   1.0   N    0   0  0   0   0   F   F   N
-Tree:   NONE    38  58.0   76.0   1.0   N    0   0  0   0   0   F   F   N
-Tree:   NONE    38  59.0   92.0   1.0   N    0   0  0   0   0   F   F   N
-Tree:   NONE    38  49.0   79.0   1.0   N    0   0  0   0   0   F   F   N
-Tree:   NONE    38  42.0   75.0   1.0   N    0   0  0   0   0   F   F   N
-Tree:   NONE    38  41.0   91.0   1.0   N    0   0  0   0   0   F   F   N
-Tree:   NONE    38  29.0   92.0   1.0   N    0   0  0   0   0   F   F   N
-Tree:   NONE    38  35.0   79.0   1.0   N    0   0  0   0   0   F   F   N
-Tree:   NONE    38  25.0   75.0   1.0   N    0   0  0   0   0   F   F   N
-Tree:   NONE    38  29.0   69.0   1.0   N    0   0  0   0   0   F   F   N
-Tree:   NONE    38  26.0   59.0   1.0   N    0   0  0   0   0   F   F   N
-Tree:   NONE    38  29.0   49.0   1.0   N    0   0  0   0   0   F   F   N
-Tree:   NONE    38  26.0   42.0   1.0   N    0   0  0   0   0   F   F   N
-Tree:   NONE    38  27.0   40.0   1.0   N    0   0  0   0   0   F   F   N
-Tree:   NONE    38  31.0   27.0   1.0   N    0   0  0   0   0   F   F   N
-Tree:   NONE    38  25.0   20.0   1.0   N    0   0  0   0   0   F   F   N
-Tree:   NONE    38  34.0   16.0   1.0   N    0   0  0   0   0   F   F   N
-Tree:   NONE    38  17.0   12.0   1.0   N    0   0  0   0   0   F   F   N
-Tree:   NONE    38  9.0   16.0   1.0   N    0   0  0   0   0   F   F   N
-Tree:   NONE    38  2.0   18.0   1.0   N    0   0  0   0   0   F   F   N
-Tree:   NONE    38  2.0   2.0   1.0   N    0   0  0   0   0   F   F   N
-Tree:   NONE    38  9.0   9.0   1.0   N    0   0  0   0   0   F   F   N
-swampplant:   NONE    45  5.0   20.0   1.0   N    0   0  0   0   0   F   F   N
-swampplant:   NONE    45  14.0   17.0   1.0   N    0   0  0   0   0   F   F   N
-swampplant:   NONE    45  20.0   11.0   1.0   N    0   0  0   0   0   F   F   N
-swampplant:   NONE    45  26.0   11.0   1.0   N    0   0  0   0   0   F   F   N
-swampplant:   NONE    45  28.0   4.0   1.0   N    0   0  0   0   0   F   F   N
-swampplant:   NONE    45  34.0   8.0   1.0   N    0   0  0   0   0   F   F   N
-swampplant:   NONE    45  39.0   15.0   1.0   N    0   0  0   0   0   F   F   N
-swampplant:   NONE    45  36.0   17.0   1.0   N    0   0  0   0   0   F   F   N
-swampplant:   NONE    45  46.0   27.0   1.0   N    0   0  0   0   0   F   F   N
-swampplant:   NONE    45  54.0   23.0   1.0   N    0   0  0   0   0   F   F   N
-swampplant:   NONE    45  56.0   13.0   1.0   N    0   0  0   0   0   F   F   N
-swampplant:   NONE    45  61.0   4.0   1.0   N    0   0  0   0   0   F   F   N
-swampplant:   NONE    45  51.0   2.0   1.0   N    0   0  0   0   0   F   F   N
-swampplant:   NONE    45  69.0   4.0   1.0   N    0   0  0   0   0   F   F   N
-swampplant:   NONE    45  76.0   13.0   1.0   N    0   0  0   0   0   F   F   N
-swampplant:   NONE    45  81.0   15.0   1.0   N    0   0  0   0   0   F   F   N
-swampplant:   NONE    45  79.0   7.0   1.0   N    0   0  0   0   0   F   F   N
-swampplant:   NONE    45  70.0   25.0   1.0   N    0   0  0   0   0   F   F   N
-swampplant:   NONE    45  90.0   43.0   1.0   N    0   0  0   0   0   F   F   N
-swampplant:   NONE    45  81.0   55.0   1.0   N    0   0  0   0   0   F   F   N
-swampplant:   NONE    45  75.0   61.0   1.0   N    0   0  0   0   0   F   F   N
-swampplant:   NONE    45  81.0   71.0   1.0   N    0   0  0   0   0   F   F   N
-swampplant:   NONE    45  88.0   74.0   1.0   N    0   0  0   0   0   F   F   N
-swampplant:   NONE    45  84.0   85.0   1.0   N    0   0  0   0   0   F   F   N
-swampplant:   NONE    45  76.0   81.0   1.0   N    0   0  0   0   0   F   F   N
-swampplant:   NONE    45  80.0   91.0   1.0   N    0   0  0   0   0   F   F   N
-swampplant:   NONE    45  68.0   91.0   1.0   N    0   0  0   0   0   F   F   N
-swampplant:   NONE    45  69.0   82.0   1.0   N    0   0  0   0   0   F   F   N
-swampplant:   NONE    45  65.0   75.0   1.0   N    0   0  0   0   0   F   F   N
-swampplant:   NONE    45  61.0   87.0   1.0   N    0   0  0   0   0   F   F   N
-swampplant:   NONE    45  59.0   81.0   1.0   N    0   0  0   0   0   F   F   N
-swampplant:   NONE    45  58.0   85.0   1.0   N    0   0  0   0   0   F   F   N
-swampplant:   NONE    45  56.0   82.0   1.0   N    0   0  0   0   0   F   F   N
-swampplant:   NONE    45  50.0   93.0   1.0   N    0   0  0   0   0   F   F   N
-swampplant:   NONE    45  45.0   77.0   1.0   N    0   0  0   0   0   F   F   N
-swampplant:   NONE    45  41.0   88.0   1.0   N    0   0  0   0   0   F   F   N
-swampplant:   NONE    45  34.0   95.0   1.0   N    0   0  0   0   0   F   F   N
-swampplant:   NONE    45  32.0   81.0   1.0   N    0   0  0   0   0   F   F   N
-swampplant:   NONE    45  30.0   76.0   1.0   N    0   0  0   0   0   F   F   N
-swampplant:   NONE    45  25.0   90.0   1.0   N    0   0  0   0   0   F   F   N
-swampplant:   NONE    45  28.0   70.0   1.0   N    0   0  0   0   0   F   F   N
-swampplant:   NONE    45  29.0   62.0   1.0   N    0   0  0   0   0   F   F   N
-swampplant:   NONE    45  25.0   56.0   1.0   N    0   0  0   0   0   F   F   N
-swampplant:   NONE    45  29.0   51.0   1.0   N    0   0  0   0   0   F   F   N
-swampplant:   NONE    45  31.0   43.0   1.0   N    0   0  0   0   0   F   F   N
-swampplant:   NONE    45  27.0   35.0   1.0   N    0   0  0   0   0   F   F   N
-swampplant:   NONE    45  25.0   26.0   1.0   N    0   0  0   0   0   F   F   N
-swampplant:   NONE    45  19.0   23.0   1.0   N    0   0  0   0   0   F   F   N
-swampplant:   NONE    45  1.0   19.0   1.0   N    0   0  0   0   0   F   F   N
-Tree:   NONE    38  18.0   80.0   1.0   N    0   0  0   0   0   F   F   N
-Tree:   NONE    38  11.0   91.0   1.0   N    0   0  0   0   0   F   F   N
-Tree:   NONE    38  19.0   92.0   1.0   N    0   0  0   0   0   F   F   N
-Tree:   NONE    38  2.0   91.0   1.0   N    0   0  0   0   0   F   F   N
-Tree:   NONE    38  2.0   81.0   1.0   N    0   0  0   0   0   F   F   N
-swampplant:   NONE    45  59.5   12.5   1.0   N    0   0  0   0   0   F   F   N
-Tree:   NONE    38  55.5   15.5   1.0   N    0   0  0   0   0   F   F   N
-swampplant:   NONE    45  55.5   19.5   1.0   N    0   0  0   0   0   F   F   N
-Tree:   NONE    38  61.5   17.5   1.0   N    0   0  0   0   0   F   F   N
+Tree:   NONE    38  61.5   17.5   1.0   ?   0   1  0   0   0   F   F   N
+Tree:   NONE    38  5.0   12.0   1.0   ?   0   1  0   0   0   F   F   N
+Tree:   NONE    38  14.0   5.0   1.0   ?   0   1  0   0   0   F   F   N
+Tree:   NONE    38  24.0   5.0   1.0   ?   0   1  0   0   0   F   F   N
+Tree:   NONE    38  32.0   10.0   1.0   ?   0   1  0   0   0   F   F   N
+Tree:   NONE    38  38.0   23.0   1.0   ?   0   1  0   0   0   F   F   N
+Tree:   NONE    38  41.0   8.0   1.0   ?   0   1  0   0   0   F   F   N
+Tree:   NONE    38  47.0   18.0   1.0   ?   0   1  0   0   0   F   F   N
+Tree:   NONE    38  50.0   9.0   1.0   ?   0   1  0   0   0   F   F   N
+Tree:   NONE    38  57.0   7.0   1.0   ?   0   1  0   0   0   F   F   N
+Tree:   NONE    38  66.0   10.0   1.0   ?   0   1  0   0   0   F   F   N
+Tree:   NONE    38  68.0   1.0   1.0   ?   0   1  0   0   0   F   F   N
+Tree:   NONE    38  75.0   9.0   1.0   ?   0   1  0   0   0   F   F   N
+Tree:   NONE    38  84.0   14.0   1.0   ?   0   1  0   0   0   F   F   N
+Tree:   NONE    38  76.0   19.0   1.0   ?   0   1  0   0   0   F   F   N
+Tree:   NONE    38  88.0   39.0   1.0   ?   0   1  0   0   0   F   F   N
+Tree:   NONE    38  80.0   58.0   1.0   ?   0   1  0   0   0   F   F   N
+Tree:   NONE    38  90.0   62.0   1.0   ?   0   1  0   0   0   F   F   N
+Tree:   NONE    38  76.0   69.0   1.0   ?   0   1  0   0   0   F   F   N
+Tree:   NONE    38  89.0   79.0   1.0   ?   0   1  0   0   0   F   F   N
+Tree:   NONE    38  73.0   79.0   1.0   ?   0   1  0   0   0   F   F   N
+Tree:   NONE    38  80.0   87.0   1.0   ?   0   1  0   0   0   F   F   N
+Tree:   NONE    38  85.0   93.0   1.0   ?   0   1  0   0   0   F   F   N
+Tree:   NONE    38  72.0   92.0   1.0   ?   0   1  0   0   0   F   F   N
+Tree:   NONE    38  65.0   83.0   1.0   ?   0   1  0   0   0   F   F   N
+Tree:   NONE    38  58.0   76.0   1.0   ?   0   1  0   0   0   F   F   N
+Tree:   NONE    38  59.0   92.0   1.0   ?   0   1  0   0   0   F   F   N
+Tree:   NONE    38  49.0   79.0   1.0   ?   0   1  0   0   0   F   F   N
+Tree:   NONE    38  42.0   75.0   1.0   ?   0   1  0   0   0   F   F   N
+Tree:   NONE    38  41.0   91.0   1.0   ?   0   1  0   0   0   F   F   N
+Tree:   NONE    38  29.0   92.0   1.0   ?   0   1  0   0   0   F   F   N
+Tree:   NONE    38  35.0   79.0   1.0   ?   0   1  0   0   0   F   F   N
+Tree:   NONE    38  25.0   75.0   1.0   ?   0   1  0   0   0   F   F   N
+Tree:   NONE    38  29.0   69.0   1.0   ?   0   1  0   0   0   F   F   N
+Tree:   NONE    38  26.0   59.0   1.0   ?   0   1  0   0   0   F   F   N
+Tree:   NONE    38  29.0   49.0   1.0   ?   0   1  0   0   0   F   F   N
+Tree:   NONE    38  26.0   42.0   1.0   ?   0   1  0   0   0   F   F   N
+Tree:   NONE    38  27.0   40.0   1.0   ?   0   1  0   0   0   F   F   N
+Tree:   NONE    38  31.0   27.0   1.0   ?   0   1  0   0   0   F   F   N
+Tree:   NONE    38  25.0   20.0   1.0   ?   0   1  0   0   0   F   F   N
+Tree:   NONE    38  34.0   16.0   1.0   ?   0   1  0   0   0   F   F   N
+Tree:   NONE    38  17.0   12.0   1.0   ?   0   1  0   0   0   F   F   N
+Tree:   NONE    38  9.0   16.0   1.0   ?   0   1  0   0   0   F   F   N
+Tree:   NONE    38  2.0   18.0   1.0   ?   0   1  0   0   0   F   F   N
+Tree:   NONE    38  2.0   2.0   1.0   ?   0   1  0   0   0   F   F   N
+Tree:   NONE    38  9.0   9.0   1.0   ?   0   1  0   0   0   F   F   N
+Tree:   NONE    38  61.5   17.5   1.0   ?   0   1  0   0   0   F   F   N
+Tree:   NONE    38  18.0   80.0   1.0   ?   0   1  0   0   0   F   F   N
+Tree:   NONE    38  11.0   91.0   1.0   ?   0   1  0   0   0   F   F   N
+Tree:   NONE    38  19.0   92.0   1.0   ?   0   1  0   0   0   F   F   N
+Tree:   NONE    38  2.0   91.0   1.0   ?   0   1  0   0   0   F   F   N
+Tree:   NONE    38  2.0   81.0   1.0   ?   0   1  0   0   0   F   F   N
+Tree:   NONE    38  55.5   15.5   1.0   ?   0   1  0   0   0   F   F   N
+swampplant:   NONE    45  5.0   20.0   1.0   ?   0   0  0   0   0   F   F   N
+swampplant:   NONE    45  14.0   17.0   1.0   ?   0   0  0   0   0   F   F   N
+swampplant:   NONE    45  20.0   11.0   1.0   ?   0   0  0   0   0   F   F   N
+swampplant:   NONE    45  26.0   11.0   1.0   ?   0   0  0   0   0   F   F   N
+swampplant:   NONE    45  28.0   4.0   1.0   ?   0   0  0   0   0   F   F   N
+swampplant:   NONE    45  34.0   8.0   1.0   ?   0   0  0   0   0   F   F   N
+swampplant:   NONE    45  39.0   15.0   1.0   ?   0   0  0   0   0   F   F   N
+swampplant:   NONE    45  36.0   17.0   1.0   ?   0   0  0   0   0   F   F   N
+swampplant:   NONE    45  46.0   27.0   1.0   ?   0   0  0   0   0   F   F   N
+swampplant:   NONE    45  54.0   23.0   1.0   ?   0   0  0   0   0   F   F   N
+swampplant:   NONE    45  56.0   13.0   1.0   ?   0   0  0   0   0   F   F   N
+swampplant:   NONE    45  61.0   4.0   1.0   ?   0   0  0   0   0   F   F   N
+swampplant:   NONE    45  51.0   2.0   1.0   ?   0   0  0   0   0   F   F   N
+swampplant:   NONE    45  69.0   4.0   1.0   ?   0   0  0   0   0   F   F   N
+swampplant:   NONE    45  76.0   13.0   1.0   ?   0   0  0   0   0   F   F   N
+swampplant:   NONE    45  81.0   15.0   1.0   ?   0   0  0   0   0   F   F   N
+swampplant:   NONE    45  79.0   7.0   1.0   ?   0   0  0   0   0   F   F   N
+swampplant:   NONE    45  70.0   25.0   1.0   ?   0   0  0   0   0   F   F   N
+swampplant:   NONE    45  90.0   43.0   1.0   ?   0   0  0   0   0   F   F   N
+swampplant:   NONE    45  81.0   55.0   1.0   ?   0   0  0   0   0   F   F   N
+swampplant:   NONE    45  75.0   61.0   1.0   ?   0   0  0   0   0   F   F   N
+swampplant:   NONE    45  81.0   71.0   1.0   ?   0   0  0   0   0   F   F   N
+swampplant:   NONE    45  88.0   74.0   1.0   ?   0   0  0   0   0   F   F   N
+swampplant:   NONE    45  84.0   85.0   1.0   ?   0   0  0   0   0   F   F   N
+swampplant:   NONE    45  76.0   81.0   1.0   ?   0   0  0   0   0   F   F   N
+swampplant:   NONE    45  80.0   91.0   1.0   ?   0   0  0   0   0   F   F   N
+swampplant:   NONE    45  68.0   91.0   1.0   ?   0   0  0   0   0   F   F   N
+swampplant:   NONE    45  69.0   82.0   1.0   ?   0   0  0   0   0   F   F   N
+swampplant:   NONE    45  65.0   75.0   1.0   ?   0   0  0   0   0   F   F   N
+swampplant:   NONE    45  61.0   87.0   1.0   ?   0   0  0   0   0   F   F   N
+swampplant:   NONE    45  59.0   81.0   1.0   ?   0   0  0   0   0   F   F   N
+swampplant:   NONE    45  58.0   85.0   1.0   ?   0   0  0   0   0   F   F   N
+swampplant:   NONE    45  56.0   82.0   1.0   ?   0   0  0   0   0   F   F   N
+swampplant:   NONE    45  50.0   93.0   1.0   ?   0   0  0   0   0   F   F   N
+swampplant:   NONE    45  45.0   77.0   1.0   ?   0   0  0   0   0   F   F   N
+swampplant:   NONE    45  41.0   88.0   1.0   ?   0   0  0   0   0   F   F   N
+swampplant:   NONE    45  34.0   95.0   1.0   ?   0   0  0   0   0   F   F   N
+swampplant:   NONE    45  32.0   81.0   1.0   ?   0   0  0   0   0   F   F   N
+swampplant:   NONE    45  30.0   76.0   1.0   ?   0   0  0   0   0   F   F   N
+swampplant:   NONE    45  25.0   90.0   1.0   ?   0   0  0   0   0   F   F   N
+swampplant:   NONE    45  28.0   70.0   1.0   ?   0   0  0   0   0   F   F   N
+swampplant:   NONE    45  29.0   62.0   1.0   ?   0   0  0   0   0   F   F   N
+swampplant:   NONE    45  25.0   56.0   1.0   ?   0   0  0   0   0   F   F   N
+swampplant:   NONE    45  29.0   51.0   1.0   ?   0   0  0   0   0   F   F   N
+swampplant:   NONE    45  31.0   43.0   1.0   ?   0   0  0   0   0   F   F   N
+swampplant:   NONE    45  27.0   35.0   1.0   ?   0   0  0   0   0   F   F   N
+swampplant:   NONE    45  25.0   26.0   1.0   ?   0   0  0   0   0   F   F   N
+swampplant:   NONE    45  19.0   23.0   1.0   ?   0   0  0   0   0   F   F   N
+swampplant:   NONE    45  1.0   19.0   1.0   ?   0   0  0   0   0   F   F   N
+swampplant:   NONE    45  59.5   12.5   1.0   ?   0   0  0   0   0   F   F   N
+swampplant:   NONE    45  55.5   19.5   1.0   ?   0   0  0   0   0   F   F   N

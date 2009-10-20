@@ -180,7 +180,8 @@ tmpx = selflevel
 tmpy = 18              //Need level 20
 IfXIsMoreThanY
 
-  IfContentIs0
+  tmpargument = 0
+  IfContentIs
     SetOwnerToTarget
     EnchantTarget 	// Give the special bonus
     tmpargument = 1
@@ -188,7 +189,8 @@ IfXIsMoreThanY
 
 Else
 
-  IfContentIs1
+  tmpargument = 1
+  IfContentIs
     UndoEnchant		// Remove if needed xp is lost
 
     tmpargument = 0

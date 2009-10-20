@@ -242,8 +242,9 @@ bool_t sdl_mixer_initialize()
 
     if ( !mixeron && ( snd.musicvalid || snd.soundvalid ) )
     {
-        log_info( "Initializing SDL_mixer audio services version %d.%d.%d... ", SDL_MIXER_MAJOR_VERSION, SDL_MIXER_MINOR_VERSION, SDL_MIXER_PATCHLEVEL );
-        if ( Mix_OpenAudio( cfg.sound_highquality ? MIX_HIGH_QUALITY : MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, snd.buffersize ) < 0 )
+		const SDL_version* link_version = Mix_Linked_Version();
+        log_info( "Initializing SDL_mixer audio services version %d.%d.%d... ", link_version->major, link_version->minor, link_version->patch);
+        if ( Mix_OpenAudio( cfg.sound_highquality_base ? MIX_HIGH_QUALITY : MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, snd.buffersize ) < 0 )
         {
             mixeron = bfalse;
             log_message( "Failure!\n" );
@@ -477,7 +478,7 @@ void sound_restart()
     // loose the info on the currently playing song
     if ( snd.musicvalid || snd.soundvalid )
     {
-        if ( -1 != Mix_OpenAudio( MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, snd.buffersize ) )
+        if ( -1 != Mix_OpenAudio( cfg.sound_highquality_base ? MIX_HIGH_QUALITY : MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, snd.buffersize ) )
         {
             mixeron = btrue;
             Mix_AllocateChannels( snd.maxsoundchannel );

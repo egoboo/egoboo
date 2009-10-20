@@ -7891,7 +7891,7 @@ bool_t do_shop_buy( Uint16 ipicker, Uint16 iitem )
 
     /// print some feedback messages
     /// @todo: some of these are handled in scripts, so they could be disabled
-    if( can_grab )
+    /*if( can_grab )
     {
         if( in_shop )
         {
@@ -7908,7 +7908,7 @@ bool_t do_shop_buy( Uint16 ipicker, Uint16 iitem )
         {
             debug_printf( "%s picked up %s", chr_get_name( ipicker, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL), chr_get_name( iitem, CHRNAME_ARTICLE ) );
         }
-    }
+    }*/
 
     return can_grab;
 }
