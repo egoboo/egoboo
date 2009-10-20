@@ -493,8 +493,7 @@ bool_t write_wawalite_file( const char *modname, wawalite_data_t * pdata )
 
     if( NULL == pdata ) return bfalse;
 
-    make_newloadname( modname, "data/wawalite.txt", newloadname );
-    filewrite = vfs_openWrite( newloadname );
+    filewrite = vfs_openWrite( "data/wawalite.txt" );
     if ( NULL == filewrite )
     {
         log_warning( "Could not write file! (\"%s\")\n", newloadname );

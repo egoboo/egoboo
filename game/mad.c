@@ -23,16 +23,19 @@
 
 #include "mad.h"
 
+#include "cap_file.h"
+#include "particle.h"
+
 #include "log.h"
 #include "script_compile.h"
 #include "graphic.h"
-#include "particle.h"
 #include "texture.h"
 #include "sound.h"
 
 #include "egoboo_setup.h"
 #include "egoboo_fileutil.h"
 #include "egoboo_strutil.h"
+
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -56,6 +59,9 @@ static void   mad_get_walk_frame( Uint16 object, int lip, int action );
 static void   mad_make_framelip( Uint16 object, int action );
 static void   mad_rip_actions( Uint16 object );
 
+
+static void mad_finalize( Uint16 object );
+static void mad_heal_actions( Uint16 object, const char * loadname );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -112,31 +118,115 @@ void action_copy_correct( Uint16 object, Uint16 actiona, Uint16 actionb )
     /// @details ZZ@> This function makes sure both actions are valid if either of them
     ///    are valid.  It will copy start and ends to mirror the valid action.
 
-    if ( object > MAX_PROFILE || !MadList[object].loaded ) return;
+    mad_t * pmad;
 
-    if ( MadList[object].actionvalid[actiona] == MadList[object].actionvalid[actionb] )
+    if( actiona >= ACTION_COUNT || actionb >= ACTION_COUNT ) return;
+
+    if ( object > MAX_PROFILE || !MadList[object].loaded ) return;
+    pmad = MadList + object;
+
+    // With the new system using the action_map, this is all that is really necessary
+    if( ACTION_COUNT == pmad->action_map[actiona] )
     {
-        // They are either both valid or both invalid, in either case we can't help
-        return;
-    }
-    else
-    {
-        // Fix the invalid one
-        if ( !MadList[object].actionvalid[actiona] )
+        if( pmad->action_valid[actionb] )
         {
-            // Fix actiona
-            MadList[object].actionvalid[actiona] = btrue;
-            MadList[object].actionstart[actiona] = MadList[object].actionstart[actionb];
-            MadList[object].actionend[actiona] = MadList[object].actionend[actionb];
+            pmad->action_map[actiona] = actionb;
         }
-        else
+        else if ( ACTION_COUNT != pmad->action_map[actionb] )
         {
-            // Fix actionb
-            MadList[object].actionvalid[actionb] = btrue;
-            MadList[object].actionstart[actionb] = MadList[object].actionstart[actiona];
-            MadList[object].actionend[actionb] = MadList[object].actionend[actiona];
+            pmad->action_map[actiona] = pmad->action_map[actionb];
         }
     }
+    else if ( ACTION_COUNT == pmad->action_map[actionb] )
+    {
+        if( pmad->action_valid[actiona] )
+        {
+            pmad->action_map[actionb] = actiona;
+        }
+        else if ( ACTION_COUNT != pmad->action_map[actiona] )
+        {
+            pmad->action_map[actionb] = pmad->action_map[actiona];
+        }
+    }
+    
+    //if ( pmad->action_valid[actiona] == pmad->action_valid[actionb] )
+    //{
+    //    // They are either both valid or both invalid, in either case we can't help
+    //    return;
+    //}
+    //else
+    //{
+    //    // Fix the invalid one
+    //    if ( !pmad->action_valid[actiona] )
+    //    {
+    //        // Fix actiona
+    //        pmad->action_valid[actiona] = btrue;
+    //        pmad->action_stt[actiona] = pmad->action_stt[actionb];
+    //        pmad->action_end[actiona]   = pmad->action_end[actionb];
+    //    }
+    //    else
+    //    {
+    //        // Fix actionb
+    //        pmad->action_valid[actionb] = btrue;
+    //        pmad->action_stt[actionb] = pmad->action_stt[actiona];
+    //        pmad->action_end[actionb]   = pmad->action_end[actiona];
+    //    }
+    //}
+}
+
+//--------------------------------------------------------------------------------------------
+int mad_get_action( Uint16 imad, int action )
+{
+    /// @detaills BB@> translate the action that was given into a valid action for the model
+    ///
+    /// returns ACTION_COUNT on a complete failure, or the default ACTION_DA if
+
+    int     retval;
+    mad_t * pmad;
+
+    if( !LOADED_MAD(imad) ) return ACTION_COUNT;
+    pmad = MadList + imad;
+
+    // you are pretty much guaranteed that ACTION_DA will be valid for a model,
+    // I guess it could be invalid if the model had no fraes or something
+    retval = ACTION_DA;
+    if( !pmad->action_valid[ACTION_DA] ) 
+    {
+        retval = ACTION_COUNT;
+    }
+
+    // check for a valid action range
+    if( action < 0 || action > ACTION_COUNT ) return retval;
+
+    // track down a valid value
+    if( pmad->action_valid[action] )
+    {
+        retval = action;
+    }
+    else if( ACTION_COUNT != pmad->action_map[action] )
+    {
+        int cnt, tnc;
+
+        // do a "recursive search for a valid action
+        // we should never really have to check more than once if the map is prepared
+        // properly BUT you never can tell. Make sure we do not get a runaway loop by 
+        // you never go farther than ACTION_COUNT steps and that you never see the
+        // original action again
+
+        tnc = pmad->action_map[action];
+        for(cnt = 0; cnt<ACTION_COUNT; cnt++)
+        {
+            if( tnc >= ACTION_COUNT || tnc < 0 || tnc ==action ) break;
+
+            if( pmad->action_valid[tnc] )
+            {
+                retval = tnc;
+                break;
+            }
+        }
+    }
+
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -148,27 +238,27 @@ void action_check_copy( const char* loadname, Uint16 object )
     char szOne[16] = EMPTY_CSTR;
     char szTwo[16] = EMPTY_CSTR;
 
-    if ( object > MAX_PROFILE || !MadList[object].loaded ) return;
+    if ( !LOADED_MAD(object) ) return;
 
     fileread = vfs_openRead( loadname );
-    if ( fileread )
+    if ( NULL == fileread ) return;
+
+    while ( goto_colon( NULL, fileread, btrue ) )
     {
-        while ( goto_colon( NULL, fileread, btrue ) )
-        {
-            fget_string( fileread, szOne, SDL_arraysize(szOne) );
-            actiona = action_which( szOne[0] );
+        fget_string( fileread, szOne, SDL_arraysize(szOne) );
+        actiona = action_which( szOne[0] );
 
-            fget_string( fileread, szTwo, SDL_arraysize(szTwo) );
-            actionb = action_which( szTwo[0] );
+        fget_string( fileread, szTwo, SDL_arraysize(szTwo) );
+        actionb = action_which( szTwo[0] );
 
-            action_copy_correct( object, actiona + 0, actionb + 0 );
-            action_copy_correct( object, actiona + 1, actionb + 1 );
-            action_copy_correct( object, actiona + 2, actionb + 2 );
-            action_copy_correct( object, actiona + 3, actionb + 3 );
-        }
-
-        vfs_close( fileread );
+        action_copy_correct( object, actiona + 0, actionb + 0 );
+        action_copy_correct( object, actiona + 1, actionb + 1 );
+        action_copy_correct( object, actiona + 2, actionb + 2 );
+        action_copy_correct( object, actiona + 3, actionb + 3 );
     }
+
+    vfs_close( fileread );
+
 }
 
 //--------------------------------------------------------------------------------------------
@@ -204,18 +294,34 @@ void mad_get_walk_frame( Uint16 object, int lip, int action )
 {
     /// @details ZZ@> This helps make walking look right
     int frame = 0;
-    int framesinaction = MadList[object].actionend[action] - MadList[object].actionstart[action];
+    int framesinaction, action_stt;
+    mad_t * pmad;
 
-    while ( frame < 16 )
+    if( !LOADED_MAD(object) ) return;
+    pmad = MadList + object;
+    
+    action = mad_get_action(object, action);
+    if( ACTION_COUNT == action )
+    {
+        framesinaction = 1;
+        action_stt     = pmad->action_stt[ACTION_DA];
+    }
+    else
+    {
+        framesinaction = pmad->action_end[action] - pmad->action_stt[action];
+        action_stt     = pmad->action_stt[action];
+    }
+
+    for ( frame = 0; frame < 16; frame++  )
     {
         int framealong = 0;
+
         if ( framesinaction > 0 )
         {
             framealong = ( ( frame * framesinaction / 16 ) + 2 ) % framesinaction;
         }
 
-        MadList[object].frameliptowalkframe[lip][frame] = MadList[object].actionstart[action] + framealong;
-        frame++;
+        pmad->frameliptowalkframe[lip][frame] = action_stt + framealong; 
     }
 }
 
@@ -303,7 +409,10 @@ void mad_get_framefx( int frame )
 
         if( -1 == token_index )
         {
-            log_warning( "Model %s, frame %d, frame name \"%s\" has unknown frame effects command \"%s\"\n", szModelName, frame, cFrameName, ptmp );
+            if( cfg.dev_mode )
+            {
+                log_warning( "Model %s, frame %d, frame name \"%s\" has unknown frame effects command \"%s\"\n", szModelName, frame, cFrameName, ptmp );
+            }
             ptmp++;
         }
         else
@@ -422,19 +531,28 @@ void mad_get_framefx( int frame )
 void mad_make_framelip( Uint16 object, int action )
 {
     /// @details ZZ@> This helps make walking look right
-    int frame, framesinaction;
-    if ( MadList[object].actionvalid[action] )
-    {
-        framesinaction = MadList[object].actionend[action] - MadList[object].actionstart[action];
-        frame = MadList[object].actionstart[action];
 
-        while ( frame < MadList[object].actionend[action] )
-        {
-            Md2FrameList[frame].framelip = ( frame - MadList[object].actionstart[action] ) * 15 / framesinaction;
-            Md2FrameList[frame].framelip = ( Md2FrameList[frame].framelip ) & 15;
-            frame++;
-        }
+    int frame, framesinaction;
+    mad_t * pmad;
+
+    if( !LOADED_MAD(object) ) return;
+    pmad = MadList + object;
+
+    action = mad_get_action( object, action );
+    if( ACTION_COUNT == action || ACTION_DA == action ) return;
+
+    if ( !pmad->action_valid[action] ) return;
+
+    framesinaction = pmad->action_end[action] - pmad->action_stt[action];
+    frame = pmad->action_stt[action];
+
+    while ( frame < pmad->action_end[action] )
+    {
+        Md2FrameList[frame].framelip = ( frame - pmad->action_stt[action] ) * 15 / framesinaction;
+        Md2FrameList[frame].framelip = ( Md2FrameList[frame].framelip ) & 15;
+        frame++;
     }
+
 }
 
 //--------------------------------------------------------------------------------------------
@@ -469,13 +587,12 @@ void load_action_names( const char* loadname )
     vfs_FILE* fileread;
     int cnt;
 
-    char first, second;
+    char first = '\0', second = '\0';
     STRING comment;
     bool_t found;
 
     fileread = vfs_openRead( loadname );
     if ( !fileread ) return;
-
 
     for ( cnt = 0; cnt < ACTION_COUNT; cnt++ )
     {
@@ -504,7 +621,7 @@ void load_action_names( const char* loadname )
         }
         else
         {
-            cActionName[cnt][0] ='\0';
+            cActionName[cnt][0] = '\0';
             cActionComent[cnt][0] = '\0';
         }
     }
@@ -567,75 +684,18 @@ Uint16 load_one_model_profile( const char* tmploadname, Uint16 imad )
 
     // Create the actions table for this imad
     mad_rip_actions( imad );
-
-    // Copy entire actions to save frame space COPY.TXT
-    make_newloadname( tmploadname, SLASH_STR "copy.txt", newloadname );
-    action_check_copy( newloadname, imad );
+    mad_heal_actions( imad, tmploadname );
+    mad_finalize( imad );
 
     return imad;
 }
 
 //--------------------------------------------------------------------------------------------
-void mad_rip_actions( Uint16 object )
+void mad_heal_actions( Uint16 object, const char * tmploadname )
 {
-    /// @details ZZ@> This function creates the frame lists for each action based on the
-    ///    name of each md2 frame in the model
+    STRING newloadname;
 
-    int frame, framesinaction;
-    int action, lastaction;
-
-    // Clear out all actions and reset to invalid
-    action = 0;
-
-    while ( action < ACTION_COUNT )
-    {
-        MadList[object].actionvalid[action] = bfalse;
-        action++;
-    }
-
-    // Set the primary dance action to be the first frame, just as a default
-    MadList[object].actionvalid[ACTION_DA] = btrue;
-    MadList[object].actionstart[ACTION_DA] = ego_md2_data[MadList[object].md2_ref].framestart;
-    MadList[object].actionend[ACTION_DA] = ego_md2_data[MadList[object].md2_ref].framestart + 1;
-
-    // Now go huntin' to see what each frame is, look for runs of same action
-    md2_rip_frame_name( 0 );
-    lastaction = action_number();  framesinaction = 0;
-    frame = 0;
-
-    while ( frame < ego_md2_data[MadList[object].md2_ref].frames )
-    {
-        md2_rip_frame_name( frame );
-        action = action_number();
-        if ( lastaction == action )
-        {
-            framesinaction++;
-        }
-        else
-        {
-            // Write the old action
-            if ( lastaction < ACTION_COUNT )
-            {
-                MadList[object].actionvalid[lastaction] = btrue;
-                MadList[object].actionstart[lastaction] = ego_md2_data[MadList[object].md2_ref].framestart + frame - framesinaction;
-                MadList[object].actionend[lastaction] = ego_md2_data[MadList[object].md2_ref].framestart + frame;
-            }
-
-            framesinaction = 1;
-            lastaction = action;
-        }
-
-        mad_get_framefx( ego_md2_data[MadList[object].md2_ref].framestart + frame );
-        frame++;
-    }
-
-    // Write the old action
-    if ( lastaction < ACTION_COUNT )
-    {
-        MadList[object].actionvalid[lastaction] = btrue;
-        MadList[object].actionstart[lastaction] = ego_md2_data[MadList[object].md2_ref].framestart + frame - framesinaction;
-        MadList[object].actionend[lastaction]   = ego_md2_data[MadList[object].md2_ref].framestart + frame;
-    }
+    if( !LOADED_MAD(object) ) return;
 
     // Make sure actions are made valid if a similar one exists
     action_copy_correct( object, ACTION_DA, ACTION_DB );  // All dances should be safe
@@ -690,11 +750,29 @@ void mad_rip_actions( Uint16 object )
     action_copy_correct( object, ACTION_DA, ACTION_MM );
     action_copy_correct( object, ACTION_MM, ACTION_MN );
 
+    // Copy entire actions to save frame space COPY.TXT
+    make_newloadname( tmploadname, SLASH_STR "copy.txt", newloadname );
+    action_check_copy( newloadname, object );
+
+}
+
+//--------------------------------------------------------------------------------------------
+void mad_finalize( Uint16 object )
+{
+    int frame;
+
+    mad_t * pmad;
+    ego_md2_t * pmd2;
+    
+    if( !LOADED_MAD(object) ) return;
+    pmad = MadList + object;
+    pmd2 = ego_md2_data + pmad->md2_ref;
+
     // Create table for doing transition from one type of walk to another...
     // Clear 'em all to start
-    for ( frame = 0; frame < ego_md2_data[MadList[object].md2_ref].frames; frame++ )
+    for ( frame = 0; frame < pmd2->frames; frame++ )
     {
-        Md2FrameList[frame+ego_md2_data[MadList[object].md2_ref].framestart].framelip = 0;
+        Md2FrameList[pmd2->framestart + frame].framelip = 0;
     }
 
     // Need to figure out how far into action each frame is
@@ -707,6 +785,78 @@ void mad_rip_actions( Uint16 object )
     mad_get_walk_frame( object, LIPWA, ACTION_WA );
     mad_get_walk_frame( object, LIPWB, ACTION_WB );
     mad_get_walk_frame( object, LIPWC, ACTION_WC );
+}
+
+//--------------------------------------------------------------------------------------------
+void mad_rip_actions( Uint16 object )
+{
+    /// @details ZZ@> This function creates the frame lists for each action based on the
+    ///    name of each md2 frame in the model
+
+    int frame, framesinaction;
+    int action, lastaction;
+
+    mad_t * pmad;
+    ego_md2_t * pmd2;
+
+    if( !LOADED_MAD(object) ) return;
+    pmad = MadList + object;
+    pmd2 = ego_md2_data + pmad->md2_ref;
+
+    // Clear out all actions and reset to invalid
+    for ( action = 0; action < ACTION_COUNT; action++ )
+    {
+        pmad->action_map[action]   = ACTION_COUNT;
+        pmad->action_valid[action] = bfalse;
+    }
+
+    // Set the primary dance action to be the first frame, just as a default
+    pmad->action_map[ACTION_DA]   = ACTION_DA;
+    pmad->action_valid[ACTION_DA] = btrue;
+    pmad->action_stt[ACTION_DA]   = pmd2->framestart;
+    pmad->action_end[ACTION_DA]   = pmd2->framestart + 1;
+
+    // Now go huntin' to see what each frame is, look for runs of same action
+    md2_rip_frame_name( 0 );
+    lastaction = action_number();  framesinaction = 0;
+    frame = 0;
+
+    while ( frame < pmd2->frames )
+    {
+        md2_rip_frame_name( frame );
+        action = action_number();
+
+        pmad->action_map[action] = action;
+
+        if ( lastaction == action )
+        {
+            framesinaction++;
+        }
+        else
+        {
+            // Write the old action
+            if ( lastaction < ACTION_COUNT )
+            {
+                pmad->action_valid[lastaction] = btrue;
+                pmad->action_stt[lastaction]   = pmd2->framestart + frame - framesinaction;
+                pmad->action_end[lastaction]   = pmd2->framestart + frame;
+            }
+
+            framesinaction = 1;
+            lastaction = action;
+        }
+
+        mad_get_framefx( pmd2->framestart + frame );
+        frame++;
+    }
+
+    // Write the old action
+    if ( lastaction < ACTION_COUNT )
+    {
+        pmad->action_valid[lastaction] = btrue;
+        pmad->action_stt[lastaction]   = pmd2->framestart + frame - framesinaction;
+        pmad->action_end[lastaction]   = pmd2->framestart + frame;
+    }
 }
 
 //---------------------------------------------------------------------------------------------
@@ -817,11 +967,19 @@ void mad_rip_actions( Uint16 object )
 //--------------------------------------------------------------------------------------------
 mad_t * mad_init( mad_t * pmad )
 {
+    int action;
+
     if( NULL == pmad ) return pmad;
 
     memset( pmad, 0, sizeof(mad_t) );
 
     strncpy( pmad->name, "*NONE*", SDL_arraysize(pmad->name) );
+
+    // Clear out all actions and reset to invalid
+    for ( action = 0; action < ACTION_COUNT; action++ )
+    {
+       pmad->action_map[action]   = ACTION_COUNT;
+    }
 
     return pmad;
 }
@@ -870,6 +1028,81 @@ bool_t release_one_mad( Uint16 imad )
     pmad->loaded   = bfalse;
 
     return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+int randomize_action(int action, int slot)
+{
+    /// @details BB@> this function actually determines whether the action fillows the
+    ///               pattern of ACTION_?A, ACTION_?B, ACTION_?C, ACTION_?D, with 
+    ///               A and B being for the left hand, and C and D being for the right hand
+
+    int diff = 0;
+
+    // a valid slot?
+    if( slot < 0 || slot >= SLOT_COUNT ) return action;
+
+    // a valid action?
+    if( action < 0 || action >= ACTION_COUNT) return bfalse;
+
+    diff = slot * 2;
+
+    //---- non-randomizable actions
+         if( ACTION_MG == action ) return action;        // MG      = Open Chest
+    else if( ACTION_MH == action ) return action;        // MH      = Sit
+    else if( ACTION_MI == action ) return action;        // MI      = Ride
+    else if( ACTION_MJ == action ) return action;        // MJ      = Object Activated
+    else if( ACTION_MK == action ) return action;        // MK      = Snoozing
+    else if( ACTION_ML == action ) return action;        // ML      = Unlock
+    else if( ACTION_JA == action ) return action;        // JA      = Jump
+    else if( ACTION_RA == action ) return action;        // RA      = Roll
+    else if( ACTION_IS_TYPE(action, W) ) return action;  // WA - WD = Walk
+
+    //---- do a couple of special actions that have left/right
+    else if( ACTION_EA == action || ACTION_EB == action ) action = ACTION_JB + slot;    // EA/EB = Evade left/right
+    else if( ACTION_JB == action || ACTION_JC == action ) action = ACTION_JB + slot;    // JB/JC = Dropped item left/right
+    else if( ACTION_MA == action || ACTION_MB == action ) action = ACTION_MA + slot;    // MA/MB = Drop left/right item
+    else if( ACTION_MC == action || ACTION_MD == action ) action = ACTION_MC + slot;    // MC/MD = Slam left/right
+    else if( ACTION_ME == action || ACTION_MF == action ) action = ACTION_ME + slot;    // ME/MF = Grab item left/right 
+    else if( ACTION_MM == action || ACTION_MN == action ) action = ACTION_MM + slot;    // MM/MN = Held left/right
+
+    //---- actions that can be randomized, but are not left/right sensitive
+    // D = dance
+    else if( ACTION_IS_TYPE(action, D) )
+    {
+        action = ACTION_TYPE(D) + generate_randmask( 0, 3 );
+    }
+
+    //---- handle all the normal attack/defense animations
+
+    // U = unarmed
+    else if( ACTION_IS_TYPE(action, U) ) action = ACTION_TYPE(U) + diff + generate_randmask( 0, 1 );
+    // T = thrust
+    else if( ACTION_IS_TYPE(action, T) ) action = ACTION_TYPE(T) + diff + generate_randmask( 0, 1 );
+    // C = chop
+    else if( ACTION_IS_TYPE(action, C) ) action = ACTION_TYPE(C) + diff + generate_randmask( 0, 1 );
+    // S = slice
+    else if( ACTION_IS_TYPE(action, S) ) action = ACTION_TYPE(S) + diff + generate_randmask( 0, 1 );
+    // B = bash
+    else if( ACTION_IS_TYPE(action, B) ) action = ACTION_TYPE(B) + diff + generate_randmask( 0, 1 );
+    // L = longbow
+    else if( ACTION_IS_TYPE(action, L) ) action = ACTION_TYPE(L) + diff + generate_randmask( 0, 1 );
+    // X = crossbow
+    else if( ACTION_IS_TYPE(action, X) ) action = ACTION_TYPE(X) + diff + generate_randmask( 0, 1 );
+    // F = fling
+    else if( ACTION_IS_TYPE(action, F) ) action = ACTION_TYPE(F) + diff + generate_randmask( 0, 1 );
+    // P = parry/block
+    else if( ACTION_IS_TYPE(action, P) ) action = ACTION_TYPE(P) + diff + generate_randmask( 0, 1 );
+    // Z = zap
+    else if( ACTION_IS_TYPE(action, Z) ) action = ACTION_TYPE(Z) + diff + generate_randmask( 0, 1 );
+
+    //---- these are passive actions
+    // H = hit
+    else if( ACTION_IS_TYPE(action, H) ) action = ACTION_TYPE(H) + diff + generate_randmask( 0, 1 );
+    // K= killed
+    else if( ACTION_IS_TYPE(action, K) ) action = ACTION_TYPE(K) + diff + generate_randmask( 0, 1 );
+
+    return action;
 }
 
 ////--------------------------------------------------------------------------------------------

@@ -655,7 +655,8 @@ void chr_instance_play_action( chr_instance_t * pinst, Uint16 action, Uint8 acti
     if( !LOADED_MAD(pinst->imad) ) return;
     pmad = MadList + pinst->imad;
 
-    if ( pmad->actionvalid[action] )
+    action = mad_get_action( pinst->imad, action );
+    if ( pmad->action_valid[action] )
     {
         pinst->action_which = action;
         pinst->action_next  = ACTION_DA;
@@ -664,7 +665,7 @@ void chr_instance_play_action( chr_instance_t * pinst, Uint16 action, Uint8 acti
         pinst->flip = 0;
         pinst->ilip = 0;
         pinst->frame_lst = pinst->frame_nxt;
-        pinst->frame_nxt = pmad->actionstart[pinst->action_which];
+        pinst->frame_nxt = pmad->action_stt[pinst->action_which];
     }
 }
 
@@ -683,7 +684,8 @@ void chr_set_frame( Uint16 character, Uint16 action, int frame, Uint16 lip )
     pmad = chr_get_pmad(character);
     if ( NULL == pmad ) return;
 
-    if ( pmad->actionvalid[action] )
+    action = mad_get_action( chr_get_imad(character), action );
+    if ( pmad->action_valid[action] )
     {
         int framesinaction, frame_stt, frame_end;
 
@@ -691,16 +693,16 @@ void chr_set_frame( Uint16 character, Uint16 action, int frame, Uint16 lip )
         pchr->inst.action_which = ACTION_DA;
         pchr->inst.action_ready = btrue;
 
-        framesinaction = (pmad->actionend[action] - pmad->actionstart[action]) + 1;
+        framesinaction = (pmad->action_end[action] - pmad->action_stt[action]) + 1;
         if ( framesinaction <= 1 )
         {
-            frame_stt = pmad->actionstart[action];
+            frame_stt = pmad->action_stt[action];
             frame_end = frame_stt;
         }
         else
         {
             frame = MIN(frame, framesinaction);
-            frame_stt = pmad->actionstart[action] + frame;
+            frame_stt = pmad->action_stt[action] + frame;
 
             frame = MIN(frame + 1, framesinaction);
             frame_end = frame_stt + 1;
@@ -724,8 +726,7 @@ void activate_alliance_file( const char *modname )
     vfs_FILE *fileread;
 
     // Load the file
-    make_newloadname( modname, "data/alliance.txt", newloadname );
-    fileread = vfs_openRead( newloadname );
+    fileread = vfs_openRead( "data/alliance.txt" );
     if ( fileread )
     {
         while ( goto_colon( NULL, fileread, btrue ) )
@@ -2293,9 +2294,11 @@ void do_weather_spawn_particles()
 
                     if ( ACTIVE_PRT(particle) )
                     {
+                        prt_t * pprt = PrtList.lst + particle;
+
                         bool_t destroy_particle = bfalse;
 
-                        if ( __prthitawall( particle, NULL ) )
+                        if ( __prthitawall( pprt, NULL ) )
                         {
                             destroy_particle = btrue;
                         }
@@ -2306,16 +2309,13 @@ void do_weather_spawn_particles()
                         else
                         {
                             //Weather particles spawned at the edge of the map look ugly, so don't spawn them there
-                            float xpos = PrtList.lst[particle].pos.x;
-                            float ypos = PrtList.lst[particle].pos.y;
-
-                            if(      xpos < EDGE || xpos > PMesh->info.edge_x - EDGE) destroy_particle = btrue;
-                            else if( ypos < EDGE || ypos > PMesh->info.edge_y - EDGE) destroy_particle = btrue;
+                            if(      pprt->pos.x < EDGE || pprt->pos.x > PMesh->info.edge_x - EDGE) destroy_particle = btrue;
+                            else if( pprt->pos.y < EDGE || pprt->pos.y > PMesh->info.edge_y - EDGE) destroy_particle = btrue;
                         }
 
                         if( destroy_particle )
                         {
-                            EGO_OBJECT_TERMINATE( PrtList.lst + particle );
+                            EGO_OBJECT_TERMINATE( pprt );
                             PrtList_free_one( particle );
                         };
                     }
@@ -3139,7 +3139,8 @@ void fill_interaction_list( co_data_t cdata[], int * cdata_count, hash_node_t hn
 //--------------------------------------------------------------------------------------------
 bool_t can_mount( Uint16 ichr_a, Uint16 ichr_b )
 {
-    bool_t is_valid_rider_a, is_valid_mount_b;
+    bool_t is_valid_rider_a, is_valid_mount_b, has_ride_anim;
+    int action_mi;
 
     chr_t * pchr_a, * pchr_b;
     cap_t * pcap_a, * pcap_b;
@@ -3158,8 +3159,11 @@ bool_t can_mount( Uint16 ichr_a, Uint16 ichr_b )
     pcap_b = chr_get_pcap( ichr_b );
     if ( NULL == pcap_b ) return bfalse;
 
+    action_mi = mad_get_action( chr_get_imad(ichr_a), ACTION_MI );
+    has_ride_anim = (ACTION_COUNT != action_mi && !ACTION_IS_TYPE(action_mi,D) );
+
     is_valid_rider_a = !pchr_a->isitem && pchr_a->alive && 0 == pchr_a->flyheight &&
-                       !ACTIVE_CHR(pchr_a->attachedto) && chr_get_pmad(ichr_a)->actionvalid[ACTION_MI];
+                       !ACTIVE_CHR(pchr_a->attachedto) && has_ride_anim;
 
     is_valid_mount_b = pchr_b->ismount && pchr_b->alive &&
                        pcap_b->slotvalid[SLOT_LEFT] && !ACTIVE_CHR(pchr_b->holdingwhich[SLOT_LEFT]);
@@ -3247,11 +3251,8 @@ bool_t attach_prt_to_platform( prt_t * pprt, chr_t * pplat )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t do_chr_platforms( Uint16 ichr_a, Uint16 ichr_b )
+bool_t do_chr_platform_detection( Uint16 ichr_a, Uint16 ichr_b )
 {
-    float xa, ya, za;
-    float xb, yb, zb;
-
     chr_t * pchr_a, * pchr_b;
     cap_t * pcap_a, * pcap_b;
 
@@ -3270,40 +3271,32 @@ bool_t do_chr_platforms( Uint16 ichr_a, Uint16 ichr_b )
     if ( !ACTIVE_CHR(ichr_a) ) return bfalse;
     pchr_a = ChrList.lst + ichr_a;
 
-    pcap_a = chr_get_pcap( ichr_a );
-    if ( NULL == pcap_a ) return bfalse;
-
     // make sure that B is valid
     if ( !ACTIVE_CHR(ichr_b) ) return bfalse;
     pchr_b = ChrList.lst + ichr_b;
 
-    pcap_b = chr_get_pcap( ichr_b );
-    if ( NULL == pcap_b ) return bfalse;
-
     // if you are mounted, only your mount is affected by platforms
     if ( ACTIVE_CHR(pchr_a->attachedto) || ACTIVE_CHR(pchr_b->attachedto) ) return bfalse;
+
+    pcap_a = chr_get_pcap( ichr_a );
+    if ( NULL == pcap_a ) return bfalse;
+
+    pcap_b = chr_get_pcap( ichr_b );
+    if ( NULL == pcap_b ) return bfalse;
 
     // only check possible object-platform interactions
     platform_a = pcap_b->canuseplatforms && pchr_a->platform;
     platform_b = pcap_a->canuseplatforms && pchr_b->platform;
     if ( !platform_a && !platform_b ) return bfalse;
 
-    xa = pchr_a->pos.x;
-    ya = pchr_a->pos.y;
-    za = pchr_a->pos.z;
-
-    xb = pchr_b->pos.x;
-    yb = pchr_b->pos.y;
-    zb = pchr_b->pos.z;
-
     // If we can mount this platform, skip it
     mount_a = can_mount(ichr_b, ichr_a);
-    if ( mount_a && pchr_a->enviro.level < zb + pchr_b->bump.height + PLATTOLERANCE )
+    if ( mount_a && pchr_a->enviro.level < pchr_b->pos.z + pchr_b->bump.height + PLATTOLERANCE )
         return bfalse;
 
     // If we can mount this platform, skip it
     mount_b = can_mount(ichr_a, ichr_b);
-    if ( mount_b && pchr_b->enviro.level < za + pchr_a->bump.height + PLATTOLERANCE )
+    if ( mount_b && pchr_b->enviro.level < pchr_a->pos.z + pchr_a->bump.height + PLATTOLERANCE )
         return bfalse;
 
     depth_z  = MIN(pchr_b->chr_chr_cv.max_z + pchr_b->pos.z, pchr_a->chr_chr_cv.max_z + pchr_a->pos.z ) -
@@ -3323,10 +3316,11 @@ bool_t do_chr_platforms( Uint16 ichr_a, Uint16 ichr_b )
     {
         float depth_a, depth_b;
 
-        depth_a = (zb + pchr_b->chr_chr_cv.max_z) - (za + pchr_a->chr_chr_cv.min_z);
-        depth_b = (za + pchr_a->chr_chr_cv.max_z) - (zb + pchr_b->chr_chr_cv.min_z);
+        depth_a = (pchr_b->pos.z + pchr_b->chr_chr_cv.max_z) - (pchr_a->pos.z + pchr_a->chr_chr_cv.min_z);
+        depth_b = (pchr_a->pos.z + pchr_a->chr_chr_cv.max_z) - (pchr_b->pos.z + pchr_b->chr_chr_cv.min_z);
 
-        depth_z = MIN( zb + pchr_b->chr_chr_cv.max_z, za + pchr_a->chr_chr_cv.max_z ) - MAX(zb + pchr_b->chr_chr_cv.min_z, za + pchr_a->chr_chr_cv.min_z);
+        depth_z = MIN( pchr_b->pos.z + pchr_b->chr_chr_cv.max_z, pchr_a->pos.z + pchr_a->chr_chr_cv.max_z ) - 
+                  MAX( pchr_b->pos.z + pchr_b->chr_chr_cv.min_z, pchr_a->pos.z + pchr_a->chr_chr_cv.min_z);
 
         chara_on_top = ABS(depth_z - depth_a) < ABS(depth_z - depth_b);
 
@@ -3366,7 +3360,7 @@ bool_t do_chr_platforms( Uint16 ichr_a, Uint16 ichr_b )
     else if ( platform_a )
     {
         chara_on_top = bfalse;
-        depth_z = (za + pchr_a->chr_chr_cv.max_z) - (zb + pchr_b->chr_chr_cv.min_z);
+        depth_z = (pchr_a->pos.z + pchr_a->chr_chr_cv.max_z) - (pchr_b->pos.z + pchr_b->chr_chr_cv.min_z);
 
         // size of b doesn't matter
 
@@ -3385,7 +3379,7 @@ bool_t do_chr_platforms( Uint16 ichr_a, Uint16 ichr_b )
     else if ( platform_b )
     {
         chara_on_top = btrue;
-        depth_z = (zb + pchr_b->chr_chr_cv.max_z) - (za + pchr_a->chr_chr_cv.min_z);
+        depth_z = (pchr_b->pos.z + pchr_b->chr_chr_cv.max_z) - (pchr_a->pos.z + pchr_a->chr_chr_cv.min_z);
 
         // size of a doesn't matter
         depth_x  = MIN((pchr_b->chr_chr_cv.max_x + pchr_b->pos.x) - pchr_a->pos.x,
@@ -3412,16 +3406,20 @@ bool_t do_chr_platforms( Uint16 ichr_a, Uint16 ichr_b )
         // check for the best possible attachment
         if ( chara_on_top )
         {
-            if ( zb + pchr_b->chr_chr_cv.max_z > pchr_a->enviro.level )
+            if ( pchr_b->pos.z + pchr_b->chr_chr_cv.max_z > pchr_a->enviro.level )
             {
-                attach_chr_to_platform( pchr_a, pchr_b );
+                // set, but do not attach the platforms yet
+                pchr_a->enviro.level    = pchr_b->pos.z + pchr_b->chr_chr_cv.max_z;
+                pchr_a->onwhichplatform = ichr_b;
             }
         }
         else
         {
-            if ( za + pchr_a->chr_chr_cv.max_z > pchr_b->enviro.level )
+            if ( pchr_a->pos.z + pchr_a->chr_chr_cv.max_z > pchr_b->enviro.level )
             {
-                attach_chr_to_platform( pchr_b, pchr_a );
+                // set, but do not attach the platforms yet
+                pchr_b->enviro.level    = pchr_a->pos.z + pchr_a->chr_chr_cv.max_z;
+                pchr_b->onwhichplatform = ichr_a;
             }
         }
     }
@@ -3430,23 +3428,19 @@ bool_t do_chr_platforms( Uint16 ichr_a, Uint16 ichr_b )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t do_prt_platforms( Uint16 ichr_a, Uint16 iprt_b )
+bool_t do_prt_platform_detection( Uint16 ichr_a, Uint16 iprt_b )
 {
-    float xa, ya, za;
-    float xb, yb, zb;
-
     chr_t * pchr_a;
-    cap_t * pcap_a;
     prt_t * pprt_b;
-    pip_t * ppip_b;
-
+    
     float  depth_x, depth_y, depth_z, depth_xy, depth_yx;
 
-    bool_t collide_x  = bfalse;
-    bool_t collide_y  = bfalse;
-    bool_t collide_xy = bfalse;
-    bool_t collide_yx = bfalse;
-    bool_t collide_z  = bfalse;
+    // make sure that B is valid
+    if ( !ACTIVE_PRT(iprt_b) ) return bfalse;
+    pprt_b = PrtList.lst + iprt_b;
+
+    // if the particle is attached to something, it can't be affected by a platform
+    if ( ACTIVE_CHR(pprt_b->attachedto_ref) ) return bfalse;
 
     // make sure that A is valid
     if ( !ACTIVE_CHR(ichr_a) ) return bfalse;
@@ -3455,68 +3449,31 @@ bool_t do_prt_platforms( Uint16 ichr_a, Uint16 iprt_b )
     // only check possible particle-platform interactions
     if ( !pchr_a->platform ) return bfalse;
 
-    pcap_a = chr_get_pcap( ichr_a );
-    if ( NULL == pcap_a ) return bfalse;
+    // is this calculation going to matter, even if it succeeds?
+    if( pchr_a->pos.z + pchr_a->chr_chr_cv.max_z > pprt_b->enviro.level ) return bfalse;
 
-    // make sure that B is valid
-    if ( !ACTIVE_PRT(iprt_b) ) return bfalse;
-    pprt_b = PrtList.lst + iprt_b;
-
-    ppip_b = prt_get_ppip( iprt_b );
-    if ( NULL == ppip_b ) return bfalse;
-
-    // if you are mounted, only your mount is affected by platforms
-    if ( ACTIVE_CHR(pchr_a->attachedto) || ACTIVE_CHR(pprt_b->attachedto_ref) ) return bfalse;
-
-    xa = pchr_a->pos.x;
-    ya = pchr_a->pos.y;
-    za = pchr_a->pos.z;
-
-    xb = pprt_b->pos.x;
-    yb = pprt_b->pos.y;
-    zb = pprt_b->pos.z;
-
-    depth_z  = MIN(pprt_b->bumpheight + pprt_b->pos.z, pchr_a->chr_chr_cv.max_z + pchr_a->pos.z ) -
-        MAX(-pprt_b->bumpheight + pprt_b->pos.z, pchr_a->chr_chr_cv.min_z + pchr_a->pos.z );
-
-    collide_z  = ( depth_z > -PLATTOLERANCE && depth_z < PLATTOLERANCE );
-
-    if( !collide_z ) return bfalse;
-
-    // initialize the overlap depths
-    depth_x = depth_y = depth_xy = depth_yx = 0.0f;
-
-    // determine how the characters can be attached
-    depth_z = (za + pchr_a->chr_chr_cv.max_z) - (zb - pprt_b->bumpheight);
-
-    // size of b doesn't matter
+    //---- determine the interaction depth for each dimansion
+    depth_z = (pchr_a->pos.z + pchr_a->chr_chr_cv.max_z) - (pprt_b->pos.z - pprt_b->bumpheight);
+    if( depth_z < -PLATTOLERANCE || depth_z > PLATTOLERANCE ) return bfalse;
 
     depth_x  = MIN((pchr_a->chr_chr_cv.max_x + pchr_a->pos.x) - pprt_b->pos.x,
-        pprt_b->pos.x - (pchr_a->chr_chr_cv.min_x + pchr_a->pos.x) );
+                    pprt_b->pos.x - (pchr_a->chr_chr_cv.min_x + pchr_a->pos.x) );
+    if( depth_x <= 0 ) return bfalse;
 
     depth_y  = MIN((pchr_a->chr_chr_cv.max_y + pchr_a->pos.y) -  pprt_b->pos.y,
         pprt_b->pos.y - (pchr_a->chr_chr_cv.min_y + pchr_a->pos.y) );
+    if( depth_y <= 0) return bfalse;
 
     depth_xy = MIN((pchr_a->chr_chr_cv.max_xy + (pchr_a->pos.x + pchr_a->pos.y)) -  (pprt_b->pos.x + pprt_b->pos.y),
-        (pprt_b->pos.x + pprt_b->pos.y) - (pchr_a->chr_chr_cv.min_xy + (pchr_a->pos.x + pchr_a->pos.y)) );
+                   (pprt_b->pos.x + pprt_b->pos.y) - (pchr_a->chr_chr_cv.min_xy + (pchr_a->pos.x + pchr_a->pos.y)) );
+    if( depth_xy <= 0 ) return bfalse;
 
     depth_yx = MIN((pchr_a->chr_chr_cv.max_yx + (-pchr_a->pos.x + pchr_a->pos.y)) - (-pprt_b->pos.x + pprt_b->pos.y),
-        (-pprt_b->pos.x + pprt_b->pos.y) - (pchr_a->chr_chr_cv.min_yx + (-pchr_a->pos.x + pchr_a->pos.y)) );
+                   (-pprt_b->pos.x + pprt_b->pos.y) - (pchr_a->chr_chr_cv.min_yx + (-pchr_a->pos.x + pchr_a->pos.y)) );
+    if( depth_yx <= 0 ) return bfalse;
 
-    collide_x  = depth_x  > 0;
-    collide_y  = depth_y  > 0;
-    collide_xy = depth_xy > 0;
-    collide_yx = depth_yx > 0;
-    collide_z  = ( depth_z > -PLATTOLERANCE && depth_z < PLATTOLERANCE  );
-
-    if ( collide_x && collide_y && collide_xy && collide_yx && collide_z )
-    {
-        // check for the best possible attachment
-        if ( za + pchr_a->chr_chr_cv.max_z > pprt_b->enviro.level )
-        {
-            attach_prt_to_platform( pprt_b, pchr_a );
-        }
-    }
+    //---- this is the best possible attachment
+    attach_prt_to_platform( pprt_b, pchr_a );
 
     return btrue;
 }
@@ -3660,7 +3617,7 @@ bool_t do_mounts( Uint16 ichr_a, Uint16 ichr_b )
         }
     }
 
-    return btrue;
+    return mounted;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4943,37 +4900,17 @@ static co_data_t cdata[CHR_MAX_COLLISIONS];
 static int         hn_count = 0;
 static hash_node_t hnlst[COLLISION_HASH_NODES];
 
-void bump_all_objects( void )
+//--------------------------------------------------------------------------------------------
+void bump_all_platforms( void )
 {
-    /// @details ZZ@> This function sets handles characters hitting other characters or particles
+    /// @details BB@> Detect all character and particle interactions platforms. Then attach them.
+    ///             @note it is important to only attach the character to a platform once, so its
+    ///              weight does not get applied to multiple platforms
 
-    int tnc, cnt;
+    int         cnt, tnc;
+    co_data_t * d;
 
-    co_data_t   * d;
-
-    // blank the accumulators
-    for ( cnt = 0; cnt < MAX_CHR; cnt++ )
-    {
-        ChrList.lst[cnt].phys.apos_0.x = 0.0f;
-        ChrList.lst[cnt].phys.apos_0.y = 0.0f;
-        ChrList.lst[cnt].phys.apos_0.z = 0.0f;
-
-        ChrList.lst[cnt].phys.apos_1.x = 0.0f;
-        ChrList.lst[cnt].phys.apos_1.y = 0.0f;
-        ChrList.lst[cnt].phys.apos_1.z = 0.0f;
-
-        ChrList.lst[cnt].phys.avel.x = 0.0f;
-        ChrList.lst[cnt].phys.avel.y = 0.0f;
-        ChrList.lst[cnt].phys.avel.z = 0.0f;
-    }
-
-    // fill up the bumplists
-    fill_bumplists();
-
-    // fill the collision list with all possible binary interactions
-    fill_interaction_list( cdata, &cdata_count, hnlst, &hn_count );
-
-    // Do platforms
+    // Find the best platforms
     for ( cnt = 0; cnt < chr_co_list->allocated; cnt++ )
     {
         hash_node_t * n;
@@ -4988,14 +4925,66 @@ void bump_all_objects( void )
 
             if ( TOTAL_MAX_PRT == d->prtb )
             {
-                do_chr_platforms( d->chra, d->chrb );
+                do_chr_platform_detection( d->chra, d->chrb );
             }
             else if ( MAX_CHR == d->chrb )
             {
-                do_prt_platforms( d->chra, d->prtb );
+                do_prt_platform_detection( d->chra, d->prtb );
             }
         }
     }
+
+    // Do the actual platform attachments.
+    // Doing the attachments after detecting the best platform
+    // prevents an object from attaching it to multiple platforms as it
+    // is still trying to find the best one
+    for ( cnt = 0; cnt < chr_co_list->allocated; cnt++ )
+    {
+        hash_node_t * n;
+        int count = chr_co_list->subcount[cnt];
+
+        n = chr_co_list->sublist[cnt];
+        for ( tnc = 0; tnc < count && NULL != n; tnc++, n = n->next )
+        {
+            // only look at character-character interactions
+            d = (co_data_t *)(n->data);
+            if (TOTAL_MAX_PRT != d->prtb) continue;
+
+            if ( TOTAL_MAX_PRT == d->prtb )
+            {
+                if( ACTIVE_CHR(d->chra) && ACTIVE_CHR(d->chrb) )
+                {
+                    if( ChrList.lst[d->chra].onwhichplatform == d->chrb )
+                    {
+                        attach_chr_to_platform( ChrList.lst + d->chra, ChrList.lst + d->chrb );
+                    }
+                    else if( ChrList.lst[d->chrb].onwhichplatform == d->chra )
+                    {
+                        attach_chr_to_platform( ChrList.lst + d->chrb, ChrList.lst + d->chra );
+                    }
+                }
+            }
+            else if ( MAX_CHR == d->chrb )
+            {
+                if( ACTIVE_CHR(d->chra) && ACTIVE_PRT(d->prtb) )
+                {
+                    if( PrtList.lst[d->prtb].onwhichplatform == d->chra )
+                    {
+                        attach_prt_to_platform( PrtList.lst + d->prtb, ChrList.lst + d->chra );
+                    }
+                }
+            }
+        }
+    }
+
+};
+//--------------------------------------------------------------------------------------------
+void bump_all_mounts()
+{
+    /// @details BB@> Detect all character interactions mounts. Then attach them.
+
+    int         cnt, tnc;
+    co_data_t * d;
 
     // Do mounts
     for ( cnt = 0; cnt < chr_co_list->allocated; cnt++ )
@@ -5012,6 +5001,32 @@ void bump_all_objects( void )
 
             do_mounts( d->chra, d->chrb );
         }
+    }
+}
+
+//-------------------------------------------------------------------------------------------
+void bump_all_collisions()
+{
+    /// @details BB@> Detect all character-character and character-particle collsions (with exclusions
+    ///               for the mounts and platforms found in the previous steps)
+
+    int cnt, tnc;
+    co_data_t   * d;
+
+    // blank the accumulators
+    for ( cnt = 0; cnt < MAX_CHR; cnt++ )
+    {
+        ChrList.lst[cnt].phys.apos_0.x = 0.0f;
+        ChrList.lst[cnt].phys.apos_0.y = 0.0f;
+        ChrList.lst[cnt].phys.apos_0.z = 0.0f;
+
+        ChrList.lst[cnt].phys.apos_1.x = 0.0f;
+        ChrList.lst[cnt].phys.apos_1.y = 0.0f;
+        ChrList.lst[cnt].phys.apos_1.z = 0.0f;
+
+        ChrList.lst[cnt].phys.avel.x = 0.0f;
+        ChrList.lst[cnt].phys.avel.y = 0.0f;
+        ChrList.lst[cnt].phys.avel.z = 0.0f;
     }
 
     // do all interactions
@@ -5043,7 +5058,6 @@ void bump_all_objects( void )
         float tmpx, tmpy, tmpz;
         chr_t * pchr;
         float bump_str;
-        float nrm[2];
 
         if ( !ACTIVE_CHR(cnt) ) continue;
         pchr = ChrList.lst + cnt;
@@ -5072,7 +5086,7 @@ void bump_all_objects( void )
         {
             tmpx = pchr->pos.x;
             pchr->pos.x += pchr->phys.apos_0.x + pchr->phys.apos_1.x;
-            if ( __chrhitawall(cnt, nrm) )
+            if ( __chrhitawall(pchr, NULL) )
             {
                 // restore the old values
                 pchr->pos.x = tmpx;
@@ -5088,7 +5102,7 @@ void bump_all_objects( void )
         {
             tmpy = pchr->pos.y;
             pchr->pos.y += pchr->phys.apos_0.y + pchr->phys.apos_1.y;
-            if ( __chrhitawall(cnt, nrm) )
+            if ( __chrhitawall(pchr, NULL) )
             {
                 // restore the old values
                 pchr->pos.y = tmpy;
@@ -5116,8 +5130,29 @@ void bump_all_objects( void )
             }
         }
 
-        pchr->safe_valid = ( 0 == __chrhitawall(cnt, nrm) );
+        pchr->safe_valid = ( 0 == __chrhitawall(pchr, NULL) );
     }
+}
+
+//-------------------------------------------------------------------------------------------
+void bump_all_objects( void )
+{
+    /// @details ZZ@> This function sets handles characters hitting other characters or particles
+
+    // fill up the bumplists
+    fill_bumplists();
+
+    // fill the collision list with all possible binary interactions
+    fill_interaction_list( cdata, &cdata_count, hnlst, &hn_count );
+
+    // handle interaction with platforms
+    bump_all_platforms();
+
+    // handle interaction with mounts
+    bump_all_mounts();
+
+    // handle all the collisions
+    bump_all_collisions();
 
     // The following functions need to be called any time you actually change a charcter's position
     keep_weapons_with_holders();
@@ -5125,6 +5160,7 @@ void bump_all_objects( void )
     make_all_character_matrices( update_wld != 0 );
 }
 
+//-------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 void tilt_characters_to_terrain()
 {

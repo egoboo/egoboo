@@ -917,19 +917,24 @@ Uint8 scr_DoAction( script_state_t * pstate, ai_state_t * pself )
     /// anything better.  Fails if the action is invalid or if the character is doing
     /// something else already
 
+    int action;
+
     SCRIPT_FUNCTION_BEGIN();
 
+    action = mad_get_action( pchr->inst.imad, pstate->argument );
+
     returncode = bfalse;
-    if ( pstate->argument < ACTION_COUNT && pchr->inst.action_ready )
+    if ( action < ACTION_COUNT && pchr->inst.action_ready )
     {
-        if ( MadList[pchr->inst.imad].actionvalid[pstate->argument] )
+        if ( MadList[pchr->inst.imad].action_valid[action] )
         {
-            pchr->inst.action_which = pstate->argument;
-            pchr->inst.ilip = 0;
-            pchr->inst.flip = 0;
-            pchr->inst.frame_lst = pchr->inst.frame_nxt;
-            pchr->inst.frame_nxt = MadList[pchr->inst.imad].actionstart[pstate->argument];
+            pchr->inst.action_which = action;
+            pchr->inst.ilip         = 0;
+            pchr->inst.flip         = 0;
+            pchr->inst.frame_lst    = pchr->inst.frame_nxt;
+            pchr->inst.frame_nxt    = MadList[pchr->inst.imad].action_stt[action];
             pchr->inst.action_ready = bfalse;
+
             returncode = btrue;
         }
     }
@@ -1014,19 +1019,26 @@ Uint8 scr_TargetDoAction( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = bfalse;
-    if ( ChrList.lst[pself->target].alive )
+    if( ACTIVE_CHR(pself->target) && ChrList.lst[pself->target].alive )
     {
-        if ( pstate->argument < ACTION_COUNT && ChrList.lst[pself->target].inst.action_ready )
-        {
-            if ( MadList[ChrList.lst[pself->target].inst.imad].actionvalid[pstate->argument] )
-            {
-                ChrList.lst[pself->target].inst.action_which = pstate->argument;
-                ChrList.lst[pself->target].inst.action_ready = bfalse;
+        int action;
+        chr_t * ptarget;
+        
+        ptarget = ChrList.lst + pself->target;
 
-                ChrList.lst[pself->target].inst.ilip = 0;
-                ChrList.lst[pself->target].inst.flip = 0;
-                ChrList.lst[pself->target].inst.frame_lst = ChrList.lst[pself->target].inst.frame_nxt;
-                ChrList.lst[pself->target].inst.frame_nxt = MadList[ChrList.lst[pself->target].inst.imad].actionstart[pstate->argument];
+        action = mad_get_action( ptarget->inst.imad, pstate->argument);
+        if ( action < ACTION_COUNT && ptarget->inst.action_ready )
+        {
+            if ( MadList[ptarget->inst.imad].action_valid[action] )
+            {
+                ptarget->inst.action_which = action;
+                ptarget->inst.action_ready = bfalse;
+
+                ptarget->inst.ilip         = 0;
+                ptarget->inst.flip         = 0;
+                ptarget->inst.frame_lst    = ptarget->inst.frame_nxt;
+                ptarget->inst.frame_nxt    = MadList[ptarget->inst.imad].action_stt[action];
+
                 returncode = btrue;
             }
         }
@@ -1171,19 +1183,25 @@ Uint8 scr_DoActionOverride( script_state_t * pstate, ai_state_t * pself )
     /// @details ZZ@> This function makes the character do a given action no matter what
     /// It will fail if the action is invalid
 
+    int action;
+
     SCRIPT_FUNCTION_BEGIN();
 
+    action = mad_get_action( pchr->inst.imad, pstate->argument );
+
     returncode = bfalse;
-    if ( pstate->argument < ACTION_COUNT )
+    if ( action < ACTION_COUNT )
     {
-        if ( MadList[pchr->inst.imad].actionvalid[pstate->argument] )
+        if ( MadList[pchr->inst.imad].action_valid[action] )
         {
-            pchr->inst.action_which = pstate->argument;
-            pchr->inst.ilip = 0;
-            pchr->inst.flip = 0;
-            pchr->inst.frame_lst = pchr->inst.frame_nxt;
-            pchr->inst.frame_nxt = MadList[pchr->inst.imad].actionstart[pstate->argument];
+            pchr->inst.action_which = action;
             pchr->inst.action_ready = bfalse;
+
+            pchr->inst.ilip         = 0;
+            pchr->inst.flip         = 0;
+            pchr->inst.frame_lst    = pchr->inst.frame_nxt;
+            pchr->inst.frame_nxt    = MadList[pchr->inst.imad].action_stt[action];
+
             returncode = btrue;
         }
     }
@@ -1529,6 +1547,7 @@ Uint8 scr_BecomeLeader( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_ChangeTargetArmor( script_state_t * pstate, ai_state_t * pself )
 {
     // ChangeTargetArmor( tmpargument = "armor" )
+
     /// @details ZZ@> This function sets the target's armor type and returns the old type
     /// as tmpargument and the new type as tmpx
 
@@ -1661,24 +1680,25 @@ Uint8 scr_SpawnCharacter( script_state_t * pstate, ai_state_t * pself )
     }
     else
     {
-        float nrm[2];
-        if ( __chrhitawall( sTmp, nrm ) )
+        chr_t * pchild = ChrList.lst + sTmp;
+
+        // was the child spawned in a "safe" spot?
+        if ( !pchild->safe_valid  )
         {
             chr_request_terminate(sTmp);
             sTmp = MAX_CHR;
         }
         else
         {
-            ChrList.lst[sTmp].iskursed = bfalse;
-
             pself->child = sTmp;
 
-            tTmp = pchr->turn_z >> 2;
-            ChrList.lst[sTmp].vel.x += turntocos[ ( tTmp+8192 ) & TRIG_TABLE_MASK ] * pstate->distance;
-            ChrList.lst[sTmp].vel.y += turntosin[ ( tTmp+8192 ) & TRIG_TABLE_MASK ] * pstate->distance;
+            tTmp = (pchr->turn_z + ATK_BEHIND) >> 2;
+            pchild->vel.x += turntocos[ tTmp & TRIG_TABLE_MASK ] * pstate->distance;
+            pchild->vel.y += turntosin[ tTmp & TRIG_TABLE_MASK ] * pstate->distance;
 
-            ChrList.lst[sTmp].ai.passage = pself->passage;
-            ChrList.lst[sTmp].ai.owner   = pself->owner;
+            pchild->iskursed = pchr->iskursed;  // BB> inherit this from your spawner
+            pchild->ai.passage = pself->passage;
+            pchild->ai.owner   = pself->owner;
         }
     }
 
@@ -1903,25 +1923,26 @@ Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
     tTmp = spawn_one_particle( pchr->pos, pchr->turn_z, pchr->iprofile, pstate->argument, pself->index, pstate->distance, pchr->team, sTmp, TOTAL_MAX_PRT, 0, MAX_CHR );
 
     returncode = ACTIVE_PRT(tTmp);
-
     if ( returncode )
     {
+        prt_t * pprt = PrtList.lst + tTmp;
+
         // Detach the particle
         attach_particle_to_character( tTmp, pself->index, pstate->distance );
-        PrtList.lst[tTmp].attachedto_ref = MAX_CHR;
+        pprt->attachedto_ref = MAX_CHR;
 
         // Correct X, Y, Z spacing
-        PrtList.lst[tTmp].pos.x += pstate->x;
-        PrtList.lst[tTmp].pos.y += pstate->y;
-        PrtList.lst[tTmp].pos.z += PipStack.lst[PrtList.lst[tTmp].pip_ref].zspacing_pair.base;
+        pprt->pos.x += pstate->x;
+        pprt->pos.y += pstate->y;
+        pprt->pos.z += PipStack.lst[pprt->pip_ref].zspacing_pair.base;
 
         // Don't spawn in walls
-        if ( __prthitawall( tTmp, NULL ) )
+        if ( __prthitawall( pprt, NULL ) )
         {
-            PrtList.lst[tTmp].pos.x = pchr->pos.x;
-            if ( __prthitawall( tTmp, NULL ) )
+            pprt->pos.x = pchr->pos.x;
+            if ( __prthitawall( pprt, NULL ) )
             {
-                PrtList.lst[tTmp].pos.y = pchr->pos.y;
+                pprt->pos.y = pchr->pos.y;
             }
         }
     }
@@ -2150,14 +2171,14 @@ Uint8 scr_BecomeSpellbook( script_state_t * pstate, ai_state_t * pself )
     if( NULL != pcap && NULL != pmad )
     {
         //Do dropped animation
-        pchr->inst.action_which = ACTION_JB;
+        pchr->inst.action_which = mad_get_action(pchr->inst.imad, ACTION_JB);
         pchr->inst.action_ready = bfalse;
         //pchr->inst.action_keep = btrue;
 
         pchr->inst.ilip = 0;
         pchr->inst.flip = 0;
         pchr->inst.frame_lst = pchr->inst.frame_nxt;
-        pchr->inst.frame_nxt = pmad->actionstart[ACTION_JB];
+        pchr->inst.frame_nxt = pmad->action_stt[ACTION_JB];
 
         returncode = btrue;
     }
@@ -2767,7 +2788,7 @@ Uint8 scr_HitFromFront( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = bfalse;
-    if ( pself->directionlast >= 49152 + 8192 || pself->directionlast < ATK_FRONT + 8192 )
+    if ( pself->directionlast >= ATK_LEFT + 8192 || pself->directionlast < ATK_FRONT + 8192 )
         returncode = btrue;
 
     SCRIPT_FUNCTION_END();
@@ -3991,19 +4012,27 @@ Uint8 scr_ChildDoActionOverride( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = bfalse;
-    if ( pstate->argument < ACTION_COUNT )
+    if ( ACTIVE_CHR(pself->child) )
     {
-        if ( MadList[ChrList.lst[pself->child].inst.imad].actionvalid[pstate->argument] )
+        int action;
+        chr_t * pchild = ChrList.lst + pself->child;
+
+        action = mad_get_action( pchild->inst.imad, pstate->argument );
+
+        if( action < ACTION_COUNT )
         {
-            ChrList.lst[pself->child].inst.action_which = pstate->argument;
-            ChrList.lst[pself->child].inst.action_ready = bfalse;
+            if ( MadList[pchild->inst.imad].action_valid[action] )
+            {
+                pchild->inst.action_which = action;
+                pchild->inst.action_ready = bfalse;
 
-            ChrList.lst[pself->child].inst.ilip = 0;
-            ChrList.lst[pself->child].inst.flip = 0;
-            ChrList.lst[pself->child].inst.frame_nxt = MadList[ChrList.lst[pself->child].inst.imad].actionstart[pstate->argument];
-            ChrList.lst[pself->child].inst.frame_lst = ChrList.lst[pself->child].inst.frame_nxt;
+                pchild->inst.ilip         = 0;
+                pchild->inst.flip         = 0;
+                pchild->inst.frame_nxt    = MadList[pchild->inst.imad].action_stt[action];
+                pchild->inst.frame_lst    = pchild->inst.frame_nxt;
 
-            returncode = btrue;
+                returncode = btrue;
+            }
         }
     }
 
@@ -4887,7 +4916,6 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
     // SpawnCharacterXYZ( tmpx = "x", tmpy = "y", tmpdistance = "z", tmpturn = "turn" )
     /// @details ZZ@> This function spawns a character of the same type at a specific location, failing if x,y,z is invalid
 
-    float nrm[2];
     fvec3_t   pos;
 
     SCRIPT_FUNCTION_BEGIN();
@@ -4907,7 +4935,10 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
     }
     else
     {
-        if ( __chrhitawall( sTmp, nrm ) )
+        chr_t * pchild = ChrList.lst + sTmp;
+
+        // was the child spawned in a "safe" spot?
+        if ( !pchild->safe_valid )
         {
             chr_request_terminate(sTmp);
             sTmp = MAX_CHR;
@@ -4916,9 +4947,9 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
         {
             pself->child = sTmp;
 
-            ChrList.lst[sTmp].iskursed   = bfalse;
-            ChrList.lst[sTmp].ai.passage = pself->passage;
-            ChrList.lst[sTmp].ai.owner   = pself->owner;
+            pchild->iskursed   = pchr->iskursed;  // BB> inherit this from your spawner
+            pchild->ai.passage = pself->passage;
+            pchild->ai.owner   = pself->owner;
         }
     }
 
@@ -4936,7 +4967,6 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
     /// DON'T USE THIS FOR EXPORTABLE ITEMS OR CHARACTERS,
     /// AS THE MODEL SLOTS MAY VARY FROM MODULE TO MODULE.
 
-    float nrm[2];
     fvec3_t   pos;
 
     SCRIPT_FUNCTION_BEGIN();
@@ -4957,7 +4987,10 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
     }
     else
     {
-        if ( __chrhitawall( sTmp, nrm ) )
+        chr_t * pchild = ChrList.lst + sTmp;
+
+        // was the child spawned in a "safe" spot?
+        if ( !pchild->safe_valid )
         {
             chr_request_terminate(sTmp);
             sTmp = MAX_CHR;
@@ -4966,9 +4999,9 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
         {
             pself->child = sTmp;
 
-            ChrList.lst[sTmp].iskursed   = bfalse;
-            ChrList.lst[sTmp].ai.passage = pself->passage;
-            ChrList.lst[sTmp].ai.owner   = pself->owner;
+            pchild->iskursed   = pchr->iskursed;  // BB> inherit this from your spawner
+            pchild->ai.passage = pself->passage;
+            pchild->ai.owner   = pself->owner;
         }
     }
 
@@ -5086,14 +5119,25 @@ Uint8 scr_UnkurseTargetInventory( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     sTmp = ChrList.lst[pself->target].holdingwhich[SLOT_LEFT];
-    ChrList.lst[sTmp].iskursed = bfalse;
-    sTmp = ChrList.lst[pself->target].holdingwhich[SLOT_RIGHT];
-    ChrList.lst[sTmp].iskursed = bfalse;
-    sTmp = ChrList.lst[pself->target].pack_next;
-
-    while ( sTmp != MAX_CHR )
+    if( ACTIVE_CHR(sTmp) )
     {
         ChrList.lst[sTmp].iskursed = bfalse;
+    }
+
+    sTmp = ChrList.lst[pself->target].holdingwhich[SLOT_RIGHT];
+    if( ACTIVE_CHR(sTmp) )
+    {
+        ChrList.lst[sTmp].iskursed = bfalse;
+    }
+
+    sTmp = ChrList.lst[pself->target].pack_next;
+    while ( sTmp != MAX_CHR )
+    {
+        if( ACTIVE_CHR(sTmp) )
+        {
+            ChrList.lst[sTmp].iskursed = bfalse;
+        }
+
         sTmp = ChrList.lst[sTmp].pack_next;
     }
 
@@ -5155,19 +5199,26 @@ Uint8 scr_TargetDoActionSetFrame( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = bfalse;
-    if ( pstate->argument < ACTION_COUNT )
+    if( ACTIVE_CHR(pself->target) )
     {
-        if ( MadList[ChrList.lst[pself->target].inst.imad].actionvalid[pstate->argument] )
+        int action;
+        chr_t * ptarget = ChrList.lst + pself->target;
+
+        action = mad_get_action(ptarget->inst.imad, action);
+        if ( action < ACTION_COUNT )
         {
-            ChrList.lst[pself->target].inst.action_which = pstate->argument;
-            ChrList.lst[pself->target].inst.action_ready = bfalse;
+            if ( MadList[ptarget->inst.imad].action_valid[action] )
+            {
+                ptarget->inst.action_which = action;
+                ptarget->inst.action_ready = bfalse;
 
-            ChrList.lst[pself->target].inst.ilip = 0;
-            ChrList.lst[pself->target].inst.flip = 0;
-            ChrList.lst[pself->target].inst.frame_nxt = MadList[ChrList.lst[pself->target].inst.imad].actionstart[pstate->argument];
-            ChrList.lst[pself->target].inst.frame_lst = ChrList.lst[pself->target].inst.frame_nxt;
+                ptarget->inst.ilip         = 0;
+                ptarget->inst.flip         = 0;
+                ptarget->inst.frame_nxt    = MadList[ptarget->inst.imad].action_stt[action];
+                ptarget->inst.frame_lst    = ptarget->inst.frame_nxt;
 
-            returncode = btrue;
+                returncode = btrue;
+            }
         }
     }
 
@@ -6652,6 +6703,8 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
     }
     else
     {
+        chr_t * pchild = ChrList.lst + sTmp;
+
         Uint8 grip = CLIP( pstate->distance, ATTACH_INVENTORY, ATTACH_RIGHT );
 
         if ( grip == ATTACH_INVENTORY )
@@ -6659,16 +6712,16 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
             // Inventory character
             if ( inventory_add_item( sTmp, pself->target ) )
             {
-                ChrList.lst[sTmp].ai.alert |= ALERTIF_GRABBED;  // Make spellbooks change
-                ChrList.lst[sTmp].attachedto = pself->target;  // Make grab work
+                pchild->ai.alert |= ALERTIF_GRABBED;  // Make spellbooks change
+                pchild->attachedto = pself->target;  // Make grab work
                 let_character_think( sTmp );  // Empty the grabbed messages
 
-                ChrList.lst[sTmp].attachedto = MAX_CHR;  // Fix grab
+                pchild->attachedto = MAX_CHR;  // Fix grab
 
                 //Set some AI values
                 pself->child = sTmp;
-                ChrList.lst[sTmp].ai.passage = pself->passage;
-                ChrList.lst[sTmp].ai.owner   = pself->owner;
+                pchild->ai.passage = pself->passage;
+                pchild->ai.owner   = pself->owner;
             }
 
             //No more room!
@@ -6691,12 +6744,24 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
 
                 //Set some AI values
                 pself->child = sTmp;
-                ChrList.lst[sTmp].ai.passage = pself->passage;
-                ChrList.lst[sTmp].ai.owner   = pself->owner;
+                pchild->ai.passage = pself->passage;
+                pchild->ai.owner   = pself->owner;
             }
 
             //Grip is already used
             else
+            {
+                chr_request_terminate(sTmp);
+                sTmp = MAX_CHR;
+            }
+        }
+        else
+        {
+            // we have been given an invalid attachment point.
+            // still allow the character to spawn if it is not in an invalid area
+
+            // technically this should never occur since we are limiting the attachment points above
+            if( !pchild->safe_valid )
             {
                 chr_request_terminate(sTmp);
                 sTmp = MAX_CHR;

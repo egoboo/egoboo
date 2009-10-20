@@ -677,7 +677,7 @@ bool_t setup_xp_table(Uint16 character);
 
 void free_all_chraracters();
 
-Uint32 __chrhitawall( Uint16 character, float nrm[] );
+Uint32 __chrhitawall(  chr_t * pchr, float nrm[] );
 
 int chr_count_free();
 

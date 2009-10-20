@@ -147,6 +147,9 @@ enum e_action
     ACTION_COUNT
 };
 
+#define ACTION_TYPE( CHR ) (ACTION_##CHR##A)
+#define ACTION_IS_TYPE( VAL, CHR ) ((VAL >= ACTION_##CHR##A) && (VAL <= ACTION_##CHR##D))
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 extern ego_md2_t  ego_md2_data[MAX_PROFILE]; ///< the old-style md2 data
@@ -158,13 +161,14 @@ struct s_mad
     EGO_PROFILE_STUFF;
 
     // templates
-    //Uint16  transvertices;                    ///< Number to transform
+    //Uint16  transvertices;                   ///< Number to transform
 
-    Uint16  frameliptowalkframe[4][16];       ///< For walk animations
+    Uint16  frameliptowalkframe[4][16];        ///< For walk animations
 
-    Uint8   actionvalid[ACTION_COUNT];        ///< bfalse if not valid
-    Uint16  actionstart[ACTION_COUNT];        ///< First frame of anim
-    Uint16  actionend[ACTION_COUNT];          ///< One past last frame
+    int     action_map[ACTION_COUNT];          ///< actual action = action_map[requested action]
+    Uint8   action_valid[ACTION_COUNT];        ///< bfalse if not valid
+    Uint16  action_stt[ACTION_COUNT];          ///< First frame of anim
+    Uint16  action_end[ACTION_COUNT];          ///< One past last frame
 
     //---- per-object data ----
 
@@ -191,3 +195,7 @@ int    action_which( char cTmp );
 void   load_action_names( const char* loadname );
 
 void   mad_make_equally_lit( int model );
+
+
+int mad_get_action( Uint16 imad, int action );
+int randomize_action(int action, int slot);

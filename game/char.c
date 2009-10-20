@@ -743,15 +743,12 @@ void free_all_chraracters()
 }
 
 //--------------------------------------------------------------------------------------------
-Uint32 __chrhitawall( Uint16 character, float nrm[] )
+Uint32 __chrhitawall( chr_t * pchr, float nrm[] )
 {
     /// @details ZZ@> This function returns nonzero if the character hit a wall that the
     ///    character is not allowed to cross
 
-    chr_t * pchr;
-
-    if ( !ACTIVE_CHR(character) ) return 0;
-    pchr = ChrList.lst + character;
+    if ( !ACTIVE_PCHR(pchr) ) return 0;
 
     if ( 0 == pchr->bump.size || 0xFFFFFFFF == pchr->phys.weight ) return 0;
 
@@ -803,7 +800,6 @@ bool_t detach_character_from_mount( Uint16 character, Uint8 ignorekurse, Uint8 d
 
     Uint16 mount, hand, enchant;
     bool_t inshop;
-    float nrm[2];
     chr_t * pchr, * pmount;
 
     // Make sure the character is valid
@@ -859,7 +855,7 @@ bool_t detach_character_from_mount( Uint16 character, Uint8 ignorekurse, Uint8 d
     }
 
     // Make sure it's not dropped in a wall...
-    if ( __chrhitawall( character, nrm ) )
+    if ( __chrhitawall( pchr, NULL ) )
     {
         pchr->pos.x = pmount->pos.x;
         pchr->pos.y = pmount->pos.y;
@@ -1904,11 +1900,11 @@ void character_swipe( Uint16 ichr, slot_t slot )
                         }
 
                         // Don't spawn in walls
-                        if ( __prthitawall( particle, NULL ) )
+                        if ( __prthitawall( pprt, NULL ) )
                         {
                             pprt->pos.x = pweapon->pos.x;
                             pprt->pos.y = pweapon->pos.y;
-                            if ( __prthitawall( particle, NULL ) )
+                            if ( __prthitawall( pprt, NULL ) )
                             {
                                 pprt->pos.x = pchr->pos.x;
                                 pprt->pos.y = pchr->pos.y;
@@ -2192,7 +2188,6 @@ void resize_all_characters()
         if ( pchr->fat_goto != pchr->fat )
         {
             int bump_increase;
-            float nrm[2];
 
             bump_increase = ( pchr->fat_goto - pchr->fat ) * 0.10f * pchr->bump.size;
 
@@ -2202,7 +2197,7 @@ void resize_all_characters()
             {
                 pchr->bump.size += bump_increase;
 
-                if ( __chrhitawall( ichr, nrm ) )
+                if ( __chrhitawall( pchr, NULL ) )
                 {
                     willgetcaught = btrue;
                 }
@@ -3415,7 +3410,6 @@ Uint16 spawn_one_character( fvec3_t pos, Uint16 profile, Uint8 team,
     int cnt, tnc;
     chr_t * pchr;
     cap_t * pcap;
-    float nrm[2];
     fvec3_t   pos_tmp;
 
     Uint16 icap;
@@ -3620,7 +3614,7 @@ Uint16 spawn_one_character( fvec3_t pos, Uint16 profile, Uint8 team,
     chr_instance_spawn( &(pchr->inst), profile, skin );
     chr_update_matrix( pchr, btrue );
 
-    if ( 0 == __chrhitawall(ichr, nrm) )
+    if ( 0 == __chrhitawall(pchr, NULL) )
     {
         pchr->safe_valid = btrue;
     };
@@ -5076,19 +5070,174 @@ void move_one_character_do_volontary( chr_t * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
+bool_t chr_do_latch_attack( chr_t * pchr, int which_slot )
+{
+    chr_t * pweapon;
+    cap_t * pweapon_cap;
+    Uint16 ichr, iweapon, imad;
+
+    int    action;
+    bool_t action_valid, allowedtoattack;
+
+    bool_t retval = bfalse;
+
+    if ( !ACTIVE_PCHR( pchr ) ) return bfalse;
+    ichr = GET_INDEX_PCHR(pchr);
+
+    imad = chr_get_imad(ichr);
+
+    if( which_slot < 0 || which_slot >= SLOT_COUNT ) return bfalse;
+
+    // Which iweapon?
+    iweapon = pchr->holdingwhich[which_slot];
+    if ( !ACTIVE_CHR(iweapon) )
+    {
+        // Unarmed means character itself is the iweapon
+        iweapon = ichr;
+    }
+    pweapon     = ChrList.lst + iweapon;
+    pweapon_cap = chr_get_pcap(iweapon);
+
+    // grab the iweapon's action
+    action = pweapon_cap->weaponaction;
+
+    // see if the character can play this action
+    action = mad_get_action( imad, action );
+    action_valid = (ACTION_COUNT != action);
+
+    // Can it do it?
+    allowedtoattack = btrue;
+
+    // First check if reload time and action is okay
+    if ( !action_valid || pweapon->reloadtime > 0 ) 
+    {
+        allowedtoattack = bfalse;
+    }
+    else
+    {
+        // Then check if a skill is needed
+        if ( pweapon_cap->needskillidtouse )
+        {
+            if ( 0 == check_skills( ichr, chr_get_idsz(iweapon,IDSZ_SKILL) ) )
+            {
+                allowedtoattack = bfalse;
+            }
+        }
+    }
+    if ( !allowedtoattack )
+    {
+        if ( 0 == pweapon->reloadtime )
+        {
+            // This character can't use this iweapon
+            pweapon->reloadtime = 50;
+            if ( pchr->StatusList_on )
+            {
+                // Tell the player that they can't use this iweapon
+                debug_printf( "%s can't use this item...", chr_get_name( GET_INDEX_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_CAPITAL)  );
+            }
+        }
+    }
+    if ( action == ACTION_DA )
+    {
+        allowedtoattack = bfalse;
+        if ( 0 == pweapon->reloadtime )
+        {
+            pweapon->ai.alert |= ALERTIF_USED;
+        }
+    }
+
+    // deal with your mount (which could steal your attack)
+    if ( allowedtoattack )
+    {
+        // Rearing mount
+        Uint16 mount = pchr->attachedto;
+        if ( ACTIVE_CHR(mount) )
+        {
+            chr_t * pmount = ChrList.lst + mount;
+            cap_t * pmount_cap = chr_get_pcap( mount );
+
+            allowedtoattack = pmount_cap->ridercanattack;
+            if ( pmount->ismount && pmount->alive && !pmount->isplayer && pmount->inst.action_ready )
+            {
+                if ( ( action != ACTION_PA || !allowedtoattack ) && pchr->inst.action_ready )
+                {
+                    chr_play_action( mount, generate_randmask( ACTION_UA, 1 ), bfalse );
+                    pmount->ai.alert |= ALERTIF_USED;
+                    pchr->ai.lastitemused = mount;
+
+                    retval = btrue;
+                }
+                else
+                {
+                    allowedtoattack = bfalse;
+                }
+            }
+        }
+    }
+
+    // Attack button
+    if ( allowedtoattack )
+    {
+        if ( pchr->inst.action_ready && action_valid )
+        {
+            // Check mana cost
+            bool_t mana_paid = cost_mana( ichr, pweapon->manacost, iweapon );
+
+            if ( mana_paid )
+            {
+                // Check life healing
+                pchr->life += pweapon->lifeheal;
+                if ( pchr->life > pchr->lifemax )  pchr->life = pchr->lifemax;
+
+                // randomize the action
+                action = randomize_action(action, which_slot);
+
+                // make sure it is valid
+                action = mad_get_action( imad, action );
+
+                if ( ACTION_IS_TYPE(action, P) )
+                {
+                    // we must set parry actions to be interrupted by anything
+                    chr_play_action( ichr, action, btrue );
+                }
+                else
+                {
+                    chr_play_action( ichr, action, bfalse );
+                }
+
+                if ( iweapon != ichr )
+                {
+                    // Make the iweapon attack too
+                    chr_play_action( iweapon, ACTION_MJ, bfalse );
+                }
+
+                // let everyone know what we did
+                pweapon->ai.alert |= ALERTIF_USED;
+                pchr->ai.lastitemused = iweapon;
+
+                retval = btrue;
+            }
+        }
+    }
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
 bool_t chr_do_latch_button( chr_t * pchr )
 {
     /// @details BB@> Character latches for generalized buttons
 
     Uint16 ichr;
     ai_state_t * pai;
-    Uint8 allowedtoattack;
-    Uint16 action, weapon, mount, item;
+
+    Uint16 item;
+    bool_t attack_handled;
 
     if ( !ACTIVE_PCHR( pchr ) ) return bfalse;
-    pai = &(pchr->ai);
-
     ichr = GET_INDEX_PCHR(pchr);
+
+    pai = &(pchr->ai);
 
     if ( !pchr->alive || 0 == pchr->latch.b ) return btrue;
 
@@ -5284,249 +5433,17 @@ bool_t chr_do_latch_button( chr_t * pchr )
     }
 
     // LATCHBUTTON_LEFT and LATCHBUTTON_RIGHT are mutually exclusive
-    if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_LEFT ) && 0 == pchr->reloadtime )
+    attack_handled = bfalse;
+    if ( !attack_handled && HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_LEFT ) && 0 == pchr->reloadtime )
     {
-        chr_t * pweapon;
-
         //pchr->latch.b &= ~LATCHBUTTON_LEFT;
-
-        // Which weapon?
-        weapon = pchr->holdingwhich[SLOT_LEFT];
-        if ( !ACTIVE_CHR(weapon) )
-        {
-            // Unarmed means character itself is the weapon
-            weapon = ichr;
-        }
-        pweapon = ChrList.lst + weapon;
-
-        action = chr_get_pcap(weapon)->weaponaction;
-
-        // Can it do it?
-        allowedtoattack = btrue;
-
-        // First check if reload time and action is okay
-        if ( !chr_get_pmad(ichr)->actionvalid[action] || pweapon->reloadtime > 0 ) allowedtoattack = bfalse;
-        else
-        {
-            // Then check if a skill is needed
-            if ( chr_get_pcap(weapon)->needskillidtouse )
-            {
-                if (check_skills( ichr, chr_get_idsz(weapon,IDSZ_SKILL)) == bfalse )
-                    allowedtoattack = bfalse;
-            }
-        }
-        if ( !allowedtoattack )
-        {
-            if ( pweapon->reloadtime == 0 )
-            {
-                // This character can't use this weapon
-                pweapon->reloadtime = 50;
-                if ( pchr->StatusList_on )
-                {
-                    // Tell the player that they can't use this weapon
-                    debug_printf( "%s can't use this item...", chr_get_name( GET_INDEX_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_CAPITAL)  );
-                }
-            }
-        }
-        if ( action == ACTION_DA )
-        {
-            allowedtoattack = bfalse;
-            if ( pweapon->reloadtime == 0 )
-            {
-                pweapon->ai.alert |= ALERTIF_USED;
-            }
-        }
-
-        if ( allowedtoattack )
-        {
-            // Rearing mount
-            mount = pchr->attachedto;
-            if ( ACTIVE_CHR(mount) )
-            {
-                allowedtoattack = chr_get_pcap(mount)->ridercanattack;
-                if ( ChrList.lst[mount].ismount && ChrList.lst[mount].alive && !ChrList.lst[mount].isplayer && ChrList.lst[mount].inst.action_ready )
-                {
-                    if ( ( action != ACTION_PA || !allowedtoattack ) && pchr->inst.action_ready )
-                    {
-                        chr_play_action( pchr->attachedto, generate_randmask( ACTION_UA, 1 ), bfalse );
-                        chr_get_pai(pchr->attachedto)->alert |= ALERTIF_USED;
-                        pchr->ai.lastitemused = mount;
-                    }
-                    else
-                    {
-                        allowedtoattack = bfalse;
-                    }
-                }
-            }
-
-            // Attack button
-            if ( allowedtoattack )
-            {
-                if ( pchr->inst.action_ready && chr_get_pmad(ichr)->actionvalid[action] )
-                {
-                    // Check mana cost
-                    bool_t mana_paid = cost_mana( ichr, pweapon->manacost, weapon );
-
-                    if ( mana_paid )
-                    {
-                        // Check life healing
-                        pchr->life += pweapon->lifeheal;
-                        if ( pchr->life > pchr->lifemax )  pchr->life = pchr->lifemax;
-
-                        action += generate_randmask( 0, 1 );
-                        if ( ACTION_PA == action || ACTION_PB == action )
-                        {
-                            chr_play_action( ichr, action, btrue );
-                            //pchr->inst.action_keep = btrue;
-                        }
-                        else
-                        {
-                            chr_play_action( ichr, action, bfalse );
-                        }
-
-                        if ( weapon != ichr )
-                        {
-                            // Make the weapon attack too
-                            chr_play_action( weapon, ACTION_MJ, bfalse );
-                            pweapon->ai.alert |= ALERTIF_USED;
-                            pchr->ai.lastitemused = weapon;
-                        }
-                        else
-                        {
-                            // Flag for unarmed attack
-                            pchr->ai.alert |= ALERTIF_USED;
-                            pchr->ai.lastitemused = ichr;
-                        }
-                    }
-                }
-            }
-        }
+        attack_handled = chr_do_latch_attack( pchr, SLOT_LEFT );
     }
-    else if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_RIGHT ) && 0 == pchr->reloadtime )
+    if ( !attack_handled && HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_RIGHT ) && 0 == pchr->reloadtime )
     {
-        chr_t * pweapon;
-
         //pchr->latch.b &= ~LATCHBUTTON_RIGHT;
 
-        // Which weapon?
-        weapon = pchr->holdingwhich[SLOT_RIGHT];
-        if ( !ACTIVE_CHR(weapon) )
-        {
-            // Unarmed means character itself is the weapon
-            weapon = ichr;
-        }
-        pweapon = ChrList.lst + weapon;
-
-        action = chr_get_pcap(weapon)->weaponaction + 2;
-
-        // Can it do it? (other hand)
-        allowedtoattack = btrue;
-
-        // First check if reload time and action is okay
-        if ( !chr_get_pmad(ichr)->actionvalid[action] || pweapon->reloadtime > 0 )
-        {
-            allowedtoattack = bfalse;
-        }
-        else
-        {
-            // Then check if a skill is needed
-            if ( chr_get_pcap(weapon)->needskillidtouse )
-            {
-                IDSZ idsz = chr_get_idsz(weapon,IDSZ_SKILL);
-
-                if ( check_skills( ichr, idsz) == bfalse   )
-                    allowedtoattack = bfalse;
-            }
-        }
-
-        if ( !allowedtoattack )
-        {
-            if ( pweapon->reloadtime == 0 )
-            {
-                // This character can't use this weapon
-                pweapon->reloadtime = 50;
-                if ( pchr->StatusList_on )
-                {
-                    // Tell the player that they can't use this weapon
-                    debug_printf( "%s can't use this item...", chr_get_name( GET_INDEX_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_CAPITAL ) );
-                }
-            }
-        }
-
-        if ( action == ACTION_DC )
-        {
-            allowedtoattack = bfalse;
-            if ( pweapon->reloadtime == 0 )
-            {
-                pweapon->ai.alert |= ALERTIF_USED;
-                pchr->ai.lastitemused = weapon;
-            }
-        }
-
-        if ( allowedtoattack )
-        {
-            // Rearing mount
-            mount = pchr->attachedto;
-            if ( ACTIVE_CHR(mount) )
-            {
-                allowedtoattack = chr_get_pcap(mount)->ridercanattack;
-                if ( ChrList.lst[mount].ismount && ChrList.lst[mount].alive && !ChrList.lst[mount].isplayer && ChrList.lst[mount].inst.action_ready )
-                {
-                    if ( ( action != ACTION_PC || !allowedtoattack ) && pchr->inst.action_ready )
-                    {
-                        chr_play_action( pchr->attachedto,  generate_randmask( ACTION_UC, 1 ), bfalse );
-                        chr_get_pai(pchr->attachedto)->alert |= ALERTIF_USED;
-                        pchr->ai.lastitemused = pchr->attachedto;
-                    }
-                    else
-                    {
-                        allowedtoattack = bfalse;
-                    }
-                }
-            }
-
-            // Attack button
-            if ( allowedtoattack )
-            {
-                if ( pchr->inst.action_ready && chr_get_pmad(ichr)->actionvalid[action] )
-                {
-                    bool_t mana_paid = cost_mana( ichr, pweapon->manacost, weapon );
-                    // Check mana cost
-                    if ( mana_paid )
-                    {
-                        // Check life healing
-                        pchr->life += pweapon->lifeheal;
-                        if ( pchr->life > pchr->lifemax )  pchr->life = pchr->lifemax;
-
-                        action += generate_randmask( 0, 1 );
-                        if ( ACTION_PC == action || ACTION_PD == action)
-                        {
-                            chr_play_action( ichr, action, btrue );
-                            //pchr->inst.action_keep = btrue;
-                        }
-                        else
-                        {
-                            chr_play_action( ichr, action, bfalse );
-                        }
-
-
-                        if ( weapon != ichr )
-                        {
-                            // Make the weapon attack too
-                            chr_play_action( weapon, ACTION_MJ, bfalse );
-                            pweapon->ai.alert |= ALERTIF_USED;
-                            pchr->ai.lastitemused = weapon;
-                        }
-                        else
-                        {
-                            // Flag for unarmed attack
-                            pchr->ai.alert |= ALERTIF_USED;
-                            pchr->ai.lastitemused = ichr;
-                        }
-                    }
-                }
-            }
-        }
+        attack_handled = chr_do_latch_attack( pchr, SLOT_RIGHT );
     }
 
     return btrue;
@@ -5618,7 +5535,7 @@ bool_t move_one_character_integrate_motion( chr_t * pchr )
     ftmp = pchr->pos.x;
     pchr->pos.x += pchr->vel.x;
     LOG_NAN(pchr->pos.x);
-    if ( __chrhitawall( ichr, nrm ) )
+    if ( __chrhitawall( pchr, nrm ) )
     {
         if ( ABS(pchr->vel.x) + ABS(pchr->vel.y) > 0 )
         {
@@ -5663,7 +5580,7 @@ bool_t move_one_character_integrate_motion( chr_t * pchr )
     ftmp = pchr->pos.y;
     pchr->pos.y += pchr->vel.y;
     LOG_NAN(pchr->pos.y);
-    if ( __chrhitawall( ichr, nrm ) )
+    if ( __chrhitawall( pchr, nrm ) )
     {
         if ( ABS(pchr->vel.x) + ABS(pchr->vel.y) > 0 )
         {
@@ -5705,7 +5622,7 @@ bool_t move_one_character_integrate_motion( chr_t * pchr )
         pchr->pos_safe.y = pchr->pos.y;
     }
 
-    if ( __chrhitawall(ichr, nrm) )
+    if ( __chrhitawall(pchr, nrm) )
     {
         pchr->safe_valid = btrue;
     }
@@ -5785,7 +5702,7 @@ void move_one_character_do_animation( chr_t * pchr )
             pinst->frame_lst = pinst->frame_nxt;
             pinst->frame_nxt++;
 
-            if ( pinst->frame_nxt == chr_get_pmad(ichr)->actionend[pchr->inst.action_which] )
+            if ( pinst->frame_nxt == chr_get_pmad(ichr)->action_end[pchr->inst.action_which] )
             {
                 // Action finished
                 if ( pchr->inst.action_keep )
@@ -5806,11 +5723,11 @@ void move_one_character_do_animation( chr_t * pchr )
                         // See if the character is mounted...
                         if ( ACTIVE_CHR(pchr->attachedto) )
                         {
-                            pchr->inst.action_which = ACTION_MI;
+                            pchr->inst.action_which = mad_get_action(pchr->inst.imad, ACTION_MI);
                         }
                     }
 
-                    pinst->frame_nxt = chr_get_pmad(ichr)->actionstart[pchr->inst.action_which];
+                    pinst->frame_nxt = chr_get_pmad(ichr)->action_stt[pchr->inst.action_which];
                 }
 
                 pchr->inst.action_ready = btrue;
@@ -5845,22 +5762,25 @@ void move_one_character_do_animation( chr_t * pchr )
                 else if ( pchr->boretime == 0 || speed == 0 )
                 {
                     // Do standstill
-                    if ( pchr->inst.action_which > ACTION_DD )
+                    if ( !ACTION_IS_TYPE(pchr->inst.action_which, D) )
                     {
-                        pchr->inst.action_which = ACTION_DA;
-                        pinst->frame_nxt = pmad->actionstart[pchr->inst.action_which];
+                        pchr->inst.action_which = mad_get_action(pchr->inst.imad, ACTION_DA);
+                        pinst->frame_nxt = pmad->action_stt[pchr->inst.action_which];
                     }
                 }
                 else
                 {
-                    pchr->inst.action_next = ACTION_WA;
-                    if ( pchr->inst.action_which != ACTION_WA )
+                    pchr->inst.action_next = mad_get_action(pchr->inst.imad, ACTION_WA);
+                    if ( pchr->inst.action_which != mad_get_action(pchr->inst.imad, ACTION_WA) )
                     {
                         pinst->frame_nxt = pmad->frameliptowalkframe[LIPWA][framelip];
-                        pchr->inst.action_which = ACTION_WA;
+                        pchr->inst.action_which = mad_get_action(pchr->inst.imad, ACTION_WA);
                     }
 
-                    pinst->rate = (float)speed / (float)pchr->sneakspd;
+                    if( pchr->fat != 0.0f )
+                    {
+                        pinst->rate = (float)speed / (float)pchr->sneakspd / pchr->fat;
+                    }
                 }
             }
             else
@@ -5870,38 +5790,47 @@ void move_one_character_do_animation( chr_t * pchr )
                 if ( speed < 0.5f * (pchr->sneakspd + pchr->walkspd) )
                 {
                     //Sneak
-                    pchr->inst.action_next = ACTION_WA;
-                    if ( pchr->inst.action_which != ACTION_WA )
+                    pchr->inst.action_next = mad_get_action(pchr->inst.imad, ACTION_WA);
+                    if ( pchr->inst.action_which != mad_get_action(pchr->inst.imad, ACTION_WA) )
                     {
                         pinst->frame_nxt = pmad->frameliptowalkframe[LIPWA][framelip];
-                        pchr->inst.action_which = ACTION_WA;
+                        pchr->inst.action_which = mad_get_action(pchr->inst.imad, ACTION_WA);
                     }
 
-                    pinst->rate = (float)speed / (float)pchr->sneakspd;
+                    if( pchr->fat != 0.0f )
+                    {
+                        pinst->rate = (float)speed / (float)pchr->sneakspd / pchr->fat;
+                    }
                 }
                 else if ( speed < 0.5f * (pchr->walkspd + pchr->runspd) )
                 {
                     //Walk
-                    pchr->inst.action_next = ACTION_WB;
-                    if ( pchr->inst.action_which != ACTION_WB )
+                    pchr->inst.action_next = mad_get_action(pchr->inst.imad, ACTION_WB);
+                    if ( pchr->inst.action_which != mad_get_action(pchr->inst.imad, ACTION_WB) )
                     {
                         pinst->frame_nxt = pmad->frameliptowalkframe[LIPWB][framelip];
-                        pchr->inst.action_which = ACTION_WB;
+                        pchr->inst.action_which = mad_get_action(pchr->inst.imad, ACTION_WB);
                     }
 
-                    pinst->rate = (float)speed / (float)pchr->walkspd;
+                    if( pchr->fat != 0.0f )
+                    {
+                        pinst->rate = (float)speed / (float)pchr->walkspd / pchr->fat;
+                    }
                 }
                 else
                 {
                     //Run
-                    pchr->inst.action_next = ACTION_WC;
-                    if ( pchr->inst.action_which != ACTION_WC )
+                    pchr->inst.action_next = mad_get_action(pchr->inst.imad, ACTION_WC);
+                    if ( pchr->inst.action_which != mad_get_action(pchr->inst.imad, ACTION_WC) )
                     {
-                        pinst->frame_nxt = pmad->frameliptowalkframe[LIPWC][framelip];
-                        pchr->inst.action_which     = ACTION_WC;
+                        pinst->frame_nxt        = pmad->frameliptowalkframe[LIPWC][framelip];
+                        pchr->inst.action_which = mad_get_action(pchr->inst.imad, ACTION_WC);
                     }
 
-                    pinst->rate = speed / pchr->runspd;
+                    if( pchr->fat != 0.0f )
+                    {
+                        pinst->rate = speed / pchr->runspd;
+                    }
                 }
             }
         }
@@ -7580,7 +7509,6 @@ bool_t chr_teleport( Uint16 ichr, float x, float y, float z, Uint16 turn_z )
     /// @details BB@> Determine whether the character can be teleported to the specified location
     ///               and do it, if possible. Success returns btrue, failure returns bfalse;
 
-    float nrm[2];
     chr_t * pchr;
     Uint16  turn_save;
     bool_t retval;
@@ -7601,7 +7529,7 @@ bool_t chr_teleport( Uint16 ichr, float x, float y, float z, Uint16 turn_z )
     pchr->pos.z  = z;
     pchr->turn_z = turn_z;
 
-    if ( __chrhitawall( ichr, nrm ) )
+    if ( __chrhitawall( pchr, NULL ) )
     {
         // No it didn't...
         pchr->pos    = pos_save;

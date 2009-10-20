@@ -837,6 +837,7 @@ Uint16 spawn_one_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 en
         {
             chr_t * povl;
             mad_t * povl_mad;
+            int action;
 
             povl     = ChrList.lst + overlay;
             povl_mad = chr_get_pmad(overlay);
@@ -847,14 +848,15 @@ Uint16 spawn_one_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 en
             povl->is_overlay  = btrue;
 
             // Start out with ActionMJ...  Object activated
-            if ( povl_mad->actionvalid[ACTION_MJ] )
+            action = mad_get_action( chr_get_imad(overlay), ACTION_MJ );
+            if ( ACTION_COUNT != action && ACTION_DA != action )
             {
-                povl->inst.action_which = ACTION_MJ;
+                povl->inst.action_which = action;
                 povl->inst.action_ready = bfalse;
 
                 povl->inst.flip = 0;
                 povl->inst.ilip = 0;
-                povl->inst.frame_nxt = povl_mad->actionstart[ACTION_MJ];
+                povl->inst.frame_nxt = povl_mad->action_stt[action];
                 povl->inst.frame_lst = povl->inst.frame_nxt;
             }
 

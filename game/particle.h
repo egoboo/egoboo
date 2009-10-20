@@ -234,7 +234,7 @@ int prt_count_free();
 int load_one_particle_profile( const char *szLoadName, Uint16 pip_override );
 void reset_particles( /* const char* modname */ );
 
-Uint32 __prthitawall( Uint16 particle, float nrm[] );
+Uint32 __prthitawall(  prt_t * pprt, float nrm[] );
 
 int    prt_is_over_water( Uint16 cnt );
 

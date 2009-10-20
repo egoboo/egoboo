@@ -486,7 +486,10 @@ Uint16 spawn_one_particle( fvec3_t   pos, Uint16 facing, Uint16 iprofile, Uint16
     tmp_pos.x = CLIP(tmp_pos.x, 0, PMesh->info.edge_x - 2);
     tmp_pos.y = CLIP(tmp_pos.y, 0, PMesh->info.edge_y - 2);
 
-    pprt->pos = pprt->pos_old = pprt->pos_stt = tmp_pos;
+    pprt->pos      = tmp_pos;
+    pprt->pos_old  = tmp_pos;
+    pprt->pos_stt  = tmp_pos;
+    pprt->pos_safe = tmp_pos;
 
     // Velocity data
     vel.x = turntocos[turn & TRIG_TABLE_MASK] * velocity;
@@ -573,30 +576,33 @@ Uint16 spawn_one_particle( fvec3_t   pos, Uint16 facing, Uint16 iprofile, Uint16
         case SPRITE_LIGHT: break;
     }
 
+    if ( 0 == __prthitawall(pprt, NULL) )
+    {
+        pprt->safe_valid = btrue;
+    };
+
+
     return iprt;
 }
 
 //--------------------------------------------------------------------------------------------
-Uint32 __prthitawall( Uint16 particle, float nrm[] )
+Uint32 __prthitawall( prt_t * pprt, float nrm[] )
 {
     /// @details ZZ@> This function returns nonzero if the character hit a wall that the
     ///    character is not allowed to cross
 
-    prt_t * pprt;
     pip_t * ppip;
     Uint32 bits;
 
-    if ( !ACTIVE_PRT(particle) ) return 0;
-    pprt = PrtList.lst + particle;
+    if ( !ACTIVE_PPRT(pprt) ) return 0;
 
     if( !LOADED_PIP(pprt->pip_ref) ) return 0;
     ppip = PipStack.lst + pprt->pip_ref;
 
-
     bits = MPDFX_IMPASS;
     if( ppip->bumpmoney ) bits |= MPDFX_WALL;
 
-    return mesh_hitawall( PMesh, pprt->pos.v, 0, bits, nrm );
+    return mesh_hitawall( PMesh, pprt->pos.v, 0.0f, bits, nrm );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -619,7 +625,6 @@ void update_all_particles()
     }
 
     // update various particle states
-    // figure out where the particle is on the mesh
     for ( particle = 0; particle < maxparticles; particle++ )
     {
         prt_t * pprt;
@@ -763,7 +768,7 @@ void update_all_particles()
     }
 
     // the following functions should not be done the first time through the update loop
-    if( clock_wld == 0 ) return;
+    if( 0 == clock_wld ) return;
 
     // update particle timers and such
     for ( cnt = 0; cnt < maxparticles; cnt++ )
@@ -823,7 +828,7 @@ void update_all_particles()
         }
         else
         {
-            pprt->dynalight.level   += ppip->dynalight.level_add;
+            pprt->dynalight.level += ppip->dynalight.level_add;
         }
 
         pprt->dynalight.falloff += ppip->dynalight.falloff_add;
@@ -1235,20 +1240,20 @@ void move_one_particle_do_homing( prt_t * pprt )
     if( !LOADED_PIP( pprt->pip_ref ) ) return;
     ppip = PipStack.lst + pprt->pip_ref;
 
-    if( !pprt->is_homing || !ACTIVE_CHR( pprt->target_ref ) ) return;
+    if( !pprt->is_homing ) return;
 
     hit_a_wall  = bfalse;
     hit_a_floor = bfalse;
     nrm.x = nrm.y = nrm.z = 0.0f;
 
-    ptarget = ChrList.lst + pprt->target_ref;
-
-    if ( !ptarget->alive )
+    if ( !ACTIVE_CHR(pprt->target_ref) || !ChrList.lst[pprt->target_ref].alive )
     {
         prt_request_terminate( iprt );
     }
     else
     {
+        ptarget = ChrList.lst + pprt->target_ref;
+
         if ( !ACTIVE_CHR( pprt->attachedto_ref ) )
         {
             int       ival;
@@ -1306,11 +1311,6 @@ void move_one_particle_do_homing( prt_t * pprt )
             pprt->vel.z = ( pprt->vel.z + vdiff.z * ppip->homingaccel ) * ppip->homingfriction;
         }
 
-        if ( ppip->rotatetoface )
-        {
-            // Turn to face target
-            pprt->facing = vec_to_facing( ptarget->pos.x - pprt->pos.x , ptarget->pos.y - pprt->pos.y );
-        }
     }
 
 }
@@ -1526,35 +1526,183 @@ bool_t move_one_particle_integrate_motion( prt_t * pprt )
     /// @details BB@> Figure out the next position of the character.
     ///    Include collisions with the mesh in this step.
 
-    fvec2_base_t nrm;
+    pip_t * ppip;
+
     float ftmp;
     Uint16 iprt;
+    bool_t hit_a_floor, hit_a_wall;
+    fvec3_t nrm_total;
+    fvec2_t nrm;
 
     if ( !DISPLAY_PPRT( pprt ) ) return bfalse;
     iprt = GET_INDEX_PPRT( pprt );
 
-    // Move the character
+    if( !LOADED_PIP(pprt->pip_ref) ) return bfalse;
+    ppip = PipStack.lst + pprt->pip_ref;
+
+    hit_a_floor = bfalse;
+    hit_a_wall  = bfalse;
+    nrm_total.x = nrm_total.y = nrm_total.z = 0;
+
+    // Move the particle
+    ftmp = pprt->pos.z;
     pprt->pos.z += pprt->vel.z;
     LOG_NAN(pprt->pos.z);
     if ( pprt->pos.z < pprt->enviro.floor_level )
     {
-        pprt->vel.z *= -pprt->phys.bumpdampen;
-
-        if ( ABS(pprt->vel.z) < STOPBOUNCING )
+        if( pprt->vel.z < - STOPBOUNCINGPART )
         {
-            pprt->vel.z = 0;
-            pprt->pos.z = pprt->enviro.level;
+            // the particle will bounce
+            hit_a_floor = btrue;
+
+            nrm_total.z += 1.0f;
+            pprt->pos.z = ftmp;
+        }
+        else if ( pprt->vel.z > 0.0f )
+        {
+            // the particle is not bouncing, it is just at the wrong height
+            pprt->pos.z = pprt->enviro.floor_level;
         }
         else
         {
-            float diff = pprt->enviro.level - pprt->pos.z;
-            pprt->pos.z = pprt->enviro.level + diff;
+            // the particle is in the "stop bouncing zone"
+            pprt->pos.z = pprt->enviro.floor_level + 1;
+            pprt->vel.z = 0.0f;
         }
+    }
+
+    ftmp = pprt->pos.x;
+    pprt->pos.x += pprt->vel.x;
+    LOG_NAN(pprt->pos.x);
+    if ( __prthitawall( pprt, nrm.v ) )
+    {
+        hit_a_wall = btrue;
+
+        nrm_total.x += nrm.x;
+        nrm_total.y += nrm.y;
+
+        pprt->pos.x = ftmp;
+    }
+
+    ftmp = pprt->pos.y;
+    pprt->pos.y += pprt->vel.y;
+    LOG_NAN(pprt->pos.y);
+    if ( __prthitawall( pprt, nrm.v ) )
+    {
+        hit_a_wall = btrue;
+
+        nrm_total.x += nrm.x;
+        nrm_total.y += nrm.y;
+
+        pprt->pos.y = ftmp;
     }
     else
     {
-        pprt->pos_safe.z = pprt->pos.z;
+        pprt->pos_safe.y = pprt->pos.y;
     }
+
+
+    // handle the collision
+    if( (hit_a_wall && ppip->endwall) || (hit_a_floor && ppip->endground) )
+    {
+        prt_request_terminate( iprt );
+        return btrue;
+    }
+
+    // handle the sounds
+    if( hit_a_wall )
+    {
+        // Play the sound for hitting the floor [FSND]
+        play_particle_sound( iprt, ppip->soundwall );
+    }
+
+    if( hit_a_floor )
+    {
+        // Play the sound for hitting the floor [FSND]
+        play_particle_sound( iprt, ppip->soundfloor );
+    }
+
+    // do the reflections off the walls and floors
+    if( !ACTIVE_CHR( pprt->attachedto_ref ) && (hit_a_wall || hit_a_floor) )
+    {
+        float fx, fy;
+
+        if( (hit_a_wall && ABS(pprt->vel.x) + ABS(pprt->vel.y) > 0.0f) ||
+            (hit_a_floor && pprt->vel.z < 0.0f) )
+        {
+            float vdot;
+            fvec3_t   vpara, vperp;
+
+            nrm_total = fvec3_normalize( nrm_total.v );
+
+            vdot  = fvec3_dot_product( nrm_total.v, pprt->vel.v );
+
+            vperp.x = nrm_total.x * vdot;
+            vperp.y = nrm_total.y * vdot;
+            vperp.z = nrm_total.z * vdot;
+
+            vpara.x = pprt->vel.x - vperp.x;
+            vpara.y = pprt->vel.y - vperp.y;
+            vpara.z = pprt->vel.z - vperp.z;
+
+            // we can use the impulse to determine how much velocity to kill in the parallel direction
+            //imp.x = vperp.x * (1.0f + ppip->dampen);
+            //imp.y = vperp.y * (1.0f + ppip->dampen);
+            //imp.z = vperp.z * (1.0f + ppip->dampen);
+
+            // do the reflection
+            vperp.x *= -ppip->dampen;
+            vperp.y *= -ppip->dampen;
+            vperp.z *= -ppip->dampen;
+
+            // fake the friction, for now
+            if( 0.0f != nrm_total.y || 0.0f != nrm_total.z )
+            {
+                vpara.x *= ppip->dampen;
+            }
+
+            if( 0.0f != nrm_total.x || 0.0f != nrm_total.z )
+            {
+                vpara.y *= ppip->dampen;
+            }
+
+            if( 0.0f != nrm_total.x || 0.0f != nrm_total.y )
+            {
+                vpara.z *= ppip->dampen;
+            }
+
+            // add the components back together
+            pprt->vel.x = vpara.x + vperp.x;
+            pprt->vel.y = vpara.y + vperp.y;
+            pprt->vel.z = vpara.z + vperp.z;
+        }
+
+        if( nrm_total.z != 0.0f && pprt->vel.z < STOPBOUNCINGPART )
+        {
+            // this is the very last bounce
+            pprt->vel.z = 0.0f;
+            pprt->pos.z = pprt->enviro.floor_level + 0.0001f;
+        }
+
+        if( hit_a_wall )
+        {
+            // fix the facing
+            facing_to_vec( pprt->facing, &fx, &fy );
+
+            if( 0.0f != nrm_total.x )
+            {
+                fx *= -1;
+            }
+
+            if( 0.0f != nrm_total.y )
+            {
+                fy *= -1;
+            }
+
+            pprt->facing = vec_to_facing( fx, fy );
+        }
+    }
+
 
     if ( pprt->is_homing )
     {
@@ -1564,100 +1712,37 @@ bool_t move_one_particle_integrate_motion( prt_t * pprt )
         }
     }
 
-    ftmp = pprt->pos.x;
-    pprt->pos.x += pprt->vel.x;
-    LOG_NAN(pprt->pos.x);
-    if ( __prthitawall( iprt, nrm ) )
+    if ( ppip->rotatetoface )
     {
-        if ( ABS(pprt->vel.x) + ABS(pprt->vel.y) > 0 )
+        if( ABS(pprt->vel.x) + ABS(pprt->vel.y) > 1e-6 )
         {
-            if ( ABS(nrm[XX]) + ABS(nrm[YY]) > 0 )
-            {
-                float dotprod;
-                float vpara[2], vperp[2];
-
-                dotprod = pprt->vel.x * nrm[XX] + pprt->vel.y * nrm[YY];
-                if ( dotprod < 0 )
-                {
-                    vperp[XX] = dotprod * nrm[XX];
-                    vperp[YY] = dotprod * nrm[YY];
-
-                    vpara[XX] = pprt->vel.x - vperp[XX];
-                    vpara[YY] = pprt->vel.y - vperp[YY];
-
-                    pprt->vel.x = vpara[XX] - /* pprt->phys.bumpdampen * */ vperp[XX];
-                    pprt->vel.y = vpara[YY] - /* pprt->phys.bumpdampen * */ vperp[YY];
-                }
-            }
-            else
-            {
-                pprt->vel.x *= -1 /* pprt->phys.bumpdampen * */;
-            }
+            // use velocity to find the angle
+            pprt->facing = vec_to_facing( pprt->vel.x, pprt->vel.y );
         }
+        else if( ACTIVE_CHR(pprt->target_ref) )
+        {
+            chr_t * ptarget = ChrList.lst + pprt->target_ref;
 
-        if ( !pprt->safe_valid )
-        {
-            pprt->pos.x += nrm[XX] * 5;
-        }
-        else
-        {
-            pprt->pos.x = pprt->pos_safe.x;
+            // face your target
+            pprt->facing = vec_to_facing( ptarget->pos.x - pprt->pos.x , ptarget->pos.y - pprt->pos.y );
         }
     }
-    else
+
+    pprt->safe_valid = bfalse;
+    if ( !__prthitawall(pprt, NULL) )
     {
-        pprt->pos_safe.x = pprt->pos.x;
-    }
-
-    ftmp = pprt->pos.y;
-    pprt->pos.y += pprt->vel.y;
-    LOG_NAN(pprt->pos.y);
-    if ( __prthitawall( iprt, nrm ) )
-    {
-        if ( ABS(pprt->vel.x) + ABS(pprt->vel.y) > 0 )
-        {
-            if ( ABS(nrm[XX]) + ABS(nrm[YY]) > 0 )
-            {
-                float dotprod;
-                float vpara[2], vperp[2];
-
-                dotprod = pprt->vel.x * nrm[XX] + pprt->vel.y * nrm[YY];
-                if ( dotprod < 0 )
-                {
-                    vperp[XX] = dotprod * nrm[XX];
-                    vperp[YY] = dotprod * nrm[YY];
-
-                    vpara[XX] = pprt->vel.x - vperp[XX];
-                    vpara[YY] = pprt->vel.y - vperp[YY];
-
-                    pprt->vel.x = vpara[XX] - /* pprt->phys.bumpdampen * */ vperp[XX];
-                    pprt->vel.y = vpara[YY] - /* pprt->phys.bumpdampen * */ vperp[YY];
-                }
-            }
-            else
-            {
-                pprt->vel.y *= - 1 /* pprt->phys.bumpdampen * */;
-            }
-        }
-
-        if ( !pprt->safe_valid )
-        {
-            pprt->pos.y += nrm[YY] * 5;
-        }
-        else
-        {
-            pprt->pos.y = pprt->pos_safe.y;
-        }
-    }
-    else
-    {
-        pprt->pos_safe.y = pprt->pos.y;
-    }
-
-    if ( __prthitawall(iprt, nrm) )
-    {
+        pprt->pos_safe   = pprt->pos;
         pprt->safe_valid = btrue;
     }
+    else
+    {
+        pprt->pos = pprt->pos_safe;
+        if ( !__prthitawall(pprt, NULL) )
+        {
+            pprt->safe_valid = btrue;
+        }
+    }
+
 
     return btrue;
 }

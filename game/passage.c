@@ -484,8 +484,7 @@ void activate_passages_file( const char *modname )
     clear_all_passages();
 
     // Load the file
-    make_newloadname( modname, "data/passage.txt", newloadname );
-    fileread = vfs_openRead( newloadname );
+    fileread = vfs_openRead( "data/passage.txt" );
     if ( NULL == fileread ) return;
 
     while ( scan_passage_file( fileread, &tmp_passage ) )
