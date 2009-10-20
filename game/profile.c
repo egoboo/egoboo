@@ -878,10 +878,9 @@ int load_one_profile( const char* tmploadname, int slot_override )
     if( !VALID_PRO_RANGE(iobj) )
     {
         // The data file wasn't found
-
         if ( required )
         {
-            log_error( "load_one_profile() - \"%s\" was not found!\n", tmploadname );
+            log_warning( "load_one_profile() - \"%s\" was not found. Overriding a global object?\n", tmploadname );
         }
         else if( VALID_CAP_RANGE(slot_override) && slot_override > PMod->importamount * MAXIMPORTPERPLAYER )
         {
