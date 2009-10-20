@@ -296,8 +296,9 @@ extern size_t endtext_carat;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-extern bool_t    overrideslots;         ///< Override existing slots?
-extern bool_t    screenshotkeyready;    ///< Ready to take screenshot?
+extern bool_t    overrideslots;          ///< Override existing slots?
+extern bool_t    screenshot_keyready;    ///< Is the screenshot key available?
+extern bool_t    screenshot_requested;   ///< Has the user successfully requested a screenshot?
 
 extern struct s_ego_mpd         * PMesh;
 extern struct s_camera          * PCamera;

@@ -1789,8 +1789,10 @@ void render_shadow( Uint16 character )
 
     // no shadow if completely transparent
     alpha = (255 == pchr->inst.light) ? pchr->inst.alpha  * INV_FF : (pchr->inst.alpha - pchr->inst.light) * INV_FF;
+
+    /// @test ZF@> The previous test didn't work, but this one does
     //if ( alpha * 255 < 1 ) return;
-	if ( pchr->inst.light <= INVISIBLE || pchr->inst.alpha <= INVISIBLE ) return; //ZF> The line above didn't work, but this does
+	if ( pchr->inst.light <= INVISIBLE || pchr->inst.alpha <= INVISIBLE ) return;
 
     // much reduced shadow if on a reflective tile
     if ( 0 != mesh_test_fx(PMesh, pchr->onwhichfan, MPDFX_DRAWREF) )
@@ -1911,8 +1913,10 @@ void render_bad_shadow( Uint16 character )
 
     // no shadow if completely transparent or completely glowing
     alpha = (255 == pchr->inst.light) ? pchr->inst.alpha  * INV_FF : (pchr->inst.alpha - pchr->inst.light) * INV_FF;
+
+    /// @test ZF@> previous test didn't work, but this one does
     //if ( alpha * 255 < 1 ) return;
-	if ( pchr->inst.light <= INVISIBLE || pchr->inst.alpha <= INVISIBLE ) return;	//ZF> The line above didn't work, but this does
+	if ( pchr->inst.light <= INVISIBLE || pchr->inst.alpha <= INVISIBLE ) return;
 
     // much reduced shadow if on a reflective tile
     if ( 0 != mesh_test_fx(PMesh, pchr->onwhichfan, MPDFX_DRAWREF) )
@@ -2446,7 +2450,6 @@ void render_scene( ego_mpd_t * pmesh, camera_t * pcam )
                             time_draw_scene_solid + time_draw_scene_water + time_draw_scene_trans;
 }
 
-
 //--------------------------------------------------------------------------------------------
 void render_world_background( Uint16 texture )
 {
@@ -2670,7 +2673,6 @@ void render_world_overlay( Uint16 texture )
         ATTRIB_POP( "render_world_overlay()" );
     }
 }
-
 
 //--------------------------------------------------------------------------------------------
 void render_world( camera_t * pcam )
@@ -3500,6 +3502,7 @@ billboard_data_t * BillboardList_get_ptr( int ibb )
 
     return BillboardList.lst + ibb;
 }
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 bool_t render_billboard( camera_t * pcam, billboard_data_t * pbb, float scale )
@@ -4129,6 +4132,7 @@ int obj_registry_entity_cmp( const void * pleft, const void * pright )
 
     return rv;
 }
+
 //--------------------------------------------------------------------------------------------
 void renderlist_reset()
 {
@@ -4504,7 +4508,7 @@ bool_t load_all_global_icons()
 void load_basic_textures( /* const char *modname */ )
 {
     /// @details ZZ@> This function loads the standard textures for a module
-   
+
     // Particle sprites
     TxTexture_load_one( "data/particle_trans", TX_PARTICLE_TRANS, TRANSCOLOR );
     TxTexture_load_one( "data/particle_light", TX_PARTICLE_LIGHT, INVALID_KEY );
@@ -4910,6 +4914,18 @@ void _flip_pages()
     SDL_GL_SwapBuffers();
 
     gfx_update_timers();
+
+    if( screenshot_requested )
+    {
+        screenshot_requested = bfalse;
+
+        // take the screenshot NOW, since we have just updated the screen buffer
+        if ( !dump_screenshot() )
+        {
+            debug_printf( "Error writing screenshot!" );    // send a failure message to the screen
+            log_warning( "Error writing screenshot\n" );    // Log the error in log.txt
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4988,7 +5004,7 @@ void light_fans( renderlist_t * prlist )
 //--------------------------------------------------------------------------------------------
 bool_t sum_dyna_lighting( dynalight_t * pdyna, float lighting[], float dx, float dy, float dz )
 {
-    /// @details BB> In the Aaron's lighting, the falloff function was
+    /// @details BB@> In the Aaron's lighting, the falloff function was
     ///                  light = (255 - r^2 / falloff) / 255.0f
     ///              this has a definite max radius for the light, rmax = sqrt(falloff*255),
     ///              which was good because we could have a definite range for a given light

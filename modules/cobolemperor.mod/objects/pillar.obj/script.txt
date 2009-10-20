@@ -1,6 +1,0 @@
-// This is the default AI script
-IfKilled				// This reduces the height of the char
-  GetBumpHeight				  //
-  tmpargument = tmpargument * 50 / 100	  //
-  SetBumpHeight				  //
-End

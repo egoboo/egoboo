@@ -580,7 +580,8 @@ int sound_play_chunk_looped( fvec3_t   pos, Mix_Chunk * pchunk, Sint8 loops, Uin
 
         if ( INVALID_SOUND == channel )
         {
-            //log_debug( "Unable to play sound. (%s)\n", Mix_GetError() );		//ZF> uncommmented because this happens really often
+            /// @note ZF@> removed this warning because this happens really often
+            //log_debug( "Unable to play sound. (%s)\n", Mix_GetError() );
         }
         else
         {
@@ -597,10 +598,11 @@ int sound_play_chunk_looped( fvec3_t   pos, Mix_Chunk * pchunk, Sint8 loops, Uin
 
     return channel;
 }
+
 //--------------------------------------------------------------------------------------------
 void sound_stop_channel( int whichchannel )
 {
-	//ZF> Stops a sound effect playing in the specified channel
+	/// @details ZF@> Stops a sound effect playing in the specified channel
     if ( mixeron && snd.soundvalid )
     {
         Mix_HaltChannel( whichchannel );
@@ -612,7 +614,7 @@ void sound_stop_channel( int whichchannel )
 //------------------------------------
 void sound_play_song( Sint8 songnumber, Uint16 fadetime, Sint8 loops )
 {
-    //ZF> This functions plays a specified track loaded into memory
+    /// @details ZF@> This functions plays a specified track loaded into memory
     if ( !snd.musicvalid || !mixeron ) return;
 
     if ( songplaying != songnumber )

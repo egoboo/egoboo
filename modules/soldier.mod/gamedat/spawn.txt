@@ -78,7 +78,7 @@ chair:   NONE    63  45.5   49.0   1.0   N    0   0  0   0   0   F   F   N
 chair:   NONE    63  48.5   48.0   1.0   N    0   0  0   0   0   F   F   N
 chair:   NONE    63  48.5   47.0   1.0   S    0   0  0   0   0   F   F   N
 chair:   NONE    63  45.5   48.0   1.0   S    0   0  0   0   0   F   F   N
-pot:   NONE    68  44.5   45.5   1.0   N    0   0  0   0   0   F   F   N
+Pot:   NONE    68  44.5   45.5   1.0   N    0   0  0   0   0   F   F   N
 
 Rack:   NONE    100  35.0   38.25   0.0   S    0   0  0   0   0   F   F   N
   SpkMace:   NONE    46  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N

@@ -400,7 +400,7 @@ bool_t render_one_prt_ref( Uint16 iprt )
     calc_billboard_verts( vtlist, pinst, pinst->size, btrue );
 
     // Fill in the rest of the data
-    startalpha = 255 - (pprt->floor_level - pinst->ref_pos.z) / 2.0f;
+    startalpha = 255 - (pprt->enviro.floor_level - pinst->ref_pos.z) / 2.0f;
     startalpha = CLIP(startalpha, 0, 255);
     startalpha /= 2;
 
@@ -555,7 +555,7 @@ void prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_
 
     // calculate the billboard vectors for the reflecions
     pinst->ref_pos      = pprt->pos;
-    pinst->ref_pos.z    = 2 * pprt->floor_level - pinst->ref_pos.z;
+    pinst->ref_pos.z    = 2 * pprt->enviro.floor_level - pinst->ref_pos.z;
 
     // get the vector from the camera to the particle
     vfwd = fvec3_sub( pinst->pos.v, pcam->pos.v );
@@ -1053,7 +1053,7 @@ void prt_draw_attached_point( prt_t * pprt )
     pholder_cap = pro_get_pcap( pholder->iprofile );
     if( NULL == pholder_cap ) return;
 
-    pholder_mad = chr_get_pmad( GET_INDEX( pholder, MAX_CHR ) );
+    pholder_mad = chr_get_pmad( GET_INDEX_PCHR( pholder ) );
     if( NULL == pholder_mad ) return;
 
     draw_one_attacment_point( &(pholder->inst), pholder_mad, pprt->vrt_off );

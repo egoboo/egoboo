@@ -788,7 +788,6 @@ void chr_instance_update_lighting_base( chr_instance_t * pinst, chr_t * pchr, bo
     if( pinst->min_light < 0 ) pinst->min_light = 0;
 }
 
-
 //--------------------------------------------------------------------------------------------
 egoboo_rv chr_instance_update_bbox( chr_instance_t * pinst )
 {
@@ -875,7 +874,6 @@ egoboo_rv chr_instance_needs_update( chr_instance_t * pinst, int vmin, int vmax,
 
     return (!(*verts_match) || !(*frames_match)) ? rv_success : rv_fail;
 }
-
 
 //--------------------------------------------------------------------------------------------
 egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vmax, bool_t force )
@@ -1098,7 +1096,7 @@ void draw_points( chr_t * pchr, int vrt_offset, int verts )
 
     if( !ACTIVE_PCHR( pchr ) ) return;
 
-    pmad = chr_get_pmad( GET_INDEX( pchr, MAX_CHR ) );
+    pmad = chr_get_pmad( GET_INDEX_PCHR( pchr ) );
     if( NULL == pmad ) return;
 
     vmin = vrt_offset;
@@ -1227,7 +1225,7 @@ void chr_draw_attached_grip( chr_t * pchr )
     pholder_cap = pro_get_pcap( pholder->iprofile );
     if( NULL == pholder_cap ) return;
 
-    pholder_mad = chr_get_pmad( GET_INDEX( pholder, MAX_CHR ) );
+    pholder_mad = chr_get_pmad( GET_INDEX_PCHR( pholder ) );
     if( NULL == pholder_mad ) return;
 
     draw_one_grip( &(pholder->inst), pholder_mad, pchr->inwhich_slot );
@@ -1247,7 +1245,7 @@ void chr_draw_grips( chr_t * pchr )
     pcap = pro_get_pcap( pchr->iprofile );
     if( NULL == pcap ) return;
 
-    pmad = chr_get_pmad( GET_INDEX( pchr, MAX_CHR ) );
+    pmad = chr_get_pmad( GET_INDEX_PCHR( pchr ) );
     if( NULL == pmad ) return;
 
     texture_1d_enabled = GL_DEBUG(glIsEnabled)(GL_TEXTURE_1D);

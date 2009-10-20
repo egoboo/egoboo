@@ -1916,10 +1916,10 @@ Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
         PrtList.lst[tTmp].pos.z += PipStack.lst[PrtList.lst[tTmp].pip_ref].zspacing_pair.base;
 
         // Don't spawn in walls
-        if ( __prthitawall( tTmp ) )
+        if ( __prthitawall( tTmp, NULL ) )
         {
             PrtList.lst[tTmp].pos.x = pchr->pos.x;
-            if ( __prthitawall( tTmp ) )
+            if ( __prthitawall( tTmp, NULL ) )
             {
                 PrtList.lst[tTmp].pos.y = pchr->pos.y;
             }
@@ -2875,7 +2875,7 @@ Uint8 scr_CostTargetMana( script_state_t * pstate, ai_state_t * pself )
 {
     // CostTargetMana( tmpargument = "amount" )
     /// @details ZZ@> This function costs the target a specific amount of mana, proceeding
-    /// if the target was able to pay the price.  The amounts are * 256
+    /// if the target was able to pay the price.  The amounts are 8.8-bit fixed point
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -3796,11 +3796,9 @@ Uint8 scr_HealSelf( script_state_t * pstate, ai_state_t * pself )
 {
     // HealSelf()
     /// @details ZZ@> This function gives life back to the character.
-    /// Values given as * 256
+    /// Values given as 8.8-bit fixed point
     /// This does NOT remove [HEAL] enchants ( poisons )
     /// This does not set the ALERTIF_HEALED alert
-
-    int iTmp;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -4424,7 +4422,7 @@ Uint8 scr_HealTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // HealTarget( tmpargument = "amount" )
     /// @details ZZ@> This function gives some life back to the target.
-    /// Values are * 256 Any enchantments that are removed by [HEAL], like poison, go away
+    /// Values are 8.8-bit fixed point. Any enchantments that are removed by [HEAL], like poison, go away
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -4464,7 +4462,7 @@ Uint8 scr_PumpTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // PumpTarget( tmpargument = "amount" )
     /// @details ZZ@> This function gives some mana back to the target.
-    /// Values are * 256
+    /// Values are 8.8-bit fixed point
 
     int iTmp;
 
@@ -4861,7 +4859,7 @@ Uint8 scr_set_EnchantBoostValues( script_state_t * pstate, ai_state_t * pself )
     // SetEnchantBoostValues( tmpargument = "owner mana regen", tmpdistance = "owner life regen", tmpx = "target mana regen", tmpy = "target life regen" )
     /// @details ZZ@> This function sets the mana and life drains for the last enchantment
     /// spawned by this character.
-    /// Values are * 256
+    /// Values are 8.8-bit fixed point
 
     int iTmp;
 
@@ -6741,11 +6739,12 @@ Uint8 scr_set_DamageThreshold( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_END();
 }
+
 //--------------------------------------------------------------------------------------------
 Uint8 scr_End( script_state_t * pstate, ai_state_t * pself )
 {
     // End()
-    // @details ZZ> This Is the last function in a script
+    /// @details ZZ@> This Is the last function in a script
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -7056,7 +7055,6 @@ Uint8 scr_set_ChildContent( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_END();
 }
 
-
 //--------------------------------------------------------------------------------------------
 Uint8 scr_AccelerateTargetUp( script_state_t * pstate, ai_state_t * pself )
 {
@@ -7164,7 +7162,7 @@ Uint8 _append_end_text( chr_t * pchr, const int message, script_state_t * pstate
     if( !LOADED_PRO(pchr->iprofile) ) return bfalse;
 
     message_offset = ProList.lst[pchr->iprofile].message_start + message;
-    ichr           = GET_INDEX( pchr, MAX_CHR );
+    ichr           = GET_INDEX_PCHR( pchr );
 
     if ( message_offset < MessageOffset.count )
     {

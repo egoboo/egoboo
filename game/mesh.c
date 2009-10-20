@@ -1532,3 +1532,107 @@ float evaluate_lighting_cache_base( lighting_cache_base_t * lvec, GLfloat nrm[],
     return lighting;
 }
 
+//--------------------------------------------------------------------------------------------
+Uint32 mesh_hitawall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits, float nrm[] )
+{
+    /// @details BB@> an abstraction of the functions of __chrhitawall() and __prthitawall()
+
+    Uint32 pass;
+    Uint32 itile;
+    int tx_min, tx_max, ty_min, ty_max;
+    int ix, iy, tx0, ty0;
+    bool_t invalid;
+
+    fvec3_base_t loc_nrm;
+
+    ego_mpd_info_t * pinfo;
+    tile_info_t    * tlist;
+
+    if( NULL == pos || 0 == bits ) return 0;
+
+    if( NULL == pmesh || 0 == pmesh->info.tiles_count || 0 == pmesh->mmem.tile_count ) return 0;
+    pinfo = &(pmesh->info);
+    tlist = pmesh->mmem.tile_list;
+
+    if( NULL == nrm ) nrm = loc_nrm;
+
+    if( 0.0f == radius )
+    {
+        tx_min = tx_max = tx0 = (int)pos[kX] / TILE_ISIZE;
+        ty_min = ty_max = ty0 = (int)pos[kY] / TILE_ISIZE;
+    }
+    else
+    {
+        // make sure it is positive
+        radius = ABS( radius );
+
+        tx_min = floor( (pos[kX] - radius) / TILE_SIZE );
+        tx_max = (pos[kX] + radius) / TILE_SIZE;
+
+        ty_min = floor( (pos[kY] - radius) / TILE_SIZE );
+        ty_max = (pos[kY] + radius) / TILE_SIZE;
+
+        tx0 = (int)pos[kX] / TILE_ISIZE;
+        ty0 = (int)pos[kY] / TILE_ISIZE;
+    }
+
+    pass = 0;
+    nrm[kX] = nrm[kY] = 0.0f;
+    for ( iy = ty_min; iy <= ty_max; iy++ )
+    {
+        invalid = bfalse;
+
+        if ( iy < 0 || iy >= pinfo->tiles_y )
+        {
+            pass    |=  (MPDFX_IMPASS | MPDFX_WALL);
+            nrm[kY] += (iy + 0.5f) * TILE_SIZE - pos[kY];
+            invalid = btrue;
+        }
+
+        for ( ix = tx_min; ix <= tx_max; ix++ )
+        {
+            if ( ix < 0 || ix >= pinfo->tiles_x )
+            {
+                pass    |=  MPDFX_IMPASS | MPDFX_WALL;
+                nrm[kX] += (ix + 0.5f) * TILE_SIZE - pos[kX];
+                invalid = btrue;
+            }
+
+            if ( !invalid )
+            {
+                itile = mesh_get_tile_int( pmesh, ix, iy );
+                if ( VALID_TILE(pmesh, itile) )
+                {
+                    if ( tlist[itile].fx & bits )
+                    {
+                        nrm[kX] += (ix + 0.5f) * TILE_SIZE - pos[kX];
+                        nrm[kY] += (iy + 0.5f) * TILE_SIZE - pos[kY];
+                    }
+                    else
+                    {
+                        nrm[kX] -= (ix + 0.5f) * TILE_SIZE - pos[kX];
+                        nrm[kY] -= (iy + 0.5f) * TILE_SIZE - pos[kY];
+                    }
+
+                    pass |= tlist[itile].fx;
+                }
+            }
+        }
+    }
+
+    if ( 0 != (pass & bits) )
+    {
+        float dist2 = nrm[kX] * nrm[kX] + nrm[kY] * nrm[kY];
+        if ( dist2 > 0 )
+        {
+            float dist = SQRT( dist2 );
+            nrm[kX] /= -dist;
+            nrm[kY] /= -dist;
+        }
+    }
+
+    return pass & bits;
+
+}
+
+

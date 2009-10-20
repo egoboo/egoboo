@@ -198,6 +198,7 @@ bool_t hash_list_dtor(hash_list_t * lst)
 
     return btrue;
 }
+
 //--------------------------------------------------------------------------------------------
 hash_list_t * hash_list_create(int size)
 {

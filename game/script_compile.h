@@ -484,7 +484,7 @@ enum e_script_functions
     FSETTARGETTOCHILD,           // == 375
 	FSETDAMAGETRESHOLD,			 // == 376
 	FACCELERATETARGETUP          // == 377
-    
+
 };
 
 //--------------------------------------------------------------------------------------------

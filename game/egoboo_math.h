@@ -171,6 +171,21 @@ extern Uint16  randie[RANDIE_COUNT];   ///< My lil' random number table
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+/// Data for doing the physics in bump_all_objects()
+/// @details should prevent you from being bumped into a wall
+struct s_phys_data
+{
+    fvec3_t        apos_0, apos_1;
+    fvec3_t        avel;
+
+    float          bumpdampen;                    ///< "Mass" = weight / bumpdampen
+    Uint32         weight;                        ///< Weight
+    float          dampen;                        ///< Bounciness
+};
+typedef struct s_phys_data phys_data_t;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 float      fvec3_dot_product  ( fvec3_base_t A, fvec3_base_t   B );
 fvec3_t    fvec3_normalize    ( fvec3_base_t A );
 fvec3_t    fvec3_sub          ( fvec3_base_t A, fvec3_base_t   B );

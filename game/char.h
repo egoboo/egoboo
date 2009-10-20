@@ -369,20 +369,6 @@ struct s_chr_environment
 typedef struct s_chr_environment chr_environment_t;
 
 //--------------------------------------------------------------------------------------------
-/// Data for doing the physics in bump_all_objects()
-/// @details should prevent you from being bumped into a wall
-struct s_phys_data
-{
-    fvec3_t        apos_0, apos_1;
-    fvec3_t        avel;
-
-    float          bumpdampen;                    ///< Character bump mass
-    Uint32         weight;                        ///< Weight ( for pressure plates )
-    float          dampen;                        ///< Bounciness
-};
-typedef struct s_phys_data phys_data_t;
-
-//--------------------------------------------------------------------------------------------
 /// Level 0 character "bumper"
 /// The simplest collision volume, exuivalent to the old-style collision data
 /// stored in data.txt

@@ -149,7 +149,8 @@ static ClockState_t    * _gclock = NULL;
 //--------------------------------------------------------------------------------------------
 bool_t  overrideslots      = bfalse;
 
-bool_t    screenshotkeyready = btrue;
+bool_t  screenshot_keyready  = btrue;
+bool_t  screenshot_requested = bfalse;
 
 // End text
 char   endtext[MAXENDTEXT] = EMPTY_CSTR;
@@ -1259,17 +1260,12 @@ int do_ego_proc_running( ego_process_t * eproc )
     // Check for screenshots
     if ( !SDLKEYDOWN( SDLK_F11 ) )
     {
-        screenshotkeyready = btrue;
+        screenshot_keyready = btrue;
     }
-    else if ( screenshotkeyready && SDLKEYDOWN( SDLK_F11 ) && keyb.on )
+    else if ( screenshot_keyready && SDLKEYDOWN( SDLK_F11 ) && keyb.on )
     {
-        screenshotkeyready = bfalse;
-
-        if ( !dump_screenshot() )                // Take the shot, returns bfalse if failed
-        {
-            debug_printf( "Error writing screenshot!" );
-            log_warning( "Error writing screenshot\n" );    // Log the error in log.txt
-        }
+        screenshot_keyready = bfalse;
+        screenshot_requested = btrue;
     }
 
     if( cfg.dev_mode && SDLKEYDOWN( SDLK_F9 ) && NULL != PMod && PMod->active )
@@ -2299,7 +2295,7 @@ void do_weather_spawn_particles()
                     {
                         bool_t destroy_particle = bfalse;
 
-                        if ( __prthitawall( particle ) )
+                        if ( __prthitawall( particle, NULL ) )
                         {
                             destroy_particle = btrue;
                         }
@@ -2616,7 +2612,7 @@ void check_stats()
         else if ( SDLKEYDOWN(SDLK_2) )  docheat = 1;
         else if ( SDLKEYDOWN(SDLK_3) )  docheat = 2;
         else if ( SDLKEYDOWN(SDLK_4) )  docheat = 3;
-		
+
 		//Apply the cheat if valid
 		if ( ACTIVE_CHR(PlaList[docheat].index) )
 		{
@@ -2640,7 +2636,7 @@ void check_stats()
         else if ( SDLKEYDOWN(SDLK_2) )  docheat = 1;
         else if ( SDLKEYDOWN(SDLK_3) )  docheat = 2;
         else if ( SDLKEYDOWN(SDLK_4) )  docheat = 3;
-		
+
 		//Apply the cheat if valid
 		if ( ACTIVE_CHR(PlaList[docheat].index) )
 		{
@@ -2728,7 +2724,7 @@ void show_stat( Uint16 statindex )
             pcap = pro_get_pcap( pchr->iprofile );
 
             // Name
-            debug_printf( "=%s=", chr_get_name( GET_INDEX(pchr,MAX_CHR), CHRNAME_ARTICLE | CHRNAME_CAPITAL ) );
+            debug_printf( "=%s=", chr_get_name( GET_INDEX_PCHR(pchr), CHRNAME_ARTICLE | CHRNAME_CAPITAL ) );
 
             // Level and gender and class
             gender[0] = 0;
@@ -2892,7 +2888,7 @@ void show_full_status( Uint16 statindex )
     pchr->firstenchant = cleanup_enchant_list(pchr->firstenchant);
 
     // Enchanted?
-    debug_printf( "=%s is %s=", chr_get_name( GET_INDEX(pchr,MAX_CHR), CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL ), ACTIVE_ENC(pchr->firstenchant) ? "enchanted" : "unenchanted" );
+    debug_printf( "=%s is %s=", chr_get_name( GET_INDEX_PCHR(pchr), CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL ), ACTIVE_ENC(pchr->firstenchant) ? "enchanted" : "unenchanted" );
 
     // Armor Stats
     debug_printf( "~DEF: %d  SLASH:%3d~CRUSH:%3d POKE:%3d",
@@ -2933,7 +2929,7 @@ void show_magic_status( Uint16 statindex )
     pchr->firstenchant = cleanup_enchant_list(pchr->firstenchant);
 
     // Enchanted?
-    debug_printf( "=%s is %s=", chr_get_name( GET_INDEX(pchr,MAX_CHR), CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL ), ACTIVE_ENC(pchr->firstenchant) ? "enchanted" : "unenchanted" );
+    debug_printf( "=%s is %s=", chr_get_name( GET_INDEX_PCHR(pchr), CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL ), ACTIVE_ENC(pchr->firstenchant) ? "enchanted" : "unenchanted" );
 
     // Enchantment status
     debug_printf( "~See Invisible: %s~~See Kurses: %s",
@@ -3191,7 +3187,7 @@ bool_t attach_chr_to_platform( chr_t * pchr, chr_t * pplat )
     if( !pplat->platform ) return bfalse;
 
     // do the attachment
-    pchr->onwhichplatform = GET_INDEX( pplat, MAX_CHR );
+    pchr->onwhichplatform = GET_INDEX_PCHR( pplat );
 
     // update the character's relationship to the ground
     pchr->enviro.level    = MAX( pchr->enviro.floor_level, pplat->pos.z + pplat->chr_chr_cv.max_z );
@@ -3217,13 +3213,41 @@ bool_t attach_chr_to_platform( chr_t * pchr, chr_t * pplat )
 
     // tell the platform that we bumped into it
     // this is necessary for key buttons to work properly, for instance
-    ai_state_set_bumplast( &(pplat->ai), GET_INDEX( pchr, MAX_CHR ) );
+    ai_state_set_bumplast( &(pplat->ai), GET_INDEX_PCHR( pchr ) );
 
     return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t do_platforms( Uint16 ichr_a, Uint16 ichr_b )
+bool_t attach_prt_to_platform( prt_t * pprt, chr_t * pplat )
+{
+    /// @details BB@> attach a particle to a platform
+
+    pip_t   * pprt_pip;
+
+    // verify that we do not have two dud pointers
+    if( !ACTIVE_PPRT( pprt ) ) return bfalse;
+    if( !ACTIVE_PCHR( pplat ) ) return bfalse;
+
+    pprt_pip = prt_get_ppip( GET_INDEX_PPRT( pprt ) );
+    if( NULL == pprt_pip ) return bfalse;
+
+    // check if they can be connected
+    if( !pplat->platform ) return bfalse;
+
+    // do the attachment
+    pprt->onwhichplatform = GET_INDEX_PCHR( pplat );
+
+    // update the character's relationship to the ground
+    pprt->enviro.level    = MAX( pprt->enviro.floor_level, pplat->pos.z + pplat->chr_chr_cv.max_z );
+    pprt->enviro.zlerp    = (pprt->pos.z - pprt->enviro.level) / PLATTOLERANCE;
+    pprt->enviro.zlerp    = CLIP(pprt->enviro.zlerp, 0, 1);
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t do_chr_platforms( Uint16 ichr_a, Uint16 ichr_b )
 {
     float xa, ya, za;
     float xb, yb, zb;
@@ -3399,6 +3423,98 @@ bool_t do_platforms( Uint16 ichr_a, Uint16 ichr_b )
             {
                 attach_chr_to_platform( pchr_b, pchr_a );
             }
+        }
+    }
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t do_prt_platforms( Uint16 ichr_a, Uint16 iprt_b )
+{
+    float xa, ya, za;
+    float xb, yb, zb;
+
+    chr_t * pchr_a;
+    cap_t * pcap_a;
+    prt_t * pprt_b;
+    pip_t * ppip_b;
+
+    float  depth_x, depth_y, depth_z, depth_xy, depth_yx;
+
+    bool_t collide_x  = bfalse;
+    bool_t collide_y  = bfalse;
+    bool_t collide_xy = bfalse;
+    bool_t collide_yx = bfalse;
+    bool_t collide_z  = bfalse;
+
+    // make sure that A is valid
+    if ( !ACTIVE_CHR(ichr_a) ) return bfalse;
+    pchr_a = ChrList.lst + ichr_a;
+
+    // only check possible particle-platform interactions
+    if ( !pchr_a->platform ) return bfalse;
+
+    pcap_a = chr_get_pcap( ichr_a );
+    if ( NULL == pcap_a ) return bfalse;
+
+    // make sure that B is valid
+    if ( !ACTIVE_PRT(iprt_b) ) return bfalse;
+    pprt_b = PrtList.lst + iprt_b;
+
+    ppip_b = prt_get_ppip( iprt_b );
+    if ( NULL == ppip_b ) return bfalse;
+
+    // if you are mounted, only your mount is affected by platforms
+    if ( ACTIVE_CHR(pchr_a->attachedto) || ACTIVE_CHR(pprt_b->attachedto_ref) ) return bfalse;
+
+    xa = pchr_a->pos.x;
+    ya = pchr_a->pos.y;
+    za = pchr_a->pos.z;
+
+    xb = pprt_b->pos.x;
+    yb = pprt_b->pos.y;
+    zb = pprt_b->pos.z;
+
+    depth_z  = MIN(pprt_b->bumpheight + pprt_b->pos.z, pchr_a->chr_chr_cv.max_z + pchr_a->pos.z ) -
+        MAX(-pprt_b->bumpheight + pprt_b->pos.z, pchr_a->chr_chr_cv.min_z + pchr_a->pos.z );
+
+    collide_z  = ( depth_z > -PLATTOLERANCE && depth_z < PLATTOLERANCE );
+
+    if( !collide_z ) return bfalse;
+
+    // initialize the overlap depths
+    depth_x = depth_y = depth_xy = depth_yx = 0.0f;
+
+    // determine how the characters can be attached
+    depth_z = (za + pchr_a->chr_chr_cv.max_z) - (zb - pprt_b->bumpheight);
+
+    // size of b doesn't matter
+
+    depth_x  = MIN((pchr_a->chr_chr_cv.max_x + pchr_a->pos.x) - pprt_b->pos.x,
+        pprt_b->pos.x - (pchr_a->chr_chr_cv.min_x + pchr_a->pos.x) );
+
+    depth_y  = MIN((pchr_a->chr_chr_cv.max_y + pchr_a->pos.y) -  pprt_b->pos.y,
+        pprt_b->pos.y - (pchr_a->chr_chr_cv.min_y + pchr_a->pos.y) );
+
+    depth_xy = MIN((pchr_a->chr_chr_cv.max_xy + (pchr_a->pos.x + pchr_a->pos.y)) -  (pprt_b->pos.x + pprt_b->pos.y),
+        (pprt_b->pos.x + pprt_b->pos.y) - (pchr_a->chr_chr_cv.min_xy + (pchr_a->pos.x + pchr_a->pos.y)) );
+
+    depth_yx = MIN((pchr_a->chr_chr_cv.max_yx + (-pchr_a->pos.x + pchr_a->pos.y)) - (-pprt_b->pos.x + pprt_b->pos.y),
+        (-pprt_b->pos.x + pprt_b->pos.y) - (pchr_a->chr_chr_cv.min_yx + (-pchr_a->pos.x + pchr_a->pos.y)) );
+
+    collide_x  = depth_x  > 0;
+    collide_y  = depth_y  > 0;
+    collide_xy = depth_xy > 0;
+    collide_yx = depth_yx > 0;
+    collide_z  = ( depth_z > -PLATTOLERANCE && depth_z < PLATTOLERANCE  );
+
+    if ( collide_x && collide_y && collide_xy && collide_yx && collide_z )
+    {
+        // check for the best possible attachment
+        if ( za + pchr_a->chr_chr_cv.max_z > pprt_b->enviro.level )
+        {
+            attach_prt_to_platform( pprt_b, pchr_a );
         }
     }
 
@@ -3588,6 +3704,7 @@ bool_t do_chr_platform_physics( chr_t * pitem, chr_t * pplat )
 
     return btrue;
 }
+
 //--------------------------------------------------------------------------------------------
 bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
 {
@@ -4869,7 +4986,14 @@ void bump_all_objects( void )
             d = (co_data_t *)(n->data);
             if (TOTAL_MAX_PRT != d->prtb) continue;
 
-            do_platforms( d->chra, d->chrb );
+            if ( TOTAL_MAX_PRT == d->prtb )
+            {
+                do_chr_platforms( d->chra, d->chrb );
+            }
+            else if ( MAX_CHR == d->chrb )
+            {
+                do_prt_platforms( d->chra, d->prtb );
+            }
         }
     }
 
@@ -7836,7 +7960,6 @@ bool_t do_shop_steal( Uint16 ithief, Uint16 iitem )
 
     return can_steal;
 }
-
 
 //--------------------------------------------------------------------------------------------
 bool_t do_item_pickup( Uint16 ichr, Uint16 iitem )

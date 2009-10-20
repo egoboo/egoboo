@@ -858,7 +858,7 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
 		case FSETTARGETTOCHILD:      returncode = scr_set_TargetToChild( pstate, pself );   break;
 		case FSETDAMAGETRESHOLD:     returncode = scr_set_DamageThreshold( pstate, pself );   break;
 		case FACCELERATETARGETUP:	 returncode = scr_AccelerateTargetUp( pstate, pself ); break;
-        
+
             // if none of the above, skip the line and log an error
         default:
             log_message( "SCRIPT ERROR: run_function() - ai script %d - unhandled script function %d\n", pself->type, valuecode );
@@ -868,6 +868,7 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
 
     return returncode;
 }
+
 //--------------------------------------------------------------------------------------------
 void set_operand( script_state_t * pstate, Uint8 variable )
 {

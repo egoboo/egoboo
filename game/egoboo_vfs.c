@@ -1326,6 +1326,7 @@ void _vfs_findClose( struct s_vfs_search_context * ctxt )
     }
     ctxt->ptr       = NULL;
 }
+
 //--------------------------------------------------------------------------------------------
 const char * _vfs_search( struct s_vfs_search_context * ctxt )
 {

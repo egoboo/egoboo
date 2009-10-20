@@ -1008,6 +1008,7 @@ Uint8 fget_damage_modifier( vfs_FILE * fileread )
 
     return iTmp | tTmp;
 }
+
 //--------------------------------------------------------------------------------------------
 int read_skin( const char *filename  )
 {

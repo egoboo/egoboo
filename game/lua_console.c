@@ -149,6 +149,7 @@ SDL_bool lua_console_delete( lua_console_t * pcon )
 
     return retval;
 }
+
 //--------------------------------------------------------------------------------------------
 egoboo_console_t * lua_console_get_base( lua_console_t * pcon )
 {

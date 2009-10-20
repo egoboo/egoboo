@@ -83,9 +83,33 @@ struct s_prt_instance
 };
 typedef struct s_prt_instance prt_instance_t;
 
-//------------------------------------
+//--------------------------------------------------------------------------------------------
+/// Everything that is necessary to compute the character's interaction with the environment
+struct s_prt_environment
+{
+    // floor stuff
+    Uint8  twist;
+    float  floor_level;           ///< Height of tile
+    float  level;                 ///< Height of a tile or a platform
+    float  zlerp;
+
+    // friction stuff
+    bool_t is_slipping;
+    bool_t is_slippy,    is_watery;
+    float  air_friction, ice_friction;
+    float  fluid_friction_xy, fluid_friction_z;
+    float  friction_xy;
+    float  traction;
+
+    // misc states
+    bool_t   inwater;
+    fvec3_t   acc;
+};
+typedef struct s_prt_environment prt_environment_t;
+
+//--------------------------------------------------------------------------------------------
 // Particle variables
-//------------------------------------
+//--------------------------------------------------------------------------------------------
 #define SPAWNNOCHARACTER        255                                      ///< For particles that spawn characters...
 #define TOTAL_MAX_PRT            2048                                      ///< True max number of particles
 
@@ -111,23 +135,23 @@ struct s_prt
     Uint16  facing;                          ///< Direction of the part
     Uint8   team;                            ///< Team
 
-    fvec3_t     pos, pos_old, pos_stt;       ///< Position
-    fvec3_t     vel, vel_old, vel_stt;       ///< Velocity
+    fvec3_t pos, pos_old, pos_stt;       ///< Position
+    fvec3_t vel, vel_old, vel_stt;       ///< Velocity
 
     Uint32  onwhichfan;                      ///< Where the part is
     Uint32  onwhichblock;                    ///< The particle's collision block
-    bool_t  is_hidden;
+    Uint16  onwhichplatform;                 ///< Is the particle on a platform?
+    bool_t  is_hidden;                       ///< Is the particle related to a hidden character?
 
-    float   floor_level;                     ///< Height of tile
     Uint16  rotate;                          ///< Rotation direction
     Sint16  rotateadd;                       ///< Rotation rate
 
-    Uint16  size;                            ///< Size of particle ( >> 8 )
-    Uint16  size_stt;                        ///< the starting size of the particle ( >> 8 )
+    Uint16  size;                            ///< Size of particle (8.8-bit fixed point)
+    Uint16  size_stt;                        ///< the starting size of the particle (8.8-bit fixed point)
     Sint16  size_add;                        ///< Change in size
 
     bool_t  inview;                          ///< Render this one?
-    Uint16  image;                           ///< Which image ( >> 8 )
+    Uint16  image;                           ///< Which image (8.8-bit fixed point)
     Uint16  imageadd;                        ///< Animation rate
     Uint16  imagemax;                        ///< End of image loop
     Uint16  imagestt;                        ///< Start of image loop
@@ -150,8 +174,15 @@ struct s_prt
 
     Uint8   spawncharacterstate;              ///< if != SPAWNNOCHARACTER, then a character is spawned on end
 
-    dynalight_info_t dynalight;              ///< Dynamic lighting...
-    prt_instance_t   inst;                   ///< Everything needed for rendering
+    bool_t         safe_valid;
+    fvec3_t        pos_safe;                      ///< Character's last safe position
+
+    bool_t         is_homing;                 ///< Is the particle in control of its motion?
+
+    dynalight_info_t  dynalight;              ///< Dynamic lighting...
+    prt_instance_t    inst;                   ///< Everything needed for rendering
+    prt_environment_t enviro;                 ///< the particle's environment
+    phys_data_t       phys;                   ///< the particle's physics data
 };
 typedef struct s_prt prt_t;
 
@@ -169,6 +200,9 @@ DEFINE_LIST_EXTERN(prt_t, PrtList, TOTAL_MAX_PRT);
 #define TERMINATED_PRT( IPRT )  ( VALID_PRT_RANGE( IPRT ) && TERMINATED_OBJ( &(PrtList.lst[IPRT].obj_base) ) )
 
 #define DISPLAY_PRT( IPRT )     ( ACTIVE_PRT(IPRT) || WAITING_PRT( IPRT ) )
+
+#define ACTIVE_PPRT( PPRT )      ( (NULL != (PPRT)) && VALID_PRT_RANGE( GET_INDEX( PPRT, TOTAL_MAX_PRT) ) && ACTIVE_OBJ( OBJ_GET_PBASE( (PPRT) ) ) )
+#define GET_INDEX_PPRT( PPRT )   GET_INDEX( PPRT, TOTAL_MAX_PRT )
 
 #define DISPLAY_PPRT( PPRT )     ( (NULL != (PPRT)) && VALID_PRT_RANGE(GET_INDEX(PPRT, TOTAL_MAX_PRT)) && (ACTIVE_OBJ(OBJ_GET_PBASE( (PPRT) )) || WAITING_OBJ( OBJ_GET_PBASE( (PPRT) ) )) )
 
@@ -200,7 +234,7 @@ int prt_count_free();
 int load_one_particle_profile( const char *szLoadName, Uint16 pip_override );
 void reset_particles( /* const char* modname */ );
 
-Uint8 __prthitawall( Uint16 particle );
+Uint32 __prthitawall( Uint16 particle, float nrm[] );
 
 int    prt_is_over_water( Uint16 cnt );
 

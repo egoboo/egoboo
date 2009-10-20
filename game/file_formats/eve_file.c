@@ -184,7 +184,7 @@ eve_t * load_one_enchant_file( const char* szLoadName, eve_t * peve )
         else if ( idsz == MAKE_IDSZ( 'F', 'A', 'C', 'E' ) )  peve->contspawn_facingadd = fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'S', 'E', 'N', 'D' ) )
         {
-            //ZF> This is wrong, it gets stored or loaded incorrectly (Loaded in game.c) - Egoboo 2.6.4
+            /// @todo ZF@> This is wrong, it gets stored or loaded incorrectly (Loaded in game.c) - Egoboo 2.6.4
             peve->endsoundindex = fget_int( fileread );
         }
         else if ( idsz == MAKE_IDSZ( 'S', 'T', 'A', 'Y' ) ) peve->stayifnoowner = fget_int( fileread );

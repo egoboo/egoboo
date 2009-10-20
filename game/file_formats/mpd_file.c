@@ -348,6 +348,7 @@ mpd_mem_t * mpd_mem_delete( mpd_mem_t * pmem )
 
     return pmem;
 }
+
 //--------------------------------------------------------------------------------------------
 bool_t mpd_mem_allocate( mpd_mem_t * pmem, mpd_info_t * pinfo  )
 {

@@ -408,9 +408,9 @@ void mad_get_framefx( int frame )
                     break;
             }
 
-            if( bad_form )
+            if( bad_form && -1 != token_index )
             {
-                log_warning( "Model %s, frame %d, frame name \"%s\" has a frame effects command in an improper configuration \"%s\"\n", szModelName, frame, cFrameName, ptmp );
+                log_warning( "Model %s, frame %d, frame name \"%s\" has a frame effects command in an improper configuration \"%s\"\n", szModelName, frame, cFrameName, tokens[token_index] );
             }
         }
     }
@@ -871,7 +871,6 @@ bool_t release_one_mad( Uint16 imad )
 
     return btrue;
 }
-
 
 ////--------------------------------------------------------------------------------------------
 //Uint16 test_frame_name( char letter )
