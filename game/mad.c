@@ -204,7 +204,7 @@ int mad_get_action( Uint16 imad, int action )
     {
         int cnt, tnc;
 
-        // do a "recursive search for a valid action
+        // do a "recursive" search for a valid action
         // we should never really have to check more than once if the map is prepared
         // properly BUT you never can tell. Make sure we do not get a runaway loop by
         // you never go farther than ACTION_COUNT steps and that you never see the
@@ -213,7 +213,7 @@ int mad_get_action( Uint16 imad, int action )
         tnc = pmad->action_map[action];
         for(cnt = 0; cnt<ACTION_COUNT; cnt++)
         {
-            if( tnc >= ACTION_COUNT || tnc < 0 || tnc ==action ) break;
+            if( tnc >= ACTION_COUNT || tnc < 0 || tnc == action ) break;
 
             if( pmad->action_valid[tnc] )
             {

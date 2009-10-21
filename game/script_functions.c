@@ -2171,14 +2171,18 @@ Uint8 scr_BecomeSpellbook( script_state_t * pstate, ai_state_t * pself )
     if( NULL != pcap && NULL != pmad )
     {
         //Do dropped animation
-        pchr->inst.action_which = mad_get_action(pchr->inst.imad, ACTION_JB);
-        pchr->inst.action_ready = bfalse;
-        //pchr->inst.action_keep = btrue;
+        int tmp_action = mad_get_action(pchr->inst.imad, ACTION_JB);
+        if( ACTION_COUNT != tmp_action && pmad->action_valid[tmp_action] )
+        {
+            pchr->inst.action_which = tmp_action;
+            pchr->inst.action_ready = bfalse;
+            //pchr->inst.action_keep = btrue;
 
-        pchr->inst.ilip = 0;
-        pchr->inst.flip = 0;
-        pchr->inst.frame_lst = pchr->inst.frame_nxt;
-        pchr->inst.frame_nxt = pmad->action_stt[ACTION_JB];
+            pchr->inst.ilip = 0;
+            pchr->inst.flip = 0;
+            pchr->inst.frame_lst = pchr->inst.frame_nxt;
+            pchr->inst.frame_nxt = pmad->action_stt[tmp_action];
+        }
 
         returncode = btrue;
     }
@@ -4018,7 +4022,6 @@ Uint8 scr_ChildDoActionOverride( script_state_t * pstate, ai_state_t * pself )
         chr_t * pchild = ChrList.lst + pself->child;
 
         action = mad_get_action( pchild->inst.imad, pstate->argument );
-
         if( action < ACTION_COUNT )
         {
             if ( MadList[pchild->inst.imad].action_valid[action] )

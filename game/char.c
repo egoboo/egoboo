@@ -5645,6 +5645,8 @@ void move_one_character_do_animation( chr_t * pchr )
 
         if ( pinst->ilip == 0 )
         {
+            int tmp_action;
+
             // Change frames
             pinst->frame_lst = pinst->frame_nxt;
             pinst->frame_nxt++;
@@ -5664,17 +5666,18 @@ void move_one_character_do_animation( chr_t * pchr )
                         // Go on to the next action
                         pchr->inst.action_which = pchr->inst.action_next;
                         pchr->inst.action_next = ACTION_DA;
+                        pinst->frame_nxt = chr_get_pmad(ichr)->action_stt[pchr->inst.action_which];
                     }
-                    else
+                    else if ( ACTIVE_CHR(pchr->attachedto) )
                     {
                         // See if the character is mounted...
-                        if ( ACTIVE_CHR(pchr->attachedto) )
+                        tmp_action = mad_get_action(pchr->inst.imad, ACTION_MI);
+                        if( ACTION_COUNT != tmp_action)
                         {
-                            pchr->inst.action_which = mad_get_action(pchr->inst.imad, ACTION_MI);
+                            pchr->inst.action_which = tmp_action;
+                            pinst->frame_nxt = chr_get_pmad(ichr)->action_stt[pchr->inst.action_which];
                         }
-                    }
-
-                    pinst->frame_nxt = chr_get_pmad(ichr)->action_stt[pchr->inst.action_which];
+                    } 
                 }
 
                 pchr->inst.action_ready = btrue;
@@ -5711,22 +5714,30 @@ void move_one_character_do_animation( chr_t * pchr )
                     // Do standstill
                     if ( !ACTION_IS_TYPE(pchr->inst.action_which, D) )
                     {
-                        pchr->inst.action_which = mad_get_action(pchr->inst.imad, ACTION_DA);
-                        pinst->frame_nxt = pmad->action_stt[pchr->inst.action_which];
+                        int tmp_action = mad_get_action(pchr->inst.imad, ACTION_DA);
+                        if( ACTION_COUNT != tmp_action )
+                        {
+                            pchr->inst.action_which = tmp_action;
+                            pinst->frame_nxt = pmad->action_stt[pchr->inst.action_which];
+                        }
                     }
                 }
                 else
                 {
-                    pchr->inst.action_next = mad_get_action(pchr->inst.imad, ACTION_WA);
-                    if ( pchr->inst.action_which != mad_get_action(pchr->inst.imad, ACTION_WA) )
+                    int tmp_action = mad_get_action(pchr->inst.imad, ACTION_WA);
+                    if( ACTION_COUNT != tmp_action )
                     {
-                        pinst->frame_nxt = pmad->frameliptowalkframe[LIPWA][framelip];
-                        pchr->inst.action_which = mad_get_action(pchr->inst.imad, ACTION_WA);
-                    }
+                        pchr->inst.action_next = tmp_action;
+                        if ( pchr->inst.action_which != tmp_action )
+                        {
+                            pinst->frame_nxt = pmad->frameliptowalkframe[LIPWA][framelip];
+                            pchr->inst.action_which = tmp_action;
+                        }
 
-                    if( pchr->fat != 0.0f )
-                    {
-                        pinst->rate = (float)speed / (float)pchr->sneakspd / pchr->fat;
+                        if( pchr->fat != 0.0f )
+                        {
+                            pinst->rate = (float)speed / (float)pchr->sneakspd / pchr->fat;
+                        }
                     }
                 }
             }
@@ -5737,46 +5748,58 @@ void move_one_character_do_animation( chr_t * pchr )
                 if ( speed < 0.5f * (pchr->sneakspd + pchr->walkspd) )
                 {
                     //Sneak
-                    pchr->inst.action_next = mad_get_action(pchr->inst.imad, ACTION_WA);
-                    if ( pchr->inst.action_which != mad_get_action(pchr->inst.imad, ACTION_WA) )
+                    int tmp_action = mad_get_action(pchr->inst.imad, ACTION_WA);
+                    if( ACTION_COUNT != tmp_action )
                     {
-                        pinst->frame_nxt = pmad->frameliptowalkframe[LIPWA][framelip];
-                        pchr->inst.action_which = mad_get_action(pchr->inst.imad, ACTION_WA);
-                    }
+                        pchr->inst.action_next = tmp_action;
+                        if ( pchr->inst.action_which != tmp_action )
+                        {
+                            pinst->frame_nxt = pmad->frameliptowalkframe[LIPWA][framelip];
+                            pchr->inst.action_which = tmp_action;
+                        }
 
-                    if( pchr->fat != 0.0f )
-                    {
-                        pinst->rate = (float)speed / (float)pchr->sneakspd / pchr->fat;
+                        if( pchr->fat != 0.0f )
+                        {
+                            pinst->rate = (float)speed / (float)pchr->sneakspd / pchr->fat;
+                        }
                     }
                 }
                 else if ( speed < 0.5f * (pchr->walkspd + pchr->runspd) )
                 {
                     //Walk
-                    pchr->inst.action_next = mad_get_action(pchr->inst.imad, ACTION_WB);
-                    if ( pchr->inst.action_which != mad_get_action(pchr->inst.imad, ACTION_WB) )
+                    int tmp_action = mad_get_action(pchr->inst.imad, ACTION_WB);
+                    if( ACTION_COUNT != tmp_action )
                     {
-                        pinst->frame_nxt = pmad->frameliptowalkframe[LIPWB][framelip];
-                        pchr->inst.action_which = mad_get_action(pchr->inst.imad, ACTION_WB);
-                    }
+                        pchr->inst.action_next = tmp_action;
+                        if ( pchr->inst.action_which != tmp_action )
+                        {
+                            pinst->frame_nxt = pmad->frameliptowalkframe[LIPWB][framelip];
+                            pchr->inst.action_which = tmp_action;
+                        }
 
-                    if( pchr->fat != 0.0f )
-                    {
-                        pinst->rate = (float)speed / (float)pchr->walkspd / pchr->fat;
+                        if( pchr->fat != 0.0f )
+                        {
+                            pinst->rate = (float)speed / (float)pchr->walkspd / pchr->fat;
+                        }
                     }
                 }
                 else
                 {
                     //Run
-                    pchr->inst.action_next = mad_get_action(pchr->inst.imad, ACTION_WC);
-                    if ( pchr->inst.action_which != mad_get_action(pchr->inst.imad, ACTION_WC) )
+                    int tmp_action = mad_get_action(pchr->inst.imad, ACTION_WC);
+                    if( ACTION_COUNT != tmp_action )
                     {
-                        pinst->frame_nxt        = pmad->frameliptowalkframe[LIPWC][framelip];
-                        pchr->inst.action_which = mad_get_action(pchr->inst.imad, ACTION_WC);
-                    }
+                        pchr->inst.action_next = tmp_action;
+                        if ( pchr->inst.action_which != tmp_action )
+                        {
+                            pinst->frame_nxt        = pmad->frameliptowalkframe[LIPWC][framelip];
+                            pchr->inst.action_which = tmp_action;
+                        }
 
-                    if( pchr->fat != 0.0f )
-                    {
-                        pinst->rate = speed / pchr->runspd;
+                        if( pchr->fat != 0.0f )
+                        {
+                            pinst->rate = speed / pchr->runspd;
+                        }
                     }
                 }
             }

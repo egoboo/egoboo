@@ -656,7 +656,7 @@ void chr_instance_play_action( chr_instance_t * pinst, Uint16 action, Uint8 acti
     pmad = MadList + pinst->imad;
 
     action = mad_get_action( pinst->imad, action );
-    if ( pmad->action_valid[action] )
+    if ( ACTION_COUNT != action && pmad->action_valid[action] )
     {
         pinst->action_which = action;
         pinst->action_next  = ACTION_DA;
@@ -685,7 +685,7 @@ void chr_set_frame( Uint16 character, Uint16 action, int frame, Uint16 lip )
     if ( NULL == pmad ) return;
 
     action = mad_get_action( chr_get_imad(character), action );
-    if ( pmad->action_valid[action] )
+    if ( ACTION_COUNT != action && pmad->action_valid[action] )
     {
         int framesinaction, frame_stt, frame_end;
 
