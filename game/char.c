@@ -1747,32 +1747,35 @@ bool_t character_grab_stuff( Uint16 ichr_a, grip_offset_t grip_off, bool_t grab_
         }
 
         //---- if you can't grab anything, activate something using ALERTIF_BUMPED
-        chr_getMatForward( pchr_a, &vforward );
-
-        // sort the ungrab list
-        if ( ungrab_count > 1 )
+        if( pchr_a->isplayer && ungrab_count > 0 )
         {
-            qsort( ungrab_list, ungrab_count, sizeof(grab_data_t), grab_data_cmp );
-        }
+            chr_getMatForward( pchr_a, &vforward );
 
-        for ( cnt = 0; cnt < ungrab_count; cnt++ )
-        {
-            float       ftmp;
-            fvec3_t     diff;
-            chr_t     * pchr_b;
-
-            if( grab_list[cnt].dist > GRABSIZE ) continue;
-
-            ichr_b = grab_list[cnt].ichr;
-            pchr_b = ChrList.lst + ichr_b;
-
-            diff = fvec3_sub(pchr_a->pos.v, pchr_b->pos.v);
-
-            // ignore vertical displacement in the dot product
-            ftmp = vforward.x * diff.x + vforward.y * diff.y;
-            if( ftmp > 0.0f )
+            // sort the ungrab list
+            if ( ungrab_count > 1 )
             {
-                ai_state_set_bumplast( &(pchr_b->ai), ichr_a );
+                qsort( ungrab_list, ungrab_count, sizeof(grab_data_t), grab_data_cmp );
+            }
+
+            for ( cnt = 0; cnt < ungrab_count; cnt++ )
+            {
+                float       ftmp;
+                fvec3_t     diff;
+                chr_t     * pchr_b;
+
+                if( ungrab_list[cnt].dist > GRABSIZE ) continue;
+
+                ichr_b = ungrab_list[cnt].ichr;
+                pchr_b = ChrList.lst + ichr_b;
+
+                diff = fvec3_sub(pchr_a->pos.v, pchr_b->pos.v);
+
+                // ignore vertical displacement in the dot product
+                ftmp = vforward.x * diff.x + vforward.y * diff.y;
+                if( ftmp > 0.0f )
+                {
+                    ai_state_set_bumplast( &(pchr_b->ai), ichr_a );
+                }
             }
         }
     }
@@ -3773,6 +3776,12 @@ int chr_change_skin( Uint16 character, int skin )
 
         pchr->skin     = skin;
         pinst->texture = txref;
+    }
+
+    // If the we are respawning a player, then the camera needs to be reset
+    if( pchr->isplayer )
+    {
+        camera_reset_target( PCamera, PMesh );
     }
 
     return pchr->skin;

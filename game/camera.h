@@ -34,7 +34,8 @@ struct s_ego_mpd;
 enum e_camera_mode
 {
     CAM_PLAYER = 0,
-    CAM_FREE
+    CAM_FREE,
+    CAM_RESET
 };
 
 /// The mode that the camera uses to determine where is is looking
@@ -85,6 +86,7 @@ struct s_camera
     fmat_4x4_t mProjection;           ///< Projection Matrix
 
     Uint8  move_mode;               ///< what is the camera mode
+    Uint8  move_mode_old;           ///< the default movement mode
     Uint8  turn_mode;               ///< what is the camera mode
     Uint8  turn_time;               ///< time for the smooth turn
 
@@ -128,3 +130,5 @@ void camera_adjust_angle( camera_t * pcam, float height );
 void camera_move( camera_t * pcam, struct s_ego_mpd * pmesh );
 void camera_make_matrix( camera_t * pcam );
 void camera_look_at( camera_t * pcam, float x, float y );
+
+bool_t camera_reset_target( camera_t * pcam, struct s_ego_mpd * pmesh );

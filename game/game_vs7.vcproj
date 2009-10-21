@@ -92,6 +92,7 @@
 				EnableFunctionLevelLinking="TRUE"
 				EnableEnhancedInstructionSet="2"
 				UsePrecompiledHeader="0"
+				BrowseInformation="1"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="FALSE"
 				DebugInformationFormat="3"

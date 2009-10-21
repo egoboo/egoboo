@@ -92,6 +92,7 @@ struct s_prt_environment
     float  floor_level;           ///< Height of tile
     float  level;                 ///< Height of a tile or a platform
     float  zlerp;
+    float  hlerp;
 
     // friction stuff
     bool_t is_slipping;
@@ -103,7 +104,7 @@ struct s_prt_environment
 
     // misc states
     bool_t   inwater;
-    fvec3_t   acc;
+    fvec3_t  acc;
 };
 typedef struct s_prt_environment prt_environment_t;
 

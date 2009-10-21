@@ -4976,8 +4976,8 @@ void bump_all_platforms( void )
             }
         }
     }
+}
 
-};
 //--------------------------------------------------------------------------------------------
 void bump_all_mounts()
 {
@@ -5493,12 +5493,12 @@ bool_t activate_spawn_file_spawn( spawn_file_info_t * psp_info )
             if ( -1 != local_index )
             {
                 // It's a local PlaList_count
-                player_added =add_player( new_object, PlaList_count, local_import_control[local_index] );
+                player_added = add_player( new_object, PlaList_count, local_import_control[local_index] );
             }
             else
             {
                 // It's a remote PlaList_count
-                player_added =add_player( new_object, PlaList_count, INPUT_BITS_NONE );
+                player_added = add_player( new_object, PlaList_count, INPUT_BITS_NONE );
             }
 
             // if for SOME REASON your player is not identified, give him
@@ -6063,6 +6063,9 @@ bool_t add_player( Uint16 character, Uint16 player, Uint32 device_bits )
             local_noplayers = bfalse;
             ChrList.lst[character].islocalplayer = btrue;
             local_numlpla++;
+
+            // reset the camera
+            camera_reset_target( PCamera, PMesh );
         }
 
         PlaList_count++;

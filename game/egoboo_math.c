@@ -627,3 +627,37 @@ void facing_to_vec( Uint16 facing, float * dx, float * dy )
         *dy = turntosin[turn & TRIG_TABLE_MASK];
     }
 }
+
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+bool_t fvec2_clear( fvec2_t * A )
+{
+    if( NULL == A ) return bfalse;
+
+    (*A).x = (*A).y = 0.0f;
+
+    return btrue;
+}
+
+
+//--------------------------------------------------------------------------------------------
+bool_t fvec3_clear( fvec3_t * A )
+{
+    if( NULL == A ) return bfalse;
+
+    (*A).x = (*A).y = (*A).z = 0.0f;
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t fvec4_clear( fvec4_t * A )
+{
+    if( NULL == A ) return bfalse;
+
+    (*A).x = (*A).y = (*A).z = 0.0f;
+    (*A).w = 1.0f;
+
+    return btrue;
+}

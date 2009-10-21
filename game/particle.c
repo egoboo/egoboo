@@ -581,6 +581,8 @@ Uint16 spawn_one_particle( fvec3_t   pos, Uint16 facing, Uint16 iprofile, Uint16
         pprt->safe_valid = btrue;
     };
 
+    // gat an initial value for the is_homing variable
+    pprt->is_homing = ppip->homing && !ACTIVE_CHR( pprt->attachedto_ref );
 
     return iprt;
 }
@@ -899,15 +901,24 @@ void move_one_particle_get_environment( prt_t * pprt )
         pprt->enviro.level = ChrList.lst[pprt->onwhichplatform].pos.z + ChrList.lst[pprt->onwhichplatform].chr_chr_cv.max_z;
     }
 
-    // fly above pits...
-    if ( pprt->is_homing && pprt->enviro.level < 0 )
-    {
-        pprt->enviro.level = 0;
-    }
-
     // set the zlerp after we have done everything to the particle's level we care to
     pprt->enviro.zlerp = (pprt->pos.z - pprt->enviro.level) / PLATTOLERANCE;
     pprt->enviro.zlerp = CLIP(pprt->enviro.zlerp, 0, 1);
+
+    // if the particle is resting on the ground, modify its
+    pprt->enviro.hlerp = 1.0f;
+    if( !ACTIVE_CHR(pprt->attachedto_ref) && pprt->size > 0.0f )
+    {
+        pprt->enviro.hlerp = (pprt->pos.z - pprt->enviro.level) / FP8_TO_FLOAT(pprt->size);
+    }
+
+    if ( pprt->enviro.hlerp < 1.0f )
+    {
+        float adjustment = FP8_TO_FLOAT(pprt->size) * (1.0f - pprt->enviro.hlerp);
+
+        pprt->enviro.floor_level += adjustment;
+        pprt->enviro.level       += adjustment;
+    }
 
     //---- the "twist" of the floor
     pprt->enviro.twist = TWIST_FLAT;
@@ -1228,11 +1239,8 @@ void move_one_particle_do_floor_friction( prt_t * pprt )
 void move_one_particle_do_homing( prt_t * pprt )
 {
     pip_t * ppip;
-    chr_t * ptarget;
 
     int iprt;
-    bool_t hit_a_wall, hit_a_floor;
-    fvec3_t   nrm;
 
     if( !DISPLAY_PPRT(pprt) ) return;
     iprt = GET_INDEX_PPRT( pprt );
@@ -1240,19 +1248,15 @@ void move_one_particle_do_homing( prt_t * pprt )
     if( !LOADED_PIP( pprt->pip_ref ) ) return;
     ppip = PipStack.lst + pprt->pip_ref;
 
-    if( !pprt->is_homing ) return;
+    if( !pprt->is_homing || !ACTIVE_CHR(pprt->target_ref) ) return;
 
-    hit_a_wall  = bfalse;
-    hit_a_floor = bfalse;
-    nrm.x = nrm.y = nrm.z = 0.0f;
-
-    if ( !ACTIVE_CHR(pprt->target_ref) || !ChrList.lst[pprt->target_ref].alive )
+    if ( !ChrList.lst[pprt->target_ref].alive )
     {
         prt_request_terminate( iprt );
     }
     else
     {
-        ptarget = ChrList.lst + pprt->target_ref;
+        chr_t * ptarget = ChrList.lst + pprt->target_ref;
 
         if ( !ACTIVE_CHR( pprt->attachedto_ref ) )
         {
@@ -1310,15 +1314,13 @@ void move_one_particle_do_homing( prt_t * pprt )
             pprt->vel.y = ( pprt->vel.y + vdiff.y * ppip->homingaccel ) * ppip->homingfriction;
             pprt->vel.z = ( pprt->vel.z + vdiff.z * ppip->homingaccel ) * ppip->homingfriction;
         }
-
     }
-
 }
 
 //--------------------------------------------------------------------------------------------
 void move_one_particle_do_z_motion( prt_t * pprt )
 {
-    // do gravitational acceleration.
+    /// @details BB@> do gravitational acceleration and buoyancy
 
     pip_t * ppip;
     float loc_zlerp;
@@ -1328,9 +1330,7 @@ void move_one_particle_do_z_motion( prt_t * pprt )
     if( !LOADED_PIP( pprt->pip_ref ) ) return;
     ppip = PipStack.lst + pprt->pip_ref;
 
-    if( ACTIVE_CHR( pprt->attachedto_ref ) || pprt->is_homing ) return;
-
-    pprt->vel.z += gravity * pprt->enviro.zlerp;
+    if( pprt->is_homing || ACTIVE_CHR( pprt->attachedto_ref )) return;
 
     loc_zlerp = CLIP(pprt->enviro.zlerp, 0.0f, 1.0f);
 
@@ -1555,7 +1555,7 @@ bool_t move_one_particle_integrate_motion( prt_t * pprt )
             // the particle will bounce
             hit_a_floor = btrue;
 
-            nrm_total.z += 1.0f;
+            nrm_total.z -= SGN(pprt->vel.z);
             pprt->pos.z = ftmp;
         }
         else if ( pprt->vel.z > 0.0f )
@@ -1578,8 +1578,7 @@ bool_t move_one_particle_integrate_motion( prt_t * pprt )
     {
         hit_a_wall = btrue;
 
-        nrm_total.x += nrm.x;
-        nrm_total.y += nrm.y;
+        nrm_total.x -= SGN(pprt->vel.x);
 
         pprt->pos.x = ftmp;
     }
@@ -1591,16 +1590,10 @@ bool_t move_one_particle_integrate_motion( prt_t * pprt )
     {
         hit_a_wall = btrue;
 
-        nrm_total.x += nrm.x;
-        nrm_total.y += nrm.y;
+        nrm_total.y -= SGN(pprt->vel.y);
 
         pprt->pos.y = ftmp;
     }
-    else
-    {
-        pprt->pos_safe.y = pprt->pos.y;
-    }
-
 
     // handle the collision
     if( (hit_a_wall && ppip->endwall) || (hit_a_floor && ppip->endground) )
@@ -1742,7 +1735,6 @@ bool_t move_one_particle_integrate_motion( prt_t * pprt )
             pprt->safe_valid = btrue;
         }
     }
-
 
     return btrue;
 }

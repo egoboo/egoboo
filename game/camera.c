@@ -53,7 +53,7 @@ camera_t * camera_new( camera_t * pcam )
 
     memset( pcam, 0, sizeof(camera_t) );
 
-    pcam->move_mode = CAM_PLAYER;
+    pcam->move_mode = pcam->move_mode_old = CAM_PLAYER;
     pcam->turn_mode = cfg.autoturncamera;
 
     pcam->swing     =  0;
@@ -68,7 +68,7 @@ camera_t * camera_new( camera_t * pcam )
     pcam->zgoto     =  800;
     pcam->turn_z_rad = -PI / 4.0f;
     pcam->turn_z_one = pcam->turn_z_rad / TWO_PI;
-    pcam->turn_z     = ((Uint32)(pcam->turn_z_one * 0x00010000L)) & 0x0000FFFFL;
+    pcam->turn_z     = ((int)(pcam->turn_z_one * 0x00010000L)) & 0xFFFF;
     pcam->turnadd    =  0;
     pcam->sustain    =  0.60f;
     pcam->turnupdown =  (float)( PI / 4 );
@@ -173,14 +173,19 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
     /// @details ZZ@> This function moves the camera
 
     Uint16 cnt;
-    Sint16 locoalive;
-    float x, y, z, level, newx, newy, movex, movey, weight_sum;
-    Uint16 character, turnsin;
+    float x, y, z, level, newx, newy, movex, movey;
+    Uint16 turnsin;
 
     if ( CAMTURN_NONE != pcam->turn_mode )
         pcam->turn_time = 255;
     else if ( pcam->turn_time != 0 )
         pcam->turn_time--;
+
+    // the default camera motion is to do nothing
+    x     = pcam->track_pos.x;
+    y     = pcam->track_pos.y;
+    z     = pcam->track_pos.z;
+    level = 128 + mesh_get_level( pmesh, x, y );
 
     if ( CAM_FREE == pcam->move_mode )
     {
@@ -221,84 +226,139 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
 
         pcam->track_pos.z = 128 + mesh_get_level( pmesh, pcam->track_pos.x, pcam->track_pos.y );
     }
-    else
+    else if ( CAM_RESET == pcam->move_mode )
     {
-        // find the average position
-        x = y = z = level = 0;
-        weight_sum = 0;
+        // a camera movement mode for re-focusing in on a bunch of players
 
-        if ( CAM_PLAYER == pcam->move_mode )
+        fvec3_t sum_pos;
+        float   sum_wt, sum_level;
+
+        sum_wt    = 0.0f;
+        sum_level = 0.0f;
+        fvec3_clear( &sum_pos );
+
+        for ( cnt = 0; cnt < MAXPLAYER; cnt++ )
         {
-            locoalive = 0;
-            for ( cnt = 0; cnt < MAXPLAYER; cnt++ )
-            {
-                chr_t * pchr;
-                if ( !PlaList[cnt].valid || INPUT_BITS_NONE == PlaList[cnt].device.bits ) continue;
+            chr_t * pchr;
 
-                character = PlaList[cnt].index;
-                if ( !ACTIVE_CHR(character) )
-                {
-                    pla_reinit( PlaList + cnt );
-                    continue;
-                }
+            pchr = pla_get_pchr( cnt );
+            if( NULL == pchr || !pchr->alive ) continue;
 
-                pchr = ChrList.lst + character;
-                if ( pchr->alive )
-                {
-                    Uint16 imount;
-                    float weight;
+            sum_pos.x += pchr->pos.x;
+            sum_pos.y += pchr->pos.y;
+            sum_pos.z += pchr->pos.z + pchr->chr_chr_cv.max_z * 0.9f;
+            sum_level += pchr->enviro.level;
+            sum_wt    += 1.0f;
+        }
 
-                    // weight it by the character's velocity^2, so that
-                    // inactive characters don't control the camera
-                    weight = fvec3_dot_product( pchr->vel.v, pchr->vel.v );
+        // if any of the characters is doing anything
+        if ( sum_wt > 0.0f )
+        {
+            x     = sum_pos.x / sum_wt;
+            y     = sum_pos.y / sum_wt;
+            z     = sum_pos.z / sum_wt;
+            level = sum_level / sum_wt;
+        }
+    }
+    else if ( CAM_PLAYER == pcam->move_mode )
+    {
+        // a camera mode for focusing in on the players that are actually doing something.
+        // "Show me the drama!"
 
-                    weight_sum += weight;
+        chr_t * local_chr_ptrs[MAXPLAYER];
+        int local_chr_count = 0;
 
-                    imount = pchr->attachedto;
-                    if ( !ACTIVE_CHR(imount) )
-                    {
-                        // The character is on foot
-                        x += pchr->pos.x * weight;
-                        y += pchr->pos.y * weight;
-                        z += pchr->pos.z * weight;
-                        level += pchr->enviro.level * weight;
-                    }
-                    else
-                    {
-                        // The character is mounted
-                        x += ChrList.lst[imount].pos.x * weight;
-                        y += ChrList.lst[imount].pos.y * weight;
-                        z += ChrList.lst[imount].pos.z * weight;
-                        level += ChrList.lst[imount].enviro.level * weight;
-                    }
+        // count the number of local players, first
+        local_chr_count = 0;
+        for ( cnt = 0; cnt < MAXPLAYER; cnt++ )
+        {
+            chr_t * pchr;
 
-                    locoalive++;
-                }
-            }
+            pchr = pla_get_pchr( cnt );
+            if( NULL == pchr || !pchr->alive ) continue;
 
-            if ( weight_sum > 0 )
-            {
-                x = x / weight_sum;
-                y = y / weight_sum;
-                z = z / weight_sum;
-                level = level / weight_sum;
-            }
-            else
-            {
-                x = pcam->track_pos.x;
-                y = pcam->track_pos.y;
-                z = pcam->track_pos.z;
-            }
+            local_chr_ptrs[local_chr_count] = pchr;
+            local_chr_count++;
+        }
+
+        if ( 0 == local_chr_count )
+        {
+            // do nothing
+        }
+        else if ( 1 == local_chr_count )
+        {
+            // copy from the one character
+
+            x = local_chr_ptrs[0]->pos.x;
+            y = local_chr_ptrs[0]->pos.y;
+            z = local_chr_ptrs[0]->pos.z;
+            level = local_chr_ptrs[0]->enviro.level;
         }
         else
         {
-            x = pcam->track_pos.x;
-            y = pcam->track_pos.y;
-            z = pcam->track_pos.z;
+            // use the characer's "activity" to average the position the camera is viewing
 
-            level = 128 + mesh_get_level( pmesh, x, y );
+            fvec3_t sum_pos;
+            float   sum_wt, sum_level;
+
+            sum_wt    = 0.0f;
+            sum_level = 0.0f;
+            fvec3_clear( &sum_pos );
+
+            for ( cnt = 0; cnt < local_chr_count; cnt++ )
+            {
+                chr_t * pchr;
+                float weight1, weight2, weight;
+
+                // we JUST checked the validity of these characters. No need to do it again?
+                pchr = local_chr_ptrs[ cnt ];
+
+                // weight it by the character's velocity^2, so that
+                // inactive characters don't control the camera
+                weight1 = fvec3_dot_product( pchr->vel.v, pchr->vel.v );
+
+                // make another weight based on button-pushing
+                weight2 = (0 == pchr->latch.b) ? 0 : 127;
+
+                // I would weight this by the amount of damage that the character just sustained,
+                // but there is no real way to do this?
+
+                // get the maximum effect
+                weight =  MAX(weight1, weight2);
+
+                // The character is on foot
+                sum_pos.x += pchr->pos.x * weight;
+                sum_pos.y += pchr->pos.y * weight;
+                sum_pos.z += pchr->pos.z * weight;
+                sum_level += pchr->enviro.level * weight;
+                sum_wt    += weight;
+            }
+
+            // if any of the characters is doing anything
+            if ( sum_wt > 0 )
+            {
+                x = sum_pos.x / sum_wt;
+                y = sum_pos.y / sum_wt;
+                z = sum_pos.z / sum_wt;
+                level = sum_level / sum_wt;
+            }
         }
+    }
 
+    if( CAM_RESET == pcam->move_mode )
+    {
+        // just set the position
+        pcam->track_pos.x = x;
+        pcam->track_pos.y = y;
+        pcam->track_pos.z = z;
+        pcam->track_level = level;
+
+        // reset the camera mode
+        pcam->move_mode = pcam->move_mode_old;
+    }
+    else
+    {
+        // smoothly interpolate the camera tracking position
         pcam->track_pos.x = 0.9f * pcam->track_pos.x + 0.1f * x;
         pcam->track_pos.y = 0.9f * pcam->track_pos.y + 0.1f * y;
         pcam->track_pos.z = 0.9f * pcam->track_pos.z + 0.1f * z;
@@ -481,8 +541,6 @@ void camera_reset( camera_t * pcam, ego_mpd_t * pmesh )
 {
     /// @details ZZ@> This function makes sure the camera starts in a suitable position
 
-    int cnt;
-
     pcam->swing = 0;
     pcam->pos.x = pmesh->info.edge_x / 2;
     pcam->pos.y = pmesh->info.edge_y / 2;
@@ -500,30 +558,45 @@ void camera_reset( camera_t * pcam, ego_mpd_t * pmesh )
     pcam->zgoto = 1500;
     pcam->turn_z_rad = -PI / 4.0f;
     pcam->turn_z_one = pcam->turn_z_rad / TWO_PI;
-    pcam->turn_z     = ((Uint32)(pcam->turn_z_one * 0x00010000L)) & 0x0000FFFFL;
+    pcam->turn_z     = ((int)(pcam->turn_z_one * 0x00010000L)) & 0xFFFF;
     pcam->turnupdown = PI / 4.0f;
     pcam->roll = 0;
 
-    // Now move the camera towards the players
-    {
-        Uint8 move_mode_save = pcam->move_mode;
-        Uint8 turn_mode_save = pcam->turn_mode;
+    // make sure you are looking at the players
+    camera_reset_target( pcam, pmesh );
+}
 
-        pcam->mView = IdentityMatrix();
+//--------------------------------------------------------------------------------------------
+bool_t camera_reset_target( camera_t * pcam, ego_mpd_t * pmesh )
+{
+    // @details BB@> Force the camera to focus in on the players. Should be called any time there is
+    //               a "change of scene". With the new velocity-tracking of the camera, this would include
+    //               things like character respawns, adding new players, etc.
 
-        pcam->turn_mode = CAMTURN_AUTO;
-        pcam->move_mode = CAM_PLAYER;
+    int turn_mode_save;
 
-        for ( cnt = 0; cnt < 32; cnt++ )
-        {
-            camera_move( pcam, pmesh );
-            pcam->center.x = pcam->track_pos.x;
-            pcam->center.y = pcam->track_pos.y;
-        }
+    if( NULL == pcam ) return bfalse;
 
-        pcam->move_mode = move_mode_save;
-        pcam->turn_mode = turn_mode_save;
-        pcam->turn_time = 0;
-    }
+    turn_mode_save = pcam->turn_mode;
 
+    // set an identity matrix.
+    pcam->mView = IdentityMatrix();
+
+    // specify the modes that will make the camera point at the players
+    pcam->turn_mode = CAMTURN_AUTO;
+    pcam->move_mode = CAM_RESET;
+
+    // If you use CAM_RESET, camera_move() automatically restores pcam->move_mode 
+    // to its default setting
+    camera_move( pcam, pmesh );
+
+    // fix the center position
+    pcam->center.x = pcam->track_pos.x;
+    pcam->center.y = pcam->track_pos.y;
+
+    // restore the turn mode
+    pcam->turn_mode = turn_mode_save;
+    pcam->turn_time = 0;
+
+    return btrue;
 }
