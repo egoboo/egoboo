@@ -191,7 +191,6 @@ struct s_team
 };
 typedef struct s_team team_t;
 
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 /// the data to determine whether re-calculation of vlst is necessary
@@ -256,7 +255,6 @@ struct s_matrix_cache
 typedef struct s_matrix_cache matrix_cache_t;
 
 matrix_cache_t * matrix_cache_init(matrix_cache_t * mcache);
-
 
 //--------------------------------------------------------------------------------------------
 /// some pre-computed parameters for reflection

@@ -319,7 +319,6 @@ void   dolist_make( ego_mpd_t * pmesh );
 bool_t dolist_add_chr( ego_mpd_t * pmesh, Uint16 cnt );
 bool_t dolist_add_prt( ego_mpd_t * pmesh, Uint16 cnt );
 
-
 void draw_one_icon( int icontype, int x, int y, Uint8 sparkle );
 void draw_one_font( int fonttype, int x, int y );
 void draw_map_texture( int x, int y );
@@ -372,7 +371,6 @@ egoboo_rv chr_update_instance( struct s_chr * pchr );
 egoboo_rv chr_instance_needs_update( struct s_chr_instance * pinst, int vmin, int vmax, bool_t *verts_match, bool_t *frames_match );
 egoboo_rv chr_instance_update_vertices( struct s_chr_instance * pinst, int vmin, int vmax, bool_t force );
 egoboo_rv chr_instance_update_grip_verts( struct s_chr_instance * pinst, Uint16 vrt_lst[], size_t vrt_count );
-
 
 void renderlist_reset();
 void renderlist_make( ego_mpd_t * pmesh, struct s_camera * pcam );

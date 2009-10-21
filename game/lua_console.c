@@ -228,7 +228,7 @@ int lua_console_print ( lua_State * L )
         {
             return SDL_FALSE;
         }
-        if (i > 1) egoboo_console_fprint( ego_con, "\t", stdout);
+        if (i > 1) egoboo_console_fprint( ego_con, "    ", stdout);
         egoboo_console_fprint( ego_con, s );
         lua_pop(L, 1);  /* pop result */
     }

@@ -1002,6 +1002,9 @@ void game_update_timers()
     // but it can't completely bog doen the game
     true_update = clock_all / UPDATE_SKIP;
 
+    // get the number of frames that should have happened so far in a similar way
+    true_frame  = clock_all / FRAME_SKIP;
+
     // figure out the update rate
     ups_clock += clock_diff;
 
@@ -2054,7 +2057,8 @@ Uint16 chr_find_target( chr_t * psrc, float max_dist2, TARGET_TYPE target_type, 
 //--------------------------------------------------------------------------------------------
 void do_damage_tiles()
 {
-    Uint16 character, distance;
+    Uint16 character;
+    //int distance;
 
     // do the damage tile stuff
     for ( character = 0; character < MAX_CHR; character++ )
@@ -2068,50 +2072,62 @@ void do_damage_tiles()
         pcap = pro_get_pcap( pchr->iprofile );
         if( NULL == pcap ) continue;
 
-        if( pchr->pack_ispacked || pchr->is_hidden ) continue;
+        // if the object is not really in the game, do nothing
+        if( pchr->is_hidden || !pchr->alive ) continue;
 
-        // do damage tile stuff
-        if ( pchr->alive )
+        // if you are being held by something, you are protected
+        if( pchr->pack_ispacked ) continue;
+
+        // are we on a damage tile?
+        if( !VALID_TILE( PMesh, pchr->onwhichfan ) ) continue;
+        if( 0 == mesh_test_fx( PMesh, pchr->onwhichfan, MPDFX_DAMAGE ) ) continue;
+
+        // are we low enough?
+        if( pchr->pos.z > pchr->enviro.floor_level + DAMAGERAISE ) continue;
+
+        // allow reaffirming damage to things like torches, even if they are being held,
+        // but make the tolerance closer so that books won't burn so easily
+        if( !ACTIVE_CHR(pchr->attachedto) || pchr->pos.z < pchr->enviro.floor_level + DAMAGERAISE )
         {
-            if ( VALID_TILE( PMesh, pchr->onwhichfan ) &&
-                    ( 0 != mesh_test_fx( PMesh, pchr->onwhichfan, MPDFX_DAMAGE ) ) &&
-                    ( pchr->pos.z <= pchr->enviro.floor_level + DAMAGERAISE ) &&
-                    !ACTIVE_CHR(pchr->attachedto) )
+            if ( pchr->reaffirmdamagetype == damagetile.type )
             {
-                if ( !pchr->invictus ) // 3 means they're pretty well immune
+                if ( 0 == ( update_wld & TILEREAFFIRMAND ) )
                 {
-                    distance = ABS( PCamera->track_pos.x - pchr->pos.x ) + ABS( PCamera->track_pos.y - pchr->pos.y );
-                    if ( distance < damagetile.min_distance )
-                    {
-                        damagetile.min_distance = distance;
-                    }
-                    if ( distance < damagetile.min_distance + 256 )
-                    {
-                        damagetile.sound_time = 0;
-                    }
-                    if ( pchr->damagetime == 0 )
-                    {
-                        damage_character( character, ATK_BEHIND, damagetile.amount, damagetile.type, TEAM_DAMAGE, MAX_CHR, DAMFX_NBLOC | DAMFX_ARMO, bfalse );
-                        pchr->damagetime = DAMAGETILETIME;
-                    }
-                    if ( (damagetile.parttype != ((Sint16)~0)) && ( update_wld & damagetile.partand ) == 0 )
-                    {
-                        spawn_one_particle( pchr->pos, 0, MAX_PROFILE, damagetile.parttype,
-                                            MAX_CHR, GRIP_LAST, TEAM_NULL, MAX_CHR, TOTAL_MAX_PRT, 0, MAX_CHR );
-                    }
-                }
-
-                if ( pchr->reaffirmdamagetype == damagetile.type )
-                {
-                    if ( 0 == ( update_wld&TILEREAFFIRMAND ) )
-                    {
-                        reaffirm_attached_particles( character );
-                    }
+                    reaffirm_attached_particles( character );
                 }
             }
         }
-    }
 
+        // do not do direct damage to items that are being held
+        if( ACTIVE_CHR(pchr->attachedto) ) continue;
+
+        // don't do direct damage to invulnerable objects
+        if( pchr->invictus ) continue;
+
+        //distance = ABS( PCamera->track_pos.x - pchr->pos.x ) + ABS( PCamera->track_pos.y - pchr->pos.y );
+
+        //if ( distance < damagetile.min_distance )
+        //{
+        //    damagetile.min_distance = distance;
+        //}
+
+        //if ( distance < damagetile.min_distance + 256 )
+        //{
+        //    damagetile.sound_time = 0;
+        //}
+
+        if ( 0 == pchr->damagetime )
+        {
+            damage_character( character, ATK_BEHIND, damagetile.amount, damagetile.type, TEAM_DAMAGE, MAX_CHR, DAMFX_NBLOC | DAMFX_ARMO, bfalse );
+            pchr->damagetime = DAMAGETILETIME;
+        }
+
+        if ( (-1 != damagetile.parttype) && 0 == ( update_wld & damagetile.partand ) )
+        {
+            spawn_one_particle( pchr->pos, 0, MAX_PROFILE, damagetile.parttype,
+                MAX_CHR, GRIP_LAST, TEAM_NULL, MAX_CHR, TOTAL_MAX_PRT, 0, MAX_CHR );
+        }
+    }
 };
 
 //--------------------------------------------------------------------------------------------
@@ -3319,7 +3335,7 @@ bool_t do_chr_platform_detection( Uint16 ichr_a, Uint16 ichr_b )
         depth_a = (pchr_b->pos.z + pchr_b->chr_chr_cv.max_z) - (pchr_a->pos.z + pchr_a->chr_chr_cv.min_z);
         depth_b = (pchr_a->pos.z + pchr_a->chr_chr_cv.max_z) - (pchr_b->pos.z + pchr_b->chr_chr_cv.min_z);
 
-        depth_z = MIN( pchr_b->pos.z + pchr_b->chr_chr_cv.max_z, pchr_a->pos.z + pchr_a->chr_chr_cv.max_z ) - 
+        depth_z = MIN( pchr_b->pos.z + pchr_b->chr_chr_cv.max_z, pchr_a->pos.z + pchr_a->chr_chr_cv.max_z ) -
                   MAX( pchr_b->pos.z + pchr_b->chr_chr_cv.min_z, pchr_a->pos.z + pchr_a->chr_chr_cv.min_z);
 
         chara_on_top = ABS(depth_z - depth_a) < ABS(depth_z - depth_b);
@@ -3432,7 +3448,7 @@ bool_t do_prt_platform_detection( Uint16 ichr_a, Uint16 iprt_b )
 {
     chr_t * pchr_a;
     prt_t * pprt_b;
-    
+
     float  depth_x, depth_y, depth_z, depth_xy, depth_yx;
 
     // make sure that B is valid
@@ -4224,7 +4240,6 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     if ( !LOADED_PIP( ipip_b ) ) return bfalse;
     ppip_b = PipStack.lst + ipip_b;
 
-
     xa = pchr_a->pos.x;
     ya = pchr_a->pos.y;
     za = pchr_a->pos.z;
@@ -4740,7 +4755,6 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
         }
     }
 
-
     // do the reaction force of the particle on the character
     if( ppip_b->allowpush && (ABS(prt_impulse.x) + ABS(prt_impulse.y) + ABS(prt_impulse.z) > 0) )
     {
@@ -4764,7 +4778,6 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
             // all other damage types are in the middle
             attack_factor = INV_SQRT_TWO;
         }
-
 
         prt_mass = 1.0f;
         if( 0 == max_damage )
@@ -7449,8 +7462,8 @@ bool_t upload_damagetile_data( damagetile_instance_t * pinst, wawalite_damagetil
 
     memset( pinst, 0, sizeof(damagetile_instance_t) );
 
-    pinst->sound_time   = TILESOUNDTIME;
-    pinst->min_distance = 9999;
+    //pinst->sound_time   = TILESOUNDTIME;
+    //pinst->min_distance = 9999;
 
     if ( NULL != pdata )
     {

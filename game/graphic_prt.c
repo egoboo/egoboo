@@ -886,7 +886,6 @@ void prt_instance_update_lighting( prt_instance_t * pinst, prt_t * pprt, Uint8 t
     // determine the normal dependent amount of light
     evaluate_lighting_cache( &loc_light, pinst->nrm.v, pinst->pos.z, PMesh->mmem.bbox, &amb, &dir );
 
-
     // determine the ambient lighting
     self_light  = ( 255 == pinst->light ) ? 0 : pinst->light;
     pinst->famb = 0.9f * pinst->famb + 0.1f * (self_light + amb);

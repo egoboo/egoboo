@@ -73,7 +73,7 @@ SDL_bool SDLX_Report_Screen_Info( SDLX_screen_info_t * psi )
         fprintf( LOCAL_STDOUT, "\tAvailable full-screen video modes...\n" );
         for ( cnt = 0; NULL != psi->video_mode_list[cnt]; ++cnt )
         {
-            fprintf( LOCAL_STDOUT, "\t\tVideo Mode - %d x %d\n", psi->video_mode_list[cnt]->w, psi->video_mode_list[cnt]->h );
+            fprintf( LOCAL_STDOUT, "    \tVideo Mode - %d x %d\n", psi->video_mode_list[cnt]->w, psi->video_mode_list[cnt]->h );
         }
     }
 
@@ -180,9 +180,9 @@ void SDLX_output_sdl_video_flags( SDLX_sdl_video_flags_t flags )
 {
     fprintf( LOCAL_STDOUT, "\nSDL flags\n" );
 
-    fprintf( LOCAL_STDOUT, "\t%s\n", flags.full_screen ? "fullscreen"           : "windowed"             );
-    fprintf( LOCAL_STDOUT, "\t%s\n", flags.hw_surface  ? "SDL hardware surface" : "SDL software surface" );
-    fprintf( LOCAL_STDOUT, "\t%s\n", flags.double_buf  ? "SDL double buffer"    : "SDL single buffer"    );
+    fprintf( LOCAL_STDOUT, "    %s\n", flags.full_screen ? "fullscreen"           : "windowed"             );
+    fprintf( LOCAL_STDOUT, "    %s\n", flags.hw_surface  ? "SDL hardware surface" : "SDL software surface" );
+    fprintf( LOCAL_STDOUT, "    %s\n", flags.double_buf  ? "SDL double buffer"    : "SDL single buffer"    );
 
     if ( flags.opengl )
     {
@@ -594,7 +594,7 @@ void SDLX_report_mode( SDL_Surface * surface, SDLX_video_parameters_t * v )
     if ( NULL == surface )
     {
         fprintf( LOCAL_STDOUT, "\n==============================================================\n" );
-        fprintf( LOCAL_STDOUT, "!!!! SDL unable to set video mode with current parameters !!!! - \n\t\"%s\"\n", SDL_GetError() );
+        fprintf( LOCAL_STDOUT, "!!!! SDL unable to set video mode with current parameters !!!! - \n    \"%s\"\n", SDL_GetError() );
         SDLX_report_video_parameters( v );
         fprintf( LOCAL_STDOUT, "==============================================================\n" );
     }

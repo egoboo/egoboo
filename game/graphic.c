@@ -4669,13 +4669,13 @@ void do_chr_flashing()
         if ( !ACTIVE_CHR(ichr) ) continue;
 
         // Do flashing
-        if ( HAS_NO_BITS( frame_all, ChrList.lst[ichr].flashand ) && ChrList.lst[ichr].flashand != DONTFLASH )
+        if ( HAS_NO_BITS( true_frame, ChrList.lst[ichr].flashand ) && ChrList.lst[ichr].flashand != DONTFLASH )
         {
             flash_character( ichr, 255 );
         }
 
         // Do blacking
-        if ( HAS_NO_BITS( frame_all, SEEKURSEAND ) && local_seekurse && ChrList.lst[ichr].iskursed )
+        if ( HAS_NO_BITS( true_frame, SEEKURSEAND ) && local_seekurse && ChrList.lst[ichr].iskursed )
         {
             flash_character( ichr, 0 );
         }
@@ -4699,7 +4699,9 @@ void flash_character( Uint16 character, Uint8 value )
 void animate_tiles()
 {
     /// ZZ@> This function changes the animated tile frame
-    if ( ( update_wld & animtile_update_and ) == 0 )
+
+    // make sure this updates per frame
+    if ( ( true_frame & animtile_update_and ) == 0 )
     {
         animtile[0].frame_add = ( animtile[0].frame_add + 1 ) & animtile[0].frame_and;
         animtile[1].frame_add = ( animtile[1].frame_add + 1 ) & animtile[1].frame_and;

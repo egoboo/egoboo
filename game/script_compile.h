@@ -485,7 +485,7 @@ enum e_script_functions
 	FSETDAMAGETRESHOLD,			 // == 376
 	FACCELERATETARGETUP,         // == 377
 	FSETTARGETAMMO               // == 278
-    
+
 };
 
 //--------------------------------------------------------------------------------------------

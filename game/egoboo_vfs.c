@@ -109,7 +109,6 @@ static void         _vfs_exit(void);
 static const char * _vfs_search( struct s_vfs_search_context * ctxt );
 static int          _vfs_vfscanf( FILE * file, const char * format, va_list args );
 
-
 static int          _vfs_ensure_write_directory( const char * filename, bool_t is_directory );
 static bool_t       _vfs_ensure_destination_file( const char * filename );
 
@@ -388,7 +387,6 @@ char * _vfs_potential_mount_point( const char * some_path, const char ** pstripp
 
     path_begin = some_path;
     path_end   = some_path + VFS_MAX_PATH - 1;
-
 
     // strip any starting slashes
     for( ptmp = path_begin; ptmp < path_end; ptmp++ )

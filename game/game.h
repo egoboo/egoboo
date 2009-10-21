@@ -178,8 +178,8 @@ struct s_damagetile_instance
     Uint32 partand;
     int    sound;
 
-    Sint16  sound_time;
-    Uint16  min_distance;
+    //Sint16  sound_time;           // this is not used anywhere in the game
+    //Uint16  min_distance;           // this is not used anywhere in the game
 };
 typedef struct s_damagetile_instance damagetile_instance_t;
 extern damagetile_instance_t damagetile;

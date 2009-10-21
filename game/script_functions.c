@@ -1023,7 +1023,7 @@ Uint8 scr_TargetDoAction( script_state_t * pstate, ai_state_t * pself )
     {
         int action;
         chr_t * ptarget;
-        
+
         ptarget = ChrList.lst + pself->target;
 
         action = mad_get_action( ptarget->inst.imad, pstate->argument);
@@ -5204,7 +5204,7 @@ Uint8 scr_TargetDoActionSetFrame( script_state_t * pstate, ai_state_t * pself )
         int action;
         chr_t * ptarget = ChrList.lst + pself->target;
 
-        action = mad_get_action(ptarget->inst.imad, action);
+        action = mad_get_action(ptarget->inst.imad, pstate->argument);
         if ( action < ACTION_COUNT )
         {
             if ( MadList[ptarget->inst.imad].action_valid[action] )

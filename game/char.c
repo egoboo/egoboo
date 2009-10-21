@@ -344,6 +344,8 @@ bool_t ChrList_free_one( Uint16 ichr )
 void free_one_character_in_game( Uint16 character )
 {
     /// @details ZZ@> This function sticks a character back on the free character stack
+    ///
+    /// @note This should only be called by cleanup_all_characters() or free_inventory_in_game()
 
     int     cnt;
     cap_t * pcap;
@@ -426,6 +428,8 @@ void free_one_character_in_game( Uint16 character )
 void free_inventory_in_game( Uint16 character )
 {
     /// @details ZZ@> This function frees every item in the character's inventory
+    ///
+    /// @note this should only be called by cleanup_all_characters()
 
     int cnt, next;
 
@@ -2696,7 +2700,6 @@ void cleanup_one_character( chr_t * pchr )
         }
     }
 
-
     // Stop all sound loops for this object
     looped_stop_object_sounds( ichr );
 }
@@ -2718,7 +2721,6 @@ void chr_make_dead( Uint16 ichr )
     pchr->life = -1;
     pchr->platform = btrue;
     pchr->phys.bumpdampen = pchr->phys.bumpdampen / 2.0f;
-
 
     // Play the death animation
     action = ACTION_KA + generate_randmask( 0, 3 );
@@ -2984,12 +2986,10 @@ int damage_character( Uint16 character, Uint16 direction,
                             }
                         }
 
-
                         // this needs to be after the experience calculation because
                         // chr_make_dead() will remove character as the leader of his team.
                         // That would make it impossible to give ALERTIF_LEADERKILLED experience
                         chr_make_dead( character );
-
 
                         // If it's a player, let it die properly before enabling respawn
                         if (pchr->isplayer) revivetimer = ONESECOND; // 1 second
@@ -4410,7 +4410,6 @@ void update_all_characters()
         pchr->onwhichblock = mesh_get_block( PMesh, pchr->pos.x, pchr->pos.y );
     }
 
-
     // do status updates
     for ( cnt = 0; cnt < MAX_CHR; cnt++ )
     {
@@ -5118,7 +5117,7 @@ bool_t chr_do_latch_attack( chr_t * pchr, int which_slot )
     allowedtoattack = btrue;
 
     // First check if reload time and action is okay
-    if ( !action_valid || pweapon->reloadtime > 0 ) 
+    if ( !action_valid || pweapon->reloadtime > 0 )
     {
         allowedtoattack = bfalse;
     }

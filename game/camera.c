@@ -586,7 +586,7 @@ bool_t camera_reset_target( camera_t * pcam, ego_mpd_t * pmesh )
     pcam->turn_mode = CAMTURN_AUTO;
     pcam->move_mode = CAM_RESET;
 
-    // If you use CAM_RESET, camera_move() automatically restores pcam->move_mode 
+    // If you use CAM_RESET, camera_move() automatically restores pcam->move_mode
     // to its default setting
     camera_move( pcam, pmesh );
 

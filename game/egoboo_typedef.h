@@ -375,7 +375,6 @@ typedef struct s_ego_object_base ego_object_base_t;
 /// Grab the index value of object that "inherits" from ego_object_base_t
 #define GET_INDEX( PBLAH, FAIL_VALUE )  ( (NULL == (PBLAH) || !ALLOCATED_OBJ( OBJ_GET_PBASE( (PBLAH) ) ) ) ? FAIL_VALUE : (PBLAH)->obj_base.index )
 
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 #define Egoboo_egobootypedef_h

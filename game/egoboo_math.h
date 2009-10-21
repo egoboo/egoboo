@@ -109,7 +109,7 @@ extern float turntocos[TRIG_TABLE_SIZE];           ///< Convert chrturn>>2...  t
 #define CopyMatrix( pMatrixDest, pMatrixSource ) memcpy( (pMatrixDest), (pMatrixSource), sizeof( fmat_4x4_t ) )
 
 #if defined(TEST_NAN_RESULT)
-#    define LOG_NAN(XX)      if( isnan(XX) ) log_error( "**** A math operation resulted in an invalid result (NAN) ****\n\t(\"%s\" - %d)\n", __FILE__, __LINE__ );
+#    define LOG_NAN(XX)      if( isnan(XX) ) log_error( "**** A math operation resulted in an invalid result (NAN) ****\n    (\"%s\" - %d)\n", __FILE__, __LINE__ );
 #else
 #    define LOG_NAN(XX)
 #endif
@@ -189,8 +189,6 @@ typedef struct s_phys_data phys_data_t;
 bool_t fvec2_clear( fvec2_t * A );
 bool_t fvec3_clear( fvec3_t * A );
 bool_t fvec4_clear( fvec4_t * A );
-
-
 
 float      fvec3_dot_product  ( fvec3_base_t A, fvec3_base_t   B );
 fvec3_t    fvec3_normalize    ( fvec3_base_t A );

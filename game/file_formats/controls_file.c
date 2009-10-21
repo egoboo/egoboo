@@ -146,34 +146,34 @@ bool_t input_settings_save( const char* szFilename)
     pdevice = controls + INPUT_DEVICE_KEYBOARD;
     vfs_puts( "Keyboard\n", filewrite );
     vfs_puts( "========\n", filewrite );
-    export_control( filewrite, "Jump\t\t\t\t", pdevice->device, pdevice->control + CONTROL_JUMP );
-    export_control( filewrite, "Left Hand Use\t\t", pdevice->device, pdevice->control + CONTROL_LEFT_USE );
-    export_control( filewrite, "Left Hand Get/Drop\t", pdevice->device, pdevice->control + CONTROL_LEFT_GET );
+    export_control( filewrite, "Jump                ", pdevice->device, pdevice->control + CONTROL_JUMP );
+    export_control( filewrite, "Left Hand Use        ", pdevice->device, pdevice->control + CONTROL_LEFT_USE );
+    export_control( filewrite, "Left Hand Get/Drop    ", pdevice->device, pdevice->control + CONTROL_LEFT_GET );
     export_control( filewrite, "Left Hand Inventory ", pdevice->device, pdevice->control + CONTROL_LEFT_PACK );
-    export_control( filewrite, "Right Hand Use\t\t", pdevice->device, pdevice->control + CONTROL_RIGHT_USE );
+    export_control( filewrite, "Right Hand Use        ", pdevice->device, pdevice->control + CONTROL_RIGHT_USE );
     export_control( filewrite, "Right Hand Get/Drop ", pdevice->device, pdevice->control + CONTROL_RIGHT_GET );
     export_control( filewrite, "Right Hand Inventory", pdevice->device, pdevice->control + CONTROL_RIGHT_PACK );
-    export_control( filewrite, "Send Message\t\t", pdevice->device, pdevice->control + CONTROL_MESSAGE );
-    export_control( filewrite, "Camera Rotate Left\t", pdevice->device, pdevice->control + CONTROL_CAMERA_LEFT );
+    export_control( filewrite, "Send Message        ", pdevice->device, pdevice->control + CONTROL_MESSAGE );
+    export_control( filewrite, "Camera Rotate Left    ", pdevice->device, pdevice->control + CONTROL_CAMERA_LEFT );
     export_control( filewrite, "Camera Rotate Right ", pdevice->device, pdevice->control + CONTROL_CAMERA_RIGHT );
-    export_control( filewrite, "Camera Zoom In\t\t", pdevice->device, pdevice->control + CONTROL_CAMERA_IN );
-    export_control( filewrite, "Camera Zoom Out\t", pdevice->device, pdevice->control + CONTROL_CAMERA_OUT );
-    export_control( filewrite, "Up\t\t\t\t\t", pdevice->device, pdevice->control + CONTROL_UP );
-    export_control( filewrite, "Down\t\t\t\t", pdevice->device, pdevice->control + CONTROL_DOWN );
-    export_control( filewrite, "Left\t\t\t\t", pdevice->device, pdevice->control + CONTROL_LEFT );
-    export_control( filewrite, "Right\t\t\t\t", pdevice->device, pdevice->control + CONTROL_RIGHT );
+    export_control( filewrite, "Camera Zoom In        ", pdevice->device, pdevice->control + CONTROL_CAMERA_IN );
+    export_control( filewrite, "Camera Zoom Out    ", pdevice->device, pdevice->control + CONTROL_CAMERA_OUT );
+    export_control( filewrite, "Up                    ", pdevice->device, pdevice->control + CONTROL_UP );
+    export_control( filewrite, "Down                ", pdevice->device, pdevice->control + CONTROL_DOWN );
+    export_control( filewrite, "Left                ", pdevice->device, pdevice->control + CONTROL_LEFT );
+    export_control( filewrite, "Right                ", pdevice->device, pdevice->control + CONTROL_RIGHT );
 
     pdevice = controls + INPUT_DEVICE_MOUSE;
     vfs_puts( "\n\nMouse\n", filewrite );
     vfs_puts( "========\n", filewrite );
-    export_control( filewrite, "Jump\t\t\t\t", pdevice->device, pdevice->control + CONTROL_JUMP );
-    export_control( filewrite, "Left Hand Use\t\t", pdevice->device, pdevice->control + CONTROL_LEFT_USE );
-    export_control( filewrite, "Left Hand Get/Drop\t", pdevice->device, pdevice->control + CONTROL_LEFT_GET );
-    export_control( filewrite, "Left Hand Inventory\t", pdevice->device, pdevice->control + CONTROL_LEFT_PACK );
-    export_control( filewrite, "Right Hand Use\t\t", pdevice->device, pdevice->control + CONTROL_RIGHT_USE );
-    export_control( filewrite, "Right Hand Get/Drop\t", pdevice->device, pdevice->control + CONTROL_RIGHT_GET );
+    export_control( filewrite, "Jump                ", pdevice->device, pdevice->control + CONTROL_JUMP );
+    export_control( filewrite, "Left Hand Use        ", pdevice->device, pdevice->control + CONTROL_LEFT_USE );
+    export_control( filewrite, "Left Hand Get/Drop    ", pdevice->device, pdevice->control + CONTROL_LEFT_GET );
+    export_control( filewrite, "Left Hand Inventory    ", pdevice->device, pdevice->control + CONTROL_LEFT_PACK );
+    export_control( filewrite, "Right Hand Use        ", pdevice->device, pdevice->control + CONTROL_RIGHT_USE );
+    export_control( filewrite, "Right Hand Get/Drop    ", pdevice->device, pdevice->control + CONTROL_RIGHT_GET );
     export_control( filewrite, "Right Hand Inventory", pdevice->device, pdevice->control + CONTROL_RIGHT_PACK );
-    export_control( filewrite, "Camera Control Mode\t", pdevice->device, pdevice->control + CONTROL_CAMERA );
+    export_control( filewrite, "Camera Control Mode    ", pdevice->device, pdevice->control + CONTROL_CAMERA );
 
     // export all known joysticks
     for ( i = INPUT_DEVICE_JOY; i < input_device_count; i++)
@@ -183,14 +183,14 @@ bool_t input_settings_save( const char* szFilename)
         snprintf( write, SDL_arraysize(write), "\n\nJoystick %d\n", i - INPUT_DEVICE_JOY );
         vfs_puts( write, filewrite );
         vfs_puts( "========\n", filewrite );
-        export_control( filewrite, "Jump\t\t\t\t", pdevice->device, pdevice->control + CONTROL_JUMP );
-        export_control( filewrite, "Left Hand Use\t\t", pdevice->device, pdevice->control + CONTROL_LEFT_USE );
-        export_control( filewrite, "Left Hand Get/Drop\t", pdevice->device, pdevice->control + CONTROL_LEFT_GET );
-        export_control( filewrite, "Left Hand Inventory\t", pdevice->device, pdevice->control + CONTROL_LEFT_PACK );
-        export_control( filewrite, "Right Hand Use\t\t", pdevice->device, pdevice->control + CONTROL_RIGHT_USE );
-        export_control( filewrite, "Right Hand Get/Drop\t", pdevice->device, pdevice->control + CONTROL_RIGHT_GET );
+        export_control( filewrite, "Jump                ", pdevice->device, pdevice->control + CONTROL_JUMP );
+        export_control( filewrite, "Left Hand Use        ", pdevice->device, pdevice->control + CONTROL_LEFT_USE );
+        export_control( filewrite, "Left Hand Get/Drop    ", pdevice->device, pdevice->control + CONTROL_LEFT_GET );
+        export_control( filewrite, "Left Hand Inventory    ", pdevice->device, pdevice->control + CONTROL_LEFT_PACK );
+        export_control( filewrite, "Right Hand Use        ", pdevice->device, pdevice->control + CONTROL_RIGHT_USE );
+        export_control( filewrite, "Right Hand Get/Drop    ", pdevice->device, pdevice->control + CONTROL_RIGHT_GET );
         export_control( filewrite, "Right Hand Inventory", pdevice->device, pdevice->control + CONTROL_RIGHT_PACK );
-        export_control( filewrite, "Camera Control Mode\t", pdevice->device, pdevice->control + CONTROL_CAMERA );
+        export_control( filewrite, "Camera Control Mode    ", pdevice->device, pdevice->control + CONTROL_CAMERA );
     }
 
     // All done

@@ -19,7 +19,6 @@
 //*
 //********************************************************************************************
 
-
 // This file is only used to set-up some special features of the doxygen automatic
 // source code documentation. This file uses the doxygen's normal "\" notation. In the rest
 // of the project, the "@" notation is used to avoid confusion about slashes

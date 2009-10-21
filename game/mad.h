@@ -196,6 +196,5 @@ void   load_action_names( const char* loadname );
 
 void   mad_make_equally_lit( int model );
 
-
 int mad_get_action( Uint16 imad, int action );
 int randomize_action(int action, int slot);

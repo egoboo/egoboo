@@ -1322,7 +1322,6 @@ int doChoosePlayer( float deltaTime )
                 set_tip_position( menuFont, "Choose an input device to select your player(s)\nUse the mouse wheel to scroll.", 20 );
             }
 
-
             menuState = MM_Entering;
             // fall through
 

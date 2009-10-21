@@ -179,7 +179,7 @@ int load_one_line( int read )
             return read + 1;
         }
 
-        if ( '\t' == cTmp )
+        if ( '    ' == cTmp )
         {
             tabs_warning_needed = btrue;
             cTmp = ' ';
@@ -238,7 +238,7 @@ int load_one_line( int read )
 
     if ( iLineSize > 0  && tabs_warning_needed )
     {
-        log_warning( "Tab character used to define spacing will cause an error \"%s\"(%d) - \n\t\"%s\"\n", globalparsename, Token.iLine, cLineBuffer );
+        log_warning( "Tab character used to define spacing will cause an error \"%s\"(%d) - \n    \"%s\"\n", globalparsename, Token.iLine, cLineBuffer );
     }
 
     // Parse to end of line
@@ -926,7 +926,6 @@ void init_all_ai_scripts()
 //   printf( "\", length == %d\n", iLineSize);
 // }
 
-
 /** Preparation for eliminating aicodes.txt except for introducing aliases
 DEFINE_FUNCTION( FIFSPAWNED,                       "IfSpawned"    )                          // == 0
 DEFINE_FUNCTION( FIFTIMEOUT,                       "IfTimeOut"    )                              // == 1
@@ -1578,7 +1577,6 @@ DEFINE_VARIABLE( VARTARGETMAXLIFE,    "targetmaxlife"    )        // == 74
 DEFINE_VARIABLE( VARTARGETTEAM,    "targetteam"    )           // == 75
 DEFINE_VARIABLE( VARTARGETARMOR,    "targetarmor"    )          // == 76
 DEFINE_VARIABLE( VARDIFFICULTY        // == 77,    "difficulty"    )    //
-
 
 DEFINE_OPERATOR( OPADD,    "+”    )    //
 DEFINE_OPERATOR( OPSUB,    "-"    )    //

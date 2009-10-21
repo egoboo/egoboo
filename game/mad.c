@@ -36,12 +36,10 @@
 #include "egoboo_fileutil.h"
 #include "egoboo_strutil.h"
 
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 ego_md2_t  ego_md2_data[MAX_PROFILE]; ///< the old-style md2 data
-
 
 mad_t   MadList[MAX_PROFILE];
 
@@ -58,7 +56,6 @@ static void   mad_get_framefx( int frame );
 static void   mad_get_walk_frame( Uint16 object, int lip, int action );
 static void   mad_make_framelip( Uint16 object, int action );
 static void   mad_rip_actions( Uint16 object );
-
 
 static void mad_finalize( Uint16 object );
 static void mad_heal_actions( Uint16 object, const char * loadname );
@@ -148,7 +145,7 @@ void action_copy_correct( Uint16 object, Uint16 actiona, Uint16 actionb )
             pmad->action_map[actionb] = pmad->action_map[actiona];
         }
     }
-    
+
     //if ( pmad->action_valid[actiona] == pmad->action_valid[actionb] )
     //{
     //    // They are either both valid or both invalid, in either case we can't help
@@ -190,7 +187,7 @@ int mad_get_action( Uint16 imad, int action )
     // you are pretty much guaranteed that ACTION_DA will be valid for a model,
     // I guess it could be invalid if the model had no fraes or something
     retval = ACTION_DA;
-    if( !pmad->action_valid[ACTION_DA] ) 
+    if( !pmad->action_valid[ACTION_DA] )
     {
         retval = ACTION_COUNT;
     }
@@ -209,7 +206,7 @@ int mad_get_action( Uint16 imad, int action )
 
         // do a "recursive search for a valid action
         // we should never really have to check more than once if the map is prepared
-        // properly BUT you never can tell. Make sure we do not get a runaway loop by 
+        // properly BUT you never can tell. Make sure we do not get a runaway loop by
         // you never go farther than ACTION_COUNT steps and that you never see the
         // original action again
 
@@ -299,7 +296,7 @@ void mad_get_walk_frame( Uint16 object, int lip, int action )
 
     if( !LOADED_MAD(object) ) return;
     pmad = MadList + object;
-    
+
     action = mad_get_action(object, action);
     if( ACTION_COUNT == action )
     {
@@ -321,7 +318,7 @@ void mad_get_walk_frame( Uint16 object, int lip, int action )
             framealong = ( ( frame * framesinaction / 16 ) + 2 ) % framesinaction;
         }
 
-        pmad->frameliptowalkframe[lip][frame] = action_stt + framealong; 
+        pmad->frameliptowalkframe[lip][frame] = action_stt + framealong;
     }
 }
 
@@ -763,7 +760,7 @@ void mad_finalize( Uint16 object )
 
     mad_t * pmad;
     ego_md2_t * pmd2;
-    
+
     if( !LOADED_MAD(object) ) return;
     pmad = MadList + object;
     pmd2 = ego_md2_data + pmad->md2_ref;
@@ -1034,7 +1031,7 @@ bool_t release_one_mad( Uint16 imad )
 int randomize_action(int action, int slot)
 {
     /// @details BB@> this function actually determines whether the action fillows the
-    ///               pattern of ACTION_?A, ACTION_?B, ACTION_?C, ACTION_?D, with 
+    ///               pattern of ACTION_?A, ACTION_?B, ACTION_?C, ACTION_?D, with
     ///               A and B being for the left hand, and C and D being for the right hand
 
     int diff = 0;
@@ -1063,7 +1060,7 @@ int randomize_action(int action, int slot)
     else if( ACTION_JB == action || ACTION_JC == action ) action = ACTION_JB + slot;    // JB/JC = Dropped item left/right
     else if( ACTION_MA == action || ACTION_MB == action ) action = ACTION_MA + slot;    // MA/MB = Drop left/right item
     else if( ACTION_MC == action || ACTION_MD == action ) action = ACTION_MC + slot;    // MC/MD = Slam left/right
-    else if( ACTION_ME == action || ACTION_MF == action ) action = ACTION_ME + slot;    // ME/MF = Grab item left/right 
+    else if( ACTION_ME == action || ACTION_MF == action ) action = ACTION_ME + slot;    // ME/MF = Grab item left/right
     else if( ACTION_MM == action || ACTION_MN == action ) action = ACTION_MM + slot;    // MM/MN = Held left/right
 
     //---- actions that can be randomized, but are not left/right sensitive

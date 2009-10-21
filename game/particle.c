@@ -127,6 +127,10 @@ void free_one_particle_in_game( Uint16 particle )
 {
     /// @details ZZ@> This function sticks a particle back on the free particle stack and
     ///    plays the sound associated with the particle
+    ///
+    /// @note BB@> Use prt_request_terminate() instead of calling this function directly.
+    ///            Requesting termination will defer the actual deletion of a particle until
+    ///            it is finally destroyed by cleanup_all_particles()
 
     Uint16 child;
     prt_t * pprt;
@@ -222,6 +226,9 @@ int prt_get_free( int force )
 //--------------------------------------------------------------------------------------------
 void prt_init( prt_t * pprt )
 {
+    /// BB@> Set all particle parameters to safe values.
+    ///      @details The c equivalent of the particle prt::new() function. 
+
     ego_object_base_t save_base;
 
     if( NULL == pprt ) return;
@@ -325,7 +332,9 @@ Uint16 spawn_one_particle( fvec3_t   pos, Uint16 facing, Uint16 iprofile, Uint16
                            Uint16 chr_attach, Uint16 vrt_offset, Uint8 team,
                            Uint16 chr_origin, Uint16 prt_origin, Uint16 multispawn, Uint16 oldtarget )
 {
-    /// @details ZZ@> This function spawns a new particle, and returns the number of that particle
+    /// @details ZZ@> This function spawns a new particle. 
+    ///               Returns the index of that particle or TOTAL_MAX_PRT on a failure.
+
     int iprt, velocity;
     fvec3_t   vel;
     float tvel;
@@ -456,7 +465,7 @@ Uint16 spawn_one_particle( fvec3_t   pos, Uint16 facing, Uint16 iprofile, Uint16
         // Does it go away?
         if ( !ACTIVE_CHR(pprt->target_ref) && ppip->needtarget )
         {
-            free_one_particle_in_game( iprt );
+            prt_request_terminate( iprt );
             return maxparticles;
         }
 
@@ -610,6 +619,9 @@ Uint32 __prthitawall( prt_t * pprt, float nrm[] )
 //--------------------------------------------------------------------------------------------
 void update_all_particles()
 {
+    /// @details BB@> update everything about a particle that does not depend on collisions
+    ///               or interactions with characters
+
     int cnt, size_new;
 
     Uint16 particle;
@@ -880,6 +892,10 @@ void update_all_particles()
 //--------------------------------------------------------------------------------------------
 void move_one_particle_get_environment( prt_t * pprt )
 {
+    /// @details BB@> A helper function that gets all of the information about the particle's
+    ///               environment (like friction, etc.) that will be necessary for the other 
+    ///               move_one_particle_*() functions to work
+
     Uint32 itile;
 
     pip_t * ppip;
@@ -1008,7 +1024,11 @@ void move_one_particle_get_environment( prt_t * pprt )
 //--------------------------------------------------------------------------------------------
 void move_one_particle_do_floor_friction( prt_t * pprt )
 {
-    /// @details BB@> Friction is complicated when you want to have sliding characters :P
+    /// @details BB@> A helper function that computes particle friction with the floor
+    /// @note this is pretty much ripped from the character version of this function and may
+    ///       contain some features that are not necessary for any particles that are actually in game.
+    ///       For instance, the only particles that is under their own control are the homing particles
+    ///       but they do not have friction with the mesh, but that case is still treated in the code below.
 
     float temp_friction_xy;
     fvec3_t   vup, floor_acc, fric, fric_floor;
@@ -1320,7 +1340,7 @@ void move_one_particle_do_homing( prt_t * pprt )
 //--------------------------------------------------------------------------------------------
 void move_one_particle_do_z_motion( prt_t * pprt )
 {
-    /// @details BB@> do gravitational acceleration and buoyancy
+    /// @details BB@> A helper function that does gravitational acceleration and buoyancy
 
     pip_t * ppip;
     float loc_zlerp;
@@ -1523,8 +1543,8 @@ void move_one_particle_do_z_motion( prt_t * pprt )
     //}
 bool_t move_one_particle_integrate_motion( prt_t * pprt )
 {
-    /// @details BB@> Figure out the next position of the character.
-    ///    Include collisions with the mesh in this step.
+    /// @details BB@> A helper function that figures out the next valid position of the particle.
+    ///               Collisions with the mesh are included in this step.
 
     pip_t * ppip;
 
@@ -1696,7 +1716,6 @@ bool_t move_one_particle_integrate_motion( prt_t * pprt )
         }
     }
 
-
     if ( pprt->is_homing )
     {
         if ( pprt->pos.z < 0 )
@@ -1742,6 +1761,8 @@ bool_t move_one_particle_integrate_motion( prt_t * pprt )
 //--------------------------------------------------------------------------------------------
 bool_t move_one_particle( prt_t * pprt )
 {
+    /// @details BB@> The master function for controlling a particle's motion
+
     prt_environment_t * penviro;
     pip_t * ppip;
 
@@ -1831,7 +1852,7 @@ void cleanup_all_particles()
 
         // make sure the particle has been DISPLAYED at least once, or you can get
         // some wierd particle flickering
-        if( frame_all <= pprt->time_frame ) continue;
+        if( pprt->time_frame >= frame_all + 1 ) continue;
 
         // Spawn new particles if time for old one is up
         ipip = pprt->pip_ref;
@@ -1852,7 +1873,7 @@ void cleanup_all_particles()
             }
         }
 
-        // free the particle
+        // free the particle.
         free_one_particle_in_game( iprt );
     }
 }
@@ -2285,6 +2306,12 @@ bool_t release_one_pip( Uint16 ipip )
 //--------------------------------------------------------------------------------------------
 bool_t prt_request_terminate( Uint16 iprt )
 {
+    /// @details BB@> Tell the game to get rid of this object and treat it
+    ///               as if it was already dead
+
+    /// @note prt_request_terminate() will call force the game to
+    ///       (eventually) call free_one_particle_in_game() on this particle
+
     if( !ACTIVE_PRT(iprt) ) return bfalse;
 
     EGO_OBJECT_REQUST_TERMINATE( PrtList.lst + iprt );

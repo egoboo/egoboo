@@ -81,8 +81,6 @@ void render_fan( ego_mpd_t * pmesh, Uint32 fan )
         }
 
         basetile = image & base_and;
-
-        image   += frame_add;
         image    = frame_add + basetile;
     }
 

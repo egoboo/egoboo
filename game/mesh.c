@@ -1148,7 +1148,6 @@ bool_t mesh_make_normals( ego_mpd_t * pmesh )
         }
     }
 
-
     //            dy_min = iy_off[i] - 1;
     //            dy_max = iy_off[i];
 
@@ -1634,5 +1633,4 @@ Uint32 mesh_hitawall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits,
     return pass & bits;
 
 }
-
 

@@ -139,6 +139,7 @@ EXTERN Uint32          clock_chr_stat  EQ( 0 );         ///< For enchant stat re
 EXTERN Uint32          clock_pit   EQ( 0 );             ///< For pit kills
 EXTERN Uint32          outofsync   EQ( 0 );
 EXTERN Uint32          true_update EQ( 0 );
+EXTERN Uint32          true_frame  EQ( 0 );
 EXTERN int             update_lag  EQ( 0 );
 EXTERN bool_t          soundon  EQ( btrue );              ///< Is the sound alive?
 

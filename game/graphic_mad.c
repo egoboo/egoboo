@@ -1072,7 +1072,7 @@ egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vm
     if( !frames_match )
     {
         psave->frame_wld = update_wld;
-        frames_updated        = btrue;
+        frames_updated   = btrue;
     }
 
     // store the time of the last full update

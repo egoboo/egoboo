@@ -81,7 +81,7 @@ char * str_decode( char *strout, size_t insize, const char * strin )
     {
         *pout = *pin;
         if      ( '_' == *pout ) *pout = ' ';
-        else if ( '~' == *pout ) *pout = '\t';
+        else if ( '~' == *pout ) *pout = '    ';
         pout++;
         pin++;
     };
@@ -114,7 +114,7 @@ char * str_encode( char *strout, size_t insize, const char * strin )
             pin++;
             pout++;
         }
-        else if ( '\t' == *pin )
+        else if ( '    ' == *pin )
         {
             chrlast = *pout = '~';
             pin++;

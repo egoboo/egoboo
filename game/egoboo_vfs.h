@@ -125,10 +125,8 @@ const char * vfs_resolveWriteFilename( const char * src_filename );
 const char* vfs_getError();
 const char* vfs_getVersion();
 
-
 int vfs_add_mount_point( const char * dirname, const char * mount_point, int append );
 int vfs_remove_mount_point( const char * mount_point );
-
 
 const char * vfs_convert_fname( const char * fname );
 const char * vfs_convert_fname_sys( const char * fname );
