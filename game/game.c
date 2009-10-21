@@ -1280,8 +1280,8 @@ int do_ego_proc_running( ego_process_t * eproc )
         //PMod->exportvalid = btrue;
 		for(cnt = 0; cnt < MAX_CHR; cnt++)
 		{
-			if( ChrList.lst[cnt].isplayer || ChrList.lst[cnt].invictus ) continue;
-	        kill_character( cnt, 511 );
+			if( ChrList.lst[cnt].isplayer ) continue;
+	        kill_character( cnt, 511, bfalse );
 		}
     }
 
@@ -2217,7 +2217,7 @@ void update_pits()
                 if ( pits.kill && ChrList.lst[cnt].pos.z < PITDEPTH )
                 {
                     // Got one!
-                    kill_character( cnt, MAX_CHR );
+                    kill_character( cnt, MAX_CHR, bfalse );
                     ChrList.lst[cnt].vel.x = 0;
                     ChrList.lst[cnt].vel.y = 0;
 
@@ -2236,7 +2236,7 @@ void update_pits()
                     if ( !teleported )
                     {
                         // Kill it instead
-                        kill_character( cnt, MAX_CHR );
+                        kill_character( cnt, MAX_CHR, bfalse );
                     }
                     else
                     {

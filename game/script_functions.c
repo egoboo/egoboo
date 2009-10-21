@@ -2855,7 +2855,7 @@ Uint8 scr_KillTarget( script_state_t * pstate, ai_state_t * pself )
         sTmp = pchr->attachedto;
     }
 
-    kill_character( pself->target, sTmp );
+    kill_character( pself->target, sTmp, btrue );
 
     SCRIPT_FUNCTION_END();
 }

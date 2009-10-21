@@ -167,8 +167,8 @@ bool_t remove_enchant( Uint16 ienc )
             chr_get_pteam_base(overlay_ref)->morale++;
         }
 
-        ChrList.lst[overlay_ref].invictus = bfalse;
-        kill_character( overlay_ref, MAX_CHR );
+        //ChrList.lst[overlay_ref].invictus = bfalse;		ZF> no longer needed because ignoreinvictus is added in kill_character()?
+        kill_character( overlay_ref, MAX_CHR, btrue );
     }
 
     // nothing above this demends on having a valid enchant profile
@@ -215,8 +215,8 @@ bool_t remove_enchant( Uint16 ienc )
             {
                 if ( ChrList.lst[itarget].invictus )  chr_get_pteam_base(itarget)->morale++;
 
-                ChrList.lst[itarget].invictus = bfalse;
-                kill_character( itarget, MAX_CHR );
+                //ChrList.lst[itarget].invictus = bfalse;	ZF> no longer needed because ignoreinvictus is added in kill_character()?
+				kill_character( itarget, MAX_CHR, btrue );
             }
         }
 
@@ -1384,10 +1384,9 @@ void update_all_enchants()
 
                     // Change life
                     ChrList.lst[owner].life += penc->ownerlife;
-                    if ( ChrList.lst[owner].life < 1 )
+                    if ( ChrList.lst[owner].life <= 0 )
                     {
-                        ChrList.lst[owner].life = 1;
-                        kill_character( owner, target );
+                        kill_character( owner, target, bfalse );
                     }
 
                     if ( ChrList.lst[owner].life > ChrList.lst[owner].lifemax )
@@ -1417,10 +1416,9 @@ void update_all_enchants()
 
                         // Change life
                         ChrList.lst[target].life += penc->targetlife;
-                        if ( ChrList.lst[target].life < 1 )
+                        if ( ChrList.lst[target].life <= 0 )
                         {
-                            ChrList.lst[target].life = 1;
-                            kill_character( target, owner );
+                            kill_character( target, owner, bfalse );
                         }
                         if ( ChrList.lst[target].life > ChrList.lst[target].lifemax )
                         {

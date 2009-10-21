@@ -2705,15 +2705,26 @@ void cleanup_one_character( chr_t * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-void chr_make_dead( Uint16 ichr )
+void kill_character( Uint16 ichr, Uint16 killer, bool_t ignoreinvincible )
 {
     /// @details BB@> Handle a character death. Set various states, disconnect it from the world, etc.
 
     chr_t * pchr;
+	cap_t * pcap;
     int tnc, action;
+	Uint16 experience;
+	Uint8 killer_team;
 
     if( !ALLOCATED_CHR(ichr) ) return;
     pchr = ChrList.lst + ichr;
+
+	//No need to continue is there?
+	if( pchr->invictus && !ignoreinvincible ) return;
+
+    pcap = pro_get_pcap( pchr->iprofile );
+    if( NULL == pcap ) return;
+
+	killer_team = chr_get_iteam(killer);
 
     pchr->alive = bfalse;
     pchr->waskilled = btrue;
@@ -2727,42 +2738,72 @@ void chr_make_dead( Uint16 ichr )
     chr_play_action( ichr, action, bfalse );
     pchr->inst.action_keep = btrue;
 
-    //Set various alerts to let others know it has died
-    pchr->ai.alert |= ALERTIF_KILLED;
+	// Give kill experience
+	experience = pcap->experienceworth + ( pchr->experience * pcap->experienceexchange );
+
+	// distribute experience to the attacker
+	if ( ACTIVE_CHR(killer) )
+	{
+		// Set target
+		pchr->ai.target = killer;
+		if ( killer_team == TEAM_DAMAGE || killer_team == TEAM_NULL )  pchr->ai.target = ichr;
+
+		// Award experience for kill?
+		if ( team_hates_team( killer_team, pchr->team ) )
+		{
+			//Check for special hatred
+			if ( chr_get_idsz(killer,IDSZ_HATE) == chr_get_idsz(ichr,IDSZ_PARENT) ||
+				 chr_get_idsz(killer,IDSZ_HATE) == chr_get_idsz(ichr,IDSZ_TYPE) )
+			{
+				give_experience( killer, experience, XP_KILLHATED, bfalse );
+			}
+
+			// Nope, award direct kill experience instead
+			else give_experience( killer, experience, XP_KILLENEMY, bfalse );
+		}
+	}
+
+	//Set various alerts to let others know it has died
+    //and distribute experience to whoever needs it
+	pchr->ai.alert |= ALERTIF_KILLED;
     for ( tnc = 0; tnc < MAX_CHR; tnc++ )
-    {
-        chr_t * plistener;
+	{
+		chr_t * plistener;
 
-        if ( !ACTIVE_CHR(tnc) ) continue;
-        plistener = ChrList.lst + tnc;
+		if ( !ACTIVE_CHR(tnc) ) continue;
+		plistener = ChrList.lst + tnc;
 
-        if( !plistener->alive ) continue;
+		if( !plistener->alive ) continue;
+
+		// All allies get team experience, but only if they also hate the dead guy's team
+		if ( tnc != killer && !team_hates_team(plistener->team,killer_team) && team_hates_team(plistener->team,pchr->team) )
+		{
+			give_experience( tnc, experience, XP_TEAMKILL, bfalse );
+		}
+
+		// Check if it was a leader
+		if ( TeamList[pchr->team].leader == ichr && chr_get_iteam(tnc) == pchr->team )
+		{
+			// All folks on the leaders team get the alert
+			plistener->ai.alert |= ALERTIF_LEADERKILLED;
+		}
 
         // Let the other characters know it died
         if ( plistener->ai.target == ichr )
         {
             plistener->ai.alert |= ALERTIF_TARGETKILLED;
         }
-    }
-
-    for ( tnc = 0; tnc < MAX_CHR; tnc++ )
-    {
-        chr_t * plistener;
-
-        if ( !ACTIVE_CHR(tnc) ) continue;
-        plistener = ChrList.lst + tnc;
-
-        if( !plistener->alive ) continue;
-
-        // Let the other characters know it died
-        if ( plistener->ai.target == ichr )
-        {
-            plistener->ai.alert |= ALERTIF_TARGETKILLED;
-        }
-    }
+	}
 
     // Detach the character from the game
     cleanup_one_character( pchr );
+
+    // If it's a player, let it die properly before enabling respawn
+    if (pchr->isplayer) revivetimer = ONESECOND; // 1 second
+
+    // Let it's AI script run one last time
+    pchr->ai.timer = update_wld + 1;			//Prevent IfTimeOut from happening
+    let_character_think( ichr );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2775,11 +2816,9 @@ int damage_character( Uint16 character, Uint16 direction,
     ///    are done here too.  Direction is ATK_FRONT if the attack is coming head on,
     ///    ATK_RIGHT if from the right, ATK_BEHIND if from the back, ATK_LEFT if from the
     ///    left.
-
-    int tnc;
     Uint16 action;
     int    actual_damage, base_damage;
-    Uint16 experience, left, right;
+    Uint16 left, right;
     chr_t * pchr;
     cap_t * pcap;
 
@@ -2829,10 +2868,10 @@ int damage_character( Uint16 character, Uint16 direction,
         pchr->ai.directionlast = direction;
 
         // Do it already
-        if ( actual_damage > 0 )
+        if ( actual_damage > pchr->damagethreshold )
         {
             // Only actual_damage if not invincible
-			if ( (0 == pchr->damagetime || ignoreinvincible) && !pchr->invictus && pchr->damagethreshold < actual_damage )
+			if ( (0 == pchr->damagetime || ignoreinvincible) && !pchr->invictus )
             {
                 // Hard mode deals 25% extra actual damage to players!
                 if ( cfg.difficulty >= GAME_HARD && pchr->isplayer && !ChrList.lst[attacker].isplayer ) actual_damage *= 1.25f;
@@ -2935,71 +2974,13 @@ int damage_character( Uint16 character, Uint16 direction,
                     }
 
                     // Taking actual_damage action
-                    action = ACTION_HA;
-                    if ( pchr->life < 0 )
+                    if ( pchr->life <= 0 )
                     {
-                        // Give kill experience
-                        experience = pcap->experienceworth + ( pchr->experience * pcap->experienceexchange );
-
-                        // distribute experience to the attacker
-                        if ( ACTIVE_CHR(attacker) )
-                        {
-                            // Set target
-                            pchr->ai.target = attacker;
-                            if ( team == TEAM_DAMAGE || team == TEAM_NULL )  pchr->ai.target = character;
-
-                            // Award direct kill experience
-                            if ( team_hates_team( ChrList.lst[attacker].team, pchr->team ) )
-                            {
-                                give_experience( attacker, experience, XP_KILLENEMY, bfalse );
-                            }
-
-                            // Check for special hatred
-                            if ( chr_get_idsz(attacker,IDSZ_HATE) == chr_get_idsz(character,IDSZ_PARENT) ||
-                                 chr_get_idsz(attacker,IDSZ_HATE) == chr_get_idsz(character,IDSZ_TYPE) )
-                            {
-                                give_experience( attacker, experience, XP_KILLHATED, bfalse );
-                            }
-                        }
-
-                        // distribute experience to whoever needs it
-                        for ( tnc = 0; tnc < MAX_CHR; tnc++ )
-                        {
-                            chr_t * plistener;
-
-                            if ( !ACTIVE_CHR(tnc) ) continue;
-                            plistener = ChrList.lst + tnc;
-
-                            if( !plistener->alive ) continue;
-
-                            // All allies get team experience, but only if they also hate the dead guy's team
-                            if ( !team_hates_team(plistener->team,team) && team_hates_team(plistener->team,pchr->team) )
-                            {
-                                give_experience( tnc, experience, XP_TEAMKILL, bfalse );
-                            }
-
-                            // Check if it was a leader
-                            if ( TeamList[pchr->team].leader == character && chr_get_iteam(tnc) == pchr->team )
-                            {
-                                // All folks on the leaders team get the alert
-                                plistener->ai.alert |= ALERTIF_LEADERKILLED;
-                            }
-                        }
-
-                        // this needs to be after the experience calculation because
-                        // chr_make_dead() will remove character as the leader of his team.
-                        // That would make it impossible to give ALERTIF_LEADERKILLED experience
-                        chr_make_dead( character );
-
-                        // If it's a player, let it die properly before enabling respawn
-                        if (pchr->isplayer) revivetimer = ONESECOND; // 1 second
-
-                        // Afford it one last thought if it's an AI
-                        pchr->ai.timer = update_wld + 1;  // No timeout...
-                        let_character_think( character );
+                        kill_character( character, attacker, ignoreinvincible );
                     }
                     else
                     {
+						action = ACTION_HA;
                         if ( base_damage > HURTDAMAGE )
                         {
                             action += generate_randmask( 0, 3 );
@@ -3112,48 +3093,6 @@ int damage_character( Uint16 character, Uint16 direction,
     }
 
     return actual_damage;
-}
-
-//--------------------------------------------------------------------------------------------
-void kill_character( Uint16 character, Uint16 killer )
-{
-    /// @details ZZ@> This function kills a character...  MAX_CHR killer for accidental death
-
-    Uint8 modifier;
-    Uint16 threshold;
-	chr_t * pchr;
-
-    if ( !ACTIVE_CHR( character ) ) return;
-    pchr = ChrList.lst + character;
-
-    if ( pchr->alive )
-    {
-        IPair tmp_damage = {512,1};
-
-        pchr->damagetime = 0;
-        pchr->life = 1;
-
-		//Remember some values
-        modifier = pchr->damagemodifier[DAMAGE_CRUSH];
-        threshold = pchr->damagethreshold;
-
-		//Set those values so we are sure it will die
-		pchr->damagemodifier[DAMAGE_CRUSH] = 1;
-		pchr->damagethreshold = 0;
-
-		if ( ACTIVE_CHR( killer ) )
-        {
-            damage_character( character, ATK_FRONT, tmp_damage, DAMAGE_CRUSH, chr_get_iteam(killer), killer, DAMFX_ARMO | DAMFX_NBLOC, btrue );
-        }
-        else
-        {
-            damage_character( character, ATK_FRONT, tmp_damage, DAMAGE_CRUSH, TEAM_DAMAGE, pchr->ai.bumplast, DAMFX_ARMO | DAMFX_NBLOC, btrue );
-        }
-
-		//Revert back to original again
-        pchr->damagemodifier[DAMAGE_CRUSH] = modifier;
-		pchr->damagethreshold = threshold;
-    }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4222,7 +4161,7 @@ bool_t cost_mana( Uint16 character, int amount, Uint16 killer )
 
             if ( pchr->life <= 0 && cfg.difficulty >= GAME_HARD )
             {
-                kill_character( character, !ACTIVE_CHR(killer) ? character : killer );
+                kill_character( character, !ACTIVE_CHR(killer) ? character : killer, bfalse );
             }
 
             mana_paid = btrue;
@@ -6085,7 +6024,7 @@ chr_instance_t * chr_instance_init( chr_instance_t * pinst )
     pinst->rate = 1.0f;
     pinst->action_next  = ACTION_DA;
     pinst->action_ready = btrue;             // argh! this must be set at the beginning, script's spawn animations do not work!
-    pinst->frame_nxt = pinst->frame_lst = -1;
+    pinst->frame_nxt = pinst->frame_lst = 0;
 
     return pinst;
 }
@@ -6525,7 +6464,7 @@ Uint16 chr_get_iteam(Uint16 ichr)
 {
     chr_t * pchr;
 
-    if( !ACTIVE_CHR(ichr) ) return TEAM_MAX;
+    if( !ACTIVE_CHR(ichr) ) return TEAM_DAMAGE;
     pchr = ChrList.lst + ichr;
 
     return CLIP(pchr->team, 0, TEAM_MAX);
@@ -8899,3 +8838,47 @@ Uint16 chr_get_lowest_attachment( Uint16 ichr, bool_t non_item )
 
     return object;
 }
+
+
+//--------------------------------------------------------------------------------------------
+/*void kill_character( Uint16 character, Uint16 killer )
+{
+    /// @details ZZ@> This function kills a character...  MAX_CHR killer for accidental death
+
+    Uint8 modifier;
+    Uint16 threshold;
+	chr_t * pchr;
+
+    if ( !ACTIVE_CHR( character ) ) return;
+    pchr = ChrList.lst + character;
+
+    if ( pchr->alive )
+    {
+        IPair tmp_damage = {512,1};
+
+        pchr->damagetime = 0;
+        pchr->life = 1;
+
+		//Remember some values
+        modifier = pchr->damagemodifier[DAMAGE_CRUSH];
+        threshold = pchr->damagethreshold;
+
+		//Set those values so we are sure it will die
+		pchr->damagemodifier[DAMAGE_CRUSH] = 1;
+		pchr->damagethreshold = 0;
+
+		if ( ACTIVE_CHR( killer ) )
+        {
+            damage_character( character, ATK_FRONT, tmp_damage, DAMAGE_CRUSH, chr_get_iteam(killer), killer, DAMFX_ARMO | DAMFX_NBLOC, btrue );
+        }
+        else
+        {
+            damage_character( character, ATK_FRONT, tmp_damage, DAMAGE_CRUSH, TEAM_DAMAGE, pchr->ai.bumplast, DAMFX_ARMO | DAMFX_NBLOC, btrue );
+        }
+
+		//Revert back to original again
+        pchr->damagemodifier[DAMAGE_CRUSH] = modifier;
+		pchr->damagethreshold = threshold;
+    }
+}*/
+
