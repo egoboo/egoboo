@@ -66,9 +66,15 @@ void fs_init()
     snprintf( linux_userdataPath, SDL_arraysize(linux_userdataPath), "%s/.egoboo-2.x/", userhome );
 
     // this is a read-only directory
+#if !defined(_NIX_IDE)
     strncpy( linux_configPath, PREFIX "/etc/egoboo-2.x/",         SDL_arraysize(linux_configPath) );
     strncpy( linux_binaryPath, PREFIX "/games/egoboo-2.x/",       SDL_arraysize(linux_binaryPath) );
     strncpy( linux_dataPath,   PREFIX "/share/games/egoboo-2.x/", SDL_arraysize(linux_dataPath)   );
+#else
+    strncpy( linux_configPath, "/etc/egoboo-2.x/",         SDL_arraysize(linux_configPath) );
+    strncpy( linux_binaryPath, "/games/egoboo-2.x/",       SDL_arraysize(linux_binaryPath) );
+    strncpy( linux_dataPath,   "/share/games/egoboo-2.x/", SDL_arraysize(linux_dataPath)   );
+#endif
 
     // the log file cannot be started until there is a user data path to dump the file into
     // so dump this debug info to stdout

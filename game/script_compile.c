@@ -179,7 +179,7 @@ int load_one_line( int read )
             return read + 1;
         }
 
-        if ( '    ' == cTmp )
+        if ( '\t' == cTmp )
         {
             tabs_warning_needed = btrue;
             cTmp = ' ';

@@ -3194,17 +3194,22 @@ chr_t * chr_init( chr_t * pchr )
 
     int cnt;
     ego_object_base_t save_base;
+    ego_object_base_t * pbase;
 
     if( !ALLOCATED_PCHR(pchr) ) return pchr;
 
+
+    pbase = OBJ_GET_PBASE( pchr );
+    if( NULL == pbase ) return pchr;
+
     // save the base object data
-    memcpy( &save_base, OBJ_GET_PBASE( pchr ), sizeof(ego_object_base_t) );
+    memcpy( &save_base, pbase, sizeof(ego_object_base_t) );
 
     // clear out all data
     memset(pchr, 0, sizeof(chr_t));
 
     // restore the base object data
-    memcpy( OBJ_GET_PBASE( pchr ), &save_base, sizeof(ego_object_base_t) );
+    memcpy( pbase, &save_base, sizeof(ego_object_base_t) );
 
     // IMPORTANT!!!
     pchr->ibillboard = INVALID_BILLBOARD;
@@ -5677,7 +5682,7 @@ void move_one_character_do_animation( chr_t * pchr )
                             pchr->inst.action_which = tmp_action;
                             pinst->frame_nxt = chr_get_pmad(ichr)->action_stt[pchr->inst.action_which];
                         }
-                    } 
+                    }
                 }
 
                 pchr->inst.action_ready = btrue;
