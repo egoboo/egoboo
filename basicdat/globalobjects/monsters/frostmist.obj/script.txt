@@ -1,0 +1,79 @@
+IfSpawned
+  tmpargument = STATEGUARD
+  SetState
+  
+  //Spawn the character itself
+  tmpargument = 0
+  tmpx = 0
+  tmpy = 0
+  tmpdistance = 60
+  SpawnAttachedParticle
+  
+  //Frost humming
+  tmpargument = 4
+  PlaySoundLooped
+  
+//------------------------------------------------------------------------------
+//All dead
+IfKilled
+  tmpargument = 0
+  SendMessageNear
+  GoPoof
+  
+  //Death cry
+  tmpargument = 0
+  PlaySound
+
+//------------------------------------------------------------------------------
+//Ouch!
+IfAttacked
+  tmpargument = rand & 1 + 1
+  PlaySound
+
+//------------------------------------------------------------------------------
+// Let the character walk around
+IfTimeOut
+  tmpargument = rand % 35 + 40
+  SetTime
+  
+  IfStateIsGuard
+    SetTargetToWideEnemy
+      tmpargument = STATECOMBAT
+      SetState
+    Else
+      tmpx = rand % 2023 + selfspawnx - 1024
+      tmpy = rand % 2023 + selfspawny - 1024
+      ClearWaypoints
+      AddWaypoint
+      
+  IfStateIsCombat
+    tmpx = targetx
+    tmpy = targety
+    tmpdistance = 600
+    tmpturn = rand % 16000 + targetturnto - 8000
+    ClearWaypoints
+    AddWaypoint
+    
+//------------------------------------------------------------------------------
+IfTargetKilled
+  tmpargument = STATEGUARD
+  SetState
+  
+//------------------------------------------------------------------------------
+//Damage them
+IfBumped
+  SetTargetToWhoeverBumped
+  IfTargetIsOnHatedTeam
+    tmpargument = 512
+    DamageTarget
+    EnchantTarget
+    tmpargument = 3
+    PlaySound
+  tmpx = rand % 511 + targetx - 256
+  tmpy = rand % 511 + targety - 256
+  ClearWaypoints
+  AddWaypoint
+    
+//------------------------------------------------------------------------------
+End
+//------------------------------------------------------------------------------

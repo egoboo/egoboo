@@ -150,7 +150,7 @@ Can be grogged : FALSE
 NOT USED       : 0
 NOT USED       : 0
 Can see invisi : FALSE
-Kursed chance  : 0
+Kursed chance  : 6
 Footfall sound : -1
 Jump sound     : -1
 

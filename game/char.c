@@ -2345,7 +2345,7 @@ bool_t chr_download_cap( chr_t * pchr, cap_t * pcap )
     // calculate a base kurse state. this may be overridden later
     if ( pcap->isitem )
     {
-        IPair loc_rand = {0,100};
+        IPair loc_rand = {1,100};
         pchr->iskursed = ( generate_irand_pair(loc_rand) <= pcap->kursechance );
     }
 
