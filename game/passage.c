@@ -472,11 +472,9 @@ void add_passage( passage_t * pdata )
 }
 
 //--------------------------------------------------------------------------------------------
-void activate_passages_file( const char *modname )
+void activate_passages_file()
 {
     /// @details ZZ@> This function reads the passage file
-
-    STRING     newloadname;
     passage_t  tmp_passage;
     vfs_FILE  *fileread;
 

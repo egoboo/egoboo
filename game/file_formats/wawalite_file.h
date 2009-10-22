@@ -175,5 +175,5 @@ extern wawalite_data_t wawalite_data;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t            write_wawalite_file( const char *filename, wawalite_data_t * pdata );
+bool_t            write_wawalite_file( wawalite_data_t * pdata );
 wawalite_data_t * read_wawalite_file( const char *filename, wawalite_data_t * pdata );

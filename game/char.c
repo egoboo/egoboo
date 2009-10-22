@@ -2719,7 +2719,7 @@ void kill_character( Uint16 ichr, Uint16 killer, bool_t ignoreinvincible )
     pchr = ChrList.lst + ichr;
 
 	//No need to continue is there?
-	if( pchr->invictus && !ignoreinvincible ) return;
+	if( !pchr->alive || pchr->invictus && !ignoreinvincible ) return;
 
     pcap = pro_get_pcap( pchr->iprofile );
     if( NULL == pcap ) return;

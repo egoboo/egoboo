@@ -677,7 +677,7 @@ Uint16 load_one_model_profile( const char* tmploadname, Uint16 imad )
     //md2_fix_normals( imad );        // Fix them normals
     //md2_get_transvertices( imad );  // Figure out how many vertices to transform
 
-    pmad->md2_ptr = md2_loadFromFile( newloadname );
+    pmad->md2_ptr = NULL; //md2_loadFromFile( newloadname );
 
     // Create the actions table for this imad
     mad_rip_actions( imad );

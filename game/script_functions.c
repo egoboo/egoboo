@@ -1467,7 +1467,7 @@ Uint8 scr_TargetIsOnOtherTeam( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ( ChrList.lst[pself->target].alive && ChrList.lst[pself->target].team != pchr->team );
+    returncode = ( ChrList.lst[pself->target].alive && chr_get_iteam(pself->target) != pchr->team );
 
     SCRIPT_FUNCTION_END();
 }
@@ -1480,7 +1480,7 @@ Uint8 scr_TargetIsOnHatedTeam( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ( ChrList.lst[pself->target].alive && TeamList[pchr->team].hatesteam[ChrList.lst[pself->target].team] && !ChrList.lst[pself->target].invictus );
+    returncode = ( ChrList.lst[pself->target].alive && TeamList[pchr->team].hatesteam[chr_get_iteam(pself->target)] && !ChrList.lst[pself->target].invictus );
 
     SCRIPT_FUNCTION_END();
 }
@@ -2600,7 +2600,7 @@ Uint8 scr_GiveExperienceToTargetTeam( script_state_t * pstate, ai_state_t * psel
 
     SCRIPT_FUNCTION_BEGIN();
 
-    give_team_experience( ChrList.lst[pself->target].team, pstate->argument, pstate->distance );
+    give_team_experience( chr_get_iteam(pself->target), pstate->argument, pstate->distance );
 
     SCRIPT_FUNCTION_END();
 }
@@ -2839,7 +2839,7 @@ Uint8 scr_TargetIsOnSameTeam( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = bfalse;
-    if ( ChrList.lst[pself->target].team == pchr->team )
+    if ( chr_get_iteam(pself->target) == pchr->team )
         returncode = btrue;
 
     SCRIPT_FUNCTION_END();
@@ -2854,12 +2854,14 @@ Uint8 scr_KillTarget( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     sTmp = pself->index;
+
+	//Weapons don't kill people, people kill people...
     if ( ACTIVE_CHR(pchr->attachedto) && !ChrList.lst[pchr->attachedto].ismount )
     {
         sTmp = pchr->attachedto;
     }
 
-    kill_character( pself->target, sTmp, btrue );
+    kill_character( pself->target, sTmp, bfalse );
 
     SCRIPT_FUNCTION_END();
 }
@@ -6627,7 +6629,7 @@ Uint8 scr_AddBlipAllEnemies( script_state_t * pstate, ai_state_t * pself )
 
     if ( ACTIVE_CHR(pself->target) )
     {
-        local_senseenemiesTeam = ChrList.lst[pself->target].team;
+        local_senseenemiesTeam = chr_get_iteam(pself->target);
         local_senseenemiesID   = pstate->argument;
     }
     else

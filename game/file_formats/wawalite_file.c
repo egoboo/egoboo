@@ -484,7 +484,7 @@ bool_t write_wawalite_fog( vfs_FILE * filewrite, wawalite_data_t * pdata )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t write_wawalite_file( const char *modname, wawalite_data_t * pdata )
+bool_t write_wawalite_file( wawalite_data_t * pdata )
 {
     /// @details ZZ@> This function sets up water and lighting for the module
 

@@ -1897,10 +1897,10 @@ int sv_hostGame()
 }
 
 //--------------------------------------------------------------------------------------------
-void turn_on_service( int service )
+/*void turn_on_service( int service )
 {
     /// ZZ@> This function turns on a network service ( IPX, TCP, serial, modem )
-}
+}*/
 
 //--------------------------------------------------------------------------------------------
 int  net_pendingFileTransfers()

@@ -140,7 +140,7 @@ int    md2_rip_frame_name( int frame );
 void   md2_rip_frames( ego_md2_t * pflist );
 bool_t md2_load_one( const char* szLoadname, ego_md2_t * pmd2 );
 
-Md2Model *md2_loadFromFile( const char *fileName );
+//Md2Model *md2_loadFromFile( const char *fileName );
 void      md2_freeModel( Md2Model *model );
 
 #define EGOBOO_MD2_H

@@ -81,10 +81,10 @@ void md2_freeModel( Md2Model *model )
 }
 
 //--------------------------------------------------------------------------------------------
-Md2Model* md2_loadFromFile( const char *filename )
+/*Md2Model* md2_loadFromFile( const char *filename )
 {
     return NULL;
-}
+}*/
 
 //---------------------------------------------------------------------------------------------
 int md2_rip_header()

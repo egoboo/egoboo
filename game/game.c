@@ -209,8 +209,8 @@ static bool_t game_load_module_data( const char *smallname );
 static void   game_release_module_data();
 static void   game_load_all_profiles( const char *modname );
 
-static void   activate_spawn_file( const char *modname );
-static void   activate_alliance_file( const char *modname );
+static void   activate_spawn_file();
+static void   activate_alliance_file();
 static void   load_all_global_objects();
 
 static bool_t chr_setup_apply( Uint16 ichr, spawn_file_info_t *pinfo );
@@ -716,11 +716,9 @@ void chr_set_frame( Uint16 character, Uint16 action, int frame, Uint16 lip )
 }
 
 //--------------------------------------------------------------------------------------------
-void activate_alliance_file( const char *modname )
+void activate_alliance_file( /*const char *modname*/ )
 {
     /// @details ZZ@> This function reads the alliance file
-
-    STRING newloadname;
     STRING szTemp;
     Uint8 teama, teamb;
     vfs_FILE *fileread;
@@ -5535,7 +5533,7 @@ bool_t activate_spawn_file_spawn( spawn_file_info_t * psp_info )
 }
 
 //--------------------------------------------------------------------------------------------
-void activate_spawn_file( const char *modname )
+void activate_spawn_file()
 {
     /// @details ZZ@> This function sets up character data, loaded from "SPAWN.TXT"
 
@@ -5695,9 +5693,9 @@ void game_setup_module( const char *smallname )
     str_append_slash(modname, SDL_arraysize(modname));
 
     // ust the information in these files to load the module
-    activate_passages_file( modname );        // read and implement the "passage script" passages.txt
-    activate_spawn_file( modname );           // read and implement the "spawn script" spawn.txt
-    activate_alliance_file( modname );        // set up the non-default team interactions
+    activate_passages_file();        // read and implement the "passage script" passages.txt
+    activate_spawn_file();           // read and implement the "spawn script" spawn.txt
+    activate_alliance_file();        // set up the non-default team interactions
 }
 
 //--------------------------------------------------------------------------------------------
@@ -7780,7 +7778,7 @@ bool_t write_wawalite( const char *modname, wawalite_data_t * pdata )
     /// @details BB@> Prepare and write the wawalite file
 
     int cnt;
-    STRING filename;
+//    STRING filename;
 
     if( !VALID_CSTR(modname) || NULL == pdata ) return bfalse;
 
@@ -7793,9 +7791,9 @@ bool_t write_wawalite( const char *modname, wawalite_data_t * pdata )
         pdata->water.layer[cnt].light_add = CLIP(pdata->water.layer[cnt].light_add, 0, 63);
     }
 
-    snprintf( filename, SDL_arraysize(filename), "modules" SLASH_STR "%s" SLASH_STR "gamedat" SLASH_STR "menu.txt", modname );
+    //snprintf( filename, SDL_arraysize(filename), "modules" SLASH_STR "%s" SLASH_STR "gamedat" SLASH_STR "menu.txt", modname );
 
-    return write_wawalite_file( filename, pdata );
+    return write_wawalite_file( pdata );
 }
 
 //--------------------------------------------------------------------------------------------

@@ -1623,11 +1623,10 @@ static bool_t _vfs_copyFile( const char *source, const char *dest )
 
     retval = VFS_TRUE;
 
-    while ( btrue )
+	bytes_read = btrue;
+    while ( bytes_read > 0 )
     {
         bytes_read = PHYSFS_read( sourcef, buf, sizeof(char), SDL_arraysize( buf ) );
-        if ( bytes_read <= 0) break;
-
         PHYSFS_write( destf, buf, sizeof(char), bytes_read );
     }
 

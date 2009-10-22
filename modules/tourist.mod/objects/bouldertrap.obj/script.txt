@@ -29,7 +29,7 @@ IfXIsLessThanY
     SetState
   ClearWaypoints
   AddWaypoint
-    
+  
 //------------------------------------------------------------------------------
 //Crush folks
 IfBumped
