@@ -416,6 +416,7 @@ Uint16 spawn_one_particle( fvec3_t   pos, Uint16 facing, Uint16 iprofile, Uint16
 
     // Targeting...
     vel.z = 0;
+
     tmp_pos.z += generate_randmask( ppip->zspacing_pair.base, ppip->zspacing_pair.rand ) - ( ppip->zspacing_pair.rand >> 1 );
     velocity = generate_randmask( ppip->xyvel_pair.base, ppip->xyvel_pair.rand );
     pprt->target_ref = oldtarget;
@@ -813,7 +814,8 @@ void update_all_particles()
             size_new = pprt->size + pprt->size_add;
             pprt->size = CLIP(size_new, 0, 0xFFFF);
 
-            if( SPRITE_SOLID != pprt->type && 0.0f != pprt->inst.alpha )
+            
+			if( SPRITE_SOLID != pprt->type && 0.0f != pprt->inst.alpha )
             {
                 // adjust the particle alpha
                 if( size_new > 0 )
@@ -826,6 +828,7 @@ void update_all_particles()
                     pprt->inst.alpha = 0xFF;
                 }
             }
+			
         }
 
         // Change dyna light values

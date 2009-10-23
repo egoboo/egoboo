@@ -10,6 +10,7 @@ Version 2.8.0 (xx.10.2009)
 - New Feature: Improved AI by adding Line of Sight detection for targeting.
 - New Feature: Improved UI by implementing in-game pop up text.
 - New Feature: Implemented a new file system based on PhysFS to improve file handling.
+- Update: Backstabs now deal double damage and damage is increased by dexterity.
 - Update: Various GUI improvements to make it easier to navigate and use.
 - Update: Improved the texture detail for all the title images and replaced some with better ones.
 - Update: Vampires are significantly weaker than before.

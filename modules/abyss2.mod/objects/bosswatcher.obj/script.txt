@@ -26,22 +26,14 @@ IfArmorIs
       SetFlyHeight
 Else
   //Backstabbing!
-  IfAttacked
+  IfBackstabbed
     SetTargetToWhoeverAttacked
-    IfHitFromBehind
-      tmpargument = [DISA]        //TODO: [STAB]
-      IfTargetHasSkillID
-        tmpargument = 50
-        tmpdistance = EXPMURDER
-        GiveExperienceToTarget
-
-        //+ 1/2 damage per stabber level
-        tmpargument = targetlevel*128
-        SetTargetToSelf
-        DamageTarget
-
-        tmpargument = 1
-        SendMessageNear
+    GetDamageType
+    tmpdistance = tmpargument
+    tmpargument = targetdex
+    TargetDamageSelf
+    tmpargument = 1
+    SendMessageNear
 
   // ZZ> Death and let the player team win
   IfKilled

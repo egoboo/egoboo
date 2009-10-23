@@ -128,24 +128,17 @@ IfAttacked
       SetState
 
       // Check for instant death
-      tmpargument = [DISA]
-      IfTargetHasSkillID
-        // Allow Rogues to backstab
-        GetDamageType
-        tmpx = tmpargument
-        tmpy = DAMAGEPOKE
-        IfXIsEqualToY
-          IfHitFromBehind
-            tmpargument = 8
-            SendMessageNear
+      IfBackstabbed
+        tmpargument = 8
+        SendMessageNear
 
-            tmpargument = 30
-            tmpdistance = EXPMURDER
-            GiveExperienceToTarget
+        tmpargument = 30
+        tmpdistance = EXPMURDER
+        GiveExperienceToTarget
 
-            // Do it
-            SetTargetToSelf
-            KillTarget
+        // Do it
+        SetTargetToSelf
+        KillTarget
     Else
       // Friendly fire, get out of the way
       tmpx = rand & 511 - 256 + selfx

@@ -233,7 +233,7 @@ Uint16 spawn_one_particle( fvec3_t   pos, Uint16 facing, Uint16 iprofile, Uint16
 int prt_count_free();
 
 int load_one_particle_profile( const char *szLoadName, Uint16 pip_override );
-void reset_particles( /* const char* modname */ );
+void reset_particles();
 
 Uint32 __prthitawall(  prt_t * pprt, float nrm[] );
 

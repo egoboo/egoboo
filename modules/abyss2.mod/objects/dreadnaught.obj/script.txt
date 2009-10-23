@@ -146,17 +146,16 @@ IfAttacked
   Else
     SetTargetToOldTarget
 
-  //Check for backstabs
-  IfBackstabbed
-    GetDamageType
-    SetDamageType
-    tmpdistance = tmpargument
-    tmpargument = targetdex > 10 //+1 damage for every 4 points of dex
-    SetTargetToSelf
-    DamageTarget
-    tmpargument = 3
-    SendMessageNear
-    SetTargetToOldTarget
+    
+//Backstab deals extra damage
+IfBackstabbed
+  SetTargetToWhoeverAttacked
+  GetDamageType
+  tmpdistance = tmpargument       //Same damage type as the stab
+  tmpargument = targetdex         //+1 damage per dex
+  TargetDamageSelf
+  tmpargument = 3
+  SendMessageNear
 
 //------------------------------------------------------------------------------
 //Enemy is defeated

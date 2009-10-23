@@ -1,11 +1,11 @@
 //------------------------------------------------------------------------------
-//Rogues backstab!
+//Backstab deals extra damage
 IfBackstabbed
   SetTargetToWhoeverAttacked
-  tmpargument = 1+targetlevel*256  //+1 damage per level
-  SetTargetToSelf
-  DamageTarget
-  SetTargetToWhoeverAttacked
+  GetDamageType
+  tmpdistance = tmpargument       //Same damage type as the stab
+  tmpargument = targetdex         //+1 damage per dex
+  TargetDamageSelf
   tmpargument = 6
   SendMessageNear
 

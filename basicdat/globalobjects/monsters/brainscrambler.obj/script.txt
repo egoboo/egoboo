@@ -41,14 +41,13 @@ IfXIsMoreThanY
   SetContent
   
 //---------------------------------------------------------------------------------------
-//Backstabs
+//Handle Backstabs
 IfBackstabbed
   SetTargetToWhoeverAttacked
-  tmpturn = targetdex > 10
-  tmpargument = 256* tmpturn      //+1 damage per 4 dex
-  SetTargetToSelf
-  DamageTarget
-  SetTargetToWhoeverAttacked
+  GetDamageType
+  tmpdistance = tmpargument       //Same damage type as the stab
+  tmpargument = targetdex         //+1 damage per dex
+  TargetDamageSelf
   tmpargument = 4
   SendMessageNear
   

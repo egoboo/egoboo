@@ -7152,6 +7152,52 @@ Uint8 scr_set_TargetAmmo( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
+Uint8 scr_EnableInvictus( script_state_t * pstate, ai_state_t * pself )
+{
+    // EnableInvictus()
+    /// @details ZF@> This function makes the character invulerable
+
+    SCRIPT_FUNCTION_BEGIN();
+
+	pchr->invictus = btrue;
+
+    SCRIPT_FUNCTION_END();
+}
+
+//--------------------------------------------------------------------------------------------
+Uint8 scr_DisableInvictus( script_state_t * pstate, ai_state_t * pself )
+{
+    // DisableInvictus()
+    /// @details ZF@> This function makes the character not invulerable
+
+    SCRIPT_FUNCTION_BEGIN();
+
+	pchr->invictus = bfalse;
+
+    SCRIPT_FUNCTION_END();
+}
+
+//--------------------------------------------------------------------------------------------
+Uint8 scr_TargetDamageSelf( script_state_t * pstate, ai_state_t * pself )
+{
+    // TargetDamageSelf( tmpargument = "damage" )
+    /// @details ZF@> This function applies little bit of hate from the character's target to
+    /// the character itself. The amount is set in tmpargument
+
+    IPair tmp_damage;
+
+    SCRIPT_FUNCTION_BEGIN();
+
+    tmp_damage.base = pstate->argument;
+    tmp_damage.rand = 1;
+
+	damage_character( pself->index, ATK_FRONT, tmp_damage, pstate->distance, chr_get_iteam(pself->target), pself->target, DAMFX_NBLOC, btrue );
+
+    SCRIPT_FUNCTION_END();
+}
+
+
+//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 Uint8 _break_passage( int mesh_fx_or, int become, int frames, int starttile, int passage, int *ptilex, int *ptiley )

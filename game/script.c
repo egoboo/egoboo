@@ -859,8 +859,11 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
 		case FSETDAMAGETRESHOLD:     returncode = scr_set_DamageThreshold( pstate, pself );   break;
 		case FACCELERATETARGETUP:	 returncode = scr_AccelerateTargetUp( pstate, pself ); break;
 		case FSETTARGETAMMO:		 returncode = scr_set_TargetAmmo( pstate, pself ); break;
+		case FENABLEINVICTUS:		 returncode = scr_EnableInvictus( pstate, pself ); break;
+		case FDISABLEINVICTUS:		 returncode = scr_DisableInvictus( pstate, pself ); break;
+        case FTARGETDAMAGESELF:	     returncode = scr_TargetDamageSelf( pstate, pself ); break;
 
-            // if none of the above, skip the line and log an error
+        // if none of the above, skip the line and log an error
         default:
             log_message( "SCRIPT ERROR: run_function() - ai script %d - unhandled script function %d\n", pself->type, valuecode );
             returncode = bfalse;

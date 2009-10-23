@@ -435,3 +435,6 @@ Uint8 scr_set_TargetToChild(  struct s_script_state * pstate, struct s_ai_state 
 Uint8 scr_set_DamageThreshold(  struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_AccelerateTargetUp( struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_set_TargetAmmo( struct s_script_state * pstate, struct s_ai_state * pself );
+Uint8 scr_EnableInvictus( struct s_script_state * pstate, struct s_ai_state * pself );
+Uint8 scr_DisableInvictus( struct s_script_state * pstate, struct s_ai_state * pself );
+Uint8 scr_TargetDamageSelf( struct s_script_state * pstate, struct s_ai_state * pself );

@@ -392,6 +392,9 @@ The symbol itself follows
 :F 376 SetDamageThreshold
 :F 377 AccelerateTargetUp
 :F 378 SetTargetAmmo
+:F 379 EnableInvictus
+:F 380 DisableInvictus
+:F 381 TargetDamageSelf
 :C 001 BLAHDEAD
 :C 002 BLAHENEMIES
 :C 004 BLAHFRIENDS

@@ -193,6 +193,7 @@ wawalite_damagetile_t * read_wawalite_damagetile( vfs_FILE * fileread, wawalite_
 {
     if( NULL == pdamagetile ) return pdamagetile; 
     if( NULL == fileread ) return pdamagetile;
+	wawalite_damagetile_init( pdamagetile );			//Reset
 
     // damage tile
     pdamagetile->amount = fget_next_int( fileread );

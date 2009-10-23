@@ -2844,8 +2844,11 @@ int damage_character( Uint16 character, Uint16 direction,
             manadamage = MAX(pchr->mana - actual_damage, 0);
             pchr->mana = manadamage;
             actual_damage -= manadamage;
-            pchr->ai.alert |= ALERTIF_ATTACKED;
-            pchr->ai.attacklast = attacker;
+			if( pchr->ai.index != attacker )
+			{
+				pchr->ai.alert |= ALERTIF_ATTACKED;
+				pchr->ai.attacklast = attacker;
+			}
         }
 
         // Allow charging (Invert actual_damage to mana)
@@ -3014,17 +3017,15 @@ int damage_character( Uint16 character, Uint16 direction,
                 STRING text_buffer = EMPTY_CSTR;
                 SDL_Color color = {0xFF, 0xFF, 0xFF, 0xFF};
 
-                tmpstr = describe_value(actual_damage, 10 * 256, &rank);
-                if( rank < 4 )
-                {
-                    if( cfg.feedback == FEEDBACK_TEXT ) tmpstr = describe_damage(actual_damage, pchr->lifemax, &rank);
-                    else snprintf( tmpstr, SDL_arraysize(tmpstr), "%2.1f", FP8_TO_FLOAT(actual_damage) );
-
+				tmpstr = describe_value(actual_damage, 10 * 256, &rank);
+				if( rank < 4 )
+				{
+					tmpstr = describe_damage(actual_damage, pchr->lifemax, &rank);						
 					if( rank >= -1 && rank <= 0 )
-                    {
-                        tmpstr = NULL;
-                    }
-                }
+					{
+						tmpstr = NULL;
+					}
+				}
 
                 if( NULL != tmpstr )
                 {
@@ -3068,9 +3069,8 @@ int damage_character( Uint16 character, Uint16 direction,
                 STRING text_buffer = EMPTY_CSTR;
                 SDL_Color color = {0xFF, 0xFF, 0xFF, 0xFF};
 
-				if( cfg.feedback == FEEDBACK_TEXT ) snprintf( text_buffer, SDL_arraysize(text_buffer), "%s", describe_value(-actual_damage, damage.base + damage.rand, NULL));
-                else snprintf( text_buffer, SDL_arraysize(text_buffer), "%2.1f", FP8_TO_FLOAT(-actual_damage) );
-
+				snprintf( text_buffer, SDL_arraysize(text_buffer), "%s", describe_value(-actual_damage, damage.base + damage.rand, NULL));
+                
                 pbb = chr_make_text_billboard( character, text_buffer, color, 3 );
                 if( NULL != pbb )
                 {
@@ -3142,7 +3142,7 @@ ai_state_t * ai_state_init( ai_state_t * pself )
     pself->bumplast   = MAX_CHR;
     pself->attacklast = MAX_CHR;
     pself->hitlast    = MAX_CHR;
-    pself->searchlast = MAX_CHR;
+    //pself->searchlast = MAX_CHR;
 
     return pself;
 }
@@ -7348,6 +7348,12 @@ const char* describe_value( float value, float maxval, int * rank_ptr )
 
     if( NULL == rank_ptr ) rank_ptr = &local_rank;
 
+	if( cfg.feedback == FEEDBACK_NUMBER )
+	{
+		snprintf(retval, SDL_arraysize(retval), "%2.1f", FP8_TO_FLOAT(value));
+		return retval;
+	}
+
     fval = (0 == maxval) ? 1.0f : value / maxval;
 
     *rank_ptr = -5;
@@ -7381,6 +7387,13 @@ const char* describe_damage( float value, float maxval, int * rank_ptr )
     int local_rank;
 
     if( NULL == rank_ptr ) rank_ptr = &local_rank;
+
+
+	if( cfg.feedback == FEEDBACK_NUMBER )
+	{
+		snprintf(retval, SDL_arraysize(retval), "%2.1f", FP8_TO_FLOAT(value));
+		return retval;
+	}
 
     fval = (0 == maxval) ? 1.0f : value / maxval;
 

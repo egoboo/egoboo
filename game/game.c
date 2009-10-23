@@ -4617,7 +4617,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
                     if( powner_cap->isranged ) prt_needs_impact = btrue;
                 }
 
-                // DAMFX_ARRO means that it only does damage when stuck to something, not when it hits?
+                // DAMFX_ARRO means that it only does damage to the one it's attached to
                 if( 0 == ( ppip_b->damfx&DAMFX_ARRO ) && !(prt_needs_impact && !prt_can_impact) )
                 {
                     IPair loc_damage = pprt_b->damage;
@@ -6036,7 +6036,7 @@ void attach_particles()
         {
             attach_particle_to_character( cnt, pprt->attachedto_ref, pprt->vrt_off );
 
-            // the previous function can inactivate a perticle
+            // the previous function can inactivate a particle
             if( ACTIVE_PRT(cnt) )
             {
                 pip_t * ppip = prt_get_ppip(cnt);

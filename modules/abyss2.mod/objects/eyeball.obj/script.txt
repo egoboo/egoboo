@@ -126,27 +126,22 @@ IfBumped				// Attack whoever it bumped
     SetTargetToOldTarget
 
 //---------------------------------------------------------------------------------
+IfBackstabbed
+  SetTargetToSelf
+  KillTarget			//Yep, instant kill
+  SetTargetToWhoeverAttacked
+  tmpargument = 25
+  tmpdistance = EXPMURDER
+  GiveExperienceToTarget		//Give some bonus xp
+  tmpargument = 3
+  SetState			//Backstabs are undetected
+  SetContent			//For death message
+  tmpargument = 1
+  SendMessageNear
+
 //How to react if attacked
 IfAttacked
   SetTargetToWhoeverAttacked
-
-  //Backstab?
-  IfStateIs0				//Hasn't seen a enemy yet
-    IfHitFromBehind
-      tmpargument = [DISA]		//Is it a rogue?
-      IfTargetHasSkillID
-        SetTargetToSelf
-        KillTarget			//Yep, instant kill
-        SetTargetToWhoeverAttacked
-        tmpargument = 25
-        tmpdistance = EXPMURDER
-        GiveExperienceToTarget		//Give some bonus xp
-        tmpargument = 3
-        SetState			//Backstabs are undetected
-        SetContent			//For death message
-        tmpargument = 1
-        SendMessageNear
-
   IfTargetIsOnHatedTeam
     tmpargument = 3			//Backstabbed?
     IfStateIsNot
@@ -157,7 +152,6 @@ IfAttacked
     SetTargetToOldTarget
 
   tmpargument = rand % 3		  //Play damaged sound
-  tmpdistance = rand & 4095 + 8000
   PlaySound
 
 //---------------------------------------------------------------------------------

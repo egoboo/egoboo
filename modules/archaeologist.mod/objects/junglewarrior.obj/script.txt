@@ -312,22 +312,21 @@ IfTimeOut
       AddWaypoint		//Move towards enemy
 
 //------------------------------------------------------------------------------
+//Sneaky bastirds
+IfBackstabbed
+  tmpargument = 2
+  SendMessageNear
+  tmpargument = 15
+  tmpdistance = EXPMURDER
+  GiveExperienceToTarget
+  SetTargetToSelf
+  KillTarget
+
+//------------------------------------------------------------------------------
 //Return attack
 IfAttacked
   SetTargetToWhoeverAttacked
-  IfTargetIsOnHatedTeam
-    //Backstabbed!
-    tmpargument = [DISA]	//TODO: [STAB]
-    IfTargetHasSkillID
-      IfHitFromBehind
-        tmpargument = 2
-        SendMessageNear
-        tmpargument = 15
-        tmpdistance = EXPMURDER
-        GiveExperienceToTarget
-        SetTargetToSelf
-        KillTarget
-  Else
+  IfTargetIsOnSameTeam
     SetTargetToOldTarget
 
   //Say ouch (meow!)
