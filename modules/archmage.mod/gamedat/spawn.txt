@@ -191,7 +191,7 @@ toast:   NONE    101  51.0   32.0   0.0   ?    0   0  0   0   0   F   F   N
 //combat challenge
 Viking:   NONE    102  47.0   48.0   0.0   N    0   0  16   0   0   F   F   E
   Sword:   NONE    50  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-  knife:   NONE    103  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  knife:   NONE    103  0.0   0.0   0.0   L    0   0  10   0   0   F   F   N
 body:   NONE    104  51.5   51.5   0.0   ?    0   0  0   0   0   F   F   N
 body:   NONE    104  47.5   50.5   0.0   ?    0   1  0   0   0   F   F   N
 body:   NONE    104  50.5   44.5   0.0   ?    0   2  0   0   0   F   F   N

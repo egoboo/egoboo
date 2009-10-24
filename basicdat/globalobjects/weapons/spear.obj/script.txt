@@ -15,10 +15,15 @@ IfSpawned				//
   MakeAmmoKnown
   
   //Allow module makers to specify stacks of spears here
-  SetTargetToSelf
-  tmpargument = selfcontent
-  SetTargetAmmo
-  
+  tmpx = selfcontent
+  tmpy = 0
+  IfXIsMoreThanY
+    GetContent
+    SetTargetToSelf
+    SetTargetAmmo
+    tmpargument = 0
+    SetContent  
+    
 IfCrushed
   tmpx = selfx
   tmpy = selfy

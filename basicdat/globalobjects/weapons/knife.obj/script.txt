@@ -2,18 +2,30 @@ IfThrown				// Make it attack
   tmpargument = 2
   tmpdistance = 1
   SpawnAttachedParticle
+  
 IfHitGround				// Make a sound
-  tmpargument = 1			  //
-  PlaySound				  //
+  tmpargument = 1
+  PlaySound
   DisaffirmCharacter			  // Stop thrown attack
 
-// ZZ> This function makes an item fall to the floor when spawned
-IfSpawned				//
-  tmpargument = ACTIONJB		  //
-  DoAction				  //
-  KeepAction				  //
+// This function makes an item fall to the floor when spawned
+IfSpawned
+  tmpargument = ACTIONJB
+  DoAction
+  KeepAction
   MakeCrushValid
   MakeAmmoKnown
+
+  //Allow module makers to specify stacks of knives here
+  tmpx = selfcontent
+  tmpy = 0
+  IfXIsMoreThanY
+    GetContent
+    SetTargetToSelf
+    SetTargetAmmo
+    tmpargument = 0
+    SetContent
+
 IfCrushed
   tmpx = selfx
   tmpy = selfy
@@ -34,7 +46,7 @@ IfGrabbed				// Tell them what they've won...
   SetTargetToWhoeverIsHolding		  //
   IfTargetIsAPlayer			  //
     tmpargument = 0			  //
-    SendMessageNear			  //
+    SendMessageNear
 IfNotDropped
   tmpargument = 2
   SendMessageNear
