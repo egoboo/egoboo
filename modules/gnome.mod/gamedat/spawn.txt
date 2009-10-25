@@ -5,7 +5,7 @@
 //         SLOT.TXT or DATA.TXT.
 //     Xpos and Ypos are the starting location for the character.
 //     Zpos is the starting elevation for the character.
-//     Dir is the direction the character faces, valid values are N S E W.
+//     Dir is the direction the character faces, valid values are N S E W and ?.
 //         You can also use L and R for in hand weapons, or I for an inventory
 //         item.  L R I spawn attached to the last true character.  L is
 //         also used for mounts with only one grip.

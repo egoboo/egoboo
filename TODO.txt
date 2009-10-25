@@ -1,5 +1,4 @@
 MASTER TODO LIST:
-- Lifedrain drains caster.
 - Spellbooks not being spellbooks when spawning instead of dropped.
 - The Bishopia walls should be flagged as a Wall, not as Impassable.
 - Sand Troll in Sand Palace seems to get stuck on the pyramid in new physics system. (We might need a FindPath algorithm here) 
@@ -10,6 +9,12 @@ MASTER TODO LIST:
 - Runes need to be repriced much like Arcane Spellbooks were
 - Troll in Griffin tower doesnt die properly
 - Rare crash bug with Tile Mimics in Sand Palace
+
+- Missing tilted table and chairs in Griffin Tower
+- Fix squares under particle reflections
+- Some funky physics effects when hitting and killing stuff
+- Particles spawn in the wrong Z direction
+- Fix particle transparency for particles that change size
 
 EGOBOO AWARDS:
 http://img.informer.com/awards/si_editor4.gif
