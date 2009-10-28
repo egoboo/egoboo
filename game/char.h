@@ -448,7 +448,7 @@ struct s_chr
 
     float          fat;                           ///< Character's size
     float          fat_goto;                      ///< Character's size goto
-    Uint8          fat_goto_time;                  ///< Time left in size change
+    Sint16         fat_goto_time;                  ///< Time left in size change
 
     // jump stuff
     float          jump_power;                    ///< Jump power

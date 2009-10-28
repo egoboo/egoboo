@@ -111,7 +111,6 @@ typedef struct s_prt_environment prt_environment_t;
 //--------------------------------------------------------------------------------------------
 // Particle variables
 //--------------------------------------------------------------------------------------------
-#define SPAWNNOCHARACTER        255                                      ///< For particles that spawn characters...
 #define TOTAL_MAX_PRT            2048                                      ///< True max number of particles
 
 /// The definition of the particle object
@@ -173,7 +172,7 @@ struct s_prt
     bool_t is_bumpspawn;                      ///< this particle is like a flame, burning something
     bool_t inwater;
 
-    Uint8   spawncharacterstate;              ///< if != SPAWNNOCHARACTER, then a character is spawned on end
+    bool_t   spawncharacterstate;              ///< if != SPAWNNOCHARACTER, then a character is spawned on end
 
     bool_t         safe_valid;
     fvec3_t        pos_safe;                      ///< Character's last safe position

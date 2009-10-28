@@ -7198,6 +7198,20 @@ Uint8 scr_TargetDamageSelf( script_state_t * pstate, ai_state_t * pself )
 
 
 //--------------------------------------------------------------------------------------------
+Uint8 scr_SetTargetSize( script_state_t * pstate, ai_state_t * pself )
+{
+    // SetSize( tmpargument = "percent" )
+    /// @details ZF@> This changes the AI target's size
+    
+    SCRIPT_FUNCTION_BEGIN();
+
+	ChrList.lst[pself->target].fat_goto *= pstate->argument / 100.0f;
+    ChrList.lst[pself->target].fat_goto_time += SIZETIME;
+    
+	SCRIPT_FUNCTION_END();
+}
+
+//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 Uint8 _break_passage( int mesh_fx_or, int become, int frames, int starttile, int passage, int *ptilex, int *ptiley )

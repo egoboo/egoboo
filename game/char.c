@@ -2190,7 +2190,7 @@ void resize_all_characters()
         if ( !ACTIVE_CHR(ichr) ) continue;
         pchr = ChrList.lst + ichr;
 
-        if(  0 != pchr->fat_goto_time ) continue;
+		if(  pchr->fat_goto_time < 0 ) continue;
 
         if ( pchr->fat_goto != pchr->fat )
         {

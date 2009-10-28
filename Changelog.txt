@@ -13,8 +13,8 @@ Version 2.8.0 (xx.10.2009)
 - Update: Backstabs now deal double damage and damage is increased by dexterity.
 - Update: Various GUI improvements to make it easier to navigate and use.
 - Update: Improved the texture detail for all the title images and replaced some with better ones.
-- Update: Vampires are significantly weaker than before.
-- Update: Further improvments on the Lightning engine.
+- Update: Vampires and Shuffling Heaps are significantly weaker than before.
+- Update: Further improvements on the Lightning engine.
 - Update: Made some improvements to the Protector monster.
 - Update: Improved the way hitboxes works. Bumping into square things such as tables and bookcases
   is handled much better now.
@@ -60,7 +60,7 @@ Version 2.8.0 (xx.10.2009)
 - Bugfix: Book of Summon Crabs should now properly export as a spell and not as a crab monster.
 - Bugfix: Fixed bug where the Faeries in the Elf Starter would follow a lumpkin instead of the player.
 - Bugfix: Water is now properly impassable terrain in Bishopia City once again.
-- Bugfix: Fixed bug where items in shop were only sold for half value.
+- Bugfix: Fixed bug where items in shop were bought for only half value.
 - Bugfix: Fixed mushrooms having 0 value when bought or sold.
 - Bugfix: Tile Mimics can no longer move through doors and walls.
 - Bugfix: Angus in Bishopia now properly gives Soul Carver as quest reward.
@@ -74,7 +74,6 @@ Version 2.8.0 (xx.10.2009)
 - Bugfix: Incorrect boss music in Water Palace fixed.
 - Bugfix: Removed music resetting when loading a module.
 - Bugfix: Enchantments end messages display escapes properly.
-- Bugfix: Corrected all character hitboxes.
 - Bugfix: Fixed some acceleration issues that made the Tourist Starter almost impossible.
 - Bugfix: Fixed Lord Hagen AI movement bug in the Soldier Starter.
 - Bugfix: Many, many other bugs fixed!

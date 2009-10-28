@@ -438,3 +438,4 @@ Uint8 scr_set_TargetAmmo( struct s_script_state * pstate, struct s_ai_state * ps
 Uint8 scr_EnableInvictus( struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_DisableInvictus( struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_TargetDamageSelf( struct s_script_state * pstate, struct s_ai_state * pself );
+Uint8 scr_SetTargetSize( struct s_script_state * pstate, struct s_ai_state * pself );

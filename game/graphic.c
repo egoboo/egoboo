@@ -2032,7 +2032,8 @@ void update_all_chr_instance()
 //--------------------------------------------------------------------------------------------
 bool_t render_fans_by_list( ego_mpd_t * pmesh, Uint32 list[], size_t list_size )
 {
-    int cnt, tx;
+    Uint32 cnt;
+	int tx;
 
     if( NULL == pmesh || NULL == list || 0 == list_size ) return bfalse;
 
@@ -2094,8 +2095,9 @@ void render_scene_mesh( renderlist_t * prlist )
 {
     /// @details BB@> draw the mesh and any reflected objects
 
-    int cnt, tnc;
-    ego_mpd_t * pmesh;
+    Uint16 tnc;
+    int cnt;
+	ego_mpd_t * pmesh;
 
     if ( NULL == prlist ) return;
 

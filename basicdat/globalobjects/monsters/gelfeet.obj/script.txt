@@ -2,7 +2,6 @@
 IfHealed
   // Damage is inverted to make the Gelfeet invincible...
   tmpargument = 0
-  tmpdistance = rand % 2047 + 10000
   PlaySound
 
   // Drop the item it's carrying
@@ -52,7 +51,6 @@ IfBumped				// Eat the enemy
       tmpargument = ACTIONME
       DoAction
       tmpargument = 0
-      tmpdistance = rand % 2047 + 6000
       PlaySound
 IfSpawned				// This is done once in a lifetime
   ClearWaypoints			  // Now go there

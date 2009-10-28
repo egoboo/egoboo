@@ -487,7 +487,8 @@ enum e_script_functions
 	FSETTARGETAMMO,              // == 278
 	FENABLEINVICTUS,             // == 279
 	FDISABLEINVICTUS,            // == 280
-	FTARGETDAMAGESELF            // == 281
+	FTARGETDAMAGESELF,           // == 281
+	FSETTARGETSIZE               // == 281
 
 };
 

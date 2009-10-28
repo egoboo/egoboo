@@ -138,7 +138,7 @@ void free_one_particle_in_game( Uint16 particle )
     if ( !ALLOCATED_PRT( particle) ) return;
     pprt = PrtList.lst + particle;
 
-    if ( pprt->spawncharacterstate != SPAWNNOCHARACTER )
+    if ( pprt->spawncharacterstate )
     {
         child = spawn_one_character( pprt->pos, pprt->profile_ref, pprt->team, 0, pprt->facing, NULL, MAX_CHR );
         if ( ACTIVE_CHR(child) )
@@ -241,8 +241,6 @@ void prt_init( prt_t * pprt )
     // restore the base object data
     memcpy( OBJ_GET_PBASE( pprt ), &save_base, sizeof(ego_object_base_t) );
 
-    pprt->spawncharacterstate = SPAWNNOCHARACTER;
-
     // "no lifetime" = "eternal"
     pprt->time_update  = (Uint32)~0;
     pprt->time_frame   = (Uint32)~0;
@@ -254,7 +252,7 @@ void prt_init( prt_t * pprt )
     pprt->owner_ref      = MAX_CHR;
     pprt->target_ref     = MAX_CHR;
     pprt->parent_ref     = TOTAL_MAX_PRT;
-    pprt->parent_guid    = ~0;
+    pprt->parent_guid    = 0xFFFFFFFF;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -298,7 +296,7 @@ Uint16 prt_get_iowner( Uint16 iprt, int depth )
         {
             // make sure that a non valid parent_ref is marked as non-valid
             pprt->parent_ref = TOTAL_MAX_PRT;
-            pprt->parent_guid = ~0;
+            pprt->parent_guid = 0xFFFFFFFF;
         }
         else
         {
@@ -319,7 +317,7 @@ Uint16 prt_get_iowner( Uint16 iprt, int depth )
                 // the parent particle doesn't exist anymore
                 // fix the reference
                 pprt->parent_ref = TOTAL_MAX_PRT;
-                pprt->parent_guid = ~0;
+                pprt->parent_guid = 0xFFFFFFFF;
             }
         }
     }
@@ -622,62 +620,40 @@ void update_all_particles()
 {
     /// @details BB@> update everything about a particle that does not depend on collisions
     ///               or interactions with characters
-
-    int cnt, size_new;
-
+    int size_new;
     Uint16 particle;
 
-    // figure out where the particle is on the mesh
+    // figure out where the particle is on the mesh and update particle states
     for ( particle = 0; particle < maxparticles; particle++ )
     {
         prt_t * pprt;
+        pip_t * ppip;
+		bool_t inwater;
+		Uint16 facing;
 
         if ( !ACTIVE_PRT(particle) ) continue;
         pprt = PrtList.lst + particle;
 
         pprt->onwhichfan   = mesh_get_tile ( PMesh, pprt->pos.x, pprt->pos.y );
         pprt->onwhichblock = mesh_get_block( PMesh, pprt->pos.x, pprt->pos.y );
-    }
 
-    // update various particle states
-    for ( particle = 0; particle < maxparticles; particle++ )
-    {
-        prt_t * pprt;
-        pip_t * ppip;
-
-        if ( !ACTIVE_PRT(particle) ) continue;
-        pprt = PrtList.lst + particle;
-
+        // update various particle states
         if( !LOADED_PIP( pprt->pip_ref ) ) continue;
         ppip = PipStack.lst + pprt->pip_ref;
 
         // reject particles that are hidden
-        pprt->is_hidden = bfalse;
         if ( ACTIVE_CHR( pprt->attachedto_ref ) )
         {
             pprt->is_hidden = ChrList.lst[pprt->attachedto_ref].is_hidden;
         }
+		else pprt->is_hidden = bfalse; 
 
         pprt->is_homing = ppip->homing && !ACTIVE_CHR( pprt->attachedto_ref );
-    }
 
-    // do the particle interaction with water
-    for ( particle = 0; particle < maxparticles; particle++ )
-    {
-        bool_t inwater;
-
-        prt_t * pprt;
-        pip_t * ppip;
-
-        if ( !ACTIVE_PRT(particle) ) continue;
-        pprt = PrtList.lst + particle;
-
-        // do nothing if the particle is hidden
+        // stop here if the particle is hidden
         if( pprt->is_hidden ) continue;
 
-        ppip = prt_get_ppip( particle );
-        if( NULL == ppip ) continue;
-
+        // do the particle interaction with water
         inwater = (pprt->pos.z < water.surface_level) && (0 != mesh_test_fx( PMesh, pprt->onwhichfan, MPDFX_WATER ));
 
         if( inwater && water.is_water && ppip->endwater )
@@ -744,6 +720,87 @@ void update_all_particles()
         {
             pprt->inwater = bfalse;
         }
+
+		// the following functions should not be done the first time through the update loop
+		if( 0 == clock_wld ) return;
+		
+		// Animate particle
+		pprt->image = pprt->image + pprt->imageadd;
+		if ( pprt->image >= pprt->imagemax ) pprt->image = 0;
+
+		// rotate the particle
+		pprt->rotate += pprt->rotateadd;
+
+		// down the spawn timer
+		if ( pprt->spawntime > 0 ) pprt->spawntime--;
+
+		// update the particle size
+		if( 0 != pprt->size_add )
+		{
+			// resize the paricle
+			size_new =  pprt->size_add + (Sint32)pprt->size;
+			pprt->size = CLIP(size_new, 0, 0xFFFF);
+            
+			if( SPRITE_SOLID != pprt->type && 0.0f != pprt->inst.alpha )
+			{
+				// adjust the particle alpha
+				if( size_new > 0 )
+				{
+					float ftmp = 1.0f - (float)ABS(pprt->size_add) / (float)size_new;
+					pprt->inst.alpha *= ftmp;
+				}
+				else
+				{
+					pprt->inst.alpha = 0xFF;
+				}
+			}
+		}
+		
+		// Spawn new particles if continually spawning
+		if ( 0 == pprt->spawntime && ppip->contspawn_amount > 0 )
+		{
+			Uint8 tnc;
+
+			// reset the spawn timer
+			pprt->spawntime = ppip->contspawn_time;
+
+			facing = pprt->facing;
+			for ( tnc = 0; tnc < ppip->contspawn_amount; tnc++ )
+			{
+				particle = spawn_one_particle( pprt->pos, facing, pprt->profile_ref, ppip->contspawn_pip,
+					MAX_CHR, GRIP_LAST, pprt->team, pprt->owner_ref, particle, tnc, pprt->target_ref );
+
+				if ( ppip->facingadd != 0 && ACTIVE_PRT(particle) )
+				{
+					// Hack to fix velocity
+					PrtList.lst[particle].vel.x += pprt->vel.x;
+					PrtList.lst[particle].vel.y += pprt->vel.y;
+				}
+				facing += ppip->contspawn_facingadd;
+			}
+		}
+
+		// Change dyna light values
+		if( pprt->dynalight.level > 0 )
+		{
+			pprt->dynalight.level   += ppip->dynalight.level_add;
+			if( pprt->dynalight.level < 0 ) pprt->dynalight.level = 0;
+		}
+		else if( pprt->dynalight.level < 0 )
+		{
+			// try to guess what should happen for negative lighting
+			pprt->dynalight.level   += ppip->dynalight.level_add;
+			if( pprt->dynalight.level > 0 ) pprt->dynalight.level = 0;
+		}
+		else
+		{
+			pprt->dynalight.level += ppip->dynalight.level_add;
+		}
+
+		pprt->dynalight.falloff += ppip->dynalight.falloff_add;
+
+		// spin the particle
+		pprt->facing += ppip->facingadd;
     }
 
     // apply damage from  attatched bump particles (about once a second)
@@ -779,115 +836,6 @@ void update_all_particles()
             }
 
             damage_character( ichr, ATK_BEHIND, pprt->damage, pprt->damagetype, pprt->team, pprt->owner_ref, ppip->damfx, bfalse );
-        }
-    }
-
-    // the following functions should not be done the first time through the update loop
-    if( 0 == clock_wld ) return;
-
-    // update particle timers and such
-    for ( cnt = 0; cnt < maxparticles; cnt++ )
-    {
-        pip_t * ppip;
-        prt_t * pprt;
-
-        if ( !ACTIVE_PRT(cnt) ) continue;
-        pprt = PrtList.lst + cnt;
-
-        ppip = prt_get_ppip( cnt );
-        if ( NULL == ppip ) continue;
-
-        // Animate particle
-        pprt->image = pprt->image + pprt->imageadd;
-        if ( pprt->image >= pprt->imagemax ) pprt->image = 0;
-
-        // rotate the particle
-        pprt->rotate += pprt->rotateadd;
-
-        // down the spawn timer
-        if ( pprt->spawntime > 0 ) pprt->spawntime--;
-
-        // update the particle size
-        if( 0 != pprt->size_add )
-        {
-            // resize the paricle
-            size_new = pprt->size + pprt->size_add;
-            pprt->size = CLIP(size_new, 0, 0xFFFF);
-
-            
-			if( SPRITE_SOLID != pprt->type && 0.0f != pprt->inst.alpha )
-            {
-                // adjust the particle alpha
-                if( size_new > 0 )
-                {
-                    float ftmp = 1.0f - (float)ABS(pprt->size_add) / (float)size_new;
-                    pprt->inst.alpha *= ftmp;
-                }
-                else
-                {
-                    pprt->inst.alpha = 0xFF;
-                }
-            }
-			
-        }
-
-        // Change dyna light values
-        if( pprt->dynalight.level > 0 )
-        {
-            pprt->dynalight.level   += ppip->dynalight.level_add;
-            if( pprt->dynalight.level < 0 ) pprt->dynalight.level = 0;
-        }
-        else if( pprt->dynalight.level < 0 )
-        {
-            // try to guess what should happen for negative lighting
-            pprt->dynalight.level   += ppip->dynalight.level_add;
-            if( pprt->dynalight.level > 0 ) pprt->dynalight.level = 0;
-        }
-        else
-        {
-            pprt->dynalight.level += ppip->dynalight.level_add;
-        }
-
-        pprt->dynalight.falloff += ppip->dynalight.falloff_add;
-
-        // spin the particle
-        pprt->facing += ppip->facingadd;
-    }
-
-    // Spawn new particles if continually spawning
-    for ( cnt = 0; cnt < maxparticles; cnt++ )
-    {
-        int tnc;
-        Uint16 facing;
-        pip_t * ppip;
-        prt_t * pprt;
-
-        if ( !ACTIVE_PRT(cnt) ) continue;
-        pprt = PrtList.lst + cnt;
-
-        ppip = prt_get_ppip( cnt );
-        if ( NULL == ppip ) continue;
-
-        if ( 0 == pprt->spawntime && ppip->contspawn_amount > 0 )
-        {
-            // reset the spawn timer
-            pprt->spawntime = ppip->contspawn_time;
-
-            facing = pprt->facing;
-            for ( tnc = 0; tnc < ppip->contspawn_amount; tnc++ )
-            {
-                particle = spawn_one_particle( pprt->pos, facing, pprt->profile_ref, ppip->contspawn_pip,
-                    MAX_CHR, GRIP_LAST, pprt->team, pprt->owner_ref, cnt, tnc, pprt->target_ref );
-
-                if ( ppip->facingadd != 0 && ACTIVE_PRT(particle) )
-                {
-                    // Hack to fix velocity
-                    PrtList.lst[particle].vel.x += pprt->vel.x;
-                    PrtList.lst[particle].vel.y += pprt->vel.y;
-                }
-
-                facing += ppip->contspawn_facingadd;
-            }
         }
     }
 }
@@ -2051,7 +1999,7 @@ int spawn_bump_particles( Uint16 character, Uint16 particle )
                     int    bestvertex;
 
                     bestvertex   = 0;
-                    bestdistance = 1 << 31;         //Really high number
+                    bestdistance = 0xFFFFFFFF;         //Really high number
 
                     for ( cnt = 0; cnt < vertices; cnt++ )
                     {

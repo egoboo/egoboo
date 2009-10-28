@@ -196,13 +196,13 @@ mpd_t * mpd_load( const char *loadname, mpd_t * pmesh )
     int itmp;
     float ftmp;
     Uint32 fan, cnt;
-    int tiles_count;
+    Uint32 tiles_count;
     Uint8 btemp;
 
     mpd_info_t * pinfo;
     mpd_mem_t  * pmem;
 
-    if ( NULL == pmesh || !VALID_CSTR(loadname) ) return pmesh;
+    if ( NULL == pmesh || INVALID_CSTR(loadname) ) return pmesh;
 
     pinfo = &(pmesh->info);
     pmem  = &(pmesh->mem);

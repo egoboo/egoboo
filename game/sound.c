@@ -581,7 +581,7 @@ int sound_play_chunk_looped( fvec3_t   pos, Mix_Chunk * pchunk, Sint8 loops, Uin
 
         if ( INVALID_SOUND == channel )
         {
-            /// @note ZF@> removed this warning because this happens really often
+            /// @note ZF@> disabled this warning because this happens really often
             //log_debug( "Unable to play sound. (%s)\n", Mix_GetError() );
         }
         else
