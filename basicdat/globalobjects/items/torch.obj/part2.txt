@@ -58,7 +58,7 @@ Z Velocity randomness ( 0, 1, 3, 7, 15, 31, 63... )	: 0
 
 
 // Continuous spawning of other particles
-Spawn time ( 0 to 100 )					: 2
+Spawn time ( 0 to 100 )					: 4
 Amount to spawn each time ( 0 to 10 )			: 1
 Facing add for each one ( 0 to 65535 )			: 0
 Spawn type ( 0 to 3 )					: 3

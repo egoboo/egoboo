@@ -1891,6 +1891,7 @@ DisableRespawn
   // These functions either enables or disables respawning in the module with the
   // JUMP button for all player characters.
 --------------------------------------------------------------------------------
+//!!BAD!! NOT IMPLEMENTED YET
 SetCameraSwing
   // This sets the camera swing (G'nome Starter for example). This is usually set in
   // wawalite.txt, but can be changed by scripts here. tmpargument defines swing rate
@@ -1898,14 +1899,7 @@ SetCameraSwing
   tmpargument = 80             //Should be 0 to 100
   tmpadistance = 0.040         //Between 0.0 and 0.1
   SetCameraSwing
---------------------------------------------------------------------------------
-IfButtonPressed
-  //This proceeds if the appropiate LATCHBUTTON defined in tmpargument is pressed
-  //in this update by a player.
-  tmpargument = LATCHLEFT
-  IfButtonPressed
-    tmpargument = 5
-    SendMessage
+//!!BAD!! NOT IMPLEMENTED YET
 --------------------------------------------------------------------------------
 IfHolderBlocked
   //Did the holder of the character block something last update?
@@ -2023,15 +2017,34 @@ SetDamageThreshold
   SetDamageThreshold      //All damage below 256 will be ignored
 -------------------------------------------------------------------------------- 
 SetTargetAmmo
+  //Changes the ammo of the AI target
+  tmpx = targetammo
+  tmpy = 0
+  IfXIsEqualToY
+    tmpargument = 50
+    SetTargetAmmo    
 -------------------------------------------------------------------------------- 
+//Makes the character move up or down. Z speed is specified in tmpargument
 AccelerateTargetUp
 -------------------------------------------------------------------------------- 
+//Makes the character invincible or disables invincibility
 EnableInvictus
 DisableInvictus
 -------------------------------------------------------------------------------- 
 TargetDamageSelf
+  //Makes the AI target damage the character. Mostly used in backstabs...
+  //tmpargument is the amount of damage and tmpdistance is damage type
+  IfHitVulnerable
+    GetDamageType
+    tmpdistance = tmpargument     //Same damage type as the last attack
+    tmpargument = 256             //Damage 1 life
+    TargetDamageSelf
 -------------------------------------------------------------------------------- 
 SetTargetSize
+  //Changes the size of the target. Values are in percent
+  SetTargettoSelf
+  tmpargument = 50      //50%
+  SetTargetSize
 -------------------------------------------------------------------------------- 
 
 
@@ -2242,7 +2255,7 @@ MOVECHARGE   //Charge the target in full speed!
 MOVEFOLLOW   //Follow the target in group formation
 --------------------------------------------------------------------------------
 //The different teams that a character can join using JoinTeam or TargetJoinTeam
-//Same as 0-23 (0 = TEAMA, 1 = TEAMB, etc.). Know that 24 is predefined as DAMAGETILE team
+//Same as 0-23 (0 = TEAMA, 1 = TEAMB, etc.). Note that 24 is predefined as DAMAGETILE team
 TEAMA
 TEAMB
 TEAMC
@@ -2317,7 +2330,7 @@ targety
   // Location of the target
 --------------------------------------------------------------------------------
 targetdistance
-  // Distance to the target.  This is NOT correct, but it usually works just
+  // Distance to the target.  This is 100% exact, but it usually works just
   // fine.  If you really need the correct distance, use xydistance after
   // setting tmpx and tmpy.
 --------------------------------------------------------------------------------
@@ -2344,7 +2357,7 @@ gotodistance
 targetturnto
   // Direction to the target from the character...  VERY USEFUL
 --------------------------------------------------------------------------------
-targetturnfrom
+targetturnaway
   //Direction in the opposite way of the target
 --------------------------------------------------------------------------------
 passage

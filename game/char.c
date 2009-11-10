@@ -405,7 +405,7 @@ void free_one_character_in_game( Uint16 character )
     }
 
     // Handle the team
-    if ( pchr->alive && !pcap->invictus )
+    if ( pchr->alive && !pcap->invictus && TeamList[pchr->baseteam].morale > 0 )
     {
         TeamList[pchr->baseteam].morale--;
     }
@@ -2636,7 +2636,7 @@ void cleanup_one_character( chr_t * pchr )
 
      // Remove it from the team
     pchr->team = pchr->baseteam;
-    TeamList[pchr->team].morale--;
+	if(TeamList[pchr->team].morale > 0) TeamList[pchr->team].morale--;
 
     if ( TeamList[pchr->team].leader == ichr )
     {
@@ -4207,7 +4207,7 @@ void switch_team( Uint16 character, Uint8 team )
 
     if ( !ChrList.lst[character].invictus )
     {
-        chr_get_pteam_base(character)->morale--;
+		if(chr_get_pteam_base(character)->morale > 0) chr_get_pteam_base(character)->morale--;
         TeamList[team].morale++;
     }
     if ( ( !ChrList.lst[character].ismount || !ACTIVE_CHR(ChrList.lst[character].holdingwhich[SLOT_LEFT]) ) &&
@@ -4310,20 +4310,38 @@ int check_skills( Uint16 who, IDSZ whichskill )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t update_chr_darkvision( chr_t * pchr )
+bool_t update_chr_darkvision( Uint16 character )
 {
     /// @detalis BB@> as an offset to negative status effects like things like poisoning, a
     ///               character gains darkvision ability the more they are "poisoned".
-    ///               At the present time, the function measures the broad category of "life drain".
-    ///               True poisoning can be removed by [HEAL] and tints the character green, so
-    ///               we could limit our search to those effects.
+    ///               True poisoning can be removed by [HEAL] and tints the character green
+	eve_t * peve;
+    Uint16 enc_now, enc_next;
+    int life_regen = 0;
 
-    int life_regen;
+    chr_t * pchr;
 
-    if( !ACTIVE_PCHR(pchr) ) return bfalse;
+    pchr = pla_get_pchr( character );
+    if( NULL == pchr ) return bfalse;
 
-    // grab the life regeneration to determine how much darkvision a character has earned, he he he!
-    get_chr_regeneration( pchr, &life_regen, NULL );
+    // grab the life loss due poison to determine how much darkvision a character has earned, he he he!
+    // clean up the enchant list before doing anything
+	pchr->firstenchant = cleanup_enchant_list( pchr->firstenchant );
+	enc_now = pchr->firstenchant;
+    while ( enc_now != MAX_ENC )
+    {
+        enc_next = EncList.lst[enc_now].nextenchant_ref;
+        peve = enc_get_peve( enc_now );
+
+		//Is it true poison?
+        if( NULL != peve && MAKE_IDSZ('H', 'E', 'A', 'L') == peve->removedbyidsz )
+        {
+			life_regen += EncList.lst[enc_now].targetlife;
+			if( EncList.lst[enc_now].owner_ref == pchr->ai.index ) life_regen += EncList.lst[enc_now].ownerlife;
+        }
+
+        enc_now = enc_next;
+    }
 
     if( life_regen < 0 )
     {
@@ -4337,37 +4355,11 @@ bool_t update_chr_darkvision( chr_t * pchr )
 //--------------------------------------------------------------------------------------------
 void update_all_characters()
 {
-    /// @details ZZ@> This function brings mana and life back
+    /// @details ZZ@> This function updates stats and such for every character
 
     int ripand;
     int cnt;
 
-    // First figure out which fan each character is in
-    for ( cnt = 0; cnt < MAX_CHR; cnt++ )
-    {
-        chr_t * pchr;
-
-        if ( !ACTIVE_CHR(cnt) ) continue;
-        pchr = ChrList.lst + cnt;
-
-        pchr->onwhichfan   = mesh_get_tile ( PMesh, pchr->pos.x, pchr->pos.y );
-        pchr->onwhichblock = mesh_get_block( PMesh, pchr->pos.x, pchr->pos.y );
-    }
-
-    // do status updates
-    for ( cnt = 0; cnt < MAX_CHR; cnt++ )
-    {
-        chr_t * pchr;
-
-        if ( !ACTIVE_CHR(cnt) ) continue;
-        pchr = ChrList.lst + cnt;
-
-        update_chr_darkvision( pchr );
-
-        chr_update_hide( pchr );
-    }
-
-    // do the character interaction with water
     for ( cnt = 0; cnt < MAX_CHR; cnt++ )
     {
         cap_t * pcap;
@@ -4376,14 +4368,22 @@ void update_all_characters()
         if ( !ACTIVE_CHR(cnt) ) continue;
         pchr = ChrList.lst + cnt;
 
+	    // First figure out which fan each character is in
+        pchr->onwhichfan   = mesh_get_tile ( PMesh, pchr->pos.x, pchr->pos.y );
+        pchr->onwhichblock = mesh_get_block( PMesh, pchr->pos.x, pchr->pos.y );
+
+        //then do status updates
+        chr_update_hide( pchr );
+
+        // do the character interaction with water
         pcap = pro_get_pcap( pchr->iprofile );
         if( NULL == pcap ) continue;
 
-        if( pchr->pack_ispacked || pchr->is_hidden ) continue;
+		if( pchr->pack_ispacked || pchr->is_hidden ) continue;
 
-        // do splash and ripple
         if ( pchr->pos.z < water.surface_level && (0 != mesh_test_fx( PMesh, pchr->onwhichfan, MPDFX_WATER )) )
         {
+	        // do splash and ripple
             if ( !pchr->enviro.inwater )
             {
                 // Splash
@@ -4456,6 +4456,7 @@ void update_all_characters()
         if ( !ACTIVE_CHR(cnt) ) continue;
         pchr = ChrList.lst + cnt;
 
+		// reduce attack cooldowns
         if ( pchr->reloadtime > 0 )
         {
             pchr->reloadtime--;
@@ -4481,7 +4482,7 @@ void update_all_characters()
         }
     }
 
-    // Do stats
+    // Do stats once every second
     if ( clock_chr_stat >= ONESECOND )
     {
         // Reset the clock
@@ -4515,8 +4516,10 @@ void update_all_characters()
             {
                 ChrList.lst[cnt].dazetime--;
             }
-        }
 
+			// possibly gain darkvision
+			update_chr_darkvision( cnt );
+        }
     }
 
     resize_all_characters();

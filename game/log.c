@@ -111,7 +111,7 @@ void log_debug( const char *format, ... )
 	if( !cfg.dev_mode ) return;
 
 	va_start( args, format );
-    if ( logLevel >= 2 )
+    if ( logLevel >= 3 )
     {
 		writeLogMessage( "DEBUG: ", format, args );
 	}

@@ -351,10 +351,9 @@ Uint16 spawn_one_particle( fvec3_t   pos, Uint16 facing, Uint16 iprofile, Uint16
 
     if ( !LOADED_PIP(ipip) )
     {
-        //log_warning( "spawn_one_particle() - cannot spawn particle with invalid pip == %d (owner == %d(\"%s\"), profile == %d(\"%s\"))\n",
-        //    ipip,
-        //    chr_origin, ACTIVE_CHR(chr_origin) ? ChrList.lst[chr_origin].name : "INVALID",
-        //    iprofile, LOADED_PRO(iprofile) ? ProList.lst[iprofile].name : "INVALID" );
+        log_debug( "spawn_one_particle() - cannot spawn particle with invalid pip == %d (owner == %d(\"%s\"), profile == %d(\"%s\"))\n",
+			ipip, chr_origin, ACTIVE_CHR(chr_origin) ? ChrList.lst[chr_origin].Name : "INVALID",
+			iprofile, LOADED_PRO(iprofile) ? ProList.lst[iprofile].name : "INVALID" );
         return TOTAL_MAX_PRT;
     }
     ppip = PipStack.lst + ipip;
@@ -362,10 +361,10 @@ Uint16 spawn_one_particle( fvec3_t   pos, Uint16 facing, Uint16 iprofile, Uint16
     iprt = prt_get_free( ppip->force );
     if ( !ALLOCATED_PRT(iprt) )
     {
-        //log_warning( "spawn_one_particle() - cannot allocate a particle owner == %d(\"%s\"), pip == %d(\"%s\"), profile == %d(\"%s\")\n",
-        //    chr_origin, ACTIVE_CHR(chr_origin) ? ChrList.lst[chr_origin].name : "INVALID",
-        //    ipip, LOADED_PIP(ipip) ? PipStack.lst[ipip].name : "INVALID",
-        //    iprofile, LOADED_PRO(iprofile) ? ProList.lst[iprofile].name : "INVALID" );
+        log_debug( "spawn_one_particle() - cannot allocate a particle owner == %d(\"%s\"), pip == %d(\"%s\"), profile == %d(\"%s\")\n",
+            chr_origin, ACTIVE_CHR(chr_origin) ? ChrList.lst[chr_origin].Name : "INVALID",
+            ipip, LOADED_PIP(ipip) ? PipStack.lst[ipip].name : "INVALID",
+            iprofile, LOADED_PRO(iprofile) ? ProList.lst[iprofile].name : "INVALID" );
         return TOTAL_MAX_PRT;
     }
     pprt = PrtList.lst + iprt;
@@ -731,17 +730,14 @@ void update_all_particles()
 		// rotate the particle
 		pprt->rotate += pprt->rotateadd;
 
-		// down the spawn timer
-		if ( pprt->spawntime > 0 ) pprt->spawntime--;
-
 		// update the particle size
 		if( 0 != pprt->size_add )
 		{
 			// resize the paricle
-			size_new =  pprt->size_add + (Sint32)pprt->size;
+			size_new =  pprt->size_add + pprt->size;
 			pprt->size = CLIP(size_new, 0, 0xFFFF);
             
-			if( SPRITE_SOLID != pprt->type && 0.0f != pprt->inst.alpha )
+			/*if( pprt->type != SPRITE_SOLID && pprt->inst.alpha != 0.0f )
 			{
 				// adjust the particle alpha
 				if( size_new > 0 )
@@ -753,9 +749,12 @@ void update_all_particles()
 				{
 					pprt->inst.alpha = 0xFF;
 				}
-			}
+			}*/
 		}
-		
+
+		// down the spawn timer
+		if ( pprt->spawntime > 0 ) pprt->spawntime--;
+
 		// Spawn new particles if continually spawning
 		if ( 0 == pprt->spawntime && ppip->contspawn_amount > 0 )
 		{

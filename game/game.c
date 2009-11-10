@@ -1127,7 +1127,7 @@ int do_ego_proc_begin( ego_process_t * eproc )
     // Initialize logging next, so that we can use it everywhere.
     vfs_mkdir( "/debug" );
     log_init( vfs_resolveWriteFilename("/debug/log.txt") );
-    log_setLoggingLevel( 2 );
+    log_setLoggingLevel( 3 );
 
     // start initializing the various subsystems
     log_message( "Starting Egoboo " VERSION " ...\n" );

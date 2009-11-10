@@ -22,7 +22,6 @@ IfDropped				// Make it lie on floor
   KeepAction				  //
 IfHitGround				// Make a sound
   tmpargument = 1			  //
-  tmpdistance = rand % 2047 + 10000	  //
   PlaySound				  //
 
 IfGrabbed				// Tell them what they've won...
@@ -31,32 +30,11 @@ IfGrabbed				// Tell them what they've won...
     tmpargument = 0			  //
     SendMessageNear			  //
   SetTargetToWhoeverIsHolding
-  tmpargument = 1
-  SetState
-  SetOwnerToTarget
-  EnchantTarget
+  
+IfNotDropped
+  tmpargument = 2
+  SendMessageNear
+IfNotPutAway
+  tmpargument = 3
+  SendMessageNear
 End					// All done
-
-IfHeld
-  IfStateIs1
-    GetState //Do nothing
-  Else
-    SetTargetToWhoeverIsHolding
-    tmpargument = 1
-    SetState
-    SetOwnerToTarget
-    EnchantTarget
-
-IfDropped
-  SetTargetToWhoeverIsHolding
-  SetOwnerToTarget
-  UndoEnchant
-  tmpargument = 0
-  SetState
-
-IfTakenOut
-  SetTargetToWhoeverIsHolding
-  SetOwnerToTarget
-  UndoEnchant
-  tmpargument = 0
-  SetState

@@ -146,7 +146,7 @@ struct s_prt
     Uint16  rotate;                          ///< Rotation direction
     Sint16  rotateadd;                       ///< Rotation rate
 
-    Uint16  size;                            ///< Size of particle (8.8-bit fixed point)
+    int  size;                            ///< Size of particle (8.8-bit fixed point)
     Uint16  size_stt;                        ///< the starting size of the particle (8.8-bit fixed point)
     Sint16  size_add;                        ///< Change in size
 
