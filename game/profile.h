@@ -143,7 +143,7 @@ DEFINE_LIST_EXTERN(pro_t, ProList, MAX_PROFILE );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void profile_init();
+void init_profile_system();
 
 void   ProList_init();
 //void   ProList_free_all();

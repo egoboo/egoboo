@@ -61,19 +61,45 @@ int prt_count_free()
 }
 
 //--------------------------------------------------------------------------------------------
+void PrtList_init()
+{
+    int cnt;
+
+    // free all the particles
+    PrtList.free_count = 0;
+    for ( cnt = 0; cnt < maxparticles && cnt < TOTAL_MAX_PRT; cnt++ )
+    {
+        prt_t * pprt = PrtList.lst + cnt;
+
+        // blank out all the data, including the obj_base data
+        memset( pprt, 0, sizeof(prt_t) );
+
+        prt_init( pprt );
+
+        PrtList.free_ref[PrtList.free_count] = PrtList.free_count;
+        PrtList.free_count++;
+    }
+}
+
+//--------------------------------------------------------------------------------------------
 bool_t PrtList_free_one( Uint16 iprt )
 {
     /// @details ZZ@> This function sticks a particle back on the free particle stack
-
+    ///
+    /// @note Tying ALLOCATED_PRT() and EGO_OBJECT_TERMINATE() to PrtList_free_one()
+    /// should be enough to ensure that no particle is freed more than once
     bool_t retval;
+    prt_t * pprt;
+    
 
-    if ( !VALID_PRT_RANGE(iprt) ) return bfalse;
+    if ( !ALLOCATED_PRT( iprt ) ) return bfalse;
+    pprt = PrtList.lst + iprt;
 
     // particle "destructor"
     // sets all boolean values to false, incluting the "on" flag
-    prt_init( PrtList.lst + iprt );
+    prt_init( pprt );
 
-#if defined(USE_DEBUG)
+#if defined(USE_DEBUG) && defined(DEBUG_PRT_LIST)
     {
         int cnt;
         // determine whether this particle is already in the list of free textures
@@ -96,6 +122,8 @@ bool_t PrtList_free_one( Uint16 iprt )
         PrtList.free_count++;
         retval = btrue;
     }
+
+    EGO_OBJECT_TERMINATE( pprt );
 
     return retval;
 }
@@ -152,8 +180,6 @@ void free_one_particle_in_game( Uint16 particle )
     {
         play_particle_sound( particle, PipStack.lst[pprt->pip_ref].soundend );
     }
-
-    EGO_OBJECT_TERMINATE( pprt );
 
     PrtList_free_one( particle );
 }
@@ -354,6 +380,7 @@ Uint16 spawn_one_particle( fvec3_t   pos, Uint16 facing, Uint16 iprofile, Uint16
         log_debug( "spawn_one_particle() - cannot spawn particle with invalid pip == %d (owner == %d(\"%s\"), profile == %d(\"%s\"))\n",
 			ipip, chr_origin, ACTIVE_CHR(chr_origin) ? ChrList.lst[chr_origin].Name : "INVALID",
 			iprofile, LOADED_PRO(iprofile) ? ProList.lst[iprofile].name : "INVALID" );
+
         return TOTAL_MAX_PRT;
     }
     ppip = PipStack.lst + ipip;
@@ -361,10 +388,13 @@ Uint16 spawn_one_particle( fvec3_t   pos, Uint16 facing, Uint16 iprofile, Uint16
     iprt = prt_get_free( ppip->force );
     if ( !ALLOCATED_PRT(iprt) )
     {
+#if defined(USE_DEBUG) && defined(DEBUG_PRT_LIST)
         log_debug( "spawn_one_particle() - cannot allocate a particle owner == %d(\"%s\"), pip == %d(\"%s\"), profile == %d(\"%s\")\n",
             chr_origin, ACTIVE_CHR(chr_origin) ? ChrList.lst[chr_origin].Name : "INVALID",
             ipip, LOADED_PIP(ipip) ? PipStack.lst[ipip].name : "INVALID",
             iprofile, LOADED_PRO(iprofile) ? ProList.lst[iprofile].name : "INVALID" );
+#endif
+
         return TOTAL_MAX_PRT;
     }
     pprt = PrtList.lst + iprt;
@@ -538,7 +568,8 @@ Uint16 spawn_one_particle( fvec3_t   pos, Uint16 facing, Uint16 iprofile, Uint16
     // "no lifetime" = "eternal"
     if ( 0 == prt_lifetime )
     {
-        pprt->is_eternal = btrue;
+        pprt->time_update = ~0;
+        pprt->is_eternal  = btrue;
     }
     else
     {
@@ -590,6 +621,25 @@ Uint16 spawn_one_particle( fvec3_t   pos, Uint16 facing, Uint16 iprofile, Uint16
 
     // gat an initial value for the is_homing variable
     pprt->is_homing = ppip->homing && !ACTIVE_CHR( pprt->attachedto_ref );
+
+#if defined(USE_DEBUG) && defined(DEBUG_PRT_LIST)
+
+    // some code to track all allocated particles, where they came from, how long they are going to last,
+    // what they are being used for...
+    log_debug( "spawn_one_particle() - spawned a particle %d\n"
+                   "\tupdate == %d, last update == %d, frame == %d, minimum frame == %d\n"
+                   "\towner == %d(\"%s\")\n"
+                   "\tpip == %d(\"%s\")\n"
+                   "\t\t%s"
+                   "\tprofile == %d(\"%s\")\n"
+                   "\n",
+        iprt, 
+        update_wld, pprt->time_update, frame_all, pprt->time_frame, 
+        chr_origin, ACTIVE_CHR(chr_origin) ? ChrList.lst[chr_origin].Name : "INVALID",
+        ipip, LOADED_PIP(ipip) ? PipStack.lst[ipip].name : "INVALID", 
+        LOADED_PIP(ipip) ? PipStack.lst[ipip].comment : "",
+        iprofile, LOADED_PRO(iprofile) ? ProList.lst[iprofile].name : "INVALID" );
+#endif
 
     return iprt;
 }
@@ -1836,7 +1886,6 @@ void PrtList_free_all()
     int cnt;
 
     // free all the particles
-    PrtList.free_count = 0;
     for ( cnt = 0; cnt < maxparticles; cnt++ )
     {
         PrtList_free_one( cnt );
@@ -1848,7 +1897,7 @@ void particle_system_init()
 {
     /// @details ZZ@> This function sets up particle data
     int cnt;
-    double x, y;
+    float x, y;
 
     // Image coordinates on the big particle bitmap
     for ( cnt = 0; cnt < MAXPARTICLEIMAGE; cnt++ )
@@ -1862,7 +1911,9 @@ void particle_system_init()
     }
 
     // Reset the allocation table
-    PrtList_free_all();
+    PrtList_init();
+
+    init_all_pip();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2222,6 +2273,9 @@ void init_all_pip()
     {
         pip_init( PipStack.lst + cnt );
     }
+
+    // Reset the pip stack "pointer"
+    PipStack.count = 0;
 }
 
 //--------------------------------------------------------------------------------------------

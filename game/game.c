@@ -258,6 +258,8 @@ static void   do_game_hud();
 
 static int    ego_init_SDL();
 
+static void init_all_objects( void );
+
 static bool_t _sdl_atexit_registered    = bfalse;
 static bool_t _sdl_initialized_base     = bfalse;
 
@@ -1170,11 +1172,11 @@ int do_ego_proc_begin( ego_process_t * eproc )
     load_all_music_sounds();
 
     // make sure that a bunch of stuff gets initialized properly
+    init_all_objects();
     game_module_init( &gmod );
-    free_all_objects();
     mesh_new( PMesh );
     init_all_graphics();
-    profile_init();
+    init_profile_system();
 
     // setup the menu system's gui
     ui_initialize( "basicdat" SLASH_STR "Negatori.ttf", 24 );
@@ -1547,7 +1549,7 @@ int do_game_proc_begin( game_process_t * gproc )
     else log_message( "Failure!\n" );
 
     // intialize the "profile system"
-    profile_init();
+    init_profile_system();
 
     // do some graphics initialization
     //make_lightdirectionlookup();
@@ -2330,7 +2332,6 @@ void do_weather_spawn_particles()
 
                         if( destroy_particle )
                         {
-                            EGO_OBJECT_TERMINATE( pprt );
                             PrtList_free_one( particle );
                         };
                     }
@@ -5687,7 +5688,6 @@ void game_setup_module( const char *smallname )
 
     // make sure the object lists are empty
     free_all_objects();
-    particle_system_init();
 
     // generate the module directory
     strncpy(modname, smallname, SDL_arraysize(modname));
@@ -6177,6 +6177,17 @@ void game_finish_module()
     // quit the old module
     game_quit_module();
 }
+
+//--------------------------------------------------------------------------------------------
+void init_all_objects( void )
+{
+    /// @details BB@> initialize all the object lists
+
+    particle_system_init();
+    enchant_system_init();
+    character_system_init();
+}
+
 
 //--------------------------------------------------------------------------------------------
 void free_all_objects( void )

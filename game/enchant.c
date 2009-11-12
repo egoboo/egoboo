@@ -48,18 +48,52 @@ static enc_t * enc_init( enc_t * penc );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
+void enchant_system_init()
+{
+    EncList_init();
+    init_all_eve();
+}
+
+//--------------------------------------------------------------------------------------------
+void EncList_init()
+{
+    int cnt;
+
+    EncList.free_count = 0;
+    for( cnt = 0; cnt < MAX_ENC; cnt++ )
+    {
+        enc_t * penc = EncList.lst + cnt;
+
+        // blank out all the data, including the obj_base data
+        memset( penc, 0, sizeof(enc_t) );
+
+        // enchant "destructor"
+        enc_init( penc );
+
+        EncList.free_ref[EncList.free_count] = EncList.free_count;
+        EncList.free_count++;
+    }
+}
+
+//--------------------------------------------------------------------------------------------
 bool_t EncList_free_one( Uint16 ienc )
 {
     /// @details ZZ@> This function sticks an enchant back on the free enchant stack
+    ///
+    /// @note Tying ALLOCATED_ENC() and EGO_OBJECT_TERMINATE() to EncList_free_one()
+    /// should be enough to ensure that no enchant is freed more than once
 
     bool_t retval;
+    enc_t * penc;
 
-    if ( !VALID_ENC_RANGE(ienc) ) return bfalse;
+    if ( !ALLOCATED_ENC(ienc) ) return bfalse;
+    penc = EncList.lst + ienc;
 
-    // enchant "destructor"g
-    enc_init( EncList.lst + ienc );
+    // enchant "destructor"
+    enc_init( penc );
 
-#if defined(USE_DEBUG)
+#if defined(USE_DEBUG) && defined(DEBUG_ENC_LIST)
     {
         int cnt;
         // determine whether this texture is already in the list of free textures
@@ -80,6 +114,8 @@ bool_t EncList_free_one( Uint16 ienc )
 
         retval = btrue;
     }
+
+    EGO_OBJECT_TERMINATE(penc);
 
     return retval;
 }
@@ -229,8 +265,6 @@ bool_t remove_enchant( Uint16 ienc )
             }
         }
     }
-
-    EGO_OBJECT_TERMINATE( penc );
 
     EncList_free_one( ienc );
 
@@ -892,7 +926,6 @@ void EncList_free_all()
 
     int cnt;
 
-    EncList.free_count = 0;
     for ( cnt = 0; cnt < MAX_ENC; cnt++)
     {
         EncList_free_one( cnt );
@@ -902,7 +935,7 @@ void EncList_free_all()
 //--------------------------------------------------------------------------------------------
 Uint16 load_one_enchant_profile( const char* szLoadName, Uint16 ieve )
 {
-    /// @details ZZ@> This function loads an enchantment profile into the EveList
+    /// @details ZZ@> This function loads an enchantment profile into the EveStack
 
     eve_t * peve;
 

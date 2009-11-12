@@ -96,11 +96,15 @@ DEFINE_LIST_EXTERN(enc_t, EncList, MAX_ENC );
 //--------------------------------------------------------------------------------------------
 /// Prototypes
 
+void enchant_system_init();
+
 void init_all_eve();
 void release_all_eve();
 bool_t release_one_eve( Uint16 ieve );
 
+void EncList_init();
 void EncList_free_all();
+Uint16 EncList_get_free();
 
 void update_all_enchants();
 void cleanup_all_enchants();
@@ -108,7 +112,6 @@ Uint16 cleanup_enchant_list( Uint16 ienc );
 
 void getadd( int min, int value, int max, int* valuetoadd );
 void fgetadd( float min, float value, float max, float* valuetoadd );
-Uint16 EncList_get_free();
 Uint16 enchant_value_filled( Uint16 enchantindex, Uint8 valueindex );
 bool_t remove_enchant( Uint16 enchantindex );
 void set_enchant_value( Uint16 enchantindex, Uint8 valueindex, Uint16 profile );

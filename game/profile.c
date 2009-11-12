@@ -105,7 +105,7 @@ void release_all_profiles()
 }
 
 //---------------------------------------------------------------------------------------------
-void profile_init()
+void init_profile_system()
 {
     /// @details BB@> initialize the profile list and load up some intialization files
     ///     necessary for the the profile loading code to work

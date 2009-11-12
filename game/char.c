@@ -85,6 +85,8 @@ static ai_state_t * ai_state_init( ai_state_t * pself );
 
 static int get_grip_verts( Uint16 grip_verts[], Uint16 imount, int vrt_offset );
 
+static void ChrList_init();
+
 bool_t apply_one_character_matrix( chr_t * pchr, matrix_cache_t * mcache );
 bool_t apply_one_weapon_matrix( chr_t * pweap, matrix_cache_t * mcache );
 
@@ -99,6 +101,15 @@ static bool_t chr_upload_cap( chr_t * pchr, cap_t * pcap );
 void cleanup_one_character( chr_t * pchr );
 
 bool_t chr_instance_update_ref( chr_instance_t * pinst, float floor_level, bool_t need_matrix  );
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+void character_system_init()
+{
+    ChrList_init();
+    init_all_cap();
+}
+
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -302,20 +313,47 @@ void make_one_character_matrix( Uint16 cnt )
     }
 }
 
+
+//--------------------------------------------------------------------------------------------
+void ChrList_init()
+{
+    int cnt;
+
+    ChrList.free_count = 0;
+    for( cnt = 0; cnt < MAX_CHR; cnt++ )
+    {
+        chr_t * pchr = ChrList.lst + cnt;
+
+        // blank out all the data, including the obj_base data
+        memset( pchr, 0, sizeof(chr_t) );
+
+        // character "destructor"
+        chr_init( pchr );
+
+        ChrList.free_ref[ChrList.free_count] = ChrList.free_count;
+        ChrList.free_count++;
+    }
+}
+
 //--------------------------------------------------------------------------------------------
 bool_t ChrList_free_one( Uint16 ichr )
 {
     /// @details ZZ@> This function sticks a character back on the free enchant stack
+    ///
+    /// @note Tying ALLOCATED_CHR() and EGO_OBJECT_TERMINATE() to ChrList_free_one()
+    /// should be enough to ensure that no character is freed more than once
 
     bool_t retval;
+    chr_t * pchr;
 
-    if ( !VALID_CHR_RANGE(ichr) ) return bfalse;
-
-    // enchant "destructor"
+    if ( !ALLOCATED_CHR(ichr) ) return bfalse;
+    pchr = ChrList.lst + ichr;
+     
+    // character "destructor"
     // sets all boolean values to false, incluting the "on" flag
-    chr_init( ChrList.lst + ichr );
+    chr_init( pchr );
 
-#if defined(USE_DEBUG)
+#if defined(USE_DEBUG)  && defined(DEBUG_CHR_LIST)
     {
         int cnt;
         // determine whether this character is already in the list of free textures
@@ -336,6 +374,8 @@ bool_t ChrList_free_one( Uint16 ichr )
 
         retval = btrue;
     }
+
+    EGO_OBJECT_TERMINATE( pchr );
 
     return retval;
 }
@@ -417,8 +457,6 @@ void free_one_character_in_game( Uint16 character )
 
     // remove any attached particles
     disaffirm_attached_particles( character );
-
-    EGO_OBJECT_TERMINATE( pchr );
 
     // actually get rid of the character
     ChrList_free_one( character );
@@ -715,8 +753,6 @@ void ChrList_free_all()
 {
     int cnt;
 
-    ChrList.free_count = 0;
-
     for ( cnt = 0; cnt < MAX_CHR; cnt++ )
     {
         ChrList_free_one( cnt );
@@ -730,10 +766,8 @@ void free_all_chraracters()
 
     int cnt;
 
-    ChrList.free_count = 0;
     for ( cnt = 0; cnt < MAX_CHR; cnt++ )
     {
-        EGO_OBJECT_TERMINATE( ChrList.lst + cnt );
         ChrList_free_one( cnt );
     }
 
@@ -8925,4 +8959,5 @@ Uint16 chr_get_lowest_attachment( Uint16 ichr, bool_t non_item )
 		pchr->damagethreshold = threshold;
     }
 }*/
+
 

@@ -111,7 +111,6 @@ typedef struct s_prt_environment prt_environment_t;
 //--------------------------------------------------------------------------------------------
 // Particle variables
 //--------------------------------------------------------------------------------------------
-#define TOTAL_MAX_PRT            2048                                      ///< True max number of particles
 
 /// The definition of the particle object
 /// This "inherits" for ego_object_base_t
@@ -213,6 +212,7 @@ void   init_all_pip();
 void   release_all_pip();
 bool_t release_one_pip( Uint16 ipip );
 
+void   PrtList_init();
 bool_t PrtList_free_one( Uint16 particle );
 void   PrtList_free_all();
 void   free_one_particle_in_game( Uint16 particle );

@@ -816,3 +816,5 @@ void chr_set_light   ( chr_t * pchr, int light );
 void chr_instance_get_tint( chr_instance_t * pinst, GLfloat * tint, Uint32 bits );
 
 Uint16 chr_get_lowest_attachment( Uint16 ichr, bool_t non_item );
+
+void character_system_init();
