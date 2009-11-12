@@ -28,16 +28,16 @@
 //---------------------------------------------------------------------------------------------
 
 /// Key/Control input definitions
-#define MAXTAG              128                     ///< Number of tags in scancode.txt
-#define TAGSIZE             32                      ///< Size of each tag
+#define MAXTAG              256                     ///< Number of tags in scancode.txt
+#define TAGSIZE              32                     ///< Size of each tag
 
 //---------------------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------------------
 /// A mapping between the state of an input device and an internal game latch
 struct s_scantag
 {
-    char   name[TAGSIZE];                      ///< Scancode names
-    Sint32 value;                     ///< Scancode values
+    char   name[TAGSIZE];             ///< Scancode names
+    Uint32 value;                     ///< Scancode values
 };
 typedef struct s_scantag scantag_t;
 

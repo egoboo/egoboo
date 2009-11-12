@@ -69,6 +69,7 @@ void scantag_read_all( const char *szFilename )
 {
     /// @details ZZ@> This function reads the scancode.txt file
     vfs_FILE* fileread;
+    int cnt;
 
     scantag_reset();
 
@@ -78,9 +79,23 @@ void scantag_read_all( const char *szFilename )
         log_error( "Cannot read %s.", szFilename );
     }
 
+    // read in all the scantags from the file
     while ( scantag_read_one( fileread ) );
 
     vfs_close( fileread );
+
+    // make extra scantags to support joystick buttons up to 32 bits
+    for( cnt=0; cnt<32; cnt++ )
+    {
+        STRING str_tmp;
+
+        snprintf( str_tmp, SDL_arraysize(str_tmp), "JOY_%d", cnt );
+        if( -1 != scantag_get_value(str_tmp) ) continue;
+
+        strncpy( scantag[scantag_count].name, str_tmp, SDL_arraysize(scantag[scantag_count].name) );
+        scantag[scantag_count].value = 1 << cnt;
+        scantag_count++;
+    }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -89,23 +104,19 @@ int scantag_get_value( const char *string )
     /// @details ZZ@> This function matches the string with its tag, and returns the value...
     ///    It will return 255 if there are no matches.
 
-    int cnt;
+    int cnt; 
 
-    cnt = 0;
-
-    while ( cnt < scantag_count )
+    for( cnt = 0; cnt < scantag_count; cnt++ )
     {
         if ( 0 == strcmp( string, scantag[cnt].name ) )
         {
             // They match
             return scantag[cnt].value;
         }
-
-        cnt++;
     }
 
     // No matches
-    return 255;
+    return -1;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -115,7 +126,7 @@ char* scantag_get_string( Sint32 device, Sint32 tag, bool_t is_key )
 
     int cnt;
 
-    if ( device >= INPUT_DEVICE_JOY ) device = INPUT_DEVICE_JOY;
+    if ( device >= INPUT_DEVICE_JOY      ) device = INPUT_DEVICE_JOY;
     if ( device == INPUT_DEVICE_KEYBOARD ) is_key = btrue;
 
     for ( cnt = 0; cnt < scantag_count; cnt++ )
