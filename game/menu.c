@@ -910,7 +910,7 @@ int doChooseModule( float deltaTime )
             // And draw the next & back buttons
             if ( selectedModule > -1 )
             {
-                if ( BUTTON_UP == ui_doButton( 53, "Select Module", NULL, moduleMenuOffsetX + 327, moduleMenuOffsetY + 173, 200, 30 ) )
+                if ( SDLKEYDOWN( SDLK_RETURN ) || BUTTON_UP == ui_doButton( 53, "Select Module", NULL, moduleMenuOffsetX + 327, moduleMenuOffsetY + 173, 200, 30 ) )
                 {
                     // go to the next menu with this module selected
                     selectedModule = validModules[selectedModule];
@@ -918,7 +918,7 @@ int doChooseModule( float deltaTime )
                 }
             }
 
-            if ( BUTTON_UP == ui_doButton( 54, "Back", NULL, moduleMenuOffsetX + 327, moduleMenuOffsetY + 208, 200, 30 ) )
+            if ( SDLKEYDOWN( SDLK_ESCAPE ) || BUTTON_UP == ui_doButton( 54, "Back", NULL, moduleMenuOffsetX + 327, moduleMenuOffsetY + 208, 200, 30 ) )
             {
                 // Signal doMenu to go back to the previous menu
                 selectedModule = -1;
@@ -1503,14 +1503,14 @@ int doChoosePlayer( float deltaTime )
             // Continue
             if ( mnu_selectedPlayerCount != 0 )
             {
-                if ( BUTTON_UP == ui_doButton( 100, button_text[0], NULL, buttonLeft, buttonTop, 200, 30 ) )
+                if ( SDLKEYDOWN( SDLK_RETURN ) || BUTTON_UP == ui_doButton( 100, button_text[0], NULL, buttonLeft, buttonTop, 200, 30 ) )
                 {
                     menuState = MM_Leaving;
                 }
             }
 
             // Back
-            if ( BUTTON_UP == ui_doButton( 101, button_text[1], NULL, buttonLeft, buttonTop + 35, 200, 30 ) )
+            if ( SDLKEYDOWN( SDLK_ESCAPE ) || BUTTON_UP == ui_doButton( 101, button_text[1], NULL, buttonLeft, buttonTop + 35, 200, 30 ) )
             {
                 mnu_selectedPlayerCount = 0;
                 menuState = MM_Leaving;

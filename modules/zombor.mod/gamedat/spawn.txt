@@ -76,9 +76,9 @@ knight:   NONE    36  40.0   31.0   2.0   N    15   0  0   0   0   F   F   G
   rsword:   NONE    38  23.0   35.0   1.0   R    0   0  0   0   0   F   F   N
 unknown:   NONE    32  40.0   31.0   1.0   N    0   0  0   0   0   F   F   N
 crate:   NONE    39  47.5   21.5   1.0   N    0   0  0   0   0   F   F   N
-crate:   NONE    39  46.5   22.5   1.0   N    0   0  0   0   0   F   F   N
+barrel:   NONE    59  46.5   22.5   1.0   N    0   0  0   0   0   F   F   N
 crate:   NONE    39  48.5   22.5   1.0   N    0   0  0   0   0   F   F   N
-crate:   NONE    39  47.5   31.5   1.0   N    0   0  0   0   0   F   F   N
+barrel:   NONE    59  47.5   31.5   1.0   N    0   0  0   0   0   F   F   N
 Pillar:   NONE    50  36.5   35.5   1.0   N    0   0  0   0   0   F   F   N
 Pillar:   NONE    50  36.5   30.5   1.0   N    0   0  0   0   0   F   F   N
 Pillar:   NONE    50  45.5   35.5   1.0   N    0   0  0   0   0   F   F   N

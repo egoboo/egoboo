@@ -2038,7 +2038,8 @@ Uint16 chr_find_target( chr_t * psrc, float max_dist2, TARGET_TYPE target_type, 
             los_info.y1 = ptst->pos.y;
             los_info.z1 = ptst->pos.z + MAX(1, ptst->bump.height);
 
-            if ( !do_line_of_sight( &los_info ) )
+			//Invictus chars do not need a line of sight
+			if ( psrc->invictus || !do_line_of_sight( &los_info ) )
             {
                 best_target = ichr_test;
                 best_dist2  = dist2;

@@ -10,6 +10,7 @@ MASTER TODO LIST:
 - Troll in Griffin tower doesnt die properly
 - Rare crash bug with Tile Mimics in Sand Palace
 
+- Valkyrie Starter is broken
 - Fix squares under particle reflections
 - Some funky physics effects when hitting and killing stuff
 - Particles spawn in the wrong Z direction

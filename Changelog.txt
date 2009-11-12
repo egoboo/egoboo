@@ -1,4 +1,4 @@
-Version 2.8.0 (xx.10.2009)
+Version 2.8.0 (xx.12.2009)
 - New Feature: Impemented a new Darkvision skill that allows creatures or players to see in darkness
   without a normal lightsource. Current classes that have this skill are Elf, G'nome and Zombor.
 - New Feature: New side quest - The Imprisoned One. A great ancient evil is breaking free from
@@ -10,6 +10,7 @@ Version 2.8.0 (xx.10.2009)
 - New Feature: Improved AI by adding Line of Sight detection for targeting.
 - New Feature: Improved UI by implementing in-game pop up text.
 - New Feature: Implemented a new file system based on PhysFS to improve file handling.
+- Update: Added support for up to 32 joystick buttons.
 - Update: Backstabs now deal double damage and damage is increased by dexterity.
 - Update: Various GUI improvements to make it easier to navigate and use.
 - Update: Improved the texture detail for all the title images and replaced some with better ones.

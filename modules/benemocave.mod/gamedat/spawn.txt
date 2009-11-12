@@ -103,7 +103,7 @@ Gate:      NONE     76    10   5.0    0    S   0   0   7   0   0   F   F   Null
 
 
 //Treasure...
-ItemChest: NONE     40    6.5  7.5  0    E   0   0   0   1   0   F   F   Null
+Chest: NONE     40    6.5  7.5  0    E   0   0   0   1   0   F   F   Null
   LPotion: NONE     53    0    0    0    I   0   0   0   0   0   F   F   Null
 ItemChest: NONE     40    11.5 7.5  0    W   0   0   0   1   0   F   F   Null
   MPotion: NONE     54    0    0    0    I   0   0   0   0   0   F   F   Null

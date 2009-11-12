@@ -140,17 +140,18 @@ IfCalledForHelp
 IfTimeOut
 
   //Start fighting if players are nearby
-  tmpdistance = 128*9
-  SetTargetToDistantEnemy
-    IfTargetIsAPlayer
-      CallForHelp
-      tmpargument = TEAMG
-      JoinTeam
-    tmpargument = [VIKI]
-    IfTargetHasID
-      tmpargument = TEAMG
-      JoinTeam
-      
+  tmpargument = [NONE]
+  tmpdistance = BLAHENEMIES + BLAHPLAYERS
+  SetTargetToWideBlahID
+    CallForHelp
+    tmpargument = TEAMG
+    JoinTeam
+  tmpargument = [VIKI]          //Dont attack friends
+  IfTargetHasID
+    tmpargument = TEAMG
+    JoinTeam
+    CallForHelp
+    
   // Riding some type of animal...
   IfSitting
     tmpargument = rand & 15 + 15 // Time

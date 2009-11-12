@@ -124,12 +124,14 @@ mephit:   NONE    40  17.0   43.0   1.0   N    0   0  0   0   1   F   F   E
 mephit:   NONE    40  26.0   43.0   1.0   N    9   0  0   0   1   F   F   E
   mephitwing:   NONE    41  0.0   0.0   0.0   L    0   0  0   0   0   F   F   E
 
-firetrapchest:   NONE    78  8.5   47.0   1.0   E    0   0  0   1   0   F   F   N
+//Fire trapped chest
+chest:   NONE    46  8.5   47.0   1.0   E    0   0  0   4   0   F   F   N
   clencher:   NONE    72  0.0   0.0   0.0   I    0   0  0   0   0   F   F   E
   clencher:   NONE    72  0.0   0.0   0.0   I    0   0  0   0   0   F   F   E
   clencher:   NONE    72  0.0   0.0   0.0   I    0   0  0   0   0   F   F   E  
 
-normalchest:   NONE    46  5.5   60.5   1.0   S    999   0  0   0   0   F   F   N
+//Normal chest
+chest:   NONE    46  5.5   60.5   1.0   S    999   0  0   0   0   F   F   N
 
 //Hall of the lords
 daemonlord:   NONE    38  34.5   21.5   1.0   N    999   0  0   0   0   F   F   L
@@ -137,12 +139,14 @@ daemonlord:   NONE    38  34.5   21.5   1.0   N    999   0  0   0   0   F   F   
 daemonlord:   NONE    38  31.5   23.5   1.0   N    999   0  0   0   0   F   F   L
   daemonlordwing:   NONE    39  0.0   0.0   0.0   L    0   0  0   0   0   F   F   S
 
-normalchest:   NONE    46  52.5   30.5   1.0   S    0   0  0   1   0   F   F   N
+//Normal chest
+chest:   NONE    46  52.5   30.5   1.0   S    0   0  0   0   0   F   F   N
   LPotion:   NONE    36  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   AmmoBox:   NONE    60  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   Quiver:   NONE    61  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
-invisiblechest:   NONE    48  55.5   35.5   1.0   N    0   0  0   1   0   F   F   N
+//Invisible chest
+chest:   NONE    46  55.5   35.5   1.0   N    0   0  0   16   0   F   F   N
   MPotion:   NONE    43  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   MagPotion:   NONE    62  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   wandiceball:   NONE    59  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
@@ -177,8 +181,8 @@ GigaGelfeet: NONE 93 59.5   80.5   1.0   N    0   0  0   0   0   F   F   E
 GigaGelfeet: NONE 93 59.5   86.5   1.0   N    0   0  0   0   0   F   F   E
 GigaGelfeet: NONE 93 59.5   95.5   1.0   N    0   0  0   0   0   F   F   E
 
-normalchest:   NONE    46  48.5   106.5   1.0   N    199   0  0   0   0   F   F   N
-
+//Normal chest
+chest:   NONE    46  48.5   106.5   1.0   N    199   0  0   0   0   F   F   N
 
 //Middle room
 glyphplate:   NONE    47  14.0   51.0   1.0   N    0   0  0   0   0   F   F   N
@@ -218,12 +222,12 @@ dreadnaught:   NONE    50  18.5   90.5   1.0   N    0   0  0   0   0   F   F   E
   SpkMace:   NONE    51  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 dreadnaught:   NONE    50  15.5   90.5   1.0   N    0   0  0   0   0   F   F   E
   SpkMace:   NONE    51  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-invisiblechest:   NONE    48  25.5   83.0   1.0   W    0   0  0   1   0   F   F   N
+chest:   NONE    46  25.5   83.0   1.0   W    0   0  0   16   0   F   F   N               //Invisible chest
   rebirth:   NONE    67  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   MPotion:   NONE    43  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   rgpotion:   NONE    71  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   clencher:   NONE    72  0.0   0.0   0.0   I    0   0  0   0   0   F   F   E
-normalchest:   NONE    46  23.5   99.5   1.0   S    0   0  0   1   0   F   F   N
+chest:   NONE    46  23.5   99.5   1.0   S    0   0  0   0   0   F   F   N          //Normal chest
   BludMace:   NONE    70  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
 //Area between hell room and amazing maze
@@ -298,7 +302,7 @@ demon:   NONE    42  101.0   75.0   1.0   N    0   0  0   0   0   F   F   E
 demon:   NONE    42  97.0   72.0   1.0   N    0   0  0   0   0   F   F   E
 dreadnaught:   NONE    50  100.0   73.0   1.0   N    19   0  0   0   0   F   F   E
   SpkMace:   NONE    51  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-normalchest:   NONE    46  101.5   72.5   1.0   W    0   0  0   1   0   F   F   N
+chest:   NONE    46  101.5   72.5   1.0   W    0   0  0   0   0   F   F   N
  Identify:  NONE    90  0.0    0.0   0.0   I    0   0  0   0   0   F   F   N
  RegenPotion:  NONE    71  0.0    0.0   0.0   I    0   0  0   0   0   F   F   N
  Quiver:  NONE    61  0.0    0.0   0.0   I    0   0  0   0   0   F   F   N
@@ -332,7 +336,7 @@ DarkSpirit:   NONE    117  54.5   13.5   1.0   N    0   0  0   0   0   F   F   E
   DLance:   NONE    119  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 Hellrover:   NONE    118  54.5   13.5   1.0   N    0   0  0   0   0   F   F   E
 
-normalchest:   NONE    46  62.0   23.0   1.0   N    17   0  0   4   0   F   F   N
+chest:   NONE    46  62.0   23.0   1.0   N    17   0  0   8   0   F   F   N
   RGPotion:   NONE    71  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   mushroom:  NONE    98  0.0    0.0   0.0   I    0   0  0   0   0   F   F   N
 kursetrap:   NONE    91  62.0   23.0   1.0   N    0   0  33   0   0   F   F   E
@@ -366,7 +370,7 @@ mephit:   NONE    40  34.0   72.0   1.0   N    3   4  0   0   0   F   F   E
 fiendbug:   NONE    55  38.0   76.0   1.0   N    0   0  0   0   0   F   F   E
 fiendbug:   NONE    55  36.0   74.0   1.0   N    0   0  0   0   0   F   F   E
 
-invisiblechest:   NONE    48  39.5   78.5   1.0   W    29   0  0   1   0   F   F   N
+chest:   NONE    46  39.5   78.5   1.0   W    29   0  0   16   0   F   F   N
   Size:  NONE    96  0.0    0.0   0.0   I    0   0  0   0   0   F   F   N
   AmmoBox:   NONE    60  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   MagPotion:   NONE    62  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N

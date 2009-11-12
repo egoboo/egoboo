@@ -145,14 +145,14 @@ moduletool:   NONE    99  56.0   74.0   0.0   N    0   0  12   2   0   F   F   N
 //-----------------------------------------------------------------------------------
 
 monk:   NONE    96  24.0   42.0   0.5   N    0   0  11   4   0   F   F   N			//Paladin Shop
-chest:    NONE    59  25.0   39.5   1.0   S    4   0  0   96   9   F   F   N
-chest:    NONE    59  24.0   39.5   1.0   S    4   0  0   96   7   F   F   N
-moduletool:   NONE    99  24.0   41.0   1.0   N    0   0  0   4   0   F   F   N
-moduletool:   NONE    99  25.0   41.0   1.0   N    0   0  0   4   0   F   F   N
-moduletool:   NONE    99  24.0   42.0   1.0   N    0   0  0   4   0   F   F   N
-moduletool:   NONE    99  25.0   42.0   1.0   N    0   0  0   4   0   F   F   N
-moduletool:   NONE    99  24.0   43.0   1.0   N    0   0  0   4   0   F   F   N
-moduletool:   NONE    99  25.0   43.0   1.0   N    0   0  0   4   0   F   F   N
+chest:    NONE    59  25.0   39.5   0.0   S    4   0  0   96   9   F   F   N
+chest:    NONE    59  24.0   39.5   0.0   S    4   0  0   96   7   F   F   N
+moduletool:   NONE    99  24.0   41.0   0.0   N    0   0  0   4   0   F   F   N
+moduletool:   NONE    99  25.0   41.0   0.0   N    0   0  0   4   0   F   F   N
+moduletool:   NONE    99  24.0   42.0   0.0   N    0   0  0   4   0   F   F   N
+moduletool:   NONE    99  25.0   42.0   0.0   N    0   0  0   4   0   F   F   N
+moduletool:   NONE    99  24.0   43.0   0.0   N    0   0  0   4   0   F   F   N
+moduletool:   NONE    99  25.0   43.0   0.0   N    0   0  0   4   0   F   F   N
 
 shopkeep2:   Olaf    52  9.5   98.5   0.0   N    3   0  0   1   0   F   F   G		//Junk shop
   pistol:   NONE    98  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
@@ -162,37 +162,37 @@ shopkeep:   Dunlar    49  51.5   27.5   0.0   N    199   0  1   1   0   F   F   
 
 magicshop:   Zambini    80  72.0   96.0   0.0   N    999   0  6   0   0   F   F   G		//Spell shop
   QStaff:   NONE    47  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-  randommagic:   NONE    99  68.5   96.5   1.0   N    0   0  0   3   0   F   F   N
-  randommagic:   NONE    99  75.5   96.5   1.0   N    0   0  0   3   0   F   F   N
-  randommagic:   NONE    99  75.5   94.5   1.0   N    0   0  0   3   0   F   F   N
-  randommagic:   NONE    99  75.5   98.5   1.0   N    0   0  0   3   0   F   F   N
-  randommagic:   NONE    99  68.5   98.5   1.0   N    0   0  0   3   0   F   F   N
-  randommagic:   NONE    99  68.5   94.5   1.0   N    0   0  0   3   0   F   F   N
+  randommagic:   NONE    99  68.5   96.5   0.0   N    0   0  0   3   0   F   F   N
+  randommagic:   NONE    99  75.5   96.5   0.0   N    0   0  0   3   0   F   F   N
+  randommagic:   NONE    99  75.5   94.5   0.0   N    0   0  0   3   0   F   F   N
+  randommagic:   NONE    99  75.5   98.5   0.0   N    0   0  0   3   0   F   F   N
+  randommagic:   NONE    99  68.5   98.5   0.0   N    0   0  0   3   0   F   F   N
+  randommagic:   NONE    99  68.5   94.5   0.0   N    0   0  0   3   0   F   F   N
 
 //Spell books
-moduletool:   NONE    99  70.5   97.5   1.0   N    0   0  0   0   0   F   F   N
+moduletool:   NONE    99  70.5   97.5   0.0   N    0   0  0   0   0   F   F   N
   Teleport:   NONE    104  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-moduletool:   NONE    99  74.5   96.5   1.0   N    0   0  0   0   0   F   F   N
+moduletool:   NONE    99  74.5   96.5   0.0   N    0   0  0   0   0   F   F   N
   Bridge:   NONE    106  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-moduletool:   NONE    99  69.5   96.5   1.0   N    0   0  0   0   0   F   F   N
+moduletool:   NONE    99  69.5   96.5   0.0   N    0   0  0   0   0   F   F   N
   DeathCloud:   NONE    53  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-moduletool:   NONE    99  71.5   98.5   1.0   N    0   0  0   0   0   F   F   N
+moduletool:   NONE    99  71.5   98.5   0.0   N    0   0  0   0   0   F   F   N
   Size:   NONE    112  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-moduletool:   NONE    99  69.5   98.5   1.0   N    0   0  0   0   0   F   F   N
+moduletool:   NONE    99  69.5   98.5   0.0   N    0   0  0   0   0   F   F   N
   Meteor:   NONE    79  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-moduletool:   NONE    99  74.5   98.5   1.0   N    0   0  0   0   0   F   F   N
+moduletool:   NONE    99  74.5   98.5   0.0   N    0   0  0   0   0   F   F   N
   Whirlwind:   NONE    113  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-moduletool:   NONE    99  72.5   96.5   1.0   N    0   0  0   0   0   F   F   N
-  firering:   NONE    108  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-moduletool:   NONE    99  73.5   95.5   1.0   N    0   0  0   0   0   F   F   N
+moduletool:   NONE    99  72.5   96.5   0.0   N    0   0  0   0   0   F   F   N
+  IceRay:   NONE    108  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+moduletool:   NONE    99  73.5   95.5   0.0   N    0   0  0   0   0   F   F   N
   Icicles:   NONE    109  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-moduletool:   NONE    99  73.5   97.5   1.0   N    0   0  0   0   0   F   F   N
+moduletool:   NONE    99  73.5   97.5   0.0   N    0   0  0   0   0   F   F   N
   Orbstorm:   NONE    110  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-moduletool:   NONE    99  70.5   95.5   1.0   N    0   0  0   0   0   F   F   N
+moduletool:   NONE    99  70.5   95.5   0.0   N    0   0  0   0   0   F   F   N
   BattleWard:   NONE    111  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   
 shopkeep2:   Mylvin    52  50.5   75.5   0.0   N    125   1  7   0   0   F   F   G		//Potion shop
-  Pistol:   NONE    98  0.0   0.0   1.0   I    0   0  0   0   0   F   F   N
+  Pistol:   NONE    98  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
 shopkeep:   Shady    49  63.5   28.0   0.0   N    59   2  8   1   0   F   F   G		//Rogue shop
   PStiletto:   NONE    107  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
@@ -203,17 +203,17 @@ shopkeep:   Secret    49  79.0   36.0   0.0   N    0   1  9   0   0   F   F   G	
 shopkeep2:   Alkor    52  78.0   81.5   0.0   W    99   2  10   0   0   F   F   G		//G'nome shop
   Pistol:   NONE    98  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
-shopkeep:   Gerard    49  49.0   42.0   1.0   N    399   3  10   0   0   F   F   G		//Armor shop
-  SpkMace:   NONE    66  0.0   0.0   1.0   I    0   0  0   0   0   F   F   N
-  chest:    NONE    59  53.5   44.5   1.0   N    4   0  0   96   12   F   F   Null
-  chest:    NONE    59  51.5   44.5   1.0   N    4   0  0   96   12   F   F   Null
-  chest:    NONE    59  49.5   44.5   1.0   N    4   0  0   96   12   F   F   Null
-  chest:    NONE    59  45.5   44.5   1.0   N    4   0  0   96   12   F   F   Null
-  chest:    NONE    59  47.5   44.5   1.0   N    4   0  0   96   12   F   F   Null
-  chest:    NONE    59  53.5   40.5   1.0   S    4   0  0   96   12   F   F   Null
-  chest:    NONE    59  51.5   40.5   1.0   S    4   0  0   96   12   F   F   Null
-  chest:    NONE    59  47.5   40.5   1.0   S    4   0  0   96   12   F   F   Null
-  chest:    NONE    59  45.5   40.5   1.0   S    4   0  0   96   12   F   F   Null
+shopkeep:   Gerard    49  49.0   42.0   0.0   N    399   3  10   0   0   F   F   G		//Armor shop
+  SpkMace:   NONE    66  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  chest:    NONE    59  53.5   44.5   0.0   N    4   0  0   96   12   F   F   Null
+  chest:    NONE    59  51.5   44.5   0.0   N    4   0  0   96   12   F   F   Null
+  chest:    NONE    59  49.5   44.5   0.0   N    4   0  0   96   12   F   F   Null
+  chest:    NONE    59  45.5   44.5   0.0   N    4   0  0   96   12   F   F   Null
+  chest:    NONE    59  47.5   44.5   0.0   N    4   0  0   96   12   F   F   Null
+  chest:    NONE    59  53.5   40.5   0.0   S    4   0  0   96   12   F   F   Null
+  chest:    NONE    59  51.5   40.5   0.0   S    4   0  0   96   12   F   F   Null
+  chest:    NONE    59  47.5   40.5   0.0   S    4   0  0   96   12   F   F   Null
+  chest:    NONE    59  45.5   40.5   0.0   S    4   0  0   96   12   F   F   Null
 
 Healer:   NONE    141  28.5   32.5   0.0   S    19   1  0   0   0   F   F   G			//Healer's hut
   SpkMace:   NONE    66  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
@@ -232,12 +232,12 @@ guard:   NONE    51  10.0   8.0   3.0   N    0   0  1   0   0   F   F   G
 guard:   NONE    51  21.5   45.5   2.0   S    0   0  0   0   0   F   F   G
   Sword:   NONE    57  65.5   32.5   3.0   R    0   0  0   0   0   F   F   N
   GShield:   NONE    76  65.5   32.5   3.0   L    0   0  0   0   0   F   F   N
-guard:   NONE    51  47.0   72.0   1.0   E    0   1  0   0   0   F   F   G
+guard:   NONE    51  47.0   72.0   0.0   E    0   1  0   0   0   F   F   G
   Sword:   NONE    57  65.5   32.5   3.0   R    0   0  0   0   0   F   F   N
   GShield:   NONE    76  65.5   32.5   3.0   L    0   0  0   0   0   F   F   N
-guard:   NONE    51  17.5   96.5   1.0   W    0   0  0   0   0   F   F   G
+guard:   NONE    51  17.5   96.5   0.0   W    0   0  0   0   0   F   F   G
   LBow:   NONE    61  65.5   32.5   3.0   R    0   0  0   0   0   F   F   N
-guard:   NONE    51  85.0   13.0   1.0   S    0   1  0   0   0   F   F   G
+guard:   NONE    51  85.0   13.0   0.0   S    0   1  0   0   0   F   F   G
   LBow:   NONE    61  65.5   32.5   3.0   R    0   0  0   0   0   F   F   N
 guard:   NONE    51  45.5   7.5   3.0   N    0   0  0   0   0   F   F   G
   LBow:   NONE    61  65.5   32.5   3.0   R    0   0  0   0   0   F   F   N
@@ -354,12 +354,12 @@ Stool:   NONE    46  78.3   44.8   1.0   N    0   0  0   0   0   F   F   N
 Stool:   NONE    46  76.8   44.5   1.0   N    0   0  0   0   0   F   F   N
 Stool:   NONE    46  77.0   46.5   1.0   N    0   0  0   0   0   F   F   N
 Stool:   NONE    46  89.5   43.5   1.0   N    0   0  0   0   0   F   F   N
-crate:   NONE    43  93.8   52.5   1.0   W    0   3  0   0   0   F   F   N
-crate:   NONE    43  94.5   52.5   1.0   S    0   0  0   0   0   F   F   N
+barrel:   NONE    158  93.8   52.5   1.0   W    0   3  0   0   0   F   F   N
+barrel:   NONE    158  94.5   52.5   1.0   S    0   0  0   0   0   F   F   N
 crate:   NONE    43  84.5   48.5   1.0   S    0   2  0   0   0   F   F   N
 crate:   NONE    43  12.5   97.5   2.0   N    0   0  0   0   0   F   F   N
 crate:   NONE    43  12.5   97.5   1.0   N    0   2  0   0   0   F   F   N
-crate:   NONE    43  27.5   47.5   1.0   N    0   1  0   0   0   F   F   N
+barrel:   NONE    158  27.5   47.5   1.0   N    0   1  0   0   0   F   F   N
 crate:   NONE    43  27.3   48.3   1.0   N    0   0  0   0   0   F   F   N
 crate:   NONE    43  28.3   47.3   1.0   N    0   2  0   0   0   F   F   N
 crate:   NONE    43  100.5   44.5   1.0   N    0   0  0   0   0   F   F   N
@@ -415,51 +415,51 @@ sign:   NONE    56  81.5   87.5   0.0   N    0   1  0   15   0   F   F   N		//Al
 sign:   NONE    56  48.5   36.5   0.0   N    0   1  0   16   0   F   F   N		//Armory
 
 //Graveyard
-grave:   NONE    135  53.5   55.5   1.0   S    0   1  0   0   0   F   F   N
-grave:   NONE    135  50.5   51.5   1.0   N    0   0  0   0   0   F   F   N
-grave:   NONE    135  48.5   51.5   1.0   N    0   1  0   0   0   F   F   N
-grave:   NONE    135  51.5   61.5   1.0   S    0   1  0   0   0   F   F   N
-grave:   NONE    135  54.5   61.5   1.0   S    0   0  0   0   0   F   F   N
-grave:   NONE    135  49.5   58.5   1.0   N    0   3  0   0   0   F   F   N
-grave:   NONE    135  51.5   58.5   1.0   N    0   1  0   0   0   F   F   N
-grave:   NONE    135  49.5   61.5   1.0   S    0   2  0   0   0   F   F   N
-grave:   NONE    135  57.5   55.5   1.0   S    0   3  0   0   0   F   F   N
-grave:   NONE    135  57.5   53.5   1.0   S    0   3  0   0   0   F   F   N
-grave:   NONE    135  45.5   53.5   1.0   E    0   1  0   0   0   F   F   N
-grave:   NONE    135  45.5   50.5   1.0   E    0   2  0   0   0   F   F   N
-grave:   NONE    135  45.5   58.5   1.0   E    0   0  0   0   0   F   F   N
-grave:   NONE    135  60.5   61.5   1.0   W    0   3  0   0   0   F   F   N
-grave:   NONE    135  56.5   61.5   1.0   E    0   0  0   0   0   F   F   N
-grave:   NONE    135  58.5   48.5   1.0   S    0   2  0   0   0   F   F   N
-grave:   NONE    135  60.5   58.5   1.0   W    0   1  0   0   0   F   F   N
-grave:   NONE    135  52.5   48.5   1.0   S    0   2  0   0   0   F   F   N
-grave:   NONE    135  55.5   48.5   1.0   S    0   1  0   0   0   F   F   N
-grave:   NONE    135  51.5   64.5   1.0   N    0   0  0   0   0   F   F   N
+grave:   NONE    135  53.5   55.5   0.0   S    0   1  0   0   0   F   F   N
+grave:   NONE    135  50.5   51.5   0.0   N    0   0  0   0   0   F   F   N
+grave:   NONE    135  48.5   51.5   0.0   N    0   1  0   0   0   F   F   N
+grave:   NONE    135  51.5   61.5   0.0   S    0   1  0   0   0   F   F   N
+grave:   NONE    135  54.5   61.5   0.0   S    0   0  0   0   0   F   F   N
+grave:   NONE    135  49.5   58.5   0.0   N    0   3  0   0   0   F   F   N
+grave:   NONE    135  51.5   58.5   0.0   N    0   1  0   0   0   F   F   N
+grave:   NONE    135  49.5   61.5   0.0   S    0   2  0   0   0   F   F   N
+grave:   NONE    135  57.5   55.5   0.0   S    0   3  0   0   0   F   F   N
+grave:   NONE    135  57.5   53.5   0.0   S    0   3  0   0   0   F   F   N
+grave:   NONE    135  45.5   53.5   0.0   E    0   1  0   0   0   F   F   N
+grave:   NONE    135  45.5   50.5   0.0   E    0   2  0   0   0   F   F   N
+grave:   NONE    135  45.5   58.5   0.0   E    0   0  0   0   0   F   F   N
+grave:   NONE    135  60.5   61.5   0.0   W    0   3  0   0   0   F   F   N
+grave:   NONE    135  56.5   61.5   0.0   E    0   0  0   0   0   F   F   N
+grave:   NONE    135  58.5   48.5   0.0   S    0   2  0   0   0   F   F   N
+grave:   NONE    135  60.5   58.5   0.0   W    0   1  0   0   0   F   F   N
+grave:   NONE    135  52.5   48.5   0.0   S    0   2  0   0   0   F   F   N
+grave:   NONE    135  55.5   48.5   0.0   S    0   1  0   0   0   F   F   N
+grave:   NONE    135  51.5   64.5   0.0   N    0   0  0   0   0   F   F   N
 
-grave2:   NONE    137  48.25   60.0   1.0   E    0   0  0   0   0   F   F   N
-grave2:   NONE    137  55.5   54.5   1.0   W    0   1  0   0   0   F   F   N
-grave2:   NONE    137  45.5   56.5   1.0   S    0   2  0   0   0   F   F   N
-grave2:   NONE    137  52.5   51.75   1.0   E    0   2  0   0   0   F   F   N
-grave2:   NONE    137  60.5   51.0   1.0   N    0   0  0   0   0   F   F   N
-grave2:   NONE    137  49.5   48.5   1.0   S    0   1  0   0   0   F   F   N
+grave2:   NONE    137  48.25   60.0   0.0   E    0   0  0   0   0   F   F   N
+grave2:   NONE    137  55.5   54.5   0.0   W    0   1  0   0   0   F   F   N
+grave2:   NONE    137  45.5   56.5   0.0   S    0   2  0   0   0   F   F   N
+grave2:   NONE    137  52.5   51.75   0.0   E    0   2  0   0   0   F   F   N
+grave2:   NONE    137  60.5   51.0   0.0   N    0   0  0   0   0   F   F   N
+grave2:   NONE    137  49.5   48.5   0.0   S    0   1  0   0   0   F   F   N
 
 
-crypt:   NONE    136  55.5   59.5   1.0   N    0   0  0   0   0   F   F   G     //Royal catacombs
-crypt:   NONE    136  60.5   54.5   1.0   W    0   0  0   1   0   F   F   G     //Quest crypt
-crypt:   NONE    136  50.5   54.5   1.0   N    0   0  0   3   0   F   F   G     //unknown devs
-crypt:   NONE    136  56.0   52.0   1.0   N    0   0  0   4   0   F   F   G     //vladula
+crypt:   NONE    136  55.5   59.5   0.0   N    0   0  0   0   0   F   F   G     //Royal catacombs
+crypt:   NONE    136  60.5   54.5   0.0   W    0   0  0   1   0   F   F   G     //Quest crypt
+crypt:   NONE    136  50.5   54.5   0.0   N    0   0  0   3   0   F   F   G     //unknown devs
+crypt:   NONE    136  56.0   52.0   0.0   N    0   0  0   4   0   F   F   G     //vladula
 
-Tree:   NONE    36  60.5   48.5   1.0   N    0   0  0   0   0   F   F   N
-Tree:   NONE    36  50.5   60.0   1.0   S    0   0  0   0   0   F   F   N
+Tree:   NONE    36  60.5   48.5   0.0   N    0   0  0   0   0   F   F   N
+Tree:   NONE    36  50.5   60.0   0.0   S    0   0  0   0   0   F   F   N
 
 //Quest related people
-GraveyardMan:         NONE    138  61.0   52.0   1.0   W    0   0  0   1   0   F   F   G
+GraveyardMan:         NONE    138  61.0   52.0   0.0   W    0   0  0   1   0   F   F   G
 ArchMageNPC:   NONE    142  72.5   61.5   0.0   N    0   0  0   0   0   F   F   G			//Entrance to the archmage trials
 Marcus :   NONE    143  16.5   52.5   0.0   E    0   0  0   0   0   F   F   G	
   Pick:   NONE    48  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-Moggy:   NONE    145  78.5   46.0   1.0   W    0   0  0   0   0   F   F   G		
+Moggy:   NONE    145  78.5   46.0   0.0   W    0   0  0   0   0   F   F   G		
   Mace:  NONE    78  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-Meena:   NONE    146  0.0   0.0   1.0   N    0   0  0   0   0   F   F   G	
+Meena:   NONE    146  0.0   0.0   0.0   N    0   0  0   0   0   F   F   G	
   Knife: NONE    89  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 Beggar:  NONE    151  28.0   48.5   0.0   E    3   0  0   0   0   F   F   G		
 Angus:   NONE    153  16.5   58.5   0.0   E    149   0  0   0   0   F   F   G
