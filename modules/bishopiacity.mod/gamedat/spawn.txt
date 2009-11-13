@@ -61,7 +61,7 @@
 #dependency SPotion           70
 #dependency LPotion           71
 #dependency MagPotion         81
-#dependency PPotion           86
+#dependency PowPotion         86
 #dependency RgPotion          97
 
 // Alkor G'Nome Shop

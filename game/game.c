@@ -5310,8 +5310,6 @@ void game_load_all_profiles( const char *modname )
 
     // load the objects from the module's directory
     game_load_module_profiles( modname );
-
-    log_madused( "debug" SLASH_STR "slotused.txt" );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5661,7 +5659,7 @@ void game_load_global_assets()
     }
     load_blips();
     load_bars();
-    font_bmp_load( "data/font_new_shadow", "data/font.txt" );
+    font_bmp_load( "data/font", "data/font.txt" );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5917,6 +5915,9 @@ bool_t game_begin_module( const char * modname, Uint32 seed )
     make_all_character_matrices( update_wld != 0 );
     attach_particles();
 
+	// log debug info for every object loaded into the module
+	if( cfg.dev_mode ) log_madused( "debug" SLASH_STR "slotused.txt" );
+
     // initialize the network
     net_initialize();
     net_sayHello();
@@ -5924,7 +5925,7 @@ bool_t game_begin_module( const char * modname, Uint32 seed )
     // start the module
     game_module_start( PMod );
 
-    // initislize the timers as tha very last thing
+    // initialize the timers as the very last thing
     timeron = bfalse;
 
     return btrue;

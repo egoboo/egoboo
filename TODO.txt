@@ -1,8 +1,7 @@
 MASTER TODO LIST:
 - Spellbooks not being spellbooks when spawning instead of dropped.
 - The Bishopia walls should be flagged as a Wall, not as Impassable.
-- Sand Troll in Sand Palace seems to get stuck on the pyramid in new physics system. (We might need a FindPath algorithm here) 
-- Enchants don't properly increase size when less than 1.00
+- Sand Troll in Sand Palace seems to get stuck on the pyramid in new physics system. (We might need a FindPath algorithm here)
 - also i found a bug, equipping jewelry doesn't always bestow enchant on user, i had much trouble with amulet on strength it seemed to 
   work 1 on 4 tries, weird (tires of throwing away and grabbing back)
 - Halve mana/life loss caused by potions
@@ -10,12 +9,12 @@ MASTER TODO LIST:
 - Troll in Griffin tower doesnt die properly
 - Rare crash bug with Tile Mimics in Sand Palace
 
-- Valkyrie Starter is broken
+- Game crashes when using specific texture filter modes and billboards.
+- Changing max particles while in the game causes bugs.
 - Fix squares under particle reflections
 - Some funky physics effects when hitting and killing stuff
 - Particles spawn in the wrong Z direction
-- Fix particle transparency for particles that change size
-- Particle size increase is wrong
+- Objects are often partly under the mesh now because they no longer float above it.
 
 EGOBOO AWARDS:
 http://img.informer.com/awards/si_editor4.gif

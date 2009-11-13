@@ -2597,10 +2597,7 @@ int load_one_character_profile( const char * tmploadname, int slot_override, boo
         // The data file wasn't found
         if ( required )
         {
-            if( cfg.dev_mode )
-            {
-                log_warning( "load_one_character_profile() - \"%s\" was not found. Overriding a global object?\n", szLoadName );
-            }
+            log_debug( "load_one_character_profile() - \"%s\" was not found. Overriding a global object?\n", szLoadName );            
         }
         else if( VALID_CAP_RANGE(slot_override) && slot_override > PMod->importamount * MAXIMPORTPERPLAYER )
         {
@@ -3583,12 +3580,11 @@ Uint16 spawn_one_character( fvec3_t pos, Uint16 profile, Uint8 team,
     if( !ACTIVE_CHR( pchr->attachedto ) && pchr->isitem && !pchr->pack_ispacked )
     {
         // Items that are spawned inside shop passages are more expensive than normal
+        pchr->isshopitem = bfalse;
         for ( cnt = 0; cnt < ShopStack.count; cnt++ )
         {
             // Make sure the owner is not dead
             if ( SHOP_NOOWNER == ShopStack.lst[cnt].owner ) continue;
-
-            pchr->isshopitem = bfalse;
 
             if ( object_is_in_passage( ShopStack.lst[cnt].passage, pchr->pos.x, pchr->pos.y, pchr->bump.size) )
             {
@@ -3596,7 +3592,7 @@ Uint16 spawn_one_character( fvec3_t pos, Uint16 profile, Uint8 team,
                 pchr->iskursed   = bfalse;              // Shop items are never kursed
 
                 // Identify cheap items in a shop
-                if( chr_get_price(ichr) < 10 )
+                if( chr_get_price(ichr) < 200 )
                 {
                     pchr->nameknown  = btrue;
                 }

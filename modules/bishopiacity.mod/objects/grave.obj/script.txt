@@ -1,6 +1,6 @@
 //Randomize the message on the stone
 IfSpawned
-  tmpargument = rand % 38
+  tmpargument = rand % 39
   SetContent
 
 //Reset message
@@ -20,9 +20,7 @@ IfBumped
         tmpargument = 100
         SetTime
 
-        GetContent
-        tmpx = tmpargument
-
+        tmpx = selfcontent
         tmpy = 0
         IfXIsEqualToY
           tmpargument = 0
@@ -234,7 +232,7 @@ IfBumped
 
         tmpy = 37
         IfXIsEqualToY
-          tmpargument = 13
+          tmpargument = 52
           SendMessageNear
 
         tmpy = 38

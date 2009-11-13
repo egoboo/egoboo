@@ -406,10 +406,7 @@ void mad_get_framefx( int frame )
 
         if( -1 == token_index )
         {
-            if( cfg.dev_mode )
-            {
-                log_warning( "Model %s, frame %d, frame name \"%s\" has unknown frame effects command \"%s\"\n", szModelName, frame, cFrameName, ptmp );
-            }
+            log_debug( "Model %s, frame %d, frame name \"%s\" has unknown frame effects command \"%s\"\n", szModelName, frame, cFrameName, ptmp );
             ptmp++;
         }
         else

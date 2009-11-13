@@ -8,8 +8,8 @@ IfAttacked
 //------------------------------------------------------------------------------
 // ZZ> Move around...  Start at state 0
 IfTimeOut
-  tmpx=rand&63
-  tmpy=0
+  tmpx = rand & 63
+  tmpy = 0
   IfXIsEqualToY
     tmpargument = 0
     PlaySound
@@ -61,6 +61,7 @@ IfKilled
   tmpargument = [SHEP]
   IssueOrder
   
+//------------------------------------------------------------------------------
 //Secret easter egg (summon black sheep if all sheep are killed)
 IfOrdered
   tmpx = [SHEP]
@@ -78,6 +79,7 @@ IfOrdered
       tmpdistance = 750 + selfz
       tmpturn = rand
       SpawnExactCharacterXYZ
+      
 //------------------------------------------------------------------------------
 End
 //------------------------------------------------------------------------------
