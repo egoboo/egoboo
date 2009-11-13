@@ -212,9 +212,10 @@ void   init_all_pip();
 void   release_all_pip();
 bool_t release_one_pip( Uint16 ipip );
 
-void   PrtList_init();
 bool_t PrtList_free_one( Uint16 particle );
 void   PrtList_free_all();
+void   PrtList_update_used();
+
 void   free_one_particle_in_game( Uint16 particle );
 
 void particle_system_init();

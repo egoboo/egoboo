@@ -636,6 +636,9 @@ DEFINE_LIST_EXTERN(chr_t, ChrList, MAX_CHR );
 
 #define GET_INDEX_PCHR( PCHR )  GET_INDEX( PCHR, MAX_CHR )
 
+#define CHR_BEGIN_LOOP(IT, PCHR) {int IT##internal; for(IT##internal=0;IT##internal<ChrList.used_count;IT##internal++) { int IT; chr_t * PCHR = NULL; IT = ChrList.used_ref[IT##internal]; if(!ACTIVE_CHR(IT)) continue; PCHR = ChrList.lst + IT;
+#define CHR_END_LOOP() }}
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 /// Function prototypes
@@ -720,7 +723,7 @@ struct s_billboard_data * chr_make_text_billboard( Uint16 ichr, const char * txt
 const char * chr_get_name( Uint16 ichr, Uint32 bits );
 const char * chr_get_dir_name( Uint16 ichr );
 
-Uint16 ChrList_get_free();
+void   ChrList_update_used();
 
 //---------------------------------------------------------------------------------------------
 /// helper functions

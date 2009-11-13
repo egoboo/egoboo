@@ -85,8 +85,6 @@ static ai_state_t * ai_state_init( ai_state_t * pself );
 
 static int get_grip_verts( Uint16 grip_verts[], Uint16 imount, int vrt_offset );
 
-static void ChrList_init();
-
 bool_t apply_one_character_matrix( chr_t * pchr, matrix_cache_t * mcache );
 bool_t apply_one_weapon_matrix( chr_t * pweap, matrix_cache_t * mcache );
 
@@ -101,6 +99,9 @@ static bool_t chr_upload_cap( chr_t * pchr, cap_t * pcap );
 void cleanup_one_character( chr_t * pchr );
 
 bool_t chr_instance_update_ref( chr_instance_t * pinst, float floor_level, bool_t need_matrix  );
+
+static void   ChrList_init();
+static Uint16 ChrList_get_free();
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -332,6 +333,26 @@ void ChrList_init()
 
         ChrList.free_ref[ChrList.free_count] = ChrList.free_count;
         ChrList.free_count++;
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+void ChrList_update_used()
+{
+    int cnt;
+    
+    ChrList.used_count = 0;
+    for( cnt=0; cnt<MAX_CHR; cnt++ )
+    {
+        if( !ACTIVE_CHR(cnt) ) continue;
+
+        ChrList.used_ref[ChrList.used_count] = cnt;
+        ChrList.used_count++;
+    }
+
+    for( cnt= ChrList.used_count; cnt<MAX_CHR; cnt++ )
+    {
+        ChrList.used_ref[ChrList.used_count] = MAX_CHR;
     }
 }
 

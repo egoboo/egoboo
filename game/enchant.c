@@ -46,6 +46,9 @@ DECLARE_LIST ( ACCESS_TYPE_NONE, enc_t, EncList );
 //--------------------------------------------------------------------------------------------
 static enc_t * enc_init( enc_t * penc );
 
+static void   EncList_init();
+static Uint16 EncList_get_free();
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -73,6 +76,26 @@ void EncList_init()
 
         EncList.free_ref[EncList.free_count] = EncList.free_count;
         EncList.free_count++;
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+void EncList_update_used()
+{
+    int cnt;
+    
+    EncList.used_count = 0;
+    for( cnt=0; cnt<MAX_ENC; cnt++ )
+    {
+        if( !ACTIVE_ENC(cnt) ) continue;
+
+        EncList.used_ref[EncList.used_count] = cnt;
+        EncList.used_count++;
+    }
+
+    for( cnt= EncList.used_count; cnt<MAX_ENC; cnt++ )
+    {
+        EncList.used_ref[EncList.used_count] = MAX_ENC;
     }
 }
 

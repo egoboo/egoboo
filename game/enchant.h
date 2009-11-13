@@ -102,9 +102,8 @@ void init_all_eve();
 void release_all_eve();
 bool_t release_one_eve( Uint16 ieve );
 
-void EncList_init();
 void EncList_free_all();
-Uint16 EncList_get_free();
+void EncList_update_used();
 
 void update_all_enchants();
 void cleanup_all_enchants();

@@ -744,6 +744,14 @@ void activate_alliance_file( /*const char *modname*/ )
 }
 
 //--------------------------------------------------------------------------------------------
+void update_used_lists()
+{
+    ChrList_update_used();
+    PrtList_update_used();
+    EncList_update_used();
+}
+
+//--------------------------------------------------------------------------------------------
 void update_all_objects()
 {
     update_all_characters();
@@ -891,6 +899,7 @@ void update_game()
         //---- begin the code for updating in-game objects
         {
             update_all_objects();
+            update_used_lists();
 
             let_all_characters_think();           // sets the non-player latches
             unbuffer_player_latches();            // sets the player latches
@@ -5901,6 +5910,7 @@ bool_t game_begin_module( const char * modname, Uint32 seed )
 
     // initialize the game objects
     update_all_objects();
+    update_used_lists();
     cursor_reset();
     game_module_reset( PMod, seed );
     camera_reset( PCamera, PMesh );

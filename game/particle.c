@@ -53,6 +53,9 @@ static const Uint32  particletrans = 0x80;
 //--------------------------------------------------------------------------------------------
 static void prt_init( prt_t * pprt );
 
+static void   PrtList_init();
+static Uint16 PrtList_get_free();
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 int prt_count_free()
@@ -78,6 +81,26 @@ void PrtList_init()
 
         PrtList.free_ref[PrtList.free_count] = PrtList.free_count;
         PrtList.free_count++;
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+void PrtList_update_used()
+{
+    int cnt;
+    
+    PrtList.used_count = 0;
+    for( cnt=0; cnt<TOTAL_MAX_PRT; cnt++ )
+    {
+        if( !DISPLAY_PRT(cnt) ) continue;
+
+        PrtList.used_ref[PrtList.used_count] = cnt;
+        PrtList.used_count++;
+    }
+
+    for( cnt= PrtList.used_count; cnt<TOTAL_MAX_PRT; cnt++ )
+    {
+        PrtList.used_ref[PrtList.used_count] = TOTAL_MAX_PRT;
     }
 }
 
@@ -677,10 +700,8 @@ void update_all_particles()
     {
         prt_t * pprt;
         pip_t * ppip;
-		bool_t inwater;
-		Uint16 facing;
 
-        if ( !ACTIVE_PRT(particle) ) continue;
+        if ( !DISPLAY_PRT(particle) ) continue;
         pprt = PrtList.lst + particle;
 
         pprt->onwhichfan   = mesh_get_tile ( PMesh, pprt->pos.x, pprt->pos.y );
@@ -698,6 +719,22 @@ void update_all_particles()
 		else pprt->is_hidden = bfalse; 
 
         pprt->is_homing = ppip->homing && !ACTIVE_CHR( pprt->attachedto_ref );
+
+    }
+
+    // figure out where the particle is on the mesh and update particle states
+    for ( particle = 0; particle < maxparticles; particle++ )
+    {
+        prt_t * pprt;
+        pip_t * ppip;
+		bool_t inwater;
+
+        if ( !ACTIVE_PRT(particle) ) continue;
+        pprt = PrtList.lst + particle;
+
+        // update various particle states
+        if( !LOADED_PIP( pprt->pip_ref ) ) continue;
+        ppip = PipStack.lst + pprt->pip_ref;
 
         // stop here if the particle is hidden
         if( pprt->is_hidden ) continue;
@@ -769,10 +806,23 @@ void update_all_particles()
         {
             pprt->inwater = bfalse;
         }
+    }
 
-		// the following functions should not be done the first time through the update loop
-		if( 0 == clock_wld ) return;
-		
+    // the following functions should not be done the first time through the update loop
+    if( 0 == clock_wld ) return;
+
+    for ( particle = 0; particle < maxparticles; particle++ )
+    {
+        prt_t * pprt;
+        pip_t * ppip;
+
+        if ( !DISPLAY_PRT(particle) ) continue;
+        pprt = PrtList.lst + particle;
+
+        // update various particle states
+        if( !LOADED_PIP( pprt->pip_ref ) ) continue;
+        ppip = PipStack.lst + pprt->pip_ref;
+
 		// Animate particle
 		pprt->image = pprt->image + pprt->imageadd;
 		if ( pprt->image >= pprt->imagemax ) pprt->image = 0;
@@ -802,6 +852,42 @@ void update_all_particles()
 			}*/
 		}
 
+		// Change dyna light values
+		if( pprt->dynalight.level > 0 )
+		{
+			pprt->dynalight.level   += ppip->dynalight.level_add;
+			if( pprt->dynalight.level < 0 ) pprt->dynalight.level = 0;
+		}
+		else if( pprt->dynalight.level < 0 )
+		{
+			// try to guess what should happen for negative lighting
+			pprt->dynalight.level   += ppip->dynalight.level_add;
+			if( pprt->dynalight.level > 0 ) pprt->dynalight.level = 0;
+		}
+		else
+		{
+			pprt->dynalight.level += ppip->dynalight.level_add;
+		}
+
+		pprt->dynalight.falloff += ppip->dynalight.falloff_add;
+
+		// spin the particle
+		pprt->facing += ppip->facingadd;
+    }
+
+    for ( particle = 0; particle < maxparticles; particle++ )
+    {
+        prt_t * pprt;
+        pip_t * ppip;
+		Uint16 facing;
+
+        if ( !ACTIVE_PRT(particle) ) continue;
+        pprt = PrtList.lst + particle;
+
+        // update various particle states
+        if( !LOADED_PIP( pprt->pip_ref ) ) continue;
+        ppip = PipStack.lst + pprt->pip_ref;
+
 		// down the spawn timer
 		if ( pprt->spawntime > 0 ) pprt->spawntime--;
 
@@ -828,28 +914,6 @@ void update_all_particles()
 				facing += ppip->contspawn_facingadd;
 			}
 		}
-
-		// Change dyna light values
-		if( pprt->dynalight.level > 0 )
-		{
-			pprt->dynalight.level   += ppip->dynalight.level_add;
-			if( pprt->dynalight.level < 0 ) pprt->dynalight.level = 0;
-		}
-		else if( pprt->dynalight.level < 0 )
-		{
-			// try to guess what should happen for negative lighting
-			pprt->dynalight.level   += ppip->dynalight.level_add;
-			if( pprt->dynalight.level > 0 ) pprt->dynalight.level = 0;
-		}
-		else
-		{
-			pprt->dynalight.level += ppip->dynalight.level_add;
-		}
-
-		pprt->dynalight.falloff += ppip->dynalight.falloff_add;
-
-		// spin the particle
-		pprt->facing += ppip->facingadd;
     }
 
     // apply damage from  attatched bump particles (about once a second)
