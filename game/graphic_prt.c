@@ -234,33 +234,35 @@ bool_t render_one_prt_trans( Uint16 iprt )
         GL_DEBUG(glEnable)(GL_DEPTH_TEST );
         GL_DEBUG(glDepthFunc)(GL_LEQUAL );
 
-        if ( SPRITE_SOLID == PrtList.lst[iprt].type )
+        if ( SPRITE_SOLID == pprt->type )
         {
             // do the alpha blended edge of the solid particle
 
-            GL_DEBUG(glEnable)(GL_ALPHA_TEST );
-            GL_DEBUG(glAlphaFunc)(GL_LESS, 1 );
+            GL_DEBUG(glEnable)( GL_ALPHA_TEST );
+            GL_DEBUG(glAlphaFunc)( GL_LESS, 1 );
 
-            GL_DEBUG(glEnable)(GL_BLEND );
-            GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+            GL_DEBUG(glEnable)( GL_BLEND );
+            GL_DEBUG(glBlendFunc)( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
             GL_DEBUG(glColor4f)( pinst->fintens, pinst->fintens, pinst->fintens, 1.0f );
 
             oglx_texture_Bind( TxTexture_get_ptr( TX_PARTICLE_TRANS ) );
         }
-        else if ( SPRITE_LIGHT == PrtList.lst[iprt].type )
+        else if ( SPRITE_LIGHT == pprt->type )
         {
             // do the light sprites
+            float intens = pinst->fintens * pinst->falpha;
 
-            GL_DEBUG(glDisable)(GL_ALPHA_TEST );
+            GL_DEBUG(glDisable)( GL_ALPHA_TEST );
 
             GL_DEBUG(glEnable)( GL_BLEND );
             GL_DEBUG(glBlendFunc)( GL_ONE, GL_ONE_MINUS_SRC_COLOR );
-            GL_DEBUG(glColor4f)( pinst->falpha, pinst->falpha, pinst->falpha, 1.0f );
+
+            GL_DEBUG(glColor4f)( intens, intens, intens, 1.0f );
 
             oglx_texture_Bind( TxTexture_get_ptr( TX_PARTICLE_LIGHT ) );
         }
-        else if ( SPRITE_ALPHA == PrtList.lst[iprt].type )
+        else if ( SPRITE_ALPHA == pprt->type )
         {
             // do the transparent sprites
 
@@ -407,6 +409,10 @@ bool_t render_one_prt_ref( Uint16 iprt )
     //startalpha = ( startalpha | gfx.reffadeor ) >> 1;  // Fix for Riva owners
     //startalpha = CLIP(startalpha, 0, 255);
 
+    GL_DEBUG(glEnable)(GL_DEPTH_TEST);
+    GL_DEBUG(glDepthFunc)(GL_LEQUAL);
+    GL_DEBUG(glDepthMask)(GL_FALSE);
+
     if ( startalpha > 0 )
     {
         ATTRIB_PUSH( "render_one_prt_ref", GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_LIGHTING_BIT | GL_CURRENT_BIT );
@@ -414,27 +420,27 @@ bool_t render_one_prt_ref( Uint16 iprt )
             GL_DEBUG(glDisable)(GL_CULL_FACE );
             GL_DEBUG(glDisable)(GL_DITHER );
 
-            if ( SPRITE_LIGHT == PrtList.lst[iprt].type )
+            if ( SPRITE_LIGHT == pprt->type )
             {
                 // do the light sprites
-                float alpha = startalpha * INV_FF * pinst->fintens;
+                float intens = startalpha * INV_FF * pinst->alpha * pinst->fintens;
 
                 GL_DEBUG(glDisable)(GL_ALPHA_TEST );
 
-                GL_DEBUG(glEnable)(GL_BLEND );
-                GL_DEBUG(glBlendFunc)(GL_ONE, GL_ONE_MINUS_SRC_COLOR );
-                GL_DEBUG(glColor4f)(alpha, alpha, alpha, 1.0f );
+                GL_DEBUG(glEnable)( GL_BLEND );
+                GL_DEBUG(glBlendFunc)( GL_ONE, GL_ONE );
+                GL_DEBUG(glColor4f)( intens, intens, intens, 1.0f );
 
                 oglx_texture_Bind( TxTexture_get_ptr( TX_PARTICLE_LIGHT ) );
             }
-            else if ( SPRITE_SOLID == PrtList.lst[iprt].type || SPRITE_ALPHA == PrtList.lst[iprt].type )
+            else if ( SPRITE_SOLID == pprt->type || SPRITE_ALPHA == pprt->type )
             {
                 // do the transparent sprites
 
                 float alpha = startalpha * INV_FF * pinst->falpha;
 
-                GL_DEBUG(glEnable)(GL_ALPHA_TEST );
-                GL_DEBUG(glAlphaFunc)(GL_GREATER, 0 );
+                GL_DEBUG(glEnable)( GL_ALPHA_TEST );
+                GL_DEBUG(glAlphaFunc)( GL_GREATER, 0 );
 
                 GL_DEBUG(glEnable)(GL_BLEND );
                 GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
@@ -458,6 +464,7 @@ bool_t render_one_prt_ref( Uint16 iprt )
                 }
             }
             GL_DEBUG_END();
+
         }
         ATTRIB_POP( "render_one_prt_ref" );
 

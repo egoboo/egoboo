@@ -2335,7 +2335,7 @@ void render_scene_trans()
     GLXvector4f tint;
 
     // set the the transparency parameters
-    GL_DEBUG(glDepthMask)(GL_FALSE );                     // GL_DEPTH_BUFFER_BIT
+    GL_DEBUG(glDepthMask)( GL_FALSE );                     // GL_DEPTH_BUFFER_BIT
 
     GL_DEBUG(glEnable)(GL_DEPTH_TEST );                   // GL_ENABLE_BIT
     GL_DEBUG(glDepthFunc)(GL_LEQUAL );                    // GL_DEPTH_BUFFER_BIT
