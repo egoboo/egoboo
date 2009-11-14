@@ -137,8 +137,9 @@ struct s_prt
     Uint16  facing;                          ///< Direction of the part
     Uint8   team;                            ///< Team
 
-    fvec3_t pos, pos_old, pos_stt;       ///< Position
-    fvec3_t vel, vel_old, vel_stt;       ///< Velocity
+    fvec3_t pos, pos_old, pos_stt;           ///< Position
+    fvec3_t vel, vel_old, vel_stt;           ///< Velocity
+    fvec3_t offset;                          ///< The initial offset when spawning the particle
 
     Uint32  onwhichfan;                      ///< Where the part is
     Uint32  onwhichblock;                    ///< The particle's collision block

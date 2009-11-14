@@ -469,7 +469,8 @@ Uint16 spawn_one_particle( fvec3_t   pos, Uint16 facing, Uint16 iprofile, Uint16
     // Targeting...
     vel.z = 0;
 
-    tmp_pos.z += generate_randmask( ppip->zspacing_pair.base, ppip->zspacing_pair.rand ) - ( ppip->zspacing_pair.rand >> 1 );
+    pprt->offset.z = generate_randmask( ppip->zspacing_pair.base, ppip->zspacing_pair.rand ) - ( ppip->zspacing_pair.rand >> 1 );
+    tmp_pos.z += pprt->offset.z;
     velocity = generate_randmask( ppip->xyvel_pair.base, ppip->xyvel_pair.rand );
     pprt->target_ref = oldtarget;
     if ( ppip->newtargetonspawn )
@@ -542,8 +543,11 @@ Uint16 spawn_one_particle( fvec3_t   pos, Uint16 facing, Uint16 iprofile, Uint16
 
     // Location data from arguments
     newrand = generate_randmask( ppip->xyspacing_pair.base, ppip->xyspacing_pair.rand );
-    tmp_pos.x += turntocos[turn & TRIG_TABLE_MASK] * newrand;
-    tmp_pos.y += turntosin[turn & TRIG_TABLE_MASK] * newrand;
+    pprt->offset.x = turntocos[turn & TRIG_TABLE_MASK] * newrand;
+    pprt->offset.y = turntocos[turn & TRIG_TABLE_MASK] * newrand;
+
+    tmp_pos.x += pprt->offset.x;
+    tmp_pos.y += pprt->offset.y;
 
     tmp_pos.x = CLIP(tmp_pos.x, 0, PMesh->info.edge_x - 2);
     tmp_pos.y = CLIP(tmp_pos.y, 0, PMesh->info.edge_y - 2);
@@ -1196,7 +1200,7 @@ void particle_set_level( prt_t * pprt, float level)
 
     pprt->enviro.level = level;
 
-    loc_height = MIN( FP8_TO_FLOAT(pprt->size), pprt->bumpheight );
+    loc_height = MAX( FP8_TO_FLOAT(pprt->size), (pprt->offset.z * pprt->size) / 5500 );
 
     // if the particle is resting on the ground, modify its
     pprt->enviro.hlerp = 1.0f;
