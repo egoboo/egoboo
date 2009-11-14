@@ -302,6 +302,8 @@ void prt_init( prt_t * pprt )
     pprt->target_ref     = MAX_CHR;
     pprt->parent_ref     = TOTAL_MAX_PRT;
     pprt->parent_guid    = 0xFFFFFFFF;
+
+    pprt->onwhichplatform = MAX_CHR;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1223,6 +1225,7 @@ void move_one_particle_get_environment( prt_t * pprt )
     if( !ACTIVE_CHR(pprt->attachedto_ref) && pprt->size > 0.0f )
     {
         pprt->enviro.hlerp = (pprt->pos.z - pprt->enviro.level) / FP8_TO_FLOAT(pprt->size);
+        pprt->enviro.hlerp = CLIP(pprt->enviro.hlerp, 0, 1);
     }
 
     if ( pprt->enviro.hlerp < 1.0f )
@@ -1649,6 +1652,12 @@ void move_one_particle_do_z_motion( prt_t * pprt )
 
     if( pprt->is_homing || ACTIVE_CHR( pprt->attachedto_ref )) return;
 
+    // Do particle buoyancy. This is kinda BS the way it is calculated
+    if ( pprt->vel.z < -ppip->spdlimit )
+    {
+        pprt->vel.z = -ppip->spdlimit;
+    }
+
     loc_zlerp = CLIP(pprt->enviro.zlerp, 0.0f, 1.0f);
 
     // do gravity
@@ -1674,13 +1683,6 @@ void move_one_particle_do_z_motion( prt_t * pprt )
     {
         pprt->vel.z += loc_zlerp * gravity;
     }
-
-    // Do particle buoyancy
-    if ( pprt->vel.z < -ppip->spdlimit )
-    {
-        pprt->vel.z = -ppip->spdlimit;
-    }
-
 }
 
 //--------------------------------------------------------------------------------------------

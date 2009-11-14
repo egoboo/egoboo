@@ -3314,8 +3314,6 @@ chr_t * chr_init( chr_t * pchr )
     pchr->inst.action_which = ACTION_DA;
     pchr->inst.action_next  = ACTION_DA;
 
-    pchr->onwhichplatform = MAX_CHR;
-
     // Timers set to 0
 
     // I think we have to set the dismount timer, otherwise objects that
@@ -3338,8 +3336,7 @@ chr_t * chr_init( chr_t * pchr )
     }
 
     pchr->onwhichplatform = MAX_CHR;
-
-    pchr->attachedto   = MAX_CHR;
+    pchr->attachedto      = MAX_CHR;
 
     // set the ai state values to sefe values
     ai_state_init( &(pchr->ai) );

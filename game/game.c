@@ -3033,6 +3033,9 @@ void fill_bumplists()
         if ( !ACTIVE_PRT(particle) ) continue;
         pprt = PrtList.lst + particle;
 
+        pprt->onwhichplatform = MAX_CHR;
+        pprt->enviro.level    = pprt->enviro.floor_level;
+
         // reject characters that are hidden
         if ( pprt->is_hidden ) continue;
 
