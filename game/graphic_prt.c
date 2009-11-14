@@ -562,7 +562,7 @@ void prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_
 
     // calculate the billboard vectors for the reflecions
     pinst->ref_pos      = pprt->pos;
-    pinst->ref_pos.z    = 2 * pprt->enviro.floor_level - pinst->ref_pos.z;
+    pinst->ref_pos.z    = 2 * pprt->enviro.floor_level - pinst->pos.z;
 
     // get the vector from the camera to the particle
     vfwd = fvec3_sub( pinst->pos.v, pcam->pos.v );

@@ -1216,10 +1216,6 @@ void move_one_particle_get_environment( prt_t * pprt )
         pprt->enviro.level = ChrList.lst[pprt->onwhichplatform].pos.z + ChrList.lst[pprt->onwhichplatform].chr_chr_cv.max_z;
     }
 
-    // set the zlerp after we have done everything to the particle's level we care to
-    pprt->enviro.zlerp = (pprt->pos.z - pprt->enviro.level) / PLATTOLERANCE;
-    pprt->enviro.zlerp = CLIP(pprt->enviro.zlerp, 0, 1);
-
     // if the particle is resting on the ground, modify its
     pprt->enviro.hlerp = 1.0f;
     if( !ACTIVE_CHR(pprt->attachedto_ref) && pprt->size > 0.0f )
@@ -1232,9 +1228,12 @@ void move_one_particle_get_environment( prt_t * pprt )
     {
         float adjustment = FP8_TO_FLOAT(pprt->size) * (1.0f - pprt->enviro.hlerp);
 
-        pprt->enviro.floor_level += adjustment;
-        pprt->enviro.level       += adjustment;
+        pprt->enviro.height_adjustment = FP8_TO_FLOAT(pprt->size) * (1.0f - pprt->enviro.hlerp);
     }
+
+    // set the zlerp after we have done everything to the particle's level we care to
+    pprt->enviro.zlerp = (pprt->pos.z - (pprt->enviro.level - pprt->enviro.height_adjustment)) / PLATTOLERANCE;
+    pprt->enviro.zlerp = CLIP(pprt->enviro.zlerp, 0, 1);
 
     //---- the "twist" of the floor
     pprt->enviro.twist = TWIST_FLAT;
@@ -1847,7 +1846,7 @@ bool_t move_one_particle_integrate_motion( prt_t * pprt )
 
     pip_t * ppip;
 
-    float ftmp;
+    float ftmp, loc_level;
     Uint16 iprt;
     bool_t hit_a_floor, hit_a_wall;
     fvec3_t nrm_total;
@@ -1863,11 +1862,13 @@ bool_t move_one_particle_integrate_motion( prt_t * pprt )
     hit_a_wall  = bfalse;
     nrm_total.x = nrm_total.y = nrm_total.z = 0;
 
+    loc_level = pprt->enviro.floor_level + pprt->enviro.height_adjustment;
+
     // Move the particle
     ftmp = pprt->pos.z;
     pprt->pos.z += pprt->vel.z;
     LOG_NAN(pprt->pos.z);
-    if ( pprt->pos.z < pprt->enviro.floor_level )
+    if ( pprt->pos.z < loc_level )
     {
         if( pprt->vel.z < - STOPBOUNCINGPART )
         {
@@ -1880,12 +1881,12 @@ bool_t move_one_particle_integrate_motion( prt_t * pprt )
         else if ( pprt->vel.z > 0.0f )
         {
             // the particle is not bouncing, it is just at the wrong height
-            pprt->pos.z = pprt->enviro.floor_level;
+            pprt->pos.z = loc_level;
         }
         else
         {
             // the particle is in the "stop bouncing zone"
-            pprt->pos.z = pprt->enviro.floor_level + 1;
+            pprt->pos.z = loc_level + 1;
             pprt->vel.z = 0.0f;
         }
     }
@@ -1993,7 +1994,7 @@ bool_t move_one_particle_integrate_motion( prt_t * pprt )
         {
             // this is the very last bounce
             pprt->vel.z = 0.0f;
-            pprt->pos.z = pprt->enviro.floor_level + 0.0001f;
+            pprt->pos.z = loc_level + 0.0001f;
         }
 
         if( hit_a_wall )

@@ -3272,7 +3272,7 @@ bool_t attach_prt_to_platform( prt_t * pprt, chr_t * pplat )
 
     // update the character's relationship to the ground
     pprt->enviro.level    = MAX( pprt->enviro.floor_level, pplat->pos.z + pplat->chr_chr_cv.max_z );
-    pprt->enviro.zlerp    = (pprt->pos.z - pprt->enviro.level) / PLATTOLERANCE;
+    pprt->enviro.zlerp    = (pprt->pos.z - (pprt->enviro.level + pprt->enviro.height_adjustment)) / PLATTOLERANCE;
     pprt->enviro.zlerp    = CLIP(pprt->enviro.zlerp, 0, 1);
 
     return btrue;

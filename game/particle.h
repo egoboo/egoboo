@@ -94,6 +94,8 @@ struct s_prt_environment
     float  zlerp;
     float  hlerp;
 
+    float height_adjustment;      ///< The adjustment necessary to make a particle sit on the mesh
+
     // friction stuff
     bool_t is_slipping;
     bool_t is_slippy,    is_watery;
