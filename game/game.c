@@ -3034,7 +3034,7 @@ void fill_bumplists()
         pprt = PrtList.lst + particle;
 
         pprt->onwhichplatform = MAX_CHR;
-        pprt->enviro.level    = pprt->enviro.floor_level;
+        particle_set_level( pprt, pprt->enviro.floor_level );
 
         // reject characters that are hidden
         if ( pprt->is_hidden ) continue;
@@ -3271,9 +3271,7 @@ bool_t attach_prt_to_platform( prt_t * pprt, chr_t * pplat )
     pprt->onwhichplatform = GET_INDEX_PCHR( pplat );
 
     // update the character's relationship to the ground
-    pprt->enviro.level    = MAX( pprt->enviro.floor_level, pplat->pos.z + pplat->chr_chr_cv.max_z );
-    pprt->enviro.zlerp    = (pprt->pos.z - (pprt->enviro.level + pprt->enviro.height_adjustment)) / PLATTOLERANCE;
-    pprt->enviro.zlerp    = CLIP(pprt->enviro.zlerp, 0, 1);
+    particle_set_level( pprt, MAX(pprt->enviro.level, pplat->pos.z + pplat->chr_chr_cv.max_z) );
 
     return btrue;
 }

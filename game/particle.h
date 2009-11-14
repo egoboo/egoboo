@@ -94,7 +94,8 @@ struct s_prt_environment
     float  zlerp;
     float  hlerp;
 
-    float height_adjustment;      ///< The adjustment necessary to make a particle sit on the mesh
+    float adj_level;              ///< The level for the particle to sit on the floor or a platform
+    float adj_floor;              ///< The level for the particle to sit on the floor or a platform
 
     // friction stuff
     bool_t is_slipping;
@@ -247,3 +248,5 @@ Uint16  prt_get_ipip( Uint16 cnt );
 pip_t * prt_get_ppip( Uint16 cnt );
 
 bool_t prt_request_terminate( Uint16 iprt );
+
+void particle_set_level( prt_t * pprt, float level);

@@ -1188,6 +1188,39 @@ void update_all_particles()
 //    }
 //}
 
+void particle_set_level( prt_t * pprt, float level)
+{
+    float loc_height;
+
+    if( !DISPLAY_PPRT(pprt) ) return;
+
+    pprt->enviro.level = level;
+
+    loc_height = MIN( FP8_TO_FLOAT(pprt->size), pprt->bumpheight );
+
+    // if the particle is resting on the ground, modify its
+    pprt->enviro.hlerp = 1.0f;
+    if( !ACTIVE_CHR(pprt->attachedto_ref) && loc_height > 0 )
+    {
+        pprt->enviro.hlerp = (pprt->pos.z - pprt->enviro.level) / loc_height;
+        pprt->enviro.hlerp = CLIP(pprt->enviro.hlerp, 0, 1);
+    }
+
+    pprt->enviro.adj_level = pprt->enviro.level;
+    pprt->enviro.adj_floor = pprt->enviro.floor_level;
+    if ( pprt->enviro.hlerp < 1.0f )
+    {
+        float adjustment = loc_height * (1.0f - pprt->enviro.hlerp);
+
+        pprt->enviro.adj_level += adjustment;
+        pprt->enviro.adj_floor += adjustment;
+    }
+
+    // set the zlerp after we have done everything to the particle's level we care to
+    pprt->enviro.zlerp = (pprt->pos.z - pprt->enviro.adj_level) / PLATTOLERANCE;
+    pprt->enviro.zlerp = CLIP(pprt->enviro.zlerp, 0, 1);
+}
+
 //--------------------------------------------------------------------------------------------
 void move_one_particle_get_environment( prt_t * pprt )
 {
@@ -1196,6 +1229,7 @@ void move_one_particle_get_environment( prt_t * pprt )
     ///               move_one_particle_*() functions to work
 
     Uint32 itile;
+    float loc_level = 0.0f;
 
     pip_t * ppip;
 
@@ -1206,34 +1240,17 @@ void move_one_particle_get_environment( prt_t * pprt )
 
     //---- character "floor" level
     pprt->enviro.floor_level = mesh_get_level( PMesh, pprt->pos.x, pprt->pos.y );
+    pprt->enviro.level       = pprt->enviro.floor_level;
 
     //---- The actual level of the characer.
     //     Estimate platform attachment from whatever is in the onwhichplatform variable from the
     //     last loop
-    pprt->enviro.level = pprt->enviro.floor_level;
+    loc_level = pprt->enviro.floor_level;
     if( ACTIVE_CHR(pprt->onwhichplatform) )
     {
-        pprt->enviro.level = ChrList.lst[pprt->onwhichplatform].pos.z + ChrList.lst[pprt->onwhichplatform].chr_chr_cv.max_z;
+        loc_level = MAX(pprt->enviro.floor_level, ChrList.lst[pprt->onwhichplatform].pos.z + ChrList.lst[pprt->onwhichplatform].chr_chr_cv.max_z);
     }
-
-    // if the particle is resting on the ground, modify its
-    pprt->enviro.hlerp = 1.0f;
-    if( !ACTIVE_CHR(pprt->attachedto_ref) && pprt->size > 0.0f )
-    {
-        pprt->enviro.hlerp = (pprt->pos.z - pprt->enviro.level) / FP8_TO_FLOAT(pprt->size);
-        pprt->enviro.hlerp = CLIP(pprt->enviro.hlerp, 0, 1);
-    }
-
-    if ( pprt->enviro.hlerp < 1.0f )
-    {
-        float adjustment = FP8_TO_FLOAT(pprt->size) * (1.0f - pprt->enviro.hlerp);
-
-        pprt->enviro.height_adjustment = FP8_TO_FLOAT(pprt->size) * (1.0f - pprt->enviro.hlerp);
-    }
-
-    // set the zlerp after we have done everything to the particle's level we care to
-    pprt->enviro.zlerp = (pprt->pos.z - (pprt->enviro.level - pprt->enviro.height_adjustment)) / PLATTOLERANCE;
-    pprt->enviro.zlerp = CLIP(pprt->enviro.zlerp, 0, 1);
+    particle_set_level( pprt, loc_level );
 
     //---- the "twist" of the floor
     pprt->enviro.twist = TWIST_FLAT;
@@ -1862,7 +1879,7 @@ bool_t move_one_particle_integrate_motion( prt_t * pprt )
     hit_a_wall  = bfalse;
     nrm_total.x = nrm_total.y = nrm_total.z = 0;
 
-    loc_level = pprt->enviro.floor_level + pprt->enviro.height_adjustment;
+    loc_level = pprt->enviro.adj_level;
 
     // Move the particle
     ftmp = pprt->pos.z;

@@ -5079,7 +5079,7 @@ bool_t chr_do_latch_attack( chr_t * pchr, int which_slot )
     cap_t * pweapon_cap;
     Uint16 ichr, iweapon, imad;
 
-    int    action;
+    int    base_action, hand_action, action;
     bool_t action_valid, allowedtoattack;
 
     bool_t retval = bfalse;
@@ -5102,10 +5102,11 @@ bool_t chr_do_latch_attack( chr_t * pchr, int which_slot )
     pweapon_cap = chr_get_pcap(iweapon);
 
     // grab the iweapon's action
-    action = pweapon_cap->weaponaction;
+    base_action = pweapon_cap->weaponaction;
+    hand_action = randomize_action(base_action, which_slot);
 
     // see if the character can play this action
-    action = mad_get_action( imad, action );
+    action       = mad_get_action( imad, hand_action );
     action_valid = (ACTION_COUNT != action);
 
     // Can it do it?
@@ -5127,6 +5128,7 @@ bool_t chr_do_latch_attack( chr_t * pchr, int which_slot )
             }
         }
     }
+
     if ( !allowedtoattack )
     {
         if ( 0 == pweapon->reloadtime )
@@ -5140,6 +5142,7 @@ bool_t chr_do_latch_attack( chr_t * pchr, int which_slot )
             }
         }
     }
+
     if ( action == ACTION_DA )
     {
         allowedtoattack = bfalse;
@@ -5162,7 +5165,7 @@ bool_t chr_do_latch_attack( chr_t * pchr, int which_slot )
             allowedtoattack = pmount_cap->ridercanattack;
             if ( pmount->ismount && pmount->alive && !pmount->isplayer && pmount->inst.action_ready )
             {
-                if ( ( action != ACTION_PA || !allowedtoattack ) && pchr->inst.action_ready )
+                if ( ( ACTION_IS_TYPE(action, P) || !allowedtoattack ) && pchr->inst.action_ready )
                 {
                     chr_play_action( mount, generate_randmask( ACTION_UA, 1 ), bfalse );
                     pmount->ai.alert |= ALERTIF_USED;
