@@ -41,8 +41,8 @@ enum e_camera_mode
 /// The mode that the camera uses to determine where is is looking
 enum e_camera_turn_mode
 {
-    CAMTURN_NONE = (1 == 0),  ///< false
-    CAMTURN_AUTO = (1 == 1),  ///< true
+    CAMTURN_NONE = ( 1 == 0 ),  ///< false
+    CAMTURN_AUTO = ( 1 == 1 ),  ///< true
     CAMTURN_GOOD = 255
 };
 

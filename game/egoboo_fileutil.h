@@ -49,7 +49,7 @@ char   goto_delimiter_list( char * buffer, vfs_FILE* fileread, const char * deli
 bool_t goto_colon( char * buffer, vfs_FILE* fileread, bool_t optional );
 char * goto_colon_mem( char * buffer, char * pmem, char * pmem_end, bool_t optional );
 
-bool_t fcopy_line(vfs_FILE * fileread, vfs_FILE * filewrite);
+bool_t fcopy_line( vfs_FILE * fileread, vfs_FILE * filewrite );
 
 int    fget_version( vfs_FILE* fileread );
 bool_t fput_version( vfs_FILE* filewrite, int version );

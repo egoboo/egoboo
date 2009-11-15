@@ -115,7 +115,7 @@ void ui_drawImage( ui_id_t id, oglx_texture *img, float x, float y, float width,
 void ui_drawTextBox( Font * font, const char *text, float x, float y, float width, float height, float spacing );
 
 /// virtual screen
-void ui_set_virtual_screen( float vw, float vh, float ww, float wh);
+void ui_set_virtual_screen( float vw, float vh, float ww, float wh );
 Font * ui_loadFont( const char * font_name, float vpointSize );
 
 #define egoboo_ui_h

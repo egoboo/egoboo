@@ -34,11 +34,11 @@ enum e_vfs_serach_bits
 {
     // file types
     VFS_SEARCH_NONE = 0,                ///< NONE == ALL
-    VFS_SEARCH_DIR  = (1 << 0),
-    VFS_SEARCH_FILE = (1 << 1),
+    VFS_SEARCH_DIR  = ( 1 << 0 ),
+    VFS_SEARCH_FILE = ( 1 << 1 ),
 
     // search options
-    VFS_SEARCH_BARE = (1 << 2),        ///< return only the bare filename, not the whole relative path
+    VFS_SEARCH_BARE = ( 1 << 2 ),      ///< return only the bare filename, not the whole relative path
 
     VFS_SEARCH_ALL  = VFS_SEARCH_DIR | VFS_SEARCH_FILE
 };
@@ -69,19 +69,19 @@ vfs_FILE * vfs_openAppend( const char * filename );
 int        vfs_close( vfs_FILE * pfile );
 int        vfs_flush( vfs_FILE * pfile );
 
-int  vfs_eof  ( vfs_FILE * pfile );
+int  vfs_eof( vfs_FILE * pfile );
 int  vfs_error( vfs_FILE * pfile );
-long vfs_tell ( vfs_FILE * pfile );
-int  vfs_seek ( vfs_FILE * pfile , long offset );
+long vfs_tell( vfs_FILE * pfile );
+int  vfs_seek( vfs_FILE * pfile , long offset );
 
-int vfs_mkdir(const char *dirName);
-int vfs_delete_file (const char *filename);
+int vfs_mkdir( const char *dirName );
+int vfs_delete_file( const char *filename );
 
-int vfs_exists (const char *fname);
-int vfs_isDirectory (const char *fname);
+int vfs_exists( const char *fname );
+int vfs_isDirectory( const char *fname );
 
 // binary reading and writing
-size_t vfs_read ( void * buffer, size_t size, size_t count, vfs_FILE * pfile );
+size_t vfs_read( void * buffer, size_t size, size_t count, vfs_FILE * pfile );
 size_t vfs_write( void * buffer, size_t size, size_t count, vfs_FILE * pfile );
 int    vfs_read_Sint16( vfs_FILE * pfile, Sint16 * val );
 int    vfs_read_Uint16( vfs_FILE * pfile, Uint16 * val );
@@ -112,14 +112,14 @@ void         vfs_empty_import_directory();
 int          vfs_copyFile( const char *source, const char *dest );
 int          vfs_copyDirectory( const char *sourceDir, const char *destDir );
 
-int    vfs_ungetc(int, vfs_FILE *);
-int    vfs_getc (vfs_FILE *);
+int    vfs_ungetc( int, vfs_FILE * );
+int    vfs_getc( vfs_FILE * );
 int    vfs_removeDirectoryAndContents( const char * dirname, int recursive );
-int    vfs_putc( int , vfs_FILE *);
-int    vfs_puts( const char * , vfs_FILE *);
-char * vfs_gets( char *, int, vfs_FILE *);
+int    vfs_putc( int , vfs_FILE * );
+int    vfs_puts( const char * , vfs_FILE * );
+char * vfs_gets( char *, int, vfs_FILE * );
 
-const char * vfs_resolveReadFilename ( const char * src_filename );
+const char * vfs_resolveReadFilename( const char * src_filename );
 const char * vfs_resolveWriteFilename( const char * src_filename );
 
 const char* vfs_getError();

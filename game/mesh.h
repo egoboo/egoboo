@@ -172,7 +172,7 @@ ego_mpd_t * mesh_load( const char *modname, ego_mpd_t * pmesh );
 
 float  mesh_get_level( ego_mpd_t * pmesh, float x, float y );
 Uint32 mesh_get_block( ego_mpd_t * pmesh, float pos_x, float pos_y );
-Uint32 mesh_get_tile ( ego_mpd_t * pmesh, float pos_x, float pos_y );
+Uint32 mesh_get_tile( ego_mpd_t * pmesh, float pos_x, float pos_y );
 
 Uint32 mesh_get_block_int( ego_mpd_t * pmesh, int block_x, int block_y );
 Uint32 mesh_get_tile_int( ego_mpd_t * pmesh, int tile_x,  int tile_y );
@@ -184,7 +184,7 @@ void   mesh_make_twist();
 bool_t mesh_light_corners( ego_mpd_t * pmesh, int fan1 );
 bool_t mesh_interpolate_vertex( mesh_mem_t * pmem, int fan, float pos[], float * plight );
 
-float evaluate_lighting_cache_base( lighting_cache_base_t * lvec, GLfloat nrm[], float * amb  );
+float evaluate_lighting_cache_base( lighting_cache_base_t * lvec, GLfloat nrm[], float * amb );
 float evaluate_lighting_cache( lighting_cache_t * src, GLfloat nrm[], float z, aabb_t bbox, float * light_amb, float * light_dir );
 
 bool_t grid_light_one_corner( ego_mpd_t * pmesh, int fan, float height, float nrm[], float * plight );

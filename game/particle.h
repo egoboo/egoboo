@@ -36,7 +36,7 @@
 /// Physics
 #define STOPBOUNCINGPART                5.0f         ///< To make particles stop bouncing
 
-DEFINE_STACK_EXTERN(pip_t, PipStack, MAX_PIP );
+DEFINE_STACK_EXTERN( pip_t, PipStack, MAX_PIP );
 
 #define VALID_PIP_RANGE( IPIP ) ( ((IPIP) >= 0) && ((IPIP) < MAX_PIP) )
 #define LOADED_PIP( IPIP )       ( VALID_PIP_RANGE( IPIP ) && PipStack.lst[IPIP].loaded )
@@ -93,7 +93,7 @@ struct s_prt_environment
     float  floor_level;           ///< Height of tile
     float  level;                 ///< Height of a tile or a platform
     float  zlerp;
-    float  hlerp;
+    //float  hlerp;
 
     float adj_level;              ///< The level for the particle to sit on the floor or a platform
     float adj_floor;              ///< The level for the particle to sit on the floor or a platform
@@ -195,7 +195,7 @@ extern float            sprite_list_v[MAXPARTICLEIMAGE][2];
 
 extern Uint16           maxparticles;                              ///< max number of particles
 
-DEFINE_LIST_EXTERN(prt_t, PrtList, TOTAL_MAX_PRT);
+DEFINE_LIST_EXTERN( prt_t, PrtList, TOTAL_MAX_PRT );
 
 #define VALID_PRT_RANGE( IPRT ) ( ((IPRT) >= 0) && ((IPRT) < maxparticles) && ((IPRT) < TOTAL_MAX_PRT) )
 #define ALLOCATED_PRT( IPRT )   ( VALID_PRT_RANGE( IPRT ) && ALLOCATED_OBJ ( &(PrtList.lst[IPRT].obj_base) ) )
@@ -240,7 +240,7 @@ int prt_count_free();
 int load_one_particle_profile( const char *szLoadName, Uint16 pip_override );
 void reset_particles();
 
-Uint32 __prthitawall(  prt_t * pprt, float nrm[] );
+Uint32 __prthitawall( prt_t * pprt, float nrm[] );
 
 int    prt_is_over_water( Uint16 cnt );
 
@@ -251,4 +251,4 @@ pip_t * prt_get_ppip( Uint16 cnt );
 
 bool_t prt_request_terminate( Uint16 iprt );
 
-void particle_set_level( prt_t * pprt, float level);
+void particle_set_level( prt_t * pprt, float level );

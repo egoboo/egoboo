@@ -43,12 +43,12 @@ char * str_decode( char *strout, size_t insize, const char * strin );
 char * str_encode( char *strout, size_t insize, const char * strin );
 char * str_encode_path( const char *character );
 
-char * str_clean_path(char * str, size_t size);
+char * str_clean_path( char * str, size_t size );
 char * str_convert_slash_net( char * str, size_t size );
 char * str_convert_slash_sys( char * str, size_t size );
 
-char * str_append_slash(char * str, size_t size );
-char * str_append_slash_net(char * str, size_t size );
+char * str_append_slash( char * str, size_t size );
+char * str_append_slash_net( char * str, size_t size );
 
 void   str_trim( char *pStr );
 void   str_add_linebreaks( char * text, size_t text_len, size_t line_len );

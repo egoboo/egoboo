@@ -1,4 +1,4 @@
-/** 
+/**
  @file memory.c
  @brief ENet memory management functions
 */

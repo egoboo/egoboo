@@ -142,32 +142,32 @@ void draw_textured_md2( const Md2Model *model, int from_, int to_, float lerp )
     tc = model->texCoords;
     triangles = model->triangles;
 
-    GL_DEBUG(glEnableClientState)(GL_VERTEX_ARRAY );
-    GL_DEBUG(glEnableClientState)(GL_NORMAL_ARRAY );
+    GL_DEBUG( glEnableClientState )( GL_VERTEX_ARRAY );
+    GL_DEBUG( glEnableClientState )( GL_NORMAL_ARRAY );
 
-    GL_DEBUG(glVertexPointer)(3, GL_FLOAT, 0, md2_blendedVertices );
-    GL_DEBUG(glNormalPointer)(GL_FLOAT, 0, md2_blendedNormals );
+    GL_DEBUG( glVertexPointer )( 3, GL_FLOAT, 0, md2_blendedVertices );
+    GL_DEBUG( glNormalPointer )( GL_FLOAT, 0, md2_blendedNormals );
 
-    GL_DEBUG(glBegin)(GL_TRIANGLES );
+    GL_DEBUG( glBegin )( GL_TRIANGLES );
     {
         for ( i = 0; i < numTriangles; i++ )
         {
             tri = &triangles[i];
 
-            GL_DEBUG(glTexCoord2fv)( ( const GLfloat* )&( tc[tri->texCoordIndices[0]] ) );
-            GL_DEBUG(glArrayElement)(tri->vertexIndices[0] );
+            GL_DEBUG( glTexCoord2fv )(( const GLfloat* )&( tc[tri->texCoordIndices[0]] ) );
+            GL_DEBUG( glArrayElement )( tri->vertexIndices[0] );
 
-            GL_DEBUG(glTexCoord2fv)( ( const GLfloat* )&( tc[tri->texCoordIndices[1]] ) );
-            GL_DEBUG(glArrayElement)(tri->vertexIndices[1] );
+            GL_DEBUG( glTexCoord2fv )(( const GLfloat* )&( tc[tri->texCoordIndices[1]] ) );
+            GL_DEBUG( glArrayElement )( tri->vertexIndices[1] );
 
-            GL_DEBUG(glTexCoord2fv)( ( const GLfloat* )&( tc[tri->texCoordIndices[2]] ) );
-            GL_DEBUG(glArrayElement)(tri->vertexIndices[2] );
+            GL_DEBUG( glTexCoord2fv )(( const GLfloat* )&( tc[tri->texCoordIndices[2]] ) );
+            GL_DEBUG( glArrayElement )( tri->vertexIndices[2] );
         }
     }
     GL_DEBUG_END();
 
-    GL_DEBUG(glDisableClientState)(GL_VERTEX_ARRAY );
-    GL_DEBUG(glDisableClientState)(GL_NORMAL_ARRAY );
+    GL_DEBUG( glDisableClientState )( GL_VERTEX_ARRAY );
+    GL_DEBUG( glDisableClientState )( GL_NORMAL_ARRAY );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -185,20 +185,20 @@ bool_t render_one_mad_enviro( Uint16 character, GLXvector4f tint, Uint32 bits )
     chr_instance_t * pinst;
     oglx_texture   * ptex;
 
-    if ( !ACTIVE_CHR(character) ) return bfalse;
+    if ( !ACTIVE_CHR( character ) ) return bfalse;
     pchr  = ChrList.lst + character;
-    pinst = &(pchr->inst);
+    pinst = &( pchr->inst );
 
-    if ( !LOADED_MAD(pinst->imad) ) return bfalse;
+    if ( !LOADED_MAD( pinst->imad ) ) return bfalse;
     pmad = MadList + pinst->imad;
 
     ptex = NULL;
-    if( 0 != (bits & CHR_PHONG) )
+    if ( 0 != ( bits & CHR_PHONG ) )
     {
         ptex = TxTexture_get_ptr( TX_PHONG );
     }
 
-    if( NULL == ptex )
+    if ( NULL == ptex )
     {
         ptex = TxTexture_get_ptr( pinst->texture );
     }
@@ -206,17 +206,17 @@ bool_t render_one_mad_enviro( Uint16 character, GLXvector4f tint, Uint32 bits )
     uoffset = pinst->uoffset - PCamera->turn_z_one;
     voffset = pinst->voffset;
 
-    if( 0 != (bits & CHR_REFLECT) )
+    if ( 0 != ( bits & CHR_REFLECT ) )
     {
-        GL_DEBUG(glMatrixMode)( GL_MODELVIEW );
-        GL_DEBUG(glPushMatrix)();
-        GL_DEBUG(glMultMatrixf)(pinst->ref.matrix.v );
+        GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
+        GL_DEBUG( glPushMatrix )();
+        GL_DEBUG( glMultMatrixf )( pinst->ref.matrix.v );
     }
     else
     {
-        GL_DEBUG(glMatrixMode)( GL_MODELVIEW );
-        GL_DEBUG(glPushMatrix)();
-        GL_DEBUG(glMultMatrixf)(pinst->matrix.v );
+        GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
+        GL_DEBUG( glPushMatrix )();
+        GL_DEBUG( glMultMatrixf )( pinst->matrix.v );
     }
 
     // Choose texture and matrix
@@ -226,19 +226,19 @@ bool_t render_one_mad_enviro( Uint16 character, GLXvector4f tint, Uint32 bits )
     {
         GLXvector4f curr_color;
 
-        GL_DEBUG(glGetFloatv)( GL_CURRENT_COLOR, curr_color );
+        GL_DEBUG( glGetFloatv )( GL_CURRENT_COLOR, curr_color );
 
         // Render each command
-        cmd_count   = MIN(ego_md2_data[pmad->md2_ref].cmd.count,   MAXCOMMAND);
-        entry_count = MIN(ego_md2_data[pmad->md2_ref].cmd.entries, MAXCOMMANDENTRIES);
-        vrt_count   = MIN(ego_md2_data[pmad->md2_ref].vertices,    MAXVERTICES);
+        cmd_count   = MIN( ego_md2_data[pmad->md2_ref].cmd.count,   MAXCOMMAND );
+        entry_count = MIN( ego_md2_data[pmad->md2_ref].cmd.entries, MAXCOMMANDENTRIES );
+        vrt_count   = MIN( ego_md2_data[pmad->md2_ref].vertices,    MAXVERTICES );
 
         entry = 0;
         for ( cnt = 0; cnt < cmd_count; cnt++ )
         {
             if ( entry >= entry_count ) break;
 
-            GL_DEBUG(glBegin)(ego_md2_data[pmad->md2_ref].cmd.type[cnt] );
+            GL_DEBUG( glBegin )( ego_md2_data[pmad->md2_ref].cmd.type[cnt] );
             {
                 for ( tnc = 0; tnc < ego_md2_data[pmad->md2_ref].cmd.size[cnt]; tnc++ )
                 {
@@ -261,9 +261,9 @@ bool_t render_one_mad_enviro( Uint16 character, GLXvector4f tint, Uint32 bits )
                         col[BB] = pvrt->color_dir * INV_FF;
                         col[AA] = 1.0f;
 
-                        cmax = MAX(MAX(col[RR], col[GG]), col[BB]);
+                        cmax = MAX( MAX( col[RR], col[GG] ), col[BB] );
 
-                        if( cmax != 0.0f )
+                        if ( cmax != 0.0f )
                         {
                             col[RR] /= cmax;
                             col[GG] /= cmax;
@@ -277,19 +277,19 @@ bool_t render_one_mad_enviro( Uint16 character, GLXvector4f tint, Uint32 bits )
                         col[AA] *= tint[AA];
 
                         tex[0] = pvrt->env[XX] + uoffset;
-                        tex[1] = CLIP(cmax, 0.0f, 1.0f);
+                        tex[1] = CLIP( cmax, 0.0f, 1.0f );
 
-                        if( 0 != (bits & CHR_PHONG) )
+                        if ( 0 != ( bits & CHR_PHONG ) )
                         {
                             // determine the phong texture coordinates
                             // the default phong is bright in both the forward and back directions...
                             tex[1] = tex[1] * 0.5f + 0.5f;
                         }
 
-                        GL_DEBUG(glColor4fv   )( col       );
-                        GL_DEBUG(glNormal3fv  )( pvrt->nrm );
-                        GL_DEBUG(glTexCoord2fv)( tex       );
-                        GL_DEBUG(glVertex3fv  )( pvrt->pos );
+                        GL_DEBUG( glColor4fv )( col );
+                        GL_DEBUG( glNormal3fv )( pvrt->nrm );
+                        GL_DEBUG( glTexCoord2fv )( tex );
+                        GL_DEBUG( glVertex3fv )( pvrt->pos );
                     }
 
                     entry++;
@@ -301,8 +301,8 @@ bool_t render_one_mad_enviro( Uint16 character, GLXvector4f tint, Uint32 bits )
 
     ATTRIB_POP( "render_one_mad_enviro" );
 
-    GL_DEBUG(glMatrixMode)( GL_MODELVIEW );
-    GL_DEBUG(glPopMatrix)();
+    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
+    GL_DEBUG( glPopMatrix )();
 
     return btrue;
 }
@@ -364,11 +364,11 @@ bool_t render_one_mad_tex( Uint16 character, GLXvector4f tint, Uint32 bits )
     chr_instance_t * pinst;
     oglx_texture   * ptex;
 
-    if ( !ACTIVE_CHR(character) ) return bfalse;
+    if ( !ACTIVE_CHR( character ) ) return bfalse;
     pchr  = ChrList.lst + character;
-    pinst = &(pchr->inst);
+    pinst = &( pchr->inst );
 
-    if ( !LOADED_MAD(pinst->imad) ) return bfalse;
+    if ( !LOADED_MAD( pinst->imad ) ) return bfalse;
     pmad = MadList + pinst->imad;
 
     // To make life easier
@@ -377,17 +377,17 @@ bool_t render_one_mad_tex( Uint16 character, GLXvector4f tint, Uint32 bits )
     uoffset = pinst->uoffset * INV_FFFF;
     voffset = pinst->voffset * INV_FFFF;
 
-    if(  0 != (bits & CHR_REFLECT)  )
+    if ( 0 != ( bits & CHR_REFLECT ) )
     {
-        GL_DEBUG(glMatrixMode)( GL_MODELVIEW );
-        GL_DEBUG(glPushMatrix)();
-        GL_DEBUG(glMultMatrixf)( pinst->ref.matrix.v );
+        GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
+        GL_DEBUG( glPushMatrix )();
+        GL_DEBUG( glMultMatrixf )( pinst->ref.matrix.v );
     }
     else
     {
-        GL_DEBUG(glMatrixMode)( GL_MODELVIEW );
-        GL_DEBUG(glPushMatrix)();
-        GL_DEBUG(glMultMatrixf)( pinst->matrix.v );
+        GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
+        GL_DEBUG( glPushMatrix )();
+        GL_DEBUG( glMultMatrixf )( pinst->matrix.v );
     }
 
     // Choose texture and matrix
@@ -397,18 +397,18 @@ bool_t render_one_mad_tex( Uint16 character, GLXvector4f tint, Uint32 bits )
     {
         // set the basic tint. if the object is marked with CHR_LIGHT
         // the color will not be set again inside the loop
-        GL_DEBUG(glColor4fv)( tint );
+        GL_DEBUG( glColor4fv )( tint );
 
         // Render each command
-        cmd_count   = MIN(ego_md2_data[pmad->md2_ref].cmd.count,   MAXCOMMAND);
-        entry_count = MIN(ego_md2_data[pmad->md2_ref].cmd.entries, MAXCOMMANDENTRIES);
-        vrt_count   = MIN(ego_md2_data[pmad->md2_ref].vertices,    MAXVERTICES);
+        cmd_count   = MIN( ego_md2_data[pmad->md2_ref].cmd.count,   MAXCOMMAND );
+        entry_count = MIN( ego_md2_data[pmad->md2_ref].cmd.entries, MAXCOMMANDENTRIES );
+        vrt_count   = MIN( ego_md2_data[pmad->md2_ref].vertices,    MAXVERTICES );
         entry = 0;
-        for (cnt = 0; cnt < cmd_count; cnt++ )
+        for ( cnt = 0; cnt < cmd_count; cnt++ )
         {
             if ( entry >= entry_count ) break;
 
-            GL_DEBUG(glBegin)(ego_md2_data[pmad->md2_ref].cmd.type[cnt] );
+            GL_DEBUG( glBegin )( ego_md2_data[pmad->md2_ref].cmd.type[cnt] );
             {
                 for ( tnc = 0; tnc < ego_md2_data[pmad->md2_ref].cmd.size[cnt]; tnc++ )
                 {
@@ -429,7 +429,7 @@ bool_t render_one_mad_tex( Uint16 character, GLXvector4f tint, Uint32 bits )
 
                         // determine the vertex color for objects that have
                         // per vertex lighting
-                        if( 0 == (bits & CHR_LIGHT) )
+                        if ( 0 == ( bits & CHR_LIGHT ) )
                         {
                             float fcol;
 
@@ -439,7 +439,7 @@ bool_t render_one_mad_tex( Uint16 character, GLXvector4f tint, Uint32 bits )
                             col[2] = fcol * tint[2];
                             col[3] = tint[0];
 
-                            if ( 0 != (bits & CHR_PHONG) )
+                            if ( 0 != ( bits & CHR_PHONG ) )
                             {
                                 fcol = pinst->color_amb * INV_FF;
 
@@ -452,12 +452,12 @@ bool_t render_one_mad_tex( Uint16 character, GLXvector4f tint, Uint32 bits )
                             col[1] = CLIP( col[1], 0.0f, 1.0f );
                             col[2] = CLIP( col[2], 0.0f, 1.0f );
 
-                            GL_DEBUG(glColor4fv)( col );
+                            GL_DEBUG( glColor4fv )( col );
                         }
 
-                        GL_DEBUG(glNormal3fv)  ( pvrt->nrm );
-                        GL_DEBUG(glTexCoord2fv)( tex );
-                        GL_DEBUG(glVertex3fv)  ( pvrt->pos );
+                        GL_DEBUG( glNormal3fv )( pvrt->nrm );
+                        GL_DEBUG( glTexCoord2fv )( tex );
+                        GL_DEBUG( glVertex3fv )( pvrt->pos );
                     }
 
                     entry++;
@@ -466,10 +466,10 @@ bool_t render_one_mad_tex( Uint16 character, GLXvector4f tint, Uint32 bits )
             GL_DEBUG_END();
         }
     }
-    ATTRIB_POP("render_one_mad_tex");
+    ATTRIB_POP( "render_one_mad_tex" );
 
-    GL_DEBUG(glMatrixMode)( GL_MODELVIEW );
-    GL_DEBUG(glPopMatrix)();
+    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
+    GL_DEBUG( glPopMatrix )();
 
     return btrue;
 }
@@ -513,7 +513,7 @@ bool_t render_one_mad_tex( Uint16 character, GLXvector4f tint, Uint32 bits )
 //--------------------------------------------------------------------------------------------
 void render_chr_bbox( chr_t * pchr )
 {
-    if( !ACTIVE_PCHR(pchr) ) return;
+    if ( !ACTIVE_PCHR( pchr ) ) return;
 
     //// draw the object bounding box as a part of the graphics debug mode F7
     //if ( cfg.dev_mode && SDLKEYDOWN( SDLK_F7 ) )
@@ -544,26 +544,26 @@ void render_chr_bbox( chr_t * pchr )
     // draw the object bounding box as a part of the graphics debug mode F7
     if ( cfg.dev_mode && SDLKEYDOWN( SDLK_F7 ) )
     {
-        GL_DEBUG(glDisable)( GL_TEXTURE_2D );
+        GL_DEBUG( glDisable )( GL_TEXTURE_2D );
         {
             oct_bb_t bb;
 
             bb.mins[OCT_X ] = pchr->chr_prt_cv.min_x  + pchr->pos.x;
             bb.mins[OCT_Y ] = pchr->chr_prt_cv.min_y  + pchr->pos.y;
             bb.mins[OCT_Z ] = pchr->chr_prt_cv.min_z  + pchr->pos.z;
-            bb.mins[OCT_XY] = pchr->chr_prt_cv.min_xy + ( pchr->pos.x + pchr->pos.y);
-            bb.mins[OCT_YX] = pchr->chr_prt_cv.min_yx + (-pchr->pos.x + pchr->pos.y);
+            bb.mins[OCT_XY] = pchr->chr_prt_cv.min_xy + ( pchr->pos.x + pchr->pos.y );
+            bb.mins[OCT_YX] = pchr->chr_prt_cv.min_yx + ( -pchr->pos.x + pchr->pos.y );
 
             bb.maxs[OCT_X ] = pchr->chr_prt_cv.max_x  + pchr->pos.x;
             bb.maxs[OCT_Y ] = pchr->chr_prt_cv.max_y  + pchr->pos.y;
             bb.maxs[OCT_Z ] = pchr->chr_prt_cv.max_z  + pchr->pos.z;
-            bb.maxs[OCT_XY] = pchr->chr_prt_cv.max_xy + ( pchr->pos.x + pchr->pos.y);
-            bb.maxs[OCT_YX] = pchr->chr_prt_cv.max_yx + (-pchr->pos.x + pchr->pos.y);
+            bb.maxs[OCT_XY] = pchr->chr_prt_cv.max_xy + ( pchr->pos.x + pchr->pos.y );
+            bb.maxs[OCT_YX] = pchr->chr_prt_cv.max_yx + ( -pchr->pos.x + pchr->pos.y );
 
-            GL_DEBUG(glColor4f)(1, 1, 1, 1);
+            GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
             render_oct_bb( &bb, btrue, btrue );
         }
-        GL_DEBUG(glEnable)( GL_TEXTURE_2D );
+        GL_DEBUG( glEnable )( GL_TEXTURE_2D );
     }
 
     // the grips and vertrices of all objects
@@ -573,7 +573,7 @@ void render_chr_bbox( chr_t * pchr )
 
         // draw all the vertices of an object
         GL_DEBUG( glPointSize( 5 ) );
-        draw_points( pchr, 0, ego_md2_data[pro_get_pmad(pchr->inst.imad)->md2_ref].vertices );
+        draw_points( pchr, 0, ego_md2_data[pro_get_pmad( pchr->inst.imad )->md2_ref].vertices );
     }
 }
 
@@ -585,12 +585,12 @@ bool_t render_one_mad( Uint16 character, GLXvector4f tint, Uint32 bits )
     chr_t * pchr;
     bool_t retval;
 
-    if ( !ACTIVE_CHR(character) ) return bfalse;
+    if ( !ACTIVE_CHR( character ) ) return bfalse;
     pchr = ChrList.lst + character;
 
     if ( pchr->is_hidden ) return bfalse;
 
-    if ( pchr->inst.enviro || 0 != (bits & CHR_PHONG) )
+    if ( pchr->inst.enviro || 0 != ( bits & CHR_PHONG ) )
     {
         retval = render_one_mad_enviro( character, tint, bits );
     }
@@ -601,7 +601,7 @@ bool_t render_one_mad( Uint16 character, GLXvector4f tint, Uint32 bits )
 
 #if defined(USE_DEBUG)
     // don't draw the debug stuff for reflections
-    if( 0 == (bits & CHR_REFLECT) )
+    if ( 0 == ( bits & CHR_REFLECT ) )
     {
         render_chr_bbox( pchr );
     }
@@ -626,15 +626,15 @@ bool_t render_one_mad_ref( int ichr )
     chr_instance_t * pinst;
     GLXvector4f tint;
 
-    if ( !ACTIVE_CHR(ichr) ) return bfalse;
+    if ( !ACTIVE_CHR( ichr ) ) return bfalse;
     pchr = ChrList.lst + ichr;
-    pinst = &(pchr->inst);
+    pinst = &( pchr->inst );
 
     if ( pchr->is_hidden ) return bfalse;
 
-    if( !pinst->ref.matrix_valid )
+    if ( !pinst->ref.matrix_valid )
     {
-        if( !apply_reflection_matrix( &(pchr->inst), pchr->enviro.floor_level ) )
+        if ( !apply_reflection_matrix( &( pchr->inst ), pchr->enviro.floor_level ) )
         {
             return bfalse;
         }
@@ -642,15 +642,15 @@ bool_t render_one_mad_ref( int ichr )
 
     ATTRIB_PUSH( "render_one_mad_ref", GL_ENABLE_BIT | GL_POLYGON_BIT | GL_COLOR_BUFFER_BIT );
     {
-        GL_DEBUG(glEnable)( GL_CULL_FACE );    // GL_ENABLE_BIT
+        GL_DEBUG( glEnable )( GL_CULL_FACE );  // GL_ENABLE_BIT
 
         // cull face CCW because we are rendering a reflected object
-        GL_DEBUG(glFrontFace)( GL_CCW );      // GL_POLYGON_BIT
+        GL_DEBUG( glFrontFace )( GL_CCW );    // GL_POLYGON_BIT
 
-        if (pinst->ref.alpha != 255 && pinst->ref.light == 255)
+        if ( pinst->ref.alpha != 255 && pinst->ref.light == 255 )
         {
-            GL_DEBUG(glEnable)( GL_BLEND );                                   // GL_ENABLE_BIT
-            GL_DEBUG(glBlendFunc)( GL_ALPHA, GL_ONE_MINUS_SRC_ALPHA );                          // GL_COLOR_BUFFER_BIT
+            GL_DEBUG( glEnable )( GL_BLEND );                                 // GL_ENABLE_BIT
+            GL_DEBUG( glBlendFunc )( GL_ALPHA, GL_ONE_MINUS_SRC_ALPHA );                        // GL_COLOR_BUFFER_BIT
 
             chr_instance_get_tint( pinst, tint, CHR_ALPHA | CHR_REFLECT );
 
@@ -661,8 +661,8 @@ bool_t render_one_mad_ref( int ichr )
 
         if ( pinst->ref.light != 255 )
         {
-            GL_DEBUG(glEnable)( GL_BLEND );                                   // GL_ENABLE_BIT
-            GL_DEBUG(glBlendFunc)( GL_ONE, GL_ONE );                          // GL_COLOR_BUFFER_BIT
+            GL_DEBUG( glEnable )( GL_BLEND );                                 // GL_ENABLE_BIT
+            GL_DEBUG( glBlendFunc )( GL_ONE, GL_ONE );                        // GL_COLOR_BUFFER_BIT
 
             chr_instance_get_tint( pinst, tint, CHR_LIGHT | CHR_REFLECT );
 
@@ -673,8 +673,8 @@ bool_t render_one_mad_ref( int ichr )
 
         if ( gfx.phongon && pinst->sheen > 0 )
         {
-            GL_DEBUG(glEnable)( GL_BLEND );
-            GL_DEBUG(glBlendFunc)( GL_ONE, GL_ONE );
+            GL_DEBUG( glEnable )( GL_BLEND );
+            GL_DEBUG( glBlendFunc )( GL_ONE, GL_ONE );
 
             chr_instance_get_tint( pinst, tint, CHR_PHONG | CHR_REFLECT );
 
@@ -693,12 +693,12 @@ egoboo_rv chr_update_instance( chr_t * pchr )
     chr_instance_t * pinst;
     egoboo_rv retval;
 
-    if( !ACTIVE_PCHR(pchr) ) return rv_error;
-    pinst = &(pchr->inst);
+    if ( !ACTIVE_PCHR( pchr ) ) return rv_error;
+    pinst = &( pchr->inst );
 
     // make sure that the vertices are interpolated
     retval = chr_instance_update_vertices( pinst, -1, -1, btrue );
-    if( rv_error == retval )
+    if ( rv_error == retval )
     {
         return rv_error;
     }
@@ -727,13 +727,13 @@ void chr_instance_update_lighting_base( chr_instance_t * pinst, chr_t * pchr, bo
     vlst = pinst->vlst;
 
     // has this already been calculated this update?
-    if( !force && pinst->lighting_update_wld >= update_wld ) return;
+    if ( !force && pinst->lighting_update_wld >= update_wld ) return;
     pinst->lighting_update_wld = update_wld;
 
     // make sure the matrix is valid
     chr_update_matrix( pchr, btrue );
 
-    if ( !LOADED_MAD(pinst->imad) ) return;
+    if ( !LOADED_MAD( pinst->imad ) ) return;
     pmad = MadList + pinst->imad;
     pinst->vlst_size = ego_md2_data[pmad->md2_ref].vertices;
 
@@ -745,7 +745,7 @@ void chr_instance_update_lighting_base( chr_instance_t * pinst, chr_t * pchr, bo
 
     self_light = ( 255 == pinst->light ) ? 0 : pinst->light;
 
-    pinst->color_amb = 0.9f * pinst->color_amb + 0.1f * (self_light + (loc_light.hgh.lighting[6] + loc_light.low.lighting[6])*0.5f);
+    pinst->color_amb = 0.9f * pinst->color_amb + 0.1f * ( self_light + ( loc_light.hgh.lighting[6] + loc_light.low.lighting[6] ) * 0.5f );
 
     pinst->max_light = -255;
     pinst->min_light =  255;
@@ -756,7 +756,7 @@ void chr_instance_update_lighting_base( chr_instance_t * pinst, chr_t * pchr, bo
         GLvertex * pvert = pinst->vlst + cnt;
 
         // a simple "height" measurement
-        float hgt = pvert->pos[ZZ] * pinst->matrix.CNV(3, 3) + pinst->matrix.CNV(3, 3);
+        float hgt = pvert->pos[ZZ] * pinst->matrix.CNV( 3, 3 ) + pinst->matrix.CNV( 3, 3 );
 
         if ( pvert->nrm[0] == 0.0f && pvert->nrm[1] == 0.0f && pvert->nrm[2] == 0.0f )
         {
@@ -779,13 +779,13 @@ void chr_instance_update_lighting_base( chr_instance_t * pinst, chr_t * pchr, bo
 
         pvert->color_dir = 0.9f * pvert->color_dir + 0.1f * lite;
 
-        pinst->max_light = MAX(pinst->max_light, pvert->color_dir);
-        pinst->min_light = MIN(pinst->min_light, pvert->color_dir);
+        pinst->max_light = MAX( pinst->max_light, pvert->color_dir );
+        pinst->min_light = MIN( pinst->min_light, pvert->color_dir );
     }
 
     // ??coerce this to reasonable values in the presence of negative light??
-    if( pinst->max_light < 0 ) pinst->max_light = 0;
-    if( pinst->min_light < 0 ) pinst->min_light = 0;
+    if ( pinst->max_light < 0 ) pinst->max_light = 0;
+    if ( pinst->min_light < 0 ) pinst->min_light = 0;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -797,7 +797,7 @@ egoboo_rv chr_instance_update_bbox( chr_instance_t * pinst )
     if ( NULL == pinst ) return rv_error;
 
     // get the model. try to heal a bad model.
-    if ( !LOADED_MAD(pinst->imad) ) return rv_error;
+    if ( !LOADED_MAD( pinst->imad ) ) return rv_error;
     pmad = MadList + pinst->imad;
 
     if ( pinst->frame_nxt == pinst->frame_lst || pinst->flip == 0.0f )
@@ -810,10 +810,10 @@ egoboo_rv chr_instance_update_bbox( chr_instance_t * pinst )
     }
     else
     {
-        for( i=0; i<OCT_COUNT; i++ )
+        for ( i = 0; i < OCT_COUNT; i++ )
         {
-            pinst->bbox.mins[i] = Md2FrameList[pinst->frame_lst].bbox.mins[i] + (Md2FrameList[pinst->frame_nxt].bbox.mins[i] - Md2FrameList[pinst->frame_lst].bbox.mins[i]) * pinst->flip;
-            pinst->bbox.maxs[i] = Md2FrameList[pinst->frame_lst].bbox.maxs[i] + (Md2FrameList[pinst->frame_nxt].bbox.maxs[i] - Md2FrameList[pinst->frame_lst].bbox.maxs[i]) * pinst->flip;
+            pinst->bbox.mins[i] = Md2FrameList[pinst->frame_lst].bbox.mins[i] + ( Md2FrameList[pinst->frame_nxt].bbox.mins[i] - Md2FrameList[pinst->frame_lst].bbox.mins[i] ) * pinst->flip;
+            pinst->bbox.maxs[i] = Md2FrameList[pinst->frame_lst].bbox.maxs[i] + ( Md2FrameList[pinst->frame_nxt].bbox.maxs[i] - Md2FrameList[pinst->frame_lst].bbox.maxs[i] ) * pinst->flip;
         }
     }
 
@@ -836,43 +836,43 @@ egoboo_rv chr_instance_needs_update( chr_instance_t * pinst, int vmin, int vmax,
     int maxvert;
 
     // ensure that the pointers point to something
-    if( NULL == verts_match  ) verts_match  = &local_verts_match;
-    if( NULL == frames_match ) frames_match = &local_frames_match;
+    if ( NULL == verts_match ) verts_match  = &local_verts_match;
+    if ( NULL == frames_match ) frames_match = &local_frames_match;
 
     // initialize the boolean pointers
     *verts_match  = bfalse;
     *frames_match = bfalse;
 
     if ( NULL == pinst ) return rv_error;
-    psave = &(pinst->save);
+    psave = &( pinst->save );
 
     // get the model.
-    if ( !LOADED_MAD(pinst->imad) ) return rv_error;
+    if ( !LOADED_MAD( pinst->imad ) ) return rv_error;
     pmad = MadList + pinst->imad;
 
     maxvert = ego_md2_data[pmad->md2_ref].vertices - 1;
 
     // check to make sure the lower bound of the saved data is valid.
     // it is initialized to an invalid value (psave->vmin = psave->vmax = -1)
-    if( psave->vmin < 0 || psave->vmax < 0 ) return rv_success;
+    if ( psave->vmin < 0 || psave->vmax < 0 ) return rv_success;
 
     // check to make sure the upper bound of the saved data is valid.
-    if( psave->vmin > maxvert || psave->vmax > maxvert ) return rv_success;
+    if ( psave->vmin > maxvert || psave->vmax > maxvert ) return rv_success;
 
-     // make sure that the min and max vertices lie in the valid range
-    if( vmax < vmin ) SWAP(int, vmax, vmin);
-    vmin = CLIP(vmin, 0, maxvert);
-    vmax = CLIP(vmax, 0, maxvert);
+    // make sure that the min and max vertices lie in the valid range
+    if ( vmax < vmin ) SWAP( int, vmax, vmin );
+    vmin = CLIP( vmin, 0, maxvert );
+    vmax = CLIP( vmax, 0, maxvert );
 
     // test to see if we have already calculated this data
-    (*verts_match) = (vmin >= psave->vmin) && (vmax <= psave->vmax);
+    ( *verts_match ) = ( vmin >= psave->vmin ) && ( vmax <= psave->vmax );
 
-    flips_match = ( ABS(psave->flip - pinst->flip) < 0.125f );
+    flips_match = ( ABS( psave->flip - pinst->flip ) < 0.125f );
 
-    (*frames_match) = ( pinst->frame_nxt == pinst->frame_lst && psave->frame_nxt == pinst->frame_nxt && psave->frame_lst == pinst->frame_lst ) ||
-                      ( flips_match && psave->frame_nxt == pinst->frame_nxt && psave->frame_lst == pinst->frame_lst );
+    ( *frames_match ) = ( pinst->frame_nxt == pinst->frame_lst && psave->frame_nxt == pinst->frame_nxt && psave->frame_lst == pinst->frame_lst ) ||
+                        ( flips_match && psave->frame_nxt == pinst->frame_nxt && psave->frame_lst == pinst->frame_lst );
 
-    return (!(*verts_match) || !(*frames_match)) ? rv_success : rv_fail;
+    return ( !( *verts_match ) || !( *frames_match ) ) ? rv_success : rv_fail;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -889,15 +889,15 @@ egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vm
     mad_t * pmad;
 
     if ( NULL == pinst ) return rv_error;
-    psave = &(pinst->save);
+    psave = &( pinst->save );
 
-    if( rv_error == chr_instance_update_bbox( pinst ) )
+    if ( rv_error == chr_instance_update_bbox( pinst ) )
     {
-         return rv_error;
+        return rv_error;
     }
 
     // get the model. try to heal a bad model.
-    if ( !LOADED_MAD(pinst->imad) ) return rv_error;
+    if ( !LOADED_MAD( pinst->imad ) ) return rv_error;
     pmad = MadList + pinst->imad;
 
     maxvert = ego_md2_data[pmad->md2_ref].vertices - 1;
@@ -907,27 +907,27 @@ egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vm
     if ( vmax < 0 ) vmax = maxvert;
 
     // are they in the right order?
-    if( vmax < vmin ) SWAP(int, vmax, vmin);
+    if ( vmax < vmin ) SWAP( int, vmax, vmin );
 
-    if( force )
+    if ( force )
     {
         // do the absolute maximum extent
-        vmin = MIN(vmin, psave->vmin);
-        vmax = MAX(vmax, psave->vmax);
+        vmin = MIN( vmin, psave->vmin );
+        vmax = MAX( vmax, psave->vmax );
     }
 
     // make sure that the vertices are within the max range
-    vmin = CLIP(vmin, 0, maxvert);
-    vmax = CLIP(vmax, 0, maxvert);
+    vmin = CLIP( vmin, 0, maxvert );
+    vmax = CLIP( vmax, 0, maxvert );
 
     // do we need to update?
-    retval = chr_instance_needs_update( pinst, vmin, vmax, &vertices_match, &frames_match);
-    if( rv_error == retval ) return rv_error;
-    if( rv_fail  == retval ) return rv_success;
+    retval = chr_instance_needs_update( pinst, vmin, vmax, &vertices_match, &frames_match );
+    if ( rv_error == retval ) return rv_error;
+    if ( rv_fail  == retval ) return rv_success;
 
     if ( pinst->frame_nxt == pinst->frame_lst || pinst->flip == 0.0f )
     {
-        for ( i = vmin; i <= vmax; i++)
+        for ( i = vmin; i <= vmax; i++ )
         {
             Uint16 vrta_lst;
 
@@ -943,12 +943,12 @@ egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vm
             pinst->vlst[i].nrm[ZZ] = kMd2Normals[vrta_lst][ZZ];
 
             pinst->vlst[i].env[XX] = indextoenvirox[vrta_lst];
-            pinst->vlst[i].env[YY] = 0.5f * (1.0f + pinst->vlst[i].nrm[ZZ]);
+            pinst->vlst[i].env[YY] = 0.5f * ( 1.0f + pinst->vlst[i].nrm[ZZ] );
         }
     }
     else if ( pinst->flip == 1.0f )
     {
-        for ( i = vmin; i <= vmax; i++)
+        for ( i = vmin; i <= vmax; i++ )
         {
             Uint16 vrta_nxt;
 
@@ -964,29 +964,29 @@ egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vm
             pinst->vlst[i].nrm[ZZ] = kMd2Normals[vrta_nxt][ZZ];
 
             pinst->vlst[i].env[XX] = indextoenvirox[vrta_nxt];
-            pinst->vlst[i].env[YY] = 0.5f * (1.0f + pinst->vlst[i].nrm[ZZ]);
+            pinst->vlst[i].env[YY] = 0.5f * ( 1.0f + pinst->vlst[i].nrm[ZZ] );
         }
     }
     else
     {
-        for ( i = vmin; i <= vmax; i++)
+        for ( i = vmin; i <= vmax; i++ )
         {
             Uint16 vrta_lst, vrta_nxt;
 
-            pinst->vlst[i].pos[XX] = Md2FrameList[pinst->frame_lst].vrtx[i] + (Md2FrameList[pinst->frame_nxt].vrtx[i] - Md2FrameList[pinst->frame_lst].vrtx[i]) * pinst->flip;
-            pinst->vlst[i].pos[YY] = Md2FrameList[pinst->frame_lst].vrty[i] + (Md2FrameList[pinst->frame_nxt].vrty[i] - Md2FrameList[pinst->frame_lst].vrty[i]) * pinst->flip;
-            pinst->vlst[i].pos[ZZ] = Md2FrameList[pinst->frame_lst].vrtz[i] + (Md2FrameList[pinst->frame_nxt].vrtz[i] - Md2FrameList[pinst->frame_lst].vrtz[i]) * pinst->flip;
+            pinst->vlst[i].pos[XX] = Md2FrameList[pinst->frame_lst].vrtx[i] + ( Md2FrameList[pinst->frame_nxt].vrtx[i] - Md2FrameList[pinst->frame_lst].vrtx[i] ) * pinst->flip;
+            pinst->vlst[i].pos[YY] = Md2FrameList[pinst->frame_lst].vrty[i] + ( Md2FrameList[pinst->frame_nxt].vrty[i] - Md2FrameList[pinst->frame_lst].vrty[i] ) * pinst->flip;
+            pinst->vlst[i].pos[ZZ] = Md2FrameList[pinst->frame_lst].vrtz[i] + ( Md2FrameList[pinst->frame_nxt].vrtz[i] - Md2FrameList[pinst->frame_lst].vrtz[i] ) * pinst->flip;
             pinst->vlst[i].pos[WW] = 1.0f;
 
             vrta_lst = Md2FrameList[pinst->frame_lst].vrta[i];
             vrta_nxt = Md2FrameList[pinst->frame_nxt].vrta[i];
 
-            pinst->vlst[i].nrm[XX] = kMd2Normals[vrta_lst][XX] + (kMd2Normals[vrta_nxt][XX] - kMd2Normals[vrta_lst][XX]) * pinst->flip;
-            pinst->vlst[i].nrm[YY] = kMd2Normals[vrta_lst][YY] + (kMd2Normals[vrta_nxt][YY] - kMd2Normals[vrta_lst][YY]) * pinst->flip;
-            pinst->vlst[i].nrm[ZZ] = kMd2Normals[vrta_lst][ZZ] + (kMd2Normals[vrta_nxt][ZZ] - kMd2Normals[vrta_lst][ZZ]) * pinst->flip;
+            pinst->vlst[i].nrm[XX] = kMd2Normals[vrta_lst][XX] + ( kMd2Normals[vrta_nxt][XX] - kMd2Normals[vrta_lst][XX] ) * pinst->flip;
+            pinst->vlst[i].nrm[YY] = kMd2Normals[vrta_lst][YY] + ( kMd2Normals[vrta_nxt][YY] - kMd2Normals[vrta_lst][YY] ) * pinst->flip;
+            pinst->vlst[i].nrm[ZZ] = kMd2Normals[vrta_lst][ZZ] + ( kMd2Normals[vrta_nxt][ZZ] - kMd2Normals[vrta_lst][ZZ] ) * pinst->flip;
 
-            pinst->vlst[i].env[XX] = indextoenvirox[vrta_lst] + (indextoenvirox[vrta_nxt] - indextoenvirox[vrta_lst]) * pinst->flip;
-            pinst->vlst[i].env[YY] = 0.5f * (1.0f + pinst->vlst[i].nrm[ZZ]);
+            pinst->vlst[i].env[XX] = indextoenvirox[vrta_lst] + ( indextoenvirox[vrta_nxt] - indextoenvirox[vrta_lst] ) * pinst->flip;
+            pinst->vlst[i].env[YY] = 0.5f * ( 1.0f + pinst->vlst[i].nrm[ZZ] );
         }
     }
 
@@ -996,7 +996,7 @@ egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vm
 
     // the save_vmin and save_vmax is the most complex
     verts_updated = bfalse;
-    if( force )
+    if ( force )
     {
         // to get here, either the specified range was outside the clean range or
         // the animation was updated. In any case, the only vertices that are
@@ -1006,7 +1006,7 @@ egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vm
         psave->vmax = vmax;
         verts_updated = btrue;
     }
-    else if( vertices_match )
+    else if ( vertices_match )
     {
         // The only way to get here is to fail the frames_match test, and pass vertices_match
 
@@ -1016,7 +1016,7 @@ egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vm
         psave->vmax = vmax;
         verts_updated = btrue;
     }
-    else if( frames_match )
+    else if ( frames_match )
     {
         // The only way to get here is to fail the vertices_match test, and pass frames_match test
 
@@ -1026,19 +1026,19 @@ egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vm
         //
         //If these ranges are disjoint, then only one of them can be saved. Choose the larger set
 
-        if( vmax >= psave->vmin && vmin <= psave->vmax )
+        if ( vmax >= psave->vmin && vmin <= psave->vmax )
         {
             // the old list [save_vmin, save_vmax] and the new list [vmin, vmax]
             // overlap, so we can merge them
-            psave->vmin = MIN(psave->vmin, vmin);
-            psave->vmax = MAX(psave->vmax, vmax);
+            psave->vmin = MIN( psave->vmin, vmin );
+            psave->vmax = MAX( psave->vmax, vmax );
             verts_updated = btrue;
         }
         else
         {
             // the old list and the new list are disjoint sets, so we are out of luck
             // save the set with the largest number of members
-            if( (psave->vmax - psave->vmin) >= (vmax - vmin) )
+            if (( psave->vmax - psave->vmin ) >= ( vmax - vmin ) )
             {
                 // obviously no change...
                 psave->vmin = psave->vmin;
@@ -1069,19 +1069,19 @@ egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vm
 
     // store the last time there was an update to the animation
     frames_updated = bfalse;
-    if( !frames_match )
+    if ( !frames_match )
     {
         psave->frame_wld = update_wld;
         frames_updated   = btrue;
     }
 
     // store the time of the last full update
-    if( 0 == vmin && maxvert == vmax )
+    if ( 0 == vmin && maxvert == vmax )
     {
         psave->vert_wld  = update_wld;
     }
 
-    return (verts_updated || frames_updated) ? rv_success : rv_fail;
+    return ( verts_updated || frames_updated ) ? rv_success : rv_fail;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1094,43 +1094,43 @@ void draw_points( chr_t * pchr, int vrt_offset, int verts )
     int vmin, vmax, cnt;
     GLboolean texture_1d_enabled, texture_2d_enabled;
 
-    if( !ACTIVE_PCHR( pchr ) ) return;
+    if ( !ACTIVE_PCHR( pchr ) ) return;
 
     pmad = chr_get_pmad( GET_INDEX_PCHR( pchr ) );
-    if( NULL == pmad ) return;
+    if ( NULL == pmad ) return;
 
     vmin = vrt_offset;
     vmax = vmin + verts;
 
-    if( vmin < 0 || vmax < 0 ) return;
-    if( vmin > ego_md2_data[pmad->md2_ref].vertices || vmax > ego_md2_data[pmad->md2_ref].vertices ) return;
+    if ( vmin < 0 || vmax < 0 ) return;
+    if ( vmin > ego_md2_data[pmad->md2_ref].vertices || vmax > ego_md2_data[pmad->md2_ref].vertices ) return;
 
-    texture_1d_enabled = GL_DEBUG(glIsEnabled)(GL_TEXTURE_1D);
-    texture_2d_enabled = GL_DEBUG(glIsEnabled)(GL_TEXTURE_2D);
+    texture_1d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_1D );
+    texture_2d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_2D );
 
     // disable the texturing so all the points will be white,
     // not the texture color of the last vertex we drawn
-    if( texture_1d_enabled ) glDisable( GL_TEXTURE_1D );
-    if( texture_2d_enabled ) glDisable( GL_TEXTURE_2D );
+    if ( texture_1d_enabled ) glDisable( GL_TEXTURE_1D );
+    if ( texture_2d_enabled ) glDisable( GL_TEXTURE_2D );
 
-    GL_DEBUG(glMatrixMode)( GL_MODELVIEW );
-    GL_DEBUG(glPushMatrix)();
-    GL_DEBUG(glMultMatrixf)( pchr->inst.matrix.v );
+    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
+    GL_DEBUG( glPushMatrix )();
+    GL_DEBUG( glMultMatrixf )( pchr->inst.matrix.v );
 
     GL_DEBUG( glBegin( GL_POINTS ) );
     {
-        for(cnt=vmin; cnt<vmax; cnt++)
+        for ( cnt = vmin; cnt < vmax; cnt++ )
         {
             glVertex3fv( pchr->inst.vlst[cnt].pos );
         }
     }
     GL_DEBUG_END();
 
-    GL_DEBUG(glMatrixMode)( GL_MODELVIEW );
-    GL_DEBUG(glPopMatrix)();
+    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
+    GL_DEBUG( glPopMatrix )();
 
-    if( texture_1d_enabled ) glEnable( GL_TEXTURE_1D );
-    if( texture_2d_enabled ) glEnable( GL_TEXTURE_2D );
+    if ( texture_1d_enabled ) glEnable( GL_TEXTURE_1D );
+    if ( texture_2d_enabled ) glEnable( GL_TEXTURE_2D );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1138,25 +1138,25 @@ void draw_one_grip( chr_instance_t * pinst, mad_t * pmad, int slot )
 {
     GLboolean texture_1d_enabled, texture_2d_enabled;
 
-    texture_1d_enabled = GL_DEBUG(glIsEnabled)(GL_TEXTURE_1D);
-    texture_2d_enabled = GL_DEBUG(glIsEnabled)(GL_TEXTURE_2D);
+    texture_1d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_1D );
+    texture_2d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_2D );
 
     // disable the texturing so all the points will be white,
     // not the texture color of the last vertex we drawn
-    if( texture_1d_enabled ) glDisable( GL_TEXTURE_1D );
-    if( texture_2d_enabled ) glDisable( GL_TEXTURE_2D );
+    if ( texture_1d_enabled ) glDisable( GL_TEXTURE_1D );
+    if ( texture_2d_enabled ) glDisable( GL_TEXTURE_2D );
 
-    GL_DEBUG(glMatrixMode)( GL_MODELVIEW );
-    GL_DEBUG(glPushMatrix)();
-    GL_DEBUG(glMultMatrixf)( pinst->matrix.v );
+    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
+    GL_DEBUG( glPushMatrix )();
+    GL_DEBUG( glMultMatrixf )( pinst->matrix.v );
 
     _draw_one_grip_raw( pinst, pmad, slot );
 
-    GL_DEBUG(glMatrixMode)( GL_MODELVIEW );
-    GL_DEBUG(glPopMatrix)();
+    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
+    GL_DEBUG( glPopMatrix )();
 
-    if( texture_1d_enabled ) glEnable( GL_TEXTURE_1D );
-    if( texture_2d_enabled ) glEnable( GL_TEXTURE_2D );
+    if ( texture_1d_enabled ) glEnable( GL_TEXTURE_1D );
+    if ( texture_2d_enabled ) glEnable( GL_TEXTURE_2D );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1164,27 +1164,27 @@ void _draw_one_grip_raw( chr_instance_t * pinst, mad_t * pmad, int slot )
 {
     int vmin, vmax, cnt;
 
-    float red[4] = {1,0,0,1};
-    float grn[4] = {0,1,0,1};
-    float blu[4] = {0,0,1,1};
+    float red[4] = {1, 0, 0, 1};
+    float grn[4] = {0, 1, 0, 1};
+    float blu[4] = {0, 0, 1, 1};
     float * col_ary[3];
 
     col_ary[0] = red;
     col_ary[1] = grn;
     col_ary[2] = blu;
 
-    if( NULL == pinst || NULL == pmad ) return;
+    if ( NULL == pinst || NULL == pmad ) return;
 
     vmin = ego_md2_data[pmad->md2_ref].vertices - slot_to_grip_offset( slot );
     vmax = vmin + GRIP_VERTS;
 
-    if( vmin >= 0 && vmax >= 0 && vmax <= ego_md2_data[pmad->md2_ref].vertices )
+    if ( vmin >= 0 && vmax >= 0 && vmax <= ego_md2_data[pmad->md2_ref].vertices )
     {
         fvec3_t   src, dst, diff;
 
-        GL_DEBUG(glBegin)( GL_LINES );
+        GL_DEBUG( glBegin )( GL_LINES );
         {
-            for( cnt = 1; cnt < GRIP_VERTS; cnt++ )
+            for ( cnt = 1; cnt < GRIP_VERTS; cnt++ )
             {
                 src.x = pinst->vlst[vmin].pos[XX];
                 src.y = pinst->vlst[vmin].pos[YY];
@@ -1207,7 +1207,7 @@ void _draw_one_grip_raw( chr_instance_t * pinst, mad_t * pmad, int slot )
         GL_DEBUG_END();
     }
 
-    glColor4f( 1,1,1,1 );
+    glColor4f( 1, 1, 1, 1 );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1217,18 +1217,18 @@ void chr_draw_attached_grip( chr_t * pchr )
     cap_t * pholder_cap;
     chr_t * pholder;
 
-    if( !ACTIVE_PCHR( pchr ) ) return;
+    if ( !ACTIVE_PCHR( pchr ) ) return;
 
-    if( !ACTIVE_CHR(pchr->attachedto) ) return;
+    if ( !ACTIVE_CHR( pchr->attachedto ) ) return;
     pholder = ChrList.lst + pchr->attachedto;
 
     pholder_cap = pro_get_pcap( pholder->iprofile );
-    if( NULL == pholder_cap ) return;
+    if ( NULL == pholder_cap ) return;
 
     pholder_mad = chr_get_pmad( GET_INDEX_PCHR( pholder ) );
-    if( NULL == pholder_mad ) return;
+    if ( NULL == pholder_mad ) return;
 
-    draw_one_grip( &(pholder->inst), pholder_mad, pchr->inwhich_slot );
+    draw_one_grip( &( pholder->inst ), pholder_mad, pchr->inwhich_slot );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1240,43 +1240,43 @@ void chr_draw_grips( chr_t * pchr )
     int slot;
     GLboolean texture_1d_enabled, texture_2d_enabled;
 
-    if( !ACTIVE_PCHR( pchr ) ) return;
+    if ( !ACTIVE_PCHR( pchr ) ) return;
 
     pcap = pro_get_pcap( pchr->iprofile );
-    if( NULL == pcap ) return;
+    if ( NULL == pcap ) return;
 
     pmad = chr_get_pmad( GET_INDEX_PCHR( pchr ) );
-    if( NULL == pmad ) return;
+    if ( NULL == pmad ) return;
 
-    texture_1d_enabled = GL_DEBUG(glIsEnabled)(GL_TEXTURE_1D);
-    texture_2d_enabled = GL_DEBUG(glIsEnabled)(GL_TEXTURE_2D);
+    texture_1d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_1D );
+    texture_2d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_2D );
 
     // disable the texturing so all the points will be white,
     // not the texture color of the last vertex we drawn
-    if( texture_1d_enabled ) glDisable( GL_TEXTURE_1D );
-    if( texture_2d_enabled ) glDisable( GL_TEXTURE_2D );
+    if ( texture_1d_enabled ) glDisable( GL_TEXTURE_1D );
+    if ( texture_2d_enabled ) glDisable( GL_TEXTURE_2D );
 
-    GL_DEBUG(glMatrixMode)( GL_MODELVIEW );
-    GL_DEBUG(glPushMatrix)();
-    GL_DEBUG(glMultMatrixf)( pchr->inst.matrix.v );
+    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
+    GL_DEBUG( glPushMatrix )();
+    GL_DEBUG( glMultMatrixf )( pchr->inst.matrix.v );
 
     slot = SLOT_LEFT;
-    if( pcap->slotvalid[slot] )
+    if ( pcap->slotvalid[slot] )
     {
-        _draw_one_grip_raw( &(pchr->inst), pmad, slot );
+        _draw_one_grip_raw( &( pchr->inst ), pmad, slot );
     }
 
     slot = SLOT_RIGHT;
-    if( pcap->slotvalid[slot] )
+    if ( pcap->slotvalid[slot] )
     {
-        _draw_one_grip_raw( &(pchr->inst), pmad, slot );
+        _draw_one_grip_raw( &( pchr->inst ), pmad, slot );
     }
 
-    GL_DEBUG(glMatrixMode)( GL_MODELVIEW );
-    GL_DEBUG(glPopMatrix)();
+    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
+    GL_DEBUG( glPopMatrix )();
 
-    if( texture_1d_enabled ) glEnable( GL_TEXTURE_1D );
-    if( texture_2d_enabled ) glEnable( GL_TEXTURE_2D );
+    if ( texture_1d_enabled ) glEnable( GL_TEXTURE_1D );
+    if ( texture_2d_enabled ) glEnable( GL_TEXTURE_2D );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1285,25 +1285,25 @@ egoboo_rv chr_instance_update_grip_verts( chr_instance_t * pinst, Uint16 vrt_lst
     int cnt, count, vmin, vmax;
     egoboo_rv retval;
 
-    if( NULL == pinst ) return rv_error;
+    if ( NULL == pinst ) return rv_error;
 
-    if( NULL == vrt_lst || 0 == vrt_count ) return rv_fail;
+    if ( NULL == vrt_lst || 0 == vrt_count ) return rv_fail;
 
     // count the valid attachment points
     vmin = 0xFFFF;
     vmax = 0;
     count = 0;
-    for( cnt = 0; cnt<vrt_count; cnt++ )
+    for ( cnt = 0; cnt < vrt_count; cnt++ )
     {
-        if( 0xFFFF == vrt_lst[cnt] ) continue;
+        if ( 0xFFFF == vrt_lst[cnt] ) continue;
 
-        vmin = MIN(vmin, vrt_lst[cnt]);
-        vmax = MAX(vmax, vrt_lst[cnt]);
+        vmin = MIN( vmin, vrt_lst[cnt] );
+        vmax = MAX( vmax, vrt_lst[cnt] );
         count++;
     }
 
     // if there are no valid points, there is nothing to do
-    if( 0 == count ) return rv_fail;
+    if ( 0 == count ) return rv_fail;
 
     // force the vertices to update
     retval = chr_instance_update_vertices( pinst, vmin, vmax, btrue );

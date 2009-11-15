@@ -78,8 +78,8 @@ enum e_grip_offset
 {
     GRIP_ORIGIN    =               0,                ///< Spawn attachments at the center
     GRIP_LAST      =               1,                ///< Spawn particles at the last vertex
-    GRIP_LEFT      =              (1 * GRIP_VERTS),  ///< Left weapon grip starts  4 from last
-    GRIP_RIGHT     =              (2 * GRIP_VERTS),  ///< Right weapon grip starts 8 from last
+    GRIP_LEFT      = ( 1 * GRIP_VERTS ),             ///< Left weapon grip starts  4 from last
+    GRIP_RIGHT     = ( 2 * GRIP_VERTS ),             ///< Right weapon grip starts 8 from last
 
     // aliases
     GRIP_INVENTORY =               GRIP_ORIGIN,
@@ -148,20 +148,20 @@ slot_t        grip_offset_to_slot( grip_offset_t grip );
 enum e_chr_name_bits
 {
     CHRNAME_NONE     = 0,               ///< no options
-    CHRNAME_ARTICLE  = (1 << 0),        ///< use an article (a, an, the)
-    CHRNAME_DEFINITE = (1 << 1),        ///< if set, choose "the" else "a" or "an"
-    CHRNAME_CAPITAL  = (1 << 2)         ///< capitalize the name
+    CHRNAME_ARTICLE  = ( 1 << 0 ),      ///< use an article (a, an, the)
+    CHRNAME_DEFINITE = ( 1 << 1 ),      ///< if set, choose "the" else "a" or "an"
+    CHRNAME_CAPITAL  = ( 1 << 2 )       ///< capitalize the name
 };
 
 /// Bits used to request a character tint
 enum e_chr_render_bits
 {
     CHR_UNKNOWN  = 0,
-    CHR_SOLID    = (1 << 0),
-    CHR_ALPHA    = (1 << 1),
-    CHR_LIGHT    = (1 << 2),
-    CHR_PHONG    = (1 << 3),
-    CHR_REFLECT  = (1 << 4)
+    CHR_SOLID    = ( 1 << 0 ),
+    CHR_ALPHA    = ( 1 << 1 ),
+    CHR_LIGHT    = ( 1 << 2 ),
+    CHR_PHONG    = ( 1 << 3 ),
+    CHR_REFLECT  = ( 1 << 4 )
 };
 
 //------------------------------------
@@ -169,10 +169,10 @@ enum e_chr_render_bits
 //------------------------------------
 enum e_team_types
 {
-    TEAM_EVIL            = ('E' - 'A'),          ///< Evil team
-    TEAM_GOOD            = ('G' - 'A'),          ///< Good team
-    TEAM_NULL            = ('N' - 'A'),          ///< Null or Neutral team
-    TEAM_ZIPPY           = ('Z' - 'A'),          ///< Zippy Team?
+    TEAM_EVIL            = ( 'E' - 'A' ),        ///< Evil team
+    TEAM_GOOD            = ( 'G' - 'A' ),        ///< Good team
+    TEAM_NULL            = ( 'N' - 'A' ),        ///< Null or Neutral team
+    TEAM_ZIPPY           = ( 'Z' - 'A' ),        ///< Zippy Team?
     TEAM_DAMAGE,                                 ///< For damage tiles
     TEAM_MAX
 };
@@ -214,8 +214,8 @@ typedef struct s_vlst_cache vlst_cache_t;
 enum e_matrix_cache_type
 {
     MAT_UNKNOWN   = 0,
-    MAT_CHARACTER = (1 << 0),
-    MAT_WEAPON    = (1 << 1)
+    MAT_CHARACTER = ( 1 << 0 ),
+    MAT_WEAPON    = ( 1 << 1 )
 };
 
 typedef enum e_matrix_cache_type matrix_cache_type_t;
@@ -254,7 +254,7 @@ struct s_matrix_cache
 };
 typedef struct s_matrix_cache matrix_cache_t;
 
-matrix_cache_t * matrix_cache_init(matrix_cache_t * mcache);
+matrix_cache_t * matrix_cache_init( matrix_cache_t * mcache );
 
 //--------------------------------------------------------------------------------------------
 /// some pre-computed parameters for reflection
@@ -472,7 +472,7 @@ struct s_chr
     Uint8          damagemodifier[DAMAGE_COUNT];  ///< Resistances and inversion
     Uint8          defense;                       ///< Base defense rating
     Uint16         damageboost;                   ///< Add to swipe damage
-	Uint16         damagethreshold;				  ///< Damage below this number is ignored
+    Uint16         damagethreshold;               ///< Damage below this number is ignored
 
     // sound stuff
     Sint8          soundindex[SOUND_COUNT];       ///< a map for soundX.wav to sound types
@@ -623,7 +623,7 @@ extern cap_t CapList[MAX_CAP];
 #define VALID_CAP_RANGE( ICAP ) ( ((ICAP) >= 0) && ((ICAP) < MAX_CAP) )
 #define LOADED_CAP( ICAP )       ( VALID_CAP_RANGE( ICAP ) && CapList[ICAP].loaded )
 
-DEFINE_LIST_EXTERN(chr_t, ChrList, MAX_CHR );
+DEFINE_LIST_EXTERN( chr_t, ChrList, MAX_CHR );
 
 #define VALID_CHR_RANGE( ICHR ) ( ((ICHR) >= 0) && ((ICHR) < MAX_CHR) )
 #define ALLOCATED_CHR( ICHR )   ( VALID_CHR_RANGE( ICHR ) && ALLOCATED_OBJ ( &(ChrList.lst[ICHR].obj_base) ) )
@@ -651,7 +651,7 @@ int  damage_character( Uint16 character, Uint16 direction,
                        IPair damage, Uint8 damagetype, Uint8 team,
                        Uint16 attacker, Uint16 effects, bool_t ignoreinvincible );
 void kill_character( Uint16 character, Uint16 killer, bool_t ignoreinvincible );
-bool_t heal_character( Uint16 character, Uint16 healer, int amount, bool_t ignoreinvincible);
+bool_t heal_character( Uint16 character, Uint16 healer, int amount, bool_t ignoreinvincible );
 void spawn_poof( Uint16 character, Uint16 profile );
 void reset_character_alpha( Uint16 character );
 void reset_character_accel( Uint16 character );
@@ -663,7 +663,7 @@ void flash_character( Uint16 character, Uint8 value );
 
 void free_one_character_in_game( Uint16 character );
 //void make_one_weapon_matrix( Uint16 iweap, Uint16 iholder, bool_t do_phys  );
-void make_all_character_matrices(bool_t do_physics);
+void make_all_character_matrices( bool_t do_physics );
 void free_inventory_in_game( Uint16 character );
 
 void keep_weapons_with_holders();
@@ -674,11 +674,11 @@ void move_all_characters( void );
 void cleanup_all_characters( void );
 
 void do_level_up( Uint16 character );
-bool_t setup_xp_table(Uint16 character);
+bool_t setup_xp_table( Uint16 character );
 
 void free_all_chraracters();
 
-Uint32 __chrhitawall(  chr_t * pchr, float nrm[] );
+Uint32 __chrhitawall( chr_t * pchr, float nrm[] );
 
 int chr_count_free();
 
@@ -734,33 +734,33 @@ bool_t release_one_cap( Uint16 icap );
 
 bool_t cap_is_type_idsz( Uint16 icap, IDSZ test_idsz );
 
-Uint16 chr_get_ipro(Uint16 ichr);
-Uint16 chr_get_icap(Uint16 ichr);
-Uint16 chr_get_imad(Uint16 ichr);
-Uint16 chr_get_ieve(Uint16 ichr);
-Uint16 chr_get_ipip(Uint16 ichr, Uint16 ipip);
-Uint16 chr_get_iteam(Uint16 ichr);
-Uint16 chr_get_iteam_base(Uint16 ichr);
+Uint16 chr_get_ipro( Uint16 ichr );
+Uint16 chr_get_icap( Uint16 ichr );
+Uint16 chr_get_imad( Uint16 ichr );
+Uint16 chr_get_ieve( Uint16 ichr );
+Uint16 chr_get_ipip( Uint16 ichr, Uint16 ipip );
+Uint16 chr_get_iteam( Uint16 ichr );
+Uint16 chr_get_iteam_base( Uint16 ichr );
 
-struct s_object_profile * chr_get_ppro(Uint16 ichr);
-struct s_cap * chr_get_pcap(Uint16 ichr);
-struct s_mad * chr_get_pmad(Uint16 ichr);
-struct s_eve * chr_get_peve(Uint16 ichr);
-struct s_pip * chr_get_ppip(Uint16 ichr, Uint16 ipip);
+struct s_object_profile * chr_get_ppro( Uint16 ichr );
+struct s_cap * chr_get_pcap( Uint16 ichr );
+struct s_mad * chr_get_pmad( Uint16 ichr );
+struct s_eve * chr_get_peve( Uint16 ichr );
+struct s_pip * chr_get_ppip( Uint16 ichr, Uint16 ipip );
 
 Mix_Chunk      * chr_get_chunk_ptr( chr_t * pchr, int index );
 Mix_Chunk      * chr_get_chunk( Uint16 ichr, int index );
-team_t         * chr_get_pteam(Uint16 ichr);
-team_t         * chr_get_pteam_base(Uint16 ichr);
-ai_state_t     * chr_get_pai(Uint16 ichr);
-chr_instance_t * chr_get_pinstance(Uint16 ichr);
+team_t         * chr_get_pteam( Uint16 ichr );
+team_t         * chr_get_pteam_base( Uint16 ichr );
+ai_state_t     * chr_get_pai( Uint16 ichr );
+chr_instance_t * chr_get_pinstance( Uint16 ichr );
 
 Uint16   team_get_ileader( Uint16 iteam );
 chr_t  * team_get_pleader( Uint16 iteam );
 
-bool_t team_hates_team(Uint16 ipredator, Uint16 iprey);
+bool_t team_hates_team( Uint16 ipredator, Uint16 iprey );
 
-IDSZ chr_get_idsz(Uint16 ichr, Uint16 type);
+IDSZ chr_get_idsz( Uint16 ichr, Uint16 type );
 
 void chr_update_size( chr_t * pchr );
 void chr_init_size( chr_t * pchr, cap_t * pcap );
@@ -788,14 +788,14 @@ bool_t chr_request_terminate( Uint16 ichr );
 
 chr_t * chr_update_hide( chr_t * pchr );
 
-bool_t ai_state_set_changed( ai_state_t * pai);
+bool_t ai_state_set_changed( ai_state_t * pai );
 
 bool_t chr_matrix_valid( chr_t * pchr );
 
-bool_t chr_getMatUp(chr_t *pchr, fvec3_t   * pvec);
-bool_t chr_getMatRight(chr_t *pchr, fvec3_t   * pvec);
-bool_t chr_getMatForward(chr_t *pchr, fvec3_t   * pvec);
-bool_t chr_getMatTranslate(chr_t *pchr, fvec3_t   * pvec);
+bool_t chr_getMatUp( chr_t *pchr, fvec3_t   * pvec );
+bool_t chr_getMatRight( chr_t *pchr, fvec3_t   * pvec );
+bool_t chr_getMatForward( chr_t *pchr, fvec3_t   * pvec );
+bool_t chr_getMatTranslate( chr_t *pchr, fvec3_t   * pvec );
 
 egoboo_rv chr_update_collision_size( chr_t * pchr, bool_t update_matrix );
 
@@ -812,9 +812,9 @@ void chr_set_floor_level( chr_t * pchr, float level );
 void chr_set_redshift( chr_t * pchr, int rs );
 void chr_set_grnshift( chr_t * pchr, int gs );
 void chr_set_blushift( chr_t * pchr, int bs );
-void chr_set_sheen   ( chr_t * pchr, int sheen );
-void chr_set_alpha   ( chr_t * pchr, int alpha );
-void chr_set_light   ( chr_t * pchr, int light );
+void chr_set_sheen( chr_t * pchr, int sheen );
+void chr_set_alpha( chr_t * pchr, int alpha );
+void chr_set_light( chr_t * pchr, int light );
 
 void chr_instance_get_tint( chr_instance_t * pinst, GLfloat * tint, Uint32 bits );
 

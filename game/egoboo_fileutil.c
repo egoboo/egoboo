@@ -59,28 +59,28 @@ IDSZ fget_idsz( vfs_FILE* fileread )
         int  i;
         char idsz_str[5] = EMPTY_CSTR;
 
-        fpos = vfs_tell( fileread);
+        fpos = vfs_tell( fileread );
 
-        for(i=0; i<4; i++)
+        for ( i = 0; i < 4; i++ )
         {
-            cTmp = toupper(vfs_getc( fileread ));
-            if( !isalpha(cTmp) && !isdigit(cTmp) && ('_' != cTmp)  ) break;
+            cTmp = toupper( vfs_getc( fileread ) );
+            if ( !isalpha( cTmp ) && !isdigit( cTmp ) && ( '_' != cTmp ) ) break;
 
             idsz_str[i] = cTmp;
         }
 
-        if( i != 4 )
+        if ( i != 4 )
         {
-            log_warning("Problem reading IDSZ in \"%s\"\n", parse_filename );
+            log_warning( "Problem reading IDSZ in \"%s\"\n", parse_filename );
         }
         else
         {
-            idsz = MAKE_IDSZ(idsz_str[0], idsz_str[1], idsz_str[2], idsz_str[3] );
+            idsz = MAKE_IDSZ( idsz_str[0], idsz_str[1], idsz_str[2], idsz_str[3] );
 
             cTmp = vfs_getc( fileread );
             if ( ']' != cTmp )
             {
-                log_warning("Problem reading IDSZ in \"%s\"\n", parse_filename );
+                log_warning( "Problem reading IDSZ in \"%s\"\n", parse_filename );
             }
         }
     }
@@ -89,21 +89,21 @@ IDSZ fget_idsz( vfs_FILE* fileread )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t fcopy_line(vfs_FILE * fileread, vfs_FILE * filewrite)
+bool_t fcopy_line( vfs_FILE * fileread, vfs_FILE * filewrite )
 {
     /// @details BB@> copy a line of arbitrary length, in chunks of length sizeof(linebuffer)
     /// @todo This should be moved to file_common.c
 
     char linebuffer[64];
-    if (NULL == fileread || NULL == filewrite) return bfalse;
-    if ( vfs_eof(fileread) || vfs_eof(filewrite) ) return bfalse;
+    if ( NULL == fileread || NULL == filewrite ) return bfalse;
+    if ( vfs_eof( fileread ) || vfs_eof( filewrite ) ) return bfalse;
 
-    vfs_gets(linebuffer, SDL_arraysize(linebuffer), fileread);
-    vfs_puts(linebuffer, filewrite);
-    while ( strlen(linebuffer) == SDL_arraysize(linebuffer) )
+    vfs_gets( linebuffer, SDL_arraysize( linebuffer ), fileread );
+    vfs_puts( linebuffer, filewrite );
+    while ( strlen( linebuffer ) == SDL_arraysize( linebuffer ) )
     {
-        vfs_gets(linebuffer, SDL_arraysize(linebuffer), fileread);
-        vfs_puts(linebuffer, filewrite);
+        vfs_gets( linebuffer, SDL_arraysize( linebuffer ), fileread );
+        vfs_puts( linebuffer, filewrite );
     }
 
     return btrue;
@@ -117,12 +117,12 @@ bool_t goto_delimiter( char * buffer, vfs_FILE* fileread, char delim, bool_t opt
 
     int cTmp, write;
 
-    if ( vfs_eof(fileread)  || vfs_error(fileread) ) return bfalse;
+    if ( vfs_eof( fileread )  || vfs_error( fileread ) ) return bfalse;
 
     write = 0;
-    if (NULL != buffer) buffer[0] = CSTR_END;
+    if ( NULL != buffer ) buffer[0] = CSTR_END;
     cTmp = vfs_getc( fileread );
-    while ( !vfs_eof(fileread) && !vfs_error(fileread) )
+    while ( !vfs_eof( fileread ) && !vfs_error( fileread ) )
     {
         if ( delim == cTmp ) break;
 
@@ -132,12 +132,12 @@ bool_t goto_delimiter( char * buffer, vfs_FILE* fileread, char delim, bool_t opt
         }
         else
         {
-            if (NULL != buffer) buffer[write++] = cTmp;
+            if ( NULL != buffer ) buffer[write++] = cTmp;
         }
 
         cTmp = vfs_getc( fileread );
     }
-    if (NULL != buffer) buffer[write] = CSTR_END;
+    if ( NULL != buffer ) buffer[write] = CSTR_END;
 
     if ( !optional && delim != cTmp )
     {
@@ -145,7 +145,7 @@ bool_t goto_delimiter( char * buffer, vfs_FILE* fileread, char delim, bool_t opt
         log_error( "There are not enough %c's in file! (%s)\n", delim, parse_filename );
     }
 
-    return (delim == cTmp);
+    return ( delim == cTmp );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -160,25 +160,25 @@ char goto_delimiter_list( char * buffer, vfs_FILE* fileread, const char * delim_
     int    cTmp, write;
     bool_t is_delim;
 
-    if ( INVALID_CSTR(delim_list) ) return bfalse;
+    if ( INVALID_CSTR( delim_list ) ) return bfalse;
 
-    if ( vfs_eof(fileread) || vfs_error(fileread) ) return bfalse;
+    if ( vfs_eof( fileread ) || vfs_error( fileread ) ) return bfalse;
 
     // use a simpler function if it is easier
-    if( 1 == strlen(delim_list) )
+    if ( 1 == strlen( delim_list ) )
     {
         bool_t rv = goto_delimiter( buffer, fileread, delim_list[0], optional );
         retval = rv ? delim_list[0] : retval;
     }
 
-    if (NULL != buffer) buffer[0] = CSTR_END;
+    if ( NULL != buffer ) buffer[0] = CSTR_END;
 
     is_delim = bfalse;
     write    = 0;
     cTmp = vfs_getc( fileread );
-    while ( !vfs_eof(fileread) && !vfs_error(fileread) )
+    while ( !vfs_eof( fileread ) && !vfs_error( fileread ) )
     {
-        is_delim = (NULL != strchr( delim_list, cTmp ));
+        is_delim = ( NULL != strchr( delim_list, cTmp ) );
 
         if ( is_delim )
         {
@@ -192,12 +192,12 @@ char goto_delimiter_list( char * buffer, vfs_FILE* fileread, const char * delim_
         }
         else
         {
-            if (NULL != buffer) buffer[write++] = cTmp;
+            if ( NULL != buffer ) buffer[write++] = cTmp;
         }
 
         cTmp = vfs_getc( fileread );
     }
-    if (NULL != buffer) buffer[write] = CSTR_END;
+    if ( NULL != buffer ) buffer[write] = CSTR_END;
 
     if ( !optional && !is_delim )
     {
@@ -229,8 +229,8 @@ char * goto_colon_mem( char * buffer, char * pmem, char * pmem_end, bool_t optio
     if ( NULL == pmem || pmem >= pmem_end ) return pmem;
 
     write = 0;
-    if (NULL != buffer) buffer[0] = CSTR_END;
-    cTmp = *(pmem++);
+    if ( NULL != buffer ) buffer[0] = CSTR_END;
+    cTmp = *( pmem++ );
     while ( pmem < pmem_end )
     {
         if ( ':' == cTmp ) { pmem++; break; }
@@ -241,12 +241,12 @@ char * goto_colon_mem( char * buffer, char * pmem, char * pmem_end, bool_t optio
         }
         else
         {
-            if (NULL != buffer) buffer[write++] = cTmp;
+            if ( NULL != buffer ) buffer[write++] = cTmp;
         }
 
-        cTmp = *(pmem++);
+        cTmp = *( pmem++ );
     }
-    if (NULL != buffer) buffer[write] = CSTR_END;
+    if ( NULL != buffer ) buffer[write] = CSTR_END;
 
     if ( !optional && ':' != cTmp )
     {
@@ -282,14 +282,14 @@ bool_t fget_name( vfs_FILE* fileread,  char *szName, size_t max_len )
 
     STRING format;
 
-    if (NULL == szName) return bfalse;
+    if ( NULL == szName ) return bfalse;
     szName[0] = CSTR_END;
 
-    if ( NULL == fileread || (0 != vfs_error(fileread)) || vfs_eof(fileread) ) return bfalse;
+    if ( NULL == fileread || ( 0 != vfs_error( fileread ) ) || vfs_eof( fileread ) ) return bfalse;
 
     // limit the max length of the string!
     // return value if the number of fields fields, not amount fields from file
-    snprintf( format, SDL_arraysize( format), "%%%ds", max_len - 1 );
+    snprintf( format, SDL_arraysize( format ), "%%%ds", max_len - 1 );
 
     szName[0] = CSTR_END;
     fields = vfs_scanf( fileread, format, szName );
@@ -300,7 +300,7 @@ bool_t fget_name( vfs_FILE* fileread,  char *szName, size_t max_len )
         str_decode( szName, max_len, szName );
     };
 
-    return (1 == fields) && vfs_error(fileread);
+    return ( 1 == fields ) && vfs_error( fileread );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -338,19 +338,19 @@ void fput_damage_type( vfs_FILE* filewrite, const char* text, Uint8 damagetype )
 
     vfs_printf( filewrite, "%s", text );
 
-    switch( damagetype )
+    switch ( damagetype )
     {
         case DAMAGE_SLASH: vfs_printf( filewrite, "SLASH" ); break;
         case DAMAGE_CRUSH: vfs_printf( filewrite, "CRUSH" ); break;
-        case DAMAGE_POKE : vfs_printf( filewrite, "POKE"  ); break;
-        case DAMAGE_HOLY : vfs_printf( filewrite, "HOLY"  ); break;
-        case DAMAGE_EVIL : vfs_printf( filewrite, "EVIL"  ); break;
-        case DAMAGE_FIRE : vfs_printf( filewrite, "FIRE"  ); break;
-        case DAMAGE_ICE  : vfs_printf( filewrite, "ICE"   ); break;
-        case DAMAGE_ZAP  : vfs_printf( filewrite, "ZAP"   ); break;
+        case DAMAGE_POKE : vfs_printf( filewrite, "POKE" ); break;
+        case DAMAGE_HOLY : vfs_printf( filewrite, "HOLY" ); break;
+        case DAMAGE_EVIL : vfs_printf( filewrite, "EVIL" ); break;
+        case DAMAGE_FIRE : vfs_printf( filewrite, "FIRE" ); break;
+        case DAMAGE_ICE  : vfs_printf( filewrite, "ICE" ); break;
+        case DAMAGE_ZAP  : vfs_printf( filewrite, "ZAP" ); break;
 
         default:
-        case DAMAGE_NONE : vfs_printf( filewrite, "NONE"  ); break;
+        case DAMAGE_NONE : vfs_printf( filewrite, "NONE" ); break;
     }
 
     vfs_printf( filewrite, "\n" );
@@ -366,21 +366,21 @@ void fput_action( vfs_FILE* filewrite, const char* text, Uint8 action )
 
     switch ( action )
     {
-        case ACTION_DA: vfs_printf( filewrite, "DANCE\n");    break;
-        case ACTION_UA: vfs_printf( filewrite, "UNARMED\n"); break;
-        case ACTION_TA: vfs_printf( filewrite, "THRUST\n");  break;
-        case ACTION_CA: vfs_printf( filewrite, "CHOP\n");    break;
-        case ACTION_SA: vfs_printf( filewrite, "SLASH\n");   break;
-        case ACTION_BA: vfs_printf( filewrite, "BASH\n");    break;
-        case ACTION_LA: vfs_printf( filewrite, "LONGBOW\n"); break;
-        case ACTION_XA: vfs_printf( filewrite, "XBOW\n");    break;
-        case ACTION_FA: vfs_printf( filewrite, "FLING\n");   break;
-        case ACTION_PA: vfs_printf( filewrite, "PARRY\n");   break;
-        case ACTION_ZA: vfs_printf( filewrite, "ZAP\n");     break;
-        case ACTION_WA: vfs_printf( filewrite, "WALK\n");    break;
-        case ACTION_HA: vfs_printf( filewrite, "HIT\n");     break;
-        case ACTION_KA: vfs_printf( filewrite, "KILLED\n");  break;
-        default:        vfs_printf( filewrite, "NONE\n");    break;
+        case ACTION_DA: vfs_printf( filewrite, "DANCE\n" );    break;
+        case ACTION_UA: vfs_printf( filewrite, "UNARMED\n" ); break;
+        case ACTION_TA: vfs_printf( filewrite, "THRUST\n" );  break;
+        case ACTION_CA: vfs_printf( filewrite, "CHOP\n" );    break;
+        case ACTION_SA: vfs_printf( filewrite, "SLASH\n" );   break;
+        case ACTION_BA: vfs_printf( filewrite, "BASH\n" );    break;
+        case ACTION_LA: vfs_printf( filewrite, "LONGBOW\n" ); break;
+        case ACTION_XA: vfs_printf( filewrite, "XBOW\n" );    break;
+        case ACTION_FA: vfs_printf( filewrite, "FLING\n" );   break;
+        case ACTION_PA: vfs_printf( filewrite, "PARRY\n" );   break;
+        case ACTION_ZA: vfs_printf( filewrite, "ZAP\n" );     break;
+        case ACTION_WA: vfs_printf( filewrite, "WALK\n" );    break;
+        case ACTION_HA: vfs_printf( filewrite, "HIT\n" );     break;
+        case ACTION_KA: vfs_printf( filewrite, "KILLED\n" );  break;
+        default:        vfs_printf( filewrite, "NONE\n" );    break;
     }
 }
 
@@ -392,12 +392,12 @@ void fput_gender( vfs_FILE* filewrite, const char* text, Uint8 gender )
 
     vfs_printf( filewrite, "%s", text );
 
-    switch( gender )
+    switch ( gender )
     {
-        case GENDER_MALE  : vfs_printf( filewrite, "MALE\n"   ); break;
+        case GENDER_MALE  : vfs_printf( filewrite, "MALE\n" ); break;
         case GENDER_FEMALE: vfs_printf( filewrite, "FEMALE\n" ); break;
         default:
-        case GENDER_OTHER : vfs_printf( filewrite, "OTHER\n"  ); break;
+        case GENDER_OTHER : vfs_printf( filewrite, "OTHER\n" ); break;
     }
 
 }
@@ -405,11 +405,11 @@ void fput_gender( vfs_FILE* filewrite, const char* text, Uint8 gender )
 //--------------------------------------------------------------------------------------------
 void fput_range_raw( vfs_FILE* filewrite, FRange val )
 {
-    if( val.from == val.to )
+    if ( val.from == val.to )
     {
-        if( val.from == floor(val.from) )
+        if ( val.from == floor( val.from ) )
         {
-            vfs_printf( filewrite, "%d", (int)val.from );
+            vfs_printf( filewrite, "%d", ( int )val.from );
         }
         else
         {
@@ -418,13 +418,13 @@ void fput_range_raw( vfs_FILE* filewrite, FRange val )
     }
     else
     {
-        if( val.from != floor(val.from) || val.to != floor(val.to) )
+        if ( val.from != floor( val.from ) || val.to != floor( val.to ) )
         {
             vfs_printf( filewrite, "%4.2f-%4.2f", val.from, val.to );
         }
         else
         {
-            vfs_printf( filewrite, "%d-%d", (int)val.from, (int)val.to );
+            vfs_printf( filewrite, "%d-%d", ( int )val.from, ( int )val.to );
         }
     }
 }
@@ -500,7 +500,7 @@ void fput_expansion( vfs_FILE* filewrite, const char* text, IDSZ idsz, int value
     /// @details ZZ@> This function mimics vfs_printf in spitting out
     ///    damage/stat pairs
 
-    vfs_printf( filewrite, "%s: [%s] %d\n", text, undo_idsz(idsz), value );
+    vfs_printf( filewrite, "%s: [%s] %d\n", text, undo_idsz( idsz ), value );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -513,7 +513,7 @@ bool_t fget_range( vfs_FILE* fileread, FRange * prange )
     float fFrom, fTo;
     long fpos;
 
-    if ( NULL == fileread || vfs_error(fileread) || vfs_eof(fileread) ) return bfalse;
+    if ( NULL == fileread || vfs_error( fileread ) || vfs_eof( fileread ) ) return bfalse;
 
     // read the range
     fFrom = fget_float( fileread );  // The first number
@@ -534,10 +534,10 @@ bool_t fget_range( vfs_FILE* fileread, FRange * prange )
         fTo = fget_float( fileread );
     }
 
-    if( NULL != prange )
+    if ( NULL != prange )
     {
-        prange->from = MIN(fFrom, fTo);
-        prange->to   = MAX(fFrom, fTo);
+        prange->from = MIN( fFrom, fTo );
+        prange->to   = MAX( fFrom, fTo );
     }
 
     return btrue;
@@ -561,13 +561,13 @@ bool_t fget_pair( vfs_FILE* fileread, IPair * ppair )
 
     FRange loc_range;
 
-    if( !fget_range( fileread, &loc_range ) ) return bfalse;
+    if ( !fget_range( fileread, &loc_range ) ) return bfalse;
 
-    if( NULL != ppair )
+    if ( NULL != ppair )
     {
         // convert the range to a pair
-        ppair->base = FLOAT_TO_FP8(loc_range.from);
-        ppair->rand = FLOAT_TO_FP8(loc_range.to - loc_range.from);
+        ppair->base = FLOAT_TO_FP8( loc_range.from );
+        ppair->rand = FLOAT_TO_FP8( loc_range.to - loc_range.from );
     }
 
     return btrue;
@@ -613,7 +613,7 @@ int fget_version( vfs_FILE* fileread )
     STRING keyword;
     int file_version, fields;
 
-    if ( vfs_error(fileread) ) return -1;
+    if ( vfs_error( fileread ) ) return -1;
 
     filepos = vfs_tell( fileread );
 
@@ -623,7 +623,7 @@ int fget_version( vfs_FILE* fileread )
     iscomment = bfalse;
     while ( !vfs_eof( fileread ) )
     {
-        ch = vfs_getc( fileread  );
+        ch = vfs_getc( fileread );
 
         // trap new lines
         if ( 0x0A == ch || 0x0D == ch ) { newline = btrue; iscomment = bfalse; continue; }
@@ -634,7 +634,7 @@ int fget_version( vfs_FILE* fileread )
         // possible comment
         if ( '/' == ch )
         {
-            ch = vfs_getc( fileread  );
+            ch = vfs_getc( fileread );
             if ( '/' == ch )
             {
                 iscomment = btrue;
@@ -662,10 +662,10 @@ int fget_version( vfs_FILE* fileread )
             // read everything to the end of the line because it is
             // the wrong type of line to be a file_version statement
 
-            ch = vfs_getc( fileread  );
+            ch = vfs_getc( fileread );
             while ( !vfs_eof( fileread ) && 0x0A != ch && 0x0D != ch )
             {
-                ch = vfs_getc( fileread  );
+                ch = vfs_getc( fileread );
             }
 
             iscomment = bfalse;
@@ -701,11 +701,11 @@ char * copy_mem_to_delimiter( char * pmem, char * pmem_end, vfs_FILE * filewrite
 
     if ( NULL == pmem || NULL == filewrite ) return pmem;
 
-    if ( vfs_error(filewrite) ) return pmem;
+    if ( vfs_error( filewrite ) ) return pmem;
 
     write = 0;
     temp_buffer[0] = CSTR_END;
-    cTmp = *(pmem++);
+    cTmp = *( pmem++ );
     while ( pmem < pmem_end )
     {
         if ( delim == cTmp ) break;
@@ -723,7 +723,7 @@ char * copy_mem_to_delimiter( char * pmem, char * pmem_end, vfs_FILE * filewrite
         }
         else
         {
-            if ( write > SDL_arraysize(temp_buffer) - 2 )
+            if ( write > SDL_arraysize( temp_buffer ) - 2 )
             {
                 log_error( "copy_mem_to_delimiter() - temp_buffer overflow.\n" );
             }
@@ -732,7 +732,7 @@ char * copy_mem_to_delimiter( char * pmem, char * pmem_end, vfs_FILE * filewrite
         }
 
         // only copy if it is not the
-        cTmp = *(pmem++);
+        cTmp = *( pmem++ );
     }
     temp_buffer[write] = CSTR_END;
 
@@ -742,7 +742,7 @@ char * copy_mem_to_delimiter( char * pmem, char * pmem_end, vfs_FILE * filewrite
         user_buffer[user_buffer_len - 1] = CSTR_END;
     }
 
-    if (delim == cTmp)
+    if ( delim == cTmp )
     {
         pmem--;
     }
@@ -784,7 +784,7 @@ bool_t fget_string( vfs_FILE * fileread, char * str, size_t str_len )
 
     if ( NULL == str || 0 == str_len ) return bfalse;
 
-    snprintf( format_str, SDL_arraysize( format_str), "%%%ds", str_len - 1 );
+    snprintf( format_str, SDL_arraysize( format_str ), "%%%ds", str_len - 1 );
 
     str[0] = CSTR_END;
     fields = vfs_scanf( fileread, format_str, str );
@@ -821,7 +821,7 @@ float  fget_next_float( vfs_FILE * fileread )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t fget_next_name ( vfs_FILE * fileread, char * name, size_t name_len )
+bool_t fget_next_name( vfs_FILE * fileread, char * name, size_t name_len )
 {
     goto_colon( NULL, fileread, bfalse );
 
@@ -829,7 +829,7 @@ bool_t fget_next_name ( vfs_FILE * fileread, char * name, size_t name_len )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t fget_next_pair( vfs_FILE * fileread, IPair * ppair  )
+bool_t fget_next_pair( vfs_FILE * fileread, IPair * ppair )
 {
     goto_colon( NULL, fileread, bfalse );
 
@@ -880,7 +880,7 @@ bool_t fget_bool( vfs_FILE * fileread )
 {
     char cTmp = fget_first_letter( fileread );
 
-    return ( 'T' == toupper(cTmp) );
+    return ( 'T' == toupper( cTmp ) );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -904,32 +904,32 @@ void GLSetup_SupportedFormats()
     // support transparency are first
     if ( cfg.sdl_image_allowed )
     {
-        snprintf(TxFormatSupported[type], SDL_arraysize(TxFormatSupported[type]), ".png"); type++;
-        snprintf(TxFormatSupported[type], SDL_arraysize(TxFormatSupported[type]), ".tif"); type++;
-        snprintf(TxFormatSupported[type], SDL_arraysize(TxFormatSupported[type]), ".tiff"); type++;
-        snprintf(TxFormatSupported[type], SDL_arraysize(TxFormatSupported[type]), ".gif"); type++;
-        snprintf(TxFormatSupported[type], SDL_arraysize(TxFormatSupported[type]), ".pcx"); type++;
-        snprintf(TxFormatSupported[type], SDL_arraysize(TxFormatSupported[type]), ".ppm"); type++;
-        snprintf(TxFormatSupported[type], SDL_arraysize(TxFormatSupported[type]), ".jpg"); type++;
-        snprintf(TxFormatSupported[type], SDL_arraysize(TxFormatSupported[type]), ".jpeg"); type++;
-        snprintf(TxFormatSupported[type], SDL_arraysize(TxFormatSupported[type]), ".xpm"); type++;
-        snprintf(TxFormatSupported[type], SDL_arraysize(TxFormatSupported[type]), ".pnm"); type++;
-        snprintf(TxFormatSupported[type], SDL_arraysize(TxFormatSupported[type]), ".lbm"); type++;
-        snprintf(TxFormatSupported[type], SDL_arraysize(TxFormatSupported[type]), ".tga"); type++;
+        snprintf( TxFormatSupported[type], SDL_arraysize( TxFormatSupported[type] ), ".png" ); type++;
+        snprintf( TxFormatSupported[type], SDL_arraysize( TxFormatSupported[type] ), ".tif" ); type++;
+        snprintf( TxFormatSupported[type], SDL_arraysize( TxFormatSupported[type] ), ".tiff" ); type++;
+        snprintf( TxFormatSupported[type], SDL_arraysize( TxFormatSupported[type] ), ".gif" ); type++;
+        snprintf( TxFormatSupported[type], SDL_arraysize( TxFormatSupported[type] ), ".pcx" ); type++;
+        snprintf( TxFormatSupported[type], SDL_arraysize( TxFormatSupported[type] ), ".ppm" ); type++;
+        snprintf( TxFormatSupported[type], SDL_arraysize( TxFormatSupported[type] ), ".jpg" ); type++;
+        snprintf( TxFormatSupported[type], SDL_arraysize( TxFormatSupported[type] ), ".jpeg" ); type++;
+        snprintf( TxFormatSupported[type], SDL_arraysize( TxFormatSupported[type] ), ".xpm" ); type++;
+        snprintf( TxFormatSupported[type], SDL_arraysize( TxFormatSupported[type] ), ".pnm" ); type++;
+        snprintf( TxFormatSupported[type], SDL_arraysize( TxFormatSupported[type] ), ".lbm" ); type++;
+        snprintf( TxFormatSupported[type], SDL_arraysize( TxFormatSupported[type] ), ".tga" ); type++;
     }
 
     // These typed are natively supported with SDL
     // Place them *after* the SDL_image types, so that if both are present,
     // the other types will be preferred over bmp
-    snprintf(TxFormatSupported[type], SDL_arraysize(TxFormatSupported[type]), ".bmp"); type++;
-    snprintf(TxFormatSupported[type], SDL_arraysize(TxFormatSupported[type]), ".BMP"); type++;
+    snprintf( TxFormatSupported[type], SDL_arraysize( TxFormatSupported[type] ), ".bmp" ); type++;
+    snprintf( TxFormatSupported[type], SDL_arraysize( TxFormatSupported[type] ), ".BMP" ); type++;
 
     // Save the amount of format types we have in store
     maxformattypes = type;
     if ( !cfg.sdl_image_allowed )
     {
         log_message( "Failed!\n" );
-        log_info( "[SDL_IMAGE] set to \"FALSE\" in setup.txt, only support for .bmp files\n");
+        log_info( "[SDL_IMAGE] set to \"FALSE\" in setup.txt, only support for .bmp files\n" );
     }
     else
     {
@@ -954,10 +954,10 @@ Uint32  ego_texture_load( oglx_texture *texture, const char *filename, Uint32 ke
     if ( cfg.sdl_image_allowed )
     {
         // try all different formats
-        for (type = 0; type < maxformattypes; type++)
+        for ( type = 0; type < maxformattypes; type++ )
         {
-            snprintf(fullname, SDL_arraysize(fullname), "%s%s", filename, TxFormatSupported[type]);
-            retval = oglx_texture_Load( GL_TEXTURE_2D, texture, vfs_resolveReadFilename(fullname), key );
+            snprintf( fullname, SDL_arraysize( fullname ), "%s%s", filename, TxFormatSupported[type] );
+            retval = oglx_texture_Load( GL_TEXTURE_2D, texture, vfs_resolveReadFilename( fullname ), key );
             if ( INVALID_TX_ID != retval ) break;
         }
     }
@@ -966,20 +966,20 @@ Uint32  ego_texture_load( oglx_texture *texture, const char *filename, Uint32 ke
         image = NULL;
 
         // normal SDL only supports bmp
-        snprintf(fullname, SDL_arraysize(fullname), "%s.bmp", filename);
-        image = SDL_LoadBMP( vfs_resolveReadFilename(fullname) );
+        snprintf( fullname, SDL_arraysize( fullname ), "%s.bmp", filename );
+        image = SDL_LoadBMP( vfs_resolveReadFilename( fullname ) );
 
         // We could not load the image
         if ( NULL == image ) return INVALID_TX_ID;
 
         tx_target = GL_TEXTURE_2D;
-        if ( image->w != image->h && (image->w == 1 || image->h) )
+        if ( image->w != image->h && ( image->w == 1 || image->h ) )
         {
             tx_target = GL_TEXTURE_1D;
         }
 
         retval = oglx_texture_Convert( tx_target, texture, image, key );
-        strncpy(texture->name, fullname, SDL_arraysize(texture->name));
+        strncpy( texture->name, fullname, SDL_arraysize( texture->name ) );
 
         texture->base.wrap_s = GL_REPEAT;
         texture->base.wrap_t = GL_REPEAT;
@@ -996,7 +996,7 @@ Uint8 fget_damage_modifier( vfs_FILE * fileread )
 
     cTmp = fget_first_letter( fileread );
 
-    switch( toupper(cTmp) )
+    switch ( toupper( cTmp ) )
     {
         case 'T': iTmp = DAMAGEINVERT; break;
         case 'C': iTmp = DAMAGECHARGE; break;
@@ -1010,18 +1010,18 @@ Uint8 fget_damage_modifier( vfs_FILE * fileread )
 }
 
 //--------------------------------------------------------------------------------------------
-int read_skin( const char *filename  )
+int read_skin( const char *filename )
 {
     /// @details ZZ@> This function reads the skin.txt file...
     vfs_FILE*   fileread;
-	int skin = 0;
+    int skin = 0;
 
     fileread = vfs_openRead( filename );
     if ( !fileread ) return skin;
 
-	//Read the contents
-	skin = fget_next_int( fileread );
-	skin %= MAX_SKIN;
+    //Read the contents
+    skin = fget_next_int( fileread );
+    skin %= MAX_SKIN;
 
     vfs_close( fileread );
     return skin;

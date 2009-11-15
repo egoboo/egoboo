@@ -50,7 +50,7 @@ struct s_script_storage_info
 };
 typedef struct s_script_storage_info script_storage_info_t;
 
-DEFINE_STACK_EXTERN(script_storage_info_t, AisStorage, MAX_AI );
+DEFINE_STACK_EXTERN( script_storage_info_t, AisStorage, MAX_AI );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -69,7 +69,7 @@ struct s_opcode_data
 };
 typedef struct s_opcode_data opcode_data_t;
 
-DEFINE_STACK_EXTERN(opcode_data_t, OpList, MAX_OPCODE );
+DEFINE_STACK_EXTERN( opcode_data_t, OpList, MAX_OPCODE );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -482,13 +482,13 @@ enum e_script_functions
     FKURSETARGET,                // == 373
     FSETCHILDCONTENT,            // == 374
     FSETTARGETTOCHILD,           // == 375
-	FSETDAMAGETRESHOLD,			 // == 376
-	FACCELERATETARGETUP,         // == 377
-	FSETTARGETAMMO,              // == 278
-	FENABLEINVICTUS,             // == 279
-	FDISABLEINVICTUS,            // == 280
-	FTARGETDAMAGESELF,           // == 281
-	FSETTARGETSIZE               // == 281
+    FSETDAMAGETRESHOLD,          // == 376
+    FACCELERATETARGETUP,         // == 377
+    FSETTARGETAMMO,              // == 278
+    FENABLEINVICTUS,             // == 279
+    FDISABLEINVICTUS,            // == 280
+    FTARGETDAMAGESELF,           // == 281
+    FSETTARGETSIZE               // == 281
 
 };
 

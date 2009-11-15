@@ -42,7 +42,7 @@ void fs_removeDirectoryAndContents( const char *dirname, int recursive )
 
     char filePath[MAX_PATH] = EMPTY_CSTR;
     const char *fileName;
-   fs_find_context_t fs_search;
+    fs_find_context_t fs_search;
 
     // List all the files in the directory
     fileName = fs_findFirstFile( dirname, NULL, &fs_search );
@@ -54,9 +54,9 @@ void fs_removeDirectoryAndContents( const char *dirname, int recursive )
             snprintf( filePath, MAX_PATH, "%s" SLASH_STR "%s", dirname, fileName );
             if ( fs_fileIsDirectory( filePath ) )
             {
-                if( recursive )
+                if ( recursive )
                 {
-                    fs_removeDirectoryAndContents(filePath, recursive);
+                    fs_removeDirectoryAndContents( filePath, recursive );
                 }
                 else
                 {
@@ -68,9 +68,9 @@ void fs_removeDirectoryAndContents( const char *dirname, int recursive )
                 fs_deleteFile( filePath );
             }
         }
-        fileName = fs_findNextFile(&fs_search);
+        fileName = fs_findNextFile( &fs_search );
     }
-    fs_findClose(&fs_search);
+    fs_findClose( &fs_search );
 
     fs_removeDirectory( dirname );
 }
@@ -91,7 +91,7 @@ void fs_copyDirectory( const char *sourceDir, const char *destDir )
         // Make sure the destination directory exists
         fs_createDirectory( destDir );
 
-        while ( fileName != NULL)
+        while ( fileName != NULL )
         {
             // Ignore files that begin with a .
             if ( '.' != fileName[0] )
@@ -101,11 +101,11 @@ void fs_copyDirectory( const char *sourceDir, const char *destDir )
                 fs_copyFile( srcPath, destPath );
             }
 
-            fileName = fs_findNextFile(&fs_search);
+            fileName = fs_findNextFile( &fs_search );
         }
     }
 
-    fs_findClose(&fs_search);
+    fs_findClose( &fs_search );
 }
 
 //--------------------------------------------------------------------------------------------

@@ -63,23 +63,23 @@ void fs_init()
     userhome = getenv( "HOME" ); // use other envvars if needed
 
     // this is just a skeleton. the USER needs to be replaced by an environment variable
-    snprintf( linux_userdataPath, SDL_arraysize(linux_userdataPath), "%s/.egoboo-2.x/", userhome );
+    snprintf( linux_userdataPath, SDL_arraysize( linux_userdataPath ), "%s/.egoboo-2.x/", userhome );
 
     // this is a read-only directory
 #if !defined(_NIX_IDE)
-    strncpy( linux_configPath, PREFIX "/etc/egoboo-2.x/",         SDL_arraysize(linux_configPath) );
-    strncpy( linux_binaryPath, PREFIX "/games/egoboo-2.x/",       SDL_arraysize(linux_binaryPath) );
-    strncpy( linux_dataPath,   PREFIX "/share/games/egoboo-2.x/", SDL_arraysize(linux_dataPath)   );
+    strncpy( linux_configPath, PREFIX "/etc/egoboo-2.x/",         SDL_arraysize( linux_configPath ) );
+    strncpy( linux_binaryPath, PREFIX "/games/egoboo-2.x/",       SDL_arraysize( linux_binaryPath ) );
+    strncpy( linux_dataPath,   PREFIX "/share/games/egoboo-2.x/", SDL_arraysize( linux_dataPath ) );
 #else
-    strncpy( linux_configPath, "/etc/egoboo-2.x/",         SDL_arraysize(linux_configPath) );
-    strncpy( linux_binaryPath, "/games/egoboo-2.x/",       SDL_arraysize(linux_binaryPath) );
-    strncpy( linux_dataPath,   "/share/games/egoboo-2.x/", SDL_arraysize(linux_dataPath)   );
+    strncpy( linux_configPath, "/etc/egoboo-2.x/",         SDL_arraysize( linux_configPath ) );
+    strncpy( linux_binaryPath, "/games/egoboo-2.x/",       SDL_arraysize( linux_binaryPath ) );
+    strncpy( linux_dataPath,   "/share/games/egoboo-2.x/", SDL_arraysize( linux_dataPath ) );
 #endif
 
     // the log file cannot be started until there is a user data path to dump the file into
     // so dump this debug info to stdout
     printf( "Game directories are:\n\tBinaries: %s\n\tData: %s\n\tUser Data: %s\n\tConfig Files: %s\n",
-              linux_binaryPath, linux_dataPath, linux_userdataPath, linux_configPath );
+            linux_binaryPath, linux_dataPath, linux_userdataPath, linux_configPath );
     if ( !fs_fileIsDirectory( linux_userdataPath ) )
         fs_createDirectory( linux_userdataPath );
 }
@@ -136,13 +136,13 @@ bool_t fs_copyFile( const char *source, const char *dest )
         return bfalse;
     }
 
-    while ( ( bytes_read = fread( buf, 1, sizeof( buf ), sourcef ) ) )
+    while (( bytes_read = fread( buf, 1, sizeof( buf ), sourcef ) ) )
         fwrite( buf, 1, bytes_read, destf );
 
-	//Finish it up
+    //Finish it up
     fclose( sourcef );
     fclose( destf );
-	return btrue;
+    return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -153,9 +153,9 @@ const char *fs_findFirstFile( const char *searchDir, const char *searchExtension
     char *last_slash;
     linux_find_context_t * pcnt;
 
-    if( INVALID_CSTR(searchDir) || NULL == fs_search ) return NULL;
+    if ( INVALID_CSTR( searchDir ) || NULL == fs_search ) return NULL;
 
-    pcnt = calloc( 1, sizeof(linux_find_context_t) );
+    pcnt = calloc( 1, sizeof( linux_find_context_t ) );
     fs_search->type = linux_find;
     fs_search->ptr.l = pcnt;
 
@@ -184,10 +184,10 @@ const char *fs_findNextFile( fs_find_context_t * fs_search )
     char *last_slash;
     linux_find_context_t * pcnt;
 
-    if( NULL == fs_search || fs_search->type != linux_find ) return NULL;
+    if ( NULL == fs_search || fs_search->type != linux_find ) return NULL;
 
     pcnt = fs_search->ptr.l;
-    if( NULL == pcnt )  return NULL;
+    if ( NULL == pcnt )  return NULL;
 
     ++pcnt->find_index;
     if ( pcnt->find_index >= pcnt->last_find.gl_pathc )
@@ -206,16 +206,16 @@ void fs_findClose( fs_find_context_t * fs_search )
 {
     linux_find_context_t * pcnt;
 
-    if( NULL == fs_search || fs_search->type != linux_find ) return;
+    if ( NULL == fs_search || fs_search->type != linux_find ) return;
 
     pcnt = fs_search->ptr.l;
-    if( NULL == pcnt )  return;
+    if ( NULL == pcnt )  return;
 
-    globfree( &(pcnt->last_find) );
+    globfree( &( pcnt->last_find ) );
 
     free( pcnt );
 
-    memset( fs_search, 0, sizeof(fs_find_context_t) );
+    memset( fs_search, 0, sizeof( fs_find_context_t ) );
 }
 
 //--------------------------------------------------------------------------------------------

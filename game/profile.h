@@ -35,7 +35,7 @@ struct Mix_Chunk;
 //--------------------------------------------------------------------------------------------
 /// Message files
 
-DEFINE_STACK_EXTERN(int, MessageOffset, MAXTOTALMESSAGE);
+DEFINE_STACK_EXTERN( int, MessageOffset, MAXTOTALMESSAGE );
 
 extern Uint32          message_buffer_carat;                                  ///< Where to put letter
 extern char            message_buffer[MESSAGEBUFFERSIZE];                     ///< The text buffer
@@ -139,7 +139,7 @@ extern pro_import_t import_data;
 
 chop_data_t chop_mem;
 
-DEFINE_LIST_EXTERN(pro_t, ProList, MAX_PROFILE );
+DEFINE_LIST_EXTERN( pro_t, ProList, MAX_PROFILE );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -150,18 +150,18 @@ void   ProList_init();
 Uint16 ProList_get_free( Uint16 override );
 bool_t ProList_free_one( Uint16 iobj );
 
-Uint16 pro_get_icap(Uint16 iobj);
-Uint16 pro_get_imad(Uint16 iobj);
-Uint16 pro_get_ieve(Uint16 iobj);
-Uint16 pro_get_ipip(Uint16 iobj, Uint16 ipip);
+Uint16 pro_get_icap( Uint16 iobj );
+Uint16 pro_get_imad( Uint16 iobj );
+Uint16 pro_get_ieve( Uint16 iobj );
+Uint16 pro_get_ipip( Uint16 iobj, Uint16 ipip );
 
-struct s_cap * pro_get_pcap(Uint16 iobj);
-struct s_mad * pro_get_pmad(Uint16 iobj);
-struct s_eve * pro_get_peve(Uint16 iobj);
-struct s_pip * pro_get_ppip(Uint16 iobj, Uint16 ipip);
+struct s_cap * pro_get_pcap( Uint16 iobj );
+struct s_mad * pro_get_pmad( Uint16 iobj );
+struct s_eve * pro_get_peve( Uint16 iobj );
+struct s_pip * pro_get_ppip( Uint16 iobj, Uint16 ipip );
 
-IDSZ               pro_get_idsz (Uint16 iobj, int type);
-struct Mix_Chunk * pro_get_chunk(Uint16 iobj, int index);
+IDSZ               pro_get_idsz( Uint16 iobj, int type );
+struct Mix_Chunk * pro_get_chunk( Uint16 iobj, int index );
 
 int    pro_get_slot( const char * tmploadname, int slot_override );
 
@@ -184,7 +184,7 @@ void reset_messages();
 const char * pro_create_chop( Uint16 iprofile );
 bool_t       pro_load_chop( Uint16 profile, const char *szLoadname );
 
-chop_data_t * chop_data_init(chop_data_t * pdata);
+chop_data_t * chop_data_init( chop_data_t * pdata );
 chop_definition_t * chop_definition_init( chop_definition_t * pdefinition );
 
 const char *  chop_create( chop_data_t * pdata, chop_definition_t * pdef );

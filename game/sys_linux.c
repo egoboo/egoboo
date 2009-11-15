@@ -54,7 +54,7 @@ double sys_getTime()
 {
     struct timeval now;
     gettimeofday( &now, NULL );
-    return  ((double)now.tv_sec) + now.tv_usec * 1.0e-6 - _sys_startuptime;
+    return (( double )now.tv_sec ) + now.tv_usec * 1.0e-6 - _sys_startuptime;
 }
 
 //--------------------------------------------------------------------------------------------

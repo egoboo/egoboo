@@ -370,10 +370,10 @@ bool_t add_player( Uint16 character, Uint16 player, Uint32 device );
 
 /// AI targeting
 Uint16 chr_find_target( struct s_chr * psrc, float max_dist2, TARGET_TYPE target_type, bool_t target_items,
-					   bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz, bool_t target_players );
+                        bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz, bool_t target_players );
 Uint16 prt_find_target( float pos_x, float pos_y, float pos_z, Uint16 facing,
-                            Uint16 particletype, Uint8 team, Uint16 donttarget,
-                            Uint16 oldtarget );
+                        Uint16 particletype, Uint8 team, Uint16 donttarget,
+                        Uint16 oldtarget );
 
 /// object initialization
 void  free_all_objects( void );
@@ -403,7 +403,7 @@ bool_t      process_pause( process_t * proc );
 bool_t      process_resume( process_t * proc );
 bool_t      process_running( process_t * proc );
 
-ego_process_t      * ego_process_init ( ego_process_t  * eproc, int argc, char **argv );
+ego_process_t      * ego_process_init( ego_process_t  * eproc, int argc, char **argv );
 menu_process_t     * menu_process_init( menu_process_t * mproc );
 game_process_t     * game_process_init( game_process_t * gproc );
 
@@ -414,10 +414,10 @@ void upload_wawalite();
 void ego_init_SDL_base();
 
 bool_t game_module_setup( game_module_t * pinst, struct s_mod_file * pdata, const char * loadname, Uint32 seed );
-bool_t game_module_init ( game_module_t * pinst );
+bool_t game_module_init( game_module_t * pinst );
 bool_t game_module_reset( game_module_t * pinst, Uint32 seed );
 bool_t game_module_start( game_module_t * pinst );
-bool_t game_module_stop ( game_module_t * pinst );
+bool_t game_module_stop( game_module_t * pinst );
 
 bool_t check_target( struct s_chr * psrc, Uint16 ichr_test, TARGET_TYPE target_type, bool_t target_items, bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz, bool_t target_players );
 
@@ -427,8 +427,8 @@ void attach_particles();
 struct s_wawalite_data * read_wawalite( /* const char *modname */ );
 bool_t write_wawalite( const char *modname, struct s_wawalite_data * pdata );
 
-Uint8 get_local_alpha( int alpha  );
-Uint8 get_local_light( int light  );
+Uint8 get_local_alpha( int alpha );
+Uint8 get_local_light( int light );
 
 bool_t do_shop_drop( Uint16 idropper, Uint16 iitem );
 

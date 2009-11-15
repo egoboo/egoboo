@@ -119,7 +119,7 @@ void insert_space( int position )
     ///    there already
 
     char cTmp, cSwap;
-    if ( !isspace(cLineBuffer[position]) )
+    if ( !isspace( cLineBuffer[position] ) )
     {
         cTmp = cLineBuffer[position];
         cLineBuffer[position] = ' ';
@@ -185,7 +185,7 @@ int load_one_line( int read )
             cTmp = ' ';
         }
 
-        if ( !isspace(cTmp) )
+        if ( !isspace( cTmp ) )
         {
             break;
         }
@@ -214,12 +214,12 @@ int load_one_line( int read )
 
         read++;
 
-        if ( iscntrl(cTmp) )
+        if ( iscntrl( cTmp ) )
         {
             cTmp = ' ';
         }
 
-        if ( !isspace(cTmp) )
+        if ( !isspace( cTmp ) )
         {
             foundtext = btrue;
 
@@ -289,12 +289,12 @@ int get_indentation()
 
     cnt = 0;
     cTmp = cLineBuffer[cnt];
-    while ( isspace(cTmp) )
+    while ( isspace( cTmp ) )
     {
         cnt++;
         cTmp = cLineBuffer[cnt];
     }
-    if ( HAS_SOME_BITS(cnt, 1) )
+    if ( HAS_SOME_BITS( cnt, 1 ) )
     {
         log_warning( "Invalid indentation \"%s\"(%d) - \"%s\"\n", globalparsename, Token.iLine, cLineBuffer );
         parseerror = btrue;
@@ -360,7 +360,7 @@ int parse_token( int read )
 
     // Skip spaces
     cTmp = cLineBuffer[read];
-    while ( isspace(cTmp) && read < iLineSize )
+    while ( isspace( cTmp ) && read < iLineSize )
     {
         read++;
         cTmp = cLineBuffer[read];
@@ -369,7 +369,7 @@ int parse_token( int read )
 
     // Load the word into the other buffer
     wordsize = 0;
-    while ( !isspace(cTmp) && CSTR_END != cTmp )
+    while ( !isspace( cTmp ) && CSTR_END != cTmp )
     {
         Token.cWord[wordsize] = cTmp;  wordsize++;
         read++;
@@ -389,7 +389,7 @@ int parse_token( int read )
     // Check for IDSZ constant
     if ( '[' == Token.cWord[0] )
     {
-        idsz = MAKE_IDSZ(Token.cWord[1], Token.cWord[2], Token.cWord[3], Token.cWord[4]);
+        idsz = MAKE_IDSZ( Token.cWord[1], Token.cWord[2], Token.cWord[3], Token.cWord[4] );
 
         Token.iValue = idsz;
         Token.cType  = 'C';
@@ -543,9 +543,9 @@ void parse_line_by_line()
             // handle the "="
             highbits = 0;
             parseposition = parse_token( parseposition );  // EQUALS
-            if ( 'O' != Token.cType || 0 != strcmp(Token.cWord, "=") )
+            if ( 'O' != Token.cType || 0 != strcmp( Token.cWord, "=" ) )
             {
-                log_warning( "Invalid equation \"%s\"(%d) - \"%s\"\n", globalparsename, Token.iLine, cLineBuffer);
+                log_warning( "Invalid equation \"%s\"(%d) - \"%s\"\n", globalparsename, Token.iLine, cLineBuffer );
             }
 
             //------------------------------
@@ -563,7 +563,7 @@ void parse_line_by_line()
             else if ( 'O' != Token.cType )
             {
                 // this is a function or an unknown value. do not break the script.
-                log_warning( "Invalid operand \"%s\"(%d) - \"%s\"\n", globalparsename, Token.iLine, Token.cWord);
+                log_warning( "Invalid operand \"%s\"(%d) - \"%s\"\n", globalparsename, Token.iLine, Token.cWord );
 
                 emit_opcode( 0 );
                 operands++;
@@ -578,7 +578,7 @@ void parse_line_by_line()
                 if ( 'O' != Token.cType )
                 {
                     // problem with the loop
-                    log_warning( "Expected an operator \"%s\"(%d) - \"%s\"\n", globalparsename, Token.iLine, cLineBuffer);
+                    log_warning( "Expected an operator \"%s\"(%d) - \"%s\"\n", globalparsename, Token.iLine, cLineBuffer );
                     break;
                 }
 
@@ -590,7 +590,7 @@ void parse_line_by_line()
                 if ( 'C' != Token.cType && 'V' != Token.cType )
                 {
                     // not having a constant or a value here breaks the function. stop processing
-                    log_warning( "Invalid operand \"%s\"(%d) - \"%s\"\n", globalparsename, Token.iLine, Token.cWord);
+                    log_warning( "Invalid operand \"%s\"(%d) - \"%s\"\n", globalparsename, Token.iLine, Token.cWord );
                     break;
                 }
 
@@ -647,7 +647,7 @@ Uint32 jump_goto( int index, int index_end )
         if ( indent > targetindent )
         {
             // Was it a function
-            if ( ( value & FUNCTION_BIT ) != 0 )
+            if (( value & FUNCTION_BIT ) != 0 )
             {
                 // Each function needs a jump
                 index++;
@@ -664,7 +664,7 @@ Uint32 jump_goto( int index, int index_end )
         }
     }
 
-    return MIN ( index, index_end );
+    return MIN( index, index_end );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -730,10 +730,10 @@ void get_code( int read )
     int iTmp;
     STRING sTmp;
 
-    sscanf( ( char* ) (cLoadBuffer + read), "%c%d%255s", &cTmp, &iTmp, sTmp );
+    sscanf(( char* )( cLoadBuffer + read ), "%c%d%255s", &cTmp, &iTmp, sTmp );
 
-    strncpy( OpList.lst[OpList.count].cName, sTmp, SDL_arraysize(OpList.lst[OpList.count].cName) );
-    OpList.lst[OpList.count].cType  = toupper(cTmp);
+    strncpy( OpList.lst[OpList.count].cName, sTmp, SDL_arraysize( OpList.lst[OpList.count].cName ) );
+    OpList.lst[OpList.count].cType  = toupper( cTmp );
     OpList.lst[OpList.count].iValue = iTmp;
 }
 
@@ -794,14 +794,14 @@ int load_ai_script( const char *loadname )
     vfs_close( fileread );
 
     // if the file is empty, use the default script
-    if (0 == iLoadSize)
+    if ( 0 == iLoadSize )
     {
         log_warning( "Script file is empty. \"%s\"\n", loadname );
         return retval;
     }
 
     // save the filename for error logging
-    strncpy( AisStorage.lst[AisStorage.count].szName, loadname, sizeof(STRING) );
+    strncpy( AisStorage.lst[AisStorage.count].szName, loadname, sizeof( STRING ) );
     globalparsename = loadname;
 
     // initialize the start and end position

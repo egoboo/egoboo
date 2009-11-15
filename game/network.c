@@ -73,7 +73,7 @@ int     local_machine  = 0;        // 0 is host, 1 is 1st remote, 2 is 2nd...
 int     playersready  = 0;         // Number of players ready to start
 int     playersloaded = 0;
 
-Uint32 sv_last_frame = (Uint32)~0;
+Uint32 sv_last_frame = ( Uint32 )~0;
 
 static net_instance_t gnet = { bfalse, bfalse, bfalse, bfalse, bfalse };
 
@@ -779,27 +779,27 @@ void net_copyDirectoryToHost( const char *dirname, const char *todirname )
 
     // Search for all files
     searchResult = vfs_findFirst( dirname, NULL, VFS_SEARCH_FILE | VFS_SEARCH_BARE );
-    if ( VALID_CSTR(searchResult) )
+    if ( VALID_CSTR( searchResult ) )
     {
         // Make the new directory
         net_copyFileToHost( dirname, todirname );
 
         // Copy each file
-        while ( VALID_CSTR(searchResult) )
+        while ( VALID_CSTR( searchResult ) )
         {
             // If a file begins with a dot, assume it's something
             // that we don't want to copy.  This keeps repository
             // directories, /., and /.. from being copied
             // Also avoid copying directories in general.
-            snprintf( fromname, SDL_arraysize( fromname), "%s" SLASH_STR "%s", dirname, searchResult );
+            snprintf( fromname, SDL_arraysize( fromname ), "%s" SLASH_STR "%s", dirname, searchResult );
             if ( '.' == searchResult[0] || vfs_isDirectory( fromname ) )
             {
                 searchResult = vfs_findNext();
                 continue;
             }
 
-            snprintf( fromname, SDL_arraysize( fromname), "%s" SLASH_STR "%s", dirname, searchResult );
-            snprintf( toname, SDL_arraysize( toname), "%s" SLASH_STR "%s", todirname, searchResult );
+            snprintf( fromname, SDL_arraysize( fromname ), "%s" SLASH_STR "%s", dirname, searchResult );
+            snprintf( toname, SDL_arraysize( toname ), "%s" SLASH_STR "%s", todirname, searchResult );
 
             net_copyFileToHost( fromname, toname );
             searchResult = vfs_findNext();
@@ -822,13 +822,13 @@ void net_copyDirectoryToAllPlayers( const char *dirname, const char *todirname )
 
     // Search for all files
     searchResult = vfs_findFirst( dirname, NULL, VFS_SEARCH_FILE | VFS_SEARCH_BARE );
-    if ( VALID_CSTR(searchResult) )
+    if ( VALID_CSTR( searchResult ) )
     {
         // Make the new directory
         net_copyFileToAllPlayers( dirname, todirname );
 
         // Copy each file
-        while ( VALID_CSTR(searchResult) )
+        while ( VALID_CSTR( searchResult ) )
         {
             // If a file begins with a dot, assume it's something
             // that we don't want to copy.  This keeps repository
@@ -839,8 +839,8 @@ void net_copyDirectoryToAllPlayers( const char *dirname, const char *todirname )
                 continue;
             }
 
-            snprintf( fromname, SDL_arraysize( fromname), "%s" SLASH_STR "%s", dirname, searchResult );
-            snprintf( toname, SDL_arraysize( toname), "%s" SLASH_STR "%s", todirname, searchResult );
+            snprintf( fromname, SDL_arraysize( fromname ), "%s" SLASH_STR "%s", dirname, searchResult );
+            snprintf( toname, SDL_arraysize( toname ), "%s" SLASH_STR "%s", todirname, searchResult );
             net_copyFileToAllPlayers( fromname, toname );
 
             searchResult = vfs_findNext();
@@ -886,10 +886,10 @@ void cl_talkToHost()
 
     // Let the players respawn
     if ( SDLKEYDOWN( SDLK_SPACE )
-            && ( local_allpladead || PMod->respawnanytime )
-            && PMod->respawnvalid
-            && cfg.difficulty < GAME_HARD
-            && !console_mode )
+         && ( local_allpladead || PMod->respawnanytime )
+         && PMod->respawnvalid
+         && cfg.difficulty < GAME_HARD
+         && !console_mode )
     {
         player = 0;
 
@@ -916,7 +916,7 @@ void cl_talkToHost()
             if ( PlaList[player].valid && PlaList[player].device.bits != INPUT_BITS_NONE )
             {
                 packet_addUnsignedByte( player );                             // The player index
-                packet_addUnsignedInt( PlaList[player].local_latch.b            );  // Player button states
+                packet_addUnsignedInt( PlaList[player].local_latch.b );             // Player button states
                 packet_addSignedShort( PlaList[player].local_latch.x*SHORTLATCH );  // Player motion
                 packet_addSignedShort( PlaList[player].local_latch.y*SHORTLATCH );  // Player motion
             }
@@ -981,7 +981,7 @@ void sv_talkToRemotes()
             ppla = PlaList + player;
 
             index = ppla->tlatch_count;
-            if (index < MAXLAG)
+            if ( index < MAXLAG )
             {
                 time_latch_t * ptlatch = ppla->tlatch + index;
 
@@ -997,11 +997,11 @@ void sv_talkToRemotes()
             }
 
             // determine the max amount of lag
-            for( cnt=0; cnt<ppla->tlatch_count; cnt++ )
+            for ( cnt = 0; cnt < ppla->tlatch_count; cnt++ )
             {
                 int loc_lag = update_wld - ppla->tlatch[index].time  + 1;
 
-                if( loc_lag > numplatimes )
+                if ( loc_lag > numplatimes )
                 {
                     numplatimes = loc_lag;
                 }
@@ -1015,10 +1015,10 @@ void pla_add_tlatch( Uint16 iplayer, Uint32 time, latch_t net_latch )
 {
     player_t * ppla;
 
-    if( !VALID_PLA(iplayer) ) return;
+    if ( !VALID_PLA( iplayer ) ) return;
     ppla = PlaList + iplayer;
 
-    if( ppla->tlatch_count >= MAXLAG ) return;
+    if ( ppla->tlatch_count >= MAXLAG ) return;
 
     ppla->tlatch[ ppla->tlatch_count ].button = net_latch.b;
     ppla->tlatch[ ppla->tlatch_count ].x      = net_latch.x;
@@ -1288,7 +1288,7 @@ void net_handlePacket( ENetEvent *event )
             {
                 PMod->seed = packet_readUnsignedInt();
                 packet_readString( filename, 255 );
-                strncpy( pickedmodule_name, filename, SDL_arraysize(pickedmodule_name) );
+                strncpy( pickedmodule_name, filename, SDL_arraysize( pickedmodule_name ) );
 
                 // Check to see if the module exists
                 pickedmodule_index = mnu_get_mod_number( pickedmodule_name );
@@ -1504,7 +1504,7 @@ void listen_for_packets()
                     // from above?
                     if ( event.peer->data != 0 )
                     {
-                        NetPlayerInfo *info = (NetPlayerInfo *)event.peer->data;
+                        NetPlayerInfo *info = ( NetPlayerInfo * )event.peer->data;
 
                         // uh oh, how do we handle losing a player?
                         log_warning( "listen_for_packets: Player %d disconnected!\n",
@@ -1551,7 +1551,7 @@ void unbuffer_player_latches()
 
             dt = update_wld - tlatch_list[tnc].time;
 
-            if( dt < 0 )
+            if ( dt < 0 )
                 break;
         }
         latch_count = tnc;
@@ -1565,7 +1565,7 @@ void unbuffer_player_latches()
 
             //log_info( "<<%1.4f, %1.4f>, 0x%x>, Just one latch for %s\n", tmp_latch.x, tmp_latch.y, tmp_latch.b, ChrList.lst[ppla->index].Name );
         }
-        else if( latch_count > 1 )
+        else if ( latch_count > 1 )
         {
             int weight, weight_sum;
             int dt;
@@ -1575,7 +1575,7 @@ void unbuffer_player_latches()
             // that much time without the hastle of actually integrating the trajectory.
 
             // blank the current latch so that we can sum the latch values
-            latch_init( &(tmp_latch) );
+            latch_init( &( tmp_latch ) );
 
             // apply the latch
             weight_sum = 0;
@@ -1583,7 +1583,7 @@ void unbuffer_player_latches()
             {
                 dt = update_wld - tlatch_list[tnc].time;
 
-                weight      = (dt + 1) * (dt + 1);
+                weight      = ( dt + 1 ) * ( dt + 1 );
 
                 weight_sum  += weight;
                 tmp_latch.x += tlatch_list[tnc].x * weight;
@@ -1594,8 +1594,8 @@ void unbuffer_player_latches()
             numplatimes = MAX( numplatimes, latch_count );
             if ( weight_sum > 0.0f )
             {
-                tmp_latch.x /= (float)weight_sum;
-                tmp_latch.y /= (float)weight_sum;
+                tmp_latch.x /= ( float )weight_sum;
+                tmp_latch.y /= ( float )weight_sum;
             }
 
             //log_info( "<<%1.4f, %1.4f>, 0x%x>, %d, multiple latches for %s\n", tmp_latch.x, tmp_latch.y, tmp_latch.b, latch_count, ChrList.lst[ppla->index].Name );
@@ -1609,12 +1609,12 @@ void unbuffer_player_latches()
             //log_info( "<<%1.4f, %1.4f>, 0x%x>, latch dead reckoning for %s\n", tmp_latch.x, tmp_latch.y, tmp_latch.b, ChrList.lst[ppla->index].Name );
         }
 
-        if( latch_count >= ppla->tlatch_count )
+        if ( latch_count >= ppla->tlatch_count )
         {
             // we have emptied all of the latches
             ppla->tlatch_count = 0;
         }
-        else if( latch_count > 0 )
+        else if ( latch_count > 0 )
         {
             int index;
 
@@ -1643,7 +1643,7 @@ void unbuffer_player_latches()
         ppla = PlaList + cnt;
 
         character = PlaList[cnt].index;
-        if( !ACTIVE_CHR(character) ) continue;
+        if ( !ACTIVE_CHR( character ) ) continue;
         pchr = ChrList.lst + character;
 
         pchr->latch = ppla->net_latch;
@@ -1659,7 +1659,7 @@ void unbuffer_player_latches()
         ppla = PlaList + cnt;
 
         character = PlaList[cnt].index;
-        if( !ACTIVE_CHR(character) ) continue;
+        if ( !ACTIVE_CHR( character ) ) continue;
         pchr = ChrList.lst + character;
 
         if ( cfg.difficulty < GAME_HARD && ( pchr->latch.b & LATCHBUTTON_RESPAWN ) && PMod->respawnvalid )
@@ -1672,7 +1672,7 @@ void unbuffer_player_latches()
 
                 // Cost some experience for doing this...  Never lose a level
                 pchr->experience *= EXPKEEP;
-                if (cfg.difficulty > GAME_EASY) pchr->money *= EXPKEEP;
+                if ( cfg.difficulty > GAME_EASY ) pchr->money *= EXPKEEP;
             }
 
             // remove all latches other than LATCHBUTTON_RESPAWN
@@ -1695,11 +1695,11 @@ void net_initialize()
     // Clear all the state variables to 0 to start.
     memset( net_playerPeers, 0, sizeof( ENetPeer* ) * MAXPLAYER );
     memset( net_playerInfo, 0, sizeof( NetPlayerInfo ) * MAXPLAYER );
-    memset( packetbuffer, 0, MAXSENDSIZE * sizeof(Uint8) );
+    memset( packetbuffer, 0, MAXSENDSIZE * sizeof( Uint8 ) );
     memset( net_transferStates, 0, sizeof( NetFileTransfer ) * NET_MAX_FILE_TRANSFERS );
     memset( &net_receiveState, 0, sizeof( NetFileTransfer ) );
 
-    sv_last_frame = (Uint32)~0;
+    sv_last_frame = ( Uint32 )~0;
 
     if ( gnet.on )
     {
@@ -1841,7 +1841,7 @@ int cl_joinGame( const char* hostname )
 
         // Wait for up to 5 seconds for the connection attempt to succeed
         if ( enet_host_service( net_myHost, &event, 5000 ) > 0 &&
-                event.type == ENET_EVENT_TYPE_CONNECT )
+             event.type == ENET_EVENT_TYPE_CONNECT )
         {
             log_info( "cl_joinGame: Connected to %s:%d\n", hostname, NET_EGOBOO_PORT );
             return btrue;
@@ -1955,15 +1955,15 @@ void net_updateFileTransfers()
                     transferSize += 6;  // Uint32 size, and Uint16 message type
                     transferSize += fileSize;
 
-                    transferBuffer = (Uint8 *)malloc( transferSize );
+                    transferBuffer = ( Uint8 * )malloc( transferSize );
                     *( Uint16* )transferBuffer = ENET_HOST_TO_NET_16( NET_TRANSFER_FILE );
 
                     // Add the string and file length to the buffer
-                    p = (char *)(transferBuffer + 2);
+                    p = ( char * )( transferBuffer + 2 );
                     strcpy( p, state->destName );
                     p += nameLen;
 
-                    networkSize = ENET_HOST_TO_NET_32( ( Uint32 )fileSize );
+                    networkSize = ENET_HOST_TO_NET_32(( Uint32 )fileSize );
                     *( size_t* )p = networkSize;
                     p += 4;
 
@@ -2021,7 +2021,7 @@ bool_t net_instance_init( net_instance_t * pnet )
 {
     if ( NULL == pnet ) return bfalse;
 
-    memset( pnet, 0, sizeof(net_instance_t) );
+    memset( pnet, 0, sizeof( net_instance_t ) );
 
     return bfalse;
 }
@@ -2032,10 +2032,10 @@ Uint16   pla_get_ichr( Uint16 iplayer )
 {
     player_t * pplayer;
 
-    if( iplayer >= MAXPLAYER || !PlaList[iplayer].valid ) return MAX_CHR;
+    if ( iplayer >= MAXPLAYER || !PlaList[iplayer].valid ) return MAX_CHR;
     pplayer = PlaList + iplayer;
 
-    if( !ACTIVE_CHR(pplayer->index) ) return MAX_CHR;
+    if ( !ACTIVE_CHR( pplayer->index ) ) return MAX_CHR;
 
     return pplayer->index;
 }
@@ -2045,10 +2045,10 @@ chr_t  * pla_get_pchr( Uint16 iplayer )
 {
     player_t * pplayer;
 
-    if( iplayer >= MAXPLAYER || !PlaList[iplayer].valid ) return NULL;
+    if ( iplayer >= MAXPLAYER || !PlaList[iplayer].valid ) return NULL;
     pplayer = PlaList + iplayer;
 
-    if( !ACTIVE_CHR(pplayer->index) ) return NULL;
+    if ( !ACTIVE_CHR( pplayer->index ) ) return NULL;
 
     return ChrList.lst + pplayer->index;
 }
@@ -2061,37 +2061,37 @@ void net_reset_players()
     // Reset the initial player data and latches
     for ( cnt = 0; cnt < MAXPLAYER; cnt++ )
     {
-        memset( PlaList + cnt, 0, sizeof(player_t) );
+        memset( PlaList + cnt, 0, sizeof( player_t ) );
 
         // reset the device
-        input_device_init( &(PlaList[cnt].device) );
+        input_device_init( &( PlaList[cnt].device ) );
     }
     PlaList_count        = 0;
 
-    nexttimestamp = ((Uint32)~0);
+    nexttimestamp = (( Uint32 )~0 );
     numplatimes   = 0;
 }
 
 //--------------------------------------------------------------------------------------------
-void tlatch_ary_init(time_latch_t ary[], size_t len)
+void tlatch_ary_init( time_latch_t ary[], size_t len )
 {
     size_t cnt;
 
-    if( NULL == ary || 0 == len ) return;
+    if ( NULL == ary || 0 == len ) return;
 
     for ( cnt = 0; cnt < len; cnt++ )
     {
         ary[cnt].x      = 0;
         ary[cnt].y      = 0;
         ary[cnt].button = 0;
-        ary[cnt].time   = (Uint32)(~0);
+        ary[cnt].time   = ( Uint32 )( ~0 );
     }
 }
 
 //--------------------------------------------------------------------------------------------
 void pla_reinit( player_t * ppla )
 {
-    if( NULL == ppla ) return;
+    if ( NULL == ppla ) return;
 
     ppla->valid       = bfalse;
     ppla->index       = MAX_CHR;
@@ -2101,18 +2101,18 @@ void pla_reinit( player_t * ppla )
 //--------------------------------------------------------------------------------------------
 void player_init( player_t * ppla )
 {
-    if( NULL == ppla ) return;
+    if ( NULL == ppla ) return;
 
-    memset( ppla, 0, sizeof(player_t) );
+    memset( ppla, 0, sizeof( player_t ) );
 
     ppla->index       = MAX_CHR;
 
     // initialize the device
-    input_device_init( &(ppla->device) );
+    input_device_init( &( ppla->device ) );
 
     // initialize the latches
-    latch_init( &(ppla->local_latch) );
-    latch_init( &(ppla->net_latch) );
+    latch_init( &( ppla->local_latch ) );
+    latch_init( &( ppla->net_latch ) );
 
     // initialize the tlatch array
     tlatch_ary_init( ppla->tlatch, MAXLAG );
@@ -2124,7 +2124,7 @@ void input_device_add_latch( input_device_t * pdevice, float newx, float newy )
 {
     float dist;
 
-    if( NULL == pdevice ) return;
+    if ( NULL == pdevice ) return;
 
     pdevice->latch_old = pdevice->latch;
 
@@ -2135,7 +2135,7 @@ void input_device_add_latch( input_device_t * pdevice, float newx, float newy )
     dist = pdevice->latch.x * pdevice->latch.x + pdevice->latch.y * pdevice->latch.y;
     if ( dist > 1.0f )
     {
-        float scale = 1.0f / SQRT(dist);
+        float scale = 1.0f / SQRT( dist );
 
         pdevice->latch.x *= scale;
         pdevice->latch.y *= scale;

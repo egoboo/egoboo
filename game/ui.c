@@ -89,7 +89,7 @@ int ui_initialize( const char *default_font, int default_font_size )
     ui_context.active = ui_context.hot = UI_Nothing;
 
     ui_context.defaultFontSize = default_font_size;
-    strncpy( ui_context.defaultFontName, default_font, SDL_arraysize(ui_context.defaultFontName) );
+    strncpy( ui_context.defaultFontName, default_font, SDL_arraysize( ui_context.defaultFontName ) );
 
     ui_set_virtual_screen( sdl_scr.x, sdl_scr.y, sdl_scr.x, sdl_scr.y );
 
@@ -134,7 +134,7 @@ void ui_handleSDLEvent( SDL_Event *evt )
 
             case SDL_MOUSEMOTION:
                 // convert the screen coordinates to our "virtual coordinates"
-                ui_screen_to_virtual(evt->motion.x, evt->motion.y, &(ui_context.mouseX), &(ui_context.mouseY) );
+                ui_screen_to_virtual( evt->motion.x, evt->motion.y, &( ui_context.mouseX ), &( ui_context.mouseY ) );
                 break;
         }
     }
@@ -144,25 +144,25 @@ void ui_handleSDLEvent( SDL_Event *evt )
 void ui_beginFrame( float deltaTime )
 {
     ATTRIB_PUSH( "ui_beginFrame", GL_ENABLE_BIT );
-    GL_DEBUG(glDisable)(GL_DEPTH_TEST );
-    GL_DEBUG(glDisable)(GL_CULL_FACE );
-    GL_DEBUG(glEnable)(GL_TEXTURE_2D );
+    GL_DEBUG( glDisable )( GL_DEPTH_TEST );
+    GL_DEBUG( glDisable )( GL_CULL_FACE );
+    GL_DEBUG( glEnable )( GL_TEXTURE_2D );
 
-    GL_DEBUG(glEnable)(GL_BLEND );
-    GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+    GL_DEBUG( glEnable )( GL_BLEND );
+    GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
-    GL_DEBUG(glViewport)(0, 0, sdl_scr.x, sdl_scr.y );
+    GL_DEBUG( glViewport )( 0, 0, sdl_scr.x, sdl_scr.y );
 
     // Set up an ortho projection for the gui to use.  Controls are free to modify this
     // later, but most of them will need this, so it's done by default at the beginning
     // of a frame
-    GL_DEBUG(glMatrixMode)(GL_PROJECTION );
-    GL_DEBUG(glPushMatrix)();
-    GL_DEBUG(glLoadIdentity)();
-    GL_DEBUG(glOrtho)(0, sdl_scr.x, sdl_scr.y, 0, -1, 1 );
+    GL_DEBUG( glMatrixMode )( GL_PROJECTION );
+    GL_DEBUG( glPushMatrix )();
+    GL_DEBUG( glLoadIdentity )();
+    GL_DEBUG( glOrtho )( 0, sdl_scr.x, sdl_scr.y, 0, -1, 1 );
 
-    GL_DEBUG(glMatrixMode)(GL_MODELVIEW );
-    GL_DEBUG(glLoadIdentity)();
+    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
+    GL_DEBUG( glLoadIdentity )();
 
     // hotness gets reset at the start of each frame
     ui_context.hot = UI_Nothing;
@@ -172,11 +172,11 @@ void ui_beginFrame( float deltaTime )
 void ui_endFrame()
 {
     // Restore the OpenGL matrices to what they were
-    GL_DEBUG(glMatrixMode)(GL_PROJECTION );
-    GL_DEBUG(glPopMatrix)();
+    GL_DEBUG( glMatrixMode )( GL_PROJECTION );
+    GL_DEBUG( glPopMatrix )();
 
-    GL_DEBUG(glMatrixMode)(GL_MODELVIEW );
-    GL_DEBUG(glLoadIdentity)();
+    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
+    GL_DEBUG( glLoadIdentity )();
 
     // Re-enable any states disabled by gui_beginFrame
     ATTRIB_POP( "ui_endFrame" );
@@ -265,7 +265,7 @@ Font* ui_getFont()
 }
 
 //--------------------------------------------------------------------------------------------
-Font* ui_setFont( Font * font)
+Font* ui_setFont( Font * font )
 {
     ui_context.activeFont = font;
 
@@ -354,7 +354,7 @@ void ui_drawButton( ui_id_t id, float vx, float vy, float vwidth, float vheight,
     GLfloat color_3[4] = { 0.66f, 0.0f, 0.0f, 0.6f };
 
     // Draw the button
-    GL_DEBUG(glDisable)(GL_TEXTURE_2D );
+    GL_DEBUG( glDisable )( GL_TEXTURE_2D );
 
     if ( NULL == pcolor )
     {
@@ -376,17 +376,17 @@ void ui_drawButton( ui_id_t id, float vx, float vy, float vwidth, float vheight,
     ui_virtual_to_screen( vx, vy, &x1, &y1 );
     ui_virtual_to_screen( vx + vwidth, vy + vheight, &x2, &y2 );
 
-    GL_DEBUG(glColor4fv)( pcolor );
-    GL_DEBUG(glBegin)( GL_QUADS );
+    GL_DEBUG( glColor4fv )( pcolor );
+    GL_DEBUG( glBegin )( GL_QUADS );
     {
-        GL_DEBUG(glVertex2f)( x1, y1 );
-        GL_DEBUG(glVertex2f)( x1, y2 );
-        GL_DEBUG(glVertex2f)( x2, y2 );
-        GL_DEBUG(glVertex2f)( x2, y1 );
+        GL_DEBUG( glVertex2f )( x1, y1 );
+        GL_DEBUG( glVertex2f )( x1, y2 );
+        GL_DEBUG( glVertex2f )( x2, y2 );
+        GL_DEBUG( glVertex2f )( x2, y1 );
     }
     GL_DEBUG_END();
 
-    GL_DEBUG(glEnable)( GL_TEXTURE_2D );
+    GL_DEBUG( glEnable )( GL_TEXTURE_2D );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -409,8 +409,8 @@ void ui_drawImage( ui_id_t id, oglx_texture *img, float vx, float vy, float vwid
             vh = vheight;
         }
 
-        tx = (float) oglx_texture_GetImageWidth( img )  / (float) oglx_texture_GetTextureWidth( img );
-        ty = (float) oglx_texture_GetImageHeight( img ) / (float) oglx_texture_GetTextureHeight( img );
+        tx = ( float ) oglx_texture_GetImageWidth( img )  / ( float ) oglx_texture_GetTextureWidth( img );
+        ty = ( float ) oglx_texture_GetImageHeight( img ) / ( float ) oglx_texture_GetTextureHeight( img );
 
         // convert the virtual coordinates to screen coordinates
         ui_virtual_to_screen( vx, vy, &x1, &y1 );
@@ -419,12 +419,12 @@ void ui_drawImage( ui_id_t id, oglx_texture *img, float vx, float vy, float vwid
         // Draw the image
         oglx_texture_Bind( img );
 
-        GL_DEBUG(glBegin)( GL_QUADS );
+        GL_DEBUG( glBegin )( GL_QUADS );
         {
-            GL_DEBUG(glTexCoord2f)(  0,  0 );  GL_DEBUG(glVertex2f)( x1, y1 );
-            GL_DEBUG(glTexCoord2f)( tx,  0 );  GL_DEBUG(glVertex2f)( x2, y1 );
-            GL_DEBUG(glTexCoord2f)( tx, ty );  GL_DEBUG(glVertex2f)( x2, y2 );
-            GL_DEBUG(glTexCoord2f)(  0, ty );  GL_DEBUG(glVertex2f)( x1, y2 );
+            GL_DEBUG( glTexCoord2f )( 0,  0 );  GL_DEBUG( glVertex2f )( x1, y1 );
+            GL_DEBUG( glTexCoord2f )( tx,  0 );  GL_DEBUG( glVertex2f )( x2, y1 );
+            GL_DEBUG( glTexCoord2f )( tx, ty );  GL_DEBUG( glVertex2f )( x2, y2 );
+            GL_DEBUG( glTexCoord2f )( 0, ty );  GL_DEBUG( glVertex2f )( x1, y2 );
         }
         GL_DEBUG_END();
     }
@@ -540,10 +540,10 @@ ui_buttonValues ui_doButton( ui_id_t id, const char *text, Font * font, float vx
         // the button
         fnt_getTextSize( font, text, &text_w, &text_h );
 
-        text_x = ( (x2 - x1) - text_w ) / 2 + x1;
-        text_y = ( (y2 - y1) - text_h ) / 2 + y1;
+        text_x = (( x2 - x1 ) - text_w ) / 2 + x1;
+        text_y = (( y2 - y1 ) - text_h ) / 2 + y1;
 
-        GL_DEBUG(glColor3f)(1, 1, 1 );
+        GL_DEBUG( glColor3f )( 1, 1, 1 );
         fnt_drawText( font, text_x, text_y, text );
     }
 
@@ -562,7 +562,7 @@ ui_buttonValues ui_doImageButton( ui_id_t id, oglx_texture *img, float vx, float
     ui_drawButton( id, vx, vy, vwidth, vheight, NULL );
 
     // And then draw the image on top of it
-    GL_DEBUG(glColor3f)(1, 1, 1 );
+    GL_DEBUG( glColor3f )( 1, 1, 1 );
     ui_drawImage( id, img, vx + 5, vy + 5, vwidth - 10, vheight - 10 );
 
     return result;
@@ -583,7 +583,7 @@ ui_buttonValues ui_doImageButtonWithText( ui_id_t id, oglx_texture *img, const c
     ui_drawButton( id, vx, vy, vwidth, vheight, NULL );
 
     // Draw the image part
-    GL_DEBUG(glColor3f)(1, 1, 1 );
+    GL_DEBUG( glColor3f )( 1, 1, 1 );
     ui_drawImage( id, img, vx + 5, vy + 5, 0, 0 );
 
     // And draw the text next to the image
@@ -601,10 +601,10 @@ ui_buttonValues ui_doImageButtonWithText( ui_id_t id, oglx_texture *img, const c
         // the button
         fnt_getTextSize( font, text, &text_w, &text_h );
 
-        text_x = (img->imgW + 10) * ui_context.aw + x1;
-        text_y = ( (y2 - y1) - text_h ) / 2         + y1;
+        text_x = ( img->imgW + 10 ) * ui_context.aw + x1;
+        text_y = (( y2 - y1 ) - text_h ) / 2         + y1;
 
-        GL_DEBUG(glColor3f)(1, 1, 1 );
+        GL_DEBUG( glColor3f )( 1, 1, 1 );
         fnt_drawText( font, text_x, text_y, text );
     }
 
@@ -634,7 +634,7 @@ ui_buttonValues ui_doWidget( ui_Widget_t * pw )
         ui_Widget_t wtmp;
 
         // Draw the image part
-        GL_DEBUG(glColor3f)(1, 1, 1 );
+        GL_DEBUG( glColor3f )( 1, 1, 1 );
 
         ui_shrinkWidget( &wtmp, pw, 5 );
         wtmp.vwidth = wtmp.vheight;
@@ -654,22 +654,22 @@ ui_buttonValues ui_doWidget( ui_Widget_t * pw )
         ui_virtual_to_screen( pw->vx, pw->vy, &x1, &y1 );
         ui_virtual_to_screen( pw->vx + pw->vwidth, pw->vy + pw->vheight, &x2, &y2 );
 
-        GL_DEBUG(glColor3f)(1, 1, 1 );
+        GL_DEBUG( glColor3f )( 1, 1, 1 );
 
         // find the (x2-x1) & (y2-y1) of the pw->text to be drawn, so that it can be centered inside
         // the button
         fnt_getTextSize( pw->pfont, pw->text, &text_w, &text_h );
 
-        text_w = MIN(text_w, (x2 - x1) );
-        text_h = MIN(text_h, (y2 - y1));
+        text_w = MIN( text_w, ( x2 - x1 ) );
+        text_h = MIN( text_h, ( y2 - y1 ) );
 
-        text_x = ( (x2 - x1) - text_w ) / 2 + x1;
-        text_y = ( (y2 - y1) - text_h ) / 2 + y1;
+        text_x = (( x2 - x1 ) - text_w ) / 2 + x1;
+        text_y = (( y2 - y1 ) - text_h ) / 2 + y1;
 
-        text_x = img_w + ( (x2 - x1) - img_w - text_w ) / 2 + x1;
-        text_y = ( (y2 - y1) - text_h ) / 2                + y1;
+        text_x = img_w + (( x2 - x1 ) - img_w - text_w ) / 2 + x1;
+        text_y = (( y2 - y1 ) - text_h ) / 2                + y1;
 
-        GL_DEBUG(glColor3f)(1, 1, 1 );
+        GL_DEBUG( glColor3f )( 1, 1, 1 );
         fnt_drawText( pw->pfont, text_x, text_y, pw->text );
     }
 
@@ -757,7 +757,7 @@ bool_t ui_widgetSetMask( ui_Widget_t * pw, Uint32 mbits )
 }
 
 //--------------------------------------------------------------------------------------------
-void ui_virtual_to_screen( float vx, float vy, float * rx, float * ry)
+void ui_virtual_to_screen( float vx, float vy, float * rx, float * ry )
 {
     /// @details BB@> convert "virtual" screen positions into "real" space
 
@@ -775,7 +775,7 @@ void ui_screen_to_virtual( float rx, float ry, float *vx, float *vy )
 }
 
 //--------------------------------------------------------------------------------------------
-void ui_set_virtual_screen( float vw, float vh, float ww, float wh)
+void ui_set_virtual_screen( float vw, float vh, float ww, float wh )
 {
     /// @details BB@> set up the ui's virtual screen
 
@@ -792,8 +792,8 @@ void ui_set_virtual_screen( float vw, float vh, float ww, float wh)
     k = MIN( sdl_scr.x / ww, sdl_scr.y / wh );
     ui_context.aw = k;
     ui_context.ah = k;
-    ui_context.bw = (sdl_scr.x - k * ww) * 0.5f;
-    ui_context.bh = (sdl_scr.y - k * wh) * 0.5f;
+    ui_context.bw = ( sdl_scr.x - k * ww ) * 0.5f;
+    ui_context.bh = ( sdl_scr.y - k * wh ) * 0.5f;
 
     // define the inverse transform
     ui_context.iaw = 1.0f / ui_context.aw;

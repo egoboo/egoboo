@@ -42,7 +42,7 @@ struct s_chr;
 /// Enchantment template
 #define MAX_EVE                          MAX_PROFILE    ///< One enchant type per model
 
-DEFINE_STACK_EXTERN(eve_t, EveStack, MAX_EVE );
+DEFINE_STACK_EXTERN( eve_t, EveStack, MAX_EVE );
 
 #define VALID_EVE_RANGE( IEVE ) ( ((IEVE) >= 0) && ((IEVE) < MAX_EVE) )
 #define LOADED_EVE( IEVE )      ( VALID_EVE_RANGE( IEVE ) && EveStack.lst[IEVE].loaded )
@@ -84,7 +84,7 @@ struct s_enc
 };
 typedef struct s_enc enc_t;
 
-DEFINE_LIST_EXTERN(enc_t, EncList, MAX_ENC );
+DEFINE_LIST_EXTERN( enc_t, EncList, MAX_ENC );
 
 #define VALID_ENC_RANGE( IENC ) ( ((IENC) >= 0) && ((IENC) < MAX_ENC) )
 #define ALLOCATED_ENC( IENC )   ( VALID_ENC_RANGE( IENC ) && ALLOCATED_OBJ ( &(EncList.lst[IENC].obj_base) ) )
@@ -117,7 +117,7 @@ void set_enchant_value( Uint16 enchantindex, Uint8 valueindex, Uint16 profile );
 void add_enchant_value( Uint16 enchantindex, Uint8 valueindex,
                         Uint16 enchanttype );
 Uint16 spawn_one_enchant( Uint16 owner, Uint16 target,
-                      Uint16 spawner, Uint16 enc_override, Uint16 modeloptional );
+                          Uint16 spawner, Uint16 enc_override, Uint16 modeloptional );
 Uint16 load_one_enchant_profile( const char* szLoadName, Uint16 profile );
 void unset_enchant_value( Uint16 enchantindex, Uint8 valueindex );
 void remove_enchant_value( Uint16 enchantindex, Uint8 valueindex );
@@ -127,10 +127,10 @@ Uint16                    enc_get_ipro( Uint16 ienc );
 struct s_object_profile * enc_get_ppro( Uint16 ienc );
 
 Uint16         enc_get_iowner( Uint16 ienc );
-Uint16         enc_get_ieve  ( Uint16 ienc );
+Uint16         enc_get_ieve( Uint16 ienc );
 
 struct s_chr * enc_get_powner( Uint16 ienc );
-eve_t        * enc_get_peve  ( Uint16 ienc );
+eve_t        * enc_get_peve( Uint16 ienc );
 
 IDSZ   enc_get_idszremove( Uint16 ienc );
 bool_t enc_is_removed( Uint16 ienc, Uint16 test_profile );

@@ -58,7 +58,7 @@ static SDL_bool egoboo_console_stack_unlink( egoboo_console_t * pcon )
 {
     SDL_bool retval = SDL_FALSE;
 
-    if (NULL == pcon) return retval;
+    if ( NULL == pcon ) return retval;
 
     if ( pcon == egoboo_console_top )
     {
@@ -130,7 +130,7 @@ void egoboo_console_add_output( egoboo_console_t * pcon, char * szNew )
     if ( NULL == pcon ) return;
 
     // how many characters are we adding?
-    out_len = strlen(szNew);
+    out_len = strlen( szNew );
 
     // initialize the pointers for the copy operation
     src      = szNew;
@@ -170,20 +170,20 @@ void egoboo_console_add_output( egoboo_console_t * pcon, char * szNew )
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_console_t * egoboo_console_new( egoboo_console_t * pcon, SDL_Rect Con_rect, egoboo_console_callback_t pcall, void * data  )
+egoboo_console_t * egoboo_console_new( egoboo_console_t * pcon, SDL_Rect Con_rect, egoboo_console_callback_t pcall, void * data )
 {
     SDL_bool local_allocation = SDL_FALSE;
 
     if ( NULL == pcon )
     {
         local_allocation = SDL_TRUE;
-        pcon = (egoboo_console_t *) calloc(1, sizeof(egoboo_console_t));
+        pcon = ( egoboo_console_t * ) calloc( 1, sizeof( egoboo_console_t ) );
     }
 
-    if (NULL == pcon) return NULL;
+    if ( NULL == pcon ) return NULL;
 
     // reset all the console data
-    memset( pcon, 0, sizeof(egoboo_console_t) );
+    memset( pcon, 0, sizeof( egoboo_console_t ) );
 
     // set the console's font
     pcon->pfont = fnt_loadFont( "basicdat" SLASH_STR "pc8x8.fon", 12 );
@@ -206,11 +206,11 @@ SDL_bool egoboo_console_run( egoboo_console_t * pcon )
 {
     SDL_bool retval = SDL_FALSE;
 
-    if (NULL == pcon) return retval;
+    if ( NULL == pcon ) return retval;
 
-    if (NULL != pcon->run_func)
+    if ( NULL != pcon->run_func )
     {
-        retval = pcon->run_func(pcon, pcon->run_data);
+        retval = pcon->run_func( pcon, pcon->run_data );
     }
 
     return retval;
@@ -226,7 +226,7 @@ SDL_bool egoboo_console_delete( egoboo_console_t * pcon, SDL_bool do_free )
     fnt_freeFont( pcon->pfont );
 
     // remove the console from the stack
-    egoboo_console_stack_unlink(pcon);
+    egoboo_console_stack_unlink( pcon );
 
     if ( do_free ) free( pcon );
 
@@ -238,36 +238,36 @@ void egoboo_console_draw_begin()
 {
     ATTRIB_PUSH( "egoboo_console_draw_begin", GL_ENABLE_BIT );
 
-    GL_DEBUG(glDisable)( GL_DEPTH_TEST );
-    GL_DEBUG(glDisable)( GL_CULL_FACE );
-    GL_DEBUG(glEnable)( GL_TEXTURE_2D );
+    GL_DEBUG( glDisable )( GL_DEPTH_TEST );
+    GL_DEBUG( glDisable )( GL_CULL_FACE );
+    GL_DEBUG( glEnable )( GL_TEXTURE_2D );
 
-    GL_DEBUG(glEnable)( GL_BLEND );
-    GL_DEBUG(glBlendFunc)( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+    GL_DEBUG( glEnable )( GL_BLEND );
+    GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
-    GL_DEBUG(glViewport)( 0, 0, sdl_scr.x, sdl_scr.y );
+    GL_DEBUG( glViewport )( 0, 0, sdl_scr.x, sdl_scr.y );
 
     // Set up an ortho projection for the gui to use.  Controls are free to modify this
     // later, but most of them will need this, so it's done by default at the beginning
     // of a frame
-    GL_DEBUG(glMatrixMode)( GL_PROJECTION );
-    GL_DEBUG(glPushMatrix)();
-    GL_DEBUG(glLoadIdentity)();
-    GL_DEBUG(glOrtho)( 0, sdl_scr.x, sdl_scr.y, 0, -1, 1 );
+    GL_DEBUG( glMatrixMode )( GL_PROJECTION );
+    GL_DEBUG( glPushMatrix )();
+    GL_DEBUG( glLoadIdentity )();
+    GL_DEBUG( glOrtho )( 0, sdl_scr.x, sdl_scr.y, 0, -1, 1 );
 
-    GL_DEBUG(glMatrixMode)( GL_MODELVIEW );
-    GL_DEBUG(glLoadIdentity)();
+    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
+    GL_DEBUG( glLoadIdentity )();
 }
 
 //--------------------------------------------------------------------------------------------
 void egoboo_console_draw_end()
 {
     // Restore the OpenGL matrices to what they were
-    GL_DEBUG(glMatrixMode)( GL_PROJECTION );
-    GL_DEBUG(glPopMatrix)();
+    GL_DEBUG( glMatrixMode )( GL_PROJECTION );
+    GL_DEBUG( glPopMatrix )();
 
-    GL_DEBUG(glMatrixMode)( GL_MODELVIEW );
-    GL_DEBUG(glLoadIdentity)();
+    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
+    GL_DEBUG( glLoadIdentity )();
 
     // Re-enable any states disabled by gui_beginFrame
     ATTRIB_POP( "egoboo_console_draw_end" );
@@ -287,45 +287,45 @@ SDL_bool egoboo_console_draw( egoboo_console_t * pcon )
 
     if ( NULL == surf || NULL == pcon || !pcon->on ) return SDL_FALSE;
 
-    pwin = &(pcon->rect);
+    pwin = &( pcon->rect );
 
-    GL_DEBUG(glDisable)( GL_TEXTURE_2D );
+    GL_DEBUG( glDisable )( GL_TEXTURE_2D );
 
-    GL_DEBUG(glColor4f)(1, 1, 1, 1);
-    GL_DEBUG(glLineWidth)( 5 );
-    GL_DEBUG(glBegin)( GL_LINE_LOOP );
+    GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
+    GL_DEBUG( glLineWidth )( 5 );
+    GL_DEBUG( glBegin )( GL_LINE_LOOP );
     {
-        GL_DEBUG(glVertex2i)( pwin->x,           pwin->y );
-        GL_DEBUG(glVertex2i)( pwin->x + pwin->w, pwin->y );
-        GL_DEBUG(glVertex2i)( pwin->x + pwin->w, pwin->y + pwin->h );
-        GL_DEBUG(glVertex2i)( pwin->x,           pwin->y + pwin->h );
+        GL_DEBUG( glVertex2i )( pwin->x,           pwin->y );
+        GL_DEBUG( glVertex2i )( pwin->x + pwin->w, pwin->y );
+        GL_DEBUG( glVertex2i )( pwin->x + pwin->w, pwin->y + pwin->h );
+        GL_DEBUG( glVertex2i )( pwin->x,           pwin->y + pwin->h );
     }
     GL_DEBUG_END();
-    GL_DEBUG(glLineWidth)( 1 );
+    GL_DEBUG( glLineWidth )( 1 );
 
-    GL_DEBUG(glColor4f)(0, 0, 0, 1);
-    GL_DEBUG(glBegin)( GL_POLYGON );
+    GL_DEBUG( glColor4f )( 0, 0, 0, 1 );
+    GL_DEBUG( glBegin )( GL_POLYGON );
     {
-        GL_DEBUG(glVertex2i)( pwin->x,           pwin->y );
-        GL_DEBUG(glVertex2i)( pwin->x + pwin->w, pwin->y );
-        GL_DEBUG(glVertex2i)( pwin->x + pwin->w, pwin->y + pwin->h );
-        GL_DEBUG(glVertex2i)( pwin->x,           pwin->y + pwin->h );
+        GL_DEBUG( glVertex2i )( pwin->x,           pwin->y );
+        GL_DEBUG( glVertex2i )( pwin->x + pwin->w, pwin->y );
+        GL_DEBUG( glVertex2i )( pwin->x + pwin->w, pwin->y + pwin->h );
+        GL_DEBUG( glVertex2i )( pwin->x,           pwin->y + pwin->h );
     }
     GL_DEBUG_END();
 
-    GL_DEBUG(glEnable)( GL_TEXTURE_2D );
+    GL_DEBUG( glEnable )( GL_TEXTURE_2D );
 
-    GL_DEBUG(glColor4f)(1, 1, 1, 1);
+    GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
     ATTRIB_PUSH( "egoboo_console_draw", GL_SCISSOR_BIT | GL_ENABLE_BIT );
     {
         int text_w, text_h, height;
 
         // make the texture a "null" texture
-        GL_DEBUG(glBindTexture)( GL_TEXTURE_2D, (GLuint)(~0) );
+        GL_DEBUG( glBindTexture )( GL_TEXTURE_2D, ( GLuint )( ~0 ) );
 
         // clip the viewport
-        GL_DEBUG(glEnable)( GL_SCISSOR_TEST );
-        GL_DEBUG(glScissor)( pwin->x, surf->h - (pwin->y + pwin->h), pwin->w, pwin->h );
+        GL_DEBUG( glEnable )( GL_SCISSOR_TEST );
+        GL_DEBUG( glScissor )( pwin->x, surf->h - ( pwin->y + pwin->h ), pwin->w, pwin->h );
 
         height = pwin->h;
 
@@ -348,16 +348,16 @@ SDL_bool egoboo_console_draw( egoboo_console_t * pcon )
             // grab the line offsets
             console_line_count = 0;
             pstr = pcon->output_buffer;
-            while (NULL != pstr)
+            while ( NULL != pstr )
             {
                 size_t len;
 
-                len = strcspn(pstr, "\n" );
+                len = strcspn( pstr, "\n" );
 
                 console_line_offsets[console_line_count] = pstr - pcon->output_buffer;
                 console_line_lengths[console_line_count] = len;
 
-                if (0 == len) break;
+                if ( 0 == len ) break;
 
                 pstr += len + 1;
                 console_line_count++;
@@ -366,7 +366,7 @@ SDL_bool egoboo_console_draw( egoboo_console_t * pcon )
             // draw the last output line and work backwards
             for ( i = console_line_count - 1; i >= 0 && height > 0 ; i-- )
             {
-                size_t len = MIN(1023, console_line_lengths[i]);
+                size_t len = MIN( 1023, console_line_lengths[i] );
 
                 strncpy( buffer, pcon->output_buffer + console_line_offsets[i], len );
                 buffer[len] = CSTR_END;
@@ -413,11 +413,11 @@ void egoboo_console_show( egoboo_console_t * pcon )
     // fix the keyrepeat
     if ( NULL == egoboo_console_top )
     {
-        SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
+        SDL_EnableKeyRepeat( 0, SDL_DEFAULT_REPEAT_INTERVAL );
     }
     else
     {
-        SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
+        SDL_EnableKeyRepeat( SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL );
     }
 }
 
@@ -433,18 +433,18 @@ void egoboo_console_hide( egoboo_console_t * pcon )
     // fix the keyrepeat
     if ( NULL == egoboo_console_top )
     {
-        SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
+        SDL_EnableKeyRepeat( 0, SDL_DEFAULT_REPEAT_INTERVAL );
     }
     else
     {
-        SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
+        SDL_EnableKeyRepeat( SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL );
     }
 }
 
 //--------------------------------------------------------------------------------------------
 char * egoboo_console_get_saved( egoboo_console_t * pcon )
 {
-    if (NULL == pcon) return "";
+    if ( NULL == pcon ) return "";
 
     pcon->save_count = CLIP( pcon->save_count, 0, EGOBOO_CONSOLE_LINES );
     pcon->save_index = CLIP( pcon->save_index, 0, pcon->save_count - 1 );
@@ -455,7 +455,7 @@ char * egoboo_console_get_saved( egoboo_console_t * pcon )
 //--------------------------------------------------------------------------------------------
 void egoboo_console_add_saved( egoboo_console_t * pcon, char * str )
 {
-    if (NULL == pcon) return;
+    if ( NULL == pcon ) return;
 
     pcon->save_count = CLIP( pcon->save_count, 0, EGOBOO_CONSOLE_LINES );
 
@@ -464,7 +464,7 @@ void egoboo_console_add_saved( egoboo_console_t * pcon, char * str )
         int i;
 
         // bump all of the saved lines so that we can insert a new one
-        for (i = 0; i < EGOBOO_CONSOLE_LINES - 1; i++)
+        for ( i = 0; i < EGOBOO_CONSOLE_LINES - 1; i++ )
         {
             strncpy( pcon->save_buffer[i], pcon->save_buffer[i+1], EGOBOO_CONSOLE_LENGTH );
         }
@@ -496,8 +496,8 @@ SDL_Event * egoboo_console_handle_events( SDL_Event * pevt )
     // get any keymods
     kmod = SDL_GetModState();
 
-    is_alt   = (SDL_bool)HAS_SOME_BITS( kmod, KMOD_ALT | KMOD_CTRL );
-    is_shift = (SDL_bool)HAS_SOME_BITS( kmod, KMOD_SHIFT );
+    is_alt   = ( SDL_bool )HAS_SOME_BITS( kmod, KMOD_ALT | KMOD_CTRL );
+    is_shift = ( SDL_bool )HAS_SOME_BITS( kmod, KMOD_SHIFT );
 
     // start the top console
     if ( !is_alt && !is_shift && SDLK_BACKQUOTE == vkey )
@@ -535,7 +535,7 @@ SDL_Event * egoboo_console_handle_events( SDL_Event * pevt )
     {
         if ( SDLK_BACKSPACE == vkey )
         {
-            if (pcon->buffer_carat > 0)
+            if ( pcon->buffer_carat > 0 )
             {
                 pcon->buffer_carat--;
             }
@@ -558,10 +558,10 @@ SDL_Event * egoboo_console_handle_events( SDL_Event * pevt )
             {
                 pcon->save_index = CLIP( pcon->save_index, 0, pcon->save_count - 1 );
 
-                if ( pcon->save_count > 0)
+                if ( pcon->save_count > 0 )
                 {
-                    strncpy(pcon->buffer, pcon->save_buffer[pcon->save_index], SDL_arraysize(pcon->buffer) );
-                    pcon->buffer_carat = strlen(pcon->buffer) - 1;
+                    strncpy( pcon->buffer, pcon->save_buffer[pcon->save_index], SDL_arraysize( pcon->buffer ) );
+                    pcon->buffer_carat = strlen( pcon->buffer ) - 1;
                 }
             }
 
@@ -582,10 +582,10 @@ SDL_Event * egoboo_console_handle_events( SDL_Event * pevt )
             {
                 pcon->save_index = CLIP( pcon->save_index, 0, pcon->save_count - 1 );
 
-                if ( pcon->save_count > 0)
+                if ( pcon->save_count > 0 )
                 {
-                    strncpy(pcon->buffer, pcon->save_buffer[pcon->save_index], EGOBOO_CONSOLE_LENGTH - 1);
-                    pcon->buffer_carat = strlen(pcon->buffer) - 1;
+                    strncpy( pcon->buffer, pcon->save_buffer[pcon->save_index], EGOBOO_CONSOLE_LENGTH - 1 );
+                    pcon->buffer_carat = strlen( pcon->buffer ) - 1;
                 }
             }
 
@@ -612,7 +612,7 @@ SDL_Event * egoboo_console_handle_events( SDL_Event * pevt )
             pcon->buffer[pcon->buffer_carat] = CSTR_END;
 
             // add this command to the "saved command list"
-            egoboo_console_add_saved(pcon, pcon->buffer);
+            egoboo_console_add_saved( pcon, pcon->buffer );
 
             // add the command to the output buffer
             egoboo_console_fprint( pcon, "%c %s\n", EGOBOO_CONSOLE_PROMPT, pcon->buffer );
@@ -664,7 +664,7 @@ void init_scancodes()
         scancode_to_ascii[i] = i;
         if ( i < 255 )
         {
-            scancode_to_ascii_shift[i] = toupper(i);
+            scancode_to_ascii_shift[i] = toupper( i );
         }
         else
         {

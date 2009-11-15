@@ -153,11 +153,11 @@ void md2_rip_commands( md2_ogl_commandlist_t * pclist )
             command_type = GL_TRIANGLE_STRIP;
         }
 
-        command_error = (iCommandCount >= MAXCOMMAND);
-        if (!command_error)
+        command_error = ( iCommandCount >= MAXCOMMAND );
+        if ( !command_error )
         {
             pclist->type[iCommandCount] = command_type;
-            pclist->size[iCommandCount] = MIN(iNumVertices, MAXCOMMANDENTRIES);
+            pclist->size[iCommandCount] = MIN( iNumVertices, MAXCOMMANDENTRIES );
         }
 
         // Read in vertices for each command
@@ -166,7 +166,7 @@ void md2_rip_commands( md2_ogl_commandlist_t * pclist )
         {
             fTmpu = ENDIAN_FLOAT( fpFloatPointer[iCommandOffset] );  iCommandOffset++;  cnt++;
             fTmpv = ENDIAN_FLOAT( fpFloatPointer[iCommandOffset] );  iCommandOffset++;  cnt++;
-            iTmp  = ENDIAN_INT32( ipIntPointer[iCommandOffset]   );  iCommandOffset++;  cnt++;
+            iTmp  = ENDIAN_INT32( ipIntPointer[iCommandOffset] );  iCommandOffset++;  cnt++;
 
             entry_error = entry >= MAXCOMMANDENTRIES;
             if ( iTmp > vertex_max )
@@ -193,19 +193,19 @@ void md2_rip_commands( md2_ogl_commandlist_t * pclist )
 
     if ( vertex_max >= MAXVERTICES )
     {
-        log_warning("md2_rip_commands(\"%s\") - \n\tOpenGL command references vertices above preset maximum: %d of %d\n", globalparsename, vertex_max, MAXVERTICES );
+        log_warning( "md2_rip_commands(\"%s\") - \n\tOpenGL command references vertices above preset maximum: %d of %d\n", globalparsename, vertex_max, MAXVERTICES );
     }
     if ( command_error )
     {
-        log_warning("md2_rip_commands(\"%s\") - \n\tNumber of OpenGL commands exceeds preset maximum: %d of %d\n", globalparsename, iCommandCount, MAXCOMMAND );
+        log_warning( "md2_rip_commands(\"%s\") - \n\tNumber of OpenGL commands exceeds preset maximum: %d of %d\n", globalparsename, iCommandCount, MAXCOMMAND );
     }
     if ( entry_error )
     {
-        log_warning("md2_rip_commands(\"%s\") - \n\tNumber of OpenGL command entries exceeds preset maximum: %d of %d\n", globalparsename, entry, MAXCOMMAND );
+        log_warning( "md2_rip_commands(\"%s\") - \n\tNumber of OpenGL command entries exceeds preset maximum: %d of %d\n", globalparsename, entry, MAXCOMMAND );
     }
 
-    pclist->entries = MIN(MAXCOMMANDENTRIES, entry);
-    pclist->count   = MIN(MAXCOMMAND, iCommandCount);
+    pclist->entries = MIN( MAXCOMMANDENTRIES, entry );
+    pclist->count   = MIN( MAXCOMMAND, iCommandCount );
 }
 
 //---------------------------------------------------------------------------------------------
@@ -306,7 +306,7 @@ void md2_rip_frames( ego_md2_t * pmd2 )
         iFrameOffset += 4;
 
         // blank the octagonal bounding box
-        for( tnc = 0; tnc<OCT_COUNT; tnc++)
+        for ( tnc = 0; tnc < OCT_COUNT; tnc++ )
         {
             bbox.mins[tnc] = bbox.maxs[tnc] = 0.0f;
         }
@@ -333,20 +333,20 @@ void md2_rip_frames( ego_md2_t * pmd2 )
             Md2FrameList[Md2FrameList_index].vrta[tnc] = cTmpa;
 
             // update the bounding box
-            bbox.mins[OCT_X] = MIN(bbox.mins[OCT_X], fRealx);
-            bbox.maxs[OCT_X] = MAX(bbox.maxs[OCT_X], fRealx);
+            bbox.mins[OCT_X] = MIN( bbox.mins[OCT_X], fRealx );
+            bbox.maxs[OCT_X] = MAX( bbox.maxs[OCT_X], fRealx );
 
-            bbox.mins[OCT_Y] = MIN(bbox.mins[OCT_Y], fRealy);
-            bbox.maxs[OCT_Y] = MAX(bbox.maxs[OCT_Y], fRealy);
+            bbox.mins[OCT_Y] = MIN( bbox.mins[OCT_Y], fRealy );
+            bbox.maxs[OCT_Y] = MAX( bbox.maxs[OCT_Y], fRealy );
 
-            bbox.mins[OCT_Z] = MIN(bbox.mins[OCT_Z], fRealz);
-            bbox.maxs[OCT_Z] = MAX(bbox.maxs[OCT_Z], fRealz);
+            bbox.mins[OCT_Z] = MIN( bbox.mins[OCT_Z], fRealz );
+            bbox.maxs[OCT_Z] = MAX( bbox.maxs[OCT_Z], fRealz );
 
-            bbox.mins[OCT_XY] = MIN(bbox.mins[OCT_XY], fRealx + fRealy);
-            bbox.maxs[OCT_XY] = MAX(bbox.maxs[OCT_XY], fRealx + fRealy);
+            bbox.mins[OCT_XY] = MIN( bbox.mins[OCT_XY], fRealx + fRealy );
+            bbox.maxs[OCT_XY] = MAX( bbox.maxs[OCT_XY], fRealx + fRealy );
 
-            bbox.mins[OCT_YX] = MIN(bbox.mins[OCT_YX], -fRealx + fRealy);
-            bbox.maxs[OCT_YX] = MAX(bbox.maxs[OCT_YX], -fRealx + fRealy);
+            bbox.mins[OCT_YX] = MIN( bbox.mins[OCT_YX], -fRealx + fRealy );
+            bbox.maxs[OCT_YX] = MAX( bbox.maxs[OCT_YX], -fRealx + fRealy );
 
             iFrameOffset++;
         }
@@ -369,7 +369,7 @@ bool_t md2_load_one( const char* szLoadname, ego_md2_t * pmd2 )
     int iReturnValue;
     FILE *file;
 
-    if( INVALID_CSTR(szLoadname) ) return bfalse;
+    if ( INVALID_CSTR( szLoadname ) ) return bfalse;
 
     // Read the input file
     file = fopen( szLoadname, "rb" );
@@ -400,7 +400,7 @@ bool_t md2_load_one( const char* szLoadname, ego_md2_t * pmd2 )
     md2_rip_frames( pmd2 );
 
     // Get the commands
-    md2_rip_commands( &(pmd2->cmd) );
+    md2_rip_commands( &( pmd2->cmd ) );
 
     return btrue;
 }

@@ -93,19 +93,19 @@ void fs_init()
         }
     }
 
-    if( '\0' == win32_dataPath[0] )
+    if ( '\0' == win32_dataPath[0] )
     {
         // fatal error here, we can't find the game data.
         printf( "Could not find basicdat directory!\n" );
-        exit(-1);
+        exit( -1 );
     }
 
-    strncpy( win32_configPath, win32_dataPath, SDL_arraysize(win32_configPath) );
+    strncpy( win32_configPath, win32_dataPath, SDL_arraysize( win32_configPath ) );
 
     // the log file cannot be started until there is a user data path to dump the file into
     // so dump this debug info to stdout
     printf( "Game directories are:\n\tBinaries: %s\n\tData: %s\n\tUser Data: %s\n\tConfig Files: %s\n",
-              win32_binaryPath, win32_dataPath, win32_userDataPath, win32_configPath );
+            win32_binaryPath, win32_dataPath, win32_userDataPath, win32_configPath );
 }
 
 const char *fs_getBinaryDirectory()
@@ -133,12 +133,12 @@ int fs_fileIsDirectory( const char *filename )
 {
     // Returns 1 if this filename is a directory
     DWORD fileAttrs;
-    if( NULL == filename ) return bfalse;
+    if ( NULL == filename ) return bfalse;
 
     fileAttrs = GetFileAttributes( filename );
-    if( INVALID_FILE_ATTRIBUTES == fileAttrs ) return 0;
+    if ( INVALID_FILE_ATTRIBUTES == fileAttrs ) return 0;
 
-    return (0 != (fileAttrs & FILE_ATTRIBUTE_DIRECTORY));
+    return ( 0 != ( fileAttrs & FILE_ATTRIBUTE_DIRECTORY ) );
 }
 
 // Had to revert back to prog x code to prevent import/skin bug
@@ -161,10 +161,10 @@ void fs_deleteFile( const char *filename )
 
 bool_t fs_copyFile( const char *source, const char *dest )
 {
-	/*bool_t retval =	CopyFile( source, dest, bfalse );
-	if(!retval) log_debug("fs_copyFile() - Failed to copy \"%s\" to \"%s\" (%d)\n", source, dest, GetLastError());
+    /*bool_t retval =   CopyFile( source, dest, bfalse );
+    if(!retval) log_debug("fs_copyFile() - Failed to copy \"%s\" to \"%s\" (%d)\n", source, dest, GetLastError());
     return retval;*/
-	return CopyFile( source, dest, bfalse );
+    return CopyFile( source, dest, bfalse );
 }
 
 //---------------------------------------------------------------------------------------------
@@ -185,9 +185,9 @@ const char *fs_findFirstFile( const char *searchDir, const char *searchExtension
     size_t len;
     win32_find_context_t * pcnt;
 
-    if( INVALID_CSTR(searchDir) || NULL == fs_search ) return NULL;
+    if ( INVALID_CSTR( searchDir ) || NULL == fs_search ) return NULL;
 
-    pcnt = calloc( 1, sizeof(win32_find_context_t) );
+    pcnt = calloc( 1, sizeof( win32_find_context_t ) );
     fs_search->type = win32_find;
     fs_search->ptr.w = pcnt;
 
@@ -224,10 +224,10 @@ const char *fs_findNextFile( fs_find_context_t * fs_search )
 {
     win32_find_context_t * pcnt;
 
-    if( NULL == fs_search || win32_find != fs_search->type ) return NULL;
+    if ( NULL == fs_search || win32_find != fs_search->type ) return NULL;
 
     pcnt = fs_search->ptr.w;
-    if( NULL == pcnt ) return NULL;
+    if ( NULL == pcnt ) return NULL;
 
     if ( pcnt->hFind == NULL || pcnt->hFind == INVALID_HANDLE_VALUE )
     {
@@ -247,12 +247,12 @@ void fs_findClose( fs_find_context_t * fs_search )
 {
     win32_find_context_t * pcnt;
 
-    if( NULL == fs_search || win32_find != fs_search->type ) return;
+    if ( NULL == fs_search || win32_find != fs_search->type ) return;
 
     pcnt = fs_search->ptr.w;
-    if( NULL == pcnt ) return;
+    if ( NULL == pcnt ) return;
 
-    if( NULL != pcnt->hFind )
+    if ( NULL != pcnt->hFind )
     {
         FindClose( pcnt->hFind );
         pcnt->hFind = NULL;
@@ -260,7 +260,7 @@ void fs_findClose( fs_find_context_t * fs_search )
 
     free( pcnt );
 
-    memset( fs_search, 0, sizeof(fs_find_context_t) );
+    memset( fs_search, 0, sizeof( fs_find_context_t ) );
 }
 
 int DirGetAttrib( const char *fromdir )

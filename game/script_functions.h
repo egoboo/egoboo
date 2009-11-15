@@ -35,7 +35,7 @@ struct s_chr;
 // helper functions
 //--------------------------------------------------------------------------------------------
 
-Uint8  _display_message( int ichr, int iprofile, int message, struct s_script_state * pstate  );
+Uint8  _display_message( int ichr, int iprofile, int message, struct s_script_state * pstate );
 Uint8  _break_passage( int mesh_fx_or, int become, int frames, int starttile, int passage, int *ptilex, int *ptiley );
 Uint8  _find_tile_in_passage( const int x0, const int y0, const int tiletype, const int passage, int *px1, int *py1 );
 
@@ -431,8 +431,8 @@ Uint8 scr_TargetCanSeeKurses( struct s_script_state * pstate, struct s_ai_state 
 Uint8 scr_SpawnAttachedCharacter( struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_KurseTarget( struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_set_ChildContent( struct s_script_state * pstate, struct s_ai_state * pself );
-Uint8 scr_set_TargetToChild(  struct s_script_state * pstate, struct s_ai_state * pself );
-Uint8 scr_set_DamageThreshold(  struct s_script_state * pstate, struct s_ai_state * pself );
+Uint8 scr_set_TargetToChild( struct s_script_state * pstate, struct s_ai_state * pself );
+Uint8 scr_set_DamageThreshold( struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_AccelerateTargetUp( struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_set_TargetAmmo( struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_EnableInvictus( struct s_script_state * pstate, struct s_ai_state * pself );

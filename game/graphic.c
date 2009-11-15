@@ -126,7 +126,7 @@ static irect_t             maprect;                    // The map rectangle
 static bool_t             gfx_page_flip_requested  = bfalse;
 static bool_t             gfx_page_clear_requested = btrue;
 
-DECLARE_LIST ( ACCESS_TYPE_NONE, billboard_data_t, BillboardList );
+DECLARE_LIST( ACCESS_TYPE_NONE, billboard_data_t, BillboardList );
 
 PROFILE_DECLARE( gfx_loop );
 PROFILE_DECLARE( render_scene_init );
@@ -154,7 +154,7 @@ size_t                dolist_count = 0;
 obj_registry_entity_t dolist[DOLIST_SIZE];
 
 bool_t           meshnotexture   = bfalse;
-Uint16           meshlasttexture = (Uint16)(~0);
+Uint16           meshlasttexture = ( Uint16 )( ~0 );
 
 renderlist_t     renderlist = {0, 0, 0, 0, 0};
 
@@ -195,7 +195,7 @@ static void _flip_pages();
 static void project_view( camera_t * pcam );
 static void gfx_make_dynalist( camera_t * pcam );
 
-static int _draw_string_raw( int x, int y, const char *format, ...  );
+static int _draw_string_raw( int x, int y, const char *format, ... );
 
 static bool_t sum_dyna_lighting( dynalight_t * pdyna, float lighting[], float dx, float dy, float dz );
 
@@ -231,7 +231,7 @@ void _debug_print( const char *text )
     char       * dst, * dst_end;
     msg_t      * pmsg;
 
-    if( INVALID_CSTR(text) ) return;
+    if ( INVALID_CSTR( text ) ) return;
 
     // Get a "free" message
     slot = DisplayMsg_get_free();
@@ -240,11 +240,11 @@ void _debug_print( const char *text )
     // Copy the message
     for ( src = text, dst = pmsg->textdisplay, dst_end = dst + MESSAGESIZE;
           CSTR_END != *src && dst < dst_end;
-          src++, dst++)
+          src++, dst++ )
     {
         *dst = *src;
     }
-    if( dst < dst_end ) *dst = CSTR_END;
+    if ( dst < dst_end ) *dst = CSTR_END;
 
     // Set the time
     pmsg->time = cfg.message_duration;
@@ -255,11 +255,11 @@ int _debug_vprintf( const char *format, va_list args )
 {
     int retval = 0;
 
-    if( VALID_CSTR(format) )
+    if ( VALID_CSTR( format ) )
     {
         STRING szTmp;
 
-        retval = vsnprintf( szTmp, SDL_arraysize(szTmp), format, args );
+        retval = vsnprintf( szTmp, SDL_arraysize( szTmp ), format, args );
         _debug_print( szTmp );
     }
 
@@ -267,14 +267,14 @@ int _debug_vprintf( const char *format, va_list args )
 }
 
 //--------------------------------------------------------------------------------------------
-int _va_draw_string( int x, int y, const char *format, va_list args  )
+int _va_draw_string( int x, int y, const char *format, va_list args )
 {
     int cnt = 1;
     int x_stt;
     STRING szText;
     Uint8 cTmp;
 
-    if ( vsnprintf( szText, SDL_arraysize(szText) - 1, format, args ) <= 0 )
+    if ( vsnprintf( szText, SDL_arraysize( szText ) - 1, format, args ) <= 0 )
     {
         return y;
     }
@@ -290,7 +290,7 @@ int _va_draw_string( int x, int y, const char *format, va_list args  )
             if ( '~' == cTmp )
             {
                 // Use squiggle for tab
-                x = (x & TABAND) + TABADD;
+                x = ( x & TABAND ) + TABADD;
             }
             else if ( '\n' == cTmp )
             {
@@ -317,7 +317,7 @@ int _va_draw_string( int x, int y, const char *format, va_list args  )
 }
 
 //--------------------------------------------------------------------------------------------
-int _draw_string_raw( int x, int y, const char *format, ...  )
+int _draw_string_raw( int x, int y, const char *format, ... )
 {
     /// @details BB@> the same as draw string, but it does not use the gfx_begin_2d() ... gfx_end_2d()
     ///    bookends.
@@ -363,19 +363,19 @@ int ogl_init()
     gfx_init_SDL_graphics();
 
     // GL_DEBUG(glClear)) stuff
-    GL_DEBUG(glClearColor)(0.0f, 0.0f, 0.0f, 0.0f); // Set the background black
-    GL_DEBUG(glClearDepth)( 1.0f );
+    GL_DEBUG( glClearColor )( 0.0f, 0.0f, 0.0f, 0.0f ); // Set the background black
+    GL_DEBUG( glClearDepth )( 1.0f );
 
     // depth buffer stuff
-    GL_DEBUG(glClearDepth)( 1.0f );
-    GL_DEBUG(glDepthMask)(GL_TRUE);
-    GL_DEBUG(glEnable)(GL_DEPTH_TEST);
-    GL_DEBUG(glDepthFunc)(GL_LESS);
+    GL_DEBUG( glClearDepth )( 1.0f );
+    GL_DEBUG( glDepthMask )( GL_TRUE );
+    GL_DEBUG( glEnable )( GL_DEPTH_TEST );
+    GL_DEBUG( glDepthFunc )( GL_LESS );
 
     // alpha stuff
-    GL_DEBUG(glDisable)(GL_BLEND);
-    GL_DEBUG(glEnable)(GL_ALPHA_TEST);
-    GL_DEBUG(glAlphaFunc)(GL_GREATER, 0);
+    GL_DEBUG( glDisable )( GL_BLEND );
+    GL_DEBUG( glEnable )( GL_ALPHA_TEST );
+    GL_DEBUG( glAlphaFunc )( GL_GREATER, 0 );
 
     /// @todo Including backface culling here prevents the mesh from getting rendered
     // backface culling
@@ -384,18 +384,18 @@ int ogl_init()
     // GL_DEBUG(glCullFace)(GL_BACK);
 
     // disable OpenGL lighting
-    GL_DEBUG(glDisable)(GL_LIGHTING );
+    GL_DEBUG( glDisable )( GL_LIGHTING );
 
     // fill mode
-    GL_DEBUG(glPolygonMode)(GL_FRONT, GL_FILL );
-    GL_DEBUG(glPolygonMode)(GL_BACK,  GL_FILL );
+    GL_DEBUG( glPolygonMode )( GL_FRONT, GL_FILL );
+    GL_DEBUG( glPolygonMode )( GL_BACK,  GL_FILL );
 
     // ?Need this for color + lighting?
-    GL_DEBUG(glEnable)(GL_COLOR_MATERIAL );  // Need this for color + lighting
+    GL_DEBUG( glEnable )( GL_COLOR_MATERIAL );  // Need this for color + lighting
 
     // set up environment mapping
-    GL_DEBUG(glTexGeni)(GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP );  // Set The Texture Generation Mode For S To Sphere Mapping (NEW)
-    GL_DEBUG(glTexGeni)(GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP );  // Set The Texture Generation Mode For T To Sphere Mapping (NEW)
+    GL_DEBUG( glTexGeni )( GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP );  // Set The Texture Generation Mode For S To Sphere Mapping (NEW)
+    GL_DEBUG( glTexGeni )( GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP );  // Set The Texture Generation Mode For T To Sphere Mapping (NEW)
 
     // Load the current graphical settings
     // load_graphics();
@@ -408,7 +408,7 @@ int ogl_init()
 //---------------------------------------------------------------------------------------------
 void gfx_init_SDL_graphics()
 {
-    if( _sdl_initialized_graphics ) return;
+    if ( _sdl_initialized_graphics ) return;
 
     ego_init_SDL_base();
 
@@ -427,12 +427,12 @@ void gfx_init_SDL_graphics()
     {
         //Setup the cute windows manager icon, don't do this on Mac
         SDL_Surface *theSurface;
-		STRING fileload;
+        STRING fileload;
 
         strcpy( fileload, "basicdat" SLASH_STR "icon.bmp" );
-		theSurface = IMG_Load( fileload );
+        theSurface = IMG_Load( fileload );
         if ( theSurface == NULL ) log_warning( "Unable to load icon (%s)\n", fileload );
-		else SDL_WM_SetIcon( theSurface, NULL );
+        else SDL_WM_SetIcon( theSurface, NULL );
     }
 #endif
 
@@ -459,7 +459,7 @@ void gfx_init_SDL_graphics()
 
     sdl_vparam.gl_att.buffer_size        = cfg.scrd_req;
     sdl_vparam.gl_att.depth_size         = cfg.scrz_req;
-    sdl_vparam.gl_att.multi_buffers      = (cfg.multisamples > 1) ? 1 : 0;
+    sdl_vparam.gl_att.multi_buffers      = ( cfg.multisamples > 1 ) ? 1 : 0;
     sdl_vparam.gl_att.multi_samples      = cfg.multisamples;
     sdl_vparam.gl_att.accelerated_visual = GL_TRUE;
 
@@ -467,15 +467,15 @@ void gfx_init_SDL_graphics()
     ogl_vparam.antialiasing   = GL_TRUE;
     ogl_vparam.perspective    = GL_FASTEST;
     ogl_vparam.shading        = GL_SMOOTH;
-    ogl_vparam.userAnisotropy = 16.0f * MAX(0, cfg.texturefilter_req - TX_TRILINEAR_2);
+    ogl_vparam.userAnisotropy = 16.0f * MAX( 0, cfg.texturefilter_req - TX_TRILINEAR_2 );
 
-    log_info("Opening SDL Video Mode... ");
+    log_info( "Opening SDL Video Mode... " );
 
     // redirect the output of the SDL_GL_* debug functions
     SDL_GL_set_stdout( log_get_file() );
 
     // actually set the video mode
-    if ( NULL == SDL_GL_set_mode(NULL, &sdl_vparam, &ogl_vparam) )
+    if ( NULL == SDL_GL_set_mode( NULL, &sdl_vparam, &ogl_vparam ) )
     {
         log_message( "Failed!\n" );
         log_error( "I can't get SDL to set any video mode: %s\n", SDL_GetError() );
@@ -490,7 +490,7 @@ void gfx_init_SDL_graphics()
 }
 
 //---------------------------------------------------------------------------------------------
-bool_t gfx_synch_config(gfx_config_t * pgfx, egoboo_config_t * pcfg )
+bool_t gfx_synch_config( gfx_config_t * pgfx, egoboo_config_t * pcfg )
 {
     float kx, ky;
 
@@ -516,14 +516,14 @@ bool_t gfx_synch_config(gfx_config_t * pgfx, egoboo_config_t * pcfg )
     pgfx->draw_background = pcfg->background_allowed && water.background_req;
     pgfx->draw_overlay    = pcfg->overlay_allowed && water.overlay_req;
 
-    pgfx->dyna_list_max = CLIP(pcfg->dyna_count_req, 0, TOTAL_MAX_DYNA);
+    pgfx->dyna_list_max = CLIP( pcfg->dyna_count_req, 0, TOTAL_MAX_DYNA );
 
-    pgfx->draw_water_0 = !pgfx->draw_overlay && (water.layer_count > 0);
+    pgfx->draw_water_0 = !pgfx->draw_overlay && ( water.layer_count > 0 );
     pgfx->clearson     = !pgfx->draw_background;
-    pgfx->draw_water_1 = !pgfx->draw_background && (water.layer_count > 1);
+    pgfx->draw_water_1 = !pgfx->draw_background && ( water.layer_count > 1 );
 
-    kx = (float)GFX_WIDTH  / (float)sdl_scr.x;
-    ky = (float)GFX_HEIGHT / (float)sdl_scr.y;
+    kx = ( float )GFX_WIDTH  / ( float )sdl_scr.x;
+    ky = ( float )GFX_HEIGHT / ( float )sdl_scr.y;
 
     if ( kx == ky )
     {
@@ -541,18 +541,18 @@ bool_t gfx_synch_config(gfx_config_t * pgfx, egoboo_config_t * pcfg )
         pgfx->vh = sdl_scr.y * ky / kx;
     }
 
-    pgfx->vdw = (GFX_WIDTH  - pgfx->vw) * 0.5f;
-    pgfx->vdh = (GFX_HEIGHT - pgfx->vh) * 0.5f;
+    pgfx->vdw = ( GFX_WIDTH  - pgfx->vw ) * 0.5f;
+    pgfx->vdh = ( GFX_HEIGHT - pgfx->vh ) * 0.5f;
 
-    ui_set_virtual_screen(pgfx->vw, pgfx->vh, GFX_WIDTH, GFX_HEIGHT);
+    ui_set_virtual_screen( pgfx->vw, pgfx->vh, GFX_WIDTH, GFX_HEIGHT );
 
     return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t gfx_config_init ( gfx_config_t * pgfx )
+bool_t gfx_config_init( gfx_config_t * pgfx )
 {
-    if (NULL == pgfx) return bfalse;
+    if ( NULL == pgfx ) return bfalse;
 
     pgfx->shading          = GL_SMOOTH;
     pgfx->refon            = btrue;
@@ -585,12 +585,12 @@ bool_t gfx_synch_oglx_texture_parameters( oglx_texture_parameters_t * ptex, egob
     if ( ogl_caps.maxAnisotropy == 0.0f )
     {
         ptex->userAnisotropy = 0.0f;
-        ptex->texturefilter  = (TX_FILTERS)MIN( pcfg->texturefilter_req, TX_TRILINEAR_2 );
+        ptex->texturefilter  = ( TX_FILTERS )MIN( pcfg->texturefilter_req, TX_TRILINEAR_2 );
     }
     else
     {
-        ptex->texturefilter  = (TX_FILTERS)MIN( pcfg->texturefilter_req, TX_FILTER_COUNT );
-        ptex->userAnisotropy = ogl_caps.maxAnisotropy * MAX(0, (int)ptex->texturefilter - (int)TX_TRILINEAR_2);
+        ptex->texturefilter  = ( TX_FILTERS )MIN( pcfg->texturefilter_req, TX_FILTER_COUNT );
+        ptex->userAnisotropy = ogl_caps.maxAnisotropy * MAX( 0, ( int )ptex->texturefilter - ( int )TX_TRILINEAR_2 );
     }
 
     return GL_TRUE;
@@ -623,15 +623,15 @@ void draw_blip( float sizeFactor, Uint8 color, int x, int y )
         oglx_texture * ptex = TxTexture_get_ptr( TX_BLIP );
 
         gfx_enable_texturing();
-        GL_DEBUG(glColor4f)(1.0f, 1.0f, 1.0f, 1.0f );
-        GL_DEBUG(glNormal3f)(0.0f, 0.0f, 1.0f );
+        GL_DEBUG( glColor4f )( 1.0f, 1.0f, 1.0f, 1.0f );
+        GL_DEBUG( glNormal3f )( 0.0f, 0.0f, 1.0f );
 
         oglx_texture_Bind( ptex );
 
-        txrect.left   = (float)bliprect[color].left   / (float)oglx_texture_GetTextureWidth ( ptex );
-        txrect.right  = (float)bliprect[color].right  / (float)oglx_texture_GetTextureWidth ( ptex );
-        txrect.top    = (float)bliprect[color].top    / (float)oglx_texture_GetTextureHeight( ptex );
-        txrect.bottom = (float)bliprect[color].bottom / (float)oglx_texture_GetTextureHeight( ptex );
+        txrect.left   = ( float )bliprect[color].left   / ( float )oglx_texture_GetTextureWidth( ptex );
+        txrect.right  = ( float )bliprect[color].right  / ( float )oglx_texture_GetTextureWidth( ptex );
+        txrect.top    = ( float )bliprect[color].top    / ( float )oglx_texture_GetTextureHeight( ptex );
+        txrect.bottom = ( float )bliprect[color].bottom / ( float )oglx_texture_GetTextureHeight( ptex );
 
         width  = bliprect[color].right  - bliprect[color].left;
         height = bliprect[color].bottom - bliprect[color].top;
@@ -639,12 +639,12 @@ void draw_blip( float sizeFactor, Uint8 color, int x, int y )
         width  *= sizeFactor;
         height *= sizeFactor;
 
-        GL_DEBUG(glBegin)(GL_QUADS );
+        GL_DEBUG( glBegin )( GL_QUADS );
         {
-            GL_DEBUG(glTexCoord2f)( txrect.left,  txrect.bottom ); GL_DEBUG(glVertex2f)( x - (width / 2), y + (height / 2) );
-            GL_DEBUG(glTexCoord2f)( txrect.right, txrect.bottom ); GL_DEBUG(glVertex2f)( x + (width / 2), y + (height / 2) );
-            GL_DEBUG(glTexCoord2f)( txrect.right, txrect.top    ); GL_DEBUG(glVertex2f)( x + (width / 2), y - (height / 2) );
-            GL_DEBUG(glTexCoord2f)( txrect.left,  txrect.top    ); GL_DEBUG(glVertex2f)( x - (width / 2), y - (height / 2) );
+            GL_DEBUG( glTexCoord2f )( txrect.left,  txrect.bottom ); GL_DEBUG( glVertex2f )( x - ( width / 2 ), y + ( height / 2 ) );
+            GL_DEBUG( glTexCoord2f )( txrect.right, txrect.bottom ); GL_DEBUG( glVertex2f )( x + ( width / 2 ), y + ( height / 2 ) );
+            GL_DEBUG( glTexCoord2f )( txrect.right, txrect.top ); GL_DEBUG( glVertex2f )( x + ( width / 2 ), y - ( height / 2 ) );
+            GL_DEBUG( glTexCoord2f )( txrect.left,  txrect.top ); GL_DEBUG( glVertex2f )( x - ( width / 2 ), y - ( height / 2 ) );
         }
         GL_DEBUG_END();
     }
@@ -661,24 +661,24 @@ void draw_one_icon( int icontype, int x, int y, Uint8 sparkle )
     oglx_texture * ptex = TxTexture_get_ptr( icontype );
 
     gfx_enable_texturing();    // Enable texture mapping
-    GL_DEBUG(glColor4f)(1.0f, 1.0f, 1.0f, 1.0f );
+    GL_DEBUG( glColor4f )( 1.0f, 1.0f, 1.0f, 1.0f );
 
     oglx_texture_Bind( ptex );
 
-    txrect.left   = ( (float)iconrect.left   ) / 32.0f;
-    txrect.right  = ( (float)iconrect.right  ) / 32.0f;
-    txrect.top    = ( (float)iconrect.top    ) / 32.0f;
-    txrect.bottom = ( (float)iconrect.bottom ) / 32.0f;
+    txrect.left   = (( float )iconrect.left ) / 32.0f;
+    txrect.right  = (( float )iconrect.right ) / 32.0f;
+    txrect.top    = (( float )iconrect.top ) / 32.0f;
+    txrect.bottom = (( float )iconrect.bottom ) / 32.0f;
 
     width  = iconrect.right  - iconrect.left;
     height = iconrect.bottom - iconrect.top;
 
-    GL_DEBUG(glBegin)(GL_QUADS );
+    GL_DEBUG( glBegin )( GL_QUADS );
     {
-        GL_DEBUG(glTexCoord2f)(txrect.left,  txrect.bottom ); GL_DEBUG(glVertex2i)(x,         y + height );
-        GL_DEBUG(glTexCoord2f)(txrect.right, txrect.bottom ); GL_DEBUG(glVertex2i)(x + width, y + height );
-        GL_DEBUG(glTexCoord2f)(txrect.right, txrect.top    ); GL_DEBUG(glVertex2i)(x + width, y );
-        GL_DEBUG(glTexCoord2f)(txrect.left,  txrect.top    ); GL_DEBUG(glVertex2i)(x,         y );
+        GL_DEBUG( glTexCoord2f )( txrect.left,  txrect.bottom ); GL_DEBUG( glVertex2i )( x,         y + height );
+        GL_DEBUG( glTexCoord2f )( txrect.right, txrect.bottom ); GL_DEBUG( glVertex2i )( x + width, y + height );
+        GL_DEBUG( glTexCoord2f )( txrect.right, txrect.top ); GL_DEBUG( glVertex2i )( x + width, y );
+        GL_DEBUG( glTexCoord2f )( txrect.left,  txrect.top ); GL_DEBUG( glVertex2i )( x,         y );
     }
     GL_DEBUG_END();
 
@@ -689,19 +689,19 @@ void draw_one_icon( int icontype, int x, int y, Uint8 sparkle )
 
         blipx = x + SPARKLEADD + position;
         blipy = y + SPARKLEADD;
-        draw_blip(0.5f, sparkle, blipx, blipy );
+        draw_blip( 0.5f, sparkle, blipx, blipy );
 
         blipx = x + SPARKLEADD + SPARKLESIZE;
         blipy = y + SPARKLEADD + position;
-        draw_blip(0.5f, sparkle, blipx, blipy );
+        draw_blip( 0.5f, sparkle, blipx, blipy );
 
         blipx = blipx - position;
         blipy = y + SPARKLEADD + SPARKLESIZE;
-        draw_blip(0.5f, sparkle, blipx, blipy );
+        draw_blip( 0.5f, sparkle, blipx, blipy );
 
         blipx = x + SPARKLEADD;
         blipy = blipy - position;
-        draw_blip(0.5f, sparkle, blipx, blipy );
+        draw_blip( 0.5f, sparkle, blipx, blipy );
     }
 }
 
@@ -727,12 +727,12 @@ void draw_one_font( int fonttype, int x, int y )
     fy1 = fontrect[fonttype].y * dy + border;
     fy2 = ( fontrect[fonttype].y + fontrect[fonttype].h ) * dy - border;
 
-    GL_DEBUG(glBegin)( GL_QUADS );
+    GL_DEBUG( glBegin )( GL_QUADS );
     {
-        GL_DEBUG(glTexCoord2f)(fx1, fy2 );   GL_DEBUG(glVertex2i)(x, y );
-        GL_DEBUG(glTexCoord2f)(fx2, fy2 );   GL_DEBUG(glVertex2i)(x2, y );
-        GL_DEBUG(glTexCoord2f)(fx2, fy1 );   GL_DEBUG(glVertex2i)(x2, y2 );
-        GL_DEBUG(glTexCoord2f)(fx1, fy1 );   GL_DEBUG(glVertex2i)(x, y2 );
+        GL_DEBUG( glTexCoord2f )( fx1, fy2 );   GL_DEBUG( glVertex2i )( x, y );
+        GL_DEBUG( glTexCoord2f )( fx2, fy2 );   GL_DEBUG( glVertex2i )( x2, y );
+        GL_DEBUG( glTexCoord2f )( fx2, fy1 );   GL_DEBUG( glVertex2i )( x2, y2 );
+        GL_DEBUG( glTexCoord2f )( fx1, fy1 );   GL_DEBUG( glVertex2i )( x, y2 );
     }
     GL_DEBUG_END();
 }
@@ -745,12 +745,12 @@ void draw_map_texture( int x, int y )
 
     oglx_texture_Bind( TxTexture_get_ptr( TX_MAP ) );
 
-    GL_DEBUG(glBegin)(GL_QUADS );
+    GL_DEBUG( glBegin )( GL_QUADS );
     {
-        GL_DEBUG(glTexCoord2f)(0.0f, 1.0f ); GL_DEBUG(glVertex2i)(x,           y + MAPSIZE );
-        GL_DEBUG(glTexCoord2f)(1.0f, 1.0f ); GL_DEBUG(glVertex2i)(x + MAPSIZE, y + MAPSIZE );
-        GL_DEBUG(glTexCoord2f)(1.0f, 0.0f ); GL_DEBUG(glVertex2i)(x + MAPSIZE, y );
-        GL_DEBUG(glTexCoord2f)(0.0f, 0.0f ); GL_DEBUG(glVertex2i)(x,           y );
+        GL_DEBUG( glTexCoord2f )( 0.0f, 1.0f ); GL_DEBUG( glVertex2i )( x,           y + MAPSIZE );
+        GL_DEBUG( glTexCoord2f )( 1.0f, 1.0f ); GL_DEBUG( glVertex2i )( x + MAPSIZE, y + MAPSIZE );
+        GL_DEBUG( glTexCoord2f )( 1.0f, 0.0f ); GL_DEBUG( glVertex2i )( x + MAPSIZE, y );
+        GL_DEBUG( glTexCoord2f )( 0.0f, 0.0f ); GL_DEBUG( glVertex2i )( x,           y );
     }
     GL_DEBUG_END();
 }
@@ -764,10 +764,10 @@ int draw_one_xp_bar( int x, int y, Uint8 ticks )
     Uint8 cnt;
     frect_t txrect;
 
-    ticks = MIN(ticks, NUMTICK);
+    ticks = MIN( ticks, NUMTICK );
 
     gfx_enable_texturing();               // Enable texture mapping
-    GL_DEBUG(glColor4f)(1, 1, 1, 1 );
+    GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
 
     // Draw the tab (always colored)
     oglx_texture_Bind( TxTexture_get_ptr( TX_XP_BAR ) );
@@ -780,12 +780,12 @@ int draw_one_xp_bar( int x, int y, Uint8 ticks )
     width = 16;
     height = XPTICK;
 
-    GL_DEBUG(glBegin)(GL_QUADS );
+    GL_DEBUG( glBegin )( GL_QUADS );
     {
-        GL_DEBUG(glTexCoord2f)(txrect.left,  txrect.bottom ); GL_DEBUG(glVertex2i)(x,         y + height );
-        GL_DEBUG(glTexCoord2f)(txrect.right, txrect.bottom ); GL_DEBUG(glVertex2i)(x + width, y + height );
-        GL_DEBUG(glTexCoord2f)(txrect.right, txrect.top    ); GL_DEBUG(glVertex2i)(x + width, y );
-        GL_DEBUG(glTexCoord2f)(txrect.left,  txrect.top    ); GL_DEBUG(glVertex2i)(x,         y );
+        GL_DEBUG( glTexCoord2f )( txrect.left,  txrect.bottom ); GL_DEBUG( glVertex2i )( x,         y + height );
+        GL_DEBUG( glTexCoord2f )( txrect.right, txrect.bottom ); GL_DEBUG( glVertex2i )( x + width, y + height );
+        GL_DEBUG( glTexCoord2f )( txrect.right, txrect.top ); GL_DEBUG( glVertex2i )( x + width, y );
+        GL_DEBUG( glTexCoord2f )( txrect.left,  txrect.top ); GL_DEBUG( glVertex2i )( x,         y );
     }
     GL_DEBUG_END();
     x += 16;
@@ -799,15 +799,15 @@ int draw_one_xp_bar( int x, int y, Uint8 ticks )
     width  = XPTICK;
     height = XPTICK;
 
-    for ( cnt = 0; cnt < ticks; cnt++)
+    for ( cnt = 0; cnt < ticks; cnt++ )
     {
         oglx_texture_Bind( TxTexture_get_ptr( TX_XP_BAR ) );
-        GL_DEBUG(glBegin)(GL_QUADS );
+        GL_DEBUG( glBegin )( GL_QUADS );
         {
-            GL_DEBUG(glTexCoord2f)(txrect.left,  txrect.bottom ); GL_DEBUG(glVertex2i)(( cnt * width ) + x,         y + height );
-            GL_DEBUG(glTexCoord2f)(txrect.right, txrect.bottom ); GL_DEBUG(glVertex2i)(( cnt * width ) + x + width, y + height );
-            GL_DEBUG(glTexCoord2f)(txrect.right, txrect.top    ); GL_DEBUG(glVertex2i)(( cnt * width ) + x + width, y );
-            GL_DEBUG(glTexCoord2f)(txrect.left,  txrect.top    ); GL_DEBUG(glVertex2i)(( cnt * width ) + x,         y );
+            GL_DEBUG( glTexCoord2f )( txrect.left,  txrect.bottom ); GL_DEBUG( glVertex2i )(( cnt * width ) + x,         y + height );
+            GL_DEBUG( glTexCoord2f )( txrect.right, txrect.bottom ); GL_DEBUG( glVertex2i )(( cnt * width ) + x + width, y + height );
+            GL_DEBUG( glTexCoord2f )( txrect.right, txrect.top ); GL_DEBUG( glVertex2i )(( cnt * width ) + x + width, y );
+            GL_DEBUG( glTexCoord2f )( txrect.left,  txrect.top ); GL_DEBUG( glVertex2i )(( cnt * width ) + x,         y );
         }
         GL_DEBUG_END();
     }
@@ -821,15 +821,15 @@ int draw_one_xp_bar( int x, int y, Uint8 ticks )
     width = XPTICK;
     height = XPTICK;
 
-    for ( /*nothing*/; cnt < NUMTICK; cnt++)
+    for ( /*nothing*/; cnt < NUMTICK; cnt++ )
     {
         oglx_texture_Bind( TxTexture_get_ptr( TX_XP_BAR ) );
-        GL_DEBUG(glBegin)(GL_QUADS );
+        GL_DEBUG( glBegin )( GL_QUADS );
         {
-            GL_DEBUG(glTexCoord2f)( txrect.left,  txrect.bottom ); GL_DEBUG(glVertex2i)(( cnt * width ) + x,         y + height );
-            GL_DEBUG(glTexCoord2f)( txrect.right, txrect.bottom ); GL_DEBUG(glVertex2i)(( cnt * width ) + x + width, y + height );
-            GL_DEBUG(glTexCoord2f)( txrect.right, txrect.top    ); GL_DEBUG(glVertex2i)(( cnt * width ) + x + width, y );
-            GL_DEBUG(glTexCoord2f)( txrect.left,  txrect.top    ); GL_DEBUG(glVertex2i)(( cnt * width ) + x,         y );
+            GL_DEBUG( glTexCoord2f )( txrect.left,  txrect.bottom ); GL_DEBUG( glVertex2i )(( cnt * width ) + x,         y + height );
+            GL_DEBUG( glTexCoord2f )( txrect.right, txrect.bottom ); GL_DEBUG( glVertex2i )(( cnt * width ) + x + width, y + height );
+            GL_DEBUG( glTexCoord2f )( txrect.right, txrect.top ); GL_DEBUG( glVertex2i )(( cnt * width ) + x + width, y );
+            GL_DEBUG( glTexCoord2f )( txrect.left,  txrect.top ); GL_DEBUG( glVertex2i )(( cnt * width ) + x,         y );
         }
         GL_DEBUG_END();
     }
@@ -849,7 +849,7 @@ int draw_one_bar( Uint8 bartype, int x, int y, int ticks, int maxticks )
     if ( maxticks <= 0 || ticks < 0 || bartype > NUMBAR ) return y;
 
     gfx_enable_texturing();               // Enable texture mapping
-    GL_DEBUG(glColor4f)(1, 1, 1, 1 );
+    GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
 
     // Draw the tab
     oglx_texture_Bind( TxTexture_get_ptr( TX_BARS ) );
@@ -862,12 +862,12 @@ int draw_one_bar( Uint8 bartype, int x, int y, int ticks, int maxticks )
     width  = tabrect[bartype].right  - tabrect[bartype].left;
     height = tabrect[bartype].bottom - tabrect[bartype].top;
 
-    GL_DEBUG(glBegin)(GL_QUADS );
+    GL_DEBUG( glBegin )( GL_QUADS );
     {
-        GL_DEBUG(glTexCoord2f)(txrect.left,  txrect.bottom ); GL_DEBUG(glVertex2i)(x,         y + height );
-        GL_DEBUG(glTexCoord2f)(txrect.right, txrect.bottom ); GL_DEBUG(glVertex2i)(x + width, y + height );
-        GL_DEBUG(glTexCoord2f)(txrect.right, txrect.top    ); GL_DEBUG(glVertex2i)(x + width, y );
-        GL_DEBUG(glTexCoord2f)(txrect.left,  txrect.top    ); GL_DEBUG(glVertex2i)(x,         y );
+        GL_DEBUG( glTexCoord2f )( txrect.left,  txrect.bottom ); GL_DEBUG( glVertex2i )( x,         y + height );
+        GL_DEBUG( glTexCoord2f )( txrect.right, txrect.bottom ); GL_DEBUG( glVertex2i )( x + width, y + height );
+        GL_DEBUG( glTexCoord2f )( txrect.right, txrect.top ); GL_DEBUG( glVertex2i )( x + width, y );
+        GL_DEBUG( glTexCoord2f )( txrect.left,  txrect.top ); GL_DEBUG( glVertex2i )( x,         y );
     }
     GL_DEBUG_END();
 
@@ -893,12 +893,12 @@ int draw_one_bar( Uint8 bartype, int x, int y, int ticks, int maxticks )
         width  = barrect[bartype].right - barrect[bartype].left;
         height = barrect[bartype].bottom - barrect[bartype].top;
 
-        GL_DEBUG(glBegin)(GL_QUADS );
+        GL_DEBUG( glBegin )( GL_QUADS );
         {
-            GL_DEBUG(glTexCoord2f)(txrect.left,  txrect.bottom ); GL_DEBUG(glVertex2i)(x,         y + height );
-            GL_DEBUG(glTexCoord2f)(txrect.right, txrect.bottom ); GL_DEBUG(glVertex2i)(x + width, y + height );
-            GL_DEBUG(glTexCoord2f)(txrect.right, txrect.top    ); GL_DEBUG(glVertex2i)(x + width, y );
-            GL_DEBUG(glTexCoord2f)(txrect.left,  txrect.top    ); GL_DEBUG(glVertex2i)(x,         y );
+            GL_DEBUG( glTexCoord2f )( txrect.left,  txrect.bottom ); GL_DEBUG( glVertex2i )( x,         y + height );
+            GL_DEBUG( glTexCoord2f )( txrect.right, txrect.bottom ); GL_DEBUG( glVertex2i )( x + width, y + height );
+            GL_DEBUG( glTexCoord2f )( txrect.right, txrect.top ); GL_DEBUG( glVertex2i )( x + width, y );
+            GL_DEBUG( glTexCoord2f )( txrect.left,  txrect.top ); GL_DEBUG( glVertex2i )( x,         y );
         }
         GL_DEBUG_END();
 
@@ -921,12 +921,12 @@ int draw_one_bar( Uint8 bartype, int x, int y, int ticks, int maxticks )
         width = barrect[bartype].right - barrect[bartype].left;
         height = barrect[bartype].bottom - barrect[bartype].top;
 
-        GL_DEBUG(glBegin)(GL_QUADS );
+        GL_DEBUG( glBegin )( GL_QUADS );
         {
-            GL_DEBUG(glTexCoord2f)(txrect.left,  txrect.bottom ); GL_DEBUG(glVertex2i)(x,         y + height );
-            GL_DEBUG(glTexCoord2f)(txrect.right, txrect.bottom ); GL_DEBUG(glVertex2i)(x + width, y + height );
-            GL_DEBUG(glTexCoord2f)(txrect.right, txrect.top    ); GL_DEBUG(glVertex2i)(x + width, y );
-            GL_DEBUG(glTexCoord2f)(txrect.left,  txrect.top    ); GL_DEBUG(glVertex2i)(x,         y );
+            GL_DEBUG( glTexCoord2f )( txrect.left,  txrect.bottom ); GL_DEBUG( glVertex2i )( x,         y + height );
+            GL_DEBUG( glTexCoord2f )( txrect.right, txrect.bottom ); GL_DEBUG( glVertex2i )( x + width, y + height );
+            GL_DEBUG( glTexCoord2f )( txrect.right, txrect.top ); GL_DEBUG( glVertex2i )( x + width, y );
+            GL_DEBUG( glTexCoord2f )( txrect.left,  txrect.top ); GL_DEBUG( glVertex2i )( x,         y );
         }
         GL_DEBUG_END();
 
@@ -945,12 +945,12 @@ int draw_one_bar( Uint8 bartype, int x, int y, int ticks, int maxticks )
         width = barrect[0].right - barrect[0].left;
         height = barrect[0].bottom - barrect[0].top;
 
-        GL_DEBUG(glBegin)(GL_QUADS );
+        GL_DEBUG( glBegin )( GL_QUADS );
         {
-            GL_DEBUG(glTexCoord2f)(txrect.left,  txrect.bottom ); GL_DEBUG(glVertex2i)(( ticks << 3 ) + x,         y + height );
-            GL_DEBUG(glTexCoord2f)(txrect.right, txrect.bottom ); GL_DEBUG(glVertex2i)(( ticks << 3 ) + x + width, y + height );
-            GL_DEBUG(glTexCoord2f)(txrect.right, txrect.top    ); GL_DEBUG(glVertex2i)(( ticks << 3 ) + x + width, y );
-            GL_DEBUG(glTexCoord2f)(txrect.left,  txrect.top    ); GL_DEBUG(glVertex2i)(( ticks << 3 ) + x,         y );
+            GL_DEBUG( glTexCoord2f )( txrect.left,  txrect.bottom ); GL_DEBUG( glVertex2i )(( ticks << 3 ) + x,         y + height );
+            GL_DEBUG( glTexCoord2f )( txrect.right, txrect.bottom ); GL_DEBUG( glVertex2i )(( ticks << 3 ) + x + width, y + height );
+            GL_DEBUG( glTexCoord2f )( txrect.right, txrect.top ); GL_DEBUG( glVertex2i )(( ticks << 3 ) + x + width, y );
+            GL_DEBUG( glTexCoord2f )( txrect.left,  txrect.top ); GL_DEBUG( glVertex2i )(( ticks << 3 ) + x,         y );
         }
         GL_DEBUG_END();
 
@@ -971,12 +971,12 @@ int draw_one_bar( Uint8 bartype, int x, int y, int ticks, int maxticks )
         width = barrect[0].right - barrect[0].left;
         height = barrect[0].bottom - barrect[0].top;
 
-        GL_DEBUG(glBegin)(GL_QUADS );
+        GL_DEBUG( glBegin )( GL_QUADS );
         {
-            GL_DEBUG(glTexCoord2f)(txrect.left,  txrect.bottom );   GL_DEBUG(glVertex2i)(x,         y + height );
-            GL_DEBUG(glTexCoord2f)(txrect.right, txrect.bottom );   GL_DEBUG(glVertex2i)(x + width, y + height );
-            GL_DEBUG(glTexCoord2f)(txrect.right, txrect.top    );   GL_DEBUG(glVertex2i)(x + width, y );
-            GL_DEBUG(glTexCoord2f)(txrect.left,  txrect.top    );   GL_DEBUG(glVertex2i)(x,         y );
+            GL_DEBUG( glTexCoord2f )( txrect.left,  txrect.bottom );   GL_DEBUG( glVertex2i )( x,         y + height );
+            GL_DEBUG( glTexCoord2f )( txrect.right, txrect.bottom );   GL_DEBUG( glVertex2i )( x + width, y + height );
+            GL_DEBUG( glTexCoord2f )( txrect.right, txrect.top );   GL_DEBUG( glVertex2i )( x + width, y );
+            GL_DEBUG( glTexCoord2f )( txrect.left,  txrect.top );   GL_DEBUG( glVertex2i )( x,         y );
         }
         GL_DEBUG_END();
 
@@ -998,12 +998,12 @@ int draw_one_bar( Uint8 bartype, int x, int y, int ticks, int maxticks )
         width = barrect[0].right - barrect[0].left;
         height = barrect[0].bottom - barrect[0].top;
 
-        GL_DEBUG(glBegin)(GL_QUADS );
+        GL_DEBUG( glBegin )( GL_QUADS );
         {
-            GL_DEBUG(glTexCoord2f)(txrect.left,  txrect.bottom ); GL_DEBUG(glVertex2i)( x,         y + height );
-            GL_DEBUG(glTexCoord2f)(txrect.right, txrect.bottom ); GL_DEBUG(glVertex2i)( x + width, y + height );
-            GL_DEBUG(glTexCoord2f)(txrect.right, txrect.top    ); GL_DEBUG(glVertex2i)( x + width, y );
-            GL_DEBUG(glTexCoord2f)(txrect.left,  txrect.top    ); GL_DEBUG(glVertex2i)( x,         y );
+            GL_DEBUG( glTexCoord2f )( txrect.left,  txrect.bottom ); GL_DEBUG( glVertex2i )( x,         y + height );
+            GL_DEBUG( glTexCoord2f )( txrect.right, txrect.bottom ); GL_DEBUG( glVertex2i )( x + width, y + height );
+            GL_DEBUG( glTexCoord2f )( txrect.right, txrect.top ); GL_DEBUG( glVertex2i )( x + width, y );
+            GL_DEBUG( glTexCoord2f )( txrect.left,  txrect.top ); GL_DEBUG( glVertex2i )( x,         y );
         }
         GL_DEBUG_END();
 
@@ -1016,7 +1016,7 @@ int draw_one_bar( Uint8 bartype, int x, int y, int ticks, int maxticks )
 }
 
 //--------------------------------------------------------------------------------------------
-int draw_string( int x, int y, const char *format, ...  )
+int draw_string( int x, int y, const char *format, ... )
 {
     /// @details ZZ@> This function spits a line of null terminated text onto the backbuffer
     ///
@@ -1080,7 +1080,7 @@ int draw_wrap_string( const char *szText, int x, int y, int maxx )
             if ( '~' == cTmp )
             {
                 // Use squiggle for tab
-                x = (x & TABAND) + TABADD;
+                x = ( x & TABAND ) + TABADD;
             }
             else if ( '\n' == cTmp )
             {
@@ -1125,17 +1125,17 @@ void draw_one_character_icon( Uint16 item, int x, int y, bool_t draw_ammo )
     icon_ref = chr_get_icon_ref( item );
 
     // draw the icon
-    draw_sparkle = (NULL == pitem) ? NOSPARKLE : pitem->sparkle;
+    draw_sparkle = ( NULL == pitem ) ? NOSPARKLE : pitem->sparkle;
     draw_one_icon( icon_ref, x, y, draw_sparkle );
 
     // draw the ammo, if requested
-    if ( draw_ammo && (NULL != pitem) )
+    if ( draw_ammo && ( NULL != pitem ) )
     {
         if ( pitem->ammomax != 0 && pitem->ammoknown )
         {
             cap_t * pitem_cap = chr_get_pcap( item );
 
-            if ( (NULL != pitem_cap && !pitem_cap->isstackable) || pitem->ammo > 1 )
+            if (( NULL != pitem_cap && !pitem_cap->isstackable ) || pitem->ammo > 1 )
             {
                 // Show amount of ammo left
                 _draw_string_raw( x, y - 8, "%2d", pitem->ammo );
@@ -1150,20 +1150,20 @@ int draw_character_xp_bar( Uint16 character, int x, int y )
     chr_t * pchr;
     cap_t * pcap;
 
-    if( !ACTIVE_CHR( character ) ) return y;
+    if ( !ACTIVE_CHR( character ) ) return y;
     pchr = ChrList.lst + character;
 
     pcap = pro_get_pcap( pchr->iprofile );
-    if( NULL == pcap ) return y;
+    if ( NULL == pcap ) return y;
 
     //Draw the small XP progress bar
-    if ( pchr->experiencelevel < MAXLEVEL)
+    if ( pchr->experiencelevel < MAXLEVEL )
     {
         Uint8  curlevel    = pchr->experiencelevel + 1;
         Uint32 xplastlevel = pcap->experienceforlevel[curlevel-1];
         Uint32 xpneed      = pcap->experienceforlevel[curlevel];
 
-        float fraction = (float)MAX(pchr->experience - xplastlevel, 0) / (float)MAX( xpneed - xplastlevel, 1 );
+        float fraction = ( float )MAX( pchr->experience - xplastlevel, 0 ) / ( float )MAX( xpneed - xplastlevel, 1 );
         int   numticks = fraction * NUMTICK;
 
         y = draw_one_xp_bar( x, y, numticks );
@@ -1188,19 +1188,19 @@ int draw_status( Uint16 character, int x, int y )
     chr_t * pchr;
     cap_t * pcap;
 
-    if( !ACTIVE_CHR(character) ) return y;
+    if ( !ACTIVE_CHR( character ) ) return y;
     pchr = ChrList.lst + character;
 
     pcap = chr_get_pcap( character );
-    if( NULL == pcap ) return y;
+    if ( NULL == pcap ) return y;
 
-    life     = FP8_TO_INT( pchr->life    );
+    life     = FP8_TO_INT( pchr->life );
     lifemax  = FP8_TO_INT( pchr->lifemax );
-    mana     = FP8_TO_INT( pchr->mana    );
+    mana     = FP8_TO_INT( pchr->mana );
     manamax  = FP8_TO_INT( pchr->manamax );
 
     // grab the character's display name
-    readtext = (char *)chr_get_name( character, CHRNAME_CAPITAL );
+    readtext = ( char * )chr_get_name( character, CHRNAME_CAPITAL );
 
     // make a short name for the actual display
     for ( cnt = 0; cnt < 6; cnt++ )
@@ -1251,7 +1251,7 @@ int draw_status( Uint16 character, int x, int y )
     }
 
     // Draw the mana bar
-    if( manamax > 0 )
+    if ( manamax > 0 )
     {
         y = draw_one_bar( pchr->manacolor, x, y, mana, manamax );
     }
@@ -1286,13 +1286,13 @@ void draw_map()
     ATTRIB_PUSH( "draw_map()", GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT );
     {
 
-        GL_DEBUG(glEnable)( GL_BLEND );                                 // GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT
-        GL_DEBUG(glBlendFunc)( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  // GL_COLOR_BUFFER_BIT
+        GL_DEBUG( glEnable )( GL_BLEND );                               // GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT
+        GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  // GL_COLOR_BUFFER_BIT
 
-        GL_DEBUG(glColor4f)(1.0f, 1.0f, 1.0f, 1.0f );
+        GL_DEBUG( glColor4f )( 1.0f, 1.0f, 1.0f, 1.0f );
         draw_map_texture( 0, sdl_scr.y - MAPSIZE );
 
-        GL_DEBUG(glBlendFunc)( GL_ONE, GL_ONE_MINUS_SRC_ALPHA );  // GL_COLOR_BUFFER_BIT
+        GL_DEBUG( glBlendFunc )( GL_ONE, GL_ONE_MINUS_SRC_ALPHA );  // GL_COLOR_BUFFER_BIT
 
         // If one of the players can sense enemies via EMP, draw them as blips on the map
         if ( TEAM_MAX != local_senseenemiesTeam )
@@ -1304,10 +1304,10 @@ void draw_map()
                 chr_t * pchr;
                 cap_t * pcap;
 
-                if ( !ACTIVE_CHR(iTmp) ) continue;
+                if ( !ACTIVE_CHR( iTmp ) ) continue;
                 pchr = ChrList.lst + iTmp;
 
-                pcap = chr_get_pcap(iTmp);
+                pcap = chr_get_pcap( iTmp );
                 if ( NULL == pcap ) continue;
 
                 // Show only teams that will attack the player
@@ -1316,13 +1316,13 @@ void draw_map()
                     // Only if they match the required IDSZ ([NONE] always works)
                     if ( local_senseenemiesID == IDSZ_NONE ||
                          local_senseenemiesID == pcap->idsz[IDSZ_PARENT] ||
-                         local_senseenemiesID == pcap->idsz[IDSZ_TYPE  ])
+                         local_senseenemiesID == pcap->idsz[IDSZ_TYPE  ] )
                     {
                         // Inside the map?
                         if ( pchr->pos.x < PMesh->info.edge_x && pchr->pos.y < PMesh->info.edge_y )
                         {
                             // Valid colors only
-                            blipx[numblip] = GET_MAP_X(PMesh, pchr->pos.x);
+                            blipx[numblip] = GET_MAP_X( PMesh, pchr->pos.x );
                             blipy[numblip] = pchr->pos.y * MAPSIZE / PMesh->info.edge_y;
                             blipc[numblip] = COLOR_RED; // Red blips
                             numblip++;
@@ -1335,7 +1335,7 @@ void draw_map()
         // draw all the blips
         for ( cnt = 0; cnt < numblip; cnt++ )
         {
-            draw_blip(0.75f, blipc[cnt], blipx[cnt], blipy[cnt] + sdl_scr.y - MAPSIZE );
+            draw_blip( 0.75f, blipc[cnt], blipx[cnt], blipy[cnt] + sdl_scr.y - MAPSIZE );
         }
         numblip = 0;
 
@@ -1349,9 +1349,9 @@ void draw_map()
                 if ( INPUT_BITS_NONE != PlaList[cnt].device.bits )
                 {
                     tnc = PlaList[cnt].index;
-                    if ( ACTIVE_CHR(tnc) && ChrList.lst[tnc].alive )
+                    if ( ACTIVE_CHR( tnc ) && ChrList.lst[tnc].alive )
                     {
-                        draw_blip( 0.75f, COLOR_WHITE, GET_MAP_X(PMesh, ChrList.lst[tnc].pos.x), GET_MAP_Y(PMesh, ChrList.lst[tnc].pos.y));
+                        draw_blip( 0.75f, COLOR_WHITE, GET_MAP_X( PMesh, ChrList.lst[tnc].pos.x ), GET_MAP_Y( PMesh, ChrList.lst[tnc].pos.y ) );
                     }
                 }
             }
@@ -1363,7 +1363,7 @@ void draw_map()
         //   draw_blip( 0.75f, COLOR_PURPLE, GET_MAP_X(PMesh, PCamera->pos.x), GET_MAP_Y(PMesh, PCamera->pos.y));
         // }
     }
-    ATTRIB_POP("draw_map()")
+    ATTRIB_POP( "draw_map()" )
 
 }
 
@@ -1457,7 +1457,7 @@ int draw_debug( int y )
                               ChrList.lst[tnc].damagemodifier[4] & 3,
                               ChrList.lst[tnc].damagemodifier[5] & 3,
                               ChrList.lst[tnc].damagemodifier[6] & 3,
-                              ChrList.lst[tnc].damagemodifier[7] & 3  );
+                              ChrList.lst[tnc].damagemodifier[7] & 3 );
 
         tnc = PlaList[0].index;
         y = _draw_string_raw( 0, y, "~~PLA0 %5.1f %5.1f", ChrList.lst[tnc].pos.x / TILE_SIZE, ChrList.lst[tnc].pos.y / TILE_SIZE );
@@ -1475,8 +1475,8 @@ int draw_debug( int y )
         y = _draw_string_raw( 0, y, "~~FREEPRT %d", prt_count_free() );
         y = _draw_string_raw( 0, y, "~~FREECHR %d", chr_count_free() );
         y = _draw_string_raw( 0, y, "~~MACHINE %d", local_machine );
-        if ( PMod->exportvalid ) snprintf( text, SDL_arraysize( text), "~~EXPORT: TRUE" );
-        else                    snprintf( text, SDL_arraysize( text), "~~EXPORT: FALSE" );
+        if ( PMod->exportvalid ) snprintf( text, SDL_arraysize( text ), "~~EXPORT: TRUE" );
+        else                    snprintf( text, SDL_arraysize( text ), "~~EXPORT: FALSE" );
         y = _draw_string_raw( 0, y, text, PMod->exportvalid );
         y = _draw_string_raw( 0, y, "~~PASS %d/%d", ShopStack.count, PassageStack.count );
         y = _draw_string_raw( 0, y, "~~NETPLAYERS %d", numplayer );
@@ -1508,7 +1508,7 @@ int draw_timer( int y )
     if ( timeron )
     {
         fifties = ( timervalue % 50 ) << 1;
-        seconds = ( ( timervalue / 50 ) % 60 );
+        seconds = (( timervalue / 50 ) % 60 );
         minutes = ( timervalue / 3000 );
         y = _draw_string_raw( 0, y, "=%d:%02d:%02d=", minutes, seconds, fifties );
     }
@@ -1525,25 +1525,25 @@ int draw_game_status( int y )
         y = _draw_string_raw( 0, y, "Waiting for players... " );
     }
 
-	if( numplayer > 0 )
-	{
-		if ( local_allpladead || PMod->respawnanytime )
-		{
-			if ( PMod->respawnvalid && cfg.difficulty < GAME_HARD )
-			{
-				y = _draw_string_raw( 0, y, "PRESS SPACE TO RESPAWN" );
-			}
-			else
-			{
-				y = _draw_string_raw( 0, y, "PRESS ESCAPE TO QUIT" );
-			}
-		}
-		else if ( PMod->beat )
-		{
-			y = _draw_string_raw( 0, y, "VICTORY!  PRESS ESCAPE" );
-		}
-	}
-	else y = _draw_string_raw( 0, y, "ERROR: MISSING PLAYERS" );
+    if ( numplayer > 0 )
+    {
+        if ( local_allpladead || PMod->respawnanytime )
+        {
+            if ( PMod->respawnvalid && cfg.difficulty < GAME_HARD )
+            {
+                y = _draw_string_raw( 0, y, "PRESS SPACE TO RESPAWN" );
+            }
+            else
+            {
+                y = _draw_string_raw( 0, y, "PRESS ESCAPE TO QUIT" );
+            }
+        }
+        else if ( PMod->beat )
+        {
+            y = _draw_string_raw( 0, y, "VICTORY!  PRESS ESCAPE" );
+        }
+    }
+    else y = _draw_string_raw( 0, y, "ERROR: MISSING PLAYERS" );
 
     return y;
 }
@@ -1563,7 +1563,7 @@ int draw_messages( int y )
             if ( DisplayMsg.lst[tnc].time > 0 )
             {
                 y = draw_wrap_string( DisplayMsg.lst[tnc].textdisplay, 0, y, sdl_scr.x - wraptolerance );
-                if (DisplayMsg.lst[tnc].time > msgtimechange)
+                if ( DisplayMsg.lst[tnc].time > msgtimechange )
                 {
                     DisplayMsg.lst[tnc].time -= msgtimechange;
                 }
@@ -1573,7 +1573,7 @@ int draw_messages( int y )
                 }
             }
 
-            tnc = (tnc + 1) % maxmessage;
+            tnc = ( tnc + 1 ) % maxmessage;
         }
 
         msgtimechange = 0;
@@ -1606,7 +1606,7 @@ void draw_text()
         {
             char buffer[KEYB_BUFFER_SIZE + 128] = EMPTY_CSTR;
 
-            snprintf( buffer, SDL_arraysize(buffer), "%s > %s%s", cfg.network_messagename, keyb.buffer, HAS_NO_BITS( update_wld, 8 ) ? "x" : "+" );
+            snprintf( buffer, SDL_arraysize( buffer ), "%s > %s%s", cfg.network_messagename, keyb.buffer, HAS_NO_BITS( update_wld, 8 ) ? "x" : "+" );
 
             y = draw_wrap_string( buffer, 0, y, sdl_scr.x - wraptolerance );
         }
@@ -1670,7 +1670,7 @@ void project_view( camera_t * pcam )
     mTemp = MatrixMult( RotateX( -rotmeshdown * PI / 360 ), mTemp );
     zproject = mTemp.CNV( 2, 2 );             // 2,2
 
-	// Camera must look down
+    // Camera must look down
     if ( zproject < 0 )
     {
         numstep = -ztemp / zproject;
@@ -1750,14 +1750,14 @@ void render_shadow_sprite( float intensity, GLvertex v[] )
 
     if ( intensity*255.0f < 1.0f ) return;
 
-    GL_DEBUG(glColor4f)(intensity, intensity, intensity, 1.0f );
+    GL_DEBUG( glColor4f )( intensity, intensity, intensity, 1.0f );
 
-    GL_DEBUG(glBegin)(GL_TRIANGLE_FAN );
+    GL_DEBUG( glBegin )( GL_TRIANGLE_FAN );
     {
         for ( i = 0; i < 4; i++ )
         {
-            GL_DEBUG(glTexCoord2fv)(v[i].tex );
-            GL_DEBUG(glVertex3fv)(v[i].pos );
+            GL_DEBUG( glTexCoord2fv )( v[i].tex );
+            GL_DEBUG( glVertex3fv )( v[i].pos );
         }
     }
     GL_DEBUG_END();
@@ -1775,27 +1775,27 @@ void render_shadow( Uint16 character )
     float alpha, alpha_umbra, alpha_penumbra;
     chr_t * pchr;
 
-    if ( character >= MAX_CHR || !ACTIVE_CHR(character) || ChrList.lst[character].pack_ispacked ) return;
+    if ( character >= MAX_CHR || !ACTIVE_CHR( character ) || ChrList.lst[character].pack_ispacked ) return;
     pchr = ChrList.lst + character;
 
     // if the character is hidden, not drawn at all, so no shadow
-	if ( pchr->is_hidden || pchr->shadowsize == 0 ) return;
+    if ( pchr->is_hidden || pchr->shadowsize == 0 ) return;
 
     // no shadow if off the mesh
-    if ( !VALID_TILE(PMesh, pchr->onwhichfan) ) return;
+    if ( !VALID_TILE( PMesh, pchr->onwhichfan ) ) return;
 
     // no shadow if invalid tile image
-    if ( TILE_IS_FANOFF(PMesh->mmem.tile_list[pchr->onwhichfan]) ) return;
+    if ( TILE_IS_FANOFF( PMesh->mmem.tile_list[pchr->onwhichfan] ) ) return;
 
     // no shadow if completely transparent
-    alpha = (255 == pchr->inst.light) ? pchr->inst.alpha  * INV_FF : (pchr->inst.alpha - pchr->inst.light) * INV_FF;
+    alpha = ( 255 == pchr->inst.light ) ? pchr->inst.alpha  * INV_FF : ( pchr->inst.alpha - pchr->inst.light ) * INV_FF;
 
     /// @test ZF@> The previous test didn't work, but this one does
     //if ( alpha * 255 < 1 ) return;
-	if ( pchr->inst.light <= INVISIBLE || pchr->inst.alpha <= INVISIBLE ) return;
+    if ( pchr->inst.light <= INVISIBLE || pchr->inst.alpha <= INVISIBLE ) return;
 
     // much reduced shadow if on a reflective tile
-    if ( 0 != mesh_test_fx(PMesh, pchr->onwhichfan, MPDFX_DRAWREF) )
+    if ( 0 != mesh_test_fx( PMesh, pchr->onwhichfan, MPDFX_DRAWREF ) )
     {
         alpha *= 0.1f;
     }
@@ -1814,17 +1814,17 @@ void render_shadow( Uint16 character )
     alpha_umbra = alpha_penumbra = alpha;
     if ( height > 0 )
     {
-        float factor_penumbra = ( 1.5f ) * ( ( pchr->bump.size ) / size_penumbra );
-        float factor_umbra    = ( 1.5f ) * ( ( pchr->bump.size ) / size_umbra );
+        float factor_penumbra = ( 1.5f ) * (( pchr->bump.size ) / size_penumbra );
+        float factor_umbra    = ( 1.5f ) * (( pchr->bump.size ) / size_umbra );
 
-        factor_umbra    = MAX(1.0f, factor_umbra);
-        factor_penumbra = MAX(1.0f, factor_penumbra);
+        factor_umbra    = MAX( 1.0f, factor_umbra );
+        factor_penumbra = MAX( 1.0f, factor_penumbra );
 
         alpha_umbra    *= 1.0f / factor_umbra / factor_umbra / 1.5f;
         alpha_penumbra *= 1.0f / factor_penumbra / factor_penumbra / 1.5f;
 
-        alpha_umbra    = CLIP(alpha_umbra,    0.0f, 1.0f);
-        alpha_penumbra = CLIP(alpha_penumbra, 0.0f, 1.0f);
+        alpha_umbra    = CLIP( alpha_umbra,    0.0f, 1.0f );
+        alpha_penumbra = CLIP( alpha_penumbra, 0.0f, 1.0f );
     }
 
     x = pchr->inst.matrix.CNV( 3, 0 );
@@ -1864,7 +1864,7 @@ void render_shadow( Uint16 character )
         v[3].pos[YY] = y - size_penumbra;
         v[3].pos[ZZ] = level;
 
-        render_shadow_sprite(alpha_penumbra, v );
+        render_shadow_sprite( alpha_penumbra, v );
     };
 
     if ( size_umbra > 0 )
@@ -1899,27 +1899,27 @@ void render_bad_shadow( Uint16 character )
     float level, height, height_factor, alpha;
     chr_t * pchr;
 
-    if ( character >= MAX_CHR || !ACTIVE_CHR(character) || ChrList.lst[character].pack_ispacked ) return;
+    if ( character >= MAX_CHR || !ACTIVE_CHR( character ) || ChrList.lst[character].pack_ispacked ) return;
     pchr = ChrList.lst + character;
 
     // if the character is hidden, not drawn at all, so no shadow
-	if ( pchr->is_hidden || pchr->shadowsize == 0 ) return;
+    if ( pchr->is_hidden || pchr->shadowsize == 0 ) return;
 
     // no shadow if off the mesh
-    if ( !VALID_TILE(PMesh, pchr->onwhichfan) ) return;
+    if ( !VALID_TILE( PMesh, pchr->onwhichfan ) ) return;
 
     // no shadow if invalid tile image
-    if ( TILE_IS_FANOFF(PMesh->mmem.tile_list[pchr->onwhichfan]) ) return;
+    if ( TILE_IS_FANOFF( PMesh->mmem.tile_list[pchr->onwhichfan] ) ) return;
 
     // no shadow if completely transparent or completely glowing
-    alpha = (255 == pchr->inst.light) ? pchr->inst.alpha  * INV_FF : (pchr->inst.alpha - pchr->inst.light) * INV_FF;
+    alpha = ( 255 == pchr->inst.light ) ? pchr->inst.alpha  * INV_FF : ( pchr->inst.alpha - pchr->inst.light ) * INV_FF;
 
     /// @test ZF@> previous test didn't work, but this one does
     //if ( alpha * 255 < 1 ) return;
-	if ( pchr->inst.light <= INVISIBLE || pchr->inst.alpha <= INVISIBLE ) return;
+    if ( pchr->inst.light <= INVISIBLE || pchr->inst.alpha <= INVISIBLE ) return;
 
     // much reduced shadow if on a reflective tile
-    if ( 0 != mesh_test_fx(PMesh, pchr->onwhichfan, MPDFX_DRAWREF) )
+    if ( 0 != mesh_test_fx( PMesh, pchr->onwhichfan, MPDFX_DRAWREF ) )
     {
         alpha *= 0.1f;
     }
@@ -1941,21 +1941,21 @@ void render_bad_shadow( Uint16 character )
 
     size = pchr->shadowsize * height_factor;
 
-    v[0].pos[XX] = (float) x + size;
-    v[0].pos[YY] = (float) y - size;
-    v[0].pos[ZZ] = (float) level;
+    v[0].pos[XX] = ( float ) x + size;
+    v[0].pos[YY] = ( float ) y - size;
+    v[0].pos[ZZ] = ( float ) level;
 
-    v[1].pos[XX] = (float) x + size;
-    v[1].pos[YY] = (float) y + size;
-    v[1].pos[ZZ] = (float) level;
+    v[1].pos[XX] = ( float ) x + size;
+    v[1].pos[YY] = ( float ) y + size;
+    v[1].pos[ZZ] = ( float ) level;
 
-    v[2].pos[XX] = (float) x - size;
-    v[2].pos[YY] = (float) y + size;
-    v[2].pos[ZZ] = (float) level;
+    v[2].pos[XX] = ( float ) x - size;
+    v[2].pos[YY] = ( float ) y + size;
+    v[2].pos[ZZ] = ( float ) level;
 
-    v[3].pos[XX] = (float) x - size;
-    v[3].pos[YY] = (float) y - size;
-    v[3].pos[ZZ] = (float) level;
+    v[3].pos[XX] = ( float ) x - size;
+    v[3].pos[YY] = ( float ) y - size;
+    v[3].pos[ZZ] = ( float ) level;
 
     // Choose texture and matrix
     oglx_texture_Bind( TxTexture_get_ptr( TX_PARTICLE_LIGHT ) );
@@ -2012,16 +2012,16 @@ void update_all_chr_instance()
 {
     int cnt;
 
-    for( cnt = 0; cnt < MAX_CHR; cnt++ )
+    for ( cnt = 0; cnt < MAX_CHR; cnt++ )
     {
         chr_t * pchr;
 
-        if( !ACTIVE_CHR(cnt) ) continue;
+        if ( !ACTIVE_CHR( cnt ) ) continue;
         pchr = ChrList.lst + cnt;
 
-        if( !VALID_TILE(PMesh, pchr->onwhichfan) ) continue;
+        if ( !VALID_TILE( PMesh, pchr->onwhichfan ) ) continue;
 
-        if( rv_success == chr_update_instance( pchr ) )
+        if ( rv_success == chr_update_instance( pchr ) )
         {
             // the instance has changed, refresh the collision bound
             chr_update_collision_size( pchr, btrue );
@@ -2033,13 +2033,13 @@ void update_all_chr_instance()
 bool_t render_fans_by_list( ego_mpd_t * pmesh, Uint32 list[], size_t list_size )
 {
     Uint32 cnt;
-	int tx;
+    int tx;
 
-    if( NULL == pmesh || NULL == list || 0 == list_size ) return bfalse;
+    if ( NULL == pmesh || NULL == list || 0 == list_size ) return bfalse;
 
-    if( meshnotexture )
+    if ( meshnotexture )
     {
-        meshlasttexture = (Uint16)(~0);
+        meshlasttexture = ( Uint16 )( ~0 );
         oglx_texture_Bind( NULL );
 
         for ( cnt = 0; cnt < list_size; cnt++ )
@@ -2049,10 +2049,10 @@ bool_t render_fans_by_list( ego_mpd_t * pmesh, Uint32 list[], size_t list_size )
     }
     else
     {
-        for( tx = TX_TILE_0; tx <= TX_TILE_3; tx++ )
+        for ( tx = TX_TILE_0; tx <= TX_TILE_3; tx++ )
         {
             meshlasttexture = tx;
-            oglx_texture_Bind( TxTexture_get_ptr(tx) );
+            oglx_texture_Bind( TxTexture_get_ptr( tx ) );
 
             for ( cnt = 0; cnt < list_size; cnt++ )
             {
@@ -2097,7 +2097,7 @@ void render_scene_mesh( renderlist_t * prlist )
 
     Uint16 tnc;
     int cnt;
-	ego_mpd_t * pmesh;
+    ego_mpd_t * pmesh;
 
     if ( NULL == prlist ) return;
 
@@ -2106,14 +2106,14 @@ void render_scene_mesh( renderlist_t * prlist )
 
     //---------------------------------------------
     // draw all tiles that do not reflect characters
-    GL_DEBUG(glDisable)(GL_BLEND );             // no transparency
-    GL_DEBUG(glDisable)(GL_CULL_FACE );
+    GL_DEBUG( glDisable )( GL_BLEND );          // no transparency
+    GL_DEBUG( glDisable )( GL_CULL_FACE );
 
-    GL_DEBUG(glEnable)(GL_DEPTH_TEST );
-    GL_DEBUG(glDepthMask)(GL_TRUE );
+    GL_DEBUG( glEnable )( GL_DEPTH_TEST );
+    GL_DEBUG( glDepthMask )( GL_TRUE );
 
-    GL_DEBUG(glEnable)(GL_ALPHA_TEST );         // use alpha test to allow the thatched roof tiles to look like thatch
-    GL_DEBUG(glAlphaFunc)(GL_GREATER, 0 );
+    GL_DEBUG( glEnable )( GL_ALPHA_TEST );      // use alpha test to allow the thatched roof tiles to look like thatch
+    GL_DEBUG( glAlphaFunc )( GL_GREATER, 0 );
 
     // reduce texture hashing by loading up each texture only once
     render_fans_by_list( pmesh, prlist->ndr, prlist->ndr_count );
@@ -2126,19 +2126,19 @@ void render_scene_mesh( renderlist_t * prlist )
         // draw the reflective tiles, but turn off the depth buffer
         // this blanks out any background that might've been drawn
 
-        GL_DEBUG(glEnable)(GL_DEPTH_TEST );
-        GL_DEBUG(glDepthMask)(GL_FALSE );
+        GL_DEBUG( glEnable )( GL_DEPTH_TEST );
+        GL_DEBUG( glDepthMask )( GL_FALSE );
 
-        GL_DEBUG(glEnable)(GL_BLEND );
-        GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+        GL_DEBUG( glEnable )( GL_BLEND );
+        GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
         render_fans_by_list( pmesh, prlist->drf, prlist->drf_count );
 
         //------------------------------
         // Render all reflected objects
-        GL_DEBUG(glEnable)(GL_BLEND );
-        GL_DEBUG(glDepthMask)(GL_TRUE );
-        GL_DEBUG(glDepthFunc)(GL_LEQUAL );
+        GL_DEBUG( glEnable )( GL_BLEND );
+        GL_DEBUG( glDepthMask )( GL_TRUE );
+        GL_DEBUG( glDepthFunc )( GL_LEQUAL );
         for ( cnt = dolist_count - 1; cnt >= 0; cnt-- )
         {
             tnc = dolist[cnt].ichr;
@@ -2147,18 +2147,18 @@ void render_scene_mesh( renderlist_t * prlist )
             {
                 Uint32 itile;
 
-                GL_DEBUG(glEnable)( GL_CULL_FACE );     // GL_ENABLE_BIT
-                GL_DEBUG(glFrontFace)( GL_CCW );        // GL_POLYGON_BIT
+                GL_DEBUG( glEnable )( GL_CULL_FACE );   // GL_ENABLE_BIT
+                GL_DEBUG( glFrontFace )( GL_CCW );      // GL_POLYGON_BIT
 
-                GL_DEBUG(glEnable)( GL_BLEND );
-                GL_DEBUG(glBlendFunc)( GL_SRC_ALPHA, GL_ONE );
+                GL_DEBUG( glEnable )( GL_BLEND );
+                GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE );
 
                 tnc = dolist[cnt].ichr;
                 itile = ChrList.lst[tnc].onwhichfan;
 
-                if ( VALID_TILE(pmesh, itile) && (0 != mesh_test_fx( pmesh, itile, MPDFX_DRAWREF )) )
+                if ( VALID_TILE( pmesh, itile ) && ( 0 != mesh_test_fx( pmesh, itile, MPDFX_DRAWREF ) ) )
                 {
-                    GL_DEBUG(glColor4f)(1,1,1,1);
+                    GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
                     render_one_mad_ref( tnc );
                 }
             }
@@ -2168,13 +2168,13 @@ void render_scene_mesh( renderlist_t * prlist )
                 tnc = dolist[cnt].iprt;
                 itile = PrtList.lst[tnc].onwhichfan;
 
-                GL_DEBUG(glDisable)( GL_CULL_FACE );
+                GL_DEBUG( glDisable )( GL_CULL_FACE );
 
                 // render_one_prt_ref() actually sets its own blend function, but just to be safe
-                GL_DEBUG(glEnable)(GL_BLEND );
-                GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE );
+                GL_DEBUG( glEnable )( GL_BLEND );
+                GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE );
 
-                if ( VALID_TILE(pmesh, itile) && (0 != mesh_test_fx( pmesh, itile, MPDFX_DRAWREF )) )
+                if ( VALID_TILE( pmesh, itile ) && ( 0 != mesh_test_fx( pmesh, itile, MPDFX_DRAWREF ) ) )
                 {
                     render_one_prt_ref( tnc );
                 }
@@ -2185,15 +2185,15 @@ void render_scene_mesh( renderlist_t * prlist )
         // Render the shadow floors ( let everything show through )
         // turn on the depth mask, so that no objects under the floor will show through
         // this assumes that the floor is not partially transparent...
-        GL_DEBUG(glDepthMask)(GL_TRUE );
+        GL_DEBUG( glDepthMask )( GL_TRUE );
 
-        GL_DEBUG(glEnable)(GL_BLEND );
-        GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE );
+        GL_DEBUG( glEnable )( GL_BLEND );
+        GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE );
 
-        GL_DEBUG(glDisable)(GL_CULL_FACE );
+        GL_DEBUG( glDisable )( GL_CULL_FACE );
 
-        GL_DEBUG(glEnable)(GL_DEPTH_TEST );
-        GL_DEBUG(glDepthMask)(GL_TRUE );
+        GL_DEBUG( glEnable )( GL_DEPTH_TEST );
+        GL_DEBUG( glDepthMask )( GL_TRUE );
 
         // reduce texture hashing by loading up each texture only once
         render_fans_by_list( pmesh, prlist->drf, prlist->drf_count );
@@ -2220,11 +2220,11 @@ void render_scene_mesh( renderlist_t * prlist )
     // Render the shadows
     if ( gfx.shaon )
     {
-        GL_DEBUG(glDepthMask)(GL_FALSE );
-        GL_DEBUG(glEnable)(GL_DEPTH_TEST );
+        GL_DEBUG( glDepthMask )( GL_FALSE );
+        GL_DEBUG( glEnable )( GL_DEPTH_TEST );
 
-        GL_DEBUG(glEnable)(GL_BLEND );
-        GL_DEBUG(glBlendFunc)(GL_ZERO, GL_ONE_MINUS_SRC_COLOR );
+        GL_DEBUG( glEnable )( GL_BLEND );
+        GL_DEBUG( glBlendFunc )( GL_ZERO, GL_ONE_MINUS_SRC_COLOR );
 
         if ( gfx.shasprite )
         {
@@ -2260,22 +2260,22 @@ void render_scene_solid()
     // Render all solid objects
     for ( cnt = 0; cnt < dolist_count; cnt++ )
     {
-        GL_DEBUG(glDepthMask)( GL_TRUE );
+        GL_DEBUG( glDepthMask )( GL_TRUE );
 
-        GL_DEBUG(glEnable)( GL_DEPTH_TEST );
-        GL_DEBUG(glDepthFunc)( GL_LEQUAL );
+        GL_DEBUG( glEnable )( GL_DEPTH_TEST );
+        GL_DEBUG( glDepthFunc )( GL_LEQUAL );
 
-        GL_DEBUG(glEnable)( GL_ALPHA_TEST );
-        GL_DEBUG(glAlphaFunc)( GL_GREATER, 0 );
+        GL_DEBUG( glEnable )( GL_ALPHA_TEST );
+        GL_DEBUG( glAlphaFunc )( GL_GREATER, 0 );
 
-        GL_DEBUG(glDisable)( GL_BLEND );
+        GL_DEBUG( glDisable )( GL_BLEND );
 
-        GL_DEBUG(glDisable)( GL_CULL_FACE );
+        GL_DEBUG( glDisable )( GL_CULL_FACE );
 
         if ( TOTAL_MAX_PRT == dolist[cnt].iprt )
         {
             GLXvector4f tint;
-            chr_instance_t * pinst = chr_get_pinstance(dolist[cnt].ichr);
+            chr_instance_t * pinst = chr_get_pinstance( dolist[cnt].ichr );
 
             if ( NULL != pinst && pinst->alpha == 255 && pinst->light == 255 )
             {
@@ -2286,7 +2286,7 @@ void render_scene_solid()
         }
         else if ( MAX_CHR == dolist[cnt].ichr && DISPLAY_PRT( dolist[cnt].iprt ) )
         {
-            GL_DEBUG(glDisable)( GL_CULL_FACE );
+            GL_DEBUG( glDisable )( GL_CULL_FACE );
 
             render_one_prt_solid( dolist[cnt].iprt );
         }
@@ -2304,24 +2304,24 @@ void render_scene_solid()
 void render_scene_water( renderlist_t * prlist )
 {
     // set the the transparency parameters
-    GL_DEBUG(glDepthMask)( GL_FALSE );
-    GL_DEBUG(glEnable)( GL_DEPTH_TEST );
-    GL_DEBUG(glDepthFunc)( GL_LEQUAL );
+    GL_DEBUG( glDepthMask )( GL_FALSE );
+    GL_DEBUG( glEnable )( GL_DEPTH_TEST );
+    GL_DEBUG( glDepthFunc )( GL_LEQUAL );
 
-    GL_DEBUG(glEnable)( GL_CULL_FACE );              // GL_ENABLE_BIT
-    GL_DEBUG(glFrontFace)( GL_CW );                  // GL_POLYGON_BIT
+    GL_DEBUG( glEnable )( GL_CULL_FACE );            // GL_ENABLE_BIT
+    GL_DEBUG( glFrontFace )( GL_CW );                // GL_POLYGON_BIT
 
     // And transparent water floors
     if ( !water.light )
     {
-        GL_DEBUG(glEnable)(GL_BLEND );
-        GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+        GL_DEBUG( glEnable )( GL_BLEND );
+        GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
         render_water( prlist );
     }
     else
     {
-        GL_DEBUG(glEnable)(GL_BLEND );
-        GL_DEBUG(glBlendFunc)(GL_ONE, GL_ONE );
+        GL_DEBUG( glEnable )( GL_BLEND );
+        GL_DEBUG( glBlendFunc )( GL_ONE, GL_ONE );
         render_water( prlist );
     }
 }
@@ -2335,10 +2335,10 @@ void render_scene_trans()
     GLXvector4f tint;
 
     // set the the transparency parameters
-    GL_DEBUG(glDepthMask)( GL_FALSE );                     // GL_DEPTH_BUFFER_BIT
+    GL_DEBUG( glDepthMask )( GL_FALSE );                   // GL_DEPTH_BUFFER_BIT
 
-    GL_DEBUG(glEnable)(GL_DEPTH_TEST );                   // GL_ENABLE_BIT
-    GL_DEBUG(glDepthFunc)(GL_LEQUAL );                    // GL_DEPTH_BUFFER_BIT
+    GL_DEBUG( glEnable )( GL_DEPTH_TEST );                // GL_ENABLE_BIT
+    GL_DEBUG( glDepthFunc )( GL_LEQUAL );                 // GL_DEPTH_BUFFER_BIT
 
     // Now render all transparent and light objects
     for ( cnt = dolist_count - 1; cnt >= 0; cnt-- )
@@ -2347,15 +2347,15 @@ void render_scene_trans()
         {
             Uint16  ichr = dolist[cnt].ichr;
             chr_t * pchr = ChrList.lst + ichr;
-            chr_instance_t * pinst = &(pchr->inst);
+            chr_instance_t * pinst = &( pchr->inst );
 
-            GL_DEBUG(glEnable)(GL_CULL_FACE );            // GL_ENABLE_BIT
-            GL_DEBUG(glFrontFace)( GL_CW );               // GL_POLYGON_BIT
+            GL_DEBUG( glEnable )( GL_CULL_FACE );         // GL_ENABLE_BIT
+            GL_DEBUG( glFrontFace )( GL_CW );             // GL_POLYGON_BIT
 
-            if (pinst->alpha != 255 && pinst->light == 255)
+            if ( pinst->alpha != 255 && pinst->light == 255 )
             {
-                GL_DEBUG(glEnable)(GL_BLEND );                                        // GL_ENABLE_BIT
-                GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );         // GL_COLOR_BUFFER_BIT
+                GL_DEBUG( glEnable )( GL_BLEND );                                     // GL_ENABLE_BIT
+                GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );      // GL_COLOR_BUFFER_BIT
 
                 chr_instance_get_tint( pinst, tint, CHR_ALPHA );
 
@@ -2364,8 +2364,8 @@ void render_scene_trans()
 
             if ( pinst->light != 255 )
             {
-                GL_DEBUG(glEnable)(GL_BLEND );              // GL_ENABLE_BIT
-                GL_DEBUG(glBlendFunc)(GL_ONE, GL_ONE );     // GL_COLOR_BUFFER_BIT
+                GL_DEBUG( glEnable )( GL_BLEND );           // GL_ENABLE_BIT
+                GL_DEBUG( glBlendFunc )( GL_ONE, GL_ONE );  // GL_COLOR_BUFFER_BIT
 
                 chr_instance_get_tint( pinst, tint, CHR_LIGHT );
 
@@ -2374,8 +2374,8 @@ void render_scene_trans()
 
             if ( gfx.phongon && pinst->sheen > 0 )
             {
-                GL_DEBUG(glEnable)(GL_BLEND );                      // GL_ENABLE_BIT
-                GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE );       // GL_COLOR_BUFFER_BIT
+                GL_DEBUG( glEnable )( GL_BLEND );                   // GL_ENABLE_BIT
+                GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE );    // GL_COLOR_BUFFER_BIT
 
                 chr_instance_get_tint( pinst, tint, CHR_PHONG );
 
@@ -2394,7 +2394,7 @@ void render_scene( ego_mpd_t * pmesh, camera_t * pcam )
 {
     /// @details ZZ@> This function draws 3D objects
 
-    if ( NULL == pcam  ) pcam = PCamera;
+    if ( NULL == pcam ) pcam = PCamera;
     if ( NULL == pmesh ) pmesh = PMesh;
 
     PROFILE_BEGIN( render_scene_init );
@@ -2442,11 +2442,11 @@ void render_scene( ego_mpd_t * pmesh, camera_t * pcam )
     //render_all_prt_attachment();
 #endif
 
-    time_draw_scene_init  = PROFILE_QUERY(render_scene_init ) * TARGET_FPS;
-    time_draw_scene_mesh  = PROFILE_QUERY(render_scene_mesh ) * TARGET_FPS;
-    time_draw_scene_solid = PROFILE_QUERY(render_scene_solid) * TARGET_FPS;
-    time_draw_scene_water = PROFILE_QUERY(render_scene_water) * TARGET_FPS;
-    time_draw_scene_trans = PROFILE_QUERY(render_scene_trans) * TARGET_FPS;
+    time_draw_scene_init  = PROFILE_QUERY( render_scene_init ) * TARGET_FPS;
+    time_draw_scene_mesh  = PROFILE_QUERY( render_scene_mesh ) * TARGET_FPS;
+    time_draw_scene_solid = PROFILE_QUERY( render_scene_solid ) * TARGET_FPS;
+    time_draw_scene_water = PROFILE_QUERY( render_scene_water ) * TARGET_FPS;
+    time_draw_scene_trans = PROFILE_QUERY( render_scene_trans ) * TARGET_FPS;
 
     time_draw_scene       = time_draw_scene_init + time_draw_scene_mesh +
                             time_draw_scene_solid + time_draw_scene_water + time_draw_scene_trans;
@@ -2467,16 +2467,16 @@ void render_world_background( Uint16 texture )
     water_instance_layer_t * ilayer = water.layer      + 0;
 
     z0 = 1500; // the original height of the camera
-    d = MIN(ilayer->dist.x, ilayer->dist.y) / 10.0f;
-    mag0 = 1.0f / (1.0f + z0 * d);
+    d = MIN( ilayer->dist.x, ilayer->dist.y ) / 10.0f;
+    mag0 = 1.0f / ( 1.0f + z0 * d );
     // mag1 = backgroundrepeat/128.0f/10;
     mag1 = 1.0f / 128.0f / 5.0f;
 
     // clip the waterlayer uv offset
-    ilayer->tx.x = ilayer->tx.x - (float)floor(ilayer->tx.x);
-    ilayer->tx.y = ilayer->tx.y - (float)floor(ilayer->tx.y);
+    ilayer->tx.x = ilayer->tx.x - ( float )floor( ilayer->tx.x );
+    ilayer->tx.y = ilayer->tx.y - ( float )floor( ilayer->tx.y );
 
-    pinfo = &(PMesh->info);
+    pinfo = &( PMesh->info );
 
     // Figure out the coordinates of its corners
     Qx = -pinfo->edge_x;
@@ -2521,32 +2521,32 @@ void render_world_background( Uint16 texture )
         intens = light_a * ilayer->light_add;
 
         fcos = light_z;
-        if (fcos > 0.0f)
+        if ( fcos > 0.0f )
         {
             intens += fcos * fcos * light_d * ilayer->light_dir;
         }
 
-        intens = CLIP(intens, 0.0f, 1.0f);
+        intens = CLIP( intens, 0.0f, 1.0f );
     }
 
     ptex = TxTexture_get_ptr( texture );
 
     ATTRIB_PUSH( "render_world_background()", GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_POLYGON_BIT | GL_ENABLE_BIT );
     {
-        oglx_texture_Bind ( ptex );
+        oglx_texture_Bind( ptex );
 
-        GL_DEBUG(glShadeModel)( GL_FLAT );   // GL_LIGHTING_BIT - Flat shade this
-        GL_DEBUG(glDepthMask)( GL_FALSE );   // GL_DEPTH_BUFFER_BIT
-        GL_DEBUG(glDepthFunc)( GL_ALWAYS );  // GL_DEPTH_BUFFER_BIT
-        GL_DEBUG(glDisable)( GL_CULL_FACE ); // GL_ENABLE_BIT
+        GL_DEBUG( glShadeModel )( GL_FLAT ); // GL_LIGHTING_BIT - Flat shade this
+        GL_DEBUG( glDepthMask )( GL_FALSE ); // GL_DEPTH_BUFFER_BIT
+        GL_DEBUG( glDepthFunc )( GL_ALWAYS );  // GL_DEPTH_BUFFER_BIT
+        GL_DEBUG( glDisable )( GL_CULL_FACE ); // GL_ENABLE_BIT
 
-        GL_DEBUG(glColor4f)( intens, intens, intens, alpha );
-        GL_DEBUG(glBegin)( GL_TRIANGLE_FAN );
+        GL_DEBUG( glColor4f )( intens, intens, intens, alpha );
+        GL_DEBUG( glBegin )( GL_TRIANGLE_FAN );
         {
             for ( i = 0; i < 4; i++ )
             {
-                GL_DEBUG(glTexCoord2fv)(vtlist[i].tex );
-                GL_DEBUG(glVertex3fv)(vtlist[i].pos );
+                GL_DEBUG( glTexCoord2fv )( vtlist[i].tex );
+                GL_DEBUG( glVertex3fv )( vtlist[i].pos );
             }
         }
         GL_DEBUG_END();
@@ -2555,17 +2555,17 @@ void render_world_background( Uint16 texture )
         {
             ATTRIB_PUSH( "render_world_background() - glow", GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT );
             {
-                GL_DEBUG(glEnable)( GL_BLEND );                             // GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT
-                GL_DEBUG(glBlendFunc)( GL_ONE_MINUS_SRC_ALPHA, GL_ONE );    // GL_COLOR_BUFFER_BIT
+                GL_DEBUG( glEnable )( GL_BLEND );                           // GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT
+                GL_DEBUG( glBlendFunc )( GL_ONE_MINUS_SRC_ALPHA, GL_ONE );  // GL_COLOR_BUFFER_BIT
 
-                GL_DEBUG(glColor4f)( light, light, light, 1.0f );
+                GL_DEBUG( glColor4f )( light, light, light, 1.0f );
 
-                GL_DEBUG(glBegin)( GL_TRIANGLE_FAN );
+                GL_DEBUG( glBegin )( GL_TRIANGLE_FAN );
                 {
                     for ( i = 0; i < 4; i++ )
                     {
-                        GL_DEBUG(glTexCoord2fv)(vtlist[i].tex );
-                        GL_DEBUG(glVertex3fv)(vtlist[i].pos );
+                        GL_DEBUG( glTexCoord2fv )( vtlist[i].tex );
+                        GL_DEBUG( glVertex3fv )( vtlist[i].pos );
                     }
                 }
                 GL_DEBUG_END();
@@ -2573,7 +2573,7 @@ void render_world_background( Uint16 texture )
             ATTRIB_POP( "render_world_background() - glow" );
         }
     }
-    ATTRIB_POP("render_world_background()");
+    ATTRIB_POP( "render_world_background()" );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2598,7 +2598,7 @@ void render_world_overlay( Uint16 texture )
     // make the texture begin to disappear if you are not looking straight down
     ftmp = fvec3_dot_product( vforw_wind.v, vforw_cam.v );
 
-    alpha = (1.0f - ftmp * ftmp) * (ilayer->alpha * INV_FF);
+    alpha = ( 1.0f - ftmp * ftmp ) * ( ilayer->alpha * INV_FF );
 
     if ( alpha != 0.0f )
     {
@@ -2646,29 +2646,29 @@ void render_world_overlay( Uint16 texture )
 
         ATTRIB_PUSH( "render_world_overlay()", GL_ENABLE_BIT | GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_POLYGON_BIT | GL_COLOR_BUFFER_BIT );
         {
-            GL_DEBUG(glHint)(GL_POLYGON_SMOOTH_HINT, GL_NICEST );             // GL_HINT_BIT - make sure that the texture is as smooth as possible
+            GL_DEBUG( glHint )( GL_POLYGON_SMOOTH_HINT, GL_NICEST );          // GL_HINT_BIT - make sure that the texture is as smooth as possible
 
-            GL_DEBUG(glShadeModel)( GL_FLAT );      // GL_LIGHTING_BIT - Flat shade this
+            GL_DEBUG( glShadeModel )( GL_FLAT );    // GL_LIGHTING_BIT - Flat shade this
 
-            GL_DEBUG(glDepthMask)( GL_FALSE );      // GL_DEPTH_BUFFER_BIT
-            GL_DEBUG(glDepthFunc)( GL_ALWAYS );     // GL_DEPTH_BUFFER_BIT
+            GL_DEBUG( glDepthMask )( GL_FALSE );    // GL_DEPTH_BUFFER_BIT
+            GL_DEBUG( glDepthFunc )( GL_ALWAYS );   // GL_DEPTH_BUFFER_BIT
 
-            GL_DEBUG(glDisable)( GL_CULL_FACE );    // GL_ENABLE_BIT
+            GL_DEBUG( glDisable )( GL_CULL_FACE );  // GL_ENABLE_BIT
 
-            GL_DEBUG(glEnable)( GL_ALPHA_TEST );    // GL_COLOR_BUFFER_BIT | GL_ENABLE_BIT
-            GL_DEBUG(glAlphaFunc)( GL_GREATER, 0 ); // GL_COLOR_BUFFER_BIT
+            GL_DEBUG( glEnable )( GL_ALPHA_TEST );  // GL_COLOR_BUFFER_BIT | GL_ENABLE_BIT
+            GL_DEBUG( glAlphaFunc )( GL_GREATER, 0 ); // GL_COLOR_BUFFER_BIT
 
-            GL_DEBUG(glEnable)( GL_BLEND );                                 // GL_COLOR_BUFFER_BIT | GL_ENABLE_BIT
-            GL_DEBUG(glBlendFunc)( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_COLOR );  // GL_COLOR_BUFFER_BIT - make the texture a filter
+            GL_DEBUG( glEnable )( GL_BLEND );                               // GL_COLOR_BUFFER_BIT | GL_ENABLE_BIT
+            GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_COLOR );  // GL_COLOR_BUFFER_BIT - make the texture a filter
 
-            oglx_texture_Bind ( ptex );
+            oglx_texture_Bind( ptex );
 
-            GL_DEBUG(glColor4f)( 1.0f, 1.0f, 1.0f, 1.0f - ABS(alpha) );
-            GL_DEBUG(glBegin)( GL_TRIANGLE_FAN );
+            GL_DEBUG( glColor4f )( 1.0f, 1.0f, 1.0f, 1.0f - ABS( alpha ) );
+            GL_DEBUG( glBegin )( GL_TRIANGLE_FAN );
             for ( i = 0; i < 4; i++ )
             {
-                GL_DEBUG(glTexCoord2fv)( vtlist[i].tex );
-                GL_DEBUG(glVertex3fv)( vtlist[i].pos );
+                GL_DEBUG( glTexCoord2fv )( vtlist[i].tex );
+                GL_DEBUG( glVertex3fv )( vtlist[i].pos );
             }
             GL_DEBUG_END();
         }
@@ -2703,8 +2703,8 @@ void render_world( camera_t * pcam )
     PROFILE_END2( gfx_loop );
 
     // estimate how much time the main loop is taking per second
-    est_gfx_time = PROFILE_QUERY(gfx_loop) * TARGET_FPS;
-    est_max_fps  = 0.9 * est_max_fps + 0.1 * (1.0f - est_update_time * TARGET_UPS) / PROFILE_QUERY(gfx_loop);
+    est_gfx_time = PROFILE_QUERY( gfx_loop ) * TARGET_FPS;
+    est_max_fps  = 0.9 * est_max_fps + 0.1 * ( 1.0f - est_update_time * TARGET_UPS ) / PROFILE_QUERY( gfx_loop );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2738,7 +2738,7 @@ bool_t dump_screenshot()
     i = 0;
     while ( !savefound && ( i < 100 ) )
     {
-        snprintf( szFilename, SDL_arraysize( szFilename), "ego%02d.bmp", i );
+        snprintf( szFilename, SDL_arraysize( szFilename ), "ego%02d.bmp", i );
 
         // lame way of checking if the file already exists...
         savefound = !vfs_exists( szFilename );
@@ -2750,14 +2750,14 @@ bool_t dump_screenshot()
     if ( !savefound ) return bfalse;
 
     // if we are not using OpenGl, jsut dump the screen
-    if ( HAS_NO_BITS( sdl_scr.pscreen->flags, SDL_OPENGL) )
+    if ( HAS_NO_BITS( sdl_scr.pscreen->flags, SDL_OPENGL ) )
     {
-        SDL_SaveBMP(sdl_scr.pscreen, szFilename);
+        SDL_SaveBMP( sdl_scr.pscreen, szFilename );
         return bfalse;
     }
 
     // we ARE using OpenGL
-    GL_DEBUG(glPushClientAttrib)( GL_CLIENT_PIXEL_STORE_BIT ) ;
+    GL_DEBUG( glPushClientAttrib )( GL_CLIENT_PIXEL_STORE_BIT ) ;
     {
         SDL_Surface *temp;
 
@@ -2782,7 +2782,7 @@ bool_t dump_screenshot()
         {
             SDL_Rect rect;
 
-            memcpy( &rect, &(sdl_scr.pscreen->clip_rect), sizeof(SDL_Rect) );
+            memcpy( &rect, &( sdl_scr.pscreen->clip_rect ), sizeof( SDL_Rect ) );
             if ( 0 == rect.w && 0 == rect.h )
             {
                 rect.w = sdl_scr.x;
@@ -2793,7 +2793,7 @@ bool_t dump_screenshot()
                 int y;
                 Uint8 * pixels;
 
-                GL_DEBUG(glGetError)();
+                GL_DEBUG( glGetError )();
 
                 //// use the allocated screen to tell OpenGL about the row length (including the lapse) in pixels
                 //// stolen from SDL ;)
@@ -2810,13 +2810,13 @@ bool_t dump_screenshot()
 
                 // this is supposed to be a DirectX thing, so it needs to be tested out on glx
                 // there should probably be [SCREENSHOT_INVERT] and [SCREENSHOT_VALID] keys in setup.txt
-                pixels = (Uint8 *)temp->pixels;
-                for (y = rect.y; y < rect.y + rect.h; y++)
+                pixels = ( Uint8 * )temp->pixels;
+                for ( y = rect.y; y < rect.y + rect.h; y++ )
                 {
-                    GL_DEBUG(glReadPixels)(rect.x, (rect.h - y) - 1, rect.w, 1, GL_RGB, GL_UNSIGNED_BYTE, pixels);
+                    GL_DEBUG( glReadPixels )( rect.x, ( rect.h - y ) - 1, rect.w, 1, GL_RGB, GL_UNSIGNED_BYTE, pixels );
                     pixels += temp->pitch;
                 }
-                assert( GL_NO_ERROR == GL_DEBUG(glGetError)() );
+                assert( GL_NO_ERROR == GL_DEBUG( glGetError )() );
             }
 
             SDL_UnlockSurface( temp );
@@ -2833,7 +2833,7 @@ bool_t dump_screenshot()
             debug_printf( "Saved to %s", szFilename );
         }
     }
-    GL_DEBUG(glPopClientAttrib)();
+    GL_DEBUG( glPopClientAttrib )();
 
     return savefound;
 }
@@ -2871,7 +2871,7 @@ float calc_light_rotation( int rotation, int normal )
     nrm2.y = cosrot * nrm.y - sinrot * nrm.x;
     nrm2.z = nrm.z;
 
-    return (nrm2.x < 0) ? 0 : (nrm2.x * nrm2.x);
+    return ( nrm2.x < 0 ) ? 0 : ( nrm2.x * nrm2.x );
 }
 
 //---------------------------------------------------------------------------------------------
@@ -2931,34 +2931,34 @@ bool_t interpolate_grid_lighting( ego_mpd_t * pmesh, lighting_cache_t * dst, fve
     grid_lighting_t  * glight;
     lighting_cache_t * cache_list[4];
 
-    if( NULL == pmesh ) return bfalse;
+    if ( NULL == pmesh ) return bfalse;
     glight = pmesh->gmem.light;
 
     ix = pos.x / TILE_SIZE;
     iy = pos.y / TILE_SIZE;
 
-    fan[0] = mesh_get_tile_int( pmesh, ix,     iy     );
-    fan[1] = mesh_get_tile_int( pmesh, ix + 1, iy     );
+    fan[0] = mesh_get_tile_int( pmesh, ix,     iy );
+    fan[1] = mesh_get_tile_int( pmesh, ix + 1, iy );
     fan[2] = mesh_get_tile_int( pmesh, ix,     iy + 1 );
     fan[3] = mesh_get_tile_int( pmesh, ix + 1, iy + 1 );
 
     for ( cnt = 0; cnt < 4; cnt++ )
     {
         cache_list[cnt] = NULL;
-        if( VALID_TILE(pmesh, fan[cnt]) )
+        if ( VALID_TILE( pmesh, fan[cnt] ) )
         {
-            cache_list[cnt] = &(glight[fan[cnt]].cache);
+            cache_list[cnt] = &( glight[fan[cnt]].cache );
         }
     }
 
     min_x = floor( pos.x / TILE_SIZE ) * TILE_SIZE;
-    max_x = ceil ( pos.x / TILE_SIZE ) * TILE_SIZE;
+    max_x = ceil( pos.x / TILE_SIZE ) * TILE_SIZE;
 
     min_y = floor( pos.y / TILE_SIZE ) * TILE_SIZE;
-    max_y = ceil ( pos.y / TILE_SIZE ) * TILE_SIZE;
+    max_y = ceil( pos.y / TILE_SIZE ) * TILE_SIZE;
 
-    u = (pos.x - min_x) / (max_x - min_x);
-    v = (pos.y - min_y) / (max_y - min_y);
+    u = ( pos.x - min_x ) / ( max_x - min_x );
+    v = ( pos.y - min_y ) / ( max_y - min_y );
 
     return interpolate_lighting( dst, cache_list, u, v );
 }
@@ -2975,7 +2975,7 @@ bool_t project_lighting( lighting_cache_t * dst, lighting_cache_t * src, fmat_4x
     dst->max_light     = 0.0f;
     dst->low.max_light = 0.0f;
     dst->hgh.max_light = 0.0f;
-    for ( cnt = 0; cnt < LIGHTING_VEC_SIZE; cnt++)
+    for ( cnt = 0; cnt < LIGHTING_VEC_SIZE; cnt++ )
     {
         dst->low.lighting[cnt] = 0.0f;
         dst->hgh.lighting[cnt] = 0.0f;
@@ -2994,9 +2994,9 @@ bool_t project_lighting( lighting_cache_t * dst, lighting_cache_t * src, fmat_4x
     right = mat_getChrRight( mat );        // along body-fixed +x-axis
     up    = mat_getChrUp( mat );            // along body-fixed +z axis
 
-    fwd   = fvec3_normalize( fwd.v   );
+    fwd   = fvec3_normalize( fwd.v );
     right = fvec3_normalize( right.v );
-    up    = fvec3_normalize( up.v    );
+    up    = fvec3_normalize( up.v );
 
     // split the lighting cache up
     project_sum_lighting( dst, src, right, 0 );
@@ -3004,14 +3004,14 @@ bool_t project_lighting( lighting_cache_t * dst, lighting_cache_t * src, fmat_4x
     project_sum_lighting( dst, src, up,    4 );
 
     // determine the lighting extents
-    dst->low.max_light = ABS(dst->low.lighting[0]);
-    dst->hgh.max_light = ABS(dst->hgh.lighting[0]);
-    for ( cnt = 1; cnt < LIGHTING_VEC_SIZE-1; cnt++ )
+    dst->low.max_light = ABS( dst->low.lighting[0] );
+    dst->hgh.max_light = ABS( dst->hgh.lighting[0] );
+    for ( cnt = 1; cnt < LIGHTING_VEC_SIZE - 1; cnt++ )
     {
-        dst->low.max_light = MAX(dst->low.max_light, ABS(dst->low.lighting[cnt]));
-        dst->hgh.max_light = MAX(dst->hgh.max_light, ABS(dst->hgh.lighting[cnt]));
+        dst->low.max_light = MAX( dst->low.max_light, ABS( dst->low.lighting[cnt] ) );
+        dst->hgh.max_light = MAX( dst->hgh.max_light, ABS( dst->hgh.lighting[cnt] ) );
     }
-    dst->max_light = MAX(dst->low.max_light,dst->hgh.max_light);
+    dst->max_light = MAX( dst->low.max_light, dst->hgh.max_light );
 
     return btrue;
 }
@@ -3027,7 +3027,7 @@ bool_t interpolate_lighting( lighting_cache_t * dst, lighting_cache_t * src[], f
     dst->max_light     = 0.0f;
     dst->low.max_light = 0.0f;
     dst->hgh.max_light = 0.0f;
-    for ( cnt = 0; cnt < LIGHTING_VEC_SIZE; cnt++)
+    for ( cnt = 0; cnt < LIGHTING_VEC_SIZE; cnt++ )
     {
         dst->low.lighting[cnt] = 0.0f;
         dst->hgh.lighting[cnt] = 0.0f;
@@ -3035,15 +3035,15 @@ bool_t interpolate_lighting( lighting_cache_t * dst, lighting_cache_t * src[], f
 
     if ( NULL == src ) return bfalse;
 
-    u = CLIP(u, 0, 1);
-    v = CLIP(v, 0, 1);
+    u = CLIP( u, 0, 1 );
+    v = CLIP( v, 0, 1 );
 
     wt_sum = 0.0f;
 
     if ( NULL != src[0] )
     {
-        float wt = (1 - u) * (1 - v);
-        for (tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++)
+        float wt = ( 1 - u ) * ( 1 - v );
+        for ( tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++ )
         {
             dst->low.lighting[tnc] += src[0]->low.lighting[tnc] * wt;
             dst->hgh.lighting[tnc] += src[0]->hgh.lighting[tnc] * wt;
@@ -3053,8 +3053,8 @@ bool_t interpolate_lighting( lighting_cache_t * dst, lighting_cache_t * src[], f
 
     if ( NULL != src[1] )
     {
-        float wt = u * (1 - v);
-        for (tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++)
+        float wt = u * ( 1 - v );
+        for ( tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++ )
         {
             dst->low.lighting[tnc] += src[1]->low.lighting[tnc] * wt;
             dst->hgh.lighting[tnc] += src[1]->hgh.lighting[tnc] * wt;
@@ -3064,8 +3064,8 @@ bool_t interpolate_lighting( lighting_cache_t * dst, lighting_cache_t * src[], f
 
     if ( NULL != src[2] )
     {
-        float wt = (1 - u) * v;
-        for (tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++)
+        float wt = ( 1 - u ) * v;
+        for ( tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++ )
         {
             dst->low.lighting[tnc] += src[2]->low.lighting[tnc] * wt;
             dst->hgh.lighting[tnc] += src[2]->hgh.lighting[tnc] * wt;
@@ -3076,7 +3076,7 @@ bool_t interpolate_lighting( lighting_cache_t * dst, lighting_cache_t * src[], f
     if ( NULL != src[3] )
     {
         float wt = u * v;
-        for (tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++)
+        for ( tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++ )
         {
             dst->low.lighting[tnc] += src[3]->low.lighting[tnc] * wt;
             dst->hgh.lighting[tnc] += src[3]->hgh.lighting[tnc] * wt;
@@ -3086,9 +3086,9 @@ bool_t interpolate_lighting( lighting_cache_t * dst, lighting_cache_t * src[], f
 
     if ( wt_sum > 0.0f )
     {
-        if( wt_sum != 1.0f )
+        if ( wt_sum != 1.0f )
         {
-            for (tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++)
+            for ( tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++ )
             {
                 dst->low.lighting[tnc] /= wt_sum;
                 dst->hgh.lighting[tnc] /= wt_sum;
@@ -3098,12 +3098,12 @@ bool_t interpolate_lighting( lighting_cache_t * dst, lighting_cache_t * src[], f
         // determine the lighting extents
         dst->low.max_light = dst->low.lighting[0];
         dst->hgh.max_light = dst->hgh.lighting[0];
-        for ( cnt = 1; cnt < LIGHTING_VEC_SIZE-1; cnt++ )
+        for ( cnt = 1; cnt < LIGHTING_VEC_SIZE - 1; cnt++ )
         {
-            dst->low.max_light = MAX(dst->low.max_light, ABS(dst->low.lighting[cnt]));
-            dst->hgh.max_light = MAX(dst->hgh.max_light, ABS(dst->hgh.lighting[cnt]));
+            dst->low.max_light = MAX( dst->low.max_light, ABS( dst->low.lighting[cnt] ) );
+            dst->hgh.max_light = MAX( dst->hgh.max_light, ABS( dst->hgh.lighting[cnt] ) );
         }
-        dst->max_light = MAX(dst->low.max_light, dst->hgh.max_light);
+        dst->max_light = MAX( dst->low.max_light, dst->hgh.max_light );
     }
 
     return wt_sum > 0.0f;
@@ -3114,58 +3114,58 @@ bool_t project_sum_lighting( lighting_cache_t * dst, lighting_cache_t * src, fve
 {
     if ( NULL == src || NULL == dst ) return bfalse;
 
-    if ( dir < 0 || dir > 4 || 0 != (dir&1) )
+    if ( dir < 0 || dir > 4 || 0 != ( dir&1 ) )
         return bfalse;
 
     if ( vec.x > 0 )
     {
-        dst->low.lighting[dir+0] += ABS(vec.x) * src->low.lighting[0];
-        dst->low.lighting[dir+1] += ABS(vec.x) * src->low.lighting[1];
+        dst->low.lighting[dir+0] += ABS( vec.x ) * src->low.lighting[0];
+        dst->low.lighting[dir+1] += ABS( vec.x ) * src->low.lighting[1];
 
-        dst->hgh.lighting[dir+0] += ABS(vec.x) * src->hgh.lighting[0];
-        dst->hgh.lighting[dir+1] += ABS(vec.x) * src->hgh.lighting[1];
+        dst->hgh.lighting[dir+0] += ABS( vec.x ) * src->hgh.lighting[0];
+        dst->hgh.lighting[dir+1] += ABS( vec.x ) * src->hgh.lighting[1];
     }
-    else if (vec.x < 0)
+    else if ( vec.x < 0 )
     {
-        dst->low.lighting[dir+0] += ABS(vec.x) * src->low.lighting[1];
-        dst->low.lighting[dir+1] += ABS(vec.x) * src->low.lighting[0];
+        dst->low.lighting[dir+0] += ABS( vec.x ) * src->low.lighting[1];
+        dst->low.lighting[dir+1] += ABS( vec.x ) * src->low.lighting[0];
 
-        dst->hgh.lighting[dir+0] += ABS(vec.x) * src->hgh.lighting[1];
-        dst->hgh.lighting[dir+1] += ABS(vec.x) * src->hgh.lighting[0];
+        dst->hgh.lighting[dir+0] += ABS( vec.x ) * src->hgh.lighting[1];
+        dst->hgh.lighting[dir+1] += ABS( vec.x ) * src->hgh.lighting[0];
     }
 
     if ( vec.y > 0 )
     {
-        dst->low.lighting[dir+0] += ABS(vec.y) * src->low.lighting[2];
-        dst->low.lighting[dir+1] += ABS(vec.y) * src->low.lighting[3];
+        dst->low.lighting[dir+0] += ABS( vec.y ) * src->low.lighting[2];
+        dst->low.lighting[dir+1] += ABS( vec.y ) * src->low.lighting[3];
 
-        dst->hgh.lighting[dir+0] += ABS(vec.y) * src->hgh.lighting[2];
-        dst->hgh.lighting[dir+1] += ABS(vec.y) * src->hgh.lighting[3];
+        dst->hgh.lighting[dir+0] += ABS( vec.y ) * src->hgh.lighting[2];
+        dst->hgh.lighting[dir+1] += ABS( vec.y ) * src->hgh.lighting[3];
     }
-    else if (vec.y < 0)
+    else if ( vec.y < 0 )
     {
-        dst->low.lighting[dir+0] += ABS(vec.y) * src->low.lighting[3];
-        dst->low.lighting[dir+1] += ABS(vec.y) * src->low.lighting[2];
+        dst->low.lighting[dir+0] += ABS( vec.y ) * src->low.lighting[3];
+        dst->low.lighting[dir+1] += ABS( vec.y ) * src->low.lighting[2];
 
-        dst->hgh.lighting[dir+0] += ABS(vec.y) * src->hgh.lighting[3];
-        dst->hgh.lighting[dir+1] += ABS(vec.y) * src->hgh.lighting[2];
+        dst->hgh.lighting[dir+0] += ABS( vec.y ) * src->hgh.lighting[3];
+        dst->hgh.lighting[dir+1] += ABS( vec.y ) * src->hgh.lighting[2];
     }
 
     if ( vec.z > 0 )
     {
-        dst->low.lighting[dir+0] += ABS(vec.z) * src->low.lighting[4];
-        dst->low.lighting[dir+1] += ABS(vec.z) * src->low.lighting[5];
+        dst->low.lighting[dir+0] += ABS( vec.z ) * src->low.lighting[4];
+        dst->low.lighting[dir+1] += ABS( vec.z ) * src->low.lighting[5];
 
-        dst->hgh.lighting[dir+0] += ABS(vec.z) * src->hgh.lighting[4];
-        dst->hgh.lighting[dir+1] += ABS(vec.z) * src->hgh.lighting[5];
+        dst->hgh.lighting[dir+0] += ABS( vec.z ) * src->hgh.lighting[4];
+        dst->hgh.lighting[dir+1] += ABS( vec.z ) * src->hgh.lighting[5];
     }
-    else if (vec.z < 0)
+    else if ( vec.z < 0 )
     {
-        dst->low.lighting[dir+0] += ABS(vec.z) * src->low.lighting[5];
-        dst->low.lighting[dir+1] += ABS(vec.z) * src->low.lighting[4];
+        dst->low.lighting[dir+0] += ABS( vec.z ) * src->low.lighting[5];
+        dst->low.lighting[dir+1] += ABS( vec.z ) * src->low.lighting[4];
 
-        dst->hgh.lighting[dir+0] += ABS(vec.z) * src->hgh.lighting[5];
-        dst->hgh.lighting[dir+1] += ABS(vec.z) * src->hgh.lighting[4];
+        dst->hgh.lighting[dir+0] += ABS( vec.z ) * src->hgh.lighting[5];
+        dst->hgh.lighting[dir+1] += ABS( vec.z ) * src->hgh.lighting[4];
     }
 
     return btrue;
@@ -3186,7 +3186,7 @@ void gfx_update_timers()
 
     int dclock;
 
-    if( gfx_clock_stt < 0 )
+    if ( gfx_clock_stt < 0 )
     {
         gfx_clock_stt  = SDL_GetTicks();
         gfx_clock_last = gfx_clock_stt;
@@ -3199,7 +3199,7 @@ void gfx_update_timers()
 
     // if there has been a gap in time (the module was loading, for instance)
     // make sure we do not count that gap
-    if( dclock > TICKS_PER_SEC / 5 )
+    if ( dclock > TICKS_PER_SEC / 5 )
     {
         return;
     }
@@ -3207,11 +3207,11 @@ void gfx_update_timers()
 
     if ( fps_loops > 0 && fps_clock > 0 )
     {
-        stabilized_fps_sum    = fold * stabilized_fps_sum    + fnew * (float) fps_loops / ((float) fps_clock / TICKS_PER_SEC );
+        stabilized_fps_sum    = fold * stabilized_fps_sum    + fnew * ( float ) fps_loops / (( float ) fps_clock / TICKS_PER_SEC );
         stabilized_fps_weight = fold * stabilized_fps_weight + fnew;
 
         // blank these every so often so that the numbers don't overflow
-        if( fps_loops > 10 * TARGET_FPS)
+        if ( fps_loops > 10 * TARGET_FPS )
         {
             fps_loops = 0;
             fps_clock = 0;
@@ -3227,20 +3227,20 @@ void gfx_update_timers()
 //--------------------------------------------------------------------------------------------
 // BILLBOARD DATA IMPLEMENTATION
 //--------------------------------------------------------------------------------------------
-billboard_data_t * billboard_data_init(billboard_data_t * pbb)
+billboard_data_t * billboard_data_init( billboard_data_t * pbb )
 {
     if ( NULL == pbb ) return pbb;
 
-    memset( pbb, 0, sizeof(billboard_data_t) );
+    memset( pbb, 0, sizeof( billboard_data_t ) );
 
     pbb->tex_ref = INVALID_TEXTURE;
     pbb->ichr    = MAX_CHR;
 
     pbb->tint[RR] = pbb->tint[GG] = pbb->tint[BB] = pbb->tint[AA] = 1.0f;
-    pbb->tint_add[AA] -= 1.0f/100.0f;
+    pbb->tint_add[AA] -= 1.0f / 100.0f;
 
     pbb->size = 1.0f;
-    pbb->size_add -= 1.0f/200.0f;
+    pbb->size_add -= 1.0f / 200.0f;
 
     pbb->offset_add[ZZ] += 127 / 50.0f * 2.0f;
 
@@ -3248,14 +3248,14 @@ billboard_data_t * billboard_data_init(billboard_data_t * pbb)
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t billboard_data_free(billboard_data_t * pbb)
+bool_t billboard_data_free( billboard_data_t * pbb )
 {
     if ( NULL == pbb || !pbb->valid ) return bfalse;
 
     // free any allocated texture
     TxTexture_free_one( pbb->tex_ref );
 
-    billboard_data_init(pbb);
+    billboard_data_init( pbb );
 
     return btrue;
 }
@@ -3269,18 +3269,18 @@ bool_t billboard_data_update( billboard_data_t * pbb )
 
     if ( NULL == pbb || !pbb->valid ) return bfalse;
 
-    if ( !ACTIVE_CHR(pbb->ichr) ) return bfalse;
+    if ( !ACTIVE_CHR( pbb->ichr ) ) return bfalse;
     pchr = ChrList.lst + pbb->ichr;
 
     // determine where the new position should be
     chr_getMatUp( pchr, &vup );
 
     height = pchr->bump.height;
-    offset = MIN(pchr->bump.height * 0.5f, pchr->bump.size);
+    offset = MIN( pchr->bump.height * 0.5f, pchr->bump.size );
 
-    pos_new.x = pchr->pos.x + vup.x * (height + offset);
-    pos_new.y = pchr->pos.y + vup.y * (height + offset);
-    pos_new.z = pchr->pos.z + vup.z * (height + offset);
+    pos_new.x = pchr->pos.x + vup.x * ( height + offset );
+    pos_new.y = pchr->pos.y + vup.y * ( height + offset );
+    pos_new.z = pchr->pos.z + vup.z * ( height + offset );
 
     // allow the billboards to be a bit bouncy
     pbb->pos.x = pbb->pos.x * 0.5f + pos_new.x * 0.5f;
@@ -3299,7 +3299,7 @@ bool_t billboard_data_update( billboard_data_t * pbb )
     pbb->offset[ZZ] += pbb->offset_add[ZZ];
 
     // automatically kill a billboard that is no longer useful
-    if( pbb->tint[AA] == 0.0f || pbb->size == 0.0f )
+    if ( pbb->tint[AA] == 0.0f || pbb->size == 0.0f )
     {
         billboard_data_free( pbb );
     }
@@ -3318,11 +3318,11 @@ bool_t billboard_data_printf_ttf( billboard_data_t * pbb, Font *font, SDL_Color 
     if ( NULL == pbb || !pbb->valid ) return bfalse;
 
     // release any existing texture in case there is an error
-    ptex = TxTexture_get_ptr(pbb->tex_ref);
+    ptex = TxTexture_get_ptr( pbb->tex_ref );
     oglx_texture_Release( ptex );
 
     va_start( args, format );
-    rv = fnt_vprintf( font, color, &(ptex->surface), ptex->base.binding, texCoords, format, args );
+    rv = fnt_vprintf( font, color, &( ptex->surface ), ptex->base.binding, texCoords, format, args );
     va_end( args );
 
     ptex->base_valid = bfalse;
@@ -3331,7 +3331,7 @@ bool_t billboard_data_printf_ttf( billboard_data_t * pbb, Font *font, SDL_Color 
     ptex->alpha = 1.0f;
     ptex->imgW  = ptex->surface->w;
     ptex->imgH  = ptex->surface->h;
-    strncpy( ptex->name, "billboard text", SDL_arraysize(ptex->name) );
+    strncpy( ptex->name, "billboard text", SDL_arraysize( ptex->name ) );
 
     return ( rv >= 0 );
 }
@@ -3387,7 +3387,7 @@ void BillboardList_update_all()
             is_invalid = btrue;
         }
 
-        if( !ACTIVE_CHR(pbb->ichr) || ACTIVE_CHR(ChrList.lst[pbb->ichr].attachedto) )
+        if ( !ACTIVE_CHR( pbb->ichr ) || ACTIVE_CHR( ChrList.lst[pbb->ichr].attachedto ) )
         {
             is_invalid = btrue;
         }
@@ -3397,13 +3397,13 @@ void BillboardList_update_all()
             // the billboard has expired
 
             // unlink it from the character
-            if ( ACTIVE_CHR(pbb->ichr) )
+            if ( ACTIVE_CHR( pbb->ichr ) )
             {
                 ChrList.lst[pbb->ichr].ibillboard = INVALID_BILLBOARD;
             }
 
             // deallocate the billboard
-            BillboardList_free_one(cnt);
+            BillboardList_free_one( cnt );
         }
         else
         {
@@ -3443,7 +3443,7 @@ int BillboardList_get_free( Uint32 lifetime_secs )
     BillboardList.free_count--;
     ibb = BillboardList.free_ref[BillboardList.free_count];
 
-    if ( VALID_BILLBOARD_RANGE(ibb) )
+    if ( VALID_BILLBOARD_RANGE( ibb ) )
     {
         pbb = BillboardList.lst + ibb;
         billboard_data_init( pbb );
@@ -3465,11 +3465,11 @@ int BillboardList_get_free( Uint32 lifetime_secs )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t BillboardList_free_one(int ibb)
+bool_t BillboardList_free_one( int ibb )
 {
     billboard_data_t * pbb;
 
-    if ( !VALID_BILLBOARD_RANGE(ibb) ) return bfalse;
+    if ( !VALID_BILLBOARD_RANGE( ibb ) ) return bfalse;
 
     pbb = BillboardList.lst + ibb;
 
@@ -3500,7 +3500,7 @@ bool_t BillboardList_free_one(int ibb)
 //--------------------------------------------------------------------------------------------
 billboard_data_t * BillboardList_get_ptr( int ibb )
 {
-    if ( !VALID_BILLBOARD(ibb) ) return NULL;
+    if ( !VALID_BILLBOARD( ibb ) ) return NULL;
 
     return BillboardList.lst + ibb;
 }
@@ -3520,25 +3520,25 @@ bool_t render_billboard( camera_t * pcam, billboard_data_t * pbb, float scale )
     if ( NULL == pbb || !pbb->valid ) return bfalse;
 
     // do not display for objects that are mounted or being held
-    if( ACTIVE_CHR(pbb->ichr) && ACTIVE_CHR(ChrList.lst[pbb->ichr].attachedto) ) return bfalse;
+    if ( ACTIVE_CHR( pbb->ichr ) && ACTIVE_CHR( ChrList.lst[pbb->ichr].attachedto ) ) return bfalse;
 
     ptex = TxTexture_get_ptr( pbb->tex_ref );
 
     oglx_texture_Bind( ptex );
 
-    w = oglx_texture_GetImageWidth ( ptex );
-    h = oglx_texture_GetImageHeight ( ptex );
+    w = oglx_texture_GetImageWidth( ptex );
+    h = oglx_texture_GetImageHeight( ptex );
 
-    x1 = w  / (float) oglx_texture_GetTextureWidth ( ptex );
-    y1 = h  / (float) oglx_texture_GetTextureHeight( ptex );
+    x1 = w  / ( float ) oglx_texture_GetTextureWidth( ptex );
+    y1 = h  / ( float ) oglx_texture_GetTextureHeight( ptex );
 
-    vector_right.x =  pcam->mView.CNV(0, 0) * w * scale * pbb->size;
-    vector_right.y =  pcam->mView.CNV(1, 0) * w * scale * pbb->size;
-    vector_right.z =  pcam->mView.CNV(2, 0) * w * scale * pbb->size;
+    vector_right.x =  pcam->mView.CNV( 0, 0 ) * w * scale * pbb->size;
+    vector_right.y =  pcam->mView.CNV( 1, 0 ) * w * scale * pbb->size;
+    vector_right.z =  pcam->mView.CNV( 2, 0 ) * w * scale * pbb->size;
 
-    vector_up.x    = -pcam->mView.CNV(0, 1) * h * scale * pbb->size;
-    vector_up.y    = -pcam->mView.CNV(1, 1) * h * scale * pbb->size;
-    vector_up.z    = -pcam->mView.CNV(2, 1) * h * scale * pbb->size;
+    vector_up.x    = -pcam->mView.CNV( 0, 1 ) * h * scale * pbb->size;
+    vector_up.y    = -pcam->mView.CNV( 1, 1 ) * h * scale * pbb->size;
+    vector_up.z    = -pcam->mView.CNV( 2, 1 ) * h * scale * pbb->size;
 
     // @todo this billboard stuff needs to be implemented as a OpenGL transform
 
@@ -3572,36 +3572,36 @@ bool_t render_billboard( camera_t * pcam, billboard_data_t * pbb, float scale )
 
     ATTRIB_PUSH( "render_billboard", GL_LIGHTING_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT );
     {
-        GL_DEBUG(glMatrixMode)(GL_MODELVIEW );
-        GL_DEBUG(glPushMatrix)();
-        GL_DEBUG(glTranslatef)( pbb->offset[XX], pbb->offset[YY], pbb->offset[ZZ] );
+        GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
+        GL_DEBUG( glPushMatrix )();
+        GL_DEBUG( glTranslatef )( pbb->offset[XX], pbb->offset[YY], pbb->offset[ZZ] );
 
-        GL_DEBUG(glShadeModel)( GL_FLAT );      // GL_LIGHTING_BIT - Flat shade this
+        GL_DEBUG( glShadeModel )( GL_FLAT );    // GL_LIGHTING_BIT - Flat shade this
 
-        if( pbb->tint[AA] < 1.0f )
+        if ( pbb->tint[AA] < 1.0f )
         {
-            GL_DEBUG( glEnable ) ( GL_BLEND );                            // GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT
-            GL_DEBUG( glBlendFunc ) ( GL_ALPHA, GL_ONE_MINUS_SRC_COLOR ); // GL_COLOR_BUFFER_BIT
+            GL_DEBUG( glEnable )( GL_BLEND );                             // GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT
+            GL_DEBUG( glBlendFunc )( GL_ALPHA, GL_ONE_MINUS_SRC_COLOR );  // GL_COLOR_BUFFER_BIT
 
-            GL_DEBUG(glEnable)( GL_ALPHA_TEST );    // GL_COLOR_BUFFER_BIT GL_ENABLE_BIT
-            GL_DEBUG(glAlphaFunc)( GL_GREATER, 0 ); // GL_COLOR_BUFFER_BIT
+            GL_DEBUG( glEnable )( GL_ALPHA_TEST );  // GL_COLOR_BUFFER_BIT GL_ENABLE_BIT
+            GL_DEBUG( glAlphaFunc )( GL_GREATER, 0 ); // GL_COLOR_BUFFER_BIT
         }
 
         // Go on and draw it
-        GL_DEBUG(glBegin)( GL_QUADS );
+        GL_DEBUG( glBegin )( GL_QUADS );
         {
             glColor4fv( pbb->tint );
 
             for ( i = 0; i < 4; i++ )
             {
-                GL_DEBUG(glTexCoord2fv)( vtlist[i].tex );
-                GL_DEBUG(glVertex3fv)  ( vtlist[i].pos );
+                GL_DEBUG( glTexCoord2fv )( vtlist[i].tex );
+                GL_DEBUG( glVertex3fv )( vtlist[i].pos );
             }
         }
         GL_DEBUG_END();
 
-        GL_DEBUG(glMatrixMode)(GL_MODELVIEW );
-        GL_DEBUG(glPopMatrix)();
+        GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
+        GL_DEBUG( glPopMatrix )();
     }
     ATTRIB_POP( "render_billboard" );
 
@@ -3620,15 +3620,15 @@ void render_all_billboards( camera_t * pcam )
     {
         ATTRIB_PUSH( "render_all_billboards()", GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_POLYGON_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT );
         {
-            GL_DEBUG(glShadeModel)( GL_FLAT );      // GL_LIGHTING_BIT - Flat shade this
-            GL_DEBUG(glDepthMask )( GL_FALSE );     // GL_DEPTH_BUFFER_BIT
-            GL_DEBUG(glDepthFunc )( GL_LEQUAL );    // GL_DEPTH_BUFFER_BIT
-            GL_DEBUG(glDisable   )( GL_CULL_FACE ); // GL_ENABLE_BIT
+            GL_DEBUG( glShadeModel )( GL_FLAT );    // GL_LIGHTING_BIT - Flat shade this
+            GL_DEBUG( glDepthMask )( GL_FALSE );    // GL_DEPTH_BUFFER_BIT
+            GL_DEBUG( glDepthFunc )( GL_LEQUAL );   // GL_DEPTH_BUFFER_BIT
+            GL_DEBUG( glDisable )( GL_CULL_FACE );  // GL_ENABLE_BIT
 
-            GL_DEBUG(glEnable)( GL_BLEND );                                       // GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT
-            GL_DEBUG(glBlendFunc)( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );        // GL_COLOR_BUFFER_BIT
+            GL_DEBUG( glEnable )( GL_BLEND );                                     // GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT
+            GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );      // GL_COLOR_BUFFER_BIT
 
-            GL_DEBUG(glColor4f)( 1.0f, 1.0f, 1.0f, 1.0f );
+            GL_DEBUG( glColor4f )( 1.0f, 1.0f, 1.0f, 1.0f );
 
             for ( cnt = 0; cnt < BILLBOARD_COUNT; cnt++ )
             {
@@ -3652,9 +3652,9 @@ int get_free_line()
 {
     int cnt;
 
-    for( cnt = 0; cnt < LINE_COUNT; cnt++)
+    for ( cnt = 0; cnt < LINE_COUNT; cnt++ )
     {
-        if( line_list[cnt].time < 0 )
+        if ( line_list[cnt].time < 0 )
         {
             break;
         }
@@ -3674,29 +3674,29 @@ void draw_all_lines( camera_t * pcam )
     {
         ATTRIB_PUSH( "render_all_billboards()", GL_ENABLE_BIT | GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_CURRENT_BIT );
         {
-            GL_DEBUG(glShadeModel)( GL_FLAT );       // GL_LIGHTING_BIT - Flat shade this
-            GL_DEBUG(glDepthMask )( GL_FALSE );      // GL_DEPTH_BUFFER_BIT
-            GL_DEBUG(glDepthFunc )( GL_LEQUAL );     // GL_DEPTH_BUFFER_BIT
-            GL_DEBUG(glDisable   )( GL_CULL_FACE );  // GL_ENABLE_BIT
+            GL_DEBUG( glShadeModel )( GL_FLAT );     // GL_LIGHTING_BIT - Flat shade this
+            GL_DEBUG( glDepthMask )( GL_FALSE );     // GL_DEPTH_BUFFER_BIT
+            GL_DEBUG( glDepthFunc )( GL_LEQUAL );    // GL_DEPTH_BUFFER_BIT
+            GL_DEBUG( glDisable )( GL_CULL_FACE );   // GL_ENABLE_BIT
 
-            GL_DEBUG(glDisable   )( GL_BLEND );      // GL_ENABLE_BIT
+            GL_DEBUG( glDisable )( GL_BLEND );       // GL_ENABLE_BIT
 
-            GL_DEBUG(glDisable   )( GL_TEXTURE_2D ); // GL_ENABLE_BIT - we do not want texture mapped lines
+            GL_DEBUG( glDisable )( GL_TEXTURE_2D );  // GL_ENABLE_BIT - we do not want texture mapped lines
 
             ticks = SDL_GetTicks();
 
-            for( cnt = 0; cnt < LINE_COUNT; cnt++)
+            for ( cnt = 0; cnt < LINE_COUNT; cnt++ )
             {
-                if( line_list[cnt].time < 0 ) continue;
+                if ( line_list[cnt].time < 0 ) continue;
 
-                if( line_list[cnt].time < ticks )
+                if ( line_list[cnt].time < ticks )
                 {
                     line_list[cnt].time = -1;
                     continue;
                 }
 
-                GL_DEBUG(glColor4fv)( line_list[cnt].color.v );         // GL_CURRENT_BIT
-                GL_DEBUG(glBegin)( GL_LINES );
+                GL_DEBUG( glColor4fv )( line_list[cnt].color.v );       // GL_CURRENT_BIT
+                GL_DEBUG( glBegin )( GL_LINES );
                 {
                     glVertex3fv( line_list[cnt].src.v );
                     glVertex3fv( line_list[cnt].dst.v );
@@ -3712,208 +3712,208 @@ void draw_all_lines( camera_t * pcam )
 //--------------------------------------------------------------------------------------------
 // AXIS BOUNDING BOX IMPLEMENTATION(S)
 //--------------------------------------------------------------------------------------------
-bool_t render_aabb(aabb_t * pbbox)
+bool_t render_aabb( aabb_t * pbbox )
 {
     GLXvector3f * pmin, * pmax;
 
-    if (NULL == pbbox) return bfalse;
+    if ( NULL == pbbox ) return bfalse;
 
-    GL_DEBUG(glPushMatrix)();
+    GL_DEBUG( glPushMatrix )();
     {
-        pmin = &(pbbox->mins);
-        pmax = &(pbbox->maxs);
+        pmin = &( pbbox->mins );
+        pmax = &( pbbox->maxs );
 
         // !!!! there must be an optimized way of doing this !!!!
 
-        GL_DEBUG(glBegin)(GL_QUADS);
+        GL_DEBUG( glBegin )( GL_QUADS );
         {
             // Front Face
-            glVertex3f((*pmin)[XX], (*pmin)[YY], (*pmax)[ZZ]);
-            glVertex3f((*pmax)[XX], (*pmin)[YY], (*pmax)[ZZ]);
-            glVertex3f((*pmax)[XX], (*pmax)[YY], (*pmax)[ZZ]);
-            glVertex3f((*pmin)[XX], (*pmax)[YY], (*pmax)[ZZ]);
+            glVertex3f(( *pmin )[XX], ( *pmin )[YY], ( *pmax )[ZZ] );
+            glVertex3f(( *pmax )[XX], ( *pmin )[YY], ( *pmax )[ZZ] );
+            glVertex3f(( *pmax )[XX], ( *pmax )[YY], ( *pmax )[ZZ] );
+            glVertex3f(( *pmin )[XX], ( *pmax )[YY], ( *pmax )[ZZ] );
 
             // Back Face
-            glVertex3f((*pmin)[XX], (*pmin)[YY], (*pmin)[ZZ]);
-            glVertex3f((*pmin)[XX], (*pmax)[YY], (*pmin)[ZZ]);
-            glVertex3f((*pmax)[XX], (*pmax)[YY], (*pmin)[ZZ]);
-            glVertex3f((*pmax)[XX], (*pmin)[YY], (*pmin)[ZZ]);
+            glVertex3f(( *pmin )[XX], ( *pmin )[YY], ( *pmin )[ZZ] );
+            glVertex3f(( *pmin )[XX], ( *pmax )[YY], ( *pmin )[ZZ] );
+            glVertex3f(( *pmax )[XX], ( *pmax )[YY], ( *pmin )[ZZ] );
+            glVertex3f(( *pmax )[XX], ( *pmin )[YY], ( *pmin )[ZZ] );
 
             // Top Face
-            glVertex3f((*pmin)[XX], (*pmax)[YY], (*pmin)[ZZ]);
-            glVertex3f((*pmin)[XX], (*pmax)[YY], (*pmax)[ZZ]);
-            glVertex3f((*pmax)[XX], (*pmax)[YY], (*pmax)[ZZ]);
-            glVertex3f((*pmax)[XX], (*pmax)[YY], (*pmin)[ZZ]);
+            glVertex3f(( *pmin )[XX], ( *pmax )[YY], ( *pmin )[ZZ] );
+            glVertex3f(( *pmin )[XX], ( *pmax )[YY], ( *pmax )[ZZ] );
+            glVertex3f(( *pmax )[XX], ( *pmax )[YY], ( *pmax )[ZZ] );
+            glVertex3f(( *pmax )[XX], ( *pmax )[YY], ( *pmin )[ZZ] );
 
             // Bottom Face
-            glVertex3f((*pmin)[XX], (*pmin)[YY], (*pmin)[ZZ]);
-            glVertex3f((*pmax)[XX], (*pmin)[YY], (*pmin)[ZZ]);
-            glVertex3f((*pmax)[XX], (*pmin)[YY], (*pmax)[ZZ]);
-            glVertex3f((*pmin)[XX], (*pmin)[YY], (*pmax)[ZZ]);
+            glVertex3f(( *pmin )[XX], ( *pmin )[YY], ( *pmin )[ZZ] );
+            glVertex3f(( *pmax )[XX], ( *pmin )[YY], ( *pmin )[ZZ] );
+            glVertex3f(( *pmax )[XX], ( *pmin )[YY], ( *pmax )[ZZ] );
+            glVertex3f(( *pmin )[XX], ( *pmin )[YY], ( *pmax )[ZZ] );
 
             // Right face
-            glVertex3f((*pmax)[XX], (*pmin)[YY], (*pmin)[ZZ]);
-            glVertex3f((*pmax)[XX], (*pmax)[YY], (*pmin)[ZZ]);
-            glVertex3f((*pmax)[XX], (*pmax)[YY], (*pmax)[ZZ]);
-            glVertex3f((*pmax)[XX], (*pmin)[YY], (*pmax)[ZZ]);
+            glVertex3f(( *pmax )[XX], ( *pmin )[YY], ( *pmin )[ZZ] );
+            glVertex3f(( *pmax )[XX], ( *pmax )[YY], ( *pmin )[ZZ] );
+            glVertex3f(( *pmax )[XX], ( *pmax )[YY], ( *pmax )[ZZ] );
+            glVertex3f(( *pmax )[XX], ( *pmin )[YY], ( *pmax )[ZZ] );
 
             // Left Face
-            glVertex3f((*pmin)[XX], (*pmin)[YY], (*pmin)[ZZ]);
-            glVertex3f((*pmin)[XX], (*pmin)[YY], (*pmax)[ZZ]);
-            glVertex3f((*pmin)[XX], (*pmax)[YY], (*pmax)[ZZ]);
-            glVertex3f((*pmin)[XX], (*pmax)[YY], (*pmin)[ZZ]);
+            glVertex3f(( *pmin )[XX], ( *pmin )[YY], ( *pmin )[ZZ] );
+            glVertex3f(( *pmin )[XX], ( *pmin )[YY], ( *pmax )[ZZ] );
+            glVertex3f(( *pmin )[XX], ( *pmax )[YY], ( *pmax )[ZZ] );
+            glVertex3f(( *pmin )[XX], ( *pmax )[YY], ( *pmin )[ZZ] );
         }
         GL_DEBUG_END();
     }
-    GL_DEBUG(glPopMatrix)();
+    GL_DEBUG( glPopMatrix )();
 
     return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t render_oct_bb( oct_bb_t * bb, bool_t draw_square, bool_t draw_diamond  )
+bool_t render_oct_bb( oct_bb_t * bb, bool_t draw_square, bool_t draw_diamond )
 {
-  bool_t retval = bfalse;
+    bool_t retval = bfalse;
 
-  if(NULL == bb) return bfalse;
+    if ( NULL == bb ) return bfalse;
 
-  ATTRIB_PUSH( "render_oct_bb", GL_ENABLE_BIT | GL_TEXTURE_BIT | GL_DEPTH_BUFFER_BIT );
-  {
-    // don't write into the depth buffer
-    glDepthMask( GL_FALSE );
-    glEnable(GL_DEPTH_TEST);
-
-    // fix the poorly chosen normals...
-    glDisable( GL_CULL_FACE );
-
-    // make them transparent
-    glEnable(GL_BLEND);
-    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-
-    // choose a "white" texture
-    oglx_texture_Bind( NULL );
-
-    //------------------------------------------------
-    // DIAGONAL BBOX
-    if( draw_diamond )
+    ATTRIB_PUSH( "render_oct_bb", GL_ENABLE_BIT | GL_TEXTURE_BIT | GL_DEPTH_BUFFER_BIT );
     {
-      float p1_x, p1_y;
-      float p2_x, p2_y;
+        // don't write into the depth buffer
+        glDepthMask( GL_FALSE );
+        glEnable( GL_DEPTH_TEST );
 
-      glColor4f(0.5, 1, 1, 0.1);
+        // fix the poorly chosen normals...
+        glDisable( GL_CULL_FACE );
 
-      p1_x = 0.5f * (bb->maxs[OCT_XY] - bb->maxs[OCT_YX]);
-      p1_y = 0.5f * (bb->maxs[OCT_XY] + bb->maxs[OCT_YX]);
-      p2_x = 0.5f * (bb->maxs[OCT_XY] - bb->mins[OCT_YX]);
-      p2_y = 0.5f * (bb->maxs[OCT_XY] + bb->mins[OCT_YX]);
+        // make them transparent
+        glEnable( GL_BLEND );
+        glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
-      glBegin(GL_QUADS);
-        glVertex3f(p1_x, p1_y, bb->mins[OCT_Z]);
-        glVertex3f(p2_x, p2_y, bb->mins[OCT_Z]);
-        glVertex3f(p2_x, p2_y, bb->maxs[OCT_Z]);
-        glVertex3f(p1_x, p1_y, bb->maxs[OCT_Z]);
-      glEnd();
+        // choose a "white" texture
+        oglx_texture_Bind( NULL );
 
-      p1_x = 0.5f * (bb->maxs[OCT_XY] - bb->mins[OCT_YX]);
-      p1_y = 0.5f * (bb->maxs[OCT_XY] + bb->mins[OCT_YX]);
-      p2_x = 0.5f * (bb->mins[OCT_XY] - bb->mins[OCT_YX]);
-      p2_y = 0.5f * (bb->mins[OCT_XY] + bb->mins[OCT_YX]);
+        //------------------------------------------------
+        // DIAGONAL BBOX
+        if ( draw_diamond )
+        {
+            float p1_x, p1_y;
+            float p2_x, p2_y;
 
-      glBegin(GL_QUADS);
-        glVertex3f(p1_x, p1_y, bb->mins[OCT_Z]);
-        glVertex3f(p2_x, p2_y, bb->mins[OCT_Z]);
-        glVertex3f(p2_x, p2_y, bb->maxs[OCT_Z]);
-        glVertex3f(p1_x, p1_y, bb->maxs[OCT_Z]);
-      glEnd();
+            glColor4f( 0.5, 1, 1, 0.1 );
 
-      p1_x = 0.5f * (bb->mins[OCT_XY] - bb->mins[OCT_YX]);
-      p1_y = 0.5f * (bb->mins[OCT_XY] + bb->mins[OCT_YX]);
-      p2_x = 0.5f * (bb->mins[OCT_XY] - bb->maxs[OCT_YX]);
-      p2_y = 0.5f * (bb->mins[OCT_XY] + bb->maxs[OCT_YX]);
+            p1_x = 0.5f * ( bb->maxs[OCT_XY] - bb->maxs[OCT_YX] );
+            p1_y = 0.5f * ( bb->maxs[OCT_XY] + bb->maxs[OCT_YX] );
+            p2_x = 0.5f * ( bb->maxs[OCT_XY] - bb->mins[OCT_YX] );
+            p2_y = 0.5f * ( bb->maxs[OCT_XY] + bb->mins[OCT_YX] );
 
-      glBegin(GL_QUADS);
-        glVertex3f(p1_x, p1_y, bb->mins[OCT_Z]);
-        glVertex3f(p2_x, p2_y, bb->mins[OCT_Z]);
-        glVertex3f(p2_x, p2_y, bb->maxs[OCT_Z]);
-        glVertex3f(p1_x, p1_y, bb->maxs[OCT_Z]);
-      glEnd();
+            glBegin( GL_QUADS );
+            glVertex3f( p1_x, p1_y, bb->mins[OCT_Z] );
+            glVertex3f( p2_x, p2_y, bb->mins[OCT_Z] );
+            glVertex3f( p2_x, p2_y, bb->maxs[OCT_Z] );
+            glVertex3f( p1_x, p1_y, bb->maxs[OCT_Z] );
+            glEnd();
 
-      p1_x = 0.5f * (bb->mins[OCT_XY] - bb->maxs[OCT_YX]);
-      p1_y = 0.5f * (bb->mins[OCT_XY] + bb->maxs[OCT_YX]);
-      p2_x = 0.5f * (bb->maxs[OCT_XY] - bb->maxs[OCT_YX]);
-      p2_y = 0.5f * (bb->maxs[OCT_XY] + bb->maxs[OCT_YX]);
+            p1_x = 0.5f * ( bb->maxs[OCT_XY] - bb->mins[OCT_YX] );
+            p1_y = 0.5f * ( bb->maxs[OCT_XY] + bb->mins[OCT_YX] );
+            p2_x = 0.5f * ( bb->mins[OCT_XY] - bb->mins[OCT_YX] );
+            p2_y = 0.5f * ( bb->mins[OCT_XY] + bb->mins[OCT_YX] );
 
-      glBegin(GL_QUADS);
-        glVertex3f(p1_x, p1_y, bb->mins[OCT_Z]);
-        glVertex3f(p2_x, p2_y, bb->mins[OCT_Z]);
-        glVertex3f(p2_x, p2_y, bb->maxs[OCT_Z]);
-        glVertex3f(p1_x, p1_y, bb->maxs[OCT_Z]);
-      glEnd();
+            glBegin( GL_QUADS );
+            glVertex3f( p1_x, p1_y, bb->mins[OCT_Z] );
+            glVertex3f( p2_x, p2_y, bb->mins[OCT_Z] );
+            glVertex3f( p2_x, p2_y, bb->maxs[OCT_Z] );
+            glVertex3f( p1_x, p1_y, bb->maxs[OCT_Z] );
+            glEnd();
 
-      retval = btrue;
+            p1_x = 0.5f * ( bb->mins[OCT_XY] - bb->mins[OCT_YX] );
+            p1_y = 0.5f * ( bb->mins[OCT_XY] + bb->mins[OCT_YX] );
+            p2_x = 0.5f * ( bb->mins[OCT_XY] - bb->maxs[OCT_YX] );
+            p2_y = 0.5f * ( bb->mins[OCT_XY] + bb->maxs[OCT_YX] );
+
+            glBegin( GL_QUADS );
+            glVertex3f( p1_x, p1_y, bb->mins[OCT_Z] );
+            glVertex3f( p2_x, p2_y, bb->mins[OCT_Z] );
+            glVertex3f( p2_x, p2_y, bb->maxs[OCT_Z] );
+            glVertex3f( p1_x, p1_y, bb->maxs[OCT_Z] );
+            glEnd();
+
+            p1_x = 0.5f * ( bb->mins[OCT_XY] - bb->maxs[OCT_YX] );
+            p1_y = 0.5f * ( bb->mins[OCT_XY] + bb->maxs[OCT_YX] );
+            p2_x = 0.5f * ( bb->maxs[OCT_XY] - bb->maxs[OCT_YX] );
+            p2_y = 0.5f * ( bb->maxs[OCT_XY] + bb->maxs[OCT_YX] );
+
+            glBegin( GL_QUADS );
+            glVertex3f( p1_x, p1_y, bb->mins[OCT_Z] );
+            glVertex3f( p2_x, p2_y, bb->mins[OCT_Z] );
+            glVertex3f( p2_x, p2_y, bb->maxs[OCT_Z] );
+            glVertex3f( p1_x, p1_y, bb->maxs[OCT_Z] );
+            glEnd();
+
+            retval = btrue;
+        }
+
+        //------------------------------------------------
+        // SQUARE BBOX
+        if ( draw_square )
+        {
+            glColor4f( 1, 0.5, 1, 0.1 );
+
+            // XZ FACE, min Y
+            glBegin( GL_QUADS );
+            glVertex3f( bb->mins[OCT_X], bb->mins[OCT_Y], bb->mins[OCT_Z] );
+            glVertex3f( bb->mins[OCT_X], bb->mins[OCT_Y], bb->maxs[OCT_Z] );
+            glVertex3f( bb->maxs[OCT_X], bb->mins[OCT_Y], bb->maxs[OCT_Z] );
+            glVertex3f( bb->maxs[OCT_X], bb->mins[OCT_Y], bb->mins[OCT_Z] );
+            glEnd();
+
+            // YZ FACE, min X
+            glBegin( GL_QUADS );
+            glVertex3f( bb->mins[OCT_X], bb->mins[OCT_Y], bb->mins[OCT_Z] );
+            glVertex3f( bb->mins[OCT_X], bb->mins[OCT_Y], bb->maxs[OCT_Z] );
+            glVertex3f( bb->mins[OCT_X], bb->maxs[OCT_Y], bb->maxs[OCT_Z] );
+            glVertex3f( bb->mins[OCT_X], bb->maxs[OCT_Y], bb->mins[OCT_Z] );
+            glEnd();
+
+            // XZ FACE, max Y
+            glBegin( GL_QUADS );
+            glVertex3f( bb->mins[OCT_X], bb->maxs[OCT_Y], bb->mins[OCT_Z] );
+            glVertex3f( bb->mins[OCT_X], bb->maxs[OCT_Y], bb->maxs[OCT_Z] );
+            glVertex3f( bb->maxs[OCT_X], bb->maxs[OCT_Y], bb->maxs[OCT_Z] );
+            glVertex3f( bb->maxs[OCT_X], bb->maxs[OCT_Y], bb->mins[OCT_Z] );
+            glEnd();
+
+            // YZ FACE, max X
+            glBegin( GL_QUADS );
+            glVertex3f( bb->maxs[OCT_X], bb->mins[OCT_Y], bb->mins[OCT_Z] );
+            glVertex3f( bb->maxs[OCT_X], bb->mins[OCT_Y], bb->maxs[OCT_Z] );
+            glVertex3f( bb->maxs[OCT_X], bb->maxs[OCT_Y], bb->maxs[OCT_Z] );
+            glVertex3f( bb->maxs[OCT_X], bb->maxs[OCT_Y], bb->mins[OCT_Z] );
+            glEnd();
+
+            // XY FACE, min Z
+            glBegin( GL_QUADS );
+            glVertex3f( bb->mins[OCT_X], bb->mins[OCT_Y], bb->mins[OCT_Z] );
+            glVertex3f( bb->mins[OCT_X], bb->maxs[OCT_Y], bb->mins[OCT_Z] );
+            glVertex3f( bb->maxs[OCT_X], bb->maxs[OCT_Y], bb->mins[OCT_Z] );
+            glVertex3f( bb->maxs[OCT_X], bb->mins[OCT_Y], bb->mins[OCT_Z] );
+            glEnd();
+
+            // XY FACE, max Z
+            glBegin( GL_QUADS );
+            glVertex3f( bb->mins[OCT_X], bb->mins[OCT_Y], bb->maxs[OCT_Z] );
+            glVertex3f( bb->mins[OCT_X], bb->maxs[OCT_Y], bb->maxs[OCT_Z] );
+            glVertex3f( bb->maxs[OCT_X], bb->maxs[OCT_Y], bb->maxs[OCT_Z] );
+            glVertex3f( bb->maxs[OCT_X], bb->mins[OCT_Y], bb->maxs[OCT_Z] );
+            glEnd();
+
+            retval = btrue;
+        }
+
     }
+    ATTRIB_POP( "render_oct_bb" );
 
-    //------------------------------------------------
-    // SQUARE BBOX
-    if(draw_square)
-    {
-      glColor4f(1, 0.5, 1, 0.1);
-
-      // XZ FACE, min Y
-      glBegin(GL_QUADS);
-        glVertex3f(bb->mins[OCT_X], bb->mins[OCT_Y], bb->mins[OCT_Z]);
-        glVertex3f(bb->mins[OCT_X], bb->mins[OCT_Y], bb->maxs[OCT_Z]);
-        glVertex3f(bb->maxs[OCT_X], bb->mins[OCT_Y], bb->maxs[OCT_Z]);
-        glVertex3f(bb->maxs[OCT_X], bb->mins[OCT_Y], bb->mins[OCT_Z]);
-      glEnd();
-
-      // YZ FACE, min X
-      glBegin(GL_QUADS);
-        glVertex3f(bb->mins[OCT_X], bb->mins[OCT_Y], bb->mins[OCT_Z]);
-        glVertex3f(bb->mins[OCT_X], bb->mins[OCT_Y], bb->maxs[OCT_Z]);
-        glVertex3f(bb->mins[OCT_X], bb->maxs[OCT_Y], bb->maxs[OCT_Z]);
-        glVertex3f(bb->mins[OCT_X], bb->maxs[OCT_Y], bb->mins[OCT_Z]);
-      glEnd();
-
-      // XZ FACE, max Y
-      glBegin(GL_QUADS);
-        glVertex3f(bb->mins[OCT_X], bb->maxs[OCT_Y], bb->mins[OCT_Z]);
-        glVertex3f(bb->mins[OCT_X], bb->maxs[OCT_Y], bb->maxs[OCT_Z]);
-        glVertex3f(bb->maxs[OCT_X], bb->maxs[OCT_Y], bb->maxs[OCT_Z]);
-        glVertex3f(bb->maxs[OCT_X], bb->maxs[OCT_Y], bb->mins[OCT_Z]);
-      glEnd();
-
-      // YZ FACE, max X
-      glBegin(GL_QUADS);
-        glVertex3f(bb->maxs[OCT_X], bb->mins[OCT_Y], bb->mins[OCT_Z]);
-        glVertex3f(bb->maxs[OCT_X], bb->mins[OCT_Y], bb->maxs[OCT_Z]);
-        glVertex3f(bb->maxs[OCT_X], bb->maxs[OCT_Y], bb->maxs[OCT_Z]);
-        glVertex3f(bb->maxs[OCT_X], bb->maxs[OCT_Y], bb->mins[OCT_Z]);
-      glEnd();
-
-      // XY FACE, min Z
-      glBegin(GL_QUADS);
-        glVertex3f(bb->mins[OCT_X], bb->mins[OCT_Y], bb->mins[OCT_Z]);
-        glVertex3f(bb->mins[OCT_X], bb->maxs[OCT_Y], bb->mins[OCT_Z]);
-        glVertex3f(bb->maxs[OCT_X], bb->maxs[OCT_Y], bb->mins[OCT_Z]);
-        glVertex3f(bb->maxs[OCT_X], bb->mins[OCT_Y], bb->mins[OCT_Z]);
-      glEnd();
-
-      // XY FACE, max Z
-      glBegin(GL_QUADS);
-        glVertex3f(bb->mins[OCT_X], bb->mins[OCT_Y], bb->maxs[OCT_Z]);
-        glVertex3f(bb->mins[OCT_X], bb->maxs[OCT_Y], bb->maxs[OCT_Z]);
-        glVertex3f(bb->maxs[OCT_X], bb->maxs[OCT_Y], bb->maxs[OCT_Z]);
-        glVertex3f(bb->maxs[OCT_X], bb->mins[OCT_Y], bb->maxs[OCT_Z]);
-      glEnd();
-
-      retval = btrue;
-    }
-
-  }
-  ATTRIB_POP( "render_oct_bb" );
-
-  return retval;
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3929,9 +3929,9 @@ bool_t dolist_add_chr( ego_mpd_t * pmesh, Uint16 ichr )
 
     if ( dolist_count >= DOLIST_SIZE ) return bfalse;
 
-    if ( !ACTIVE_CHR(ichr) ) return bfalse;
+    if ( !ACTIVE_CHR( ichr ) ) return bfalse;
     pchr  = ChrList.lst + ichr;
-    pinst = &(pchr->inst);
+    pinst = &( pchr->inst );
 
     if ( pinst->indolist ) return btrue;
 
@@ -3939,7 +3939,7 @@ bool_t dolist_add_chr( ego_mpd_t * pmesh, Uint16 ichr )
     if ( NULL == pcap ) return bfalse;
 
     itile = pchr->onwhichfan;
-    if ( !VALID_TILE(pmesh, itile) ) return bfalse;
+    if ( !VALID_TILE( pmesh, itile ) ) return bfalse;
 
     if ( pmesh->mmem.tile_list[itile].inrenderlist )
     {
@@ -3980,13 +3980,13 @@ bool_t dolist_add_prt( ego_mpd_t * pmesh, Uint16 iprt )
 
     if ( dolist_count >= DOLIST_SIZE ) return bfalse;
 
-    if ( !DISPLAY_PRT(iprt) ) return bfalse;
+    if ( !DISPLAY_PRT( iprt ) ) return bfalse;
     pprt = PrtList.lst + iprt;
-    pinst = &(pprt->inst);
+    pinst = &( pprt->inst );
 
     if ( pinst->indolist ) return btrue;
 
-    if ( 0 == pinst->size || pprt->is_hidden || !VALID_TILE(pmesh, pprt->onwhichfan) ) return bfalse;
+    if ( 0 == pinst->size || pprt->is_hidden || !VALID_TILE( pmesh, pprt->onwhichfan ) ) return bfalse;
 
     dolist[dolist_count].ichr = MAX_CHR;
     dolist[dolist_count].iprt = iprt;
@@ -4021,7 +4021,7 @@ void dolist_make( ego_mpd_t * pmesh )
     // Now fill it up again
     for ( cnt = 0; cnt < MAX_CHR; cnt++ )
     {
-        if ( ACTIVE_CHR(cnt) && !ChrList.lst[cnt].pack_ispacked )
+        if ( ACTIVE_CHR( cnt ) && !ChrList.lst[cnt].pack_ispacked )
         {
             // Add the character
             dolist_add_chr( pmesh, cnt );
@@ -4030,7 +4030,7 @@ void dolist_make( ego_mpd_t * pmesh )
 
     for ( cnt = 0; cnt < maxparticles; cnt++ )
     {
-        if ( DISPLAY_PRT(cnt) && VALID_TILE(pmesh, PrtList.lst[cnt].onwhichfan) )
+        if ( DISPLAY_PRT( cnt ) && VALID_TILE( pmesh, PrtList.lst[cnt].onwhichfan ) )
         {
             // Add the character
             dolist_add_prt( pmesh, cnt );
@@ -4049,7 +4049,7 @@ void dolist_sort( camera_t * pcam, bool_t do_reflect )
     fvec3_t   vcam;
     size_t    count;
 
-    vcam = mat_getCamForward(pcam->mView);
+    vcam = mat_getCamForward( pcam->mView );
 
     // Figure the distance of each
     count = 0;
@@ -4058,13 +4058,13 @@ void dolist_sort( camera_t * pcam, bool_t do_reflect )
         fvec3_t   vtmp;
         float dist;
 
-        if ( TOTAL_MAX_PRT == dolist[cnt].iprt && ACTIVE_CHR(dolist[cnt].ichr) )
+        if ( TOTAL_MAX_PRT == dolist[cnt].iprt && ACTIVE_CHR( dolist[cnt].ichr ) )
         {
             fvec3_t pos_tmp;
 
             tnc = dolist[cnt].ichr;
 
-            if( do_reflect )
+            if ( do_reflect )
             {
                 pos_tmp = mat_getTranslate( ChrList.lst[tnc].inst.ref.matrix );
             }
@@ -4075,11 +4075,11 @@ void dolist_sort( camera_t * pcam, bool_t do_reflect )
 
             vtmp = fvec3_sub( pos_tmp.v, pcam->pos.v );
         }
-        else if ( MAX_CHR == dolist[cnt].ichr && DISPLAY_PRT(dolist[cnt].iprt) )
+        else if ( MAX_CHR == dolist[cnt].ichr && DISPLAY_PRT( dolist[cnt].iprt ) )
         {
             tnc = dolist[cnt].iprt;
 
-            if( do_reflect )
+            if ( do_reflect )
             {
                 vtmp = fvec3_sub( PrtList.lst[tnc].inst.pos.v, pcam->pos.v );
             }
@@ -4105,14 +4105,14 @@ void dolist_sort( camera_t * pcam, bool_t do_reflect )
     dolist_count = count;
 
     // use qsort to sort the list in-place
-    qsort( dolist, dolist_count, sizeof(obj_registry_entity_t), obj_registry_entity_cmp );
+    qsort( dolist, dolist_count, sizeof( obj_registry_entity_t ), obj_registry_entity_cmp );
 }
 
 //--------------------------------------------------------------------------------------------
 int obj_registry_entity_cmp( const void * pleft, const void * pright )
 {
-    obj_registry_entity_t * dleft  = (obj_registry_entity_t *) pleft;
-    obj_registry_entity_t * dright = (obj_registry_entity_t *) pright;
+    obj_registry_entity_t * dleft  = ( obj_registry_entity_t * ) pleft;
+    obj_registry_entity_t * dright = ( obj_registry_entity_t * ) pright;
 
     int   rv;
     float diff;
@@ -4249,7 +4249,7 @@ void renderlist_make( ego_mpd_t * pmesh, camera_t * pcam )
         stepx = 0;
         if ( divx > 0 )
         {
-            stepx = ( ( xlist[to] - xlist[from] ) << TILE_BITS ) / divx;
+            stepx = (( xlist[to] - xlist[from] ) << TILE_BITS ) / divx;
         }
 
         x -= 256;
@@ -4288,7 +4288,7 @@ void renderlist_make( ego_mpd_t * pmesh, camera_t * pcam )
         stepx = 0;
         if ( divx > 0 )
         {
-            stepx = ( ( xlist[to] - xlist[from] ) << TILE_BITS ) / divx;
+            stepx = (( xlist[to] - xlist[from] ) << TILE_BITS ) / divx;
         }
 
         run = ylist[to] >> TILE_BITS;
@@ -4518,12 +4518,12 @@ void load_basic_textures( /* const char *modname */ )
     // Module background tiles
     TxTexture_load_one( "data/tile0", TX_TILE_0, TRANSCOLOR );
     TxTexture_load_one( "data/tile1", TX_TILE_1, TRANSCOLOR );
-    TxTexture_load_one( "data/tile2", TX_TILE_2, TRANSCOLOR);
+    TxTexture_load_one( "data/tile2", TX_TILE_2, TRANSCOLOR );
     TxTexture_load_one( "data/tile3", TX_TILE_3, TRANSCOLOR );
 
     // Water textures
     TxTexture_load_one( "data/watertop", TX_WATER_TOP, TRANSCOLOR );
-    TxTexture_load_one( "data/waterlow", TX_WATER_LOW, TRANSCOLOR);
+    TxTexture_load_one( "data/waterlow", TX_WATER_LOW, TRANSCOLOR );
 
     // Texture 7 is the phong map
     TxTexture_load_one( "data/phong", TX_PHONG, TRANSCOLOR );
@@ -4609,36 +4609,36 @@ void load_graphics()
     // Enable prespective correction?
     if ( gfx.perspective ) quality = GL_NICEST;
     else quality = GL_FASTEST;
-    GL_DEBUG(glHint)(GL_PERSPECTIVE_CORRECTION_HINT, quality );
+    GL_DEBUG( glHint )( GL_PERSPECTIVE_CORRECTION_HINT, quality );
 
     // Enable dithering?
     if ( gfx.dither )
     {
-        GL_DEBUG(glHint)(GL_GENERATE_MIPMAP_HINT, GL_NICEST);
-        GL_DEBUG(glEnable)(GL_DITHER );
+        GL_DEBUG( glHint )( GL_GENERATE_MIPMAP_HINT, GL_NICEST );
+        GL_DEBUG( glEnable )( GL_DITHER );
     }
     else
     {
-        GL_DEBUG(glHint)(GL_GENERATE_MIPMAP_HINT, GL_FASTEST);
-        GL_DEBUG(glDisable)(GL_DITHER );
+        GL_DEBUG( glHint )( GL_GENERATE_MIPMAP_HINT, GL_FASTEST );
+        GL_DEBUG( glDisable )( GL_DITHER );
     }
 
     // Enable gourad shading? (Important!)
-    GL_DEBUG(glShadeModel)( gfx.shading );
+    GL_DEBUG( glShadeModel )( gfx.shading );
 
     // Enable antialiasing?
     if ( gfx.antialiasing )
     {
-        GL_DEBUG(glEnable)(GL_MULTISAMPLE_ARB);
+        GL_DEBUG( glEnable )( GL_MULTISAMPLE_ARB );
 
-        GL_DEBUG(glEnable)( GL_LINE_SMOOTH );
-        GL_DEBUG(glHint)(GL_LINE_SMOOTH_HINT,    GL_NICEST );
+        GL_DEBUG( glEnable )( GL_LINE_SMOOTH );
+        GL_DEBUG( glHint )( GL_LINE_SMOOTH_HINT,    GL_NICEST );
 
-        GL_DEBUG(glEnable)( GL_POINT_SMOOTH );
-        GL_DEBUG(glHint)(GL_POINT_SMOOTH_HINT,   GL_NICEST );
+        GL_DEBUG( glEnable )( GL_POINT_SMOOTH );
+        GL_DEBUG( glHint )( GL_POINT_SMOOTH_HINT,   GL_NICEST );
 
-        GL_DEBUG(glDisable)( GL_POLYGON_SMOOTH );
-        GL_DEBUG(glHint)(GL_POLYGON_SMOOTH_HINT,    GL_FASTEST );
+        GL_DEBUG( glDisable )( GL_POLYGON_SMOOTH );
+        GL_DEBUG( glHint )( GL_POLYGON_SMOOTH_HINT,    GL_FASTEST );
 
         // PLEASE do not turn this on unless you use
         // GL_DEBUG(glEnable)(GL_BLEND);
@@ -4650,10 +4650,10 @@ void load_graphics()
     }
     else
     {
-        GL_DEBUG(glDisable)(GL_MULTISAMPLE_ARB);
-        GL_DEBUG(glDisable)(GL_POINT_SMOOTH );
-        GL_DEBUG(glDisable)(GL_LINE_SMOOTH );
-        GL_DEBUG(glDisable)(GL_POLYGON_SMOOTH );
+        GL_DEBUG( glDisable )( GL_MULTISAMPLE_ARB );
+        GL_DEBUG( glDisable )( GL_POINT_SMOOTH );
+        GL_DEBUG( glDisable )( GL_LINE_SMOOTH );
+        GL_DEBUG( glDisable )( GL_POLYGON_SMOOTH );
     }
 
 }
@@ -4664,11 +4664,11 @@ void do_chr_flashing()
 {
     Uint32 i;
 
-    for ( i = 0; i < dolist_count; i++)
+    for ( i = 0; i < dolist_count; i++ )
     {
         Uint16 ichr = dolist[i].ichr;
 
-        if ( !ACTIVE_CHR(ichr) ) continue;
+        if ( !ACTIVE_CHR( ichr ) ) continue;
 
         // Do flashing
         if ( HAS_NO_BITS( true_frame, ChrList.lst[ichr].flashand ) && ChrList.lst[ichr].flashand != DONTFLASH )
@@ -4689,9 +4689,9 @@ void flash_character( Uint16 character, Uint8 value )
 {
     /// @details ZZ@> This function sets a character's lighting
 
-    chr_instance_t * pinst = chr_get_pinstance(character);
+    chr_instance_t * pinst = chr_get_pinstance( character );
 
-    if( NULL != pinst )
+    if ( NULL != pinst )
     {
         pinst->color_amb = value;
     }
@@ -4703,7 +4703,7 @@ void animate_tiles()
     /// ZZ@> This function changes the animated tile frame
 
     // make sure this updates per frame
-    if ( ( true_frame & animtile_update_and ) == 0 )
+    if (( true_frame & animtile_update_and ) == 0 )
     {
         animtile[0].frame_add = ( animtile[0].frame_add + 1 ) & animtile[0].frame_and;
         animtile[1].frame_add = ( animtile[1].frame_add + 1 ) & animtile[1].frame_and;
@@ -4739,90 +4739,90 @@ void gfx_begin_text()
 
     oglx_texture_Bind( TxTexture_get_ptr( TX_FONT ) );
 
-    GL_DEBUG(glEnable)(GL_ALPHA_TEST );
-    GL_DEBUG(glAlphaFunc)(GL_GREATER, 0 );
+    GL_DEBUG( glEnable )( GL_ALPHA_TEST );
+    GL_DEBUG( glAlphaFunc )( GL_GREATER, 0 );
 
-    GL_DEBUG(glEnable)(GL_BLEND );
-    GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+    GL_DEBUG( glEnable )( GL_BLEND );
+    GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
-    GL_DEBUG(glDisable)(GL_DEPTH_TEST );
-    GL_DEBUG(glDisable)(GL_CULL_FACE );
+    GL_DEBUG( glDisable )( GL_DEPTH_TEST );
+    GL_DEBUG( glDisable )( GL_CULL_FACE );
 
-    GL_DEBUG(glColor4f)(1, 1, 1, 1 );
+    GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
 }
 
 //--------------------------------------------------------------------------------------------
 void gfx_end_text()
 {
-    GL_DEBUG(glDisable)(GL_BLEND );
-    GL_DEBUG(glDisable)(GL_ALPHA_TEST );
+    GL_DEBUG( glDisable )( GL_BLEND );
+    GL_DEBUG( glDisable )( GL_ALPHA_TEST );
 }
 
 //--------------------------------------------------------------------------------------------
 void gfx_enable_texturing()
 {
-    if ( !GL_DEBUG(glIsEnabled)(GL_TEXTURE_2D ) )
+    if ( !GL_DEBUG( glIsEnabled )( GL_TEXTURE_2D ) )
     {
-        GL_DEBUG(glEnable)(GL_TEXTURE_2D );
+        GL_DEBUG( glEnable )( GL_TEXTURE_2D );
     }
 }
 
 //--------------------------------------------------------------------------------------------
 void gfx_disable_texturing()
 {
-    if ( GL_DEBUG(glIsEnabled)(GL_TEXTURE_2D ) )
+    if ( GL_DEBUG( glIsEnabled )( GL_TEXTURE_2D ) )
     {
-        GL_DEBUG(glDisable)(GL_TEXTURE_2D );
+        GL_DEBUG( glDisable )( GL_TEXTURE_2D );
     }
 }
 
 //--------------------------------------------------------------------------------------------
 void gfx_begin_3d( camera_t * pcam )
 {
-    GL_DEBUG(glMatrixMode)(GL_PROJECTION );
-    GL_DEBUG(glPushMatrix)();
-    GL_DEBUG(glLoadMatrixf)(pcam->mProjection.v );
+    GL_DEBUG( glMatrixMode )( GL_PROJECTION );
+    GL_DEBUG( glPushMatrix )();
+    GL_DEBUG( glLoadMatrixf )( pcam->mProjection.v );
 
-    GL_DEBUG(glMatrixMode)(GL_MODELVIEW );
-    GL_DEBUG(glPushMatrix)();
-    GL_DEBUG(glLoadMatrixf)(pcam->mView.v );
+    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
+    GL_DEBUG( glPushMatrix )();
+    GL_DEBUG( glLoadMatrixf )( pcam->mView.v );
 }
 
 //--------------------------------------------------------------------------------------------
 void gfx_end_3d()
 {
-    GL_DEBUG(glMatrixMode)(GL_MODELVIEW );
-    GL_DEBUG(glPopMatrix)();
+    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
+    GL_DEBUG( glPopMatrix )();
 
-    GL_DEBUG(glMatrixMode)(GL_PROJECTION );
-    GL_DEBUG(glPopMatrix)();
+    GL_DEBUG( glMatrixMode )( GL_PROJECTION );
+    GL_DEBUG( glPopMatrix )();
 }
 
 //--------------------------------------------------------------------------------------------
 void gfx_begin_2d( void )
 {
-    GL_DEBUG(glMatrixMode)(GL_PROJECTION );
-    GL_DEBUG(glLoadIdentity)();                  // Reset The Projection Matrix
-    GL_DEBUG(glOrtho)(0, sdl_scr.x, sdl_scr.y, 0, -1, 1 );        // Set up an orthogonal projection
+    GL_DEBUG( glMatrixMode )( GL_PROJECTION );
+    GL_DEBUG( glLoadIdentity )();                // Reset The Projection Matrix
+    GL_DEBUG( glOrtho )( 0, sdl_scr.x, sdl_scr.y, 0, -1, 1 );     // Set up an orthogonal projection
 
-    GL_DEBUG(glMatrixMode)(GL_MODELVIEW );
-    GL_DEBUG(glLoadIdentity)();
+    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
+    GL_DEBUG( glLoadIdentity )();
 
-    GL_DEBUG(glDisable)(GL_DEPTH_TEST );
-    GL_DEBUG(glDisable)(GL_CULL_FACE );
+    GL_DEBUG( glDisable )( GL_DEPTH_TEST );
+    GL_DEBUG( glDisable )( GL_CULL_FACE );
 }
 
 //--------------------------------------------------------------------------------------------
 void gfx_end_2d( void )
 {
-    GL_DEBUG(glEnable)(GL_CULL_FACE );
-    GL_DEBUG(glEnable)(GL_DEPTH_TEST );
+    GL_DEBUG( glEnable )( GL_CULL_FACE );
+    GL_DEBUG( glEnable )( GL_DEPTH_TEST );
 }
 
 //--------------------------------------------------------------------------------------------
 void gfx_reshape_viewport( int w, int h )
 {
-    GL_DEBUG(glViewport)(0, 0, w, h );
+    GL_DEBUG( glViewport )( 0, 0, w, h );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4837,11 +4837,11 @@ void do_clear_screen()
     bool_t try_clear;
 
     try_clear = bfalse;
-    if ( process_running( PROC_PBASE(GProc) ) && PROC_PBASE(GProc)->state > proc_begin )
+    if ( process_running( PROC_PBASE( GProc ) ) && PROC_PBASE( GProc )->state > proc_begin )
     {
         try_clear = gfx_page_clear_requested;
     }
-    else if ( process_running( PROC_PBASE(MProc) ) && PROC_PBASE(MProc)->state > proc_begin )
+    else if ( process_running( PROC_PBASE( MProc ) ) && PROC_PBASE( MProc )->state > proc_begin )
     {
         try_clear = gfx_page_clear_requested;
     }
@@ -4853,16 +4853,16 @@ void do_clear_screen()
         gfx_page_clear_requested = bfalse;
 
         // clear the depth buffer no matter what
-        GL_DEBUG(glDepthMask)( GL_TRUE );
-        GL_DEBUG(glClear)( GL_DEPTH_BUFFER_BIT );
+        GL_DEBUG( glDepthMask )( GL_TRUE );
+        GL_DEBUG( glClear )( GL_DEPTH_BUFFER_BIT );
 
         // clear the color buffer only if necessary
-        game_needs_clear = gfx.clearson && process_running( PROC_PBASE(GProc) );
-        menu_needs_clear = mnu_draw_background && process_running( PROC_PBASE(MProc) );
+        game_needs_clear = gfx.clearson && process_running( PROC_PBASE( GProc ) );
+        menu_needs_clear = mnu_draw_background && process_running( PROC_PBASE( MProc ) );
 
         if ( game_needs_clear || menu_needs_clear )
         {
-            GL_DEBUG(glClear)( GL_COLOR_BUFFER_BIT );
+            GL_DEBUG( glClear )( GL_COLOR_BUFFER_BIT );
         }
     }
 }
@@ -4873,11 +4873,11 @@ void do_flip_pages()
     bool_t try_flip;
 
     try_flip = bfalse;
-    if ( process_running( PROC_PBASE(GProc) ) && PROC_PBASE(GProc)->state > proc_begin )
+    if ( process_running( PROC_PBASE( GProc ) ) && PROC_PBASE( GProc )->state > proc_begin )
     {
         try_flip = gfx_page_flip_requested;
     }
-    else if ( process_running( PROC_PBASE(MProc) ) && PROC_PBASE(MProc)->state > proc_begin )
+    else if ( process_running( PROC_PBASE( MProc ) ) && PROC_PBASE( MProc )->state > proc_begin )
     {
         try_flip = gfx_page_flip_requested;
     }
@@ -4906,7 +4906,7 @@ bool_t flip_pages_requested()
 //--------------------------------------------------------------------------------------------
 void _flip_pages()
 {
-    GL_DEBUG(glFlush)();
+    GL_DEBUG( glFlush )();
 
     // draw the console on top of everything
     egoboo_console_draw_all();
@@ -4919,7 +4919,7 @@ void _flip_pages()
 
     gfx_update_timers();
 
-    if( screenshot_requested )
+    if ( screenshot_requested )
     {
         screenshot_requested = bfalse;
 
@@ -4950,10 +4950,10 @@ void light_fans( renderlist_t * prlist )
     if ( NULL == prlist ) return;
 
     pmesh = prlist->pmesh;
-    if (NULL == pmesh) return;
-    pinfo = &(pmesh->info);
-    pmem  = &(pmesh->mmem);
-    pgmem = &(pmesh->gmem);
+    if ( NULL == pmesh ) return;
+    pinfo = &( pmesh->info );
+    pmem  = &( pmesh->mmem );
+    pgmem = &( pmesh->gmem );
 
     // cache the grid lighting
     for ( entry = 0; entry < prlist->all_count; entry++ )
@@ -4961,7 +4961,7 @@ void light_fans( renderlist_t * prlist )
         int fan;
 
         fan = prlist->all[entry];
-        if ( !VALID_TILE(pmesh, fan) ) continue;
+        if ( !VALID_TILE( pmesh, fan ) ) continue;
 
         mesh_light_corners( prlist->pmesh, fan );
     }
@@ -4973,7 +4973,7 @@ void light_fans( renderlist_t * prlist )
         Uint32 fan;
 
         fan = prlist->all[entry];
-        if ( !VALID_TILE(pmesh, fan) ) continue;
+        if ( !VALID_TILE( pmesh, fan ) ) continue;
 
         type   = pmem->tile_list[fan].type;
 
@@ -4986,10 +4986,10 @@ void light_fans( renderlist_t * prlist )
         {
             light = pmem->lcache[fan][ivrt];
 
-            light = CLIP(light, 0.0f, 255.0f);
+            light = CLIP( light, 0.0f, 255.0f );
             pmem->clst[vertex][RR] =
-            pmem->clst[vertex][GG] =
-            pmem->clst[vertex][BB] = light * INV_FF;
+                pmem->clst[vertex][GG] =
+                    pmem->clst[vertex][BB] = light * INV_FF;
         };
 
         for ( /* nothing */ ; ivrt < numvertices; ivrt++, vertex++ )
@@ -4997,10 +4997,10 @@ void light_fans( renderlist_t * prlist )
             light = 0;
             mesh_interpolate_vertex( pmem, fan, pmem->plst[vertex], &light );
 
-            light = CLIP(light, 0.0f, 255.0f);
+            light = CLIP( light, 0.0f, 255.0f );
             pmem->clst[vertex][RR] =
-            pmem->clst[vertex][GG] =
-            pmem->clst[vertex][BB] = light * INV_FF;
+                pmem->clst[vertex][GG] =
+                    pmem->clst[vertex][BB] = light * INV_FF;
         };
     }
 }
@@ -5037,15 +5037,15 @@ bool_t sum_dyna_lighting( dynalight_t * pdyna, float lighting[], float dx, float
 
     ftmp = INV_FF * rho_sqr / local_falloff;
 
-    level = 1.0f / (1.0f + ftmp * ( 1.0f + ftmp * (1-threshold)/threshold) );
+    level = 1.0f / ( 1.0f + ftmp * ( 1.0f + ftmp * ( 1 - threshold ) / threshold ) );
     level *= 255 * pdyna->level;
 
     // allow negative lighting, or blind spots will not work properly
-    if ( (ABS(level)) > 0.5 )
+    if (( ABS( level ) ) > 0.5 )
     {
         float rad_sqr = rho_sqr + dz * dz;
 
-        if( rad_sqr > 0.0f )
+        if ( rad_sqr > 0.0f )
         {
             float rad = SQRT( rad_sqr );
             dx /= rad;
@@ -5059,29 +5059,29 @@ bool_t sum_dyna_lighting( dynalight_t * pdyna, float lighting[], float dx, float
 
         if ( dx >= 0 )
         {
-            lighting[0] += ABS(dx) * level;
+            lighting[0] += ABS( dx ) * level;
         }
-        if (dx <= 0)
+        if ( dx <= 0 )
         {
-            lighting[1] += ABS(dx) * level;
+            lighting[1] += ABS( dx ) * level;
         }
 
         if ( dy >= 0 )
         {
-            lighting[2] += ABS(dy) * level;
+            lighting[2] += ABS( dy ) * level;
         }
-        if (dy <= 0)
+        if ( dy <= 0 )
         {
-            lighting[3] += ABS(dy) * level;
+            lighting[3] += ABS( dy ) * level;
         }
 
         if ( dz >= 0 )
         {
-            lighting[4] += ABS(dz) * level;
+            lighting[4] += ABS( dz ) * level;
         }
-        if (dz <= 0)
+        if ( dz <= 0 )
         {
-            lighting[5] += ABS(dz) * level;
+            lighting[5] += ABS( dz ) * level;
         }
     }
 
@@ -5097,7 +5097,7 @@ float get_ambient_level()
 
     glob_amb = 0.0f;
     min_amb  = 0.0f;
-    if( gfx.usefaredge )
+    if ( gfx.usefaredge )
     {
         glob_amb = light_a * 255.0f;
     }
@@ -5108,12 +5108,12 @@ float get_ambient_level()
 
     // determine the minimum ambient, based on darkvision
     min_amb = INVISIBLE;
-    if( local_seedark_level > 0 )
+    if ( local_seedark_level > 0 )
     {
-        min_amb = 32.0f * light_a * (1 + local_seedark_level);
+        min_amb = 32.0f * light_a * ( 1 + local_seedark_level );
     }
 
-    return MAX(glob_amb, min_amb);
+    return MAX( glob_amb, min_amb );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5130,7 +5130,7 @@ bool_t sum_global_lighting( float lighting[] )
 
     glob_amb = get_ambient_level();
 
-    for ( cnt = 0; cnt < LIGHTING_VEC_SIZE-1; cnt++ )
+    for ( cnt = 0; cnt < LIGHTING_VEC_SIZE - 1; cnt++ )
     {
         lighting[cnt] = 0.0f;
     }
@@ -5141,29 +5141,29 @@ bool_t sum_global_lighting( float lighting[] )
     // do "outside" directional lighting (i.e. sunlight)
     if ( light_x > 0 )
     {
-        lighting[0] += ABS(light_x) * light_d * 255;
+        lighting[0] += ABS( light_x ) * light_d * 255;
     }
-    else if (light_x < 0)
+    else if ( light_x < 0 )
     {
-        lighting[1] += ABS(light_x) * light_d * 255;
+        lighting[1] += ABS( light_x ) * light_d * 255;
     }
 
     if ( light_y > 0 )
     {
-        lighting[2] += ABS(light_y) * light_d * 255;
+        lighting[2] += ABS( light_y ) * light_d * 255;
     }
-    else if (light_y < 0)
+    else if ( light_y < 0 )
     {
-        lighting[3] += ABS(light_y) * light_d * 255;
+        lighting[3] += ABS( light_y ) * light_d * 255;
     }
 
     if ( light_z > 0 )
     {
-        lighting[4] += ABS(light_z) * light_d * 255;
+        lighting[4] += ABS( light_z ) * light_d * 255;
     }
-    else if (light_z < 0)
+    else if ( light_z < 0 )
     {
-        lighting[5] += ABS(light_z) * light_d * 255;
+        lighting[5] += ABS( light_z ) * light_d * 255;
     }
 
     return btrue;
@@ -5181,8 +5181,8 @@ void do_grid_dynalight( ego_mpd_t * pmesh, camera_t * pcam )
     grid_mem_t     * pgmem;
 
     if ( NULL == pmesh ) return;
-    pinfo = &(pmesh->info);
-    pgmem = &(pmesh->gmem);
+    pinfo = &( pmesh->info );
+    pgmem = &( pmesh->gmem );
 
     // refresh the dynamic light list
     gfx_make_dynalist( pcam );
@@ -5199,7 +5199,7 @@ void do_grid_dynalight( ego_mpd_t * pmesh, camera_t * pcam )
         int ix, iy;
 
         fan = renderlist.all[entry];
-        if ( !VALID_TILE(pmesh, fan) ) continue;
+        if ( !VALID_TILE( pmesh, fan ) ) continue;
 
         ix = fan % pinfo->tiles_x;
         iy = fan / pinfo->tiles_x;
@@ -5207,10 +5207,10 @@ void do_grid_dynalight( ego_mpd_t * pmesh, camera_t * pcam )
         x0 = ix * TILE_SIZE;
         y0 = iy * TILE_SIZE;
 
-        cache = &(pgmem->light[fan].cache);
+        cache = &( pgmem->light[fan].cache );
 
         // blank the lighting
-        for (tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++)
+        for ( tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++ )
         {
             local_lighting_low[tnc] = 0.0f;
             local_lighting_hgh[tnc] = 0.0f;
@@ -5245,12 +5245,12 @@ void do_grid_dynalight( ego_mpd_t * pmesh, camera_t * pcam )
         // find the max intensity
         cache->low.max_light = cache->low.lighting[0];
         cache->hgh.max_light = cache->hgh.lighting[0];
-        for ( tnc = 1; tnc < LIGHTING_VEC_SIZE-1; tnc++ )
+        for ( tnc = 1; tnc < LIGHTING_VEC_SIZE - 1; tnc++ )
         {
-            cache->low.max_light = MAX(cache->low.max_light, ABS(cache->low.lighting[tnc]));
-            cache->hgh.max_light = MAX(cache->hgh.max_light, ABS(cache->hgh.lighting[tnc]));
+            cache->low.max_light = MAX( cache->low.max_light, ABS( cache->low.lighting[tnc] ) );
+            cache->hgh.max_light = MAX( cache->hgh.max_light, ABS( cache->hgh.lighting[tnc] ) );
         }
-        cache->max_light = MAX(cache->low.max_light, cache->hgh.max_light);
+        cache->max_light = MAX( cache->low.max_light, cache->hgh.max_light );
     }
 }
 
@@ -5270,9 +5270,9 @@ void gfx_make_dynalist( camera_t * pcam )
     for ( cnt = 0; cnt < maxparticles; cnt++ )
     {
         PrtList.lst[cnt].inview = bfalse;
-        if ( !DISPLAY_PRT(cnt) ) continue;
+        if ( !DISPLAY_PRT( cnt ) ) continue;
 
-        if ( !VALID_TILE(PMesh, PrtList.lst[cnt].onwhichfan) ) continue;
+        if ( !VALID_TILE( PMesh, PrtList.lst[cnt].onwhichfan ) ) continue;
 
         PrtList.lst[cnt].inview = PMesh->mmem.tile_list[PrtList.lst[cnt].onwhichfan].inrenderlist;
 

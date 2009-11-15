@@ -48,15 +48,15 @@ void render_fan( ego_mpd_t * pmesh, Uint32 fan )
     tile_info_t * ptile;
 
     if ( NULL == pmesh ) return;
-    pmem  = &(pmesh->mmem);
+    pmem  = &( pmesh->mmem );
 
-    if ( !VALID_TILE(pmesh, fan) ) return;
+    if ( !VALID_TILE( pmesh, fan ) ) return;
     ptile = pmem->tile_list + fan;
 
     // do not render the fan if the image image is invalid
     if ( TILE_IS_FANOFF( *ptile ) )  return;
 
-    image = TILE_GET_LOWER_BITS(ptile->img);   // Tile image
+    image = TILE_GET_LOWER_BITS( ptile->img ); // Tile image
     fx    = ptile->fx;                         // Fx bits
     type  = ptile->type;                       // Command type ( index to points in fan )
 
@@ -85,40 +85,40 @@ void render_fan( ego_mpd_t * pmesh, Uint32 fan )
     }
 
     tile     = image & 0x3F;                     // tile type
-    texture  = (( image >> 6 ) & 3) + TX_TILE_0; // 64 tiles in each 256x256 texture
+    texture  = (( image >> 6 ) & 3 ) + TX_TILE_0; // 64 tiles in each 256x256 texture
     vertices = tile_dict[type].numvertices;      // Number of vertices
     commands = tile_dict[type].command_count;    // Number of commands
 
-    if( !meshnotexture && texture != meshlasttexture ) return;
+    if ( !meshnotexture && texture != meshlasttexture ) return;
 
     // actually update the animated texture info
     mesh_set_texture( pmesh, fan, image );
 
-    GL_DEBUG(glPushClientAttrib)(GL_CLIENT_VERTEX_ARRAY_BIT);
+    GL_DEBUG( glPushClientAttrib )( GL_CLIENT_VERTEX_ARRAY_BIT );
     {
-        GL_DEBUG(glShadeModel)( GL_SMOOTH );
+        GL_DEBUG( glShadeModel )( GL_SMOOTH );
 
         // [claforte] Put this in an initialization function.
-        GL_DEBUG(glEnableClientState)( GL_VERTEX_ARRAY );
-        GL_DEBUG(glVertexPointer)(3, GL_FLOAT, 0, pmem->plst + ptile->vrtstart );
+        GL_DEBUG( glEnableClientState )( GL_VERTEX_ARRAY );
+        GL_DEBUG( glVertexPointer )( 3, GL_FLOAT, 0, pmem->plst + ptile->vrtstart );
 
-        GL_DEBUG(glEnableClientState)( GL_TEXTURE_COORD_ARRAY );
-        GL_DEBUG(glTexCoordPointer)(2, GL_FLOAT, 0, pmem->tlst + ptile->vrtstart );
+        GL_DEBUG( glEnableClientState )( GL_TEXTURE_COORD_ARRAY );
+        GL_DEBUG( glTexCoordPointer )( 2, GL_FLOAT, 0, pmem->tlst + ptile->vrtstart );
 
-        GL_DEBUG(glEnableClientState)( GL_COLOR_ARRAY );
-        GL_DEBUG(glColorPointer)(3, GL_FLOAT, 0, pmem->clst + ptile->vrtstart );
+        GL_DEBUG( glEnableClientState )( GL_COLOR_ARRAY );
+        GL_DEBUG( glColorPointer )( 3, GL_FLOAT, 0, pmem->clst + ptile->vrtstart );
 
         // Render each command
         entry = 0;
         for ( cnt = 0; cnt < commands; cnt++ )
         {
-            GL_DEBUG(glBegin)( GL_TRIANGLE_FAN );
+            GL_DEBUG( glBegin )( GL_TRIANGLE_FAN );
             {
                 for ( tnc = 0; tnc < tile_dict[type].command_entries[cnt]; tnc++ )
                 {
                     vertex = tile_dict[type].command_verts[entry];
 
-                    GL_DEBUG(glArrayElement)(vertex);
+                    GL_DEBUG( glArrayElement )( vertex );
 
                     entry++;
                 }
@@ -127,18 +127,18 @@ void render_fan( ego_mpd_t * pmesh, Uint32 fan )
             GL_DEBUG_END();
         }
     }
-    GL_DEBUG(glPopClientAttrib)();
+    GL_DEBUG( glPopClientAttrib )();
 
 #if defined(DEBUG_MESH_NORMALS)
-    GL_DEBUG(glDisable)( GL_TEXTURE_2D );
-    GL_DEBUG(glColor4f)( 1, 1, 1, 1 );
+    GL_DEBUG( glDisable )( GL_TEXTURE_2D );
+    GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
     entry = ptile->vrtstart;
     for ( cnt = 0; cnt < 4; cnt++, entry++ )
     {
-        GL_DEBUG(glBegin)( GL_LINES );
+        GL_DEBUG( glBegin )( GL_LINES );
         {
-            GL_DEBUG(glVertex3fv)(pmem->plst[entry]);
-            GL_DEBUG(glVertex3f)(
+            GL_DEBUG( glVertex3fv )( pmem->plst[entry] );
+            GL_DEBUG( glVertex3f )(
                 pmem->plst[entry][XX] + TILE_SIZE*pmem->ncache[fan][cnt][XX],
                 pmem->plst[entry][YY] + TILE_SIZE*pmem->ncache[fan][cnt][YY],
                 pmem->plst[entry][ZZ] + TILE_SIZE*pmem->ncache[fan][cnt][ZZ] );
@@ -146,7 +146,7 @@ void render_fan( ego_mpd_t * pmesh, Uint32 fan )
         }
         GL_DEBUG_END();
     }
-    GL_DEBUG(glEnable)( GL_TEXTURE_2D );
+    GL_DEBUG( glEnable )( GL_TEXTURE_2D );
 #endif
 
 }
@@ -167,10 +167,10 @@ void render_hmap_fan( ego_mpd_t * pmesh, Uint32 fan )
     tile_info_t * ptile;
 
     if ( NULL == pmesh ) return;
-    pmem  = &(pmesh->mmem);
-    pinfo = &(pmesh->info);
+    pmem  = &( pmesh->mmem );
+    pinfo = &( pmesh->info );
 
-    if ( !VALID_TILE(pmesh, fan) ) return;
+    if ( !VALID_TILE( pmesh, fan ) ) return;
     ptile = pmem->tile_list + fan;
 
     /// @details BB@> the water info is for TILES, not for vertices, so ignore all vertex info and just draw the water
@@ -182,7 +182,7 @@ void render_hmap_fan( ego_mpd_t * pmesh, Uint32 fan )
     // vertex is a value from 0-15, for the meshcommandref/u/v variables
     // badvertex is a value that references the actual vertex number
 
-    tile  = TILE_GET_LOWER_BITS(ptile->img); // Tile
+    tile  = TILE_GET_LOWER_BITS( ptile->img ); // Tile
     fx    = ptile->fx;                       // Fx bits
     type  = ptile->type;                     // Command type ( index to points in fan )
     twist = ptile->twist;
@@ -194,21 +194,21 @@ void render_hmap_fan( ego_mpd_t * pmesh, Uint32 fan )
     for ( cnt = 0; cnt < 4; cnt++ )
     {
         float tmp;
-        v[cnt].pos[XX] = (ix + ix_off[cnt]) * TILE_SIZE;
-        v[cnt].pos[YY] = (iy + iy_off[cnt]) * TILE_SIZE;
+        v[cnt].pos[XX] = ( ix + ix_off[cnt] ) * TILE_SIZE;
+        v[cnt].pos[YY] = ( iy + iy_off[cnt] ) * TILE_SIZE;
         v[cnt].pos[ZZ] = pmem->plst[badvertex][ZZ];
 
         tmp = map_twist_nrm[twist].z;
         tmp *= tmp;
 
-        v[cnt].col[RR] = tmp * ( tmp + (1.0f - tmp) * map_twist_nrm[twist].x * map_twist_nrm[twist].x);
-        v[cnt].col[GG] = tmp * ( tmp + (1.0f - tmp) * map_twist_nrm[twist].y * map_twist_nrm[twist].y);
+        v[cnt].col[RR] = tmp * ( tmp + ( 1.0f - tmp ) * map_twist_nrm[twist].x * map_twist_nrm[twist].x );
+        v[cnt].col[GG] = tmp * ( tmp + ( 1.0f - tmp ) * map_twist_nrm[twist].y * map_twist_nrm[twist].y );
         v[cnt].col[BB] = tmp;
         v[cnt].col[AA] = 1.0f;
 
-        v[cnt].col[RR] = CLIP(v[cnt].col[RR], 0.0f, 1.0f);
-        v[cnt].col[GG] = CLIP(v[cnt].col[GG], 0.0f, 1.0f);
-        v[cnt].col[BB] = CLIP(v[cnt].col[BB], 0.0f, 1.0f);
+        v[cnt].col[RR] = CLIP( v[cnt].col[RR], 0.0f, 1.0f );
+        v[cnt].col[GG] = CLIP( v[cnt].col[GG], 0.0f, 1.0f );
+        v[cnt].col[BB] = CLIP( v[cnt].col[BB], 0.0f, 1.0f );
 
         badvertex++;
     }
@@ -216,12 +216,12 @@ void render_hmap_fan( ego_mpd_t * pmesh, Uint32 fan )
     oglx_texture_Bind( NULL );
 
     // Render each command
-    GL_DEBUG(glBegin)(GL_TRIANGLE_FAN );
+    GL_DEBUG( glBegin )( GL_TRIANGLE_FAN );
     {
         for ( vertex = 0; vertex < 4; vertex++ )
         {
-            GL_DEBUG(glColor3fv)(v[vertex].col );
-            GL_DEBUG(glVertex3fv)(v[vertex].pos );
+            GL_DEBUG( glColor3fv )( v[vertex].col );
+            GL_DEBUG( glVertex3fv )( v[vertex].pos );
         }
     }
     GL_DEBUG_END();
@@ -251,11 +251,11 @@ void render_water_fan( ego_mpd_t * pmesh, Uint32 fan, Uint8 layer )
     oglx_texture   * ptex;
 
     if ( NULL == pmesh ) return;
-    pinfo = &(pmesh->info);
-    pmmem = &(pmesh->mmem);
-    pgmem = &(pmesh->gmem);
+    pinfo = &( pmesh->info );
+    pmmem = &( pmesh->mmem );
+    pgmem = &( pmesh->gmem );
 
-    if ( !VALID_TILE(pmesh, fan) ) return;
+    if ( !VALID_TILE( pmesh, fan ) ) return;
     ptile = pmmem->tile_list + fan;
 
     /// @note BB@> the water info is for TILES, not for vertices, so ignore all vertex info and just draw the water
@@ -276,10 +276,10 @@ void render_water_fan( ego_mpd_t * pmesh, Uint32 fan, Uint8 layer )
 
     ptex = TxTexture_get_ptr( texture );
 
-    x1 = (float) oglx_texture_GetTextureWidth( ptex ) / (float) oglx_texture_GetImageWidth( ptex );
-    y1 = (float) oglx_texture_GetTextureHeight( ptex ) / (float) oglx_texture_GetImageHeight( ptex );
+    x1 = ( float ) oglx_texture_GetTextureWidth( ptex ) / ( float ) oglx_texture_GetImageWidth( ptex );
+    y1 = ( float ) oglx_texture_GetTextureHeight( ptex ) / ( float ) oglx_texture_GetImageHeight( ptex );
 
-    for ( cnt = 0; cnt < 4; cnt ++)
+    for ( cnt = 0; cnt < 4; cnt ++ )
     {
         fx_off[cnt] = x1 * ix_off[cnt];
         fy_off[cnt] = y1 * iy_off[cnt];
@@ -290,25 +290,25 @@ void render_water_fan( ego_mpd_t * pmesh, Uint32 fan, Uint8 layer )
     // flip the coordinates around based on the "mode" of the tile
     if ( HAS_NO_BITS( ix, 1 ) )
     {
-        SWAP(int, imap[0], imap[3]);
-        SWAP(int, imap[1], imap[2]);
+        SWAP( int, imap[0], imap[3] );
+        SWAP( int, imap[1], imap[2] );
     }
 
     if ( HAS_NO_BITS( iy, 1 ) )
     {
-        SWAP(int, imap[0], imap[1]);
-        SWAP(int, imap[2], imap[3]);
+        SWAP( int, imap[0], imap[1] );
+        SWAP( int, imap[2], imap[3] );
     }
 
     // Original points
-    GL_DEBUG(glDisable)(GL_CULL_FACE );
+    GL_DEBUG( glDisable )( GL_CULL_FACE );
     badvertex = ptile->vrtstart;
     {
         GLXvector3f nrm = {0, 0, 1};
         float alight;
 
         alight = get_ambient_level() + water.layer->light_add;
-        alight = CLIP(alight, 0.0f, 1.0f);
+        alight = CLIP( alight, 0.0f, 1.0f );
 
         for ( cnt = 0; cnt < 4; cnt++ )
         {
@@ -337,15 +337,15 @@ void render_water_fan( ego_mpd_t * pmesh, Uint32 fan, Uint8 layer )
                 v[cnt].col[BB] = dlight * INV_FF + alight;
                 v[cnt].col[AA] = 1.0f;
 
-                v[cnt].col[RR] = CLIP(v[cnt].col[RR], 0.0f, 1.0f);
-                v[cnt].col[GG] = CLIP(v[cnt].col[GG], 0.0f, 1.0f);
-                v[cnt].col[BB] = CLIP(v[cnt].col[BB], 0.0f, 1.0f);
+                v[cnt].col[RR] = CLIP( v[cnt].col[RR], 0.0f, 1.0f );
+                v[cnt].col[GG] = CLIP( v[cnt].col[GG], 0.0f, 1.0f );
+                v[cnt].col[BB] = CLIP( v[cnt].col[BB], 0.0f, 1.0f );
             }
             else
             {
                 v[cnt].col[RR] =
-                v[cnt].col[GG] =
-                v[cnt].col[BB] = 0.0f;
+                    v[cnt].col[GG] =
+                        v[cnt].col[BB] = 0.0f;
             }
 
             v[cnt].col[AA] = FF_TO_FLOAT( water.layer[layer].alpha );
@@ -362,14 +362,14 @@ void render_water_fan( ego_mpd_t * pmesh, Uint32 fan, Uint8 layer )
     }
 
     // Render each command
-    GL_DEBUG(glShadeModel)( GL_SMOOTH );
-    GL_DEBUG(glBegin)(GL_TRIANGLE_FAN );
+    GL_DEBUG( glShadeModel )( GL_SMOOTH );
+    GL_DEBUG( glBegin )( GL_TRIANGLE_FAN );
     {
         for ( cnt = 0; cnt < 4; cnt++ )
         {
-            GL_DEBUG(glColor4fv)   ( v[cnt].col );
-            GL_DEBUG(glTexCoord2fv)( v[cnt].tex );
-            GL_DEBUG(glVertex3fv)  ( v[cnt].pos );
+            GL_DEBUG( glColor4fv )( v[cnt].col );
+            GL_DEBUG( glTexCoord2fv )( v[cnt].tex );
+            GL_DEBUG( glVertex3fv )( v[cnt].pos );
         }
     }
     GL_DEBUG_END();

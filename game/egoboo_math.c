@@ -39,7 +39,7 @@ void make_turntosin( void )
 {
     /// @details ZZ@> This function makes the lookup table for chrturn...
     int cnt;
-    float ftmp = TWO_PI / (float)TRIG_TABLE_SIZE;
+    float ftmp = TWO_PI / ( float )TRIG_TABLE_SIZE;
 
     for ( cnt = 0; cnt < TRIG_TABLE_SIZE; cnt++ )
     {
@@ -67,20 +67,20 @@ fvec3_t fvec3_normalize( fvec3_base_t vec )
 {
     fvec3_t tmp = ZERO_VECT3;
 
-    if ( ABS(vec[kX]) + ABS(vec[kY]) + ABS(vec[kZ]) > 0 )
+    if ( ABS( vec[kX] ) + ABS( vec[kY] ) + ABS( vec[kZ] ) > 0 )
     {
         float len2 = vec[kX] * vec[kX] + vec[kY] * vec[kY] + vec[kZ] * vec[kZ];
         float inv_len = 1.0f / SQRT( len2 );
         LOG_NAN( inv_len );
 
         tmp.x = vec[kX] * inv_len;
-        LOG_NAN(tmp.x);
+        LOG_NAN( tmp.x );
 
         tmp.y = vec[kY] * inv_len;
-        LOG_NAN(tmp.y);
+        LOG_NAN( tmp.y );
 
         tmp.z = vec[kZ] * inv_len;
-        LOG_NAN(tmp.z);
+        LOG_NAN( tmp.z );
     }
 
     return tmp;
@@ -300,9 +300,9 @@ fmat_4x4_t FourPoints( fvec4_base_t ori, fvec4_base_t wid,
     vFor.y = frw[kY] - ori[kY];
     vFor.z = frw[kZ] - ori[kZ];
 
-    vWid = fvec3_normalize(vWid.v);
-    vUp  = fvec3_normalize(vUp.v );
-    vFor = fvec3_normalize(vFor.v);
+    vWid = fvec3_normalize( vWid.v );
+    vUp  = fvec3_normalize( vUp.v );
+    vFor = fvec3_normalize( vFor.v );
 
     tmp.CNV( 0, 0 ) = -scale * vWid.x;  // HUK
     tmp.CNV( 0, 1 ) = -scale * vWid.y;  // HUK
@@ -375,8 +375,8 @@ fmat_4x4_t ViewMatrix( const fvec3_base_t   from,     // camera location
 
 // inline D3DMATRIX ProjectionMatrix(const float near_plane,     // distance to near clipping plane
 fmat_4x4_t ProjectionMatrix( const float near_plane,    // distance to near clipping plane
-                           const float far_plane,      // distance to far clipping plane
-                           const float fov )           // field of view angle, in radians
+                             const float far_plane,      // distance to far clipping plane
+                             const float fov )           // field of view angle, in radians
 {
     float c = COS( fov * 0.5f );
     float s = SIN( fov * 0.5f );
@@ -445,7 +445,7 @@ void  TransformVertices( fmat_4x4_t *pMatrix, fvec4_t   *pSourceV, fvec4_t   *pD
 }
 
 //----------------------------------------------------
-fvec3_t   mat_getTranslate(fmat_4x4_t mat)
+fvec3_t   mat_getTranslate( fmat_4x4_t mat )
 {
     fvec3_t   pos;
 
@@ -457,7 +457,7 @@ fvec3_t   mat_getTranslate(fmat_4x4_t mat)
 }
 
 //----------------------------------------------------
-fvec3_t   mat_getChrUp(fmat_4x4_t mat)
+fvec3_t   mat_getChrUp( fmat_4x4_t mat )
 {
     fvec3_t   up;
 
@@ -470,7 +470,7 @@ fvec3_t   mat_getChrUp(fmat_4x4_t mat)
 }
 
 //----------------------------------------------------
-fvec3_t   mat_getChrRight(fmat_4x4_t mat)
+fvec3_t   mat_getChrRight( fmat_4x4_t mat )
 {
     fvec3_t   right;
 
@@ -483,7 +483,7 @@ fvec3_t   mat_getChrRight(fmat_4x4_t mat)
 }
 
 //----------------------------------------------------
-fvec3_t   mat_getChrForward(fmat_4x4_t mat)
+fvec3_t   mat_getChrForward( fmat_4x4_t mat )
 {
     fvec3_t   frw;
 
@@ -496,7 +496,7 @@ fvec3_t   mat_getChrForward(fmat_4x4_t mat)
 }
 
 //----------------------------------------------------
-fvec3_t   mat_getCamUp(fmat_4x4_t mat)
+fvec3_t   mat_getCamUp( fmat_4x4_t mat )
 {
     fvec3_t   up;
 
@@ -509,7 +509,7 @@ fvec3_t   mat_getCamUp(fmat_4x4_t mat)
 }
 
 //----------------------------------------------------
-fvec3_t   mat_getCamRight(fmat_4x4_t mat)
+fvec3_t   mat_getCamRight( fmat_4x4_t mat )
 {
     fvec3_t   right;
 
@@ -522,7 +522,7 @@ fvec3_t   mat_getCamRight(fmat_4x4_t mat)
 }
 
 //----------------------------------------------------
-fvec3_t   mat_getCamForward(fmat_4x4_t mat)
+fvec3_t   mat_getCamForward( fmat_4x4_t mat )
 {
     fvec3_t   frw;
 
@@ -587,7 +587,7 @@ void make_randie()
     int tnc, cnt;
 
     // Fill in the basic values
-    for ( cnt = 0; cnt < RANDIE_COUNT; cnt++  )
+    for ( cnt = 0; cnt < RANDIE_COUNT; cnt++ )
     {
         randie[cnt] = 0;
     }
@@ -617,12 +617,12 @@ void facing_to_vec( Uint16 facing, float * dx, float * dy )
 {
     Uint16 turn = ( facing - 0x8000 ) >> 2;
 
-    if( NULL != dx )
+    if ( NULL != dx )
     {
         *dx = turntocos[turn & TRIG_TABLE_MASK];
     }
 
-    if( NULL != dy )
+    if ( NULL != dy )
     {
         *dy = turntosin[turn & TRIG_TABLE_MASK];
     }
@@ -632,9 +632,9 @@ void facing_to_vec( Uint16 facing, float * dx, float * dy )
 //--------------------------------------------------------------------------------------------
 bool_t fvec2_clear( fvec2_t * A )
 {
-    if( NULL == A ) return bfalse;
+    if ( NULL == A ) return bfalse;
 
-    (*A).x = (*A).y = 0.0f;
+    ( *A ).x = ( *A ).y = 0.0f;
 
     return btrue;
 }
@@ -642,9 +642,9 @@ bool_t fvec2_clear( fvec2_t * A )
 //--------------------------------------------------------------------------------------------
 bool_t fvec3_clear( fvec3_t * A )
 {
-    if( NULL == A ) return bfalse;
+    if ( NULL == A ) return bfalse;
 
-    (*A).x = (*A).y = (*A).z = 0.0f;
+    ( *A ).x = ( *A ).y = ( *A ).z = 0.0f;
 
     return btrue;
 }
@@ -652,10 +652,10 @@ bool_t fvec3_clear( fvec3_t * A )
 //--------------------------------------------------------------------------------------------
 bool_t fvec4_clear( fvec4_t * A )
 {
-    if( NULL == A ) return bfalse;
+    if ( NULL == A ) return bfalse;
 
-    (*A).x = (*A).y = (*A).z = 0.0f;
-    (*A).w = 1.0f;
+    ( *A ).x = ( *A ).y = ( *A ).z = 0.0f;
+    ( *A ).w = 1.0f;
 
     return btrue;
 }

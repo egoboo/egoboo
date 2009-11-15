@@ -191,7 +191,7 @@ wawalite_animtile_t * read_wawalite_animtile( vfs_FILE * fileread, wawalite_anim
 //--------------------------------------------------------------------------------------------
 wawalite_damagetile_t * read_wawalite_damagetile( vfs_FILE * fileread, wawalite_damagetile_t * pdamagetile )
 {
-    if( NULL == pdamagetile ) return pdamagetile; 
+    if( NULL == pdamagetile ) return pdamagetile;
     if( NULL == fileread ) return pdamagetile;
 	wawalite_damagetile_init( pdamagetile );			//Reset
 

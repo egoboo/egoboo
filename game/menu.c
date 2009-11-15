@@ -187,7 +187,7 @@ struct s_mnu_module
 };
 typedef struct s_mnu_module mnu_module_t;
 
-DEFINE_STACK_STATIC(mnu_module_t, mnu_ModList, MAX_MODULE );
+DEFINE_STACK_STATIC( mnu_module_t, mnu_ModList, MAX_MODULE );
 
 #define VALID_MOD_RANGE( IMOD ) ( ((IMOD) >= 0) && ((IMOD) < MAX_MODULE) )
 #define VALID_MOD( IMOD )       ( VALID_MOD_RANGE( IMOD ) && IMOD < mnu_ModList.count && mnu_ModList.lst[IMOD].loaded )
@@ -220,7 +220,7 @@ void TxTitleImage_init_all()
 //---------------------------------------------------------------------------------------------
 void TxTitleImage_release_one( int index )
 {
-    if( index < 0 || index >= MAX_MODULE ) return;
+    if ( index < 0 || index >= MAX_MODULE ) return;
 
     oglx_texture_Release( TxTitleImage + index );
 }
@@ -263,7 +263,7 @@ int TxTitleImage_load_one( const char *szLoadName )
 
     int    index;
 
-    if ( INVALID_CSTR(szLoadName) ) return MAX_MODULE;
+    if ( INVALID_CSTR( szLoadName ) ) return MAX_MODULE;
 
     if ( TxTitleImage_count >= MAX_MODULE ) return MAX_MODULE;
 
@@ -289,15 +289,15 @@ oglx_texture * TxTitleImage_get_ptr( Uint32 itex )
 //--------------------------------------------------------------------------------------------
 mod_file_t * mnu_ModList_get_base( int imod )
 {
-    if( imod < 0 || imod >= MAX_MODULE ) return NULL;
+    if ( imod < 0 || imod >= MAX_MODULE ) return NULL;
 
-    return &(mnu_ModList.lst[imod].base);
+    return &( mnu_ModList.lst[imod].base );
 }
 
 //--------------------------------------------------------------------------------------------
 const char * mnu_ModList_get_name( int imod )
 {
-    if( imod < 0 || imod >= MAX_MODULE ) return NULL;
+    if ( imod < 0 || imod >= MAX_MODULE ) return NULL;
 
     return mnu_ModList.lst[imod].name;
 }
@@ -307,15 +307,15 @@ void mnu_ModList_release_all()
 {
     int cnt;
 
-    for( cnt = 0; cnt < MAX_MODULE; cnt++ )
+    for ( cnt = 0; cnt < MAX_MODULE; cnt++ )
     {
         // release any allocated data
-        if( cnt < mnu_ModList.count )
+        if ( cnt < mnu_ModList.count )
         {
-            mnu_release_one_module(cnt);
+            mnu_release_one_module( cnt );
         }
 
-        memset( mnu_ModList.lst + cnt, 0, sizeof(mnu_module_t) );
+        memset( mnu_ModList.lst + cnt, 0, sizeof( mnu_module_t ) );
     }
 
     mnu_ModList.count = 0;
@@ -327,9 +327,9 @@ void mnu_ModList_release_images()
     int cnt, tnc;
 
     tnc = -1;
-    for( cnt = 0; cnt < mnu_ModList.count; cnt++ )
+    for ( cnt = 0; cnt < mnu_ModList.count; cnt++ )
     {
-        if( !mnu_ModList.lst[cnt].loaded ) continue;
+        if ( !mnu_ModList.lst[cnt].loaded ) continue;
         tnc = cnt;
 
         TxTitleImage_release_one( mnu_ModList.lst[cnt].tex_index );
@@ -384,9 +384,9 @@ void drawSlidyButtons()
 //--------------------------------------------------------------------------------------------
 void set_tip_position( Font * font, const char * text, int spacing )
 {
-    int w,h;
+    int w, h;
 
-    if( NULL == text ) return;
+    if ( NULL == text ) return;
 
     tipTextLeft = 0;
     tipTextTop  = 0;
@@ -407,9 +407,9 @@ void set_tip_position( Font * font, const char * text, int spacing )
 //--------------------------------------------------------------------------------------------
 void set_copyright_position( Font * font, const char * text, int spacing )
 {
-    int w,h;
+    int w, h;
 
-    if( NULL == text ) return;
+    if ( NULL == text ) return;
 
     copyrightLeft = 0;
     copyrightLeft = 0;
@@ -437,7 +437,7 @@ int mnu_init()
     // be positioned.  If we ever allow changing resolution on the fly, this
     // function will have to be updated/called more than once.
 
-    ui_set_virtual_screen(gfx.vw, gfx.vh, GFX_WIDTH, GFX_HEIGHT);
+    ui_set_virtual_screen( gfx.vw, gfx.vh, GFX_WIDTH, GFX_HEIGHT );
 
     menuFont = ui_loadFont( "basicdat" SLASH_STR "Negatori.ttf", 18 );
     if ( !menuFont )
@@ -497,17 +497,17 @@ int doMainMenu( float deltaTime )
             ego_texture_load( &logo,       "basicdat" SLASH_STR "menu" SLASH_STR "menu_logo", INVALID_KEY );
 
             // calculate the centered position of the background
-            fminw = (float) MIN(GFX_WIDTH , background.imgW) / (float) background.imgW;
-            fminh = (float) MIN(GFX_HEIGHT, background.imgH) / (float) background.imgW;
-            fmin  = MIN(fminw, fminh);
+            fminw = ( float ) MIN( GFX_WIDTH , background.imgW ) / ( float ) background.imgW;
+            fminh = ( float ) MIN( GFX_HEIGHT, background.imgH ) / ( float ) background.imgW;
+            fmin  = MIN( fminw, fminh );
 
             bg_rect.w = background.imgW * fmin;
             bg_rect.h = background.imgH * fmin;
-            bg_rect.x = (GFX_WIDTH  - bg_rect.w) * 0.5f;
-            bg_rect.y = (GFX_HEIGHT - bg_rect.h) * 0.5f;
+            bg_rect.x = ( GFX_WIDTH  - bg_rect.w ) * 0.5f;
+            bg_rect.y = ( GFX_HEIGHT - bg_rect.h ) * 0.5f;
 
             // calculate the position of the logo
-            fmin  = MIN(bg_rect.w * 0.5f / logo.imgW, bg_rect.h * 0.5f / logo.imgH);
+            fmin  = MIN( bg_rect.w * 0.5f / logo.imgW, bg_rect.h * 0.5f / logo.imgH );
 
             logo_rect.x = bg_rect.x;
             logo_rect.y = bg_rect.y;
@@ -520,11 +520,11 @@ int doMainMenu( float deltaTime )
         case MM_Entering:
             // do buttons sliding in animation, and background fading in
             // background
-            GL_DEBUG(glColor4f)(1, 1, 1, 1 - SlidyButtonState.lerp );
+            GL_DEBUG( glColor4f )( 1, 1, 1, 1 - SlidyButtonState.lerp );
 
             if ( mnu_draw_background )
             {
-                ui_drawImage( 0, &background, bg_rect.x,   bg_rect.y,   bg_rect.w,   bg_rect.h   );
+                ui_drawImage( 0, &background, bg_rect.x,   bg_rect.y,   bg_rect.w,   bg_rect.h );
                 ui_drawImage( 0, &logo,       logo_rect.x, logo_rect.y, logo_rect.w, logo_rect.h );
             }
 
@@ -545,11 +545,11 @@ int doMainMenu( float deltaTime )
             // Do normal run
             // Background
 
-            GL_DEBUG(glColor4f)(1, 1, 1, 1 );
+            GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
 
             if ( mnu_draw_background )
             {
-                ui_drawImage( 0, &background, bg_rect.x,   bg_rect.y,   bg_rect.w,   bg_rect.h   );
+                ui_drawImage( 0, &background, bg_rect.x,   bg_rect.y,   bg_rect.w,   bg_rect.h );
                 ui_drawImage( 0, &logo,       logo_rect.x, logo_rect.y, logo_rect.w, logo_rect.h );
             }
 
@@ -587,11 +587,11 @@ int doMainMenu( float deltaTime )
         case MM_Leaving:
             // Do buttons sliding out and background fading
             // Do the same stuff as in MM_Entering, but backwards
-            GL_DEBUG(glColor4f)(1, 1, 1, 1 - SlidyButtonState.lerp );
+            GL_DEBUG( glColor4f )( 1, 1, 1, 1 - SlidyButtonState.lerp );
 
             if ( mnu_draw_background )
             {
-                ui_drawImage( 0, &background, bg_rect.x,   bg_rect.y,   bg_rect.w,   bg_rect.h   );
+                ui_drawImage( 0, &background, bg_rect.x,   bg_rect.y,   bg_rect.w,   bg_rect.h );
                 ui_drawImage( 0, &logo,       logo_rect.x, logo_rect.y, logo_rect.w, logo_rect.h );
             }
 
@@ -654,7 +654,7 @@ int doSinglePlayerMenu( float deltaTime )
             // Let this fall through
 
         case MM_Entering:
-            GL_DEBUG(glColor4f)(1, 1, 1, 1 - SlidyButtonState.lerp );
+            GL_DEBUG( glColor4f )( 1, 1, 1, 1 - SlidyButtonState.lerp );
 
             // Draw the background image
             if ( mnu_draw_background )
@@ -706,7 +706,7 @@ int doSinglePlayerMenu( float deltaTime )
         case MM_Leaving:
             // Do buttons sliding out and background fading
             // Do the same stuff as in MM_Entering, but backwards
-            GL_DEBUG(glColor4f)(1, 1, 1, 1 - SlidyButtonState.lerp );
+            GL_DEBUG( glColor4f )( 1, 1, 1, 1 - SlidyButtonState.lerp );
 
             if ( mnu_draw_background )
             {
@@ -751,7 +751,7 @@ int doChooseModule( float deltaTime )
     static int startIndex;
     static int validModules[MAX_MODULE];
     static int numValidModules;
-	static Uint8 keycooldown;
+    static Uint8 keycooldown;
 
     static int moduleMenuOffsetX;
     static int moduleMenuOffsetY;
@@ -779,7 +779,7 @@ int doChooseModule( float deltaTime )
             {
                 // if this module is not valid given the game options and the
                 // selected players, skip it
-                if ( !mnu_test_by_index(i) ) continue;
+                if ( !mnu_test_by_index( i ) ) continue;
 
                 if ( startNewPlayer && 0 == mnu_ModList.lst[i].base.importamount )
                 {
@@ -790,8 +790,8 @@ int doChooseModule( float deltaTime )
                 else
                 {
                     if ( mnu_selectedPlayerCount > mnu_ModList.lst[i].base.importamount ) continue;
-                    if ( mnu_selectedPlayerCount < mnu_ModList.lst[i].base.minplayers   ) continue;
-                    if ( mnu_selectedPlayerCount > mnu_ModList.lst[i].base.maxplayers   ) continue;
+                    if ( mnu_selectedPlayerCount < mnu_ModList.lst[i].base.minplayers ) continue;
+                    if ( mnu_selectedPlayerCount > mnu_ModList.lst[i].base.maxplayers ) continue;
 
                     // regular module
                     validModules[numValidModules] = i;
@@ -803,11 +803,11 @@ int doChooseModule( float deltaTime )
             moduleMenuOffsetX = ( GFX_WIDTH  - 640 ) / 2;
             moduleMenuOffsetY = ( GFX_HEIGHT - 480 ) / 2;
 
-            if( 0 == numValidModules )
+            if ( 0 == numValidModules )
             {
                 set_tip_position( menuFont, "Sorry, there are no valid games!\n Please press the \"Back\" button.", 20 );
             }
-            else if( numValidModules <= 3 )
+            else if ( numValidModules <= 3 )
             {
                 set_tip_position( menuFont, "Press an icon to select a game.", 20 );
             }
@@ -827,7 +827,7 @@ int doChooseModule( float deltaTime )
 
         case MM_Running:
             // Draw the background
-            GL_DEBUG(glColor4f)(1, 1, 1, 1 );
+            GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
             x = ( GFX_WIDTH  / 2 ) - ( background.imgW / 2 );
             y = GFX_HEIGHT - background.imgH;
 
@@ -839,11 +839,11 @@ int doChooseModule( float deltaTime )
             // use the mouse wheel to scan the modules
             if ( cursor_wheel_event_pending() )
             {
-                if (cursor.z > 0)
+                if ( cursor.z > 0 )
                 {
                     startIndex++;
                 }
-                else if (cursor.z < 0)
+                else if ( cursor.z < 0 )
                 {
                     startIndex--;
                 }
@@ -852,25 +852,25 @@ int doChooseModule( float deltaTime )
 
             }
 
-			//Allow arrow keys to scroll as well
-			if ( SDLKEYDOWN( SDLK_RIGHT ) )
-			{
-				if( keycooldown == 0 )
-				{
-					startIndex++;
-					keycooldown = 5;
-				}
-			}
-			else if ( SDLKEYDOWN( SDLK_LEFT ) )
-			{
-				if( keycooldown == 0 )
-				{
-					startIndex--;
-					keycooldown = 5;
-				}
-			}
-			else keycooldown = 0;
-			if(keycooldown > 0) keycooldown--;
+            //Allow arrow keys to scroll as well
+            if ( SDLKEYDOWN( SDLK_RIGHT ) )
+            {
+                if ( keycooldown == 0 )
+                {
+                    startIndex++;
+                    keycooldown = 5;
+                }
+            }
+            else if ( SDLKEYDOWN( SDLK_LEFT ) )
+            {
+                if ( keycooldown == 0 )
+                {
+                    startIndex--;
+                    keycooldown = 5;
+                }
+            }
+            else keycooldown = 0;
+            if ( keycooldown > 0 ) keycooldown--;
 
             // Draw the arrows to pick modules
             if ( BUTTON_UP == ui_doButton( 1051, "<-", NULL, moduleMenuOffsetX + 20, moduleMenuOffsetY + 74, 30, 30 ) )
@@ -883,7 +883,7 @@ int doChooseModule( float deltaTime )
             }
 
             // restrict the range to valid values
-            startIndex = CLIP(startIndex, 0, numValidModules - 3);
+            startIndex = CLIP( startIndex, 0, numValidModules - 3 );
 
             // Draw buttons for the modules that can be selected
             x = 93;
@@ -891,7 +891,7 @@ int doChooseModule( float deltaTime )
             for ( i = startIndex, j = 0; i < ( startIndex + 3 ) && j < numValidModules; i++ )
             {
                 // Only draw valid modules
-                if ( mnu_test_by_index(validModules[i]) )
+                if ( mnu_test_by_index( validModules[i] ) )
                 {
                     // fix the menu images in case one or more of them are undefined
                     int         imod       = validModules[i];
@@ -929,15 +929,15 @@ int doChooseModule( float deltaTime )
             ui_drawButton( UI_Nothing, moduleMenuOffsetX + 21, moduleMenuOffsetY + 173, 291, 250, NULL );
 
             // Draw the text description of the selected module
-            if ( selectedModule > -1 && selectedModule < MAX_MODULE && validModules[selectedModule] >= 0)
+            if ( selectedModule > -1 && selectedModule < MAX_MODULE && validModules[selectedModule] >= 0 )
             {
                 char buffer[1024]  = EMPTY_CSTR;
-                char * carat = buffer, * carat_end = buffer + SDL_arraysize(buffer);
+                char * carat = buffer, * carat_end = buffer + SDL_arraysize( buffer );
                 int imodule = validModules[selectedModule];
 
-                GL_DEBUG(glColor4f)(1, 1, 1, 1 );
+                GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
 
-                carat += snprintf(carat, carat_end - carat - 1, "%s\n", mnu_ModList.lst[imodule].base.longname );
+                carat += snprintf( carat, carat_end - carat - 1, "%s\n", mnu_ModList.lst[imodule].base.longname );
 
                 carat += snprintf( carat, carat_end - carat - 1, "Difficulty: %s\n", mnu_ModList.lst[imodule].base.rank );
 
@@ -975,7 +975,7 @@ int doChooseModule( float deltaTime )
             }
 
             // the tool-tip text
-            glColor4f( 1,1,1,1 );
+            glColor4f( 1, 1, 1, 1 );
             ui_drawTextBox( menuFont, tipText, tipTextLeft, tipTextTop, 0, 0, 20 );
 
             break;
@@ -996,17 +996,17 @@ int doChooseModule( float deltaTime )
             {
                 // Save the name of the module that we've picked
                 pickedmodule_index = selectedModule;
-                strncpy( pickedmodule_name, mnu_ModList.lst[selectedModule].name, SDL_arraysize(pickedmodule_name) );
+                strncpy( pickedmodule_name, mnu_ModList.lst[selectedModule].name, SDL_arraysize( pickedmodule_name ) );
 
-                if ( !game_choose_module(selectedModule, -1) )
+                if ( !game_choose_module( selectedModule, -1 ) )
                 {
-                    log_warning("Tried to select an invalid module. index == %d\n", selectedModule);
+                    log_warning( "Tried to select an invalid module. index == %d\n", selectedModule );
                     result = -1;
                 }
                 else
                 {
                     pickedmodule_ready = btrue;
-                    result = (PMod->importamount > 0) ? 1 : 2;
+                    result = ( PMod->importamount > 0 ) ? 1 : 2;
                 }
             }
 
@@ -1030,13 +1030,13 @@ bool_t doChoosePlayer_load_profiles( int player, ChoosePlayer_profiles_t * pro_l
     release_all_profiles();
     overrideslots = btrue;
 
-    if( 0 == bookicon_count )
+    if ( 0 == bookicon_count )
     {
         load_one_profile( "basicdat" SLASH_STR "globalobjects" SLASH_STR "book.obj", SPELLBOOK );
     }
 
     // release any data that we have accumulated
-    for( i=0; i<pro_list->count; i++)
+    for ( i = 0; i < pro_list->count; i++ )
     {
         pdata = pro_list->pro_data + i;
 
@@ -1045,7 +1045,7 @@ bool_t doChoosePlayer_load_profiles( int player, ChoosePlayer_profiles_t * pro_l
         // initialize the data
         pdata->cap_ref = MAX_CAP;
         pdata->tx_ref  = INVALID_TEXTURE;
-        chop_definition_init( &(pdata->chop) );
+        chop_definition_init( &( pdata->chop ) );
     }
     pro_list->count = 0;
 
@@ -1053,7 +1053,7 @@ bool_t doChoosePlayer_load_profiles( int player, ChoosePlayer_profiles_t * pro_l
 
     // grab the player data
     ref_temp = load_one_character_profile( loadplayer[player].dir, 0, bfalse );
-    if ( !LOADED_CAP(ref_temp) )
+    if ( !LOADED_CAP( ref_temp ) )
     {
         return bfalse;
     }
@@ -1070,11 +1070,11 @@ bool_t doChoosePlayer_load_profiles( int player, ChoosePlayer_profiles_t * pro_l
     {
         int slot = i + 1;
 
-        snprintf( szFilename, SDL_arraysize(szFilename), "%s" SLASH_STR "%d.obj", loadplayer[player].dir, i );
+        snprintf( szFilename, SDL_arraysize( szFilename ), "%s" SLASH_STR "%d.obj", loadplayer[player].dir, i );
 
         // load the profile
         ref_temp = load_one_character_profile( szFilename, slot, bfalse );
-        if ( LOADED_CAP(ref_temp) )
+        if ( LOADED_CAP( ref_temp ) )
         {
             cap_t * pcap = CapList + ref_temp;
 
@@ -1085,12 +1085,12 @@ bool_t doChoosePlayer_load_profiles( int player, ChoosePlayer_profiles_t * pro_l
             pdata->cap_ref = ref_temp;
 
             // load the icon
-			snprintf( szFilename, SDL_arraysize(szFilename), "%s" SLASH_STR "%d.obj" SLASH_STR "icon%d", loadplayer[player].dir, i, MAX(0, pcap->skinoverride) );
+            snprintf( szFilename, SDL_arraysize( szFilename ), "%s" SLASH_STR "%d.obj" SLASH_STR "icon%d", loadplayer[player].dir, i, MAX( 0, pcap->skinoverride ) );
             pdata->tx_ref = TxTexture_load_one( szFilename, INVALID_TEXTURE, INVALID_KEY );
 
             // load the naming
-			snprintf( szFilename, SDL_arraysize(szFilename), "%s" SLASH_STR "%d.obj" SLASH_STR "naming.txt", loadplayer[player].dir, i );
-            chop_load( &chop_mem, szFilename, &(pdata->chop) );
+            snprintf( szFilename, SDL_arraysize( szFilename ), "%s" SLASH_STR "%d.obj" SLASH_STR "naming.txt", loadplayer[player].dir, i );
+            chop_load( &chop_mem, szFilename, &( pdata->chop ) );
         }
     }
 
@@ -1135,57 +1135,57 @@ bool_t doChoosePlayer_show_stats( int player, int mode, int x, int y, int width,
     {
         Uint16 icap = objects.pro_data[0].cap_ref;
 
-        if ( LOADED_CAP(icap) )
+        if ( LOADED_CAP( icap ) )
         {
             cap_t * pcap = CapList + icap;
-			Uint8 skin = MAX(0, pcap->skinoverride);
+            Uint8 skin = MAX( 0, pcap->skinoverride );
 
             ui_drawButton( UI_Nothing, x, y, width, height, NULL );
 
             //Character level and class
-            GL_DEBUG(glColor4f)(1, 1, 1, 1);
+            GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
 
             // fix class name capitalization
             pcap->classname[0] = toupper( pcap->classname[0] );
             fnt_drawText( menuFont, x1, y1, "A level %d %s", pcap->leveloverride + 1, pcap->classname );
             y1 += 20;
 
-			// Armor
-            GL_DEBUG(glColor4f)(1, 1, 1, 1);
-			fnt_drawText( menuFont, x1, y1, "Wearing %s %s", pcap->skinname[skin], HAS_SOME_BITS( pcap->skindressy, 1 << skin ) ? "(Light)" : "(Heavy)" );
+            // Armor
+            GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
+            fnt_drawText( menuFont, x1, y1, "Wearing %s %s", pcap->skinname[skin], HAS_SOME_BITS( pcap->skindressy, 1 << skin ) ? "(Light)" : "(Heavy)" );
             y1 += 40;
 
             // Life and mana (can be less than maximum if not in easy mode)
             if ( cfg.difficulty >= GAME_NORMAL )
             {
-                fnt_drawText( menuFont, x1, y1, "Life: %d/%d", MIN( FP8_TO_INT(pcap->spawnlife), (int)pcap->life_stat.val.from ), (int)pcap->life_stat.val.from ); y1 += 20;
-                y1 = draw_one_bar( pcap->lifecolor, x1, y1, FP8_TO_INT(pcap->spawnlife), (int)pcap->life_stat.val.from );
+                fnt_drawText( menuFont, x1, y1, "Life: %d/%d", MIN( FP8_TO_INT( pcap->spawnlife ), ( int )pcap->life_stat.val.from ), ( int )pcap->life_stat.val.from ); y1 += 20;
+                y1 = draw_one_bar( pcap->lifecolor, x1, y1, FP8_TO_INT( pcap->spawnlife ), ( int )pcap->life_stat.val.from );
 
-                if( pcap->mana_stat.val.from > 0)
+                if ( pcap->mana_stat.val.from > 0 )
                 {
-                    fnt_drawText( menuFont, x1, y1, "Mana: %d/%d", MIN( FP8_TO_INT(pcap->spawnmana), (int)pcap->mana_stat.val.from ), (int)pcap->mana_stat.val.from ); y1 += 20;
-                    y1 = draw_one_bar( pcap->manacolor, x1, y1, FP8_TO_INT(pcap->spawnmana), (int)pcap->mana_stat.val.from );
+                    fnt_drawText( menuFont, x1, y1, "Mana: %d/%d", MIN( FP8_TO_INT( pcap->spawnmana ), ( int )pcap->mana_stat.val.from ), ( int )pcap->mana_stat.val.from ); y1 += 20;
+                    y1 = draw_one_bar( pcap->manacolor, x1, y1, FP8_TO_INT( pcap->spawnmana ), ( int )pcap->mana_stat.val.from );
                 }
             }
             else
             {
-                fnt_drawText( menuFont, x1, y1, "Life: %d", (int)pcap->life_stat.val.from ); y1 += 20;
-                y1 = draw_one_bar( pcap->lifecolor, x1, y1, (int)pcap->life_stat.val.from, (int)pcap->life_stat.val.from );
+                fnt_drawText( menuFont, x1, y1, "Life: %d", ( int )pcap->life_stat.val.from ); y1 += 20;
+                y1 = draw_one_bar( pcap->lifecolor, x1, y1, ( int )pcap->life_stat.val.from, ( int )pcap->life_stat.val.from );
 
-                if( pcap->mana_stat.val.from > 0)
+                if ( pcap->mana_stat.val.from > 0 )
                 {
-                    fnt_drawText( menuFont, x1, y1, "Mana: %d", (int)pcap->mana_stat.val.from ); y1 += 20;
-                    y1 = draw_one_bar( pcap->manacolor, x1, y1, (int)pcap->mana_stat.val.from, (int)pcap->mana_stat.val.from );
+                    fnt_drawText( menuFont, x1, y1, "Mana: %d", ( int )pcap->mana_stat.val.from ); y1 += 20;
+                    y1 = draw_one_bar( pcap->manacolor, x1, y1, ( int )pcap->mana_stat.val.from, ( int )pcap->mana_stat.val.from );
                 }
             }
             y1 += 20;
 
             //SWID
             fnt_drawText( menuFont, x1, y1, "Stats" ); y1 += 20;
-            fnt_drawText( menuFont, x1, y1, "  Str: %s (%d)", describe_value( pcap->strength_stat.val.from,     60, NULL ), (int)pcap->strength_stat.val.from      ); y1 += 20;
-            fnt_drawText( menuFont, x1, y1, "  Wis: %s (%d)", describe_value( pcap->wisdom_stat.val.from,       60, NULL ), (int)pcap->wisdom_stat.val.from        ); y1 += 20;
-            fnt_drawText( menuFont, x1, y1, "  Int: %s (%d)", describe_value( pcap->intelligence_stat.val.from, 60, NULL ), (int)pcap->intelligence_stat.val.from  ); y1 += 20;
-            fnt_drawText( menuFont, x1, y1, "  Dex: %s (%d)", describe_value( pcap->dexterity_stat.val.from,    60, NULL ), (int)pcap->dexterity_stat.val.from     ); y1 += 20;
+            fnt_drawText( menuFont, x1, y1, "  Str: %s (%d)", describe_value( pcap->strength_stat.val.from,     60, NULL ), ( int )pcap->strength_stat.val.from ); y1 += 20;
+            fnt_drawText( menuFont, x1, y1, "  Wis: %s (%d)", describe_value( pcap->wisdom_stat.val.from,       60, NULL ), ( int )pcap->wisdom_stat.val.from ); y1 += 20;
+            fnt_drawText( menuFont, x1, y1, "  Int: %s (%d)", describe_value( pcap->intelligence_stat.val.from, 60, NULL ), ( int )pcap->intelligence_stat.val.from ); y1 += 20;
+            fnt_drawText( menuFont, x1, y1, "  Dex: %s (%d)", describe_value( pcap->dexterity_stat.val.from,    60, NULL ), ( int )pcap->dexterity_stat.val.from ); y1 += 20;
             y1 += 20;
 
             if ( objects.count > 1 )
@@ -1199,30 +1199,30 @@ bool_t doChoosePlayer_show_stats( int player, int mode, int x, int y, int width,
                     pdata = objects.pro_data + i;
 
                     icap = pdata->cap_ref;
-                    if ( LOADED_CAP(icap) )
+                    if ( LOADED_CAP( icap ) )
                     {
                         Uint32  icon_ref;
                         cap_t * pcap = CapList + icap;
 
                         STRING itemname;
-                        if ( pcap->nameknown ) strncpy(itemname, chop_create(&chop_mem, &(pdata->chop) ), SDL_arraysize(itemname));
-                        else                   strncpy(itemname, pcap->classname,   SDL_arraysize(itemname));
+                        if ( pcap->nameknown ) strncpy( itemname, chop_create( &chop_mem, &( pdata->chop ) ), SDL_arraysize( itemname ) );
+                        else                   strncpy( itemname, pcap->classname,   SDL_arraysize( itemname ) );
 
                         icon_ref = mnu_get_icon_ref( icap, pdata->tx_ref );
 
                         draw_one_icon( icon_ref, x1, y1, NOSPARKLE );
 
-                        if     ( icap == SLOT_LEFT + 1  )
+                        if ( icap == SLOT_LEFT + 1 )
                         {
-                            fnt_drawText( menuFont, x1+32, y1 + 6, "  Left: %s", itemname ); y1 += 32;
+                            fnt_drawText( menuFont, x1 + 32, y1 + 6, "  Left: %s", itemname ); y1 += 32;
                         }
                         else if ( icap == SLOT_RIGHT + 1 )
                         {
-                            fnt_drawText( menuFont, x1+32, y1 + 6, "  Right: %s", itemname ); y1 += 32;
+                            fnt_drawText( menuFont, x1 + 32, y1 + 6, "  Right: %s", itemname ); y1 += 32;
                         }
                         else
                         {
-                            fnt_drawText( menuFont, x1+32, y1 + 6, "  Item: %s", itemname ); y1 += 32;
+                            fnt_drawText( menuFont, x1 + 32, y1 + 6, "  Item: %s", itemname ); y1 += 32;
                         }
                     }
                 }
@@ -1292,7 +1292,7 @@ int doChoosePlayer( float deltaTime )
 
             initSlidyButtons( 1.0f, button_text );
 
-            numVertical   = (buttonTop - y0) / button_repeat - 1;
+            numVertical   = ( buttonTop - y0 ) / button_repeat - 1;
             numHorizontal = 1;
 
             x = x0;
@@ -1313,7 +1313,7 @@ int doChoosePlayer( float deltaTime )
                 y += button_repeat;
             };
 
-            if( loadplayer_count < 10 )
+            if ( loadplayer_count < 10 )
             {
                 set_tip_position( menuFont, "Choose an input device to select your player(s)", 20 );
             }
@@ -1337,8 +1337,8 @@ int doChoosePlayer( float deltaTime )
             }*/
 
             // Simply fall through
-           // menuState = MM_Running;
-           // break;
+            // menuState = MM_Running;
+            // break;
 
         case MM_Running:
             // Figure out how many players we can show without scrolling
@@ -1368,14 +1368,14 @@ int doChoosePlayer( float deltaTime )
             // use the mouse wheel to scan the characters
             if ( cursor_wheel_event_pending() )
             {
-                if (cursor.z > 0)
+                if ( cursor.z > 0 )
                 {
                     if ( startIndex + numVertical < loadplayer_count )
                     {
                         startIndex++;
                     }
                 }
-                else if (cursor.z < 0)
+                else if ( cursor.z < 0 )
                 {
                     if ( startIndex > 0 )
                     {
@@ -1438,7 +1438,7 @@ int doChoosePlayer( float deltaTime )
                     /// technically we COULD recognize joysticks being inserted and removed while the
                     /// game is running but we don't. I will set this up to handle such future behavior
                     /// anyway :)
-                    switch( j )
+                    switch ( j )
                     {
                         case INPUT_DEVICE_KEYBOARD: device_on[j] = keyb.on; break;
                         case INPUT_DEVICE_MOUSE:    device_on[j] = mous.on; break;
@@ -1448,7 +1448,7 @@ int doChoosePlayer( float deltaTime )
                     }
 
                     // replace any not on device with a null icon
-                    if( !device_on[j] )
+                    if ( !device_on[j] )
                     {
                         mnu_widgetList[m].img = TxTexture_get_ptr( ICON_NULL );
 
@@ -1556,8 +1556,8 @@ int doChoosePlayer( float deltaTime )
             */
 
             // Simply fall through
-          //  menuState = MM_Finish;
-          //  break;
+            //  menuState = MM_Finish;
+            //  break;
 
         case MM_Finish:
 
@@ -1576,10 +1576,10 @@ int doChoosePlayer( float deltaTime )
             {
                 // Build the import directory
                 vfs_empty_import_directory();
-                if( !vfs_mkdir( "import" ) )
-				{
-					log_warning( "game_update_imports() - Could not create the import folder. (%s)\n", vfs_getError() );
-				}
+                if ( !vfs_mkdir( "import" ) )
+                {
+                    log_warning( "game_update_imports() - Could not create the import folder. (%s)\n", vfs_getError() );
+                }
 
                 // set up the slots and the import stuff for the selected players
                 local_import_count = mnu_selectedPlayerCount;
@@ -1591,19 +1591,19 @@ int doChoosePlayer( float deltaTime )
                     local_import_slot[i]    = i * MAXIMPORTPERPLAYER;
 
                     // Copy the character to the import directory
-                    strncpy( srcDir, loadplayer[selectedPlayer].dir, SDL_arraysize(srcDir) );
-                    snprintf( destDir, SDL_arraysize(destDir), "import" SLASH_STR "temp%04d.obj", local_import_slot[i] );
+                    strncpy( srcDir, loadplayer[selectedPlayer].dir, SDL_arraysize( srcDir ) );
+                    snprintf( destDir, SDL_arraysize( destDir ), "import" SLASH_STR "temp%04d.obj", local_import_slot[i] );
                     vfs_copyDirectory( srcDir, destDir );
 
                     // Copy all of the character's items to the import directory
                     for ( j = 0; j < MAXIMPORTOBJECTS; j++ )
                     {
-                        snprintf( srcDir, SDL_arraysize( srcDir), "%s" SLASH_STR "%d.obj", loadplayer[selectedPlayer].dir, j );
+                        snprintf( srcDir, SDL_arraysize( srcDir ), "%s" SLASH_STR "%d.obj", loadplayer[selectedPlayer].dir, j );
 
-						// make sure the source directory exists
-                        if( vfs_isDirectory(srcDir) )
+                        // make sure the source directory exists
+                        if ( vfs_isDirectory( srcDir ) )
                         {
-                            snprintf( destDir, SDL_arraysize( destDir), "import" SLASH_STR "temp%04d.obj", local_import_slot[i] + j + 1 );
+                            snprintf( destDir, SDL_arraysize( destDir ), "import" SLASH_STR "temp%04d.obj", local_import_slot[i] + j + 1 );
                             vfs_copyDirectory( srcDir, destDir );
                         }
                     }
@@ -1656,7 +1656,7 @@ int doOptions( float deltaTime )
         case MM_Entering:
             // do buttons sliding in animation, and background fading in
             // background
-            GL_DEBUG(glColor4f)(1, 1, 1, 1 - SlidyButtonState.lerp );
+            GL_DEBUG( glColor4f )( 1, 1, 1, 1 - SlidyButtonState.lerp );
 
             // Draw the background
             if ( mnu_draw_background )
@@ -1677,7 +1677,7 @@ int doOptions( float deltaTime )
         case MM_Running:
             // Do normal run
             // Background
-            GL_DEBUG(glColor4f)(1, 1, 1, 1 );
+            GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
 
             if ( mnu_draw_background )
             {
@@ -1723,7 +1723,7 @@ int doOptions( float deltaTime )
         case MM_Leaving:
             // Do buttons sliding out and background fading
             // Do the same stuff as in MM_Entering, but backwards
-            GL_DEBUG(glColor4f)(1, 1, 1, 1 - SlidyButtonState.lerp );
+            GL_DEBUG( glColor4f )( 1, 1, 1, 1 - SlidyButtonState.lerp );
 
             if ( mnu_draw_background )
             {
@@ -1772,18 +1772,18 @@ int doInputOptions( float deltaTime )
     device_controls_t * pdevice;
 
     pdevice = NULL;
-    if (player >= 0 && player < input_device_count)
+    if ( player >= 0 && player < input_device_count )
     {
         pdevice = controls + player;
     };
 
     idevice = player;
-    if (NULL == pdevice)
+    if ( NULL == pdevice )
     {
         idevice = -1;
     }
 
-    iicon = MIN(4, idevice);
+    iicon = MIN( 4, idevice );
     if ( idevice < 0 )
     {
         iicon = -1;
@@ -1799,12 +1799,12 @@ int doInputOptions( float deltaTime )
 
             waitingforinput = -1;
 
-            for ( i = 0; i < CONTROL_COMMAND_COUNT; i++)
+            for ( i = 0; i < CONTROL_COMMAND_COUNT; i++ )
             {
                 inputOptionsButtons[i][0] = CSTR_END;
             }
-            strncpy( inputOptionsButtons[i++], "Player 1", sizeof(STRING) );
-            strncpy( inputOptionsButtons[i++], "Save Settings", sizeof(STRING) );
+            strncpy( inputOptionsButtons[i++], "Player 1", sizeof( STRING ) );
+            strncpy( inputOptionsButtons[i++], "Save Settings", sizeof( STRING ) );
 
             set_tip_position( menuFont, "Change input settings here.", 20 );
 
@@ -1814,7 +1814,7 @@ int doInputOptions( float deltaTime )
         case MM_Entering:
             // do buttons sliding in animation, and background fading in
             // background
-            GL_DEBUG(glColor4f)(1, 1, 1, 1 - SlidyButtonState.lerp );
+            GL_DEBUG( glColor4f )( 1, 1, 1, 1 - SlidyButtonState.lerp );
 
             // Fall trough
             menuState = MM_Running;
@@ -1823,22 +1823,22 @@ int doInputOptions( float deltaTime )
         case MM_Running:
             // Do normal run
             // Background
-            GL_DEBUG(glColor4f)(1, 1, 1, 1 );
+            GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
             ui_drawTextBox( menuFont, "ATK_LEFT HAND", buttonLeft, GFX_HEIGHT - 470, 0, 0, 20 );
 
             // Are we waiting for input?
-            if (SDLKEYDOWN( SDLK_ESCAPE )) waitingforinput = -1;  // Someone cursor_pressed abort
+            if ( SDLKEYDOWN( SDLK_ESCAPE ) ) waitingforinput = -1;  // Someone cursor_pressed abort
 
             // Grab the key/button input from the selected device
-            if (waitingforinput != -1)
+            if ( waitingforinput != -1 )
             {
-                if (NULL == pdevice || idevice < 0 || idevice >= input_device_count)
+                if ( NULL == pdevice || idevice < 0 || idevice >= input_device_count )
                 {
                     waitingforinput = -1;
                 }
                 else
                 {
-                    if (waitingforinput >= pdevice->count)
+                    if ( waitingforinput >= pdevice->count )
                     {
                         // invalid input range for this device
                         waitingforinput = -1;
@@ -1855,11 +1855,11 @@ int doInputOptions( float deltaTime )
                         if ( idevice >= INPUT_DEVICE_JOY )
                         {
                             int ijoy = idevice - INPUT_DEVICE_JOY;
-                            if (ijoy < MAXJOYSTICK)
+                            if ( ijoy < MAXJOYSTICK )
                             {
                                 for ( tag = 0; tag < scantag_count; tag++ )
                                 {
-                                    if ( 0 != scantag[tag].value && (Uint32)scantag[tag].value == joy[ijoy].b )
+                                    if ( 0 != scantag[tag].value && ( Uint32 )scantag[tag].value == joy[ijoy].b )
                                     {
                                         pcontrol->tag    = scantag[tag].value;
                                         pcontrol->is_key = bfalse;
@@ -1900,7 +1900,7 @@ int doInputOptions( float deltaTime )
                                     {
                                         for ( tag = 0; tag < scantag_count; tag++ )
                                         {
-                                            if ( 0 != scantag[tag].value && (Uint32)scantag[tag].value == mous.b )
+                                            if ( 0 != scantag[tag].value && ( Uint32 )scantag[tag].value == mous.b )
                                             {
                                                 pcontrol->tag    = scantag[tag].value;
                                                 pcontrol->is_key = bfalse;
@@ -1925,16 +1925,16 @@ int doInputOptions( float deltaTime )
                     }
                 }
             }
-            if (NULL != pdevice && waitingforinput == -1)
+            if ( NULL != pdevice && waitingforinput == -1 )
             {
                 // update the control names
-                for ( i = CONTROL_BEGIN; i <= CONTROL_END && i < pdevice->count; i++)
+                for ( i = CONTROL_BEGIN; i <= CONTROL_END && i < pdevice->count; i++ )
                 {
-                    char * tag = scantag_get_string(pdevice->device, pdevice->control[i].tag, pdevice->control[i].is_key);
+                    char * tag = scantag_get_string( pdevice->device, pdevice->control[i].tag, pdevice->control[i].is_key );
 
-                    strncpy( inputOptionsButtons[i], tag, sizeof(STRING) );
+                    strncpy( inputOptionsButtons[i], tag, sizeof( STRING ) );
                 }
-                for ( /* nothing */; i <= CONTROL_END ; i++)
+                for ( /* nothing */; i <= CONTROL_END ; i++ )
                 {
                     inputOptionsButtons[i][0] = CSTR_END;
                 }
@@ -1947,7 +1947,7 @@ int doInputOptions( float deltaTime )
                 if ( BUTTON_UP == ui_doButton( 1, inputOptionsButtons[CONTROL_LEFT_USE], menuFont, buttonLeft + 100, GFX_HEIGHT - 440, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_LEFT_USE;
-                    strncpy( inputOptionsButtons[CONTROL_LEFT_USE], "...", sizeof(STRING) );
+                    strncpy( inputOptionsButtons[CONTROL_LEFT_USE], "...", sizeof( STRING ) );
                 }
             }
             if ( CSTR_END != inputOptionsButtons[CONTROL_LEFT_GET][0] )
@@ -1956,7 +1956,7 @@ int doInputOptions( float deltaTime )
                 if ( BUTTON_UP == ui_doButton( 2, inputOptionsButtons[CONTROL_LEFT_GET], menuFont, buttonLeft + 100, GFX_HEIGHT - 410, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_LEFT_GET;
-                    strncpy( inputOptionsButtons[CONTROL_LEFT_GET], "...", sizeof(STRING) );
+                    strncpy( inputOptionsButtons[CONTROL_LEFT_GET], "...", sizeof( STRING ) );
                 }
             }
             if ( CSTR_END != inputOptionsButtons[CONTROL_LEFT_PACK][0] )
@@ -1965,7 +1965,7 @@ int doInputOptions( float deltaTime )
                 if ( BUTTON_UP == ui_doButton( 3, inputOptionsButtons[CONTROL_LEFT_PACK], menuFont, buttonLeft + 100, GFX_HEIGHT - 380, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_LEFT_PACK;
-                    strncpy( inputOptionsButtons[CONTROL_LEFT_PACK], "...", sizeof(STRING) );
+                    strncpy( inputOptionsButtons[CONTROL_LEFT_PACK], "...", sizeof( STRING ) );
                 }
             }
 
@@ -1977,7 +1977,7 @@ int doInputOptions( float deltaTime )
                 if ( BUTTON_UP == ui_doButton( 4, inputOptionsButtons[CONTROL_RIGHT_USE], menuFont, buttonLeft + 400, GFX_HEIGHT - 440, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_RIGHT_USE;
-                    strncpy( inputOptionsButtons[CONTROL_RIGHT_USE], "...", sizeof(STRING) );
+                    strncpy( inputOptionsButtons[CONTROL_RIGHT_USE], "...", sizeof( STRING ) );
                 }
             }
             if ( CSTR_END != inputOptionsButtons[CONTROL_RIGHT_GET][0] )
@@ -1986,7 +1986,7 @@ int doInputOptions( float deltaTime )
                 if ( BUTTON_UP == ui_doButton( 5, inputOptionsButtons[CONTROL_RIGHT_GET], menuFont, buttonLeft + 400, GFX_HEIGHT - 410, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_RIGHT_GET;
-                    strncpy( inputOptionsButtons[CONTROL_RIGHT_GET], "...", sizeof(STRING) );
+                    strncpy( inputOptionsButtons[CONTROL_RIGHT_GET], "...", sizeof( STRING ) );
                 }
             }
             if ( CSTR_END != inputOptionsButtons[CONTROL_RIGHT_PACK][0] )
@@ -1995,7 +1995,7 @@ int doInputOptions( float deltaTime )
                 if ( BUTTON_UP == ui_doButton( 6, inputOptionsButtons[CONTROL_RIGHT_PACK], menuFont, buttonLeft + 400, GFX_HEIGHT - 380, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_RIGHT_PACK;
-                    strncpy( inputOptionsButtons[CONTROL_RIGHT_PACK], "...", sizeof(STRING) );
+                    strncpy( inputOptionsButtons[CONTROL_RIGHT_PACK], "...", sizeof( STRING ) );
                 }
             }
 
@@ -2007,7 +2007,7 @@ int doInputOptions( float deltaTime )
                 if ( BUTTON_UP == ui_doButton( 7, inputOptionsButtons[CONTROL_JUMP], menuFont, buttonLeft + 100, GFX_HEIGHT - 290, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_JUMP;
-                    strncpy( inputOptionsButtons[CONTROL_JUMP], "...", sizeof(STRING) );
+                    strncpy( inputOptionsButtons[CONTROL_JUMP], "...", sizeof( STRING ) );
                 }
             }
             if ( CSTR_END != inputOptionsButtons[CONTROL_UP][0] )
@@ -2016,7 +2016,7 @@ int doInputOptions( float deltaTime )
                 if ( BUTTON_UP == ui_doButton( 8, inputOptionsButtons[CONTROL_UP], menuFont, buttonLeft + 100, GFX_HEIGHT - 260, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_UP;
-                    strncpy( inputOptionsButtons[CONTROL_UP], "...", sizeof(STRING) );
+                    strncpy( inputOptionsButtons[CONTROL_UP], "...", sizeof( STRING ) );
                 }
             }
             if ( CSTR_END != inputOptionsButtons[CONTROL_DOWN][0] )
@@ -2025,7 +2025,7 @@ int doInputOptions( float deltaTime )
                 if ( BUTTON_UP == ui_doButton( 9, inputOptionsButtons[CONTROL_DOWN], menuFont, buttonLeft + 100, GFX_HEIGHT - 230, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_DOWN;
-                    strncpy( inputOptionsButtons[CONTROL_DOWN], "...", sizeof(STRING) );
+                    strncpy( inputOptionsButtons[CONTROL_DOWN], "...", sizeof( STRING ) );
                 }
             }
             if ( CSTR_END != inputOptionsButtons[CONTROL_LEFT][0] )
@@ -2034,7 +2034,7 @@ int doInputOptions( float deltaTime )
                 if ( BUTTON_UP == ui_doButton( 10, inputOptionsButtons[CONTROL_LEFT], menuFont, buttonLeft + 100, GFX_HEIGHT - 200, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_LEFT;
-                    strncpy( inputOptionsButtons[CONTROL_LEFT], "...", sizeof(STRING) );
+                    strncpy( inputOptionsButtons[CONTROL_LEFT], "...", sizeof( STRING ) );
                 }
             }
             if ( CSTR_END != inputOptionsButtons[CONTROL_RIGHT][0] )
@@ -2043,7 +2043,7 @@ int doInputOptions( float deltaTime )
                 if ( BUTTON_UP == ui_doButton( 11, inputOptionsButtons[CONTROL_RIGHT], menuFont, buttonLeft + 100, GFX_HEIGHT - 170, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_RIGHT;
-                    strncpy( inputOptionsButtons[CONTROL_RIGHT], "...", sizeof(STRING) );
+                    strncpy( inputOptionsButtons[CONTROL_RIGHT], "...", sizeof( STRING ) );
                 }
             }
 
@@ -2055,7 +2055,7 @@ int doInputOptions( float deltaTime )
                 if ( BUTTON_UP == ui_doButton( 12, inputOptionsButtons[CONTROL_CAMERA_IN], menuFont, buttonLeft + 450, GFX_HEIGHT - 290, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_CAMERA_IN;
-                    strncpy( inputOptionsButtons[CONTROL_CAMERA_IN], "...", sizeof(STRING) );
+                    strncpy( inputOptionsButtons[CONTROL_CAMERA_IN], "...", sizeof( STRING ) );
                 }
             }
             else
@@ -2065,7 +2065,7 @@ int doInputOptions( float deltaTime )
                 if ( BUTTON_UP == ui_doButton( 12, inputOptionsButtons[CONTROL_CAMERA], menuFont, buttonLeft + 450, GFX_HEIGHT - 290, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_CAMERA;
-                    strncpy( inputOptionsButtons[CONTROL_CAMERA], "...", sizeof(STRING) );
+                    strncpy( inputOptionsButtons[CONTROL_CAMERA], "...", sizeof( STRING ) );
                 }
             }
             if ( CSTR_END != inputOptionsButtons[CONTROL_CAMERA_OUT][0] )
@@ -2074,7 +2074,7 @@ int doInputOptions( float deltaTime )
                 if ( BUTTON_UP == ui_doButton( 13, inputOptionsButtons[CONTROL_CAMERA_OUT], menuFont, buttonLeft + 450, GFX_HEIGHT - 260, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_CAMERA_OUT;
-                    strncpy( inputOptionsButtons[CONTROL_CAMERA_OUT], "...", sizeof(STRING) );
+                    strncpy( inputOptionsButtons[CONTROL_CAMERA_OUT], "...", sizeof( STRING ) );
                 }
             }
             if ( CSTR_END != inputOptionsButtons[CONTROL_CAMERA_LEFT][0] )
@@ -2083,7 +2083,7 @@ int doInputOptions( float deltaTime )
                 if ( BUTTON_UP == ui_doButton( 14, inputOptionsButtons[CONTROL_CAMERA_LEFT], menuFont, buttonLeft + 450, GFX_HEIGHT - 230, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_CAMERA_LEFT;
-                    strncpy( inputOptionsButtons[CONTROL_CAMERA_LEFT], "...", sizeof(STRING) );
+                    strncpy( inputOptionsButtons[CONTROL_CAMERA_LEFT], "...", sizeof( STRING ) );
                 }
             }
             if ( CSTR_END != inputOptionsButtons[CONTROL_CAMERA_RIGHT][0] )
@@ -2092,7 +2092,7 @@ int doInputOptions( float deltaTime )
                 if ( BUTTON_UP == ui_doButton( 15, inputOptionsButtons[CONTROL_CAMERA_RIGHT], menuFont, buttonLeft + 450, GFX_HEIGHT - 200, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_CAMERA_RIGHT;
-                    strncpy( inputOptionsButtons[CONTROL_CAMERA_RIGHT], "...", sizeof(STRING) );
+                    strncpy( inputOptionsButtons[CONTROL_CAMERA_RIGHT], "...", sizeof( STRING ) );
                 }
             }
 
@@ -2104,15 +2104,15 @@ int doInputOptions( float deltaTime )
                     player = 0;
                 }
             }
-            else if ( BUTTON_UP ==  ui_doImageButtonWithText( 16, TxTexture_get_ptr( ICON_KEYB + iicon ), inputOptionsButtons[CONTROL_COMMAND_COUNT+0], menuFont, buttonLeft + 300, GFX_HEIGHT - 90, 140, 50 ))
+            else if ( BUTTON_UP ==  ui_doImageButtonWithText( 16, TxTexture_get_ptr( ICON_KEYB + iicon ), inputOptionsButtons[CONTROL_COMMAND_COUNT+0], menuFont, buttonLeft + 300, GFX_HEIGHT - 90, 140, 50 ) )
             {
-                if (input_device_count > 0)
+                if ( input_device_count > 0 )
                 {
                     player++;
                     player %= input_device_count;
                 }
 
-                snprintf(inputOptionsButtons[CONTROL_COMMAND_COUNT+0], sizeof(STRING), "Player %i", player + 1);
+                snprintf( inputOptionsButtons[CONTROL_COMMAND_COUNT+0], sizeof( STRING ), "Player %i", player + 1 );
             }
 
             // Save settings button
@@ -2120,7 +2120,7 @@ int doInputOptions( float deltaTime )
             {
                 // save settings and go back
                 player = 0;
-                input_settings_save("controls.txt");
+                input_settings_save( "controls.txt" );
                 menuState = MM_Leaving;
             }
 
@@ -2132,7 +2132,7 @@ int doInputOptions( float deltaTime )
         case MM_Leaving:
             // Do buttons sliding out and background fading
             // Do the same stuff as in MM_Entering, but backwards
-            GL_DEBUG(glColor4f)(1, 1, 1, 1 - SlidyButtonState.lerp );
+            GL_DEBUG( glColor4f )( 1, 1, 1, 1 - SlidyButtonState.lerp );
 
             // Fall trough
             menuState = MM_Finish;
@@ -2194,36 +2194,36 @@ int doGameOptions( float deltaTime )
         case MM_Entering:
             // do buttons sliding in animation, and background fading in
             // background
-            GL_DEBUG(glColor4f)(1, 1, 1, 1 - SlidyButtonState.lerp );
+            GL_DEBUG( glColor4f )( 1, 1, 1, 1 - SlidyButtonState.lerp );
 
             // Draw the background
             if ( mnu_draw_background )
             {
-                ui_drawImage( 0, &background, (GFX_WIDTH  / 2) + (background.imgW / 2), GFX_HEIGHT - background.imgH, 0, 0 );
+                ui_drawImage( 0, &background, ( GFX_WIDTH  / 2 ) + ( background.imgW / 2 ), GFX_HEIGHT - background.imgH, 0, 0 );
             }
 
             // Load the current settings
             switch ( cfg.difficulty )
             {
-                case GAME_HARD: snprintf(Cdifficulty, SDL_arraysize(Cdifficulty), "Punishing"); break;
-                case GAME_EASY: snprintf(Cdifficulty, SDL_arraysize(Cdifficulty), "Forgiving"); break;
-                default: case GAME_NORMAL:
-                {
-                    snprintf(Cdifficulty, SDL_arraysize(Cdifficulty), "Challenging");
-                    cfg.difficulty = GAME_NORMAL;
-                    break;
-                }
+                case GAME_HARD: snprintf( Cdifficulty, SDL_arraysize( Cdifficulty ), "Punishing" ); break;
+                case GAME_EASY: snprintf( Cdifficulty, SDL_arraysize( Cdifficulty ), "Forgiving" ); break;
+            default: case GAME_NORMAL:
+                    {
+                        snprintf( Cdifficulty, SDL_arraysize( Cdifficulty ), "Challenging" );
+                        cfg.difficulty = GAME_NORMAL;
+                        break;
+                    }
             }
             sz_buttons[0] = Cdifficulty;
 
-            maxmessage = CLIP(maxmessage, 4, MAX_MESSAGE);
+            maxmessage = CLIP( maxmessage, 4, MAX_MESSAGE );
             if ( maxmessage == 0 )
             {
-                snprintf( Cmaxmessage, SDL_arraysize( Cmaxmessage), "None" );           // Set to default
+                snprintf( Cmaxmessage, SDL_arraysize( Cmaxmessage ), "None" );          // Set to default
             }
             else
             {
-                snprintf( Cmaxmessage, SDL_arraysize( Cmaxmessage), "%i", maxmessage );
+                snprintf( Cmaxmessage, SDL_arraysize( Cmaxmessage ), "%i", maxmessage );
             }
             sz_buttons[1] = Cmaxmessage;
 
@@ -2254,13 +2254,13 @@ int doGameOptions( float deltaTime )
             if ( cfg.fps_allowed ) sz_buttons[4] = "On";
             else                   sz_buttons[4] = "Off";
 
-			//Billboard feedback
-			if( !cfg.feedback ) sz_buttons[5] = "Disabled";
-			else
-			{
-				if( cfg.feedback == FEEDBACK_TEXT ) sz_buttons[5] = "Enabled";
-				else							  sz_buttons[5] = "Debug";
-			}
+            //Billboard feedback
+            if ( !cfg.feedback ) sz_buttons[5] = "Disabled";
+            else
+            {
+                if ( cfg.feedback == FEEDBACK_TEXT ) sz_buttons[5] = "Enabled";
+                else                              sz_buttons[5] = "Debug";
+            }
 
             // Fall trough
             menuState = MM_Running;
@@ -2269,11 +2269,11 @@ int doGameOptions( float deltaTime )
         case MM_Running:
             // Do normal run
             // Background
-            GL_DEBUG(glColor4f)(1, 1, 1, 1 );
+            GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
 
             if ( mnu_draw_background )
             {
-                ui_drawImage( 0, &background, (GFX_WIDTH  / 2) - (background.imgW / 2), GFX_HEIGHT - background.imgH, 0, 0 );
+                ui_drawImage( 0, &background, ( GFX_WIDTH  / 2 ) - ( background.imgW / 2 ), GFX_HEIGHT - background.imgH, 0, 0 );
             }
 
             ui_drawTextBox( menuFont, "Game Difficulty:", buttonLeft, 50, 0, 0, 20 );
@@ -2285,14 +2285,14 @@ int doGameOptions( float deltaTime )
                 cfg.difficulty++;
                 switch ( cfg.difficulty )
                 {
-                    case GAME_NORMAL: snprintf(Cdifficulty, SDL_arraysize(Cdifficulty), "Challenging"); break;
-                    case GAME_HARD: snprintf(Cdifficulty, SDL_arraysize(Cdifficulty), "Punishing"); break;
-                    default: case GAME_EASY:
-                    {
-						snprintf(Cdifficulty, SDL_arraysize(Cdifficulty), "Forgiving");
-                        cfg.difficulty = GAME_EASY;
-                        break;
-                    }
+                    case GAME_NORMAL: snprintf( Cdifficulty, SDL_arraysize( Cdifficulty ), "Challenging" ); break;
+                    case GAME_HARD: snprintf( Cdifficulty, SDL_arraysize( Cdifficulty ), "Punishing" ); break;
+                default: case GAME_EASY:
+                        {
+                            snprintf( Cdifficulty, SDL_arraysize( Cdifficulty ), "Forgiving" );
+                            cfg.difficulty = GAME_EASY;
+                            break;
+                        }
                 }
                 sz_buttons[0] = Cdifficulty;
             }
@@ -2301,33 +2301,33 @@ int doGameOptions( float deltaTime )
             switch ( cfg.difficulty )
             {
                 case GAME_EASY:
-                    strncpy( szDifficulty, "FORGIVING (Easy)\n - Players gain no bonus XP \n - 15%% XP loss upon death\n - Monsters take 25%% extra damage by players\n - Players take 25%% less damage by monsters\n - Halves the chance for Kursed items\n - Cannot unlock the final level in this mode\n - Life and Mana is refilled after quitting a module", SDL_arraysize(szDifficulty) );
+                    strncpy( szDifficulty, "FORGIVING (Easy)\n - Players gain no bonus XP \n - 15%% XP loss upon death\n - Monsters take 25%% extra damage by players\n - Players take 25%% less damage by monsters\n - Halves the chance for Kursed items\n - Cannot unlock the final level in this mode\n - Life and Mana is refilled after quitting a module", SDL_arraysize( szDifficulty ) );
                     break;
                 case GAME_NORMAL:
-                    strncpy( szDifficulty, "CHALLENGING (Normal)\n - Players gain 10%% bonus XP \n - 15%% XP loss upon death \n - 15%% money loss upon death", SDL_arraysize(szDifficulty) );
+                    strncpy( szDifficulty, "CHALLENGING (Normal)\n - Players gain 10%% bonus XP \n - 15%% XP loss upon death \n - 15%% money loss upon death", SDL_arraysize( szDifficulty ) );
                     break;
                 case GAME_HARD:
-                    strncpy( szDifficulty, "PUNISHING (Hard)\n - Monsters award 20%% extra xp! \n - 15%% XP loss upon death\n - 15%% money loss upon death\n - No respawning\n - Channeling life can kill you\n - Players take 25%% more damage\n - Doubles the chance for Kursed items", SDL_arraysize(szDifficulty) );
+                    strncpy( szDifficulty, "PUNISHING (Hard)\n - Monsters award 20%% extra xp! \n - 15%% XP loss upon death\n - 15%% money loss upon death\n - No respawning\n - Channeling life can kill you\n - Players take 25%% more damage\n - Doubles the chance for Kursed items", SDL_arraysize( szDifficulty ) );
                     break;
             }
-            str_add_linebreaks( szDifficulty, SDL_arraysize(szDifficulty), 30 );
+            str_add_linebreaks( szDifficulty, SDL_arraysize( szDifficulty ), 30 );
             ui_drawTextBox( menuFont, szDifficulty, buttonLeft, 100, 0, 0, 20 );
 
-			// Text messages
+            // Text messages
             ui_drawTextBox( menuFont, "Max  Messages:", buttonLeft + 350, 50, 0, 0, 20 );
             if ( BUTTON_UP == ui_doButton( 2, sz_buttons[1], menuFont, buttonLeft + 515, 50, 75, 30 ) )
             {
                 cfg.message_count_req++;
-                if ( cfg.message_count_req > MAX_MESSAGE) cfg.message_count_req = 0;
+                if ( cfg.message_count_req > MAX_MESSAGE ) cfg.message_count_req = 0;
                 if ( cfg.message_count_req < 4 && cfg.message_count_req != 0 ) cfg.message_count_req = 4;
 
                 if ( 0 == cfg.message_count_req )
                 {
-                    snprintf( Cmaxmessage, SDL_arraysize( Cmaxmessage), "None" );
+                    snprintf( Cmaxmessage, SDL_arraysize( Cmaxmessage ), "None" );
                 }
                 else
                 {
-                    snprintf( Cmaxmessage, SDL_arraysize( Cmaxmessage), "%i", cfg.message_count_req );    // Convert integer to a char we can use
+                    snprintf( Cmaxmessage, SDL_arraysize( Cmaxmessage ), "%i", cfg.message_count_req );   // Convert integer to a char we can use
                 }
 
                 sz_buttons[1] = Cmaxmessage;
@@ -2395,23 +2395,23 @@ int doGameOptions( float deltaTime )
                 else                     sz_buttons[4] = "Off";
             }
 
-			// Feedback
+            // Feedback
             ui_drawTextBox( menuFont, "Floating Text:", buttonLeft + 350, 250, 0, 0, 20 );
             if ( BUTTON_UP == ui_doButton( 6, sz_buttons[5], menuFont, buttonLeft + 515, 250, 75, 30 ) )
             {
-				if( cfg.dev_mode )
-				{
-					cfg.feedback += 1;
-					if( cfg.feedback > FEEDBACK_NUMBER ) cfg.feedback = FEEDBACK_OFF;
-				}
-				else cfg.feedback = !cfg.feedback;
+                if ( cfg.dev_mode )
+                {
+                    cfg.feedback += 1;
+                    if ( cfg.feedback > FEEDBACK_NUMBER ) cfg.feedback = FEEDBACK_OFF;
+                }
+                else cfg.feedback = !cfg.feedback;
 
-				switch( cfg.feedback )
-				{
-					case FEEDBACK_OFF:	  sz_buttons[5] = "Disabled"; break;
-					case FEEDBACK_TEXT:	  sz_buttons[5] = "Enabled";  break;
-					case FEEDBACK_NUMBER: sz_buttons[5] = "Debug";	  break;
-				}
+                switch ( cfg.feedback )
+                {
+                    case FEEDBACK_OFF:    sz_buttons[5] = "Disabled"; break;
+                    case FEEDBACK_TEXT:   sz_buttons[5] = "Enabled";  break;
+                    case FEEDBACK_NUMBER: sz_buttons[5] = "Debug";    break;
+                }
             }
 
             // Save settings
@@ -2434,11 +2434,11 @@ int doGameOptions( float deltaTime )
         case MM_Leaving:
             // Do buttons sliding out and background fading
             // Do the same stuff as in MM_Entering, but backwards
-            GL_DEBUG(glColor4f)(1, 1, 1, 1 - SlidyButtonState.lerp );
+            GL_DEBUG( glColor4f )( 1, 1, 1, 1 - SlidyButtonState.lerp );
 
             if ( mnu_draw_background )
             {
-                ui_drawImage( 0, &background, (GFX_WIDTH  / 2) + (background.imgW / 2), GFX_HEIGHT - background.imgH, 0, 0 );
+                ui_drawImage( 0, &background, ( GFX_WIDTH  / 2 ) + ( background.imgW / 2 ), GFX_HEIGHT - background.imgH, 0, 0 );
             }
 
             // Fall trough
@@ -2504,7 +2504,7 @@ int doAudioOptions( float deltaTime )
         case MM_Entering:
             // do buttons sliding in animation, and background fading in
             // background
-            GL_DEBUG(glColor4f)(1, 1, 1, 1 - SlidyButtonState.lerp );
+            GL_DEBUG( glColor4f )( 1, 1, 1, 1 - SlidyButtonState.lerp );
 
             // Draw the background
             if ( mnu_draw_background )
@@ -2515,18 +2515,18 @@ int doAudioOptions( float deltaTime )
             // Load the current settings
             sz_buttons[0] = cfg.sound_allowed ? "On" : "Off";
 
-            snprintf( Csoundvolume, SDL_arraysize( Csoundvolume), "%i", cfg.sound_volume );
+            snprintf( Csoundvolume, SDL_arraysize( Csoundvolume ), "%i", cfg.sound_volume );
             sz_buttons[1] = Csoundvolume;
 
             sz_buttons[2] = cfg.music_allowed ? "On" : "Off";
 
-            snprintf( Cmusicvolume, SDL_arraysize( Cmusicvolume), "%i", cfg.music_volume );
+            snprintf( Cmusicvolume, SDL_arraysize( Cmusicvolume ), "%i", cfg.music_volume );
             sz_buttons[3] = Cmusicvolume;
 
-            snprintf( Cmaxsoundchannel, SDL_arraysize( Cmaxsoundchannel), "%i", cfg.sound_channel_count );
+            snprintf( Cmaxsoundchannel, SDL_arraysize( Cmaxsoundchannel ), "%i", cfg.sound_channel_count );
             sz_buttons[4] = Cmaxsoundchannel;
 
-            snprintf( Cbuffersize, SDL_arraysize( Cbuffersize), "%i", cfg.sound_buffer_size );
+            snprintf( Cbuffersize, SDL_arraysize( Cbuffersize ), "%i", cfg.sound_buffer_size );
             sz_buttons[5] = Cbuffersize;
 
             sz_buttons[6] = cfg.sound_highquality ?  "Normal" : "High";
@@ -2538,7 +2538,7 @@ int doAudioOptions( float deltaTime )
         case MM_Running:
             // Do normal run
             // Background
-            GL_DEBUG(glColor4f)(1, 1, 1, 1 );
+            GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
 
             if ( mnu_draw_background )
             {
@@ -2558,9 +2558,9 @@ int doAudioOptions( float deltaTime )
             if ( BUTTON_UP == ui_doButton( 2, sz_buttons[1], menuFont, buttonLeft + 150, GFX_HEIGHT - 235, 100, 30 ) )
             {
                 cfg.sound_volume += 5;
-                if (cfg.sound_volume > 100) cfg.sound_volume = 0;
+                if ( cfg.sound_volume > 100 ) cfg.sound_volume = 0;
 
-                snprintf( Csoundvolume, SDL_arraysize( Csoundvolume), "%i", cfg.sound_volume );
+                snprintf( Csoundvolume, SDL_arraysize( Csoundvolume ), "%i", cfg.sound_volume );
                 sz_buttons[1] = Csoundvolume;
             }
 
@@ -2583,9 +2583,9 @@ int doAudioOptions( float deltaTime )
                     cfg.music_volume += 5;
                 }
 
-                if (cfg.music_volume > 100) cfg.music_volume = 0;
+                if ( cfg.music_volume > 100 ) cfg.music_volume = 0;
 
-                snprintf( Cmusicvolume, SDL_arraysize( Cmusicvolume), "%i", cfg.music_volume );
+                snprintf( Cmusicvolume, SDL_arraysize( Cmusicvolume ), "%i", cfg.music_volume );
                 sz_buttons[3] = Cmusicvolume;
             }
 
@@ -2606,7 +2606,7 @@ int doAudioOptions( float deltaTime )
                     cfg.sound_channel_count = 8;
                 }
 
-                snprintf( Cmaxsoundchannel, SDL_arraysize( Cmaxsoundchannel), "%i", cfg.sound_channel_count );
+                snprintf( Cmaxsoundchannel, SDL_arraysize( Cmaxsoundchannel ), "%i", cfg.sound_channel_count );
                 sz_buttons[4] = Cmaxsoundchannel;
             }
 
@@ -2627,7 +2627,7 @@ int doAudioOptions( float deltaTime )
                     cfg.sound_buffer_size = 512;
                 }
 
-                snprintf( Cbuffersize, SDL_arraysize( Cbuffersize), "%i", cfg.sound_buffer_size );
+                snprintf( Cbuffersize, SDL_arraysize( Cbuffersize ), "%i", cfg.sound_buffer_size );
                 sz_buttons[5] = Cbuffersize;
             }
 
@@ -2669,7 +2669,7 @@ int doAudioOptions( float deltaTime )
         case MM_Leaving:
             // Do buttons sliding out and background fading
             // Do the same stuff as in MM_Entering, but backwards
-            GL_DEBUG(glColor4f)(1, 1, 1, 1 - SlidyButtonState.lerp );
+            GL_DEBUG( glColor4f )( 1, 1, 1, 1 - SlidyButtonState.lerp );
 
             if ( mnu_draw_background )
             {
@@ -2747,7 +2747,7 @@ int doVideoOptions( float deltaTime )
         case MM_Entering:
             // do buttons sliding in animation, and background fading in
             // background
-            GL_DEBUG(glColor4f)(1, 1, 1, 1 - SlidyButtonState.lerp );
+            GL_DEBUG( glColor4f )( 1, 1, 1, 1 - SlidyButtonState.lerp );
 
             // Draw the background
             if ( mnu_draw_background )
@@ -2756,8 +2756,8 @@ int doVideoOptions( float deltaTime )
             }
 
             // Load all the current video settings
-            if (cfg.multisamples == 0) strncpy(Cantialiasing , "Off", SDL_arraysize(Cantialiasing));
-            else snprintf(Cantialiasing, SDL_arraysize(Cantialiasing), "X%i", cfg.multisamples);
+            if ( cfg.multisamples == 0 ) strncpy( Cantialiasing , "Off", SDL_arraysize( Cantialiasing ) );
+            else snprintf( Cantialiasing, SDL_arraysize( Cantialiasing ), "X%i", cfg.multisamples );
             sz_buttons[0] = Cantialiasing;
 
             // Texture filtering
@@ -2825,10 +2825,10 @@ int doVideoOptions( float deltaTime )
             {
                 cfg.scrz_req = 16;              // Set to default
             }
-            snprintf( Cscrz, SDL_arraysize( Cscrz), "%i", cfg.scrz_req );      // Convert the integer to a char we can use
+            snprintf( Cscrz, SDL_arraysize( Cscrz ), "%i", cfg.scrz_req );     // Convert the integer to a char we can use
             sz_buttons[7] = Cscrz;
 
-            snprintf( Cmaxlights, SDL_arraysize( Cmaxlights), "%i", cfg.dyna_count_req );
+            snprintf( Cmaxlights, SDL_arraysize( Cmaxlights ), "%i", cfg.dyna_count_req );
             sz_buttons[8] = Cmaxlights;
 
             if ( cfg.use_phong )
@@ -2861,12 +2861,12 @@ int doVideoOptions( float deltaTime )
             if ( cfg.twolayerwater_allowed ) sz_buttons[10] = "On";
             else sz_buttons[10] = "Off";
 
-            snprintf( Cmaxparticles, SDL_arraysize( Cmaxparticles), "%i", cfg.particle_count_req );      // Convert the integer to a char we can use
+            snprintf( Cmaxparticles, SDL_arraysize( Cmaxparticles ), "%i", cfg.particle_count_req );     // Convert the integer to a char we can use
             sz_buttons[14] = Cmaxparticles;
 
             switch ( cfg.scrx_req )
             {
-                // Normal resolutions
+                    // Normal resolutions
                 case 1024: sz_buttons[12] = "1024X768";
                     widescreen = bfalse;
                     break;
@@ -2877,7 +2877,7 @@ int doVideoOptions( float deltaTime )
                     widescreen = bfalse;
                     break;
 
-                // 1280 can be both widescreen and normal
+                    // 1280 can be both widescreen and normal
                 case 1280:
                     if ( cfg.scry_req == 1280 )
                     {
@@ -2920,7 +2920,7 @@ int doVideoOptions( float deltaTime )
         case MM_Running:
             // Do normal run
             // Background
-            GL_DEBUG(glColor4f)(1, 1, 1, 1 );
+            GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
 
             if ( mnu_draw_background )
             {
@@ -2945,8 +2945,8 @@ int doVideoOptions( float deltaTime )
                 // set some arbitrary limit
                 if ( cfg.multisamples > 4 ) cfg.multisamples = 0;
 
-                if (cfg.multisamples == 0) strncpy(Cantialiasing , "Off", SDL_arraysize(Cantialiasing));
-                else snprintf(Cantialiasing, SDL_arraysize(Cantialiasing), "X%i", cfg.multisamples);
+                if ( cfg.multisamples == 0 ) strncpy( Cantialiasing , "Off", SDL_arraysize( Cantialiasing ) );
+                else snprintf( Cantialiasing, SDL_arraysize( Cantialiasing ), "X%i", cfg.multisamples );
 
                 sz_buttons[0] = Cantialiasing;
             }
@@ -3016,7 +3016,7 @@ int doVideoOptions( float deltaTime )
                 }
                 else
                 {
-                    cfg.texturefilter_req = (TX_FILTERS)( (int)cfg.texturefilter_req + 1 );
+                    cfg.texturefilter_req = ( TX_FILTERS )(( int )cfg.texturefilter_req + 1 );
                 }
 
                 if ( cfg.texturefilter_req > TX_ANISOTROPIC )
@@ -3101,9 +3101,9 @@ int doVideoOptions( float deltaTime )
                     cfg.scrz_req += 8;
                 }
 
-                if ( cfg.scrz_req > 32) cfg.scrz_req = 8;
+                if ( cfg.scrz_req > 32 ) cfg.scrz_req = 8;
 
-                snprintf(Cscrz, SDL_arraysize(Cscrz), "%d", cfg.scrz_req );
+                snprintf( Cscrz, SDL_arraysize( Cscrz ), "%d", cfg.scrz_req );
                 sz_buttons[7] = Cscrz;
             }
 
@@ -3125,7 +3125,7 @@ int doVideoOptions( float deltaTime )
                     cfg.dyna_count_req = 8;
                 }
 
-                snprintf(Cmaxdyna, SDL_arraysize(Cmaxdyna), "%d", cfg.dyna_count_req );
+                snprintf( Cmaxdyna, SDL_arraysize( Cmaxdyna ), "%d", cfg.dyna_count_req );
                 sz_buttons[8] = Cmaxdyna;
             }
 
@@ -3194,9 +3194,9 @@ int doVideoOptions( float deltaTime )
                     cfg.particle_count_req += 128;
                 }
 
-                if (cfg.particle_count_req > TOTAL_MAX_PRT ) cfg.particle_count_req = 256;
+                if ( cfg.particle_count_req > TOTAL_MAX_PRT ) cfg.particle_count_req = 256;
 
-                snprintf( Cmaxparticles, SDL_arraysize(Cmaxparticles), "%i", cfg.particle_count_req );    // Convert integer to a char we can use
+                snprintf( Cmaxparticles, SDL_arraysize( Cmaxparticles ), "%i", cfg.particle_count_req );  // Convert integer to a char we can use
                 sz_buttons[14] =  Cmaxparticles;
             }
 
@@ -3205,7 +3205,7 @@ int doVideoOptions( float deltaTime )
             if ( BUTTON_UP == ui_doButton( 12, sz_buttons[11], menuFont, buttonLeft + 450, GFX_HEIGHT - 70, 25, 25 ) )
             {
                 widescreen = !widescreen;
-                if (!widescreen)
+                if ( !widescreen )
                 {
                     sz_buttons[11] = " ";
 
@@ -3253,7 +3253,7 @@ int doVideoOptions( float deltaTime )
                             sz_buttons[12] = "1280x1024";
                             break;
 
-                        default: case 1280:
+                    default: case 1280:
                             cfg.scrx_req = 640;
                             cfg.scry_req = 480;
                             sz_buttons[12] = "640x480";
@@ -3266,7 +3266,7 @@ int doVideoOptions( float deltaTime )
                 {
                     switch ( cfg.scrx_req )
                     {
-                        default: case 1920:
+                    default: case 1920:
                             cfg.scrx_req = 1280;
                             cfg.scry_req = 800;
                             sz_buttons[12] = "1280x800";
@@ -3322,7 +3322,7 @@ int doVideoOptions( float deltaTime )
         case MM_Leaving:
             // Do buttons sliding out and background fading
             // Do the same stuff as in MM_Entering, but backwards
-            GL_DEBUG(glColor4f)(1, 1, 1, 1 - SlidyButtonState.lerp );
+            GL_DEBUG( glColor4f )( 1, 1, 1, 1 - SlidyButtonState.lerp );
 
             if ( mnu_draw_background )
             {
@@ -3378,11 +3378,11 @@ int doShowResults( float deltaTime )
         case MM_Running:
             {
                 char buffer[1024] = EMPTY_CSTR;
-                char * carat = buffer, * carat_end = buffer + SDL_arraysize(buffer);
+                char * carat = buffer, * carat_end = buffer + SDL_arraysize( buffer );
 
                 ui_drawButton( UI_Nothing, 30, 30, GFX_WIDTH  - 60, GFX_HEIGHT - 65, NULL );
 
-                GL_DEBUG(glColor4f)(1, 1, 1, 1 );
+                GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
 
                 // the module name
                 ui_drawTextBox( font, mnu_ModList.lst[selectedModule].base.longname, 50, 80, 291, 230, 20 );
@@ -3480,7 +3480,7 @@ int doGamePaused( float deltaTime )
         case MM_Running:
             // Do normal run
             // Background
-            GL_DEBUG(glColor4f)(1, 1, 1, 1 );
+            GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
 
             // Buttons
             for ( cnt = 0; cnt < 4; cnt ++ )
@@ -3493,7 +3493,7 @@ int doGamePaused( float deltaTime )
             }
 
             // Quick return to game
-            if (SDLKEYDOWN( SDLK_ESCAPE )) menuChoice = 6;
+            if ( SDLKEYDOWN( SDLK_ESCAPE ) ) menuChoice = 6;
 
             if ( menuChoice != 0 )
             {
@@ -3505,7 +3505,7 @@ int doGamePaused( float deltaTime )
         case MM_Leaving:
             // Do buttons sliding out and background fading
             // Do the same stuff as in MM_Entering, but backwards
-            GL_DEBUG(glColor4f)(1, 1, 1, 1 - SlidyButtonState.lerp );
+            GL_DEBUG( glColor4f )( 1, 1, 1, 1 - SlidyButtonState.lerp );
 
             // Buttons
             drawSlidyButtons();
@@ -3572,7 +3572,7 @@ int doShowEndgame( float deltaTime )
 
         case MM_Entering:
 
-            GL_DEBUG(glColor4f)(1, 1, 1, 1 - SlidyButtonState.lerp );
+            GL_DEBUG( glColor4f )( 1, 1, 1, 1 - SlidyButtonState.lerp );
 
             ui_drawTextBox( NULL, endtext, x, y, w, h, 20 );
             drawSlidyButtons();
@@ -3587,7 +3587,7 @@ int doShowEndgame( float deltaTime )
             break;
 
         case MM_Running:
-            GL_DEBUG(glColor4f)(1, 1, 1, 1 );
+            GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
 
             // Buttons
             for ( cnt = 0; cnt < 1; cnt ++ )
@@ -3614,7 +3614,7 @@ int doShowEndgame( float deltaTime )
         case MM_Leaving:
             // Do buttons sliding out and background fading
             // Do the same stuff as in MM_Entering, but backwards
-            GL_DEBUG(glColor4f)(1, 1, 1, 1 - SlidyButtonState.lerp );
+            GL_DEBUG( glColor4f )( 1, 1, 1, 1 - SlidyButtonState.lerp );
 
             ui_drawTextBox( NULL, endtext, x, y, w, h, 20 );
 
@@ -3663,7 +3663,7 @@ int doShowEndgame( float deltaTime )
                 {
                     game_finish_module();
                     pickedmodule_index = -1;
-                    process_kill( PROC_PBASE(GProc) );
+                    process_kill( PROC_PBASE( GProc ) );
                 }
 
                 menuState = MM_Begin;
@@ -3826,7 +3826,7 @@ int doMenu( float deltaTime )
                     if ( !reloaded )
                     {
                         game_finish_module();
-                        process_kill( PROC_PBASE(GProc) );
+                        process_kill( PROC_PBASE( GProc ) );
                     }
 
                     result = MENU_QUIT;
@@ -3835,7 +3835,7 @@ int doMenu( float deltaTime )
                 {
                     // "Restart Module"
                     mnu_end_menu();
-                    game_begin_module( PMod->loadname, (Uint32)~0);
+                    game_begin_module( PMod->loadname, ( Uint32 )~0 );
                     retval = MENU_END;
                 }
                 else if ( result == 3 )
@@ -3984,7 +3984,7 @@ bool_t mnu_addSelectedPlayerInput( Uint16 player, Uint32 input )
     {
         for ( i = 0; i < mnu_selectedPlayerCount; i++ )
         {
-            if ( i == selected_index  )
+            if ( i == selected_index )
             {
                 // add in the selected bits for the selected player
                 mnu_selectedInput[i] |= input;
@@ -4060,7 +4060,7 @@ void check_player_import( const char *dirname, bool_t initialize )
 
     STRING filename;
     const char *foundfile;
-	int skin = 0;
+    int skin = 0;
 
     LOAD_PLAYER_INFO * pinfo;
 
@@ -4070,32 +4070,32 @@ void check_player_import( const char *dirname, bool_t initialize )
         loadplayer_count = 0;
         release_all_profile_textures();
 
-        chop_data_init(&chop_mem);
+        chop_data_init( &chop_mem );
     };
 
     // Search for all objects
     foundfile = vfs_findFirst( dirname, "obj", VFS_SEARCH_DIR );
-    while ( VALID_CSTR(foundfile) && loadplayer_count < MAXLOADPLAYER )
+    while ( VALID_CSTR( foundfile ) && loadplayer_count < MAXLOADPLAYER )
     {
         pinfo = loadplayer + loadplayer_count;
 
-		snprintf( pinfo->dir, SDL_arraysize( pinfo->dir), "%s", str_convert_slash_sys(foundfile, strlen(foundfile)) );
+        snprintf( pinfo->dir, SDL_arraysize( pinfo->dir ), "%s", str_convert_slash_sys( foundfile, strlen( foundfile ) ) );
 
-        snprintf( filename, SDL_arraysize( filename), "%s" SLASH_STR "skin.txt", foundfile );
+        snprintf( filename, SDL_arraysize( filename ), "%s" SLASH_STR "skin.txt", foundfile );
         skin = read_skin( filename );
 
         //snprintf( filename, SDL_arraysize(filename), "%s" SLASH_STR "tris.md2", foundfile );
         //md2_load_one( vfs_resolveReadFilename(filename), &(MadList[loadplayer_count].md2_data) );
 
-		snprintf( filename, SDL_arraysize( filename), "%s" SLASH_STR "icon%d", foundfile, skin );
+        snprintf( filename, SDL_arraysize( filename ), "%s" SLASH_STR "icon%d", foundfile, skin );
         pinfo->tx_ref = TxTexture_load_one( filename, INVALID_TEXTURE, INVALID_KEY );
 
         // load the chop data
-        snprintf( filename, SDL_arraysize( filename), "%s" SLASH_STR "naming.txt", foundfile );
-        chop_load( &chop_mem, filename, &(pinfo->chop) );
+        snprintf( filename, SDL_arraysize( filename ), "%s" SLASH_STR "naming.txt", foundfile );
+        chop_load( &chop_mem, filename, &( pinfo->chop ) );
 
         // generate the name from the chop
-        snprintf( pinfo->name, SDL_arraysize(pinfo->name), "%s", chop_create( &chop_mem, &(pinfo->chop) ) );
+        snprintf( pinfo->name, SDL_arraysize( pinfo->name ), "%s", chop_create( &chop_mem, &( pinfo->chop ) ) );
 
         loadplayer_count++;
 
@@ -4136,7 +4136,7 @@ void load_all_menu_images()
         else if ( mnu_test_by_index( cnt ) )
         {
             // @note just because we can't load the title image DOES NOT mean that we ignore the module
-            snprintf( loadname, SDL_arraysize( loadname), "%s" SLASH_STR "gamedat" SLASH_STR "title", mnu_ModList.lst[cnt].name );
+            snprintf( loadname, SDL_arraysize( loadname ), "%s" SLASH_STR "gamedat" SLASH_STR "title", mnu_ModList.lst[cnt].name );
 
             mnu_ModList.lst[cnt].tex_index = TxTitleImage_load_one( loadname );
 
@@ -4179,7 +4179,7 @@ int mnu_get_menu_depth()
 //--------------------------------------------------------------------------------------------
 bool_t menu_stack_push( which_menu_t menu )
 {
-    menu_stack_index = CLIP( menu_stack_index, 0, MENU_STACK_COUNT) ;
+    menu_stack_index = CLIP( menu_stack_index, 0, MENU_STACK_COUNT ) ;
 
     if ( menu_stack_index >= MENU_STACK_COUNT ) return bfalse;
 
@@ -4197,7 +4197,7 @@ which_menu_t menu_stack_pop()
         menu_stack_index = 0;
         return emnu_Main;
     }
-    if (menu_stack_index > MENU_STACK_COUNT)
+    if ( menu_stack_index > MENU_STACK_COUNT )
     {
         menu_stack_index = MENU_STACK_COUNT;
     }
@@ -4234,7 +4234,7 @@ void mnu_release_one_module( int imod )
 {
     mnu_module_t * pmod;
 
-    if( !VALID_MOD(imod) ) return;
+    if ( !VALID_MOD( imod ) ) return;
     pmod = mnu_ModList.lst + imod;
 
     TxTitleImage_release_one( pmod->tex_index );
@@ -4270,14 +4270,14 @@ bool_t mnu_test_by_index( int modnumber )
     bool_t  allowed;
     bool_t  playerhasquest;
 
-    if ( INVALID_MOD(modnumber) ) return bfalse;
+    if ( INVALID_MOD( modnumber ) ) return bfalse;
     pmod = mnu_ModList.lst + modnumber;
 
     // Check all selected players directories
     playerhasquest = bfalse;
     for ( cnt = 0; cnt < mnu_selectedPlayerCount; cnt++ )
     {
-        if ( pmod->base.quest_level <= quest_check( loadplayer[mnu_selectedPlayer[cnt]].dir, pmod->base.quest_idsz ))
+        if ( pmod->base.quest_level <= quest_check( loadplayer[mnu_selectedPlayer[cnt]].dir, pmod->base.quest_idsz ) )
         {
             playerhasquest = btrue;
             break;
@@ -4309,10 +4309,10 @@ bool_t mnu_test_by_name( const char *szModName )
 //--------------------------------------------------------------------------------------------
 void mnu_module_init( mnu_module_t * pmod )
 {
-    if( NULL == pmod ) return;
+    if ( NULL == pmod ) return;
 
     // clear the module
-    memset( pmod, 0, sizeof(mnu_module_t) );
+    memset( pmod, 0, sizeof( mnu_module_t ) );
 
     pmod->tex_index = INVALID_TITLEIMAGE;
 }
@@ -4328,7 +4328,7 @@ void mnu_load_all_module_info()
 
     // Search for all .mod directories and load the module info
     FileName = vfs_findFirst( "modules", "mod", VFS_SEARCH_DIR );
-    while ( VALID_CSTR(FileName) && mnu_ModList.count < MAX_MODULE )
+    while ( VALID_CSTR( FileName ) && mnu_ModList.count < MAX_MODULE )
     {
         mnu_module_t * pmod = mnu_ModList.lst + mnu_ModList.count;
 
@@ -4336,12 +4336,12 @@ void mnu_load_all_module_info()
         mnu_module_init( pmod );
 
         // save the filename
-        snprintf( loadname, SDL_arraysize( loadname), "%s" SLASH_STR "gamedat" SLASH_STR "menu.txt", FileName );
+        snprintf( loadname, SDL_arraysize( loadname ), "%s" SLASH_STR "gamedat" SLASH_STR "menu.txt", FileName );
 
-        if ( NULL != module_load_info( loadname, &(pmod->base) ) )
+        if ( NULL != module_load_info( loadname, &( pmod->base ) ) )
         {
             pmod->loaded = btrue;
-            strncpy( pmod->name, vfs_convert_fname_sys(FileName), SDL_arraysize(pmod->name) );
+            strncpy( pmod->name, vfs_convert_fname_sys( FileName ), SDL_arraysize( pmod->name ) );
             mnu_ModList.count++;
         };
 
@@ -4365,13 +4365,13 @@ Uint32 mnu_get_icon_ref( Uint16 icap, Uint32 default_ref )
 
     cap_t * pitem_cap;
 
-    if( !LOADED_CAP(icap) ) return icon_ref;
+    if ( !LOADED_CAP( icap ) ) return icon_ref;
     pitem_cap = CapList + icap;
 
     // what do we need to draw?
     is_spell_fx = pitem_cap->spelleffect_type != NOSKINOVERRIDE;
-    is_book     = (SPELLBOOK == icap);
-    draw_book   = (is_book || is_spell_fx) && (bookicon_count > 0);
+    is_book     = ( SPELLBOOK == icap );
+    draw_book   = ( is_book || is_spell_fx ) && ( bookicon_count > 0 );
 
     if ( !draw_book )
     {
@@ -4390,7 +4390,7 @@ Uint32 mnu_get_icon_ref( Uint16 icap, Uint32 default_ref )
             iskin = pitem_cap->skinoverride;
         }
 
-        iskin = CLIP(iskin, 0, bookicon_count);
+        iskin = CLIP( iskin, 0, bookicon_count );
 
         icon_ref = bookicon_ref[ iskin ];
     }

@@ -38,7 +38,7 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 DECLARE_STACK( ACCESS_TYPE_NONE, passage_t, PassageStack );
-DECLARE_STACK( ACCESS_TYPE_NONE, shop_t,    ShopStack    );
+DECLARE_STACK( ACCESS_TYPE_NONE, shop_t,    ShopStack );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -52,7 +52,7 @@ int PasageStack_get_free()
 {
     int ipass = MAX_PASS;
 
-    if( PassageStack.count < MAX_PASS )
+    if ( PassageStack.count < MAX_PASS )
     {
         ipass = PassageStack.count;
         PassageStack.count++;
@@ -80,7 +80,7 @@ int ShopStack_get_free()
 {
     int ishop = MAX_PASS;
 
-    if( ShopStack.count < MAX_PASS )
+    if ( ShopStack.count < MAX_PASS )
     {
         ishop = ShopStack.count;
         ShopStack.count++;
@@ -99,7 +99,7 @@ bool_t open_passage( Uint16 passage )
     bool_t useful = bfalse;
     passage_t * ppass;
 
-    if ( INVALID_PASSAGE(passage) ) return useful;
+    if ( INVALID_PASSAGE( passage ) ) return useful;
     ppass = PassageStack.lst + passage;
 
     useful = !ppass->open;
@@ -110,12 +110,12 @@ bool_t open_passage( Uint16 passage )
         useful = ( !ppass->open );
         ppass->open = btrue;
 
-        for (y = ppass->area.top; y <= ppass->area.bottom; y++ )
+        for ( y = ppass->area.top; y <= ppass->area.bottom; y++ )
         {
-            for (x = ppass->area.left; x <= ppass->area.right; x++ )
+            for ( x = ppass->area.left; x <= ppass->area.right; x++ )
             {
                 fan = mesh_get_tile_int( PMesh, x, y );
-                if ( VALID_TILE(PMesh, fan) )
+                if ( VALID_TILE( PMesh, fan ) )
                 {
                     // clear the wall and impass flags
                     PMesh->mmem.tile_list[fan].fx &= ~( MPDFX_WALL | MPDFX_IMPASS );
@@ -144,7 +144,7 @@ void flash_passage( Uint16 passage, Uint8 color )
         {
             fan = mesh_get_tile_int( PMesh, x, y );
 
-            if ( VALID_TILE(PMesh, fan) )
+            if ( VALID_TILE( PMesh, fan ) )
             {
                 Uint16 ttype = PMesh->mmem.tile_list[fan].type;
 
@@ -170,7 +170,7 @@ bool_t point_is_in_passage( Uint16 passage, float xpos, float ypos )
     passage_t * ppass;
     frect_t tmp_rect;
 
-    if ( INVALID_PASSAGE(passage) ) return bfalse;
+    if ( INVALID_PASSAGE( passage ) ) return bfalse;
     ppass = PassageStack.lst + passage;
 
     // Passage area
@@ -191,22 +191,22 @@ bool_t object_is_in_passage( Uint16 passage, float xpos, float ypos, float radiu
     passage_t * ppass;
     frect_t tmp_rect;
 
-    if ( INVALID_PASSAGE(passage) ) return bfalse;
+    if ( INVALID_PASSAGE( passage ) ) return bfalse;
     ppass = PassageStack.lst + passage;
 
     // Passage area
     radius += CLOSETOLERANCE;
-    tmp_rect.left   = (   ppass->area.left         * TILE_SIZE ) - radius;
-    tmp_rect.top    = (   ppass->area.top          * TILE_SIZE ) - radius;
-    tmp_rect.right  = ( ( ppass->area.right + 1  ) * TILE_SIZE ) + radius;
-    tmp_rect.bottom = ( ( ppass->area.bottom + 1 ) * TILE_SIZE ) + radius;
+    tmp_rect.left   = ( ppass->area.left         * TILE_SIZE ) - radius;
+    tmp_rect.top    = ( ppass->area.top          * TILE_SIZE ) - radius;
+    tmp_rect.right  = (( ppass->area.right + 1 ) * TILE_SIZE ) + radius;
+    tmp_rect.bottom = (( ppass->area.bottom + 1 ) * TILE_SIZE ) + radius;
 
     return frect_point_inside( &tmp_rect, xpos, ypos );
 }
 
 //--------------------------------------------------------------------------------------------
 Uint16 who_is_blocking_passage( Uint16 passage, bool_t targetitems, bool_t targetdead, bool_t targetquest,
-                               bool_t requireitem, IDSZ findidsz )
+                                bool_t requireitem, IDSZ findidsz )
 {
     /// @details ZZ@> This function returns MAX_CHR if there is no character in the passage,
     ///    otherwise the index of the first character found is returned...
@@ -216,7 +216,7 @@ Uint16 who_is_blocking_passage( Uint16 passage, bool_t targetitems, bool_t targe
     Uint16 character, foundother;
     passage_t * ppass;
 
-    if ( INVALID_PASSAGE(passage) ) return MAX_CHR;
+    if ( INVALID_PASSAGE( passage ) ) return MAX_CHR;
     ppass = PassageStack.lst + passage;
 
     // Look at each character
@@ -225,23 +225,23 @@ Uint16 who_is_blocking_passage( Uint16 passage, bool_t targetitems, bool_t targe
     {
         chr_t * pchr;
 
-        if ( !ACTIVE_CHR(character) ) continue;
+        if ( !ACTIVE_CHR( character ) ) continue;
         pchr = ChrList.lst + character;
 
         // no carried items
-        if( pchr->pack_ispacked || ACTIVE_CHR(pchr->attachedto) ) continue;
+        if ( pchr->pack_ispacked || ACTIVE_CHR( pchr->attachedto ) ) continue;
 
         // do not do invulnerable or scenery items
-		if ( (pchr->invictus && !pchr->isitem) || pchr->phys.weight == 0xFFFFFFFF ) continue;
+        if (( pchr->invictus && !pchr->isitem ) || pchr->phys.weight == 0xFFFFFFFF ) continue;
 
         //Do items?
-        if( !targetitems && pchr->isitem ) continue;
+        if ( !targetitems && pchr->isitem ) continue;
 
         //Do dead stuff?
-        if( !targetdead && !pchr->alive ) continue;
+        if ( !targetdead && !pchr->alive ) continue;
 
         //Require target to have specific quest?
-        if( targetquest && (!pchr->isplayer || QUEST_NONE  >= quest_check( chr_get_dir_name(character), findidsz )) ) continue;
+        if ( targetquest && ( !pchr->isplayer || QUEST_NONE  >= quest_check( chr_get_dir_name( character ), findidsz ) ) ) continue;
 
         //Now check if it actually is inside the passage area
         if ( object_is_in_passage( passage, pchr->pos.x, pchr->pos.y, pchr->bump.size ) )
@@ -251,20 +251,20 @@ Uint16 who_is_blocking_passage( Uint16 passage, bool_t targetitems, bool_t targe
                 Uint16 item;
 
                 // Found a live one, do we need to check for required items as well?
-                if( !requireitem ) return character;
+                if ( !requireitem ) return character;
 
                 // It needs to have a specific item as well
                 else
                 {
                     // I: Check left hand
-                    if ( chr_is_type_idsz(pchr->holdingwhich[SLOT_LEFT],findidsz) )
+                    if ( chr_is_type_idsz( pchr->holdingwhich[SLOT_LEFT], findidsz ) )
                     {
                         // It has the item...
                         return character;
                     }
 
                     // II: Check right hand
-                    if ( chr_is_type_idsz(pchr->holdingwhich[SLOT_RIGHT],findidsz) )
+                    if ( chr_is_type_idsz( pchr->holdingwhich[SLOT_RIGHT], findidsz ) )
                     {
                         // It has the item...
                         return character;
@@ -274,7 +274,7 @@ Uint16 who_is_blocking_passage( Uint16 passage, bool_t targetitems, bool_t targe
                     item = pchr->pack_next;
                     while ( item != MAX_CHR )
                     {
-                        if ( chr_is_type_idsz(item,findidsz) )
+                        if ( chr_is_type_idsz( item, findidsz ) )
                         {
                             // It has the item in inventory...
                             return character;
@@ -317,17 +317,17 @@ void check_passage_music()
 
             character = PlaList[cnt].index;
 
-            if ( !ACTIVE_CHR(character) ) continue;
+            if ( !ACTIVE_CHR( character ) ) continue;
             pchr = ChrList.lst + character;
 
-            if( pchr->pack_ispacked || !pchr->alive || !pchr->isplayer ) continue;
+            if ( pchr->pack_ispacked || !pchr->alive || !pchr->isplayer ) continue;
 
             // Is it in the passage?
-            if (  object_is_in_passage( passage, pchr->pos.x, pchr->pos.y, pchr->bump.size  ) )
+            if ( object_is_in_passage( passage, pchr->pos.x, pchr->pos.y, pchr->bump.size ) )
             {
                 // Found a player, start music track
                 sound_play_song( ppass->music, 0, -1 );
-				return;
+                return;
             }
         }
     }
@@ -347,7 +347,7 @@ bool_t close_passage( Uint16 passage )
     ppass = PassageStack.lst + passage;
 
     // don't compute all of this for nothing
-    if( 0 == ppass->mask ) return btrue;
+    if ( 0 == ppass->mask ) return btrue;
 
     // check to see if a wall can close
     if ( HAS_SOME_BITS( ppass->mask, MPDFX_IMPASS | MPDFX_WALL ) )
@@ -360,13 +360,13 @@ bool_t close_passage( Uint16 passage )
         {
             chr_t * pchr;
 
-            if ( !ACTIVE_CHR(character) ) continue;
+            if ( !ACTIVE_CHR( character ) ) continue;
             pchr = ChrList.lst + character;
 
             bumpsize = pchr->bump.size;
-            if ( !pchr->pack_ispacked && !ACTIVE_CHR(pchr->attachedto) && pchr->bump.size != 0 )
+            if ( !pchr->pack_ispacked && !ACTIVE_CHR( pchr->attachedto ) && pchr->bump.size != 0 )
             {
-                if ( object_is_in_passage( passage, pchr->pos.x, pchr->pos.y, pchr->bump.size ))
+                if ( object_is_in_passage( passage, pchr->pos.x, pchr->pos.y, pchr->bump.size ) )
                 {
                     if ( !pchr->canbecrushed )
                     {
@@ -387,7 +387,7 @@ bool_t close_passage( Uint16 passage )
         {
             character = crushedcharacters[cnt];
 
-            chr_get_pai(character)->alert |= ALERTIF_CRUSHED;
+            chr_get_pai( character )->alert |= ALERTIF_CRUSHED;
         }
     }
 
@@ -395,10 +395,10 @@ bool_t close_passage( Uint16 passage )
     ppass->open = bfalse;
     for ( y = ppass->area.top; y <= ppass->area.bottom; y++ )
     {
-        for (x = ppass->area.left; x <= ppass->area.right; x++ )
+        for ( x = ppass->area.left; x <= ppass->area.right; x++ )
         {
             fan = mesh_get_tile_int( PMesh, x, y );
-            if ( VALID_TILE(PMesh, fan) )
+            if ( VALID_TILE( PMesh, fan ) )
             {
                 PMesh->mmem.tile_list[fan].fx |= ppass->mask;
             }
@@ -424,12 +424,12 @@ void add_shop_passage( Uint16 owner, Uint16 passage )
 
     int ishop;
 
-    if( !VALID_PASSAGE(passage) ) return;
+    if ( !VALID_PASSAGE( passage ) ) return;
 
-    if( !ACTIVE_CHR(owner) || !ChrList.lst[owner].alive ) return;
+    if ( !ACTIVE_CHR( owner ) || !ChrList.lst[owner].alive ) return;
 
     ishop = ShopStack_get_free();
-    if( !VALID_SHOP(ishop) ) return;
+    if ( !VALID_SHOP( ishop ) ) return;
 
     // The passage exists...
     ShopStack.lst[ishop].passage = passage;
@@ -444,18 +444,18 @@ void add_passage( passage_t * pdata )
     int         ipass;
     passage_t * ppass;
 
-    if( NULL == pdata ) return;
+    if ( NULL == pdata ) return;
 
     ipass = PasageStack_get_free();
 
     if ( ipass >= MAX_PASS ) return;
     ppass = PassageStack.lst + ipass;
 
-    ppass->area.left      = CLIP(pdata->area.left, 0, PMesh->info.tiles_x - 1);
-    ppass->area.top      = CLIP(pdata->area.top, 0, PMesh->info.tiles_y - 1);
+    ppass->area.left      = CLIP( pdata->area.left, 0, PMesh->info.tiles_x - 1 );
+    ppass->area.top      = CLIP( pdata->area.top, 0, PMesh->info.tiles_y - 1 );
 
-    ppass->area.right  = CLIP(pdata->area.right, 0, PMesh->info.tiles_x - 1);
-    ppass->area.bottom  = CLIP(pdata->area.bottom, 0, PMesh->info.tiles_y - 1);
+    ppass->area.right  = CLIP( pdata->area.right, 0, PMesh->info.tiles_x - 1 );
+    ppass->area.bottom  = CLIP( pdata->area.bottom, 0, PMesh->info.tiles_y - 1 );
 
     ppass->mask          = pdata->mask;
     ppass->music         = pdata->music;
@@ -510,10 +510,10 @@ Uint16 shop_get_owner( int ix, int iy )
 
         passage = pshop->passage;
 
-        if ( INVALID_PASSAGE(passage) ) continue;
+        if ( INVALID_PASSAGE( passage ) ) continue;
         ppass = PassageStack.lst + passage;
 
-        if ( irect_point_inside( &(ppass->area), ix, iy ) )
+        if ( irect_point_inside( &( ppass->area ), ix, iy ) )
         {
             // if there is SHOP_NOOWNER, someone has been murdered!
             owner = pshop->owner;

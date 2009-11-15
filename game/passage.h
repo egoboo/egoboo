@@ -53,7 +53,7 @@ enum e_shop_orders
 //--------------------------------------------------------------------------------------------
 /// Passages
 
-DEFINE_STACK_EXTERN(passage_t, PassageStack, MAX_PASS );
+DEFINE_STACK_EXTERN( passage_t, PassageStack, MAX_PASS );
 
 #define VALID_PASSAGE_RANGE( IPASS ) ( ((IPASS) >= 0) && ((IPASS) <   MAX_PASS) )
 #define VALID_PASSAGE( IPASS )       ( VALID_PASSAGE_RANGE( IPASS ) && ((IPASS) <  PassageStack.count) )
@@ -67,7 +67,7 @@ struct s_shop
 };
 typedef struct s_shop shop_t;
 
-DEFINE_STACK_EXTERN(shop_t, ShopStack, MAX_SHOP );
+DEFINE_STACK_EXTERN( shop_t, ShopStack, MAX_SHOP );
 
 #define VALID_SHOP_RANGE( ISHOP ) ( ((ISHOP) >= 0) && ((ISHOP) <   MAX_SHOP) )
 #define VALID_SHOP( ISHOP )       ( VALID_SHOP_RANGE( ISHOP ) && ((ISHOP) <  ShopStack.count) )
@@ -82,7 +82,7 @@ bool_t close_passage( Uint16 passage );
 void   check_passage_music();
 void   flash_passage( Uint16 passage, Uint8 color );
 Uint16 who_is_blocking_passage( Uint16 passage, bool_t targetitems, bool_t targetdead, bool_t targetquest,
-                               bool_t requireitem, IDSZ findidsz );
+                                bool_t requireitem, IDSZ findidsz );
 void   clear_all_passages();
 void   add_shop_passage( Uint16 owner, Uint16 passage );
 void   add_passage( passage_t * pdata );

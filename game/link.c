@@ -85,9 +85,9 @@ bool_t link_follow_modname( const char * modname, bool_t push_current_module )
     bool_t retval;
     int old_link_stack_count = link_stack_count;
 
-    if ( !VALID_CSTR(modname) ) return bfalse;
+    if ( !VALID_CSTR( modname ) ) return bfalse;
 
-    if ( !mnu_test_by_name(modname) ) return bfalse;
+    if ( !mnu_test_by_name( modname ) ) return bfalse;
 
     // push the link BEFORE you change the module data
     // otherwise you won't save the correct data!
@@ -111,10 +111,10 @@ bool_t link_follow_modname( const char * modname, bool_t push_current_module )
     else
     {
         pickedmodule_name[0] = CSTR_END;
-        pickedmodule_index = mnu_get_mod_number(modname);
+        pickedmodule_index = mnu_get_mod_number( modname );
         if ( -1 != pickedmodule_index )
         {
-            strncpy( pickedmodule_name, mnu_ModList_get_name(pickedmodule_index), SDL_arraysize(pickedmodule_name) );
+            strncpy( pickedmodule_name, mnu_ModList_get_name( pickedmodule_index ), SDL_arraysize( pickedmodule_name ) );
         }
     }
 
@@ -127,7 +127,7 @@ bool_t link_build( const char * fname, Link_t list[] )
     vfs_FILE * pfile;
     int i;
 
-    if ( !VALID_CSTR(fname) ) return bfalse;
+    if ( !VALID_CSTR( fname ) ) return bfalse;
 
     pfile = vfs_openRead( fname );
     if ( NULL == pfile ) return bfalse;
@@ -135,7 +135,7 @@ bool_t link_build( const char * fname, Link_t list[] )
     i = 0;
     while ( goto_colon( NULL, pfile, btrue ) && i < LINK_COUNT )
     {
-        fget_string( pfile, list[i].modname, SDL_arraysize(list[i].modname) );
+        fget_string( pfile, list[i].modname, SDL_arraysize( list[i].modname ) );
         list[i].valid = btrue;
         i++;
     }
@@ -161,15 +161,15 @@ bool_t link_pop_module()
         int i, j;
 
         // restore the heroes' positions before jumping out of the module
-        for (i = 0; i < pentry->hero_count; i++)
+        for ( i = 0; i < pentry->hero_count; i++ )
         {
             chr_t * pchr;
             hero_spawn_data_t * phero = pentry->hero + i;
 
             pchr = NULL;
-            for (j = 0; j < MAX_CHR; j++)
+            for ( j = 0; j < MAX_CHR; j++ )
             {
-                if ( !ACTIVE_CHR(j) ) continue;
+                if ( !ACTIVE_CHR( j ) ) continue;
 
                 if ( phero->object_index == ChrList.lst[j].iprofile )
                 {
@@ -203,10 +203,10 @@ bool_t link_push_module()
 
     // grab an entry
     pentry = link_stack + link_stack_count;
-    memset( pentry, 0, sizeof(link_stack_entry_t) );
+    memset( pentry, 0, sizeof( link_stack_entry_t ) );
 
     // store the load name of the module
-    strncpy( pentry->modname, mnu_ModList_get_name(pickedmodule_index), SDL_arraysize(pentry->modname) );
+    strncpy( pentry->modname, mnu_ModList_get_name( pickedmodule_index ), SDL_arraysize( pentry->modname ) );
 
     // find all of the exportable characters
     pentry->hero_count = 0;
@@ -260,13 +260,13 @@ bool_t link_load_parent( const char * modname, fvec3_t   pos )
     link_stack_entry_t * pentry;
     fvec3_t   pos_diff;
 
-    if ( !VALID_CSTR(modname) ) return bfalse;
+    if ( !VALID_CSTR( modname ) ) return bfalse;
 
     // push this module onto the stack so we can count the heroes
     if ( !link_push_module() ) return bfalse;
 
     // grab the stored data
-    pentry = link_stack + (link_stack_count - 1);
+    pentry = link_stack + ( link_stack_count - 1 );
 
     // determine how you would have to shift the heroes so that they fall on top of the spawn point
     pos_diff.x = pos.x * TILE_SIZE - pentry->hero[0].pos_stt.x;
@@ -286,7 +286,7 @@ bool_t link_load_parent( const char * modname, fvec3_t   pos )
     }
 
     // copy the module name
-    strncpy( pentry->modname, modname, SDL_arraysize(pentry->modname) );
+    strncpy( pentry->modname, modname, SDL_arraysize( pentry->modname ) );
 
     // now pop this "fake" module reference off the stack
     return link_pop_module();

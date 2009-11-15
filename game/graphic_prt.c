@@ -49,23 +49,23 @@ typedef struct s_prt_registry_entity prt_registry_entity_t;
 //--------------------------------------------------------------------------------------------
 static void prt_instance_update( camera_t * pcam, Uint16 particle, Uint8 trans, bool_t do_lighting );
 static void calc_billboard_verts( GLvertex vlst[], prt_instance_t * pinst, float size, bool_t do_reflect );
-static int  cmp_prt_registry_entity(const void * vlhs, const void * vrhs);
+static int  cmp_prt_registry_entity( const void * vlhs, const void * vrhs );
 
 static void draw_one_attacment_point( chr_instance_t * pinst, mad_t * pmad, int vrt_offset );
 static void prt_draw_attached_point( prt_t * pprt );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-Uint32  instance_update = (Uint32)~0;
+Uint32  instance_update = ( Uint32 )~0;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-int cmp_prt_registry_entity(const void * vlhs, const void * vrhs)
+int cmp_prt_registry_entity( const void * vlhs, const void * vrhs )
 {
     const prt_registry_entity_t * lhs, * rhs;
 
-    lhs = (prt_registry_entity_t *) vlhs;
-    rhs = (prt_registry_entity_t *) vrhs;
+    lhs = ( prt_registry_entity_t * ) vlhs;
+    rhs = ( prt_registry_entity_t * ) vrhs;
 
     return lhs->dist - rhs->dist;
 }
@@ -90,9 +90,9 @@ size_t render_all_prt_begin( camera_t * pcam, prt_registry_entity_t reg[], size_
         prt_t * pprt;
         prt_instance_t * pinst;
 
-        if( !DISPLAY_PRT(cnt) ) continue;
+        if ( !DISPLAY_PRT( cnt ) ) continue;
         pprt = PrtList.lst + cnt;
-        pinst = &(pprt->inst);
+        pinst = &( pprt->inst );
 
         if ( !pprt->inview || pprt->is_hidden ) continue;
 
@@ -117,7 +117,7 @@ size_t render_all_prt_begin( camera_t * pcam, prt_registry_entity_t reg[], size_
     }
 
     // sort the particles from close to far
-    qsort( reg, numparticle, sizeof(prt_registry_entity_t), cmp_prt_registry_entity );
+    qsort( reg, numparticle, sizeof( prt_registry_entity_t ), cmp_prt_registry_entity );
 
     return numparticle;
 }
@@ -133,9 +133,9 @@ bool_t render_one_prt_solid( Uint16 iprt )
     prt_t * pprt;
     prt_instance_t * pinst;
 
-    if ( !DISPLAY_PRT(iprt) ) return bfalse;
+    if ( !DISPLAY_PRT( iprt ) ) return bfalse;
     pprt = PrtList.lst + iprt;
-    pinst = &(pprt->inst);
+    pinst = &( pprt->inst );
 
     // if the particle instance data is not valid, do not continue
     if ( !pinst->valid ) return bfalse;
@@ -148,34 +148,34 @@ bool_t render_one_prt_solid( Uint16 iprt )
 
     ATTRIB_PUSH( "render_one_prt_solid", GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_LIGHTING_BIT | GL_CURRENT_BIT );
     {
-        GL_DEBUG(glDepthMask)(GL_TRUE );
+        GL_DEBUG( glDepthMask )( GL_TRUE );
 
-        GL_DEBUG(glDisable)(GL_CULL_FACE );
-        GL_DEBUG(glDisable)(GL_DITHER );
+        GL_DEBUG( glDisable )( GL_CULL_FACE );
+        GL_DEBUG( glDisable )( GL_DITHER );
 
-        GL_DEBUG(glEnable)(GL_DEPTH_TEST );
-        GL_DEBUG(glDepthFunc)(GL_LESS );
+        GL_DEBUG( glEnable )( GL_DEPTH_TEST );
+        GL_DEBUG( glDepthFunc )( GL_LESS );
 
-        GL_DEBUG(glDisable)(GL_BLEND );
+        GL_DEBUG( glDisable )( GL_BLEND );
 
-        GL_DEBUG(glEnable)(GL_ALPHA_TEST );
-        GL_DEBUG(glAlphaFunc)(GL_EQUAL, 1 );
+        GL_DEBUG( glEnable )( GL_ALPHA_TEST );
+        GL_DEBUG( glAlphaFunc )( GL_EQUAL, 1 );
 
         oglx_texture_Bind( TxTexture_get_ptr( TX_PARTICLE_TRANS ) );
 
-        GL_DEBUG(glColor4f)(pinst->fintens, pinst->fintens, pinst->fintens, 1.0f );
+        GL_DEBUG( glColor4f )( pinst->fintens, pinst->fintens, pinst->fintens, 1.0f );
 
-        GL_DEBUG(glBegin)(GL_TRIANGLE_FAN );
+        GL_DEBUG( glBegin )( GL_TRIANGLE_FAN );
         {
             for ( i = 0; i < 4; i++ )
             {
-                GL_DEBUG(glTexCoord2fv)( vtlist[i].tex );
-                GL_DEBUG(glVertex3fv)( vtlist[i].pos );
+                GL_DEBUG( glTexCoord2fv )( vtlist[i].tex );
+                GL_DEBUG( glVertex3fv )( vtlist[i].pos );
             }
         }
         GL_DEBUG_END();
     }
-    ATTRIB_POP( "render_one_prt_solid");
+    ATTRIB_POP( "render_one_prt_solid" );
 
     return btrue;
 }
@@ -213,9 +213,9 @@ bool_t render_one_prt_trans( Uint16 iprt )
     prt_t * pprt;
     prt_instance_t * pinst;
 
-    if ( !DISPLAY_PRT(iprt) ) return bfalse;
+    if ( !DISPLAY_PRT( iprt ) ) return bfalse;
     pprt = PrtList.lst + iprt;
-    pinst = &(pprt->inst);
+    pinst = &( pprt->inst );
 
     // if the particle instance data is not valid, do not continue
     if ( !pinst->valid ) return bfalse;
@@ -226,25 +226,25 @@ bool_t render_one_prt_trans( Uint16 iprt )
 
     ATTRIB_PUSH( "render_one_prt_trans", GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_LIGHTING_BIT | GL_CURRENT_BIT );
     {
-        GL_DEBUG(glDepthMask)(GL_FALSE );
+        GL_DEBUG( glDepthMask )( GL_FALSE );
 
-        GL_DEBUG(glEnable)(GL_BLEND );
-        GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  // some default
+        GL_DEBUG( glEnable )( GL_BLEND );
+        GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  // some default
 
-        GL_DEBUG(glEnable)(GL_DEPTH_TEST );
-        GL_DEBUG(glDepthFunc)(GL_LEQUAL );
+        GL_DEBUG( glEnable )( GL_DEPTH_TEST );
+        GL_DEBUG( glDepthFunc )( GL_LEQUAL );
 
         if ( SPRITE_SOLID == pprt->type )
         {
             // do the alpha blended edge of the solid particle
 
-            GL_DEBUG(glEnable)( GL_ALPHA_TEST );
-            GL_DEBUG(glAlphaFunc)( GL_LESS, 1 );
+            GL_DEBUG( glEnable )( GL_ALPHA_TEST );
+            GL_DEBUG( glAlphaFunc )( GL_LESS, 1 );
 
-            GL_DEBUG(glEnable)( GL_BLEND );
-            GL_DEBUG(glBlendFunc)( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+            GL_DEBUG( glEnable )( GL_BLEND );
+            GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
-            GL_DEBUG(glColor4f)( pinst->fintens, pinst->fintens, pinst->fintens, 1.0f );
+            GL_DEBUG( glColor4f )( pinst->fintens, pinst->fintens, pinst->fintens, 1.0f );
 
             oglx_texture_Bind( TxTexture_get_ptr( TX_PARTICLE_TRANS ) );
         }
@@ -253,12 +253,12 @@ bool_t render_one_prt_trans( Uint16 iprt )
             // do the light sprites
             float intens = pinst->fintens * pinst->falpha;
 
-            GL_DEBUG(glDisable)( GL_ALPHA_TEST );
+            GL_DEBUG( glDisable )( GL_ALPHA_TEST );
 
-            GL_DEBUG(glEnable)( GL_BLEND );
-            GL_DEBUG(glBlendFunc)( GL_ONE, GL_ONE_MINUS_SRC_COLOR );
+            GL_DEBUG( glEnable )( GL_BLEND );
+            GL_DEBUG( glBlendFunc )( GL_ONE, GL_ONE_MINUS_SRC_COLOR );
 
-            GL_DEBUG(glColor4f)( intens, intens, intens, 1.0f );
+            GL_DEBUG( glColor4f )( intens, intens, intens, 1.0f );
 
             oglx_texture_Bind( TxTexture_get_ptr( TX_PARTICLE_LIGHT ) );
         }
@@ -266,13 +266,13 @@ bool_t render_one_prt_trans( Uint16 iprt )
         {
             // do the transparent sprites
 
-            GL_DEBUG(glEnable)(GL_ALPHA_TEST );
-            GL_DEBUG(glAlphaFunc)(GL_GREATER, 0 );
+            GL_DEBUG( glEnable )( GL_ALPHA_TEST );
+            GL_DEBUG( glAlphaFunc )( GL_GREATER, 0 );
 
-            GL_DEBUG(glEnable)(GL_BLEND );
-            GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+            GL_DEBUG( glEnable )( GL_BLEND );
+            GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
-            GL_DEBUG(glColor4f)(pinst->fintens, pinst->fintens, pinst->fintens, pinst->falpha );
+            GL_DEBUG( glColor4f )( pinst->fintens, pinst->fintens, pinst->fintens, pinst->falpha );
 
             oglx_texture_Bind( TxTexture_get_ptr( TX_PARTICLE_TRANS ) );
         }
@@ -283,12 +283,12 @@ bool_t render_one_prt_trans( Uint16 iprt )
         }
 
         // Go on and draw it
-        GL_DEBUG(glBegin)(GL_TRIANGLE_FAN );
+        GL_DEBUG( glBegin )( GL_TRIANGLE_FAN );
         {
             for ( i = 0; i < 4; i++ )
             {
-                GL_DEBUG(glTexCoord2fv)(vtlist[i].tex );
-                GL_DEBUG(glVertex3fv)(vtlist[i].pos );
+                GL_DEBUG( glTexCoord2fv )( vtlist[i].tex );
+                GL_DEBUG( glVertex3fv )( vtlist[i].pos );
             }
         }
         GL_DEBUG_END();
@@ -351,11 +351,11 @@ size_t render_all_prt_ref_begin( camera_t * pcam, prt_registry_entity_t reg[], s
         prt_t * pprt;
         prt_instance_t * pinst;
 
-        if( !DISPLAY_PRT(cnt) ) continue;
+        if ( !DISPLAY_PRT( cnt ) ) continue;
         pprt = PrtList.lst + cnt;
-        pinst = &(pprt->inst);
+        pinst = &( pprt->inst );
 
-        if ( !pprt->inview || pprt->is_hidden  ) continue;
+        if ( !pprt->inview || pprt->is_hidden ) continue;
 
         if ( pinst->size != 0 )
         {
@@ -375,7 +375,7 @@ size_t render_all_prt_ref_begin( camera_t * pcam, prt_registry_entity_t reg[], s
     }
 
     // sort the particles from close to far
-    qsort( reg, numparticle, sizeof(prt_registry_entity_t), cmp_prt_registry_entity );
+    qsort( reg, numparticle, sizeof( prt_registry_entity_t ), cmp_prt_registry_entity );
 
     return numparticle;
 }
@@ -391,45 +391,45 @@ bool_t render_one_prt_ref( Uint16 iprt )
     prt_t * pprt;
     prt_instance_t * pinst;
 
-    if ( !DISPLAY_PRT(iprt) ) return bfalse;
+    if ( !DISPLAY_PRT( iprt ) ) return bfalse;
 
     pprt = PrtList.lst + iprt;
-    pinst = &(pprt->inst);
-    if (!pinst->valid) return bfalse;
+    pinst = &( pprt->inst );
+    if ( !pinst->valid ) return bfalse;
 
     // Calculate the position of the four corners of the billboard
     // used to display the particle.
     calc_billboard_verts( vtlist, pinst, pinst->size, btrue );
 
     // Fill in the rest of the data
-    startalpha = 255 - (pprt->enviro.floor_level - pinst->ref_pos.z) / 2.0f;
-    startalpha = CLIP(startalpha, 0, 255);
+    startalpha = 255 - ( pprt->enviro.floor_level - pinst->ref_pos.z ) / 2.0f;
+    startalpha = CLIP( startalpha, 0, 255 );
     startalpha /= 2;
 
     //startalpha = ( startalpha | gfx.reffadeor ) >> 1;  // Fix for Riva owners
     //startalpha = CLIP(startalpha, 0, 255);
 
-    GL_DEBUG(glEnable)(GL_DEPTH_TEST);
-    GL_DEBUG(glDepthFunc)(GL_LEQUAL);
-    GL_DEBUG(glDepthMask)(GL_FALSE);
+    GL_DEBUG( glEnable )( GL_DEPTH_TEST );
+    GL_DEBUG( glDepthFunc )( GL_LEQUAL );
+    GL_DEBUG( glDepthMask )( GL_FALSE );
 
     if ( startalpha > 0 )
     {
         ATTRIB_PUSH( "render_one_prt_ref", GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_LIGHTING_BIT | GL_CURRENT_BIT );
         {
-            GL_DEBUG(glDisable)(GL_CULL_FACE );
-            GL_DEBUG(glDisable)(GL_DITHER );
+            GL_DEBUG( glDisable )( GL_CULL_FACE );
+            GL_DEBUG( glDisable )( GL_DITHER );
 
             if ( SPRITE_LIGHT == pprt->type )
             {
                 // do the light sprites
                 float intens = startalpha * INV_FF * pinst->alpha * pinst->fintens;
 
-                GL_DEBUG(glDisable)(GL_ALPHA_TEST );
+                GL_DEBUG( glDisable )( GL_ALPHA_TEST );
 
-                GL_DEBUG(glEnable)( GL_BLEND );
-                GL_DEBUG(glBlendFunc)( GL_ONE, GL_ONE );
-                GL_DEBUG(glColor4f)( intens, intens, intens, 1.0f );
+                GL_DEBUG( glEnable )( GL_BLEND );
+                GL_DEBUG( glBlendFunc )( GL_ONE, GL_ONE );
+                GL_DEBUG( glColor4f )( intens, intens, intens, 1.0f );
 
                 oglx_texture_Bind( TxTexture_get_ptr( TX_PARTICLE_LIGHT ) );
             }
@@ -439,13 +439,13 @@ bool_t render_one_prt_ref( Uint16 iprt )
 
                 float alpha = startalpha * INV_FF * pinst->falpha;
 
-                GL_DEBUG(glEnable)( GL_ALPHA_TEST );
-                GL_DEBUG(glAlphaFunc)( GL_GREATER, 0 );
+                GL_DEBUG( glEnable )( GL_ALPHA_TEST );
+                GL_DEBUG( glAlphaFunc )( GL_GREATER, 0 );
 
-                GL_DEBUG(glEnable)(GL_BLEND );
-                GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+                GL_DEBUG( glEnable )( GL_BLEND );
+                GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
-                GL_DEBUG(glColor4f)(pinst->fintens, pinst->fintens, pinst->fintens, alpha );
+                GL_DEBUG( glColor4f )( pinst->fintens, pinst->fintens, pinst->fintens, alpha );
 
                 oglx_texture_Bind( TxTexture_get_ptr( TX_PARTICLE_TRANS ) );
             }
@@ -455,12 +455,12 @@ bool_t render_one_prt_ref( Uint16 iprt )
                 return bfalse;
             }
 
-            GL_DEBUG(glBegin)(GL_TRIANGLE_FAN );
+            GL_DEBUG( glBegin )( GL_TRIANGLE_FAN );
             {
                 for ( i = 0; i < 4; i++ )
                 {
-                    GL_DEBUG(glTexCoord2fv)(vtlist[i].tex );
-                    GL_DEBUG(glVertex3fv)(vtlist[i].pos );
+                    GL_DEBUG( glTexCoord2fv )( vtlist[i].tex );
+                    GL_DEBUG( glVertex3fv )( vtlist[i].pos );
                 }
             }
             GL_DEBUG_END();
@@ -523,9 +523,9 @@ void update_all_prt_instance( camera_t * pcam )
         prt_t * pprt;
         prt_instance_t * pinst;
 
-        if( !DISPLAY_PRT(cnt) ) continue;
+        if ( !DISPLAY_PRT( cnt ) ) continue;
         pprt = PrtList.lst + cnt;
-        pinst = &(pprt->inst);
+        pinst = &( pprt->inst );
 
         if ( !pprt->inview || pprt->is_hidden || 0 == pprt->size )
         {
@@ -572,7 +572,7 @@ void prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_
     vfwd_ref = fvec3_normalize( vfwd_ref.v );
 
     // set the up and right vectors
-    if ( ppip->rotatetoface && !ACTIVE_CHR( pprt->attachedto_ref ) && (ABS( pprt->vel.x ) + ABS( pprt->vel.y ) + ABS( pprt->vel.z ) > 0) )
+    if ( ppip->rotatetoface && !ACTIVE_CHR( pprt->attachedto_ref ) && ( ABS( pprt->vel.x ) + ABS( pprt->vel.y ) + ABS( pprt->vel.z ) > 0 ) )
     {
         // the particle points along its direction of travel
 
@@ -620,8 +620,8 @@ void prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_
 
         // adjust the vector so that the particle doesn't disappear if
         // you are viewing it from from the top or the bottom
-        weight = 1.0f - ABS(vup_cam.z);
-        if( vup_cam.z < 0 ) weight *= -1;
+        weight = 1.0f - ABS( vup_cam.z );
+        if ( vup_cam.z < 0 ) weight *= -1;
 
         vup.x = vup.x + weight * vup_cam.x;
         vup.y = vup.y + weight * vup_cam.y;
@@ -660,9 +660,9 @@ void prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_
     }
     else if ( ACTIVE_CHR( pprt->attachedto_ref ) )
     {
-        chr_instance_t * cinst = chr_get_pinstance(pprt->attachedto_ref);
+        chr_instance_t * cinst = chr_get_pinstance( pprt->attachedto_ref );
 
-        if ( chr_matrix_valid(ChrList.lst + pprt->attachedto_ref) )
+        if ( chr_matrix_valid( ChrList.lst + pprt->attachedto_ref ) )
         {
             // use the character matrix to orient the particle
             // assume that the particle "up" is in the z-direction in the object's
@@ -793,7 +793,7 @@ void prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_
         ndot = fvec3_dot_product( pinst->nrm.v, world_up.v );
 
         // do nothing if the quad is basically horizontal
-        if( ndot < 1.0f - 1e-6 )
+        if ( ndot < 1.0f - 1e-6 )
         {
             //---- do the right vector first
             {
@@ -801,9 +801,9 @@ void prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_
                 // since we know the only non-zero component of world_up is z
                 zdot = fvec3_dot_product( pinst->ref_right.v, world_up.v );
 
-                if( ABS(zdot) > 1e-6 )
+                if ( ABS( zdot ) > 1e-6 )
                 {
-                    factor = zdot / (1.0f - ndot*ndot);
+                    factor = zdot / ( 1.0f - ndot * ndot );
 
                     pinst->ref_right.x += 2.0f * factor * ( ndot * pinst->nrm.x - world_up.x );
                     pinst->ref_right.y += 2.0f * factor * ( ndot * pinst->nrm.y - world_up.y );
@@ -817,9 +817,9 @@ void prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_
                 // since we know the only non-zero component of world_up is z
                 zdot = fvec3_dot_product( pinst->ref_up.v, world_up.v );
 
-                if( ABS(zdot) > 1e-6 )
+                if ( ABS( zdot ) > 1e-6 )
                 {
-                    factor = zdot / (1.0f - ndot*ndot);
+                    factor = zdot / ( 1.0f - ndot * ndot );
 
                     pinst->ref_up.x += 2.0f * factor * ( ndot * pinst->nrm.x - world_up.x );
                     pinst->ref_up.y += 2.0f * factor * ( ndot * pinst->nrm.y - world_up.y );
@@ -843,7 +843,7 @@ void prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_
     {
         // a useful little mod to help with debugging particles
         // will make things like the bare-handed-attack particles visible
-        pinst->size = MAX(90, pinst->size);
+        pinst->size = MAX( 90, pinst->size );
     }
 
     // this instance is now completely valid
@@ -896,7 +896,7 @@ void prt_instance_update_lighting( prt_instance_t * pinst, prt_t * pprt, Uint8 t
 
     // determine the ambient lighting
     self_light  = ( 255 == pinst->light ) ? 0 : pinst->light;
-    pinst->famb = 0.9f * pinst->famb + 0.1f * (self_light + amb);
+    pinst->famb = 0.9f * pinst->famb + 0.1f * ( self_light + amb );
     pinst->fdir = 0.9f * pinst->fdir + 0.1f * dir;
 
     // determine the overall lighting
@@ -908,8 +908,8 @@ void prt_instance_update_lighting( prt_instance_t * pinst, prt_t * pprt, Uint8 t
     pinst->fintens = CLIP( pinst->fintens, 0.0f, 1.0f );
 
     // determine the alpha component
-    pinst->falpha = (alpha * INV_FF) * (pinst->alpha * INV_FF);
-    pinst->falpha = CLIP(pinst->falpha, 0.0f, 1.0f);
+    pinst->falpha = ( alpha * INV_FF ) * ( pinst->alpha * INV_FF );
+    pinst->falpha = CLIP( pinst->falpha, 0.0f, 1.0f );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -918,9 +918,9 @@ void prt_instance_update( camera_t * pcam, Uint16 particle, Uint8 trans, bool_t 
     prt_t * pprt;
     prt_instance_t * pinst;
 
-    if ( !DISPLAY_PRT(particle) ) return;
+    if ( !DISPLAY_PRT( particle ) ) return;
     pprt = PrtList.lst + particle;
-    pinst = &(pprt->inst);
+    pinst = &( pprt->inst );
 
     // make sure that the vertices are interpolated
     prt_instance_update_vertices( pcam, pinst, pprt );
@@ -941,7 +941,7 @@ void calc_billboard_verts( GLvertex vlst[], prt_instance_t * pinst, float size, 
     if ( NULL == vlst || NULL == pinst ) return;
 
     // use the pre-computed reflection parameters
-    if( do_reflect )
+    if ( do_reflect )
     {
         prt_pos   = pinst->ref_pos;
         prt_up    = pinst->ref_up;
@@ -965,13 +965,13 @@ void calc_billboard_verts( GLvertex vlst[], prt_instance_t * pinst, float size, 
     vlst[0].pos[YY] += ( -prt_right.y - prt_up.y ) * size;
     vlst[0].pos[ZZ] += ( -prt_right.z - prt_up.z ) * size;
 
-    vlst[1].pos[XX] += (  prt_right.x - prt_up.x ) * size;
-    vlst[1].pos[YY] += (  prt_right.y - prt_up.y ) * size;
-    vlst[1].pos[ZZ] += (  prt_right.z - prt_up.z ) * size;
+    vlst[1].pos[XX] += ( prt_right.x - prt_up.x ) * size;
+    vlst[1].pos[YY] += ( prt_right.y - prt_up.y ) * size;
+    vlst[1].pos[ZZ] += ( prt_right.z - prt_up.z ) * size;
 
-    vlst[2].pos[XX] += (  prt_right.x + prt_up.x ) * size;
-    vlst[2].pos[YY] += (  prt_right.y + prt_up.y ) * size;
-    vlst[2].pos[ZZ] += (  prt_right.z + prt_up.z ) * size;
+    vlst[2].pos[XX] += ( prt_right.x + prt_up.x ) * size;
+    vlst[2].pos[YY] += ( prt_right.y + prt_up.y ) * size;
+    vlst[2].pos[ZZ] += ( prt_right.z + prt_up.z ) * size;
 
     vlst[3].pos[XX] += ( -prt_right.x + prt_up.x ) * size;
     vlst[3].pos[YY] += ( -prt_right.y + prt_up.y ) * size;
@@ -995,7 +995,7 @@ void render_all_prt_attachment()
 {
     int cnt;
 
-    GL_DEBUG(glDisable)( GL_BLEND );
+    GL_DEBUG( glDisable )( GL_BLEND );
 
     for ( cnt = 0; cnt < maxparticles; cnt++ )
     {
@@ -1012,25 +1012,25 @@ void draw_one_attacment_point( chr_instance_t * pinst, mad_t * pmad, int vrt_off
     int vrt;
     GLboolean texture_1d_enabled, texture_2d_enabled;
 
-    if( NULL == pinst || NULL == pmad ) return;
+    if ( NULL == pinst || NULL == pmad ) return;
 
     vrt = ego_md2_data[pmad->md2_ref].vertices - vrt_offset;
 
-    if( vrt < 0 || vrt >= ego_md2_data[pmad->md2_ref].vertices ) return;
+    if ( vrt < 0 || vrt >= ego_md2_data[pmad->md2_ref].vertices ) return;
 
-    texture_1d_enabled = GL_DEBUG(glIsEnabled)(GL_TEXTURE_1D);
-    texture_2d_enabled = GL_DEBUG(glIsEnabled)(GL_TEXTURE_2D);
+    texture_1d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_1D );
+    texture_2d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_2D );
 
     // disable the texturing so all the points will be white,
     // not the texture color of the last vertex we drawn
-    if( texture_1d_enabled ) glDisable( GL_TEXTURE_1D );
-    if( texture_2d_enabled ) glDisable( GL_TEXTURE_2D );
+    if ( texture_1d_enabled ) glDisable( GL_TEXTURE_1D );
+    if ( texture_2d_enabled ) glDisable( GL_TEXTURE_2D );
 
-    GL_DEBUG(glPointSize)(5);
+    GL_DEBUG( glPointSize )( 5 );
 
-    GL_DEBUG(glMatrixMode)( GL_MODELVIEW );
-    GL_DEBUG(glPushMatrix)();
-    GL_DEBUG(glMultMatrixf)( pinst->matrix.v );
+    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
+    GL_DEBUG( glPushMatrix )();
+    GL_DEBUG( glMultMatrixf )( pinst->matrix.v );
 
     GL_DEBUG( glBegin( GL_POINTS ) );
     {
@@ -1038,11 +1038,11 @@ void draw_one_attacment_point( chr_instance_t * pinst, mad_t * pmad, int vrt_off
     }
     GL_DEBUG_END();
 
-    GL_DEBUG(glMatrixMode)( GL_MODELVIEW );
-    GL_DEBUG(glPopMatrix)();
+    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
+    GL_DEBUG( glPopMatrix )();
 
-    if( texture_1d_enabled ) glEnable( GL_TEXTURE_1D );
-    if( texture_2d_enabled ) glEnable( GL_TEXTURE_2D );
+    if ( texture_1d_enabled ) glEnable( GL_TEXTURE_1D );
+    if ( texture_2d_enabled ) glEnable( GL_TEXTURE_2D );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1052,16 +1052,16 @@ void prt_draw_attached_point( prt_t * pprt )
     cap_t * pholder_cap;
     chr_t * pholder;
 
-    if( !DISPLAY_PPRT( pprt ) ) return;
+    if ( !DISPLAY_PPRT( pprt ) ) return;
 
-    if( !ACTIVE_CHR(pprt->attachedto_ref) ) return;
+    if ( !ACTIVE_CHR( pprt->attachedto_ref ) ) return;
     pholder = ChrList.lst + pprt->attachedto_ref;
 
     pholder_cap = pro_get_pcap( pholder->iprofile );
-    if( NULL == pholder_cap ) return;
+    if ( NULL == pholder_cap ) return;
 
     pholder_mad = chr_get_pmad( GET_INDEX_PCHR( pholder ) );
-    if( NULL == pholder_mad ) return;
+    if ( NULL == pholder_mad ) return;
 
-    draw_one_attacment_point( &(pholder->inst), pholder_mad, pprt->vrt_off );
+    draw_one_attacment_point( &( pholder->inst ), pholder_mad, pprt->vrt_off );
 }

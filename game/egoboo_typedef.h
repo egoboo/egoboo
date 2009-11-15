@@ -175,11 +175,11 @@ typedef Uint32 IDSZ;
 #ifndef MAKE_IDSZ
 #define MAKE_IDSZ(C0,C1,C2,C3)     \
     ((IDSZ)(                       \
-        ((((C0)-'A')&0x1F) << 15) |       \
-        ((((C1)-'A')&0x1F) << 10) |       \
-        ((((C2)-'A')&0x1F) <<  5) |       \
-        ((((C3)-'A')&0x1F) <<  0)         \
-     ))
+                                   ((((C0)-'A')&0x1F) << 15) |       \
+                                   ((((C1)-'A')&0x1F) << 10) |       \
+                                   ((((C2)-'A')&0x1F) <<  5) |       \
+                                   ((((C3)-'A')&0x1F) <<  0)         \
+           ))
 #endif
 
 #define IDSZ_NONE            MAKE_IDSZ('N','O','N','E')       ///< [NONE]
@@ -242,18 +242,18 @@ typedef struct s_hash_list hash_list_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-hash_node_t * hash_node_create(void * data);
-bool_t        hash_node_destroy(hash_node_t **);
-hash_node_t * hash_node_insert_after (hash_node_t lst[], hash_node_t * n);
-hash_node_t * hash_node_insert_before(hash_node_t lst[], hash_node_t * n);
-hash_node_t * hash_node_remove_after (hash_node_t lst[]);
-hash_node_t * hash_node_remove       (hash_node_t lst[]);
+hash_node_t * hash_node_create( void * data );
+bool_t        hash_node_destroy( hash_node_t ** );
+hash_node_t * hash_node_insert_after( hash_node_t lst[], hash_node_t * n );
+hash_node_t * hash_node_insert_before( hash_node_t lst[], hash_node_t * n );
+hash_node_t * hash_node_remove_after( hash_node_t lst[] );
+hash_node_t * hash_node_remove( hash_node_t lst[] );
 
-hash_list_t * hash_list_create(int size);
-bool_t        hash_list_destroy(hash_list_t **);
+hash_list_t * hash_list_create( int size );
+bool_t        hash_list_destroy( hash_list_t ** );
 
-hash_node_t * hash_node_ctor(hash_node_t * n, void * data);
-hash_list_t * hash_list_ctor(hash_list_t * lst, int size);
+hash_node_t * hash_node_ctor( hash_node_t * n, void * data );
+hash_list_t * hash_list_ctor( hash_list_t * lst, int size );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

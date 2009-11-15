@@ -35,9 +35,9 @@ enum e_game_difficulty
 // What feedback does the user want
 typedef enum e_feedback
 {
-	FEEDBACK_OFF = 0,			//None
-	FEEDBACK_TEXT,				//Descriptive text
-	FEEDBACK_NUMBER				//Show the damage as a number
+    FEEDBACK_OFF = 0,           //None
+    FEEDBACK_TEXT,              //Descriptive text
+    FEEDBACK_NUMBER             //Show the damage as a number
 } FEEDBACK_TYPE;
 
 //--------------------------------------------------------------------------------------------
@@ -78,7 +78,7 @@ struct s_egoboo_config
     Uint16                  sound_channel_count;        ///< Max number of sounds playing at the same time
     Uint16                  sound_buffer_size;
     bool_t                  sound_highquality;
-	bool_t					sound_highquality_base;
+    bool_t                  sound_highquality_base;
 
     // {NETWORK}
     bool_t                  network_allowed;            ///< Try to connect?
@@ -86,7 +86,7 @@ struct s_egoboo_config
     char                    network_hostname[64];                            ///< Name for hosting session
     char                    network_messagename[64];                         ///< Name for messages
 
-	// {GAME}
+    // {GAME}
     int                     message_count_req;
     Uint16                  message_duration;               ///< Time to keep the message alive
     bool_t                  StatusList_on;                    ///< Draw the status bars?
@@ -101,7 +101,7 @@ struct s_egoboo_config
     bool_t                  dev_mode;
     bool_t                  sdl_image_allowed;       ///< Allow advanced SDL_Image functions?
 
-	};
+};
 typedef struct s_egoboo_config egoboo_config_t;
 
 extern egoboo_config_t cfg;
@@ -116,5 +116,5 @@ bool_t setup_download( egoboo_config_t * pcfg );
 bool_t setup_upload( egoboo_config_t * pcfg );
 bool_t setup_synch( egoboo_config_t * pcfg );
 
-bool_t input_settings_save( const char* whichfile);
+bool_t input_settings_save( const char* whichfile );
 bool_t input_settings_load( const char *szFilename );

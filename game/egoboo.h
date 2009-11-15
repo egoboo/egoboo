@@ -109,8 +109,8 @@ EXTERN Uint32          timervalue  EQ( 0 );           ///< Timer time ( 50ths of
 // fps stuff
 EXTERN float           est_max_fps           EQ( TARGET_FPS );
 EXTERN float           est_gfx_time          EQ( 1.0f );
-EXTERN Sint32          fps_clock             EQ(0);               ///< The number of ticks this second
-EXTERN Uint32          fps_loops             EQ(0);               ///< The number of frames drawn this second
+EXTERN Sint32          fps_clock             EQ( 0 );             ///< The number of ticks this second
+EXTERN Uint32          fps_loops             EQ( 0 );             ///< The number of frames drawn this second
 EXTERN float           stabilized_fps        EQ( TARGET_FPS );
 EXTERN float           stabilized_fps_sum    EQ( 0 );
 EXTERN float           stabilized_fps_weight EQ( 0 );
@@ -149,7 +149,7 @@ EXTERN int             pickedmodule_index;                ///< The module index 
 
 /// Respawning
 EXTERN bool_t                   local_allpladead;            ///< Has everyone died?
-EXTERN Uint16                   revivetimer EQ(0);
+EXTERN Uint16                   revivetimer EQ( 0 );
 
 /// Imports
 EXTERN int                     local_import_count;                     ///< Number of imports from this machine
@@ -161,7 +161,7 @@ EXTERN Uint8                   messageon      EQ( btrue );         ///< Messages
 EXTERN int                     maxmessage     EQ( MAX_MESSAGE );
 EXTERN int                     wraptolerance  EQ( 80 );            ///< Status bar
 EXTERN bool_t                  wateron        EQ( btrue );         ///< Water overlays?
-EXTERN bool_t				   fpson		  EQ( btrue );		   ///< Show FPS?
+EXTERN bool_t                  fpson          EQ( btrue );         ///< Show FPS?
 
 /// EWWWW. GLOBALS ARE EVIL.
 

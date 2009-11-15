@@ -1,4 +1,4 @@
-/** 
+/**
  @file  enet.h
  @brief ENet public header file
 */
@@ -59,10 +59,10 @@ enum
 };
 
 /**
- * Portable internet address structure. 
+ * Portable internet address structure.
  *
- * The host must be specified in network byte-order, and the port must be in host 
- * byte-order. The constant ENET_HOST_ANY may be used to specify the default 
+ * The host must be specified in network byte-order, and the port must be in host
+ * byte-order. The constant ENET_HOST_ANY may be used to specify the default
  * server host.
  */
 typedef struct _ENetAddress
@@ -77,7 +77,7 @@ typedef struct _ENetAddress
  * The host must be specified in network byte-order, and the port must be in
  * host byte-order. The constant ENET_HOST_ANY may be used to specify the
  * default server host.
- 
+
    @sa ENetPacket
 */
 typedef enum
@@ -90,10 +90,10 @@ typedef enum
 /**
  * ENet packet structure.
  *
- * An ENet data packet that may be sent to or received from a peer. The shown 
- * fields should only be read and never modified. The data field contains the 
- * allocated data for the packet. The dataLength fields specifies the length 
- * of the allocated data.  The flags field is either 0 (specifying no flags), 
+ * An ENet data packet that may be sent to or received from a peer. The shown
+ * fields should only be read and never modified. The data field contains the
+ * allocated data for the packet. The dataLength fields specifies the length
+ * of the allocated data.  The flags field is either 0 (specifying no flags),
  * or a bitwise-or of any combination of the following flags:
  *
  *    ENET_PACKET_FLAG_RELIABLE - packet must be received by the ta
@@ -130,7 +130,7 @@ typedef struct _ENetOutgoingCommand
 } ENetOutgoingCommand;
 
 typedef struct _ENetIncomingCommand
-{  
+{
    ENetListNode     incomingCommandList;
    enet_uint32      reliableSequenceNumber;
    enet_uint32      unreliableSequenceNumber;
@@ -165,7 +165,7 @@ enum
    ENET_PEER_DEFAULT_ROUND_TRIP_TIME      = 500,
    ENET_PEER_DEFAULT_PACKET_THROTTLE      = 32,
    ENET_PEER_PACKET_THROTTLE_SCALE        = 32,
-   ENET_PEER_PACKET_THROTTLE_COUNTER      = 7, 
+   ENET_PEER_PACKET_THROTTLE_COUNTER      = 7,
    ENET_PEER_PACKET_THROTTLE_ACCELERATION = 2,
    ENET_PEER_PACKET_THROTTLE_DECELERATION = 2,
    ENET_PEER_PACKET_THROTTLE_INTERVAL     = 5000,
@@ -187,12 +187,12 @@ typedef struct _ENetChannel
 } ENetChannel;
 
 /**
- * An ENet peer which data packets may be sent or received from. 
+ * An ENet peer which data packets may be sent or received from.
  *
- * No fields should be modified unless otherwise specified. 
+ * No fields should be modified unless otherwise specified.
  */
 typedef struct _ENetPeer
-{ 
+{
    struct _ENetHost * host;
    enet_uint16   outgoingPeerID;
    enet_uint16   incomingPeerID;
@@ -281,20 +281,20 @@ typedef struct _ENetHost
 typedef enum
 {
    /** no event occurred within the specified time limit */
-   ENET_EVENT_TYPE_NONE       = 0,  
+   ENET_EVENT_TYPE_NONE       = 0,
 
-   /** a connection request initiated by enet_host_connect has completed.  
-     * The peer field contains the peer which successfully connected. 
+   /** a connection request initiated by enet_host_connect has completed.
+     * The peer field contains the peer which successfully connected.
      */
-   ENET_EVENT_TYPE_CONNECT    = 1,  
+   ENET_EVENT_TYPE_CONNECT    = 1,
 
-   /** a peer has disconnected.  This event is generated on a successful 
-     * completion of a disconnect initiated by enet_pper_disconnect, if 
-     * a peer has timed out, or if a connection request intialized by 
-     * enet_host_connect has timed out.  The peer field contains the peer 
-     * which disconnected. 
+   /** a peer has disconnected.  This event is generated on a successful
+     * completion of a disconnect initiated by enet_pper_disconnect, if
+     * a peer has timed out, or if a connection request intialized by
+     * enet_host_connect has timed out.  The peer field contains the peer
+     * which disconnected.
      */
-   ENET_EVENT_TYPE_DISCONNECT = 2,  
+   ENET_EVENT_TYPE_DISCONNECT = 2,
 
    /** a packet has been received from a peer.  The peer field specifies the
      * peer which sent the packet.  The channelID field specifies the channel
@@ -307,10 +307,10 @@ typedef enum
 
 /**
  * An ENet event as returned by enet_host_service().
-   
+
    @sa enet_host_service
  */
-typedef struct _ENetEvent 
+typedef struct _ENetEvent
 {
    ENetEventType        type;      /**< type of the event */
    ENetPeer *           peer;      /**< peer that generated a connect, disconnect or receive event */
@@ -319,17 +319,17 @@ typedef struct _ENetEvent
 } ENetEvent;
 
 /** @defgroup global ENet global functions
-    @{ 
+    @{
 */
 
-/** 
+/**
   Initializes ENet globally.  Must be called prior to using any functions in
   ENet.
   @returns 0 on success, < 0 on failure
 */
 ENET_API int enet_initialize (void);
 
-/** 
+/**
   Shuts down ENet globally.  Should be called when a program that has
   initialized ENet exits.
 */

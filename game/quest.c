@@ -39,26 +39,26 @@ bool_t quest_add_idsz( const char *player_directory, IDSZ idsz )
     STRING newloadname;
 
     // Only add quest IDSZ if it doesnt have it already
-    if (quest_check(player_directory, idsz) >= QUEST_BEATEN) return bfalse;
+    if ( quest_check( player_directory, idsz ) >= QUEST_BEATEN ) return bfalse;
 
     // Try to open the file in read and append mode
-    snprintf(newloadname, SDL_arraysize(newloadname), "%s/quest.txt", player_directory );
+    snprintf( newloadname, SDL_arraysize( newloadname ), "%s/quest.txt", player_directory );
     filewrite = vfs_openAppend( newloadname );
     if ( !filewrite )
     {
         // Create the file if it does not exist
         filewrite = vfs_openWrite( newloadname );
-        if (!filewrite)
+        if ( !filewrite )
         {
-            log_warning("Cannot write to %s!\n", newloadname);
+            log_warning( "Cannot write to %s!\n", newloadname );
             return bfalse;
         }
 
-        vfs_printf( filewrite, "// This file keeps order of all the quests for the player (%s)\n", player_directory);
-        vfs_printf( filewrite, "// The number after the IDSZ shows the quest level. -1 means it is completed.");
+        vfs_printf( filewrite, "// This file keeps order of all the quests for the player (%s)\n", player_directory );
+        vfs_printf( filewrite, "// The number after the IDSZ shows the quest level. -1 means it is completed." );
     }
 
-    vfs_printf( filewrite, "\n:[%4s] 0", undo_idsz( idsz ));
+    vfs_printf( filewrite, "\n:[%4s] 0", undo_idsz( idsz ) );
     vfs_close( filewrite );
 
     return btrue;
@@ -77,15 +77,15 @@ Sint16 quest_modify_idsz( const char *player_directory, IDSZ idsz, Sint16 adjust
     Sint8 NewQuestLevel = QUEST_NONE, QuestLevel;
 
     // Now check each expansion until we find correct IDSZ
-    if (quest_check(player_directory, idsz) <= QUEST_BEATEN || adjustment == 0)  return QUEST_NONE;
+    if ( quest_check( player_directory, idsz ) <= QUEST_BEATEN || adjustment == 0 )  return QUEST_NONE;
     else
     {
         // modify the CData.quest_file
         char ctmp;
 
         // create a "tmp_*" copy of the file
-        snprintf( newloadname, SDL_arraysize( newloadname ), "%s/quest.txt", player_directory);
-        snprintf( copybuffer, SDL_arraysize( copybuffer ), "%s/tmp_quest.txt", player_directory);
+        snprintf( newloadname, SDL_arraysize( newloadname ), "%s/quest.txt", player_directory );
+        snprintf( copybuffer, SDL_arraysize( copybuffer ), "%s/tmp_quest.txt", player_directory );
         vfs_copyFile( newloadname, copybuffer );
 
         // open the tmp file for reading and overwrite the original file
@@ -93,21 +93,21 @@ Sint16 quest_modify_idsz( const char *player_directory, IDSZ idsz, Sint16 adjust
         filewrite = vfs_openWrite( newloadname );
 
         // Something went wrong
-        if (!fileread || !filewrite)
+        if ( !fileread || !filewrite )
         {
-            log_warning("Could not modify quest IDSZ (%s).\n", newloadname);
+            log_warning( "Could not modify quest IDSZ (%s).\n", newloadname );
             return QUEST_NONE;
         }
 
         // read the tmp file line-by line
-        while ( !vfs_eof(fileread) )
+        while ( !vfs_eof( fileread ) )
         {
-            ctmp = vfs_getc(fileread);
-            vfs_ungetc(ctmp, fileread);
+            ctmp = vfs_getc( fileread );
+            vfs_ungetc( ctmp, fileread );
             if ( '/' == ctmp )
             {
                 // copy comments exactly
-                fcopy_line(fileread, filewrite);
+                fcopy_line( fileread, filewrite );
             }
             else if ( goto_colon( NULL, fileread, btrue ) )
             {
@@ -118,11 +118,11 @@ Sint16 quest_modify_idsz( const char *player_directory, IDSZ idsz, Sint16 adjust
                 // modify it
                 if ( newidsz == idsz )
                 {
-                    QuestLevel = MAX(adjustment, 0);        // Don't get negative
+                    QuestLevel = MAX( adjustment, 0 );      // Don't get negative
                     NewQuestLevel = QuestLevel;
                 }
 
-                vfs_printf(filewrite, "\n:[%s] %i", undo_idsz(newidsz), QuestLevel);
+                vfs_printf( filewrite, "\n:[%s] %i", undo_idsz( newidsz ), QuestLevel );
             }
         }
     }
@@ -147,12 +147,12 @@ Sint16 quest_check( const char *player_directory, IDSZ idsz )
     bool_t foundidsz = bfalse;
     Sint8 result = QUEST_NONE;
 
-    snprintf( newloadname, SDL_arraysize(newloadname), "%s/quest.txt", player_directory );
+    snprintf( newloadname, SDL_arraysize( newloadname ), "%s/quest.txt", player_directory );
     fileread = vfs_openRead( newloadname );
     if ( NULL == fileread ) return result;
 
     // Always return "true" for [NONE] IDSZ checks
-    if (idsz == IDSZ_NONE) result = QUEST_BEATEN;
+    if ( idsz == IDSZ_NONE ) result = QUEST_BEATEN;
 
     // Check each expansion
     while ( !foundidsz && goto_colon( NULL, fileread, btrue ) )

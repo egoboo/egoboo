@@ -163,7 +163,7 @@ struct s_msg
 };
 typedef struct s_msg msg_t;
 
-DEFINE_STACK_EXTERN(msg_t, DisplayMsg, MAX_MESSAGE );
+DEFINE_STACK_EXTERN( msg_t, DisplayMsg, MAX_MESSAGE );
 
 //--------------------------------------------------------------------------------------------
 /// camera optimization
@@ -210,7 +210,7 @@ typedef struct s_gfx_config gfx_config_t;
 
 extern gfx_config_t gfx;
 
-bool_t gfx_config_init ( gfx_config_t * pgfx );
+bool_t gfx_config_init( gfx_config_t * pgfx );
 bool_t gfx_synch_config( gfx_config_t * pgfx, struct s_egoboo_config * pcfg );
 
 //--------------------------------------------------------------------------------------------
@@ -263,13 +263,13 @@ bool_t             billboard_data_free( billboard_data_t * pbb );
 bool_t             billboard_data_update( billboard_data_t * pbb );
 bool_t             billboard_data_printf_ttf( billboard_data_t * pbb, struct Font *font, SDL_Color color, const char * format, ... );
 
-DEFINE_LIST_EXTERN(billboard_data_t, BillboardList, BILLBOARD_COUNT );
+DEFINE_LIST_EXTERN( billboard_data_t, BillboardList, BILLBOARD_COUNT );
 
 void               BillboardList_init_all();
 void               BillboardList_update_all();
 void               BillboardList_free_all();
 int                BillboardList_get_free( Uint32 lifetime_secs );
-bool_t             BillboardList_free_one(int ibb);
+bool_t             BillboardList_free_one( int ibb );
 billboard_data_t * BillboardList_get_ptr( int ibb );
 
 #define VALID_BILLBOARD_RANGE( IBB ) ( ( (IBB) >= 0 ) && ( (IBB) < BILLBOARD_COUNT ) )
@@ -346,12 +346,12 @@ bool_t render_one_mad( Uint16 character, GLXvector4f tint, Uint32 bits );
 bool_t render_one_mad_ref( int tnc );
 void   render_water();
 void   render_scene( ego_mpd_t * pmesh, struct s_camera * pcam );
-bool_t render_oct_bb( oct_bb_t * bb, bool_t draw_square, bool_t draw_diamond  );
+bool_t render_oct_bb( oct_bb_t * bb, bool_t draw_square, bool_t draw_diamond );
 void   render_all_prt_attachment();
 bool_t render_one_prt_solid( Uint16 iprt );
 bool_t render_one_prt_trans( Uint16 iprt );
 bool_t render_one_prt_ref( Uint16 iprt );
-bool_t render_aabb(aabb_t * pbbox);
+bool_t render_aabb( aabb_t * pbbox );
 void   render_all_billboards( struct s_camera * pcam );
 
 void do_grid_dynalight();

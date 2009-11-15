@@ -29,7 +29,7 @@
 //---------------------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------------------
 
-DECLARE_LIST ( ACCESS_TYPE_NONE, oglx_texture, TxTexture );
+DECLARE_LIST( ACCESS_TYPE_NONE, oglx_texture, TxTexture );
 
 //---------------------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------------------
@@ -127,7 +127,7 @@ int TxTexture_get_free( int itex )
                 if ( TxTexture.free_count > 0 )
                 {
                     TxTexture.free_count--;
-                    SWAP(int, TxTexture.free_ref[i], TxTexture.free_ref[TxTexture.free_count] );
+                    SWAP( int, TxTexture.free_ref[i], TxTexture.free_ref[TxTexture.free_count] );
                 }
                 break;
             }
@@ -179,7 +179,7 @@ int TxTexture_load_one( const char *filename, int itex_src, Uint32 key )
     int    itex;
 
     // get a texture index.
-    itex = TxTexture_get_free(itex_src);
+    itex = TxTexture_get_free( itex_src );
 
     // handle an error
     if ( itex >= 0 && itex < TEXTURE_COUNT )
@@ -187,7 +187,7 @@ int TxTexture_load_one( const char *filename, int itex_src, Uint32 key )
         Uint32 txid = ego_texture_load( TxTexture.lst + itex, filename, key );
         if ( INVALID_TX_ID == txid )
         {
-            TxTexture_free_one(itex);
+            TxTexture_free_one( itex );
             itex = INVALID_TEXTURE;
         }
     }
@@ -204,7 +204,7 @@ oglx_texture * TxTexture_get_ptr( int itex )
         return NULL;
     ptex = TxTexture.lst + itex;
 
-    if ( !oglx_texture_Valid(ptex) )
+    if ( !oglx_texture_Valid( ptex ) )
         return NULL;
 
     return ptex;

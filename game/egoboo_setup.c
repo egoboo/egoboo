@@ -91,7 +91,7 @@ egoboo_config_t cfg;
 //--------------------------------------------------------------------------------------------
 void egoboo_config_init()
 {
-    memset( &cfg_default, 0, sizeof(egoboo_config_t) );
+    memset( &cfg_default, 0, sizeof( egoboo_config_t ) );
 
     // {GRAPHIC}
     cfg_default.fullscreen_req        = bfalse;        // Start in fullscreen?
@@ -126,19 +126,19 @@ void egoboo_config_init()
     cfg_default.sound_channel_count   = 16;      // Max number of sounds playing at the same time
     cfg_default.sound_buffer_size     = 2048;
 
-	// {GAME}
+    // {GAME}
     cfg_default.message_count_req     = 6;
     cfg_default.message_duration      = 50;                     // Time to keep the message alive
     cfg_default.StatusList_on         = btrue;               // Draw the status bars?
-    cfg_default.feedback			  = FEEDBACK_TEXT;    // What feedback does the player want
-	cfg_default.difficulty			  = GAME_NORMAL;      // What is the current game difficulty
+    cfg_default.feedback              = FEEDBACK_TEXT;    // What feedback does the player want
+    cfg_default.difficulty            = GAME_NORMAL;      // What is the current game difficulty
     cfg_default.autoturncamera        = 255;              // Type of camera control...
 
     // {NETWORK}
     cfg_default.network_allowed       = bfalse;            // Try to connect?
     cfg_default.network_lag           = 2;                             // Lag tolerance
-    strncpy( cfg_default.network_hostname,    "no host",      SDL_arraysize(cfg_default.network_hostname)   );                            // Name for hosting session
-    strncpy( cfg_default.network_messagename, "little Raoul", SDL_arraysize(cfg_default.network_messagename));                         // Name for messages
+    strncpy( cfg_default.network_hostname,    "no host",      SDL_arraysize( cfg_default.network_hostname ) );                            // Name for hosting session
+    strncpy( cfg_default.network_messagename, "little Raoul", SDL_arraysize( cfg_default.network_messagename ) );                      // Name for messages
 
     // {DEBUG}
     cfg_default.fps_allowed       = btrue;             // FPS displayed?
@@ -161,16 +161,16 @@ bool_t setup_read( const char* filename )
 {
     /// @details BB@> read the setup file
 
-    if( INVALID_CSTR(filename) ) return bfalse;
+    if ( INVALID_CSTR( filename ) ) return bfalse;
 
-    strncpy( _config_filename, filename, SDL_arraysize(_config_filename) );
+    strncpy( _config_filename, filename, SDL_arraysize( _config_filename ) );
 
     // do NOT force the file to open in a read directory if it doesn't exist. this will cause a failure in
     // linux if the directory is read-only
     lConfigSetup = LoadConfigFile( vfs_resolveReadFilename( _config_filename ), bfalse );
 
     // if the file can't be opened, try to create something
-    if( NULL == lConfigSetup )
+    if ( NULL == lConfigSetup )
     {
         // this will actually create the file within the write directory
         // more of a hack than an ideal solution
@@ -191,13 +191,13 @@ bool_t setup_write()
 {
     /// @details BB@> save the current setup file
 
-    if( INVALID_CSTR(_config_filename) ) return bfalse;
+    if ( INVALID_CSTR( _config_filename ) ) return bfalse;
 
     return ConfigFile_succeed == SaveConfigFileAs( lConfigSetup, vfs_resolveWriteFilename( _config_filename ) );
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t setup_download(egoboo_config_t * pcfg)
+bool_t setup_download( egoboo_config_t * pcfg )
 {
     /// @details BB@> download the ConfigFile_t keys into game variables
     ///     use default values to fill in any missing keys
@@ -207,12 +207,12 @@ bool_t setup_download(egoboo_config_t * pcfg)
     Sint32 lTempInt;
     STRING lTempStr;
 
-    if (NULL == lConfigSetup || NULL == pcfg) return bfalse;
+    if ( NULL == lConfigSetup || NULL == pcfg ) return bfalse;
 
     // set the default egoboo values
     egoboo_config_init();
 
-    memcpy( pcfg, &cfg_default, sizeof(egoboo_config_t) );
+    memcpy( pcfg, &cfg_default, sizeof( egoboo_config_t ) );
 
     //*********************************************
     //* GRAPHIC Section
@@ -276,18 +276,18 @@ bool_t setup_download(egoboo_config_t * pcfg)
     GetKey_int( "ANTIALIASING", pcfg->multisamples, cfg_default.multisamples );
 
     // coerce a "valid" multisample value
-    pcfg->multisamples = CLIP(pcfg->multisamples, 0, 4);
+    pcfg->multisamples = CLIP( pcfg->multisamples, 0, 4 );
 
     // Do we do texture filtering?
     GetKey_string( "TEXTURE_FILTERING", lTempStr, 24, "LINEAR" );
     pcfg->texturefilter_req =  cfg_default.texturefilter_req;
-    if ( 'U' == toupper(lTempStr[0]) )  pcfg->texturefilter_req = TX_UNFILTERED;
-    if ( 'L' == toupper(lTempStr[0]) )  pcfg->texturefilter_req = TX_LINEAR;
-    if ( 'M' == toupper(lTempStr[0]) )  pcfg->texturefilter_req = TX_MIPMAP;
-    if ( 'B' == toupper(lTempStr[0]) )  pcfg->texturefilter_req = TX_BILINEAR;
-    if ( 'T' == toupper(lTempStr[0]) )  pcfg->texturefilter_req = TX_TRILINEAR_1;
-    if ( '2' == toupper(lTempStr[0]) )  pcfg->texturefilter_req = TX_TRILINEAR_2;
-    if ( 'A' == toupper(lTempStr[0]) )  pcfg->texturefilter_req = TX_ANISOTROPIC;
+    if ( 'U' == toupper( lTempStr[0] ) )  pcfg->texturefilter_req = TX_UNFILTERED;
+    if ( 'L' == toupper( lTempStr[0] ) )  pcfg->texturefilter_req = TX_LINEAR;
+    if ( 'M' == toupper( lTempStr[0] ) )  pcfg->texturefilter_req = TX_MIPMAP;
+    if ( 'B' == toupper( lTempStr[0] ) )  pcfg->texturefilter_req = TX_BILINEAR;
+    if ( 'T' == toupper( lTempStr[0] ) )  pcfg->texturefilter_req = TX_TRILINEAR_1;
+    if ( '2' == toupper( lTempStr[0] ) )  pcfg->texturefilter_req = TX_TRILINEAR_2;
+    if ( 'A' == toupper( lTempStr[0] ) )  pcfg->texturefilter_req = TX_ANISOTROPIC;
 
     // Max number of lights
     GetKey_int( "MAX_DYNAMIC_LIGHTS", pcfg->dyna_count_req, cfg_default.dyna_count_req );
@@ -324,31 +324,31 @@ bool_t setup_download(egoboo_config_t * pcfg)
 
     // Extra high sound quality?
     GetKey_bool( "HIGH_SOUND_QUALITY", pcfg->sound_highquality, cfg_default.sound_highquality );
-	pcfg->sound_highquality_base = pcfg->sound_highquality;
+    pcfg->sound_highquality_base = pcfg->sound_highquality;
     //*********************************************
     //* CONTROL Section
     //*********************************************
 
     lCurSectionName = "GAME";
 
-	// Which difficulty mode do we use?
+    // Which difficulty mode do we use?
     GetKey_string( "DIFFICULTY_MODE", lTempStr, 24, "NORMAL" );
     pcfg->difficulty = cfg_default.difficulty;
-    if ( 'E' == toupper(lTempStr[0]) )  pcfg->difficulty = GAME_EASY;
-    if ( 'N' == toupper(lTempStr[0]) )  pcfg->difficulty = GAME_NORMAL;
-    if ( 'H' == toupper(lTempStr[0]) )  pcfg->difficulty = GAME_HARD;
+    if ( 'E' == toupper( lTempStr[0] ) )  pcfg->difficulty = GAME_EASY;
+    if ( 'N' == toupper( lTempStr[0] ) )  pcfg->difficulty = GAME_NORMAL;
+    if ( 'H' == toupper( lTempStr[0] ) )  pcfg->difficulty = GAME_HARD;
 
-	//Feedback
-	GetKey_int( "FEEDBACK", pcfg->feedback, cfg_default.feedback );
+    //Feedback
+    GetKey_int( "FEEDBACK", pcfg->feedback, cfg_default.feedback );
 
     // Camera control mode
     GetKey_string( "AUTOTURN_CAMERA", lTempStr, 24, "GOOD" );
     pcfg->autoturncamera = cfg_default.autoturncamera;
-    if ( 'G' == toupper(lTempStr[0]) )  pcfg->autoturncamera = CAMTURN_GOOD;
-    else if ( 'T' == toupper(lTempStr[0]) )  pcfg->autoturncamera = CAMTURN_AUTO;
-    else if ( 'F' == toupper(lTempStr[0]) )  pcfg->autoturncamera = CAMTURN_NONE;
+    if ( 'G' == toupper( lTempStr[0] ) )  pcfg->autoturncamera = CAMTURN_GOOD;
+    else if ( 'T' == toupper( lTempStr[0] ) )  pcfg->autoturncamera = CAMTURN_AUTO;
+    else if ( 'F' == toupper( lTempStr[0] ) )  pcfg->autoturncamera = CAMTURN_NONE;
 
-	 // Max number of messages displayed
+    // Max number of messages displayed
     GetKey_int( "MAX_TEXT_MESSAGE", pcfg->message_count_req, cfg_default.message_count_req );
 
     // Max number of messages displayed
@@ -367,10 +367,10 @@ bool_t setup_download(egoboo_config_t * pcfg)
     GetKey_int( "LAG_TOLERANCE", pcfg->network_lag, cfg_default.network_lag );
 
     // Name or IP of the host or the target to join
-    GetKey_string( "HOST_NAME", pcfg->network_hostname, SDL_arraysize(pcfg->network_hostname), cfg_default.network_hostname );
+    GetKey_string( "HOST_NAME", pcfg->network_hostname, SDL_arraysize( pcfg->network_hostname ), cfg_default.network_hostname );
 
     // Multiplayer name
-    GetKey_string( "MULTIPLAYER_NAME", pcfg->network_messagename, SDL_arraysize(pcfg->network_messagename), cfg_default.network_messagename );
+    GetKey_string( "MULTIPLAYER_NAME", pcfg->network_messagename, SDL_arraysize( pcfg->network_messagename ), cfg_default.network_messagename );
 
     //*********************************************
     //* DEBUG Section
@@ -400,13 +400,13 @@ bool_t setup_synch( egoboo_config_t * pcfg )
     fpson = pcfg->fps_allowed;
 
     // message display
-    messageon  = (pcfg->message_count_req > 0);
-    maxmessage = CLIP(pcfg->message_count_req, 1, MAX_MESSAGE);
+    messageon  = ( pcfg->message_count_req > 0 );
+    maxmessage = CLIP( pcfg->message_count_req, 1, MAX_MESSAGE );
 
     wraptolerance = pcfg->StatusList_on ? 90 : 32;
 
     // Get the particle limit
-    maxparticles = CLIP(pcfg->particle_count_req, 0, TOTAL_MAX_PRT);
+    maxparticles = CLIP( pcfg->particle_count_req, 0, TOTAL_MAX_PRT );
 
     // sound options
     snd_config_synch( &snd, pcfg );
@@ -426,7 +426,7 @@ bool_t setup_upload( egoboo_config_t * pcfg )
     /// @details BB@> upload game variables into the ConfigFile_t keys
 
     char  *lCurSectionName;
-    if (NULL == lConfigSetup || NULL == pcfg) return bfalse;
+    if ( NULL == lConfigSetup || NULL == pcfg ) return bfalse;
 
     //*********************************************
     //* GRAPHIC Section
@@ -490,7 +490,7 @@ bool_t setup_upload( egoboo_config_t * pcfg )
     SetKey_int( "ANTIALIASING", pcfg->multisamples );
 
     // Do we do texture filtering?
-    switch (pcfg->texturefilter_req)
+    switch ( pcfg->texturefilter_req )
     {
         case TX_UNFILTERED:  SetKey_string( "TEXTURE_FILTERING", "UNFILTERED" ); break;
         case TX_MIPMAP:      SetKey_string( "TEXTURE_FILTERING", "MIPMAP" ); break;
@@ -545,8 +545,8 @@ bool_t setup_upload( egoboo_config_t * pcfg )
 
     lCurSectionName = "GAME";
 
-	// Save diffculty mode
-    switch (pcfg->difficulty)
+    // Save diffculty mode
+    switch ( pcfg->difficulty )
     {
         case GAME_EASY:         SetKey_string( "DIFFICULTY_MODE", "EASY" ); break;
         case GAME_HARD:         SetKey_string( "DIFFICULTY_MODE", "HARD" ); break;
@@ -561,14 +561,14 @@ bool_t setup_upload( egoboo_config_t * pcfg )
     // Camera control mode
     switch ( pcfg->autoturncamera )
     {
-        case CAMTURN_NONE:	SetKey_bool( "AUTOTURN_CAMERA", bfalse ); break;
+        case CAMTURN_NONE:  SetKey_bool( "AUTOTURN_CAMERA", bfalse ); break;
         case CAMTURN_GOOD:  SetKey_string( "AUTOTURN_CAMERA", "GOOD" ); break;
 
         default:
         case CAMTURN_AUTO : SetKey_bool( "AUTOTURN_CAMERA", btrue );  break;
     }
 
-	// Max number of messages displayed
+    // Max number of messages displayed
     SetKey_int( "MAX_TEXT_MESSAGE", messageon ? pcfg->message_count_req : 0 );
 
     // Max number of messages displayed
@@ -605,7 +605,7 @@ bool_t setup_upload( egoboo_config_t * pcfg )
     SetKey_bool( "DEV_MODE",    pcfg->dev_mode );
     SetKey_bool( "SDL_IMAGE",   pcfg->sdl_image_allowed );
 
-	// Show status bars? (Life, mana, character icons, etc.)
+    // Show status bars? (Life, mana, character icons, etc.)
     SetKey_bool( "STATUS_BAR", pcfg->StatusList_on );
 
     return btrue;

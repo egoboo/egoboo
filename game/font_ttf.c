@@ -132,7 +132,7 @@ int copySurfaceToTexture( SDL_Surface *surface, GLuint texture, GLfloat *texCoor
     // Save the alpha blending attributes
     saved_flags = surface->flags & ( SDL_SRCALPHA | SDL_RLEACCELOK );
     saved_alpha = surface->format->alpha;
-    if ( ( saved_flags & SDL_SRCALPHA ) == SDL_SRCALPHA )
+    if (( saved_flags & SDL_SRCALPHA ) == SDL_SRCALPHA )
     {
         SDL_SetAlpha( surface, 0, 0 );
     }
@@ -145,16 +145,16 @@ int copySurfaceToTexture( SDL_Surface *surface, GLuint texture, GLfloat *texCoor
     SDL_BlitSurface( surface, &area, image, &area );
 
     // Restore the blending attributes
-    if ( ( saved_flags & SDL_SRCALPHA ) == SDL_SRCALPHA )
+    if (( saved_flags & SDL_SRCALPHA ) == SDL_SRCALPHA )
     {
         SDL_SetAlpha( surface, saved_flags, saved_alpha );
     }
 
     // Send the texture to OpenGL
-    GL_DEBUG(glBindTexture)(GL_TEXTURE_2D, texture );
-    GL_DEBUG(glTexParameteri)(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-    GL_DEBUG(glTexParameteri)(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-    GL_DEBUG(glTexImage2D)(GL_TEXTURE_2D,  0, GL_RGBA,  w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE,  image->pixels );
+    GL_DEBUG( glBindTexture )( GL_TEXTURE_2D, texture );
+    GL_DEBUG( glTexParameteri )( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+    GL_DEBUG( glTexParameteri )( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+    GL_DEBUG( glTexImage2D )( GL_TEXTURE_2D,  0, GL_RGBA,  w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE,  image->pixels );
 
     // Don't need the extra image anymore
     SDL_FreeSurface( image );
@@ -184,7 +184,7 @@ Font* fnt_loadFont( const char *fileName, int pointSize )
     // Everything looks good
     newFont = ( Font* )malloc( sizeof( Font ) );
     newFont->ttfFont = ttfFont;
-    GL_DEBUG(glGenTextures)(1, &newFont->texture );
+    GL_DEBUG( glGenTextures )( 1, &newFont->texture );
 
     return newFont;
 }
@@ -195,7 +195,7 @@ void fnt_freeFont( Font *font )
     if ( font )
     {
         TTF_CloseFont( font->ttfFont );
-        GL_DEBUG(glDeleteTextures)(1, &font->texture );
+        GL_DEBUG( glDeleteTextures )( 1, &font->texture );
         free( font );
     }
 }
@@ -222,13 +222,13 @@ int fnt_print_raw( Font *font, SDL_Color color, SDL_Surface ** psurf, GLuint ite
 
     if ( INVALID_TX_ID == itex ) return -1;
 
-   // create the text
-    (*pptmp) = TTF_RenderText_Blended( font->ttfFont, szText, color );
-    if (NULL == (*pptmp)) return -1;
+    // create the text
+    ( *pptmp ) = TTF_RenderText_Blended( font->ttfFont, szText, color );
+    if ( NULL == ( *pptmp ) ) return -1;
 
     // upload the texture
     rv = 0;
-    if ( !copySurfaceToTexture( (*pptmp), itex, texCoords ) )
+    if ( !copySurfaceToTexture(( *pptmp ), itex, texCoords ) )
     {
         rv = -1;
     }
@@ -250,7 +250,7 @@ int fnt_vprintf( Font *font, SDL_Color color, SDL_Surface ** psurf, GLuint itex,
     STRING szText = EMPTY_CSTR;
 
     // evaluate the variable args
-    rv = vsnprintf( szText, SDL_arraysize(szText) - 1, format, args );
+    rv = vsnprintf( szText, SDL_arraysize( szText ) - 1, format, args );
     if ( rv < 0 )
     {
         return rv;
@@ -270,19 +270,19 @@ void fnt_drawText_raw( Font *font, int x, int y, const char *text )
     if ( rv < 0 ) return;
 
     // And draw the darn thing
-    GL_DEBUG(glBegin)( GL_QUADS );
+    GL_DEBUG( glBegin )( GL_QUADS );
     {
-        GL_DEBUG(glTexCoord2f)(font->texCoords[0], font->texCoords[1] );
-        GL_DEBUG(glVertex2f)( x, y );
+        GL_DEBUG( glTexCoord2f )( font->texCoords[0], font->texCoords[1] );
+        GL_DEBUG( glVertex2f )( x, y );
 
-        GL_DEBUG(glTexCoord2f)(font->texCoords[2], font->texCoords[1] );
-        GL_DEBUG(glVertex2f)( x + textSurf->w, y );
+        GL_DEBUG( glTexCoord2f )( font->texCoords[2], font->texCoords[1] );
+        GL_DEBUG( glVertex2f )( x + textSurf->w, y );
 
-        GL_DEBUG(glTexCoord2f)(font->texCoords[2], font->texCoords[3] );
-        GL_DEBUG(glVertex2f)( x + textSurf->w, y + textSurf->h );
+        GL_DEBUG( glTexCoord2f )( font->texCoords[2], font->texCoords[3] );
+        GL_DEBUG( glVertex2f )( x + textSurf->w, y + textSurf->h );
 
-        GL_DEBUG(glTexCoord2f)(font->texCoords[0], font->texCoords[3] );
-        GL_DEBUG(glVertex2f)( x, y + textSurf->h );
+        GL_DEBUG( glTexCoord2f )( font->texCoords[0], font->texCoords[3] );
+        GL_DEBUG( glVertex2f )( x, y + textSurf->h );
     }
     GL_DEBUG_END();
 
@@ -295,7 +295,7 @@ void fnt_drawText_raw( Font *font, int x, int y, const char *text )
 }
 
 //--------------------------------------------------------------------------------------------
-void fnt_drawText( Font *font, int x, int y, const char *format, ...   )
+void fnt_drawText( Font *font, int x, int y, const char *format, ... )
 {
     va_list args;
     int rv;
@@ -309,19 +309,19 @@ void fnt_drawText( Font *font, int x, int y, const char *format, ...   )
     if ( rv < 0 ) return;
 
     // And draw the darn thing
-    GL_DEBUG(glBegin)( GL_QUADS );
+    GL_DEBUG( glBegin )( GL_QUADS );
     {
-        GL_DEBUG(glTexCoord2f)(font->texCoords[0], font->texCoords[1] );
-        GL_DEBUG(glVertex2f)( x, y );
+        GL_DEBUG( glTexCoord2f )( font->texCoords[0], font->texCoords[1] );
+        GL_DEBUG( glVertex2f )( x, y );
 
-        GL_DEBUG(glTexCoord2f)(font->texCoords[2], font->texCoords[1] );
-        GL_DEBUG(glVertex2f)( x + textSurf->w, y );
+        GL_DEBUG( glTexCoord2f )( font->texCoords[2], font->texCoords[1] );
+        GL_DEBUG( glVertex2f )( x + textSurf->w, y );
 
-        GL_DEBUG(glTexCoord2f)(font->texCoords[2], font->texCoords[3] );
-        GL_DEBUG(glVertex2f)( x + textSurf->w, y + textSurf->h );
+        GL_DEBUG( glTexCoord2f )( font->texCoords[2], font->texCoords[3] );
+        GL_DEBUG( glVertex2f )( x + textSurf->w, y + textSurf->h );
 
-        GL_DEBUG(glTexCoord2f)(font->texCoords[0], font->texCoords[3] );
-        GL_DEBUG(glVertex2f)( x, y + textSurf->h );
+        GL_DEBUG( glTexCoord2f )( font->texCoords[0], font->texCoords[3] );
+        GL_DEBUG( glVertex2f )( x, y + textSurf->h );
     }
     GL_DEBUG_END();
 
@@ -355,7 +355,7 @@ void fnt_getTextSize( Font *font, const char *text, int *width, int *height )
  * @var height  - Maximum height of the box (not implemented)
  * @var spacing - Amount of space to move down between lines. (usually close to your font size)
  */
-void fnt_drawTextBox( Font *font, int x, int y, int width, int height, int spacing, const char *format, ...   )
+void fnt_drawTextBox( Font *font, int x, int y, int width, int height, int spacing, const char *format, ... )
 {
     va_list args;
     int rv;
@@ -364,7 +364,7 @@ void fnt_drawTextBox( Font *font, int x, int y, int width, int height, int spaci
     char text[4096] = EMPTY_CSTR;
 
     va_start( args, format );
-    rv = vsnprintf( text, SDL_arraysize(text), format, args );
+    rv = vsnprintf( text, SDL_arraysize( text ), format, args );
     va_end( args );
 
     // some problem printing the text
@@ -372,7 +372,7 @@ void fnt_drawTextBox( Font *font, int x, int y, int width, int height, int spaci
 
     // Split the passed in text into separate lines
     len = strlen( text );
-    buffer = (char *)calloc( 1, len + 1 );
+    buffer = ( char * )calloc( 1, len + 1 );
     strncpy( buffer, text, len );
 
     line = strtok( buffer, "\n" );
@@ -398,7 +398,7 @@ void fnt_getTextBoxSize( Font *font, const char *text, int spacing, int *width, 
 
     // Split the passed in text into separate lines
     len = strlen( text );
-    buffer = (char *)calloc( 1, len + 1 );
+    buffer = ( char * )calloc( 1, len + 1 );
     strncpy( buffer, text, len );
 
     line = strtok( buffer, "\n" );

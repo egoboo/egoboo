@@ -58,15 +58,15 @@ cursor_t cursor = {0, 0, bfalse, bfalse, bfalse, bfalse};
 static void input_read_mouse();
 static void input_read_keyboard();
 static void input_read_joysticks();
-static void input_read_joystick(Uint16 which);
+static void input_read_joystick( Uint16 which );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 void input_device_init( input_device_t * pdevice )
 {
-    if( NULL == pdevice ) return;
+    if ( NULL == pdevice ) return;
 
-    memset( pdevice, 0, sizeof(input_device_t) );
+    memset( pdevice, 0, sizeof( input_device_t ) );
 
     pdevice->sustain = 0.58f;
     pdevice->cover   = 1.0f - pdevice->sustain;
@@ -76,7 +76,7 @@ void input_device_init( input_device_t * pdevice )
 void input_init_keyboard()
 {
     // set up the keyboard
-    memset( &keyb, 0, sizeof(keyboard_t) );
+    memset( &keyb, 0, sizeof( keyboard_t ) );
     init_scancodes();
     keyb.on        = btrue;
     keyb.count     = 0;
@@ -87,7 +87,7 @@ void input_init_keyboard()
 void input_init_mouse()
 {
     /// @details BB@> set up the mouse
-    memset( &mous, 0, sizeof(mouse_t) );
+    memset( &mous, 0, sizeof( mouse_t ) );
     mous.on      = btrue;
     mous.sense   = 24;
 }
@@ -99,14 +99,14 @@ void input_init_joysticks()
 
     int i;
 
-    for (i = 0; i < MAXJOYSTICK; i++)
+    for ( i = 0; i < MAXJOYSTICK; i++ )
     {
-        memset( joy + i, 0, sizeof(device_joystick_t) );
+        memset( joy + i, 0, sizeof( device_joystick_t ) );
 
-        if (i < SDL_NumJoysticks() )
+        if ( i < SDL_NumJoysticks() )
         {
             joy[i].sdl_ptr = SDL_JoystickOpen( i );
-            joy[i].on      = (NULL != joy[i].sdl_ptr);
+            joy[i].on      = ( NULL != joy[i].sdl_ptr );
         }
     }
 }
@@ -136,7 +136,7 @@ void input_read_mouse()
 {
     int x, y, b;
 
-    if ( process_running( PROC_PBASE(MProc) ) )
+    if ( process_running( PROC_PBASE( MProc ) ) )
     {
         b = SDL_GetMouseState( &x, &y );
     }
@@ -163,7 +163,7 @@ void input_read_keyboard()
 }
 
 //--------------------------------------------------------------------------------------------
-void input_read_joystick(Uint16 which)
+void input_read_joystick( Uint16 which )
 {
     int dead_zone = 0x8000 / 10;
     int i, button_count, x, y;
@@ -186,12 +186,12 @@ void input_read_joystick(Uint16 which)
     else y = 0;
 
     // store the values
-    pjoy->x = x / (float)(0x8000 - dead_zone);
-    pjoy->y = y / (float)(0x8000 - dead_zone);
+    pjoy->x = x / ( float )( 0x8000 - dead_zone );
+    pjoy->y = y / ( float )( 0x8000 - dead_zone );
 
     // get buttons
     button_count = SDL_JoystickNumButtons( pjoy->sdl_ptr );
-    button_count = MIN(JOYBUTTON, button_count);
+    button_count = MIN( JOYBUTTON, button_count );
     for ( i = 0; i < button_count; i++ )
     {
         pjoy->button[i] = SDL_JoystickGetButton( pjoy->sdl_ptr, i );
@@ -215,7 +215,7 @@ void input_read_joysticks()
     SDL_JoystickUpdate();
     for ( cnt = 0; cnt < MAXJOYSTICK; cnt++ )
     {
-        input_read_joystick(cnt);
+        input_read_joystick( cnt );
     }
 }
 
@@ -226,7 +226,7 @@ void input_read()
 
     SDL_Event evt;
 
-    if ( 0 == SDL_WasInit(SDL_INIT_EVERYTHING) ) return;
+    if ( 0 == SDL_WasInit( SDL_INIT_EVERYTHING ) ) return;
 
     // Run through SDL's event loop to get info in the way that we want
     // it for the Gui code
@@ -245,12 +245,12 @@ void input_read()
         switch ( evt.type )
         {
             case SDL_MOUSEBUTTONDOWN:
-                if (evt.button.button == SDL_BUTTON_WHEELUP)
+                if ( evt.button.button == SDL_BUTTON_WHEELUP )
                 {
                     cursor.z++;
                     cursor.wheel_event = btrue;
                 }
-                else if (evt.button.button == SDL_BUTTON_WHEELDOWN)
+                else if ( evt.button.button == SDL_BUTTON_WHEELDOWN )
                 {
                     cursor.z--;
                     cursor.wheel_event = btrue;
@@ -289,7 +289,7 @@ void input_read()
                                 keyb.buffer[keyb.buffer_count] = CSTR_END;
                                 console_mode = bfalse;
                                 console_done = btrue;
-                                SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_DELAY);
+                                SDL_EnableKeyRepeat( 0, SDL_DEFAULT_REPEAT_DELAY );
                             }
                             else if ( SDLK_ESCAPE == evt.key.keysym.sym )
                             {
@@ -298,11 +298,11 @@ void input_read()
                                 console_done = bfalse;
                                 keyb.buffer_count = 0;
                                 keyb.buffer[0] = CSTR_END;
-                                SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_DELAY);
+                                SDL_EnableKeyRepeat( 0, SDL_DEFAULT_REPEAT_DELAY );
                             }
                             else if ( SDLK_BACKSPACE == evt.key.keysym.sym )
                             {
-                                if (keyb.buffer_count > 0)
+                                if ( keyb.buffer_count > 0 )
                                 {
                                     keyb.buffer_count--;
                                 }
@@ -417,7 +417,7 @@ void cursor_finish_wheel_event()
 //--------------------------------------------------------------------------------------------
 bool_t cursor_wheel_event_pending()
 {
-    if( cursor.wheel_event && 0 == cursor.z )
+    if ( cursor.wheel_event && 0 == cursor.z )
     {
         cursor.wheel_event = bfalse;
     }

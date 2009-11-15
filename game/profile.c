@@ -48,7 +48,7 @@ pro_import_t import_data;
 Uint16  bookicon_count   = 0;
 Uint16  bookicon_ref[MAX_SKIN];                      // The first book icon
 
-DECLARE_LIST ( ACCESS_TYPE_NONE, pro_t,  ProList  );
+DECLARE_LIST( ACCESS_TYPE_NONE, pro_t,  ProList );
 
 DECLARE_STACK( ACCESS_TYPE_NONE, int, MessageOffset );
 
@@ -78,7 +78,7 @@ void init_all_profiles()
     ProList_init();
 
     // fix the book icon list
-    for( tnc = 0; tnc < MAX_SKIN; tnc++ )
+    for ( tnc = 0; tnc < MAX_SKIN; tnc++ )
     {
         bookicon_ref[tnc] = INVALID_TEXTURE;
     }
@@ -110,7 +110,7 @@ void init_profile_system()
     /// @details BB@> initialize the profile list and load up some intialization files
     ///     necessary for the the profile loading code to work
 
-    if( _profile_initialized )
+    if ( _profile_initialized )
     {
         // release all profile data and reinitialize the profile list
         release_all_profiles();
@@ -146,34 +146,34 @@ bool_t pro_init( pro_t * pobj )
 {
     int cnt;
 
-    if( NULL == pobj ) return bfalse;
+    if ( NULL == pobj ) return bfalse;
 
-    if( pobj->loaded )
+    if ( pobj->loaded )
     {
         log_warning( "pro_init() - trying to init an object in use" );
     }
 
     //---- reset everything to safe values
-    memset( pobj, 0, sizeof(pro_t) );
+    memset( pobj, 0, sizeof( pro_t ) );
 
     pobj->iai  = 0;
     pobj->icap = MAX_CAP;
     pobj->imad = MAX_MAD;
     pobj->ieve = MAX_EVE;
 
-    for( cnt = 0; cnt < MAX_PIP_PER_PROFILE; cnt++ )
+    for ( cnt = 0; cnt < MAX_PIP_PER_PROFILE; cnt++ )
     {
         pobj->prtpip[cnt] = MAX_PIP;
     }
 
-    chop_definition_init( &(pobj->chop) );
+    chop_definition_init( &( pobj->chop ) );
 
     // do the final invalidation
     pobj->loaded   = bfalse;
-    strncpy( pobj->name, "*NONE*", SDL_arraysize(pobj->name) );
+    strncpy( pobj->name, "*NONE*", SDL_arraysize( pobj->name ) );
 
     // clear out the textures
-    for ( cnt = 0; cnt < MAX_SKIN; cnt++)
+    for ( cnt = 0; cnt < MAX_SKIN; cnt++ )
     {
         pobj->tex_ref[cnt] = INVALID_TEXTURE;
         pobj->ico_ref[cnt] = INVALID_TEXTURE;
@@ -214,24 +214,24 @@ int ProList_pop_free( int idx )
 
     int retval;
 
-    if( idx >= 0 && idx < ProList.free_count )
+    if ( idx >= 0 && idx < ProList.free_count )
     {
         // move the index idx to the top
         int idx_top, idx_bottom;
 
         idx_bottom = idx;
-        idx_top    = ProList.free_count-1;
+        idx_top    = ProList.free_count - 1;
 
         // make sure this is a valid case
-        if( idx_top > idx_bottom && idx_top > 1 )
+        if ( idx_top > idx_bottom && idx_top > 1 )
         {
-            SWAP(int, ProList.free_ref[idx_top], ProList.free_ref[idx_bottom] );
+            SWAP( int, ProList.free_ref[idx_top], ProList.free_ref[idx_bottom] );
         }
     }
 
     // just pop off the top index
     retval = -1;
-    if( ProList.free_count > 0 )
+    if ( ProList.free_count > 0 )
     {
         ProList.free_count--;
         retval = ProList.free_ref[ProList.free_count];
@@ -250,7 +250,7 @@ bool_t ProList_push_free( Uint16 iobj )
 #if defined(USE_DEBUG)
     // determine whether this character is already in the list of free objects
     // that is an error
-    if( -1 != ProList_search_free(iobj) ) return bfalse;
+    if ( -1 != ProList_search_free( iobj ) ) return bfalse;
 #endif
 
     // push it on the free stack
@@ -294,25 +294,25 @@ Uint16 ProList_get_free( Uint16 override )
 
     Uint16 retval = MAX_PROFILE;
 
-    if( VALID_PRO_RANGE(override) )
+    if ( VALID_PRO_RANGE( override ) )
     {
         // grab the object that is specified.
         int free_idx;
 
         // if the object is in use, make sure to free everything associated with it
-        if( LOADED_PRO(override) )
+        if ( LOADED_PRO( override ) )
         {
             release_one_pro( override );
         }
 
         // grab the specified index
-        free_idx = ProList_search_free(override);
-        retval   = ProList_pop_free(free_idx);
+        free_idx = ProList_search_free( override );
+        retval   = ProList_pop_free( free_idx );
     }
     else
     {
         // grab the next free index
-        retval = ProList_pop_free(-1);
+        retval = ProList_pop_free( -1 );
     }
 
     return retval;
@@ -323,7 +323,7 @@ bool_t ProList_free_one( Uint16 iobj )
 {
     /// @details ZZ@> This function sticks an object back on the free object stack
 
-    if ( !VALID_PRO_RANGE(iobj) ) return bfalse;
+    if ( !VALID_PRO_RANGE( iobj ) ) return bfalse;
 
     // object "destructor"
     // inilializes an object to safe values
@@ -341,7 +341,7 @@ bool_t release_one_profile_textures( Uint16 iobj )
     int tnc;
     pro_t  * pobj;
 
-    if ( !LOADED_PRO(iobj) ) return bfalse;
+    if ( !LOADED_PRO( iobj ) ) return bfalse;
     pobj = ProList.lst + iobj;
 
     for ( tnc = 0; tnc < MAX_SKIN; tnc++ )
@@ -364,7 +364,7 @@ bool_t release_one_profile_textures( Uint16 iobj )
     // reset the bookicon stuff if this object is a book
     if ( SPELLBOOK == iobj )
     {
-        for( tnc = 0; tnc < MAX_SKIN; tnc++ )
+        for ( tnc = 0; tnc < MAX_SKIN; tnc++ )
         {
             bookicon_ref[tnc] = INVALID_TEXTURE;
         }
@@ -381,7 +381,7 @@ void release_all_profile_textures()
 
     for ( cnt = 0; cnt < MAX_PROFILE; cnt++ )
     {
-        release_one_profile_textures(cnt);
+        release_one_profile_textures( cnt );
     }
 }
 
@@ -391,7 +391,7 @@ bool_t release_one_pro_data( Uint16 iobj )
     int cnt;
     pro_t * pobj;
 
-    if( !LOADED_PRO(iobj) ) return bfalse;
+    if ( !LOADED_PRO( iobj ) ) return bfalse;
     pobj = ProList.lst + iobj;
 
     // free all sounds
@@ -412,9 +412,9 @@ bool_t release_one_pro( Uint16 iobj )
 {
     pro_t * pobj;
 
-    if( !VALID_PRO_RANGE(iobj) ) return bfalse;
+    if ( !VALID_PRO_RANGE( iobj ) ) return bfalse;
 
-    if( !LOADED_PRO(iobj) ) return btrue;
+    if ( !LOADED_PRO( iobj ) ) return btrue;
     pobj = ProList.lst + iobj;
 
     // release all of the sub-profiles
@@ -459,110 +459,110 @@ void release_all_pro_data()
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-Uint16 pro_get_icap(Uint16 iobj)
+Uint16 pro_get_icap( Uint16 iobj )
 {
     pro_t * pobj;
 
-    if( !LOADED_PRO(iobj) ) return MAX_CAP;
+    if ( !LOADED_PRO( iobj ) ) return MAX_CAP;
     pobj = ProList.lst + iobj;
 
-    return LOADED_CAP(pobj->icap) ? pobj->icap : MAX_CAP;
+    return LOADED_CAP( pobj->icap ) ? pobj->icap : MAX_CAP;
 }
 
 //--------------------------------------------------------------------------------------------
-Uint16 pro_get_imad(Uint16 iobj)
+Uint16 pro_get_imad( Uint16 iobj )
 {
     pro_t * pobj;
 
-    if( !LOADED_PRO(iobj) ) return MAX_MAD;
+    if ( !LOADED_PRO( iobj ) ) return MAX_MAD;
     pobj = ProList.lst + iobj;
 
-    return LOADED_MAD(pobj->imad) ? pobj->imad : MAX_MAD;
+    return LOADED_MAD( pobj->imad ) ? pobj->imad : MAX_MAD;
 }
 
 //--------------------------------------------------------------------------------------------
-Uint16 pro_get_ieve(Uint16 iobj)
+Uint16 pro_get_ieve( Uint16 iobj )
 {
     pro_t * pobj;
 
-    if( !LOADED_PRO(iobj) ) return MAX_EVE;
+    if ( !LOADED_PRO( iobj ) ) return MAX_EVE;
     pobj = ProList.lst + iobj;
 
-    return LOADED_EVE(pobj->ieve) ? pobj->ieve : MAX_EVE;
+    return LOADED_EVE( pobj->ieve ) ? pobj->ieve : MAX_EVE;
 }
 
 //--------------------------------------------------------------------------------------------
-Uint16 pro_get_ipip(Uint16 iobj, Uint16 ipip)
+Uint16 pro_get_ipip( Uint16 iobj, Uint16 ipip )
 {
     pro_t * pobj;
 
-    if( !LOADED_PRO(iobj) ) return MAX_PIP;
+    if ( !LOADED_PRO( iobj ) ) return MAX_PIP;
     pobj = ProList.lst + iobj;
 
     // find the local pip if it exists
-    if( ipip < MAX_PIP_PER_PROFILE )
+    if ( ipip < MAX_PIP_PER_PROFILE )
     {
         ipip = pobj->prtpip[ipip];
     }
 
-    return LOADED_PIP(ipip) ? ipip : MAX_PIP;
+    return LOADED_PIP( ipip ) ? ipip : MAX_PIP;
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-cap_t * pro_get_pcap(Uint16 iobj)
+cap_t * pro_get_pcap( Uint16 iobj )
 {
     pro_t * pobj;
 
-    if( !LOADED_PRO(iobj) ) return NULL;
+    if ( !LOADED_PRO( iobj ) ) return NULL;
     pobj = ProList.lst + iobj;
 
-    if( !LOADED_CAP(pobj->icap) ) return NULL;
+    if ( !LOADED_CAP( pobj->icap ) ) return NULL;
 
     return CapList + pobj->icap;
 }
 
 //--------------------------------------------------------------------------------------------
-mad_t * pro_get_pmad(Uint16 iobj)
+mad_t * pro_get_pmad( Uint16 iobj )
 {
     pro_t * pobj;
 
-    if( !LOADED_PRO(iobj) ) return NULL;
+    if ( !LOADED_PRO( iobj ) ) return NULL;
     pobj = ProList.lst + iobj;
 
-    if( !LOADED_MAD(pobj->imad) ) return NULL;
+    if ( !LOADED_MAD( pobj->imad ) ) return NULL;
 
     return MadList + pobj->imad;
 }
 
 //--------------------------------------------------------------------------------------------
-eve_t * pro_get_peve(Uint16 iobj)
+eve_t * pro_get_peve( Uint16 iobj )
 {
     pro_t * pobj;
 
-    if( !LOADED_PRO(iobj) ) return NULL;
+    if ( !LOADED_PRO( iobj ) ) return NULL;
     pobj = ProList.lst + iobj;
 
-    if( !LOADED_EVE(pobj->ieve) ) return NULL;
+    if ( !LOADED_EVE( pobj->ieve ) ) return NULL;
 
     return EveStack.lst + pobj->ieve;
 }
 
 //--------------------------------------------------------------------------------------------
-pip_t * pro_get_ppip(Uint16 iobj, Uint16 ipip)
+pip_t * pro_get_ppip( Uint16 iobj, Uint16 ipip )
 {
     pro_t * pobj;
 
-    if( !LOADED_PRO(iobj) ) return NULL;
+    if ( !LOADED_PRO( iobj ) ) return NULL;
     pobj = ProList.lst + iobj;
 
     // find the local pip if it exists
-    if( ipip < MAX_PIP_PER_PROFILE )
+    if ( ipip < MAX_PIP_PER_PROFILE )
     {
         ipip = pobj->prtpip[ipip];
     }
 
-    if( !LOADED_PIP(ipip) ) return NULL;
+    if ( !LOADED_PIP( ipip ) ) return NULL;
 
     return PipStack.lst + ipip;
 }
@@ -573,22 +573,22 @@ IDSZ pro_get_idsz( Uint16 iobj, int type )
 {
     cap_t * pcap;
 
-    if(type >= IDSZ_COUNT) return IDSZ_NONE;
+    if ( type >= IDSZ_COUNT ) return IDSZ_NONE;
 
     pcap = pro_get_pcap( iobj );
-    if( NULL == pcap) return IDSZ_NONE;
+    if ( NULL == pcap ) return IDSZ_NONE;
 
     return pcap->idsz[type];
 }
 
 //--------------------------------------------------------------------------------------------
-Mix_Chunk * pro_get_chunk(Uint16 iobj, int index)
+Mix_Chunk * pro_get_chunk( Uint16 iobj, int index )
 {
     pro_t * pobj;
 
-    if( !VALID_SND(index) ) return NULL;
+    if ( !VALID_SND( index ) ) return NULL;
 
-    if( !LOADED_PRO(iobj) ) return NULL;
+    if ( !LOADED_PRO( iobj ) ) return NULL;
     pobj = ProList.lst + iobj;
 
     return pobj->wavelist[index];
@@ -607,15 +607,15 @@ int load_profile_skins( const char * tmploadname, Uint16 object )
 
     pro_t * pobj;
 
-    if ( !VALID_PRO_RANGE(object) ) return 0;
+    if ( !VALID_PRO_RANGE( object ) ) return 0;
     pobj = ProList.lst + object;
 
     // Load the skins and icons
     max_skin    = max_icon    = -1;
     min_skin_tx = min_icon_tx = INVALID_TEXTURE;
-    for ( cnt = 0; cnt < MAX_SKIN; cnt++)
+    for ( cnt = 0; cnt < MAX_SKIN; cnt++ )
     {
-        snprintf( newloadname, SDL_arraysize(newloadname), "%s" SLASH_STR "tris%d", tmploadname, cnt );
+        snprintf( newloadname, SDL_arraysize( newloadname ), "%s" SLASH_STR "tris%d", tmploadname, cnt );
 
         pobj->tex_ref[cnt] = TxTexture_load_one( newloadname, INVALID_TEXTURE, TRANSCOLOR );
         if ( INVALID_TEXTURE != pobj->tex_ref[cnt] )
@@ -627,7 +627,7 @@ int load_profile_skins( const char * tmploadname, Uint16 object )
             }
         }
 
-        snprintf( newloadname, SDL_arraysize(newloadname), "%s" SLASH_STR "icon%d", tmploadname, cnt );
+        snprintf( newloadname, SDL_arraysize( newloadname ), "%s" SLASH_STR "icon%d", tmploadname, cnt );
         pobj->ico_ref[cnt] = TxTexture_load_one( newloadname, INVALID_TEXTURE, INVALID_KEY );
 
         if ( INVALID_TEXTURE != pobj->ico_ref[cnt] )
@@ -659,7 +659,7 @@ int load_profile_skins( const char * tmploadname, Uint16 object )
         log_debug( "Object is missing a skin (%s)!\n", tmploadname );
     }
 
-    max_tex = MAX(max_skin, max_icon);
+    max_tex = MAX( max_skin, max_icon );
 
     // fill in any missing textures
     iskin = min_skin_tx;
@@ -706,7 +706,7 @@ void get_message( vfs_FILE* fileread )
     }
 
     MessageOffset.lst[MessageOffset.count] = message_buffer_carat;
-    fget_string( fileread, szTmp, SDL_arraysize(szTmp) );
+    fget_string( fileread, szTmp, SDL_arraysize( szTmp ) );
     szTmp[255] = CSTR_END;
 
     cTmp = szTmp[0];
@@ -753,9 +753,9 @@ bool_t release_one_local_pips( Uint16 iobj )
     int cnt;
     pro_t * pobj;
 
-    if( !VALID_PRO_RANGE(iobj) ) return bfalse;
+    if ( !VALID_PRO_RANGE( iobj ) ) return bfalse;
 
-    if( !LOADED_PRO(iobj) ) return btrue;
+    if ( !LOADED_PRO( iobj ) ) return btrue;
     pobj = ProList.lst + iobj;
 
     for ( cnt = 0; cnt < MAX_PIP_PER_PROFILE; cnt++ )
@@ -774,11 +774,11 @@ void release_all_local_pips()
 
     int object, cnt;
 
-    for( object = 0; object < MAX_PROFILE; object++ )
+    for ( object = 0; object < MAX_PROFILE; object++ )
     {
         pro_t * pobj;
 
-        if( !ProList.lst[object].loaded) continue;
+        if ( !ProList.lst[object].loaded ) continue;
         pobj = ProList.lst + object;
 
         for ( cnt = 0; cnt < MAX_PIP_PER_PROFILE; cnt++ )
@@ -827,7 +827,7 @@ int pro_get_slot( const char * tmploadname, int slot_override )
     int slot;
 
     slot = -1;
-    if( VALID_PRO_RANGE(slot_override) )
+    if ( VALID_PRO_RANGE( slot_override ) )
     {
         // just use the slot that was provided
         slot = slot_override;
@@ -849,7 +849,7 @@ int pro_get_slot( const char * tmploadname, int slot_override )
     }
 
     // return an error value if the file does not exist
-    if( !obj_verify_file(tmploadname) )
+    if ( !obj_verify_file( tmploadname ) )
     {
         slot = -1;
     }
@@ -869,20 +869,20 @@ int load_one_profile( const char* tmploadname, int slot_override )
     int     iobj;
     pro_t * pobj;
 
-    required = !VALID_CAP_RANGE(slot_override);
+    required = !VALID_CAP_RANGE( slot_override );
 
     // get a slot value
     iobj = pro_get_slot( tmploadname, slot_override );
 
     // throw an error code if the slot is invalid of if the file doesn't exist
-    if( !VALID_PRO_RANGE(iobj) )
+    if ( !VALID_PRO_RANGE( iobj ) )
     {
         // The data file wasn't found
         if ( required )
         {
             log_warning( "load_one_profile() - \"%s\" was not found. Overriding a global object?\n", tmploadname );
         }
-        else if( VALID_CAP_RANGE(slot_override) && slot_override > PMod->importamount * MAXIMPORTPERPLAYER )
+        else if ( VALID_CAP_RANGE( slot_override ) && slot_override > PMod->importamount * MAXIMPORTPERPLAYER )
         {
             log_warning( "load_one_profile() - Not able to open file \"%s\"\n", tmploadname );
         }
@@ -892,7 +892,7 @@ int load_one_profile( const char* tmploadname, int slot_override )
 
     // throw an error code if we are trying to load over an existing profile
     // without permission
-    if( LOADED_PRO(iobj) )
+    if ( LOADED_PRO( iobj ) )
     {
         pro_t * pobj = ProList.lst + iobj;
 
@@ -914,7 +914,7 @@ int load_one_profile( const char* tmploadname, int slot_override )
 
     // allocate/reallocate this slot
     iobj = ProList_get_free( iobj );
-    if( !VALID_PRO_RANGE(iobj) )
+    if ( !VALID_PRO_RANGE( iobj ) )
     {
         log_warning( "load_one_profile() - Cannot allocate object %d (\"%s\")\n", iobj, tmploadname );
         return MAX_PROFILE;
@@ -944,7 +944,7 @@ int load_one_profile( const char* tmploadname, int slot_override )
     // Load the particles for this iobj
     for ( cnt = 0; cnt < MAX_PIP_PER_PROFILE; cnt++ )
     {
-        snprintf( newloadname, SDL_arraysize( newloadname), "%s" SLASH_STR "part%d.txt", tmploadname, cnt );
+        snprintf( newloadname, SDL_arraysize( newloadname ), "%s" SLASH_STR "part%d.txt", tmploadname, cnt );
 
         // Make sure it's referenced properly
         pobj->prtpip[cnt] = load_one_particle_profile( newloadname, MAX_PIP );
@@ -957,7 +957,7 @@ int load_one_profile( const char* tmploadname, int slot_override )
     {
         STRING  szLoadName, wavename;
 
-        snprintf( wavename, SDL_arraysize( wavename), SLASH_STR "sound%d", cnt );
+        snprintf( wavename, SDL_arraysize( wavename ), SLASH_STR "sound%d", cnt );
         make_newloadname( tmploadname, wavename, szLoadName );
         pobj->wavelist[cnt] = sound_load_chunk( szLoadName );
     }
@@ -973,7 +973,7 @@ int load_one_profile( const char* tmploadname, int slot_override )
     }
 
     // mark the profile as loaded
-    strncpy(pobj->name, tmploadname, SDL_arraysize(pobj->name) );
+    strncpy( pobj->name, tmploadname, SDL_arraysize( pobj->name ) );
     pobj->loaded = btrue;
 
     return iobj;
@@ -1017,25 +1017,25 @@ const char * pro_create_chop( Uint16 iprofile )
     static char buffer[MAXCAPNAMESIZE] = EMPTY_CSTR;
 
     // the default "bad" name
-    strncpy( buffer, "*NONE*", SDL_arraysize(buffer) );
+    strncpy( buffer, "*NONE*", SDL_arraysize( buffer ) );
 
-    if( !LOADED_PRO(iprofile) ) return buffer;
+    if ( !LOADED_PRO( iprofile ) ) return buffer;
     ppro = ProList.lst + iprofile;
 
-    if( !LOADED_CAP(ppro->icap) ) return buffer;
+    if ( !LOADED_CAP( ppro->icap ) ) return buffer;
     pcap = CapList + ppro->icap;
 
     if ( 0 == ppro->chop.section[0].size )
     {
-        strncpy(buffer, pcap->classname, SDL_arraysize(buffer) );
+        strncpy( buffer, pcap->classname, SDL_arraysize( buffer ) );
     }
     else
     {
-        szTmp = chop_create( &chop_mem, &(ppro->chop) );
+        szTmp = chop_create( &chop_mem, &( ppro->chop ) );
 
-        if( VALID_CSTR(szTmp) )
+        if ( VALID_CSTR( szTmp ) )
         {
-            strncpy( buffer, szTmp, SDL_arraysize(buffer) );
+            strncpy( buffer, szTmp, SDL_arraysize( buffer ) );
         }
     }
 
@@ -1048,13 +1048,13 @@ bool_t pro_load_chop( Uint16 iprofile, const char *szLoadname )
     /// BB@> load the chop for the given profile
     pro_t * ppro;
 
-    if( !VALID_PRO_RANGE(iprofile) ) return bfalse;
+    if ( !VALID_PRO_RANGE( iprofile ) ) return bfalse;
     ppro = ProList.lst + iprofile;
 
     // clear out any current definition
-    chop_definition_init( &(ppro->chop) );
+    chop_definition_init( &( ppro->chop ) );
 
-    return chop_load( &chop_mem, szLoadname, &(ppro->chop) );
+    return chop_load( &chop_mem, szLoadname, &( ppro->chop ) );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1063,7 +1063,7 @@ chop_definition_t * chop_definition_init( chop_definition_t * pdefinition )
 {
     int cnt;
 
-    if( NULL == pdefinition ) return pdefinition;
+    if ( NULL == pdefinition ) return pdefinition;
 
     for ( cnt = 0; cnt < MAXSECTION; cnt++ )
     {
@@ -1075,12 +1075,12 @@ chop_definition_t * chop_definition_init( chop_definition_t * pdefinition )
 }
 
 //--------------------------------------------------------------------------------------------
-chop_data_t * chop_data_init(chop_data_t * pdata)
+chop_data_t * chop_data_init( chop_data_t * pdata )
 {
     /// @details ZZ@> This function prepares the name chopper for use
     ///          BB@> It may actually be useful to blank the chop buffer
 
-    if( NULL == pdata ) return pdata;
+    if ( NULL == pdata ) return pdata;
 
     pdata->chop_count = 0;
     pdata->carat      = 0;
@@ -1099,9 +1099,9 @@ const char * chop_create( chop_data_t * pdata, chop_definition_t * pdefinition )
     // The name returned by the function
     static char buffer[MAXCAPNAMESIZE] = EMPTY_CSTR;
 
-    strncpy( buffer, "Blah", SDL_arraysize(buffer) );
+    strncpy( buffer, "Blah", SDL_arraysize( buffer ) );
 
-    if( NULL == pdata || NULL == pdefinition ) return buffer;
+    if ( NULL == pdata || NULL == pdefinition ) return buffer;
 
     write = 0;
     for ( section = 0; section < MAXSECTION; section++ )
@@ -1112,7 +1112,7 @@ const char * chop_create( chop_data_t * pdata, chop_definition_t * pdefinition )
 
             mychop = pdefinition->section[section].start + ( irand % pdefinition->section[section].size );
 
-            if( mychop < MAXCHOP )
+            if ( mychop < MAXCHOP )
             {
                 read = pdata->start[mychop];
                 cTmp = pdata->buffer[read];
@@ -1146,14 +1146,14 @@ bool_t chop_load( chop_data_t * pdata, const char *szLoadname, chop_definition_t
 
     chop_definition_t local_definition;
 
-    if( NULL == pdata || pdata->carat >= CHOPDATACHUNK ) return bfalse;
+    if ( NULL == pdata || pdata->carat >= CHOPDATACHUNK ) return bfalse;
 
     fileread = vfs_openRead( szLoadname );
     if ( NULL == fileread ) return bfalse;
 
     // in case we get a stupid value.
     // we could create a dynamically allocated struct in this case...
-    if( NULL == pdefinition ) pdefinition = &local_definition;
+    if ( NULL == pdefinition ) pdefinition = &local_definition;
 
     // clear out any old definition
     chop_definition_init( pdefinition );
@@ -1162,12 +1162,12 @@ bool_t chop_load( chop_data_t * pdata, const char *szLoadname, chop_definition_t
     section_count = 0;
     while ( which_section < MAXSECTION && pdata->carat < CHOPDATACHUNK && goto_colon( NULL, fileread, btrue ) )
     {
-        fget_string( fileread, tmp_buffer, SDL_arraysize(tmp_buffer) );
+        fget_string( fileread, tmp_buffer, SDL_arraysize( tmp_buffer ) );
 
         // convert all the '_' and junk in the string
-        str_decode( tmp_buffer, SDL_arraysize(tmp_buffer), tmp_buffer);
+        str_decode( tmp_buffer, SDL_arraysize( tmp_buffer ), tmp_buffer );
 
-        if ( 0 == strcmp(tmp_buffer, "STOP") )
+        if ( 0 == strcmp( tmp_buffer, "STOP" ) )
         {
             if ( which_section < MAXSECTION )
             {
@@ -1216,7 +1216,7 @@ bool_t chop_export( const char *szSaveName, const char * szChop )
     char cTmp;
     int cnt, tnc;
 
-    if( !VALID_CSTR(szChop) ) return bfalse;
+    if ( !VALID_CSTR( szChop ) ) return bfalse;
 
     // Can it export?
     filewrite = vfs_openWrite( szSaveName );

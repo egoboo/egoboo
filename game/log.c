@@ -60,12 +60,12 @@ static void writeLogMessage( const char *prefix, const char *format, va_list arg
 }
 
 //--------------------------------------------------------------------------------------------
-void log_init( const char * logname)
+void log_init( const char * logname )
 {
     if ( NULL == logFile )
     {
         logFile = fopen( logname, "wt" );
-        if( NULL != logFile && !_atexit_registered )
+        if ( NULL != logFile && !_atexit_registered )
         {
             _atexit_registered = 1;
             atexit( log_shutdown );
@@ -107,15 +107,15 @@ void log_debug( const char *format, ... )
 {
     va_list args;
 
-	//Only if developer mode is enabled
-	if( !cfg.dev_mode ) return;
+    //Only if developer mode is enabled
+    if ( !cfg.dev_mode ) return;
 
-	va_start( args, format );
+    va_start( args, format );
     if ( logLevel >= 3 )
     {
-		writeLogMessage( "DEBUG: ", format, args );
-	}
-	va_end( args );
+        writeLogMessage( "DEBUG: ", format, args );
+    }
+    va_end( args );
 }
 
 //--------------------------------------------------------------------------------------------

@@ -190,9 +190,9 @@ bool_t fvec2_clear( fvec2_t * A );
 bool_t fvec3_clear( fvec3_t * A );
 bool_t fvec4_clear( fvec4_t * A );
 
-float      fvec3_dot_product  ( fvec3_base_t A, fvec3_base_t   B );
-fvec3_t    fvec3_normalize    ( fvec3_base_t A );
-fvec3_t    fvec3_sub          ( fvec3_base_t A, fvec3_base_t   B );
+float      fvec3_dot_product( fvec3_base_t A, fvec3_base_t   B );
+fvec3_t    fvec3_normalize( fvec3_base_t A );
+fvec3_t    fvec3_sub( fvec3_base_t A, fvec3_base_t   B );
 fvec3_t    fvec3_cross_product( fvec3_base_t A, fvec3_base_t   B );
 
 fmat_4x4_t IdentityMatrix( void );
@@ -203,21 +203,21 @@ fmat_4x4_t RotateX( const float rads );
 fmat_4x4_t RotateY( const float rads );
 fmat_4x4_t RotateZ( const float rads );
 fmat_4x4_t ScaleXYZ( const float sizex, const float sizey, const float sizez );
-fmat_4x4_t ScaleXYZRotateXYZTranslate(  const float sizex, const float sizey, const float sizez, const Uint16 turn_z, const Uint16 turn_x, const Uint16 turn_y, const float tx, const float ty, const float tz  );
+fmat_4x4_t ScaleXYZRotateXYZTranslate( const float sizex, const float sizey, const float sizez, const Uint16 turn_z, const Uint16 turn_x, const Uint16 turn_y, const float tx, const float ty, const float tz );
 fmat_4x4_t FourPoints( fvec4_base_t ori, fvec4_base_t wid, fvec4_base_t frw, fvec4_base_t upx, float scale );
 fmat_4x4_t ViewMatrix( const fvec3_base_t   from, const fvec3_base_t   at, const fvec3_base_t   world_up, const float roll );
 fmat_4x4_t ProjectionMatrix( const float near_plane, const float far_plane, const float fov );
 void       TransformVertices( fmat_4x4_t *pMatrix, fvec4_t   *pSourceV, fvec4_t   *pDestV, Uint32  NumVertor );
 
-fvec3_t   mat_getChrUp(fmat_4x4_t mat);
-fvec3_t   mat_getChrRight(fmat_4x4_t mat);
-fvec3_t   mat_getChrForward(fmat_4x4_t mat);
+fvec3_t   mat_getChrUp( fmat_4x4_t mat );
+fvec3_t   mat_getChrRight( fmat_4x4_t mat );
+fvec3_t   mat_getChrForward( fmat_4x4_t mat );
 
-fvec3_t   mat_getCamUp(fmat_4x4_t mat);
-fvec3_t   mat_getCamRight(fmat_4x4_t mat);
-fvec3_t   mat_getCamForward(fmat_4x4_t mat);
+fvec3_t   mat_getCamUp( fmat_4x4_t mat );
+fvec3_t   mat_getCamRight( fmat_4x4_t mat );
+fvec3_t   mat_getCamForward( fmat_4x4_t mat );
 
-fvec3_t   mat_getTranslate(fmat_4x4_t mat);
+fvec3_t   mat_getTranslate( fmat_4x4_t mat );
 
 void make_turntosin( void );
 

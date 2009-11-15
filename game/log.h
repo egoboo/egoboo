@@ -26,7 +26,7 @@
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-void   log_init(const char * logname);
+void   log_init( const char * logname );
 void   log_shutdown( void );
 
 FILE * log_get_file();

@@ -45,9 +45,9 @@
 //--------------------------------------------------------------------------------------------
 
 static char * script_error_classname = "UNKNOWN";
-static Uint16 script_error_model     = (Uint16)(~0);
+static Uint16 script_error_model     = ( Uint16 )( ~0 );
 static char * script_error_name      = "UNKNOWN";
-static Uint16 script_error_index     = (Uint16)(~0);
+static Uint16 script_error_index     = ( Uint16 )( ~0 );
 
 static bool_t script_increment_exe( ai_state_t * pself );
 static bool_t script_set_exe( ai_state_t * pself, size_t offset );
@@ -72,10 +72,10 @@ void let_character_think( Uint16 character )
 
     if ( !ACTIVE_CHR( character ) )  return;
     pchr  = ChrList.lst + character;
-    pself = &(pchr->ai);
+    pself = &( pchr->ai );
 
     // has the time for this character to die come and gone?
-    if ( pself->poof_time >= 0 && pself->poof_time <= (Sint32)update_wld ) return;
+    if ( pself->poof_time >= 0 && pself->poof_time <= ( Sint32 )update_wld ) return;
 
     // grab the "changed" value from the last time the script was run
     if ( pself->changed )
@@ -97,7 +97,7 @@ void let_character_think( Uint16 character )
     // Make life easier
     script_error_classname = "UNKNOWN";
     script_error_model     = pchr->iprofile;
-    script_error_index     = (Uint16)(~0);
+    script_error_index     = ( Uint16 )( ~0 );
     script_error_name      = "UNKNOWN";
     if ( script_error_model < MAX_PROFILE )
     {
@@ -112,7 +112,7 @@ void let_character_think( Uint16 character )
 
     if ( debug_scripts )
     {
-        FILE * scr_file = (NULL == debug_script_file) ? stdout : debug_script_file;
+        FILE * scr_file = ( NULL == debug_script_file ) ? stdout : debug_script_file;
 
         fprintf( scr_file,  "\n\n--------\n%d - %s\n", script_error_index, script_error_name );
         fprintf( scr_file,  "%d - %s\n", script_error_model, script_error_classname );
@@ -124,11 +124,11 @@ void let_character_think( Uint16 character )
         fprintf( scr_file,  "\tchild  == %d\n", pself->child );
 
         // some local storage
-        fprintf( scr_file,  "\talert     == %x\n", pself->alert   );
-        fprintf( scr_file,  "\tstate     == %d\n", pself->state   );
+        fprintf( scr_file,  "\talert     == %x\n", pself->alert );
+        fprintf( scr_file,  "\tstate     == %d\n", pself->state );
         fprintf( scr_file,  "\tcontent   == %d\n", pself->content );
-        fprintf( scr_file,  "\ttimer     == %d\n", pself->timer   );
-        fprintf( scr_file,  "\tupdate_wld == %d\n", update_wld      );
+        fprintf( scr_file,  "\ttimer     == %d\n", pself->timer );
+        fprintf( scr_file,  "\tupdate_wld == %d\n", update_wld );
 
         // ai memory from the last event
         fprintf( scr_file,  "\tbumplast       == %d\n", pself->bumplast );
@@ -155,13 +155,13 @@ void let_character_think( Uint16 character )
     }
 
     // Reset the target if it can't be seen
-    if ( (pself->target != pself->index) && !chr_can_see_object( character, pself->target ) )
+    if (( pself->target != pself->index ) && !chr_can_see_object( character, pself->target ) )
     {
         pself->target = pself->index;
     }
 
     // reset the script state
-    memset( &my_state, 0, sizeof(script_state_t) );
+    memset( &my_state, 0, sizeof( script_state_t ) );
 
     // reset the ai
     pself->terminate = bfalse;
@@ -200,7 +200,7 @@ void let_character_think( Uint16 character )
     {
         float latch2;
 
-        if ( pchr->ismount && ACTIVE_CHR(pchr->holdingwhich[SLOT_LEFT]) )
+        if ( pchr->ismount && ACTIVE_CHR( pchr->holdingwhich[SLOT_LEFT] ) )
         {
             // Mount
             pchr->latch.x = ChrList.lst[pchr->holdingwhich[SLOT_LEFT]].latch.x;
@@ -209,8 +209,8 @@ void let_character_think( Uint16 character )
         else if ( pself->wp_tail != pself->wp_head )
         {
             // Normal AI
-            pchr->latch.x = ( pself->wp_pos_x[pself->wp_tail] - pchr->pos.x ) / (TILE_ISIZE << 2);
-            pchr->latch.y = ( pself->wp_pos_y[pself->wp_tail] - pchr->pos.y ) / (TILE_ISIZE << 2);
+            pchr->latch.x = ( pself->wp_pos_x[pself->wp_tail] - pchr->pos.x ) / ( TILE_ISIZE << 2 );
+            pchr->latch.y = ( pself->wp_pos_y[pself->wp_tail] - pchr->pos.y ) / ( TILE_ISIZE << 2 );
         }
         else
         {
@@ -220,9 +220,9 @@ void let_character_think( Uint16 character )
         }
 
         latch2 = pchr->latch.x * pchr->latch.x + pchr->latch.y * pchr->latch.y;
-        if (latch2 > 1.0f)
+        if ( latch2 > 1.0f )
         {
-            float scale = 1.0f / SQRT(latch2);
+            float scale = 1.0f / SQRT( latch2 );
             pchr->latch.x *= scale;
             pchr->latch.y *= scale;
         }
@@ -241,9 +241,9 @@ void set_alerts( Uint16 character )
     ai_state_t * pai;
 
     // invalid characters do not think
-    if ( !ACTIVE_CHR(character) ) return;
+    if ( !ACTIVE_CHR( character ) ) return;
     pchr = ChrList.lst + character;
-    pai  = chr_get_pai(character);
+    pai  = chr_get_pai( character );
 
     // let's let mounts get alert updates...
     // imagine a mount, like a racecar, that needs to make sure that it follows X
@@ -270,7 +270,7 @@ void set_alerts( Uint16 character )
             pai->wp_tail    = 0;
 
             // if the object can be alerted to last waypoint, do it
-            if ( !chr_get_pcap(character)->isequipment )
+            if ( !chr_get_pcap( character )->isequipment )
             {
                 pai->alert |= ALERTIF_ATLASTWAYPOINT;
             }
@@ -287,11 +287,11 @@ void issue_order( Uint16 character, Uint32 value )
 
     for ( cnt = 0, counter = 0; cnt < MAX_CHR; cnt++ )
     {
-        if ( !ACTIVE_CHR(cnt) ) continue;
+        if ( !ACTIVE_CHR( cnt ) ) continue;
 
-        if ( chr_get_iteam(cnt) == chr_get_iteam(character) )
+        if ( chr_get_iteam( cnt ) == chr_get_iteam( character ) )
         {
-            ai_add_order( chr_get_pai(cnt), value, counter );
+            ai_add_order( chr_get_pai( cnt ), value, counter );
             counter++;
         }
     }
@@ -307,14 +307,14 @@ void issue_special_order( Uint32 value, IDSZ idsz )
     {
         cap_t * pcap;
 
-        if ( !ACTIVE_CHR(cnt) ) continue;
+        if ( !ACTIVE_CHR( cnt ) ) continue;
 
-        pcap = chr_get_pcap(cnt);
+        pcap = chr_get_pcap( cnt );
         if ( NULL == pcap ) continue;
 
         if ( idsz == pcap->idsz[IDSZ_SPECIAL] )
         {
-            ai_add_order( chr_get_pai(cnt), value, counter );
+            ai_add_order( chr_get_pai( cnt ), value, counter );
             counter++;
         }
     }
@@ -372,7 +372,7 @@ bool_t run_function_call( script_state_t * pstate, ai_state_t * pself )
         size_t new_index = pself->opcode;
 
         // make sure the value is valid
-        assert(new_index < AISMAXCOMPILESIZE && new_index >= pself->exe_stt && new_index <= pself->exe_end );
+        assert( new_index < AISMAXCOMPILESIZE && new_index >= pself->exe_stt && new_index <= pself->exe_end );
 
         // actually do the jump
         script_set_exe( pself, new_index );
@@ -399,11 +399,11 @@ bool_t run_operation( script_state_t * pstate, ai_state_t * pself )
     variable = "UNKNOWN";
     if ( debug_scripts )
     {
-        FILE * scr_file = (NULL == debug_script_file) ? stdout : debug_script_file;
+        FILE * scr_file = ( NULL == debug_script_file ) ? stdout : debug_script_file;
 
-        for (i = 0; i < pself->indent; i++) { fprintf( scr_file, "  " ); }
+        for ( i = 0; i < pself->indent; i++ ) { fprintf( scr_file, "  " ); }
 
-        for (i = 0; i < MAX_OPCODE; i++)
+        for ( i = 0; i < MAX_OPCODE; i++ )
         {
             if ( 'V' == OpList.lst[i].cType && var_value == OpList.lst[i].iValue )
             {
@@ -428,7 +428,7 @@ bool_t run_operation( script_state_t * pstate, ai_state_t * pself )
     }
     if ( debug_scripts )
     {
-        FILE * scr_file = (NULL == debug_script_file) ? stdout : debug_script_file;
+        FILE * scr_file = ( NULL == debug_script_file ) ? stdout : debug_script_file;
         fprintf( scr_file, " == %d \n", pstate->operationsum );
     }
 
@@ -461,11 +461,11 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
     if ( debug_scripts )
     {
         Uint32 i;
-        FILE * scr_file = (NULL == debug_script_file) ? stdout : debug_script_file;
+        FILE * scr_file = ( NULL == debug_script_file ) ? stdout : debug_script_file;
 
-        for (i = 0; i < pself->indent; i++) { fprintf( scr_file,  "  " ); }
+        for ( i = 0; i < pself->indent; i++ ) { fprintf( scr_file,  "  " ); }
 
-        for (i = 0; i < MAX_OPCODE; i++)
+        for ( i = 0; i < MAX_OPCODE; i++ )
         {
             if ( 'F' == OpList.lst[i].cType && valuecode == OpList.lst[i].iValue )
             {
@@ -855,16 +855,16 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
         case FSPAWNATTACHEDCHARACTER:returncode = scr_SpawnAttachedCharacter( pstate, pself ); break;
         case FKURSETARGET:           returncode = scr_KurseTarget( pstate, pself );            break;
         case FSETCHILDCONTENT:       returncode = scr_set_ChildContent( pstate, pself );    break;
-		case FSETTARGETTOCHILD:      returncode = scr_set_TargetToChild( pstate, pself );   break;
-		case FSETDAMAGETRESHOLD:     returncode = scr_set_DamageThreshold( pstate, pself );   break;
-		case FACCELERATETARGETUP:	 returncode = scr_AccelerateTargetUp( pstate, pself ); break;
-		case FSETTARGETAMMO:		 returncode = scr_set_TargetAmmo( pstate, pself ); break;
-		case FENABLEINVICTUS:		 returncode = scr_EnableInvictus( pstate, pself ); break;
-		case FDISABLEINVICTUS:		 returncode = scr_DisableInvictus( pstate, pself ); break;
-        case FTARGETDAMAGESELF:	     returncode = scr_TargetDamageSelf( pstate, pself ); break;
-		case FSETTARGETSIZE:	     returncode = scr_SetTargetSize( pstate, pself ); break;
+        case FSETTARGETTOCHILD:      returncode = scr_set_TargetToChild( pstate, pself );   break;
+        case FSETDAMAGETRESHOLD:     returncode = scr_set_DamageThreshold( pstate, pself );   break;
+        case FACCELERATETARGETUP:    returncode = scr_AccelerateTargetUp( pstate, pself ); break;
+        case FSETTARGETAMMO:         returncode = scr_set_TargetAmmo( pstate, pself ); break;
+        case FENABLEINVICTUS:        returncode = scr_EnableInvictus( pstate, pself ); break;
+        case FDISABLEINVICTUS:       returncode = scr_DisableInvictus( pstate, pself ); break;
+        case FTARGETDAMAGESELF:      returncode = scr_TargetDamageSelf( pstate, pself ); break;
+        case FSETTARGETSIZE:         returncode = scr_SetTargetSize( pstate, pself ); break;
 
-        // if none of the above, skip the line and log an error
+            // if none of the above, skip the line and log an error
         default:
             log_message( "SCRIPT ERROR: run_function() - ai script %d - unhandled script function %d\n", pself->type, valuecode );
             returncode = bfalse;
@@ -901,7 +901,7 @@ void set_operand( script_state_t * pstate, Uint8 variable )
             break;
 
         default:
-            log_warning("set_operand() - cannot assign a number to index %d", variable );
+            log_warning( "set_operand() - cannot assign a number to index %d", variable );
             break;
     }
 }
@@ -927,7 +927,7 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
     {
         // Get the working opcode from a constant, constants are all but high 5 bits
         iTmp = pself->opcode & VALUE_BITS;
-        if ( debug_scripts ) snprintf( buffer, SDL_arraysize(buffer), "%d", iTmp );
+        if ( debug_scripts ) snprintf( buffer, SDL_arraysize( buffer ), "%d", iTmp );
     }
     else
     {
@@ -1016,8 +1016,8 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARTARGETDISTANCE:
                 varname = "TARGETdistance";
-                iTmp = ABS( ( int )( ChrList.lst[pself->target].pos.x - pchr->pos.x ) ) +
-                       ABS( ( int )( ChrList.lst[pself->target].pos.y - pchr->pos.y ) );
+                iTmp = ABS(( int )( ChrList.lst[pself->target].pos.x - pchr->pos.x ) ) +
+                       ABS(( int )( ChrList.lst[pself->target].pos.y - pchr->pos.y ) );
                 break;
 
             case VARTARGETTURN:
@@ -1029,7 +1029,7 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
                 varname = "LEADERX";
                 iTmp = pchr->pos.x;
                 if ( TeamList[pchr->team].leader != NOLEADER )
-                    iTmp = team_get_pleader(pchr->team)->pos.x;
+                    iTmp = team_get_pleader( pchr->team )->pos.x;
 
                 break;
 
@@ -1037,7 +1037,7 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
                 varname = "LEADERY";
                 iTmp = pchr->pos.y;
                 if ( TeamList[pchr->team].leader != NOLEADER )
-                    iTmp = team_get_pleader(pchr->team)->pos.y;
+                    iTmp = team_get_pleader( pchr->team )->pos.y;
 
                 break;
 
@@ -1045,8 +1045,8 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
                 varname = "LEADERdistance";
                 iTmp = 10000;
                 if ( TeamList[pchr->team].leader != NOLEADER )
-                    iTmp = ABS( ( int )( team_get_pleader(pchr->team)->pos.x - pchr->pos.x ) ) +
-                           ABS( ( int )( team_get_pleader(pchr->team)->pos.y - pchr->pos.y ) );
+                    iTmp = ABS(( int )( team_get_pleader( pchr->team )->pos.x - pchr->pos.x ) ) +
+                           ABS(( int )( team_get_pleader( pchr->team )->pos.y - pchr->pos.y ) );
 
                 break;
 
@@ -1054,13 +1054,13 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
                 varname = "LEADERTURN";
                 iTmp = pchr->turn_z;
                 if ( TeamList[pchr->team].leader != NOLEADER )
-                    iTmp = team_get_pleader(pchr->team)->turn_z;
+                    iTmp = team_get_pleader( pchr->team )->turn_z;
 
                 break;
 
             case VARGOTOX:
                 varname = "GOTOX";
-                if (pself->wp_tail == pself->wp_head)
+                if ( pself->wp_tail == pself->wp_head )
                 {
                     iTmp = pchr->pos.x;
                 }
@@ -1072,7 +1072,7 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARGOTOY:
                 varname = "GOTOY";
-                if (pself->wp_tail == pself->wp_head)
+                if ( pself->wp_tail == pself->wp_head )
                 {
                     iTmp = pchr->pos.y;
                 }
@@ -1084,14 +1084,14 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARGOTODISTANCE:
                 varname = "GOTOdistance";
-                if (pself->wp_tail == pself->wp_head)
+                if ( pself->wp_tail == pself->wp_head )
                 {
                     iTmp = 0;
                 }
                 else
                 {
-                    iTmp = ABS( ( int )( pself->wp_pos_x[pself->wp_tail] - pchr->pos.x ) ) +
-                           ABS( ( int )( pself->wp_pos_y[pself->wp_tail] - pchr->pos.y ) );
+                    iTmp = ABS(( int )( pself->wp_pos_x[pself->wp_tail] - pchr->pos.x ) ) +
+                           ABS(( int )( pself->wp_pos_y[pself->wp_tail] - pchr->pos.y ) );
                 }
                 break;
 
@@ -1118,12 +1118,12 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARSELFID:
                 varname = "SELFID";
-                iTmp = chr_get_idsz(pself->index,IDSZ_TYPE);
+                iTmp = chr_get_idsz( pself->index, IDSZ_TYPE );
                 break;
 
             case VARSELFHATEID:
                 varname = "SELFHATEID";
-                iTmp = chr_get_idsz(pself->index,IDSZ_HATE);
+                iTmp = chr_get_idsz( pself->index, IDSZ_HATE );
                 break;
 
             case VARSELFMANA:
@@ -1172,17 +1172,17 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARTARGETSPEEDX:
                 varname = "TARGETSPEEDX";
-                iTmp = ABS(ChrList.lst[pself->target].vel.x);
+                iTmp = ABS( ChrList.lst[pself->target].vel.x );
                 break;
 
             case VARTARGETSPEEDY:
                 varname = "TARGETSPEEDY";
-                iTmp = ABS(ChrList.lst[pself->target].vel.y);
+                iTmp = ABS( ChrList.lst[pself->target].vel.y );
                 break;
 
             case VARTARGETSPEEDZ:
                 varname = "TARGETSPEEDZ";
-                iTmp = ABS(ChrList.lst[pself->target].vel.z);
+                iTmp = ABS( ChrList.lst[pself->target].vel.z );
                 break;
 
             case VARSELFSPAWNX:
@@ -1287,8 +1287,8 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VAROWNERDISTANCE:
                 varname = "OWNERDISTANCE";
-                iTmp = ABS( ( int )( ChrList.lst[pself->owner].pos.x - pchr->pos.x ) ) +
-                       ABS( ( int )( ChrList.lst[pself->owner].pos.y - pchr->pos.y ) );
+                iTmp = ABS(( int )( ChrList.lst[pself->owner].pos.x - pchr->pos.x ) ) +
+                       ABS(( int )( ChrList.lst[pself->owner].pos.y - pchr->pos.y ) );
                 break;
 
             case VAROWNERTURNTO:
@@ -1351,8 +1351,8 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARSPAWNDISTANCE:
                 varname = "SPAWNDISTANCE";
-                iTmp = ABS( ( int )( pchr->pos_stt.x - pchr->pos.x ) ) +
-                       ABS( ( int )( pchr->pos_stt.y - pchr->pos.y ) );
+                iTmp = ABS(( int )( pchr->pos_stt.x - pchr->pos.x ) ) +
+                       ABS(( int )( pchr->pos_stt.y - pchr->pos.y ) );
                 break;
 
             case VARTARGETMAXLIFE:
@@ -1362,7 +1362,7 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARTARGETTEAM:
                 varname = "TARGETTEAM";
-                iTmp = chr_get_iteam(pself->target);
+                iTmp = chr_get_iteam( pself->target );
                 break;
 
             case VARTARGETARMOR:
@@ -1419,7 +1419,7 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
             op = "DIV";
             if ( iTmp != 0 )
             {
-                pstate->operationsum = ((float)pstate->operationsum) / iTmp;
+                pstate->operationsum = (( float )pstate->operationsum ) / iTmp;
             }
             else
             {
@@ -1446,7 +1446,7 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
 
     if ( debug_scripts )
     {
-        FILE * scr_file = (NULL == debug_script_file) ? stdout : debug_script_file;
+        FILE * scr_file = ( NULL == debug_script_file ) ? stdout : debug_script_file;
         fprintf( scr_file, "%s %s(%d) ", op, varname, iTmp );
     }
 }

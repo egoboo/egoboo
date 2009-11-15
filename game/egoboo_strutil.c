@@ -31,7 +31,7 @@ void str_trim( char *pStr )
 
     Sint32 DebPos = 0, EndPos = 0, CurPos = 0;
 
-    if ( INVALID_CSTR(pStr)  )
+    if ( INVALID_CSTR( pStr ) )
     {
         return;
     }
@@ -74,13 +74,13 @@ char * str_decode( char *strout, size_t insize, const char * strin )
 {
     /// @details BB@> str_decode converts a string from "storage mode" to an actual string
 
-    char *pin = (char *)strin, *pout = strout, *plast = pout + insize;
+    char *pin = ( char * )strin, *pout = strout, *plast = pout + insize;
 
     if ( NULL == strin || NULL == strout || 0 == insize ) return NULL;
     while ( pout < plast && CSTR_END != *pin )
     {
         *pout = *pin;
-        if      ( '_' == *pout ) *pout = ' ';
+        if ( '_' == *pout ) *pout = ' ';
         else if ( '~' == *pout ) *pout = '\t';
         pout++;
         pin++;
@@ -97,7 +97,7 @@ char * str_encode( char *strout, size_t insize, const char * strin )
     /// @details BB@> str_encode converts an actual string to "storage mode"
 
     char chrlast = 0;
-    char *pin = (char *)strin, *pout = strout, *plast = pout + insize;
+    char *pin = ( char * )strin, *pout = strout, *plast = pout + insize;
 
     if ( NULL == strin || NULL == strout || 0 == insize ) return NULL;
     while ( pout < plast && CSTR_END != *pin )
@@ -144,13 +144,13 @@ char * str_encode( char *strout, size_t insize, const char * strin )
 }
 
 //--------------------------------------------------------------------------------------------
-char * str_clean_path(char * str, size_t size)
+char * str_clean_path( char * str, size_t size )
 {
     /// @details BB@> remove any accidentally doubled slash characters from the stream
 
-    char *psrc, *psrc_end, *pdst,*pdst_end;
+    char *psrc, *psrc_end, *pdst, *pdst_end;
 
-    if ( INVALID_CSTR(str) ) return str;
+    if ( INVALID_CSTR( str ) ) return str;
 
     for ( psrc = str, pdst = str, psrc_end = str + size, pdst_end = str + size;
           psrc < psrc_end && pdst < pdst_end;
@@ -162,7 +162,7 @@ char * str_clean_path(char * str, size_t size)
             psrc++;
             pdst++;
 
-            while( psrc < psrc_end && ('/' == *psrc || '\\' == *psrc) )
+            while ( psrc < psrc_end && ( '/' == *psrc || '\\' == *psrc ) )
             {
                 psrc++;
             }
@@ -175,7 +175,7 @@ char * str_clean_path(char * str, size_t size)
         }
     }
 
-    if( pdst < pdst_end )
+    if ( pdst < pdst_end )
     {
         *pdst = CSTR_END;
     }
@@ -184,13 +184,13 @@ char * str_clean_path(char * str, size_t size)
 }
 
 //--------------------------------------------------------------------------------------------
-char * str_convert_slash_net(char * str, size_t size)
+char * str_convert_slash_net( char * str, size_t size )
 {
     /// @details BB@> converts the slashes in a string to those appropriate for the Net
 
     char * psrc, *psrc_end, *pdst, *pdst_end;
 
-    if ( INVALID_CSTR(str) ) return str;
+    if ( INVALID_CSTR( str ) ) return str;
 
     for ( psrc = str, pdst = str, psrc_end = str + size, pdst_end = str + size;
           CSTR_END != *psrc && psrc < psrc_end && pdst < pdst_end;
@@ -198,12 +198,12 @@ char * str_convert_slash_net(char * str, size_t size)
     {
         char cTmp = *psrc;
 
-        if ('/' == cTmp || '\\' == cTmp ) cTmp = NET_SLASH_CHR;
+        if ( '/' == cTmp || '\\' == cTmp ) cTmp = NET_SLASH_CHR;
 
         *pdst = cTmp;
     }
 
-    if(pdst < pdst_end)
+    if ( pdst < pdst_end )
     {
         *pdst = CSTR_END;
     }
@@ -212,13 +212,13 @@ char * str_convert_slash_net(char * str, size_t size)
 }
 
 //--------------------------------------------------------------------------------------------
-char * str_convert_slash_sys(char * str, size_t size)
+char * str_convert_slash_sys( char * str, size_t size )
 {
     /// @details BB@> converts the slashes in a string to those appropriate this system
 
     char * psrc, *psrc_end, *pdst, *pdst_end;
 
-    if ( INVALID_CSTR(str) ) return str;
+    if ( INVALID_CSTR( str ) ) return str;
 
     for ( psrc = str, pdst = str, psrc_end = str + size, pdst_end = str + size;
           CSTR_END != *psrc && psrc < psrc_end && pdst < pdst_end;
@@ -226,12 +226,12 @@ char * str_convert_slash_sys(char * str, size_t size)
     {
         char cTmp = *psrc;
 
-        if ('/' == cTmp || '\\' == cTmp ) cTmp = SLASH_CHR;
+        if ( '/' == cTmp || '\\' == cTmp ) cTmp = SLASH_CHR;
 
         *pdst = cTmp;
     }
 
-    if(pdst < pdst_end)
+    if ( pdst < pdst_end )
     {
         *pdst = CSTR_END;
     }
@@ -240,36 +240,36 @@ char * str_convert_slash_sys(char * str, size_t size)
 }
 
 //--------------------------------------------------------------------------------------------
-char * str_append_slash_net(char * str, size_t size)
+char * str_append_slash_net( char * str, size_t size )
 {
     /// @details BB@> appends a network-type slash to a string, if it does not already have one
 
     size_t len;
 
-    if ( INVALID_CSTR(str) ) return str;
+    if ( INVALID_CSTR( str ) ) return str;
 
     len = strlen( str );
     if ( '/' != str[len-1] && '\\' != str[len-1] )
     {
-        strncat(str, NET_SLASH_STR, size);
+        strncat( str, NET_SLASH_STR, size );
     }
 
     return str;
 }
 
 //--------------------------------------------------------------------------------------------
-char * str_append_slash(char * str, size_t size)
+char * str_append_slash( char * str, size_t size )
 {
     /// @details BB@> appends this system's slash to a string, if it does not already have one
 
     size_t len;
 
-    if ( INVALID_CSTR(str) ) return NULL;
+    if ( INVALID_CSTR( str ) ) return NULL;
 
     len = strlen( str );
     if ( '/' != str[len-1] && '\\' != str[len-1] )
     {
-        strncat(str, SLASH_STR, size);
+        strncat( str, SLASH_STR, size );
     }
 
     return str;
@@ -287,16 +287,16 @@ char * str_encode_path( const char *szName )
     char * ppath, * ppath_end;
     char letter;
 
-    pname     = (char *)szName;
+    pname     = ( char * )szName;
     pname_end = pname + 255;
 
     ppath     = szPathname;
-    ppath_end = szPathname + SDL_arraysize(szPathname) - 5;
+    ppath_end = szPathname + SDL_arraysize( szPathname ) - 5;
     while ( CSTR_END != *pname && pname < pname_end && ppath < ppath_end )
     {
         letter = tolower( *pname );
 
-        if ( isspace(letter) || !(isalpha(letter) || isdigit(letter)) ) letter = '_';
+        if ( isspace( letter ) || !( isalpha( letter ) || isdigit( letter ) ) ) letter = '_';
 
         *ppath = letter;
 
@@ -305,7 +305,7 @@ char * str_encode_path( const char *szName )
     }
     *ppath = CSTR_END;
 
-    strncat(szPathname, ".obj", SDL_arraysize(szPathname) - strlen(szPathname) );
+    strncat( szPathname, ".obj", SDL_arraysize( szPathname ) - strlen( szPathname ) );
 
     return szPathname;
 }
@@ -315,16 +315,16 @@ void str_add_linebreaks( char * text, size_t text_len, size_t line_len )
 {
     char * text_end, * text_break, * text_stt;
 
-    if ( INVALID_CSTR(text) || 0 == text_len  || 0 == line_len ) return;
+    if ( INVALID_CSTR( text ) || 0 == text_len  || 0 == line_len ) return;
 
     text_end = text + text_len;
     text_break = text_stt = text;
-    while (text < text_end && CSTR_END != *text)
+    while ( text < text_end && CSTR_END != *text )
     {
         // scan for the next whitespace
-        text = strpbrk(text, " \n");
+        text = strpbrk( text, " \n" );
 
-        if( text >= text_end )
+        if ( text >= text_end )
         {
             break;
         }
@@ -343,7 +343,7 @@ void str_add_linebreaks( char * text, size_t text_len, size_t line_len )
 
         // until the line is too long, then insert
         // replace the last good ' ' with '\n'
-        if ( ((size_t)text - (size_t)text_break) > line_len )
+        if ((( size_t )text - ( size_t )text_break ) > line_len )
         {
             if ( ' ' != *text_break )
             {
