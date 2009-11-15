@@ -1928,7 +1928,7 @@ Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
         prt_t * pprt = PrtList.lst + tTmp;
 
         // Detach the particle
-        attach_particle_to_character( tTmp, pself->index, pstate->distance );
+        place_particle_at_vertex( tTmp, pself->index, pstate->distance );
         pprt->attachedto_ref = MAX_CHR;
 
         // Correct X, Y, Z spacing

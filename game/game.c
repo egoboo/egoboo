@@ -5805,7 +5805,7 @@ void reaffirm_attached_particles( Uint16 character )
         particle = spawn_one_particle( pchr->pos, 0, pchr->iprofile, pcap->attachedprt_pip, character, GRIP_LAST + numberattached, chr_get_iteam( character ), character, TOTAL_MAX_PRT, numberattached, MAX_CHR );
         if ( ACTIVE_PRT( particle ) )
         {
-            attach_particle_to_character( particle, character, PrtList.lst[particle].vrt_off );
+            place_particle_at_vertex( particle, character, PrtList.lst[particle].vrt_off );
         }
     }
 
@@ -6023,10 +6023,16 @@ void game_release_module_data()
     local_senseenemiesID = IDSZ_NONE;
     local_senseenemiesTeam = TEAM_MAX;
 
+    // deal with dynamically allocated game assets
     release_all_graphics();
     release_all_profiles();
     release_all_ai_scripts();
 
+    // make sure that the object lists are cleared out
+    free_all_objects();
+
+    // deal with the mesh
+    clear_all_passages();
     mesh_delete( PMesh );
 }
 
@@ -6047,7 +6053,7 @@ void attach_particles()
 
         if ( ACTIVE_CHR( pprt->attachedto_ref ) )
         {
-            attach_particle_to_character( cnt, pprt->attachedto_ref, pprt->vrt_off );
+            place_particle_at_vertex( cnt, pprt->attachedto_ref, pprt->vrt_off );
 
             // the previous function can inactivate a particle
             if ( ACTIVE_PRT( cnt ) )
@@ -7764,7 +7770,7 @@ bool_t game_module_stop( game_module_t * pinst )
 
     pinst->active      = bfalse;
 
-    // ntework stuff
+    // network stuff
     PNet->hostactive  = bfalse;
 
     return btrue;
@@ -8075,6 +8081,169 @@ bool_t do_item_pickup( Uint16 ichr, Uint16 iitem )
     }
 
     return can_grab;
+}
+
+float get_mesh_max_vertex_0( ego_mpd_t * pmesh, int tile_x, int tile_y, bool_t waterwalk )
+{
+    float zdone = mesh_get_max_vertex_0( pmesh, tile_x, tile_y );
+
+    if ( waterwalk && water.surface_level > zdone && water.is_water )
+    {
+        int tile = mesh_get_tile( pmesh, tile_x, tile_y );
+
+        if ( 0 != mesh_test_fx( pmesh, tile, MPDFX_WATER ) )
+        {
+            zdone = water.surface_level;
+        }
+    }
+
+    return zdone;
+}
+
+float get_mesh_max_vertex_1( ego_mpd_t * pmesh, int tile_x, int tile_y, chr_bumper_1_t * pbump, bool_t waterwalk )
+{
+    float zdone = mesh_get_max_vertex_1( pmesh, tile_x, tile_y, pbump->min_x, pbump->min_y, pbump->max_x, pbump->max_y );
+
+    if ( waterwalk && water.surface_level > zdone && water.is_water )
+    {
+        int tile = mesh_get_tile( pmesh, tile_x, tile_y );
+
+        if ( 0 != mesh_test_fx( pmesh, tile, MPDFX_WATER ) )
+        {
+            zdone = water.surface_level;
+        }
+    }
+
+    return zdone;
+}
+
+float get_mesh_max_vertex_2( ego_mpd_t * pmesh, chr_t * pchr )
+{
+    // BB> the object does not overlap a single grid corner. Check the 4 corners of the collision volume
+
+    int corner;
+    int ix_off[4] = {1, 1, 0, 0};
+    int iy_off[4] = {0, 1, 1, 0};
+
+    float pos_x[4];
+    float pos_y[4];
+    float zmax;
+
+    for( corner = 0; corner<4; corner++)
+    {
+        pos_x[corner] = pchr->pos.x + ((0 == ix_off[corner]) ? pchr->chr_chr_cv.min_x : pchr->chr_chr_cv.max_x);
+        pos_y[corner] = pchr->pos.y + ((0 == iy_off[corner]) ? pchr->chr_chr_cv.min_y : pchr->chr_chr_cv.max_y);
+    }
+
+    zmax = get_mesh_level( pmesh, pos_x[0], pos_y[0], pchr->waterwalk );
+    for( corner = 1; corner<4; corner++)
+    {
+        float fval = get_mesh_level( pmesh, pos_x[corner], pos_y[corner], pchr->waterwalk );
+        zmax = MAX(zmax, fval);
+    }
+
+    return zmax;
+}
+
+float get_chr_level( ego_mpd_t * pmesh, chr_t * pchr )
+{
+    float zmax;
+    int ix, ixmax, ixmin;
+    int iy, iymax, iymin;
+
+    int grid_vert_count = 0;
+    int grid_vert_x[1024];
+    int grid_vert_y[1024];
+
+    chr_bumper_1_t bump;
+
+    if( NULL == pmesh || !ACTIVE_PCHR(pchr) ) return 0;
+
+    // certain scenery items like doors and such just need to be able to 
+    // collide with the mesh. They all have 0 == pchr->bump.size
+    if( 0 == pchr->bump.size )
+    {
+        return get_mesh_level( pmesh, pchr->pos.x, pchr->pos.y, pchr->waterwalk );
+    }
+    
+    // otherwise, use the small collision volume to determine which tiles the object overlaps 
+    // move the collision volume so that it surrounds the object
+    bump.min_x  = pchr->chr_chr_cv.min_x  + pchr->pos.x;
+    bump.max_x  = pchr->chr_chr_cv.max_x  + pchr->pos.x;
+    bump.min_y  = pchr->chr_chr_cv.min_y  + pchr->pos.y;
+    bump.max_y  = pchr->chr_chr_cv.max_y  + pchr->pos.y;
+
+    // determine the size of this object in tiles
+    ixmin = bump.min_x / TILE_SIZE; ixmin = CLIP( ixmin, 0, pmesh->info.tiles_x - 1 );
+    ixmax = bump.max_x / TILE_SIZE; ixmax = CLIP( ixmax, 0, pmesh->info.tiles_x - 1 );
+
+    iymin = bump.min_y / TILE_SIZE; iymin = CLIP( iymin, 0, pmesh->info.tiles_y - 1 );
+    iymax = bump.max_y / TILE_SIZE; iymax = CLIP( iymax, 0, pmesh->info.tiles_y - 1 );
+
+    // do the simplest thing if the object is just on one tile
+    if( ixmax == ixmin && iymax == iymin )
+    {
+        return get_mesh_max_vertex_2( pmesh, pchr );
+    }
+
+    // hold off on these calculations in case they are not necessary
+    bump.min_z  = pchr->chr_chr_cv.min_z  + pchr->pos.z;
+    bump.max_z  = pchr->chr_chr_cv.max_z  + pchr->pos.z;
+    bump.min_xy = pchr->chr_chr_cv.min_xy + ( pchr->pos.x + pchr->pos.y);
+    bump.max_xy = pchr->chr_chr_cv.max_xy + ( pchr->pos.x + pchr->pos.y);
+    bump.min_yx = pchr->chr_chr_cv.min_yx + (-pchr->pos.x + pchr->pos.y);
+    bump.max_yx = pchr->chr_chr_cv.max_yx + (-pchr->pos.x + pchr->pos.y);
+
+    // otherwise, make up a list of tiles that the object might overlap
+    for( iy=iymin; iy<=iymax; iy++ )
+    {
+        float grid_y = iy * TILE_ISIZE;
+
+        for( ix=ixmin; ix<=ixmax; ix++ )
+        {
+            float ftmp;
+            int   itile;
+            float grid_x = ix * TILE_ISIZE;
+
+            ftmp = grid_x + grid_y;
+            if( ftmp < bump.min_xy || ftmp > bump.max_xy ) continue;
+
+            ftmp =-grid_x + grid_y;
+            if( ftmp < bump.min_yx || ftmp > bump.max_yx ) continue;
+
+            itile = mesh_get_tile_int( pmesh, ix, iy );
+            if( INVALID_TILE == itile ) continue;
+
+            grid_vert_x[grid_vert_count] = ix;
+            grid_vert_y[grid_vert_count] = iy;
+            grid_vert_count++;
+        }
+    }
+
+    // we did not intersect a single tile corner
+    // this could happen for, say, a very long, but thin shape that fits between the tiles.
+    // the current system would not work for that shape
+    if( 0 == grid_vert_count )
+    {
+        return get_mesh_max_vertex_2( pmesh, pchr );
+    }
+    else
+    {
+        int cnt;
+        float fval;
+
+        // scan through the vertices that we know will interact with the object
+        zmax = get_mesh_max_vertex_1(pmesh, grid_vert_x[0], grid_vert_y[0], &bump, pchr->waterwalk );
+        for( cnt = 1; cnt < grid_vert_count; cnt ++ )
+        {
+            fval = get_mesh_max_vertex_1(pmesh, grid_vert_x[cnt], grid_vert_y[cnt], &bump, pchr->waterwalk );
+            zmax = MAX(zmax, fval);
+        }
+    }
+            
+    if( zmax == -1e6 ) zmax = 0.0f;
+
+    return zmax;
 }
 
 ////--------------------------------------------------------------------------------------------

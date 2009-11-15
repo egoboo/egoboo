@@ -1631,6 +1631,72 @@ Uint32 mesh_hitawall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits,
     }
 
     return pass & bits;
-
 }
 
+float mesh_get_max_vertex_0( ego_mpd_t * pmesh, int tile_x, int tile_y )
+{
+    Uint32 itile;
+    int type;
+    int vstart, vcount, cnt, ivrt;
+    float zmax;
+
+    if( NULL == pmesh ) return 0.0f;
+
+    itile = mesh_get_tile_int( pmesh, tile_x, tile_y );
+
+    if( INVALID_TILE == itile ) return 0.0f;
+
+    type   = pmesh->mmem.tile_list[itile].type;
+    vstart = pmesh->mmem.tile_list[itile].vrtstart;
+    vcount = MIN(4,pmesh->mmem.vert_count);
+
+    ivrt = vstart;
+    zmax = pmesh->mmem.plst[ivrt][ZZ];
+    for( ivrt++, cnt = 1; cnt < vcount; ivrt++, cnt++ )
+    {
+        zmax = MAX( zmax, pmesh->mmem.plst[ivrt][ZZ] );
+    }
+
+    return zmax;
+}
+
+float mesh_get_max_vertex_1( ego_mpd_t * pmesh, int tile_x, int tile_y, float xmin, float ymin, float xmax, float ymax )
+{
+    Uint32 itile;
+    int type;
+    int vstart, vcount, cnt, ivrt;
+    float zmax;
+
+    int ix_off[4] = {1, 1, 0, 0};
+    int iy_off[4] = {0, 1, 1, 0};
+
+    if( NULL == pmesh ) return 0.0f;
+
+    itile = mesh_get_tile_int( pmesh, tile_x, tile_y );
+
+    if( INVALID_TILE == itile ) return 0.0f;
+
+    type   = pmesh->mmem.tile_list[itile].type;
+    vstart = pmesh->mmem.tile_list[itile].vrtstart;
+    vcount = MIN(4, pmesh->mmem.vert_count);
+
+    zmax = -1e6;
+    for( ivrt = vstart, cnt = 0; cnt < vcount; ivrt++, cnt++ )
+    {
+        float fx, fy;
+        GLXvector3f * pvert = pmesh->mmem.plst + ivrt;
+
+        // we are evaluating the height based on the grid, not the actual vertex positions
+        fx = (tile_x + ix_off[cnt]) * TILE_SIZE;
+        fy = (tile_y + iy_off[cnt]) * TILE_SIZE;
+
+        if( fx >= xmin && fx <= xmax && fy >= ymin && fy <= ymax )
+        {
+            zmax = MAX(zmax, (*pvert)[ZZ]);
+        }
+    }
+
+    if( -1e6 == zmax ) zmax = 0.0f;
+
+    return zmax;
+}

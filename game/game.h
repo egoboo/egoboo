@@ -348,7 +348,7 @@ void reset_end_text();
 /// Particles
 Uint16 number_of_attached_particles( Uint16 character );
 int    spawn_bump_particles( Uint16 character, Uint16 particle );
-void   attach_particle_to_character( Uint16 particle, Uint16 character, int vertex_offset );
+void   place_particle_at_vertex( Uint16 particle, Uint16 character, int vertex_offset );
 void   disaffirm_attached_particles( Uint16 character );
 void   reaffirm_attached_particles( Uint16 character );
 Uint16 number_of_attached_particles( Uint16 character );
@@ -437,3 +437,5 @@ bool_t do_shop_steal( Uint16 ithief, Uint16 iitem );
 bool_t do_item_pickup( Uint16 ichr, Uint16 iitem );
 
 bool_t get_chr_regeneration( struct s_chr * pchr, int *pliferegen, int * pmanaregen );
+
+float get_chr_level( struct s_ego_mpd * pmesh, struct s_chr * pchr );

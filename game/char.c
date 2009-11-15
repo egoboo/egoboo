@@ -505,7 +505,7 @@ void free_inventory_in_game( Uint16 character )
 }
 
 //--------------------------------------------------------------------------------------------
-void attach_particle_to_character( Uint16 particle, Uint16 character, int vertex_offset )
+void place_particle_at_vertex( Uint16 particle, Uint16 character, int vertex_offset )
 {
     /// @details ZZ@> This function sets one particle's position to be attached to a character.
     ///    It will kill the particle if the character is no longer around
@@ -1953,7 +1953,7 @@ void character_swipe( Uint16 ichr, slot_t slot )
                         // Detach the particle
                         if ( !prt_get_ppip( particle )->startontarget || !ACTIVE_CHR( pprt->target_ref ) )
                         {
-                            attach_particle_to_character( particle, weapon, spawn_vrt_offset );
+                            place_particle_at_vertex( particle, weapon, spawn_vrt_offset );
 
                             // Correct Z spacing base, but nothing else...
                             pprt->pos.z += prt_get_ppip( particle )->zspacing_pair.base;
@@ -3528,7 +3528,9 @@ Uint16 spawn_one_character( fvec3_t pos, Uint16 profile, Uint8 team,
     pchr->fat_goto_time = 0;
 
     // Set up position
-    pchr->enviro.floor_level = get_mesh_level( PMesh, pos_tmp.x, pos_tmp.y, pchr->waterwalk ) + RAISE;
+    //pchr->pos = pos_tmp;
+    //pchr->enviro.floor_level = get_chr_level( PMesh, pchr ) + RAISE;
+    pchr->enviro.floor_level = get_mesh_level( PMesh, pos_tmp.x, pos_tmp.y, pchr->waterwalk );
     if ( pos_tmp.z < pchr->enviro.floor_level ) pos_tmp.z = pchr->enviro.floor_level;
 
     pchr->pos      = pos_tmp;
@@ -4580,7 +4582,8 @@ void move_one_character_get_environment( chr_t * pchr )
     if ( !ACTIVE_PCHR( pchr ) ) return;
 
     //---- character "floor" level
-    floor_level = get_mesh_level( PMesh, pchr->pos.x, pchr->pos.y, pchr->waterwalk );
+    //floor_level = get_chr_level( PMesh, pchr );
+    floor_level = get_mesh_level( PMesh, pchr->pos.x, pchr->pos.y, pchr->waterwalk ) + RAISE;
 
     // use this function so that the reflections and some other stuff comes out correctly
     // @note - using get_mesh_level() will actually force a water tile to have a reflection?
