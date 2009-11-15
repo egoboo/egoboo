@@ -830,13 +830,14 @@ void prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_
     }
 
     // set some particle dependent properties
-    pinst->size  = FP8_TO_FLOAT( pprt->size ) * 0.25f;
+    pinst->scale = 0.25f;
     switch ( pinst->type )
     {
-        case SPRITE_SOLID: pinst->size *= 0.9384f; break;
-        case SPRITE_ALPHA: pinst->size *= 0.9353f; break;
-        case SPRITE_LIGHT: pinst->size *= 1.5912f; break;
+        case SPRITE_SOLID: pinst->scale *= 0.9384f; break;
+        case SPRITE_ALPHA: pinst->scale *= 0.9353f; break;
+        case SPRITE_LIGHT: pinst->scale *= 1.5912f; break;
     }
+    pinst->size = FP8_TO_FLOAT( pprt->size ) * pinst->scale;
 
     if ( cfg.dev_mode && SDLKEYDOWN( SDLK_F8 ) )
     {

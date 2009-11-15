@@ -59,6 +59,7 @@ struct s_prt_instance
     // position info
     fvec3_t   pos;
     float     size;
+    float     scale;
 
     // billboard info
     prt_ori_t orientation;
