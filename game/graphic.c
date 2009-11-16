@@ -2301,32 +2301,6 @@ void render_scene_solid()
 }
 
 //--------------------------------------------------------------------------------------------
-void render_scene_water( renderlist_t * prlist )
-{
-    // set the the transparency parameters
-    GL_DEBUG( glDepthMask )( GL_FALSE );
-    GL_DEBUG( glEnable )( GL_DEPTH_TEST );
-    GL_DEBUG( glDepthFunc )( GL_LEQUAL );
-
-    GL_DEBUG( glEnable )( GL_CULL_FACE );            // GL_ENABLE_BIT
-    GL_DEBUG( glFrontFace )( GL_CW );                // GL_POLYGON_BIT
-
-    // And transparent water floors
-    if ( !water.light )
-    {
-        GL_DEBUG( glEnable )( GL_BLEND );
-        GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-        render_water( prlist );
-    }
-    else
-    {
-        GL_DEBUG( glEnable )( GL_BLEND );
-        GL_DEBUG( glBlendFunc )( GL_ONE, GL_ONE );
-        render_water( prlist );
-    }
-}
-
-//--------------------------------------------------------------------------------------------
 void render_scene_trans()
 {
     /// @details BB@> draw transparent objects
@@ -2427,7 +2401,7 @@ void render_scene( ego_mpd_t * pmesh, camera_t * pcam )
     PROFILE_BEGIN( render_scene_water );
     {
         // draw the water
-        render_scene_water( &renderlist );
+        render_water( &renderlist );
     }
     PROFILE_END( render_scene_water );
 

@@ -243,6 +243,7 @@ void render_water_fan( ego_mpd_t * pmesh, Uint32 fan, Uint8 layer )
     int ix_off[4] = {1, 1, 0, 0}, iy_off[4] = {0, 1, 1, 0};
     int  imap[4];
     float x1, y1, fx_off[4], fy_off[4];
+    float falpha;
 
     ego_mpd_info_t * pinfo;
     mesh_mem_t     * pmmem;
@@ -257,6 +258,9 @@ void render_water_fan( ego_mpd_t * pmesh, Uint32 fan, Uint8 layer )
 
     if ( !VALID_TILE( pmesh, fan ) ) return;
     ptile = pmmem->tile_list + fan;
+
+    falpha = FF_TO_FLOAT( water.layer[layer].alpha );
+    falpha = CLIP(falpha, 0.0f, 1.0f);
 
     /// @note BB@> the water info is for TILES, not for vertices, so ignore all vertex info and just draw the water
     ///            tile where it's supposed to go
@@ -331,7 +335,7 @@ void render_water_fan( ego_mpd_t * pmesh, Uint32 fan, Uint8 layer )
             fan = mesh_get_tile_int( pmesh, jx, jy );
             if ( grid_light_one_corner( pmesh, fan, v[cnt].pos[ZZ], nrm, &dlight ) )
             {
-                // take the color from the tnc vertices so that it is oriented prroperly
+                // take the v[cnt].color from the tnc vertices so that it is oriented prroperly
                 v[cnt].col[RR] = dlight * INV_FF + alight;
                 v[cnt].col[GG] = dlight * INV_FF + alight;
                 v[cnt].col[BB] = dlight * INV_FF + alight;
@@ -343,12 +347,23 @@ void render_water_fan( ego_mpd_t * pmesh, Uint32 fan, Uint8 layer )
             }
             else
             {
-                v[cnt].col[RR] =
-                    v[cnt].col[GG] =
-                        v[cnt].col[BB] = 0.0f;
+                v[cnt].col[RR] = v[cnt].col[GG] = v[cnt].col[BB] = 0.0f;
             }
 
-            v[cnt].col[AA] = FF_TO_FLOAT( water.layer[layer].alpha );
+            // the application of alpha to the tile depends on the blending mode
+            if( water.light )
+            {
+                // blend using light
+                v[cnt].col[RR] *= falpha;
+                v[cnt].col[GG] *= falpha;
+                v[cnt].col[BB] *= falpha;
+                v[cnt].col[AA]  = 1.0f;
+            }
+            else
+            {
+                // blend using alpha
+                v[cnt].col[AA] = falpha;
+            }
 
             badvertex++;
         }
@@ -361,17 +376,43 @@ void render_water_fan( ego_mpd_t * pmesh, Uint32 fan, Uint8 layer )
         meshlasttexture = texture;
     }
 
-    // Render each command
-    GL_DEBUG( glShadeModel )( GL_SMOOTH );
-    GL_DEBUG( glBegin )( GL_TRIANGLE_FAN );
+    ATTRIB_PUSH( "render_water_fan", GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_LIGHTING_BIT | GL_CURRENT_BIT | GL_POLYGON_BIT );
     {
-        for ( cnt = 0; cnt < 4; cnt++ )
-        {
-            GL_DEBUG( glColor4fv )( v[cnt].col );
-            GL_DEBUG( glTexCoord2fv )( v[cnt].tex );
-            GL_DEBUG( glVertex3fv )( v[cnt].pos );
-        }
-    }
-    GL_DEBUG_END();
+        GLboolean use_depth_mask = (!water.light && (1.0f == falpha)) ? GL_TRUE : GL_FALSE;
 
+        GL_DEBUG( glEnable )( GL_DEPTH_TEST );                                  // GL_ENABLE_BIT
+        GL_DEBUG( glDepthFunc )( GL_LEQUAL );                                   // GL_DEPTH_BUFFER_BIT
+
+        // only use the depth mask if the tile is NOT transparent
+        GL_DEBUG( glDepthMask )( use_depth_mask );                              // GL_DEPTH_BUFFER_BIT
+
+        GL_DEBUG( glEnable )( GL_CULL_FACE );                                   // GL_ENABLE_BIT
+        GL_DEBUG( glFrontFace )( GL_CW );                                       // GL_POLYGON_BIT
+
+        // set the blending mode
+        if( water.light )
+        {
+            GL_DEBUG( glEnable )( GL_BLEND );                                   // GL_ENABLE_BIT
+            GL_DEBUG( glBlendFunc )( GL_ONE, GL_ONE_MINUS_SRC_COLOR );          // GL_COLOR_BUFFER_BIT
+        }
+        else
+        {
+            GL_DEBUG( glEnable )( GL_BLEND );                                    // GL_ENABLE_BIT
+            GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );     // GL_COLOR_BUFFER_BIT
+        }
+        
+        // Render each command
+        GL_DEBUG( glShadeModel )( GL_SMOOTH );                // GL_LIGHTING_BIT
+        GL_DEBUG( glBegin )( GL_TRIANGLE_FAN );
+        {
+            for ( cnt = 0; cnt < 4; cnt++ )
+            {
+                GL_DEBUG( glColor4fv )( v[cnt].col );         // GL_CURRENT_BIT
+                GL_DEBUG( glTexCoord2fv )( v[cnt].tex );
+                GL_DEBUG( glVertex3fv )( v[cnt].pos );
+            }
+        }
+        GL_DEBUG_END();
+    }
+    ATTRIB_POP( "render_water_fan" );
 }
