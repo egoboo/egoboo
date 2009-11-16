@@ -1,0 +1,45 @@
+// Someone cast an unlock spell
+IfOrdered
+  tmpx = selforder
+  tmpy = 491  // The unique code for an unlock order
+  IfXIsEqualToY
+    tmpargument = 2		//Tell them its warded
+    SendMessageNear
+
+// This function makes the button open the passage
+tmpx = 20				// Threshold weight
+tmpy = weight				// Weight of characters on top
+IfXIsLessThanY				// Open it
+  SetTargetToWhoeverBumped		  //
+  tmpargument = passage
+  IfPassageOpen
+    DoNothing
+  Else
+    IfStateIs0
+      tmpargument = [KEYE]	  //Only for staff key
+      CostTargetItemID			  // Check for Key
+        tmpargument = [OPEN]
+        IssueOrder				    //
+
+        //Award some xp
+        tmpargument = 10
+        tmpdistance = EXPSECRET
+        GiveExperienceToTarget
+
+        //Animations and stuff
+        tmpargument = ACTIONMG		    //
+        DoAction				    //
+        KeepAction			      // Make it stay on last frame
+        tmpargument = 0			      //
+        SetBumpHeight			      //
+
+        //Message
+        tmpargument = 0			      //
+        SendMessageNear			      //
+        PlaySound
+        
+        //This button is all used up!
+        tmpargument = 1
+        SetState
+        
+End					// Finished with this character

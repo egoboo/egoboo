@@ -1,0 +1,79 @@
+//Spawn gass clouds once in a while
+IfTimeOut
+  tmpargument = rand % 50 + 35
+  SetTime
+  
+  tmpargument = 0
+  tmpdistance = 0
+  tmpx = selfspawnx
+  tmpy = selfspawny
+  SpawnExactParticle
+  
+  //This spawns the elemental staff when all creeps are dead
+  IfStateIs0
+    tmpx = selfmorale
+    tmpy = 0                            //All but we are dead
+    IfXIsEqualToY
+      tmpargument = 88                  //Spawn the elemental staff
+      tmpx = selfspawnx
+      tmpy = selfspawny
+      tmpdistance = 0
+      tmpturn = rand
+      SpawnExactCharacterXYZ
+        tmpargument = 1
+        SetState                         //Don't repeat
+        tmpargument = 0
+        SetChildContent                  //Make the staff look like the correct element
+  
+//Do rocks and shrooms
+IfSpawned
+  tmpdistance = 0
+  
+  //Shrooms 1
+  tmpargument = 2
+  tmpx = rand % 2024 + selfspawnx - 1024
+  tmpy = rand % 2024 + selfspawny - 1024
+  SpawnExactParticle
+  tmpx = rand % 2024 + selfspawnx - 1024
+  tmpy = rand % 2024 + selfspawny - 1024
+  SpawnExactParticle
+  tmpx = rand % 2024 + selfspawnx - 1024
+  tmpy = rand % 2024 + selfspawny - 1024
+  SpawnExactParticle
+  tmpx = rand % 2024 + selfspawnx - 1024
+  tmpy = rand % 2024 + selfspawny - 1024
+  SpawnExactParticle
+  
+  //Rocks
+  tmpargument = 3
+  tmpx = rand % 2024 + selfspawnx - 1024
+  tmpy = rand % 2024 + selfspawny - 1024
+  SpawnExactParticle
+  tmpx = rand % 2024 + selfspawnx - 1024
+  tmpy = rand % 2024 + selfspawny - 1024
+  SpawnExactParticle
+  tmpx = rand % 2024 + selfspawnx - 1024
+  tmpy = rand % 2024 + selfspawny - 1024
+  SpawnExactParticle
+  tmpx = rand % 2024 + selfspawnx - 1024
+  tmpy = rand % 2024 + selfspawny - 1024
+  SpawnExactParticle
+  
+  //Shrooms 2
+  tmpargument = 4
+  tmpx = rand % 2024 + selfspawnx - 1024
+  tmpy = rand % 2024 + selfspawny - 1024
+  SpawnExactParticle
+  tmpx = rand % 2024 + selfspawnx - 1024
+  tmpy = rand % 2024 + selfspawny - 1024
+  SpawnExactParticle
+  tmpx = rand % 2024 + selfspawnx - 1024
+  tmpy = rand % 2024 + selfspawny - 1024
+  SpawnExactParticle
+  tmpx = rand % 2024 + selfspawnx - 1024
+  tmpy = rand % 2024 + selfspawny - 1024
+  SpawnExactParticle
+
+//------------------------------------------------------------------------------------
+End					// All done
+//------------------------------------------------------------------------------------

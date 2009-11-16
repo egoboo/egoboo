@@ -1,0 +1,5 @@
+Message 0: You_step_into_the_glowing_portal_leaving_the_vanquished_Elemental_Demon
+Message 1: _behind._You_prepeare_yourself_for_whatever_will_greet_you_on_the_next_
+Message 2: level._Maybe_this_is_where_The_Imprisoned_One_is_chained?_
+Message 3: %#You_have_%Y_minutes_and_%X_seconds_left_before_The_Imprisoned_
+Message 4: One_breaks_free!

@@ -1,0 +1,246 @@
+//-------------------------------------------------------------------------------------------------
+IfSpawned
+  tmpargument = STATEGUARD
+  SetState
+
+  //Wait before talking
+  tmpargument = 200
+  SetTime
+  
+  //Start with random elemental type
+  tmpargument = rand % 4
+  ChangeArmor
+  
+  //Make him invincible
+  EnableInvictus
+  
+//------------------------------------------------------------------------------
+//Backstab deals extra damage
+IfBackstabbed
+  SetTargetToWhoeverAttacked
+  GetDamageType
+  tmpdistance = tmpargument       //Same damage type as the stab
+  tmpargument = targetdex         //+1 damage per dex
+  TargetDamageSelf
+  tmpargument = 16
+  SendMessageNear
+
+//-------------------------------------------------------------------------------------------------
+//Another staff key unlocked
+IfOrdered
+  tmpx = selforder
+  tmpy = [OPEN]
+  IfXIsEqualToY
+    GetXY
+    tmpx = tmpx + 1
+    SetXY
+  
+    //All staffs in place?
+    tmpargument = 0
+    GetXY
+    tmpy = 4
+    IfXIsEqualToY
+      tmpargument = 75
+      SetTime
+      tmpargument = 8     //Prepeare the attack speech
+      SetContent
+    Else
+      SendMessageNear
+      tmpargument = 0
+      tmpargument = 7
+      PlaySound
+      tmpargument = 200
+      SetTime                 //Another one in place
+    
+//-------------------------------------------------------------------------------------------------
+//Change skin
+tmpargument = STATEGUARD
+IfStateIsNot
+  tmpx = selfcontent
+  tmpy = 0
+  IfXIsEqualToY
+    //Start with random elemental type
+    SetOldTarget
+    tmpargument = rand % 4
+    ChangeArmor
+    tmpargument = DAMAGEEVIL + tmpargument
+    SetDamageType
+    SetTargetToSelf
+    tmpargument = 12 + targetarmor
+    SendMessageNear
+    tmpargument = 250   //5 seconds before next change
+    SetContent
+    SetTargetToOldTarget
+  Else
+    tmpargument = selfcontent - 1
+    SetContent
+      
+//-------------------------------------------------------------------------------------------------
+//No need to hunt the target anymore
+IfTargetKilled
+  IfStateIsCombat
+    tmpargument = STATEWANDER
+    SetState
+  
+//-------------------------------------------------------------------------------------------------
+//The AI loop  
+IfTimeOut
+  
+  //Imprisoned
+  IfStateIsGuard
+    tmpargument = 250
+    SetTime
+
+    //Handle talking
+    tmpargument = [NONE]
+    tmpdistance = BLAHENEMIES + BLAHPLAYERS
+    SetTargetToWideBlahID                       //SetTargetToWidePlayer
+      SetTurnModeToWatchTarget
+     
+      //blah blah blah
+      tmpargument = selfcontent
+      SendMessageNear
+      PlayFullSound
+      tmpargument = selfcontent + 1
+      SetContent
+      
+      //Stop here
+      tmpargument = 6
+      IfContentIs
+        tmpargument = 4
+        SetContent
+        tmpargument = 800
+        SetTime               //Long cooldown
+  
+      //Start the combat!
+      tmpargument = 10
+      IfContentIs
+        tmpargument = 20
+        tmpdistance = 0
+        PlayMusic
+        DisableInvictus
+        tmpargument = STATECOMBAT
+        SetState
+    
+  //Wandering around
+  IfStateIsWander
+    SetTargetToSelf
+    SetOldTarget                //We forgot our previous enemy already
+    tmpargument = 40
+    SetTime
+    tmpx = rand & 1023 + selfspawnx - 512
+    tmpy = rand & 1023 + selfspawny - 512
+    ClearWaypoints
+    AddWaypoint
+    
+    //Keep watch
+    SetTargetToWideEnemy
+      IfFacingTarget
+        tmpargument = STATECOMBAT
+        SetState
+  
+  //In combat!
+  IfStateIsCombat
+    tmpargument = rand & 15 + 10
+    SetTime
+    
+    //Look around for players
+    SetTurnModeToVelocity
+    SetTargetToWideEnemy
+      IfFacingTarget
+        IfTargetIsOldTarget
+          DoNothing                     //We are already engaging them
+        Else
+          tmpargument = rand & 1 + 13   //Charge growl
+          PlaySound
+          SetOldTarget                      //Remember them for next time
+      Else
+        SetTargetToOldTarget
+    
+    //Did we see them?
+    IfTargetIsOnHatedTeam
+      tmpx = targetx
+      tmpy = targety
+      ClearWaypoints
+      AddWaypoint
+
+      //Attack
+      tmpx = targetdistance
+      tmpy = 250
+      IfXIsLessThanY
+        IfFacingTarget
+          tmpargument = ACTIONUA
+          DoAction
+            tmpargument = rand & 31 + 50
+            SetReloadTime
+            tmpargument = rand & 511 + 512    //2-4 damage
+            DamageTarget
+    Else
+      //Where did they go?
+      tmpargument = 15
+      PlaySound
+      tmpargument = 17
+      SendMessageNear
+      tmpargument = STATEWANDER
+      SetState
+      
+//-------------------------------------------------------------------------------------------------
+//Obstacles
+IfBumped
+  SetTargetToWhoeverBumped
+  IfTargetIsOnHatedTeam
+    tmpargument = STATECOMBAT
+    SetState
+  Else
+    tmpx = rand & 511 + targetx - 256
+    tmpy = rand & 511 + targety - 256
+    ClearWaypoints
+    AddWaypoint
+    SetTargetToOldTarget
+  
+//-------------------------------------------------------------------------------------------------
+//Ouch
+IfAttacked
+  tmpargument = rand & 1 + 11
+  PlaySound
+  
+  SetTargetToWhoeverAttacked
+  IfTargetIsOnHatedTeam
+    tmpargument = STATECOMBAT
+    SetState
+  
+//-------------------------------------------------------------------------------------------------
+//All dead out
+IfKilled
+  
+  //Death cry
+  tmpargument = 16
+  PlaySound
+  
+  //Drop any cash
+  tmpargument = selfmoney
+  DropMoney
+  
+  //Handle messages
+  IfTargetIsSelf
+    tmpargument = 11
+  Else
+    tmpargument = 10
+  SendMessageNear
+  
+  //Victory tune
+  tmpargument = 14
+  tmpdistance = 0
+  PlayMusic
+  
+  //Handle spawning of the next portal
+  tmpargument = 86
+  tmpdistance = 0
+  tmpturn = 16000
+  tmpx = 37*128
+  tmpy = 36*128
+  SpawnExactCharacterXYZ
+  
+//-------------------------------------------------------------------------------------------------
+End
+//-------------------------------------------------------------------------------------------------

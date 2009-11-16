@@ -1,0 +1,81 @@
+// Make it stay open or close
+IfSpawned
+  KeepAction
+  tmpargument = passage
+  ClosePassage
+
+//Open door and close it
+IfTimeOut
+  KeepAction
+  tmpargument = 10
+  SetTime
+  tmpargument = passage + 1
+  SetTargetToWhoeverIsInPassage
+    IfTargetCanOpenStuff	//Only open for intelligent creatures
+      tmpargument = 0
+      IfArmorIs		//Only open unlocked doors
+        tmpargument = passage
+        OpenPassage
+      Else
+        IfTargetIsAPlayer
+          tmpargument = passage + 1
+          tmpdistance = [KEYA]
+          SetTargetToPassageID
+            tmpargument = [KEYA]
+            CostTargetItemID
+              tmpargument = 2
+              PlaySound
+              tmpargument = 0
+              SendMessageNear
+              tmpargument = passage
+              OpenPassage
+              
+              //Give them some xp
+              tmpargument = passage + 1
+              SetTargetToWhoeverIsInPassage
+              tmpargument = 10
+              tmpdistance = EXPSECRET
+              GiveExperienceToTarget
+              tmpargument = 0
+              SendMessageNear
+          Else
+            tmpargument = 1
+            SendMessageNear
+            tmpargument = 300
+            SetTime
+  Else
+    tmpargument = 0
+    IfArmorIs			//Only close unlocked doors
+      tmpargument = passage
+      ClosePassage
+
+//Magic unlock
+IfOrdered
+  tmpx = selforder
+  tmpy = 491  // The unique code for an unlock order
+  IfXIsEqualToY
+    tmpargument = 3
+    SendMessageNear
+
+// Handle the animation and sound
+tmpargument = passage 	// Is the passage clear?
+IfPassageOpen			// 
+  tmpargument = 0		  //
+  IfStateIs			  // State 0 ( Closed )
+    tmpargument = ACTIONMG	    //
+    DoAction			    //
+      tmpargument = 1		      // Open it
+      SetState			      //
+      tmpargument = 0		      //
+      PlaySound			      //
+Else
+  tmpargument = 1		  //
+  IfStateIs			  // State 1 ( Open )
+    tmpargument = ACTIONMJ	    //
+    DoAction			    //
+      tmpargument = 0		      // Close it
+      SetState			      //
+      tmpargument = 1		      //
+      PlaySound			      //
+
+End				// Finished with this character

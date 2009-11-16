@@ -1,0 +1,22 @@
+IfSpawned
+  tmpargument = 50
+  SetTime  
+  
+  tmpargument = 0
+  PlaySoundLooped
+    
+  tmpargument = ACTIONMJ
+  DoAction
+  KeepAction
+  
+  //So that orders are properly issued
+  JoinNullTeam
+
+IfBumped
+  SetTargetToWhoeverBumped
+  IfTargetIsAPlayer
+    IfTimeOut
+      tmpargument = [BEAT]
+      IssueOrder
+
+End

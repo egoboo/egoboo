@@ -1,0 +1,193 @@
+//------------------------------------------------------------------------------
+//Backstab deals extra damage
+IfBackstabbed
+  SetTargetToWhoeverAttacked
+  GetDamageType
+  tmpdistance = tmpargument       //Same damage type as the stab
+  tmpargument = targetdex         //+1 damage per dex
+  TargetDamageSelf
+  tmpargument = 6
+  SendMessageNear
+
+//------------------------------------------------------------------------------
+// ZZ> Handle normal state
+IfStateIs0
+  IfAtLastWaypoint
+//    tmpturn = rand
+//    tmpx = selfspawnx
+//    tmpy = selfspawny
+//    tmpdistance = 200
+//    Compass
+    tmpx = rand % 640 + 6976
+    tmpy = rand % 640 + 2112
+    ClearWaypoints
+    AddWaypoint
+  IfBumped
+    SetTargetToWhoeverBumped
+    IfTargetIsOnHatedTeam
+      IfFacingTarget
+        // Decide which leg to kick
+        tmpargument = LATCHLEFT
+        tmpx = targetturnto - selfturn
+        tmpy = 0
+        IfXIsMoreThanY
+          tmpargument = LATCHRIGHT
+        PressLatchButton
+      Else
+        tmpx = targetx
+        tmpy = targety
+        ClearWaypoints
+        AddWaypoint
+    Else
+      tmpx = rand & 511 - 256 + selfx
+      tmpy = rand & 511 - 256 + selfy
+      tmpdistance = 100
+      tmpturn = targetturnto + 32768
+      Compass
+      ClearWaypoints
+      AddWaypoint
+      SetTargetToOldTarget
+  IfTimeOut
+    SetTargetToWideEnemy
+      IfFacingTarget
+        tmpx = targetdistance
+        tmpy = 100
+        IfXIsLessThanY
+          // Decide which leg to kick
+          tmpargument = LATCHLEFT
+          tmpx = targetturnto - selfturn
+          tmpy = 0
+          IfXIsMoreThanY
+            tmpargument = LATCHRIGHT
+          PressLatchButton
+      Else
+        tmpx = targetx
+        tmpy = targety
+        tmpturn = targetturnto
+        tmpdistance = 200
+        Compass
+        ClearWaypoints
+        AddWaypoint
+    tmpargument = 20
+    SetTime
+
+//------------------------------------------------------------------------------
+// ZZ> Handle death by sending a message and other stuff
+IfKilled
+  // Make sure it's stone...
+  DisaffirmCharacter
+  tmpargument = 1
+  ChangeArmor
+
+  tmpargument = 1
+  PlaySound
+  tmpargument = MESSAGEDEATH
+  IfTargetIsOnSameTeam
+    tmpargument = MESSAGEFRAG
+    IfTargetIsSelf
+      tmpargument = MESSAGEACCIDENT
+  SendMessageNear
+
+  // Drop goodies
+  tmpargument = selfmoney
+  DropMoney
+  DropKeys
+
+  // Make smoke
+  SpawnPoof
+
+//------------------------------------------------------------------------------
+// ZZ> For helper AIs
+IfLeaderKilled
+  BecomeLeader
+
+//------------------------------------------------------------------------------
+// ZZ> Handle being attacked by blocking or countering or running away
+IfAttacked
+  // Turn to stone
+  IfStateIs0
+    tmpx = selflife
+    tmpy = 2560
+    IfXIsLessThanY
+      // Remove poison
+      SetTargetToSelf
+      tmpargument = 4
+      HealTarget
+      BlackTarget
+      SetTargetToOldTarget
+
+      //Tell the players what to do
+      tmpargument = 7
+      SendMessageNear
+
+      tmpargument = 1
+      SetState
+      tmpargument = 1
+      ChangeArmor
+      tmpargument = ACTIONMK
+      DoActionOverride
+      KeepAction
+      tmpargument = 5
+      tmpdistance = 11025
+      PlaySound
+    // Make blud
+    Else
+      // Fire Bonus damage
+      GetDamageType
+      tmpx = tmpargument
+      tmpy = DAMAGEFIRE
+      IfXIsEqualToY
+        // Permanent life loss from fire
+        SetOldTarget
+        SetTargetToSelf
+        tmpargument = 0 - 1024
+        GiveLifeToTarget
+        SetTargetToOldTarget
+        tmpargument = 5
+        SendMessageNear
+
+      tmpargument = 2
+      tmpdistance = rand & 2047 + 6000
+      PlaySound
+      GetDamageType
+      tmpx = tmpargument
+      tmpy = DAMAGEHOLY
+      IfXIsLessThanY
+        tmpx = selfx
+        tmpy = selfy
+        tmpdistance = selfz
+        tmpargument = 3
+        SpawnExactParticle
+  // Make dust
+  Else
+    tmpargument = 4
+    tmpdistance = rand & 2047 + 10000
+    PlaySound
+    DisaffirmCharacter
+    GetDamageType
+    tmpx = tmpargument
+    tmpy = DAMAGEHOLY
+    IfXIsLessThanY
+      tmpx = selfx
+      tmpy = selfy
+      tmpdistance = selfz
+      tmpargument = 2
+      SpawnExactParticle
+
+//------------------------------------------------------------------------------
+// ZZ> Handle stone state
+IfStateIs1
+  tmpx = selflife
+  tmpy = 5120
+  IfXIsMoreThanY
+    tmpargument = 0
+    ChangeArmor
+    tmpargument = 0
+    SetState
+    tmpargument = ACTIONMJ
+    DoActionOverride
+    UnkeepAction
+
+//------------------------------------------------------------------------------
+End
+//------------------------------------------------------------------------------

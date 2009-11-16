@@ -1,0 +1,11 @@
+// This file contains passage rectangles, which are areas that behave like
+// an invisible wall when closed or a floor when open.  Passages are used
+// primarily in doors, but could have other uses.
+//                   TopleftXY  BottomrightXY  Open    ShootThrough  SlippyClose
+
+00 SteamPipe1:         53 16      54 17          T       T             F
+01 SteamPipe2:         51 9       52 10          T       T             F
+02 SteamPipe3:         57 10      58 11          T       T             F
+03 SteamPipe4:         62 16      63 17          T       T             F
+04 SteamPipe5:         58 20      59 21          T       T             F
+05 DemonPrison:        29 34      32 37          F       F             F

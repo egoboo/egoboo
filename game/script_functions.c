@@ -3789,7 +3789,7 @@ Uint8 scr_PlaySoundLooped( script_state_t * pstate, ai_state_t * pself )
         Mix_Chunk * playing_chunk = NULL;
 
         // check whatever might be playing on the channel now
-        if ( -1 != pchr->loopedsound_channel )
+        if ( INVALID_SOUND != pchr->loopedsound_channel )
         {
             playing_chunk = Mix_GetChunk( pchr->loopedsound_channel );
         }

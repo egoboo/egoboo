@@ -1,0 +1,22 @@
+IfSpawned
+  tmpargument = 50
+  SetTime  
+  
+  tmpargument = 0
+  PlaySoundLooped
+    
+  tmpargument = ACTIONMJ
+  DoAction
+  KeepAction
+
+IfBumped
+  SetTargetToWhoeverBumped
+  IfTargetIsAPlayer
+    IfTimeOut
+      tmpargument = 50
+      SetTime
+      tmpargument = 0
+      SendMessageNear
+    
+    
+End

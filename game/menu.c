@@ -1129,8 +1129,8 @@ bool_t doChoosePlayer_show_stats( int player, int mode, int x, int y, int width,
     }
 
     // do the actual display
-    x1 = x + 10;
-    y1 = y + 10;
+    x1 = x + 25;
+    y1 = y + 25;
     if ( player >= 0 && objects.count > 0 )
     {
         Uint16 icap = objects.pro_data[0].cap_ref;
@@ -1523,17 +1523,17 @@ int doChoosePlayer( float deltaTime )
                 {
                     // load and display the new player data
                     new_player = bfalse;
-                    doChoosePlayer_show_stats( last_player, 0, GFX_WIDTH - 400, 50, 350, GFX_HEIGHT - 100 );
+                    doChoosePlayer_show_stats( last_player, 0, GFX_WIDTH - 400, 10, 350, GFX_HEIGHT - 60 );
                 }
                 else
                 {
                     // just display the new player data
-                    doChoosePlayer_show_stats( last_player, 2, GFX_WIDTH - 400, 50, 350, GFX_HEIGHT - 100 );
+                    doChoosePlayer_show_stats( last_player, 2, GFX_WIDTH - 400, 10, 350, GFX_HEIGHT - 60 );
                 }
             }
             else
             {
-                doChoosePlayer_show_stats( last_player, 1, GFX_WIDTH - 100, 50, 100, GFX_HEIGHT - 100 );
+                doChoosePlayer_show_stats( last_player, 1, GFX_WIDTH - 100, 10, 100, GFX_HEIGHT - 60 );
             }
 
             // tool-tip text

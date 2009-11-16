@@ -1,0 +1,202 @@
+//------------------------------------------------------------------------------
+// ZZ> Handle death by sending a message and other stuff
+IfKilled
+  // Spit out text
+  tmpargument = 0
+  IfArmorIs
+    DoNothing
+  Else
+    tmpargument = 4
+  IfTargetIsOnSameTeam
+    tmpargument = 1		//Friendly fire
+    IfTargetIsSelf
+      tmpargument = 2		//Sucide!
+  SendMessageNear
+
+  // Drop goodies
+  tmpargument = selfmoney
+  DropMoney
+
+  // Make the character body
+  tmpargument = 45
+  SetBumpHeight
+
+  //Sound
+  tmpargument = 1
+  PlaySound
+  
+  //Award extra xp for armored minotores
+  tmpargument = 1
+  IfArmorIs
+    tmpargument = 20
+    tmpdistance = EXPKILL
+    GiveExperienceToTarget
+
+//------------------------------------------------------------------------------
+IfTimeOut
+
+  //Dont flock
+  SetOldTarget
+  SetTargetToNearestFriend
+    tmpx = targetdistance
+    tmpy = 300
+    IfXIsLessThanY
+      tmpturn = targetturnfrom
+      tmpdistance = 200
+      tmpx = rand & 1023 + targetx - 511
+      tmpy = rand & 1023 + targety - 511
+      Compass
+      ClearWaypoints
+      AddWaypoint
+  SetTargetToOldTarget
+
+  //Guard
+  IfStateIs0
+    SetTurnModeToVelocity
+    SetTargetToWideEnemy	//Enemy found, target him
+      tmpargument = 1
+      SetState 		//and charge
+      tmpargument = 2
+      PlayFullSound
+      tmpargument = 50
+      SetTime
+    Else			//Circle around (guard)
+      tmpx = rand & 511 + selfspawnx - 255
+      tmpy = rand & 511 + selfspawny - 255
+      ClearWaypoints
+      AddWaypoint
+      tmpargument = 50
+      SetSpeedPercent
+      tmpargument = 20
+      SetTime
+
+  //Charge
+  IfStateIs1
+    SetTurnModeToWatchTarget
+    tmpx = targetdistance
+    tmpy = 128*4
+    IfXIsLessThanY
+      tmpargument = 2
+      SetState		//Melee
+    Else				//Charge towards enemy
+      tmpy = 128*7
+      IfXIsLessThanY
+        tmpx = targetx
+        tmpy = targety
+        tmpturn = targetturnto
+        tmpdistance = 1500
+        Compass
+        ClearWaypoints
+        AddWaypoint
+        tmpargument = 250
+        SetSpeedPercent
+      Else
+        tmpx = rand & 1023 + targetx - 512    //Tactic approach
+        tmpy = rand & 1023 + targety - 512
+        tmpturn = targetturnto
+        tmpdistance = 600
+        Compass
+        ClearWaypoints
+        AddWaypoint
+        tmpargument = 100
+        SetSpeedPercent
+
+      tmpargument = rand & 31 + 40
+      SetTime
+
+    SetTargetToWideEnemy	//Enemy to far away?
+      DoNothing		//Nope
+    Else
+      tmpargument = 0 		//Yep return to guarding
+      SetState
+      tmpargument = 20
+      SetTime
+
+  //Combat
+  IfStateIs2
+    SetTurnModeToVelocity
+    tmpx = targetdistance
+    tmpy = 250
+    IfXIsLessThanY             // Close enough to swing...
+      IfFacingTarget            // If he is facing his enemy
+        IfHoldingMeleeWeapon
+          PressLatchButton
+
+    //Enemy to far away?
+    tmpx = targetdistance
+    tmpy = 800
+    IfXIsMoreThanY
+      tmpargument = 1 		//Charge him!
+      SetState
+      tmpargument = 2
+      PlayFullSound
+
+    //Move towards target
+    tmpargument = 50
+    SetSpeedPercent
+    tmpx = targetx
+    tmpy = targety
+    tmpdistance = 800
+    tmpturn = targetturnto
+    Compass
+    ClearWaypoints
+    AddWaypoint
+    tmpargument = rand & 31 + 20
+    SetTime
+
+//------------------------------------------------------------------------------
+//Handle being attacked by countering
+IfAttacked
+  SetTargetToWhoeverAttacked
+  IfTargetIsOnHatedTeam
+    IfStateIs0		//If not already, engage in combat
+      tmpargument = 1
+      SetState
+    tmpargument = rand & 2 + 3
+    PlaySound		//Ouch sound
+  Else
+    SetTargetToOldTarget
+
+//Backstab deals extra damage
+IfBackstabbed
+  SetTargetToWhoeverAttacked
+  GetDamageType
+  tmpdistance = tmpargument       //Same damage type as the stab
+  tmpargument = targetdex         //+1 damage per dex
+  TargetDamageSelf
+  tmpargument = 3
+  SendMessageNear
+
+//------------------------------------------------------------------------------
+//Enemy is defeated
+IfTargetKilled
+  SetTargetToWideEnemy
+    tmpargument = 2
+  Else
+    tmpargument = 0
+  SetState
+
+//------------------------------------------------------------------------------
+//Scuttle away or become angry
+IfBumped
+  SetTargetToWhoeverBumped
+  IfTargetIsOnHatedTeam
+    //Charging
+    IfStateIs1
+      tmpargument = 2
+      SetState
+      tmpargument = 0
+      SetTime
+  Else
+    tmpturn = targetturnfrom
+    tmpdistance = 200
+    tmpx = rand & 1023 + targetx - 511
+    tmpy = rand & 1023 + targety - 511
+    Compass
+    ClearWaypoints
+    AddWaypoint
+    SetTargetToOldTarget
+
+//------------------------------------------------------------------------------
+End
+//------------------------------------------------------------------------------

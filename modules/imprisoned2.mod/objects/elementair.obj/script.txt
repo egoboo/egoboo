@@ -1,0 +1,182 @@
+//This handles steam and the rest of the air chamber
+IfTimeOut
+  tmpargument = rand % 100 + 75
+  SetTime
+  
+  //This spawns the elemental staff when all creeps are dead
+  IfStateIs0
+    tmpx = selfmorale
+    tmpy = 0                            //All but we are dead
+    IfXIsEqualToY
+      tmpargument = 88                  //Spawn the elemental staff
+      tmpx = selfspawnx
+      tmpy = selfspawny
+      tmpdistance = 0
+      tmpturn = rand
+      SpawnExactCharacterXYZ
+        tmpargument = 1
+        SetState                         //Don't repeat
+        tmpargument = 3
+        SetChildContent                  //Make the staff look like the correct element
+  
+  tmpargument = 0
+  SetTargetToWhoeverIsInPassage
+    tmpargument = 7000
+    AccelerateTargetUp
+
+    //Make the steam come out of the hole
+    tmpx = targetx
+    tmpy = targety
+    tmpdistance = 0
+    tmpargument = 0
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+    
+    //Steamy sound
+    tmpargument = rand & 2
+    PlaySound
+  
+  tmpargument = 1
+  SetTargetToWhoeverIsInPassage
+    tmpargument = 7000
+    AccelerateTargetUp
+
+    //Make the steam come out of the hole
+    tmpx = targetx
+    tmpy = targety
+    tmpdistance = 0
+    tmpargument = 0
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+    
+    //Steamy sound
+    tmpargument = rand & 2
+    PlaySound
+  
+  tmpargument = 2
+  SetTargetToWhoeverIsInPassage
+    tmpargument = 7000
+    AccelerateTargetUp
+
+    //Make the steam come out of the hole
+    tmpx = targetx
+    tmpy = targety
+    tmpdistance = 0
+    tmpargument = 0
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+    
+    //Steamy sound
+    tmpargument = rand & 2
+    PlaySound
+  
+  tmpargument = 3
+  SetTargetToWhoeverIsInPassage
+    tmpargument = 7000
+    AccelerateTargetUp
+
+    //Make the steam come out of the hole
+    tmpx = targetx
+    tmpy = targety
+    tmpdistance = 0
+    tmpargument = 0
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+    
+    //Steamy sound
+    tmpargument = rand & 2
+    PlaySound
+  
+  tmpargument = 4
+  SetTargetToWhoeverIsInPassage
+    tmpargument = 7000
+    AccelerateTargetUp
+
+    //Make the steam come out of the hole
+    tmpx = targetx
+    tmpy = targety
+    tmpdistance = 0
+    tmpargument = 0
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+    
+    //Steamy sound
+    tmpargument = rand & 2
+    PlaySound
+
+//Additional steam that does nothing except look cool
+tmpx = selfcontent
+tmpy = 0
+IfXIsEqualToY
+
+  //Randomize where the steam is to appear
+  tmpturn = selfstate                                 //remember our state
+  tmpargument = rand % 5
+  SetState
+  IfStateIs0
+    tmpx = 53*128+64
+    tmpy = 16*128+64
+  IfStateIs1
+    tmpx = 51*128+64
+    tmpy = 9*128+64
+  IfStateIs2
+    tmpx = 57*128+64
+    tmpy = 10*128+64
+  IfStateIs3
+    tmpx = 58*128+64
+    tmpy = 20*128+64
+  IfStateIs4
+    tmpx = 62*128+64
+    tmpy = 16*128+64
+  tmpargument = tmpturn
+  SetState                          //Reset to our original state again
+  
+  //Make the steam come out of the hole
+  tmpdistance = 0
+  tmpargument = 0
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+    
+  //Steamy sound
+  tmpargument = rand & 2
+  PlaySound
+  
+  tmpargument = rand % 100 + 50
+  SetContent
+Else
+  tmpargument = selfcontent - 1
+  SetContent
+  
+//------------------------------------------------------------------------------------
+End					// All done
+//------------------------------------------------------------------------------------

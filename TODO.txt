@@ -12,8 +12,6 @@ MASTER TODO LIST:
 - Game crashes when using specific texture filter modes and billboards.
 - Changing max particles while in the game causes bugs.
 - Fix squares under particle reflections
-- Some funky physics effects when hitting and killing stuff
-- Particles spawn in the wrong Z direction
 - Objects are often partly under the mesh now because they no longer float above it.
 
 EGOBOO AWARDS:

@@ -1,0 +1,35 @@
+// ZZ> This function makes an item fall to the floor when spawned
+IfSpawned
+  SetTurnModeToSpin
+  GetContent              //Make it look like the correct staff type
+  ChangeArmor
+  tmpargument = DAMAGEEVIL + selfcontent
+  SetDamageType           //Make the staff deal appropiate damage type
+  
+  //Quest item, make noise
+  tmpargument = 2
+  PlayFullSound
+  
+IfTakenOut
+  ReaffirmCharacter
+IfDropped				// Make it lie on floor
+  KeepAction				  //
+IfHitGround				// Make a sound
+  tmpargument = 1			  //
+  PlaySound				  //
+IfGrabbed				// Tell them what they've won...
+  SetTargetToWhoeverIsHolding		  //
+  IfTargetIsAPlayer			  //
+    tmpargument = 0			  //
+    SendMessageNear			  //
+  SetTargetToWhoeverIsHolding
+  SetTurnModeToVelocity
+
+//Make sparklies
+IfTimeOut
+  tmpargument = selfcontent + 1
+  tmpdistance = rand % 20
+  SpawnAttachedParticle
+  tmpargument = 10
+  SetTime
+End					// All done

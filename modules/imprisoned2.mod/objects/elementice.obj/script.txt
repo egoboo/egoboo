@@ -1,0 +1,29 @@
+//Do snow
+IfTimeOut
+  tmpargument = rand & 2 + 4
+  SetTime
+  
+  tmpargument = 0
+  tmpdistance = 0
+  tmpx = rand & 255 + selfspawnx - 128
+  tmpy = rand & 255 + selfspawny - 128
+  SpawnExactParticle
+  
+  //This spawns the elemental staff when all creeps are dead
+  IfStateIs0
+    tmpx = selfmorale
+    tmpy = 0                            //All but we are dead
+    IfXIsEqualToY
+      tmpargument = 88                  //Spawn the elemental staff
+      tmpx = selfspawnx
+      tmpy = selfspawny
+      tmpdistance = 0
+      tmpturn = rand
+      SpawnExactCharacterXYZ
+        tmpargument = 1
+        SetState                         //Don't repeat
+        tmpargument = 2
+        SetChildContent                  //Make the staff look like the correct element
+//------------------------------------------------------------------------------------
+End					// All done
+//------------------------------------------------------------------------------------
