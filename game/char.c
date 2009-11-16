@@ -3530,7 +3530,7 @@ Uint16 spawn_one_character( fvec3_t pos, Uint16 profile, Uint8 team,
     // Set up position
     //pchr->pos = pos_tmp;
     //pchr->enviro.floor_level = get_chr_level( PMesh, pchr ) + RAISE;
-    pchr->enviro.floor_level = get_mesh_level( PMesh, pos_tmp.x, pos_tmp.y, pchr->waterwalk );
+    pchr->enviro.floor_level = get_mesh_level( PMesh, pos_tmp.x, pos_tmp.y, pchr->waterwalk ) + RAISE;
     if ( pos_tmp.z < pchr->enviro.floor_level ) pos_tmp.z = pchr->enviro.floor_level;
 
     pchr->pos      = pos_tmp;

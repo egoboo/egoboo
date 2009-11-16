@@ -610,7 +610,7 @@ Uint16 spawn_one_particle( fvec3_t   pos, Uint16 facing, Uint16 iprofile, Uint16
 
     // make the particle display AT LEAST one frame, regardless of how many updates
     // it has or when someone requests for it to terminate
-    pprt->time_frame  = frame_all  + 1;
+    pprt->time_frame  = frame_all;
 
     // Set onwhichfan...
     pprt->onwhichfan   = mesh_get_tile( PMesh, pprt->pos.x, pprt->pos.y );
@@ -766,36 +766,45 @@ void update_all_particles()
         }
         else if ( inwater )
         {
-            bool_t spawn_valid = bfalse;
-            Uint16 spawn_pip   = MAX_PIP;
-            fvec3_t   vtmp = VECT3( pprt->pos.x, pprt->pos.y, water.surface_level );
+            bool_t  spawn_valid = bfalse;
+            Uint16  spawn_pip   = MAX_PIP;
+            fvec3_t vtmp = VECT3( pprt->pos.x, pprt->pos.y, water.surface_level );
 
-            if ( !pprt->inwater )
+            if( MAX_CHR == pprt->owner_ref && 
+                (PIP_SPLASH == pprt->pip_ref || PIP_RIPPLE == pprt->pip_ref) )
             {
-                spawn_valid = btrue;
-
-                if ( SPRITE_SOLID == pprt->type )
-                {
-                    spawn_pip = PIP_SPLASH;
-                }
-                else
-                {
-                    spawn_pip = PIP_RIPPLE;
-                }
+                /* do not spawn anything for a splash or a ripple */
+                spawn_valid = bfalse;
             }
             else
             {
-                if ( SPRITE_SOLID == pprt->type && !ACTIVE_CHR( pprt->attachedto_ref ) )
-                {
-                    // only spawn ripples if you are touching the water surface!
-                    if ( pprt->pos.z + pprt->bumpheight > water.surface_level && pprt->pos.z - pprt->bumpheight < water.surface_level )
-                    {
-                        int ripand = ~(( ~RIPPLEAND ) << 1 );
-                        if ( 0 == (( update_wld + pprt->obj_base.guid ) & ripand ) )
-                        {
 
-                            spawn_valid = btrue;
+                if ( !pprt->inwater )
+                {
+                        if ( SPRITE_SOLID == pprt->type )
+                        {
+                            spawn_pip = PIP_SPLASH;
+                        }
+                        else
+                        {
                             spawn_pip = PIP_RIPPLE;
+                        }
+                        spawn_valid = btrue;
+                }
+                else
+                {
+                    if ( SPRITE_SOLID == pprt->type && !ACTIVE_CHR( pprt->attachedto_ref ) )
+                    {
+                        // only spawn ripples if you are touching the water surface!
+                        if ( pprt->pos.z + pprt->bumpheight > water.surface_level && pprt->pos.z - pprt->bumpheight < water.surface_level )
+                        {
+                            int ripand = ~(( ~RIPPLEAND ) << 1 );
+                            if ( 0 == (( update_wld + pprt->obj_base.guid ) & ripand ) )
+                            {
+
+                                spawn_valid = btrue;
+                                spawn_pip = PIP_RIPPLE;
+                            }
                         }
                     }
                 }
@@ -1663,11 +1672,11 @@ bool_t move_one_particle_integrate_motion( prt_t * pprt )
     LOG_NAN( pprt->pos.z );
     if ( pprt->pos.z < loc_level )
     {
+        hit_a_floor = btrue;
+
         if ( pprt->vel.z < - STOPBOUNCINGPART )
         {
-            // the particle will bounce
-            hit_a_floor = btrue;
-
+            // the particle will bounce            
             nrm_total.z -= SGN( pprt->vel.z );
             pprt->pos.z = ftmp;
         }
