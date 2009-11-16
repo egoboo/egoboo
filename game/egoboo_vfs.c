@@ -49,10 +49,7 @@
 
 typedef char VFS_PATH[VFS_MAX_PATH];
 
-#define MAX_MOUNTPOINTS 5
-
-static VFS_PATH vfs_mount_point_name[MAX_MOUNTPOINTS];
-static int      vfs_mount_point_count = 0;
+#define MAX_MOUNTINFO 128
 
 /// The bits specifying the possible errors
 enum e_vfs_error_bits
@@ -97,22 +94,39 @@ struct s_vfs_search_context
     char    ext[255];
     Uint32  bits;
 };
+typedef struct s_vfs_search_context vfs_search_context_t;
+
+struct s_vfs_path_data
+{
+    VFS_PATH mount;
+    VFS_PATH path;
+};
+typedef struct s_vfs_path_data vfs_path_data_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static struct s_vfs_search_context vfs_search_context = {NULL, NULL, EMPTY_CSTR};
+static vfs_search_context_t _vfs_search_context = {NULL, NULL, EMPTY_CSTR};
+
+static int             _vfs_mount_info_count = 0;
+static vfs_path_data_t _vfs_mount_info[MAX_MOUNTINFO];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 static void         _vfs_exit( void );
-static const char * _vfs_search( struct s_vfs_search_context * ctxt );
+static const char * _vfs_search( vfs_search_context_t * ctxt );
 static int          _vfs_vfscanf( FILE * file, const char * format, va_list args );
 
 static int          _vfs_ensure_write_directory( const char * filename, bool_t is_directory );
 static bool_t       _vfs_ensure_destination_file( const char * filename );
 
 static void _vfs_translate_error( vfs_FILE * pfile );
+
+
+static bool_t _vfs_add_mount_info( const char * mount_point, const char * local_path );
+static int    _vfs_mount_point_exists( const char * mount_point );
+static int    _vfs_mount_point_matches( const char * mount_point, const char * local_path );
+static bool_t _vfs_remove_mount_info( int cnt );
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 void vfs_init( const char * argv0 )
@@ -344,12 +358,12 @@ char * _vfs_strip_mount_point( const char * some_path )
 
     ptmp   = NULL;
     offset = 0;
-    for ( cnt = 0; cnt < vfs_mount_point_count; cnt++ )
+    for ( cnt = 0; cnt < _vfs_mount_info_count; cnt++ )
     {
-        offset = strlen( vfs_mount_point_name[cnt] );
+        offset = strlen( _vfs_mount_info[cnt].mount );
         if ( offset <= 0 ) continue;
 
-        if ( 0 == strncmp( some_path, vfs_mount_point_name[cnt], offset ) )
+        if ( 0 == strncmp( some_path, _vfs_mount_info[cnt].mount, offset ) )
         {
             stripped_pos = some_path + offset;
             break;
@@ -1313,7 +1327,7 @@ void    vfs_freeList( void * listVar )
 }
 
 //--------------------------------------------------------------------------------------------
-void _vfs_findClose( struct s_vfs_search_context * ctxt )
+void _vfs_findClose( vfs_search_context_t * ctxt )
 {
     if ( NULL == ctxt ) return;
 
@@ -1326,7 +1340,7 @@ void _vfs_findClose( struct s_vfs_search_context * ctxt )
 }
 
 //--------------------------------------------------------------------------------------------
-const char * _vfs_search( struct s_vfs_search_context * ctxt )
+const char * _vfs_search( vfs_search_context_t * ctxt )
 {
     const char * retval = NULL;
     static VFS_PATH  path_buffer = EMPTY_CSTR;
@@ -1523,17 +1537,17 @@ const char * vfs_findFirst( const char * search_path, const char * search_extens
     vfs_findClose();
 
     // grab all the files
-    vfs_search_context.file_list = vfs_enumerateFiles( vfs_convert_fname( search_path ) );
-    vfs_search_context.ptr       = NULL;
+    _vfs_search_context.file_list = vfs_enumerateFiles( vfs_convert_fname( search_path ) );
+    _vfs_search_context.ptr       = NULL;
 
     // no search list generated
-    if ( NULL == vfs_search_context.file_list )
+    if ( NULL == _vfs_search_context.file_list )
     {
         return NULL;
     }
 
     // empty search list
-    if ( NULL == *( vfs_search_context.file_list ) )
+    if ( NULL == *( _vfs_search_context.file_list ) )
     {
         vfs_findClose();
         return NULL;
@@ -1542,26 +1556,26 @@ const char * vfs_findFirst( const char * search_path, const char * search_extens
     // set the search extension
     if ( INVALID_CSTR( search_extension ) )
     {
-        vfs_search_context.ext[0] = CSTR_END;
+        _vfs_search_context.ext[0] = CSTR_END;
     }
     else
     {
-        snprintf( vfs_search_context.ext, SDL_arraysize( vfs_search_context.ext ), ".%s", search_extension );
+        snprintf( _vfs_search_context.ext, SDL_arraysize( _vfs_search_context.ext ), ".%s", search_extension );
     }
 
     // set the search path
     if ( INVALID_CSTR( search_path ) )
     {
-        vfs_search_context.path[0] = CSTR_END;
+        _vfs_search_context.path[0] = CSTR_END;
     }
     else
     {
-        strncpy( vfs_search_context.path, search_path, SDL_arraysize( vfs_search_context.path ) );
+        strncpy( _vfs_search_context.path, search_path, SDL_arraysize( _vfs_search_context.path ) );
     }
 
-    vfs_search_context.bits = search_bits;
+    _vfs_search_context.bits = search_bits;
 
-    return _vfs_search( &vfs_search_context );
+    return _vfs_search( &_vfs_search_context );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1569,18 +1583,18 @@ const char * vfs_findNext()
 {
     // if there are no files, return an error value
 
-    if ( NULL == vfs_search_context.file_list )
+    if ( NULL == _vfs_search_context.file_list )
     {
         return NULL;
     }
 
-    return _vfs_search( &vfs_search_context );
+    return _vfs_search( &_vfs_search_context );
 }
 
 //--------------------------------------------------------------------------------------------
 void vfs_findClose()
 {
-    _vfs_findClose( &vfs_search_context );
+    _vfs_findClose( &_vfs_search_context );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2003,7 +2017,7 @@ const char * vfs_getError()
 }
 
 //--------------------------------------------------------------------------------------------
-int _vfs_mount_point_name_exists( const char * mount_point )
+int _vfs_mount_point_exists( const char * mount_point )
 {
     int cnt, retval;
     char * ptmp;
@@ -2012,9 +2026,10 @@ int _vfs_mount_point_name_exists( const char * mount_point )
     retval = -1;
 
     if ( !VALID_CSTR( mount_point ) ) return retval;
+    if ( 0 == strcmp( mount_point, "/" ) ) return retval;
 
     // are there any in the list?
-    if ( 0 == vfs_mount_point_count ) return retval;
+    if ( 0 == _vfs_mount_info_count ) return retval;
 
     // strip any starting slashes
     for ( ptmp = mount_point; ptmp < mount_point + VFS_MAX_PATH; ptmp++ )
@@ -2028,9 +2043,9 @@ int _vfs_mount_point_name_exists( const char * mount_point )
     if ( INVALID_CSTR( ptmp ) ) return retval;
 
     // search for the name
-    for ( cnt = 0; cnt < vfs_mount_point_count; cnt++ )
+    for ( cnt = 0; cnt < _vfs_mount_info_count; cnt++ )
     {
-        if ( 0 == strncmp( vfs_mount_point_name[cnt], ptmp, VFS_MAX_PATH ) )
+        if ( 0 == strncmp( _vfs_mount_info[cnt].mount, mount_point, VFS_MAX_PATH ) )
         {
             retval = cnt;
             break;
@@ -2041,17 +2056,59 @@ int _vfs_mount_point_name_exists( const char * mount_point )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t _vfs_add_mount_point_name( const char * mount_point )
+int _vfs_mount_point_matches( const char * mount_point, const char * local_path )
+{
+    int cnt, retval;
+    char * ptmp;
+
+    // set to an invalid value;
+    retval = -1;
+
+    if ( !VALID_CSTR( local_path ) ) return retval;
+
+    if ( !VALID_CSTR( mount_point ) ) return retval;
+    if ( 0 == strcmp( mount_point, "/" ) ) return retval;
+
+    // are there any in the list?
+    if ( 0 == _vfs_mount_info_count ) return retval;
+
+    // strip any starting slashes
+    for ( ptmp = mount_point; ptmp < mount_point + VFS_MAX_PATH; ptmp++ )
+    {
+        if ( '/' != *ptmp && '\\' != *ptmp || '\0' == *ptmp )
+        {
+            break;
+        }
+    }
+
+    if ( INVALID_CSTR( ptmp ) ) return retval;
+
+    // search for the name
+    for ( cnt = 0; cnt < _vfs_mount_info_count; cnt++ )
+    {
+        if ( 0 == strncmp( _vfs_mount_info[cnt].mount, mount_point, VFS_MAX_PATH ) &&
+             0 == strncmp( _vfs_mount_info[cnt].path, local_path, VFS_MAX_PATH ) )
+        {
+            retval = cnt;
+            break;
+        }
+    }
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t _vfs_add_mount_info( const char * mount_point, const char * local_path )
 {
     char * ptmp;
 
     // can we add it?
-    if ( vfs_mount_point_count >= MAX_MOUNTPOINTS ) return bfalse;
+    if ( _vfs_mount_info_count >= MAX_MOUNTINFO ) return bfalse;
 
     // do we want to add it?
-    if ( !VALID_CSTR( mount_point ) ) return bfalse;
+    if ( !VALID_CSTR( local_path ) ) return bfalse;
 
-    if ( _vfs_mount_point_name_exists( mount_point ) >= 0 ) return bfalse;
+    if ( _vfs_mount_point_matches( mount_point, local_path ) >= 0 ) return bfalse;
 
     // strip any starting slashes
     for ( ptmp = mount_point; ptmp < mount_point + VFS_MAX_PATH; ptmp++ )
@@ -2065,31 +2122,29 @@ bool_t _vfs_add_mount_point_name( const char * mount_point )
     if ( '\0' == *ptmp ) return bfalse;
 
     // save the mount point in a list for later detection
-    strncpy( vfs_mount_point_name[vfs_mount_point_count], ptmp, VFS_MAX_PATH );
-    vfs_mount_point_count++;
+    strncpy( _vfs_mount_info[_vfs_mount_info_count].mount, ptmp,       VFS_MAX_PATH );
+    strncpy( _vfs_mount_info[_vfs_mount_info_count].path,  local_path, VFS_MAX_PATH );
+
+    _vfs_mount_info_count++;
 
     return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t _vfs_remove_mount_point_name( const char * mount_point )
+bool_t _vfs_remove_mount_info( int cnt )
 {
-    int cnt;
-
-    // see if we have the mount point
-    cnt = _vfs_mount_point_name_exists( mount_point );
 
     // does it exist in the list?
-    if ( cnt < 0 ) return bfalse;
+    if ( cnt < 0 || cnt > _vfs_mount_info_count ) return bfalse;
 
     // fill in the hole in the list
-    if ( vfs_mount_point_count > 1 )
+    if ( _vfs_mount_info_count > 1 )
     {
-        strncpy( vfs_mount_point_name[cnt], vfs_mount_point_name[vfs_mount_point_count-1], VFS_MAX_PATH );
+        memmove( _vfs_mount_info + cnt, _vfs_mount_info + (_vfs_mount_info_count-1), sizeof(vfs_path_data_t) );
     }
 
     // shorten the list
-    vfs_mount_point_count--;
+    _vfs_mount_info_count--;
 
     return btrue;
 }
@@ -2099,30 +2154,56 @@ int vfs_add_mount_point( const char * dirname, const char * mount_point, int app
 {
     /// @details BB@> a wrapper for PHYSFS_mount
 
+    const char * loc_dirname;
+
     if ( !VALID_CSTR( dirname ) ) return 0;
     if ( 0 == strcmp( mount_point, "/" ) ) return 0;
 
-    _vfs_add_mount_point_name( mount_point );
+    loc_dirname = vfs_convert_fname_sys( dirname );
 
-    return PHYSFS_mount( vfs_convert_fname_sys( dirname ), mount_point, append );
+    _vfs_add_mount_info( mount_point, loc_dirname );
+
+    return PHYSFS_mount( loc_dirname, mount_point, append );
 }
 
 //--------------------------------------------------------------------------------------------
 int vfs_remove_mount_point( const char * mount_point )
 {
-    /// @details BB@> a wrapper for PHYSFS_mount
+    /// @details BB@> Remove every single search path related to the given mount point.
 
-    int retval;
+    int retval, cnt;
 
     // don't allow it to remove the default directory
     if ( !VALID_CSTR( mount_point ) ) return 0;
     if ( 0 == strcmp( mount_point, "/" ) ) return 0;
 
+    // assume we are going to fail
     retval = 0;
-    if ( _vfs_remove_mount_point_name( mount_point ) )
+
+    // see if we have the mount point
+    cnt = _vfs_mount_point_exists( mount_point );
+
+    // does it exist in the list?
+    if ( cnt < 0 ) return bfalse;
+
+    while( cnt >= 0 )
     {
-        retval = PHYSFS_removeFromSearchPath( mount_point );
-    };
+        int tmp_retval;
+        // we have to use the path name to remove the search path, not the mount point name
+        tmp_retval = PHYSFS_removeFromSearchPath( _vfs_mount_info[cnt].path );
+
+        // if we succedded once, we succeeded
+        if (0 != tmp_retval)
+        {
+            retval = 1;
+
+            // remove the mount info from this index
+            // ?should it be removed if PHYSFS_removeFromSearchPath() fails?
+            _vfs_remove_mount_info( cnt );
+        }
+
+        cnt = _vfs_mount_point_exists( mount_point );
+    }
 
     return retval;
 }

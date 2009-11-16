@@ -204,6 +204,8 @@ mpd_t * mpd_load( const char *loadname, mpd_t * pmesh )
 
     if ( NULL == pmesh || INVALID_CSTR(loadname) ) return pmesh;
 
+    printf( "---- mpd_load(\"%s\",%p)\n", loadname, pmesh );
+
     pinfo = &(pmesh->info);
     pmem  = &(pmesh->mem);
 
