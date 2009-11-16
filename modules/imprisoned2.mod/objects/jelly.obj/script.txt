@@ -1,5 +1,3 @@
-JoinEvilTeam
-
 //------------------------------------------------------------------------------
 //Die truly
 IfKilled
@@ -121,10 +119,20 @@ IfTimeOut
 IfBumped
   SetTargetToWhoeverBumped
   IfTargetIsOnHatedTeam
-    tmpturn = rand % 3 - selfcontent
-    tmpargument = tmpturn * 256 + 512
-    DamageTarget
+    IfFacingTarget
+      tmpturn = rand % 3 - selfcontent
+      tmpargument = tmpturn * 256 + 512
+      DamageTarget
+      
+      //Look alive!
+      tmpargument = ACTIONME
+      DoAction
+      
+      /Acid sizzle
+      tmpargument = 1
+      PlaySound
   Else
+    //Scuttle around
     tmpx = rand & 511 + targetx - 256
     tmpy = rand & 511 + targety - 256
     ClearWaypoints

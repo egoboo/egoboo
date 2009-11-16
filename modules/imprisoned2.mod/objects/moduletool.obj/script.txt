@@ -5,8 +5,13 @@ IfSpawned
   
   ShowMap
   ShowYouAreHere
-    
-  tmpargument = 50*60*45 //45 minutes
+  
+  tmpargument = [IMPA]
+  SetTargetToNearestQuestID
+  IfTargetHasQuest                  //Get the current quest level
+    tmpargument = tmpdistance       //quest level = time left
+  Else
+    tmpargument = 50*60*40          //Default to 40 minutes
   SetContent
 
 //Update the game timer

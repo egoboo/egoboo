@@ -7211,6 +7211,44 @@ Uint8 scr_SetTargetSize( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
+Uint8 scr_set_TargetToNearestQuestID( script_state_t * pstate, ai_state_t * pself )
+{
+    // SetTargetToNearestQuestID()
+    /// @details ZF@> This function finds the NEAREST ( exact ) player who has the specified quest
+
+    SCRIPT_FUNCTION_BEGIN();
+
+	returncode = bfalse;
+
+	//A special version of the get_chr() function
+    for ( sTmp = 0; sTmp < MAXPLAYER; sTmp++ )
+    {
+        Uint16 ichr_test = PlaList[sTmp].index;
+        chr_t * ptst;
+int iTmp;
+        if ( !ACTIVE_CHR( ichr_test ) ) continue;
+        ptst = ChrList.lst + ichr_test;
+
+		//Only valid targets
+		if ( !check_target( pchr, ichr_test, TARGET_ALL, bfalse, bfalse, IDSZ_NONE, bfalse, btrue ) )
+        {
+            continue;
+        }
+
+		//Do they have the specified quest?
+		iTmp = quest_check( chr_get_dir_name( ichr_test ), pstate->argument );
+		if ( iTmp > QUEST_BEATEN )
+        {
+			pself->target = ichr_test;
+			returncode = btrue;
+        }
+    }
+
+
+    SCRIPT_FUNCTION_END();
+}
+
+//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 Uint8 _break_passage( int mesh_fx_or, int become, int frames, int starttile, int passage, int *ptilex, int *ptiley )

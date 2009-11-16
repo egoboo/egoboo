@@ -484,11 +484,12 @@ enum e_script_functions
     FSETTARGETTOCHILD,           // == 375
     FSETDAMAGETRESHOLD,          // == 376
     FACCELERATETARGETUP,         // == 377
-    FSETTARGETAMMO,              // == 278
-    FENABLEINVICTUS,             // == 279
-    FDISABLEINVICTUS,            // == 280
-    FTARGETDAMAGESELF,           // == 281
-    FSETTARGETSIZE               // == 281
+    FSETTARGETAMMO,              // == 378
+    FENABLEINVICTUS,             // == 379
+    FDISABLEINVICTUS,            // == 380
+    FTARGETDAMAGESELF,           // == 381
+    FSETTARGETSIZE,              // == 382
+    FSETTARGETTONEARESTQUESTID   // == 383
 
 };
 

@@ -65,7 +65,7 @@ bool_t quest_add_idsz( const char *player_directory, IDSZ idsz )
 }
 
 //--------------------------------------------------------------------------------------------
-Sint16 quest_modify_idsz( const char *player_directory, IDSZ idsz, Sint16 adjustment )
+int quest_modify_idsz( const char *player_directory, IDSZ idsz, int adjustment )
 {
     /// @details ZF@> This function increases or decreases a Quest IDSZ quest level by the amount determined in
     ///     adjustment. It then returns the current quest level it now has.
@@ -74,7 +74,7 @@ Sint16 quest_modify_idsz( const char *player_directory, IDSZ idsz, Sint16 adjust
     vfs_FILE *filewrite, *fileread;
     STRING newloadname, copybuffer;
     IDSZ newidsz;
-    Sint8 NewQuestLevel = QUEST_NONE, QuestLevel;
+    int NewQuestLevel = QUEST_NONE, QuestLevel;
 
     // Now check each expansion until we find correct IDSZ
     if ( quest_check( player_directory, idsz ) <= QUEST_BEATEN || adjustment == 0 )  return QUEST_NONE;
@@ -136,7 +136,7 @@ Sint16 quest_modify_idsz( const char *player_directory, IDSZ idsz, Sint16 adjust
 }
 
 //--------------------------------------------------------------------------------------------
-Sint16 quest_check( const char *player_directory, IDSZ idsz )
+int quest_check( const char *player_directory, IDSZ idsz )
 {
     /// @details ZF@> This function checks if the specified player has the IDSZ in his or her quest.txt
     /// and returns the quest level of that specific quest (Or QUEST_NONE if it is not found, QUEST_BEATEN if it is finished)
@@ -145,7 +145,7 @@ Sint16 quest_check( const char *player_directory, IDSZ idsz )
     STRING newloadname;
     IDSZ newidsz;
     bool_t foundidsz = bfalse;
-    Sint8 result = QUEST_NONE;
+    int result = QUEST_NONE;
 
     snprintf( newloadname, SDL_arraysize( newloadname ), "%s/quest.txt", player_directory );
     fileread = vfs_openRead( newloadname );
