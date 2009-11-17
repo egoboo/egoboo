@@ -117,6 +117,10 @@ EXTERN float           stabilized_fps_weight EQ( 0 );
 
 EXTERN float           est_update_time       EQ( 1.0f / TARGET_UPS );
 EXTERN float           est_max_ups           EQ( TARGET_UPS );
+EXTERN float           est_update_game_time  EQ( 1.0f / TARGET_UPS );
+EXTERN float           est_max_game_ups      EQ( TARGET_UPS );
+
+
 EXTERN Sint32          ups_clock             EQ( 0 );             ///< The number of ticks this second
 EXTERN Uint32          ups_loops             EQ( 0 );             ///< The number of frames drawn this second
 EXTERN float           stabilized_ups        EQ( TARGET_UPS );

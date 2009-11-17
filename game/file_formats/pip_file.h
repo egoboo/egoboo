@@ -185,6 +185,9 @@ struct s_pip
     dynalight_info_t dynalight;           ///< Dynamic lighting info
 
     prt_ori_t orientation;                ///< the way the particle orientation is calculated for display
+
+    int prt_request_count;                ///< a way to tell how popular this particle is
+    int prt_create_count;                 ///< if this number is significantly less than the prt_request_count, there is a problem.
 };
 
 typedef struct s_pip pip_t;

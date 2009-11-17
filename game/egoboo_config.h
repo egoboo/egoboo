@@ -63,7 +63,7 @@
 #undef  RENDER_HMAP           ///< render the mesh's heightmap?
 #undef  DEBUG_MESH_NORMALS    ///< render the mesh normals
 #define LOG_TO_CONSOLE
-#undef  DEBUG_PROFILE
+#define  DEBUG_PROFILE
 
 #undef  DEBUG_PRT_LIST
 #undef  DEBUG_ENC_LIST

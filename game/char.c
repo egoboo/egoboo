@@ -1823,6 +1823,8 @@ bool_t character_grab_stuff( Uint16 ichr_a, grip_offset_t grip_off, bool_t grab_
                 if ( ungrab_list[cnt].dist > GRABSIZE ) continue;
 
                 ichr_b = ungrab_list[cnt].ichr;
+                if( !ACTIVE_CHR(ichr_b) ) continue;
+
                 pchr_b = ChrList.lst + ichr_b;
 
                 diff = fvec3_sub( pchr_a->pos.v, pchr_b->pos.v );

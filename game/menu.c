@@ -891,7 +891,9 @@ int doChooseModule( float deltaTime )
             for ( i = startIndex, j = 0; i < ( startIndex + 3 ) && j < numValidModules; i++ )
             {
                 // Only draw valid modules
-                if ( mnu_test_by_index( validModules[i] ) )
+                // this tese is superfluous, since nothing can make it into this list
+                // unless it already passes this test
+                // if ( mnu_test_by_index( validModules[i] ) )
                 {
                     // fix the menu images in case one or more of them are undefined
                     int         imod       = validModules[i];

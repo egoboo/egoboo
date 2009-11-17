@@ -129,6 +129,7 @@ struct s_renderlist
     int     sha_count;                               ///< ..., is not reflected in the floor
     int     drf_count;                               ///< ..., draws character reflections
     int     ndr_count;                               ///< ..., draws no character reflections
+    int     wat_count;                               ///< ..., draws no character reflections
 
     Uint32  all[MAXMESHRENDER];                      ///< List of which to render, total
 
@@ -138,6 +139,7 @@ struct s_renderlist
     Uint32  drf[MAXMESHRENDER];                      ///< ..., draws character reflections
     Uint32  ndr[MAXMESHRENDER];                      ///< ..., draws no character reflections
 
+    Uint32  wat[MAXMESHRENDER];                      ///< ..., draws a water tile
 };
 typedef struct s_renderlist renderlist_t;
 

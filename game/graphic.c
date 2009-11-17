@@ -156,7 +156,7 @@ obj_registry_entity_t dolist[DOLIST_SIZE];
 bool_t           meshnotexture   = bfalse;
 Uint16           meshlasttexture = ( Uint16 )( ~0 );
 
-renderlist_t     renderlist = {0, 0, 0, 0, 0};
+renderlist_t     renderlist = {0, 0, 0, 0, 0, 0};
 
 float            light_a = 0.0f, light_d = 0.0f, light_x = 0.0f, light_y = 0.0f, light_z = 0.0f;
 //Uint8            lightdirectionlookup[65536];
@@ -963,10 +963,10 @@ int draw_one_bar( Uint8 bartype, int x, int y, int ticks, int maxticks )
     {
         barrect[0].right = BARX;
 
-        txrect.left   = tabrect[0].left   / 128.0f;
-        txrect.right  = tabrect[0].right  / 128.0f;
-        txrect.top    = tabrect[0].top    / 128.0f;
-        txrect.bottom = tabrect[0].bottom / 128.0f;
+        txrect.left   = barrect[0].left   / 128.0f;
+        txrect.right  = barrect[0].right  / 128.0f;
+        txrect.top    = barrect[0].top    / 128.0f;
+        txrect.bottom = barrect[0].bottom / 128.0f;
 
         width = barrect[0].right - barrect[0].left;
         height = barrect[0].bottom - barrect[0].top;
@@ -1387,7 +1387,7 @@ int draw_fps( int y )
         y = _draw_string_raw( 0, y, "%2.3f FPS, %2.3f UPS, Update lag = %d", stabilized_fps, stabilized_ups, update_lag );
 
 #if defined(DEBUG_PROFILE)
-        //y = _draw_string_raw( 0, y, "estimated max FPS %2.3f UPS %2.3f", est_max_fps, est_max_ups );
+        y = _draw_string_raw( 0, y, "estimated max FPS %2.3f UPS %2.3f", est_max_fps, est_max_ups );
         y = _draw_string_raw( 0, y, "gfxtime %2.4f, drawtime %2.4f", est_gfx_time, time_draw_scene );
         y = _draw_string_raw( 0, y, "init %1.4f,  mesh %1.4f, solid %1.4f", time_draw_scene_init, time_draw_scene_mesh, time_draw_scene_solid );
         y = _draw_string_raw( 0, y, "water %1.4f, trans %1.4f", time_draw_scene_water, time_draw_scene_trans );
@@ -1723,9 +1723,7 @@ void project_view( camera_t * pcam )
     }
 
     // Figure out the order of points
-    tnc = 0;
-
-    for ( cnt = 0; cnt < 4; cnt++ )
+    for ( cnt = 0, tnc = 0; cnt < 4; cnt++ )
     {
         if ( cnt != cornerlistlowtohighy[0] && cnt != cornerlistlowtohighy[3] )
         {
@@ -1983,26 +1981,20 @@ void render_water( renderlist_t * prlist )
     int cnt;
 
     // Bottom layer first
-    if ( gfx.draw_water_1 && water.layer[1].z > -water.layer[1].amp )
+    if ( gfx.draw_water_1 /* && water.layer[1].z > -water.layer[1].amp */ )
     {
-        for ( cnt = 0; cnt < prlist->all_count; cnt++ )
+        for ( cnt = 0; cnt < prlist->wat_count; cnt++ )
         {
-            if ( 0 != mesh_test_fx( PMesh, prlist->all[cnt], MPDFX_WATER ) )
-            {
-                render_water_fan( prlist->pmesh, prlist->all[cnt], 1 );
-            }
+            render_water_fan( prlist->pmesh, prlist->wat[cnt], 1 );
         }
     }
 
     // Top layer second
-    if ( gfx.draw_water_0 && water.layer[0].z > -water.layer[0].amp )
+    if ( gfx.draw_water_0 /* && water.layer[0].z > -water.layer[0].amp */ )
     {
-        for ( cnt = 0; cnt < prlist->all_count; cnt++ )
+        for ( cnt = 0; cnt < prlist->wat_count; cnt++ )
         {
-            if ( 0 != mesh_test_fx( PMesh, prlist->all[cnt], MPDFX_WATER ) )
-            {
-                render_water_fan( prlist->pmesh, prlist->all[cnt], 0 );
-            }
+            render_water_fan( prlist->pmesh, prlist->wat[cnt], 0 );
         }
     }
 }
@@ -2106,17 +2098,21 @@ void render_scene_mesh( renderlist_t * prlist )
 
     //---------------------------------------------
     // draw all tiles that do not reflect characters
-    GL_DEBUG( glDisable )( GL_BLEND );          // no transparency
-    GL_DEBUG( glDisable )( GL_CULL_FACE );
+    ATTRIB_PUSH( "render_scene_mesh() - ndr", GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
+    {
+        GL_DEBUG( glDisable )( GL_BLEND );          // GL_ENABLE_BIT - no transparency
+        GL_DEBUG( glDisable )( GL_CULL_FACE );      // GL_ENABLE_BIT - draw front and back of tiles
 
-    GL_DEBUG( glEnable )( GL_DEPTH_TEST );
-    GL_DEBUG( glDepthMask )( GL_TRUE );
+        GL_DEBUG( glEnable )( GL_DEPTH_TEST );      // GL_ENABLE_BIT - do not draw hidden surfaces
+        GL_DEBUG( glDepthMask )( GL_TRUE );         // GL_DEPTH_BUFFER_BIT - store the surface depth
 
-    GL_DEBUG( glEnable )( GL_ALPHA_TEST );      // use alpha test to allow the thatched roof tiles to look like thatch
-    GL_DEBUG( glAlphaFunc )( GL_GREATER, 0 );
+        GL_DEBUG( glEnable )( GL_ALPHA_TEST );      // GL_ENABLE_BIT - use alpha test to allow the thatched roof tiles to look like thatch
+        GL_DEBUG( glAlphaFunc )( GL_GREATER, 0 );   // GL_COLOR_BUFFER_BIT - speed-up drawing of surfaces with alpha == 0 sections
 
-    // reduce texture hashing by loading up each texture only once
-    render_fans_by_list( pmesh, prlist->ndr, prlist->ndr_count );
+        // reduce texture hashing by loading up each texture only once
+        render_fans_by_list( pmesh, prlist->ndr, prlist->ndr_count );
+    }
+    ATTRIB_POP( "render_scene_mesh() - ndr" );
 
     //--------------------------------
     // draw the reflective tiles and any reflected objects
@@ -2126,85 +2122,115 @@ void render_scene_mesh( renderlist_t * prlist )
         // draw the reflective tiles, but turn off the depth buffer
         // this blanks out any background that might've been drawn
 
-        GL_DEBUG( glEnable )( GL_DEPTH_TEST );
-        GL_DEBUG( glDepthMask )( GL_FALSE );
+        ATTRIB_PUSH( "render_scene_mesh() - drf - back", GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
+        {
+            GL_DEBUG( glEnable )( GL_DEPTH_TEST );      // GL_ENABLE_BIT - do not draw hidden surfaces
+            GL_DEBUG( glDepthMask )( GL_FALSE );        // GL_DEPTH_BUFFER_BIT - DO NOT store the surface depth
 
-        GL_DEBUG( glEnable )( GL_BLEND );
-        GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+            // allow the background to show through any holes in the floor
+            GL_DEBUG( glEnable )( GL_BLEND );                                // GL_ENABLE_BIT - allow transparent surfaces
+            GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA ); // GL_COLOR_BUFFER_BIT - use the alpha channel to modulate the transparency
 
-        render_fans_by_list( pmesh, prlist->drf, prlist->drf_count );
+            // reduce texture hashing by loading up each texture only once
+            render_fans_by_list( pmesh, prlist->drf, prlist->drf_count );
+        }
+        ATTRIB_POP( "render_scene_mesh() - drf - back" );
 
         //------------------------------
         // Render all reflected objects
-        GL_DEBUG( glEnable )( GL_BLEND );
-        GL_DEBUG( glDepthMask )( GL_TRUE );
-        GL_DEBUG( glDepthFunc )( GL_LEQUAL );
-        for ( cnt = dolist_count - 1; cnt >= 0; cnt-- )
+        ATTRIB_PUSH( "render_scene_mesh() - reflected characters",  GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_POLYGON_BIT | GL_CURRENT_BIT );
         {
-            tnc = dolist[cnt].ichr;
+            GL_DEBUG( glDepthMask )( GL_FALSE );      // GL_DEPTH_BUFFER_BIT - turn off the depth mask by default. Can cause glitches if used improperly.     
 
-            if ( TOTAL_MAX_PRT == dolist[cnt].iprt && ACTIVE_CHR( dolist[cnt].ichr ) )
+            GL_DEBUG( glEnable )( GL_DEPTH_TEST );    // GL_ENABLE_BIT - do not draw hidden surfaces
+            GL_DEBUG( glDepthFunc )( GL_LEQUAL );     // GL_DEPTH_BUFFER_BIT - surfaces must be closer to the camera to be drawn
+
+            for ( cnt = dolist_count - 1; cnt >= 0; cnt-- )
             {
-                Uint32 itile;
-
-                GL_DEBUG( glEnable )( GL_CULL_FACE );   // GL_ENABLE_BIT
-                GL_DEBUG( glFrontFace )( GL_CCW );      // GL_POLYGON_BIT
-
-                GL_DEBUG( glEnable )( GL_BLEND );
-                GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE );
-
                 tnc = dolist[cnt].ichr;
-                itile = ChrList.lst[tnc].onwhichfan;
 
-                if ( VALID_TILE( pmesh, itile ) && ( 0 != mesh_test_fx( pmesh, itile, MPDFX_DRAWREF ) ) )
+                if ( TOTAL_MAX_PRT == dolist[cnt].iprt && ACTIVE_CHR( dolist[cnt].ichr ) )
                 {
-                    GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
-                    render_one_mad_ref( tnc );
+                    Uint32 itile;
+
+                    GL_DEBUG( glEnable )( GL_CULL_FACE );   // GL_ENABLE_BIT - cull backward facing faces
+                    GL_DEBUG( glFrontFace )( GL_CCW );      // GL_POLYGON_BIT - use couter-clockwise orientation to determine backfaces
+
+                    GL_DEBUG( glEnable )( GL_BLEND );                 // GL_ENABLE_BIT - allow transparent objects
+                    GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE );  // GL_COLOR_BUFFER_BIT - use the alpha channel to modulate the transparency
+
+                    tnc = dolist[cnt].ichr;
+                    itile = ChrList.lst[tnc].onwhichfan;
+
+                    if ( VALID_TILE( pmesh, itile ) && ( 0 != mesh_test_fx( pmesh, itile, MPDFX_DRAWREF ) ) )
+                    {
+                        GL_DEBUG( glColor4f )( 1, 1, 1, 1 );          // GL_CURRENT_BIT
+                        render_one_mad_ref( tnc );
+                    }
+                }
+                else if ( MAX_CHR == dolist[cnt].ichr && DISPLAY_PRT( dolist[cnt].iprt ) )
+                {
+                    Uint32 itile;
+                    tnc = dolist[cnt].iprt;
+                    itile = PrtList.lst[tnc].onwhichfan;
+
+                    GL_DEBUG( glDisable )( GL_CULL_FACE );
+
+                    // render_one_prt_ref() actually sets its own blend function, but just to be safe
+                    GL_DEBUG( glEnable )( GL_BLEND );                    // GL_ENABLE_BIT - allow transparent objects
+                    GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE );     // GL_COLOR_BUFFER_BIT - set the default particle blending
+
+                    if ( VALID_TILE( pmesh, itile ) && ( 0 != mesh_test_fx( pmesh, itile, MPDFX_DRAWREF ) ) )
+                    {
+                        render_one_prt_ref( tnc );
+                    }
                 }
             }
-            else if ( MAX_CHR == dolist[cnt].ichr && DISPLAY_PRT( dolist[cnt].iprt ) )
-            {
-                Uint32 itile;
-                tnc = dolist[cnt].iprt;
-                itile = PrtList.lst[tnc].onwhichfan;
 
-                GL_DEBUG( glDisable )( GL_CULL_FACE );
-
-                // render_one_prt_ref() actually sets its own blend function, but just to be safe
-                GL_DEBUG( glEnable )( GL_BLEND );
-                GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE );
-
-                if ( VALID_TILE( pmesh, itile ) && ( 0 != mesh_test_fx( pmesh, itile, MPDFX_DRAWREF ) ) )
-                {
-                    render_one_prt_ref( tnc );
-                }
-            }
         }
+        ATTRIB_POP( "render_scene_mesh() - reflected characters" )
 
         //------------------------------
         // Render the shadow floors ( let everything show through )
         // turn on the depth mask, so that no objects under the floor will show through
         // this assumes that the floor is not partially transparent...
-        GL_DEBUG( glDepthMask )( GL_TRUE );
+        ATTRIB_PUSH( "render_scene_mesh() - drf - front", GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
+        {
+            GL_DEBUG( glDepthMask )( GL_TRUE );                   // GL_DEPTH_BUFFER_BIT - set the depth of these tiles
 
-        GL_DEBUG( glEnable )( GL_BLEND );
-        GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE );
+            GL_DEBUG( glEnable )( GL_BLEND );                     // GL_ENABLE_BIT
+            GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE );      // GL_COLOR_BUFFER_BIT
 
-        GL_DEBUG( glDisable )( GL_CULL_FACE );
+            GL_DEBUG( glDisable )( GL_CULL_FACE );                // GL_ENABLE_BIT - draw all faces
 
-        GL_DEBUG( glEnable )( GL_DEPTH_TEST );
-        GL_DEBUG( glDepthMask )( GL_TRUE );
+            GL_DEBUG( glEnable )( GL_DEPTH_TEST );                // GL_ENABLE_BIT - do not draw hidden surfaces
+            GL_DEBUG( glDepthFunc )( GL_LEQUAL );                 // GL_DEPTH_BUFFER_BIT
 
-        // reduce texture hashing by loading up each texture only once
-        render_fans_by_list( pmesh, prlist->drf, prlist->drf_count );
-
+            // reduce texture hashing by loading up each texture only once
+            render_fans_by_list( pmesh, prlist->drf, prlist->drf_count );
+        }
+        ATTRIB_POP( "render_scene_mesh() - drf - front" )
     }
     else
     {
         //------------------------------
         // Render the shadow floors as normal solid floors
 
-        render_fans_by_list( pmesh, prlist->drf, prlist->drf_count );
+        ATTRIB_PUSH( "render_scene_mesh() - drf - solid", GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
+        {
+            GL_DEBUG( glDisable )( GL_BLEND );          // GL_ENABLE_BIT - no transparency
+            GL_DEBUG( glDisable )( GL_CULL_FACE );      // GL_ENABLE_BIT - draw front and back of tiles
+
+            GL_DEBUG( glEnable )( GL_DEPTH_TEST );      // GL_ENABLE_BIT - do not draw hidden surfaces
+            GL_DEBUG( glDepthMask )( GL_TRUE );         // GL_DEPTH_BUFFER_BIT - store the surface depth
+
+            GL_DEBUG( glEnable )( GL_ALPHA_TEST );      // GL_ENABLE_BIT - use alpha test to allow the thatched roof tiles to look like thatch
+            GL_DEBUG( glAlphaFunc )( GL_GREATER, 0 );   // GL_COLOR_BUFFER_BIT - speed-up drawing of surfaces with alpha == 0 sections
+
+            // reduce texture hashing by loading up each texture only once
+            render_fans_by_list( pmesh, prlist->drf, prlist->drf_count );
+        }
+        ATTRIB_POP( "render_scene_mesh() - drf - solid" );
     }
 
 #if defined(RENDER_HMAP)
@@ -2218,37 +2244,37 @@ void render_scene_mesh( renderlist_t * prlist )
 
     //------------------------------
     // Render the shadows
-    if ( gfx.shaon )
-    {
-        GL_DEBUG( glDepthMask )( GL_FALSE );
-        GL_DEBUG( glEnable )( GL_DEPTH_TEST );
+    //if ( gfx.shaon )
+    //{
+    //    GL_DEBUG( glDepthMask )( GL_FALSE );
+    //    GL_DEBUG( glEnable )( GL_DEPTH_TEST );
 
-        GL_DEBUG( glEnable )( GL_BLEND );
-        GL_DEBUG( glBlendFunc )( GL_ZERO, GL_ONE_MINUS_SRC_COLOR );
+    //    GL_DEBUG( glEnable )( GL_BLEND );
+    //    GL_DEBUG( glBlendFunc )( GL_ZERO, GL_ONE_MINUS_SRC_COLOR );
 
-        if ( gfx.shasprite )
-        {
-            // Bad shadows
-            for ( cnt = 0; cnt < dolist_count; cnt++ )
-            {
-                tnc = dolist[cnt].ichr;
-                if ( 0 == ChrList.lst[tnc].shadowsize ) continue;
+    //    if ( gfx.shasprite )
+    //    {
+    //        // Bad shadows
+    //        for ( cnt = 0; cnt < dolist_count; cnt++ )
+    //        {
+    //            tnc = dolist[cnt].ichr;
+    //            if ( 0 == ChrList.lst[tnc].shadowsize ) continue;
 
-                render_bad_shadow( tnc );
-            }
-        }
-        else
-        {
-            // Good shadows for me
-            for ( cnt = 0; cnt < dolist_count; cnt++ )
-            {
-                tnc = dolist[cnt].ichr;
-                if ( 0 == ChrList.lst[tnc].shadowsize ) continue;
+    //            render_bad_shadow( tnc );
+    //        }
+    //    }
+    //    else
+    //    {
+    //        // Good shadows for me
+    //        for ( cnt = 0; cnt < dolist_count; cnt++ )
+    //        {
+    //            tnc = dolist[cnt].ichr;
+    //            if ( 0 == ChrList.lst[tnc].shadowsize ) continue;
 
-                render_shadow( tnc );
-            }
-        }
-    }
+    //            render_shadow( tnc );
+    //        }
+    //    }
+    //}
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2657,19 +2683,19 @@ void render_world( camera_t * pcam )
     {
         gfx_begin_3d( pcam );
         {
-            if ( gfx.draw_background )
-            {
-                // Render the background
-                render_world_background( TX_WATER_LOW );  // TX_WATER_LOW for waterlow.bmp
-            }
+            //if ( gfx.draw_background )
+            //{
+            //    // Render the background
+            //    render_world_background( TX_WATER_LOW );  // TX_WATER_LOW for waterlow.bmp
+            //}
 
             render_scene( PMesh, pcam );
 
             // Foreground overlay
-            if ( gfx.draw_overlay )
-            {
-                render_world_overlay( TX_WATER_TOP );  // TX_WATER_TOP is watertop.bmp
-            }
+            //if ( gfx.draw_overlay )
+            //{
+            //    render_world_overlay( TX_WATER_TOP );  // TX_WATER_TOP is watertop.bmp
+            //}
         }
         gfx_end_3d();
 
@@ -3599,7 +3625,7 @@ void render_all_billboards( camera_t * pcam )
             GL_DEBUG( glDepthFunc )( GL_LEQUAL );   // GL_DEPTH_BUFFER_BIT
             GL_DEBUG( glDisable )( GL_CULL_FACE );  // GL_ENABLE_BIT
 
-            GL_DEBUG( glEnable )( GL_BLEND );                                     // GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT
+            GL_DEBUG( glEnable )( GL_BLEND );                                     // GL_ENABLE_BIT
             GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );      // GL_COLOR_BUFFER_BIT
 
             GL_DEBUG( glColor4f )( 1.0f, 1.0f, 1.0f, 1.0f );
@@ -4138,24 +4164,27 @@ void renderlist_reset()
     renderlist.sha_count = 0;
     renderlist.drf_count = 0;
     renderlist.ndr_count = 0;
+    renderlist.wat_count = 0;
 }
 
 //--------------------------------------------------------------------------------------------
 void renderlist_make( ego_mpd_t * pmesh, camera_t * pcam )
 {
     /// @details ZZ@> This function figures out which mesh fans to draw
-    int cnt, fanx, fany;
+    int cnt, tile_x, tile_y;
     int row, run, numrow;
-    int xlist[4], ylist[4];
+    int corner_x[4], corner_y[4];
     int leftnum, leftlist[4];
     int rightnum, rightlist[4];
-    int fanrowstart[128], fanrowrun[128];
+    int rowstt[128], rowend[128];
     int x, stepx, divx, basex;
     int from, to;
 
     tile_info_t * tlist;
 
-    // reset the current renderlist
+    if( 0 != (frame_all & 7) ) return;
+
+    // reset the renderlist
     renderlist_reset();
 
     // Make sure it doesn't die ugly
@@ -4175,19 +4204,19 @@ void renderlist_make( ego_mpd_t * pmesh, camera_t * pcam )
     // Make life simpler
     for ( cnt = 0; cnt < 4; cnt++ )
     {
-        xlist[cnt] = cornerx[cornerlistlowtohighy[cnt]];
-        ylist[cnt] = cornery[cornerlistlowtohighy[cnt]];
+        corner_x[cnt] = cornerx[cornerlistlowtohighy[cnt]];
+        corner_y[cnt] = cornery[cornerlistlowtohighy[cnt]];
     }
 
     // Find the center line
-    divx = ylist[3] - ylist[0]; if ( divx < 1 ) return;
-    stepx = xlist[3] - xlist[0];
-    basex = xlist[0];
+    divx = corner_y[3] - corner_y[0]; if ( divx < 1 ) return;
+    stepx = corner_x[3] - corner_x[0];
+    basex = corner_x[0];
 
     // Find the points in each edge
     leftlist[0] = 0;  leftnum = 1;
     rightlist[0] = 0;  rightnum = 1;
-    if ( xlist[1] < ( stepx*( ylist[1] - ylist[0] ) / divx ) + basex )
+    if ( corner_x[1] < ( stepx*( corner_y[1] - corner_y[0] ) / divx ) + basex )
     {
         leftlist[leftnum] = 1;  leftnum++;
         cornerx[1] -= 512;
@@ -4197,7 +4226,7 @@ void renderlist_make( ego_mpd_t * pmesh, camera_t * pcam )
         rightlist[rightnum] = 1;  rightnum++;
         cornerx[1] += 512;
     }
-    if ( xlist[2] < ( stepx*( ylist[2] - ylist[0] ) / divx ) + basex )
+    if ( corner_x[2] < ( stepx*( corner_y[2] - corner_y[0] ) / divx ) + basex )
     {
         leftlist[leftnum] = 2;  leftnum++;
         cornerx[2] -= 512;
@@ -4211,38 +4240,37 @@ void renderlist_make( ego_mpd_t * pmesh, camera_t * pcam )
     leftlist[leftnum] = 3;  leftnum++;
     rightlist[rightnum] = 3;  rightnum++;
 
-    // Make the left edge ( rowstart )
-    fany = ylist[0] >> TILE_BITS;
+    // Make the left edge ( rowstt )
+    tile_y = corner_y[0] >> TILE_BITS;
     row = 0;
     cnt = 1;
     while ( cnt < leftnum )
     {
         from = leftlist[cnt-1];  to = leftlist[cnt];
-        x = xlist[from];
-        divx = ylist[to] - ylist[from];
+        x = corner_x[from];
+        divx = corner_y[to] - corner_y[from];
         stepx = 0;
         if ( divx > 0 )
         {
-            stepx = (( xlist[to] - xlist[from] ) << TILE_BITS ) / divx;
+            stepx = (( corner_x[to] - corner_x[from] ) << TILE_BITS ) / divx;
         }
 
         x -= 256;
-        run = ylist[to] >> TILE_BITS;
-
-        while ( fany < run )
+        run = corner_y[to] >> TILE_BITS;
+        while ( tile_y < run )
         {
-            if ( fany >= 0 && fany < pmesh->info.tiles_y )
+            if ( tile_y >= 0 && tile_y < pmesh->info.tiles_y )
             {
-                fanx = x >> TILE_BITS;
-                if ( fanx < 0 )  fanx = 0;
-                if ( fanx >= pmesh->info.tiles_x )  fanx = pmesh->info.tiles_x - 1;
+                tile_x = x >> TILE_BITS;
+                if ( tile_x < 0 )  tile_x = 0;
+                if ( tile_x >= pmesh->info.tiles_x )  tile_x = pmesh->info.tiles_x - 1;
 
-                fanrowstart[row] = fanx;
+                rowstt[row] = tile_x;
                 row++;
             }
 
             x += stepx;
-            fany++;
+            tile_y++;
         }
 
         cnt++;
@@ -4250,37 +4278,37 @@ void renderlist_make( ego_mpd_t * pmesh, camera_t * pcam )
     numrow = row;
 
     // Make the right edge ( rowrun )
-    fany = ylist[0] >> TILE_BITS;
+    tile_y = corner_y[0] >> TILE_BITS;
     row = 0;
     cnt = 1;
     while ( cnt < rightnum )
     {
         from = rightlist[cnt-1];  to = rightlist[cnt];
-        x = xlist[from];
+        x = corner_x[from];
         // x+=128;
-        divx = ylist[to] - ylist[from];
+        divx = corner_y[to] - corner_y[from];
         stepx = 0;
         if ( divx > 0 )
         {
-            stepx = (( xlist[to] - xlist[from] ) << TILE_BITS ) / divx;
+            stepx = (( corner_x[to] - corner_x[from] ) << TILE_BITS ) / divx;
         }
 
-        run = ylist[to] >> TILE_BITS;
+        run = corner_y[to] >> TILE_BITS;
 
-        while ( fany < run )
+        while ( tile_y < run )
         {
-            if ( fany >= 0 && fany < pmesh->info.tiles_y )
+            if ( tile_y >= 0 && tile_y < pmesh->info.tiles_y )
             {
-                fanx = x >> TILE_BITS;
-                if ( fanx < 0 )  fanx = 0;
-                if ( fanx >= pmesh->info.tiles_x - 1 )  fanx = pmesh->info.tiles_x - 1;// -2
+                tile_x = x >> TILE_BITS;
+                if ( tile_x < 0 )  tile_x = 0;
+                if ( tile_x >= pmesh->info.tiles_x - 1 )  tile_x = pmesh->info.tiles_x - 1;// -2
 
-                fanrowrun[row] = ABS( fanx - fanrowstart[row] ) + 1;
+                rowend[row] = tile_x;
                 row++;
             }
 
             x += stepx;
-            fany++;
+            tile_y++;
         }
 
         cnt++;
@@ -4291,18 +4319,15 @@ void renderlist_make( ego_mpd_t * pmesh, camera_t * pcam )
         log_error( "ROW error (%i, %i)\n", numrow, row );
     }
 
-    // Fill 'em up again
-    fany = ylist[0] >> TILE_BITS;
-    if ( fany < 0 ) fany = 0;
-    if ( fany >= pmesh->info.tiles_y ) fany = pmesh->info.tiles_y - 1;
-
-    for ( row = 0; row < numrow; row++, fany++ )
+    // fill the renderlist from the projected view
+    tile_y = corner_y[0] / TILE_ISIZE;
+    tile_y = CLIP( tile_y, 0, pmesh->info.tiles_y - 1 );
+    for ( row = 0; row < numrow; row++, tile_y++ )
     {
-        cnt = pmesh->gmem.tilestart[fany] + fanrowstart[row];
-
-        run = fanrowrun[row];
-        for ( fanx = 0; fanx < run && renderlist.all_count < MAXMESHRENDER; fanx++, cnt++ )
+        for ( tile_x = rowstt[row]; tile_x <= rowend[row] && renderlist.all_count < MAXMESHRENDER; tile_x++ )
         {
+            cnt = pmesh->gmem.tilestart[tile_y] + tile_x;
+
             // Put each tile in basic list
             tlist[cnt].inrenderlist = btrue;
 
@@ -4330,6 +4355,12 @@ void renderlist_make( ego_mpd_t * pmesh, camera_t * pcam )
             {
                 renderlist.ndr[renderlist.ndr_count] = cnt;
                 renderlist.ndr_count++;
+            }
+
+            if ( 0 != mesh_test_fx( pmesh, cnt, MPDFX_WATER ) )
+            {
+                renderlist.wat[renderlist.wat_count] = cnt;
+                renderlist.wat_count++;
             }
         }
     }

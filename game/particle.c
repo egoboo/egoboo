@@ -231,40 +231,132 @@ int prt_get_free( int force )
 
     int iprt;
 
-    // Return maxparticles if we can't find one
+    // Return TOTAL_MAX_PRT if we can't find one
     iprt = TOTAL_MAX_PRT;
+
+    
     if ( 0 == PrtList.free_count )
     {
         if ( force )
         {
-            // Gotta find one, so go through the list and replace a unimportant one
-            iprt = 0;
+            int found = TOTAL_MAX_PRT;
+            int min_life = 65535, min_life_idx = TOTAL_MAX_PRT;
+            int min_display = 65535, min_display_idx = TOTAL_MAX_PRT;
 
-            while ( iprt < maxparticles )
+            // Gotta find one, so go through the list and replace a unimportant one
+            for ( iprt = 0; iprt < maxparticles; iprt++ )
             {
-                if ( PrtList.lst[iprt].bumpsize == 0 )
+                bool_t was_forced = bfalse;
+                prt_t * pprt;
+
+                // Is this an invalid particle? The particle allocation count is messed up! :(
+                if( !ALLOCATED_PRT(iprt) ) 
                 {
-                    // Found one
-                    return iprt;
+                    found = iprt;
+                    break;
+                }
+                pprt = PrtList.lst + iprt;
+
+                // does it have a valid profile?
+                if( !LOADED_PIP(pprt->pip_ref) )
+                {
+                    found = iprt;
+                    free_one_particle_in_game( iprt );
+                    break;
                 }
 
-                iprt++;
+                // do not bump another 
+                was_forced = ( PipStack.lst[pprt->pip_ref].force );
+
+                if( WAITING_PRT( iprt ) )
+                {
+                    // if the particle has been "terminated" but is still waiting around, bump it to the 
+                    // front of the list
+
+                    int lifetime  = pprt->time_update - update_wld;
+                    int frametime = pprt->time_frame  - frame_all;
+                    int min_time = MIN(lifetime, frametime);
+
+                    if( min_time < MAX(min_life,min_display) )
+                    {
+                        min_life     = lifetime;
+                        min_life_idx = iprt;
+
+                        min_display     = frametime;
+                        min_display_idx = iprt;
+                    }
+                }
+                else if( !was_forced )
+                {
+                    int lifetime,frametime;
+                    // if the particle has not yet died, let choose the worst one
+
+                    lifetime = pprt->time_update - update_wld;
+                    if( lifetime < min_life )
+                    {
+                        min_life     = lifetime;
+                        min_life_idx = iprt;
+                    }
+
+                    frametime = pprt->time_frame - frame_all;
+                    if( frametime < min_display )
+                    {
+                        min_display     = frametime;
+                        min_display_idx = iprt;
+                    }
+                }
+            }
+
+            if( VALID_PRT_RANGE(found) )
+            {
+                // found a "bad" particle
+                iprt = found;
+            }
+            else if( VALID_PRT_RANGE(min_display_idx) )
+            {
+                // found a "terminated" particle
+                iprt = min_display_idx;
+            }
+            else if( VALID_PRT_RANGE(min_life_idx) )
+            {
+                // found a particle that closest to death
+                iprt = min_life_idx;
+            }
+            else
+            {
+                // found nothing. this should only happen if all the
+                // particles are forced
+                iprt = TOTAL_MAX_PRT;
             }
         }
     }
     else
     {
-        if ( force || PrtList.free_count > ( maxparticles / 4 ) )
+        if ( PrtList.free_count > ( maxparticles / 4 ) )
         {
             // Just grab the next one
             iprt = PrtList_get_free();
         }
+        else if ( force )
+        {
+            iprt = PrtList_get_free();
+        }
+        else
+        {
+            int BLAH = 0;
+        }
     }
 
+    // return a proper value
     iprt = ( iprt >= maxparticles ) ? TOTAL_MAX_PRT : iprt;
 
-    if ( TOTAL_MAX_PRT != iprt )
+    if ( VALID_PRT_RANGE(iprt) )
     {
+        if( ALLOCATED_PRT(iprt) && !TERMINATED_PRT(iprt) )
+        {
+            free_one_particle_in_game(iprt);
+        }
+
         EGO_OBJECT_ALLOCATE( PrtList.lst + iprt, iprt );
     }
 
@@ -408,6 +500,9 @@ Uint16 spawn_one_particle( fvec3_t   pos, Uint16 facing, Uint16 iprofile, Uint16
         return TOTAL_MAX_PRT;
     }
     ppip = PipStack.lst + ipip;
+
+    // count ou all the requests for this particle type
+    ppip->prt_request_count++;
 
     iprt = prt_get_free( ppip->force );
     if ( !ALLOCATED_PRT( iprt ) )
@@ -668,6 +763,9 @@ Uint16 spawn_one_particle( fvec3_t   pos, Uint16 facing, Uint16 iprofile, Uint16
                LOADED_PIP( ipip ) ? PipStack.lst[ipip].comment : "",
                iprofile, LOADED_PRO( iprofile ) ? ProList.lst[iprofile].name : "INVALID" );
 #endif
+
+    // c  ount ou all the requests for this particle type
+    ppip->prt_create_count++;
 
     return iprt;
 }
@@ -1934,13 +2032,36 @@ void move_all_particles( void )
     }
 }
 
+struct s_spawn_particle_info
+{
+    fvec3_t  pos;
+    Uint16   facing;
+    Uint16   iprofile;
+    Uint16   ipip;
+
+    Uint16   chr_attach;
+    Uint16   vrt_offset;
+    Uint8    team;
+
+    Uint16   chr_origin;
+    Uint16   prt_origin;
+    Uint16   multispawn;
+    Uint16   oldtarget;
+};
+typedef struct s_spawn_particle_info spawn_particle_info_t;
+
 //--------------------------------------------------------------------------------------------
 void cleanup_all_particles()
 {
-    int iprt, tnc;
+    int iprt, cnt, tnc;
+
+    int                   delay_spawn_count = 0;
+    spawn_particle_info_t delay_spawn_list[TOTAL_MAX_PRT];
+
+    //printf("\n----cleanup_all_particles()----\n");
 
     // do end-of-life care for particles
-    for ( iprt = 0; iprt < maxparticles; iprt++ )
+    for ( iprt = 0, cnt = 0; iprt < maxparticles; iprt++ )
     {
         prt_t * pprt;
         Uint16  ipip;
@@ -1968,16 +2089,49 @@ void cleanup_all_particles()
             facing = pprt->facing;
             for ( tnc = 0; tnc < ppip->endspawn_amount; tnc++ )
             {
-                spawn_one_particle( pprt->pos_old, facing, pprt->profile_ref, ppip->endspawn_pip,
-                                    MAX_CHR, GRIP_LAST, pprt->team, pprt->owner_ref, iprt, tnc, pprt->target_ref );
+                if( delay_spawn_count < TOTAL_MAX_PRT )
+                {
+                    spawn_particle_info_t * pinfo = delay_spawn_list + delay_spawn_count;
+                    delay_spawn_count++;
 
+                    pinfo->pos        = pprt->pos_old;
+                    pinfo->facing     = facing;
+                    pinfo->iprofile   = pprt->profile_ref;
+                    pinfo->ipip       = ppip->endspawn_pip;
+                    pinfo->chr_attach = MAX_CHR;
+                    pinfo->vrt_offset = GRIP_LAST;
+                    pinfo->team       = pprt->team;
+                    pinfo->chr_origin = prt_get_iowner(iprt, 0);
+                    pinfo->prt_origin = iprt;
+                    pinfo->multispawn = tnc;
+                    pinfo->oldtarget  = pprt->target_ref;
+                };
+                
                 facing += ppip->endspawn_facingadd;
             }
         }
 
+        //printf("\tcnt==%d,iprt==%d,free==%d\n", cnt, iprt, PrtList.free_count ); 
+
         // free the particle.
         free_one_particle_in_game( iprt );
+        cnt++;
     }
+
+    // delay the spawning of particles so that it dies not happen while we are scanning the
+    // list of particles to be removed. That just confuses everything.
+    for ( tnc = 0; tnc < delay_spawn_count && tnc < TOTAL_MAX_PRT; tnc++ )
+    {
+        spawn_particle_info_t * pinfo = delay_spawn_list + tnc;
+
+        if( !ACTIVE_PRT(pinfo->prt_origin) ) pinfo->prt_origin = TOTAL_MAX_PRT;
+        if( !ACTIVE_CHR(pinfo->chr_origin) ) pinfo->chr_origin = MAX_CHR;
+
+        spawn_one_particle( pinfo->pos, pinfo->facing, pinfo->iprofile, pinfo->ipip, 
+                            pinfo->chr_attach, pinfo->vrt_offset, pinfo->team, pinfo->chr_origin, 
+                            pinfo->prt_origin, pinfo->multispawn, pinfo->oldtarget );
+    }
+
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2384,11 +2538,25 @@ void init_all_pip()
 void release_all_pip()
 {
     int cnt;
+    FILE * ftmp;
+
+    ftmp = fopen( "pip_usage.txt", "w" );
+
+    fprintf( ftmp, "List of used pips\n\n" );
 
     for ( cnt = 0; cnt < MAX_PIP; cnt++ )
     {
+        if( LOADED_PIP(cnt) )
+        {
+            pip_t * ppip = PipStack.lst + cnt;
+
+            fprintf( ftmp, "index == %d\tname == \"%s\"\tcreate_count == %d\trequest_count == %d\n",  cnt, ppip->name, ppip->prt_create_count, ppip->prt_request_count ); 
+        }
+
         release_one_pip( cnt );
     }
+
+    fclose(ftmp);
 }
 
 //--------------------------------------------------------------------------------------------

@@ -184,6 +184,7 @@ IDSZ   local_senseenemiesID   = IDSZ_NONE;
 
 // declare the variables to do profiling
 PROFILE_DECLARE( update_loop );
+PROFILE_DECLARE( game_update_loop );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -879,6 +880,8 @@ void update_game()
     update_lag = true_update - update_wld;
     for ( tnc = 0; update_wld < true_update && tnc < 1000 ; tnc++ )
     {
+        PROFILE_BEGIN( game_update_loop );
+
         // do important stuff to keep in sync inside this loop
 
         srand( PMod->randsave );
@@ -913,6 +916,9 @@ void update_game()
 
         game_update_timers();
 
+        // put the camera movement inside here
+        camera_move( PCamera, PMesh );
+
         // Timers
         clock_wld += UPDATE_SKIP;
         clock_enc_stat++;
@@ -925,6 +931,12 @@ void update_game()
         ups_loops++;
 
         update_lag = MAX( update_lag, true_update - update_wld );
+
+        PROFILE_END2( game_update_loop );
+
+        // estimate how much time the main loop is taking per second
+        est_update_game_time = 0.9 * est_update_game_time + 0.1 * PROFILE_QUERY( game_update_loop );
+        est_max_game_ups     = 0.9 * est_max_game_ups     + 0.1 * ( 1.0f / PROFILE_QUERY( game_update_loop ) );
     }
     update_lag = tnc;
 
@@ -1576,6 +1588,8 @@ int do_game_proc_begin( game_process_t * gproc )
     // Initialize the process
     gproc->base.valid = btrue;
 
+    PROFILE_INIT(game_update_loop);
+
     return 1;
 }
 
@@ -1656,7 +1670,7 @@ int do_game_proc_running( game_process_t * gproc )
         float  frameskip = ( float )TICKS_PER_SEC / ( float )cfg.framelimit;
         gproc->fps_ticks_next = gproc->fps_ticks_now + frameskip;
 
-        camera_move( PCamera, PMesh );
+        //camera_move( PCamera, PMesh );
         gfx_main();
 
         msgtimechange++;
