@@ -15,21 +15,30 @@ Water light ( TRUE or FALSE )				: TRUE
 Water is really water? ( TRUE or FALSE )		: FALSE
 Use watertop.bmp as an overlay? ( TRUE or FALSE )       : FALSE
 Use waterlow.bmp as a background? ( TRUE or FALSE )	: TRUE
-Foreground distance effect X ( 0.0 to 1.0 )		: 0.0000
-Foreground distance effect Y ( 0.0 to 1.0 )		: 0.0000
-Background distance effect X ( 0.0 to 1.0 )		: 0.0000
-Background distance effect Y ( 0.0 to 1.0 )		: 0.0000
+Foreground distance effect X ( 0.0 to 1.0 )		: 0.0020
+Foreground distance effect Y ( 0.0 to 1.0 )		: 0.0020
+Background distance effect X ( 0.0 to 1.0 )		: 0.0001
+Background distance effect Y ( 0.0 to 1.0 )		: 0.0001
 Number of foreground repeats ( 1 to 5 )			: 1
-Number of background repeats ( 1 to 5 )			: 5
+Number of background repeats ( 1 to 5 )			: 4
 
-Level 0... Base water level ( 85 )			: 45
-Level 0... Alpha level ( 100 )				: 150
-Level 0... Wave speed ( 3 )				: 4
-Level 0... Brightness ( 15 )				: 0
+Level 0... Base water level ( 85 )			; 45
+Level 0... Alpha level ( 100 )				; 150
+Level 0... Wave speed ( 3 )				; 4
+Level 0... Brightness ( 15 )				; 0
+Level 0... Ambient light ( 15 )				; 15
+Level 0... Wave amplitude ( 7.0 )			; 3.0
+Level 0... U speed ( .0002 )				; -.0005
+Level 0... V speed ( .0002 )				;  .0008
+
+Level 0... Base water level ( 85 )			: 30
+Level 0... Alpha level ( 100 )				: 110
+Level 0... Wave speed ( 3 )				: 10
+Level 0... Brightness ( 15 )				: 15
 Level 0... Ambient light ( 15 )				: 15
 Level 0... Wave amplitude ( 7.0 )			: 3.0
-Level 0... U speed ( .0002 )				: -.0005
-Level 0... V speed ( .0002 )				:  .0008
+Level 0... U speed ( .0002 )				: -.00010
+Level 0... V speed ( .0002 )				:  .00015
 
 Level 1... Base water level ( 80 )			: 40
 Level 1... Alpha level ( 100 )				: 150
