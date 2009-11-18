@@ -154,7 +154,7 @@ bool_t pro_init( pro_t * pobj )
     }
 
     //---- reset everything to safe values
-    memset( pobj, 0, sizeof( pro_t ) );
+    memset( pobj, 0, sizeof(*pobj) );
 
     pobj->iai  = 0;
     pobj->icap = MAX_CAP;
@@ -1011,7 +1011,7 @@ const char * pro_create_chop( Uint16 iprofile )
 
     pro_t * ppro;
     cap_t * pcap;
-    char * szTmp;
+    const char * szTmp;
 
     // The name returned by the function
     static char buffer[MAXCAPNAMESIZE] = EMPTY_CSTR;

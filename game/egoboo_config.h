@@ -69,4 +69,6 @@
 #undef  DEBUG_ENC_LIST
 #undef  DEBUG_CHR_LIST
 
-#define EGOBOO_CONFIG
+#undef DEBUG_STDIO 
+
+#define EGOBOO_CONFIG_H

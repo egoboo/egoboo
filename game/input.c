@@ -66,7 +66,7 @@ void input_device_init( input_device_t * pdevice )
 {
     if ( NULL == pdevice ) return;
 
-    memset( pdevice, 0, sizeof( input_device_t ) );
+    memset( pdevice, 0, sizeof(*pdevice) );
 
     pdevice->sustain = 0.58f;
     pdevice->cover   = 1.0f - pdevice->sustain;
@@ -76,7 +76,7 @@ void input_device_init( input_device_t * pdevice )
 void input_init_keyboard()
 {
     // set up the keyboard
-    memset( &keyb, 0, sizeof( keyboard_t ) );
+    memset( &keyb, 0, sizeof( keyb ) );
     init_scancodes();
     keyb.on        = btrue;
     keyb.count     = 0;
@@ -87,7 +87,7 @@ void input_init_keyboard()
 void input_init_mouse()
 {
     /// @details BB@> set up the mouse
-    memset( &mous, 0, sizeof( mouse_t ) );
+    memset( &mous, 0, sizeof( mous ) );
     mous.on      = btrue;
     mous.sense   = 24;
 }

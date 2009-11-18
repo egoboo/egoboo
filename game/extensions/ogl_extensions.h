@@ -27,7 +27,7 @@
 /// @details
 
 #include <SDL_opengl.h>
-#include <stdio.h>
+#include "file_common.h"
 
 #ifdef __cplusplus
 extern "C"

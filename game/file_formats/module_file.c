@@ -53,7 +53,7 @@ mod_file_t * module_load_info( const char * szLoadName, mod_file_t * pmod )
     // clear all the module info
     if ( NULL == pmod ) return NULL;
 
-    memset( pmod, 0, sizeof(mod_file_t) );
+    memset( pmod, 0, sizeof(*pmod) );
 
     // see if we can open the file
     fileread = vfs_openRead( szLoadName );

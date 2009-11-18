@@ -93,7 +93,6 @@ struct s_prt_environment
     float  floor_level;           ///< Height of tile
     float  level;                 ///< Height of a tile or a platform
     float  zlerp;
-    //float  hlerp;
 
     float adj_level;              ///< The level for the particle to sit on the floor or a platform
     float adj_floor;              ///< The level for the particle to sit on the floor or a platform

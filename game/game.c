@@ -2082,6 +2082,7 @@ Uint16 chr_find_target( chr_t * psrc, float max_dist2, TARGET_TYPE target_type, 
 void do_damage_tiles()
 {
     Uint16 character;
+    int actual_damage;
     //int distance;
 
     // do the damage tile stuff
@@ -2140,13 +2141,14 @@ void do_damage_tiles()
         //    damagetile.sound_time = 0;
         //}
 
+        actual_damage = 0;
         if ( 0 == pchr->damagetime )
         {
-            damage_character( character, ATK_BEHIND, damagetile.amount, damagetile.type, TEAM_DAMAGE, MAX_CHR, DAMFX_NBLOC | DAMFX_ARMO, bfalse );
+            actual_damage = damage_character( character, ATK_BEHIND, damagetile.amount, damagetile.type, TEAM_DAMAGE, MAX_CHR, DAMFX_NBLOC | DAMFX_ARMO, bfalse );
             pchr->damagetime = DAMAGETILETIME;
         }
 
-        if (( -1 != damagetile.parttype ) && 0 == ( update_wld & damagetile.partand ) )
+        if ( (actual_damage > 0) && ( -1 != damagetile.parttype ) && 0 == ( update_wld & damagetile.partand ) )
         {
             spawn_one_particle( pchr->pos, 0, MAX_PROFILE, damagetile.parttype,
                                 MAX_CHR, GRIP_LAST, TEAM_NULL, MAX_CHR, TOTAL_MAX_PRT, 0, MAX_CHR );
@@ -3236,10 +3238,16 @@ bool_t attach_chr_to_platform( chr_t * pchr, chr_t * pplat )
     pchr->onwhichplatform = GET_INDEX_PCHR( pplat );
 
     // update the character's relationship to the ground
-    pchr->enviro.level    = MAX( pchr->enviro.floor_level, pplat->pos.z + pplat->chr_chr_cv.max_z );
-    pchr->enviro.zlerp    = ( pchr->pos.z - pchr->enviro.level ) / PLATTOLERANCE;
-    pchr->enviro.zlerp    = CLIP( pchr->enviro.zlerp, 0, 1 );
-    pchr->enviro.grounded = ( 0 == pchr->flyheight ) && ( pchr->enviro.zlerp < 0.25f );
+    pchr->enviro.level     = MAX( pchr->enviro.floor_level, pplat->pos.z + pplat->chr_chr_cv.max_z );
+    pchr->enviro.zlerp     = ( pchr->pos.z - pchr->enviro.level ) / PLATTOLERANCE;
+    pchr->enviro.zlerp     = CLIP( pchr->enviro.zlerp, 0, 1 );
+    pchr->enviro.grounded  =  ( 0 == pchr->flyheight ) && ( pchr->enviro.zlerp < 0.25f );
+
+    pchr->enviro.fly_level = MAX( pchr->enviro.fly_level, pchr->enviro.level );
+    if ( 0 != pchr->flyheight )
+    {
+        if ( pchr->enviro.fly_level < 0 ) pchr->enviro.fly_level = 0;  // fly above pits...
+    }
 
     // add the weight to the platform based on the new zlerp
     pplat->holdingweight += pchr->phys.weight * ( 1.0f - pchr->enviro.zlerp );
@@ -4376,7 +4384,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
         else
         {
             // not colliding this time or last time. particle is just near the platform
-            float lerp_z = ( zb < za + pchr_a->chr_prt_cv.max_z ) / PLATTOLERANCE;
+            float lerp_z = ( zb - (za + pchr_a->chr_prt_cv.max_z) ) / PLATTOLERANCE;
             lerp_z = CLIP( lerp_z, -1, 1 );
 
             if ( lerp_z > 0 )
@@ -6925,7 +6933,7 @@ process_t * process_init( process_t * proc )
 {
     if ( NULL == proc ) return proc;
 
-    memset( proc, 0, sizeof( process_t ) );
+    memset( proc, 0, sizeof(*proc) );
 
     proc->terminated = btrue;
 
@@ -7028,7 +7036,7 @@ ego_process_t * ego_process_init( ego_process_t * eproc, int argc, char **argv )
 {
     if ( NULL == eproc ) return NULL;
 
-    memset( eproc, 0, sizeof( ego_process_t ) );
+    memset( eproc, 0, sizeof( *eproc ) );
 
     process_init( PROC_PBASE( eproc ) );
 
@@ -7042,7 +7050,7 @@ menu_process_t * menu_process_init( menu_process_t * mproc )
 {
     if ( NULL == mproc ) return NULL;
 
-    memset( mproc, 0, sizeof( menu_process_t ) );
+    memset( mproc, 0, sizeof( *mproc ) );
 
     process_init( PROC_PBASE( mproc ) );
 
@@ -7054,7 +7062,7 @@ game_process_t * game_process_init( game_process_t * gproc )
 {
     if ( NULL == gproc ) return NULL;
 
-    memset( gproc, 0, sizeof( game_process_t ) );
+    memset( gproc, 0, sizeof( *gproc ) );
 
     process_init( PROC_PBASE( gproc ) );
 
@@ -7357,7 +7365,7 @@ bool_t upload_water_layer_data( water_instance_layer_t inst[], wawalite_water_la
     if ( NULL == inst || 0 == layer_count ) return bfalse;
 
     // clear all data
-    memset( inst, 0, layer_count * sizeof( water_instance_layer_t ) );
+    memset( inst, 0, layer_count * sizeof( *inst ) );
 
     // set the frame
     for ( layer = 0; layer < layer_count; layer++ )
@@ -7397,7 +7405,7 @@ bool_t upload_water_data( water_instance_t * pinst, wawalite_water_t * pdata )
 
     if ( NULL == pinst ) return bfalse;
 
-    memset( pinst, 0, sizeof( water_instance_t ) );
+    memset( pinst, 0, sizeof(*pinst) );
 
     if ( NULL != pdata )
     {
@@ -7450,7 +7458,7 @@ bool_t upload_weather_data( weather_instance_t * pinst, wawalite_weather_t * pda
 {
     if ( NULL == pinst ) return bfalse;
 
-    memset( pinst, 0, sizeof( weather_instance_t ) );
+    memset( pinst, 0, sizeof(*pinst) );
 
     // set a default value
     pinst->timer_reset = 10;
@@ -7473,7 +7481,7 @@ bool_t upload_fog_data( fog_instance_t * pinst, wawalite_fog_t * pdata )
 {
     if ( NULL == pinst ) return bfalse;
 
-    memset( pinst, 0, sizeof( fog_instance_t ) );
+    memset( pinst, 0, sizeof(*pinst) );
 
     pdata->top      = 0;
     pdata->bottom   = -100;
@@ -7501,7 +7509,7 @@ bool_t upload_damagetile_data( damagetile_instance_t * pinst, wawalite_damagetil
 {
     if ( NULL == pinst ) return bfalse;
 
-    memset( pinst, 0, sizeof( damagetile_instance_t ) );
+    memset( pinst, 0, sizeof(*pinst) );
 
     //pinst->sound_time   = TILESOUNDTIME;
     //pinst->min_distance = 9999;
@@ -7527,7 +7535,7 @@ bool_t upload_animtile_data( animtile_instance_t inst[], wawalite_animtile_t * p
 
     if ( NULL == inst || 0 == animtile_count ) return bfalse;
 
-    memset( inst, 0, sizeof( animtile_instance_t ) );
+    memset( inst, 0, sizeof( *inst ) );
 
     for ( size = 0; size < animtile_count; size++ )
     {
@@ -7738,7 +7746,7 @@ bool_t game_module_init( game_module_t * pinst )
 {
     if ( NULL == pinst ) return bfalse;
 
-    memset( pinst, 0, sizeof( game_module_t ) );
+    memset( pinst, 0, sizeof(*pinst) );
 
     pinst->seed = ( Uint32 )~0;
 

@@ -69,7 +69,7 @@ void EncList_init()
         enc_t * penc = EncList.lst + cnt;
 
         // blank out all the data, including the obj_base data
-        memset( penc, 0, sizeof( enc_t ) );
+        memset( penc, 0, sizeof(*penc) );
 
         // enchant "destructor"
         enc_init( penc );
@@ -660,7 +660,7 @@ enc_t * enc_init( enc_t * penc )
     // save the base object data
     memcpy( &save_base, OBJ_GET_PBASE( penc ), sizeof( ego_object_base_t ) );
 
-    memset( penc, 0, sizeof( enc_t ) );
+    memset( penc, 0, sizeof(*penc) );
 
     // restore the base object data
     memcpy( OBJ_GET_PBASE( penc ), &save_base, sizeof( ego_object_base_t ) );

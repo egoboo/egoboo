@@ -91,7 +91,7 @@ egoboo_config_t cfg;
 //--------------------------------------------------------------------------------------------
 void egoboo_config_init()
 {
-    memset( &cfg_default, 0, sizeof( egoboo_config_t ) );
+    memset( &cfg_default, 0, sizeof( cfg_default ) );
 
     // {GRAPHIC}
     cfg_default.fullscreen_req        = bfalse;        // Start in fullscreen?

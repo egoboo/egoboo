@@ -240,7 +240,7 @@ void SDL_GL_report_mode( SDLX_video_parameters_t * retval )
         oglx_report_caps();
     }
 
-    fflush( LOCAL_STDOUT );
+    EGO_fflush( LOCAL_STDOUT );
 }
 
 //------------------------------------------------------------------------------

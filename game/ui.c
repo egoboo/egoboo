@@ -84,7 +84,7 @@ int ui_initialize( const char *default_font, int default_font_size )
     // initialize the font handler
     fnt_init();
 
-    memset( &ui_context, 0, sizeof( struct UiContext ) );
+    memset( &ui_context, 0, sizeof( ui_context ) );
 
     ui_context.active = ui_context.hot = UI_Nothing;
 
@@ -104,7 +104,7 @@ void ui_shutdown()
         fnt_freeFont( ui_context.defaultFont );
     }
 
-    memset( &ui_context, 0, sizeof( struct UiContext ) );
+    memset( &ui_context, 0, sizeof( ui_context ) );
 }
 
 //--------------------------------------------------------------------------------------------

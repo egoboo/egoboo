@@ -966,7 +966,7 @@ mad_t * mad_init( mad_t * pmad )
 
     if ( NULL == pmad ) return pmad;
 
-    memset( pmad, 0, sizeof( mad_t ) );
+    memset( pmad, 0, sizeof(*pmad) );
 
     strncpy( pmad->name, "*NONE*", SDL_arraysize( pmad->name ) );
 

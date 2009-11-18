@@ -230,7 +230,7 @@ struct s_matrix_cache
     bool_t matrix_valid;
 
     // how was the matrix made?
-    matrix_cache_type_t type;
+    int type_bits;
 
     //---- MAT_CHARACTER data
 
@@ -347,8 +347,11 @@ struct s_chr_environment
 {
     // floor stuff
     Uint8  twist;
+
     float  floor_level;           ///< Height of tile
     float  level;                 ///< Height of a tile or a platform
+    float  fly_level;             ///< Height of tile, platform, or water, whever is highest.
+
     float  zlerp;
     bool_t grounded;              ///< standing on something?
 
@@ -356,8 +359,8 @@ struct s_chr_environment
     bool_t is_slipping;
     bool_t is_slippy,    is_watery;
     float  air_friction, ice_friction;
-    float fluid_friction_xy, fluid_friction_z;
-    float traction, friction_xy;
+    float  fluid_friction_xy, fluid_friction_z;
+    float  traction, friction_xy;
 
     // misc states
     bool_t   inwater;

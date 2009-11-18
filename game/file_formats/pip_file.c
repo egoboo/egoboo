@@ -57,7 +57,7 @@ pip_t * pip_init( pip_t * ppip )
     if( NULL == ppip ) return ppip;
 
     // clear the pip
-    memset( ppip, 0, sizeof(pip_t) );
+    memset( ppip, 0, sizeof(*ppip) );
 
     ppip->soundfloor = INVALID_SOUND;
     ppip->soundwall  = INVALID_SOUND;
@@ -96,7 +96,7 @@ pip_t * load_one_pip_file( const char *szLoadName, pip_t * ppip )
     // read the 1 line comment at the top of the file
     vfs_gets( ppip->comment, SDL_arraysize(ppip->comment)-1, fileread );
 
-    // rewind the file
+    // EGO_rewind the file
     vfs_seek ( fileread, 0 );
 
     // General data

@@ -33,7 +33,7 @@
 #include <SDL.h>
 #include <SDL_opengl.h>
 
-#include <stdio.h>
+#include "file_common.h"
 #include <string.h>
 
 //--------------------------------------------------------------------------------------------
@@ -105,7 +105,7 @@ void egoboo_console_write( egoboo_console_t * pcon, const char *format, va_list 
 
     if ( NULL != pcon )
     {
-        vsnprintf( buffer, EGOBOO_CONSOLE_WRITE_LEN - 1, format, args );
+        EGO_vsnprintf( buffer, EGOBOO_CONSOLE_WRITE_LEN - 1, format, args );
 
         egoboo_console_add_output( pcon, buffer );
     }
@@ -177,13 +177,13 @@ egoboo_console_t * egoboo_console_new( egoboo_console_t * pcon, SDL_Rect Con_rec
     if ( NULL == pcon )
     {
         local_allocation = SDL_TRUE;
-        pcon = ( egoboo_console_t * ) calloc( 1, sizeof( egoboo_console_t ) );
+        pcon = EGOBOO_NEW_ARY( egoboo_console_t, 1 );
     }
 
     if ( NULL == pcon ) return NULL;
 
     // reset all the console data
-    memset( pcon, 0, sizeof( egoboo_console_t ) );
+    memset( pcon, 0, sizeof(*pcon) );
 
     // set the console's font
     pcon->pfont = fnt_loadFont( "basicdat" SLASH_STR "pc8x8.fon", 12 );

@@ -24,7 +24,7 @@
 
 #include "egoboo_typedef.h"
 
-#include <stdio.h>
+#include "file_common.h"
 #include <stdlib.h>
 
 #include "egoboo_strutil.h"

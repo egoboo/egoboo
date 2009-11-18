@@ -25,7 +25,9 @@
 
 #include "egoboo_console.inl"
 
-#include <stdio.h>
+#include "egoboo_typedef.h"
+
+#include "file_common.h"
 #include <string.h>
 
 #define lua_c
@@ -110,12 +112,12 @@ lua_console_t * lua_console_new( lua_console_t * pcon, SDL_Rect Con_rect )
     if ( NULL == pcon )
     {
         local_allocation = SDL_TRUE;
-        pcon = ( lua_console_t * ) calloc( 1, sizeof( lua_console_t ) );
+        pcon = EGOBOO_NEW( lua_console_t );
     }
     if ( NULL == pcon ) return NULL;
 
     // reset all the console data
-    memset( pcon, 0, sizeof( lua_console_t ) );
+    memset( pcon, 0, sizeof(*pcon) );
 
     // call the new function for the "base class"
     egoboo_console_new( &( pcon->base ), Con_rect, lua_console_run, pcon );

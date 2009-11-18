@@ -259,7 +259,7 @@ int _debug_vprintf( const char *format, va_list args )
     {
         STRING szTmp;
 
-        retval = vsnprintf( szTmp, SDL_arraysize( szTmp ), format, args );
+        retval = EGO_vsnprintf( szTmp, SDL_arraysize( szTmp ), format, args );
         _debug_print( szTmp );
     }
 
@@ -274,7 +274,7 @@ int _va_draw_string( int x, int y, const char *format, va_list args )
     STRING szText;
     Uint8 cTmp;
 
-    if ( vsnprintf( szText, SDL_arraysize( szText ) - 1, format, args ) <= 0 )
+    if ( EGO_vsnprintf( szText, SDL_arraysize( szText ) - 1, format, args ) <= 0 )
     {
         return y;
     }
@@ -2683,19 +2683,19 @@ void render_world( camera_t * pcam )
     {
         gfx_begin_3d( pcam );
         {
-            //if ( gfx.draw_background )
-            //{
-            //    // Render the background
-            //    render_world_background( TX_WATER_LOW );  // TX_WATER_LOW for waterlow.bmp
-            //}
+            if ( gfx.draw_background )
+            {
+                // Render the background
+                render_world_background( TX_WATER_LOW );  // TX_WATER_LOW for waterlow.bmp
+            }
 
             render_scene( PMesh, pcam );
-
-            // Foreground overlay
-            //if ( gfx.draw_overlay )
-            //{
-            //    render_world_overlay( TX_WATER_TOP );  // TX_WATER_TOP is watertop.bmp
-            //}
+            
+            if ( gfx.draw_overlay )
+            {
+                // Foreground overlay
+                render_world_overlay( TX_WATER_TOP );  // TX_WATER_TOP is watertop.bmp
+            }
         }
         gfx_end_3d();
 
@@ -3231,7 +3231,7 @@ billboard_data_t * billboard_data_init( billboard_data_t * pbb )
 {
     if ( NULL == pbb ) return pbb;
 
-    memset( pbb, 0, sizeof( billboard_data_t ) );
+    memset( pbb, 0, sizeof(*pbb) );
 
     pbb->tex_ref = INVALID_TEXTURE;
     pbb->ichr    = MAX_CHR;

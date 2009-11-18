@@ -33,7 +33,7 @@
 
 #include <stdlib.h>
 #include <stdarg.h>
-#include <stdio.h>
+#include "file_common.h"
 #include <string.h>
 #include <fcntl.h>
 #include <ctype.h>

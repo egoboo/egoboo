@@ -74,7 +74,7 @@ ego_mpd_info_t * mesh_info_new( ego_mpd_info_t * pinfo )
 {
     if ( NULL == pinfo ) return pinfo;
 
-    memset( pinfo, 0, sizeof( ego_mpd_info_t ) );
+    memset( pinfo, 0, sizeof(*pinfo) );
 
     return pinfo;
 }
@@ -113,7 +113,7 @@ ego_mpd_info_t * mesh_info_delete( ego_mpd_info_t * pinfo )
 {
     if ( NULL != pinfo )
     {
-        memset( pinfo, 0, sizeof( ego_mpd_info_t ) );
+        memset( pinfo, 0, sizeof(*pinfo) );
     }
 
     return pinfo;
@@ -124,7 +124,7 @@ mesh_mem_t * mesh_mem_new( mesh_mem_t * pmem )
 {
     if ( NULL == pmem ) return pmem;
 
-    memset( pmem, 0, sizeof( mesh_mem_t ) );
+    memset( pmem, 0, sizeof(*pmem) );
 
     return pmem;
 }
@@ -135,7 +135,7 @@ mesh_mem_t * mesh_mem_delete( mesh_mem_t * pmem )
     if ( NULL != pmem )
     {
         mesh_mem_free( pmem );
-        memset( pmem, 0, sizeof( mesh_mem_t ) );
+        memset( pmem, 0, sizeof(*pmem) );
     }
 
     return pmem;
@@ -149,7 +149,7 @@ ego_mpd_t * mesh_new( ego_mpd_t * pmesh )
 
     if ( NULL != pmesh )
     {
-        memset( pmesh, 0, sizeof( ego_mpd_t ) );
+        memset( pmesh, 0, sizeof(*pmesh) );
 
         mesh_init_tile_offset( pmesh );
 
@@ -300,7 +300,8 @@ bool_t mesh_set_texture( ego_mpd_t * pmesh, Uint16 tile, Uint16 image )
 //--------------------------------------------------------------------------------------------
 bool_t mesh_update_texture( ego_mpd_t * pmesh, Uint16 tile )
 {
-    int    mesh_vrt, tile_vrt;
+    size_t mesh_vrt;
+    int    tile_vrt;
     Uint16 vertices;
     float  offu, offv;
     Uint16 image;
@@ -426,7 +427,7 @@ bool_t mesh_convert( ego_mpd_t * pmesh_dst, mpd_t * pmesh_src )
     // copy some of the pre-calculated grid lighting
     for ( cnt = 0; cnt < pinfo_dst->tiles_count; cnt++ )
     {
-        int vertex = pmem_dst->tile_list[cnt].vrtstart;
+        size_t vertex = pmem_dst->tile_list[cnt].vrtstart;
         pgmem_dst->light[cnt].a = pmem_src->vlst[vertex].a;
         pgmem_dst->light[cnt].l = 0.0f;
     }
@@ -505,7 +506,7 @@ grid_mem_t * grid_mem_new( grid_mem_t * pmem )
 {
     if ( NULL == pmem ) return pmem;
 
-    memset( pmem, 0, sizeof( grid_mem_t ) );
+    memset( pmem, 0, sizeof(*pmem) );
 
     return pmem;
 }
@@ -516,7 +517,7 @@ grid_mem_t * grid_mem_delete( grid_mem_t * pmem )
     if ( NULL != pmem )
     {
         grid_mem_free( pmem );
-        memset( pmem, 0, sizeof( grid_mem_t ) );
+        memset( pmem, 0, sizeof(*pmem) );
     }
 
     return pmem;
@@ -538,14 +539,14 @@ bool_t grid_mem_allocate( grid_mem_t * pmem, ego_mpd_info_t * pinfo )
     }
 
     // allocate per-tile memory
-    pmem->light  = ( grid_lighting_t * ) calloc( pinfo->tiles_count, sizeof( grid_lighting_t ) );
+    pmem->light  = EGOBOO_NEW_ARY( grid_lighting_t, pinfo->tiles_count );
     if ( NULL == pmem->light ) goto grid_mem_allocate_fail;
 
     // helper info
-    pmem->blockstart = ( Uint32* ) calloc( pinfo->blocks_y, sizeof( Uint32 ) );
+    pmem->blockstart = EGOBOO_NEW_ARY( Uint32, pinfo->blocks_y );
     if ( NULL == pmem->blockstart ) goto grid_mem_allocate_fail;
 
-    pmem->tilestart  = ( Uint32* ) calloc( pinfo->tiles_y, sizeof( Uint32 ) );
+    pmem->tilestart  = EGOBOO_NEW_ARY( Uint32, pinfo->tiles_y );
     if ( NULL == pmem->tilestart ) goto grid_mem_allocate_fail;
 
     pmem->grid_count = pinfo->tiles_count;
@@ -608,29 +609,29 @@ bool_t mesh_mem_allocate( mesh_mem_t * pmem, ego_mpd_info_t * pinfo )
     }
 
     // allocate per-vertex memory
-    pmem->plst = ( GLXvector3f * ) calloc( pinfo->vertcount, sizeof( GLXvector3f ) );
+    pmem->plst = EGOBOO_NEW_ARY( GLXvector3f, pinfo->vertcount );
     if ( NULL == pmem->plst ) goto mesh_mem_allocate_fail;
 
-    pmem->tlst = ( GLXvector2f * ) calloc( pinfo->vertcount, sizeof( GLXvector2f ) );
+    pmem->tlst = EGOBOO_NEW_ARY( GLXvector2f, pinfo->vertcount );
     if ( NULL == pmem->tlst ) goto mesh_mem_allocate_fail;
 
-    pmem->clst = ( GLXvector3f * ) calloc( pinfo->vertcount, sizeof( GLXvector3f ) );
+    pmem->clst = EGOBOO_NEW_ARY( GLXvector3f, pinfo->vertcount );
     if ( NULL == pmem->clst ) goto mesh_mem_allocate_fail;
 
-    pmem->nlst = ( GLXvector3f * ) calloc( pinfo->vertcount, sizeof( GLXvector3f ) );
+    pmem->nlst = EGOBOO_NEW_ARY( GLXvector3f, pinfo->vertcount );
     if ( NULL == pmem->nlst ) goto mesh_mem_allocate_fail;
 
     // allocate per-tile memory
-    pmem->tile_list  = ( tile_info_t * ) calloc( pinfo->tiles_count, sizeof( tile_info_t ) );
+    pmem->tile_list  = EGOBOO_NEW_ARY( tile_info_t, pinfo->tiles_count );
     if ( NULL == pmem->tile_list ) goto mesh_mem_allocate_fail;
 
-    pmem->ncache = ( normal_cache_t * ) calloc( pinfo->tiles_count, sizeof( normal_cache_t ) );
+    pmem->ncache = EGOBOO_NEW_ARY( normal_cache_t, pinfo->tiles_count );
     if ( NULL == pmem->ncache ) goto mesh_mem_allocate_fail;
 
-    pmem->lcache = ( light_cache_t * ) calloc( pinfo->tiles_count, sizeof( light_cache_t ) );
+    pmem->lcache = EGOBOO_NEW_ARY( light_cache_t, pinfo->tiles_count );
     if ( NULL == pmem->lcache ) goto mesh_mem_allocate_fail;
 
-    pmem->bb_list = ( aabb_t * ) calloc( pinfo->tiles_count, sizeof( aabb_t ) );
+    pmem->bb_list = EGOBOO_NEW_ARY( aabb_t, pinfo->tiles_count );
     if ( NULL == pmem->bb_list ) goto mesh_mem_allocate_fail;
 
     pmem->vert_count = pinfo->vertcount;
@@ -745,7 +746,7 @@ void grid_make_fanstart( grid_mem_t * pgmem, ego_mpd_info_t * pinfo )
 //--------------------------------------------------------------------------------------------
 void mesh_make_vrtstart( ego_mpd_t * pmesh )
 {
-    int vert;
+    size_t vert;
     Uint32 tile;
 
     ego_mpd_info_t * pinfo;
@@ -889,7 +890,7 @@ Uint32 mesh_get_tile( ego_mpd_t * pmesh, float pos_x, float pos_y )
 //------------------------------------------------------------------------------
 Uint8 cartman_get_fan_twist( ego_mpd_t * pmesh, Uint32 tile )
 {
-    int vrtstart;
+    size_t vrtstart;
     float z0, z1, z2, z3;
     float zx, zy;
 
@@ -938,7 +939,8 @@ bool_t mesh_make_bbox( ego_mpd_t * pmesh )
 {
     /// @details BB@> set the bounding box for each tile, and for the entire mesh
 
-    int mesh_vrt, tile_vrt;
+    size_t mesh_vrt;
+    int tile_vrt;
     Uint32 cnt;
 
     mesh_mem_t * pmem;
@@ -1637,8 +1639,9 @@ float mesh_get_max_vertex_0( ego_mpd_t * pmesh, int tile_x, int tile_y )
 {
     Uint32 itile;
     int type;
-    int vstart, vcount, cnt, ivrt;
+    int cnt;
     float zmax;
+    size_t vcount, vstart, ivrt;
 
     if( NULL == pmesh ) return 0.0f;
 
@@ -1664,8 +1667,9 @@ float mesh_get_max_vertex_1( ego_mpd_t * pmesh, int tile_x, int tile_y, float xm
 {
     Uint32 itile;
     int type;
-    int vstart, vcount, cnt, ivrt;
+    int cnt;
     float zmax;
+    size_t vcount, vstart, ivrt;
 
     int ix_off[4] = {1, 1, 0, 0};
     int iy_off[4] = {0, 1, 1, 0};

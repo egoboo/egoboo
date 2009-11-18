@@ -35,7 +35,7 @@ extern "C"
 {
 #else
 #    include <assert.h>
-#    include <stdio.h>
+#    include "file_common.h"
 #endif
 
 #if defined(DEBUG_ATTRIB) && USE_DEBUG

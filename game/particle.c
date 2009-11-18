@@ -75,7 +75,7 @@ void PrtList_init()
         prt_t * pprt = PrtList.lst + cnt;
 
         // blank out all the data, including the obj_base data
-        memset( pprt, 0, sizeof( prt_t ) );
+        memset( pprt, 0, sizeof(*pprt) );
 
         prt_init( pprt );
 
@@ -376,7 +376,7 @@ void prt_init( prt_t * pprt )
     // save the base object data
     memcpy( &save_base, OBJ_GET_PBASE( pprt ), sizeof( ego_object_base_t ) );
 
-    memset( pprt, 0, sizeof( prt_t ) );
+    memset( pprt, 0, sizeof(*pprt) );
 
     // restore the base object data
     memcpy( OBJ_GET_PBASE( pprt ), &save_base, sizeof( ego_object_base_t ) );
@@ -501,7 +501,7 @@ Uint16 spawn_one_particle( fvec3_t   pos, Uint16 facing, Uint16 iprofile, Uint16
     }
     ppip = PipStack.lst + ipip;
 
-    // count ou all the requests for this particle type
+    // count all the requests for this particle type
     ppip->prt_request_count++;
 
     iprt = prt_get_free( ppip->force );
@@ -2537,26 +2537,47 @@ void init_all_pip()
 //--------------------------------------------------------------------------------------------
 void release_all_pip()
 {
-    int cnt;
-    FILE * ftmp;
-
-    ftmp = fopen( "pip_usage.txt", "w" );
-
-    fprintf( ftmp, "List of used pips\n\n" );
-
-    for ( cnt = 0; cnt < MAX_PIP; cnt++ )
+    int cnt, tnc;
+    int max_request;
+    
+    max_request = 0;
+    for ( cnt = 0, tnc = 0; cnt < MAX_PIP; cnt++ )
     {
         if( LOADED_PIP(cnt) )
         {
             pip_t * ppip = PipStack.lst + cnt;
 
-            fprintf( ftmp, "index == %d\tname == \"%s\"\tcreate_count == %d\trequest_count == %d\n",  cnt, ppip->name, ppip->prt_create_count, ppip->prt_request_count ); 
+            max_request = MAX(max_request, ppip->prt_request_count);
+            tnc++;
         }
-
-        release_one_pip( cnt );
     }
 
-    fclose(ftmp);
+    if( tnc > 0 && max_request > 0 )
+    {
+        FILE * ftmp = EGO_fopen( "pip_usage.txt", "w" );
+
+        fprintf( ftmp, "List of used pips\n\n" );
+
+        for ( cnt = 0; cnt < MAX_PIP; cnt++ )
+        {
+            if( LOADED_PIP(cnt) )
+            {
+                pip_t * ppip = PipStack.lst + cnt;
+
+                fprintf( ftmp, "index == %d\tname == \"%s\"\tcreate_count == %d\trequest_count == %d\n", cnt, ppip->name, ppip->prt_create_count, ppip->prt_request_count ); 
+            }
+        }
+
+        EGO_fflush(ftmp);
+
+        EGO_fclose(ftmp);
+
+        for ( cnt = 0; cnt < MAX_PIP; cnt++ )
+        {
+            release_one_pip( cnt );
+        }
+    }
+    
 }
 
 //--------------------------------------------------------------------------------------------

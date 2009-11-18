@@ -32,7 +32,7 @@
 
 #include <physfs.h>
 
-#include <stdio.h>
+#include "file_common.h"
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
@@ -79,7 +79,7 @@ typedef union u_vfs_fileptr vfs_fileptr_t;
 /// A container holding either a FILE * or a PHYSFS_File *, and translated error states
 struct vfs_FILE
 {
-    Uint32        flags;    // flags for stuff like ferror() that doesn't clear every time a filesystem call is made
+    Uint32        flags;    // flags for stuff like EGO_ferror() that doesn't clear every time a filesystem call is made
     vfs_mode_t    type;
     vfs_fileptr_t ptr;
 };
@@ -203,7 +203,7 @@ vfs_FILE * vfs_openReadB( const char * filename )
     ftmp = PHYSFS_openRead( filename );
     if ( NULL == ftmp ) return NULL;
 
-    vfs_file = ( vfs_FILE* )calloc( 1, sizeof( vfs_FILE ) );
+    vfs_file = EGOBOO_NEW( vfs_FILE );
     if ( NULL == vfs_file ) return NULL;
 
     vfs_file->type  = vfs_physfs;
@@ -233,7 +233,7 @@ vfs_FILE * vfs_openWriteB( const char * filename )
     ftmp = PHYSFS_openRead( local_filename );
     if ( NULL == ftmp ) return NULL;
 
-    vfs_file = ( vfs_FILE* )calloc( 1, sizeof( vfs_FILE ) );
+    vfs_file = EGOBOO_NEW( vfs_FILE );
     if ( NULL == vfs_file ) return NULL;
 
     vfs_file->type  = vfs_physfs;
@@ -259,7 +259,7 @@ vfs_FILE * vfs_openAppendB( const char * filename )
     ftmp = PHYSFS_openAppend( filename );
     if ( NULL == ftmp ) return NULL;
 
-    vfs_file = ( vfs_FILE* )calloc( 1, sizeof( vfs_FILE ) );
+    vfs_file = EGOBOO_NEW( vfs_FILE );
     if ( NULL == vfs_file ) return NULL;
 
     vfs_file->type  = vfs_physfs;
@@ -337,11 +337,11 @@ const char * vfs_convert_fname( const char * fname )
 }
 
 //--------------------------------------------------------------------------------------------
-char * _vfs_strip_mount_point( const char * some_path )
+const char * _vfs_strip_mount_point( const char * some_path )
 {
     int cnt;
     size_t offset;
-    char * ptmp, * stripped_pos;
+    const char * ptmp, * stripped_pos;
 
     stripped_pos = some_path;
 
@@ -374,9 +374,9 @@ char * _vfs_strip_mount_point( const char * some_path )
 }
 
 //--------------------------------------------------------------------------------------------
-char * _vfs_potential_mount_point( const char * some_path, const char ** pstripped_pos )
+const char * _vfs_potential_mount_point( const char * some_path, const char ** pstripped_pos )
 {
-    // This helper sinction was devised to read the first potential directory name
+    // This helper function was devised to read the first potential directory name
     // from the given path. Because:
     //
     // 1) To use the PHYSFS_getMountPoint() function, the mount point you are testing
@@ -389,7 +389,7 @@ char * _vfs_potential_mount_point( const char * some_path, const char ** pstripp
     //    to strip the mount point off of the path that we were given before prepending the
     //    path returned by PHYSFS_getRealDir()
 
-    char * ptmp, *path_begin, *path_end;
+    const char * ptmp, *path_begin, *path_end;
     static VFS_PATH found_path;
 
     found_path[0] = '\0';
@@ -462,8 +462,8 @@ const char * vfs_resolveReadFilename( const char * src_filename )
     }
     else
     {
-        char * tmp_dirnane;
-        char * ptmp = loc_fname;
+        const char * tmp_dirnane;
+        const char * ptmp = loc_fname;
 
         // make PHYSFS grab the actual directory
         tmp_dirnane = PHYSFS_getRealDir( loc_fname );
@@ -530,10 +530,10 @@ vfs_FILE * vfs_openRead( const char * filename )
     real_filename = vfs_resolveReadFilename( filename );
     if ( NULL == real_filename ) return NULL;
 
-    ftmp = fopen( real_filename, "r" );
+    ftmp = EGO_fopen( real_filename, "r" );
     if ( NULL == ftmp ) return NULL;
 
-    vfs_file = ( vfs_FILE* )calloc( 1, sizeof( vfs_FILE ) );
+    vfs_file = EGOBOO_NEW( vfs_FILE );
     if ( NULL == vfs_file ) return NULL;
 
     parse_filename = filename;
@@ -607,10 +607,10 @@ vfs_FILE * vfs_openWrite( const char * filename )
     real_filename = vfs_resolveWriteFilename( filename );
     if ( NULL == real_filename ) return NULL;
 
-    ftmp = fopen( real_filename, "w" );
+    ftmp = EGO_fopen( real_filename, "w" );
     if ( NULL == ftmp ) return NULL;
 
-    vfs_file = ( vfs_FILE* )calloc( 1, sizeof( vfs_FILE ) );
+    vfs_file = EGOBOO_NEW( vfs_FILE );
     if ( NULL == vfs_file ) return NULL;
 
     vfs_file->type  = vfs_cfile;
@@ -678,10 +678,10 @@ vfs_FILE * vfs_openAppend( const char * filename )
     if ( INVALID_CSTR( sys_dst_name ) ) return NULL;
 
     // now open the file for append normally
-    ftmp = fopen( sys_dst_name, "a+" );
+    ftmp = EGO_fopen( sys_dst_name, "a+" );
     if ( NULL == ftmp ) return NULL;
 
-    vfs_file = ( vfs_FILE* )calloc( 1, sizeof( vfs_FILE ) );
+    vfs_file = EGOBOO_NEW( vfs_FILE );
     if ( NULL == vfs_file ) return NULL;
 
     vfs_file->type  = vfs_cfile;
@@ -704,15 +704,15 @@ int vfs_close( vfs_FILE * pfile )
     retval = 0;
     if ( vfs_cfile == pfile->type )
     {
-        retval = fclose( pfile->ptr.c );
-        memset( pfile, 0, sizeof( vfs_FILE ) );
+        retval = EGO_fclose( pfile->ptr.c );
+        memset( pfile, 0, sizeof( *pfile ) );
 
         free( pfile );
     }
     else if ( vfs_physfs == pfile->type )
     {
         retval = PHYSFS_close( pfile->ptr.p );
-        memset( pfile, 0, sizeof( vfs_FILE ) );
+        memset( pfile, 0, sizeof( *pfile ) );
 
         free( pfile );
     }
@@ -735,7 +735,7 @@ int vfs_flush( vfs_FILE * pfile )
     retval = 0;
     if ( vfs_cfile == pfile->type )
     {
-        retval = fflush( pfile->ptr.c );
+        retval = EGO_fflush( pfile->ptr.c );
     }
     else if ( vfs_physfs == pfile->type )
     {
@@ -762,7 +762,7 @@ int vfs_eof( vfs_FILE * pfile )
     retval = 1;
     if ( vfs_cfile == pfile->type )
     {
-        retval = feof( pfile->ptr.c );
+        retval = EGO_feof( pfile->ptr.c );
     }
     else if ( vfs_physfs == pfile->type )
     {
@@ -787,7 +787,7 @@ int vfs_error( vfs_FILE * pfile )
     retval = 1;
     if ( vfs_cfile == pfile->type )
     {
-        retval = ferror( pfile->ptr.c );
+        retval = EGO_ferror( pfile->ptr.c );
     }
     else if ( vfs_physfs == pfile->type )
     {
@@ -807,7 +807,7 @@ long vfs_tell( vfs_FILE * pfile )
     retval = 0;
     if ( vfs_cfile == pfile->type )
     {
-        retval = ftell( pfile->ptr.c );
+        retval = EGO_ftell( pfile->ptr.c );
     }
     else if ( vfs_physfs == pfile->type )
     {
@@ -830,8 +830,8 @@ int vfs_seek( vfs_FILE * pfile, long offset )
         // reset the flags
         pfile->flags = 0;
 
-        // !!!! since we are opening non-binary files in text mode, fseek might act strangely !!!!
-        retval = fseek( pfile->ptr.c, offset, SEEK_SET );
+        // !!!! since we are opening non-binary files in text mode, EGO_fseek might act strangely !!!!
+        retval = EGO_fseek( pfile->ptr.c, offset, SEEK_SET );
     }
     else if ( vfs_physfs == pfile->type )
     {
@@ -862,12 +862,12 @@ long vfs_fileLength( vfs_FILE * pfile )
     {
         // do a little dance with the file pointer to figure out the file length
 
-        long pos = ftell( pfile->ptr.c );
+        long pos = EGO_ftell( pfile->ptr.c );
 
-        fseek( pfile->ptr.c, 0, SEEK_END );
-        retval = ftell( pfile->ptr.c );
+        EGO_fseek( pfile->ptr.c, 0, SEEK_END );
+        retval = EGO_ftell( pfile->ptr.c );
 
-        fseek( pfile->ptr.c, pos, SEEK_SET );
+        EGO_fseek( pfile->ptr.c, pos, SEEK_SET );
     }
     else if ( vfs_physfs == pfile->type )
     {
@@ -921,7 +921,7 @@ size_t vfs_read( void * buffer, size_t size, size_t count, vfs_FILE * pfile )
     retval = 0;
     if ( vfs_cfile == pfile->type )
     {
-        retval = fread( buffer, size, count, pfile->ptr.c );
+        retval = EGO_fread( buffer, size, count, pfile->ptr.c );
         error = ( retval != size );
     }
     else if ( vfs_physfs == pfile->type )
@@ -947,7 +947,7 @@ size_t vfs_write( void * buffer, size_t size, size_t count, vfs_FILE * pfile )
     retval = 0;
     if ( vfs_cfile == pfile->type )
     {
-        retval = fwrite( buffer, size, count, pfile->ptr.c );
+        retval = EGO_fwrite( buffer, size, count, pfile->ptr.c );
     }
     else if ( vfs_physfs == pfile->type )
     {
@@ -969,7 +969,7 @@ int vfs_read_Sint16( vfs_FILE * pfile, Sint16 * val )
     if ( vfs_cfile == pfile->type )
     {
         Uint16 itmp;
-        retval = fread( &itmp, 1, sizeof( Uint16 ), pfile->ptr.c );
+        retval = EGO_fread( &itmp, 1, sizeof( Uint16 ), pfile->ptr.c );
 
         error = ( 1 != retval );
 
@@ -999,7 +999,7 @@ int vfs_read_Uint16( vfs_FILE * pfile, Uint16 * val )
     if ( vfs_cfile == pfile->type )
     {
         Uint16 itmp;
-        retval = fread( &itmp, 1, sizeof( Uint16 ), pfile->ptr.c );
+        retval = EGO_fread( &itmp, 1, sizeof( Uint16 ), pfile->ptr.c );
 
         error = ( 1 != retval );
 
@@ -1029,7 +1029,7 @@ int vfs_read_Sint32( vfs_FILE * pfile, Sint32 * val )
     if ( vfs_cfile == pfile->type )
     {
         Uint32 itmp;
-        retval = fread( &itmp, 1, sizeof( Uint32 ), pfile->ptr.c );
+        retval = EGO_fread( &itmp, 1, sizeof( Uint32 ), pfile->ptr.c );
 
         error = ( 1 != retval );
 
@@ -1059,7 +1059,7 @@ int vfs_read_Uint32( vfs_FILE * pfile, Uint32 * val )
     if ( vfs_cfile == pfile->type )
     {
         Uint32 itmp;
-        retval = fread( &itmp, 1, sizeof( Uint32 ), pfile->ptr.c );
+        retval = EGO_fread( &itmp, 1, sizeof( Uint32 ), pfile->ptr.c );
 
         error = ( 1 != retval );
 
@@ -1089,7 +1089,7 @@ int vfs_read_Sint64( vfs_FILE * pfile, Sint64 * val )
     if ( vfs_cfile == pfile->type )
     {
         Uint64 itmp;
-        retval = fread( &itmp, 1, sizeof( Uint64 ), pfile->ptr.c );
+        retval = EGO_fread( &itmp, 1, sizeof( Uint64 ), pfile->ptr.c );
 
         error = ( 1 != retval );
 
@@ -1119,7 +1119,7 @@ int vfs_read_Uint64( vfs_FILE * pfile, Uint64 * val )
     if ( vfs_cfile == pfile->type )
     {
         Uint64 itmp;
-        retval = fread( &itmp, 1, sizeof( Uint64 ), pfile->ptr.c );
+        retval = EGO_fread( &itmp, 1, sizeof( Uint64 ), pfile->ptr.c );
 
         error = ( 1 != retval );
 
@@ -1149,7 +1149,7 @@ int vfs_read_float( vfs_FILE * pfile, float * val )
     if ( vfs_cfile == pfile->type )
     {
         float ftmp;
-        retval = fread( &ftmp, 1, sizeof( float ), pfile->ptr.c );
+        retval = EGO_fread( &ftmp, 1, sizeof( float ), pfile->ptr.c );
 
         error = ( 1 != retval );
 
@@ -1256,7 +1256,7 @@ int fake_physfs_vprintf( PHYSFS_File * pfile, const char *format, va_list args )
 
     if ( NULL == pfile || INVALID_CSTR( format ) ) return 0;
 
-    written = vsnprintf( buffer, SDL_arraysize( buffer ), format, args );
+    written = EGO_vsnprintf( buffer, SDL_arraysize( buffer ), format, args );
 
     if ( written > 0 )
     {
@@ -1278,7 +1278,7 @@ int vfs_printf( vfs_FILE * pfile, const char *format, ... )
     va_start( args, format );
     if ( vfs_cfile == pfile->type )
     {
-        retval = vfprintf( pfile->ptr.c, format, args );
+        retval = EGO_vfprintf( pfile->ptr.c, format, args );
     }
     else
     {
@@ -1750,7 +1750,7 @@ int vfs_ungetc( int c, vfs_FILE * pfile )
 
     if ( vfs_cfile == pfile->type )
     {
-        retval = ungetc( c, pfile->ptr.c );
+        retval = EGO_ungetc( c, pfile->ptr.c );
     }
     else if ( vfs_physfs == pfile->type )
     {
@@ -1771,7 +1771,7 @@ int vfs_getc( vfs_FILE * pfile )
     retval = 0;
     if ( vfs_cfile == pfile->type )
     {
-        retval = fgetc( pfile->ptr.c );
+        retval = EGO_fgetc( pfile->ptr.c );
         if ( EOF == retval ) pfile->flags |= VFS_EOF;
     }
     else if ( vfs_physfs == pfile->type )
@@ -1795,7 +1795,7 @@ int vfs_putc( int c, vfs_FILE * pfile )
 
     if ( vfs_cfile == pfile->type )
     {
-        retval = fputc( c, pfile->ptr.c );
+        retval = EGO_fputc( c, pfile->ptr.c );
     }
     else if ( vfs_physfs == pfile->type )
     {
@@ -1814,7 +1814,7 @@ int vfs_puts( const char * str , vfs_FILE * pfile )
 
     if ( vfs_cfile == pfile->type )
     {
-        retval = fputs( str, pfile->ptr.c );
+        retval = EGO_fputs( str, pfile->ptr.c );
     }
     else if ( vfs_physfs == pfile->type )
     {
@@ -1837,7 +1837,7 @@ char * vfs_gets( char * buffer, int buffer_size, vfs_FILE * pfile )
 
     if ( vfs_cfile == pfile->type )
     {
-        retval = fgets( buffer, buffer_size, pfile->ptr.c );
+        retval = EGO_fgets( buffer, buffer_size, pfile->ptr.c );
         if ( NULL == retval ) pfile->flags |= VFS_EOF;
     }
     else if ( vfs_physfs == pfile->type )
@@ -1968,12 +1968,12 @@ void _vfs_translate_error( vfs_FILE * pfile )
 
     if ( vfs_cfile == pfile->type )
     {
-        if ( ferror( pfile->ptr.c ) )
+        if ( EGO_ferror( pfile->ptr.c ) )
         {
             pfile->flags |= VFS_ERROR;
         }
 
-        if ( feof( pfile->ptr.c ) )
+        if ( EGO_feof( pfile->ptr.c ) )
         {
             pfile->flags |= VFS_EOF;
         }
@@ -2019,7 +2019,7 @@ const char * vfs_getError()
 int _vfs_mount_point_matches( const char * mount_point, const char * local_path )
 {
     int cnt, retval;
-    char * ptmp;
+    const char * ptmp;
 
     // set to an invalid value;
     retval = -1;
@@ -2086,7 +2086,7 @@ int _vfs_mount_point_matches( const char * mount_point, const char * local_path 
 //--------------------------------------------------------------------------------------------
 bool_t _vfs_add_mount_info( const char * mount_point, const char * local_path )
 {
-    char * ptmp;
+    const char * ptmp;
 
     // can we add it?
     if ( _vfs_mount_info_count >= MAX_MOUNTINFO ) return bfalse;

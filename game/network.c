@@ -38,7 +38,7 @@
 #include "egoboo.h"
 
 #include <enet/enet.h>
-#include <stdio.h>
+#include "file_common.h"
 #include <stdarg.h>
 #include <assert.h>
 
@@ -1955,7 +1955,7 @@ void net_updateFileTransfers()
                     transferSize += 6;  // Uint32 size, and Uint16 message type
                     transferSize += fileSize;
 
-                    transferBuffer = ( Uint8 * )malloc( transferSize );
+                    transferBuffer = EGOBOO_NEW_ARY( Uint8, transferSize );
                     *( Uint16* )transferBuffer = ENET_HOST_TO_NET_16( NET_TRANSFER_FILE );
 
                     // Add the string and file length to the buffer
@@ -1986,7 +1986,7 @@ void net_updateFileTransfers()
             }
 
             // update transfer queue state
-            memset( state, 0, sizeof( NetFileTransfer ) );
+            memset( state, 0, sizeof( *state ) );
             net_fileTransferHead++;
             if ( net_fileTransferHead >= NET_MAX_FILE_TRANSFERS )
             {
@@ -2021,7 +2021,7 @@ bool_t net_instance_init( net_instance_t * pnet )
 {
     if ( NULL == pnet ) return bfalse;
 
-    memset( pnet, 0, sizeof( net_instance_t ) );
+    memset( pnet, 0, sizeof(*pnet) );
 
     return bfalse;
 }
@@ -2103,7 +2103,7 @@ void player_init( player_t * ppla )
 {
     if ( NULL == ppla ) return;
 
-    memset( ppla, 0, sizeof( player_t ) );
+    memset( ppla, 0, sizeof(*ppla) );
 
     ppla->index       = MAX_CHR;
 

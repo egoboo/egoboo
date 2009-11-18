@@ -182,7 +182,7 @@ Font* fnt_loadFont( const char *fileName, int pointSize )
     }
 
     // Everything looks good
-    newFont = ( Font* )malloc( sizeof( Font ) );
+    newFont = EGOBOO_NEW( Font );
     newFont->ttfFont = ttfFont;
     GL_DEBUG( glGenTextures )( 1, &newFont->texture );
 
@@ -250,7 +250,7 @@ int fnt_vprintf( Font *font, SDL_Color color, SDL_Surface ** psurf, GLuint itex,
     STRING szText = EMPTY_CSTR;
 
     // evaluate the variable args
-    rv = vsnprintf( szText, SDL_arraysize( szText ) - 1, format, args );
+    rv = EGO_vsnprintf( szText, SDL_arraysize( szText ) - 1, format, args );
     if ( rv < 0 )
     {
         return rv;
@@ -364,7 +364,7 @@ void fnt_drawTextBox( Font *font, int x, int y, int width, int height, int spaci
     char text[4096] = EMPTY_CSTR;
 
     va_start( args, format );
-    rv = vsnprintf( text, SDL_arraysize( text ), format, args );
+    rv = EGO_vsnprintf( text, SDL_arraysize( text ), format, args );
     va_end( args );
 
     // some problem printing the text
@@ -372,7 +372,7 @@ void fnt_drawTextBox( Font *font, int x, int y, int width, int height, int spaci
 
     // Split the passed in text into separate lines
     len = strlen( text );
-    buffer = ( char * )calloc( 1, len + 1 );
+    buffer = EGOBOO_NEW_ARY( char, len + 1 );
     strncpy( buffer, text, len );
 
     line = strtok( buffer, "\n" );
@@ -398,7 +398,7 @@ void fnt_getTextBoxSize( Font *font, const char *text, int spacing, int *width, 
 
     // Split the passed in text into separate lines
     len = strlen( text );
-    buffer = ( char * )calloc( 1, len + 1 );
+    buffer = EGOBOO_NEW_ARY( char, len + 1 );
     strncpy( buffer, text, len );
 
     line = strtok( buffer, "\n" );

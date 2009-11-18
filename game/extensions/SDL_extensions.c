@@ -87,7 +87,7 @@ SDL_bool SDLX_Get_Screen_Info( SDLX_screen_info_t * psi, SDL_bool make_report )
     SDL_Surface * ps;
     const SDL_VideoInfo * pvi;
 
-    memset(psi, 0, sizeof(SDLX_screen_info_t));
+    memset( psi, 0, sizeof(*psi) );
 
     init_flags = SDL_WasInit(SDL_INIT_EVERYTHING);
     if ( 0 == init_flags )
@@ -172,7 +172,7 @@ void SDLX_output_sdl_gl_attrib( SDLX_sdl_gl_attrib_t * patt )
     fprintf( LOCAL_STDOUT, "\tSDL_GL_SWAP_CONTROL       == %d\n", patt->swap_control       );
 #endif
 
-    fflush( LOCAL_STDOUT );
+    EGO_fflush( LOCAL_STDOUT );
 }
 
 //------------------------------------------------------------------------------
@@ -219,7 +219,7 @@ void SDLX_output_sdl_video_flags( SDLX_sdl_video_flags_t flags )
         fprintf( LOCAL_STDOUT, "\tno external frame\n" );
     }
 
-    fflush( LOCAL_STDOUT );
+    EGO_fflush( LOCAL_STDOUT );
 }
 
 //------------------------------------------------------------------------------
@@ -289,7 +289,7 @@ void SDLX_report_video_parameters( SDLX_video_parameters_t * v )
         SDLX_output_sdl_gl_attrib( &(v->gl_att) );
     }
 
-    fflush( LOCAL_STDOUT );
+    EGO_fflush( LOCAL_STDOUT );
 }
 
 //------------------------------------------------------------------------------
@@ -540,7 +540,7 @@ SDL_bool SDLX_sdl_video_flags_default(SDLX_sdl_video_flags_t * pflags)
 {
     if ( NULL == pflags ) return SDL_FALSE;
 
-    memset(pflags, 0, sizeof(SDLX_sdl_video_flags_t));
+    memset( pflags, 0, sizeof(*pflags) );
 
     pflags->double_buf  = 1;
     pflags->full_screen = 1;
@@ -554,7 +554,7 @@ SDL_bool SDLX_sdl_gl_attrib_default(SDLX_sdl_gl_attrib_t * patt)
 {
     if ( NULL == patt ) return SDL_FALSE;
 
-    memset(patt, 0, sizeof(SDLX_sdl_gl_attrib_t));
+    memset( patt, 0, sizeof(*patt) );
 
     patt->multi_buffers      = 1;
     patt->multi_samples      = 2;
@@ -612,7 +612,7 @@ void SDLX_report_mode( SDL_Surface * surface, SDLX_video_parameters_t * v )
         fprintf( LOCAL_STDOUT, "==============================================================\n" );
     }
 
-    fflush( LOCAL_STDOUT );
+    EGO_fflush( LOCAL_STDOUT );
 }
 
 //------------------------------------------------------------------------------

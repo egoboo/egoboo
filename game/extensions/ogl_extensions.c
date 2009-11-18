@@ -100,7 +100,7 @@ void oglx_report_caps()
 
     fprintf( LOCAL_STDOUT, "==============================================================\n" );
 
-    fflush( LOCAL_STDOUT );
+    EGO_fflush( LOCAL_STDOUT );
 }
 
 //------------------------------------------------------------------------------
@@ -164,7 +164,7 @@ void oglx_upload_2d_mipmap(GLboolean use_alpha, GLsizei w, GLsizei h, const GLvo
 void oglx_Get_Screen_Info( oglx_caps_t * pcaps )
 {
 
-    memset(pcaps, 0, sizeof(oglx_caps_t));
+    memset( pcaps, 0, sizeof(*pcaps) );
 
     // get any pure OpenGL device caps
 

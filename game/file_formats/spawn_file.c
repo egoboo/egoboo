@@ -36,7 +36,7 @@ spawn_file_info_t * spawn_file_info_init( spawn_file_info_t *pinfo )
 
     if( NULL == pinfo ) return pinfo;
 
-    memset( pinfo, 0, sizeof(spawn_file_info_t) );
+    memset( pinfo, 0, sizeof(*pinfo) );
 
     pinfo->attach = ATTACH_NONE;
     pinfo->team   = TEAM_NULL;

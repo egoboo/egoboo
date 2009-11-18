@@ -32,7 +32,7 @@ passage_t * passage_init( passage_t * ppass )
 {
     if( NULL == ppass ) return ppass;
 
-    memset( ppass, 0, sizeof(passage_t) );
+    memset( ppass, 0, sizeof(*ppass) );
 
     ppass->music = NO_MUSIC;     // Set no song as default
 

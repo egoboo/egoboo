@@ -123,12 +123,12 @@ Uint16 mnu_selectedPlayer[MAXPLAYER] = {0};
 static int selectedModule = -1;
 
 /* Copyright text variables.  Change these to change how the copyright text appears */
-static char * copyrightText = "Welcome to Egoboo!\nhttp://egoboo.sourceforge.net\nVersion " VERSION "\n";
+static const char * copyrightText = "Welcome to Egoboo!\nhttp://egoboo.sourceforge.net\nVersion " VERSION "\n";
 static int  copyrightLeft = 0;
 static int  copyrightTop  = 0;
 
 /* Options info text variables.  Change these to change how the options text appears */
-const char * tipText = "Put a tip in this box";
+static const char * tipText = "Put a tip in this box";
 static int tipTextLeft = 0;
 static int tipTextTop  = 0;
 
@@ -2403,10 +2403,20 @@ int doGameOptions( float deltaTime )
             {
                 if ( cfg.dev_mode )
                 {
-                    cfg.feedback += 1;
+                    cfg.feedback = (FEEDBACK_TYPE)(cfg.feedback + 1);
                     if ( cfg.feedback > FEEDBACK_NUMBER ) cfg.feedback = FEEDBACK_OFF;
                 }
-                else cfg.feedback = !cfg.feedback;
+                else 
+                {
+                    if( FEEDBACK_OFF == cfg.feedback )
+                    {
+                        cfg.feedback = FEEDBACK_TEXT;
+                    }
+                    else
+                    {
+                        cfg.feedback = FEEDBACK_OFF;
+                    }
+                }
 
                 switch ( cfg.feedback )
                 {
@@ -4081,7 +4091,7 @@ void check_player_import( const char *dirname, bool_t initialize )
     {
         pinfo = loadplayer + loadplayer_count;
 
-        snprintf( pinfo->dir, SDL_arraysize( pinfo->dir ), "%s", str_convert_slash_sys( foundfile, strlen( foundfile ) ) );
+        snprintf( pinfo->dir, SDL_arraysize( pinfo->dir ), "%s", str_convert_slash_sys( (char*)foundfile, strlen( foundfile ) ) );
 
         snprintf( filename, SDL_arraysize( filename ), "%s" SLASH_STR "skin.txt", foundfile );
         skin = read_skin( filename );
@@ -4314,7 +4324,7 @@ void mnu_module_init( mnu_module_t * pmod )
     if ( NULL == pmod ) return;
 
     // clear the module
-    memset( pmod, 0, sizeof( mnu_module_t ) );
+    memset( pmod, 0, sizeof(*pmod) );
 
     pmod->tex_index = INVALID_TITLEIMAGE;
 }

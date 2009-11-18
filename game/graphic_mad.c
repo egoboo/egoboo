@@ -1175,7 +1175,7 @@ void _draw_one_grip_raw( chr_instance_t * pinst, mad_t * pmad, int slot )
 
     if ( NULL == pinst || NULL == pmad ) return;
 
-    vmin = ego_md2_data[pmad->md2_ref].vertices - slot_to_grip_offset( slot );
+    vmin = ego_md2_data[pmad->md2_ref].vertices - slot_to_grip_offset( (slot_t)slot );
     vmax = vmin + GRIP_VERTS;
 
     if ( vmin >= 0 && vmax >= 0 && vmax <= ego_md2_data[pmad->md2_ref].vertices )

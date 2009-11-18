@@ -45,7 +45,7 @@ cap_t * cap_init( cap_t * pcap )
     if( NULL == pcap ) return pcap;
 
     // clear out all the data
-    memset( pcap, 0, sizeof(cap_t) );
+    memset( pcap, 0, sizeof(*pcap) );
 
     for( cnt=0; cnt<IDSZ_COUNT; cnt++ )
     {

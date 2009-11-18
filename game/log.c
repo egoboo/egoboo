@@ -46,16 +46,16 @@ static void writeLogMessage( const char *prefix, const char *format, va_list arg
 {
     if ( logFile != NULL )
     {
-        vsnprintf( logBuffer, MAX_LOG_MESSAGE - 1, format, args );
-        fputs( prefix, logFile );
-        fputs( logBuffer, logFile );
+        EGO_vsnprintf( logBuffer, MAX_LOG_MESSAGE - 1, format, args );
+        EGO_fputs( prefix, logFile );
+        EGO_fputs( logBuffer, logFile );
 
 #if defined(_CONSOLE) && defined(USE_DEBUG) && defined(LOG_TO_CONSOLE)
-        fputs( prefix, stdout );
-        fputs( logBuffer, stdout );
+        EGO_fputs( prefix, stdout );
+        EGO_fputs( logBuffer, stdout );
 #endif
 
-        fflush( logFile );
+        EGO_fflush( logFile );
     }
 }
 
@@ -64,7 +64,7 @@ void log_init( const char * logname )
 {
     if ( NULL == logFile )
     {
-        logFile = fopen( logname, "wt" );
+        logFile = EGO_fopen( logname, "wt" );
         if ( NULL != logFile && !_atexit_registered )
         {
             _atexit_registered = 1;
@@ -78,7 +78,7 @@ void log_shutdown()
 {
     if ( logFile != NULL )
     {
-        fclose( logFile );
+        EGO_fclose( logFile );
         logFile = NULL;
     }
 }
@@ -151,7 +151,7 @@ void log_error( const char *format, ... )
     writeLogMessage( "FATAL ERROR: ", format, args );
     va_end( args );
 
-    fflush( logFile );
+    EGO_fflush( logFile );
     exit( -1 );
 }
 

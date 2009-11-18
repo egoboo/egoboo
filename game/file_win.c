@@ -187,7 +187,7 @@ const char *fs_findFirstFile( const char *searchDir, const char *searchExtension
 
     if ( INVALID_CSTR( searchDir ) || NULL == fs_search ) return NULL;
 
-    pcnt = calloc( 1, sizeof( win32_find_context_t ) );
+    pcnt = EGOBOO_NEW( win32_find_context_t );
     fs_search->type = win32_find;
     fs_search->ptr.w = pcnt;
 
@@ -260,7 +260,7 @@ void fs_findClose( fs_find_context_t * fs_search )
 
     free( pcnt );
 
-    memset( fs_search, 0, sizeof( fs_find_context_t ) );
+    memset( fs_search, 0, sizeof( *fs_search ) );
 }
 
 int DirGetAttrib( const char *fromdir )

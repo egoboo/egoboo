@@ -26,7 +26,7 @@
 /// exceptions would be the log file (?) or something similar.
 /// Currently, this basically just wraps PhysicsFS functions
 
-#include <stdio.h>
+#include "file_common.h"
 #include <SDL_types.h>
 
 /// What type of things are we searching for?

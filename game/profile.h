@@ -137,7 +137,7 @@ extern Uint16  bookicon_ref[MAX_SKIN];                      ///< The first book 
 
 extern pro_import_t import_data;
 
-chop_data_t chop_mem;
+extern chop_data_t chop_mem;
 
 DEFINE_LIST_EXTERN( pro_t, ProList, MAX_PROFILE );
 

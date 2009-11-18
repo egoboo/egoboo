@@ -27,7 +27,7 @@
 
 #include "egoboo.h"
 
-#include <stdio.h>
+#include "file_common.h"
 #include <unistd.h>
 #include <pwd.h>
 #include <grp.h>
@@ -125,23 +125,23 @@ bool_t fs_copyFile( const char *source, const char *dest )
     char buf[4096] = EMPTY_CSTR;
     int bytes_read;
 
-    sourcef = fopen( source, "rb" );
+    sourcef = EGO_fopen( source, "rb" );
     if ( !sourcef )
         return bfalse;
 
-    destf = fopen( source, "wb" );
+    destf = EGO_fopen( source, "wb" );
     if ( !destf )
     {
-        fclose( sourcef );
+        EGO_fclose( sourcef );
         return bfalse;
     }
 
-    while (( bytes_read = fread( buf, 1, sizeof( buf ), sourcef ) ) )
-        fwrite( buf, 1, bytes_read, destf );
+    while (( bytes_read = EGO_fread( buf, 1, sizeof( buf ), sourcef ) ) )
+        EGO_fwrite( buf, 1, bytes_read, destf );
 
     //Finish it up
-    fclose( sourcef );
-    fclose( destf );
+    EGO_fclose( sourcef );
+    EGO_fclose( destf );
     return btrue;
 }
 
@@ -155,7 +155,7 @@ const char *fs_findFirstFile( const char *searchDir, const char *searchExtension
 
     if ( INVALID_CSTR( searchDir ) || NULL == fs_search ) return NULL;
 
-    pcnt = calloc( 1, sizeof( linux_find_context_t ) );
+    pcnt = EGOBOO_NEW( linux_find_context_t );
     fs_search->type = linux_find;
     fs_search->ptr.l = pcnt;
 
@@ -215,7 +215,7 @@ void fs_findClose( fs_find_context_t * fs_search )
 
     free( pcnt );
 
-    memset( fs_search, 0, sizeof( fs_find_context_t ) );
+    memset( fs_search, 0, sizeof( *fs_search ) );
 }
 
 //--------------------------------------------------------------------------------------------

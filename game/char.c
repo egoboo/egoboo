@@ -299,7 +299,7 @@ void make_one_character_matrix( Uint16 cnt )
 
         pinst->matrix_cache.valid        = btrue;
         pinst->matrix_cache.matrix_valid = btrue;
-        pinst->matrix_cache.type         = MAT_CHARACTER;
+        pinst->matrix_cache.type_bits    = MAT_CHARACTER;
 
         pinst->matrix_cache.self_scale.x = pchr->fat;
         pinst->matrix_cache.self_scale.y = pchr->fat;
@@ -324,7 +324,7 @@ void ChrList_init()
         chr_t * pchr = ChrList.lst + cnt;
 
         // blank out all the data, including the obj_base data
-        memset( pchr, 0, sizeof( chr_t ) );
+        memset( pchr, 0, sizeof(*pchr) );
 
         // character "destructor"
         chr_init( pchr );
@@ -1480,7 +1480,9 @@ void drop_keys( Uint16 character )
 
                     direction                 = RANDIE;
                     pitem->turn_z             = direction + ATK_BEHIND;
+                    pitem->enviro.floor_level = pchr->enviro.floor_level;
                     pitem->enviro.level       = pchr->enviro.level;
+                    pitem->enviro.fly_level   = pchr->enviro.fly_level;
                     pitem->onwhichplatform    = pchr->onwhichplatform;
                     pitem->pos                = pchr->pos;
                     pitem->vel.x              = turntocos[( direction >> 2 ) & TRIG_TABLE_MASK ] * DROPXYVEL;
@@ -1532,7 +1534,9 @@ bool_t drop_all_items( Uint16 character )
                 pitem->hitready           = btrue;
                 pitem->ai.alert          |= ALERTIF_DROPPED;
                 pitem->pos                = pchr->pos;
+                pitem->enviro.floor_level = pchr->enviro.floor_level;
                 pitem->enviro.level       = pchr->enviro.level;
+                pitem->enviro.fly_level   = pchr->enviro.fly_level;
                 pitem->onwhichplatform    = pchr->onwhichplatform;
                 pitem->turn_z             = direction + ATK_BEHIND;
                 pitem->vel.x              = turntocos[( direction>>2 ) & TRIG_TABLE_MASK ] * DROPXYVEL;
@@ -3062,7 +3066,7 @@ int damage_character( Uint16 character, Uint16 direction,
             /// @test spawn a fly-away damage indicator?
             if ( cfg.feedback != FEEDBACK_OFF && attacker != character && ACTIVE_CHR( attacker ) )
             {
-                char * tmpstr;
+                const char * tmpstr;
                 int rank;
                 const float lifetime = 3;
                 billboard_data_t * pbb;
@@ -3182,7 +3186,7 @@ ai_state_t * ai_state_init( ai_state_t * pself )
     if ( NULL == pself ) return pself;
 
     // set everything to safe values
-    memset( pself, 0, sizeof( ai_state_t ) );
+    memset( pself, 0, sizeof(*pself) );
 
     pself->index      = MAX_CHR;
     pself->target     = MAX_CHR;
@@ -3257,7 +3261,7 @@ chr_t * chr_init( chr_t * pchr )
     memcpy( &save_base, pbase, sizeof( ego_object_base_t ) );
 
     // clear out all data
-    memset( pchr, 0, sizeof( chr_t ) );
+    memset( pchr, 0, sizeof(*pchr) );
 
     // restore the base object data
     memcpy( pbase, &save_base, sizeof( ego_object_base_t ) );
@@ -3530,9 +3534,15 @@ Uint16 spawn_one_character( fvec3_t pos, Uint16 profile, Uint8 team,
     pchr->fat_goto_time = 0;
 
     // Set up position
-    //pchr->pos = pos_tmp;
-    //pchr->enviro.floor_level = get_chr_level( PMesh, pchr ) + RAISE;
     pchr->enviro.floor_level = get_mesh_level( PMesh, pos_tmp.x, pos_tmp.y, pchr->waterwalk ) + RAISE;
+    pchr->enviro.level       = pchr->enviro.floor_level;
+    pchr->enviro.fly_level   = get_mesh_level( PMesh, pos_tmp.x, pos_tmp.y, btrue ) + RAISE;
+
+    if ( 0 != pchr->flyheight )
+    {
+        if ( pchr->enviro.fly_level < 0 ) pchr->enviro.fly_level = 0;  // fly above pits...
+    }
+
     if ( pos_tmp.z < pchr->enviro.floor_level ) pos_tmp.z = pchr->enviro.floor_level;
 
     pchr->pos      = pos_tmp;
@@ -3543,7 +3553,7 @@ Uint16 spawn_one_character( fvec3_t pos, Uint16 profile, Uint8 team,
     pchr->turn_z     = facing;
     pchr->turn_old_z = pchr->turn_z;
 
-    pchr->enviro.level  = pchr->enviro.floor_level;
+    
     pchr->onwhichfan    = mesh_get_tile( PMesh, pchr->pos.x, pchr->pos.y );
     pchr->onwhichblock  = mesh_get_block( PMesh, pchr->pos.x, pchr->pos.y );
 
@@ -4597,12 +4607,14 @@ void move_one_character_get_environment( chr_t * pchr )
     pchr->enviro.level = pchr->enviro.floor_level;
     if ( ACTIVE_CHR( pchr->onwhichplatform ) )
     {
-        pchr->enviro.level = ChrList.lst[pchr->onwhichplatform].pos.z + ChrList.lst[pchr->onwhichplatform].chr_chr_cv.max_z;
+        pchr->enviro.level     = ChrList.lst[pchr->onwhichplatform].pos.z + ChrList.lst[pchr->onwhichplatform].chr_chr_cv.max_z;
+        pchr->enviro.fly_level = MAX(pchr->enviro.fly_level, pchr->enviro.level);
+        
     }
 
     if ( 0 != pchr->flyheight )
     {
-        if ( pchr->enviro.level < 0 ) pchr->enviro.level = 0;  // fly above pits...
+        if ( pchr->enviro.fly_level < 0 ) pchr->enviro.fly_level = 0;  // fly above pits...
     }
 
     // set the zlerp after we have done everything to the particle's level we care to
@@ -5465,7 +5477,7 @@ void move_one_character_do_z_motion( chr_t * pchr )
     //---- do z acceleration
     if ( 0 != pchr->flyheight )
     {
-        pchr->vel.z += ( pchr->enviro.level + pchr->flyheight - pchr->pos.z ) * FLYDAMPEN;
+        pchr->vel.z += ( pchr->enviro.fly_level + pchr->flyheight - pchr->pos.z ) * FLYDAMPEN;
     }
     else
     {
@@ -6051,7 +6063,7 @@ chr_reflection_cache_t * chr_reflection_cache_init( chr_reflection_cache_t * pca
 {
     if ( NULL == pcache ) return pcache;
 
-    memset( pcache, 0, sizeof( chr_reflection_cache_t ) );
+    memset( pcache, 0, sizeof(*pcache) );
 
     pcache->alpha = 127;
     pcache->light = 255;
@@ -6081,7 +6093,7 @@ chr_instance_t * chr_instance_init( chr_instance_t * pinst )
 
     if ( NULL == pinst ) return pinst;
 
-    memset( pinst, 0, sizeof( chr_instance_t ) );
+    memset( pinst, 0, sizeof(*pinst) );
 
     // model parameters
     pinst->imad = MAX_MAD;
@@ -7671,10 +7683,10 @@ matrix_cache_t * matrix_cache_init( matrix_cache_t * mcache )
 
     if ( NULL == mcache ) return mcache;
 
-    memset( mcache, 0, sizeof( matrix_cache_t ) );
+    memset( mcache, 0, sizeof( *mcache ) );
 
-    mcache->type     = MAT_UNKNOWN;
-    mcache->grip_chr = MAX_CHR;
+    mcache->type_bits = MAT_UNKNOWN;
+    mcache->grip_chr  = MAX_CHR;
     for ( cnt = 0; cnt < GRIP_VERTS; cnt++ )
     {
         mcache->grip_verts[cnt] = 0xFFFF;
@@ -7879,8 +7891,8 @@ bool_t chr_get_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
     itarget = MAX_CHR;
 
     // initialize xome parameters in case we fail
-    mc_tmp->valid = bfalse;
-    mc_tmp->type  = MAT_UNKNOWN;
+    mc_tmp->valid     = bfalse;
+    mc_tmp->type_bits = MAT_UNKNOWN;
 
     mc_tmp->self_scale.x = mc_tmp->self_scale.y = mc_tmp->self_scale.z = pchr->fat;
 
@@ -7921,7 +7933,7 @@ bool_t chr_get_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
             if ( pmount->inst.matrix_cache.matrix_valid )
             {
                 mc_tmp->valid     = btrue;
-                mc_tmp->type     |= MAT_WEAPON;        // add in the weapon data
+                mc_tmp->type_bits     |= MAT_WEAPON;        // add in the weapon data
 
                 mc_tmp->grip_chr  = pchr->attachedto;
                 mc_tmp->grip_slot = pchr->inwhich_slot;
@@ -7937,7 +7949,7 @@ bool_t chr_get_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
             chr_t * ptarget = ChrList.lst + itarget;
 
             mc_tmp->valid   = btrue;
-            mc_tmp->type   |= MAT_CHARACTER;  // add in the MAT_CHARACTER-type data for the object we are "connected to"
+            mc_tmp->type_bits   |= MAT_CHARACTER;  // add in the MAT_CHARACTER-type data for the object we are "connected to"
 
             mc_tmp->rotate.x = CLIP_TO_16BITS( ptarget->map_turn_x - MAP_TURN_OFFSET );
             mc_tmp->rotate.y = CLIP_TO_16BITS( ptarget->map_turn_y - MAP_TURN_OFFSET );
@@ -8041,7 +8053,7 @@ bool_t apply_one_weapon_matrix( chr_t * pweap, matrix_cache_t * mc_tmp )
     chr_t * pholder;
     matrix_cache_t * pweap_mcache;
 
-    if ( NULL == mc_tmp || !mc_tmp->valid || 0 == ( MAT_WEAPON & mc_tmp->type ) ) return bfalse;
+    if ( NULL == mc_tmp || !mc_tmp->valid || 0 == ( MAT_WEAPON & mc_tmp->type_bits ) ) return bfalse;
 
     if ( !ALLOCATED_PCHR( pweap ) ) return bfalse;
     pweap_mcache = &( pweap->inst.matrix_cache );
@@ -8085,7 +8097,7 @@ bool_t apply_one_weapon_matrix( chr_t * pweap, matrix_cache_t * mc_tmp )
 
         // add in the appropriate mods
         // this is a hybrid character and weapon matrix
-        mc_tmp->type  |= MAT_CHARACTER;
+        mc_tmp->type_bits  |= MAT_CHARACTER;
 
         // treat it like a normal character matrix
         apply_one_character_matrix( pweap, mc_tmp );
@@ -8103,7 +8115,7 @@ bool_t apply_one_character_matrix( chr_t * pchr, matrix_cache_t * mc_tmp )
     if ( NULL == mc_tmp ) return bfalse;
 
     // only apply character matrices using this function
-    if ( 0 == ( MAT_CHARACTER & mc_tmp->type ) ) return bfalse;
+    if ( 0 == ( MAT_CHARACTER & mc_tmp->type_bits ) ) return bfalse;
 
     pchr->inst.matrix_cache.matrix_valid = bfalse;
 
@@ -8156,7 +8168,7 @@ bool_t apply_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
     if ( !ALLOCATED_PCHR( pchr ) ) return bfalse;
     if ( NULL == mc_tmp || !mc_tmp->valid ) return bfalse;
 
-    if ( 0 != ( MAT_WEAPON & mc_tmp->type ) )
+    if ( 0 != ( MAT_WEAPON & mc_tmp->type_bits ) )
     {
         if ( ACTIVE_CHR( mc_tmp->grip_chr ) )
         {
@@ -8170,11 +8182,11 @@ bool_t apply_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
             make_one_character_matrix( GET_INDEX_PCHR( pchr ) );
 
             // recover the matrix_cache values from the character
-            mcache->type |= MAT_CHARACTER;
+            mcache->type_bits |= MAT_CHARACTER;
             if ( mcache->matrix_valid )
             {
-                mcache->valid   = btrue;
-                mcache->type    = MAT_CHARACTER;
+                mcache->valid     = btrue;
+                mcache->type_bits = MAT_CHARACTER;
 
                 mcache->self_scale.x =
                     mcache->self_scale.y =
@@ -8192,7 +8204,7 @@ bool_t apply_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
             }
         }
     }
-    else if ( 0 != ( MAT_CHARACTER & mc_tmp->type ) )
+    else if ( 0 != ( MAT_CHARACTER & mc_tmp->type_bits ) )
     {
         applied = apply_one_character_matrix( pchr, mc_tmp );
     }
@@ -8252,11 +8264,11 @@ int cmp_matrix_cache( const void * vlhs, const void * vrhs )
     }
 
     // handle differences in the type
-    itmp = plhs->type - prhs->type;
+    itmp = plhs->type_bits - prhs->type_bits;
     if ( 0 != itmp ) goto cmp_matrix_cache_end;
 
     //---- check for differences in the MAT_WEAPON data
-    if ( 0 != ( plhs->type & MAT_WEAPON ) )
+    if ( 0 != ( plhs->type_bits & MAT_WEAPON ) )
     {
         itmp = ( int )plhs->grip_chr - ( int )prhs->grip_chr;
         if ( 0 != itmp ) goto cmp_matrix_cache_end;
@@ -8279,7 +8291,7 @@ int cmp_matrix_cache( const void * vlhs, const void * vrhs )
     }
 
     //---- check for differences in the MAT_CHARACTER data
-    if ( 0 != ( plhs->type & MAT_CHARACTER ) )
+    if ( 0 != ( plhs->type_bits & MAT_CHARACTER ) )
     {
         // handle differences in the "Euler" rotation angles in 16-bit form
         for ( cnt = 0; cnt < 3; cnt++ )
@@ -8297,7 +8309,7 @@ int cmp_matrix_cache( const void * vlhs, const void * vrhs )
     }
 
     //---- check for differences in the shared data
-    if ( 0 != ( plhs->type & MAT_WEAPON ) || 0 != ( plhs->type & MAT_CHARACTER ) )
+    if ( 0 != ( plhs->type_bits & MAT_WEAPON ) || 0 != ( plhs->type_bits & MAT_CHARACTER ) )
     {
         // handle differences in our own scale
         for ( cnt = 0; cnt < 3; cnt ++ )
@@ -8368,7 +8380,7 @@ egoboo_rv chr_update_matrix( chr_t * pchr, bool_t update_size )
     needs_update = ( rv_success == retval );
 
     // Update the grip vertices no matter what (if they are used)
-    if ( 0 != ( MAT_WEAPON & mc_tmp.type ) && ACTIVE_CHR( mc_tmp.grip_chr ) )
+    if ( 0 != ( MAT_WEAPON & mc_tmp.type_bits ) && ACTIVE_CHR( mc_tmp.grip_chr ) )
     {
         egoboo_rv retval;
         chr_t   * ptarget = ChrList.lst + mc_tmp.grip_chr;
@@ -8717,7 +8729,7 @@ void chr_set_floor_level( chr_t * pchr, float level )
 {
     if ( !ALLOCATED_PCHR( pchr ) ) return;
 
-    if ( level != pchr->enviro.level )
+    if ( level != pchr->enviro.floor_level )
     {
         pchr->enviro.floor_level = level;
         apply_reflection_matrix( &( pchr->inst ), level );

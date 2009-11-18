@@ -372,7 +372,7 @@ bool_t md2_load_one( const char* szLoadname, ego_md2_t * pmd2 )
     if ( INVALID_CSTR( szLoadname ) ) return bfalse;
 
     // Read the input file
-    file = fopen( szLoadname, "rb" );
+    file = EGO_fopen( szLoadname, "rb" );
     if ( !file )
     {
         log_warning( "md2_load_one() - Cannot load file! (\"%s\")\n", szLoadname );
@@ -380,10 +380,10 @@ bool_t md2_load_one( const char* szLoadname, ego_md2_t * pmd2 )
     }
 
     // Read up to MD2MAXLOADSIZE bytes from the file into the cLoadBuffer array.
-    iBytesRead = fread( cLoadBuffer, 1, MD2MAXLOADSIZE, file );
+    iBytesRead = EGO_fread( cLoadBuffer, 1, MD2MAXLOADSIZE, file );
 
     // done with the file
-    fclose( file );
+    EGO_fclose( file );
 
     if ( iBytesRead == 0 ) return bfalse;
 

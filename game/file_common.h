@@ -18,6 +18,9 @@
 //*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
+
+#include <stdio.h>
+
 #include "egoboo_typedef.h"
 
 //---------------------------------------------------------------------------------------------
@@ -79,3 +82,134 @@ void fs_copyDirectory( const char *sourceDir, const char *destDir );
 const char *fs_findFirstFile( const char *path, const char *extension, fs_find_context_t * fs_search );
 const char *fs_findNextFile( fs_find_context_t * fs_search );
 void        fs_findClose( fs_find_context_t * fs_search );
+
+//--------------------------------------------------------
+// wrapper functions so we can intercept file-system calls
+void _ego_clearerr(FILE *);
+int _ego_fclose(FILE *);
+int _ego_feof(FILE *);
+int _ego_ferror(FILE *);
+int _ego_fflush(FILE *);
+int _ego_fgetc(FILE *);
+int _ego_fgetpos(FILE *, fpos_t *);
+char * _ego_fgets(char*, int, FILE *);
+FILE * _ego_fopen(const char *, const char *);
+//_ego_fprintf
+int _ego_fputc(int, FILE *);
+int _ego_fputs(const char *, FILE *);
+size_t _ego_fread(void *, size_t, size_t, FILE *);
+FILE * _ego_freopen( const char *, const char *, FILE *);
+//_ego_fscanf(
+int _ego_fseek( FILE*, long, int );
+int _ego_fsetpos( FILE *, const fpos_t * );
+long _ego_ftell(FILE *);
+size_t _ego_fwrite( const void *, size_t, size_t, FILE *);
+int _ego_getc(FILE *);
+int _ego_getchar();
+char * _ego_gets(char *);
+//_ego_printf
+int ego_putc( int, FILE *);
+int ego_putchar(int);
+int _ego_puts(const char *);
+void _ego_rewind(FILE *);
+//_ego_scanf
+void _ego_setbuf( FILE *, char * );
+int _ego_setvbuf( FILE *, char *, int , size_t );
+//_ego_sprintf
+//_ego_sscanf
+FILE * _ego_tmpfile();
+char * _ego_tmpnam(char *);
+int _ego_ungetc(int, FILE *);
+int _ego_vfprintf(FILE *, const char *, va_list );
+int _ego_vprintf(const char *, va_list );
+int _ego_vsprintf(char *, const char *, va_list);
+int _ego_vsnprintf( char *, size_t, const char *, va_list );
+
+
+//--------------------------------------------------------
+// macros to dispatch file-system calls
+#ifdef DEBUG_STDIO
+
+#    define EGO_clearerr _ego_clearerr
+#    define EGO_fclose _ego_fclose
+#    define EGO_feof _ego_feof
+#    define EGO_ferror _ego_ferror
+#    define EGO_fflush _ego_fflush
+#    define EGO_fgetc _ego_fgetc
+#    define EGO_fgetpos _ego_fgetpos
+#    define EGO_fgets _ego_fgets
+#    define EGO_fopen _ego_fopen
+#    define EGO_fprint _ego_fprint
+#    define EGO_fputc _ego_fputc
+#    define EGO_fputs _ego_fputs
+#    define EGO_fread _ego_fread
+#    define EGO_freopen _ego_freopen
+#    define EGO_fscanf _ego_fscanf
+#    define EGO_fseek _ego_fseek
+#    define EGO_fsetpos _ego_fsetpos
+#    define EGO_ftell _ego_ftell
+#    define EGO_fwrite _ego_fwrite
+#    define EGO_getc _ego_getc
+#    define EGO_getchar _ego_getchar
+#    define EGO_gets _ego_gets
+#    define EGO_print _ego_print
+#    define EGO_putc _ego_putc
+#    define EGO_putchar _ego_putchar
+#    define EGO_puts _ego_puts
+#    define EGO_rewind _ego_rewind
+//_ego_scanf
+#    define EGO_setbuf _ego_setbuf
+#    define EGO_setvbuf _ego_setvbuf
+#    define EGO_sprint _ego_sprint
+#    define EGO_sscan _ego_sscan
+#    define EGO_tmpfile _ego_tmpfile
+#    define EGO_tmpnam _ego_tmpnam
+#    define EGO_ungetc _ego_ungetc
+#    define EGO_vfprintf _ego_vfprintf
+#    define EGO_vprintf _ego_vprintf
+#    define EGO_vsprintf _ego_vsprintf
+#    define EGO_vsnprintf _ego_vsnprintf
+
+#else
+
+#    define EGO_clearerr clearerr
+#    define EGO_fclose fclose
+#    define EGO_feof feof
+#    define EGO_ferror ferror
+#    define EGO_fflush fflush
+#    define EGO_fgetc fgetc
+#    define EGO_fgetpos fgetpos
+#    define EGO_fgets fgets
+#    define EGO_fopen fopen
+#    define EGO_fprint fprint
+#    define EGO_fputc fputc
+#    define EGO_fputs fputs
+#    define EGO_fread fread
+#    define EGO_freopen freopen
+#    define EGO_fscanf fscanf
+#    define EGO_fseek fseek
+#    define EGO_fsetpos fsetpos
+#    define EGO_ftell ftell
+#    define EGO_fwrite fwrite
+#    define EGO_getc getc
+#    define EGO_getchar getchar
+#    define EGO_gets gets
+#    define EGO_print print
+#    define EGO_putc putc
+#    define EGO_putchar putchar
+#    define EGO_puts puts
+#    define EGO_rewind rewind
+//scanf
+#    define EGO_setbuf setbuf
+#    define EGO_setvbuf setvbuf
+#    define EGO_sprint sprint
+#    define EGO_sscan sscan
+#    define EGO_tmpfile tmpfile
+#    define EGO_tmpnam tmpnam
+#    define EGO_ungetc ungetc
+#    define EGO_vfprintf vfprintf
+#    define EGO_vprintf vprintf
+#    define EGO_vsprintf vsprintf
+#    define EGO_vsnprintf vsnprintf
+
+#endif

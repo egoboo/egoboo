@@ -209,40 +209,40 @@ mpd_t * mpd_load( const char *loadname, mpd_t * pmesh )
     pinfo = &(pmesh->info);
     pmem  = &(pmesh->mem);
 
-    fileread = fopen( loadname, "rb" );
+    fileread = EGO_fopen( loadname, "rb" );
     if ( NULL == fileread )
     {
         log_warning( "mpd_load() - cannot find \"%s\"!!\n", loadname );
         return NULL;
     }
 
-    fread( &itmp, 4, 1, fileread );
+    EGO_fread( &itmp, 4, 1, fileread );
     if ( MAPID != ( Uint32 )ENDIAN_INT32( itmp ) )
     {
         log_warning( "mpd_load() - this is not a valid level.mpd!!\n" );
-        fclose( fileread );
+        EGO_fclose( fileread );
         return NULL;
     }
 
     // Read the number of vertices
-    fread( &itmp, 4, 1, fileread );  pinfo->vertcount   = ( int )ENDIAN_INT32( itmp );
+    EGO_fread( &itmp, 4, 1, fileread );  pinfo->vertcount   = ( int )ENDIAN_INT32( itmp );
 
     // grab the tiles in x and y
-    fread( &itmp, 4, 1, fileread );  pinfo->tiles_x = ( int )ENDIAN_INT32( itmp );
+    EGO_fread( &itmp, 4, 1, fileread );  pinfo->tiles_x = ( int )ENDIAN_INT32( itmp );
     if ( pinfo->tiles_x >= MAXMESHTILEY )
     {
         mpd_delete( pmesh );
         log_warning( "mpd_load() - invalid mpd size. Mesh too large in x direction.\n" );
-        fclose( fileread );
+        EGO_fclose( fileread );
         return NULL;
     }
 
-    fread( &itmp, 4, 1, fileread );  pinfo->tiles_y = ( int )ENDIAN_INT32( itmp );
+    EGO_fread( &itmp, 4, 1, fileread );  pinfo->tiles_y = ( int )ENDIAN_INT32( itmp );
     if ( pinfo->tiles_y >= MAXMESHTILEY )
     {
         mpd_delete( pmesh );
         log_warning( "mpd_load() - invalid mpd size. Mesh too large in y direction.\n" );
-        fclose( fileread );
+        EGO_fclose( fileread );
         return NULL;
     }
 
@@ -250,7 +250,7 @@ mpd_t * mpd_load( const char *loadname, mpd_t * pmesh )
     if ( !mpd_mem_allocate( pmem, pinfo ) )
     {
         mpd_delete( pmesh );
-        fclose( fileread );
+        EGO_fclose( fileread );
         log_warning( "mpd_load() - could not allocate memory for the mesh!!\n" );
         return NULL;
     }
@@ -260,7 +260,7 @@ mpd_t * mpd_load( const char *loadname, mpd_t * pmesh )
     // Load fan data
     for ( fan = 0; fan < tiles_count; fan++ )
     {
-        fread( &itmp, 4, 1, fileread );
+        EGO_fread( &itmp, 4, 1, fileread );
         pmem->tile_list[fan].type = CLIP_TO_08BITS(ENDIAN_INT32( itmp ) >> 24);
         pmem->tile_list[fan].fx   = CLIP_TO_08BITS(ENDIAN_INT32( itmp ) >> 16);
         pmem->tile_list[fan].img  = CLIP_TO_16BITS(ENDIAN_INT32( itmp ) >>  0);
@@ -269,39 +269,39 @@ mpd_t * mpd_load( const char *loadname, mpd_t * pmesh )
     // Load twist data
     for ( fan = 0; fan < tiles_count; fan++ )
     {
-        fread( &itmp, 1, 1, fileread );
+        EGO_fread( &itmp, 1, 1, fileread );
         pmem->tile_list[fan].twist = ENDIAN_INT32( itmp );
     }
 
     // Load vertex x data
     for ( cnt = 0; cnt < pmem->vcount; cnt++ )
     {
-        fread( &ftmp, 4, 1, fileread );
+        EGO_fread( &ftmp, 4, 1, fileread );
         pmem->vlst[cnt].pos.x = ENDIAN_FLOAT( ftmp );
     }
 
     // Load vertex y data
     for ( cnt = 0; cnt < pmem->vcount; cnt++ )
     {
-        fread( &ftmp, 4, 1, fileread );
+        EGO_fread( &ftmp, 4, 1, fileread );
         pmem->vlst[cnt].pos.y = ENDIAN_FLOAT( ftmp );
     }
 
     // Load vertex z data
     for ( cnt = 0; cnt < pmem->vcount; cnt++ )
     {
-        fread( &ftmp, 4, 1, fileread );
+        EGO_fread( &ftmp, 4, 1, fileread );
         pmem->vlst[cnt].pos.z = ENDIAN_FLOAT( ftmp ) / 16.0f;  // Cartman uses 4 bit fixed point for Z
     }
 
     // Load vertex a data
     for ( cnt = 0; cnt < pmem->vcount; cnt++ )
     {
-        fread( &btemp, 1, 1, fileread );
+        EGO_fread( &btemp, 1, 1, fileread );
         pmem->vlst[cnt].a = 0; // btemp;
     }
 
-    fclose( fileread );
+    EGO_fclose( fileread );
 
     return pmesh;
 }
@@ -312,7 +312,7 @@ mpd_info_t * mpd_info_new( mpd_info_t * pinfo )
 {
     if (NULL == pinfo) return pinfo;
 
-    memset( pinfo, 0, sizeof(mpd_info_t) );
+    memset( pinfo, 0, sizeof(*pinfo) );
 
     return pinfo;
 }
@@ -322,7 +322,7 @@ mpd_info_t * mpd_info_delete( mpd_info_t * pinfo )
 {
     if ( NULL != pinfo )
     {
-        memset( pinfo, 0, sizeof(mpd_info_t) );
+        memset( pinfo, 0, sizeof(*pinfo) );
     }
 
     return pinfo;
@@ -334,7 +334,7 @@ mpd_mem_t * mpd_mem_new( mpd_mem_t * pmem )
 {
     if (NULL == pmem) return pmem;
 
-    memset( pmem, 0, sizeof(mpd_mem_t) );
+    memset( pmem, 0, sizeof(*pmem) );
 
     return pmem;
 }
@@ -345,7 +345,7 @@ mpd_mem_t * mpd_mem_delete( mpd_mem_t * pmem )
     if ( NULL != pmem )
     {
         mpd_mem_free( pmem );
-        memset( pmem, 0, sizeof(mpd_mem_t) );
+        memset( pmem, 0, sizeof(*pmem) );
     }
 
     return pmem;

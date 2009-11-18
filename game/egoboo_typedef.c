@@ -47,15 +47,15 @@ bool_t hash_node_dtor( hash_node_t * n )
 }
 
 //--------------------------------------------------------------------------------------------
-hash_node_t * hash_node_ctor( hash_node_t * n, void * data )
+hash_node_t * hash_node_ctor( hash_node_t * pn, void * data )
 {
-    if ( NULL == n ) return n;
+    if ( NULL == pn ) return pn;
 
-    memset( n, 0, sizeof( hash_node_t ) );
+    memset( pn, 0, sizeof( *pn ) );
 
-    n->data = data;
+    pn->data = data;
 
-    return n;
+    return pn;
 }
 
 //--------------------------------------------------------------------------------------------

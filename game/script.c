@@ -161,7 +161,7 @@ void let_character_think( Uint16 character )
     }
 
     // reset the script state
-    memset( &my_state, 0, sizeof( script_state_t ) );
+    memset( &my_state, 0, sizeof( my_state ) );
 
     // reset the ai
     pself->terminate = bfalse;

@@ -24,7 +24,7 @@
 #include "log.h"
 #include "system.h"
 
-#include <stdio.h> /* for NULL */
+#include "file_common.h" /* for NULL */
 #include <sys/time.h>
 
 //---------------------------------------------------------------------------------------------

@@ -34,7 +34,7 @@ extern "C"
 {
 #else
 #    include <assert.h>
-#    include <stdio.h>
+#    include "file_common.h"
 #endif
 
 //------------------------------------------------------------------------------

@@ -25,7 +25,7 @@
 
 #include "ogl_debug.h"
 
-#include <stdio.h>
+#include "file_common.h"
 #include <assert.h>
 #include <memory.h>
 
@@ -350,7 +350,7 @@ void gl_grab_state( ogl_state_t * ps )
 
     if (NULL == ps) return;
 
-    memset( ps, 0, sizeof(ogl_state_t) );
+    memset( ps, 0, sizeof(*ps) );
     memcpy( &tmp_state, ps, sizeof(ogl_state_t) );
 
     gl_grab_texturing_state( &ps->texturing );

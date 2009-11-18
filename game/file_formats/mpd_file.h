@@ -102,7 +102,7 @@ struct s_tile_info
     Uint16  img;                               ///< Get texture from this
     Uint8   fx;                                 ///< Special effects flags
     Uint8   twist;
-    Uint32  vrtstart;                           ///< Which vertex to start at
+    size_t  vrtstart;                           ///< Which vertex to start at
 
     bool_t  inrenderlist;
 };

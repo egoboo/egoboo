@@ -120,7 +120,7 @@ ClockState_t * clk_new( ClockState_t * cs, const char * name, int size )
     if ( size < 0 ) size = 1;
     //log_info("clk_new() - \n    \"%s\"    %d buffer(s)\n", name, size);
 
-    memset( cs, 0, sizeof( ClockState_t ) );
+    memset( cs, 0, sizeof( *cs ) );
 
     cs->maximumFrameTime = 0.2;
     cs->name = name;

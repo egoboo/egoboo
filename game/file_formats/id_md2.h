@@ -35,7 +35,7 @@ enum e_id_md2_constant
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 /// try to make sure that the raw data structs are packed,
-/// so that structures can be read/written directly using fread()/fwrite()
+/// so that structures can be read/written directly using EGO_fread()/EGO_fwrite()
 
 #pragma pack(push, 1)
 
