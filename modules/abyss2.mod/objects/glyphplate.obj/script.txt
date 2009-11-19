@@ -1,6 +1,9 @@
 // This reads an inscription, if the target can read
 IfTimeOut
-
+  //Check every so often
+  tmpargument = rand & 15 + 10
+  SetTime
+  
   // Check the plate passages
   tmpx = 0 // Can't read message
   tmpdistance = 0 // Set to 1 if a message is to be displayed
@@ -99,7 +102,6 @@ IfTimeOut
     Else
       tmpx = 0    //Cannot read...
 
-        
   IfTargetIsAPlayer					//Last check that only players read
     IfDistanceIsMoreThanTurn
       // Display the message
@@ -112,9 +114,5 @@ IfTimeOut
         SendMessage
       tmpargument = tmpx // The message
       SendMessage
-    Else
-      // No messages
-      tmpargument = 10
-      SetTime
 
 End					// All done

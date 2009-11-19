@@ -1,5 +1,7 @@
 IfTimeOut
-
+  tmpargument = rand & 15 + 25
+  SetTime
+  
   //Watch the player
   IfStateIs0
     SetTargetToNearestEnemy

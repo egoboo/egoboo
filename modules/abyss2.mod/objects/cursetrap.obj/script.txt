@@ -5,12 +5,6 @@ IfStateIs0
   tmpy = selfy
   SpawnExactParticle
   SpawnExactParticle
-  SpawnExactParticle
-  SpawnExactParticle
-  SpawnExactParticle
-  SpawnExactParticle
-  SpawnExactParticle
-  SpawnExactParticle
 
 IfTimeOut
 

@@ -15,6 +15,10 @@ IfSpawned
 
 IfStateIs0
   IfTimeOut
+    tmpargument = 0
+    SetAlpha
+    SetLight
+    SetBumpSize
     tmpargument = rand % 20 + 15		//How often to spawn
     SetTime
     tmpdistance = 128*6

@@ -1,8 +1,8 @@
 // Smoke poof Prespawn
 Force spawn ( TRUE or FALSE )				: FALSE
 Image type ( SOLID, LIGHT, or TRANS )			: TRANS
-Starting frame ( 0 to 255 )				: 256
-Number of frames ( 1 to 16 )				: 7
+Starting frame ( 0 to 255 )				: 40 //256
+Number of frames ( 1 to 16 )				: 8 //7
 Frame rate ( 0 to 1000 )				: 40
 Frame rate randomness ( 0, 1, 3, 7, 15, 31, 63... )	: 15
 Rotation base ( 0 to 65535 )				: 0

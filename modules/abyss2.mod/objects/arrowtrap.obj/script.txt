@@ -14,6 +14,9 @@ IfStateIs1
           SpawnExactParticle
 
 IfTimeOut
+  tmpargument = rand & 10 + 15
+  SetTime
+  
   //Check for rogues to find it
   SetTargetToNearestLifeform
     tmpargument = [TECH]			//Does the target have disarm skill?
@@ -39,8 +42,7 @@ IfTimeOut
                 tmpargument = 1
                 SetState				//Mark as detected
 
-  GetContent
-  tmpx = tmpargument
+  tmpx = selfcontent
   tmpy = 1
   IfXIsEqualToY
     // Go away

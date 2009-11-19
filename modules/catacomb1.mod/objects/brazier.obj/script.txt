@@ -28,9 +28,11 @@ IfContentIs
       SetTime
       tmpargument = 2
       PlaySound				//Play the mystic tune
-  Else
-    IfTimeOut
-      DisaffirmCharacter
+  
+IfTimeOut
+  tmpargument = 1
+  IfContentIs
+    DisaffirmCharacter
 
 //Handle going on and off
 IfReaffirmed

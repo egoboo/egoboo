@@ -40,6 +40,8 @@ IfOrdered
     SetContent
 
 IfTimeOut
+  tmpargument = rand & 15 + 10
+  SetTime
   tmpargument = 1
   SetTargetToWhoeverIsInPassage
     IfTargetIsAPlayer
@@ -195,8 +197,7 @@ IfTimeOut
       OpenPassage
 
   //This starts the Deamon Lord battle
-  GetContent
-  tmpx = tmpargument
+  tmpx = selfcontent
   tmpy = 0                              //At least one alive
   IfXIsMoreThanY
     tmpargument = 8
@@ -221,12 +222,12 @@ IfTimeOut
     tmpdistance = 0
     PlayMusic
 
-//This opens up the door to the magma yeti
-tmpargument = 38
-SetTargetToWhoeverIsInPassage
-  IfTargetCanOpenStuff
-    tmpargument = 37
-    OpenPassage
+  //This opens up the door to the magma yeti
+  tmpargument = 38
+  SetTargetToWhoeverIsInPassage
+    IfTargetIsAPlayer
+      tmpargument = 37
+      OpenPassage
 
 End					// All done
 

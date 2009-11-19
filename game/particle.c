@@ -341,10 +341,6 @@ int prt_get_free( int force )
         {
             iprt = PrtList_get_free();
         }
-        else
-        {
-            int BLAH = 0;
-        }
     }
 
     // return a proper value
@@ -2555,27 +2551,30 @@ void release_all_pip()
     if( tnc > 0 && max_request > 0 )
     {
         FILE * ftmp = EGO_fopen( "pip_usage.txt", "w" );
+		if(ftmp != NULL)
+		{
+			fprintf( ftmp, "List of used pips\n\n" );
 
-        fprintf( ftmp, "List of used pips\n\n" );
+			for ( cnt = 0; cnt < MAX_PIP; cnt++ )
+			{
+				if( LOADED_PIP(cnt) )
+				{
+					pip_t * ppip = PipStack.lst + cnt;
 
-        for ( cnt = 0; cnt < MAX_PIP; cnt++ )
-        {
-            if( LOADED_PIP(cnt) )
-            {
-                pip_t * ppip = PipStack.lst + cnt;
+					log_debug( "index == %d\tname == \"%s\"\tcreate_count == %d\trequest_count == %d\n", cnt, ppip->name, ppip->prt_create_count, ppip->prt_request_count ); 
+					fprintf( ftmp, "index == %d\tname == \"%s\"\tcreate_count == %d\trequest_count == %d\n", cnt, ppip->name, ppip->prt_create_count, ppip->prt_request_count ); 
+				}
+			}
 
-                fprintf( ftmp, "index == %d\tname == \"%s\"\tcreate_count == %d\trequest_count == %d\n", cnt, ppip->name, ppip->prt_create_count, ppip->prt_request_count ); 
-            }
-        }
+			EGO_fflush(ftmp);
 
-        EGO_fflush(ftmp);
+			EGO_fclose(ftmp);
 
-        EGO_fclose(ftmp);
-
-        for ( cnt = 0; cnt < MAX_PIP; cnt++ )
-        {
-            release_one_pip( cnt );
-        }
+			for ( cnt = 0; cnt < MAX_PIP; cnt++ )
+			{
+				release_one_pip( cnt );
+			}
+		}
     }
     
 }

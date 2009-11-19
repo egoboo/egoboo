@@ -7,8 +7,8 @@ IfSpawned
   SpawnPoof
 
 IfTimeOut
-  GoPoof
   SpawnPoof
+  GoPoof
 
 // All Done
 End

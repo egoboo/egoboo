@@ -7215,6 +7215,7 @@ Uint8 scr_set_TargetToNearestQuestID( script_state_t * pstate, ai_state_t * psel
 {
     // SetTargetToNearestQuestID()
     /// @details ZF@> This function finds the NEAREST ( exact ) player who has the specified quest
+    float  longdist = 0xFFFFFFFF;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -7225,8 +7226,11 @@ Uint8 scr_set_TargetToNearestQuestID( script_state_t * pstate, ai_state_t * psel
     {
         Uint16 ichr_test = PlaList[sTmp].index;
         chr_t * ptst;
-int iTmp;
-        if ( !ACTIVE_CHR( ichr_test ) ) continue;
+		int iTmp;
+        fvec3_t   diff;
+        float  dist2;
+        
+		if ( !ACTIVE_CHR( ichr_test ) ) continue;
         ptst = ChrList.lst + ichr_test;
 
 		//Only valid targets
@@ -7235,12 +7239,17 @@ int iTmp;
             continue;
         }
 
+		//Calculate distance
+        diff  = fvec3_sub( pchr->pos.v, ptst->pos.v );
+        dist2 = fvec3_dot_product( diff.v, diff.v );
+
 		//Do they have the specified quest?
 		iTmp = quest_check( chr_get_dir_name( ichr_test ), pstate->argument );
-		if ( iTmp > QUEST_BEATEN )
+		if ( iTmp > QUEST_BEATEN && dist2 < longdist )
         {
 			pself->target = ichr_test;
 			returncode = btrue;
+			longdist = dist2;
         }
     }
 
