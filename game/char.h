@@ -320,7 +320,8 @@ struct s_chr_instance
     Sint32         color_amb;
     fvec4_t        col_amb;
     int            max_light, min_light;
-    Uint32         lighting_update_wld;            ///< the save data to determine whether re-calculation of lighting data is necessary
+    Uint32         lighting_update_wld;            ///< update some lighting info no more than once an update
+    Uint32         lighting_frame_all;             ///< update some lighting info no more than once a frame
 
     // linear interpolated frame vertices
     size_t         vlst_size;

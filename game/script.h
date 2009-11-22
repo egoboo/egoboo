@@ -21,6 +21,8 @@
 
 #include "egoboo_typedef.h"
 
+#include "clock.h"
+
 #define MSGDISTANCE         2000                    ///< Range for SendMessageNear
 #define PITNOSOUND          -256                    ///< Stop sound at bottom of pits...
 
@@ -135,7 +137,6 @@ struct s_ai_state
     Uint16         damagetypelast;  ///< Last damage type
     Uint16         lastitemused;    ///< The last item the character used
     Uint16         target_old;      ///< Target in the previous update
-    //Uint16         searchlast;      ///< The target returned the last time the seach was run
 
     // message handling
     Uint32         order_value;           ///< The last order given the character
@@ -149,6 +150,9 @@ struct s_ai_state
     Uint8          wp_head;          ///< Where to stick next
     float          wp_pos_x[MAXWAY]; ///< Waypoint
     float          wp_pos_y[MAXWAY]; ///< Waypoint
+
+    // performance monitoring
+    PROFILE_DECLARE_STRUCT();
 };
 typedef struct s_ai_state ai_state_t;
 

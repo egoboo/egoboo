@@ -172,7 +172,7 @@ void SDLX_output_sdl_gl_attrib( SDLX_sdl_gl_attrib_t * patt )
     fprintf( LOCAL_STDOUT, "\tSDL_GL_SWAP_CONTROL       == %d\n", patt->swap_control       );
 #endif
 
-    EGO_fflush( LOCAL_STDOUT );
+    fflush( LOCAL_STDOUT );
 }
 
 //------------------------------------------------------------------------------
@@ -219,7 +219,7 @@ void SDLX_output_sdl_video_flags( SDLX_sdl_video_flags_t flags )
         fprintf( LOCAL_STDOUT, "\tno external frame\n" );
     }
 
-    EGO_fflush( LOCAL_STDOUT );
+    fflush( LOCAL_STDOUT );
 }
 
 //------------------------------------------------------------------------------
@@ -289,7 +289,7 @@ void SDLX_report_video_parameters( SDLX_video_parameters_t * v )
         SDLX_output_sdl_gl_attrib( &(v->gl_att) );
     }
 
-    EGO_fflush( LOCAL_STDOUT );
+    fflush( LOCAL_STDOUT );
 }
 
 //------------------------------------------------------------------------------
@@ -612,7 +612,7 @@ void SDLX_report_mode( SDL_Surface * surface, SDLX_video_parameters_t * v )
         fprintf( LOCAL_STDOUT, "==============================================================\n" );
     }
 
-    EGO_fflush( LOCAL_STDOUT );
+    fflush( LOCAL_STDOUT );
 }
 
 //------------------------------------------------------------------------------

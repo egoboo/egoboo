@@ -107,16 +107,24 @@ EXTERN Uint8           timeron     EQ( bfalse );          ///< Game timer displa
 EXTERN Uint32          timervalue  EQ( 0 );           ///< Timer time ( 50ths of a second )
 
 // fps stuff
-EXTERN float           est_max_fps           EQ( TARGET_FPS );
-EXTERN float           est_gfx_time          EQ( 1.0f );
 EXTERN Sint32          fps_clock             EQ( 0 );             ///< The number of ticks this second
 EXTERN Uint32          fps_loops             EQ( 0 );             ///< The number of frames drawn this second
 EXTERN float           stabilized_fps        EQ( TARGET_FPS );
 EXTERN float           stabilized_fps_sum    EQ( 0 );
 EXTERN float           stabilized_fps_weight EQ( 0 );
 
+EXTERN float           est_max_fps           EQ( TARGET_FPS );
+EXTERN float           est_render_time       EQ( 1.0f / TARGET_FPS );
+
 EXTERN float           est_update_time       EQ( 1.0f / TARGET_UPS );
 EXTERN float           est_max_ups           EQ( TARGET_UPS );
+
+EXTERN float           est_gfx_time          EQ( 1.0f / TARGET_FPS );
+EXTERN float           est_max_gfx           EQ( TARGET_FPS );
+
+EXTERN float           est_single_update_time  EQ( 1.0f / TARGET_UPS );
+EXTERN float           est_single_ups          EQ( TARGET_UPS );
+
 EXTERN float           est_update_game_time  EQ( 1.0f / TARGET_UPS );
 EXTERN float           est_max_game_ups      EQ( TARGET_UPS );
 

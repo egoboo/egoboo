@@ -84,9 +84,7 @@ void let_character_think( Uint16 character )
         pself->changed = bfalse;
     }
 
-    // characters that are not "alive" should have greatly limited access to scripting...
-    // in the past it was completely turned off
-    // if ( !pchr->alive ) return;
+    PROFILE_BEGIN_STRUCT(pself);
 
     // debug a certain script
     // debug_scripts = ( pself->index == 385 && pchr->iprofile == 76 );
@@ -230,6 +228,8 @@ void let_character_think( Uint16 character )
 
     // Clear alerts for next time around
     pself->alert = 0;
+
+    PROFILE_END2_STRUCT(pself);
 }
 
 //--------------------------------------------------------------------------------------------

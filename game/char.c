@@ -103,6 +103,8 @@ bool_t chr_instance_update_ref( chr_instance_t * pinst, float floor_level, bool_
 static void   ChrList_init();
 static Uint16 ChrList_get_free();
 
+static void chr_log_script_time( Uint16 ichr );
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 void character_system_init()
@@ -355,6 +357,34 @@ void ChrList_update_used()
 }
 
 //--------------------------------------------------------------------------------------------
+void chr_log_script_time( Uint16 ichr )
+{
+    // log the amount of script time that this object used up
+
+    chr_t * pchr;
+    cap_t * pcap;
+    FILE * ftmp;
+
+    if ( !ALLOCATED_CHR( ichr ) ) return;
+    pchr = ChrList.lst + ichr;
+
+    if( pchr->ai._clkcount <= 0 ) return;
+
+    pcap = chr_get_pcap( ichr );
+    if( NULL == pcap ) return;
+
+    ftmp = EGO_fopen( "script_timing.txt", "a+" );
+    if( NULL != ftmp )
+    {
+        fprintf( ftmp, "update == %d\tindex == %d\tname == \"%s\"\tclassname == \"%s\"\ttotal_time == %e\ttotal_calls == %f\n", 
+            update_wld, ichr, pchr->Name, pcap->classname,
+            pchr->ai._clktime, pchr->ai._clkcount);
+        EGO_fflush(ftmp);
+        EGO_fclose(ftmp);
+    }
+}
+
+//--------------------------------------------------------------------------------------------
 bool_t ChrList_free_one( Uint16 ichr )
 {
     /// @details ZZ@> This function sticks a character back on the free enchant stack
@@ -366,6 +396,8 @@ bool_t ChrList_free_one( Uint16 ichr )
     chr_t * pchr;
 
     if ( !ALLOCATED_CHR( ichr ) ) return bfalse;
+    chr_log_script_time( ichr );
+
     pchr = ChrList.lst + ichr;
 
     // character "destructor"
@@ -3198,7 +3230,8 @@ ai_state_t * ai_state_init( ai_state_t * pself )
     pself->bumplast   = MAX_CHR;
     pself->attacklast = MAX_CHR;
     pself->hitlast    = MAX_CHR;
-    //pself->searchlast = MAX_CHR;
+
+    PROFILE_INIT_STRUCT(ai,pself);
 
     return pself;
 }
@@ -6084,6 +6117,7 @@ void chr_instance_clear_cache( chr_instance_t * pinst )
     chr_reflection_cache_init( &( pinst->ref ) );
 
     pinst->lighting_update_wld = 0;
+    pinst->lighting_frame_all  = 0;
 }
 
 //--------------------------------------------------------------------------------------------

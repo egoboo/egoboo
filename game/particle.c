@@ -1232,10 +1232,14 @@ void move_one_particle_do_floor_friction( prt_t * pprt )
 
     if ( !DISPLAY_PPRT( pprt ) ) return;
 
+    // limit friction effects to solid objects?
+    if( SPRITE_SOLID != pprt->type ) return;
+
+    // if the particle is homing in on something, ignore friction
+    if ( pprt->is_homing ) return;
+
     if ( !LOADED_PIP( pprt->pip_ref ) ) return;
     ppip = PipStack.lst + pprt->pip_ref;
-
-    if ( pprt->is_homing ) return;
 
     // figure out the acceleration due to the current "floor"
     floor_acc.x = floor_acc.y = floor_acc.z = 0.0f;
@@ -1460,10 +1464,10 @@ void move_one_particle_do_homing( prt_t * pprt )
     if ( !DISPLAY_PPRT( pprt ) ) return;
     iprt = GET_INDEX_PPRT( pprt );
 
+    if ( !pprt->is_homing || !ACTIVE_CHR( pprt->target_ref ) ) return;
+
     if ( !LOADED_PIP( pprt->pip_ref ) ) return;
     ppip = PipStack.lst + pprt->pip_ref;
-
-    if ( !pprt->is_homing || !ACTIVE_CHR( pprt->target_ref ) ) return;
 
     if ( !ChrList.lst[pprt->target_ref].alive )
     {

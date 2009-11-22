@@ -146,22 +146,22 @@ bool_t render_one_prt_solid( Uint16 iprt )
     // billboard for the particle
     calc_billboard_verts( vtlist, pinst, pinst->size, bfalse );
 
-    ATTRIB_PUSH( "render_one_prt_solid", GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_LIGHTING_BIT | GL_CURRENT_BIT );
+    ATTRIB_PUSH( "render_one_prt_solid", GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT );
     {
-        GL_DEBUG( glDepthMask )( GL_TRUE );
+        GL_DEBUG( glDepthMask )( GL_TRUE );           // GL_ENABLE_BIT
 
-        GL_DEBUG( glDisable )( GL_CULL_FACE );
-        GL_DEBUG( glDisable )( GL_DITHER );
+        GL_DEBUG( glDisable )( GL_CULL_FACE );        // GL_ENABLE_BIT
+        GL_DEBUG( glDisable )( GL_DITHER );           // GL_ENABLE_BIT
 
-        GL_DEBUG( glEnable )( GL_DEPTH_TEST );
-        GL_DEBUG( glDepthFunc )( GL_LESS );
+        GL_DEBUG( glEnable )( GL_DEPTH_TEST );        // GL_ENABLE_BIT
+        GL_DEBUG( glDepthFunc )( GL_LESS );           // GL_DEPTH_BUFFER_BIT
 
-        GL_DEBUG( glDisable )( GL_BLEND );
+        GL_DEBUG( glDisable )( GL_BLEND );            // GL_ENABLE_BIT
 
-        GL_DEBUG( glEnable )( GL_ALPHA_TEST );
-        GL_DEBUG( glAlphaFunc )( GL_EQUAL, 1 );
+        GL_DEBUG( glEnable )( GL_ALPHA_TEST );        // GL_ENABLE_BIT
+        GL_DEBUG( glAlphaFunc )( GL_EQUAL, 1 );       // GL_COLOR_BUFFER_BIT
 
-        oglx_texture_Bind( TxTexture_get_ptr( TX_PARTICLE_TRANS ) );
+        oglx_texture_Bind( TxTexture_get_ptr( TX_PARTICLE_TRANS ) );  // GL_CURRENT_BIT
 
         GL_DEBUG( glColor4f )( pinst->fintens, pinst->fintens, pinst->fintens, 1.0f );
 
@@ -220,45 +220,42 @@ bool_t render_one_prt_trans( Uint16 iprt )
     // if the particle instance data is not valid, do not continue
     if ( !pinst->valid ) return bfalse;
 
-    // Calculate the position of the four corners of the billboard
-    // used to display the particle.
-    calc_billboard_verts( vtlist, pinst, pinst->size, bfalse );
-
-    ATTRIB_PUSH( "render_one_prt_trans", GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_LIGHTING_BIT | GL_CURRENT_BIT );
+    ATTRIB_PUSH( "render_one_prt_trans", GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT );
     {
-        GL_DEBUG( glDepthMask )( GL_FALSE );
+        GL_DEBUG( glDepthMask )( GL_FALSE );        // GL_DEPTH_BUFFER_BIT - do not let transparent objects write into the depth buffer
 
-        GL_DEBUG( glEnable )( GL_BLEND );
-        GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  // some default
+        GL_DEBUG( glEnable )( GL_DEPTH_TEST );      // GL_ENABLE_BIT
+        GL_DEBUG( glDepthFunc )( GL_LEQUAL );       // GL_DEPTH_BUFFER_BIT
 
-        GL_DEBUG( glEnable )( GL_DEPTH_TEST );
-        GL_DEBUG( glDepthFunc )( GL_LEQUAL );
+        calc_billboard_verts( vtlist, pinst, pinst->size, bfalse );
 
         if ( SPRITE_SOLID == pprt->type )
         {
-            // do the alpha blended edge of the solid particle
+            // do the alpha blended edge ("anti-aliasing") of the solid particle
 
-            GL_DEBUG( glEnable )( GL_ALPHA_TEST );
-            GL_DEBUG( glAlphaFunc )( GL_LESS, 1 );
+            // only display the alpha-edge of the particle
+            GL_DEBUG( glEnable )( GL_ALPHA_TEST );        // GL_ENABLE_BIT
+            GL_DEBUG( glAlphaFunc )( GL_LESS, 1.0f );     // GL_COLOR_BUFFER_BIT
 
-            GL_DEBUG( glEnable )( GL_BLEND );
-            GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+            GL_DEBUG( glEnable )( GL_BLEND );                                 // GL_ENABLE_BIT
+            GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  // GL_COLOR_BUFFER_BIT
 
-            GL_DEBUG( glColor4f )( pinst->fintens, pinst->fintens, pinst->fintens, 1.0f );
+            GL_DEBUG( glColor4f )( pinst->fintens, pinst->fintens, pinst->fintens, 1.0f );  // GL_CURRENT_BIT
 
             oglx_texture_Bind( TxTexture_get_ptr( TX_PARTICLE_TRANS ) );
+
         }
         else if ( SPRITE_LIGHT == pprt->type )
         {
             // do the light sprites
             float intens = pinst->fintens * pinst->falpha;
 
-            GL_DEBUG( glDisable )( GL_ALPHA_TEST );
+            GL_DEBUG( glDisable )( GL_ALPHA_TEST );                         // GL_ENABLE_BIT
 
-            GL_DEBUG( glEnable )( GL_BLEND );
-            GL_DEBUG( glBlendFunc )( GL_ONE, GL_ONE_MINUS_SRC_COLOR );
+            GL_DEBUG( glEnable )( GL_BLEND );                               // GL_ENABLE_BIT
+            GL_DEBUG( glBlendFunc )( GL_ONE, GL_ONE );      // GL_COLOR_BUFFER_BIT
 
-            GL_DEBUG( glColor4f )( intens, intens, intens, 1.0f );
+            GL_DEBUG( glColor4f )( intens, intens, intens, 1.0f );          // GL_CURRENT_BIT
 
             oglx_texture_Bind( TxTexture_get_ptr( TX_PARTICLE_LIGHT ) );
         }
@@ -266,13 +263,13 @@ bool_t render_one_prt_trans( Uint16 iprt )
         {
             // do the transparent sprites
 
-            GL_DEBUG( glEnable )( GL_ALPHA_TEST );
-            GL_DEBUG( glAlphaFunc )( GL_GREATER, 0 );
+            GL_DEBUG( glEnable )( GL_ALPHA_TEST );                            // GL_ENABLE_BIT
+            GL_DEBUG( glAlphaFunc )( GL_GREATER, 0 );                         // GL_COLOR_BUFFER_BIT
 
-            GL_DEBUG( glEnable )( GL_BLEND );
-            GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+            GL_DEBUG( glEnable )( GL_BLEND );                                 // GL_ENABLE_BIT
+            GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  // GL_COLOR_BUFFER_BIT
 
-            GL_DEBUG( glColor4f )( pinst->fintens, pinst->fintens, pinst->fintens, pinst->falpha );
+            GL_DEBUG( glColor4f )( pinst->fintens, pinst->fintens, pinst->fintens, pinst->falpha );  // GL_CURRENT_BIT
 
             oglx_texture_Bind( TxTexture_get_ptr( TX_PARTICLE_TRANS ) );
         }
@@ -402,34 +399,36 @@ bool_t render_one_prt_ref( Uint16 iprt )
     calc_billboard_verts( vtlist, pinst, pinst->size, btrue );
 
     // Fill in the rest of the data
-    startalpha = 255 - ( pprt->enviro.floor_level - pinst->ref_pos.z ) / 2.0f;
+    startalpha = 255 - ( pprt->enviro.floor_level - pinst->ref_pos.z );
     startalpha = CLIP( startalpha, 0, 255 );
     startalpha /= 2;
 
     //startalpha = ( startalpha | gfx.reffadeor ) >> 1;  // Fix for Riva owners
     //startalpha = CLIP(startalpha, 0, 255);
 
-    GL_DEBUG( glEnable )( GL_DEPTH_TEST );
-    GL_DEBUG( glDepthFunc )( GL_LEQUAL );
-    GL_DEBUG( glDepthMask )( GL_FALSE );
-
     if ( startalpha > 0 )
     {
-        ATTRIB_PUSH( "render_one_prt_ref", GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_LIGHTING_BIT | GL_CURRENT_BIT );
+        ATTRIB_PUSH( "render_one_prt_ref", GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_CURRENT_BIT );
         {
-            GL_DEBUG( glDisable )( GL_CULL_FACE );
-            GL_DEBUG( glDisable )( GL_DITHER );
+            GL_DEBUG( glDepthMask )( GL_FALSE );      // ENABLE_BIT
+
+            GL_DEBUG( glEnable )( GL_DEPTH_TEST );    // ENABLE_BIT
+            GL_DEBUG( glDepthFunc )( GL_LEQUAL );     // GL_DEPTH_BUFFER_BIT
+
+            GL_DEBUG( glDisable )( GL_CULL_FACE );    // ENABLE_BIT
+            GL_DEBUG( glDisable )( GL_DITHER );       // ENABLE_BIT
 
             if ( SPRITE_LIGHT == pprt->type )
             {
                 // do the light sprites
                 float intens = startalpha * INV_FF * pinst->alpha * pinst->fintens;
 
-                GL_DEBUG( glDisable )( GL_ALPHA_TEST );
+                GL_DEBUG( glDisable )( GL_ALPHA_TEST );         // ENABLE_BIT
 
-                GL_DEBUG( glEnable )( GL_BLEND );
-                GL_DEBUG( glBlendFunc )( GL_ONE, GL_ONE );
-                GL_DEBUG( glColor4f )( intens, intens, intens, 1.0f );
+                GL_DEBUG( glEnable )( GL_BLEND );               // ENABLE_BIT
+                GL_DEBUG( glBlendFunc )( GL_ONE, GL_ONE );  // GL_COLOR_BUFFER_BIT
+
+                GL_DEBUG( glColor4f )( intens, intens, intens, 1.0f );      // GL_CURRENT_BIT
 
                 oglx_texture_Bind( TxTexture_get_ptr( TX_PARTICLE_LIGHT ) );
             }
@@ -437,15 +436,19 @@ bool_t render_one_prt_ref( Uint16 iprt )
             {
                 // do the transparent sprites
 
-                float alpha = startalpha * INV_FF * pinst->falpha;
+                float alpha = startalpha * INV_FF;
+                if( SPRITE_ALPHA == pprt->type )
+                {
+                    alpha *= pinst->falpha;
+                }
 
-                GL_DEBUG( glEnable )( GL_ALPHA_TEST );
-                GL_DEBUG( glAlphaFunc )( GL_GREATER, 0 );
+                GL_DEBUG( glEnable )( GL_ALPHA_TEST );         // ENABLE_BIT
+                GL_DEBUG( glAlphaFunc )( GL_GREATER, 0 );      // GL_COLOR_BUFFER_BIT
 
-                GL_DEBUG( glEnable )( GL_BLEND );
-                GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+                GL_DEBUG( glEnable )( GL_BLEND );                                 // ENABLE_BIT
+                GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  // GL_COLOR_BUFFER_BIT
 
-                GL_DEBUG( glColor4f )( pinst->fintens, pinst->fintens, pinst->fintens, alpha );
+                GL_DEBUG( glColor4f )( pinst->fintens, pinst->fintens, pinst->fintens, alpha ); // GL_CURRENT_BIT
 
                 oglx_texture_Bind( TxTexture_get_ptr( TX_PARTICLE_TRANS ) );
             }

@@ -726,12 +726,22 @@ void chr_instance_update_lighting_base( chr_instance_t * pinst, chr_t * pchr, bo
     if ( NULL == pinst || NULL == pchr ) return;
     vlst = pinst->vlst;
 
+    // force this function to be evaluated the 1st time through
+    if( 0 == update_wld && 0 == frame_all ) force = btrue;
+        
     // has this already been calculated this update?
     if ( !force && pinst->lighting_update_wld >= update_wld ) return;
     pinst->lighting_update_wld = update_wld;
 
     // make sure the matrix is valid
     chr_update_matrix( pchr, btrue );
+
+    // has this already been calculated this frame?
+    if ( !force && pinst->lighting_frame_all >= frame_all ) return;
+
+    // reduce the amount of updates to an average of about 1 every 2 frames, but dither
+    // the updating so that not all objects update on the same frame
+    pinst->lighting_frame_all = frame_all + ((frame_all * pchr->obj_base.guid) & 0x03);
 
     if ( !LOADED_MAD( pinst->imad ) ) return;
     pmad = MadList + pinst->imad;
@@ -896,7 +906,7 @@ egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vm
         return rv_error;
     }
 
-    // get the model. try to heal a bad model.
+    // get the model
     if ( !LOADED_MAD( pinst->imad ) ) return rv_error;
     pmad = MadList + pinst->imad;
 

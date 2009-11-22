@@ -49,7 +49,7 @@ GLboolean handle_opengl_error()
         default: error = GL_FALSE; break;
     };
 
-    if ( error ) EGO_fflush( LOCAL_STDERR );
+    if ( error ) fflush( LOCAL_STDERR );
 
     return error;
 }

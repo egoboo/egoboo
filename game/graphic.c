@@ -128,12 +128,19 @@ static bool_t             gfx_page_clear_requested = btrue;
 
 DECLARE_LIST( ACCESS_TYPE_NONE, billboard_data_t, BillboardList );
 
-PROFILE_DECLARE( gfx_loop );
 PROFILE_DECLARE( render_scene_init );
 PROFILE_DECLARE( render_scene_mesh );
 PROFILE_DECLARE( render_scene_solid );
 PROFILE_DECLARE( render_scene_water );
 PROFILE_DECLARE( render_scene_trans );
+
+
+PROFILE_DECLARE( renderlist_make );
+PROFILE_DECLARE( dolist_make );
+PROFILE_DECLARE( do_grid_dynalight );
+PROFILE_DECLARE( light_fans );
+PROFILE_DECLARE( update_all_chr_instance );
+PROFILE_DECLARE( update_all_prt_instance );
 
 float time_draw_scene       = 0.0f;
 float time_draw_scene_init  = 0.0f;
@@ -141,6 +148,14 @@ float time_draw_scene_mesh  = 0.0f;
 float time_draw_scene_solid = 0.0f;
 float time_draw_scene_water = 0.0f;
 float time_draw_scene_trans = 0.0f;
+
+float time_draw_scene_init_renderlist_make         = 0.0f;
+float time_draw_scene_init_dolist_make             = 0.0f;
+float time_draw_scene_init_do_grid_dynalight       = 0.0f;
+float time_draw_scene_init_light_fans              = 0.0f;
+float time_draw_scene_init_update_all_chr_instance = 0.0f;
+float time_draw_scene_init_update_all_prt_instance = 0.0f;
+
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -345,12 +360,18 @@ void gfx_init()
     TxTexture_init_all();
 
     // initialize the profiling variables
-    PROFILE_INIT( gfx_loop );
     PROFILE_INIT( render_scene_init );
     PROFILE_INIT( render_scene_mesh );
     PROFILE_INIT( render_scene_solid );
     PROFILE_INIT( render_scene_water );
     PROFILE_INIT( render_scene_trans );
+
+    PROFILE_INIT( renderlist_make );
+    PROFILE_INIT( dolist_make );
+    PROFILE_INIT( do_grid_dynalight );
+    PROFILE_INIT( light_fans );
+    PROFILE_INIT( update_all_chr_instance );
+    PROFILE_INIT( update_all_prt_instance );
 
     // init some other variables
     stabilized_fps_sum    = 0.1f * TARGET_FPS;
@@ -1387,10 +1408,15 @@ int draw_fps( int y )
         y = _draw_string_raw( 0, y, "%2.3f FPS, %2.3f UPS, Update lag = %d", stabilized_fps, stabilized_ups, update_lag );
 
 #if defined(DEBUG_PROFILE)
-        y = _draw_string_raw( 0, y, "estimated max FPS %2.3f UPS %2.3f", est_max_fps, est_max_ups );
-        y = _draw_string_raw( 0, y, "gfxtime %2.4f, drawtime %2.4f", est_gfx_time, time_draw_scene );
-        y = _draw_string_raw( 0, y, "init %1.4f,  mesh %1.4f, solid %1.4f", time_draw_scene_init, time_draw_scene_mesh, time_draw_scene_solid );
-        y = _draw_string_raw( 0, y, "water %1.4f, trans %1.4f", time_draw_scene_water, time_draw_scene_trans );
+        y = _draw_string_raw( 0, y, "estimated max FPS %2.3f UPS %4.2f GFX %4.2f", est_max_fps, est_max_ups, est_max_gfx );
+        y = _draw_string_raw( 0, y, "rendertime %2.4f, drawtime %2.4f", est_render_time, time_draw_scene );
+        y = _draw_string_raw( 0, y, "init %2.4f,  mesh %2.4f, solid %2.4f", time_draw_scene_init, time_draw_scene_mesh, time_draw_scene_solid );
+        y = _draw_string_raw( 0, y, "water %2.4f, trans %2.4f", time_draw_scene_water, time_draw_scene_trans );
+
+        y = _draw_string_raw( 0, y, "init:renderlist_make %2.4f, init:dolist_make %2.4f", time_draw_scene_init_renderlist_make, time_draw_scene_init_dolist_make );
+        y = _draw_string_raw( 0, y, "init:do_grid_dynalight %2.4f, init:light_fans %2.4f", time_draw_scene_init_do_grid_dynalight, time_draw_scene_init_light_fans ); 
+        y = _draw_string_raw( 0, y, "init:update_all_chr_instance %2.4f", time_draw_scene_init_update_all_chr_instance );
+        y = _draw_string_raw( 0, y, "init:update_all_prt_instance %2.4f", time_draw_scene_init_update_all_prt_instance );
 #endif
     }
 
@@ -2059,27 +2085,58 @@ bool_t render_fans_by_list( ego_mpd_t * pmesh, Uint32 list[], size_t list_size )
 //--------------------------------------------------------------------------------------------
 void render_scene_init( ego_mpd_t * pmesh, camera_t * pcam )
 {
-    // Which tiles can be displayed
-    renderlist_make( pmesh, pcam );
+    PROFILE_BEGIN( renderlist_make );
+    {
+        // Which tiles can be displayed
+        renderlist_make( pmesh, pcam );
+    }
+    PROFILE_END( renderlist_make );
 
-    // determine which objects are visible
-    dolist_make( renderlist.pmesh );
+    PROFILE_BEGIN( dolist_make );
+    {
+        // determine which objects are visible
+        dolist_make( renderlist.pmesh );
+    }
+    PROFILE_END( dolist_make );
 
     // put off sorting the dolist until later
     // because it has to be sorted differently for reflected and non-reflected objects
     // dolist_sort( pcam, bfalse );
 
-    // figure out the terrain lighting
-    do_grid_dynalight( renderlist.pmesh, pcam );
+    PROFILE_BEGIN( do_grid_dynalight );
+    {
+        // figure out the terrain lighting
+        do_grid_dynalight( renderlist.pmesh, pcam );
+    }
+    PROFILE_END( do_grid_dynalight );
 
-    // apply the lighting to the characters and particles
-    light_fans( &renderlist );
+    PROFILE_BEGIN( light_fans );
+    {
+        // apply the lighting to the characters and particles
+        light_fans( &renderlist );
+    }
+    PROFILE_END( light_fans );
 
-    // make sure the characters are ready to draw
-    update_all_chr_instance();
+    PROFILE_BEGIN( update_all_chr_instance );
+    {
+        // make sure the characters are ready to draw
+        update_all_chr_instance();
+    }
+    PROFILE_END( update_all_chr_instance );
 
-    // make sure the particles are ready to draw
-    update_all_prt_instance( pcam );
+    PROFILE_BEGIN( update_all_prt_instance );
+    {
+        // make sure the particles are ready to draw
+        update_all_prt_instance( pcam );
+    }
+    PROFILE_END( update_all_prt_instance );
+
+    time_draw_scene_init_renderlist_make         = PROFILE_QUERY( renderlist_make         ) * TARGET_FPS;
+    time_draw_scene_init_dolist_make             = PROFILE_QUERY( dolist_make             ) * TARGET_FPS;
+    time_draw_scene_init_do_grid_dynalight       = PROFILE_QUERY( do_grid_dynalight       ) * TARGET_FPS;
+    time_draw_scene_init_light_fans              = PROFILE_QUERY( light_fans              ) * TARGET_FPS;
+    time_draw_scene_init_update_all_chr_instance = PROFILE_QUERY( update_all_chr_instance ) * TARGET_FPS;
+    time_draw_scene_init_update_all_prt_instance = PROFILE_QUERY( update_all_prt_instance ) * TARGET_FPS;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2100,11 +2157,13 @@ void render_scene_mesh( renderlist_t * prlist )
     // draw all tiles that do not reflect characters
     ATTRIB_PUSH( "render_scene_mesh() - ndr", GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
     {
-        GL_DEBUG( glDisable )( GL_BLEND );          // GL_ENABLE_BIT - no transparency
-        GL_DEBUG( glDisable )( GL_CULL_FACE );      // GL_ENABLE_BIT - draw front and back of tiles
+        GL_DEBUG( glDepthMask )( GL_TRUE );         // GL_DEPTH_BUFFER_BIT - store the surface depth
 
         GL_DEBUG( glEnable )( GL_DEPTH_TEST );      // GL_ENABLE_BIT - do not draw hidden surfaces
-        GL_DEBUG( glDepthMask )( GL_TRUE );         // GL_DEPTH_BUFFER_BIT - store the surface depth
+        GL_DEBUG( glDepthFunc )( GL_LEQUAL );       // GL_DEPTH_BUFFER_BIT
+
+        GL_DEBUG( glDisable )( GL_BLEND );          // GL_ENABLE_BIT - no transparency
+        GL_DEBUG( glDisable )( GL_CULL_FACE );      // GL_ENABLE_BIT - draw front and back of tiles
 
         GL_DEBUG( glEnable )( GL_ALPHA_TEST );      // GL_ENABLE_BIT - use alpha test to allow the thatched roof tiles to look like thatch
         GL_DEBUG( glAlphaFunc )( GL_GREATER, 0 );   // GL_COLOR_BUFFER_BIT - speed-up drawing of surfaces with alpha == 0 sections
@@ -2124,12 +2183,17 @@ void render_scene_mesh( renderlist_t * prlist )
 
         ATTRIB_PUSH( "render_scene_mesh() - drf - back", GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
         {
-            GL_DEBUG( glEnable )( GL_DEPTH_TEST );      // GL_ENABLE_BIT - do not draw hidden surfaces
             GL_DEBUG( glDepthMask )( GL_FALSE );        // GL_DEPTH_BUFFER_BIT - DO NOT store the surface depth
 
-            // allow the background to show through any holes in the floor
-            GL_DEBUG( glEnable )( GL_BLEND );                                // GL_ENABLE_BIT - allow transparent surfaces
-            GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA ); // GL_COLOR_BUFFER_BIT - use the alpha channel to modulate the transparency
+            GL_DEBUG( glEnable )( GL_DEPTH_TEST );      // GL_ENABLE_BIT - do not draw hidden surfaces
+            GL_DEBUG( glDepthFunc )( GL_LEQUAL );       // GL_DEPTH_BUFFER_BIT
+
+            // black out any backgound, but allow the background to show through any holes in the floor
+            GL_DEBUG( glEnable )( GL_BLEND );                   // GL_ENABLE_BIT - allow transparent surfaces
+            GL_DEBUG( glBlendFunc )( GL_ZERO, GL_ONE_MINUS_SRC_ALPHA );    // GL_COLOR_BUFFER_BIT - use the alpha channel to modulate the transparency
+
+            GL_DEBUG( glEnable )( GL_ALPHA_TEST );      // GL_ENABLE_BIT - use alpha test to allow the thatched roof tiles to look like thatch
+            GL_DEBUG( glAlphaFunc )( GL_GREATER, 0 );   // GL_COLOR_BUFFER_BIT - speed-up drawing of surfaces with alpha == 0 sections
 
             // reduce texture hashing by loading up each texture only once
             render_fans_by_list( pmesh, prlist->drf, prlist->drf_count );
@@ -2157,7 +2221,7 @@ void render_scene_mesh( renderlist_t * prlist )
                     GL_DEBUG( glFrontFace )( GL_CCW );      // GL_POLYGON_BIT - use couter-clockwise orientation to determine backfaces
 
                     GL_DEBUG( glEnable )( GL_BLEND );                 // GL_ENABLE_BIT - allow transparent objects
-                    GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE );  // GL_COLOR_BUFFER_BIT - use the alpha channel to modulate the transparency
+                    GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  // GL_COLOR_BUFFER_BIT - use the alpha channel to modulate the transparency
 
                     tnc = dolist[cnt].ichr;
                     itile = ChrList.lst[tnc].onwhichfan;
@@ -2178,7 +2242,7 @@ void render_scene_mesh( renderlist_t * prlist )
 
                     // render_one_prt_ref() actually sets its own blend function, but just to be safe
                     GL_DEBUG( glEnable )( GL_BLEND );                    // GL_ENABLE_BIT - allow transparent objects
-                    GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE );     // GL_COLOR_BUFFER_BIT - set the default particle blending
+                    GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );     // GL_COLOR_BUFFER_BIT - set the default particle blending
 
                     if ( VALID_TILE( pmesh, itile ) && ( 0 != mesh_test_fx( pmesh, itile, MPDFX_DRAWREF ) ) )
                     {
@@ -2244,37 +2308,37 @@ void render_scene_mesh( renderlist_t * prlist )
 
     //------------------------------
     // Render the shadows
-    //if ( gfx.shaon )
-    //{
-    //    GL_DEBUG( glDepthMask )( GL_FALSE );
-    //    GL_DEBUG( glEnable )( GL_DEPTH_TEST );
+    if ( gfx.shaon )
+    {
+        GL_DEBUG( glDepthMask )( GL_FALSE );
+        GL_DEBUG( glEnable )( GL_DEPTH_TEST );
 
-    //    GL_DEBUG( glEnable )( GL_BLEND );
-    //    GL_DEBUG( glBlendFunc )( GL_ZERO, GL_ONE_MINUS_SRC_COLOR );
+        GL_DEBUG( glEnable )( GL_BLEND );
+        GL_DEBUG( glBlendFunc )( GL_ZERO, GL_ONE_MINUS_SRC_COLOR );
 
-    //    if ( gfx.shasprite )
-    //    {
-    //        // Bad shadows
-    //        for ( cnt = 0; cnt < dolist_count; cnt++ )
-    //        {
-    //            tnc = dolist[cnt].ichr;
-    //            if ( 0 == ChrList.lst[tnc].shadowsize ) continue;
+        if ( gfx.shasprite )
+        {
+            // Bad shadows
+            for ( cnt = 0; cnt < dolist_count; cnt++ )
+            {
+                tnc = dolist[cnt].ichr;
+                if ( 0 == ChrList.lst[tnc].shadowsize ) continue;
 
-    //            render_bad_shadow( tnc );
-    //        }
-    //    }
-    //    else
-    //    {
-    //        // Good shadows for me
-    //        for ( cnt = 0; cnt < dolist_count; cnt++ )
-    //        {
-    //            tnc = dolist[cnt].ichr;
-    //            if ( 0 == ChrList.lst[tnc].shadowsize ) continue;
+                render_bad_shadow( tnc );
+            }
+        }
+        else
+        {
+            // Good shadows for me
+            for ( cnt = 0; cnt < dolist_count; cnt++ )
+            {
+                tnc = dolist[cnt].ichr;
+                if ( 0 == ChrList.lst[tnc].shadowsize ) continue;
 
-    //            render_shadow( tnc );
-    //        }
-    //    }
-    //}
+                render_shadow( tnc );
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2374,8 +2438,8 @@ void render_scene_trans()
 
             if ( gfx.phongon && pinst->sheen > 0 )
             {
-                GL_DEBUG( glEnable )( GL_BLEND );                   // GL_ENABLE_BIT
-                GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE );    // GL_COLOR_BUFFER_BIT
+                GL_DEBUG( glEnable )( GL_BLEND );             // GL_ENABLE_BIT
+                GL_DEBUG( glBlendFunc )( GL_ONE, GL_ONE );    // GL_COLOR_BUFFER_BIT
 
                 chr_instance_get_tint( pinst, tint, CHR_PHONG );
 
@@ -2442,8 +2506,8 @@ void render_scene( ego_mpd_t * pmesh, camera_t * pcam )
     //render_all_prt_attachment();
 #endif
 
-    time_draw_scene_init  = PROFILE_QUERY( render_scene_init ) * TARGET_FPS;
-    time_draw_scene_mesh  = PROFILE_QUERY( render_scene_mesh ) * TARGET_FPS;
+    time_draw_scene_init  = PROFILE_QUERY( render_scene_init  ) * TARGET_FPS;
+    time_draw_scene_mesh  = PROFILE_QUERY( render_scene_mesh  ) * TARGET_FPS;
     time_draw_scene_solid = PROFILE_QUERY( render_scene_solid ) * TARGET_FPS;
     time_draw_scene_water = PROFILE_QUERY( render_scene_water ) * TARGET_FPS;
     time_draw_scene_trans = PROFILE_QUERY( render_scene_trans ) * TARGET_FPS;
@@ -2458,58 +2522,70 @@ void render_world_background( Uint16 texture )
     /// @details ZZ@> This function draws the large background
     GLvertex vtlist[4];
     int i;
-    float z0, d, mag0, mag1, Qx, Qy;
+    float z0, Qx, Qy;
     float light = 1.0f, intens = 1.0f, alpha = 1.0f;
+
+    float xmag, Cx_0, Cx_1;
+    float ymag, Cy_0, Cy_1;
 
     ego_mpd_info_t * pinfo;
     oglx_texture   * ptex;
+    water_instance_layer_t * ilayer;
 
-    water_instance_layer_t * ilayer = water.layer      + 0;
+    pinfo  = &( PMesh->info );
 
-    z0 = 1500; // the original height of the camera
-    d = MIN( ilayer->dist.x, ilayer->dist.y ) / 10.0f;
-    mag0 = 1.0f / ( 1.0f + z0 * d );
-    // mag1 = backgroundrepeat/128.0f/10;
-    mag1 = 1.0f / 128.0f / 5.0f;
+    // which layer
+    ilayer = water.layer + 0;
+
+    // the "official" camera height
+    z0 = 1500; 
 
     // clip the waterlayer uv offset
     ilayer->tx.x = ilayer->tx.x - ( float )floor( ilayer->tx.x );
     ilayer->tx.y = ilayer->tx.y - ( float )floor( ilayer->tx.y );
 
-    pinfo = &( PMesh->info );
+    // determine the constants for the x-coordinate
+    xmag = water.backgroundrepeat / 4 / (1.0f + z0 * ilayer->dist.x) / TILE_SIZE;
+    Cx_0 = xmag * (1.0f +  PCamera->pos.z       * ilayer->dist.x);
+    Cx_1 =-xmag * (1.0f + (PCamera->pos.z - z0) * ilayer->dist.x);
+
+    // determine the constants for the y-coordinate
+    ymag = water.backgroundrepeat / 4 / (1.0f + z0 * ilayer->dist.y) / TILE_SIZE;
+    Cy_0 = ymag * (1.0f +  PCamera->pos.z       * ilayer->dist.y);
+    Cy_1 =-ymag * (1.0f + (PCamera->pos.z - z0) * ilayer->dist.y);
 
     // Figure out the coordinates of its corners
     Qx = -pinfo->edge_x;
     Qy = -pinfo->edge_y;
-    vtlist[0].pos[XX] = mag0 * PCamera->pos.x + Qx * ( 1.0f - mag0 );
-    vtlist[0].pos[YY] = mag0 * PCamera->pos.y + Qy * ( 1.0f - mag0 );
-    vtlist[0].pos[ZZ] = 0;
-    vtlist[0].tex[SS] = Qx * mag1 + ilayer->tx.x;
-    vtlist[0].tex[TT] = Qy * mag1 + ilayer->tx.y;
+    vtlist[0].pos[XX] = Qx;
+    vtlist[0].pos[YY] = Qy;
+    vtlist[0].pos[ZZ] = PCamera->pos.z - z0;
+    vtlist[0].tex[SS] = Cx_0 * Qx + Cx_1 * PCamera->pos.x + ilayer->tx.x;
+    vtlist[0].tex[TT] = Cy_0 * Qy + Cy_1 * PCamera->pos.y + ilayer->tx.y;
 
     Qx = 2 * pinfo->edge_x;
     Qy = -pinfo->edge_y;
-    vtlist[1].pos[XX] = mag0 * PCamera->pos.x + Qx * ( 1.0f - mag0 );
-    vtlist[1].pos[YY] = mag0 * PCamera->pos.y + Qy * ( 1.0f - mag0 );
-    vtlist[1].pos[ZZ] = 0;
-    vtlist[1].tex[SS] = Qx * mag1 + ilayer->tx.x;
-    vtlist[1].tex[TT] = Qy * mag1 + ilayer->tx.y;
+    vtlist[1].pos[XX] = Qx;
+    vtlist[1].pos[YY] = Qy;
+    vtlist[1].pos[ZZ] = PCamera->pos.z - z0;
+    vtlist[1].tex[SS] = Cx_0 * Qx + Cx_1 * PCamera->pos.x + ilayer->tx.x;
+    vtlist[1].tex[TT] = Cy_0 * Qy + Cy_1 * PCamera->pos.y + ilayer->tx.y;
 
     Qx = 2 * pinfo->edge_x;
     Qy = 2 * pinfo->edge_y;
-    vtlist[2].pos[XX] = mag0 * PCamera->pos.x + Qx * ( 1.0f - mag0 );
-    vtlist[2].pos[YY] = mag0 * PCamera->pos.y + Qy * ( 1.0f - mag0 );
-    vtlist[2].pos[ZZ] = 0;
-    vtlist[2].tex[SS] = Qx * mag1 + ilayer->tx.x;
-    vtlist[2].tex[TT] = Qy * mag1 + ilayer->tx.y;
+    vtlist[2].pos[XX] = Qx;
+    vtlist[2].pos[YY] = Qy;
+    vtlist[2].pos[ZZ] = PCamera->pos.z - z0;
+    vtlist[2].tex[SS] = Cx_0 * Qx + Cx_1 * PCamera->pos.x + ilayer->tx.x;
+    vtlist[2].tex[TT] = Cy_0 * Qy + Cy_1 * PCamera->pos.y + ilayer->tx.y;
 
     Qx = -pinfo->edge_x;
     Qy = 2 * pinfo->edge_y;
-    vtlist[3].pos[XX] = mag0 * PCamera->pos.x + Qx * ( 1.0f - mag0 );
-    vtlist[3].pos[YY] = mag0 * PCamera->pos.y + Qy * ( 1.0f - mag0 );
-    vtlist[3].pos[ZZ] = 0;
-    vtlist[3].tex[SS] = Qx * mag1 + ilayer->tx.x;
-    vtlist[3].tex[TT] = Qy * mag1 + ilayer->tx.y;
+    vtlist[3].pos[XX] = Qx;
+    vtlist[3].pos[YY] = Qy;
+    vtlist[3].pos[ZZ] = PCamera->pos.z - z0;
+    vtlist[3].tex[SS] = Cx_0 * Qx + Cx_1 * PCamera->pos.x + ilayer->tx.x;
+    vtlist[3].tex[TT] = Cy_0 * Qy + Cy_1 * PCamera->pos.y + ilayer->tx.y;
 
     light = water.light ? 1.0f : 0.0f;
     alpha = ilayer->alpha * INV_FF;
@@ -2531,34 +2607,53 @@ void render_world_background( Uint16 texture )
 
     ptex = TxTexture_get_ptr( texture );
 
-    ATTRIB_PUSH( "render_world_background()", GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_POLYGON_BIT | GL_ENABLE_BIT );
+    oglx_texture_Bind( ptex );
+
+    ATTRIB_PUSH( "render_world_background()", GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_ENABLE_BIT );
     {
-        oglx_texture_Bind( ptex );
+        GL_DEBUG( glShadeModel )( GL_FLAT );      // GL_LIGHTING_BIT - Flat shade this
+        GL_DEBUG( glDepthMask  )( GL_FALSE );     // GL_DEPTH_BUFFER_BIT
+        GL_DEBUG( glDepthFunc  )( GL_ALWAYS );    // GL_DEPTH_BUFFER_BIT
+        GL_DEBUG( glDisable    )( GL_CULL_FACE ); // GL_ENABLE_BIT
 
-        GL_DEBUG( glShadeModel )( GL_FLAT ); // GL_LIGHTING_BIT - Flat shade this
-        GL_DEBUG( glDepthMask )( GL_FALSE ); // GL_DEPTH_BUFFER_BIT
-        GL_DEBUG( glDepthFunc )( GL_ALWAYS );  // GL_DEPTH_BUFFER_BIT
-        GL_DEBUG( glDisable )( GL_CULL_FACE ); // GL_ENABLE_BIT
 
-        GL_DEBUG( glColor4f )( intens, intens, intens, alpha );
-        GL_DEBUG( glBegin )( GL_TRIANGLE_FAN );
+        if( alpha > 0.0f )
         {
-            for ( i = 0; i < 4; i++ )
+            ATTRIB_PUSH( "render_world_background() - alpha", GL_ENABLE_BIT | GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT );
             {
-                GL_DEBUG( glTexCoord2fv )( vtlist[i].tex );
-                GL_DEBUG( glVertex3fv )( vtlist[i].pos );
+                GL_DEBUG( glColor4f )( intens, intens, intens, alpha );             // GL_CURRENT_BIT
+
+                if( alpha >= 1.0f )
+                {
+                    GL_DEBUG( glDisable )( GL_BLEND );                               // GL_ENABLE_BIT
+                }
+                else
+                {
+                    GL_DEBUG( glEnable )( GL_BLEND );                               // GL_ENABLE_BIT
+                    GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  // GL_COLOR_BUFFER_BIT
+                }
+
+                GL_DEBUG( glBegin )( GL_TRIANGLE_FAN );
+                {
+                    for ( i = 0; i < 4; i++ )
+                    {
+                        GL_DEBUG( glTexCoord2fv )( vtlist[i].tex );
+                        GL_DEBUG( glVertex3fv )( vtlist[i].pos );
+                    }
+                }
+                GL_DEBUG_END();
             }
+            ATTRIB_POP( "render_world_background() - alpha" );
         }
-        GL_DEBUG_END();
 
         if ( light > 0.0f )
         {
-            ATTRIB_PUSH( "render_world_background() - glow", GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT );
+            ATTRIB_PUSH( "render_world_background() - glow", GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT );
             {
-                GL_DEBUG( glEnable )( GL_BLEND );                           // GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT
-                GL_DEBUG( glBlendFunc )( GL_ONE_MINUS_SRC_ALPHA, GL_ONE );  // GL_COLOR_BUFFER_BIT
+                GL_DEBUG( glDisable )( GL_BLEND );                           // GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT
+                GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE );            // GL_COLOR_BUFFER_BIT
 
-                GL_DEBUG( glColor4f )( light, light, light, 1.0f );
+                GL_DEBUG( glColor4f )( light, light, light, 1.0f );         // GL_CURRENT_BIT
 
                 GL_DEBUG( glBegin )( GL_TRIANGLE_FAN );
                 {
@@ -2679,32 +2774,23 @@ void render_world_overlay( Uint16 texture )
 //--------------------------------------------------------------------------------------------
 void render_world( camera_t * pcam )
 {
-    PROFILE_BEGIN( gfx_loop );
+    gfx_begin_3d( pcam );
     {
-        gfx_begin_3d( pcam );
+        if ( gfx.draw_background )
         {
-            if ( gfx.draw_background )
-            {
-                // Render the background
-                render_world_background( TX_WATER_LOW );  // TX_WATER_LOW for waterlow.bmp
-            }
-
-            render_scene( PMesh, pcam );
-            
-            if ( gfx.draw_overlay )
-            {
-                // Foreground overlay
-                render_world_overlay( TX_WATER_TOP );  // TX_WATER_TOP is watertop.bmp
-            }
+            // Render the background
+            render_world_background( TX_WATER_LOW );  // TX_WATER_LOW for waterlow.bmp
         }
-        gfx_end_3d();
 
+        render_scene( PMesh, pcam );
+        
+        if ( gfx.draw_overlay )
+        {
+            // Foreground overlay
+            render_world_overlay( TX_WATER_TOP );  // TX_WATER_TOP is watertop.bmp
+        }
     }
-    PROFILE_END2( gfx_loop );
-
-    // estimate how much time the main loop is taking per second
-    est_gfx_time = PROFILE_QUERY( gfx_loop ) * TARGET_FPS;
-    est_max_fps  = 0.9 * est_max_fps + 0.1 * ( 1.0f - est_update_time * TARGET_UPS ) / PROFILE_QUERY( gfx_loop );
+    gfx_end_3d();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4460,13 +4546,21 @@ void init_all_graphics()
     BillboardList_free_all();
     TxTexture_init_all();
 
-    PROFILE_INIT( gfx_loop );
+    PROFILE_RESET( render_scene_init );
+    PROFILE_RESET( render_scene_mesh );
+    PROFILE_RESET( render_scene_solid );
+    PROFILE_RESET( render_scene_water );
+    PROFILE_RESET( render_scene_trans );
 
-    PROFILE_INIT( render_scene_init );
-    PROFILE_INIT( render_scene_mesh );
-    PROFILE_INIT( render_scene_solid );
-    PROFILE_INIT( render_scene_water );
-    PROFILE_INIT( render_scene_trans );
+    PROFILE_RESET( renderlist_make );
+    PROFILE_RESET( dolist_make );
+    PROFILE_RESET( do_grid_dynalight );
+    PROFILE_RESET( light_fans );
+    PROFILE_RESET( update_all_chr_instance );
+    PROFILE_RESET( update_all_prt_instance );
+
+    stabilized_fps_sum    = 0.0f;
+    stabilized_fps_weight = 0.0f;
 }
 
 //---------------------------------------------------------------------------------------------
@@ -4532,6 +4626,22 @@ void load_basic_textures( /* const char *modname */ )
 
     // Texture 7 is the phong map
     TxTexture_load_one( "data/phong", TX_PHONG, TRANSCOLOR );
+
+    PROFILE_RESET( render_scene_init );
+    PROFILE_RESET( render_scene_mesh );
+    PROFILE_RESET( render_scene_solid );
+    PROFILE_RESET( render_scene_water );
+    PROFILE_RESET( render_scene_trans );
+
+    PROFILE_RESET( renderlist_make );
+    PROFILE_RESET( dolist_make );
+    PROFILE_RESET( do_grid_dynalight );
+    PROFILE_RESET( light_fans );
+    PROFILE_RESET( update_all_chr_instance );
+    PROFILE_RESET( update_all_prt_instance );
+
+    stabilized_fps_sum    = 0.0f;
+    stabilized_fps_weight = 0.0f;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4965,6 +5075,8 @@ void light_fans( renderlist_t * prlist )
     {
         int fan;
 
+        if( 0 != ((prlist->all[entry] + update_wld)&0x03)) continue;
+
         fan = prlist->all[entry];
         if ( !VALID_TILE( pmesh, fan ) ) continue;
 
@@ -4976,6 +5088,8 @@ void light_fans( renderlist_t * prlist )
     {
         int ivrt;
         Uint32 fan;
+
+        if( 0 != ((prlist->all[entry] + update_wld)&0x03)) continue;
 
         fan = prlist->all[entry];
         if ( !VALID_TILE( pmesh, fan ) ) continue;

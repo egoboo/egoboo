@@ -299,6 +299,13 @@ extern float time_draw_scene_solid;
 extern float time_draw_scene_water;
 extern float time_draw_scene_trans;
 
+extern float time_draw_scene_init_renderlist_make;
+extern float time_draw_scene_init_dolist_make;
+extern float time_draw_scene_init_do_grid_dynalight;
+extern float time_draw_scene_init_light_fans;
+extern float time_draw_scene_init_update_all_chr_instance;
+extern float time_draw_scene_init_update_all_prt_instance;
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // Function prototypes

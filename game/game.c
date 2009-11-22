@@ -183,8 +183,16 @@ Uint8  local_senseenemiesTeam = TEAM_GOOD; // TEAM_MAX;
 IDSZ   local_senseenemiesID   = IDSZ_NONE;
 
 // declare the variables to do profiling
-PROFILE_DECLARE( update_loop );
 PROFILE_DECLARE( game_update_loop );
+PROFILE_DECLARE( gfx_loop );
+PROFILE_DECLARE( game_single_update );
+
+PROFILE_DECLARE( talk_to_remotes );
+PROFILE_DECLARE( listen_for_packets );
+PROFILE_DECLARE( check_stats );
+PROFILE_DECLARE( set_local_latches );
+PROFILE_DECLARE( check_passage_music );
+PROFILE_DECLARE( cl_talkToHost );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -199,7 +207,7 @@ static void tilt_characters_to_terrain();
 static void bump_all_objects( void );
 //static void stat_return();
 static void update_pits();
-static void update_game();
+static int  update_game();
 static void game_update_timers();
 static void do_damage_tiles( void );
 static void set_local_latches( void );
@@ -775,13 +783,13 @@ void move_all_objects()
 }
 
 //--------------------------------------------------------------------------------------------
-void update_game()
+int update_game()
 {
     /// @details ZZ@> This function does several iterations of character movements and such
     ///    to keep the game in sync.
-    ///    This is the main game loop
 
     int cnt, tnc, numdead, numalive;
+    int update_loop_cnt;
 
     // Check for all local players being dead
     local_allpladead     = bfalse;
@@ -872,89 +880,106 @@ void update_game()
         }
     }
 
-    // get all player latches from the "remotes"
-    sv_talkToRemotes();
-
-    // [claforte Jan 6th 2001]
-    /// @todo Put that back in place once networking is functional.
-    update_lag = true_update - update_wld;
-    for ( tnc = 0; update_wld < true_update && tnc < 1000 ; tnc++ )
+    PROFILE_BEGIN( talk_to_remotes );
     {
-        PROFILE_BEGIN( game_update_loop );
-
-        // do important stuff to keep in sync inside this loop
-
-        srand( PMod->randsave );
-        PMod->randsave = rand();
-
-        //---- begin the code for updating misc. game stuff
-        {
-            BillboardList_update_all();
-            animate_tiles();
-            move_water();
-            looped_update_all_sound();
-            do_damage_tiles();
-            update_pits();
-            do_weather_spawn_particles();
-        }
-        //---- end the code for updating misc. game stuff
-
-        //---- begin the code for updating in-game objects
-        {
-            update_all_objects();
-            update_used_lists();
-
-            let_all_characters_think();           // sets the non-player latches
-            unbuffer_player_latches();            // sets the player latches
-
-            move_all_objects();                   // clears some latches
-            bump_all_objects();
-
-            cleanup_all_objects();
-        }
-        //---- end the code for updating in-game objects
-
-        game_update_timers();
-
-        // put the camera movement inside here
-        camera_move( PCamera, PMesh );
-
-        // Timers
-        clock_wld += UPDATE_SKIP;
-        clock_enc_stat++;
-        clock_chr_stat++;
-
-        // Reset the respawn timer
-        if ( revivetimer > 0 ) revivetimer--;
-
-        update_wld++;
-        ups_loops++;
-
-        update_lag = MAX( update_lag, true_update - update_wld );
-
-        PROFILE_END2( game_update_loop );
-
-        // estimate how much time the main loop is taking per second
-        est_update_game_time = 0.9 * est_update_game_time + 0.1 * PROFILE_QUERY( game_update_loop );
-        est_max_game_ups     = 0.9 * est_max_game_ups     + 0.1 * ( 1.0f / PROFILE_QUERY( game_update_loop ) );
+        // get all player latches from the "remotes"
+        sv_talkToRemotes();
     }
-    update_lag = tnc;
+    PROFILE_END2( talk_to_remotes );
 
-    if ( PNet->on )
+    update_lag = 0;
+    update_loop_cnt = 0;
+    if( update_wld < true_update )
     {
-        if ( numplatimes == 0 )
+        // [claforte Jan 6th 2001]
+        /// @todo Put that back in place once networking is functional.
+        for ( tnc = 0; update_wld < true_update && tnc < TARGET_UPS ; tnc++ )
         {
-            // The remote ran out of messages, and is now twiddling its thumbs...
-            // Make it go slower so it doesn't happen again
-            clock_wld += 25;
+            PROFILE_BEGIN( game_single_update );
+            {
+                // do important stuff to keep in sync inside this loop
+
+                srand( PMod->randsave );
+                PMod->randsave = rand();
+
+                //---- begin the code for updating misc. game stuff
+                {
+                    BillboardList_update_all();
+                    animate_tiles();
+                    move_water();
+                    looped_update_all_sound();
+                    do_damage_tiles();
+                    update_pits();
+                    do_weather_spawn_particles();
+                }
+                //---- end the code for updating misc. game stuff
+
+                //---- begin the code for updating in-game objects
+                {
+                    update_all_objects();
+                    update_used_lists();
+
+                    let_all_characters_think();           // sets the non-player latches
+                    unbuffer_player_latches();            // sets the player latches
+
+                    move_all_objects();                   // clears some latches
+                    bump_all_objects();
+
+                    cleanup_all_objects();
+                }
+                //---- end the code for updating in-game objects
+
+                game_update_timers();
+
+                // put the camera movement inside here
+                camera_move( PCamera, PMesh );
+
+                // Timers
+                clock_wld += UPDATE_SKIP;
+                clock_enc_stat++;
+                clock_chr_stat++;
+
+                // Reset the respawn timer
+                if ( revivetimer > 0 ) revivetimer--;
+
+                update_wld++;
+                ups_loops++;
+                update_loop_cnt++;
+            }
+            PROFILE_END2( game_single_update );
+
+            // estimate how much time the main loop is taking per second
+            est_single_update_time = 0.9 * est_single_update_time + 0.1 * PROFILE_QUERY( game_single_update );
+            est_single_ups         = 0.9 * est_single_ups         + 0.1 * ( 1.0f / PROFILE_QUERY( game_single_update ) );
         }
-        if ( numplatimes > 3 && !PNet->hostactive )
-        {
-            // The host has too many messages, and is probably experiencing control
-            // lag...  Speed it up so it gets closer to sync
-            clock_wld -= 5;
-        }
+        update_lag = tnc;
     }
+
+    printf( "---- update_loop_cnt %d\n", update_loop_cnt );
+
+    //if( update_lag > 0 )
+    {
+        est_update_game_time = 0.9 * est_update_game_time + 0.1 * est_single_update_time * update_loop_cnt;
+        est_max_game_ups     = 0.9 * est_max_game_ups     + 0.1 * 1.0 / est_update_game_time;
+    }
+
+    //if ( PNet->on )
+    //{
+    //    if ( numplatimes == 0 )
+    //    {
+    //        // The remote ran out of messages, and is now twiddling its thumbs...
+    //        // Make it go slower so it doesn't happen again
+    //        clock_wld += 25;
+    //    }
+    //    if ( numplatimes > 3 && !PNet->hostactive )
+    //    {
+    //        // The host has too many messages, and is probably experiencing control
+    //        // lag...  Speed it up so it gets closer to sync
+    //        clock_wld -= 5;
+    //    }
+    //}
+
+    return update_loop_cnt;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1220,7 +1245,16 @@ int do_ego_proc_begin( ego_process_t * eproc )
     process_start( PROC_PBASE( eproc ) );
 
     // initialize all the profile variables
-    PROFILE_INIT( update_loop );
+    PROFILE_INIT( game_update_loop );
+    PROFILE_INIT( game_single_update );
+    PROFILE_INIT( gfx_loop );
+
+    PROFILE_INIT( talk_to_remotes );
+    PROFILE_INIT( listen_for_packets );
+    PROFILE_INIT( check_stats );
+    PROFILE_INIT( set_local_latches );
+    PROFILE_INIT( check_passage_music );
+    PROFILE_INIT( cl_talkToHost );
 
     return 1;
 }
@@ -1588,7 +1622,39 @@ int do_game_proc_begin( game_process_t * gproc )
     // Initialize the process
     gproc->base.valid = btrue;
 
-    PROFILE_INIT(game_update_loop);
+    // initialize all the profile variables
+    PROFILE_RESET( game_update_loop );
+    PROFILE_RESET( game_single_update );
+    PROFILE_RESET( gfx_loop );
+
+    PROFILE_RESET( talk_to_remotes );
+    PROFILE_RESET( listen_for_packets );
+    PROFILE_RESET( check_stats );
+    PROFILE_RESET( set_local_latches );
+    PROFILE_RESET( check_passage_music );
+    PROFILE_RESET( cl_talkToHost );
+
+    stabilized_ups_sum    = 0.0f;
+    stabilized_ups_weight = 0.0f;
+
+    stabilized_fps_sum    = 0.0f;
+    stabilized_fps_weight = 0.0f;
+
+    // re-initialize these variables
+    est_max_fps          =  TARGET_FPS;
+    est_render_time      =  1.0f / TARGET_FPS;
+
+    est_update_time      =  1.0f / TARGET_UPS;
+    est_max_ups          =  TARGET_UPS;
+
+    est_gfx_time         =  1.0f / TARGET_FPS;
+    est_max_gfx          =  TARGET_FPS;
+
+    est_single_update_time  = 1.0f / TARGET_UPS;
+    est_single_ups          = TARGET_UPS;
+
+    est_update_game_time  = 1.0f / TARGET_UPS;
+    est_max_game_ups      = TARGET_UPS;
 
     return 1;
 }
@@ -1596,71 +1662,106 @@ int do_game_proc_begin( game_process_t * gproc )
 //--------------------------------------------------------------------------------------------
 int do_game_proc_running( game_process_t * gproc )
 {
+    int update_loops = 0;
+
     if ( !process_validate( PROC_PBASE( gproc ) ) ) return -1;
 
     gproc->was_active  = gproc->base.valid;
 
     if ( gproc->base.paused ) return 0;
 
-    PROFILE_BEGIN( update_loop );
+    gproc->ups_ticks_now = SDL_GetTicks();
+    if (gproc->ups_ticks_now > gproc->ups_ticks_next)
     {
-        // This is the control loop
-        if ( PNet->on && console_done )
-        {
-            net_send_message();
-        }
+        // UPS limit
+        gproc->ups_ticks_next = gproc->ups_ticks_now + UPDATE_SKIP / 4;
 
-        // update all the timers
-        game_update_timers();
-
-        // do the updates
-        if ( gproc->mod_paused && !PNet->on )
+        PROFILE_BEGIN( game_update_loop );
         {
-            clock_wld = clock_all;
-        }
-        else
-        {
-            // start the console mode?
-            if ( control_is_pressed( INPUT_DEVICE_KEYBOARD, CONTROL_MESSAGE ) )
+            // This is the control loop
+            if ( PNet->on && console_done )
             {
-                // reset the keyboard buffer
-                SDL_EnableKeyRepeat( 20, SDL_DEFAULT_REPEAT_DELAY );
-                console_mode = btrue;
-                console_done = bfalse;
-                keyb.buffer_count = 0;
-                keyb.buffer[0] = CSTR_END;
+                net_send_message();
             }
 
-            // NETWORK PORT
-            listen_for_packets();
+            // update all the timers
+            game_update_timers();
 
-            //gproc->ups_ticks_now = SDL_GetTicks();
-            //if (gproc->ups_ticks_now > gproc->ups_ticks_next)
+            // do the updates
+            if ( gproc->mod_paused && !PNet->on )
             {
-                // UPS limit
-                //gproc->ups_ticks_next = gproc->ups_ticks_now + UPDATE_SKIP;
-
-                check_stats();
-                set_local_latches();
-                check_passage_music();
-
-                if ( !PNet->waitingforplayers )
+                clock_wld = clock_all;
+            }
+            else
+            {
+                // start the console mode?
+                if ( control_is_pressed( INPUT_DEVICE_KEYBOARD, CONTROL_MESSAGE ) )
                 {
-                    cl_talkToHost();
-                    update_game();
+                    // reset the keyboard buffer
+                    SDL_EnableKeyRepeat( 20, SDL_DEFAULT_REPEAT_DELAY );
+                    console_mode = btrue;
+                    console_done = bfalse;
+                    keyb.buffer_count = 0;
+                    keyb.buffer[0] = CSTR_END;
                 }
-                else
+
+                // NETWORK PORT
+                PROFILE_BEGIN( listen_for_packets );
+                {   
+                    listen_for_packets();
+                }
+                PROFILE_END2( listen_for_packets );
+
+                PROFILE_BEGIN( check_stats );
+                { 
+                    check_stats();
+                }
+                PROFILE_END2( check_stats );
+
+                PROFILE_BEGIN( set_local_latches );
+                { 
+                    set_local_latches();
+                }
+                PROFILE_END2( set_local_latches );
+
+                PROFILE_BEGIN( check_passage_music );
+                {
+                    check_passage_music();
+                }
+                PROFILE_END2( check_passage_music );
+
+                if ( PNet->waitingforplayers )
                 {
                     clock_wld = clock_all;
                 }
+                else
+                {
+                    PROFILE_BEGIN( cl_talkToHost );
+                    {
+                        cl_talkToHost();
+                    }
+                    PROFILE_END2( cl_talkToHost );
+
+                    update_loops = update_game();
+                }
             }
         }
-    }
-    PROFILE_END2( update_loop );
+        PROFILE_END2( game_update_loop );
 
-    // estimate how much time the main loop is taking per second
-    est_update_time = 0.9 * est_update_time + 0.1 * PROFILE_QUERY( update_loop );
-    est_max_ups     = 0.9 * est_max_ups     + 0.1 * ( 1.0f / PROFILE_QUERY( update_loop ) );
+        // estimate the main-loop update time is taking per inner-loop iteration
+        // do a kludge to average out the effects of functions like check_passage_music()
+        // even when the inner loop does not execute
+        if( update_loops > 0 )
+        {
+            est_update_time = 0.9 * est_update_time + 0.1 * PROFILE_QUERY( game_update_loop ) / update_loops;
+            est_max_ups     = 0.9 * est_max_ups     + 0.1 * ( update_loops / PROFILE_QUERY( game_update_loop ) );
+        }
+        else
+        {
+            est_update_time = 0.9 * est_update_time + 0.1 * PROFILE_QUERY( game_update_loop );
+            est_max_ups     = 0.9 * est_max_ups     + 0.1 * ( 1.0f / PROFILE_QUERY( game_update_loop ) );
+        }
+    }
 
     // Do the display stuff
     gproc->fps_ticks_now = SDL_GetTicks();
@@ -1670,10 +1771,21 @@ int do_game_proc_running( game_process_t * gproc )
         float  frameskip = ( float )TICKS_PER_SEC / ( float )cfg.framelimit;
         gproc->fps_ticks_next = gproc->fps_ticks_now + frameskip;
 
-        //camera_move( PCamera, PMesh );
-        gfx_main();
+        PROFILE_BEGIN( gfx_loop );
+        {
+            gfx_main();
 
-        msgtimechange++;
+            msgtimechange++;
+        }
+        PROFILE_END2( gfx_loop );
+
+        // estimate how much time the main loop is taking per second
+        est_gfx_time = 0.9 * est_gfx_time + 0.1 * PROFILE_QUERY( gfx_loop );
+        est_max_gfx  = 0.9 * est_max_gfx  + 0.1 * ( 1.0f / PROFILE_QUERY( gfx_loop ) );
+
+        // estimate how much time the main loop is taking per second
+        est_render_time = est_gfx_time * TARGET_FPS;
+        est_max_fps  = 0.9 * est_max_fps + 0.1 * ( 1.0f - est_update_time * TARGET_UPS ) / PROFILE_QUERY( gfx_loop );
     }
 
     /// @todo local_noplayers is not set correctly
@@ -6045,13 +6157,13 @@ void game_release_module_data()
     local_senseenemiesID = IDSZ_NONE;
     local_senseenemiesTeam = TEAM_MAX;
 
+    // make sure that the object lists are cleared out
+    free_all_objects();
+
     // deal with dynamically allocated game assets
     release_all_graphics();
     release_all_profiles();
     release_all_ai_scripts();
-
-    // make sure that the object lists are cleared out
-    free_all_objects();
 
     // deal with the mesh
     clear_all_passages();
