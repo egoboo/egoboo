@@ -776,9 +776,10 @@ void cleanup_all_objects()
     cleanup_all_enchants();
 };
 
+//--------------------------------------------------------------------------------------------
 void move_all_objects()
 {
-    move_all_particles();
+    //move_all_particles();
     move_all_characters();
 }
 
@@ -955,29 +956,27 @@ int update_game()
         update_lag = tnc;
     }
 
-    printf( "---- update_loop_cnt %d\n", update_loop_cnt );
+    //printf( "---- update_loop_cnt %d\n", update_loop_cnt );
 
-    //if( update_lag > 0 )
+
+    est_update_game_time = 0.9 * est_update_game_time + 0.1 * est_single_update_time * update_loop_cnt;
+    est_max_game_ups     = 0.9 * est_max_game_ups     + 0.1 * 1.0 / est_update_game_time;
+
+    if ( PNet->on )
     {
-        est_update_game_time = 0.9 * est_update_game_time + 0.1 * est_single_update_time * update_loop_cnt;
-        est_max_game_ups     = 0.9 * est_max_game_ups     + 0.1 * 1.0 / est_update_game_time;
+        if ( numplatimes == 0 )
+        {
+            // The remote ran out of messages, and is now twiddling its thumbs...
+            // Make it go slower so it doesn't happen again
+            clock_wld += 25;
+        }
+        if ( numplatimes > 3 && !PNet->hostactive )
+        {
+            // The host has too many messages, and is probably experiencing control
+            // lag...  Speed it up so it gets closer to sync
+            clock_wld -= 5;
+        }
     }
-
-    //if ( PNet->on )
-    //{
-    //    if ( numplatimes == 0 )
-    //    {
-    //        // The remote ran out of messages, and is now twiddling its thumbs...
-    //        // Make it go slower so it doesn't happen again
-    //        clock_wld += 25;
-    //    }
-    //    if ( numplatimes > 3 && !PNet->hostactive )
-    //    {
-    //        // The host has too many messages, and is probably experiencing control
-    //        // lag...  Speed it up so it gets closer to sync
-    //        clock_wld -= 5;
-    //    }
-    //}
 
     return update_loop_cnt;
 }

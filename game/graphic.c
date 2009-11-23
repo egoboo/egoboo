@@ -134,7 +134,6 @@ PROFILE_DECLARE( render_scene_solid );
 PROFILE_DECLARE( render_scene_water );
 PROFILE_DECLARE( render_scene_trans );
 
-
 PROFILE_DECLARE( renderlist_make );
 PROFILE_DECLARE( dolist_make );
 PROFILE_DECLARE( do_grid_dynalight );
@@ -142,19 +141,35 @@ PROFILE_DECLARE( light_fans );
 PROFILE_DECLARE( update_all_chr_instance );
 PROFILE_DECLARE( update_all_prt_instance );
 
-float time_draw_scene       = 0.0f;
-float time_draw_scene_init  = 0.0f;
-float time_draw_scene_mesh  = 0.0f;
-float time_draw_scene_solid = 0.0f;
-float time_draw_scene_water = 0.0f;
-float time_draw_scene_trans = 0.0f;
+PROFILE_DECLARE( render_scene_mesh_dolist_sort );
+PROFILE_DECLARE( render_scene_mesh_ndr );
+PROFILE_DECLARE( render_scene_mesh_drf_back );
+PROFILE_DECLARE( render_scene_mesh_ref );
+PROFILE_DECLARE( render_scene_mesh_ref_chr );
+PROFILE_DECLARE( render_scene_mesh_drf_solid );
+PROFILE_DECLARE( render_scene_mesh_render_shadows );
 
-float time_draw_scene_init_renderlist_make         = 0.0f;
-float time_draw_scene_init_dolist_make             = 0.0f;
-float time_draw_scene_init_do_grid_dynalight       = 0.0f;
-float time_draw_scene_init_light_fans              = 0.0f;
-float time_draw_scene_init_update_all_chr_instance = 0.0f;
-float time_draw_scene_init_update_all_prt_instance = 0.0f;
+float time_draw_scene       = 0.0f;
+float time_render_scene_init  = 0.0f;
+float time_render_scene_mesh  = 0.0f;
+float time_render_scene_solid = 0.0f;
+float time_render_scene_water = 0.0f;
+float time_render_scene_trans = 0.0f;
+
+float time_render_scene_init_renderlist_make         = 0.0f;
+float time_render_scene_init_dolist_make             = 0.0f;
+float time_render_scene_init_do_grid_dynalight       = 0.0f;
+float time_render_scene_init_light_fans              = 0.0f;
+float time_render_scene_init_update_all_chr_instance = 0.0f;
+float time_render_scene_init_update_all_prt_instance = 0.0f;
+
+float time_render_scene_mesh_dolist_sort    = 0.0f;
+float time_render_scene_mesh_ndr            = 0.0f;
+float time_render_scene_mesh_drf_back       = 0.0f;
+float time_render_scene_mesh_ref            = 0.0f;
+float time_render_scene_mesh_ref_chr        = 0.0f;
+float time_render_scene_mesh_drf_solid      = 0.0f;
+float time_render_scene_mesh_render_shadows = 0.0f;
 
 
 //--------------------------------------------------------------------------------------------
@@ -372,6 +387,14 @@ void gfx_init()
     PROFILE_INIT( light_fans );
     PROFILE_INIT( update_all_chr_instance );
     PROFILE_INIT( update_all_prt_instance );
+
+    PROFILE_INIT( render_scene_mesh_dolist_sort );
+    PROFILE_INIT( render_scene_mesh_ndr );
+    PROFILE_INIT( render_scene_mesh_drf_back );
+    PROFILE_INIT( render_scene_mesh_ref );
+    PROFILE_INIT( render_scene_mesh_ref_chr );
+    PROFILE_INIT( render_scene_mesh_drf_solid );
+    PROFILE_INIT( render_scene_mesh_render_shadows );
 
     // init some other variables
     stabilized_fps_sum    = 0.1f * TARGET_FPS;
@@ -1410,13 +1433,19 @@ int draw_fps( int y )
 #if defined(DEBUG_PROFILE)
         y = _draw_string_raw( 0, y, "estimated max FPS %2.3f UPS %4.2f GFX %4.2f", est_max_fps, est_max_ups, est_max_gfx );
         y = _draw_string_raw( 0, y, "rendertime %2.4f, drawtime %2.4f", est_render_time, time_draw_scene );
-        y = _draw_string_raw( 0, y, "init %2.4f,  mesh %2.4f, solid %2.4f", time_draw_scene_init, time_draw_scene_mesh, time_draw_scene_solid );
-        y = _draw_string_raw( 0, y, "water %2.4f, trans %2.4f", time_draw_scene_water, time_draw_scene_trans );
+        y = _draw_string_raw( 0, y, "init %2.4f,  mesh %2.4f, solid %2.4f", time_render_scene_init, time_render_scene_mesh, time_render_scene_solid );
+        y = _draw_string_raw( 0, y, "water %2.4f, trans %2.4f", time_render_scene_water, time_render_scene_trans );
 
-        y = _draw_string_raw( 0, y, "init:renderlist_make %2.4f, init:dolist_make %2.4f", time_draw_scene_init_renderlist_make, time_draw_scene_init_dolist_make );
-        y = _draw_string_raw( 0, y, "init:do_grid_dynalight %2.4f, init:light_fans %2.4f", time_draw_scene_init_do_grid_dynalight, time_draw_scene_init_light_fans ); 
-        y = _draw_string_raw( 0, y, "init:update_all_chr_instance %2.4f", time_draw_scene_init_update_all_chr_instance );
-        y = _draw_string_raw( 0, y, "init:update_all_prt_instance %2.4f", time_draw_scene_init_update_all_prt_instance );
+
+        //y = _draw_string_raw( 0, y, "mesh:dolist_sort %2.4f, mesh:ndr %2.4f", time_render_scene_mesh_dolist_sort , time_render_scene_mesh_ndr );
+        //y = _draw_string_raw( 0, y, "mesh:drf_back %2.4f, mesh:ref %2.4f", time_render_scene_mesh_drf_back, time_render_scene_mesh_ref );
+        //y = _draw_string_raw( 0, y, "mesh:ref_chr %2.4f, mesh:drf_solid %2.4f", time_render_scene_mesh_ref_chr, time_render_scene_mesh_drf_solid );
+        //y = _draw_string_raw( 0, y, "mesh:render_shadows %2.4f", time_render_scene_mesh_render_shadows );
+
+        y = _draw_string_raw( 0, y, "init:renderlist_make %2.4f, init:dolist_make %2.4f", time_render_scene_init_renderlist_make, time_render_scene_init_dolist_make );
+        y = _draw_string_raw( 0, y, "init:do_grid_dynalight %2.4f, init:light_fans %2.4f", time_render_scene_init_do_grid_dynalight, time_render_scene_init_light_fans ); 
+        y = _draw_string_raw( 0, y, "init:update_all_chr_instance %2.4f", time_render_scene_init_update_all_chr_instance );
+        y = _draw_string_raw( 0, y, "init:update_all_prt_instance %2.4f", time_render_scene_init_update_all_prt_instance );
 #endif
     }
 
@@ -2131,12 +2160,12 @@ void render_scene_init( ego_mpd_t * pmesh, camera_t * pcam )
     }
     PROFILE_END( update_all_prt_instance );
 
-    time_draw_scene_init_renderlist_make         = PROFILE_QUERY( renderlist_make         ) * TARGET_FPS;
-    time_draw_scene_init_dolist_make             = PROFILE_QUERY( dolist_make             ) * TARGET_FPS;
-    time_draw_scene_init_do_grid_dynalight       = PROFILE_QUERY( do_grid_dynalight       ) * TARGET_FPS;
-    time_draw_scene_init_light_fans              = PROFILE_QUERY( light_fans              ) * TARGET_FPS;
-    time_draw_scene_init_update_all_chr_instance = PROFILE_QUERY( update_all_chr_instance ) * TARGET_FPS;
-    time_draw_scene_init_update_all_prt_instance = PROFILE_QUERY( update_all_prt_instance ) * TARGET_FPS;
+    time_render_scene_init_renderlist_make         = PROFILE_QUERY( renderlist_make         ) * TARGET_FPS;
+    time_render_scene_init_dolist_make             = PROFILE_QUERY( dolist_make             ) * TARGET_FPS;
+    time_render_scene_init_do_grid_dynalight       = PROFILE_QUERY( do_grid_dynalight       ) * TARGET_FPS;
+    time_render_scene_init_light_fans              = PROFILE_QUERY( light_fans              ) * TARGET_FPS;
+    time_render_scene_init_update_all_chr_instance = PROFILE_QUERY( update_all_chr_instance ) * TARGET_FPS;
+    time_render_scene_init_update_all_prt_instance = PROFILE_QUERY( update_all_prt_instance ) * TARGET_FPS;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2153,148 +2182,171 @@ void render_scene_mesh( renderlist_t * prlist )
     if ( NULL == prlist->pmesh ) return;
     pmesh = prlist->pmesh;
 
-    //---------------------------------------------
-    // draw all tiles that do not reflect characters
-    ATTRIB_PUSH( "render_scene_mesh() - ndr", GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
+    // advance the animation of all animated tiles
+    animate_all_tiles( prlist->pmesh );
+
+    PROFILE_BEGIN( render_scene_mesh_ndr );
     {
-        GL_DEBUG( glDepthMask )( GL_TRUE );         // GL_DEPTH_BUFFER_BIT - store the surface depth
+        //---------------------------------------------
+        // draw all tiles that do not reflect characters
+        ATTRIB_PUSH( "render_scene_mesh() - ndr", GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
+        {
+            GL_DEBUG( glDepthMask )( GL_TRUE );         // GL_DEPTH_BUFFER_BIT - store the surface depth
 
-        GL_DEBUG( glEnable )( GL_DEPTH_TEST );      // GL_ENABLE_BIT - do not draw hidden surfaces
-        GL_DEBUG( glDepthFunc )( GL_LEQUAL );       // GL_DEPTH_BUFFER_BIT
+            GL_DEBUG( glEnable )( GL_DEPTH_TEST );      // GL_ENABLE_BIT - do not draw hidden surfaces
+            GL_DEBUG( glDepthFunc )( GL_LEQUAL );       // GL_DEPTH_BUFFER_BIT
 
-        GL_DEBUG( glDisable )( GL_BLEND );          // GL_ENABLE_BIT - no transparency
-        GL_DEBUG( glDisable )( GL_CULL_FACE );      // GL_ENABLE_BIT - draw front and back of tiles
+            GL_DEBUG( glDisable )( GL_BLEND );          // GL_ENABLE_BIT - no transparency
+            GL_DEBUG( glDisable )( GL_CULL_FACE );      // GL_ENABLE_BIT - draw front and back of tiles
 
-        GL_DEBUG( glEnable )( GL_ALPHA_TEST );      // GL_ENABLE_BIT - use alpha test to allow the thatched roof tiles to look like thatch
-        GL_DEBUG( glAlphaFunc )( GL_GREATER, 0 );   // GL_COLOR_BUFFER_BIT - speed-up drawing of surfaces with alpha == 0 sections
+            GL_DEBUG( glEnable )( GL_ALPHA_TEST );      // GL_ENABLE_BIT - use alpha test to allow the thatched roof tiles to look like thatch
+            GL_DEBUG( glAlphaFunc )( GL_GREATER, 0 );   // GL_COLOR_BUFFER_BIT - speed-up drawing of surfaces with alpha == 0 sections
 
-        // reduce texture hashing by loading up each texture only once
-        render_fans_by_list( pmesh, prlist->ndr, prlist->ndr_count );
+            // reduce texture hashing by loading up each texture only once
+            render_fans_by_list( pmesh, prlist->ndr, prlist->ndr_count );
+        }
+        ATTRIB_POP( "render_scene_mesh() - ndr" );
     }
-    ATTRIB_POP( "render_scene_mesh() - ndr" );
+    PROFILE_END( render_scene_mesh_ndr );
 
     //--------------------------------
     // draw the reflective tiles and any reflected objects
     if ( gfx.refon )
     {
-        //------------------------------
-        // draw the reflective tiles, but turn off the depth buffer
-        // this blanks out any background that might've been drawn
-
-        ATTRIB_PUSH( "render_scene_mesh() - drf - back", GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
+        PROFILE_BEGIN( render_scene_mesh_drf_back );
         {
-            GL_DEBUG( glDepthMask )( GL_FALSE );        // GL_DEPTH_BUFFER_BIT - DO NOT store the surface depth
+            //------------------------------
+            // draw the reflective tiles, but turn off the depth buffer
+            // this blanks out any background that might've been drawn
 
-            GL_DEBUG( glEnable )( GL_DEPTH_TEST );      // GL_ENABLE_BIT - do not draw hidden surfaces
-            GL_DEBUG( glDepthFunc )( GL_LEQUAL );       // GL_DEPTH_BUFFER_BIT
-
-            // black out any backgound, but allow the background to show through any holes in the floor
-            GL_DEBUG( glEnable )( GL_BLEND );                   // GL_ENABLE_BIT - allow transparent surfaces
-            GL_DEBUG( glBlendFunc )( GL_ZERO, GL_ONE_MINUS_SRC_ALPHA );    // GL_COLOR_BUFFER_BIT - use the alpha channel to modulate the transparency
-
-            GL_DEBUG( glEnable )( GL_ALPHA_TEST );      // GL_ENABLE_BIT - use alpha test to allow the thatched roof tiles to look like thatch
-            GL_DEBUG( glAlphaFunc )( GL_GREATER, 0 );   // GL_COLOR_BUFFER_BIT - speed-up drawing of surfaces with alpha == 0 sections
-
-            // reduce texture hashing by loading up each texture only once
-            render_fans_by_list( pmesh, prlist->drf, prlist->drf_count );
-        }
-        ATTRIB_POP( "render_scene_mesh() - drf - back" );
-
-        //------------------------------
-        // Render all reflected objects
-        ATTRIB_PUSH( "render_scene_mesh() - reflected characters",  GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_POLYGON_BIT | GL_CURRENT_BIT );
-        {
-            GL_DEBUG( glDepthMask )( GL_FALSE );      // GL_DEPTH_BUFFER_BIT - turn off the depth mask by default. Can cause glitches if used improperly.     
-
-            GL_DEBUG( glEnable )( GL_DEPTH_TEST );    // GL_ENABLE_BIT - do not draw hidden surfaces
-            GL_DEBUG( glDepthFunc )( GL_LEQUAL );     // GL_DEPTH_BUFFER_BIT - surfaces must be closer to the camera to be drawn
-
-            for ( cnt = dolist_count - 1; cnt >= 0; cnt-- )
+            ATTRIB_PUSH( "render_scene_mesh() - drf - back", GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
             {
-                tnc = dolist[cnt].ichr;
+                GL_DEBUG( glDepthMask )( GL_FALSE );        // GL_DEPTH_BUFFER_BIT - DO NOT store the surface depth
 
-                if ( TOTAL_MAX_PRT == dolist[cnt].iprt && ACTIVE_CHR( dolist[cnt].ichr ) )
-                {
-                    Uint32 itile;
+                GL_DEBUG( glEnable )( GL_DEPTH_TEST );      // GL_ENABLE_BIT - do not draw hidden surfaces
+                GL_DEBUG( glDepthFunc )( GL_LEQUAL );       // GL_DEPTH_BUFFER_BIT
 
-                    GL_DEBUG( glEnable )( GL_CULL_FACE );   // GL_ENABLE_BIT - cull backward facing faces
-                    GL_DEBUG( glFrontFace )( GL_CCW );      // GL_POLYGON_BIT - use couter-clockwise orientation to determine backfaces
+                // black out any backgound, but allow the background to show through any holes in the floor
+                GL_DEBUG( glEnable )( GL_BLEND );                   // GL_ENABLE_BIT - allow transparent surfaces
+                GL_DEBUG( glBlendFunc )( GL_ZERO, GL_ONE_MINUS_SRC_ALPHA );    // GL_COLOR_BUFFER_BIT - use the alpha channel to modulate the transparency
 
-                    GL_DEBUG( glEnable )( GL_BLEND );                 // GL_ENABLE_BIT - allow transparent objects
-                    GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  // GL_COLOR_BUFFER_BIT - use the alpha channel to modulate the transparency
+                GL_DEBUG( glEnable )( GL_ALPHA_TEST );      // GL_ENABLE_BIT - use alpha test to allow the thatched roof tiles to look like thatch
+                GL_DEBUG( glAlphaFunc )( GL_GREATER, 0 );   // GL_COLOR_BUFFER_BIT - speed-up drawing of surfaces with alpha == 0 sections
 
-                    tnc = dolist[cnt].ichr;
-                    itile = ChrList.lst[tnc].onwhichfan;
-
-                    if ( VALID_TILE( pmesh, itile ) && ( 0 != mesh_test_fx( pmesh, itile, MPDFX_DRAWREF ) ) )
-                    {
-                        GL_DEBUG( glColor4f )( 1, 1, 1, 1 );          // GL_CURRENT_BIT
-                        render_one_mad_ref( tnc );
-                    }
-                }
-                else if ( MAX_CHR == dolist[cnt].ichr && DISPLAY_PRT( dolist[cnt].iprt ) )
-                {
-                    Uint32 itile;
-                    tnc = dolist[cnt].iprt;
-                    itile = PrtList.lst[tnc].onwhichfan;
-
-                    GL_DEBUG( glDisable )( GL_CULL_FACE );
-
-                    // render_one_prt_ref() actually sets its own blend function, but just to be safe
-                    GL_DEBUG( glEnable )( GL_BLEND );                    // GL_ENABLE_BIT - allow transparent objects
-                    GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );     // GL_COLOR_BUFFER_BIT - set the default particle blending
-
-                    if ( VALID_TILE( pmesh, itile ) && ( 0 != mesh_test_fx( pmesh, itile, MPDFX_DRAWREF ) ) )
-                    {
-                        render_one_prt_ref( tnc );
-                    }
-                }
+                // reduce texture hashing by loading up each texture only once
+                render_fans_by_list( pmesh, prlist->drf, prlist->drf_count );
             }
-
+            ATTRIB_POP( "render_scene_mesh() - drf - back" );
         }
-        ATTRIB_POP( "render_scene_mesh() - reflected characters" )
+        PROFILE_END( render_scene_mesh_drf_back );
 
-        //------------------------------
-        // Render the shadow floors ( let everything show through )
-        // turn on the depth mask, so that no objects under the floor will show through
-        // this assumes that the floor is not partially transparent...
-        ATTRIB_PUSH( "render_scene_mesh() - drf - front", GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
+        PROFILE_BEGIN( render_scene_mesh_ref );
         {
-            GL_DEBUG( glDepthMask )( GL_TRUE );                   // GL_DEPTH_BUFFER_BIT - set the depth of these tiles
+            //------------------------------
+            // Render all reflected objects
+            ATTRIB_PUSH( "render_scene_mesh() - reflected characters",  GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_POLYGON_BIT | GL_CURRENT_BIT );
+            {
+                GL_DEBUG( glDepthMask )( GL_FALSE );      // GL_DEPTH_BUFFER_BIT - turn off the depth mask by default. Can cause glitches if used improperly.     
 
-            GL_DEBUG( glEnable )( GL_BLEND );                     // GL_ENABLE_BIT
-            GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE );      // GL_COLOR_BUFFER_BIT
+                GL_DEBUG( glEnable )( GL_DEPTH_TEST );    // GL_ENABLE_BIT - do not draw hidden surfaces
+                GL_DEBUG( glDepthFunc )( GL_LEQUAL );     // GL_DEPTH_BUFFER_BIT - surfaces must be closer to the camera to be drawn
 
-            GL_DEBUG( glDisable )( GL_CULL_FACE );                // GL_ENABLE_BIT - draw all faces
+                for ( cnt = dolist_count - 1; cnt >= 0; cnt-- )
+                {
+                    tnc = dolist[cnt].ichr;
 
-            GL_DEBUG( glEnable )( GL_DEPTH_TEST );                // GL_ENABLE_BIT - do not draw hidden surfaces
-            GL_DEBUG( glDepthFunc )( GL_LEQUAL );                 // GL_DEPTH_BUFFER_BIT
+                    if ( TOTAL_MAX_PRT == dolist[cnt].iprt && ACTIVE_CHR( dolist[cnt].ichr ) )
+                    {
+                        Uint32 itile;
 
-            // reduce texture hashing by loading up each texture only once
-            render_fans_by_list( pmesh, prlist->drf, prlist->drf_count );
+                        GL_DEBUG( glEnable )( GL_CULL_FACE );   // GL_ENABLE_BIT - cull backward facing faces
+                        GL_DEBUG( glFrontFace )( GL_CCW );      // GL_POLYGON_BIT - use couter-clockwise orientation to determine backfaces
+
+                        GL_DEBUG( glEnable )( GL_BLEND );                 // GL_ENABLE_BIT - allow transparent objects
+                        GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  // GL_COLOR_BUFFER_BIT - use the alpha channel to modulate the transparency
+
+                        tnc = dolist[cnt].ichr;
+                        itile = ChrList.lst[tnc].onwhichfan;
+
+                        if ( VALID_TILE( pmesh, itile ) && ( 0 != mesh_test_fx( pmesh, itile, MPDFX_DRAWREF ) ) )
+                        {
+                            GL_DEBUG( glColor4f )( 1, 1, 1, 1 );          // GL_CURRENT_BIT
+                            render_one_mad_ref( tnc );
+                        }
+                    }
+                    else if ( MAX_CHR == dolist[cnt].ichr && DISPLAY_PRT( dolist[cnt].iprt ) )
+                    {
+                        Uint32 itile;
+                        tnc = dolist[cnt].iprt;
+                        itile = PrtList.lst[tnc].onwhichfan;
+
+                        GL_DEBUG( glDisable )( GL_CULL_FACE );
+
+                        // render_one_prt_ref() actually sets its own blend function, but just to be safe
+                        GL_DEBUG( glEnable )( GL_BLEND );                    // GL_ENABLE_BIT - allow transparent objects
+                        GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );     // GL_COLOR_BUFFER_BIT - set the default particle blending
+
+                        if ( VALID_TILE( pmesh, itile ) && ( 0 != mesh_test_fx( pmesh, itile, MPDFX_DRAWREF ) ) )
+                        {
+                            render_one_prt_ref( tnc );
+                        }
+                    }
+                }
+
+            }
+            ATTRIB_POP( "render_scene_mesh() - reflected characters" )
         }
-        ATTRIB_POP( "render_scene_mesh() - drf - front" )
+        PROFILE_END( render_scene_mesh_ref );
+
+        PROFILE_BEGIN( render_scene_mesh_ref_chr );
+        {
+            //------------------------------
+            // Render the shadow floors ( let everything show through )
+            // turn on the depth mask, so that no objects under the floor will show through
+            // this assumes that the floor is not partially transparent...
+            ATTRIB_PUSH( "render_scene_mesh() - drf - front", GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
+            {
+                GL_DEBUG( glDepthMask )( GL_TRUE );                   // GL_DEPTH_BUFFER_BIT - set the depth of these tiles
+
+                GL_DEBUG( glEnable )( GL_BLEND );                     // GL_ENABLE_BIT
+                GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE );      // GL_COLOR_BUFFER_BIT
+
+                GL_DEBUG( glDisable )( GL_CULL_FACE );                // GL_ENABLE_BIT - draw all faces
+
+                GL_DEBUG( glEnable )( GL_DEPTH_TEST );                // GL_ENABLE_BIT - do not draw hidden surfaces
+                GL_DEBUG( glDepthFunc )( GL_LEQUAL );                 // GL_DEPTH_BUFFER_BIT
+
+                // reduce texture hashing by loading up each texture only once
+                render_fans_by_list( pmesh, prlist->drf, prlist->drf_count );
+            }
+            ATTRIB_POP( "render_scene_mesh() - drf - front" )
+        }
+        PROFILE_END( render_scene_mesh_ref_chr );
     }
     else
     {
-        //------------------------------
-        // Render the shadow floors as normal solid floors
-
-        ATTRIB_PUSH( "render_scene_mesh() - drf - solid", GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
+        PROFILE_BEGIN( render_scene_mesh_drf_solid );
         {
-            GL_DEBUG( glDisable )( GL_BLEND );          // GL_ENABLE_BIT - no transparency
-            GL_DEBUG( glDisable )( GL_CULL_FACE );      // GL_ENABLE_BIT - draw front and back of tiles
+            //------------------------------
+            // Render the shadow floors as normal solid floors
 
-            GL_DEBUG( glEnable )( GL_DEPTH_TEST );      // GL_ENABLE_BIT - do not draw hidden surfaces
-            GL_DEBUG( glDepthMask )( GL_TRUE );         // GL_DEPTH_BUFFER_BIT - store the surface depth
+            ATTRIB_PUSH( "render_scene_mesh() - drf - solid", GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
+            {
+                GL_DEBUG( glDisable )( GL_BLEND );          // GL_ENABLE_BIT - no transparency
+                GL_DEBUG( glDisable )( GL_CULL_FACE );      // GL_ENABLE_BIT - draw front and back of tiles
 
-            GL_DEBUG( glEnable )( GL_ALPHA_TEST );      // GL_ENABLE_BIT - use alpha test to allow the thatched roof tiles to look like thatch
-            GL_DEBUG( glAlphaFunc )( GL_GREATER, 0 );   // GL_COLOR_BUFFER_BIT - speed-up drawing of surfaces with alpha == 0 sections
+                GL_DEBUG( glEnable )( GL_DEPTH_TEST );      // GL_ENABLE_BIT - do not draw hidden surfaces
+                GL_DEBUG( glDepthMask )( GL_TRUE );         // GL_DEPTH_BUFFER_BIT - store the surface depth
 
-            // reduce texture hashing by loading up each texture only once
-            render_fans_by_list( pmesh, prlist->drf, prlist->drf_count );
+                GL_DEBUG( glEnable )( GL_ALPHA_TEST );      // GL_ENABLE_BIT - use alpha test to allow the thatched roof tiles to look like thatch
+                GL_DEBUG( glAlphaFunc )( GL_GREATER, 0 );   // GL_COLOR_BUFFER_BIT - speed-up drawing of surfaces with alpha == 0 sections
+
+                // reduce texture hashing by loading up each texture only once
+                render_fans_by_list( pmesh, prlist->drf, prlist->drf_count );
+            }
+            ATTRIB_POP( "render_scene_mesh() - drf - solid" );
         }
-        ATTRIB_POP( "render_scene_mesh() - drf - solid" );
+        PROFILE_END( render_scene_mesh_drf_solid );
     }
 
 #if defined(RENDER_HMAP)
@@ -2306,39 +2358,43 @@ void render_scene_mesh( renderlist_t * prlist )
     }
 #endif
 
-    //------------------------------
-    // Render the shadows
-    if ( gfx.shaon )
+    PROFILE_BEGIN( render_scene_mesh_render_shadows );
     {
-        GL_DEBUG( glDepthMask )( GL_FALSE );
-        GL_DEBUG( glEnable )( GL_DEPTH_TEST );
-
-        GL_DEBUG( glEnable )( GL_BLEND );
-        GL_DEBUG( glBlendFunc )( GL_ZERO, GL_ONE_MINUS_SRC_COLOR );
-
-        if ( gfx.shasprite )
+        //------------------------------
+        // Render the shadows
+        if ( gfx.shaon )
         {
-            // Bad shadows
-            for ( cnt = 0; cnt < dolist_count; cnt++ )
-            {
-                tnc = dolist[cnt].ichr;
-                if ( 0 == ChrList.lst[tnc].shadowsize ) continue;
+            GL_DEBUG( glDepthMask )( GL_FALSE );
+            GL_DEBUG( glEnable )( GL_DEPTH_TEST );
 
-                render_bad_shadow( tnc );
+            GL_DEBUG( glEnable )( GL_BLEND );
+            GL_DEBUG( glBlendFunc )( GL_ZERO, GL_ONE_MINUS_SRC_COLOR );
+
+            if ( gfx.shasprite )
+            {
+                // Bad shadows
+                for ( cnt = 0; cnt < dolist_count; cnt++ )
+                {
+                    tnc = dolist[cnt].ichr;
+                    if ( 0 == ChrList.lst[tnc].shadowsize ) continue;
+
+                    render_bad_shadow( tnc );
+                }
             }
-        }
-        else
-        {
-            // Good shadows for me
-            for ( cnt = 0; cnt < dolist_count; cnt++ )
+            else
             {
-                tnc = dolist[cnt].ichr;
-                if ( 0 == ChrList.lst[tnc].shadowsize ) continue;
+                // Good shadows for me
+                for ( cnt = 0; cnt < dolist_count; cnt++ )
+                {
+                    tnc = dolist[cnt].ichr;
+                    if ( 0 == ChrList.lst[tnc].shadowsize ) continue;
 
-                render_shadow( tnc );
+                    render_shadow( tnc );
+                }
             }
         }
     }
+    PROFILE_END( render_scene_mesh_render_shadows );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2469,12 +2525,24 @@ void render_scene( ego_mpd_t * pmesh, camera_t * pcam )
 
     PROFILE_BEGIN( render_scene_mesh );
     {
-        // sort the dolist for reflected objects
-        // reflected characters and objects are drawn in this pass
-        dolist_sort( pcam, btrue );
+        PROFILE_BEGIN( render_scene_mesh_dolist_sort );
+        {
+            // sort the dolist for reflected objects
+            // reflected characters and objects are drawn in this pass
+            dolist_sort( pcam, btrue );
+        }
+        PROFILE_END( render_scene_mesh_dolist_sort );
 
         // do the render pass for the mesh
         render_scene_mesh( &renderlist );
+
+        time_render_scene_mesh_dolist_sort    = PROFILE_QUERY( render_scene_mesh_dolist_sort   ) * TARGET_FPS;
+        time_render_scene_mesh_ndr            = PROFILE_QUERY( render_scene_mesh_ndr           ) * TARGET_FPS;
+        time_render_scene_mesh_drf_back       = PROFILE_QUERY( render_scene_mesh_drf_back      ) * TARGET_FPS;
+        time_render_scene_mesh_ref            = PROFILE_QUERY( render_scene_mesh_ref           ) * TARGET_FPS;
+        time_render_scene_mesh_ref_chr        = PROFILE_QUERY( render_scene_mesh_ref_chr       ) * TARGET_FPS;
+        time_render_scene_mesh_drf_solid      = PROFILE_QUERY( render_scene_mesh_drf_solid     ) * TARGET_FPS;
+        time_render_scene_mesh_render_shadows = PROFILE_QUERY( render_scene_mesh_render_shadows) * TARGET_FPS;
     }
     PROFILE_END( render_scene_mesh );
 
@@ -2506,14 +2574,14 @@ void render_scene( ego_mpd_t * pmesh, camera_t * pcam )
     //render_all_prt_attachment();
 #endif
 
-    time_draw_scene_init  = PROFILE_QUERY( render_scene_init  ) * TARGET_FPS;
-    time_draw_scene_mesh  = PROFILE_QUERY( render_scene_mesh  ) * TARGET_FPS;
-    time_draw_scene_solid = PROFILE_QUERY( render_scene_solid ) * TARGET_FPS;
-    time_draw_scene_water = PROFILE_QUERY( render_scene_water ) * TARGET_FPS;
-    time_draw_scene_trans = PROFILE_QUERY( render_scene_trans ) * TARGET_FPS;
+    time_render_scene_init  = PROFILE_QUERY( render_scene_init  ) * TARGET_FPS;
+    time_render_scene_mesh  = PROFILE_QUERY( render_scene_mesh  ) * TARGET_FPS;
+    time_render_scene_solid = PROFILE_QUERY( render_scene_solid ) * TARGET_FPS;
+    time_render_scene_water = PROFILE_QUERY( render_scene_water ) * TARGET_FPS;
+    time_render_scene_trans = PROFILE_QUERY( render_scene_trans ) * TARGET_FPS;
 
-    time_draw_scene       = time_draw_scene_init + time_draw_scene_mesh +
-                            time_draw_scene_solid + time_draw_scene_water + time_draw_scene_trans;
+    time_draw_scene       = time_render_scene_init + time_render_scene_mesh +
+                            time_render_scene_solid + time_render_scene_water + time_render_scene_trans;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4559,6 +4627,14 @@ void init_all_graphics()
     PROFILE_RESET( update_all_chr_instance );
     PROFILE_RESET( update_all_prt_instance );
 
+    PROFILE_RESET( render_scene_mesh_dolist_sort );
+    PROFILE_RESET( render_scene_mesh_ndr );
+    PROFILE_RESET( render_scene_mesh_drf_back );
+    PROFILE_RESET( render_scene_mesh_ref );
+    PROFILE_RESET( render_scene_mesh_ref_chr );
+    PROFILE_RESET( render_scene_mesh_drf_solid );
+    PROFILE_RESET( render_scene_mesh_render_shadows );
+
     stabilized_fps_sum    = 0.0f;
     stabilized_fps_weight = 0.0f;
 }
@@ -4639,6 +4715,14 @@ void load_basic_textures( /* const char *modname */ )
     PROFILE_RESET( light_fans );
     PROFILE_RESET( update_all_chr_instance );
     PROFILE_RESET( update_all_prt_instance );
+
+    PROFILE_RESET( render_scene_mesh_dolist_sort );
+    PROFILE_RESET( render_scene_mesh_ndr );
+    PROFILE_RESET( render_scene_mesh_drf_back );
+    PROFILE_RESET( render_scene_mesh_ref );
+    PROFILE_RESET( render_scene_mesh_ref_chr );
+    PROFILE_RESET( render_scene_mesh_drf_solid );
+    PROFILE_RESET( render_scene_mesh_render_shadows );
 
     stabilized_fps_sum    = 0.0f;
     stabilized_fps_weight = 0.0f;
@@ -5132,31 +5216,41 @@ bool_t sum_dyna_lighting( dynalight_t * pdyna, float lighting[], float dx, float
     ///              this has a definite max radius for the light, rmax = sqrt(falloff*255),
     ///              which was good because we could have a definite range for a given light
     ///
-    ///              The problem was that the light does not have the right kind of fade out at
-    ///              the edge of the viewing range. To fix this, I originally adopted a function of the form
-    ///                  light = falloff / (falloff + k^2 * r^2)
-    ///              which does have the proper falloff at large r, and gives an approximate "size" of the lightsource
-    ///              of sqrt(falloff)/k. When you try to match the range of this function with the range of Aaron's function
-    ///              you get a k = sqrt(255*falloff*(1-threshold)) (threshold is the value of light where the two functions
-    ///              are supposed to match, you might choose something like threshold = 0.1 if they are supposed to
-    ///              match when 90% of the light is gone.)
+    ///              This is not ideal because the light cuts off too abruptly. The new form of the
+    ///              function is (in semi-maple notation)
     ///
-    ///              The problem with this function is that the light falls off too fast near the source.
-    ///              So, I moved to a function of the form
-    ///                  light = falloff / (falloff + k2 * r^2 + k4 * r^4)
-    ///              You can make this function have the right threshold value, behave very much like Aaron's near
-    ///              the source, and have the right behavior at large values of r.
+    ///              f(n,r) = integral( (1+y)^n * y * (1-y)^n, y = -1 .. r )
+    ///
+    ///              this has the advantage that it forms a bell-shaped curve that approaches 0 smoothly
+    ///              at r = -1 and r = 1. The lowest order term will always be quadratic in r, just like 
+    ///              Aaron's function. To eliminate terms like r^4 and higher order even terms, you can 
+    //               various f(n,r) with different n's. But combining terms with larger and larger
+    ///              n means that the left-over terms that make the function approach zero smoothly
+    ///              will have higher and higher powers of r (more expensive) and the cutoff will
+    ///              be sharper and sharper (which is against the whole point of this type of function).
+    ///              
+    ///              Eliminating just the r^4 term gives the function
+    ///                  f(y) = 1 - y^2 * ( 3.0f - y^4 ) / 2
+    ///              to make it match Aaron's function best, you have to scale the function by 
+    ///                  y^2 = r^2 * 2 / 765 / falloff
+    ///
+    ///              I have previously tried rational polynomial functions like
+    ///                  f(r) = k0 / (1 + k1 * r^2 ) + k2 / (1 + k3 * r^4 )
+    ///              where the second term is to cancel make the function behave like Aaron's
+    ///              at small r, and to make the function approximate same "size" of lighting area
+    ///              as Aarons. An added benefit is that this function automatically has the right
+    ///              "physics" behavior at large distances (falls off like 1/r^2). But that is the
+    ///              exact problem because the infinite range means that it can potentally affect 
+    ///              the entire mesh, causing problems with computing a large number of lights
 
-    float threshold = 0.1f;            // value at which the new lighting radius is supposed to equal the old radius
-    float ftmp;                           // an intermediate value
 
-    float level;
     float rho_sqr  = dx * dx + dy * dy;
-    float local_falloff = pdyna->falloff;
+    float y2       = rho_sqr * 2.0f / 765.0f / pdyna->falloff;
 
-    ftmp = INV_FF * rho_sqr / local_falloff;
+    float level = 0.0f;
+    if( y2 > 1.0f ) return bfalse;
 
-    level = 1.0f / ( 1.0f + ftmp * ( 1.0f + ftmp * ( 1 - threshold ) / threshold ) );
+    level = 1.0f - 0.5f * y2 * ( 3.0f - y2*y2 );
     level *= 255 * pdyna->level;
 
     // allow negative lighting, or blind spots will not work properly
@@ -5289,34 +5383,147 @@ bool_t sum_global_lighting( float lighting[] )
 }
 
 //--------------------------------------------------------------------------------------------
+//void do_grid_dynalight( ego_mpd_t * pmesh, camera_t * pcam )
+//{
+//    /// @details ZZ@> This function does dynamic lighting of visible fans
+//
+//    int   cnt, tnc, fan, entry;
+//    lighting_vector_t global_lighting;
+//
+//    ego_mpd_info_t * pinfo;
+//    grid_mem_t     * pgmem;
+//
+//    if ( NULL == pmesh ) return;
+//    pinfo = &( pmesh->info );
+//    pgmem = &( pmesh->gmem );
+//
+//    // refresh the dynamic light list
+//    gfx_make_dynalist( pcam );
+//
+//    // sum up the lighting from global sources
+//    sum_global_lighting( global_lighting );
+//
+//    // Add to base light level in normal mode
+//    for ( entry = 0; entry < renderlist.all_count; entry++ )
+//    {
+//        float x0, y0, dx, dy;
+//        lighting_cache_t * cache;
+//        lighting_vector_t local_lighting_low, local_lighting_hgh;
+//        int ix, iy;
+//
+//        fan = renderlist.all[entry];
+//        if ( !VALID_TILE( pmesh, fan ) ) continue;
+//
+//        ix = fan % pinfo->tiles_x;
+//        iy = fan / pinfo->tiles_x;
+//
+//        x0 = ix * TILE_SIZE;
+//        y0 = iy * TILE_SIZE;
+//
+//        cache = &( pgmem->light[fan].cache );
+//
+//        // blank the lighting
+//        for ( tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++ )
+//        {
+//            local_lighting_low[tnc] = 0.0f;
+//            local_lighting_hgh[tnc] = 0.0f;
+//        };
+//
+//        if ( gfx.shading != GL_FLAT )
+//        {
+//            // add in the dynamic lighting
+//            for ( cnt = 0; cnt < dyna_list_count; cnt++ )
+//            {
+//                dx = dyna_list[cnt].x - x0;
+//                dy = dyna_list[cnt].y - y0;
+//
+//                sum_dyna_lighting( dyna_list + cnt, local_lighting_low, dx, dy, dyna_list[cnt].z - pmesh->mmem.bbox.mins[ZZ] );
+//                sum_dyna_lighting( dyna_list + cnt, local_lighting_hgh, dx, dy, dyna_list[cnt].z - pmesh->mmem.bbox.maxs[ZZ] );
+//            }
+//
+//            for ( cnt = 0; cnt < LIGHTING_VEC_SIZE; cnt++ )
+//            {
+//                local_lighting_low[cnt] += global_lighting[cnt];
+//                local_lighting_hgh[cnt] += global_lighting[cnt];
+//            }
+//        }
+//
+//        // average this in with the existing lighting
+//        for ( tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++ )
+//        {
+//            cache->low.lighting[tnc] = cache->low.lighting[tnc] * 0.9f + local_lighting_low[tnc] * 0.1f;
+//            cache->hgh.lighting[tnc] = cache->hgh.lighting[tnc] * 0.9f + local_lighting_hgh[tnc] * 0.1f;
+//        }
+//
+//        // find the max intensity
+//        cache->low.max_light = cache->low.lighting[0];
+//        cache->hgh.max_light = cache->hgh.lighting[0];
+//        for ( tnc = 1; tnc < LIGHTING_VEC_SIZE - 1; tnc++ )
+//        {
+//            cache->low.max_light = MAX( cache->low.max_light, ABS( cache->low.lighting[tnc] ) );
+//            cache->hgh.max_light = MAX( cache->hgh.max_light, ABS( cache->hgh.lighting[tnc] ) );
+//        }
+//        cache->max_light = MAX( cache->low.max_light, cache->hgh.max_light );
+//    }
+//}
+
+struct s_ego_irect
+{
+    int xmin,ymin;
+    int xmax,ymax;
+};
+typedef struct s_ego_irect ego_irect_t;
+
+struct s_ego_frect
+{
+    float xmin,ymin;
+    float xmax,ymax;
+};
+typedef struct s_ego_frect ego_frect_t;
+
+struct s_dynalight_registry
+{
+    int         reference;
+    ego_frect_t bound;
+};
+
+typedef struct s_dynalight_registry dynalight_registry_t;
+
+//--------------------------------------------------------------------------------------------
 void do_grid_dynalight( ego_mpd_t * pmesh, camera_t * pcam )
 {
     /// @details ZZ@> This function does dynamic lighting of visible fans
 
     int   cnt, tnc, fan, entry;
+    int ix, iy;
+    float x0, y0;
+
     lighting_vector_t global_lighting;
+
+    int                  reg_count;
+    dynalight_registry_t reg[TOTAL_MAX_DYNA];
+
+    ego_frect_t mesh_bound, light_bound;
 
     ego_mpd_info_t * pinfo;
     grid_mem_t     * pgmem;
+    mesh_mem_t     * pmmem;
 
     if ( NULL == pmesh ) return;
     pinfo = &( pmesh->info );
     pgmem = &( pmesh->gmem );
+    pmmem = &( pmesh->mmem );
 
     // refresh the dynamic light list
     gfx_make_dynalist( pcam );
 
-    // sum up the lighting from global sources
-    sum_global_lighting( global_lighting );
-
-    // Add to base light level in normal mode
+    // find a bounding box for the "frustum"
+    mesh_bound.xmin = pinfo->edge_x;
+    mesh_bound.xmax = 0;
+    mesh_bound.ymin = pinfo->edge_y;
+    mesh_bound.ymax = 0;
     for ( entry = 0; entry < renderlist.all_count; entry++ )
     {
-        float x0, y0, dx, dy;
-        lighting_cache_t * cache;
-        lighting_vector_t local_lighting_low, local_lighting_hgh;
-        int ix, iy;
-
         fan = renderlist.all[entry];
         if ( !VALID_TILE( pmesh, fan ) ) continue;
 
@@ -5326,6 +5533,86 @@ void do_grid_dynalight( ego_mpd_t * pmesh, camera_t * pcam )
         x0 = ix * TILE_SIZE;
         y0 = iy * TILE_SIZE;
 
+        mesh_bound.xmin = MIN(mesh_bound.xmin, x0 - TILE_SIZE/2);
+        mesh_bound.xmax = MAX(mesh_bound.xmax, x0 + TILE_SIZE/2);
+        mesh_bound.ymin = MIN(mesh_bound.ymin, y0 - TILE_SIZE/2);
+        mesh_bound.ymax = MAX(mesh_bound.ymax, y0 + TILE_SIZE/2);
+    }
+
+    if( mesh_bound.xmin >= mesh_bound.xmax || mesh_bound.ymin >= mesh_bound.ymax ) return;
+
+    // make bounding boxes for each dynamic light
+    reg_count = 0;
+    light_bound.xmin = pinfo->edge_x;
+    light_bound.xmax = 0;
+    light_bound.ymin = pinfo->edge_y;
+    light_bound.ymax = 0;
+    for( cnt = 0; cnt < dyna_list_count; cnt++ )
+    {
+        float radius;
+        ego_frect_t ftmp;
+
+        dynalight_t * pdyna = dyna_list + cnt;
+
+        if( pdyna->falloff <= 0  ) continue;
+
+        radius = sqrt( pdyna->falloff * 765.0f / 2.0f );
+
+        ftmp.xmin = floor(pdyna->x - radius);
+        ftmp.xmax = floor(pdyna->x + radius);
+        ftmp.ymin = floor(pdyna->y - radius);
+        ftmp.ymax = floor(pdyna->y + radius);
+
+        // check to see if it intersects the "frustum"
+        if( ftmp.xmin <= mesh_bound.xmax && ftmp.xmax >= mesh_bound.xmin )
+        {
+            if( ftmp.ymin <= mesh_bound.ymax && ftmp.ymax >= mesh_bound.ymin )
+            {
+                reg[reg_count].bound     = ftmp;
+                reg[reg_count].reference = cnt;
+                reg_count++;
+
+                // determine the maxumum bounding box that encloses all valid lights
+                light_bound.xmin = MIN(light_bound.xmin, ftmp.xmin );
+                light_bound.xmax = MAX(light_bound.xmax, ftmp.xmax );
+                light_bound.ymin = MIN(light_bound.ymin, ftmp.ymin );
+                light_bound.ymax = MAX(light_bound.ymax, ftmp.ymax );
+            }
+        }
+    }
+
+    if( 0 == reg_count || light_bound.xmin >= light_bound.xmax || light_bound.ymin >= light_bound.ymax ) return;
+
+    // sum up the lighting from global sources
+    sum_global_lighting( global_lighting );
+
+    // Add to base light level in normal mode
+    for ( entry = 0; entry < renderlist.all_count; entry++ )
+    {
+        lighting_cache_t * cache;
+        lighting_vector_t local_lighting_low, local_lighting_hgh;
+        ego_frect_t ftmp;
+
+        // grab each grid box in the "frustum"
+        fan = renderlist.all[entry];
+        if ( !VALID_TILE( pmesh, fan ) ) continue;
+
+        ix = fan % pinfo->tiles_x;
+        iy = fan / pinfo->tiles_x;
+
+        x0 = ix * TILE_SIZE;
+        y0 = iy * TILE_SIZE;
+
+        // check this grid vertex relative to the measured light_bound
+        ftmp.xmin = x0 - TILE_SIZE/2;
+        ftmp.xmax = x0 + TILE_SIZE/2;
+        ftmp.ymin = y0 - TILE_SIZE/2;
+        ftmp.ymax = y0 + TILE_SIZE/2;
+
+        if( ftmp.xmin > light_bound.xmax || ftmp.xmax < light_bound.xmin ) continue;
+        if( ftmp.ymin > light_bound.ymax || ftmp.ymax < light_bound.ymin ) continue;
+
+        // this is not a "bad" grid box, so grab the lighting info
         cache = &( pgmem->light[fan].cache );
 
         // blank the lighting
@@ -5338,20 +5625,27 @@ void do_grid_dynalight( ego_mpd_t * pmesh, camera_t * pcam )
         if ( gfx.shading != GL_FLAT )
         {
             // add in the dynamic lighting
-            for ( cnt = 0; cnt < dyna_list_count; cnt++ )
+            for ( cnt = 0; cnt < reg_count; cnt++ )
             {
-                dx = dyna_list[cnt].x - x0;
-                dy = dyna_list[cnt].y - y0;
+                dynalight_t * pdyna;
 
-                sum_dyna_lighting( dyna_list + cnt, local_lighting_low, dx, dy, dyna_list[cnt].z - pmesh->mmem.bbox.mins[ZZ] );
-                sum_dyna_lighting( dyna_list + cnt, local_lighting_hgh, dx, dy, dyna_list[cnt].z - pmesh->mmem.bbox.maxs[ZZ] );
-            }
+                // check the bound relative to each valid dynamic light
+                if( ftmp.xmin > reg[cnt].bound.xmax || ftmp.xmax < reg[cnt].bound.xmin ) continue;
+                if( ftmp.ymin > reg[cnt].bound.ymax || ftmp.ymax < reg[cnt].bound.ymin ) continue;
 
-            for ( cnt = 0; cnt < LIGHTING_VEC_SIZE; cnt++ )
-            {
-                local_lighting_low[cnt] += global_lighting[cnt];
-                local_lighting_hgh[cnt] += global_lighting[cnt];
+                // this should be a valid intersection, so proceed
+                tnc = reg[cnt].reference;
+                pdyna = dyna_list + tnc;
+
+                sum_dyna_lighting( pdyna, local_lighting_low, pdyna->x - x0, pdyna->y - y0, pdyna->z - pmmem->bbox.mins[ZZ] );
+                sum_dyna_lighting( pdyna, local_lighting_hgh, pdyna->x - x0, pdyna->y - y0, pdyna->z - pmmem->bbox.maxs[ZZ] );
             }
+        }
+
+        for ( cnt = 0; cnt < LIGHTING_VEC_SIZE; cnt++ )
+        {
+            local_lighting_low[cnt] += global_lighting[cnt];
+            local_lighting_hgh[cnt] += global_lighting[cnt];
         }
 
         // average this in with the existing lighting

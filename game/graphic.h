@@ -293,18 +293,26 @@ extern line_data_t line_list[LINE_COUNT];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-extern float time_draw_scene_init;
-extern float time_draw_scene_mesh;
-extern float time_draw_scene_solid;
-extern float time_draw_scene_water;
-extern float time_draw_scene_trans;
+extern float time_render_scene_init;
+extern float time_render_scene_mesh;
+extern float time_render_scene_solid;
+extern float time_render_scene_water;
+extern float time_render_scene_trans;
 
-extern float time_draw_scene_init_renderlist_make;
-extern float time_draw_scene_init_dolist_make;
-extern float time_draw_scene_init_do_grid_dynalight;
-extern float time_draw_scene_init_light_fans;
-extern float time_draw_scene_init_update_all_chr_instance;
-extern float time_draw_scene_init_update_all_prt_instance;
+extern float time_render_scene_init_renderlist_make;
+extern float time_render_scene_init_dolist_make;
+extern float time_render_scene_init_do_grid_dynalight;
+extern float time_render_scene_init_light_fans;
+extern float time_render_scene_init_update_all_chr_instance;
+extern float time_render_scene_init_update_all_prt_instance;
+
+extern float time_render_scene_mesh_dolist_sort;
+extern float time_render_scene_mesh_ndr;
+extern float time_render_scene_mesh_drf_back;
+extern float time_render_scene_mesh_ref;
+extern float time_render_scene_mesh_ref_chr;
+extern float time_render_scene_mesh_drf_solid;
+extern float time_render_scene_mesh_render_shadows;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -414,3 +422,6 @@ float  get_ambient_level();
 //void set_fan_light( int fanx, int fany, Uint16 particle );
 //void make_lighttospek();
 //void make_lighttable( float lx, float ly, float lz, float ambi );
+
+
+void animate_all_tiles( ego_mpd_t * pmesh );
