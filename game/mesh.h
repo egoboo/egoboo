@@ -181,7 +181,7 @@ Uint32 mesh_test_fx( ego_mpd_t * pmesh, Uint32 itile, Uint32 flags );
 
 void   mesh_make_twist();
 
-bool_t mesh_light_corners( ego_mpd_t * pmesh, int fan1 );
+bool_t mesh_light_corners( ego_mpd_t * pmesh, int fan1, float mesh_lighting_keep );
 bool_t mesh_interpolate_vertex( mesh_mem_t * pmem, int fan, float pos[], float * plight );
 
 float evaluate_lighting_cache_base( lighting_cache_base_t * lvec, GLfloat nrm[], float * amb );

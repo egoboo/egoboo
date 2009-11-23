@@ -94,6 +94,16 @@ struct s_dynalight
 typedef struct s_dynalight dynalight_t;
 
 //--------------------------------------------------------------------------------------------
+/// Structure for keeping track of which dynalights are visible
+struct s_dynalight_registry
+{
+    int         reference;
+    ego_frect_t bound;
+};
+
+typedef struct s_dynalight_registry dynalight_registry_t;
+
+//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 static bool_t _sdl_initialized_graphics = bfalse;
@@ -125,6 +135,8 @@ static irect_t             maprect;                    // The map rectangle
 
 static bool_t             gfx_page_flip_requested  = bfalse;
 static bool_t             gfx_page_clear_requested = btrue;
+
+static float dynalight_keep = 0.9f;
 
 DECLARE_LIST( ACCESS_TYPE_NONE, billboard_data_t, BillboardList );
 
@@ -5144,6 +5156,7 @@ void light_fans( renderlist_t * prlist )
     Uint8 type;
     float light;
     int   numvertices, vertex;
+    float local_mesh_lighting_keep;
 
     ego_mpd_t      * pmesh;
     ego_mpd_info_t * pinfo;
@@ -5158,17 +5171,38 @@ void light_fans( renderlist_t * prlist )
     pmem  = &( pmesh->mmem );
     pgmem = &( pmesh->gmem );
 
+#if defined(CLIP_LIGHT_FANS) && defined(CLIP_ALL_LIGHT_FANS)
+    if( 0 != (frame_all & 0x03) ) return;
+#endif
+
+#if defined(CLIP_LIGHT_FANS) 
+    // update only every frame
+    local_mesh_lighting_keep = 0.9f;
+#else
+    // update only every 4 frames
+    local_mesh_lighting_keep = POW( 0.9f, 4 );
+#endif
+
     // cache the grid lighting
     for ( entry = 0; entry < prlist->all_count; entry++ )
     {
         int fan;
 
-        if( 0 != ((prlist->all[entry] + update_wld)&0x03)) continue;
-
         fan = prlist->all[entry];
         if ( !VALID_TILE( pmesh, fan ) ) continue;
 
-        mesh_light_corners( prlist->pmesh, fan );
+#if defined(CLIP_LIGHT_FANS) && !defined(CLIP_ALL_LIGHT_FANS)
+        {
+            int ix, iy;
+            ix = fan % pinfo->tiles_x;
+            iy = fan / pinfo->tiles_x;
+
+            if( 0 != (((ix^iy) + frame_all) & 0x03) ) continue;
+        }
+#endif
+
+
+        mesh_light_corners( prlist->pmesh, fan, local_mesh_lighting_keep );
     }
 
     // use the grid to light the tiles
@@ -5177,10 +5211,18 @@ void light_fans( renderlist_t * prlist )
         int ivrt;
         Uint32 fan;
 
-        if( 0 != ((prlist->all[entry] + update_wld)&0x03)) continue;
-
         fan = prlist->all[entry];
         if ( !VALID_TILE( pmesh, fan ) ) continue;
+
+#if defined(CLIP_LIGHT_FANS) && !defined(CLIP_ALL_LIGHT_FANS)
+        {
+            int ix, iy;
+            ix = fan % pinfo->tiles_x;
+            iy = fan / pinfo->tiles_x;
+
+            if( 0 != (((ix^iy) + frame_all) & 0x03) ) continue;
+        }
+#endif
 
         type   = pmem->tile_list[fan].type;
 
@@ -5206,8 +5248,8 @@ void light_fans( renderlist_t * prlist )
 
             light = CLIP( light, 0.0f, 255.0f );
             pmem->clst[vertex][RR] =
-                pmem->clst[vertex][GG] =
-                    pmem->clst[vertex][BB] = light * INV_FF;
+            pmem->clst[vertex][GG] =
+            pmem->clst[vertex][BB] = light * INV_FF;
         };
     }
 }
@@ -5387,120 +5429,13 @@ bool_t sum_global_lighting( float lighting[] )
 }
 
 //--------------------------------------------------------------------------------------------
-//void do_grid_dynalight( ego_mpd_t * pmesh, camera_t * pcam )
-//{
-//    /// @details ZZ@> This function does dynamic lighting of visible fans
-//
-//    int   cnt, tnc, fan, entry;
-//    lighting_vector_t global_lighting;
-//
-//    ego_mpd_info_t * pinfo;
-//    grid_mem_t     * pgmem;
-//
-//    if ( NULL == pmesh ) return;
-//    pinfo = &( pmesh->info );
-//    pgmem = &( pmesh->gmem );
-//
-//    // refresh the dynamic light list
-//    gfx_make_dynalist( pcam );
-//
-//    // sum up the lighting from global sources
-//    sum_global_lighting( global_lighting );
-//
-//    // Add to base light level in normal mode
-//    for ( entry = 0; entry < renderlist.all_count; entry++ )
-//    {
-//        float x0, y0, dx, dy;
-//        lighting_cache_t * cache;
-//        lighting_vector_t local_lighting_low, local_lighting_hgh;
-//        int ix, iy;
-//
-//        fan = renderlist.all[entry];
-//        if ( !VALID_TILE( pmesh, fan ) ) continue;
-//
-//        ix = fan % pinfo->tiles_x;
-//        iy = fan / pinfo->tiles_x;
-//
-//        x0 = ix * TILE_SIZE;
-//        y0 = iy * TILE_SIZE;
-//
-//        cache = &( pgmem->light[fan].cache );
-//
-//        // blank the lighting
-//        for ( tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++ )
-//        {
-//            local_lighting_low[tnc] = 0.0f;
-//            local_lighting_hgh[tnc] = 0.0f;
-//        };
-//
-//        if ( gfx.shading != GL_FLAT )
-//        {
-//            // add in the dynamic lighting
-//            for ( cnt = 0; cnt < dyna_list_count; cnt++ )
-//            {
-//                dx = dyna_list[cnt].x - x0;
-//                dy = dyna_list[cnt].y - y0;
-//
-//                sum_dyna_lighting( dyna_list + cnt, local_lighting_low, dx, dy, dyna_list[cnt].z - pmesh->mmem.bbox.mins[ZZ] );
-//                sum_dyna_lighting( dyna_list + cnt, local_lighting_hgh, dx, dy, dyna_list[cnt].z - pmesh->mmem.bbox.maxs[ZZ] );
-//            }
-//
-//            for ( cnt = 0; cnt < LIGHTING_VEC_SIZE; cnt++ )
-//            {
-//                local_lighting_low[cnt] += global_lighting[cnt];
-//                local_lighting_hgh[cnt] += global_lighting[cnt];
-//            }
-//        }
-//
-//        // average this in with the existing lighting
-//        for ( tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++ )
-//        {
-//            cache->low.lighting[tnc] = cache->low.lighting[tnc] * 0.9f + local_lighting_low[tnc] * 0.1f;
-//            cache->hgh.lighting[tnc] = cache->hgh.lighting[tnc] * 0.9f + local_lighting_hgh[tnc] * 0.1f;
-//        }
-//
-//        // find the max intensity
-//        cache->low.max_light = cache->low.lighting[0];
-//        cache->hgh.max_light = cache->hgh.lighting[0];
-//        for ( tnc = 1; tnc < LIGHTING_VEC_SIZE - 1; tnc++ )
-//        {
-//            cache->low.max_light = MAX( cache->low.max_light, ABS( cache->low.lighting[tnc] ) );
-//            cache->hgh.max_light = MAX( cache->hgh.max_light, ABS( cache->hgh.lighting[tnc] ) );
-//        }
-//        cache->max_light = MAX( cache->low.max_light, cache->hgh.max_light );
-//    }
-//}
-
-struct s_ego_irect
-{
-    int xmin,ymin;
-    int xmax,ymax;
-};
-typedef struct s_ego_irect ego_irect_t;
-
-struct s_ego_frect
-{
-    float xmin,ymin;
-    float xmax,ymax;
-};
-typedef struct s_ego_frect ego_frect_t;
-
-struct s_dynalight_registry
-{
-    int         reference;
-    ego_frect_t bound;
-};
-
-typedef struct s_dynalight_registry dynalight_registry_t;
-
-//--------------------------------------------------------------------------------------------
 void do_grid_dynalight( ego_mpd_t * pmesh, camera_t * pcam )
 {
     /// @details ZZ@> This function does dynamic lighting of visible fans
 
     int   cnt, tnc, fan, entry;
     int ix, iy;
-    float x0, y0;
+    float x0, y0, local_keep;
 
     lighting_vector_t global_lighting;
 
@@ -5590,6 +5525,8 @@ void do_grid_dynalight( ego_mpd_t * pmesh, camera_t * pcam )
     // sum up the lighting from global sources
     sum_global_lighting( global_lighting );
 
+    local_keep = POW( dynalight_keep, 4 );
+
     // Add to base light level in normal mode
     for ( entry = 0; entry < renderlist.all_count; entry++ )
     {
@@ -5604,17 +5541,7 @@ void do_grid_dynalight( ego_mpd_t * pmesh, camera_t * pcam )
         ix = fan % pinfo->tiles_x;
         iy = fan / pinfo->tiles_x;
 
-        x0 = ix * TILE_SIZE;
-        y0 = iy * TILE_SIZE;
-
-        // check this grid vertex relative to the measured light_bound
-        ftmp.xmin = x0 - TILE_SIZE/2;
-        ftmp.xmax = x0 + TILE_SIZE/2;
-        ftmp.ymin = y0 - TILE_SIZE/2;
-        ftmp.ymax = y0 + TILE_SIZE/2;
-
-        if( ftmp.xmin > light_bound.xmax || ftmp.xmax < light_bound.xmin ) continue;
-        if( ftmp.ymin > light_bound.ymax || ftmp.ymax < light_bound.ymin ) continue;
+        if( 0 != ((ix^iy + frame_all) & 0x03) ) continue;
 
         // this is not a "bad" grid box, so grab the lighting info
         cache = &( pgmem->light[fan].cache );
@@ -5628,35 +5555,50 @@ void do_grid_dynalight( ego_mpd_t * pmesh, camera_t * pcam )
 
         if ( gfx.shading != GL_FLAT )
         {
-            // add in the dynamic lighting
-            for ( cnt = 0; cnt < reg_count; cnt++ )
+            x0 = ix * TILE_SIZE;
+            y0 = iy * TILE_SIZE;
+
+            // check this grid vertex relative to the measured light_bound
+            ftmp.xmin = x0 - TILE_SIZE/2;
+            ftmp.xmax = x0 + TILE_SIZE/2;
+            ftmp.ymin = y0 - TILE_SIZE/2;
+            ftmp.ymax = y0 + TILE_SIZE/2;
+
+            if( ftmp.xmin <= light_bound.xmax && ftmp.xmax >= light_bound.xmin )
             {
-                dynalight_t * pdyna;
+                if( ftmp.ymin <= light_bound.ymax && ftmp.ymax >= light_bound.ymin )
+                {
+                    // add in the dynamic lighting
+                    for ( cnt = 0; cnt < reg_count; cnt++ )
+                    {
+                        dynalight_t * pdyna;
 
-                // check the bound relative to each valid dynamic light
-                if( ftmp.xmin > reg[cnt].bound.xmax || ftmp.xmax < reg[cnt].bound.xmin ) continue;
-                if( ftmp.ymin > reg[cnt].bound.ymax || ftmp.ymax < reg[cnt].bound.ymin ) continue;
+                        // check the bound relative to each valid dynamic light
+                        if( ftmp.xmin > reg[cnt].bound.xmax || ftmp.xmax < reg[cnt].bound.xmin ) continue;
+                        if( ftmp.ymin > reg[cnt].bound.ymax || ftmp.ymax < reg[cnt].bound.ymin ) continue;
 
-                // this should be a valid intersection, so proceed
-                tnc = reg[cnt].reference;
-                pdyna = dyna_list + tnc;
+                        // this should be a valid intersection, so proceed
+                        tnc = reg[cnt].reference;
+                        pdyna = dyna_list + tnc;
 
-                sum_dyna_lighting( pdyna, local_lighting_low, pdyna->x - x0, pdyna->y - y0, pdyna->z - pmmem->bbox.mins[ZZ] );
-                sum_dyna_lighting( pdyna, local_lighting_hgh, pdyna->x - x0, pdyna->y - y0, pdyna->z - pmmem->bbox.maxs[ZZ] );
+                        sum_dyna_lighting( pdyna, local_lighting_low, pdyna->x - x0, pdyna->y - y0, pdyna->z - pmmem->bbox.mins[ZZ] );
+                        sum_dyna_lighting( pdyna, local_lighting_hgh, pdyna->x - x0, pdyna->y - y0, pdyna->z - pmmem->bbox.maxs[ZZ] );
+                    }
+                }
             }
+        }
+
+        // average this in with the existing lighting
+        for ( tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++ )
+        {
+            cache->low.lighting[tnc] = cache->low.lighting[tnc] * local_keep + local_lighting_low[tnc] * (1.0f - local_keep);
+            cache->hgh.lighting[tnc] = cache->hgh.lighting[tnc] * local_keep + local_lighting_hgh[tnc] * (1.0f - local_keep);
         }
 
         for ( cnt = 0; cnt < LIGHTING_VEC_SIZE; cnt++ )
         {
             local_lighting_low[cnt] += global_lighting[cnt];
             local_lighting_hgh[cnt] += global_lighting[cnt];
-        }
-
-        // average this in with the existing lighting
-        for ( tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++ )
-        {
-            cache->low.lighting[tnc] = cache->low.lighting[tnc] * 0.9f + local_lighting_low[tnc] * 0.1f;
-            cache->hgh.lighting[tnc] = cache->hgh.lighting[tnc] * 0.9f + local_lighting_hgh[tnc] * 0.1f;
         }
 
         // find the max intensity
@@ -5945,5 +5887,90 @@ void draw_cursor()
 //    {
 //        lighttable_local[tnc][cnt] = 0;
 //        lighttable_global[tnc][cnt] = 0;
+//    }
+//}
+
+//--------------------------------------------------------------------------------------------
+//void do_grid_dynalight( ego_mpd_t * pmesh, camera_t * pcam )
+//{
+//    /// @details ZZ@> This function does dynamic lighting of visible fans
+//
+//    int   cnt, tnc, fan, entry;
+//    lighting_vector_t global_lighting;
+//
+//    ego_mpd_info_t * pinfo;
+//    grid_mem_t     * pgmem;
+//
+//    if ( NULL == pmesh ) return;
+//    pinfo = &( pmesh->info );
+//    pgmem = &( pmesh->gmem );
+//
+//    // refresh the dynamic light list
+//    gfx_make_dynalist( pcam );
+//
+//    // sum up the lighting from global sources
+//    sum_global_lighting( global_lighting );
+//
+//    // Add to base light level in normal mode
+//    for ( entry = 0; entry < renderlist.all_count; entry++ )
+//    {
+//        float x0, y0, dx, dy;
+//        lighting_cache_t * cache;
+//        lighting_vector_t local_lighting_low, local_lighting_hgh;
+//        int ix, iy;
+//
+//        fan = renderlist.all[entry];
+//        if ( !VALID_TILE( pmesh, fan ) ) continue;
+//
+//        ix = fan % pinfo->tiles_x;
+//        iy = fan / pinfo->tiles_x;
+//
+//        x0 = ix * TILE_SIZE;
+//        y0 = iy * TILE_SIZE;
+//
+//        cache = &( pgmem->light[fan].cache );
+//
+//        // blank the lighting
+//        for ( tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++ )
+//        {
+//            local_lighting_low[tnc] = 0.0f;
+//            local_lighting_hgh[tnc] = 0.0f;
+//        };
+//
+//        if ( gfx.shading != GL_FLAT )
+//        {
+//            // add in the dynamic lighting
+//            for ( cnt = 0; cnt < dyna_list_count; cnt++ )
+//            {
+//                dx = dyna_list[cnt].x - x0;
+//                dy = dyna_list[cnt].y - y0;
+//
+//                sum_dyna_lighting( dyna_list + cnt, local_lighting_low, dx, dy, dyna_list[cnt].z - pmesh->mmem.bbox.mins[ZZ] );
+//                sum_dyna_lighting( dyna_list + cnt, local_lighting_hgh, dx, dy, dyna_list[cnt].z - pmesh->mmem.bbox.maxs[ZZ] );
+//            }
+//
+//            for ( cnt = 0; cnt < LIGHTING_VEC_SIZE; cnt++ )
+//            {
+//                local_lighting_low[cnt] += global_lighting[cnt];
+//                local_lighting_hgh[cnt] += global_lighting[cnt];
+//            }
+//        }
+//
+//        // average this in with the existing lighting
+//        for ( tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++ )
+//        {
+//            cache->low.lighting[tnc] = cache->low.lighting[tnc] * dynalight_keep + local_lighting_low[tnc] * (1.0f - dynalight_keep);
+//            cache->hgh.lighting[tnc] = cache->hgh.lighting[tnc] * dynalight_keep + local_lighting_hgh[tnc] * (1.0f - dynalight_keep);
+//        }
+//
+//        // find the max intensity
+//        cache->low.max_light = cache->low.lighting[0];
+//        cache->hgh.max_light = cache->hgh.lighting[0];
+//        for ( tnc = 1; tnc < LIGHTING_VEC_SIZE - 1; tnc++ )
+//        {
+//            cache->low.max_light = MAX( cache->low.max_light, ABS( cache->low.lighting[tnc] ) );
+//            cache->hgh.max_light = MAX( cache->hgh.max_light, ABS( cache->hgh.lighting[tnc] ) );
+//        }
+//        cache->max_light = MAX( cache->low.max_light, cache->hgh.max_light );
 //    }
 //}

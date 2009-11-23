@@ -1331,7 +1331,7 @@ bool_t mesh_light_one_corner( ego_mpd_t * pmesh, GLXvector3f pos, GLXvector3f nr
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t mesh_light_corners( ego_mpd_t * pmesh, int fan1 )
+bool_t mesh_light_corners( ego_mpd_t * pmesh, int fan1, float mesh_lighting_keep  )
 {
     int corner;
 
@@ -1365,7 +1365,7 @@ bool_t mesh_light_corners( ego_mpd_t * pmesh, int fan1 )
         light = 0.0f;
         mesh_light_one_corner( pmesh, *ppos, *pnrm, &light );
 
-        ( *plight ) = ( *plight ) * 0.9f + light * 0.1f;
+        ( *plight ) = ( *plight ) * mesh_lighting_keep + light * (1.0f - mesh_lighting_keep);
     }
 
     return btrue;

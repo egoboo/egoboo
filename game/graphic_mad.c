@@ -741,7 +741,7 @@ void chr_instance_update_lighting_base( chr_instance_t * pinst, chr_t * pchr, bo
 
     // reduce the amount of updates to an average of about 1 every 2 frames, but dither
     // the updating so that not all objects update on the same frame
-    pinst->lighting_frame_all = frame_all + ((frame_all * pchr->obj_base.guid) & 0x03);
+    pinst->lighting_frame_all = frame_all + ((frame_all + pchr->obj_base.guid) & 0x03);
 
     if ( !LOADED_MAD( pinst->imad ) ) return;
     pmad = MadList + pinst->imad;
