@@ -41,7 +41,7 @@
 #define MAX_TEXTURE        (MAX_CHR * 4)     ///< Maximum number of textures
 #define MAX_ICON           (MAX_TEXTURE + 4) ///< Maximum number of icons
 
-#define MAX_SKIN             4
+#define MAX_SKIN             4               ///< The maxumum number of skins per model. This must remain hard coded at 4 for the moment.
 
 /// profile pre-allocations
 #define MAX_PROFILE        256          ///< Maximum number of object profiles
@@ -53,7 +53,7 @@
 #define MAX_PIP             (MAX_PROFILE * MAX_PIP_PER_PROFILE)
 
 /// Some macro switches
-#define USE_DEBUG (defined(_DEBUG) || !defined(NDEBUG))
+#define USE_DEBUG (defined(_DEBUG) || !defined(NDEBUG))        ///< a test of whether a debug switch is explicitly or implicitly defined
 
 #undef  OLD_CAMERA_MODE       ///< Use the old camera style
 //#undef  USE_LUA_CONSOLE       ///< LUA support for the console
@@ -62,13 +62,16 @@
 
 #undef  RENDER_HMAP           ///< render the mesh's heightmap?
 #undef  DEBUG_MESH_NORMALS    ///< render the mesh normals
-#define LOG_TO_CONSOLE
-#define  DEBUG_PROFILE
+#define LOG_TO_CONSOLE        ///< dump all logginfo to file and to the console. Only useful if your compiler generates console for program output. Otherwise the results will end up in a file called stdout.txt
+ 
+#undef  DEBUG_PROFILE       ///< Display the results for the performance profiling
+#undef  DEBUG_PROFILE_MESH  ///< Display the results for the performance profiling of the mesh rendering sub-system
+#undef  DEBUG_PROFILE_INIT  ///< Display the results for the performance profiling of the rendering initialization
 
-#undef  DEBUG_PRT_LIST
-#undef  DEBUG_ENC_LIST
-#undef  DEBUG_CHR_LIST
+#undef  DEBUG_PRT_LIST      ///< Track every single deletion from the PrtList to make sure the same element is not deleted twice. Prevents corruption of the PrtList.free_lst
+#undef  DEBUG_ENC_LIST      ///< Track every single deletion from the EncList to make sure the same element is not deleted twice. Prevents corruption of the EncList.free_lst
+#undef  DEBUG_CHR_LIST      ///< Track every single deletion from the ChrList to make sure the same element is not deleted twice. Prevents corruption of the ChrList.free_lst
 
-#undef DEBUG_STDIO 
+#undef  DEBUG_STDIO         ///< Route stdio calls through wrapper functions so that we can track io calls. This needs to be removed.
 
 #define EGOBOO_CONFIG_H

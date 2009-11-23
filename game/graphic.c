@@ -1430,22 +1430,26 @@ int draw_fps( int y )
     {
         y = _draw_string_raw( 0, y, "%2.3f FPS, %2.3f UPS, Update lag = %d", stabilized_fps, stabilized_ups, update_lag );
 
-#if defined(DEBUG_PROFILE)
+#if defined(USE_DEBUG) && defined(DEBUG_PROFILE)
         y = _draw_string_raw( 0, y, "estimated max FPS %2.3f UPS %4.2f GFX %4.2f", est_max_fps, est_max_ups, est_max_gfx );
         y = _draw_string_raw( 0, y, "rendertime %2.4f, drawtime %2.4f", est_render_time, time_draw_scene );
         y = _draw_string_raw( 0, y, "init %2.4f,  mesh %2.4f, solid %2.4f", time_render_scene_init, time_render_scene_mesh, time_render_scene_solid );
         y = _draw_string_raw( 0, y, "water %2.4f, trans %2.4f", time_render_scene_water, time_render_scene_trans );
 
-
+#    if defined(DEBUG_PROFILE_MESH)
         //y = _draw_string_raw( 0, y, "mesh:dolist_sort %2.4f, mesh:ndr %2.4f", time_render_scene_mesh_dolist_sort , time_render_scene_mesh_ndr );
         //y = _draw_string_raw( 0, y, "mesh:drf_back %2.4f, mesh:ref %2.4f", time_render_scene_mesh_drf_back, time_render_scene_mesh_ref );
         //y = _draw_string_raw( 0, y, "mesh:ref_chr %2.4f, mesh:drf_solid %2.4f", time_render_scene_mesh_ref_chr, time_render_scene_mesh_drf_solid );
         //y = _draw_string_raw( 0, y, "mesh:render_shadows %2.4f", time_render_scene_mesh_render_shadows );
+#    endif
 
+#    if defined(DEBUG_PROFILE_INIT)
         y = _draw_string_raw( 0, y, "init:renderlist_make %2.4f, init:dolist_make %2.4f", time_render_scene_init_renderlist_make, time_render_scene_init_dolist_make );
         y = _draw_string_raw( 0, y, "init:do_grid_dynalight %2.4f, init:light_fans %2.4f", time_render_scene_init_do_grid_dynalight, time_render_scene_init_light_fans ); 
         y = _draw_string_raw( 0, y, "init:update_all_chr_instance %2.4f", time_render_scene_init_update_all_chr_instance );
         y = _draw_string_raw( 0, y, "init:update_all_prt_instance %2.4f", time_render_scene_init_update_all_prt_instance );
+#    endif
+
 #endif
     }
 
@@ -5556,12 +5560,12 @@ void do_grid_dynalight( ego_mpd_t * pmesh, camera_t * pcam )
 
         if( pdyna->falloff <= 0  ) continue;
 
-        radius = sqrt( pdyna->falloff * 765.0f / 2.0f );
+        radius = SQRT( pdyna->falloff * 765.0f / 2.0f );
 
-        ftmp.xmin = floor(pdyna->x - radius);
-        ftmp.xmax = floor(pdyna->x + radius);
-        ftmp.ymin = floor(pdyna->y - radius);
-        ftmp.ymax = floor(pdyna->y + radius);
+        ftmp.xmin = floor( (pdyna->x - radius) / TILE_SIZE ) * TILE_SIZE;
+        ftmp.xmax = ceil ( (pdyna->x + radius) / TILE_SIZE ) * TILE_SIZE;
+        ftmp.ymin = floor( (pdyna->y - radius) / TILE_SIZE ) * TILE_SIZE;
+        ftmp.ymax = ceil ( (pdyna->y + radius) / TILE_SIZE ) * TILE_SIZE;
 
         // check to see if it intersects the "frustum"
         if( ftmp.xmin <= mesh_bound.xmax && ftmp.xmax >= mesh_bound.xmin )

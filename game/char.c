@@ -404,7 +404,7 @@ bool_t ChrList_free_one( Uint16 ichr )
     // sets all boolean values to false, incluting the "on" flag
     chr_init( pchr );
 
-#if defined(USE_DEBUG)  && defined(DEBUG_CHR_LIST)
+#if defined(USE_DEBUG) && defined(DEBUG_CHR_LIST)
     {
         int cnt;
         // determine whether this character is already in the list of free textures
