@@ -10,12 +10,13 @@ Version 2.8.0 (xx.12.2009)
 - New Feature: Improved AI by adding Line of Sight detection for targeting.
 - New Feature: Improved UI by implementing in-game pop up text.
 - New Feature: Implemented a new file system based on PhysFS to improve file handling.
+- Update: Various AI script optimizations to increase game performance.
 - Update: Added support for up to 32 joystick buttons.
 - Update: Backstabs now deal double damage and damage is increased by dexterity.
 - Update: Various GUI improvements to make it easier to navigate and use.
 - Update: Improved the texture detail for all the title images and replaced some with better ones.
 - Update: Vampires and Shuffling Heaps are significantly weaker than before.
-- Update: Further improvements on the Lightning engine.
+- Update: Further improvements on the Lightning engine to boost game performance.
 - Update: Made some improvements to the Protector monster.
 - Update: Improved the way hitboxes works. Bumping into square things such as tables and bookcases
   is handled much better now.

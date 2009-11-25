@@ -35,8 +35,7 @@ IfOrdered
   tmpx = selforder
   tmpy = [LKIL]
   IfXIsEqualToY
-    GetContent
-    tmpargument = tmpargument - 1
+    tmpargument = selfcontent - 1
     SetContent
 
 IfTimeOut
@@ -230,4 +229,3 @@ IfTimeOut
       OpenPassage
 
 End					// All done
-

@@ -13,15 +13,15 @@ IfSpawned
   KeepAction
   JoinEvilTeam
 
+  //Randomize what monster to become
   tmpargument = 3
   IfContentIs
     tmpargument = rand & 1
     SetContent
 
-//Check if to rise undead and rise ghouls
+//Check if to rise undead
 IfTimeOut
-  GetContent
-  tmpx = tmpargument
+  tmpx = selfcontent
   tmpy = 2			//2 is normal body
   IfXIsLessThanY
     tmpargument = rand % 300 + 350	//Distance to check
@@ -42,7 +42,7 @@ IfTimeOut
         tmpargument = 0 //Message and sound
         SendMessageNear
         PlaySound
-  tmpargument = 5
+  tmpargument = rand & 7 + 15
   SetTime
 
 //------------------------------------------------------------------------------

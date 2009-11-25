@@ -1,5 +1,3 @@
-//This object does some module updates
-
 //This spawns the portal in the beginning and starts the music
 IfSpawned
   tmpx = selfx

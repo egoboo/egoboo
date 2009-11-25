@@ -1,7 +1,13 @@
 //Make yourself disenchantable
 IfSpawned
+  SetTargetToSelf
   EnchantTarget
+  
+  // Must die in 1 hit to disallow punching it open
+  tmpargument = 512
+  SetDamageThreshold
 
+//Magic sparklies
 tmpargument = 1
 tmpdistance = selfz
 tmpx = selfx
@@ -28,9 +34,6 @@ IfSpawned
     ChangeArmor
 
 IfAttacked
-  // Must die in 1 hit to disallow punching it open
-  tmpargument = 512
-  HealSelf
   // Spawn a defense ping
   IfStateIs0
     tmpx = selfx

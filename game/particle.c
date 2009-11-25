@@ -2564,8 +2564,6 @@ void release_all_pip()
 				if( LOADED_PIP(cnt) )
 				{
 					pip_t * ppip = PipStack.lst + cnt;
-
-					log_debug( "index == %d\tname == \"%s\"\tcreate_count == %d\trequest_count == %d\n", cnt, ppip->name, ppip->prt_create_count, ppip->prt_request_count ); 
 					fprintf( ftmp, "index == %d\tname == \"%s\"\tcreate_count == %d\trequest_count == %d\n", cnt, ppip->name, ppip->prt_create_count, ppip->prt_request_count ); 
 				}
 			}

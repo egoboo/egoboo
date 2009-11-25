@@ -105,41 +105,41 @@ Gate:      NONE     76    10   5.0    0    S   0   0   7   0   0   F   F   Null
 //Treasure...
 Chest: NONE     40    6.5  7.5  0    E   0   0   0   1   0   F   F   Null
   LPotion: NONE     53    0    0    0    I   0   0   0   0   0   F   F   Null
-ItemChest: NONE     40    11.5 7.5  0    W   0   0   0   1   0   F   F   Null
+Chest: NONE     40    11.5 7.5  0    W   0   0   0   1   0   F   F   Null
   MPotion: NONE     54    0    0    0    I   0   0   0   0   0   F   F   Null
   MPotion: NONE     54    0    0    0    I   0   0   0   0   0   F   F   Null
 Mimic: NONE     47    25   5    0    S  49   0   0   0   0   F   F   Evil
-FireChest: NONE     46    23.5 26.5 0    N 199   0   0   0   0   F   F   Null
+Chest: NONE     40    23.5 26.5 0    N 199   0   4   0   0   F   F   Null
 GasChest:  NONE     75    35.5 10.5 0    N   0   0   0   1   0   F   F   Null
   WandLightning:   NONE     60    0    0    0    I   0   0   0   0   0   F   F   Null
   WandOrbstorm:   NONE     61    0    0    0    I   0   0   0   0   0   F   F   Null
   WandFireball:   NONE     63    0    0    0    I   0   0   0   0   0   F   F   Null
   WandMissile:   NONE     62    0    0    0    I   0   0   0   0   0   F   F   Null
-MapChest:  NONE     74    41.5 15   0    W   0   0   0   0   0   F   F   Null
-ItemChest: NONE     40    39   26.5 0    N  49   0   0   3   0   F   F   Null
+Chest:  NONE     40    41.5 15   0    W   0   0   2   0   0   F   F   Null              //Map chest
+Chest: NONE     40    39   26.5 0    N  49   0   0   3   0   F   F   Null
   XBow:    NONE     55    0    0    0    I   0   0   0   0   0   F   F   Null
   LBow:    NONE     56    0    0    0    I   0   0   0   0   0   F   F   Null
   Gonne:   NONE     57    0    0    0    I   0   0   0   0   0   F   F   Null
   Quiver:  NONE     59    0    0    0    I   0   0   0   0   0   F   F   Null
   Musketoon: NONE     79    0    0    0    I   0   0   0   0   0   F   F   Null
-ItemChest: NONE     40    8.5  21.5 0    E  49   0   0   3   0   F   F   Null
+Chest: NONE     40    8.5  21.5 0    E  49   0   0   3   0   F   F   Null
   Tranch:  NONE     78    0    0    0    I   0   0   0   0   0   F   F   Evil
   Tranch:  NONE     78    0    0    0    I   0   0   0   0   1   F   F   Evil
   Tranch:  NONE     78    0    0    0    I   0   0   0   0   2   F   F   Evil
   Tranch:  NONE     78    0    0    0    I   0   0   0   0   3   F   F   Evil
   LPotion: NONE     53    0    0    0    I   0   0   0   0   0   F   F   Null
-LockChest: NONE     45    13.5 58   0    E   0   0   0   0   0   F   F   Null
+Chest: NONE     40    13.5 58   0    E   0   0   1   0   0   F   F   Null           //Locked
   CAmulet: NONE     83    0    0    0    I   0   0   0   0   0   F   F   Null
-ItemChest: NONE     40    11.5 28.5 0    S   0   0   0   1   0   F   F   Null
+Chest: NONE     40    11.5 28.5 0    S   0   0   0   1   0   F   F   Null
   LuckRing:   NONE     136   0    0    0    I   0   0   0   0   0   F   F   Null
-ItemChest: NONE     40    45   48.5 0    N  99   0   0   0   0   F   F   Null
-ItemChest: NONE     40    46.5 44.5 0    W  99   0   0   3   0   F   F   Null
+Chest: NONE     40    45   48.5 0    N  99   0   0   0   0   F   F   Null
+Chest: NONE     40    46.5 44.5 0    W  99   0   8   0   0   F   F   Null           //Secret bottom
   DexAmulet: NONE     99    0    0    0    I   0   0   0   0   0   F   F   Null
-LockChest: NONE     45    45.5 41.5 0    S   0   0   0   0   0   F   F   Null
+Chest: NONE     40    45.5 41.5 0    S   0   0   1   0   0   F   F   Null           //Locked
   EAmulet: NONE     84    0    0    0    I   0   0   0   0   0   F   F   Null
-ItemChest: NONE     40    42.5 43.5 0    E  99   0   0   2   0   F   F   Null
+Chest: NONE     40    42.5 43.5 0    E  99   0   0   2   0   F   F   Null
   Crime:   NONE     80    0    0    0    I   0   0   0   0   0   F   F   Null
-ItemChest: NONE     88    14.5 33.5 0    S  24   0   0   2   0   F   F   Null
+Chest: NONE     40    14.5 33.5 0    S  24   0   16   2   0   F   F   Null          //Invisible
   KeyA:    NONE     41    0    0    0    I   0   0   0   0   0   F   F   Null
 
 

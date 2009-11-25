@@ -9,30 +9,35 @@ IfSpawned
 //Trap effects
 KeepAction
 IfTimeOut
-SetTargetToNearestLifeform
+  tmpargument = rand & 7 + 10
+  SetTime
+  SetTargetToNearestLifeform
 
-  //Check for rogues to find it
-  tmpargument = [TECH]			//Does the target have disarm skill?
-  IfTargetHasSkillID
-    IfTargetIsAPlayer			//Only for players
-      tmpx = targetdistance
-      tmpy = 500			//Detect range
-      IfXIsLessThanY
-        tmpargument = 0			//Not detected yet
-        IfContentIs
-          IfTimeOut
-            tmpx = rand & 1280 + targetint	//0-5 + the characters intelligence
-            tmpy = 4352			//need to be more than 17 points added together
-            IfXIsMoreThanY
-              tmpargument = 0
-              SendMessageNear
-              tmpargument = 1
-              SetContent			//Mark as detected
-              tmpargument = 5
-              tmpdistance = EXPDARE
-              GiveExperienceToTarget		//Award some xp
-              tmpargument = 1
-              PlaySound				//Play sound effect
+  //Ready trap state
+  tmpargument = 0
+  SetState			
+
+  //Check for trapfinders to find it
+  tmpargument = 0			//Not detected yet
+  IfContentIs
+    tmpargument = [DISA]			//Does the target have disarm skill?
+    IfTargetHasSkillID
+      IfTargetIsAPlayer			//Only for players
+        tmpx = targetdistance
+        tmpy = 500			//Detect range
+        IfXIsLessThanY
+          tmpx = rand & 1280 + targetint	//0-5 + the characters intelligence
+          tmpy = 4352			//need to be more than 17 points added together
+          IfXIsMoreThanY
+            tmpargument = 0
+            SendMessageNear
+            tmpargument = 1
+            SetContent			//Mark as detected
+            tmpargument = 5
+            tmpdistance = EXPDARE
+            GiveExperienceToTarget		//Award some xp
+            tmpargument = 1
+            PlaySound				//Play sound effect
 
 //Special occasions the trap is not to activate
 tmpx = targetdistance
@@ -56,15 +61,6 @@ IfXIsLessThanY
       tmpargument = rand & 1024 + 512 // 2-6 damage
       tmpdistance = DAMAGEPOKE
       DamageTarget
-
-//-----------------------------------------------------------------------------------------------
-//Reset trap
-IfTimeOut
-  tmpargument = 50
-  SetTime
-  
-  tmpargument = 0
-  SetState			//Ready trap state
 
 //-----------------------------------------------------------------------------------------------
 //Detected trap particles

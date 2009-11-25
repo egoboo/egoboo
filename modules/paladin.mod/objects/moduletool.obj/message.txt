@@ -1,0 +1,4 @@
+Message 0: It_is_an_ambush!_Hurry_and_escape_to_the_exit!
+Message 1: With_the_destruction_of_the_Evil_Altar,_%t_has_proven_himself_worthy
+Message 2: _of_the_title_Paladin!_Your_great_and_noble_deeds_will_be_spoken_on
+Message 3: _for_centuries_in_legends_to_come._Now_let's_start_with_saving_the_king.

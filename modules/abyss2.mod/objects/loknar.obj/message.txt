@@ -16,5 +16,4 @@ Message 14: Prepare_to_be_slain!
 Message 15: That_was_fun!
 Message 16: My_work_here_is_done...
 Message 17: I_am..ehm.._We_are_victorious!
-
-
+Message 18: %t_attacked_%n_one_time_too_much...

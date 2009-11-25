@@ -4,6 +4,10 @@ IfSpawned
   IfContentIs
     SetTargetToSelf
     EnchantTarget
+    
+  // Must die in 1 hit to disallow punching it open
+  tmpargument = 512
+  SetDamageThreshold
 
 //Remove self if ordered to do so
 IfOrdered
@@ -45,10 +49,7 @@ IfHealed
     tmpargument = 20
     SetTime
 
-IfAttacked
-  // Must die in 1 hit to disallow punching it open
-  tmpargument = 512
-  HealSelf
+IfAttacked  
   // Spawn a defense ping
   IfStateIs0
     tmpx = selfx

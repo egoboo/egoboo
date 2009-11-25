@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //Use shields
-IfHoldingShield
-  IfTargetIsAttacking
+IfTargetIsAttacking
+  IfHoldingShield
     IfTargetIsOnHatedTeam
       tmpx = targetdistance
       tmpy = 500
@@ -53,7 +53,7 @@ IfBumped
       PressLatchButton
 
 //------------------------------------------------------------------------------
-//Move out of lava (BAD: doesnt work!)
+//Move out of lava
 IfOverWater
   tmpx = ownerx
   tmpy = ownery
@@ -75,6 +75,8 @@ IfXIsMoreThanY
 //------------------------------------------------------------------------------
 //Main AI loop
 IfTimeOut
+  tmpargument = 50
+  SetTime
 
   //Tell the player to release him (or else!)
   tmpx = selfstate
@@ -185,7 +187,6 @@ IfTimeOut
             IfXIsLessThanY
               PressLatchButton
 
-
         //Randomly growl combat stuff (this guy has anger issues!)
         tmpx = rand & 255
         tmpy = 15
@@ -241,10 +242,14 @@ IfAttacked
   PlaySound
 
   //Become angry when friendly fire at low life
-  tmpx = selflife
-  tmpy = 1024
-  IfXIsLessThanY
-  //  JoinEvilTeam
+  IfTargetIsOnSameTeam
+    tmpx = selflife
+    tmpy = 1024
+    IfXIsLessThanY
+      tmpargument = TEAML
+      JoinTeam
+      tmpargument = 18
+      SendMessage
 
 //------------------------------------------------------------------------------
 End

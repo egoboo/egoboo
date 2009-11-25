@@ -3,13 +3,73 @@ IfTimeOut
   CleanUp
   tmpargument = 50
   SetTime
-  JoinEvilTeam
   
+  //Players escaped the crypt?
+  tmpargument = passage
+  SetTargetToWhoeverIsInPassage
+    IfTargetIsAPlayer
+      ClearEndMessage
+      tmpargument = 1
+      AddEndMessage
+      tmpargument = 2
+      AddEndMessage
+      tmpargument = 3
+      AddEndMessage
+      EnableExport
+      BeatModule
+      tmpargument = 0
+      AddEndMessage
+      tmpargument = [BEAT]
+      AddIDSZ
+      EndModule
+
 //This starts the music
 IfSpawned
   tmpargument = 10
   tmpdistance = 0
-  PlayMusic
+  PlayMusic  
+  DisableExport
+  
+//Spawn monsters?
+IfOrdered
+  tmpx = selforder
+  tmpy = [BEAT]
+  IfXIsEqualToY
+    tmpargument = 0
+    SendMessage
+    
+    // Little music blurb
+    tmpargument = 0
+    PlayFullSound
+
+    // Spawn ghouls
+    tmpargument = 56
+    tmpx = 41*128
+    tmpy = 38*128
+    tmpdistance = 20
+    tmpturn = rand
+    SpawnExactCharacterXYZ
+    SpawnExactCharacterXYZ
+    SpawnExactCharacterXYZ
+    SpawnExactCharacterXYZ
+      tmpargument = ACTIONJB
+      ChildDoActionOverride
+
+    // Spawn grub bug monsters
+    tmpargument = 59
+    tmpx = 38*128
+    tmpy = 48*128
+    tmpdistance = 20
+    tmpturn = rand
+    SpawnExactCharacterXYZ
+    SpawnExactCharacterXYZ
+    SpawnExactCharacterXYZ
+    SpawnExactCharacterXYZ
+    SpawnExactCharacterXYZ
+    SpawnExactCharacterXYZ
+    SpawnExactCharacterXYZ
+    SpawnExactCharacterXYZ
+    SpawnExactCharacterXYZ
+    SpawnExactCharacterXYZ
 
 End					// All done
-

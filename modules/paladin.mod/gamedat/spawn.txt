@@ -5,7 +5,7 @@ Paladin:   NONE    0  24.0   8.5   1.0   S    0   0  0   0   0   T   F   G
   warham:   NONE    53  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
   lamp:   NONE    49  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 
-moduletool:   NONE    80  24.0   10.0   3.0   N    0   0  0   0   0   F   F   N
+moduletool:   NONE    80  24.0   10.0   3.0   N    0   0  0   0   0   F   F   E
 
 ulna:   NONE    37  12.0   8.0   1.0   N    6   0  0   0   0   F   F   E
   Hatchet:   NONE    42  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
@@ -88,9 +88,6 @@ irondoor:   NONE    61  24.0   47.0   1.0   N    0   0  16   0   0   F   F   N
 Mimic:   NONE    68  39.5   51.5   1.0   N    12   0  0   0   0   F   F   E
 rockhead:   NONE    52  13.5   38.5   1.0   N    0   0  0   0   0   F   F   S
   XBow:   NONE    58  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-gpopper:   NONE    69  41.0   38.0   1.0   N    0   0  0   0   0   F   F   E
-bpopper:   NONE    70  38.0   48.0   1.0   N    0   0  0   0   0   F   F   N
-exitarea:   NONE    72  27.0   8.0   1.0   N    0   0  21   0   0   F   F   N
 pchest:   NONE    65  36.5   51.5   1.0   N    0   0  0   0   0   F   F   N
   XBow:   NONE    58  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   Hatchet:   NONE    42  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N

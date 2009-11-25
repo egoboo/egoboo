@@ -1,3 +1,8 @@
+// Must die in 1 hit to disallow punching it open
+IfSpawned
+  tmpargument = 512
+  SetDamageThreshold
+
 IfHealed
   // Spawn a defense ping
   IfStateIs0
@@ -15,9 +20,6 @@ IfHealed
 
 //Hit by bashing weapons?
 IfAttacked
-  // Must die in 1 hit to disallow punching it open
-  tmpargument = 512
-  HealSelf
   
   // Spawn a defense ping
   IfStateIs0
@@ -62,8 +64,9 @@ IfKilled
 
   // Drop goodies
   DropItems
-  tmpargument = 65535
+  tmpargument = selfmoney
   DropMoney
+  DropKeys
 
   // Replace self with an imposter...
   tmpargument = 54
@@ -74,9 +77,6 @@ IfKilled
   SpawnExactCharacterXYZ
   GoPoof
 
-//Drop the loot
-IfKilled
-  DropKeys
   SetTargetToWhoeverAttacked
   tmpargument = 150			//Award some quest xp
   tmpdistance = EXPQUEST

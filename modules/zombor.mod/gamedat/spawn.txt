@@ -1,7 +1,7 @@
 #dependency Zombor  0
 
 //         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
-unknown:   NONE    0  12.5   35.5   0.0   N    0   0  0   0   0   T   F   Z
+PLAYER 1:   NONE    0  12.5   35.5   0.0   N    0   0  0   0   0   T   F   Z
 
 //Cleric boss
 cleric:   NONE    56  34.5   24.25   1.0   N    39   0  0   0   0   F   F   G
