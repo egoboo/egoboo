@@ -65,7 +65,7 @@ ring:   NONE    104  58.5   6.5   1.0   N    0   0  0   0   0   F   F   N
 lumpkin:   NONE    30  19.5   31.5   3.0   N    0   0  0   0   0   F   F   E
   gonne:   NONE    42  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 
-zchest:   NONE    40  35.5   43.5   1.0   N    0   0  0   1   0   F   F   N
+chest:   NONE    40  35.5   43.5   1.0   N    0   0  0   0   0   F   F   N
   LBow:   NONE    36  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 brazier:   NONE    77  33.5   43.5   1.0   N    0   0  0   1   0   F   F   N
 

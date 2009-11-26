@@ -46,7 +46,7 @@ Trog:      NONE      36   8.0  30.0 4.0  N   3   4   0   0   0   F   F   Trog
 Trog:      NONE      36   8.0  32.0 4.0  N   1   4   0   0   0   F   F   Trog
   Spear:   NONE      51   0    0    0    R   0   0   0   0   0   F   F   Null
 GrubSpit:  NONE      44   5    27   0    S   0   0   0   0   0   F   F   Null
-Chest:     NONE      59   3    25   0    E   0   0   0   0   0   F   F   Null
+Chest:     NONE      40   3    25   0    E   0   0   0   0   0   F   F   Null
   EnchantWeaponScroll:NONE 60   0    0   0     I   0   0   0   0   0   F   F   Null
   GrubBug: NONE      37   0    0   0     I   0   0   0   0   0   F   F   Insect
   Plunger: NONE      43   0    0   0     I   0   0   0   0   0   F   F   Null
@@ -121,7 +121,7 @@ OButton:   NONE      58   31.3  5   0    S   0   0   7   0   0   F   F   Null
 Platform:  NONE      48   28.5 10   0.9  S   0   0   0   0   0   F   F   Null
 
 Missile:   NONE      73   24.5 10.5 0    S   0   0   0   0   0   F   F   Null
-Chest:     NONE      40   58   30   0    W   0   0   0   1   0   F   F   Null
+Chest:     NONE      40   58   30   0    W   2   0   0   32   5   F   F   Null           //Contains level 2 adventurer armor
 Book:a_Book_of_Missile   127  24.5 10.5 0    S   0   0   0   73  0   F   F   Null
 Shaft:     NONE      49   14.5 60.5 0    N   0   0   0   0   0   F   F   Null
 

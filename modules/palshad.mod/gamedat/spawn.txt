@@ -86,11 +86,11 @@ Blob:      NONE     91    52   12   0.0  W   0   0   0   0   0   F   F   Evil
 
 
 
-MapChest:  NONE     44    53   45   0.0  W   0   0   0   0   0   F   F   Null
-ItemChest: NONE     43    19   35   0.0  S   0   0   0   1   0   F   F   Null
+Chest:     NONE     43    53   45   0.0  W   0   0   0   2   0   F   F   Null     //Contains a map
+Chest:     NONE     43    19   35   0.0  S   0   0   0   0   0   F   F   Null
   KeyA:    NONE     93     0    0     0  I   0   0   0   0   0   F   F   Null
-  Rune:    NONE     47     0    0     0  I   0   0   0   0   0   F   F   Null
-RoguChest: NONE     40    45   35   0.0  S   0   0   0   2   0   F   F   Null
+  Exorcism: NONE     47     0    0     0  I   0   0   0   0   0   F   F   Null
+Chest: NONE     43    45   35   0.0  S   2   0   0   32   8   F   F   Null    //Contains rogue armor (Level 3)
 GasChest:  NONE     42    35   47   0.0  N   0   0   0   1   0   F   F   Null
   Poison:  NONE     57     0    0     0  I   0   0   0   0   0   F   F   Null
 GasChest:  NONE     42    37   47   0.0  N   199 0   0   0   0   F   F   Null
@@ -99,20 +99,18 @@ GasChest:  NONE     42    39   47   0.0  N   0   0   0   1   0   F   F   Null
 
 
 
-SoldChest: NONE     39  14.5 23.5   0.0  E   0   0   0   1   0   F   F   Null
-ItemChest: NONE     43  14.5 20.5   0.0  E   0   0   0   1   0   F   F   Null
+Chest:     NONE     43  14.5 23.5   0.0  E   1   0   0   32   3   F   F   Null  //Contains soldier armor (Level 2)
+Chest:     NONE     43  14.5 20.5   0.0  E   0   0   0   0   0   F   F   Null
   SPotion: NONE     58     0    0     0  I   0   0   0   0   0   F   F   Null
   MPotion: NONE     87     0    0     0  I   0   0   0   0   0   F   F   Null
   LPotion: NONE     86     0    0     0  I   0   0   0   0   0   F   F   Null
   Poison:  NONE     57     0    0     0  I   0   0   0   0   0   F   F   Null
 
-
-InviChest: NONE     41    21.5 57.5 0.0  N   0   0   0   1   0   F   F   Null
+Chest: NONE         43    21.5 57.5 0.0  N   0   0   0   16   0   F   F   Null
   KeyA:    NONE     93     0    0     0  I   0   0   0   0   0   F   F   Null
   
 
-
-InviChest: NONE     41    41.0 10.5 0.0  S   0   0   0   1   0   F   F   Null
+Chest:     NONE     41    41.0 10.5 0.0  S   0   0   0   16   0   F   F   Null
   Unseen:  NONE     60     0    0     0  I   1   0   0   0   0   F   F   Null
   Speedie: NONE     61     0    0     0  I   0   0   0   0   0   F   F   Null
   WandM:   NONE     62     0    0     0  I   0   0   0   0   0   F   F   Null
@@ -136,7 +134,6 @@ Lumpkin:   NONE     76    37.0 45.0 0.0  N   0   1   0   0   0   F   F   Evil
   Claw:    NONE     77    0    0    0    R   0   0   0   0   0   F   F   Null
 Lumpkin:   NONE     76    39.0 45.0 0.0  S   0   0   0   0   0   F   F   Evil
   Claw:    NONE     77    0    0    0    R   0   0   0   0   0   F   F   Null
-
 
 
 // Stalkers across pit

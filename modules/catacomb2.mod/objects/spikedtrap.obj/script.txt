@@ -3,26 +3,43 @@
 IfSpawned
   tmpargument = ACTIONMG
   DoAction
-  tmpx = 500		//Dont activate at start
-
+  tmpargument = rand & 15 + 50		//Dont activate at start
+  SetTime
+  
 //-----------------------------------------------------------------------------------------------
 //Trap effects
 KeepAction
 IfTimeOut
   tmpargument = rand & 7 + 10
   SetTime
-  SetTargetToNearestLifeform
-
-  //Ready trap state
-  tmpargument = 0
-  SetState			
+  tmpargument = [NONE]
+  tmpdistance = BLAHENEMIES + BLAHFRIENDS
+  SetTargetToNearestBlahID
+    tmpx = targetdistance
+    tmpy = rand & 63 + 55			//Trigger range
+    IfXIsLessThanY
+      tmpx = targetz
+      tmpy = selfz + 100
+      IfXIsLessThanY		//This enables targets to fly or jump over the trap
+        tmpargument = ACTIONMG
+        DoAction
+        tmpargument = 0
+        PlaySound			//Play clinking
+        tmpargument = 50
+        SetTime			                //Need some time to reset
+        
+        //Deal damage to nearby stuff
+        tmpargument = 1
+        tmpx = 0
+        tmpy = 0
+        tmpdistance = SPAWNORIGIN
+        SpawnParticle
 
   //Check for trapfinders to find it
-  tmpargument = 0			//Not detected yet
-  IfContentIs
-    tmpargument = [DISA]			//Does the target have disarm skill?
-    IfTargetHasSkillID
-      IfTargetIsAPlayer			//Only for players
+  IfStateIs0			//Not detected yet
+    IfTargetIsAPlayer			//Only for players
+      tmpargument = [DISA]			//Does the target have disarm skill?
+      IfTargetHasSkillID
         tmpx = targetdistance
         tmpy = 500			//Detect range
         IfXIsLessThanY
@@ -32,40 +49,16 @@ IfTimeOut
             tmpargument = 0
             SendMessageNear
             tmpargument = 1
-            SetContent			//Mark as detected
+            SetState			//Mark as detected
             tmpargument = 5
             tmpdistance = EXPDARE
             GiveExperienceToTarget		//Award some xp
             tmpargument = 1
             PlaySound				//Play sound effect
 
-//Special occasions the trap is not to activate
-tmpx = targetdistance
-IfTargetIsSelf
-  tmpx = 500			//Don't activate
-
-tmpy = rand % 65 + 55			//Trigger range
-IfXIsLessThanY
-  IfStateIs0
-    tmpx = targetz
-    tmpy = selfz + 100
-    IfXIsLessThanY		//This enables targets to fly or jump over the trap
-      tmpargument = ACTIONMG
-      DoAction
-      tmpargument = 0
-      PlaySound			//Play clinking
-      tmpargument = 1
-      SetState			//Trap is activated
-      tmpargument = 50
-      SetTime			//Need some time to reset
-      tmpargument = rand & 1024 + 512 // 2-6 damage
-      tmpdistance = DAMAGEPOKE
-      DamageTarget
-
 //-----------------------------------------------------------------------------------------------
 //Detected trap particles
-tmpargument = 1
-IfContentIs
+IfStateIs1
   tmpargument = 0
   tmpx = selfx
   tmpy = selfy

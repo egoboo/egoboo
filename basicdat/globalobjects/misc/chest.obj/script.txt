@@ -2,7 +2,7 @@
 //	State 0: Closed chest
 //	State 1: Opened Chest
 //	State 2: Looted Chest
-//	selfmoney = armor level (0-3, 4 is random)
+//	selfmoney = armor level (0-3, 4 is random and 5 is random + super armor)
 //	selflevel = armor type based on class (0 = random... see list below)
 //	+1 content = locked
 //	+2 content = map
@@ -111,10 +111,14 @@ IfSpawned
     
     //randomize armor level?
     tmpx = selfmoney
-    tmpy = 3
-    IfXIsMoreThanY
-      tmpargument = rand % 4
+    tmpy = 4
+    IfXIsEqualToY
+      tmpargument = rand % 3
       SetMoney
+    Else
+      IfXIsMoreThanY
+        tmpargument = rand % 4
+        SetMoney
 
 //------------------------------------------------------------------------------------
 // Someone cast an unlock spell

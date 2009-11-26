@@ -164,8 +164,8 @@ kbutton:   NONE    81  74.0   52.0   1.0   N    0   0  14   0   0   F   F   N
 kbutton:   NONE    81  79.0   57.0   1.0   N    0   0  15   0   0   F   F   N
 switch:   NONE    75  74.0   57.0   1.0   N    0   0  14   0   0   F   F   N
 switch:   NONE    75  79.0   62.0   1.0   N    0   0  15   0   0   F   F   N
-achest:   NONE    83  62.0   72.5   1.0   S    0   0  0   3   0   F   F   N
-chest:   NONE    58  62.0   79.5   1.0   N    4   0  0   0   0   F   F   N			//Final chest
+chest:   NONE    58  62.0   72.5   0.0   S    3   0  0   32   0   F   F   N      //Contains random level 4 armor
+chest:   NONE    58  62.0   79.5   0.0   N    4   0  0   0   0   F   F   N			//Final chest
   linuxshield:   NONE    84  62.0   79.5   1.0   I    0   0  0   0   0   F   F   N
   MPotion:   NONE    60  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 KeyA:   NONE    63  49.5   75.0   1.0   N    0   0  0   0   0   F   F   N

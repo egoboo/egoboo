@@ -81,21 +81,21 @@ Rock:      NONE     41    32   20   5.0  S   0   0   0   0   0   F   F   Null
 Rock:      NONE     41    44   32   5.0  W   0   0   0   0   0   F   F   Null
 Rock:      NONE     41    20   32   5.0  E   0   0   0   0   0   F   F   Null
 
-Chest:     NONE     42    16.5 31.5 5.0  N   0   0   0   1   0   F   F   Null
+Chest:     NONE     42    16.5 31.5 5.0  N   0   0   0   0   0   F   F   Null
   Loot:    NONE     43    0    0    0    I   0   0   0   0   0   F   F   Null
-Chest:     NONE     42    16.5 32.5 5.0  S   0   0   0   1   0   F   F   Null
+Chest:     NONE     42    16.5 32.5 5.0  S   0   0   0   0   0   F   F   Null
   KShield:    NONE     44    0    0    0    I   0   0   0   0   0   F   F   Null
-Chest:     NONE     42    47.5 31.5 5.0  N   0   0   0   1   0   F   F   Null
+Chest:     NONE     42    47.5 31.5 5.0  N   0   0   0   0   0   F   F   Null
   Mallet:    NONE     45    0    0    0    I   0   0   0   0   0   F   F   Null
-Chest:     NONE     42    47.5 32.5 5.0  S   0   0   0   1   0   F   F   Null
+Chest:     NONE     42    47.5 32.5 5.0  S   0   0   0   0   0   F   F   Null
   Missile:    NONE     46    0    0    0    I   0   0   0   0   0   F   F   Null
-Chest:     NONE     42    31.5 16.5 5.0  W   0   0   0   1   0   F   F   Null
+Chest:     NONE     42    31.5 16.5 5.0  W   0   0   0   0   0   F   F   Null
   Protect:    NONE     47    0    0    0    I   0   0   0   0   0   F   F   Null
-Chest:     NONE     42    32.5 16.5 5.0  E   0   0   0   1   0   F   F   Null
+Chest:     NONE     42    32.5 16.5 5.0  E   0   0   0   0   0   F   F   Null
   Spear:    NONE     48    0    0    0    I   0   0   0   0   0   F   F   Null
-Chest:     NONE     42    31.5 47.5 5.0  W   0   0   0   1   0   F   F   Null
+Chest:     NONE     42    31.5 47.5 5.0  W   0   0   0   0   0   F   F   Null
   Sword:    NONE     49    0    0    0    I   0   0   0   0   0   F   F   Null
-Chest:     NONE     42    32.5 47.5 5.0  E   0   0   0   1   0   F   F   Null
+Chest:     NONE     42    32.5 47.5 5.0  E   0   0   0   0   0   F   F   Null
   LPotion:    NONE     50    0    0    0    I   0   0   0   0   0   F   F   Null
 
 Brazier:   NONE     51    32   32   7.0  N   0   0   0   1   0   F   F   Null

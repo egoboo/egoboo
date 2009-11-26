@@ -97,13 +97,13 @@ Brazier    NONE      77   40.5 26.5 0.0  E   0   0   0   2   0   F   F   Null
 Brazier:   NONE      77   40.5 26.5 0.0  E   0   0   0   2   0   F   F   Null
 
 
-FChest:    NONE      53   34.5 10.5 0.0  W   59  0   0   3   0   F   F   Null
+Chest:    NONE      53   34.5 10.5 0.0  W   59  0   0   8   0   F   F   Null        //Fake bottom
   Mace:    NONE      41   0    0    0    I   0   0   0   0   0   F   F   Null
   Torch:   NONE      47   0    0    0    I   0   0   0   0   0   F   F   Null
-MChest:    NONE      52   14.5 9.5  0.0  E   0   0   0   0   0   F   F   Null
+Chest:    NONE      53   14.5 9.5  0.0  E   0   0   0   2   0   F   F   Null      //Contains map
 RockHead:  NONE      38   23.5 52.5 0.0  N   0   0   5   0   0   F   F   Evil
   SpkMace: NONE      46   0    0    0    I   0   0   0   0   0   F   F   Null
-FChest:    NONE      53   47.5 52.5 0.0  N   0   0   0   1   0   F   F   Null
+Chest:    NONE      53   47.5 52.5 0.0  N   0   0   0   0   0   F   F   Null
   KurCinq: NONE      42   0    0    0    I   0   0   0   0   0   F   F   Null
   Rebirth: NONE      43   0    0    0    I   0   0   0   0   0   F   F   Null
   LPotion: NONE      44   0    0    0    I   0   0   0   0   0   F   F   Null

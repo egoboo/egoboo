@@ -75,14 +75,14 @@ choco:   NONE    41  5.0   74.0   1.0   N    0   0  0   0   0   F   F   N
 ghoul:   NONE    42  7.0   74.0   1.0   N    3   0  0   0   0   F   F   E
 ghoul:   NONE    42  5.0   76.0   1.0   N    0   0  0   0   0   F   F   E
 ghoul:   NONE    42  5.0   72.0   1.0   N    2   0  0   0   0   F   F   E
-lockedchest:   NONE    46  6.5   27.0   1.0   E    0   0  0   0   0   F   F   N
+chest:   NONE    46  6.5   27.0   1.0   E    0   0  0   1   0   F   F   N       //Locked
   wbracelet:   NONE    67  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   silxbow:   NONE    65  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   AmmoBox:   NONE    79  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 KeyC:   NONE    44  36.5   6.5   1.0   N    0   0  0   0   0   F   F   N
 KeyC:   NONE    44  47.5   17.5   1.0   N    0   0  0   0   0   F   F   N
 KeyC:   NONE    44  58.5   42.0   1.0   N    0   0  0   0   0   F   F   N
-lockedchest:   NONE    46  13.5   64.0   1.0   W    0   0  0   0   0   F   F   N
+chest:   NONE    46  13.5   64.0   1.0   W    0   0  0   1   0   F   F   N        //Locked
   dexamulet:   NONE    66  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   LPotion:   NONE    38  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   powpotion:   NONE    71  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
@@ -211,7 +211,7 @@ trigtile:   NONE    72  57.5   31.5   1.0   N    0   0  48   0   0   F   F   E
 choco:   NONE    41  64.5   8.5   1.0   N    0   0  0   0   0   F   F   N
 spikedtrap:   NONE    73  18.0   51.0   0.0   E    0   0  0   0   0   F   F   N
 spikedtrap:   NONE    73  21.0   51.0   0.0   W    0   0  0   0   0   F   F   N
-lockedchest:   NONE    46  57.0   11.5   1.0   N    39   0  0   5   0   F   F   N
+chest:   NONE    46  57.0   11.5   1.0   N    39   0  0   9   0   F   F   N   //Locked with secret bottom
   AmmoBox:   NONE    79  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   powpotion:   NONE    71  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 

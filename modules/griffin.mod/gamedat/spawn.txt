@@ -193,7 +193,7 @@ cobol:   NONE    63  59.0   26.0   1.0   N    0   2  0   75   0   F   F   E
 prisoner:   NONE    44  62.0   27.0   1.0   N    0   0  0   0   0   F   F   E
   SpkMace:   NONE    56  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 
-lockedchest:   NONE    61  62.0   24.0   1.0   N    12   0  0   0   0   F   F   N
+chest:   NONE    61  62.0   24.0   1.0   N    12   0  0   1   0   F   F   N       //Locked
   wfireball:   NONE    51  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   MPotion:   NONE    65  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   LPotion:   NONE    36  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
@@ -242,7 +242,7 @@ bosslumpkin:   NONE    69  25.0   44.0   1.0   N    49   0  0   0   0   F   F   
   bomb:   NONE    118  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   KeyC:   NONE    64  49.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
-lockedchest:   NONE    61  27.5   38.5   1.0   N    14   0  0   0   0   F   F   N
+chest:   NONE    61  27.5   38.5   1.0   N    14   0  0   1   0   F   F   N         //Locked
   MPotion:   NONE    65  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   gonne:   NONE    53  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   KeyA:   NONE    70  49.0   0.0   0.0   I    0   0  0   0   0   F   F   N
@@ -320,7 +320,7 @@ cobol:   NONE    63  42.0   6.0   1.0   N    3   2  0   300   0   F   F   E
   whip:   NONE    67  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
   ironball:   NONE    55  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 
-lockedchest:   NONE    61  54.0   6.0   1.0   S    0   0  0   0   0   F   F   N
+chest:   NONE    61  54.0   6.0   1.0   S    0   0  0   1   0   F   F   N           //Locked
   LPotion:   NONE    36  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   MPotion:   NONE    65  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   bomb:   NONE    118  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
@@ -378,7 +378,7 @@ haypile:   NONE    40  51.0   72.0   1.0   N    0   0  0   0   0   F   F   N
 
 //--------------------------------------------------------------------------------
 //Right guard chamber
-armorchest:   NONE    48  71.5   49.5   1.0   S    0   0  0   0   0   F   F   N
+chest:   NONE    61  71.5   49.5   1.0   S    1   0  0   32   0   F   F   N            //Contains random level 2 armor
 table:   NONE    38  71.5   52.5   1.0   W    0   0  0   0   0   F   F   N
 chair:   NONE    66  72.5   52.5   1.0   W    0   0  0   0   0   F   F   N
 table:   NONE    38  76.5   55.5   1.0   E    0   0  0   0   0   F   F   N
@@ -435,8 +435,8 @@ prisoner:   NONE    44  7.0   27.0   1.0   N    0   0  0   0   0   F   F   E
 //--------------------------------------------------------------------------------
 //Treasury!
 gate:   NONE    43  10.0   36.0   1.0   N    0   0  14   0   0   F   F   N
-armorchest:   NONE    48  8.5   41.5   1.0   N    0   0  0   0   0   F   F   N
-lockedchest:   NONE    61  11.5   41.5   1.0   N    0   0  0   0   0   F   F   N
+chest:   NONE    61  8.5   41.5   1.0   N    2   0  0   32   0   F   F   N            //Contains random level 3 armor
+chest:   NONE    61  11.5   41.5   1.0   N    0   0  0   1   0   F   F   N              //Chest
   mushroom:   NONE    74  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   identify:   NONE    80  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   LightningWard:   NONE    81  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N

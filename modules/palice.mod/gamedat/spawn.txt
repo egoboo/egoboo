@@ -89,11 +89,11 @@ lockdoor:   NONE    56  12.0   36.8   1.0   N    0   0  2   1   0   F   F   N
 halldoor:   NONE    38  26.0   19.0   1.0   N    0   0  4   0   0   F   F   N
 lockdoor:   NONE    56  26.0   38.0   1.0   N    0   0  14   0   0   F   F   N
 
-fchest:   NONE    36  22.5   24.0   1.0   E    57   0  0   2   0   F   F   N
+chest:   NONE    36  22.5   24.0   1.0   E    57   0  0   8   0   F   F   N       //Secret bottom
   XBow:   NONE    49  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-  LPotion:   NONE    86  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  RgPotion:   NONE    86  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
-fchest:   NONE    36  22.5   33.0   1.0   E    0   0  0   1   0   F   F   N
+chest:   NONE    36  22.5   33.0   1.0   E    0   0  0   0   0   F   F   N
   KeyA:   NONE    93  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   bridge:   NONE    52  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
@@ -104,7 +104,7 @@ icemephit:   NONE    77  10.0   11.0   1.0   N    0   1  0   0   0   F   F   E
   icewing:   NONE    78  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 icemephit:   NONE    77  14.0   12.0   1.0   E    0   1  0   0   0   F   F   E
   icewing:   NONE    78  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
-mchest:   NONE    43  12.5   11.5   1.0   N    0   0  0   0   0   F   F   N
+chest:   NONE    36  12.5   11.5   1.0   N    0   0  2   0   0   F   F   N          //Contains map
 halldoor:   NONE    38  36.0   16.0   1.0   S    0   0  8   0   0   F   F   N
 halldoor:   NONE    38  44.0   12.0   1.0   N    0   0  12   0   0   F   F   N
 halldoor:   NONE    38  31.0   12.0   1.0   W    0   2  6   0   0   F   F   N
@@ -113,11 +113,11 @@ halldoor:   NONE    38  43.0   50.0   1.0   W    0   0  20   0   0   F   F   N
 //Optional treasure chamber
 lockdoor   NONE    56  15.0   53.0   0.0   N    0   0  26   0   0   F   F   N
 lockdoor   NONE    56  9.0   53.0   0.0   N    0   0  24   0   0   F   F   N
-lachest:   NONE    68  9.0   56.0   1.0   N    0   0  0   0   0   F   F   N
+chest:   NONE    36  9.0   56.0   1.0   N    0   0  0   1   0   F   F   N           //Locked
   confusion:   NONE    88  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   frog:   NONE    65  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   KShield:   NONE    39  0.0   0.0   0.0   I    1   0  0   0   0   F   F   N
-lachest:   NONE    68  14.8   56.0   1.0   N    0   0  0   0   0   F   F   N
+chest:   NONE    36  14.8   56.0   1.0   N    0   0  0   1   0   F   F   N        //Locked
   medkit:   NONE    80  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   sloth:   NONE    63  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   LPotion:   NONE    86  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
@@ -139,11 +139,11 @@ rusteater:   NONE    53  47.5   7.5   1.0   N    0   0  0   0   0   F   F   E
 rustmaggot:   NONE    54  48.5   7.5   1.0   N    0   0  0   0   0   F   F   E
 
 //Treasure chamber
-fchest:   NONE    36  46.5   27.5   1.0   S    0   0  0   1   0   F   F   N
+chest:   NONE    36  46.5   27.5   1.0   S    0   0  0   0   0   F   F   N
   ibrace:   NONE    66  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   smite:   NONE    59  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-achest:   NONE    67  44.5   27.5   1.0   S    0   0  0   2   0   F   F   N
-fchest:   NONE    36  46.5   30.5   1.0   N    0   0  0   1   0   F   F   N
+chest:   NONE    36  44.5   27.5   1.0   S    3   0  0   32   0   F   F   N     //Contains random level 4 armor
+chest:   NONE    36  46.5   30.5   1.0   N    0   0  0   0   0   F   F   N
   LPotion:   NONE    86  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   Haste:   NONE    62  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   TrueSightScroll:   NONE    140  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
@@ -190,7 +190,7 @@ frostlizard:   NONE    48  44.0   16.0   1.0   N    0   0  0   0   0   F   F   E
 frostlizard:   NONE    48  42.0   19.0   1.0   N    0   0  0   0   0   F   F   E
 monsterdrop:   NONE    58  35.0   11.0   1.0   N    0   0  19   46   0   F   F   E
 spork:   NONE    60  36.5   28.5   2.0   W    0   0  0   0   0   F   F   N
-xchest:   NONE    64  56.5   8.5   1.0   N    99   0  0   0   0   F   F   N
+chest:   NONE    64  56.5   8.5   1.0   N    99   0  0   4   0   F   F   N      //Fire trapped
   Regeneration:   NONE    50  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   Mallet:   NONE    132  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   LifeRing:   NONE    136  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N

@@ -45,10 +45,10 @@ Hero 09:   NONE      9    36.0 55.5 0.0  N   0   0   0   0   0   T   F   Good
   Hero 17: NONE     17    0    0    0    I   0   0   0   0   0   F   F   Null
 
 //1st room stuff
-FChest:    NONE      53   34   55.5 0.0  N   0   0   0   1   0   F   F   Null
+Chest:    NONE      53   34   55.5 0.0  N   0   0   0   0   0   F   F   Null
   Lamp:    NONE      18   0    0    0.0  I   0   0   0   0   0   F   F   Null
   OilFlask:   NONE      20   0    0    0.0  I   0   0   0   0   0   F   F   Null
-FChest:    NONE      53   38   55.5 0.0  N   0   0   0   1   0   F   F   Null
+Chest:    NONE      53   38   55.5 0.0  N   0   0   0   0   0   F   F   Null
   Mace:    NONE      49   0    0    0.0  I   0   0   0   0   0   F   F   Null
   AmmoBox: NONE      19   0    0    0.0  I   0   0   0   0   0   F   F   Null
 Gatelite:  NONE      45   36.0 56.5 0.0  N   0   0   0   0   0   F   F   Null
@@ -114,18 +114,18 @@ Brazier:   NONE      77   33.5 39.5 0.0  N   20  0   0   2   0   F   F   Null
 Brazier:   NONE      77   38.5 39.5 0.0  S   20  0   4   0   0   F   F   Null
 Brazier:   NONE      77   40.5 26.5 0.0  E   0   0   3   0   0   F   F   Null
 
-FChest:    NONE      53   34.5 10.5 0.0  W   59  0   0   3   0   F   F   Null
+Chest:    NONE      53   34.5 10.5 0.0  W   59  0   0   8   0   F   F   Null      //Secret bottom
   MagPotion: NONE    38   0    0    0    I   0   0   0   0   0   F   F   Null
   Torch:   NONE      56   0    0    0    I   0   0   0   0   0   F   F   Null
   AnimateMimic: NONE 58   0    0    0    I   0   0   0   0   0   F   F   Null
-MChest:    NONE      52   14.5 9.5  0.0  E   0   0   0   0   0   F   F   Null
+Chest:    NONE      53   14.5 9.5  0.0  E   0   0   0   2   0   F   F   Null      //Map chest
 
 RockHead:  NONE      47   23.5 52.5 0.0  N   0   0   0   0   0   F   F   Evil
   SpkMace: NONE      46   0    0    0    I   0   0   0   0   0   F   F   Null
   Tranch:  NONE      72   0    0    0    I   0   0   0   0   0   F   F   Evil
   Tranch:  NONE      72   0    0    0    I   0   0   0   0   0   F   F   Evil
 
-FChest:    NONE      53   47.5 52.5 0.0  N   0   0   5   1   0   F   F   Null
+Chest:    NONE      53   47.5 52.5 0.0  N   0   0   5   0   0   F   F   Null
   KurCinq: NONE      42   0    0    0    I   0   0   0   0   0   F   F   Null
   Rebirth: NONE      43   0    0    0    I   0   0   0   0   0   F   F   Null
   LPotion: NONE      44   0    0    0    I   0   0   0   0   0   F   F   Null
@@ -141,7 +141,7 @@ Tranch:    NONE      72   24.5 53.5 0.0  E   0   0   0   0   0   F   F   Evil
 
 //Final room props
 Candle:    NONE      99   48   10   0    N   0   0   0   0   0   F   F   Null
-FChest:    NONE      53   50.5 8.5  0.0  S   99  0   0   3   0   F   F   Null
+Chest:    NONE      53   50.5 8.5  0.0  S   99  0   0    8   0   F   F   Null   //Secret bottom
   Rot:     NONE      101  0    0    0    I   0   0   0   0   0   F   F   Null
   Moonbeam:NONE      37   0    0    0    I   0   0   0   0   0   F   F   Null
   MStaff:  NONE      57   0    0    0    R   0   0   0   0   0   F   F   Null

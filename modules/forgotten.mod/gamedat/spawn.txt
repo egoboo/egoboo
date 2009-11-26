@@ -128,7 +128,7 @@ unknown:   NONE    15  38.0   39.0   1.0   E    0   1  0   0   0   F   F   V
 unknown:   NONE    15  34.0   39.0   1.0   W    0   2  0   0   0   F   F   V
 unknown:   NONE    33  11.0   28.0   1.0   N    0   0  9   0   0   F   F   N
 treasuredoor:   NONE    43  7.0   22.0   1.0   E    0   0  11   0   0   F   F   N
-mchest:   NONE    60  61.0   36.0   3.0   W    0   0  0   0   0   F   F   N
+chest:   NONE    60  61.0   36.0   3.0   W    0   0  0   2   0   F   F   N      //Contains a map
 Mimic:   NONE    38  61.0   35.0   3.0   W    13   0  0   0   0   F   F   M
   KeyC:   NONE    36  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 Mimic:   NONE    38  61.0   41.0   3.0   W    13   0  0   0   0   F   F   M
@@ -205,15 +205,15 @@ protector:   NONE    46  9.0   59.0   1.0   N    0   0  0   0   0   F   F   M
 protector:   NONE    46  11.0   54.0   1.0   N    0   0  0   0   0   F   F   M
   BfShield:   NONE    47  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
   Battleaxe:   NONE    32  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-fchest:   NONE    56  3.0   18.0   1.0   E    153   0  0   0   0   F   F   N
-fchest:   NONE    56  3.0   19.0   1.0   E    0   0  0   1   0   F   F   N
+chest:   NONE    60  3.0   18.0   1.0   E    153   0  0   0   0   F   F   N
+chest:   NONE    60  3.0   19.0   1.0   E    0   0  0   0   0   F   F   N
   GDagger:   NONE    28  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   GDagger:   NONE    28  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-  GDagger:   NONE    28  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-fchest:   NONE    56  3.0   20.0   1.0   E    227   0  0   0   0   F   F   N
-fchest:   NONE    56  3.0   26.0   1.0   E    96   0  0   2   0   F   F   N
+  Exorcism:   NONE    56  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+chest:   NONE    60  3.0   20.0   1.0   E    227   0  0   0   0   F   F   N
+chest:   NONE    60  3.0   26.0   1.0   E    96   0  0   8   0   F   F   N       //Secret bottom
   AtShield:   NONE    50  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-fchest:   NONE    56  3.0   25.0   1.0   E    0   0  0   1   0   F   F   N
+chest:   NONE    60  3.0   25.0   1.0   E    0   0  0   1   0   F   F   N
   unknown:   NONE    51  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   OilFlask:   NONE    41  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   unknown:   NONE    42  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N

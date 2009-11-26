@@ -1,9 +1,0 @@
-Message 0: %t_grabbed_%0.
-Message 1: %t_took_%1.
-Message 2: %t_found_%2.
-Message 3: %t_discovered_%3.
-Message 4: This_%c_has_armor_in_it,_but_it's_for_a_Wizard.
-Message 5: The_%c_is_locked...
-Message 6: The_%c_has_opened.
-Message 7: %t_picked_the_lock!
-Message 8: %t_used_a_Chest_Key.

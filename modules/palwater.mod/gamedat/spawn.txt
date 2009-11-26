@@ -74,8 +74,8 @@ Hero 27:   NONE     27    14.5 10.5 7.0  S   0   0   0   0   0   T   F   Good
 
 KeyA:      NONE     93    27   23   0    S   0   0   0   0   0   F   F   Null
 
-MapChest:  NONE     44    27.0 37.0 0.0  N   0   0   0   0   0   F   F   Null
-ItemChest: NONE     43    53.0 35.0 0.0  N   0   0   0   1   0   F   F   Null
+Chest:     NONE     43    27.0 37.0 0.0  N   0   0   0   2   0   F   F   Null     //Map chest
+Chest:     NONE     43    53.0 35.0 0.0  N   0   0   0   0   0   F   F   Null
   SBrace:  NONE     51    0    0    0    I   0   0   0   0   0   F   F   Null
   Sword:   NONE     52    0    0    0    I   0   0   0   0   0   F   F   Null
   LPotion: NONE     86    0    0    0    I   0   0   0   0   0   F   F   Null
@@ -83,10 +83,10 @@ ItemChest: NONE     43    53.0 35.0 0.0  N   0   0   0   1   0   F   F   Null
   Stiletto: NONE     53    0    0    0    I   0   0   0   0   0   F   F   Null
   MPotion: NONE     87    0    0    0    I   0   0   0   0   0   F   F   Null
   MPotion: NONE     87    0    0    0    I   0   0   0   0   0   F   F   Null
-SoldChest: NONE     54    51.5 35.0 0.0  N   0   0   0   1   0   F   F   Null
-RoguChest: NONE     41    54.5 35.0 0.0  N   0   0   0   1   0   F   F   Null
-HealChest: NONE     70    8.5  57.5 0.0  N   0   0   0   1   0   F   F   Null
-WizaChest: NONE     71    17.5 57.5 0.0  N   0   0   0   1   0   F   F   Null
+Chest: NONE     43    51.5 35.0 0.0  N   4   1   0   32   0   F   F   Null    //Random armor (Level 1 to 3)
+Chest: NONE     43    54.5 35.0 0.0  N   4   0   0   32   0   F   F   Null    //Random armor (Level 1 to 3)
+Chest: NONE     43    8.5  57.5 0.0  N   4   0   0   32   0   F   F   Null    //Random armor (Level 1 to 3)
+Chest: NONE     43    17.5 57.5 0.0  N   4   0   0   32   0   F   F   Null    //Random armor (Level 1 to 3)
 
 
 

@@ -1,5 +1,0 @@
-Message 0: The_%c_is_empty...
-Message 1: Wait!__There's_a_false_bottom!
-Message 2: %t_looted_the_%c.
-Message 3: The_Invisible_%c_has_opened!
-Message 4: %t_found_an_Invisible_%c!

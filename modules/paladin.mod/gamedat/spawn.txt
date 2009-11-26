@@ -17,7 +17,7 @@ ulna:   NONE    37  24.5   24.5   1.0   N    1   0  0   1   0   F   F   E
 ulna:   NONE    37  23.5   22.5   1.0   N    2   0  0   0   0   F   F   E
   Sword:   NONE    45  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 
-normalchest:   NONE    67  38.0   51.5   1.0   N    4   0  0   0   0   F   F   N
+chest:   NONE    67  38.0   51.5   1.0   N    4   0  0   0   0   F   F   N
   Sword:   NONE    45  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   LPotion:   NONE    50  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 

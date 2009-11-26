@@ -67,8 +67,8 @@ Hero 27:   NONE     27    9.5  9.5  0.0  S   0   0   0   0   0   T   F   Good
 Tranch:    NONE     72    22.5 10.5 0    E   0   0   0   0   0   F   F   Evil
 
 
-MapChest:  NONE     44    23   9    0    S   0   0   0   0   0   F   F   Null
-ItemChest: NONE     43    45   19   0    S   0   0   0   1   0   F   F   Null
+Chest:  NONE     43    23   9    0    S   0   0   0   2   0   F   F   Null      //Contains map
+Chest:  NONE     43    45   19   0    S   0   0   0   0   0   F   F   Null
   Tranch:  NONE     72    0    0    0    I   0   0   0   0   0   F   F   Evil
   WandLightning:   NONE     37    0    0    0    I   0   0   0   0   0   F   F   Null
   Tranch:  NONE     72    0    0    0    I   0   0   0   0   0   F   F   Evil
@@ -76,20 +76,19 @@ ItemChest: NONE     43    45   19   0    S   0   0   0   1   0   F   F   Null
   KeyA:    NONE     93    0    0    0    I   0   0   0   0   0   F   F   Null
 
 
-ItemChest: NONE     43    55.5 5.5  0    E   0   0   0   1   0   F   F   Null
+Chest:     NONE     43    55.5 5.5  0    E   0   0   0   0   0   F   F   Null
   LPotion: NONE     86    0    0    0    I   0   0   0   0   0   F   F   Null
   XBow:    NONE     46    0    0    0    I   0   0   0   0   0   F   F   Null
   KeyA:    NONE     93    0    0    0    I   0   0   0   0   0   F   F   Null
   Shock:   NONE     109   0    0    0    I   0   0   0   0   0   F   F   Null
   KeyC:    NONE     94    0    0    0    I   0   0   0   0   0   F   F   Null
-GnomChest: NONE     41    55.5 8.5  0    E   0   0   0   1   0   F   F   Null
-ElfChest:  NONE     40    58.5 5.5  0    W   0   0   0   1   0   F   F   Null
-HealChest: NONE     42    58.5 8.5  0    W   0   0   0   1   0   F   F   Null
-
+Chest:     NONE     43    55.5 8.5  1    E   0   0   0   32   2   F   F   Null    //Contains G'nome armor (level 2)
+Chest:     NONE     43    58.5 5.5  1    W   0   0   0   32   4   F   F   Null    //Contains Elf armor (level 2)
+Chest:     NONE     43    58.5 8.5  1    W   0   0   0   32   7   F   F   Null    //Contains healer armor (level 2)
 
 Mimic:     NONE     48    11.0 37.0 0    E   19  0   0   0   0   F   F   Evil
   KeyA:    NONE     93    0    0    0    I   0   0   0   0   0   F   F   Null
-
+  Identify:  NONE     49    0    0    0    I   0   0   0   0   0   F   F   Null
 
 Shutter:   NONE     55    9    17   0    S   0   0   3   0   0   F   F   Null
 Shutter:   NONE     55    17   9    0    W   0   0   5   0   0   F   F   Null
@@ -138,13 +137,16 @@ LandMine:  NONE    120    31.5 36.5 0    N   0   0   0   196 0   F   F   Null
 LandMine:  NONE    120    34.5 37.5 0    N   0   0   0   198 0   F   F   Null
 
 
-ItemChest: NONE     43    47.5 27.5 0    W   0   0   0   1   0   F   F   Null
+Chest: NONE     43    47.5 27.5 0    W   0   0   0   0   0   F   F   Null
   StriderShoes:  NONE     52    0    0    0    I   0   0   0   0   0   F   F   Null
   SyphonMana:  NONE     112    0    0    0    I   0   0   0   0   0   F   F   Null
-ItemChest: NONE     43    47.5 34.5 0    N   24  0   0   2   0   F   F   Null
+Chest: NONE     43    47.5 34.5 0    N   24  0   0   8   0   F   F   Null       //Secret bottom
   FBrace:  NONE     50    0    0    0    I   0   0   0   0   0   F   F   Null
   KurScroll: NONE     53    0    0    0    I   0   0   0   0   0   F   F   Null
-TrapChest: NONE     49    47.5 39.5 0    S   24  0   0   0   0   F   F   Null
+Chest: NONE     43    47.5 39.5 0    S   24  0   0   4   0   F   F   Null     //Fire trapped
+  KurScroll: NONE     53    0    0    0    I   0   0   0   0   0   F   F   Null
+  Identify:  NONE     49    0    0    0    I   0   0   0   0   0   F   F   Null
+  Identify:  NONE     49    0    0    0    I   0   0   0   0   0   F   F   Null
 
 Scorpion:  NONE     73    23   53   0    S   0   0   52  0   0   F   F   Evil
   Claw:    NONE     74    0    0    0    L   0   0   0   0   0   F   F   Null
