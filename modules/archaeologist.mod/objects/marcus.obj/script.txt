@@ -1,6 +1,8 @@
 IfBumped
   SetTargetToWhoeverBumped
-  IfTargetIsOnSameTeam
+  IfTargetIsOnHatedTeam
+    DoNothing
+  Else
     tmpargument = [KEYI]
     IfTargetHasItemID			//brought back the idol
       CostTargetItemID
@@ -10,7 +12,7 @@ IfBumped
       AddIDSZ
       tmpargument = 125
       tmpdistance = EXPQUEST
-      GiveExperienceToGoodTeam
+      GiveExperienceToTargetTeam
       tmpargument = 3
       SetState
       tmpargument = 1
@@ -57,10 +59,18 @@ IfTimeOut
     tmpargument = 2
     SetState
 
+// If we are attacked, set our team to something that can attack!
+// Choose either "Good" or "Evil" depending on the attacker
 IfAttacked
   SetTargetToWhoeverAttacked
-  IfTargetIsOnSameTeam
+  IfTargetIsOnHatedTeam
+    DoNothing
+  Else
     JoinEvilTeam
+      IfTargetIsOnHatedTeam
+        DoNothing
+      Else
+        JoinGoodTeam    
 
 IfTimeOut
   tmpargument = 10
