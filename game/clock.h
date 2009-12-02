@@ -52,14 +52,14 @@ float  clk_getFrameRate( ClockState_t * cs );       ///< Return the current inst
 #define PROFILE_KEEP  0.9
 #define PROFILE_NEW  (1.0 - PROFILE_KEEP)
 
-#define PROFILE_DECLARE_STRUCT()    ClockState_t * _clkstate; double _clkcount; double _clktime
-#define PROFILE_INIT_STRUCT(XX,PTR) (PTR)->_clkstate  = clk_create(#XX, -1); 
-#define PROFILE_FREE_STRUCT(PTR)    clk_destroy(&((PTR)->_clkstate)); 
+#define PROFILE_DECLARE_STRUCT    ClockState_t * _clkstate; double _clkcount; double _clktime
+#define PROFILE_INIT_STRUCT(XX,PTR) (PTR)->_clkstate  = clk_create(#XX, -1);
+#define PROFILE_FREE_STRUCT(PTR)    clk_destroy(&((PTR)->_clkstate));
 
 #define PROFILE_DECLARE(XX)        static ClockState_t * clkstate_##XX = NULL; static double clkcount_##XX = 0.0; static double clktime_##XX = 0.0;
-#define PROFILE_INIT(XX)           clkstate_##XX  = clk_create(#XX, -1); 
+#define PROFILE_INIT(XX)           clkstate_##XX  = clk_create(#XX, -1);
 #define PROFILE_RESET(XX)          clkcount_##XX = 0.0; clktime_##XX = 0.0;
-#define PROFILE_FREE(XX)           clk_destroy(&(clkstate_##XX)); 
+#define PROFILE_FREE(XX)           clk_destroy(&(clkstate_##XX));
 
 #ifdef DEBUG_PROFILE
 
@@ -77,7 +77,7 @@ float  clk_getFrameRate( ClockState_t * cs );       ///< Return the current inst
 #else
 
 #    define PROFILE_QUERY_STRUCT(PTR)  1.0
-#    define PROFILE_BEGIN_STRUCT(PTR)  
+#    define PROFILE_BEGIN_STRUCT(PTR)
 #    define PROFILE_END_STRUCT(PTR)    (PTR)->_clkcount  = 1.0;
 #    define PROFILE_END2_STRUCT(PTR)   (PTR)->_clkcount += 1.0;
 

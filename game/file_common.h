@@ -85,44 +85,44 @@ void        fs_findClose( fs_find_context_t * fs_search );
 
 //--------------------------------------------------------
 // wrapper functions so we can intercept file-system calls
-void _ego_clearerr(FILE *);
-int _ego_fclose(FILE *);
-int _ego_feof(FILE *);
-int _ego_ferror(FILE *);
-int _ego_fflush(FILE *);
-int _ego_fgetc(FILE *);
-int _ego_fgetpos(FILE *, fpos_t *);
-char * _ego_fgets(char*, int, FILE *);
-FILE * _ego_fopen(const char *, const char *);
+void _ego_clearerr( FILE * );
+int _ego_fclose( FILE * );
+int _ego_feof( FILE * );
+int _ego_ferror( FILE * );
+int _ego_fflush( FILE * );
+int _ego_fgetc( FILE * );
+int _ego_fgetpos( FILE *, fpos_t * );
+char * _ego_fgets( char*, int, FILE * );
+FILE * _ego_fopen( const char *, const char * );
 //_ego_fprintf
-int _ego_fputc(int, FILE *);
-int _ego_fputs(const char *, FILE *);
-size_t _ego_fread(void *, size_t, size_t, FILE *);
-FILE * _ego_freopen( const char *, const char *, FILE *);
+int _ego_fputc( int, FILE * );
+int _ego_fputs( const char *, FILE * );
+size_t _ego_fread( void *, size_t, size_t, FILE * );
+FILE * _ego_freopen( const char *, const char *, FILE * );
 //_ego_fscanf(
 int _ego_fseek( FILE*, long, int );
 int _ego_fsetpos( FILE *, const fpos_t * );
-long _ego_ftell(FILE *);
-size_t _ego_fwrite( const void *, size_t, size_t, FILE *);
-int _ego_getc(FILE *);
+long _ego_ftell( FILE * );
+size_t _ego_fwrite( const void *, size_t, size_t, FILE * );
+int _ego_getc( FILE * );
 int _ego_getchar();
-char * _ego_gets(char *);
+char * _ego_gets( char * );
 //_ego_printf
-int ego_putc( int, FILE *);
-int ego_putchar(int);
-int _ego_puts(const char *);
-void _ego_rewind(FILE *);
+int ego_putc( int, FILE * );
+int ego_putchar( int );
+int _ego_puts( const char * );
+void _ego_rewind( FILE * );
 //_ego_scanf
 void _ego_setbuf( FILE *, char * );
 int _ego_setvbuf( FILE *, char *, int , size_t );
 //_ego_sprintf
 //_ego_sscanf
 FILE * _ego_tmpfile();
-char * _ego_tmpnam(char *);
-int _ego_ungetc(int, FILE *);
-int _ego_vfprintf(FILE *, const char *, va_list );
-int _ego_vprintf(const char *, va_list );
-int _ego_vsprintf(char *, const char *, va_list);
+char * _ego_tmpnam( char * );
+int _ego_ungetc( int, FILE * );
+int _ego_vfprintf( FILE *, const char *, va_list );
+int _ego_vprintf( const char *, va_list );
+int _ego_vsprintf( char *, const char *, va_list );
 int _ego_vsnprintf( char *, size_t, const char *, va_list );
 
 

@@ -2021,7 +2021,7 @@ bool_t net_instance_init( net_instance_t * pnet )
 {
     if ( NULL == pnet ) return bfalse;
 
-    memset( pnet, 0, sizeof(*pnet) );
+    memset( pnet, 0, sizeof( *pnet ) );
 
     return bfalse;
 }
@@ -2103,7 +2103,7 @@ void player_init( player_t * ppla )
 {
     if ( NULL == ppla ) return;
 
-    memset( ppla, 0, sizeof(*ppla) );
+    memset( ppla, 0, sizeof( *ppla ) );
 
     ppla->index       = MAX_CHR;
 

@@ -203,7 +203,7 @@ bool_t link_push_module()
 
     // grab an entry
     pentry = link_stack + link_stack_count;
-    memset( pentry, 0, sizeof(*pentry) );
+    memset( pentry, 0, sizeof( *pentry ) );
 
     // store the load name of the module
     strncpy( pentry->modname, mnu_ModList_get_name( pickedmodule_index ), SDL_arraysize( pentry->modname ) );

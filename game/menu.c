@@ -2403,12 +2403,12 @@ int doGameOptions( float deltaTime )
             {
                 if ( cfg.dev_mode )
                 {
-                    cfg.feedback = (FEEDBACK_TYPE)(cfg.feedback + 1);
+                    cfg.feedback = ( FEEDBACK_TYPE )( cfg.feedback + 1 );
                     if ( cfg.feedback > FEEDBACK_NUMBER ) cfg.feedback = FEEDBACK_OFF;
                 }
-                else 
+                else
                 {
-                    if( FEEDBACK_OFF == cfg.feedback )
+                    if ( FEEDBACK_OFF == cfg.feedback )
                     {
                         cfg.feedback = FEEDBACK_TEXT;
                     }
@@ -4091,7 +4091,7 @@ void check_player_import( const char *dirname, bool_t initialize )
     {
         pinfo = loadplayer + loadplayer_count;
 
-        snprintf( pinfo->dir, SDL_arraysize( pinfo->dir ), "%s", str_convert_slash_sys( (char*)foundfile, strlen( foundfile ) ) );
+        snprintf( pinfo->dir, SDL_arraysize( pinfo->dir ), "%s", str_convert_slash_sys(( char* )foundfile, strlen( foundfile ) ) );
 
         snprintf( filename, SDL_arraysize( filename ), "%s" SLASH_STR "skin.txt", foundfile );
         skin = read_skin( filename );
@@ -4324,7 +4324,7 @@ void mnu_module_init( mnu_module_t * pmod )
     if ( NULL == pmod ) return;
 
     // clear the module
-    memset( pmod, 0, sizeof(*pmod) );
+    memset( pmod, 0, sizeof( *pmod ) );
 
     pmod->tex_index = INVALID_TITLEIMAGE;
 }

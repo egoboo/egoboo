@@ -127,84 +127,84 @@ int fs_fileExists( const char *filename )
 
 
 
-void _ego_clearerr(FILE * f)
+void _ego_clearerr( FILE * f )
 {
     printf( "----clearerr()\n" );
-    clearerr(f);
+    clearerr( f );
 }
 
-int _ego_fclose(FILE * f)
+int _ego_fclose( FILE * f )
 {
     printf( "----fclose()\n" );
-    return fclose(f);
+    return fclose( f );
 }
 
-int _ego_feof(FILE * f)
+int _ego_feof( FILE * f )
 {
     printf( "----feof()\n" );
-    return feof(f);
+    return feof( f );
 }
 
-int _ego_ferror(FILE * f)
+int _ego_ferror( FILE * f )
 {
     printf( "----ferror()\n" );
-    return ferror(f);
+    return ferror( f );
 }
 
-int _ego_fflush(FILE * f)
+int _ego_fflush( FILE * f )
 {
     printf( "----fflush()\n" );
-    return fflush(f);
+    return fflush( f );
 }
 
-int _ego_fgetc(FILE * f)
+int _ego_fgetc( FILE * f )
 {
     printf( "----fgetc()\n" );
-    return fgetc(f);
+    return fgetc( f );
 }
 
-int _ego_fgetpos(FILE * f, fpos_t * pfpos)
+int _ego_fgetpos( FILE * f, fpos_t * pfpos )
 {
     printf( "----fgetpos()\n" );
-    return fgetpos(f, pfpos);
+    return fgetpos( f, pfpos );
 }
 
-char * _ego_fgets(char* str, int len, FILE * f)
+char * _ego_fgets( char* str, int len, FILE * f )
 {
     printf( "----fgets()\n" );
-    return fgets(str, len, f);
+    return fgets( str, len, f );
 }
 
-FILE * _ego_fopen(const char * fn, const char * blah )
+FILE * _ego_fopen( const char * fn, const char * blah )
 {
     printf( "----fopen()\n" );
-    return fopen(fn, blah );
+    return fopen( fn, blah );
 }
 
 //_ego_fprintf
 
-int _ego_fputc(int c, FILE * f)
+int _ego_fputc( int c, FILE * f )
 {
     printf( "----fputc()\n" );
-    return fputc(c, f);
+    return fputc( c, f );
 }
 
-int _ego_fputs(const char * str, FILE * f)
+int _ego_fputs( const char * str, FILE * f )
 {
     printf( "----fputs()\n" );
-    return fputs(str, f);
+    return fputs( str, f );
 }
 
-size_t _ego_fread(void * buf, size_t size, size_t count, FILE * f)
+size_t _ego_fread( void * buf, size_t size, size_t count, FILE * f )
 {
     printf( "----fread()\n" );
-    return fread(buf, size, count, f);
+    return fread( buf, size, count, f );
 }
 
-FILE * _ego_freopen( const char * fn, const char * blah, FILE * f)
+FILE * _ego_freopen( const char * fn, const char * blah, FILE * f )
 {
     printf( "----freopen()\n" );
-    return freopen( fn, blah, f);
+    return freopen( fn, blah, f );
 }
 
 //_ego_fscanf
@@ -221,22 +221,22 @@ int _ego_fsetpos( FILE * f, const fpos_t * ppos )
     return fsetpos( f, ppos );
 }
 
-long _ego_ftell(FILE * f)
+long _ego_ftell( FILE * f )
 {
     printf( "----ftell()\n" );
-    return ftell(f);
+    return ftell( f );
 }
 
-size_t _ego_fwrite( const void * buf, size_t size, size_t count, FILE * f)
+size_t _ego_fwrite( const void * buf, size_t size, size_t count, FILE * f )
 {
     printf( "----fwrite()\n" );
-    return fwrite( buf, size, count, f);
+    return fwrite( buf, size, count, f );
 }
 
-int _ego_getc(FILE * f)
+int _ego_getc( FILE * f )
 {
     printf( "----getc()\n" );
-    return getc(f);
+    return getc( f );
 }
 
 int _ego_getchar()
@@ -245,10 +245,10 @@ int _ego_getchar()
     return getchar();
 }
 
-char * _ego_gets(char * str)
+char * _ego_gets( char * str )
 {
     printf( "----gets()\n" );
-    return gets(str);
+    return gets( str );
 }
 
 //_ego_printf
@@ -256,25 +256,25 @@ char * _ego_gets(char * str)
 int _ego_putc( int c , FILE * f )
 {
     printf( "----putc()\n" );
-    return putc(c, f);
+    return putc( c, f );
 }
 
-int _ego_putchar(int c)
+int _ego_putchar( int c )
 {
     printf( "----putchar()\n" );
-    return putchar(c);
+    return putchar( c );
 }
 
-int _ego_puts(const char * str)
+int _ego_puts( const char * str )
 {
     printf( "----puts()\n" );
-    return puts(str);
+    return puts( str );
 }
 
-void _ego_rewind(FILE * f)
+void _ego_rewind( FILE * f )
 {
     printf( "----rewind()\n" );
-    rewind(f);
+    rewind( f );
 }
 
 //_ego_scanf
@@ -301,34 +301,34 @@ FILE * _ego_tmpfile()
     return tmpfile();
 }
 
-char * _ego_tmpnam(char * name)
+char * _ego_tmpnam( char * name )
 {
     printf( "----tmpnam()\n" );
-    return tmpnam(name);
+    return tmpnam( name );
 }
 
-int _ego_ungetc(int c, FILE * f)
+int _ego_ungetc( int c, FILE * f )
 {
     printf( "----ungetc()\n" );
-    return ungetc(c, f);
+    return ungetc( c, f );
 }
 
-int _ego_vfprintf(FILE * f, const char * str, va_list lst )
+int _ego_vfprintf( FILE * f, const char * str, va_list lst )
 {
     printf( "----vfprintf()\n" );
     return vfprintf( f, str, lst );
 }
 
-int _ego_vprintf(const char * str, va_list lst )
+int _ego_vprintf( const char * str, va_list lst )
 {
     printf( "----vprintf()\n" );
     return vprintf( str,  lst );
 }
 
-int _ego_vsprintf(char * buf, const char * str, va_list lst)
+int _ego_vsprintf( char * buf, const char * str, va_list lst )
 {
     printf( "----vsprintf()\n" );
-    return vsprintf( buf, str, lst);
+    return vsprintf( buf, str, lst );
 }
 
 int _ego_vsnprintf( char * buf, size_t size, const char * str, va_list lst )

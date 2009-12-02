@@ -890,7 +890,7 @@ int update_game()
 
     update_lag = 0;
     update_loop_cnt = 0;
-    if( update_wld < true_update )
+    if ( update_wld < true_update )
     {
         // [claforte Jan 6th 2001]
         /// @todo Put that back in place once networking is functional.
@@ -1670,7 +1670,7 @@ int do_game_proc_running( game_process_t * gproc )
     if ( gproc->base.paused ) return 0;
 
     gproc->ups_ticks_now = SDL_GetTicks();
-    if (gproc->ups_ticks_now > gproc->ups_ticks_next)
+    if ( gproc->ups_ticks_now > gproc->ups_ticks_next )
     {
         // UPS limit
         gproc->ups_ticks_next = gproc->ups_ticks_now + UPDATE_SKIP / 4;
@@ -1706,19 +1706,19 @@ int do_game_proc_running( game_process_t * gproc )
 
                 // NETWORK PORT
                 PROFILE_BEGIN( listen_for_packets );
-                {   
+                {
                     listen_for_packets();
                 }
                 PROFILE_END2( listen_for_packets );
 
                 PROFILE_BEGIN( check_stats );
-                { 
+                {
                     check_stats();
                 }
                 PROFILE_END2( check_stats );
 
                 PROFILE_BEGIN( set_local_latches );
-                { 
+                {
                     set_local_latches();
                 }
                 PROFILE_END2( set_local_latches );
@@ -1750,7 +1750,7 @@ int do_game_proc_running( game_process_t * gproc )
         // estimate the main-loop update time is taking per inner-loop iteration
         // do a kludge to average out the effects of functions like check_passage_music()
         // even when the inner loop does not execute
-        if( update_loops > 0 )
+        if ( update_loops > 0 )
         {
             est_update_time = 0.9 * est_update_time + 0.1 * PROFILE_QUERY( game_update_loop ) / update_loops;
             est_max_ups     = 0.9 * est_max_ups     + 0.1 * ( update_loops / PROFILE_QUERY( game_update_loop ) );
@@ -2259,7 +2259,7 @@ void do_damage_tiles()
             pchr->damagetime = DAMAGETILETIME;
         }
 
-        if ( (actual_damage > 0) && ( -1 != damagetile.parttype ) && 0 == ( update_wld & damagetile.partand ) )
+        if (( actual_damage > 0 ) && ( -1 != damagetile.parttype ) && 0 == ( update_wld & damagetile.partand ) )
         {
             spawn_one_particle( pchr->pos, 0, MAX_PROFILE, damagetile.parttype,
                                 MAX_CHR, GRIP_LAST, TEAM_NULL, MAX_CHR, TOTAL_MAX_PRT, 0, MAX_CHR );
@@ -3352,7 +3352,7 @@ bool_t attach_chr_to_platform( chr_t * pchr, chr_t * pplat )
     pchr->enviro.level     = MAX( pchr->enviro.floor_level, pplat->pos.z + pplat->chr_chr_cv.max_z );
     pchr->enviro.zlerp     = ( pchr->pos.z - pchr->enviro.level ) / PLATTOLERANCE;
     pchr->enviro.zlerp     = CLIP( pchr->enviro.zlerp, 0, 1 );
-    pchr->enviro.grounded  =  ( 0 == pchr->flyheight ) && ( pchr->enviro.zlerp < 0.25f );
+    pchr->enviro.grounded  = ( 0 == pchr->flyheight ) && ( pchr->enviro.zlerp < 0.25f );
 
     pchr->enviro.fly_level = MAX( pchr->enviro.fly_level, pchr->enviro.level );
     if ( 0 != pchr->flyheight )
@@ -3611,8 +3611,8 @@ bool_t do_prt_platform_detection( Uint16 ichr_a, Uint16 iprt_b )
     // is this calculation going to matter, even if it succeeds?
     if ( pchr_a->pos.z + pchr_a->chr_chr_cv.max_z > pprt_b->enviro.level ) return bfalse;
 
-    //---- determine the interaction depth for each dimansion
-    depth_z = ( pchr_a->pos.z + pchr_a->chr_chr_cv.max_z ) - ( pprt_b->pos.z - pprt_b->bumpheight );
+    //---- determine the interaction depth for each dimension
+    depth_z = ( pchr_a->pos.z + pchr_a->chr_chr_cv.max_z ) - ( pprt_b->pos.z - pprt_b->bump.height );
     if ( depth_z < -PLATTOLERANCE || depth_z > PLATTOLERANCE ) return bfalse;
 
     depth_x  = MIN(( pchr_a->chr_chr_cv.max_x + pchr_a->pos.x ) - pprt_b->pos.x,
@@ -4344,7 +4344,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     bool_t collide_x, collide_y, collide_z, collide_xy, collide_yx;
     bool_t terminate_particle;
 
-    fvec3_t prt_impulse;
+    fvec3_t prt_impulse, collision_size;
 
     bool_t do_platform;
 
@@ -4391,26 +4391,26 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     yb = pprt_b->pos.y;
     zb = pprt_b->pos.z;
 
-    ftmp1 = MIN(( xb + pprt_b->bumpsize ) - xa, xa - ( xb - pprt_b->bumpsize ) );
+    ftmp1 = MIN(( xb + pprt_b->bump.size ) - xa, xa - ( xb - pprt_b->bump.size ) );
     ftmp2 = MIN(( xa + pchr_a->chr_prt_cv.max_x ) - xb, xb - ( xa + pchr_a->chr_prt_cv.min_x ) );
     depth_x = MAX( ftmp1, ftmp2 );
     collide_x = depth_x > 0;
     if ( !collide_x ) return bfalse;
 
-    ftmp1 = MIN(( yb + pprt_b->bumpsize ) - ya, ya - ( yb - pprt_b->bumpsize ) );
+    ftmp1 = MIN(( yb + pprt_b->bump.size ) - ya, ya - ( yb - pprt_b->bump.size ) );
     ftmp2 = MIN(( ya + pchr_a->chr_prt_cv.max_y ) - yb, yb - ( ya + pchr_a->chr_prt_cv.min_y ) );
     depth_y = MAX( ftmp1, ftmp2 );
     collide_y = depth_y > 0;
     if ( !collide_y ) return bfalse;
 
-    ftmp1 = MIN((( xb + yb ) + pprt_b->bumpsizebig ) - ( xa + ya ), ( xa + ya ) - (( xb + yb ) - pprt_b->bumpsizebig ) );
+    ftmp1 = MIN((( xb + yb ) + pprt_b->bump.sizebig ) - ( xa + ya ), ( xa + ya ) - (( xb + yb ) - pprt_b->bump.sizebig ) );
     ftmp2 = MIN((( xa + ya ) + pchr_a->chr_prt_cv.max_xy ) - ( xb + yb ), ( xb + yb ) - (( xa + ya ) + pchr_a->chr_prt_cv.min_xy ) );
     depth_xy = MAX( ftmp1, ftmp2 );
     collide_xy = depth_xy > 0;
     if ( !collide_xy ) return bfalse;
     depth_xy *= INV_SQRT_TWO;
 
-    ftmp1 = MIN((( -xb + yb ) + pprt_b->bumpsizebig ) - ( -xa + ya ), ( -xa + ya ) - (( -xb + yb ) - pprt_b->bumpsizebig ) );
+    ftmp1 = MIN((( -xb + yb ) + pprt_b->bump.sizebig ) - ( -xa + ya ), ( -xa + ya ) - (( -xb + yb ) - pprt_b->bump.sizebig ) );
     ftmp2 = MIN((( -xa + ya ) + pchr_a->chr_prt_cv.max_yx ) - ( -xb + yb ), ( -xb + yb ) - (( -xa + ya ) + pchr_a->chr_prt_cv.min_yx ) );
     depth_yx = MAX( ftmp1, ftmp2 );
     collide_yx = depth_yx > 0;
@@ -4495,7 +4495,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
         else
         {
             // not colliding this time or last time. particle is just near the platform
-            float lerp_z = ( zb - (za + pchr_a->chr_prt_cv.max_z) ) / PLATTOLERANCE;
+            float lerp_z = ( zb - ( za + pchr_a->chr_prt_cv.max_z ) ) / PLATTOLERANCE;
             lerp_z = CLIP( lerp_z, -1, 1 );
 
             if ( lerp_z > 0 )
@@ -4519,7 +4519,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     }
 
     // detect normal collision in the z direction
-    depth_z = MIN( zb + pprt_b->bumpsize, za + pchr_a->chr_prt_cv.max_z ) - MAX( zb - pprt_b->bumpsize, za + pchr_a->chr_prt_cv.min_z );
+    depth_z = MIN( zb + pprt_b->bump.height, za + pchr_a->chr_prt_cv.max_z ) - MAX( zb - pprt_b->bump.height, za + pchr_a->chr_prt_cv.min_z );
     collide_z = depth_z > 0;
     if ( !collide_z ) return bfalse;
 
@@ -4529,14 +4529,18 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     max_damage = ABS( pprt_b->damage.base ) + ABS( pprt_b->damage.rand );
     actual_damage = 0;
 
-    // estimate the "normal" for teh collision, using the center-of_mass difference
+    // estimate the "normal" for the collision, using the center-of-mass difference
     nrm = fvec3_sub( pprt_b->pos.v, pchr_a->pos.v );
     nrm.z -= ( pchr_a->chr_chr_cv.max_z + pchr_a->chr_chr_cv.min_z ) * 0.5f;
 
+    collision_size.x = MAX(pchr_a->chr_chr_cv.max_x - pchr_a->chr_chr_cv.min_x, 2*pprt_b->bump.size  );
+    collision_size.y = MAX(pchr_a->chr_chr_cv.max_y - pchr_a->chr_chr_cv.min_y, 2*pprt_b->bump.size  );
+    collision_size.z = MAX(pchr_a->chr_chr_cv.max_z - pchr_a->chr_chr_cv.min_z, 2*pprt_b->bump.height);
+
     // scale the collision box
-    nrm.x /= ( pchr_a->chr_chr_cv.max_x - pchr_a->chr_chr_cv.min_x );
-    nrm.y /= ( pchr_a->chr_chr_cv.max_y - pchr_a->chr_chr_cv.min_y );
-    nrm.z /= ( pchr_a->chr_chr_cv.max_z - pchr_a->chr_chr_cv.min_z );
+    nrm.x /= collision_size.x;
+    nrm.y /= collision_size.y;
+    nrm.z /= collision_size.z;
 
     // scale the z-normals so that the collision volume will act somewhat like a cylinder
     nrm.z *= nrm.z * nrm.z;
@@ -4573,9 +4577,9 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
         // If the particle is "fast" relative to the object size, it can happen that the particle
         // can be more than halfway through the character before it is detected.
 
-        vtmp.x = vdiff.x / ( pchr_a->chr_chr_cv.max_x - pchr_a->chr_chr_cv.min_x );
-        vtmp.y = vdiff.y / ( pchr_a->chr_chr_cv.max_y - pchr_a->chr_chr_cv.min_y );
-        vtmp.z = vdiff.z / ( pchr_a->chr_chr_cv.max_z - pchr_a->chr_chr_cv.min_z );
+        vtmp.x = vdiff.x / collision_size.x;
+        vtmp.y = vdiff.y / collision_size.y;
+        vtmp.z = vdiff.z / collision_size.z;
 
         // If it is fast, re-evaluate the normal in a different way
         if ( vtmp.x*vtmp.x + vtmp.y*vtmp.y + vtmp.z*vtmp.z > 0.5f*0.5f )
@@ -4586,9 +4590,9 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
             nrm.z -= ( pchr_a->chr_chr_cv.max_z + pchr_a->chr_chr_cv.min_z ) * 0.5f;
 
             // scale the collision box
-            nrm.x /= ( pchr_a->chr_chr_cv.max_x - pchr_a->chr_chr_cv.min_x );
-            nrm.y /= ( pchr_a->chr_chr_cv.max_y - pchr_a->chr_chr_cv.min_y );
-            nrm.z /= ( pchr_a->chr_chr_cv.max_z - pchr_a->chr_chr_cv.min_z );
+            nrm.x /= collision_size.x;
+            nrm.y /= collision_size.y;
+            nrm.z /= collision_size.z;
 
             // scale the z-normals so that the collision volume will act somewhat like a cylinder
             nrm.z *= nrm.z * nrm.z;
@@ -4668,39 +4672,43 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     {
         bool_t prt_belongs_to_chr;
         bool_t prt_can_hit_chr;
-        bool_t prt_hates_chr;
-        bool_t can_onlydamagefriendly;
-        bool_t can_friendlyfire;
+        bool_t prt_hates_chr, prt_attacks_chr;
+        bool_t valid_onlydamagefriendly;
+        bool_t valid_friendlyfire;
 
         prt_belongs_to_chr = ( ichr_a == pprt_b->owner_ref );
+
         if ( !prt_belongs_to_chr )
         {
-            // is it attached to this character?
-            prt_belongs_to_chr = ( ichr_a == pprt_b->attachedto_ref );
-        }
-        if ( !prt_belongs_to_chr )
-        {
-            // who is holding the "weapon" that generated this particle?
-
-            Uint16 iwielder = chr_get_lowest_attachment( pprt_b->attachedto_ref, btrue );
-
-            if ( iwielder != pprt_b->attachedto_ref )
+            // no simple owner relationship. Check for something deeper.
+            Uint16 prt_owner = prt_get_iowner( iprt_b, 0 );
+            if( ACTIVE_CHR(prt_owner) )
             {
-                prt_belongs_to_chr = ( iwielder == ichr_a );
+                Uint16 chr_wielder = chr_get_lowest_attachment( ichr_a,   btrue );
+                Uint16 prt_wielder = chr_get_lowest_attachment( prt_owner, btrue );
+
+                if( !ACTIVE_CHR(chr_wielder) ) chr_wielder = ichr_a;
+                if( !ACTIVE_CHR(prt_wielder) ) prt_wielder = prt_owner;
+
+                prt_belongs_to_chr = (chr_wielder == prt_wielder);
             }
         }
 
         // does the particle team hate the character's team
-        prt_hates_chr   = TeamList[pprt_b->team].hatesteam[pchr_a->team];
+        prt_hates_chr = TeamList[pprt_b->team].hatesteam[pchr_a->team];
+
+        // allow neutral particles to attack anything
+        prt_attacks_chr = prt_hates_chr || ( (TEAM_NULL != pchr_a->team) && (TEAM_NULL == pprt_b->team) );
 
         // this is the onlydamagefriendly condition from the particle search code
-        can_onlydamagefriendly = ( ppip_b->onlydamagefriendly && pprt_b->team == pchr_a->team ) ||
-                                 ( !ppip_b->onlydamagefriendly && prt_hates_chr );
+        valid_onlydamagefriendly = ( ppip_b->onlydamagefriendly && pprt_b->team == pchr_a->team ) ||
+                                   ( !ppip_b->onlydamagefriendly && prt_attacks_chr );
 
         // I guess "friendly fire" does not mean "self fire", which is a bit unfortunate.
-        can_friendlyfire = ppip_b->friendlyfire && !prt_hates_chr && !prt_belongs_to_chr;
+        valid_friendlyfire = ( ppip_b->friendlyfire && !prt_hates_chr && !prt_belongs_to_chr ) ||
+                             ( !ppip_b->friendlyfire && prt_attacks_chr );
 
-        prt_can_hit_chr =  can_friendlyfire || can_onlydamagefriendly;
+        prt_can_hit_chr =  valid_friendlyfire && valid_onlydamagefriendly;
 
         if ( prt_can_hit_chr )
         {
@@ -6587,23 +6595,24 @@ bool_t detect_chr_prt_interaction( Uint16 ichr_a, Uint16 iprt_b )
     dxy = dx + dy;
 
     // estimate the horizontal interactions this frame
-    interact_x  = ( dx  <= ( pchr_a->bump_1.size    + pprt_b->bumpsize ) );
-    interact_y  = ( dy  <= ( pchr_a->bump_1.size    + pprt_b->bumpsize ) );
-    interact_xy = ( dxy <= ( pchr_a->bump_1.sizebig + pprt_b->bumpsizebig ) );
+    interact_x  = ( dx  <= ( pchr_a->bump_1.size    + pprt_b->bump.size ) );
+    interact_y  = ( dy  <= ( pchr_a->bump_1.size    + pprt_b->bump.size ) );
+    interact_xy = ( dxy <= ( pchr_a->bump_1.sizebig + pprt_b->bump.sizebig ) );
 
-    // estimate the vertical interactions this frame
-    depth_z = pprt_b->pos.z - ( pchr_a->pos.z + pchr_a->bump_1.height );
-    if ( depth_z > -PLATTOLERANCE && depth_z < PLATTOLERANCE )
+    if ( !interact_x || !interact_y || !interact_xy ) return bfalse;
+
+    interact_platform = bfalse;
+    if( pchr_a->platform && !ACTIVE_CHR( pprt_b->attachedto_ref ) )
     {
-        interact_platform = ( pchr_a->platform && !ACTIVE_CHR( pprt_b->attachedto_ref ) );
+        // estimate the vertical interactions this frame
+        depth_z = pprt_b->pos.z - ( pchr_a->pos.z + pchr_a->bump_1.height );
+        interact_platform = ( depth_z > -PLATTOLERANCE && depth_z < PLATTOLERANCE );
     }
 
-    depth_z = MIN( pchr_a->pos.z + pchr_a->chr_prt_cv.max_z, pprt_b->pos.z + pprt_b->bumpheight ) - MAX( pchr_a->pos.z + pchr_a->chr_prt_cv.min_z, pprt_b->pos.z - pprt_b->bumpheight );
+    depth_z     = MIN( pchr_a->pos.z + pchr_a->chr_prt_cv.max_z, pprt_b->pos.z + pprt_b->bump.height ) - MAX( pchr_a->pos.z + pchr_a->chr_prt_cv.min_z, pprt_b->pos.z - pprt_b->bump.height );
     interact_z  = ( depth_z > 0 ) || interact_platform;
 
-    if ( !interact_x || !interact_y || !interact_xy || !interact_z ) return bfalse;
-
-    return btrue;
+    return interact_z;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -7044,7 +7053,7 @@ process_t * process_init( process_t * proc )
 {
     if ( NULL == proc ) return proc;
 
-    memset( proc, 0, sizeof(*proc) );
+    memset( proc, 0, sizeof( *proc ) );
 
     proc->terminated = btrue;
 
@@ -7389,13 +7398,14 @@ bool_t collide_ray_with_mesh( line_of_sight_info_t * plos )
         fan = mesh_get_tile_int( PMesh, ix, iy );
         if ( INVALID_TILE != fan && fan != fan_last )
         {
+            Uint32 collide_fx = mesh_test_fx( PMesh, fan, plos->stopped_by );
             // collide the ray with the mesh
 
-            if ( HAS_SOME_BITS( PMesh->mmem.tile_list[fan].fx, plos->stopped_by ) )
+            if ( 0 != collide_fx )
             {
                 plos->collide_x  = ix;
                 plos->collide_y  = iy;
-                plos->collide_fx = PMesh->mmem.tile_list[fan].fx & plos->stopped_by;
+                plos->collide_fx = collide_fx;
 
                 return btrue;
             }
@@ -7516,7 +7526,7 @@ bool_t upload_water_data( water_instance_t * pinst, wawalite_water_t * pdata )
 
     if ( NULL == pinst ) return bfalse;
 
-    memset( pinst, 0, sizeof(*pinst) );
+    memset( pinst, 0, sizeof( *pinst ) );
 
     if ( NULL != pdata )
     {
@@ -7569,7 +7579,7 @@ bool_t upload_weather_data( weather_instance_t * pinst, wawalite_weather_t * pda
 {
     if ( NULL == pinst ) return bfalse;
 
-    memset( pinst, 0, sizeof(*pinst) );
+    memset( pinst, 0, sizeof( *pinst ) );
 
     // set a default value
     pinst->timer_reset = 10;
@@ -7592,7 +7602,7 @@ bool_t upload_fog_data( fog_instance_t * pinst, wawalite_fog_t * pdata )
 {
     if ( NULL == pinst ) return bfalse;
 
-    memset( pinst, 0, sizeof(*pinst) );
+    memset( pinst, 0, sizeof( *pinst ) );
 
     pdata->top      = 0;
     pdata->bottom   = -100;
@@ -7620,7 +7630,7 @@ bool_t upload_damagetile_data( damagetile_instance_t * pinst, wawalite_damagetil
 {
     if ( NULL == pinst ) return bfalse;
 
-    memset( pinst, 0, sizeof(*pinst) );
+    memset( pinst, 0, sizeof( *pinst ) );
 
     //pinst->sound_time   = TILESOUNDTIME;
     //pinst->min_distance = 9999;
@@ -7857,7 +7867,7 @@ bool_t game_module_init( game_module_t * pinst )
 {
     if ( NULL == pinst ) return bfalse;
 
-    memset( pinst, 0, sizeof(*pinst) );
+    memset( pinst, 0, sizeof( *pinst ) );
 
     pinst->seed = ( Uint32 )~0;
 
@@ -8262,17 +8272,17 @@ float get_mesh_max_vertex_2( ego_mpd_t * pmesh, chr_t * pchr )
     float pos_y[4];
     float zmax;
 
-    for( corner = 0; corner<4; corner++)
+    for ( corner = 0; corner < 4; corner++ )
     {
-        pos_x[corner] = pchr->pos.x + ((0 == ix_off[corner]) ? pchr->chr_chr_cv.min_x : pchr->chr_chr_cv.max_x);
-        pos_y[corner] = pchr->pos.y + ((0 == iy_off[corner]) ? pchr->chr_chr_cv.min_y : pchr->chr_chr_cv.max_y);
+        pos_x[corner] = pchr->pos.x + (( 0 == ix_off[corner] ) ? pchr->chr_chr_cv.min_x : pchr->chr_chr_cv.max_x );
+        pos_y[corner] = pchr->pos.y + (( 0 == iy_off[corner] ) ? pchr->chr_chr_cv.min_y : pchr->chr_chr_cv.max_y );
     }
 
     zmax = get_mesh_level( pmesh, pos_x[0], pos_y[0], pchr->waterwalk );
-    for( corner = 1; corner<4; corner++)
+    for ( corner = 1; corner < 4; corner++ )
     {
         float fval = get_mesh_level( pmesh, pos_x[corner], pos_y[corner], pchr->waterwalk );
-        zmax = MAX(zmax, fval);
+        zmax = MAX( zmax, fval );
     }
 
     return zmax;
@@ -8290,16 +8300,16 @@ float get_chr_level( ego_mpd_t * pmesh, chr_t * pchr )
 
     chr_bumper_1_t bump;
 
-    if( NULL == pmesh || !ACTIVE_PCHR(pchr) ) return 0;
+    if ( NULL == pmesh || !ACTIVE_PCHR( pchr ) ) return 0;
 
-    // certain scenery items like doors and such just need to be able to 
+    // certain scenery items like doors and such just need to be able to
     // collide with the mesh. They all have 0 == pchr->bump.size
-    if( 0 == pchr->bump.size )
+    if ( 0 == pchr->bump.size )
     {
         return get_mesh_level( pmesh, pchr->pos.x, pchr->pos.y, pchr->waterwalk );
     }
-    
-    // otherwise, use the small collision volume to determine which tiles the object overlaps 
+
+    // otherwise, use the small collision volume to determine which tiles the object overlaps
     // move the collision volume so that it surrounds the object
     bump.min_x  = pchr->chr_chr_cv.min_x  + pchr->pos.x;
     bump.max_x  = pchr->chr_chr_cv.max_x  + pchr->pos.x;
@@ -8314,7 +8324,7 @@ float get_chr_level( ego_mpd_t * pmesh, chr_t * pchr )
     iymax = bump.max_y / TILE_SIZE; iymax = CLIP( iymax, 0, pmesh->info.tiles_y - 1 );
 
     // do the simplest thing if the object is just on one tile
-    if( ixmax == ixmin && iymax == iymin )
+    if ( ixmax == ixmin && iymax == iymin )
     {
         return get_mesh_max_vertex_2( pmesh, pchr );
     }
@@ -8322,30 +8332,30 @@ float get_chr_level( ego_mpd_t * pmesh, chr_t * pchr )
     // hold off on these calculations in case they are not necessary
     bump.min_z  = pchr->chr_chr_cv.min_z  + pchr->pos.z;
     bump.max_z  = pchr->chr_chr_cv.max_z  + pchr->pos.z;
-    bump.min_xy = pchr->chr_chr_cv.min_xy + ( pchr->pos.x + pchr->pos.y);
-    bump.max_xy = pchr->chr_chr_cv.max_xy + ( pchr->pos.x + pchr->pos.y);
-    bump.min_yx = pchr->chr_chr_cv.min_yx + (-pchr->pos.x + pchr->pos.y);
-    bump.max_yx = pchr->chr_chr_cv.max_yx + (-pchr->pos.x + pchr->pos.y);
+    bump.min_xy = pchr->chr_chr_cv.min_xy + ( pchr->pos.x + pchr->pos.y );
+    bump.max_xy = pchr->chr_chr_cv.max_xy + ( pchr->pos.x + pchr->pos.y );
+    bump.min_yx = pchr->chr_chr_cv.min_yx + ( -pchr->pos.x + pchr->pos.y );
+    bump.max_yx = pchr->chr_chr_cv.max_yx + ( -pchr->pos.x + pchr->pos.y );
 
     // otherwise, make up a list of tiles that the object might overlap
-    for( iy=iymin; iy<=iymax; iy++ )
+    for ( iy = iymin; iy <= iymax; iy++ )
     {
         float grid_y = iy * TILE_ISIZE;
 
-        for( ix=ixmin; ix<=ixmax; ix++ )
+        for ( ix = ixmin; ix <= ixmax; ix++ )
         {
             float ftmp;
             int   itile;
             float grid_x = ix * TILE_ISIZE;
 
             ftmp = grid_x + grid_y;
-            if( ftmp < bump.min_xy || ftmp > bump.max_xy ) continue;
+            if ( ftmp < bump.min_xy || ftmp > bump.max_xy ) continue;
 
-            ftmp =-grid_x + grid_y;
-            if( ftmp < bump.min_yx || ftmp > bump.max_yx ) continue;
+            ftmp = -grid_x + grid_y;
+            if ( ftmp < bump.min_yx || ftmp > bump.max_yx ) continue;
 
             itile = mesh_get_tile_int( pmesh, ix, iy );
-            if( INVALID_TILE == itile ) continue;
+            if ( INVALID_TILE == itile ) continue;
 
             grid_vert_x[grid_vert_count] = ix;
             grid_vert_y[grid_vert_count] = iy;
@@ -8356,7 +8366,7 @@ float get_chr_level( ego_mpd_t * pmesh, chr_t * pchr )
     // we did not intersect a single tile corner
     // this could happen for, say, a very long, but thin shape that fits between the tiles.
     // the current system would not work for that shape
-    if( 0 == grid_vert_count )
+    if ( 0 == grid_vert_count )
     {
         return get_mesh_max_vertex_2( pmesh, pchr );
     }
@@ -8366,15 +8376,15 @@ float get_chr_level( ego_mpd_t * pmesh, chr_t * pchr )
         float fval;
 
         // scan through the vertices that we know will interact with the object
-        zmax = get_mesh_max_vertex_1(pmesh, grid_vert_x[0], grid_vert_y[0], &bump, pchr->waterwalk );
-        for( cnt = 1; cnt < grid_vert_count; cnt ++ )
+        zmax = get_mesh_max_vertex_1( pmesh, grid_vert_x[0], grid_vert_y[0], &bump, pchr->waterwalk );
+        for ( cnt = 1; cnt < grid_vert_count; cnt ++ )
         {
-            fval = get_mesh_max_vertex_1(pmesh, grid_vert_x[cnt], grid_vert_y[cnt], &bump, pchr->waterwalk );
-            zmax = MAX(zmax, fval);
+            fval = get_mesh_max_vertex_1( pmesh, grid_vert_x[cnt], grid_vert_y[cnt], &bump, pchr->waterwalk );
+            zmax = MAX( zmax, fval );
         }
     }
-            
-    if( zmax == -1e6 ) zmax = 0.0f;
+
+    if ( zmax == -1e6 ) zmax = 0.0f;
 
     return zmax;
 }

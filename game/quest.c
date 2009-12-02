@@ -151,7 +151,7 @@ int quest_check( const char *player_directory, IDSZ idsz )
     snprintf( newloadname, SDL_arraysize( newloadname ), "%s/quest.txt", player_directory );
     fileread = vfs_openRead( newloadname );
 
-    printf( "----quest_check(\"%s\",[%s]) - update == %d\n", player_directory, undo_idsz(idsz), update_wld ); 
+    printf( "----quest_check(\"%s\",[%s]) - update == %d\n", player_directory, undo_idsz( idsz ), update_wld );
 
     if ( NULL == fileread ) return result;
 

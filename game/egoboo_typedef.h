@@ -144,15 +144,15 @@ bool_t frect_point_inside( frect_t * prect, float fx, float fy );
 
 struct s_ego_irect
 {
-    int xmin,ymin;
-    int xmax,ymax;
+    int xmin, ymin;
+    int xmax, ymax;
 };
 typedef struct s_ego_irect ego_irect_t;
 
 struct s_ego_frect
 {
-    float xmin,ymin;
-    float xmax,ymax;
+    float xmin, ymin;
+    float xmax, ymax;
 };
 typedef struct s_ego_frect ego_frect_t;
 

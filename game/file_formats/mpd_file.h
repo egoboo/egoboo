@@ -100,11 +100,9 @@ struct s_tile_info
 {
     Uint8   type;                              ///< Tile type
     Uint16  img;                               ///< Get texture from this
-    Uint8   fx;                                 ///< Special effects flags
+    Uint8   fx;                                ///< Special effects flags
     Uint8   twist;
-    size_t  vrtstart;                           ///< Which vertex to start at
-
-    bool_t  inrenderlist;
+    size_t  vrtstart;                          ///< Which vertex to start at
 };
 typedef struct s_tile_info tile_info_t;
 

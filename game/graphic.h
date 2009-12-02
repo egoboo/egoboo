@@ -371,7 +371,7 @@ bool_t render_one_prt_ref( Uint16 iprt );
 bool_t render_aabb( aabb_t * pbbox );
 void   render_all_billboards( struct s_camera * pcam );
 
-void do_grid_dynalight( ego_mpd_t * pmesh, struct s_camera * pcam);
+void do_grid_dynalight( ego_mpd_t * pmesh, struct s_camera * pcam );
 void make_enviro();
 void animate_tiles();
 void move_water();

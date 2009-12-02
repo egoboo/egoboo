@@ -115,11 +115,7 @@ bool_t open_passage( Uint16 passage )
             for ( x = ppass->area.left; x <= ppass->area.right; x++ )
             {
                 fan = mesh_get_tile_int( PMesh, x, y );
-                if ( VALID_TILE( PMesh, fan ) )
-                {
-                    // clear the wall and impass flags
-                    PMesh->mmem.tile_list[fan].fx &= ~( MPDFX_WALL | MPDFX_IMPASS );
-                }
+                mesh_clear_fx( PMesh, fan, MPDFX_WALL | MPDFX_IMPASS );
             }
         }
     }
@@ -350,7 +346,7 @@ bool_t close_passage( Uint16 passage )
     if ( 0 == ppass->mask ) return btrue;
 
     // check to see if a wall can close
-    if ( HAS_SOME_BITS( ppass->mask, MPDFX_IMPASS | MPDFX_WALL ) )
+    if ( 0 != HAS_SOME_BITS( ppass->mask, MPDFX_IMPASS | MPDFX_WALL ) )
     {
         Uint16 numcrushed = 0;
         Uint16 crushedcharacters[MAX_CHR];
@@ -398,10 +394,7 @@ bool_t close_passage( Uint16 passage )
         for ( x = ppass->area.left; x <= ppass->area.right; x++ )
         {
             fan = mesh_get_tile_int( PMesh, x, y );
-            if ( VALID_TILE( PMesh, fan ) )
-            {
-                PMesh->mmem.tile_list[fan].fx |= ppass->mask;
-            }
+            mesh_add_fx( PMesh, fan, ppass->mask );
         }
     }
 

@@ -152,7 +152,7 @@ struct s_ai_state
     float          wp_pos_y[MAXWAY]; ///< Waypoint
 
     // performance monitoring
-    PROFILE_DECLARE_STRUCT();
+    PROFILE_DECLARE_STRUCT;
 };
 typedef struct s_ai_state ai_state_t;
 

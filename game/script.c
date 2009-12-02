@@ -84,7 +84,7 @@ void let_character_think( Uint16 character )
         pself->changed = bfalse;
     }
 
-    PROFILE_BEGIN_STRUCT(pself);
+    PROFILE_BEGIN_STRUCT( pself );
 
     // debug a certain script
     // debug_scripts = ( pself->index == 385 && pchr->iprofile == 76 );
@@ -229,7 +229,7 @@ void let_character_think( Uint16 character )
     // Clear alerts for next time around
     pself->alert = 0;
 
-    PROFILE_END2_STRUCT(pself);
+    PROFILE_END2_STRUCT( pself );
 }
 
 //--------------------------------------------------------------------------------------------

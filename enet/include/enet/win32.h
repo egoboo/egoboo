@@ -29,4 +29,3 @@ typedef struct
 
 #endif /* __ENET_WIN32_H__ */
 
-

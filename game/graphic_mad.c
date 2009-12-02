@@ -727,8 +727,8 @@ void chr_instance_update_lighting_base( chr_instance_t * pinst, chr_t * pchr, bo
     vlst = pinst->vlst;
 
     // force this function to be evaluated the 1st time through
-    if( 0 == update_wld && 0 == frame_all ) force = btrue;
-        
+    if ( 0 == update_wld && 0 == frame_all ) force = btrue;
+
     // has this already been calculated this update?
     if ( !force && pinst->lighting_update_wld >= update_wld ) return;
     pinst->lighting_update_wld = update_wld;
@@ -741,7 +741,7 @@ void chr_instance_update_lighting_base( chr_instance_t * pinst, chr_t * pchr, bo
 
     // reduce the amount of updates to an average of about 1 every 2 frames, but dither
     // the updating so that not all objects update on the same frame
-    pinst->lighting_frame_all = frame_all + ((frame_all + pchr->obj_base.guid) & 0x03);
+    pinst->lighting_frame_all = frame_all + (( frame_all + pchr->obj_base.guid ) & 0x03 );
 
     if ( !LOADED_MAD( pinst->imad ) ) return;
     pmad = MadList + pinst->imad;
@@ -1185,7 +1185,7 @@ void _draw_one_grip_raw( chr_instance_t * pinst, mad_t * pmad, int slot )
 
     if ( NULL == pinst || NULL == pmad ) return;
 
-    vmin = ego_md2_data[pmad->md2_ref].vertices - slot_to_grip_offset( (slot_t)slot );
+    vmin = ego_md2_data[pmad->md2_ref].vertices - slot_to_grip_offset(( slot_t )slot );
     vmax = vmin + GRIP_VERTS;
 
     if ( vmin >= 0 && vmax >= 0 && vmax <= ego_md2_data[pmad->md2_ref].vertices )

@@ -75,6 +75,21 @@ typedef float       light_cache_t[4];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+/// The data describing an egoboo tile
+struct s_ego_tile_info
+{
+    Uint8   type;                              ///< Tile type
+    Uint16  img;                               ///< Get texture from this
+    Uint8   fx;                                ///< Special effects flags
+    Uint8   twist;                             ///< The orientation of the tile
+    size_t  vrtstart;                          ///< Which vertex to start at
+
+    bool_t  inrenderlist;                      ///< Is the tile going to be rendered this frame?
+};
+typedef struct s_ego_tile_info ego_tile_info_t;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 struct s_grid_lighting
 {
     // the lighting info in the upper left hand corner of a grid
@@ -104,7 +119,7 @@ struct s_mesh_mem
 
     // the per-tile info
     size_t           tile_count;                       ///< number of tiles
-    tile_info_t    * tile_list;                        ///< tile command info
+    ego_tile_info_t* tile_list;                        ///< tile command info
     aabb_t         * bb_list;                          ///< the bounding box for the tile
     normal_cache_t * ncache;                           ///< the normals at the corners of a tile
     light_cache_t  * lcache;                           ///< the light at the corners of a tile
@@ -178,6 +193,8 @@ Uint32 mesh_get_block_int( ego_mpd_t * pmesh, int block_x, int block_y );
 Uint32 mesh_get_tile_int( ego_mpd_t * pmesh, int tile_x,  int tile_y );
 
 Uint32 mesh_test_fx( ego_mpd_t * pmesh, Uint32 itile, Uint32 flags );
+bool_t mesh_clear_fx( ego_mpd_t * pmesh, Uint32 itile, Uint32 flags );
+bool_t mesh_add_fx( ego_mpd_t * pmesh, Uint32 itile, Uint32 flags );
 
 void   mesh_make_twist();
 

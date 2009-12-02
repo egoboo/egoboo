@@ -1457,7 +1457,7 @@ int draw_fps( int y )
 
 #    if defined(DEBUG_PROFILE_INIT)
         y = _draw_string_raw( 0, y, "init:renderlist_make %2.4f, init:dolist_make %2.4f", time_render_scene_init_renderlist_make, time_render_scene_init_dolist_make );
-        y = _draw_string_raw( 0, y, "init:do_grid_dynalight %2.4f, init:light_fans %2.4f", time_render_scene_init_do_grid_dynalight, time_render_scene_init_light_fans ); 
+        y = _draw_string_raw( 0, y, "init:do_grid_dynalight %2.4f, init:light_fans %2.4f", time_render_scene_init_do_grid_dynalight, time_render_scene_init_light_fans );
         y = _draw_string_raw( 0, y, "init:update_all_chr_instance %2.4f", time_render_scene_init_update_all_chr_instance );
         y = _draw_string_raw( 0, y, "init:update_all_prt_instance %2.4f", time_render_scene_init_update_all_prt_instance );
 #    endif
@@ -2176,10 +2176,10 @@ void render_scene_init( ego_mpd_t * pmesh, camera_t * pcam )
     }
     PROFILE_END( update_all_prt_instance );
 
-    time_render_scene_init_renderlist_make         = PROFILE_QUERY( renderlist_make         ) * TARGET_FPS;
-    time_render_scene_init_dolist_make             = PROFILE_QUERY( dolist_make             ) * TARGET_FPS;
-    time_render_scene_init_do_grid_dynalight       = PROFILE_QUERY( do_grid_dynalight       ) * TARGET_FPS;
-    time_render_scene_init_light_fans              = PROFILE_QUERY( light_fans              ) * TARGET_FPS;
+    time_render_scene_init_renderlist_make         = PROFILE_QUERY( renderlist_make ) * TARGET_FPS;
+    time_render_scene_init_dolist_make             = PROFILE_QUERY( dolist_make ) * TARGET_FPS;
+    time_render_scene_init_do_grid_dynalight       = PROFILE_QUERY( do_grid_dynalight ) * TARGET_FPS;
+    time_render_scene_init_light_fans              = PROFILE_QUERY( light_fans ) * TARGET_FPS;
     time_render_scene_init_update_all_chr_instance = PROFILE_QUERY( update_all_chr_instance ) * TARGET_FPS;
     time_render_scene_init_update_all_prt_instance = PROFILE_QUERY( update_all_prt_instance ) * TARGET_FPS;
 }
@@ -2262,7 +2262,7 @@ void render_scene_mesh( renderlist_t * prlist )
             // Render all reflected objects
             ATTRIB_PUSH( "render_scene_mesh() - reflected characters",  GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_POLYGON_BIT | GL_CURRENT_BIT );
             {
-                GL_DEBUG( glDepthMask )( GL_FALSE );      // GL_DEPTH_BUFFER_BIT - turn off the depth mask by default. Can cause glitches if used improperly.     
+                GL_DEBUG( glDepthMask )( GL_FALSE );      // GL_DEPTH_BUFFER_BIT - turn off the depth mask by default. Can cause glitches if used improperly.
 
                 GL_DEBUG( glEnable )( GL_DEPTH_TEST );    // GL_ENABLE_BIT - do not draw hidden surfaces
                 GL_DEBUG( glDepthFunc )( GL_LEQUAL );     // GL_DEPTH_BUFFER_BIT - surfaces must be closer to the camera to be drawn
@@ -2552,13 +2552,13 @@ void render_scene( ego_mpd_t * pmesh, camera_t * pcam )
         // do the render pass for the mesh
         render_scene_mesh( &renderlist );
 
-        time_render_scene_mesh_dolist_sort    = PROFILE_QUERY( render_scene_mesh_dolist_sort   ) * TARGET_FPS;
-        time_render_scene_mesh_ndr            = PROFILE_QUERY( render_scene_mesh_ndr           ) * TARGET_FPS;
-        time_render_scene_mesh_drf_back       = PROFILE_QUERY( render_scene_mesh_drf_back      ) * TARGET_FPS;
-        time_render_scene_mesh_ref            = PROFILE_QUERY( render_scene_mesh_ref           ) * TARGET_FPS;
-        time_render_scene_mesh_ref_chr        = PROFILE_QUERY( render_scene_mesh_ref_chr       ) * TARGET_FPS;
-        time_render_scene_mesh_drf_solid      = PROFILE_QUERY( render_scene_mesh_drf_solid     ) * TARGET_FPS;
-        time_render_scene_mesh_render_shadows = PROFILE_QUERY( render_scene_mesh_render_shadows) * TARGET_FPS;
+        time_render_scene_mesh_dolist_sort    = PROFILE_QUERY( render_scene_mesh_dolist_sort ) * TARGET_FPS;
+        time_render_scene_mesh_ndr            = PROFILE_QUERY( render_scene_mesh_ndr ) * TARGET_FPS;
+        time_render_scene_mesh_drf_back       = PROFILE_QUERY( render_scene_mesh_drf_back ) * TARGET_FPS;
+        time_render_scene_mesh_ref            = PROFILE_QUERY( render_scene_mesh_ref ) * TARGET_FPS;
+        time_render_scene_mesh_ref_chr        = PROFILE_QUERY( render_scene_mesh_ref_chr ) * TARGET_FPS;
+        time_render_scene_mesh_drf_solid      = PROFILE_QUERY( render_scene_mesh_drf_solid ) * TARGET_FPS;
+        time_render_scene_mesh_render_shadows = PROFILE_QUERY( render_scene_mesh_render_shadows ) * TARGET_FPS;
     }
     PROFILE_END( render_scene_mesh );
 
@@ -2590,8 +2590,8 @@ void render_scene( ego_mpd_t * pmesh, camera_t * pcam )
     //render_all_prt_attachment();
 #endif
 
-    time_render_scene_init  = PROFILE_QUERY( render_scene_init  ) * TARGET_FPS;
-    time_render_scene_mesh  = PROFILE_QUERY( render_scene_mesh  ) * TARGET_FPS;
+    time_render_scene_init  = PROFILE_QUERY( render_scene_init ) * TARGET_FPS;
+    time_render_scene_mesh  = PROFILE_QUERY( render_scene_mesh ) * TARGET_FPS;
     time_render_scene_solid = PROFILE_QUERY( render_scene_solid ) * TARGET_FPS;
     time_render_scene_water = PROFILE_QUERY( render_scene_water ) * TARGET_FPS;
     time_render_scene_trans = PROFILE_QUERY( render_scene_trans ) * TARGET_FPS;
@@ -2622,21 +2622,21 @@ void render_world_background( Uint16 texture )
     ilayer = water.layer + 0;
 
     // the "official" camera height
-    z0 = 1500; 
+    z0 = 1500;
 
     // clip the waterlayer uv offset
     ilayer->tx.x = ilayer->tx.x - ( float )floor( ilayer->tx.x );
     ilayer->tx.y = ilayer->tx.y - ( float )floor( ilayer->tx.y );
 
     // determine the constants for the x-coordinate
-    xmag = water.backgroundrepeat / 4 / (1.0f + z0 * ilayer->dist.x) / TILE_SIZE;
-    Cx_0 = xmag * (1.0f +  PCamera->pos.z       * ilayer->dist.x);
-    Cx_1 =-xmag * (1.0f + (PCamera->pos.z - z0) * ilayer->dist.x);
+    xmag = water.backgroundrepeat / 4 / ( 1.0f + z0 * ilayer->dist.x ) / TILE_SIZE;
+    Cx_0 = xmag * ( 1.0f +  PCamera->pos.z       * ilayer->dist.x );
+    Cx_1 = -xmag * ( 1.0f + ( PCamera->pos.z - z0 ) * ilayer->dist.x );
 
     // determine the constants for the y-coordinate
-    ymag = water.backgroundrepeat / 4 / (1.0f + z0 * ilayer->dist.y) / TILE_SIZE;
-    Cy_0 = ymag * (1.0f +  PCamera->pos.z       * ilayer->dist.y);
-    Cy_1 =-ymag * (1.0f + (PCamera->pos.z - z0) * ilayer->dist.y);
+    ymag = water.backgroundrepeat / 4 / ( 1.0f + z0 * ilayer->dist.y ) / TILE_SIZE;
+    Cy_0 = ymag * ( 1.0f +  PCamera->pos.z       * ilayer->dist.y );
+    Cy_1 = -ymag * ( 1.0f + ( PCamera->pos.z - z0 ) * ilayer->dist.y );
 
     // Figure out the coordinates of its corners
     Qx = -pinfo->edge_x;
@@ -2696,18 +2696,18 @@ void render_world_background( Uint16 texture )
     ATTRIB_PUSH( "render_world_background()", GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_ENABLE_BIT );
     {
         GL_DEBUG( glShadeModel )( GL_FLAT );      // GL_LIGHTING_BIT - Flat shade this
-        GL_DEBUG( glDepthMask  )( GL_FALSE );     // GL_DEPTH_BUFFER_BIT
-        GL_DEBUG( glDepthFunc  )( GL_ALWAYS );    // GL_DEPTH_BUFFER_BIT
-        GL_DEBUG( glDisable    )( GL_CULL_FACE ); // GL_ENABLE_BIT
+        GL_DEBUG( glDepthMask )( GL_FALSE );      // GL_DEPTH_BUFFER_BIT
+        GL_DEBUG( glDepthFunc )( GL_ALWAYS );     // GL_DEPTH_BUFFER_BIT
+        GL_DEBUG( glDisable )( GL_CULL_FACE );    // GL_ENABLE_BIT
 
 
-        if( alpha > 0.0f )
+        if ( alpha > 0.0f )
         {
             ATTRIB_PUSH( "render_world_background() - alpha", GL_ENABLE_BIT | GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT );
             {
                 GL_DEBUG( glColor4f )( intens, intens, intens, alpha );             // GL_CURRENT_BIT
 
-                if( alpha >= 1.0f )
+                if ( alpha >= 1.0f )
                 {
                     GL_DEBUG( glDisable )( GL_BLEND );                               // GL_ENABLE_BIT
                 }
@@ -2867,7 +2867,7 @@ void render_world( camera_t * pcam )
         }
 
         render_scene( PMesh, pcam );
-        
+
         if ( gfx.draw_overlay )
         {
             // Foreground overlay
@@ -3401,7 +3401,7 @@ billboard_data_t * billboard_data_init( billboard_data_t * pbb )
 {
     if ( NULL == pbb ) return pbb;
 
-    memset( pbb, 0, sizeof(*pbb) );
+    memset( pbb, 0, sizeof( *pbb ) );
 
     pbb->tex_ref = INVALID_TEXTURE;
     pbb->ichr    = MAX_CHR;
@@ -4315,7 +4315,7 @@ void renderlist_reset()
         int cnt;
 
         // clear out the inrenderlist flag for the old mesh
-        tile_info_t * tlist = renderlist.pmesh->mmem.tile_list;
+        ego_tile_info_t * tlist = renderlist.pmesh->mmem.tile_list;
 
         for ( cnt = 0; cnt < renderlist.all_count; cnt++ )
         {
@@ -4350,9 +4350,9 @@ void renderlist_make( ego_mpd_t * pmesh, camera_t * pcam )
     int x, stepx, divx, basex;
     int from, to;
 
-    tile_info_t * tlist;
+    ego_tile_info_t * tlist;
 
-    if( 0 != (frame_all & 7) ) return;
+    if ( 0 != ( frame_all & 7 ) ) return;
 
     // reset the renderlist
     renderlist_reset();
@@ -5172,10 +5172,10 @@ void light_fans( renderlist_t * prlist )
     pgmem = &( pmesh->gmem );
 
 #if defined(CLIP_LIGHT_FANS) && defined(CLIP_ALL_LIGHT_FANS)
-    if( 0 != (frame_all & 0x03) ) return;
+    if ( 0 != ( frame_all & 0x03 ) ) return;
 #endif
 
-#if defined(CLIP_LIGHT_FANS) 
+#if defined(CLIP_LIGHT_FANS)
     // update only every frame
     local_mesh_lighting_keep = 0.9f;
 #else
@@ -5197,7 +5197,7 @@ void light_fans( renderlist_t * prlist )
             ix = fan % pinfo->tiles_x;
             iy = fan / pinfo->tiles_x;
 
-            if( 0 != (((ix^iy) + frame_all) & 0x03) ) continue;
+            if ( 0 != ((( ix ^ iy ) + frame_all ) & 0x03 ) ) continue;
         }
 #endif
 
@@ -5220,7 +5220,7 @@ void light_fans( renderlist_t * prlist )
             ix = fan % pinfo->tiles_x;
             iy = fan / pinfo->tiles_x;
 
-            if( 0 != (((ix^iy) + frame_all) & 0x03) ) continue;
+            if ( 0 != ((( ix ^ iy ) + frame_all ) & 0x03 ) ) continue;
         }
 #endif
 
@@ -5248,8 +5248,8 @@ void light_fans( renderlist_t * prlist )
 
             light = CLIP( light, 0.0f, 255.0f );
             pmem->clst[vertex][RR] =
-            pmem->clst[vertex][GG] =
-            pmem->clst[vertex][BB] = light * INV_FF;
+                pmem->clst[vertex][GG] =
+                    pmem->clst[vertex][BB] = light * INV_FF;
         };
     }
 }
@@ -5268,16 +5268,16 @@ bool_t sum_dyna_lighting( dynalight_t * pdyna, float lighting[], float dx, float
     ///              f(n,r) = integral( (1+y)^n * y * (1-y)^n, y = -1 .. r )
     ///
     ///              this has the advantage that it forms a bell-shaped curve that approaches 0 smoothly
-    ///              at r = -1 and r = 1. The lowest order term will always be quadratic in r, just like 
-    ///              Aaron's function. To eliminate terms like r^4 and higher order even terms, you can 
+    ///              at r = -1 and r = 1. The lowest order term will always be quadratic in r, just like
+    ///              Aaron's function. To eliminate terms like r^4 and higher order even terms, you can
     //               various f(n,r) with different n's. But combining terms with larger and larger
     ///              n means that the left-over terms that make the function approach zero smoothly
     ///              will have higher and higher powers of r (more expensive) and the cutoff will
     ///              be sharper and sharper (which is against the whole point of this type of function).
-    ///              
+    ///
     ///              Eliminating just the r^4 term gives the function
     ///                  f(y) = 1 - y^2 * ( 3.0f - y^4 ) / 2
-    ///              to make it match Aaron's function best, you have to scale the function by 
+    ///              to make it match Aaron's function best, you have to scale the function by
     ///                  y^2 = r^2 * 2 / 765 / falloff
     ///
     ///              I have previously tried rational polynomial functions like
@@ -5286,7 +5286,7 @@ bool_t sum_dyna_lighting( dynalight_t * pdyna, float lighting[], float dx, float
     ///              at small r, and to make the function approximate same "size" of lighting area
     ///              as Aarons. An added benefit is that this function automatically has the right
     ///              "physics" behavior at large distances (falls off like 1/r^2). But that is the
-    ///              exact problem because the infinite range means that it can potentally affect 
+    ///              exact problem because the infinite range means that it can potentally affect
     ///              the entire mesh, causing problems with computing a large number of lights
 
 
@@ -5294,9 +5294,9 @@ bool_t sum_dyna_lighting( dynalight_t * pdyna, float lighting[], float dx, float
     float y2       = rho_sqr * 2.0f / 765.0f / pdyna->falloff;
 
     float level = 0.0f;
-    if( y2 > 1.0f ) return bfalse;
+    if ( y2 > 1.0f ) return bfalse;
 
-    level = 1.0f - 0.5f * y2 * ( 3.0f - y2*y2 );
+    level = 1.0f - 0.5f * y2 * ( 3.0f - y2 * y2 );
     level *= 255 * pdyna->level;
 
     // allow negative lighting, or blind spots will not work properly
@@ -5472,13 +5472,13 @@ void do_grid_dynalight( ego_mpd_t * pmesh, camera_t * pcam )
         x0 = ix * TILE_SIZE;
         y0 = iy * TILE_SIZE;
 
-        mesh_bound.xmin = MIN(mesh_bound.xmin, x0 - TILE_SIZE/2);
-        mesh_bound.xmax = MAX(mesh_bound.xmax, x0 + TILE_SIZE/2);
-        mesh_bound.ymin = MIN(mesh_bound.ymin, y0 - TILE_SIZE/2);
-        mesh_bound.ymax = MAX(mesh_bound.ymax, y0 + TILE_SIZE/2);
+        mesh_bound.xmin = MIN( mesh_bound.xmin, x0 - TILE_SIZE / 2 );
+        mesh_bound.xmax = MAX( mesh_bound.xmax, x0 + TILE_SIZE / 2 );
+        mesh_bound.ymin = MIN( mesh_bound.ymin, y0 - TILE_SIZE / 2 );
+        mesh_bound.ymax = MAX( mesh_bound.ymax, y0 + TILE_SIZE / 2 );
     }
 
-    if( mesh_bound.xmin >= mesh_bound.xmax || mesh_bound.ymin >= mesh_bound.ymax ) return;
+    if ( mesh_bound.xmin >= mesh_bound.xmax || mesh_bound.ymin >= mesh_bound.ymax ) return;
 
     // make bounding boxes for each dynamic light
     reg_count = 0;
@@ -5486,41 +5486,41 @@ void do_grid_dynalight( ego_mpd_t * pmesh, camera_t * pcam )
     light_bound.xmax = 0;
     light_bound.ymin = pinfo->edge_y;
     light_bound.ymax = 0;
-    for( cnt = 0; cnt < dyna_list_count; cnt++ )
+    for ( cnt = 0; cnt < dyna_list_count; cnt++ )
     {
         float radius;
         ego_frect_t ftmp;
 
         dynalight_t * pdyna = dyna_list + cnt;
 
-        if( pdyna->falloff <= 0  ) continue;
+        if ( pdyna->falloff <= 0 ) continue;
 
         radius = SQRT( pdyna->falloff * 765.0f / 2.0f );
 
-        ftmp.xmin = floor( (pdyna->x - radius) / TILE_SIZE ) * TILE_SIZE;
-        ftmp.xmax = ceil ( (pdyna->x + radius) / TILE_SIZE ) * TILE_SIZE;
-        ftmp.ymin = floor( (pdyna->y - radius) / TILE_SIZE ) * TILE_SIZE;
-        ftmp.ymax = ceil ( (pdyna->y + radius) / TILE_SIZE ) * TILE_SIZE;
+        ftmp.xmin = floor(( pdyna->x - radius ) / TILE_SIZE ) * TILE_SIZE;
+        ftmp.xmax = ceil(( pdyna->x + radius ) / TILE_SIZE ) * TILE_SIZE;
+        ftmp.ymin = floor(( pdyna->y - radius ) / TILE_SIZE ) * TILE_SIZE;
+        ftmp.ymax = ceil(( pdyna->y + radius ) / TILE_SIZE ) * TILE_SIZE;
 
         // check to see if it intersects the "frustum"
-        if( ftmp.xmin <= mesh_bound.xmax && ftmp.xmax >= mesh_bound.xmin )
+        if ( ftmp.xmin <= mesh_bound.xmax && ftmp.xmax >= mesh_bound.xmin )
         {
-            if( ftmp.ymin <= mesh_bound.ymax && ftmp.ymax >= mesh_bound.ymin )
+            if ( ftmp.ymin <= mesh_bound.ymax && ftmp.ymax >= mesh_bound.ymin )
             {
                 reg[reg_count].bound     = ftmp;
                 reg[reg_count].reference = cnt;
                 reg_count++;
 
                 // determine the maxumum bounding box that encloses all valid lights
-                light_bound.xmin = MIN(light_bound.xmin, ftmp.xmin );
-                light_bound.xmax = MAX(light_bound.xmax, ftmp.xmax );
-                light_bound.ymin = MIN(light_bound.ymin, ftmp.ymin );
-                light_bound.ymax = MAX(light_bound.ymax, ftmp.ymax );
+                light_bound.xmin = MIN( light_bound.xmin, ftmp.xmin );
+                light_bound.xmax = MAX( light_bound.xmax, ftmp.xmax );
+                light_bound.ymin = MIN( light_bound.ymin, ftmp.ymin );
+                light_bound.ymax = MAX( light_bound.ymax, ftmp.ymax );
             }
         }
     }
 
-    if( 0 == reg_count || light_bound.xmin >= light_bound.xmax || light_bound.ymin >= light_bound.ymax ) return;
+    if ( 0 == reg_count || light_bound.xmin >= light_bound.xmax || light_bound.ymin >= light_bound.ymax ) return;
 
     // sum up the lighting from global sources
     sum_global_lighting( global_lighting );
@@ -5541,7 +5541,7 @@ void do_grid_dynalight( ego_mpd_t * pmesh, camera_t * pcam )
         ix = fan % pinfo->tiles_x;
         iy = fan / pinfo->tiles_x;
 
-        if( 0 != ((ix^iy + frame_all) & 0x03) ) continue;
+        if ( 0 != (( ix ^ iy + frame_all ) & 0x03 ) ) continue;
 
         // this is not a "bad" grid box, so grab the lighting info
         cache = &( pgmem->light[fan].cache );
@@ -5559,14 +5559,14 @@ void do_grid_dynalight( ego_mpd_t * pmesh, camera_t * pcam )
             y0 = iy * TILE_SIZE;
 
             // check this grid vertex relative to the measured light_bound
-            ftmp.xmin = x0 - TILE_SIZE/2;
-            ftmp.xmax = x0 + TILE_SIZE/2;
-            ftmp.ymin = y0 - TILE_SIZE/2;
-            ftmp.ymax = y0 + TILE_SIZE/2;
+            ftmp.xmin = x0 - TILE_SIZE / 2;
+            ftmp.xmax = x0 + TILE_SIZE / 2;
+            ftmp.ymin = y0 - TILE_SIZE / 2;
+            ftmp.ymax = y0 + TILE_SIZE / 2;
 
-            if( ftmp.xmin <= light_bound.xmax && ftmp.xmax >= light_bound.xmin )
+            if ( ftmp.xmin <= light_bound.xmax && ftmp.xmax >= light_bound.xmin )
             {
-                if( ftmp.ymin <= light_bound.ymax && ftmp.ymax >= light_bound.ymin )
+                if ( ftmp.ymin <= light_bound.ymax && ftmp.ymax >= light_bound.ymin )
                 {
                     // add in the dynamic lighting
                     for ( cnt = 0; cnt < reg_count; cnt++ )
@@ -5574,8 +5574,8 @@ void do_grid_dynalight( ego_mpd_t * pmesh, camera_t * pcam )
                         dynalight_t * pdyna;
 
                         // check the bound relative to each valid dynamic light
-                        if( ftmp.xmin > reg[cnt].bound.xmax || ftmp.xmax < reg[cnt].bound.xmin ) continue;
-                        if( ftmp.ymin > reg[cnt].bound.ymax || ftmp.ymax < reg[cnt].bound.ymin ) continue;
+                        if ( ftmp.xmin > reg[cnt].bound.xmax || ftmp.xmax < reg[cnt].bound.xmin ) continue;
+                        if ( ftmp.ymin > reg[cnt].bound.ymax || ftmp.ymax < reg[cnt].bound.ymin ) continue;
 
                         // this should be a valid intersection, so proceed
                         tnc = reg[cnt].reference;
@@ -5591,8 +5591,8 @@ void do_grid_dynalight( ego_mpd_t * pmesh, camera_t * pcam )
         // average this in with the existing lighting
         for ( tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++ )
         {
-            cache->low.lighting[tnc] = cache->low.lighting[tnc] * local_keep + local_lighting_low[tnc] * (1.0f - local_keep);
-            cache->hgh.lighting[tnc] = cache->hgh.lighting[tnc] * local_keep + local_lighting_hgh[tnc] * (1.0f - local_keep);
+            cache->low.lighting[tnc] = cache->low.lighting[tnc] * local_keep + local_lighting_low[tnc] * ( 1.0f - local_keep );
+            cache->hgh.lighting[tnc] = cache->hgh.lighting[tnc] * local_keep + local_lighting_hgh[tnc] * ( 1.0f - local_keep );
         }
 
         for ( cnt = 0; cnt < LIGHTING_VEC_SIZE; cnt++ )

@@ -41,10 +41,9 @@ DEFINE_STACK_EXTERN( pip_t, PipStack, MAX_PIP );
 #define VALID_PIP_RANGE( IPIP ) ( ((IPIP) >= 0) && ((IPIP) < MAX_PIP) )
 #define LOADED_PIP( IPIP )       ( VALID_PIP_RANGE( IPIP ) && PipStack.lst[IPIP].loaded )
 
-//------------------------------------
+//--------------------------------------------------------------------------------------------
 // Particle graphic data
-//------------------------------------
-
+//--------------------------------------------------------------------------------------------
 /// All the data necessary to diaplay a partile
 struct s_prt_instance
 {
@@ -83,6 +82,17 @@ struct s_prt_instance
     fvec3_t ref_pos;
 };
 typedef struct s_prt_instance prt_instance_t;
+
+//--------------------------------------------------------------------------------------------
+/// Level 0 particle "bumper"
+/// The simplest collision volume,
+struct s_prt_bumper_0
+{
+    float  size;        ///< Size of bumpers
+    float  sizebig;     ///< For octagonal bumpers
+    float  height;      ///< Distance from head to toe
+};
+typedef struct s_prt_bumper_0 prt_bumper_t;
 
 //--------------------------------------------------------------------------------------------
 /// Everything that is necessary to compute the character's interaction with the environment
@@ -163,9 +173,7 @@ struct s_prt
     int     time_frame;                      ///< Duration of particle
     Uint16  spawntime;                       ///< Time until spawn
 
-    Uint32  bumpsize;                        ///< Size of bumpers
-    Uint32  bumpsizebig;
-    Uint8   bumpheight;                      ///< Bounding box height
+    prt_bumper_t bump;                     ///< Size of bumpers
     Uint16  bumplist_next;                   ///< Next particle on fanblock
     IPair   damage;                          ///< For strength
     Uint8   damagetype;                      ///< Damage type
@@ -251,3 +259,5 @@ pip_t * prt_get_ppip( Uint16 cnt );
 bool_t prt_request_terminate( Uint16 iprt );
 
 void particle_set_level( prt_t * pprt, float level );
+
+Uint16 prt_get_iowner( Uint16 iprt, int depth );

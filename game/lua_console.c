@@ -117,7 +117,7 @@ lua_console_t * lua_console_new( lua_console_t * pcon, SDL_Rect Con_rect )
     if ( NULL == pcon ) return NULL;
 
     // reset all the console data
-    memset( pcon, 0, sizeof(*pcon) );
+    memset( pcon, 0, sizeof( *pcon ) );
 
     // call the new function for the "base class"
     egoboo_console_new( &( pcon->base ), Con_rect, lua_console_run, pcon );

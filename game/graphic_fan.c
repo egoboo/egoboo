@@ -40,11 +40,11 @@ void animate_all_tiles( ego_mpd_t * pmesh )
     int cnt;
     Uint32 tile_count;
 
-    if( NULL == pmesh ) return;
+    if ( NULL == pmesh ) return;
 
     tile_count = pmesh->info.tiles_count;
 
-    for( cnt = 0; cnt< tile_count; cnt++ )
+    for ( cnt = 0; cnt < tile_count; cnt++ )
     {
         animate_tile( pmesh, cnt );
     }
@@ -57,9 +57,9 @@ bool_t animate_tile( ego_mpd_t * pmesh, Uint32 itile )
 
     Uint16 basetile, image;
     Uint16 base_and, frame_and, frame_add;
-    Uint8  fx, type;
+    Uint8  type;
     mesh_mem_t  * pmem;
-    tile_info_t * ptile;
+    ego_tile_info_t * ptile;
 
     if ( NULL == pmesh ) return bfalse;
     pmem  = &( pmesh->mmem );
@@ -71,10 +71,9 @@ bool_t animate_tile( ego_mpd_t * pmesh, Uint32 itile )
     if ( TILE_IS_FANOFF( *ptile ) )  return btrue;
 
     image = TILE_GET_LOWER_BITS( ptile->img ); // Tile image
-    fx    = ptile->fx;                         // Fx bits
     type  = ptile->type;                       // Command type ( index to points in itile )
 
-    if( 0 == HAS_SOME_BITS( fx, MPDFX_ANIM ) ) return btrue;
+    if ( 0 == mesh_test_fx( pmesh, itile, MPDFX_ANIM ) ) return btrue;
 
     // Animate the tiles
     if ( type >= ( MAXMESHTYPE >> 1 ) )
@@ -113,7 +112,7 @@ void render_fan( ego_mpd_t * pmesh, Uint32 itile )
     int    texture;
 
     mesh_mem_t  * pmem;
-    tile_info_t * ptile;
+    ego_tile_info_t * ptile;
 
     if ( NULL == pmesh ) return;
     pmem  = &( pmesh->mmem );
@@ -155,7 +154,7 @@ void render_fan( ego_mpd_t * pmesh, Uint32 itile )
                 for ( tnc = 0; tnc < tile_dict[type].command_entries[cnt]; tnc++, entry++ )
                 {
                     vertex = tile_dict[type].command_verts[entry];
-                    GL_DEBUG( glArrayElement )( vertex ); 
+                    GL_DEBUG( glArrayElement )( vertex );
                 }
             }
             GL_DEBUG_END();
@@ -194,11 +193,11 @@ void render_hmap_fan( ego_mpd_t * pmesh, Uint32 itile )
     int cnt, vertex, badvertex;
     int ix, iy, ix_off[4] = {0, 1, 1, 0}, iy_off[4] = {0, 0, 1, 1};
     Uint16 tile;
-    Uint8  fx, type, twist;
+    Uint8  type, twist;
 
     mesh_mem_t  * pmem;
     ego_mpd_info_t * pinfo;
-    tile_info_t * ptile;
+    ego_tile_info_t * ptile;
 
     if ( NULL == pmesh ) return;
     pmem  = &( pmesh->mmem );
@@ -217,7 +216,6 @@ void render_hmap_fan( ego_mpd_t * pmesh, Uint32 itile )
     // badvertex is a value that references the actual vertex number
 
     tile  = TILE_GET_LOWER_BITS( ptile->img ); // Tile
-    fx    = ptile->fx;                       // Fx bits
     type  = ptile->type;                     // Command type ( index to points in itile )
     twist = ptile->twist;
 
@@ -282,7 +280,7 @@ void render_water_fan( ego_mpd_t * pmesh, Uint32 itile, Uint8 layer )
     ego_mpd_info_t * pinfo;
     mesh_mem_t     * pmmem;
     grid_mem_t     * pgmem;
-    tile_info_t    * ptile;
+    ego_tile_info_t    * ptile;
     oglx_texture   * ptex;
 
     if ( NULL == pmesh ) return;
@@ -294,7 +292,7 @@ void render_water_fan( ego_mpd_t * pmesh, Uint32 itile, Uint8 layer )
     ptile = pmmem->tile_list + itile;
 
     falpha = FF_TO_FLOAT( water.layer[layer].alpha );
-    falpha = CLIP(falpha, 0.0f, 1.0f);
+    falpha = CLIP( falpha, 0.0f, 1.0f );
 
     /// @note BB@> the water info is for TILES, not for vertices, so ignore all vertex info and just draw the water
     ///            tile where it's supposed to go
@@ -385,7 +383,7 @@ void render_water_fan( ego_mpd_t * pmesh, Uint32 itile, Uint8 layer )
             }
 
             // the application of alpha to the tile depends on the blending mode
-            if( water.light )
+            if ( water.light )
             {
                 // blend using light
                 v[cnt].col[RR] *= falpha;
@@ -412,7 +410,7 @@ void render_water_fan( ego_mpd_t * pmesh, Uint32 itile, Uint8 layer )
 
     ATTRIB_PUSH( "render_water_fan", GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_LIGHTING_BIT | GL_CURRENT_BIT | GL_POLYGON_BIT );
     {
-        GLboolean use_depth_mask = (!water.light && (1.0f == falpha)) ? GL_TRUE : GL_FALSE;
+        GLboolean use_depth_mask = ( !water.light && ( 1.0f == falpha ) ) ? GL_TRUE : GL_FALSE;
 
         GL_DEBUG( glEnable )( GL_DEPTH_TEST );                                  // GL_ENABLE_BIT
         GL_DEBUG( glDepthFunc )( GL_LEQUAL );                                   // GL_DEPTH_BUFFER_BIT
@@ -424,7 +422,7 @@ void render_water_fan( ego_mpd_t * pmesh, Uint32 itile, Uint8 layer )
         GL_DEBUG( glFrontFace )( GL_CW );                                       // GL_POLYGON_BIT
 
         // set the blending mode
-        if( water.light )
+        if ( water.light )
         {
             GL_DEBUG( glEnable )( GL_BLEND );                                   // GL_ENABLE_BIT
             GL_DEBUG( glBlendFunc )( GL_ONE, GL_ONE_MINUS_SRC_COLOR );          // GL_COLOR_BUFFER_BIT
@@ -434,7 +432,7 @@ void render_water_fan( ego_mpd_t * pmesh, Uint32 itile, Uint8 layer )
             GL_DEBUG( glEnable )( GL_BLEND );                                    // GL_ENABLE_BIT
             GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );     // GL_COLOR_BUFFER_BIT
         }
-        
+
         // Render each command
         GL_DEBUG( glShadeModel )( GL_SMOOTH );                // GL_LIGHTING_BIT
         GL_DEBUG( glBegin )( GL_TRIANGLE_FAN );

@@ -51,7 +51,7 @@ camera_t * camera_new( camera_t * pcam )
     fvec3_t   t2 = {{0, 0, -1}};
     fvec3_t   t3 = {{0, 1, 0}};
 
-    memset( pcam, 0, sizeof(*pcam) );
+    memset( pcam, 0, sizeof( *pcam ) );
 
     pcam->move_mode = pcam->move_mode_old = CAM_PLAYER;
     pcam->turn_mode = cfg.autoturncamera;

@@ -154,7 +154,7 @@ bool_t pro_init( pro_t * pobj )
     }
 
     //---- reset everything to safe values
-    memset( pobj, 0, sizeof(*pobj) );
+    memset( pobj, 0, sizeof( *pobj ) );
 
     pobj->iai  = 0;
     pobj->icap = MAX_CAP;

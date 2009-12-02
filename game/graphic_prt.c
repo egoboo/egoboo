@@ -437,7 +437,7 @@ bool_t render_one_prt_ref( Uint16 iprt )
                 // do the transparent sprites
 
                 float alpha = startalpha * INV_FF;
-                if( SPRITE_ALPHA == pprt->type )
+                if ( SPRITE_ALPHA == pprt->type )
                 {
                     alpha *= pinst->falpha;
                 }

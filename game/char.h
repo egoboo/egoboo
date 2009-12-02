@@ -372,7 +372,7 @@ typedef struct s_chr_environment chr_environment_t;
 
 //--------------------------------------------------------------------------------------------
 /// Level 0 character "bumper"
-/// The simplest collision volume, exuivalent to the old-style collision data
+/// The simplest collision volume, equivalent to the old-style collision data
 /// stored in data.txt
 struct s_chr_bumper_0
 {

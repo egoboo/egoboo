@@ -7219,37 +7219,37 @@ Uint8 scr_set_TargetToNearestQuestID( script_state_t * pstate, ai_state_t * psel
 
     SCRIPT_FUNCTION_BEGIN();
 
-	returncode = bfalse;
+    returncode = bfalse;
 
-	//A special version of the get_chr() function
+    //A special version of the get_chr() function
     for ( sTmp = 0; sTmp < MAXPLAYER; sTmp++ )
     {
         Uint16 ichr_test = PlaList[sTmp].index;
         chr_t * ptst;
-		int iTmp;
+        int iTmp;
         fvec3_t   diff;
         float  dist2;
-        
-		if ( !ACTIVE_CHR( ichr_test ) ) continue;
+
+        if ( !ACTIVE_CHR( ichr_test ) ) continue;
         ptst = ChrList.lst + ichr_test;
 
-		//Only valid targets
-		if ( !check_target( pchr, ichr_test, TARGET_ALL, bfalse, bfalse, IDSZ_NONE, bfalse, btrue ) )
+        //Only valid targets
+        if ( !check_target( pchr, ichr_test, TARGET_ALL, bfalse, bfalse, IDSZ_NONE, bfalse, btrue ) )
         {
             continue;
         }
 
-		//Calculate distance
+        //Calculate distance
         diff  = fvec3_sub( pchr->pos.v, ptst->pos.v );
         dist2 = fvec3_dot_product( diff.v, diff.v );
 
-		//Do they have the specified quest?
-		iTmp = quest_check( chr_get_dir_name( ichr_test ), pstate->argument );
-		if ( iTmp > QUEST_BEATEN && dist2 < longdist )
+        //Do they have the specified quest?
+        iTmp = quest_check( chr_get_dir_name( ichr_test ), pstate->argument );
+        if ( iTmp > QUEST_BEATEN && dist2 < longdist )
         {
-			pself->target = ichr_test;
-			returncode = btrue;
-			longdist = dist2;
+            pself->target = ichr_test;
+            returncode = btrue;
+            longdist = dist2;
         }
     }
 
@@ -7321,8 +7321,8 @@ Uint8 _break_passage( int mesh_fx_or, int become, int frames, int starttile, int
 
             if ( img == endtile )
             {
-                useful = btrue;
-                PMesh->mmem.tile_list[fan].fx |= mesh_fx_or;
+                useful = mesh_add_fx( PMesh, fan, mesh_fx_or );
+
                 if ( become != 0 )
                 {
                     img = become;

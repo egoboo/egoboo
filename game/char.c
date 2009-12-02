@@ -326,7 +326,7 @@ void ChrList_init()
         chr_t * pchr = ChrList.lst + cnt;
 
         // blank out all the data, including the obj_base data
-        memset( pchr, 0, sizeof(*pchr) );
+        memset( pchr, 0, sizeof( *pchr ) );
 
         // character "destructor"
         chr_init( pchr );
@@ -368,19 +368,19 @@ void chr_log_script_time( Uint16 ichr )
     if ( !ALLOCATED_CHR( ichr ) ) return;
     pchr = ChrList.lst + ichr;
 
-    if( pchr->ai._clkcount <= 0 ) return;
+    if ( pchr->ai._clkcount <= 0 ) return;
 
     pcap = chr_get_pcap( ichr );
-    if( NULL == pcap ) return;
+    if ( NULL == pcap ) return;
 
     ftmp = EGO_fopen( "script_timing.txt", "a+" );
-    if( NULL != ftmp )
+    if ( NULL != ftmp )
     {
-        fprintf( ftmp, "update == %d\tindex == %d\tname == \"%s\"\tclassname == \"%s\"\ttotal_time == %e\ttotal_calls == %f\n", 
-            update_wld, ichr, pchr->Name, pcap->classname,
-            pchr->ai._clktime, pchr->ai._clkcount);
-        EGO_fflush(ftmp);
-        EGO_fclose(ftmp);
+        fprintf( ftmp, "update == %d\tindex == %d\tname == \"%s\"\tclassname == \"%s\"\ttotal_time == %e\ttotal_calls == %f\n",
+                 update_wld, ichr, pchr->Name, pcap->classname,
+                 pchr->ai._clktime, pchr->ai._clkcount );
+        EGO_fflush( ftmp );
+        EGO_fclose( ftmp );
     }
 }
 
@@ -1859,7 +1859,7 @@ bool_t character_grab_stuff( Uint16 ichr_a, grip_offset_t grip_off, bool_t grab_
                 if ( ungrab_list[cnt].dist > GRABSIZE ) continue;
 
                 ichr_b = ungrab_list[cnt].ichr;
-                if( !ACTIVE_CHR(ichr_b) ) continue;
+                if ( !ACTIVE_CHR( ichr_b ) ) continue;
 
                 pchr_b = ChrList.lst + ichr_b;
 
@@ -3218,7 +3218,7 @@ ai_state_t * ai_state_init( ai_state_t * pself )
     if ( NULL == pself ) return pself;
 
     // set everything to safe values
-    memset( pself, 0, sizeof(*pself) );
+    memset( pself, 0, sizeof( *pself ) );
 
     pself->index      = MAX_CHR;
     pself->target     = MAX_CHR;
@@ -3231,7 +3231,7 @@ ai_state_t * ai_state_init( ai_state_t * pself )
     pself->attacklast = MAX_CHR;
     pself->hitlast    = MAX_CHR;
 
-    PROFILE_INIT_STRUCT(ai,pself);
+    PROFILE_INIT_STRUCT( ai, pself );
 
     return pself;
 }
@@ -3294,7 +3294,7 @@ chr_t * chr_init( chr_t * pchr )
     memcpy( &save_base, pbase, sizeof( ego_object_base_t ) );
 
     // clear out all data
-    memset( pchr, 0, sizeof(*pchr) );
+    memset( pchr, 0, sizeof( *pchr ) );
 
     // restore the base object data
     memcpy( pbase, &save_base, sizeof( ego_object_base_t ) );
@@ -3586,7 +3586,7 @@ Uint16 spawn_one_character( fvec3_t pos, Uint16 profile, Uint8 team,
     pchr->turn_z     = facing;
     pchr->turn_old_z = pchr->turn_z;
 
-    
+
     pchr->onwhichfan    = mesh_get_tile( PMesh, pchr->pos.x, pchr->pos.y );
     pchr->onwhichblock  = mesh_get_block( PMesh, pchr->pos.x, pchr->pos.y );
 
@@ -4641,8 +4641,8 @@ void move_one_character_get_environment( chr_t * pchr )
     if ( ACTIVE_CHR( pchr->onwhichplatform ) )
     {
         pchr->enviro.level     = ChrList.lst[pchr->onwhichplatform].pos.z + ChrList.lst[pchr->onwhichplatform].chr_chr_cv.max_z;
-        pchr->enviro.fly_level = MAX(pchr->enviro.fly_level, pchr->enviro.level);
-        
+        pchr->enviro.fly_level = MAX( pchr->enviro.fly_level, pchr->enviro.level );
+
     }
 
     if ( 0 != pchr->flyheight )
@@ -6096,7 +6096,7 @@ chr_reflection_cache_t * chr_reflection_cache_init( chr_reflection_cache_t * pca
 {
     if ( NULL == pcache ) return pcache;
 
-    memset( pcache, 0, sizeof(*pcache) );
+    memset( pcache, 0, sizeof( *pcache ) );
 
     pcache->alpha = 127;
     pcache->light = 255;
@@ -6127,7 +6127,7 @@ chr_instance_t * chr_instance_init( chr_instance_t * pinst )
 
     if ( NULL == pinst ) return pinst;
 
-    memset( pinst, 0, sizeof(*pinst) );
+    memset( pinst, 0, sizeof( *pinst ) );
 
     // model parameters
     pinst->imad = MAX_MAD;

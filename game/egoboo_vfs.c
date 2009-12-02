@@ -2031,7 +2031,7 @@ int _vfs_mount_point_matches( const char * mount_point, const char * local_path 
     ptmp = mount_point;
 
     // strip any starting slashes
-    if( VALID_CSTR(ptmp) )
+    if ( VALID_CSTR( ptmp ) )
     {
         for ( /* nothing */; ptmp < mount_point + VFS_MAX_PATH; ptmp++ )
         {
@@ -2042,20 +2042,20 @@ int _vfs_mount_point_matches( const char * mount_point, const char * local_path 
         }
     }
 
-    if( VALID_CSTR(ptmp) && VALID_CSTR(local_path) )
+    if ( VALID_CSTR( ptmp ) && VALID_CSTR( local_path ) )
     {
         // find the first path info with the given mount_point and local_path
         for ( cnt = 0; cnt < _vfs_mount_info_count; cnt++ )
         {
             if ( 0 == strncmp( _vfs_mount_info[cnt].mount, mount_point, VFS_MAX_PATH ) &&
-                 0 == strncmp( _vfs_mount_info[cnt].path,  local_path, VFS_MAX_PATH  ) )
+                 0 == strncmp( _vfs_mount_info[cnt].path,  local_path, VFS_MAX_PATH ) )
             {
                 retval = cnt;
                 break;
             }
         }
     }
-    else if( VALID_CSTR(ptmp) )
+    else if ( VALID_CSTR( ptmp ) )
     {
         // find the first path info with the given mount_point
         for ( cnt = 0; cnt < _vfs_mount_info_count; cnt++ )
@@ -2067,12 +2067,12 @@ int _vfs_mount_point_matches( const char * mount_point, const char * local_path 
             }
         }
     }
-    else if( VALID_CSTR(local_path) )
+    else if ( VALID_CSTR( local_path ) )
     {
         // find the first path info with the given local_path
         for ( cnt = 0; cnt < _vfs_mount_info_count; cnt++ )
         {
-            if ( 0 == strncmp( _vfs_mount_info[cnt].path,  local_path, VFS_MAX_PATH  ) )
+            if ( 0 == strncmp( _vfs_mount_info[cnt].path,  local_path, VFS_MAX_PATH ) )
             {
                 retval = cnt;
                 break;
@@ -2126,7 +2126,7 @@ bool_t _vfs_remove_mount_info( int cnt )
     // fill in the hole in the list
     if ( _vfs_mount_info_count > 1 )
     {
-        memmove( _vfs_mount_info + cnt, _vfs_mount_info + (_vfs_mount_info_count-1), sizeof(vfs_path_data_t) );
+        memmove( _vfs_mount_info + cnt, _vfs_mount_info + ( _vfs_mount_info_count - 1 ), sizeof( vfs_path_data_t ) );
     }
 
     // shorten the list
@@ -2172,14 +2172,14 @@ int vfs_remove_mount_point( const char * mount_point )
     // does it exist in the list?
     if ( cnt < 0 ) return bfalse;
 
-    while( cnt >= 0 )
+    while ( cnt >= 0 )
     {
         int tmp_retval;
         // we have to use the path name to remove the search path, not the mount point name
         tmp_retval = PHYSFS_removeFromSearchPath( _vfs_mount_info[cnt].path );
 
         // if we succedded once, we succeeded
-        if (0 != tmp_retval)
+        if ( 0 != tmp_retval )
         {
             retval = 1;
 

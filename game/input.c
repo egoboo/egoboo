@@ -66,7 +66,7 @@ void input_device_init( input_device_t * pdevice )
 {
     if ( NULL == pdevice ) return;
 
-    memset( pdevice, 0, sizeof(*pdevice) );
+    memset( pdevice, 0, sizeof( *pdevice ) );
 
     pdevice->sustain = 0.58f;
     pdevice->cover   = 1.0f - pdevice->sustain;

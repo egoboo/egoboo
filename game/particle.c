@@ -75,7 +75,7 @@ void PrtList_init()
         prt_t * pprt = PrtList.lst + cnt;
 
         // blank out all the data, including the obj_base data
-        memset( pprt, 0, sizeof(*pprt) );
+        memset( pprt, 0, sizeof( *pprt ) );
 
         prt_init( pprt );
 
@@ -234,7 +234,7 @@ int prt_get_free( int force )
     // Return TOTAL_MAX_PRT if we can't find one
     iprt = TOTAL_MAX_PRT;
 
-    
+
     if ( 0 == PrtList.free_count )
     {
         if ( force )
@@ -250,7 +250,7 @@ int prt_get_free( int force )
                 prt_t * pprt;
 
                 // Is this an invalid particle? The particle allocation count is messed up! :(
-                if( !ALLOCATED_PRT(iprt) ) 
+                if ( !ALLOCATED_PRT( iprt ) )
                 {
                     found = iprt;
                     break;
@@ -258,26 +258,26 @@ int prt_get_free( int force )
                 pprt = PrtList.lst + iprt;
 
                 // does it have a valid profile?
-                if( !LOADED_PIP(pprt->pip_ref) )
+                if ( !LOADED_PIP( pprt->pip_ref ) )
                 {
                     found = iprt;
                     free_one_particle_in_game( iprt );
                     break;
                 }
 
-                // do not bump another 
+                // do not bump another
                 was_forced = ( PipStack.lst[pprt->pip_ref].force );
 
-                if( WAITING_PRT( iprt ) )
+                if ( WAITING_PRT( iprt ) )
                 {
-                    // if the particle has been "terminated" but is still waiting around, bump it to the 
+                    // if the particle has been "terminated" but is still waiting around, bump it to the
                     // front of the list
 
                     int lifetime  = pprt->time_update - update_wld;
                     int frametime = pprt->time_frame  - frame_all;
-                    int min_time = MIN(lifetime, frametime);
+                    int min_time = MIN( lifetime, frametime );
 
-                    if( min_time < MAX(min_life,min_display) )
+                    if ( min_time < MAX( min_life, min_display ) )
                     {
                         min_life     = lifetime;
                         min_life_idx = iprt;
@@ -286,20 +286,20 @@ int prt_get_free( int force )
                         min_display_idx = iprt;
                     }
                 }
-                else if( !was_forced )
+                else if ( !was_forced )
                 {
-                    int lifetime,frametime;
+                    int lifetime, frametime;
                     // if the particle has not yet died, let choose the worst one
 
                     lifetime = pprt->time_update - update_wld;
-                    if( lifetime < min_life )
+                    if ( lifetime < min_life )
                     {
                         min_life     = lifetime;
                         min_life_idx = iprt;
                     }
 
                     frametime = pprt->time_frame - frame_all;
-                    if( frametime < min_display )
+                    if ( frametime < min_display )
                     {
                         min_display     = frametime;
                         min_display_idx = iprt;
@@ -307,17 +307,17 @@ int prt_get_free( int force )
                 }
             }
 
-            if( VALID_PRT_RANGE(found) )
+            if ( VALID_PRT_RANGE( found ) )
             {
                 // found a "bad" particle
                 iprt = found;
             }
-            else if( VALID_PRT_RANGE(min_display_idx) )
+            else if ( VALID_PRT_RANGE( min_display_idx ) )
             {
                 // found a "terminated" particle
                 iprt = min_display_idx;
             }
-            else if( VALID_PRT_RANGE(min_life_idx) )
+            else if ( VALID_PRT_RANGE( min_life_idx ) )
             {
                 // found a particle that closest to death
                 iprt = min_life_idx;
@@ -346,11 +346,11 @@ int prt_get_free( int force )
     // return a proper value
     iprt = ( iprt >= maxparticles ) ? TOTAL_MAX_PRT : iprt;
 
-    if ( VALID_PRT_RANGE(iprt) )
+    if ( VALID_PRT_RANGE( iprt ) )
     {
-        if( ALLOCATED_PRT(iprt) && !TERMINATED_PRT(iprt) )
+        if ( ALLOCATED_PRT( iprt ) && !TERMINATED_PRT( iprt ) )
         {
-            free_one_particle_in_game(iprt);
+            free_one_particle_in_game( iprt );
         }
 
         EGO_OBJECT_ALLOCATE( PrtList.lst + iprt, iprt );
@@ -372,7 +372,7 @@ void prt_init( prt_t * pprt )
     // save the base object data
     memcpy( &save_base, OBJ_GET_PBASE( pprt ), sizeof( ego_object_base_t ) );
 
-    memset( pprt, 0, sizeof(*pprt) );
+    memset( pprt, 0, sizeof( *pprt ) );
 
     // restore the base object data
     memcpy( OBJ_GET_PBASE( pprt ), &save_base, sizeof( ego_object_base_t ) );
@@ -633,8 +633,8 @@ Uint16 spawn_one_particle( fvec3_t   pos, Uint16 facing, Uint16 iprofile, Uint16
 
     // Location data from arguments
     newrand = generate_randmask( ppip->xyspacing_pair.base, ppip->xyspacing_pair.rand );
-    pprt->offset.x = turntocos[turn & TRIG_TABLE_MASK] * newrand;
-    pprt->offset.y = turntocos[turn & TRIG_TABLE_MASK] * newrand;
+    pprt->offset.x = -turntocos[turn & TRIG_TABLE_MASK] * newrand;
+    pprt->offset.y = -turntosin[turn & TRIG_TABLE_MASK] * newrand;
 
     tmp_pos.x += pprt->offset.x;
     tmp_pos.y += pprt->offset.y;
@@ -654,9 +654,9 @@ Uint16 spawn_one_particle( fvec3_t   pos, Uint16 facing, Uint16 iprofile, Uint16
     pprt->vel = pprt->vel_old = pprt->vel_stt = vel;
 
     // Template values
-    pprt->bumpsize = ppip->bumpsize;
-    pprt->bumpsizebig = pprt->bumpsize * SQRT_TWO;
-    pprt->bumpheight = ppip->bumpheight;
+    pprt->bump.size    = ppip->bumpsize;
+    pprt->bump.sizebig = ppip->bumpsize * SQRT_TWO;
+    pprt->bump.height  = ppip->bumpheight;
     pprt->type = ppip->type;
 
     // Image data
@@ -864,8 +864,8 @@ void update_all_particles()
             Uint16  spawn_pip   = MAX_PIP;
             fvec3_t vtmp = VECT3( pprt->pos.x, pprt->pos.y, water.surface_level );
 
-            if( MAX_CHR == pprt->owner_ref && 
-                (PIP_SPLASH == pprt->pip_ref || PIP_RIPPLE == pprt->pip_ref) )
+            if ( MAX_CHR == pprt->owner_ref &&
+                 ( PIP_SPLASH == pprt->pip_ref || PIP_RIPPLE == pprt->pip_ref ) )
             {
                 /* do not spawn anything for a splash or a ripple */
                 spawn_valid = bfalse;
@@ -875,22 +875,22 @@ void update_all_particles()
 
                 if ( !pprt->inwater )
                 {
-                        if ( SPRITE_SOLID == pprt->type )
-                        {
-                            spawn_pip = PIP_SPLASH;
-                        }
-                        else
-                        {
-                            spawn_pip = PIP_RIPPLE;
-                        }
-                        spawn_valid = btrue;
+                    if ( SPRITE_SOLID == pprt->type )
+                    {
+                        spawn_pip = PIP_SPLASH;
+                    }
+                    else
+                    {
+                        spawn_pip = PIP_RIPPLE;
+                    }
+                    spawn_valid = btrue;
                 }
                 else
                 {
                     if ( SPRITE_SOLID == pprt->type && !ACTIVE_CHR( pprt->attachedto_ref ) )
                     {
                         // only spawn ripples if you are touching the water surface!
-                        if ( pprt->pos.z + pprt->bumpheight > water.surface_level && pprt->pos.z - pprt->bumpheight < water.surface_level )
+                        if ( pprt->pos.z + pprt->bump.height > water.surface_level && pprt->pos.z - pprt->bump.height < water.surface_level )
                         {
                             int ripand = ~(( ~RIPPLEAND ) << 1 );
                             if ( 0 == (( update_wld + pprt->obj_base.guid ) & ripand ) )
@@ -1233,7 +1233,7 @@ void move_one_particle_do_floor_friction( prt_t * pprt )
     if ( !DISPLAY_PPRT( pprt ) ) return;
 
     // limit friction effects to solid objects?
-    if( SPRITE_SOLID != pprt->type ) return;
+    if ( SPRITE_SOLID != pprt->type ) return;
 
     // if the particle is homing in on something, ignore friction
     if ( pprt->is_homing ) return;
@@ -1774,7 +1774,7 @@ bool_t move_one_particle_integrate_motion( prt_t * pprt )
 
         if ( pprt->vel.z < - STOPBOUNCINGPART )
         {
-            // the particle will bounce            
+            // the particle will bounce
             nrm_total.z -= SGN( pprt->vel.z );
             pprt->pos.z = ftmp;
         }
@@ -2089,7 +2089,7 @@ void cleanup_all_particles()
             facing = pprt->facing;
             for ( tnc = 0; tnc < ppip->endspawn_amount; tnc++ )
             {
-                if( delay_spawn_count < TOTAL_MAX_PRT )
+                if ( delay_spawn_count < TOTAL_MAX_PRT )
                 {
                     spawn_particle_info_t * pinfo = delay_spawn_list + delay_spawn_count;
                     delay_spawn_count++;
@@ -2101,17 +2101,17 @@ void cleanup_all_particles()
                     pinfo->chr_attach = MAX_CHR;
                     pinfo->vrt_offset = GRIP_LAST;
                     pinfo->team       = pprt->team;
-                    pinfo->chr_origin = prt_get_iowner(iprt, 0);
+                    pinfo->chr_origin = prt_get_iowner( iprt, 0 );
                     pinfo->prt_origin = iprt;
                     pinfo->multispawn = tnc;
                     pinfo->oldtarget  = pprt->target_ref;
                 };
-                
+
                 facing += ppip->endspawn_facingadd;
             }
         }
 
-        //printf("\tcnt==%d,iprt==%d,free==%d\n", cnt, iprt, PrtList.free_count ); 
+        //printf("\tcnt==%d,iprt==%d,free==%d\n", cnt, iprt, PrtList.free_count );
 
         // free the particle.
         free_one_particle_in_game( iprt );
@@ -2124,11 +2124,11 @@ void cleanup_all_particles()
     {
         spawn_particle_info_t * pinfo = delay_spawn_list + tnc;
 
-        if( !ACTIVE_PRT(pinfo->prt_origin) ) pinfo->prt_origin = TOTAL_MAX_PRT;
-        if( !ACTIVE_CHR(pinfo->chr_origin) ) pinfo->chr_origin = MAX_CHR;
+        if ( !ACTIVE_PRT( pinfo->prt_origin ) ) pinfo->prt_origin = TOTAL_MAX_PRT;
+        if ( !ACTIVE_CHR( pinfo->chr_origin ) ) pinfo->chr_origin = MAX_CHR;
 
-        spawn_one_particle( pinfo->pos, pinfo->facing, pinfo->iprofile, pinfo->ipip, 
-                            pinfo->chr_attach, pinfo->vrt_offset, pinfo->team, pinfo->chr_origin, 
+        spawn_one_particle( pinfo->pos, pinfo->facing, pinfo->iprofile, pinfo->ipip,
+                            pinfo->chr_attach, pinfo->vrt_offset, pinfo->team, pinfo->chr_origin,
                             pinfo->prt_origin, pinfo->multispawn, pinfo->oldtarget );
     }
 
@@ -2539,46 +2539,46 @@ void release_all_pip()
 {
     int cnt, tnc;
     int max_request;
-    
+
     max_request = 0;
     for ( cnt = 0, tnc = 0; cnt < MAX_PIP; cnt++ )
     {
-        if( LOADED_PIP(cnt) )
+        if ( LOADED_PIP( cnt ) )
         {
             pip_t * ppip = PipStack.lst + cnt;
 
-            max_request = MAX(max_request, ppip->prt_request_count);
+            max_request = MAX( max_request, ppip->prt_request_count );
             tnc++;
         }
     }
 
-    if( tnc > 0 && max_request > 0 )
+    if ( tnc > 0 && max_request > 0 )
     {
         FILE * ftmp = EGO_fopen( "pip_usage.txt", "w" );
-		if(ftmp != NULL)
-		{
-			fprintf( ftmp, "List of used pips\n\n" );
+        if ( ftmp != NULL )
+        {
+            fprintf( ftmp, "List of used pips\n\n" );
 
-			for ( cnt = 0; cnt < MAX_PIP; cnt++ )
-			{
-				if( LOADED_PIP(cnt) )
-				{
-					pip_t * ppip = PipStack.lst + cnt;
-					fprintf( ftmp, "index == %d\tname == \"%s\"\tcreate_count == %d\trequest_count == %d\n", cnt, ppip->name, ppip->prt_create_count, ppip->prt_request_count ); 
-				}
-			}
+            for ( cnt = 0; cnt < MAX_PIP; cnt++ )
+            {
+                if ( LOADED_PIP( cnt ) )
+                {
+                    pip_t * ppip = PipStack.lst + cnt;
+                    fprintf( ftmp, "index == %d\tname == \"%s\"\tcreate_count == %d\trequest_count == %d\n", cnt, ppip->name, ppip->prt_create_count, ppip->prt_request_count );
+                }
+            }
 
-			EGO_fflush(ftmp);
+            EGO_fflush( ftmp );
 
-			EGO_fclose(ftmp);
+            EGO_fclose( ftmp );
 
-			for ( cnt = 0; cnt < MAX_PIP; cnt++ )
-			{
-				release_one_pip( cnt );
-			}
-		}
+            for ( cnt = 0; cnt < MAX_PIP; cnt++ )
+            {
+                release_one_pip( cnt );
+            }
+        }
     }
-    
+
 }
 
 //--------------------------------------------------------------------------------------------

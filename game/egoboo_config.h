@@ -63,7 +63,7 @@
 #undef  RENDER_HMAP           ///< render the mesh's heightmap?
 #undef  DEBUG_MESH_NORMALS    ///< render the mesh normals
 #define LOG_TO_CONSOLE        ///< dump all logginfo to file and to the console. Only useful if your compiler generates console for program output. Otherwise the results will end up in a file called stdout.txt
- 
+
 #undef  DEBUG_PROFILE       ///< Display the results for the performance profiling
 #undef  DEBUG_PROFILE_MESH  ///< Display the results for the performance profiling of the mesh rendering sub-system
 #undef  DEBUG_PROFILE_INIT  ///< Display the results for the performance profiling of the rendering initialization
