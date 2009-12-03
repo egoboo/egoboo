@@ -182,12 +182,6 @@ EXTERN bool_t console_mode EQ( bfalse );                   ///< Input text from 
 EXTERN bool_t console_done EQ( bfalse );                   ///< Input text from keyboard finished?
 
 extern float           light_a, light_d, light_x, light_y, light_z;
-EXTERN float           hillslide  EQ( 1.00f );
-EXTERN float           slippyfriction  EQ( 1.00f );                            ///< Friction
-EXTERN float           airfriction  EQ( 0.91f );                               ///< 0.9868 is approximately real world air friction
-EXTERN float           waterfriction  EQ( 0.80f );
-EXTERN float           noslipfriction  EQ( 0.91f );
-EXTERN float           gravity  EQ( -1.0f );                                   ///< Gravitational accel
 
 #define INVISIBLE           20                      ///< The character can't be detected
 

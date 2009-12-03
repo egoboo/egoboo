@@ -3349,7 +3349,7 @@ bool_t attach_chr_to_platform( chr_t * pchr, chr_t * pplat )
     pchr->onwhichplatform = GET_INDEX_PCHR( pplat );
 
     // update the character's relationship to the ground
-    pchr->enviro.level     = MAX( pchr->enviro.floor_level, pplat->pos.z + pplat->chr_chr_cv.max_z );
+    pchr->enviro.level     = MAX( pchr->enviro.floor_level, pplat->pos.z + pplat->chr_chr_cv.maxs[OCT_Z] );
     pchr->enviro.zlerp     = ( pchr->pos.z - pchr->enviro.level ) / PLATTOLERANCE;
     pchr->enviro.zlerp     = CLIP( pchr->enviro.zlerp, 0, 1 );
     pchr->enviro.grounded  = ( 0 == pchr->flyheight ) && ( pchr->enviro.zlerp < 0.25f );
@@ -3404,7 +3404,7 @@ bool_t attach_prt_to_platform( prt_t * pprt, chr_t * pplat )
     pprt->onwhichplatform = GET_INDEX_PCHR( pplat );
 
     // update the character's relationship to the ground
-    particle_set_level( pprt, MAX( pprt->enviro.level, pplat->pos.z + pplat->chr_chr_cv.max_z ) );
+    particle_set_level( pprt, MAX( pprt->enviro.level, pplat->pos.z + pplat->chr_chr_cv.maxs[OCT_Z] ) );
 
     return btrue;
 }
@@ -3458,8 +3458,8 @@ bool_t do_chr_platform_detection( Uint16 ichr_a, Uint16 ichr_b )
     if ( mount_b && pchr_b->enviro.level < pchr_a->pos.z + pchr_a->bump.height + PLATTOLERANCE )
         return bfalse;
 
-    depth_z  = MIN( pchr_b->chr_chr_cv.max_z + pchr_b->pos.z, pchr_a->chr_chr_cv.max_z + pchr_a->pos.z ) -
-               MAX( pchr_b->chr_chr_cv.min_z + pchr_b->pos.z, pchr_a->chr_chr_cv.min_z + pchr_a->pos.z );
+    depth_z  = MIN( pchr_b->chr_chr_cv.maxs[OCT_Z] + pchr_b->pos.z, pchr_a->chr_chr_cv.maxs[OCT_Z] + pchr_a->pos.z ) -
+               MAX( pchr_b->chr_chr_cv.mins[OCT_Z] + pchr_b->pos.z, pchr_a->chr_chr_cv.mins[OCT_Z] + pchr_a->pos.z );
 
     collide_z  = ( depth_z > -PLATTOLERANCE && depth_z < PLATTOLERANCE );
 
@@ -3475,11 +3475,11 @@ bool_t do_chr_platform_detection( Uint16 ichr_a, Uint16 ichr_b )
     {
         float depth_a, depth_b;
 
-        depth_a = ( pchr_b->pos.z + pchr_b->chr_chr_cv.max_z ) - ( pchr_a->pos.z + pchr_a->chr_chr_cv.min_z );
-        depth_b = ( pchr_a->pos.z + pchr_a->chr_chr_cv.max_z ) - ( pchr_b->pos.z + pchr_b->chr_chr_cv.min_z );
+        depth_a = ( pchr_b->pos.z + pchr_b->chr_chr_cv.maxs[OCT_Z] ) - ( pchr_a->pos.z + pchr_a->chr_chr_cv.mins[OCT_Z] );
+        depth_b = ( pchr_a->pos.z + pchr_a->chr_chr_cv.maxs[OCT_Z] ) - ( pchr_b->pos.z + pchr_b->chr_chr_cv.mins[OCT_Z] );
 
-        depth_z = MIN( pchr_b->pos.z + pchr_b->chr_chr_cv.max_z, pchr_a->pos.z + pchr_a->chr_chr_cv.max_z ) -
-                  MAX( pchr_b->pos.z + pchr_b->chr_chr_cv.min_z, pchr_a->pos.z + pchr_a->chr_chr_cv.min_z );
+        depth_z = MIN( pchr_b->pos.z + pchr_b->chr_chr_cv.maxs[OCT_Z], pchr_a->pos.z + pchr_a->chr_chr_cv.maxs[OCT_Z] ) -
+                  MAX( pchr_b->pos.z + pchr_b->chr_chr_cv.mins[OCT_Z], pchr_a->pos.z + pchr_a->chr_chr_cv.mins[OCT_Z] );
 
         chara_on_top = ABS( depth_z - depth_a ) < ABS( depth_z - depth_b );
 
@@ -3487,71 +3487,71 @@ bool_t do_chr_platform_detection( Uint16 ichr_a, Uint16 ichr_b )
         if ( chara_on_top )
         {
             // size of a doesn't matter
-            depth_x  = MIN(( pchr_b->chr_chr_cv.max_x + pchr_b->pos.x ) - pchr_a->pos.x,
-                           pchr_a->pos.x - ( pchr_b->chr_chr_cv.min_x + pchr_b->pos.x ) );
+            depth_x  = MIN(( pchr_b->chr_chr_cv.maxs[OCT_X] + pchr_b->pos.x ) - pchr_a->pos.x,
+                           pchr_a->pos.x - ( pchr_b->chr_chr_cv.mins[OCT_X] + pchr_b->pos.x ) );
 
-            depth_y  = MIN(( pchr_b->chr_chr_cv.max_y + pchr_b->pos.y ) -  pchr_a->pos.y,
-                           pchr_a->pos.y - ( pchr_b->chr_chr_cv.min_y + pchr_b->pos.y ) );
+            depth_y  = MIN(( pchr_b->chr_chr_cv.maxs[OCT_Y] + pchr_b->pos.y ) -  pchr_a->pos.y,
+                           pchr_a->pos.y - ( pchr_b->chr_chr_cv.mins[OCT_Y] + pchr_b->pos.y ) );
 
-            depth_xy = MIN(( pchr_b->chr_chr_cv.max_xy + ( pchr_b->pos.x + pchr_b->pos.y ) ) - ( pchr_a->pos.x + pchr_a->pos.y ),
-                           ( pchr_a->pos.x + pchr_a->pos.y ) - ( pchr_b->chr_chr_cv.min_xy + ( pchr_b->pos.x + pchr_b->pos.y ) ) );
+            depth_xy = MIN(( pchr_b->chr_chr_cv.maxs[OCT_XY] + ( pchr_b->pos.x + pchr_b->pos.y ) ) - ( pchr_a->pos.x + pchr_a->pos.y ),
+                           ( pchr_a->pos.x + pchr_a->pos.y ) - ( pchr_b->chr_chr_cv.mins[OCT_XY] + ( pchr_b->pos.x + pchr_b->pos.y ) ) );
 
-            depth_yx = MIN(( pchr_b->chr_chr_cv.max_yx + ( -pchr_b->pos.x + pchr_b->pos.y ) ) - ( -pchr_a->pos.x + pchr_a->pos.y ),
-                           ( -pchr_a->pos.x + pchr_a->pos.y ) - ( pchr_b->chr_chr_cv.min_yx + ( -pchr_b->pos.x + pchr_b->pos.y ) ) );
+            depth_yx = MIN(( pchr_b->chr_chr_cv.maxs[OCT_YX] + ( -pchr_b->pos.x + pchr_b->pos.y ) ) - ( -pchr_a->pos.x + pchr_a->pos.y ),
+                           ( -pchr_a->pos.x + pchr_a->pos.y ) - ( pchr_b->chr_chr_cv.mins[OCT_YX] + ( -pchr_b->pos.x + pchr_b->pos.y ) ) );
         }
         else
         {
             // size of b doesn't matter
 
-            depth_x  = MIN(( pchr_a->chr_chr_cv.max_x + pchr_a->pos.x ) - pchr_b->pos.x,
-                           pchr_b->pos.x - ( pchr_a->chr_chr_cv.min_x + pchr_a->pos.x ) );
+            depth_x  = MIN(( pchr_a->chr_chr_cv.maxs[OCT_X] + pchr_a->pos.x ) - pchr_b->pos.x,
+                           pchr_b->pos.x - ( pchr_a->chr_chr_cv.mins[OCT_X] + pchr_a->pos.x ) );
 
-            depth_y  = MIN(( pchr_a->chr_chr_cv.max_y + pchr_a->pos.y ) -  pchr_b->pos.y,
-                           pchr_b->pos.y - ( pchr_a->chr_chr_cv.min_y + pchr_a->pos.y ) );
+            depth_y  = MIN(( pchr_a->chr_chr_cv.maxs[OCT_Y] + pchr_a->pos.y ) -  pchr_b->pos.y,
+                           pchr_b->pos.y - ( pchr_a->chr_chr_cv.mins[OCT_Y] + pchr_a->pos.y ) );
 
-            depth_xy = MIN(( pchr_a->chr_chr_cv.max_xy + ( pchr_a->pos.x + pchr_a->pos.y ) ) - ( pchr_b->pos.x + pchr_b->pos.y ),
-                           ( pchr_b->pos.x + pchr_b->pos.y ) - ( pchr_a->chr_chr_cv.min_xy + ( pchr_a->pos.x + pchr_a->pos.y ) ) );
+            depth_xy = MIN(( pchr_a->chr_chr_cv.maxs[OCT_XY] + ( pchr_a->pos.x + pchr_a->pos.y ) ) - ( pchr_b->pos.x + pchr_b->pos.y ),
+                           ( pchr_b->pos.x + pchr_b->pos.y ) - ( pchr_a->chr_chr_cv.mins[OCT_XY] + ( pchr_a->pos.x + pchr_a->pos.y ) ) );
 
-            depth_yx = MIN(( pchr_a->chr_chr_cv.max_yx + ( -pchr_a->pos.x + pchr_a->pos.y ) ) - ( -pchr_b->pos.x + pchr_b->pos.y ),
-                           ( -pchr_b->pos.x + pchr_b->pos.y ) - ( pchr_a->chr_chr_cv.min_yx + ( -pchr_a->pos.x + pchr_a->pos.y ) ) );
+            depth_yx = MIN(( pchr_a->chr_chr_cv.maxs[OCT_YX] + ( -pchr_a->pos.x + pchr_a->pos.y ) ) - ( -pchr_b->pos.x + pchr_b->pos.y ),
+                           ( -pchr_b->pos.x + pchr_b->pos.y ) - ( pchr_a->chr_chr_cv.mins[OCT_YX] + ( -pchr_a->pos.x + pchr_a->pos.y ) ) );
         }
     }
     else if ( platform_a )
     {
         chara_on_top = bfalse;
-        depth_z = ( pchr_a->pos.z + pchr_a->chr_chr_cv.max_z ) - ( pchr_b->pos.z + pchr_b->chr_chr_cv.min_z );
+        depth_z = ( pchr_a->pos.z + pchr_a->chr_chr_cv.maxs[OCT_Z] ) - ( pchr_b->pos.z + pchr_b->chr_chr_cv.mins[OCT_Z] );
 
         // size of b doesn't matter
 
-        depth_x  = MIN(( pchr_a->chr_chr_cv.max_x + pchr_a->pos.x ) - pchr_b->pos.x,
-                       pchr_b->pos.x - ( pchr_a->chr_chr_cv.min_x + pchr_a->pos.x ) );
+        depth_x  = MIN(( pchr_a->chr_chr_cv.maxs[OCT_X] + pchr_a->pos.x ) - pchr_b->pos.x,
+                       pchr_b->pos.x - ( pchr_a->chr_chr_cv.mins[OCT_X] + pchr_a->pos.x ) );
 
-        depth_y  = MIN(( pchr_a->chr_chr_cv.max_y + pchr_a->pos.y ) -  pchr_b->pos.y,
-                       pchr_b->pos.y - ( pchr_a->chr_chr_cv.min_y + pchr_a->pos.y ) );
+        depth_y  = MIN(( pchr_a->chr_chr_cv.maxs[OCT_Y] + pchr_a->pos.y ) -  pchr_b->pos.y,
+                       pchr_b->pos.y - ( pchr_a->chr_chr_cv.mins[OCT_Y] + pchr_a->pos.y ) );
 
-        depth_xy = MIN(( pchr_a->chr_chr_cv.max_xy + ( pchr_a->pos.x + pchr_a->pos.y ) ) - ( pchr_b->pos.x + pchr_b->pos.y ),
-                       ( pchr_b->pos.x + pchr_b->pos.y ) - ( pchr_a->chr_chr_cv.min_xy + ( pchr_a->pos.x + pchr_a->pos.y ) ) );
+        depth_xy = MIN(( pchr_a->chr_chr_cv.maxs[OCT_XY] + ( pchr_a->pos.x + pchr_a->pos.y ) ) - ( pchr_b->pos.x + pchr_b->pos.y ),
+                       ( pchr_b->pos.x + pchr_b->pos.y ) - ( pchr_a->chr_chr_cv.mins[OCT_XY] + ( pchr_a->pos.x + pchr_a->pos.y ) ) );
 
-        depth_yx = MIN(( pchr_a->chr_chr_cv.max_yx + ( -pchr_a->pos.x + pchr_a->pos.y ) ) - ( -pchr_b->pos.x + pchr_b->pos.y ),
-                       ( -pchr_b->pos.x + pchr_b->pos.y ) - ( pchr_a->chr_chr_cv.min_yx + ( -pchr_a->pos.x + pchr_a->pos.y ) ) );
+        depth_yx = MIN(( pchr_a->chr_chr_cv.maxs[OCT_YX] + ( -pchr_a->pos.x + pchr_a->pos.y ) ) - ( -pchr_b->pos.x + pchr_b->pos.y ),
+                       ( -pchr_b->pos.x + pchr_b->pos.y ) - ( pchr_a->chr_chr_cv.mins[OCT_YX] + ( -pchr_a->pos.x + pchr_a->pos.y ) ) );
     }
     else if ( platform_b )
     {
         chara_on_top = btrue;
-        depth_z = ( pchr_b->pos.z + pchr_b->chr_chr_cv.max_z ) - ( pchr_a->pos.z + pchr_a->chr_chr_cv.min_z );
+        depth_z = ( pchr_b->pos.z + pchr_b->chr_chr_cv.maxs[OCT_Z] ) - ( pchr_a->pos.z + pchr_a->chr_chr_cv.mins[OCT_Z] );
 
         // size of a doesn't matter
-        depth_x  = MIN(( pchr_b->chr_chr_cv.max_x + pchr_b->pos.x ) - pchr_a->pos.x,
-                       pchr_a->pos.x - ( pchr_b->chr_chr_cv.min_x + pchr_b->pos.x ) );
+        depth_x  = MIN(( pchr_b->chr_chr_cv.maxs[OCT_X] + pchr_b->pos.x ) - pchr_a->pos.x,
+                       pchr_a->pos.x - ( pchr_b->chr_chr_cv.mins[OCT_X] + pchr_b->pos.x ) );
 
-        depth_y  = MIN( pchr_b->chr_chr_cv.max_y + ( pchr_b->pos.y -  pchr_a->pos.y ),
-                        ( pchr_a->pos.y - pchr_b->chr_chr_cv.min_y ) + pchr_b->pos.y );
+        depth_y  = MIN( pchr_b->chr_chr_cv.maxs[OCT_Y] + ( pchr_b->pos.y -  pchr_a->pos.y ),
+                        ( pchr_a->pos.y - pchr_b->chr_chr_cv.mins[OCT_Y] ) + pchr_b->pos.y );
 
-        depth_xy = MIN(( pchr_b->chr_chr_cv.max_xy + ( pchr_b->pos.x + pchr_b->pos.y ) ) - ( pchr_a->pos.x + pchr_a->pos.y ),
-                       ( pchr_a->pos.x + pchr_a->pos.y ) - ( pchr_b->chr_chr_cv.min_xy + ( pchr_b->pos.x + pchr_b->pos.y ) ) );
+        depth_xy = MIN(( pchr_b->chr_chr_cv.maxs[OCT_XY] + ( pchr_b->pos.x + pchr_b->pos.y ) ) - ( pchr_a->pos.x + pchr_a->pos.y ),
+                       ( pchr_a->pos.x + pchr_a->pos.y ) - ( pchr_b->chr_chr_cv.mins[OCT_XY] + ( pchr_b->pos.x + pchr_b->pos.y ) ) );
 
-        depth_yx = MIN(( pchr_b->chr_chr_cv.max_yx + ( -pchr_b->pos.x + pchr_b->pos.y ) ) - ( -pchr_a->pos.x + pchr_a->pos.y ),
-                       ( -pchr_a->pos.x + pchr_a->pos.y ) - ( pchr_b->chr_chr_cv.min_yx + ( -pchr_b->pos.x + pchr_b->pos.y ) ) );
+        depth_yx = MIN(( pchr_b->chr_chr_cv.maxs[OCT_YX] + ( -pchr_b->pos.x + pchr_b->pos.y ) ) - ( -pchr_a->pos.x + pchr_a->pos.y ),
+                       ( -pchr_a->pos.x + pchr_a->pos.y ) - ( pchr_b->chr_chr_cv.mins[OCT_YX] + ( -pchr_b->pos.x + pchr_b->pos.y ) ) );
 
     }
     collide_x  = depth_x  > 0;
@@ -3565,19 +3565,19 @@ bool_t do_chr_platform_detection( Uint16 ichr_a, Uint16 ichr_b )
         // check for the best possible attachment
         if ( chara_on_top )
         {
-            if ( pchr_b->pos.z + pchr_b->chr_chr_cv.max_z > pchr_a->enviro.level )
+            if ( pchr_b->pos.z + pchr_b->chr_chr_cv.maxs[OCT_Z] > pchr_a->enviro.level )
             {
                 // set, but do not attach the platforms yet
-                pchr_a->enviro.level    = pchr_b->pos.z + pchr_b->chr_chr_cv.max_z;
+                pchr_a->enviro.level    = pchr_b->pos.z + pchr_b->chr_chr_cv.maxs[OCT_Z];
                 pchr_a->onwhichplatform = ichr_b;
             }
         }
         else
         {
-            if ( pchr_a->pos.z + pchr_a->chr_chr_cv.max_z > pchr_b->enviro.level )
+            if ( pchr_a->pos.z + pchr_a->chr_chr_cv.maxs[OCT_Z] > pchr_b->enviro.level )
             {
                 // set, but do not attach the platforms yet
-                pchr_b->enviro.level    = pchr_a->pos.z + pchr_a->chr_chr_cv.max_z;
+                pchr_b->enviro.level    = pchr_a->pos.z + pchr_a->chr_chr_cv.maxs[OCT_Z];
                 pchr_b->onwhichplatform = ichr_a;
             }
         }
@@ -3609,26 +3609,26 @@ bool_t do_prt_platform_detection( Uint16 ichr_a, Uint16 iprt_b )
     if ( !pchr_a->platform ) return bfalse;
 
     // is this calculation going to matter, even if it succeeds?
-    if ( pchr_a->pos.z + pchr_a->chr_chr_cv.max_z > pprt_b->enviro.level ) return bfalse;
+    if ( pchr_a->pos.z + pchr_a->chr_chr_cv.maxs[OCT_Z] > pprt_b->enviro.level ) return bfalse;
 
     //---- determine the interaction depth for each dimension
-    depth_z = ( pchr_a->pos.z + pchr_a->chr_chr_cv.max_z ) - ( pprt_b->pos.z - pprt_b->bump.height );
+    depth_z = ( pchr_a->pos.z + pchr_a->chr_chr_cv.maxs[OCT_Z] ) - ( pprt_b->pos.z - pprt_b->bump.height );
     if ( depth_z < -PLATTOLERANCE || depth_z > PLATTOLERANCE ) return bfalse;
 
-    depth_x  = MIN(( pchr_a->chr_chr_cv.max_x + pchr_a->pos.x ) - pprt_b->pos.x,
-                   pprt_b->pos.x - ( pchr_a->chr_chr_cv.min_x + pchr_a->pos.x ) );
+    depth_x  = MIN(( pchr_a->chr_chr_cv.maxs[OCT_X] + pchr_a->pos.x ) - pprt_b->pos.x,
+                   pprt_b->pos.x - ( pchr_a->chr_chr_cv.mins[OCT_X] + pchr_a->pos.x ) );
     if ( depth_x <= 0 ) return bfalse;
 
-    depth_y  = MIN(( pchr_a->chr_chr_cv.max_y + pchr_a->pos.y ) -  pprt_b->pos.y,
-                   pprt_b->pos.y - ( pchr_a->chr_chr_cv.min_y + pchr_a->pos.y ) );
+    depth_y  = MIN(( pchr_a->chr_chr_cv.maxs[OCT_Y] + pchr_a->pos.y ) -  pprt_b->pos.y,
+                   pprt_b->pos.y - ( pchr_a->chr_chr_cv.mins[OCT_Y] + pchr_a->pos.y ) );
     if ( depth_y <= 0 ) return bfalse;
 
-    depth_xy = MIN(( pchr_a->chr_chr_cv.max_xy + ( pchr_a->pos.x + pchr_a->pos.y ) ) - ( pprt_b->pos.x + pprt_b->pos.y ),
-                   ( pprt_b->pos.x + pprt_b->pos.y ) - ( pchr_a->chr_chr_cv.min_xy + ( pchr_a->pos.x + pchr_a->pos.y ) ) );
+    depth_xy = MIN(( pchr_a->chr_chr_cv.maxs[OCT_XY] + ( pchr_a->pos.x + pchr_a->pos.y ) ) - ( pprt_b->pos.x + pprt_b->pos.y ),
+                   ( pprt_b->pos.x + pprt_b->pos.y ) - ( pchr_a->chr_chr_cv.mins[OCT_XY] + ( pchr_a->pos.x + pchr_a->pos.y ) ) );
     if ( depth_xy <= 0 ) return bfalse;
 
-    depth_yx = MIN(( pchr_a->chr_chr_cv.max_yx + ( -pchr_a->pos.x + pchr_a->pos.y ) ) - ( -pprt_b->pos.x + pprt_b->pos.y ),
-                   ( -pprt_b->pos.x + pprt_b->pos.y ) - ( pchr_a->chr_chr_cv.min_yx + ( -pchr_a->pos.x + pchr_a->pos.y ) ) );
+    depth_yx = MIN(( pchr_a->chr_chr_cv.maxs[OCT_YX] + ( -pchr_a->pos.x + pchr_a->pos.y ) ) - ( -pprt_b->pos.x + pprt_b->pos.y ),
+                   ( -pprt_b->pos.x + pprt_b->pos.y ) - ( pchr_a->chr_chr_cv.mins[OCT_YX] + ( -pchr_a->pos.x + pchr_a->pos.y ) ) );
     if ( depth_yx <= 0 ) return bfalse;
 
     //---- this is the best possible attachment
@@ -3902,7 +3902,7 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
     // that are overlapping with the platform you are actually on
     if ( pcap_b->canuseplatforms && pchr_a->platform )
     {
-        float lerp_z = ( pchr_b->pos.z - ( pchr_a->pos.z + pchr_a->chr_chr_cv.max_z ) ) / PLATTOLERANCE;
+        float lerp_z = ( pchr_b->pos.z - ( pchr_a->pos.z + pchr_a->chr_chr_cv.maxs[OCT_Z] ) ) / PLATTOLERANCE;
         lerp_z = CLIP( lerp_z, -1, 1 );
 
         if ( lerp_z >= 0 )
@@ -3917,7 +3917,7 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
 
     if ( pcap_a->canuseplatforms && pchr_b->platform )
     {
-        float lerp_z = ( pchr_a->pos.z - ( pchr_b->pos.z + pchr_b->chr_chr_cv.max_z ) ) / PLATTOLERANCE;
+        float lerp_z = ( pchr_a->pos.z - ( pchr_b->pos.z + pchr_b->chr_chr_cv.maxs[OCT_Z] ) ) / PLATTOLERANCE;
         lerp_z = CLIP( lerp_z, -1, 1 );
 
         if ( lerp_z >= 0 )
@@ -3943,21 +3943,21 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
     xyb = pchr_b->pos.x + pchr_b->pos.y;
     yxb = -pchr_b->pos.x + pchr_b->pos.y;
 
-    depth_x  = MIN( pchr_b->chr_chr_cv.max_x + xb, pchr_a->chr_chr_cv.max_x + xa ) -
-               MAX( pchr_b->chr_chr_cv.min_x + xb, pchr_a->chr_chr_cv.min_x + xa );
+    depth_x  = MIN( pchr_b->chr_chr_cv.maxs[OCT_X] + xb, pchr_a->chr_chr_cv.maxs[OCT_X] + xa ) -
+               MAX( pchr_b->chr_chr_cv.mins[OCT_X] + xb, pchr_a->chr_chr_cv.mins[OCT_X] + xa );
 
-    depth_y  = MIN( pchr_b->chr_chr_cv.max_y + yb, pchr_a->chr_chr_cv.max_y + ya ) -
-               MAX( pchr_b->chr_chr_cv.min_y + yb, pchr_a->chr_chr_cv.min_y + ya );
+    depth_y  = MIN( pchr_b->chr_chr_cv.maxs[OCT_Y] + yb, pchr_a->chr_chr_cv.maxs[OCT_Y] + ya ) -
+               MAX( pchr_b->chr_chr_cv.mins[OCT_Y] + yb, pchr_a->chr_chr_cv.mins[OCT_Y] + ya );
 
-    depth_z  = MIN( pchr_b->chr_chr_cv.max_z + zb, pchr_a->chr_chr_cv.max_z + za ) -
-               MAX( pchr_b->chr_chr_cv.min_z + zb, pchr_a->chr_chr_cv.min_z + za );
+    depth_z  = MIN( pchr_b->chr_chr_cv.maxs[OCT_Z] + zb, pchr_a->chr_chr_cv.maxs[OCT_Z] + za ) -
+               MAX( pchr_b->chr_chr_cv.mins[OCT_Z] + zb, pchr_a->chr_chr_cv.mins[OCT_Z] + za );
 
-    depth_xy = MIN( pchr_b->chr_chr_cv.max_xy + xyb, pchr_a->chr_chr_cv.max_xy + xya ) -
-               MAX( pchr_b->chr_chr_cv.min_xy + xyb, pchr_a->chr_chr_cv.min_xy + xya );
+    depth_xy = MIN( pchr_b->chr_chr_cv.maxs[OCT_XY] + xyb, pchr_a->chr_chr_cv.maxs[OCT_XY] + xya ) -
+               MAX( pchr_b->chr_chr_cv.mins[OCT_XY] + xyb, pchr_a->chr_chr_cv.mins[OCT_XY] + xya );
     depth_xy *= INV_SQRT_TWO;
 
-    depth_yx = MIN( pchr_b->chr_chr_cv.max_yx + yxb, pchr_a->chr_chr_cv.max_yx + yxa ) -
-               MAX( pchr_b->chr_chr_cv.min_yx + yxb, pchr_a->chr_chr_cv.min_yx + yxa );
+    depth_yx = MIN( pchr_b->chr_chr_cv.maxs[OCT_YX] + yxb, pchr_a->chr_chr_cv.maxs[OCT_YX] + yxa ) -
+               MAX( pchr_b->chr_chr_cv.mins[OCT_YX] + yxb, pchr_a->chr_chr_cv.mins[OCT_YX] + yxa );
     depth_yx *= INV_SQRT_TWO;
 
     // estimate the collisions this frame
@@ -3982,21 +3982,21 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
     was_xyb = pchr_b->pos_old.x + pchr_b->pos_old.y;
     was_yxb = -pchr_b->pos_old.x + pchr_b->pos_old.y;
 
-    was_depth_x  = MIN( pchr_b->chr_chr_cv.max_x + was_xb, pchr_a->chr_chr_cv.max_x + was_xa ) -
-                   MAX( pchr_b->chr_chr_cv.min_x + was_xb, pchr_a->chr_chr_cv.min_x + was_xa );
+    was_depth_x  = MIN( pchr_b->chr_chr_cv.maxs[OCT_X] + was_xb, pchr_a->chr_chr_cv.maxs[OCT_X] + was_xa ) -
+                   MAX( pchr_b->chr_chr_cv.mins[OCT_X] + was_xb, pchr_a->chr_chr_cv.mins[OCT_X] + was_xa );
 
-    was_depth_y  = MIN( pchr_b->chr_chr_cv.max_y + was_yb, pchr_a->chr_chr_cv.max_y + was_ya ) -
-                   MAX( pchr_b->chr_chr_cv.min_y + was_yb, pchr_a->chr_chr_cv.min_y + was_ya );
+    was_depth_y  = MIN( pchr_b->chr_chr_cv.maxs[OCT_Y] + was_yb, pchr_a->chr_chr_cv.maxs[OCT_Y] + was_ya ) -
+                   MAX( pchr_b->chr_chr_cv.mins[OCT_Y] + was_yb, pchr_a->chr_chr_cv.mins[OCT_Y] + was_ya );
 
-    was_depth_z  = MIN( pchr_b->chr_chr_cv.max_z + was_zb, pchr_a->chr_chr_cv.max_z + was_za ) -
-                   MAX( pchr_b->chr_chr_cv.min_z + was_zb, pchr_a->chr_chr_cv.min_z + was_za );
+    was_depth_z  = MIN( pchr_b->chr_chr_cv.maxs[OCT_Z] + was_zb, pchr_a->chr_chr_cv.maxs[OCT_Z] + was_za ) -
+                   MAX( pchr_b->chr_chr_cv.mins[OCT_Z] + was_zb, pchr_a->chr_chr_cv.mins[OCT_Z] + was_za );
 
-    was_depth_xy = MIN( pchr_b->chr_chr_cv.max_xy + was_xyb, pchr_a->chr_chr_cv.max_xy + was_xya ) -
-                   MAX( pchr_b->chr_chr_cv.min_xy + was_xyb, pchr_a->chr_chr_cv.min_xy + was_xya );
+    was_depth_xy = MIN( pchr_b->chr_chr_cv.maxs[OCT_XY] + was_xyb, pchr_a->chr_chr_cv.maxs[OCT_XY] + was_xya ) -
+                   MAX( pchr_b->chr_chr_cv.mins[OCT_XY] + was_xyb, pchr_a->chr_chr_cv.mins[OCT_XY] + was_xya );
     was_depth_xy *= INV_SQRT_TWO;
 
-    was_depth_yx = MIN( pchr_b->chr_chr_cv.max_yx + was_yxb, pchr_a->chr_chr_cv.max_yx + was_yxa ) -
-                   MAX( pchr_b->chr_chr_cv.min_yx + was_yxb, pchr_a->chr_chr_cv.min_yx + was_yxa );
+    was_depth_yx = MIN( pchr_b->chr_chr_cv.maxs[OCT_YX] + was_yxb, pchr_a->chr_chr_cv.maxs[OCT_YX] + was_yxa ) -
+                   MAX( pchr_b->chr_chr_cv.mins[OCT_YX] + was_yxb, pchr_a->chr_chr_cv.mins[OCT_YX] + was_yxa );
     was_depth_yx *= INV_SQRT_TWO;
 
     was_collide_x  = was_depth_x  > 0.0f;
@@ -4110,7 +4110,7 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
     }
     else
     {
-        float sgn = ( zb + ( pchr_b->chr_chr_cv.max_z + pchr_b->pos.z ) / 2 ) - ( za + ( pchr_a->chr_chr_cv.max_z + pchr_a->pos.z ) / 2 );
+        float sgn = ( zb + ( pchr_b->chr_chr_cv.maxs[OCT_Z] + pchr_b->pos.z ) / 2 ) - ( za + ( pchr_a->chr_chr_cv.maxs[OCT_Z] + pchr_a->pos.z ) / 2 );
         sgn = sgn > 0 ? -1 : 1;
 
         nrm.z += sgn / POW( exponent * depth_z / PLATTOLERANCE, exponent );
@@ -4392,26 +4392,26 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     zb = pprt_b->pos.z;
 
     ftmp1 = MIN(( xb + pprt_b->bump.size ) - xa, xa - ( xb - pprt_b->bump.size ) );
-    ftmp2 = MIN(( xa + pchr_a->chr_prt_cv.max_x ) - xb, xb - ( xa + pchr_a->chr_prt_cv.min_x ) );
+    ftmp2 = MIN(( xa + pchr_a->chr_prt_cv.maxs[OCT_X] ) - xb, xb - ( xa + pchr_a->chr_prt_cv.mins[OCT_X] ) );
     depth_x = MAX( ftmp1, ftmp2 );
     collide_x = depth_x > 0;
     if ( !collide_x ) return bfalse;
 
     ftmp1 = MIN(( yb + pprt_b->bump.size ) - ya, ya - ( yb - pprt_b->bump.size ) );
-    ftmp2 = MIN(( ya + pchr_a->chr_prt_cv.max_y ) - yb, yb - ( ya + pchr_a->chr_prt_cv.min_y ) );
+    ftmp2 = MIN(( ya + pchr_a->chr_prt_cv.maxs[OCT_Y] ) - yb, yb - ( ya + pchr_a->chr_prt_cv.mins[OCT_Y] ) );
     depth_y = MAX( ftmp1, ftmp2 );
     collide_y = depth_y > 0;
     if ( !collide_y ) return bfalse;
 
     ftmp1 = MIN((( xb + yb ) + pprt_b->bump.sizebig ) - ( xa + ya ), ( xa + ya ) - (( xb + yb ) - pprt_b->bump.sizebig ) );
-    ftmp2 = MIN((( xa + ya ) + pchr_a->chr_prt_cv.max_xy ) - ( xb + yb ), ( xb + yb ) - (( xa + ya ) + pchr_a->chr_prt_cv.min_xy ) );
+    ftmp2 = MIN((( xa + ya ) + pchr_a->chr_prt_cv.maxs[OCT_XY] ) - ( xb + yb ), ( xb + yb ) - (( xa + ya ) + pchr_a->chr_prt_cv.mins[OCT_XY] ) );
     depth_xy = MAX( ftmp1, ftmp2 );
     collide_xy = depth_xy > 0;
     if ( !collide_xy ) return bfalse;
     depth_xy *= INV_SQRT_TWO;
 
     ftmp1 = MIN((( -xb + yb ) + pprt_b->bump.sizebig ) - ( -xa + ya ), ( -xa + ya ) - (( -xb + yb ) - pprt_b->bump.sizebig ) );
-    ftmp2 = MIN((( -xa + ya ) + pchr_a->chr_prt_cv.max_yx ) - ( -xb + yb ), ( -xb + yb ) - (( -xa + ya ) + pchr_a->chr_prt_cv.min_yx ) );
+    ftmp2 = MIN((( -xa + ya ) + pchr_a->chr_prt_cv.maxs[OCT_YX] ) - ( -xb + yb ), ( -xb + yb ) - (( -xa + ya ) + pchr_a->chr_prt_cv.mins[OCT_YX] ) );
     depth_yx = MAX( ftmp1, ftmp2 );
     collide_yx = depth_yx > 0;
     if ( !collide_yx ) return bfalse;
@@ -4438,7 +4438,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     do_platform = bfalse;
     if ( pchr_a->platform && !ACTIVE_CHR( pprt_b->attachedto_ref ) )
     {
-        depth_z = zb - ( za + pchr_a->chr_prt_cv.max_z );
+        depth_z = zb - ( za + pchr_a->chr_prt_cv.maxs[OCT_Z] );
         do_platform = ( depth_z > -PLATTOLERANCE && depth_z < PLATTOLERANCE );
     }
 
@@ -4456,13 +4456,13 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
         // it is a valid platform. now figure out the physics
 
         // are they colliding for the first time?
-        z_collide     = ( zb < za + pchr_a->chr_prt_cv.max_z ) && ( zb > za + pchr_a->chr_prt_cv.min_z );
-        was_z_collide = ( zb - pprt_b->vel.z < za + pchr_a->chr_prt_cv.max_z - pchr_a->vel.z ) && ( zb - pprt_b->vel.z  > za + pchr_a->chr_prt_cv.min_z );
+        z_collide     = ( zb < za + pchr_a->chr_prt_cv.maxs[OCT_Z] ) && ( zb > za + pchr_a->chr_prt_cv.mins[OCT_Z] );
+        was_z_collide = ( zb - pprt_b->vel.z < za + pchr_a->chr_prt_cv.maxs[OCT_Z] - pchr_a->vel.z ) && ( zb - pprt_b->vel.z  > za + pchr_a->chr_prt_cv.mins[OCT_Z] );
 
         if ( z_collide && !was_z_collide )
         {
             // Particle is falling onto the platform
-            pprt_b->pos.z = za + pchr_a->chr_prt_cv.max_z;
+            pprt_b->pos.z = za + pchr_a->chr_prt_cv.maxs[OCT_Z];
             pprt_b->vel.z = pchr_a->vel.z - pprt_b->vel.z * ppip_b->dampen;
 
             // This should prevent raindrops from stacking up on the top of trees and other
@@ -4477,7 +4477,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
         else if ( z_collide && was_z_collide )
         {
             // colliding this time and last time. particle is *embedded* in the platform
-            pprt_b->pos.z = za + pchr_a->chr_prt_cv.max_z;
+            pprt_b->pos.z = za + pchr_a->chr_prt_cv.maxs[OCT_Z];
 
             if ( pprt_b->vel.z - pchr_a->vel.z < 0 )
             {
@@ -4495,7 +4495,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
         else
         {
             // not colliding this time or last time. particle is just near the platform
-            float lerp_z = ( zb - ( za + pchr_a->chr_prt_cv.max_z ) ) / PLATTOLERANCE;
+            float lerp_z = ( zb - ( za + pchr_a->chr_prt_cv.maxs[OCT_Z] ) ) / PLATTOLERANCE;
             lerp_z = CLIP( lerp_z, -1, 1 );
 
             if ( lerp_z > 0 )
@@ -4519,7 +4519,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     }
 
     // detect normal collision in the z direction
-    depth_z = MIN( zb + pprt_b->bump.height, za + pchr_a->chr_prt_cv.max_z ) - MAX( zb - pprt_b->bump.height, za + pchr_a->chr_prt_cv.min_z );
+    depth_z = MIN( zb + pprt_b->bump.height, za + pchr_a->chr_prt_cv.maxs[OCT_Z] ) - MAX( zb - pprt_b->bump.height, za + pchr_a->chr_prt_cv.mins[OCT_Z] );
     collide_z = depth_z > 0;
     if ( !collide_z ) return bfalse;
 
@@ -4531,11 +4531,11 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
 
     // estimate the "normal" for the collision, using the center-of-mass difference
     nrm = fvec3_sub( pprt_b->pos.v, pchr_a->pos.v );
-    nrm.z -= ( pchr_a->chr_chr_cv.max_z + pchr_a->chr_chr_cv.min_z ) * 0.5f;
+    nrm.z -= ( pchr_a->chr_chr_cv.maxs[OCT_Z] + pchr_a->chr_chr_cv.mins[OCT_Z] ) * 0.5f;
 
-    collision_size.x = MAX(pchr_a->chr_chr_cv.max_x - pchr_a->chr_chr_cv.min_x, 2*pprt_b->bump.size  );
-    collision_size.y = MAX(pchr_a->chr_chr_cv.max_y - pchr_a->chr_chr_cv.min_y, 2*pprt_b->bump.size  );
-    collision_size.z = MAX(pchr_a->chr_chr_cv.max_z - pchr_a->chr_chr_cv.min_z, 2*pprt_b->bump.height);
+    collision_size.x = MAX(pchr_a->chr_chr_cv.maxs[OCT_X] - pchr_a->chr_chr_cv.mins[OCT_X], 2*pprt_b->bump.size  );
+    collision_size.y = MAX(pchr_a->chr_chr_cv.maxs[OCT_Y] - pchr_a->chr_chr_cv.mins[OCT_Y], 2*pprt_b->bump.size  );
+    collision_size.z = MAX(pchr_a->chr_chr_cv.maxs[OCT_Z] - pchr_a->chr_chr_cv.mins[OCT_Z], 2*pprt_b->bump.height);
 
     // scale the collision box
     nrm.x /= collision_size.x;
@@ -4587,7 +4587,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
             // use the old position, which SHOULD be before the collision
             // to determine the normal
             nrm = fvec3_sub( pprt_b->pos_old.v, pchr_a->pos_old.v );
-            nrm.z -= ( pchr_a->chr_chr_cv.max_z + pchr_a->chr_chr_cv.min_z ) * 0.5f;
+            nrm.z -= ( pchr_a->chr_chr_cv.maxs[OCT_Z] + pchr_a->chr_chr_cv.mins[OCT_Z] ) * 0.5f;
 
             // scale the collision box
             nrm.x /= collision_size.x;
@@ -6536,8 +6536,8 @@ bool_t detect_chr_chr_interaction( Uint16 ichr_a, Uint16 ichr_b )
     dxy = dx + dy;
 
     // detect z interactions based on the actual vertical extent of the bounding box
-    depth_z = MIN( zb + pchr_b->chr_chr_cv.max_z, za + pchr_a->chr_chr_cv.max_z ) -
-              MAX( zb + pchr_b->chr_chr_cv.min_z, za + pchr_a->chr_chr_cv.min_z );
+    depth_z = MIN( zb + pchr_b->chr_chr_cv.maxs[OCT_Z], za + pchr_a->chr_chr_cv.maxs[OCT_Z] ) -
+              MAX( zb + pchr_b->chr_chr_cv.mins[OCT_Z], za + pchr_a->chr_chr_cv.mins[OCT_Z] );
 
     // detect x-y interactions based on a potentially gigantor bounding box
     interact_x  = ( dx  <= pchr_a->bump_1.size    + pchr_b->bump_1.size );
@@ -6609,7 +6609,7 @@ bool_t detect_chr_prt_interaction( Uint16 ichr_a, Uint16 iprt_b )
         interact_platform = ( depth_z > -PLATTOLERANCE && depth_z < PLATTOLERANCE );
     }
 
-    depth_z     = MIN( pchr_a->pos.z + pchr_a->chr_prt_cv.max_z, pprt_b->pos.z + pprt_b->bump.height ) - MAX( pchr_a->pos.z + pchr_a->chr_prt_cv.min_z, pprt_b->pos.z - pprt_b->bump.height );
+    depth_z     = MIN( pchr_a->pos.z + pchr_a->chr_prt_cv.maxs[OCT_Z], pprt_b->pos.z + pprt_b->bump.height ) - MAX( pchr_a->pos.z + pchr_a->chr_prt_cv.mins[OCT_Z], pprt_b->pos.z - pprt_b->bump.height );
     interact_z  = ( depth_z > 0 ) || interact_platform;
 
     return interact_z;
@@ -8243,9 +8243,9 @@ float get_mesh_max_vertex_0( ego_mpd_t * pmesh, int tile_x, int tile_y, bool_t w
     return zdone;
 }
 
-float get_mesh_max_vertex_1( ego_mpd_t * pmesh, int tile_x, int tile_y, chr_bumper_1_t * pbump, bool_t waterwalk )
+float get_mesh_max_vertex_1( ego_mpd_t * pmesh, int tile_x, int tile_y, oct_bb_t * pbump, bool_t waterwalk )
 {
-    float zdone = mesh_get_max_vertex_1( pmesh, tile_x, tile_y, pbump->min_x, pbump->min_y, pbump->max_x, pbump->max_y );
+    float zdone = mesh_get_max_vertex_1( pmesh, tile_x, tile_y, pbump->mins[OCT_X], pbump->mins[OCT_Y], pbump->maxs[OCT_X], pbump->maxs[OCT_Y] );
 
     if ( waterwalk && water.surface_level > zdone && water.is_water )
     {
@@ -8274,8 +8274,8 @@ float get_mesh_max_vertex_2( ego_mpd_t * pmesh, chr_t * pchr )
 
     for ( corner = 0; corner < 4; corner++ )
     {
-        pos_x[corner] = pchr->pos.x + (( 0 == ix_off[corner] ) ? pchr->chr_chr_cv.min_x : pchr->chr_chr_cv.max_x );
-        pos_y[corner] = pchr->pos.y + (( 0 == iy_off[corner] ) ? pchr->chr_chr_cv.min_y : pchr->chr_chr_cv.max_y );
+        pos_x[corner] = pchr->pos.x + (( 0 == ix_off[corner] ) ? pchr->chr_chr_cv.mins[OCT_X] : pchr->chr_chr_cv.maxs[OCT_X] );
+        pos_y[corner] = pchr->pos.y + (( 0 == iy_off[corner] ) ? pchr->chr_chr_cv.mins[OCT_Y] : pchr->chr_chr_cv.maxs[OCT_Y] );
     }
 
     zmax = get_mesh_level( pmesh, pos_x[0], pos_y[0], pchr->waterwalk );
@@ -8298,7 +8298,7 @@ float get_chr_level( ego_mpd_t * pmesh, chr_t * pchr )
     int grid_vert_x[1024];
     int grid_vert_y[1024];
 
-    chr_bumper_1_t bump;
+    oct_bb_t bump;
 
     if ( NULL == pmesh || !ACTIVE_PCHR( pchr ) ) return 0;
 
@@ -8311,17 +8311,17 @@ float get_chr_level( ego_mpd_t * pmesh, chr_t * pchr )
 
     // otherwise, use the small collision volume to determine which tiles the object overlaps
     // move the collision volume so that it surrounds the object
-    bump.min_x  = pchr->chr_chr_cv.min_x  + pchr->pos.x;
-    bump.max_x  = pchr->chr_chr_cv.max_x  + pchr->pos.x;
-    bump.min_y  = pchr->chr_chr_cv.min_y  + pchr->pos.y;
-    bump.max_y  = pchr->chr_chr_cv.max_y  + pchr->pos.y;
+    bump.mins[OCT_X]  = pchr->chr_chr_cv.mins[OCT_X]  + pchr->pos.x;
+    bump.maxs[OCT_X]  = pchr->chr_chr_cv.maxs[OCT_X]  + pchr->pos.x;
+    bump.mins[OCT_Y]  = pchr->chr_chr_cv.mins[OCT_Y]  + pchr->pos.y;
+    bump.maxs[OCT_Y]  = pchr->chr_chr_cv.maxs[OCT_Y]  + pchr->pos.y;
 
     // determine the size of this object in tiles
-    ixmin = bump.min_x / TILE_SIZE; ixmin = CLIP( ixmin, 0, pmesh->info.tiles_x - 1 );
-    ixmax = bump.max_x / TILE_SIZE; ixmax = CLIP( ixmax, 0, pmesh->info.tiles_x - 1 );
+    ixmin = bump.mins[OCT_X] / TILE_SIZE; ixmin = CLIP( ixmin, 0, pmesh->info.tiles_x - 1 );
+    ixmax = bump.maxs[OCT_X] / TILE_SIZE; ixmax = CLIP( ixmax, 0, pmesh->info.tiles_x - 1 );
 
-    iymin = bump.min_y / TILE_SIZE; iymin = CLIP( iymin, 0, pmesh->info.tiles_y - 1 );
-    iymax = bump.max_y / TILE_SIZE; iymax = CLIP( iymax, 0, pmesh->info.tiles_y - 1 );
+    iymin = bump.mins[OCT_Y] / TILE_SIZE; iymin = CLIP( iymin, 0, pmesh->info.tiles_y - 1 );
+    iymax = bump.maxs[OCT_Y] / TILE_SIZE; iymax = CLIP( iymax, 0, pmesh->info.tiles_y - 1 );
 
     // do the simplest thing if the object is just on one tile
     if ( ixmax == ixmin && iymax == iymin )
@@ -8330,12 +8330,12 @@ float get_chr_level( ego_mpd_t * pmesh, chr_t * pchr )
     }
 
     // hold off on these calculations in case they are not necessary
-    bump.min_z  = pchr->chr_chr_cv.min_z  + pchr->pos.z;
-    bump.max_z  = pchr->chr_chr_cv.max_z  + pchr->pos.z;
-    bump.min_xy = pchr->chr_chr_cv.min_xy + ( pchr->pos.x + pchr->pos.y );
-    bump.max_xy = pchr->chr_chr_cv.max_xy + ( pchr->pos.x + pchr->pos.y );
-    bump.min_yx = pchr->chr_chr_cv.min_yx + ( -pchr->pos.x + pchr->pos.y );
-    bump.max_yx = pchr->chr_chr_cv.max_yx + ( -pchr->pos.x + pchr->pos.y );
+    bump.mins[OCT_Z]  = pchr->chr_chr_cv.mins[OCT_Z]  + pchr->pos.z;
+    bump.maxs[OCT_Z]  = pchr->chr_chr_cv.maxs[OCT_Z]  + pchr->pos.z;
+    bump.mins[OCT_XY] = pchr->chr_chr_cv.mins[OCT_XY] + ( pchr->pos.x + pchr->pos.y );
+    bump.maxs[OCT_XY] = pchr->chr_chr_cv.maxs[OCT_XY] + ( pchr->pos.x + pchr->pos.y );
+    bump.mins[OCT_YX] = pchr->chr_chr_cv.mins[OCT_YX] + ( -pchr->pos.x + pchr->pos.y );
+    bump.maxs[OCT_YX] = pchr->chr_chr_cv.maxs[OCT_YX] + ( -pchr->pos.x + pchr->pos.y );
 
     // otherwise, make up a list of tiles that the object might overlap
     for ( iy = iymin; iy <= iymax; iy++ )
@@ -8349,10 +8349,10 @@ float get_chr_level( ego_mpd_t * pmesh, chr_t * pchr )
             float grid_x = ix * TILE_ISIZE;
 
             ftmp = grid_x + grid_y;
-            if ( ftmp < bump.min_xy || ftmp > bump.max_xy ) continue;
+            if ( ftmp < bump.mins[OCT_XY] || ftmp > bump.maxs[OCT_XY] ) continue;
 
             ftmp = -grid_x + grid_y;
-            if ( ftmp < bump.min_yx || ftmp > bump.max_yx ) continue;
+            if ( ftmp < bump.mins[OCT_YX] || ftmp > bump.maxs[OCT_YX] ) continue;
 
             itile = mesh_get_tile_int( pmesh, ix, iy );
             if ( INVALID_TILE == itile ) continue;

@@ -23,7 +23,8 @@
 
 #include "id_md2.h"
 #include "egoboo_typedef.h"
-#include "egoboo.h"
+//#include "egoboo.h"
+#include "physics.h"
 
 #define MAXVERTICES                     2048        ///< Max number of points in a model
 #define MAXFRAME                        (128*32)    ///< Max number of frames in all models

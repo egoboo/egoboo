@@ -548,17 +548,17 @@ void render_chr_bbox( chr_t * pchr )
         {
             oct_bb_t bb;
 
-            bb.mins[OCT_X ] = pchr->chr_prt_cv.min_x  + pchr->pos.x;
-            bb.mins[OCT_Y ] = pchr->chr_prt_cv.min_y  + pchr->pos.y;
-            bb.mins[OCT_Z ] = pchr->chr_prt_cv.min_z  + pchr->pos.z;
-            bb.mins[OCT_XY] = pchr->chr_prt_cv.min_xy + ( pchr->pos.x + pchr->pos.y );
-            bb.mins[OCT_YX] = pchr->chr_prt_cv.min_yx + ( -pchr->pos.x + pchr->pos.y );
+            bb.mins[OCT_X ] = pchr->chr_prt_cv.mins[OCT_X]  + pchr->pos.x;
+            bb.mins[OCT_Y ] = pchr->chr_prt_cv.mins[OCT_Y]  + pchr->pos.y;
+            bb.mins[OCT_Z ] = pchr->chr_prt_cv.mins[OCT_Z]  + pchr->pos.z;
+            bb.mins[OCT_XY] = pchr->chr_prt_cv.mins[OCT_XY] + ( pchr->pos.x + pchr->pos.y );
+            bb.mins[OCT_YX] = pchr->chr_prt_cv.mins[OCT_YX] + ( -pchr->pos.x + pchr->pos.y );
 
-            bb.maxs[OCT_X ] = pchr->chr_prt_cv.max_x  + pchr->pos.x;
-            bb.maxs[OCT_Y ] = pchr->chr_prt_cv.max_y  + pchr->pos.y;
-            bb.maxs[OCT_Z ] = pchr->chr_prt_cv.max_z  + pchr->pos.z;
-            bb.maxs[OCT_XY] = pchr->chr_prt_cv.max_xy + ( pchr->pos.x + pchr->pos.y );
-            bb.maxs[OCT_YX] = pchr->chr_prt_cv.max_yx + ( -pchr->pos.x + pchr->pos.y );
+            bb.maxs[OCT_X ] = pchr->chr_prt_cv.maxs[OCT_X]  + pchr->pos.x;
+            bb.maxs[OCT_Y ] = pchr->chr_prt_cv.maxs[OCT_Y]  + pchr->pos.y;
+            bb.maxs[OCT_Z ] = pchr->chr_prt_cv.maxs[OCT_Z]  + pchr->pos.z;
+            bb.maxs[OCT_XY] = pchr->chr_prt_cv.maxs[OCT_XY] + ( pchr->pos.x + pchr->pos.y );
+            bb.maxs[OCT_YX] = pchr->chr_prt_cv.maxs[OCT_YX] + ( -pchr->pos.x + pchr->pos.y );
 
             GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
             render_oct_bb( &bb, btrue, btrue );

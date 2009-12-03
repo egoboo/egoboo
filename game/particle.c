@@ -1127,7 +1127,7 @@ void move_one_particle_get_environment( prt_t * pprt )
     loc_level = pprt->enviro.floor_level;
     if ( ACTIVE_CHR( pprt->onwhichplatform ) )
     {
-        loc_level = MAX( pprt->enviro.floor_level, ChrList.lst[pprt->onwhichplatform].pos.z + ChrList.lst[pprt->onwhichplatform].chr_chr_cv.max_z );
+        loc_level = MAX( pprt->enviro.floor_level, ChrList.lst[pprt->onwhichplatform].pos.z + ChrList.lst[pprt->onwhichplatform].chr_chr_cv.maxs[OCT_Z] );
     }
     particle_set_level( pprt, loc_level );
 

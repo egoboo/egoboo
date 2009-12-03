@@ -4492,12 +4492,12 @@ void update_all_characters()
             else
             {
                 // Ripples
-                if ( pcap->ripple && pchr->pos.z + pchr->chr_chr_cv.max_z + RIPPLETOLERANCE > water.surface_level && pchr->pos.z + pchr->chr_chr_cv.min_z < water.surface_level )
+                if ( pcap->ripple && pchr->pos.z + pchr->chr_chr_cv.maxs[OCT_Z] + RIPPLETOLERANCE > water.surface_level && pchr->pos.z + pchr->chr_chr_cv.mins[OCT_Z] < water.surface_level )
                 {
                     int ripple_suppression;
 
                     // suppress ripples if we are far below the surface
-                    ripple_suppression = water.surface_level - ( pchr->pos.z + pchr->chr_chr_cv.max_z );
+                    ripple_suppression = water.surface_level - ( pchr->pos.z + pchr->chr_chr_cv.maxs[OCT_Z] );
                     ripple_suppression = ( 4 * ripple_suppression ) / RIPPLETOLERANCE;
                     ripple_suppression = CLIP( ripple_suppression, 0, 4 );
 
@@ -4640,7 +4640,7 @@ void move_one_character_get_environment( chr_t * pchr )
     pchr->enviro.level = pchr->enviro.floor_level;
     if ( ACTIVE_CHR( pchr->onwhichplatform ) )
     {
-        pchr->enviro.level     = ChrList.lst[pchr->onwhichplatform].pos.z + ChrList.lst[pchr->onwhichplatform].chr_chr_cv.max_z;
+        pchr->enviro.level     = ChrList.lst[pchr->onwhichplatform].pos.z + ChrList.lst[pchr->onwhichplatform].chr_chr_cv.maxs[OCT_Z];
         pchr->enviro.fly_level = MAX( pchr->enviro.fly_level, pchr->enviro.level );
 
     }
@@ -6801,419 +6801,6 @@ IDSZ chr_get_idsz( Uint16 ichr, Uint16 type )
 }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-void oct_bb_to_chr_bumper_1( chr_bumper_1_t * pbmp, oct_bb_t bbox )
-{
-    /// @details BB@> convert the model's bounding box data (oct_bb_t) to
-    ///      a bumper (chr_bumper_1_t)
-
-    if ( NULL == pbmp ) return;
-
-    // copy the model's bounding box
-    pbmp->min_x  = bbox.mins[OCT_X];
-    pbmp->min_y  = bbox.mins[OCT_Y];
-    pbmp->min_z  = bbox.mins[OCT_Z];
-    pbmp->min_xy = bbox.mins[OCT_XY];
-    pbmp->min_yx = bbox.mins[OCT_YX];
-
-    pbmp->max_x  = bbox.maxs[OCT_X];
-    pbmp->max_y  = bbox.maxs[OCT_Y];
-    pbmp->max_z  = bbox.maxs[OCT_Z];
-    pbmp->max_xy = bbox.maxs[OCT_XY];
-    pbmp->max_yx = bbox.maxs[OCT_YX];
-}
-
-//--------------------------------------------------------------------------------------------
-int chr_bumper_1_to_points( chr_bumper_1_t * pbmp, fvec4_t   pos[], size_t pos_count )
-{
-    /// @details BB@> convert the corners of the level 1 bounding box to a point cloud
-    ///      set pos[].w to zero for now, that the transform does not
-    ///      shift the points while transforming them
-    ///
-    /// @note Make sure to set pos[].w to zero so that the bounding box will not be translated
-    ///      then the transformation matrix is applied.
-    ///
-    /// @note The math for finding the corners of this bumper is not hard, but it is easy to make a mistake.
-    ///      be careful if you modify anything.
-
-    float ftmp;
-    float val_x, val_y;
-
-    int vcount = 0;
-
-    if ( NULL == pbmp || NULL == pos || 0 == pos_count ) return 0;
-
-    //---- the points along the y_max edge
-    ftmp = 0.5f * ( pbmp->max_xy + pbmp->max_yx );  // the top point of the diamond
-    if ( ftmp <= pbmp->max_y )
-    {
-        val_x = 0.5f * ( pbmp->max_xy - pbmp->max_yx );
-        val_y = ftmp;
-
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->max_z;
-        pos[vcount].w = 0.0f;
-        vcount++;
-
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->min_z;
-        pos[vcount].w = 0.0f;
-        vcount++;
-    }
-    else
-    {
-        val_y = pbmp->max_y;
-
-        val_x = pbmp->max_y - pbmp->max_yx;
-        if ( val_x < pbmp->min_x )
-        {
-            val_x = pbmp->min_x;
-        }
-
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->max_z;
-        pos[vcount].w = 0.0f;
-        vcount++;
-
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->min_z;
-        pos[vcount].w = 0.0f;
-        vcount++;
-
-        val_x = pbmp->max_xy - pbmp->max_y;
-        if ( val_x > pbmp->max_x )
-        {
-            val_x = pbmp->max_x;
-        }
-
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->max_z;
-        pos[vcount].w = 0.0f;
-        vcount++;
-
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->min_z;
-        pos[vcount].w = 0.0f;
-        vcount++;
-    }
-
-    //---- the points along the y_min edge
-    ftmp = 0.5f * ( pbmp->min_xy + pbmp->min_yx );  // the top point of the diamond
-    if ( ftmp >= pbmp->min_y )
-    {
-        val_x = 0.5f * ( pbmp->min_xy - pbmp->min_yx );
-        val_y = ftmp;
-
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->max_z;
-        pos[vcount].w = 0.0f;
-        vcount++;
-
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->min_z;
-        pos[vcount].w = 0.0f;
-        vcount++;
-    }
-    else
-    {
-        val_y = pbmp->min_y;
-
-        val_x = pbmp->min_xy - pbmp->min_y;
-        if ( val_x < pbmp->min_x )
-        {
-            val_x = pbmp->min_x;
-        }
-
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->max_z;
-        pos[vcount].w = 0.0f;
-        vcount++;
-
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->min_z;
-        pos[vcount].w = 0.0f;
-        vcount++;
-
-        val_x = pbmp->min_y - pbmp->min_yx;
-        if ( val_x > pbmp->max_x )
-        {
-            val_x = pbmp->max_x;
-        }
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->max_z;
-        pos[vcount].w = 0.0f;
-        vcount++;
-
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->min_z;
-        pos[vcount].w = 0.0f;
-        vcount++;
-    }
-
-    //---- the points along the x_max edge
-    ftmp = 0.5f * ( pbmp->max_xy - pbmp->min_yx );  // the top point of the diamond
-    if ( ftmp <= pbmp->max_x )
-    {
-        val_y = 0.5f * ( pbmp->max_xy + pbmp->min_yx );
-        val_x = ftmp;
-
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->max_z;
-        pos[vcount].w = 0.0f;
-        vcount++;
-
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->min_z;
-        pos[vcount].w = 0.0f;
-        vcount++;
-    }
-    else
-    {
-        val_x = pbmp->max_x;
-
-        val_y = pbmp->max_x + pbmp->min_yx;
-        if ( val_y < pbmp->min_y )
-        {
-            val_y = pbmp->min_y;
-        }
-
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->max_z;
-        pos[vcount].w = 0.0f;
-        vcount++;
-
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->min_z;
-        pos[vcount].w = 0.0f;
-        vcount++;
-
-        val_y = pbmp->max_xy - pbmp->max_x;
-        if ( val_y > pbmp->max_y )
-        {
-            val_y = pbmp->max_y;
-        }
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->max_z;
-        pos[vcount].w = 0.0f;
-        vcount++;
-
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->min_z;
-        pos[vcount].w = 0.0f;
-        vcount++;
-    }
-
-    //---- the points along the x_min edge
-    ftmp = 0.5f * ( pbmp->min_xy - pbmp->max_yx );  // the left point of the diamond
-    if ( ftmp >= pbmp->min_x )
-    {
-        val_y = 0.5f * ( pbmp->min_xy + pbmp->max_yx );
-        val_x = ftmp;
-
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->max_z;
-        pos[vcount].w = 0.0f;
-        vcount++;
-
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->min_z;
-        pos[vcount].w = 0.0f;
-        vcount++;
-    }
-    else
-    {
-        val_x = pbmp->min_x;
-
-        val_y = pbmp->min_xy - pbmp->min_x;
-        if ( val_y < pbmp->min_y )
-        {
-            val_y = pbmp->min_y;
-        }
-
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->max_z;
-        pos[vcount].w = 0.0f;
-        vcount++;
-
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->min_z;
-        pos[vcount].w = 0.0f;
-        vcount++;
-
-        val_y = pbmp->max_yx + pbmp->min_x;
-        if ( val_y > pbmp->max_y )
-        {
-            val_y = pbmp->max_y;
-        }
-
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->max_z;
-        pos[vcount].w = 0.0f;
-        vcount++;
-
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->min_z;
-        pos[vcount].w = 0.0f;
-        vcount++;
-    }
-
-    return vcount;
-}
-
-//--------------------------------------------------------------------------------------------
-void points_to_chr_bumper_1( chr_bumper_1_t * pbmp, fvec4_t   pos[], size_t pos_count )
-{
-    /// @details BB@> convert the new point cloud into a level 1 bounding box using a fvec4_t
-    ///     array as the source
-
-    Uint32 cnt;
-
-    if ( NULL == pbmp || NULL == pos || 0 == pos_count ) return;
-
-    // determine a bounding box for the point cloud
-    pbmp->min_x  = pbmp->max_x  = pos[0].x;
-    pbmp->min_y  = pbmp->max_y  = pos[0].y;
-    pbmp->min_z  = pbmp->max_z  = pos[0].z;
-    pbmp->min_xy = pbmp->max_xy = pbmp->min_x + pbmp->min_y;
-    pbmp->min_yx = pbmp->max_yx = -pbmp->min_x + pbmp->min_y;
-
-    for ( cnt = 1; cnt < pos_count; cnt++ )
-    {
-        float tmp_x, tmp_y, tmp_z, tmp_xy, tmp_yx;
-
-        tmp_x = pos[cnt].x;
-        pbmp->min_x  = MIN( pbmp->min_x, tmp_x );
-        pbmp->max_x  = MAX( pbmp->max_x, tmp_x );
-
-        tmp_y = pos[cnt].y;
-        pbmp->min_y  = MIN( pbmp->min_y, tmp_y );
-        pbmp->max_y  = MAX( pbmp->max_y, tmp_y );
-
-        tmp_z = pos[cnt].z;
-        pbmp->min_z  = MIN( pbmp->min_z, tmp_z );
-        pbmp->max_z  = MAX( pbmp->max_z, tmp_z );
-
-        tmp_xy = tmp_x + tmp_y;
-        pbmp->min_xy = MIN( pbmp->min_xy, tmp_xy );
-        pbmp->max_xy = MAX( pbmp->max_xy, tmp_xy );
-
-        tmp_yx = -tmp_x + tmp_y;
-        pbmp->min_yx = MIN( pbmp->min_yx, tmp_yx );
-        pbmp->max_yx = MAX( pbmp->max_yx, tmp_yx );
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void chr_bumper_1_downgrade( chr_bumper_1_t * psrc, chr_bumper_0_t bump_base, chr_bumper_0_t * p_bump_0, chr_bumper_1_t * p_chr_prt )
-{
-    /// @details BB@> convert a level 1 bumper to an "equivalent" level 0 bumper
-
-    float val1, val2, val3, val4;
-
-    // return if there is no source
-    if ( NULL == psrc ) return;
-
-    //---- handle all of the p_bump_0 data first
-    if ( NULL != p_bump_0 )
-    {
-        if ( 0 == bump_base.height )
-        {
-            p_bump_0->height = 0;
-        }
-        else
-        {
-            // have to use MAX here because the height can be distorted due
-            // to make object-particle interactions easier (i.e. it allows you to
-            // hit a grub bug with your hands)
-
-            p_bump_0->height = MAX( bump_base.height, psrc->max_z );
-        }
-
-        if ( 0 == bump_base.size )
-        {
-            p_bump_0->size = 0;
-        }
-        else
-        {
-            val1 = ABS( psrc->min_x );
-            val2 = ABS( psrc->max_y );
-            val3 = ABS( psrc->min_y );
-            val4 = ABS( psrc->max_y );
-            p_bump_0->size = MAX( MAX( val1, val2 ), MAX( val3, val4 ) );
-        }
-
-        if ( 0 == bump_base.sizebig )
-        {
-            p_bump_0->sizebig = 0;
-        }
-        else
-        {
-            val1 =  psrc->max_yx;
-            val2 = -psrc->min_yx;
-            val3 =  psrc->max_xy;
-            val4 = -psrc->min_xy;
-            p_bump_0->sizebig = MAX( MAX( val1, val2 ), MAX( val3, val4 ) );
-        }
-    }
-
-    //---- handle all of the p_chr_prt data second
-    if ( NULL != p_chr_prt )
-    {
-        // memcpy() can fail horribly if the domains overlap
-        // I don't think this should ever happen, though
-        if ( p_chr_prt != psrc )
-        {
-            memcpy( p_chr_prt, psrc, sizeof( chr_bumper_1_t ) );
-        }
-
-        if ( 0 == bump_base.height )
-        {
-            p_chr_prt->min_z = p_chr_prt->max_z = 0;
-        }
-        else
-        {
-            // handle the vertical distortion the same as above
-            p_chr_prt->max_z = MAX( bump_base.height, psrc->max_z );
-        }
-
-        // 0 == bump_base.size is supposed to be shorthand for "this object doesn't interact
-        // with anything", so we have to set all of the horizontal p_chr_prt data to zero to
-        // make
-        if ( 0 == bump_base.size )
-        {
-            p_chr_prt->min_x  = p_chr_prt->max_x = 0;
-            p_chr_prt->min_y  = p_chr_prt->max_y = 0;
-            p_chr_prt->min_xy = p_chr_prt->max_xy = 0;
-            p_chr_prt->min_yx = p_chr_prt->max_yx = 0;
-        }
-    }
-};
-
-//--------------------------------------------------------------------------------------------
 egoboo_rv chr_update_collision_size( chr_t * pchr, bool_t update_matrix )
 {
     ///< @detalis BB@> use this function to update the pchr->chr_prt_cv and  pchr->chr_chr_cv with
@@ -7229,10 +6816,10 @@ egoboo_rv chr_update_collision_size( chr_t * pchr, bool_t update_matrix )
     fvec4_t   src[16];  // for the upper and lower octagon points
     fvec4_t   dst[16];  // for the upper and lower octagon points
 
-    chr_bumper_1_t bsrc;
+    oct_bb_t bsrc;
 
     mad_t * pmad;
-    chr_bumper_1_t * pbmp;
+    oct_bb_t * pbmp;
 
     if ( !ACTIVE_PCHR( pchr ) ) return rv_error;
     pbmp = &( pchr->chr_chr_cv );
@@ -7258,19 +6845,19 @@ egoboo_rv chr_update_collision_size( chr_t * pchr, bool_t update_matrix )
 
     // convert the point cloud in the GLvertex array (pchr->inst.vlst) to
     // a level 1 bounding box. Subtract off the position of the character
-    oct_bb_to_chr_bumper_1( &bsrc, pchr->inst.bbox );
+    memcpy( &bsrc, &(pchr->inst.bbox), sizeof(bsrc) );
 
     // convert the corners of the level 1 bounding box to a point cloud
-    vcount = chr_bumper_1_to_points( &bsrc, src, 16 );
+    vcount = oct_bb_to_points( &bsrc, src, 16 );
 
     // transform the new point cloud
     TransformVertices( &( pchr->inst.matrix ), src, dst, vcount );
 
     // convert the new point cloud into a level 1 bounding box
-    points_to_chr_bumper_1( pbmp, dst, vcount );
+    points_to_oct_bb( pbmp, dst, vcount );
 
     // convert the level 1 bounding box to a level 0 bounding box
-    chr_bumper_1_downgrade( pbmp, pchr->bump, &( pchr->bump_1 ), &( pchr->chr_prt_cv ) );
+    oct_bb_downgrade( pbmp, pchr->bump, &( pchr->bump_1 ), &( pchr->chr_prt_cv ) );
 
     return rv_success;
 }

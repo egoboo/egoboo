@@ -104,8 +104,8 @@ void mesh_info_init( ego_mpd_info_t * pinfo, int numvert, size_t tiles_x, size_t
     pinfo->blocks_count = pinfo->blocks_x * pinfo->blocks_y;
 
     // set the mesh edge info
-    pinfo->edge_x = pinfo->tiles_x << TILE_BITS;
-    pinfo->edge_y = pinfo->tiles_y << TILE_BITS;
+    pinfo->edge_x = (pinfo->tiles_x + 1) << TILE_BITS;
+    pinfo->edge_y = (pinfo->tiles_y + 1) << TILE_BITS;
 }
 
 //--------------------------------------------------------------------------------------------

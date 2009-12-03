@@ -192,6 +192,9 @@
 				RelativePath=".\passage.c">
 			</File>
 			<File
+				RelativePath=".\physics.c">
+			</File>
+			<File
 				RelativePath=".\profile.c">
 			</File>
 			<File
@@ -255,6 +258,9 @@
 			</File>
 			<File
 				RelativePath=".\passage.h">
+			</File>
+			<File
+				RelativePath=".\physics.h">
 			</File>
 			<File
 				RelativePath=".\profile.h">

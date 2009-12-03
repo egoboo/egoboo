@@ -28,6 +28,7 @@
 #include "script.h"
 #include "md2.h"
 #include "graphic.h"
+#include "physics.h"
 
 #include "egoboo.h"
 
@@ -127,7 +128,6 @@ slot_t        grip_offset_to_slot( grip_offset_t grip );
 #define JUMPDELAY           20                      ///< Time between jumps
 #define JUMPINFINITE        255                     ///< Flying character
 #define SLIDETOLERANCE      10                      ///< Stick to ground better
-#define PLATTOLERANCE       50                     ///< Platform tolerance...
 #define PLATADD             -10                     ///< Height add...
 #define PLATASCEND          0.10f                     ///< Ascension rate
 #define PLATKEEP            0.90f                     ///< Retention rate
@@ -370,31 +370,6 @@ struct s_chr_environment
 };
 typedef struct s_chr_environment chr_environment_t;
 
-//--------------------------------------------------------------------------------------------
-/// Level 0 character "bumper"
-/// The simplest collision volume, equivalent to the old-style collision data
-/// stored in data.txt
-struct s_chr_bumper_0
-{
-    float  size;        ///< Size of bumpers
-    float  sizebig;     ///< For octagonal bumpers
-    float  height;      ///< Distance from head to toe
-};
-typedef struct s_chr_bumper_0 chr_bumper_0_t;
-
-//--------------------------------------------------------------------------------------------
-/// Level 1 character "bumper"
-/// The best possible octagonal bounding volume. A generalization of the old octagonal bounding box
-/// values in data.txt. Computed on the fly.
-struct s_chr_bumper_1
-{
-    float min_x,  max_x;
-    float min_y,  max_y;
-    float min_z,  max_z;
-    float min_xy, max_xy;
-    float min_yx, max_yx;
-};
-typedef struct s_chr_bumper_1 chr_bumper_1_t;
 
 //--------------------------------------------------------------------------------------------
 /// The definition of the character object
@@ -565,12 +540,12 @@ struct s_chr
     ///        The old bumper data that is read from the data.txt file will be kept in
     ///        the struct "bump". A new bumper that actually matches the size of the object will
     ///        be kept in the struct "collision"
-    chr_bumper_0_t   bump;
-    chr_bumper_0_t   bump_save;
+    bumper_t     bump;
+    bumper_t     bump_save;
 
-    chr_bumper_0_t   bump_1;       ///< the loosest collision volume that mimics the current bump
-    chr_bumper_1_t   chr_prt_cv;   ///< a looser collision volume for chr-prt interactions
-    chr_bumper_1_t   chr_chr_cv;   ///< the tightest collision volume for chr-chr interactions
+    bumper_t     bump_1;       ///< the loosest collision volume that mimics the current bump
+    oct_bb_t     chr_prt_cv;   ///< a looser collision volume for chr-prt interactions
+    oct_bb_t     chr_chr_cv;   ///< the tightest collision volume for chr-chr interactions
 
     Uint8          stoppedby;                     ///< Collision mask
 

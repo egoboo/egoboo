@@ -246,7 +246,7 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
 
             sum_pos.x += pchr->pos.x;
             sum_pos.y += pchr->pos.y;
-            sum_pos.z += pchr->pos.z + pchr->chr_chr_cv.max_z * 0.9f;
+            sum_pos.z += pchr->pos.z + pchr->chr_chr_cv.maxs[OCT_Z] * 0.9f;
             sum_level += pchr->enviro.level;
             sum_wt    += 1.0f;
         }

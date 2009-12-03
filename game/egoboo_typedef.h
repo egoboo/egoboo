@@ -274,33 +274,6 @@ hash_list_t * hash_list_ctor( hash_list_t * lst, int size );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-/// axis aligned bounding box
-struct s_aabb
-{
-    float mins[3];
-    float maxs[3];
-};
-typedef struct s_aabb aabb_t;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-/// The various axes for the octagonal bounding box
-enum e_octagonal_axes
-{
-    OCT_X, OCT_Y, OCT_Z, OCT_XY, OCT_YX, OCT_COUNT
-};
-
-/// octagonal bounding box
-struct s_oct_bb
-{
-    float mins[OCT_COUNT];
-    float maxs[OCT_COUNT];
-};
-typedef struct s_oct_bb oct_bb_t;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 struct s_latch
 {
     float          x;         ///< the x input

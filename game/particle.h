@@ -21,6 +21,7 @@
 
 #include "egoboo_typedef.h"
 #include "egoboo_math.h"
+#include "physics.h"
 
 #include "pip_file.h"
 
@@ -82,17 +83,6 @@ struct s_prt_instance
     fvec3_t ref_pos;
 };
 typedef struct s_prt_instance prt_instance_t;
-
-//--------------------------------------------------------------------------------------------
-/// Level 0 particle "bumper"
-/// The simplest collision volume,
-struct s_prt_bumper_0
-{
-    float  size;        ///< Size of bumpers
-    float  sizebig;     ///< For octagonal bumpers
-    float  height;      ///< Distance from head to toe
-};
-typedef struct s_prt_bumper_0 prt_bumper_t;
 
 //--------------------------------------------------------------------------------------------
 /// Everything that is necessary to compute the character's interaction with the environment
@@ -173,7 +163,7 @@ struct s_prt
     int     time_frame;                      ///< Duration of particle
     Uint16  spawntime;                       ///< Time until spawn
 
-    prt_bumper_t bump;                     ///< Size of bumpers
+    bumper_t   bump;                         ///< Size of bumpers
     Uint16  bumplist_next;                   ///< Next particle on fanblock
     IPair   damage;                          ///< For strength
     Uint8   damagetype;                      ///< Damage type
