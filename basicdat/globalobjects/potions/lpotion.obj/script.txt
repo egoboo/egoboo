@@ -76,7 +76,7 @@ IfUsed
     tmpargument = 0
     IfArmorIs
       // Decrease max life a little
-      tmpargument = 0 - 32		      
+      tmpargument = -16		      
       GiveLifeToTarget
 
       // Increase current life

@@ -95,7 +95,7 @@ IfUsed
       tmpargument = 0
       IfArmorIs
         // Decrease max mana a little
-        tmpargument = 0 - 32		      
+        tmpargument = -16
         GiveManaToTarget
 
         // Increase current mana

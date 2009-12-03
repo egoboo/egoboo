@@ -46,6 +46,10 @@ IfXIsMoreThanY
       tmpargument = 20
       tmpdistance = 0
       PlayMusic
+      
+      //Alert the module tool to enable exit
+      tmpargument = [EXIT]
+      IssueOrder
     
   //Remember our last hp
   tmpargument = selflife

@@ -219,37 +219,40 @@ IfArmorIs
 //Open the door
 tmpargument = 1
 IfArmorIs
-  tmpargument = passage + 1
-  SetTargetToWhoeverIsInPassage
-    IfTargetCanOpenStuff
-      tmpargument = 0
-      GetXY
-      IfXIsMoreThanY                  //Open up for soul traders
-        tmpargument = passage
-        OpenPassage
+  IfTimeOut
+    tmpargument = rand & 15 + 25
+    SetTime
+    tmpargument = passage + 1
+    SetTargetToWhoeverIsInPassage
+      IfTargetCanOpenStuff
         tmpargument = 0
-        SetBumpSize
-      Else
-        tmpargument = [GOOD]
-        IfTargetHasSpecialID            //Still refuses to open to really good guys
-          tmpargument = passage
-          ClosePassage
-          IfTimeOut
-            tmpargument = 4
-            SendMessage
-            PlaySound
-            tmpargument = 250
-            SetTime
-        Else
+        GetXY
+        IfXIsMoreThanY                  //Open up for soul traders
           tmpargument = passage
           OpenPassage
           tmpargument = 0
           SetBumpSize
-  Else
-    tmpargument = passage
-    ClosePassage
-    tmpargument = 10
-    SetBumpSize
+        Else
+          tmpargument = [GOOD]
+          IfTargetHasSpecialID            //Still refuses to open to really good guys
+            tmpargument = passage
+            ClosePassage
+            IfTimeOut
+              tmpargument = 4
+              SendMessage
+              PlaySound
+              tmpargument = 250
+              SetTime
+          Else
+            tmpargument = passage
+            OpenPassage
+            tmpargument = 0
+            SetBumpSize
+    Else
+      tmpargument = passage
+      ClosePassage
+      tmpargument = 10
+      SetBumpSize
 
 
 // Someone cast an unlock spell

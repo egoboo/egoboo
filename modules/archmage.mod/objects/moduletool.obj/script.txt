@@ -8,7 +8,7 @@ IfSpawned
   SetState
   
 IfTimeOut
-  tmpargument = 15
+  tmpargument = rand & 7 + 15
   SetTime
 
   //Activate Chess game  

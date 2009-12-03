@@ -10,6 +10,8 @@ Version 2.8.0 (xx.12.2009)
 - New Feature: Improved AI by adding Line of Sight detection for targeting.
 - New Feature: Improved UI by implementing in-game pop up text.
 - New Feature: Implemented a new file system based on PhysFS to improve file handling.
+- Update: Further tweaks to improve the physics engine.
+- Update: Halved the permanent mana and life loss from using potions.
 - Update: Various AI script optimizations to increase game performance.
 - Update: Added support for up to 32 joystick buttons.
 - Update: Backstabs now deal double damage and damage is increased by dexterity.

@@ -1,5 +1,7 @@
 // This reads an inscription, if a G'nome is standing on it
 IfTimeOut
+  tmpargument = rand & 7 + 10
+  SetTime
 
   // Check the plate passages
   tmpx = 0 // Can't read message

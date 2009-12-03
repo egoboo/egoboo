@@ -45,36 +45,48 @@ IfSpawned
   tmpy = 37 < 7
   tmpdistance = 700
   PitsFall
-
-IfStateIs1
-  tmpargument = 0
-  SetTargetToWhoeverIsInPassage
-  IfTargetIsAPlayer
   
-    //Add some end text
-    ClearEndMessage
-    tmpargument = 0
-    AddEndMessage
+//Enable escape
+IfOrdered
+  tmpx = selforder
+  tmpy = [EXIT]
+  IfXIsEqualToY
     tmpargument = 1
-    AddEndMessage
-    tmpargument = 2
-    AddEndMessage
-    tmpargument = 3
-    AddEndMessage
-    tmpargument = 4
-    AddEndMessage
-    tmpargument = 5
-    AddEndMessage  
+    SetState
     
-    //Just to be nice, we restock the camera ammo
-    tmpargument = [CAME]
-    RestockTargetAmmoIDFirst
-  
-    //Finish it
-    BeatModule
-    EnableExport
-    tmpargument = [BEAT]
-    AddIDSZ
-    EndModule
+//Look for escapers
+IfTimeOut
+  tmpargument = rand & 7 + 15
+  SetTime
+  IfStateIs1
+    tmpargument = 0
+    SetTargetToWhoeverIsInPassage
+    IfTargetIsAPlayer
+    
+      //Add some end text
+      ClearEndMessage
+      tmpargument = 0
+      AddEndMessage
+      tmpargument = 1
+      AddEndMessage
+      tmpargument = 2
+      AddEndMessage
+      tmpargument = 3
+      AddEndMessage
+      tmpargument = 4
+      AddEndMessage
+      tmpargument = 5
+      AddEndMessage  
+      
+      //Just to be nice, we restock the camera ammo
+      tmpargument = [CAME]
+      RestockTargetAmmoIDFirst
+    
+      //Finish it
+      BeatModule
+      EnableExport
+      tmpargument = [BEAT]
+      AddIDSZ
+      EndModule
       
 End					// All done

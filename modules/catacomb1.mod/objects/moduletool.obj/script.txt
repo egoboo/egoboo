@@ -140,7 +140,7 @@ IfTimeOut
       GoPoof
 
   // Wait a bit before checking again
-  tmpargument = 10
+  tmpargument = rand & 7 + 10
   SetTime
 
 //------------------------------------------------------------------------------------

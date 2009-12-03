@@ -40,6 +40,7 @@ IfSpawned
   SetXY
   tmpargument = 50
   SetTime
+  
 IfTimeOut
   IfStateIs0
     // Wait until the closest player moves
@@ -55,7 +56,6 @@ IfTimeOut
       IfXIsMoreThanY
         // Play close sound
         tmpargument = 0
-        tmpdistance = 11025
         PlaySound
         // Close the door
         tmpargument = ACTIONMJ

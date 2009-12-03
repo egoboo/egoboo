@@ -56,7 +56,7 @@
 #define USE_DEBUG (defined(_DEBUG) || !defined(NDEBUG))        ///< a test of whether a debug switch is explicitly or implicitly defined
 
 #undef  OLD_CAMERA_MODE       ///< Use the old camera style
-//#undef  USE_LUA_CONSOLE       ///< LUA support for the console
+#undef  USE_LUA_CONSOLE       ///< LUA support for the console
 #undef  ENABLE_BODY_GRAB      ///< Enable the grabbing of bodies?
 #undef  TEST_NAN_RESULT       ///< Test the result of certain math operations?
 
@@ -74,7 +74,7 @@
 
 #undef  DEBUG_STDIO         ///< Route stdio calls through wrapper functions so that we can track io calls. This needs to be removed.
 
-#define CLIP_LIGHT_FANS     ///< is the light_fans() function going to be throtled?
-#undef  CLIP_ALL_LIGHT_FANS  ///< a switch for selecting how the fans will be updated
+#define CLIP_LIGHT_FANS     ///< is the light_fans() function going to be throttled?
+#define  CLIP_ALL_LIGHT_FANS  ///< a switch for selecting how the fans will be updated
 
 #define EGOBOO_CONFIG_H

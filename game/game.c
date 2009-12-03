@@ -7658,9 +7658,9 @@ bool_t upload_phys_data( wawalite_physics_t * pdata )
     // upload the physics data
     hillslide      = pdata->hillslide;
     slippyfriction = pdata->slippyfriction;
+    noslipfriction = pdata->noslipfriction;
     airfriction    = pdata->airfriction;
     waterfriction  = pdata->waterfriction;
-    noslipfriction = pdata->noslipfriction;
     gravity        = pdata->gravity;
 
     return btrue;

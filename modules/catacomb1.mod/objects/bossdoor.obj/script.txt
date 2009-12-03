@@ -33,7 +33,7 @@ IfTimeOut
       OpenPassage			//Yep
       tmpargument = 0
       SendMessageNear
-  tmpargument = 5
+  tmpargument = rand & 7 + 5
   SetTime
 
 //------------------------------------------------------------------
