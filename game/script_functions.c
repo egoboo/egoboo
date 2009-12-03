@@ -442,9 +442,7 @@ Uint8 scr_ClearWaypoints( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    // Clear out all waypoints
-    pself->wp_tail = 0;
-    pself->wp_head = 0;
+    returncode = waypoint_list_clear( &(pself->wp_lst) );
 
     SCRIPT_FUNCTION_END();
 }
@@ -455,14 +453,32 @@ Uint8 scr_AddWaypoint( script_state_t * pstate, ai_state_t * pself )
     // AddWaypoint( tmpx = "x position", tmpy = "y position" )
     /// @details ZZ@> This function tells the character where to move next
 
+    fvec2_t pos;
+
     SCRIPT_FUNCTION_BEGIN();
 
-    // Add a waypoint to the waypoint list
-    pself->wp_pos_x[pself->wp_head] = pstate->x;
-    pself->wp_pos_y[pself->wp_head] = pstate->y;
+    // init the vector with the desired position
+    pos.x = pstate->x;
+    pos.y = pstate->y;
 
-    pself->wp_head++;
-    if ( pself->wp_head > MAXWAY - 1 )  pself->wp_head = MAXWAY - 1;
+    // is this a safe position?
+    returncode = bfalse;
+    if( !mesh_hitawall( PMesh, pos.v, pchr->bump.size, pchr->stoppedby, NULL ) )
+    {
+        // yes it is safe. add it.
+        returncode = waypoint_list_push( &(pself->wp_lst), pstate->x, pstate->y );
+    }
+    else
+    {
+        // no it is not safe. what to do? nothing, or add the current position?
+        //returncode = waypoint_list_push( &(pself->wp_lst), pchr->pos.x, pchr->pos.y );
+    }
+
+    if( returncode )
+    {
+        // make sure we update the waypoint, since the list changed
+        pself->wp_valid = waypoint_list_peek( &(pself->wp_lst), pself->wp ); 
+    }
 
     SCRIPT_FUNCTION_END();
 }
@@ -506,15 +522,21 @@ Uint8 scr_FindPath( script_state_t * pstate, ai_state_t * pself )
             reset_character_accel( pself->index ); // Force 100% speed
         }
 
-        // Then we add the waypoint(s), without clearing existing ones.
-        pself->wp_pos_x[pself->wp_head] = fx;
-        pself->wp_pos_y[pself->wp_head] = fy;
+        // Then add the waypoint
+        returncode = waypoint_list_push( &(pself->wp_lst), fx, fy );
 
-        pself->wp_head++;
-        if ( pself->wp_head > MAXWAY - 1 ) pself->wp_head = MAXWAY - 1;
+        if( returncode )
+        {
+            // return the new position
+            pstate->x = fx;
+            pstate->y = fy;
 
-        pstate->x = fx;
-        pstate->y = fy;
+            if( returncode )
+            {
+                // make sure we update the waypoint, since the list changed
+                pself->wp_valid = waypoint_list_peek( &(pself->wp_lst), pself->wp ); 
+            }
+        }
     }
 
     SCRIPT_FUNCTION_END();

@@ -93,6 +93,24 @@
 #   define STOR_AND            (STOR_COUNT - 1)        ///< Storage data bitmask
 #endif
 
+typedef float waypoint_t[3];
+
+struct s_waypoint_list
+{
+    int          tail;         ///< Which waypoint
+    int          head;         ///< Where to stick next
+    waypoint_t   pos[MAXWAY];  ///< Waypoint
+};
+typedef struct s_waypoint_list waypoint_list_t;
+
+bool_t waypoint_list_peek   ( waypoint_list_t * plst, waypoint_t wp );
+bool_t waypoint_list_push   ( waypoint_list_t * plst, int x, int y );
+bool_t waypoint_list_reset  ( waypoint_list_t * plst );
+bool_t waypoint_list_clear  ( waypoint_list_t * plst );
+bool_t waypoint_list_empty  ( waypoint_list_t * plst );
+bool_t waypoint_list_finished   ( waypoint_list_t * plst );
+bool_t waypoint_list_advance( waypoint_list_t * plst );
+
 /// the state variables for a script / AI
 struct s_ai_state
 {
@@ -146,10 +164,9 @@ struct s_ai_state
     //Uint32         los_timer;
 
     // waypoints
-    Uint8          wp_tail;          ///< Which waypoint
-    Uint8          wp_head;          ///< Where to stick next
-    float          wp_pos_x[MAXWAY]; ///< Waypoint
-    float          wp_pos_y[MAXWAY]; ///< Waypoint
+    bool_t          wp_valid;            ///< is the current waypoint valid?
+    waypoint_t      wp;                  ///< current waypoint
+    waypoint_list_t wp_lst;              ///< Stored waypoints
 
     // performance monitoring
     PROFILE_DECLARE_STRUCT;
