@@ -839,7 +839,7 @@ Uint32 __chrhitawall( chr_t * pchr, float nrm[] )
 
     if ( !ACTIVE_PCHR( pchr ) ) return 0;
 
-    if ( 0 == pchr->bump.size || 0xFFFFFFFF == pchr->phys.weight ) return 0;
+    if ( 0 == pchr->bump.size || INFINITE_WEIGHT == pchr->phys.weight ) return 0;
 
     return mesh_hitawall( PMesh, pchr->pos.v, pchr->bump.size, pchr->stoppedby, nrm );
 }
@@ -2320,12 +2320,12 @@ void resize_all_characters()
 
                 if ( chr_get_pcap( ichr )->weight == 0xFF )
                 {
-                    pchr->phys.weight = 0xFFFFFFFF;
+                    pchr->phys.weight = INFINITE_WEIGHT;
                 }
                 else
                 {
                     Uint32 itmp = chr_get_pcap( ichr )->weight * pchr->fat * pchr->fat * pchr->fat;
-                    pchr->phys.weight = MIN( itmp, ( Uint32 )0xFFFFFFFE );
+                    pchr->phys.weight = MIN( itmp, MAX_WEIGHT );
                 }
             }
         }
@@ -2528,12 +2528,12 @@ bool_t chr_download_cap( chr_t * pchr, cap_t * pcap )
     pchr->phys.bumpdampen = pcap->bumpdampen;
     if ( pcap->weight == 0xFF )
     {
-        pchr->phys.weight = 0xFFFFFFFF;
+        pchr->phys.weight = INFINITE_WEIGHT;
     }
     else
     {
         Uint32 itmp = pcap->weight * pcap->size * pcap->size * pcap->size;
-        pchr->phys.weight = MIN( itmp, ( Uint32 )0xFFFFFFFE );
+        pchr->phys.weight = MIN( itmp, MAX_WEIGHT );
     }
 
     // Image rendering
@@ -4162,12 +4162,12 @@ void change_character( Uint16 ichr, Uint16 profile_new, Uint8 skin, Uint8 leavew
 
     if ( pcap_new->weight == 0xFF )
     {
-        pchr->phys.weight = 0xFFFFFFFF;
+        pchr->phys.weight = INFINITE_WEIGHT;
     }
     else
     {
         Uint32 itmp = pcap_new->weight * pchr->fat * pchr->fat * pchr->fat;
-        pchr->phys.weight = MIN( itmp, ( Uint32 )0xFFFFFFFE );
+        pchr->phys.weight = MIN( itmp, MAX_WEIGHT );
     }
 
     // Image rendering
@@ -5514,7 +5514,7 @@ void move_one_character_do_z_motion( chr_t * pchr )
     }
     else
     {
-        if ( pchr->enviro.is_slippy && pchr->phys.weight != 0xFFFFFFFF &&
+        if ( pchr->enviro.is_slippy && pchr->phys.weight != INFINITE_WEIGHT &&
              pchr->enviro.twist != TWIST_FLAT && pchr->enviro.zlerp < 1.0f )
         {
             // Slippy hills make characters slide
@@ -8567,6 +8567,96 @@ Uint16 chr_get_lowest_attachment( Uint16 ichr, bool_t non_item )
 
     return object;
 }
+
+//--------------------------------------------------------------------------------------------
+bool_t chr_get_mass_pair( chr_t * pchr_a, chr_t * pchr_b, float * wta, float * wtb )
+{
+    /// @details BB@> calculate a "mass" for each object, taking into account possible infinite masses.
+
+    float loc_wta, loc_wtb;
+
+    if( !ACTIVE_PCHR(pchr_a) || !ACTIVE_PCHR(pchr_b) ) return bfalse;
+
+    if( NULL == wta ) wta = &loc_wta;
+    if( NULL == wtb ) wtb = &loc_wtb;
+
+    *wta = ( INFINITE_WEIGHT == pchr_a->phys.weight ) ? -( float )INFINITE_WEIGHT : pchr_a->phys.weight;
+    *wtb = ( INFINITE_WEIGHT == pchr_b->phys.weight ) ? -( float )INFINITE_WEIGHT : pchr_b->phys.weight;
+
+    if ( *wta == 0 && *wtb == 0 )
+    {
+        *wta = *wtb = 1;
+    }
+    else if ( *wta == 0 )
+    {
+        *wta = 1;
+        *wtb = -( float )INFINITE_WEIGHT;
+    }
+    else if ( *wtb == 0 )
+    {
+        *wtb = 1;
+        *wta = -( float )INFINITE_WEIGHT;
+    }
+
+    if ( 0.0f == pchr_a->phys.bumpdampen && 0.0f == pchr_b->phys.bumpdampen )
+    {
+        /* do nothing */
+    }
+    else if ( 0.0f == pchr_a->phys.bumpdampen )
+    {
+        // make the weight infinite
+        *wta = -( float )INFINITE_WEIGHT;
+    }
+    else if ( 0.0f == pchr_b->phys.bumpdampen )
+    {
+        // make the weight infinite
+        *wtb = -( float )INFINITE_WEIGHT;
+    }
+    else
+    {
+        // adjust the weights to respect bumpdampen
+        (*wta) /= pchr_a->phys.bumpdampen;
+        (*wtb) /= pchr_b->phys.bumpdampen;
+    }
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t chr_can_mount( Uint16 ichr_a, Uint16 ichr_b )
+{
+    bool_t is_valid_rider_a, is_valid_mount_b, has_ride_anim;
+    int action_mi;
+
+    chr_t * pchr_a, * pchr_b;
+    cap_t * pcap_a, * pcap_b;
+
+    // make sure that A is valid
+    if ( !ACTIVE_CHR( ichr_a ) ) return bfalse;
+    pchr_a = ChrList.lst + ichr_a;
+
+    pcap_a = chr_get_pcap( ichr_a );
+    if ( NULL == pcap_a ) return bfalse;
+
+    // make sure that B is valid
+    if ( !ACTIVE_CHR( ichr_b ) ) return bfalse;
+    pchr_b = ChrList.lst + ichr_b;
+
+    pcap_b = chr_get_pcap( ichr_b );
+    if ( NULL == pcap_b ) return bfalse;
+
+    action_mi = mad_get_action( chr_get_imad( ichr_a ), ACTION_MI );
+    has_ride_anim = ( ACTION_COUNT != action_mi && !ACTION_IS_TYPE( action_mi, D ) );
+
+    is_valid_rider_a = !pchr_a->isitem && pchr_a->alive && 0 == pchr_a->flyheight &&
+                       !ACTIVE_CHR( pchr_a->attachedto ) && has_ride_anim;
+
+    is_valid_mount_b = pchr_b->ismount && pchr_b->alive &&
+                       pcap_b->slotvalid[SLOT_LEFT] && !ACTIVE_CHR( pchr_b->holdingwhich[SLOT_LEFT] );
+
+    return is_valid_rider_a && is_valid_mount_b;
+}
+
 
 //--------------------------------------------------------------------------------------------
 /*void kill_character( Uint16 character, Uint16 killer )

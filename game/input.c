@@ -34,7 +34,7 @@
 #include "ui.h"
 #include "log.h"
 #include "network.h"
-#include "game.h"
+#include "menu.h"
 
 #include "egoboo_setup.h"
 #include "egoboo_fileutil.h"

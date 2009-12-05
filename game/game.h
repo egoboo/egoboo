@@ -21,6 +21,7 @@
 
 #include "egoboo_typedef.h"
 #include "egoboo_math.h"
+#include "egoboo_process.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -35,6 +36,8 @@ struct s_wawalite_weather;
 struct s_wawalite_water;
 struct s_wawalite_fog;
 
+struct s_menu_process;
+
 struct s_chr;
 
 //--------------------------------------------------------------------------------------------
@@ -42,56 +45,16 @@ struct s_chr;
 
 #define EXPKEEP 0.85f                                ///< Experience to keep when respawning
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-/// The various states that a process can occupy
-enum e_process_states
+/// The possible pre-defined orders
+enum e_order
 {
-    proc_begin,
-    proc_entering,
-    proc_running,
-    proc_leaving,
-    proc_finish
+    ORDER_NONE  = 0,
+    ORDER_ATTACK,
+    ORDER_ASSIST,
+    ORDER_STAND,
+    ORDER_TERRAIN,
+    ORDER_COUNT
 };
-typedef enum e_process_states process_state_t;
-
-//--------------------------------------------------------------------------------------------
-
-/// grab a pointer to the process_t of any object that "inherits" this type
-#define PROC_PBASE(PTR) (&( (PTR)->base ))
-
-/// A rudimantary implementation of "non-preemptive multitasking" in egoboo.
-/// @details All other process types "inherit" from this one
-struct s_process_instance
-{
-    bool_t          valid;
-    bool_t          paused;
-    bool_t          killme;
-    bool_t          terminated;
-    process_state_t state;
-    double          dtime;
-};
-typedef struct s_process_instance process_t;
-
-//--------------------------------------------------------------------------------------------
-/// a process that controls the master loop of the program
-struct s_ego_process
-{
-    process_t base;
-
-    double frameDuration;
-    int    menuResult;
-
-    bool_t was_active;
-    bool_t escape_requested, escape_latch;
-
-    int    ticks_next, ticks_now;
-
-    char * argv0;
-};
-typedef struct s_ego_process ego_process_t;
-
-extern ego_process_t * EProc;
 
 //--------------------------------------------------------------------------------------------
 /// a process that controls a single game
@@ -113,21 +76,6 @@ struct s_game_process
 typedef struct s_game_process game_process_t;
 
 extern game_process_t * GProc;
-
-//--------------------------------------------------------------------------------------------
-/// a process that controls the menu system
-struct s_menu_process
-{
-    process_t base;
-
-    bool_t was_active;
-    bool_t escape_requested, escape_latch;
-
-    int    ticks_next, ticks_now;
-};
-typedef struct s_menu_process menu_process_t;
-
-extern menu_process_t * MProc;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -297,8 +245,6 @@ extern size_t endtext_carat;
 //--------------------------------------------------------------------------------------------
 
 extern bool_t    overrideslots;          ///< Override existing slots?
-extern bool_t    screenshot_keyready;    ///< Is the screenshot key available?
-extern bool_t    screenshot_requested;   ///< Has the user successfully requested a screenshot?
 
 extern struct s_ego_mpd         * PMesh;
 extern struct s_camera          * PCamera;
@@ -350,7 +296,7 @@ Uint16 number_of_attached_particles( Uint16 character );
 int    spawn_bump_particles( Uint16 character, Uint16 particle );
 void   place_particle_at_vertex( Uint16 particle, Uint16 character, int vertex_offset );
 void   disaffirm_attached_particles( Uint16 character );
-void   reaffirm_attached_particles( Uint16 character );
+int    reaffirm_attached_particles( Uint16 character );
 Uint16 number_of_attached_particles( Uint16 character );
 
 /// Statlist
@@ -394,24 +340,12 @@ bool_t make_water( water_instance_t * pinst, struct s_wawalite_water * pdata );
 
 bool_t game_choose_module( int imod, int seed );
 
-process_t * process_init( process_t * proc );
-bool_t      process_start( process_t * proc );
-bool_t      process_kill( process_t * proc );
-bool_t      process_validate( process_t * proc );
-bool_t      process_terminate( process_t * proc );
-bool_t      process_pause( process_t * proc );
-bool_t      process_resume( process_t * proc );
-bool_t      process_running( process_t * proc );
-
-ego_process_t      * ego_process_init( ego_process_t  * eproc, int argc, char **argv );
-menu_process_t     * menu_process_init( menu_process_t * mproc );
+int                  game_do_menu( struct s_menu_process * mproc );
 game_process_t     * game_process_init( game_process_t * gproc );
 
 void expand_escape_codes( Uint16 ichr, struct s_script_state * pstate, char * src, char * src_end, char * dst, char * dst_end );
 
 void upload_wawalite();
-
-void ego_init_SDL_base();
 
 bool_t game_module_setup( game_module_t * pinst, struct s_mod_file * pdata, const char * loadname, Uint32 seed );
 bool_t game_module_init( game_module_t * pinst );
@@ -439,3 +373,5 @@ bool_t do_item_pickup( Uint16 ichr, Uint16 iitem );
 bool_t get_chr_regeneration( struct s_chr * pchr, int *pliferegen, int * pmanaregen );
 
 float get_chr_level( struct s_ego_mpd * pmesh, struct s_chr * pchr );
+
+int do_game_proc_run( game_process_t * gproc, double frameDuration );

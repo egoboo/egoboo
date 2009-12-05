@@ -354,17 +354,20 @@ bool_t bumper_to_oct_bb( bumper_t src, oct_bb_t * pdst )
 {
     if( NULL == pdst ) return bfalse;
 
-    pdst->maxs[OCT_X] =  src.size;
     pdst->mins[OCT_X] = -src.size;
+    pdst->maxs[OCT_X] =  src.size;
 
-    pdst->maxs[OCT_Y] =  src.size;
     pdst->mins[OCT_Y] = -src.size;
+    pdst->maxs[OCT_Y] =  src.size;
 
-    pdst->maxs[OCT_XY] =  src.sizebig;
     pdst->mins[OCT_XY] = -src.sizebig;
+    pdst->maxs[OCT_XY] =  src.sizebig;
 
-    pdst->maxs[OCT_YX] =  src.sizebig;
     pdst->mins[OCT_YX] = -src.sizebig;
+    pdst->maxs[OCT_YX] =  src.sizebig;
+
+    pdst->mins[OCT_Z] = -src.height;
+    pdst->maxs[OCT_Z] =  src.height;
 
     return btrue;
 };
@@ -721,3 +724,88 @@ bool_t test_interaction_2( oct_bb_t cv_a, fvec3_t pos_a, oct_bb_t cv_b, fvec3_t 
 
     return test_platform ? (depth > -PLATTOLERANCE) : (depth > 0.0f);
 }
+
+//--------------------------------------------------------------------------------------------
+bool_t phys_estimate_chr_chr_normal(oct_vec_t opos_a, oct_vec_t opos_b, oct_vec_t odepth, float exponent, fvec3_base_t nrm )
+{
+    bool_t retval;
+
+    // is everything valid?
+    if( NULL == opos_a || NULL == opos_b || NULL == odepth || NULL == nrm ) return bfalse;
+
+    // initialize the vector
+    nrm[kX] = nrm[kY] = nrm[kZ] = 0.0f;
+
+    if ( odepth[OCT_X] <= 0.0f )
+    {
+        odepth[OCT_X] = 0.0f;
+    }
+    else
+    {
+        float sgn = opos_b[OCT_X] - opos_a[OCT_X];
+        sgn = sgn > 0 ? -1 : 1;
+
+        nrm[kX] += sgn / POW( odepth[OCT_X] / PLATTOLERANCE, exponent );
+    }
+
+    if ( odepth[OCT_Y] <= 0.0f )
+    {
+        odepth[OCT_Y] = 0.0f;
+    }
+    else
+    {
+        float sgn = opos_b[OCT_Y] - opos_a[OCT_Y];
+        sgn = sgn > 0 ? -1 : 1;
+
+        nrm[kY] += sgn / POW( odepth[OCT_Y] / PLATTOLERANCE, exponent );
+    }
+
+    if ( odepth[OCT_XY] <= 0.0f )
+    {
+        odepth[OCT_XY] = 0.0f;
+    }
+    else
+    {
+        float sgn = opos_b[OCT_XY] - opos_a[OCT_XY];
+        sgn = sgn > 0 ? -1 : 1;
+
+        nrm[kX] += sgn / POW( odepth[OCT_XY] / PLATTOLERANCE, exponent );
+        nrm[kY] += sgn / POW( odepth[OCT_XY] / PLATTOLERANCE, exponent );
+    }
+
+    if ( odepth[OCT_YX] <= 0.0f )
+    {
+        odepth[OCT_YX] = 0.0f;
+    }
+    else
+    {
+        float sgn = opos_b[OCT_YX] - opos_a[OCT_YX];
+        sgn = sgn > 0 ? -1 : 1;
+        nrm[kX] -= sgn / POW( odepth[OCT_YX] / PLATTOLERANCE, exponent );
+        nrm[kY] += sgn / POW( odepth[OCT_YX] / PLATTOLERANCE, exponent );
+    }
+
+    if ( odepth[OCT_Z] <= 0.0f )
+    {
+        odepth[OCT_Z] = 0.0f;
+    }
+    else
+    {
+        float sgn = opos_b[OCT_Z] - opos_a[OCT_Z];
+
+        sgn = sgn > 0 ? -1 : 1;
+
+        nrm[kZ] += sgn / POW( exponent * odepth[OCT_Z] / PLATTOLERANCE, exponent );
+    }
+
+    retval = bfalse;
+    if ( ABS( nrm[kX] ) + ABS( nrm[kY] ) + ABS( nrm[kZ] ) > 0.0f )
+    {
+        fvec3_t vtmp = fvec3_normalize( nrm );
+        memcpy( nrm, vtmp.v, sizeof(fvec3_base_t) );
+        retval = btrue;
+    }
+
+    return retval;
+}
+

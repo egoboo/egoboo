@@ -27,10 +27,12 @@
 #include "mad.h"
 #include "char.h"
 #include "profile.h"
+
+#include "game.h"
 #include "quest.h"
+
 #include "controls_file.h"
 #include "scancode_file.h"
-
 #include "ui.h"
 #include "log.h"
 #include "link.h"
@@ -71,6 +73,7 @@ enum e_menu_states
 
 #define MENU_STACK_COUNT 256
 #define MAXWIDGET        100
+#define INVALID_TITLEIMAGE MAX_MODULE
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -108,17 +111,8 @@ static which_menu_t menu_stack[MENU_STACK_COUNT];
 
 static which_menu_t mnu_whichMenu = emnu_Main;
 
-bool_t mnu_draw_background = btrue;
-
 // static int         mnu_widgetCount;
 static ui_Widget_t mnu_widgetList[MAXWIDGET];
-
-int              loadplayer_count = 0;
-LOAD_PLAYER_INFO loadplayer[MAXLOADPLAYER];
-
-int    mnu_selectedPlayerCount = 0;
-int    mnu_selectedInput[MAXPLAYER] = {0};
-Uint16 mnu_selectedPlayer[MAXPLAYER] = {0};
 
 static int selectedModule = -1;
 
@@ -136,17 +130,30 @@ static int tipTextTop  = 0;
 static int buttonLeft = 0;
 static int buttonTop = 0;
 
+static int selectedPlayer = 0;           // Which player is currently selected to play
+
+static menu_process_t    _mproc;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+menu_process_t    * MProc   = &_mproc;
+
+Uint32            TxTitleImage_count = 0;
+oglx_texture      TxTitleImage[MAX_MODULE];    // OpenGL title image surfaces
+
 bool_t startNewPlayer = bfalse;
 
 /* The font used for drawing text.  It's smaller than the button font */
 Font *menuFont = NULL;
 
-static int selectedPlayer = 0;           // Which player is currently selected to play
+bool_t mnu_draw_background = btrue;
 
-Uint32            TxTitleImage_count = 0;
-oglx_texture      TxTitleImage[MAX_MODULE];    // OpenGL title image surfaces
+int              loadplayer_count = 0;
+LOAD_PLAYER_INFO loadplayer[MAXLOADPLAYER];
 
-#define INVALID_TITLEIMAGE MAX_MODULE
+int    mnu_selectedPlayerCount = 0;
+int    mnu_selectedInput[MAXPLAYER] = {0};
+Uint16 mnu_selectedPlayer[MAXPLAYER] = {0};
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -172,6 +179,12 @@ static int  TxTitleImage_load_one( const char *szLoadName );
 static void TxTitleImage_clear_data();
 
 static void mnu_release_one_module( int imod );
+
+// "process" management
+static int do_menu_proc_begin( menu_process_t * mproc );
+static int do_menu_proc_running( menu_process_t * mproc );
+static int do_menu_proc_leaving( menu_process_t * mproc );
+
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -4408,5 +4421,149 @@ Uint32 mnu_get_icon_ref( Uint16 icap, Uint32 default_ref )
     }
 
     return icon_ref;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+int do_menu_proc_begin( menu_process_t * mproc )
+{
+    // play some music
+    sound_play_song( MENU_SONG, 0, -1 );
+
+    // initialize all these structures
+    mnu_init();        // start the menu menu
+
+    // load all module info at menu initialization
+    // this will not change unless a new module is downloaded for a network menu?
+    mnu_load_all_module_info();
+
+    // initialize the process state
+    mproc->base.valid = btrue;
+
+    return 1;
+}
+
+//--------------------------------------------------------------------------------------------
+int do_menu_proc_running( menu_process_t * mproc )
+{
+    int menuResult;
+
+    if ( !process_validate( PROC_PBASE( mproc ) ) ) return -1;
+
+    mproc->was_active = mproc->base.valid;
+
+    if ( mproc->base.paused ) return 0;
+
+    // play the menu music
+    mnu_draw_background = !process_running( PROC_PBASE( GProc ) );
+    menuResult          = game_do_menu( mproc );
+
+    switch ( menuResult )
+    {
+        case MENU_SELECT:
+            // go ahead and start the game
+            process_pause( PROC_PBASE( mproc ) );
+            break;
+
+        case MENU_QUIT:
+            // the user selected "quit"
+            process_kill( PROC_PBASE( mproc ) );
+            break;
+    }
+
+    if ( mnu_get_menu_depth() <= GProc->menu_depth )
+    {
+        GProc->menu_depth   = -1;
+        GProc->escape_latch = bfalse;
+
+        // We have exited the menu and restarted the game
+        GProc->mod_paused = bfalse;
+        process_pause( PROC_PBASE( MProc ) );
+    }
+
+    return 0;
+}
+
+//--------------------------------------------------------------------------------------------
+int do_menu_proc_leaving( menu_process_t * mproc )
+{
+    if ( !process_validate( PROC_PBASE( mproc ) ) ) return -1;
+
+    // finish the menu song
+    sound_finish_song( 500 );
+
+    return 1;
+}
+
+//--------------------------------------------------------------------------------------------
+int do_menu_proc_run( menu_process_t * mproc, double frameDuration )
+{
+    int result = 0, proc_result = 0;
+
+    if ( !process_validate( PROC_PBASE( mproc ) ) ) return -1;
+    mproc->base.dtime = frameDuration;
+
+    if ( mproc->base.paused ) return 0;
+
+    if ( mproc->base.killme )
+    {
+        mproc->base.state = proc_leaving;
+    }
+
+    switch ( mproc->base.state )
+    {
+        case proc_begin:
+            proc_result = do_menu_proc_begin( mproc );
+
+            if ( 1 == proc_result )
+            {
+                mproc->base.state = proc_entering;
+            }
+            break;
+
+        case proc_entering:
+            // proc_result = do_menu_proc_entering( mproc );
+
+            mproc->base.state = proc_running;
+            break;
+
+        case proc_running:
+            proc_result = do_menu_proc_running( mproc );
+
+            if ( 1 == proc_result )
+            {
+                mproc->base.state = proc_leaving;
+            }
+            break;
+
+        case proc_leaving:
+            proc_result = do_menu_proc_leaving( mproc );
+
+            if ( 1 == proc_result )
+            {
+                mproc->base.state  = proc_finish;
+                mproc->base.killme = bfalse;
+            }
+            break;
+
+        case proc_finish:
+            process_terminate( PROC_PBASE( mproc ) );
+            break;
+    }
+
+    return result;
+}
+
+
+//--------------------------------------------------------------------------------------------
+menu_process_t * menu_process_init( menu_process_t * mproc )
+{
+    if ( NULL == mproc ) return NULL;
+
+    memset( mproc, 0, sizeof( *mproc ) );
+
+    process_init( PROC_PBASE( mproc ) );
+
+    return mproc;
 }
 

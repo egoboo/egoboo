@@ -25,12 +25,27 @@
 #include "network.h"
 #include "profile.h"
 
+#include "egoboo_process.h"
 #include "egoboo.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 struct s_oglx_texture;
 struct s_mod_file;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+/// a process that controls the menu system
+struct s_menu_process
+{
+    process_t base;
+
+    bool_t was_active;
+    bool_t escape_requested, escape_latch;
+
+    int    ticks_next, ticks_now;
+};
+typedef struct s_menu_process menu_process_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -90,6 +105,8 @@ extern Uint16 mnu_selectedPlayer[MAXPLAYER];
 
 extern bool_t mnu_draw_background;
 
+extern menu_process_t * MProc;
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 void  check_player_import( const char *dirname, bool_t initialize );
@@ -119,6 +136,9 @@ bool_t mnu_test_by_name( const char *szModName );
 bool_t mnu_test_by_index( int modnumber );
 
 Uint32 mnu_get_icon_ref( Uint16 icap, Uint32 default_ref );
+
+int                  do_menu_proc_run( menu_process_t * mproc, double frameDuration );
+menu_process_t     * menu_process_init( menu_process_t * mproc );
 
 #define egoboo_Menu_h
 

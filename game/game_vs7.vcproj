@@ -150,6 +150,12 @@
 				RelativePath=".\client.c">
 			</File>
 			<File
+				RelativePath=".\collision.c">
+			</File>
+			<File
+				RelativePath=".\egoboo.c">
+			</File>
+			<File
 				RelativePath=".\enchant.c">
 			</File>
 			<File
@@ -222,6 +228,9 @@
 			</File>
 			<File
 				RelativePath=".\client.h">
+			</File>
+			<File
+				RelativePath=".\collision.h">
 			</File>
 			<File
 				RelativePath=".\egoboo.h">
@@ -397,6 +406,9 @@
 				RelativePath=".\egoboo_math.c">
 			</File>
 			<File
+				RelativePath=".\egoboo_process.c">
+			</File>
+			<File
 				RelativePath=".\egoboo_setup.c">
 			</File>
 			<File
@@ -471,6 +483,9 @@
 			</File>
 			<File
 				RelativePath=".\egoboo_platform.h">
+			</File>
+			<File
+				RelativePath=".\egoboo_process.h">
 			</File>
 			<File
 				RelativePath=".\egoboo_setup.h">

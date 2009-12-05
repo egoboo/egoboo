@@ -199,16 +199,32 @@ EXTERN const char *globalparsename  EQ( NULL ); ///< The SCRIPT.TXT filename
 
 EXTERN float           platstick  EQ( 0.1f );   ///< phisics info
 
-/// The possible pre-defined orders
-enum e_order
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+#include "egoboo_process.h"
+
+/// a process that controls the master loop of the program
+struct s_ego_process
 {
-    ORDER_NONE  = 0,
-    ORDER_ATTACK,
-    ORDER_ASSIST,
-    ORDER_STAND,
-    ORDER_TERRAIN,
-    ORDER_COUNT
+    process_t base;
+
+    double frameDuration;
+    int    menuResult;
+
+    bool_t was_active;
+    bool_t escape_requested, escape_latch;
+
+    int    ticks_next, ticks_now;
+
+    char * argv0;
 };
+typedef struct s_ego_process ego_process_t;
+
+extern ego_process_t * EProc;
+
+void ego_init_SDL_base();
+
+EXTERN bool_t screenshot_requested EQ( bfalse ); 
 
 #define  _EGOBOO_H_
-

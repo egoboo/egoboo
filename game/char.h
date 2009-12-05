@@ -56,6 +56,9 @@ struct s_billboard_data_t;
 
 #define MAX_CAP    MAX_PROFILE
 
+#define INFINITE_WEIGHT          (( Uint32 )0xFFFFFFFF)
+#define MAX_WEIGHT               (( Uint32 )0xFFFFFFFE)
+
 /// The possible methods for characters to determine what direction they are facing
 typedef enum e_turn_modes
 {
@@ -800,3 +803,7 @@ void chr_instance_get_tint( chr_instance_t * pinst, GLfloat * tint, Uint32 bits 
 Uint16 chr_get_lowest_attachment( Uint16 ichr, bool_t non_item );
 
 void character_system_init();
+
+bool_t chr_get_mass_pair( chr_t * pchr_a, chr_t * pchr_b, float * wta, float * wtb );
+
+bool_t chr_can_mount( Uint16 ichr_a, Uint16 ichr_b );

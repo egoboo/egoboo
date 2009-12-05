@@ -5541,7 +5541,7 @@ void do_grid_dynalight( ego_mpd_t * pmesh, camera_t * pcam )
         ix = fan % pinfo->tiles_x;
         iy = fan / pinfo->tiles_x;
 
-        if ( 0 != (( ix ^ iy + frame_all ) & 0x03 ) ) continue;
+        if ( 0 != (( (ix ^ iy) + frame_all ) & 0x03 ) ) continue;
 
         // this is not a "bad" grid box, so grab the lighting info
         cache = &( pgmem->light[fan].cache );
