@@ -122,7 +122,6 @@ static bool_t       _vfs_ensure_destination_file( const char * filename );
 
 static void _vfs_translate_error( vfs_FILE * pfile );
 
-
 static bool_t _vfs_add_mount_info( const char * mount_point, const char * local_path );
 static int    _vfs_mount_point_matches( const char * mount_point, const char * local_path );
 static bool_t _vfs_remove_mount_info( int cnt );

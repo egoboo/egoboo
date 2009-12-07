@@ -43,6 +43,7 @@
 #include "texture.h"
 #include "clock.h"
 #include "font_bmp.h"
+#include "lighting.h"
 
 #include "SDL_extensions.h"
 #include "SDL_GL_extensions.h"
@@ -73,25 +74,6 @@
 
 #define GET_MAP_X(PMESH, POS_X) ( (POS_X)*MAPSIZE / PMESH->info.edge_x )
 #define GET_MAP_Y(PMESH, POS_Y) ( (POS_Y)*MAPSIZE / PMESH->info.edge_y ) + sdl_scr.y - MAPSIZE
-
-//--------------------------------------------------------------------------------------------
-// Lightning effects
-
-#define MAXDYNADIST                     2700        // Leeway for offscreen lights
-#define TOTAL_MAX_DYNA                    64          // Absolute max number of dynamic lights
-
-/// A definition of a single in-game dynamic light
-struct s_dynalight
-{
-    float distance;      // The distances
-    float x;             // Light position
-    float y;
-    float z;
-    float level;         // Light intensity
-    float falloff;       // Light radius
-};
-
-typedef struct s_dynalight dynalight_t;
 
 //--------------------------------------------------------------------------------------------
 /// Structure for keeping track of which dynalights are visible
@@ -183,7 +165,6 @@ float time_render_scene_mesh_ref_chr        = 0.0f;
 float time_render_scene_mesh_drf_solid      = 0.0f;
 float time_render_scene_mesh_render_shadows = 0.0f;
 
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -200,13 +181,8 @@ Uint16           meshlasttexture = ( Uint16 )( ~0 );
 
 renderlist_t     renderlist = {0, 0, 0, 0, 0, 0};
 
-float            light_a = 0.0f, light_d = 0.0f, light_x = 0.0f, light_y = 0.0f, light_z = 0.0f;
-//Uint8            lightdirectionlookup[65536];
-//float            lighttable_local[MAXLIGHTROTATION][MADLIGHTINDICES];
-//float            lighttable_global[MAXLIGHTROTATION][MADLIGHTINDICES];
 float            indextoenvirox[MADLIGHTINDICES];
 float            lighttoenviroy[256];
-//Uint32           lighttospek[MAXSPEKLEVEL][256];
 
 int rotmeshtopside;
 int rotmeshbottomside;
@@ -233,13 +209,13 @@ line_data_t line_list[LINE_COUNT];
 static void gfx_init_SDL_graphics();
 
 static void _flip_pages();
+static void _debug_print( const char *text );
+static int  _debug_vprintf( const char *format, va_list args );
+static int  _va_draw_string( int x, int y, const char *format, va_list args );
+static int  _draw_string_raw( int x, int y, const char *format, ... );
 
 static void project_view( camera_t * pcam );
 static void gfx_make_dynalist( camera_t * pcam );
-
-static int _draw_string_raw( int x, int y, const char *format, ... );
-
-static bool_t sum_dyna_lighting( dynalight_t * pdyna, float lighting[], float dx, float dy, float dz );
 
 static void init_icon_data();
 static void init_bar_data();
@@ -1521,14 +1497,14 @@ int draw_debug( int y )
 
         tnc = PlaList[0].index;
         y = _draw_string_raw( 0, y, "~~PLA0DEF %d %d %d %d %d %d %d %d",
-                              ChrList.lst[tnc].damagemodifier[0] & 3,
-                              ChrList.lst[tnc].damagemodifier[1] & 3,
-                              ChrList.lst[tnc].damagemodifier[2] & 3,
-                              ChrList.lst[tnc].damagemodifier[3] & 3,
-                              ChrList.lst[tnc].damagemodifier[4] & 3,
-                              ChrList.lst[tnc].damagemodifier[5] & 3,
-                              ChrList.lst[tnc].damagemodifier[6] & 3,
-                              ChrList.lst[tnc].damagemodifier[7] & 3 );
+                              ChrList.lst[tnc].damagemodifier[DAMAGE_SLASH] & 3,
+                              ChrList.lst[tnc].damagemodifier[DAMAGE_CRUSH] & 3,
+                              ChrList.lst[tnc].damagemodifier[DAMAGE_POKE ] & 3,
+                              ChrList.lst[tnc].damagemodifier[DAMAGE_HOLY ] & 3,
+                              ChrList.lst[tnc].damagemodifier[DAMAGE_EVIL ] & 3,
+                              ChrList.lst[tnc].damagemodifier[DAMAGE_FIRE ] & 3,
+                              ChrList.lst[tnc].damagemodifier[DAMAGE_ICE  ] & 3,
+                              ChrList.lst[tnc].damagemodifier[DAMAGE_ZAP  ] & 3 );
 
         tnc = PlaList[0].index;
         y = _draw_string_raw( 0, y, "~~PLA0 %5.1f %5.1f", ChrList.lst[tnc].pos.x / TILE_SIZE, ChrList.lst[tnc].pos.y / TILE_SIZE );
@@ -2680,7 +2656,7 @@ void render_world_background( Uint16 texture )
 
         intens = light_a * ilayer->light_add;
 
-        fcos = light_z;
+        fcos = light_nrm[kZ];
         if ( fcos > 0.0f )
         {
             intens += fcos * fcos * light_d * ilayer->light_dir;
@@ -2699,7 +2675,6 @@ void render_world_background( Uint16 texture )
         GL_DEBUG( glDepthMask )( GL_FALSE );      // GL_DEPTH_BUFFER_BIT
         GL_DEBUG( glDepthFunc )( GL_ALWAYS );     // GL_DEPTH_BUFFER_BIT
         GL_DEBUG( glDisable )( GL_CULL_FACE );    // GL_ENABLE_BIT
-
 
         if ( alpha > 0.0f )
         {
@@ -3130,215 +3105,7 @@ bool_t interpolate_grid_lighting( ego_mpd_t * pmesh, lighting_cache_t * dst, fve
     u = ( pos.x - min_x ) / ( max_x - min_x );
     v = ( pos.y - min_y ) / ( max_y - min_y );
 
-    return interpolate_lighting( dst, cache_list, u, v );
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t project_lighting( lighting_cache_t * dst, lighting_cache_t * src, fmat_4x4_t mat )
-{
-    int cnt;
-    fvec3_t   fwd, right, up;
-
-    // blank the destination lighting
-    if ( NULL == dst ) return bfalse;
-
-    dst->max_light     = 0.0f;
-    dst->low.max_light = 0.0f;
-    dst->hgh.max_light = 0.0f;
-    for ( cnt = 0; cnt < LIGHTING_VEC_SIZE; cnt++ )
-    {
-        dst->low.lighting[cnt] = 0.0f;
-        dst->hgh.lighting[cnt] = 0.0f;
-    }
-
-    if ( NULL == src ) return bfalse;
-
-    // do the ambient
-    dst->low.lighting[6] = src->low.lighting[6];
-    dst->hgh.lighting[6] = src->hgh.lighting[6];
-
-    if ( src->max_light == 0.0f ) return btrue;
-
-    // grab the character directions
-    fwd   = mat_getChrForward( mat );         // along body-fixed +y-axis
-    right = mat_getChrRight( mat );        // along body-fixed +x-axis
-    up    = mat_getChrUp( mat );            // along body-fixed +z axis
-
-    fwd   = fvec3_normalize( fwd.v );
-    right = fvec3_normalize( right.v );
-    up    = fvec3_normalize( up.v );
-
-    // split the lighting cache up
-    project_sum_lighting( dst, src, right, 0 );
-    project_sum_lighting( dst, src, fwd,   2 );
-    project_sum_lighting( dst, src, up,    4 );
-
-    // determine the lighting extents
-    dst->low.max_light = ABS( dst->low.lighting[0] );
-    dst->hgh.max_light = ABS( dst->hgh.lighting[0] );
-    for ( cnt = 1; cnt < LIGHTING_VEC_SIZE - 1; cnt++ )
-    {
-        dst->low.max_light = MAX( dst->low.max_light, ABS( dst->low.lighting[cnt] ) );
-        dst->hgh.max_light = MAX( dst->hgh.max_light, ABS( dst->hgh.lighting[cnt] ) );
-    }
-    dst->max_light = MAX( dst->low.max_light, dst->hgh.max_light );
-
-    return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t interpolate_lighting( lighting_cache_t * dst, lighting_cache_t * src[], float u, float v )
-{
-    int   cnt, tnc;
-    float wt_sum;
-
-    if ( NULL == dst ) return bfalse;
-
-    dst->max_light     = 0.0f;
-    dst->low.max_light = 0.0f;
-    dst->hgh.max_light = 0.0f;
-    for ( cnt = 0; cnt < LIGHTING_VEC_SIZE; cnt++ )
-    {
-        dst->low.lighting[cnt] = 0.0f;
-        dst->hgh.lighting[cnt] = 0.0f;
-    }
-
-    if ( NULL == src ) return bfalse;
-
-    u = CLIP( u, 0, 1 );
-    v = CLIP( v, 0, 1 );
-
-    wt_sum = 0.0f;
-
-    if ( NULL != src[0] )
-    {
-        float wt = ( 1 - u ) * ( 1 - v );
-        for ( tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++ )
-        {
-            dst->low.lighting[tnc] += src[0]->low.lighting[tnc] * wt;
-            dst->hgh.lighting[tnc] += src[0]->hgh.lighting[tnc] * wt;
-        }
-        wt_sum += wt;
-    }
-
-    if ( NULL != src[1] )
-    {
-        float wt = u * ( 1 - v );
-        for ( tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++ )
-        {
-            dst->low.lighting[tnc] += src[1]->low.lighting[tnc] * wt;
-            dst->hgh.lighting[tnc] += src[1]->hgh.lighting[tnc] * wt;
-        }
-        wt_sum += wt;
-    }
-
-    if ( NULL != src[2] )
-    {
-        float wt = ( 1 - u ) * v;
-        for ( tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++ )
-        {
-            dst->low.lighting[tnc] += src[2]->low.lighting[tnc] * wt;
-            dst->hgh.lighting[tnc] += src[2]->hgh.lighting[tnc] * wt;
-        }
-        wt_sum += wt;
-    }
-
-    if ( NULL != src[3] )
-    {
-        float wt = u * v;
-        for ( tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++ )
-        {
-            dst->low.lighting[tnc] += src[3]->low.lighting[tnc] * wt;
-            dst->hgh.lighting[tnc] += src[3]->hgh.lighting[tnc] * wt;
-        }
-        wt_sum += wt;
-    }
-
-    if ( wt_sum > 0.0f )
-    {
-        if ( wt_sum != 1.0f )
-        {
-            for ( tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++ )
-            {
-                dst->low.lighting[tnc] /= wt_sum;
-                dst->hgh.lighting[tnc] /= wt_sum;
-            }
-        }
-
-        // determine the lighting extents
-        dst->low.max_light = dst->low.lighting[0];
-        dst->hgh.max_light = dst->hgh.lighting[0];
-        for ( cnt = 1; cnt < LIGHTING_VEC_SIZE - 1; cnt++ )
-        {
-            dst->low.max_light = MAX( dst->low.max_light, ABS( dst->low.lighting[cnt] ) );
-            dst->hgh.max_light = MAX( dst->hgh.max_light, ABS( dst->hgh.lighting[cnt] ) );
-        }
-        dst->max_light = MAX( dst->low.max_light, dst->hgh.max_light );
-    }
-
-    return wt_sum > 0.0f;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t project_sum_lighting( lighting_cache_t * dst, lighting_cache_t * src, fvec3_t vec, int dir )
-{
-    if ( NULL == src || NULL == dst ) return bfalse;
-
-    if ( dir < 0 || dir > 4 || 0 != ( dir&1 ) )
-        return bfalse;
-
-    if ( vec.x > 0 )
-    {
-        dst->low.lighting[dir+0] += ABS( vec.x ) * src->low.lighting[0];
-        dst->low.lighting[dir+1] += ABS( vec.x ) * src->low.lighting[1];
-
-        dst->hgh.lighting[dir+0] += ABS( vec.x ) * src->hgh.lighting[0];
-        dst->hgh.lighting[dir+1] += ABS( vec.x ) * src->hgh.lighting[1];
-    }
-    else if ( vec.x < 0 )
-    {
-        dst->low.lighting[dir+0] += ABS( vec.x ) * src->low.lighting[1];
-        dst->low.lighting[dir+1] += ABS( vec.x ) * src->low.lighting[0];
-
-        dst->hgh.lighting[dir+0] += ABS( vec.x ) * src->hgh.lighting[1];
-        dst->hgh.lighting[dir+1] += ABS( vec.x ) * src->hgh.lighting[0];
-    }
-
-    if ( vec.y > 0 )
-    {
-        dst->low.lighting[dir+0] += ABS( vec.y ) * src->low.lighting[2];
-        dst->low.lighting[dir+1] += ABS( vec.y ) * src->low.lighting[3];
-
-        dst->hgh.lighting[dir+0] += ABS( vec.y ) * src->hgh.lighting[2];
-        dst->hgh.lighting[dir+1] += ABS( vec.y ) * src->hgh.lighting[3];
-    }
-    else if ( vec.y < 0 )
-    {
-        dst->low.lighting[dir+0] += ABS( vec.y ) * src->low.lighting[3];
-        dst->low.lighting[dir+1] += ABS( vec.y ) * src->low.lighting[2];
-
-        dst->hgh.lighting[dir+0] += ABS( vec.y ) * src->hgh.lighting[3];
-        dst->hgh.lighting[dir+1] += ABS( vec.y ) * src->hgh.lighting[2];
-    }
-
-    if ( vec.z > 0 )
-    {
-        dst->low.lighting[dir+0] += ABS( vec.z ) * src->low.lighting[4];
-        dst->low.lighting[dir+1] += ABS( vec.z ) * src->low.lighting[5];
-
-        dst->hgh.lighting[dir+0] += ABS( vec.z ) * src->hgh.lighting[4];
-        dst->hgh.lighting[dir+1] += ABS( vec.z ) * src->hgh.lighting[5];
-    }
-    else if ( vec.z < 0 )
-    {
-        dst->low.lighting[dir+0] += ABS( vec.z ) * src->low.lighting[5];
-        dst->low.lighting[dir+1] += ABS( vec.z ) * src->low.lighting[4];
-
-        dst->hgh.lighting[dir+0] += ABS( vec.z ) * src->hgh.lighting[5];
-        dst->hgh.lighting[dir+1] += ABS( vec.z ) * src->hgh.lighting[4];
-    }
-
-    return btrue;
+    return lighting_interpolate_cache( dst, cache_list, u, v );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5201,7 +4968,6 @@ void light_fans( renderlist_t * prlist )
         }
 #endif
 
-
         mesh_light_corners( prlist->pmesh, fan, local_mesh_lighting_keep );
     }
 
@@ -5255,99 +5021,6 @@ void light_fans( renderlist_t * prlist )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t sum_dyna_lighting( dynalight_t * pdyna, float lighting[], float dx, float dy, float dz )
-{
-    /// @details BB@> In the Aaron's lighting, the falloff function was
-    ///                  light = (255 - r^2 / falloff) / 255.0f
-    ///              this has a definite max radius for the light, rmax = sqrt(falloff*255),
-    ///              which was good because we could have a definite range for a given light
-    ///
-    ///              This is not ideal because the light cuts off too abruptly. The new form of the
-    ///              function is (in semi-maple notation)
-    ///
-    ///              f(n,r) = integral( (1+y)^n * y * (1-y)^n, y = -1 .. r )
-    ///
-    ///              this has the advantage that it forms a bell-shaped curve that approaches 0 smoothly
-    ///              at r = -1 and r = 1. The lowest order term will always be quadratic in r, just like
-    ///              Aaron's function. To eliminate terms like r^4 and higher order even terms, you can
-    //               various f(n,r) with different n's. But combining terms with larger and larger
-    ///              n means that the left-over terms that make the function approach zero smoothly
-    ///              will have higher and higher powers of r (more expensive) and the cutoff will
-    ///              be sharper and sharper (which is against the whole point of this type of function).
-    ///
-    ///              Eliminating just the r^4 term gives the function
-    ///                  f(y) = 1 - y^2 * ( 3.0f - y^4 ) / 2
-    ///              to make it match Aaron's function best, you have to scale the function by
-    ///                  y^2 = r^2 * 2 / 765 / falloff
-    ///
-    ///              I have previously tried rational polynomial functions like
-    ///                  f(r) = k0 / (1 + k1 * r^2 ) + k2 / (1 + k3 * r^4 )
-    ///              where the second term is to cancel make the function behave like Aaron's
-    ///              at small r, and to make the function approximate same "size" of lighting area
-    ///              as Aarons. An added benefit is that this function automatically has the right
-    ///              "physics" behavior at large distances (falls off like 1/r^2). But that is the
-    ///              exact problem because the infinite range means that it can potentally affect
-    ///              the entire mesh, causing problems with computing a large number of lights
-
-
-    float rho_sqr  = dx * dx + dy * dy;
-    float y2       = rho_sqr * 2.0f / 765.0f / pdyna->falloff;
-
-    float level = 0.0f;
-    if ( y2 > 1.0f ) return bfalse;
-
-    level = 1.0f - 0.5f * y2 * ( 3.0f - y2 * y2 );
-    level *= 255 * pdyna->level;
-
-    // allow negative lighting, or blind spots will not work properly
-    if (( ABS( level ) ) > 0.5 )
-    {
-        float rad_sqr = rho_sqr + dz * dz;
-
-        if ( rad_sqr > 0.0f )
-        {
-            float rad = SQRT( rad_sqr );
-            dx /= rad;
-            dy /= rad;
-            dz /= rad;
-        }
-        else
-        {
-            level *= 0.5f;
-        }
-
-        if ( dx >= 0 )
-        {
-            lighting[0] += ABS( dx ) * level;
-        }
-        if ( dx <= 0 )
-        {
-            lighting[1] += ABS( dx ) * level;
-        }
-
-        if ( dy >= 0 )
-        {
-            lighting[2] += ABS( dy ) * level;
-        }
-        if ( dy <= 0 )
-        {
-            lighting[3] += ABS( dy ) * level;
-        }
-
-        if ( dz >= 0 )
-        {
-            lighting[4] += ABS( dz ) * level;
-        }
-        if ( dz <= 0 )
-        {
-            lighting[5] += ABS( dz ) * level;
-        }
-    }
-
-    return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
 float get_ambient_level()
 {
     /// @details BB@> get the actual global ambient level
@@ -5376,7 +5049,7 @@ float get_ambient_level()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t sum_global_lighting( float lighting[] )
+bool_t sum_global_lighting( lighting_vector_t lighting )
 {
     /// @details BB@> do ambient lighting. if the module is inside, the ambient lighting
     /// is reduced by up to a facror of 8. It is still kept just high enough
@@ -5389,41 +5062,16 @@ bool_t sum_global_lighting( float lighting[] )
 
     glob_amb = get_ambient_level();
 
-    for ( cnt = 0; cnt < LIGHTING_VEC_SIZE - 1; cnt++ )
+    for ( cnt = 0; cnt < LVEC_AMB; cnt++ )
     {
         lighting[cnt] = 0.0f;
     }
-    lighting[6] = glob_amb;
+    lighting[LVEC_AMB] = glob_amb;
 
     if ( !gfx.usefaredge ) return btrue;
 
     // do "outside" directional lighting (i.e. sunlight)
-    if ( light_x > 0 )
-    {
-        lighting[0] += ABS( light_x ) * light_d * 255;
-    }
-    else if ( light_x < 0 )
-    {
-        lighting[1] += ABS( light_x ) * light_d * 255;
-    }
-
-    if ( light_y > 0 )
-    {
-        lighting[2] += ABS( light_y ) * light_d * 255;
-    }
-    else if ( light_y < 0 )
-    {
-        lighting[3] += ABS( light_y ) * light_d * 255;
-    }
-
-    if ( light_z > 0 )
-    {
-        lighting[4] += ABS( light_z ) * light_d * 255;
-    }
-    else if ( light_z < 0 )
-    {
-        lighting[5] += ABS( light_z ) * light_d * 255;
-    }
+    lighting_vector_sum( lighting, light_nrm, light_d * 255, 0.0f );
 
     return btrue;
 }
@@ -5497,10 +5145,10 @@ void do_grid_dynalight( ego_mpd_t * pmesh, camera_t * pcam )
 
         radius = SQRT( pdyna->falloff * 765.0f / 2.0f );
 
-        ftmp.xmin = floor(( pdyna->x - radius ) / TILE_SIZE ) * TILE_SIZE;
-        ftmp.xmax = ceil(( pdyna->x + radius ) / TILE_SIZE ) * TILE_SIZE;
-        ftmp.ymin = floor(( pdyna->y - radius ) / TILE_SIZE ) * TILE_SIZE;
-        ftmp.ymax = ceil(( pdyna->y + radius ) / TILE_SIZE ) * TILE_SIZE;
+        ftmp.xmin = floor(( pdyna->pos.x - radius ) / TILE_SIZE ) * TILE_SIZE;
+        ftmp.xmax = ceil (( pdyna->pos.x + radius ) / TILE_SIZE ) * TILE_SIZE;
+        ftmp.ymin = floor(( pdyna->pos.y - radius ) / TILE_SIZE ) * TILE_SIZE;
+        ftmp.ymax = ceil (( pdyna->pos.y + radius ) / TILE_SIZE ) * TILE_SIZE;
 
         // check to see if it intersects the "frustum"
         if ( ftmp.xmin <= mesh_bound.xmax && ftmp.xmax >= mesh_bound.xmin )
@@ -5546,11 +5194,11 @@ void do_grid_dynalight( ego_mpd_t * pmesh, camera_t * pcam )
         // this is not a "bad" grid box, so grab the lighting info
         cache = &( pgmem->light[fan].cache );
 
-        // blank the lighting
+        // set the global lighting
         for ( tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++ )
         {
-            local_lighting_low[tnc] = 0.0f;
-            local_lighting_hgh[tnc] = 0.0f;
+            local_lighting_low[tnc] = global_lighting[tnc];
+            local_lighting_hgh[tnc] = global_lighting[tnc];
         };
 
         if ( gfx.shading != GL_FLAT )
@@ -5571,6 +5219,7 @@ void do_grid_dynalight( ego_mpd_t * pmesh, camera_t * pcam )
                     // add in the dynamic lighting
                     for ( cnt = 0; cnt < reg_count; cnt++ )
                     {
+                        fvec3_t       nrm;
                         dynalight_t * pdyna;
 
                         // check the bound relative to each valid dynamic light
@@ -5581,29 +5230,37 @@ void do_grid_dynalight( ego_mpd_t * pmesh, camera_t * pcam )
                         tnc = reg[cnt].reference;
                         pdyna = dyna_list + tnc;
 
-                        sum_dyna_lighting( pdyna, local_lighting_low, pdyna->x - x0, pdyna->y - y0, pdyna->z - pmmem->bbox.mins[ZZ] );
-                        sum_dyna_lighting( pdyna, local_lighting_hgh, pdyna->x - x0, pdyna->y - y0, pdyna->z - pmmem->bbox.maxs[ZZ] );
+                        nrm.x = pdyna->pos.x - x0;
+                        nrm.y = pdyna->pos.y - y0;
+                        nrm.z = pdyna->pos.z - pmmem->bbox.mins[ZZ];
+                        sum_dyna_lighting( pdyna, local_lighting_low, nrm.v );
+
+                        nrm.z = pdyna->pos.z - pmmem->bbox.maxs[ZZ];
+                        sum_dyna_lighting( pdyna, local_lighting_hgh, nrm.v );
                     }
                 }
             }
         }
 
         // average this in with the existing lighting
+        cache->low.max_delta = cache->hgh.max_delta = 0.0f;
         for ( tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++ )
         {
-            cache->low.lighting[tnc] = cache->low.lighting[tnc] * local_keep + local_lighting_low[tnc] * ( 1.0f - local_keep );
-            cache->hgh.lighting[tnc] = cache->hgh.lighting[tnc] * local_keep + local_lighting_hgh[tnc] * ( 1.0f - local_keep );
-        }
+            float ftmp;
 
-        for ( cnt = 0; cnt < LIGHTING_VEC_SIZE; cnt++ )
-        {
-            local_lighting_low[cnt] += global_lighting[cnt];
-            local_lighting_hgh[cnt] += global_lighting[cnt];
+            ftmp = cache->low.lighting[tnc];
+            cache->low.lighting[tnc] = ftmp * local_keep + local_lighting_low[tnc] * ( 1.0f - local_keep );
+            cache->low.max_delta = MAX( cache->low.max_delta, ABS(cache->low.lighting[tnc] - ftmp) );
+
+            ftmp = cache->hgh.lighting[tnc];
+            cache->hgh.lighting[tnc] = ftmp * local_keep + local_lighting_hgh[tnc] * ( 1.0f - local_keep );
+            cache->hgh.max_delta = MAX( cache->hgh.max_delta, ABS(cache->hgh.lighting[tnc] - ftmp) );
         }
+        cache->max_delta = MAX( cache->low.max_delta, cache->hgh.max_delta );
 
         // find the max intensity
-        cache->low.max_light = cache->low.lighting[0];
-        cache->hgh.max_light = cache->hgh.lighting[0];
+        cache->low.max_light = ABS( cache->low.lighting[0] );
+        cache->hgh.max_light = ABS( cache->hgh.lighting[0] );
         for ( tnc = 1; tnc < LIGHTING_VEC_SIZE - 1; tnc++ )
         {
             cache->low.max_light = MAX( cache->low.max_light, ABS( cache->low.lighting[tnc] ) );
@@ -5625,7 +5282,7 @@ void gfx_make_dynalist( camera_t * pcam )
 
     // Don't really make a list, just set to visible or not
     dyna_list_count = 0;
-    dyna_distancetobeat = MAXDYNADIST * MAXDYNADIST;
+    dyna_distancetobeat = 1e12;
     for ( cnt = 0; cnt < maxparticles; cnt++ )
     {
         PrtList.lst[cnt].inview = bfalse;
@@ -5686,9 +5343,7 @@ void gfx_make_dynalist( camera_t * pcam )
 
             if ( found )
             {
-                dyna_list[slot].x       = PrtList.lst[cnt].pos.x;
-                dyna_list[slot].y       = PrtList.lst[cnt].pos.y;
-                dyna_list[slot].z       = PrtList.lst[cnt].pos.z;
+                dyna_list[slot].pos     = PrtList.lst[cnt].pos;
                 dyna_list[slot].level   = PrtList.lst[cnt].dynalight.level;
                 dyna_list[slot].falloff = PrtList.lst[cnt].dynalight.falloff;
             }
@@ -5964,8 +5619,8 @@ void draw_cursor()
 //        }
 //
 //        // find the max intensity
-//        cache->low.max_light = cache->low.lighting[0];
-//        cache->hgh.max_light = cache->hgh.lighting[0];
+//        cache->low.max_light = ABS( cache->low.lighting[0] );
+//        cache->hgh.max_light = ABS( cache->hgh.lighting[0] );
 //        for ( tnc = 1; tnc < LIGHTING_VEC_SIZE - 1; tnc++ )
 //        {
 //            cache->low.max_light = MAX( cache->low.max_light, ABS( cache->low.lighting[tnc] ) );

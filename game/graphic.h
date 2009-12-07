@@ -393,9 +393,6 @@ void renderlist_reset();
 void renderlist_make( ego_mpd_t * pmesh, struct s_camera * pcam );
 
 bool_t interpolate_grid_lighting( ego_mpd_t * pmesh, lighting_cache_t * dst, fvec3_t   pos );
-bool_t project_lighting( lighting_cache_t * dst, lighting_cache_t * src, fmat_4x4_t mat );
-bool_t interpolate_lighting( lighting_cache_t * dst, lighting_cache_t * src[], float u, float v );
-bool_t project_sum_lighting( lighting_cache_t * dst, lighting_cache_t * src, fvec3_t   vec, int dir );
 
 int  get_free_line();
 
@@ -422,6 +419,5 @@ float  get_ambient_level();
 //void set_fan_light( int fanx, int fany, Uint16 particle );
 //void make_lighttospek();
 //void make_lighttable( float lx, float ly, float lz, float ambi );
-
 
 void animate_all_tiles( ego_mpd_t * pmesh );

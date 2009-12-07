@@ -373,7 +373,6 @@ struct s_chr_environment
 };
 typedef struct s_chr_environment chr_environment_t;
 
-
 //--------------------------------------------------------------------------------------------
 /// The definition of the character object
 /// This "inherits" for ego_object_base_t

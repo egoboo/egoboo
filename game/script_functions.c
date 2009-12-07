@@ -477,7 +477,7 @@ Uint8 scr_AddWaypoint( script_state_t * pstate, ai_state_t * pself )
     if( returncode )
     {
         // make sure we update the waypoint, since the list changed
-        pself->wp_valid = waypoint_list_peek( &(pself->wp_lst), pself->wp ); 
+        pself->wp_valid = waypoint_list_peek( &(pself->wp_lst), pself->wp );
     }
 
     SCRIPT_FUNCTION_END();
@@ -534,7 +534,7 @@ Uint8 scr_FindPath( script_state_t * pstate, ai_state_t * pself )
             if( returncode )
             {
                 // make sure we update the waypoint, since the list changed
-                pself->wp_valid = waypoint_list_peek( &(pself->wp_lst), pself->wp ); 
+                pself->wp_valid = waypoint_list_peek( &(pself->wp_lst), pself->wp );
             }
         }
     }
@@ -7274,7 +7274,6 @@ Uint8 scr_set_TargetToNearestQuestID( script_state_t * pstate, ai_state_t * psel
             longdist = dist2;
         }
     }
-
 
     SCRIPT_FUNCTION_END();
 }

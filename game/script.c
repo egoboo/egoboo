@@ -204,7 +204,6 @@ void let_character_think( Uint16 character )
             pself->wp_valid = waypoint_list_peek( &(pself->wp_lst), pself->wp );
         }
 
-
         if ( pchr->ismount && ACTIVE_CHR( pchr->holdingwhich[SLOT_LEFT] ) )
         {
             // Mount
@@ -271,8 +270,8 @@ void set_alerts( Uint16 character )
     at_waypoint = bfalse;
     if( pai->wp_valid )
     {
-        at_waypoint = (ABS(pchr->pos.x - pai->wp[kX]) < WAYTHRESH) &&  
-                      (ABS(pchr->pos.y - pai->wp[kY]) < WAYTHRESH); 
+        at_waypoint = (ABS(pchr->pos.x - pai->wp[kX]) < WAYTHRESH) &&
+                      (ABS(pchr->pos.y - pai->wp[kY]) < WAYTHRESH);
     }
 
     if( at_waypoint )
@@ -1505,10 +1504,10 @@ bool_t waypoint_list_peek( waypoint_list_t * plst, waypoint_t wp )
     int index;
 
     // is the list valid?
-    if( NULL == plst || plst->tail >= MAXWAY ) return bfalse; 
+    if( NULL == plst || plst->tail >= MAXWAY ) return bfalse;
 
     // is the list is empty?
-    if( 0 == plst->head ) return bfalse; 
+    if( 0 == plst->head ) return bfalse;
 
     if( plst->tail > plst->head )
     {
@@ -1549,7 +1548,7 @@ bool_t waypoint_list_push( waypoint_list_t * plst, int x, int y )
     plst->pos[plst->head][0] = x;
     plst->pos[plst->head][1] = y;
 
-    // do not let the list overflow 
+    // do not let the list overflow
     plst->head++;
     if ( plst->head >= MAXWAY ) plst->head = MAXWAY - 1;
 
@@ -1586,7 +1585,7 @@ bool_t waypoint_list_empty( waypoint_list_t * plst )
 {
     if( NULL == plst ) return btrue;
 
-    return 0 == plst->head; 
+    return 0 == plst->head;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1594,7 +1593,7 @@ bool_t waypoint_list_finished( waypoint_list_t * plst )
 {
     if( NULL == plst || 0 == plst->head ) return btrue;
 
-    return plst->tail == plst->head; 
+    return plst->tail == plst->head;
 }
 
 //--------------------------------------------------------------------------------------------

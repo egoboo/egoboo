@@ -106,7 +106,6 @@ static void bump_all_platforms( void );
 static void bump_all_mounts( void );
 static void bump_all_collisions( void );
 
-
 static bool_t do_mounts( Uint16 ichr_a, Uint16 ichr_b );
 static bool_t do_chr_platform_physics( chr_t * pitem, chr_t * pplat );
 static float  estimate_chr_prt_normal( chr_t * pchr, prt_t * pprt, fvec3_base_t nrm, fvec3_base_t vdiff );
@@ -392,7 +391,6 @@ bool_t add_chr_prt_interaction( Uint16 ichr_a, Uint16 iprt_b, co_data_t cdata[],
 
     return !found;
 }
-
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -811,8 +809,6 @@ bool_t do_prt_platform_detection( Uint16 ichr_a, Uint16 iprt_b )
     return btrue;
 }
 
-
-
 //--------------------------------------------------------------------------------------------
 bool_t attach_chr_to_platform( chr_t * pchr, chr_t * pplat )
 {
@@ -895,7 +891,6 @@ bool_t attach_prt_to_platform( prt_t * pprt, chr_t * pplat )
 
     return btrue;
 }
-
 
 //--------------------------------------------------------------------------------------------
 void bump_all_objects( void )
@@ -1749,8 +1744,6 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
     return btrue;
 }
 
-
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 bool_t do_prt_platform_physics( prt_t * pprt, chr_t * pplat, chr_prt_collsion_data_t * pdata )
@@ -1769,7 +1762,7 @@ bool_t do_prt_platform_physics( prt_t * pprt, chr_t * pplat, chr_prt_collsion_da
     // can the particle interact with it?
     if( !ACTIVE_PPRT(pprt) || ACTIVE_CHR( pprt->attachedto_ref ) ) return bfalse;
 
-    // this is handled elsewhere 
+    // this is handled elsewhere
     if( GET_INDEX_PCHR( pplat ) == pprt->onwhichplatform ) return bfalse;
 
     // Test to see whether the particle is in the right position to interact with the platform.
@@ -1840,7 +1833,6 @@ bool_t do_prt_platform_physics( prt_t * pprt, chr_t * pplat, chr_prt_collsion_da
     return plat_collision;
 }
 
-
 //--------------------------------------------------------------------------------------------
 bool_t do_chr_prt_collision_deflect( chr_t * pchr, prt_t * pprt, chr_prt_collsion_data_t * pdata  )
 {
@@ -1862,7 +1854,7 @@ bool_t do_chr_prt_collision_deflect( chr_t * pchr, prt_t * pprt, chr_prt_collsio
     chr_is_invictus = chr_is_invictus && ( 0 == ( pdata->ppip->damfx & DAMFX_NBLOC ) );
 
     // determine whether the character is magically protected from missile attacks
-    prt_wants_deflection  = ( MISSILE_NORMAL != pchr->missiletreatment ) && 
+    prt_wants_deflection  = ( MISSILE_NORMAL != pchr->missiletreatment ) &&
                             ( pprt->owner_ref != GET_INDEX_PCHR( pchr ) ) && !pdata->ppip->bumpmoney;
 
     chr_can_deflect = chr_is_invictus || (( 0 != pchr->damagetime ) && ( pdata->max_damage > 0 ) );
@@ -2343,8 +2335,6 @@ bool_t do_chr_prt_collision_handle_bump(chr_t * pchr, prt_t * pprt, chr_prt_coll
     return btrue;;
 }
 
-
-
 //--------------------------------------------------------------------------------------------
 bool_t do_chr_prt_collision_init( chr_t * pchr, prt_t * pprt, chr_prt_collsion_data_t * pdata )
 {
@@ -2388,7 +2378,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     ///               or if the interaction had no effect.
     ///
     /// @note This function is a little more complicated than the character-character case because
-    //        of the friend-foe logic as well as the damage and other special effects that particles can do.
+    ///       of the friend-foe logic as well as the damage and other special effects that particles can do.
 
     bool_t retval = bfalse;
 
@@ -2431,7 +2421,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     // put this off until this point to reduce calling this "expensive" function
     cdata.dot = estimate_chr_prt_normal( pchr_a, pprt_b, cdata.nrm.v, cdata.vdiff.v );
 
-    // handle particle deflection. 
+    // handle particle deflection.
     // if the platform collision was already handled, there is nothing left to do
     prt_deflected = bfalse;
     if( full_collision && !plat_collision )
@@ -2456,7 +2446,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
             retval = (0 != reaffirm_attached_particles( ichr_a ));
         }
 
-        // refine the logic for a particle to hit a character  
+        // refine the logic for a particle to hit a character
         prt_can_hit_chr = do_chr_prt_collision_bump( pchr_a, pprt_b, &cdata );
 
         // does the particle damage/heal the character?

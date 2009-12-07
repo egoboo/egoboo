@@ -234,7 +234,6 @@ int prt_get_free( int force )
     // Return TOTAL_MAX_PRT if we can't find one
     iprt = TOTAL_MAX_PRT;
 
-
     if ( 0 == PrtList.free_count )
     {
         if ( force )

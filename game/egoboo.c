@@ -358,7 +358,6 @@ int do_ego_proc_run( ego_process_t * eproc, double frameDuration )
     return result;
 }
 
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 int SDL_main( int argc, char **argv )
@@ -451,7 +450,6 @@ void memory_cleanUp( void )
     log_shutdown();
 }
 
-
 //---------------------------------------------------------------------------------------------
 int ego_init_SDL()
 {
@@ -508,7 +506,6 @@ void ego_init_SDL_base()
     _sdl_initialized_base = btrue;
 }
 
-
 //--------------------------------------------------------------------------------------------
 void console_init()
 {
@@ -526,8 +523,6 @@ void console_init()
 #endif
 }
 
-
-
 //--------------------------------------------------------------------------------------------
 void init_all_objects( void )
 {
@@ -537,7 +532,6 @@ void init_all_objects( void )
     enchant_system_init();
     character_system_init();
 }
-
 
 //--------------------------------------------------------------------------------------------
 void _quit_game( ego_process_t * pgame )

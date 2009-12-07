@@ -24,11 +24,11 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 float hillslide       =  1.00f;
-float slippyfriction  =  1.00f; 
-float airfriction     =  0.91f;    
+float slippyfriction  =  1.00f;
+float airfriction     =  0.91f;
 float waterfriction   =  0.80f;
 float noslipfriction  =  0.91f;
-float gravity         = -1.00f;        
+float gravity         = -1.00f;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -458,7 +458,6 @@ void oct_bb_downgrade( oct_bb_t * psrc_bb, bumper_t bump_base, bumper_t * pdst_b
     }
 };
 
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 bool_t get_depth_close_0( bumper_t bump_a, fvec3_t pos_a, bumper_t bump_b, fvec3_t pos_b, bool_t break_out, oct_vec_t depth )
@@ -691,7 +690,7 @@ bool_t test_interaction_close_2( oct_bb_t cv_a, fvec3_t pos_a, oct_bb_t cv_b, fv
     // treat the z coordinate the same as always
     depth = MIN( cv_b.maxs[OCT_Z] + ob[OCT_Z], cv_a.maxs[OCT_Z] + oa[OCT_Z] ) -
             MAX( cv_b.mins[OCT_Z] + ob[OCT_Z], cv_a.mins[OCT_Z] + oa[OCT_Z] );
-    
+
     return test_platform ? (depth > -PLATTOLERANCE) : (depth > 0.0f);
 }
 

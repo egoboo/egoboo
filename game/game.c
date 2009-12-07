@@ -81,8 +81,6 @@
 #include <float.h>
 #include <string.h>
 
-
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 /// Data needed to specify a line-of-sight test
@@ -158,9 +156,6 @@ IDSZ   local_senseenemiesID   = IDSZ_NONE;
 
 // declare the variables to do profiling
 
-
-
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -194,13 +189,10 @@ static void   game_reset_players();
 // Model stuff
 static void log_madused( const char *savename );
 
-
-
 // "process" management
 static int do_game_proc_begin( game_process_t * gproc );
 static int do_game_proc_running( game_process_t * gproc );
 static int do_game_proc_leaving( game_process_t * gproc );
-
 
 // misc
 static bool_t game_begin_menu( menu_process_t * mproc, which_menu_t which );
@@ -879,7 +871,6 @@ int update_game()
     }
 
     //printf( "---- update_loop_cnt %d\n", update_loop_cnt );
-
 
     est_update_game_time = 0.9 * est_update_game_time + 0.1 * est_single_update_time * update_loop_cnt;
     est_max_game_ups     = 0.9 * est_max_game_ups     + 0.1 * 1.0 / est_update_game_time;
@@ -2348,16 +2339,16 @@ void show_armor( Uint16 statindex )
 
     // Armor Stats
     debug_printf( "~DEF: %d  SLASH:%3d~CRUSH:%3d POKE:%3d", 255 - pcap->defense[skinlevel],
-                  pcap->damagemodifier[0][skinlevel]&DAMAGESHIFT,
-                  pcap->damagemodifier[1][skinlevel]&DAMAGESHIFT,
-                  pcap->damagemodifier[2][skinlevel]&DAMAGESHIFT );
+                  pcap->damagemodifier[DAMAGE_SLASH][skinlevel]&DAMAGESHIFT,
+                  pcap->damagemodifier[DAMAGE_CRUSH][skinlevel]&DAMAGESHIFT,
+                  pcap->damagemodifier[DAMAGE_POKE ][skinlevel]&DAMAGESHIFT );
 
     debug_printf( "~HOLY:~%i~EVIL:~%i~FIRE:~%i~ICE:~%i~ZAP:~%i",
-                  pcap->damagemodifier[3][skinlevel]&DAMAGESHIFT,
-                  pcap->damagemodifier[4][skinlevel]&DAMAGESHIFT,
-                  pcap->damagemodifier[5][skinlevel]&DAMAGESHIFT,
-                  pcap->damagemodifier[6][skinlevel]&DAMAGESHIFT,
-                  pcap->damagemodifier[7][skinlevel]&DAMAGESHIFT );
+                  pcap->damagemodifier[DAMAGE_HOLY][skinlevel]&DAMAGESHIFT,
+                  pcap->damagemodifier[DAMAGE_EVIL][skinlevel]&DAMAGESHIFT,
+                  pcap->damagemodifier[DAMAGE_FIRE][skinlevel]&DAMAGESHIFT,
+                  pcap->damagemodifier[DAMAGE_ICE ][skinlevel]&DAMAGESHIFT,
+                  pcap->damagemodifier[DAMAGE_ZAP ][skinlevel]&DAMAGESHIFT );
 
     debug_printf( "~Type: %s", ( pcap->skindressy & ( 1 << skinlevel ) ) ? "Light Armor" : "Heavy Armor" );
 
@@ -2441,16 +2432,16 @@ void show_full_status( Uint16 statindex )
     // Armor Stats
     debug_printf( "~DEF: %d  SLASH:%3d~CRUSH:%3d POKE:%3d",
                   255 - pchr->defense,
-                  pchr->damagemodifier[0]&DAMAGESHIFT,
-                  pchr->damagemodifier[1]&DAMAGESHIFT,
-                  pchr->damagemodifier[2]&DAMAGESHIFT );
+                  pchr->damagemodifier[DAMAGE_SLASH]&DAMAGESHIFT,
+                  pchr->damagemodifier[DAMAGE_CRUSH]&DAMAGESHIFT,
+                  pchr->damagemodifier[DAMAGE_POKE ]&DAMAGESHIFT );
 
     debug_printf( "~HOLY: %i~~EVIL:~%i~FIRE:~%i~ICE:~%i~ZAP: ~%i",
-                  pchr->damagemodifier[3]&DAMAGESHIFT,
-                  pchr->damagemodifier[4]&DAMAGESHIFT,
-                  pchr->damagemodifier[5]&DAMAGESHIFT,
-                  pchr->damagemodifier[6]&DAMAGESHIFT,
-                  pchr->damagemodifier[7]&DAMAGESHIFT );
+                  pchr->damagemodifier[DAMAGE_HOLY]&DAMAGESHIFT,
+                  pchr->damagemodifier[DAMAGE_EVIL]&DAMAGESHIFT,
+                  pchr->damagemodifier[DAMAGE_FIRE]&DAMAGESHIFT,
+                  pchr->damagemodifier[DAMAGE_ICE ]&DAMAGESHIFT,
+                  pchr->damagemodifier[DAMAGE_ZAP ]&DAMAGESHIFT );
 
     get_chr_regeneration( pchr, &liferegen, &manaregen );
 
@@ -3965,7 +3956,6 @@ bool_t game_choose_module( int imod, int seed )
     return game_module_setup( PMod, mnu_ModList_get_base( imod ), mnu_ModList_get_name( imod ), seed );
 }
 
-
 //--------------------------------------------------------------------------------------------
 game_process_t * game_process_init( game_process_t * gproc )
 {
@@ -4489,14 +4479,14 @@ bool_t upload_light_data( wawalite_data_t * pdata )
     if ( NULL == pdata ) return bfalse;
 
     // upload the lighting data
-    light_x = pdata->light_x;
-    light_y = pdata->light_y;
-    light_z = pdata->light_z;
+    light_nrm[kX] = pdata->light_x;
+    light_nrm[kY] = pdata->light_y;
+    light_nrm[kZ] = pdata->light_z;
     light_a = pdata->light_a;
 
-    if ( ABS( light_x ) + ABS( light_y ) + ABS( light_z ) > 0 )
+    if ( ABS( light_nrm[kX] ) + ABS( light_nrm[kY] ) + ABS( light_nrm[kZ] ) > 0.0f )
     {
-        float fTmp = SQRT( light_x * light_x + light_y * light_y + light_z * light_z );
+        float fTmp = SQRT( light_nrm[kX] * light_nrm[kX] + light_nrm[kY] * light_nrm[kY] + light_nrm[kZ] * light_nrm[kZ] );
 
         // get the extra magnitude of the direct light
         if ( gfx.usefaredge )
@@ -4514,9 +4504,9 @@ bool_t upload_light_data( wawalite_data_t * pdata )
             light_d = CLIP( fTmp, 0.0f, 1.0f );
         }
 
-        light_x /= fTmp;
-        light_y /= fTmp;
-        light_z /= fTmp;
+        light_nrm[kX] /= fTmp;
+        light_nrm[kY] /= fTmp;
+        light_nrm[kZ] /= fTmp;
     }
 
     //make_lighttable( pdata->light_x, pdata->light_y, pdata->light_z, pdata->light_a );

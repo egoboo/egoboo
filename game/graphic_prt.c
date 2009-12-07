@@ -31,6 +31,7 @@
 #include "texture.h"
 #include "camera.h"
 #include "input.h"
+#include "lighting.h"
 
 #include "egoboo_setup.h"
 #include "egoboo.h"
@@ -892,10 +893,10 @@ void prt_instance_update_lighting( prt_instance_t * pinst, prt_t * pprt, Uint8 t
 
     // rotate the lighting data to body_centered coordinates
     mat = prt_inst_make_matrix( pinst );
-    project_lighting( &loc_light, &global_light, mat );
+    lighting_project_cache( &loc_light, &global_light, mat );
 
     // determine the normal dependent amount of light
-    evaluate_lighting_cache( &loc_light, pinst->nrm.v, pinst->pos.z, PMesh->mmem.bbox, &amb, &dir );
+    lighting_evaluate_cache( &loc_light, pinst->nrm.v, pinst->pos.z, PMesh->mmem.bbox, &amb, &dir );
 
     // determine the ambient lighting
     self_light  = ( 255 == pinst->light ) ? 0 : pinst->light;

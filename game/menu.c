@@ -185,7 +185,6 @@ static int do_menu_proc_begin( menu_process_t * mproc );
 static int do_menu_proc_running( menu_process_t * mproc );
 static int do_menu_proc_leaving( menu_process_t * mproc );
 
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 /// the module data that the menu system needs
@@ -4553,7 +4552,6 @@ int do_menu_proc_run( menu_process_t * mproc, double frameDuration )
 
     return result;
 }
-
 
 //--------------------------------------------------------------------------------------------
 menu_process_t * menu_process_init( menu_process_t * mproc )

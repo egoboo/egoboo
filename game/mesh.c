@@ -964,7 +964,6 @@ bool_t mesh_add_fx( ego_mpd_t * pmesh, Uint32 itile, Uint32 flags )
     return 0 != ( old_flags & flags );
 }
 
-
 //------------------------------------------------------------------------------
 Uint32 mesh_test_fx( ego_mpd_t * pmesh, Uint32 itile, Uint32 flags )
 {
@@ -1281,14 +1280,14 @@ bool_t grid_light_one_corner( ego_mpd_t * pmesh, int fan, float height, float nr
     {
         float light_dir, light_amb;
 
-        evaluate_lighting_cache( lighting, nrm, height, pmesh->mmem.bbox, &light_amb, &light_dir );
+        lighting_evaluate_cache( lighting, nrm, height, pmesh->mmem.bbox, &light_amb, &light_dir );
 
         // make ambient light only illuminate 1/2
         ( *plight ) = light_amb + 0.5f * light_dir;
     }
     else
     {
-        ( *plight ) = evaluate_lighting_cache( lighting, nrm, height, pmesh->mmem.bbox, NULL, NULL );
+        ( *plight ) = lighting_evaluate_cache( lighting, nrm, height, pmesh->mmem.bbox, NULL, NULL );
     }
 
     // clip the light to a reasonable value
@@ -1314,8 +1313,8 @@ bool_t mesh_light_one_corner( ego_mpd_t * pmesh, GLXvector3f pos, GLXvector3f nr
     pmem  = &( pmesh->mmem );
     pgmem = &( pmesh->gmem );
 
-    if ( pos[XX] < 0 || pos[XX] > pinfo->edge_x ) return bfalse;
-    if ( pos[YY] < 0 || pos[YY] > pinfo->edge_y ) return bfalse;
+    if ( pos[XX] < 0.0f || pos[XX] > pinfo->edge_x ) return bfalse;
+    if ( pos[YY] < 0.0f || pos[YY] > pinfo->edge_y ) return bfalse;
 
     ix = (( int )pos[XX] ) >> TILE_BITS;
     iy = (( int )pos[YY] ) >> TILE_BITS;
@@ -1352,14 +1351,14 @@ bool_t mesh_light_one_corner( ego_mpd_t * pmesh, GLXvector3f pos, GLXvector3f nr
             {
                 float light_dir, light_amb;
 
-                evaluate_lighting_cache( lighting, nrm, pos[ZZ], pmesh->mmem.bbox, &light_amb, &light_dir );
+                lighting_evaluate_cache( lighting, nrm, pos[ZZ], pmesh->mmem.bbox, &light_amb, &light_dir );
 
                 // make ambient light only illuminate 1/2
                 ( *plight ) += wt * ( light_amb + 0.5f * light_dir );
             }
             else
             {
-                ( *plight ) += wt * evaluate_lighting_cache( lighting, nrm, pos[ZZ], pmesh->mmem.bbox, NULL, NULL );
+                ( *plight ) += wt * lighting_evaluate_cache( lighting, nrm, pos[ZZ], pmesh->mmem.bbox, NULL, NULL );
             }
 
             wt_sum    += wt;
@@ -1377,7 +1376,7 @@ bool_t mesh_light_one_corner( ego_mpd_t * pmesh, GLXvector3f pos, GLXvector3f nr
     }
 
     // clip the lighting value to a reasonable size
-    ( *plight ) = CLIP(( *plight ), 0, 255 );
+    //( *plight ) = CLIP(( *plight ), 0, 255 );
 
     return btrue;
 }
@@ -1487,102 +1486,6 @@ float grid_get_mix( float u0, float u, float v0, float v )
     wt_v = ( 1.0f - dv ) * ( 1.0f + dv );
 
     return wt_u * wt_v;
-}
-
-//--------------------------------------------------------------------------------------------
-float evaluate_lighting_cache( lighting_cache_t * src, GLfloat nrm[], float z, aabb_t bbox, float * light_amb, float * light_dir )
-{
-    float lighting;
-    float hgh_wt, low_wt, amb, lighting_amb;
-
-    if ( NULL == src || NULL == nrm ) return 0.0f;
-
-    hgh_wt = ( z - bbox.mins[ZZ] ) / ( bbox.maxs[ZZ] - bbox.mins[ZZ] );
-    hgh_wt = CLIP( hgh_wt, 0.0f, 1.0f );
-
-    low_wt = 1.0f - hgh_wt;
-
-    lighting = 0.0f;
-    lighting_amb = 0.0f;
-    if ( low_wt > 0.0f )
-    {
-        lighting += low_wt * evaluate_lighting_cache_base( &( src->low ), nrm, &amb );
-        lighting_amb += low_wt * amb;
-    }
-    if ( hgh_wt > 0.0f )
-    {
-        lighting += hgh_wt * evaluate_lighting_cache_base( &( src->hgh ), nrm, &amb );
-        lighting_amb += hgh_wt * amb;
-    }
-
-    if ( NULL != light_amb )
-    {
-        *light_amb = lighting_amb;
-    }
-
-    if ( NULL != light_dir )
-    {
-        *light_dir = lighting - lighting_amb;
-    }
-
-    return lighting;
-}
-
-//--------------------------------------------------------------------------------------------
-float evaluate_lighting_cache_base( lighting_cache_base_t * lvec, GLfloat nrm[], float * amb )
-{
-    float lighting, local_amb;
-
-    if ( NULL == amb ) amb = &local_amb;
-
-    if ( NULL == lvec )
-    {
-        *amb = 0.0f;
-        return *amb;
-    }
-
-    if ( lvec->max_light == 0.0f )
-    {
-        // only ambient light, or black
-        *amb = lvec->lighting[6];
-        return *amb;
-    };
-
-    // initialize the lighting sum
-    lighting = 0.0f;
-
-    if ( nrm[XX] >= 0.0f )
-    {
-        lighting += nrm[XX] * lvec->lighting[0];
-    }
-    else if ( nrm[XX] < 0.0f )
-    {
-        lighting -= nrm[XX] * lvec->lighting[1];
-    }
-
-    if ( nrm[YY] >= 0.0f )
-    {
-        lighting += nrm[YY] * lvec->lighting[2];
-    }
-    else if ( nrm[YY] < 0.0f )
-    {
-        lighting -= nrm[YY] * lvec->lighting[3];
-    }
-
-    if ( nrm[ZZ] >= 0.0f )
-    {
-        lighting += nrm[ZZ] * lvec->lighting[4];
-    }
-    else if ( nrm[ZZ] < 0.0f )
-    {
-        lighting -= nrm[ZZ] * lvec->lighting[5];
-    }
-
-    *amb = lvec->lighting[6];
-
-    lighting += *amb;
-
-    return lighting;
 }
 
 //--------------------------------------------------------------------------------------------

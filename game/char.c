@@ -3436,7 +3436,7 @@ Uint16 spawn_one_character( fvec3_t pos, Uint16 profile, Uint8 team,
                             Uint8 skin, Uint16 facing, const char *name, Uint16 override )
 {
     /// @details ZZ@> This function spawns a character and returns the character's index number
-    ///    if it worked, MAX_CHR otherwise
+    ///               if it worked, MAX_CHR otherwise
 
     Uint16 ichr, kursechance;
     int cnt, tnc;
@@ -3585,7 +3585,6 @@ Uint16 spawn_one_character( fvec3_t pos, Uint16 profile, Uint8 team,
 
     pchr->turn_z     = facing;
     pchr->turn_old_z = pchr->turn_z;
-
 
     pchr->onwhichfan    = mesh_get_tile( PMesh, pchr->pos.x, pchr->pos.y );
     pchr->onwhichblock  = mesh_get_block( PMesh, pchr->pos.x, pchr->pos.y );
@@ -8656,7 +8655,6 @@ bool_t chr_can_mount( Uint16 ichr_a, Uint16 ichr_b )
 
     return is_valid_rider_a && is_valid_mount_b;
 }
-
 
 //--------------------------------------------------------------------------------------------
 /*void kill_character( Uint16 character, Uint16 killer )

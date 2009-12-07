@@ -68,7 +68,6 @@ float  clk_getFrameRate( ClockState_t * cs );       ///< Return the current inst
 #    define PROFILE_END_STRUCT(PTR)    clk_frameStep((PTR)->_clkstate);   (PTR)->_clkcount = (PTR)->_clkcount*PROFILE_KEEP + PROFILE_NEW*1.0; (PTR)->_clktime = (PTR)->_clktime*PROFILE_KEEP + PROFILE_NEW*clk_getFrameDuration((PTR)->_clkstate);
 #    define PROFILE_END2_STRUCT(PTR)   clk_frameStep((PTR)->_clkstate);   (PTR)->_clkcount += 1.0;  (PTR)->_clktime += clk_getFrameDuration((PTR)->_clkstate);
 
-
 #    define PROFILE_QUERY(XX)   ( (double)clktime_##XX / (double)clkcount_##XX )
 #    define PROFILE_BEGIN(XX)  clk_frameStep(clkstate_##XX);
 #    define PROFILE_END(XX)    clk_frameStep(clkstate_##XX);   clkcount_##XX = clkcount_##XX*PROFILE_KEEP + PROFILE_NEW*1.0; clktime_##XX = clktime_##XX*PROFILE_KEEP + PROFILE_NEW*clk_getFrameDuration(clkstate_##XX);

@@ -125,7 +125,6 @@ int _ego_vprintf( const char *, va_list );
 int _ego_vsprintf( char *, const char *, va_list );
 int _ego_vsnprintf( char *, size_t, const char *, va_list );
 
-
 //--------------------------------------------------------
 // macros to dispatch file-system calls
 #ifdef DEBUG_STDIO

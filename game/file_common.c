@@ -125,8 +125,6 @@ int fs_fileExists( const char *filename )
     return retval;
 }
 
-
-
 void _ego_clearerr( FILE * f )
 {
     printf( "----clearerr()\n" );

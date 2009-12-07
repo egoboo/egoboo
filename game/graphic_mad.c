@@ -33,6 +33,7 @@
 #include "game.h"
 #include "input.h"
 #include "texture.h"
+#include "lighting.h"
 
 #include "egoboo_setup.h"
 #include "egoboo.h"
@@ -751,11 +752,11 @@ void chr_instance_update_lighting_base( chr_instance_t * pinst, chr_t * pchr, bo
     interpolate_grid_lighting( PMesh, &global_light, pchr->pos );
 
     // rotate the lighting data to body_centered coordinates
-    project_lighting( &loc_light, &global_light, pinst->matrix );
+    lighting_project_cache( &loc_light, &global_light, pinst->matrix );
 
     self_light = ( 255 == pinst->light ) ? 0 : pinst->light;
 
-    pinst->color_amb = 0.9f * pinst->color_amb + 0.1f * ( self_light + ( loc_light.hgh.lighting[6] + loc_light.low.lighting[6] ) * 0.5f );
+    pinst->color_amb = 0.9f * pinst->color_amb + 0.1f * ( self_light + ( loc_light.hgh.lighting[LVEC_AMB] + loc_light.low.lighting[LVEC_AMB] ) * 0.5f );
 
     pinst->max_light = -255;
     pinst->min_light =  255;
@@ -774,17 +775,17 @@ void chr_instance_update_lighting_base( chr_instance_t * pinst, chr_t * pchr, bo
             GLfloat tnrm[3];
 
             tnrm[0] = tnrm[1] = tnrm[2] = 1.0f;
-            lite  = evaluate_lighting_cache( &loc_light, tnrm, hgt, PMesh->mmem.bbox, NULL, NULL );
+            lite  = lighting_evaluate_cache( &loc_light, tnrm, hgt, PMesh->mmem.bbox, NULL, NULL );
 
             tnrm[0] = tnrm[1] = tnrm[2] = -1.0f;
-            lite += evaluate_lighting_cache( &loc_light, tnrm, hgt, PMesh->mmem.bbox, NULL, NULL );
+            lite += lighting_evaluate_cache( &loc_light, tnrm, hgt, PMesh->mmem.bbox, NULL, NULL );
 
             // average all the directions
             lite /= 6;
         }
         else
         {
-            lite  = evaluate_lighting_cache( &loc_light, pvert->nrm, hgt, PMesh->mmem.bbox, NULL, NULL );
+            lite  = lighting_evaluate_cache( &loc_light, pvert->nrm, hgt, PMesh->mmem.bbox, NULL, NULL );
         }
 
         pvert->color_dir = 0.9f * pvert->color_dir + 0.1f * lite;

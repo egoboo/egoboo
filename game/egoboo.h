@@ -128,7 +128,6 @@ EXTERN float           est_single_ups          EQ( TARGET_UPS );
 EXTERN float           est_update_game_time  EQ( 1.0f / TARGET_UPS );
 EXTERN float           est_max_game_ups      EQ( TARGET_UPS );
 
-
 EXTERN Sint32          ups_clock             EQ( 0 );             ///< The number of ticks this second
 EXTERN Uint32          ups_loops             EQ( 0 );             ///< The number of frames drawn this second
 EXTERN float           stabilized_ups        EQ( TARGET_UPS );
@@ -181,8 +180,6 @@ EXTERN bool_t                  fpson          EQ( btrue );         ///< Show FPS
 EXTERN bool_t console_mode EQ( bfalse );                   ///< Input text from keyboard?
 EXTERN bool_t console_done EQ( bfalse );                   ///< Input text from keyboard finished?
 
-extern float           light_a, light_d, light_x, light_y, light_z;
-
 #define INVISIBLE           20                      ///< The character can't be detected
 
 EXTERN int                       local_seeinvis_level    EQ( 0 );
@@ -225,6 +222,6 @@ extern ego_process_t * EProc;
 
 void ego_init_SDL_base();
 
-EXTERN bool_t screenshot_requested EQ( bfalse ); 
+EXTERN bool_t screenshot_requested EQ( bfalse );
 
 #define  _EGOBOO_H_
