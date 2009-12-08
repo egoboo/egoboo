@@ -375,3 +375,5 @@ bool_t get_chr_regeneration( struct s_chr * pchr, int *pliferegen, int * pmanare
 float get_chr_level( struct s_ego_mpd * pmesh, struct s_chr * pchr );
 
 int do_game_proc_run( game_process_t * gproc, double frameDuration );
+
+egoboo_rv move_water( water_instance_t * pwater );

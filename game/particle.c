@@ -638,8 +638,8 @@ Uint16 spawn_one_particle( fvec3_t   pos, Uint16 facing, Uint16 iprofile, Uint16
     tmp_pos.x += pprt->offset.x;
     tmp_pos.y += pprt->offset.y;
 
-    tmp_pos.x = CLIP( tmp_pos.x, 0, PMesh->info.edge_x - 2 );
-    tmp_pos.y = CLIP( tmp_pos.y, 0, PMesh->info.edge_y - 2 );
+    tmp_pos.x = CLIP( tmp_pos.x, 0, PMesh->gmem.edge_x - 2 );
+    tmp_pos.y = CLIP( tmp_pos.y, 0, PMesh->gmem.edge_y - 2 );
 
     pprt->pos      = tmp_pos;
     pprt->pos_old  = tmp_pos;
@@ -1145,7 +1145,7 @@ void move_one_particle_get_environment( prt_t * pprt )
 
     if ( VALID_TILE( PMesh, itile ) )
     {
-        pprt->enviro.twist = PMesh->mmem.tile_list[itile].twist;
+        pprt->enviro.twist = PMesh->gmem.grid_list[itile].twist;
     }
 
     // the "watery-ness" of whatever water might be here

@@ -91,8 +91,9 @@ extern float  light_a, light_d, light_nrm[3];
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 bool_t lighting_project_cache( lighting_cache_t * dst, lighting_cache_t * src, fmat_4x4_t mat );
-bool_t lighting_interpolate_cache( lighting_cache_t * dst, lighting_cache_t * src[], float u, float v );
+bool_t lighting_cache_interpolate( lighting_cache_t * dst, lighting_cache_t * src[], float u, float v );
+float lighting_cache_test( lighting_cache_t * src[], float u, float v, float * low_max_diff, float * hgh_max_diff );
 
-float  lighting_evaluate_cache( lighting_cache_t * src, fvec3_base_t nrm, float z, aabb_t bbox, float * light_amb, float * light_dir );
+float lighting_evaluate_cache( lighting_cache_t * src, fvec3_base_t nrm, float z, aabb_t bbox, float * light_amb, float * light_dir );
 
 bool_t sum_dyna_lighting( dynalight_t * pdyna, lighting_vector_t lighting, fvec3_base_t nrm );

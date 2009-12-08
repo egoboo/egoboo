@@ -21,7 +21,11 @@
 /// @brief World mesh drawing.
 /// @details
 
+#include "graphic_fan.h"
 #include "graphic.h"
+#include "mesh.h"
+#include "camera.h"
+
 #include "game.h"
 #include "texture.h"
 
@@ -31,7 +35,13 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+bool_t           meshnotexture   = bfalse;
+Uint16           meshlasttexture = ( Uint16 )( ~0 );
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 static bool_t animate_tile( ego_mpd_t * pmesh, Uint32 itile );
+static void   gfx_make_dynalist( camera_t * pcam );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -58,14 +68,14 @@ bool_t animate_tile( ego_mpd_t * pmesh, Uint32 itile )
     Uint16 basetile, image;
     Uint16 base_and, frame_and, frame_add;
     Uint8  type;
-    mesh_mem_t  * pmem;
+    tile_mem_t  * ptmem;
     ego_tile_info_t * ptile;
 
     if ( NULL == pmesh ) return bfalse;
-    pmem  = &( pmesh->mmem );
+    ptmem  = &( pmesh->tmem );
 
     if ( !VALID_TILE( pmesh, itile ) ) return bfalse;
-    ptile = pmem->tile_list + itile;
+    ptile = ptmem->tile_list + itile;
 
     // do not render the itile if the image image is invalid
     if ( TILE_IS_FANOFF( *ptile ) )  return btrue;
@@ -111,14 +121,14 @@ void render_fan( ego_mpd_t * pmesh, Uint32 itile )
     Uint8  type;
     int    texture;
 
-    mesh_mem_t  * pmem;
+    tile_mem_t  * ptmem;
     ego_tile_info_t * ptile;
 
     if ( NULL == pmesh ) return;
-    pmem  = &( pmesh->mmem );
+    ptmem  = &( pmesh->tmem );
 
     if ( !VALID_TILE( pmesh, itile ) ) return;
-    ptile = pmem->tile_list + itile;
+    ptile = ptmem->tile_list + itile;
 
     // do not render the itile if the image image is invalid
     if ( TILE_IS_FANOFF( *ptile ) )  return;
@@ -137,13 +147,13 @@ void render_fan( ego_mpd_t * pmesh, Uint32 itile )
 
         // [claforte] Put this in an initialization function.
         GL_DEBUG( glEnableClientState )( GL_VERTEX_ARRAY );
-        GL_DEBUG( glVertexPointer )( 3, GL_FLOAT, 0, pmem->plst + ptile->vrtstart );
+        GL_DEBUG( glVertexPointer )( 3, GL_FLOAT, 0, ptmem->plst + ptile->vrtstart );
 
         GL_DEBUG( glEnableClientState )( GL_TEXTURE_COORD_ARRAY );
-        GL_DEBUG( glTexCoordPointer )( 2, GL_FLOAT, 0, pmem->tlst + ptile->vrtstart );
+        GL_DEBUG( glTexCoordPointer )( 2, GL_FLOAT, 0, ptmem->tlst + ptile->vrtstart );
 
         GL_DEBUG( glEnableClientState )( GL_COLOR_ARRAY );
-        GL_DEBUG( glColorPointer )( 3, GL_FLOAT, 0, pmem->clst + ptile->vrtstart );
+        GL_DEBUG( glColorPointer )( 3, GL_FLOAT, 0, ptmem->clst + ptile->vrtstart );
 
         // Render each command
         entry = 0;
@@ -170,11 +180,11 @@ void render_fan( ego_mpd_t * pmesh, Uint32 itile )
     {
         GL_DEBUG( glBegin )( GL_LINES );
         {
-            GL_DEBUG( glVertex3fv )( pmem->plst[entry] );
+            GL_DEBUG( glVertex3fv )( ptmem->plst[entry] );
             GL_DEBUG( glVertex3f )(
-                pmem->plst[entry][XX] + TILE_SIZE*pmem->ncache[itile][cnt][XX],
-                pmem->plst[entry][YY] + TILE_SIZE*pmem->ncache[itile][cnt][YY],
-                pmem->plst[entry][ZZ] + TILE_SIZE*pmem->ncache[itile][cnt][ZZ] );
+                ptmem->plst[entry][XX] + TILE_SIZE*ptmem->ncache[itile][cnt][XX],
+                ptmem->plst[entry][YY] + TILE_SIZE*ptmem->ncache[itile][cnt][YY],
+                ptmem->plst[entry][ZZ] + TILE_SIZE*ptmem->ncache[itile][cnt][ZZ] );
 
         }
         GL_DEBUG_END();
@@ -195,16 +205,20 @@ void render_hmap_fan( ego_mpd_t * pmesh, Uint32 itile )
     Uint16 tile;
     Uint8  type, twist;
 
-    mesh_mem_t  * pmem;
-    ego_mpd_info_t * pinfo;
+    ego_mpd_info_t  * pinfo;
+    tile_mem_t      * ptmem;
     ego_tile_info_t * ptile;
+    grid_mem_t      * pgmem;
+    ego_grid_info_t * pgrid;
 
     if ( NULL == pmesh ) return;
-    pmem  = &( pmesh->mmem );
-    pinfo = &( pmesh->info );
+    ptmem  = &( pmesh->tmem );
+    pgmem  = &( pmesh->gmem );
+    pinfo  = &( pmesh->info );
 
     if ( !VALID_TILE( pmesh, itile ) ) return;
-    ptile = pmem->tile_list + itile;
+    ptile = ptmem->tile_list + itile;
+    pgrid = pgmem->grid_list + itile;
 
     /// @details BB@> the water info is for TILES, not for vertices, so ignore all vertex info and just draw the water
     ///     tile where it's supposed to go
@@ -217,7 +231,7 @@ void render_hmap_fan( ego_mpd_t * pmesh, Uint32 itile )
 
     tile  = TILE_GET_LOWER_BITS( ptile->img ); // Tile
     type  = ptile->type;                     // Command type ( index to points in itile )
-    twist = ptile->twist;
+    twist = pgrid->twist;
 
     type &= 0x3F;
 
@@ -228,7 +242,7 @@ void render_hmap_fan( ego_mpd_t * pmesh, Uint32 itile )
         float tmp;
         v[cnt].pos[XX] = ( ix + ix_off[cnt] ) * TILE_SIZE;
         v[cnt].pos[YY] = ( iy + iy_off[cnt] ) * TILE_SIZE;
-        v[cnt].pos[ZZ] = pmem->plst[badvertex][ZZ];
+        v[cnt].pos[ZZ] = ptmem->plst[badvertex][ZZ];
 
         tmp = map_twist_nrm[twist].z;
         tmp *= tmp;
@@ -278,18 +292,18 @@ void render_water_fan( ego_mpd_t * pmesh, Uint32 itile, Uint8 layer )
     float falpha;
 
     ego_mpd_info_t * pinfo;
-    mesh_mem_t     * pmmem;
+    tile_mem_t     * ptmem;
     grid_mem_t     * pgmem;
     ego_tile_info_t    * ptile;
     oglx_texture   * ptex;
 
     if ( NULL == pmesh ) return;
     pinfo = &( pmesh->info );
-    pmmem = &( pmesh->mmem );
+    ptmem = &( pmesh->tmem );
     pgmem = &( pmesh->gmem );
 
     if ( !VALID_TILE( pmesh, itile ) ) return;
-    ptile = pmmem->tile_list + itile;
+    ptile = ptmem->tile_list + itile;
 
     falpha = FF_TO_FLOAT( water.layer[layer].alpha );
     falpha = CLIP( falpha, 0.0f, 1.0f );
@@ -448,3 +462,18 @@ void render_water_fan( ego_mpd_t * pmesh, Uint32 itile, Uint8 layer )
     }
     ATTRIB_POP( "render_water_fan" );
 }
+
+
+//--------------------------------------------------------------------------------------------
+void animate_tiles()
+{
+    /// ZZ@> This function changes the animated tile frame
+
+    // make sure this updates per frame
+    if (( true_frame & animtile_update_and ) == 0 )
+    {
+        animtile[0].frame_add = ( animtile[0].frame_add + 1 ) & animtile[0].frame_and;
+        animtile[1].frame_add = ( animtile[1].frame_add + 1 ) & animtile[1].frame_and;
+    }
+}
+

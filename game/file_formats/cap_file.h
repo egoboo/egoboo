@@ -32,6 +32,8 @@
 #define MAXBASELEVEL            6                 ///< Basic Levels 0-5
 #define MAXLEVEL               20                 ///< Absolute max level
 
+#define GRIP_VERTS                       4
+
 /// The various ID strings that every character has
 enum e_idsz_type
 {

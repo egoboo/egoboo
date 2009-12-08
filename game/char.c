@@ -4670,7 +4670,7 @@ void move_one_character_get_environment( chr_t * pchr )
 
     if ( VALID_TILE( PMesh, itile ) )
     {
-        pchr->enviro.twist = PMesh->mmem.tile_list[itile].twist;
+        pchr->enviro.twist = PMesh->gmem.grid_list[itile].twist;
     }
 
     // the "watery-ness" of whatever water might be here
@@ -7193,8 +7193,8 @@ bool_t chr_teleport( Uint16 ichr, float x, float y, float z, Uint16 turn_z )
     if ( !ACTIVE_CHR( ichr ) ) return bfalse;
     pchr = ChrList.lst + ichr;
 
-    if ( x < 0.0f || x > PMesh->info.edge_x ) return bfalse;
-    if ( y < 0.0f || y > PMesh->info.edge_y ) return bfalse;
+    if ( x < 0.0f || x > PMesh->gmem.edge_x ) return bfalse;
+    if ( y < 0.0f || y > PMesh->gmem.edge_y ) return bfalse;
 
     pos_save  = pchr->pos;
     turn_save = pchr->turn_z;

@@ -442,11 +442,11 @@ void fill_interaction_list( co_data_t cdata[], int * cdata_count, hash_node_t hn
         if ( pchr_a->is_hidden ) continue;
 
         // determine the size of this object in blocks
-        ixmin = pchr_a->pos.x - pchr_a->bump.size; ixmin = CLIP( ixmin, 0, PMesh->info.edge_x );
-        ixmax = pchr_a->pos.x + pchr_a->bump.size; ixmax = CLIP( ixmax, 0, PMesh->info.edge_x );
+        ixmin = pchr_a->pos.x - pchr_a->bump.size; ixmin = CLIP( ixmin, 0, PMesh->gmem.edge_x );
+        ixmax = pchr_a->pos.x + pchr_a->bump.size; ixmax = CLIP( ixmax, 0, PMesh->gmem.edge_x );
 
-        iymin = pchr_a->pos.y - pchr_a->bump.size; iymin = CLIP( iymin, 0, PMesh->info.edge_y );
-        iymax = pchr_a->pos.y + pchr_a->bump.size; iymax = CLIP( iymax, 0, PMesh->info.edge_y );
+        iymin = pchr_a->pos.y - pchr_a->bump.size; iymin = CLIP( iymin, 0, PMesh->gmem.edge_y );
+        iymax = pchr_a->pos.y + pchr_a->bump.size; iymax = CLIP( iymax, 0, PMesh->gmem.edge_y );
 
         ixmin_block = ixmin >> BLOCK_BITS; ixmin_block = CLIP( ixmin_block, 0, MAXMESHBLOCKY );
         ixmax_block = ixmax >> BLOCK_BITS; ixmax_block = CLIP( ixmax_block, 0, MAXMESHBLOCKY );
@@ -511,7 +511,7 @@ void fill_bumplists()
     Uint32 fanblock;
 
     // Clear the lists
-    for ( fanblock = 0; fanblock < PMesh->info.blocks_count; fanblock++ )
+    for ( fanblock = 0; fanblock < PMesh->gmem.blocks_count; fanblock++ )
     {
         bumplist[fanblock].chr    = MAX_CHR;
         bumplist[fanblock].chrnum = 0;

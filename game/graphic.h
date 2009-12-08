@@ -19,6 +19,7 @@
 //*
 //********************************************************************************************
 
+#include "egoboo_typedef.h"
 #include "ogl_texture.h"
 #include "module_file.h"
 #include "mesh.h"
@@ -230,9 +231,6 @@ extern Uint16          blipx[MAXBLIP];
 extern Uint16          blipy[MAXBLIP];
 extern Uint8           blipc[MAXBLIP];
 
-/// JF - Added so that the video mode might be determined outside of the graphics code
-extern bool_t          meshnotexture;
-extern Uint16          meshlasttexture;             ///< Last texture used
 
 #define BILLBOARD_COUNT     (2 * MAX_CHR)
 #define INVALID_BILLBOARD   BILLBOARD_COUNT
@@ -350,54 +348,29 @@ void draw_blip( float sizeFactor, Uint8 color, int x, int y );
 void draw_all_lines( struct s_camera * pcam );
 
 void   render_world( struct s_camera * pcam );
-void   render_prt( struct s_camera * pcam );
 void   render_shadow( Uint16 character );
 void   render_bad_shadow( Uint16 character );
-void   render_prt_ref( struct s_camera * pcam );
-void   render_fan( ego_mpd_t * pmesh, Uint32 fan );
-void   render_hmap_fan( ego_mpd_t * pmesh, Uint32 fan );
-void   render_water_fan( ego_mpd_t * pmesh, Uint32 fan, Uint8 layer );
-bool_t render_one_mad_enviro( Uint16 character, GLXvector4f tint, Uint32 bits );
-bool_t render_one_mad_tex( Uint16 character, GLXvector4f tint, Uint32 bits );
-bool_t render_one_mad( Uint16 character, GLXvector4f tint, Uint32 bits );
-bool_t render_one_mad_ref( int tnc );
-void   render_water();
 void   render_scene( ego_mpd_t * pmesh, struct s_camera * pcam );
 bool_t render_oct_bb( oct_bb_t * bb, bool_t draw_square, bool_t draw_diamond );
-void   render_all_prt_attachment();
-bool_t render_one_prt_solid( Uint16 iprt );
-bool_t render_one_prt_trans( Uint16 iprt );
-bool_t render_one_prt_ref( Uint16 iprt );
 bool_t render_aabb( aabb_t * pbbox );
 void   render_all_billboards( struct s_camera * pcam );
 
-void do_grid_dynalight( ego_mpd_t * pmesh, struct s_camera * pcam );
-void make_enviro();
-void animate_tiles();
-void move_water();
-void clear_messages();
+void   make_enviro();
+void   clear_messages();
 bool_t dump_screenshot();
-void make_lightdirectionlookup();
-void update_all_prt_instance( struct s_camera * pcam );
+void   make_lightdirectionlookup();
 
 int  DisplayMsg_get_free();
 
 int debug_printf( const char *format, ... );
 
-egoboo_rv chr_update_instance( struct s_chr * pchr );
-egoboo_rv chr_instance_needs_update( struct s_chr_instance * pinst, int vmin, int vmax, bool_t *verts_match, bool_t *frames_match );
-egoboo_rv chr_instance_update_vertices( struct s_chr_instance * pinst, int vmin, int vmax, bool_t force );
-egoboo_rv chr_instance_update_grip_verts( struct s_chr_instance * pinst, Uint16 vrt_lst[], size_t vrt_count );
-
 void renderlist_reset();
 void renderlist_make( ego_mpd_t * pmesh, struct s_camera * pcam );
 
-bool_t interpolate_grid_lighting( ego_mpd_t * pmesh, lighting_cache_t * dst, fvec3_t   pos );
+bool_t grid_lighting_interpolate( ego_mpd_t * pmesh, lighting_cache_t * dst, float fx, float fy );
+bool_t grid_lighting_test( ego_mpd_t * pmesh, GLXvector3f pos, float * low_diff, float * hgh_diff );
 
 int  get_free_line();
-
-void      update_all_chr_instance();
-egoboo_rv chr_instance_update_bbox( struct s_chr_instance * pinst );
 
 void init_all_graphics();
 void release_all_graphics();
@@ -408,16 +381,8 @@ void release_all_profile_textures();
 void   load_graphics();
 bool_t load_blips();
 void   load_bars();
-void   load_map( /* const char* szModule */ );
+void   load_map();
 bool_t load_all_global_icons();
-void   load_basic_textures( /* const char *modname */ );
+void   load_basic_textures( );
 
 float  get_ambient_level();
-
-//void light_characters();
-//void light_particles( ego_mpd_t * pmesh );
-//void set_fan_light( int fanx, int fany, Uint16 particle );
-//void make_lighttospek();
-//void make_lighttable( float lx, float ly, float lz, float ambi );
-
-void animate_all_tiles( ego_mpd_t * pmesh );

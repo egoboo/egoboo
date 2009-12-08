@@ -53,6 +53,11 @@
 #define Sint16 signed short
 #define Sint32 signed int
 
+// this is in lieu of %include "ogl_include.h" which would give the user access to certain
+// lower-level graphics functions
+typedef float   GLfloat;
+typedef GLfloat GLXvector3f[3];
+
 %module ego
 
 %include "egoboo_typedef.h"

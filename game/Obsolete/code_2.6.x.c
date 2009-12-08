@@ -3476,3 +3476,951 @@ void make_all_character_matrices(bool_t do_physics)
     }
 }
 
+////////////////////////////////////////////////////
+// from graphic.c
+
+//--------------------------------------------------------------------------------------------
+// OBSOLETE FUNCTIONS
+//--------------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------
+void light_particles( ego_mpd_t * pmesh )
+{
+    /// @details ZZ@> This function figures out particle lighting
+    int iprt;
+
+    for ( iprt = 0; iprt < maxparticles; iprt++ )
+    {
+        prt_t * pprt;
+        prt_instance_t * pinst;
+
+        if ( !DISPLAY_PRT(iprt) ) continue;
+        pprt = PrtList.lst + iprt;
+        pinst = &(pprt->inst);
+
+        pprt->inst.light = 0;
+        if ( ACTIVE_CHR( pprt->attachedto_ref ) )
+        {
+            chr_t * pchr = ChrList.lst + pprt->attachedto_ref;
+            Uint16  imad = chr_get_imad(pprt->attachedto_ref);
+
+            // grab the lighting from the vertex that the particle is attached to
+            if ( 0 == pprt->vrt_off )
+            {
+                // not sure what to do here, since it is attached to the object's origin
+                pprt->inst.light = 0.5f * (pchr->inst.max_light + pchr->inst.min_light);
+            }
+            else if ( LOADED_MAD(imad) )
+            {
+                int vertex = MAX(0, ego_md2_data[MadList[imad].md2_ref].vertices - pprt->vrt_off);
+                int light  = pchr->inst.color_amb + pchr->inst.vlst[vertex].color_dir;
+
+                pprt->inst.light = CLIP(light, 0, 255);
+            }
+        }
+        else if ( VALID_TILE(pmesh, pprt->onwhichfan) )
+        {
+            Uint32 istart;
+            Uint16 tl, tr, br, bl;
+            Uint16 light_min, light_max;
+            tile_mem_t * pmem;
+            grid_mem_t * pgmem;
+
+            pmem  = &(pmesh->tmem);
+            pgmem = &(pmesh->gmem);
+
+            istart = pmem->tile_list[pprt->onwhichfan].vrtstart;
+
+            // grab the corner intensities
+            tl = pgmem->light[ pprt->onwhichfan + 0 ].l;
+            tr = pgmem->light[ pprt->onwhichfan + 1 ].l;
+            br = pgmem->light[ pprt->onwhichfan + 2 ].l;
+            bl = pgmem->light[ pprt->onwhichfan + 3 ].l;
+
+            // determine the amount of directionality
+            light_min = MIN(MIN(tl, tr), MIN(bl, br));
+            light_max = MAX(MAX(tl, tr), MAX(bl, br));
+
+            if (light_max == 0 && light_min == 0 )
+            {
+                pinst->light = 0;
+                continue;
+            }
+            else if ( light_max == light_min )
+            {
+                pinst->light = light_min;
+            }
+            else
+            {
+                int ix, iy;
+                Uint16 itop, ibot;
+                Uint32 light;
+
+                // Interpolate lighting level using tile corners
+                ix = ((int)pprt->pos.x) & TILE_MASK;
+                iy = ((int)pprt->pos.y) & TILE_MASK;
+
+                itop = tl * (TILE_ISIZE - ix) + tr * ix;
+                ibot = bl * (TILE_ISIZE - ix) + br * ix;
+                light = (TILE_ISIZE - iy) * itop + iy * ibot;
+                light >>= 2 * TILE_BITS;
+
+                pprt->inst.light = light;
+            }
+        }
+    }
+}
+
+//---------------------------------------------------------------------------------------------
+void make_lighttospek( void )
+{
+    /// @details ZZ@> This function makes a light table to fake directional lighting
+    int cnt, tnc;
+    Uint8 spek;
+    float fTmp, fPow;
+
+    // New routine
+    for ( cnt = 0; cnt < MAXSPEKLEVEL; cnt++ )
+    {
+        for ( tnc = 0; tnc < 256; tnc++ )
+        {
+            fTmp = tnc / 256.0f;
+            fPow = ( fTmp * 4.0f ) + 1;
+            fTmp = POW( fTmp, fPow );
+            fTmp = fTmp * cnt * 255.0f / MAXSPEKLEVEL;
+            if ( fTmp < 0 ) fTmp = 0;
+            if ( fTmp > 255 ) fTmp = 255;
+
+            spek = fTmp;
+            spek = spek >> 1;
+            lighttospek[cnt][tnc] = ( 0xff000000 ) | ( spek << 16 ) | ( spek << 8 ) | ( spek );
+        }
+    }
+}
+
+//---------------------------------------------------------------------------------------------
+void make_lightdirectionlookup()
+{
+    /// @details ZZ@> This function builds the lighting direction table
+    ///    The table is used to find which direction the light is coming
+    ///    from, based on the four corner vertices of a mesh tile.
+
+    Uint32 cnt;
+    Uint16 tl, tr, br, bl;
+    int x, y;
+
+    for ( cnt = 0; cnt < 65536; cnt++ )
+    {
+        tl = ( cnt & 0xf000 ) >> 12;
+        tr = ( cnt & 0x0f00 ) >> 8;
+        br = ( cnt & 0x00f0 ) >> 4;
+        bl = ( cnt & 0x000f );
+        x = br + tr - bl - tl;
+        y = br + bl - tl - tr;
+        lightdirectionlookup[cnt] = ( ATAN2( -y, x ) + PI ) * 256 / ( TWO_PI );
+    }
+}
+
+//---------------------------------------------------------------------------------------------
+void make_lighttable( float lx, float ly, float lz, float ambi )
+{
+    /// @details ZZ@> This function makes a light table to fake directional lighting
+    Uint32 cnt, tnc;
+
+    // Build a lookup table for sin/cos
+    for ( cnt = 0; cnt < MAXLIGHTROTATION; cnt++ )
+    {
+        sinlut[cnt] = SIN( TWO_PI * cnt / MAXLIGHTROTATION );
+        coslut[cnt] = COS( TWO_PI * cnt / MAXLIGHTROTATION );
+    }
+
+    for ( cnt = 0; cnt < MADLIGHTINDICES - 1; cnt++ )  // Spikey mace
+    {
+        for ( tnc = 0; tnc < MAXLIGHTROTATION; tnc++ )
+        {
+            lighttable_local[tnc][cnt]  = calc_light_rotation( tnc, cnt );
+            lighttable_global[tnc][cnt] = ambi * calc_light_global( tnc, cnt, lx, ly, lz );
+        }
+    }
+
+    // Fill in index number 162 for the spike mace
+    for ( tnc = 0; tnc < MAXLIGHTROTATION; tnc++ )
+    {
+        lighttable_local[tnc][cnt] = 0;
+        lighttable_global[tnc][cnt] = 0;
+    }
+}
+
+--------------------------------------------------------------------------------------------
+void do_grid_dynalight( ego_mpd_t * pmesh, camera_t * pcam )
+{
+    /// @details ZZ@> This function does dynamic lighting of visible fans
+
+    int   cnt, tnc, fan, entry;
+    lighting_vector_t global_lighting;
+
+    ego_mpd_info_t * pinfo;
+    grid_mem_t     * pgmem;
+
+    if ( NULL == pmesh ) return;
+    pinfo = &( pmesh->info );
+    pgmem = &( pmesh->gmem );
+
+    // refresh the dynamic light list
+    gfx_make_dynalist( pcam );
+
+    // sum up the lighting from global sources
+    sum_global_lighting( global_lighting );
+
+    // Add to base light level in normal mode
+    for ( entry = 0; entry < renderlist.all_count; entry++ )
+    {
+        float x0, y0, dx, dy;
+        lighting_cache_t * cache;
+        lighting_vector_t local_lighting_low, local_lighting_hgh;
+        int ix, iy;
+
+        fan = renderlist.all[entry];
+        if ( !VALID_TILE( pmesh, fan ) ) continue;
+
+        ix = fan % pinfo->tiles_x;
+        iy = fan / pinfo->tiles_x;
+
+        x0 = ix * TILE_SIZE;
+        y0 = iy * TILE_SIZE;
+
+        cache = &( pgmem->light[fan].cache );
+
+        // blank the lighting
+        for ( tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++ )
+        {
+            local_lighting_low[tnc] = 0.0f;
+            local_lighting_hgh[tnc] = 0.0f;
+        };
+
+        if ( gfx.shading != GL_FLAT )
+        {
+            // add in the dynamic lighting
+            for ( cnt = 0; cnt < dyna_list_count; cnt++ )
+            {
+                dx = dyna_list[cnt].x - x0;
+                dy = dyna_list[cnt].y - y0;
+
+                sum_dyna_lighting( dyna_list + cnt, local_lighting_low, dx, dy, dyna_list[cnt].z - pmesh->tmem.bbox.mins[ZZ] );
+                sum_dyna_lighting( dyna_list + cnt, local_lighting_hgh, dx, dy, dyna_list[cnt].z - pmesh->tmem.bbox.maxs[ZZ] );
+            }
+
+            for ( cnt = 0; cnt < LIGHTING_VEC_SIZE; cnt++ )
+            {
+                local_lighting_low[cnt] += global_lighting[cnt];
+                local_lighting_hgh[cnt] += global_lighting[cnt];
+            }
+        }
+
+        // average this in with the existing lighting
+        for ( tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++ )
+        {
+            cache->low.lighting[tnc] = cache->low.lighting[tnc] * dynalight_keep + local_lighting_low[tnc] * (1.0f - dynalight_keep);
+            cache->hgh.lighting[tnc] = cache->hgh.lighting[tnc] * dynalight_keep + local_lighting_hgh[tnc] * (1.0f - dynalight_keep);
+        }
+
+        // find the max intensity
+        cache->low.max_light = ABS( cache->low.lighting[0] );
+        cache->hgh.max_light = ABS( cache->hgh.lighting[0] );
+        for ( tnc = 1; tnc < LIGHTING_VEC_SIZE - 1; tnc++ )
+        {
+            cache->low.max_light = MAX( cache->low.max_light, ABS( cache->low.lighting[tnc] ) );
+            cache->hgh.max_light = MAX( cache->hgh.max_light, ABS( cache->hgh.lighting[tnc] ) );
+        }
+        cache->max_light = MAX( cache->low.max_light, cache->hgh.max_light );
+    }
+}
+
+///////////////////////////////////////////////
+// from graphic_mad.c
+
+void chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 trans, bool_t do_ambient )
+{
+    /// @details BB@> take the basic lighting info and add tint and alpha information to it
+
+    Uint16 cnt;
+    Uint8  rs, gs, bs;
+    Uint8  self_light;
+
+    mad_t * pmad;
+
+    if ( NULL == pinst || NULL == pchr ) return;
+
+    if ( !LOADED_MAD(pinst->imad) ) return;
+    pmad = MadList + pinst->imad;
+
+    rs = pinst->redshift;
+    gs = pinst->grnshift;
+    bs = pinst->blushift;
+    self_light = ( 255 == pinst->light ) ? 0 : pinst->light;
+
+    if( pinst->color_amb >= 0 )
+    {
+        pinst->col_amb.r = (float)( pinst->color_amb >> rs ) * INV_FF;
+        pinst->col_amb.g = (float)( pinst->color_amb >> gs ) * INV_FF;
+        pinst->col_amb.b = (float)( pinst->color_amb >> bs ) * INV_FF;
+    }
+    else
+    {
+        pinst->col_amb.r = -(float)( (-pinst->color_amb) >> rs ) * INV_FF;
+        pinst->col_amb.g = -(float)( (-pinst->color_amb) >> gs ) * INV_FF;
+        pinst->col_amb.b = -(float)( (-pinst->color_amb) >> bs ) * INV_FF;
+    }
+    pinst->col_amb.a = (trans * INV_FF) * (pinst->alpha * INV_FF);
+
+    pinst->max_light = 0;
+    pinst->min_light = 255;
+    for ( cnt = 0; cnt < pinst->vlst_size; cnt++ )
+    {
+        int r,g,b;
+        Sint16 light;
+
+        light = do_ambient ? (pinst->color_amb + pinst->vlst[cnt].color_dir) : (pinst->vlst[cnt].color_dir);
+
+        if( light < 0 )
+        {
+            r = -(-light) >> rs;
+            g = -(-light) >> gs;
+            b = -(-light) >> bs;
+        }
+        else
+        {
+            r = light >> rs;
+            g = light >> gs;
+            b = light >> bs;
+        }
+
+        pinst->max_light = MAX(pinst->max_light, MAX(MAX(r,g),b));
+        pinst->min_light = MIN(pinst->min_light, MIN(MIN(r,g),b));
+
+        pinst->vlst[cnt].col[RR] = r * INV_FF;
+        pinst->vlst[cnt].col[GG] = g * INV_FF;
+        pinst->vlst[cnt].col[BB] = b * INV_FF;
+        pinst->vlst[cnt].col[AA] = (trans * INV_FF) * (pinst->alpha * INV_FF);
+
+        // coerce these to valid values
+        pinst->vlst[cnt].col[RR] = CLIP( pinst->vlst[cnt].col[RR], 0.0f, 1.0f);
+        pinst->vlst[cnt].col[GG] = CLIP( pinst->vlst[cnt].col[GG], 0.0f, 1.0f);
+        pinst->vlst[cnt].col[BB] = CLIP( pinst->vlst[cnt].col[BB], 0.0f, 1.0f);
+        pinst->vlst[cnt].col[AA] = CLIP( pinst->vlst[cnt].col[AA], 0.0f, 1.0f);
+    }
+
+    // ??coerce this to reasonable values in the presence of negative light??
+    if( pinst->max_light < 0 ) pinst->max_light = 0;
+    if( pinst->min_light < 0 ) pinst->min_light = 0;
+}
+
+//--------------------------------------------------------------------------------------------
+void chr_instance_update_lighting_ref( chr_instance_t * pinst, chr_t * pchr, Uint8 trans, bool_t do_ambient )
+{
+    /// @details BB@> take the basic lighting info and add tint and alpha information to it (for reflected characters)
+
+    Uint16 cnt;
+    Uint8  rs, gs, bs;
+    Uint8  self_light;
+    mad_t * pmad;
+
+    if ( NULL == pinst || NULL == pchr ) return;
+
+    if ( !LOADED_MAD(pinst->imad) ) return;
+    pmad = MadList + pinst->imad;
+
+    rs = pinst->ref.redshift;
+    gs = pinst->ref.grnshift;
+    bs = pinst->ref.blushift;
+    self_light = ( 255 == pinst->ref.light ) ? 0 : pinst->ref.light;
+
+    pinst->max_light = 0;
+    pinst->min_light = 255;
+    for ( cnt = 0; cnt < pinst->vlst_size; cnt++ )
+    {
+        Sint16 light;
+
+        light = do_ambient ? (pinst->color_amb + pinst->vlst[cnt].color_dir) : (pinst->vlst[cnt].color_dir);
+
+        pinst->vlst[cnt].col[RR] = (light >> rs) * INV_FF;
+        pinst->vlst[cnt].col[GG] = (light >> gs) * INV_FF;
+        pinst->vlst[cnt].col[BB] = (light >> bs) * INV_FF;
+        pinst->vlst[cnt].col[AA] = (trans * INV_FF) * (pinst->ref.alpha * INV_FF);
+
+        // coerce these to valid values
+        pinst->vlst[cnt].col[RR] = CLIP( pinst->vlst[cnt].col[RR], 0.0f, 1.0f);
+        pinst->vlst[cnt].col[GG] = CLIP( pinst->vlst[cnt].col[GG], 0.0f, 1.0f);
+        pinst->vlst[cnt].col[BB] = CLIP( pinst->vlst[cnt].col[BB], 0.0f, 1.0f);
+        pinst->vlst[cnt].col[AA] = CLIP( pinst->vlst[cnt].col[AA], 0.0f, 1.0f);
+    }
+}
+
+
+
+//--------------------------------------------------------------------------------------------
+/* Storage for blended vertices */
+static GLfloat md2_blendedVertices[MD2_MAX_VERTICES][3];
+static GLfloat md2_blendedNormals[MD2_MAX_VERTICES][3];
+
+/* blend_md2_vertices
+ * Blends the vertices and normals between 2 frames of a md2 model for animation.
+ *
+ * @note Only meant to be called from draw_textured_md2, which does the necessary
+ * checks to make sure that the inputs are valid.  So this function itself assumes
+ * that they are valid.  User beware!
+ */
+static void blend_md2_vertices( const Md2Model *model, int from_, int to_, float lerp )
+{
+    struct Md2Frame *from, *to;
+    int numVertices, i;
+
+    from = &model->frames[from_];
+    to = &model->frames[to_];
+    numVertices = model->numVertices;
+    if ( lerp <= 0 )
+    {
+        // copy the vertices in frame 'from' over
+        for ( i = 0; i < numVertices; i++ )
+        {
+            md2_blendedVertices[i][0] = from->vertices[i].x;
+            md2_blendedVertices[i][1] = from->vertices[i].y;
+            md2_blendedVertices[i][2] = from->vertices[i].z;
+
+            md2_blendedNormals[i][0] = kMd2Normals[from->vertices[i].normal][0];
+            md2_blendedNormals[i][1] = kMd2Normals[from->vertices[i].normal][1];
+            md2_blendedNormals[i][2] = kMd2Normals[from->vertices[i].normal][2];
+        }
+    }
+    else if ( lerp >= 1.0f )
+    {
+        // copy the vertices in frame 'to'
+        for ( i = 0; i < numVertices; i++ )
+        {
+            md2_blendedVertices[i][0] = to->vertices[i].x;
+            md2_blendedVertices[i][1] = to->vertices[i].y;
+            md2_blendedVertices[i][2] = to->vertices[i].z;
+
+            md2_blendedNormals[i][0] = kMd2Normals[to->vertices[i].normal][0];
+            md2_blendedNormals[i][1] = kMd2Normals[to->vertices[i].normal][1];
+            md2_blendedNormals[i][2] = kMd2Normals[to->vertices[i].normal][2];
+        }
+    }
+    else
+    {
+        // mix the vertices
+        for ( i = 0; i < numVertices; i++ )
+        {
+            md2_blendedVertices[i][0] = from->vertices[i].x +
+                                        ( to->vertices[i].x - from->vertices[i].x ) * lerp;
+            md2_blendedVertices[i][1] = from->vertices[i].y +
+                                        ( to->vertices[i].y - from->vertices[i].y ) * lerp;
+            md2_blendedVertices[i][2] = from->vertices[i].z +
+                                        ( to->vertices[i].z - from->vertices[i].z ) * lerp;
+
+            md2_blendedNormals[i][0] = kMd2Normals[from->vertices[i].normal][0] +
+                                       ( kMd2Normals[to->vertices[i].normal][0] - kMd2Normals[from->vertices[i].normal][0] ) * lerp;
+            md2_blendedNormals[i][0] = kMd2Normals[from->vertices[i].normal][1] +
+                                       ( kMd2Normals[to->vertices[i].normal][1] - kMd2Normals[from->vertices[i].normal][1] ) * lerp;
+            md2_blendedNormals[i][0] = kMd2Normals[from->vertices[i].normal][2] +
+                                       ( kMd2Normals[to->vertices[i].normal][2] - kMd2Normals[from->vertices[i].normal][2] ) * lerp;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+/* draw_textured_md2
+ * Draws a Md2Model in the new format
+ */
+void draw_textured_md2( const Md2Model *model, int from_, int to_, float lerp )
+{
+    int i, numTriangles;
+    const struct Md2TexCoord *tc;
+    const struct Md2Triangle *triangles;
+    const struct Md2Triangle *tri;
+    if ( model == NULL ) return;
+    if ( from_ < 0 || from_ >= model->numFrames ) return;
+    if ( to_ < 0 || to_ >= model->numFrames ) return;
+
+    blend_md2_vertices( model, from_, to_, lerp );
+
+    numTriangles = model->numTriangles;
+    tc = model->texCoords;
+    triangles = model->triangles;
+
+    GL_DEBUG( glEnableClientState )( GL_VERTEX_ARRAY );
+    GL_DEBUG( glEnableClientState )( GL_NORMAL_ARRAY );
+
+    GL_DEBUG( glVertexPointer )( 3, GL_FLOAT, 0, md2_blendedVertices );
+    GL_DEBUG( glNormalPointer )( GL_FLOAT, 0, md2_blendedNormals );
+
+    GL_DEBUG( glBegin )( GL_TRIANGLES );
+    {
+        for ( i = 0; i < numTriangles; i++ )
+        {
+            tri = &triangles[i];
+
+            GL_DEBUG( glTexCoord2fv )(( const GLfloat* )&( tc[tri->texCoordIndices[0]] ) );
+            GL_DEBUG( glArrayElement )( tri->vertexIndices[0] );
+
+            GL_DEBUG( glTexCoord2fv )(( const GLfloat* )&( tc[tri->texCoordIndices[1]] ) );
+            GL_DEBUG( glArrayElement )( tri->vertexIndices[1] );
+
+            GL_DEBUG( glTexCoord2fv )(( const GLfloat* )&( tc[tri->texCoordIndices[2]] ) );
+            GL_DEBUG( glArrayElement )( tri->vertexIndices[2] );
+        }
+    }
+    GL_DEBUG_END();
+
+    GL_DEBUG( glDisableClientState )( GL_VERTEX_ARRAY );
+    GL_DEBUG( glDisableClientState )( GL_NORMAL_ARRAY );
+}
+
+/////////////////////////////////
+// game.c
+//--------------------------------------------------------------------------------------------
+bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
+{
+    float xa, ya, za, xb, yb, zb;
+    float was_xa, was_ya, was_za, was_xb, was_yb, was_zb;
+    chr_t * pchr_a, * pchr_b;
+    cap_t * pcap_a, * pcap_b;
+
+    float dx, dy, dist;
+    float was_dx, was_dy, was_dist;
+    float depth_z, was_depth_z;
+    float lerp_z, radius, radius_xy;
+    float wta, wtb;
+
+    bool_t collide_x  = bfalse, was_collide_x;
+    bool_t collide_y  = bfalse, was_collide_y;
+    bool_t collide_xy = bfalse, was_collide_xy;
+    bool_t collide_z  = bfalse, was_collide_z;
+    bool_t collision  = bfalse;
+
+    float interaction_strength = 1.0f;
+
+    // make sure that it is on
+    if ( !ACTIVE_CHR( ichr_a ) ) return bfalse;
+    pchr_a = ChrList.lst + ichr_a;
+
+    pcap_a = chr_get_pcap( ichr_a );
+    if ( NULL == pcap_a ) return bfalse;
+
+    // make sure that it is on
+    if ( !ACTIVE_CHR( ichr_b ) ) return bfalse;
+    pchr_b = ChrList.lst + ichr_b;
+
+    pcap_b = chr_get_pcap( ichr_b );
+    if ( NULL == pcap_b ) return bfalse;
+
+    // platform interaction. if the onwhichplatform is set, then
+    // all collision tests have been met
+    if ( ichr_a == pchr_b->onwhichplatform )
+    {
+        if( do_chr_platform_physics( pchr_b, pchr_a ) )
+        {
+            // this is handled
+            return btrue;
+        }
+    }
+
+    // platform interaction. if the onwhichplatform is set, then
+    // all collision tests have been met
+    if ( ichr_b == pchr_a->onwhichplatform )
+    {
+        if( do_chr_platform_physics( pchr_a, pchr_b ) )
+        {
+            // this is handled
+            return btrue;
+        }
+    }
+
+    // items can interact with platforms but not with other characters/objects
+    if ( pchr_a->isitem || pchr_b->isitem ) return bfalse;
+
+    // don't interact with your mount, or your held items
+    if ( ichr_a == pchr_b->attachedto || ichr_b == pchr_a->attachedto ) return bfalse;
+
+    // don't do anything if there is no interaction strength
+    if ( 0 == pchr_a->bump.size || 0 == pchr_b->bump.size ) return bfalse;
+
+    interaction_strength = 1.0f;
+    interaction_strength *= pchr_a->inst.light * INV_FF;
+    interaction_strength *= pchr_b->inst.light * INV_FF;
+
+    xa = pchr_a->pos.x;
+    ya = pchr_a->pos.y;
+    za = pchr_a->pos.z;
+
+    was_xa = xa - pchr_a->vel.x;
+    was_ya = ya - pchr_a->vel.y;
+    was_za = za - pchr_a->vel.z;
+
+    xb = pchr_b->pos.x;
+    yb = pchr_b->pos.y;
+    zb = pchr_b->pos.z;
+
+    was_xb = xb - pchr_b->vel.x;
+    was_yb = yb - pchr_b->vel.y;
+    was_zb = zb - pchr_b->vel.z;
+
+    dx = ABS( xa - xb );
+    dy = ABS( ya - yb );
+    dist = dx + dy;
+
+    was_dx = ABS( was_xa - was_xb );
+    was_dy = ABS( was_ya - was_yb );
+    was_dist = was_dx + was_dy;
+
+    depth_z = MIN( zb + pchr_b->bump.height, za + pchr_a->bump.height ) - MAX(za, zb);
+    was_depth_z = MIN( was_zb + pchr_b->bump.height, was_za + pchr_a->bump.height ) - MAX(was_za, was_zb);
+
+    // estimate the radius of interaction based on the z overlap
+    lerp_z  = depth_z / PLATTOLERANCE;
+    lerp_z  = CLIP( lerp_z, 0, 1 );
+
+    radius    = pchr_a->bump.size    + pchr_b->bump.size;
+    radius_xy = pchr_a->bump.sizebig + pchr_b->bump.sizebig;
+
+    // estimate the collisions this frame
+    collide_x  = (dx < radius);
+    collide_y  = (dy < radius);
+    collide_xy = (dist < radius_xy);
+    collide_z  = (depth_z > 0);
+
+    // estimate the collisions last frame
+    was_collide_x  = (was_dx < radius);
+    was_collide_y  = (was_dy < radius);
+    was_collide_xy = (was_dist < radius_xy);
+    was_collide_z  = (was_depth_z > 0);
+
+    //------------------
+    // do character-character interactions
+    if ( !collide_x || !collide_y || !collide_xy || depth_z < -PLATTOLERANCE ) return bfalse;
+
+    wta = (INFINITE_WEIGHT == pchr_a->phys.weight) ? -(float)INFINITE_WEIGHT : pchr_a->phys.weight;
+    wtb = (INFINITE_WEIGHT == pchr_b->phys.weight) ? -(float)INFINITE_WEIGHT : pchr_b->phys.weight;
+
+    if ( wta == 0 && wtb == 0 )
+    {
+        wta = wtb = 1;
+    }
+    else if ( wta == 0 )
+    {
+        wta = 1;
+        wtb = -0xFFFF;
+    }
+    else if ( wtb == 0 )
+    {
+        wtb = 1;
+        wta = -0xFFFF;
+    }
+
+    if ( 0.0f == pchr_a->phys.bumpdampen && 0.0f == pchr_b->phys.bumpdampen )
+    {
+        /* do nothing */
+    }
+    else if ( 0.0f == pchr_a->phys.bumpdampen )
+    {
+        // make the weight infinite
+        wta = -0xFFFF;
+    }
+    else if ( 0.0f == pchr_b->phys.bumpdampen )
+    {
+        // make the weight infinite
+        wtb = -0xFFFF;
+    }
+    else
+    {
+        // adjust the weights to respect bumpdampen
+        wta /= pchr_a->phys.bumpdampen;
+        wtb /= pchr_b->phys.bumpdampen;
+    }
+
+    if ( !collision && collide_z )
+    {
+        float depth_x, depth_y, depth_xy, depth_yx, depth_z;
+        fvec3_t   nrm;
+        int exponent = 1;
+
+        if ( pcap_a->canuseplatforms && pchr_b->platform ) exponent += 2;
+        if ( pcap_b->canuseplatforms && pchr_a->platform ) exponent += 2;
+
+        nrm.x = nrm.y = nrm.z = 0.0f;
+
+        depth_x  = MIN(xa + pchr_a->bump.size, xb + pchr_b->bump.size) - MAX(xa - pchr_a->bump.size, xb - pchr_b->bump.size);
+        if ( depth_x <= 0.0f )
+        {
+            depth_x = 0.0f;
+        }
+        else
+        {
+            float sgn = xb - xa;
+            sgn = sgn > 0 ? -1 : 1;
+
+            nrm.x += sgn / POW(depth_x / PLATTOLERANCE, exponent);
+        }
+
+        depth_y  = MIN(ya + pchr_a->bump.size, yb + pchr_b->bump.size) - MAX(ya - pchr_a->bump.size, yb - pchr_b->bump.size);
+        if ( depth_y <= 0.0f )
+        {
+            depth_y = 0.0f;
+        }
+        else
+        {
+            float sgn = yb - ya;
+            sgn = sgn > 0 ? -1 : 1;
+
+            nrm.y += sgn / POW(depth_y / PLATTOLERANCE, exponent);
+        }
+
+        depth_xy = MIN(xa + ya + pchr_a->bump.sizebig, xb + yb + pchr_b->bump.sizebig) - MAX(xa + ya - pchr_a->bump.sizebig, xb + yb - pchr_b->bump.sizebig);
+        if ( depth_xy <= 0.0f )
+        {
+            depth_xy = 0.0f;
+        }
+        else
+        {
+            float sgn = (xb + yb) - (xa + ya);
+            sgn = sgn > 0 ? -1 : 1;
+
+            nrm.x += sgn / POW(depth_xy / PLATTOLERANCE, exponent);
+            nrm.y += sgn / POW(depth_xy / PLATTOLERANCE, exponent);
+        }
+
+        depth_yx = MIN(-xa + ya + pchr_a->bump.sizebig, -xb + yb + pchr_b->bump.sizebig) - MAX(-xa + ya - pchr_a->bump.sizebig, -xb + yb - pchr_b->bump.sizebig);
+        if ( depth_yx <= 0.0f )
+        {
+            depth_yx = 0.0f;
+        }
+        else
+        {
+            float sgn = (-xb + yb) - (-xa + ya);
+            sgn = sgn > 0 ? -1 : 1;
+            nrm.x -= sgn / POW(depth_yx / PLATTOLERANCE, exponent);
+            nrm.y += sgn / POW(depth_yx / PLATTOLERANCE, exponent);
+        }
+
+        depth_z  = MIN(za + pchr_a->bump.height, zb + pchr_b->bump.height) - MAX( za, zb );
+        if ( depth_z <= 0.0f )
+        {
+            depth_z = 0.0f;
+        }
+        else
+        {
+            float sgn = (zb + pchr_b->bump.height / 2) - (za + pchr_a->bump.height / 2);
+            sgn = sgn > 0 ? -1 : 1;
+
+            nrm.z += sgn / POW(exponent * depth_z / PLATTOLERANCE, exponent);
+        }
+
+        if ( ABS(nrm.x) + ABS(nrm.y) + ABS(nrm.z) > 0.0f )
+        {
+            fvec3_t   vel_a, vel_b;
+            fvec3_t   vpara_a, vperp_a;
+            fvec3_t   vpara_b, vperp_b;
+            fvec3_t   imp_a, imp_b;
+            float     vdot;
+
+            nrm = fvec3_normalize( nrm.v );
+
+            vel_a.x = pchr_a->vel.x;
+            vel_a.y = pchr_a->vel.y;
+            vel_a.z = pchr_a->vel.z;
+
+            vel_b.x = pchr_b->vel.x;
+            vel_b.y = pchr_b->vel.y;
+            vel_b.z = pchr_b->vel.z;
+
+            vdot = fvec3_dot_product( nrm.v, vel_a.v );
+            vperp_a.x = nrm.x * vdot;
+            vperp_a.y = nrm.y * vdot;
+            vperp_a.z = nrm.z * vdot;
+            vpara_a = fvec3_sub( vel_a.v, vperp_a.v );
+
+            vdot = fvec3_dot_product( nrm.v, vel_b.v );
+            vperp_b.x = nrm.x * vdot;
+            vperp_b.y = nrm.y * vdot;
+            vperp_b.z = nrm.z * vdot;
+            vpara_b = fvec3_sub( vel_b.v, vperp_b.v );
+
+            // clear the "impulses"
+            imp_a.x = imp_a.y = imp_a.z = 0.0f;
+            imp_b.x = imp_b.y = imp_b.z = 0.0f;
+
+            if ( collide_xy != was_collide_xy || collide_x != was_collide_x || collide_y != was_collide_y )
+            {
+                // an actual collision
+
+                // generic coefficient of restitution
+                float cr = 0.5f;
+
+                if ( (wta < 0 && wtb < 0) || (wta == wtb) )
+                {
+                    float factor = 0.5f * (1.0f - cr);
+
+                    imp_a.x = factor * (vperp_b.x - vperp_a.x);
+                    imp_a.y = factor * (vperp_b.y - vperp_a.y);
+                    imp_a.z = factor * (vperp_b.z - vperp_a.z);
+
+                    imp_b.x = factor * (vperp_a.x - vperp_b.x);
+                    imp_b.y = factor * (vperp_a.y - vperp_b.y);
+                    imp_b.z = factor * (vperp_a.z - vperp_b.z);
+                }
+                else if ( (wta < 0) || (wtb == 0) )
+                {
+                    float factor = (1.0f - cr);
+
+                    imp_b.x = factor * (vperp_a.x - vperp_b.x);
+                    imp_b.y = factor * (vperp_a.y - vperp_b.y);
+                    imp_b.z = factor * (vperp_a.z - vperp_b.z);
+                }
+                else if ( (wtb < 0) || (wta == 0) )
+                {
+                    float factor = (1.0f - cr);
+
+                    imp_a.x = factor * (vperp_b.x - vperp_a.x);
+                    imp_a.y = factor * (vperp_b.y - vperp_a.y);
+                    imp_a.z = factor * (vperp_b.z - vperp_a.z);
+                }
+                else
+                {
+                    float factor;
+
+                    factor = (1.0f - cr) * wtb / ( wta + wtb );
+                    imp_a.x = factor * (vperp_b.x - vperp_a.x);
+                    imp_a.y = factor * (vperp_b.y - vperp_a.y);
+                    imp_a.z = factor * (vperp_b.z - vperp_a.z);
+
+                    factor = (1.0f - cr) * wta / ( wta + wtb );
+                    imp_b.x = factor * (vperp_a.x - vperp_b.x);
+                    imp_b.y = factor * (vperp_a.y - vperp_b.y);
+                    imp_b.z = factor * (vperp_a.z - vperp_b.z);
+                }
+
+                // add in the collision impulses
+                pchr_a->phys.avel.x += imp_a.x;
+                pchr_a->phys.avel.y += imp_a.y;
+                pchr_a->phys.avel.z += imp_a.z;
+                LOG_NAN(pchr_a->phys.avel.z);
+
+                pchr_b->phys.avel.x += imp_b.x;
+                pchr_b->phys.avel.y += imp_b.y;
+                pchr_b->phys.avel.z += imp_b.z;
+                LOG_NAN(pchr_b->phys.avel.z);
+
+                collision = btrue;
+            }
+            else
+            {
+                float tmin;
+
+                tmin = 1e6;
+                if ( nrm.x != 0 )
+                {
+                    tmin = MIN(tmin, depth_x / ABS(nrm.x) );
+                }
+                if ( nrm.y != 0 )
+                {
+                    tmin = MIN(tmin, depth_y / ABS(nrm.y) );
+                }
+                if ( nrm.z != 0 )
+                {
+                    tmin = MIN(tmin, depth_z / ABS(nrm.z) );
+                }
+
+                if ( nrm.x + nrm.y != 0 )
+                {
+                    tmin = MIN(tmin, depth_xy / ABS(nrm.x + nrm.y) );
+                }
+
+                if ( -nrm.x + nrm.y != 0 )
+                {
+                    tmin = MIN(tmin, depth_yx / ABS(-nrm.x + nrm.y) );
+                }
+
+                if ( tmin < 1e6 )
+                {
+                    if ( wta >= 0.0f )
+                    {
+                        float ratio = (float)ABS(wtb) / ((float)ABS(wta) + (float)ABS(wtb));
+
+                        imp_a.x = tmin * nrm.x * 0.25f * ratio;
+                        imp_a.y = tmin * nrm.y * 0.25f * ratio;
+                        imp_a.z = tmin * nrm.z * 0.25f * ratio;
+                    }
+
+                    if ( wtb >= 0.0f )
+                    {
+                        float ratio = (float)ABS(wta) / ((float)ABS(wta) + (float)ABS(wtb));
+
+                        imp_b.x = -tmin * nrm.x * 0.25f * ratio;
+                        imp_b.y = -tmin * nrm.y * 0.25f * ratio;
+                        imp_b.z = -tmin * nrm.z * 0.25f * ratio;
+                    }
+                }
+
+                // add in the collision impulses
+                pchr_a->phys.apos_1.x += imp_a.x;
+                pchr_a->phys.apos_1.y += imp_a.y;
+                pchr_a->phys.apos_1.z += imp_a.z;
+
+                pchr_b->phys.apos_1.x += imp_b.x;
+                pchr_b->phys.apos_1.y += imp_b.y;
+                pchr_b->phys.apos_1.z += imp_b.z;
+
+                // you could "bump" something if you changed your velocity, even if you were still touching
+                collision = (fvec3_dot_product( pchr_a->vel.v, nrm.v ) * fvec3_dot_product( pchr_a->vel_old.v, nrm.v ) < 0 ) ||
+                            (fvec3_dot_product( pchr_b->vel.v, nrm.v ) * fvec3_dot_product( pchr_b->vel_old.v, nrm.v ) < 0 );
+
+            }
+
+            // add in the friction due to the "collision"
+            // assume coeff of friction of 0.5
+            if ( ABS(imp_a.x) + ABS(imp_a.y) + ABS(imp_a.z) > 0.0f &&
+                 ABS(vpara_a.x) + ABS(vpara_a.y) + ABS(vpara_a.z) > 0.0f &&
+                 pchr_a->dismount_timer <= 0)
+            {
+                float imp, vel, factor;
+
+                imp = 0.5f * SQRT( imp_a.x * imp_a.x + imp_a.y * imp_a.y + imp_a.z * imp_a.z );
+                vel = SQRT( vpara_a.x * vpara_a.x + vpara_a.y * vpara_a.y + vpara_a.z * vpara_a.z );
+
+                factor = imp / vel;
+                factor = CLIP(factor, 0.0f, 1.0f);
+
+                pchr_a->phys.avel.x -= factor * vpara_a.x;
+                pchr_a->phys.avel.y -= factor * vpara_a.y;
+                pchr_a->phys.avel.z -= factor * vpara_a.z;
+                LOG_NAN(pchr_a->phys.avel.z);
+            }
+
+            if ( ABS(imp_b.x) + ABS(imp_b.y) + ABS(imp_b.z) > 0.0f &&
+                 ABS(vpara_b.x) + ABS(vpara_b.y) + ABS(vpara_b.z) > 0.0f &&
+                 pchr_b->dismount_timer <= 0)
+            {
+                float imp, vel, factor;
+
+                imp = 0.5f * SQRT( imp_b.x * imp_b.x + imp_b.y * imp_b.y + imp_b.z * imp_b.z );
+                vel = SQRT( vpara_b.x * vpara_b.x + vpara_b.y * vpara_b.y + vpara_b.z * vpara_b.z );
+
+                factor = imp / vel;
+                factor = CLIP(factor, 0.0f, 1.0f);
+
+                pchr_b->phys.avel.x -= factor * vpara_b.x;
+                pchr_b->phys.avel.y -= factor * vpara_b.y;
+                pchr_b->phys.avel.z -= factor * vpara_b.z;
+                LOG_NAN(pchr_b->phys.avel.z);
+            }
+        }
+    }
+
+    if ( collision )
+    {
+        ai_state_set_bumplast( &(pchr_a->ai), ichr_b );
+        ai_state_set_bumplast( &(pchr_b->ai), ichr_a );
+    }
+
+    return btrue;
+}

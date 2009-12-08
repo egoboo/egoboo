@@ -21,7 +21,7 @@
 /// @brief Particle system drawing and management code.
 /// @details
 
-#include "graphic.h"
+#include "graphic_prt.h"
 
 #include "particle.h"
 #include "char.h"
@@ -79,7 +79,7 @@ size_t render_all_prt_begin( camera_t * pcam, prt_registry_entity_t reg[], size_
     int cnt;
     size_t numparticle;
 
-    update_all_prt_instance( pcam );
+    prt_instance_update_all( pcam );
 
     vfwd = mat_getCamForward( pcam->mView );
     vcam = pcam->pos;
@@ -337,7 +337,7 @@ size_t render_all_prt_ref_begin( camera_t * pcam, prt_registry_entity_t reg[], s
     Uint16 cnt;
     size_t numparticle;
 
-    update_all_prt_instance( pcam );
+    prt_instance_update_all( pcam );
 
     vfwd = mat_getCamForward( pcam->mView );
     vcam = pcam->pos;
@@ -509,9 +509,149 @@ void render_prt_ref( camera_t * pcam )
     render_all_prt_ref( pcam, reg, numparticle );
 }
 
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void update_all_prt_instance( camera_t * pcam )
+void calc_billboard_verts( GLvertex vlst[], prt_instance_t * pinst, float size, bool_t do_reflect )
+{
+    // Calculate the position of the four corners of the billboard
+    // used to display the particle.
+
+    int i;
+    fvec3_t prt_pos, prt_up, prt_right;
+
+    if ( NULL == vlst || NULL == pinst ) return;
+
+    // use the pre-computed reflection parameters
+    if ( do_reflect )
+    {
+        prt_pos   = pinst->ref_pos;
+        prt_up    = pinst->ref_up;
+        prt_right = pinst->ref_right;
+    }
+    else
+    {
+        prt_pos   = pinst->pos;
+        prt_up    = pinst->up;
+        prt_right = pinst->right;
+    }
+
+    for ( i = 0; i < 4; i++ )
+    {
+        vlst[i].pos[XX] = prt_pos.x;
+        vlst[i].pos[YY] = prt_pos.y;
+        vlst[i].pos[ZZ] = prt_pos.z;
+    }
+
+    vlst[0].pos[XX] += ( -prt_right.x - prt_up.x ) * size;
+    vlst[0].pos[YY] += ( -prt_right.y - prt_up.y ) * size;
+    vlst[0].pos[ZZ] += ( -prt_right.z - prt_up.z ) * size;
+
+    vlst[1].pos[XX] += ( prt_right.x - prt_up.x ) * size;
+    vlst[1].pos[YY] += ( prt_right.y - prt_up.y ) * size;
+    vlst[1].pos[ZZ] += ( prt_right.z - prt_up.z ) * size;
+
+    vlst[2].pos[XX] += ( prt_right.x + prt_up.x ) * size;
+    vlst[2].pos[YY] += ( prt_right.y + prt_up.y ) * size;
+    vlst[2].pos[ZZ] += ( prt_right.z + prt_up.z ) * size;
+
+    vlst[3].pos[XX] += ( -prt_right.x + prt_up.x ) * size;
+    vlst[3].pos[YY] += ( -prt_right.y + prt_up.y ) * size;
+    vlst[3].pos[ZZ] += ( -prt_right.z + prt_up.z ) * size;
+
+    vlst[0].tex[SS] = sprite_list_u[pinst->image][1];
+    vlst[0].tex[TT] = sprite_list_v[pinst->image][1];
+
+    vlst[1].tex[SS] = sprite_list_u[pinst->image][0];
+    vlst[1].tex[TT] = sprite_list_v[pinst->image][1];
+
+    vlst[2].tex[SS] = sprite_list_u[pinst->image][0];
+    vlst[2].tex[TT] = sprite_list_v[pinst->image][0];
+
+    vlst[3].tex[SS] = sprite_list_u[pinst->image][1];
+    vlst[3].tex[TT] = sprite_list_v[pinst->image][0];
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+void render_all_prt_attachment()
+{
+    int cnt;
+
+    GL_DEBUG( glDisable )( GL_BLEND );
+
+    for ( cnt = 0; cnt < maxparticles; cnt++ )
+    {
+        prt_draw_attached_point( PrtList.lst + cnt );
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+void draw_one_attacment_point( chr_instance_t * pinst, mad_t * pmad, int vrt_offset )
+{
+    /// @details BB@> a function that will draw some of the vertices of the given character.
+    ///     The original idea was to use this to debug the grip for attached items.
+
+    int vrt;
+    GLboolean texture_1d_enabled, texture_2d_enabled;
+
+    if ( NULL == pinst || NULL == pmad ) return;
+
+    vrt = ego_md2_data[pmad->md2_ref].vertices - vrt_offset;
+
+    if ( vrt < 0 || vrt >= ego_md2_data[pmad->md2_ref].vertices ) return;
+
+    texture_1d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_1D );
+    texture_2d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_2D );
+
+    // disable the texturing so all the points will be white,
+    // not the texture color of the last vertex we drawn
+    if ( texture_1d_enabled ) glDisable( GL_TEXTURE_1D );
+    if ( texture_2d_enabled ) glDisable( GL_TEXTURE_2D );
+
+    GL_DEBUG( glPointSize )( 5 );
+
+    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
+    GL_DEBUG( glPushMatrix )();
+    GL_DEBUG( glMultMatrixf )( pinst->matrix.v );
+
+    GL_DEBUG( glBegin( GL_POINTS ) );
+    {
+        glVertex3fv( pinst->vlst[vrt].pos );
+    }
+    GL_DEBUG_END();
+
+    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
+    GL_DEBUG( glPopMatrix )();
+
+    if ( texture_1d_enabled ) glEnable( GL_TEXTURE_1D );
+    if ( texture_2d_enabled ) glEnable( GL_TEXTURE_2D );
+}
+
+//--------------------------------------------------------------------------------------------
+void prt_draw_attached_point( prt_t * pprt )
+{
+    mad_t * pholder_mad;
+    cap_t * pholder_cap;
+    chr_t * pholder;
+
+    if ( !DISPLAY_PPRT( pprt ) ) return;
+
+    if ( !ACTIVE_CHR( pprt->attachedto_ref ) ) return;
+    pholder = ChrList.lst + pprt->attachedto_ref;
+
+    pholder_cap = pro_get_pcap( pholder->iprofile );
+    if ( NULL == pholder_cap ) return;
+
+    pholder_mad = chr_get_pmad( GET_INDEX_PCHR( pholder ) );
+    if ( NULL == pholder_mad ) return;
+
+    draw_one_attacment_point( &( pholder->inst ), pholder_mad, pprt->vrt_off );
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+void prt_instance_update_all( camera_t * pcam )
 {
     int cnt;
 
@@ -855,7 +995,7 @@ void prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_
 }
 
 //--------------------------------------------------------------------------------------------
-fmat_4x4_t prt_inst_make_matrix( prt_instance_t * pinst )
+fmat_4x4_t prt_instance_make_matrix( prt_instance_t * pinst )
 {
     fmat_4x4_t mat = IdentityMatrix();
 
@@ -889,17 +1029,25 @@ void prt_instance_update_lighting( prt_instance_t * pinst, prt_t * pprt, Uint8 t
     alpha = trans;
 
     // interpolate the lighting for the origin of the object
-    interpolate_grid_lighting( PMesh, &global_light, pinst->pos );
+    grid_lighting_interpolate( PMesh, &global_light, pinst->pos.x, pinst->pos.y );
 
     // rotate the lighting data to body_centered coordinates
-    mat = prt_inst_make_matrix( pinst );
+    mat = prt_instance_make_matrix( pinst );
     lighting_project_cache( &loc_light, &global_light, mat );
 
     // determine the normal dependent amount of light
-    lighting_evaluate_cache( &loc_light, pinst->nrm.v, pinst->pos.z, PMesh->mmem.bbox, &amb, &dir );
+    lighting_evaluate_cache( &loc_light, pinst->nrm.v, pinst->pos.z, PMesh->tmem.bbox, &amb, &dir );
+
+    // LIGHT-blended sprites automatically glow. ALPHA-blended and SOLID
+    // sprites need to convert the light channel into additional alpha
+    // lighting to make them "glow"
+    self_light = 0;
+    if( SPRITE_LIGHT != pinst->type )
+    {
+        self_light  = ( 255 == pinst->light ) ? 0 : pinst->light;
+    }
 
     // determine the ambient lighting
-    self_light  = ( 255 == pinst->light ) ? 0 : pinst->light;
     pinst->famb = 0.9f * pinst->famb + 0.1f * ( self_light + amb );
     pinst->fdir = 0.9f * pinst->fdir + 0.1f * dir;
 
@@ -931,141 +1079,4 @@ void prt_instance_update( camera_t * pcam, Uint16 particle, Uint8 trans, bool_t 
 
     // do the lighting
     prt_instance_update_lighting( pinst, pprt, trans, do_lighting );
-}
-
-//--------------------------------------------------------------------------------------------
-void calc_billboard_verts( GLvertex vlst[], prt_instance_t * pinst, float size, bool_t do_reflect )
-{
-    // Calculate the position of the four corners of the billboard
-    // used to display the particle.
-
-    int i;
-    fvec3_t prt_pos, prt_up, prt_right;
-
-    if ( NULL == vlst || NULL == pinst ) return;
-
-    // use the pre-computed reflection parameters
-    if ( do_reflect )
-    {
-        prt_pos   = pinst->ref_pos;
-        prt_up    = pinst->ref_up;
-        prt_right = pinst->ref_right;
-    }
-    else
-    {
-        prt_pos   = pinst->pos;
-        prt_up    = pinst->up;
-        prt_right = pinst->right;
-    }
-
-    for ( i = 0; i < 4; i++ )
-    {
-        vlst[i].pos[XX] = prt_pos.x;
-        vlst[i].pos[YY] = prt_pos.y;
-        vlst[i].pos[ZZ] = prt_pos.z;
-    }
-
-    vlst[0].pos[XX] += ( -prt_right.x - prt_up.x ) * size;
-    vlst[0].pos[YY] += ( -prt_right.y - prt_up.y ) * size;
-    vlst[0].pos[ZZ] += ( -prt_right.z - prt_up.z ) * size;
-
-    vlst[1].pos[XX] += ( prt_right.x - prt_up.x ) * size;
-    vlst[1].pos[YY] += ( prt_right.y - prt_up.y ) * size;
-    vlst[1].pos[ZZ] += ( prt_right.z - prt_up.z ) * size;
-
-    vlst[2].pos[XX] += ( prt_right.x + prt_up.x ) * size;
-    vlst[2].pos[YY] += ( prt_right.y + prt_up.y ) * size;
-    vlst[2].pos[ZZ] += ( prt_right.z + prt_up.z ) * size;
-
-    vlst[3].pos[XX] += ( -prt_right.x + prt_up.x ) * size;
-    vlst[3].pos[YY] += ( -prt_right.y + prt_up.y ) * size;
-    vlst[3].pos[ZZ] += ( -prt_right.z + prt_up.z ) * size;
-
-    vlst[0].tex[SS] = sprite_list_u[pinst->image][1];
-    vlst[0].tex[TT] = sprite_list_v[pinst->image][1];
-
-    vlst[1].tex[SS] = sprite_list_u[pinst->image][0];
-    vlst[1].tex[TT] = sprite_list_v[pinst->image][1];
-
-    vlst[2].tex[SS] = sprite_list_u[pinst->image][0];
-    vlst[2].tex[TT] = sprite_list_v[pinst->image][0];
-
-    vlst[3].tex[SS] = sprite_list_u[pinst->image][1];
-    vlst[3].tex[TT] = sprite_list_v[pinst->image][0];
-}
-
-//--------------------------------------------------------------------------------------------
-void render_all_prt_attachment()
-{
-    int cnt;
-
-    GL_DEBUG( glDisable )( GL_BLEND );
-
-    for ( cnt = 0; cnt < maxparticles; cnt++ )
-    {
-        prt_draw_attached_point( PrtList.lst + cnt );
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void draw_one_attacment_point( chr_instance_t * pinst, mad_t * pmad, int vrt_offset )
-{
-    /// @details BB@> a function that will draw some of the vertices of the given character.
-    ///     The original idea was to use this to debug the grip for attached items.
-
-    int vrt;
-    GLboolean texture_1d_enabled, texture_2d_enabled;
-
-    if ( NULL == pinst || NULL == pmad ) return;
-
-    vrt = ego_md2_data[pmad->md2_ref].vertices - vrt_offset;
-
-    if ( vrt < 0 || vrt >= ego_md2_data[pmad->md2_ref].vertices ) return;
-
-    texture_1d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_1D );
-    texture_2d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_2D );
-
-    // disable the texturing so all the points will be white,
-    // not the texture color of the last vertex we drawn
-    if ( texture_1d_enabled ) glDisable( GL_TEXTURE_1D );
-    if ( texture_2d_enabled ) glDisable( GL_TEXTURE_2D );
-
-    GL_DEBUG( glPointSize )( 5 );
-
-    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
-    GL_DEBUG( glPushMatrix )();
-    GL_DEBUG( glMultMatrixf )( pinst->matrix.v );
-
-    GL_DEBUG( glBegin( GL_POINTS ) );
-    {
-        glVertex3fv( pinst->vlst[vrt].pos );
-    }
-    GL_DEBUG_END();
-
-    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
-    GL_DEBUG( glPopMatrix )();
-
-    if ( texture_1d_enabled ) glEnable( GL_TEXTURE_1D );
-    if ( texture_2d_enabled ) glEnable( GL_TEXTURE_2D );
-}
-
-//--------------------------------------------------------------------------------------------
-void prt_draw_attached_point( prt_t * pprt )
-{
-    mad_t * pholder_mad;
-    cap_t * pholder_cap;
-    chr_t * pholder;
-
-    if ( !DISPLAY_PPRT( pprt ) ) return;
-
-    if ( !ACTIVE_CHR( pprt->attachedto_ref ) ) return;
-    pholder = ChrList.lst + pprt->attachedto_ref;
-
-    pholder_cap = pro_get_pcap( pholder->iprofile );
-    if ( NULL == pholder_cap ) return;
-
-    pholder_mad = chr_get_pmad( GET_INDEX_PCHR( pholder ) );
-    if ( NULL == pholder_mad ) return;
-
-    draw_one_attacment_point( &( pholder->inst ), pholder_mad, pprt->vrt_off );
 }

@@ -4458,12 +4458,12 @@ Uint8 scr_ShowBlipXY( script_state_t * pstate, ai_state_t * pself )
     // Add a blip
     if ( numblip < MAXBLIP )
     {
-        if ( pstate->x > 0 && pstate->x < PMesh->info.edge_x && pstate->y > 0 && pstate->y < PMesh->info.edge_y )
+        if ( pstate->x > 0 && pstate->x < PMesh->gmem.edge_x && pstate->y > 0 && pstate->y < PMesh->gmem.edge_y )
         {
             if ( pstate->argument < COLOR_MAX && pstate->argument >= 0 )
             {
-                blipx[numblip] = pstate->x * MAPSIZE / PMesh->info.edge_x;
-                blipy[numblip] = pstate->y * MAPSIZE / PMesh->info.edge_y;
+                blipx[numblip] = pstate->x * MAPSIZE / PMesh->gmem.edge_x;
+                blipy[numblip] = pstate->y * MAPSIZE / PMesh->gmem.edge_y;
                 blipc[numblip] = pstate->argument;
                 numblip++;
             }
@@ -4816,7 +4816,7 @@ Uint8 scr_get_TileXY( script_state_t * pstate, ai_state_t * pself )
     if ( VALID_TILE( PMesh, iTmp ) )
     {
         returncode = btrue;
-        pstate->argument = CLIP_TO_08BITS( PMesh->mmem.tile_list[iTmp].img );
+        pstate->argument = CLIP_TO_08BITS( PMesh->tmem.tile_list[iTmp].img );
     }
 
     SCRIPT_FUNCTION_END();
@@ -6671,7 +6671,7 @@ Uint8 scr_PitsFall( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( pstate->x > EDGE && pstate->y > EDGE && pstate->x < PMesh->info.edge_x - EDGE && pstate->y < PMesh->info.edge_y - EDGE )
+    if ( pstate->x > EDGE && pstate->y > EDGE && pstate->x < PMesh->gmem.edge_x - EDGE && pstate->y < PMesh->gmem.edge_y - EDGE )
     {
         pits.teleport = btrue;
         pits.teleport_pos.x = pstate->x;
@@ -7322,8 +7322,8 @@ Uint8 _break_passage( int mesh_fx_or, int become, int frames, int starttile, int
         fan = mesh_get_tile( PMesh, pchr->pos.x, pchr->pos.y );
         if ( VALID_TILE( PMesh, fan ) )
         {
-            int img      = PMesh->mmem.tile_list[fan].img & 0x00FF;
-            int highbits = PMesh->mmem.tile_list[fan].img & 0xFF00;
+            int img      = PMesh->tmem.tile_list[fan].img & 0x00FF;
+            int highbits = PMesh->tmem.tile_list[fan].img & 0xFF00;
 
             if ( img >= starttile && img < endtile )
             {
@@ -7350,7 +7350,7 @@ Uint8 _break_passage( int mesh_fx_or, int become, int frames, int starttile, int
                 }
             }
 
-            if ( PMesh->mmem.tile_list[fan].img != ( img | highbits ) )
+            if ( PMesh->tmem.tile_list[fan].img != ( img | highbits ) )
             {
                 mesh_set_texture( PMesh, fan, img | highbits );
             }
@@ -7427,7 +7427,7 @@ Uint8 _find_tile_in_passage( const int x0, const int y0, const int tiletype, con
 
             if ( VALID_TILE( PMesh, fan ) )
             {
-                if ( CLIP_TO_08BITS( PMesh->mmem.tile_list[fan].img ) == tiletype )
+                if ( CLIP_TO_08BITS( PMesh->tmem.tile_list[fan].img ) == tiletype )
                 {
                     *px1 = ( x << TILE_BITS ) + 64;
                     *py1 = ( y << TILE_BITS ) + 64;
@@ -7449,7 +7449,7 @@ Uint8 _find_tile_in_passage( const int x0, const int y0, const int tiletype, con
             if ( VALID_TILE( PMesh, fan ) )
             {
 
-                if ( CLIP_TO_08BITS( PMesh->mmem.tile_list[fan].img ) == tiletype )
+                if ( CLIP_TO_08BITS( PMesh->tmem.tile_list[fan].img ) == tiletype )
                 {
                     *px1 = ( x << TILE_BITS ) + 64;
                     *py1 = ( y << TILE_BITS ) + 64;

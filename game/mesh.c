@@ -22,7 +22,9 @@
 /// @details
 
 #include "mesh.h"
+
 #include "log.h"
+#include "graphic.h"
 
 #include "egoboo_math.h"
 #include "egoboo_endian.h"
@@ -40,10 +42,10 @@ static void   mesh_make_vrtstart( ego_mpd_t * pmesh );
 
 static bool_t           mesh_free( ego_mpd_t * pmesh );
 
-static mesh_mem_t *  mesh_mem_new( mesh_mem_t * pmem );
-static mesh_mem_t *  mesh_mem_delete( mesh_mem_t * pmem );
-static bool_t        mesh_mem_free( mesh_mem_t * pmem );
-static bool_t        mesh_mem_allocate( mesh_mem_t * pmem, ego_mpd_info_t * pinfo );
+static tile_mem_t *  mesh_mem_new( tile_mem_t * pmem );
+static tile_mem_t *  mesh_mem_delete( tile_mem_t * pmem );
+static bool_t        mesh_mem_free( tile_mem_t * pmem );
+static bool_t        mesh_mem_allocate( tile_mem_t * pmem, ego_mpd_info_t * pinfo );
 
 static grid_mem_t *  grid_mem_new( grid_mem_t * pmem );
 static grid_mem_t *  grid_mem_delete( grid_mem_t * pmem );
@@ -93,19 +95,6 @@ void mesh_info_init( ego_mpd_info_t * pinfo, int numvert, size_t tiles_x, size_t
         numvert = MAXMESHVERTICES * pinfo->tiles_count;
     };
     pinfo->vertcount = numvert;
-
-    // set the desired blocknumber of blocks
-    pinfo->blocks_x = ( pinfo->tiles_x >> 2 );
-    if ( HAS_SOME_BITS( pinfo->tiles_x, 0x03 ) ) pinfo->blocks_x++;
-
-    pinfo->blocks_y = ( pinfo->tiles_y >> 2 );
-    if ( HAS_SOME_BITS( pinfo->tiles_y, 0x03 ) ) pinfo->blocks_y++;
-
-    pinfo->blocks_count = pinfo->blocks_x * pinfo->blocks_y;
-
-    // set the mesh edge info
-    pinfo->edge_x = (pinfo->tiles_x + 1) << TILE_BITS;
-    pinfo->edge_y = (pinfo->tiles_y + 1) << TILE_BITS;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -120,7 +109,7 @@ ego_mpd_info_t * mesh_info_delete( ego_mpd_info_t * pinfo )
 }
 
 //--------------------------------------------------------------------------------------------
-mesh_mem_t * mesh_mem_new( mesh_mem_t * pmem )
+tile_mem_t * mesh_mem_new( tile_mem_t * pmem )
 {
     if ( NULL == pmem ) return pmem;
 
@@ -130,7 +119,7 @@ mesh_mem_t * mesh_mem_new( mesh_mem_t * pmem )
 }
 
 //--------------------------------------------------------------------------------------------
-mesh_mem_t * mesh_mem_delete( mesh_mem_t * pmem )
+tile_mem_t * mesh_mem_delete( tile_mem_t * pmem )
 {
     if ( NULL != pmem )
     {
@@ -153,7 +142,7 @@ ego_mpd_t * mesh_new( ego_mpd_t * pmesh )
 
         mesh_init_tile_offset( pmesh );
 
-        mesh_mem_new( &( pmesh->mmem ) );
+        mesh_mem_new( &( pmesh->tmem ) );
         grid_mem_new( &( pmesh->gmem ) );
         mesh_info_new( &( pmesh->info ) );
     }
@@ -169,7 +158,7 @@ ego_mpd_t * mesh_delete( ego_mpd_t * pmesh )
 {
     if ( NULL != pmesh )
     {
-        mesh_mem_delete( &( pmesh->mmem ) );
+        mesh_mem_delete( &( pmesh->tmem ) );
         grid_mem_delete( &( pmesh->gmem ) );
         mesh_info_delete( &( pmesh->info ) );
     }
@@ -182,7 +171,7 @@ bool_t mesh_free( ego_mpd_t * pmesh )
 {
     if ( NULL == pmesh ) return bfalse;
 
-    mesh_mem_free( &( pmesh->mmem ) );
+    mesh_mem_free( &( pmesh->tmem ) );
     grid_mem_free( &( pmesh->gmem ) );
 
     return btrue;
@@ -210,7 +199,7 @@ ego_mpd_t * mesh_create( ego_mpd_t * pmesh, int tiles_x, int tiles_y )
         mesh_info_init( &( pmesh->info ), -1, tiles_x, tiles_y );
 
         // allocate the mesh memory
-        mesh_mem_allocate( &( pmesh->mmem ), &( pmesh->info ) );
+        mesh_mem_allocate( &( pmesh->tmem ), &( pmesh->info ) );
         grid_mem_allocate( &( pmesh->gmem ), &( pmesh->info ) );
 
         return pmesh;
@@ -244,12 +233,12 @@ bool_t mesh_remove_ambient( ego_mpd_t * pmesh )
 
     for ( cnt = 0; cnt < pmesh->info.tiles_count; cnt++ )
     {
-        min_vrt_a = MIN( min_vrt_a, pmesh->gmem.light[cnt].a );
+        min_vrt_a = MIN( min_vrt_a, pmesh->gmem.grid_list[cnt].a );
     }
 
     for ( cnt = 0; cnt < pmesh->info.tiles_count; cnt++ )
     {
-        pmesh->gmem.light[cnt].a -= min_vrt_a;
+        pmesh->gmem.grid_list[cnt].a -= min_vrt_a;
     }
 
     return btrue;
@@ -260,17 +249,19 @@ bool_t mesh_recalc_twist( ego_mpd_t * pmesh )
 {
     Uint32 fan;
     ego_mpd_info_t * pinfo;
-    mesh_mem_t  * pmem;
+    tile_mem_t  * ptmem;
+    grid_mem_t  * pgmem;
 
     if ( NULL == pmesh ) return bfalse;
     pinfo = &( pmesh->info );
-    pmem  = &( pmesh->mmem );
+    ptmem  = &( pmesh->tmem );
+    pgmem  = &( pmesh->gmem );
 
     // recalculate the twist
     for ( fan = 0; fan < pinfo->tiles_count; fan++ )
     {
         Uint8 twist = cartman_get_fan_twist( pmesh, fan );
-        pmem->tile_list[fan].twist = twist;
+        pgmem->grid_list[fan].twist = twist;
     }
 
     return btrue;
@@ -283,15 +274,15 @@ bool_t mesh_set_texture( ego_mpd_t * pmesh, Uint16 tile, Uint16 image )
     Uint16 tile_value, tile_upper, tile_lower;
 
     if ( !VALID_TILE( pmesh, tile ) ) return bfalse;
-    ptile = pmesh->mmem.tile_list + tile;
+    ptile = pmesh->tmem.tile_list + tile;
 
     // get the upper and lower bits for this tile image
-    tile_value = pmesh->mmem.tile_list[tile].img;
+    tile_value = pmesh->tmem.tile_list[tile].img;
     tile_lower = image      & TILE_LOWER_MASK;
     tile_upper = tile_value & TILE_UPPER_MASK;
 
     // set the actual image
-    pmesh->mmem.tile_list[tile].img = tile_upper | tile_lower;
+    pmesh->tmem.tile_list[tile].img = tile_upper | tile_lower;
 
     // update the pre-computed texture info
     return mesh_update_texture( pmesh, tile );
@@ -307,17 +298,17 @@ bool_t mesh_update_texture( ego_mpd_t * pmesh, Uint16 tile )
     Uint16 image;
     Uint8  type;
 
-    mesh_mem_t * pmem;
+    tile_mem_t * ptmem;
     grid_mem_t * pgmem;
     ego_mpd_info_t * pinfo;
     ego_tile_info_t * ptile;
 
-    pmem  = &( pmesh->mmem );
+    ptmem  = &( pmesh->tmem );
     pgmem = &( pmesh->gmem );
     pinfo = &( pmesh->info );
 
     if ( !VALID_TILE( pmesh, tile ) ) return bfalse;
-    ptile = pmem->tile_list + tile;
+    ptile = ptmem->tile_list + tile;
 
     image = TILE_GET_LOWER_BITS( ptile->img );
     type  = ptile->type & 0x3F;
@@ -325,12 +316,12 @@ bool_t mesh_update_texture( ego_mpd_t * pmesh, Uint16 tile )
     offu  = pmesh->tileoff[image].x;          // Texture offsets
     offv  = pmesh->tileoff[image].y;
 
-    mesh_vrt = pmem->tile_list[tile].vrtstart;    // Number of vertices
+    mesh_vrt = ptmem->tile_list[tile].vrtstart;    // Number of vertices
     vertices = tile_dict[type].numvertices;      // Number of vertices
     for ( tile_vrt = 0; tile_vrt < vertices; tile_vrt++, mesh_vrt++ )
     {
-        pmem->tlst[mesh_vrt][SS] = tile_dict[type].u[tile_vrt] + offu;
-        pmem->tlst[mesh_vrt][TT] = tile_dict[type].v[tile_vrt] + offv;
+        ptmem->tlst[mesh_vrt][SS] = tile_dict[type].u[tile_vrt] + offu;
+        ptmem->tlst[mesh_vrt][TT] = tile_dict[type].v[tile_vrt] + offv;
     }
 
     return btrue;
@@ -377,7 +368,7 @@ bool_t mesh_convert( ego_mpd_t * pmesh_dst, mpd_t * pmesh_src )
     mpd_mem_t  * pmem_src;
     mpd_info_t * pinfo_src;
 
-    mesh_mem_t * pmem_dst;
+    tile_mem_t * ptmem_dst;
     grid_mem_t * pgmem_dst;
     ego_mpd_info_t * pinfo_dst;
     bool_t allocated_dst;
@@ -388,14 +379,14 @@ bool_t mesh_convert( ego_mpd_t * pmesh_dst, mpd_t * pmesh_src )
 
     // clear out all data in the destination mesh
     if ( NULL == mesh_renew( pmesh_dst ) ) return bfalse;
-    pmem_dst  = &( pmesh_dst->mmem );
+    ptmem_dst = &( pmesh_dst->tmem );
     pgmem_dst = &( pmesh_dst->gmem );
     pinfo_dst = &( pmesh_dst->info );
 
     // set up the destination mesh from the source mesh
     mesh_info_init( pinfo_dst, pinfo_src->vertcount, pinfo_src->tiles_x, pinfo_src->tiles_y );
 
-    allocated_dst = mesh_mem_allocate( pmem_dst, pinfo_dst );
+    allocated_dst = mesh_mem_allocate( ptmem_dst, pinfo_dst );
     if ( !allocated_dst ) return bfalse;
 
     allocated_dst = grid_mem_allocate( pgmem_dst, pinfo_dst );
@@ -404,16 +395,18 @@ bool_t mesh_convert( ego_mpd_t * pmesh_dst, mpd_t * pmesh_src )
     // copy all the per-tile info
     for ( cnt = 0; cnt < pinfo_dst->tiles_count; cnt++ )
     {
-        tile_info_t     * ptile_src = pmem_src->tile_list + cnt;
-        ego_tile_info_t * ptile_dst = pmem_dst->tile_list + cnt;
+        tile_info_t     * ptile_src = pmem_src->tile_list  + cnt;
+        ego_tile_info_t * ptile_dst = ptmem_dst->tile_list + cnt;
+        ego_grid_info_t * pgrid_dst = pgmem_dst->grid_list + cnt;
 
-        ptile_dst->type     = ptile_src->type;
-        ptile_dst->img      = ptile_src->img;
-        ptile_dst->fx       = ptile_src->fx;
-        ptile_dst->twist    = ptile_src->twist;
-        ptile_dst->vrtstart = ptile_src->vrtstart;
+        memset( ptile_dst, 0, sizeof(*ptile_dst) );
+        ptile_dst->type         = ptile_src->type;
+        ptile_dst->img          = ptile_src->img;
+        ptile_dst->vrtstart     = ptile_src->vrtstart;
 
-        ptile_dst->inrenderlist = bfalse;
+        memset( pgrid_dst, 0, sizeof(*pgrid_dst) );
+        pgrid_dst->fx    = ptile_src->fx;
+        pgrid_dst->twist = ptile_src->twist;
 
         // lcache is set in a hepler function
         // nlst is set in a hepler function
@@ -423,12 +416,12 @@ bool_t mesh_convert( ego_mpd_t * pmesh_dst, mpd_t * pmesh_src )
     for ( cnt = 0; cnt < pinfo_src->vertcount; cnt++ )
     {
         // copy all info from mpd_mem_t
-        pmem_dst->plst[cnt][XX] = pmem_src->vlst[cnt].pos.x;
-        pmem_dst->plst[cnt][YY] = pmem_src->vlst[cnt].pos.y;
-        pmem_dst->plst[cnt][ZZ] = pmem_src->vlst[cnt].pos.z;
+        ptmem_dst->plst[cnt][XX] = pmem_src->vlst[cnt].pos.x;
+        ptmem_dst->plst[cnt][YY] = pmem_src->vlst[cnt].pos.y;
+        ptmem_dst->plst[cnt][ZZ] = pmem_src->vlst[cnt].pos.z;
 
         // default color
-        pmem_dst->clst[cnt][XX] = pmem_dst->clst[cnt][GG] = pmem_dst->clst[cnt][BB] = 0.0f;
+        ptmem_dst->clst[cnt][XX] = ptmem_dst->clst[cnt][GG] = ptmem_dst->clst[cnt][BB] = 0.0f;
 
         // tlist is set below
     }
@@ -436,9 +429,9 @@ bool_t mesh_convert( ego_mpd_t * pmesh_dst, mpd_t * pmesh_src )
     // copy some of the pre-calculated grid lighting
     for ( cnt = 0; cnt < pinfo_dst->tiles_count; cnt++ )
     {
-        size_t vertex = pmem_dst->tile_list[cnt].vrtstart;
-        pgmem_dst->light[cnt].a = pmem_src->vlst[vertex].a;
-        pgmem_dst->light[cnt].l = 0.0f;
+        size_t vertex = ptmem_dst->tile_list[cnt].vrtstart;
+        pgmem_dst->grid_list[cnt].a = pmem_src->vlst[vertex].a;
+        pgmem_dst->grid_list[cnt].l = 0.0f;
     }
 
     return btrue;
@@ -493,8 +486,8 @@ Uint32 mesh_get_block_int( ego_mpd_t * pmesh, int block_x, int block_y )
 {
     if ( NULL == pmesh ) return INVALID_BLOCK;
 
-    if ( block_x < 0 || block_x >= pmesh->info.blocks_x )  return INVALID_BLOCK;
-    if ( block_y < 0 || block_y >= pmesh->info.blocks_y )  return INVALID_BLOCK;
+    if ( block_x < 0 || block_x >= pmesh->gmem.blocks_x )  return INVALID_BLOCK;
+    if ( block_y < 0 || block_y >= pmesh->gmem.blocks_y )  return INVALID_BLOCK;
 
     return block_x + pmesh->gmem.blockstart[block_y];
 }
@@ -533,13 +526,13 @@ grid_mem_t * grid_mem_delete( grid_mem_t * pmem )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t grid_mem_allocate( grid_mem_t * pmem, ego_mpd_info_t * pinfo )
+bool_t grid_mem_allocate( grid_mem_t * pgmem, ego_mpd_info_t * pinfo )
 {
 
-    if ( NULL == pmem || NULL == pinfo || 0 == pinfo->vertcount ) return bfalse;
+    if ( NULL == pgmem || NULL == pinfo || 0 == pinfo->vertcount ) return bfalse;
 
     // free any memory already allocated
-    if ( !grid_mem_free( pmem ) ) return bfalse;
+    if ( !grid_mem_free( pgmem ) ) return bfalse;
 
     if ( pinfo->vertcount > MESH_MAXTOTALVERTRICES )
     {
@@ -547,27 +540,43 @@ bool_t grid_mem_allocate( grid_mem_t * pmem, ego_mpd_info_t * pinfo )
         return bfalse;
     }
 
-    // allocate per-tile memory
-    pmem->light  = EGOBOO_NEW_ARY( grid_lighting_t, pinfo->tiles_count );
-    if ( NULL == pmem->light ) goto grid_mem_allocate_fail;
+    // set the desired blocknumber of grids
+    pgmem->grids_x = pinfo->tiles_x;
+    pgmem->grids_y = pinfo->tiles_y;
+    pgmem->grid_count = pgmem->grids_x * pgmem->grids_y;
+
+    // set the mesh edge info
+    pgmem->edge_x = (pgmem->grids_x + 1) << TILE_BITS;
+    pgmem->edge_y = (pgmem->grids_y + 1) << TILE_BITS;
+
+    // set the desired blocknumber of blocks
+    pgmem->blocks_x = ( pinfo->tiles_x >> 2 );
+    if ( HAS_SOME_BITS( pinfo->tiles_x, 0x03 ) ) pgmem->blocks_x++;
+
+    pgmem->blocks_y = ( pinfo->tiles_y >> 2 );
+    if ( HAS_SOME_BITS( pinfo->tiles_y, 0x03 ) ) pgmem->blocks_y++;
+
+    pgmem->blocks_count = pgmem->blocks_x * pgmem->blocks_y;
+
+    // allocate per-grid memory
+    pgmem->grid_list = EGOBOO_NEW_ARY( ego_grid_info_t, pgmem->grid_count );
+    if ( NULL == pgmem->grid_list ) goto grid_mem_allocate_fail;
 
     // helper info
-    pmem->blockstart = EGOBOO_NEW_ARY( Uint32, pinfo->blocks_y );
-    if ( NULL == pmem->blockstart ) goto grid_mem_allocate_fail;
+    pgmem->blockstart = EGOBOO_NEW_ARY( Uint32, pgmem->blocks_y );
+    if ( NULL == pgmem->blockstart ) goto grid_mem_allocate_fail;
 
-    pmem->tilestart  = EGOBOO_NEW_ARY( Uint32, pinfo->tiles_y );
-    if ( NULL == pmem->tilestart ) goto grid_mem_allocate_fail;
-
-    pmem->grid_count = pinfo->tiles_count;
+    pgmem->tilestart  = EGOBOO_NEW_ARY( Uint32, pinfo->tiles_y );
+    if ( NULL == pgmem->tilestart ) goto grid_mem_allocate_fail;
 
     // initialize the fanstart/blockstart data
-    grid_make_fanstart( pmem, pinfo );
+    grid_make_fanstart( pgmem, pinfo );
 
     return btrue;
 
 grid_mem_allocate_fail:
 
-    grid_mem_free( pmem );
+    grid_mem_free( pgmem );
     log_error( "grid_mem_allocate() - reduce the maximum number of vertices! (Check MESH_MAXTOTALVERTRICES)\n" );
     return bfalse;
 }
@@ -578,12 +587,6 @@ bool_t grid_mem_free( grid_mem_t * pmem )
     if ( NULL == pmem ) return bfalse;
 
     // free the memory
-    if ( pmem->light != NULL )
-    {
-        free( pmem->light );
-        pmem->light = NULL;
-    }
-
     if ( pmem->blockstart != NULL )
     {
         free( pmem->blockstart );
@@ -597,13 +600,13 @@ bool_t grid_mem_free( grid_mem_t * pmem )
     }
 
     // reset some values to safe values
-    pmem->grid_count  = 0;
+    memset( pmem, 0, sizeof(*pmem) );
 
     return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t mesh_mem_allocate( mesh_mem_t * pmem, ego_mpd_info_t * pinfo )
+bool_t mesh_mem_allocate( tile_mem_t * pmem, ego_mpd_info_t * pinfo )
 {
 
     if ( NULL == pmem || NULL == pinfo || 0 == pinfo->vertcount ) return bfalse;
@@ -634,15 +637,6 @@ bool_t mesh_mem_allocate( mesh_mem_t * pmem, ego_mpd_info_t * pinfo )
     pmem->tile_list  = EGOBOO_NEW_ARY( ego_tile_info_t, pinfo->tiles_count );
     if ( NULL == pmem->tile_list ) goto mesh_mem_allocate_fail;
 
-    pmem->ncache = EGOBOO_NEW_ARY( normal_cache_t, pinfo->tiles_count );
-    if ( NULL == pmem->ncache ) goto mesh_mem_allocate_fail;
-
-    pmem->lcache = EGOBOO_NEW_ARY( light_cache_t, pinfo->tiles_count );
-    if ( NULL == pmem->lcache ) goto mesh_mem_allocate_fail;
-
-    pmem->bb_list = EGOBOO_NEW_ARY( aabb_t, pinfo->tiles_count );
-    if ( NULL == pmem->bb_list ) goto mesh_mem_allocate_fail;
-
     pmem->vert_count = pinfo->vertcount;
     pmem->tile_count = pinfo->tiles_count;
 
@@ -656,7 +650,7 @@ mesh_mem_allocate_fail:
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t mesh_mem_free( mesh_mem_t * pmem )
+bool_t mesh_mem_free( tile_mem_t * pmem )
 {
     if ( NULL == pmem ) return bfalse;
 
@@ -692,24 +686,6 @@ bool_t mesh_mem_free( mesh_mem_t * pmem )
         pmem->tile_list = NULL;
     }
 
-    if ( NULL != pmem->bb_list )
-    {
-        free( pmem->bb_list );
-        pmem->bb_list = NULL;
-    }
-
-    if ( NULL != pmem->ncache )
-    {
-        free( pmem->ncache );
-        pmem->ncache = NULL;
-    }
-
-    if ( NULL != pmem->lcache )
-    {
-        free( pmem->lcache );
-        pmem->lcache = NULL;
-    }
-
     // reset some values to safe values
     pmem->vert_count  = 0;
     pmem->tile_count = 0;
@@ -734,20 +710,20 @@ void grid_make_fanstart( grid_mem_t * pgmem, ego_mpd_info_t * pinfo )
     }
 
     // calculate some of the block info
-    if ( pinfo->blocks_x >= MAXMESHBLOCKY )
+    if ( pgmem->blocks_x >= MAXMESHBLOCKY )
     {
-        log_warning( "Number of mesh blocks in the x direction too large (%d out of %d).\n", pinfo->blocks_x, MAXMESHBLOCKY );
+        log_warning( "Number of mesh blocks in the x direction too large (%d out of %d).\n", pgmem->blocks_x, MAXMESHBLOCKY );
     }
 
-    if ( pinfo->blocks_y >= MAXMESHBLOCKY )
+    if ( pgmem->blocks_y >= MAXMESHBLOCKY )
     {
-        log_warning( "Number of mesh blocks in the y direction too large (%d out of %d).\n", pinfo->blocks_y, MAXMESHBLOCKY );
+        log_warning( "Number of mesh blocks in the y direction too large (%d out of %d).\n", pgmem->blocks_y, MAXMESHBLOCKY );
     }
 
     // do the blockstart
-    for ( cnt = 0; cnt < pinfo->blocks_y; cnt++ )
+    for ( cnt = 0; cnt < pgmem->blocks_y; cnt++ )
     {
-        pgmem->blockstart[cnt] = pinfo->blocks_x * cnt;
+        pgmem->blockstart[cnt] = pgmem->blocks_x * cnt;
     }
 
 }
@@ -759,21 +735,21 @@ void mesh_make_vrtstart( ego_mpd_t * pmesh )
     Uint32 tile;
 
     ego_mpd_info_t * pinfo;
-    mesh_mem_t  * pmem;
+    tile_mem_t  * ptmem;
 
     if ( NULL == pmesh ) return;
 
     pinfo = &( pmesh->info );
-    pmem  = &( pmesh->mmem );
+    ptmem  = &( pmesh->tmem );
 
     vert = 0;
     for ( tile = 0; tile < pinfo->tiles_count; tile++ )
     {
         Uint8 ttype;
 
-        pmem->tile_list[tile].vrtstart = vert;
+        ptmem->tile_list[tile].vrtstart = vert;
 
-        ttype = pmem->tile_list[tile].type;
+        ttype = ptmem->tile_list[tile].type;
 
         // throw away any remaining upper bits
         ttype &= 0x3F;
@@ -842,10 +818,10 @@ float mesh_get_level( ego_mpd_t * pmesh, float x, float y )
     ix &= TILE_MASK;
     iy &= TILE_MASK;
 
-    z0 = pmesh->mmem.plst[ pmesh->mmem.tile_list[tile].vrtstart + 0 ][ZZ];
-    z1 = pmesh->mmem.plst[ pmesh->mmem.tile_list[tile].vrtstart + 1 ][ZZ];
-    z2 = pmesh->mmem.plst[ pmesh->mmem.tile_list[tile].vrtstart + 2 ][ZZ];
-    z3 = pmesh->mmem.plst[ pmesh->mmem.tile_list[tile].vrtstart + 3 ][ZZ];
+    z0 = pmesh->tmem.plst[ pmesh->tmem.tile_list[tile].vrtstart + 0 ][ZZ];
+    z1 = pmesh->tmem.plst[ pmesh->tmem.tile_list[tile].vrtstart + 1 ][ZZ];
+    z2 = pmesh->tmem.plst[ pmesh->tmem.tile_list[tile].vrtstart + 2 ][ZZ];
+    z3 = pmesh->tmem.plst[ pmesh->tmem.tile_list[tile].vrtstart + 3 ][ZZ];
 
     zleft  = ( z0 * ( TILE_SIZE - iy ) + z3 * iy ) / TILE_SIZE;
     zright = ( z1 * ( TILE_SIZE - iy ) + z2 * iy ) / TILE_SIZE;
@@ -859,7 +835,7 @@ Uint32 mesh_get_block( ego_mpd_t * pmesh, float pos_x, float pos_y )
 {
     Uint32 block = INVALID_BLOCK;
 
-    if ( pos_x >= 0.0f && pos_x < pmesh->info.edge_x && pos_y >= 0.0f && pos_y < pmesh->info.edge_y )
+    if ( pos_x >= 0.0f && pos_x <= pmesh->gmem.edge_x && pos_y >= 0.0f && pos_y <= pmesh->gmem.edge_y )
     {
         int ix, iy;
 
@@ -880,7 +856,7 @@ Uint32 mesh_get_tile( ego_mpd_t * pmesh, float pos_x, float pos_y )
 {
     Uint32 tile = INVALID_TILE;
 
-    if ( pos_x >= 0.0f && pos_x < pmesh->info.edge_x && pos_y >= 0.0f && pos_y < pmesh->info.edge_y )
+    if ( pos_x >= 0.0f && pos_x < pmesh->gmem.edge_x && pos_y >= 0.0f && pos_y < pmesh->gmem.edge_y )
     {
         int ix, iy;
 
@@ -907,14 +883,14 @@ Uint8 cartman_get_fan_twist( ego_mpd_t * pmesh, Uint32 tile )
     if ( INVALID_TILE == tile  || tile > pmesh->info.tiles_count ) return TWIST_FLAT;
 
     // if the tile is actually labelled as FANOFF, ignore it completely
-    if ( FANOFF == pmesh->mmem.tile_list[tile].img ) return TWIST_FLAT;
+    if ( FANOFF == pmesh->tmem.tile_list[tile].img ) return TWIST_FLAT;
 
-    vrtstart = pmesh->mmem.tile_list[tile].vrtstart;
+    vrtstart = pmesh->tmem.tile_list[tile].vrtstart;
 
-    z0 = pmesh->mmem.plst[vrtstart + 0][ZZ];
-    z1 = pmesh->mmem.plst[vrtstart + 1][ZZ];
-    z2 = pmesh->mmem.plst[vrtstart + 2][ZZ];
-    z3 = pmesh->mmem.plst[vrtstart + 3][ZZ];
+    z0 = pmesh->tmem.plst[vrtstart + 0][ZZ];
+    z1 = pmesh->tmem.plst[vrtstart + 1][ZZ];
+    z2 = pmesh->tmem.plst[vrtstart + 2][ZZ];
+    z3 = pmesh->tmem.plst[vrtstart + 3][ZZ];
 
     zx = CARTMAN_FIXNUM * ( z0 + z3 - z1 - z2 ) / CARTMAN_SLOPE;
     zy = CARTMAN_FIXNUM * ( z2 + z3 - z0 - z1 ) / CARTMAN_SLOPE;
@@ -934,10 +910,10 @@ bool_t mesh_clear_fx( ego_mpd_t * pmesh, Uint32 itile, Uint32 flags )
     if ( itile > pmesh->info.tiles_count ) return bfalse;
 
     // save a copy of the fx
-    old_flags = pmesh->mmem.tile_list[itile].fx;
+    old_flags = pmesh->gmem.grid_list[itile].fx;
 
     // clear the wall and impass flags
-    pmesh->mmem.tile_list[itile].fx &= ~flags;
+    pmesh->gmem.grid_list[itile].fx &= ~flags;
 
     // succeed only of something actually changed
     return 0 != ( old_flags & flags );
@@ -955,10 +931,10 @@ bool_t mesh_add_fx( ego_mpd_t * pmesh, Uint32 itile, Uint32 flags )
     if ( itile > pmesh->info.tiles_count ) return bfalse;
 
     // save a copy of the fx
-    old_flags = pmesh->mmem.tile_list[itile].fx;
+    old_flags = pmesh->gmem.grid_list[itile].fx;
 
     // add in the flags
-    pmesh->mmem.tile_list[itile].fx = old_flags | flags;
+    pmesh->gmem.grid_list[itile].fx = old_flags | flags;
 
     // succeed only of something actually changed
     return 0 != ( old_flags & flags );
@@ -977,12 +953,12 @@ Uint32 mesh_test_fx( ego_mpd_t * pmesh, Uint32 itile, Uint32 flags )
     }
 
     // if the tile is actually labelled as FANOFF, ignore it completely
-    if ( FANOFF == pmesh->mmem.tile_list[itile].img )
+    if ( FANOFF == pmesh->tmem.tile_list[itile].img )
     {
         return flags & ( MPDFX_WALL | MPDFX_IMPASS );
     }
 
-    return pmesh->mmem.tile_list[itile].fx & flags;
+    return pmesh->gmem.grid_list[itile].fx & flags;
 }
 
 //------------------------------------------------------------------------------
@@ -994,18 +970,18 @@ bool_t mesh_make_bbox( ego_mpd_t * pmesh )
     int tile_vrt;
     Uint32 cnt;
 
-    mesh_mem_t * pmem;
+    tile_mem_t * ptmem;
     grid_mem_t * pgmem;
     ego_mpd_info_t * pinfo;
 
     if ( NULL == pmesh ) return bfalse;
-    pmem  = &( pmesh->mmem );
+    ptmem  = &( pmesh->tmem );
     pgmem = &( pmesh->gmem );
     pinfo = &( pmesh->info );
 
-    pmem->bbox.mins[XX] = pmem->bbox.maxs[XX] = pmem->plst[0][XX];
-    pmem->bbox.mins[YY] = pmem->bbox.maxs[YY] = pmem->plst[0][YY];
-    pmem->bbox.mins[ZZ] = pmem->bbox.maxs[ZZ] = pmem->plst[0][ZZ];
+    ptmem->bbox.mins[XX] = ptmem->bbox.maxs[XX] = ptmem->plst[0][XX];
+    ptmem->bbox.mins[YY] = ptmem->bbox.maxs[YY] = ptmem->plst[0][YY];
+    ptmem->bbox.mins[ZZ] = ptmem->bbox.maxs[ZZ] = ptmem->plst[0][ZZ];
 
     for ( cnt = 0; cnt < pmesh->info.tiles_count; cnt++ )
     {
@@ -1014,38 +990,38 @@ bool_t mesh_make_bbox( ego_mpd_t * pmesh )
         Uint16 vertices;
         Uint8 type;
 
-        pbb   = pmem->bb_list   + cnt;
-        ptile = pmem->tile_list + cnt;
+        ptile = ptmem->tile_list + cnt;
+        pbb   = &(ptile->bb);
 
         type = ptile->type;
         type &= 0x3F;
 
-        mesh_vrt = pmem->tile_list[cnt].vrtstart;    // Number of vertices
+        mesh_vrt = ptmem->tile_list[cnt].vrtstart;    // Number of vertices
         vertices = tile_dict[type].numvertices;          // Number of vertices
 
         // set the bounding box for this tile
-        pbb->mins[XX] = pbb->maxs[XX] = pmem->plst[mesh_vrt][XX];
-        pbb->mins[YY] = pbb->maxs[YY] = pmem->plst[mesh_vrt][YY];
-        pbb->mins[ZZ] = pbb->maxs[ZZ] = pmem->plst[mesh_vrt][ZZ];
+        pbb->mins[XX] = pbb->maxs[XX] = ptmem->plst[mesh_vrt][XX];
+        pbb->mins[YY] = pbb->maxs[YY] = ptmem->plst[mesh_vrt][YY];
+        pbb->mins[ZZ] = pbb->maxs[ZZ] = ptmem->plst[mesh_vrt][ZZ];
         for ( tile_vrt = 1; tile_vrt < vertices; tile_vrt++, mesh_vrt++ )
         {
-            pbb->mins[XX] = MIN( pbb->mins[XX], pmem->plst[mesh_vrt][XX] );
-            pbb->mins[YY] = MIN( pbb->mins[YY], pmem->plst[mesh_vrt][YY] );
-            pbb->mins[ZZ] = MIN( pbb->mins[ZZ], pmem->plst[mesh_vrt][ZZ] );
+            pbb->mins[XX] = MIN( pbb->mins[XX], ptmem->plst[mesh_vrt][XX] );
+            pbb->mins[YY] = MIN( pbb->mins[YY], ptmem->plst[mesh_vrt][YY] );
+            pbb->mins[ZZ] = MIN( pbb->mins[ZZ], ptmem->plst[mesh_vrt][ZZ] );
 
-            pbb->maxs[XX] = MAX( pbb->maxs[XX], pmem->plst[mesh_vrt][XX] );
-            pbb->maxs[YY] = MAX( pbb->maxs[YY], pmem->plst[mesh_vrt][YY] );
-            pbb->maxs[ZZ] = MAX( pbb->maxs[ZZ], pmem->plst[mesh_vrt][ZZ] );
+            pbb->maxs[XX] = MAX( pbb->maxs[XX], ptmem->plst[mesh_vrt][XX] );
+            pbb->maxs[YY] = MAX( pbb->maxs[YY], ptmem->plst[mesh_vrt][YY] );
+            pbb->maxs[ZZ] = MAX( pbb->maxs[ZZ], ptmem->plst[mesh_vrt][ZZ] );
         }
 
         // extend the mesh bounding box
-        pmem->bbox.mins[XX] = MIN( pmem->bbox.mins[XX], pbb->mins[XX] );
-        pmem->bbox.mins[YY] = MIN( pmem->bbox.mins[YY], pbb->mins[YY] );
-        pmem->bbox.mins[ZZ] = MIN( pmem->bbox.mins[ZZ], pbb->mins[ZZ] );
+        ptmem->bbox.mins[XX] = MIN( ptmem->bbox.mins[XX], pbb->mins[XX] );
+        ptmem->bbox.mins[YY] = MIN( ptmem->bbox.mins[YY], pbb->mins[YY] );
+        ptmem->bbox.mins[ZZ] = MIN( ptmem->bbox.mins[ZZ], pbb->mins[ZZ] );
 
-        pmem->bbox.maxs[XX] = MAX( pmem->bbox.maxs[XX], pbb->maxs[XX] );
-        pmem->bbox.maxs[YY] = MAX( pmem->bbox.maxs[YY], pbb->maxs[YY] );
-        pmem->bbox.maxs[ZZ] = MAX( pmem->bbox.maxs[ZZ], pbb->maxs[ZZ] );
+        ptmem->bbox.maxs[XX] = MAX( ptmem->bbox.maxs[XX], pbb->maxs[XX] );
+        ptmem->bbox.maxs[YY] = MAX( ptmem->bbox.maxs[YY], pbb->maxs[YY] );
+        ptmem->bbox.maxs[ZZ] = MAX( ptmem->bbox.maxs[ZZ], pbb->maxs[ZZ] );
     }
 
     return btrue;
@@ -1061,7 +1037,8 @@ bool_t mesh_make_normals( ego_mpd_t * pmesh )
 
     int ix, iy;
     Uint32 fan0, fan1;
-    mesh_mem_t * pmem;
+    tile_mem_t * ptmem;
+    grid_mem_t * pgmem;
 
     int     edge_is_crease[4];
     fvec3_t nrm_lst[4], vec_sum;
@@ -1069,16 +1046,17 @@ bool_t mesh_make_normals( ego_mpd_t * pmesh )
 
     // test for mesh
     if ( NULL == pmesh ) return bfalse;
-    pmem = &( pmesh->mmem );
+    ptmem = &( pmesh->tmem );
+    pgmem = &( pmesh->gmem );
 
     // set the default normal for each fan, based on the calculated twist value
-    for ( fan0 = 0; fan0 < pmem->tile_count; fan0++ )
+    for ( fan0 = 0; fan0 < ptmem->tile_count; fan0++ )
     {
-        Uint8 twist = pmem->tile_list[fan0].twist;
+        Uint8 twist = pgmem->grid_list[fan0].twist;
 
-        pmem->nlst[fan0][XX] = map_twist_nrm[twist].x;
-        pmem->nlst[fan0][YY] = map_twist_nrm[twist].y;
-        pmem->nlst[fan0][ZZ] = map_twist_nrm[twist].z;
+        ptmem->nlst[fan0][XX] = map_twist_nrm[twist].x;
+        ptmem->nlst[fan0][YY] = map_twist_nrm[twist].y;
+        ptmem->nlst[fan0][ZZ] = map_twist_nrm[twist].z;
     }
 
     // find an "average" normal of each corner of the tile
@@ -1093,9 +1071,9 @@ bool_t mesh_make_normals( ego_mpd_t * pmesh )
             fan0 = mesh_get_tile_int( pmesh, ix, iy );
             if ( !VALID_TILE( pmesh, fan0 ) ) continue;
 
-            nrm_lst[0].x = pmem->nlst[fan0][XX];
-            nrm_lst[0].y = pmem->nlst[fan0][YY];
-            nrm_lst[0].z = pmem->nlst[fan0][ZZ];
+            nrm_lst[0].x = ptmem->nlst[fan0][XX];
+            nrm_lst[0].y = ptmem->nlst[fan0][YY];
+            nrm_lst[0].z = ptmem->nlst[fan0][ZZ];
 
             // for each corner of this tile
             for ( i = 0; i < 4; i++ )
@@ -1129,9 +1107,9 @@ bool_t mesh_make_normals( ego_mpd_t * pmesh )
 
                     if ( VALID_TILE( pmesh, fan1 ) )
                     {
-                        nrm_lst[j].x = pmem->nlst[fan1][XX];
-                        nrm_lst[j].y = pmem->nlst[fan1][YY];
-                        nrm_lst[j].z = pmem->nlst[fan1][ZZ];
+                        nrm_lst[j].x = ptmem->nlst[fan1][XX];
+                        nrm_lst[j].y = ptmem->nlst[fan1][YY];
+                        nrm_lst[j].z = ptmem->nlst[fan1][ZZ];
 
                         if ( nrm_lst[j].z < 0 )
                         {
@@ -1194,9 +1172,9 @@ bool_t mesh_make_normals( ego_mpd_t * pmesh )
 
                 vec_sum = fvec3_normalize( vec_sum.v );
 
-                pmem->ncache[fan0][i][XX] = vec_sum.x;
-                pmem->ncache[fan0][i][YY] = vec_sum.y;
-                pmem->ncache[fan0][i][ZZ] = vec_sum.z;
+                ptmem->tile_list[fan0].ncache[i][XX] = vec_sum.x;
+                ptmem->tile_list[fan0].ncache[i][YY] = vec_sum.y;
+                ptmem->tile_list[fan0].ncache[i][ZZ] = vec_sum.z;
             }
         }
     }
@@ -1218,9 +1196,9 @@ bool_t mesh_make_normals( ego_mpd_t * pmesh )
     //                    {
     //                        float wt;
 
-    //                        vec1.x = pmem->nlst[fan1][XX];
-    //                        vec1.y = pmem->nlst[fan1][YY];
-    //                        vec1.z = pmem->nlst[fan1][ZZ];
+    //                        vec1.x = ptmem->nlst[fan1][XX];
+    //                        vec1.y = ptmem->nlst[fan1][YY];
+    //                        vec1.z = ptmem->nlst[fan1][ZZ];
     //                        if ( vec1.z < 0 )
     //                        {
     //                            vec1.x *= -1.0f;
@@ -1245,15 +1223,15 @@ bool_t mesh_make_normals( ego_mpd_t * pmesh )
     //            {
     //                vec_sum = fvec3_normalize( vec_sum.v );
 
-    //                pmem->ncache[fan0][i][XX] = vec_sum.x;
-    //                pmem->ncache[fan0][i][YY] = vec_sum.y;
-    //                pmem->ncache[fan0][i][ZZ] = vec_sum.z;
+    //                ptmem->ncache[fan0][i][XX] = vec_sum.x;
+    //                ptmem->ncache[fan0][i][YY] = vec_sum.y;
+    //                ptmem->ncache[fan0][i][ZZ] = vec_sum.z;
     //            }
     //            else
     //            {
-    //                pmem->ncache[fan0][i][XX] = vec0.x;
-    //                pmem->ncache[fan0][i][YY] = vec0.y;
-    //                pmem->ncache[fan0][i][ZZ] = vec0.z;
+    //                ptmem->ncache[fan0][i][XX] = vec0.x;
+    //                ptmem->ncache[fan0][i][YY] = vec0.y;
+    //                ptmem->ncache[fan0][i][ZZ] = vec0.z;
     //            }
     //        }
     //    }
@@ -1271,7 +1249,7 @@ bool_t grid_light_one_corner( ego_mpd_t * pmesh, int fan, float height, float nr
     if ( NULL == pmesh || NULL == plight || !VALID_TILE( pmesh, fan ) ) return bfalse;
 
     // get the grid lighting
-    lighting = &( pmesh->gmem.light[fan].cache );
+    lighting = &( pmesh->gmem.grid_list[fan].cache );
 
     reflective = ( 0 != mesh_test_fx( pmesh, fan, MPDFX_DRAWREF ) );
 
@@ -1280,14 +1258,14 @@ bool_t grid_light_one_corner( ego_mpd_t * pmesh, int fan, float height, float nr
     {
         float light_dir, light_amb;
 
-        lighting_evaluate_cache( lighting, nrm, height, pmesh->mmem.bbox, &light_amb, &light_dir );
+        lighting_evaluate_cache( lighting, nrm, height, pmesh->tmem.bbox, &light_amb, &light_dir );
 
         // make ambient light only illuminate 1/2
         ( *plight ) = light_amb + 0.5f * light_dir;
     }
     else
     {
-        ( *plight ) = lighting_evaluate_cache( lighting, nrm, height, pmesh->mmem.bbox, NULL, NULL );
+        ( *plight ) = lighting_evaluate_cache( lighting, nrm, height, pmesh->tmem.bbox, NULL, NULL );
     }
 
     // clip the light to a reasonable value
@@ -1297,109 +1275,129 @@ bool_t grid_light_one_corner( ego_mpd_t * pmesh, int fan, float height, float nr
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t mesh_light_one_corner( ego_mpd_t * pmesh, GLXvector3f pos, GLXvector3f nrm, float * plight )
+bool_t mesh_test_one_corner( ego_mpd_t * pmesh, GLXvector3f pos, float * pdelta )
 {
-    int   ix, iy, tnc, fan1;
-    float u, v;
-    float wt, wt_sum;
-    int ix_off[4] = {0, 1, 1, 0}, iy_off[4] = {0, 0, 1, 1};
+    float loc_delta, low_delta, hgh_delta;
+    float hgh_wt, low_wt;
 
-    ego_mpd_info_t * pinfo;
-    mesh_mem_t     * pmem;
-    grid_mem_t     * pgmem;
+    if( NULL == pdelta ) pdelta = &loc_delta;
 
-    if ( NULL == pmesh || NULL == plight ) return bfalse;
-    pinfo = &( pmesh->info );
-    pmem  = &( pmesh->mmem );
-    pgmem = &( pmesh->gmem );
+    // interpolate the lighting for the given corner of the mesh
+    *pdelta = grid_lighting_test( pmesh, pos, &low_delta, &hgh_delta );
 
-    if ( pos[XX] < 0.0f || pos[XX] > pinfo->edge_x ) return bfalse;
-    if ( pos[YY] < 0.0f || pos[YY] > pinfo->edge_y ) return bfalse;
+    // determine the weighting
+    hgh_wt = ( pos[ZZ] - pmesh->tmem.bbox.mins[kZ] ) / ( pmesh->tmem.bbox.maxs[kZ] - pmesh->tmem.bbox.mins[kZ] );
+    hgh_wt = CLIP( hgh_wt, 0.0f, 1.0f );
+    low_wt = 1.0f - hgh_wt;
 
-    ix = (( int )pos[XX] ) >> TILE_BITS;
-    iy = (( int )pos[YY] ) >> TILE_BITS;
-
-    u = ( pos[XX] - ( ix << TILE_BITS ) ) / TILE_SIZE;
-    v = ( pos[YY] - ( iy << TILE_BITS ) ) / TILE_SIZE;
-
-    wt_sum = 0;
-    for ( tnc = 0; tnc < 4; tnc++ )
-    {
-        int   jx, jy;
-        lighting_cache_t * lighting;
-
-        // what are the new vertices?
-        jx = ix + ix_off[tnc];
-        jy = iy + iy_off[tnc];
-
-        // which fan does this corner belong to?
-        fan1 = mesh_get_tile_int( pmesh, jx, jy );
-        if ( !VALID_TILE( pmesh, fan1 ) ) continue;
-
-        // get the lighting cache for this corner
-        lighting = &( pgmem->light[fan1].cache );
-
-        // get the weight for this corner
-        wt = grid_get_mix( ix_off[tnc], u, iy_off[tnc], v );
-
-        // add in the effect of this lighting cache node
-        if ( 0.0f != wt )
-        {
-            bool_t reflective = ( 0 != mesh_test_fx( pmesh, fan1, MPDFX_DRAWREF ) );
-
-            if ( reflective )
-            {
-                float light_dir, light_amb;
-
-                lighting_evaluate_cache( lighting, nrm, pos[ZZ], pmesh->mmem.bbox, &light_amb, &light_dir );
-
-                // make ambient light only illuminate 1/2
-                ( *plight ) += wt * ( light_amb + 0.5f * light_dir );
-            }
-            else
-            {
-                ( *plight ) += wt * lighting_evaluate_cache( lighting, nrm, pos[ZZ], pmesh->mmem.bbox, NULL, NULL );
-            }
-
-            wt_sum    += wt;
-        }
-    }
-
-    // normalize the lighting value, if needed
-    if (( *plight ) > 0.0f && wt_sum > 0.0f )
-    {
-        ( *plight ) /= wt_sum;
-    }
-    else
-    {
-        ( *plight ) = 0.0f;
-    }
-
-    // clip the lighting value to a reasonable size
-    //( *plight ) = CLIP(( *plight ), 0, 255 );
+    *pdelta = low_wt * low_delta + hgh_wt * hgh_delta;
 
     return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t mesh_light_corners( ego_mpd_t * pmesh, int fan1, float mesh_lighting_keep )
+bool_t mesh_light_one_corner( ego_mpd_t * pmesh, int itile, GLXvector3f pos, GLXvector3f nrm, float * plight )
+{
+    lighting_cache_t grid_light;
+    bool_t reflective;
+
+    if ( !VALID_TILE( pmesh, itile ) ) return bfalse;
+
+    // add in the effect of this lighting cache node
+    reflective = ( 0 != mesh_test_fx( pmesh, itile, MPDFX_DRAWREF ) );
+
+    // interpolate the lighting for the given corner of the mesh
+    grid_lighting_interpolate( pmesh, &grid_light, pos[XX], pos[YY] );
+
+    if ( reflective )
+    {
+        float light_dir, light_amb;
+
+        lighting_evaluate_cache( &grid_light, nrm, pos[ZZ], pmesh->tmem.bbox, &light_amb, &light_dir );
+
+        // make ambient light only illuminate 1/2
+        ( *plight ) = light_amb + 0.5f * light_dir;
+    }
+    else
+    {
+        ( *plight ) = lighting_evaluate_cache( &grid_light, nrm, pos[ZZ], pmesh->tmem.bbox, NULL, NULL );
+    }
+
+    return btrue;
+}
+
+
+//--------------------------------------------------------------------------------------------
+bool_t mesh_test_corners( ego_mpd_t * pmesh, int itile, float threshold )
+{
+    bool_t retval;
+    int corner;
+
+    tile_mem_t    * ptmem;
+    light_cache_t * lcache;
+    light_cache_t * dcache;
+
+    if ( NULL == pmesh || !VALID_TILE( pmesh, itile ) ) return bfalse;
+    ptmem = &( pmesh->tmem );
+
+    // get the normal and lighting cache for this tile
+    lcache = &(ptmem->tile_list[itile].lcache);
+    dcache = &(ptmem->tile_list[itile].dcache);
+
+    retval = bfalse;
+    for ( corner = 0; corner < 4; corner++ )
+    {
+        float            delta;
+        float          * pdelta;
+        float          * plight;
+        GLXvector3f    * ppos;
+
+        pdelta = ( *dcache ) + corner;
+        plight = ( *lcache ) + corner;
+        ppos   = ptmem->plst + ptmem->tile_list[itile].vrtstart + corner;
+
+        mesh_test_one_corner( pmesh, *ppos, &delta );
+
+        if( 0.0f == *plight )
+        {
+            delta = 10.0f;
+        }
+        else
+        {
+            delta /= *plight;
+            delta = CLIP(delta, 0, 10.0f);
+        }
+
+        *pdelta += delta;
+
+        if( *pdelta > threshold ) retval = btrue;
+    }
+
+    return retval;
+}
+
+
+//--------------------------------------------------------------------------------------------
+bool_t mesh_light_corners( ego_mpd_t * pmesh, int itile, float mesh_lighting_keep )
 {
     int corner;
 
     ego_mpd_info_t * pinfo;
-    mesh_mem_t     * pmem;
+    tile_mem_t     * ptmem;
     grid_mem_t     * pgmem;
     normal_cache_t * ncache;
     light_cache_t  * lcache;
+    light_cache_t  * dcache;
 
-    if ( NULL == pmesh || !VALID_TILE( pmesh, fan1 ) ) return bfalse;
+    if ( NULL == pmesh || !VALID_TILE( pmesh, itile ) ) return bfalse;
     pinfo = &( pmesh->info );
-    pmem  = &( pmesh->mmem );
+    ptmem  = &( pmesh->tmem );
     pgmem = &( pmesh->gmem );
 
     // get the normal and lighting cache for this tile
-    ncache = pmem->ncache + fan1;
-    lcache = pmem->lcache + fan1;
+    ncache = &(ptmem->tile_list[itile].ncache);
+    lcache = &(ptmem->tile_list[itile].lcache);
+    dcache = &(ptmem->tile_list[itile].dcache);
 
     for ( corner = 0; corner < 4; corner++ )
     {
@@ -1407,23 +1405,28 @@ bool_t mesh_light_corners( ego_mpd_t * pmesh, int fan1, float mesh_lighting_keep
 
         GLXvector3f    * pnrm;
         float          * plight;
+        float          * pdelta;
         GLXvector3f    * ppos;
 
         pnrm   = ( *ncache ) + corner;
         plight = ( *lcache ) + corner;
-        ppos   = pmem->plst + pmem->tile_list[fan1].vrtstart + corner;
+        pdelta = ( *dcache ) + corner;
+        ppos   = ptmem->plst + ptmem->tile_list[itile].vrtstart + corner;
 
         light = 0.0f;
-        mesh_light_one_corner( pmesh, *ppos, *pnrm, &light );
+        mesh_light_one_corner( pmesh, itile, *ppos, *pnrm, &light );
 
-        ( *plight ) = ( *plight ) * mesh_lighting_keep + light * ( 1.0f - mesh_lighting_keep );
+        *plight = ( *plight ) * mesh_lighting_keep + light * ( 1.0f - mesh_lighting_keep );
+
+        // clear out the accumulated change when we set the light value
+        *pdelta = 0.0f;
     }
 
     return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t mesh_interpolate_vertex( mesh_mem_t * pmem, int fan, float pos[], float * plight )
+bool_t mesh_interpolate_vertex( tile_mem_t * pmem, int fan, float pos[], float * plight )
 {
     int cnt;
     int ix_off[4] = {0, 1, 1, 0}, iy_off[4] = {0, 0, 1, 1};
@@ -1437,8 +1440,8 @@ bool_t mesh_interpolate_vertex( mesh_mem_t * pmem, int fan, float pos[], float *
 
     if ( NULL == pmem ) return bfalse;
 
-    bb = pmem->bb_list + fan;
-    lc = pmem->lcache  + fan;
+    bb = &(pmem->tile_list[fan].bb);
+    lc = &(pmem->tile_list[fan].lcache);
 
     // determine a u,v coordinate for the vertex
     u = ( pos[XX] - bb->mins[XX] ) / ( bb->maxs[XX] - bb->mins[XX] );
@@ -1501,14 +1504,16 @@ Uint32 mesh_hitawall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits,
 
     fvec3_base_t loc_nrm;
 
-    ego_mpd_info_t * pinfo;
-    ego_tile_info_t    * tlist;
+    ego_mpd_info_t  * pinfo;
+    ego_tile_info_t * tlist;
+    ego_grid_info_t * glist;
 
     if ( NULL == pos || 0 == bits ) return 0;
 
-    if ( NULL == pmesh || 0 == pmesh->info.tiles_count || 0 == pmesh->mmem.tile_count ) return 0;
+    if ( NULL == pmesh || 0 == pmesh->info.tiles_count || 0 == pmesh->tmem.tile_count ) return 0;
     pinfo = &( pmesh->info );
-    tlist = pmesh->mmem.tile_list;
+    tlist = pmesh->tmem.tile_list;
+    glist = pmesh->gmem.grid_list;
 
     if ( NULL == nrm ) nrm = loc_nrm;
 
@@ -1559,13 +1564,13 @@ Uint32 mesh_hitawall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits,
                 itile = mesh_get_tile_int( pmesh, ix, iy );
                 if ( VALID_TILE( pmesh, itile ) )
                 {
-                    if ( HAS_SOME_BITS( tlist[itile].fx, bits ) )
+                    if ( HAS_SOME_BITS( glist[itile].fx, bits ) )
                     {
                         // hiting the mesh
                         nrm[kX] += ( ix + 0.5f ) * TILE_SIZE - pos[kX];
                         nrm[kY] += ( iy + 0.5f ) * TILE_SIZE - pos[kY];
 
-                        pass |= tlist[itile].fx;
+                        pass |= glist[itile].fx;
                     }
                     else
                     {
@@ -1606,15 +1611,15 @@ float mesh_get_max_vertex_0( ego_mpd_t * pmesh, int tile_x, int tile_y )
 
     if ( INVALID_TILE == itile ) return 0.0f;
 
-    type   = pmesh->mmem.tile_list[itile].type;
-    vstart = pmesh->mmem.tile_list[itile].vrtstart;
-    vcount = MIN( 4, pmesh->mmem.vert_count );
+    type   = pmesh->tmem.tile_list[itile].type;
+    vstart = pmesh->tmem.tile_list[itile].vrtstart;
+    vcount = MIN( 4, pmesh->tmem.vert_count );
 
     ivrt = vstart;
-    zmax = pmesh->mmem.plst[ivrt][ZZ];
+    zmax = pmesh->tmem.plst[ivrt][ZZ];
     for ( ivrt++, cnt = 1; cnt < vcount; ivrt++, cnt++ )
     {
-        zmax = MAX( zmax, pmesh->mmem.plst[ivrt][ZZ] );
+        zmax = MAX( zmax, pmesh->tmem.plst[ivrt][ZZ] );
     }
 
     return zmax;
@@ -1637,15 +1642,15 @@ float mesh_get_max_vertex_1( ego_mpd_t * pmesh, int tile_x, int tile_y, float xm
 
     if ( INVALID_TILE == itile ) return 0.0f;
 
-    type   = pmesh->mmem.tile_list[itile].type;
-    vstart = pmesh->mmem.tile_list[itile].vrtstart;
-    vcount = MIN( 4, pmesh->mmem.vert_count );
+    type   = pmesh->tmem.tile_list[itile].type;
+    vstart = pmesh->tmem.tile_list[itile].vrtstart;
+    vcount = MIN( 4, pmesh->tmem.vert_count );
 
     zmax = -1e6;
     for ( ivrt = vstart, cnt = 0; cnt < vcount; ivrt++, cnt++ )
     {
         float fx, fy;
-        GLXvector3f * pvert = pmesh->mmem.plst + ivrt;
+        GLXvector3f * pvert = pmesh->tmem.plst + ivrt;
 
         // we are evaluating the height based on the grid, not the actual vertex positions
         fx = ( tile_x + ix_off[cnt] ) * TILE_SIZE;

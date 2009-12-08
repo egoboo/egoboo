@@ -542,8 +542,8 @@ void camera_reset( camera_t * pcam, ego_mpd_t * pmesh )
     /// @details ZZ@> This function makes sure the camera starts in a suitable position
 
     pcam->swing = 0;
-    pcam->pos.x = pmesh->info.edge_x / 2;
-    pcam->pos.y = pmesh->info.edge_y / 2;
+    pcam->pos.x = pmesh->gmem.edge_x / 2;
+    pcam->pos.y = pmesh->gmem.edge_y / 2;
     pcam->pos.z = 1500;
     pcam->zoom = 1000;
     pcam->center.x = pcam->pos.x;

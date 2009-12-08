@@ -178,7 +178,7 @@ bool_t lighting_project_cache( lighting_cache_t * dst, lighting_cache_t * src, f
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t lighting_interpolate_cache( lighting_cache_t * dst, lighting_cache_t * src[], float u, float v )
+bool_t lighting_cache_interpolate( lighting_cache_t * dst, lighting_cache_t * src[], float u, float v )
 {
     int   cnt, tnc;
     float wt_sum;
@@ -196,14 +196,14 @@ bool_t lighting_interpolate_cache( lighting_cache_t * dst, lighting_cache_t * sr
 
     if ( NULL == src ) return bfalse;
 
-    u = CLIP( u, 0, 1 );
-    v = CLIP( v, 0, 1 );
+    u = CLIP( u, 0.0f, 1.0f );
+    v = CLIP( v, 0.0f, 1.0f );
 
     wt_sum = 0.0f;
 
     if ( NULL != src[0] )
     {
-        float wt = ( 1 - u ) * ( 1 - v );
+        float wt = ( 1.0f - u ) * ( 1.0f - v );
         for ( tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++ )
         {
             dst->low.lighting[tnc] += src[0]->low.lighting[tnc] * wt;
@@ -214,7 +214,7 @@ bool_t lighting_interpolate_cache( lighting_cache_t * dst, lighting_cache_t * sr
 
     if ( NULL != src[1] )
     {
-        float wt = u * ( 1 - v );
+        float wt = u * ( 1.0f - v );
         for ( tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++ )
         {
             dst->low.lighting[tnc] += src[1]->low.lighting[tnc] * wt;
@@ -225,7 +225,7 @@ bool_t lighting_interpolate_cache( lighting_cache_t * dst, lighting_cache_t * sr
 
     if ( NULL != src[2] )
     {
-        float wt = ( 1 - u ) * v;
+        float wt = ( 1.0f - u ) * v;
         for ( tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++ )
         {
             dst->low.lighting[tnc] += src[2]->low.lighting[tnc] * wt;
@@ -268,6 +268,82 @@ bool_t lighting_interpolate_cache( lighting_cache_t * dst, lighting_cache_t * sr
     }
 
     return wt_sum > 0.0f;
+}
+
+//--------------------------------------------------------------------------------------------
+float lighting_cache_test( lighting_cache_t * src[], float u, float v, float * low_delta, float * hgh_delta )
+{
+    /// @details BB@> estimate the maximum change in the lighting at this point from the
+    ///               measured delta values
+
+    float delta, wt_sum;
+    float loc_low_delta, loc_hgh_delta;
+    
+    delta = 0.0f;
+
+    if ( NULL == src ) return delta;
+
+    // handle the optional parameters
+    if( NULL == low_delta ) low_delta = &loc_low_delta;
+    if( NULL == hgh_delta ) hgh_delta = &loc_hgh_delta;
+
+    u = CLIP( u, 0.0f, 1.0f );
+    v = CLIP( v, 0.0f, 1.0f );
+
+    wt_sum = 0.0f;
+
+    if ( NULL != src[0] )
+    {
+        float wt = ( 1.0f - u ) * ( 1.0f - v );
+
+        delta     = wt * src[0]->max_delta;
+        *low_delta = wt * src[0]->low.max_delta;
+        *hgh_delta = wt * src[0]->hgh.max_delta;
+
+        wt_sum += wt;
+    }
+
+    if ( NULL != src[1] )
+    {
+        float wt = u * ( 1.0f - v );
+
+        delta     = wt * src[1]->max_delta;
+        *low_delta = wt * src[1]->low.max_delta;
+        *hgh_delta = wt * src[1]->hgh.max_delta;
+
+        wt_sum += wt;
+    }
+
+    if ( NULL != src[2] )
+    {
+        float wt = ( 1.0f - u ) * v;
+
+        delta     = wt * src[2]->max_delta;
+        *low_delta = wt * src[2]->low.max_delta;
+        *hgh_delta = wt * src[2]->hgh.max_delta;
+
+        wt_sum += wt;
+    }
+
+    if ( NULL != src[3] )
+    {
+        float wt = u * v;
+
+        delta     = wt * src[3]->max_delta;
+        *low_delta = wt * src[3]->low.max_delta;
+        *hgh_delta = wt * src[3]->hgh.max_delta;
+
+        wt_sum += wt;
+    }
+
+    if ( wt_sum > 0.0f )
+    {
+        delta      /= wt_sum;
+        *low_delta /= wt_sum;
+        *hgh_delta /= wt_sum;
+    }
+
+    return delta;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -333,6 +409,37 @@ bool_t lighting_sum_project( lighting_cache_t * dst, lighting_cache_t * src, fve
 }
 
 //--------------------------------------------------------------------------------------------
+float lighting_evaluate_cache_base( lighting_cache_base_t * lcache, fvec3_base_t nrm, float * amb )
+{
+    float dir;
+    float local_amb;
+
+    // handle the optional parameter
+    if ( NULL == amb ) amb = &local_amb;
+
+    // check for valid data
+    if ( NULL == lcache )
+    {
+        *amb = 0.0f;
+        return 0.0f;
+    }
+
+    // evaluate the dir vector
+    if ( 0.0f == lcache->max_light )
+    {
+        // only ambient light, or black
+        dir  = 0.0f;
+        *amb = lcache->lighting[LVEC_AMB];
+    }
+    else
+    {
+        lighting_vector_evaluate( lcache->lighting, nrm, &dir, amb );
+    }
+
+    return dir + *amb;
+}
+
+//--------------------------------------------------------------------------------------------
 float lighting_evaluate_cache( lighting_cache_t * src, fvec3_base_t nrm, float z, aabb_t bbox, float * light_amb, float * light_dir )
 {
     float loc_light_amb = 0.0f, loc_light_dir = 0.0f;
@@ -375,36 +482,6 @@ float lighting_evaluate_cache( lighting_cache_t * src, fvec3_base_t nrm, float z
     return light_tot;
 }
 
-//--------------------------------------------------------------------------------------------
-float lighting_evaluate_cache_base( lighting_cache_base_t * lcache, fvec3_base_t nrm, float * amb )
-{
-    float dir;
-    float local_amb;
-
-    // handle the optional parameter
-    if ( NULL == amb ) amb = &local_amb;
-
-    // check for valid data
-    if ( NULL == lcache )
-    {
-        *amb = 0.0f;
-        return 0.0f;
-    }
-
-    // evaluate the dir vector
-    if ( 0.0f == lcache->max_light )
-    {
-        // only ambient light, or black
-        dir  = 0.0f;
-        *amb = lcache->lighting[LVEC_AMB];
-    }
-    else
-    {
-        lighting_vector_evaluate( lcache->lighting, nrm, &dir, amb );
-    }
-
-    return dir + *amb;
-}
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

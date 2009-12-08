@@ -19,11 +19,10 @@
 //*
 //********************************************************************************************
 
-#include "egoboo_typedef.h"
-#include "egoboo_math.h"
-#include "physics.h"
 
 #include "pip_file.h"
+#include "graphic_prt.h"
+#include "physics.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -42,47 +41,7 @@ DEFINE_STACK_EXTERN( pip_t, PipStack, MAX_PIP );
 #define VALID_PIP_RANGE( IPIP ) ( ((IPIP) >= 0) && ((IPIP) < MAX_PIP) )
 #define LOADED_PIP( IPIP )       ( VALID_PIP_RANGE( IPIP ) && PipStack.lst[IPIP].loaded )
 
-//--------------------------------------------------------------------------------------------
-// Particle graphic data
-//--------------------------------------------------------------------------------------------
-/// All the data necessary to diaplay a partile
-struct s_prt_instance
-{
-    bool_t valid;
 
-    // basic info
-    Uint8    type;               ///< particle type
-    Uint16   image;              ///< which image
-    float    alpha;              ///< base alpha
-    Uint8    light;              ///< base self lighting
-
-    // position info
-    fvec3_t   pos;
-    float     size;
-    float     scale;
-
-    // billboard info
-    prt_ori_t orientation;
-    fvec3_t   up;
-    fvec3_t   right;
-    fvec3_t   nrm;
-
-    // lighting info
-    float    famb;               ///< cached ambient light
-    float    fdir;               ///< cached directional light
-
-    float    fintens;            ///< current brightness
-    float    falpha;             ///< current alpha
-
-    // graphical optimizations
-    bool_t         indolist;        ///< Has it been added yet?
-
-    // pre-compute some values for the reflected particle posisions
-    fvec3_t ref_up;
-    fvec3_t ref_right;
-    fvec3_t ref_pos;
-};
-typedef struct s_prt_instance prt_instance_t;
 
 //--------------------------------------------------------------------------------------------
 /// Everything that is necessary to compute the character's interaction with the environment

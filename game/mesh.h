@@ -50,8 +50,8 @@
 
 #define TILE_HAS_INVALID_IMAGE(XX)      HAS_SOME_BITS( TILE_UPPER_MASK, (XX).img )
 
-
-
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 typedef GLXvector3f normal_cache_t[4];
 typedef float       light_cache_t[4];
 
@@ -62,49 +62,66 @@ struct s_ego_tile_info
 {
     Uint8   type;                              ///< Tile type
     Uint16  img;                               ///< Get texture from this
-    Uint8   fx;                                ///< Special effects flags
-    Uint8   twist;                             ///< The orientation of the tile
     size_t  vrtstart;                          ///< Which vertex to start at
 
+    bool_t  fanoff;                            ///< display this tile?
     bool_t  inrenderlist;                      ///< Is the tile going to be rendered this frame?
+    bool_t  needs_lighting_update;             ///< Has this tile been tagged for a lighting update?
+
+    aabb_t         bb;                         ///< the bounding box for this tile
+    normal_cache_t ncache;                     ///< the normals at the corners of this tile
+    light_cache_t  lcache;                     ///< the light at the corners of this tile
+    light_cache_t  dcache;                     ///< the accumulated change in the light at the corner of the tile
+
 };
 typedef struct s_ego_tile_info ego_tile_info_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-struct s_grid_lighting
+/// The data describing an egoboo grid
+struct s_ego_grid_info
 {
+    Uint8           fx;                        ///< Special effects flags
+    Uint8           twist;                     ///< The orientation of the tile
+
     // the lighting info in the upper left hand corner of a grid
-    Uint8         a, l;
-    lighting_cache_t cache;
+    Uint8            a, l;                     ///< the raw mesh lighting... pretty much ignored
+    lighting_cache_t cache;                    ///< the per-grid lighting info
 };
-typedef struct s_grid_lighting grid_lighting_t;
+typedef struct s_ego_grid_info ego_grid_info_t;
 
 //--------------------------------------------------------------------------------------------
 struct s_grid_mem
 {
-    size_t            grid_count;                       ///< how many grids
+    int             grids_x;                          ///< Size in grids
+    int             grids_y;
+    size_t          grid_count;                       ///< how many grids
 
-    grid_lighting_t * light;                            ///< the lighting info for this grid
+    int             blocks_x;                         ///< Size in blocks
+    int             blocks_y;
+    Uint32          blocks_count;                     ///< Number of blocks (collision areas)
 
-    Uint32          * blockstart;                       ///< list of blocks that start each row
-    Uint32          * tilestart;                        ///< list of tiles  that start each row
+    float           edge_x;                           ///< Limits
+    float           edge_y;
+
+    Uint32        * blockstart;                       ///< list of blocks that start each row
+    Uint32        * tilestart;                        ///< list of tiles  that start each row
+
+    // the per-grid info
+    ego_grid_info_t* grid_list;                        ///< tile command info
 };
 typedef struct s_grid_mem grid_mem_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 /// A wrapper for the dynamically allocated mesh memory
-struct s_mesh_mem
+struct s_tile_mem
 {
-    aabb_t           bbox;
+    aabb_t           bbox;                             ///< bounding box for the entire mesh
 
     // the per-tile info
     size_t           tile_count;                       ///< number of tiles
     ego_tile_info_t* tile_list;                        ///< tile command info
-    aabb_t         * bb_list;                          ///< the bounding box for the tile
-    normal_cache_t * ncache;                           ///< the normals at the corners of a tile
-    light_cache_t  * lcache;                           ///< the light at the corners of a tile
 
     // the per-vertex info to be presented to OpenGL
     size_t          vert_count;                        ///< number of vertices
@@ -113,7 +130,7 @@ struct s_mesh_mem
     GLXvector3f   * clst;                              ///< the color list (for lighting the mesh)
     GLXvector3f   * nlst;                              ///< the normal list
 };
-typedef struct s_mesh_mem mesh_mem_t;
+typedef struct s_tile_mem tile_mem_t;
 
 //--------------------------------------------------------------------------------------------
 /// The generic parameters describing an ego_mpd
@@ -124,13 +141,6 @@ struct s_ego_mpd_info
     int             tiles_x;                          ///< Size in tiles
     int             tiles_y;
     Uint32          tiles_count;                      ///< Number of tiles
-
-    int             blocks_x;                         ///< Size in blocks
-    int             blocks_y;
-    Uint32          blocks_count;                     ///< Number of blocks (collision areas)
-
-    float           edge_x;                           ///< Limits
-    float           edge_y;
 };
 typedef struct s_ego_mpd_info ego_mpd_info_t;
 
@@ -139,7 +149,7 @@ typedef struct s_ego_mpd_info ego_mpd_info_t;
 struct s_ego_mpd
 {
     ego_mpd_info_t  info;
-    mesh_mem_t      mmem;
+    tile_mem_t      tmem;
     grid_mem_t      gmem;
 
     fvec2_t         tileoff[MAXTILETYPE];     ///< Tile texture offset
@@ -180,8 +190,9 @@ bool_t mesh_add_fx( ego_mpd_t * pmesh, Uint32 itile, Uint32 flags );
 
 void   mesh_make_twist();
 
-bool_t mesh_light_corners( ego_mpd_t * pmesh, int fan1, float mesh_lighting_keep );
-bool_t mesh_interpolate_vertex( mesh_mem_t * pmem, int fan, float pos[], float * plight );
+bool_t mesh_light_corners( ego_mpd_t * pmesh, int itile, float mesh_lighting_keep );
+bool_t mesh_test_corners( ego_mpd_t * pmesh, int itile, float threshold );
+bool_t mesh_interpolate_vertex( tile_mem_t * pmem, int itile, float pos[], float * plight );
 
 
 bool_t grid_light_one_corner( ego_mpd_t * pmesh, int fan, float height, float nrm[], float * plight );

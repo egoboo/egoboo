@@ -21,7 +21,7 @@
 /// @brief Character model drawing code.
 /// @details
 
-#include "graphic.h"
+#include "graphic_mad.h"
 
 #include "profile.h"
 #include "char.h"
@@ -43,134 +43,15 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 static void chr_instance_update_lighting_base( chr_instance_t * pinst, chr_t * pchr, bool_t force );
-//static void chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 trans, bool_t do_ambient );
-//static void chr_instance_update_lighting_ref( chr_instance_t * pinst, chr_t * pchr, Uint8 trans, bool_t do_ambient );
 
 static void draw_points( chr_t * pchr, int vrt_offset, int verts );
 static void _draw_one_grip_raw( chr_instance_t * pinst, mad_t * pmad, int slot );
 static void draw_one_grip( chr_instance_t * pinst, mad_t * pmad, int slot );
 static void chr_draw_grips( chr_t * pchr );
 static void chr_draw_attached_grip( chr_t * pchr );
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-/* Storage for blended vertices */
-static GLfloat md2_blendedVertices[MD2_MAX_VERTICES][3];
-static GLfloat md2_blendedNormals[MD2_MAX_VERTICES][3];
-
-/* blend_md2_vertices
- * Blends the vertices and normals between 2 frames of a md2 model for animation.
- *
- * @note Only meant to be called from draw_textured_md2, which does the necessary
- * checks to make sure that the inputs are valid.  So this function itself assumes
- * that they are valid.  User beware!
- */
-static void blend_md2_vertices( const Md2Model *model, int from_, int to_, float lerp )
-{
-    struct Md2Frame *from, *to;
-    int numVertices, i;
-
-    from = &model->frames[from_];
-    to = &model->frames[to_];
-    numVertices = model->numVertices;
-    if ( lerp <= 0 )
-    {
-        // copy the vertices in frame 'from' over
-        for ( i = 0; i < numVertices; i++ )
-        {
-            md2_blendedVertices[i][0] = from->vertices[i].x;
-            md2_blendedVertices[i][1] = from->vertices[i].y;
-            md2_blendedVertices[i][2] = from->vertices[i].z;
-
-            md2_blendedNormals[i][0] = kMd2Normals[from->vertices[i].normal][0];
-            md2_blendedNormals[i][1] = kMd2Normals[from->vertices[i].normal][1];
-            md2_blendedNormals[i][2] = kMd2Normals[from->vertices[i].normal][2];
-        }
-    }
-    else if ( lerp >= 1.0f )
-    {
-        // copy the vertices in frame 'to'
-        for ( i = 0; i < numVertices; i++ )
-        {
-            md2_blendedVertices[i][0] = to->vertices[i].x;
-            md2_blendedVertices[i][1] = to->vertices[i].y;
-            md2_blendedVertices[i][2] = to->vertices[i].z;
-
-            md2_blendedNormals[i][0] = kMd2Normals[to->vertices[i].normal][0];
-            md2_blendedNormals[i][1] = kMd2Normals[to->vertices[i].normal][1];
-            md2_blendedNormals[i][2] = kMd2Normals[to->vertices[i].normal][2];
-        }
-    }
-    else
-    {
-        // mix the vertices
-        for ( i = 0; i < numVertices; i++ )
-        {
-            md2_blendedVertices[i][0] = from->vertices[i].x +
-                                        ( to->vertices[i].x - from->vertices[i].x ) * lerp;
-            md2_blendedVertices[i][1] = from->vertices[i].y +
-                                        ( to->vertices[i].y - from->vertices[i].y ) * lerp;
-            md2_blendedVertices[i][2] = from->vertices[i].z +
-                                        ( to->vertices[i].z - from->vertices[i].z ) * lerp;
-
-            md2_blendedNormals[i][0] = kMd2Normals[from->vertices[i].normal][0] +
-                                       ( kMd2Normals[to->vertices[i].normal][0] - kMd2Normals[from->vertices[i].normal][0] ) * lerp;
-            md2_blendedNormals[i][0] = kMd2Normals[from->vertices[i].normal][1] +
-                                       ( kMd2Normals[to->vertices[i].normal][1] - kMd2Normals[from->vertices[i].normal][1] ) * lerp;
-            md2_blendedNormals[i][0] = kMd2Normals[from->vertices[i].normal][2] +
-                                       ( kMd2Normals[to->vertices[i].normal][2] - kMd2Normals[from->vertices[i].normal][2] ) * lerp;
-        }
-    }
-}
+static void render_chr_bbox( chr_t * pchr );
 
 //--------------------------------------------------------------------------------------------
-/* draw_textured_md2
- * Draws a Md2Model in the new format
- */
-void draw_textured_md2( const Md2Model *model, int from_, int to_, float lerp )
-{
-    int i, numTriangles;
-    const struct Md2TexCoord *tc;
-    const struct Md2Triangle *triangles;
-    const struct Md2Triangle *tri;
-    if ( model == NULL ) return;
-    if ( from_ < 0 || from_ >= model->numFrames ) return;
-    if ( to_ < 0 || to_ >= model->numFrames ) return;
-
-    blend_md2_vertices( model, from_, to_, lerp );
-
-    numTriangles = model->numTriangles;
-    tc = model->texCoords;
-    triangles = model->triangles;
-
-    GL_DEBUG( glEnableClientState )( GL_VERTEX_ARRAY );
-    GL_DEBUG( glEnableClientState )( GL_NORMAL_ARRAY );
-
-    GL_DEBUG( glVertexPointer )( 3, GL_FLOAT, 0, md2_blendedVertices );
-    GL_DEBUG( glNormalPointer )( GL_FLOAT, 0, md2_blendedNormals );
-
-    GL_DEBUG( glBegin )( GL_TRIANGLES );
-    {
-        for ( i = 0; i < numTriangles; i++ )
-        {
-            tri = &triangles[i];
-
-            GL_DEBUG( glTexCoord2fv )(( const GLfloat* )&( tc[tri->texCoordIndices[0]] ) );
-            GL_DEBUG( glArrayElement )( tri->vertexIndices[0] );
-
-            GL_DEBUG( glTexCoord2fv )(( const GLfloat* )&( tc[tri->texCoordIndices[1]] ) );
-            GL_DEBUG( glArrayElement )( tri->vertexIndices[1] );
-
-            GL_DEBUG( glTexCoord2fv )(( const GLfloat* )&( tc[tri->texCoordIndices[2]] ) );
-            GL_DEBUG( glArrayElement )( tri->vertexIndices[2] );
-        }
-    }
-    GL_DEBUG_END();
-
-    GL_DEBUG( glDisableClientState )( GL_VERTEX_ARRAY );
-    GL_DEBUG( glDisableClientState )( GL_NORMAL_ARRAY );
-}
-
 //--------------------------------------------------------------------------------------------
 bool_t render_one_mad_enviro( Uint16 character, GLXvector4f tint, Uint32 bits )
 {
@@ -356,7 +237,7 @@ bool_t render_one_mad_tex( Uint16 character, GLXvector4f tint, Uint32 bits )
     /// @details ZZ@> This function draws a model
 
     int    cmd_count, vrt_count, entry_count;
-    Uint16 cnt, tnc, entry;
+    int    cnt, tnc, entry;
     Uint16 vertex;
     float  uoffset, voffset;
 
@@ -396,9 +277,19 @@ bool_t render_one_mad_tex( Uint16 character, GLXvector4f tint, Uint32 bits )
 
     ATTRIB_PUSH( "render_one_mad_tex", GL_CURRENT_BIT );
     {
+        float base_amb;
+
         // set the basic tint. if the object is marked with CHR_LIGHT
         // the color will not be set again inside the loop
         GL_DEBUG( glColor4fv )( tint );
+
+        base_amb = 0.0f;
+        if ( 0 == ( bits & CHR_LIGHT ) )
+        {
+            // convert the "light" parameter to self-lighting for
+            // every object that is not being rendered using CHR_LIGHT
+            base_amb   = (255 == pinst->light) ? 0 : (pinst->light * INV_FF);
+        }
 
         // Render each command
         cmd_count   = MIN( ego_md2_data[pmad->md2_ref].cmd.count,   MAXCOMMAND );
@@ -434,7 +325,10 @@ bool_t render_one_mad_tex( Uint16 character, GLXvector4f tint, Uint32 bits )
                         {
                             float fcol;
 
+                            // convert the "light" parameter to self-lighting for
+                            // every object that is not being rendered using CHR_LIGHT
                             fcol   = pvrt->color_dir * INV_FF;
+
                             col[0] = fcol * tint[0];
                             col[1] = fcol * tint[1];
                             col[2] = fcol * tint[2];
@@ -442,7 +336,7 @@ bool_t render_one_mad_tex( Uint16 character, GLXvector4f tint, Uint32 bits )
 
                             if ( 0 != ( bits & CHR_PHONG ) )
                             {
-                                fcol = pinst->color_amb * INV_FF;
+                                fcol = base_amb + pinst->color_amb * INV_FF;
 
                                 col[0] += fcol * tint[0];
                                 col[1] += fcol * tint[1];
@@ -510,73 +404,6 @@ bool_t render_one_mad_tex( Uint16 character, GLXvector4f tint, Uint32 bits )
         }
     }
 */
-
-//--------------------------------------------------------------------------------------------
-void render_chr_bbox( chr_t * pchr )
-{
-    if ( !ACTIVE_PCHR( pchr ) ) return;
-
-    //// draw the object bounding box as a part of the graphics debug mode F7
-    //if ( cfg.dev_mode && SDLKEYDOWN( SDLK_F7 ) )
-    //{
-    //    GL_DEBUG(glDisable)( GL_TEXTURE_2D );
-    //    {
-    //        int cnt;
-    //        aabb_t bb;
-
-    //        for ( cnt = 0; cnt < 3; cnt++ )
-    //        {
-    //            bb.mins[cnt] = bb.maxs[cnt] = pchr->pos.v[cnt];
-    //        }
-
-    //        bb.mins[XX] -= pchr->chr_prt_cv.size;
-    //        bb.mins[YY] -= pchr->chr_prt_cv.size;
-
-    //        bb.maxs[XX] += pchr->chr_prt_cv.size;
-    //        bb.maxs[YY] += pchr->chr_prt_cv.size;
-    //        bb.maxs[ZZ] += pchr->chr_prt_cv.height;
-
-    //        GL_DEBUG(glColor4f)(1, 1, 1, 1);
-    //        render_aabb( &bb );
-    //    }
-    //    GL_DEBUG(glEnable)( GL_TEXTURE_2D );
-    //}
-
-    // draw the object bounding box as a part of the graphics debug mode F7
-    if ( cfg.dev_mode && SDLKEYDOWN( SDLK_F7 ) )
-    {
-        GL_DEBUG( glDisable )( GL_TEXTURE_2D );
-        {
-            oct_bb_t bb;
-
-            bb.mins[OCT_X ] = pchr->chr_prt_cv.mins[OCT_X]  + pchr->pos.x;
-            bb.mins[OCT_Y ] = pchr->chr_prt_cv.mins[OCT_Y]  + pchr->pos.y;
-            bb.mins[OCT_Z ] = pchr->chr_prt_cv.mins[OCT_Z]  + pchr->pos.z;
-            bb.mins[OCT_XY] = pchr->chr_prt_cv.mins[OCT_XY] + ( pchr->pos.x + pchr->pos.y );
-            bb.mins[OCT_YX] = pchr->chr_prt_cv.mins[OCT_YX] + ( -pchr->pos.x + pchr->pos.y );
-
-            bb.maxs[OCT_X ] = pchr->chr_prt_cv.maxs[OCT_X]  + pchr->pos.x;
-            bb.maxs[OCT_Y ] = pchr->chr_prt_cv.maxs[OCT_Y]  + pchr->pos.y;
-            bb.maxs[OCT_Z ] = pchr->chr_prt_cv.maxs[OCT_Z]  + pchr->pos.z;
-            bb.maxs[OCT_XY] = pchr->chr_prt_cv.maxs[OCT_XY] + ( pchr->pos.x + pchr->pos.y );
-            bb.maxs[OCT_YX] = pchr->chr_prt_cv.maxs[OCT_YX] + ( -pchr->pos.x + pchr->pos.y );
-
-            GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
-            render_oct_bb( &bb, btrue, btrue );
-        }
-        GL_DEBUG( glEnable )( GL_TEXTURE_2D );
-    }
-
-    // the grips and vertrices of all objects
-    if ( cfg.dev_mode && SDLKEYDOWN( SDLK_F6 ) )
-    {
-        chr_draw_attached_grip( pchr );
-
-        // draw all the vertices of an object
-        GL_DEBUG( glPointSize( 5 ) );
-        draw_points( pchr, 0, ego_md2_data[pro_get_pmad( pchr->inst.imad )->md2_ref].vertices );
-    }
-}
 
 //--------------------------------------------------------------------------------------------
 bool_t render_one_mad( Uint16 character, GLXvector4f tint, Uint32 bits )
@@ -689,6 +516,270 @@ bool_t render_one_mad_ref( int ichr )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+void render_chr_bbox( chr_t * pchr )
+{
+    if ( !ACTIVE_PCHR( pchr ) ) return;
+
+    //// draw the object bounding box as a part of the graphics debug mode F7
+    //if ( cfg.dev_mode && SDLKEYDOWN( SDLK_F7 ) )
+    //{
+    //    GL_DEBUG(glDisable)( GL_TEXTURE_2D );
+    //    {
+    //        int cnt;
+    //        aabb_t bb;
+
+    //        for ( cnt = 0; cnt < 3; cnt++ )
+    //        {
+    //            bb.mins[cnt] = bb.maxs[cnt] = pchr->pos.v[cnt];
+    //        }
+
+    //        bb.mins[XX] -= pchr->chr_prt_cv.size;
+    //        bb.mins[YY] -= pchr->chr_prt_cv.size;
+
+    //        bb.maxs[XX] += pchr->chr_prt_cv.size;
+    //        bb.maxs[YY] += pchr->chr_prt_cv.size;
+    //        bb.maxs[ZZ] += pchr->chr_prt_cv.height;
+
+    //        GL_DEBUG(glColor4f)(1, 1, 1, 1);
+    //        render_aabb( &bb );
+    //    }
+    //    GL_DEBUG(glEnable)( GL_TEXTURE_2D );
+    //}
+
+    // draw the object bounding box as a part of the graphics debug mode F7
+    if ( cfg.dev_mode && SDLKEYDOWN( SDLK_F7 ) )
+    {
+        GL_DEBUG( glDisable )( GL_TEXTURE_2D );
+        {
+            oct_bb_t bb;
+
+            bb.mins[OCT_X ] = pchr->chr_prt_cv.mins[OCT_X]  + pchr->pos.x;
+            bb.mins[OCT_Y ] = pchr->chr_prt_cv.mins[OCT_Y]  + pchr->pos.y;
+            bb.mins[OCT_Z ] = pchr->chr_prt_cv.mins[OCT_Z]  + pchr->pos.z;
+            bb.mins[OCT_XY] = pchr->chr_prt_cv.mins[OCT_XY] + ( pchr->pos.x + pchr->pos.y );
+            bb.mins[OCT_YX] = pchr->chr_prt_cv.mins[OCT_YX] + ( -pchr->pos.x + pchr->pos.y );
+
+            bb.maxs[OCT_X ] = pchr->chr_prt_cv.maxs[OCT_X]  + pchr->pos.x;
+            bb.maxs[OCT_Y ] = pchr->chr_prt_cv.maxs[OCT_Y]  + pchr->pos.y;
+            bb.maxs[OCT_Z ] = pchr->chr_prt_cv.maxs[OCT_Z]  + pchr->pos.z;
+            bb.maxs[OCT_XY] = pchr->chr_prt_cv.maxs[OCT_XY] + ( pchr->pos.x + pchr->pos.y );
+            bb.maxs[OCT_YX] = pchr->chr_prt_cv.maxs[OCT_YX] + ( -pchr->pos.x + pchr->pos.y );
+
+            GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
+            render_oct_bb( &bb, btrue, btrue );
+        }
+        GL_DEBUG( glEnable )( GL_TEXTURE_2D );
+    }
+
+    // the grips and vertrices of all objects
+    if ( cfg.dev_mode && SDLKEYDOWN( SDLK_F6 ) )
+    {
+        chr_draw_attached_grip( pchr );
+
+        // draw all the vertices of an object
+        GL_DEBUG( glPointSize( 5 ) );
+        draw_points( pchr, 0, ego_md2_data[pro_get_pmad( pchr->inst.imad )->md2_ref].vertices );
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+void draw_points( chr_t * pchr, int vrt_offset, int verts )
+{
+    /// @details BB@> a function that will draw some of the vertices of the given character.
+    ///     The original idea was to use this to debug the grip for attached items.
+
+    mad_t * pmad;
+    int vmin, vmax, cnt;
+    GLboolean texture_1d_enabled, texture_2d_enabled;
+
+    if ( !ACTIVE_PCHR( pchr ) ) return;
+
+    pmad = chr_get_pmad( GET_INDEX_PCHR( pchr ) );
+    if ( NULL == pmad ) return;
+
+    vmin = vrt_offset;
+    vmax = vmin + verts;
+
+    if ( vmin < 0 || vmax < 0 ) return;
+    if ( vmin > ego_md2_data[pmad->md2_ref].vertices || vmax > ego_md2_data[pmad->md2_ref].vertices ) return;
+
+    texture_1d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_1D );
+    texture_2d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_2D );
+
+    // disable the texturing so all the points will be white,
+    // not the texture color of the last vertex we drawn
+    if ( texture_1d_enabled ) glDisable( GL_TEXTURE_1D );
+    if ( texture_2d_enabled ) glDisable( GL_TEXTURE_2D );
+
+    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
+    GL_DEBUG( glPushMatrix )();
+    GL_DEBUG( glMultMatrixf )( pchr->inst.matrix.v );
+
+    GL_DEBUG( glBegin( GL_POINTS ) );
+    {
+        for ( cnt = vmin; cnt < vmax; cnt++ )
+        {
+            glVertex3fv( pchr->inst.vlst[cnt].pos );
+        }
+    }
+    GL_DEBUG_END();
+
+    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
+    GL_DEBUG( glPopMatrix )();
+
+    if ( texture_1d_enabled ) glEnable( GL_TEXTURE_1D );
+    if ( texture_2d_enabled ) glEnable( GL_TEXTURE_2D );
+}
+
+//--------------------------------------------------------------------------------------------
+void draw_one_grip( chr_instance_t * pinst, mad_t * pmad, int slot )
+{
+    GLboolean texture_1d_enabled, texture_2d_enabled;
+
+    texture_1d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_1D );
+    texture_2d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_2D );
+
+    // disable the texturing so all the points will be white,
+    // not the texture color of the last vertex we drawn
+    if ( texture_1d_enabled ) glDisable( GL_TEXTURE_1D );
+    if ( texture_2d_enabled ) glDisable( GL_TEXTURE_2D );
+
+    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
+    GL_DEBUG( glPushMatrix )();
+    GL_DEBUG( glMultMatrixf )( pinst->matrix.v );
+
+    _draw_one_grip_raw( pinst, pmad, slot );
+
+    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
+    GL_DEBUG( glPopMatrix )();
+
+    if ( texture_1d_enabled ) glEnable( GL_TEXTURE_1D );
+    if ( texture_2d_enabled ) glEnable( GL_TEXTURE_2D );
+}
+
+//--------------------------------------------------------------------------------------------
+void _draw_one_grip_raw( chr_instance_t * pinst, mad_t * pmad, int slot )
+{
+    int vmin, vmax, cnt;
+
+    float red[4] = {1, 0, 0, 1};
+    float grn[4] = {0, 1, 0, 1};
+    float blu[4] = {0, 0, 1, 1};
+    float * col_ary[3];
+
+    col_ary[0] = red;
+    col_ary[1] = grn;
+    col_ary[2] = blu;
+
+    if ( NULL == pinst || NULL == pmad ) return;
+
+    vmin = ego_md2_data[pmad->md2_ref].vertices - slot_to_grip_offset(( slot_t )slot );
+    vmax = vmin + GRIP_VERTS;
+
+    if ( vmin >= 0 && vmax >= 0 && vmax <= ego_md2_data[pmad->md2_ref].vertices )
+    {
+        fvec3_t   src, dst, diff;
+
+        GL_DEBUG( glBegin )( GL_LINES );
+        {
+            for ( cnt = 1; cnt < GRIP_VERTS; cnt++ )
+            {
+                src.x = pinst->vlst[vmin].pos[XX];
+                src.y = pinst->vlst[vmin].pos[YY];
+                src.z = pinst->vlst[vmin].pos[ZZ];
+
+                diff.x = pinst->vlst[vmin+cnt].pos[XX] - src.x;
+                diff.y = pinst->vlst[vmin+cnt].pos[YY] - src.y;
+                diff.z = pinst->vlst[vmin+cnt].pos[ZZ] - src.z;
+
+                dst.x = src.x + 3 * diff.x;
+                dst.y = src.y + 3 * diff.y;
+                dst.z = src.z + 3 * diff.z;
+
+                glColor4fv( col_ary[cnt-1] );
+
+                glVertex3fv( src.v );
+                glVertex3fv( dst.v );
+            }
+        }
+        GL_DEBUG_END();
+    }
+
+    glColor4f( 1, 1, 1, 1 );
+}
+
+//--------------------------------------------------------------------------------------------
+void chr_draw_attached_grip( chr_t * pchr )
+{
+    mad_t * pholder_mad;
+    cap_t * pholder_cap;
+    chr_t * pholder;
+
+    if ( !ACTIVE_PCHR( pchr ) ) return;
+
+    if ( !ACTIVE_CHR( pchr->attachedto ) ) return;
+    pholder = ChrList.lst + pchr->attachedto;
+
+    pholder_cap = pro_get_pcap( pholder->iprofile );
+    if ( NULL == pholder_cap ) return;
+
+    pholder_mad = chr_get_pmad( GET_INDEX_PCHR( pholder ) );
+    if ( NULL == pholder_mad ) return;
+
+    draw_one_grip( &( pholder->inst ), pholder_mad, pchr->inwhich_slot );
+}
+
+//--------------------------------------------------------------------------------------------
+void chr_draw_grips( chr_t * pchr )
+{
+    mad_t * pmad;
+    cap_t * pcap;
+
+    int slot;
+    GLboolean texture_1d_enabled, texture_2d_enabled;
+
+    if ( !ACTIVE_PCHR( pchr ) ) return;
+
+    pcap = pro_get_pcap( pchr->iprofile );
+    if ( NULL == pcap ) return;
+
+    pmad = chr_get_pmad( GET_INDEX_PCHR( pchr ) );
+    if ( NULL == pmad ) return;
+
+    texture_1d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_1D );
+    texture_2d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_2D );
+
+    // disable the texturing so all the points will be white,
+    // not the texture color of the last vertex we drawn
+    if ( texture_1d_enabled ) glDisable( GL_TEXTURE_1D );
+    if ( texture_2d_enabled ) glDisable( GL_TEXTURE_2D );
+
+    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
+    GL_DEBUG( glPushMatrix )();
+    GL_DEBUG( glMultMatrixf )( pchr->inst.matrix.v );
+
+    slot = SLOT_LEFT;
+    if ( pcap->slotvalid[slot] )
+    {
+        _draw_one_grip_raw( &( pchr->inst ), pmad, slot );
+    }
+
+    slot = SLOT_RIGHT;
+    if ( pcap->slotvalid[slot] )
+    {
+        _draw_one_grip_raw( &( pchr->inst ), pmad, slot );
+    }
+
+    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
+    GL_DEBUG( glPopMatrix )();
+
+    if ( texture_1d_enabled ) glEnable( GL_TEXTURE_1D );
+    if ( texture_2d_enabled ) glEnable( GL_TEXTURE_2D );
+}
+
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 egoboo_rv chr_update_instance( chr_t * pchr )
 {
     chr_instance_t * pinst;
@@ -717,7 +808,6 @@ void chr_instance_update_lighting_base( chr_instance_t * pinst, chr_t * pchr, bo
 
     Uint16 cnt;
 
-    Uint8  self_light;
     lighting_cache_t global_light, loc_light;
 
     GLvertex * vlst;
@@ -749,14 +839,12 @@ void chr_instance_update_lighting_base( chr_instance_t * pinst, chr_t * pchr, bo
     pinst->vlst_size = ego_md2_data[pmad->md2_ref].vertices;
 
     // interpolate the lighting for the origin of the object
-    interpolate_grid_lighting( PMesh, &global_light, pchr->pos );
+    grid_lighting_interpolate( PMesh, &global_light, pchr->pos.x, pchr->pos.y );
 
     // rotate the lighting data to body_centered coordinates
     lighting_project_cache( &loc_light, &global_light, pinst->matrix );
 
-    self_light = ( 255 == pinst->light ) ? 0 : pinst->light;
-
-    pinst->color_amb = 0.9f * pinst->color_amb + 0.1f * ( self_light + ( loc_light.hgh.lighting[LVEC_AMB] + loc_light.low.lighting[LVEC_AMB] ) * 0.5f );
+    pinst->color_amb = 0.9f * pinst->color_amb + 0.1f * ( loc_light.hgh.lighting[LVEC_AMB] + loc_light.low.lighting[LVEC_AMB] ) * 0.5f;
 
     pinst->max_light = -255;
     pinst->min_light =  255;
@@ -775,17 +863,17 @@ void chr_instance_update_lighting_base( chr_instance_t * pinst, chr_t * pchr, bo
             GLfloat tnrm[3];
 
             tnrm[0] = tnrm[1] = tnrm[2] = 1.0f;
-            lite  = lighting_evaluate_cache( &loc_light, tnrm, hgt, PMesh->mmem.bbox, NULL, NULL );
+            lite  = lighting_evaluate_cache( &loc_light, tnrm, hgt, PMesh->tmem.bbox, NULL, NULL );
 
             tnrm[0] = tnrm[1] = tnrm[2] = -1.0f;
-            lite += lighting_evaluate_cache( &loc_light, tnrm, hgt, PMesh->mmem.bbox, NULL, NULL );
+            lite += lighting_evaluate_cache( &loc_light, tnrm, hgt, PMesh->tmem.bbox, NULL, NULL );
 
             // average all the directions
             lite /= 6;
         }
         else
         {
-            lite  = lighting_evaluate_cache( &loc_light, pvert->nrm, hgt, PMesh->mmem.bbox, NULL, NULL );
+            lite  = lighting_evaluate_cache( &loc_light, pvert->nrm, hgt, PMesh->tmem.bbox, NULL, NULL );
         }
 
         pvert->color_dir = 0.9f * pvert->color_dir + 0.1f * lite;
@@ -1096,204 +1184,10 @@ egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vm
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_points( chr_t * pchr, int vrt_offset, int verts )
-{
-    /// @details BB@> a function that will draw some of the vertices of the given character.
-    ///     The original idea was to use this to debug the grip for attached items.
-
-    mad_t * pmad;
-    int vmin, vmax, cnt;
-    GLboolean texture_1d_enabled, texture_2d_enabled;
-
-    if ( !ACTIVE_PCHR( pchr ) ) return;
-
-    pmad = chr_get_pmad( GET_INDEX_PCHR( pchr ) );
-    if ( NULL == pmad ) return;
-
-    vmin = vrt_offset;
-    vmax = vmin + verts;
-
-    if ( vmin < 0 || vmax < 0 ) return;
-    if ( vmin > ego_md2_data[pmad->md2_ref].vertices || vmax > ego_md2_data[pmad->md2_ref].vertices ) return;
-
-    texture_1d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_1D );
-    texture_2d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_2D );
-
-    // disable the texturing so all the points will be white,
-    // not the texture color of the last vertex we drawn
-    if ( texture_1d_enabled ) glDisable( GL_TEXTURE_1D );
-    if ( texture_2d_enabled ) glDisable( GL_TEXTURE_2D );
-
-    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
-    GL_DEBUG( glPushMatrix )();
-    GL_DEBUG( glMultMatrixf )( pchr->inst.matrix.v );
-
-    GL_DEBUG( glBegin( GL_POINTS ) );
-    {
-        for ( cnt = vmin; cnt < vmax; cnt++ )
-        {
-            glVertex3fv( pchr->inst.vlst[cnt].pos );
-        }
-    }
-    GL_DEBUG_END();
-
-    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
-    GL_DEBUG( glPopMatrix )();
-
-    if ( texture_1d_enabled ) glEnable( GL_TEXTURE_1D );
-    if ( texture_2d_enabled ) glEnable( GL_TEXTURE_2D );
-}
-
-//--------------------------------------------------------------------------------------------
-void draw_one_grip( chr_instance_t * pinst, mad_t * pmad, int slot )
-{
-    GLboolean texture_1d_enabled, texture_2d_enabled;
-
-    texture_1d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_1D );
-    texture_2d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_2D );
-
-    // disable the texturing so all the points will be white,
-    // not the texture color of the last vertex we drawn
-    if ( texture_1d_enabled ) glDisable( GL_TEXTURE_1D );
-    if ( texture_2d_enabled ) glDisable( GL_TEXTURE_2D );
-
-    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
-    GL_DEBUG( glPushMatrix )();
-    GL_DEBUG( glMultMatrixf )( pinst->matrix.v );
-
-    _draw_one_grip_raw( pinst, pmad, slot );
-
-    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
-    GL_DEBUG( glPopMatrix )();
-
-    if ( texture_1d_enabled ) glEnable( GL_TEXTURE_1D );
-    if ( texture_2d_enabled ) glEnable( GL_TEXTURE_2D );
-}
-
-//--------------------------------------------------------------------------------------------
-void _draw_one_grip_raw( chr_instance_t * pinst, mad_t * pmad, int slot )
-{
-    int vmin, vmax, cnt;
-
-    float red[4] = {1, 0, 0, 1};
-    float grn[4] = {0, 1, 0, 1};
-    float blu[4] = {0, 0, 1, 1};
-    float * col_ary[3];
-
-    col_ary[0] = red;
-    col_ary[1] = grn;
-    col_ary[2] = blu;
-
-    if ( NULL == pinst || NULL == pmad ) return;
-
-    vmin = ego_md2_data[pmad->md2_ref].vertices - slot_to_grip_offset(( slot_t )slot );
-    vmax = vmin + GRIP_VERTS;
-
-    if ( vmin >= 0 && vmax >= 0 && vmax <= ego_md2_data[pmad->md2_ref].vertices )
-    {
-        fvec3_t   src, dst, diff;
-
-        GL_DEBUG( glBegin )( GL_LINES );
-        {
-            for ( cnt = 1; cnt < GRIP_VERTS; cnt++ )
-            {
-                src.x = pinst->vlst[vmin].pos[XX];
-                src.y = pinst->vlst[vmin].pos[YY];
-                src.z = pinst->vlst[vmin].pos[ZZ];
-
-                diff.x = pinst->vlst[vmin+cnt].pos[XX] - src.x;
-                diff.y = pinst->vlst[vmin+cnt].pos[YY] - src.y;
-                diff.z = pinst->vlst[vmin+cnt].pos[ZZ] - src.z;
-
-                dst.x = src.x + 3 * diff.x;
-                dst.y = src.y + 3 * diff.y;
-                dst.z = src.z + 3 * diff.z;
-
-                glColor4fv( col_ary[cnt-1] );
-
-                glVertex3fv( src.v );
-                glVertex3fv( dst.v );
-            }
-        }
-        GL_DEBUG_END();
-    }
-
-    glColor4f( 1, 1, 1, 1 );
-}
-
-//--------------------------------------------------------------------------------------------
-void chr_draw_attached_grip( chr_t * pchr )
-{
-    mad_t * pholder_mad;
-    cap_t * pholder_cap;
-    chr_t * pholder;
-
-    if ( !ACTIVE_PCHR( pchr ) ) return;
-
-    if ( !ACTIVE_CHR( pchr->attachedto ) ) return;
-    pholder = ChrList.lst + pchr->attachedto;
-
-    pholder_cap = pro_get_pcap( pholder->iprofile );
-    if ( NULL == pholder_cap ) return;
-
-    pholder_mad = chr_get_pmad( GET_INDEX_PCHR( pholder ) );
-    if ( NULL == pholder_mad ) return;
-
-    draw_one_grip( &( pholder->inst ), pholder_mad, pchr->inwhich_slot );
-}
-
-//--------------------------------------------------------------------------------------------
-void chr_draw_grips( chr_t * pchr )
-{
-    mad_t * pmad;
-    cap_t * pcap;
-
-    int slot;
-    GLboolean texture_1d_enabled, texture_2d_enabled;
-
-    if ( !ACTIVE_PCHR( pchr ) ) return;
-
-    pcap = pro_get_pcap( pchr->iprofile );
-    if ( NULL == pcap ) return;
-
-    pmad = chr_get_pmad( GET_INDEX_PCHR( pchr ) );
-    if ( NULL == pmad ) return;
-
-    texture_1d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_1D );
-    texture_2d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_2D );
-
-    // disable the texturing so all the points will be white,
-    // not the texture color of the last vertex we drawn
-    if ( texture_1d_enabled ) glDisable( GL_TEXTURE_1D );
-    if ( texture_2d_enabled ) glDisable( GL_TEXTURE_2D );
-
-    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
-    GL_DEBUG( glPushMatrix )();
-    GL_DEBUG( glMultMatrixf )( pchr->inst.matrix.v );
-
-    slot = SLOT_LEFT;
-    if ( pcap->slotvalid[slot] )
-    {
-        _draw_one_grip_raw( &( pchr->inst ), pmad, slot );
-    }
-
-    slot = SLOT_RIGHT;
-    if ( pcap->slotvalid[slot] )
-    {
-        _draw_one_grip_raw( &( pchr->inst ), pmad, slot );
-    }
-
-    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
-    GL_DEBUG( glPopMatrix )();
-
-    if ( texture_1d_enabled ) glEnable( GL_TEXTURE_1D );
-    if ( texture_2d_enabled ) glEnable( GL_TEXTURE_2D );
-}
-
-//--------------------------------------------------------------------------------------------
 egoboo_rv chr_instance_update_grip_verts( chr_instance_t * pinst, Uint16 vrt_lst[], size_t vrt_count )
 {
-    int cnt, count, vmin, vmax;
+    int cnt, vmin, vmax;
+    size_t count;
     egoboo_rv retval;
 
     if ( NULL == pinst ) return rv_error;
@@ -1321,121 +1215,3 @@ egoboo_rv chr_instance_update_grip_verts( chr_instance_t * pinst, Uint16 vrt_lst
 
     return retval;
 }
-
-////--------------------------------------------------------------------------------------------
-//void chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 trans, bool_t do_ambient )
-//{
-//    /// @details BB@> take the basic lighting info and add tint and alpha information to it
-//
-//    Uint16 cnt;
-//    Uint8  rs, gs, bs;
-//    Uint8  self_light;
-//
-//    mad_t * pmad;
-//
-//    if ( NULL == pinst || NULL == pchr ) return;
-//
-//    if ( !LOADED_MAD(pinst->imad) ) return;
-//    pmad = MadList + pinst->imad;
-//
-//    rs = pinst->redshift;
-//    gs = pinst->grnshift;
-//    bs = pinst->blushift;
-//    self_light = ( 255 == pinst->light ) ? 0 : pinst->light;
-//
-//    if( pinst->color_amb >= 0 )
-//    {
-//        pinst->col_amb.r = (float)( pinst->color_amb >> rs ) * INV_FF;
-//        pinst->col_amb.g = (float)( pinst->color_amb >> gs ) * INV_FF;
-//        pinst->col_amb.b = (float)( pinst->color_amb >> bs ) * INV_FF;
-//    }
-//    else
-//    {
-//        pinst->col_amb.r = -(float)( (-pinst->color_amb) >> rs ) * INV_FF;
-//        pinst->col_amb.g = -(float)( (-pinst->color_amb) >> gs ) * INV_FF;
-//        pinst->col_amb.b = -(float)( (-pinst->color_amb) >> bs ) * INV_FF;
-//    }
-//    pinst->col_amb.a = (trans * INV_FF) * (pinst->alpha * INV_FF);
-//
-//    pinst->max_light = 0;
-//    pinst->min_light = 255;
-//    for ( cnt = 0; cnt < pinst->vlst_size; cnt++ )
-//    {
-//        int r,g,b;
-//        Sint16 light;
-//
-//        light = do_ambient ? (pinst->color_amb + pinst->vlst[cnt].color_dir) : (pinst->vlst[cnt].color_dir);
-//
-//        if( light < 0 )
-//        {
-//            r = -(-light) >> rs;
-//            g = -(-light) >> gs;
-//            b = -(-light) >> bs;
-//        }
-//        else
-//        {
-//            r = light >> rs;
-//            g = light >> gs;
-//            b = light >> bs;
-//        }
-//
-//        pinst->max_light = MAX(pinst->max_light, MAX(MAX(r,g),b));
-//        pinst->min_light = MIN(pinst->min_light, MIN(MIN(r,g),b));
-//
-//        pinst->vlst[cnt].col[RR] = r * INV_FF;
-//        pinst->vlst[cnt].col[GG] = g * INV_FF;
-//        pinst->vlst[cnt].col[BB] = b * INV_FF;
-//        pinst->vlst[cnt].col[AA] = (trans * INV_FF) * (pinst->alpha * INV_FF);
-//
-//        // coerce these to valid values
-//        pinst->vlst[cnt].col[RR] = CLIP( pinst->vlst[cnt].col[RR], 0.0f, 1.0f);
-//        pinst->vlst[cnt].col[GG] = CLIP( pinst->vlst[cnt].col[GG], 0.0f, 1.0f);
-//        pinst->vlst[cnt].col[BB] = CLIP( pinst->vlst[cnt].col[BB], 0.0f, 1.0f);
-//        pinst->vlst[cnt].col[AA] = CLIP( pinst->vlst[cnt].col[AA], 0.0f, 1.0f);
-//    }
-//
-//    // ??coerce this to reasonable values in the presence of negative light??
-//    if( pinst->max_light < 0 ) pinst->max_light = 0;
-//    if( pinst->min_light < 0 ) pinst->min_light = 0;
-//}
-
-////--------------------------------------------------------------------------------------------
-//void chr_instance_update_lighting_ref( chr_instance_t * pinst, chr_t * pchr, Uint8 trans, bool_t do_ambient )
-//{
-//    /// @details BB@> take the basic lighting info and add tint and alpha information to it (for reflected characters)
-//
-//    Uint16 cnt;
-//    Uint8  rs, gs, bs;
-//    Uint8  self_light;
-//    mad_t * pmad;
-//
-//    if ( NULL == pinst || NULL == pchr ) return;
-//
-//    if ( !LOADED_MAD(pinst->imad) ) return;
-//    pmad = MadList + pinst->imad;
-//
-//    rs = pinst->ref.redshift;
-//    gs = pinst->ref.grnshift;
-//    bs = pinst->ref.blushift;
-//    self_light = ( 255 == pinst->ref.light ) ? 0 : pinst->ref.light;
-//
-//    pinst->max_light = 0;
-//    pinst->min_light = 255;
-//    for ( cnt = 0; cnt < pinst->vlst_size; cnt++ )
-//    {
-//        Sint16 light;
-//
-//        light = do_ambient ? (pinst->color_amb + pinst->vlst[cnt].color_dir) : (pinst->vlst[cnt].color_dir);
-//
-//        pinst->vlst[cnt].col[RR] = (light >> rs) * INV_FF;
-//        pinst->vlst[cnt].col[GG] = (light >> gs) * INV_FF;
-//        pinst->vlst[cnt].col[BB] = (light >> bs) * INV_FF;
-//        pinst->vlst[cnt].col[AA] = (trans * INV_FF) * (pinst->ref.alpha * INV_FF);
-//
-//        // coerce these to valid values
-//        pinst->vlst[cnt].col[RR] = CLIP( pinst->vlst[cnt].col[RR], 0.0f, 1.0f);
-//        pinst->vlst[cnt].col[GG] = CLIP( pinst->vlst[cnt].col[GG], 0.0f, 1.0f);
-//        pinst->vlst[cnt].col[BB] = CLIP( pinst->vlst[cnt].col[BB], 0.0f, 1.0f);
-//        pinst->vlst[cnt].col[AA] = CLIP( pinst->vlst[cnt].col[AA], 0.0f, 1.0f);
-//    }
-//}

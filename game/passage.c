@@ -127,8 +127,8 @@ bool_t open_passage( Uint16 passage )
 void flash_passage( Uint16 passage, Uint8 color )
 {
     /// @details ZZ@> This function makes a passage flash white
-    int x, y, cnt, numvert;
-    Uint32 fan, vert;
+    int x, y, cnt;
+    Uint32 fan;
     passage_t * ppass;
 
     if ( INVALID_PASSAGE( passage ) ) return;
@@ -140,19 +140,11 @@ void flash_passage( Uint16 passage, Uint8 color )
         {
             fan = mesh_get_tile_int( PMesh, x, y );
 
-            if ( VALID_TILE( PMesh, fan ) )
+            if ( !VALID_TILE( PMesh, fan ) ) continue;
+
+            for ( cnt = 0; cnt < 4; cnt++ )
             {
-                Uint16 ttype = PMesh->mmem.tile_list[fan].type;
-
-                ttype &= 0x3F;
-
-                numvert = tile_dict[ttype].numvertices;
-                vert    = PMesh->mmem.tile_list[fan].vrtstart;
-                for ( cnt = 0; cnt < numvert; cnt++ )
-                {
-                    PMesh->gmem.light[vert].a = color;
-                    vert++;
-                }
+                PMesh->tmem.tile_list[fan].lcache[cnt] = color;
             }
         }
     }

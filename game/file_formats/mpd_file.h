@@ -87,8 +87,7 @@ enum e_mpd_fx
 /// The basic parameters needed to create an mpd
 struct s_mpd_info
 {
-    size_t          vertcount;                         ///< For malloc
-
+    size_t          vertcount;                        ///< For malloc
     int             tiles_x;                          ///< Size in tiles
     int             tiles_y;
 };

@@ -74,7 +74,7 @@
 
 #undef  DEBUG_STDIO         ///< Route stdio calls through wrapper functions so that we can track io calls. This needs to be removed.
 
-#define CLIP_LIGHT_FANS     ///< is the light_fans() function going to be throttled?
-#define  CLIP_ALL_LIGHT_FANS  ///< a switch for selecting how the fans will be updated
+#define CLIP_LIGHT_FANS      ///< is the light_fans() function going to be throttled?
+#undef  CLIP_ALL_LIGHT_FANS  ///< a switch for selecting how the fans will be updated
 
 #define EGOBOO_CONFIG_H

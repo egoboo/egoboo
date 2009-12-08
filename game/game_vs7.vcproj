@@ -248,6 +248,15 @@
 				RelativePath=".\graphic.h">
 			</File>
 			<File
+				RelativePath=".\graphic_fan.h">
+			</File>
+			<File
+				RelativePath=".\graphic_mad.h">
+			</File>
+			<File
+				RelativePath=".\graphic_prt.h">
+			</File>
+			<File
 				RelativePath=".\lighting.h">
 			</File>
 			<File
