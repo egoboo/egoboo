@@ -215,6 +215,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\collision.c"
+				>
+			</File>
+			<File
+				RelativePath=".\egoboo.c"
+				>
+			</File>
+			<File
 				RelativePath=".\enchant.c"
 				>
 			</File>
@@ -240,6 +248,10 @@
 			</File>
 			<File
 				RelativePath=".\input.c"
+				>
+			</File>
+			<File
+				RelativePath=".\lighting.c"
 				>
 			</File>
 			<File
@@ -329,6 +341,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\collision.h"
+				>
+			</File>
+			<File
 				RelativePath=".\egoboo.h"
 				>
 			</File>
@@ -345,7 +361,23 @@
 				>
 			</File>
 			<File
+				RelativePath=".\graphic_fan.h"
+				>
+			</File>
+			<File
+				RelativePath=".\graphic_mad.h"
+				>
+			</File>
+			<File
+				RelativePath=".\graphic_prt.h"
+				>
+			</File>
+			<File
 				RelativePath=".\input.h"
+				>
+			</File>
+			<File
+				RelativePath=".\lighting.h"
 				>
 			</File>
 			<File
@@ -573,6 +605,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\egoboo_process.c"
+				>
+			</File>
+			<File
 				RelativePath=".\egoboo_setup.c"
 				>
 			</File>
@@ -670,6 +706,10 @@
 			</File>
 			<File
 				RelativePath=".\egoboo_platform.h"
+				>
+			</File>
+			<File
+				RelativePath=".\egoboo_process.h"
 				>
 			</File>
 			<File

@@ -480,7 +480,7 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
     Uint8 returncode = btrue;
     if ( MAX_OPCODE == valuecode )
     {
-        log_message( "SCRIPT ERROR: run_function_obsolete() - model == %d, class name == \"%s\" - Unknown opcode found!\n", script_error_model, script_error_classname );
+        log_message( "SCRIPT ERROR: run_function() - model == %d, class name == \"%s\" - Unknown opcode found!\n", script_error_model, script_error_classname );
         return bfalse;
     }
 
@@ -883,7 +883,7 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
         case FKURSETARGET:           returncode = scr_KurseTarget( pstate, pself );            break;
         case FSETCHILDCONTENT:       returncode = scr_set_ChildContent( pstate, pself );    break;
         case FSETTARGETTOCHILD:      returncode = scr_set_TargetToChild( pstate, pself );   break;
-        case FSETDAMAGETRESHOLD:     returncode = scr_set_DamageThreshold( pstate, pself );   break;
+        case FSETDAMAGETHRESHOLD:     returncode = scr_set_DamageThreshold( pstate, pself );   break;
         case FACCELERATETARGETUP:    returncode = scr_AccelerateTargetUp( pstate, pself ); break;
         case FSETTARGETAMMO:         returncode = scr_set_TargetAmmo( pstate, pself ); break;
         case FENABLEINVICTUS:        returncode = scr_EnableInvictus( pstate, pself ); break;

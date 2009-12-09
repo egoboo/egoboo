@@ -1303,7 +1303,7 @@ DEFINE_FUNCTION( FSPAWNATTACHEDCHARACTER,    "SpawnAttachedCharacter"    )      
 DEFINE_FUNCTION( FKURSETARGET,    "KurseTarget"    )                    // == 373
 DEFINE_FUNCTION( FSETCHILDCONTENT,    "SetChildContent"    )                // == 374
 DEFINE_FUNCTION( FSETTARGETTOCHILD,    "SetTargetToChild"    )               // == 375
-DEFINE_FUNCTION( FSETDAMAGETRESHOLD,    "SetDamageThreshold"    )    //
+DEFINE_FUNCTION( FSETDAMAGETHRESHOLD,    "SetDamageThreshold"    )    //
 
 DEFINE_CONSTANT(,    "BLAHDEAD"    )    //
 DEFINE_CONSTANT(,    "BLAHENEMIES"    )    //

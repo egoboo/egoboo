@@ -1712,13 +1712,17 @@ void update_pits()
 {
     /// @details ZZ@> This function kills any character in a deep pit...
 
-    int cnt;
+    Uint16 cnt;
 
     if ( pits.kill || pits.teleport )
     {
-        if ( clock_pit > 19 )
+		//Decrease the timer
+        if ( clock_pit > 0 ) clock_pit--;
+        
+		if ( clock_pit == 0 )
         {
-            clock_pit = 0;
+			//Reset timer
+            clock_pit = 20;
 
             // Kill any particles that fell in a pit, if they die in water...
             for ( cnt = 0; cnt < maxparticles; cnt++ )
@@ -1746,8 +1750,9 @@ void update_pits()
                     ChrList.lst[cnt].vel.x = 0;
                     ChrList.lst[cnt].vel.y = 0;
 
-                    // Play sound effect
-                    sound_play_chunk( ChrList.lst[cnt].pos, g_wavelist[GSND_PITFALL] );
+                    //ZF> Disabled, the pitfall sound was intended for pits.teleport only
+					// Play sound effect
+                    // sound_play_chunk( ChrList.lst[cnt].pos, g_wavelist[GSND_PITFALL] );
                 }
 
                 // Do we teleport it?
@@ -1785,10 +1790,6 @@ void update_pits()
                     }
                 }
             }
-        }
-        else
-        {
-            clock_pit++;
         }
     }
 }
@@ -4926,8 +4927,9 @@ bool_t do_shop_steal( Uint16 ithief, Uint16 iitem )
 bool_t do_item_pickup( Uint16 ichr, Uint16 iitem )
 {
     bool_t can_grab;
-    bool_t is_invis, can_steal;
-    chr_t * pchr;
+    bool_t is_invis, can_steal, in_shop;
+    chr_t * pchr, * pitem;
+    int ix, iy;
 
     // ?? lol what ??
     if ( ichr == iitem ) return bfalse;
@@ -4935,32 +4937,41 @@ bool_t do_item_pickup( Uint16 ichr, Uint16 iitem )
     if ( !ACTIVE_CHR( ichr ) ) return bfalse;
     pchr = ChrList.lst + ichr;
 
+    if ( !ACTIVE_CHR( iitem ) ) return bfalse;
+    pitem = ChrList.lst + iitem;
+	ix = pitem->pos.x / TILE_SIZE;
+    iy = pitem->pos.y / TILE_SIZE;
+    
     // assume that there is no shop so that the character can grab anything
     can_grab = btrue;
+	in_shop = ACTIVE_CHR( shop_get_owner(ix, iy) );
 
-    // check for a stealthy pickup
-    is_invis  = !chr_can_see_object( ichr, iitem );
+	if( in_shop )
+	{
+		// check for a stealthy pickup
+		is_invis  = !chr_can_see_object( ichr, iitem );
 
-    // pets are automatically stealthy
-    can_steal = is_invis || pchr->isitem;
+		// pets are automatically stealthy
+		can_steal = is_invis || pchr->isitem;
 
-    if ( can_steal )
-    {
-        can_grab = do_shop_steal( ichr, iitem );
+		if ( can_steal )
+		{
+			can_grab = do_shop_steal( ichr, iitem );
 
-        if ( !can_grab )
-        {
-            debug_printf( "%s was detected!!", chr_get_name( ichr, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL ) );
-        }
-        else
-        {
-            debug_printf( "%s stole %s", chr_get_name( ichr, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL ), chr_get_name( iitem, CHRNAME_ARTICLE ) );
-        }
-    }
-    else
-    {
-        can_grab = do_shop_buy( ichr, iitem );
-    }
+			if ( !can_grab )
+			{
+				debug_printf( "%s was detected!!", chr_get_name( ichr, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL ) );
+			}
+			else
+			{
+				debug_printf( "%s stole %s", chr_get_name( ichr, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL ), chr_get_name( iitem, CHRNAME_ARTICLE ) );
+			}
+		}
+		else
+		{
+			can_grab = do_shop_buy( ichr, iitem );
+		}
+	}
 
     return can_grab;
 }

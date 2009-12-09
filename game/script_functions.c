@@ -2234,7 +2234,7 @@ Uint8 scr_ScoredAHit( script_state_t * pstate, ai_state_t * pself )
     else if ( ChrList.lst[pchr->attachedto].ai.lastitemused == pself->index )
     {
         returncode = HAS_SOME_BITS( ChrList.lst[pchr->attachedto].ai.alert, ALERTIF_SCOREDAHIT );
-        if ( returncode ) pself->target = ChrList.lst[pchr->attachedto].ai.hitlast;
+        if ( returncode ) pself->target = ChrList.lst[pchr->attachedto].ai.hitlast;  //ZF> @todo: this shouldnt be needed, use SetTargetToWhoeverWasHit instead
     }
     else returncode = bfalse;
 
@@ -6823,7 +6823,7 @@ Uint8 scr_set_TargetToChild( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_DamageThreshold( script_state_t * pstate, ai_state_t * pself )
 {
     // SetDamageThreshold()
-    /// @details ZF@> This sets the damage treshold for this character. Damage below the treshold is ignored
+    /// @details ZF@> This sets the damage treshold for this character. Damage below the threshold is ignored
 
     SCRIPT_FUNCTION_BEGIN();
 

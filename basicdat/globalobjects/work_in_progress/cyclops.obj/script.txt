@@ -350,7 +350,7 @@ IfTimeOut
         IfHoldingMeleeWeapon
           // Acquire a target
           SetTurnModeToVelocity
-          tmpdistance = 250000 // Square of distance to check
+          tmpdistance = 128*6 // Square of distance to check
           SetTargetToDistantEnemy
             // Charge towards enemy
             tmpx = targetx
@@ -393,7 +393,7 @@ IfTimeOut
 
         tmpargument = ACTIONMK
         DoAction
-        tmpdistance = 160000  // Distance to check
+        tmpdistance = 128*6  // Distance to check
         SetTargetToDistantEnemy
           IfTargetIsSneaking
             tmpargument = 100 // Time

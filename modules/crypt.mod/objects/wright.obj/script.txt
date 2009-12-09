@@ -48,7 +48,7 @@ IfCrushed
 // Chase good guys
 IfTimeOut
   IfTargetIsSelf
-    tmpdistance = 90000  // Square of range
+    tmpdistance = 128*6  // Square of range
     SetTargetToDistantEnemy
     tmpx = rand & 511 - 256 + selfspawnx
     tmpy = rand & 511 - 256 + selfspawny

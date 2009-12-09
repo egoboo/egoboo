@@ -3207,7 +3207,13 @@ int doVideoOptions( float deltaTime )
 
             // Max particles
             ui_drawTextBox( menuFont, "Max Particles:", buttonLeft + 300, GFX_HEIGHT - 180, 0, 0, 20 );
-            if ( BUTTON_UP == ui_doButton( 15, sz_buttons[14], menuFont, buttonLeft + 450, GFX_HEIGHT - 180, 100, 30 ) )
+			
+            if( PMod->active )
+			{
+				snprintf( Cmaxparticles, SDL_arraysize(Cmaxparticles), "%i (%i currently used)", maxparticles, maxparticles-prt_count_free() );
+				ui_drawTextBox( menuFont, Cmaxparticles, buttonLeft + 450, GFX_HEIGHT - 180, 0, 100, 30 );
+			}
+			else if ( BUTTON_UP == ui_doButton( 15, sz_buttons[14], menuFont, buttonLeft + 450, GFX_HEIGHT - 180, 100, 30 ) )
             {
                 if ( cfg.particle_count_req < 256 )
                 {

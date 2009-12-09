@@ -482,7 +482,7 @@ enum e_script_functions
     FKURSETARGET,                // == 373
     FSETCHILDCONTENT,            // == 374
     FSETTARGETTOCHILD,           // == 375
-    FSETDAMAGETRESHOLD,          // == 376
+    FSETDAMAGETHRESHOLD,          // == 376
     FACCELERATETARGETUP,         // == 377
     FSETTARGETAMMO,              // == 378
     FENABLEINVICTUS,             // == 379

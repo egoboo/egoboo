@@ -4077,6 +4077,7 @@ void change_character( Uint16 ichr, Uint16 profile_new, Uint8 skin, Uint8 leavew
         pchr->gender = pcap_new->gender;
     }
 
+	// Sound effects
     for ( tnc = 0; tnc < SOUND_COUNT; tnc++ )
     {
         pchr->soundindex[tnc] = pcap_new->soundindex[tnc];
@@ -4120,7 +4121,10 @@ void change_character( Uint16 ichr, Uint16 profile_new, Uint8 skin, Uint8 leavew
     pchr->darkvision_level      = pcap_new->darkvision_level;
 
     // changing this could be disasterous, in case you can't un-morph youself???
-    pchr->canusearcane          = pcap_new->canusearcane;
+    //pchr->canusearcane          = pcap_new->canusearcane;
+	//ZF> No, we want this, I have specifically scripted morph books to handle unmorphing 
+    // even if you cannot cast arcane spells. Some morph spells specifically morph the player
+	// into a fighter or a tech user, but as a balancing factor prevents other spellcasting.
 
     // Character size and bumping
 
@@ -4181,9 +4185,9 @@ void change_character( Uint16 ichr, Uint16 profile_new, Uint8 skin, Uint8 leavew
     // AI and action stuff
     pchr->inst.action_ready = bfalse;
     pchr->inst.action_keep  = bfalse;
-    pchr->inst.action_which = ACTION_DA;
-    pchr->inst.action_next  = ACTION_DA;
-    pchr->inst.action_loop  = bfalse;
+    //pchr->inst.action_which = ACTION_DA;		//ZF> Disabled this because when a morphed character died, it would
+    //pchr->inst.action_next  = ACTION_DA;      // not play the death animation...
+	pchr->inst.action_loop  = bfalse;
     pchr->holdingweight     = 0;
     pchr->onwhichplatform   = MAX_CHR;
 
@@ -5337,7 +5341,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
                 if ( pchr->enviro.inwater )
                 {
                     pchr->vel.z += WATERJUMP * 1.5;
-                    pchr->jumptime = JUMPDELAY * 4;
+                    pchr->jumptime = JUMPDELAY * 4;			//To prevent 'bunny jumping' in water
                 }
                 else
                 {

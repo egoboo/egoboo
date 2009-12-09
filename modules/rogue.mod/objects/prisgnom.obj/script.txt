@@ -72,7 +72,7 @@ IfTimeOut
       SetContent
 
     // Get in a fight
-    tmpdistance = 250000
+    tmpdistance = 128*6
     SetTargetToDistantEnemy
       // Charge!
       Run					//100% speed

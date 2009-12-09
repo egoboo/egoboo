@@ -158,7 +158,7 @@ IfTimeOut
         tmpargument = 10
       Else
         // Follow the leader
-        tmpdistance = 250000  // Square of distance to check
+        tmpdistance = 128*8  // Square of distance to check
         SetTargetToDistantEnemy
           // Go get 'em
           tmpargument = 5
@@ -210,7 +210,7 @@ IfTimeOut
         SetState
       Else
         // Check for baddies while out
-        tmpdistance = 250000  // Square of distance to check
+        tmpdistance = 128*8  // Square of distance to check
         SetTargetToDistantEnemy
           // Go berserk
           tmpx = targetx
