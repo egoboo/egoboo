@@ -114,14 +114,14 @@ Bat:   NONE    46  52.0   10.0   1.0   N    0   2  0   0   0   F   F   B
 Bat:   NONE    46  54.0   13.0   1.0   N    0   2  0   0   0   F   F   B
 Bat:   NONE    46  51.0   14.0   1.0   N    0   2  0   0   0   F   F   B
 Bat:   NONE    46  53.0   15.0   1.0   N    0   2  0   0   0   F   F   B
-firemephit:   NONE    49  42.5   34.5   1.0   N    3   0  0   0   0   F   F   E
-  firewing:   NONE    52  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
-firemephit:   NONE    49  39.5   30.5   1.0   N    4   0  0   0   0   F   F   E
-  firewing:   NONE    52  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
-firemephit:   NONE    49  42.5   31.5   1.0   N    7   0  0   0   0   F   F   E
-  firewing:   NONE    52  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
-firemephit:   NONE    49  39.5   32.5   1.0   N    14   3  0   0   0   F   F   E
-  firewing:   NONE    52  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+mephit:   NONE    49  42.5   34.5   1.0   N    3   0  0   0   0   F   F   E
+  mephitwing:   NONE    52  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+mephit:   NONE    49  39.5   30.5   1.0   N    4   0  0   0   0   F   F   E
+  mephitwing:   NONE    52  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+mephit:   NONE    49  42.5   31.5   1.0   N    7   0  0   0   0   F   F   E
+  mephitwing:   NONE    52  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+mephit:   NONE    49  39.5   32.5   1.0   N    14   3  0   0   0   F   F   E
+  mephitwing:   NONE    52  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 
 //Trapped firebomb chest
 chest:   NONE    37  8.0   41.0   1.0   E    0   0  0   4   0   F   F   N
@@ -152,13 +152,13 @@ eyeball:   NONE    45  35.5   13.5   1.0   N    0   0  0   0   0   F   F   E
 
 //Guarding the boss room
 mephit:   NONE    49  55.0   31.0   1.0   N    3   3  0   0   0   F   F   E
-  firewing:   NONE    52  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  mephitwing:   NONE    52  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 mephit:   NONE    49  52.0   29.0   1.0   N    4   0  0   0   0   F   F   E
-  firewing:   NONE    52  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  mephiting:   NONE    52  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 mephit:   NONE    49  53.0   32.0   1.0   N    10   3  0   0   0   F   F   E
-  firewing:   NONE    52  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  mephitwing:   NONE    52  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 mephit:   NONE    49  55.0   29.0   1.0   N    19   0  0   0   0   F   F   E
-  firewing:   NONE    52  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  mephitwing:   NONE    52  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 
 chest:   NONE    37  8.0   30.0   0.0   N    0   0  0   0   0   F   F   N
   KeyB:   NONE    59  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
@@ -179,12 +179,12 @@ demon:   NONE    62  20.0   53.0   1.0   N    0   0  0   0   0   F   F   P
 demon:   NONE    62  21.0   55.0   1.0   N    0   0  0   0   0   F   F   P
 demon:   NONE    62  56.0   42.0   1.0   N    4   0  0   0   0   F   F   E
 demon:   NONE    62  50.0   42.0   1.0   N    4   0  0   0   0   F   F   E
-hellrover:   NONE    64  40.0   36.0   1.0   N    0   0  0   0   0   F   F   N
+hellrover:   NONE    64  40.0   36.0   1.0   N    0   0  0   0   0   F   F   E
 DarkSpirit:  NONE    100  40.0   36.0   1.5   N    0   0  0   0   0   F   F   E
   BlackLance:  NONE    99  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-hellrover:   NONE    64  21.5   15.5   1.0   S    0   0  0   0   0   F   F   N
+hellrover:   NONE    64  21.5   15.5   1.0   S    0   0  0   0   0   F   F   E
 DarkSpirit:  NONE    100  21.5   15.5   1.5   N    0   0  0   0   0   F   F   E
   BlackLance:  NONE    99  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-hellrover:   NONE    64  57.5   12.5   1.0   W    0   0  0   0   0   F   F   N
+hellrover:   NONE    64  57.5   12.5   1.0   W    0   0  0   0   0   F   F   E
 DarkSpirit:  NONE    100  57.5   12.5   1.5   N    0   0  0   0   0   F   F   E
   BlackLance:  NONE    99  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N

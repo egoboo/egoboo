@@ -38,29 +38,35 @@ IfTimeOut				// This is done every so often
   // State 2 ( Helper )
   IfStateIs2
     SetTargetToNearestFriend
-    IfTargetIsHurt			    // Heal wounded
-      tmpx = targetdistance		      //
-      tmpy = 300			      //
-      IfXIsLessThanY			      // In Range?
-        tmpx = 260			        //
-        tmpy = selfmana			        //
-        IfXIsLessThanY				// Enough to cast?
-          IfFacingTarget
-            tmpargument = LATCHLEFT	          // Left Attack == 1
-            PressLatchButton		          //
-        Else					        //Not enough mana, do something else
-          tmpargument = 0
-          SetState
-    Else				    
-      tmpargument = 0     // Switch to follow
-      SetState				      //    
+    tmpx = targetdistance
+    tmpy = 128*6
+    IfXIsLessThanY
+      IfTargetIsHurt			    // Heal wounded
+        tmpx = targetdistance		      //
+        tmpy = 300			      //
+        IfXIsLessThanY			      // In Range?
+          tmpx = 260			        //
+          tmpy = selfmana			        //
+          IfXIsLessThanY				// Enough to cast?
+            IfFacingTarget
+              tmpargument = LATCHLEFT	          // Left Attack == 1
+              PressLatchButton		          //
+          Else					        //Not enough mana, do something else
+            tmpargument = 0
+            SetState
+      Else				    
+        tmpargument = 0     // Switch to follow
+        SetState				      //    
 
-    //move towards target
-    tmpx = targetx			    //
-    tmpy = targety			    //
-    ClearWaypoints			  //
-    AddWaypoint				  //
-
+      //move towards target
+      tmpx = targetx			    //
+      tmpy = targety			    //
+      ClearWaypoints			  //
+      AddWaypoint				  //
+    Else
+      tmpargument = 0
+      SetState
+      
   // State 0 ( Follow )
   IfStateIs0				  
     //Find someone to bash
@@ -92,9 +98,9 @@ IfTimeOut				// This is done every so often
       tmpy = 250				    //
       IfXIsLessThanY			    //
         IfFacingTarget
-          tmpargument = LATCHRIGHT		      // Right Attack == 2
-          PressLatchButton			      //
-      
+          IfHoldingMeleeWeapon
+            PressLatchButton
+
       //Retreat if leader is running and not in combat
       tmpx = leaderdistance
       tmpy = 128*6
@@ -153,8 +159,8 @@ IfBumped				// Bumped
   //Bash 'em
   IfTargetIsOnHatedTeam
     IfFacingTarget
-      tmpargument = LATCHRIGHT		      // Right Attack == 2
-      PressLatchButton			      //
+      IfHoldingMeleeWeapon
+        PressLatchButton			      //
       
   SetTargetToOldTarget		    //
   tmpx = rand & 511 + selfx - 256		  //

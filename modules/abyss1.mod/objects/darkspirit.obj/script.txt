@@ -14,6 +14,10 @@ IfSpawned
   SetTime                       //Give some time to get on the mount
   tmpargument = 1
   SetState
+  
+  //Assume that we spawn on a mount
+  SetTargetToNearestFriend
+  SetOwnerToTarget
 
 //------------------------------------------------------------------------------
 // Jump over barriers, onto mounts
@@ -119,7 +123,7 @@ IfTimeOut
         tmpx = targetx
         tmpy = targety
         tmpturn = rand
-        tmpdistance = 0 - 1500
+        tmpdistance = -1500
       Compass
       ClearWaypoints
       AddWaypoint
@@ -151,11 +155,11 @@ IfTimeOut
     tmpdistance = 0         //If tmpdistance = 1 we go foot soldier tactic
     SetTargetToOwner
     IfTargetIsAlive
-      IfTargetIsOnHatedTeam
+      IfTargetIsOnHatedTeam           //They took our mount!
         SetTargetToTargetLeftHand
           tmpdistance = 1
     Else
-      tmpdistance = 1
+      tmpdistance = 1                 //They killed our mount!
     tmpturn = 0
     IfDistanceIsMoreThanTurn
       SetTargetToWideEnemy
@@ -175,6 +179,8 @@ IfTimeOut
       tmpx = ownerx
       tmpy = ownery
       tmpdistance = 1500
+      tmpturn = targetturnto
+      Compass
       ClearWaypoints
       AddWaypoint
 //------------------------------------------------------------------------------

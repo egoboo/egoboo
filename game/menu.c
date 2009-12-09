@@ -584,7 +584,7 @@ int doMainMenu( float deltaTime )
                 // go to options menu
                 menuChoice = 3;
             }
-            if ( BUTTON_UP == ui_doButton( 4, sz_buttons[3], NULL, buttonLeft, buttonTop + 35 * 3, 200, 30 ) )
+            if ( SDLKEYDOWN( SDLK_ESCAPE ) || BUTTON_UP == ui_doButton( 4, sz_buttons[3], NULL, buttonLeft, buttonTop + 35 * 3, 200, 30 ) )
             {
                 // quit game
                 menuChoice = 4;
@@ -704,9 +704,9 @@ int doSinglePlayerMenu( float deltaTime )
             {
                 menuChoice = 2;
             }
-            if ( BUTTON_UP == ui_doButton( 3, sz_buttons[2], NULL, buttonLeft, buttonTop + 35 * 2, 200, 30 ) )
+            if ( SDLKEYDOWN( SDLK_ESCAPE ) || BUTTON_UP == ui_doButton( 3, sz_buttons[2], NULL, buttonLeft, buttonTop + 35 * 2, 200, 30 ) )
             {
-                menuChoice = 3;
+                menuChoice = 3;		//back
             }
             if ( menuChoice != 0 )
             {
@@ -842,8 +842,8 @@ int doChooseModule( float deltaTime )
             GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
             x = ( GFX_WIDTH  / 2 ) - ( background.imgW / 2 );
             y = GFX_HEIGHT - background.imgH;
-
-            if ( mnu_draw_background )
+            
+			if ( mnu_draw_background )
             {
                 ui_drawImage( 0, &background, x, y, 0, 0 );
             }
@@ -921,24 +921,6 @@ int doChooseModule( float deltaTime )
                 }
             }
 
-            // And draw the next & back buttons
-            if ( selectedModule > -1 )
-            {
-                if ( SDLKEYDOWN( SDLK_RETURN ) || BUTTON_UP == ui_doButton( 53, "Select Module", NULL, moduleMenuOffsetX + 327, moduleMenuOffsetY + 173, 200, 30 ) )
-                {
-                    // go to the next menu with this module selected
-                    selectedModule = validModules[selectedModule];
-                    menuState = MM_Leaving;
-                }
-            }
-
-            if ( SDLKEYDOWN( SDLK_ESCAPE ) || BUTTON_UP == ui_doButton( 54, "Back", NULL, moduleMenuOffsetX + 327, moduleMenuOffsetY + 208, 200, 30 ) )
-            {
-                // Signal doMenu to go back to the previous menu
-                selectedModule = -1;
-                menuState = MM_Leaving;
-            }
-
             // Draw an empty button as the backdrop for the module text
             ui_drawButton( UI_Nothing, moduleMenuOffsetX + 21, moduleMenuOffsetY + 173, 291, 250, NULL );
 
@@ -986,6 +968,24 @@ int doChooseModule( float deltaTime )
 
                 // Draw a text box
                 ui_drawTextBox( menuFont, buffer, moduleMenuOffsetX + 21, moduleMenuOffsetY + 173, 291, 230, 20 );
+            }
+
+            // And draw the next & back buttons
+            if ( selectedModule > -1 )
+            {
+                if ( SDLKEYDOWN( SDLK_RETURN ) || BUTTON_UP == ui_doButton( 53, "Select Module", NULL, moduleMenuOffsetX + 327, moduleMenuOffsetY + 173, 200, 30 ) )
+                {
+                    // go to the next menu with this module selected
+                    selectedModule = validModules[selectedModule];
+                    menuState = MM_Leaving;
+                }
+            }
+
+            if ( SDLKEYDOWN( SDLK_ESCAPE ) || BUTTON_UP == ui_doButton( 54, "Back", NULL, moduleMenuOffsetX + 327, moduleMenuOffsetY + 208, 200, 30 ) )
+            {
+                // Signal doMenu to go back to the previous menu
+                selectedModule = -1;
+                menuState = MM_Leaving;
             }
 
             // the tool-tip text
@@ -1722,7 +1722,7 @@ int doOptions( float deltaTime )
                 // video options
                 menuChoice = 3;
             }
-            if ( BUTTON_UP == ui_doButton( 5, sz_buttons[4], NULL, buttonLeft, buttonTop + 35 * 4, 200, 30 ) )
+            if (  SDLKEYDOWN( SDLK_ESCAPE ) || BUTTON_UP == ui_doButton( 5, sz_buttons[4], NULL, buttonLeft, buttonTop + 35 * 4, 200, 30 ) )
             {
                 // back to main menu
                 menuChoice = 4;
@@ -3523,7 +3523,7 @@ int doGamePaused( float deltaTime )
             }
 
             // Quick return to game
-            if ( SDLKEYDOWN( SDLK_ESCAPE ) ) menuChoice = 6;
+            if ( SDLKEYDOWN( SDLK_ESCAPE ) ) menuChoice = 3;
 
             if ( menuChoice != 0 )
             {

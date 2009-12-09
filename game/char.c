@@ -929,7 +929,7 @@ bool_t detach_character_from_mount( Uint16 character, Uint8 ignorekurse, Uint8 d
     else if ( pchr->inst.action_which < ACTION_KA || pchr->inst.action_which > ACTION_KD )
     {
         // play the "killed" animation...
-        chr_play_action( character, ACTION_KA + hand, bfalse );
+        chr_play_action( character, ACTION_KA + generate_randmask( 0, 3 ), bfalse );
         pchr->inst.action_keep = btrue;
     }
 
@@ -3911,7 +3911,7 @@ void change_character_full( Uint16 ichr, Uint16 profile, Uint8 skin, Uint8 leave
     // copy the new name
     strncpy( MadList[imad_old].name, MadList[imad_new].name, SDL_arraysize( MadList[imad_old].name ) );
 
-    // change ther model
+    // change their model
     change_character( ichr, profile, skin, leavewhich );
 
     // set the base model to the new model, too
@@ -4084,13 +4084,13 @@ void change_character( Uint16 ichr, Uint16 profile_new, Uint8 skin, Uint8 leavew
     }
 
     // AI stuff
-    pchr->ai.type  = pobj_new->iai;
-    pchr->ai.state = 0;
-    pchr->ai.timer = 0;
+    pchr->ai.type			= pobj_new->iai;
+    pchr->ai.state			= 0;
+    pchr->ai.timer			= 0;	
+	pchr->turnmode			= TURNMODE_VELOCITY;
 
     latch_init( &( pchr->latch ) );
 
-    pchr->turnmode = TURNMODE_VELOCITY;
 
     // Flags
     pchr->stickybutt    = pcap_new->stickybutt;
@@ -4126,8 +4126,8 @@ void change_character( Uint16 ichr, Uint16 profile_new, Uint8 skin, Uint8 leavew
     // even if you cannot cast arcane spells. Some morph spells specifically morph the player
 	// into a fighter or a tech user, but as a balancing factor prevents other spellcasting.
 
-    // Character size and bumping
 
+    // Character size and bumping
     // set the character size so that the new model is the same size as the old model
     // the model will then morph its size to the correct size over time
     {
@@ -4161,8 +4161,11 @@ void change_character( Uint16 ichr, Uint16 profile_new, Uint8 skin, Uint8 leavew
         }
     }
 
+	//Physics
     pchr->phys.bumpdampen = pcap_new->bumpdampen;
-
+	pchr->holdingweight     = 0;
+    pchr->onwhichplatform   = MAX_CHR;
+    
     if ( pcap_new->weight == 0xFF )
     {
         pchr->phys.weight = INFINITE_WEIGHT;
@@ -4182,18 +4185,23 @@ void change_character( Uint16 ichr, Uint16 profile_new, Uint8 skin, Uint8 leavew
     pchr->walkspd  = pcap_new->walkspd;
     pchr->runspd   = pcap_new->runspd;
 
-    // AI and action stuff
-    pchr->inst.action_ready = bfalse;
-    pchr->inst.action_keep  = bfalse;
-    //pchr->inst.action_which = ACTION_DA;		//ZF> Disabled this because when a morphed character died, it would
-    //pchr->inst.action_next  = ACTION_DA;      // not play the death animation...
-	pchr->inst.action_loop  = bfalse;
-    pchr->holdingweight     = 0;
-    pchr->onwhichplatform   = MAX_CHR;
-
     // initialize the instance
     chr_instance_spawn( &( pchr->inst ), profile_new, skin );
     chr_update_matrix( pchr, btrue );
+
+    // Action stuff that must be down after chr_instance_spawn()
+    pchr->inst.action_ready = bfalse;
+	pchr->inst.action_loop  = bfalse;
+    if( pchr->alive )
+	{
+		pchr->inst.action_keep  = bfalse;
+		chr_play_action( ichr, ACTION_DA, bfalse );
+	}
+	else 
+	{
+		chr_play_action( ichr, ACTION_KA + generate_randmask( 0, 3 ), bfalse );
+        pchr->inst.action_keep = btrue;
+	}
 
     // Set the skin after changing the model in chr_instance_spawn()
     change_armor( ichr, skin );
