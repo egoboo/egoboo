@@ -1356,7 +1356,7 @@ void draw_map()
                         {
                             // Valid colors only
                             blipx[numblip] = GET_MAP_X( PMesh, pchr->pos.x );
-                            blipy[numblip] = pchr->pos.y * MAPSIZE / PMesh->gmem.edge_y;
+                            blipy[numblip] = GET_MAP_Y( PMesh, pchr->pos.y ); //pchr->pos.y * MAPSIZE / PMesh->gmem.edge_y;
                             blipc[numblip] = COLOR_RED; // Red blips
                             numblip++;
                         }
@@ -1368,7 +1368,7 @@ void draw_map()
         // draw all the blips
         for ( cnt = 0; cnt < numblip; cnt++ )
         {
-            draw_blip( 0.75f, blipc[cnt], blipx[cnt], blipy[cnt] + sdl_scr.y - MAPSIZE );
+            draw_blip( 0.75f, blipc[cnt], blipx[cnt], blipy[cnt] /*+ sdl_scr.y - MAPSIZE*/ );
         }
         numblip = 0;
 

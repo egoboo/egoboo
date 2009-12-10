@@ -190,10 +190,10 @@ frostlizard:   NONE    48  44.0   16.0   1.0   N    0   0  0   0   0   F   F   E
 frostlizard:   NONE    48  42.0   19.0   1.0   N    0   0  0   0   0   F   F   E
 monsterdrop:   NONE    58  35.0   11.0   1.0   N    0   0  19   46   0   F   F   E
 spork:   NONE    60  36.5   28.5   2.0   W    0   0  0   0   0   F   F   N
-chest:   NONE    64  56.5   8.5   1.0   N    99   0  0   4   0   F   F   N      //Fire trapped
+chest:   NONE    36  56.5   8.5   1.0   N    99   0  0   4   0   F   F   N      //Fire trapped
   Regeneration:   NONE    50  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   Mallet:   NONE    132  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   LifeRing:   NONE    136  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
 monsterdrop:   NONE    58  57.5   40.5   1.0   N    0   0  22   54   0   F   F   E
-achest:   NONE    67  44.5   30.5   1.0   N    0   1  0   3   0   F   F   N
+chest:   NONE    36  44.5   30.5   0.0   N    4   0  0   32   0   F   F   N       //Random armor

@@ -51,35 +51,31 @@ IfTimeOut
   tmpdistance = 128*8
   SetTargetToDistantEnemy
     IfFacingTarget
+      //Growl
+      tmpx = rand & 2047
+      tmpy = 0
+      IfXIsEqualToY
+        tmpargument = 3
+        PlaySound
+
+      //Attack
       tmpx = targetdistance
-      tmpy = 800
+      tmpy = 450
       IfXIsLessThanY
-
-        //Growl
-        tmpx = rand & 2047
-        tmpy = 0
-        IfXIsEqualToY
-          tmpargument = 3
+        tmpx = selfaccel
+        tmpy = 1
+        IfXIsMoreThanY
+          tmpargument = LATCHJUMP
+          PressLatchButton
+          tmpx = targetx - selfx > 4
+          tmpy = targety - selfy > 4
+          SetOldTarget
+          SetTargetToSelf
+          AccelerateTarget
+          SetTargetToOldTarget
+          // Play the attack sound
+          tmpargument = 2
           PlaySound
-
-        //Attack
-        tmpx = targetdistance
-        tmpy = 450
-        IfXIsLessThanY
-          tmpx = selfaccel
-          tmpy = 1
-          IfXIsMoreThanY
-            tmpargument = LATCHJUMP
-            PressLatchButton
-            tmpx = targetx - selfx > 4
-            tmpy = targety - selfy > 4
-            SetOldTarget
-            SetTargetToSelf
-            AccelerateTarget
-            SetTargetToOldTarget
-            // Play the attack sound
-            tmpargument = 2
-            PlaySound
 
       tmpx = targetx
       tmpy = targety
@@ -90,7 +86,7 @@ IfTimeOut
       tmpx = targetx
       tmpy = targety
       tmpturn = targetturnto
-      tmpdistance = 0 - 100
+      tmpdistance = -100
       Compass
     ClearWaypoints
     AddWaypoint

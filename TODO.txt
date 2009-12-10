@@ -8,7 +8,8 @@ MASTER TODO LIST:
 - Troll in Griffin tower doesnt die properly
 - Rare crash bug with Tile Mimics in Sand Palace
 - Game crashes when using specific texture filter modes and billboards.
-- Changing max particles while in the game causes bugs.
+- Spellbooks burn when dropped
+- Boulders in tourist starter did not move.
 
 EGOBOO AWARDS:
 http://img.informer.com/awards/si_editor4.gif
