@@ -56,6 +56,10 @@ struct s_lighting_cache_base
 };
 typedef struct s_lighting_cache_base lighting_cache_base_t;
 
+lighting_cache_base_t * lighting_cache_base_init( lighting_cache_base_t * pdata );
+bool_t                  lighting_cache_base_max_light( lighting_cache_base_t * cache );
+bool_t                  lighting_cache_base_blend( lighting_cache_base_t * cache, lighting_cache_base_t * cnew, float keep );
+
 //--------------------------------------------------------------------------------------------
 struct s_lighting_cache
 {
@@ -67,8 +71,9 @@ struct s_lighting_cache
 };
 typedef struct s_lighting_cache lighting_cache_t;
 
-void lighting_cache_init( lighting_cache_t * pdata );
-
+lighting_cache_t * lighting_cache_init( lighting_cache_t * pdata );
+bool_t             lighting_cache_max_light( lighting_cache_t * cache );
+bool_t             lighting_cache_blend( lighting_cache_t * cache, lighting_cache_t * cnew, float keep );
 //--------------------------------------------------------------------------------------------
 #define MAXDYNADIST                     2700        // Leeway for offscreen lights
 #define TOTAL_MAX_DYNA                    64          // Absolute max number of dynamic lights

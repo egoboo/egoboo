@@ -1335,14 +1335,14 @@ bool_t mesh_test_corners( ego_mpd_t * pmesh, int itile, float threshold )
 
     tile_mem_t    * ptmem;
     light_cache_t * lcache;
-    light_cache_t * dcache;
+    light_cache_t * d1_cache;
 
     if ( NULL == pmesh || !VALID_TILE( pmesh, itile ) ) return bfalse;
     ptmem = &( pmesh->tmem );
 
     // get the normal and lighting cache for this tile
-    lcache = &(ptmem->tile_list[itile].lcache);
-    dcache = &(ptmem->tile_list[itile].dcache);
+    lcache   = &(ptmem->tile_list[itile].lcache);
+    d1_cache = &(ptmem->tile_list[itile].d1_cache);
 
     retval = bfalse;
     for ( corner = 0; corner < 4; corner++ )
@@ -1352,7 +1352,7 @@ bool_t mesh_test_corners( ego_mpd_t * pmesh, int itile, float threshold )
         float          * plight;
         GLXvector3f    * ppos;
 
-        pdelta = ( *dcache ) + corner;
+        pdelta = ( *d1_cache ) + corner;
         plight = ( *lcache ) + corner;
         ppos   = ptmem->plst + ptmem->tile_list[itile].vrtstart + corner;
 
@@ -1378,51 +1378,79 @@ bool_t mesh_test_corners( ego_mpd_t * pmesh, int itile, float threshold )
 
 
 //--------------------------------------------------------------------------------------------
-bool_t mesh_light_corners( ego_mpd_t * pmesh, int itile, float mesh_lighting_keep )
+float mesh_light_corners( ego_mpd_t * pmesh, int itile, float mesh_lighting_keep )
 {
     int corner;
+    float max_delta;
 
     ego_mpd_info_t * pinfo;
     tile_mem_t     * ptmem;
     grid_mem_t     * pgmem;
     normal_cache_t * ncache;
     light_cache_t  * lcache;
-    light_cache_t  * dcache;
+    light_cache_t  * d1_cache, * d2_cache;
 
-    if ( NULL == pmesh || !VALID_TILE( pmesh, itile ) ) return bfalse;
+    if ( NULL == pmesh || !VALID_TILE( pmesh, itile ) ) return 0.0f;
     pinfo = &( pmesh->info );
-    ptmem  = &( pmesh->tmem );
+    ptmem = &( pmesh->tmem );
     pgmem = &( pmesh->gmem );
 
     // get the normal and lighting cache for this tile
-    ncache = &(ptmem->tile_list[itile].ncache);
-    lcache = &(ptmem->tile_list[itile].lcache);
-    dcache = &(ptmem->tile_list[itile].dcache);
+    ncache   = &(ptmem->tile_list[itile].ncache);
+    lcache   = &(ptmem->tile_list[itile].lcache);
+    d1_cache = &(ptmem->tile_list[itile].d1_cache);
+    d2_cache = &(ptmem->tile_list[itile].d2_cache);
 
+    max_delta = 0.0f;
     for ( corner = 0; corner < 4; corner++ )
     {
-        float light;
+        float light_new, light_old, delta, light_tmp;
 
         GLXvector3f    * pnrm;
         float          * plight;
-        float          * pdelta;
+        float          * pdelta1, * pdelta2;
         GLXvector3f    * ppos;
 
-        pnrm   = ( *ncache ) + corner;
-        plight = ( *lcache ) + corner;
-        pdelta = ( *dcache ) + corner;
-        ppos   = ptmem->plst + ptmem->tile_list[itile].vrtstart + corner;
+        pnrm    = ( *ncache ) + corner;
+        plight  = ( *lcache ) + corner;
+        pdelta1 = ( *d1_cache ) + corner;
+        pdelta2 = ( *d2_cache ) + corner;
+        ppos    = ptmem->plst + ptmem->tile_list[itile].vrtstart + corner;
 
-        light = 0.0f;
-        mesh_light_one_corner( pmesh, itile, *ppos, *pnrm, &light );
+        light_new = 0.0f;
+        mesh_light_one_corner( pmesh, itile, *ppos, *pnrm, &light_new );
 
-        *plight = ( *plight ) * mesh_lighting_keep + light * ( 1.0f - mesh_lighting_keep );
+        if( *plight != light_new )
+        {
+            light_old = *plight;
+            *plight = light_old * mesh_lighting_keep + light_new * ( 1.0f - mesh_lighting_keep );
 
-        // clear out the accumulated change when we set the light value
-        *pdelta = 0.0f;
+            // measure the actual delta
+            delta = ABS(light_old - *plight);
+
+            // measure the relative change of the lighting
+            light_tmp = 0.5f * (ABS(*plight) + ABS(light_old));
+            if( 0.0f == light_tmp )
+            {
+                delta = 10.0f;
+            }
+            else
+            {
+                delta /= light_tmp;
+                delta = CLIP( delta, 0.0f, 10.0f );
+            }
+
+            // add in the actual change this update
+            *pdelta2 += ABS(delta);
+
+            // update the estimate to match the actual change
+            *pdelta1 = *pdelta2;
+        }
+
+        max_delta = MAX( max_delta, *pdelta1 );
     }
 
-    return btrue;
+    return max_delta;
 }
 
 //--------------------------------------------------------------------------------------------

@@ -71,8 +71,8 @@ struct s_ego_tile_info
     aabb_t         bb;                         ///< the bounding box for this tile
     normal_cache_t ncache;                     ///< the normals at the corners of this tile
     light_cache_t  lcache;                     ///< the light at the corners of this tile
-    light_cache_t  dcache;                     ///< the accumulated change in the light at the corner of the tile
-
+    light_cache_t  d1_cache;                     ///< the estimated change in the light at the corner of the tile
+    light_cache_t  d2_cache;                     ///< the estimated change in the light at the corner of the tile
 };
 typedef struct s_ego_tile_info ego_tile_info_t;
 
@@ -190,7 +190,7 @@ bool_t mesh_add_fx( ego_mpd_t * pmesh, Uint32 itile, Uint32 flags );
 
 void   mesh_make_twist();
 
-bool_t mesh_light_corners( ego_mpd_t * pmesh, int itile, float mesh_lighting_keep );
+float  mesh_light_corners( ego_mpd_t * pmesh, int itile, float mesh_lighting_keep );
 bool_t mesh_test_corners( ego_mpd_t * pmesh, int itile, float threshold );
 bool_t mesh_interpolate_vertex( tile_mem_t * pmem, int itile, float pos[], float * plight );
 

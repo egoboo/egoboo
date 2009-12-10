@@ -115,34 +115,134 @@ void lighting_vector_sum( lighting_vector_t lvec, fvec3_base_t nrm, float direct
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void lighting_cache_init( lighting_cache_t * pdata )
+lighting_cache_base_t * lighting_cache_base_init( lighting_cache_base_t * cache )
 {
-    if ( NULL == pdata ) return;
+    if( NULL == cache ) return NULL;
 
-    memset( pdata, 0, sizeof( *pdata ) );
+    memset( cache, 0, sizeof(*cache) );
+
+    return cache;
 }
 
+//--------------------------------------------------------------------------------------------
+bool_t lighting_cache_base_max_light( lighting_cache_base_t * cache )
+{
+    int cnt;
+    float max_light;
+
+    // determine the lighting extents
+    max_light = ABS( cache->lighting[0] );
+    for ( cnt = 1; cnt < LIGHTING_VEC_SIZE - 1; cnt++ )
+    {
+        max_light = MAX( max_light, ABS( cache->lighting[cnt] ) );
+    }
+
+    cache->max_light = max_light;
+
+    return btrue;
+}
+
+
+//--------------------------------------------------------------------------------------------
+bool_t lighting_cache_base_blend( lighting_cache_base_t * cold, lighting_cache_base_t * cnew, float keep )
+{
+    int tnc;
+    float max_delta;
+
+    if( NULL == cold || NULL == cnew ) return bfalse;
+
+    // blend this in with the existing lighting
+    if( 1.0f == keep )
+    {
+        // no change from last time
+        max_delta = 0.0f;
+    }
+    else if( 0.0f == keep ) 
+    {
+        max_delta = 0.0f;
+        for ( tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++ )
+        {
+            float delta = ABS( cnew->lighting[tnc] - cold->lighting[tnc] );
+
+            cold->lighting[tnc] = cnew->lighting[tnc];
+
+            max_delta = MAX( max_delta, delta );
+        }
+    }
+    else
+    {
+        max_delta = 0.0f;
+        for ( tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++ )
+        {
+            float ftmp;
+
+            ftmp = cold->lighting[tnc];
+            cold->lighting[tnc] = ftmp * keep + cnew->lighting[tnc] * ( 1.0f - keep );
+            max_delta = MAX( max_delta, ABS(cold->lighting[tnc] - ftmp) );
+        }
+    }
+
+    cold->max_delta = max_delta;
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+lighting_cache_t * lighting_cache_init( lighting_cache_t * cache )
+{
+    if( NULL == cache ) return cache;
+
+    lighting_cache_base_init( &(cache->low) );
+    lighting_cache_base_init( &(cache->hgh) );
+
+    cache->max_delta = 0.0f;
+    cache->max_light = 0.0f;
+
+    return cache;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t lighting_cache_max_light( lighting_cache_t * cache )
+{
+    if( NULL == cache ) return bfalse;
+
+    // determine the lighting extents
+    lighting_cache_base_max_light( &(cache->low) );
+    lighting_cache_base_max_light( &(cache->hgh) );
+
+    // set the maximum direct light
+    cache->max_light = MAX( cache->low.max_light, cache->hgh.max_light );
+
+    return btrue;
+}
+
+
+//--------------------------------------------------------------------------------------------
+bool_t lighting_cache_blend( lighting_cache_t * cache, lighting_cache_t * cnew, float keep )
+{
+    if( NULL == cache || NULL == cnew ) return bfalse;
+
+    // find deltas
+    lighting_cache_base_blend( &(cache->low), (&cnew->low), keep );
+    lighting_cache_base_blend( &(cache->hgh), (&cnew->hgh), keep );
+
+    // find the absolute maximum delta
+    cache->max_delta = MAX( cache->low.max_delta, cache->hgh.max_delta );
+
+    return btrue;
+}
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 bool_t lighting_project_cache( lighting_cache_t * dst, lighting_cache_t * src, fmat_4x4_t mat )
 {
-    int cnt;
     fvec3_t   fwd, right, up;
 
-    // blank the destination lighting
-    if ( NULL == dst ) return bfalse;
-
-    dst->max_light     = 0.0f;
-    dst->low.max_light = 0.0f;
-    dst->hgh.max_light = 0.0f;
-    for ( cnt = 0; cnt < LIGHTING_VEC_SIZE; cnt++ )
-    {
-        dst->low.lighting[cnt] = 0.0f;
-        dst->hgh.lighting[cnt] = 0.0f;
-    }
-
     if ( NULL == src ) return bfalse;
+
+    // blank the destination lighting
+    if ( NULL == lighting_cache_init( dst ) ) return bfalse;
 
     // do the ambient
     dst->low.lighting[LVEC_AMB] = src->low.lighting[LVEC_AMB];
@@ -165,14 +265,7 @@ bool_t lighting_project_cache( lighting_cache_t * dst, lighting_cache_t * src, f
     lighting_sum_project( dst, src, up,    4 );
 
     // determine the lighting extents
-    dst->low.max_light = ABS( dst->low.lighting[0] );
-    dst->hgh.max_light = ABS( dst->hgh.lighting[0] );
-    for ( cnt = 1; cnt < LIGHTING_VEC_SIZE - 1; cnt++ )
-    {
-        dst->low.max_light = MAX( dst->low.max_light, ABS( dst->low.lighting[cnt] ) );
-        dst->hgh.max_light = MAX( dst->hgh.max_light, ABS( dst->hgh.lighting[cnt] ) );
-    }
-    dst->max_light = MAX( dst->low.max_light, dst->hgh.max_light );
+    lighting_cache_max_light( dst );
 
     return btrue;
 }
@@ -180,21 +273,12 @@ bool_t lighting_project_cache( lighting_cache_t * dst, lighting_cache_t * src, f
 //--------------------------------------------------------------------------------------------
 bool_t lighting_cache_interpolate( lighting_cache_t * dst, lighting_cache_t * src[], float u, float v )
 {
-    int   cnt, tnc;
+    int   tnc;
     float wt_sum;
 
-    if ( NULL == dst ) return bfalse;
-
-    dst->max_light     = 0.0f;
-    dst->low.max_light = 0.0f;
-    dst->hgh.max_light = 0.0f;
-    for ( cnt = 0; cnt < LIGHTING_VEC_SIZE; cnt++ )
-    {
-        dst->low.lighting[cnt] = 0.0f;
-        dst->hgh.lighting[cnt] = 0.0f;
-    }
-
     if ( NULL == src ) return bfalse;
+
+    if ( NULL == lighting_cache_init(dst) ) return bfalse;
 
     u = CLIP( u, 0.0f, 1.0f );
     v = CLIP( v, 0.0f, 1.0f );
@@ -257,14 +341,7 @@ bool_t lighting_cache_interpolate( lighting_cache_t * dst, lighting_cache_t * sr
         }
 
         // determine the lighting extents
-        dst->low.max_light = ABS( dst->low.lighting[0] );
-        dst->hgh.max_light = ABS( dst->hgh.lighting[0] );
-        for ( cnt = 1; cnt < LIGHTING_VEC_SIZE - 1; cnt++ )
-        {
-            dst->low.max_light = MAX( dst->low.max_light, ABS( dst->low.lighting[cnt] ) );
-            dst->hgh.max_light = MAX( dst->hgh.max_light, ABS( dst->hgh.lighting[cnt] ) );
-        }
-        dst->max_light = MAX( dst->low.max_light, dst->hgh.max_light );
+        lighting_cache_max_light( dst );
     }
 
     return wt_sum > 0.0f;
@@ -296,9 +373,9 @@ float lighting_cache_test( lighting_cache_t * src[], float u, float v, float * l
     {
         float wt = ( 1.0f - u ) * ( 1.0f - v );
 
-        delta     = wt * src[0]->max_delta;
-        *low_delta = wt * src[0]->low.max_delta;
-        *hgh_delta = wt * src[0]->hgh.max_delta;
+        delta      += wt * src[0]->max_delta;
+        *low_delta += wt * src[0]->low.max_delta;
+        *hgh_delta += wt * src[0]->hgh.max_delta;
 
         wt_sum += wt;
     }
@@ -307,9 +384,9 @@ float lighting_cache_test( lighting_cache_t * src[], float u, float v, float * l
     {
         float wt = u * ( 1.0f - v );
 
-        delta     = wt * src[1]->max_delta;
-        *low_delta = wt * src[1]->low.max_delta;
-        *hgh_delta = wt * src[1]->hgh.max_delta;
+        delta      += wt * src[1]->max_delta;
+        *low_delta += wt * src[1]->low.max_delta;
+        *hgh_delta += wt * src[1]->hgh.max_delta;
 
         wt_sum += wt;
     }
@@ -318,9 +395,9 @@ float lighting_cache_test( lighting_cache_t * src[], float u, float v, float * l
     {
         float wt = ( 1.0f - u ) * v;
 
-        delta     = wt * src[2]->max_delta;
-        *low_delta = wt * src[2]->low.max_delta;
-        *hgh_delta = wt * src[2]->hgh.max_delta;
+        delta      += wt * src[2]->max_delta;
+        *low_delta += wt * src[2]->low.max_delta;
+        *hgh_delta += wt * src[2]->hgh.max_delta;
 
         wt_sum += wt;
     }
@@ -329,9 +406,9 @@ float lighting_cache_test( lighting_cache_t * src[], float u, float v, float * l
     {
         float wt = u * v;
 
-        delta     = wt * src[3]->max_delta;
-        *low_delta = wt * src[3]->low.max_delta;
-        *hgh_delta = wt * src[3]->hgh.max_delta;
+        delta      += wt * src[3]->max_delta;
+        *low_delta += wt * src[3]->low.max_delta;
+        *hgh_delta += wt * src[3]->hgh.max_delta;
 
         wt_sum += wt;
     }
