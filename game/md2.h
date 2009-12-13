@@ -18,129 +18,109 @@
 //*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
+///
+/// @file
+/// @brief Md2 Model display routines
+/// @details Adapted from "Tactics - MD2_Model.h" by Jonathan Fischer
+///   A class for loading/using Quake 2 and Egoboo md2 models.
+///   Creating/destroying objects of this class is done in the same fashion as
+///   Textures, so see Texture.h for details.
 
-/// @file Md2.h
 
 #include "id_md2.h"
+
 #include "egoboo_typedef.h"
 #include "physics.h"
 
-#define MAXVERTICES                     2048        ///< Max number of points in a model
-#define MAXFRAME                        (128*32)    ///< Max number of frames in all models
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+#define EGO_NORMAL_COUNT  (MD2_MAX_NORMALS + 1)
+#define EGO_AMBIENT_INDEX  MD2_MAX_NORMALS
 
-#define MAXCOMMAND                      512         ///< Max number of commands
-#define MAXCOMMANDSIZE                  128          ///< Max number of points in a command
-#define MAXCOMMANDENTRIES               512         ///< Max entries in a command list ( trigs )
-
-#define MD2_MAGIC_NUMBER                        0x32504449      ///< MD2 files start with these four bytes
-#define MD2MAXLOADSIZE                  (512*1024)      ///< Don't load any models bigger than 512k
-
-#define MADLIGHTINDICES                 (MD2_MAX_NORMALS + 1) ///< MD2's store vertices as x,y,z,normal
-#define EQUALLIGHTINDEX                 162                ///< I added an extra index to do the spikey mace...
-
-/// egoboo's OpenGL commandlist for md2 data
-struct s_md2_ogl_commandlist
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+typedef struct s_ego_md2_vertex
 {
-    Uint16  count;                  ///< Number of commands
-    Uint16  entries;                ///< Number of command entries
+    fvec3_t pos;
+    fvec3_t nrm;
+    int     normal;  ///< index to id-normal array
+} MD2_Vertex_t;
 
-    GLenum  type[MAXCOMMAND];       ///< Fan or strip
-    Uint16  size[MAXCOMMAND];       ///< Entries used by command
+//--------------------------------------------------------------------------------------------
+typedef struct s_ego_md2_texcoord
+{
+    fvec2_t tex;
+} MD2_TexCoord_t;
 
-    Uint16  vrt[MAXCOMMANDENTRIES]; ///< Which vertex
-    float   u[MAXCOMMANDENTRIES];   ///< Texture position
-    float   v[MAXCOMMANDENTRIES];
+//--------------------------------------------------------------------------------------------
+typedef struct s_ego_md2_frame
+{
+    char          name[16];
+    MD2_Vertex_t *vertices;
+
+    oct_bb_t      bb;             ///< axis-aligned octagonal bounding box limits
+    int           framelip;       ///< the position in the current animation
+    Uint32        framefx;        ///< the special effects associated with this frame
+} MD2_Frame_t;
+
+//--------------------------------------------------------------------------------------------
+typedef id_md2_triangle_t MD2_Triangle_t;
+
+//--------------------------------------------------------------------------------------------
+typedef id_md2_skin_t MD2_SkinName_t;
+
+//--------------------------------------------------------------------------------------------
+struct s_ego_md2_glcommand
+{
+  struct s_ego_md2_glcommand * next;
+
+  GLenum              gl_mode;
+  signed int          command_count;
+  id_glcmd_packed_t * data;
 };
-typedef struct s_md2_ogl_commandlist md2_ogl_commandlist_t;
+typedef struct s_ego_md2_glcommand MD2_GLCommand_t;
 
-/// egoboo's md2 model info definition
-struct s_ego_md2
+void MD2_GLCommand_construct(MD2_GLCommand_t * m);
+void MD2_GLCommand_destruct(MD2_GLCommand_t * m);
+
+MD2_GLCommand_t * MD2_GLCommand_new( void );
+MD2_GLCommand_t * MD2_GLCommand_new_vector(int n);
+void              MD2_GLCommand_delete(MD2_GLCommand_t * m);
+void              MD2_GLCommand_delete_vector(MD2_GLCommand_t * v, int n);
+
+//--------------------------------------------------------------------------------------------
+struct s_ego_md2_model
 {
-    md2_ogl_commandlist_t cmd;
+  int m_numVertices;
+  int m_numTexCoords;
+  int m_numTriangles;
+  int m_numSkins;
+  int m_numFrames;
+  int m_numCommands;
 
-    Uint16  frames;                        ///< Number of frames
-    Uint16  framestart;                    ///< Starting frame of model
-    Uint16  vertices;                      ///< Number of vertices
+  MD2_SkinName_t  *m_skins;
+  MD2_TexCoord_t  *m_texCoords;
+  MD2_Triangle_t  *m_triangles;
+  MD2_Frame_t     *m_frames;
+  MD2_GLCommand_t *m_commands;
 };
-typedef struct s_ego_md2 ego_md2_t;
+typedef struct s_ego_md2_model MD2_Model_t;
 
-/// egoboo's md2 vertex definition
-typedef struct Md2Vertex
-{
-    float x, y, z;
-    unsigned normal;  ///< index to id-normal array
-} Md2Vertex;
+// CTORS
+void          md2_construct(MD2_Model_t * m);
+void          md2_destruct(MD2_Model_t * m);
+MD2_Model_t * md2_new( void );
+MD2_Model_t * md2_new_vector(int n);
+void          md2_delete(MD2_Model_t * m);
+void          md2_delete_vector(MD2_Model_t * v, int n);
 
-/// egoboo's md2 texture coordinate definition
-typedef struct Md2TexCoord
-{
-    float s, t;
-} Md2TexCoord;
+// Other functions
+MD2_Model_t * md2_load(const char * szFilename, MD2_Model_t* m);
+void          md2_deallocate(MD2_Model_t * m);
+void          md2_scale_model(MD2_Model_t * pmd2, float scale_x, float scale_y, float scale_z);
 
-/// egoboo's md2 triangle definition
-typedef struct Md2Triangle
-{
-    short vertexIndices[3];
-    short texCoordIndices[3];
-} Md2Triangle;
-
-/// egoboo's md2 frame definition
-typedef struct Md2Frame
-{
-    char name[16];
-    float min[3], max[3];    ///< axis-aligned bounding box limits
-    Md2Vertex *vertices;
-} Md2Frame;
-
-/// egoboo's md2 skin name definition
-typedef struct Md2SkinName
-{
-    char name[64];
-} Md2SkinName;
-
-/// egoboo's md2 model definition
-typedef struct Md2Model
-{
-    int numVertices;
-    int numTexCoords;
-    int numTriangles;
-    int numSkins;
-    int numFrames;
-
-    Md2SkinName *skins;
-    Md2TexCoord *texCoords;
-    Md2Triangle *triangles;
-    Md2Frame    *frames;
-} Md2Model;
-
-/// egoboo's md2 frame definition
-struct s_md2_frame
-{
-    Uint8   framelip;                      ///< 0-15, How far into action is each frame
-    Uint16  framefx;                       ///< Invincibility, Spawning
-
-    float   vrtx[MAXVERTICES];             ///< Vertex position
-    float   vrty[MAXVERTICES];
-    float   vrtz[MAXVERTICES];
-    Uint8   vrta[MAXVERTICES];             ///< Light index of vertex
-
-    oct_bb_t bbox;                         ///< a bounding box for this frame
-};
-typedef struct s_md2_frame md2_frame_t;
-
-extern int Md2FrameList_index;                               ///< Where to load next frame
-extern md2_frame_t Md2FrameList[MAXFRAME];                   ///< globally accessible md2 data
-
-extern float kMd2Normals[MADLIGHTINDICES][3];                ///< globally accessible md2 normal data
-
-extern char cFrameName[16];                                  ///< name of the current md2 frame being ripped
-
-// Function prototypes
-int    md2_rip_frame_name( int frame );
-void   md2_rip_frames( ego_md2_t * pflist );
-bool_t md2_load_one( const char* szLoadname, ego_md2_t * pmd2 );
-
-//Md2Model *md2_loadFromFile( const char *fileName );
-void      md2_freeModel( Md2Model *model );
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+extern float kMd2Normals[EGO_NORMAL_COUNT][3];
 
 #define EGOBOO_MD2_H

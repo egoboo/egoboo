@@ -476,7 +476,7 @@ void log_madused( const char *savename )
     if ( hFileWrite )
     {
         vfs_printf( hFileWrite, "Slot usage for objects in last module loaded...\n" );
-        vfs_printf( hFileWrite, "%d of %d frames used...\n", Md2FrameList_index, MAXFRAME );
+        //vfs_printf( hFileWrite, "%d of %d frames used...\n", Md2FrameList_index, MAXFRAME );
         cnt = 0;
 
         while ( cnt < MAX_PROFILE )

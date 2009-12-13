@@ -33,7 +33,7 @@
 #include "sound.h"
 #include "camera.h"
 #include "input.h"
-#include "md2.h"
+#include "Md2.inl"
 #include "passage.h"
 #include "graphic.h"
 #include "game.h"
@@ -139,9 +139,9 @@ void flash_character_height( Uint16 character, Uint8 valuelow, Sint16 low,
     pmad = chr_get_pmad( character );
     if ( NULL == pmad ) return;
 
-    for ( cnt = 0; cnt < ego_md2_data[pmad->md2_ref].vertices; cnt++ )
+    for ( cnt = 0; cnt < pinst->vlst_size; cnt++ )
     {
-        z = Md2FrameList[pinst->frame_nxt].vrtz[cnt];
+        z = pinst->vlst[cnt].pos[ZZ];
 
         if ( z < low )
         {
@@ -400,6 +400,9 @@ bool_t ChrList_free_one( Uint16 ichr )
 
     pchr = ChrList.lst + ichr;
 
+    // deallocate any dynamically allocated memory
+    chr_instance_free_one( &(pchr->inst) );
+
     // character "destructor"
     // sets all boolean values to false, incluting the "on" flag
     chr_init( pchr );
@@ -582,7 +585,7 @@ void place_particle_at_vertex( Uint16 particle, Uint16 character, int vertex_off
         vertex = 0;
         if ( NULL != pmad )
         {
-            vertex = ego_md2_data[pmad->md2_ref].vertices - vertex_offset;
+            vertex = pchr->inst.vlst_size - vertex_offset;
 
             // do the automatic update
             chr_instance_update_vertices( &( pchr->inst ), vertex, vertex, bfalse );
@@ -1668,7 +1671,7 @@ bool_t character_grab_stuff( Uint16 ichr_a, grip_offset_t grip_off, bool_t grab_
     {
         // Transform the weapon grip_off from pchr_a->iprofile to world space
         frame_nxt = pchr_a->inst.frame_nxt;
-        vertex    = ego_md2_data[chr_get_pmad( ichr_a )->md2_ref].vertices - grip_off;
+        vertex    = pchr_a->inst.vlst_size - grip_off;
 
         // do the automatic update
         chr_instance_update_vertices( &( pchr_a->inst ), vertex, vertex, bfalse );
@@ -2977,7 +2980,7 @@ int damage_character( Uint16 character, Uint16 direction,
                 if ( HAS_NO_BITS( effects, DAMFX_NBLOC ) )
                 {
                     // Only actual_damage if hitting from proper direction
-                    if ( Md2FrameList[pchr->inst.frame_nxt].framefx & MADFX_INVICTUS )
+                    if ( chr_get_framefx( pchr ) & MADFX_INVICTUS )
                     {
                         // I Frame...
                         direction -= pcap->iframefacing;
@@ -4946,6 +4949,11 @@ void move_one_character_do_volontary( chr_t * pchr )
     float new_ax, new_ay;
     Uint16 ichr;
 
+    mad_t       * pmad;
+    int           frame_count;
+    MD2_Frame_t * frame_list;  
+    MD2_Frame_t * pframe_nxt; 
+
     if ( !ACTIVE_PCHR( pchr ) ) return;
 
     ichr = GET_INDEX_PCHR( pchr );
@@ -4958,6 +4966,12 @@ void move_one_character_do_volontary( chr_t * pchr )
     pchr->enviro.new_vy = pchr->vel.y;
 
     if ( ACTIVE_CHR( pchr->attachedto ) ) return;
+
+    pmad        = chr_get_pmad( GET_INDEX_PCHR( pchr ) );
+    frame_count = md2_get_numFrames( pmad->md2_ptr );
+    frame_list  = md2_get_Frames( pmad->md2_ptr );
+    pframe_nxt  = frame_list + pchr->inst.frame_nxt;
+    assert( pchr->inst.frame_nxt < frame_count );
 
     // Character latches for generalized movement
     dvx = pchr->latch.x;
@@ -5117,7 +5131,7 @@ void move_one_character_do_volontary( chr_t * pchr )
 
     }
 
-    if ( Md2FrameList[pchr->inst.frame_nxt].framefx & MADFX_STOP )
+    if ( chr_get_framefx( pchr ) & MADFX_STOP )
     {
         new_ax = 0;
         new_ay = 0;
@@ -5722,35 +5736,37 @@ void move_one_character_do_animation( chr_t * pchr )
         // handle frame FX for the new frame
         if ( pinst->ilip == 3 )
         {
+            Uint32 framefx = chr_get_framefx( pchr );
+
             // Check frame effects
-            if ( Md2FrameList[pinst->frame_nxt].framefx&MADFX_ACTLEFT )
+            if ( framefx&MADFX_ACTLEFT )
                 character_swipe( ichr, SLOT_LEFT );
 
-            if ( Md2FrameList[pinst->frame_nxt].framefx&MADFX_ACTRIGHT )
+            if ( framefx&MADFX_ACTRIGHT )
                 character_swipe( ichr, SLOT_RIGHT );
 
-            if ( Md2FrameList[pinst->frame_nxt].framefx&MADFX_GRABLEFT )
+            if ( framefx&MADFX_GRABLEFT )
                 character_grab_stuff( ichr, GRIP_LEFT, bfalse );
 
-            if ( Md2FrameList[pinst->frame_nxt].framefx&MADFX_GRABRIGHT )
+            if ( framefx&MADFX_GRABRIGHT )
                 character_grab_stuff( ichr, GRIP_RIGHT, bfalse );
 
-            if ( Md2FrameList[pinst->frame_nxt].framefx&MADFX_CHARLEFT )
+            if ( framefx&MADFX_CHARLEFT )
                 character_grab_stuff( ichr, GRIP_LEFT, btrue );
 
-            if ( Md2FrameList[pinst->frame_nxt].framefx&MADFX_CHARRIGHT )
+            if ( framefx&MADFX_CHARRIGHT )
                 character_grab_stuff( ichr, GRIP_RIGHT, btrue );
 
-            if ( Md2FrameList[pinst->frame_nxt].framefx&MADFX_DROPLEFT )
+            if ( framefx&MADFX_DROPLEFT )
                 detach_character_from_mount( pchr->holdingwhich[SLOT_LEFT], bfalse, btrue );
 
-            if ( Md2FrameList[pinst->frame_nxt].framefx&MADFX_DROPRIGHT )
+            if ( framefx&MADFX_DROPRIGHT )
                 detach_character_from_mount( pchr->holdingwhich[SLOT_RIGHT], bfalse, btrue );
 
-            if ( Md2FrameList[pinst->frame_nxt].framefx&MADFX_POOF && !pchr->isplayer )
+            if ( framefx&MADFX_POOF && !pchr->isplayer )
                 pchr->ai.poof_time = update_wld;
 
-            if ( Md2FrameList[pinst->frame_nxt].framefx&MADFX_FOOTFALL )
+            if ( framefx&MADFX_FOOTFALL )
             {
                 int ifoot = pro_get_pcap( pchr->iprofile )->soundindex[SOUND_FOOTFALL];
                 if ( VALID_SND( ifoot ) )
@@ -5809,7 +5825,12 @@ void move_one_character_do_animation( chr_t * pchr )
     // Get running, walking, sneaking, or dancing, from speed
     if ( !pchr->inst.action_keep && !pchr->inst.action_loop )
     {
-        framelip = Md2FrameList[pinst->frame_nxt].framelip;  // 0 - 15...  Way through animation
+        int           frame_count = md2_get_numFrames( pmad->md2_ptr );
+        MD2_Frame_t * frame_list  = md2_get_Frames( pmad->md2_ptr );
+        MD2_Frame_t * pframe_nxt  = frame_list + pchr->inst.frame_nxt;
+        assert( pchr->inst.frame_nxt < frame_count );
+
+        framelip = pframe_nxt->framelip;  // 0 - 15...  Way through animation
         if ( pchr->inst.action_ready && pinst->ilip == 0 && pchr->enviro.grounded && pchr->flyheight == 0 && ( framelip&7 ) < 2 )
         {
             // Do the motion stuff
@@ -6041,7 +6062,7 @@ bool_t is_invictus_direction( Uint16 direction, Uint16 character, Uint16 effects
     cap_t * pcap;
     mad_t * pmad;
 
-    bool_t is_invictus;
+    bool_t  is_invictus;
 
     if ( !ACTIVE_CHR( character ) ) return btrue;
     pchr = ChrList.lst + character;
@@ -6056,7 +6077,7 @@ bool_t is_invictus_direction( Uint16 direction, Uint16 character, Uint16 effects
     if ( pchr->invictus ) return btrue;
 
     // if the character's frame is invictus, then check the angles
-    if ( Md2FrameList[pchr->inst.frame_nxt].framefx & MADFX_INVICTUS )
+    if ( chr_get_framefx( pchr ) & MADFX_INVICTUS )
     {
         // I Frame
         if ( effects & DAMFX_NBLOC )
@@ -6171,6 +6192,48 @@ chr_instance_t * chr_instance_init( chr_instance_t * pinst )
 }
 
 //--------------------------------------------------------------------------------------------
+bool_t chr_instance_dealloc( chr_instance_t * pinst )
+{
+    if( NULL == pinst ) return bfalse;
+
+    if( NULL != pinst->vlst )
+    {
+        EGOBOO_DELETE_ARY(pinst->vlst);
+    }
+    pinst->vlst_size = 0;
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t chr_instance_alloc( chr_instance_t * pinst, size_t vlst_size )
+{
+    if( NULL == pinst ) return bfalse;
+
+    chr_instance_dealloc( pinst );
+
+    if( 0 == vlst_size ) return btrue;
+
+    pinst->vlst = EGOBOO_NEW_ARY( GLvertex, vlst_size );
+    if( NULL != pinst->vlst )
+    {
+        pinst->vlst_size = vlst_size;
+    }
+
+    return (NULL != pinst->vlst);
+}
+
+//--------------------------------------------------------------------------------------------
+void chr_instance_free_one( chr_instance_t * pinst )
+{
+    if( NULL == pinst ) return;
+
+    chr_instance_dealloc( pinst );
+
+    memset( pinst, 0, sizeof(*pinst) );
+}
+
+//--------------------------------------------------------------------------------------------
 bool_t chr_instance_set_mad( chr_instance_t * pinst, Uint16 imad )
 {
     /// @details BB@> try to set the model used by the character instance.
@@ -6180,6 +6243,7 @@ bool_t chr_instance_set_mad( chr_instance_t * pinst, Uint16 imad )
 
     mad_t * pmad;
     bool_t updated = bfalse;
+    int vlst_size;
 
     if ( !LOADED_MAD( imad ) ) return bfalse;
     pmad = MadList + imad;
@@ -6191,17 +6255,18 @@ bool_t chr_instance_set_mad( chr_instance_t * pinst, Uint16 imad )
     }
 
     // set the vertex size
-    if ( pinst->vlst_size != ego_md2_data[pmad->md2_ref].vertices )
+    vlst_size = md2_get_numVertices(pmad->md2_ptr);
+    if ( pinst->vlst_size != vlst_size )
     {
         updated = btrue;
-        pinst->vlst_size = ego_md2_data[pmad->md2_ref].vertices;
+        chr_instance_alloc(pinst, vlst_size);
     }
 
     // set the frames to frame 0 of this object's data
-    if ( pinst->frame_nxt != ego_md2_data[pmad->md2_ref].framestart || pinst->frame_lst != ego_md2_data[pmad->md2_ref].framestart )
+    if ( pinst->frame_nxt != 0 || pinst->frame_lst != 0 )
     {
         updated = btrue;
-        pinst->frame_nxt = pinst->frame_lst = ego_md2_data[pmad->md2_ref].framestart;
+        pinst->frame_nxt = pinst->frame_lst = 0;
     }
 
     if ( updated )
@@ -7477,10 +7542,10 @@ int get_grip_verts( Uint16 grip_verts[], Uint16 imount, int vrt_offset )
     pmount_mad = chr_get_pmad( imount );
     if ( NULL == pmount_mad ) return 0;
 
-    if ( 0 == ego_md2_data[pmount_mad->md2_ref].vertices ) return 0;
+    if ( 0 == pmount->inst.vlst_size ) return 0;
 
     //---- set the proper weapongrip vertices
-    tnc = ego_md2_data[pmount_mad->md2_ref].vertices - vrt_offset;
+    tnc = pmount->inst.vlst_size - vrt_offset;
 
     // if the starting vertex is less than 0, just take the first vertex
     if ( tnc < 0 )
@@ -7492,7 +7557,7 @@ int get_grip_verts( Uint16 grip_verts[], Uint16 imount, int vrt_offset )
     vrt_count = 0;
     for ( i = 0; i < GRIP_VERTS; i++ )
     {
-        if ( tnc + i < ego_md2_data[pmount_mad->md2_ref].vertices )
+        if ( tnc + i < pmount->inst.vlst_size )
         {
             grip_verts[i] = tnc + i;
             vrt_count++;
@@ -8669,6 +8734,31 @@ bool_t chr_can_mount( Uint16 ichr_a, Uint16 ichr_b )
 }
 
 //--------------------------------------------------------------------------------------------
+Uint32 chr_get_framefx( chr_t * pchr )
+{
+    int           frame_count;
+    MD2_Frame_t * frame_list, * pframe_nxt;
+    mad_t       * pmad;
+    MD2_Model_t * pmd2;
+
+    if( !ACTIVE_PCHR(pchr) ) return 0;
+
+    pmad = chr_get_pmad( GET_INDEX_PCHR(pchr) );
+    if( NULL == pmad ) return 0;
+
+    pmd2 = pmad->md2_ptr;
+    if( NULL == pmd2 ) return 0;
+
+    frame_count = md2_get_numFrames( pmd2 );
+    assert( pchr->inst.frame_nxt < frame_count );
+
+    frame_list  = md2_get_Frames( pmd2 );
+    pframe_nxt  = frame_list + pchr->inst.frame_nxt;
+
+    return pframe_nxt->framefx;
+};
+
+//--------------------------------------------------------------------------------------------
 /*void kill_character( Uint16 character, Uint16 killer )
 {
     /// @details ZZ@> This function kills a character...  MAX_CHR killer for accidental death
@@ -8709,4 +8799,3 @@ bool_t chr_can_mount( Uint16 ichr_a, Uint16 ichr_b )
         pchr->damagethreshold = threshold;
     }
 }*/
-

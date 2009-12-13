@@ -23,6 +23,8 @@
 
 #include "mad.h"
 
+#include "Md2.inl"
+
 #include "cap_file.h"
 #include "particle.h"
 
@@ -39,7 +41,7 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-ego_md2_t  ego_md2_data[MAX_PROFILE]; ///< the old-style md2 data
+//ego_md2_t  ego_md2_data[MAX_PROFILE]; ///< the old-style md2 data
 
 mad_t   MadList[MAX_PROFILE];
 
@@ -52,7 +54,7 @@ static Uint16 action_number();
 static void   action_check_copy( const char* loadname, Uint16 object );
 static void   action_copy_correct( Uint16 object, Uint16 actiona, Uint16 actionb );
 
-static void   mad_get_framefx( int frame );
+static void   mad_get_framefx( const char * cFrameName, int model, int frame );
 static void   mad_get_walk_frame( Uint16 object, int lip, int action );
 static void   mad_make_framelip( Uint16 object, int action );
 static void   mad_rip_actions( Uint16 object );
@@ -70,7 +72,7 @@ static mad_t * mad_init( mad_t * pmad );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-Uint16 action_number()
+Uint16 action_number( const char * cFrameName )
 {
     /// @details ZZ@> This function returns the number of the action in cFrameName, or
     ///    it returns NOACTION if it could not find a match
@@ -323,7 +325,7 @@ void mad_get_walk_frame( Uint16 object, int lip, int action )
 }
 
 //--------------------------------------------------------------------------------------------
-void mad_get_framefx( int frame )
+void mad_get_framefx( const char * cFrameName, int model, int frame )
 {
     /// @details ZZ@> This function figures out the IFrame invulnerability, and Attack, Grab, and
     ///               Drop timings
@@ -347,6 +349,18 @@ void mad_get_framefx( int frame )
 
     char * ptmp, * ptmp_end, *paction, *paction_end;
 
+    MD2_Model_t * md2;
+    MD2_Frame_t * pframe;
+
+    if( !VALID_MAD_RANGE(model) ) return;
+
+    md2 = MadList[model].md2_ptr;
+    if( NULL == md2 ) return;
+
+    // check for a valid frame number
+    if ( frame >= md2_get_numFrames(md2) ) return;
+    pframe = md2_get_Frames(md2) + frame;
+
     // this should only be initializwd the first time through
     if ( token_count < 0 )
     {
@@ -354,12 +368,9 @@ void mad_get_framefx( int frame )
         for ( cnt = 0; NULL != tokens[token_count] && cnt < 256; cnt++ ) token_count++;
     }
 
-    // check for a valid frame number
-    if ( frame >= MAXFRAME ) return;
-
     // set the default values
     fx = 0;
-    Md2FrameList[frame].framefx = fx;
+    pframe->framefx = fx;
 
     // check for a non-trivial frame name
     if ( !VALID_CSTR( cFrameName ) ) return;
@@ -519,7 +530,7 @@ void mad_get_framefx( int frame )
         }
     }
 
-    Md2FrameList[frame].framefx = fx;
+    pframe->framefx = fx;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -527,25 +538,35 @@ void mad_make_framelip( Uint16 object, int action )
 {
     /// @details ZZ@> This helps make walking look right
 
-    int frame, framesinaction;
-    mad_t * pmad;
+    int frame_count, frame, framesinaction;
+
+    mad_t       * pmad;
+    MD2_Model_t * md2;
+    MD2_Frame_t * frame_list, * pframe;
 
     if ( !LOADED_MAD( object ) ) return;
     pmad = MadList + object;
+
+    md2 = pmad->md2_ptr;
+    if( NULL == md2 ) return;
 
     action = mad_get_action( object, action );
     if ( ACTION_COUNT == action || ACTION_DA == action ) return;
 
     if ( !pmad->action_valid[action] ) return;
 
-    framesinaction = pmad->action_end[action] - pmad->action_stt[action];
-    frame = pmad->action_stt[action];
+    frame_count = md2_get_numFrames( md2 );
+    frame_list = md2_get_Frames( md2 );
 
-    while ( frame < pmad->action_end[action] )
+    framesinaction = pmad->action_end[action] - pmad->action_stt[action];
+    
+    for ( frame = pmad->action_stt[action]; frame < pmad->action_end[action]; frame++ )
     {
-        Md2FrameList[frame].framelip = ( frame - pmad->action_stt[action] ) * 15 / framesinaction;
-        Md2FrameList[frame].framelip = ( Md2FrameList[frame].framelip ) & 15;
-        frame++;
+        if( frame > frame_count ) continue;
+        pframe = frame_list + frame;
+
+        pframe->framelip = ( frame - pmad->action_stt[action] ) * 15 / framesinaction;
+        pframe->framelip = ( pframe->framelip ) & 15;
     }
 
 }
@@ -554,22 +575,25 @@ void mad_make_framelip( Uint16 object, int action )
 void mad_make_equally_lit( int model )
 {
     /// @details ZZ@> This function makes ultra low poly models look better
-    int frame, cnt, vert;
+
+    int cnt, vert;
+
     if ( MadList[model].loaded )
     {
-        frame = ego_md2_data[MadList[model].md2_ref].framestart;
+        MD2_Model_t * md2;
+        int frame_count, vert_count;
+        
+        md2         = MadList[model].md2_ptr;
+        frame_count = md2_get_numFrames(md2);
+        vert_count  = md2_get_numVertices(md2);
 
-        for ( cnt = 0; cnt < ego_md2_data[MadList[model].md2_ref].frames; cnt++ )
+        for ( cnt = 0; cnt < frame_count; cnt++ )
         {
-            vert = 0;
-
-            while ( vert < MAXVERTICES )
+            MD2_Frame_t * pframe = md2_get_Frames(md2);
+            for ( vert = 0; vert < vert_count; vert++ )
             {
-                Md2FrameList[frame].vrta[vert] = EQUALLIGHTINDEX;
-                vert++;
+                pframe->vertices[vert].normal = EGO_AMBIENT_INDEX;
             }
-
-            frame++;
         }
     }
 }
@@ -640,9 +664,6 @@ Uint16 load_one_model_profile( const char* tmploadname, Uint16 imad )
     // mark it as used
     pmad->loaded = btrue;
 
-    // do this for now. maybe make it dynamic later...
-    pmad->md2_ref = imad;
-
     // Make up a name for the model...  IMPORT\TEMP0000.OBJ
     strncpy( pmad->name, tmploadname, SDL_arraysize( pmad->name ) );
     pmad->name[ SDL_arraysize( pmad->name ) - 1 ] = CSTR_END;
@@ -666,16 +687,25 @@ Uint16 load_one_model_profile( const char* tmploadname, Uint16 imad )
 
 #endif
 
+    // do this for now. maybe make it dynamic later...
+    //pmad->md2_ref = imad;
+
+    // load the model from the file
+    pmad->md2_ptr = md2_load( vfs_resolveReadFilename( newloadname ), NULL );
+
+    // set the model's file name
     szModelName[0] = '\0';
-    if ( md2_load_one( vfs_resolveReadFilename( newloadname ), &( ego_md2_data[MadList[imad].md2_ref] ) ) )
+    if ( NULL != pmad->md2_ptr )
     {
         strncpy( szModelName, vfs_resolveReadFilename( newloadname ), SDL_arraysize( szModelName ) );
+
+        /// @details BB@> Egoboo md2 models were designed with 1 tile = 32x32 units, but internally Egoboo uses
+        ///      1 tile = 128x128 units. Previously, this was handled by sprinkling a bunch of
+        ///      commands that multiplied various quantities by 4 or by 4.125 throughout the code.
+        ///      It was very counterintuitive, and caused me no end of headaches...  Of course the
+        ///      solution is to scale the model!
+        md2_scale_model(pmad->md2_ptr,-3.5, 3.5, 3.5);
     }
-
-    //md2_fix_normals( imad );        // Fix them normals
-    //md2_get_transvertices( imad );  // Figure out how many vertices to transform
-
-    pmad->md2_ptr = NULL; //md2_loadFromFile( newloadname );
 
     // Create the actions table for this imad
     mad_rip_actions( imad );
@@ -754,20 +784,26 @@ void mad_heal_actions( Uint16 object, const char * tmploadname )
 //--------------------------------------------------------------------------------------------
 void mad_finalize( Uint16 object )
 {
-    int frame;
+    int frame, frame_count;
 
-    mad_t * pmad;
-    ego_md2_t * pmd2;
+    mad_t       * pmad;
+    MD2_Model_t * pmd2;
+    MD2_Frame_t * frame_list;
 
     if ( !LOADED_MAD( object ) ) return;
     pmad = MadList + object;
-    pmd2 = ego_md2_data + pmad->md2_ref;
+
+    pmd2 = pmad->md2_ptr;
+    if( NULL == pmd2 ) return;
+
+    frame_count = md2_get_numFrames( pmd2 );
+    frame_list  = md2_get_Frames(pmd2);
 
     // Create table for doing transition from one type of walk to another...
     // Clear 'em all to start
-    for ( frame = 0; frame < pmd2->frames; frame++ )
+    for ( frame = 0; frame < frame_count; frame++ )
     {
-        Md2FrameList[pmd2->framestart + frame].framelip = 0;
+        frame_list[frame].framelip = 0;
     }
 
     // Need to figure out how far into action each frame is
@@ -785,18 +821,21 @@ void mad_finalize( Uint16 object )
 //--------------------------------------------------------------------------------------------
 void mad_rip_actions( Uint16 object )
 {
-    /// @details ZZ@> This function creates the frame lists for each action based on the
-    ///    name of each md2 frame in the model
+    /// @details ZZ@> This function creates the iframe lists for each action based on the
+    ///    name of each md2 iframe in the model
 
-    int frame, framesinaction;
+    int frame_count, iframe, framesinaction;
     int action, lastaction;
 
-    mad_t * pmad;
-    ego_md2_t * pmd2;
+    mad_t          * pmad;
+    MD2_Model_t    * pmd2;
+    MD2_Frame_t    * frame_list;
 
     if ( !LOADED_MAD( object ) ) return;
     pmad = MadList + object;
-    pmd2 = ego_md2_data + pmad->md2_ref;
+
+    pmd2 = pmad->md2_ptr;
+    if( NULL == pmd2 ) return;
 
     // Clear out all actions and reset to invalid
     for ( action = 0; action < ACTION_COUNT; action++ )
@@ -805,22 +844,21 @@ void mad_rip_actions( Uint16 object )
         pmad->action_valid[action] = bfalse;
     }
 
-    // Set the primary dance action to be the first frame, just as a default
+    // Set the primary dance action to be the first iframe, just as a default
     pmad->action_map[ACTION_DA]   = ACTION_DA;
     pmad->action_valid[ACTION_DA] = btrue;
-    pmad->action_stt[ACTION_DA]   = pmd2->framestart;
-    pmad->action_end[ACTION_DA]   = pmd2->framestart + 1;
+    pmad->action_stt[ACTION_DA]   = 0;
+    pmad->action_end[ACTION_DA]   = 1;
 
-    // Now go huntin' to see what each frame is, look for runs of same action
-    md2_rip_frame_name( 0 );
-    lastaction = action_number();  framesinaction = 0;
-    frame = 0;
+    frame_count = md2_get_numFrames( pmd2 );
+    frame_list  = md2_get_Frames( pmd2 );
 
-    while ( frame < pmd2->frames )
+    // Now go huntin' to see what each iframe is, look for runs of same action
+    lastaction     = action_number( frame_list[0].name );  
+    framesinaction = 0;
+    for ( iframe = 0; iframe < frame_count; iframe++ )
     {
-        md2_rip_frame_name( frame );
-        action = action_number();
-
+        action = action_number( frame_list[iframe].name );
         pmad->action_map[action] = action;
 
         if ( lastaction == action )
@@ -833,24 +871,23 @@ void mad_rip_actions( Uint16 object )
             if ( lastaction < ACTION_COUNT )
             {
                 pmad->action_valid[lastaction] = btrue;
-                pmad->action_stt[lastaction]   = pmd2->framestart + frame - framesinaction;
-                pmad->action_end[lastaction]   = pmd2->framestart + frame;
+                pmad->action_stt[lastaction]   = iframe - framesinaction;
+                pmad->action_end[lastaction]   = iframe;
             }
 
             framesinaction = 1;
             lastaction = action;
         }
 
-        mad_get_framefx( pmd2->framestart + frame );
-        frame++;
+        mad_get_framefx( frame_list[iframe].name, object, iframe );
     }
 
     // Write the old action
     if ( lastaction < ACTION_COUNT )
     {
         pmad->action_valid[lastaction] = btrue;
-        pmad->action_stt[lastaction]   = pmd2->framestart + frame - framesinaction;
-        pmad->action_end[lastaction]   = pmd2->framestart + frame;
+        pmad->action_stt[lastaction]   = iframe - framesinaction;
+        pmad->action_end[lastaction]   = iframe;
     }
 }
 
@@ -872,7 +909,7 @@ void mad_rip_actions( Uint16 object )
 //
 //        while ( tnc < ego_md2_data[MadList[modelindex].md2_ref].frames )
 //        {
-//            indexofcurrent = Md2FrameList[frame].vrta[cnt];
+//            indexofcurrent = pframe->vrta[cnt];
 //            indexofnext = Md2FrameList[frame+1].vrta[cnt];
 //            indexofnextnext = Md2FrameList[frame+2].vrta[cnt];
 //            indexofnextnextnext = Md2FrameList[frame+3].vrta[cnt];
@@ -988,8 +1025,6 @@ void init_all_mad()
     {
         mad_init( MadList + cnt );
     }
-
-    Md2FrameList_index = 0;
 }
 
 //---------------------------------------------------------------------------------------------
@@ -1001,8 +1036,6 @@ void release_all_mad()
     {
         release_one_mad( cnt );
     }
-
-    Md2FrameList_index = 0;
 }
 
 //---------------------------------------------------------------------------------------------
@@ -1016,7 +1049,8 @@ bool_t release_one_mad( Uint16 imad )
     if ( !pmad->loaded ) return btrue;
 
     // free any md2 data
-    md2_freeModel( pmad->md2_ptr );
+    md2_destruct( pmad->md2_ptr );
+    pmad->md2_ptr = NULL;
 
     mad_init( pmad );
 

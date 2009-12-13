@@ -148,9 +148,9 @@ extern renderlist_t renderlist;
 
 //--------------------------------------------------------------------------------------------
 //extern Uint8           lightdirectionlookup[65536];                        ///< For lighting characters
-//extern float           lighttable_local[MAXLIGHTROTATION][MADLIGHTINDICES];
-//extern float           lighttable_global[MAXLIGHTROTATION][MADLIGHTINDICES];
-extern float           indextoenvirox[MADLIGHTINDICES];                    ///< Environment map
+//extern float           lighttable_local[MAXLIGHTROTATION][EGO_NORMAL_COUNT];
+//extern float           lighttable_global[MAXLIGHTROTATION][EGO_NORMAL_COUNT];
+extern float           indextoenvirox[EGO_NORMAL_COUNT];                    ///< Environment map
 extern float           lighttoenviroy[256];                                ///< Environment map
 //extern Uint32          lighttospek[MAXSPEKLEVEL][256];
 

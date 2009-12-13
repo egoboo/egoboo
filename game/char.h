@@ -635,6 +635,7 @@ void chr_set_alpha( chr_t * pchr, int alpha );
 void chr_set_light( chr_t * pchr, int light );
 
 void chr_instance_get_tint( chr_instance_t * pinst, GLfloat * tint, Uint32 bits );
+void chr_instance_free_one( chr_instance_t * pinst );
 
 Uint16 chr_get_lowest_attachment( Uint16 ichr, bool_t non_item );
 
@@ -643,3 +644,5 @@ void character_system_init();
 bool_t chr_get_mass_pair( chr_t * pchr_a, chr_t * pchr_b, float * wta, float * wtb );
 
 bool_t chr_can_mount( Uint16 ichr_a, Uint16 ichr_b );
+
+Uint32 chr_get_framefx( chr_t * pchr );

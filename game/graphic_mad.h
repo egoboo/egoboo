@@ -171,7 +171,7 @@ struct s_chr_instance
 
     // linear interpolated frame vertices
     size_t         vlst_size;
-    GLvertex       vlst[MAXVERTICES];
+    GLvertex     * vlst;
     oct_bb_t       bbox;                           ///< the bounding box for this frame
 
     // graphical optimizations

@@ -182,7 +182,7 @@ obj_registry_entity_t dolist[DOLIST_SIZE];
 
 renderlist_t     renderlist = {0, 0, 0, 0, 0, 0};
 
-float            indextoenvirox[MADLIGHTINDICES];
+float            indextoenvirox[EGO_NORMAL_COUNT];
 float            lighttoenviroy[256];
 
 int rotmeshtopside;
@@ -3029,7 +3029,7 @@ void make_enviro( void )
     float x, y, z;
 
     // Find the environment map positions
-    for ( cnt = 0; cnt < MADLIGHTINDICES; cnt++ )
+    for ( cnt = 0; cnt < EGO_NORMAL_COUNT; cnt++ )
     {
         x = kMd2Normals[cnt][0];
         y = kMd2Normals[cnt][1];

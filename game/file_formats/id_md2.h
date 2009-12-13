@@ -47,17 +47,14 @@ struct s_id_md2_header
 
     int skinwidth;
     int skinheight;
-
     int framesize;
 
     int num_skins;
     int num_vertices;
     int num_st;
     int num_tris;
-    int num_glcmds;
-    int num_frames;
-
     int size_glcmds;
+    int num_frames;
 
     int offset_skins;
     int offset_st;
@@ -65,6 +62,7 @@ struct s_id_md2_header
     int offset_frames;
     int offset_glcmds;
     int offset_end;
+
 } SET_PACKED();
 typedef struct s_id_md2_header id_md2_header_t;
 
@@ -98,6 +96,15 @@ struct s_id_md2_vertex
     unsigned char normalIndex;
 } SET_PACKED();
 typedef struct s_id_md2_vertex id_md2_vertex_t;
+
+/* Model frame */
+struct s_id_md2_frame_header
+{
+    float            scale[3];
+    float            translate[3];
+    char             name[16];
+} SET_PACKED();
+typedef struct s_id_md2_frame_header id_md2_frame_header_t;
 
 /* Model frame */
 struct s_id_md2_frame
@@ -144,6 +151,6 @@ extern float kid_md2_normals[MD2_MAX_NORMALS][3];
 /// functions to load the packed data structures directly from a file
 /// only works with little endian machines
 id_md2_model_t * id_md2_load (const char *filename, id_md2_model_t * mdl);
-void                    id_md2_free ( id_md2_model_t * mdl );
+void             id_md2_free ( id_md2_model_t * mdl );
 
 #define ID_MD2_H

@@ -17,390 +17,472 @@
 //*
 //********************************************************************************************
 
-/// @file md2.c
-/// @brief The egoboo .md2 loader
-/// @details
+///
+/// @file
+/// @brief Raw MD2 loader
+/// @details Raw model loader for ID Software's MD2 file format
 
-#include "md2.h"
-#include "log.h"                // For error logging
-#include "mad.h"
+#include "Md2.inl"
 
-#include "egoboo_strutil.h"
+#include "id_md2.h"
+
 #include "egoboo_endian.h"
-#include "egoboo.h"
+#include "egoboo_math.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
-int         Md2FrameList_index = 0;
-md2_frame_t Md2FrameList[MAXFRAME];
-
-char        cFrameName[16]  = EMPTY_CSTR;      ///< MD2 Current frame name
-
-static int  md2_rip_header();
-static void md2_rip_commands( md2_ogl_commandlist_t * pclist );
-
-static Uint8 cLoadBuffer[MD2MAXLOADSIZE];       ///< Where to put an MD2
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-float kMd2Normals[MADLIGHTINDICES][3] =
+float kMd2Normals[EGO_NORMAL_COUNT][3] = 
 {
 #include "id_normals.inl"
-    ,
-    {0, 0, 0}  // Spiky Mace
+    , {0,0,0}                       ///< the "equal light" normal
 };
 
-// TEMPORARY: Global list of Md2Models.  It's declared in egoboo.h, which
-// is why I have to include it here at the moment.
-struct Md2Model *md2_models[MAX_PROFILE];
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+MD2_Model_t* md2_load(const char * szFilename, MD2_Model_t* mdl)
+{
+    FILE * f;
+    int i, v;
+    bool_t bfound;
+
+    id_md2_header_t md2_header;
+    MD2_Model_t    *model;
+
+    // Open up the file, and make sure it's a MD2 model
+    f = fopen(szFilename, "rb");
+    if ( NULL == f ) return NULL;
+
+    fread(&md2_header, sizeof(md2_header), 1, f);
+
+    // Convert the byte ordering in the md2_header, if we need to
+    md2_header.ident            = ENDIAN_INT32(md2_header.ident);
+    md2_header.version          = ENDIAN_INT32(md2_header.version);
+    md2_header.skinwidth        = ENDIAN_INT32(md2_header.skinwidth);
+    md2_header.skinheight       = ENDIAN_INT32(md2_header.skinheight);
+    md2_header.framesize        = ENDIAN_INT32(md2_header.framesize);
+    md2_header.num_skins        = ENDIAN_INT32(md2_header.num_skins);
+    md2_header.num_vertices     = ENDIAN_INT32(md2_header.num_vertices);
+    md2_header.num_st           = ENDIAN_INT32(md2_header.num_st);
+    md2_header.num_tris         = ENDIAN_INT32(md2_header.num_tris);
+    md2_header.size_glcmds      = ENDIAN_INT32(md2_header.size_glcmds);
+    md2_header.num_frames       = ENDIAN_INT32(md2_header.num_frames);
+    md2_header.offset_skins     = ENDIAN_INT32(md2_header.offset_skins);
+    md2_header.offset_st        = ENDIAN_INT32(md2_header.offset_st);
+    md2_header.offset_tris      = ENDIAN_INT32(md2_header.offset_tris);
+    md2_header.offset_frames    = ENDIAN_INT32(md2_header.offset_frames);
+    md2_header.offset_glcmds    = ENDIAN_INT32(md2_header.offset_glcmds);
+    md2_header.offset_end       = ENDIAN_INT32(md2_header.offset_end);
+
+    if(md2_header.ident != MD2_MAGIC_NUMBER || md2_header.version != MD2_VERSION)
+    {
+        fclose(f);
+        return NULL;
+    }
+
+    // Allocate a MD2_Model_t to hold all this stuff
+    model = (NULL ==mdl) ? md2_new() : mdl;
+    model->m_numVertices  = md2_header.num_vertices;
+    model->m_numTexCoords = md2_header.num_st;
+    model->m_numTriangles = md2_header.num_tris;
+    model->m_numSkins     = md2_header.num_skins;
+    model->m_numFrames    = md2_header.num_frames;
+
+    model->m_texCoords = EGOBOO_NEW_ARY( MD2_TexCoord_t, md2_header.num_st );
+    model->m_triangles = EGOBOO_NEW_ARY( MD2_Triangle_t, md2_header.num_tris );
+    model->m_skins     = EGOBOO_NEW_ARY( MD2_SkinName_t, md2_header.num_skins );
+    model->m_frames    = EGOBOO_NEW_ARY( MD2_Frame_t, md2_header.num_frames  );
+
+    for (i = 0;i < md2_header.num_frames; i++)
+    {
+        model->m_frames[i].vertices = EGOBOO_NEW_ARY( MD2_Vertex_t, md2_header.num_vertices );
+    }
+
+    // Load the texture coordinates from the file, normalizing them as we go
+    fseek(f, md2_header.offset_st, SEEK_SET);
+    for (i = 0;i < md2_header.num_st; i++)
+    {
+        id_md2_texcoord_t tc;
+        fread(&tc, sizeof(tc), 1, f);
+
+        // auto-convert the byte ordering of the texture coordinates
+        tc.s = ENDIAN_INT16(tc.s);
+        tc.t = ENDIAN_INT16(tc.t);
+
+        model->m_texCoords[i].tex.s = tc.s / (float)md2_header.skinwidth;
+        model->m_texCoords[i].tex.t = tc.t / (float)md2_header.skinheight;
+    }
+
+    // Load triangles from the file.  I use the same memory layout as the file
+    // on a little endian machine, so they can just be read directly
+    fseek(f, md2_header.offset_tris, SEEK_SET);
+    fread(model->m_triangles, sizeof(id_md2_triangle_t), md2_header.num_tris, f);
+
+    // auto-convert the byte ordering on the triangles
+    for(i = 0;i < md2_header.num_tris; i++)
+    {
+        for(v = 0;v < 3;v++)
+        {
+            model->m_triangles[i].vertex[v] = ENDIAN_INT16(model->m_triangles[i].vertex[v]);
+            model->m_triangles[i].st[v]     = ENDIAN_INT16(model->m_triangles[i].st[v]);
+        }
+    }
+
+    // Load the skin names.  Again, I can load them directly
+    fseek(f, md2_header.offset_skins, SEEK_SET);
+    fread(model->m_skins, sizeof(id_md2_skin_t), md2_header.num_skins, f);
+
+    // Load the frames of animation
+    fseek(f, md2_header.offset_frames, SEEK_SET);
+    for(i = 0;i < md2_header.num_frames; i++)
+    {
+        id_md2_frame_header_t frame_header;
+
+        // read the current frame
+        fread(&frame_header, sizeof(frame_header), 1, f);
+
+        // Convert the byte ordering on the scale & translate vectors, if necessary
+#if SDL_BYTEORDER != SDL_LIL_ENDIAN
+        frame_header.scale[0]     = ENDIAN_FLOAT(frame_header.scale[0]);
+        frame_header.scale[1]     = ENDIAN_FLOAT(frame_header.scale[1]);
+        frame_header.scale[2]     = ENDIAN_FLOAT(frame_header.scale[2]);
+
+        frame_header.translate[0] = ENDIAN_FLOAT(frame_header.translate[0]);
+        frame_header.translate[1] = ENDIAN_FLOAT(frame_header.translate[1]);
+        frame_header.translate[2] = ENDIAN_FLOAT(frame_header.translate[2]);
+#endif
+
+        // unpack the md2 vertices from this frame
+        bfound = bfalse;
+        for(v=0; v<md2_header.num_vertices; v++)
+        {
+            MD2_Frame_t   * pframe;
+            id_md2_vertex_t frame_vert;
+            
+            // read vertices one-by-one. I hope this is not endian dependent, but I have no way to check it.
+            fread(&frame_vert, sizeof(id_md2_vertex_t), 1, f);
+
+            pframe = model->m_frames + i;
+
+            // grab the vertex position
+            pframe->vertices[v].pos.x = frame_vert.v[0] * frame_header.scale[0] + frame_header.translate[0];
+            pframe->vertices[v].pos.y = frame_vert.v[1] * frame_header.scale[1] + frame_header.translate[1];
+            pframe->vertices[v].pos.z = frame_vert.v[2] * frame_header.scale[2] + frame_header.translate[2];
+
+            // grab the normal index
+            pframe->vertices[v].normal = frame_vert.normalIndex;
+            if(pframe->vertices[v].normal > EGO_AMBIENT_INDEX ) pframe->vertices[v].normal = EGO_AMBIENT_INDEX;
+
+            // expand the normal index into an actual normal
+            pframe->vertices[v].nrm.x = kMd2Normals[frame_vert.normalIndex][0];
+            pframe->vertices[v].nrm.y = kMd2Normals[frame_vert.normalIndex][1];
+            pframe->vertices[v].nrm.z = kMd2Normals[frame_vert.normalIndex][2];
+
+            // Calculate the bounding box for this frame
+            if(!bfound)
+            {
+                pframe->bb.mins[OCT_X ] = pframe->bb.maxs[OCT_X ] =  pframe->vertices[v].pos.x;
+                pframe->bb.mins[OCT_Y ] = pframe->bb.maxs[OCT_Y ] =  pframe->vertices[v].pos.y;
+                pframe->bb.mins[OCT_XY] = pframe->bb.maxs[OCT_XY] =  pframe->vertices[v].pos.x + pframe->vertices[v].pos.y;
+                pframe->bb.mins[OCT_YX] = pframe->bb.maxs[OCT_YX] = -pframe->vertices[v].pos.x + pframe->vertices[v].pos.y;
+                pframe->bb.mins[OCT_Z ] = pframe->bb.maxs[OCT_Z ] =  pframe->vertices[v].pos.z;
+
+                bfound = btrue;
+            }
+            else
+            {
+                pframe->bb.mins[OCT_X ] = MIN(pframe->bb.mins[OCT_X ], pframe->vertices[v].pos.x);
+                pframe->bb.mins[OCT_Y ] = MIN(pframe->bb.mins[OCT_Y ], pframe->vertices[v].pos.y);
+                pframe->bb.mins[OCT_XY] = MIN(pframe->bb.mins[OCT_XY], pframe->vertices[v].pos.x + pframe->vertices[v].pos.y);
+                pframe->bb.mins[OCT_YX] = MIN(pframe->bb.mins[OCT_YX],-pframe->vertices[v].pos.x + pframe->vertices[v].pos.y);
+                pframe->bb.mins[OCT_Z ] = MIN(pframe->bb.mins[OCT_Z ], pframe->vertices[v].pos.z);
+
+                pframe->bb.maxs[OCT_X ] = MAX(pframe->bb.maxs[OCT_X ], pframe->vertices[v].pos.x);
+                pframe->bb.maxs[OCT_Y ] = MAX(pframe->bb.maxs[OCT_Y ], pframe->vertices[v].pos.y);
+                pframe->bb.maxs[OCT_XY] = MAX(pframe->bb.maxs[OCT_XY], pframe->vertices[v].pos.x + pframe->vertices[v].pos.y);
+                pframe->bb.maxs[OCT_YX] = MAX(pframe->bb.maxs[OCT_YX],-pframe->vertices[v].pos.x + pframe->vertices[v].pos.y);
+                pframe->bb.maxs[OCT_Z ] = MAX(pframe->bb.maxs[OCT_Z ], pframe->vertices[v].pos.z);
+            }
+        }
+
+        //make sure to copy the frame name!
+        strncpy(model->m_frames[i].name, frame_header.name, 16);
+    }
+
+    //Load up the pre-computed OpenGL optimizations
+    if(md2_header.size_glcmds > 0)
+    {
+        Uint32            cmd_cnt = 0, cmd_size;
+        MD2_GLCommand_t * cmd     = NULL;
+        fseek(f, md2_header.offset_glcmds, SEEK_SET);
+
+        //count the commands
+        cmd_size = 0;
+        while( cmd_size < md2_header.size_glcmds )
+        {
+            //read the number of commands in the strip
+            Sint32 commands;
+            fread(&commands, sizeof(Sint32), 1, f);
+            cmd_size += sizeof(Sint32) / sizeof(Uint32); 
+
+            // auto-convert the byte ordering
+            commands = ENDIAN_INT32(commands);
+
+            if( 0 == commands || cmd_size == md2_header.size_glcmds ) break;
+
+            cmd = MD2_GLCommand_new();
+            cmd->command_count = commands;
+
+            //set the GL drawing mode
+            if(cmd->command_count > 0)
+            {
+                cmd->gl_mode = GL_TRIANGLE_STRIP;
+            }
+            else
+            {
+                cmd->command_count = -cmd->command_count;
+                cmd->gl_mode = GL_TRIANGLE_FAN;
+            }
+
+            //allocate the data
+            cmd->data = EGOBOO_NEW_ARY( id_glcmd_packed_t, cmd->command_count );
+
+            //read in the data
+            fread(cmd->data, sizeof(id_glcmd_packed_t), cmd->command_count, f);
+            cmd_size += (sizeof(id_glcmd_packed_t) * cmd->command_count) / sizeof(Uint32); 
+
+            //translate the data, if necessary
+#if SDL_BYTEORDER != SDL_LIL_ENDIAN
+            for(int i=0; i<cmd->command_count; i++)
+            {
+                cmd->data[i].index = SDL_swap32(cmd->data[i].s);
+                cmd->data[i].s     = ENDIAN_FLOAT(cmd->data[i].s);
+                cmd->data[i].t     = ENDIAN_FLOAT(cmd->data[i].t);
+            };
+#endif
+
+            // attach it to the command list
+            cmd->next         = model->m_commands;
+            model->m_commands = cmd;
+
+            cmd_cnt += cmd->command_count;
+        };
+
+        model->m_numCommands = cmd_cnt;
+    }
+
+
+    // Close the file, we're done with it
+    fclose(f);
+
+    return model;
+}
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void md2_freeModel( Md2Model *model )
+void MD2_GLCommand_construct(MD2_GLCommand_t * m)
 {
-    if ( model != NULL )
-    {
-        if ( model->texCoords != NULL ) free( model->texCoords );
-        if ( model->triangles != NULL ) free( model->triangles );
-        if ( model->skins != NULL ) free( model->skins );
-        if ( model->frames != NULL )
-        {
-            int i;
-
-            for ( i = 0; i < model->numFrames; i++ )
-            {
-                if ( model->frames[i].vertices != NULL ) free( model->frames[i].vertices );
-            }
-
-            free( model->frames );
-        }
-
-        free( model );
-    }
+    m->next = NULL;
+    m->data = NULL;
 }
 
 //--------------------------------------------------------------------------------------------
-/*Md2Model* md2_loadFromFile( const char *filename )
+void MD2_GLCommand_destruct(MD2_GLCommand_t * m)
 {
-    return NULL;
-}*/
+    if(NULL ==m) return;
 
-//---------------------------------------------------------------------------------------------
-int md2_rip_header()
-{
-    /// @details ZZ@> This function makes sure an md2 is really an md2
+    if(NULL !=m->next)
+    {
+        MD2_GLCommand_delete(m->next);
+        m->next = NULL;
+    };
 
-    int iTmp;
-    int* ipIntPointer;
-
-    // Check the file type
-    ipIntPointer = ( int* ) cLoadBuffer;
-
-    iTmp = ENDIAN_INT32( ipIntPointer[0] );
-    if ( iTmp != MD2_MAGIC_NUMBER ) return bfalse;
-
-    return btrue;
+    EGOBOO_DELETE(m->data);
 }
 
-//---------------------------------------------------------------------------------------------
-void md2_rip_commands( md2_ogl_commandlist_t * pclist )
+//--------------------------------------------------------------------------------------------
+MD2_GLCommand_t * MD2_GLCommand_new()
 {
-    /// @details ZZ@> This function converts an md2's GL commands into our little command list thing
+    MD2_GLCommand_t * m;
+    //fprintf( stdout, "MD2_GLCommand_new()\n");
 
-    int iTmp;
-    float fTmpu, fTmpv;
-    int iNumVertices;
-    int tnc;
-    bool_t command_error = bfalse, entry_error = bfalse;
-    int    vertex_max = 0;
+    m = EGOBOO_NEW( MD2_GLCommand_t );
+    MD2_GLCommand_construct(m);
+    return m;
+}
 
-    // char* cpCharPointer = (char*) cLoadBuffer;
-    int* ipIntPointer = ( int* ) cLoadBuffer;
-    float* fpFloatPointer = ( float* ) cLoadBuffer;
+//--------------------------------------------------------------------------------------------
+MD2_GLCommand_t * MD2_GLCommand_new_vector(int n)
+{
+    int i;
+    MD2_GLCommand_t * v = EGOBOO_NEW_ARY( MD2_GLCommand_t, n );
+    for(i=0; i<n; i++) MD2_GLCommand_construct(v + i);
+    return v;
+}
 
-    // Number of GL commands in the MD2
-    int iCommandWords = ENDIAN_INT32( ipIntPointer[9] );
+//--------------------------------------------------------------------------------------------
+void MD2_GLCommand_delete(MD2_GLCommand_t * m)
+{
+    if(NULL ==m) return;
+    MD2_GLCommand_destruct(m);
+    EGOBOO_DELETE(m);
+}
 
-    // Offset (in DWORDS) from the start of the file to the gl command list.
-    int iCommandOffset = ENDIAN_INT32( ipIntPointer[15] ) >> 2;
+//--------------------------------------------------------------------------------------------
+void MD2_GLCommand_delete_vector(MD2_GLCommand_t * v, int n)
+{
+    int i;
+    if(NULL ==v || 0 == n) return;
+    for(i=0; i<n; i++) MD2_GLCommand_destruct(v + i);
+    EGOBOO_DELETE(v);
+}
 
-    // Read in each command
-    // iCommandWords is the number of dwords in the command list.
-    // iCommandCount is the number of GL commands
-    int iCommandCount;
-    int entry;
-    int cnt;
 
-    iCommandCount = 0;
-    entry = 0;
-    cnt = 0;
-    while ( cnt < iCommandWords )
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+void md2_construct(MD2_Model_t * m)
+{
+    m->m_numVertices  = 0;
+    m->m_numTexCoords = 0;
+    m->m_numTriangles = 0;
+    m->m_numSkins     = 0;
+    m->m_numFrames    = 0;
+
+    m->m_skins     = NULL;
+    m->m_texCoords = NULL;
+    m->m_triangles = NULL;
+    m->m_frames    = NULL;
+    m->m_commands  = NULL;
+}
+
+//--------------------------------------------------------------------------------------------
+void md2_deallocate(MD2_Model_t * m)
+{
+    EGOBOO_DELETE( m->m_skins );
+    m->m_numSkins = 0;
+
+    EGOBOO_DELETE(m->m_texCoords);
+    m->m_numTexCoords = 0;
+
+    EGOBOO_DELETE(m->m_triangles);
+    m->m_numTriangles = 0;
+
+    if( NULL != m->m_frames )
     {
-        Uint32 command_type;
-
-        iNumVertices = ENDIAN_INT32( ipIntPointer[iCommandOffset] );  iCommandOffset++;  cnt++;
-        if ( 0 == iNumVertices ) break;
-        if ( iNumVertices < 0 )
+        int i;
+        for(i = 0;i < m->m_numFrames; i++)
         {
-            // Fans start with a negative
-            iNumVertices = -iNumVertices;
-            command_type = GL_TRIANGLE_FAN;
+            EGOBOO_DELETE(m->m_frames[i].vertices)
         }
-        else
-        {
-            // Strips start with a positive
-            command_type = GL_TRIANGLE_STRIP;
-        }
+        EGOBOO_DELETE( m->m_frames );
+        m->m_numFrames = 0;
+    }
 
-        command_error = ( iCommandCount >= MAXCOMMAND );
-        if ( !command_error )
-        {
-            pclist->type[iCommandCount] = command_type;
-            pclist->size[iCommandCount] = MIN( iNumVertices, MAXCOMMANDENTRIES );
-        }
+    EGOBOO_DELETE(m->m_commands);
+    m->m_numCommands = 0;
+}
 
-        // Read in vertices for each command
-        entry_error = bfalse;
-        for ( tnc = 0; tnc < iNumVertices; tnc++ )
-        {
-            fTmpu = ENDIAN_FLOAT( fpFloatPointer[iCommandOffset] );  iCommandOffset++;  cnt++;
-            fTmpv = ENDIAN_FLOAT( fpFloatPointer[iCommandOffset] );  iCommandOffset++;  cnt++;
-            iTmp  = ENDIAN_INT32( ipIntPointer[iCommandOffset] );  iCommandOffset++;  cnt++;
+//--------------------------------------------------------------------------------------------
+void md2_destruct(MD2_Model_t * m)
+{
+    if(NULL ==m) return;
+    md2_deallocate(m);
+}
 
-            entry_error = entry >= MAXCOMMANDENTRIES;
-            if ( iTmp > vertex_max )
+//--------------------------------------------------------------------------------------------
+MD2_Model_t * md2_new()
+{
+    MD2_Model_t * m;
+
+    //fprintf( stdout, "MD2_GLCommand_new()\n");
+    m = EGOBOO_NEW( MD2_Model_t );
+    md2_construct(m);
+
+    return m;
+}
+
+//--------------------------------------------------------------------------------------------
+MD2_Model_t * md2_new_vector(int n)
+{
+    int i;
+    MD2_Model_t * v = EGOBOO_NEW_ARY( MD2_Model_t, n );
+    for(i=0; i<n; i++) md2_construct(v + i);
+    return v;
+}
+
+//--------------------------------------------------------------------------------------------
+void md2_delete(MD2_Model_t * m)
+{
+    if(NULL ==m) return;
+    md2_destruct(m);
+    EGOBOO_DELETE(m);
+}
+
+//--------------------------------------------------------------------------------------------
+void md2_delete_vector(MD2_Model_t * v, int n)
+{
+    int i;
+    if(NULL ==v || 0 == n) return;
+    for(i=0; i<n; i++) md2_destruct(v + i);
+    EGOBOO_DELETE(v);
+}
+
+//--------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------
+void md2_scale_model(MD2_Model_t * pmd2, float scale_x, float scale_y, float scale_z)
+{
+    /// @details BB@> scale every vertex in the md2 by the given amount
+
+    int cnt, tnc, i;
+    int num_frames, num_verts;
+    MD2_Frame_t * pframe;
+
+    num_frames = pmd2->m_numFrames;
+    num_verts  = pmd2->m_numVertices;
+
+    for(cnt=0; cnt<num_frames; cnt++)
+    {
+        bool_t bfound;
+
+        pframe = (MD2_Frame_t *)(pmd2->m_frames + cnt);
+
+        bfound = bfalse;
+        for(tnc=0; tnc<num_verts; tnc++)
+        {
+            pframe->vertices[tnc].pos.x *= scale_x;
+            pframe->vertices[tnc].pos.y *= scale_y;
+            pframe->vertices[tnc].pos.z *= scale_z;
+
+            // Re-calculate the bounding box for this frame
+            if(!bfound)
             {
-                vertex_max = iTmp;
+                pframe->bb.mins[OCT_X ] = pframe->vertices[tnc].pos.x;
+                pframe->bb.mins[OCT_Y ] = pframe->vertices[tnc].pos.y;
+                pframe->bb.mins[OCT_XY] = pframe->vertices[tnc].pos.x + pframe->vertices[tnc].pos.y;
+                pframe->bb.mins[OCT_YX] =-pframe->vertices[tnc].pos.x + pframe->vertices[tnc].pos.y;
+                pframe->bb.mins[OCT_Z ] = pframe->vertices[tnc].pos.z;
+
+                pframe->bb.maxs[OCT_X ] = pframe->vertices[tnc].pos.x;
+                pframe->bb.maxs[OCT_Y ] = pframe->vertices[tnc].pos.y;
+                pframe->bb.maxs[OCT_XY] = pframe->vertices[tnc].pos.x + pframe->vertices[tnc].pos.y;
+                pframe->bb.maxs[OCT_YX] =-pframe->vertices[tnc].pos.x + pframe->vertices[tnc].pos.y;
+                pframe->bb.maxs[OCT_Z ] = pframe->vertices[tnc].pos.z;
+
+                bfound = btrue;
             }
-            if ( iTmp > MAXVERTICES ) iTmp = MAXVERTICES - 1;
-            if ( !command_error && !entry_error )
+            else
             {
-                pclist->u[entry]   = fTmpu - ( 0.5f / 64 ); // GL doesn't align correctly
-                pclist->v[entry]   = fTmpv - ( 0.5f / 64 ); // with D3D
-                pclist->vrt[entry] = iTmp;
+                pframe->bb.mins[OCT_X ] = MIN(pframe->bb.mins[OCT_X ], pframe->vertices[tnc].pos.x);
+                pframe->bb.mins[OCT_Y ] = MIN(pframe->bb.mins[OCT_Y ], pframe->vertices[tnc].pos.y);
+                pframe->bb.mins[OCT_XY] = MIN(pframe->bb.mins[OCT_XY], pframe->vertices[tnc].pos.x + pframe->vertices[tnc].pos.y);
+                pframe->bb.mins[OCT_YX] = MIN(pframe->bb.mins[OCT_YX],-pframe->vertices[tnc].pos.x + pframe->vertices[tnc].pos.y);
+                pframe->bb.mins[OCT_Z ] = MIN(pframe->bb.mins[OCT_Z ], pframe->vertices[tnc].pos.z);
+
+                pframe->bb.maxs[OCT_X ] = MAX(pframe->bb.maxs[OCT_X ], pframe->vertices[tnc].pos.x);
+                pframe->bb.maxs[OCT_Y ] = MAX(pframe->bb.maxs[OCT_Y ], pframe->vertices[tnc].pos.y);
+                pframe->bb.maxs[OCT_XY] = MAX(pframe->bb.maxs[OCT_XY], pframe->vertices[tnc].pos.x + pframe->vertices[tnc].pos.y);
+                pframe->bb.maxs[OCT_YX] = MAX(pframe->bb.maxs[OCT_YX],-pframe->vertices[tnc].pos.x + pframe->vertices[tnc].pos.y);
+                pframe->bb.maxs[OCT_Z ] = MAX(pframe->bb.maxs[OCT_Z ], pframe->vertices[tnc].pos.z);
             }
-
-            entry++;
-        }
-
-        // count only fully valid commands
-        if ( !entry_error )
-        {
-            iCommandCount++;
         }
     }
-
-    if ( vertex_max >= MAXVERTICES )
-    {
-        log_warning( "md2_rip_commands(\"%s\") - \n\tOpenGL command references vertices above preset maximum: %d of %d\n", globalparsename, vertex_max, MAXVERTICES );
-    }
-    if ( command_error )
-    {
-        log_warning( "md2_rip_commands(\"%s\") - \n\tNumber of OpenGL commands exceeds preset maximum: %d of %d\n", globalparsename, iCommandCount, MAXCOMMAND );
-    }
-    if ( entry_error )
-    {
-        log_warning( "md2_rip_commands(\"%s\") - \n\tNumber of OpenGL command entries exceeds preset maximum: %d of %d\n", globalparsename, entry, MAXCOMMAND );
-    }
-
-    pclist->entries = MIN( MAXCOMMANDENTRIES, entry );
-    pclist->count   = MIN( MAXCOMMAND, iCommandCount );
-}
-
-//---------------------------------------------------------------------------------------------
-int md2_rip_frame_name( int frame )
-{
-    /// @details ZZ@> This function gets frame names from the load buffer, it returns
-    ///    btrue if the name in cFrameName[] is valid
-
-    int iFrameOffset;
-    int iNumVertices;
-    int iNumFrames;
-    int cnt;
-    int* ipNamePointer;
-    int* ipIntPointer;
-    int foundname;
-
-    // Jump to the Frames section of the md2 data
-    ipNamePointer = ( int* ) cFrameName;
-    ipIntPointer = ( int* ) cLoadBuffer;
-
-    iNumVertices = ENDIAN_INT32( ipIntPointer[6] );
-    iNumFrames   = ENDIAN_INT32( ipIntPointer[10] );
-    iFrameOffset = ENDIAN_INT32( ipIntPointer[14] ) >> 2;
-
-    // Chug through each frame
-    foundname = bfalse;
-    cnt = 0;
-
-    while ( cnt < iNumFrames && !foundname )
-    {
-        iFrameOffset += 6;
-        if ( cnt == frame )
-        {
-            ipNamePointer[0] = ipIntPointer[iFrameOffset]; iFrameOffset++;
-            ipNamePointer[1] = ipIntPointer[iFrameOffset]; iFrameOffset++;
-            ipNamePointer[2] = ipIntPointer[iFrameOffset]; iFrameOffset++;
-            ipNamePointer[3] = ipIntPointer[iFrameOffset]; iFrameOffset++;
-            foundname = btrue;
-        }
-        else
-        {
-            iFrameOffset += 4;
-        }
-
-        iFrameOffset += iNumVertices;
-        cnt++;
-    }
-
-    cFrameName[15] = 0;  // Make sure it's null terminated
-    return foundname;
-}
-
-//---------------------------------------------------------------------------------------------
-void md2_rip_frames( ego_md2_t * pmd2 )
-{
-    /// @details ZZ@> This function gets frames from the load buffer and adds them to
-    ///    the indexed model
-
-    Uint8 cTmpx, cTmpy, cTmpz;
-    Uint8 cTmpa;
-    float fRealx, fRealy, fRealz;
-    float fScalex, fScaley, fScalez;
-    float fTranslatex, fTranslatey, fTranslatez;
-    int iFrameOffset;
-    int iNumVertices;
-    int iNumFrames;
-    int cnt, tnc;
-    char* cpCharPointer;
-    int* ipIntPointer;
-    float* fpFloatPointer;
-
-    // Jump to the Frames section of the md2 data
-    cpCharPointer  = ( char* ) cLoadBuffer;
-    ipIntPointer   = ( int* ) cLoadBuffer;
-    fpFloatPointer = ( float* ) cLoadBuffer;
-
-    iNumVertices = ENDIAN_INT32( ipIntPointer[6] );
-    iNumFrames   = ENDIAN_INT32( ipIntPointer[10] );
-    iFrameOffset = ENDIAN_INT32( ipIntPointer[14] ) >> 2;
-
-    // Read in each frame
-    pmd2->framestart = Md2FrameList_index;
-    pmd2->frames     = iNumFrames;
-    pmd2->vertices   = iNumVertices;
-    cnt = 0;
-
-    while ( cnt < iNumFrames && Md2FrameList_index < MAXFRAME )
-    {
-        oct_bb_t bbox;
-
-        fScalex     = ENDIAN_FLOAT( fpFloatPointer[iFrameOffset] ); iFrameOffset++;
-        fScaley     = ENDIAN_FLOAT( fpFloatPointer[iFrameOffset] ); iFrameOffset++;
-        fScalez     = ENDIAN_FLOAT( fpFloatPointer[iFrameOffset] ); iFrameOffset++;
-        fTranslatex = ENDIAN_FLOAT( fpFloatPointer[iFrameOffset] ); iFrameOffset++;
-        fTranslatey = ENDIAN_FLOAT( fpFloatPointer[iFrameOffset] ); iFrameOffset++;
-        fTranslatez = ENDIAN_FLOAT( fpFloatPointer[iFrameOffset] ); iFrameOffset++;
-
-        iFrameOffset += 4;
-
-        // blank the octagonal bounding box
-        for ( tnc = 0; tnc < OCT_COUNT; tnc++ )
-        {
-            bbox.mins[tnc] = bbox.maxs[tnc] = 0.0f;
-        }
-
-        for ( tnc = 0; tnc < iNumVertices; tnc++ )
-        {
-            // This should work because it's reading a single character
-            cTmpx = cpCharPointer[( iFrameOffset<<2 )+0];
-            cTmpy = cpCharPointer[( iFrameOffset<<2 )+1];
-            cTmpz = cpCharPointer[( iFrameOffset<<2 )+2];
-            cTmpa = cpCharPointer[( iFrameOffset<<2 )+3];
-
-            fRealx = ( cTmpx * fScalex ) + fTranslatex;
-            fRealy = ( cTmpy * fScaley ) + fTranslatey;
-            fRealz = ( cTmpz * fScalez ) + fTranslatez;
-
-            fRealx *= -3.5f;
-            fRealy *=  3.5f;
-            fRealz *=  3.5f;
-
-            Md2FrameList[Md2FrameList_index].vrtx[tnc] = fRealx;
-            Md2FrameList[Md2FrameList_index].vrty[tnc] = fRealy;
-            Md2FrameList[Md2FrameList_index].vrtz[tnc] = fRealz;
-            Md2FrameList[Md2FrameList_index].vrta[tnc] = cTmpa;
-
-            // update the bounding box
-            bbox.mins[OCT_X] = MIN( bbox.mins[OCT_X], fRealx );
-            bbox.maxs[OCT_X] = MAX( bbox.maxs[OCT_X], fRealx );
-
-            bbox.mins[OCT_Y] = MIN( bbox.mins[OCT_Y], fRealy );
-            bbox.maxs[OCT_Y] = MAX( bbox.maxs[OCT_Y], fRealy );
-
-            bbox.mins[OCT_Z] = MIN( bbox.mins[OCT_Z], fRealz );
-            bbox.maxs[OCT_Z] = MAX( bbox.maxs[OCT_Z], fRealz );
-
-            bbox.mins[OCT_XY] = MIN( bbox.mins[OCT_XY], fRealx + fRealy );
-            bbox.maxs[OCT_XY] = MAX( bbox.maxs[OCT_XY], fRealx + fRealy );
-
-            bbox.mins[OCT_YX] = MIN( bbox.mins[OCT_YX], -fRealx + fRealy );
-            bbox.maxs[OCT_YX] = MAX( bbox.maxs[OCT_YX], -fRealx + fRealy );
-
-            iFrameOffset++;
-        }
-
-        // apply the bounding box
-        Md2FrameList[Md2FrameList_index].bbox = bbox;
-
-        Md2FrameList_index++;
-        cnt++;
-    }
-}
-
-//---------------------------------------------------------------------------------------------
-bool_t md2_load_one( const char* szLoadname, ego_md2_t * pmd2 )
-{
-    /// @details ZZ@> This function loads an id md2 file, storing the converted data in the indexed model
-    ///   int iFileHandleRead;
-
-    size_t iBytesRead = 0;
-    int iReturnValue;
-    FILE *file;
-
-    if ( INVALID_CSTR( szLoadname ) ) return bfalse;
-
-    // Read the input file
-    file = EGO_fopen( szLoadname, "rb" );
-    if ( !file )
-    {
-        log_warning( "md2_load_one() - Cannot load file! (\"%s\")\n", szLoadname );
-        return bfalse;
-    }
-
-    // Read up to MD2MAXLOADSIZE bytes from the file into the cLoadBuffer array.
-    iBytesRead = EGO_fread( cLoadBuffer, 1, MD2MAXLOADSIZE, file );
-
-    // done with the file
-    EGO_fclose( file );
-
-    if ( iBytesRead == 0 ) return bfalse;
-
-    // save the filename for debugging
-    globalparsename = szLoadname;
-
-    // Check the header
-    /// @todo Verify that the header's filesize correspond to iBytesRead.
-    iReturnValue = md2_rip_header();
-    if ( !iReturnValue )
-        return bfalse;
-
-    // Get the frame vertices
-    md2_rip_frames( pmd2 );
-
-    // Get the commands
-    md2_rip_commands( &( pmd2->cmd ) );
-
-    return btrue;
 }

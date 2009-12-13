@@ -27,8 +27,10 @@
 #include "char.h"
 #include "mad.h"
 
-#include "md2.h"
+#include "Md2.inl"
 #include "id_md2.h"
+
+#include "log.h"
 #include "camera.h"
 #include "game.h"
 #include "input.h"
@@ -57,13 +59,13 @@ bool_t render_one_mad_enviro( Uint16 character, GLXvector4f tint, Uint32 bits )
 {
     /// @details ZZ@> This function draws an environment mapped model
 
-    int    cmd_count, vrt_count, entry_count;
-    Uint16 cnt, tnc, entry;
+    Uint16 cnt;
     Uint16 vertex;
     float  uoffset, voffset;
 
     chr_t          * pchr;
     mad_t          * pmad;
+    MD2_Model_t    * pmd2;
     chr_instance_t * pinst;
     oglx_texture   * ptex;
 
@@ -73,6 +75,9 @@ bool_t render_one_mad_enviro( Uint16 character, GLXvector4f tint, Uint32 bits )
 
     if ( !LOADED_MAD( pinst->imad ) ) return bfalse;
     pmad = MadList + pinst->imad;
+
+    pmd2 = pmad->md2_ptr;
+    if( NULL == pmd2 ) return bfalse;
 
     ptex = NULL;
     if ( 0 != ( bits & CHR_PHONG ) )
@@ -106,78 +111,78 @@ bool_t render_one_mad_enviro( Uint16 character, GLXvector4f tint, Uint32 bits )
 
     ATTRIB_PUSH( "render_one_mad_enviro", GL_CURRENT_BIT );
     {
+        int cmd_count;
+        MD2_GLCommand_t * glcommand;
+
         GLXvector4f curr_color;
 
         GL_DEBUG( glGetFloatv )( GL_CURRENT_COLOR, curr_color );
 
         // Render each command
-        cmd_count   = MIN( ego_md2_data[pmad->md2_ref].cmd.count,   MAXCOMMAND );
-        entry_count = MIN( ego_md2_data[pmad->md2_ref].cmd.entries, MAXCOMMANDENTRIES );
-        vrt_count   = MIN( ego_md2_data[pmad->md2_ref].vertices,    MAXVERTICES );
+        cmd_count   = md2_get_numCommands(pmd2);
+        glcommand   = md2_get_Commands(pmd2);
 
-        entry = 0;
-        for ( cnt = 0; cnt < cmd_count; cnt++ )
+        for ( cnt = 0; cnt < cmd_count && NULL != glcommand; cnt++ )
         {
-            if ( entry >= entry_count ) break;
+            int count = glcommand->command_count;
 
-            GL_DEBUG( glBegin )( ego_md2_data[pmad->md2_ref].cmd.type[cnt] );
+            GL_DEBUG( glBegin )( glcommand->gl_mode );
             {
-                for ( tnc = 0; tnc < ego_md2_data[pmad->md2_ref].cmd.size[cnt]; tnc++ )
+                int tnc;
+
+                for( tnc = 0; tnc < count; tnc++ )
                 {
                     GLfloat     cmax;
                     GLXvector4f col;
                     GLfloat     tex[2];
+                    GLvertex   *pvrt;
 
-                    GLvertex * pvrt;
+                    vertex = glcommand->data[tnc].index;
+                    if ( vertex >= pinst->vlst_size ) continue;
 
-                    if ( entry >= entry_count ) break;
+                    pvrt   = pinst->vlst + vertex;
 
-                    vertex = ego_md2_data[pmad->md2_ref].cmd.vrt[entry];
-                    pvrt = pinst->vlst + vertex;
+                    // normalize the color so it can be modulated by the phong/environment map
+                    col[RR] = pvrt->color_dir * INV_FF;
+                    col[GG] = pvrt->color_dir * INV_FF;
+                    col[BB] = pvrt->color_dir * INV_FF;
+                    col[AA] = 1.0f;
 
-                    if ( vertex < vrt_count )
+                    cmax = MAX( MAX( col[RR], col[GG] ), col[BB] );
+
+                    if ( cmax != 0.0f )
                     {
-                        // normalize the color so it can be modulated by the phong/environment map
-                        col[RR] = pvrt->color_dir * INV_FF;
-                        col[GG] = pvrt->color_dir * INV_FF;
-                        col[BB] = pvrt->color_dir * INV_FF;
-                        col[AA] = 1.0f;
-
-                        cmax = MAX( MAX( col[RR], col[GG] ), col[BB] );
-
-                        if ( cmax != 0.0f )
-                        {
-                            col[RR] /= cmax;
-                            col[GG] /= cmax;
-                            col[BB] /= cmax;
-                        }
-
-                        // apply the tint
-                        col[RR] *= tint[RR];
-                        col[GG] *= tint[GG];
-                        col[BB] *= tint[BB];
-                        col[AA] *= tint[AA];
-
-                        tex[0] = pvrt->env[XX] + uoffset;
-                        tex[1] = CLIP( cmax, 0.0f, 1.0f );
-
-                        if ( 0 != ( bits & CHR_PHONG ) )
-                        {
-                            // determine the phong texture coordinates
-                            // the default phong is bright in both the forward and back directions...
-                            tex[1] = tex[1] * 0.5f + 0.5f;
-                        }
-
-                        GL_DEBUG( glColor4fv )( col );
-                        GL_DEBUG( glNormal3fv )( pvrt->nrm );
-                        GL_DEBUG( glTexCoord2fv )( tex );
-                        GL_DEBUG( glVertex3fv )( pvrt->pos );
+                        col[RR] /= cmax;
+                        col[GG] /= cmax;
+                        col[BB] /= cmax;
                     }
 
-                    entry++;
+                    // apply the tint
+                    col[RR] *= tint[RR];
+                    col[GG] *= tint[GG];
+                    col[BB] *= tint[BB];
+                    col[AA] *= tint[AA];
+
+                    tex[0] = pvrt->env[XX] + uoffset;
+                    tex[1] = CLIP( cmax, 0.0f, 1.0f );
+
+                    if ( 0 != ( bits & CHR_PHONG ) )
+                    {
+                        // determine the phong texture coordinates
+                        // the default phong is bright in both the forward and back directions...
+                        tex[1] = tex[1] * 0.5f + 0.5f;
+                    }
+
+                    GL_DEBUG( glColor4fv )( col );
+                    GL_DEBUG( glNormal3fv )( pvrt->nrm );
+                    GL_DEBUG( glTexCoord2fv )( tex );
+                    GL_DEBUG( glVertex3fv )( pvrt->pos );
                 }
+
             }
             GL_DEBUG_END();
+
+            glcommand = glcommand->next;
         }
     }
 
@@ -236,13 +241,14 @@ bool_t render_one_mad_tex( Uint16 character, GLXvector4f tint, Uint32 bits )
 {
     /// @details ZZ@> This function draws a model
 
-    int    cmd_count, vrt_count, entry_count;
-    int    cnt, tnc, entry;
+    int    cmd_count;
+    int    cnt;
     Uint16 vertex;
     float  uoffset, voffset;
 
     chr_t          * pchr;
     mad_t          * pmad;
+    MD2_Model_t    * pmd2;
     chr_instance_t * pinst;
     oglx_texture   * ptex;
 
@@ -252,6 +258,9 @@ bool_t render_one_mad_tex( Uint16 character, GLXvector4f tint, Uint32 bits )
 
     if ( !LOADED_MAD( pinst->imad ) ) return bfalse;
     pmad = MadList + pinst->imad;
+
+    pmd2 = pmad->md2_ptr;
+    if( NULL == pmd2 ) return bfalse;
 
     // To make life easier
     ptex = TxTexture_get_ptr( pinst->texture );
@@ -277,7 +286,8 @@ bool_t render_one_mad_tex( Uint16 character, GLXvector4f tint, Uint32 bits )
 
     ATTRIB_PUSH( "render_one_mad_tex", GL_CURRENT_BIT );
     {
-        float base_amb;
+        float             base_amb;
+        MD2_GLCommand_t * glcommand;
 
         // set the basic tint. if the object is marked with CHR_LIGHT
         // the color will not be set again inside the loop
@@ -292,73 +302,71 @@ bool_t render_one_mad_tex( Uint16 character, GLXvector4f tint, Uint32 bits )
         }
 
         // Render each command
-        cmd_count   = MIN( ego_md2_data[pmad->md2_ref].cmd.count,   MAXCOMMAND );
-        entry_count = MIN( ego_md2_data[pmad->md2_ref].cmd.entries, MAXCOMMANDENTRIES );
-        vrt_count   = MIN( ego_md2_data[pmad->md2_ref].vertices,    MAXVERTICES );
-        entry = 0;
-        for ( cnt = 0; cnt < cmd_count; cnt++ )
-        {
-            if ( entry >= entry_count ) break;
+        cmd_count   = md2_get_numCommands(pmd2);
+        glcommand   = md2_get_Commands(pmd2);
 
-            GL_DEBUG( glBegin )( ego_md2_data[pmad->md2_ref].cmd.type[cnt] );
+        for ( cnt = 0; cnt < cmd_count && NULL != glcommand; cnt++ )
+        {
+            int count = glcommand->command_count;
+
+            GL_DEBUG( glBegin )( glcommand->gl_mode );
             {
-                for ( tnc = 0; tnc < ego_md2_data[pmad->md2_ref].cmd.size[cnt]; tnc++ )
+                int tnc;
+
+                for( tnc = 0; tnc < count; tnc++ )
                 {
                     GLXvector2f tex;
                     GLXvector4f col;
+                    GLvertex * pvrt;
 
-                    if ( entry >= entry_count ) break;
+                    vertex = glcommand->data[tnc].index;
+                    if ( vertex >= pinst->vlst_size ) continue;
 
-                    vertex = ego_md2_data[pmad->md2_ref].cmd.vrt[entry];
+                    pvrt = pinst->vlst + vertex;
 
-                    if ( vertex < vrt_count )
+                    // determine the texture coordinates
+                    tex[0] = glcommand->data[tnc].s + uoffset;
+                    tex[1] = glcommand->data[tnc].t + voffset;
+
+                    // determine the vertex color for objects that have
+                    // per vertex lighting
+                    if ( 0 == ( bits & CHR_LIGHT ) )
                     {
-                        GLvertex * pvrt = pinst->vlst + vertex;
+                        float fcol;
 
-                        // determine the texture coordinates
-                        tex[0] = ego_md2_data[pmad->md2_ref].cmd.u[entry] + uoffset;
-                        tex[1] = ego_md2_data[pmad->md2_ref].cmd.v[entry] + voffset;
+                        // convert the "light" parameter to self-lighting for
+                        // every object that is not being rendered using CHR_LIGHT
+                        fcol   = pvrt->color_dir * INV_FF;
 
-                        // determine the vertex color for objects that have
-                        // per vertex lighting
-                        if ( 0 == ( bits & CHR_LIGHT ) )
+                        col[0] = fcol * tint[0];
+                        col[1] = fcol * tint[1];
+                        col[2] = fcol * tint[2];
+                        col[3] = tint[0];
+
+                        if ( 0 != ( bits & CHR_PHONG ) )
                         {
-                            float fcol;
+                            fcol = base_amb + pinst->color_amb * INV_FF;
 
-                            // convert the "light" parameter to self-lighting for
-                            // every object that is not being rendered using CHR_LIGHT
-                            fcol   = pvrt->color_dir * INV_FF;
-
-                            col[0] = fcol * tint[0];
-                            col[1] = fcol * tint[1];
-                            col[2] = fcol * tint[2];
-                            col[3] = tint[0];
-
-                            if ( 0 != ( bits & CHR_PHONG ) )
-                            {
-                                fcol = base_amb + pinst->color_amb * INV_FF;
-
-                                col[0] += fcol * tint[0];
-                                col[1] += fcol * tint[1];
-                                col[2] += fcol * tint[2];
-                            }
-
-                            col[0] = CLIP( col[0], 0.0f, 1.0f );
-                            col[1] = CLIP( col[1], 0.0f, 1.0f );
-                            col[2] = CLIP( col[2], 0.0f, 1.0f );
-
-                            GL_DEBUG( glColor4fv )( col );
+                            col[0] += fcol * tint[0];
+                            col[1] += fcol * tint[1];
+                            col[2] += fcol * tint[2];
                         }
 
-                        GL_DEBUG( glNormal3fv )( pvrt->nrm );
-                        GL_DEBUG( glTexCoord2fv )( tex );
-                        GL_DEBUG( glVertex3fv )( pvrt->pos );
+                        col[0] = CLIP( col[0], 0.0f, 1.0f );
+                        col[1] = CLIP( col[1], 0.0f, 1.0f );
+                        col[2] = CLIP( col[2], 0.0f, 1.0f );
+
+                        GL_DEBUG( glColor4fv )( col );
                     }
 
-                    entry++;
+                    GL_DEBUG( glNormal3fv )( pvrt->nrm );
+                    GL_DEBUG( glTexCoord2fv )( tex );
+                    GL_DEBUG( glVertex3fv )( pvrt->pos );
                 }
             }
             GL_DEBUG_END();
+
+            glcommand = glcommand->next;
         }
     }
     ATTRIB_POP( "render_one_mad_tex" );
@@ -578,7 +586,7 @@ void render_chr_bbox( chr_t * pchr )
 
         // draw all the vertices of an object
         GL_DEBUG( glPointSize( 5 ) );
-        draw_points( pchr, 0, ego_md2_data[pro_get_pmad( pchr->inst.imad )->md2_ref].vertices );
+        draw_points( pchr, 0, pchr->inst.vlst_size );
     }
 }
 
@@ -589,6 +597,7 @@ void draw_points( chr_t * pchr, int vrt_offset, int verts )
     ///     The original idea was to use this to debug the grip for attached items.
 
     mad_t * pmad;
+
     int vmin, vmax, cnt;
     GLboolean texture_1d_enabled, texture_2d_enabled;
 
@@ -601,7 +610,7 @@ void draw_points( chr_t * pchr, int vrt_offset, int verts )
     vmax = vmin + verts;
 
     if ( vmin < 0 || vmax < 0 ) return;
-    if ( vmin > ego_md2_data[pmad->md2_ref].vertices || vmax > ego_md2_data[pmad->md2_ref].vertices ) return;
+    if ( vmin > pchr->inst.vlst_size || vmax > pchr->inst.vlst_size ) return;
 
     texture_1d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_1D );
     texture_2d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_2D );
@@ -673,10 +682,10 @@ void _draw_one_grip_raw( chr_instance_t * pinst, mad_t * pmad, int slot )
 
     if ( NULL == pinst || NULL == pmad ) return;
 
-    vmin = ego_md2_data[pmad->md2_ref].vertices - slot_to_grip_offset(( slot_t )slot );
+    vmin = pinst->vlst_size - slot_to_grip_offset(( slot_t )slot );
     vmax = vmin + GRIP_VERTS;
 
-    if ( vmin >= 0 && vmax >= 0 && vmax <= ego_md2_data[pmad->md2_ref].vertices )
+    if ( vmin >= 0 && vmax >= 0 && vmax <= pinst->vlst_size )
     {
         fvec3_t   src, dst, diff;
 
@@ -836,7 +845,7 @@ void chr_instance_update_lighting_base( chr_instance_t * pinst, chr_t * pchr, bo
 
     if ( !LOADED_MAD( pinst->imad ) ) return;
     pmad = MadList + pinst->imad;
-    pinst->vlst_size = ego_md2_data[pmad->md2_ref].vertices;
+    pinst->vlst_size = pinst->vlst_size;
 
     // interpolate the lighting for the origin of the object
     grid_lighting_interpolate( PMesh, &global_light, pchr->pos.x, pchr->pos.y );
@@ -890,8 +899,11 @@ void chr_instance_update_lighting_base( chr_instance_t * pinst, chr_t * pchr, bo
 //--------------------------------------------------------------------------------------------
 egoboo_rv chr_instance_update_bbox( chr_instance_t * pinst )
 {
-    int    i;
-    mad_t * pmad;
+    int           i, frame_count;
+
+    mad_t       * pmad;
+    MD2_Model_t * pmd2;
+    MD2_Frame_t * frame_list, * pframe_nxt, * pframe_lst;
 
     if ( NULL == pinst ) return rv_error;
 
@@ -899,20 +911,30 @@ egoboo_rv chr_instance_update_bbox( chr_instance_t * pinst )
     if ( !LOADED_MAD( pinst->imad ) ) return rv_error;
     pmad = MadList + pinst->imad;
 
+    pmd2 = pmad->md2_ptr;
+    if( NULL == pmd2 ) return rv_error;
+
+    frame_count = md2_get_numFrames( pmd2 );
+    if( pinst->frame_nxt >= frame_count ||  pinst->frame_lst >= frame_count ) return rv_error;
+
+    frame_list = md2_get_Frames( pmd2 );
+    pframe_lst = frame_list + pinst->frame_lst;
+    pframe_nxt = frame_list + pinst->frame_nxt;
+
     if ( pinst->frame_nxt == pinst->frame_lst || pinst->flip == 0.0f )
     {
-        pinst->bbox = Md2FrameList[pinst->frame_lst].bbox;
+        pinst->bbox = pframe_lst->bb;
     }
     else if ( pinst->flip == 1.0f )
     {
-        pinst->bbox = Md2FrameList[pinst->frame_nxt].bbox;
+        pinst->bbox = pframe_nxt->bb;
     }
     else
     {
         for ( i = 0; i < OCT_COUNT; i++ )
         {
-            pinst->bbox.mins[i] = Md2FrameList[pinst->frame_lst].bbox.mins[i] + ( Md2FrameList[pinst->frame_nxt].bbox.mins[i] - Md2FrameList[pinst->frame_lst].bbox.mins[i] ) * pinst->flip;
-            pinst->bbox.maxs[i] = Md2FrameList[pinst->frame_lst].bbox.maxs[i] + ( Md2FrameList[pinst->frame_nxt].bbox.maxs[i] - Md2FrameList[pinst->frame_lst].bbox.maxs[i] ) * pinst->flip;
+            pinst->bbox.mins[i] = pframe_lst->bb.mins[i] + ( pframe_nxt->bb.mins[i] - pframe_lst->bb.mins[i] ) * pinst->flip;
+            pinst->bbox.maxs[i] = pframe_lst->bb.maxs[i] + ( pframe_nxt->bb.maxs[i] - pframe_lst->bb.maxs[i] ) * pinst->flip;
         }
     }
 
@@ -949,7 +971,7 @@ egoboo_rv chr_instance_needs_update( chr_instance_t * pinst, int vmin, int vmax,
     if ( !LOADED_MAD( pinst->imad ) ) return rv_error;
     pmad = MadList + pinst->imad;
 
-    maxvert = ego_md2_data[pmad->md2_ref].vertices - 1;
+    maxvert = pinst->vlst_size - 1;
 
     // check to make sure the lower bound of the saved data is valid.
     // it is initialized to an invalid value (psave->vmin = psave->vmax = -1)
@@ -977,15 +999,18 @@ egoboo_rv chr_instance_needs_update( chr_instance_t * pinst, int vmin, int vmax,
 //--------------------------------------------------------------------------------------------
 egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vmax, bool_t force )
 {
-    int    i, maxvert;
+    int    i, maxvert, frame_count;
     bool_t vertices_match, frames_match;
     bool_t verts_updated, frames_updated;
 
     egoboo_rv retval;
 
+
     vlst_cache_t * psave;
 
-    mad_t * pmad;
+    mad_t       * pmad;
+    MD2_Model_t * pmd2;
+    MD2_Frame_t * frame_list, * pframe_nxt, * pframe_lst;
 
     if ( NULL == pinst ) return rv_error;
     psave = &( pinst->save );
@@ -999,7 +1024,29 @@ egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vm
     if ( !LOADED_MAD( pinst->imad ) ) return rv_error;
     pmad = MadList + pinst->imad;
 
-    maxvert = ego_md2_data[pmad->md2_ref].vertices - 1;
+    pmd2 = pmad->md2_ptr;
+    if( NULL == pmd2 ) return rv_error;
+
+    // make sure we have valid data
+    if( pinst->vlst_size != md2_get_numVertices(pmd2) )
+    {
+        log_error("chr_instance_update_vertices() - character instance vertex data does not match its md2\n" );
+    }
+
+    // make sure the frames are in the valid range
+    frame_count = md2_get_numFrames(pmd2);
+    if( pinst->frame_nxt >= frame_count || pinst->frame_lst >= frame_count )
+    {
+        log_error("chr_instance_update_vertices() - character instance frame is outside the range of its md2\n" );
+    }
+
+
+    frame_list = md2_get_Frames(pmd2);
+    pframe_nxt = frame_list + pinst->frame_nxt;
+    pframe_lst = frame_list + pinst->frame_lst;
+
+
+    maxvert = pinst->vlst_size - 1;
 
     // handle the default parameters
     if ( vmin < 0 ) vmin = 0;
@@ -1030,16 +1077,16 @@ egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vm
         {
             Uint16 vrta_lst;
 
-            pinst->vlst[i].pos[XX] = Md2FrameList[pinst->frame_lst].vrtx[i];
-            pinst->vlst[i].pos[YY] = Md2FrameList[pinst->frame_lst].vrty[i];
-            pinst->vlst[i].pos[ZZ] = Md2FrameList[pinst->frame_lst].vrtz[i];
+            pinst->vlst[i].pos[XX] = pframe_lst->vertices[i].pos.x;
+            pinst->vlst[i].pos[YY] = pframe_lst->vertices[i].pos.y;
+            pinst->vlst[i].pos[ZZ] = pframe_lst->vertices[i].pos.z;
             pinst->vlst[i].pos[WW] = 1.0f;
 
-            vrta_lst = Md2FrameList[pinst->frame_lst].vrta[i];
+            pinst->vlst[i].nrm[XX] = pframe_lst->vertices[i].nrm.x;
+            pinst->vlst[i].nrm[YY] = pframe_lst->vertices[i].nrm.y;
+            pinst->vlst[i].nrm[ZZ] = pframe_lst->vertices[i].nrm.z;
 
-            pinst->vlst[i].nrm[XX] = kMd2Normals[vrta_lst][XX];
-            pinst->vlst[i].nrm[YY] = kMd2Normals[vrta_lst][YY];
-            pinst->vlst[i].nrm[ZZ] = kMd2Normals[vrta_lst][ZZ];
+            vrta_lst = pframe_lst->vertices[i].normal;
 
             pinst->vlst[i].env[XX] = indextoenvirox[vrta_lst];
             pinst->vlst[i].env[YY] = 0.5f * ( 1.0f + pinst->vlst[i].nrm[ZZ] );
@@ -1051,16 +1098,16 @@ egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vm
         {
             Uint16 vrta_nxt;
 
-            pinst->vlst[i].pos[XX] = Md2FrameList[pinst->frame_nxt].vrtx[i];
-            pinst->vlst[i].pos[YY] = Md2FrameList[pinst->frame_nxt].vrty[i];
-            pinst->vlst[i].pos[ZZ] = Md2FrameList[pinst->frame_nxt].vrtz[i];
+            pinst->vlst[i].pos[XX] = pframe_nxt->vertices[i].pos.x;
+            pinst->vlst[i].pos[YY] = pframe_nxt->vertices[i].pos.y;
+            pinst->vlst[i].pos[ZZ] = pframe_nxt->vertices[i].pos.z;
             pinst->vlst[i].pos[WW] = 1.0f;
 
-            vrta_nxt = Md2FrameList[pinst->frame_nxt].vrta[i];
+            pinst->vlst[i].nrm[XX] = pframe_nxt->vertices[i].nrm.x;
+            pinst->vlst[i].nrm[YY] = pframe_nxt->vertices[i].nrm.y;
+            pinst->vlst[i].nrm[ZZ] = pframe_nxt->vertices[i].nrm.z;
 
-            pinst->vlst[i].nrm[XX] = kMd2Normals[vrta_nxt][XX];
-            pinst->vlst[i].nrm[YY] = kMd2Normals[vrta_nxt][YY];
-            pinst->vlst[i].nrm[ZZ] = kMd2Normals[vrta_nxt][ZZ];
+            vrta_nxt = pframe_nxt->vertices[i].normal;
 
             pinst->vlst[i].env[XX] = indextoenvirox[vrta_nxt];
             pinst->vlst[i].env[YY] = 0.5f * ( 1.0f + pinst->vlst[i].nrm[ZZ] );
@@ -1072,17 +1119,17 @@ egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vm
         {
             Uint16 vrta_lst, vrta_nxt;
 
-            pinst->vlst[i].pos[XX] = Md2FrameList[pinst->frame_lst].vrtx[i] + ( Md2FrameList[pinst->frame_nxt].vrtx[i] - Md2FrameList[pinst->frame_lst].vrtx[i] ) * pinst->flip;
-            pinst->vlst[i].pos[YY] = Md2FrameList[pinst->frame_lst].vrty[i] + ( Md2FrameList[pinst->frame_nxt].vrty[i] - Md2FrameList[pinst->frame_lst].vrty[i] ) * pinst->flip;
-            pinst->vlst[i].pos[ZZ] = Md2FrameList[pinst->frame_lst].vrtz[i] + ( Md2FrameList[pinst->frame_nxt].vrtz[i] - Md2FrameList[pinst->frame_lst].vrtz[i] ) * pinst->flip;
+            pinst->vlst[i].pos[XX] = pframe_lst->vertices[i].pos.x + ( pframe_nxt->vertices[i].pos.x - pframe_lst->vertices[i].pos.x ) * pinst->flip;
+            pinst->vlst[i].pos[YY] = pframe_lst->vertices[i].pos.y + ( pframe_nxt->vertices[i].pos.y - pframe_lst->vertices[i].pos.y ) * pinst->flip;
+            pinst->vlst[i].pos[ZZ] = pframe_lst->vertices[i].pos.z + ( pframe_nxt->vertices[i].pos.z - pframe_lst->vertices[i].pos.z ) * pinst->flip;
             pinst->vlst[i].pos[WW] = 1.0f;
 
-            vrta_lst = Md2FrameList[pinst->frame_lst].vrta[i];
-            vrta_nxt = Md2FrameList[pinst->frame_nxt].vrta[i];
+            pinst->vlst[i].nrm[XX] = pframe_lst->vertices[i].nrm.x + ( pframe_nxt->vertices[i].nrm.x - pframe_lst->vertices[i].nrm.x ) * pinst->flip;
+            pinst->vlst[i].nrm[YY] = pframe_lst->vertices[i].nrm.y + ( pframe_nxt->vertices[i].nrm.y - pframe_lst->vertices[i].nrm.y ) * pinst->flip;
+            pinst->vlst[i].nrm[ZZ] = pframe_lst->vertices[i].nrm.z + ( pframe_nxt->vertices[i].nrm.z - pframe_lst->vertices[i].nrm.z ) * pinst->flip;
 
-            pinst->vlst[i].nrm[XX] = kMd2Normals[vrta_lst][XX] + ( kMd2Normals[vrta_nxt][XX] - kMd2Normals[vrta_lst][XX] ) * pinst->flip;
-            pinst->vlst[i].nrm[YY] = kMd2Normals[vrta_lst][YY] + ( kMd2Normals[vrta_nxt][YY] - kMd2Normals[vrta_lst][YY] ) * pinst->flip;
-            pinst->vlst[i].nrm[ZZ] = kMd2Normals[vrta_lst][ZZ] + ( kMd2Normals[vrta_nxt][ZZ] - kMd2Normals[vrta_lst][ZZ] ) * pinst->flip;
+            vrta_lst = pframe_lst->vertices[i].normal;
+            vrta_nxt = pframe_nxt->vertices[i].normal;
 
             pinst->vlst[i].env[XX] = indextoenvirox[vrta_lst] + ( indextoenvirox[vrta_nxt] - indextoenvirox[vrta_lst] ) * pinst->flip;
             pinst->vlst[i].env[YY] = 0.5f * ( 1.0f + pinst->vlst[i].nrm[ZZ] );

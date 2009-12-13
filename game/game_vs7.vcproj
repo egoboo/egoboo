@@ -855,6 +855,13 @@
 				RelativePath=".\egoboo_doxygen.h">
 			</File>
 		</Filter>
+		<Filter
+			Name="Game Inline"
+			Filter="">
+			<File
+				RelativePath=".\Md2.inl">
+			</File>
+		</Filter>
 	</Files>
 	<Globals>
 	</Globals>

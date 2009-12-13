@@ -129,7 +129,7 @@ typedef float fvec4_base_t[4];           ///< the basic floating point 4-vector 
 typedef struct s_fmat_4x4  { fmat_4x4_base_t  v; } fmat_4x4_t;
 
 /// A 2-vector type that allows more than one form of access
-typedef union  u_fvec2     { fvec2_base_t v; struct { float x, y; }; } fvec2_t;
+typedef union  u_fvec2     { fvec2_base_t v; struct { float x, y; }; struct { float s, t; }; } fvec2_t;
 
 /// A 3-vector type that allows more than one form of access
 typedef union  u_fvec3     { fvec3_base_t v; struct { float x, y, z; }; struct { float r, g, b; }; } fvec3_t;

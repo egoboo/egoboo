@@ -1210,7 +1210,7 @@ bool_t do_mounts( Uint16 ichr_a, Uint16 ichr_b )
             int vertex;
             chr_instance_t * pinst = &( pchr_b->inst );
 
-            vertex = ego_md2_data[MadList[pinst->imad].md2_ref].vertices - GRIP_LEFT;
+            vertex = pinst->vlst_size - GRIP_LEFT;
 
             // do the automatic update
             chr_instance_update_vertices( pinst, vertex, vertex, bfalse );
@@ -1256,7 +1256,7 @@ bool_t do_mounts( Uint16 ichr_a, Uint16 ichr_b )
             int vertex;
             chr_instance_t * pinst = &( pchr_a->inst );
 
-            vertex = ego_md2_data[MadList[pinst->imad].md2_ref].vertices - GRIP_LEFT;
+            vertex = pinst->vlst_size - GRIP_LEFT;
 
             // do the automatic update
             chr_instance_update_vertices( pinst, vertex, vertex, bfalse );
@@ -1848,7 +1848,7 @@ bool_t do_chr_prt_collision_deflect( chr_t * pchr, prt_t * pprt, chr_prt_collsio
     if( !ACTIVE_PPRT( pprt ) ) return bfalse;
 
     // shield block?
-    chr_is_invictus = ( 0 != ( Md2FrameList[pchr->inst.frame_nxt].framefx & MADFX_INVICTUS ) );
+    chr_is_invictus = ( 0 != ( chr_get_framefx( pchr ) & MADFX_INVICTUS ) );
 
     // shield block can be counteracted by an unblockable particle
     chr_is_invictus = chr_is_invictus && ( 0 == ( pdata->ppip->damfx & DAMFX_NBLOC ) );
