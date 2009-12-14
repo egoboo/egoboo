@@ -219,8 +219,8 @@ MD2_Model_t* md2_load(const char * szFilename, MD2_Model_t* mdl)
         cmd_size = 0;
         while( cmd_size < md2_header.size_glcmds )
         {
-            //read the number of commands in the strip
             Sint32 commands;
+
             fread(&commands, sizeof(Sint32), 1, f);
             cmd_size += sizeof(Sint32) / sizeof(Uint32); 
 
@@ -443,7 +443,7 @@ void md2_scale_model(MD2_Model_t * pmd2, float scale_x, float scale_y, float sca
     {
         bool_t bfound;
 
-        pframe = (MD2_Frame_t *)(pmd2->m_frames + cnt);
+        pframe = pmd2->m_frames + cnt;
 
         bfound = bfalse;
         for(tnc = 0; tnc  <num_verts; tnc++)
@@ -451,6 +451,10 @@ void md2_scale_model(MD2_Model_t * pmd2, float scale_x, float scale_y, float sca
             pframe->vertices[tnc].pos.x *= scale_x;
             pframe->vertices[tnc].pos.y *= scale_y;
             pframe->vertices[tnc].pos.z *= scale_z;
+
+            pframe->vertices[tnc].nrm.x *= scale_x;
+            pframe->vertices[tnc].nrm.y *= scale_y;
+            pframe->vertices[tnc].nrm.z *= scale_z;
 
             // Re-calculate the bounding box for this frame
             if(!bfound)
