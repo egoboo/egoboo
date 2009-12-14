@@ -4452,7 +4452,6 @@ Uint8 scr_ShowBlipXY( script_state_t * pstate, ai_state_t * pself )
     // ShowBlipXY( tmpx = "x", tmpy = "y", tmpargument = "color" )
 
     /// @details ZZ@> This function draws a blip on the map, and must be done each update
-
     SCRIPT_FUNCTION_BEGIN();
 
     // Add a blip
@@ -4462,8 +4461,8 @@ Uint8 scr_ShowBlipXY( script_state_t * pstate, ai_state_t * pself )
         {
             if ( pstate->argument < COLOR_MAX && pstate->argument >= 0 )
             {
-                blipx[numblip] = pstate->x * MAPSIZE / PMesh->gmem.edge_x;
-                blipy[numblip] = pstate->y * MAPSIZE / PMesh->gmem.edge_y;
+                blipx[numblip] = pstate->x;
+                blipy[numblip] = pstate->y;
                 blipc[numblip] = pstate->argument;
                 numblip++;
             }

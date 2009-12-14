@@ -16,7 +16,7 @@ IfTimeOut
   tmpdistance = BLAHENEMIES + BLAHFRIENDS
   SetTargetToNearestBlahID
     tmpx = targetdistance
-    tmpy = rand & 63 + 55			//Trigger range
+    tmpy = rand & 63 + 80			//Trigger range
     IfXIsLessThanY
       tmpx = targetz
       tmpy = selfz + 100

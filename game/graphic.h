@@ -344,7 +344,7 @@ int  draw_status( Uint16 character, int x, int y );
 void draw_text();
 void draw_one_character_icon( Uint16 item, int x, int y, bool_t draw_ammo );
 void draw_cursor();
-void draw_blip( float sizeFactor, Uint8 color, int x, int y );
+void draw_blip( float sizeFactor, Uint8 color, int x, int y, bool_t mini_map );
 void draw_all_lines( struct s_camera * pcam );
 
 void   render_world( struct s_camera * pcam );

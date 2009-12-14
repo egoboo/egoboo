@@ -432,21 +432,21 @@ void md2_scale_model(MD2_Model_t * pmd2, float scale_x, float scale_y, float sca
 {
     /// @details BB@> scale every vertex in the md2 by the given amount
 
-    int cnt, tnc, i;
+    int cnt, tnc;
     int num_frames, num_verts;
     MD2_Frame_t * pframe;
 
     num_frames = pmd2->m_numFrames;
     num_verts  = pmd2->m_numVertices;
 
-    for(cnt=0; cnt<num_frames; cnt++)
+    for(cnt = 0; cnt < num_frames; cnt++)
     {
         bool_t bfound;
 
         pframe = (MD2_Frame_t *)(pmd2->m_frames + cnt);
 
         bfound = bfalse;
-        for(tnc=0; tnc<num_verts; tnc++)
+        for(tnc = 0; tnc  <num_verts; tnc++)
         {
             pframe->vertices[tnc].pos.x *= scale_x;
             pframe->vertices[tnc].pos.y *= scale_y;

@@ -58,7 +58,7 @@ Damage tile damage type ( SLASH, CRUSH, POKE, HOLY
                           EVIL, FIRE, ICE, ZAP )	:  CRUSH
 
 Weather particles only over water ( TRUE or FALSE )	: TRUE
-Weather particle spawn rate ( 0 to 100, 0 is none )	: 6
+Weather particle spawn rate ( 0 to 100, 0 is none )	: 8
 
 Explore mode ( TRUE or FALSE )				: FALSE
 Far Edge mode...  For outside levels ( TRUE or FALSE )	: TRUE

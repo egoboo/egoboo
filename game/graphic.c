@@ -75,9 +75,6 @@
 #define SPARKLEADD 2
 #define BLIPSIZE 6
 
-#define GET_MAP_X(PMESH, POS_X) ( (POS_X)*MAPSIZE / PMESH->gmem.edge_x )
-#define GET_MAP_Y(PMESH, POS_Y) ( (POS_Y)*MAPSIZE / PMESH->gmem.edge_y ) + sdl_scr.y - MAPSIZE
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 /// Structure for keeping track of which dynalights are visible
@@ -645,12 +642,20 @@ int debug_printf( const char *format, ... )
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_blip( float sizeFactor, Uint8 color, int x, int y )
+void draw_blip( float sizeFactor, Uint8 color, int x, int y, bool_t mini_map  )
 {
+    /// @details ZZ@> This function draws a single blip
     frect_t txrect;
     float   width, height;
 
-    /// @details ZZ@> This function draws a blip
+	//Adjust the position values so that they fit inside the minimap
+	if( mini_map )
+	{
+		x = x*MAPSIZE / PMesh->gmem.edge_x;
+		y = ( y*MAPSIZE / PMesh->gmem.edge_y ) + sdl_scr.y - MAPSIZE;
+	}
+
+	//Now draw it
     if ( x > 0 && y > 0 )
     {
         oglx_texture * ptex = TxTexture_get_ptr( TX_BLIP );
@@ -722,19 +727,19 @@ void draw_one_icon( int icontype, int x, int y, Uint8 sparkle )
 
         blipx = x + SPARKLEADD + position;
         blipy = y + SPARKLEADD;
-        draw_blip( 0.5f, sparkle, blipx, blipy );
+        draw_blip( 0.5f, sparkle, blipx, blipy, bfalse );
 
         blipx = x + SPARKLEADD + SPARKLESIZE;
         blipy = y + SPARKLEADD + position;
-        draw_blip( 0.5f, sparkle, blipx, blipy );
+        draw_blip( 0.5f, sparkle, blipx, blipy, bfalse );
 
         blipx = blipx - position;
         blipy = y + SPARKLEADD + SPARKLESIZE;
-        draw_blip( 0.5f, sparkle, blipx, blipy );
+        draw_blip( 0.5f, sparkle, blipx, blipy, bfalse );
 
         blipx = x + SPARKLEADD;
         blipy = blipy - position;
-        draw_blip( 0.5f, sparkle, blipx, blipy );
+        draw_blip( 0.5f, sparkle, blipx, blipy, bfalse );
     }
 }
 
@@ -1355,8 +1360,8 @@ void draw_map()
                         if ( pchr->pos.x < PMesh->gmem.edge_x && pchr->pos.y < PMesh->gmem.edge_y )
                         {
                             // Valid colors only
-                            blipx[numblip] = GET_MAP_X( PMesh, pchr->pos.x );
-                            blipy[numblip] = GET_MAP_Y( PMesh, pchr->pos.y ); //pchr->pos.y * MAPSIZE / PMesh->gmem.edge_y;
+                            blipx[numblip] = pchr->pos.x;
+                            blipy[numblip] = pchr->pos.y;
                             blipc[numblip] = COLOR_RED; // Red blips
                             numblip++;
                         }
@@ -1368,7 +1373,7 @@ void draw_map()
         // draw all the blips
         for ( cnt = 0; cnt < numblip; cnt++ )
         {
-            draw_blip( 0.75f, blipc[cnt], blipx[cnt], blipy[cnt] /*+ sdl_scr.y - MAPSIZE*/ );
+            draw_blip( 0.75f, blipc[cnt], blipx[cnt], blipy[cnt], btrue );
         }
         numblip = 0;
 
@@ -1384,7 +1389,7 @@ void draw_map()
                     tnc = PlaList[cnt].index;
                     if ( ACTIVE_CHR( tnc ) && ChrList.lst[tnc].alive )
                     {
-                        draw_blip( 0.75f, COLOR_WHITE, GET_MAP_X( PMesh, ChrList.lst[tnc].pos.x ), GET_MAP_Y( PMesh, ChrList.lst[tnc].pos.y ) );
+                        draw_blip( 0.75f, COLOR_WHITE, ChrList.lst[tnc].pos.x, ChrList.lst[tnc].pos.y, btrue );
                     }
                 }
             }

@@ -267,6 +267,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Md2.inl"
+				>
+			</File>
+			<File
 				RelativePath=".\menu.c"
 				>
 			</File>
