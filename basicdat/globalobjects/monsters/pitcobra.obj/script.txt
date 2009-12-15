@@ -73,6 +73,12 @@ IfTimeOut
           SetTargetToSelf
           AccelerateTarget
           SetTargetToOldTarget
+          
+          //Spawn bite particle
+          tmpargument = 5
+          tmpdistance = SPAWNLAST
+          SpawnAttachedParticle
+          
           // Play the attack sound
           tmpargument = 2
           PlaySound
@@ -83,13 +89,15 @@ IfTimeOut
       tmpdistance = 1500
       Compass
     Else
-      tmpx = targetx
-      tmpy = targety
+      tmpx = rand & 511 + targetx - 256
+      tmpy = rand & 511 + targety - 256
       tmpturn = targetturnto
-      tmpdistance = -100
+      tmpdistance = -256
       Compass
     ClearWaypoints
     AddWaypoint
+    
+  //No enemies around.... wander
   Else
     tmpx = selfx
     tmpy = selfy

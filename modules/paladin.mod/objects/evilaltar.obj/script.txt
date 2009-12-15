@@ -41,24 +41,15 @@ IfTimeOut
   SetState
 
 IfKilled
-  tmpargument = 18
-  OpenPassage
-  // Smash open
-  tmpargument = [GOOD]
-  IfTargetHasSpecialID
-    tmpturn = 0
-  Else
-    tmpturn = 1
-  // Check for passages to open
-  tmpx = passage
-  tmpy = 0
-  IfXIsEqualToY
-    // Play the break sound
-    tmpargument = 2
-    PlaySound
-  tmpargument = tmpturn
+  SetTargetToWhoeverAttacked
+    
+  //Message and such
+  tmpargument = 2
+  PlaySound
+  tmpargument = 1
   SendMessageNear
 
+  //Fancy spell effect
   tmpargument = 4
   SpawnParticle
 
@@ -85,7 +76,8 @@ IfKilled
   GiveManaToTarget
 
   //Make the module spawn monsters!
-  tmpargument = 1
-  IssueOrder
+  tmpargument = [EXIT]
+  tmpdistance = [EXIT]
+  OrderSpecialID
 
 End

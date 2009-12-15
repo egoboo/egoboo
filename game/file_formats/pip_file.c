@@ -197,7 +197,7 @@ pip_t * load_one_pip_file( const char *szLoadName, pip_t * ppip )
 
     ppip->friendlyfire = fget_next_bool( fileread );
 
-    ppip->hateonly = fget_next_bool( fileread );           /// @todo not implemented yet
+    ppip->hateonly = fget_next_bool( fileread );
 
     ppip->newtargetonspawn = fget_next_bool( fileread );
 

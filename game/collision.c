@@ -2236,9 +2236,10 @@ bool_t do_chr_prt_collision_damage( chr_t * pchr, prt_t * pprt, chr_prt_collsion
 bool_t do_chr_prt_collision_bump( chr_t * pchr, prt_t * pprt, chr_prt_collsion_data_t * pdata )
 {
     bool_t prt_belongs_to_chr;
-    bool_t prt_hates_chr, prt_attacks_chr;
+    bool_t prt_hates_chr, prt_attacks_chr, prt_hateonly;
     bool_t valid_onlydamagefriendly;
     bool_t valid_friendlyfire;
+    bool_t valid_onlydamagehate;
 
     if( NULL == pdata ) return bfalse;
     if( !ACTIVE_PCHR( pchr ) ) return bfalse;
@@ -2268,18 +2269,22 @@ bool_t do_chr_prt_collision_bump( chr_t * pchr, prt_t * pprt, chr_prt_collsion_d
     // does the particle team hate the character's team
     prt_hates_chr = TeamList[pprt->team].hatesteam[pchr->team];
 
+	// Only bump into hated characters?
+	prt_hateonly = PipStack.lst[pprt->pip_ref].hateonly;
+	valid_onlydamagehate = prt_hates_chr && PipStack.lst[pprt->pip_ref].hateonly;
+
     // allow neutral particles to attack anything
     prt_attacks_chr = prt_hates_chr || ( (TEAM_NULL != pchr->team) && (TEAM_NULL == pprt->team) );
 
-    // this is the onlydamagefriendly condition from the particle search code
-    valid_onlydamagefriendly = ( pdata->ppip->onlydamagefriendly && pprt->team == pchr->team ) ||
-                                ( !pdata->ppip->onlydamagefriendly && prt_attacks_chr );
+	// this is the onlydamagefriendly condition from the particle search code
+	valid_onlydamagefriendly = ( pdata->ppip->onlydamagefriendly && pprt->team == pchr->team ) ||
+								( !pdata->ppip->onlydamagefriendly && prt_attacks_chr );
 
-    // I guess "friendly fire" does not mean "self fire", which is a bit unfortunate.
-    valid_friendlyfire = ( pdata->ppip->friendlyfire && !prt_hates_chr && !prt_belongs_to_chr ) ||
-                            ( !pdata->ppip->friendlyfire && prt_attacks_chr );
+	// I guess "friendly fire" does not mean "self fire", which is a bit unfortunate.
+	valid_friendlyfire = ( pdata->ppip->friendlyfire && !prt_hates_chr && !prt_belongs_to_chr ) ||
+							( !pdata->ppip->friendlyfire && prt_attacks_chr );
 
-    pdata->prt_bumps_chr =  valid_friendlyfire || valid_onlydamagefriendly;
+	pdata->prt_bumps_chr =  valid_friendlyfire || valid_onlydamagefriendly || valid_onlydamagehate;
 
     return pdata->prt_bumps_chr;
 }

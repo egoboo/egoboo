@@ -1,6 +1,6 @@
 //This is special for the grub mom
 IfCleanedUp				            // Respawn
-  tmpdistance = 128*10
+  tmpdistance = 128*15
   SetTargetToDistantEnemy
     DoNothing
   Else			                  // Make sure killer is away

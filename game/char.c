@@ -2698,7 +2698,7 @@ bool_t heal_character( Uint16 character, Uint16 healer, int amount, bool_t ignor
 {
     /// @details ZF@> This function gives some pure life points to the target, ignoring any resistances and so forth
 
-    if ( !ACTIVE_CHR( character ) || amount <= 0 || !ChrList.lst[character].alive || ( ChrList.lst[character].invictus && !ignoreinvincible ) ) return bfalse;
+    if ( !ACTIVE_CHR( character ) || !ChrList.lst[character].alive || ( ChrList.lst[character].invictus && !ignoreinvincible ) ) return bfalse;
 
     ChrList.lst[character].life = CLIP( ChrList.lst[character].life, ChrList.lst[character].life + ABS( amount ), ChrList.lst[character].lifemax );
 
@@ -3318,13 +3318,8 @@ chr_t * chr_init( chr_t * pchr )
     pchr->undoenchant = MAX_ENC;
     pchr->missiletreatment = MISSILE_NORMAL;
 
-    // Player stuff
-
-    // latches
-
+    // Character stuff
     pchr->turnmode = TURNMODE_VELOCITY;
-
-    // Life and Mana
     pchr->alive = btrue;
 
     // Jumping
@@ -3353,8 +3348,6 @@ chr_t * chr_init( chr_t * pchr )
     pchr->inst.action_which = ACTION_DA;
     pchr->inst.action_next  = ACTION_DA;
 
-    // Timers set to 0
-
     // I think we have to set the dismount timer, otherwise objects that
     // are spawned by chests will behave strangely...
     // nope this did not fix it
@@ -3377,7 +3370,7 @@ chr_t * chr_init( chr_t * pchr )
     pchr->onwhichplatform = MAX_CHR;
     pchr->attachedto      = MAX_CHR;
 
-    // set the ai state values to sefe values
+    // set the ai state values to safe values
     ai_state_init( &( pchr->ai ) );
 
     // set the insance values to safe values

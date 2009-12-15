@@ -830,7 +830,7 @@ Uint16 spawn_one_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 en
     {
         if ( ptarget->damagetargettype != peve->onlydamagetype )
         {
-            log_warning( "spawn_one_enchant() - failed because the target not have the right daagetargettype.\n" );
+            log_warning( "spawn_one_enchant() - failed because the target not have the right damagetargettype.\n" );
             return MAX_ENC;
         }
     }

@@ -20,7 +20,7 @@ Water ends particle ( TRUE or FALSE )			: FALSE
 Bump ends particle ( TRUE or FALSE )			: TRUE
 End if hits ground ( TRUE or FALSE )			: FALSE
 End after last frame ( TRUE or FALSE )			: TRUE
-Time before end ( 1 to 1000, 0 )			: 0
+Time before end ( 1 to 1000, 0 )			: 50
 
 
 
@@ -90,7 +90,7 @@ Only damage friendly ( TRUE or FALSE )			: FALSE
 Spawn sound ( -1 for none )				: -1
 End sound ( -1 for none )				: -1
 Friendly fire ( TRUE or FALSE )				: FALSE
-Only hit hate group ( TRUE or FALSE )			: FALSE
+Only hit hate group ( TRUE or FALSE )			: TRUE
 New target on spawn ( TRUE or FALSE )			: FALSE
 Target angle ( 0 to 32768 )				: 0
 Home in on target ( TRUE or FALSE )			: FALSE

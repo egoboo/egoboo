@@ -10,6 +10,7 @@ Version 2.8.0 (xx.12.2009)
 - New Feature: Improved AI by adding Line of Sight detection for targeting.
 - New Feature: Improved UI by implementing in-game pop up text.
 - New Feature: Implemented a new file system based on PhysFS to improve file handling.
+- Update: Improved the way models are loaded into memory and drawn.
 - Update: Further tweaks to improve the physics engine.
 - Update: Halved the permanent mana and life loss from using potions.
 - Update: Various AI script optimizations to increase game performance.
