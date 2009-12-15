@@ -375,10 +375,10 @@ chest:   NONE    46  39.5   78.5   1.0   W    29   0  0   16   0   F   F   N
   AmmoBox:   NONE    60  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   MagPotion:   NONE    62  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
-gelfeet:   NONE    93  23.5   70.5   1.0   N    0   0  0   1   0   F   F   E
-gelfeet:   NONE    93  23.5   72.0   1.0   N    0   0  0   1   0   F   F   E
-gelfeet:   NONE    93  23.5   73.5   1.0   N    0   0  0   1   0   F   F   E
-gelfeet:   NONE    93  23.5   75.0   1.0   N    0   0  0   1   0   F   F   E
+GigaGelfeet:   NONE    93  23.5   70.5   1.0   N    0   0  0   1   0   F   F   E
+GigaGelfeet:   NONE    93  23.5   72.0   1.0   N    0   0  0   1   0   F   F   E
+GigaGelfeet:   NONE    93  23.5   73.5   1.0   N    0   0  0   1   0   F   F   E
+GigaGelfeet:   NONE    93  23.5   75.0   1.0   N    0   0  0   1   0   F   F   E
 
 
 //Prison cell of the slayer

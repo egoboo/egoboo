@@ -2117,7 +2117,7 @@ void cleanup_all_particles()
         cnt++;
     }
 
-    // delay the spawning of particles so that it dies not happen while we are scanning the
+    // delay the spawning of particles so that it does not happen while we are scanning the
     // list of particles to be removed. That just confuses everything.
     for ( tnc = 0; tnc < delay_spawn_count && tnc < TOTAL_MAX_PRT; tnc++ )
     {

@@ -11,7 +11,7 @@ Level rating ( * to  ***** ) : ****
 
 // Module summary
 :A_cobol_slavelord_has_proclaimed
-:himself_the_Emperor_of_Bihopia,
+:himself_the_Emperor_of_Lorule,
 :trying_to_recreate_the_great_cobol
 :empire_that_was_destroyed_long_ago.
 :He_is_keeping_a_couple_of_tourists

@@ -337,7 +337,7 @@ Stool:   NONE    46  9.5   105.5   1.0   N    0   0  0   0   0   F   F   N
 Stool:   NONE    46  28.0   75.5   1.0   N    0   0  0   0   0   F   F   N
 well:   NONE    40  43.0   102.0   1.0   N    0   0  0   0   0   F   F   N
 well:   NONE    40  22.5   48.5   1.0   N    0   0  0   0   0   F   F   N
-flagpost:   NONE    54  16.5   19.5   1.0   N    0   0  0   0   0   F   F   N
+FlagPost:   NONE    54  16.5   19.5   1.0   ?    0   0  0   0   0   F   F   N
 trapdoor:   NONE    55  99.5   59.5   1.0   E    0   0  0   0   0   F   F   N
 trapdoor:   NONE    55  52.5   101.5   4.0   N    0   0  0   1   0   F   F   N //Griffin trapdoor
 trapdoor:   NONE    55  95.5   80.3   1.0   N    0   0  0   0   0   F   F   N
@@ -353,16 +353,16 @@ Stool:   NONE    46  78.3   44.8   1.0   N    0   0  0   0   0   F   F   N
 Stool:   NONE    46  76.8   44.5   1.0   N    0   0  0   0   0   F   F   N
 Stool:   NONE    46  77.0   46.5   1.0   N    0   0  0   0   0   F   F   N
 Stool:   NONE    46  89.5   43.5   1.0   N    0   0  0   0   0   F   F   N
-barrel:   NONE    158  93.8   52.5   1.0   W    0   3  0   0   0   F   F   N
-barrel:   NONE    158  94.5   52.5   1.0   S    0   0  0   0   0   F   F   N
+barrel:   NONE    158  93.8   52.5   1.0   ?    0   0  0   0   0   F   F   N
+barrel:   NONE    158  94.5   52.5   1.0   ?    0   0  0   0   0   F   F   N
 crate:   NONE    43  84.5   48.5   1.0   S    0   2  0   0   0   F   F   N
 crate:   NONE    43  12.5   97.5   2.0   N    0   0  0   0   0   F   F   N
 crate:   NONE    43  12.5   97.5   1.0   N    0   2  0   0   0   F   F   N
-barrel:   NONE    158  27.5   47.5   1.0   N    0   1  0   0   0   F   F   N
+barrel:   NONE    158  27.5   47.5   1.0   ?    0   0  0   0   0   F   F   N
 crate:   NONE    43  27.3   48.3   1.0   N    0   0  0   0   0   F   F   N
 crate:   NONE    43  28.3   47.3   1.0   N    0   2  0   0   0   F   F   N
 crate:   NONE    43  100.5   44.5   1.0   N    0   0  0   0   0   F   F   N
-crate:   NONE    43  98.5   40.5   1.0   N    0   0  0   0   0   F   F   N
+barrel:   NONE    158  98.5   40.5   1.0   ?    0   0  0   0   0   F   F   N
 crate:   NONE    43  100.5   43.5   1.0   N    0   0  0   0   0   F   F   N
 crate:   NONE    43  7.0   67.0   1.0   N    0   0  0   0   0   F   F   N
 crate:   NONE    43  12.5   96.8   1.0   N    0   3  0   0   0   F   F   N
@@ -376,11 +376,11 @@ Tree:   NONE    36  6.5   41.5   1.0   N    0   0  0   0   0   F   F   N
 Tree:   NONE    36  18.0   104.0   1.0   N    0   0  0   0   0   F   F   N
 Tree:   NONE    36  81.0   96.0   1.0   N    0   0  0   0   0   F   F   N
 Tree:   NONE    36  79.0   110.0   1.0   N    0   0  0   0   0   F   F   N
-flagpost:   NONE    54  84.0   10.0   1.0   N    0   0  0   0   0   F   F   N
-flagpost:   NONE    54  90.0   41.0   3.0   W    0   0  0   0   0   F   F   N
-flagpost:   NONE    54  89.5   78.5   3.0   W    0   0  0   0   0   F   F   N
-flagpost:   NONE    54  32.5   7.5   3.0   N    0   0  0   0   0   F   F   N
-flagpost:   NONE    54  44.5   7.5   3.0   N    0   0  0   0   0   F   F   N
+FlagPost:   NONE    54  84.0   10.0   1.0   ?    0   0  0   0   0   F   F   N
+FlagPost:   NONE    54  90.0   41.0   3.0   ?    0   0  0   0   0   F   F   N
+FlagPost:   NONE    54  89.5   78.5   3.0   ?    0   0  0   0   0   F   F   N
+FlagPost:   NONE    54  32.5   7.5   3.0   ?    0   0  0   0   0   F   F   N
+FlagPost:   NONE    54  44.5   7.5   3.0   ?    0   0  0   0   0   F   F   N
 brazier:   NONE    83  73.5   90.5   1.0   N    0   0  0   0   0   F   F   N
 brazier:   NONE    83  70.5   90.5   1.0   N    0   0  0   0   0   F   F   N
 brazier:   NONE    83  72.5   99.5   1.0   N    0   0  0   0   0   F   F   N
@@ -390,8 +390,13 @@ outhouse:   NONE    94  8.5   89.5   1.0   E    0   0  0   0   0   F   F   N
 outhouse:   NONE    94  82.0   15.0   1.0   E    0   0  0   0   0   F   F   N
 Pot:   NONE    90  57.5   77.5   0.0   ?    0   0  0   0   0   F   F   N
 Pot:   NONE    90  63.0   100.0   0.0  ?    0   0  0   0   0   F   F   N
-wheel:   NONE    91  104.5   59.5   1.0   E    0   0  0   0   0   F   F   N
 wheel:   NONE    91  95.5   76.5   1.0   N    0   0  0   0   0   F   F   N
+
+//Ship ahoy!
+wheel:   NONE    91  104.5   59.5   1.0   E    0   0  0   0   0   F   F   N
+barrel:   NONE    158  100.5   61.0   1.0   ?    0   0  0   0   0   F   F   N
+barrel:   NONE    158  101.8   61.5   1.0   ?    0   0  0   0   0   F   F   N
+barrel:   NONE    158  101.4   60.7   1.0   ?    0   0  0   0   0   F   F   N
 
 //All the sign posts
 sign:   NONE    56  57.5   106.5  0.0   N    0   3  0   0   0   F   F   N		//Griffin tower

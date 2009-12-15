@@ -135,63 +135,68 @@ IfBumped				// Bumped
   IfTargetIsOnOtherTeam
     SetTargetToOldTarget
   Else
-    IfTargetIsHurt			  //
-      tmpargument = 2			      // State 2 ( Helper )
-      SetState				      //
-    Else
-      //Check for people who want Restoration
-      IfTargetIsAPlayer
-        tmpargument = 0
-        IfContentIs         //First bump = "want restoration?"
-          tmpargument = 5
+    //Check for people who want Restoration
+    IfTargetIsAPlayer
+      tmpargument = 0
+      IfContentIs         //First bump = "want restoration?"
+        tmpargument = 5
+        SendMessageNear
+        tmpargument = 1
+        SetContent
+        tmpargument = 50
+        SetTime
+        tmpargument = 4
+        PlaySound             //hey now!
+      tmpargument = 2
+      IfContentIs         //Second bump = Restore!
+        tmpx = targetmoney
+        tmpy = 9
+        IfXIsMoreThanY
+          tmpargument = 6
           SendMessageNear
-          tmpargument = 1
+          tmpargument = 3
           SetContent
           tmpargument = 50
           SetTime
+          tmpargument = 3
+          tmpx = targetx
+          tmpy = targety
+          tmpdistance = targetz
+          SpawnExactParticle
+          UnkurseTargetInventory
+          tmpargument = [REST]
+          DispelTargetEnchantID
+          tmpargument = 0 - 10
+          GiveMoneyToTarget
+        
+        //Not enough money!
+        Else
+          tmpargument = 3
+          SetContent
+          tmpargument = 50
+          SetTime
+          tmpx = 10 - targetmoney  //Money needed
+          tmpargument = 7
+          SendMessageNear
           tmpargument = 4
           PlaySound             //hey now!
-        tmpargument = 2
-        IfContentIs         //Second bump = Restore!
-          tmpx = targetmoney
-          tmpy = 9
-          IfXIsMoreThanY
-            tmpargument = 6
-            SendMessageNear
-            tmpargument = 3
-            SetContent
-            tmpargument = 50
-            SetTime
-            tmpargument = 3
-            tmpx = targetx
-            tmpy = targety
-            tmpdistance = targetz
-            SpawnExactParticle
-            UnkurseTargetInventory
-            tmpargument = [REST]
-            DispelTargetEnchantID
-            tmpargument = 0 - 10
-            GiveMoneyToTarget
-          
-          //Not enough money!
-          Else
-            tmpargument = 3
-            SetContent
-            tmpargument = 50
-            SetTime
-            tmpx = 10 - targetmoney  //Money needed
-            tmpargument = 7
-            SendMessageNear
-            tmpargument = 4
-            PlaySound             //hey now!
-      Else					  // Revert
-        SetTargetToOldTarget		    //
-  tmpx = rand&511+selfx-256		  //
-  tmpy = rand&511+selfy-256		  //
-  ClearWaypoints			  //
-  AddWaypoint				  //
-  tmpargument = 40			  // Try again soon
-  SetTime				  //
+    
+    //Non players get healing for free!
+    Else
+      IfTargetIsHurt			  //
+        tmpargument = 2			      // State 2 ( Helper )
+        SetState				      //
+      Else
+        SetTargetToOldTarget
+
+      tmpx = rand & 511 + selfx - 256		  //
+      tmpy = rand & 511 + selfy - 256		  //
+      ClearWaypoints			  //
+      AddWaypoint				  //
+      
+    tmpargument = 40			  // Try again soon
+    SetTime
+ 
 IfTargetKilled				// Mode switch
   tmpargument = 0			  // Return to follow mode
   SetState				  //

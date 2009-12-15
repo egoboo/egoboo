@@ -3628,11 +3628,10 @@ Uint16 spawn_one_character( fvec3_t pos, Uint16 profile, Uint8 team,
                 pchr->iskursed   = bfalse;              // Shop items are never kursed
 
                 // Identify cheap items in a shop
-                if ( chr_get_price( ichr ) < 200 )
+                if ( chr_get_price( ichr ) <= SHOP_IDENTIFY )
                 {
                     pchr->nameknown  = btrue;
                 }
-
                 break;
             }
         }
@@ -6543,7 +6542,7 @@ const char * chr_get_name( Uint16 ichr, Uint32 bits )
 
     if ( 0 != ( bits & CHRNAME_CAPITAL ) )
     {
-        // ? capitalize the name ?
+        // capitalize the name ?
         szName[0] = toupper( szName[0] );
     }
 
@@ -6629,9 +6628,8 @@ Uint16 chr_get_imad( Uint16 ichr )
                 chr_update_collision_size( pchr, btrue );
             }
         }
+		if ( !LOADED_MAD( pchr->inst.imad ) ) return MAX_MAD;
     }
-
-    if ( !LOADED_MAD( pchr->inst.imad ) ) return MAX_MAD;
 
     return pchr->inst.imad;
 }

@@ -52,8 +52,9 @@ struct s_billboard_data_t;
 
 #define MAP_TURN_OFFSET 0x8000
 
-#define MAXXP      200000                        ///< Maximum experience
-#define MAXMONEY     9999                        ///< Maximum money
+#define MAXXP			200000                        ///< Maximum experience
+#define MAXMONEY		9999                        ///< Maximum money
+#define SHOP_IDENTIFY   200                         ///< Maximum value for identifying shop items
 
 #define MAX_CAP    MAX_PROFILE
 

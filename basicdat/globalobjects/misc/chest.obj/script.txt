@@ -46,6 +46,7 @@ IfSpawned
   IfXIsEqualToY
     tmpargument = 0
     SetAlpha
+    SetLight
 
   //Armor chest (remember armor type)
   tmpx = selfcontent & 32

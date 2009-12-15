@@ -20,7 +20,7 @@ IfChanged
 
 // Monster AI
 IfStateIs0
-  GetState // NOP
+  DoNothing
 Else
   // Handle disenchantment
   IfKilled
@@ -44,7 +44,7 @@ Else
     Compass
     ClearWaypoints
     AddWaypoint
-    tmpargument = rand&7 + 5
+    tmpargument = rand & 7 + 5
     SetTime
 
 // Spell AI
@@ -65,7 +65,6 @@ IfStateIs0
     TargetDoAction
     UndoEnchant
       // Killed the old one
-      GetState // NOP
       UnsparkleIcon
       SpawnPoof
     Else

@@ -1241,7 +1241,7 @@ int draw_status( Uint16 character, int x, int y )
     readtext = ( char * )chr_get_name( character, CHRNAME_CAPITAL );
 
     // make a short name for the actual display
-    for ( cnt = 0; cnt < 6; cnt++ )
+    for ( cnt = 0; cnt < 7; cnt++ )
     {
         cTmp = readtext[cnt];
 
@@ -1255,7 +1255,7 @@ int draw_status( Uint16 character, int x, int y )
             generictext[cnt] = cTmp;
         }
     }
-    generictext[6] = CSTR_END;
+    generictext[7] = CSTR_END;
 
     // draw the name
     y = _draw_string_raw( x + 8, y, generictext );

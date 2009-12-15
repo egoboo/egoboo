@@ -22,22 +22,40 @@
 //         A-Z ( caps only ).
 //         Null is predefined to be the neutral team.
 
+//Warlock shop
+#dependency IceRay             52
 #dependency Unseen             45
-#dependency SpkMace            46
-#dependency Torch              47
+#dependency Morph              46
+#dependency SordWall           47
 #dependency Storms             48
-#dependency OilFlask           49
+#dependency Rot                49
 #dependency Protect            51
 #dependency Missile            53
 #dependency Fireball           55
-#dependency Cinquedea          56
-#dependency Trident            57
-#dependency EnchantArmorScroll 58
+#dependency FireRing           56
+#dependency Levitate           57
+#dependency Light              58
 #dependency MPotion            59
-#dependency LPotion            50
-#dependency BullWolf           76
-#dependency Rebirth            77
+#dependency FrostBlast         50
+
+//Watts shop
 #dependency Identify           82
+#dependency LBow               60
+#dependency Claw               61
+#dependency SBrace             62
+#dependency Shovel             63
+#dependency Pick               64
+#dependency LRBrace            65
+#dependency StriderShoes       66
+#dependency RegAmulet          67
+#dependency Trident            68
+#dependency Spear              71
+#dependency SilvDagger         72
+#dependency Quiver             73
+#dependency Cinquedea          76
+#dependency Rebirth            77
+
+//Pet trader
 #dependency AlbinoBat          83
 
 //         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
@@ -171,3 +189,5 @@ ALRIC:     NONE      79    34.5 20.5 0.0  S   99   0   0   0   0   F   F   Good
 
 BLERF:     NONE      85   42.2 53.6 0.0  S   19  0   0   0   0   F   F   Good
   Cinquedea  : NONE        56   0    0    0    I   0   0   0   0   0   F   F   Null
+
+FlagPost:    NONE      86    45.5 52.5 0.0  ?   0   2   0   0   0   F   F   Null
