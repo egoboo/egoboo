@@ -108,6 +108,8 @@ typedef struct s_chr_reflection_cache chr_reflection_cache_t;
 /// the data to determine whether re-calculation of vlst is necessary
 struct s_vlst_cache
 {
+    bool_t valid;             ///< do we know whether this cache is valid or not?
+
     float  flip;              ///< the in-betweening  the last time the animation was updated
     Uint16 frame_nxt;         ///< the initial frame  the last time the animation was updated
     Uint16 frame_lst;         ///< the final frame  the last time the animation was updated
@@ -118,6 +120,8 @@ struct s_vlst_cache
     Uint32 vert_wld;          ///< the update_wld the last time the vertices were updated
 };
 typedef struct s_vlst_cache vlst_cache_t;
+
+vlst_cache_t * vlst_cache_init( vlst_cache_t * );
 
 //--------------------------------------------------------------------------------------------
 /// All the data that the renderer needs to draw the character
@@ -197,7 +201,10 @@ bool_t render_one_mad_ref( int tnc );
 
 void      update_all_chr_instance();
 egoboo_rv chr_update_instance( struct s_chr * pchr );
-egoboo_rv chr_instance_update_bbox( struct s_chr_instance * pinst );
-egoboo_rv chr_instance_needs_update( struct s_chr_instance * pinst, int vmin, int vmax, bool_t *verts_match, bool_t *frames_match );
-egoboo_rv chr_instance_update_vertices( struct s_chr_instance * pinst, int vmin, int vmax, bool_t force );
-egoboo_rv chr_instance_update_grip_verts( struct s_chr_instance * pinst, Uint16 vrt_lst[], size_t vrt_count );
+egoboo_rv chr_instance_update_bbox( chr_instance_t * pinst );
+egoboo_rv chr_instance_needs_update( chr_instance_t * pinst, int vmin, int vmax, bool_t *verts_match, bool_t *frames_match );
+egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vmax, bool_t force );
+egoboo_rv chr_instance_update_grip_verts( chr_instance_t * pinst, Uint16 vrt_lst[], size_t vrt_count );
+
+egoboo_rv chr_instance_set_action( chr_instance_t * pinst, int action, bool_t action_ready, bool_t override );
+egoboo_rv chr_instance_set_frame( chr_instance_t * pinst, int frame );

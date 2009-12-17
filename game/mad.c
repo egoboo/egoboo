@@ -187,7 +187,7 @@ int mad_get_action( Uint16 imad, int action )
     pmad = MadList + imad;
 
     // you are pretty much guaranteed that ACTION_DA will be valid for a model,
-    // I guess it could be invalid if the model had no fraes or something
+    // I guess it could be invalid if the model had no frames or something
     retval = ACTION_DA;
     if ( !pmad->action_valid[ACTION_DA] )
     {

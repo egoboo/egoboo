@@ -946,19 +946,11 @@ Uint8 scr_DoAction( script_state_t * pstate, ai_state_t * pself )
     action = mad_get_action( pchr->inst.imad, pstate->argument );
 
     returncode = bfalse;
-    if ( action < ACTION_COUNT && pchr->inst.action_ready )
+    if( rv_success == chr_instance_set_action( &(pchr->inst), action, bfalse, bfalse ) )
     {
-        if ( MadList[pchr->inst.imad].action_valid[action] )
-        {
-            pchr->inst.action_which = action;
-            pchr->inst.ilip         = 0;
-            pchr->inst.flip         = 0;
-            pchr->inst.frame_lst    = pchr->inst.frame_nxt;
-            pchr->inst.frame_nxt    = MadList[pchr->inst.imad].action_stt[action];
-            pchr->inst.action_ready = bfalse;
+        chr_instance_set_frame( &(pchr->inst), MadList[pchr->inst.imad].action_stt[action] );
 
-            returncode = btrue;
-        }
+        returncode = btrue;
     }
 
     SCRIPT_FUNCTION_END();
@@ -1049,20 +1041,11 @@ Uint8 scr_TargetDoAction( script_state_t * pstate, ai_state_t * pself )
         ptarget = ChrList.lst + pself->target;
 
         action = mad_get_action( ptarget->inst.imad, pstate->argument );
-        if ( action < ACTION_COUNT && ptarget->inst.action_ready )
+        if( rv_success == chr_instance_set_action( &(ptarget->inst), action, bfalse, bfalse ) )
         {
-            if ( MadList[ptarget->inst.imad].action_valid[action] )
-            {
-                ptarget->inst.action_which = action;
-                ptarget->inst.action_ready = bfalse;
+            chr_instance_set_frame( &(ptarget->inst), MadList[ptarget->inst.imad].action_stt[action] );
 
-                ptarget->inst.ilip         = 0;
-                ptarget->inst.flip         = 0;
-                ptarget->inst.frame_lst    = ptarget->inst.frame_nxt;
-                ptarget->inst.frame_nxt    = MadList[ptarget->inst.imad].action_stt[action];
-
-                returncode = btrue;
-            }
+            returncode = btrue;
         }
     }
 
@@ -1212,20 +1195,11 @@ Uint8 scr_DoActionOverride( script_state_t * pstate, ai_state_t * pself )
     action = mad_get_action( pchr->inst.imad, pstate->argument );
 
     returncode = bfalse;
-    if ( action < ACTION_COUNT )
+    if( rv_success == chr_instance_set_action( &(pchr->inst), action, bfalse, btrue ) )
     {
-        if ( MadList[pchr->inst.imad].action_valid[action] )
-        {
-            pchr->inst.action_which = action;
-            pchr->inst.action_ready = bfalse;
+        chr_instance_set_frame( &(pchr->inst), MadList[pchr->inst.imad].action_stt[action] );
 
-            pchr->inst.ilip         = 0;
-            pchr->inst.flip         = 0;
-            pchr->inst.frame_lst    = pchr->inst.frame_nxt;
-            pchr->inst.frame_nxt    = MadList[pchr->inst.imad].action_stt[action];
-
-            returncode = btrue;
-        }
+        returncode = btrue;
     }
 
     SCRIPT_FUNCTION_END();
@@ -2194,16 +2168,9 @@ Uint8 scr_BecomeSpellbook( script_state_t * pstate, ai_state_t * pself )
     {
         //Do dropped animation
         int tmp_action = mad_get_action( pchr->inst.imad, ACTION_JB );
-        if ( ACTION_COUNT != tmp_action && pmad->action_valid[tmp_action] )
+        if( rv_success == chr_instance_set_action( &(pchr->inst), tmp_action, bfalse, btrue ) )
         {
-            pchr->inst.action_which = tmp_action;
-            pchr->inst.action_ready = bfalse;
-            //pchr->inst.action_keep = btrue;
-
-            pchr->inst.ilip = 0;
-            pchr->inst.flip = 0;
-            pchr->inst.frame_lst = pchr->inst.frame_nxt;
-            pchr->inst.frame_nxt = pmad->action_stt[tmp_action];
+            chr_instance_set_frame( &(pchr->inst), pmad->action_stt[tmp_action] );
         }
 
         returncode = btrue;
@@ -4046,20 +4013,11 @@ Uint8 scr_ChildDoActionOverride( script_state_t * pstate, ai_state_t * pself )
         chr_t * pchild = ChrList.lst + pself->child;
 
         action = mad_get_action( pchild->inst.imad, pstate->argument );
-        if ( action < ACTION_COUNT )
+        if( rv_success == chr_instance_set_action( &(pchild->inst), action, bfalse, btrue ) )
         {
-            if ( MadList[pchild->inst.imad].action_valid[action] )
-            {
-                pchild->inst.action_which = action;
-                pchild->inst.action_ready = bfalse;
+            chr_instance_set_frame( &(pchild->inst), MadList[pchild->inst.imad].action_stt[action] );
 
-                pchild->inst.ilip         = 0;
-                pchild->inst.flip         = 0;
-                pchild->inst.frame_nxt    = MadList[pchild->inst.imad].action_stt[action];
-                pchild->inst.frame_lst    = pchild->inst.frame_nxt;
-
-                returncode = btrue;
-            }
+            returncode = btrue;
         }
     }
 
@@ -5231,20 +5189,14 @@ Uint8 scr_TargetDoActionSetFrame( script_state_t * pstate, ai_state_t * pself )
         chr_t * ptarget = ChrList.lst + pself->target;
 
         action = mad_get_action( ptarget->inst.imad, pstate->argument );
-        if ( action < ACTION_COUNT )
+        if( rv_success == chr_instance_set_action( &(ptarget->inst), action, bfalse, btrue) )
         {
-            if ( MadList[ptarget->inst.imad].action_valid[action] )
-            {
-                ptarget->inst.action_which = action;
-                ptarget->inst.action_ready = bfalse;
+            chr_instance_set_frame( &(ptarget->inst), MadList[ptarget->inst.imad].action_stt[action] );
 
-                ptarget->inst.ilip         = 0;
-                ptarget->inst.flip         = 0;
-                ptarget->inst.frame_nxt    = MadList[ptarget->inst.imad].action_stt[action];
-                ptarget->inst.frame_lst    = ptarget->inst.frame_nxt;
+            // remove the interpolation
+            ptarget->inst.frame_lst = ptarget->inst.frame_nxt;
 
-                returncode = btrue;
-            }
+            returncode = btrue;
         }
     }
 

@@ -906,15 +906,12 @@ Uint16 spawn_one_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 en
 
             // Start out with ActionMJ...  Object activated
             action = mad_get_action( chr_get_imad( overlay ), ACTION_MJ );
-            if ( ACTION_COUNT != action && ACTION_DA != action )
+            if ( !ACTION_IS_TYPE( action, D ) )
             {
-                povl->inst.action_which = action;
-                povl->inst.action_ready = bfalse;
-
-                povl->inst.flip = 0;
-                povl->inst.ilip = 0;
-                povl->inst.frame_nxt = povl_mad->action_stt[action];
-                povl->inst.frame_lst = povl->inst.frame_nxt;
+                if( rv_success == chr_instance_set_action( &(povl->inst), action, bfalse, btrue ) )
+                {
+                    chr_instance_set_frame( &(povl->inst), povl_mad->action_stt[action] );
+                }
             }
 
             // Assume it's transparent...

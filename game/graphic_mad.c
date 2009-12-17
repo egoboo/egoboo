@@ -53,6 +53,8 @@ static void chr_draw_grips( chr_t * pchr );
 static void chr_draw_attached_grip( chr_t * pchr );
 static void render_chr_bbox( chr_t * pchr );
 
+static egoboo_rv chr_instance_update_vlst_cache( chr_instance_t * pinst, int vmax, int vmin, bool_t force, bool_t vertices_match, bool_t frames_match );
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 bool_t render_one_mad_enviro( Uint16 character, GLXvector4f tint, Uint32 bits )
@@ -949,6 +951,8 @@ egoboo_rv chr_instance_needs_update( chr_instance_t * pinst, int vmin, int vmax,
     //                rv_fail    means that the instance does not need to be updated
     //                rv_success means that the instance should be updated
 
+    const float flip_tolerance = 0.25f * 0.5f;  // the flip tolerance is the default flip increment / 2
+
     bool_t local_verts_match, flips_match, local_frames_match;
 
     vlst_cache_t * psave;
@@ -957,20 +961,26 @@ egoboo_rv chr_instance_needs_update( chr_instance_t * pinst, int vmin, int vmax,
     int maxvert;
 
     // ensure that the pointers point to something
-    if ( NULL == verts_match ) verts_match  = &local_verts_match;
+    if ( NULL == verts_match  ) verts_match  = &local_verts_match;
     if ( NULL == frames_match ) frames_match = &local_frames_match;
 
     // initialize the boolean pointers
     *verts_match  = bfalse;
     *frames_match = bfalse;
 
+    // do we have a valid instance?
     if ( NULL == pinst ) return rv_error;
     psave = &( pinst->save );
 
-    // get the model.
+    // do we hace a valid mad?
     if ( !LOADED_MAD( pinst->imad ) ) return rv_error;
     pmad = MadList + pinst->imad;
 
+    // check to see if the vlst_cache has been marked as invalid.
+    // in this case, everything needs to be updated
+    if( !psave->valid ) return rv_success;
+
+    // get the last valid vertex from the chr_instance
     maxvert = pinst->vlst_size - 1;
 
     // check to make sure the lower bound of the saved data is valid.
@@ -980,18 +990,16 @@ egoboo_rv chr_instance_needs_update( chr_instance_t * pinst, int vmin, int vmax,
     // check to make sure the upper bound of the saved data is valid.
     if ( psave->vmin > maxvert || psave->vmax > maxvert ) return rv_success;
 
-    // make sure that the min and max vertices lie in the valid range
+    // make sure that the min and max vertices are in the correct order
     if ( vmax < vmin ) SWAP( int, vmax, vmin );
-    vmin = CLIP( vmin, 0, maxvert );
-    vmax = CLIP( vmax, 0, maxvert );
 
     // test to see if we have already calculated this data
-    ( *verts_match ) = ( vmin >= psave->vmin ) && ( vmax <= psave->vmax );
+    *verts_match = ( vmin >= psave->vmin ) && ( vmax <= psave->vmax );
 
-    flips_match = ( ABS( psave->flip - pinst->flip ) < 0.125f );
+    flips_match = ( ABS( psave->flip - pinst->flip ) < flip_tolerance );
 
-    ( *frames_match ) = ( pinst->frame_nxt == pinst->frame_lst && psave->frame_nxt == pinst->frame_nxt && psave->frame_lst == pinst->frame_lst ) ||
-                        ( flips_match && psave->frame_nxt == pinst->frame_nxt && psave->frame_lst == pinst->frame_lst );
+    *frames_match = ( pinst->frame_nxt == pinst->frame_lst && psave->frame_nxt == pinst->frame_nxt && psave->frame_lst == pinst->frame_lst ) ||
+                    ( flips_match && psave->frame_nxt == pinst->frame_nxt && psave->frame_lst == pinst->frame_lst );
 
     return ( !( *verts_match ) || !( *frames_match ) ) ? rv_success : rv_fail;
 }
@@ -1001,10 +1009,8 @@ egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vm
 {
     int    i, maxvert, frame_count;
     bool_t vertices_match, frames_match;
-    bool_t verts_updated, frames_updated;
 
     egoboo_rv retval;
-
 
     vlst_cache_t * psave;
 
@@ -1033,19 +1039,7 @@ egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vm
         log_error("chr_instance_update_vertices() - character instance vertex data does not match its md2\n" );
     }
 
-    // make sure the frames are in the valid range
-    frame_count = md2_get_numFrames(pmd2);
-    if( pinst->frame_nxt >= frame_count || pinst->frame_lst >= frame_count )
-    {
-        log_error("chr_instance_update_vertices() - character instance frame is outside the range of its md2\n" );
-    }
-
-
-    frame_list = md2_get_Frames(pmd2);
-    pframe_nxt = frame_list + pinst->frame_nxt;
-    pframe_lst = frame_list + pinst->frame_lst;
-
-
+    // get the vertex list size from the chr_instance
     maxvert = pinst->vlst_size - 1;
 
     // handle the default parameters
@@ -1057,19 +1051,40 @@ egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vm
 
     if ( force )
     {
-        // do the absolute maximum extent
-        vmin = MIN( vmin, psave->vmin );
-        vmax = MAX( vmax, psave->vmax );
+        // force an update of vertices
+
+        // select a range that encompases the requested vertices and the saved vertices
+        // if this is the 1st update, the saved vertices may be set to invalid values, as well
+        vmin = (psave->vmin < 0 ) ? vmin : MIN( vmin, psave->vmin );
+        vmax = (psave->vmax < 0 ) ? vmax : MAX( vmax, psave->vmax );
+
+        // force the routine to update
+        vertices_match = bfalse;
+        frames_match   = bfalse;
+    }
+    else
+    {
+        // make sure that the vertices are within the max range
+        vmin = CLIP( vmin, 0, maxvert );
+        vmax = CLIP( vmax, 0, maxvert );
+
+        // do we need to update?
+        retval = chr_instance_needs_update( pinst, vmin, vmax, &vertices_match, &frames_match );
+        if ( rv_error == retval ) return rv_error;            // rv_error == retval means some pointer or reference is messed up
+        if ( rv_fail  == retval ) return rv_success;          // rv_fail  == retval means we do not need to update this round
     }
 
-    // make sure that the vertices are within the max range
-    vmin = CLIP( vmin, 0, maxvert );
-    vmax = CLIP( vmax, 0, maxvert );
+    // make sure the frames are in the valid range
+    frame_count = md2_get_numFrames(pmd2);
+    if( pinst->frame_nxt >= frame_count || pinst->frame_lst >= frame_count )
+    {
+        log_error("chr_instance_update_vertices() - character instance frame is outside the range of its md2\n" );
+    }
 
-    // do we need to update?
-    retval = chr_instance_needs_update( pinst, vmin, vmax, &vertices_match, &frames_match );
-    if ( rv_error == retval ) return rv_error;
-    if ( rv_fail  == retval ) return rv_success;
+    // grab the frame data from the correct model
+    frame_list = md2_get_Frames(pmd2);
+    pframe_nxt = frame_list + pinst->frame_nxt;
+    pframe_lst = frame_list + pinst->frame_lst;
 
     if ( pinst->frame_nxt == pinst->frame_lst || pinst->flip == 0.0f )
     {
@@ -1136,9 +1151,26 @@ egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vm
         }
     }
 
+    // update the saved parameters
+    return chr_instance_update_vlst_cache( pinst, vmax, vmin, force, vertices_match, frames_match );
+}
+
+
+//--------------------------------------------------------------------------------------------
+egoboo_rv chr_instance_update_vlst_cache( chr_instance_t * pinst, int vmax, int vmin, bool_t force, bool_t vertices_match, bool_t frames_match )
+{
     // this is getting a bit ugly...
     // we need to do this calculation as little as possible, so it is important that the
-    // save_* values be tested and stored properly
+    // pinst->save.* values be tested and stored properly
+
+    bool_t verts_updated, frames_updated;
+    int    maxvert;
+
+    vlst_cache_t * psave;
+
+    if( NULL == pinst ) return rv_error;
+    maxvert = pinst->vlst_size - 1;
+    psave   = &(pinst->save);
 
     // the save_vmin and save_vmax is the most complex
     verts_updated = bfalse;
@@ -1148,8 +1180,8 @@ egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vm
         // the animation was updated. In any case, the only vertices that are
         // clean are in the range [vmin, vmax]
 
-        psave->vmin = vmin;
-        psave->vmax = vmax;
+        psave->vmin   = vmin;
+        psave->vmax   = vmax;
         verts_updated = btrue;
     }
     else if ( vertices_match )
@@ -1227,6 +1259,9 @@ egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vm
         psave->vert_wld  = update_wld;
     }
 
+    // mark the saved vlst_cache data as valid
+    psave->valid = btrue;
+
     return ( verts_updated || frames_updated ) ? rv_success : rv_fail;
 }
 
@@ -1261,4 +1296,83 @@ egoboo_rv chr_instance_update_grip_verts( chr_instance_t * pinst, Uint16 vrt_lst
     retval = chr_instance_update_vertices( pinst, vmin, vmax, btrue );
 
     return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+egoboo_rv chr_instance_set_action( chr_instance_t * pinst, int action, bool_t action_ready, bool_t override )
+{
+    mad_t * pmad;
+
+    // did we get a bad pointer?
+    if( NULL == pinst ) return rv_error;
+
+    // is the action in the valid range?
+    if( action < 0 || action > ACTION_COUNT ) return rv_error;
+
+    // do we have a valid model?
+    if( !LOADED_MAD(pinst->imad) ) return rv_error;
+    pmad = MadList + pinst->imad;
+    
+    // is the chosen action valid?
+    if( !pmad->action_valid[ action ] ) return rv_fail;
+
+    // are we going to check action_ready?
+    if( !override && !pinst->action_ready ) return rv_fail;
+
+    // set up the action
+    pinst->action_which = action;
+    pinst->action_next  = ACTION_DA;
+    pinst->action_keep  = bfalse;
+    pinst->action_ready = action_ready;
+
+    // invalidate the vertex list
+    pinst->save.valid = bfalse;
+
+    return rv_success;
+}
+
+//--------------------------------------------------------------------------------------------
+egoboo_rv chr_instance_set_frame( chr_instance_t * pinst, int frame )
+{
+    mad_t * pmad;
+
+    // did we get a bad pointer?
+    if( NULL == pinst ) return rv_error;
+
+    // is the action in the valid range?
+    if( pinst->action_which < 0 || pinst->action_which > ACTION_COUNT ) return rv_error;
+
+    // do we have a valid model?
+    if( !LOADED_MAD(pinst->imad) ) return rv_error;
+    pmad = MadList + pinst->imad;
+
+    // is the current action valid?
+    if( !pmad->action_valid[ pinst->action_which ] ) return rv_fail;
+
+    // is the frame within the valid range for this action?
+    if( frame <  pmad->action_stt[ pinst->action_which ] ) return rv_fail;
+    if( frame >= pmad->action_end[ pinst->action_which ] ) return rv_fail;
+
+    // jump to the next frame
+    pinst->flip = 0.0f;
+    pinst->ilip = 0;
+    pinst->frame_lst = pinst->frame_nxt;
+    pinst->frame_nxt = frame;
+
+    // invalidate the vlst_cache
+    pinst->save.valid = bfalse;
+}
+
+
+//--------------------------------------------------------------------------------------------
+vlst_cache_t * vlst_cache_init( vlst_cache_t * pcache )
+{
+    if( NULL == pcache ) return NULL;
+
+    memset( pcache, 0, sizeof(*pcache) );
+
+    pcache->vmin = -1;
+    pcache->vmax = -1;
+
+    return pcache;
 }

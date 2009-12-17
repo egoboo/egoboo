@@ -3344,9 +3344,7 @@ chr_t * chr_init( chr_t * pchr )
     pchr->map_turn_x = MAP_TURN_OFFSET;
 
     // action stuff
-    pchr->inst.action_ready = btrue;
-    pchr->inst.action_which = ACTION_DA;
-    pchr->inst.action_next  = ACTION_DA;
+    chr_instance_set_action( &(pchr->inst), ACTION_DA, btrue, btrue );
 
     // I think we have to set the dismount timer, otherwise objects that
     // are spawned by chests will behave strangely...
@@ -3698,11 +3696,9 @@ void respawn_character( Uint16 character )
     if ( NOLEADER == TeamList[pchr->team].leader )  TeamList[pchr->team].leader = character;
     if ( !pchr->invictus )  TeamList[pchr->baseteam].morale++;
 
-    pchr->inst.action_ready = btrue;
     pchr->inst.action_keep  = bfalse;
     pchr->inst.action_loop  = bfalse;
-    pchr->inst.action_which = ACTION_DA;
-    pchr->inst.action_next  = ACTION_DA;
+    chr_instance_set_action( &(pchr->inst), ACTION_DA, btrue, btrue );
 
     // reset all of the bump size information
     {
@@ -4186,10 +4182,10 @@ void change_character( Uint16 ichr, Uint16 profile_new, Uint8 skin, Uint8 leavew
 
     // Action stuff that must be down after chr_instance_spawn()
     pchr->inst.action_ready = bfalse;
-	pchr->inst.action_loop  = bfalse;
+    pchr->inst.action_keep  = bfalse;
+    pchr->inst.action_loop  = bfalse;
     if( pchr->alive )
 	{
-		pchr->inst.action_keep  = bfalse;
 		chr_play_action( ichr, ACTION_DA, bfalse );
 	}
 	else 
@@ -5226,20 +5222,23 @@ bool_t chr_do_latch_attack( chr_t * pchr, int which_slot )
             chr_t * pmount = ChrList.lst + mount;
             cap_t * pmount_cap = chr_get_pcap( mount );
 
-            allowedtoattack = pmount_cap->ridercanattack;
-            if ( pmount->ismount && pmount->alive && !pmount->isplayer && pmount->inst.action_ready )
-            {
-                if (( ACTION_IS_TYPE( action, P ) || !allowedtoattack ) && pchr->inst.action_ready )
-                {
-                    chr_play_action( mount, generate_randmask( ACTION_UA, 1 ), bfalse );
-                    pmount->ai.alert |= ALERTIF_USED;
-                    pchr->ai.lastitemused = mount;
+            // let the mount steal the rider's attack
+            if( !pmount_cap->ridercanattack ) allowedtoattack = bfalse;
 
-                    retval = btrue;
-                }
-                else
+            // can the mount do anything?
+            if ( pmount->alive )
+            {
+                // can the mount be told what to do?
+                if( pmount->ismount && !pmount->isplayer && pmount->inst.action_ready )
                 {
-                    allowedtoattack = bfalse;
+                    if ( !ACTION_IS_TYPE( action, P ) || !pmount_cap->ridercanattack )
+                    {
+                        chr_play_action( mount, generate_randmask( ACTION_UA, 1 ), bfalse );
+                        pmount->ai.alert     |= ALERTIF_USED;
+                        pchr->ai.lastitemused = mount;
+
+                        retval = btrue;
+                    }
                 }
             }
         }
@@ -5701,6 +5700,135 @@ bool_t move_one_character_integrate_motion( chr_t * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
+bool_t chr_inst_increment_frame( chr_instance_t * pinst, mad_t * pmad, Uint16 imount )
+{
+    /// @detaild BB@> all the code necessary to move on to the next frame of the animation
+
+    int tmp_action;
+
+    if( NULL == pinst || NULL == pmad ) return bfalse;
+
+    // Change frames
+    pinst->frame_lst = pinst->frame_nxt;
+    pinst->frame_nxt++;
+
+    // detect the end of the animation and handle special end conditions
+    if ( pinst->frame_nxt >= pmad->action_end[pinst->action_which] )
+    {
+        // make sure that the frame_nxt points to a valid frame in this action
+        pinst->frame_nxt = pmad->action_end[pinst->action_which] - 1;
+
+        if ( pinst->action_keep )
+        {
+            // Freeze that anumation at the last frame
+            pinst->frame_nxt = pinst->frame_lst;
+
+            // Break a kept action at any time
+            pinst->action_ready = btrue;
+        }
+        else if ( pinst->action_loop )
+        {
+            // Convert the action into a riding action if the character is mounted
+            if ( ACTIVE_CHR( imount ) )
+            {
+                tmp_action = mad_get_action( pinst->imad, ACTION_MI );
+                if( rv_success == chr_instance_set_action( pinst, tmp_action, btrue, btrue ) )
+                {
+                    pinst->frame_nxt = pmad->action_stt[tmp_action];
+                }
+            }
+
+            // set the frame to the beginning of the action
+            pinst->frame_nxt = pmad->action_stt[pinst->action_which];
+
+            // Break a looped action at any time
+            pinst->action_ready = btrue;
+        }
+        else
+        {
+            // Go on to the next action. don't let just anything interrupt it?
+            chr_instance_increment_action( pinst );
+        }
+    }
+
+    return btrue;
+}
+
+
+//--------------------------------------------------------------------------------------------
+bool_t chr_handle_madfx( chr_t * pchr )
+{
+    Uint16 ichr;
+    Uint32 framefx;
+
+    if( NULL == pchr ) return bfalse;
+    
+    ichr    = GET_INDEX_PCHR( pchr );
+    framefx = chr_get_framefx( pchr );
+
+    // Check frame effects
+    if ( framefx&MADFX_ACTLEFT )
+    {
+        character_swipe( ichr, SLOT_LEFT );
+    }
+
+    if ( framefx&MADFX_ACTRIGHT )
+    {
+        character_swipe( ichr, SLOT_RIGHT );
+    }
+
+    if ( framefx&MADFX_GRABLEFT )
+    {
+        character_grab_stuff( ichr, GRIP_LEFT, bfalse );
+    }
+
+    if ( framefx&MADFX_GRABRIGHT )
+    {
+        character_grab_stuff( ichr, GRIP_RIGHT, bfalse );
+    }
+
+    if ( framefx&MADFX_CHARLEFT )
+    {
+        character_grab_stuff( ichr, GRIP_LEFT, btrue );
+    }
+
+    if ( framefx&MADFX_CHARRIGHT )
+    {
+        character_grab_stuff( ichr, GRIP_RIGHT, btrue );
+    }
+
+    if ( framefx&MADFX_DROPLEFT )
+    {
+        detach_character_from_mount( pchr->holdingwhich[SLOT_LEFT], bfalse, btrue );
+    }
+
+    if ( framefx&MADFX_DROPRIGHT )
+    {
+        detach_character_from_mount( pchr->holdingwhich[SLOT_RIGHT], bfalse, btrue );
+    }
+
+    if ( framefx&MADFX_POOF && !pchr->isplayer )
+    {
+        pchr->ai.poof_time = update_wld;
+    }
+
+    if ( framefx&MADFX_FOOTFALL )
+    {
+        cap_t * pcap = pro_get_pcap( pchr->iprofile );
+        if( NULL != pcap )
+        {
+            int ifoot = pcap->soundindex[SOUND_FOOTFALL];
+            if ( VALID_SND( ifoot ) )
+            {
+                sound_play_chunk( pchr->pos, chr_get_chunk_ptr( pchr, ifoot ) );
+            }
+        }
+    }
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
 void move_one_character_do_animation( chr_t * pchr )
 {
     Uint8 speed, framelip;
@@ -5726,87 +5854,14 @@ void move_one_character_do_animation( chr_t * pchr )
         pinst->ilip  = ( pinst->ilip + 1 ) % 4;
 
         // handle frame FX for the new frame
-        if ( pinst->ilip == 3 )
+        if ( 3 == pinst->ilip )
         {
-            Uint32 framefx = chr_get_framefx( pchr );
-
-            // Check frame effects
-            if ( framefx&MADFX_ACTLEFT )
-                character_swipe( ichr, SLOT_LEFT );
-
-            if ( framefx&MADFX_ACTRIGHT )
-                character_swipe( ichr, SLOT_RIGHT );
-
-            if ( framefx&MADFX_GRABLEFT )
-                character_grab_stuff( ichr, GRIP_LEFT, bfalse );
-
-            if ( framefx&MADFX_GRABRIGHT )
-                character_grab_stuff( ichr, GRIP_RIGHT, bfalse );
-
-            if ( framefx&MADFX_CHARLEFT )
-                character_grab_stuff( ichr, GRIP_LEFT, btrue );
-
-            if ( framefx&MADFX_CHARRIGHT )
-                character_grab_stuff( ichr, GRIP_RIGHT, btrue );
-
-            if ( framefx&MADFX_DROPLEFT )
-                detach_character_from_mount( pchr->holdingwhich[SLOT_LEFT], bfalse, btrue );
-
-            if ( framefx&MADFX_DROPRIGHT )
-                detach_character_from_mount( pchr->holdingwhich[SLOT_RIGHT], bfalse, btrue );
-
-            if ( framefx&MADFX_POOF && !pchr->isplayer )
-                pchr->ai.poof_time = update_wld;
-
-            if ( framefx&MADFX_FOOTFALL )
-            {
-                int ifoot = pro_get_pcap( pchr->iprofile )->soundindex[SOUND_FOOTFALL];
-                if ( VALID_SND( ifoot ) )
-                {
-                    sound_play_chunk( pchr->pos, chr_get_chunk_ptr( pchr, ifoot ) );
-                }
-            }
+            chr_handle_madfx( pchr );
         }
 
-        if ( pinst->ilip == 0 )
+        if ( 0 == pinst->ilip )
         {
-            int tmp_action;
-
-            // Change frames
-            pinst->frame_lst = pinst->frame_nxt;
-            pinst->frame_nxt++;
-
-            if ( pinst->frame_nxt == chr_get_pmad( ichr )->action_end[pchr->inst.action_which] )
-            {
-                // Action finished
-                if ( pchr->inst.action_keep )
-                {
-                    // Keep the last frame going
-                    pinst->frame_nxt = pinst->frame_lst;
-                }
-                else
-                {
-                    if ( !pchr->inst.action_loop )
-                    {
-                        // Go on to the next action
-                        pchr->inst.action_which = pchr->inst.action_next;
-                        pchr->inst.action_next = ACTION_DA;
-                        pinst->frame_nxt = chr_get_pmad( ichr )->action_stt[pchr->inst.action_which];
-                    }
-                    else if ( ACTIVE_CHR( pchr->attachedto ) )
-                    {
-                        // See if the character is mounted...
-                        tmp_action = mad_get_action( pchr->inst.imad, ACTION_MI );
-                        if ( ACTION_COUNT != tmp_action )
-                        {
-                            pchr->inst.action_which = tmp_action;
-                            pinst->frame_nxt = chr_get_pmad( ichr )->action_stt[pchr->inst.action_which];
-                        }
-                    }
-                }
-
-                pchr->inst.action_ready = btrue;
-            }
+            chr_inst_increment_frame( pinst, chr_get_pmad(ichr), pchr->attachedto );
         }
     }
 
@@ -5815,15 +5870,15 @@ void move_one_character_do_animation( chr_t * pchr )
     pinst->rate = 1.0f;
 
     // Get running, walking, sneaking, or dancing, from speed
-    if ( !pchr->inst.action_keep && !pchr->inst.action_loop )
+    if ( !pinst->action_keep && !pinst->action_loop )
     {
         int           frame_count = md2_get_numFrames( pmad->md2_ptr );
         MD2_Frame_t * frame_list  = md2_get_Frames( pmad->md2_ptr );
-        MD2_Frame_t * pframe_nxt  = frame_list + pchr->inst.frame_nxt;
-        assert( pchr->inst.frame_nxt < frame_count );
+        MD2_Frame_t * pframe_nxt  = frame_list + pinst->frame_nxt;
+        assert( pinst->frame_nxt < frame_count );
 
         framelip = pframe_nxt->framelip;  // 0 - 15...  Way through animation
-        if ( pchr->inst.action_ready && pinst->ilip == 0 && pchr->enviro.grounded && pchr->flyheight == 0 && ( framelip&7 ) < 2 )
+        if ( pinst->action_ready && pinst->ilip == 0 && pchr->enviro.grounded && pchr->flyheight == 0 && ( framelip&7 ) < 2 )
         {
             // Do the motion stuff
 
@@ -5842,27 +5897,27 @@ void move_one_character_do_animation( chr_t * pchr )
                 else if ( pchr->boretime == 0 || speed == 0 )
                 {
                     // Do standstill
-                    if ( !ACTION_IS_TYPE( pchr->inst.action_which, D ) )
+                    if ( !ACTION_IS_TYPE( pinst->action_which, D ) )
                     {
-                        int tmp_action = mad_get_action( pchr->inst.imad, ACTION_DA );
-                        if ( ACTION_COUNT != tmp_action )
+                        int tmp_action = mad_get_action( pinst->imad, ACTION_DA );
+                        if( rv_success == chr_instance_set_action( pinst, tmp_action, btrue, btrue ) )
                         {
-                            pchr->inst.action_which = tmp_action;
-                            pinst->frame_nxt = pmad->action_stt[pchr->inst.action_which];
+                            chr_instance_set_frame( pinst, pmad->action_stt[pinst->action_which] );
                         }
                     }
                 }
                 else
                 {
-                    int tmp_action = mad_get_action( pchr->inst.imad, ACTION_WA );
+                    int tmp_action = mad_get_action( pinst->imad, ACTION_WA );
                     if ( ACTION_COUNT != tmp_action )
                     {
-                        pchr->inst.action_next = tmp_action;
-                        if ( pchr->inst.action_which != tmp_action )
+                        if ( pinst->action_which != tmp_action )
                         {
-                            pinst->frame_nxt = pmad->frameliptowalkframe[LIPWA][framelip];
-                            pchr->inst.action_which = tmp_action;
+                            chr_instance_set_action( pinst, tmp_action, btrue, btrue );
+                            chr_instance_set_frame( pinst, pmad->frameliptowalkframe[LIPWA][framelip] );
                         }
+                        
+                        pinst->action_next = tmp_action;
 
                         if ( pchr->fat != 0.0f )
                         {
@@ -5878,15 +5933,18 @@ void move_one_character_do_animation( chr_t * pchr )
                 if ( speed < 0.5f *( pchr->sneakspd + pchr->walkspd ) )
                 {
                     //Sneak
-                    int tmp_action = mad_get_action( pchr->inst.imad, ACTION_WA );
+                    int tmp_action = mad_get_action( pinst->imad, ACTION_WA );
                     if ( ACTION_COUNT != tmp_action )
                     {
-                        pchr->inst.action_next = tmp_action;
-                        if ( pchr->inst.action_which != tmp_action )
+                        if ( pinst->action_which != tmp_action )
                         {
-                            pinst->frame_nxt = pmad->frameliptowalkframe[LIPWA][framelip];
-                            pchr->inst.action_which = tmp_action;
+                            if( rv_success == chr_instance_set_action( pinst, tmp_action, btrue, btrue ) )
+                            {
+                                chr_instance_set_frame( pinst, pmad->frameliptowalkframe[LIPWA][framelip] );
+                            }
                         }
+
+                        pinst->action_next = tmp_action;
 
                         if ( pchr->fat != 0.0f )
                         {
@@ -5897,15 +5955,18 @@ void move_one_character_do_animation( chr_t * pchr )
                 else if ( speed < 0.5f *( pchr->walkspd + pchr->runspd ) )
                 {
                     //Walk
-                    int tmp_action = mad_get_action( pchr->inst.imad, ACTION_WB );
+                    int tmp_action = mad_get_action( pinst->imad, ACTION_WB );
                     if ( ACTION_COUNT != tmp_action )
                     {
-                        pchr->inst.action_next = tmp_action;
-                        if ( pchr->inst.action_which != tmp_action )
+                        if ( pinst->action_which != tmp_action )
                         {
-                            pinst->frame_nxt = pmad->frameliptowalkframe[LIPWB][framelip];
-                            pchr->inst.action_which = tmp_action;
+                            if( rv_success == chr_instance_set_action( pinst, tmp_action, btrue, btrue ) )
+                            {
+                                chr_instance_set_frame( pinst, pmad->frameliptowalkframe[LIPWB][framelip] );
+                            }
                         }
+
+                        pinst->action_next = tmp_action;
 
                         if ( pchr->fat != 0.0f )
                         {
@@ -5916,15 +5977,18 @@ void move_one_character_do_animation( chr_t * pchr )
                 else
                 {
                     //Run
-                    int tmp_action = mad_get_action( pchr->inst.imad, ACTION_WC );
+                    int tmp_action = mad_get_action( pinst->imad, ACTION_WC );
                     if ( ACTION_COUNT != tmp_action )
                     {
-                        pchr->inst.action_next = tmp_action;
-                        if ( pchr->inst.action_which != tmp_action )
+                        if ( pinst->action_which != tmp_action )
                         {
-                            pinst->frame_nxt        = pmad->frameliptowalkframe[LIPWC][framelip];
-                            pchr->inst.action_which = tmp_action;
+                            if( rv_success == chr_instance_set_action( pinst, tmp_action, btrue, btrue ) )
+                            {
+                                chr_instance_set_frame( pinst, pmad->frameliptowalkframe[LIPWC][framelip] );
+                            }
                         }
+
+                        pinst->action_next = tmp_action;
 
                         if ( pchr->fat != 0.0f )
                         {
@@ -6103,19 +6167,6 @@ bool_t is_invictus_direction( Uint16 direction, Uint16 character, Uint16 effects
 }
 
 //--------------------------------------------------------------------------------------------
-vlst_cache_t * vlst_cache_init( vlst_cache_t * pcache )
-{
-    if ( NULL == pcache ) return pcache;
-
-    memset( pcache, 0, sizeof( pcache ) );
-
-    pcache->vmin = -1;
-    pcache->vmax = -1;
-
-    return pcache;
-}
-
-//--------------------------------------------------------------------------------------------
 chr_reflection_cache_t * chr_reflection_cache_init( chr_reflection_cache_t * pcache )
 {
     if ( NULL == pcache ) return pcache;
@@ -6175,10 +6226,13 @@ chr_instance_t * chr_instance_init( chr_instance_t * pinst )
     pinst->matrix = IdentityMatrix();
 
     // set the animation state
-    pinst->rate = 1.0f;
+    pinst->rate         = 1.0f;
     pinst->action_next  = ACTION_DA;
     pinst->action_ready = btrue;             // argh! this must be set at the beginning, script's spawn animations do not work!
-    pinst->frame_nxt = pinst->frame_lst = 0;
+    pinst->frame_nxt    = pinst->frame_lst = 0;
+
+    // the vlst_cache parameters are not valid
+    pinst->save.valid = bfalse;
 
     return pinst;
 }
@@ -6259,6 +6313,9 @@ bool_t chr_instance_set_mad( chr_instance_t * pinst, Uint16 imad )
     {
         updated = btrue;
         pinst->frame_nxt = pinst->frame_lst = 0;
+
+        // the vlst_cache parameters are not valid
+        pinst->save.valid = bfalse;
     }
 
     if ( updated )

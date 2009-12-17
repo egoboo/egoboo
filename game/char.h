@@ -519,6 +519,7 @@ bool_t character_grab_stuff( Uint16 chara, grip_offset_t grip, bool_t people );
 
 void chr_play_action( Uint16 character, Uint16 action, Uint8 actionready );
 void chr_instance_play_action( chr_instance_t * pinst, Uint16 action, Uint8 actionready );
+void chr_instance_increment_action( chr_instance_t * pinst );
 void chr_set_frame( Uint16 character, Uint16 action, int frame, Uint16 lip );
 
 bool_t export_one_character_name( const char *szSaveName, Uint16 character );

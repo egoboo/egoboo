@@ -582,18 +582,45 @@ void chr_instance_play_action( chr_instance_t * pinst, Uint16 action, Uint8 acti
     pmad = MadList + pinst->imad;
 
     action = mad_get_action( pinst->imad, action );
-    if ( ACTION_COUNT != action && pmad->action_valid[action] )
-    {
-        pinst->action_which = action;
-        pinst->action_next  = ACTION_DA;
-        pinst->action_ready = actionready;
 
-        pinst->flip = 0;
-        pinst->ilip = 0;
-        pinst->frame_lst = pinst->frame_nxt;
-        pinst->frame_nxt = pmad->action_stt[pinst->action_which];
+    if( rv_success == chr_instance_set_action( pinst, action, actionready, btrue ) )
+    {
+        chr_instance_set_frame( pinst, pmad->action_stt[action] ); 
     }
 }
+
+
+//--------------------------------------------------------------------------------------------
+void chr_instance_increment_action( chr_instance_t * pinst )
+{
+    /// @details BB@> This function starts the next action for a character
+
+    mad_t * pmad;
+    int     action, action_old;
+    bool_t  action_ready;
+
+    if ( NULL == pinst ) return;
+
+    // save the old action
+    action_old = pinst->action_which;
+
+    if ( !LOADED_MAD( pinst->imad ) ) return;
+    pmad = MadList + pinst->imad;
+
+    // get the correct action
+    action = mad_get_action( pinst->imad, pinst->action_next );
+
+    // determine if the action is one of the types that can be broken at any time
+    // D == "dance" and "W" == walk
+    action_ready = ACTION_IS_TYPE( action, D ) || ACTION_IS_TYPE( action, W );
+
+    if( rv_success == chr_instance_set_action( pinst, action, action_ready, btrue ) )
+    {
+        chr_instance_set_frame( pinst, pmad->action_stt[action] ); 
+    }
+
+}
+
 
 //--------------------------------------------------------------------------------------------
 void chr_set_frame( Uint16 character, Uint16 action, int frame, Uint16 lip )
@@ -603,6 +630,7 @@ void chr_set_frame( Uint16 character, Uint16 action, int frame, Uint16 lip )
 
     chr_t * pchr;
     mad_t * pmad;
+    int framesinaction, frame_stt, frame_end;
 
     if ( !ACTIVE_CHR( character ) ) return;
     pchr = ChrList.lst + character;
@@ -611,14 +639,8 @@ void chr_set_frame( Uint16 character, Uint16 action, int frame, Uint16 lip )
     if ( NULL == pmad ) return;
 
     action = mad_get_action( chr_get_imad( character ), action );
-    if ( ACTION_COUNT != action && pmad->action_valid[action] )
+    if( rv_success == chr_instance_set_action( &(pchr->inst), action, btrue, btrue ) )
     {
-        int framesinaction, frame_stt, frame_end;
-
-        pchr->inst.action_next = ACTION_DA;
-        pchr->inst.action_which = ACTION_DA;
-        pchr->inst.action_ready = btrue;
-
         framesinaction = ( pmad->action_end[action] - pmad->action_stt[action] ) + 1;
         if ( framesinaction <= 1 )
         {
@@ -639,6 +661,7 @@ void chr_set_frame( Uint16 character, Uint16 action, int frame, Uint16 lip )
         pchr->inst.frame_lst = frame_stt;
         pchr->inst.frame_nxt = frame_end;
     }
+
 }
 
 //--------------------------------------------------------------------------------------------
