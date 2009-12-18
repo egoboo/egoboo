@@ -30,6 +30,7 @@ IfStateIs1
     PlaySound			//Play clinking
     tmpargument = ACTIONMG
     DoAction
+    KeepAction
     
     //Deal damage to nearby stuff
     tmpargument = 0
@@ -45,7 +46,7 @@ IfStateIs1
     tmpargument = selfcontent + 1
     tmpdistance = [GATE]
     OrderSpecialID
-    
+  
 //-----------------------------------------------------------------------------------------------
 tmpargument = 0
 IfContentIs

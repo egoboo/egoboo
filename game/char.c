@@ -5286,6 +5286,12 @@ bool_t chr_do_latch_attack( chr_t * pchr, int which_slot )
         }
     }
 
+	//Reset boredom timer if the attack succeeded
+	if( retval)
+	{
+		pchr->boretime = BORETIME;
+	}
+
     return retval;
 }
 
@@ -8454,7 +8460,7 @@ void chr_set_alpha( chr_t * pchr, int alpha )
 {
     if ( !ALLOCATED_PCHR( pchr ) ) return;
 
-    pchr->inst.ref.alpha = alpha;
+    pchr->inst.alpha = CLIP(alpha, 0, 255);
 
     chr_instance_update_ref( &( pchr->inst ), pchr->enviro.floor_level, bfalse );
 }
@@ -8464,7 +8470,7 @@ void chr_set_light( chr_t * pchr, int light )
 {
     if ( !ALLOCATED_PCHR( pchr ) ) return;
 
-    pchr->inst.light = light;
+    pchr->inst.light = CLIP(light, 0, 255);
 
     chr_instance_update_ref( &( pchr->inst ), pchr->enviro.floor_level, bfalse );
 }

@@ -1,6 +1,6 @@
 Module Name :The_Imprisoned_One
 Reference Directory :NONE
-Required reference IDSZ :[NONE]
+Required reference IDSZ :[IMPR] 0
 Number of imports ( 0 to 4 ) :4
 Exporting ( TRUE or FALSE ) :FALSE
 Minimum players ( 1 to 4 ) :1

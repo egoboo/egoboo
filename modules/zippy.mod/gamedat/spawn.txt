@@ -187,7 +187,11 @@ ALRIC:     NONE      79    34.5 20.5 0.0  S   99   0   0   0   0   F   F   Good
   Mallet: NONE        75   0    0    0    R   0   0   0   0   0   F   F   Null
   Unseen: NONE        45   0    0    0    L   0   0   0   0   0   F   F   Null
 
-BLERF:     NONE      85   42.2 53.6 0.0  S   19  0   0   0   0   F   F   Good
+BLERF:     NONE      85   42.2 53.6 0.0  E   19  0   0   0   0   F   F   Good
   Cinquedea  : NONE        56   0    0    0    I   0   0   0   0   0   F   F   Null
 
 FlagPost:    NONE      86    45.5 52.5 0.0  ?   0   2   0   0   0   F   F   Null
+
+Prophet:    NONE      87    37.5 44.5 0.0  W   0   0   0   0   0   F   F   Good
+  QStaff:   NONE      88    0    0    0    R   0   0   0   0   0   F   F   Null
+

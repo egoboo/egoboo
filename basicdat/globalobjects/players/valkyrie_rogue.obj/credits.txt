@@ -1,3 +1,0 @@
-original Pirate Pete, using the Healer model
-
-new version using the Rogue model and uv-mapping BenBirdsey

@@ -49,7 +49,6 @@ IfTimeOut
       IfXIsMoreThanY
         // Play close sound
         tmpargument = 0
-        tmpdistance = 11025
         PlaySound
         // Close the door
         tmpargument = ACTIONMJ
@@ -61,8 +60,7 @@ IfTimeOut
   IfStateIs1
     tmpargument = 2
     SetTime
-    GetContent
-    tmpargument = tmpargument + 1
+    tmpargument = selfcontent + 1
     SetContent
     tmpx = tmpargument
     tmpy = 8
@@ -82,4 +80,5 @@ IfTimeOut
       tmpx = tmpx - 8 * 42
       tmpargument = 254 - tmpx
       SetLight
+      
 End

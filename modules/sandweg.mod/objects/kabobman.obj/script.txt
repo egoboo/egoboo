@@ -1,3 +1,9 @@
+//Show where you are on the map
+tmpx = selfx
+tmpy = selfy
+tmpargument = YELLOW
+ShowBlipXY
+
 //------------------------------------------------------------------------------
 IfSpawned
   Sneak				//Dont run around

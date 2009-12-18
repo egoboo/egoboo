@@ -1,0 +1,132 @@
+//-----------------------------------------------------------------------------
+IfSpawned
+  tmpx = rand % 10
+  tmpy = 1              //Only a 20% chance he is actually here
+  IfXIsMoreThanY
+    SetTargetToSelf
+    SetTargetToTargetRightHand
+    PoofTarget                      //Get rid of the quarter staff we are holding
+    GoPoof
+  Else
+    tmpargument = STATEGUARD
+    SetState
+    tmpargument = rand % 4
+    ChangeArmor
+  
+//-----------------------------------------------------------------------------
+//Show where you are on the map
+tmpargument = RED
+tmpx = selfx
+tmpy = selfy
+ShowBlipXY
+
+//-----------------------------------------------------------------------------
+IfHitGround
+  tmpargument = 0
+  PlaySound
+
+//------------------------------------------------------------------------------
+// Handle death by sending a message and other stuff
+IfKilled
+  tmpargument = 0
+  SendMessageNear
+  
+  // Make the character body
+  tmpargument = 45
+  SetBumpHeight
+
+//------------------------------------------------------------------------------
+// Say ouch
+IfAttacked
+  tmpargument = rand & 1 + 1
+  PlaySound
+  
+  //Return fire
+  SetTargetToWhoeverAttacked
+  IfTargetIsOnHatedTeam
+    IfStateIs0
+      tmpargument = 1
+      SetState
+      tmpargument = 3		//My god shall protect me!
+      PlayFullSound
+      tmpargument = 1
+      SendMessage
+    Else
+      IfTargetIsAPlayer
+        tmpargument = TEAME
+        TargetJoinTeam
+        CallForHelp
+        tmpargument = STATECOMBAT
+        SetState
+  Else
+    SetTargetToOldTarget
+
+//------------------------------------------------------------------------------
+IfBumped
+  tmpargument = 0
+  IfContentIs
+    SetTargetToWhoeverBumped
+    IfTargetIsOnSameTeam
+      IfTargetIsAPlayer
+        tmpargument = 1
+        SetContent
+        
+        //Long talk
+        tmpargument = 10
+        PlaySound
+        tmpargument = 7
+        SendMessageNear
+        tmpargument = 1
+        SendMessageNear
+        tmpargument = 2
+        SendMessageNear
+        
+        //Quest related stuff
+        tmpargument = [IMPR]
+        IfTargetHasQuest
+          DoNothing
+        Else
+          tmpargument = 15
+          tmpdistance = EXPQUEST
+          GiveExperienceToTarget
+          tmpargument = 10
+          SendMessage
+        
+        //Give them the quest
+        tmpargument = [IMPR]
+        tmpdistance = 0
+        AddQuestAllPlayers
+        
+        tmpargument = 450
+        SetTime
+        
+//------------------------------------------------------------------------------
+//The main AI loop
+IfTimeOut
+  tmpargument = rand & 31 + 15
+  SetTime
+  
+  tmpargument = 0
+  SetContent
+
+  //Yell out the prophecy
+  IfStateIsGuard
+    tmpx = selfspawnx
+    tmpy = selfspawny
+    ClearWaypoints
+    AddWaypoint
+    
+    //Yell out
+    tmpargument = rand % 7 + 3
+    PlaySound
+    SendMessageNear
+    
+    tmpargument = ACTIONJA
+    DoAction
+    
+    tmpargument = 275
+    SetTime
+
+//------------------------------------------------------------------------------
+End
+//------------------------------------------------------------------------------

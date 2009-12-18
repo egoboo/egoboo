@@ -1,0 +1,11 @@
+Message 0: The_%c_was_killed...
+Message 1: Then_go_to_the_tower_of_The_Imprisoned_One_and_end_this_blight_on_the_world!
+Message 2: _
+Message 3: Doom_is_imminent!_The_world_is_about_to_end!
+Message 4: A_great_evil_is_lurking_above_Lorule!
+Message 5: Impending_doom!_The_imprisoned_one_is_breaking_free!
+Message 6: Heroes_of_Lorule,_listen_to_our_call!
+Message 7: Are_you_the_one_who_will_save_us_all?
+Message 8: Hear_ye!_Hear_ye!_The_world_is_in_grave_danger!
+Message 9: Will_any_hero_answer_the_call?
+Message 10: ==NEW_MODULE_UNLOCKED==

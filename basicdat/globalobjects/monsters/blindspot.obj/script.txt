@@ -1,0 +1,57 @@
+IfSpawned
+  // Vortex is sustained by magic
+  SetTargetToSelf
+  EnchantTarget // target is self...
+
+  // Vortex has a dyna light particle
+  tmpargument = 0
+  tmpdistance = SPAWNLAST
+  SpawnAttachedParticle
+
+// Go away for good
+IfKilled
+  tmpargument = MESSAGEDEATH
+  SendMessageNear
+  GoPoof
+
+// Let the players know that there's something there...
+IfAttacked
+  tmpargument = 0
+  PlaySound
+
+// Chase good guys
+IfTimeOut
+  IfTargetIsSelf
+    tmpdistance = 700  // Square of range
+    SetTargetToDistantEnemy
+      tmpargument = 1
+      SendMessageNear
+      // Play the chalkboard sound
+
+    tmpx = rand & 511 - 256 + selfspawnx
+    tmpy = rand & 511 - 256 + selfspawny
+  Else
+    tmpx = targetdistance
+    tmpy = 700
+    IfXIsMoreThanY
+      SetTargetToSelf
+      tmpx = rand & 511 - 256 + selfx
+      tmpy = rand & 511 - 256 + selfy
+    Else
+      tmpx = targetx
+      tmpy = targety
+  ClearWaypoints
+  AddWaypoint
+  tmpargument = 20
+  SetTime
+  tmpargument = 0
+  SetState
+
+// Find a new target
+IfTargetKilled
+  SetTargetToSelf
+  tmpargument = 0
+  SetTime
+
+// All Done
+End
