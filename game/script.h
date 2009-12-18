@@ -103,12 +103,12 @@ struct s_waypoint_list
 };
 typedef struct s_waypoint_list waypoint_list_t;
 
-bool_t waypoint_list_peek   ( waypoint_list_t * plst, waypoint_t wp );
-bool_t waypoint_list_push   ( waypoint_list_t * plst, int x, int y );
-bool_t waypoint_list_reset  ( waypoint_list_t * plst );
-bool_t waypoint_list_clear  ( waypoint_list_t * plst );
-bool_t waypoint_list_empty  ( waypoint_list_t * plst );
-bool_t waypoint_list_finished   ( waypoint_list_t * plst );
+bool_t waypoint_list_peek( waypoint_list_t * plst, waypoint_t wp );
+bool_t waypoint_list_push( waypoint_list_t * plst, int x, int y );
+bool_t waypoint_list_reset( waypoint_list_t * plst );
+bool_t waypoint_list_clear( waypoint_list_t * plst );
+bool_t waypoint_list_empty( waypoint_list_t * plst );
+bool_t waypoint_list_finished( waypoint_list_t * plst );
 bool_t waypoint_list_advance( waypoint_list_t * plst );
 
 /// the state variables for a script / AI

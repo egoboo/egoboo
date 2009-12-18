@@ -338,7 +338,7 @@ void points_to_oct_bb( oct_bb_t * pbmp, fvec4_t   pos[], size_t pos_count )
 //--------------------------------------------------------------------------------------------
 bool_t vec_to_oct_vec( fvec3_t pos, oct_vec_t ovec )
 {
-    if( NULL == ovec ) return bfalse;
+    if ( NULL == ovec ) return bfalse;
 
     ovec[OCT_X ] =  pos.x;
     ovec[OCT_Y ] =  pos.y;
@@ -352,7 +352,7 @@ bool_t vec_to_oct_vec( fvec3_t pos, oct_vec_t ovec )
 //--------------------------------------------------------------------------------------------
 bool_t bumper_to_oct_bb( bumper_t src, oct_bb_t * pdst )
 {
-    if( NULL == pdst ) return bfalse;
+    if ( NULL == pdst ) return bfalse;
 
     pdst->mins[OCT_X] = -src.size;
     pdst->maxs[OCT_X] =  src.size;
@@ -432,7 +432,7 @@ void oct_bb_downgrade( oct_bb_t * psrc_bb, bumper_t bump_base, bumper_t * pdst_b
         // I don't think this should ever happen, though
         if ( pdst_bb != psrc_bb )
         {
-            memcpy( pdst_bb, psrc_bb, sizeof(*pdst_bb) );
+            memcpy( pdst_bb, psrc_bb, sizeof( *pdst_bb ) );
         }
 
         if ( 0 == bump_base.height )
@@ -468,8 +468,8 @@ bool_t get_depth_close_0( bumper_t bump_a, fvec3_t pos_a, bumper_t bump_b, fvec3
     oct_bb_t cv_a, cv_b;
 
     // convert the bumpers to the correct format
-    bumper_to_oct_bb(bump_a, &cv_a);
-    bumper_to_oct_bb(bump_b, &cv_b);
+    bumper_to_oct_bb( bump_a, &cv_a );
+    bumper_to_oct_bb( bump_b, &cv_b );
 
     return get_depth_close_2( cv_a, pos_a, cv_b, pos_b, break_out, depth );
 }
@@ -483,11 +483,11 @@ bool_t get_depth_0( bumper_t bump_a, fvec3_t pos_a, bumper_t bump_b, fvec3_t pos
     oct_bb_t cv_a, cv_b;
 
     // convert the bumpers to the correct format
-    bumper_to_oct_bb(bump_a, &cv_a);
-    bumper_to_oct_bb(bump_b, &cv_b);
+    bumper_to_oct_bb( bump_a, &cv_a );
+    bumper_to_oct_bb( bump_b, &cv_b );
 
     // convert the bumper to the correct format
-    bumper_to_oct_bb(bump_b, &cv_b);
+    bumper_to_oct_bb( bump_b, &cv_b );
 
     return get_depth_2( cv_a, pos_a, cv_b, pos_b, break_out, depth );
 }
@@ -501,7 +501,7 @@ bool_t get_depth_close_1( oct_bb_t cv_a, fvec3_t pos_a, bumper_t bump_b, fvec3_t
     oct_bb_t cv_b;
 
     // convert the bumper to the correct format
-    bumper_to_oct_bb(bump_b, &cv_b);
+    bumper_to_oct_bb( bump_b, &cv_b );
 
     return get_depth_close_2( cv_a, pos_a, cv_b, pos_b, break_out, depth );
 }
@@ -515,7 +515,7 @@ bool_t get_depth_1( oct_bb_t cv_a, fvec3_t pos_a, bumper_t bump_b, fvec3_t pos_b
     oct_bb_t cv_b;
 
     // convert the bumper to the correct format
-    bumper_to_oct_bb(bump_b, &cv_b);
+    bumper_to_oct_bb( bump_b, &cv_b );
 
     return get_depth_2( cv_a, pos_a, cv_b, pos_b, break_out, depth );
 }
@@ -530,7 +530,7 @@ bool_t get_depth_close_2( oct_bb_t cv_a, fvec3_t pos_a, oct_bb_t cv_b, fvec3_t p
     oct_vec_t oa, ob;
     bool_t valid;
 
-    if( NULL == depth ) return bfalse;
+    if ( NULL == depth ) return bfalse;
 
     // translate the positions to oct_vecs
     vec_to_oct_vec( pos_a, oa );
@@ -538,16 +538,16 @@ bool_t get_depth_close_2( oct_bb_t cv_a, fvec3_t pos_a, oct_bb_t cv_b, fvec3_t p
 
     // calculate the depth
     valid = btrue;
-    for( cnt=0; cnt<OCT_Z; cnt++ )
+    for ( cnt = 0; cnt < OCT_Z; cnt++ )
     {
         float ftmp1 = MIN(( ob[cnt] + cv_b.maxs[cnt] ) - oa[cnt], oa[cnt] - ( ob[cnt] + cv_b.mins[cnt] ) );
         float ftmp2 = MIN(( oa[cnt] + cv_a.maxs[cnt] ) - ob[cnt], ob[cnt] - ( oa[cnt] + cv_a.mins[cnt] ) );
         depth[cnt] = MAX( ftmp1, ftmp2 );
 
-        if( depth[cnt] <= 0.0f )
+        if ( depth[cnt] <= 0.0f )
         {
             valid = bfalse;
-            if( break_out ) return bfalse;
+            if ( break_out ) return bfalse;
         }
     }
 
@@ -555,10 +555,10 @@ bool_t get_depth_close_2( oct_bb_t cv_a, fvec3_t pos_a, oct_bb_t cv_b, fvec3_t p
     depth[OCT_Z]  = MIN( cv_b.maxs[OCT_Z] + ob[OCT_Z], cv_a.maxs[OCT_Z] + oa[OCT_Z] ) -
                     MAX( cv_b.mins[OCT_Z] + ob[OCT_Z], cv_a.mins[OCT_Z] + oa[OCT_Z] );
 
-    if( depth[OCT_Z] <= 0.0f )
+    if ( depth[OCT_Z] <= 0.0f )
     {
         valid = bfalse;
-        if( break_out ) return bfalse;
+        if ( break_out ) return bfalse;
     }
 
     // scale the diagonal components so that they are actually distances
@@ -578,7 +578,7 @@ bool_t get_depth_2( oct_bb_t cv_a, fvec3_t pos_a, oct_bb_t cv_b, fvec3_t pos_b, 
     oct_vec_t oa, ob;
     bool_t valid;
 
-    if( NULL == depth ) return bfalse;
+    if ( NULL == depth ) return bfalse;
 
     // translate the positions to oct_vecs
     vec_to_oct_vec( pos_a, oa );
@@ -586,15 +586,15 @@ bool_t get_depth_2( oct_bb_t cv_a, fvec3_t pos_a, oct_bb_t cv_b, fvec3_t pos_b, 
 
     // calculate the depth
     valid = btrue;
-    for( cnt = 0; cnt < OCT_COUNT; cnt++ )
+    for ( cnt = 0; cnt < OCT_COUNT; cnt++ )
     {
         depth[cnt]  = MIN( cv_b.maxs[cnt] + ob[cnt], cv_a.maxs[cnt] + oa[cnt] ) -
                       MAX( cv_b.mins[cnt] + ob[cnt], cv_a.mins[cnt] + oa[cnt] );
 
-        if( depth[cnt] <= 0.0f )
+        if ( depth[cnt] <= 0.0f )
         {
             valid = bfalse;
-            if( break_out ) return bfalse;
+            if ( break_out ) return bfalse;
         }
     }
 
@@ -615,8 +615,8 @@ bool_t test_interaction_close_0( bumper_t bump_a, fvec3_t pos_a, bumper_t bump_b
     oct_bb_t cv_a, cv_b;
 
     // convert the bumpers to the correct format
-    bumper_to_oct_bb(bump_a, &cv_a);
-    bumper_to_oct_bb(bump_b, &cv_b);
+    bumper_to_oct_bb( bump_a, &cv_a );
+    bumper_to_oct_bb( bump_b, &cv_b );
 
     return test_interaction_close_2( cv_a, pos_a, cv_b, pos_b, test_platform );
 }
@@ -630,8 +630,8 @@ bool_t test_interaction_0( bumper_t bump_a, fvec3_t pos_a, bumper_t bump_b, fvec
     oct_bb_t cv_a, cv_b;
 
     // convert the bumpers to the correct format
-    bumper_to_oct_bb(bump_a, &cv_a);
-    bumper_to_oct_bb(bump_b, &cv_b);
+    bumper_to_oct_bb( bump_a, &cv_a );
+    bumper_to_oct_bb( bump_b, &cv_b );
 
     return test_interaction_2( cv_a, pos_a, cv_b, pos_b, test_platform );
 }
@@ -645,7 +645,7 @@ bool_t test_interaction_close_1( oct_bb_t cv_a, fvec3_t pos_a, bumper_t bump_b, 
     oct_bb_t cv_b;
 
     // convert the bumper to the correct format
-    bumper_to_oct_bb(bump_b, &cv_b);
+    bumper_to_oct_bb( bump_b, &cv_b );
 
     return test_interaction_close_2( cv_a, pos_a, cv_b, pos_b, test_platform );
 }
@@ -659,7 +659,7 @@ bool_t test_interaction_1( oct_bb_t cv_a, fvec3_t pos_a, bumper_t bump_b, fvec3_
     oct_bb_t cv_b;
 
     // convert the bumper to the correct format
-    bumper_to_oct_bb(bump_b, &cv_b);
+    bumper_to_oct_bb( bump_b, &cv_b );
 
     return test_interaction_2( cv_a, pos_a, cv_b, pos_b, test_platform );
 }
@@ -679,19 +679,19 @@ bool_t test_interaction_close_2( oct_bb_t cv_a, fvec3_t pos_a, oct_bb_t cv_b, fv
     vec_to_oct_vec( pos_b, ob );
 
     // calculate the depth
-    for( cnt=0; cnt<OCT_Z; cnt++ )
+    for ( cnt = 0; cnt < OCT_Z; cnt++ )
     {
         float ftmp1 = MIN(( ob[cnt] + cv_b.maxs[cnt] ) - oa[cnt], oa[cnt] - ( ob[cnt] + cv_b.mins[cnt] ) );
         float ftmp2 = MIN(( oa[cnt] + cv_a.maxs[cnt] ) - ob[cnt], ob[cnt] - ( oa[cnt] + cv_a.mins[cnt] ) );
         depth = MAX( ftmp1, ftmp2 );
-        if( depth <= 0.0f ) return bfalse;
+        if ( depth <= 0.0f ) return bfalse;
     }
 
     // treat the z coordinate the same as always
     depth = MIN( cv_b.maxs[OCT_Z] + ob[OCT_Z], cv_a.maxs[OCT_Z] + oa[OCT_Z] ) -
             MAX( cv_b.mins[OCT_Z] + ob[OCT_Z], cv_a.mins[OCT_Z] + oa[OCT_Z] );
 
-    return test_platform ? (depth > -PLATTOLERANCE) : (depth > 0.0f);
+    return test_platform ? ( depth > -PLATTOLERANCE ) : ( depth > 0.0f );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -709,28 +709,28 @@ bool_t test_interaction_2( oct_bb_t cv_a, fvec3_t pos_a, oct_bb_t cv_b, fvec3_t 
     vec_to_oct_vec( pos_b, ob );
 
     // calculate the depth
-    for( cnt = 0; cnt < OCT_Z; cnt++ )
+    for ( cnt = 0; cnt < OCT_Z; cnt++ )
     {
         depth  = MIN( cv_b.maxs[cnt] + ob[cnt], cv_a.maxs[cnt] + oa[cnt] ) -
-                      MAX( cv_b.mins[cnt] + ob[cnt], cv_a.mins[cnt] + oa[cnt] );
+                 MAX( cv_b.mins[cnt] + ob[cnt], cv_a.mins[cnt] + oa[cnt] );
 
-        if( depth <= 0.0f ) return bfalse;
+        if ( depth <= 0.0f ) return bfalse;
     }
 
     // treat the z coordinate the same as always
     depth = MIN( cv_b.maxs[OCT_Z] + ob[OCT_Z], cv_a.maxs[OCT_Z] + oa[OCT_Z] ) -
             MAX( cv_b.mins[OCT_Z] + ob[OCT_Z], cv_a.mins[OCT_Z] + oa[OCT_Z] );
 
-    return test_platform ? (depth > -PLATTOLERANCE) : (depth > 0.0f);
+    return test_platform ? ( depth > -PLATTOLERANCE ) : ( depth > 0.0f );
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t phys_estimate_chr_chr_normal(oct_vec_t opos_a, oct_vec_t opos_b, oct_vec_t odepth, float exponent, fvec3_base_t nrm )
+bool_t phys_estimate_chr_chr_normal( oct_vec_t opos_a, oct_vec_t opos_b, oct_vec_t odepth, float exponent, fvec3_base_t nrm )
 {
     bool_t retval;
 
     // is everything valid?
-    if( NULL == opos_a || NULL == opos_b || NULL == odepth || NULL == nrm ) return bfalse;
+    if ( NULL == opos_a || NULL == opos_b || NULL == odepth || NULL == nrm ) return bfalse;
 
     // initialize the vector
     nrm[kX] = nrm[kY] = nrm[kZ] = 0.0f;
@@ -801,7 +801,7 @@ bool_t phys_estimate_chr_chr_normal(oct_vec_t opos_a, oct_vec_t opos_b, oct_vec_
     if ( ABS( nrm[kX] ) + ABS( nrm[kY] ) + ABS( nrm[kZ] ) > 0.0f )
     {
         fvec3_t vtmp = fvec3_normalize( nrm );
-        memcpy( nrm, vtmp.v, sizeof(fvec3_base_t) );
+        memcpy( nrm, vtmp.v, sizeof( fvec3_base_t ) );
         retval = btrue;
     }
 

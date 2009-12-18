@@ -45,7 +45,7 @@ enum
 typedef float lighting_vector_t[LIGHTING_VEC_SIZE];
 
 void lighting_vector_evaluate( lighting_vector_t lvec, fvec3_base_t nrm, float * direct, float * amb );
-void lighting_vector_sum     ( lighting_vector_t lvec, fvec3_base_t nrm, float direct, float ambient );
+void lighting_vector_sum( lighting_vector_t lvec, fvec3_base_t nrm, float direct, float ambient );
 
 //--------------------------------------------------------------------------------------------
 struct s_lighting_cache_base

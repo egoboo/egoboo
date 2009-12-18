@@ -559,70 +559,6 @@ void statlist_sort()
 }
 
 //--------------------------------------------------------------------------------------------
-void chr_play_action( Uint16 ichr, Uint16 action, Uint8 actionready )
-{
-    chr_t * pchr;
-
-    if ( !ACTIVE_CHR( ichr ) ) return;
-    pchr = ChrList.lst + ichr;
-
-    chr_instance_play_action( &( pchr->inst ), action, actionready );
-}
-
-//--------------------------------------------------------------------------------------------
-void chr_instance_play_action( chr_instance_t * pinst, Uint16 action, Uint8 actionready )
-{
-    /// @details ZZ@> This function starts a generic action for a character
-
-    mad_t * pmad;
-
-    if ( NULL == pinst ) return;
-
-    if ( !LOADED_MAD( pinst->imad ) ) return;
-    pmad = MadList + pinst->imad;
-
-    action = mad_get_action( pinst->imad, action );
-
-    if( rv_success == chr_instance_set_action( pinst, action, actionready, btrue ) )
-    {
-        chr_instance_set_frame( pinst, pmad->action_stt[action] ); 
-    }
-}
-
-
-//--------------------------------------------------------------------------------------------
-void chr_instance_increment_action( chr_instance_t * pinst )
-{
-    /// @details BB@> This function starts the next action for a character
-
-    mad_t * pmad;
-    int     action, action_old;
-    bool_t  action_ready;
-
-    if ( NULL == pinst ) return;
-
-    // save the old action
-    action_old = pinst->action_which;
-
-    if ( !LOADED_MAD( pinst->imad ) ) return;
-    pmad = MadList + pinst->imad;
-
-    // get the correct action
-    action = mad_get_action( pinst->imad, pinst->action_next );
-
-    // determine if the action is one of the types that can be broken at any time
-    // D == "dance" and "W" == walk
-    action_ready = ACTION_IS_TYPE( action, D ) || ACTION_IS_TYPE( action, W );
-
-    if( rv_success == chr_instance_set_action( pinst, action, action_ready, btrue ) )
-    {
-        chr_instance_set_frame( pinst, pmad->action_stt[action] ); 
-    }
-
-}
-
-
-//--------------------------------------------------------------------------------------------
 void chr_set_frame( Uint16 character, Uint16 action, int frame, Uint16 lip )
 {
     /// @details ZZ@> This function sets the frame for a character explicitly...  This is used to
@@ -630,7 +566,7 @@ void chr_set_frame( Uint16 character, Uint16 action, int frame, Uint16 lip )
 
     chr_t * pchr;
     mad_t * pmad;
-    int framesinaction, frame_stt, frame_end;
+    int frame_stt, frame_nxt;
 
     if ( !ACTIVE_CHR( character ) ) return;
     pchr = ChrList.lst + character;
@@ -639,29 +575,35 @@ void chr_set_frame( Uint16 character, Uint16 action, int frame, Uint16 lip )
     if ( NULL == pmad ) return;
 
     action = mad_get_action( chr_get_imad( character ), action );
-    if( rv_success == chr_instance_set_action( &(pchr->inst), action, btrue, btrue ) )
-    {
-        framesinaction = ( pmad->action_end[action] - pmad->action_stt[action] ) + 1;
-        if ( framesinaction <= 1 )
-        {
-            frame_stt = pmad->action_stt[action];
-            frame_end = frame_stt;
-        }
-        else
-        {
-            frame = MIN( frame, framesinaction );
-            frame_stt = pmad->action_stt[action] + frame;
 
-            frame = MIN( frame + 1, framesinaction );
-            frame_end = frame_stt + 1;
-        }
+    if ( rv_success == chr_set_action( pchr, action, btrue, btrue ) )
+    {
+        frame_stt = pmad->action_stt[action] + frame;
+        frame_stt = MIN( frame_stt, pmad->action_end[action] - 1 );
+
+        frame_nxt = frame_stt + 1;
+        frame_nxt = MIN( frame_nxt, pmad->action_end[action] - 1 );
 
         pchr->inst.ilip  = lip;
         pchr->inst.flip  = lip / 4.0f;
-        pchr->inst.frame_lst = frame_stt;
-        pchr->inst.frame_nxt = frame_end;
-    }
 
+        // force the vlst_cache to be invalid if the initial frame changes
+        // this should be picked up, by the automated routinr, but take no chances
+        if ( pchr->inst.frame_lst != frame_stt )
+        {
+            pchr->inst.frame_lst  = frame_stt;
+            pchr->inst.save.valid = bfalse;
+        }
+
+        // force the vlst_cache to be invalid if the initial frame changes
+        // this should be picked up, by the automated routinr, but take no chances
+        if ( pchr->inst.frame_nxt != frame_nxt )
+        {
+            pchr->inst.frame_nxt  = frame_nxt;
+            pchr->inst.save.valid = bfalse;
+        }
+
+    }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1739,12 +1681,12 @@ void update_pits()
 
     if ( pits.kill || pits.teleport )
     {
-		//Decrease the timer
+        //Decrease the timer
         if ( clock_pit > 0 ) clock_pit--;
-        
-		if ( clock_pit == 0 )
+
+        if ( clock_pit == 0 )
         {
-			//Reset timer
+            //Reset timer
             clock_pit = 20;
 
             // Kill any particles that fell in a pit, if they die in water...
@@ -1774,7 +1716,7 @@ void update_pits()
                     ChrList.lst[cnt].vel.y = 0;
 
                     //ZF> Disabled, the pitfall sound was intended for pits.teleport only
-					// Play sound effect
+                    // Play sound effect
                     // sound_play_chunk( ChrList.lst[cnt].pos, g_wavelist[GSND_PITFALL] );
                 }
 
@@ -1871,11 +1813,11 @@ void do_weather_spawn_particles()
                         else
                         {
                             //Weather particles spawned at the edge of the map look ugly, so don't spawn them there
-                            if ( pprt->pos.x < EDGE || pprt->pos.x > PMesh->gmem.edge_x - EDGE ) 
+                            if ( pprt->pos.x < EDGE || pprt->pos.x > PMesh->gmem.edge_x - EDGE )
                             {
                                 destroy_particle = btrue;
                             }
-                            if ( pprt->pos.y < EDGE || pprt->pos.y > PMesh->gmem.edge_y - EDGE ) 
+                            if ( pprt->pos.y < EDGE || pprt->pos.y > PMesh->gmem.edge_y - EDGE )
                             {
                                 destroy_particle = btrue;
                             }
@@ -3136,10 +3078,10 @@ int reaffirm_attached_particles( Uint16 character )
     if ( NULL == pcap ) return 0;
     amount = pcap->attachedprt_amount;
 
-    if( 0 == amount ) return 0;
+    if ( 0 == amount ) return 0;
 
     number_attached = number_of_attached_particles( character );
-    if( number_attached >= amount ) return 0;
+    if ( number_attached >= amount ) return 0;
 
     number_added = 0;
     for ( attempts = 0; attempts < amount && number_attached < amount; attempts++ )
@@ -4962,39 +4904,39 @@ bool_t do_item_pickup( Uint16 ichr, Uint16 iitem )
 
     if ( !ACTIVE_CHR( iitem ) ) return bfalse;
     pitem = ChrList.lst + iitem;
-	ix = pitem->pos.x / TILE_SIZE;
+    ix = pitem->pos.x / TILE_SIZE;
     iy = pitem->pos.y / TILE_SIZE;
-    
+
     // assume that there is no shop so that the character can grab anything
     can_grab = btrue;
-	in_shop = ACTIVE_CHR( shop_get_owner(ix, iy) );
+    in_shop = ACTIVE_CHR( shop_get_owner( ix, iy ) );
 
-	if( in_shop )
-	{
-		// check for a stealthy pickup
-		is_invis  = !chr_can_see_object( ichr, iitem );
+    if ( in_shop )
+    {
+        // check for a stealthy pickup
+        is_invis  = !chr_can_see_object( ichr, iitem );
 
-		// pets are automatically stealthy
-		can_steal = is_invis || pchr->isitem;
+        // pets are automatically stealthy
+        can_steal = is_invis || pchr->isitem;
 
-		if ( can_steal )
-		{
-			can_grab = do_shop_steal( ichr, iitem );
+        if ( can_steal )
+        {
+            can_grab = do_shop_steal( ichr, iitem );
 
-			if ( !can_grab )
-			{
-				debug_printf( "%s was detected!!", chr_get_name( ichr, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL ) );
-			}
-			else
-			{
-				debug_printf( "%s stole %s", chr_get_name( ichr, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL ), chr_get_name( iitem, CHRNAME_ARTICLE ) );
-			}
-		}
-		else
-		{
-			can_grab = do_shop_buy( ichr, iitem );
-		}
-	}
+            if ( !can_grab )
+            {
+                debug_printf( "%s was detected!!", chr_get_name( ichr, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL ) );
+            }
+            else
+            {
+                debug_printf( "%s stole %s", chr_get_name( ichr, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL ), chr_get_name( iitem, CHRNAME_ARTICLE ) );
+            }
+        }
+        else
+        {
+            can_grab = do_shop_buy( ichr, iitem );
+        }
+    }
 
     return can_grab;
 }
@@ -5173,7 +5115,7 @@ egoboo_rv move_water( water_instance_t * pwater )
 
     int layer;
 
-    if( NULL == pwater ) return rv_error;
+    if ( NULL == pwater ) return rv_error;
 
     for ( layer = 0; layer < MAXWATERLAYER; layer++ )
     {

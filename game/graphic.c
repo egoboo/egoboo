@@ -642,20 +642,20 @@ int debug_printf( const char *format, ... )
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_blip( float sizeFactor, Uint8 color, int x, int y, bool_t mini_map  )
+void draw_blip( float sizeFactor, Uint8 color, int x, int y, bool_t mini_map )
 {
     /// @details ZZ@> This function draws a single blip
     frect_t txrect;
     float   width, height;
 
-	//Adjust the position values so that they fit inside the minimap
-	if( mini_map )
-	{
-		x = x*MAPSIZE / PMesh->gmem.edge_x;
-		y = ( y*MAPSIZE / PMesh->gmem.edge_y ) + sdl_scr.y - MAPSIZE;
-	}
+    //Adjust the position values so that they fit inside the minimap
+    if ( mini_map )
+    {
+        x = x * MAPSIZE / PMesh->gmem.edge_x;
+        y = ( y * MAPSIZE / PMesh->gmem.edge_y ) + sdl_scr.y - MAPSIZE;
+    }
 
-	//Now draw it
+    //Now draw it
     if ( x > 0 && y > 0 )
     {
         oglx_texture * ptex = TxTexture_get_ptr( TX_BLIP );
@@ -4905,7 +4905,7 @@ void light_fans( renderlist_t * prlist )
     float  local_mesh_lighting_keep;
 
     /// @note we are measuring the change in the intensity at the corner of a tile (the "delta") as
-    /// a fraction of the current intensity. This is because your eye is much more sensitive to 
+    /// a fraction of the current intensity. This is because your eye is much more sensitive to
     /// intensity differences when the intensity is low.
     ///
     /// @note it is normally assumed that 64 colors of gray can make a smoothly colored black and white picture
@@ -4947,7 +4947,7 @@ void light_fans( renderlist_t * prlist )
         ego_tile_info_t * ptile;
 
         fan = prlist->all[entry];
-        if ( !VALID_TILE( pmesh, fan ) ) continue;   
+        if ( !VALID_TILE( pmesh, fan ) ) continue;
 
         ptile = ptmem->tile_list + fan;
 
@@ -4957,14 +4957,14 @@ void light_fans( renderlist_t * prlist )
         needs_update = mesh_test_corners( pmesh, fan, delta_threshold );
 
         // update every 4 fans even if there is no need
-        if( !needs_update )
+        if ( !needs_update )
         {
             int ix, iy;
 
             // use a kind of checkerboard pattern
             ix = fan % pgmem->grids_x;
             iy = fan / pgmem->grids_x;
-            if ( 0 != ((( ix ^ iy ) + frame_all ) & 0x03 ) ) 
+            if ( 0 != ((( ix ^ iy ) + frame_all ) & 0x03 ) )
             {
                 needs_update = btrue;
             }
@@ -4978,7 +4978,7 @@ void light_fans( renderlist_t * prlist )
         ptile->needs_lighting_update = needs_update;
 
         // if there's no need for an update, go to the next tile
-        if( !needs_update ) continue;
+        if ( !needs_update ) continue;
 
         delta = mesh_light_corners( prlist->pmesh, fan, local_mesh_lighting_keep );
 
@@ -4989,11 +4989,11 @@ void light_fans( renderlist_t * prlist )
 #endif
 
         // optimize the use of the second loop
-        if( ptile->needs_lighting_update )
+        if ( ptile->needs_lighting_update )
         {
             numvertices = tile_dict[ptile->type].numvertices;
 
-            if( numvertices <= 4 )
+            if ( numvertices <= 4 )
             {
                 int ivrt;
 
@@ -5006,13 +5006,13 @@ void light_fans( renderlist_t * prlist )
 
                     light = CLIP( light, 0.0f, 255.0f );
                     ptmem->clst[vertex][RR] =
-                    ptmem->clst[vertex][GG] =
-                    ptmem->clst[vertex][BB] = light * INV_FF;
+                        ptmem->clst[vertex][GG] =
+                            ptmem->clst[vertex][BB] = light * INV_FF;
                 };
 
                 // clear out the deltas
-                memset( ptile->d1_cache, 0, sizeof(ptile->d1_cache) );
-                memset( ptile->d2_cache, 0, sizeof(ptile->d2_cache) );
+                memset( ptile->d1_cache, 0, sizeof( ptile->d1_cache ) );
+                memset( ptile->d2_cache, 0, sizeof( ptile->d2_cache ) );
 
                 // everything has been handled. no need to do this in another loop.
                 ptile->needs_lighting_update = bfalse;
@@ -5026,7 +5026,7 @@ void light_fans( renderlist_t * prlist )
     }
 
     // can we avoid this whole loop?
-    if( needs_interpolation_count > 0 )
+    if ( needs_interpolation_count > 0 )
     {
         //printf( "light_fans() - %d/%d == %2.4f\n", needs_interpolation_count, prlist->all_count, (float)needs_interpolation_count / prlist->all_count );
 
@@ -5042,7 +5042,7 @@ void light_fans( renderlist_t * prlist )
 
             ptile = ptmem->tile_list + fan;
 
-            if( !ptile->needs_lighting_update ) continue;
+            if ( !ptile->needs_lighting_update ) continue;
 
             type        = ptile->type;
             numvertices = tile_dict[type].numvertices;
@@ -5056,7 +5056,7 @@ void light_fans( renderlist_t * prlist )
                 light = CLIP( light, 0.0f, 255.0f );
                 ptmem->clst[vertex][RR] =
                     ptmem->clst[vertex][GG] =
-                    ptmem->clst[vertex][BB] = light * INV_FF;
+                        ptmem->clst[vertex][BB] = light * INV_FF;
             };
 
             for ( /* nothing */ ; ivrt < numvertices; ivrt++, vertex++ )
@@ -5067,12 +5067,12 @@ void light_fans( renderlist_t * prlist )
                 light = CLIP( light, 0.0f, 255.0f );
                 ptmem->clst[vertex][RR] =
                     ptmem->clst[vertex][GG] =
-                    ptmem->clst[vertex][BB] = light * INV_FF;
+                        ptmem->clst[vertex][BB] = light * INV_FF;
             };
 
             // clear out the deltas
-            memset( ptile->d1_cache, 0, sizeof(ptile->d1_cache) );
-            memset( ptile->d2_cache, 0, sizeof(ptile->d2_cache) );
+            memset( ptile->d1_cache, 0, sizeof( ptile->d1_cache ) );
+            memset( ptile->d2_cache, 0, sizeof( ptile->d2_cache ) );
 
             // untag this tile
             ptile->needs_lighting_update = bfalse;
@@ -5239,7 +5239,6 @@ void gfx_make_dynalist( camera_t * pcam )
     }
 }
 
-
 //--------------------------------------------------------------------------------------------
 void do_grid_dynalight( ego_mpd_t * pmesh, camera_t * pcam )
 {
@@ -5313,9 +5312,9 @@ void do_grid_dynalight( ego_mpd_t * pmesh, camera_t * pcam )
         radius = SQRT( pdyna->falloff * 765.0f / 2.0f );
 
         ftmp.xmin = floor(( pdyna->pos.x - radius ) / TILE_SIZE ) * TILE_SIZE;
-        ftmp.xmax = ceil (( pdyna->pos.x + radius ) / TILE_SIZE ) * TILE_SIZE;
+        ftmp.xmax = ceil(( pdyna->pos.x + radius ) / TILE_SIZE ) * TILE_SIZE;
         ftmp.ymin = floor(( pdyna->pos.y - radius ) / TILE_SIZE ) * TILE_SIZE;
-        ftmp.ymax = ceil (( pdyna->pos.y + radius ) / TILE_SIZE ) * TILE_SIZE;
+        ftmp.ymax = ceil(( pdyna->pos.y + radius ) / TILE_SIZE ) * TILE_SIZE;
 
         // check to see if it intersects the "frustum"
         if ( ftmp.xmin <= mesh_bound.xmax && ftmp.xmax >= mesh_bound.xmin )
@@ -5356,7 +5355,7 @@ void do_grid_dynalight( ego_mpd_t * pmesh, camera_t * pcam )
         ix = fan % pinfo->tiles_x;
         iy = fan / pinfo->tiles_x;
 
-        if ( 0 != (( (ix ^ iy) + frame_all ) & 0x03 ) ) continue;
+        if ( 0 != ((( ix ^ iy ) + frame_all ) & 0x03 ) ) continue;
 
         // this is not a "bad" grid box, so grab the lighting info
         pcache_old = &( glist[fan].cache );

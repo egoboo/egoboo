@@ -463,7 +463,6 @@ void render_water_fan( ego_mpd_t * pmesh, Uint32 itile, Uint8 layer )
     ATTRIB_POP( "render_water_fan" );
 }
 
-
 //--------------------------------------------------------------------------------------------
 void animate_tiles()
 {

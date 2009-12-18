@@ -442,7 +442,7 @@ Uint8 scr_ClearWaypoints( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = waypoint_list_clear( &(pself->wp_lst) );
+    returncode = waypoint_list_clear( &( pself->wp_lst ) );
 
     SCRIPT_FUNCTION_END();
 }
@@ -463,10 +463,10 @@ Uint8 scr_AddWaypoint( script_state_t * pstate, ai_state_t * pself )
 
     // is this a safe position?
     returncode = bfalse;
-    if( !mesh_hitawall( PMesh, pos.v, pchr->bump.size, pchr->stoppedby, NULL ) )
+    if ( !mesh_hitawall( PMesh, pos.v, pchr->bump.size, pchr->stoppedby, NULL ) )
     {
         // yes it is safe. add it.
-        returncode = waypoint_list_push( &(pself->wp_lst), pstate->x, pstate->y );
+        returncode = waypoint_list_push( &( pself->wp_lst ), pstate->x, pstate->y );
     }
     else
     {
@@ -474,10 +474,10 @@ Uint8 scr_AddWaypoint( script_state_t * pstate, ai_state_t * pself )
         //returncode = waypoint_list_push( &(pself->wp_lst), pchr->pos.x, pchr->pos.y );
     }
 
-    if( returncode )
+    if ( returncode )
     {
         // make sure we update the waypoint, since the list changed
-        pself->wp_valid = waypoint_list_peek( &(pself->wp_lst), pself->wp );
+        pself->wp_valid = waypoint_list_peek( &( pself->wp_lst ), pself->wp );
     }
 
     SCRIPT_FUNCTION_END();
@@ -523,18 +523,18 @@ Uint8 scr_FindPath( script_state_t * pstate, ai_state_t * pself )
         }
 
         // Then add the waypoint
-        returncode = waypoint_list_push( &(pself->wp_lst), fx, fy );
+        returncode = waypoint_list_push( &( pself->wp_lst ), fx, fy );
 
-        if( returncode )
+        if ( returncode )
         {
             // return the new position
             pstate->x = fx;
             pstate->y = fy;
 
-            if( returncode )
+            if ( returncode )
             {
                 // make sure we update the waypoint, since the list changed
-                pself->wp_valid = waypoint_list_peek( &(pself->wp_lst), pself->wp );
+                pself->wp_valid = waypoint_list_peek( &( pself->wp_lst ), pself->wp );
             }
         }
     }
@@ -946,10 +946,8 @@ Uint8 scr_DoAction( script_state_t * pstate, ai_state_t * pself )
     action = mad_get_action( pchr->inst.imad, pstate->argument );
 
     returncode = bfalse;
-    if( rv_success == chr_instance_set_action( &(pchr->inst), action, bfalse, bfalse ) )
+    if ( rv_success == chr_start_anim( pchr, action, bfalse, bfalse ) )
     {
-        chr_instance_set_frame( &(pchr->inst), MadList[pchr->inst.imad].action_stt[action] );
-
         returncode = btrue;
     }
 
@@ -1036,15 +1034,13 @@ Uint8 scr_TargetDoAction( script_state_t * pstate, ai_state_t * pself )
     if ( ACTIVE_CHR( pself->target ) && ChrList.lst[pself->target].alive )
     {
         int action;
-        chr_t * ptarget;
 
-        ptarget = ChrList.lst + pself->target;
+        chr_t * ptarget = ChrList.lst + pself->target;
 
         action = mad_get_action( ptarget->inst.imad, pstate->argument );
-        if( rv_success == chr_instance_set_action( &(ptarget->inst), action, bfalse, bfalse ) )
-        {
-            chr_instance_set_frame( &(ptarget->inst), MadList[ptarget->inst.imad].action_stt[action] );
 
+        if ( rv_success == chr_start_anim( ptarget, action, bfalse, bfalse ) )
+        {
             returncode = btrue;
         }
     }
@@ -1195,10 +1191,8 @@ Uint8 scr_DoActionOverride( script_state_t * pstate, ai_state_t * pself )
     action = mad_get_action( pchr->inst.imad, pstate->argument );
 
     returncode = bfalse;
-    if( rv_success == chr_instance_set_action( &(pchr->inst), action, bfalse, btrue ) )
+    if ( rv_success == chr_start_anim( pchr, action, bfalse, btrue ) )
     {
-        chr_instance_set_frame( &(pchr->inst), MadList[pchr->inst.imad].action_stt[action] );
-
         returncode = btrue;
     }
 
@@ -2164,16 +2158,16 @@ Uint8 scr_BecomeSpellbook( script_state_t * pstate, ai_state_t * pself )
     // set the spellbook animations
     pcap = pro_get_pcap( pchr->iprofile );
     pmad = chr_get_pmad( pself->index );
+
     if ( NULL != pcap && NULL != pmad )
     {
         //Do dropped animation
         int tmp_action = mad_get_action( pchr->inst.imad, ACTION_JB );
-        if( rv_success == chr_instance_set_action( &(pchr->inst), tmp_action, bfalse, btrue ) )
-        {
-            chr_instance_set_frame( &(pchr->inst), pmad->action_stt[tmp_action] );
-        }
 
-        returncode = btrue;
+        if ( rv_success == chr_start_anim( pchr, tmp_action, bfalse, btrue ) )
+        {
+            returncode = btrue;
+        }
     }
 
     // have to do this every time pself->state is modified
@@ -4010,13 +4004,13 @@ Uint8 scr_ChildDoActionOverride( script_state_t * pstate, ai_state_t * pself )
     if ( ACTIVE_CHR( pself->child ) )
     {
         int action;
+
         chr_t * pchild = ChrList.lst + pself->child;
 
         action = mad_get_action( pchild->inst.imad, pstate->argument );
-        if( rv_success == chr_instance_set_action( &(pchild->inst), action, bfalse, btrue ) )
-        {
-            chr_instance_set_frame( &(pchild->inst), MadList[pchild->inst.imad].action_stt[action] );
 
+        if ( rv_success == chr_start_anim( pchild, action, bfalse, btrue ) )
+        {
             returncode = btrue;
         }
     }
@@ -5189,10 +5183,9 @@ Uint8 scr_TargetDoActionSetFrame( script_state_t * pstate, ai_state_t * pself )
         chr_t * ptarget = ChrList.lst + pself->target;
 
         action = mad_get_action( ptarget->inst.imad, pstate->argument );
-        if( rv_success == chr_instance_set_action( &(ptarget->inst), action, bfalse, btrue) )
-        {
-            chr_instance_set_frame( &(ptarget->inst), MadList[ptarget->inst.imad].action_stt[action] );
 
+        if ( rv_success == chr_start_anim( ptarget, action, bfalse, btrue ) )
+        {
             // remove the interpolation
             ptarget->inst.frame_lst = ptarget->inst.frame_nxt;
 

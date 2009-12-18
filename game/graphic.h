@@ -231,7 +231,6 @@ extern Uint16          blipx[MAXBLIP];
 extern Uint16          blipy[MAXBLIP];
 extern Uint8           blipc[MAXBLIP];
 
-
 #define BILLBOARD_COUNT     (2 * MAX_CHR)
 #define INVALID_BILLBOARD   BILLBOARD_COUNT
 

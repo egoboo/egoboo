@@ -21,7 +21,7 @@
 
 ///
 /// @file
-/// @brief 
+/// @brief
 /// @details functions that will be declared inside the base class
 
 #include "Md2.h"
@@ -46,7 +46,6 @@ INLINE EGO_CONST MD2_Triangle_t  *md2_get_Triangles(MD2_Model_t * m);
 INLINE EGO_CONST MD2_Frame_t     *md2_get_Frames   (MD2_Model_t * m);
 INLINE EGO_CONST MD2_GLCommand_t *md2_get_Commands (MD2_Model_t * m);
 
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 INLINE EGO_CONST int md2_get_numVertices(MD2_Model_t * m)  { return m->m_numVertices;  }
@@ -61,7 +60,6 @@ INLINE EGO_CONST MD2_TexCoord_t  *md2_get_TexCoords(MD2_Model_t * m) { return m-
 INLINE EGO_CONST MD2_Triangle_t  *md2_get_Triangles(MD2_Model_t * m) { return m->m_triangles; }
 INLINE EGO_CONST MD2_Frame_t     *md2_get_Frames   (MD2_Model_t * m) { return m->m_frames;    }
 INLINE EGO_CONST MD2_GLCommand_t *md2_get_Commands (MD2_Model_t * m) { return m->m_commands;  }
-
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

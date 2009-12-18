@@ -194,7 +194,6 @@ float  mesh_light_corners( ego_mpd_t * pmesh, int itile, float mesh_lighting_kee
 bool_t mesh_test_corners( ego_mpd_t * pmesh, int itile, float threshold );
 bool_t mesh_interpolate_vertex( tile_mem_t * pmem, int itile, float pos[], float * plight );
 
-
 bool_t grid_light_one_corner( ego_mpd_t * pmesh, int fan, float height, float nrm[], float * plight );
 
 bool_t mesh_set_texture( ego_mpd_t * pmesh, Uint16 tile, Uint16 image );

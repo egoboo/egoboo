@@ -81,5 +81,4 @@ void   render_prt_ref( struct s_camera * pcam );
 
 void   render_all_prt_attachment();
 
-
 void prt_instance_update_all( struct s_camera * pcam );

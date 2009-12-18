@@ -419,30 +419,30 @@ void add_shop_passage( Uint16 owner, Uint16 passage )
     // The passage exists...
     ShopStack.lst[ishop].passage = passage;
     ShopStack.lst[ishop].owner   = owner;
-	
-    // flag every item in the shop as a shop item 
-    for( ichr = 0; ichr < MAX_CHR; ichr++)
-	{
+
+    // flag every item in the shop as a shop item
+    for ( ichr = 0; ichr < MAX_CHR; ichr++ )
+    {
         chr_t * pchr;
 
         if ( !ACTIVE_CHR( ichr ) ) continue;
         pchr = ChrList.lst + ichr;
 
-		if ( !ACTIVE_CHR( pchr->attachedto ) && pchr->isitem && !pchr->pack_ispacked )
-		{
-			if ( object_is_in_passage( ShopStack.lst[ishop].passage, pchr->pos.x, pchr->pos.y, pchr->bump.size ) )
-			{
-			    pchr->isshopitem = btrue;               // Full value
-				pchr->iskursed   = bfalse;              // Shop items are never kursed
+        if ( !ACTIVE_CHR( pchr->attachedto ) && pchr->isitem && !pchr->pack_ispacked )
+        {
+            if ( object_is_in_passage( ShopStack.lst[ishop].passage, pchr->pos.x, pchr->pos.y, pchr->bump.size ) )
+            {
+                pchr->isshopitem = btrue;               // Full value
+                pchr->iskursed   = bfalse;              // Shop items are never kursed
 
-				// Identify cheap items in a shop
-				if ( chr_get_price( ichr ) <= SHOP_IDENTIFY )
-				{
-					pchr->nameknown  = btrue;
-				}
-			}
-		}
-	}
+                // Identify cheap items in a shop
+                if ( chr_get_price( ichr ) <= SHOP_IDENTIFY )
+                {
+                    pchr->nameknown  = btrue;
+                }
+            }
+        }
+    }
 
 }
 

@@ -19,7 +19,6 @@
 //*
 //********************************************************************************************
 
-
 #include "pip_file.h"
 #include "graphic_prt.h"
 #include "physics.h"
@@ -40,8 +39,6 @@ DEFINE_STACK_EXTERN( pip_t, PipStack, MAX_PIP );
 
 #define VALID_PIP_RANGE( IPIP ) ( ((IPIP) >= 0) && ((IPIP) < MAX_PIP) )
 #define LOADED_PIP( IPIP )       ( VALID_PIP_RANGE( IPIP ) && PipStack.lst[IPIP].loaded )
-
-
 
 //--------------------------------------------------------------------------------------------
 /// Everything that is necessary to compute the character's interaction with the environment

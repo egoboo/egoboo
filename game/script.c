@@ -199,9 +199,9 @@ void let_character_think( Uint16 character )
         float latch2;
 
         // is the current waypoint is not valid, try to load up the top waypoint
-        if( !pself->wp_valid )
+        if ( !pself->wp_valid )
         {
-            pself->wp_valid = waypoint_list_peek( &(pself->wp_lst), pself->wp );
+            pself->wp_valid = waypoint_list_peek( &( pself->wp_lst ), pself->wp );
         }
 
         if ( pchr->ismount && ACTIVE_CHR( pchr->holdingwhich[SLOT_LEFT] ) )
@@ -252,7 +252,7 @@ void set_alerts( Uint16 character )
     pchr = ChrList.lst + character;
     pai  = chr_get_pai( character );
 
-    if( waypoint_list_empty( &(pai->wp_lst) ) ) return;
+    if ( waypoint_list_empty( &( pai->wp_lst ) ) ) return;
 
     // let's let mounts get alert updates...
     // imagine a mount, like a racecar, that needs to make sure that it follows X
@@ -262,44 +262,44 @@ void set_alerts( Uint16 character )
     // if ( ACTIVE_CHR(pchr->attachedto) ) return;
 
     // is the current waypoint is not valid, try to load up the top waypoint
-    if( !pai->wp_valid )
+    if ( !pai->wp_valid )
     {
-        pai->wp_valid = waypoint_list_peek( &(pai->wp_lst), pai->wp );
+        pai->wp_valid = waypoint_list_peek( &( pai->wp_lst ), pai->wp );
     }
 
     at_waypoint = bfalse;
-    if( pai->wp_valid )
+    if ( pai->wp_valid )
     {
-        at_waypoint = (ABS(pchr->pos.x - pai->wp[kX]) < WAYTHRESH) &&
-                      (ABS(pchr->pos.y - pai->wp[kY]) < WAYTHRESH);
+        at_waypoint = ( ABS( pchr->pos.x - pai->wp[kX] ) < WAYTHRESH ) &&
+                      ( ABS( pchr->pos.y - pai->wp[kY] ) < WAYTHRESH );
     }
 
-    if( at_waypoint )
+    if ( at_waypoint )
     {
-        if( waypoint_list_finished( &(pai->wp_lst) ) )
+        if ( waypoint_list_finished( &( pai->wp_lst ) ) )
         {
             // we are now at the last waypoint
             // if the object can be alerted to last waypoint, do it
-            if( !chr_get_pcap( character )->isequipment )
+            if ( !chr_get_pcap( character )->isequipment )
             {
                 pai->alert |= ALERTIF_ATLASTWAYPOINT;
             }
 
             // !!!!restart the waypoint list, do not clear them!!!!
-            waypoint_list_reset( &(pai->wp_lst) );
+            waypoint_list_reset( &( pai->wp_lst ) );
 
             // load the top waypoint
-            pai->wp_valid = waypoint_list_peek( &(pai->wp_lst), pai->wp );
+            pai->wp_valid = waypoint_list_peek( &( pai->wp_lst ), pai->wp );
         }
         else
         {
             pai->alert |= ALERTIF_ATWAYPOINT;
 
             // move on to the next waypoint
-            if( waypoint_list_advance( &(pai->wp_lst) ) )
+            if ( waypoint_list_advance( &( pai->wp_lst ) ) )
             {
                 // load the top waypoint
-                pai->wp_valid = waypoint_list_peek( &(pai->wp_lst), pai->wp );
+                pai->wp_valid = waypoint_list_peek( &( pai->wp_lst ), pai->wp );
             }
         }
     }
@@ -1089,9 +1089,9 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
             case VARGOTOX:
                 varname = "GOTOX";
 
-                if( !pself->wp_valid )
+                if ( !pself->wp_valid )
                 {
-                    pself->wp_valid = waypoint_list_peek( &(pself->wp_lst), pself->wp );
+                    pself->wp_valid = waypoint_list_peek( &( pself->wp_lst ), pself->wp );
                 }
 
                 if ( !pself->wp_valid )
@@ -1107,9 +1107,9 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
             case VARGOTOY:
                 varname = "GOTOY";
 
-                if( !pself->wp_valid )
+                if ( !pself->wp_valid )
                 {
-                    pself->wp_valid = waypoint_list_peek( &(pself->wp_lst), pself->wp );
+                    pself->wp_valid = waypoint_list_peek( &( pself->wp_lst ), pself->wp );
                 }
 
                 if ( !pself->wp_valid )
@@ -1125,9 +1125,9 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
             case VARGOTODISTANCE:
                 varname = "GOTODISTANCE";
 
-                if( !pself->wp_valid )
+                if ( !pself->wp_valid )
                 {
-                    pself->wp_valid = waypoint_list_peek( &(pself->wp_lst), pself->wp );
+                    pself->wp_valid = waypoint_list_peek( &( pself->wp_lst ), pself->wp );
                 }
 
                 if ( !pself->wp_valid )
@@ -1504,12 +1504,12 @@ bool_t waypoint_list_peek( waypoint_list_t * plst, waypoint_t wp )
     int index;
 
     // is the list valid?
-    if( NULL == plst || plst->tail >= MAXWAY ) return bfalse;
+    if ( NULL == plst || plst->tail >= MAXWAY ) return bfalse;
 
     // is the list is empty?
-    if( 0 == plst->head ) return bfalse;
+    if ( 0 == plst->head ) return bfalse;
 
-    if( plst->tail > plst->head )
+    if ( plst->tail > plst->head )
     {
         // fix the tail
         plst->tail = plst->head;
@@ -1518,7 +1518,7 @@ bool_t waypoint_list_peek( waypoint_list_t * plst, waypoint_t wp )
         // just tell them the previous waypoint
         index = plst->tail - 1;
     }
-    else if( plst->tail == plst->head )
+    else if ( plst->tail == plst->head )
     {
         // we have passed the last waypoint
         // just tell them the previous waypoint
@@ -1542,7 +1542,7 @@ bool_t waypoint_list_push( waypoint_list_t * plst, int x, int y )
 {
     /// @details BB@> Add a waypoint to the waypoint list
 
-    if( NULL == plst ) return bfalse;
+    if ( NULL == plst ) return bfalse;
 
     // add the value
     plst->pos[plst->head][0] = x;
@@ -1560,7 +1560,7 @@ bool_t waypoint_list_reset( waypoint_list_t * plst )
 {
     /// @details BB@> reset the waypoint list to the beginning
 
-    if( NULL == plst ) return bfalse;
+    if ( NULL == plst ) return bfalse;
 
     plst->tail = 0;
 
@@ -1572,7 +1572,7 @@ bool_t waypoint_list_clear( waypoint_list_t * plst )
 {
     /// @details BB@> Clear out all waypoints
 
-    if( NULL == plst ) return bfalse;
+    if ( NULL == plst ) return bfalse;
 
     plst->tail = 0;
     plst->head = 0;
@@ -1583,7 +1583,7 @@ bool_t waypoint_list_clear( waypoint_list_t * plst )
 //--------------------------------------------------------------------------------------------
 bool_t waypoint_list_empty( waypoint_list_t * plst )
 {
-    if( NULL == plst ) return btrue;
+    if ( NULL == plst ) return btrue;
 
     return 0 == plst->head;
 }
@@ -1591,7 +1591,7 @@ bool_t waypoint_list_empty( waypoint_list_t * plst )
 //--------------------------------------------------------------------------------------------
 bool_t waypoint_list_finished( waypoint_list_t * plst )
 {
-    if( NULL == plst || 0 == plst->head ) return btrue;
+    if ( NULL == plst || 0 == plst->head ) return btrue;
 
     return plst->tail == plst->head;
 }
@@ -1601,15 +1601,15 @@ bool_t waypoint_list_advance( waypoint_list_t * plst )
 {
     bool_t retval;
 
-    if( NULL == plst ) return bfalse;
+    if ( NULL == plst ) return bfalse;
 
     retval = bfalse;
-    if( plst->tail > plst->head )
+    if ( plst->tail > plst->head )
     {
         // fix the tail
         plst->tail = plst->head;
     }
-    else if( plst->tail < plst->head )
+    else if ( plst->tail < plst->head )
     {
         // advance the tail
         plst->tail++;

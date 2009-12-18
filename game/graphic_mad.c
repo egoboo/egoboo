@@ -79,7 +79,7 @@ bool_t render_one_mad_enviro( Uint16 character, GLXvector4f tint, Uint32 bits )
     pmad = MadList + pinst->imad;
 
     pmd2 = pmad->md2_ptr;
-    if( NULL == pmd2 ) return bfalse;
+    if ( NULL == pmd2 ) return bfalse;
 
     ptex = NULL;
     if ( 0 != ( bits & CHR_PHONG ) )
@@ -121,8 +121,8 @@ bool_t render_one_mad_enviro( Uint16 character, GLXvector4f tint, Uint32 bits )
         GL_DEBUG( glGetFloatv )( GL_CURRENT_COLOR, curr_color );
 
         // Render each command
-        cmd_count   = md2_get_numCommands(pmd2);
-        glcommand   = md2_get_Commands(pmd2);
+        cmd_count   = md2_get_numCommands( pmd2 );
+        glcommand   = md2_get_Commands( pmd2 );
 
         for ( cnt = 0; cnt < cmd_count && NULL != glcommand; cnt++ )
         {
@@ -132,7 +132,7 @@ bool_t render_one_mad_enviro( Uint16 character, GLXvector4f tint, Uint32 bits )
             {
                 int tnc;
 
-                for( tnc = 0; tnc < count; tnc++ )
+                for ( tnc = 0; tnc < count; tnc++ )
                 {
                     GLfloat     cmax;
                     GLXvector4f col;
@@ -262,7 +262,7 @@ bool_t render_one_mad_tex( Uint16 character, GLXvector4f tint, Uint32 bits )
     pmad = MadList + pinst->imad;
 
     pmd2 = pmad->md2_ptr;
-    if( NULL == pmd2 ) return bfalse;
+    if ( NULL == pmd2 ) return bfalse;
 
     // To make life easier
     ptex = TxTexture_get_ptr( pinst->texture );
@@ -300,12 +300,12 @@ bool_t render_one_mad_tex( Uint16 character, GLXvector4f tint, Uint32 bits )
         {
             // convert the "light" parameter to self-lighting for
             // every object that is not being rendered using CHR_LIGHT
-            base_amb   = (255 == pinst->light) ? 0 : (pinst->light * INV_FF);
+            base_amb   = ( 255 == pinst->light ) ? 0 : ( pinst->light * INV_FF );
         }
 
         // Render each command
-        cmd_count   = md2_get_numCommands(pmd2);
-        glcommand   = md2_get_Commands(pmd2);
+        cmd_count   = md2_get_numCommands( pmd2 );
+        glcommand   = md2_get_Commands( pmd2 );
 
         for ( cnt = 0; cnt < cmd_count && NULL != glcommand; cnt++ )
         {
@@ -315,7 +315,7 @@ bool_t render_one_mad_tex( Uint16 character, GLXvector4f tint, Uint32 bits )
             {
                 int tnc;
 
-                for( tnc = 0; tnc < count; tnc++ )
+                for ( tnc = 0; tnc < count; tnc++ )
                 {
                     GLXvector2f tex;
                     GLXvector4f col;
@@ -788,7 +788,6 @@ void chr_draw_grips( chr_t * pchr )
     if ( texture_2d_enabled ) glEnable( GL_TEXTURE_2D );
 }
 
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 egoboo_rv chr_update_instance( chr_t * pchr )
@@ -914,10 +913,10 @@ egoboo_rv chr_instance_update_bbox( chr_instance_t * pinst )
     pmad = MadList + pinst->imad;
 
     pmd2 = pmad->md2_ptr;
-    if( NULL == pmd2 ) return rv_error;
+    if ( NULL == pmd2 ) return rv_error;
 
     frame_count = md2_get_numFrames( pmd2 );
-    if( pinst->frame_nxt >= frame_count ||  pinst->frame_lst >= frame_count ) return rv_error;
+    if ( pinst->frame_nxt >= frame_count ||  pinst->frame_lst >= frame_count ) return rv_error;
 
     frame_list = md2_get_Frames( pmd2 );
     pframe_lst = frame_list + pinst->frame_lst;
@@ -961,7 +960,7 @@ egoboo_rv chr_instance_needs_update( chr_instance_t * pinst, int vmin, int vmax,
     int maxvert;
 
     // ensure that the pointers point to something
-    if ( NULL == verts_match  ) verts_match  = &local_verts_match;
+    if ( NULL == verts_match ) verts_match  = &local_verts_match;
     if ( NULL == frames_match ) frames_match = &local_frames_match;
 
     // initialize the boolean pointers
@@ -978,7 +977,7 @@ egoboo_rv chr_instance_needs_update( chr_instance_t * pinst, int vmin, int vmax,
 
     // check to see if the vlst_cache has been marked as invalid.
     // in this case, everything needs to be updated
-    if( !psave->valid ) return rv_success;
+    if ( !psave->valid ) return rv_success;
 
     // get the last valid vertex from the chr_instance
     maxvert = pinst->vlst_size - 1;
@@ -1031,12 +1030,12 @@ egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vm
     pmad = MadList + pinst->imad;
 
     pmd2 = pmad->md2_ptr;
-    if( NULL == pmd2 ) return rv_error;
+    if ( NULL == pmd2 ) return rv_error;
 
     // make sure we have valid data
-    if( pinst->vlst_size != md2_get_numVertices(pmd2) )
+    if ( pinst->vlst_size != md2_get_numVertices( pmd2 ) )
     {
-        log_error("chr_instance_update_vertices() - character instance vertex data does not match its md2\n" );
+        log_error( "chr_instance_update_vertices() - character instance vertex data does not match its md2\n" );
     }
 
     // get the vertex list size from the chr_instance
@@ -1055,8 +1054,8 @@ egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vm
 
         // select a range that encompases the requested vertices and the saved vertices
         // if this is the 1st update, the saved vertices may be set to invalid values, as well
-        vmin = (psave->vmin < 0 ) ? vmin : MIN( vmin, psave->vmin );
-        vmax = (psave->vmax < 0 ) ? vmax : MAX( vmax, psave->vmax );
+        vmin = ( psave->vmin < 0 ) ? vmin : MIN( vmin, psave->vmin );
+        vmax = ( psave->vmax < 0 ) ? vmax : MAX( vmax, psave->vmax );
 
         // force the routine to update
         vertices_match = bfalse;
@@ -1075,14 +1074,14 @@ egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vm
     }
 
     // make sure the frames are in the valid range
-    frame_count = md2_get_numFrames(pmd2);
-    if( pinst->frame_nxt >= frame_count || pinst->frame_lst >= frame_count )
+    frame_count = md2_get_numFrames( pmd2 );
+    if ( pinst->frame_nxt >= frame_count || pinst->frame_lst >= frame_count )
     {
-        log_error("chr_instance_update_vertices() - character instance frame is outside the range of its md2\n" );
+        log_error( "chr_instance_update_vertices() - character instance frame is outside the range of its md2\n" );
     }
 
     // grab the frame data from the correct model
-    frame_list = md2_get_Frames(pmd2);
+    frame_list = md2_get_Frames( pmd2 );
     pframe_nxt = frame_list + pinst->frame_nxt;
     pframe_lst = frame_list + pinst->frame_lst;
 
@@ -1155,7 +1154,6 @@ egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vm
     return chr_instance_update_vlst_cache( pinst, vmax, vmin, force, vertices_match, frames_match );
 }
 
-
 //--------------------------------------------------------------------------------------------
 egoboo_rv chr_instance_update_vlst_cache( chr_instance_t * pinst, int vmax, int vmin, bool_t force, bool_t vertices_match, bool_t frames_match )
 {
@@ -1168,9 +1166,9 @@ egoboo_rv chr_instance_update_vlst_cache( chr_instance_t * pinst, int vmax, int 
 
     vlst_cache_t * psave;
 
-    if( NULL == pinst ) return rv_error;
+    if ( NULL == pinst ) return rv_error;
     maxvert = pinst->vlst_size - 1;
-    psave   = &(pinst->save);
+    psave   = &( pinst->save );
 
     // the save_vmin and save_vmax is the most complex
     verts_updated = bfalse;
@@ -1299,25 +1297,29 @@ egoboo_rv chr_instance_update_grip_verts( chr_instance_t * pinst, Uint16 vrt_lst
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv chr_instance_set_action( chr_instance_t * pinst, int action, bool_t action_ready, bool_t override )
+egoboo_rv chr_instance_set_action( chr_instance_t * pinst, int action, bool_t action_ready, bool_t override_action )
 {
+    int action_old;
     mad_t * pmad;
 
     // did we get a bad pointer?
-    if( NULL == pinst ) return rv_error;
+    if ( NULL == pinst ) return rv_error;
 
     // is the action in the valid range?
-    if( action < 0 || action > ACTION_COUNT ) return rv_error;
+    if ( action < 0 || action > ACTION_COUNT ) return rv_error;
 
     // do we have a valid model?
-    if( !LOADED_MAD(pinst->imad) ) return rv_error;
+    if ( !LOADED_MAD( pinst->imad ) ) return rv_error;
     pmad = MadList + pinst->imad;
-    
+
     // is the chosen action valid?
-    if( !pmad->action_valid[ action ] ) return rv_fail;
+    if ( !pmad->action_valid[ action ] ) return rv_fail;
 
     // are we going to check action_ready?
-    if( !override && !pinst->action_ready ) return rv_fail;
+    if ( !override_action && !pinst->action_ready ) return rv_fail;
+
+    // save the old action
+    action_old = pinst->action_which;
 
     // set up the action
     pinst->action_which = action;
@@ -1325,8 +1327,11 @@ egoboo_rv chr_instance_set_action( chr_instance_t * pinst, int action, bool_t ac
     pinst->action_keep  = bfalse;
     pinst->action_ready = action_ready;
 
-    // invalidate the vertex list
-    pinst->save.valid = bfalse;
+    // invalidate the vertex list if the action has changed
+    if ( action_old != action )
+    {
+        pinst->save.valid = bfalse;
+    }
 
     return rv_success;
 }
@@ -1337,21 +1342,21 @@ egoboo_rv chr_instance_set_frame( chr_instance_t * pinst, int frame )
     mad_t * pmad;
 
     // did we get a bad pointer?
-    if( NULL == pinst ) return rv_error;
+    if ( NULL == pinst ) return rv_error;
 
     // is the action in the valid range?
-    if( pinst->action_which < 0 || pinst->action_which > ACTION_COUNT ) return rv_error;
+    if ( pinst->action_which < 0 || pinst->action_which > ACTION_COUNT ) return rv_error;
 
     // do we have a valid model?
-    if( !LOADED_MAD(pinst->imad) ) return rv_error;
+    if ( !LOADED_MAD( pinst->imad ) ) return rv_error;
     pmad = MadList + pinst->imad;
 
     // is the current action valid?
-    if( !pmad->action_valid[ pinst->action_which ] ) return rv_fail;
+    if ( !pmad->action_valid[ pinst->action_which ] ) return rv_fail;
 
     // is the frame within the valid range for this action?
-    if( frame <  pmad->action_stt[ pinst->action_which ] ) return rv_fail;
-    if( frame >= pmad->action_end[ pinst->action_which ] ) return rv_fail;
+    if ( frame <  pmad->action_stt[ pinst->action_which ] ) return rv_fail;
+    if ( frame >= pmad->action_end[ pinst->action_which ] ) return rv_fail;
 
     // jump to the next frame
     pinst->flip = 0.0f;
@@ -1361,18 +1366,152 @@ egoboo_rv chr_instance_set_frame( chr_instance_t * pinst, int frame )
 
     // invalidate the vlst_cache
     pinst->save.valid = bfalse;
+
+    return rv_success;
 }
 
+//--------------------------------------------------------------------------------------------
+egoboo_rv chr_instance_set_anim( chr_instance_t * pinst, int action, int frame, bool_t action_ready, bool_t override_action )
+{
+    egoboo_rv retval;
 
+    if ( NULL == pinst ) return rv_error;
+
+    retval = chr_instance_set_action( pinst, action, action_ready, override_action );
+    if ( rv_success != retval ) return retval;
+
+    retval = chr_instance_set_frame( pinst, frame );
+
+    return retval;
+
+}
+
+//--------------------------------------------------------------------------------------------
+egoboo_rv chr_instance_start_anim( chr_instance_t * pinst, int action, bool_t action_ready, bool_t override_action )
+{
+    mad_t * pmad;
+
+    if ( NULL == pinst ) return rv_error;
+
+    if ( action < 0 || action >= ACTION_COUNT ) return rv_error;
+
+    if ( !LOADED_MAD( pinst->imad ) ) return rv_error;
+    pmad = MadList + pinst->imad;
+
+    return chr_instance_set_anim( pinst, action, pmad->action_stt[action], action_ready, override_action );
+}
+
+//--------------------------------------------------------------------------------------------
+egoboo_rv chr_instance_increment_action( chr_instance_t * pinst )
+{
+    /// @details BB@> This function starts the next action for a character
+
+    egoboo_rv retval;
+    mad_t * pmad;
+    int     action, action_old;
+    bool_t  action_ready;
+
+    if ( NULL == pinst ) return rv_error;
+
+    // save the old action
+    action_old = pinst->action_which;
+
+    if ( !LOADED_MAD( pinst->imad ) ) return rv_error;
+    pmad = MadList + pinst->imad;
+
+    // get the correct action
+    action = mad_get_action( pinst->imad, pinst->action_next );
+
+    // determine if the action is one of the types that can be broken at any time
+    // D == "dance" and "W" == walk
+    action_ready = ACTION_IS_TYPE( action, D ) || ACTION_IS_TYPE( action, W );
+
+    retval = chr_instance_start_anim( pinst, action, action_ready, btrue );
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+egoboo_rv chr_instance_increment_frame( chr_instance_t * pinst, mad_t * pmad, Uint16 imount )
+{
+    /// @detaild BB@> all the code necessary to move on to the next frame of the animation
+
+    int tmp_action;
+
+    if ( NULL == pinst || NULL == pmad ) return rv_error;
+
+    // Change frames
+    pinst->frame_lst = pinst->frame_nxt;
+    pinst->frame_nxt++;
+
+    // detect the end of the animation and handle special end conditions
+    if ( pinst->frame_nxt >= pmad->action_end[pinst->action_which] )
+    {
+        // make sure that the frame_nxt points to a valid frame in this action
+        pinst->frame_nxt = pmad->action_end[pinst->action_which] - 1;
+
+        if ( pinst->action_keep )
+        {
+            // Freeze that anumation at the last frame
+            pinst->frame_nxt = pinst->frame_lst;
+
+            // Break a kept action at any time
+            pinst->action_ready = btrue;
+        }
+        else if ( pinst->action_loop )
+        {
+            // Convert the action into a riding action if the character is mounted
+            if ( ACTIVE_CHR( imount ) )
+            {
+                tmp_action = mad_get_action( pinst->imad, ACTION_MI );
+                chr_instance_start_anim( pinst, tmp_action, btrue, btrue );
+            }
+
+            // set the frame to the beginning of the action
+            pinst->frame_nxt = pmad->action_stt[pinst->action_which];
+
+            // Break a looped action at any time
+            pinst->action_ready = btrue;
+        }
+        else
+        {
+            // Go on to the next action. don't let just anything interrupt it?
+            chr_instance_increment_action( pinst );
+        }
+    }
+
+    return rv_success;
+}
+
+//--------------------------------------------------------------------------------------------
+egoboo_rv chr_instance_play_action( chr_instance_t * pinst, Uint16 action, Uint8 action_ready )
+{
+    /// @details ZZ@> This function starts a generic action for a character
+
+    egoboo_rv retval;
+    mad_t * pmad;
+
+    if ( NULL == pinst ) return rv_error;
+
+    if ( !LOADED_MAD( pinst->imad ) ) return rv_error;
+    pmad = MadList + pinst->imad;
+
+    action = mad_get_action( pinst->imad, action );
+
+    return chr_instance_start_anim( pinst, action, action_ready, btrue );
+}
+
+//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 vlst_cache_t * vlst_cache_init( vlst_cache_t * pcache )
 {
-    if( NULL == pcache ) return NULL;
+    if ( NULL == pcache ) return NULL;
 
-    memset( pcache, 0, sizeof(*pcache) );
+    memset( pcache, 0, sizeof( *pcache ) );
 
     pcache->vmin = -1;
     pcache->vmax = -1;
 
     return pcache;
 }
+

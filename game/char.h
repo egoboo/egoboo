@@ -52,8 +52,8 @@ struct s_billboard_data_t;
 
 #define MAP_TURN_OFFSET 0x8000
 
-#define MAXXP			200000                        ///< Maximum experience
-#define MAXMONEY		9999                        ///< Maximum money
+#define MAXXP           200000                        ///< Maximum experience
+#define MAXMONEY        9999                        ///< Maximum money
 #define SHOP_IDENTIFY   200                         ///< Maximum value for identifying shop items
 
 #define MAX_CAP    MAX_PROFILE
@@ -517,11 +517,6 @@ void drop_keys( Uint16 character );
 bool_t drop_all_items( Uint16 character );
 bool_t character_grab_stuff( Uint16 chara, grip_offset_t grip, bool_t people );
 
-void chr_play_action( Uint16 character, Uint16 action, Uint8 actionready );
-void chr_instance_play_action( chr_instance_t * pinst, Uint16 action, Uint8 actionready );
-void chr_instance_increment_action( chr_instance_t * pinst );
-void chr_set_frame( Uint16 character, Uint16 action, int frame, Uint16 lip );
-
 bool_t export_one_character_name( const char *szSaveName, Uint16 character );
 bool_t export_one_character_profile( const char *szSaveName, Uint16 character );
 bool_t export_one_character_skin( const char *szSaveName, Uint16 character );
@@ -648,3 +643,12 @@ bool_t chr_get_mass_pair( chr_t * pchr_a, chr_t * pchr_b, float * wta, float * w
 bool_t chr_can_mount( Uint16 ichr_a, Uint16 ichr_b );
 
 Uint32 chr_get_framefx( chr_t * pchr );
+
+void      chr_set_frame( Uint16 character, Uint16 action, int frame, Uint16 lip );
+
+egoboo_rv chr_set_action( chr_t * pchr, int action, bool_t action_ready, bool_t override_action );
+egoboo_rv chr_start_anim( chr_t * pchr, int action, bool_t action_ready, bool_t override_action );
+egoboo_rv chr_set_anim( chr_t * pchr, int action, int frame, bool_t action_ready, bool_t override_action );
+egoboo_rv chr_increment_action( chr_t * pchr );
+egoboo_rv chr_increment_frame( chr_t * pchr );
+egoboo_rv chr_play_action( chr_t * pchr, int action, bool_t action_ready );

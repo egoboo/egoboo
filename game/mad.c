@@ -352,14 +352,14 @@ void mad_get_framefx( const char * cFrameName, int model, int frame )
     MD2_Model_t * md2;
     MD2_Frame_t * pframe;
 
-    if( !VALID_MAD_RANGE(model) ) return;
+    if ( !VALID_MAD_RANGE( model ) ) return;
 
     md2 = MadList[model].md2_ptr;
-    if( NULL == md2 ) return;
+    if ( NULL == md2 ) return;
 
     // check for a valid frame number
-    if ( frame >= md2_get_numFrames(md2) ) return;
-    pframe = md2_get_Frames(md2) + frame;
+    if ( frame >= md2_get_numFrames( md2 ) ) return;
+    pframe = md2_get_Frames( md2 ) + frame;
 
     // this should only be initializwd the first time through
     if ( token_count < 0 )
@@ -548,7 +548,7 @@ void mad_make_framelip( Uint16 object, int action )
     pmad = MadList + object;
 
     md2 = pmad->md2_ptr;
-    if( NULL == md2 ) return;
+    if ( NULL == md2 ) return;
 
     action = mad_get_action( object, action );
     if ( ACTION_COUNT == action || ACTION_DA == action ) return;
@@ -559,10 +559,10 @@ void mad_make_framelip( Uint16 object, int action )
     frame_list = md2_get_Frames( md2 );
 
     framesinaction = pmad->action_end[action] - pmad->action_stt[action];
-    
+
     for ( frame = pmad->action_stt[action]; frame < pmad->action_end[action]; frame++ )
     {
-        if( frame > frame_count ) continue;
+        if ( frame > frame_count ) continue;
         pframe = frame_list + frame;
 
         pframe->framelip = ( frame - pmad->action_stt[action] ) * 15 / framesinaction;
@@ -582,14 +582,14 @@ void mad_make_equally_lit( int model )
     {
         MD2_Model_t * md2;
         int frame_count, vert_count;
-        
+
         md2         = MadList[model].md2_ptr;
-        frame_count = md2_get_numFrames(md2);
-        vert_count  = md2_get_numVertices(md2);
+        frame_count = md2_get_numFrames( md2 );
+        vert_count  = md2_get_numVertices( md2 );
 
         for ( cnt = 0; cnt < frame_count; cnt++ )
         {
-            MD2_Frame_t * pframe = md2_get_Frames(md2);
+            MD2_Frame_t * pframe = md2_get_Frames( md2 );
             for ( vert = 0; vert < vert_count; vert++ )
             {
                 pframe->vertices[vert].normal = EGO_AMBIENT_INDEX;
@@ -704,7 +704,7 @@ Uint16 load_one_model_profile( const char* tmploadname, Uint16 imad )
         ///      commands that multiplied various quantities by 4 or by 4.125 throughout the code.
         ///      It was very counterintuitive, and caused me no end of headaches...  Of course the
         ///      solution is to scale the model!
-        md2_scale_model(pmad->md2_ptr,-3.5, 3.5, 3.5);
+        md2_scale_model( pmad->md2_ptr, -3.5, 3.5, 3.5 );
     }
 
     // Create the actions table for this imad
@@ -794,10 +794,10 @@ void mad_finalize( Uint16 object )
     pmad = MadList + object;
 
     pmd2 = pmad->md2_ptr;
-    if( NULL == pmd2 ) return;
+    if ( NULL == pmd2 ) return;
 
     frame_count = md2_get_numFrames( pmd2 );
-    frame_list  = md2_get_Frames(pmd2);
+    frame_list  = md2_get_Frames( pmd2 );
 
     // Create table for doing transition from one type of walk to another...
     // Clear 'em all to start
@@ -835,7 +835,7 @@ void mad_rip_actions( Uint16 object )
     pmad = MadList + object;
 
     pmd2 = pmad->md2_ptr;
-    if( NULL == pmd2 ) return;
+    if ( NULL == pmd2 ) return;
 
     // Clear out all actions and reset to invalid
     for ( action = 0; action < ACTION_COUNT; action++ )
@@ -854,7 +854,7 @@ void mad_rip_actions( Uint16 object )
     frame_list  = md2_get_Frames( pmd2 );
 
     // Now go huntin' to see what each iframe is, look for runs of same action
-    lastaction     = action_number( frame_list[0].name );  
+    lastaction     = action_number( frame_list[0].name );
     framesinaction = 0;
     for ( iframe = 0; iframe < frame_count; iframe++ )
     {

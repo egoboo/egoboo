@@ -908,10 +908,7 @@ Uint16 spawn_one_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 en
             action = mad_get_action( chr_get_imad( overlay ), ACTION_MJ );
             if ( !ACTION_IS_TYPE( action, D ) )
             {
-                if( rv_success == chr_instance_set_action( &(povl->inst), action, bfalse, btrue ) )
-                {
-                    chr_instance_set_frame( &(povl->inst), povl_mad->action_stt[action] );
-                }
+                chr_start_anim( povl, action, bfalse, btrue );
             }
 
             // Assume it's transparent...

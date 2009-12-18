@@ -174,7 +174,7 @@ eve_t * load_one_enchant_file( const char* szLoadName, eve_t * peve )
     peve->addvalue[ADDDEXTERITY]    = (Sint32) fget_next_float( fileread ) * 4;
 
     // Read expansions
-	
+
     while ( goto_colon( NULL, fileread, btrue ) )
     {
         idsz = fget_idsz( fileread );

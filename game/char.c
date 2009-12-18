@@ -66,7 +66,7 @@ DECLARE_LIST( ACCESS_TYPE_NONE, chr_t,  ChrList );
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 static chr_instance_t * chr_instance_init( chr_instance_t * pinst );
-static bool_t           chr_instance_spawn( chr_instance_t * pinst, Uint16 profile, Uint8 skin );
+static bool_t           chr_spawn_instance( chr_instance_t * pinst, Uint16 profile, Uint8 skin );
 static bool_t           chr_instance_set_mad( chr_instance_t * pinst, Uint16 imad );
 
 static Uint16 pack_has_a_stack( Uint16 item, Uint16 character );
@@ -401,7 +401,7 @@ bool_t ChrList_free_one( Uint16 ichr )
     pchr = ChrList.lst + ichr;
 
     // deallocate any dynamically allocated memory
-    chr_instance_free_one( &(pchr->inst) );
+    chr_instance_free_one( &( pchr->inst ) );
 
     // character "destructor"
     // sets all boolean values to false, incluting the "on" flag
@@ -927,12 +927,12 @@ bool_t detach_character_from_mount( Uint16 character, Uint8 ignorekurse, Uint8 d
     if ( pchr->alive )
     {
         // play the falling animation...
-        chr_play_action( character, ACTION_JB + hand, bfalse );
+        chr_play_action( pchr, ACTION_JB + hand, bfalse );
     }
     else if ( pchr->inst.action_which < ACTION_KA || pchr->inst.action_which > ACTION_KD )
     {
         // play the "killed" animation...
-        chr_play_action( character, ACTION_KA + generate_randmask( 0, 3 ), bfalse );
+        chr_play_action( pchr, ACTION_KA + generate_randmask( 0, 3 ), bfalse );
         pchr->inst.action_keep = btrue;
     }
 
@@ -1138,12 +1138,12 @@ void attach_character_to_mount( Uint16 iitem, Uint16 iholder, grip_offset_t grip
     if ( pholder->ismount && grip_off == GRIP_ONLY )
     {
         // Riding iholder
-        chr_play_action( iitem, ACTION_MI, btrue );
+        chr_play_action( pitem, ACTION_MI, btrue );
         pitem->inst.action_loop = btrue;
     }
     else if ( pitem->alive )
     {
-        chr_play_action( iitem, ACTION_MM + slot, bfalse );
+        chr_play_action( pitem, ACTION_MM + slot, bfalse );
         if ( pitem->isitem )
         {
             // Item grab
@@ -1804,7 +1804,7 @@ bool_t character_grab_stuff( Uint16 ichr_a, grip_offset_t grip_off, bool_t grab_
             if ( grab_people )
             {
                 // Do a slam animation...  ( Be sure to drop!!! )
-                chr_play_action( ichr_a, ACTION_MC + slot, bfalse );
+                chr_play_action( pchr_a, ACTION_MC + slot, bfalse );
             }
             retval = btrue;
             break;
@@ -2826,7 +2826,7 @@ void kill_character( Uint16 ichr, Uint16 killer, bool_t ignoreinvincible )
 
     // Play the death animation
     action = ACTION_KA + generate_randmask( 0, 3 );
-    chr_play_action( ichr, action, bfalse );
+    chr_play_action( pchr, action, bfalse );
     pchr->inst.action_keep = btrue;
 
     // Give kill experience
@@ -3078,7 +3078,7 @@ int damage_character( Uint16 character, Uint16 direction,
                         if ( base_damage > HURTDAMAGE )
                         {
                             action += generate_randmask( 0, 3 );
-                            chr_play_action( character, action, bfalse );
+                            chr_play_action( pchr, action, bfalse );
 
                             // Make the character invincible for a limited time only
                             if ( 0 == ( effects & DAMFX_TIME ) )
@@ -3343,8 +3343,8 @@ chr_t * chr_init( chr_t * pchr )
     pchr->map_turn_y = MAP_TURN_OFFSET;  // These two mean on level surface
     pchr->map_turn_x = MAP_TURN_OFFSET;
 
-    // action stuff
-    chr_instance_set_action( &(pchr->inst), ACTION_DA, btrue, btrue );
+    // start the character out in the "dance" animation
+    chr_start_anim( pchr, ACTION_DA, btrue, btrue );
 
     // I think we have to set the dismount timer, otherwise objects that
     // are spawned by chests will behave strangely...
@@ -3642,7 +3642,7 @@ Uint16 spawn_one_character( fvec3_t pos, Uint16 profile, Uint8 team,
     }
 
     // initalize the character instance
-    chr_instance_spawn( &( pchr->inst ), profile, skin );
+    chr_spawn_instance( &( pchr->inst ), profile, skin );
     chr_update_matrix( pchr, btrue );
 
     if ( 0 == __chrhitawall( pchr, NULL ) )
@@ -3696,9 +3696,8 @@ void respawn_character( Uint16 character )
     if ( NOLEADER == TeamList[pchr->team].leader )  TeamList[pchr->team].leader = character;
     if ( !pchr->invictus )  TeamList[pchr->baseteam].morale++;
 
-    pchr->inst.action_keep  = bfalse;
-    pchr->inst.action_loop  = bfalse;
-    chr_instance_set_action( &(pchr->inst), ACTION_DA, btrue, btrue );
+    // start the character out in the "dance" animation
+    chr_start_anim( pchr, ACTION_DA, btrue, btrue );
 
     // reset all of the bump size information
     {
@@ -3729,7 +3728,7 @@ void respawn_character( Uint16 character )
     }
 
     // re-initialize the instance
-    chr_instance_spawn( &( pchr->inst ), pchr->iprofile, pchr->skin );
+    chr_spawn_instance( &( pchr->inst ), pchr->iprofile, pchr->skin );
     chr_update_matrix( pchr, btrue );
 
     // determine whether the object is hidden
@@ -4068,20 +4067,19 @@ void change_character( Uint16 ichr, Uint16 profile_new, Uint8 skin, Uint8 leavew
         pchr->gender = pcap_new->gender;
     }
 
-	// Sound effects
+    // Sound effects
     for ( tnc = 0; tnc < SOUND_COUNT; tnc++ )
     {
         pchr->soundindex[tnc] = pcap_new->soundindex[tnc];
     }
 
     // AI stuff
-    pchr->ai.type			= pobj_new->iai;
-    pchr->ai.state			= 0;
-    pchr->ai.timer			= 0;	
-	pchr->turnmode			= TURNMODE_VELOCITY;
+    pchr->ai.type           = pobj_new->iai;
+    pchr->ai.state          = 0;
+    pchr->ai.timer          = 0;
+    pchr->turnmode          = TURNMODE_VELOCITY;
 
     latch_init( &( pchr->latch ) );
-
 
     // Flags
     pchr->stickybutt    = pcap_new->stickybutt;
@@ -4113,10 +4111,9 @@ void change_character( Uint16 ichr, Uint16 profile_new, Uint8 skin, Uint8 leavew
 
     // changing this could be disasterous, in case you can't un-morph youself???
     //pchr->canusearcane          = pcap_new->canusearcane;
-	//ZF> No, we want this, I have specifically scripted morph books to handle unmorphing 
+    //ZF> No, we want this, I have specifically scripted morph books to handle unmorphing
     // even if you cannot cast arcane spells. Some morph spells specifically morph the player
-	// into a fighter or a tech user, but as a balancing factor prevents other spellcasting.
-
+    // into a fighter or a tech user, but as a balancing factor prevents other spellcasting.
 
     // Character size and bumping
     // set the character size so that the new model is the same size as the old model
@@ -4152,11 +4149,11 @@ void change_character( Uint16 ichr, Uint16 profile_new, Uint8 skin, Uint8 leavew
         }
     }
 
-	//Physics
+    //Physics
     pchr->phys.bumpdampen = pcap_new->bumpdampen;
-	pchr->holdingweight     = 0;
+    pchr->holdingweight     = 0;
     pchr->onwhichplatform   = MAX_CHR;
-    
+
     if ( pcap_new->weight == 0xFF )
     {
         pchr->phys.weight = INFINITE_WEIGHT;
@@ -4177,27 +4174,27 @@ void change_character( Uint16 ichr, Uint16 profile_new, Uint8 skin, Uint8 leavew
     pchr->runspd   = pcap_new->runspd;
 
     // initialize the instance
-    chr_instance_spawn( &( pchr->inst ), profile_new, skin );
+    chr_spawn_instance( &( pchr->inst ), profile_new, skin );
     chr_update_matrix( pchr, btrue );
 
-    // Action stuff that must be down after chr_instance_spawn()
+    // Action stuff that must be down after chr_spawn_instance()
     pchr->inst.action_ready = bfalse;
     pchr->inst.action_keep  = bfalse;
     pchr->inst.action_loop  = bfalse;
-    if( pchr->alive )
-	{
-		chr_play_action( ichr, ACTION_DA, bfalse );
-	}
-	else 
-	{
-		chr_play_action( ichr, ACTION_KA + generate_randmask( 0, 3 ), bfalse );
+    if ( pchr->alive )
+    {
+        chr_play_action( pchr, ACTION_DA, bfalse );
+    }
+    else
+    {
+        chr_play_action( pchr, ACTION_KA + generate_randmask( 0, 3 ), bfalse );
         pchr->inst.action_keep = btrue;
-	}
+    }
 
-    // Set the skin after changing the model in chr_instance_spawn()
+    // Set the skin after changing the model in chr_spawn_instance()
     change_armor( ichr, skin );
 
-    // Must set the wepon grip AFTER the model is changed in chr_instance_spawn()
+    // Must set the wepon grip AFTER the model is changed in chr_spawn_instance()
     if ( ACTIVE_CHR( pchr->attachedto ) )
     {
         set_weapongrip( ichr, pchr->attachedto, slot_to_grip_offset( pchr->inwhich_slot ) );
@@ -4939,8 +4936,8 @@ void move_one_character_do_volontary( chr_t * pchr )
 
     mad_t       * pmad;
     int           frame_count;
-    MD2_Frame_t * frame_list;  
-    MD2_Frame_t * pframe_nxt; 
+    MD2_Frame_t * frame_list;
+    MD2_Frame_t * pframe_nxt;
 
     if ( !ACTIVE_PCHR( pchr ) ) return;
 
@@ -5223,17 +5220,17 @@ bool_t chr_do_latch_attack( chr_t * pchr, int which_slot )
             cap_t * pmount_cap = chr_get_pcap( mount );
 
             // let the mount steal the rider's attack
-            if( !pmount_cap->ridercanattack ) allowedtoattack = bfalse;
+            if ( !pmount_cap->ridercanattack ) allowedtoattack = bfalse;
 
             // can the mount do anything?
             if ( pmount->alive )
             {
                 // can the mount be told what to do?
-                if( pmount->ismount && !pmount->isplayer && pmount->inst.action_ready )
+                if ( pmount->ismount && !pmount->isplayer && pmount->inst.action_ready )
                 {
                     if ( !ACTION_IS_TYPE( action, P ) || !pmount_cap->ridercanattack )
                     {
-                        chr_play_action( mount, generate_randmask( ACTION_UA, 1 ), bfalse );
+                        chr_play_action( pmount, generate_randmask( ACTION_UA, 1 ), bfalse );
                         pmount->ai.alert     |= ALERTIF_USED;
                         pchr->ai.lastitemused = mount;
 
@@ -5267,17 +5264,17 @@ bool_t chr_do_latch_attack( chr_t * pchr, int which_slot )
                 if ( ACTION_IS_TYPE( action, P ) )
                 {
                     // we must set parry actions to be interrupted by anything
-                    chr_play_action( ichr, action, btrue );
+                    chr_play_action( pchr, action, btrue );
                 }
                 else
                 {
-                    chr_play_action( ichr, action, bfalse );
+                    chr_play_action( pchr, action, bfalse );
                 }
 
                 if ( iweapon != ichr )
                 {
                     // Make the iweapon attack too
-                    chr_play_action( iweapon, ACTION_MJ, bfalse );
+                    chr_play_action( pweapon, ACTION_MJ, bfalse );
                 }
 
                 // let everyone know what we did
@@ -5354,7 +5351,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
                 if ( pchr->enviro.inwater )
                 {
                     pchr->vel.z += WATERJUMP * 1.5;
-                    pchr->jumptime = JUMPDELAY * 4;			//To prevent 'bunny jumping' in water
+                    pchr->jumptime = JUMPDELAY * 4;         //To prevent 'bunny jumping' in water
                 }
                 else
                 {
@@ -5368,7 +5365,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
                 // Set to jump animation if not doing anything better
                 if ( pchr->inst.action_ready )
                 {
-                    chr_play_action( ichr, ACTION_JA, btrue );
+                    chr_play_action( pchr, ACTION_JA, btrue );
                 }
 
                 // Play the jump sound (Boing!)
@@ -5393,12 +5390,12 @@ bool_t chr_do_latch_button( chr_t * pchr )
         if ( !ACTIVE_CHR( pchr->holdingwhich[SLOT_LEFT] ) )
         {
             // Grab left
-            chr_play_action( ichr, ACTION_ME, bfalse );
+            chr_play_action( pchr, ACTION_ME, bfalse );
         }
         else
         {
             // Drop left
-            chr_play_action( ichr, ACTION_MA, bfalse );
+            chr_play_action( pchr, ACTION_MA, bfalse );
         }
     }
     if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_ALTRIGHT ) && pchr->inst.action_ready && 0 == pchr->reloadtime )
@@ -5409,12 +5406,12 @@ bool_t chr_do_latch_button( chr_t * pchr )
         if ( !ACTIVE_CHR( pchr->holdingwhich[SLOT_RIGHT] ) )
         {
             // Grab right
-            chr_play_action( ichr, ACTION_MF, bfalse );
+            chr_play_action( pchr, ACTION_MF, bfalse );
         }
         else
         {
             // Drop right
-            chr_play_action( ichr, ACTION_MB, bfalse );
+            chr_play_action( pchr, ACTION_MB, bfalse );
         }
     }
     if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_PACKLEFT ) && pchr->inst.action_ready && 0 == pchr->reloadtime )
@@ -5457,7 +5454,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
         }
 
         // Make it take a little time
-        chr_play_action( ichr, ACTION_MG, bfalse );
+        chr_play_action( pchr, ACTION_MG, bfalse );
     }
     if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_PACKRIGHT ) && pchr->inst.action_ready && 0 == pchr->reloadtime )
     {
@@ -5498,7 +5495,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
         }
 
         // Make it take a little time
-        chr_play_action( ichr, ACTION_MG, bfalse );
+        chr_play_action( pchr, ACTION_MG, bfalse );
     }
 
     // LATCHBUTTON_LEFT and LATCHBUTTON_RIGHT are mutually exclusive
@@ -5700,69 +5697,13 @@ bool_t move_one_character_integrate_motion( chr_t * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t chr_inst_increment_frame( chr_instance_t * pinst, mad_t * pmad, Uint16 imount )
-{
-    /// @detaild BB@> all the code necessary to move on to the next frame of the animation
-
-    int tmp_action;
-
-    if( NULL == pinst || NULL == pmad ) return bfalse;
-
-    // Change frames
-    pinst->frame_lst = pinst->frame_nxt;
-    pinst->frame_nxt++;
-
-    // detect the end of the animation and handle special end conditions
-    if ( pinst->frame_nxt >= pmad->action_end[pinst->action_which] )
-    {
-        // make sure that the frame_nxt points to a valid frame in this action
-        pinst->frame_nxt = pmad->action_end[pinst->action_which] - 1;
-
-        if ( pinst->action_keep )
-        {
-            // Freeze that anumation at the last frame
-            pinst->frame_nxt = pinst->frame_lst;
-
-            // Break a kept action at any time
-            pinst->action_ready = btrue;
-        }
-        else if ( pinst->action_loop )
-        {
-            // Convert the action into a riding action if the character is mounted
-            if ( ACTIVE_CHR( imount ) )
-            {
-                tmp_action = mad_get_action( pinst->imad, ACTION_MI );
-                if( rv_success == chr_instance_set_action( pinst, tmp_action, btrue, btrue ) )
-                {
-                    pinst->frame_nxt = pmad->action_stt[tmp_action];
-                }
-            }
-
-            // set the frame to the beginning of the action
-            pinst->frame_nxt = pmad->action_stt[pinst->action_which];
-
-            // Break a looped action at any time
-            pinst->action_ready = btrue;
-        }
-        else
-        {
-            // Go on to the next action. don't let just anything interrupt it?
-            chr_instance_increment_action( pinst );
-        }
-    }
-
-    return btrue;
-}
-
-
-//--------------------------------------------------------------------------------------------
 bool_t chr_handle_madfx( chr_t * pchr )
 {
     Uint16 ichr;
     Uint32 framefx;
 
-    if( NULL == pchr ) return bfalse;
-    
+    if ( NULL == pchr ) return bfalse;
+
     ichr    = GET_INDEX_PCHR( pchr );
     framefx = chr_get_framefx( pchr );
 
@@ -5815,7 +5756,7 @@ bool_t chr_handle_madfx( chr_t * pchr )
     if ( framefx&MADFX_FOOTFALL )
     {
         cap_t * pcap = pro_get_pcap( pchr->iprofile );
-        if( NULL != pcap )
+        if ( NULL != pcap )
         {
             int ifoot = pcap->soundindex[SOUND_FOOTFALL];
             if ( VALID_SND( ifoot ) )
@@ -5861,7 +5802,7 @@ void move_one_character_do_animation( chr_t * pchr )
 
         if ( 0 == pinst->ilip )
         {
-            chr_inst_increment_frame( pinst, chr_get_pmad(ichr), pchr->attachedto );
+            chr_increment_frame( pchr );
         }
     }
 
@@ -5900,10 +5841,7 @@ void move_one_character_do_animation( chr_t * pchr )
                     if ( !ACTION_IS_TYPE( pinst->action_which, D ) )
                     {
                         int tmp_action = mad_get_action( pinst->imad, ACTION_DA );
-                        if( rv_success == chr_instance_set_action( pinst, tmp_action, btrue, btrue ) )
-                        {
-                            chr_instance_set_frame( pinst, pmad->action_stt[pinst->action_which] );
-                        }
+                        chr_start_anim( pchr, tmp_action, btrue, btrue );
                     }
                 }
                 else
@@ -5913,10 +5851,9 @@ void move_one_character_do_animation( chr_t * pchr )
                     {
                         if ( pinst->action_which != tmp_action )
                         {
-                            chr_instance_set_action( pinst, tmp_action, btrue, btrue );
-                            chr_instance_set_frame( pinst, pmad->frameliptowalkframe[LIPWA][framelip] );
+                            chr_set_anim( pchr, tmp_action, pmad->frameliptowalkframe[LIPWA][framelip], btrue, btrue );
                         }
-                        
+
                         pinst->action_next = tmp_action;
 
                         if ( pchr->fat != 0.0f )
@@ -5938,10 +5875,7 @@ void move_one_character_do_animation( chr_t * pchr )
                     {
                         if ( pinst->action_which != tmp_action )
                         {
-                            if( rv_success == chr_instance_set_action( pinst, tmp_action, btrue, btrue ) )
-                            {
-                                chr_instance_set_frame( pinst, pmad->frameliptowalkframe[LIPWA][framelip] );
-                            }
+                            chr_set_anim( pchr, tmp_action, pmad->frameliptowalkframe[LIPWA][framelip], btrue, btrue );
                         }
 
                         pinst->action_next = tmp_action;
@@ -5960,10 +5894,7 @@ void move_one_character_do_animation( chr_t * pchr )
                     {
                         if ( pinst->action_which != tmp_action )
                         {
-                            if( rv_success == chr_instance_set_action( pinst, tmp_action, btrue, btrue ) )
-                            {
-                                chr_instance_set_frame( pinst, pmad->frameliptowalkframe[LIPWB][framelip] );
-                            }
+                            chr_set_anim( pchr, tmp_action, pmad->frameliptowalkframe[LIPWB][framelip], btrue, btrue );
                         }
 
                         pinst->action_next = tmp_action;
@@ -5982,10 +5913,7 @@ void move_one_character_do_animation( chr_t * pchr )
                     {
                         if ( pinst->action_which != tmp_action )
                         {
-                            if( rv_success == chr_instance_set_action( pinst, tmp_action, btrue, btrue ) )
-                            {
-                                chr_instance_set_frame( pinst, pmad->frameliptowalkframe[LIPWC][framelip] );
-                            }
+                            chr_set_anim( pchr, tmp_action, pmad->frameliptowalkframe[LIPWC][framelip], btrue, btrue );
                         }
 
                         pinst->action_next = tmp_action;
@@ -6240,11 +6168,11 @@ chr_instance_t * chr_instance_init( chr_instance_t * pinst )
 //--------------------------------------------------------------------------------------------
 bool_t chr_instance_dealloc( chr_instance_t * pinst )
 {
-    if( NULL == pinst ) return bfalse;
+    if ( NULL == pinst ) return bfalse;
 
-    if( NULL != pinst->vlst )
+    if ( NULL != pinst->vlst )
     {
-        EGOBOO_DELETE_ARY(pinst->vlst);
+        EGOBOO_DELETE_ARY( pinst->vlst );
     }
     pinst->vlst_size = 0;
 
@@ -6254,29 +6182,29 @@ bool_t chr_instance_dealloc( chr_instance_t * pinst )
 //--------------------------------------------------------------------------------------------
 bool_t chr_instance_alloc( chr_instance_t * pinst, size_t vlst_size )
 {
-    if( NULL == pinst ) return bfalse;
+    if ( NULL == pinst ) return bfalse;
 
     chr_instance_dealloc( pinst );
 
-    if( 0 == vlst_size ) return btrue;
+    if ( 0 == vlst_size ) return btrue;
 
     pinst->vlst = EGOBOO_NEW_ARY( GLvertex, vlst_size );
-    if( NULL != pinst->vlst )
+    if ( NULL != pinst->vlst )
     {
         pinst->vlst_size = vlst_size;
     }
 
-    return (NULL != pinst->vlst);
+    return ( NULL != pinst->vlst );
 }
 
 //--------------------------------------------------------------------------------------------
 void chr_instance_free_one( chr_instance_t * pinst )
 {
-    if( NULL == pinst ) return;
+    if ( NULL == pinst ) return;
 
     chr_instance_dealloc( pinst );
 
-    memset( pinst, 0, sizeof(*pinst) );
+    memset( pinst, 0, sizeof( *pinst ) );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -6301,11 +6229,11 @@ bool_t chr_instance_set_mad( chr_instance_t * pinst, Uint16 imad )
     }
 
     // set the vertex size
-    vlst_size = md2_get_numVertices(pmad->md2_ptr);
+    vlst_size = md2_get_numVertices( pmad->md2_ptr );
     if ( pinst->vlst_size != vlst_size )
     {
         updated = btrue;
-        chr_instance_alloc(pinst, vlst_size);
+        chr_instance_alloc( pinst, vlst_size );
     }
 
     // set the frames to frame 0 of this object's data
@@ -6370,7 +6298,7 @@ bool_t chr_instance_update_ref( chr_instance_t * pinst, float floor_level, bool_
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t chr_instance_spawn( chr_instance_t * pinst, Uint16 profile, Uint8 skin )
+bool_t chr_spawn_instance( chr_instance_t * pinst, Uint16 profile, Uint8 skin )
 {
     Sint8 greensave = 0, redsave = 0, bluesave = 0;
 
@@ -6685,7 +6613,7 @@ Uint16 chr_get_imad( Uint16 ichr )
                 chr_update_collision_size( pchr, btrue );
             }
         }
-		if ( !LOADED_MAD( pchr->inst.imad ) ) return MAX_MAD;
+        if ( !LOADED_MAD( pchr->inst.imad ) ) return MAX_MAD;
     }
 
     return pchr->inst.imad;
@@ -6969,7 +6897,7 @@ egoboo_rv chr_update_collision_size( chr_t * pchr, bool_t update_matrix )
 
     // convert the point cloud in the GLvertex array (pchr->inst.vlst) to
     // a level 1 bounding box. Subtract off the position of the character
-    memcpy( &bsrc, &(pchr->inst.bbox), sizeof(bsrc) );
+    memcpy( &bsrc, &( pchr->inst.bbox ), sizeof( bsrc ) );
 
     // convert the corners of the level 1 bounding box to a point cloud
     vcount = oct_bb_to_points( &bsrc, src, 16 );
@@ -8699,10 +8627,10 @@ bool_t chr_get_mass_pair( chr_t * pchr_a, chr_t * pchr_b, float * wta, float * w
 
     float loc_wta, loc_wtb;
 
-    if( !ACTIVE_PCHR(pchr_a) || !ACTIVE_PCHR(pchr_b) ) return bfalse;
+    if ( !ACTIVE_PCHR( pchr_a ) || !ACTIVE_PCHR( pchr_b ) ) return bfalse;
 
-    if( NULL == wta ) wta = &loc_wta;
-    if( NULL == wtb ) wtb = &loc_wtb;
+    if ( NULL == wta ) wta = &loc_wta;
+    if ( NULL == wtb ) wtb = &loc_wtb;
 
     *wta = ( INFINITE_WEIGHT == pchr_a->phys.weight ) ? -( float )INFINITE_WEIGHT : pchr_a->phys.weight;
     *wtb = ( INFINITE_WEIGHT == pchr_b->phys.weight ) ? -( float )INFINITE_WEIGHT : pchr_b->phys.weight;
@@ -8739,8 +8667,8 @@ bool_t chr_get_mass_pair( chr_t * pchr_a, chr_t * pchr_b, float * wta, float * w
     else
     {
         // adjust the weights to respect bumpdampen
-        (*wta) /= pchr_a->phys.bumpdampen;
-        (*wtb) /= pchr_b->phys.bumpdampen;
+        ( *wta ) /= pchr_a->phys.bumpdampen;
+        ( *wtb ) /= pchr_b->phys.bumpdampen;
     }
 
     return btrue;
@@ -8789,13 +8717,13 @@ Uint32 chr_get_framefx( chr_t * pchr )
     mad_t       * pmad;
     MD2_Model_t * pmd2;
 
-    if( !ACTIVE_PCHR(pchr) ) return 0;
+    if ( !ACTIVE_PCHR( pchr ) ) return 0;
 
-    pmad = chr_get_pmad( GET_INDEX_PCHR(pchr) );
-    if( NULL == pmad ) return 0;
+    pmad = chr_get_pmad( GET_INDEX_PCHR( pchr ) );
+    if ( NULL == pmad ) return 0;
 
     pmd2 = pmad->md2_ptr;
-    if( NULL == pmd2 ) return 0;
+    if ( NULL == pmd2 ) return 0;
 
     frame_count = md2_get_numFrames( pmd2 );
     assert( pchr->inst.frame_nxt < frame_count );
@@ -8805,6 +8733,120 @@ Uint32 chr_get_framefx( chr_t * pchr )
 
     return pframe_nxt->framefx;
 };
+
+//--------------------------------------------------------------------------------------------
+egoboo_rv chr_invalidate_child_instances( chr_t * pchr )
+{
+    int cnt;
+
+    if ( !ACTIVE_PCHR( pchr ) ) return rv_error;
+
+    // invalidate vlst_cache of everything in this character's holdingwhich array
+    for ( cnt = 0; cnt < SLOT_COUNT; cnt++ )
+    {
+        Uint16 iitem = pchr->holdingwhich[SLOT_LEFT];
+        if ( !ACTIVE_CHR( iitem ) ) continue;
+
+        // invalidate the matrix_cache
+        ChrList.lst[iitem].inst.matrix_cache.valid = bfalse;
+    }
+
+    return rv_success;
+}
+
+//--------------------------------------------------------------------------------------------
+egoboo_rv chr_set_action( chr_t * pchr, int action, bool_t action_ready, bool_t override_action )
+{
+    egoboo_rv retval;
+
+    if ( !ACTIVE_PCHR( pchr ) ) return rv_error;
+
+    retval = chr_instance_set_action( &( pchr->inst ), action, action_ready, override_action );
+    if ( rv_success != retval ) return retval;
+
+    chr_invalidate_child_instances( pchr );
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+egoboo_rv chr_start_anim( chr_t * pchr, int action, bool_t action_ready, bool_t override_action )
+{
+    egoboo_rv retval;
+
+    if ( !ACTIVE_PCHR( pchr ) ) return rv_error;
+
+    retval = chr_instance_start_anim( &( pchr->inst ), action, action_ready, override_action );
+    if ( rv_success != retval ) return retval;
+
+    chr_invalidate_child_instances( pchr );
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+egoboo_rv chr_set_anim( chr_t * pchr, int action, int frame, bool_t action_ready, bool_t override_action )
+{
+    egoboo_rv retval;
+
+    if ( !ACTIVE_PCHR( pchr ) ) return rv_error;
+
+    retval = chr_instance_set_anim( &( pchr->inst ), action, frame, action_ready, override_action );
+    if ( rv_success != retval ) return retval;
+
+    chr_invalidate_child_instances( pchr );
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+egoboo_rv chr_increment_action( chr_t * pchr )
+{
+    egoboo_rv retval;
+
+    if ( !ACTIVE_PCHR( pchr ) ) return rv_error;
+
+    retval = chr_instance_increment_action( &( pchr->inst ) );
+    if ( rv_success != retval ) return retval;
+
+    chr_invalidate_child_instances( pchr );
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+egoboo_rv chr_increment_frame( chr_t * pchr )
+{
+    egoboo_rv retval;
+    mad_t * pmad;
+
+    if ( !ACTIVE_PCHR( pchr ) ) return rv_error;
+
+    pmad = chr_get_pmad( GET_INDEX_PCHR( pchr ) );
+    if ( NULL == pmad ) return rv_error;
+
+    retval = chr_instance_increment_frame( &( pchr->inst ), pmad, pchr->attachedto );
+    if ( rv_success != retval ) return retval;
+
+    chr_invalidate_child_instances( pchr );
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+egoboo_rv chr_play_action( chr_t * pchr, int action, bool_t action_ready )
+{
+    egoboo_rv retval;
+
+    if ( !ACTIVE_PCHR( pchr ) ) return rv_error;
+
+    retval = chr_instance_play_action( &( pchr->inst ), action, action_ready );
+    if ( rv_success != retval ) return retval;
+
+    chr_invalidate_child_instances( pchr );
+
+    return retval;
+}
 
 //--------------------------------------------------------------------------------------------
 /*void kill_character( Uint16 character, Uint16 killer )

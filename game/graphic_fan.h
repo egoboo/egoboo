@@ -32,7 +32,6 @@ struct s_camera;
 extern bool_t          meshnotexture;
 extern Uint16          meshlasttexture;             ///< Last texture used
 
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 void animate_all_tiles( struct s_ego_mpd * pmesh );

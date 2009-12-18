@@ -111,11 +111,11 @@ static bool_t do_chr_platform_physics( chr_t * pitem, chr_t * pplat );
 static float  estimate_chr_prt_normal( chr_t * pchr, prt_t * pprt, fvec3_base_t nrm, fvec3_base_t vdiff );
 static bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b );
 
-static bool_t do_chr_prt_collision_deflect( chr_t * pchr, prt_t * pprt, chr_prt_collsion_data_t * pdata  );
+static bool_t do_chr_prt_collision_deflect( chr_t * pchr, prt_t * pprt, chr_prt_collsion_data_t * pdata );
 static bool_t do_chr_prt_collision_recoil( chr_t * pchr, prt_t * pprt, chr_prt_collsion_data_t * pdata );
 static bool_t do_chr_prt_collision_damage( chr_t * pchr, prt_t * pprt, chr_prt_collsion_data_t * pdata );
 static bool_t do_chr_prt_collision_bump( chr_t * pchr, prt_t * pprt, chr_prt_collsion_data_t * pdata );
-static bool_t do_chr_prt_collision_handle_bump(chr_t * pchr, prt_t * pprt, chr_prt_collsion_data_t * pdata);
+static bool_t do_chr_prt_collision_handle_bump( chr_t * pchr, prt_t * pprt, chr_prt_collsion_data_t * pdata );
 static bool_t do_chr_prt_collision_init( chr_t * pchr, prt_t * pprt, chr_prt_collsion_data_t * pdata );
 static bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b );
 
@@ -256,7 +256,7 @@ bool_t detect_chr_prt_interaction( Uint16 ichr_a, Uint16 iprt_b )
     if ( !interact_x || !interact_y || !interact_xy ) return bfalse;
 
     interact_platform = bfalse;
-    if( pchr_a->platform && !ACTIVE_CHR( pprt_b->attachedto_ref ) )
+    if ( pchr_a->platform && !ACTIVE_CHR( pprt_b->attachedto_ref ) )
     {
         // estimate the vertical interactions this frame
         depth_z = pprt_b->pos.z - ( pchr_a->pos.z + pchr_a->bump_1.height );
@@ -630,7 +630,7 @@ bool_t do_chr_platform_detection( Uint16 ichr_a, Uint16 ichr_b )
         return bfalse;
 
     odepth[OCT_Z]  = MIN( pchr_b->chr_chr_cv.maxs[OCT_Z] + pchr_b->pos.z, pchr_a->chr_chr_cv.maxs[OCT_Z] + pchr_a->pos.z ) -
-               MAX( pchr_b->chr_chr_cv.mins[OCT_Z] + pchr_b->pos.z, pchr_a->chr_chr_cv.mins[OCT_Z] + pchr_a->pos.z );
+                     MAX( pchr_b->chr_chr_cv.mins[OCT_Z] + pchr_b->pos.z, pchr_a->chr_chr_cv.mins[OCT_Z] + pchr_a->pos.z );
 
     collide_z  = ( odepth[OCT_Z] > -PLATTOLERANCE && odepth[OCT_Z] < PLATTOLERANCE );
 
@@ -650,7 +650,7 @@ bool_t do_chr_platform_detection( Uint16 ichr_a, Uint16 ichr_b )
         depth_b = ( pchr_a->pos.z + pchr_a->chr_chr_cv.maxs[OCT_Z] ) - ( pchr_b->pos.z + pchr_b->chr_chr_cv.mins[OCT_Z] );
 
         odepth[OCT_Z] = MIN( pchr_b->pos.z + pchr_b->chr_chr_cv.maxs[OCT_Z], pchr_a->pos.z + pchr_a->chr_chr_cv.maxs[OCT_Z] ) -
-                  MAX( pchr_b->pos.z + pchr_b->chr_chr_cv.mins[OCT_Z], pchr_a->pos.z + pchr_a->chr_chr_cv.mins[OCT_Z] );
+                        MAX( pchr_b->pos.z + pchr_b->chr_chr_cv.mins[OCT_Z], pchr_a->pos.z + pchr_a->chr_chr_cv.mins[OCT_Z] );
 
         chara_on_top = ABS( odepth[OCT_Z] - depth_a ) < ABS( odepth[OCT_Z] - depth_b );
 
@@ -659,32 +659,32 @@ bool_t do_chr_platform_detection( Uint16 ichr_a, Uint16 ichr_b )
         {
             // size of a doesn't matter
             odepth[OCT_X]  = MIN(( pchr_b->chr_chr_cv.maxs[OCT_X] + pchr_b->pos.x ) - pchr_a->pos.x,
-                           pchr_a->pos.x - ( pchr_b->chr_chr_cv.mins[OCT_X] + pchr_b->pos.x ) );
+                                 pchr_a->pos.x - ( pchr_b->chr_chr_cv.mins[OCT_X] + pchr_b->pos.x ) );
 
             odepth[OCT_Y]  = MIN(( pchr_b->chr_chr_cv.maxs[OCT_Y] + pchr_b->pos.y ) -  pchr_a->pos.y,
-                           pchr_a->pos.y - ( pchr_b->chr_chr_cv.mins[OCT_Y] + pchr_b->pos.y ) );
+                                 pchr_a->pos.y - ( pchr_b->chr_chr_cv.mins[OCT_Y] + pchr_b->pos.y ) );
 
             odepth[OCT_XY] = MIN(( pchr_b->chr_chr_cv.maxs[OCT_XY] + ( pchr_b->pos.x + pchr_b->pos.y ) ) - ( pchr_a->pos.x + pchr_a->pos.y ),
-                           ( pchr_a->pos.x + pchr_a->pos.y ) - ( pchr_b->chr_chr_cv.mins[OCT_XY] + ( pchr_b->pos.x + pchr_b->pos.y ) ) );
+                                 ( pchr_a->pos.x + pchr_a->pos.y ) - ( pchr_b->chr_chr_cv.mins[OCT_XY] + ( pchr_b->pos.x + pchr_b->pos.y ) ) );
 
             odepth[OCT_YX] = MIN(( pchr_b->chr_chr_cv.maxs[OCT_YX] + ( -pchr_b->pos.x + pchr_b->pos.y ) ) - ( -pchr_a->pos.x + pchr_a->pos.y ),
-                           ( -pchr_a->pos.x + pchr_a->pos.y ) - ( pchr_b->chr_chr_cv.mins[OCT_YX] + ( -pchr_b->pos.x + pchr_b->pos.y ) ) );
+                                 ( -pchr_a->pos.x + pchr_a->pos.y ) - ( pchr_b->chr_chr_cv.mins[OCT_YX] + ( -pchr_b->pos.x + pchr_b->pos.y ) ) );
         }
         else
         {
             // size of b doesn't matter
 
             odepth[OCT_X]  = MIN(( pchr_a->chr_chr_cv.maxs[OCT_X] + pchr_a->pos.x ) - pchr_b->pos.x,
-                           pchr_b->pos.x - ( pchr_a->chr_chr_cv.mins[OCT_X] + pchr_a->pos.x ) );
+                                 pchr_b->pos.x - ( pchr_a->chr_chr_cv.mins[OCT_X] + pchr_a->pos.x ) );
 
             odepth[OCT_Y]  = MIN(( pchr_a->chr_chr_cv.maxs[OCT_Y] + pchr_a->pos.y ) -  pchr_b->pos.y,
-                           pchr_b->pos.y - ( pchr_a->chr_chr_cv.mins[OCT_Y] + pchr_a->pos.y ) );
+                                 pchr_b->pos.y - ( pchr_a->chr_chr_cv.mins[OCT_Y] + pchr_a->pos.y ) );
 
             odepth[OCT_XY] = MIN(( pchr_a->chr_chr_cv.maxs[OCT_XY] + ( pchr_a->pos.x + pchr_a->pos.y ) ) - ( pchr_b->pos.x + pchr_b->pos.y ),
-                           ( pchr_b->pos.x + pchr_b->pos.y ) - ( pchr_a->chr_chr_cv.mins[OCT_XY] + ( pchr_a->pos.x + pchr_a->pos.y ) ) );
+                                 ( pchr_b->pos.x + pchr_b->pos.y ) - ( pchr_a->chr_chr_cv.mins[OCT_XY] + ( pchr_a->pos.x + pchr_a->pos.y ) ) );
 
             odepth[OCT_YX] = MIN(( pchr_a->chr_chr_cv.maxs[OCT_YX] + ( -pchr_a->pos.x + pchr_a->pos.y ) ) - ( -pchr_b->pos.x + pchr_b->pos.y ),
-                           ( -pchr_b->pos.x + pchr_b->pos.y ) - ( pchr_a->chr_chr_cv.mins[OCT_YX] + ( -pchr_a->pos.x + pchr_a->pos.y ) ) );
+                                 ( -pchr_b->pos.x + pchr_b->pos.y ) - ( pchr_a->chr_chr_cv.mins[OCT_YX] + ( -pchr_a->pos.x + pchr_a->pos.y ) ) );
         }
     }
     else if ( platform_a )
@@ -695,16 +695,16 @@ bool_t do_chr_platform_detection( Uint16 ichr_a, Uint16 ichr_b )
         // size of b doesn't matter
 
         odepth[OCT_X]  = MIN(( pchr_a->chr_chr_cv.maxs[OCT_X] + pchr_a->pos.x ) - pchr_b->pos.x,
-                       pchr_b->pos.x - ( pchr_a->chr_chr_cv.mins[OCT_X] + pchr_a->pos.x ) );
+                             pchr_b->pos.x - ( pchr_a->chr_chr_cv.mins[OCT_X] + pchr_a->pos.x ) );
 
         odepth[OCT_Y]  = MIN(( pchr_a->chr_chr_cv.maxs[OCT_Y] + pchr_a->pos.y ) -  pchr_b->pos.y,
-                       pchr_b->pos.y - ( pchr_a->chr_chr_cv.mins[OCT_Y] + pchr_a->pos.y ) );
+                             pchr_b->pos.y - ( pchr_a->chr_chr_cv.mins[OCT_Y] + pchr_a->pos.y ) );
 
         odepth[OCT_XY] = MIN(( pchr_a->chr_chr_cv.maxs[OCT_XY] + ( pchr_a->pos.x + pchr_a->pos.y ) ) - ( pchr_b->pos.x + pchr_b->pos.y ),
-                       ( pchr_b->pos.x + pchr_b->pos.y ) - ( pchr_a->chr_chr_cv.mins[OCT_XY] + ( pchr_a->pos.x + pchr_a->pos.y ) ) );
+                             ( pchr_b->pos.x + pchr_b->pos.y ) - ( pchr_a->chr_chr_cv.mins[OCT_XY] + ( pchr_a->pos.x + pchr_a->pos.y ) ) );
 
         odepth[OCT_YX] = MIN(( pchr_a->chr_chr_cv.maxs[OCT_YX] + ( -pchr_a->pos.x + pchr_a->pos.y ) ) - ( -pchr_b->pos.x + pchr_b->pos.y ),
-                       ( -pchr_b->pos.x + pchr_b->pos.y ) - ( pchr_a->chr_chr_cv.mins[OCT_YX] + ( -pchr_a->pos.x + pchr_a->pos.y ) ) );
+                             ( -pchr_b->pos.x + pchr_b->pos.y ) - ( pchr_a->chr_chr_cv.mins[OCT_YX] + ( -pchr_a->pos.x + pchr_a->pos.y ) ) );
     }
     else if ( platform_b )
     {
@@ -713,16 +713,16 @@ bool_t do_chr_platform_detection( Uint16 ichr_a, Uint16 ichr_b )
 
         // size of a doesn't matter
         odepth[OCT_X]  = MIN(( pchr_b->chr_chr_cv.maxs[OCT_X] + pchr_b->pos.x ) - pchr_a->pos.x,
-                       pchr_a->pos.x - ( pchr_b->chr_chr_cv.mins[OCT_X] + pchr_b->pos.x ) );
+                             pchr_a->pos.x - ( pchr_b->chr_chr_cv.mins[OCT_X] + pchr_b->pos.x ) );
 
         odepth[OCT_Y]  = MIN( pchr_b->chr_chr_cv.maxs[OCT_Y] + ( pchr_b->pos.y -  pchr_a->pos.y ),
-                        ( pchr_a->pos.y - pchr_b->chr_chr_cv.mins[OCT_Y] ) + pchr_b->pos.y );
+                              ( pchr_a->pos.y - pchr_b->chr_chr_cv.mins[OCT_Y] ) + pchr_b->pos.y );
 
         odepth[OCT_XY] = MIN(( pchr_b->chr_chr_cv.maxs[OCT_XY] + ( pchr_b->pos.x + pchr_b->pos.y ) ) - ( pchr_a->pos.x + pchr_a->pos.y ),
-                       ( pchr_a->pos.x + pchr_a->pos.y ) - ( pchr_b->chr_chr_cv.mins[OCT_XY] + ( pchr_b->pos.x + pchr_b->pos.y ) ) );
+                             ( pchr_a->pos.x + pchr_a->pos.y ) - ( pchr_b->chr_chr_cv.mins[OCT_XY] + ( pchr_b->pos.x + pchr_b->pos.y ) ) );
 
         odepth[OCT_YX] = MIN(( pchr_b->chr_chr_cv.maxs[OCT_YX] + ( -pchr_b->pos.x + pchr_b->pos.y ) ) - ( -pchr_a->pos.x + pchr_a->pos.y ),
-                       ( -pchr_a->pos.x + pchr_a->pos.y ) - ( pchr_b->chr_chr_cv.mins[OCT_YX] + ( -pchr_b->pos.x + pchr_b->pos.y ) ) );
+                             ( -pchr_a->pos.x + pchr_a->pos.y ) - ( pchr_b->chr_chr_cv.mins[OCT_YX] + ( -pchr_b->pos.x + pchr_b->pos.y ) ) );
 
     }
 
@@ -788,19 +788,19 @@ bool_t do_prt_platform_detection( Uint16 ichr_a, Uint16 iprt_b )
     if ( odepth[OCT_Z] < -PLATTOLERANCE || odepth[OCT_Z] > PLATTOLERANCE ) return bfalse;
 
     odepth[OCT_X]  = MIN(( pchr_a->chr_chr_cv.maxs[OCT_X] + pchr_a->pos.x ) - pprt_b->pos.x,
-                   pprt_b->pos.x - ( pchr_a->chr_chr_cv.mins[OCT_X] + pchr_a->pos.x ) );
+                         pprt_b->pos.x - ( pchr_a->chr_chr_cv.mins[OCT_X] + pchr_a->pos.x ) );
     if ( odepth[OCT_X] <= 0 ) return bfalse;
 
     odepth[OCT_Y]  = MIN(( pchr_a->chr_chr_cv.maxs[OCT_Y] + pchr_a->pos.y ) -  pprt_b->pos.y,
-                   pprt_b->pos.y - ( pchr_a->chr_chr_cv.mins[OCT_Y] + pchr_a->pos.y ) );
+                         pprt_b->pos.y - ( pchr_a->chr_chr_cv.mins[OCT_Y] + pchr_a->pos.y ) );
     if ( odepth[OCT_Y] <= 0 ) return bfalse;
 
     odepth[OCT_XY] = MIN(( pchr_a->chr_chr_cv.maxs[OCT_XY] + ( pchr_a->pos.x + pchr_a->pos.y ) ) - ( pprt_b->pos.x + pprt_b->pos.y ),
-                   ( pprt_b->pos.x + pprt_b->pos.y ) - ( pchr_a->chr_chr_cv.mins[OCT_XY] + ( pchr_a->pos.x + pchr_a->pos.y ) ) );
+                         ( pprt_b->pos.x + pprt_b->pos.y ) - ( pchr_a->chr_chr_cv.mins[OCT_XY] + ( pchr_a->pos.x + pchr_a->pos.y ) ) );
     if ( odepth[OCT_XY] <= 0 ) return bfalse;
 
     odepth[OCT_YX] = MIN(( pchr_a->chr_chr_cv.maxs[OCT_YX] + ( -pchr_a->pos.x + pchr_a->pos.y ) ) - ( -pprt_b->pos.x + pprt_b->pos.y ),
-                   ( -pprt_b->pos.x + pprt_b->pos.y ) - ( pchr_a->chr_chr_cv.mins[OCT_YX] + ( -pchr_a->pos.x + pchr_a->pos.y ) ) );
+                         ( -pprt_b->pos.x + pprt_b->pos.y ) - ( pchr_a->chr_chr_cv.mins[OCT_YX] + ( -pchr_a->pos.x + pchr_a->pos.y ) ) );
     if ( odepth[OCT_YX] <= 0 ) return bfalse;
 
     //---- this is the best possible attachment
@@ -1342,14 +1342,14 @@ float estimate_chr_prt_normal( chr_t * pchr, prt_t * pprt, fvec3_base_t nrm, fve
     fvec3_t collision_size;
     float dot;
 
-    collision_size.x = MAX(pchr->chr_prt_cv.maxs[OCT_X] - pchr->chr_prt_cv.mins[OCT_X], 2.0f*pprt->bump.size  );
-    collision_size.y = MAX(pchr->chr_prt_cv.maxs[OCT_Y] - pchr->chr_prt_cv.mins[OCT_Y], 2.0f*pprt->bump.size  );
-    collision_size.z = MAX(pchr->chr_prt_cv.maxs[OCT_Z] - pchr->chr_prt_cv.mins[OCT_Z], 2.0f*pprt->bump.height);
+    collision_size.x = MAX( pchr->chr_prt_cv.maxs[OCT_X] - pchr->chr_prt_cv.mins[OCT_X], 2.0f * pprt->bump.size );
+    collision_size.y = MAX( pchr->chr_prt_cv.maxs[OCT_Y] - pchr->chr_prt_cv.mins[OCT_Y], 2.0f * pprt->bump.size );
+    collision_size.z = MAX( pchr->chr_prt_cv.maxs[OCT_Z] - pchr->chr_prt_cv.mins[OCT_Z], 2.0f * pprt->bump.height );
 
     // estimate the "normal" for the collision, using the center-of-mass difference
     nrm[kX] = pprt->pos.x - pchr->pos.x;
     nrm[kY] = pprt->pos.y - pchr->pos.y;
-    nrm[kZ] = pprt->pos.z - ( pchr->pos.z + 0.5f * (pchr->chr_prt_cv.maxs[OCT_Z] + pchr->chr_prt_cv.mins[OCT_Z]) );
+    nrm[kZ] = pprt->pos.z - ( pchr->pos.z + 0.5f * ( pchr->chr_prt_cv.maxs[OCT_Z] + pchr->chr_prt_cv.mins[OCT_Z] ) );
 
     // scale the collision box
     nrm[kX] /= collision_size.x;
@@ -1384,7 +1384,7 @@ float estimate_chr_prt_normal( chr_t * pchr, prt_t * pprt, fvec3_base_t nrm, fve
             // to determine the normal
             nrm[kX] = pprt->pos_old.x - pchr->pos_old.x;
             nrm[kY] = pprt->pos_old.y - pchr->pos_old.y;
-            nrm[kZ] = pprt->pos_old.z - ( pchr->pos_old.z + 0.5f * (pchr->chr_prt_cv.maxs[OCT_Z] + pchr->chr_prt_cv.mins[OCT_Z]) );
+            nrm[kZ] = pprt->pos_old.z - ( pchr->pos_old.z + 0.5f * ( pchr->chr_prt_cv.maxs[OCT_Z] + pchr->chr_prt_cv.mins[OCT_Z] ) );
 
             // scale the collision box
             nrm[kX] /= collision_size.x;
@@ -1404,7 +1404,7 @@ float estimate_chr_prt_normal( chr_t * pchr, prt_t * pprt, fvec3_base_t nrm, fve
     {
         // Make the normal a unit normal
         fvec3_t ntmp = fvec3_normalize( nrm );
-        memcpy( nrm, ntmp.v, sizeof(fvec3_base_t) );
+        memcpy( nrm, ntmp.v, sizeof( fvec3_base_t ) );
 
         // determine the actual dot product
         dot = fvec3_dot_product( vdiff, nrm );
@@ -1510,7 +1510,7 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
     }
 
     // measure the collision depth
-    if( !get_depth_2( pchr_a->chr_chr_cv, pchr_a->pos, pchr_b->chr_chr_cv, pchr_b->pos, btrue, odepth ) )
+    if ( !get_depth_2( pchr_a->chr_chr_cv, pchr_a->pos, pchr_b->chr_chr_cv, pchr_b->pos, btrue, odepth ) )
     {
         // return if there was no collision
         return bfalse;
@@ -1531,14 +1531,14 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
     vec_to_oct_vec( pchr_b->pos, opos_b );
 
     // adjust the center-of-mass
-    opos_a[OCT_Z] += (pchr_a->chr_chr_cv.maxs[OCT_Z] + pchr_a->chr_chr_cv.mins[OCT_Z]) * 0.5f;
-    opos_b[OCT_Z] += (pchr_b->chr_chr_cv.maxs[OCT_Z] + pchr_b->chr_chr_cv.mins[OCT_Z]) * 0.5f;
+    opos_a[OCT_Z] += ( pchr_a->chr_chr_cv.maxs[OCT_Z] + pchr_a->chr_chr_cv.mins[OCT_Z] ) * 0.5f;
+    opos_b[OCT_Z] += ( pchr_b->chr_chr_cv.maxs[OCT_Z] + pchr_b->chr_chr_cv.mins[OCT_Z] ) * 0.5f;
 
     // make the object more like a table if there is a platform-like interaction
     if ( pcap_a->canuseplatforms && pchr_b->platform ) exponent += 2;
     if ( pcap_b->canuseplatforms && pchr_a->platform ) exponent += 2;
 
-    if( phys_estimate_chr_chr_normal( opos_a, opos_b, odepth, exponent, nrm.v ) )
+    if ( phys_estimate_chr_chr_normal( opos_a, opos_b, odepth, exponent, nrm.v ) )
     {
         fvec3_t   vel_a, vel_b;
         fvec3_t   vpara_a, vperp_a;
@@ -1754,23 +1754,23 @@ bool_t do_prt_platform_physics( prt_t * pprt, chr_t * pplat, chr_prt_collsion_da
     bool_t plat_collision = bfalse;
     bool_t z_collide, was_z_collide;
 
-    if( NULL == pdata ) return bfalse;
+    if ( NULL == pdata ) return bfalse;
 
     // is the platform a platform?
-    if( !ACTIVE_PCHR(pplat) || !pplat->platform ) return bfalse;
+    if ( !ACTIVE_PCHR( pplat ) || !pplat->platform ) return bfalse;
 
     // can the particle interact with it?
-    if( !ACTIVE_PPRT(pprt) || ACTIVE_CHR( pprt->attachedto_ref ) ) return bfalse;
+    if ( !ACTIVE_PPRT( pprt ) || ACTIVE_CHR( pprt->attachedto_ref ) ) return bfalse;
 
     // this is handled elsewhere
-    if( GET_INDEX_PCHR( pplat ) == pprt->onwhichplatform ) return bfalse;
+    if ( GET_INDEX_PCHR( pplat ) == pprt->onwhichplatform ) return bfalse;
 
     // Test to see whether the particle is in the right position to interact with the platform.
     // You have to be closer to a platform to interact with it then for a general object,
     // but the vertical distance is looser.
     plat_collision = test_interaction_close_1( pplat->chr_prt_cv, pplat->pos, pprt->bump, pprt->pos, btrue );
 
-    if( !plat_collision ) return bfalse;
+    if ( !plat_collision ) return bfalse;
 
     // the only way to get to this point is if the two objects don't collide
     // but they are within the PLATTOLERANCE of each other in the z direction
@@ -1834,18 +1834,18 @@ bool_t do_prt_platform_physics( prt_t * pprt, chr_t * pplat, chr_prt_collsion_da
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t do_chr_prt_collision_deflect( chr_t * pchr, prt_t * pprt, chr_prt_collsion_data_t * pdata  )
+bool_t do_chr_prt_collision_deflect( chr_t * pchr, prt_t * pprt, chr_prt_collsion_data_t * pdata )
 {
     bool_t prt_deflected = bfalse;
 
     bool_t chr_is_invictus, chr_can_deflect;
     bool_t prt_wants_deflection;
 
-    if( NULL == pdata ) return bfalse;
+    if ( NULL == pdata ) return bfalse;
 
-    if( !ACTIVE_PCHR( pchr ) ) return bfalse;
+    if ( !ACTIVE_PCHR( pchr ) ) return bfalse;
 
-    if( !ACTIVE_PPRT( pprt ) ) return bfalse;
+    if ( !ACTIVE_PPRT( pprt ) ) return bfalse;
 
     // shield block?
     chr_is_invictus = ( 0 != ( chr_get_framefx( pchr ) & MADFX_INVICTUS ) );
@@ -1917,13 +1917,13 @@ bool_t do_chr_prt_collision_recoil( chr_t * pchr, prt_t * pprt, chr_prt_collsion
 {
     /// @details BB@> make the character and particle recoil from the collision
 
-    if( NULL == pdata ) return 0;
+    if ( NULL == pdata ) return 0;
 
-    if( !ACTIVE_PCHR( pchr ) ) return bfalse;
+    if ( !ACTIVE_PCHR( pchr ) ) return bfalse;
 
-    if( !ACTIVE_PPRT( pprt ) ) return bfalse;
+    if ( !ACTIVE_PPRT( pprt ) ) return bfalse;
 
-    if( 0.0f == ABS(pdata->impulse.x) + ABS(pdata->impulse.y) + ABS(pdata->impulse.z) ) return btrue;
+    if ( 0.0f == ABS( pdata->impulse.x ) + ABS( pdata->impulse.y ) + ABS( pdata->impulse.z ) ) return btrue;
 
     // do the reaction force of the particle on the character
     if ( pdata->ppip->allowpush )
@@ -2072,11 +2072,11 @@ bool_t do_chr_prt_collision_damage( chr_t * pchr, prt_t * pprt, chr_prt_collsion
     Uint16 enchant, enc_next;
     bool_t prt_needs_impact;
 
-    if( NULL == pdata ) return bfalse;
-    if( !ACTIVE_PCHR( pchr ) ) return bfalse;
-    if( !ACTIVE_PPRT( pprt ) ) return bfalse;
+    if ( NULL == pdata ) return bfalse;
+    if ( !ACTIVE_PCHR( pchr ) ) return bfalse;
+    if ( !ACTIVE_PPRT( pprt ) ) return bfalse;
 
-    if( pchr->damagetime > 0 ) return bfalse;
+    if ( pchr->damagetime > 0 ) return bfalse;
 
     // clean up the enchant list before doing anything
     pchr->firstenchant = cleanup_enchant_list( pchr->firstenchant );
@@ -2129,7 +2129,7 @@ bool_t do_chr_prt_collision_damage( chr_t * pchr, prt_t * pprt, chr_prt_collsion
     }
 
     // DAMFX_ARRO means that it only does damage to the one it's attached to
-    if ( 0 == ( pdata->ppip->damfx&DAMFX_ARRO ) && !( prt_needs_impact && !(pdata->dot < 0.0f) ) )
+    if ( 0 == ( pdata->ppip->damfx&DAMFX_ARRO ) && !( prt_needs_impact && !( pdata->dot < 0.0f ) ) )
     {
         Uint16 direction;
         IPair loc_damage = pprt->damage;
@@ -2241,12 +2241,12 @@ bool_t do_chr_prt_collision_bump( chr_t * pchr, prt_t * pprt, chr_prt_collsion_d
     bool_t valid_friendlyfire;
     bool_t valid_onlydamagehate;
 
-    if( NULL == pdata ) return bfalse;
-    if( !ACTIVE_PCHR( pchr ) ) return bfalse;
-    if( !ACTIVE_PPRT( pprt ) ) return bfalse;
+    if ( NULL == pdata ) return bfalse;
+    if ( !ACTIVE_PCHR( pchr ) ) return bfalse;
+    if ( !ACTIVE_PPRT( pprt ) ) return bfalse;
 
     // if the particle was deflected, then it can't bump the character
-    if( pchr->invictus || pprt->attachedto_ref == GET_INDEX_PCHR( pchr ) ) return 0;
+    if ( pchr->invictus || pprt->attachedto_ref == GET_INDEX_PCHR( pchr ) ) return 0;
 
     prt_belongs_to_chr = ( GET_INDEX_PCHR( pchr ) == pprt->owner_ref );
 
@@ -2254,56 +2254,56 @@ bool_t do_chr_prt_collision_bump( chr_t * pchr, prt_t * pprt, chr_prt_collsion_d
     {
         // no simple owner relationship. Check for something deeper.
         Uint16 prt_owner = prt_get_iowner( GET_INDEX_PPRT( pprt ), 0 );
-        if( ACTIVE_CHR(prt_owner) )
+        if ( ACTIVE_CHR( prt_owner ) )
         {
             Uint16 chr_wielder = chr_get_lowest_attachment( GET_INDEX_PCHR( pchr ),   btrue );
             Uint16 prt_wielder = chr_get_lowest_attachment( prt_owner, btrue );
 
-            if( !ACTIVE_CHR(chr_wielder) ) chr_wielder = GET_INDEX_PCHR( pchr );
-            if( !ACTIVE_CHR(prt_wielder) ) prt_wielder = prt_owner;
+            if ( !ACTIVE_CHR( chr_wielder ) ) chr_wielder = GET_INDEX_PCHR( pchr );
+            if ( !ACTIVE_CHR( prt_wielder ) ) prt_wielder = prt_owner;
 
-            prt_belongs_to_chr = (chr_wielder == prt_wielder);
+            prt_belongs_to_chr = ( chr_wielder == prt_wielder );
         }
     }
 
     // does the particle team hate the character's team
     prt_hates_chr = TeamList[pprt->team].hatesteam[pchr->team];
 
-	// Only bump into hated characters?
-	prt_hateonly = PipStack.lst[pprt->pip_ref].hateonly;
-	valid_onlydamagehate = prt_hates_chr && PipStack.lst[pprt->pip_ref].hateonly;
+    // Only bump into hated characters?
+    prt_hateonly = PipStack.lst[pprt->pip_ref].hateonly;
+    valid_onlydamagehate = prt_hates_chr && PipStack.lst[pprt->pip_ref].hateonly;
 
     // allow neutral particles to attack anything
-    prt_attacks_chr = prt_hates_chr || ( (TEAM_NULL != pchr->team) && (TEAM_NULL == pprt->team) );
+    prt_attacks_chr = prt_hates_chr || (( TEAM_NULL != pchr->team ) && ( TEAM_NULL == pprt->team ) );
 
-	// this is the onlydamagefriendly condition from the particle search code
-	valid_onlydamagefriendly = ( pdata->ppip->onlydamagefriendly && pprt->team == pchr->team ) ||
-								( !pdata->ppip->onlydamagefriendly && prt_attacks_chr );
+    // this is the onlydamagefriendly condition from the particle search code
+    valid_onlydamagefriendly = ( pdata->ppip->onlydamagefriendly && pprt->team == pchr->team ) ||
+                               ( !pdata->ppip->onlydamagefriendly && prt_attacks_chr );
 
-	// I guess "friendly fire" does not mean "self fire", which is a bit unfortunate.
-	valid_friendlyfire = ( pdata->ppip->friendlyfire && !prt_hates_chr && !prt_belongs_to_chr ) ||
-							( !pdata->ppip->friendlyfire && prt_attacks_chr );
+    // I guess "friendly fire" does not mean "self fire", which is a bit unfortunate.
+    valid_friendlyfire = ( pdata->ppip->friendlyfire && !prt_hates_chr && !prt_belongs_to_chr ) ||
+                         ( !pdata->ppip->friendlyfire && prt_attacks_chr );
 
-	pdata->prt_bumps_chr =  valid_friendlyfire || valid_onlydamagefriendly || valid_onlydamagehate;
+    pdata->prt_bumps_chr =  valid_friendlyfire || valid_onlydamagefriendly || valid_onlydamagehate;
 
     return pdata->prt_bumps_chr;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t do_chr_prt_collision_handle_bump(chr_t * pchr, prt_t * pprt, chr_prt_collsion_data_t * pdata)
+bool_t do_chr_prt_collision_handle_bump( chr_t * pchr, prt_t * pprt, chr_prt_collsion_data_t * pdata )
 {
-    if( NULL == pdata || !pdata->prt_bumps_chr ) return bfalse;
+    if ( NULL == pdata || !pdata->prt_bumps_chr ) return bfalse;
 
-    if( !ACTIVE_PCHR( pchr ) ) return bfalse;
-    if( !ACTIVE_PPRT( pprt ) ) return bfalse;
+    if ( !ACTIVE_PCHR( pchr ) ) return bfalse;
+    if ( !ACTIVE_PPRT( pprt ) ) return bfalse;
 
-    if( !pdata->prt_bumps_chr ) return bfalse;
+    if ( !pdata->prt_bumps_chr ) return bfalse;
 
     // Catch on fire
     spawn_bump_particles( GET_INDEX_PCHR( pchr ), GET_INDEX_PPRT( pprt ) );
 
     //handle some special particle interactions
-    if( pdata->ppip->endbump )
+    if ( pdata->ppip->endbump )
     {
         if ( pdata->ppip->bumpmoney )
         {
@@ -2315,7 +2315,7 @@ bool_t do_chr_prt_collision_handle_bump(chr_t * pchr, prt_t * pprt, chr_prt_coll
                 pcollector = ChrList.lst + pchr->holdingwhich[SLOT_LEFT];
 
                 // if the mount's rider can't get money, the mount gets to keep the money!
-                if( !pcollector->cangrabmoney )
+                if ( !pcollector->cangrabmoney )
                 {
                     pcollector = pchr;
                 }
@@ -2345,12 +2345,12 @@ bool_t do_chr_prt_collision_init( chr_t * pchr, prt_t * pprt, chr_prt_collsion_d
 {
     bool_t full_collision;
 
-    if( NULL == pdata ) return bfalse;
+    if ( NULL == pdata ) return bfalse;
 
-    memset( pdata, 0, sizeof(*pdata) );
+    memset( pdata, 0, sizeof( *pdata ) );
 
-    if( !ACTIVE_PCHR( pchr ) ) return bfalse;
-    if( !ACTIVE_PPRT( pprt ) ) return bfalse;
+    if ( !ACTIVE_PCHR( pchr ) ) return bfalse;
+    if ( !ACTIVE_PPRT( pprt ) ) return bfalse;
 
     // initialize the collision date
     pdata->pcap = pro_get_pcap( pchr->iprofile );
@@ -2406,7 +2406,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     if ( !ACTIVE_PRT( iprt_b ) ) return bfalse;
     pprt_b = PrtList.lst + iprt_b;
 
-    if( ichr_a == pprt_b->attachedto_ref ) return bfalse;
+    if ( ichr_a == pprt_b->attachedto_ref ) return bfalse;
 
     // detect a full collision
     full_collision = do_chr_prt_collision_init( pchr_a, pprt_b, &cdata );
@@ -2420,7 +2420,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     }
 
     // if there is no collision, no point in going farther
-    if( !full_collision && !plat_collision ) return bfalse;
+    if ( !full_collision && !plat_collision ) return bfalse;
 
     // estimate the "normal" for the collision, using the center-of-mass difference
     // put this off until this point to reduce calling this "expensive" function
@@ -2429,13 +2429,13 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     // handle particle deflection.
     // if the platform collision was already handled, there is nothing left to do
     prt_deflected = bfalse;
-    if( full_collision && !plat_collision )
+    if ( full_collision && !plat_collision )
     {
         // determine whether the particle is deflected by the character
-        if( cdata.dot < 0.0f )
+        if ( cdata.dot < 0.0f )
         {
-            prt_deflected = do_chr_prt_collision_deflect(pchr_a, pprt_b, &cdata);
-            if( prt_deflected )
+            prt_deflected = do_chr_prt_collision_deflect( pchr_a, pprt_b, &cdata );
+            if ( prt_deflected )
             {
                 retval = btrue;
             }
@@ -2443,24 +2443,24 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     }
 
     // do "damage" to the character
-    if( !prt_deflected && 0 == pchr_a->damagetime && ( full_collision || plat_collision ) )
+    if ( !prt_deflected && 0 == pchr_a->damagetime && ( full_collision || plat_collision ) )
     {
         // Check reaffirmation of particles
         if ( pchr_a->reaffirmdamagetype == pprt_b->damagetype )
         {
-            retval = (0 != reaffirm_attached_particles( ichr_a ));
+            retval = ( 0 != reaffirm_attached_particles( ichr_a ) );
         }
 
         // refine the logic for a particle to hit a character
         prt_can_hit_chr = do_chr_prt_collision_bump( pchr_a, pprt_b, &cdata );
 
         // does the particle damage/heal the character?
-        if( prt_can_hit_chr )
+        if ( prt_can_hit_chr )
         {
             // we can't even get to this point if the character is completely invulnerable (invictus)
             // or can't be damaged this round
             cdata.prt_damages_chr = do_chr_prt_collision_damage( pchr_a, pprt_b, &cdata );
-            if( cdata.prt_damages_chr )
+            if ( cdata.prt_damages_chr )
             {
                 retval = btrue;
             }
@@ -2468,18 +2468,18 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     }
 
     // make the character and particle recoil from the collision
-    if( ABS(cdata.impulse.x) + ABS(cdata.impulse.y) + ABS(cdata.impulse.z) > 0.0f )
+    if ( ABS( cdata.impulse.x ) + ABS( cdata.impulse.y ) + ABS( cdata.impulse.z ) > 0.0f )
     {
-        if( do_chr_prt_collision_recoil( pchr_a, pprt_b, &cdata ) )
+        if ( do_chr_prt_collision_recoil( pchr_a, pprt_b, &cdata ) )
         {
             retval = btrue;
         }
     }
 
     // handle a couple of special cases
-    if( cdata.prt_bumps_chr )
+    if ( cdata.prt_bumps_chr )
     {
-        if( do_chr_prt_collision_handle_bump(pchr_a, pprt_b, &cdata) )
+        if ( do_chr_prt_collision_handle_bump( pchr_a, pprt_b, &cdata ) )
         {
             retval = btrue;
         }

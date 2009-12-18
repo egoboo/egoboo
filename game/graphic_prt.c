@@ -509,7 +509,6 @@ void render_prt_ref( camera_t * pcam )
     render_all_prt_ref( pcam, reg, numparticle );
 }
 
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 void calc_billboard_verts( GLvertex vlst[], prt_instance_t * pinst, float size, bool_t do_reflect )
@@ -1042,7 +1041,7 @@ void prt_instance_update_lighting( prt_instance_t * pinst, prt_t * pprt, Uint8 t
     // sprites need to convert the light channel into additional alpha
     // lighting to make them "glow"
     self_light = 0;
-    if( SPRITE_LIGHT != pinst->type )
+    if ( SPRITE_LIGHT != pinst->type )
     {
         self_light  = ( 255 == pinst->light ) ? 0 : pinst->light;
     }

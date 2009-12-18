@@ -198,7 +198,6 @@ bool_t render_one_mad_tex( Uint16 character, GLXvector4f tint, Uint32 bits );
 bool_t render_one_mad( Uint16 character, GLXvector4f tint, Uint32 bits );
 bool_t render_one_mad_ref( int tnc );
 
-
 void      update_all_chr_instance();
 egoboo_rv chr_update_instance( struct s_chr * pchr );
 egoboo_rv chr_instance_update_bbox( chr_instance_t * pinst );
@@ -206,5 +205,11 @@ egoboo_rv chr_instance_needs_update( chr_instance_t * pinst, int vmin, int vmax,
 egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vmax, bool_t force );
 egoboo_rv chr_instance_update_grip_verts( chr_instance_t * pinst, Uint16 vrt_lst[], size_t vrt_count );
 
-egoboo_rv chr_instance_set_action( chr_instance_t * pinst, int action, bool_t action_ready, bool_t override );
+egoboo_rv chr_instance_set_action( chr_instance_t * pinst, int action, bool_t action_ready, bool_t override_action );
 egoboo_rv chr_instance_set_frame( chr_instance_t * pinst, int frame );
+egoboo_rv chr_instance_start_anim( chr_instance_t * pinst, int action, bool_t action_ready, bool_t override_action );
+egoboo_rv chr_instance_set_anim( chr_instance_t * pinst, int action, int frame, bool_t action_ready, bool_t override_action );
+
+egoboo_rv chr_instance_increment_action( chr_instance_t * pinst );
+egoboo_rv chr_instance_increment_frame( chr_instance_t * pinst, mad_t * pmad, Uint16 imount );
+egoboo_rv chr_instance_play_action( chr_instance_t * pinst, Uint16 action, Uint8 actionready );

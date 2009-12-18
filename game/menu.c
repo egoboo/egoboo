@@ -706,7 +706,7 @@ int doSinglePlayerMenu( float deltaTime )
             }
             if ( SDLKEYDOWN( SDLK_ESCAPE ) || BUTTON_UP == ui_doButton( 3, sz_buttons[2], NULL, buttonLeft, buttonTop + 35 * 2, 200, 30 ) )
             {
-                menuChoice = 3;		//back
+                menuChoice = 3;     //back
             }
             if ( menuChoice != 0 )
             {
@@ -842,8 +842,8 @@ int doChooseModule( float deltaTime )
             GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
             x = ( GFX_WIDTH  / 2 ) - ( background.imgW / 2 );
             y = GFX_HEIGHT - background.imgH;
-            
-			if ( mnu_draw_background )
+
+            if ( mnu_draw_background )
             {
                 ui_drawImage( 0, &background, x, y, 0, 0 );
             }
@@ -1722,7 +1722,7 @@ int doOptions( float deltaTime )
                 // video options
                 menuChoice = 3;
             }
-            if (  SDLKEYDOWN( SDLK_ESCAPE ) || BUTTON_UP == ui_doButton( 5, sz_buttons[4], NULL, buttonLeft, buttonTop + 35 * 4, 200, 30 ) )
+            if ( SDLKEYDOWN( SDLK_ESCAPE ) || BUTTON_UP == ui_doButton( 5, sz_buttons[4], NULL, buttonLeft, buttonTop + 35 * 4, 200, 30 ) )
             {
                 // back to main menu
                 menuChoice = 4;
@@ -3207,13 +3207,13 @@ int doVideoOptions( float deltaTime )
 
             // Max particles
             ui_drawTextBox( menuFont, "Max Particles:", buttonLeft + 300, GFX_HEIGHT - 180, 0, 0, 20 );
-			
-            if( PMod->active )
-			{
-				snprintf( Cmaxparticles, SDL_arraysize(Cmaxparticles), "%i (%i currently used)", maxparticles, maxparticles-prt_count_free() );
-				ui_drawTextBox( menuFont, Cmaxparticles, buttonLeft + 450, GFX_HEIGHT - 180, 0, 100, 30 );
-			}
-			else if ( BUTTON_UP == ui_doButton( 15, sz_buttons[14], menuFont, buttonLeft + 450, GFX_HEIGHT - 180, 100, 30 ) )
+
+            if ( PMod->active )
+            {
+                snprintf( Cmaxparticles, SDL_arraysize( Cmaxparticles ), "%i (%i currently used)", maxparticles, maxparticles - prt_count_free() );
+                ui_drawTextBox( menuFont, Cmaxparticles, buttonLeft + 450, GFX_HEIGHT - 180, 0, 100, 30 );
+            }
+            else if ( BUTTON_UP == ui_doButton( 15, sz_buttons[14], menuFont, buttonLeft + 450, GFX_HEIGHT - 180, 100, 30 ) )
             {
                 if ( cfg.particle_count_req < 256 )
                 {

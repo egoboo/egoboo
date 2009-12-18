@@ -26,7 +26,6 @@
 ///   Creating/destroying objects of this class is done in the same fashion as
 ///   Textures, so see Texture.h for details.
 
-
 #include "id_md2.h"
 
 #include "egoboo_typedef.h"
@@ -72,52 +71,52 @@ typedef id_md2_skin_t MD2_SkinName_t;
 //--------------------------------------------------------------------------------------------
 struct s_ego_md2_glcommand
 {
-  struct s_ego_md2_glcommand * next;
+    struct s_ego_md2_glcommand * next;
 
-  GLenum              gl_mode;
-  signed int          command_count;
-  id_glcmd_packed_t * data;
+    GLenum              gl_mode;
+    signed int          command_count;
+    id_glcmd_packed_t * data;
 };
 typedef struct s_ego_md2_glcommand MD2_GLCommand_t;
 
-void MD2_GLCommand_construct(MD2_GLCommand_t * m);
-void MD2_GLCommand_destruct(MD2_GLCommand_t * m);
+void MD2_GLCommand_construct( MD2_GLCommand_t * m );
+void MD2_GLCommand_destruct( MD2_GLCommand_t * m );
 
 MD2_GLCommand_t * MD2_GLCommand_new( void );
-MD2_GLCommand_t * MD2_GLCommand_new_vector(int n);
-void              MD2_GLCommand_delete(MD2_GLCommand_t * m);
-void              MD2_GLCommand_delete_vector(MD2_GLCommand_t * v, int n);
+MD2_GLCommand_t * MD2_GLCommand_new_vector( int n );
+void              MD2_GLCommand_delete( MD2_GLCommand_t * m );
+void              MD2_GLCommand_delete_vector( MD2_GLCommand_t * v, int n );
 
 //--------------------------------------------------------------------------------------------
 struct s_ego_md2_model
 {
-  int m_numVertices;
-  int m_numTexCoords;
-  int m_numTriangles;
-  int m_numSkins;
-  int m_numFrames;
-  int m_numCommands;
+    int m_numVertices;
+    int m_numTexCoords;
+    int m_numTriangles;
+    int m_numSkins;
+    int m_numFrames;
+    int m_numCommands;
 
-  MD2_SkinName_t  *m_skins;
-  MD2_TexCoord_t  *m_texCoords;
-  MD2_Triangle_t  *m_triangles;
-  MD2_Frame_t     *m_frames;
-  MD2_GLCommand_t *m_commands;
+    MD2_SkinName_t  *m_skins;
+    MD2_TexCoord_t  *m_texCoords;
+    MD2_Triangle_t  *m_triangles;
+    MD2_Frame_t     *m_frames;
+    MD2_GLCommand_t *m_commands;
 };
 typedef struct s_ego_md2_model MD2_Model_t;
 
 // CTORS
-void          md2_construct(MD2_Model_t * m);
-void          md2_destruct(MD2_Model_t * m);
+void          md2_construct( MD2_Model_t * m );
+void          md2_destruct( MD2_Model_t * m );
 MD2_Model_t * md2_new( void );
-MD2_Model_t * md2_new_vector(int n);
-void          md2_delete(MD2_Model_t * m);
-void          md2_delete_vector(MD2_Model_t * v, int n);
+MD2_Model_t * md2_new_vector( int n );
+void          md2_delete( MD2_Model_t * m );
+void          md2_delete_vector( MD2_Model_t * v, int n );
 
 // Other functions
-MD2_Model_t * md2_load(const char * szFilename, MD2_Model_t* m);
-void          md2_deallocate(MD2_Model_t * m);
-void          md2_scale_model(MD2_Model_t * pmd2, float scale_x, float scale_y, float scale_z);
+MD2_Model_t * md2_load( const char * szFilename, MD2_Model_t* m );
+void          md2_deallocate( MD2_Model_t * m );
+void          md2_scale_model( MD2_Model_t * pmd2, float scale_x, float scale_y, float scale_z );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

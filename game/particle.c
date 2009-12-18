@@ -2257,8 +2257,8 @@ int spawn_bump_particles( Uint16 character, Uint16 particle )
                 float  *vertex_distance;
                 float dist;
 
-                vertex_occupied = EGOBOO_NEW_ARY(int, vertices);
-                vertex_distance = EGOBOO_NEW_ARY(float, vertices);
+                vertex_occupied = EGOBOO_NEW_ARY( int, vertices );
+                vertex_distance = EGOBOO_NEW_ARY( float, vertices );
 
                 // this could be done more easily with a quicksort....
                 // but I guess it doesn't happen all the time
@@ -2350,8 +2350,8 @@ int spawn_bump_particles( Uint16 character, Uint16 particle )
                 //    }
                 //}
 
-                EGOBOO_DELETE_ARY(vertex_occupied);
-                EGOBOO_DELETE_ARY(vertex_distance);
+                EGOBOO_DELETE_ARY( vertex_occupied );
+                EGOBOO_DELETE_ARY( vertex_distance );
             }
         }
     }

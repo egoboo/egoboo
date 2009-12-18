@@ -19,7 +19,7 @@
 
 /// @file lighting.c
 /// @brief Code for controlling the character and mesh lighting
-/// @details 
+/// @details
 
 #include "lighting.h"
 
@@ -40,13 +40,13 @@ void lighting_vector_evaluate( lighting_vector_t lvec, fvec3_base_t nrm, float *
 {
     float loc_dir, loc_amb;
 
-    if( NULL == dir ) dir = &loc_dir;
-    if( NULL == amb ) amb = &loc_amb;
+    if ( NULL == dir ) dir = &loc_dir;
+    if ( NULL == amb ) amb = &loc_amb;
 
     *dir = 0.0f;
     *amb = 0.0f;
 
-    if( NULL == lvec ) return;
+    if ( NULL == lvec ) return;
 
     if ( nrm[kX] > 0.0f )
     {
@@ -117,9 +117,9 @@ void lighting_vector_sum( lighting_vector_t lvec, fvec3_base_t nrm, float direct
 //--------------------------------------------------------------------------------------------
 lighting_cache_base_t * lighting_cache_base_init( lighting_cache_base_t * cache )
 {
-    if( NULL == cache ) return NULL;
+    if ( NULL == cache ) return NULL;
 
-    memset( cache, 0, sizeof(*cache) );
+    memset( cache, 0, sizeof( *cache ) );
 
     return cache;
 }
@@ -142,22 +142,21 @@ bool_t lighting_cache_base_max_light( lighting_cache_base_t * cache )
     return btrue;
 }
 
-
 //--------------------------------------------------------------------------------------------
 bool_t lighting_cache_base_blend( lighting_cache_base_t * cold, lighting_cache_base_t * cnew, float keep )
 {
     int tnc;
     float max_delta;
 
-    if( NULL == cold || NULL == cnew ) return bfalse;
+    if ( NULL == cold || NULL == cnew ) return bfalse;
 
     // blend this in with the existing lighting
-    if( 1.0f == keep )
+    if ( 1.0f == keep )
     {
         // no change from last time
         max_delta = 0.0f;
     }
-    else if( 0.0f == keep ) 
+    else if ( 0.0f == keep )
     {
         max_delta = 0.0f;
         for ( tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++ )
@@ -178,7 +177,7 @@ bool_t lighting_cache_base_blend( lighting_cache_base_t * cold, lighting_cache_b
 
             ftmp = cold->lighting[tnc];
             cold->lighting[tnc] = ftmp * keep + cnew->lighting[tnc] * ( 1.0f - keep );
-            max_delta = MAX( max_delta, ABS(cold->lighting[tnc] - ftmp) );
+            max_delta = MAX( max_delta, ABS( cold->lighting[tnc] - ftmp ) );
         }
     }
 
@@ -191,10 +190,10 @@ bool_t lighting_cache_base_blend( lighting_cache_base_t * cold, lighting_cache_b
 //--------------------------------------------------------------------------------------------
 lighting_cache_t * lighting_cache_init( lighting_cache_t * cache )
 {
-    if( NULL == cache ) return cache;
+    if ( NULL == cache ) return cache;
 
-    lighting_cache_base_init( &(cache->low) );
-    lighting_cache_base_init( &(cache->hgh) );
+    lighting_cache_base_init( &( cache->low ) );
+    lighting_cache_base_init( &( cache->hgh ) );
 
     cache->max_delta = 0.0f;
     cache->max_light = 0.0f;
@@ -205,11 +204,11 @@ lighting_cache_t * lighting_cache_init( lighting_cache_t * cache )
 //--------------------------------------------------------------------------------------------
 bool_t lighting_cache_max_light( lighting_cache_t * cache )
 {
-    if( NULL == cache ) return bfalse;
+    if ( NULL == cache ) return bfalse;
 
     // determine the lighting extents
-    lighting_cache_base_max_light( &(cache->low) );
-    lighting_cache_base_max_light( &(cache->hgh) );
+    lighting_cache_base_max_light( &( cache->low ) );
+    lighting_cache_base_max_light( &( cache->hgh ) );
 
     // set the maximum direct light
     cache->max_light = MAX( cache->low.max_light, cache->hgh.max_light );
@@ -217,15 +216,14 @@ bool_t lighting_cache_max_light( lighting_cache_t * cache )
     return btrue;
 }
 
-
 //--------------------------------------------------------------------------------------------
 bool_t lighting_cache_blend( lighting_cache_t * cache, lighting_cache_t * cnew, float keep )
 {
-    if( NULL == cache || NULL == cnew ) return bfalse;
+    if ( NULL == cache || NULL == cnew ) return bfalse;
 
     // find deltas
-    lighting_cache_base_blend( &(cache->low), (&cnew->low), keep );
-    lighting_cache_base_blend( &(cache->hgh), (&cnew->hgh), keep );
+    lighting_cache_base_blend( &( cache->low ), ( &cnew->low ), keep );
+    lighting_cache_base_blend( &( cache->hgh ), ( &cnew->hgh ), keep );
 
     // find the absolute maximum delta
     cache->max_delta = MAX( cache->low.max_delta, cache->hgh.max_delta );
@@ -278,7 +276,7 @@ bool_t lighting_cache_interpolate( lighting_cache_t * dst, lighting_cache_t * sr
 
     if ( NULL == src ) return bfalse;
 
-    if ( NULL == lighting_cache_init(dst) ) return bfalse;
+    if ( NULL == lighting_cache_init( dst ) ) return bfalse;
 
     u = CLIP( u, 0.0f, 1.0f );
     v = CLIP( v, 0.0f, 1.0f );
@@ -355,14 +353,14 @@ float lighting_cache_test( lighting_cache_t * src[], float u, float v, float * l
 
     float delta, wt_sum;
     float loc_low_delta, loc_hgh_delta;
-    
+
     delta = 0.0f;
 
     if ( NULL == src ) return delta;
 
     // handle the optional parameters
-    if( NULL == low_delta ) low_delta = &loc_low_delta;
-    if( NULL == hgh_delta ) hgh_delta = &loc_hgh_delta;
+    if ( NULL == low_delta ) low_delta = &loc_low_delta;
+    if ( NULL == hgh_delta ) hgh_delta = &loc_hgh_delta;
 
     u = CLIP( u, 0.0f, 1.0f );
     v = CLIP( v, 0.0f, 1.0f );
@@ -527,8 +525,8 @@ float lighting_evaluate_cache( lighting_cache_t * src, fvec3_base_t nrm, float z
     if ( NULL == src || NULL == nrm ) return 0.0f;
 
     // handle optional arguments
-    if( NULL == light_amb ) light_amb = &loc_light_amb;
-    if( NULL == light_dir ) light_dir = &loc_light_dir;
+    if ( NULL == light_amb ) light_amb = &loc_light_amb;
+    if ( NULL == light_dir ) light_dir = &loc_light_dir;
 
     // determine the weighting
     hgh_wt = ( z - bbox.mins[kZ] ) / ( bbox.maxs[kZ] - bbox.mins[kZ] );
@@ -554,11 +552,10 @@ float lighting_evaluate_cache( lighting_cache_t * src, fvec3_base_t nrm, float z
         *light_amb += hgh_wt * amb;
     }
 
-    *light_dir = light_tot - (*light_amb);
+    *light_dir = light_tot - ( *light_amb );
 
     return light_tot;
 }
-
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -612,7 +609,7 @@ bool_t sum_dyna_lighting( dynalight_t * pdyna, lighting_vector_t lighting, fvec3
     rad_sqr = rho_sqr + nrm[kZ] * nrm[kZ];
 
     // make a local copy of the normal so we do not normalize the data in the calling function
-    memcpy( local_nrm, nrm, sizeof(local_nrm) );
+    memcpy( local_nrm, nrm, sizeof( local_nrm ) );
 
     // do the normalization
     if ( 1.0f != rad_sqr && 0.0f != rad_sqr )

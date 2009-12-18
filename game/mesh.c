@@ -399,12 +399,12 @@ bool_t mesh_convert( ego_mpd_t * pmesh_dst, mpd_t * pmesh_src )
         ego_tile_info_t * ptile_dst = ptmem_dst->tile_list + cnt;
         ego_grid_info_t * pgrid_dst = pgmem_dst->grid_list + cnt;
 
-        memset( ptile_dst, 0, sizeof(*ptile_dst) );
+        memset( ptile_dst, 0, sizeof( *ptile_dst ) );
         ptile_dst->type         = ptile_src->type;
         ptile_dst->img          = ptile_src->img;
         ptile_dst->vrtstart     = ptile_src->vrtstart;
 
-        memset( pgrid_dst, 0, sizeof(*pgrid_dst) );
+        memset( pgrid_dst, 0, sizeof( *pgrid_dst ) );
         pgrid_dst->fx    = ptile_src->fx;
         pgrid_dst->twist = ptile_src->twist;
 
@@ -546,8 +546,8 @@ bool_t grid_mem_allocate( grid_mem_t * pgmem, ego_mpd_info_t * pinfo )
     pgmem->grid_count = pgmem->grids_x * pgmem->grids_y;
 
     // set the mesh edge info
-    pgmem->edge_x = (pgmem->grids_x + 1) << TILE_BITS;
-    pgmem->edge_y = (pgmem->grids_y + 1) << TILE_BITS;
+    pgmem->edge_x = ( pgmem->grids_x + 1 ) << TILE_BITS;
+    pgmem->edge_y = ( pgmem->grids_y + 1 ) << TILE_BITS;
 
     // set the desired blocknumber of blocks
     pgmem->blocks_x = ( pinfo->tiles_x >> 2 );
@@ -600,7 +600,7 @@ bool_t grid_mem_free( grid_mem_t * pmem )
     }
 
     // reset some values to safe values
-    memset( pmem, 0, sizeof(*pmem) );
+    memset( pmem, 0, sizeof( *pmem ) );
 
     return btrue;
 }
@@ -991,7 +991,7 @@ bool_t mesh_make_bbox( ego_mpd_t * pmesh )
         Uint8 type;
 
         ptile = ptmem->tile_list + cnt;
-        pbb   = &(ptile->bb);
+        pbb   = &( ptile->bb );
 
         type = ptile->type;
         type &= 0x3F;
@@ -1280,7 +1280,7 @@ bool_t mesh_test_one_corner( ego_mpd_t * pmesh, GLXvector3f pos, float * pdelta 
     float loc_delta, low_delta, hgh_delta;
     float hgh_wt, low_wt;
 
-    if( NULL == pdelta ) pdelta = &loc_delta;
+    if ( NULL == pdelta ) pdelta = &loc_delta;
 
     // interpolate the lighting for the given corner of the mesh
     *pdelta = grid_lighting_test( pmesh, pos, &low_delta, &hgh_delta );
@@ -1326,7 +1326,6 @@ bool_t mesh_light_one_corner( ego_mpd_t * pmesh, int itile, GLXvector3f pos, GLX
     return btrue;
 }
 
-
 //--------------------------------------------------------------------------------------------
 bool_t mesh_test_corners( ego_mpd_t * pmesh, int itile, float threshold )
 {
@@ -1341,8 +1340,8 @@ bool_t mesh_test_corners( ego_mpd_t * pmesh, int itile, float threshold )
     ptmem = &( pmesh->tmem );
 
     // get the normal and lighting cache for this tile
-    lcache   = &(ptmem->tile_list[itile].lcache);
-    d1_cache = &(ptmem->tile_list[itile].d1_cache);
+    lcache   = &( ptmem->tile_list[itile].lcache );
+    d1_cache = &( ptmem->tile_list[itile].d1_cache );
 
     retval = bfalse;
     for ( corner = 0; corner < 4; corner++ )
@@ -1358,24 +1357,23 @@ bool_t mesh_test_corners( ego_mpd_t * pmesh, int itile, float threshold )
 
         mesh_test_one_corner( pmesh, *ppos, &delta );
 
-        if( 0.0f == *plight )
+        if ( 0.0f == *plight )
         {
             delta = 10.0f;
         }
         else
         {
             delta /= *plight;
-            delta = CLIP(delta, 0, 10.0f);
+            delta = CLIP( delta, 0, 10.0f );
         }
 
         *pdelta += delta;
 
-        if( *pdelta > threshold ) retval = btrue;
+        if ( *pdelta > threshold ) retval = btrue;
     }
 
     return retval;
 }
-
 
 //--------------------------------------------------------------------------------------------
 float mesh_light_corners( ego_mpd_t * pmesh, int itile, float mesh_lighting_keep )
@@ -1396,10 +1394,10 @@ float mesh_light_corners( ego_mpd_t * pmesh, int itile, float mesh_lighting_keep
     pgmem = &( pmesh->gmem );
 
     // get the normal and lighting cache for this tile
-    ncache   = &(ptmem->tile_list[itile].ncache);
-    lcache   = &(ptmem->tile_list[itile].lcache);
-    d1_cache = &(ptmem->tile_list[itile].d1_cache);
-    d2_cache = &(ptmem->tile_list[itile].d2_cache);
+    ncache   = &( ptmem->tile_list[itile].ncache );
+    lcache   = &( ptmem->tile_list[itile].lcache );
+    d1_cache = &( ptmem->tile_list[itile].d1_cache );
+    d2_cache = &( ptmem->tile_list[itile].d2_cache );
 
     max_delta = 0.0f;
     for ( corner = 0; corner < 4; corner++ )
@@ -1420,17 +1418,17 @@ float mesh_light_corners( ego_mpd_t * pmesh, int itile, float mesh_lighting_keep
         light_new = 0.0f;
         mesh_light_one_corner( pmesh, itile, *ppos, *pnrm, &light_new );
 
-        if( *plight != light_new )
+        if ( *plight != light_new )
         {
             light_old = *plight;
             *plight = light_old * mesh_lighting_keep + light_new * ( 1.0f - mesh_lighting_keep );
 
             // measure the actual delta
-            delta = ABS(light_old - *plight);
+            delta = ABS( light_old - *plight );
 
             // measure the relative change of the lighting
-            light_tmp = 0.5f * (ABS(*plight) + ABS(light_old));
-            if( 0.0f == light_tmp )
+            light_tmp = 0.5f * ( ABS( *plight ) + ABS( light_old ) );
+            if ( 0.0f == light_tmp )
             {
                 delta = 10.0f;
             }
@@ -1441,7 +1439,7 @@ float mesh_light_corners( ego_mpd_t * pmesh, int itile, float mesh_lighting_keep
             }
 
             // add in the actual change this update
-            *pdelta2 += ABS(delta);
+            *pdelta2 += ABS( delta );
 
             // update the estimate to match the actual change
             *pdelta1 = *pdelta2;
@@ -1468,8 +1466,8 @@ bool_t mesh_interpolate_vertex( tile_mem_t * pmem, int fan, float pos[], float *
 
     if ( NULL == pmem ) return bfalse;
 
-    bb = &(pmem->tile_list[fan].bb);
-    lc = &(pmem->tile_list[fan].lcache);
+    bb = &( pmem->tile_list[fan].bb );
+    lc = &( pmem->tile_list[fan].lcache );
 
     // determine a u,v coordinate for the vertex
     u = ( pos[XX] - bb->mins[XX] ) / ( bb->maxs[XX] - bb->mins[XX] );
