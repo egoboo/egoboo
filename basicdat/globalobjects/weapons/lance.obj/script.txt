@@ -76,6 +76,7 @@ IfStateIs1
 
 // Item is held by a cavalier
 IfStateIs2
+  SetTargetToWhoeverIsHolding
   IfTargetIsMounted
     //Make no attack possible
     tmpargument = 10
@@ -87,7 +88,7 @@ IfStateIs2
     tmpx = targetspeedx
     tmpy = targetspeedy
     tmpx = xydistance > 2
-
+    
     // Make sure mount is moving fast enough
     tmpy = 0
     IfXIsMoreThanY

@@ -154,3 +154,5 @@ Can see invisi : TRUE
 Kursed chance  : 0
 Footfall sound : -1
 Jump sound     : 6
+
+:[DARK] 6               //Level 1 darkvision

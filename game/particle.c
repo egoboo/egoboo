@@ -1057,7 +1057,7 @@ void update_all_particles()
                 ChrList.lst[ichr].vel.y *= 0.5f;
             }
 
-            damage_character( ichr, ATK_BEHIND, pprt->damage, pprt->damagetype, pprt->team, pprt->owner_ref, ppip->damfx, bfalse );
+            //damage_character( ichr, ATK_BEHIND, pprt->damage, pprt->damagetype, pprt->team, pprt->owner_ref, ppip->damfx, bfalse );
         }
     }
 }

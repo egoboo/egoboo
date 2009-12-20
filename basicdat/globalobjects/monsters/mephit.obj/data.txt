@@ -192,6 +192,9 @@ Sound of Footfall ( -1 for none )		: -1
 Sound of Jump ( -1 for none )			: -1
 
 
+//Expansions
+:[DARK] 3        //Level 3 darkvision
+
 //-Notes------------------------------------------------------------------------
 // Money, items, skin, name, team, and position are all set at spawn time
 // with data generated in CARTMAN.  Names are generated randomly using

@@ -8,15 +8,12 @@ MASTER TODO LIST:
 - Troll in Griffin tower doesnt die properly
 - Rare crash bug with Tile Mimics in Sand Palace
 - Game crashes when using specific texture filter modes and billboards.
-- Spellbooks burn when dropped
 - Healing cloud for Paladin and Healer is backwards
-- Enchants not despawning properly in cleanup_all_enchants()
 - The Jive Elf is no longer loaded properly
 - Something is messing up the waypoints. In Tourist Starter the boulders and platforms no longer move.
 - Lightning bugs
-- Gonne shots do not hit
-- Claws damage their holders
-- Brainscrambler daze ray doesnt work
+- Brainscrambler daze ray doesnt work and Gonne shots do not hit, these two are probably related
+- Screenshots dont work
 
 EGOBOO AWARDS:
 http://img.informer.com/awards/si_editor4.gif

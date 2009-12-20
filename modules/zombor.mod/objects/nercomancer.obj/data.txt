@@ -192,7 +192,7 @@ Sound of Footfall ( -1 for none )		: 0
 Sound of Jump ( -1 for none )			: 1
 
 :[LEVL] 5
-:[DRES] 1
+:[DARK] 10  //Darkvision
 :[DRES] 0
 
 //-Notes------------------------------------------------------------------------

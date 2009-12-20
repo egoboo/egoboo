@@ -47,7 +47,7 @@ static void   gfx_make_dynalist( camera_t * pcam );
 //--------------------------------------------------------------------------------------------
 void animate_all_tiles( ego_mpd_t * pmesh )
 {
-    int cnt;
+    Uint32 cnt;
     Uint32 tile_count;
 
     if ( NULL == pmesh ) return;

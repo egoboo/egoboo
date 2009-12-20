@@ -127,7 +127,7 @@ void flash_character_height( Uint16 character, Uint8 valuelow, Sint16 low,
     /// @details ZZ@> This function sets a character's lighting depending on vertex height...
     ///    Can make feet dark and head light...
 
-    int cnt;
+    Uint32 cnt;
     Sint16 z;
 
     mad_t * pmad;
@@ -4219,7 +4219,7 @@ void change_character( Uint16 ichr, Uint16 profile_new, Uint8 skin, Uint8 leavew
 
     // Reaffirm them particles...
     pchr->reaffirmdamagetype = pcap_new->attachedprt_reaffirmdamagetype;
-    reaffirm_attached_particles( ichr );
+    //reaffirm_attached_particles( ichr );				//ZF> so that books dont burn when dropped 
     new_attached_prt_count = number_of_attached_particles( ichr );
 
     ai_state_set_changed( &( pchr->ai ) );
@@ -7505,7 +7505,8 @@ int get_grip_verts( Uint16 grip_verts[], Uint16 imount, int vrt_offset )
     /// @details BB@> Fill the grip_verts[] array from the mount's data.
     ///     Return the number of vertices found.
 
-    int i, tnc, vrt_count;
+    int i, vrt_count;
+	Uint32 tnc;
 
     chr_t * pmount;
     mad_t * pmount_mad;

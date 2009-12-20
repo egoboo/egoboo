@@ -1,4 +1,6 @@
 #dependency Wizard 0
+#dependency Protect 64
+#dependency Burning 69
 
 //         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
 
@@ -70,12 +72,12 @@ brazier:   NONE    37  53.5   54.5   0.0   N    0   0  0   0   0   F   F   N
 bookshelf:   NONE    38  53.5   56.5   0.0   W    0   0  0   0   0   F   F   N
 bookshelf:   NONE    38  48.5   56.5   0.0   E    0   0  0   0   0   F   F   N
 candle:   NONE    58  31.0   30.1   0.0   N    0   0  4   0   0   F   F   N
-bookstand:   NONE    55  48.5   58.5   0.0   E    0   0  0   0   0   F   F   N
+bookstand:   NONE    55  48.5   58.5   0.0   E    0   4  0   0   0   F   F   N
   protect:   NONE    64  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-bookstand:   NONE    55  51.5   38.5   0.0   S    0   0  0   0   0   F   F   N
+bookstand:   NONE    55  51.5   38.5   0.0   S    0   4  0   0   0   F   F   N
   burning:   NONE    69  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-bookstand:   NONE    55  51.0   59.5   0.0   N    0   0  0   0   0   F   F   N
-bookstand:   NONE    55  53.5   58.5   0.0   W    0   0  0   0   0   F   F   N
+bookstand:   NONE    55  51.0   59.5   0.0   N    0   4  0   0   0   F   F   N
+bookstand:   NONE    55  53.5   58.5   0.0   W    0   4  0   0   0   F   F   N
 icemephit:   NONE    61  34.5   30.5   0.0   N    6   1  0   0   0   F   F   E
   icewing:   NONE    62  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 Pot:   NONE    44  43.5   56.5   0.0   N    0   0  0   0   0   F   F   N

@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------
-//Dont move while falling and set target point
+//Setup where to roll
 IfSpawned
   ClearWaypoints
   tmpx = selfmoney

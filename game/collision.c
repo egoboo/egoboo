@@ -1862,7 +1862,7 @@ bool_t do_chr_prt_collision_deflect( chr_t * pchr, prt_t * pprt, chr_prt_collsio
     // try to deflect the particle
     prt_deflected = bfalse;
     pdata->mana_paid = bfalse;
-    if ( prt_wants_deflection || chr_can_deflect )
+    if ( prt_wants_deflection && chr_can_deflect )
     {
         // magically deflect the particle or make a ricochet if the character is invictus
 
@@ -1916,6 +1916,8 @@ bool_t do_chr_prt_collision_deflect( chr_t * pchr, prt_t * pprt, chr_prt_collsio
 bool_t do_chr_prt_collision_recoil( chr_t * pchr, prt_t * pprt, chr_prt_collsion_data_t * pdata )
 {
     /// @details BB@> make the character and particle recoil from the collision
+    float prt_mass;
+    float attack_factor;
 
     if ( NULL == pdata ) return 0;
 
@@ -1925,136 +1927,133 @@ bool_t do_chr_prt_collision_recoil( chr_t * pchr, prt_t * pprt, chr_prt_collsion
 
     if ( 0.0f == ABS( pdata->impulse.x ) + ABS( pdata->impulse.y ) + ABS( pdata->impulse.z ) ) return btrue;
 
+	if( !pdata->ppip->allowpush ) return bfalse;
+
     // do the reaction force of the particle on the character
-    if ( pdata->ppip->allowpush )
+
+    // determine how much the attack is "felt"
+    attack_factor = 1.0f;
+    if ( DAMAGE_CRUSH == pprt->damagetype )
     {
-        float prt_mass;
-        float attack_factor;
-
-        // determine how much the attack is "felt"
+        // very blunt type of attack, the maximum effect
         attack_factor = 1.0f;
-        if ( DAMAGE_CRUSH == pprt->damagetype )
+    }
+    else if ( DAMAGE_POKE == pprt->damagetype )
+    {
+        // very focussed type of attack, the minimum effect
+        attack_factor = 0.5f;
+    }
+    else
+    {
+        // all other damage types are in the middle
+        attack_factor = INV_SQRT_TWO;
+    }
+
+    prt_mass = 1.0f;
+    if ( 0 == pdata->max_damage )
+    {
+        // this is a particle like the wind particles in the whirlwind
+        // make the particle have some kind of predictable constant effect
+        // relative to any character;
+        prt_mass = pchr->phys.weight / 10.0f;
+    }
+    else
+    {
+        // determine an "effective mass" for the particle, based on it's max damage
+        // and velocity
+
+        float prt_vel2;
+        float prt_ke;
+
+        // the damage is basically like the kinetic energy of the particle
+        prt_vel2 = fvec3_dot_product( pdata->vdiff.v, pdata->vdiff.v );
+
+        // It can happen that a damage particle can hit something
+        // at almost zero velocity, which would make for a huge "effective mass".
+        // by making a reasonable "minimum velocity", we limit the maximum mass to
+        // something reasonable
+        prt_vel2 = MAX( 100.0f, prt_vel2 );
+
+        // get the "kinetic energy" from the damage
+        prt_ke = 3.0f * pdata->max_damage;
+
+        // the faster the particle is going, the smaller the "mass" it
+        // needs to do the damage
+        prt_mass = prt_ke / ( 0.5f * prt_vel2 );
+    }
+
+    // now, we have the particle's impulse and mass
+    // Do the impulse to the object that was hit
+    // If the particle was magically deflected, there is no rebound on the target
+    if ( pchr->phys.weight != INFINITE_WEIGHT && !pdata->mana_paid )
+    {
+        float factor = attack_factor;
+
+        if ( pchr->phys.weight > 0 )
         {
-            // very blunt type of attack, the maximum effect
-            attack_factor = 1.0f;
+            // limit the prt_mass to be something relatice to this object
+            float loc_prt_mass = CLIP( prt_mass, 1.0f, 2.0f * pchr->phys.weight );
+
+            factor *= loc_prt_mass / pchr->phys.weight;
         }
-        else if ( DAMAGE_POKE == pprt->damagetype )
+
+        // modify it by the the severity of the damage
+        // reduces the damage below pdata->actual_damage == pchr->lifemax
+        // and it doubles it if pdata->actual_damage is really huge
+        factor *= 2.0f * ( float )pdata->actual_damage / ( float )( ABS( pdata->actual_damage ) + pchr->lifemax );
+
+        factor = CLIP( factor, 0.0f, 3.0f );
+
+        // calculate the "impulse"
+        pchr->phys.avel.x -= pdata->impulse.x * factor;
+        pchr->phys.avel.y -= pdata->impulse.y * factor;
+        pchr->phys.avel.z -= pdata->impulse.z * factor;
+    }
+
+    // if the particle is attached to a weapon, the particle can force the
+    // weapon (actually, the weapon's holder) to rebound.
+    if ( ACTIVE_CHR( pprt->attachedto_ref ) )
+    {
+        chr_t * ptarget;
+        Uint16 iholder;
+
+        ptarget = NULL;
+
+        // transmit the force of the blow back to the character that is
+        // holding the weapon
+
+        iholder = chr_get_lowest_attachment( pprt->attachedto_ref, bfalse );
+        if ( ACTIVE_CHR( iholder ) )
         {
-            // very focussed type of attack, the minimum effect
-            attack_factor = 0.5f;
+            ptarget = ChrList.lst + iholder;
         }
         else
         {
-            // all other damage types are in the middle
-            attack_factor = INV_SQRT_TWO;
-        }
-
-        prt_mass = 1.0f;
-        if ( 0 == pdata->max_damage )
-        {
-            // this is a particle like the wind particles in the whirlwind
-            // make the particle have some kind of predictable constant effect
-            // relative to any character;
-            prt_mass = pchr->phys.weight / 10.0f;
-        }
-        else
-        {
-            // determine an "effective mass" for the particle, based on it's max damage
-            // and velocity
-
-            float prt_vel2;
-            float prt_ke;
-
-            // the damage is basically like the kinetic energy of the particle
-            prt_vel2 = fvec3_dot_product( pdata->vdiff.v, pdata->vdiff.v );
-
-            // It can happen that a damage particle can hit something
-            // at almost zero velocity, which would make for a huge "effective mass".
-            // by making a reasonable "minimum velocity", we limit the maximum mass to
-            // something reasonable
-            prt_vel2 = MAX( 100.0f, prt_vel2 );
-
-            // get the "kinetic energy" from the damage
-            prt_ke = 3.0f * pdata->max_damage;
-
-            // the faster the particle is going, the smaller the "mass" it
-            // needs to do the damage
-            prt_mass = prt_ke / ( 0.5f * prt_vel2 );
-        }
-
-        // now, we have the particle's impulse and mass
-        // Do the impulse to the object that was hit
-        // If the particle was magically deflected, there is no rebound on the target
-        if ( pchr->phys.weight != INFINITE_WEIGHT && !pdata->mana_paid )
-        {
-            float factor = attack_factor;
-
-            if ( pchr->phys.weight > 0 )
-            {
-                // limit the prt_mass to be something relatice to this object
-                float loc_prt_mass = CLIP( prt_mass, 1.0f, 2.0f * pchr->phys.weight );
-
-                factor *= loc_prt_mass / pchr->phys.weight;
-            }
-
-            // modify it by the the severity of the damage
-            // reduces the damage below pdata->actual_damage == pchr->lifemax
-            // and it doubles it if pdata->actual_damage is really huge
-            factor *= 2.0f * ( float )pdata->actual_damage / ( float )( ABS( pdata->actual_damage ) + pchr->lifemax );
-
-            factor = CLIP( factor, 0.0f, 3.0f );
-
-            // calculate the "impulse"
-            pchr->phys.avel.x -= pdata->impulse.x * factor;
-            pchr->phys.avel.y -= pdata->impulse.y * factor;
-            pchr->phys.avel.z -= pdata->impulse.z * factor;
-        }
-
-        // if the particle is attached to a weapon, the particle can force the
-        // weapon (actually, the weapon's holder) to rebound.
-        if ( ACTIVE_CHR( pprt->attachedto_ref ) )
-        {
-            chr_t * ptarget;
-            Uint16 iholder;
-
-            ptarget = NULL;
-
-            // transmit the force of the blow back to the character that is
-            // holding the weapon
-
-            iholder = chr_get_lowest_attachment( pprt->attachedto_ref, bfalse );
+            iholder = chr_get_lowest_attachment( pprt->owner_ref, bfalse );
             if ( ACTIVE_CHR( iholder ) )
             {
                 ptarget = ChrList.lst + iholder;
             }
-            else
+        }
+
+        if ( ptarget->phys.weight != INFINITE_WEIGHT )
+        {
+            float factor = attack_factor;
+
+            if ( ptarget->phys.weight > 0 )
             {
-                iholder = chr_get_lowest_attachment( pprt->owner_ref, bfalse );
-                if ( ACTIVE_CHR( iholder ) )
-                {
-                    ptarget = ChrList.lst + iholder;
-                }
+                // limit the prt_mass to be something relative to this object
+                float loc_prt_mass = CLIP( prt_mass, 1.0f, 2.0f * ptarget->phys.weight );
+
+                factor *= ( float ) loc_prt_mass / ( float )ptarget->phys.weight;
             }
 
-            if ( ptarget->phys.weight != INFINITE_WEIGHT )
-            {
-                float factor = attack_factor;
+            factor = CLIP( factor, 0.0f, 3.0f );
 
-                if ( ptarget->phys.weight > 0 )
-                {
-                    // limit the prt_mass to be something relatice to this object
-                    float loc_prt_mass = CLIP( prt_mass, 1.0f, 2.0f * ptarget->phys.weight );
-
-                    factor *= ( float ) loc_prt_mass / ( float )ptarget->phys.weight;
-                }
-
-                factor = CLIP( factor, 0.0f, 3.0f );
-
-                // in the SAME direction as the particle
-                ptarget->phys.avel.x += pdata->impulse.x * factor;
-                ptarget->phys.avel.y += pdata->impulse.y * factor;
-                ptarget->phys.avel.z += pdata->impulse.z * factor;
-            }
+            // in the SAME direction as the particle
+            ptarget->phys.avel.x += pdata->impulse.x * factor;
+            ptarget->phys.avel.y += pdata->impulse.y * factor;
+            ptarget->phys.avel.z += pdata->impulse.z * factor;
         }
     }
 
@@ -2076,7 +2075,7 @@ bool_t do_chr_prt_collision_damage( chr_t * pchr, prt_t * pprt, chr_prt_collsion
     if ( !ACTIVE_PCHR( pchr ) ) return bfalse;
     if ( !ACTIVE_PPRT( pprt ) ) return bfalse;
 
-    if ( pchr->damagetime > 0 ) return bfalse;
+    if ( pchr->damagetime > 0 || (pprt->damage.base + pprt->damage.base) == 0 ) return bfalse;
 
     // clean up the enchant list before doing anything
     pchr->firstenchant = cleanup_enchant_list( pchr->firstenchant );
@@ -2118,59 +2117,60 @@ bool_t do_chr_prt_collision_damage( chr_t * pchr, prt_t * pprt, chr_prt_collsion
     }
 
     //---- Damage the character, if necessary
+	prt_needs_impact = pdata->ppip->rotatetoface || ACTIVE_CHR( pprt->attachedto_ref );
+	if ( ACTIVE_CHR( pprt->owner_ref ) )
+	{
+		chr_t * powner = ChrList.lst + pprt->owner_ref;
+		cap_t * powner_cap = pro_get_pcap( powner->iprofile );
 
-    prt_needs_impact = pdata->ppip->rotatetoface || ACTIVE_CHR( pprt->attachedto_ref );
-    if ( ACTIVE_CHR( pprt->owner_ref ) )
-    {
-        chr_t * powner = ChrList.lst + pprt->owner_ref;
-        cap_t * powner_cap = pro_get_pcap( powner->iprofile );
+		if ( powner_cap->isranged ) prt_needs_impact = btrue;
+	}
 
-        if ( powner_cap->isranged ) prt_needs_impact = btrue;
-    }
+	// DAMFX_ARRO means that it only does damage to the one it's attached to
+	if ( 0 == ( pdata->ppip->damfx&DAMFX_ARRO ) && !( prt_needs_impact && !( pdata->dot < 0.0f ) ) )
+	{
+		Uint16 direction;
+		IPair loc_damage = pprt->damage;
 
-    // DAMFX_ARRO means that it only does damage to the one it's attached to
-    if ( 0 == ( pdata->ppip->damfx&DAMFX_ARRO ) && !( prt_needs_impact && !( pdata->dot < 0.0f ) ) )
-    {
-        Uint16 direction;
-        IPair loc_damage = pprt->damage;
+		direction = vec_to_facing( pprt->vel.x , pprt->vel.y );
+		direction = pchr->turn_z - direction + ATK_BEHIND;
 
-        direction = vec_to_facing( pprt->vel.x , pprt->vel.y );
-        direction = pchr->turn_z - direction + ATK_BEHIND;
+		// Apply intelligence/wisdom bonus damage for particles with the [IDAM] and [WDAM] expansions (Low ability gives penality)
+		// +2% bonus for every point of intelligence and/or wisdom above 14. Below 14 gives -2% instead!
+		if ( pdata->ppip->intdamagebonus )
+		{
+			float percent;
+			percent = (( FP8_TO_INT( ChrList.lst[pprt->owner_ref].intelligence ) ) - 14 ) * 2;
+			percent /= 100;
+			loc_damage.base *= 1.00f + percent;
+			loc_damage.rand *= 1.00f + percent;
+		}
 
-        // Apply intelligence/wisdom bonus damage for particles with the [IDAM] and [WDAM] expansions (Low ability gives penality)
-        // +2% bonus for every point of intelligence and/or wisdom above 14. Below 14 gives -2% instead!
-        if ( pdata->ppip->intdamagebonus )
-        {
-            float percent;
-            percent = (( FP8_TO_INT( ChrList.lst[pprt->owner_ref].intelligence ) ) - 14 ) * 2;
-            percent /= 100;
-            loc_damage.base *= 1.00f + percent;
-        }
+		if ( pdata->ppip->wisdamagebonus )
+		{
+			float percent;
+			percent = ( FP8_TO_INT( ChrList.lst[pprt->owner_ref].wisdom ) - 14 ) * 2;
+			percent /= 100;
+			loc_damage.base *= 1.00f + percent;
+			loc_damage.rand *= 1.00f + percent;
+		}
 
-        if ( pdata->ppip->wisdamagebonus )
-        {
-            float percent;
-            percent = ( FP8_TO_INT( ChrList.lst[pprt->owner_ref].wisdom ) - 14 ) * 2;
-            percent /= 100;
-            loc_damage.base *= 1.00f + percent;
-        }
+		// handle vulnerabilities
+		if ( chr_has_vulnie( GET_INDEX_PCHR( pchr ), pprt->profile_ref ) )
+		{
+			loc_damage.base = ( loc_damage.base << 1 );
+			loc_damage.rand = ( loc_damage.rand << 1 ) | 1;
 
-        // handle vulnerabilities
-        if ( chr_has_vulnie( GET_INDEX_PCHR( pchr ), pprt->profile_ref ) )
-        {
-            loc_damage.base = ( loc_damage.base << 1 );
-            loc_damage.rand = ( loc_damage.rand << 1 ) | 1;
+			pchr->ai.alert |= ALERTIF_HITVULNERABLE;
+		}
 
-            pchr->ai.alert |= ALERTIF_HITVULNERABLE;
-        }
+		// Damage the character
+		pdata->actual_damage = damage_character( GET_INDEX_PCHR( pchr ), direction, loc_damage, pprt->damagetype, pprt->team, pprt->owner_ref, pdata->ppip->damfx, bfalse );
 
-        // Damage the character
-        pdata->actual_damage = damage_character( GET_INDEX_PCHR( pchr ), direction, loc_damage, pprt->damagetype, pprt->team, pprt->owner_ref, pdata->ppip->damfx, bfalse );
-
-        // we're supposed to blank out the damage here so that swords and such don't
-        // kill everything in one swipe?
-        pprt->damage = loc_damage;
-    }
+		// we're supposed to blank out the damage here so that swords and such don't
+		// kill everything in one swipe?
+		//pprt->damage = loc_damage;		//ZF> I see no reason why this should be, it even causes a bug
+	}
 
     //---- estimate the impulse on the particle
     if ( pdata->dot < 0.0f )

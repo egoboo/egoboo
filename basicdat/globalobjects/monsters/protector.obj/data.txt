@@ -193,7 +193,7 @@ Sound of Jump ( -1 for none )			: 2
 
 
 // Expansions
-:[LEVL] 5
+:[DARK] 3        //Level 3 darkvision
 
 
 //-Notes------------------------------------------------------------------------

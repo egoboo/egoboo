@@ -1266,7 +1266,8 @@ egoboo_rv chr_instance_update_vlst_cache( chr_instance_t * pinst, int vmax, int 
 //--------------------------------------------------------------------------------------------
 egoboo_rv chr_instance_update_grip_verts( chr_instance_t * pinst, Uint16 vrt_lst[], size_t vrt_count )
 {
-    int cnt, vmin, vmax;
+    int vmin, vmax;
+	Uint32 cnt;
     size_t count;
     egoboo_rv retval;
 
@@ -1324,7 +1325,7 @@ egoboo_rv chr_instance_set_action( chr_instance_t * pinst, int action, bool_t ac
     // set up the action
     pinst->action_which = action;
     pinst->action_next  = ACTION_DA;
-    pinst->action_keep  = bfalse;
+    //pinst->action_keep  = bfalse;
     pinst->action_ready = action_ready;
 
     // invalidate the vertex list if the action has changed
@@ -1487,8 +1488,6 @@ egoboo_rv chr_instance_increment_frame( chr_instance_t * pinst, mad_t * pmad, Ui
 egoboo_rv chr_instance_play_action( chr_instance_t * pinst, Uint16 action, Uint8 action_ready )
 {
     /// @details ZZ@> This function starts a generic action for a character
-
-    egoboo_rv retval;
     mad_t * pmad;
 
     if ( NULL == pinst ) return rv_error;
