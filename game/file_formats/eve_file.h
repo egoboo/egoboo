@@ -136,6 +136,8 @@ struct s_eve
     // the enchant values
     bool_t  setyesno[MAX_ENCHANT_SET];    ///< Set this value?
     Uint8   setvalue[MAX_ENCHANT_SET];    ///< Value to use
+
+    bool_t  addyesno[MAX_ENCHANT_ADD];    ///< Add this value?
     Sint32  addvalue[MAX_ENCHANT_ADD];    ///< The values to add
 
     // other values that are enchanted

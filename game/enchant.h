@@ -78,9 +78,11 @@ struct s_enc
 
     Uint16  nextenchant_ref;             ///< Next in the list
 
-    bool_t  setyesno[MAX_ENCHANT_SET];// Was it set?
-    bool_t  setsave[MAX_ENCHANT_SET]; ///< The value to restore
-    Sint16  addsave[MAX_ENCHANT_ADD]; ///< The value to take away
+    bool_t  setyesno[MAX_ENCHANT_SET];  ///< Was it set?
+    bool_t  setsave[MAX_ENCHANT_SET];   ///< The value to restore
+
+    Sint16  addyesno[MAX_ENCHANT_ADD];  ///< Was the value adjusted
+    Sint16  addsave[MAX_ENCHANT_ADD];   ///< The adjustment
 };
 typedef struct s_enc enc_t;
 
@@ -116,14 +118,14 @@ void getadd( int min, int value, int max, int* valuetoadd );
 void fgetadd( float min, float value, float max, float* valuetoadd );
 Uint16 enchant_value_filled( Uint16 enchantindex, Uint8 valueindex );
 bool_t remove_enchant( Uint16 enchantindex );
-void set_enchant_value( Uint16 enchantindex, Uint8 valueindex, Uint16 profile );
-void add_enchant_value( Uint16 enchantindex, Uint8 valueindex,
+void enchant_apply_set( Uint16 enchantindex, Uint8 valueindex, Uint16 profile );
+void enchant_apply_add( Uint16 enchantindex, Uint8 valueindex,
                         Uint16 enchanttype );
 Uint16 spawn_one_enchant( Uint16 owner, Uint16 target,
                           Uint16 spawner, Uint16 enc_override, Uint16 modeloptional );
 Uint16 load_one_enchant_profile( const char* szLoadName, Uint16 profile );
-void unset_enchant_value( Uint16 enchantindex, Uint8 valueindex );
-void remove_enchant_value( Uint16 enchantindex, Uint8 valueindex );
+void enchant_remove_set( Uint16 enchantindex, Uint8 valueindex );
+void enchant_remove_add( Uint16 enchantindex, Uint8 valueindex );
 void disenchant_character( Uint16 cnt );
 
 Uint16                    enc_get_ipro( Uint16 ienc );

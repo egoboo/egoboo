@@ -46,6 +46,8 @@ eve_t * eve_init( eve_t * peve )
 eve_t * load_one_enchant_file( const char* szLoadName, eve_t * peve )
 {
     /// @details ZZ@> This function loads the enchantment associated with an object
+
+    int cnt;
     vfs_FILE* fileread;
     char cTmp;
     IDSZ idsz;
@@ -173,8 +175,13 @@ eve_t * load_one_enchant_file( const char* szLoadName, eve_t * peve )
     peve->addvalue[ADDINTELLIGENCE] = (Sint32) fget_next_float( fileread ) * 4;
     peve->addvalue[ADDDEXTERITY]    = (Sint32) fget_next_float( fileread ) * 4;
 
-    // Read expansions
+    // Determine which entries are not important
+    for( cnt = 0; cnt < MAX_ENCHANT_ADD; cnt++ )
+    {
+        peve->addyesno[cnt] = ( 0.0f != peve->addvalue[cnt] );
+    }
 
+    // Read expansions
     while ( goto_colon( NULL, fileread, btrue ) )
     {
         idsz = fget_idsz( fileread );

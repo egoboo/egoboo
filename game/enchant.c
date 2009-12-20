@@ -184,13 +184,13 @@ bool_t remove_enchant( Uint16 ienc )
     // Remove all of the cumulative values first, since we did it
     for ( add_type = ENC_ADD_LAST; add_type >= ENC_ADD_FIRST; add_type-- )
     {
-        remove_enchant_value( ienc, add_type );
+        enchant_remove_add( ienc, add_type );
     }
 
     // unset them in the reverse order of setting them, doing morph last
     for ( set_type = ENC_SET_LAST; set_type >= ENC_SET_FIRST; set_type-- )
     {
-        unset_enchant_value( ienc, set_type );
+        enchant_remove_set( ienc, set_type );
     }
 
     // Now fix dem weapons
@@ -335,9 +335,10 @@ Uint16 enchant_value_filled( Uint16 ienc, Uint8 valueindex )
 }
 
 //--------------------------------------------------------------------------------------------
-void set_enchant_value( Uint16 ienc, Uint8 valueindex, Uint16 profile )
+void enchant_apply_set( Uint16 ienc, Uint8 valueindex, Uint16 profile )
 {
     /// @details ZZ@> This function sets and saves one of the character's stats
+
     Uint16 conflict, character;
     enc_t * penc;
     eve_t * peve;
@@ -367,7 +368,7 @@ void set_enchant_value( Uint16 ienc, Uint8 valueindex, Uint16 profile )
                 else
                 {
                     // Just unset the old enchantment's value
-                    unset_enchant_value( conflict, valueindex );
+                    enchant_remove_set( conflict, valueindex );
                 }
             }
 
@@ -510,9 +511,10 @@ void set_enchant_value( Uint16 ienc, Uint8 valueindex, Uint16 profile )
 }
 
 //--------------------------------------------------------------------------------------------
-void add_enchant_value( Uint16 ienc, Uint8 valueindex, Uint16 ieve )
+void enchant_apply_add( Uint16 ienc, Uint8 valueindex, Uint16 ieve )
 {
     /// @details ZZ@> This function does cumulative modification to character stats
+
     int valuetoadd, newvalue;
     float fvaluetoadd, fnewvalue;
     Uint16 character;
@@ -526,11 +528,19 @@ void add_enchant_value( Uint16 ienc, Uint8 valueindex, Uint16 ieve )
     if ( ieve >= MAX_EVE || !EveStack.lst[ieve].loaded ) return;
     peve = EveStack.lst + ieve;
 
+    if( !peve->addyesno[valueindex] ) 
+    {
+        penc->addyesno[valueindex] = bfalse;
+        penc->addsave[valueindex]  = 0.0f;
+        return;
+    }
+
     if ( !ACTIVE_CHR( penc->target_ref ) ) return;
     character = penc->target_ref;
     ptarget = ChrList.lst + character;
 
-    valuetoadd = 0;
+    valuetoadd  = 0;
+    fvaluetoadd = 0.0f;
     switch ( valueindex )
     {
         case ADDJUMPPOWER:
@@ -565,13 +575,14 @@ void add_enchant_value( Uint16 ienc, Uint8 valueindex, Uint16 ieve )
             valuetoadd = peve->addvalue[valueindex] << 6;
             getadd( 0, newvalue, 4096, &valuetoadd );
             ptarget->damageboost += valuetoadd;
+            fvaluetoadd = valuetoadd;
             break;
 
         case ADDSIZE:
             fnewvalue = ptarget->fat_goto;
             fvaluetoadd = peve->addvalue[valueindex] / 128.0f;
             fgetadd( 0.5f, fnewvalue, 2.0f, &fvaluetoadd );
-            valuetoadd = fvaluetoadd * 128.0f; // Get save value
+            //valuetoadd = fvaluetoadd * 128.0f; // Get save value
             //fvaluetoadd = valuetoadd / 128.0f;
             ptarget->fat_goto += fvaluetoadd;
             ptarget->fat_goto_time = SIZETIME;
@@ -591,6 +602,7 @@ void add_enchant_value( Uint16 ienc, Uint8 valueindex, Uint16 ieve )
             valuetoadd = peve->addvalue[valueindex];
             getadd( 0, newvalue, 6, &valuetoadd );
             chr_set_redshift( ptarget, ptarget->inst.redshift + valuetoadd );
+            fvaluetoadd = valuetoadd;
             break;
 
         case ADDGRN:
@@ -598,6 +610,7 @@ void add_enchant_value( Uint16 ienc, Uint8 valueindex, Uint16 ieve )
             valuetoadd = peve->addvalue[valueindex];
             getadd( 0, newvalue, 6, &valuetoadd );
             chr_set_grnshift( ptarget, ptarget->inst.grnshift + valuetoadd );
+            fvaluetoadd = valuetoadd;
             break;
 
         case ADDBLU:
@@ -605,6 +618,7 @@ void add_enchant_value( Uint16 ienc, Uint8 valueindex, Uint16 ieve )
             valuetoadd = peve->addvalue[valueindex];
             getadd( 0, newvalue, 6, &valuetoadd );
             chr_set_blushift( ptarget, ptarget->inst.blushift + valuetoadd );
+            fvaluetoadd = valuetoadd;
             break;
 
         case ADDDEFENSE:
@@ -612,6 +626,7 @@ void add_enchant_value( Uint16 ienc, Uint8 valueindex, Uint16 ieve )
             valuetoadd = peve->addvalue[valueindex];
             getadd( 55, newvalue, 255, &valuetoadd );  // Don't fix again!
             ptarget->defense += valuetoadd;
+            fvaluetoadd = valuetoadd;
             break;
 
         case ADDMANA:
@@ -619,8 +634,9 @@ void add_enchant_value( Uint16 ienc, Uint8 valueindex, Uint16 ieve )
             valuetoadd = peve->addvalue[valueindex] << 6;
             getadd( 0, newvalue, PERFECTBIG, &valuetoadd );
             ptarget->manamax += valuetoadd;
-            ptarget->mana += valuetoadd;
+            ptarget->mana    += valuetoadd;
             if ( ptarget->mana < 0 )  ptarget->mana = 0;
+            fvaluetoadd = valuetoadd;
             break;
 
         case ADDLIFE:
@@ -630,6 +646,7 @@ void add_enchant_value( Uint16 ienc, Uint8 valueindex, Uint16 ieve )
             ptarget->lifemax += valuetoadd;
             ptarget->life += valuetoadd;
             if ( ptarget->life < 1 )  ptarget->life = 1;
+            fvaluetoadd = valuetoadd;
             break;
 
         case ADDSTRENGTH:
@@ -637,6 +654,7 @@ void add_enchant_value( Uint16 ienc, Uint8 valueindex, Uint16 ieve )
             valuetoadd = peve->addvalue[valueindex] << 6;
             getadd( 0, newvalue, HIGHSTAT, &valuetoadd );
             ptarget->strength += valuetoadd;
+            fvaluetoadd = valuetoadd;
             break;
 
         case ADDWISDOM:
@@ -644,6 +662,7 @@ void add_enchant_value( Uint16 ienc, Uint8 valueindex, Uint16 ieve )
             valuetoadd = peve->addvalue[valueindex] << 6;
             getadd( 0, newvalue, HIGHSTAT, &valuetoadd );
             ptarget->wisdom += valuetoadd;
+            fvaluetoadd = valuetoadd;
             break;
 
         case ADDINTELLIGENCE:
@@ -651,6 +670,7 @@ void add_enchant_value( Uint16 ienc, Uint8 valueindex, Uint16 ieve )
             valuetoadd = peve->addvalue[valueindex] << 6;
             getadd( 0, newvalue, HIGHSTAT, &valuetoadd );
             ptarget->intelligence += valuetoadd;
+            fvaluetoadd = valuetoadd;
             break;
 
         case ADDDEXTERITY:
@@ -658,10 +678,16 @@ void add_enchant_value( Uint16 ienc, Uint8 valueindex, Uint16 ieve )
             valuetoadd = peve->addvalue[valueindex] << 6;
             getadd( 0, newvalue, HIGHSTAT, &valuetoadd );
             ptarget->dexterity += valuetoadd;
+            fvaluetoadd = valuetoadd;
             break;
     }
 
-    penc->addsave[valueindex] = valuetoadd;  // Save the value for undo
+    // save whether there was any change in the value
+    penc->addyesno[valueindex] = (0.0f != fvaluetoadd); 
+
+    // Save the value for undo
+    penc->addsave[valueindex]  = valuetoadd;
+
 }
 
 //--------------------------------------------------------------------------------------------
@@ -688,7 +714,7 @@ enc_t * enc_init( enc_t * penc )
     penc->spawnermodel_ref = MAX_PROFILE;
     penc->overlay_ref      = MAX_CHR;
 
-    penc->nextenchant_ref      = MAX_ENC;
+    penc->nextenchant_ref  = MAX_ENC;
 
     return penc;
 }
@@ -891,13 +917,13 @@ Uint16 spawn_one_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 en
     // Now set all of the specific values, morph first
     for ( set_type = ENC_SET_FIRST; set_type <= ENC_SET_LAST; set_type++ )
     {
-        set_enchant_value( ienc, set_type, iprofile );
+        enchant_apply_set( ienc, set_type, iprofile );
     }
 
     // Now do all of the stat adds
     for ( add_type = ENC_ADD_FIRST; add_type <= ENC_ADD_LAST; add_type++ )
     {
-        add_enchant_value( ienc, add_type, ieve );
+        enchant_apply_add( ienc, add_type, ieve );
     }
 
     // Create an overlay character?
@@ -1001,7 +1027,7 @@ Uint16 EncList_get_free()
 }
 
 //--------------------------------------------------------------------------------------------
-void unset_enchant_value( Uint16 ienc, Uint8 valueindex )
+void enchant_remove_set( Uint16 ienc, Uint8 valueindex )
 {
     /// @details ZZ@> This function unsets a set value
     Uint16 character;
@@ -1011,117 +1037,118 @@ void unset_enchant_value( Uint16 ienc, Uint8 valueindex )
     if ( !ALLOCATED_ENC( ienc ) ) return;
     penc = EncList.lst + ienc;
 
+    if( valueindex >= MAX_ENCHANT_SET || !penc->setyesno[valueindex] ) return;
+
     if ( !ACTIVE_CHR( penc->target_ref ) ) return;
     character = penc->target_ref;
     ptarget   = ChrList.lst + penc->target_ref;
 
-    if ( penc->setyesno[valueindex] )
+    switch ( valueindex )
     {
-        switch ( valueindex )
-        {
-            case SETDAMAGETYPE:
-                ptarget->damagetargettype = penc->setsave[valueindex];
-                break;
+        case SETDAMAGETYPE:
+            ptarget->damagetargettype = penc->setsave[valueindex];
+            break;
 
-            case SETNUMBEROFJUMPS:
-                ptarget->jumpnumberreset = penc->setsave[valueindex];
-                break;
+        case SETNUMBEROFJUMPS:
+            ptarget->jumpnumberreset = penc->setsave[valueindex];
+            break;
 
-            case SETLIFEBARCOLOR:
-                ptarget->lifecolor = penc->setsave[valueindex];
-                break;
+        case SETLIFEBARCOLOR:
+            ptarget->lifecolor = penc->setsave[valueindex];
+            break;
 
-            case SETMANABARCOLOR:
-                ptarget->manacolor = penc->setsave[valueindex];
-                break;
+        case SETMANABARCOLOR:
+            ptarget->manacolor = penc->setsave[valueindex];
+            break;
 
-            case SETSLASHMODIFIER:
-                ptarget->damagemodifier[DAMAGE_SLASH] = penc->setsave[valueindex];
-                break;
+        case SETSLASHMODIFIER:
+            ptarget->damagemodifier[DAMAGE_SLASH] = penc->setsave[valueindex];
+            break;
 
-            case SETCRUSHMODIFIER:
-                ptarget->damagemodifier[DAMAGE_CRUSH] = penc->setsave[valueindex];
-                break;
+        case SETCRUSHMODIFIER:
+            ptarget->damagemodifier[DAMAGE_CRUSH] = penc->setsave[valueindex];
+            break;
 
-            case SETPOKEMODIFIER:
-                ptarget->damagemodifier[DAMAGE_POKE] = penc->setsave[valueindex];
-                break;
+        case SETPOKEMODIFIER:
+            ptarget->damagemodifier[DAMAGE_POKE] = penc->setsave[valueindex];
+            break;
 
-            case SETHOLYMODIFIER:
-                ptarget->damagemodifier[DAMAGE_HOLY] = penc->setsave[valueindex];
-                break;
+        case SETHOLYMODIFIER:
+            ptarget->damagemodifier[DAMAGE_HOLY] = penc->setsave[valueindex];
+            break;
 
-            case SETEVILMODIFIER:
-                ptarget->damagemodifier[DAMAGE_EVIL] = penc->setsave[valueindex];
-                break;
+        case SETEVILMODIFIER:
+            ptarget->damagemodifier[DAMAGE_EVIL] = penc->setsave[valueindex];
+            break;
 
-            case SETFIREMODIFIER:
-                ptarget->damagemodifier[DAMAGE_FIRE] = penc->setsave[valueindex];
-                break;
+        case SETFIREMODIFIER:
+            ptarget->damagemodifier[DAMAGE_FIRE] = penc->setsave[valueindex];
+            break;
 
-            case SETICEMODIFIER:
-                ptarget->damagemodifier[DAMAGE_ICE] = penc->setsave[valueindex];
-                break;
+        case SETICEMODIFIER:
+            ptarget->damagemodifier[DAMAGE_ICE] = penc->setsave[valueindex];
+            break;
 
-            case SETZAPMODIFIER:
-                ptarget->damagemodifier[DAMAGE_ZAP] = penc->setsave[valueindex];
-                break;
+        case SETZAPMODIFIER:
+            ptarget->damagemodifier[DAMAGE_ZAP] = penc->setsave[valueindex];
+            break;
 
-            case SETFLASHINGAND:
-                ptarget->flashand = penc->setsave[valueindex];
-                break;
+        case SETFLASHINGAND:
+            ptarget->flashand = penc->setsave[valueindex];
+            break;
 
-            case SETLIGHTBLEND:
-                chr_set_light( ptarget, penc->setsave[valueindex] );
-                break;
+        case SETLIGHTBLEND:
+            chr_set_light( ptarget, penc->setsave[valueindex] );
+            break;
 
-            case SETALPHABLEND:
-                chr_set_alpha( ptarget, penc->setsave[valueindex] );
-                break;
+        case SETALPHABLEND:
+            chr_set_alpha( ptarget, penc->setsave[valueindex] );
+            break;
 
-            case SETSHEEN:
-                chr_set_sheen( ptarget, penc->setsave[valueindex] );
-                break;
+        case SETSHEEN:
+            chr_set_sheen( ptarget, penc->setsave[valueindex] );
+            break;
 
-            case SETFLYTOHEIGHT:
-                ptarget->flyheight = penc->setsave[valueindex];
-                break;
+        case SETFLYTOHEIGHT:
+            ptarget->flyheight = penc->setsave[valueindex];
+            break;
 
-            case SETWALKONWATER:
-                ptarget->waterwalk = penc->setsave[valueindex];
-                break;
+        case SETWALKONWATER:
+            ptarget->waterwalk = penc->setsave[valueindex];
+            break;
 
-            case SETCANSEEINVISIBLE:
-                ptarget->see_invisible_level = penc->setsave[valueindex];
-                break;
+        case SETCANSEEINVISIBLE:
+            ptarget->see_invisible_level = penc->setsave[valueindex];
+            break;
 
-            case SETMISSILETREATMENT:
-                ptarget->missiletreatment = penc->setsave[valueindex];
-                break;
+        case SETMISSILETREATMENT:
+            ptarget->missiletreatment = penc->setsave[valueindex];
+            break;
 
-            case SETCOSTFOREACHMISSILE:
-                ptarget->missilecost = penc->setsave[valueindex];
-                ptarget->missilehandler = character;
-                break;
+        case SETCOSTFOREACHMISSILE:
+            ptarget->missilecost = penc->setsave[valueindex];
+            ptarget->missilehandler = character;
+            break;
 
-            case SETMORPH:
-                // Need special handler for when this is removed
-                change_character( character, ptarget->basemodel, penc->setsave[valueindex], LEAVEALL );
-                break;
+        case SETMORPH:
+            // Need special handler for when this is removed
+            change_character( character, ptarget->basemodel, penc->setsave[valueindex], LEAVEALL );
+            break;
 
-            case SETCHANNEL:
-                ptarget->canchannel = penc->setsave[valueindex];
-                break;
-        }
-
-        penc->setyesno[valueindex] = bfalse;
+        case SETCHANNEL:
+            ptarget->canchannel = penc->setsave[valueindex];
+            break;
     }
+
+    penc->setyesno[valueindex] = bfalse;
+
 }
 
 //--------------------------------------------------------------------------------------------
-void remove_enchant_value( Uint16 ienc, Uint8 valueindex )
+void enchant_remove_add( Uint16 ienc, Uint8 valueindex )
 {
     /// @details ZZ@> This function undoes cumulative modification to character stats
+
     float fvaluetoadd;
     int valuetoadd;
     Uint16 character;
@@ -1135,92 +1162,97 @@ void remove_enchant_value( Uint16 ienc, Uint8 valueindex )
     character = penc->target_ref;
     ptarget = ChrList.lst + penc->target_ref;
 
-    switch ( valueindex )
+    if( penc->addyesno[valueindex] )
     {
-        case ADDJUMPPOWER:
-            fvaluetoadd = penc->addsave[valueindex] / 16.0f;
-            ptarget->jump_power -= fvaluetoadd;
-            break;
+        switch ( valueindex )
+        {
+            case ADDJUMPPOWER:
+                fvaluetoadd = penc->addsave[valueindex] / 16.0f;
+                ptarget->jump_power -= fvaluetoadd;
+                break;
 
-        case ADDBUMPDAMPEN:
-            fvaluetoadd = penc->addsave[valueindex] / 128.0f;
-            ptarget->phys.bumpdampen -= fvaluetoadd;
-            break;
+            case ADDBUMPDAMPEN:
+                fvaluetoadd = penc->addsave[valueindex] / 128.0f;
+                ptarget->phys.bumpdampen -= fvaluetoadd;
+                break;
 
-        case ADDBOUNCINESS:
-            fvaluetoadd = penc->addsave[valueindex] / 128.0f;
-            ptarget->phys.dampen -= fvaluetoadd;
-            break;
+            case ADDBOUNCINESS:
+                fvaluetoadd = penc->addsave[valueindex] / 128.0f;
+                ptarget->phys.dampen -= fvaluetoadd;
+                break;
 
-        case ADDDAMAGE:
-            valuetoadd = penc->addsave[valueindex];
-            ptarget->damageboost -= valuetoadd;
-            break;
+            case ADDDAMAGE:
+                valuetoadd = penc->addsave[valueindex];
+                ptarget->damageboost -= valuetoadd;
+                break;
 
-        case ADDSIZE:
-            fvaluetoadd = penc->addsave[valueindex] / 128.0f;
-            ptarget->fat_goto -= fvaluetoadd;
-            ptarget->fat_goto_time = SIZETIME;
-            break;
+            case ADDSIZE:
+                fvaluetoadd = penc->addsave[valueindex] / 128.0f;
+                ptarget->fat_goto -= fvaluetoadd;
+                ptarget->fat_goto_time = SIZETIME;
+                break;
 
-        case ADDACCEL:
-            fvaluetoadd = penc->addsave[valueindex] / 1000.0f;
-            ptarget->maxaccel -= fvaluetoadd;
-            break;
+            case ADDACCEL:
+                fvaluetoadd = penc->addsave[valueindex] / 1000.0f;
+                ptarget->maxaccel -= fvaluetoadd;
+                break;
 
-        case ADDRED:
-            valuetoadd = penc->addsave[valueindex];
-            chr_set_redshift( ptarget, ptarget->inst.redshift - valuetoadd );
-            break;
+            case ADDRED:
+                valuetoadd = penc->addsave[valueindex];
+                chr_set_redshift( ptarget, ptarget->inst.redshift - valuetoadd );
+                break;
 
-        case ADDGRN:
-            valuetoadd = penc->addsave[valueindex];
-            chr_set_grnshift( ptarget, ptarget->inst.grnshift - valuetoadd );
-            break;
+            case ADDGRN:
+                valuetoadd = penc->addsave[valueindex];
+                chr_set_grnshift( ptarget, ptarget->inst.grnshift - valuetoadd );
+                break;
 
-        case ADDBLU:
-            valuetoadd = penc->addsave[valueindex];
-            chr_set_blushift( ptarget, ptarget->inst.blushift - valuetoadd );
-            break;
+            case ADDBLU:
+                valuetoadd = penc->addsave[valueindex];
+                chr_set_blushift( ptarget, ptarget->inst.blushift - valuetoadd );
+                break;
 
-        case ADDDEFENSE:
-            valuetoadd = penc->addsave[valueindex];
-            ptarget->defense -= valuetoadd;
-            break;
+            case ADDDEFENSE:
+                valuetoadd = penc->addsave[valueindex];
+                ptarget->defense -= valuetoadd;
+                break;
 
-        case ADDMANA:
-            valuetoadd = penc->addsave[valueindex];
-            ptarget->manamax -= valuetoadd;
-            ptarget->mana -= valuetoadd;
-            if ( ptarget->mana < 0 ) ptarget->mana = 0;
-            break;
+            case ADDMANA:
+                valuetoadd = penc->addsave[valueindex];
+                ptarget->manamax -= valuetoadd;
+                ptarget->mana -= valuetoadd;
+                if ( ptarget->mana < 0 ) ptarget->mana = 0;
+                break;
 
-        case ADDLIFE:
-            valuetoadd = penc->addsave[valueindex];
-            ptarget->lifemax -= valuetoadd;
-            ptarget->life -= valuetoadd;
-            if ( ptarget->life < 1 ) ptarget->life = 1;
-            break;
+            case ADDLIFE:
+                valuetoadd = penc->addsave[valueindex];
+                ptarget->lifemax -= valuetoadd;
+                ptarget->life -= valuetoadd;
+                if ( ptarget->life < 1 ) ptarget->life = 1;
+                break;
 
-        case ADDSTRENGTH:
-            valuetoadd = penc->addsave[valueindex];
-            ptarget->strength -= valuetoadd;
-            break;
+            case ADDSTRENGTH:
+                valuetoadd = penc->addsave[valueindex];
+                ptarget->strength -= valuetoadd;
+                break;
 
-        case ADDWISDOM:
-            valuetoadd = penc->addsave[valueindex];
-            ptarget->wisdom -= valuetoadd;
-            break;
+            case ADDWISDOM:
+                valuetoadd = penc->addsave[valueindex];
+                ptarget->wisdom -= valuetoadd;
+                break;
 
-        case ADDINTELLIGENCE:
-            valuetoadd = penc->addsave[valueindex];
-            ptarget->intelligence -= valuetoadd;
-            break;
+            case ADDINTELLIGENCE:
+                valuetoadd = penc->addsave[valueindex];
+                ptarget->intelligence -= valuetoadd;
+                break;
 
-        case ADDDEXTERITY:
-            valuetoadd = penc->addsave[valueindex];
-            ptarget->dexterity -= valuetoadd;
-            break;
+            case ADDDEXTERITY:
+                valuetoadd = penc->addsave[valueindex];
+                ptarget->dexterity -= valuetoadd;
+                break;
+        }
+
+        penc->addyesno[valueindex] = bfalse;
     }
 }
 

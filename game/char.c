@@ -863,7 +863,7 @@ void reset_character_accel( Uint16 character )
     enchant = pchr->firstenchant;
     while ( enchant != MAX_ENC )
     {
-        remove_enchant_value( enchant, ADDACCEL );
+        enchant_remove_add( enchant, ADDACCEL );
         enchant = EncList.lst[enchant].nextenchant_ref;
     }
 
@@ -879,7 +879,7 @@ void reset_character_accel( Uint16 character )
     enchant = pchr->firstenchant;
     while ( enchant != MAX_ENC )
     {
-        add_enchant_value( enchant, ADDACCEL, enc_get_ieve( enchant ) );
+        enchant_apply_add( enchant, ADDACCEL, enc_get_ieve( enchant ) );
         enchant = EncList.lst[enchant].nextenchant_ref;
     }
 
@@ -1001,8 +1001,8 @@ bool_t detach_character_from_mount( Uint16 character, Uint8 ignorekurse, Uint8 d
         enchant = pchr->firstenchant;
         while ( enchant != MAX_ENC )
         {
-            unset_enchant_value( enchant, SETALPHABLEND );
-            unset_enchant_value( enchant, SETLIGHTBLEND );
+            enchant_remove_set( enchant, SETALPHABLEND );
+            enchant_remove_set( enchant, SETLIGHTBLEND );
 
             enchant = EncList.lst[enchant].nextenchant_ref;
         }
@@ -1016,8 +1016,8 @@ bool_t detach_character_from_mount( Uint16 character, Uint8 ignorekurse, Uint8 d
 
             if ( LOADED_PRO( ipro ) )
             {
-                set_enchant_value( enchant, SETALPHABLEND, ipro );
-                set_enchant_value( enchant, SETLIGHTBLEND, ipro );
+                enchant_apply_set( enchant, SETALPHABLEND, ipro );
+                enchant_apply_set( enchant, SETLIGHTBLEND, ipro );
             }
 
             enchant = EncList.lst[enchant].nextenchant_ref;
@@ -1056,8 +1056,8 @@ void reset_character_alpha( Uint16 character )
         enchant = pchr->firstenchant;
         while ( enchant != MAX_ENC )
         {
-            unset_enchant_value( enchant, SETALPHABLEND );
-            unset_enchant_value( enchant, SETLIGHTBLEND );
+            enchant_remove_set( enchant, SETALPHABLEND );
+            enchant_remove_set( enchant, SETLIGHTBLEND );
 
             enchant = EncList.lst[enchant].nextenchant_ref;
         }
@@ -1072,8 +1072,8 @@ void reset_character_alpha( Uint16 character )
 
             if ( LOADED_PRO( ipro ) )
             {
-                set_enchant_value( enchant, SETALPHABLEND, ipro );
-                set_enchant_value( enchant, SETLIGHTBLEND, ipro );
+                enchant_apply_set( enchant, SETALPHABLEND, ipro );
+                enchant_apply_set( enchant, SETLIGHTBLEND, ipro );
             }
 
             enchant = EncList.lst[enchant].nextenchant_ref;
@@ -3827,14 +3827,14 @@ Uint16 change_armor( Uint16 character, Uint16 skin )
     enchant = ChrList.lst[character].firstenchant;
     while ( enchant < MAX_ENC )
     {
-        unset_enchant_value( enchant, SETSLASHMODIFIER );
-        unset_enchant_value( enchant, SETCRUSHMODIFIER );
-        unset_enchant_value( enchant, SETPOKEMODIFIER );
-        unset_enchant_value( enchant, SETHOLYMODIFIER );
-        unset_enchant_value( enchant, SETEVILMODIFIER );
-        unset_enchant_value( enchant, SETFIREMODIFIER );
-        unset_enchant_value( enchant, SETICEMODIFIER );
-        unset_enchant_value( enchant, SETZAPMODIFIER );
+        enchant_remove_set( enchant, SETSLASHMODIFIER );
+        enchant_remove_set( enchant, SETCRUSHMODIFIER );
+        enchant_remove_set( enchant, SETPOKEMODIFIER );
+        enchant_remove_set( enchant, SETHOLYMODIFIER );
+        enchant_remove_set( enchant, SETEVILMODIFIER );
+        enchant_remove_set( enchant, SETFIREMODIFIER );
+        enchant_remove_set( enchant, SETICEMODIFIER );
+        enchant_remove_set( enchant, SETZAPMODIFIER );
 
         enchant = EncList.lst[enchant].nextenchant_ref;
     }
@@ -3863,17 +3863,17 @@ Uint16 change_armor( Uint16 character, Uint16 skin )
 
         if ( LOADED_PRO( ipro ) )
         {
-            set_enchant_value( enchant, SETSLASHMODIFIER, ipro );
-            set_enchant_value( enchant, SETCRUSHMODIFIER, ipro );
-            set_enchant_value( enchant, SETPOKEMODIFIER,  ipro );
-            set_enchant_value( enchant, SETHOLYMODIFIER,  ipro );
-            set_enchant_value( enchant, SETEVILMODIFIER,  ipro );
-            set_enchant_value( enchant, SETFIREMODIFIER,  ipro );
-            set_enchant_value( enchant, SETICEMODIFIER,   ipro );
-            set_enchant_value( enchant, SETZAPMODIFIER,   ipro );
+            enchant_apply_set( enchant, SETSLASHMODIFIER, ipro );
+            enchant_apply_set( enchant, SETCRUSHMODIFIER, ipro );
+            enchant_apply_set( enchant, SETPOKEMODIFIER,  ipro );
+            enchant_apply_set( enchant, SETHOLYMODIFIER,  ipro );
+            enchant_apply_set( enchant, SETEVILMODIFIER,  ipro );
+            enchant_apply_set( enchant, SETFIREMODIFIER,  ipro );
+            enchant_apply_set( enchant, SETICEMODIFIER,   ipro );
+            enchant_apply_set( enchant, SETZAPMODIFIER,   ipro );
 
-            add_enchant_value( enchant, ADDACCEL,         ipro );
-            add_enchant_value( enchant, ADDDEFENSE,       ipro );
+            enchant_apply_add( enchant, ADDACCEL,         ipro );
+            enchant_apply_add( enchant, ADDDEFENSE,       ipro );
         }
 
         enchant = EncList.lst[enchant].nextenchant_ref;
