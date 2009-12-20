@@ -37,7 +37,7 @@ eve_t * eve_init( eve_t * peve )
 
     memset( peve, 0, sizeof(*peve) );
 
-    peve->endsoundindex = INVALID_SOUND;
+    peve->endsound_index = INVALID_SOUND;
 
     return peve;
 }
@@ -61,7 +61,7 @@ eve_t * load_one_enchant_file( const char* szLoadName, eve_t * peve )
     peve->retarget = fget_next_bool( fileread );
     peve->override = fget_next_bool( fileread );
     peve->removeoverridden = fget_next_bool( fileread );
-    peve->killonend = fget_next_bool( fileread );
+    peve->killtargetonend = fget_next_bool( fileread );
 
     peve->poofonend = fget_next_bool( fileread );
 
@@ -183,11 +183,11 @@ eve_t * load_one_enchant_file( const char* szLoadName, eve_t * peve )
         else if ( idsz == MAKE_IDSZ( 'T', 'Y', 'P', 'E' ) )  peve->contspawn_pip = fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'T', 'I', 'M', 'E' ) )  peve->contspawn_time = fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'F', 'A', 'C', 'E' ) )  peve->contspawn_facingadd = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'S', 'E', 'N', 'D' ) )  peve->endsoundindex = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'S', 'E', 'N', 'D' ) )  peve->endsound_index = fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'S', 'T', 'A', 'Y' ) ) peve->stayifnoowner = fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'O', 'V', 'E', 'R' ) ) peve->spawn_overlay = fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'C', 'K', 'U', 'R' ) ) peve->seekurse = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'D', 'E', 'A', 'D' ) ) peve->stayifdead = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'D', 'E', 'A', 'D' ) ) peve->stayiftargetdead = fget_int( fileread );
     }
 
     // All done ( finally )
@@ -216,7 +216,7 @@ bool_t save_one_enchant_file( const char* szLoadName, eve_t * peve )
     template_put_bool( filetemp, filewrite, peve->retarget );
     template_put_bool( filetemp, filewrite, peve->override );
     template_put_bool( filetemp, filewrite, peve->removeoverridden );
-    template_put_bool( filetemp, filewrite, peve->killonend );
+    template_put_bool( filetemp, filewrite, peve->killtargetonend );
 
     template_put_bool( filetemp, filewrite, peve->poofonend );
 
@@ -349,9 +349,9 @@ bool_t save_one_enchant_file( const char* szLoadName, eve_t * peve )
         fput_expansion( filewrite, "", MAKE_IDSZ( 'F', 'A', 'C', 'E' ), peve->contspawn_time );
     }
 
-    if( peve->endsoundindex != INVALID_SOUND )
+    if( INVALID_SOUND != peve->endsound_index )
     {
-        fput_expansion( filewrite, "", MAKE_IDSZ( 'S', 'E', 'N', 'D' ), peve->endsoundindex );
+        fput_expansion( filewrite, "", MAKE_IDSZ( 'S', 'E', 'N', 'D' ), peve->endsound_index );
     }
 
     if( peve->stayifnoowner )
@@ -369,7 +369,7 @@ bool_t save_one_enchant_file( const char* szLoadName, eve_t * peve )
         fput_expansion( filewrite, "", MAKE_IDSZ( 'C', 'K', 'U', 'R' ), 1 );
     }
 
-    if( peve->stayifdead )
+    if( peve->stayiftargetdead )
     {
         fput_expansion( filewrite, "", MAKE_IDSZ( 'D', 'E', 'A', 'D' ), 1 );
     }

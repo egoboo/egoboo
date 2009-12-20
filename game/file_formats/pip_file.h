@@ -160,8 +160,8 @@ struct s_pip
     Uint16  grogtime;                     ///< Drunkeness
     Sint8   soundspawn;                   ///< Beginning sound
     Sint8   soundend;                     ///< Ending sound
-    Sint8   soundfloor;                   ///< Floor sound
-    Sint8   soundwall;                    ///< Ricochet sound
+    Sint8   soundfloor_index;                   ///< Floor sound
+    Sint8   soundwall_index;                    ///< Ricochet sound
     bool_t  friendlyfire;                 ///< Friendly fire
     bool_t  hateonly;                     ///< Only hit hategroup
     bool_t  rotatetoface;                 ///< Arrows/Missiles

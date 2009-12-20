@@ -4404,7 +4404,7 @@ bool_t upload_damagetile_data( damagetile_instance_t * pinst, wawalite_damagetil
 
         pinst->parttype     = pdata->parttype;
         pinst->partand      = pdata->partand;
-        pinst->sound        = CLIP( pdata->sound, INVALID_SOUND, MAX_WAVE );
+        pinst->sound_index  = CLIP( pdata->sound_index, INVALID_SOUND, MAX_WAVE );
     }
 
     return btrue;
@@ -4638,7 +4638,7 @@ wawalite_data_t * read_wawalite( /* const char *modname */ )
     memcpy( &wawalite_data, pdata, sizeof( wawalite_data_t ) );
 
     // limit some values
-    wawalite_data.damagetile.sound = CLIP( wawalite_data.damagetile.sound, INVALID_SOUND, MAX_WAVE );
+    wawalite_data.damagetile.sound_index = CLIP( wawalite_data.damagetile.sound_index, INVALID_SOUND, MAX_WAVE );
 
     for ( cnt = 0; cnt < MAXWATERLAYER; cnt++ )
     {
@@ -4660,7 +4660,7 @@ bool_t write_wawalite( const char *modname, wawalite_data_t * pdata )
     if ( !VALID_CSTR( modname ) || NULL == pdata ) return bfalse;
 
     // limit some values
-    pdata->damagetile.sound = CLIP( pdata->damagetile.sound, INVALID_SOUND, MAX_WAVE );
+    pdata->damagetile.sound_index = CLIP( pdata->damagetile.sound_index, INVALID_SOUND, MAX_WAVE );
 
     for ( cnt = 0; cnt < MAXWATERLAYER; cnt++ )
     {

@@ -1524,7 +1524,8 @@ Uint32 mesh_hitawall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits,
 
     Uint32 pass;
     Uint32 itile;
-    int tx_min, tx_max, ty_min, ty_max;
+    int   ix_min, ix_max, iy_min, iy_max;
+    float fx_min, fx_max, fy_min, fy_max, obj_area;
     int ix, iy, tx0, ty0;
     bool_t invalid;
 
@@ -1545,29 +1546,45 @@ Uint32 mesh_hitawall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits,
 
     if ( 0.0f == radius )
     {
-        tx_min = tx_max = tx0 = ( int )pos[kX] / TILE_ISIZE;
-        ty_min = ty_max = ty0 = ( int )pos[kY] / TILE_ISIZE;
+        fx_min = fx_max = pos[kX];
+        fy_min = fy_max = pos[kY];
+
+        obj_area = 0.0f;
     }
     else
     {
         // make sure it is positive
         radius = ABS( radius );
 
-        tx_min = floor(( pos[kX] - radius ) / TILE_SIZE );
-        tx_max = ( pos[kX] + radius ) / TILE_SIZE;
+        fx_min = pos[kX] - radius;
+        fx_max = pos[kX] + radius;
 
-        ty_min = floor(( pos[kY] - radius ) / TILE_SIZE );
-        ty_max = ( pos[kY] + radius ) / TILE_SIZE;
+        fy_min = pos[kY] - radius;
+        fy_max = pos[kY] + radius;
 
         tx0 = ( int )pos[kX] / TILE_ISIZE;
         ty0 = ( int )pos[kY] / TILE_ISIZE;
+
+        obj_area = ( fx_max - fx_min ) * ( fy_max - fy_min );
     }
+
+    ix_min = floor( fx_min / TILE_SIZE );
+    ix_max = floor( fx_max / TILE_SIZE );
+
+    iy_min = floor( fy_min / TILE_SIZE );
+    iy_max = floor( fy_max / TILE_SIZE );
 
     pass = 0;
     nrm[kX] = nrm[kY] = 0.0f;
-    for ( iy = ty_min; iy <= ty_max; iy++ )
+    for ( iy = iy_min; iy <= iy_max; iy++ )
     {
+        const float tile_area = TILE_SIZE * TILE_SIZE;
+        float ty_min, ty_max;
+
         invalid = bfalse;
+
+        ty_min = ( iy + 0 ) * TILE_SIZE;
+        ty_max = ( iy + 1 ) * TILE_SIZE;
 
         if ( iy < 0 || iy >= pinfo->tiles_y )
         {
@@ -1576,8 +1593,13 @@ Uint32 mesh_hitawall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits,
             invalid = btrue;
         }
 
-        for ( ix = tx_min; ix <= tx_max; ix++ )
+        for ( ix = ix_min; ix <= ix_max; ix++ )
         {
+            float tx_min, tx_max;
+
+            tx_min = ( ix + 0 ) * TILE_SIZE;
+            tx_max = ( ix + 1 ) * TILE_SIZE;
+
             if ( ix < 0 || ix >= pinfo->tiles_x )
             {
                 pass    |=  MPDFX_IMPASS | MPDFX_WALL;
@@ -1590,19 +1612,59 @@ Uint32 mesh_hitawall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits,
                 itile = mesh_get_tile_int( pmesh, ix, iy );
                 if ( VALID_TILE( pmesh, itile ) )
                 {
+                    float area_ratio;
+
+                    if ( 0.0f == radius )
+                    {
+                        area_ratio = 1.0f;
+                    }
+                    else
+                    {
+                        float min_area;
+                        float ovl_x_min, ovl_x_max;
+                        float ovl_y_min, ovl_y_max;
+
+                        // determine the area overlap of the tile with the
+                        // object's bounding box
+                        ovl_x_min = MAX( fx_min, tx_min );
+                        ovl_x_max = MIN( fx_max, tx_max );
+
+                        ovl_y_min = MAX( fy_min, ty_min );
+                        ovl_y_max = MIN( fy_max, ty_max );
+
+                        min_area = MIN( tile_area, obj_area );
+
+                        area_ratio = 0.0f;
+                        if ( ovl_x_min <= ovl_x_max && ovl_y_min <= ovl_y_max )
+                        {
+                            if ( 0.0f == min_area )
+                            {
+                                area_ratio = 1.0f;
+                            }
+                            else
+                            {
+                                area_ratio  = ( ovl_x_max - ovl_x_min ) * ( ovl_y_max - ovl_y_min ) / min_area;
+                            }
+                        }
+                    }
+
                     if ( HAS_SOME_BITS( glist[itile].fx, bits ) )
                     {
                         // hiting the mesh
-                        nrm[kX] += ( ix + 0.5f ) * TILE_SIZE - pos[kX];
-                        nrm[kY] += ( iy + 0.5f ) * TILE_SIZE - pos[kY];
+                        nrm[kX] += (( ix + 0.5f ) * TILE_SIZE - pos[kX] ) * area_ratio;
+                        nrm[kY] += (( iy + 0.5f ) * TILE_SIZE - pos[kY] ) * area_ratio;
 
-                        pass |= glist[itile].fx;
+                        // do not count it as a hit unless there is a 25% overlap
+                        if ( area_ratio > 0.25f )
+                        {
+                            pass |= glist[itile].fx;
+                        }
                     }
                     else
                     {
                         // not hitting the mesh
-                        nrm[kX] -= ( ix + 0.5f ) * TILE_SIZE - pos[kX];
-                        nrm[kY] -= ( iy + 0.5f ) * TILE_SIZE - pos[kY];
+                        nrm[kX] -= (( ix + 0.5f ) * TILE_SIZE - pos[kX] ) * area_ratio;;
+                        nrm[kY] -= (( iy + 0.5f ) * TILE_SIZE - pos[kY] ) * area_ratio;;
                     }
                 }
             }
@@ -1623,6 +1685,8 @@ Uint32 mesh_hitawall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits,
     return pass & bits;
 }
 
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 float mesh_get_max_vertex_0( ego_mpd_t * pmesh, int tile_x, int tile_y )
 {
     Uint32 itile;

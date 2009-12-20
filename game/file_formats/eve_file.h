@@ -110,7 +110,7 @@ struct s_eve
     bool_t  override;                    ///< Override other enchants?
     bool_t  removeoverridden;            ///< Remove other enchants?
     bool_t  retarget;                    ///< Pick a weapon?
-    bool_t  killonend;                   ///< Kill the target on end?
+    bool_t  killtargetonend;                   ///< Kill the target on end?
     bool_t  poofonend;                   ///< Spawn a poof on end?
     bool_t  endifcantpay;                ///< End on out of mana
     bool_t  stayifnoowner;               ///< Stay if owner has died?
@@ -119,26 +119,26 @@ struct s_eve
     Uint8   dontdamagetype;              ///< Don't work if ...
     Uint8   onlydamagetype;              ///< Only work if ...
     IDSZ    removedbyidsz;               ///< By particle or [NONE]
-    Uint16  contspawn_time;               ///< Spawn timer
-    Uint8   contspawn_amount;             ///< Spawn amount
-    Uint16  contspawn_facingadd;          ///< Spawn in circle
-    Uint16  contspawn_pip;                ///< Spawn type ( local )
-    Sint16  endsoundindex;               ///< Sound on end (-1 for none)
+    Uint16  contspawn_time;              ///< Spawn timer
+    Uint8   contspawn_amount;            ///< Spawn amount
+    Uint16  contspawn_facingadd;         ///< Spawn in circle
+    Uint16  contspawn_pip;               ///< Spawn type ( local )
+    Sint16  endsound_index;              ///< Sound on end (-1 for none)
     bool_t  spawn_overlay;               ///< Spawn an overlay?
-    bool_t  stayifdead;                  ///< Stay if target has died?
+    bool_t  stayiftargetdead;            ///< Stay if target has died?
 
-    /// Boost values
+    // Boost values
     Sint16  ownermana;
     Sint16  ownerlife;
     Sint16  targetmana;
     Sint16  targetlife;
 
-    /// the enchant values
+    // the enchant values
     bool_t  setyesno[MAX_ENCHANT_SET];    ///< Set this value?
     Uint8   setvalue[MAX_ENCHANT_SET];    ///< Value to use
     Sint32  addvalue[MAX_ENCHANT_ADD];    ///< The values to add
 
-    /// other values that are enchanted
+    // other values that are enchanted
     Uint16  seekurse;                    ///< Allow target to see kurses
 };
 typedef struct s_eve eve_t;

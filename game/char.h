@@ -294,7 +294,7 @@ struct s_chr
     Uint16         damagethreshold;               ///< Damage below this number is ignored
 
     // sound stuff
-    Sint8          soundindex[SOUND_COUNT];       ///< a map for soundX.wav to sound types
+    Sint8          sound_index[SOUND_COUNT];       ///< a map for soundX.wav to sound types
     int            loopedsound_channel;           ///< Which sound channel it is looping on, -1 is none.
 
     // missle handling
@@ -445,15 +445,15 @@ extern cap_t CapList[MAX_CAP];
 DEFINE_LIST_EXTERN( chr_t, ChrList, MAX_CHR );
 
 #define VALID_CHR_RANGE( ICHR ) ( ((ICHR) >= 0) && ((ICHR) < MAX_CHR) )
-#define ALLOCATED_CHR( ICHR )   ( VALID_CHR_RANGE( ICHR ) && ALLOCATED_OBJ ( &(ChrList.lst[ICHR].obj_base) ) )
-#define ACTIVE_CHR( ICHR )      ( VALID_CHR_RANGE( ICHR ) && ACTIVE_OBJ    ( &(ChrList.lst[ICHR].obj_base) ) )
-#define WAITING_CHR( ICHR )     ( VALID_CHR_RANGE( ICHR ) && WAITING_OBJ   ( &(ChrList.lst[ICHR].obj_base) ) )
-#define TERMINATED_CHR( ICHR )  ( VALID_CHR_RANGE( ICHR ) && TERMINATED_OBJ( &(ChrList.lst[ICHR].obj_base) ) )
+#define ALLOCATED_CHR( ICHR )   ( VALID_CHR_RANGE( ICHR ) && ALLOCATED_PBASE ( &(ChrList.lst[ICHR].obj_base) ) )
+#define ACTIVE_CHR( ICHR )      ( VALID_CHR_RANGE( ICHR ) && ACTIVE_PBASE    ( &(ChrList.lst[ICHR].obj_base) ) )
+#define WAITING_CHR( ICHR )     ( VALID_CHR_RANGE( ICHR ) && WAITING_PBASE   ( &(ChrList.lst[ICHR].obj_base) ) )
+#define TERMINATED_CHR( ICHR )  ( VALID_CHR_RANGE( ICHR ) && TERMINATED_PBASE( &(ChrList.lst[ICHR].obj_base) ) )
 
-#define ACTIVE_PCHR( PCHR )     ( (NULL != (PCHR)) && VALID_CHR_RANGE( GET_INDEX( PCHR, MAX_CHR) ) && ACTIVE_OBJ( OBJ_GET_PBASE( (PCHR) ) ) )
-#define ALLOCATED_PCHR( PCHR )  ( (NULL != (PCHR)) && VALID_CHR_RANGE( GET_INDEX( PCHR, MAX_CHR) ) && ALLOCATED_OBJ( OBJ_GET_PBASE( (PCHR) ) ) )
+#define ACTIVE_PCHR( PCHR )     ( (NULL != (PCHR)) && VALID_CHR_RANGE( GET_INDEX_POBJ( PCHR, MAX_CHR) ) && ACTIVE_PBASE( POBJ_GET_PBASE( (PCHR) ) ) )
+#define ALLOCATED_PCHR( PCHR )  ( (NULL != (PCHR)) && VALID_CHR_RANGE( GET_INDEX_POBJ( PCHR, MAX_CHR) ) && ALLOCATED_PBASE( POBJ_GET_PBASE( (PCHR) ) ) )
 
-#define GET_INDEX_PCHR( PCHR )  GET_INDEX( PCHR, MAX_CHR )
+#define GET_INDEX_PCHR( PCHR )  GET_INDEX_POBJ( PCHR, MAX_CHR )
 
 #define CHR_BEGIN_LOOP(IT, PCHR) {int IT##internal; for(IT##internal=0;IT##internal<ChrList.used_count;IT##internal++) { int IT; chr_t * PCHR = NULL; IT = ChrList.used_ref[IT##internal]; if(!ACTIVE_CHR(IT)) continue; PCHR = ChrList.lst + IT;
 #define CHR_END_LOOP() }}
@@ -468,9 +468,9 @@ void give_experience( Uint16 character, int amount, Uint8 xptype, bool_t overrid
 void give_team_experience( Uint8 team, int amount, Uint8 xptype );
 int  damage_character( Uint16 character, Uint16 direction,
                        IPair damage, Uint8 damagetype, Uint8 team,
-                       Uint16 attacker, Uint16 effects, bool_t ignoreinvincible );
-void kill_character( Uint16 character, Uint16 killer, bool_t ignoreinvincible );
-bool_t heal_character( Uint16 character, Uint16 healer, int amount, bool_t ignoreinvincible );
+                       Uint16 attacker, Uint16 effects, bool_t ignore_invictus );
+void kill_character( Uint16 character, Uint16 killer, bool_t ignore_invictus );
+bool_t heal_character( Uint16 character, Uint16 healer, int amount, bool_t ignore_invictus );
 void spawn_poof( Uint16 character, Uint16 profile );
 void reset_character_alpha( Uint16 character );
 void reset_character_accel( Uint16 character );

@@ -198,11 +198,7 @@ void let_character_think( Uint16 character )
     {
         float latch2;
 
-        // is the current waypoint is not valid, try to load up the top waypoint
-        if ( !pself->wp_valid )
-        {
-            pself->wp_valid = waypoint_list_peek( &( pself->wp_lst ), pself->wp );
-        }
+        ai_state_ensure_wp( pself );
 
         if ( pchr->ismount && ACTIVE_CHR( pchr->holdingwhich[SLOT_LEFT] ) )
         {
@@ -262,10 +258,7 @@ void set_alerts( Uint16 character )
     // if ( ACTIVE_CHR(pchr->attachedto) ) return;
 
     // is the current waypoint is not valid, try to load up the top waypoint
-    if ( !pai->wp_valid )
-    {
-        pai->wp_valid = waypoint_list_peek( &( pai->wp_lst ), pai->wp );
-    }
+    ai_state_ensure_wp( pai );
 
     at_waypoint = bfalse;
     if ( pai->wp_valid )
@@ -276,10 +269,14 @@ void set_alerts( Uint16 character )
 
     if ( at_waypoint )
     {
+        pai->alert |= ALERTIF_ATWAYPOINT;
+
         if ( waypoint_list_finished( &( pai->wp_lst ) ) )
         {
             // we are now at the last waypoint
             // if the object can be alerted to last waypoint, do it
+            // this test needs to be done because the ALERTIF_ATLASTWAYPOINT
+            // doubles for "at last waypoint" and "not put away"
             if ( !chr_get_pcap( character )->isequipment )
             {
                 pai->alert |= ALERTIF_ATLASTWAYPOINT;
@@ -289,18 +286,12 @@ void set_alerts( Uint16 character )
             waypoint_list_reset( &( pai->wp_lst ) );
 
             // load the top waypoint
-            pai->wp_valid = waypoint_list_peek( &( pai->wp_lst ), pai->wp );
+            ai_state_get_wp( pai );
         }
-        else
+        else if ( waypoint_list_advance( &( pai->wp_lst ) ) )
         {
-            pai->alert |= ALERTIF_ATWAYPOINT;
-
-            // move on to the next waypoint
-            if ( waypoint_list_advance( &( pai->wp_lst ) ) )
-            {
-                // load the top waypoint
-                pai->wp_valid = waypoint_list_peek( &( pai->wp_lst ), pai->wp );
-            }
+            // load the top waypoint
+            ai_state_get_wp( pai );
         }
     }
 }
@@ -345,31 +336,6 @@ void issue_special_order( Uint32 value, IDSZ idsz )
             counter++;
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-bool_t script_increment_exe( ai_state_t * pself )
-{
-    if ( NULL == pself ) return bfalse;
-    if ( pself->exe_pos < pself->exe_stt || pself->exe_pos >= pself->exe_end ) return bfalse;
-
-    pself->exe_pos++;
-    pself->opcode = AisCompiled_buffer[pself->exe_pos];
-
-    return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t script_set_exe( ai_state_t * pself, size_t offset )
-{
-    if ( NULL == pself ) return bfalse;
-    if ( offset < pself->exe_stt || offset >= pself->exe_end ) return bfalse;
-
-    pself->exe_pos = offset;
-    pself->opcode  = AisCompiled_buffer[pself->exe_pos];
-
-    return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1089,10 +1055,7 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
             case VARGOTOX:
                 varname = "GOTOX";
 
-                if ( !pself->wp_valid )
-                {
-                    pself->wp_valid = waypoint_list_peek( &( pself->wp_lst ), pself->wp );
-                }
+                ai_state_ensure_wp( pself );
 
                 if ( !pself->wp_valid )
                 {
@@ -1107,10 +1070,7 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
             case VARGOTOY:
                 varname = "GOTOY";
 
-                if ( !pself->wp_valid )
-                {
-                    pself->wp_valid = waypoint_list_peek( &( pself->wp_lst ), pself->wp );
-                }
+                ai_state_ensure_wp( pself );
 
                 if ( !pself->wp_valid )
                 {
@@ -1125,10 +1085,7 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
             case VARGOTODISTANCE:
                 varname = "GOTODISTANCE";
 
-                if ( !pself->wp_valid )
-                {
-                    pself->wp_valid = waypoint_list_peek( &( pself->wp_lst ), pself->wp );
-                }
+                ai_state_ensure_wp( pself );
 
                 if ( !pself->wp_valid )
                 {
@@ -1530,9 +1487,9 @@ bool_t waypoint_list_peek( waypoint_list_t * plst, waypoint_t wp )
         index = plst->tail;
     }
 
-    wp[0] = plst->pos[index][0];
-    wp[1] = plst->pos[index][1];
-    wp[2] = plst->pos[index][2];
+    wp[kX] = plst->pos[index][kX];
+    wp[kY] = plst->pos[index][kY];
+    wp[kZ] = plst->pos[index][kZ];
 
     return btrue;
 }
@@ -1621,4 +1578,53 @@ bool_t waypoint_list_advance( waypoint_list_t * plst )
 
     return retval;
 
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t ai_state_get_wp( ai_state_t * pself )
+{
+    // try to load up the top waypoint
+
+    if ( NULL == pself || !ACTIVE_CHR( pself->index ) ) return bfalse;
+
+    pself->wp_valid = waypoint_list_peek( &( pself->wp_lst ), pself->wp );
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t ai_state_ensure_wp( ai_state_t * pself )
+{
+    // is the current waypoint is not valid, try to load up the top waypoint
+
+    if ( NULL == pself || !ACTIVE_CHR( pself->index ) ) return bfalse;
+
+    if ( pself->wp_valid ) return btrue;
+
+    return ai_state_get_wp( pself );
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+bool_t script_increment_exe( ai_state_t * pself )
+{
+    if ( NULL == pself ) return bfalse;
+    if ( pself->exe_pos < pself->exe_stt || pself->exe_pos >= pself->exe_end ) return bfalse;
+
+    pself->exe_pos++;
+    pself->opcode = AisCompiled_buffer[pself->exe_pos];
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t script_set_exe( ai_state_t * pself, size_t offset )
+{
+    if ( NULL == pself ) return bfalse;
+    if ( offset < pself->exe_stt || offset >= pself->exe_end ) return bfalse;
+
+    pself->exe_pos = offset;
+    pself->opcode  = AisCompiled_buffer[pself->exe_pos];
+
+    return btrue;
 }

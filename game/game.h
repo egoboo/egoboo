@@ -124,7 +124,7 @@ struct s_damagetile_instance
 
     int    parttype;
     Uint32 partand;
-    int    sound;
+    int    sound_index;
 
     //Sint16  sound_time;           // this is not used anywhere in the game
     //Uint16  min_distance;           // this is not used anywhere in the game

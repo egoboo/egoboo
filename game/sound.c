@@ -175,7 +175,7 @@ bool_t music_stack_pop( Mix_Music ** mus, int * song )
     if ( !musicinmemory )
     {
         *mus = NULL;
-        *song = -1;
+        *song = INVALID_SOUND;
         return bfalse;
     }
 
@@ -429,18 +429,18 @@ bool_t sound_load( mix_ptr_t * pptr, const char * szFileName, mix_type_t type )
 //--------------------------------------------------------------------------------------------
 int sound_play_mix( fvec3_t   pos, mix_ptr_t * pptr )
 {
-    int retval = -1;
+    int retval = INVALID_SOUND_CHANNEL;
     if ( !snd.soundvalid || !mixeron )
     {
-        return -1;
+        return INVALID_SOUND_CHANNEL;
     }
     if ( NULL == pptr || MIX_UNKNOWN == pptr->type || NULL == pptr->ptr.unk )
     {
         log_debug( "Unable to load sound. (%s)\n", Mix_GetError() );
-        return -1;
+        return INVALID_SOUND_CHANNEL;
     }
 
-    retval = -1;
+    retval = INVALID_SOUND_CHANNEL;
     if ( MIX_SND == pptr->type )
     {
         retval = sound_play_chunk( pos, pptr->ptr.snd );
@@ -560,14 +560,14 @@ bool_t _update_channel_volume( int channel, int volume, fvec3_t   diff )
 int sound_play_chunk_looped( fvec3_t   pos, Mix_Chunk * pchunk, Sint8 loops, Uint16 owner )
 {
     /// ZF@> This function plays a specified sound and returns which channel it's using
-    int channel = INVALID_SOUND;
+    int channel = INVALID_SOUND_CHANNEL;
     fvec3_t   diff;
     int volume;
 
-    if ( !snd.soundvalid || !mixeron || NULL == pchunk ) return INVALID_SOUND;
+    if ( !snd.soundvalid || !mixeron || NULL == pchunk ) return INVALID_SOUND_CHANNEL;
 
     // only play sound effects if the game is running
-    if ( !process_running( PROC_PBASE( GProc ) ) )  return INVALID_SOUND;
+    if ( !process_running( PROC_PBASE( GProc ) ) )  return INVALID_SOUND_CHANNEL;
 
     // measure the distance in tiles
     diff = fvec3_sub( pos.v, PCamera->track_pos.v );
@@ -579,7 +579,7 @@ int sound_play_chunk_looped( fvec3_t   pos, Mix_Chunk * pchunk, Sint8 loops, Uin
         // play the sound
         channel = Mix_PlayChannel( -1, pchunk, loops );
 
-        if ( INVALID_SOUND == channel )
+        if ( INVALID_SOUND_CHANNEL == channel )
         {
             /// @note ZF@> disabled this warning because this happens really often
             //log_debug( "Unable to play sound. (%s)\n", Mix_GetError() );
@@ -848,7 +848,7 @@ void   LoopedList_init()
         // clear out all of the data
         memset( LoopedList.lst + cnt, 0, sizeof( looped_sound_data_t ) );
 
-        LoopedList.lst[cnt].channel = -1;
+        LoopedList.lst[cnt].channel = INVALID_SOUND_CHANNEL;
         LoopedList.lst[cnt].chunk   = NULL;
         LoopedList.lst[cnt].object  = MAX_CHR;
 
@@ -904,7 +904,7 @@ bool_t LoopedList_free_one( int index )
     LoopedList.free_count++;
 
     // clear out the data
-    LoopedList.lst[index].channel = INVALID_SOUND;
+    LoopedList.lst[index].channel = INVALID_SOUND_CHANNEL;
     LoopedList.lst[index].chunk   = NULL;
     LoopedList.lst[index].object  = MAX_CHR;
 
@@ -937,12 +937,12 @@ void LoopedList_clear()
 
     for ( cnt = 0; cnt < LOOPED_COUNT; cnt++ )
     {
-        if ( INVALID_SOUND != LoopedList.lst[cnt].channel )
+        if ( INVALID_SOUND_CHANNEL != LoopedList.lst[cnt].channel )
         {
             Mix_FadeOutChannel( LoopedList.lst[cnt].channel, 500 );
 
             // clear out the data
-            LoopedList.lst[cnt].channel = INVALID_SOUND;
+            LoopedList.lst[cnt].channel = INVALID_SOUND_CHANNEL;
             LoopedList.lst[cnt].chunk   = NULL;
             LoopedList.lst[cnt].object  = MAX_CHR;
         }
@@ -958,10 +958,10 @@ int LoopedList_add( Mix_Chunk * sound, int channel, Uint16 ichr )
 
     int index;
 
-    if ( NULL == sound || INVALID_SOUND == channel || !ACTIVE_CHR( ichr ) ) return LOOPED_COUNT;
+    if ( NULL == sound || INVALID_SOUND_CHANNEL == channel || !ACTIVE_CHR( ichr ) ) return LOOPED_COUNT;
 
-    if ( LoopedList.used_count >= LOOPED_COUNT ) return -1;
-    if ( !LoopedList_validate() ) return -1;
+    if ( LoopedList.used_count >= LOOPED_COUNT ) return INVALID_SOUND_CHANNEL;
+    if ( !LoopedList_validate() ) return INVALID_SOUND_CHANNEL;
 
     index = LoopedList_get_free();
 
@@ -1010,7 +1010,7 @@ bool_t _update_stereo_channel( int channel, fvec3_t   diff )
 
     int       volume;
 
-    if ( INVALID_SOUND == channel ) return bfalse;
+    if ( INVALID_SOUND_CHANNEL == channel ) return bfalse;
 
     volume = _calculate_volume( diff );
     return _update_channel_volume( channel, volume, diff );
@@ -1030,7 +1030,7 @@ void looped_update_all_sound()
         index = LoopedList.used_ref[cnt];
 
         if ( index < 0 || index >= LOOPED_COUNT ) continue;
-        if ( -1 == LoopedList.lst[index].channel ) continue;
+        if ( INVALID_SOUND_CHANNEL == LoopedList.lst[index].channel ) continue;
         plooped = LoopedList.lst + index;
 
         if ( !ACTIVE_CHR( plooped->object ) )

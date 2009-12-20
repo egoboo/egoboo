@@ -369,12 +369,12 @@ void prt_init( prt_t * pprt )
     if ( NULL == pprt ) return;
 
     // save the base object data
-    memcpy( &save_base, OBJ_GET_PBASE( pprt ), sizeof( ego_object_base_t ) );
+    memcpy( &save_base, POBJ_GET_PBASE( pprt ), sizeof( ego_object_base_t ) );
 
     memset( pprt, 0, sizeof( *pprt ) );
 
     // restore the base object data
-    memcpy( OBJ_GET_PBASE( pprt ), &save_base, sizeof( ego_object_base_t ) );
+    memcpy( POBJ_GET_PBASE( pprt ), &save_base, sizeof( ego_object_base_t ) );
 
     // "no lifetime" = "eternal"
     pprt->time_update  = ( Uint32 )~0;
@@ -414,10 +414,9 @@ Uint16 prt_get_iowner( Uint16 iprt, int depth )
     prt_t * pprt;
 
     // be careful because this can be recursive
-    if ( depth > maxparticles - PrtList.free_count )
-        return MAX_CHR;
+    if ( depth > maxparticles - PrtList.free_count ) return MAX_CHR;
 
-    if ( !ACTIVE_PRT( iprt ) ) return MAX_CHR;
+    if ( !ACTIVE_PRT( iprt ) && !WAITING_PRT( iprt ) ) return MAX_CHR;
     pprt = PrtList.lst + iprt;
 
     if ( ACTIVE_CHR( pprt->owner_ref ) )
@@ -1649,13 +1648,13 @@ void move_one_particle_do_z_motion( prt_t * pprt )
 //if( hit_a_wall )
 //{
 //    // Play the sound for hitting the floor [FSND]
-//    play_particle_sound( iprt, ppip->soundwall );
+//    play_particle_sound( iprt, ppip->soundwall_index );
 //}
 
 //if( hit_a_floor )
 //{
 //    // Play the sound for hitting the floor [FSND]
-//    play_particle_sound( iprt, ppip->soundfloor );
+//    play_particle_sound( iprt, ppip->soundfloor_index );
 //}
 
 //// do the reflections off the walls and floors
@@ -1825,13 +1824,13 @@ bool_t move_one_particle_integrate_motion( prt_t * pprt )
     if ( hit_a_wall )
     {
         // Play the sound for hitting the floor [FSND]
-        play_particle_sound( iprt, ppip->soundwall );
+        play_particle_sound( iprt, ppip->soundwall_index );
     }
 
     if ( hit_a_floor )
     {
         // Play the sound for hitting the floor [FSND]
-        play_particle_sound( iprt, ppip->soundfloor );
+        play_particle_sound( iprt, ppip->soundfloor_index );
     }
 
     // do the reflections off the walls and floors
@@ -2070,7 +2069,7 @@ void cleanup_all_particles()
         pprt = PrtList.lst + iprt;
 
         time_out = !pprt->is_eternal && ( update_wld >= pprt->time_update );
-        if (( ego_object_waiting != pprt->obj_base.state ) && !time_out ) continue;
+        if ( !WAITING_PBASE( POBJ_GET_PBASE( pprt ) ) && !time_out ) continue;
 
         // make sure the particle has been DISPLAYED at least once, or you can get
         // some wierd particle flickering
@@ -2503,7 +2502,7 @@ Uint16  prt_get_ipip( Uint16 iprt )
 {
     prt_t * pprt;
 
-    if ( !ACTIVE_PRT( iprt ) ) return MAX_PIP;
+    if ( !ACTIVE_PRT( iprt ) && !WAITING_PRT( iprt ) ) return MAX_PIP;
     pprt = PrtList.lst + iprt;
 
     if ( !LOADED_PIP( pprt->pip_ref ) ) return MAX_PIP;
@@ -2516,7 +2515,7 @@ pip_t * prt_get_ppip( Uint16 iprt )
 {
     prt_t * pprt;
 
-    if ( !ACTIVE_PRT( iprt ) ) return NULL;
+    if ( !ACTIVE_PRT( iprt ) && !WAITING_PRT( iprt ) ) return NULL;
     pprt = PrtList.lst + iprt;
 
     if ( !LOADED_PIP( pprt->pip_ref ) ) return NULL;

@@ -273,9 +273,9 @@ wawalite_data_t * read_wawalite_fog( vfs_FILE * fileread, wawalite_data_t * pdat
         // Read extra stuff for damage tile particles...
         if ( goto_colon( NULL, fileread, btrue ) )
         {
-            pdata->damagetile.parttype = fget_int( fileread );
-            pdata->damagetile.partand  = fget_next_int( fileread );
-            pdata->damagetile.sound    = fget_next_int( fileread );
+            pdata->damagetile.parttype    = fget_int( fileread );
+            pdata->damagetile.partand     = fget_next_int( fileread );
+            pdata->damagetile.sound_index = fget_next_int( fileread );
         }
     }
 
@@ -482,7 +482,7 @@ bool_t write_wawalite_fog( vfs_FILE * filewrite, wawalite_data_t * pdata )
     vfs_printf( filewrite, "\n\n// Damage tile expansion...  Must have fog first...\n" );
     fput_int( filewrite, "Weather particle to spawn ( 4 or 5, 6 is splash )  :", pdata->damagetile.parttype );
     fput_int( filewrite, "Particle timing AND ( 1, 3, 7, 15, etc. )          :", pdata->damagetile.partand  );
-    fput_int( filewrite, "Damage sound ( 0 to 4 )                            :", pdata->damagetile.sound    );
+    fput_int( filewrite, "Damage sound ( 0 to 4 )                            :", pdata->damagetile.sound_index );
 
     return btrue;
 }
@@ -594,7 +594,7 @@ bool_t wawalite_damagetile_init( wawalite_damagetile_t * pdata )
 
     pdata->parttype    = -1;
     pdata->partand     = 255;
-    pdata->sound       = INVALID_SOUND;
+    pdata->sound_index = INVALID_SOUND;
     pdata->type        = DAMAGE_FIRE;
     pdata->amount      = 256;
 

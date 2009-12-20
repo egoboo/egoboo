@@ -348,22 +348,25 @@ typedef struct s_ego_object_base ego_object_base_t;
     }
 
 /// Is the object allocated?
-#define ALLOCATED_OBJ( POBJ )   ( (NULL != (POBJ)) && ( (POBJ)->allocated ) && (ego_object_invalid != (POBJ)->state) )
+#define ALLOCATED_PBASE( PBASE )   ( (NULL != (PBASE)) && ( (PBASE)->allocated ) && (ego_object_invalid != (PBASE)->state) )
 
 /// Is the object "on"
-#define ACTIVE_OBJ( POBJ )      ( ALLOCATED_OBJ( POBJ ) && (ego_object_active == (POBJ)->state) )
+#define ACTIVE_PBASE( PBASE )      ( ALLOCATED_PBASE( PBASE ) && (ego_object_active == (PBASE)->state) )
 
 /// Is the object waiting to "die"
-#define WAITING_OBJ( POBJ )     ( ALLOCATED_OBJ( POBJ ) && (ego_object_waiting == (POBJ)->state) )
+#define WAITING_PBASE( PBASE )     ( ALLOCATED_PBASE( PBASE ) && (ego_object_waiting == (PBASE)->state) )
 
 /// Has the object been marked as terminated
-#define TERMINATED_OBJ( POBJ )  ( (NULL != (POBJ)) && (ego_object_terminated == (POBJ)->state) )
+#define TERMINATED_PBASE( PBASE )  ( (NULL != (PBASE)) && (ego_object_terminated == (PBASE)->state) )
 
 /// Grab a pointer to the ego_object_base_t of an object that "inherits" this data
-#define OBJ_GET_PBASE( PBLAH )          ( (NULL == (PBLAH)) ? NULL : &((PBLAH)->obj_base) )
+#define POBJ_GET_PBASE( POBJ )   ( (NULL == (POBJ)) ? NULL : &((POBJ)->obj_base) )
 
 /// Grab the index value of object that "inherits" from ego_object_base_t
-#define GET_INDEX( PBLAH, FAIL_VALUE )  ( (NULL == (PBLAH) || !ALLOCATED_OBJ( OBJ_GET_PBASE( (PBLAH) ) ) ) ? FAIL_VALUE : (PBLAH)->obj_base.index )
+#define GET_INDEX_POBJ( POBJ, FAIL_VALUE )  ( (NULL == (POBJ) || !ALLOCATED_PBASE( POBJ_GET_PBASE( (POBJ) ) ) ) ? FAIL_VALUE : (POBJ)->obj_base.index )
+
+/// Grab the state of object that "inherits" from ego_object_base_t
+#define GET_STATE_POBJ( POBJ )  ( (NULL == (POBJ) || !ALLOCATED_PBASE( POBJ_GET_PBASE( (POBJ) ) ) ) ? ego_object_invalid : (POBJ)->obj_base.index )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

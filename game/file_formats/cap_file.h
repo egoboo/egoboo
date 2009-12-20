@@ -265,7 +265,7 @@ struct s_cap
     float        experiencerate[XP_COUNT];
 
     // sound
-    Sint8        soundindex[SOUND_COUNT];       ///< a map for soundX.wav to sound types
+    Sint8        sound_index[SOUND_COUNT];       ///< a map for soundX.wav to sound types
 
     // flags
     int          spelleffect_type;              ///< is the object that a spellbook generates

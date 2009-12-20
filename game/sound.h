@@ -34,10 +34,11 @@ struct s_egoboo_config;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-#define MAX_WAVE           30           ///< Up to 30 wave/ogg per model
-#define MAXPLAYLISTLENGTH  35           ///< Max number of different tracks loaded into memory
-#define INVALID_SOUND      -1           ///< Don't play this sound
-#define MENU_SONG          0            ///< default music theme played when in the menu
+#define MAX_WAVE              30           ///< Up to 30 wave/ogg per model
+#define MAXPLAYLISTLENGTH     35           ///< Max number of different tracks loaded into memory
+#define INVALID_SOUND         -1           ///< The index of this sound is not valid
+#define INVALID_SOUND_CHANNEL -1           ///< SDL_mixer sound channel is invalid
+#define MENU_SONG              0           ///< default music theme played when in the menu
 
 #define MIX_HIGH_QUALITY   44100        ///< frequency 44100 for 44.1KHz, which is CD audio rate.
 /// @details Most games use 22050, because 44100 requires too much

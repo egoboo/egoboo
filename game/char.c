@@ -2425,7 +2425,7 @@ bool_t chr_download_cap( chr_t * pchr, cap_t * pcap )
     // sound stuff...  copy from the cap
     for ( tnc = 0; tnc < SOUND_COUNT; tnc++ )
     {
-        pchr->soundindex[tnc] = pcap->soundindex[tnc];
+        pchr->sound_index[tnc] = pcap->sound_index[tnc];
     }
 
     // Set up model stuff
@@ -2684,8 +2684,8 @@ int load_one_character_profile( const char * tmploadname, int slot_override, boo
     }
 
     // limit the wave indices to rational values
-    pcap->soundindex[SOUND_FOOTFALL] = CLIP( pcap->soundindex[SOUND_FOOTFALL], INVALID_SOUND, MAX_WAVE );
-    pcap->soundindex[SOUND_JUMP]     = CLIP( pcap->soundindex[SOUND_JUMP], INVALID_SOUND, MAX_WAVE );
+    pcap->sound_index[SOUND_FOOTFALL] = CLIP( pcap->sound_index[SOUND_FOOTFALL], INVALID_SOUND, MAX_WAVE );
+    pcap->sound_index[SOUND_JUMP]     = CLIP( pcap->sound_index[SOUND_JUMP], INVALID_SOUND, MAX_WAVE );
 
     // bumpdampen == 0 means infinite mass, and causes some problems
     pcap->bumpdampen = MAX( INV_FF, pcap->bumpdampen );
@@ -2694,11 +2694,11 @@ int load_one_character_profile( const char * tmploadname, int slot_override, boo
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t heal_character( Uint16 character, Uint16 healer, int amount, bool_t ignoreinvincible )
+bool_t heal_character( Uint16 character, Uint16 healer, int amount, bool_t ignore_invictus )
 {
     /// @details ZF@> This function gives some pure life points to the target, ignoring any resistances and so forth
 
-    if ( !ACTIVE_CHR( character ) || !ChrList.lst[character].alive || ( ChrList.lst[character].invictus && !ignoreinvincible ) ) return bfalse;
+    if ( !ACTIVE_CHR( character ) || !ChrList.lst[character].alive || ( ChrList.lst[character].invictus && !ignore_invictus ) ) return bfalse;
 
     ChrList.lst[character].life = CLIP( ChrList.lst[character].life, ChrList.lst[character].life + ABS( amount ), ChrList.lst[character].lifemax );
 
@@ -2782,7 +2782,7 @@ void cleanup_one_character( chr_t * pchr )
             enc_next = EncList.lst[enc_now].nextenchant_ref;
 
             peve = enc_get_peve( enc_now );
-            if ( NULL != peve && !peve->stayifdead )
+            if ( NULL != peve && !peve->stayiftargetdead )
             {
                 remove_enchant( enc_now );
             }
@@ -2796,7 +2796,7 @@ void cleanup_one_character( chr_t * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-void kill_character( Uint16 ichr, Uint16 killer, bool_t ignoreinvincible )
+void kill_character( Uint16 ichr, Uint16 killer, bool_t ignore_invictus )
 {
     /// @details BB@> Handle a character death. Set various states, disconnect it from the world, etc.
 
@@ -2810,7 +2810,7 @@ void kill_character( Uint16 ichr, Uint16 killer, bool_t ignoreinvincible )
     pchr = ChrList.lst + ichr;
 
     //No need to continue is there?
-    if ( !pchr->alive || pchr->invictus && !ignoreinvincible ) return;
+    if ( !pchr->alive || ( pchr->invictus && !ignore_invictus ) ) return;
 
     pcap = pro_get_pcap( pchr->iprofile );
     if ( NULL == pcap ) return;
@@ -2893,14 +2893,14 @@ void kill_character( Uint16 ichr, Uint16 killer, bool_t ignoreinvincible )
     if ( pchr->isplayer ) revivetimer = ONESECOND; // 1 second
 
     // Let it's AI script run one last time
-    pchr->ai.timer = update_wld + 1;            //Prevent IfTimeOut from happening
+    pchr->ai.timer = update_wld + 1;            // Prevent IfTimeOut in let_character_think()
     let_character_think( ichr );
 }
 
 //--------------------------------------------------------------------------------------------
 int damage_character( Uint16 character, Uint16 direction,
                       IPair  damage, Uint8 damagetype, Uint8 team,
-                      Uint16 attacker, Uint16 effects, bool_t ignoreinvincible )
+                      Uint16 attacker, Uint16 effects, bool_t ignore_invictus )
 {
     /// @details ZZ@> This function calculates and applies damage to a character.  It also
     ///    sets alerts and begins actions.  Blocking and frame invincibility
@@ -2965,7 +2965,7 @@ int damage_character( Uint16 character, Uint16 direction,
         if ( actual_damage > pchr->damagethreshold )
         {
             // Only actual_damage if not invincible
-            if (( 0 == pchr->damagetime || ignoreinvincible ) && !pchr->invictus )
+            if (( 0 == pchr->damagetime || ignore_invictus ) && !pchr->invictus )
             {
                 // Hard mode deals 25% extra actual damage to players!
                 if ( cfg.difficulty >= GAME_HARD && pchr->isplayer && !ChrList.lst[attacker].isplayer ) actual_damage *= 1.25f;
@@ -3070,7 +3070,7 @@ int damage_character( Uint16 character, Uint16 direction,
                     // Taking actual_damage action
                     if ( pchr->life <= 0 )
                     {
-                        kill_character( character, attacker, ignoreinvincible );
+                        kill_character( character, attacker, ignore_invictus );
                     }
                     else
                     {
@@ -3144,7 +3144,7 @@ int damage_character( Uint16 character, Uint16 direction,
         else if ( actual_damage < 0 )
         {
             // Heal 'em
-            heal_character( character, attacker, actual_damage, ignoreinvincible );
+            heal_character( character, attacker, actual_damage, ignore_invictus );
 
             // Isssue an alert
             if ( team != TEAM_DAMAGE )
@@ -3290,7 +3290,7 @@ chr_t * chr_init( chr_t * pchr )
 
     if ( !ALLOCATED_PCHR( pchr ) ) return pchr;
 
-    pbase = OBJ_GET_PBASE( pchr );
+    pbase = POBJ_GET_PBASE( pchr );
     if ( NULL == pbase ) return pchr;
 
     // save the base object data
@@ -3305,7 +3305,7 @@ chr_t * chr_init( chr_t * pchr )
     // IMPORTANT!!!
     pchr->ibillboard = INVALID_BILLBOARD;
     pchr->sparkle = NOSPARKLE;
-    pchr->loopedsound_channel = INVALID_SOUND;
+    pchr->loopedsound_channel = INVALID_SOUND_CHANNEL;
 
     // Set up model stuff
     pchr->inwhich_slot = SLOT_LEFT;
@@ -4070,7 +4070,7 @@ void change_character( Uint16 ichr, Uint16 profile_new, Uint8 skin, Uint8 leavew
     // Sound effects
     for ( tnc = 0; tnc < SOUND_COUNT; tnc++ )
     {
-        pchr->soundindex[tnc] = pcap_new->soundindex[tnc];
+        pchr->sound_index[tnc] = pcap_new->sound_index[tnc];
     }
 
     // AI stuff
@@ -5286,11 +5286,11 @@ bool_t chr_do_latch_attack( chr_t * pchr, int which_slot )
         }
     }
 
-	//Reset boredom timer if the attack succeeded
-	if( retval)
-	{
-		pchr->boretime = BORETIME;
-	}
+    //Reset boredom timer if the attack succeeded
+    if ( retval )
+    {
+        pchr->boretime = BORETIME;
+    }
 
     return retval;
 }
@@ -5337,7 +5337,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
                 pchr->jumpnumber--;
 
             // Play the jump sound
-            ijump = pro_get_pcap( pchr->iprofile )->soundindex[SOUND_JUMP];
+            ijump = pro_get_pcap( pchr->iprofile )->sound_index[SOUND_JUMP];
             if ( VALID_SND( ijump ) )
             {
                 sound_play_chunk( pchr->pos, chr_get_chunk_ptr( pchr, ijump ) );
@@ -5378,7 +5378,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
                 pcap = pro_get_pcap( pchr->iprofile );
                 if ( NULL != pcap )
                 {
-                    ijump = pcap->soundindex[SOUND_JUMP];
+                    ijump = pcap->sound_index[SOUND_JUMP];
                     if ( VALID_SND( ijump ) )
                     {
                         sound_play_chunk( pchr->pos, chr_get_chunk_ptr( pchr, ijump ) );
@@ -5764,7 +5764,7 @@ bool_t chr_handle_madfx( chr_t * pchr )
         cap_t * pcap = pro_get_pcap( pchr->iprofile );
         if ( NULL != pcap )
         {
-            int ifoot = pcap->soundindex[SOUND_FOOTFALL];
+            int ifoot = pcap->sound_index[SOUND_FOOTFALL];
             if ( VALID_SND( ifoot ) )
             {
                 sound_play_chunk( pchr->pos, chr_get_chunk_ptr( pchr, ifoot ) );
@@ -6030,7 +6030,7 @@ void cleanup_all_characters()
         pchr = ChrList.lst + cnt;
 
         time_out = ( pchr->ai.poof_time >= 0 ) && ( pchr->ai.poof_time <= ( Sint32 )update_wld );
-        if (( ego_object_waiting != pchr->obj_base.state ) && !time_out ) continue;
+        if ( !WAITING_PBASE( POBJ_GET_PBASE( pchr ) ) && !time_out ) continue;
 
         // detach the character from the game
         cleanup_one_character( pchr );
@@ -6478,7 +6478,7 @@ const char * chr_get_name( Uint16 ichr, Uint32 bits )
 {
     static STRING szName;
 
-    if ( !ALLOCATED_CHR( ichr ) )
+    if ( !ALLOCATED_CHR( ichr ) && !WAITING_CHR( ichr ) )
     {
         // the default name
         strncpy( szName, "Unknown", SDL_arraysize( szName ) );
@@ -6548,7 +6548,7 @@ const char * chr_get_dir_name( Uint16 ichr )
 
     strncpy( buffer, "/debug", SDL_arraysize( buffer ) );
 
-    if ( !ALLOCATED_CHR( ichr ) ) return buffer;
+    if ( !ALLOCATED_CHR( ichr ) && !WAITING_CHR( ichr ) ) return buffer;
     pchr = ChrList.lst + ichr;
 
     if ( !LOADED_PRO( pchr->iprofile ) )
@@ -6581,7 +6581,7 @@ Uint16 chr_get_ipro( Uint16 ichr )
 {
     chr_t * pchr;
 
-    if ( !ACTIVE_CHR( ichr ) ) return MAX_PROFILE;
+    if ( !ACTIVE_CHR( ichr ) && !WAITING_CHR( ichr ) ) return MAX_PROFILE;
     pchr = ChrList.lst + ichr;
 
     if ( !LOADED_PRO( pchr->iprofile ) ) return MAX_PROFILE;
@@ -6594,7 +6594,7 @@ Uint16 chr_get_icap( Uint16 ichr )
 {
     chr_t * pchr;
 
-    if ( !ACTIVE_CHR( ichr ) ) return MAX_CHR;
+    if ( !ACTIVE_CHR( ichr ) && !WAITING_CHR( ichr ) ) return MAX_CHR;
     pchr = ChrList.lst + ichr;
 
     return pro_get_icap( pchr->iprofile );
@@ -6605,7 +6605,7 @@ Uint16 chr_get_imad( Uint16 ichr )
 {
     chr_t * pchr;
 
-    if ( !ACTIVE_CHR( ichr ) ) return MAX_MAD;
+    if ( !ACTIVE_CHR( ichr ) && !WAITING_CHR( ichr ) ) return MAX_MAD;
     pchr = ChrList.lst + ichr;
 
     // try to repair a bad model if it exists
@@ -6630,7 +6630,7 @@ Uint16 chr_get_ieve( Uint16 ichr )
 {
     chr_t * pchr;
 
-    if ( !ACTIVE_CHR( ichr ) ) return MAX_EVE;
+    if ( !ACTIVE_CHR( ichr ) && !WAITING_CHR( ichr ) ) return MAX_EVE;
     pchr = ChrList.lst + ichr;
 
     return pro_get_ieve( pchr->iprofile );
@@ -6641,7 +6641,7 @@ Uint16 chr_get_ipip( Uint16 ichr, Uint16 ipip )
 {
     chr_t * pchr;
 
-    if ( !ACTIVE_CHR( ichr ) ) return MAX_PIP;
+    if ( !ACTIVE_CHR( ichr ) && !WAITING_CHR( ichr ) ) return MAX_PIP;
     pchr = ChrList.lst + ichr;
 
     return pro_get_ipip( pchr->iprofile, ipip );
@@ -6652,7 +6652,7 @@ Uint16 chr_get_iteam( Uint16 ichr )
 {
     chr_t * pchr;
 
-    if ( !ACTIVE_CHR( ichr ) ) return TEAM_DAMAGE;
+    if ( !ACTIVE_CHR( ichr ) && !WAITING_CHR( ichr ) ) return TEAM_DAMAGE;
     pchr = ChrList.lst + ichr;
 
     return CLIP( pchr->team, 0, TEAM_MAX );
@@ -6663,7 +6663,7 @@ Uint16 chr_get_iteam_base( Uint16 ichr )
 {
     chr_t * pchr;
 
-    if ( !ACTIVE_CHR( ichr ) ) return TEAM_MAX;
+    if ( !ACTIVE_CHR( ichr ) && !WAITING_CHR( ichr ) ) return TEAM_MAX;
     pchr = ChrList.lst + ichr;
 
     return CLIP( pchr->baseteam, 0, TEAM_MAX );
@@ -6675,7 +6675,7 @@ pro_t * chr_get_ppro( Uint16 ichr )
 {
     chr_t * pchr;
 
-    if ( !ACTIVE_CHR( ichr ) ) return NULL;
+    if ( !ACTIVE_CHR( ichr ) && !WAITING_CHR( ichr ) ) return NULL;
     pchr = ChrList.lst + ichr;
 
     if ( !LOADED_PRO( pchr->iprofile ) ) return NULL;
@@ -6688,7 +6688,7 @@ cap_t * chr_get_pcap( Uint16 ichr )
 {
     chr_t * pchr;
 
-    if ( !ACTIVE_CHR( ichr ) ) return NULL;
+    if ( !ACTIVE_CHR( ichr ) && !WAITING_CHR( ichr ) ) return NULL;
     pchr = ChrList.lst + ichr;
 
     return pro_get_pcap( pchr->iprofile );
@@ -6699,7 +6699,7 @@ mad_t * chr_get_pmad( Uint16 ichr )
 {
     chr_t * pchr;
 
-    if ( !ACTIVE_CHR( ichr ) ) return NULL;
+    if ( !ACTIVE_CHR( ichr ) && !WAITING_CHR( ichr ) ) return NULL;
     pchr = ChrList.lst + ichr;
 
     // try to repair a bad model if it exists
@@ -6722,7 +6722,7 @@ eve_t * chr_get_peve( Uint16 ichr )
 {
     chr_t * pchr;
 
-    if ( !ACTIVE_CHR( ichr ) ) return NULL;
+    if ( !ACTIVE_CHR( ichr ) && !WAITING_CHR( ichr ) ) return NULL;
     pchr = ChrList.lst + ichr;
 
     return pro_get_peve( pchr->iprofile );
@@ -6733,7 +6733,7 @@ pip_t * chr_get_ppip( Uint16 ichr, Uint16 ipip )
 {
     chr_t * pchr;
 
-    if ( !ACTIVE_CHR( ichr ) ) return NULL;
+    if ( !ACTIVE_CHR( ichr ) && !WAITING_CHR( ichr ) ) return NULL;
     pchr = ChrList.lst + ichr;
 
     return pro_get_ppip( pchr->iprofile, ipip );
@@ -6745,7 +6745,7 @@ Mix_Chunk * chr_get_chunk( Uint16 ichr, int index )
 {
     chr_t * pchr;
 
-    if ( !ACTIVE_CHR( ichr ) ) return NULL;
+    if ( !ACTIVE_CHR( ichr ) && !WAITING_CHR( ichr ) ) return NULL;
     pchr = ChrList.lst + ichr;
 
     return pro_get_chunk( pchr->iprofile, index );
@@ -6764,7 +6764,7 @@ team_t * chr_get_pteam( Uint16 ichr )
 {
     chr_t * pchr;
 
-    if ( !ACTIVE_CHR( ichr ) ) return NULL;
+    if ( !ACTIVE_CHR( ichr ) && !WAITING_CHR( ichr ) ) return NULL;
     pchr = ChrList.lst + ichr;
 
     if ( pchr->team < 0 && pchr->team >= TEAM_MAX ) return NULL;
@@ -6777,7 +6777,7 @@ team_t * chr_get_pteam_base( Uint16 ichr )
 {
     chr_t * pchr;
 
-    if ( !ACTIVE_CHR( ichr ) ) return NULL;
+    if ( !ACTIVE_CHR( ichr ) && !WAITING_CHR( ichr ) ) return NULL;
     pchr = ChrList.lst + ichr;
 
     if ( pchr->baseteam < 0 || pchr->baseteam >= TEAM_MAX ) return NULL;
@@ -6790,7 +6790,7 @@ ai_state_t * chr_get_pai( Uint16 ichr )
 {
     chr_t * pchr;
 
-    if ( !ACTIVE_CHR( ichr ) ) return NULL;
+    if ( !ACTIVE_CHR( ichr ) && !WAITING_CHR( ichr ) ) return NULL;
     pchr = ChrList.lst + ichr;
 
     return &( pchr->ai );
@@ -6801,7 +6801,7 @@ chr_instance_t * chr_get_pinstance( Uint16 ichr )
 {
     chr_t * pchr;
 
-    if ( !ACTIVE_CHR( ichr ) ) return NULL;
+    if ( !ACTIVE_CHR( ichr ) && !WAITING_CHR( ichr ) ) return NULL;
     pchr = ChrList.lst + ichr;
 
     return &( pchr->inst );
@@ -6816,7 +6816,7 @@ Uint16 team_get_ileader( Uint16 iteam )
     if ( iteam >= TEAM_MAX ) return MAX_CHR;
 
     ichr = TeamList[iteam].leader;
-    if ( !ACTIVE_CHR( ichr ) ) return MAX_CHR;
+    if ( !ACTIVE_CHR( ichr ) && !WAITING_CHR( ichr ) ) return MAX_CHR;
 
     return ichr;
 }
@@ -6829,7 +6829,7 @@ chr_t  * team_get_pleader( Uint16 iteam )
     if ( iteam >= TEAM_MAX ) return NULL;
 
     ichr = TeamList[iteam].leader;
-    if ( !ACTIVE_CHR( ichr ) ) return NULL;
+    if ( !ACTIVE_CHR( ichr ) && !WAITING_CHR( ichr ) ) return NULL;
 
     return ChrList.lst + ichr;
 }
@@ -8460,7 +8460,7 @@ void chr_set_alpha( chr_t * pchr, int alpha )
 {
     if ( !ALLOCATED_PCHR( pchr ) ) return;
 
-    pchr->inst.alpha = CLIP(alpha, 0, 255);
+    pchr->inst.alpha = CLIP( alpha, 0, 255 );
 
     chr_instance_update_ref( &( pchr->inst ), pchr->enviro.floor_level, bfalse );
 }
@@ -8470,7 +8470,7 @@ void chr_set_light( chr_t * pchr, int light )
 {
     if ( !ALLOCATED_PCHR( pchr ) ) return;
 
-    pchr->inst.light = CLIP(light, 0, 255);
+    pchr->inst.light = CLIP( light, 0, 255 );
 
     chr_instance_update_ref( &( pchr->inst ), pchr->enviro.floor_level, bfalse );
 }
@@ -8592,7 +8592,7 @@ void chr_instance_get_tint( chr_instance_t * pinst, GLfloat * tint, Uint32 bits 
 Uint16 chr_get_lowest_attachment( Uint16 ichr, bool_t non_item )
 {
     /// @details BB@> Find the lowest attachment for a given object.
-    ///               This was basically taken from the script function cr_set_TargetToLowestTarget()
+    ///               This was basically taken from the script function scr_set_TargetToLowestTarget()
     ///
     ///               You should be able to find the holder of a weapon by specifying non_item == btrue
     ///
@@ -8615,7 +8615,7 @@ Uint16 chr_get_lowest_attachment( Uint16 ichr, bool_t non_item )
         }
 
         // check for a list with a loop. shouldn't happen, but...
-        if ( !ACTIVE_CHR( object_next ) || object_next != original_object )
+        if ( !ACTIVE_CHR( object_next ) || object_next == original_object )
         {
             break;
         }

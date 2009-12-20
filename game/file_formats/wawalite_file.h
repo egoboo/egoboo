@@ -100,7 +100,7 @@ struct s_wawalite_damagetile
 
     int    parttype;
     Uint32 partand;
-    int    sound;
+    int    sound_index;
 };
 typedef struct s_wawalite_damagetile wawalite_damagetile_t;
 

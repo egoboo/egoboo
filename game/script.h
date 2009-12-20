@@ -174,6 +174,8 @@ struct s_ai_state
 typedef struct s_ai_state ai_state_t;
 
 bool_t ai_state_set_bumplast( ai_state_t * pself, Uint16 ichr );
+bool_t ai_state_get_wp( ai_state_t * pself );
+bool_t ai_state_ensure_wp( ai_state_t * pself );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

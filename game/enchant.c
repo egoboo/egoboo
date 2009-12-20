@@ -149,27 +149,33 @@ bool_t remove_enchant( Uint16 ienc )
     /// @details ZZ@> This function removes a specific enchantment and adds it to the unused list
 
     Sint16 iwave;
-    Uint16 itarget, ispawner;
     Uint16 overlay_ref;
     Uint16 lastenchant, currentenchant;
     int add_type, set_type;
 
+
     enc_t * penc;
     eve_t * peve;
+    Uint16 itarget, ispawner;
 
     if ( !ALLOCATED_ENC( ienc ) ) return bfalse;
     penc = EncList.lst + ienc;
 
-    // Unsparkle the spellbook
+    itarget  = penc->target_ref;
     ispawner = penc->spawner_ref;
+    peve     = enc_get_peve( ienc );
+
+    // Unsparkle the spellbook
     if ( ACTIVE_CHR( ispawner ) )
     {
-        ChrList.lst[ispawner].sparkle = NOSPARKLE;
+        chr_t * pspawner = ChrList.lst + ispawner;
+
+        pspawner->sparkle = NOSPARKLE;
 
         // Make the spawner unable to undo the enchantment
-        if ( ChrList.lst[ispawner].undoenchant == ienc )
+        if ( pspawner->undoenchant == ienc )
         {
-            ChrList.lst[ispawner].undoenchant = MAX_ENC;
+            pspawner->undoenchant = MAX_ENC;
         }
     }
 
@@ -190,30 +196,36 @@ bool_t remove_enchant( Uint16 ienc )
     // Now fix dem weapons
     if ( ACTIVE_CHR( penc->target_ref ) )
     {
-        reset_character_alpha( ChrList.lst[penc->target_ref].holdingwhich[SLOT_LEFT] );
-        reset_character_alpha( ChrList.lst[penc->target_ref].holdingwhich[SLOT_RIGHT] );
+        chr_t * ptarget = ChrList.lst + penc->target_ref;
+        reset_character_alpha( ptarget->holdingwhich[SLOT_LEFT] );
+        reset_character_alpha( ptarget->holdingwhich[SLOT_RIGHT] );
     }
 
     // Unlink it
     if ( ACTIVE_CHR( penc->target_ref ) )
     {
-        if ( ChrList.lst[penc->target_ref].firstenchant == ienc )
+        chr_t * ptarget = ChrList.lst + penc->target_ref;
+
+        if ( ptarget->firstenchant == ienc )
         {
             // It was the first in the list
-            ChrList.lst[penc->target_ref].firstenchant = penc->nextenchant_ref;
+            ptarget->firstenchant = EncList.lst[ienc].nextenchant_ref;
         }
         else
         {
             // Search until we find it
-            lastenchant = currentenchant = ChrList.lst[penc->target_ref].firstenchant;
+            lastenchant = currentenchant = ptarget->firstenchant;
             while ( MAX_ENC != currentenchant && currentenchant != ienc )
             {
-                lastenchant = currentenchant;
+                lastenchant    = currentenchant;
                 currentenchant = EncList.lst[currentenchant].nextenchant_ref;
             }
 
             // Relink the last enchantment
-            EncList.lst[lastenchant].nextenchant_ref = penc->nextenchant_ref;
+            if ( currentenchant == ienc )
+            {
+                EncList.lst[lastenchant].nextenchant_ref = EncList.lst[ienc].nextenchant_ref;
+            }
         }
     }
 
@@ -221,24 +233,22 @@ bool_t remove_enchant( Uint16 ienc )
     overlay_ref = penc->overlay_ref;
     if ( ACTIVE_CHR( overlay_ref ) )
     {
-        if ( ChrList.lst[overlay_ref].invictus )
+        chr_t * povl = ChrList.lst + overlay_ref;
+
+        if ( povl->invictus )
         {
             chr_get_pteam_base( overlay_ref )->morale++;
         }
 
-        //ChrList.lst[overlay_ref].invictus = bfalse;       ZF> no longer needed because ignoreinvictus is added in kill_character()?
+        //povl->invictus = bfalse;       ZF> no longer needed because ignoreinvictus is added in kill_character()?
         kill_character( overlay_ref, MAX_CHR, btrue );
     }
 
     // nothing above this demends on having a valid enchant profile
-    peve = enc_get_peve( ienc );
     if ( NULL != peve )
     {
-        // who is the target?
-        itarget = penc->target_ref;
-
         // Play the end sound
-        iwave = peve->endsoundindex;
+        iwave = peve->endsound_index;
         if ( VALID_SND( iwave ) )
         {
             Uint16 imodel = penc->spawnermodel_ref;
@@ -267,29 +277,33 @@ bool_t remove_enchant( Uint16 ienc )
             spawn_poof( penc->target_ref, penc->profile_ref );
         }
 
-        // Check to see if the character dies
-        if ( peve->killonend )
-        {
-            if ( ACTIVE_CHR( itarget ) )
-            {
-                if ( ChrList.lst[itarget].invictus )  chr_get_pteam_base( itarget )->morale++;
-
-                //ChrList.lst[itarget].invictus = bfalse;   ZF> no longer needed because ignoreinvictus is added in kill_character()?
-                kill_character( itarget, MAX_CHR, btrue );
-            }
-        }
-
-        // Remove see kurse enchant
         if ( ACTIVE_CHR( itarget ) )
         {
+            chr_t * ptarget = ChrList.lst + penc->target_ref;
+
+            // Remove see kurse enchant
             if ( peve->seekurse && !chr_get_pcap( itarget )->canseekurse )
             {
-                ChrList.lst[itarget].canseekurse = bfalse;
+                ptarget->canseekurse = bfalse;
             }
         }
     }
 
     EncList_free_one( ienc );
+
+    // save this until the enchant is completely dead, since kill character can generate a
+    // recursive call to this function through cleanup_one_character()
+    // @note all of the values in the penc are now invalid. we have to use previously evaluated
+    // values of itarget and penc to kill the target (if necessary)
+    if ( ACTIVE_CHR( itarget ) && NULL != peve && peve->killtargetonend )
+    {
+        chr_t * ptarget = ChrList.lst + itarget;
+
+        if ( ptarget->invictus )  chr_get_pteam_base( itarget )->morale++;
+
+        //ptarget->invictus = bfalse;   ZF> no longer needed because ignoreinvictus is added in kill_character()?
+        kill_character( itarget, MAX_CHR, btrue );
+    }
 
     return btrue;
 }
@@ -658,12 +672,12 @@ enc_t * enc_init( enc_t * penc )
     if ( NULL == penc ) return penc;
 
     // save the base object data
-    memcpy( &save_base, OBJ_GET_PBASE( penc ), sizeof( ego_object_base_t ) );
+    memcpy( &save_base, POBJ_GET_PBASE( penc ), sizeof( ego_object_base_t ) );
 
     memset( penc, 0, sizeof( *penc ) );
 
     // restore the base object data
-    memcpy( OBJ_GET_PBASE( penc ), &save_base, sizeof( ego_object_base_t ) );
+    memcpy( POBJ_GET_PBASE( penc ), &save_base, sizeof( ego_object_base_t ) );
 
     penc->profile_ref      = MAX_PROFILE;
     penc->eve_ref          = MAX_EVE;
@@ -964,8 +978,8 @@ Uint16 load_one_enchant_profile( const char* szLoadName, Uint16 ieve )
         ieve = MAX_EVE;
     }
 
-    // limit the endsoundindex
-    peve->endsoundindex = CLIP( peve->endsoundindex, INVALID_SOUND, MAX_WAVE );
+    // limit the endsound_index
+    peve->endsound_index = CLIP( peve->endsound_index, INVALID_SOUND, MAX_WAVE );
 
     return ieve;
 }
@@ -1215,7 +1229,7 @@ Uint16  enc_get_iowner( Uint16 ienc )
 {
     enc_t * penc;
 
-    if ( !ACTIVE_ENC( ienc ) ) return MAX_CHR;
+    if ( !ACTIVE_ENC( ienc ) && !WAITING_ENC( ienc ) ) return MAX_CHR;
     penc = EncList.lst + ienc;
 
     if ( !ACTIVE_CHR( penc->owner_ref ) ) return MAX_CHR;
@@ -1228,7 +1242,7 @@ chr_t * enc_get_powner( Uint16 ienc )
 {
     enc_t * penc;
 
-    if ( !ACTIVE_ENC( ienc ) ) return NULL;
+    if ( !ACTIVE_ENC( ienc ) && !WAITING_ENC( ienc ) ) return NULL;
     penc = EncList.lst + ienc;
 
     if ( !ACTIVE_CHR( penc->owner_ref ) ) return NULL;
@@ -1241,7 +1255,7 @@ Uint16  enc_get_ieve( Uint16 ienc )
 {
     enc_t * penc;
 
-    if ( !ACTIVE_ENC( ienc ) ) return MAX_EVE;
+    if ( !ACTIVE_ENC( ienc ) && !WAITING_ENC( ienc ) ) return MAX_EVE;
     penc = EncList.lst + ienc;
 
     if ( !LOADED_EVE( penc->eve_ref ) ) return MAX_EVE;
@@ -1254,7 +1268,7 @@ eve_t * enc_get_peve( Uint16 ienc )
 {
     enc_t * penc;
 
-    if ( !ACTIVE_ENC( ienc ) ) return NULL;
+    if ( !ACTIVE_ENC( ienc ) && !WAITING_ENC( ienc ) ) return NULL;
     penc = EncList.lst + ienc;
 
     if ( !LOADED_EVE( penc->eve_ref ) ) return NULL;
@@ -1267,7 +1281,7 @@ Uint16  enc_get_ipro( Uint16 ienc )
 {
     enc_t * penc;
 
-    if ( !ACTIVE_ENC( ienc ) ) return MAX_PROFILE;
+    if ( !ACTIVE_ENC( ienc ) && !WAITING_ENC( ienc ) ) return MAX_PROFILE;
     penc = EncList.lst + ienc;
 
     if ( !LOADED_PRO( penc->profile_ref ) ) return MAX_PROFILE;
@@ -1280,7 +1294,7 @@ pro_t * enc_get_ppro( Uint16 ienc )
 {
     enc_t * penc;
 
-    if ( !ACTIVE_ENC( ienc ) ) return NULL;
+    if ( !ACTIVE_ENC( ienc ) && !WAITING_ENC( ienc ) ) return NULL;
     penc = EncList.lst + ienc;
 
     if ( !LOADED_PRO( penc->profile_ref ) ) return NULL;
@@ -1482,7 +1496,7 @@ void update_all_enchants()
                             enc_request_terminate( cnt );
                         }
                     }
-                    else if ( !EveStack.lst[eve].stayifdead )
+                    else if ( !EveStack.lst[eve].stayiftargetdead )
                     {
                         enc_request_terminate( cnt );
                     }
@@ -1503,7 +1517,7 @@ Uint16 cleanup_enchant_list( Uint16 ienc )
 
     first_valid_enchant = MAX_ENC;
     enc_now = ienc;
-    while ( enc_now != MAX_ENC )
+    while ( MAX_ENC != enc_now )
     {
         enc_next = EncList.lst[enc_now].nextenchant_ref;
 
@@ -1526,23 +1540,54 @@ Uint16 cleanup_enchant_list( Uint16 ienc )
 void cleanup_all_enchants()
 {
     /// @details ZZ@> this function scans all the enchants and removes any dead ones.
-    ///     this happens only once a loop
+    ///               this happens only once a loop
 
     int cnt;
 
     for ( cnt = 0; cnt < MAX_ENC; cnt++ )
     {
         enc_t * penc;
-        bool_t time_out;
+        eve_t * peve;
+        bool_t  do_remove;
 
         // allow inactive (but not terminated) enchants to be cleaned up
         if ( !ALLOCATED_ENC( cnt ) ) continue;
         penc = EncList.lst + cnt;
 
-        time_out = ( 0 == penc->time );
-        if (( ego_object_waiting != penc->obj_base.state ) && !time_out ) continue;
+        if ( !LOADED_EVE( penc->eve_ref ) )
+        {
+            // this should never happen
+            assert( bfalse );
+            continue;
+        }
+        peve = EveStack.lst + penc->eve_ref;
 
-        remove_enchant( cnt );
+        do_remove = bfalse;
+        if ( WAITING_PBASE( POBJ_GET_PBASE( penc ) ) )
+        {
+            // the enchant has been marked for removal
+            do_remove = btrue;
+        }
+        else if ( !ACTIVE_CHR( penc->owner_ref ) && !peve->stayifnoowner )
+        {
+            // the enchant's owner has died
+            do_remove = btrue;
+        }
+        else if ( !ACTIVE_CHR( penc->target_ref ) && !peve->stayiftargetdead )
+        {
+            // the enchant's target has died
+            do_remove = btrue;
+        }
+        else
+        {
+            // the enchant has timed out
+            do_remove = ( 0 == penc->time );
+        }
+
+        if ( do_remove )
+        {
+            remove_enchant( cnt );
+        }
     }
 }
 

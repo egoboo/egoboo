@@ -477,7 +477,7 @@ Uint8 scr_AddWaypoint( script_state_t * pstate, ai_state_t * pself )
     if ( returncode )
     {
         // make sure we update the waypoint, since the list changed
-        pself->wp_valid = waypoint_list_peek( &( pself->wp_lst ), pself->wp );
+        ai_state_get_wp( pself );
     }
 
     SCRIPT_FUNCTION_END();
@@ -534,7 +534,7 @@ Uint8 scr_FindPath( script_state_t * pstate, ai_state_t * pself )
             if ( returncode )
             {
                 // make sure we update the waypoint, since the list changed
-                pself->wp_valid = waypoint_list_peek( &( pself->wp_lst ), pself->wp );
+                ai_state_get_wp( pself );
             }
         }
     }
@@ -973,7 +973,7 @@ Uint8 scr_IssueOrder( script_state_t * pstate, ai_state_t * pself )
 {
     // IssueOrder( tmpargument = "order"  )
     /// @details ZZ@> This function tells all of the character's teammates to do something,
-    /// though each teammate needs to interpret the order using _Ordered in
+    /// though each teammate needs to interpret the order using IfOrdered in
     /// its own script.
 
     SCRIPT_FUNCTION_BEGIN();
@@ -3772,7 +3772,7 @@ Uint8 scr_PlaySoundLooped( script_state_t * pstate, ai_state_t * pself )
         Mix_Chunk * playing_chunk = NULL;
 
         // check whatever might be playing on the channel now
-        if ( INVALID_SOUND != pchr->loopedsound_channel )
+        if ( INVALID_SOUND_CHANNEL != pchr->loopedsound_channel )
         {
             playing_chunk = Mix_GetChunk( pchr->loopedsound_channel );
         }
@@ -4154,13 +4154,13 @@ Uint8 scr_PlaySoundVolume( script_state_t * pstate, ai_state_t * pself )
     if ( pstate->distance >= 0 )
     {
         volume = pstate->distance;
-        iTmp = INVALID_SOUND;
+        iTmp = INVALID_SOUND_CHANNEL;
         if ( VALID_SND( pstate->argument ) )
         {
             iTmp = sound_play_chunk( pchr->pos_old, chr_get_chunk_ptr( pchr, pstate->argument ) );
         }
 
-        if ( INVALID_SOUND != iTmp )
+        if ( INVALID_SOUND_CHANNEL != iTmp )
         {
             Mix_Volume( iTmp, pstate->distance );
         }
@@ -6813,7 +6813,7 @@ Uint8 scr_set_Speech( script_state_t * pstate, ai_state_t * pself )
 
     for ( sTmp = SPEECH_BEGIN; sTmp <= SPEECH_END; sTmp++ )
     {
-        pchr->soundindex[sTmp] = pstate->argument;
+        pchr->sound_index[sTmp] = pstate->argument;
     }
 
     SCRIPT_FUNCTION_END();
@@ -6827,7 +6827,7 @@ Uint8 scr_set_MoveSpeech( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->soundindex[SPEECH_MOVE] = pstate->argument;
+    pchr->sound_index[SPEECH_MOVE] = pstate->argument;
 
     SCRIPT_FUNCTION_END();
 }
@@ -6840,7 +6840,7 @@ Uint8 scr_set_SecondMoveSpeech( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->soundindex[SPEECH_MOVEALT] = pstate->argument;
+    pchr->sound_index[SPEECH_MOVEALT] = pstate->argument;
 
     SCRIPT_FUNCTION_END();
 }
@@ -6853,7 +6853,7 @@ Uint8 scr_set_AttackSpeech( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->soundindex[SPEECH_ATTACK] = pstate->argument;
+    pchr->sound_index[SPEECH_ATTACK] = pstate->argument;
 
     SCRIPT_FUNCTION_END();
 }
@@ -6866,7 +6866,7 @@ Uint8 scr_set_AssistSpeech( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->soundindex[SPEECH_ASSIST] = pstate->argument;
+    pchr->sound_index[SPEECH_ASSIST] = pstate->argument;
 
     SCRIPT_FUNCTION_END();
 }
@@ -6879,7 +6879,7 @@ Uint8 scr_set_TerrainSpeech( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->soundindex[SPEECH_TERRAIN] = pstate->argument;
+    pchr->sound_index[SPEECH_TERRAIN] = pstate->argument;
 
     SCRIPT_FUNCTION_END();
 }
@@ -6892,7 +6892,7 @@ Uint8 scr_set_SelectSpeech( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->soundindex[SPEECH_SELECT] = pstate->argument;
+    pchr->sound_index[SPEECH_SELECT] = pstate->argument;
 
     SCRIPT_FUNCTION_END();
 }

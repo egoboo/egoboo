@@ -55,7 +55,7 @@ cap_t * cap_init( cap_t * pcap )
     // clear out the sounds
     for ( cnt = 0; cnt < SOUND_COUNT; cnt++ )
     {
-        pcap->soundindex[cnt] = -1;
+        pcap->sound_index[cnt] = -1;
     }
 
     // Clear expansions...
@@ -343,8 +343,8 @@ cap_t * load_one_cap_file( const char * tmploadname, cap_t * pcap )
     pcap->see_invisible_level = fget_next_bool( fileread );
 
     pcap->kursechance                = fget_next_int( fileread );
-    pcap->soundindex[SOUND_FOOTFALL] = fget_next_int( fileread );  // Footfall sound
-    pcap->soundindex[SOUND_JUMP]     = fget_next_int( fileread );  // Jump sound
+    pcap->sound_index[SOUND_FOOTFALL] = fget_next_int( fileread );  // Footfall sound
+    pcap->sound_index[SOUND_JUMP]     = fget_next_int( fileread );  // Jump sound
 
     // assume the normal dependence of ripple on isitem
     pcap->ripple = !pcap->isitem;
@@ -628,8 +628,8 @@ bool_t save_one_cap_file( const char * szSaveName, cap_t * pcap )
     template_put_int ( filetemp, filewrite, 0 );
     template_put_bool( filetemp, filewrite, pcap->see_invisible_level );
     template_put_int ( filetemp, filewrite, pcap->kursechance );
-    template_put_int ( filetemp, filewrite, pcap->soundindex[SOUND_FOOTFALL] );
-    template_put_int ( filetemp, filewrite, pcap->soundindex[SOUND_JUMP] );
+    template_put_int ( filetemp, filewrite, pcap->sound_index[SOUND_FOOTFALL] );
+    template_put_int ( filetemp, filewrite, pcap->sound_index[SOUND_JUMP] );
 
     vfs_flush( filewrite );
 

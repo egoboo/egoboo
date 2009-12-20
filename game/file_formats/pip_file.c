@@ -59,9 +59,9 @@ pip_t * pip_init( pip_t * ppip )
     // clear the pip
     memset( ppip, 0, sizeof(*ppip) );
 
-    ppip->soundfloor = INVALID_SOUND;
-    ppip->soundwall  = INVALID_SOUND;
-    ppip->damfx      = DAMFX_TURN;
+    ppip->soundfloor_index = INVALID_SOUND;
+    ppip->soundwall_index  = INVALID_SOUND;
+    ppip->damfx            = DAMFX_TURN;
 
     ppip->allowpush = btrue;
 
@@ -225,8 +225,8 @@ pip_t * load_one_pip_file( const char *szLoadName, pip_t * ppip )
         else if ( idsz == MAKE_IDSZ( 'A', 'R', 'R', 'O' ) )  ppip->damfx |= DAMFX_ARRO;
         else if ( idsz == MAKE_IDSZ( 'T', 'I', 'M', 'E' ) )  ppip->damfx |= DAMFX_TIME;
         else if ( idsz == MAKE_IDSZ( 'Z', 'S', 'P', 'D' ) )  ppip->zaimspd = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'F', 'S', 'N', 'D' ) )  ppip->soundfloor = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'W', 'S', 'N', 'D' ) )  ppip->soundwall = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'F', 'S', 'N', 'D' ) )  ppip->soundfloor_index = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'W', 'S', 'N', 'D' ) )  ppip->soundwall_index = fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'W', 'E', 'N', 'D' ) )  ppip->endwall = fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'P', 'U', 'S', 'H' ) )  ppip->allowpush = fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'D', 'L', 'E', 'V' ) )  ppip->dynalight.level_add = fget_int( fileread ) / 1000.0f;

@@ -1,9 +1,12 @@
 //------------------------------------------------------------------------------
 //Dont move while falling and set target point
 IfSpawned
+  ClearWaypoints
   tmpx = selfmoney
   tmpy = selfcontent
-  ClearWaypoints
+  AddWaypoint
+  tmpx = selfspawnx
+  tmpy = selfspawny
   AddWaypoint
 
 //------------------------------------------------------------------------------
@@ -14,21 +17,21 @@ IfHitGround
   
 //------------------------------------------------------------------------------
 //Reached the end!
-tmpx = gotodistance
-tmpy = 100
-IfXIsLessThanY
-  IfStateIs0
-    tmpx = selfspawnx
-    tmpy = selfspawny
-    tmpargument = 1
-    SetState
-  Else
-    tmpx = selfmoney
-    tmpy = selfcontent
-    tmpargument = 0
-    SetState
-  ClearWaypoints
-  AddWaypoint
+//tmpx = gotodistance
+//tmpy = 100
+//IfXIsLessThanY
+//  IfStateIs0
+//    tmpx = selfspawnx
+//    tmpy = selfspawny
+//    tmpargument = 1
+//    SetState
+//  Else
+//    tmpx = selfmoney
+//    tmpy = selfcontent
+//    tmpargument = 0
+//    SetState
+//  ClearWaypoints
+//  AddWaypoint
   
 //------------------------------------------------------------------------------
 //Crush folks
