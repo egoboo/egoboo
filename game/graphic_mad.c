@@ -1325,8 +1325,9 @@ egoboo_rv chr_instance_set_action( chr_instance_t * pinst, int action, bool_t ac
     // set up the action
     pinst->action_which = action;
     pinst->action_next  = ACTION_DA;
-    //pinst->action_keep  = bfalse;
     pinst->action_ready = action_ready;
+
+	
 
     // invalidate the vertex list if the action has changed
     if ( action_old != action )

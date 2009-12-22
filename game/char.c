@@ -396,7 +396,10 @@ bool_t ChrList_free_one( Uint16 ichr )
     chr_t * pchr;
 
     if ( !ALLOCATED_CHR( ichr ) ) return bfalse;
-    chr_log_script_time( ichr );
+
+#ifdef DEBUG_SCRIPTS
+	chr_log_script_time( ichr );
+#endif
 
     pchr = ChrList.lst + ichr;
 
@@ -2909,7 +2912,6 @@ int damage_character( Uint16 character, Uint16 direction,
     ///    left.
     Uint16 action;
     int    actual_damage, base_damage;
-    Uint16 left, right;
     chr_t * pchr;
     cap_t * pcap;
 
@@ -2961,11 +2963,14 @@ int damage_character( Uint16 character, Uint16 direction,
         pchr->ai.damagetypelast = damagetype;
         pchr->ai.directionlast = direction;
 
+		// Check for blocking and invictus, no need to continue if they have
+		if( is_invictus_direction(direction, character, effects) ) actual_damage = 0;
+
         // Do it already
         if ( actual_damage > pchr->damagethreshold )
         {
             // Only actual_damage if not invincible
-            if (( 0 == pchr->damagetime || ignore_invictus ) && !pchr->invictus )
+            if ( 0 == pchr->damagetime || ignore_invictus )
             {
                 // Hard mode deals 25% extra actual damage to players!
                 if ( cfg.difficulty >= GAME_HARD && pchr->isplayer && !ChrList.lst[attacker].isplayer ) actual_damage *= 1.25f;
@@ -2975,57 +2980,6 @@ int damage_character( Uint16 character, Uint16 direction,
                 {
                     if ( ChrList.lst[attacker].isplayer && !pchr->isplayer ) actual_damage *= 1.25f;
                     if ( !ChrList.lst[attacker].isplayer && pchr->isplayer ) actual_damage *= 0.75f;
-                }
-
-                if ( HAS_NO_BITS( effects, DAMFX_NBLOC ) )
-                {
-                    // Only actual_damage if hitting from proper direction
-                    if ( chr_get_framefx( pchr ) & MADFX_INVICTUS )
-                    {
-                        // I Frame...
-                        direction -= pcap->iframefacing;
-                        left  = 0xFFFF - pcap->iframeangle;
-                        right = pcap->iframeangle;
-
-                        // Check for shield
-                        if ( pchr->inst.action_which >= ACTION_PA && pchr->inst.action_which <= ACTION_PD )
-                        {
-                            // Using a shield?
-                            if ( pchr->inst.action_which < ACTION_PC )
-                            {
-                                // Check left hand
-                                cap_t * pcap_tmp = chr_get_pcap( pchr->holdingwhich[SLOT_LEFT] );
-                                if ( NULL != pcap )
-                                {
-                                    left  = 0xFFFF - pcap_tmp->iframeangle;
-                                    right = pcap_tmp->iframeangle;
-                                }
-                            }
-                            else
-                            {
-                                // Check right hand
-                                cap_t * pcap_tmp = chr_get_pcap( pchr->holdingwhich[SLOT_RIGHT] );
-                                if ( NULL != pcap )
-                                {
-                                    left  = 0xFFFF - pcap_tmp->iframeangle;
-                                    right = pcap_tmp->iframeangle;
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        // N Frame
-                        direction -= pcap->nframefacing;
-                        left  = 0xFFFF - pcap->nframeangle;
-                        right = pcap->nframeangle;
-                    }
-
-                    // Check that direction
-                    if ( direction > left || direction < right )
-                    {
-                        actual_damage = 0;
-                    }
                 }
 
                 if ( actual_damage != 0 )
@@ -5817,7 +5771,7 @@ void move_one_character_do_animation( chr_t * pchr )
     pinst->rate = 1.0f;
 
     // Get running, walking, sneaking, or dancing, from speed
-    if ( !pinst->action_keep && !pinst->action_loop )
+    if ( !pinst->action_keep && !pinst->action_loop && !( pchr->inst.action_which >= ACTION_PA && pchr->inst.action_which <= ACTION_PD ) )
     {
         int           frame_count = md2_get_numFrames( pmad->md2_ptr );
         MD2_Frame_t * frame_list  = md2_get_Frames( pmad->md2_ptr );
@@ -6066,28 +6020,49 @@ bool_t is_invictus_direction( Uint16 direction, Uint16 character, Uint16 effects
     // if the invictus flag is set, we are invictus
     if ( pchr->invictus ) return btrue;
 
+	// they specifically ignore any of our invictus
+    if ( HAS_SOME_BITS( effects, DAMFX_NBLOC ) ) return bfalse;
+
     // if the character's frame is invictus, then check the angles
-    if ( chr_get_framefx( pchr ) & MADFX_INVICTUS )
+    if ( HAS_SOME_BITS( chr_get_framefx( pchr ), MADFX_INVICTUS ) )
     {
-        // I Frame
-        if ( effects & DAMFX_NBLOC )
+		//I Frame
+        direction -= pcap->iframefacing;
+        left       = 0xFFFF - pcap->iframeangle;
+        right      = pcap->iframeangle;
+		
+        // If using shield, use the shield invictus instead
+        if ( pchr->inst.action_which >= ACTION_PA && pchr->inst.action_which <= ACTION_PD )
         {
-            left  = 0xFFFF;
-            right = 0;
-        }
-        else
-        {
-            direction -= pcap->iframefacing;
-            left       = 0xFFFF - pcap->iframeangle;
-            right      = pcap->iframeangle;
-        }
+            // Using a shield?
+            if ( pchr->inst.action_which < ACTION_PC )
+            {
+                // Check left hand
+                cap_t * pcap_tmp = chr_get_pcap( pchr->holdingwhich[SLOT_LEFT] );
+                if ( NULL != pcap )
+                {
+                    left  = 0xFFFF - pcap_tmp->iframeangle;
+                    right = pcap_tmp->iframeangle;
+                }
+            }
+            else
+            {
+                // Check right hand
+                cap_t * pcap_tmp = chr_get_pcap( pchr->holdingwhich[SLOT_RIGHT] );
+                if ( NULL != pcap )
+                {
+                    left  = 0xFFFF - pcap_tmp->iframeangle;
+                    right = pcap_tmp->iframeangle;
+                }
+            }
+		}
     }
     else
     {
         // N Frame
         direction -= pcap->nframefacing;
-        left       = - pcap->nframeangle;
-        right      =   pcap->nframeangle;
+        left       = -pcap->nframeangle;
+        right      = pcap->nframeangle;
     }
 
     // Check that direction

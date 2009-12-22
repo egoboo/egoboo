@@ -461,7 +461,6 @@ DEFINE_LIST_EXTERN( chr_t, ChrList, MAX_CHR );
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 /// Function prototypes
-
 void drop_money( Uint16 character, Uint16 money );
 void call_for_help( Uint16 character );
 void give_experience( Uint16 character, int amount, Uint8 xptype, bool_t override_invictus );

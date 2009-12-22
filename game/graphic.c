@@ -2962,7 +2962,7 @@ bool_t dump_screenshot()
     }
     GL_DEBUG( glPopClientAttrib )();
 
-    return savefound;
+    return savefound && saved;
 }
 
 //--------------------------------------------------------------------------------------------

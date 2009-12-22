@@ -27,6 +27,7 @@
 #include "profile.h"
 
 #include "game.h"
+#include "SDL_extensions.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -1848,27 +1849,27 @@ bool_t do_chr_prt_collision_deflect( chr_t * pchr, prt_t * pprt, chr_prt_collsio
     if ( !ACTIVE_PPRT( pprt ) ) return bfalse;
 
     // shield block?
-    chr_is_invictus = ( 0 != ( chr_get_framefx( pchr ) & MADFX_INVICTUS ) );
-
-    // shield block can be counteracted by an unblockable particle
+	//chr_is_invictus = is_invictus_direction( direction, pchr->ai.index, pdata->ppip->damfx);		//@todo: ZF> this line should replace the two lines below, but
+	chr_is_invictus = ( 0 != ( chr_get_framefx( pchr ) & MADFX_INVICTUS ) );						//		 doesn't work properly for some reason
+    
+	// shield block can be counteracted by an unblockable particle
     chr_is_invictus = chr_is_invictus && ( 0 == ( pdata->ppip->damfx & DAMFX_NBLOC ) );
-
+	
     // determine whether the character is magically protected from missile attacks
     prt_wants_deflection  = ( MISSILE_NORMAL != pchr->missiletreatment ) &&
                             ( pprt->owner_ref != GET_INDEX_PCHR( pchr ) ) && !pdata->ppip->bumpmoney;
 
-    chr_can_deflect = chr_is_invictus || (( 0 != pchr->damagetime ) && ( pdata->max_damage > 0 ) );
+    chr_can_deflect = ( 0 != pchr->damagetime ) && ( pdata->max_damage > 0 );
 
     // try to deflect the particle
     prt_deflected = bfalse;
     pdata->mana_paid = bfalse;
-    if ( prt_wants_deflection && chr_can_deflect )
+    if ( chr_is_invictus || prt_wants_deflection && chr_can_deflect )
     {
         // magically deflect the particle or make a ricochet if the character is invictus
-
         int treatment;
 
-        treatment = MISSILE_DEFLECT;
+		treatment = MISSILE_DEFLECT;
         prt_deflected = btrue;
         if ( prt_wants_deflection )
         {
@@ -1887,18 +1888,18 @@ bool_t do_chr_prt_collision_deflect( chr_t * pchr, prt_t * pprt, chr_prt_collsio
                 pdata->impulse.y -= 2.0f * pdata->dot * pdata->nrm.y;
                 pdata->impulse.z -= 2.0f * pdata->dot * pdata->nrm.z;
             }
-            else if ( treatment == MISSILE_DEFLECT )
+            else if ( treatment == MISSILE_REFLECT )
             {
                 // Reflect it back in the direction it came
                 pdata->impulse.x -= 2.0f * pprt->vel.x;
                 pdata->impulse.y -= 2.0f * pprt->vel.y;
                 pdata->impulse.z -= 2.0f * pprt->vel.z;
-            }
 
-            // Change the owner of the missile
-            pprt->team      = pchr->team;
-            pprt->owner_ref = GET_INDEX_PCHR( pchr );
-            pdata->ppip->homing    = bfalse;
+				// Change the owner of the missile
+				pprt->team				= pchr->team;
+				pprt->owner_ref			= GET_INDEX_PCHR( pchr );
+				pdata->ppip->homing		= bfalse;
+            }
 
             // Change the direction of the particle
             if ( pdata->ppip->rotatetoface )
@@ -2000,7 +2001,7 @@ bool_t do_chr_prt_collision_recoil( chr_t * pchr, prt_t * pprt, chr_prt_collsion
         // modify it by the the severity of the damage
         // reduces the damage below pdata->actual_damage == pchr->lifemax
         // and it doubles it if pdata->actual_damage is really huge
-        factor *= 2.0f * ( float )pdata->actual_damage / ( float )( ABS( pdata->actual_damage ) + pchr->lifemax );
+        //factor *= 2.0f * ( float )pdata->actual_damage / ( float )( ABS( pdata->actual_damage ) + pchr->lifemax );
 
         factor = CLIP( factor, 0.0f, 3.0f );
 
@@ -2095,7 +2096,7 @@ bool_t do_chr_prt_collision_damage( chr_t * pchr, prt_t * pprt, chr_prt_collsion
     // Do confuse effects
     // the particle would have already been deflected if this frame was a
     // invictus frame
-    if ( 0 != ( pdata->ppip->damfx & DAMFX_NBLOC ) /* || 0 == ( Md2FrameList[pchr->inst.frame_nxt].framefx & MADFX_INVICTUS ) */ )
+    if ( HAS_NO_BITS( pdata->ppip->damfx, DAMFX_NBLOC ) )
     {
         if ( pdata->ppip->grogtime > 0 && pdata->pcap->canbegrogged )
         {
@@ -2127,7 +2128,7 @@ bool_t do_chr_prt_collision_damage( chr_t * pchr, prt_t * pprt, chr_prt_collsion
 	}
 
 	// DAMFX_ARRO means that it only does damage to the one it's attached to
-	if ( 0 == ( pdata->ppip->damfx&DAMFX_ARRO ) && !( prt_needs_impact && !( pdata->dot < 0.0f ) ) )
+	if ( HAS_NO_BITS( pdata->ppip->damfx, DAMFX_ARRO ) && !( prt_needs_impact && !( pdata->dot < 0.0f ) ) )
 	{
 		Uint16 direction;
 		IPair loc_damage = pprt->damage;
