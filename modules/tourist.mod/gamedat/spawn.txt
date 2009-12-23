@@ -12,7 +12,7 @@ shaft:   NONE    42  57.5   58.5   0.0   N    0   0  0   0   0   F   F   N
 moduletool:   NONE    40  57.5   58.5   0.0   N    0   0  0   0   0   F   F   E
 
 //Long boulder hall
-bouldertrap:   NONE    36  60.5   47.0   0.0   N    3136   0  0   6016   0   F   F   N
+bouldertrap:   NONE    36  60.0   47.0   0.0   N    3136   0  0   6016   0   F   F   N
 
 //Trap glyph
 spikedtrap:   NONE    43  41.5   52.0   1.0   E    0   0  0   11   0   F   F   E

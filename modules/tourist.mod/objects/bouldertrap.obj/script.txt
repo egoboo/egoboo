@@ -14,25 +14,7 @@ IfSpawned
 IfHitGround
   tmpargument = 0
   PlaySound
-  
-//------------------------------------------------------------------------------
-//Reached the end!
-//tmpx = gotodistance
-//tmpy = 100
-//IfXIsLessThanY
-//  IfStateIs0
-//    tmpx = selfspawnx
-//    tmpy = selfspawny
-//    tmpargument = 1
-//    SetState
-//  Else
-//    tmpx = selfmoney
-//    tmpy = selfcontent
-//    tmpargument = 0
-//    SetState
-//  ClearWaypoints
-//  AddWaypoint
-  
+   
 //------------------------------------------------------------------------------
 //Crush folks
 IfBumped
