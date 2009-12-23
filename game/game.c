@@ -1802,7 +1802,7 @@ void do_weather_spawn_particles()
 
                         bool_t destroy_particle = bfalse;
 
-                        if ( __prthitawall( pprt, NULL ) )
+                        if ( __prthitawall( pprt, NULL, NULL ) )
                         {
                             destroy_particle = btrue;
                         }

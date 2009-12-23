@@ -731,7 +731,7 @@ Uint16 spawn_one_particle( fvec3_t   pos, Uint16 facing, Uint16 iprofile, Uint16
         case SPRITE_LIGHT: break;
     }
 
-    if ( 0 == __prthitawall( pprt, NULL ) )
+    if ( 0 == __prthitawall( pprt, NULL, NULL ) )
     {
         pprt->safe_valid = btrue;
     };
@@ -765,13 +765,16 @@ Uint16 spawn_one_particle( fvec3_t   pos, Uint16 facing, Uint16 iprofile, Uint16
 }
 
 //--------------------------------------------------------------------------------------------
-Uint32 __prthitawall( prt_t * pprt, float nrm[] )
+Uint32 __prthitawall( prt_t * pprt, float nrm[], float * pressure )
 {
     /// @details ZZ@> This function returns nonzero if the character hit a wall that the
     ///    character is not allowed to cross
 
     pip_t * ppip;
     Uint32 bits;
+
+    float        loc_pressure;
+    fvec3_base_t loc_nrm;
 
     if ( !ACTIVE_PPRT( pprt ) ) return 0;
 
@@ -781,7 +784,11 @@ Uint32 __prthitawall( prt_t * pprt, float nrm[] )
     bits = MPDFX_IMPASS;
     if ( ppip->bumpmoney ) bits |= MPDFX_WALL;
 
-    return mesh_hitawall( PMesh, pprt->pos.v, 0.0f, bits, nrm );
+    // deal with the optional parameters
+    if( NULL == pressure ) pressure = &loc_pressure;
+    if( NULL == nrm      ) nrm      =  loc_nrm;
+
+    return mesh_hitawall( PMesh, pprt->pos.v, 0.0f, bits, nrm, pressure );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1614,7 +1621,7 @@ void move_one_particle_do_z_motion( prt_t * pprt )
 //{
 //    ftmp = pprt->pos.x;
 //    pprt->pos.x += pprt->vel.x;
-//    if ( __prthitawall( iprt, NULL ) )
+//    if ( __prthitawall( iprt, NULL, NULL ) )
 //    {
 //        hit_a_wall = btrue;
 
@@ -1628,7 +1635,7 @@ void move_one_particle_do_z_motion( prt_t * pprt )
 //{
 //    ftmp = pprt->pos.y;
 //    pprt->pos.y += pprt->vel.y;
-//    if ( __prthitawall( iprt, NULL ) )
+//    if ( __prthitawall( iprt, NULL, NULL ) )
 //    {
 //        hit_a_wall = btrue;
 
@@ -1748,7 +1755,7 @@ bool_t move_one_particle_integrate_motion( prt_t * pprt )
     Uint16 iprt;
     bool_t hit_a_floor, hit_a_wall;
     fvec3_t nrm_total;
-    fvec2_t nrm;
+    fvec3_t nrm;
 
     if ( !DISPLAY_PPRT( pprt ) ) return bfalse;
     iprt = GET_INDEX_PPRT( pprt );
@@ -1792,7 +1799,7 @@ bool_t move_one_particle_integrate_motion( prt_t * pprt )
     ftmp = pprt->pos.x;
     pprt->pos.x += pprt->vel.x;
     LOG_NAN( pprt->pos.x );
-    if ( __prthitawall( pprt, nrm.v ) )
+    if ( __prthitawall( pprt, nrm.v, NULL ) )
     {
         hit_a_wall = btrue;
 
@@ -1804,7 +1811,7 @@ bool_t move_one_particle_integrate_motion( prt_t * pprt )
     ftmp = pprt->pos.y;
     pprt->pos.y += pprt->vel.y;
     LOG_NAN( pprt->pos.y );
-    if ( __prthitawall( pprt, nrm.v ) )
+    if ( __prthitawall( pprt, nrm.v, NULL ) )
     {
         hit_a_wall = btrue;
 
@@ -1939,7 +1946,7 @@ bool_t move_one_particle_integrate_motion( prt_t * pprt )
     }
 
     pprt->safe_valid = bfalse;
-    if ( !__prthitawall( pprt, NULL ) )
+    if ( !__prthitawall( pprt, NULL, NULL ) )
     {
         pprt->pos_safe   = pprt->pos;
         pprt->safe_valid = btrue;
@@ -1947,7 +1954,7 @@ bool_t move_one_particle_integrate_motion( prt_t * pprt )
     else
     {
         pprt->pos = pprt->pos_safe;
-        if ( !__prthitawall( pprt, NULL ) )
+        if ( !__prthitawall( pprt, NULL, NULL ) )
         {
             pprt->safe_valid = btrue;
         }

@@ -1105,7 +1105,7 @@ void bump_all_collisions()
         {
             tmpx = pchr->pos.x;
             pchr->pos.x += pchr->phys.apos_0.x + pchr->phys.apos_1.x;
-            if ( __chrhitawall( pchr, NULL ) )
+            if ( __chrhitawall( pchr, NULL, NULL ) )
             {
                 // restore the old values
                 pchr->pos.x = tmpx;
@@ -1121,7 +1121,7 @@ void bump_all_collisions()
         {
             tmpy = pchr->pos.y;
             pchr->pos.y += pchr->phys.apos_0.y + pchr->phys.apos_1.y;
-            if ( __chrhitawall( pchr, NULL ) )
+            if ( __chrhitawall( pchr, NULL, NULL ) )
             {
                 // restore the old values
                 pchr->pos.y = tmpy;
@@ -1149,7 +1149,7 @@ void bump_all_collisions()
             }
         }
 
-        pchr->safe_valid = ( 0 == __chrhitawall( pchr, NULL ) );
+        pchr->safe_valid = ( 0 == __chrhitawall( pchr, NULL, NULL ) );
     }
 }
 

@@ -1518,7 +1518,7 @@ float grid_get_mix( float u0, float u, float v0, float v )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint32 mesh_hitawall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits, float nrm[] )
+Uint32 mesh_hitawall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits, float nrm[], float * pressure )
 {
     /// @details BB@> an abstraction of the functions of __chrhitawall() and __prthitawall()
 
@@ -1526,14 +1526,23 @@ Uint32 mesh_hitawall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits,
     Uint32 itile;
     int   ix_min, ix_max, iy_min, iy_max;
     float fx_min, fx_max, fy_min, fy_max, obj_area;
+    float dist2;
     int ix, iy, tx0, ty0;
     bool_t invalid;
 
+    float  loc_pressure;
     fvec3_base_t loc_nrm;
 
     ego_mpd_info_t  * pinfo;
     ego_tile_info_t * tlist;
     ego_grid_info_t * glist;
+
+    // deal with the optional parameters
+    if( NULL == pressure ) pressure = &loc_pressure;
+    *pressure = 0.0f;
+
+    if( NULL == nrm ) nrm =  loc_nrm;
+    nrm[kX] = nrm[kY] = nrm[kZ] = 0.0f;
 
     if ( NULL == pos || 0 == bits ) return 0;
 
@@ -1541,8 +1550,6 @@ Uint32 mesh_hitawall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits,
     pinfo = &( pmesh->info );
     tlist = pmesh->tmem.tile_list;
     glist = pmesh->gmem.grid_list;
-
-    if ( NULL == nrm ) nrm = loc_nrm;
 
     if ( 0.0f == radius )
     {
@@ -1613,16 +1620,21 @@ Uint32 mesh_hitawall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits,
                 if ( VALID_TILE( pmesh, itile ) )
                 {
                     float area_ratio;
+                    float ovl_x_min, ovl_x_max;
+                    float ovl_y_min, ovl_y_max;
 
                     if ( 0.0f == radius )
                     {
                         area_ratio = 1.0f;
+                        ovl_x_min = tx_min;
+                        ovl_x_max = tx_max;
+
+                        ovl_y_min = ty_min;
+                        ovl_y_max = ty_max;
                     }
                     else
                     {
                         float min_area;
-                        float ovl_x_min, ovl_x_max;
-                        float ovl_y_min, ovl_y_max;
 
                         // determine the area overlap of the tile with the
                         // object's bounding box
@@ -1651,8 +1663,8 @@ Uint32 mesh_hitawall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits,
                     if ( HAS_SOME_BITS( glist[itile].fx, bits ) )
                     {
                         // hiting the mesh
-                        nrm[kX] += (( ix + 0.5f ) * TILE_SIZE - pos[kX] ) * area_ratio;
-                        nrm[kY] += (( iy + 0.5f ) * TILE_SIZE - pos[kY] ) * area_ratio;
+                        nrm[kX] += ( (ovl_x_max + ovl_x_min) * 0.5f - pos[kX] ) * area_ratio;
+                        nrm[kY] += ( (ovl_y_max + ovl_y_min) * 0.5f - pos[kY] ) * area_ratio;
 
                         // do not count it as a hit unless there is a 25% overlap
                         if ( area_ratio > 0.25f )
@@ -1663,23 +1675,22 @@ Uint32 mesh_hitawall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits,
                     else
                     {
                         // not hitting the mesh
-                        nrm[kX] -= (( ix + 0.5f ) * TILE_SIZE - pos[kX] ) * area_ratio;;
-                        nrm[kY] -= (( iy + 0.5f ) * TILE_SIZE - pos[kY] ) * area_ratio;;
+                        nrm[kX] -= ((ovl_x_max + ovl_x_min) * 0.5f - pos[kX] ) * area_ratio;
+                        nrm[kY] -= ((ovl_y_max + ovl_y_min) * 0.5f - pos[kY] ) * area_ratio;
                     }
                 }
             }
         }
     }
 
-    if ( 0 != ( pass & bits ) )
+    dist2 = nrm[kX] * nrm[kX] + nrm[kY] * nrm[kY];
+    if ( dist2 > 0.0f )
     {
-        float dist2 = nrm[kX] * nrm[kX] + nrm[kY] * nrm[kY];
-        if ( dist2 > 0 )
-        {
-            float dist = SQRT( dist2 );
-            nrm[kX] /= -dist;
-            nrm[kY] /= -dist;
-        }
+        float dist = SQRT( dist2 );
+
+        *pressure = dist;
+        nrm[kX] /= -dist;
+        nrm[kY] /= -dist;
     }
 
     return pass & bits;

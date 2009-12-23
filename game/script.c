@@ -1502,8 +1502,9 @@ bool_t waypoint_list_push( waypoint_list_t * plst, int x, int y )
     if ( NULL == plst ) return bfalse;
 
     // add the value
-    plst->pos[plst->head][0] = x;
-    plst->pos[plst->head][1] = y;
+    plst->pos[plst->head][kX] = x;
+    plst->pos[plst->head][kY] = y;
+    plst->pos[plst->head][kZ] = 0;
 
     // do not let the list overflow
     plst->head++;

@@ -240,7 +240,6 @@ bool_t remove_enchant( Uint16 ienc )
             chr_get_pteam_base( overlay_ref )->morale++;
         }
 
-        //povl->invictus = bfalse;       ZF> no longer needed because ignoreinvictus is added in kill_character()?
         kill_character( overlay_ref, MAX_CHR, btrue );
     }
 

@@ -199,7 +199,7 @@ bool_t grid_light_one_corner( ego_mpd_t * pmesh, int fan, float height, float nr
 bool_t mesh_set_texture( ego_mpd_t * pmesh, Uint16 tile, Uint16 image );
 bool_t mesh_update_texture( ego_mpd_t * pmesh, Uint16 tile );
 
-Uint32 mesh_hitawall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits, float nrm[] );
+Uint32 mesh_hitawall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits, float nrm[], float * pressure );
 
 float mesh_get_max_vertex_0( ego_mpd_t * pmesh, int tile_x, int tile_y );
 float mesh_get_max_vertex_1( ego_mpd_t * pmesh, int tile_x, int tile_y, float xmin, float ymin, float xmax, float ymax );

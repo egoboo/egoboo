@@ -957,7 +957,7 @@ Uint32  ego_texture_load( oglx_texture *texture, const char *filename, Uint32 ke
         for ( type = 0; type < maxformattypes; type++ )
         {
             snprintf( fullname, SDL_arraysize( fullname ), "%s%s", filename, TxFormatSupported[type] );
-            retval = oglx_texture_Load( GL_TEXTURE_2D, texture, vfs_resolveReadFilename( fullname ), key );
+            retval = oglx_texture_Load( texture, vfs_resolveReadFilename( fullname ), key );
             if ( INVALID_TX_ID != retval ) break;
         }
     }
@@ -978,7 +978,7 @@ Uint32  ego_texture_load( oglx_texture *texture, const char *filename, Uint32 ke
             tx_target = GL_TEXTURE_1D;
         }
 
-        retval = oglx_texture_Convert( tx_target, texture, image, key );
+        retval = oglx_texture_Convert( texture, image, key );
         strncpy( texture->name, fullname, SDL_arraysize( texture->name ) );
 
         texture->base.wrap_s = GL_REPEAT;

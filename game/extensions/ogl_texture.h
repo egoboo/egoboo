@@ -39,6 +39,9 @@
 
 #define INVALID_KEY    ( (Uint32) (~0) )
 
+#define VALID_BINDING( BIND ) ( (0 != (BIND)) && (INVALID_TX_ID != (BIND)) )
+#define ERROR_IMAGE_BINDING( BIND ) ( ErrorImage_get_binding() == (BIND) )
+
 /// OpenGL Texture filtering methods
 typedef enum e_tx_filters
 {
@@ -68,8 +71,8 @@ struct s_oglx_texture
 };
 typedef struct s_oglx_texture oglx_texture;
 
-GLuint  oglx_texture_Convert( GLenum tx_target, oglx_texture *texture, SDL_Surface * pimage, Uint32 key );
-GLuint  oglx_texture_Load( GLenum tx_target, oglx_texture *texture, const char *filename, Uint32 key );
+GLuint  oglx_texture_Convert( oglx_texture *texture, SDL_Surface * pimage, Uint32 key );
+GLuint  oglx_texture_Load( oglx_texture *texture, const char *filename, Uint32 key );
 GLuint  oglx_texture_GetTextureID( oglx_texture *texture );
 GLsizei oglx_texture_GetImageHeight( oglx_texture *texture );
 GLsizei oglx_texture_GetImageWidth( oglx_texture *texture );
@@ -101,3 +104,8 @@ extern oglx_texture_parameters_t tex_params;
 
 void      oglx_grab_texture_state(GLenum target, GLint level, oglx_texture * texture);
 GLboolean oglx_texture_Valid( oglx_texture *ptex );
+
+GLuint    oglx_bind_to_tex_params( GLuint binding, GLenum target, GLint wrap_s, GLint wrap_t );
+
+void      ErrorImage_bind(GLenum target, GLuint id);
+GLuint    ErrorImage_get_binding();

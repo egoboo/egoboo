@@ -722,7 +722,7 @@ void make_all_character_matrices( bool_t do_physics )
     ////        {
     ////            tmpx = pchr->pos.x;
     ////            pchr->pos.x += pchr->phys.apos_1.x;
-    ////            if ( __chrhitawall(ichr, nrm) )
+    ////            if ( __chrhitawall(ichr, nrm, NULL) )
     ////            {
     ////                // restore the old values
     ////                pchr->pos.x = tmpx;
@@ -738,7 +738,7 @@ void make_all_character_matrices( bool_t do_physics )
     ////        {
     ////            tmpy = pchr->pos.y;
     ////            pchr->pos.y += pchr->phys.apos_1.y;
-    ////            if ( __chrhitawall(ichr, nrm) )
+    ////            if ( __chrhitawall(ichr, nrm, NULL) )
     ////            {
     ////                // restore the old values
     ////                pchr->pos.y = tmpy;
@@ -766,7 +766,7 @@ void make_all_character_matrices( bool_t do_physics )
     ////            }
     ////        }
 
-    ////        if ( 0 == __chrhitawall(ichr, nrm) )
+    ////        if ( 0 == __chrhitawall(ichr, nrm, NULL) )
     ////        {
     ////            pchr->safe_valid = btrue;
     ////        }
@@ -838,16 +838,23 @@ void free_all_chraracters()
 }
 
 //--------------------------------------------------------------------------------------------
-Uint32 __chrhitawall( chr_t * pchr, float nrm[] )
+Uint32 __chrhitawall( chr_t * pchr, float nrm[], float * pressure )
 {
     /// @details ZZ@> This function returns nonzero if the character hit a wall that the
     ///    character is not allowed to cross
+
+    float        loc_pressure;
+    fvec3_base_t loc_nrm;
 
     if ( !ACTIVE_PCHR( pchr ) ) return 0;
 
     if ( 0 == pchr->bump.size || INFINITE_WEIGHT == pchr->phys.weight ) return 0;
 
-    return mesh_hitawall( PMesh, pchr->pos.v, pchr->bump.size, pchr->stoppedby, nrm );
+    // deal with the optional parameters
+    if( NULL == pressure ) pressure = &loc_pressure;
+    if( NULL == nrm      ) nrm      =  loc_nrm;
+
+    return mesh_hitawall( PMesh, pchr->pos.v, pchr->bump.size, pchr->stoppedby, nrm, pressure );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -950,7 +957,7 @@ bool_t detach_character_from_mount( Uint16 character, Uint8 ignorekurse, Uint8 d
     }
 
     // Make sure it's not dropped in a wall...
-    if ( __chrhitawall( pchr, NULL ) )
+    if ( __chrhitawall( pchr, NULL, NULL ) )
     {
         pchr->pos.x = pmount->pos.x;
         pchr->pos.y = pmount->pos.y;
@@ -2004,11 +2011,11 @@ void character_swipe( Uint16 ichr, slot_t slot )
                         }
 
                         // Don't spawn in walls
-                        if ( __prthitawall( pprt, NULL ) )
+                        if ( __prthitawall( pprt, NULL, NULL ) )
                         {
                             pprt->pos.x = pweapon->pos.x;
                             pprt->pos.y = pweapon->pos.y;
-                            if ( __prthitawall( pprt, NULL ) )
+                            if ( __prthitawall( pprt, NULL, NULL ) )
                             {
                                 pprt->pos.x = pchr->pos.x;
                                 pprt->pos.y = pchr->pos.y;
@@ -2301,7 +2308,7 @@ void resize_all_characters()
             {
                 pchr->bump.size += bump_increase;
 
-                if ( __chrhitawall( pchr, NULL ) )
+                if ( __chrhitawall( pchr, NULL, NULL ) )
                 {
                     willgetcaught = btrue;
                 }
@@ -3390,7 +3397,10 @@ Uint16 spawn_one_character( fvec3_t pos, Uint16 profile, Uint8 team,
     int cnt, tnc;
     chr_t * pchr;
     cap_t * pcap;
-    fvec3_t   pos_tmp;
+    fvec3_t pos_tmp;
+
+    float   pressure;
+    fvec3_t nrm;
 
     Uint16 icap;
 
@@ -3599,15 +3609,18 @@ Uint16 spawn_one_character( fvec3_t pos, Uint16 profile, Uint8 team,
     chr_spawn_instance( &( pchr->inst ), profile, skin );
     chr_update_matrix( pchr, btrue );
 
-    if ( 0 == __chrhitawall( pchr, NULL ) )
-    {
-        pchr->safe_valid = btrue;
-    };
-
     // determine whether the object is hidden
     chr_update_hide( pchr );
 
     chr_instance_update_ref( &( pchr->inst ), pchr->enviro.floor_level, btrue );
+
+    // determine whether the spawn position is a safe position
+    pchr->safe_valid = ( 0 == __chrhitawall( pchr, nrm.v, &pressure ) );
+    if( ACTIVE_CHR(pchr->attachedto) && INFINITE_WEIGHT != pchr->phys.weight && !pchr->safe_valid )
+    {
+        log_warning( "spawn_one_character() - \n\tinitial spawn position <%f,%f> is \"inside\" a wall. Wall normal is <%f,%f>\n",
+            pchr->pos.x, pchr->pos.y, nrm.x, nrm.y );
+    }
 
     return ichr;
 }
@@ -5519,8 +5532,9 @@ bool_t move_one_character_integrate_motion( chr_t * pchr )
     /// @details BB@> Figure out the next position of the character.
     ///    Include collisions with the mesh in this step.
 
-    float nrm[2], ftmp;
-    Uint16 ichr;
+    fvec3_t nrm;
+    float   ftmp;
+    Uint16  ichr;
     ai_state_t * pai;
 
     if ( !ACTIVE_PCHR( pchr ) ) return bfalse;
@@ -5561,20 +5575,20 @@ bool_t move_one_character_integrate_motion( chr_t * pchr )
     ftmp = pchr->pos.x;
     pchr->pos.x += pchr->vel.x;
     LOG_NAN( pchr->pos.x );
-    if ( __chrhitawall( pchr, nrm ) )
+    if ( __chrhitawall( pchr, nrm.v, NULL ) )
     {
         if ( ABS( pchr->vel.x ) + ABS( pchr->vel.y ) > 0 )
         {
-            if ( ABS( nrm[XX] ) + ABS( nrm[YY] ) > 0 )
+            if ( ABS( nrm.x ) + ABS( nrm.y ) > 0 )
             {
                 float dotprod;
                 float vpara[2], vperp[2];
 
-                dotprod = pchr->vel.x * nrm[XX] + pchr->vel.y * nrm[YY];
+                dotprod = pchr->vel.x * nrm.x + pchr->vel.y * nrm.y;
                 if ( dotprod < 0 )
                 {
-                    vperp[XX] = dotprod * nrm[XX];
-                    vperp[YY] = dotprod * nrm[YY];
+                    vperp[XX] = dotprod * nrm.x;
+                    vperp[YY] = dotprod * nrm.y;
 
                     vpara[XX] = pchr->vel.x - vperp[XX];
                     vpara[YY] = pchr->vel.y - vperp[YY];
@@ -5591,7 +5605,7 @@ bool_t move_one_character_integrate_motion( chr_t * pchr )
 
         if ( !pchr->safe_valid )
         {
-            pchr->pos.x += nrm[XX] * 5;
+            pchr->pos.x += nrm.x * 5;
         }
         else
         {
@@ -5606,20 +5620,20 @@ bool_t move_one_character_integrate_motion( chr_t * pchr )
     ftmp = pchr->pos.y;
     pchr->pos.y += pchr->vel.y;
     LOG_NAN( pchr->pos.y );
-    if ( __chrhitawall( pchr, nrm ) )
+    if ( __chrhitawall( pchr, nrm.v, NULL ) )
     {
         if ( ABS( pchr->vel.x ) + ABS( pchr->vel.y ) > 0 )
         {
-            if ( ABS( nrm[XX] ) + ABS( nrm[YY] ) > 0 )
+            if ( ABS( nrm.x ) + ABS( nrm.y ) > 0 )
             {
                 float dotprod;
                 float vpara[2], vperp[2];
 
-                dotprod = pchr->vel.x * nrm[XX] + pchr->vel.y * nrm[YY];
+                dotprod = pchr->vel.x * nrm.x + pchr->vel.y * nrm.y;
                 if ( dotprod < 0 )
                 {
-                    vperp[XX] = dotprod * nrm[XX];
-                    vperp[YY] = dotprod * nrm[YY];
+                    vperp[XX] = dotprod * nrm.x;
+                    vperp[YY] = dotprod * nrm.y;
 
                     vpara[XX] = pchr->vel.x - vperp[XX];
                     vpara[YY] = pchr->vel.y - vperp[YY];
@@ -5636,7 +5650,7 @@ bool_t move_one_character_integrate_motion( chr_t * pchr )
 
         if ( !pchr->safe_valid )
         {
-            pchr->pos.y += nrm[YY] * 5;
+            pchr->pos.y += nrm.y * 5;
         }
         else
         {
@@ -5648,7 +5662,7 @@ bool_t move_one_character_integrate_motion( chr_t * pchr )
         pchr->pos_safe.y = pchr->pos.y;
     }
 
-    if ( __chrhitawall( pchr, nrm ) )
+    if ( __chrhitawall( pchr, nrm.v, NULL ) )
     {
         pchr->safe_valid = btrue;
     }
@@ -7238,7 +7252,7 @@ bool_t chr_teleport( Uint16 ichr, float x, float y, float z, Uint16 turn_z )
     pchr->pos.z  = z;
     pchr->turn_z = turn_z;
 
-    if ( __chrhitawall( pchr, NULL ) )
+    if ( __chrhitawall( pchr, NULL, NULL ) )
     {
         // No it didn't...
         pchr->pos    = pos_save;

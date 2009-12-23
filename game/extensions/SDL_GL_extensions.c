@@ -23,7 +23,9 @@
 /// @details
 
 #include "SDL_GL_extensions.h"
+
 #include "ogl_debug.h"
+#include "ogl_texture.h"
 
 //---------------------------------------------------------------------
 //---------------------------------------------------------------------
@@ -86,54 +88,26 @@ int powerOfTwo( int input )
 //---------------------------------------------------------------------
 SDL_bool SDL_GL_uploadSurface( SDL_Surface *surface, GLuint tx_id, GLfloat *texCoords )
 {
-    int w, h;
-    SDL_Surface *image;
-    SDL_Rect area;
-    Uint32 saved_flags;
-    Uint8  saved_alpha;
+    int tx_w, tx_h;
+
+    GLfloat local_texCoords[4];
+
+    if( NULL == surface ) return SDL_FALSE;
+
+    // handle the optional parameters
+    if( NULL == texCoords ) texCoords = local_texCoords;
 
     // Use the surface width & height expanded to the next powers of two
-    w = powerOfTwo( surface->w );
-    h = powerOfTwo( surface->h );
+    tx_w = powerOfTwo( surface->w );
+    tx_h = powerOfTwo( surface->h );
 
     texCoords[0] = 0.0f;
     texCoords[1] = 0.0f;
-    texCoords[2] = ( GLfloat )surface->w / w;
-    texCoords[3] = ( GLfloat )surface->h / h;
+    texCoords[2] = ( GLfloat )surface->w /  ( GLfloat )tx_w;
+    texCoords[3] = ( GLfloat )surface->h /  ( GLfloat )tx_h;
 
-    image = SDL_CreateRGBSurface( SDL_SWSURFACE, w, h, 32, rmask, gmask, bmask, amask );
-    if ( image == NULL )
-    {
-        return SDL_FALSE;
-    }
-
-    // Save the alpha blending attributes
-    saved_flags = surface->flags & ( SDL_SRCALPHA | SDL_RLEACCELOK );
-    saved_alpha = surface->format->alpha;
-    if ( ( saved_flags & SDL_SRCALPHA ) == SDL_SRCALPHA )
-    {
-        SDL_SetAlpha( surface, 0, 0 );
-    }
-
-    // Copy the surface into the texture image
-    area.x = 0;
-    area.y = 0;
-    area.w = surface->w;
-    area.h = surface->h;
-    SDL_BlitSurface( surface, &area, image, &area );
-
-    // Restore the blending attributes
-    if ( ( saved_flags & SDL_SRCALPHA ) == SDL_SRCALPHA )
-    {
-        SDL_SetAlpha( surface, saved_flags, saved_alpha );
-    }
-
-    // Send the texture to OpenGL
-    oglx_bind( GL_TEXTURE_2D, tx_id, GL_REPEAT, GL_REPEAT, GL_LINEAR, GL_LINEAR, 0 );
-    oglx_upload_2d( GL_TRUE, w, h, image->pixels );
-
-    // Don't need the extra image anymore
-    SDL_FreeSurface( image );
+    // use the default wrap parameters
+    SDL_GL_convert_surface( tx_id, surface, -1, -1 );
 
     return SDL_TRUE;
 }
@@ -299,3 +273,158 @@ FILE * SDL_GL_set_stdout(FILE * pfile)
 
     return pfile_old;
 }
+
+//--------------------------------------------------------------------------------------------
+GLuint SDL_GL_convert_surface( GLenum binding, SDL_Surface * surface, GLint wrap_s, GLint wrap_t )
+{
+    int               srf_w, srf_h, tx_w, tx_h;
+    SDL_Surface     * screen, * local_surface;
+    SDL_PixelFormat * pformat;
+    SDL_PixelFormat   tmpformat;
+    bool_t            use_alpha;
+    GLenum            target;
+
+    SDLX_screen_info_t sdl_scr;
+
+    // Bind the error texture instead of the old texture
+    ErrorImage_bind( GL_TEXTURE_2D, binding );
+
+    if ( NULL == surface ) return INVALID_TX_ID;
+    local_surface = surface;
+
+    // handle default parameters
+    if( wrap_s < 0 ) wrap_s = GL_REPEAT;
+    if( wrap_t < 0 ) wrap_t = GL_REPEAT;
+
+    // grab the screen information
+    SDLX_Get_Screen_Info(&sdl_scr, SDL_FALSE);
+
+    /* Set the original local_surface's size (incase it's not an exact square of a power of two) */
+    srf_h = local_surface->h;
+    srf_w = local_surface->w;
+
+    // adjust the texture target
+    target = ((1 == local_surface->h) && (local_surface->w > 1)) ? GL_TEXTURE_1D : GL_TEXTURE_2D;
+
+    /* Determine the correct power of two greater than or equal to the original local_surface's size */
+    tx_h = powerOfTwo( local_surface->h );
+    tx_w = powerOfTwo( local_surface->w );
+
+    screen  = SDL_GetVideoSurface();
+    pformat = screen->format;
+    memcpy( &tmpformat, screen->format, sizeof( SDL_PixelFormat ) );   // make a copy of the format
+
+    // if( ogl_caps.alpha_bits > 0 )
+    {
+        // convert the local_surface to a 32-bit pixel format
+        tmpformat.Amask  = sdl_a_mask;
+        tmpformat.Ashift = sdl_a_shift;
+        tmpformat.Aloss  = 0;
+
+        tmpformat.Bmask  = sdl_b_mask;
+        tmpformat.Bshift = sdl_a_shift;
+        tmpformat.Bloss  = 0;
+
+        tmpformat.Gmask  = sdl_g_mask;
+        tmpformat.Gshift = sdl_g_shift;
+        tmpformat.Gloss  = 0;
+
+        tmpformat.Rmask  = sdl_r_mask;
+        tmpformat.Rshift = sdl_r_shift;
+        tmpformat.Rloss = 0;
+
+        // make the pixel size match the screen format
+        tmpformat.BitsPerPixel  = 32;
+        tmpformat.BytesPerPixel = 4;
+    }
+    // else
+    // {
+    //   // convert the local_surface to a 24-bit pixel format without alpha
+    //   // convert the local_surface to a 32-bit pixel format
+    //   tmpformat.Amask  = 0;
+    //   tmpformat.Ashift = sdl_a_shift;
+    //   tmpformat.Aloss  = 8;
+
+    //   tmpformat.Bmask  = sdl_b_mask;
+    //   tmpformat.Bshift = sdl_a_shift;
+    //   tmpformat.Bloss  = 0;
+
+    //   tmpformat.Gmask  = sdl_g_mask;
+    //   tmpformat.Gshift = sdl_g_shift;
+    //   tmpformat.Gloss  = 0;
+
+    //   tmpformat.Rmask  = sdl_r_mask;
+    //   tmpformat.Rshift = sdl_r_shift;
+    //   tmpformat.Rloss = 0;
+
+    //   // make the pixel size match the screen format
+    //   tmpformat.BitsPerPixel  = 24;
+    //   tmpformat.BytesPerPixel = 3;
+    // }
+
+    {
+        SDL_Surface * tmp;
+        Uint32 convert_flags;
+
+        // convert the local_surface format to the correct format
+        convert_flags = SDL_SWSURFACE;
+        tmp = SDL_ConvertSurface( local_surface, &tmpformat, convert_flags );
+        if( local_surface != surface ) SDL_FreeSurface( local_surface );
+        local_surface = tmp;
+
+        // fix the alpha channel on the new SDL_Surface.  For some reason, SDL wants to create
+        // local_surface with local_surface->format->alpha==0x00 which causes a problem if we have to
+        // use the SDL_BlitSurface() function below.  With the local_surface alpha set to zero, the
+        // local_surface will be converted to BLACK!
+        //
+        // The following statement tells SDL
+        //  1) to set the local_surface to opaque
+        //  2) not to alpha blend the local_surface on blit
+        SDL_SetAlpha( local_surface, 0, SDL_ALPHA_OPAQUE );
+        SDL_SetColorKey( local_surface, 0, 0 );
+    }
+
+    // create a ptex that is acceptable to OpenGL (height and width are powers of 2)
+    if ( srf_h != tx_h || srf_w != tx_w )
+    {
+        SDL_Surface * tmp = SDL_CreateRGBSurface( SDL_SWSURFACE, tx_w, tx_h, tmpformat.BitsPerPixel, tmpformat.Rmask, tmpformat.Gmask, tmpformat.Bmask, tmpformat.Amask );
+
+        SDL_BlitSurface( local_surface, &local_surface->clip_rect, tmp, &local_surface->clip_rect );
+        if( local_surface != surface ) SDL_FreeSurface( local_surface );
+        local_surface = tmp;
+    };
+
+    /* Generate an OpenGL texture ID */
+    if ( !VALID_BINDING(binding) || ERROR_IMAGE_BINDING(binding) )
+    {
+        GL_DEBUG(glGenTextures)( 1, &binding );
+    }
+
+    /* Set up some parameters for the format of the oglx_texture */
+    binding = oglx_bind_to_tex_params( binding, target, wrap_s, wrap_t );
+
+    /* actually create the OpenGL textures */
+    use_alpha = !( 8 == local_surface->format->Aloss );
+    if ( target == GL_TEXTURE_2D )
+    {
+        if ( tex_params.texturefilter >= TX_MIPMAP )
+        {
+            oglx_upload_2d_mipmap(use_alpha, local_surface->w, local_surface->h, local_surface->pixels);
+        }
+        else
+        {
+            oglx_upload_2d(use_alpha, local_surface->w, local_surface->h, local_surface->pixels);
+        }
+    }
+    else if (target == GL_TEXTURE_1D)
+    {
+        oglx_upload_1d(use_alpha, local_surface->w, local_surface->pixels);
+    }
+    else
+    {
+        assert(0);
+    }
+
+    return binding;
+}
+

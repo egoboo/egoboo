@@ -28,8 +28,9 @@
 #include "egoboo_typedef.h"
 #include "egoboo_strutil.h"
 
-#include "ogl_include.h"
-#include "ogl_debug.h"
+#include "extensions/ogl_include.h"
+#include "extensions/ogl_debug.h"
+#include "extensions/SDL_GL_extensions.h"
 
 #include <stdlib.h>
 #include <stddef.h>
@@ -85,83 +86,6 @@ int fnt_init()
 }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-static int powerOfTwo( int input )
-{
-    /// @note borrowed from the gl_font.c test program from SDL_ttf
-
-    int value = 1;
-
-    while ( value < input )
-    {
-        value <<= 1;
-    }
-
-    return value;
-}
-
-//--------------------------------------------------------------------------------------------
-int copySurfaceToTexture( SDL_Surface *surface, GLuint texture, GLfloat *texCoords )
-{
-    /// @note borrowed from the gl_font.c test program from SDL_ttf
-
-    int w, h;
-    SDL_Surface *image;
-    SDL_Rect area;
-    Uint32   saved_flags;
-    Uint8    saved_alpha;
-
-    // Use the surface width & height expanded to the next powers of two
-    w = powerOfTwo( surface->w );
-    h = powerOfTwo( surface->h );
-    texCoords[0] = 0.0f;
-    texCoords[1] = 0.0f;
-    texCoords[2] = ( GLfloat )surface->w / w;
-    texCoords[3] = ( GLfloat )surface->h / h;
-
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-    image = SDL_CreateRGBSurface( SDL_SWSURFACE, w, h, 32, 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000 );
-#else
-    image = SDL_CreateRGBSurface( SDL_SWSURFACE, w, h, 32, 0xff000000, 0x00ff0000, 0x0000ff00, 0x000000ff );
-#endif
-    if ( image == NULL )
-    {
-        return 0;
-    }
-
-    // Save the alpha blending attributes
-    saved_flags = surface->flags & ( SDL_SRCALPHA | SDL_RLEACCELOK );
-    saved_alpha = surface->format->alpha;
-    if (( saved_flags & SDL_SRCALPHA ) == SDL_SRCALPHA )
-    {
-        SDL_SetAlpha( surface, 0, 0 );
-    }
-
-    // Copy the surface into the texture image
-    area.x = 0;
-    area.y = 0;
-    area.w = surface->w;
-    area.h = surface->h;
-    SDL_BlitSurface( surface, &area, image, &area );
-
-    // Restore the blending attributes
-    if (( saved_flags & SDL_SRCALPHA ) == SDL_SRCALPHA )
-    {
-        SDL_SetAlpha( surface, saved_flags, saved_alpha );
-    }
-
-    // Send the texture to OpenGL
-    GL_DEBUG( glBindTexture )( GL_TEXTURE_2D, texture );
-    GL_DEBUG( glTexParameteri )( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-    GL_DEBUG( glTexParameteri )( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-    GL_DEBUG( glTexImage2D )( GL_TEXTURE_2D,  0, GL_RGBA,  w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE,  image->pixels );
-
-    // Don't need the extra image anymore
-    SDL_FreeSurface( image );
-
-    return 1;
-}
-
 //--------------------------------------------------------------------------------------------
 Font* fnt_loadFont( const char *fileName, int pointSize )
 {
@@ -228,7 +152,7 @@ int fnt_print_raw( Font *font, SDL_Color color, SDL_Surface ** psurf, GLuint ite
 
     // upload the texture
     rv = 0;
-    if ( !copySurfaceToTexture(( *pptmp ), itex, texCoords ) )
+    if ( !SDL_GL_uploadSurface(( *pptmp ), itex, texCoords ) )
     {
         rv = -1;
     }

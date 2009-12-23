@@ -454,6 +454,8 @@ Uint8 scr_AddWaypoint( script_state_t * pstate, ai_state_t * pself )
     /// @details ZZ@> This function tells the character where to move next
 
     fvec2_t pos;
+    fvec3_t nrm;
+    float   pressure;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -463,15 +465,33 @@ Uint8 scr_AddWaypoint( script_state_t * pstate, ai_state_t * pself )
 
     // is this a safe position?
     returncode = bfalse;
-    if ( !mesh_hitawall( PMesh, pos.v, pchr->bump.size, pchr->stoppedby, NULL ) )
+    if ( !mesh_hitawall( PMesh, pos.v, pchr->bump.size, pchr->stoppedby, nrm.v, &pressure ) )
     {
         // yes it is safe. add it.
         returncode = waypoint_list_push( &( pself->wp_lst ), pstate->x, pstate->y );
     }
     else
     {
+        cap_t * pcap;
         // no it is not safe. what to do? nothing, or add the current position?
         //returncode = waypoint_list_push( &(pself->wp_lst), pchr->pos.x, pchr->pos.y );
+
+        pcap = chr_get_pcap( GET_INDEX_PCHR(pchr) );
+
+        if( NULL != pcap )
+        {
+            log_warning( "scr_AddWaypoint() - failed to add a waypoint because object was \"inside\" a wall.\n"
+                "\tcharacter %d (\"%s\", \"%s\")\n"
+                "\tWaypoint index %d\n" 
+                "\tWaypoint location (in tiles) <%f,%f>\n"
+                "\tWall normal <%1.4f,%1.4f>\n"
+                "\tPressure %f\n",
+                GET_INDEX_PCHR(pchr), pchr->Name, pcap->name,
+                pself->wp_lst.head,
+                pos.x / TILE_SIZE, pos.y / TILE_SIZE, 
+                nrm.x, nrm.y, 
+                SQRT(pressure) / TILE_SIZE );
+        }
     }
 
     if ( returncode )
@@ -1927,10 +1947,10 @@ Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
         pprt->pos.z += PipStack.lst[pprt->pip_ref].zspacing_pair.base;
 
         // Don't spawn in walls
-        if ( __prthitawall( pprt, NULL ) )
+        if ( __prthitawall( pprt, NULL, NULL ) )
         {
             pprt->pos.x = pchr->pos.x;
-            if ( __prthitawall( pprt, NULL ) )
+            if ( __prthitawall( pprt, NULL, NULL ) )
             {
                 pprt->pos.y = pchr->pos.y;
             }

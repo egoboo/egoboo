@@ -34,6 +34,10 @@ extern "C"
     /// find the minimum value of 2^n that is larger than input
     int powerOfTwo( int input );
 
+    /// Convert a SDL_Surface to an OpenGL texture directly.
+    /// Uses the SDL and OpenGL graphics options to upload the texture in the correct mode
+    GLuint SDL_GL_convert_surface( GLenum binding, SDL_Surface * surface, GLint wrap_s, GLint wrap_t );
+
     /// Convert a SDL surface into an OpenGL texture
     SDL_bool SDL_GL_uploadSurface( SDL_Surface *surface, GLuint texture, GLfloat *texCoords );
 

@@ -2858,7 +2858,7 @@ bool_t dump_screenshot()
     int i;
     bool_t savefound = bfalse;
     bool_t saved     = bfalse;
-    STRING szFilename;
+    STRING szFilename, szResolvedFilename;
 
     // find a valid file name
     savefound = bfalse;
@@ -2874,12 +2874,16 @@ bool_t dump_screenshot()
             i++;
         }
     }
+
     if ( !savefound ) return bfalse;
 
-    // if we are not using OpenGl, jsut dump the screen
+    // convert the file path to the correct write path
+    strncpy( szResolvedFilename, vfs_resolveWriteFilename( szFilename ), sizeof(szFilename) );
+
+    // if we are not using OpenGL, use SDL to dump the screen
     if ( HAS_NO_BITS( sdl_scr.pscreen->flags, SDL_OPENGL ) )
     {
-        SDL_SaveBMP( sdl_scr.pscreen, szFilename );
+        SDL_SaveBMP( sdl_scr.pscreen, szResolvedFilename );
         return bfalse;
     }
 
@@ -2889,13 +2893,7 @@ bool_t dump_screenshot()
         SDL_Surface *temp;
 
         // create a SDL surface
-        temp = SDL_CreateRGBSurface( SDL_SWSURFACE, sdl_scr.x, sdl_scr.y, 24,
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-                                     0x000000FF, 0x0000FF00, 0x00FF0000, 0
-#else
-                                     0x00FF0000, 0x0000FF00, 0x000000FF, 0
-#endif
-                                   );
+        temp = SDL_CreateRGBSurface( SDL_SWSURFACE, sdl_scr.x, sdl_scr.y, 24, sdl_r_mask, sdl_g_mask, sdl_b_mask, 0 );
 
         if ( temp == NULL )
         {
@@ -2949,7 +2947,7 @@ bool_t dump_screenshot()
             SDL_UnlockSurface( temp );
 
             // Save the file as a .bmp
-            saved = ( -1 != SDL_SaveBMP( temp, szFilename ) );
+            saved = ( -1 != SDL_SaveBMP( temp, szResolvedFilename ) );
         }
 
         // free the SDL surface

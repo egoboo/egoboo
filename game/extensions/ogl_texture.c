@@ -26,6 +26,7 @@
 
 #include "ogl_texture.h"
 #include "ogl_debug.h"
+
 #include "SDL_GL_extensions.h"
 
 #include "graphic.h"
@@ -41,9 +42,6 @@
 #define ErrorImage_width   2
 #define ErrorImage_height  2
 
-#define VALID_BINDING( BIND ) ( (0 != (BIND)) && (INVALID_TX_ID != (BIND)) )
-#define ERROR_BINDING( BIND ) ( ErrorImage_binding == (BIND) )
-
 #define VALID_TEXTURE( PTEX ) ( (NULL != (PTEX)) && (VALID_VALUE == (PTEX)->valid) )
 
 static GLuint ErrorImage_binding = INVALID_TX_ID;
@@ -55,10 +53,6 @@ static GLboolean ErrorImage_defined = GL_FALSE;
 typedef GLubyte image_row_t[ErrorImage_width][4];
 
 static GLubyte ErrorImage[ErrorImage_height][ErrorImage_width][4];
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-static void ErrorImage_bind(GLenum target, GLuint id);
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -98,8 +92,12 @@ void ErrorImage_create(void)
     ErrorImage_defined = GL_TRUE;
 }
 
+//--------------------------------------------------------------------------------------------
 void ErrorImage_bind(GLenum target, GLuint id)
 {
+    // make sure the error texture exists
+    if (!ErrorImage_defined) ErrorImage_create();
+
     GL_DEBUG(glPushClientAttrib)( GL_CLIENT_PIXEL_STORE_BIT ) ;
     {
         GL_DEBUG(glPixelStorei)(GL_UNPACK_ALIGNMENT, 1);
@@ -123,6 +121,14 @@ void ErrorImage_bind(GLenum target, GLuint id)
 }
 
 //--------------------------------------------------------------------------------------------
+GLuint ErrorImage_get_binding()
+{
+    // make sure the error texture exists
+    if (!ErrorImage_defined) ErrorImage_create();
+
+    return ErrorImage_binding;
+}
+//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 oglx_texture * oglx_texture_new(oglx_texture * ptex)
 {
@@ -135,7 +141,7 @@ oglx_texture * oglx_texture_new(oglx_texture * ptex)
     GL_DEBUG(glGenTextures)( 1, &(ptex->base.binding) );
 
     // set the flag validity flag
-    if ( VALID_BINDING(ptex->base.binding) && !ERROR_BINDING(ptex->base.binding) )
+    if ( VALID_BINDING(ptex->base.binding) && !ERROR_IMAGE_BINDING(ptex->base.binding) )
     {
         ptex->valid = VALID_VALUE;
     }
@@ -185,19 +191,11 @@ void oglx_texture_delete(oglx_texture * ptex)
 }
 
 //--------------------------------------------------------------------------------------------
-GLuint oglx_texture_Convert( GLenum tx_target, oglx_texture *ptex, SDL_Surface * image, Uint32 key )
+GLuint oglx_texture_Convert( oglx_texture *ptex, SDL_Surface * image, Uint32 key )
 {
-    int               src_imgW, src_imgH;
-    SDL_Surface     * screen;
-    SDL_PixelFormat * pformat;
-    SDL_PixelFormat   tmpformat;
-    bool_t            use_alpha;
-
-    SDLX_screen_info_t sdl_scr;
+    /// @detalis BB@> an oglx_texture wrapper for the SDL_GL_convert_surface() function
 
     if ( NULL == ptex ) return INVALID_TX_ID;
-
-    SDLX_Get_Screen_Info(&sdl_scr, SDL_FALSE);
 
     // make sure the old texture has been freed
     oglx_texture_Release( ptex );
@@ -210,152 +208,31 @@ GLuint oglx_texture_Convert( GLenum tx_target, oglx_texture *ptex, SDL_Surface *
         SDL_SetColorKey( image, SDL_SRCCOLORKEY, key );
     };
 
-    /* Set the ptex's alpha */
-    ptex->alpha = image->format->alpha / 255.0f;
+    // Determine the correct power of two greater than or equal to the original image's size
+    ptex->base.binding = SDL_GL_convert_surface( ptex->base.binding, image, ptex->base.wrap_s, ptex->base.wrap_t );
 
-    /* Set the original image's size (incase it's not an exact square of a power of two) */
-    src_imgH = image->h;
-    src_imgW = image->w;
-
-    // adjust the texture target
-    tx_target = ((1 == image->h) && (image->w > 1)) ? GL_TEXTURE_1D : GL_TEXTURE_2D;
-
-    /* Determine the correct power of two greater than or equal to the original image's size */
+    ptex->base.target = ((1 == image->h) && (image->w > 1)) ? GL_TEXTURE_1D : GL_TEXTURE_2D;
     ptex->base.height = powerOfTwo( image->h );
     ptex->base.width  = powerOfTwo( image->w );
 
-    screen  = SDL_GetVideoSurface();
-    pformat = screen->format;
-    memcpy( &tmpformat, screen->format, sizeof( SDL_PixelFormat ) );   // make a copy of the format
-
-    // if( ogl_caps.alpha_bits > 0 )
-    {
-        // convert the image to a 32-bit pixel format
-        tmpformat.Amask  = sdl_a_mask;
-        tmpformat.Ashift = sdl_a_shift;
-        tmpformat.Aloss  = 0;
-
-        tmpformat.Bmask  = sdl_b_mask;
-        tmpformat.Bshift = sdl_a_shift;
-        tmpformat.Bloss  = 0;
-
-        tmpformat.Gmask  = sdl_g_mask;
-        tmpformat.Gshift = sdl_g_shift;
-        tmpformat.Gloss  = 0;
-
-        tmpformat.Rmask  = sdl_r_mask;
-        tmpformat.Rshift = sdl_r_shift;
-        tmpformat.Rloss = 0;
-
-        // make the pixel size match the screen format
-        tmpformat.BitsPerPixel  = 32;
-        tmpformat.BytesPerPixel = 4;
-    }
-    // else
-    // {
-    //   // convert the image to a 24-bit pixel format without alpha
-    //   // convert the image to a 32-bit pixel format
-    //   tmpformat.Amask  = 0;
-    //   tmpformat.Ashift = sdl_a_shift;
-    //   tmpformat.Aloss  = 8;
-
-    //   tmpformat.Bmask  = sdl_b_mask;
-    //   tmpformat.Bshift = sdl_a_shift;
-    //   tmpformat.Bloss  = 0;
-
-    //   tmpformat.Gmask  = sdl_g_mask;
-    //   tmpformat.Gshift = sdl_g_shift;
-    //   tmpformat.Gloss  = 0;
-
-    //   tmpformat.Rmask  = sdl_r_mask;
-    //   tmpformat.Rshift = sdl_r_shift;
-    //   tmpformat.Rloss = 0;
-
-    //   // make the pixel size match the screen format
-    //   tmpformat.BitsPerPixel  = 24;
-    //   tmpformat.BytesPerPixel = 3;
-    // }
-
-    {
-        SDL_Surface * tmp;
-        Uint32 convert_flags;
-
-        // convert the image format to the correct format
-        convert_flags = SDL_SWSURFACE;
-        tmp = SDL_ConvertSurface( image, &tmpformat, convert_flags );
-        SDL_FreeSurface( image );
-        image = tmp;
-
-        // fix the alpha channel on the new SDL_Surface.  For some reason, SDL wants to create
-        // surface with surface->format->alpha==0x00 which causes a problem if we have to
-        // use the SDL_BlitSurface() function below.  With the surface alpha set to zero, the
-        // image will be converted to BLACK!
-        //
-        // The following statement tells SDL
-        //  1) to set the image to opaque
-        //  2) not to alpha blend the surface on blit
-        SDL_SetAlpha( image, 0, SDL_ALPHA_OPAQUE );
-        SDL_SetColorKey( image, 0, 0 );
-    }
-
-    // create a ptex that is acceptable to OpenGL (height and width are powers of 2)
-    if ( src_imgH != ptex->base.height || src_imgW != ptex->base.width )
-    {
-        SDL_Surface * tmp = SDL_CreateRGBSurface( SDL_SWSURFACE, ptex->base.width, ptex->base.height, tmpformat.BitsPerPixel, tmpformat.Rmask, tmpformat.Gmask, tmpformat.Bmask, tmpformat.Amask );
-
-        SDL_BlitSurface( image, &image->clip_rect, tmp, &image->clip_rect );
-        SDL_FreeSurface( image );
-        image = tmp;
-    };
-
-    /* Generate an OpenGL texture ID */
-    if ( !VALID_BINDING(ptex->base.binding) || ERROR_BINDING(ptex->base.binding) )
-    {
-        GL_DEBUG(glGenTextures)( 1, &ptex->base.binding );
-    }
-
-    ptex->base.target  = tx_target;
-    ptex->surface      = image;
-
-    /* Set up some parameters for the format of the oglx_texture */
+    // Set up some parameters for the format of the oglx_texture
     ptex->base_valid = btrue;
-    oglx_texture_Bind( ptex );
-
-    /* actually create the OpenGL textures */
-    use_alpha = !( 8 == image->format->Aloss );
-    if ( tx_target == GL_TEXTURE_2D )
-    {
-        if ( tex_params.texturefilter >= TX_MIPMAP )
-        {
-            oglx_upload_2d_mipmap(use_alpha, image->w, image->h, image->pixels);
-        }
-        else
-        {
-            oglx_upload_2d(use_alpha, image->w, image->h, image->pixels);
-        }
-    }
-    else if (tx_target == GL_TEXTURE_1D)
-    {
-        oglx_upload_1d(use_alpha, image->w, image->pixels);
-    }
-    else
-    {
-        assert(0);
-    }
-
-    ptex->base_valid = bfalse;
-    oglx_grab_texture_state( tx_target, 0, ptex );
-
-    ptex->alpha = 1.0f;
-    ptex->imgW  = src_imgW;
-    ptex->imgH  = src_imgH;
+    ptex->surface    = image;
+    ptex->imgW       = image->w;
+    ptex->imgH       = image->h;
+    ptex->alpha      = image->format->alpha / 255.0f;
     strncpy( ptex->name, "SDL_Surface()", SDL_arraysize(ptex->name) );
+
+    //// use the following command to grab every possible texture attribute in OpenGL v1.4 for
+    //// this texture. Useful for debugging
+    // ptex->base_valid = bfalse;
+    //oglx_grab_texture_state( tx_target, 0, ptex );
 
     return ptex->base.binding;
 }
 
 //--------------------------------------------------------------------------------------------
-GLuint oglx_texture_Load( GLenum tx_target, oglx_texture *ptex, const char *filename, Uint32 key )
+GLuint oglx_texture_Load( oglx_texture *ptex, const char *filename, Uint32 key )
 {
     GLuint retval;
     SDL_Surface * image;
@@ -375,7 +252,7 @@ GLuint oglx_texture_Load( GLenum tx_target, oglx_texture *ptex, const char *file
     image = IMG_Load( filename );
     if ( NULL == image ) return INVALID_TX_ID;
 
-    retval = oglx_texture_Convert( tx_target, ptex, image, key );
+    retval = oglx_texture_Convert( ptex, image, key );
 
     if ( !VALID_BINDING(retval) )
     {
@@ -392,37 +269,37 @@ GLuint oglx_texture_Load( GLenum tx_target, oglx_texture *ptex, const char *file
     return retval;
 }
 
-/********************> oglx_texture_GetTextureID() <*****/
+//---------------------------------------------------------------------------------------------
 GLuint  oglx_texture_GetTextureID( oglx_texture *texture )
 {
     return (NULL == texture) ? INVALID_TX_ID : texture->base.binding;
 }
 
-/********************> oglx_texture_GetImageHeight() <*****/
+//---------------------------------------------------------------------------------------------
 GLsizei  oglx_texture_GetImageHeight( oglx_texture *texture )
 {
     return (NULL == texture) ? 0 : texture->imgH;
 }
 
-/********************> oglx_texture_GetImageWidth() <*****/
+//---------------------------------------------------------------------------------------------
 GLsizei  oglx_texture_GetImageWidth( oglx_texture *texture )
 {
     return (NULL == texture) ? 0 : texture->imgW;
 }
 
-/********************> oglx_texture_GetTextureWidth() <*****/
+//---------------------------------------------------------------------------------------------
 GLsizei  oglx_texture_GetTextureWidth( oglx_texture *texture )
 {
     return (NULL == texture) ? 0 : texture->base.width;
 }
 
-/********************> oglx_texture_GetTextureHeight() <*****/
+//---------------------------------------------------------------------------------------------
 GLsizei  oglx_texture_GetTextureHeight( oglx_texture *texture )
 {
     return (NULL == texture) ? 0 : texture->base.height;
 }
 
-/********************> oglx_texture_SetAlpha() <*****/
+//---------------------------------------------------------------------------------------------
 void  oglx_texture_SetAlpha( oglx_texture *texture, GLfloat alpha )
 {
     if ( NULL != texture )
@@ -431,13 +308,13 @@ void  oglx_texture_SetAlpha( oglx_texture *texture, GLfloat alpha )
     }
 }
 
-/********************> oglx_texture_GetAlpha() <*****/
+//---------------------------------------------------------------------------------------------
 GLfloat  oglx_texture_GetAlpha( oglx_texture *texture )
 {
     return (NULL == texture) ? 0 : texture->alpha;
 }
 
-/********************> oglx_texture_Release() <*****/
+//---------------------------------------------------------------------------------------------
 void  oglx_texture_Release( oglx_texture *texture )
 {
     if ( !VALID_TEXTURE(texture) ) return;
@@ -463,24 +340,24 @@ void  oglx_texture_Release( oglx_texture *texture )
     texture->base.wrap_s = GL_REPEAT;
     texture->base.wrap_t = GL_REPEAT;
 
-    oglx_grab_texture_state( GL_TEXTURE_2D, 0, texture );
+    //// use the following command to grab every possible texture attribute in OpenGL v1.4 for
+    //// this texture. Useful for debugging
+    //oglx_grab_texture_state( GL_TEXTURE_2D, 0, texture );
 }
 
-/********************> oglx_texture_Release() <*****/
+//---------------------------------------------------------------------------------------------
 void oglx_texture_Bind( oglx_texture *texture )
 {
-    int    filt_type, anisotropy;
+    /// @details BB@> a oglx_texture wrapper for oglx_bind_to_tex_params() function
+
     GLenum target;
     GLuint id;
     GLint wrap_s, wrap_t;
 
-    // make sure the error texture exists
-    if (!ErrorImage_defined) ErrorImage_create();
-
     // assume the texture is going to be the error texture
     target = GL_TEXTURE_2D;
     wrap_s = wrap_t = GL_REPEAT;
-    id = ErrorImage_binding;
+    id     = ErrorImage_binding;
 
     if ( NULL == texture )
     {
@@ -496,53 +373,13 @@ void oglx_texture_Bind( oglx_texture *texture )
         wrap_t = texture->base.wrap_t;
     }
 
-    filt_type  = tex_params.texturefilter;
-    anisotropy = tex_params.userAnisotropy;
+    // upload the texture
+    id = oglx_bind_to_tex_params( id, target, wrap_s, wrap_t );
 
-    if ( !GL_DEBUG(glIsEnabled)( target ) )
+    // if the texture binding changed, upload the change.
+    if( VALID_TEXTURE(texture) )
     {
-        GL_DEBUG(glEnable)( target );
-    };
-
-    if ( filt_type >= TX_ANISOTROPIC )
-    {
-        // Anisotropic filtered!
-        oglx_bind(target, id, wrap_s, wrap_t, GL_LINEAR, GL_LINEAR, anisotropy);
-    }
-    else
-    {
-        switch ( filt_type )
-        {
-                // Unfiltered
-            case TX_UNFILTERED:
-                oglx_bind(target, id, wrap_s, wrap_t, GL_NEAREST, GL_LINEAR, 0);
-                break;
-
-                // Linear filtered
-            case TX_LINEAR:
-                oglx_bind(target, id, wrap_s, wrap_t, GL_LINEAR, GL_LINEAR, 0);
-                break;
-
-                // Bilinear interpolation
-            case TX_MIPMAP:
-                oglx_bind(target, id, wrap_s, wrap_t, GL_NEAREST_MIPMAP_NEAREST, GL_LINEAR, 0);
-                break;
-
-                // Bilinear interpolation
-            case TX_BILINEAR:
-                oglx_bind(target, id, wrap_s, wrap_t, GL_LINEAR_MIPMAP_NEAREST, GL_LINEAR, 0);
-                break;
-
-                // Trilinear filtered (quality 1)
-            case TX_TRILINEAR_1:
-                oglx_bind(target, id, wrap_s, wrap_t, GL_NEAREST_MIPMAP_LINEAR, GL_LINEAR, 0);
-                break;
-
-                // Trilinear filtered (quality 2)
-            case TX_TRILINEAR_2:
-                oglx_bind(target, id, wrap_s, wrap_t, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, 0);
-                break;
-        };
+        texture->base.binding = id;
     }
 
     // use the following command to grab every possible texture attribute in OpenGL v1.4 for
@@ -569,3 +406,71 @@ void oglx_grab_texture_state(GLenum target, GLint level, oglx_texture * texture)
     texture->base_valid = GL_TRUE;
 }
 
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+GLuint oglx_bind_to_tex_params( GLuint binding, GLenum target, GLint wrap_s, GLint wrap_t )
+{
+    int    filt_type, anisotropy;
+    
+    GLuint local_binding;
+    
+    // make sure the error texture exists
+    if (!ErrorImage_defined) ErrorImage_create();
+
+    // handle default parameters
+    if( wrap_s < 0 ) wrap_s = GL_REPEAT;
+    if( wrap_t < 0 ) wrap_t = GL_REPEAT;
+
+    local_binding = VALID_BINDING(binding) ? binding : ErrorImage_binding;
+
+    filt_type  = tex_params.texturefilter;
+    anisotropy = tex_params.userAnisotropy;
+
+    if ( !GL_DEBUG(glIsEnabled)( target ) )
+    {
+        GL_DEBUG(glEnable)( target );
+    };
+
+    if ( filt_type >= TX_ANISOTROPIC )
+    {
+        // Anisotropic filtered!
+        oglx_bind(target, local_binding, wrap_s, wrap_t, GL_LINEAR, GL_LINEAR, anisotropy);
+    }
+    else
+    {
+        switch ( filt_type )
+        {
+                // Unfiltered
+            case TX_UNFILTERED:
+                oglx_bind(target, local_binding, wrap_s, wrap_t, GL_NEAREST, GL_LINEAR, 0);
+                break;
+
+                // Linear filtered
+            case TX_LINEAR:
+                oglx_bind(target, local_binding, wrap_s, wrap_t, GL_LINEAR, GL_LINEAR, 0);
+                break;
+
+                // Bilinear interpolation
+            case TX_MIPMAP:
+                oglx_bind(target, local_binding, wrap_s, wrap_t, GL_NEAREST_MIPMAP_NEAREST, GL_LINEAR, 0);
+                break;
+
+                // Bilinear interpolation
+            case TX_BILINEAR:
+                oglx_bind(target, local_binding, wrap_s, wrap_t, GL_LINEAR_MIPMAP_NEAREST, GL_LINEAR, 0);
+                break;
+
+                // Trilinear filtered (quality 1)
+            case TX_TRILINEAR_1:
+                oglx_bind(target, local_binding, wrap_s, wrap_t, GL_NEAREST_MIPMAP_LINEAR, GL_LINEAR, 0);
+                break;
+
+                // Trilinear filtered (quality 2)
+            case TX_TRILINEAR_2:
+                oglx_bind(target, local_binding, wrap_s, wrap_t, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, 0);
+                break;
+        };
+    }
+
+    return local_binding;
+}
