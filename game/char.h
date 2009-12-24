@@ -471,6 +471,8 @@ int  damage_character( Uint16 character, Uint16 direction,
 void kill_character( Uint16 character, Uint16 killer, bool_t ignore_invictus );
 bool_t heal_character( Uint16 character, Uint16 healer, int amount, bool_t ignore_invictus );
 void spawn_poof( Uint16 character, Uint16 profile );
+void spawn_defense_ping( chr_t *pchr, Uint16 attacker );
+
 void reset_character_alpha( Uint16 character );
 void reset_character_accel( Uint16 character );
 bool_t detach_character_from_mount( Uint16 character, Uint8 ignorekurse, Uint8 doshop );

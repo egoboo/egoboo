@@ -2971,7 +2971,11 @@ int damage_character( Uint16 character, Uint16 direction,
         pchr->ai.directionlast = direction;
 
 		// Check for blocking and invictus, no need to continue if they have
-		if( is_invictus_direction(direction, character, effects) ) actual_damage = 0;
+		if( is_invictus_direction( direction, character, effects ) )
+		{
+			actual_damage = 0;
+			spawn_defense_ping( pchr, attacker );
+		}
 
         // Do it already
         if ( actual_damage > pchr->damagethreshold )
@@ -2989,9 +2993,9 @@ int damage_character( Uint16 character, Uint16 direction,
                     if ( !ChrList.lst[attacker].isplayer && pchr->isplayer ) actual_damage *= 0.75f;
                 }
 
-                if ( actual_damage != 0 )
+				if ( actual_damage != 0 )
                 {
-                    if ( 0 == ( effects & DAMFX_ARMO ) )
+                    if ( HAS_NO_BITS(DAMFX_ARMO, effects) )
                     {
                         actual_damage = ( actual_damage * pchr->defense  * INV_FF );
                     }
@@ -3042,20 +3046,12 @@ int damage_character( Uint16 character, Uint16 direction,
                             chr_play_action( pchr, action, bfalse );
 
                             // Make the character invincible for a limited time only
-                            if ( 0 == ( effects & DAMFX_TIME ) )
+                            if ( HAS_NO_BITS(effects, DAMFX_TIME ) )
                             {
                                 pchr->damagetime = DAMAGETIME;
                             }
                         }
                     }
-                }
-                else
-                {
-                    // Spawn a defend particle
-                    spawn_one_particle( pchr->pos, pchr->turn_z, MAX_PROFILE, PIP_DEFEND, MAX_CHR, GRIP_LAST, TEAM_NULL, MAX_CHR, TOTAL_MAX_PRT, 0, MAX_CHR );
-                    pchr->damagetime    = DEFENDTIME;
-                    pchr->ai.alert     |= ALERTIF_BLOCKED;
-                    pchr->ai.attacklast = attacker;     // For the ones attacking a shield
                 }
             }
 
@@ -3145,6 +3141,16 @@ int damage_character( Uint16 character, Uint16 direction,
     }
 
     return actual_damage;
+}
+
+//--------------------------------------------------------------------------------------------
+void spawn_defense_ping( chr_t *pchr, Uint16 attacker )
+{
+    //ZF> Spawn a defend particle
+    spawn_one_particle( pchr->pos, pchr->turn_z, MAX_PROFILE, PIP_DEFEND, MAX_CHR, GRIP_LAST, TEAM_NULL, MAX_CHR, TOTAL_MAX_PRT, 0, MAX_CHR );
+    pchr->damagetime    = DEFENDTIME;
+    pchr->ai.alert     |= ALERTIF_BLOCKED;
+    pchr->ai.attacklast = attacker;					// For the ones attacking a shield
 }
 
 //--------------------------------------------------------------------------------------------
@@ -6038,15 +6044,20 @@ bool_t is_invictus_direction( Uint16 direction, Uint16 character, Uint16 effects
     if ( HAS_SOME_BITS( effects, DAMFX_NBLOC ) ) return bfalse;
 
     // if the character's frame is invictus, then check the angles
-    if ( HAS_SOME_BITS( chr_get_framefx( pchr ), MADFX_INVICTUS ) )
+    if ( 0 != ( chr_get_framefx( pchr ) & MADFX_INVICTUS )) //HAS_SOME_BITS( chr_get_framefx( pchr ), MADFX_INVICTUS ) )
     {
+		bool_t using_shield;
+
 		//I Frame
         direction -= pcap->iframefacing;
         left       = 0xFFFF - pcap->iframeangle;
         right      = pcap->iframeangle;
 		
-        // If using shield, use the shield invictus instead
-        if ( pchr->inst.action_which >= ACTION_PA && pchr->inst.action_which <= ACTION_PD )
+		using_shield = pchr->inst.action_which >= ACTION_PA && pchr->inst.action_which <= ACTION_PD 
+			||  pchr->inst.action_next >= ACTION_PA && pchr->inst.action_next <= ACTION_PD;
+        
+		// If using shield, use the shield invictus instead
+        if ( using_shield )
         {
             // Using a shield?
             if ( pchr->inst.action_which < ACTION_PC )

@@ -4,7 +4,7 @@ IfOrdered
   tmpy = [UNDO]
   IfXIsEqualToY
     UndoEnchant
-    tmpargument = 0 - 500
+    tmpargument = -500
     SetContent // Won't come back...
 
 //------------------------------------------------------------------------------

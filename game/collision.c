@@ -1842,18 +1842,24 @@ bool_t do_chr_prt_collision_deflect( chr_t * pchr, prt_t * pprt, chr_prt_collsio
     bool_t chr_is_invictus, chr_can_deflect;
     bool_t prt_wants_deflection;
 
+	Uint16 direction;
+
     if ( NULL == pdata ) return bfalse;
 
     if ( !ACTIVE_PCHR( pchr ) ) return bfalse;
 
     if ( !ACTIVE_PPRT( pprt ) ) return bfalse;
 
+	direction = vec_to_facing( pprt->vel.x , pprt->vel.y );
+	direction = pchr->turn_z - direction + ATK_BEHIND;
+
     // shield block?
-	//chr_is_invictus = is_invictus_direction( direction, pchr->ai.index, pdata->ppip->damfx);		//@todo: ZF> this line should replace the two lines below, but
+	//chr_is_invictus = is_invictus_direction( direction, GET_INDEX_PCHR( pchr ), pdata->ppip->damfx );		//@todo: ZF> this line should replace the two lines below, but
 	chr_is_invictus = ( 0 != ( chr_get_framefx( pchr ) & MADFX_INVICTUS ) );						//		 doesn't work properly for some reason
     
+
 	// shield block can be counteracted by an unblockable particle
-    chr_is_invictus = chr_is_invictus && ( 0 == ( pdata->ppip->damfx & DAMFX_NBLOC ) );
+    chr_is_invictus = chr_is_invictus && ( HAS_NO_BITS( pdata->ppip->damfx, DAMFX_NBLOC ) );
 	
     // determine whether the character is magically protected from missile attacks
     prt_wants_deflection  = ( MISSILE_NORMAL != pchr->missiletreatment ) &&
@@ -1868,6 +1874,12 @@ bool_t do_chr_prt_collision_deflect( chr_t * pchr, prt_t * pprt, chr_prt_collsio
     {
         // magically deflect the particle or make a ricochet if the character is invictus
         int treatment;
+
+		//Blocked!
+		if ( chr_is_invictus )
+        {
+			spawn_defense_ping( pchr, pprt->owner_ref );
+		}
 
 		treatment = MISSILE_DEFLECT;
         prt_deflected = btrue;
@@ -2247,7 +2259,7 @@ bool_t do_chr_prt_collision_bump( chr_t * pchr, prt_t * pprt, chr_prt_collsion_d
     if ( !ACTIVE_PPRT( pprt ) ) return bfalse;
 
     // if the particle was deflected, then it can't bump the character
-    if ( pchr->invictus || pprt->attachedto_ref == GET_INDEX_PCHR( pchr ) ) return 0;
+    if ( pchr->invictus || pprt->attachedto_ref == GET_INDEX_PCHR( pchr ) ) return bfalse;
 
     prt_belongs_to_chr = ( GET_INDEX_PCHR( pchr ) == pprt->owner_ref );
 
