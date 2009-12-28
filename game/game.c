@@ -104,6 +104,9 @@ static bool_t collide_ray_with_characters( line_of_sight_info_t * plos );
 static bool_t do_line_of_sight( line_of_sight_info_t * plos );
 
 //--------------------------------------------------------------------------------------------
+void do_weather_spawn_particles();
+
+//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 static ego_mpd_t         _mesh[2];
@@ -1231,14 +1234,6 @@ int do_game_proc_running( game_process_t * gproc )
         est_max_fps  = 0.9 * est_max_fps + 0.1 * ( 1.0f - est_update_time * TARGET_UPS ) / PROFILE_QUERY( gfx_loop );
     }
 
-    /// @todo local_noplayers is not set correctly
-
-    // Check for quitters
-    // if( local_noplayers  )
-    // {
-    //  gproc->escape_requested  = btrue;
-    // }
-
     if ( gproc->escape_requested )
     {
         gproc->escape_requested = bfalse;
@@ -1546,8 +1541,6 @@ Uint16 chr_find_target( chr_t * psrc, float max_dist2, TARGET_TYPE target_type, 
 void do_damage_tiles()
 {
     Uint16 character;
-    int actual_damage;
-    //int distance;
 
     // do the damage tile stuff
     for ( character = 0; character < MAX_CHR; character++ )
@@ -1593,6 +1586,7 @@ void do_damage_tiles()
         // don't do direct damage to invulnerable objects
         if ( pchr->invictus ) continue;
 
+		//@todo: sound of lava sizzling and such
         //distance = ABS( PCamera->track_pos.x - pchr->pos.x ) + ABS( PCamera->track_pos.y - pchr->pos.y );
 
         //if ( distance < damagetile.min_distance )
@@ -1605,19 +1599,18 @@ void do_damage_tiles()
         //    damagetile.sound_time = 0;
         //}
 
-        actual_damage = 0;
         if ( 0 == pchr->damagetime )
         {
+		    int actual_damage;
             actual_damage = damage_character( character, ATK_BEHIND, damagetile.amount, damagetile.type, TEAM_DAMAGE, MAX_CHR, DAMFX_NBLOC | DAMFX_ARMO, bfalse );
             pchr->damagetime = DAMAGETILETIME;
+			
+			if (( actual_damage > 0 ) && ( -1 != damagetile.parttype ) && 0 == ( update_wld & damagetile.partand ) )
+			{
+				spawn_one_particle_global( pchr->pos, ATK_FRONT, damagetile.parttype, 0);
+			}
         }
-
-        if (( actual_damage > 0 ) && ( -1 != damagetile.parttype ) && 0 == ( update_wld & damagetile.partand ) )
-        {
-            spawn_one_particle( pchr->pos, 0, MAX_PROFILE, damagetile.parttype,
-                                MAX_CHR, GRIP_LAST, TEAM_NULL, MAX_CHR, TOTAL_MAX_PRT, 0, MAX_CHR );
-        }
-    }
+	}
 };
 
 //--------------------------------------------------------------------------------------------
@@ -1794,8 +1787,7 @@ void do_weather_spawn_particles()
                 if ( ACTIVE_CHR( cnt ) && !ChrList.lst[cnt].pack_ispacked )
                 {
                     // Yes, so spawn over that character
-                    particle = spawn_one_particle( ChrList.lst[cnt].pos, 0, MAX_PROFILE, PIP_WEATHER4, MAX_CHR, GRIP_LAST, TEAM_NULL, MAX_CHR, TOTAL_MAX_PRT, 0, MAX_CHR );
-
+					particle = spawn_one_particle_global( ChrList.lst[cnt].pos, ATK_FRONT, weather.particle, 0 );
                     if ( ACTIVE_PRT( particle ) )
                     {
                         prt_t * pprt = PrtList.lst + particle;
@@ -4350,6 +4342,7 @@ bool_t upload_weather_data( weather_instance_t * pinst, wawalite_weather_t * pda
         // copy the data
         pinst->timer_reset = pdata->timer_reset;
         pinst->over_water  = pdata->over_water;
+		pinst->particle = pdata->particle;
     }
 
     // set the new data

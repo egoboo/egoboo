@@ -2215,7 +2215,6 @@ Uint8 scr_ScoredAHit( script_state_t * pstate, ai_state_t * pself )
     else if ( ChrList.lst[pchr->attachedto].ai.lastitemused == pself->index )
     {
         returncode = HAS_SOME_BITS( ChrList.lst[pchr->attachedto].ai.alert, ALERTIF_SCOREDAHIT );
-        if ( returncode ) pself->target = ChrList.lst[pchr->attachedto].ai.hitlast;  //ZF> @todo: this shouldnt be needed, use SetTargetToWhoeverWasHit instead
     }
     else returncode = bfalse;
 

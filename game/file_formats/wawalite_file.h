@@ -108,8 +108,9 @@ typedef struct s_wawalite_damagetile wawalite_damagetile_t;
 /// A wrapper for the weather data in "wawalite.txt"
 struct s_wawalite_weather
 {
-    bool_t over_water;
-    int  timer_reset;
+    bool_t	over_water;
+    int		timer_reset;
+	Uint8	particle;			///< Which particle to spawn?
 };
 typedef struct s_wawalite_weather wawalite_weather_t;
 

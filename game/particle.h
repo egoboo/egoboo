@@ -25,12 +25,8 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
-#define PRTLEVELFIX         20                      ///< Fix for shooting over cliffs
-
 /// Particles
 #define MAXPARTICLEIMAGE                256         ///< Number of particle images ( frames )
-#define DYNAFANS  12
 
 /// Physics
 #define STOPBOUNCINGPART                5.0f         ///< To make particles stop bouncing
@@ -186,6 +182,7 @@ int prt_get_free( int force );
 Uint16 spawn_one_particle( fvec3_t   pos, Uint16 facing, Uint16 iprofile, Uint16 ipip,
                            Uint16 chr_attach, Uint16 vrt_offset, Uint8 team,
                            Uint16 chr_origin, Uint16 prt_origin, Uint16 multispawn, Uint16 oldtarget );
+#define spawn_one_particle_global( pos, facing, ipip, multispawn ) spawn_one_particle( pos, facing, MAX_PROFILE, ipip, MAX_CHR, GRIP_LAST, TEAM_NULL, MAX_CHR, TOTAL_MAX_PRT, multispawn, MAX_CHR );
 
 int prt_count_free();
 

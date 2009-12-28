@@ -214,6 +214,7 @@ wawalite_weather_t * read_wawalite_weather( vfs_FILE * fileread, wawalite_weathe
     if( NULL == fileread ) return pweather;
 
     // weather data
+	pweather->particle    = fget_next_int( fileread );			//@todo: allow text to be read here
     pweather->over_water  = fget_next_bool( fileread );
     pweather->timer_reset = fget_next_int( fileread );
 
@@ -433,6 +434,7 @@ bool_t write_wawalite_weather( vfs_FILE * filewrite, wawalite_weather_t * pweath
     if( NULL == filewrite || NULL == pweather ) return bfalse;
 
     // weather data
+    fput_int ( filewrite, "Weather particle effect ( 0 to 10, RAIN or SNOW )  :", pweather->particle );
     fput_bool( filewrite, "Weather particles only over water ( TRUE or FALSE )  :", pweather->over_water  );
     fput_int ( filewrite, "Weather particle spawn rate ( 0 to 100, 0 is none )  :", pweather->timer_reset );
 

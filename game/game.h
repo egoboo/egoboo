@@ -136,11 +136,12 @@ extern damagetile_instance_t damagetile;
 /// The data descibing the weather state
 struct s_weather_instance
 {
-    int   timer_reset;
-    bool_t  over_water;
+    int		timer_reset;		///< How long between each spawn?
+    bool_t  over_water;			///< Only spawn over water?
+	Uint8	particle;			///< Which particle to spawn?
 
     Uint16  iplayer;
-    int   time;                ///< 0 is no weather
+    int		time;                ///< 0 is no weather
 };
 typedef struct s_weather_instance weather_instance_t;
 extern weather_instance_t weather;
@@ -355,10 +356,9 @@ bool_t game_module_stop( game_module_t * pinst );
 
 bool_t check_target( struct s_chr * psrc, Uint16 ichr_test, TARGET_TYPE target_type, bool_t target_items, bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz, bool_t target_players );
 
-void do_weather_spawn_particles();
 void attach_particles();
 
-struct s_wawalite_data * read_wawalite( /* const char *modname */ );
+struct s_wawalite_data * read_wawalite();
 bool_t write_wawalite( const char *modname, struct s_wawalite_data * pdata );
 
 Uint8 get_local_alpha( int alpha );

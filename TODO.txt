@@ -7,14 +7,13 @@ MASTER TODO LIST:
 - Runes need to be repriced much like Arcane Spellbooks were
 - Troll in Griffin tower doesnt die properly
 - Rare crash bug with Tile Mimics in Sand Palace
-- Game crashes when using specific texture filter modes and billboards.
 - Healing cloud for Paladin and Healer is backwards
 - The Jive Elf is no longer loaded properly
 - Something is messing up the waypoints. In Tourist Starter platforms no longer move.
 - Lightning bugs
 - Brainscrambler daze ray doesnt work and Gonne shots do not hit, these two are probably related
 - Screenshots dont work
-- SetFrame doesnt seem to work properly.
+- SetFrame doesnt seem to work properly. (see mosquitoes)
 
 EGOBOO AWARDS:
 http://img.informer.com/awards/si_editor4.gif

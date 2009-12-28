@@ -1935,7 +1935,6 @@ void character_swipe( Uint16 ichr, slot_t slot )
     if ( !unarmed_attack && (( pweapon_cap->isstackable && pweapon->ammo > 1 ) || ( action >= ACTION_FA && action <= ACTION_FD ) ) )
     {
         // Throw the weapon if it's stacked or a hurl animation
-
         thrown = spawn_one_character( pchr->pos, pweapon->iprofile, chr_get_iteam( ichr ), 0, pchr->turn_z, pweapon->Name, MAX_CHR );
         if ( ACTIVE_CHR( thrown ) )
         {
@@ -1970,7 +1969,6 @@ void character_swipe( Uint16 ichr, slot_t slot )
     else
     {
         // A generic attack. Spawn the damage particle.
-
         if ( pweapon->ammomax == 0 || pweapon->ammo != 0 )
         {
             if ( pweapon->ammo > 0 && !pweapon_cap->isstackable )
@@ -2061,22 +2059,22 @@ void drop_money( Uint16 character, Uint16 money )
 
         for ( cnt = 0; cnt < ones; cnt++ )
         {
-            spawn_one_particle( ChrList.lst[character].pos, 0, MAX_PROFILE, PIP_COIN1, MAX_CHR, GRIP_LAST, TEAM_NULL, MAX_CHR, TOTAL_MAX_PRT, cnt, MAX_CHR );
+            spawn_one_particle_global( ChrList.lst[character].pos, ATK_FRONT, PIP_COIN1, cnt );
         }
 
         for ( cnt = 0; cnt < fives; cnt++ )
         {
-            spawn_one_particle( ChrList.lst[character].pos, 0, MAX_PROFILE, PIP_COIN5, MAX_CHR, GRIP_LAST, TEAM_NULL, MAX_CHR, TOTAL_MAX_PRT, cnt, MAX_CHR );
+            spawn_one_particle_global( ChrList.lst[character].pos, ATK_FRONT, PIP_COIN5, cnt );
         }
 
         for ( cnt = 0; cnt < tfives; cnt++ )
         {
-            spawn_one_particle( ChrList.lst[character].pos, 0, MAX_PROFILE, PIP_COIN25, MAX_CHR, GRIP_LAST, TEAM_NULL, MAX_CHR, TOTAL_MAX_PRT, cnt, MAX_CHR );
+            spawn_one_particle_global( ChrList.lst[character].pos, ATK_FRONT, PIP_COIN25, cnt );
         }
 
         for ( cnt = 0; cnt < huns; cnt++ )
         {
-            spawn_one_particle( ChrList.lst[character].pos, 0, MAX_PROFILE, PIP_COIN100, MAX_CHR, GRIP_LAST, TEAM_NULL, MAX_CHR, TOTAL_MAX_PRT, cnt, MAX_CHR );
+            spawn_one_particle_global( ChrList.lst[character].pos, ATK_FRONT, PIP_COIN100, cnt );
         }
 
         ChrList.lst[character].damagetime = DAMAGETIME;  // So it doesn't grab it again
@@ -2108,7 +2106,7 @@ void call_for_help( Uint16 character )
 //--------------------------------------------------------------------------------------------
 bool_t setup_xp_table( Uint16 icap )
 {
-    // This calculates the xp needed to reach next level and stores it in an array for later use
+    //ZF> This calculates the xp needed to reach next level and stores it in an array for later use
     Uint8 level;
     cap_t * pcap;
 
@@ -2236,6 +2234,7 @@ void give_experience( Uint16 character, int amount, Uint8 xptype, bool_t overrid
     pcap = chr_get_pcap( character );
     if ( NULL == pcap ) return;
 
+	//No xp to give
     if ( 0 == amount ) return;
 
     if ( !pchr->invictus || override_invictus )
@@ -3147,8 +3146,8 @@ int damage_character( Uint16 character, Uint16 direction,
 void spawn_defense_ping( chr_t *pchr, Uint16 attacker )
 {
     //ZF> Spawn a defend particle
-    spawn_one_particle( pchr->pos, pchr->turn_z, MAX_PROFILE, PIP_DEFEND, MAX_CHR, GRIP_LAST, TEAM_NULL, MAX_CHR, TOTAL_MAX_PRT, 0, MAX_CHR );
-    pchr->damagetime    = DEFENDTIME;
+    spawn_one_particle_global( pchr->pos, pchr->turn_z, PIP_DEFEND, 0 );
+	pchr->damagetime    = DEFENDTIME;
     pchr->ai.alert     |= ALERTIF_BLOCKED;
     pchr->ai.attacklast = attacker;					// For the ones attacking a shield
 }
@@ -4453,8 +4452,7 @@ void update_all_characters()
                 // Splash
                 fvec3_t   vtmp = VECT3( pchr->pos.x, pchr->pos.y, water.surface_level + RAISE );
 
-                spawn_one_particle( vtmp, 0, MAX_PROFILE, PIP_SPLASH, MAX_CHR, GRIP_LAST,
-                                    TEAM_NULL, MAX_CHR, TOTAL_MAX_PRT, 0, MAX_CHR );
+				spawn_one_particle_global( vtmp, ATK_FRONT, PIP_SPLASH, 0);
 
                 if ( water.is_water )
                 {
@@ -4489,9 +4487,8 @@ void update_all_characters()
                     {
                         fvec3_t   vtmp = VECT3( pchr->pos.x, pchr->pos.y, water.surface_level );
 
-                        spawn_one_particle( vtmp, 0, MAX_PROFILE, PIP_RIPPLE, MAX_CHR, GRIP_LAST,
-                                            TEAM_NULL, MAX_CHR, TOTAL_MAX_PRT, 0, MAX_CHR );
-                    }
+                        spawn_one_particle_global( vtmp, ATK_FRONT, PIP_RIPPLE, 0 );
+					}
                 }
 
                 if ( water.is_water && HAS_NO_BITS( update_wld, 7 ) )
