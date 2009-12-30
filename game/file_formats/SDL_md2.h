@@ -39,9 +39,9 @@ enum e_id_md2_constant
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-typedef float  vec3f_t[3];
-typedef Uint8  vec3uc_t[3];
-typedef Uint16 vec3us_t[3];
+typedef float  md2_vec3f_t[3];
+typedef Uint8  md2_vec3uc_t[3];
+typedef Uint16 md2_vec3us_t[3];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -94,15 +94,15 @@ typedef struct s_SDL_md2_texcoord SDL_md2_texcoord_t;
 /* Triangle info */
 struct s_SDL_md2_triangle
 {
-    vec3us_t vertex;
-    vec3us_t st;
+    md2_vec3us_t vertex;
+    md2_vec3us_t st;
 };
 typedef struct s_SDL_md2_triangle SDL_md2_triangle_t;
 
 /* Compressed vertex */
 struct s_SDL_md2_vertex
 {
-    vec3uc_t v;
+    md2_vec3uc_t v;
     Uint8    normalIndex;
 };
 typedef struct s_SDL_md2_vertex SDL_md2_vertex_t;
@@ -110,8 +110,8 @@ typedef struct s_SDL_md2_vertex SDL_md2_vertex_t;
 /* Model frame */
 struct s_SDL_md2_frame
 {
-    vec3f_t          scale;
-    vec3f_t          translate;
+    md2_vec3f_t          scale;
+    md2_vec3f_t          translate;
     char             name[16];
     SDL_md2_vertex_t *verts;
 };

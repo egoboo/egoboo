@@ -3949,7 +3949,7 @@ void dolist_make( ego_mpd_t * pmesh )
 {
     /// @details ZZ@> This function finds the characters that need to be drawn and puts them in the list
 
-    Uint32 cnt;
+    int cnt;
 
     // Remove everyone from the dolist
     for ( cnt = 0; cnt < dolist_count; cnt++ )

@@ -65,7 +65,7 @@ void clk_shutdown()
 struct s_ClockState
 {
     // Clock data
-    EGO_CONST char * name;
+    const char * name;
 
     double sourceStartTime;  // The first value the clock receives from above function
     double sourceLastTime;  // The last value the clock received from above function
@@ -144,7 +144,7 @@ bool_t clk_delete( ClockState_t * cs )
 
 ClockState_t * clk_renew( ClockState_t * cs )
 {
-    EGO_CONST char * name;
+    const char * name;
     int size;
 
     name = cs->name;

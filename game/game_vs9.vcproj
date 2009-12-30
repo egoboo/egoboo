@@ -45,7 +45,7 @@
 				EnableIntrinsicFunctions="false"
 				FavorSizeOrSpeed="0"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)enet\include&quot;;&quot;$(SolutionDir)game&quot;;file_formats;extensions"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)enet\include&quot;;&quot;$(SolutionDir)game&quot;;file_formats;platform;extensions"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -637,7 +637,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\sys_linux.c"
+				RelativePath=".\platform\sys_linux.c"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -657,7 +657,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\sys_mac.c"
+				RelativePath=".\platform\sys_mac.c"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -677,7 +677,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\sys_win32.c"
+				RelativePath=".\platform\sys_win32.c"
 				>
 			</File>
 		</Filter>
@@ -773,7 +773,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\file_linux.c"
+				RelativePath=".\platform\file_linux.c"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -793,7 +793,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\file_win.c"
+				RelativePath=".\platform\file_win.c"
 				>
 			</File>
 			<Filter
