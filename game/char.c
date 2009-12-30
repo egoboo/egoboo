@@ -4903,9 +4903,9 @@ void move_one_character_do_floor_friction( chr_t * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-void move_one_character_do_volontary( chr_t * pchr )
+void move_one_character_do_voluntary( chr_t * pchr )
 {
-    float  dvx, dvy, dvmax;
+    float dvx, dvy, dvmax;
     float maxspeed;
     float dv2;
     float new_ax, new_ay;
@@ -4922,7 +4922,7 @@ void move_one_character_do_volontary( chr_t * pchr )
 
     if ( !pchr->alive ) return;
 
-    // do volontary motion
+    // do voluntary motion
 
     pchr->enviro.new_vx = pchr->vel.x;
     pchr->enviro.new_vy = pchr->vel.y;
@@ -4935,98 +4935,98 @@ void move_one_character_do_volontary( chr_t * pchr )
     pframe_nxt  = frame_list + pchr->inst.frame_nxt;
     assert( pchr->inst.frame_nxt < frame_count );
 
-    // Character latches for generalized movement
-    dvx = pchr->latch.x;
-    dvy = pchr->latch.y;
-
-    // Reverse movements for daze
-    if ( pchr->dazetime > 0 )
+    dvx = dvy = 0.0f;
+    new_ax = new_ay = 0.0f;
+    if( ACTION_IS_TYPE(pchr->inst.action_which, P) )
     {
-        dvx = -dvx;
-        dvy = -dvy;
-    }
+        // handle the parry case of a parry/block animation
+        new_ax = -pchr->vel.x;
+        new_ay = -pchr->vel.y;
 
-    // Switch x and y for grog
-    if ( pchr->grogtime > 0 )
-    {
-        float savex;
-        savex = dvx;
-        dvx = dvy;
-        dvy = savex;
-    }
-
-    // this is the maximum speed that a character could go under the v2.22 system
-    maxspeed = pchr->maxaccel * airfriction / ( 1.0f - airfriction );
-
-    pchr->enviro.new_vx = pchr->enviro.new_vy = 0.0f;
-    if ( ABS( dvx ) + ABS( dvy ) > 0 )
-    {
-        dv2 = dvx * dvx + dvy * dvy;
-
-        if ( pchr->isplayer )
-        {
-            float speed;
-            float dv = POW( dv2, 0.25f );
-
-            if ( maxspeed < pchr->runspd )
-            {
-                maxspeed = pchr->runspd;
-                dv *= 0.75f;
-            }
-
-            if ( dv >= 1.0f )
-            {
-                speed = maxspeed;
-            }
-            else if ( dv >= 0.75f )
-            {
-                speed = ( dv - 0.75f ) / 0.25f * maxspeed + ( 1.0f - dv ) / 0.25f * pchr->runspd;
-            }
-            else if ( dv >= 0.50f )
-            {
-                speed = ( dv - 0.50f ) / 0.25f * pchr->runspd + ( 0.75f - dv ) / 0.25f * pchr->walkspd;
-            }
-            else if ( dv >= 0.25f )
-            {
-                speed = ( dv - 0.25f ) / 0.25f * pchr->walkspd + ( 0.25f - dv ) / 0.25f * pchr->sneakspd;
-            }
-            else
-            {
-                speed = dv / 0.25f * pchr->sneakspd;
-            }
-
-            pchr->enviro.new_vx = speed * dvx / dv;
-            pchr->enviro.new_vy = speed * dvy / dv;
-        }
-        else
-        {
-            float scale = 1.0f;
-
-            if ( dv2 > 1.0f )
-            {
-                scale = 1.0f / POW( dv2, 0.5f );
-            }
-            else
-            {
-                scale = POW( dv2, 0.25f ) / POW( dv2, 0.5f );
-            }
-
-            pchr->enviro.new_vx = dvx * maxspeed * scale;
-            pchr->enviro.new_vy = dvy * maxspeed * scale;
-        }
-    }
-
-    if ( ACTIVE_CHR( pchr->onwhichplatform ) )
-    {
-        chr_t * pplat = ChrList.lst + pchr->onwhichplatform;
-
-        new_ax = ( pplat->vel.x + pchr->enviro.new_vx - pchr->vel.x );
-        new_ay = ( pplat->vel.y + pchr->enviro.new_vy - pchr->vel.y );
+        pchr->enviro.new_vx = 0.0f;
+        pchr->enviro.new_vy = 0.0f;
     }
     else
     {
-        new_ax = ( pchr->enviro.new_vx - pchr->vel.x );
-        new_ay = ( pchr->enviro.new_vy - pchr->vel.y );
+        // Character latches for generalized movement
+        dvx = pchr->latch.x;
+        dvy = pchr->latch.y;
+
+        // Reverse movements for daze
+        if ( pchr->dazetime > 0 )
+        {
+            dvx = -dvx;
+            dvy = -dvy;
+        }
+
+        // Switch x and y for grog
+        if ( pchr->grogtime > 0 )
+        {
+            SWAP(float, dvx, dvy);
+        }
+
+        // this is the maximum speed that a character could go under the v2.22 system
+        maxspeed = pchr->maxaccel * airfriction / ( 1.0f - airfriction );
+
+        pchr->enviro.new_vx = pchr->enviro.new_vy = 0.0f;
+        if ( ABS( dvx ) + ABS( dvy ) > 0 )
+        {
+            dv2 = dvx * dvx + dvy * dvy;
+
+            if ( pchr->isplayer )
+            {
+                float speed;
+                float dv = POW( dv2, 0.25f );
+
+                if ( maxspeed < pchr->runspd )
+                {
+                    maxspeed = pchr->runspd;
+                    dv *= 0.75f;
+                }
+
+                if ( dv >= 1.0f )
+                {
+                    speed = maxspeed;
+                }
+                else if ( dv >= 0.75f )
+                {
+                    speed = ( dv - 0.75f ) / 0.25f * maxspeed + ( 1.0f - dv ) / 0.25f * pchr->runspd;
+                }
+                else if ( dv >= 0.50f )
+                {
+                    speed = ( dv - 0.50f ) / 0.25f * pchr->runspd + ( 0.75f - dv ) / 0.25f * pchr->walkspd;
+                }
+                else if ( dv >= 0.25f )
+                {
+                    speed = ( dv - 0.25f ) / 0.25f * pchr->walkspd + ( 0.25f - dv ) / 0.25f * pchr->sneakspd;
+                }
+                else
+                {
+                    speed = dv / 0.25f * pchr->sneakspd;
+                }
+
+                pchr->enviro.new_vx = speed * dvx / dv;
+                pchr->enviro.new_vy = speed * dvy / dv;
+            }
+            else
+            {
+                float scale = 1.0f;
+
+                if ( dv2 > 1.0f )
+                {
+                    scale = 1.0f / POW( dv2, 0.5f );
+                }
+                else
+                {
+                    scale = POW( dv2, 0.25f ) / POW( dv2, 0.5f );
+                }
+
+                pchr->enviro.new_vx = dvx * maxspeed * scale;
+                pchr->enviro.new_vy = dvy * maxspeed * scale;
+            }
+        }
+
+
     }
 
     dvmax = pchr->maxaccel;
@@ -5035,8 +5035,19 @@ void move_one_character_do_volontary( chr_t * pchr )
     if ( new_ay < -dvmax ) new_ay = -dvmax;
     if ( new_ay >  dvmax ) new_ay =  dvmax;
 
-    //pchr->enviro.new_vx = new_ax * airfriction / (1.0f - airfriction);
-    //pchr->enviro.new_vy = new_ay * airfriction / (1.0f - airfriction);
+    // do platform friction
+    if ( ACTIVE_CHR( pchr->onwhichplatform ) )
+    {
+        chr_t * pplat = ChrList.lst + pchr->onwhichplatform;
+
+        new_ax += ( pplat->vel.x + pchr->enviro.new_vx - pchr->vel.x );
+        new_ay += ( pplat->vel.y + pchr->enviro.new_vy - pchr->vel.y );
+    }
+    else
+    {
+        new_ax += ( pchr->enviro.new_vx - pchr->vel.x );
+        new_ay += ( pchr->enviro.new_vy - pchr->vel.y );
+    }
 
     new_ax *= pchr->enviro.traction;
     new_ay *= pchr->enviro.traction;
@@ -5044,11 +5055,11 @@ void move_one_character_do_volontary( chr_t * pchr )
     //Figure out how to turn around
     switch ( pchr->turnmode )
     {
-
             // Get direction from ACTUAL change in velocity
-    default: case TURNMODE_VELOCITY:
+            default: 
+            case TURNMODE_VELOCITY:
             {
-                if ( dvx < -TURNSPD || dvx > TURNSPD || dvy < -TURNSPD || dvy > TURNSPD )
+                if ( ABS(dvx) > TURNSPD || ABS(dvy) > TURNSPD )
                 {
                     if ( pchr->isplayer )
                     {
@@ -5100,7 +5111,6 @@ void move_one_character_do_volontary( chr_t * pchr )
     }
     else
     {
-        // Limit to max acceleration
         pchr->vel.x += new_ax;
         pchr->vel.y += new_ay;
     }
@@ -5951,10 +5961,10 @@ void move_one_character( chr_t * pchr )
 
     move_one_character_get_environment( pchr );
 
-    // do friction with the floor before volontary motion
+    // do friction with the floor before voluntary motion
     move_one_character_do_floor_friction( pchr );
 
-    move_one_character_do_volontary( pchr );
+    move_one_character_do_voluntary( pchr );
 
     chr_do_latch_button( pchr );
 

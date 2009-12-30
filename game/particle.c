@@ -2004,7 +2004,7 @@ bool_t move_one_particle( prt_t * pprt )
     // what is the local environment like?
     move_one_particle_get_environment( pprt );
 
-    // do friction with the floor before volontary motion
+    // do friction with the floor before voluntary motion
     move_one_particle_do_floor_friction( pprt );
 
     move_one_particle_do_homing( pprt );
